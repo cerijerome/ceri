@@ -1,0 +1,324 @@
+/**
+ * Created on Jan 5, 2006
+ */
+package ceri.common.util;
+
+public class MathUtil {
+	private static final char ZERO = '0';
+	private static final int BASE10 = 10;
+
+	/**
+	 * Converts a long value into an array of digits in base 10.
+	 */
+	public static byte[] digits(long value) {
+		return digits(value, BASE10);
+	}
+
+	/**
+	 * Converts a long value into an array of digits in given radix. If radix is
+	 * outside of Character.MIN_RADIX and Character.MAX_RADIX then 10 is used.
+	 */
+	public static byte[] digits(long value, int radix) {
+		String valueStr = Long.toString(value, radix);
+		byte[] digits = new byte[valueStr.length()];
+		for (int i = 0; i < digits.length; i++) {
+			char ch = valueStr.charAt(i);
+			digits[i] = (byte) (ch >= 'a' ? ch - 'a' + 10 : ch - ZERO);
+		}
+		return digits;
+	}
+
+	/**
+	 * Comparison of two integers, 1 (lhs > rhs), 0 (lhs = rhs), -1 (lhs < rhs)
+	 */
+	public static int compare(int lhs, int rhs) {
+		if (lhs == rhs) return 0;
+		return (lhs > rhs ? 1 : -1);
+	}
+
+	/**
+	 * Factorial value (value!). Double is used as values may be larger than
+	 * long can handle.
+	 */
+	public static double factorial(long value) {
+		if (value < 0) throw new IllegalArgumentException(value + "! not defined.");
+		if (value == 0) return 1;
+		return value * factorial(value - 1);
+	}
+
+	/**
+	 * Factorial value (value!). Checks and throws exception if factorial value
+	 * is too big for long type.
+	 */
+	public static long longFactorial(long value) {
+		double factorial = factorial(value);
+		if (factorial > Long.MAX_VALUE) throw new IllegalArgumentException(value +
+			"! is larger than long type allows: " + factorial);
+		return (long) factorial;
+	}
+
+	/**
+	 * Returns the value at given index on given level of Pascal's triangle.
+	 * Defined as: c!/r!(c-r)! where level = c, index = r.
+	 */
+	public static long pascal(long level, long index) {
+		if (level < 0 || index < 0 || index > level) return 0;
+		return (long) (factorial(level, index) / factorial(index));
+	}
+
+	/**
+	 * Returns the percentage for a value in a range.
+	 * Returns NaN for a zero range.
+	 */
+	public static double percentage(double value, double range) {
+		if (range == 0) return Double.NaN;
+		// Optimization for large range values
+		if (range > 100) return (value / range) * 100;
+		return (value * 100) / range;
+	}
+
+	/**
+	 * Returns the value for a percentage of a range.
+	 */
+	public static double valueFromPercentage(double percentage, double range) {
+		// Optimization for large range values
+		if (range > 100) return percentage * (range / 100); 
+		// Optimization for large percentage values
+		if (percentage > 100) return (percentage / 100) * range; 
+		return (percentage * range) / 100;
+	}
+
+	/**
+	 * Increments all values in the primitive array. If the amount is negative
+	 * the values will be decremented.
+	 */
+	public static byte[] increment(byte[] array, byte amount) {
+		if (amount != 0) for (int i = 0; i < array.length; i++)
+			array[i] += amount;
+		return array;
+	}
+
+	/**
+	 * Increments all values in the primitive array. If the amount is negative
+	 * the values will be decremented.
+	 */
+	public static short[] increment(short[] array, short amount) {
+		if (amount != 0) for (int i = 0; i < array.length; i++)
+			array[i] += amount;
+		return array;
+	}
+
+	/**
+	 * Increments all values in the primitive array. If the amount is negative
+	 * the values will be decremented.
+	 */
+	public static int[] increment(int[] array, int amount) {
+		if (amount != 0) for (int i = 0; i < array.length; i++)
+			array[i] += amount;
+		return array;
+	}
+
+	/**
+	 * Increments all values in the primitive array. If the amount is negative
+	 * the values will be decremented.
+	 */
+	public static long[] increment(long[] array, long amount) {
+		if (amount != 0) for (int i = 0; i < array.length; i++)
+			array[i] += amount;
+		return array;
+	}
+
+	/**
+	 * Increments all values in the primitive array. If the amount is negative
+	 * the values will be decremented.
+	 */
+	public static float[] increment(float[] array, float amount) {
+		if (amount != 0) for (int i = 0; i < array.length; i++)
+			array[i] += amount;
+		return array;
+	}
+
+	/**
+	 * Increments all values in the primitive array. If the amount is negative
+	 * the values will be decremented.
+	 */
+	public static double[] increment(double[] array, double amount) {
+		if (amount != 0) for (int i = 0; i < array.length; i++)
+			array[i] += amount;
+		return array;
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array, or 0 if the array has
+	 * no values.
+	 */
+	public static byte min(byte[] array) {
+		if (array.length == 0) return 0;
+		byte min = Byte.MAX_VALUE;
+		for (byte val : array)
+			if (min > val) min = val;
+		return min;
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array, or 0 if the array has
+	 * no values.
+	 */
+	public static short min(short[] array) {
+		if (array.length == 0) return 0;
+		short min = Short.MAX_VALUE;
+		for (short val : array)
+			if (min > val) min = val;
+		return min;
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array, or 0 if the array has
+	 * no values.
+	 */
+	public static int min(int[] array) {
+		if (array.length == 0) return 0;
+		int min = Integer.MAX_VALUE;
+		for (int val : array)
+			if (min > val) min = val;
+		return min;
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array, or 0 if the array has
+	 * no values.
+	 */
+	public static long min(long[] array) {
+		if (array == null) return 0;
+		long min = Long.MAX_VALUE;
+		for (long val : array)
+			if (min > val) min = val;
+		return min;
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array, or 0 if the array has
+	 * no values.
+	 */
+	public static float min(float[] array) {
+		if (array == null) return 0;
+		float min = Float.MAX_VALUE;
+		for (float val : array)
+			if (min > val) min = val;
+		return min;
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array, or 0 if the array has
+	 * no values.
+	 */
+	public static double min(double[] array) {
+		if (array == null) return 0;
+		double min = Double.MAX_VALUE;
+		for (double val : array)
+			if (min > val) min = val;
+		return min;
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array, or 0 if the array has
+	 * no values.
+	 */
+	public static byte max(byte[] array) {
+		if (array == null) return 0;
+		byte max = Byte.MIN_VALUE;
+		for (byte val : array)
+			if (max < val) max = val;
+		return max;
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array, or 0 if the array has
+	 * no values.
+	 */
+	public static short max(short[] array) {
+		if (array == null) return 0;
+		short max = Short.MIN_VALUE;
+		for (short val : array)
+			if (max < val) max = val;
+		return max;
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array, or 0 if the array has
+	 * no values.
+	 */
+	public static int max(int[] array) {
+		if (array == null) return 0;
+		int max = Integer.MIN_VALUE;
+		for (int val : array)
+			if (max < val) max = val;
+		return max;
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array, or 0 if the array has
+	 * no values.
+	 */
+	public static long max(long[] array) {
+		if (array == null) return 0;
+		long max = Long.MIN_VALUE;
+		for (long val : array)
+			if (max < val) max = val;
+		return max;
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array, or 0 if the array has
+	 * no values.
+	 */
+	public static float max(float[] array) {
+		if (array == null) return 0;
+		float max = Float.MIN_VALUE;
+		for (float val : array)
+			if (max < val) max = val;
+		return max;
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array, or 0 if the array has
+	 * no values.
+	 */
+	public static double max(double[] array) {
+		if (array == null) return 0;
+		double max = Double.MIN_VALUE;
+		for (double val : array)
+			if (max < val) max = val;
+		return max;
+	}
+
+	/**
+	 * Returns the short value of an unsigned byte.
+	 */
+	public static short unsignedByte(byte b) {
+		return (short) ((0x100 + b) & 0xff);
+	}
+
+	/**
+	 * Returns the int value of an unsigned short.
+	 */
+	public static int unsignedShort(short b) {
+		return (0x10000 + b) & 0xffff;
+	}
+
+	/**
+	 * Returns the long value of an unsigned int.
+	 */
+	public static long unsignedInt(int i) {
+		return (0x100000000L + i) & 0xffffffffL;
+	}
+
+	/**
+	 * c!/(c-r)! where value = c, count = r.
+	 */
+	private static double factorial(long value, long count) {
+		if (value == 0 || count == 0) return 1;
+		return value * factorial(value - 1, count - 1);
+	}
+
+}

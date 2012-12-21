@@ -1,0 +1,93 @@
+package ceri.common;
+
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import ceri.common.collection.ArrayIteratorBehavior;
+import ceri.common.collection.ArrayUtilTest;
+import ceri.common.collection.CollectionUtilTest;
+import ceri.common.collection.ImmutableIterableBehavior;
+import ceri.common.collection.ReverseListIteratorBehavior;
+import ceri.common.comparator.BaseComparatorBehavior;
+import ceri.common.comparator.ComparatorSequenceBehavior;
+import ceri.common.comparator.ComparatorsTest;
+import ceri.common.comparator.EnumComparatorsTest;
+import ceri.common.comparator.ReverseComparatorBehavior;
+import ceri.common.io.BlockingBufferStreamBehavior;
+import ceri.common.io.ByteBufferStreamBehavior;
+import ceri.common.io.FileFiltersTest;
+import ceri.common.io.FileIteratorBehavior;
+import ceri.common.io.FileTrackerBehavior;
+import ceri.common.io.FilenameIteratorBehavior;
+import ceri.common.io.IoUtilTest;
+import ceri.common.io.RegexFilenameFilterBehavior;
+import ceri.common.reflect.ReflectUtilTest;
+import ceri.common.test.TestUtil;
+import ceri.common.tree.NodeTreeBehavior;
+import ceri.common.tree.TreeIteratorBehavior;
+import ceri.common.tree.TreeNodeBehavior;
+import ceri.common.tree.TreeNodeComparatorsTest;
+import ceri.common.tree.TreeUtilTest;
+import ceri.common.util.AsyncRunnerBehavior;
+import ceri.common.util.BasicUtilTest;
+import ceri.common.util.FixedSizeCacheBehavior;
+import ceri.common.util.HashCoderBehavior;
+import ceri.common.util.LocaleUtilTest;
+import ceri.common.util.MathUtilTest;
+import ceri.common.util.PrimitiveUtilTest;
+import ceri.common.util.StringUtilTest;
+import ceri.common.util.TextUtilTest;
+import ceri.common.util.ToStringHelperBehavior;
+import ceri.common.zip.ZipUtilTest;
+import ceri.common.zip.ZippingInputStreamBehavior;
+
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+	// collection
+	ArrayIteratorBehavior.class,
+	ArrayUtilTest.class,
+	CollectionUtilTest.class,
+	ImmutableIterableBehavior.class,
+	ReverseListIteratorBehavior.class,
+	// comparator
+	BaseComparatorBehavior.class,
+	ComparatorSequenceBehavior.class,
+	ComparatorsTest.class,
+	EnumComparatorsTest.class,
+	ReverseComparatorBehavior.class,
+	// io
+	BlockingBufferStreamBehavior.class,
+	ByteBufferStreamBehavior.class,
+	FileFiltersTest.class,
+	FileIteratorBehavior.class,
+	FilenameIteratorBehavior.class,
+	FileTrackerBehavior.class,
+	IoUtilTest.class,
+	RegexFilenameFilterBehavior.class,
+	// reflect
+	ReflectUtilTest.class,
+	// tree
+	NodeTreeBehavior.class,
+	TreeIteratorBehavior.class,
+	TreeNodeBehavior.class,
+	TreeNodeComparatorsTest.class,
+	TreeUtilTest.class,
+	// util
+	AsyncRunnerBehavior.class,
+	BasicUtilTest.class,
+	FixedSizeCacheBehavior.class,
+	HashCoderBehavior.class,
+	LocaleUtilTest.class,
+	MathUtilTest.class,
+	PrimitiveUtilTest.class,
+	StringUtilTest.class,
+	TextUtilTest.class,
+	ToStringHelperBehavior.class,
+	// zip
+	ZippingInputStreamBehavior.class,
+	ZipUtilTest.class,
+})
+public class _Tests {
+	public static void main(String... args) {
+		TestUtil.exec(_Tests.class);
+	}
+}
