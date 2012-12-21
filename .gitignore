@@ -1,0 +1,4 @@
+# Ignore paths and file patterns
+*.class
+bin/
+
