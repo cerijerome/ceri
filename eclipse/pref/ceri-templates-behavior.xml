@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template autoinsert="true" context="java" deleted="false" description="Sets up static imports for unit test class" enabled="true" name="behavior">${:import(org.junit.Test)}
+@Test
+public void should() {
+	${cursor}
+}
+
+</template></templates>
