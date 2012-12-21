@@ -1,0 +1,50 @@
+GIT notes
+=========
+
+Installation
+------------
+Installed in /usr/local/git
+export PATH=$PATH:/usr/local/git/bin/
+
+
+Config
+------
+/etc/gitconfig (every user)
+~/.gitconfig   (user-specific)
+.git/config    (repo-specific)
+
+
+Set up identity
+---------------
+git config --global user.name "Ceri Jerome"
+git config --global user.email cerijerome@gmail.com
+(--global for ~/.gitconfig, otherwise .git/config)
+git config --list
+
+
+Ignore paths and files
+----------------------
+.gitignore in project root
+*.class
+bin/
+Can add user-specific .gitignore
+
+
+Set up a repo
+-------------
+Set up repo on github.com
+git init
+git remote add origin <https|ssh>
+git pull origin master => pull from remote
+git push origin master => push to remote
+
+
+General actions
+---------------
+git status => check status of repo
+git add <file> => start tracking, and stage a file/dir (sub dirs + files)
+git rm <file> => stop tracking, may need -f
+git commit -m "<msg>" => commit staged files
+git commit -a -m "<msg>" => commit modified tracked files
+
+
