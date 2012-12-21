@@ -1,6 +1,5 @@
 package ceri.aws.util;
 
-import static ceri.common.test.Debugger.DBG;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -117,7 +116,6 @@ public class TarringInputStream extends FilterInputStream {
 			return false;
 		}
 		String filePath = fileIterator.next();
-		DBG.log("open: " + filePath);
 		File file = new File(fileIterator.rootDir, filePath);
 		TarArchiveEntry entry = new TarArchiveEntry(file);
 		entry.setName(filePath);

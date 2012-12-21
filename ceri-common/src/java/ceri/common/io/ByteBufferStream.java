@@ -1,6 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.test.Debugger.DBG;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.BufferUnderflowException;
@@ -57,14 +56,12 @@ public class ByteBufferStream extends ByteArrayOutputStream {
 
 	@Override
 	public void write(int b) {
-		DBG.log(b);
 		if (closed) throw new IllegalStateException("Output is closed.");
 		super.write(b);
 	}
 
 	@Override
 	public void write(byte[] b, int off, int len) {
-		DBG.log(b, off, len);
 		if (closed) throw new IllegalStateException("Output is closed.");
 		super.write(b, off, len);
 	}
@@ -75,7 +72,6 @@ public class ByteBufferStream extends ByteArrayOutputStream {
 	}
 	
 	protected int read() {
-		DBG.log();
 		if (available() == 0) {
 			if (closed) return -1;
 			throw new BufferUnderflowException();
@@ -86,7 +82,6 @@ public class ByteBufferStream extends ByteArrayOutputStream {
 	}
 	
 	protected int read(byte[] b, int off, int len) {
-		DBG.log(b, off, len);
         if (b == null) throw new NullPointerException();
         if (off < 0 || len < 0 || len > b.length - off) throw new IndexOutOfBoundsException();
         if (len == 0) return 0;
@@ -104,7 +99,6 @@ public class ByteBufferStream extends ByteArrayOutputStream {
 	}
 	
 	private void compact(int offset) {
-		DBG.log(offset);
 		if (offset == 0) return;
 		if (count < offset) throw new IllegalStateException();
         int len = count - offset;

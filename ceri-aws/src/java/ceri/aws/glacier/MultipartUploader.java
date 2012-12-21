@@ -1,6 +1,5 @@
 package ceri.aws.glacier;
 
-import static ceri.common.test.Debugger.DBG;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -114,7 +113,6 @@ public class MultipartUploader {
 
 	private UploadMultipartPartResult uploadPart(String uploadId, byte[] data, int offset, int len,
 		long position) {
-		DBG.log(uploadId, data, offset, len, position);
 		String range = ByteRange.asString(position, len);
 		String checksum = AwsUtil.checksumOfData(data, offset, len);
 		UploadMultipartPartRequest request =
