@@ -34,11 +34,12 @@ public class ZipUtilTest {
 	@Test
 	public void testZipWithStream() throws IOException {
 		File unzipDir = helper.file("unzip");
-		ByteBufferStream stream = new ByteBufferStream();
-		ZipUtil.zip(srcDir, stream);
-		ZipUtil.unzip(stream.asInputStream(), unzipDir);
-		assertDir(unzipDir, srcDir);
-		IoUtil.deleteAll(unzipDir);
+		try (ByteBufferStream stream = new ByteBufferStream()) {
+			ZipUtil.zip(srcDir, stream);
+			ZipUtil.unzip(stream.asInputStream(), unzipDir);
+			assertDir(unzipDir, srcDir);
+			IoUtil.deleteAll(unzipDir);
+		}
 	}
 
 	@Test
@@ -59,15 +60,13 @@ public class ZipUtilTest {
 		for (char i = 'a'; i < 'f'; i++)
 			for (char j = 'a'; j < 'f'; j++)
 				builder.file(i + "/" + j + "/x", "abcdefghijklmnopqrstuvwxyz");
-		FileTestHelper zipHelper = builder.build();
-		File unzipDir = new File(helper.root, "unzip");
-
-		byte[] zipData = ZipUtil.zipAsBytes(zipHelper.root);
-		ZipUtil.unzip(zipData, unzipDir);
-		assertDir(unzipDir, zipHelper.root);
-
-		zipHelper.close();
-		IoUtil.deleteAll(unzipDir);
+		try (FileTestHelper zipHelper = builder.build()) {
+			File unzipDir = new File(helper.root, "unzip");
+			byte[] zipData = ZipUtil.zipAsBytes(zipHelper.root);
+			ZipUtil.unzip(zipData, unzipDir);
+			assertDir(unzipDir, zipHelper.root);
+			IoUtil.deleteAll(unzipDir);
+		}
 	}
 
 	@Test
@@ -76,38 +75,36 @@ public class ZipUtilTest {
 		FileTestHelper.Builder builder = FileTestHelper.builder(helper.root).root("zip");
 		for (int i = 100; i < 300; i++)
 			builder.file("z" + i, "abcdefghijklmnopqrstuvwxyz");
-		FileTestHelper zipHelper = builder.build();
-		File unzipDir = new File(helper.root, "unzip");
-
-		byte[] zipData = ZipUtil.zipAsBytes(zipHelper.root);
-		ZipUtil.unzip(zipData, unzipDir);
-		assertDir(unzipDir, zipHelper.root);
-
-		zipHelper.close();
-		IoUtil.deleteAll(unzipDir);
+		try (FileTestHelper zipHelper = builder.build()) {
+			File unzipDir = new File(helper.root, "unzip");
+			byte[] zipData = ZipUtil.zipAsBytes(zipHelper.root);
+			ZipUtil.unzip(zipData, unzipDir);
+			assertDir(unzipDir, zipHelper.root);
+			IoUtil.deleteAll(unzipDir);
+		}
 	}
-
+	
 	@Test
 	public void testZipWithChecksum() throws IOException {
 		// Create files z100..299 with contents a..z
 		FileTestHelper.Builder builder = FileTestHelper.builder(helper.root).root("zip");
 		for (int i = 100; i < 250; i++)
 			builder.file(i + "/z" + i, "abcdefghijklmnopqrstuvwxyz");
-		FileTestHelper zipHelper = builder.build();
-		File unzipDir = new File(helper.root, "unzip");
-
-		ByteBufferStream stream = new ByteBufferStream();
-		Checksum zipChecksum = new Adler32();
-		ZipUtil.zip(zipHelper.root, stream, zipChecksum, 100);
-		Checksum unzipChecksum = new Adler32();
-		ZipUtil.unzip(stream.asInputStream(), unzipDir, unzipChecksum, 100);
-
-		assertDir(unzipDir, zipHelper.root);
-		// Checksum fails depending on buffer boundaries, unzip seems to leave unread data.
-		assertThat(unzipChecksum.getValue(), is(zipChecksum.getValue()));
-
-		zipHelper.close();
-		IoUtil.deleteAll(unzipDir);
+		try (
+			FileTestHelper zipHelper = builder.build();
+			ByteBufferStream stream = new ByteBufferStream()
+		) {
+			File unzipDir = new File(helper.root, "unzip");
+			Checksum zipChecksum = new Adler32();
+			ZipUtil.zip(zipHelper.root, stream, zipChecksum, 100);
+			Checksum unzipChecksum = new Adler32();
+			ZipUtil.unzip(stream.asInputStream(), unzipDir, unzipChecksum, 100);
+	
+			assertDir(unzipDir, zipHelper.root);
+			// Checksum fails depending on buffer boundaries, unzip seems to leave unread data.
+			assertThat(unzipChecksum.getValue(), is(zipChecksum.getValue()));
+			IoUtil.deleteAll(unzipDir);
+		}
 	}
-
+	
 }

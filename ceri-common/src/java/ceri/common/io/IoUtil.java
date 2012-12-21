@@ -199,15 +199,14 @@ public class IoUtil {
 	 */
 	public static void copyFile(File src, File dest) throws IOException {
 		FileTracker tracker = new FileTracker().file(dest); // creates parent dirs
-		InputStream in = new BufferedInputStream(new FileInputStream(src));
-		OutputStream out = new BufferedOutputStream(new FileOutputStream(dest));
-		try {
+		try (
+			InputStream in = new BufferedInputStream(new FileInputStream(src));
+			OutputStream out = new BufferedOutputStream(new FileOutputStream(dest));
+		) {
 			transferContent(in, out, 0);
 		} catch (IOException e) {
 			tracker.delete();
-		} finally {
-			close(out);
-			close(in);
+			throw e;
 		}
 	}
 
@@ -215,11 +214,8 @@ public class IoUtil {
 	 * Gets content from a file as a byte array.
 	 */
 	public static byte[] getContent(File file) throws IOException {
-		InputStream in = new BufferedInputStream(new FileInputStream(file));
-		try {
+		try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
 			return getContent(in, 0);
-		} finally {
-			close(in);
 		}
 	}
 
@@ -252,11 +248,8 @@ public class IoUtil {
 	 * Writes bytes from input stream to a file.
 	 */
 	public static void setContent(File file, InputStream in) throws IOException {
-		OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
-		try {
+		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
 			transferContent(in, out, 0);
-		} finally {
-			close(out);
 		}
 	}
 
@@ -264,12 +257,9 @@ public class IoUtil {
 	 * Writes byte array content to a file.
 	 */
 	public static void setContent(File file, byte[] content) throws IOException {
-		OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
-		try {
+		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
 			out.write(content);
 			out.flush();
-		} finally {
-			close(out);
 		}
 	}
 
@@ -333,11 +323,8 @@ public class IoUtil {
 	 * Gets resource from same package as class. Use 0 for default buffer size.
 	 */
 	public static byte[] getResource(Class<?> cls, String resourceName) throws IOException {
-		InputStream in = cls.getResourceAsStream(resourceName);
-		try {
+		try (InputStream in = cls.getResourceAsStream(resourceName)) {
 			return IoUtil.getContent(in, 0);
-		} finally {
-			close(in);
 		}
 	}
 

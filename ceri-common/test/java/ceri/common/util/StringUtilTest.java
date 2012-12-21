@@ -58,11 +58,12 @@ public class StringUtilTest {
 	@Test
 	public void testAsPrintStream() {
 		StringBuilder b = new StringBuilder();
-		PrintStream p = StringUtil.asPrintStream(b);
-		p.println("Testing1");
-		p.println("\0\b\t\f\'\"");
-		p.close();
-		assertThat(b.toString(), is("Testing1\n\0\b\t\f\'\"\n"));
+		try (PrintStream p = StringUtil.asPrintStream(b)) {
+			p.println("Testing1");
+			p.println("\0\b\t\f\'\"");
+			p.close();
+			assertThat(b.toString(), is("Testing1\n\0\b\t\f\'\"\n"));
+		}
 	}
-
+	
 }

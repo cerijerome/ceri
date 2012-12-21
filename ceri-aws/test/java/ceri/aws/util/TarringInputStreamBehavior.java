@@ -68,14 +68,12 @@ public class TarringInputStreamBehavior {
 		for (char i = 'a'; i < 'f'; i++)
 			for (char j = 'a'; j < 'f'; j++)
 				builder.file(i + "/" + j + "/x", contentS);
-		FileTestHelper tarHelper = builder.build();
 		File untarDir = new File(helper.root, "untar");
-
-		TarringInputStream in = new TarringInputStream(tarHelper.root, gzip);
-		TarUtil.untar(in, untarDir, gzip);
-		assertDir(untarDir, tarHelper.root);
-
-		tarHelper.close();
+		try (FileTestHelper tarHelper = builder.build()) {
+			TarringInputStream in = new TarringInputStream(tarHelper.root, gzip);
+			TarUtil.untar(in, untarDir, gzip);
+			assertDir(untarDir, tarHelper.root);
+		}
 		IoUtil.deleteAll(untarDir);
 	}
 
@@ -85,14 +83,12 @@ public class TarringInputStreamBehavior {
 		FileTestHelper.Builder builder = FileTestHelper.builder(helper.root).root("tar");
 		for (int i = 100; i < 300; i++)
 			builder.file("z" + i, contentS);
-		FileTestHelper tarHelper = builder.build();
 		File untarDir = new File(helper.root, "untar");
-
-		TarringInputStream in = new TarringInputStream(tarHelper.root, gzip);
-		TarUtil.untar(in, untarDir, gzip);
-		assertDir(untarDir, tarHelper.root);
-
-		tarHelper.close();
+		try (FileTestHelper tarHelper = builder.build()) {
+			TarringInputStream in = new TarringInputStream(tarHelper.root, gzip);
+			TarUtil.untar(in, untarDir, gzip);
+			assertDir(untarDir, tarHelper.root);
+		}
 		IoUtil.deleteAll(untarDir);
 	}
 
@@ -102,20 +98,18 @@ public class TarringInputStreamBehavior {
 		FileTestHelper.Builder builder = FileTestHelper.builder(helper.root).root("tar");
 		for (int i = 100; i < 200; i++)
 			builder.file(i + "/z" + i, contentS);
-		FileTestHelper tarHelper = builder.build();
 		File untarDir = new File(helper.root, "untar");
-
-		Checksum tarChecksum = new Adler32();
-		FilenameIterator fileIterator = new FilenameIterator(tarHelper.root);
-		TarringInputStream in = new TarringInputStream(fileIterator, gzip, tarChecksum, 100, 100);
-		Checksum untarChecksum = new Adler32();
-		TarUtil.untar(in, untarDir, gzip, untarChecksum, 128);
-
-		assertDir(untarDir, tarHelper.root);
-		// Checksum fails depending on buffer boundaries, untar seems to leave unread data.
-		assertThat(untarChecksum.getValue(), is(tarChecksum.getValue()));
-
-		tarHelper.close();
+		try (FileTestHelper tarHelper = builder.build()) {
+			Checksum tarChecksum = new Adler32();
+			FilenameIterator fileIterator = new FilenameIterator(tarHelper.root);
+			TarringInputStream in = new TarringInputStream(fileIterator, gzip, tarChecksum, 100, 100);
+			Checksum untarChecksum = new Adler32();
+			TarUtil.untar(in, untarDir, gzip, untarChecksum, 128);
+	
+			assertDir(untarDir, tarHelper.root);
+			// Checksum fails depending on buffer boundaries, untar seems to leave unread data.
+			assertThat(untarChecksum.getValue(), is(tarChecksum.getValue()));
+		}
 		IoUtil.deleteAll(untarDir);
 	}
 

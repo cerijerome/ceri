@@ -60,13 +60,14 @@ public class IoUtilTest {
 		File toFile = helper.file("x/x/x.txt");
 		IoUtil.copyFile(helper.file("a/a/a.txt"), toFile);
 
-		FileInputStream in = new FileInputStream(toFile);
-		byte[] b = new byte[5];
-		assertThat(in.read(b), is(3));
-		assertThat(b, is(new byte[] { 'a', 'a', 'a', 0, 0 }));
-		IoUtil.deleteAll(helper.file("x"));
+		try (FileInputStream in = new FileInputStream(toFile)) {
+			byte[] b = new byte[5];
+			assertThat(in.read(b), is(3));
+			assertThat(b, is(new byte[] { 'a', 'a', 'a', 0, 0 }));
+			IoUtil.deleteAll(helper.file("x"));
+		}
 	}
-
+	
 	@Test
 	public void testCreateTempDir() {
 		File tempDir = IoUtil.createTempDir(new File("."));
@@ -89,17 +90,17 @@ public class IoUtilTest {
 
 	@Test
 	public void testDeleteEmptyDirs() throws IOException {
-		FileTestHelper deleteHelper =
+		try (FileTestHelper deleteHelper =
 			FileTestHelper.builder(helper.root).dir("x/x/x").file("y/y.txt", "").dir("z")
-				.build();
-		assertTrue(deleteHelper.file("x/x/x").exists());
-		assertTrue(deleteHelper.file("y/y.txt").exists());
-		assertTrue(deleteHelper.file("z").exists());
-		IoUtil.deleteEmptyDirs(deleteHelper.root);
-		assertFalse(deleteHelper.file("x/x/x").exists());
-		assertTrue(deleteHelper.file("y/y.txt").exists());
-		assertFalse(deleteHelper.file("z").exists());
-		deleteHelper.close();
+				.build()) {
+			assertTrue(deleteHelper.file("x/x/x").exists());
+			assertTrue(deleteHelper.file("y/y.txt").exists());
+			assertTrue(deleteHelper.file("z").exists());
+			IoUtil.deleteEmptyDirs(deleteHelper.root);
+			assertFalse(deleteHelper.file("x/x/x").exists());
+			assertTrue(deleteHelper.file("y/y.txt").exists());
+			assertFalse(deleteHelper.file("z").exists());
+		}
 	}
 
 	@Test

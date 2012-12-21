@@ -37,9 +37,10 @@ public class Roms {
 			File masterFile = new File(listRoot, listFile + ".txt");
 			Set<String> masterList = readLines(masterFile);
 			File file = new File(outRoot, "out_" + listFile + ".txt");
-			PrintStream out = new PrintStream(file);
-			write(out, masterList, typeLists);
-			out.flush();
+			try (PrintStream out = new PrintStream(file)) {
+				write(out, masterList, typeLists);
+				out.flush();
+			}
 		}
 	}
 	
@@ -73,14 +74,14 @@ public class Roms {
 	
 	private static Set<String> readLines(File file) throws IOException {
 		Set<String> lines = new TreeSet<>();
-		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-		String line;
-		while ((line = in.readLine()) != null) {
-			if (line.contains(".")) continue;
-			lines.add(line);
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+			String line;
+			while ((line = in.readLine()) != null) {
+				if (line.contains(".")) continue;
+				lines.add(line);
+			}
+			return lines;
 		}
-		in.close();
-		return lines;
 	}
 	
 }

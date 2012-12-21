@@ -33,21 +33,20 @@ public class CheckedStreamTest {
 			InputStream bIn = new ByteArrayInputStream(b);
 			InputStream bfIn = new BufferedInputStream(bIn);
 			InputStream cIn = new CheckedInputStream(bfIn, inChecksum);
-			InputStream in = cIn;
-			byte[] buffer = new byte[len];
-			int count = in.read(buffer);
-			in.close();
-			assertThat(count, is(buffer.length));
+			try (InputStream in = cIn) {
+				byte[] buffer = new byte[len];
+				int count = in.read(buffer);
+				assertThat(count, is(buffer.length));
+			}
 
 			Checksum outChecksum = new Adler32();
 			ByteArrayOutputStream bOut = new ByteArrayOutputStream(50);
 			OutputStream bfOut = new BufferedOutputStream(bOut);
 			OutputStream cOut = new CheckedOutputStream(bfOut, outChecksum);
-			OutputStream out = cOut;
-			out.write(b, 0, len);
-			out.flush();
-			out.close();
-
+			try (OutputStream out = cOut) {
+				out.write(b, 0, len);
+				out.flush();
+			}
 			assertThat(inChecksum.getValue(), is(outChecksum.getValue()));
 		}
 	}
@@ -59,18 +58,18 @@ public class CheckedStreamTest {
 		ByteArrayOutputStream bOut = new ByteArrayOutputStream();
 		CheckedOutputStream cOut =
 			new CheckedOutputStream(new BufferedOutputStream(bOut), outChecksum);
-		ZipOutputStream zOut = new ZipOutputStream(cOut);
-		int count = 1000;
-		for (int i = 0; i < count; i++) {
-			ZipEntry entry = new ZipEntry("z" + (100 + i));
-			entry.setTime(0);
-			zOut.putNextEntry(entry);
-			zOut.write("abcdefghijklmnopqrstuvwxyz".getBytes());
-			zOut.closeEntry();
+		try (ZipOutputStream zOut = new ZipOutputStream(cOut)) {
+			int count = 1000;
+			for (int i = 0; i < count; i++) {
+				ZipEntry entry = new ZipEntry("z" + (100 + i));
+				entry.setTime(0);
+				zOut.putNextEntry(entry);
+				zOut.write("abcdefghijklmnopqrstuvwxyz".getBytes());
+				zOut.closeEntry();
+			}
+			zOut.flush();
+			zOut.finish();
 		}
-		zOut.flush();
-		zOut.finish();
-		zOut.close();
 
 		System.out.println("out-chk: " + outChecksum.getValue());
 		byte[] b = bOut.toByteArray();
@@ -79,24 +78,26 @@ public class CheckedStreamTest {
 		Checksum inChecksum = new Adler32();
 		ByteArrayInputStream bIn = new ByteArrayInputStream(bOut.toByteArray());
 		BufferedInputStream bfIn = new BufferedInputStream(bIn);
+		@SuppressWarnings("resource")
 		CheckedInputStream cIn = new CheckedInputStream(bfIn, inChecksum);
-		ZipInputStream zIn = new ZipInputStream(cIn);
-		ZipEntry entry;
-		byte[] buffer = new byte[20000];
-		n = zIn.read(buffer);
-		System.out.println(n);
-
-		while ((entry = zIn.getNextEntry()) != null) {
-			System.out.print(entry.getName() + ": ");
+		try (ZipInputStream zIn = new ZipInputStream(cIn)) {
+			ZipEntry entry;
+			byte[] buffer = new byte[20000];
 			n = zIn.read(buffer);
-			System.out.println(n + ": " + new String(buffer, 0, n));
-			zIn.closeEntry();
-		}
-		InputStream in = cIn;
-		while (true) {
-			n = in.read(new byte[100000]);
-			System.out.print(n + " ");
-			if (n == -1 || n == 0) break;
+			System.out.println(n);
+	
+			while ((entry = zIn.getNextEntry()) != null) {
+				System.out.print(entry.getName() + ": ");
+				n = zIn.read(buffer);
+				System.out.println(n + ": " + new String(buffer, 0, n));
+				zIn.closeEntry();
+			}
+			InputStream in = cIn;
+			while (true) {
+				n = in.read(new byte[100000]);
+				System.out.print(n + " ");
+				if (n == -1 || n == 0) break;
+			}
 		}
 		System.out.println();
 		System.out.println("out-chk: " + outChecksum.getValue());

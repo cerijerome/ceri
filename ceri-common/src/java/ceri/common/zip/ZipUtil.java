@@ -43,7 +43,9 @@ public class ZipUtil {
 	 * Creates ZIP file from all files under given directory.
 	 */
 	public static void zip(File dirToZip, File outputFile) throws IOException {
-		zip(dirToZip, new FileOutputStream(outputFile));
+		try (OutputStream out = new FileOutputStream(outputFile)) {
+			zip(dirToZip, out);
+		}
 	}
 
 	/**
@@ -74,24 +76,18 @@ public class ZipUtil {
 		int bufferSize) throws IOException {
 		OutputStream bOut = new BufferedOutputStream(out);
 		OutputStream cOut = checksum == null ? bOut : new CheckedOutputStream(bOut, checksum);
-		ZipOutputStream zOut = new ZipOutputStream(cOut);
-		try {
+		try (ZipOutputStream zOut = new ZipOutputStream(cOut)) {
 			for (String filePath : BasicUtil.forEach(iterator)) {
 				File file = new File(iterator.rootDir, filePath);
 				if (!file.isFile()) continue;
 				ZipEntry entry = new ZipEntry(filePath);
 				zOut.putNextEntry(entry);
-				InputStream in = new BufferedInputStream(new FileInputStream(file));
-				try {
+				try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
 					IoUtil.transferContent(in, zOut, bufferSize);
-				} finally {
-					IoUtil.close(in);
 				}
 				zOut.closeEntry();
 			}
 			zOut.flush();
-		} finally {
-			IoUtil.close(zOut);
 		}
 	}
 
@@ -108,7 +104,9 @@ public class ZipUtil {
 	 * are cleaned up.
 	 */
 	public static void unzip(File zipFile, File unzipDir) throws IOException {
-		unzip(new FileInputStream(zipFile), unzipDir);
+		try (InputStream in = new FileInputStream(zipFile)) {
+			unzip(in, unzipDir);
+		}
 	}
 
 	/**
@@ -130,21 +128,17 @@ public class ZipUtil {
 		throws IOException {
 		InputStream cIn = checksum == null ? in : new CheckedInputStream(in, checksum);
 		InputStream bIn = new BufferedInputStream(cIn);
-		ZipInputStream zIn = new ZipInputStream(bIn);
 		ZipEntry entry;
 		FileTracker tracker = new FileTracker();
-		try {
+		try (ZipInputStream zIn = new ZipInputStream(bIn)) {
 			while ((entry = zIn.getNextEntry()) != null) {
 				File file = new File(unzipDir, entry.getName());
 				if (entry.isDirectory()) {
 					tracker.dir(file);
 				} else {
 					tracker.file(file);
-					OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
-					try {
+					try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
 						IoUtil.transferContent(zIn, out, bufferSize);
-					} finally {
-						IoUtil.close(out);
 					}
 				}
 				zIn.closeEntry();
@@ -156,8 +150,6 @@ public class ZipUtil {
 		} catch (RuntimeException e) {
 			tracker.delete();
 			throw e;
-		} finally {
-			IoUtil.close(zIn);
 		}
 	}
 

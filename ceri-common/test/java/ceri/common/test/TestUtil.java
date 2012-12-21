@@ -124,9 +124,10 @@ public class TestUtil {
 			lhsFile.length(), is(rhsFile.length()));
 		byte[] lhsBuffer = new byte[BUFFER_SIZE];
 		byte[] rhsBuffer = new byte[BUFFER_SIZE];
-		InputStream lhsIn = new BufferedInputStream(new FileInputStream(lhsFile));
-		InputStream rhsIn = new BufferedInputStream(new FileInputStream(rhsFile));
-		try {
+		try (
+			InputStream lhsIn = new BufferedInputStream(new FileInputStream(lhsFile));
+			InputStream rhsIn = new BufferedInputStream(new FileInputStream(rhsFile));
+		) {
 			int totalCount = 0;
 			while (true) {
 				int lhsCount = IoUtil.fillBuffer(lhsIn, lhsBuffer);
@@ -141,9 +142,6 @@ public class TestUtil {
 				}
 				totalCount += lhsCount;
 			}
-		} finally {
-			IoUtil.close(lhsIn);
-			IoUtil.close(rhsIn);
 		}
 	}
 

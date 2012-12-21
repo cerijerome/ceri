@@ -54,7 +54,9 @@ public class TarUtil {
 	 * output stream.
 	 */
 	public static void tar(File dirToTar, File tarFile, Compression compression) throws IOException {
-		tar(dirToTar, new FileOutputStream(tarFile), compression, null, 0);
+		try (OutputStream out = new FileOutputStream(tarFile)) {
+			tar(dirToTar, out, compression, null, 0);
+		}
 	}
 
 	/**
@@ -87,27 +89,20 @@ public class TarUtil {
 		OutputStream bOut = new BufferedOutputStream(out);
 		OutputStream cOut = checksum == null ? bOut : new CheckedOutputStream(bOut, checksum);
 		OutputStream zOut = compressedOutputStream(cOut, compression);
-		TarArchiveOutputStream tOut = new TarArchiveOutputStream(zOut);
-		try {
+		try (TarArchiveOutputStream tOut = new TarArchiveOutputStream(zOut)) {
 			for (String filePath : BasicUtil.forEach(iterator)) {
 				File file = new File(iterator.rootDir, filePath);
 				TarArchiveEntry entry = new TarArchiveEntry(file);
 				entry.setName(filePath);
 				tOut.putArchiveEntry(entry);
 				if (file.isFile()) {
-					InputStream in =
-						new BufferedInputStream(new FileInputStream(file));
-					try {
+					try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
 						IoUtil.transferContent(in, tOut, bufferSize);
-					} finally {
-						IoUtil.close(in);
 					}
 				}
 				tOut.closeArchiveEntry();
 			}
 			tOut.finish();
-		} finally {
-			IoUtil.close(tOut);
 		}
 	}
 
@@ -125,7 +120,9 @@ public class TarUtil {
 	 * needed from file suffix. If an exception occurs files are cleaned up.
 	 */
 	public static void untar(File tarFile, File untarDir) throws IOException {
-		untar(new FileInputStream(tarFile), untarDir, compressionFromFilename(tarFile.getName()));
+		try (InputStream in = new FileInputStream(tarFile)) {
+			untar(in, untarDir, compressionFromFilename(tarFile.getName()));
+		}
 	}
 
 	/**
@@ -134,7 +131,9 @@ public class TarUtil {
 	 */
 	public static void untar(File tarFile, File untarDir, Compression compression)
 		throws IOException {
-		untar(new FileInputStream(tarFile), untarDir, compression);
+		try (InputStream in = new FileInputStream(tarFile)) {
+			untar(in, untarDir, compression);
+		}
 	}
 
 	/**
@@ -158,21 +157,17 @@ public class TarUtil {
 		InputStream cIn = checksum == null ? in : new CheckedInputStream(in, checksum);
 		InputStream bIn = new BufferedInputStream(cIn);
 		InputStream zIn = compressedInputStream(bIn, compression);
-		TarArchiveInputStream tIn = new TarArchiveInputStream(zIn);
 		TarArchiveEntry entry;
 		FileTracker tracker = new FileTracker();
-		try {
+		try (TarArchiveInputStream tIn = new TarArchiveInputStream(zIn)) {
 			while ((entry = tIn.getNextTarEntry()) != null) {
 				File file = new File(untarDir, entry.getName());
 				if (entry.isDirectory()) {
 					tracker.dir(file);
 				} else {
 					tracker.file(file);
-					OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
-					try {
+					try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
 						IoUtil.transferContent(tIn, out, bufferSize);
-					} finally {
-						IoUtil.close(out);
 					}
 				}
 			}
@@ -187,8 +182,6 @@ public class TarUtil {
 		} catch (RuntimeException e) {
 			tracker.delete();
 			throw e;
-		} finally {
-			IoUtil.close(tIn);
 		}
 	}
 
@@ -220,8 +213,9 @@ public class TarUtil {
 			return new GzipCompressorOutputStream(out);
 		case bzip2:
 			return new BZip2CompressorOutputStream(out);
+		default:
+			return out;
 		}
-		return out;
 	}
 
 }

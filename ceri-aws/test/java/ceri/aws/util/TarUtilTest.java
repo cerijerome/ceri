@@ -77,14 +77,12 @@ public class TarUtilTest {
 		for (char i = 'a'; i < 'f'; i++)
 			for (char j = 'a'; j < 'f'; j++)
 				builder.file(i + "/" + j + "/x", contentS);
-		FileTestHelper tarHelper = builder.build();
 		File untarDir = new File(helper.root, "untar");
-
-		byte[] tarData = TarUtil.tarAsBytes(tarHelper.root, none);
-		TarUtil.untar(tarData, untarDir, none);
-		assertDir(untarDir, tarHelper.root);
-
-		tarHelper.close();
+		try (FileTestHelper tarHelper = builder.build()) {
+			byte[] tarData = TarUtil.tarAsBytes(tarHelper.root, none);
+			TarUtil.untar(tarData, untarDir, none);
+			assertDir(untarDir, tarHelper.root);
+		}
 		IoUtil.deleteAll(untarDir);
 	}
 
@@ -94,14 +92,12 @@ public class TarUtilTest {
 		FileTestHelper.Builder builder = FileTestHelper.builder(helper.root).root("tar");
 		for (int i = 100; i < 300; i++)
 			builder.file("z" + i, contentS);
-		FileTestHelper tarHelper = builder.build();
 		File untarDir = new File(helper.root, "untar");
-
-		byte[] tarData = TarUtil.tarAsBytes(tarHelper.root, none);
-		TarUtil.untar(tarData, untarDir, none);
-		assertDir(untarDir, tarHelper.root);
-
-		tarHelper.close();
+		try (FileTestHelper tarHelper = builder.build()) {
+			byte[] tarData = TarUtil.tarAsBytes(tarHelper.root, none);
+			TarUtil.untar(tarData, untarDir, none);
+			assertDir(untarDir, tarHelper.root);
+		}
 		IoUtil.deleteAll(untarDir);
 	}
 
@@ -111,19 +107,17 @@ public class TarUtilTest {
 		FileTestHelper.Builder builder = FileTestHelper.builder(helper.root).root("tar");
 		for (int i = 100; i < 200; i++)
 			builder.file(i + "/z" + i, contentS);
-		FileTestHelper tarHelper = builder.build();
 		File untarDir = new File(helper.root, "untar");
-
-		ByteBufferStream stream = new ByteBufferStream();
-		Checksum tarChecksum = new Adler32();
-		TarUtil.tar(tarHelper.root, stream, gzip, tarChecksum, 100);
-		Checksum untarChecksum = new Adler32();
-		TarUtil.untar(stream.asInputStream(), untarDir, gzip, untarChecksum, 100);
-
-		assertDir(untarDir, tarHelper.root);
-		assertThat(untarChecksum.getValue(), is(tarChecksum.getValue()));
-
-		tarHelper.close();
+		try (FileTestHelper tarHelper = builder.build()) {
+			ByteBufferStream stream = new ByteBufferStream();
+			Checksum tarChecksum = new Adler32();
+			TarUtil.tar(tarHelper.root, stream, gzip, tarChecksum, 100);
+			Checksum untarChecksum = new Adler32();
+			TarUtil.untar(stream.asInputStream(), untarDir, gzip, untarChecksum, 100);
+	
+			assertDir(untarDir, tarHelper.root);
+			assertThat(untarChecksum.getValue(), is(tarChecksum.getValue()));
+		}
 		IoUtil.deleteAll(untarDir);
 	}
 
