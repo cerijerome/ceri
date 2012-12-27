@@ -62,7 +62,7 @@ public class StringUtilTest {
 			p.println("Testing1");
 			p.println("\0\b\t\f\'\"");
 			p.close();
-			assertThat(b.toString(), is("Testing1\n\0\b\t\f\'\"\n"));
+			assertThat(b.toString(), is("Testing1" + System.lineSeparator() + "\0\b\t\f\'\"" + System.lineSeparator()));
 		}
 	}
 	

@@ -19,11 +19,14 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * I/O utility functions.
  */
 public class IoUtil {
+	public static final String REGEX_SEPARATOR = "\\" + File.separatorChar;
+	private static final Pattern UNIX_PATH_REGEX = Pattern.compile(REGEX_SEPARATOR);
 	private static final int MAX_UUID_ATTEMPTS = 10; // Shouldn't be needed
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 32;
 
@@ -107,6 +110,21 @@ public class IoUtil {
 	}
 
 	/**
+	 * Convert file path to unix-style 
+	 */
+	public static String toUnixPath(File file) {
+		return toUnixPath(file.getPath());
+	}
+	
+	/**
+	 * Convert file path to unix-style 
+	 */
+	public static String toUnixPath(String path) {
+		if (File.separatorChar == '/') return path;
+		return UNIX_PATH_REGEX.matcher(path).replaceAll("/");
+	}
+	
+	/**
 	 * Returns the set of relative file paths under a given directory.
 	 */
 	public static List<String> getFilenames(File dir) {
@@ -160,26 +178,33 @@ public class IoUtil {
 	 * Returns the file path relative to a given dir. Or the returns the file if
 	 * not relative.
 	 */
-	public static String getRelativePath(File dir, File file) {
-		String filename = getAbsolutePath(file);
+	public static String getRelativeUnixPath(File dir, File file) throws IOException {
+		dir = dir.getCanonicalFile();
+		String fileName = toUnixPath(file.getCanonicalPath());
 		String backPath = "";
 		while (dir != null) {
-			String dirname = getAbsolutePath(dir) + "/";
-			if (filename.startsWith(dirname)) return backPath +
-				filename.substring(dirname.length());
+			String dirName = toUnixPath(dir);
+			if (!dirName.endsWith("/")) dirName += "/";
+			System.out.println(dir + " ==> " + dirName);
+			if (fileName.startsWith(dirName)) return backPath +
+				fileName.substring(dirName.length());
 			backPath += "../";
 			dir = dir.getParentFile();
+			System.out.println(dir);
 		}
-		return filename;
+		return fileName;
 	}
 
-	/**
-	 * Returns the absolute path of a file/dir with '/' separator.
-	 */
-	public static String getAbsolutePath(File file) {
-		return file.getAbsolutePath().replace(File.separator, "/");
+	public static String rootUnixPath(File file) {
+		return rootUnixPath(file.getAbsolutePath());
 	}
-
+	
+	public static String rootUnixPath(String path) {
+		int i = path.indexOf(File.separatorChar);
+		if (i == -1) return "/";
+		return path.substring(0, i) + "/";
+	}
+	
 	/**
 	 * Deletes all empty directories under this directory.
 	 */

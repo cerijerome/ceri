@@ -3,6 +3,7 @@ package ceri.common.test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,13 +12,17 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+
 import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsSame;
 import org.junit.runner.JUnitCore;
+
 import ceri.common.io.IoUtil;
 import ceri.common.util.BasicUtil;
 
@@ -185,6 +190,24 @@ public class TestUtil {
 		return BasicUtil.uncheckedCast(is);
 	}
 
+	/**
+	 * Convert collection of files to list of unix-format paths
+	 */
+	public static List<String> toUnixFromFile(Collection<File> files) {
+		List<String> unixPaths = new ArrayList<>();
+		for (File file : files) unixPaths.add(IoUtil.toUnixPath(file));
+		return unixPaths;
+	}
+	
+	/**
+	 * Convert collection of files to list of unix-format paths
+	 */
+	public static List<String> toUnixFromPath(Collection<String> paths) {
+		List<String> unixPaths = new ArrayList<>();
+		for (String path : paths) unixPaths.add(IoUtil.toUnixPath(path));
+		return unixPaths;
+	}
+	
 	/**
 	 * Create a random string of given size.
 	 */

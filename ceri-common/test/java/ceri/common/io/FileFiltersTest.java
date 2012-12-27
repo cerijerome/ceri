@@ -65,7 +65,7 @@ public class FileFiltersTest {
 		FileFilter filter = new FileFilter() {
 			@Override
 			public boolean accept(File pathname) {
-				return pathname.getPath().endsWith("/a");
+				return pathname.getPath().endsWith(File.separatorChar + "a");
 			}
 		};
 		List<File> list = IoUtil.getFiles(helper.root, filter);

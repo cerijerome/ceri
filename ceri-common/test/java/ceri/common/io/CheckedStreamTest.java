@@ -78,7 +78,6 @@ public class CheckedStreamTest {
 		Checksum inChecksum = new Adler32();
 		ByteArrayInputStream bIn = new ByteArrayInputStream(bOut.toByteArray());
 		BufferedInputStream bfIn = new BufferedInputStream(bIn);
-		@SuppressWarnings("resource")
 		CheckedInputStream cIn = new CheckedInputStream(bfIn, inChecksum);
 		try (ZipInputStream zIn = new ZipInputStream(cIn)) {
 			ZipEntry entry;

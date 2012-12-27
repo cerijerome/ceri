@@ -43,7 +43,7 @@ public class RegexFilenameFilterBehavior {
 	@Test
 	public void testMatchesAbsolutePath() {
 		RegexFilenameFilter filter =
-			new RegexFilenameFilter(true, ".*/" + helper.root.getName() + "/.*");
+			new RegexFilenameFilter(true, ".*" + IoUtil.REGEX_SEPARATOR + helper.root.getName() + IoUtil.REGEX_SEPARATOR + ".*");
 		String[] filenames = helper.root.list(filter);
 		assertThat(filenames, isArray("a", "b", "c.txt"));
 	}

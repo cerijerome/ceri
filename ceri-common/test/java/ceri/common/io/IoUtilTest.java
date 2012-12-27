@@ -64,8 +64,8 @@ public class IoUtilTest {
 			byte[] b = new byte[5];
 			assertThat(in.read(b), is(3));
 			assertThat(b, is(new byte[] { 'a', 'a', 'a', 0, 0 }));
-			IoUtil.deleteAll(helper.file("x"));
 		}
+		IoUtil.deleteAll(helper.file("x"));
 	}
 	
 	@Test
@@ -104,13 +104,6 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testGetAbsolutePath() {
-		File file = new File(new File(new File("a"), "b"), "c");
-		String path = IoUtil.getAbsolutePath(file);
-		assertTrue(path.endsWith("/a/b/c"));
-	}
-
-	@Test
 	public void testGetChar() throws IOException {
 		assertThat(IoUtil.getChar(), is('\0'));
 	}
@@ -144,13 +137,13 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testGetRelativePath() {
-		String relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/d/e/f"));
-		assertThat(relative, is("/d/e/f"));
-		relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/a/b/c/d/e"));
-		assertThat(relative, is("d/e"));
-		relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/a/x/y"));
-		assertThat(relative, is("../../x/y"));
+	public void testGetRelativeUnixPath() throws IOException {
+		String relative = IoUtil.getRelativeUnixPath(new File("/a/b/c"), new File("/d/e/f"));
+		assertThat(IoUtil.toUnixPath(relative), is("../../../d/e/f"));
+		relative = IoUtil.getRelativeUnixPath(new File("/a/b/c"), new File("/a/b/c/d/e"));
+		assertThat(IoUtil.toUnixPath(relative), is("d/e"));
+		relative = IoUtil.getRelativeUnixPath(new File("/a/b/c"), new File("/a/x/y"));
+		assertThat(IoUtil.toUnixPath(relative), is("../../x/y"));
 	}
 
 	@Test
