@@ -195,7 +195,7 @@ public class TestUtil {
 	 */
 	public static List<String> toUnixFromFile(Collection<File> files) {
 		List<String> unixPaths = new ArrayList<>();
-		for (File file : files) unixPaths.add(IoUtil.toUnixPath(file));
+		for (File file : files) unixPaths.add(IoUtil.getPath(file));
 		return unixPaths;
 	}
 	
@@ -204,7 +204,7 @@ public class TestUtil {
 	 */
 	public static List<String> toUnixFromPath(Collection<String> paths) {
 		List<String> unixPaths = new ArrayList<>();
-		for (String path : paths) unixPaths.add(IoUtil.toUnixPath(path));
+		for (String path : paths) unixPaths.add(IoUtil.convertPath(path));
 		return unixPaths;
 	}
 	

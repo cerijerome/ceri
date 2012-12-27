@@ -138,12 +138,12 @@ public class IoUtilTest {
 
 	@Test
 	public void testGetRelativeUnixPath() throws IOException {
-		String relative = IoUtil.getRelativeUnixPath(new File("/a/b/c"), new File("/d/e/f"));
-		assertThat(IoUtil.toUnixPath(relative), is("../../../d/e/f"));
-		relative = IoUtil.getRelativeUnixPath(new File("/a/b/c"), new File("/a/b/c/d/e"));
-		assertThat(IoUtil.toUnixPath(relative), is("d/e"));
-		relative = IoUtil.getRelativeUnixPath(new File("/a/b/c"), new File("/a/x/y"));
-		assertThat(IoUtil.toUnixPath(relative), is("../../x/y"));
+		String relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/d/e/f"));
+		assertThat(IoUtil.convertPath(relative), is("../../../d/e/f"));
+		relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/a/b/c/d/e"));
+		assertThat(IoUtil.convertPath(relative), is("d/e"));
+		relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/a/x/y"));
+		assertThat(IoUtil.convertPath(relative), is("../../x/y"));
 	}
 
 	@Test

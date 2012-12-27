@@ -37,6 +37,24 @@ public class FileFilters {
 		};
 	}
 	
+	public static FileFilter byModifiedSince(final long ms) {
+		return new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.lastModified() > ms;
+			}
+		};
+	}
+	
+	public static FileFilter byMaxLength(final long maxSize) {
+		return new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.length() <= maxSize;
+			}
+		};
+	}
+	
 	private FileFilters() {}
 	
 }

@@ -29,8 +29,8 @@ public class FilenameIteratorBehavior {
 	public void shouldHaveRelativeFilePaths() {
 		FilenameIterator iterator = new FilenameIterator(helper.root);
 		assertThat(iterator.next(), is("a"));
-		assertThat(IoUtil.toUnixPath(iterator.next()), is("a/a"));
-		assertThat(IoUtil.toUnixPath(iterator.next()), is("a/a/a.txt"));
+		assertThat(IoUtil.convertPath(iterator.next()), is("a/a"));
+		assertThat(IoUtil.convertPath(iterator.next()), is("a/a/a.txt"));
 	}
 
 	@Test

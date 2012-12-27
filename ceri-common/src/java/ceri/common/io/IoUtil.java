@@ -25,6 +25,9 @@ import java.util.regex.Pattern;
  * I/O utility functions.
  */
 public class IoUtil {
+	/**
+	 * File path separator which can be used inside regex.
+	 */
 	public static final String REGEX_SEPARATOR = "\\" + File.separatorChar;
 	private static final Pattern UNIX_PATH_REGEX = Pattern.compile(REGEX_SEPARATOR);
 	private static final int MAX_UUID_ATTEMPTS = 10; // Shouldn't be needed
@@ -35,8 +38,7 @@ public class IoUtil {
 	}
 
 	/**
-	 * Create a temp dir with random name under given dir. Use null for current
-	 * dir.
+	 * Create a temp dir with random name under given dir. Use null for current dir.
 	 */
 	public static File createTempDir(File rootDir) {
 		FileTracker tracker = new FileTracker();
@@ -112,28 +114,28 @@ public class IoUtil {
 	/**
 	 * Convert file path to unix-style 
 	 */
-	public static String toUnixPath(File file) {
-		return toUnixPath(file.getPath());
+	public static String getPath(File file) {
+		return convertPath(file.getPath());
 	}
 	
 	/**
 	 * Convert file path to unix-style 
 	 */
-	public static String toUnixPath(String path) {
+	public static String convertPath(String path) {
 		if (File.separatorChar == '/') return path;
 		return UNIX_PATH_REGEX.matcher(path).replaceAll("/");
 	}
 	
 	/**
-	 * Returns the set of relative file paths under a given directory.
+	 * Returns the set of relative file paths under a given directory in Unix '/' format
 	 */
 	public static List<String> getFilenames(File dir) {
 		return getFilenames(dir, null);
 	}
 
 	/**
-	 * Returns the set of relative file paths under a given directory. A null
-	 * filter matches all files.
+	 * Returns the set of relative file paths under a given directory in Unix '/' format.
+	 * A null filter matches all files.
 	 */
 	public static List<String> getFilenames(File dir, FilenameFilter filter) {
 		List<String> list = new ArrayList<>();
@@ -149,8 +151,8 @@ public class IoUtil {
 	}
 
 	/**
-	 * Returns the set of file paths under a given directory. A null filter
-	 * matches all files.
+	 * Returns the set of file paths under a given directory. 
+	 * A null filter matches all files.
 	 */
 	public static List<File> getFiles(File dir, FileFilter filter) {
 		List<File> list = new ArrayList<>();
@@ -175,30 +177,34 @@ public class IoUtil {
 	}
 
 	/**
-	 * Returns the file path relative to a given dir. Or the returns the file if
+	 * Returns the file path relative to a given dir in '/' format. Or the returns the file if
 	 * not relative.
 	 */
-	public static String getRelativeUnixPath(File dir, File file) throws IOException {
+	public static String getRelativePath(File dir, File file) throws IOException {
 		dir = dir.getCanonicalFile();
-		String fileName = toUnixPath(file.getCanonicalPath());
+		String fileName = convertPath(file.getCanonicalPath());
 		String backPath = "";
 		while (dir != null) {
-			String dirName = toUnixPath(dir);
+			String dirName = getPath(dir);
 			if (!dirName.endsWith("/")) dirName += "/";
-			System.out.println(dir + " ==> " + dirName);
 			if (fileName.startsWith(dirName)) return backPath +
 				fileName.substring(dirName.length());
 			backPath += "../";
 			dir = dir.getParentFile();
-			System.out.println(dir);
 		}
 		return fileName;
 	}
 
-	public static String rootUnixPath(File file) {
+	/**
+	 * Get root path in '/' format.
+	 */
+	public static String rootPath(File file) {
 		return rootUnixPath(file.getAbsolutePath());
 	}
 	
+	/**
+	 * Get root path in '/' format.
+	 */
 	public static String rootUnixPath(String path) {
 		int i = path.indexOf(File.separatorChar);
 		if (i == -1) return "/";
