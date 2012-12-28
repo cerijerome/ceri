@@ -20,6 +20,9 @@ public class ComparatorSequence<T> implements Comparator<T> {
 	public static class Builder<T> {
 		private final List<Comparator<? super T>> comparators = new ArrayList<>();
 
+		Builder() {
+		}
+		
 		@SafeVarargs
 		public final Builder<T> add(Comparator<? super T>... comparators) {
 			Collections.addAll(this.comparators, comparators);
@@ -40,9 +43,8 @@ public class ComparatorSequence<T> implements Comparator<T> {
 		this.comparators = Collections.unmodifiableList(new ArrayList<>(comparators));
 	}
 
-	@SafeVarargs
-	public static <T> ComparatorSequence<T> create(Comparator<? super T>... comparators) {
-		return new Builder<T>().add(comparators).build();
+	public static <T> Builder<T> builder() {
+		return new Builder<>();
 	}
 	
 	public List<Comparator<? super T>> comparators() {

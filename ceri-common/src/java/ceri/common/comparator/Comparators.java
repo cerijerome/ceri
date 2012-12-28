@@ -3,6 +3,7 @@
  */
 package ceri.common.comparator;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
@@ -77,6 +78,22 @@ public class Comparators {
 	 */
 	public static <T> Comparator<T> nonNullComparator() {
 		return BasicUtil.<Comparator<T>>uncheckedCast(NON_NULL);
+	}
+
+	/**
+	 * Create a comparator the checks comparators in sequence.
+	 */
+	@SafeVarargs
+	public static <T> Comparator<T> sequence(Comparator<? super T>... comparators) {
+		return ComparatorSequence.<T>builder().add(comparators).build();
+	}
+
+	/**
+	 * Create a comparator the checks comparators in sequence.
+	 */
+	public static <T> Comparator<T>
+		sequence(Collection<? extends Comparator<? super T>> comparators) {
+		return ComparatorSequence.<T>builder().add(comparators).build();
 	}
 
 }
