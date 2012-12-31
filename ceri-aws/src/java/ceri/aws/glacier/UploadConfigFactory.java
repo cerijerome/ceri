@@ -21,7 +21,7 @@ public enum UploadConfigFactory {
 	private static final String MODIFIED_SINCE = "modifiedSince";
 	private static final String ROOT = "root";
 	private static final String DIRS = "dirs";
-	private static final Pattern SPLIT_REGEX = Pattern.compile("\\s+");
+	private static final Pattern SPLIT_REGEX = Pattern.compile(",?+\\s+");
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
 	public Map<String, UploadConfig> createFromProperties(Properties properties)
@@ -53,6 +53,7 @@ public enum UploadConfigFactory {
 	}
 
 	private synchronized Date parse(String dateStr) throws ParseException {
+		if (dateStr == null || dateStr.isEmpty()) return null;
 		return new ImmutableDate(dateFormat.parse(dateStr));
 	}
 
