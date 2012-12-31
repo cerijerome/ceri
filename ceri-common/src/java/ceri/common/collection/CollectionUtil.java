@@ -27,6 +27,10 @@ public class CollectionUtil {
 		return Collections.unmodifiableList(addAll(new ArrayList<T>(), items));
 	}
 	
+	public static <T> List<T> immutableList(Collection<? extends T> items) {
+		return Collections.unmodifiableList(new ArrayList<>(items));
+	}
+	
 	public static <T> Iterable<T> reverseIterableList(final List<T> list) {
 		return new Iterable<T> () {
 			@Override

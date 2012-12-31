@@ -12,6 +12,8 @@ import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
 import ceri.common.comparator.ReverseComparatorBehavior;
+import ceri.common.date.ImmutableDate;
+import ceri.common.date.ImmutableDateBehavior;
 import ceri.common.date.MultiDateParserBehavior;
 import ceri.common.io.BlockingBufferStreamBehavior;
 import ceri.common.io.ByteBufferStreamBehavior;
@@ -21,6 +23,8 @@ import ceri.common.io.FileTrackerBehavior;
 import ceri.common.io.FilenameIteratorBehavior;
 import ceri.common.io.IoUtilTest;
 import ceri.common.io.RegexFilenameFilterBehavior;
+import ceri.common.property.KeyBehavior;
+import ceri.common.property.PropertyUtilTest;
 import ceri.common.reflect.ReflectUtilTest;
 import ceri.common.test.TestUtil;
 import ceri.common.tree.NodeTreeBehavior;
@@ -56,6 +60,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	EnumComparatorsTest.class,
 	ReverseComparatorBehavior.class,
 	// date
+	ImmutableDateBehavior.class,
 	MultiDateParserBehavior.class,
 	// io
 	BlockingBufferStreamBehavior.class,
@@ -66,6 +71,9 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	FileTrackerBehavior.class,
 	IoUtilTest.class,
 	RegexFilenameFilterBehavior.class,
+	// property
+	KeyBehavior.class,
+	PropertyUtilTest.class,
 	// reflect
 	ReflectUtilTest.class,
 	// tree

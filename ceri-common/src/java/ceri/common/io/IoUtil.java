@@ -351,7 +351,7 @@ public class IoUtil {
 	}
 
 	/**
-	 * Gets resource from same package as class. Use 0 for default buffer size.
+	 * Gets resource from same package as class.
 	 */
 	public static byte[] getResource(Class<?> cls, String resourceName) throws IOException {
 		try (InputStream in = cls.getResourceAsStream(resourceName)) {
