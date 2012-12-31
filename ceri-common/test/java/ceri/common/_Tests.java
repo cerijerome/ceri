@@ -12,7 +12,6 @@ import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
 import ceri.common.comparator.ReverseComparatorBehavior;
-import ceri.common.date.ImmutableDate;
 import ceri.common.date.ImmutableDateBehavior;
 import ceri.common.date.MultiDateParserBehavior;
 import ceri.common.io.BlockingBufferStreamBehavior;
