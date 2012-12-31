@@ -26,14 +26,14 @@ public class RegexFilenameFilterBehavior {
 
 	@Test
 	public void testMatchesDirsAndFileNames() {
-		RegexFilenameFilter filter = new RegexFilenameFilter(false, "[ac].*");
+		RegexFilenameFilter filter = RegexFilenameFilter.create("[ac].*");
 		String[] filenames = helper.root.list(filter);
 		assertThat(filenames, isArray("a", "c.txt"));
 	}
 
 	@Test
 	public void testMatchesDirAndFiles() {
-		RegexFilenameFilter filter = new RegexFilenameFilter(false, "[ac].*");
+		RegexFilenameFilter filter = RegexFilenameFilter.create("[ac].*");
 		File[] files = helper.root.listFiles(filter.asFilename());
 		assertThat(files, isArray(helper.file("a"), helper.file("c.txt")));
 		files = helper.root.listFiles(filter.asFile());
@@ -43,7 +43,8 @@ public class RegexFilenameFilterBehavior {
 	@Test
 	public void testMatchesAbsolutePath() {
 		RegexFilenameFilter filter =
-			new RegexFilenameFilter(true, ".*" + IoUtil.REGEX_SEPARATOR + helper.root.getName() + IoUtil.REGEX_SEPARATOR + ".*");
+			RegexFilenameFilter.builder().absolutePath(true).unixPath(true).pattern(
+				".*/" + helper.root.getName() + "/.*").build();
 		String[] filenames = helper.root.list(filter);
 		assertThat(filenames, isArray("a", "b", "c.txt"));
 	}

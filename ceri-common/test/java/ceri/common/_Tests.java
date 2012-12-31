@@ -12,6 +12,7 @@ import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
 import ceri.common.comparator.ReverseComparatorBehavior;
+import ceri.common.date.MultiDateParserBehavior;
 import ceri.common.io.BlockingBufferStreamBehavior;
 import ceri.common.io.ByteBufferStreamBehavior;
 import ceri.common.io.FileFiltersTest;
@@ -54,6 +55,8 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ComparatorsTest.class,
 	EnumComparatorsTest.class,
 	ReverseComparatorBehavior.class,
+	// date
+	MultiDateParserBehavior.class,
 	// io
 	BlockingBufferStreamBehavior.class,
 	ByteBufferStreamBehavior.class,

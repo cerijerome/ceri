@@ -3,6 +3,7 @@
  */
 package ceri.common.collection;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +22,11 @@ public class CollectionUtil {
 	private CollectionUtil() {
 	}
 
+	@SafeVarargs
+	public static <T> List<T> immutableList(T...items) {
+		return Collections.unmodifiableList(addAll(new ArrayList<T>(), items));
+	}
+	
 	public static <T> Iterable<T> reverseIterableList(final List<T> list) {
 		return new Iterable<T> () {
 			@Override

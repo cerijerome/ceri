@@ -14,6 +14,41 @@ public class StringUtil {
 	private StringUtil() {}
 
 	/**
+	 * Counts the number of instances of the given char within the string.
+	 */
+	public static int count(String str, char ch) {
+		if (str.isEmpty()) return 0;
+		int count = 0;
+		int i = 0;
+		int len = str.length();
+		while (i < len) {
+			i = str.indexOf(ch, i);
+			if (i == -1) break;
+			count++;
+			i ++;
+		}
+		return count;
+	}
+
+	/**
+	 * Counts the number of instances of the given substring within the string.
+	 */
+	public static int count(String str, String sub) {
+		if (sub.isEmpty() || str.isEmpty()) return 0;
+		int count = 0;
+		int i = 0;
+		int len = str.length();
+		int subLen = sub.length();
+		while (i < len) {
+			i = str.indexOf(sub, i);
+			if (i == -1) break;
+			count++;
+			i += subLen;
+		}
+		return count;
+	}
+
+	/**
 	 * Creates a formatted string for iterable items:
 	 * [pre]item1[separator]item2[separator]...[post]
 	 */
@@ -28,6 +63,13 @@ public class StringUtil {
 		return b.append(post).toString();
 	}
 
+	/**
+	 * Convenience method to prevent callers needing to cast to Object[].
+	 */
+	public static String toString(String pre, String post, String separator, String... objects) {
+		return toString(pre, post, separator, (Object[])objects);
+	}
+	
 	/**
 	 * Creates a formatted string for an array of items:
 	 * [pre]item1[separator]item2[separator]...[post]

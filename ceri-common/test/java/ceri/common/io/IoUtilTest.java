@@ -124,7 +124,7 @@ public class IoUtilTest {
 	public void testGetFilenames() {
 		List<String> filenames = IoUtil.getFilenames(helper.root);
 		assertThat(filenames, isList("a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt"));
-		filenames = IoUtil.getFilenames(helper.root, new RegexFilenameFilter(false, ".*\\.txt"));
+		filenames = IoUtil.getFilenames(helper.root, RegexFilenameFilter.create(".*\\.txt"));
 		assertThat(filenames, isList("a/a/a.txt", "b/b.txt", "c.txt"));
 	}
 
@@ -132,7 +132,7 @@ public class IoUtilTest {
 	public void testGetFiles() {
 		List<File> files = IoUtil.getFiles(helper.root);
 		assertThat(files, is(helper.fileList("a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt")));
-		files = IoUtil.getFiles(helper.root, new RegexFilenameFilter(false, ".*[^\\.txt]"));
+		files = IoUtil.getFiles(helper.root, RegexFilenameFilter.create(".*[^\\.txt]"));
 		assertThat(files, is(helper.fileList("a", "a/a", "b")));
 	}
 
