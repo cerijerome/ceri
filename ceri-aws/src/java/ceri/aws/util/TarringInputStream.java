@@ -51,6 +51,8 @@ public class TarringInputStream extends FilterInputStream {
 			checksum == null ? byteBuffer : new CheckedOutputStream(byteBuffer, checksum);
 		OutputStream zOut = TarUtil.compressedOutputStream(cOut, compression);
 		tOut = new TarArchiveOutputStream(zOut);
+		tOut.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+		//tOut.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR);
 		inBuffer = new byte[inBufferSize];
 	}
 

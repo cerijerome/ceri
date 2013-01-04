@@ -9,16 +9,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
-import ceri.aws.util.TarringInputStream;
 import ceri.aws.util.TarUtil.Compression;
+import ceri.aws.util.TarringInputStream;
 import ceri.common.io.FileFilters;
 import ceri.common.io.FilenameIterator;
 import ceri.common.io.IoUtil;
 import ceri.common.io.RegexFilenameFilter;
 import ceri.common.property.PropertyUtil;
+import com.amazonaws.services.glacier.AmazonGlacier;
 
 public class Backup {
-	private final DateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+	private static final int MB = 1024 * 1024;
+	private final DateFormat format = new SimpleDateFormat("yyyyMMdd_HHmmss");
 
 	public void execute(String... names) throws IOException, ParseException {
 		Properties properties = PropertyUtil.load(getClass(), "glacier.properties");
@@ -43,11 +45,12 @@ public class Backup {
 		System.out.println(config);
 		System.out.println(" ==> " + outFile.getAbsolutePath());
 		
-		TarringInputStream in = new TarringInputStream(iterator, Compression.gzip, null, 0, 0);
-		GlacierFiler glacier = new GlacierFiler(outFile, uploadId, archiveName, 0);
+		TarringInputStream in = new TarringInputStream(iterator, Compression.gzip, null, 10 * MB, 0);
+		GlacierFiler glacierFiler = new GlacierFiler(outFile, uploadId, archiveName, 0);
+		AmazonGlacier glacier = new GlacierListener(glacierFiler);
 		MultipartUploader uploader =
-			MultipartUploader.builder(glacier, in, "backup").partSize(1000).build();
-		//uploader.execute();
+			MultipartUploader.builder(glacier, in, "backup").partSize(100 * MB).build();
+		uploader.execute();
 	}
 
 	private FileFilter createFilterFromUploadConfig(UploadConfig config) {
