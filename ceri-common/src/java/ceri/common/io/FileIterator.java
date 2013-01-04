@@ -70,7 +70,7 @@ public class FileIterator implements Iterator<File> {
 	private Iterator<File> createIterator(File dir) {
 		if (!dir.isDirectory()) return null;
 		File[] files = dir.listFiles();
-		if (files.length == 0) return null;
+		if (files == null || files.length == 0) return null;
 		return Arrays.asList(files).iterator();
 	}
 	
