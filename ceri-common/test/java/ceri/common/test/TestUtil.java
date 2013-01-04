@@ -94,6 +94,13 @@ public class TestUtil {
 	/**
 	 * Use this for more flexibility than adding @Test(expected=...)
 	 */
+	public static void assertException(Runnable runnable) {
+		assertException(Exception.class, runnable);
+	}
+
+	/**
+	 * Use this for more flexibility than adding @Test(expected=...)
+	 */
 	public static void assertException(Class<? extends Exception> exceptionCls, Runnable runnable) {
 		try {
 			runnable.run();

@@ -11,7 +11,7 @@ import ceri.common.reflect.ReflectUtil;
  * Log methods of interest, with information automatically logged based on stack trace.
  */
 public class Debugger {
-	public static final Debugger DBG = new Debugger(System.err, 16, 0); // Global debugger
+	public static final Debugger DBG = new Debugger(System.err, 8, 0); // Global debugger
 	private final PrintStream stream;
 	private final int traceStartIndex;
 	private final long stopCount;

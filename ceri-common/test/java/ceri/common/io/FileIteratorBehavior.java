@@ -57,6 +57,18 @@ public class FileIteratorBehavior {
 	}
 
 	@Test
+	public void shouldHandleLargeDirTree() {
+		for (int i = 10; i <= 50; i++) {
+			for (int j = 10; j <= 50; j++) {
+				helper.file("dirs/" + i + "/" + j).mkdirs();
+			}
+		}
+		FileIterator iterator = new FileIterator(helper.root);
+		while (iterator.hasNext()) iterator.next();
+		IoUtil.deleteAll(helper.file("dirs"));
+	}
+	
+	@Test
 	public void shouldOnlyListFilesThatMatchTheFilter() {
 		FileIterator iterator = new FileIterator(helper.root, FileFilters.FILE);
 		assertThat(iterator.next(), is(helper.file("a/a/a.txt")));

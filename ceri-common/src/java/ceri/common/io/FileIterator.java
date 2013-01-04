@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
 public class FileIterator implements Iterator<File> {
 	public final File rootDir;
 	private final FileFilter filter;
-	private final Deque<Iterator<File>> iterators = new ArrayDeque<>();
+	private final Deque<Iterator<File>> iterators = new ArrayDeque<>(); // Iterator for each dir
 	private File next = null;
 	
 	public FileIterator(File rootDir) {
@@ -29,7 +29,7 @@ public class FileIterator implements Iterator<File> {
 		iterators.add(Arrays.asList(files).iterator());
 		next = findNext();
 	}
-	
+
 	@Override
 	public boolean hasNext() {
 		return next != null;
@@ -49,24 +49,29 @@ public class FileIterator implements Iterator<File> {
 	}
 	
 	private File findNext() {
-		Iterator<File> iterator = iterators.getLast();
-		if (!iterator.hasNext()) return null;
-		File next = iterator.next();
-		if (next.isDirectory()) {
-			File[] files = next.listFiles();
-			if (files != null && files.length > 0) {
-				iterator = Arrays.asList(files).iterator();
-				iterators.add(iterator);
-				if (filter.accept(next)) return next;
-				return findNext();
+		// iterator for each level of dir hierarchy
+		while (!iterators.isEmpty()) {
+			Iterator<File> iterator = iterators.getLast();
+			// If no files left in iterator, go to level above
+			if (!iterator.hasNext()) {
+				iterators.removeLast();
+				continue;
 			}
+			File next = iterator.next();
+			// If next is a non-empty directory add iterator down one level
+			Iterator<File> nextIterator = createIterator(next);
+			if (nextIterator != null) iterators.add(nextIterator);
+			// If the file matches the filter, return it
+			if (filter.accept(next)) return next;
 		}
-		while (!iterator.hasNext() && iterators.size() > 1) {
-			iterators.removeLast();
-			iterator = iterators.getLast();
-		}
-		if (filter.accept(next)) return next;
-		return findNext();
+		return null;
 	}
 
+	private Iterator<File> createIterator(File dir) {
+		if (!dir.isDirectory()) return null;
+		File[] files = dir.listFiles();
+		if (files.length == 0) return null;
+		return Arrays.asList(files).iterator();
+	}
+	
 }

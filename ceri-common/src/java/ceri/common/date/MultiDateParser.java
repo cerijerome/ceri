@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.ImmutableUtil;
 
 /**
  * Encapsulates a list of date format patterns for parsing dates.
@@ -37,7 +37,7 @@ public class MultiDateParser {
 			dateFormats.add(dateFormat);
 		}
 		this.dateFormats = Collections.unmodifiableList(dateFormats);
-		this.patterns = CollectionUtil.immutableList(patterns);
+		this.patterns = ImmutableUtil.copyAsList(patterns);
 	}
 	
 	/**
