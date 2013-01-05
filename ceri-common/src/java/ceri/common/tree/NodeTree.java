@@ -4,6 +4,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Holds a tree by referencing the root node, and creating an node lookup by id.
+ */
 public class NodeTree<T extends TreeNode<T>> {
 	public final T root;
 	public final Map<Integer, T> lookup;

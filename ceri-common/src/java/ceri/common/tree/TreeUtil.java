@@ -36,7 +36,7 @@ public class TreeUtil {
 		return isChild(child.parent(), parent);
 	}
 
-	public static <T extends Parent<T>> Iterable<T> iterable(final T node) {
+	public static <T extends Parent<T>> Iterable<T> iterable(T node) {
 		if (node == null) throw new NullPointerException("Node cannot be null");
 		return BasicUtil.forEach(new TreeIterator<>(node));
 	}

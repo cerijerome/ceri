@@ -90,6 +90,7 @@ public class TarUtil {
 		OutputStream cOut = checksum == null ? bOut : new CheckedOutputStream(bOut, checksum);
 		OutputStream zOut = compressedOutputStream(cOut, compression);
 		try (TarArchiveOutputStream tOut = new TarArchiveOutputStream(zOut)) {
+			tOut.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
 			for (String filePath : BasicUtil.forEach(iterator)) {
 				File file = new File(iterator.rootDir, filePath);
 				TarArchiveEntry entry = new TarArchiveEntry(file);

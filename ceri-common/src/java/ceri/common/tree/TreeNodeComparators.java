@@ -5,6 +5,9 @@ import ceri.common.comparator.BaseComparator;
 import ceri.common.comparator.Comparators;
 import ceri.common.util.BasicUtil;
 
+/**
+ * Comparators for TreeNode types.
+ */
 public class TreeNodeComparators {
 	private static final Comparator<TreeNode<?>> BY_ID = new BaseComparator<TreeNode<?>>() {
 		@Override
@@ -16,7 +19,7 @@ public class TreeNodeComparators {
 	private TreeNodeComparators() {}
 
 	/**
-	 * Comparator for comparable objects.
+	 * Comparator for tree nodes by id.
 	 */
 	public static <T extends TreeNode<T>> Comparator<T> byId() {
 		return BasicUtil.<Comparator<T>>uncheckedCast(BY_ID);

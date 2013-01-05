@@ -5,6 +5,12 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import ceri.common.util.HashCoder;
 
+/**
+ * Abstract class for a node in a tree. Supports immutability through builder construction.
+ * Subclass as follows: 
+ * MyNode extends TreeNode<MyNode>
+ * MyNode.Builder extends TreeNode.Builder<MyNode>
+ */
 public abstract class TreeNode<T extends TreeNode<T>> implements Parent<T> {
 	protected final Class<T> cls;
 	private final T parent;
