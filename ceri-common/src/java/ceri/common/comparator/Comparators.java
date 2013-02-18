@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
+import ceri.common.collection.ImmutableUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -96,4 +97,41 @@ public class Comparators {
 		return ComparatorSequence.<T>builder().add(comparators).build();
 	}
 
+	/**
+	 * Comparator to group given items first. 
+	 */
+	@SafeVarargs
+	public static <T> Comparator<T> byFirst(final T...ts) {
+		return byFirst(ImmutableUtil.copy(ts));
+	}
+	
+	/**
+	 * Comparator to group given items first. 
+	 */
+	public static <T> Comparator<T> byFirst(final Collection<T> ts) {
+		return new BaseComparator<T>() {
+			@Override
+			protected int compareNonNull(T lhs, T rhs) {
+				boolean lhsEq = ts.contains(lhs);
+				boolean rhsEq = ts.contains(rhs);
+				if (lhsEq && rhsEq) return 0;
+				if (lhsEq) return -1;
+				if (rhsEq) return 1;
+				return 0;
+			}
+		};
+	}
+
+	/**
+	 * Reverses a given comparator.
+	 */
+	public static <T> Comparator<T> reverse(final Comparator<T> comparator) {
+		return new Comparator<T>() {
+			@Override
+			public int compare(T lhs, T rhs) {
+				return -comparator.compare(lhs, rhs);
+			}
+		};
+	}
+	
 }
