@@ -1,6 +1,7 @@
 package ceri.image;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.renderable.ParameterBlock;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -11,6 +12,9 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
+import javax.media.jai.JAI;
+import com.sun.media.jai.codec.FileSeekableStream;
+import com.sun.media.jai.codec.SeekableStream;
 
 public class ImageUtil {
 	private static final String[] IMG_URLS = {
@@ -66,6 +70,35 @@ public class ImageUtil {
 		return image.getSubimage(x, y, w, h);
 	}
 
+	public static void load() {
+//		SeekableStream seekableStream =  new FileSeekableStream(new File("front.jpg"));
+//		ParameterBlock pb = new ParameterBlock();
+//		pb.add(seekableStream);
+//
+//		pb.add();
+//		BufferedImage image = JAI.create("jpeg", pb).getAsBufferedImage();
+//		
+//		
+//		ImageWriter writer = ImageIO.getImageWritersByFormatName(JPEG).next();
+//		writer = writer.getOriginatingProvider().createWriterInstance();
+//		ImageWriteParam param = writer.getDefaultWriteParam();
+//		param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+//		param.setCompressionQuality(quality);
+//
+//		JAI.create(JPEG, image, writer, param);
+//		File file = new File(destPath);
+//		FileImageOutputStream output = new FileImageOutputStream(file);
+//		writer.setOutput(output);
+//
+//		FileInputStream inputStream = new FileInputStream(srcPath);
+//		BufferedImage originalImage = ImageIO.read(inputStream);
+//
+//		IIOImage image = new IIOImage(originalImage, null, null);
+//		writer.write(null, image, iwp);
+//		writer.dispose();
+		
+	}
+	
 	public static void write(BufferedImage image, String format, float quality, File file)
 		throws IOException {
 		try (OutputStream out = new FileOutputStream(file)) {
@@ -89,15 +122,21 @@ public class ImageUtil {
 
 	public static byte[] writeBytes(BufferedImage image, String format, float quality)
 		throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		write(image, format, quality, out);
-		out.flush();
-		return out.toByteArray();
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+			write(image, format, quality, out);
+			out.flush();
+			return out.toByteArray();
+		}
 	}
 	
 	public static void main(String[] args) throws Exception {
 		BufferedImage image;
 		String filename;
+		filename = "doc/front.jpg";
+		System.out.println("Reading " + filename);
+		image = ImageIO.read(new File(filename));
+		
+		if (false == false) return;
 		int i = 0;
 		for (String url : IMG_URLS) {
 			System.out.println("Reading " + url);
