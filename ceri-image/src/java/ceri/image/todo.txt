@@ -1,1 +1,8 @@
+- create params object (width, height, sd/hd)
+- load eps image
+- capture properties of image
+- convert to rgb if cmyk
+- resize and crop based on logic
+  - try to get double size
 - find EPS image to fit dimensions
+- solve jpg loading issue
