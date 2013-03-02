@@ -8,20 +8,23 @@ import org.junit.Test;
 
 public class ImageUtilTest {
 
-	private void resize(TestImage testImage, int w, int h, Format format, String outFile) throws IOException {
+	private void resize(TestImage testImage, int w, int h, Interpolation interpolation,
+		Format format, String outFile) throws IOException {
 		BufferedImage image = ImageIO.read(testImage.file("doc/img"));
 		System.out.println("Image: " + testImage.filename);
 		System.out.println("Size:  " + image.getWidth() + " x " + image.getHeight());
-		image = ImageUtil.resize(image, w, h);
+		System.out.println("Fit:   " + w + " x " + h);
+		image = ImageUtil.resizeToMax(image, w, h, interpolation);
+		System.out.println("New:   " + image.getWidth() + " x " + image.getHeight());
 		ImageUtil.write(image, format, 1.0f, new File(outFile + "." + format.suffix));
 	}
 
 	@Test
 	public void test() throws IOException {
 		long t = System.currentTimeMillis();
-		resize(TestImage.png_hd_rgba_1920x1080, 100, 100, Format.PNG, "doc/img/testimg");
+		resize(TestImage.jpg_eps_450x600, 400, 300, Interpolation.BICUBIC, Format.JPEG, "doc/img/testimg");
 		t = System.currentTimeMillis() - t;
 		System.out.println("Time:  " + t + "ms");
 	}
-	
+
 }

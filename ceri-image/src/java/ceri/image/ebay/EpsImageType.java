@@ -4,7 +4,7 @@ public enum EpsImageType {
 	_0(96, 96),
 	_1(400, 400),
 	_2(200, 200),
-	_3(800, 800),
+	_3(800, 800), // Largest available size
 	_4(640, 480, true),
 	_5(100, 75, true),
 	_6(70, 70),

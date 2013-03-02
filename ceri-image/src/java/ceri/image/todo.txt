@@ -1,8 +1,12 @@
-- create params object (width, height, sd/hd)
-- load eps image
-- capture properties of image
-- convert to rgb if cmyk
+- resize logic
+  - if 2x+ resize to 2x, reduce quality
+  - otherwise resize to 1x, full quality
+- crop logic
+  - resize to fit dimension (2x if possible)
+  - crop to fit
+- specify maximum resize increase (%?)
 - resize and crop based on logic
   - try to get double size
-- find EPS image to fit dimensions
+- load eps image
 - solve jpg loading issue
+- convert to rgb if cmyk
