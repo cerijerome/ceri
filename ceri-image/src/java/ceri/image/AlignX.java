@@ -1,7 +1,14 @@
 package ceri.image;
 
 public enum AlignX {
-	Left,
-	Center,
-	Right
+	Left(0.0d),
+	Center(0.5d),
+	Right(1.0d);
+	
+	public final double offsetMultiplier;
+	
+	private AlignX(double offsetMultiplier) {
+		this.offsetMultiplier = offsetMultiplier;
+	}
+	
 }

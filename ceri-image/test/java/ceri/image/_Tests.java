@@ -3,7 +3,6 @@ package ceri.image;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import ceri.common.test.TestUtil;
 
 
 @RunWith(Suite.class)
@@ -11,10 +10,9 @@ import ceri.common.test.TestUtil;
 	// other test suites
 	//ceri.common._Tests.class,
 	// ceri.image
-	CropParamsBehavior.class,
 })
 public class _Tests {
 	public static void main(String... args) {
-		TestUtil.exec(_Tests.class);
+		//TestUtil.exec(_Tests.class);
 	}
 }

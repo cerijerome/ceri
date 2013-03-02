@@ -1,5 +1,7 @@
 package ceri.image.ebay;
 
+import ceri.image.Format;
+
 public enum EpsImageType {
 	_0(96, 96),
 	_1(400, 400),
@@ -118,4 +120,8 @@ public enum EpsImageType {
 		this.padded = padded;
 	}
 	
+	public String url(String path) {
+		return "http://" + path + "_" + id + "." + Format.JPEG.suffix;
+	}
+
 }

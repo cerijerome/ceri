@@ -1,12 +1,18 @@
 package ceri.image;
 
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Transparency;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import javax.imageio.IIOImage;
@@ -17,47 +23,69 @@ import javax.imageio.stream.MemoryCacheImageOutputStream;
 
 public class ImageUtil {
 	private static final float BEST_QUALITY = 1.0f;
-	
+
 	private ImageUtil() {}
 
 	/**
-	 * Resize to fit at least given dimensions while maintaining aspect ratio.
+	 * Resize dimension to fit at least given dimensions while maintaining
+	 * aspect ratio.
+	 */
+	public static Dimension resizeToMin(Dimension dimension, int width, int height) {
+		int w = dimension.width;
+		int h = dimension.height;
+		if ((long) w * height <= (long) width * h) {
+			h = width * h / w;
+			w = width;
+		} else {
+			w = w * height / h;
+			h = height;
+		}
+		return new Dimension(w, h);
+	}
+
+	/**
+	 * Resize image to fit at least given dimensions while maintaining aspect
+	 * ratio.
 	 */
 	public static BufferedImage resizeToMin(BufferedImage image, int width, int height,
 		Interpolation interpolation) {
-		int w = image.getWidth();
-		int h = image.getHeight();
-		if ((long)w * height <= (long)width * h) {
+		Dimension resizeDimension =
+			resizeToMin(new Dimension(image.getWidth(), image.getHeight()), width, height);
+		return resize(image, resizeDimension.width, resizeDimension.height, interpolation);
+	}
+
+	/**
+	 * Resize dimension to fit within given dimensions while maintaining aspect
+	 * ratio.
+	 */
+	public static Dimension resizeToMax(Dimension dimension, int width, int height) {
+		int w = dimension.width;
+		int h = dimension.height;
+		if ((long) w * height >= (long) width * h) {
 			h = width * h / w;
 			w = width;
 		} else {
 			w = w * height / h;
 			h = height;
 		}
-		return resize(image, w, h, interpolation);
+		return new Dimension(w, h);
 	}
-	
+
 	/**
-	 * Resize to fit within given dimensions while maintaining aspect ratio.
+	 * Resize image to fit within given dimensions while maintaining aspect
+	 * ratio.
 	 */
 	public static BufferedImage resizeToMax(BufferedImage image, int width, int height,
 		Interpolation interpolation) {
-		int w = image.getWidth();
-		int h = image.getHeight();
-		if ((long)w * height >= (long)width * h) {
-			h = width * h / w;
-			w = width;
-		} else {
-			w = w * height / h;
-			h = height;
-		}
-		return resize(image, w, h, interpolation);
+		Dimension resizeDimension =
+			resizeToMax(new Dimension(image.getWidth(), image.getHeight()), width, height);
+		return resize(image, resizeDimension.width, resizeDimension.height, interpolation);
 	}
-	
+
 	/**
-	 * Resize to given dimensions without maintaining aspect ratio.
-	 * Downsizing is done in 50% chunks if the image is large enough.
-	 * Upsizing is done in one step.
+	 * Resize to given dimensions without maintaining aspect ratio. Downsizing
+	 * is done in 50% chunks if the image is large enough. Upsizing is done in
+	 * one step.
 	 */
 	public static BufferedImage resize(BufferedImage image, int width, int height,
 		Interpolation interpolation) {
@@ -84,8 +112,8 @@ public class ImageUtil {
 	}
 
 	/**
-	 * Crop image to given dimensions, with center crop window alignment.
-	 * If the image is smaller than the desired crop in one dimension that dimension is
+	 * Crop image to given dimensions, with center crop window alignment. If the
+	 * image is smaller than the desired crop in one dimension that dimension is
 	 * not cropped.
 	 */
 	public static BufferedImage crop(BufferedImage image, int width, int height) {
@@ -93,33 +121,57 @@ public class ImageUtil {
 	}
 
 	/**
-	 * Crop image to given dimensions, with specified crop window alignment.
-	 * If the image is smaller than the desired crop in one dimension that dimension is
-	 * not cropped.
+	 * Crop dimension to given dimensions. If dimension is smaller than
+	 * the desired crop it will remain unchanged.
+	 */
+	public static Dimension crop(Dimension dimension, int width, int height) {
+		int w = dimension.width;
+		int h = dimension.height;
+		if (width >= w) width = w;
+		if (height >= h) height = h;
+		return new Dimension(width, height);
+	}
+
+	/**
+	 * Crop image to given dimensions, with specified crop window alignment. If
+	 * the image is smaller than the desired crop in one dimension that
+	 * dimension is not cropped.
 	 */
 	public static BufferedImage crop(BufferedImage image, int width, int height, AlignX alignX,
 		AlignY alignY) {
 		int w = image.getWidth();
 		int h = image.getHeight();
-		int x = 0;
-		int y = 0;
-		if (width >= w) width = w;
-		else if (AlignX.Right == alignX) x = w - width;
-		else if (AlignX.Center == alignX) x = (w - width) / 2;
-		if (height >= h) height = h;
-		else if (AlignY.Bottom == alignY) y = h - height;
-		else if (AlignY.Center == alignY) y = (h - height) / 2;
-		// no change required, just return the image
-		if (x == 0 && y == 0 && width == w && height == h) return image;
-		return image.getSubimage(x, y, width, height);
+		Dimension cropDimension = crop(new Dimension(w, h), width, height);
+		// If no change required, just return the image
+		if (cropDimension.width == w && cropDimension.height == h) return image;
+		int x = (int)(alignX.offsetMultiplier * (w - cropDimension.width));
+		int y = (int)(alignY.offsetMultiplier * (h - cropDimension.height));
+		return image.getSubimage(x, y, cropDimension.width, cropDimension.height);
 	}
 
-	public static BufferedImage loadFromFile(File file) throws IOException {
-		return ImageIO.read(file);
+	public static BufferedImage read(byte[] imageBytes) {
+		try (InputStream in = new ByteArrayInputStream(imageBytes)) {
+			return ImageIO.read(in);
+		} catch (IOException e) {
+			throw new IllegalStateException("Should not happen", e);
+		}
+	}
+
+	public static BufferedImage readFromUrl(String urlStr) throws IOException {
+		URL url = new URL(urlStr);
+		try (InputStream in = url.openStream()) {
+			return ImageIO.read(in);
+		}
 	}
 	
-	public static BufferedImage loadFromUrl(String url) throws IOException {
-		return ImageIO.read(new URL(url));
+	public static BufferedImage read(File file) throws IOException {
+		try (InputStream in = new FileInputStream(file)) {
+			return ImageIO.read(in);
+		}
+	}
+
+	public static BufferedImage read(InputStream in) throws IOException {
+		return ImageIO.read(in);
 		//		SeekableStream seekableStream =  new FileSeekableStream(new File("front.jpg"));
 		//		ParameterBlock pb = new ParameterBlock();
 		//		pb.add(seekableStream);
@@ -182,8 +234,7 @@ public class ImageUtil {
 	/**
 	 * Writes image to a byte array in given format.
 	 */
-	public static byte[] writeBytes(BufferedImage image, Format format)
-		throws IOException {
+	public static byte[] writeBytes(BufferedImage image, Format format) {
 		return writeBytes(image, format, BEST_QUALITY);
 	}
 
@@ -191,12 +242,13 @@ public class ImageUtil {
 	 * Writes image to a byte array in given format. Quality is only used for
 	 * JPEG.
 	 */
-	public static byte[] writeBytes(BufferedImage image, Format format, float quality)
-		throws IOException {
+	public static byte[] writeBytes(BufferedImage image, Format format, float quality) {
 		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 			write(image, format, quality, out);
 			out.flush();
 			return out.toByteArray();
+		} catch (IOException e) {
+			throw new IllegalStateException("Should not happen", e);
 		}
 	}
 
