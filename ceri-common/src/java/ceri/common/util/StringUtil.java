@@ -1,6 +1,5 @@
 package ceri.common.util;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
@@ -167,15 +166,15 @@ public class StringUtil {
 	public static PrintStream asPrintStream(final StringBuilder s) {
 		return new PrintStream(new OutputStream() {
 			@Override
-			public void write(int b) throws IOException {
+			public void write(int b) {
 				s.append((char) b);
 			}
 			@Override
-			public void write(byte[] b) throws IOException {
+			public void write(byte[] b) {
 				s.append(new String(b));
 			}
 			@Override
-			public void write(byte[] b, int off, int len) throws IOException {
+			public void write(byte[] b, int off, int len) {
 				s.append(new String(b, off, len));
 			}
 		});

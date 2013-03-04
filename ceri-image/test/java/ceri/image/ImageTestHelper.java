@@ -2,46 +2,56 @@ package ceri.image;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import ceri.common.io.IoUtil;
 
-public class ImageTestHelper {
-	private static final String ROOT_DEF = "doc/img";
-	private final String inDir;
-	private final String outDir;
+public class ImageTestHelper implements Closeable {
+	private static final String IMAGE_DIR_DEF = "doc/img";
+	private final File imageDir;
+	private final File outDir;
 
 	public ImageTestHelper() {
-		this(ROOT_DEF, ROOT_DEF);
+		this(new File(IMAGE_DIR_DEF), null);
 	}
 	
-	public ImageTestHelper(String inDir, String outDir) {
-		this.inDir = inDir;
-		this.outDir = outDir;
+	public ImageTestHelper(File imageDir, File outParent) {
+		this.imageDir = imageDir;
+		outDir = IoUtil.createTempDir(outParent);
 	}
-	
-	public File inFile(String filename) {
-		return new File(inDir, filename);
+
+	public BufferedImage read(TestImage testImage) throws IOException {
+		return ImageUtil.read(new File(imageDir, testImage.filename));
 	}
-	
-	public File inFile(TestImage testImage) {
-		return testImage.file(inDir);
+
+	public BufferedImage readFast(TestImage testImage) throws IOException {
+		try (InputStream in = new FileInputStream(new File(imageDir, testImage.filename))) {
+			return ImageUtil.readFast(in);
+		}
 	}
-	
+
 	public File outFile(String filename) {
 		return new File(outDir, filename);
 	}
 	
-	public BufferedImage read(TestImage testImage) throws IOException {
-		return ImageUtil.read(inFile(testImage));
-	}
-	
-	public void write(byte[] imageBytes, String filename) throws IOException {
-		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(outFile(filename)))) {
+	public File write(byte[] imageBytes, String filename) throws IOException {
+		File file = new File(outDir, filename);
+		try (OutputStream out =
+			new BufferedOutputStream(new FileOutputStream(file))) {
 			out.write(imageBytes);
 			out.flush();
 		}
+		return file;
 	}
-	
+
+	@Override
+	public void close() {
+		IoUtil.deleteAll(outDir);
+	}
+
 }

@@ -3,9 +3,8 @@ package ceri.image;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Transparency;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
+import java.awt.image.ColorConvertOp;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -17,12 +16,17 @@ import java.io.OutputStream;
 import java.net.URL;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
+import javax.media.jai.JAI;
+import com.sun.media.jai.codec.SeekableStream;
 
 public class ImageUtil {
-	private static final float BEST_QUALITY = 1.0f;
+	public static final float BEST_QUALITY = 1.0f;
+	private static final String JAI_STREAM = "stream";
 
 	private ImageUtil() {}
 
@@ -121,8 +125,8 @@ public class ImageUtil {
 	}
 
 	/**
-	 * Crop dimension to given dimensions. If dimension is smaller than
-	 * the desired crop it will remain unchanged.
+	 * Crop dimension to given dimensions. If dimension is smaller than the
+	 * desired crop it will remain unchanged.
 	 */
 	public static Dimension crop(Dimension dimension, int width, int height) {
 		int w = dimension.width;
@@ -144,14 +148,14 @@ public class ImageUtil {
 		Dimension cropDimension = crop(new Dimension(w, h), width, height);
 		// If no change required, just return the image
 		if (cropDimension.width == w && cropDimension.height == h) return image;
-		int x = (int)(alignX.offsetMultiplier * (w - cropDimension.width));
-		int y = (int)(alignY.offsetMultiplier * (h - cropDimension.height));
+		int x = (int) (alignX.offsetMultiplier * (w - cropDimension.width));
+		int y = (int) (alignY.offsetMultiplier * (h - cropDimension.height));
 		return image.getSubimage(x, y, cropDimension.width, cropDimension.height);
 	}
 
 	public static BufferedImage read(byte[] imageBytes) {
 		try (InputStream in = new ByteArrayInputStream(imageBytes)) {
-			return ImageIO.read(in);
+			return read(in);
 		} catch (IOException e) {
 			throw new IllegalStateException("Should not happen", e);
 		}
@@ -160,43 +164,61 @@ public class ImageUtil {
 	public static BufferedImage readFromUrl(String urlStr) throws IOException {
 		URL url = new URL(urlStr);
 		try (InputStream in = url.openStream()) {
-			return ImageIO.read(in);
+			return read(in);
 		}
 	}
-	
+
 	public static BufferedImage read(File file) throws IOException {
 		try (InputStream in = new FileInputStream(file)) {
-			return ImageIO.read(in);
+			return read(in);
 		}
 	}
 
 	public static BufferedImage read(InputStream in) throws IOException {
-		return ImageIO.read(in);
-		//		SeekableStream seekableStream =  new FileSeekableStream(new File("front.jpg"));
-		//		ParameterBlock pb = new ParameterBlock();
-		//		pb.add(seekableStream);
-		//
-		//		pb.add();
-		//		BufferedImage image = JAI.create("jpeg", pb).getAsBufferedImage();
-		//		
-		//		
-		//		ImageWriter writer = ImageIO.getImageWritersByFormatName(JPEG).next();
-		//		writer = writer.getOriginatingProvider().createWriterInstance();
-		//		ImageWriteParam param = writer.getDefaultWriteParam();
-		//		param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-		//		param.setCompressionQuality(quality);
-		//
-		//		JAI.create(JPEG, image, writer, param);
-		//		File file = new File(destPath);
-		//		FileImageOutputStream output = new FileImageOutputStream(file);
-		//		writer.setOutput(output);
-		//
-		//		FileInputStream inputStream = new FileInputStream(srcPath);
-		//		BufferedImage originalImage = ImageIO.read(inputStream);
-		//
-		//		IIOImage image = new IIOImage(originalImage, null, null);
-		//		writer.write(null, image, iwp);
-		//		writer.dispose();
+		long t = System.currentTimeMillis();
+		//BufferedImage image = new ImgReader().read(in);
+		BufferedImage image = readJai(in);
+		t = System.currentTimeMillis() - t;
+		System.out.println("Time: " + t + "ms ");
+		return image;
+	}
+
+	public static BufferedImage readJai(InputStream in) throws IOException {
+		try {
+			return JAI.create(JAI_STREAM, SeekableStream.wrapInputStream(in, true))
+				.getAsBufferedImage();
+		} catch (RuntimeException e) {
+			throw new IOException("Failed to read image from stream", e);
+		}
+	}
+
+	/**
+	 * Much faster performance for reads, but doesn't handle Exif and CMYK
+	 * jpegs. Throws CMMException for Exif, IIOException for CMYK.
+	 */
+	public static BufferedImage readFast(InputStream in) throws IOException {
+		return ImageIO.read(ImageIO.createImageInputStream(in));
+	}
+
+//	public static BufferedImage readCustom(InputStream in) {
+//		ImageReader reader = ImageIO.getImageReadersByFormatName("jpeg").next();
+//		reader.setInput(in);
+//		reader.readRaster(0, null);
+//	}
+	
+	public static BufferedImage convertCmykToRgb(BufferedImage image) {
+		BufferedImage rgbImage =
+			new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+		ColorConvertOp op = new ColorConvertOp(null);
+		op.filter(image, rgbImage);
+		return rgbImage;
+	}
+
+	/**
+	 * Writes image to a file in given format.
+	 */
+	public static void write(BufferedImage image, Format format, File file) throws IOException {
+		write(image, format, BEST_QUALITY, file);
 	}
 
 	/**
@@ -207,6 +229,14 @@ public class ImageUtil {
 		try (OutputStream out = new FileOutputStream(file)) {
 			write(image, format, quality, out);
 		}
+	}
+
+	/**
+	 * Writes image to an output stream in given format.
+	 */
+	public static void write(BufferedImage image, Format format, OutputStream out)
+		throws IOException {
+		write(image, format, BEST_QUALITY, out);
 	}
 
 	/**
@@ -223,6 +253,8 @@ public class ImageUtil {
 			param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
 			param.setCompressionQuality(quality);
 		}
+		param.setDestinationType(ImageTypeSpecifier
+			.createFromBufferedImageType(BufferedImage.TYPE_INT_ARGB));
 		IIOImage iioImage = new IIOImage(image, null, null);
 		try (MemoryCacheImageOutputStream mOut = new MemoryCacheImageOutputStream(out)) {
 			writer.setOutput(mOut);

@@ -1,3 +1,6 @@
+- include http:// in path
+- bring back cropperparams
+- put limits on allowed values, e.g. width 100 to 800
 - load eps image
-- solve jpg loading issue
+- solve jpg exif loading issue
 - convert to rgb if cmyk

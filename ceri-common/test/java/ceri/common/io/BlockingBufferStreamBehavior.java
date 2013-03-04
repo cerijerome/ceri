@@ -71,7 +71,7 @@ public class BlockingBufferStreamBehavior {
 		try (final BlockingBufferStream stream = new BlockingBufferStream(10, 100)) {
 			TestThread writeThread = new TestThread() {
 				@Override
-				protected void run() throws Exception {
+				protected void run() {
 					stream.write(buffer, 0, 50);
 					stream.write(buffer, 50, 50);
 					state.set(1);

@@ -27,7 +27,7 @@ public class TestPrinter extends RunListener {
 	}
 	
 	@Override
-	public void testStarted(Description description) throws Exception {
+	public void testStarted(Description description) {
 		capture(description);
 	}
 	
