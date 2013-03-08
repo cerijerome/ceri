@@ -1,5 +1,8 @@
-package ceri.image;
+package ceri.geo;
 
+/**
+ * Horizontal alignment.
+ */
 public enum AlignX {
 	Left(0.0d),
 	Center(0.5d),

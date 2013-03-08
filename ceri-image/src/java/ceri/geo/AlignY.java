@@ -1,5 +1,8 @@
-package ceri.image;
+package ceri.geo;
 
+/**
+ * Vertical alignment.
+ */
 public enum AlignY {
 	Top(0),
 	Top3rd(0.333d),
