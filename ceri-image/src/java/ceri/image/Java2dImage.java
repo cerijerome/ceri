@@ -19,6 +19,10 @@ import javax.media.jai.JAI;
 import ceri.geo.GeoUtil;
 import com.sun.media.jai.codec.SeekableStream;
 
+/**
+ * Image holder for Java2d BufferedImage.
+ * Java2d/JAI is limited in the image types it can process, so MagickImage is preferred.
+ */
 public class Java2dImage implements Image {
 	public static final Image.Factory JAI_FACTORY = new Image.Factory() {
 		@Override
@@ -57,7 +61,7 @@ public class Java2dImage implements Image {
 	@Override
 	public Image resize(Dimension dimension, Interpolation interpolation) {
 		BufferedImage image = this.image;
-		if (interpolation == null) interpolation = Interpolation.BILINEAR;
+		if (interpolation == null) interpolation = Interpolation.NONE;
 		int type =
 			image.getTransparency() == Transparency.OPAQUE ? BufferedImage.TYPE_INT_RGB
 				: BufferedImage.TYPE_INT_ARGB;
@@ -122,7 +126,7 @@ public class Java2dImage implements Image {
 	 * Much faster performance for reads, but doesn't handle Exif and CMYK
 	 * jpegs. Throws CMMException for Exif, IIOException for CMYK.
 	 */
-	public static Image createWithImageIo(byte[] data) throws IOException {
+	public static Java2dImage createWithImageIo(byte[] data) throws IOException {
 		try (InputStream in = new ByteArrayInputStream(data)) {
 			BufferedImage image = ImageIO.read(ImageIO.createImageInputStream(in));
 			return new Java2dImage(image);

@@ -1,30 +1,68 @@
 package ceri.image.magick;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.geo.AlignX;
-import ceri.geo.AlignY;
 import ceri.image.Format;
 import ceri.image.Image;
 import ceri.image.ImageUtil;
+import ceri.image.ImageUtilTest;
 import ceri.image.Interpolation;
 import ceri.image.test.TestImage;
 
 public class MagickImageBehavior {
 
 	@Test
-	public void should() throws IOException {
-		Image image =
-			ImageUtil.readFromFile(MagickImage.FACTORY, new File("doc/img/" +
-				TestImage.jpg_eps_800x456.filename));
-		Image image1 = ImageUtil.resizeToMin(image, 200,  200, Interpolation.BICUBIC);
-		image1 = ImageUtil.crop(image1, 200, 200, AlignX.Center, AlignY.Top3rd);
-		image1.write(Format.JPEG, 1.0f, new FileOutputStream("doc/img/test1.jpg"));
-		Image image2 = ImageUtil.resizeToMin(image, 400,  400, Interpolation.BICUBIC);
-		image2 = ImageUtil.crop(image2, 400, 400, AlignX.Center, AlignY.Top3rd);
-		image2.write(Format.JPEG, 0.4f, new FileOutputStream("doc/img/test2.jpg"));
+	public void shouldBeAbleToReadAndWriteRgbAndCmykJpegs() throws IOException {
+		MagickImage image;
+		image = MagickImage.create(TestImage.jpg_eps_450x600.read());
+		image.write(Format.JPEG, Image.BEST_QUALITY, ImageUtilTest.DEV_NULL);
+		image = MagickImage.create(TestImage.jpg_eps_cmyk_500x333.read());
+		image.write(Format.JPEG, Image.BEST_QUALITY, ImageUtilTest.DEV_NULL);
+	}
+
+	@Test
+	public void shouldBeAbleToConvertExifPngAndTifToJpeg() throws IOException {
+		MagickImage image;
+		image = MagickImage.create(TestImage.jpg_eps_exif_800x800.read());
+		image.write(Format.JPEG, Image.BEST_QUALITY, ImageUtilTest.DEV_NULL);
+		image = MagickImage.create(TestImage.png_rgb_16_600x600.read());
+		image.write(Format.JPEG, Image.BEST_QUALITY, ImageUtilTest.DEV_NULL);
+		image = MagickImage.create(TestImage.tif_cymk_512x343.read());
+		image.write(Format.JPEG, Image.BEST_QUALITY, ImageUtilTest.DEV_NULL);
+	}
+
+	@Test
+	public void shouldAllowResizingWithoutMaintainingAspectRatio() throws IOException {
+		Image image = MagickImage.create(TestImage.jpg_eps_800x456.read());
+		image = image.resize(new Dimension(100, 200), Interpolation.NONE);
+		byte[] data = ImageUtil.writeBytes(image, Format.JPEG);
+		image = MagickImage.create(data);
+		assertThat(image.getWidth(), is(100));
+		assertThat(image.getHeight(), is(200));
+	}
+
+	@Test
+	public void shouldAllowResizingLarger() throws IOException {
+		Image image = MagickImage.create(TestImage.jpg_eps_450x600.read());
+		image = image.resize(new Dimension(600, 800), Interpolation.BICUBIC);
+		byte[] data = ImageUtil.writeBytes(image, Format.JPEG);
+		image = MagickImage.create(data);
+		assertThat(image.getWidth(), is(600));
+		assertThat(image.getHeight(), is(800));
+	}
+
+	@Test
+	public void shouldCropToLimitOfImage() throws IOException {
+		Image image = MagickImage.create(TestImage.jpg_eps_450x600.read());
+		image = image.crop(new Rectangle(100, 150, 500, 500));
+		byte[] data = ImageUtil.writeBytes(image, Format.JPEG);
+		image = MagickImage.create(data);
+		assertThat(image.getWidth(), is(350));
+		assertThat(image.getHeight(), is(450));
 	}
 
 }

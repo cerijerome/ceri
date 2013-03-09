@@ -93,8 +93,8 @@ public class GeoUtil {
 		int h = dimension.height;
 		Dimension cropDimension = crop(new Dimension(w, h), width, height);
 		// If no change required, just return the image
-		int x = (int) (alignX.offsetMultiplier * (w - cropDimension.width));
-		int y = (int) (alignY.offsetMultiplier * (h - cropDimension.height));
+		int x = (int) Math.round(alignX.offsetMultiplier * (w - cropDimension.width));
+		int y = (int) Math.round(alignY.offsetMultiplier * (h - cropDimension.height));
 		return new Rectangle(x, y, cropDimension.width, cropDimension.height);
 	}
 

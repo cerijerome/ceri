@@ -1,12 +1,15 @@
 package ceri.image.ebay;
 
-import ceri.image.Format;
+import java.util.Arrays;
 
+/**
+ * The documented Image Types for eBay Picture Services.
+ */
 public enum EpsImageType {
 	_0(96, 96),
 	_1(400, 400),
 	_2(200, 200),
-	_3(800, 800), // Largest available size
+	_3(800, 800),
 	_4(640, 480, true),
 	_5(100, 75, true),
 	_6(70, 70),
@@ -120,8 +123,27 @@ public enum EpsImageType {
 		this.padded = padded;
 	}
 	
-	public String url(String path) {
-		return "http://" + path + "_" + id + "." + Format.JPEG.suffix;
+	/**
+	 * Creates the url from a given eps path
+	 */
+	public String url(String epsPath) {
+		return epsPath.replaceFirst("_\\d+\\.", "_" + id + ".");
+	}
+
+	public static EpsImageType largestType() {
+		return largestType(Arrays.asList(EpsImageType.values()));
+	}
+	
+	public static EpsImageType largestType(Iterable<EpsImageType> types) {
+		EpsImageType largestType = null;
+		long largestArea = 0;
+		for (EpsImageType type : types) {
+			long area = (long) type.width * type.height;
+			if (area <= largestArea) continue;
+			largestType = type;
+			largestArea = area;
+		}
+		return largestType;
 	}
 
 }

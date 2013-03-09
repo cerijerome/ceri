@@ -74,7 +74,7 @@ public class GeoUtilTest {
 		assertThat(GeoUtil.crop(MAX_MAX, Integer.MAX_VALUE, Integer.MAX_VALUE, AlignX.Center,
 			AlignY.Center), is(rect(0, 0, Integer.MAX_VALUE, Integer.MAX_VALUE)));
 		assertThat(GeoUtil.crop(MAX_MAX, 0, 0, AlignX.Center, AlignY.Center), is(rect(
-			Integer.MAX_VALUE / 2, Integer.MAX_VALUE / 2, 0, 0)));
+			Integer.MAX_VALUE / 2 + 1, Integer.MAX_VALUE / 2 + 1, 0, 0)));
 		assertThat(GeoUtil.crop(ZERO_ZERO, Integer.MAX_VALUE, Integer.MAX_VALUE, AlignX.Center,
 			AlignY.Center), is(rect(0, 0, 0, 0)));
 	}
@@ -87,6 +87,8 @@ public class GeoUtilTest {
 			50, 100, 100)));
 		assertThat(GeoUtil.crop(dim(10, 20), 0, 0, AlignX.Center, AlignY.Center), is(rect(5, 10, 0,
 			0)));
+		assertThat(GeoUtil.crop(dim(20, 40), 10, 10, AlignX.Right, AlignY.Bottom3rd), is(rect(10,
+			20, 10, 10)));
 	}
 
 	private static Dimension dim(int w, int h) {

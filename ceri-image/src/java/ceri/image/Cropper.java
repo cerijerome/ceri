@@ -148,10 +148,13 @@ public class Cropper {
 			image = ImageUtil.crop(image, width * 2, height * 2, alignX, alignY);
 			return ImageUtil.writeBytes(image, format, x2Quality);
 		}
-		Dimension resizeDimension = GeoUtil.resizeToMin(new Dimension(w, h), width, height);
-		if (w * (ONE + maxSizeIncrease) >= resizeDimension.width &&
-			h * (ONE + maxSizeIncrease) >= resizeDimension.height) {
+		int maxW = (int)((ONE + maxSizeIncrease) * w);
+		int maxH = (int)((ONE + maxSizeIncrease) * h);
+		Dimension resizeDimension = GeoUtil.resizeToMin(new Dimension(maxW, maxH), width, height);
+		if (resizeDimension.width <= maxW && resizeDimension.height <= maxH) {
 			image = ImageUtil.resizeToMin(image, width, height, interpolation);
+		} else {
+			image = ImageUtil.resize(image, maxW, maxH, interpolation);
 		}
 		image = ImageUtil.crop(image, width, height, alignX, alignY);
 		return ImageUtil.writeBytes(image, format, x1Quality);

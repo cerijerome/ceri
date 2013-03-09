@@ -3,7 +3,7 @@ package ceri.image.magick;
 /**
  * ImageMagick interpolation values.
  */
-public enum Interpolation {
+public enum MagickInterpolation {
 	none,
 	integer,
 	nearest_neighbor,
@@ -16,7 +16,7 @@ public enum Interpolation {
 	
 	public final String value;
 	
-	private Interpolation() {
+	private MagickInterpolation() {
 		value = name().replaceAll("_", "-");
 	}
 	

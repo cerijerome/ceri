@@ -25,11 +25,14 @@ import ceri.image.Interpolation;
  * multiple times. Class is immutable, any operation generates a new image.
  */
 public class MagickImage implements Image {
+	private static final String IM_PATH_PROPERTY = "IM4JAVA_TOOLPATH";
+	private static final String DEFAULT_IM_PATH = "/opt/ImageMagick/bin";
 	public static final String STDIO = "-";
 	public static final String SEPARATOR = ":";
 
 	static {
-		ProcessStarter.setGlobalSearchPath("/opt/ImageMagick/bin");
+		String imPath = System.getProperty(IM_PATH_PROPERTY, DEFAULT_IM_PATH);
+		ProcessStarter.setGlobalSearchPath(imPath);
 	}
 
 	public static final Image.Factory FACTORY = new Image.Factory() {
@@ -77,9 +80,11 @@ public class MagickImage implements Image {
 	@Override
 	public Image resize(Dimension dimension, Interpolation interpolation) {
 		if (interpolation == null) interpolation = Interpolation.BILINEAR;
-		ceri.image.magick.Interpolation magickInterpolation = getMagickInterpolation(interpolation);
+		ceri.image.magick.MagickInterpolation magickInterpolation =
+			getMagickInterpolation(interpolation);
 		IMOps op = copy(this.op);
-		if (magickInterpolation != ceri.image.magick.Interpolation.none) op
+		// Not really sure if this setting is used for resize..
+		if (magickInterpolation != MagickInterpolation.none) op
 			.interpolate(magickInterpolation.value);
 		op.resize(dimension.width, dimension.height, GeoSpecial.stretch.value);
 		return new MagickImage(dimension, data, op);
@@ -125,7 +130,7 @@ public class MagickImage implements Image {
 	/**
 	 * Creates an image magick image holder from image data.
 	 */
-	public static Image create(byte[] data) throws IOException {
+	public static MagickImage create(byte[] data) throws IOException {
 		Dimension dimension = readDimension(data);
 		return new MagickImage(dimension, data);
 	}
@@ -139,16 +144,16 @@ public class MagickImage implements Image {
 		}
 	}
 
-	private ceri.image.magick.Interpolation getMagickInterpolation(Interpolation interpolation) {
+	private MagickInterpolation getMagickInterpolation(Interpolation interpolation) {
 		switch (interpolation) {
 		case BICUBIC:
-			return ceri.image.magick.Interpolation.bicubic;
+			return MagickInterpolation.bicubic;
 		case BILINEAR:
-			return ceri.image.magick.Interpolation.bilinear;
+			return MagickInterpolation.bilinear;
 		case NEAREST_NEIGHBOR:
-			return ceri.image.magick.Interpolation.nearest_neighbor;
+			return MagickInterpolation.nearest_neighbor;
 		default:
-			return ceri.image.magick.Interpolation.none;
+			return MagickInterpolation.none;
 		}
 	}
 

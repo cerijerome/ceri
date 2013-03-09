@@ -4,6 +4,9 @@ import static ceri.image.ebay.EpsImageType.*;
 import java.util.Arrays;
 import java.util.EnumSet;
 
+/**
+ * The documented Set Ids for eBay Picture Services.
+ */
 public enum EpsSetId {
 	Standard("All", _0, _1, EpsImageType._2, _12, _14, _35, _39),
 	Supersize("All", _0, _1, EpsImageType._2, EpsImageType._3, _12, _14, _35, _39),
@@ -32,5 +35,12 @@ public enum EpsSetId {
 			types.length == 0 ? EnumSet.noneOf(EpsImageType.class) : EnumSet.copyOf(Arrays
 				.asList(types));
 	}
-	
+
+	/**
+	 * Returns the image type with the largest area for this set id.
+	 */
+	public EpsImageType largestType() {
+		return EpsImageType.largestType(types);
+	}
+
 }
