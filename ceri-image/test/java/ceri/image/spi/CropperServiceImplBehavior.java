@@ -1,17 +1,11 @@
 package ceri.image.spi;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import ceri.image.Cropper;
 import ceri.image.CropperMock;
 import ceri.image.Image;
 import ceri.image.ImageMock;
-import ceri.image.magick.MagickImage;
-import ceri.image.test.TestImage;
 
 public class CropperServiceImplBehavior {
 	private static final Downloader NULL_DOWNLOADER = new DownloaderMock(null);
@@ -40,30 +34,17 @@ public class CropperServiceImplBehavior {
 	}
 
 	@Test
-	public void should() throws Exception {
-		String path =
-			"http://i.ebayimg.com/00/s/NDU2WDgwMA==/$(KGrHqR,!pQFD8qB!CEcBRL)dcN67w~~48_20.JPG";
-		ClientConnectionManager connectionManager = new PoolingClientConnectionManager();
+	public void shouldMatchCropperByKey() throws Exception {
+		CropperMock cropper1 = new CropperMock(new byte[0]);
+		CropperMock cropper2 = new CropperMock(new byte[0]);
 		CropperServiceImpl.Builder builder =
-			CropperServiceImpl.builder(new HttpClientDownloader(connectionManager, 0),
-				MagickImage.FACTORY);
+			CropperServiceImpl.builder(NULL_DOWNLOADER, NULL_FACTORY);
 		builder.allowImagePath(".*");
-		builder.cropper("100x100", Cropper.builder(100, 100).x2Quality(0.9f).build());
-		builder.cropper("200x200", Cropper.builder(200, 200).x2Quality(0.2f).build());
-		builder.cropper("300x300", Cropper.builder(300, 300).x2Quality(0.1f).build());
+		builder.cropper("key1", cropper1);
+		builder.cropper("key2", cropper2);
 		CropperService service = builder.build();
-		byte[] data =
-			service
-				.cropImage("100x100/i.ebayimg.com/00/s/NDU2WDgwMA==/$(KGrHqR,!pQFD8qB!CEcBRL)dcN67w~~48_20.JPG");
-		try (OutputStream out = new FileOutputStream("doc/img/test.jpg")) {
-			out.write(data);
-		}
-
-	}
-
-	private CropperServiceImpl.Builder builder(TestImage testImage) throws IOException {
-		return CropperServiceImpl
-			.builder(new DownloaderMock(testImage.read()), MagickImage.FACTORY);
+		assertTrue(service.cropImage("/key1/xxxxx") == cropper1.data);
+		assertTrue(service.cropImage("key2/xxxxx") == cropper2.data);
 	}
 
 }

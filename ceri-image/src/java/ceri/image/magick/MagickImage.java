@@ -27,8 +27,8 @@ import ceri.image.Interpolation;
 public class MagickImage implements Image {
 	private static final String IM_PATH_PROPERTY = "IM4JAVA_TOOLPATH";
 	private static final String DEFAULT_IM_PATH = "/opt/ImageMagick/bin";
-	public static final String STDIO = "-";
-	public static final String SEPARATOR = ":";
+	private static final String STDIO = "-";
+	private static final String SEPARATOR = ":";
 
 	static {
 		String imPath = System.getProperty(IM_PATH_PROPERTY, DEFAULT_IM_PATH);

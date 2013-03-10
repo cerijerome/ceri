@@ -17,17 +17,19 @@ import ceri.geo.GeoUtil;
  * specifies the quality of a cropped image.
  */
 public class Cropper {
+	static final float X1_QUALITY_DEF = 0.9f;
+	static final float X2_QUALITY_DEF = 0.2f;
 	static final float ZERO = 0.0f;
 	static final float ONE = 1.0f;
-	public final AlignX alignX;
-	public final AlignY alignY;
-	public final float maxSizeIncrease;
-	public final Interpolation interpolation;
-	public final Format format;
-	public final float x2Quality;
-	public final float x1Quality;
-	public final int width;
-	public final int height;
+	private final AlignX alignX;
+	private final AlignY alignY;
+	private final float maxSizeIncrease;
+	private final Interpolation interpolation;
+	private final Format format;
+	private final float x2Quality;
+	private final float x1Quality;
+	private final int width;
+	private final int height;
 	private final int hashCode;
 
 	public static class Builder {
@@ -36,8 +38,8 @@ public class Cropper {
 		float maxSizeIncrease = ONE;
 		Interpolation interpolation = Interpolation.BICUBIC;
 		Format format = Format.JPEG;
-		float x2Quality = ZERO;
-		float x1Quality = ONE;
+		float x2Quality = X2_QUALITY_DEF;
+		float x1Quality = X1_QUALITY_DEF;
 		final int width;
 		final int height;
 
@@ -170,6 +172,7 @@ public class Cropper {
 		if (this == obj) return true;
 		if (!(obj instanceof Cropper)) return false;
 		Cropper cropper = (Cropper) obj;
+		if (hashCode != cropper.hashCode) return false;
 		if (width != cropper.width) return false;
 		if (height != cropper.height) return false;
 		if (alignX != cropper.alignX) return false;

@@ -54,6 +54,7 @@ public class CropperServiceImpl implements CropperService {
 
 		/**
 		 * Specify allowed image url regex patterns.
+		 * Pattern matches whole path.
 		 */
 		public Builder allowImagePath(String... patterns) {
 			for (String pattern : patterns)
@@ -83,6 +84,14 @@ public class CropperServiceImpl implements CropperService {
 		imageFactory = builder.imageFactory;
 	}
 
+	/**
+	 * The collection of keys that map to Cropper instances.
+	 */
+	@Override
+	public Collection<String> keys() {
+		return croppers.keySet();
+	}
+	
 	/**
 	 * Downloads and crops an image. The path should be in the format
 	 * (/)key/imageurl and is typically taken as the path after the domain in

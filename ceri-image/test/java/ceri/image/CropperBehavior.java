@@ -66,7 +66,7 @@ public class CropperBehavior {
 	}
 
 	@Test
-	public void shouldResizeUseGivenInterpolation() {
+	public void shouldResizeUsingGivenInterpolation() {
 		ImageMock image = new ImageMock(200, 100);
 		Cropper.builder(200, 100).interpolation(Interpolation.NEAREST_NEIGHBOR).build().crop(image);
 		assertThat(image.interpolation, is(Interpolation.NEAREST_NEIGHBOR));
