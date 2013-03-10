@@ -1,5 +1,0 @@
-- include httpclient
-- complete service tests
-- build cropper service
-- set 92 for quality
-- try graphicsmagick
