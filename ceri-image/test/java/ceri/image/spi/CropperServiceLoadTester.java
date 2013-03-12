@@ -36,8 +36,8 @@ public class CropperServiceLoadTester {
 
 	public static void main(String[] args) throws Exception {
 		CropperService service = DefaultCropperService.create();		
-		CropperServiceLoadTester tester = new CropperServiceLoadTester(service, 20, 100);
-		tester.run(60 * 1000);
+		CropperServiceLoadTester tester = new CropperServiceLoadTester(service, 10, 100);
+		tester.run(5 * 1000);
 	}
 
 	public void printStats() {

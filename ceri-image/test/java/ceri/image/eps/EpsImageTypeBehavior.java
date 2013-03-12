@@ -15,7 +15,7 @@ public class EpsImageTypeBehavior {
 	}
 
 	@Test
-	public void shouldChangeEpsUrlsForNewImageSize() {
+	public void shouldChangeUrlsForNewImageSizeThatMatchEpsStyleEnding() {
 		String epsUrl =
 			"http://i.ebayimg.com/00/s/NDU2WDgwMA==/$(KGrHqR,!pQFD8qB!CEcBRL)dcN67w~~48_20.JPG";
 		assertThat(EpsImageType._1.url(epsUrl),
@@ -23,9 +23,17 @@ public class EpsImageTypeBehavior {
 		epsUrl = "/i.ebayimg.com/00/s/NDU2WDgwMA==/$(KGrHqR,!pQFD8qB!CEcBRL)dcN67w~~48_20.JPG";
 		assertThat(EpsImageType._100.url(epsUrl),
 			is("/i.ebayimg.com/00/s/NDU2WDgwMA==/$(KGrHqR,!pQFD8qB!CEcBRL)dcN67w~~48_100.JPG"));
-		epsUrl = "00/s/NDU2WDgwMA==/$(KGrHqR,!pQFD8qB!CEcBRL)dcN67w~~48_20.JPG";
+		epsUrl = "00/s/NDU2WDgwMA==/$(KGrHqR,!pQFD8qB!CEcBRL)dcN67w~~48_20.jpg";
 		assertThat(EpsImageType._0.url(epsUrl),
-			is("00/s/NDU2WDgwMA==/$(KGrHqR,!pQFD8qB!CEcBRL)dcN67w~~48_0.JPG"));
+			is("00/s/NDU2WDgwMA==/$(KGrHqR,!pQFD8qB!CEcBRL)dcN67w~~48_0.jpg"));
+	}
+
+	@Test
+	public void shouldNotModifyUrlsThatDoNotMatchEpsStyleEnding() {
+		String url = "http://abc.com/img100.jpg";
+		assertThat(EpsImageType._0.url(url), is(url));
+		url = "http://i.ebayimg.com/00/s/NDU2WDgwMA==/$(KGrHqR,!pQFD8qB!CEcBRL)dcN67w~~48_.JPG";
+		assertThat(EpsImageType._1.url(url), is(url));
 	}
 
 }

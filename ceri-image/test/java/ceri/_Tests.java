@@ -8,6 +8,7 @@ import ceri.geo.GeoUtilTest;
 import ceri.image.CropperBehavior;
 import ceri.image.ImageUtilTest;
 import ceri.image.Java2dImageBehavior;
+import ceri.image.eps.EpsDomainBehavior;
 import ceri.image.eps.EpsImageTypeBehavior;
 import ceri.image.magick.MagickImageBehavior;
 import ceri.image.spi.CropperServiceImplBehavior;
@@ -20,6 +21,7 @@ import ceri.image.spi.CropperServiceImplBehavior;
 	CropperBehavior.class,
 	ImageUtilTest.class,
 	Java2dImageBehavior.class,
+	EpsDomainBehavior.class,
 	EpsImageTypeBehavior.class,
 	MagickImageBehavior.class,
 	CropperServiceImplBehavior.class,

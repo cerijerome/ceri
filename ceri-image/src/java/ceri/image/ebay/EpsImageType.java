@@ -1,6 +1,7 @@
 package ceri.image.ebay;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * The documented Image Types for eBay Picture Services.
@@ -107,6 +108,7 @@ public enum EpsImageType {
 	_103(180, 180),
 	_104(720, 215);
 	
+	private static final Pattern pathPattern = Pattern.compile("(?i)_\\d+\\.(jpg)$");
 	public final int id;
 	public final int width;
 	public final int height;
@@ -124,16 +126,23 @@ public enum EpsImageType {
 	}
 	
 	/**
-	 * Creates the url from a given eps path
+	 * Attempts to creates an EPS url for this id type from a given EPS url.
+	 * Does not attempt to match domain, just the ending of the url.
 	 */
 	public String url(String epsPath) {
-		return epsPath.replaceFirst("_\\d+\\.", "_" + id + ".");
+		return pathPattern.matcher(epsPath).replaceFirst("_" + id + ".$1");
 	}
 
+	/**
+	 * Returns the largest image type by area.
+	 */
 	public static EpsImageType largestType() {
 		return largestType(Arrays.asList(EpsImageType.values()));
 	}
 	
+	/**
+	 * Returns the largest image type by area from the given types.
+	 */
 	public static EpsImageType largestType(Iterable<EpsImageType> types) {
 		EpsImageType largestType = null;
 		long largestArea = 0;

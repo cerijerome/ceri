@@ -10,6 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.image.Cropper;
 import ceri.image.Image;
+import ceri.image.ebay.EpsDomain;
+import ceri.image.ebay.EpsImageType;
 
 /**
  * Implementation of the CropperService that takes a path, downloads the image,
@@ -24,12 +26,14 @@ public class CropperServiceImpl implements CropperService {
 	private final Map<String, Cropper> croppers;
 	private final Downloader downloader;
 	private final Image.Factory imageFactory;
+	private final EpsImageType epsSourceType;
 
 	public static class Builder {
 		final Collection<Pattern> allowedImagePaths = new HashSet<>();
 		final Map<String, Cropper> croppers = new HashMap<>();
 		final Downloader downloader;
 		final Image.Factory imageFactory;
+		EpsImageType epsSourceType = null;
 
 		Builder(Downloader downloader, Image.Factory imageFactory) {
 			this.downloader = downloader;
@@ -40,6 +44,8 @@ public class CropperServiceImpl implements CropperService {
 		 * Registers a Cropper instance and key for lookup.
 		 */
 		public Builder cropper(String key, Cropper cropper) {
+			if (croppers.containsKey(key)) throw new IllegalArgumentException(
+				"Cropper already registered for key " + key);
 			croppers.put(key, cropper);
 			return this;
 		}
@@ -48,13 +54,13 @@ public class CropperServiceImpl implements CropperService {
 		 * Registers Cropper instances and keys for lookup.
 		 */
 		public Builder croppers(Map<String, Cropper> croppers) {
-			croppers.putAll(croppers);
+			for (Map.Entry<String, Cropper> entry : croppers.entrySet())
+				cropper(entry.getKey(), entry.getValue());
 			return this;
 		}
 
 		/**
-		 * Specify allowed image url regex patterns.
-		 * Pattern matches whole path.
+		 * Specify allowed image url regex patterns. Pattern matches whole path.
 		 */
 		public Builder allowImagePath(String... patterns) {
 			for (String pattern : patterns)
@@ -62,6 +68,16 @@ public class CropperServiceImpl implements CropperService {
 			return this;
 		}
 
+		/**
+		 * Set an EPS image type to use for sourcing.
+		 * If a request is for an EPS image it will modify the image URL to the given type
+		 * before requesting the image.
+		 */
+		public Builder epsSourceType(EpsImageType epsSourceType) {
+			this.epsSourceType = epsSourceType;
+			return this;
+		}
+		
 		/**
 		 * Builds the service.
 		 */
@@ -82,6 +98,7 @@ public class CropperServiceImpl implements CropperService {
 		croppers = Collections.unmodifiableMap(new HashMap<>(builder.croppers));
 		downloader = builder.downloader;
 		imageFactory = builder.imageFactory;
+		epsSourceType = builder.epsSourceType;
 	}
 
 	/**
@@ -91,13 +108,13 @@ public class CropperServiceImpl implements CropperService {
 	public Collection<String> keys() {
 		return croppers.keySet();
 	}
-	
+
 	/**
 	 * Downloads and crops an image. The path should be in the format
 	 * (/)key/imageurl and is typically taken as the path after the domain in
 	 * the request URL. Key is used to get the registered Cropper instance.
-	 * Image urls must match a pattern added during construction or an
-	 * exception will be thrown.
+	 * Image urls must match a pattern added during construction or an exception
+	 * will be thrown.
 	 */
 	@Override
 	public byte[] cropImage(String path) throws CropperServiceException {
@@ -127,18 +144,18 @@ public class CropperServiceImpl implements CropperService {
 		throw new CropperServiceException("Image path not allowed: " + imagePath);
 	}
 
-	private byte[] loadImageData(String imageUrl)
-		throws CropperServiceException {
+	private byte[] loadImageData(String imageUrl) throws CropperServiceException {
 		try {
 			if (!imageUrl.toLowerCase().startsWith(HTTP)) imageUrl = HTTP + imageUrl;
+			if (epsSourceType != null && EpsDomain.domain(imageUrl) != null)
+				imageUrl = epsSourceType.url(imageUrl);
 			return downloader.download(imageUrl);
 		} catch (IOException e) {
 			throw new CropperServiceException("Failed to load " + imageUrl, e);
 		}
 	}
 
-	private Image createImage(byte[] imageData)
-		throws CropperServiceException {
+	private Image createImage(byte[] imageData) throws CropperServiceException {
 		try {
 			return imageFactory.create(imageData);
 		} catch (IOException e) {
