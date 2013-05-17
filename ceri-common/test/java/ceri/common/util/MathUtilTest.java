@@ -9,6 +9,21 @@ import org.junit.Test;
 public class MathUtilTest {
 
 	@Test
+	public void testMean() {
+		assertThat(MathUtil.mean(0), is(0.0));
+		assertThat(MathUtil.mean(Double.MAX_VALUE), is(Double.MAX_VALUE));
+		assertThat(MathUtil.mean(-1, -2, 9), is(2.0));
+	}
+	
+	@Test
+	public void testMedian() {
+		assertThat(MathUtil.median(0), is(0.0));
+		assertThat(MathUtil.median(Double.MAX_VALUE), is(Double.MAX_VALUE));
+		assertThat(MathUtil.median(-1, -2, 9), is(-1.0));
+		assertThat(MathUtil.median(1, 2, 3, 4), is(2.5));
+	}
+	
+	@Test
 	public void testCompare() {
 		assertThat(MathUtil.compare(Integer.MAX_VALUE, Integer.MIN_VALUE), is(1));
 		assertThat(MathUtil.compare(Integer.MIN_VALUE, Integer.MAX_VALUE), is(-1));

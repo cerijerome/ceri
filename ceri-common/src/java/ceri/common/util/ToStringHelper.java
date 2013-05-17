@@ -17,7 +17,7 @@ public class ToStringHelper {
 	private final String name;
 	private final List<String> fields = new ArrayList<>();
 
-	private ToStringHelper(String name) {
+	protected ToStringHelper(String name) {
 		this.name = name;
 	}
 

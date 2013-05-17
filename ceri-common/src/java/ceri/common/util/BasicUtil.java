@@ -125,25 +125,6 @@ public class BasicUtil {
 	}
 
 	/**
-	 * Checks if two types are equal. Returns false if one is null.
-	 */
-	public static boolean isEqual(Object lhs, Object rhs) {
-		if (lhs == rhs) return true;
-		if (lhs == null || rhs == null) return false;
-		return lhs.equals(rhs);
-	}
-
-	/**
-	 * Checks if string representations of objects are equal. Returns false if one is null.
-	 * Does not trim strings before checking equality.
-	 */
-	public static boolean isStringEqual(Object lhs, Object rhs) {
-		if (lhs == rhs) return true;
-		if (lhs == null || rhs == null) return false;
-		return String.valueOf(lhs).equals(String.valueOf(rhs));
-	}
-
-	/**
 	 * Makes sure a Class<?> is loaded. Use when static initialization
 	 * is required but only the Class<?> is referenced.
 	 */

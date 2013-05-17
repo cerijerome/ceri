@@ -4,8 +4,10 @@
 package ceri.common.util;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -220,6 +222,62 @@ public class PrimitiveUtil {
 	 */
 	public static Double[] convertDoubleArray(double... array) {
 		return copyArray(array, new Double[array.length]);
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Boolean> asList(boolean[] array) {
+		return Arrays.asList(convertBooleanArray(array));
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Byte> asList(byte[] array) {
+		return Arrays.asList(convertByteArray(array));
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Character> asList(char[] array) {
+		return Arrays.asList(convertCharArray(array));
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Double> asList(double[] array) {
+		return Arrays.asList(convertDoubleArray(array));
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Float> asList(float[] array) {
+		return Arrays.asList(convertFloatArray(array));
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Integer> asList(int[] array) {
+		return Arrays.asList(convertIntArray(array));
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Long> asList(long[] array) {
+		return Arrays.asList(convertLongArray(array));
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Short> asList(short[] array) {
+		return Arrays.asList(convertShortArray(array));
 	}
 
 	/**

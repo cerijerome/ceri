@@ -78,20 +78,4 @@ public class BasicUtilTest {
 		assertFalse(BasicUtil.isEmpty(new Object[] { null }));
 	}
 
-	@Test
-	public void testIsEqual() {
-		assertTrue(BasicUtil.isEqual(null, null));
-		assertFalse(BasicUtil.isEqual("", null));
-		Date date = new Date(0);
-		java.sql.Date sqlDate = new java.sql.Date(0);
-		assertTrue(BasicUtil.isEqual(date, sqlDate));
-	}
-
-	@Test
-	public void testIsStringEqual() {
-		assertTrue(BasicUtil.isStringEqual(null, null));
-		assertFalse(BasicUtil.isStringEqual("null", null));
-		assertTrue(BasicUtil.isStringEqual(new Date(0), new Date(0)));
-	}
-
 }

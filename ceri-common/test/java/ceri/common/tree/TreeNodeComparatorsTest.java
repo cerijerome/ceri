@@ -11,7 +11,7 @@ public class TreeNodeComparatorsTest {
 	
 	@Test
 	public void testById() {
-		Comparator<TestNode> comparator = TreeNodeComparators.byId();
+		Comparator<TestNode> comparator = TreeNodeComparators.id();
 		assertThat(comparator.compare(null, null) == 0, is(true));
 		assertThat(comparator.compare(helper.root, null) > 0, is(true));
 		assertThat(comparator.compare(null, helper.root) < 0, is(true));

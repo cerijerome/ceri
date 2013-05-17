@@ -1,5 +1,6 @@
 package ceri.common.util;
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.collection.ArrayUtil;
@@ -26,7 +27,8 @@ public class TextUtil {
 	public static String[] toWords(String str) {
 		if (str.isEmpty()) return ArrayUtil.EMPTY_STRING;
 		String[] words = WORD_SPLIT_PATTERN.split(str);
-		return words;
+		if (words.length == 0 || words[0].length() > 0) return words; 
+		return Arrays.copyOfRange(words, 1, words.length);
 	}
 
 	/**
@@ -90,6 +92,16 @@ public class TextUtil {
 	public static String pascalToUpper(String str) {
 		if (str.isEmpty()) return str;
 		return CASE_BOUNDARY_PATTERN.matcher(str).replaceAll("$1_$2").toUpperCase();
+	}
+
+	/**
+	 * Changes Pascal case to capitalized words. Sequential
+	 * capital letters are not separated. e.g. _HelloThereABC_ =>
+	 * _Hello There ABC_
+	 */
+	public static String pascalToCapitalizedPhrase(String str) {
+		if (str.isEmpty()) return str;
+		return CASE_BOUNDARY_PATTERN.matcher(str).replaceAll("$1 $2");
 	}
 
 	/**

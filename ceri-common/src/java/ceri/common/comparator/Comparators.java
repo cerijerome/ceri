@@ -26,9 +26,9 @@ public class Comparators {
 	public static final Comparator<Character> CHARACTER = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<String> STRING = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Date> DATE = BasicUtil.uncheckedCast(COMPARABLE);
-	public static final Comparator<Locale> LOCALE = byString();
+	public static final Comparator<Locale> LOCALE = string();
 
-	private static final Comparator<?> BY_STRING = new BaseComparator<Object>() {
+	private static final Comparator<?> STRING_VALUE = new BaseComparator<Object>() {
 		@Override
 		protected int compareNonNull(Object lhs, Object rhs) {
 			return STRING.compare(String.valueOf(lhs), String.valueOf(rhs));
@@ -56,15 +56,15 @@ public class Comparators {
 	/**
 	 * Comparator for comparable objects.
 	 */
-	public static <T extends Comparable<? super T>> Comparator<T> byComparable() {
+	public static <T extends Comparable<? super T>> Comparator<T> comparable() {
 		return BasicUtil.<Comparator<T>>uncheckedCast(COMPARABLE);
 	}
 
 	/**
 	 * Comparator for string representations of objects.
 	 */
-	public static <T> Comparator<T> byString() {
-		return BasicUtil.<Comparator<T>>uncheckedCast(BY_STRING);
+	public static <T> Comparator<T> string() {
+		return BasicUtil.<Comparator<T>>uncheckedCast(STRING_VALUE);
 	}
 
 	/**
@@ -101,14 +101,14 @@ public class Comparators {
 	 * Comparator to group given items first. 
 	 */
 	@SafeVarargs
-	public static <T> Comparator<T> byFirst(final T...ts) {
-		return byFirst(ImmutableUtil.copy(ts));
+	public static <T> Comparator<T> first(final T...ts) {
+		return first(ImmutableUtil.copy(ts));
 	}
 	
 	/**
 	 * Comparator to group given items first. 
 	 */
-	public static <T> Comparator<T> byFirst(final Collection<T> ts) {
+	public static <T> Comparator<T> first(final Collection<T> ts) {
 		return new BaseComparator<T>() {
 			@Override
 			protected int compareNonNull(T lhs, T rhs) {

@@ -161,7 +161,9 @@ public class StringUtil {
 	}
 
 	/**
-	 * Wrap a print stream around a string builder.
+	 * Wrap a PrintStream around a string builder.
+	 * PrintStream will not flush automatically.
+	 * 
 	 */
 	public static PrintStream asPrintStream(final StringBuilder s) {
 		return new PrintStream(new OutputStream() {

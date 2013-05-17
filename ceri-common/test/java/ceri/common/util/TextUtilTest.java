@@ -54,6 +54,13 @@ public class TextUtilTest {
 	}
 	
 	@Test
+	public void testPascalToCapitalizedPhrase() {
+		assertThat(TextUtil.pascalToCapitalizedPhrase(""), is(""));
+		assertThat(TextUtil.pascalToCapitalizedPhrase("_HelloThereABC_"), is("_Hello There ABC_"));
+		assertThat(TextUtil.pascalToCapitalizedPhrase("Hello1There2ABC3_"), is("Hello1 There2 ABC3_"));
+	}
+	
+	@Test
 	public void testUpperToCapitalized() {
 		assertThat(TextUtil.upperToCapitalized(""), is(""));
 		assertThat(TextUtil.upperToCapitalized("_HELLO_THERE_ABC_"), is("_Hello_There_Abc_"));

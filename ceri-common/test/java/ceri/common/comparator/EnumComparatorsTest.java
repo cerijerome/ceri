@@ -12,7 +12,7 @@ public class EnumComparatorsTest {
 	
 	@Test
 	public void testByOrdinal() {
-		Comparator<TestEnum> comparator = EnumComparators.byOrdinal();
+		Comparator<TestEnum> comparator = EnumComparators.ordinal();
 		assertThat(comparator.compare(TestEnum.C, TestEnum.B) < 0, is(true));
 		assertThat(comparator.compare(TestEnum.B, TestEnum.A) < 0, is(true));
 		assertThat(comparator.compare(TestEnum.A, TestEnum.C) > 0, is(true));
@@ -20,7 +20,7 @@ public class EnumComparatorsTest {
 
 	@Test
 	public void testByName() {
-		Comparator<TestEnum> comparator = EnumComparators.byName();
+		Comparator<TestEnum> comparator = EnumComparators.name();
 		assertThat(comparator.compare(TestEnum.C, TestEnum.B) > 0, is(true));
 		assertThat(comparator.compare(TestEnum.B, TestEnum.A) > 0, is(true));
 		assertThat(comparator.compare(TestEnum.A, TestEnum.C) < 0, is(true));

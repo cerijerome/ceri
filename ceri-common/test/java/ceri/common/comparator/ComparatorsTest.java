@@ -20,7 +20,7 @@ public class ComparatorsTest {
 
 	@Test
 	public void testByComparable() {
-		Comparator<String> comparator = Comparators.byComparable();
+		Comparator<String> comparator = Comparators.comparable();
 		assertThat(comparator.compare(null, null), is(0));
 		assertThat(comparator.compare("A", null) > 0, is(true));
 		assertThat(comparator.compare(null, "A") < 0, is(true));
@@ -31,7 +31,7 @@ public class ComparatorsTest {
 	
 	@Test
 	public void testByString() {
-		Comparator<String> comparator = Comparators.byString();
+		Comparator<String> comparator = Comparators.string();
 		assertThat(comparator.compare(null, null), is(0));
 		assertThat(comparator.compare("A", null) > 0, is(true));
 		assertThat(comparator.compare(null, "A") < 0, is(true));
@@ -57,7 +57,7 @@ public class ComparatorsTest {
 
 	@Test
 	public void testReverse() {
-		Comparator<Integer> comparator = Comparators.<Integer>byComparable();
+		Comparator<Integer> comparator = Comparators.<Integer>comparable();
 		Comparator<Integer> reverseComparator = Comparators.reverse(comparator);
 		assertThat(reverseComparator.compare(0, 0), is(-comparator.compare(0, 0)));
 		assertThat(reverseComparator.compare(0, 1), is(-comparator.compare(0, 1)));

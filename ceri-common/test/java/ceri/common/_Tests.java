@@ -13,7 +13,9 @@ import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
 import ceri.common.date.ImmutableDateBehavior;
+import ceri.common.date.ImmutableTimeZoneBehavior;
 import ceri.common.date.MultiDateParserBehavior;
+import ceri.common.date.TimeUnitBehavior;
 import ceri.common.io.BlockingBufferStreamBehavior;
 import ceri.common.io.ByteBufferStreamBehavior;
 import ceri.common.io.FileFiltersTest;
@@ -33,6 +35,7 @@ import ceri.common.tree.TreeNodeComparatorsTest;
 import ceri.common.tree.TreeUtilTest;
 import ceri.common.util.AsyncRunnerBehavior;
 import ceri.common.util.BasicUtilTest;
+import ceri.common.util.EqualsUtilTest;
 import ceri.common.util.FixedSizeCacheBehavior;
 import ceri.common.util.HashCoderBehavior;
 import ceri.common.util.LocaleUtilTest;
@@ -60,7 +63,9 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	EnumComparatorsTest.class,
 	// date
 	ImmutableDateBehavior.class,
+	ImmutableTimeZoneBehavior.class,
 	MultiDateParserBehavior.class,
+	TimeUnitBehavior.class,
 	// io
 	BlockingBufferStreamBehavior.class,
 	ByteBufferStreamBehavior.class,
@@ -84,6 +89,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	// util
 	AsyncRunnerBehavior.class,
 	BasicUtilTest.class,
+	EqualsUtilTest.class,
 	FixedSizeCacheBehavior.class,
 	HashCoderBehavior.class,
 	LocaleUtilTest.class,

@@ -3,10 +3,37 @@
  */
 package ceri.common.util;
 
+import java.util.Arrays;
+
 public class MathUtil {
 	private static final char ZERO = '0';
 	private static final int BASE10 = 10;
 
+	/**
+	 * Mean value from an array of doubles.
+	 */
+	public static double mean(double...values) {
+		if (values.length == 0) throw new IllegalArgumentException("No values specified");
+		if (values.length == 1) return values[0];
+		double d = 0;
+		int i = 0;
+		while (i < values.length) d += values[i++];
+		return d / i;
+	}
+	
+	/**
+	 * Median value from an array of doubles.
+	 */
+	public static double median(double...values) {
+		if (values.length == 0) throw new IllegalArgumentException("No values specified");
+		if (values.length == 1) return values[0];
+		double[] sortedValues = Arrays.copyOf(values, values.length);
+		Arrays.sort(sortedValues);
+		int midIndex = values.length / 2;
+		if (values.length % 2 == 1) return sortedValues[midIndex];
+		return (sortedValues[midIndex - 1]  + sortedValues[midIndex]) / 2.0; 
+	}
+	
 	/**
 	 * Converts a long value into an array of digits in base 10.
 	 */
@@ -152,7 +179,7 @@ public class MathUtil {
 	 * Returns the minimum value in the primitive array, or 0 if the array has
 	 * no values.
 	 */
-	public static byte min(byte[] array) {
+	public static byte min(byte...array) {
 		if (array.length == 0) return 0;
 		byte min = Byte.MAX_VALUE;
 		for (byte val : array)
@@ -164,7 +191,7 @@ public class MathUtil {
 	 * Returns the minimum value in the primitive array, or 0 if the array has
 	 * no values.
 	 */
-	public static short min(short[] array) {
+	public static short min(short...array) {
 		if (array.length == 0) return 0;
 		short min = Short.MAX_VALUE;
 		for (short val : array)
@@ -176,7 +203,7 @@ public class MathUtil {
 	 * Returns the minimum value in the primitive array, or 0 if the array has
 	 * no values.
 	 */
-	public static int min(int[] array) {
+	public static int min(int...array) {
 		if (array.length == 0) return 0;
 		int min = Integer.MAX_VALUE;
 		for (int val : array)
@@ -188,7 +215,7 @@ public class MathUtil {
 	 * Returns the minimum value in the primitive array, or 0 if the array has
 	 * no values.
 	 */
-	public static long min(long[] array) {
+	public static long min(long...array) {
 		if (array == null) return 0;
 		long min = Long.MAX_VALUE;
 		for (long val : array)
@@ -200,7 +227,7 @@ public class MathUtil {
 	 * Returns the minimum value in the primitive array, or 0 if the array has
 	 * no values.
 	 */
-	public static float min(float[] array) {
+	public static float min(float...array) {
 		if (array == null) return 0;
 		float min = Float.MAX_VALUE;
 		for (float val : array)
@@ -212,7 +239,7 @@ public class MathUtil {
 	 * Returns the minimum value in the primitive array, or 0 if the array has
 	 * no values.
 	 */
-	public static double min(double[] array) {
+	public static double min(double...array) {
 		if (array == null) return 0;
 		double min = Double.MAX_VALUE;
 		for (double val : array)
@@ -224,7 +251,7 @@ public class MathUtil {
 	 * Returns the maximum value in the primitive array, or 0 if the array has
 	 * no values.
 	 */
-	public static byte max(byte[] array) {
+	public static byte max(byte...array) {
 		if (array == null) return 0;
 		byte max = Byte.MIN_VALUE;
 		for (byte val : array)
@@ -236,7 +263,7 @@ public class MathUtil {
 	 * Returns the maximum value in the primitive array, or 0 if the array has
 	 * no values.
 	 */
-	public static short max(short[] array) {
+	public static short max(short...array) {
 		if (array == null) return 0;
 		short max = Short.MIN_VALUE;
 		for (short val : array)
@@ -248,7 +275,7 @@ public class MathUtil {
 	 * Returns the maximum value in the primitive array, or 0 if the array has
 	 * no values.
 	 */
-	public static int max(int[] array) {
+	public static int max(int...array) {
 		if (array == null) return 0;
 		int max = Integer.MIN_VALUE;
 		for (int val : array)
@@ -260,7 +287,7 @@ public class MathUtil {
 	 * Returns the maximum value in the primitive array, or 0 if the array has
 	 * no values.
 	 */
-	public static long max(long[] array) {
+	public static long max(long...array) {
 		if (array == null) return 0;
 		long max = Long.MIN_VALUE;
 		for (long val : array)
@@ -272,7 +299,7 @@ public class MathUtil {
 	 * Returns the maximum value in the primitive array, or 0 if the array has
 	 * no values.
 	 */
-	public static float max(float[] array) {
+	public static float max(float...array) {
 		if (array == null) return 0;
 		float max = Float.MIN_VALUE;
 		for (float val : array)
@@ -284,7 +311,7 @@ public class MathUtil {
 	 * Returns the maximum value in the primitive array, or 0 if the array has
 	 * no values.
 	 */
-	public static double max(double[] array) {
+	public static double max(double...array) {
 		if (array == null) return 0;
 		double max = Double.MIN_VALUE;
 		for (double val : array)

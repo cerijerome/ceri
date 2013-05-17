@@ -9,7 +9,7 @@ import ceri.common.util.BasicUtil;
  * Comparators for TreeNode types.
  */
 public class TreeNodeComparators {
-	private static final Comparator<TreeNode<?>> BY_ID = new BaseComparator<TreeNode<?>>() {
+	private static final Comparator<TreeNode<?>> ID = new BaseComparator<TreeNode<?>>() {
 		@Override
 		protected int compareNonNull(TreeNode<?> o1, TreeNode<?> o2) {
 			return Comparators.INTEGER.compare(o1.id, o2.id);
@@ -21,8 +21,8 @@ public class TreeNodeComparators {
 	/**
 	 * Comparator for tree nodes by id.
 	 */
-	public static <T extends TreeNode<T>> Comparator<T> byId() {
-		return BasicUtil.<Comparator<T>>uncheckedCast(BY_ID);
+	public static <T extends TreeNode<T>> Comparator<T> id() {
+		return BasicUtil.<Comparator<T>>uncheckedCast(ID);
 	}
 
 }
