@@ -37,7 +37,7 @@ public class MultiDateParser {
 			dateFormats.add(dateFormat);
 		}
 		this.dateFormats = Collections.unmodifiableList(dateFormats);
-		this.patterns = ImmutableUtil.copyAsList(patterns);
+		this.patterns = ImmutableUtil.arrayAsList(patterns);
 	}
 	
 	/**

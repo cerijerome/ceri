@@ -14,12 +14,12 @@ public class FiltersTest {
 
 	@Test
 	public void testNul() {
-		assertTrue(Filters.nul() == Filters.nul()); // same instance
-		assertTrue(Filters.nul().filter(null));
-		assertTrue(Filters.nul().filter(false));
-		assertTrue(Filters.nul().filter(Double.NaN));
-		assertTrue(Filters.nul().filter(Double.NEGATIVE_INFINITY));
-		assertTrue(Filters.nul().filter(Long.MIN_VALUE));
+		assertTrue(Filters._true() == Filters._true()); // same instance
+		assertTrue(Filters._true().filter(null));
+		assertTrue(Filters._true().filter(false));
+		assertTrue(Filters._true().filter(Double.NaN));
+		assertTrue(Filters._true().filter(Double.NEGATIVE_INFINITY));
+		assertTrue(Filters._true().filter(Long.MIN_VALUE));
 	}
 
 	@Test
@@ -33,7 +33,7 @@ public class FiltersTest {
 	
 	@Test
 	public void testNot() {
-		assertFalse(Filters.not(Filters.nul()).filter(null));
+		assertFalse(Filters.not(Filters._true()).filter(null));
 		Filter<Integer> filter = Filters.not(Filters.eq(0));
 		assertTrue(filter.filter(1));
 		assertFalse(filter.filter(0));

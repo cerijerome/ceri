@@ -21,6 +21,15 @@ public class CollectionUtil {
 	private CollectionUtil() {
 	}
 
+	public static <T> Iterable<T> iterable(final Iterator<T> iterator) {
+		return new Iterable<T>() {
+			@Override
+			public Iterator<T> iterator() {
+				return iterator;
+			}
+		};
+	}
+	
 	public static <T> Iterable<T> reverseIterableList(final List<T> list) {
 		return new Iterable<T> () {
 			@Override

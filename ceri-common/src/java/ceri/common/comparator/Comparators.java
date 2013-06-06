@@ -102,7 +102,7 @@ public class Comparators {
 	 */
 	@SafeVarargs
 	public static <T> Comparator<T> first(final T...ts) {
-		return first(ImmutableUtil.copy(ts));
+		return first(ImmutableUtil.asList(ts));
 	}
 	
 	/**

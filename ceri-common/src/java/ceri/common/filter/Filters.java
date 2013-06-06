@@ -12,14 +12,14 @@ import ceri.common.util.BasicUtil;
  * Basic filters and filter utilities.
  */
 public class Filters {
-	
-	private static final Filter<Object> NULL = new Filter<Object>() {
+	private static final Filter<Object> TRUE = new Filter<Object>() {
 		@Override
 		public boolean filter(Object t) {
 			return true;
 		}
 	};
-
+	private static final Filter<Object> FALSE = not(TRUE);
+		
 	private Filters() {}	
 	
 	/**
@@ -33,10 +33,17 @@ public class Filters {
 	}
 
 	/**
-	 * A null filter, returns true for all conditions.
+	 * A filter that returns true for all conditions.
 	 */
-	public static <T> Filter<T> nul() {
-		return BasicUtil.uncheckedCast(NULL);
+	public static <T> Filter<T> _true() {
+		return BasicUtil.uncheckedCast(TRUE);
+	}
+
+	/**
+	 * A filter that returns false for all conditions.
+	 */
+	public static <T> Filter<T> _false() {
+		return BasicUtil.uncheckedCast(FALSE);
 	}
 
 	/**
@@ -80,7 +87,7 @@ public class Filters {
 	 */
 	@SafeVarargs
 	public static <T> Filter<T> any(final Filter<? super T>... filters) {
-		if (filters == null || filters.length == 0) return nul();
+		if (filters == null || filters.length == 0) return _true();
 		return any(Arrays.asList(filters));
 	}
 
@@ -89,7 +96,7 @@ public class Filters {
 	 */
 	@SafeVarargs
 	public static <T> Filter<T> all(final Filter<? super T>... filters) {
-		if (filters == null || filters.length == 0) return nul();
+		if (filters == null || filters.length == 0) return _true();
 		return all(Arrays.asList(filters));
 	}
 
@@ -97,7 +104,7 @@ public class Filters {
 	 * Combines filters to return true if any filter matches.
 	 */
 	public static <T> Filter<T> any(final Collection<? extends Filter<? super T>> filters) {
-		if (filters == null || filters.isEmpty()) return nul();
+		if (filters == null || filters.isEmpty()) return _true();
 		return new Filter<T>() {
 			@Override
 			public boolean filter(T t) {
@@ -112,7 +119,7 @@ public class Filters {
 	 * Combines filters to return true only if all filters match.
 	 */
 	public static <T> Filter<T> all(final Collection<? extends Filter<? super T>> filters) {
-		if (filters == null || filters.isEmpty()) return nul();
+		if (filters == null || filters.isEmpty()) return _true();
 		return new Filter<T>() {
 			@Override
 			public boolean filter(T t) {

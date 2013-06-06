@@ -25,17 +25,26 @@ public class ImmutableUtil {
 		return Collections.unmodifiableList(new ArrayList<>(list));
 	}
 
-	public static <T> List<T> copyAsList(T[] array) {
+	public static <T> List<T> arrayAsList(T[] array) {
 		List<T> list = new ArrayList<>();
 		Collections.addAll(list, array);
 		return Collections.unmodifiableList(list);
 	}
 
+	public static <T> Set<T> arrayAsSet(T[] array) {
+		Set<T> set = new HashSet<>();
+		Collections.addAll(set, array);
+		return Collections.unmodifiableSet(set);
+	}
+
 	@SafeVarargs
-	public static <T> List<T> copy(T... array) {
-		List<T> list = new ArrayList<>();
-		Collections.addAll(list, array);
-		return Collections.unmodifiableList(list);
+	public static <T> List<T> asList(T... array) {
+		return arrayAsList(array);
+	}
+	
+	@SafeVarargs
+	public static <T> Set<T> asSet(T... array) {
+		return arrayAsSet(array);
 	}
 	
 }

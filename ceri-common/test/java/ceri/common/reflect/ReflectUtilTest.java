@@ -1,12 +1,27 @@
 package ceri.common.reflect;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import java.util.Date;
 import org.junit.Test;
 
 public class ReflectUtilTest {
 	
+	@Test
+	public void testInstanceOf() {
+		assertFalse(ReflectUtil.instanceOf(null));
+		assertFalse(ReflectUtil.instanceOf(Object.class));
+		Object obj = new Long(Long.MAX_VALUE);
+		assertTrue(ReflectUtil.instanceOf(obj, Long.class));
+		assertTrue(ReflectUtil.instanceOf(obj, Number.class));
+		assertTrue(ReflectUtil.instanceOf(obj, Object.class));
+		assertFalse(ReflectUtil.instanceOf(obj, Float.class));
+		assertFalse(ReflectUtil.instanceOf(obj, Float.class, Integer.class));
+		assertTrue(ReflectUtil.instanceOf(obj, Float.class, Integer.class, Number.class));
+	}
+
 	@Test(expected=CreateException.class)
 	public void testCreateObjectDefault() throws CreateException {
 		assertThat(ReflectUtil.createObject(String.class), is(""));

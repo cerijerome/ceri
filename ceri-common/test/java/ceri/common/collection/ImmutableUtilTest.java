@@ -20,14 +20,14 @@ public class ImmutableUtilTest {
 
 	@Test
 	public void testCopy() {
-		final List<Integer> list = ImmutableUtil.copy(1, 2, 3, 4, 5);
+		final List<Integer> list = ImmutableUtil.asList(1, 2, 3, 4, 5);
 		assertThat(list, is(Arrays.asList(1, 2, 3, 4, 5)));
 		assertImmutableList(list);
 	}
 
 	@Test
 	public void testArrayCopyAsList() {
-		final List<Integer> list = ImmutableUtil.copyAsList(new Integer[] { 1, 2, 3, 4, 5 });
+		final List<Integer> list = ImmutableUtil.arrayAsList(new Integer[] { 1, 2, 3, 4, 5 });
 		assertThat(list, is(Arrays.asList(1, 2, 3, 4, 5)));
 		assertImmutableList(list);
 	}
