@@ -1,0 +1,5 @@
+#/bin/bash
+
+tar czf ceri-image-src.tgz src/java
+tar czf ceri-image-test.tgz test/java
+
