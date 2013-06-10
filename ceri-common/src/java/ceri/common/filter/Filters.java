@@ -19,9 +19,9 @@ public class Filters {
 		}
 	};
 	private static final Filter<Object> FALSE = not(TRUE);
-		
-	private Filters() {}	
-	
+
+	private Filters() {}
+
 	/**
 	 * Applies a filter to a collection, removing items that do not match.
 	 */
@@ -50,12 +50,13 @@ public class Filters {
 	 * Returns true if value equals any of the given values.
 	 */
 	@SafeVarargs
-	public static <T> Filter<T> eqAny(final T...values) {
+	public static <T> Filter<T> eqAny(final T... values) {
 		List<Filter<T>> filters = new ArrayList<>();
-		for (T value : values) filters.add(eq(value));
+		for (T value : values)
+			filters.add(eq(value));
 		return any(filters);
 	}
-	
+
 	/**
 	 * Returns true if value equals given value.
 	 */
@@ -74,6 +75,7 @@ public class Filters {
 	 * Inverts a given filter.
 	 */
 	public static <T> Filter<T> not(final Filter<? super T> filter) {
+		if (filter == null) return _false();
 		return new Filter<T>() {
 			@Override
 			public boolean filter(T t) {
@@ -87,7 +89,7 @@ public class Filters {
 	 */
 	@SafeVarargs
 	public static <T> Filter<T> any(final Filter<? super T>... filters) {
-		if (filters == null || filters.length == 0) return _true();
+		if (BasicUtil.isEmpty(filters)) return _true();
 		return any(Arrays.asList(filters));
 	}
 
@@ -96,7 +98,7 @@ public class Filters {
 	 */
 	@SafeVarargs
 	public static <T> Filter<T> all(final Filter<? super T>... filters) {
-		if (filters == null || filters.length == 0) return _true();
+		if (BasicUtil.isEmpty(filters)) return _true();
 		return all(Arrays.asList(filters));
 	}
 
@@ -104,7 +106,7 @@ public class Filters {
 	 * Combines filters to return true if any filter matches.
 	 */
 	public static <T> Filter<T> any(final Collection<? extends Filter<? super T>> filters) {
-		if (filters == null || filters.isEmpty()) return _true();
+		if (BasicUtil.isEmpty(filters)) return _true();
 		return new Filter<T>() {
 			@Override
 			public boolean filter(T t) {
@@ -119,7 +121,7 @@ public class Filters {
 	 * Combines filters to return true only if all filters match.
 	 */
 	public static <T> Filter<T> all(final Collection<? extends Filter<? super T>> filters) {
-		if (filters == null || filters.isEmpty()) return _true();
+		if (BasicUtil.isEmpty(filters)) return _true();
 		return new Filter<T>() {
 			@Override
 			public boolean filter(T t) {
@@ -134,13 +136,15 @@ public class Filters {
 	 * Filter that returns true for strings that match the given pattern.
 	 */
 	public static Filter<String> pattern(String pattern) {
+		if (BasicUtil.isEmpty(pattern)) return _true();
 		return pattern(Pattern.compile(pattern));
 	}
-	
+
 	/**
 	 * Filter that returns true for strings that match the given pattern.
 	 */
 	public static Filter<String> pattern(final Pattern pattern) {
+		if (pattern == null) return _true();
 		return new BaseFilter<String>() {
 			@Override
 			public boolean filterNonNull(String s) {
@@ -154,6 +158,7 @@ public class Filters {
 	 * Can specify to ignore case.
 	 */
 	public static Filter<String> contains(String str, final boolean ignoreCase) {
+		if (str == null || str.isEmpty()) return _true();
 		final String containsStr = ignoreCase ? str.toLowerCase() : str;
 		return new BaseFilter<String>() {
 			@Override
@@ -168,6 +173,7 @@ public class Filters {
 	 * Comparable filter that returns true if the value >= given minimum value.
 	 */
 	public static <T extends Comparable<T>> Filter<T> min(final T min) {
+		if (min == null) return _true();
 		return new BaseFilter<T>() {
 			@Override
 			public boolean filterNonNull(T t) {
@@ -180,6 +186,7 @@ public class Filters {
 	 * Comparable filter that returns true if the value <= given maximum value.
 	 */
 	public static <T extends Comparable<T>> Filter<T> max(final T max) {
+		if (max == null) return _true();
 		return new BaseFilter<T>() {
 			@Override
 			public boolean filterNonNull(T t) {
@@ -193,16 +200,15 @@ public class Filters {
 	 * A null limit value means don't check that end of the limit.
 	 */
 	public static <T extends Comparable<T>> Filter<T> range(final T min, final T max) {
-		return new Filter<T>() {
+		if (min == null && max == null) return _true();
+		return new BaseFilter<T>() {
 			@Override
-			public boolean filter(T t) {
-				if (min == null && max == null) return true;
-				if (t == null) return false;
+			public boolean filterNonNull(T t) {
 				if (min != null && t.compareTo(min) < 0) return false;
 				if (max != null && t.compareTo(max) > 0) return false;
 				return true;
 			};
 		};
 	}
-	
+
 }

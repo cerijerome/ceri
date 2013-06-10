@@ -4,4 +4,11 @@ bin/
 .classpath
 .DS_Store
 .old/
+eclipse/lib/google-gson-2.2.3/
+eclipse/lib/htmlunit-2.12/
+eclipse/lib/httpcomponents-client-4.2.3/
+eclipse/lib/im4java-1.4.0/
+eclipse/lib/jQuery-Visualize-master/
+eclipse/lib/jna-3.5.1/
+eclipse/lib/jwebunit-3/
 
