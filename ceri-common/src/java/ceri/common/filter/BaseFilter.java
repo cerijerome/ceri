@@ -11,6 +11,6 @@ public abstract class BaseFilter<T> implements Filter<T> {
 		return t != null && filterNonNull(t);
 	}
 	
-	public abstract boolean filterNonNull(T t);
+	protected abstract boolean filterNonNull(T t);
 	
 }
