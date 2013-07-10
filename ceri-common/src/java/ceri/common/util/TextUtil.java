@@ -105,6 +105,14 @@ public class TextUtil {
 	}
 
 	/**
+	 * Changes Pascal case to property name style. e.g.
+	 * HelloThereABC => hello.there.abc
+	 */
+	public static String pascalToProperty(String str) {
+		return upperToProperty(pascalToUpper(str));
+	}
+
+	/**
 	 * Changes upper case sequential chars to capitalized sequence. e.g.
 	 * _HELLO_THERE_ABC_ => _Hello_There_Abc_
 	 */

@@ -2,48 +2,41 @@ package ceri.common.date;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Test;
+import ceri.common.unit.NormalizedValue;
 
 public class TimeUnitBehavior {
 
 	@Test
 	public void shouldConvertMsToCorrectUnits() {
-		Map<TimeUnit, Integer> map = new HashMap<>();
-		assertThat(TimeUnit.fromMillisec(0), is(map));
-		
-		map.put(TimeUnit.millisec, 999);
-		map.put(TimeUnit.second, 9);
-		assertThat(TimeUnit.fromMillisec(9999), is(map));
-		
-		map.clear();
-		map.put(TimeUnit.millisec, 999);
-		map.put(TimeUnit.second, 59);
-		map.put(TimeUnit.minute, 59);
-		map.put(TimeUnit.hour, 23);
-		map.put(TimeUnit.day, 1);
-		assertThat(TimeUnit.fromMillisec(TimeUnit.day.ms * 2 - 1), is(map));
+		NormalizedValue<TimeUnit> n = NormalizedValue.create(9999L, TimeUnit.class);
+		assertThat(n.value(TimeUnit.millisec), is(999L));
+		assertThat(n.value(TimeUnit.second), is(9L));
+		assertThat(n.value(TimeUnit.minute), is(0L));
+
+		n = NormalizedValue.create(TimeUnit.day.ms * 2 - 1, TimeUnit.class);
+		assertThat(n.value(TimeUnit.millisec), is(999L));
+		assertThat(n.value(TimeUnit.second), is(59L));
+		assertThat(n.value(TimeUnit.minute), is(59L));
+		assertThat(n.value(TimeUnit.hour), is(23L));
+		assertThat(n.value(TimeUnit.day), is(1L));
 	}
 
 	@Test
 	public void shouldConvertUnitsToMsCorrectly() {
-		Map<TimeUnit, Integer> map = new HashMap<>();
-		assertThat(TimeUnit.toMillisec(map), is(0L));
-		
-		map.put(TimeUnit.hour, 2);
-		map.put(TimeUnit.second, 22);
-		long t = (2L * 60 * 60 * 1000) + (22L * 1000);
-		assertThat(TimeUnit.toMillisec(map), is(t));
+		NormalizedValue<TimeUnit> n = NormalizedValue.builder(TimeUnit.class)
+			.value(999, TimeUnit.millisec)
+			.value(9, TimeUnit.second)
+			.build();
+		assertThat(n.value, is(9999L));
 
-		map.clear();
-		map.put(TimeUnit.millisec, 999);
-		map.put(TimeUnit.second, 59);
-		map.put(TimeUnit.minute, 59);
-		map.put(TimeUnit.hour, 23);
-		map.put(TimeUnit.day, 999);
-		t = (24L * 60 * 60 * 1000) * 1000 - 1;
-		assertThat(TimeUnit.toMillisec(map), is(t));
+		n = NormalizedValue.builder(TimeUnit.class).value(999, TimeUnit.millisec)
+			.value(59, TimeUnit.second)
+			.value(59, TimeUnit.minute)
+			.value(23, TimeUnit.hour)
+			.value(1, TimeUnit.day)
+			.build();
+		assertThat(n.value, is(TimeUnit.day.ms * 2 - 1));
 	}
 	
 }

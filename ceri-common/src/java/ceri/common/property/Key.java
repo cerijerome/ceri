@@ -1,10 +1,16 @@
 package ceri.common.property;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Pattern;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.util.StringUtil;
 
 public class Key {
 	public static final Key NULL = new Key("");
 	private static final char SEPARATOR = '.';
+	private static final Pattern SEPARATOR_REGEX = Pattern.compile("\\.");
 	public final String value;
 
 	private Key(String value) {
@@ -42,6 +48,16 @@ public class Key {
 		return create(this, parts);
 	}
 	
+	public Iterator<String> partIterator() {
+		return asParts().iterator();
+	}
+	
+	public List<String> asParts() {
+		if (this == NULL) return Collections.emptyList();
+		String[] parts = SEPARATOR_REGEX.split(value);
+		return ArrayUtil.asList(parts);
+	}
+	
 	public int parts() {
 		return StringUtil.count(value, SEPARATOR);
 	}
@@ -54,6 +70,12 @@ public class Key {
 		int i = value.lastIndexOf(SEPARATOR);
 		if (i == -1) return NULL;
 		return new Key(value.substring(0, i));
+	}
+
+	public Key orphan() {
+		int i = value.indexOf(SEPARATOR);
+		if (i == -1 || i == value.length() - 1) return NULL;
+		return new Key(value.substring(i + 1));
 	}
 
 	@Override

@@ -36,6 +36,8 @@ import ceri.common.tree.TreeIteratorBehavior;
 import ceri.common.tree.TreeNodeBehavior;
 import ceri.common.tree.TreeNodeComparatorsTest;
 import ceri.common.tree.TreeUtilTest;
+import ceri.common.unit.InchUnitTest;
+import ceri.common.unit.NormalizedValueBehavior;
 import ceri.common.util.AsyncRunnerBehavior;
 import ceri.common.util.BasicUtilTest;
 import ceri.common.util.EqualsUtilTest;
@@ -43,6 +45,7 @@ import ceri.common.util.FixedSizeCacheBehavior;
 import ceri.common.util.HashCoderBehavior;
 import ceri.common.util.LocaleUtilTest;
 import ceri.common.util.MathUtilTest;
+import ceri.common.util.MultiPatternBehavior;
 import ceri.common.util.PrimitiveUtilTest;
 import ceri.common.util.StringUtilTest;
 import ceri.common.util.TextUtilTest;
@@ -93,6 +96,9 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	TreeNodeBehavior.class,
 	TreeNodeComparatorsTest.class,
 	TreeUtilTest.class,
+	// unit
+	InchUnitTest.class,
+	NormalizedValueBehavior.class,
 	// util
 	AsyncRunnerBehavior.class,
 	BasicUtilTest.class,
@@ -101,6 +107,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	HashCoderBehavior.class,
 	LocaleUtilTest.class,
 	MathUtilTest.class,
+	MultiPatternBehavior.class,
 	PrimitiveUtilTest.class,
 	StringUtilTest.class,
 	TextUtilTest.class,

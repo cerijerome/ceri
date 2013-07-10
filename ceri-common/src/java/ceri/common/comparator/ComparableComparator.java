@@ -6,7 +6,7 @@ package ceri.common.comparator;
 /**
  * Comparator for comparable types that handles null cases.
  */
-public class ComparableComparator<T extends Comparable<? super T>> extends BaseComparator<T> {
+class ComparableComparator<T extends Comparable<? super T>> extends BaseComparator<T> {
 
 	@Override
 	protected int compareNonNull(T o1, T o2) {

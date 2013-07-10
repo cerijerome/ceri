@@ -51,6 +51,13 @@ public class Filters {
 	 */
 	@SafeVarargs
 	public static <T> Filter<T> eqAny(final T... values) {
+		return eqAny(Arrays.asList(values));
+	}
+
+	/**
+	 * Returns true if value equals any of the given values.
+	 */
+	public static <T> Filter<T> eqAny(Collection<? extends T> values) {
 		List<Filter<T>> filters = new ArrayList<>();
 		for (T value : values)
 			filters.add(eq(value));
@@ -165,6 +172,20 @@ public class Filters {
 			public boolean filterNonNull(String s) {
 				String str = ignoreCase ? s.toLowerCase() : s;
 				return str.contains(containsStr);
+			}
+		};
+	}
+
+	/**
+	 * Filter that converts strings to lower case before applying the next filter.
+	 */
+	public static Filter<String> lower(final Filter<? super String> filter) {
+		if (filter == null) return _true();
+		return new BaseFilter<String>() {
+			@Override
+			public boolean filterNonNull(String s) {
+				String lower = s == null ? s : s.toLowerCase();
+				return filter.filter(lower);
 			}
 		};
 	}

@@ -40,6 +40,18 @@ public class BasicUtil {
 	}
 
 	/**
+	 * Convenience method that calls Enum.valueOf and returns default value if no match.
+	 */
+	public static <T extends Enum<T>> T valueOf(Class<T> cls, String value, T def) {
+		if (value == null || cls == null) return def;
+		try {
+			return Enum.valueOf(cls, value);
+		} catch (IllegalArgumentException e) {
+			return def;
+		}
+	}
+	
+	/**
 	 * Makes an iterator compatible with a for-each loop.
 	 */
 	public static <T> Iterable<T> forEach(final Iterator<T> iterator) {
