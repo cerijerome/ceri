@@ -8,8 +8,8 @@ import ceri.common.util.PrimitiveUtil;
 public enum InchUnit implements Unit {
 	inch("\"", 1),
 	foot("'", 12),
-	yard("yard", foot.inches * 3),
-	mile("mile", yard.inches * 1760);
+	yard(foot.inches * 3),
+	mile(yard.inches * 1760);
 
 	private static final EnumSet<InchUnit> HEIGHT_UNITS = EnumSet.of(foot, inch);
 	private static final MultiPattern HEIGHT_PATTERNS = MultiPattern.builder().pattern(
@@ -17,8 +17,11 @@ public enum InchUnit implements Unit {
 	public final String shortName;
 	public final long inches;
 
+	private InchUnit(long inches) {
+		this(null, inches);
+	}
 	private InchUnit(String shortName, long inches) {
-		this.shortName = shortName;
+		this.shortName = shortName == null ? name() : shortName;
 		this.inches = inches;
 	}
 
