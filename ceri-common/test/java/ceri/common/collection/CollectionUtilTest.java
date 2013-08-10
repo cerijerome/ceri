@@ -1,15 +1,18 @@
 package ceri.common.collection;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -93,6 +96,32 @@ public class CollectionUtilTest {
 		assertThat(iterator.next(), is(2));
 		assertThat(iterator.next(), is(1));
 		iterator.next();
+	}
+
+	@Test
+	public void testKey() {
+		Map<Integer, String> map = new LinkedHashMap<>();
+		map.put(1, "1");
+		map.put(-1, null);
+		map.put(2, "2");
+		map.put(22, "2");
+		map.put(-2, null);
+		assertThat(CollectionUtil.key(map, "1"), is(1));
+		assertThat(CollectionUtil.key(map, "2"), is(2));
+		assertThat(CollectionUtil.key(map, null), is(-1));
+	}
+
+	@Test
+	public void testKeys() {
+		Map<Integer, String> map = new LinkedHashMap<>();
+		map.put(1, "1");
+		map.put(-1, null);
+		map.put(2, "2");
+		map.put(22, "2");
+		map.put(-2, null);
+		assertEquals(CollectionUtil.keys(map, "1"), Collections.singleton(1));
+		assertEquals(CollectionUtil.keys(map, "2"), new HashSet<>(Arrays.asList(2, 22)));
+		assertEquals(CollectionUtil.keys(map, null), new HashSet<>(Arrays.asList(-1, -2)));
 	}
 
 }

@@ -1,28 +1,30 @@
 package ceri.common.unit;
 
 import java.util.EnumSet;
+import java.util.Set;
 import java.util.regex.Matcher;
+import ceri.common.collection.ImmutableUtil;
 import ceri.common.util.MultiPattern;
 import ceri.common.util.PrimitiveUtil;
+import ceri.common.util.StringUtil;
 
 public enum InchUnit implements Unit {
-	inch("\"", 1),
-	foot("'", 12),
-	yard(foot.inches * 3),
+	inch(1, "\""),
+	foot(12, "'", "ft"),
+	yard(foot.inches * 3, "yds", "yd"),
 	mile(yard.inches * 1760);
 
 	private static final EnumSet<InchUnit> HEIGHT_UNITS = EnumSet.of(foot, inch);
 	private static final MultiPattern HEIGHT_PATTERNS = MultiPattern.builder().pattern(
-		"(\\d+)'(\\d+)\"?", "(\\d+)'", "(\\d+)\"", "(\\d+)").build();
-	public final String shortName;
+		"(\\d+)" + foot.regex + "(\\d+)\"?", "(\\d+)" + foot.regex, "(\\d+)\"", "(\\d+)").build();
+	public final Set<String> aliases;
 	public final long inches;
+	private final String regex;
 
-	private InchUnit(long inches) {
-		this(null, inches);
-	}
-	private InchUnit(String shortName, long inches) {
-		this.shortName = shortName == null ? name() : shortName;
+	private InchUnit(long inches, String... aliases) {
+		this.aliases = ImmutableUtil.arrayAsSet(aliases);
 		this.inches = inches;
+		regex = StringUtil.toString("(?:\\Q", "\\E)", "\\E|\\Q", aliases);
 	}
 
 	@Override
@@ -46,7 +48,8 @@ public enum InchUnit implements Unit {
 		if (m.groupCount() > 1) {
 			long g2 = PrimitiveUtil.valueOf(m.group(2), 0);
 			return builder.value(g1, foot).value(g2).build();
-		} else if (m.pattern().pattern().endsWith("'")) return builder.value(g1, foot).build();
+		} else if (m.pattern().pattern().endsWith(foot.regex)) return builder.value(g1, foot)
+			.build();
 		else return builder.value(g1).build();
 	}
 

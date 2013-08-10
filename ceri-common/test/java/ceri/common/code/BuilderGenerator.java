@@ -1,4 +1,4 @@
-package ceri.common.util;
+package ceri.common.code;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -11,7 +11,7 @@ public class MapBuilder<K, V> {
 	private final Map<K, V> map;
 	
 	public MapBuilder(Map<K, V> map) {
-		this.map = new HashMap<>(map);
+		this.map = map;
 	}
 
 	public MapBuilder() {

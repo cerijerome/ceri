@@ -8,10 +8,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
+import java.util.Set;
 
 /**
  * Utility methods to test and manipulate collections.
@@ -71,7 +73,6 @@ public class CollectionUtil {
 		};
 	}
 	
-
 	/**
 	 * Variation of Collection.addAll that returns the collection type.
 	 */
@@ -150,4 +151,29 @@ public class CollectionUtil {
 		return collection.toArray(array);
 	}
 
+	/**
+	 * Finds the first key with matching value.
+	 */
+	public static <K, V> K key(Map<K, V> map, V value) {
+		for (Map.Entry<K, V> entry : map.entrySet()) {
+			if (entry.getValue() == null && value != null) continue;
+			if (entry.getValue() == value || entry.getValue().equals(value))
+				return entry.getKey();
+		}
+		return null;
+	}
+	
+	/**
+	 * Finds all keys with matching value.
+	 */
+	public static <K, V> Collection<K> keys(Map<K, V> map, V value) {
+		Set<K> keys = new LinkedHashSet<>();
+		for (Map.Entry<K, V> entry : map.entrySet()) {
+			if (entry.getValue() == null && value != null) continue;
+			if (entry.getValue() == value || entry.getValue().equals(value))
+				keys.add(entry.getKey());
+		}
+		return keys;
+	}
+	
 }
