@@ -57,10 +57,10 @@ public class CM17ASerialController implements Runnable, Controller {
 
 	private SerialPort sp;
 	private boolean running;
-	private UnitEventDispatcher dispatcher;
-	private ThreadSafeQueue queue;
+	private final UnitEventDispatcher dispatcher;
+	private final ThreadSafeQueue queue;
 	private static final Command STOP = new Command("A1", Command.DIM, 0);
-	private Map<String, String> commandTable;
+	private final Map<String, String> commandTable;
 
 	/**
 	 * CM17ASerialController constructs and starts the Controller on the
@@ -87,23 +87,21 @@ public class CM17ASerialController implements Runnable, Controller {
 		}
 		commandTable = new HashMap<>();
 		ClassLoader loader = getClass().getClassLoader();
-		InputStream commandStream = loader.getResourceAsStream(FIRECRACKER_MAP_FILE);
-		if (commandStream == null) {
-			throw new FileNotFoundException(FIRECRACKER_MAP_FILE);
-		} else {
-			BufferedReader commandReader = new BufferedReader(new InputStreamReader(commandStream));
-			String nextLine = commandReader.readLine();
-			while (nextLine != null) {
-				String unitCode = nextLine.substring(0, 4).trim();
-				String command = nextLine.substring(4, 16).trim();
-				String code = nextLine.substring(16).trim();
+		try (InputStream commandStream = loader.getResourceAsStream(FIRECRACKER_MAP_FILE)) {
+			if (commandStream == null) throw new FileNotFoundException(FIRECRACKER_MAP_FILE);
+			try (BufferedReader commandReader =
+				new BufferedReader(new InputStreamReader(commandStream))) {
+				String nextLine = commandReader.readLine();
+				while (nextLine != null) {
+					String unitCode = nextLine.substring(0, 4).trim();
+					String command = nextLine.substring(4, 16).trim();
+					String code = nextLine.substring(16).trim();
 
-				commandTable.put(unitCode + command, code);
-				nextLine = commandReader.readLine();
+					commandTable.put(unitCode + command, code);
+					nextLine = commandReader.readLine();
+				}
 			}
-			commandReader.close();
 		}
-
 		queue = new ThreadSafeQueue();
 		dispatcher = new UnitEventDispatcher();
 		new Thread(this).start();
@@ -117,6 +115,7 @@ public class CM17ASerialController implements Runnable, Controller {
 	 * 
 	 */
 
+	@Override
 	public void addUnitListener(UnitListener listener) {
 		dispatcher.addUnitListener(listener);
 	}
@@ -129,6 +128,7 @@ public class CM17ASerialController implements Runnable, Controller {
 	 * 
 	 */
 
+	@Override
 	public void removeUnitListener(UnitListener listener) {
 		dispatcher.removeUnitListener(listener);
 	}
@@ -141,6 +141,7 @@ public class CM17ASerialController implements Runnable, Controller {
 	 * 
 	 */
 
+	@Override
 	public void addCommand(Command command) {
 		queue.enqueue(command);
 	}
@@ -152,6 +153,7 @@ public class CM17ASerialController implements Runnable, Controller {
 	 * 
 	 */
 
+	@Override
 	protected void finalize() {
 		addCommand(STOP);
 		dispatcher.kill();
@@ -216,6 +218,7 @@ public class CM17ASerialController implements Runnable, Controller {
 	 * 
 	 */
 
+	@Override
 	public void run() {
 		running = true;
 		dispatcher.start();
@@ -231,10 +234,10 @@ public class CM17ASerialController implements Runnable, Controller {
 					short function = nextCommand.getFunctionByte();
 					switch (function) {
 					case Command.ON:
-						toFirecracker((String) commandTable.get(houseCode + "" + unitCode + "ON"));
+						toFirecracker(commandTable.get(houseCode + "" + unitCode + "ON"));
 						break;
 					case Command.OFF:
-						toFirecracker((String) commandTable.get(houseCode + "" + unitCode + "OFF"));
+						toFirecracker(commandTable.get(houseCode + "" + unitCode + "OFF"));
 						break;
 					case Command.DIM:
 					case Command.BRIGHT:

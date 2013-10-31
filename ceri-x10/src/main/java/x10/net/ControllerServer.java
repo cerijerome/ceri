@@ -19,8 +19,9 @@
 
 package x10.net;
 
-import x10.*;
-import java.net.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import x10.Controller;
 import x10.util.LogHandler;
 
 /**
@@ -34,8 +35,8 @@ import x10.util.LogHandler;
  */
 
 public class ControllerServer extends Thread {
-	private Controller c;
-	private int port;
+	private final Controller c;
+	private final int port;
 	private boolean alive;
 
 	/**
@@ -62,6 +63,7 @@ public class ControllerServer extends Thread {
 	 * @see x10.net.SocketController
 	 */
 
+	@Override
 	public void run() {
 		alive = true;
 		try (ServerSocket ss = new ServerSocket(port)) {

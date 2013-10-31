@@ -33,7 +33,7 @@ import java.io.Serializable;
 
 public class UnitEvent implements Serializable {
 	private static final long serialVersionUID = -6549043490557358272L;
-	private Command command;
+	private final Command command;
 
 	/**
 	 * UnitEvent constructs a UnitEvent based on the specified Command.

@@ -44,8 +44,8 @@ import x10.util.ThreadSafeQueue;
  */
 
 public class CM11ASerialController implements Runnable, Controller, Closeable {
-	private static final int DEFAULT_SHUTDOWN_MS = 3000;
-	
+	private static final int DEFAULT_SHUTDOWN_MS = 10000;
+
 	/**
 	 * OK byte - the x10 "CM11A" protocol OK byte.
 	 * 
@@ -95,8 +95,8 @@ public class CM11ASerialController implements Runnable, Controller, Closeable {
 	private SerialPort sp;
 	private boolean running;
 	private byte[] lastAddresses;
-	private UnitEventDispatcher dispatcher;
-	private ThreadSafeQueue queue;
+	private final UnitEventDispatcher dispatcher;
+	private final ThreadSafeQueue queue;
 
 	private boolean commandInitiated = false;
 
@@ -117,18 +117,17 @@ public class CM11ASerialController implements Runnable, Controller, Closeable {
 	public CM11ASerialController(String comport) throws IOException {
 		try {
 			CommPortIdentifier cpi = CommPortIdentifier.getPortIdentifier(comport);
-
 			sp = (SerialPort) cpi.open("JavaX10Controller", 10000);
 			sp.setSerialPortParams(4800, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
 				SerialPort.PARITY_NONE);
 			fromX10 = new DataInputStream(sp.getInputStream());
 			toX10 = new DataOutputStream(sp.getOutputStream());
-		} catch (NoSuchPortException nspe) {
-			throw new IOException("No Such Port: " + nspe.getMessage());
-		} catch (PortInUseException piue) {
-			throw new IOException("Port in use: " + piue.getMessage());
-		} catch (UnsupportedCommOperationException ucoe) {
-			throw new IOException("Unsupported comm operation: " + ucoe.getMessage());
+		} catch (NoSuchPortException e) {
+			throw new IOException(e);
+		} catch (PortInUseException e) {
+			throw new IOException(e);
+		} catch (UnsupportedCommOperationException e) {
+			throw new IOException(e);
 		}
 		queue = new ThreadSafeQueue();
 		lastAddresses = new byte[0];
@@ -143,7 +142,7 @@ public class CM11ASerialController implements Runnable, Controller, Closeable {
 	 *            the listener to register for events.
 	 * 
 	 */
-
+	@Override
 	public void addUnitListener(UnitListener listener) {
 		dispatcher.addUnitListener(listener);
 	}
@@ -156,6 +155,7 @@ public class CM11ASerialController implements Runnable, Controller, Closeable {
 	 * 
 	 */
 
+	@Override
 	public void removeUnitListener(UnitListener listener) {
 		dispatcher.removeUnitListener(listener);
 	}
@@ -184,6 +184,7 @@ public class CM11ASerialController implements Runnable, Controller, Closeable {
 	 * 
 	 */
 
+	@Override
 	public void addCommand(Command command) {
 		if (queue.peek() != null) {
 			queue.enqueue(command);
@@ -203,7 +204,7 @@ public class CM11ASerialController implements Runnable, Controller, Closeable {
 			throw new IOException(e);
 		}
 	}
-	
+
 	/**
 	 * finalize disconnects the serial port connection and closes the
 	 * Controller.
@@ -211,6 +212,7 @@ public class CM11ASerialController implements Runnable, Controller, Closeable {
 	 * 
 	 */
 
+	@Override
 	protected void finalize() {
 		addCommand(STOP);
 		dispatcher.kill();
@@ -299,18 +301,17 @@ public class CM11ASerialController implements Runnable, Controller, Closeable {
 				try {
 					toX10.writeByte(OK);
 					toX10.flush();
-					byte ready = (byte) fromX10.readByte();
+					byte ready = fromX10.readByte();
 					if (nextCommand == STOP) {
 						running = false;
 					} else {
 						if (ready == READY) {
 							toX10.writeShort(nextCommand.getFunction());
 							toX10.flush();
-							if (((byte) fromX10.readByte()) == getChecksum(nextCommand
-								.getFunction())) {
+							if ((fromX10.readByte()) == getChecksum(nextCommand.getFunction())) {
 								toX10.writeByte(OK);
 								toX10.flush();
-								ready = (byte) fromX10.readByte();
+								ready = fromX10.readByte();
 								if (ready == READY) {
 									dispatcher.dispatchUnitEvent(new UnitEvent((Command) queue
 										.dequeue()));
@@ -337,11 +338,11 @@ public class CM11ASerialController implements Runnable, Controller, Closeable {
 		toX10.writeByte(PC_READY);
 		int length = fromX10.readByte();
 		if ((length > 0) && (length < 10)) {
-			byte detail = (byte) fromX10.readByte();
+			byte detail = fromX10.readByte();
 			byte[] data = new byte[length - 1];
 			boolean[] isAddr = new boolean[length - 1];
 			for (int i = 0; i < data.length; i++) {
-				data[i] = (byte) fromX10.readByte();
+				data[i] = fromX10.readByte();
 				isAddr[i] = ((detail % 2) == 0);
 				detail = ((byte) (detail >> 1));
 			}
@@ -358,7 +359,7 @@ public class CM11ASerialController implements Runnable, Controller, Closeable {
 							for (int k = i; k < j; k++) {
 								lastAddresses[k - i] = data[k];
 								dispatcher.dispatchUnitEvent(new UnitEvent(new Command(data[k],
-									function, (byte) level)));
+									function, level)));
 							}
 							if ((function == Command.DIM) || (function == Command.BRIGHT)) {
 								i = j + 1;
@@ -402,12 +403,13 @@ public class CM11ASerialController implements Runnable, Controller, Closeable {
 	 * 
 	 */
 
+	@Override
 	public void run() {
 		running = true;
 		dispatcher.start();
 		try {
 			while (running) {
-				byte nextByte = (byte) fromX10.readByte();
+				byte nextByte = fromX10.readByte();
 				switch (nextByte) {
 				case TIME_POLL:
 					setInterfaceTime();

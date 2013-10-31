@@ -19,11 +19,11 @@
 
 package x10.util;
 
-import java.util.Properties;
-import java.io.IOException;
-import java.io.PrintStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.Properties;
 
 /**
  * LogHandler provides a simple, standard api for handling logging of

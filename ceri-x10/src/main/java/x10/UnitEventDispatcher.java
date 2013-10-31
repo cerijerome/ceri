@@ -21,8 +21,8 @@ package x10;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
-import x10.util.ThreadSafeQueue;
 import x10.util.LogHandler;
+import x10.util.ThreadSafeQueue;
 
 /**
  * UnitEventDispatcher is a threaded dispatcher that calls each registered
@@ -42,8 +42,8 @@ import x10.util.LogHandler;
 
 public class UnitEventDispatcher extends Thread {
 
-	private LinkedList<UnitListener> listeners;
-	private ThreadSafeQueue eventQueue;
+	private final LinkedList<UnitListener> listeners;
+	private final ThreadSafeQueue eventQueue;
 	private boolean running;
 	private static final UnitEvent STOP = new UnitEvent(null);
 
@@ -65,6 +65,7 @@ public class UnitEventDispatcher extends Thread {
 	 * 
 	 */
 
+	@Override
 	public void run() {
 		running = true;
 		while (running) {
@@ -73,7 +74,7 @@ public class UnitEventDispatcher extends Thread {
 				if (nextEvent != STOP) {
 					ListIterator<UnitListener> iterator = listeners.listIterator(0);
 					while (iterator.hasNext()) {
-						UnitListener nextListener = (UnitListener) iterator.next();
+						UnitListener nextListener = iterator.next();
 						switch (nextEvent.getCommand().getFunctionByte()) {
 						case Command.ALL_UNITS_OFF:
 							nextListener.allUnitsOff(nextEvent);

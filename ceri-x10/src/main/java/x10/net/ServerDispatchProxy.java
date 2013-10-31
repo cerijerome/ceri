@@ -19,11 +19,16 @@
 
 package x10.net;
 
-import x10.*;
-import x10.util.ThreadSafeQueue;
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import x10.Command;
+import x10.Controller;
+import x10.UnitEvent;
+import x10.UnitListener;
 import x10.util.LogHandler;
+import x10.util.ThreadSafeQueue;
 
 /**
  * ServerDispatchProxy is the server-side proxy which dispatches events to and
@@ -39,9 +44,9 @@ import x10.util.LogHandler;
 
 public class ServerDispatchProxy extends Thread implements UnitListener {
 
-	private Controller c;
-	private ObjectOutputStream oos;
-	private ObjectInputStream ois;
+	private final Controller c;
+	private final ObjectOutputStream oos;
+	private final ObjectInputStream ois;
 
 	/**
 	 * s Socket the Socket connection to the client SocketController
@@ -51,7 +56,7 @@ public class ServerDispatchProxy extends Thread implements UnitListener {
 	Socket s;
 
 	private boolean alive;
-	private ThreadSafeQueue commandQueue;
+	private final ThreadSafeQueue commandQueue;
 
 	/**
 	 * ServerDispatchProxy constructs a new ServerDispatchProxy for the
@@ -85,6 +90,7 @@ public class ServerDispatchProxy extends Thread implements UnitListener {
 	 * 
 	 */
 
+	@Override
 	public void run() {
 		LogHandler.logMessage("ServerDispatchProxy running", 2);
 		alive = true;
@@ -137,6 +143,7 @@ public class ServerDispatchProxy extends Thread implements UnitListener {
 	 * 
 	 */
 
+	@Override
 	public void allUnitsOff(UnitEvent event) {
 		dispatchEvent(event);
 	}
@@ -150,6 +157,7 @@ public class ServerDispatchProxy extends Thread implements UnitListener {
 	 * 
 	 */
 
+	@Override
 	public void allLightsOff(UnitEvent event) {
 		dispatchEvent(event);
 	}
@@ -163,6 +171,7 @@ public class ServerDispatchProxy extends Thread implements UnitListener {
 	 * 
 	 */
 
+	@Override
 	public void allLightsOn(UnitEvent event) {
 		dispatchEvent(event);
 	}
@@ -176,6 +185,7 @@ public class ServerDispatchProxy extends Thread implements UnitListener {
 	 * 
 	 */
 
+	@Override
 	public void unitOn(UnitEvent event) {
 		dispatchEvent(event);
 	}
@@ -189,6 +199,7 @@ public class ServerDispatchProxy extends Thread implements UnitListener {
 	 * 
 	 */
 
+	@Override
 	public void unitOff(UnitEvent event) {
 		dispatchEvent(event);
 	}
@@ -202,6 +213,7 @@ public class ServerDispatchProxy extends Thread implements UnitListener {
 	 * 
 	 */
 
+	@Override
 	public void unitDim(UnitEvent event) {
 		dispatchEvent(event);
 	}
@@ -215,6 +227,7 @@ public class ServerDispatchProxy extends Thread implements UnitListener {
 	 * 
 	 */
 
+	@Override
 	public void unitBright(UnitEvent event) {
 		dispatchEvent(event);
 	}

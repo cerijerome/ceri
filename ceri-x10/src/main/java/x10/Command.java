@@ -44,24 +44,10 @@ public class Command implements Serializable {
 	private short address;
 	private short function;
 
-	private static final byte[] ADDRESS_CODES = {
-        ((byte) 0x06),
-        ((byte) 0x0E),
-        ((byte) 0x02),
-        ((byte) 0x0A),
-        ((byte) 0x01),
-        ((byte) 0x09),
-        ((byte) 0x05),
-        ((byte) 0x0D),
-        ((byte) 0x07),
-        ((byte) 0x0F),
-        ((byte) 0x03),
-        ((byte) 0x0B),
-        ((byte) 0x00),
-        ((byte) 0x08),
-        ((byte) 0x04),
-        ((byte) 0x0C)
-	};
+	private static final byte[] ADDRESS_CODES = { ((byte) 0x06), ((byte) 0x0E), ((byte) 0x02),
+		((byte) 0x0A), ((byte) 0x01), ((byte) 0x09), ((byte) 0x05), ((byte) 0x0D), ((byte) 0x07),
+		((byte) 0x0F), ((byte) 0x03), ((byte) 0x0B), ((byte) 0x00), ((byte) 0x08), ((byte) 0x04),
+		((byte) 0x0C) };
 
 	/**
 	 * ALL_UNITS_OFF byte - the x10 function "All Units Off". This function

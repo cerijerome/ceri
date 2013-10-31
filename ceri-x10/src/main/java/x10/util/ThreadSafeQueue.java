@@ -99,13 +99,10 @@ public class ThreadSafeQueue {
 	 */
 
 	public synchronized Object dequeue() {
-		if (queue.size() < 1) {
-			return (null);
-		} else {
-			Object element = queue.getFirst();
-			queue.removeFirst();
-			return (element);
-		}
+		if (queue.size() < 1) return (null);
+		Object element = queue.getFirst();
+		queue.removeFirst();
+		return (element);
 	}
 
 	/**
@@ -118,11 +115,8 @@ public class ThreadSafeQueue {
 	 */
 
 	public synchronized Object peek() {
-		if (queue.size() < 1) {
-			return (null);
-		} else {
-			return (queue.getFirst());
-		}
+		if (queue.size() < 1) return (null);
+		return (queue.getFirst());
 	}
 
 	/**
@@ -149,6 +143,6 @@ public class ThreadSafeQueue {
 	 */
 
 	public synchronized void empty() {
-		while (dequeue() != null);
+		while (dequeue() != null) {}
 	}
 }
