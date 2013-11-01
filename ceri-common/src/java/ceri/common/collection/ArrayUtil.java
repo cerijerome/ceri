@@ -115,7 +115,7 @@ public class ArrayUtil {
 	/**
 	 * Reverses the array.
 	 */
-	public static <T> void reverse(Object array) {
+	public static void reverse(Object array) {
 		if (!isArray(array)) throw new IllegalArgumentException("Object is not an array: " + array);
 		int length = Array.getLength(array);
 		for (int i = 0; i < length / 2; i++) {

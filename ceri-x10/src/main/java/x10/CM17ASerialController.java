@@ -45,7 +45,7 @@ import x10.util.ThreadSafeQueue;
  */
 
 public class CM17ASerialController implements Runnable, Controller {
-
+	private static final int DEFAULT_SHUTDOWN_MS = 10000;
 	private final long WAIT_INTERVAL = 1L;
 	private final long RESET_INTERVAL = 10L;
 	private final long COMMAND_INTERVAL = 1000L;
@@ -165,6 +165,17 @@ public class CM17ASerialController implements Runnable, Controller {
 
 	private synchronized void doWait(long millis) throws InterruptedException {
 		wait(millis);
+	}
+
+	@Override
+	public void close() throws IOException {
+		try {
+			shutdown(DEFAULT_SHUTDOWN_MS);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		} catch (OperationTimedOutException e) {
+			throw new IOException(e);
+		}
 	}
 
 	/**

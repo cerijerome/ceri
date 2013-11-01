@@ -41,6 +41,8 @@ import java.io.Serializable;
 
 public class Command implements Serializable {
 	private static final long serialVersionUID = 4951865518669541756L;
+	private static final int HASH_PRIME = 31;
+	private static final int HASH_INIT = 7;
 	private short address;
 	private short function;
 
@@ -119,6 +121,7 @@ public class Command implements Serializable {
 	private byte functionByte;
 	private int level;
 
+	
 	/**
 	 * Command constructs a Command object with the specified address and
 	 * function. This constructor is typically only called by a Controller. It
@@ -378,6 +381,32 @@ public class Command implements Serializable {
 
 	public int getLevel() {
 		return (level);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = HASH_INIT;
+		result = HASH_PRIME * result + address;
+		result = HASH_PRIME * result + ((addressString == null) ? 0 : addressString.hashCode());
+		result = HASH_PRIME * result + function;
+		result = HASH_PRIME * result + functionByte;
+		result = HASH_PRIME * result + level;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof Command)) return false;
+		Command other = (Command) obj;
+		if (address != other.address) return false;
+		if (addressString == null) {
+			if (other.addressString != null) return false;
+		} else if (!addressString.equals(other.addressString)) return false;
+		if (function != other.function) return false;
+		if (functionByte != other.functionByte) return false;
+		if (level != other.level) return false;
+		return true;
 	}
 
 	/**

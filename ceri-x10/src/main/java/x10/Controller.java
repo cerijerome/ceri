@@ -19,6 +19,8 @@
 
 package x10;
 
+import java.io.Closeable;
+
 /**
  * Controller is implemented by any class that can act as an entry point for
  * controlling x10 devices. A Controller must be able to distribute added
@@ -33,7 +35,7 @@ package x10;
  * @see x10.UnitListener
  */
 
-public interface Controller {
+public interface Controller extends Closeable {
 
 	/**
 	 * addUnitListener registers the specified UnitListener to recieve ALL

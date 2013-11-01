@@ -143,7 +143,7 @@ public class ZipUtil {
 				}
 				zIn.closeEntry();
 			}
-			if (checksum != null) while (cIn.skip(bufferSize) > 0); // read remaining for checksum 
+			if (checksum != null) while (cIn.skip(bufferSize) > 0) {} // read remaining for checksum 
 		} catch (IOException e) {
 			tracker.delete();
 			throw e;

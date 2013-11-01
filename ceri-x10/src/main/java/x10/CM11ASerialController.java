@@ -19,7 +19,6 @@
 
 package x10;
 
-import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -43,7 +42,7 @@ import x10.util.ThreadSafeQueue;
  * @version 1.3
  */
 
-public class CM11ASerialController implements Runnable, Controller, Closeable {
+public class CM11ASerialController implements Runnable, Controller {
 	private static final int DEFAULT_SHUTDOWN_MS = 10000;
 
 	/**

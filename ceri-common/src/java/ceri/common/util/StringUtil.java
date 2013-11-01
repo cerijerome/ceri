@@ -109,7 +109,7 @@ public class StringUtil {
 	public static enum Align {
 		LEFT,
 		RIGHT
-	};
+	}
 
 	/**
 	 * Pads a string with leading or trailing characters.

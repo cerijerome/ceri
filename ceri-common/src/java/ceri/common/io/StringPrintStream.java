@@ -23,7 +23,7 @@ public class StringPrintStream extends PrintStream {
 	@Override
 	public String toString() {
 		if (charSet == null) return baos.toString();
-		else try {
+		try {
 			return baos.toString(charSet);
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException(e); // Should not happen

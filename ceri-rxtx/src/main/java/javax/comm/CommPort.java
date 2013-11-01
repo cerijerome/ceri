@@ -13,7 +13,7 @@ public abstract class CommPort extends Object {
 
 	public void close() {
 		commPort.close();
-	};
+	}
 
 	public InputStream getInputStream() throws IOException {
 		return commPort.getInputStream();

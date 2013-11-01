@@ -9,7 +9,7 @@ public class CommPortIdentifier {
 			if (identifier == null) return null;
 			return new CommPortIdentifier(identifier);
 		} catch (gnu.io.NoSuchPortException e) {
-			throw new NoSuchPortException(e);
+			throw new NoSuchPortException(s, e);
 		}
 	}
 

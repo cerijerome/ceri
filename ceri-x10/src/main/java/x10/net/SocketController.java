@@ -19,7 +19,6 @@
 
 package x10.net;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -43,7 +42,7 @@ import x10.util.ThreadSafeQueue;
  * @version 1.0
  */
 
-public class SocketController implements Runnable, Controller, Closeable {
+public class SocketController implements Runnable, Controller {
 	private final UnitEventDispatcher dispatcher;
 	private final Socket s;
 	private final ThreadSafeQueue queue;

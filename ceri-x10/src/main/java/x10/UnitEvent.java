@@ -33,6 +33,9 @@ import java.io.Serializable;
 
 public class UnitEvent implements Serializable {
 	private static final long serialVersionUID = -6549043490557358272L;
+	private static final int HASH_PRIME = 31;
+	private static final int HASH_INIT = 7;
+
 	private final Command command;
 
 	/**
@@ -57,4 +60,22 @@ public class UnitEvent implements Serializable {
 	public Command getCommand() {
 		return (command);
 	}
+
+	@Override
+	public int hashCode() {
+		return HASH_PRIME * HASH_INIT + ((command == null) ? 0 : command.hashCode());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof UnitEvent)) return false;
+		UnitEvent other = (UnitEvent) obj;
+		if (command == null) {
+			if (other.command != null) return false;
+		} else if (!command.equals(other.command)) return false;
+		return true;
+	}
+	
+	
 }

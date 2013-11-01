@@ -8,7 +8,7 @@ import org.junit.Test;
 public class EnumComparatorsTest {
 	private static enum TestEnum {
 		C, B, A
-	};
+	}
 	
 	@Test
 	public void testByOrdinal() {

@@ -228,7 +228,7 @@ public class Filters {
 				if (min != null && t.compareTo(min) < 0) return false;
 				if (max != null && t.compareTo(max) > 0) return false;
 				return true;
-			};
+			}
 		};
 	}
 
