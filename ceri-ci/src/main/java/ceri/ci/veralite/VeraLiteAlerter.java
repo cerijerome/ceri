@@ -1,4 +1,4 @@
-package ceri.ci.x10;
+package ceri.ci.veralite;
 
 import java.io.File;
 import java.io.FileReader;
@@ -8,29 +8,42 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import org.apache.http.client.fluent.Content;
+import org.apache.http.client.fluent.Request;
 import x10.CM11ASerialController;
 import x10.Command;
 import x10.Controller;
-import ceri.ci.common.Alerter;
+import ceri.ci.x10.X10Alerter;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.util.BasicUtil;
 
-public class X10Alerter implements Alerter {
-	private static final String CONFIG_FILE = "x10.properties";
-	private static final String COMM_PORT = "comm.port";
-	private static final String ADDRESS_PREFIX = "address.";
-	private static final int ADDRESS_OFFSET = ADDRESS_PREFIX.length();
-	private static final int DEVICE_DEF = 1;
+public class VeraLiteAlerter implements Alerter {
+	private static final String CONFIG_FILE = "veralite.properties";
+	private static final String SERVER_DOMAIN = "server.domain";
+	private static final String DEVICE_PREFIX = "device.";
 	private final Controller x10;
 	private final Map<String, String> addresses;
 	private final Set<String> houseCodes;
 
-	X10Alerter(Properties properties, Controller x10) {
+	public static void main(String[] args) throws IOException {
+		String url =
+			"http://192.168.0.109:3480/data_request?id=action&DeviceNum=5&"
+				+ "serviceId=urn:upnp-org:serviceId:SwitchPower1&action=SetTarget&newTargetValue=";
+		//http://192.168.0.109:3480/data_request?id=user_data
+		Content content = Request.Get(url + "100").execute().returnContent();
+		System.out.println(content.asString());
+		BasicUtil.delay(3000);
+		content = Request.Get(url + "0").execute().returnContent();
+		System.out.println(content.asString());
+	}
+	
+	VeraLiteAlerter(Properties properties, Controller x10) {
 		addresses = ImmutableUtil.copyAsMap(addresses(properties));
 		houseCodes = ImmutableUtil.copyAsSet(houseCodes(addresses));
 		this.x10 = x10;
 	}
 
-	public static X10Alerter create(File rootDir) throws IOException {
+	public static VeraLiteAlerter create(File rootDir) throws IOException {
 		Properties properties = loadConfig(rootDir);
 		Controller x10 = createController(properties);
 		return new X10Alerter(properties, x10);
@@ -94,7 +107,7 @@ public class X10Alerter implements Alerter {
 		return  address != null && address.length() > 1 && Command.isValid(address);
 	}
 	
-	private static Controller createController(Properties config) throws IOException {
+	private static VeraLite createController(Properties config) throws IOException {
 		String commPort = config.getProperty(COMM_PORT);
 		if (commPort == null) throw new IllegalArgumentException(COMM_PORT + " not specified");
 		return new CM11ASerialController(commPort);
