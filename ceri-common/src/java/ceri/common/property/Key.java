@@ -9,16 +9,23 @@ import ceri.common.util.StringUtil;
 
 public class Key {
 	public static final Key NULL = new Key("");
-	private static final char SEPARATOR = '.';
+	public static final char SEPARATOR = '.';
 	private static final Pattern SEPARATOR_REGEX = Pattern.compile("\\.");
 	public final String value;
 
+	/**
+	 * Better to call Key.create to make sure Key value is valid.
+	 */
 	private Key(String value) {
 		this.value = value;
 	}
 	
 	public static Key create(String...parts) {
 		return create(null, parts);
+	}
+
+	public static Key createWithPrefix(String prefix, String...parts) {
+		return create(Key.create(prefix), parts);
 	}
 
 	public static Key create(Key key, String...parts) {
