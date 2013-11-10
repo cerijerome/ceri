@@ -2,12 +2,24 @@ package x10;
 
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.util.BasicUtil;
 
 /**
  * Tests for MAC OS X with 
  */
 public class CM11ASerialControllerBehavior {
-	private final String COMM_PORT = "/dev/cu.usbserial";
+	private static final String COMM_PORT = "/dev/cu.usbserial";
+	
+	public static void main(String[] args) throws IOException {
+		try (CM11ASerialController x10 = new CM11ASerialController(COMM_PORT)) {
+			while (true) {
+				x10.addCommand(new Command("B2", Command.ON));
+				BasicUtil.delay(1000);
+				x10.addCommand(new Command("B2", Command.OFF));
+				BasicUtil.delay(1000);
+			}
+		}
+	}
 	
 	@Test
 	public void shouldSendToTwoHouseCodes() throws IOException {
