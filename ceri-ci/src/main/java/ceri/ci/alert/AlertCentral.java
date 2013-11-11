@@ -51,7 +51,7 @@ public class AlertCentral implements Alerter {
 
 	private void createX10(Collection<Alerter> alerters, File rootDir) {
 		try {
-			alerters.add(X10Alerter.create(new File(rootDir, PEOPLE)));
+			alerters.add(X10Alerter.create(new File(rootDir, PEOPLE), null));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

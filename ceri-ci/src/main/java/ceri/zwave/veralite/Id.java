@@ -1,0 +1,30 @@
+package ceri.zwave.veralite;
+
+public enum Id {
+	user_data,
+	status,
+	sdata,
+	actions,
+	device,
+	scene,
+	room,
+	file,
+	lua,
+	action,
+	variableset,
+	variableget,
+	reload,
+	alive,
+	finddevice,
+	resync,
+	wget,
+	iprequests,
+	blacklistip,
+	live_energy_usage,
+	request_image,
+	archive_video,
+	jobstatus,
+	invoke,
+	relay,
+	update_plugin;
+}
