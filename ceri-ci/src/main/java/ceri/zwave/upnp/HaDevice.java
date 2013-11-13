@@ -1,4 +1,4 @@
-package ceri.zwave.luup;
+package ceri.zwave.upnp;
 
 /**
  * Basic functionality for all home automation devices
@@ -8,7 +8,7 @@ public class HaDevice {
 	public static final String sid = "urn:micasaverde-com:serviceId:HaDevice1";
 	public static final String sType = "urn:schemas-micasaverde-com:service:HaDevice:1";
 
-	public static enum Variable implements ceri.zwave.veralite.Variable {
+	public static enum Variable implements ceri.zwave.command.Variable {
 		EnergyLog,		// DEVICEDATA_Energy_Log_CONST
 		IODevice,		// The device number to connect to for IO (this is on the master device)
 		IODeviceXRef,	// On the port, this is the device number that connects to it
@@ -35,7 +35,7 @@ public class HaDevice {
 		sl_Alarm;
 	}
 
-	public static enum Action implements ceri.zwave.veralite.Action {
+	public static enum Action implements ceri.zwave.command.Action {
 		Reconfigure,
 		Remove,
 		Poll,

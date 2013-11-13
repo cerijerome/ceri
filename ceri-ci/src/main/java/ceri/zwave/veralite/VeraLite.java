@@ -1,8 +1,9 @@
 package ceri.zwave.veralite;
 
-import ceri.zwave.luup.Dimming;
-import ceri.zwave.luup.SwitchPower;
-import ceri.zwave.luup.ZWaveNetwork;
+import ceri.zwave.command.CommandFactory;
+import ceri.zwave.upnp.Dimming;
+import ceri.zwave.upnp.SwitchPower;
+import ceri.zwave.upnp.ZWaveNetwork;
 
 public class VeraLite {
 	public final SwitchPower switchPower;

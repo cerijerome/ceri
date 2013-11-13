@@ -1,9 +1,9 @@
-package ceri.zwave.luup;
+package ceri.zwave.upnp;
 
 public class IrTransmitter1 {
 	public static final String sid = "urn:micasaverde-com:serviceId:IrTransmitter1";
 
-	public static enum Variable implements ceri.zwave.veralite.Variable {
+	public static enum Variable implements ceri.zwave.command.Variable {
 		SendProntoCode;
 	}
 	

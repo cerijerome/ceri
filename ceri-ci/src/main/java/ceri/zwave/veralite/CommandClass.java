@@ -1,4 +1,4 @@
-package ceri.zwave;
+package ceri.zwave.veralite;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -104,7 +104,7 @@ public enum CommandClass {
 
 	private static final Map<Integer, CommandClass> map = Collections.unmodifiableMap(createMap());
 	public final int id;
-	
+
 	private CommandClass(int id) {
 		this.id = id;
 	}

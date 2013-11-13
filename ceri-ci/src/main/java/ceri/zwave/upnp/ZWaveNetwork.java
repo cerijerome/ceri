@@ -1,14 +1,13 @@
-package ceri.zwave.luup;
+package ceri.zwave.upnp;
 
 import java.io.IOException;
-import ceri.zwave.veralite.CommandFactory;
+import ceri.zwave.command.CommandFactory;
 import ceri.zwave.veralite.VeraLite;
 
 public class ZWaveNetwork {
 	public static final String file = "S_ZWaveNetwork1.xml";
 	public static final String sid = "urn:micasaverde-com:serviceId:ZWaveNetwork1";
 	public static final String sType = "urn:schemas-micasaverde-org:service:ZWaveNetwork:1";
-	private static final int ALL_DEVICE = 1;
 	private static final String DATA = "Data";
 	private static final String SET_ALL_ON_OFF_DATA = "0x27-1-";
 	private static final String ALL_OFF_DATA = "0-0x19-0xff-2-0x27-5";
@@ -29,19 +28,23 @@ public class ZWaveNetwork {
 		VeraLite vl = new VeraLite("192.168.0.109:3480");
 		//sp.off(4);
 		//Thread.sleep(2000);
-		//zwn.enableAlOnOff(5);
-		//vl.switchPower.on(3);
-		//vl.dimming.on(4);
-		vl.zWaveNetwork.allOn();
 		//vl.zWaveNetwork.setAllOnOff(1, AllOnOff.both);
-		Thread.sleep(5000);
-		//vl.dimming.off(4);
-		vl.zWaveNetwork.allOff();
+		vl.switchPower.on(5);
+		vl.switchPower.on(6);
+		//vl.dimming.on(4);
 		//Thread.sleep(3000);
-		//vl.switchPower.off(3);
+		//vl.zWaveNetwork.allOff(1);
+		//vl.zWaveNetwork.allOn(1);
+		//vl.zWaveNetwork.setAllOnOff(1, AllOnOff.both);
+		Thread.sleep(3000);
+		//vl.zWaveNetwork.allOff();
+		//vl.dimming.off(4);
+		vl.switchPower.off(5);
+		vl.switchPower.off(6);
+		//Thread.sleep(3000);
 	}
 	
-	public static enum Variable implements ceri.zwave.veralite.Variable {
+	public static enum Variable implements ceri.zwave.command.Variable {
 		LastUpdate, // DEVICEDATA_LastUpdate_CONST
 		LastHeal, // DEVICEDATA_LastUpdate_CONST
 		LastRouteFailure, // DEVICEDATA_LastUpdate_CONST
@@ -74,7 +77,7 @@ public class ZWaveNetwork {
 		LimitNeighbors; // indicates when we figure manual routing, only consider Z-Wave's neighbors as valid options
 	}
 
-	public static enum Action implements ceri.zwave.veralite.Action {
+	public static enum Action implements ceri.zwave.command.Action {
 		ResetNetwork,
 		ReconfigureAllNodes,
 		RemoveNodes,
@@ -96,12 +99,12 @@ public class ZWaveNetwork {
 		this.factory = factory;
 	}
 	
-	public void allOn() throws IOException {
-		sendData(ALL_DEVICE, ALL_ON_DATA);
+	public void allOn(int device) throws IOException {
+		sendData(device, ALL_ON_DATA);
 	}
 	
-	public void allOff() throws IOException {
-		sendData(ALL_DEVICE, ALL_OFF_DATA);
+	public void allOff(int device) throws IOException {
+		sendData(device, ALL_OFF_DATA);
 	}
 	
 	public void setAllOnOff(int device, AllOnOff aoo) throws IOException {

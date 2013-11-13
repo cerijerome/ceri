@@ -1,4 +1,4 @@
-package ceri.zwave.luup;
+package ceri.zwave.upnp;
 /**
  * http://wiki.micasaverde.com/index.php/Luup_UPNP_Files
  */

@@ -1,4 +1,4 @@
-package ceri.zwave.luup;
+package ceri.zwave.upnp;
 
 public enum DeviceFile {
 	BINARY_LIGHT         ("D_BinaryLight1.xml"),

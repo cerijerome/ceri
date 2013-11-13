@@ -1,4 +1,4 @@
-package ceri.zwave.veralite;
+package ceri.zwave.command;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;

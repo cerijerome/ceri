@@ -1,4 +1,4 @@
-package ceri.zwave.luup;
+package ceri.zwave.upnp;
 
 /**
  * Basic functionality for the gateway itself
@@ -8,13 +8,13 @@ public class HaGateway {
 	public final String sid = "urn:micasaverde-com:serviceId:HomeAutomationGateway1";
 	public final String sType = "urn:schemas-micasaverde-org:service:HomeAutomationGateway:1";
 
-	public static enum Variable implements ceri.zwave.veralite.Variable {
+	public static enum Variable implements ceri.zwave.command.Variable {
 		ActiveScenes,
 		DataVersionUserData, // The current data version for user_data
 		DataVersionStatus; // The current data version for lu_status
 	}
 
-	public static enum Action implements ceri.zwave.veralite.Action {
+	public static enum Action implements ceri.zwave.command.Action {
 		GetUserData,
 		ModifyUserData,
 		GetVariable,

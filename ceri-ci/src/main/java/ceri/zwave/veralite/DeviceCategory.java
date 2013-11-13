@@ -1,4 +1,4 @@
-package ceri.zwave;
+package ceri.zwave.veralite;
 
 public enum DeviceCategory {
 	NONE			(0),

@@ -1,9 +1,9 @@
-package ceri.zwave.luup;
+package ceri.zwave.upnp;
 
 public class SerialPort1 {
 	public static final String sid = "urn:micasaverde-org:serviceId:SerialPort1";
 
-	public static enum Variable implements ceri.zwave.veralite.Variable {
+	public static enum Variable implements ceri.zwave.command.Variable {
 		baud,
 		vendor,
 		product,

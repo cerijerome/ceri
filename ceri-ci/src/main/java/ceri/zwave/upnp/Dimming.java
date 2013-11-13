@@ -1,18 +1,18 @@
-package ceri.zwave.luup;
+package ceri.zwave.upnp;
 
 import java.io.IOException;
-import ceri.zwave.veralite.CommandFactory;
+import ceri.zwave.command.CommandFactory;
 
 public class Dimming {
 	private static final int MAX_LEVEL = 99;
 	public static final String sid = "urn:upnp-org:serviceId:Dimming1";
 	private final CommandFactory factory;
 
-	public static enum Action implements ceri.zwave.veralite.Action {
+	public static enum Action implements ceri.zwave.command.Action {
 		SetLoadLevelTarget;
 	}
 
-	public static enum Variable implements ceri.zwave.veralite.Variable {
+	public static enum Variable implements ceri.zwave.command.Variable {
 		LoadLevelStatus,
 		LoadLevelTarget;
 	}
