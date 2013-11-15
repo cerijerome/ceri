@@ -3,6 +3,7 @@ package ceri.zwave.veralite;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -12,7 +13,7 @@ public class Capabilities {
 	private static final int PROTOCOL_INFO_COUNT = 6;
 	private static final String PIPE_SPLIT = "\\s*\\|\\s*";
 	private static final String COMMA_SPLIT = "\\s*\\,\\s*";
-	public final int capability;
+	public Set<Capability> capability;
 	public final int security;
 	public final int basicDeviceClass;
 	public final int genericDeviceClass;
@@ -27,11 +28,21 @@ public class Capabilities {
 
 	public static class Builder {
 		final Collection<CommandClass> commandClasses = new HashSet<>();
-		int capability;
+		final Set<Capability> capability = new HashSet<>();
 		int security;
 		int basicDeviceClass;
 		int genericDeviceClass;
 		int specificDeviceClass;
+
+		public Builder capability(int value) {
+			this.capability.addAll(Capability.create(value));
+			return this;
+		}
+
+		public Builder capability(Capability...capability) {
+			Collections.addAll(this.capability, capability);
+			return this;
+		}
 
 		public Builder commandClass(CommandClass commandClass) {
 			if (commandClass == null) throw new NullPointerException("CommandClass cannot be null");
@@ -47,11 +58,6 @@ public class Capabilities {
 			return new Capabilities(this);
 		}
 		
-		public Builder capability(int capability) {
-			this.capability = capability;
-			return this;
-		}
-
 		public Builder security(int security) {
 			this.security = security;
 			return this;
