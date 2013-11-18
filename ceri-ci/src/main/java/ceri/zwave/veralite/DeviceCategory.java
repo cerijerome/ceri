@@ -15,7 +15,7 @@ public enum DeviceCategory {
 	GENERIC_IO      (11),
 	GENERIC_SENSOR  (12),
 	SERIAL_PORT     (13),
-	SCENE_CONTROLLER (14),
+	SCENE_CONTROLLER(14),
 	AV              (15),
 	HUMIDITY        (16),
 	TEMPERATURE     (17),

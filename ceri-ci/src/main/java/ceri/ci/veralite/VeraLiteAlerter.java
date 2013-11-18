@@ -14,16 +14,17 @@ import ceri.zwave.veralite.VeraLite;
 public class VeraLiteAlerter implements Alerter {
 	private final Map<String, Integer> devices;
 	private final VeraLite veraLite;
-	
+
 	public static void main(String[] args) {
 		String host = "192.168.0.109:3480";
 		VeraLite veraLite = new VeraLite(host);
-		VeraLiteAlerter vlAlerter = VeraLiteAlerter.builder(veraLite).device("ceri", 5).build();
-		vlAlerter.alert("ceri");
+		VeraLiteAlerter vlAlerter =
+			VeraLiteAlerter.builder(veraLite).device("ceri", 5).device("cj", 6).build();
+		vlAlerter.alert("ceri", "cj");
 		BasicUtil.delay(5000);
 		vlAlerter.clear();
 	}
-	
+
 	public static VeraLiteAlerter create(File propertyFile, String prefix) throws IOException {
 		return create(PropertyUtil.load(propertyFile), prefix);
 	}
@@ -52,8 +53,8 @@ public class VeraLiteAlerter implements Alerter {
 
 		public Builder device(String name, int device) {
 			if (name == null) throw new NullPointerException("Name cannot be null");
-			if (device <= 0) throw new IllegalArgumentException(
-				"Not a valid device for " + name + ": " + device);
+			if (device <= 0) throw new IllegalArgumentException("Not a valid device for " + name +
+				": " + device);
 			devices.put(name, device);
 			return this;
 		}
@@ -71,7 +72,7 @@ public class VeraLiteAlerter implements Alerter {
 		veraLite = builder.veraLite;
 		devices = ImmutableUtil.copyAsMap(builder.devices);
 	}
-	
+
 	@Override
 	public void alert(String... keys) {
 		//clearAlerts();
@@ -92,9 +93,10 @@ public class VeraLiteAlerter implements Alerter {
 	}
 
 	private void clearAlerts() {
-		for (int device : devices.values()) clearAlert(device);
+		for (int device : devices.values())
+			clearAlert(device);
 	}
-	
+
 	private void clearAlert(int device) {
 		try {
 			veraLite.switchPower.off(device);
@@ -102,7 +104,7 @@ public class VeraLiteAlerter implements Alerter {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void doAlert(int device) {
 		try {
 			veraLite.switchPower.on(device);
