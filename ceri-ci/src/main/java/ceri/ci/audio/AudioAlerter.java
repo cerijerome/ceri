@@ -19,7 +19,8 @@ public class AudioAlerter implements Alerter {
 		try (AudioAlerter alerter =
 			new AudioAlerter(new AudioPlayer(new File("./data/people"), new File("./data/clips")),
 				2000, 200)) {
-			alerter.alert("steliu");
+			alerter.alert("shuochen", "fuzhong", "dxie");
+			BasicUtil.delay(20000);
 		}
 	}
 

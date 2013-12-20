@@ -2,7 +2,6 @@ package ceri.zwave.upnp;
 
 import java.io.IOException;
 import ceri.zwave.command.CommandFactory;
-import ceri.zwave.veralite.VeraLite;
 
 public class ZWaveNetwork {
 	public static final String file = "S_ZWaveNetwork1.xml";
@@ -22,26 +21,6 @@ public class ZWaveNetwork {
 		private AllOnOff(int value) {
 			this.value = value;
 		}
-	}
-	
-	public static void main(String[] args) throws Exception {
-		VeraLite vl = new VeraLite("192.168.0.109:3480");
-		//sp.off(4);
-		//Thread.sleep(2000);
-		//vl.zWaveNetwork.setAllOnOff(1, AllOnOff.both);
-		vl.switchPower.on(5);
-		vl.switchPower.on(6);
-		//vl.dimming.on(4);
-		//Thread.sleep(3000);
-		//vl.zWaveNetwork.allOff(1);
-		//vl.zWaveNetwork.allOn(1);
-		//vl.zWaveNetwork.setAllOnOff(1, AllOnOff.both);
-		Thread.sleep(3000);
-		//vl.zWaveNetwork.allOff();
-		//vl.dimming.off(4);
-		vl.switchPower.off(5);
-		vl.switchPower.off(6);
-		//Thread.sleep(3000);
 	}
 	
 	public static enum Variable implements ceri.zwave.command.Variable {

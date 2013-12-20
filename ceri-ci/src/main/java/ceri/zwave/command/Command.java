@@ -3,8 +3,6 @@ package ceri.zwave.command;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.apache.http.client.fluent.Content;
-import org.apache.http.client.fluent.Request;
 
 public class Command {
 	private static final String HTTP_PREFIX = "http://";
@@ -13,10 +11,12 @@ public class Command {
 	private static final String DEVICE_NUM = "DeviceNum";
 	private static final String NEW_TARGET_VALUE = "newTargetValue";
 	private final String host;
+	private final Executor executor;
 	private final Map<String, Object> params = new LinkedHashMap<>();
 	
-	public Command(String host) {
+	public Command(String host, Executor executor) {
 		this.host = host;
+		this.executor = executor;
 		outputFormat(OutputFormat.xml);
 	}
 	
@@ -40,12 +40,9 @@ public class Command {
 		return this;
 	}
 	
-	public void execute() throws IOException {
+	public String execute() throws IOException {
 		String url = createUrl(host, params);
-		System.out.println(url);
-		Content response = Request.Get(url).execute().returnContent();
-		String content = response.asString();
-		System.out.println(content);
+		return executor.execute(url);
 	}
 	
 	private String createUrl(String host, Map<String, Object> params) {

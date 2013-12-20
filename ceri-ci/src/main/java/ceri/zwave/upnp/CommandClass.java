@@ -1,4 +1,4 @@
-package ceri.zwave.veralite;
+package ceri.zwave.upnp;
 
 import java.util.Collection;
 import java.util.Collections;

@@ -10,6 +10,22 @@ import ceri.ci.web.WebAlerter;
 import ceri.ci.x10.X10Alerter;
 import ceri.common.collection.ImmutableUtil;
 
+/**
+ * List of jobs A, B, C, D, E
+ * Each one has:
+ * - name
+ * - good/bad state
+ * - time of last state change
+ * - alert reminder period?
+ * - who last fixed it
+ * - who last broke it
+ * 
+ * Web => heroes/villains grouped by job
+ * ZWave => aggregate of broken jobs
+ * X10 => aggregate of broken jobs
+ * Audio =>
+ * 
+ */
 public class AlertCentral implements Alerter {
 	private static final String PEOPLE = "people";
 	private static final String HTML = "html";
