@@ -5,13 +5,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import ceri.ci.common.Alerter;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.property.PropertyUtil;
 import ceri.common.util.BasicUtil;
 import ceri.zwave.veralite.VeraLite;
 
-public class VeraLiteAlerter implements Alerter {
+public class VeraLiteAlerter {
 	private final Map<String, Integer> devices;
 	private final VeraLite veraLite;
 
@@ -73,26 +72,15 @@ public class VeraLiteAlerter implements Alerter {
 		devices = ImmutableUtil.copyAsMap(builder.devices);
 	}
 
-	@Override
 	public void alert(String... keys) {
-		//clearAlerts();
+		//clear();
 		for (String key : keys) {
 			Integer device = devices.get(key);
 			if (device != null) doAlert(device);
 		}
 	}
 
-	@Override
-	public void clear(String... keys) {
-		clearAlerts();
-	}
-
-	@Override
-	public void close() throws IOException {
-		// Nothing to do
-	}
-
-	private void clearAlerts() {
+	public void clear() {
 		for (int device : devices.values())
 			clearAlert(device);
 	}

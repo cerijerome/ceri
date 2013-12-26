@@ -71,7 +71,7 @@ public class X10AlerterBehavior {
 		Controller controller = mock(Controller.class);
 		try (X10Alerter x10 =
 			X10Alerter.builder(controller).address("ceri1", "F13").address("ceri2", "P16").build()) {
-			x10.clear("ceri1", "ceri2");
+			x10.clear();
 		}
 		verify(controller).addCommand(new Command("F1", Command.ALL_UNITS_OFF));
 		verify(controller).addCommand(new Command("P1", Command.ALL_UNITS_OFF));

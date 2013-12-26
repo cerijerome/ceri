@@ -1,5 +1,6 @@
 package ceri.ci.x10;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -10,13 +11,12 @@ import java.util.Properties;
 import java.util.Set;
 import x10.Command;
 import x10.Controller;
-import ceri.ci.common.Alerter;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.property.PropertyUtil;
 import ceri.x10.X10ControllerType;
 import ceri.x10.X10Util;
 
-public class X10Alerter implements Alerter {
+public class X10Alerter implements Closeable {
 	private static final int DEVICE_DEF = 1;
 	private final Controller x10;
 	private final Map<String, String> addresses;
@@ -72,15 +72,13 @@ public class X10Alerter implements Alerter {
 		houseCodes = Collections.unmodifiableSet(houseCodes(addresses));
 	}
 
-	@Override
 	public void alert(String... keys) {
 		clearAlerts();
 		for (String key : keys)
 			doAlert(key);
 	}
 
-	@Override
-	public void clear(String... keys) {
+	public void clear() {
 		clearAlerts();
 	}
 

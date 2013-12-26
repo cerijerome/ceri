@@ -1,12 +1,12 @@
 package ceri.ci.audio;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import ceri.ci.common.Alerter;
 import ceri.common.date.TimeUnit;
 import ceri.common.util.BasicUtil;
 
-public class AudioAlerter implements Alerter {
+public class AudioAlerter implements Closeable {
 	private static final long TEN_MINS_MS = TimeUnit.minute.ms * 10;
 	private static final int SHUTDOWN_POLL_MS = 200;
 	private final long delayMs;
@@ -34,12 +34,10 @@ public class AudioAlerter implements Alerter {
 		this.shutdownPollMs = shutdownPollMs;
 	}
 
-	@Override
 	public void alert(String... keys) {
 		start(createThread(keys));
 	}
 
-	@Override
 	public void clear(String... keys) {
 		stop();
 		player.play(AudioPlayer.Clip.build_ok);
