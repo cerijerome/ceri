@@ -10,16 +10,16 @@ import org.junit.Test;
 public class ReflectUtilTest {
 	
 	@Test
-	public void testInstanceOf() {
-		assertFalse(ReflectUtil.instanceOf(null));
-		assertFalse(ReflectUtil.instanceOf(Object.class));
+	public void testInstanceOfAny() {
+		assertFalse(ReflectUtil.instanceOfAny(null));
+		assertFalse(ReflectUtil.instanceOfAny(Object.class));
 		Object obj = new Long(Long.MAX_VALUE);
-		assertTrue(ReflectUtil.instanceOf(obj, Long.class));
-		assertTrue(ReflectUtil.instanceOf(obj, Number.class));
-		assertTrue(ReflectUtil.instanceOf(obj, Object.class));
-		assertFalse(ReflectUtil.instanceOf(obj, Float.class));
-		assertFalse(ReflectUtil.instanceOf(obj, Float.class, Integer.class));
-		assertTrue(ReflectUtil.instanceOf(obj, Float.class, Integer.class, Number.class));
+		assertTrue(ReflectUtil.instanceOfAny(obj, Long.class));
+		assertTrue(ReflectUtil.instanceOfAny(obj, Number.class));
+		assertTrue(ReflectUtil.instanceOfAny(obj, Object.class));
+		assertFalse(ReflectUtil.instanceOfAny(obj, Float.class));
+		assertFalse(ReflectUtil.instanceOfAny(obj, Float.class, Integer.class));
+		assertTrue(ReflectUtil.instanceOfAny(obj, Float.class, Integer.class, Number.class));
 	}
 
 	@Test(expected=CreateException.class)

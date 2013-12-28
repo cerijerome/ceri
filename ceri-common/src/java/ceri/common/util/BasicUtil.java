@@ -40,6 +40,13 @@ public class BasicUtil {
 	}
 
 	/**
+	 * Make a beep sound
+	 */
+	public static void beep() {
+		java.awt.Toolkit.getDefaultToolkit().beep();
+	}
+	
+	/**
 	 * Convenience method that calls Enum.valueOf and returns default value if no match.
 	 */
 	public static <T extends Enum<T>> T valueOf(Class<T> cls, String value, T def) {

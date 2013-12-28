@@ -7,15 +7,15 @@ import java.util.regex.Pattern;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.util.StringUtil;
 
+/**
+ * Represents an immutable lookup key with '.' separator.
+ */
 public class Key {
 	public static final Key NULL = new Key("");
 	public static final char SEPARATOR = '.';
 	private static final Pattern SEPARATOR_REGEX = Pattern.compile("\\.");
 	public final String value;
 
-	/**
-	 * Better to call Key.create to make sure Key value is valid.
-	 */
 	private Key(String value) {
 		this.value = value;
 	}

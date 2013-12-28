@@ -23,12 +23,6 @@ public class MapBuilder<K, V> {
 		return this;
 	}
 
-	@SafeVarargs
-	public final MapBuilder<K, V> putKeys(V value, K...keys) {
-		for (K key : keys) put(key, value);
-		return this;
-	}
-
 	public MapBuilder<K, V> putAll(Map<? extends K, ? extends V> m) {
 		map.putAll(m);
 		return this;

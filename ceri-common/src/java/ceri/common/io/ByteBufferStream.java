@@ -50,7 +50,7 @@ public class ByteBufferStream extends ByteArrayOutputStream {
 	@Override
 	public String toString() {
 		ToStringHelper helper = ToStringHelper.createByClass(this);
-		helper.add("count", count).add("complete", closed);
+		helper.field("count", count).field("complete", closed);
 		return helper.toString();
 	}
 

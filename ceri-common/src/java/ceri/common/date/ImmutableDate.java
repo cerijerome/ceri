@@ -2,6 +2,10 @@ package ceri.common.date;
 
 import java.util.Date;
 
+/**
+ * An immutable extension to Date.
+ * UnsupportedOperationException is thrown for mutator methods.
+ */
 public class ImmutableDate extends Date {
 	private static final long serialVersionUID = -8001838082219221691L;
 

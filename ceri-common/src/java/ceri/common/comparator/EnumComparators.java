@@ -3,6 +3,9 @@ package ceri.common.comparator;
 import java.util.Comparator;
 import ceri.common.util.BasicUtil;
 
+/**
+ * Comparators for enum types.
+ */
 public class EnumComparators {
 
 	private static final Comparator<Enum<?>> NAME = new BaseComparator<Enum<?>>() {

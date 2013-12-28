@@ -1,13 +1,10 @@
-/**
- * Created on Aug 25, 2007
- */
 package ceri.common.comparator;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
-import ceri.common.collection.ImmutableUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -28,6 +25,19 @@ public class Comparators {
 	public static final Comparator<Date> DATE = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Locale> LOCALE = string();
 
+	/**
+	 * Comparator for comparable types that handles null cases.
+	 */
+	private static class ComparableComparator<T extends Comparable<? super T>> extends
+		BaseComparator<T> {
+		ComparableComparator() {}
+
+		@Override
+		protected int compareNonNull(T o1, T o2) {
+			return o1.compareTo(o2);
+		}
+	}
+
 	private static final Comparator<?> STRING_VALUE = new BaseComparator<Object>() {
 		@Override
 		protected int compareNonNull(Object lhs, Object rhs) {
@@ -38,7 +48,6 @@ public class Comparators {
 	private static final Comparator<?> NULL = new Comparator<Object>() {
 		@Override
 		public int compare(Object lhs, Object rhs) {
-			BasicUtil.unused(lhs, rhs);
 			return 0;
 		}
 	};
@@ -46,7 +55,6 @@ public class Comparators {
 	private static final Comparator<?> NON_NULL = new BaseComparator<Object>() {
 		@Override
 		protected int compareNonNull(Object lhs, Object rhs) {
-			BasicUtil.unused(lhs, rhs);
 			return 0;
 		}
 	};
@@ -86,7 +94,7 @@ public class Comparators {
 	 */
 	@SafeVarargs
 	public static <T> Comparator<T> sequence(Comparator<? super T>... comparators) {
-		return ComparatorSequence.<T>builder().add(comparators).build();
+		return sequence(Arrays.asList(comparators));
 	}
 
 	/**
@@ -98,26 +106,27 @@ public class Comparators {
 	}
 
 	/**
-	 * Comparator to group given items first. 
+	 * Comparator to group given items first, then apply the comparator.
 	 */
 	@SafeVarargs
-	public static <T> Comparator<T> first(final T...ts) {
-		return first(ImmutableUtil.asList(ts));
+	public static <T> Comparator<T> group(Comparator<? super T> comparator, T... ts) {
+		return group(comparator, Arrays.asList(ts));
 	}
-	
+
 	/**
-	 * Comparator to group given items first. 
+	 * Comparator to group given items first.
 	 */
-	public static <T> Comparator<T> first(final Collection<T> ts) {
+	public static <T> Comparator<T> group(final Comparator<? super T> comparator,
+		final Collection<T> ts) {
 		return new BaseComparator<T>() {
 			@Override
 			protected int compareNonNull(T lhs, T rhs) {
 				boolean lhsEq = ts.contains(lhs);
 				boolean rhsEq = ts.contains(rhs);
-				if (lhsEq && rhsEq) return 0;
+				if (lhsEq && rhsEq) return comparator.compare(lhs, rhs);
 				if (lhsEq) return -1;
 				if (rhsEq) return 1;
-				return 0;
+				return comparator.compare(lhs, rhs);
 			}
 		};
 	}
@@ -133,5 +142,5 @@ public class Comparators {
 			}
 		};
 	}
-	
+
 }

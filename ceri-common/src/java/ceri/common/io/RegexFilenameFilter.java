@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
+import ceri.common.collection.ImmutableUtil;
 
 /**
  * Filename and File Filter that tries to match any one of the given regular expressions.
@@ -69,7 +70,7 @@ public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 	}
 	
 	RegexFilenameFilter(Builder builder) {
-		patterns = Collections.unmodifiableList(new ArrayList<>(builder.patterns));
+		patterns = ImmutableUtil.copyAsList(builder.patterns);
 		absolutePath = builder.absolutePath;
 		unixPath = builder.unixPath;
 	}

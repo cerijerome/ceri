@@ -1,12 +1,12 @@
-/**
- * Created on Mar 29, 2007
- */
 package ceri.common.collection;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
 import ceri.common.util.BasicUtil;
 
+/**
+ * An array iterator primarily for primitive types.
+ */
 public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 	private final Object array;
 	private int index = 0;

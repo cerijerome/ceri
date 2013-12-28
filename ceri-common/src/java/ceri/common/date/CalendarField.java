@@ -2,6 +2,9 @@ package ceri.common.date;
 
 import java.util.Calendar;
 
+/**
+ * Enumeration of Calendar field types.
+ */
 public enum CalendarField {
 	millisec(Calendar.MILLISECOND, 0),
 	second(Calendar.SECOND, 0),
@@ -17,6 +20,14 @@ public enum CalendarField {
 	private CalendarField(int calendarField, int firstValue) {
 		this.calendarField = calendarField;
 		this.firstValue = firstValue;
+	}
+	
+	/**
+	 * Sets given Calendar field with zero-based value.
+	 * Days start at 0 for 1st of the month.
+	 */
+	public void set(Calendar cal, int value) {
+		cal.set(calendarField, value + firstValue);
 	}
 
 }

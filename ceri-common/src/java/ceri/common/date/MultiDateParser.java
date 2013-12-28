@@ -13,7 +13,7 @@ import ceri.common.collection.ImmutableUtil;
 /**
  * Encapsulates a list of date format patterns for parsing dates.
  * Attempts parsing in the given order, so use the most stringent pattern first.
- * Not thread-safe due to DateFormat. 
+ * Not thread-safe due to internal usage of DateFormat. 
  */
 public class MultiDateParser {
 	public final List<String> patterns;

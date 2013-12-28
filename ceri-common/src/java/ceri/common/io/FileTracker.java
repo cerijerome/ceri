@@ -1,16 +1,16 @@
 package ceri.common.io;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Used for creating dirs and files, and keeping track of which ones were created.
  * Useful if an atomic file-based operation fails and need to undo.
  */
 public class FileTracker {
-	private final List<File> createdFiles = new ArrayList<>();
+	private final Deque<File> createdFiles = new ArrayDeque<>();
 	
 	public FileTracker() {
 	}
@@ -48,6 +48,6 @@ public class FileTracker {
 	}
 	
 	private void add(File file) {
-		createdFiles.add(0, file);
+		createdFiles.addFirst(file);
 	}
 }

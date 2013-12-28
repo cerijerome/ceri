@@ -1,6 +1,3 @@
-/**
- * Created on Dec 23, 2005
- */
 package ceri.common.collection;
 
 import java.lang.reflect.Array;

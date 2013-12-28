@@ -3,13 +3,17 @@ package ceri.common.tree;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import ceri.common.util.BasicUtil;
 import ceri.common.util.HashCoder;
 
 /**
  * Abstract class for a node in a tree. Supports immutability through builder construction.
  * Subclass as follows: 
  * MyNode extends TreeNode<MyNode>
+ *   constructor should have minimum of (MyNode parent, MyNode.Builder builder)
  * MyNode.Builder extends TreeNode.Builder<MyNode>
+ *   constructor should have minimum of (int id)
+ *   build(MyNode parent) should construct MyNode(parent, this)
  */
 public abstract class TreeNode<T extends TreeNode<T>> implements Parent<T> {
 	protected final Class<T> cls;
@@ -19,10 +23,8 @@ public abstract class TreeNode<T extends TreeNode<T>> implements Parent<T> {
 	private final Collection<T> children;
 	private final int hashCode;
 
-	protected TreeNode(Class<T> cls, T parent, Builder<T> builder) {
-		if (!getClass().equals(cls)) throw new IllegalArgumentException(
-			"Class must match this.getClass(): " + getClass());
-		this.cls = cls;
+	protected TreeNode(T parent, Builder<T> builder) {
+		this.cls = BasicUtil.uncheckedCast(getClass());
 		this.parent = parent;
 		this.id = builder.id;
 		level = parent == null ? 0 : parent.level + 1;
@@ -97,7 +99,6 @@ public abstract class TreeNode<T extends TreeNode<T>> implements Parent<T> {
 		}
 
 		protected abstract T build(T parent);
-
 	}
 
 }

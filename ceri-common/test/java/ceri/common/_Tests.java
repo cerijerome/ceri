@@ -5,9 +5,7 @@ import org.junit.runners.Suite;
 import ceri.common.collection.ArrayIteratorBehavior;
 import ceri.common.collection.ArrayUtilTest;
 import ceri.common.collection.CollectionUtilTest;
-import ceri.common.collection.ImmutableIterableBehavior;
 import ceri.common.collection.ImmutableUtilTest;
-import ceri.common.collection.ReverseListIteratorBehavior;
 import ceri.common.comparator.BaseComparatorBehavior;
 import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
@@ -59,9 +57,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ArrayIteratorBehavior.class,
 	ArrayUtilTest.class,
 	CollectionUtilTest.class,
-	ImmutableIterableBehavior.class,
 	ImmutableUtilTest.class,
-	ReverseListIteratorBehavior.class,
 	// comparator
 	BaseComparatorBehavior.class,
 	ComparatorSequenceBehavior.class,

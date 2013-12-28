@@ -1,6 +1,3 @@
-/**
- * Created on Dec 3, 2005
- */
 package ceri.common.collection;
 
 import java.util.Arrays;
@@ -11,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
@@ -20,9 +18,11 @@ import java.util.Set;
  */
 public class CollectionUtil {
 
-	private CollectionUtil() {
-	}
+	private CollectionUtil() {}
 
+	/**
+	 * Returns an iterable type useful in for-each loops.
+	 */
 	public static <T> Iterable<T> iterable(final Iterator<T> iterator) {
 		return new Iterable<T>() {
 			@Override
@@ -31,18 +31,47 @@ public class CollectionUtil {
 			}
 		};
 	}
-	
-	public static <T> Iterable<T> reverseIterableList(final List<T> list) {
-		return new Iterable<T> () {
+
+	/**
+	 * Returns a reversed list iterator.
+	 */
+	public static <T> Iterator<T> reverseListIterator(List<T> list) {
+		final ListIterator<T> listIterator = list.listIterator(list.size());
+		return new Iterator<T>() {
 			@Override
-			public Iterator<T> iterator() {
-				return new ReverseListIterator<>(list);
+			public boolean hasNext() {
+				return listIterator.hasPrevious();
+			}
+
+			@Override
+			public T next() {
+				return listIterator.previous();
+			}
+
+			@Override
+			public void remove() {
+				listIterator.remove();
 			}
 		};
 	}
 
+	/**
+	 * Returns a reverse iterable type useful in for-each loops.
+	 */
+	public static <T> Iterable<T> reverseIterableList(final List<T> list) {
+		return new Iterable<T>() {
+			@Override
+			public Iterator<T> iterator() {
+				return reverseListIterator(list);
+			}
+		};
+	}
+
+	/**
+	 * Returns a reverse iterable type useful in for-each loops.
+	 */
 	public static <T> Iterable<T> reverseIterableQueue(final Deque<T> deque) {
-		return new Iterable<T> () {
+		return new Iterable<T>() {
 			@Override
 			public Iterator<T> iterator() {
 				return deque.descendingIterator();
@@ -50,8 +79,11 @@ public class CollectionUtil {
 		};
 	}
 
+	/**
+	 * Returns a reverse iterable type useful in for-each loops.
+	 */
 	public static <T> Iterable<T> reverseIterableSet(final NavigableSet<T> navSet) {
-		return new Iterable<T> () {
+		return new Iterable<T>() {
 			@Override
 			public Iterator<T> iterator() {
 				return navSet.descendingIterator();
@@ -60,7 +92,8 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Map wrapper that returns a default value if key is not in map or its value is null.
+	 * Map wrapper that returns a default value if key is not in map or its
+	 * value is null.
 	 */
 	public static <K, V> Map<K, V> defaultValueMap(Map<K, V> map, final V def) {
 		return new DelegatingMap<K, V>(map) {
@@ -72,13 +105,12 @@ public class CollectionUtil {
 			}
 		};
 	}
-	
+
 	/**
 	 * Variation of Collection.addAll that returns the collection type.
 	 */
 	@SafeVarargs
-	public static <T, C extends Collection<? super T>> C addAll(C collection,
-		T... items) {
+	public static <T, C extends Collection<? super T>> C addAll(C collection, T... items) {
 		Collections.addAll(collection, items);
 		return collection;
 	}
@@ -87,8 +119,8 @@ public class CollectionUtil {
 	 * Returns the last element.
 	 */
 	public static <T> T last(Iterable<T> iterable) {
-		if (iterable instanceof Collection<?>)
-			return get(iterable, ((Collection<?>)iterable).size() - 1);
+		if (iterable instanceof Collection<?>) return get(iterable, ((Collection<?>) iterable)
+			.size() - 1);
 		Iterator<T> i = iterable.iterator();
 		while (true) {
 			T t = i.next();
@@ -104,28 +136,27 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Returns the item at given index for an iterable instance.
-	 * Optimized for Lists.
+	 * Returns the item at given index for an iterable instance. Optimized for
+	 * Lists.
 	 */
 	public static <T> T get(Iterable<T> iterable, int index) {
 		if (iterable instanceof LinkedList<?>) {
-			LinkedList<T> linkedList = (LinkedList<T>)iterable;
+			LinkedList<T> linkedList = (LinkedList<T>) iterable;
 			if (index == 0) return linkedList.getFirst();
 			if (index == linkedList.size() - 1) return linkedList.getLast();
 		}
-		if (iterable instanceof List<?>)
-			return ((List<T>)iterable).get(index);
-		for (T t : iterable) if (index-- <= 0) return t;
-		throw new IndexOutOfBoundsException(
-			"Iterable does not contain item at index " + index);
+		if (iterable instanceof List<?>) return ((List<T>) iterable).get(index);
+		for (T t : iterable)
+			if (index-- <= 0) return t;
+		throw new IndexOutOfBoundsException("Iterable does not contain item at index " + index);
 	}
 
 	/**
-	 * Removes all given items from the collection.
-	 * Returns true if the collection is modified.
+	 * Removes all given items from the collection. Returns true if the
+	 * collection is modified.
 	 */
 	@SafeVarargs
-	public static <T> boolean removeAll(Collection<? super T> collection, T...ts) {
+	public static <T> boolean removeAll(Collection<? super T> collection, T... ts) {
 		return collection.removeAll(Arrays.asList(ts));
 	}
 
@@ -133,20 +164,18 @@ public class CollectionUtil {
 	 * Removes items from the first collection that are not in the second.
 	 */
 	public static void intersect(Collection<?> lhs, Collection<?> rhs) {
-		for (Iterator<?> i = lhs.iterator(); i.hasNext(); ) {
+		for (Iterator<?> i = lhs.iterator(); i.hasNext();) {
 			if (!rhs.contains(i.next())) i.remove();
 		}
 	}
 
 	/**
-	 * Creates a typed array from a collection and given type.
-	 * The type must not be a primitive class type such as int.class
-	 * otherwise a ClassCastException will be thrown.
+	 * Creates a typed array from a collection and given type. The type must not
+	 * be a primitive class type such as int.class otherwise a
+	 * ClassCastException will be thrown.
 	 */
-	public static <T> T[] toArray(Collection<? extends T> collection,
-		Class<T> type) {
-		if (type.isPrimitive()) throw new IllegalArgumentException(
-			"Primitives types not allowed");
+	public static <T> T[] toArray(Collection<? extends T> collection, Class<T> type) {
+		if (type.isPrimitive()) throw new IllegalArgumentException("Primitives types not allowed");
 		T[] array = ArrayUtil.create(type, collection.size());
 		return collection.toArray(array);
 	}
@@ -157,12 +186,11 @@ public class CollectionUtil {
 	public static <K, V> K key(Map<K, V> map, V value) {
 		for (Map.Entry<K, V> entry : map.entrySet()) {
 			if (entry.getValue() == null && value != null) continue;
-			if (entry.getValue() == value || entry.getValue().equals(value))
-				return entry.getKey();
+			if (entry.getValue() == value || entry.getValue().equals(value)) return entry.getKey();
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Finds all keys with matching value.
 	 */
@@ -170,10 +198,10 @@ public class CollectionUtil {
 		Set<K> keys = new LinkedHashSet<>();
 		for (Map.Entry<K, V> entry : map.entrySet()) {
 			if (entry.getValue() == null && value != null) continue;
-			if (entry.getValue() == value || entry.getValue().equals(value))
-				keys.add(entry.getKey());
+			if (entry.getValue() == value || entry.getValue().equals(value)) keys.add(entry
+				.getKey());
 		}
 		return keys;
 	}
-	
+
 }

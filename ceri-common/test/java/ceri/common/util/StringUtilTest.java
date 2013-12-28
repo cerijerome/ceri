@@ -62,8 +62,23 @@ public class StringUtilTest {
 			p.println("Testing1");
 			p.println("\0\b\t\f\'\"");
 			p.close();
-			assertThat(b.toString(), is("Testing1" + System.lineSeparator() + "\0\b\t\f\'\"" + System.lineSeparator()));
+			assertThat(b.toString(), is("Testing1" + System.lineSeparator() + "\0\b\t\f\'\"" +
+				System.lineSeparator()));
 		}
 	}
-	
+
+	@Test
+	public void testPrefixLines() {
+		assertThat(StringUtil.prefixLines("xxx", "abc"), is("xxxabc"));
+		assertThat(StringUtil.prefixLines("xxx", ""), is("xxx"));
+		assertThat(StringUtil.prefixLines("", ""), is(""));
+		assertThat(StringUtil.prefixLines("", "abc"), is("abc"));
+		assertThat(StringUtil.prefixLines("xxx", "a\r\nb"), is("xxxa\r\nxxxb"));
+		assertThat(StringUtil.prefixLines("xxx", "a\r\n"), is("xxxa\r\nxxx"));
+		assertThat(StringUtil.prefixLines("xxx", "\r\n"), is("xxx\r\nxxx"));
+		assertThat(StringUtil.prefixLines("\t", "\n\r"), is("\t\n\t\r\t"));
+		assertThat(StringUtil.prefixLines("\t", "\n\r\n\t"), is("\t\n\t\r\n\t\t"));
+		assertThat(StringUtil.prefixLines("x", "a\nb\r\nc\rd"), is("xa\nxb\r\nxc\rxd"));
+	}
+
 }

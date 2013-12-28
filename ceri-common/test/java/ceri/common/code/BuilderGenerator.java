@@ -8,11 +8,25 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
-/*
- * Generates code text for a class with a builder. 
+/**
+ * Generates code text for a class with a builder. Run main then enter class
+ * name followed by fields on subsequent lines. Fields can contain
+ * public/protected/private/final/; as these will be removed. Finish with an
+ * empty line and the class with builder will be generated. Copy the output into
+ * a new Java file. e.g.
+ * 
+ * <pre>
+ * MyClass
+ * int id
+ * String name
+ * Date date
+ * </pre>
  */
 public class BuilderGenerator {
+	private static final Pattern CLEAN_REGEX = Pattern
+		.compile("(public |protected |private |final |;)");
 	private final String className;
 	private final Map<String, String> fields;
 
@@ -63,7 +77,7 @@ public class BuilderGenerator {
 		out.println();
 		out.println("}");
 	}
-	
+
 	private void generateToString(PrintStream out) {
 		out.println("\t@Override");
 		out.println("\tpublic String toString() {");
@@ -103,8 +117,7 @@ public class BuilderGenerator {
 		String line;
 		try {
 			while ((line = in.readLine()) != null) {
-				line = line.replaceAll("(public |private |final |;)", "");
-				line = line.trim();
+				line = CLEAN_REGEX.matcher(line).replaceAll("").trim();
 				if (builder == null) {
 					builder = builder(line);
 					continue;

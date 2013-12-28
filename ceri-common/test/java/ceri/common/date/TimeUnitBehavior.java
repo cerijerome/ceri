@@ -2,11 +2,29 @@ package ceri.common.date;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import java.util.Calendar;
+import java.util.TimeZone;
 import org.junit.Test;
 import ceri.common.unit.NormalizedValue;
 
 public class TimeUnitBehavior {
 
+	@Test
+	public void testSetCalendar() {
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		cal.setTimeInMillis(0);
+		NormalizedValue<TimeUnit> n = NormalizedValue.create(1000000000, TimeUnit.class);
+		System.out.println(n.values);
+		TimeUnit.set(cal, n);
+		assertThat(cal.get(Calendar.YEAR), is(1970));
+		assertThat(cal.get(Calendar.MONTH), is(0));
+		assertThat(cal.get(Calendar.DATE), is(12));
+		assertThat(cal.get(Calendar.HOUR_OF_DAY), is(13));
+		assertThat(cal.get(Calendar.MINUTE), is(46));
+		assertThat(cal.get(Calendar.SECOND), is(40));
+		assertThat(cal.get(Calendar.MILLISECOND), is(0));
+	}
+	
 	@Test
 	public void shouldConvertMsToCorrectUnits() {
 		NormalizedValue<TimeUnit> n = NormalizedValue.create(9999L, TimeUnit.class);

@@ -2,6 +2,8 @@ package ceri.common.util;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * String-based utilities. See also TextUtil for more word-based formatting
@@ -9,6 +11,7 @@ import java.io.PrintStream;
  */
 public class StringUtil {
 	public static final String UTF8 = "UTF8";
+	public static final Pattern NEWLINE_REGEX = Pattern.compile("(\\r\\n|\\n|\\r)");
 
 	private StringUtil() {}
 
@@ -24,7 +27,7 @@ public class StringUtil {
 			i = str.indexOf(ch, i);
 			if (i == -1) break;
 			count++;
-			i ++;
+			i++;
 		}
 		return count;
 	}
@@ -66,9 +69,9 @@ public class StringUtil {
 	 * Convenience method to prevent callers needing to cast to Object[].
 	 */
 	public static String toString(String pre, String post, String separator, String... objects) {
-		return toString(pre, post, separator, (Object[])objects);
+		return toString(pre, post, separator, (Object[]) objects);
 	}
-	
+
 	/**
 	 * Creates a formatted string for an array of items:
 	 * [pre]item1[separator]item2[separator]...[post]
@@ -161,9 +164,8 @@ public class StringUtil {
 	}
 
 	/**
-	 * Wrap a PrintStream around a string builder.
-	 * PrintStream will not flush automatically.
-	 * 
+	 * Wrap a PrintStream around a string builder. PrintStream will not flush
+	 * automatically.
 	 */
 	public static PrintStream asPrintStream(final StringBuilder s) {
 		return new PrintStream(new OutputStream() {
@@ -171,15 +173,26 @@ public class StringUtil {
 			public void write(int b) {
 				s.append((char) b);
 			}
+
 			@Override
 			public void write(byte[] b) {
 				s.append(new String(b));
 			}
+
 			@Override
 			public void write(byte[] b, int off, int len) {
 				s.append(new String(b, off, len));
 			}
 		});
+	}
+
+	/**
+	 * Prefixes each line of the string with given prefix.
+	 */
+	public static String prefixLines(String prefix, String s) {
+		if (prefix.isEmpty()) return s;
+		return prefix +
+			NEWLINE_REGEX.matcher(s).replaceAll("$1" + Matcher.quoteReplacement(prefix));
 	}
 
 }

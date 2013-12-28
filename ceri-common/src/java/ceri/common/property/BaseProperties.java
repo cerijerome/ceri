@@ -4,7 +4,12 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Properties;
 
-public class BaseProperties {
+/**
+ * Abstract class for accessing properties with a common key prefix.
+ * Useful when sharing one properties object across multiple components.
+ * Extend the class to expose specific field accessors.
+ */
+public abstract class BaseProperties {
 	private final String prefix;
 	private final Properties properties;
 	
@@ -13,20 +18,36 @@ public class BaseProperties {
 		this.properties = properties;
 	}
 	
-	protected String key(String...keys) {
-		return Key.createWithPrefix(prefix, keys).value;
+	/**
+	 * Creates a prefixed, dot-separated immutable key from key parts.
+	 * e.g. ab, cd, ef => <prefix>.ab.cd.ef
+	 */
+	protected String key(String...keyParts) {
+		return Key.createWithPrefix(prefix, keyParts).value;
 	}
 	
-	protected String value(String...keys) {
-		return properties.getProperty(key(keys));
+	/**
+	 * Retrieves the String property from prefixed, dot-separated key.
+	 * Returns null if no value exists for the key.
+	 */
+	protected String value(String...keyParts) {
+		return properties.getProperty(key(keyParts));
 	}
 	
-	protected Integer intValue(String...keys) {
-		String value = value(keys);
+	/**
+	 * Retrieves the Integer property from prefixed, dot-separated key.
+	 * Returns null if no value exists for the key.
+	 * Throws NumberFormatException if the value is not an integer.
+	 */
+	protected Integer intValue(String...keyParts) {
+		String value = value(keyParts);
 		if (value == null) return null;
 		return Integer.valueOf(value);
 	}
 	
+	/**
+	 * Returns all the keys that start with prefix.
+	 */
 	protected Collection<String> keys() {
 		Collection<String> keys = new LinkedHashSet<>();
 		for (Object o : properties.keySet()) {

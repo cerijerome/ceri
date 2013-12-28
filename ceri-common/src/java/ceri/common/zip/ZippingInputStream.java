@@ -79,8 +79,8 @@ public class ZippingInputStream extends FilterInputStream {
 	@Override
 	public String toString() {
 		ToStringHelper helper = ToStringHelper.createByClass(this);
-		helper.add(byteBuffer);
-		helper.add("checksum", Long.toHexString(checksum()));
+		helper.fields(byteBuffer);
+		helper.field("checksum", Long.toHexString(checksum()));
 		return helper.toString();
 	}
 

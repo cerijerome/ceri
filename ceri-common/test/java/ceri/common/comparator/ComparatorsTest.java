@@ -8,6 +8,19 @@ import org.junit.Test;
 public class ComparatorsTest {
 	
 	@Test
+	public void testGroupComparator() {
+		Comparator<Integer> comparator = Comparators.group(Comparators.INTEGER, 3, 4, 5);
+		assertThat(comparator.compare(1,  2), is(-1));
+		assertThat(comparator.compare(1,  6), is(-1));
+		assertThat(comparator.compare(6,  1), is(1));
+		assertThat(comparator.compare(7,  6), is(1));
+		assertThat(comparator.compare(1,  3), is(1));
+		assertThat(comparator.compare(7,  3), is(1));
+		assertThat(comparator.compare(3,  5), is(-1));
+		assertThat(comparator.compare(5,  4), is(1));
+	}
+	
+	@Test
 	public void testPrimitiveComparator() {
 		assertThat(Comparators.BOOLEAN.compare(null, null), is(0));
 		assertThat(Comparators.BOOLEAN.compare(null, true) < 0, is(true));

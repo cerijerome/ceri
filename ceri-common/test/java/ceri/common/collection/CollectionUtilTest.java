@@ -21,6 +21,15 @@ import org.junit.Test;
 
 public class CollectionUtilTest {
 
+	@Test(expected=NoSuchElementException.class)
+	public void testReverseListIteratorShouldIterateListInReverse() {
+		Iterator<String> iterator = CollectionUtil.reverseListIterator(Arrays.asList("A", "B", "C"));
+		assertThat(iterator.next(), is("C"));
+		assertThat(iterator.next(), is("B"));
+		assertThat(iterator.next(), is("A"));
+		iterator.next();
+	}
+
 	@Test
 	public void testAddAll() {
 		List<String> list = CollectionUtil.addAll(new ArrayList<String>(), "1", "2", "3");

@@ -4,6 +4,10 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+/**
+ * An immutable extension to TimeZone.
+ * UnsupportedOperationException is thrown for mutator methods.
+ */
 public class ImmutableTimeZone extends TimeZone {
 	private static final long serialVersionUID = -3596503137048104086L;
 	private final TimeZone timeZone;

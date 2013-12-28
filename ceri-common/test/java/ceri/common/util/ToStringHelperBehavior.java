@@ -1,8 +1,8 @@
 package ceri.common.util;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import java.util.Arrays;
 import java.util.Date;
 import org.junit.Test;
 
@@ -13,41 +13,62 @@ public class ToStringHelperBehavior {
 		String toString = ToStringHelper.createByClass(new Date()).toString();
 		assertThat(toString, is("Date"));
 	}
-	
+
 	@Test
 	public void shouldShowValues() {
 		String toString = ToStringHelper.create("Test", "Value1", "Value2").toString();
 		assertThat(toString, is("Test(Value1,Value2)"));
 	}
-	
+
 	@Test
-	public void shouldNotShowEmptyValues() {
+	public void shouldNotShowEmptyValuesOrFields() {
 		String toString = ToStringHelper.create("Test").toString();
-		assertFalse("String should not have values in parentheses", toString.contains("("));
+		assertThat(toString, is("Test"));
 	}
-	
+
 	@Test
 	public void shouldNotShowEmptyValuesWithFieldsSet() {
-		String toString = ToStringHelper.create("Test").add("Field").toString();
-		assertFalse("String should not have values in parentheses", toString.contains("("));
+		String toString = ToStringHelper.create("Test").fields("Field").toString();
+		assertThat(toString, is("Test[Field]"));
 	}
-	
+
 	@Test
 	public void shouldUseClassNameFieldKeyIfSpecified() {
-		String toString = ToStringHelper.create("Test").addByClass("Field").toString();
+		String toString = ToStringHelper.create("Test").fieldsByClass("Field").toString();
 		assertThat(toString, is("Test[String=Field]"));
 	}
-	
+
 	@Test
-	public void shouldNotShowEmptyFields() {
-		String toString = ToStringHelper.create("Test").toString();
-		assertFalse("String should not have fields in square brackets", toString.contains("["));
+	public void shouldAddIndentedChildren() {
+		String toString = ToStringHelper.create("Test").children("aaa", "bbb", "ccc").toString();
+		assertThat(toString, is(lines("Test {", "  aaa", "  bbb", "  ccc", "}")));
 	}
-	
+
 	@Test
-	public void shouldNotShowEmptyFieldsWithValuesSet() {
-		String toString = ToStringHelper.create("Test", "Value").toString();
-		assertFalse("String should not have fields in square brackets", toString.contains("["));
+	public void shouldAddChildrenWithSpecifiedPrefix() {
+		String toString =
+			ToStringHelper.create("Test").childIndent("\t").children("a", "b", "c").toString();
+		assertThat(toString, is(lines("Test {", "\ta", "\tb", "\tc", "}")));
 	}
-	
+
+	@Test
+	public void shouldIndentChildrenOfChildren() {
+		String child1 = ToStringHelper.create("Child1").children("a1", "b1").toString();
+		String child2 = ToStringHelper.create("Child2").children("a2", "b2").toString();
+		String toString = ToStringHelper.create("Test").children(child1, child2).toString();
+		assertThat(toString, is(lines("Test {", "  Child1 {", "    a1", "    b1", "  }",
+			"  Child2 {", "    a2", "    b2", "  }", "}")));
+	}
+
+	@Test
+	public void shouldAllowValuesFieldsAndChildren() {
+		String toString =
+			ToStringHelper.create("Test", "Value").fields("Field").children("Child").toString();
+		assertThat(toString, is(lines("Test(Value)[Field] {", "  Child", "}")));
+	}
+
+	private static String lines(String... lines) {
+		return StringUtil.toString("", "", System.lineSeparator(), Arrays.asList(lines));
+	}
+
 }

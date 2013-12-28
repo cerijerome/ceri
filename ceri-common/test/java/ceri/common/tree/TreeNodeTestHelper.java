@@ -25,19 +25,40 @@ public class TreeNodeTestHelper {
 		return tree.get(id);
 	}
 
-	public TreeNode.Builder<TestNode> builder() {
-		return new TestNodeBuilder(count++);
+	public TestNode.Builder builder() {
+		return new TestNode.Builder(count++);
 	}
 
 	public static TreeNode.Builder<TestNode> builder(int id) {
-		return new TestNodeBuilder(id);
+		return new TestNode.Builder(id);
 	}
 
 	public static class TestNode extends TreeNode<TestNode> {
 		private final String toString;
+		public final int id2;
 
-		public TestNode(TestNode parent, Builder<TestNode> builder) {
-			super(TestNode.class, parent, builder);
+		public static class Builder extends TreeNode.Builder<TestNode> {
+			int id2 = 0;
+			
+			public Builder(int id) {
+				super(id);
+			}
+
+			public Builder id2(int id2) {
+				this.id2 = id2;
+				return this;
+			}
+			
+			@Override
+			protected TestNode build(TestNode parent) {
+				return new TestNode(parent, this);
+			}
+
+		}
+
+		public TestNode(TestNode parent, Builder builder) {
+			super(parent, builder);
+			id2 = builder.id2;
 			toString = ToStringHelper.createByClass(this, id, level).toString();
 		}
 
@@ -45,19 +66,6 @@ public class TreeNodeTestHelper {
 		public String toString() {
 			return toString;
 		}
-	}
-
-	static class TestNodeBuilder extends TreeNode.Builder<TestNode> {
-
-		public TestNodeBuilder(int id) {
-			super(id);
-		}
-
-		@Override
-		protected TestNode build(TestNode parent) {
-			return new TestNode(parent, this);
-		}
-
 	}
 
 }

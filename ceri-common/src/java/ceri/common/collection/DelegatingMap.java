@@ -1,6 +1,3 @@
-/**
- * Created on Nov 11, 2005
- */
 package ceri.common.collection;
 
 import java.util.Collection;

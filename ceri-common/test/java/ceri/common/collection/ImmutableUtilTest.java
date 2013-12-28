@@ -19,6 +19,26 @@ import ceri.common.util.BasicUtil;
 public class ImmutableUtilTest {
 
 	@Test
+	public void testIterableShouldIterateItems() {
+		List<String> list = new ArrayList<>();
+		Collections.addAll(list, "A", "B", "C");
+		int i = 0;
+		for (String s : ImmutableUtil.iterable(list)) {
+			assertThat(s, is(list.get(i++)));
+		}
+	}
+
+	@Test(expected=UnsupportedOperationException.class)
+	public void testIterableShouldNotAllowRemovals() {
+		List<String> list = new ArrayList<>();
+		Collections.addAll(list, "A", "B", "C");
+		Iterable<String> iterable = ImmutableUtil.iterable(list);
+		Iterator<String> iterator = iterable.iterator();
+		assertThat(iterator.next(), is("A"));
+		iterator.remove();
+	}
+
+	@Test
 	public void testCopy() {
 		final List<Integer> list = ImmutableUtil.asList(1, 2, 3, 4, 5);
 		assertThat(list, is(Arrays.asList(1, 2, 3, 4, 5)));

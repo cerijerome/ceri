@@ -6,7 +6,6 @@ package ceri.common.reflect;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.Collection;
 
 /**
  * Utility methods related to reflection
@@ -19,14 +18,14 @@ public class ReflectUtil {
 	 * Checks if the object is an instance of any of the given classes.
 	 */
 	@SafeVarargs
-	public static <T> boolean instanceOf(T obj, Class<? extends T>...classes) {
-		return instanceOf(obj, Arrays.asList(classes));
+	public static <T> boolean instanceOfAny(T obj, Class<? extends T>...classes) {
+		return instanceOfAny(obj, Arrays.asList(classes));
 	}
 	
 	/**
 	 * Checks if the object is an instance of any of the given classes.
 	 */
-	public static <T> boolean instanceOf(T obj, Collection<Class<? extends T>> classes) {
+	public static <T> boolean instanceOfAny(T obj, Iterable<Class<? extends T>> classes) {
 		if (obj == null) return false;
 		for (Class<?> cls : classes) if (cls.isInstance(obj)) return true;
 		return false;

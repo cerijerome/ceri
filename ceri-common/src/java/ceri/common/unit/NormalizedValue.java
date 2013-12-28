@@ -14,6 +14,9 @@ import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 import ceri.common.util.ToStringHelper;
 
+/**
+ * Encapsulates an immutable normalized value of integral numbers of units.
+ */
 public class NormalizedValue<T extends Unit> {
 	private static final Comparator<Unit> REVERSE_COMPARATOR = new BaseComparator<Unit>() {
 		@Override
@@ -22,28 +25,37 @@ public class NormalizedValue<T extends Unit> {
 			return -Long.compare(o1.units(), o2.units());
 		}
 	};
-	private final Map<T, Long> values;
-	private final int hashCode;
+	public final Map<T, Long> values;
 	public final long value;
+	private final int hashCode;
 	
 	public static class Builder<T extends Unit> {
 		Collection<T> units;
-		long value;
+		long value = 0;
 		
 		Builder(Collection<T> units) {
 			this.units = units;
 		}
 		
+		/**
+		 * Adds a value.
+		 */
 		public Builder<T> value(long value) {
 			this.value += value;
 			return this;
 		}
 		
+		/**
+		 * Adds a value of the given unit.
+		 */
 		public Builder<T> value(long value, T unit) {
 			this.value += value * unit.units();
 			return this;
 		}
 		
+		/**
+		 * Builds the normalized value.
+		 */
 		public NormalizedValue<T> build() {
 			return NormalizedValue.create(value, units);
 		}
@@ -51,38 +63,59 @@ public class NormalizedValue<T extends Unit> {
 	}
 	
 	private NormalizedValue(long value, Collection<T> units) {
-		values = toUnits(value, units);
+		values = Collections.unmodifiableMap(toUnits(value, units));
 		this.value = value;
 		hashCode = HashCoder.hash(values, value);
 	}
 	
+	/**
+	 * Creates a builder for a normalized value using given unit enum types.
+	 */
 	public static <T extends Enum<T> & Unit> Builder<T> builder(Class<T> cls) {
 		return new Builder<>(Arrays.asList(cls.getEnumConstants()));
 	}
 	
+	/**
+	 * Creates a builder for a normalized value using given units.
+	 */
 	public static <T extends Unit> Builder<T> builder(Collection<T> units) {
 		return new Builder<>(units);
 	}
 	
+	/**
+	 * Creates a builder for a normalized value using given units.
+	 */
 	@SafeVarargs
 	public static <T extends Unit> Builder<T> builder(T...units) {
 		return new Builder<>(Arrays.asList(units));
 	}
 	
+	/**
+	 * Normalizes a value with given unit enum types.
+	 */
 	public static <T extends Enum<T> & Unit> NormalizedValue<T> create(long value, Class<T> cls) {
 		Collection<T> units = Arrays.asList(cls.getEnumConstants());
 		return new NormalizedValue<>(value, units);
 	}
 
+	/**
+	 * Normalizes a value with given units.
+	 */
 	public static <T extends Unit> NormalizedValue<T> create(long value, Collection<T> units) {
 		return new NormalizedValue<>(value, units);
 	}
 
+	/**
+	 * Normalizes a value with given units.
+	 */
 	@SafeVarargs
 	public static <T extends Unit> NormalizedValue<T> create(long value, T...units) {
 		return new NormalizedValue<>(value, Arrays.asList(units));
 	}
 
+	/**
+	 * Returns the normalized count of the given unit.
+	 */
 	public long value(T unit) {
 		Long value = values.get(unit);
 		if (value == null) return 0;
@@ -96,6 +129,7 @@ public class NormalizedValue<T extends Unit> {
 	
 	@Override
 	public boolean equals(Object obj) {
+		if (this == obj) return true;
 		if (!(obj instanceof NormalizedValue<?>)) return false;
 		NormalizedValue<?> n = (NormalizedValue<?>)obj;
 		if (value != n.value) return false;
