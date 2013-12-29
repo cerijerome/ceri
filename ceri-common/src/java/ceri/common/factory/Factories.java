@@ -7,10 +7,17 @@ import java.util.Set;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.util.BasicUtil;
 
+/**
+ * Factory utility methods.
+ */
 public class Factories {
 
 	private Factories() {}
 
+	/**
+	 * Converts a given object using given factory.
+	 * Any exception is wrapped as a runtime FactoryException.
+	 */
 	public static <T, F> T create(Factory<? extends T, ? super F> constructor, F from)
 		throws FactoryException {
 		try {
@@ -29,10 +36,16 @@ public class Factories {
 		}
 	};
 
+	/**
+	 * A pass-through factory that returns the original object.
+	 */
 	public static <T> Factory<T, T> assign() {
 		return BasicUtil.uncheckedCast(ASSIGN);
 	}
 	
+	/**
+	 * A factory wrapper that returns null from null and delegates the rest.
+	 */
 	public static <T, F> Factory<T, F> nul(final Factory<T, F> factory) {
 		return new Factory<T, F>() {
 			@Override
@@ -42,7 +55,10 @@ public class Factories {
 			}
 		};
 	}
-		
+	
+	/**
+	 * A wrapper that synchronizes over itself.
+	 */
 	public static <T, F> Factory<T, F> threadSafe(
 		final Factory<? extends T, ? super F> constructor) {
 		return new Factory<T, F>() {
@@ -53,6 +69,9 @@ public class Factories {
 		};
 	}
 
+	/**
+	 * A wrapper that applies a factory to an array.
+	 */
 	public static <T, F> Factory<T[], F[]> array(final Factory<T, F> constructor,
 		final Class<T> toClass) {
 		return new Factory.Base<T[], F[]>() {
@@ -66,6 +85,10 @@ public class Factories {
 		};
 	}
 
+	/**
+	 * A wrapper that applies a factory to a list.
+	 * The return type is ArrayList.
+	 */
 	public static <T, F> Factory<List<T>, Iterable<F>>
 		list(final Factory<T, F> constructor) {
 		return new Factory.Base<List<T>, Iterable<F>>() {
@@ -81,6 +104,10 @@ public class Factories {
 		};
 	}
 
+	/**
+	 * A wrapper that applies a factory to a set.
+	 * The return type is HashSet.
+	 */
 	public static <T, F> Factory<Set<T>, Iterable<F>> set(final Factory<T, F> constructor) {
 		return new Factory.Base<Set<T>, Iterable<F>>() {
 			@Override

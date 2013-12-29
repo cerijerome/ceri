@@ -14,6 +14,11 @@ import ceri.common.date.ImmutableDateBehavior;
 import ceri.common.date.ImmutableTimeZoneBehavior;
 import ceri.common.date.MultiDateParserBehavior;
 import ceri.common.date.TimeUnitBehavior;
+import ceri.common.event.EventListenerSupportBehavior;
+import ceri.common.factory.DateFactoriesTest;
+import ceri.common.factory.FactoriesTest;
+import ceri.common.factory.NumberFactoriesTest;
+import ceri.common.factory.StringFactoriesTest;
 import ceri.common.filter.CollectionFiltersTest;
 import ceri.common.filter.FiltersTest;
 import ceri.common.io.BlockingBufferStreamBehavior;
@@ -68,6 +73,13 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ImmutableTimeZoneBehavior.class,
 	MultiDateParserBehavior.class,
 	TimeUnitBehavior.class,
+	// event
+	EventListenerSupportBehavior.class,
+	//factory
+	DateFactoriesTest.class,
+	FactoriesTest.class,
+	NumberFactoriesTest.class,
+	StringFactoriesTest.class,
 	// filter
 	CollectionFiltersTest.class,
 	FiltersTest.class,

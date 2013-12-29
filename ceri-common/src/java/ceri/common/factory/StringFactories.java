@@ -1,12 +1,9 @@
 package ceri.common.factory;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
+/**
+ * Factories to convert to and from Strings.
+ */
 public class StringFactories {
-	private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
 
 	public static final Factory<String, char[]> FROM_CHAR_ARRAY =
 		new Factory.Base<String, char[]>() {
@@ -23,47 +20,6 @@ public class StringFactories {
 				return String.valueOf(from);
 			}
 		};
-
-	public static final Factory<String, Date> FROM_DATE = Factories.threadSafe(fromDate(
-		DEFAULT_DATE_FORMAT, null));
-
-	public static Factory<String, Date> fromDate(String format) {
-		return fromDate(format, null);
-	}
-	
-	public static Factory<String, Date> fromDate(String format, TimeZone timeZone) {
-		final SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-		if (timeZone != null) dateFormat.setTimeZone(timeZone);
-		return new Factory.Base<String, Date>() {
-			@Override
-			protected String createNonNull(Date from) {
-				return dateFormat.format(from);
-			}
-		};
-	}
-
-	public static final Factory<Date, String> TO_DATE = Factories.threadSafe(toDate(
-		DEFAULT_DATE_FORMAT, null));
-
-	public static Factory<Date, String> toDate(String format) {
-		return toDate(format, null);
-	}
-	
-	public static Factory<Date, String> toDate(String format, TimeZone timeZone) {
-		final SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-		if (timeZone != null) dateFormat.setTimeZone(timeZone);
-		dateFormat.setLenient(true);
-		return new Factory.Base<Date, String>() {
-			@Override
-			protected Date createNonNull(String from) {
-				try {
-					return dateFormat.parse(from.trim());
-				} catch (ParseException e) {
-					throw new FactoryException(e);
-				}
-			}
-		};
-	}
 
 	public static final Factory<char[], String> TO_CHAR_ARRAY =
 		new Factory.Base<char[], String>() {
