@@ -3,11 +3,19 @@ package ceri.common.property;
 import static ceri.common.test.TestUtil.isSame;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
 
 public class KeyBehavior {
+	
+	@Test
+	public void shouldAllowPrefixParts() {
+		Key key = Key.createWithPrefix("a.b", "c");
+		assertThat(key.value, is("a.b.c"));
+		assertTrue(Key.createWithPrefix("a", "b.c").equals(key));
+	}
 	
 	@Test
 	public void shouldNavigateParents() {
@@ -48,6 +56,7 @@ public class KeyBehavior {
 	public void shouldSplitParts() {
 		Key key = Key.create("a", "b", "c");
 		assertThat(key.asParts(), is(Arrays.asList("a", "b", "c")));
+		assertThat(key.parts(), is(3));
 		key = Key.create("a");
 		assertThat(key.asParts(), is(Arrays.asList("a")));
 		key = Key.create("");

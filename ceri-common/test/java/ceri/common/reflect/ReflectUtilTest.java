@@ -1,6 +1,7 @@
 package ceri.common.reflect;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -45,6 +46,10 @@ public class ReflectUtilTest {
 		assertThat(caller.cls, is(cls.getSimpleName()));
 		assertThat(caller.fullCls, is(cls.getName()));
 		assertThat(caller.file, is(cls.getSimpleName() + ".java"));
+		Caller caller2 = ReflectUtil.currentCaller();
+		assertThat(caller, not(caller2));
+		assertThat(new Caller(caller2.fullCls, caller.line, caller2.method, caller2.file),
+			is(caller));
 	}
 
 	@Test

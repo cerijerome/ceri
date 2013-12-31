@@ -52,7 +52,7 @@ public class StringFactories {
 			}
 		};
 
-	public static final Factory<Integer, String> TO_INT =
+	public static final Factory<Integer, String> TO_INTEGER =
 		new Factory.Base<Integer, String>() {
 			@Override
 			protected Integer createNonNull(String from) {

@@ -1,7 +1,7 @@
 package ceri.common.tree;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import ceri.common.util.BasicUtil;
 
@@ -11,7 +11,7 @@ public class TreeUtil {
 
 	public static <T extends Parent<T>> Collection<T> leaves(T node) {
 		if (node == null) throw new NullPointerException("Node cannot be null");
-		Set<T> leaves = new HashSet<>();
+		Set<T> leaves = new LinkedHashSet<>();
 		for (T child : iterable(node))
 			if (isLeaf(child)) leaves.add(child);
 		return leaves;

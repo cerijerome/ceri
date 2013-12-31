@@ -8,12 +8,17 @@ public class TreeUtilTest {
 	private final TreeNodeTestHelper helper = new TreeNodeTestHelper();
 	
 	@Test
+	public void testLeaves() {
+		assertThat(TreeUtil.leaves(helper.root), is(helper.nodes(111, 21, 3)));
+	}
+
+	@Test
 	public void testRootOf() {
-		assertThat(TreeUtil.rootOf(helper.get(111)), is(helper.root));
-		assertThat(TreeUtil.rootOf(helper.get(21)), is(helper.root));
-		assertThat(TreeUtil.rootOf(helper.get(3)), is(helper.root));
+		assertThat(TreeUtil.rootOf(helper.node(111)), is(helper.root));
+		assertThat(TreeUtil.rootOf(helper.node(21)), is(helper.root));
+		assertThat(TreeUtil.rootOf(helper.node(3)), is(helper.root));
 		assertThat(TreeUtil.rootOf(helper.root), is(helper.root));
-		assertThat(TreeUtil.rootOf(helper.get(0)), is(helper.root));
+		assertThat(TreeUtil.rootOf(helper.node(0)), is(helper.root));
 	}
 
 	@Test

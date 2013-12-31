@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.isClass;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -77,11 +78,21 @@ public class ArrayUtilTest {
 		assertFalse(ArrayUtil.isArray(array));
 	}
 	
-	@Test(expected=ArrayIndexOutOfBoundsException.class)
+	@Test
 	public void testLast() {
 		assertThat(ArrayUtil.last(new boolean[] { false }), is(false));
 		assertThat(ArrayUtil.last(new String[] { "0", "1" }), is("1"));
-		ArrayUtil.last(new String[] {});
+		assertThat(ArrayUtil.last(new char[] { '\n' }), is('\n'));
+		assertThat(ArrayUtil.last(new byte[] { Byte.MIN_VALUE }), is(Byte.MIN_VALUE));
+		assertThat(ArrayUtil.last(new short[] { Short.MAX_VALUE }), is(Short.MAX_VALUE));
+		assertThat(ArrayUtil.last(new int[] { 0 }), is(0));
+		assertThat(ArrayUtil.last(new long[] { Long.MAX_VALUE }), is(Long.MAX_VALUE));
+		assertException(ArrayIndexOutOfBoundsException.class, new Runnable() {
+			@Override
+			public void run() {
+				ArrayUtil.last(new double[] {});
+			}
+		});
 	}
 	
 	@Test

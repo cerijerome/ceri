@@ -1,16 +1,22 @@
 package ceri.common.collection;
 
+import static ceri.common.test.TestUtil.assertException;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -21,13 +27,34 @@ import org.junit.Test;
 
 public class CollectionUtilTest {
 
-	@Test(expected=NoSuchElementException.class)
-	public void testReverseListIteratorShouldIterateListInReverse() {
-		Iterator<String> iterator = CollectionUtil.reverseListIterator(Arrays.asList("A", "B", "C"));
+	@Test
+	public void testDefaultValueMap() {
+		Map<String, Integer> map = new HashMap<>();
+		map = CollectionUtil.defaultValueMap(map, 0);
+		assertThat(map.get(""), is(0));
+		assertTrue(map.isEmpty());
+		map.put("", -1);
+		assertThat(map.size(), is(1));
+		assertTrue(map.containsKey(""));
+		assertTrue(map.containsValue(-1));
+		assertThat(map.get(""), is(-1));
+	}
+
+	@Test
+	public void testReverseListIterator() {
+		final Iterator<String> iterator =
+			CollectionUtil.reverseListIterator(ArrayUtil.asList("A", "B", "C"));
 		assertThat(iterator.next(), is("C"));
+		iterator.remove();
 		assertThat(iterator.next(), is("B"));
 		assertThat(iterator.next(), is("A"));
-		iterator.next();
+		assertFalse(iterator.hasNext());
+		assertException(NoSuchElementException.class, new Runnable() {
+			@Override
+			public void run() {
+				iterator.next();
+			}
+		});
 	}
 
 	@Test
@@ -50,6 +77,9 @@ public class CollectionUtilTest {
 		Set<String> set = new LinkedHashSet<>();
 		Collections.addAll(set, "1", "2", "3");
 		assertThat(CollectionUtil.last(set), is("3"));
+		List<Integer> ii = new LinkedList<>();
+		Collections.addAll(ii, 1, 0, -1);
+		assertThat(CollectionUtil.last(ii), is(-1));
 	}
 
 	@Test

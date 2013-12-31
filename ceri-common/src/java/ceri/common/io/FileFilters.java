@@ -2,11 +2,12 @@ package ceri.common.io;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import ceri.common.collection.CollectionUtil;
 
 public class FileFilters {
+
+	private FileFilters() {}
 
 	/**
 	 * A filter that rejects all.
@@ -73,52 +74,23 @@ public class FileFilters {
 	public static FileFilter byMaxLength(final long maxSize) {
 		return new FileFilter() {
 			@Override
-			public boolean accept(File pathname) {
-				return pathname.length() <= maxSize;
+			public boolean accept(File file) {
+				return file.length() <= maxSize;
 			}
 		};
 	}
 
 	/**
-	 * Create a filter than accepts a file if any filters accept.
+	 * Create a filter that accepts a file if any filters accept.
 	 */
 	public static FileFilter or(FileFilter... filters) {
-		return orFilter(CollectionUtil.addAll(new ArrayList<FileFilter>(), filters));
+		return or(Arrays.asList(filters));
 	}
 
 	/**
-	 * Create a filter than accepts a file if any filters accept.
+	 * Create a filter that accepts a file if any filters accept.
 	 */
-	public static FileFilter or(Collection<FileFilter> filters) {
-		return orFilter(new ArrayList<>(filters));
-	}
-
-	/**
-	 * Create a filter than accepts a file only if all filters accept.
-	 */
-	public static FileFilter and(FileFilter... filters) {
-		return andFilter(CollectionUtil.addAll(new ArrayList<FileFilter>(), filters));
-	}
-
-	/**
-	 * Create a filter than accepts a file only if all filters accept.
-	 */
-	public static FileFilter and(Collection<FileFilter> filters) {
-		return andFilter(new ArrayList<>(filters));
-	}
-
-	private static FileFilter andFilter(final Collection<FileFilter> filters) {
-		return new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				for (FileFilter filter : filters)
-					if (!filter.accept(pathname)) return false;
-				return true;
-			}
-		};
-	}
-
-	private static FileFilter orFilter(final Collection<FileFilter> filters) {
+	public static FileFilter or(final Collection<FileFilter> filters) {
 		return new FileFilter() {
 			@Override
 			public boolean accept(File pathname) {
@@ -129,7 +101,26 @@ public class FileFilters {
 			}
 		};
 	}
-	
-	private FileFilters() {}
+
+	/**
+	 * Create a filter that accepts a file only if all filters accept.
+	 */
+	public static FileFilter and(FileFilter... filters) {
+		return and(Arrays.asList(filters));
+	}
+
+	/**
+	 * Create a filter that accepts a file only if all filters accept.
+	 */
+	public static FileFilter and(final Collection<FileFilter> filters) {
+		return new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				for (FileFilter filter : filters)
+					if (!filter.accept(pathname)) return false;
+				return true;
+			}
+		};
+	}
 
 }

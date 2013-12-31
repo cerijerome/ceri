@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -30,9 +31,7 @@ public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 		 * Add regex patterns to check.
 		 */
 		public Builder pattern(String...patterns) {
-			for (String pattern : patterns)
-				this.patterns.add(Pattern.compile(pattern));
-			return this;
+			return pattern(Arrays.asList(patterns));
 		}
 		
 		/**
@@ -107,7 +106,7 @@ public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 	}
 
 	private boolean accept(String path) {
-		if (unixPath) path = IoUtil.convertPath(path);
+		if (unixPath) path = IoUtil.unixPath(path);
 		for (Pattern pattern : patterns)
 			if (pattern.matcher(path).matches()) return true;
 		return false;

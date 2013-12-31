@@ -60,11 +60,20 @@ public class StringUtilTest {
 		StringBuilder b = new StringBuilder();
 		try (PrintStream p = StringUtil.asPrintStream(b)) {
 			p.println("Testing1");
-			p.println("\0\b\t\f\'\"");
+			p.write(0);
+			p.println("\b\t\f\'\"");
 			p.close();
 			assertThat(b.toString(), is("Testing1" + System.lineSeparator() + "\0\b\t\f\'\"" +
 				System.lineSeparator()));
 		}
+	}
+
+	@Test
+	public void testCount() {
+		assertThat(StringUtil.count("abcaaabbbccc", 'a'), is(4));
+		assertThat(StringUtil.count("", 'a'), is(0));
+		assertThat(StringUtil.count("abcaaabbbccc", "ab"), is(2));
+		assertThat(StringUtil.count("", "ab"), is(0));
 	}
 
 	@Test

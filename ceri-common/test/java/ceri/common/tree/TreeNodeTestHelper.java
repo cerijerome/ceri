@@ -1,5 +1,8 @@
 package ceri.common.tree;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import ceri.common.util.ToStringHelper;
 
 /**
@@ -21,8 +24,14 @@ public class TreeNodeTestHelper {
 		tree = NodeTree.create(root);
 	}
 
-	public TestNode get(int id) {
+	public TestNode node(int id) {
 		return tree.get(id);
+	}
+
+	public Collection<TestNode> nodes(int...ids) {
+		Set<TestNode> nodes = new LinkedHashSet<>();
+		for (int id : ids) nodes.add(node(id));
+		return nodes;
 	}
 
 	public TestNode.Builder builder() {

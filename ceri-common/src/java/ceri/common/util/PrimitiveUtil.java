@@ -16,6 +16,8 @@ import java.util.Map;
 public class PrimitiveUtil {
 	private static final Map<Class<?>, Class<?>> classMap = createMap();
 
+	private PrimitiveUtil() {}
+	
 	/**
 	 * Converts a string to a value or returns the default value
 	 * if the string cannot be parsed.
@@ -115,7 +117,7 @@ public class PrimitiveUtil {
 	/**
 	 * Converts the object array to a primitive array.
 	 */
-	public static boolean[] convertBooleanArray(Boolean... array) {
+	public static boolean[] convertBooleanArray(Boolean[] array) {
 		return copyArray(array, new boolean[array.length]);
 	}
 
@@ -129,7 +131,7 @@ public class PrimitiveUtil {
 	/**
 	 * Converts the object array to a primitive array.
 	 */
-	public static byte[] convertByteArray(Byte... array) {
+	public static byte[] convertByteArray(Byte[] array) {
 		return copyArray(array, new byte[array.length]);
 	}
 
@@ -143,7 +145,7 @@ public class PrimitiveUtil {
 	/**
 	 * Converts the object array to a primitive array.
 	 */
-	public static char[] convertCharArray(Character... array) {
+	public static char[] convertCharArray(Character[] array) {
 		return copyArray(array, new char[array.length]);
 	}
 
@@ -157,7 +159,7 @@ public class PrimitiveUtil {
 	/**
 	 * Converts the object array to a primitive array.
 	 */
-	public static short[] convertShortArray(Short... array) {
+	public static short[] convertShortArray(Short[] array) {
 		return copyArray(array, new short[array.length]);
 	}
 
@@ -171,7 +173,7 @@ public class PrimitiveUtil {
 	/**
 	 * Converts the object array to a primitive array.
 	 */
-	public static int[] convertIntArray(Integer... array) {
+	public static int[] convertIntArray(Integer[] array) {
 		return copyArray(array, new int[array.length]);
 	}
 
@@ -185,7 +187,7 @@ public class PrimitiveUtil {
 	/**
 	 * Converts the object array to a primitive array.
 	 */
-	public static long[] convertLongArray(Long... array) {
+	public static long[] convertLongArray(Long[] array) {
 		return copyArray(array, new long[array.length]);
 	}
 
@@ -199,7 +201,7 @@ public class PrimitiveUtil {
 	/**
 	 * Converts the object array to a primitive array.
 	 */
-	public static float[] convertFloatArray(Float... array) {
+	public static float[] convertFloatArray(Float[] array) {
 		return copyArray(array, new float[array.length]);
 	}
 
@@ -213,7 +215,7 @@ public class PrimitiveUtil {
 	/**
 	 * Converts the object array to a primitive array.
 	 */
-	public static double[] convertDoubleArray(Double... array) {
+	public static double[] convertDoubleArray(Double[] array) {
 		return copyArray(array, new double[array.length]);
 	}
 
@@ -227,56 +229,56 @@ public class PrimitiveUtil {
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Boolean> asList(boolean[] array) {
+	public static List<Boolean> asList(boolean...array) {
 		return Arrays.asList(convertBooleanArray(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Byte> asList(byte[] array) {
+	public static List<Byte> asList(byte...array) {
 		return Arrays.asList(convertByteArray(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Character> asList(char[] array) {
+	public static List<Character> asList(char...array) {
 		return Arrays.asList(convertCharArray(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Double> asList(double[] array) {
+	public static List<Double> asList(double...array) {
 		return Arrays.asList(convertDoubleArray(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Float> asList(float[] array) {
+	public static List<Float> asList(float...array) {
 		return Arrays.asList(convertFloatArray(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Integer> asList(int[] array) {
+	public static List<Integer> asList(int...array) {
 		return Arrays.asList(convertIntArray(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Long> asList(long[] array) {
+	public static List<Long> asList(long...array) {
 		return Arrays.asList(convertLongArray(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Short> asList(short[] array) {
+	public static List<Short> asList(short...array) {
 		return Arrays.asList(convertShortArray(array));
 	}
 

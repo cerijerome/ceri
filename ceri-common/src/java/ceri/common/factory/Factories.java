@@ -15,8 +15,8 @@ public class Factories {
 	private Factories() {}
 
 	/**
-	 * Converts a given object using given factory.
-	 * Any exception is wrapped as a runtime FactoryException.
+	 * Converts a given object using given factory. Any exception is wrapped as
+	 * a runtime FactoryException.
 	 */
 	public static <T, F> T create(Factory<? extends T, ? super F> constructor, F from)
 		throws FactoryException {
@@ -42,9 +42,10 @@ public class Factories {
 	public static <T> Factory<T, T> assign() {
 		return BasicUtil.uncheckedCast(ASSIGN);
 	}
-	
+
 	/**
 	 * A factory wrapper that returns null from null and delegates the rest.
+	 * Useful for factories that don't want to handle nulls.
 	 */
 	public static <T, F> Factory<T, F> nul(final Factory<T, F> factory) {
 		return new Factory<T, F>() {
@@ -55,12 +56,12 @@ public class Factories {
 			}
 		};
 	}
-	
+
 	/**
 	 * A wrapper that synchronizes over itself.
 	 */
-	public static <T, F> Factory<T, F> threadSafe(
-		final Factory<? extends T, ? super F> constructor) {
+	public static <T, F> Factory<T, F>
+		threadSafe(final Factory<? extends T, ? super F> constructor) {
 		return new Factory<T, F>() {
 			@Override
 			public synchronized T create(F from) {
@@ -70,7 +71,8 @@ public class Factories {
 	}
 
 	/**
-	 * A wrapper that applies a factory to an array.
+	 * A wrapper that applies a factory to an array. The original factory
+	 * exceptions are thrown unmodified.
 	 */
 	public static <T, F> Factory<T[], F[]> array(final Factory<T, F> constructor,
 		final Class<T> toClass) {
@@ -79,24 +81,23 @@ public class Factories {
 			protected T[] createNonNull(F[] from) {
 				T[] toArray = ArrayUtil.create(toClass, from.length);
 				for (int i = 0; i < from.length; i++)
-					toArray[i] = Factories.create(constructor, from[i]);
+					toArray[i] = constructor.create(from[i]);
 				return toArray;
 			}
 		};
 	}
 
 	/**
-	 * A wrapper that applies a factory to a list.
-	 * The return type is ArrayList.
+	 * A wrapper that applies a factory to a list. The return type is ArrayList.
+	 * The original factory exceptions are thrown unmodified.
 	 */
-	public static <T, F> Factory<List<T>, Iterable<F>>
-		list(final Factory<T, F> constructor) {
+	public static <T, F> Factory<List<T>, Iterable<F>> list(final Factory<T, F> constructor) {
 		return new Factory.Base<List<T>, Iterable<F>>() {
 			@Override
 			protected List<T> createNonNull(Iterable<F> from) {
 				List<T> list = new ArrayList<>();
 				for (F f : from) {
-					T t = Factories.create(constructor, f);
+					T t = constructor.create(f);
 					list.add(t);
 				}
 				return list;
@@ -105,8 +106,8 @@ public class Factories {
 	}
 
 	/**
-	 * A wrapper that applies a factory to a set.
-	 * The return type is HashSet.
+	 * A wrapper that applies a factory to a set. The return type is HashSet.
+	 * The original factory exceptions are thrown unmodified.
 	 */
 	public static <T, F> Factory<Set<T>, Iterable<F>> set(final Factory<T, F> constructor) {
 		return new Factory.Base<Set<T>, Iterable<F>>() {
@@ -114,7 +115,7 @@ public class Factories {
 			protected Set<T> createNonNull(Iterable<F> from) {
 				Set<T> set = new HashSet<>();
 				for (F f : from) {
-					T t = Factories.create(constructor, f);
+					T t = constructor.create(f);
 					set.add(t);
 				}
 				return set;

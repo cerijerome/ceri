@@ -27,12 +27,14 @@ public class DateFactories {
 
 	/**
 	 * Converts date to string format yyyy-MM-dd.
+	 * Factory is thread-safe.
 	 */
 	public static final Factory<String, Date> TO_STRING = Factories.threadSafe(toString(
 		DEFAULT_DATE_FORMAT, null));
 
 	/**
 	 * Converts date to given string date format.
+	 * Factory is not thread-safe due to internal usage of DateFormat.
 	 */
 	public static Factory<String, Date> toString(String format) {
 		return toString(format, null);
@@ -40,6 +42,7 @@ public class DateFactories {
 	
 	/**
 	 * Converts date to given string date format in time zone.
+	 * Factory is not thread-safe due to internal usage of DateFormat.
 	 */
 	public static Factory<String, Date> toString(String format, TimeZone timeZone) {
 		final SimpleDateFormat dateFormat = new SimpleDateFormat(format);
@@ -54,12 +57,15 @@ public class DateFactories {
 
 	/**
 	 * Converts string in format yyyy-MM-dd to date. 
+	 * Failed conversions throw runtime FactoryException.
 	 */
 	public static final Factory<Date, String> FROM_STRING = Factories.threadSafe(fromString(
 		DEFAULT_DATE_FORMAT, null));
 
 	/**
 	 * Converts string in given date format to date. 
+	 * Factory is not thread-safe due to internal usage of DateFormat.
+	 * Failed conversions throw runtime FactoryException.
 	 */
 	public static Factory<Date, String> fromString(String format) {
 		return fromString(format, null);
@@ -67,6 +73,8 @@ public class DateFactories {
 	
 	/**
 	 * Converts string in given date format and time zone to date. 
+	 * Factory is not thread-safe due to internal usage of DateFormat.
+	 * Failed conversions throw runtime FactoryException.
 	 */
 	public static Factory<Date, String> fromString(String format, TimeZone timeZone) {
 		final SimpleDateFormat dateFormat = new SimpleDateFormat(format);

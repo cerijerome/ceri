@@ -11,17 +11,17 @@ public class TreeNodeBehavior {
 	
 	@Test
 	public void shouldKnowIfChildOfAnotherNode() {
-		assertThat(helper.get(111).isChildOf(helper.get(11)), is(true));
-		assertThat(helper.get(111).isChildOf(helper.get(0)), is(true));
-		assertThat(helper.get(1).isChildOf(helper.get(1)), is(false));
-		assertThat(helper.get(0).isChildOf(helper.get(1)), is(false));
+		assertThat(helper.node(111).isChildOf(helper.node(11)), is(true));
+		assertThat(helper.node(111).isChildOf(helper.node(0)), is(true));
+		assertThat(helper.node(1).isChildOf(helper.node(1)), is(false));
+		assertThat(helper.node(0).isChildOf(helper.node(1)), is(false));
 	}
 	
 	@Test
 	public void shouldKnowIfALeaf() {
-		assertThat(helper.get(111).isLeaf(), is(true));
-		assertThat(helper.get(3).isLeaf(), is(true));
-		assertThat(helper.get(2).isLeaf(), is(false));
+		assertThat(helper.node(111).isLeaf(), is(true));
+		assertThat(helper.node(3).isLeaf(), is(true));
+		assertThat(helper.node(2).isLeaf(), is(false));
 	}
 	
 	@Test

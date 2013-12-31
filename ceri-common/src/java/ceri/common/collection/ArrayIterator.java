@@ -17,7 +17,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 	}
 
 	@SafeVarargs
-	public static <T> ArrayIterator<T> create(T... array) {
+	public static <T> ArrayIterator<T> createFrom(T... array) {
 		return new ArrayIterator<>(array);
 	}
 

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.util.EqualsUtil;
 import ceri.common.util.StringUtil;
 
 /**
@@ -66,7 +67,7 @@ public class Key {
 	}
 	
 	public int parts() {
-		return StringUtil.count(value, SEPARATOR);
+		return StringUtil.count(value, SEPARATOR) + 1;
 	}
 
 	public boolean hasParent() {
@@ -87,7 +88,10 @@ public class Key {
 
 	@Override
 	public boolean equals(Object obj) {
-		return value.equals(obj);
+		if (this == obj) return true;
+		if (!(obj instanceof Key)) return false;
+		Key other = (Key)obj;
+		return EqualsUtil.equals(value, other.value);
 	}
 
 	@Override

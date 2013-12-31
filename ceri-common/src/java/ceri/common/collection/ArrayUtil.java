@@ -198,7 +198,8 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Creates a non-fixed size list of the given array.
+	 * Creates a non fixed-size list of the given array.
+	 * Use Arrays.asList() for fixed-size list.
 	 */
 	@SafeVarargs
 	public static <T> List<T> asList(T... ts) {

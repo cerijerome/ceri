@@ -11,9 +11,9 @@ public class TreeIteratorBehavior {
 	
 	@Test
 	public void shouldIterateParentThenChildren() {
-		Iterator<TestNode> iterator = helper.get(11).tree().iterator();
-		assertThat(iterator.next(), is(helper.get(11)));
-		assertThat(iterator.next(), is(helper.get(111)));
+		Iterator<TestNode> iterator = helper.node(11).tree().iterator();
+		assertThat(iterator.next(), is(helper.node(11)));
+		assertThat(iterator.next(), is(helper.node(111)));
 	}
 
 	@Test
@@ -22,15 +22,15 @@ public class TreeIteratorBehavior {
 		iterator.next();
 		iterator.next();
 		iterator.next();
-		assertThat(iterator.next(), is(helper.get(111)));
-		assertThat(iterator.next(), is(helper.get(2)));
+		assertThat(iterator.next(), is(helper.node(111)));
+		assertThat(iterator.next(), is(helper.node(2)));
 	}
 
 	@Test
 	public void shouldNotIterateAboveStartingNode() {
-		Iterator<TestNode> iterator = helper.get(11).tree().iterator();
-		assertThat(iterator.next(), is(helper.get(11)));
-		assertThat(iterator.next(), is(helper.get(111)));
+		Iterator<TestNode> iterator = helper.node(11).tree().iterator();
+		assertThat(iterator.next(), is(helper.node(11)));
+		assertThat(iterator.next(), is(helper.node(111)));
 	}
 
 }

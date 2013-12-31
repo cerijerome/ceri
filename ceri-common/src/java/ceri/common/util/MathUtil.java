@@ -1,6 +1,3 @@
-/**
- * Created on Jan 5, 2006
- */
 package ceri.common.util;
 
 import java.util.Arrays;
@@ -9,6 +6,8 @@ public class MathUtil {
 	private static final char ZERO = '0';
 	private static final int BASE10 = 10;
 
+	private MathUtil() {}
+	
 	/**
 	 * Mean value from an array of doubles.
 	 */

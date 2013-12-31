@@ -2,8 +2,8 @@ package ceri.common.test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,12 +17,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-
 import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsSame;
 import org.junit.runner.JUnitCore;
-
 import ceri.common.io.IoUtil;
 import ceri.common.util.BasicUtil;
 
@@ -54,6 +52,8 @@ public class TestUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(Object lhs, Object rhs) {
+		assertTrue("lhs is not an array", lhs.getClass().isArray());
+		assertTrue("rhs is not an array", rhs.getClass().isArray());
 		assertThat("Array lengths are not equal", Array.getLength(lhs), is(Array.getLength(rhs)));
 		assertArray(lhs, 0, rhs, 0, Array.getLength(lhs));
 	}
@@ -62,6 +62,8 @@ public class TestUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(Object lhs, int lhsOffset, Object rhs, int rhsOffset, int len) {
+		assertTrue("lhs is not an array", lhs.getClass().isArray());
+		assertTrue("rhs is not an array", rhs.getClass().isArray());
 		for (int i = 0; i < len; i++) {
 			Object lhsVal = Array.get(lhs, lhsOffset + i);
 			Object rhsVal = Array.get(rhs, rhsOffset + i);
@@ -101,14 +103,38 @@ public class TestUtil {
 	/**
 	 * Use this for more flexibility than adding @Test(expected=...)
 	 */
+	public static void assertException(TestRunnable runnable) {
+		assertException(Exception.class, runnable);
+	}
+
+	/**
+	 * Use this for more flexibility than adding @Test(expected=...)
+	 */
 	public static void assertException(Class<? extends Exception> exceptionCls, Runnable runnable) {
+		assertException(exceptionCls, runnable(runnable));
+	}
+
+	/**
+	 * Use this for more flexibility than adding @Test(expected=...)
+	 */
+	public static void assertException(Class<? extends Exception> exceptionCls,
+		TestRunnable runnable) {
 		try {
 			runnable.run();
 		} catch (Exception e) {
 			if (exceptionCls.isAssignableFrom(e.getClass())) return;
 			fail("Should throw " + exceptionCls.getSimpleName() + " but threw " + e);
 		}
-		fail("Should throw " + exceptionCls.getSimpleName());
+		fail("Should throw " + exceptionCls.getSimpleName() + " but nothing thrown");
+	}
+
+	private static TestRunnable runnable(final Runnable runnable) {
+		return new TestRunnable() {
+			@Override
+			public void run() throws Exception {
+				runnable.run();
+			}
+		};
 	}
 
 	/**
@@ -136,10 +162,8 @@ public class TestUtil {
 			lhsFile.length(), is(rhsFile.length()));
 		byte[] lhsBuffer = new byte[BUFFER_SIZE];
 		byte[] rhsBuffer = new byte[BUFFER_SIZE];
-		try (
-			InputStream lhsIn = new BufferedInputStream(new FileInputStream(lhsFile));
-			InputStream rhsIn = new BufferedInputStream(new FileInputStream(rhsFile));
-		) {
+		try (InputStream lhsIn = new BufferedInputStream(new FileInputStream(lhsFile));
+			InputStream rhsIn = new BufferedInputStream(new FileInputStream(rhsFile));) {
 			int totalCount = 0;
 			while (true) {
 				int lhsCount = IoUtil.fillBuffer(lhsIn, lhsBuffer);
@@ -202,31 +226,33 @@ public class TestUtil {
 	 */
 	public static List<String> toUnixFromFile(Collection<File> files) {
 		List<String> unixPaths = new ArrayList<>();
-		for (File file : files) unixPaths.add(IoUtil.getPath(file));
+		for (File file : files)
+			unixPaths.add(IoUtil.unixPath(file));
 		return unixPaths;
 	}
-	
+
 	/**
 	 * Convert collection of files to list of unix-format paths
 	 */
 	public static List<String> toUnixFromPath(Collection<String> paths) {
 		List<String> unixPaths = new ArrayList<>();
-		for (String path : paths) unixPaths.add(IoUtil.convertPath(path));
+		for (String path : paths)
+			unixPaths.add(IoUtil.unixPath(path));
 		return unixPaths;
 	}
-	
+
 	/**
 	 * Create a random string of given size.
 	 */
 	public static String randomString(long size) {
 		StringBuilder b = new StringBuilder();
 		while (size-- > 0) {
-			char ch = (char)(RND.nextInt(64) + ' ');
+			char ch = (char) (RND.nextInt(64) + ' ');
 			b.append(ch);
 		}
 		return b.toString();
 	}
-	
+
 	/**
 	 * Converts a byte array to string, with non-visible chars converted to
 	 * given char.

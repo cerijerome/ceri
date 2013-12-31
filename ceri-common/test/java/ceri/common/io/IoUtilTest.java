@@ -1,6 +1,7 @@
 package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.isList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -8,6 +9,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -20,6 +22,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.test.FileTestHelper;
+import ceri.common.test.TestRunnable;
 
 public class IoUtilTest {
 	private static FileTestHelper helper = null;
@@ -27,8 +30,8 @@ public class IoUtilTest {
 	@BeforeClass
 	public static void createTempFiles() throws IOException {
 		helper =
-			FileTestHelper.builder().file("a/a/a.txt", "aaa").file("b/b.txt", "bbb").file("c.txt",
-				"ccc").build();
+			FileTestHelper.builder(IoUtil.systemTempDir()).file("a/a/a.txt", "aaa").file("b/b.txt",
+				"bbb").file("c.txt", "ccc").build();
 	}
 
 	@AfterClass
@@ -36,23 +39,52 @@ public class IoUtilTest {
 		helper.close();
 	}
 
-	@Test(expected = InterruptedException.class)
+	@Test
 	public void testCheckInterrupted() throws InterruptedException {
-		Thread.currentThread().interrupt();
 		IoUtil.checkInterrupted();
-	}
-
-	@Test(expected = InterruptedIOException.class)
-	public void testCheckIoInterrupted() throws InterruptedIOException {
 		Thread.currentThread().interrupt();
-		IoUtil.checkIoInterrupted();
+		assertException(InterruptedException.class, new TestRunnable() {
+			@Override
+			public void run() throws InterruptedException {
+				IoUtil.checkInterrupted();
+			}
+		});
 	}
 
-	@Test(expected = IOException.class)
-	public void testClose() throws IOException {
-		StringReader in = new StringReader("0123456789");
+	@Test
+	public void testCheckIoInterrupted() throws InterruptedIOException {
+		IoUtil.checkIoInterrupted();
+		Thread.currentThread().interrupt();
+		assertException(InterruptedIOException.class, new TestRunnable() {
+			@Override
+			public void run() throws IOException {
+				IoUtil.checkIoInterrupted();
+			}
+		});
+	}
+
+	@Test
+	public void testClose() {
+		final StringReader in = new StringReader("0123456789");
 		IoUtil.close(in);
-		in.read();
+		assertException(IOException.class, new TestRunnable() {
+			@Override
+			public void run() throws Exception {
+				in.read();
+			}
+		});
+	}
+
+	@Test
+	public void testCloseException() {
+		@SuppressWarnings("resource")
+		Closeable closeable = new Closeable() {
+			@Override
+			public void close() throws IOException {
+				throw new IOException();
+			}
+		};
+		assertFalse(IoUtil.close(closeable));
 	}
 
 	@Test
@@ -67,7 +99,7 @@ public class IoUtilTest {
 		}
 		IoUtil.deleteAll(helper.file("x"));
 	}
-	
+
 	@Test
 	public void testCreateTempDir() {
 		File tempDir = IoUtil.createTempDir(new File("."));
@@ -78,21 +110,21 @@ public class IoUtilTest {
 
 	@Test
 	public void testDeleteAll() throws IOException {
-		FileTestHelper deleteHelper =
-			FileTestHelper.builder(helper.root).file("x/x/x.txt", "").dir("y/y").file("z.txt",
-				"").build();
-		assertTrue(deleteHelper.file("x/x/x.txt").exists());
-		assertTrue(deleteHelper.file("y/y").exists());
-		assertTrue(deleteHelper.file("z.txt").exists());
-		IoUtil.deleteAll(deleteHelper.root);
-		assertFalse(deleteHelper.root.exists());
+		try (FileTestHelper deleteHelper =
+			FileTestHelper.builder(helper.root).file("x/x/x.txt", "").dir("y/y").file("z.txt", "")
+				.build()) {
+			assertTrue(deleteHelper.file("x/x/x.txt").exists());
+			assertTrue(deleteHelper.file("y/y").exists());
+			assertTrue(deleteHelper.file("z.txt").exists());
+			IoUtil.deleteAll(deleteHelper.root);
+			assertFalse(deleteHelper.root.exists());
+		}
 	}
 
 	@Test
 	public void testDeleteEmptyDirs() throws IOException {
 		try (FileTestHelper deleteHelper =
-			FileTestHelper.builder(helper.root).dir("x/x/x").file("y/y.txt", "").dir("z")
-				.build()) {
+			FileTestHelper.builder(helper.root).dir("x/x/x").file("y/y.txt", "").dir("z").build()) {
 			assertTrue(deleteHelper.file("x/x/x").exists());
 			assertTrue(deleteHelper.file("y/y.txt").exists());
 			assertTrue(deleteHelper.file("z").exists());
@@ -111,13 +143,13 @@ public class IoUtilTest {
 	@Test
 	public void testGetContent() throws IOException {
 		assertThat(IoUtil.getContent(helper.file("a/a/a.txt")), is(new byte[] { 'a', 'a', 'a' }));
-		InputStream in = new FileInputStream(helper.file("b/b.txt"));
-		assertThat(IoUtil.getContent(in, 0), is(new byte[] { 'b', 'b', 'b' }));
-		IoUtil.close(in);
+		try (InputStream in = new FileInputStream(helper.file("b/b.txt"))) {
+			assertThat(IoUtil.getContent(in, 0), is(new byte[] { 'b', 'b', 'b' }));
+		}
 		assertThat(IoUtil.getContentString(helper.file("a/a/a.txt")), is("aaa"));
-		in = new FileInputStream(helper.file("b/b.txt"));
-		assertThat(IoUtil.getContentString(in, 0), is("bbb"));
-		IoUtil.close(in);
+		try (InputStream in = new FileInputStream(helper.file("b/b.txt"))) {
+			assertThat(IoUtil.getContentString(in, 0), is("bbb"));
+		}
 	}
 
 	@Test
@@ -139,11 +171,11 @@ public class IoUtilTest {
 	@Test
 	public void testGetRelativeUnixPath() throws IOException {
 		String relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/d/e/f"));
-		assertThat(IoUtil.convertPath(relative), is("../../../d/e/f"));
+		assertThat(IoUtil.unixPath(relative), is("../../../d/e/f"));
 		relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/a/b/c/d/e"));
-		assertThat(IoUtil.convertPath(relative), is("d/e"));
+		assertThat(IoUtil.unixPath(relative), is("d/e"));
 		relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/a/x/y"));
-		assertThat(IoUtil.convertPath(relative), is("../../x/y"));
+		assertThat(IoUtil.unixPath(relative), is("../../x/y"));
 	}
 
 	@Test
@@ -176,7 +208,7 @@ public class IoUtilTest {
 		assertThat(IoUtil.getContentString(file), is("xyz"));
 		IoUtil.deleteAll(helper.file("x"));
 	}
-	
+
 	@Test
 	public void testTransferContent() throws IOException {
 		String s = "0123456789abcdefghijklmnopqrstuvwxyz\u1fff\2fff\3fff\4fff";
@@ -193,13 +225,33 @@ public class IoUtilTest {
 		IoUtil.transferContent(in, out, 0);
 		assertThat(new String(out.toByteArray(), "UTF8"), is(s));
 	}
-	
+
+	@Test
+	public void testFillBufferExceptions() {
+		final byte[] inBuffer = new byte[200];
+		final byte[] outBuffer = new byte[256];
+		final ByteArrayInputStream in = new ByteArrayInputStream(inBuffer);
+		assertException(IllegalArgumentException.class, new TestRunnable() {
+			@Override
+			public void run() throws IOException {
+				IoUtil.fillBuffer(in, outBuffer, 255, 2);
+			}
+		});
+		assertException(IllegalArgumentException.class, new TestRunnable() {
+			@Override
+			public void run() throws IOException {
+				IoUtil.fillBuffer(in, outBuffer, -1, 2);
+			}
+		});
+	}
+
 	@Test
 	public void testFillBuffer() throws IOException {
 		byte[] inBuffer = new byte[200];
-		for (int i = 0; i < inBuffer.length; i++) inBuffer[i] = (byte)i;
-		ByteArrayInputStream in = new ByteArrayInputStream(inBuffer);
 		byte[] outBuffer = new byte[256];
+		for (int i = 0; i < inBuffer.length; i++)
+			inBuffer[i] = (byte) i;
+		ByteArrayInputStream in = new ByteArrayInputStream(inBuffer);
 		int count = IoUtil.fillBuffer(in, outBuffer);
 		assertThat(count, is(200));
 		assertArray(Arrays.copyOf(outBuffer, 200), inBuffer);
@@ -210,8 +262,8 @@ public class IoUtilTest {
 		count = IoUtil.fillBuffer(in, outBuffer, 150, 100);
 		assertThat(count, is(200));
 		count = IoUtil.fillBuffer(in, outBuffer, 200, 50);
-		assertThat(count, is(200)); 
+		assertThat(count, is(200));
 		assertArray(Arrays.copyOf(outBuffer, 200), inBuffer);
 	}
-	
+
 }

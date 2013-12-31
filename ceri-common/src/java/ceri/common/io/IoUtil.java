@@ -1,6 +1,3 @@
-/*
- * Created on Aug 21, 2004
- */
 package ceri.common.io;
 
 import java.io.BufferedInputStream;
@@ -114,14 +111,14 @@ public class IoUtil {
 	/**
 	 * Convert file path to unix-style 
 	 */
-	public static String getPath(File file) {
-		return convertPath(file.getPath());
+	public static String unixPath(File file) {
+		return unixPath(file.getPath());
 	}
 	
 	/**
 	 * Convert file path to unix-style 
 	 */
-	public static String convertPath(String path) {
+	public static String unixPath(String path) {
 		if (File.separatorChar == '/') return path;
 		return UNIX_PATH_REGEX.matcher(path).replaceAll("/");
 	}
@@ -182,10 +179,10 @@ public class IoUtil {
 	 */
 	public static String getRelativePath(File dir, File file) throws IOException {
 		dir = dir.getCanonicalFile();
-		String fileName = convertPath(file.getCanonicalPath());
+		String fileName = unixPath(file.getCanonicalPath());
 		String backPath = "";
 		while (dir != null) {
-			String dirName = getPath(dir);
+			String dirName = unixPath(dir);
 			if (!dirName.endsWith("/")) dirName += "/";
 			if (fileName.startsWith(dirName)) return backPath +
 				fileName.substring(dirName.length());
@@ -195,22 +192,6 @@ public class IoUtil {
 		return fileName;
 	}
 
-	/**
-	 * Get root path in '/' format.
-	 */
-	public static String rootPath(File file) {
-		return rootUnixPath(file.getAbsolutePath());
-	}
-	
-	/**
-	 * Get root path in '/' format.
-	 */
-	public static String rootUnixPath(String path) {
-		int i = path.indexOf(File.separatorChar);
-		if (i == -1) return "/";
-		return path.substring(0, i) + "/";
-	}
-	
 	/**
 	 * Deletes all empty directories under this directory.
 	 */
@@ -331,9 +312,10 @@ public class IoUtil {
 	 */
 	public static int fillBuffer(InputStream in, byte[] buffer, int offset, int len)
 		throws IOException {
+		if (offset < 0) throw new IllegalArgumentException("Offset must be >= 0: " + offset);
 		if (offset + len > buffer.length) throw new IllegalArgumentException(
 			"Offset plus length must not exceed buffer size (" + buffer.length + "): " + offset +
-				", " + len);
+				" + " + len);
 		int pos = offset;
 		while (pos < offset + len) {
 			int count = in.read(buffer, pos, offset + len - pos);

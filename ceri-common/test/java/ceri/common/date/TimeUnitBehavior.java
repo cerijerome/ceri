@@ -14,7 +14,6 @@ public class TimeUnitBehavior {
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		cal.setTimeInMillis(0);
 		NormalizedValue<TimeUnit> n = NormalizedValue.create(1000000000, TimeUnit.class);
-		System.out.println(n.values);
 		TimeUnit.set(cal, n);
 		assertThat(cal.get(Calendar.YEAR), is(1970));
 		assertThat(cal.get(Calendar.MONTH), is(0));

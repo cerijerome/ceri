@@ -21,18 +21,6 @@ public class CollectionUtil {
 	private CollectionUtil() {}
 
 	/**
-	 * Returns an iterable type useful in for-each loops.
-	 */
-	public static <T> Iterable<T> iterable(final Iterator<T> iterator) {
-		return new Iterable<T>() {
-			@Override
-			public Iterator<T> iterator() {
-				return iterator;
-			}
-		};
-	}
-
-	/**
 	 * Returns a reversed list iterator.
 	 */
 	public static <T> Iterator<T> reverseListIterator(List<T> list) {

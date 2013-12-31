@@ -19,7 +19,7 @@ public class FileFiltersTest {
 	@BeforeClass
 	public static void createTempFiles() throws IOException {
 		helper =
-			FileTestHelper.builder().file("a/a/a.txt", "aaa").file("b/b.txt", "bbb").file("c.txt",
+			FileTestHelper.builder().file("a/a/a.txt", "a").file("b/b.txt", "bb").file("c.txt",
 				"ccc").build();
 	}
 
@@ -74,6 +74,35 @@ public class FileFiltersTest {
 		filter = FileFilters.reverse(filter);
 		list = IoUtil.getFiles(helper.root, filter);
 		assertThat(list, isList(helper.files("a/a/a.txt", "b", "b/b.txt", "c.txt")));
+	}
+
+	@Test
+	public void testModifiedSince() {
+		File[] files = helper.root.listFiles(FileFilters.byModifiedSince(0));
+		assertThat(files, is(helper.files("a", "b", "c.txt")));
+		files = helper.root.listFiles(FileFilters.byModifiedSince(Long.MAX_VALUE));
+		assertThat(files, is(helper.files()));
+	}
+
+	@Test
+	public void testMaxLength() {
+		List<File> files = IoUtil.getFiles(helper.root, FileFilters.byMaxLength(2));
+		assertThat(files, is(helper.fileList("a/a/a.txt", "b/b.txt")));
+	}
+
+	@Test
+	public void testOr() {
+		FileFilter filter =
+			FileFilters.or(RegexFilenameFilter.create("a"), RegexFilenameFilter.create("c.*"));
+		List<File> files = IoUtil.getFiles(helper.root, filter);
+		assertThat(files, is(helper.fileList("a", "a/a", "c.txt")));
+	}
+
+	@Test
+	public void testAnd() {
+		FileFilter filter = FileFilters.and(FileFilters.FILE, RegexFilenameFilter.create("[ac].*"));
+		List<File> files = IoUtil.getFiles(helper.root, filter);
+		assertThat(files, is(helper.fileList("a/a/a.txt", "c.txt")));
 	}
 
 }

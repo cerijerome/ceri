@@ -1,5 +1,6 @@
 package ceri.common.reflect;
 
+import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 /**
@@ -15,7 +16,7 @@ public class Caller {
 	public final String file;
 	private final int hashCode;
 
-	private Caller(String fullCls, int line, String method, String file) {
+	Caller(String fullCls, int line, String method, String file) {
 		this.fullCls = fullCls == null ? UNKNOWN : fullCls;
 		cls = simpleClassName(fullCls);
 		this.line = line;
@@ -41,14 +42,12 @@ public class Caller {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (obj == null) return false;
 		if (!(obj instanceof Caller)) return false;
-		Caller info = (Caller)obj;
-		if (hashCode != info.hashCode) return false;
-		if (!fullCls.equals(info.fullCls)) return false;
-		if (line != info.line) return false;
-		if (!method.equals(info.method)) return false;
-		if (!file.equals(info.file)) return false;
+		Caller other = (Caller)obj;
+		if (line != other.line) return false;
+		if (!EqualsUtil.equals(fullCls, other.fullCls)) return false;
+		if (!EqualsUtil.equals(method, other.method)) return false;
+		if (!EqualsUtil.equals(file, other.file)) return false;
 		return true;
 	}
 
