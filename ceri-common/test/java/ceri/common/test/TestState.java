@@ -34,7 +34,8 @@ public class TestState<T> {
 		try {
 			long t = System.currentTimeMillis() + ms;
 			while (!equalsValue(value) && (ms == 0 || System.currentTimeMillis() < t)) {
-				wait(t - System.currentTimeMillis());
+				if (ms == 0) wait(0);
+				else wait(t - System.currentTimeMillis());
 			}
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
