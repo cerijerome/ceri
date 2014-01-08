@@ -10,7 +10,8 @@ import org.junit.runner.notification.RunListener;
 import ceri.common.util.TextUtil;
 
 /**
- * Prints out tests and behaviors in readable phrases.
+ * Prints out tests and behaviors in readable phrases. Works with JUnitCore
+ * running a suite of test classes. Used by TestUtil.exec
  */
 public class TestPrinter extends RunListener {
 	private static final Pattern CLASS_NAME_PATTERN = Pattern.compile("^(.*?)(?:Test|Behavior)$");
@@ -18,25 +19,33 @@ public class TestPrinter extends RunListener {
 	private static final Pattern TEST_METHOD_PATTERN = Pattern.compile("^test(.*)$");
 	private final Collection<String> tests = new TreeSet<>();
 	private final Collection<String> behaviors = new TreeSet<>();
-	
+
+	/**
+	 * Prints captured phrases to given PrintStream.
+	 */
 	public void print(PrintStream out) {
 		out.println("Behaviors:");
-		for (String s : behaviors) out.println(s);
+		for (String s : behaviors)
+			out.println(s);
 		out.println("Tests:");
-		for (String s : tests) out.println(s);
+		for (String s : tests)
+			out.println(s);
 	}
-	
+
+	/**
+	 * Called by JUnitCore each time a test starts.
+	 */
 	@Override
 	public void testStarted(Description description) {
 		capture(description);
 	}
-	
+
 	private void capture(Description description) {
 		String testClassName = description.getClassName();
 		Matcher m = CLASS_NAME_PATTERN.matcher(description.getTestClass().getSimpleName());
 		if (!m.find()) return;
 		String className = m.group(1);
-		
+
 		String methodName = description.getMethodName();
 		String prefix = testClassName + ": " + className + " ";
 		m = BEHAVIOR_METHOD_PATTERN.matcher(methodName);
@@ -50,17 +59,17 @@ public class TestPrinter extends RunListener {
 			return;
 		}
 		tests.add(prefix + methodName);
-		
+
 		for (Description child : description.getChildren())
 			capture(child);
 	}
-	
+
 	private static String getBehaviorDescription(String methodName) {
 		return TextUtil.toPhrase(methodName);
 	}
-	
+
 	private static String getTestDescription(String methodName) {
 		return "test " + TextUtil.firstToLower(methodName);
 	}
-	
+
 }

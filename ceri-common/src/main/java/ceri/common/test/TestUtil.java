@@ -254,16 +254,14 @@ public class TestUtil {
 	}
 
 	/**
-	 * Converts a byte array to string, with non-visible chars converted to
-	 * given char.
+	 * Converts a byte array to string, with non-visible chars converted to '?'.
 	 */
 	public static String toReadableString(byte[] array) {
 		return toReadableString(array, 0, array.length);
 	}
 
 	/**
-	 * Converts a byte array to string, with non-visible chars converted to
-	 * given char.
+	 * Converts a byte array to string, with non-visible chars converted to '?'.
 	 */
 	public static String toReadableString(byte[] array, int offset, int len) {
 		return toReadableString(array, offset, len, "UTF8", '?');
