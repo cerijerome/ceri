@@ -1,5 +1,6 @@
 package ceri.common.util;
 
+import java.awt.event.KeyEvent;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.regex.Matcher;
@@ -14,6 +15,15 @@ public class StringUtil {
 	public static final Pattern NEWLINE_REGEX = Pattern.compile("(\\r\\n|\\n|\\r)");
 
 	private StringUtil() {}
+
+	/**
+	 * Checks if a char is printable
+	 */
+	public static boolean printable(char c) {
+		if (Character.isISOControl(c) || c == KeyEvent.CHAR_UNDEFINED) return false;
+		Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
+		return block != null &&	block != Character.UnicodeBlock.SPECIALS;
+	}
 
 	/**
 	 * Counts the number of instances of the given char within the string.

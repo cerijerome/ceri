@@ -35,7 +35,13 @@ import ceri.common.property.BasePropertiesBehavior;
 import ceri.common.property.KeyBehavior;
 import ceri.common.property.PropertyUtilTest;
 import ceri.common.reflect.ReflectUtilTest;
+import ceri.common.test.DebuggerBehavior;
+import ceri.common.test.HexPrinterBehavior;
+import ceri.common.test.TestPrinterBehavior;
+import ceri.common.test.TestRunPrinterBehavior;
+import ceri.common.test.TestTimerBehavior;
 import ceri.common.test.TestUtil;
+import ceri.common.test.TestUtilTest;
 import ceri.common.tree.NodeTreeBehavior;
 import ceri.common.tree.TreeIteratorBehavior;
 import ceri.common.tree.TreeNodeBehavior;
@@ -103,6 +109,13 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	PropertyUtilTest.class,
 	// reflect
 	ReflectUtilTest.class,
+	//test
+	DebuggerBehavior.class,
+	HexPrinterBehavior.class,
+	TestPrinterBehavior.class,
+	TestRunPrinterBehavior.class,
+	TestTimerBehavior.class,
+	TestUtilTest.class,
 	// tree
 	NodeTreeBehavior.class,
 	TreeIteratorBehavior.class,

@@ -11,6 +11,8 @@ public class HexPrinter {
 	private static final int BUFFER_SIZE = 32 * 1024;
 	private static final int COLS_DEF = 4;
 	private static final int COL_BYTES = 8;
+	private static final int ASCII_MIN = '!';
+	private static final int ASCII_MAX = '~';
 	private final PrintStream out;
 	private final int columns;
 	private final boolean colSpace;
@@ -87,7 +89,7 @@ public class HexPrinter {
 					String s = Integer.toHexString(b).toUpperCase();
 					if (s.length() == 1) hexB.append('0');
 					hexB.append(s);
-					if (Character.isAlphabetic(b)) charB.append((char) b);
+					if (b >= ASCII_MIN && b <= ASCII_MAX) charB.append((char) b);
 					else charB.append('.');
 				}
 				hexB.append(' ');

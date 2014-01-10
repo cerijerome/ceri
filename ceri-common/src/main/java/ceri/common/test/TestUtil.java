@@ -1,6 +1,7 @@
 package ceri.common.test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -15,6 +16,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import org.hamcrest.Matcher;
@@ -23,6 +25,7 @@ import org.hamcrest.core.IsSame;
 import org.junit.runner.JUnitCore;
 import ceri.common.io.IoUtil;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.StringUtil;
 
 public class TestUtil {
 	private static final int BUFFER_SIZE = 1024 * 32;
@@ -38,7 +41,7 @@ public class TestUtil {
 	}
 
 	/**
-	 * Executes tests and prints names in readable phrases.
+	 * Executes tests and prints test names in readable phrases.
 	 */
 	public static void exec(PrintStream out, Class<?> classes) {
 		JUnitCore core = new JUnitCore();
@@ -49,12 +52,20 @@ public class TestUtil {
 	}
 
 	/**
+	 * Checks a value is within given range, with detailed failure information if not.
+	 */
+	public static void assertRange(long value, long min, long max) {
+		assertTrue("Expected >= " + min + " but was " + value, value >= min);
+		assertTrue("Expected <= " + max + " but was " + value, value <= max);
+	}
+	
+	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(Object lhs, Object rhs) {
-		assertTrue("lhs is not an array", lhs.getClass().isArray());
-		assertTrue("rhs is not an array", rhs.getClass().isArray());
-		assertThat("Array lengths are not equal", Array.getLength(lhs), is(Array.getLength(rhs)));
+		assertIsArray(lhs);
+		assertIsArray(rhs);
+		assertSize(Array.getLength(lhs), Array.getLength(rhs));
 		assertArray(lhs, 0, rhs, 0, Array.getLength(lhs));
 	}
 
@@ -62,13 +73,13 @@ public class TestUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(Object lhs, int lhsOffset, Object rhs, int rhsOffset, int len) {
-		assertTrue("lhs is not an array", lhs.getClass().isArray());
-		assertTrue("rhs is not an array", rhs.getClass().isArray());
+		assertIsArray(lhs);
+		assertIsArray(rhs);
+		assertMinSize(Array.getLength(lhs), lhsOffset + len);
 		for (int i = 0; i < len; i++) {
 			Object lhsVal = Array.get(lhs, lhsOffset + i);
 			Object rhsVal = Array.get(rhs, rhsOffset + i);
-			assertThat("Value at index " + (lhsOffset + i) + " doesn't match value at index " +
-				(rhsOffset + i), lhsVal, is(rhsVal));
+			assertIndex(lhsVal, rhsVal, lhsOffset + i);
 		}
 	}
 
@@ -76,7 +87,7 @@ public class TestUtil {
 	 * Checks two lists are equal, with specific failure information if not.
 	 */
 	public static <T> void assertList(List<? extends T> lhs, List<? extends T> rhs) {
-		assertThat("List lengths are not equal", lhs.size(), is(rhs.size()));
+		assertSize(lhs.size(), rhs.size());
 		assertList(lhs, 0, rhs, 0, lhs.size());
 	}
 
@@ -85,12 +96,64 @@ public class TestUtil {
 	 */
 	public static <T> void assertList(List<? extends T> lhs, int lhsOffset, List<? extends T> rhs,
 		int rhsOffset, int len) {
+		assertMinSize(lhs.size(), lhsOffset + len);
 		for (int i = 0; i < len; i++) {
 			T lhsVal = lhs.get(lhsOffset + i);
 			T rhsVal = rhs.get(rhsOffset + i);
-			assertThat("Value at index " + (lhsOffset + i) + " doesn't match value at index " +
-				(rhsOffset + i), lhsVal, is(rhsVal));
+			assertIndex(lhsVal, rhsVal, lhsOffset + i);
 		}
+	}
+
+	/**
+	 * Checks two collections have equal elements, with specific failure
+	 * information if not.
+	 */
+	public static <T> void assertCollection(Collection<T> lhs, Collection<T> rhs) {
+		assertSize(lhs.size(), rhs.size());
+		assertElements(lhs, rhs);
+	}
+
+	/**
+	 * Checks iterable type against given list of items, with specific failure
+	 * information if not.
+	 */
+	@SafeVarargs
+	public static <T> void assertElements(Iterable<T> lhs, T...ts) {
+		assertElements(lhs, Arrays.asList(ts));
+	}
+	
+	/**
+	 * Checks two iterable types have equal elements, with specific failure
+	 * information if not.
+	 */
+	public static <T> void assertElements(Iterable<T> lhs, Iterable<T> rhs) {
+		Iterator<T> iLhs = lhs.iterator();
+		Iterator<T> iRhs = rhs.iterator();
+		int i = 0;
+		while (iLhs.hasNext()) {
+			assertTrue("Expected maximum size of " + i, iRhs.hasNext());
+			T lhsVal = iLhs.next();
+			T rhsVal = iRhs.next();
+			assertIndex(lhsVal, rhsVal, i++);
+		}
+		assertFalse("Expected minimum size of " + (i + 1), iRhs.hasNext());
+	}
+
+	private static void assertSize(long lhsSize, long rhsSize) {
+		assertThat("Expected size " + rhsSize + " but was " + lhsSize, lhsSize, is(rhsSize));
+	}
+
+	private static void assertMinSize(long lhsSize, long minSize) {
+		assertTrue("Expected size to be at least " + minSize + " but was " + lhsSize,
+			lhsSize >= minSize);
+	}
+
+	private static void assertIsArray(Object array) {
+		assertTrue("Expected an array but was " + array.getClass(), array.getClass().isArray());
+	}
+
+	private static <T> void assertIndex(T lhs, T rhs, int index) {
+		assertThat("Expected " + rhs + " but value at index " + index + " was " + lhs, lhs, is(rhs));
 	}
 
 	/**
@@ -158,8 +221,8 @@ public class TestUtil {
 	 */
 	public static void assertFile(File lhsFile, File rhsFile) throws IOException {
 		if (lhsFile.isDirectory() && rhsFile.isDirectory()) return;
-		assertThat("Sizes are not equal for files " + lhsFile + " and " + rhsFile,
-			lhsFile.length(), is(rhsFile.length()));
+		assertThat("Expected file size " + rhsFile.length() + " for " + lhsFile + " but was " +
+			lhsFile.length(), lhsFile.length(), is(rhsFile.length()));
 		byte[] lhsBuffer = new byte[BUFFER_SIZE];
 		byte[] rhsBuffer = new byte[BUFFER_SIZE];
 		try (InputStream lhsIn = new BufferedInputStream(new FileInputStream(lhsFile));
@@ -169,16 +232,21 @@ public class TestUtil {
 				int lhsCount = IoUtil.fillBuffer(lhsIn, lhsBuffer);
 				int rhsCount = IoUtil.fillBuffer(rhsIn, rhsBuffer);
 				if (lhsCount == 0 && rhsCount == 0) break;
-				assertThat("Read counts do not match for files " + lhsFile + " and " + rhsFile,
-					totalCount + lhsCount, is(totalCount + rhsCount));
-				for (int i = 0; i < lhsCount; i++) {
-					assertThat("Bytes at index " + (totalCount + lhsCount + i) +
-						" do not match for files " + lhsFile + " and " + rhsFile, lhsBuffer[i],
-						is(rhsBuffer[i]));
-				}
+				assertThat("Expected read count " + (totalCount + rhsCount) + " for file " +
+					lhsFile + " but was " + (totalCount + lhsCount), totalCount + lhsCount,
+					is(totalCount + rhsCount));
+				for (int i = 0; i < lhsCount; i++)
+					assertIndex(lhsBuffer[i], rhsBuffer[i], (totalCount + i));
 				totalCount += lhsCount;
 			}
 		}
+	}
+
+	/**
+	 * Convenience method for creating a regex matcher.
+	 */
+	public static <T> Matcher<T> matchesRegex(String regex) {
+		return new RegexMatcher<>(regex);
 	}
 
 	/**
@@ -281,7 +349,8 @@ public class TestUtil {
 			throw new IllegalArgumentException(e);
 		}
 		for (int i = 0; i < b.length(); i++) {
-			if (b.charAt(i) < ' ') b.setCharAt(i, readableChar);
+			if(!StringUtil.printable(b.charAt(i))) b.setCharAt(i, readableChar);
+			//if (b.charAt(i) < ' ') b.setCharAt(i, readableChar);
 		}
 		return b.toString();
 	}

@@ -7,8 +7,8 @@ import ceri.common.reflect.Caller;
 import ceri.common.reflect.ReflectUtil;
 
 /**
- * Useful class for printf-style debugging.
- * Log methods of interest, with information automatically logged based on stack trace.
+ * Useful class for printf-style debugging. Log methods of interest, with
+ * information automatically logged based on stack trace.
  */
 public class Debugger {
 	public static final Debugger DBG = new Debugger(System.err, 8, 0); // Global debugger
@@ -23,8 +23,9 @@ public class Debugger {
 	}
 
 	/**
-	 * Creates a debugger writing to given stream, indent starting at given trace index,
-	 * stopping output after given number of method calls to the debugger.
+	 * Creates a debugger writing to given stream, indent starting at given
+	 * index in stack trace, stopping output after given number of method calls
+	 * to the debugger.
 	 */
 	public Debugger(PrintStream stream, int traceStartIndex, int stopCount) {
 		this.stream = stream;
@@ -33,10 +34,10 @@ public class Debugger {
 	}
 
 	/**
-	 * Write caller info to log, with given message.
-	 * Use this to log additional info within a method. 
+	 * Write caller info to log, with given message. Use this to log additional
+	 * info within a method.
 	 */
-	public void log(Object...objs) {
+	public void log(Object... objs) {
 		if (shouldStop(totalCalls++)) return;
 		Caller caller = ReflectUtil.previousCaller(1);
 		StringBuilder b = new StringBuilder();
@@ -46,10 +47,10 @@ public class Debugger {
 		}
 		print(caller, 1, b.toString());
 	}
-	
+
 	/**
-	 * Write caller info to log, increment method count, and output current count.
-	 * Use this to log when a method is called.
+	 * Write caller info to log, increment method count, and output current
+	 * count. Use this to log when a method is called.
 	 */
 	public void method(Object... objs) {
 		if (shouldStop(totalCalls++)) return;
@@ -58,10 +59,11 @@ public class Debugger {
 		print(caller, 1, count, objs);
 	}
 
-	private void print(Caller caller, int indentOffset, Object msg, Object...objs) {
+	private void print(Caller caller, int indentOffset, Object msg, Object... objs) {
 		StringBuilder b = new StringBuilder();
 		int indents = indents(++indentOffset); // don't count this method 
-		while (indents-- > 0) b.append("  ");
+		while (indents-- > 0)
+			b.append("  ");
 		b.append(caller.cls).append('.').append(caller.method).append('(');
 		if (objs != null) for (int i = 0; i < objs.length; i++) {
 			if (i > 0) b.append(", ");
@@ -71,7 +73,7 @@ public class Debugger {
 		b.append(msg);
 		stream.println(b.toString());
 	}
-	
+
 	private int indents(int indentOffset) {
 		StackTraceElement e[] = Thread.currentThread().getStackTrace();
 		if (e == null) return 0;
@@ -79,12 +81,12 @@ public class Debugger {
 		if (len <= traceStartIndex) return 0;
 		return len - traceStartIndex;
 	}
-	
+
 	private boolean shouldStop(long totalCalls) {
 		if (stopCount == 0) return false;
 		return totalCalls >= stopCount;
 	}
-	
+
 	private int incrementMethodCount(Caller caller) {
 		int count = getMethodCount(caller);
 		methodCounts.put(caller, count + 1);
