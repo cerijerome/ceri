@@ -1,9 +1,13 @@
 package ceri.common.property;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
 import java.util.Properties;
 
 /**
@@ -13,6 +17,15 @@ public class PropertyUtil {
 	private static final String PROPERTIES_FILE_EXT = ".properties";
 	
 	private PropertyUtil() {
+	}
+	
+	/**
+	 * Stores properties in given file.
+	 */
+	public static void store(Properties properties, File file) throws IOException {
+		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
+			properties.store(out, "# Saving state " + new Date());
+		}
 	}
 	
 	/**

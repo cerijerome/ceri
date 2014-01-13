@@ -7,7 +7,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,14 +67,15 @@ public class TestUtilTest {
 	@Test
 	public void testAssertElements() {
 		final Set<Integer> set = new TreeSet<>();
+		assertElements(set);
 		Collections.addAll(set, Integer.MAX_VALUE, Integer.MIN_VALUE, 0);
 		assertElements(set, Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
-		try {
-			assertElements(set, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-			fail();
-		} catch (AssertionError e) {
-			// Expected case
-		}
+	}
+
+	@Test
+	public void testAssertElementsForArrays() {
+		Integer[] array = { Integer.MAX_VALUE, Integer.MIN_VALUE, 0 };
+		assertElements(array, Integer.MAX_VALUE, Integer.MIN_VALUE, 0);
 	}
 
 }

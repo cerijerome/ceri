@@ -342,6 +342,20 @@ public class IoUtil {
 	}
 
 	/**
+	 * Gets resource from same package as class, with name <simple-class-name>.<suffix>
+	 */
+	public static String getClassResourceString(Class<?> cls, String suffix) throws IOException {
+		return new String(getClassResource(cls, suffix)).intern();
+	}
+
+	/**
+	 * Gets resource from same package as class, with name <simple-class-name>.<suffix>
+	 */
+	public static byte[] getClassResource(Class<?> cls, String suffix) throws IOException {
+		return getResource(cls, cls.getSimpleName() + "." + suffix);
+	}
+
+	/**
 	 * Scans directory for files and adds to the given set.
 	 */
 	private static void addFilenames(List<String> list, File rootDir, String root,

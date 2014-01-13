@@ -139,6 +139,14 @@ public class TestUtil {
 		assertFalse("Expected minimum size of " + (i + 1), iRhs.hasNext());
 	}
 
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	@SafeVarargs
+	public static <T> void assertElements(T[] lhs, T...ts) {
+		assertElements(Arrays.asList(lhs), ts);
+	}
+
 	private static void assertSize(long lhsSize, long rhsSize) {
 		assertThat("Expected size " + rhsSize + " but was " + lhsSize, lhsSize, is(rhsSize));
 	}
