@@ -14,6 +14,7 @@ public class X10AlerterBehavior {
 
 	@Test
 	public void shouldTurnOnDeviceForGivenKeyAlert() throws IOException {
+		@SuppressWarnings("resource")
 		Controller controller = mock(Controller.class);
 		try (X10Alerter x10 = X10Alerter.builder(controller).address("ceri", "F13").build()) {
 			x10.alert("ceri");
@@ -22,11 +23,12 @@ public class X10AlerterBehavior {
 		inOrder.verify(controller).addCommand(new Command("F1", Command.ALL_UNITS_OFF));
 		inOrder.verify(controller).addCommand(new Command("F13", Command.ON));
 		inOrder.verify(controller).close();
-		verifyNoMoreInteractions(controller);
+		controller.close();
 	}
 
 	@Test
 	public void shouldNotTurnOnDeviceForMissingKeyAlert() throws IOException {
+		@SuppressWarnings("resource")
 		Controller controller = mock(Controller.class);
 		try (X10Alerter x10 = X10Alerter.builder(controller).address("ceri", "F13").build()) {
 			x10.alert("xxx");
@@ -39,6 +41,7 @@ public class X10AlerterBehavior {
 
 	@Test
 	public void shouldNotTurnOnDeviceForEmptyKeyAlert() throws IOException {
+		@SuppressWarnings("resource")
 		Controller controller = mock(Controller.class);
 		try (X10Alerter x10 =
 			X10Alerter.builder(controller).address("ceri1", "F13").address("ceri2", "P16").build()) {
@@ -52,6 +55,7 @@ public class X10AlerterBehavior {
 
 	@Test
 	public void shouldTurnOnDevicesForGivenKeyAlerts() throws IOException {
+		@SuppressWarnings("resource")
 		Controller controller = mock(Controller.class);
 		try (X10Alerter x10 =
 			X10Alerter.builder(controller).address("ceri1", "F13").address("ceri2", "P16").build()) {
@@ -68,6 +72,7 @@ public class X10AlerterBehavior {
 
 	@Test
 	public void shouldTurnOffDevicesForClearAlerts() throws IOException {
+		@SuppressWarnings("resource")
 		Controller controller = mock(Controller.class);
 		try (X10Alerter x10 =
 			X10Alerter.builder(controller).address("ceri1", "F13").address("ceri2", "P16").build()) {

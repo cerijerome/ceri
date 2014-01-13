@@ -66,21 +66,16 @@ public class LogHandler {
 	private LogHandler() {
 		ClassLoader loader = getClass().getClassLoader();
 		Properties properties = new Properties();
-		try {
-			InputStream is = loader.getResourceAsStream("x10/util/LogHandler.ini");
-			if (is != null) {
-				properties.load(is);
-			} else {
-				System.out.println("Could Not Find LogHandler.ini.  Using Defaults.");
-			}
+		try (InputStream is = loader.getResourceAsStream("x10/util/LogHandler.ini")) {
+			if (is != null) properties.load(is);
 		} catch (IOException ioe) {}
 		logLevel = 1;
 		try {
 			logLevel = Integer.parseInt(properties.getProperty("LogLevel", "1"));
 		} catch (NumberFormatException nfe) {}
 		String logFile = properties.getProperty("LogFile");
+		out = System.out;
 		if ((logFile == null) || (logFile.trim().length() == 0)) {
-			out = System.out;
 		} else {
 			try {
 				out = new PrintStream(new FileOutputStream(logFile));

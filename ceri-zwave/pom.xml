@@ -18,7 +18,7 @@
 		<dependency>
 			<groupId>ceri</groupId>
 			<artifactId>ceri-common</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>

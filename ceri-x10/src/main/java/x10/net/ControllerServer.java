@@ -68,8 +68,7 @@ public class ControllerServer extends Thread {
 		alive = true;
 		try (ServerSocket ss = new ServerSocket(port)) {
 			while (alive) {
-				try {
-					Socket s = ss.accept();
+				try (Socket s = ss.accept()) {
 					ServerDispatchProxy sdp = new ServerDispatchProxy(s, c);
 					c.addUnitListener(sdp);
 				} catch (Exception e) {
