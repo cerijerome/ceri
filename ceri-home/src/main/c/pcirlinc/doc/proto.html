@@ -1,0 +1,415 @@
+<HTML>
+
+<HEAD>
+<TITLE>PC to IR Linc Protocol Guide</TITLE>
+</HEAD>
+
+<BODY>
+
+<CENTER>
+<H1>PC to IR Linc Protocol Guide</H1>
+<H3>(In progress documentation)</H3>
+
+<IMG SRC="http://sourceforge.net/dbimage.php?id=2380" ALT="162PC Photo"
+WIDTH=275 HEIGHT=159>
+</CENTER>
+
+<P>
+<HR WIDTH=80%>
+</P>
+
+<H3>Contents</H3>
+<OL>
+<LI><A HREF="#1">Introduction</A>
+<LI><A HREF="#2">Hardware configuration</A>
+<LI><A HREF="#3">Communication</A>
+<LI><A HREF="#4">Commands</A>
+<UL>
+	4.1. <A HREF="#4.1">Send preset IR</A><BR>
+	4.2. <A HREF="#4.2">Learn IR</A><BR>
+	4.3. <A HREF="#4.3">Send learned IR</A>
+</UL>
+</OL>
+
+<A NAME="1">
+<H2>1. Introduction</H2>
+</A>
+
+<BLOCKQUOTE>
+
+<P>
+The 1623PC PC to IR Linc is an RS232C controlled learning infrared 
+device.  It hooks up to your PC via a standard 9-pin serial port, and
+transmits or learns remote control IR signals on demand.  With it, you 
+can control virtually any device that uses a "typical" remote control,
+such as home theater systems, audio and video equipment, etc.
+</P>
+
+<P>
+The PC to IR Linc comes with an extensive library of preset remote control
+codes, and additional remote control codes can be learned as needed.
+Learned IR commands are stored in a digital form on the host computer,
+giving you an effectively unlimited capacity, which is a significant 
+improvement over older devices (such as the BIRD PC/IR-Linc).
+</P>
+
+<P>
+Unfortunately, while this is a fantastic and flexible device, it
+comes with some of the worst software and documentation ever produced.
+The "programming guide" available from the Smarthome Web site looks like
+someone typed up their illegible hand-written notes, contains a number
+of inaccuracies, and is missing key pieces of information.  The Windows
+software is impractical at best, and suggests that the 1623PC is not
+a complete, turn-key system, but rather a hardware add-on device for
+more expensive whole-house control software systems.
+</P>
+
+<P>
+This protocol guide is designed to give a more complete description of
+the PC to IR Linc interface, with an eye towards UNIX operating systems.
+</P>
+
+</BLOCKQUOTE>
+
+<A NAME="2">
+<H2>2. Hardware Configuration</H2>
+</A>
+
+<BLOCKQUOTE>
+
+<P>
+The PC to IR Linc uses a standard RS232 serial port.  The terminal device
+on the host system must be placed into <EM>raw</EM> mode with the following
+line settings:
+</P>
+
+<UL>
+<TABLE CELLPADDING=3>
+<TR ALIGN=LEFT>
+	<TH>Line speed</TH>
+	<TD>19200</TD>
+</TR>
+<TR ALIGN=LEFT>
+	<TH>Character size</TH>
+	<TD>8</TD>
+</TR>
+<TR ALIGN=LEFT>
+	<TH>Stop bits</TH>
+	<TD>1</TD>
+</TR>
+<TR ALIGN=LEFT>
+	<TH>Parity</TH>
+	<TD>None</TD>
+</TR>
+<TR ALIGN=LEFT>
+	<TH>Flow control</TH>
+	<TD>None</TD>
+</TR>
+</TABLE>
+</UL>
+
+</BLOCKQUOTE>
+
+<A NAME="3">
+<H2>3. Communication</H2>
+</A>
+
+<BLOCKQUOTE>
+
+<P>
+Communication with the PC to IR Linc is synchronous, and is always 
+initiated by the host system.  No transmissions occur from the device
+to the host except in response to host-generated commands.
+</P>
+
+<P>
+Although the PC to IR Linc does not use standard flow control, it does
+make use of RTS.  To send a command to the device, the host must set
+RTS, and then wait 20ms before transmitting commands.  Once RTS is on,
+any numebr of commands can be sent (though a 20ms sleep between commands
+seems to be required).  When the host is finished transmitting commands,
+it should clear RTS.
+</P>
+
+<P>
+Once RTS is cleared, the PC to IR Linc response with the results of the
+last command that was sent.  This is an important point since one can
+send multiple commands while RTS is active.
+</P>
+
+<P>
+Each transmission, whether it be a command or response, starts with a
+single 8-bit byte, representing the length (in bytes) of the message that 
+follows:
+</P>
+
+<UL>
+<B>Figure 1: Transmission structure</B><BR>
+<TABLE CELLSPACING=3 CELLPADDING=0 BORDER=0>
+<TR>
+	<TD>
+		<TABLE CELLSPACING=0 CELLPADDING=3 BORDER=1>
+		<TR><TD>message length, <EM>lmsg</EM></TD></TR>
+		<TR><TD>message data</TD></TR>
+		</TABLE>
+	</TD>
+	<TD>
+		<TABLE CELLSPACING=0 CELLPADDING=3 BORDER=0>
+		<TR><TD>1 byte</TD></TR>
+		<TR><TD><EM>lmsg</EM> bytes</TD></TR>
+		</TABLE>
+	</TD>
+</TR>
+</TABLE>
+</UL>
+
+<P>
+All data words are sent in network byte order (big endian).
+</P>
+
+</BLOCKQUOTE>
+
+<A NAME="4">
+<H2>4. Commands</H2>
+</A>
+
+<A NAME="4.1">
+<H3>4.1 Send preset IR</H3>
+</A>
+<BLOCKQUOTE>
+
+<P>
+This command is used to transmit one of the preset IR codes stored in the
+PC to IR Linc device.  The message structure consists of 5 bytes:
+</P>
+
+<UL>
+<B>Figure 2: "Send IR preset" message</B><BR>
+<TABLE CELLSPACING=3 CELLPADDING=0 BORDER=0>
+<TR>
+	<TD>
+		<TABLE CELLSPACING=0 CELLPADDING=3 BORDER=1>
+		<TR><TD>0x01</TD></TR>
+		<TR><TD>device code</TD></TR>
+		<TR><TD>button code</TD></TR>
+		<TR><TD>0x00</TD></TR>
+		</TABLE>
+	</TD>
+	<TD>
+		<TABLE CELLSPACING=0 CELLPADDING=3 BORDER=0>
+		<TR><TD>1 byte</TD></TR>
+		<TR><TD>2 bytes</TD></TR>
+		<TR><TD>1 byte</TD></TR>
+		<TR><TD>1 byte</TD></TR>
+		</TABLE>
+	</TD>
+</TR>
+</TABLE>
+</UL>
+
+<P>
+The device code is a 4-bit device type code followed by a 12-bit brand 
+code.  The device type code is in bits 15-12, and the brand code is in
+bits 11-0:
+</P>
+
+<UL><PRE>
+ ttttBBBBBBBBBBBB
+15              0
+</PRE></UL>
+
+<P>
+For example, if the device type was 3 (0x3) and the brand code was 775
+(0x307), which represents an Echostar satellite receiver, the device code
+would be 0x3307.
+</P>
+
+<P>
+The response to this command consists of a single status byte:
+</P>
+
+<UL>
+<B>Figure 3: "Send IR Preset" response message</B>
+<TABLE CELLSPACING=3 CELLPADDING=0 BORDER=0>
+<TR>
+	<TD>
+		<TABLE CELLSPACING=0 CELLPADDING=3 BORDER=1>
+		<TR><TD>status</TD></TR>
+		</TABLE>
+	</TD>
+	<TD>
+		<TABLE CELLSPACING=1 CELLPADDING=3 BORDER=0>
+		<TR><TD>1 byte</TD></TR>
+		</TABLE>
+	</TD>
+</TR>
+</TABLE>
+</UL>
+
+<P>
+<B>Example</B>
+</P>
+
+<PRE>
+Send:     0x05 0x01 0x3307 0x10 0x00
+Response: 0x01 0x00
+</PRE>
+
+</BLOCKQUOTE>
+
+<A NAME="4.2">
+<H3>4.2 Learn IR</H3>
+</A>
+
+<BLOCKQUOTE>
+
+<P>
+This command puts the PC to IR Linc device into learning mode for the 
+purpose of learning and then saving an IR command.  The message 
+structure is as follows:
+</P>
+
+<UL>
+<B>Figure 4: "Learn IR" message</B><BR>
+<TABLE CELLSPACING=3 CELLPADDING=0 BORDER=0>
+<TR>
+	<TD>
+		<TABLE CELLSPACING=0 CELLPADDING=3 BORDER=1>
+		<TR><TD>0x12</TD></TR>
+		<TR><TD>learn ID</TD></TR>
+		</TABLE>
+	</TD>
+	<TD>
+		<TABLE CELLSPACING=1 CELLPADDING=3 BORDER=0>
+		<TR><TD>1 byte</TD></TR>
+		<TR><TD>2 bytes</TD></TR>
+		</TABLE>
+	</TD>
+</TR>
+</TABLE>
+</UL>
+
+<P>
+The <EM>learn ID</EM> element appears to be a dummy parameter: any value
+number can be sent.  The Windows software for the PC to IR Linc
+stores learned IR commands in the Windows registry, and uses
+an ID value that corresponds to the IR code's position in the list
+of saved IR codes (e.g., if there are 5 learned codes, then the <EM>learn
+ID</EM> will be 7).  Since an individual code's position in the list can
+change as IR codes are deleted from the registry, it's clear that the
+ID itself is meaningless, and it is apparently ignored by the PC to IR 
+Linc device.
+</P>
+
+<P>
+The device returns only if an IR command has successfully been learned.
+The learning mode timer expires after 5 to 6 seconds, so if no response
+is received within 6 seconds, then the learn function was unsuccessful.
+</P>
+
+<P>
+If status is non-zero, then the learn command was not successful, and the
+other fields will not be present.
+</P>
+
+<UL>
+<B>Figure 5: "Learn IR" response message</B><BR>
+<TABLE CELLSPACING=3 CELLPADDING=0 BORDER=0>
+<TR>
+	<TD>
+		<TABLE CELLSPACING=0 CELLPADDING=3 BORDER=1>
+		<TR><TD>status</TD></TR>
+		<TR><TD>learn ID</TD></TR>
+		<TR><TD>IR code length, <EM>lcode</EM></TD></TR>
+		<TR><TD>IR code data</TD></TR>
+		</TABLE>
+	</TD>
+	<TD>
+		<TABLE CELLSPACING=1 CELLPADDING=3 BORDER=0>
+		<TR><TD>1 byte</TD></TR>
+		<TR><TD>2 bytes</TD></TR>
+		<TR><TD>1 byte</TD></TR>
+		<TR><TD><EM>lcode</EM> bytes</TD></TR>
+		</TABLE>
+	</TD>
+</TR>
+</TABLE>
+</UL>
+
+
+</BLOCKQUOTE>
+
+<A NAME="4.3">
+<H3>4.3 Send learned IR</H3>
+</A>
+
+<BLOCKQUOTE>
+
+<P>
+This command allows you to transmit an IR signal that was previously 
+learned via the "Learn IR" command.  The message structure is as follows:
+</P>
+
+<UL>
+<B>Figure 6: "Send learned IR" message</B><BR>
+<TABLE CELLSPACING=3 CELLPADDING=0 BORDER=0>
+<TR>
+	<TD>
+		<TABLE CELLSPACING=0 CELLPADDING=3 BORDER=1>
+		<TR><TD>0x10</TD></TR>
+		<TR><TD>learn ID</TD></TR>
+		<TR><TD>0x10</TD></TR>
+		<TR><TD>learn ID</TD></TR>
+		<TR><TD>IR data length, <EM>ldata</EM></TD></TR>
+		<TR><TD>IR data</TD></TR>
+		<TR><TD>0x00</TD></TR>
+		</TABLE>
+	</TD>
+	<TD>
+		<TABLE CELLSPACING=1 CELLPADDING=3 BORDER=0>
+		<TR><TD>1 byte</TD></TR>
+		<TR><TD>2 bytes</TD></TR>
+		<TR><TD>1 byte</TD></TR>
+		<TR><TD>2 bytes</TD></TR>
+		<TR><TD>1 byte</TD></TR>
+		<TR><TD><EM>ldata</EM> bytes</TD></TR>
+		<TR><TD>1 byte</TD></TR>
+		</TABLE>
+	</TD>
+</TR>
+</TABLE>
+</UL>
+
+<P>
+As in the "Learn IR" command, the <EM>learn ID</EM> element is a dummy 
+parameter, and any value can be sent.
+</P>
+
+<P>
+The response to this command consists of a single status byte:
+</P>
+
+<UL>
+<B>Figure 7: "Send Learned IR" response message</B>
+<TABLE CELLSPACING=3 CELLPADDING=0 BORDER=0>
+<TR>
+	<TD>
+		<TABLE CELLSPACING=0 CELLPADDING=3 BORDER=1>
+		<TR><TD>status</TD></TR>
+		</TABLE>
+	</TD>
+	<TD>
+		<TABLE CELLSPACING=0 CELLPADDING=3 BORDER=0>
+		<TR><TD>1 byte</TD></TR>
+		</TABLE>
+	</TD>
+</TR>
+</TABLE>
+</UL>
+
+</BLOCKQUOTE>
+
+</BODY>
+
+</HTML>
+

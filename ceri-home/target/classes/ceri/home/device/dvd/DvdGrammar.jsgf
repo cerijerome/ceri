@@ -1,0 +1,37 @@
+//---------------------------------------------------------
+// Grammar for DVD control instructions.
+//---------------------------------------------------------
+
+// Construction rules
+<units> = one {1} | two {2} | three {3} | four {4} | five {5} | six {6} | seven {7} | eight {8} | nine {9};
+<teens> = ten {10} | eleven {11} | twelve {12} | thirteen {13} | fourteen {14} | fifteen {15} | sixteen {16} | seventeen {17} | eighteen {18} | nineteen {19};
+<tens> = twenty {20} | thirty {30} | forty {40} | fifty {50} | sixty {60} | seventy {70} | eighty {80} | ninety {90};
+<number99> = <tens> [<units>] | <teens> | <units>;
+
+// Main number rule handling 0-99 in numbers and digits
+<number> = <number99>;
+
+<dvd> = dvd;
+
+// Public rules
+public <context> = CONTEXT;
+public <on> = <context> on;
+public <off> = <context> off;
+public <play> = <context> play;
+public <pause> = <context> pause;
+public <stop> = <context> stop;
+public <eject> = <context> eject;
+public <skipForward> = <context> skip [forward] [<number>];
+public <skipReverse> = <context> skip back [<number>];
+public <fastForward> = <context> fast [forward] [<units>];
+public <fastReverse> = <context> (fast back | [fast] rewind) [<units>];
+public <slowForward> = <context> slow [<units>];
+public <slowReverse> = <context> slow back [<units>];
+public <menu> = <context> menu;
+public <up> = <context> up;
+public <down> = <context> down;
+public <left> = <context> left;
+public <right> = <context> right;
+public <select> = <context> select;
+public <reset> = <context> reset;
+

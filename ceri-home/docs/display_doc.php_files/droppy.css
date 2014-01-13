@@ -1,0 +1,34 @@
+ 
+/* Basic code - don't modify */
+
+.nav { display: block; margin: 0; padding: 0; position: relative; }
+.nav li { display: block; list-style: none; margin: 0; padding: 0; float: left; position: relative; }
+.nav a { display: block; }
+.nav ul { display: none; position: absolute; left: 0; margin: 0; padding: 0; }
+* html .nav ul { line-height: 0; } /* IE6 "fix" */
+.nav ul a { zoom: 1; } /* IE6/7 fix */
+.nav ul li { float: none; }
+.nav ul ul { top: 0; }
+
+/* Essentials - configure this */
+
+.nav ul { width: 14em; font-weight: normal}
+.nav ul ul { left: 14em; }
+
+/* Everything else is theming */
+
+.nav { background-color: none; height: 1.5em; font-size: 93%; margin:0 0 0 -0.7em; }
+.nav *:hover { background-color: none; }
+.nav a { padding: .5em .7em; }
+.nav a { color: #fff !important; }
+.nav li.hover a { background-color: #222; color: #fff !important; }
+.nav ul { top: 2.1em; _top: 2.8em }
+.nav ul li a { padding: .5em 1em; _padding: 1em; background-color: #222; }
+.nav ul li.hover > a { background-color: #111; }
+.nav ul li a { _margin: -.5em 0 0 0; }
+.nav .selected a { font-weight: bold; text-decoration: none; color: #666 !important; }
+.nav li.selected { padding-bottom: 1em; background: transparent url("http://c.fsdn.com/sf/images/phoneix/selected.png") center 15px no-repeat; }
+.nav .selected ul li a { font-weight: normal; }
+/* .nav ul a { border-bottom: none; } - I also needed this for IE6/7 */
+
+

@@ -1,0 +1,14 @@
+Voice recognition
+-----------------
+- Understand list of commands from different voices
+- Convert this into set up commands
+
+Central command
+---------------
+- Group of interfaces
+- Each one self-managed
+
+Example
+-------
+Home theater controller
+- TV, DVD, Receiver remote

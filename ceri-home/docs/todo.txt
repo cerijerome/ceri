@@ -1,0 +1,9 @@
+TODO
+====
+- concurrency for stop
+- directional mic setup
+- user prefs
+- failure notification
+
+- x10 control
+

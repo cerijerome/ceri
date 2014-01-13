@@ -1,0 +1,68 @@
+//#JSGF V1.0;
+//grammar ceri.home.speech.recognition
+//public <greeting> = good morning | good afternoon | hello;
+
+#JSGF V1.0;
+
+grammar grammars.helloWorld;
+
+<units> = one | two | three | four | five | six | seven | eight | nine;
+<teens> = eleven | twelve | thirteen | fourteen | fifteen | 
+    sixteen | seventeen | eighteen | nineteen;
+<tens> = ten | twenty | thirty | forty | fifty | sixty | seventy |
+    eighty | ninety;
+<hundreds> = <units> hundred;
+
+public <number> = <hundreds> | <tens> | <teens> | <units> |
+    (<hundreds> [and] <tens>) |
+    (<hundreds> [and] <teens>) |
+    (<hundreds> [and] <units>) |
+    (<tens> [and] <units>) |
+    (<hundreds> [and] <tens> [and] <units>);
+
+//eg "start and pause and resume and finish"
+public <recursive_command> = <action1> ( and <action1>)*;
+    <action1> = stop | start | pause | resume | finish;
+
+/*
+Note that any command which references itself, such as ...
+
+public <recursive_command> = <action1> | (<action1> and <recursive_command>);
+
+...won't work for ViaVoice engines, and instead you should use the form above...
+
+public <recursive_command> = <action1> ( and <action1>)*;
+
+*/
+
+//"I'd like twenty five carrots some bananas and two hundred and five oranges"
+//Also demonstrates use of tags.
+
+public  <shopping> = I'd like {LIKE} <list>;
+    <amount> = [some] {SOME} | <number> {NUMBER};
+    <list> = <produce> (and {AND} <produce>)*;
+    <produce> = <amount> (carrots {CAR} | oranges {ORA} | bananas {BAN});
+
+//this may not work for SAPI4 engines
+public <getname> = hello my name is <DICTATION>;
+
+public <greeting> = <hello> <name>* | top of the morning to you;
+
+public <spacetest> = test {tag with spaces};
+
+<hello> = (hi there | [good] morning) {hi};
+
+<name> = John {JON} | Sally {SAL} | Sam {SAM} | Joan {JOAN};
+
+//eg "please close the window" or "open the bottle please"
+public  <request> = [<polite>] <action2> <object> [<polite>];
+    <action2> = open {OP} | close {CL} | move {MV};
+    <object> = <this_that_etc> (window | door | <DICTATION>);
+    <this_that_etc> = this | that | the | a ;
+    <polite> = please | kindly;
+ 
+public <sequence_test> = (how | what) (are) (we | you) (doing | feeling) today;
+
+<tagTest1> = test { \{nasty looking\\ tag\} };
+
+<tagTest2> = something {tag1} {tag2} {tag3};

@@ -1,0 +1,74 @@
+ 
+
+/* Masthead */
+#hd
+{
+    background: #020202 url("http://c.fsdn.com/sf/images/phoneix/grad_white_dual_100.png") repeat-x;
+    padding: 0 0.5em 0 2em;
+    height: 45px;
+    overflow: hidden;
+    position: relative;
+}
+#logo_container { margin-top: 0.3em; float: left; min-width: 243px; }
+
+#top_bar { float: right; }
+#login_container, #jump_menu_container { padding-top: 1.4em; padding-right: 1em; float: left; height: 43px; font-size: 85%; }
+#search_container { margin-top: 8px; width: 269px; height: 43px; float: left; position: relative; }
+#search_container .left { position: absolute; top: 0; left: 0; width: 21px; height: 39px; display: block; background: transparent url("http://c.fsdn.com/sf/images/phoneix/search_left.png") no-repeat; }
+#search_container input { position: absolute; top: 0; left: 21px; margin: 0; width: 158px; border: 0 none; font-size: 116%; font-weight: bold; color: #666; padding: 6px 0 6px 0; background: transparent url("http://c.fsdn.com/sf/images/phoneix/search_repeat.png") repeat-x; }
+#search_container button { width: 80px; height: 30px; cursor: pointer; background: transparent; border: 0; color: #fff; font-size: 100%; font-weight: bold; padding: 5px 5px 5px 19px; }
+#search_container .right { position: absolute; top: 0; right: 0; width: 90px; height: 39px; display: block; background: transparent url("http://c.fsdn.com/sf/images/phoneix/search_right.png") no-repeat; }
+
+#hd a, #hd a:hover, #hd a:visited { color: #fff; }
+#hd h1 { background: transparent url("http://c.fsdn.com/sf/images/phoneix/sflogo_sm.png") no-repeat center left; margin: 0 0 0.4em 0; }
+#hd h1 a
+{
+    text-indent: -700em;
+    text-decoration: none;
+    display: block;
+    z-index: 1;
+    height: 36px;
+    width: 243px;
+}
+#hd h1 a:hover, #masthead h1 a:hover { text-decoration: none !important; }
+
+/* Search and user account */
+#hd .yui-u { padding: .5em 0 0; text-align: center; }
+#hd .yui-u input { margin: .5em 0 0; }
+#hd .yui-u form {display: inline; margin-right: 1em; white-space: nowrap}
+
+
+.subset { margin: 0 0 1em; font-size: 93%; display: block;}
+.subset ul { display: block; margin: 0; padding: 0; position: relative; }
+.subset li { display: block; list-style: none; margin: 0 0 0.5em 0; float: left; position: relative; }
+.subset li.add_menu { padding-left: 0.7em; display: block; }
+.subset a { padding-right: 1em; display: block; }
+
+
+/* breadcrumbs */
+#breadcrumb
+{
+    background: #f1f1f1 url("http://c.fsdn.com/sf/images/phoneix/grad_dark_inner_shadow.png") repeat-x;
+    color: #999;
+    padding: 0.3em 2em;
+    font-size: 85%;
+    line-height: 2.8;
+    margin-top: 2em;
+    position: relative;
+
+}
+#breadcrumb a { color: #666; }
+#breadcrumb ul { margin: 0; padding: 0; }
+#breadcrumb li { display: inline; list-style: none; margin: 0; padding: 0; }
+#breadcrumb li:after { content: " > "; }
+#breadcrumb .selected { font-weight: bold; }
+#breadcrumb .selected:after { content: ""; }
+
+#breadcrumb { height:30px; }
+#breadcrumb li.begin { background: none; padding: 0; }
+#breadcrumb li {
+    *background: url("http://c.fsdn.com/sf/images/phoneix/breadcrumb_arrow.png") no-repeat 5px 9px;
+    *padding: 0 0 0 24px;
+    *display:block;
+    *float:left;
+}

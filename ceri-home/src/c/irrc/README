@@ -1,0 +1,174 @@
+irrc package
+IR utilities for the PC to IR Linc device
+http://www.smarthome.com/1623PC.html
+
+
+This is a very preliminary release.  There is not much documentation at
+this time.
+
+
+Requirements
+------------
+
+Oviously, you have to have libpcirl.a, which is available from
+SourceForge (probably the same place where you got these utilities):
+
+   http://sourceforge.net/projects/pcirlinc/
+
+These utilities also require the Berkley DB v1 libraries.  They
+come with FreeBSD releases, and are available as an RPM for Linux.
+Any of the db-devel-1.X versions will do.  If you haev trouble,
+search for "dbopen" on rpm.pbone.net at:
+
+   http://rpm.pbone.net/index.php3/stat/2
+
+The configure script assumes the RPM packages headers into <db1/db.h>,
+which is true for db1-devel-1.85-5.i386.rpm under RedHat 7.x.
+
+Why Berkley DB?
+
+   - it's small and efficient for simple hash tables where you have only
+     a single-key/single-value relationship
+
+   - it's embedded into the code, eliminating the need for an external
+     DB server
+
+   - it allows the developer to specify the byte order of the hash files,
+     so the DB data is usable on different architectures (a problem with
+     DBM files)
+
+   - something like MySQL would be total overkill
+
+   - I'm not familiar with GDBM
+
+Why v1 instead of v2, v3 or v4?  I follow the KISS principal (keep it 
+simple, stupid).  v1 is the simplest implementation that gets the job
+done.
+
+
+Installation
+------------
+
+Run ./configure
+
+Since the libpcirl files install into /usr/local, you may find it necessary
+to set CPPFLAGS and LDFLAGS, accordingly:
+
+   ./configure CPPFLAGS=-I/usr/local/include LDFLAGS=-L/usr/local/lib
+
+
+Usage
+-----
+
+There are two utilities: irlearn and lrsend.  The former is used to learn
+IR commands from your remotes, and saves them to a hash file (default
+path is ~/.irdb).  The latter can send either preset commands, or the
+learned commands you have in ~/.irdb.
+
+irlearn
+
+   syntax: irlean [ -d device ] [ -f dbfile ] <cmd_label>
+
+This utility learns an IR remote control command and stores it in the
+irdb file with the kay name "cmd_label".  cmd_label can not contain a
+"/" or "@" character.  I find it useful to name the label after the
+device and function, separated by a ".".  Examples:
+
+   vr3100.mute
+   vr3100.volup
+   vr3100.voldown
+
+Your mileage may vary.
+
+With -f you can specify a db file other than the default (~/.irdb).  -d
+allows you to specify the serial device instead of the default that is
+built in to libpcirl.
+
+
+irsend
+
+   syntax: irsend [ -d device ] [ -f dbfile ] <cmd> <repeat> [ ... ]
+
+This utility lets your send a series of IR commands from the IR controller.
+
+"cmd" can be either a preset command or a learned IR label.  For a present
+command, you need to specify the device type, vendor code and button
+type in a / delimited format:
+
+   type/vendor/button
+
+"type" is one of:
+
+   amptuner cable cd dat dvd homeauto ld miscaudio phono satellite
+   tape tv vcr video
+
+"button" is one of:
+
+   0 1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 a_b bright channel_down
+   channel_up close cue dim disk display enter exit fm_am guide
+   input menu menu_down menu_left menu_right menu_up mute off on
+   open open_close page_down page_up pause pip pip_move pip_swap
+   play plus_10 power prev_channel program random record search_forw
+   search_rev select sleep stop stop2 surround surround_down
+   surround_mode surround_up track_forw track_rev tv_dss tv_dvd
+   tv_ld tv_sat tv_vcr tv_video volume_down volume_up
+
+Neither type nor button are case-sensitive.
+
+The "vendor" code comes from the *.txt files that ship with the PC to IR
+Linc software.  Pick the code that is associated with your device (some
+vendors have multiple codes, so you may have to try several before you
+find one that works).
+
+Example: the "guide" button on a Dish Network satellite receiver (made
+by EchoStar)
+
+   satellite/775/guide
+
+As a shortcut, if you need to send multiple commands for the same device,
+you can specify a button name only preceded by an "@".  This tells
+irsend to use the previously assigned device type and vendor code. 
+Example:
+
+   @menu_up 
+
+
+If you wish to send a learned IR command, "cmd" becomes the command
+label you used in the "irlearn" command.
+
+
+The "repeat" argument has one or two parts that are / delimited:
+
+   num[/cycle]
+
+"num" specifies the number of times to send the IR command.  There is
+50ms sleep time between each instance of the command.  The num parameter 
+simulates the end user repeatedly pressing a button on a remote control
+(e.g., pressing the "volume up" button 5 times on the remote).
+
+The "cycle" count is used to specify how many cycles are needed to
+make up a single command that is recognized by your device.  Certain
+devices (General Instruments digital cable tuner and the EchoStar
+satellite receiver are good examples) do not respond to a single
+IR burst, and actually require rapid-repeats of the IR signal to
+register a command.  "cycling" resends the same IR signal in rapid
+succession, about 20ms apart, to accomodate these devices.  It is
+an optional parameter, and should only be used on devices that don't
+respond well if it's omitted.
+
+Example:  send the "guide" command to a Dish Network satellite receiver
+(made by EchoStar), which works most reliably with a cycle count of 10
+
+   irsend satellite/775/guide 1/10
+
+Example 2: the same device, moving up three channels
+
+   irsend satellite/775/channel_up 3/10
+
+Multiple commands can be strung together on the command-line.  Example: 
+bring up the channel guide, move down two channels and select on the 
+same satellite receiver
+
+   irsend satellite/775/guide 1/10 @channel_down 2/10 @enter 1/10
+
+

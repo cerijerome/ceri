@@ -1,0 +1,737 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en"><head>
+
+<!-- Server: sfs-web-1 -->
+<!--
+  ~ SourceForge.net: Find and Build Open Source Software
+  ~ Copyright (c) 1999-2009 SourceForge, Inc. All rights reserved.
+  -->
+  
+    
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+            <meta name="description" content="Get PC IR Linc Control at SourceForge.net. Fast, secure and free downloads from the largest Open Source applications and software directory. Software for controlling the 1623PC PC to IR Linc, a learning infrared remote control device with an RS232 interface.">
+        <meta name="keywords" content="Open Source, Development, Community, Source Code, Downloads, Software, PC IR Linc Control, Hardware Drivers, ">
+                <link rel="alternate" type="application/rss+xml" title="SourceForge.net Project News" href="http://sourceforge.net/export/rss2_sfnews.php?group_id=1&amp;rss_fulltext=1">
+        <link rel="alternate" type="application/rss+xml" title="SourceForge.net News" href="http://sourceforge.net/export/rss2_projnews.php?group_id=141424&amp;rss_fulltext=1">
+        <title>SourceForge.net: PC IR Linc Control: PC to IR Linc Protocol Guide</title>
+        <link rel="stylesheet" type="text/css" href="display_doc.php_files/style.css" media="all">
+            <link rel="stylesheet" type="text/css" href="display_doc.php_files/header.css" media="all">
+                <link rel="stylesheet" type="text/css" href="display_doc.php_files/ads.css" media="all">
+                    
+            <link rel="stylesheet" type="text/css" href="display_doc.php_files/project.css" media="all">
+                            <link rel="stylesheet" type="text/css" href="display_doc.php_files/table.css" media="all">
+                <link rel="stylesheet" type="text/css" href="display_doc.php_files/forms.css" media="all">
+                    <link rel="stylesheet" type="text/css" href="display_doc.php_files/droppy.css" media="all">
+                                        <link rel="stylesheet" type="text/css" href="display_doc.php_files/print.css" media="print">
+            <!--   -->
+        <script type="text/javascript" src="display_doc.php_files/jquery-1.js"></script>
+        <script type="text/javascript">
+            jQuery.noConflict();
+        </script>
+        
+        <script type="text/javascript" src="display_doc.php_files/jquery_003.js"></script>
+                    <script type="text/javascript">
+          jQuery(function() {
+            jQuery('#fad19 p, .project_summary .downloadbar, .vertical_widget, .horizontal_widget').wrap('<div class="sc"><div class="l1"><div class="l2"><div class="l3"><div class="l4"></div></div></div></div></div>');
+          });
+        </script>
+                <script type="text/javascript" src="display_doc.php_files/jquery_004.js"></script>
+        <script type="text/javascript">
+            jQuery(function(){
+                jQuery('.nav').droppy();
+            });
+        </script>
+                <script type="text/javascript" src="display_doc.php_files/jquery.js"></script>
+        <script type="text/javascript" src="display_doc.php_files/jquery_002.js"></script>
+
+        <script type="text/javascript">
+            jQuery(function(){
+                jQuery('.vertical_widget_content ul.tab, #container2 ul.tab, #container3 ul.tab, #container4 ul.tab').tabs({ selected: 0 });
+            });
+        </script>
+        <link rel="stylesheet" type="text/css" href="display_doc.php_files/jquery.css" media="all">
+                                        <script type="text/javascript" src="display_doc.php_files/preferences.js"></script>
+            <script type="text/javascript">
+                            var sf_proj_home = 'http://sourceforge.net/projects/pcirlinc';
+                        var jsonly = document.createElement('link');
+            jsonly.setAttribute('rel', 'stylesheet');
+            jsonly.setAttribute('type', 'text/css');
+            jsonly.setAttribute('href', 'http://static.sourceforge.net/css/phoneix/jsonly.css?secure=0&amp;20080417-1657');
+            document.getElementsByTagName('head')[0].appendChild(jsonly);
+                    </script><link href="display_doc.php_files/jsonly.css" type="text/css" rel="stylesheet">
+                                        <!-- BEGIN: AdSolution-Tag 4.2: Global-Code [PLACE IN HTML-HEAD-AREA!] -->
+            <!-- DoubleClick Random Number -->
+<script language="JavaScript" type="text/javascript">
+   var dfp_ord=Math.random()*10000000000000000;
+   var dfp_tile = 1;
+   var dfp_ptile = 1;
+</script>
+<!-- End DoubleClick Random Number -->
+                    <script type="text/javascript">
+            //<![CDATA[
+
+                var google_page_url = 'http://sourceforge.net/projects/pcirlinc/';
+                var sourceforge_project_name = 'pcirlinc';
+                var sourceforge_project_description = 'Software for controlling the 1623PC PC to IR Linc, a learning infrared remote control device with an RS232 interface.';
+            //]]>    
+            </script>
+                <!-- END: AdSolution-Tag 4.2: Global-Code -->
+    <!-- End OSDN NavBar gid: 50024 keywords: pcirlinc,os_groups,modern_oses,drivers,bsd,linux,posix,c,hardware,system:hardware -->
+    <script type="text/javascript">
+        var immersion_adcode = "";
+        var adid = "";
+        var sponsored = "";
+    </script>
+        <!-- after META tags -->
+        <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script><script src="display_doc.php_files/ga.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        pageTracker = _gat._getTracker("UA-32013-6");
+        pageTracker._initData();
+    </script>
+    <!--[if IE]>
+        <link rel="stylesheet" type="text/css" media="screen" href="http://static.sourceforge.net/css/phoneix/iestyles.php?secure=0&amp;20080417-1657"  />
+    <![endif]-->
+    <!--[if lte IE 6]>
+        <link rel="stylesheet" type="text/css" media="screen" href="http://static.sourceforge.net/css/phoneix/ie6styles.php?secure=0&amp;20080417-1657"  />
+    <![endif]-->
+                                
+            <script type="text/javascript" src="display_doc.php_files/sfx.js"></script>
+            <script type="text/javascript" src="display_doc.php_files/eluminate.js"></script>    
+        <script type="text/javascript" src="display_doc.php_files/cmdatatagutils.js"></script>
+        
+    </head><body>
+        
+        <div id="doc3" class="yui-t6 docman">
+                    <div id="hd">
+                <div id="logo_container">
+                    <h1>
+                        <a href="http://sourceforge.net/" title="">SourceForge.net</a>
+                    </h1>
+                    <ul class="jump">
+                        <li><a href="#content">Jump to main content</a></li>
+                                            <li><a href="#projectnav">Jump to project navigation</a></li>
+                        <li><a href="http://sourceforge.net/project/showfiles.php?group_id=50024#downloads">Jump to downloads for PC IR Linc Control</a></li>
+                                        </ul>
+                </div>
+                <div id="top_bar">
+                    <div id="login_container"><ul><li><a href="https://sourceforge.net/account/login.php" title="Log in">Log&nbsp;in</a></li><li><a href="http://sourceforge.net/account/registration/" title="Get a SourceForge.net account">Create&nbsp;account</a></li><li><a href="http://sourceforge.net/community/">Community</a></li><li><a href="http://p.sf.net/sourceforge/about">About</a></li><li><a href="http://p.sf.net/sourceforge/getsupport" title="Get help and support on SourceForge.net">Help</a></li></ul></div>
+                    <div id="search_container">
+                        <form action="/search/" method="get" name="searchform" id="searchform">
+                            <input name="type_of_search" value="soft" type="hidden">
+                            <span class="left"></span>
+                            <input class="text" name="words" tabindex="1" type="text">
+                            <span class="right"><button type="submit" tabindex="0" value="Search"></button></span>
+                        </form>
+                    </div>
+                </div>
+            </div>
+                    <div id="bd">
+                <!-- begin content -->
+                                    <a name="projectnav"></a>
+                <div id="project_nav_container">
+                    <h1>
+                        <a href="http://sourceforge.net/projects/pcirlinc/">PC IR Linc Control</a>
+                                            </h1>
+                                    <ul class="nav">
+                        <li id="menu_project"><a href="http://sourceforge.net/projects/pcirlinc/">Summary</a><ul>
+<li id="menu_project_website"><a href="http://pcirlinc.sourceforge.net/">Web Site</a></li>
+<li id="menu_project_screenshots"><a href="http://sourceforge.net/project/screenshots.php?group_id=50024">Screenshots</a></li>
+<li id="menu_project_news"><a href="http://sourceforge.net/news/?group_id=50024">News</a></li>
+<li id="menu_stats"><a href="http://sourceforge.net/project/stats/?group_id=50024&amp;ugn=pcirlinc">Statistics</a></li>
+</ul>
+</li>
+<li id="menu_hostedapps" class="disabled" style="display: none;"><a href="http://sourceforge.net/hostedapp/?group_id=50024">Hosted&nbsp;Apps</a></li>
+<li id="menu_tracker"><a href="http://sourceforge.net/tracker/?group_id=50024">Tracker</a><ul>
+<li id="menu_tracker_458338"><a href="http://sourceforge.net/tracker/?group_id=50024&amp;atid=458338">Bugs</a></li>
+<li id="menu_tracker_458341"><a href="http://sourceforge.net/tracker/?group_id=50024&amp;atid=458341">Feature Requests</a></li>
+<li id="menu_tracker_458340"><a href="http://sourceforge.net/tracker/?group_id=50024&amp;atid=458340">Patches</a></li>
+<li id="menu_tracker_458339"><a href="http://sourceforge.net/tracker/?group_id=50024&amp;atid=458339">Support Requests</a></li>
+<li id="menu_tracker_stats" class="tools"><a href="http://sourceforge.net/project/stats/detail.php?group_id=50024&amp;ugn=pcirlinc&amp;type=tracker">Statistics</a></li>
+<li id="menu_tracker_reports" class="disabled" style="display: none;"><a href="http://sourceforge.net/tracker/reporting/?group_id=50024">Reporting</a></li>
+<li id="menu_tracker_search"><a href="http://sourceforge.net/search/?group_id=50024&amp;type_of_search=artifact">Search</a></li>
+</ul>
+</li>
+<li id="menu_mail"><a href="http://sourceforge.net/mail/?group_id=50024">Mailing&nbsp;Lists</a><ul>
+<li id="menu_mlist_pcirlinc-users"><a href="http://sourceforge.net/mailarchive/forum.php?forum_name=pcirlinc-users">pcirlinc-users</a></li>
+<li id="menu_mail_search" class="tools"><a href="http://sourceforge.net/search/?group_id=50024&amp;type_of_search=mlists">Search</a></li>
+</ul>
+</li>
+<li id="menu_forums" class="disabled" style="display: none;"><a href="http://sourceforge.net/forum/?group_id=50024">Forums</a><ul>
+<li id="menu_forums_stats" class="tools"><a href="http://sourceforge.net/project/stats/detail.php?group_id=50024&amp;ugn=pcirlinc&amp;type=forum">Statistics</a></li>
+<li id="menu_forums_search"><a href="http://sourceforge.net/search/?group_id=50024&amp;type_of_search=forums">Search</a></li>
+</ul>
+</li>
+<li id="menu_code"><a href="http://sourceforge.net/scm/?type=cvs&amp;group_id=50024">Code</a><ul>
+<li id="menu_git_about" class="disabled" style="display: none;"><a href="http://sourceforge.net/scm/?type=git&amp;group_id=50024">Git</a></li>
+<li id="menu_git_browse" class="disabled" style="display: none;"><a href="http://pcirlinc.git.sourceforge.net/">Git Browse</a></li>
+<li id="menu_git_stats" class="disabled" style="display: none;"><a href="http://sourceforge.net/project/stats/detail.php?group_id=50024&amp;ugn=pcirlinc&amp;type=git">Git Statistics</a></li>
+<li id="menu_hg_about" class="disabled" style="display: none;"><a href="http://sourceforge.net/scm/?type=hg&amp;group_id=50024">Mercurial</a></li>
+<li id="menu_hg_browse" class="disabled" style="display: none;"><a href="http://pcirlinc.hg.sourceforge.net/hgweb/pcirlinc/">Mercurial Browse</a></li>
+<li id="menu_hg_stats" class="disabled" style="display: none;"><a href="http://sourceforge.net/project/stats/detail.php?group_id=50024&amp;ugn=pcirlinc&amp;type=hg">Mercurial Statistics</a></li>
+<li id="menu_bzr_about" class="disabled" style="display: none;"><a href="http://sourceforge.net/scm/?type=bzr&amp;group_id=50024">Bazaar</a></li>
+<li id="menu_bzr_browse" class="disabled" style="display: none;"><a href="http://pcirlinc.bzr.sourceforge.net/bzr/pcirlinc/">Bazaar Browse</a></li>
+<li id="menu_bzr_stats" class="disabled" style="display: none;"><a href="http://sourceforge.net/project/stats/detail.php?group_id=50024&amp;ugn=pcirlinc&amp;type=bzr">Bazaar Statistics</a></li>
+<li id="menu_cvs_about"><a href="http://sourceforge.net/scm/?type=cvs&amp;group_id=50024">CVS</a></li>
+<li id="menu_cvs_browse"><a href="http://pcirlinc.cvs.sourceforge.net/pcirlinc/">CVS Browse</a></li>
+<li id="menu_cvs_stats"><a href="http://sourceforge.net/project/stats/detail.php?group_id=50024&amp;ugn=pcirlinc&amp;type=cvs">CVS Statistics</a></li>
+<li id="menu_svn_about" class="disabled" style="display: none;"><a href="http://sourceforge.net/scm/?type=svn&amp;group_id=50024">SVN</a></li>
+<li id="menu_svn_browse" class="disabled" style="display: none;"><a href="http://pcirlinc.svn.sourceforge.net/viewvc/pcirlinc/">SVN Browse</a></li>
+<li id="menu_svn_stats" class="disabled" style="display: none;"><a href="http://sourceforge.net/project/stats/detail.php?group_id=50024&amp;ugn=pcirlinc&amp;type=svn">SVN Statistics</a></li>
+</ul>
+</li>
+<li id="menu_project_services"><a href="http://sourceforge.net/services/project_services.php?project_id=50024">Services</a><ul>
+<li id="menu_project_services_get"><a href="http://sourceforge.net/services/project_services.php?project_id=50024">Get Services</a></li>
+</ul>
+</li>
+<li id="menu_files"><a href="http://sourceforge.net/project/showfiles.php?group_id=50024">Download</a><ul>
+<li id="menu_files_files"><a href="http://sourceforge.net/project/showfiles.php?group_id=50024">Browse All Packages</a></li>
+<li id="menu_download_stats" class="tools"><a href="http://sourceforge.net/project/stats/detail.php?group_id=50024&amp;ugn=pcirlinc&amp;type=prdownload">Statistics</a></li>
+<li id="menu_download_search"><a href="http://sourceforge.net/search/?group_id=50024&amp;type_of_search=files">Search</a></li>
+</ul>
+</li>
+<li id="menu_docman" class="selected"><a href="http://sourceforge.net/docman/?group_id=50024">Documentation</a><ul>
+<li id="menu_docman_browse"><a href="http://sourceforge.net/docman/?group_id=50024">Browse</a></li>
+<li id="menu_docman_submit"><a href="http://sourceforge.net/docman/new.php?group_id=50024">Submit</a></li>
+<li id="menu_docman_search" class="tools"><a href="http://sourceforge.net/search/?group_id=50024&amp;type_of_search=docs">Search</a></li>
+</ul>
+</li>
+<li id="menu_tasks"><a href="http://sourceforge.net/pm/?group_id=50024">Tasks</a><ul>
+<li id="menu_pm_reporting" class="tools disabled" style="display: none;"><a href="http://sourceforge.net/pm/reporting/?group_id=50024">Reporting</a></li>
+</ul>
+</li>
+<li id="menu_wiki" class="disabled" style="display: none;"><a href="http://pcirlinc.wiki.sourceforge.net/">Wiki</a><ul>
+<li id="menu_wiki_home"><a href="http://pcirlinc.wiki.sourceforge.net/">Wiki Home</a></li>
+<li id="menu_wiki_create_page"><a href="http://pcirlinc.wiki.sourceforge.net/space/page">Create Page</a></li>
+<li id="menu_wiki_list_pages"><a href="http://pcirlinc.wiki.sourceforge.net/space/pagelist">List Pages</a></li>
+<li id="menu_wiki_recent_changes"><a href="http://pcirlinc.wiki.sourceforge.net/space/changes">Recent Changes</a></li>
+<li id="menu_wiki_files"><a href="http://pcirlinc.wiki.sourceforge.net/space/filelist">List and Upload Files</a></li>
+<li id="menu_wiki_templates"><a href="http://pcirlinc.wiki.sourceforge.net/space/createtemplate">Manage Templates</a></li>
+<li id="menu_wiki_stats" class="tools"><a href="http://pcirlinc.wiki.sourceforge.net/space/stats">Statistics</a></li>
+</ul>
+</li>
+<li id="menu_newadmin" class="admin disabled" style="display: none;"><a href="http://sourceforge.net/project/admin/?group_id=50024">Project&nbsp;Admin</a><ul>
+<li id="menu_userperms" class="disabled" style="display: none;"><a href="http://sourceforge.net/project/admin/project_membership.php?group_id=50024">Membership</a></li>
+<li id="menu_features" class="disabled" style="display: none;"><a href="http://sourceforge.net/project/admin/features.php?group_id=50024">Feature Settings</a></li>
+<li id="menu_editgroupinfo" class="disabled" style="display: none;"><a href="http://sourceforge.net/project/admin/public_info.php?group_id=50024">Project Settings</a></li>
+<li id="menu_frs" class="disabled" style="display: none;"><a href="http://sourceforge.net/project/admin/editpackages.php?group_id=50024">Downloads</a></li>
+<li id="menu_stats" class="disabled" style="display: none;"><a href="http://sourceforge.net/project/admin/stats.php?group_id=50024">Analytics</a></li>
+</ul>
+</li>
+
+                    </ul>
+                                </div>
+                <br>
+                                <div style="clear: both;"></div>
+                            
+            <a name="content"></a>
+                
+
+<div class="subset">
+    <ul>
+        <li><a href="http://sourceforge.net/docman/new.php?group_id=50024">Submit new documentation</a></li>
+        <li><a href="http://sourceforge.net/docman/index.php?group_id=50024">View Documentation</a></li>
+        <li><a href="http://sourceforge.net/docman/admin/index.php?group_id=50024">Admin</a></li>
+            </ul>
+</div>
+
+<div style="clear: both;"><br></div>
+<h4 class="titlebar">PC IR Linc Control: PC to IR Linc Protocol Guide</h4>
+
+<div>
+<!-- DOCMANAGER DOCUMENT START -->
+
+
+
+PC to IR Linc Protocol Guide
+
+
+
+
+
+<h1>PC to IR Linc Protocol Guide</h1>
+<h3>(In progress documentation)</h3>
+
+<img src="display_doc.php_files/dbimage.jpg" alt="162PC Photo" height="159" width="275">
+
+
+<p>
+</p><hr width="80%">
+
+
+<h3>Contents</h3>
+<ol>
+<li><a href="#1">Introduction</a>
+</li><li><a href="#2">Hardware configuration</a>
+</li><li><a href="#3">Communication</a>
+</li><li><a href="#4">Commands</a>
+<ul>
+        4.1. <a href="#4.1">Send preset IR</a><br>
+        4.2. <a href="#4.2">Learn IR</a><br>
+        4.3. <a href="#4.3">Send learned IR</a>
+</ul>
+</li></ol>
+
+<a name="1">
+<h2>1. Introduction</h2>
+</a>
+
+<blockquote>
+
+<p>
+The 1623PC PC to IR Linc is an RS232C controlled learning infrared 
+device.  It hooks up to your PC via a standard 9-pin serial port, and
+transmits or learns remote control IR signals on demand.  With it, you 
+can control virtually any device that uses a "typical" remote control,
+such as home theater systems, audio and video equipment, etc.
+</p>
+
+<p>
+The PC to IR Linc comes with an extensive library of preset remote control
+codes, and additional remote control codes can be learned as needed.
+Learned IR commands are stored in a digital form on the host computer,
+giving you an effectively unlimited capacity, which is a significant 
+improvement over older devices (such as the BIRD PC/IR-Linc).
+</p>
+
+<p>
+Unfortunately, while this is a fantastic and flexible device, it
+comes with some of the worst software and documentation ever produced.
+The "programming guide" available from the Smarthome Web site looks like
+someone typed up their illegible hand-written notes, contains a number
+of inaccuracies, and is missing key pieces of information.  The Windows
+software is impractical at best, and suggests that the 1623PC is not
+a complete, turn-key system, but rather a hardware add-on device for
+more expensive whole-house control software systems.
+</p>
+
+<p>
+This protocol guide is designed to give a more complete description of
+the PC to IR Linc interface, with an eye towards UNIX operating systems.
+</p>
+
+</blockquote>
+
+<a name="2">
+<h2>2. Hardware Configuration</h2>
+</a>
+
+<blockquote>
+
+<p>
+The PC to IR Linc uses a standard RS232 serial port.  The terminal device
+on the host system must be placed into <em>raw</em> mode with the following
+line settings:
+</p>
+
+<ul>
+<table cellpadding="3">
+<tbody><tr align="left">
+        <th>Line speed</th>
+        <td>19200</td>
+</tr>
+<tr align="left">
+        <th>Character size</th>
+        <td>8</td>
+</tr>
+<tr align="left">
+        <th>Stop bits</th>
+        <td>1</td>
+</tr>
+<tr align="left">
+        <th>Parity</th>
+        <td>None</td>
+</tr>
+<tr align="left">
+        <th>Flow control</th>
+        <td>None</td>
+</tr>
+</tbody></table>
+</ul>
+
+</blockquote>
+
+<a name="3">
+<h2>3. Communication</h2>
+</a>
+
+<blockquote>
+
+<p>
+Communication with the PC to IR Linc is synchronous, and is always 
+initiated by the host system.  No transmissions occur from the device
+to the host except in response to host-generated commands.
+</p>
+
+<p>
+Although the PC to IR Linc does not use standard flow control, it does
+make use of RTS.  To send a command to the device, the host must set
+RTS, and then wait 20ms before transmitting commands.  Once RTS is on,
+any numebr of commands can be sent (though a 20ms sleep between commands
+seems to be required).  When the host is finished transmitting commands,
+it should clear RTS.
+</p>
+
+<p>
+Once RTS is cleared, the PC to IR Linc response with the results of the
+last command that was sent.  This is an important point since one can
+send multiple commands while RTS is active.
+</p>
+
+<p>
+Each transmission, whether it be a command or response, starts with a
+single 8-bit byte, representing the length (in bytes) of the message that 
+follows:
+</p>
+
+<ul>
+<b>Figure 1: Transmission structure</b><br>
+<table border="0" cellpadding="0" cellspacing="3">
+<tbody><tr>
+        <td>
+                <table border="1" cellpadding="3" cellspacing="0">
+                <tbody><tr><td>message length, <em>lmsg</em></td></tr>
+                <tr><td>message data</td></tr>
+                </tbody></table>
+        </td>
+        <td>
+                <table border="0" cellpadding="3" cellspacing="0">
+                <tbody><tr><td>1 byte</td></tr>
+                <tr><td><em>lmsg</em> bytes</td></tr>
+                </tbody></table>
+        </td>
+</tr>
+</tbody></table>
+</ul>
+
+<p>
+All data words are sent in network byte order (big endian).
+</p>
+
+</blockquote>
+
+<a name="4">
+<h2>4. Commands</h2>
+</a>
+
+<a name="4.1">
+<h3>4.1 Send preset IR</h3>
+</a>
+<blockquote>
+
+<p>
+This command is used to transmit one of the preset IR codes stored in the
+PC to IR Linc device.  The message structure consists of 5 bytes:
+</p>
+
+<ul>
+<b>Figure 2: "Send IR preset" message</b><br>
+<table border="0" cellpadding="0" cellspacing="3">
+<tbody><tr>
+        <td>
+                <table border="1" cellpadding="3" cellspacing="0">
+                <tbody><tr><td>0x01</td></tr>
+                <tr><td>device code</td></tr>
+                <tr><td>button code</td></tr>
+                <tr><td>0x00</td></tr>
+                </tbody></table>
+        </td>
+        <td>
+                <table border="0" cellpadding="3" cellspacing="0">
+                <tbody><tr><td>1 byte</td></tr>
+                <tr><td>2 bytes</td></tr>
+                <tr><td>1 byte</td></tr>
+                <tr><td>1 byte</td></tr>
+                </tbody></table>
+        </td>
+</tr>
+</tbody></table>
+</ul>
+
+<p>
+The device code is a 4-bit device type code followed by a 12-bit brand 
+code.  The device type code is in bits 15-12, and the brand code is in
+bits 11-0:
+</p>
+
+<ul><pre> ttttBBBBBBBBBBBB
+15              0
+</pre></ul>
+<p>
+For example, if the device type was 3 (0x3) and the brand code was 775
+(0x307), which represents an Echostar satellite receiver, the device code
+would be 0x3307.
+</p>
+
+<p>
+The response to this command consists of a single status byte:
+</p>
+
+<ul>
+<b>Figure 3: "Send IR Preset" response message</b>
+<table border="0" cellpadding="0" cellspacing="3">
+<tbody><tr>
+        <td>
+                <table border="1" cellpadding="3" cellspacing="0">
+                <tbody><tr><td>status</td></tr>
+                </tbody></table>
+        </td>
+        <td>
+                <table border="0" cellpadding="3" cellspacing="1">
+                <tbody><tr><td>1 byte</td></tr>
+                </tbody></table>
+        </td>
+</tr>
+</tbody></table>
+</ul>
+
+<p>
+<b>Example</b>
+</p>
+
+<pre>Send:     0x05 0x01 0x3307 0x10 0x00
+Response: 0x01 0x00
+</pre>
+
+</blockquote>
+
+<a name="4.2">
+<h3>4.2 Learn IR</h3>
+</a>
+
+<blockquote>
+
+<p>
+This command puts the PC to IR Linc device into learning mode for the 
+purpose of learning and then saving an IR command.  The message 
+structure is as follows:
+</p>
+
+<ul>
+<b>Figure 4: "Learn IR" message</b><br>
+<table border="0" cellpadding="0" cellspacing="3">
+<tbody><tr>
+        <td>
+                <table border="1" cellpadding="3" cellspacing="0">
+                <tbody><tr><td>0x12</td></tr>
+                <tr><td>learn ID</td></tr>
+                </tbody></table>
+        </td>
+        <td>
+                <table border="0" cellpadding="3" cellspacing="1">
+                <tbody><tr><td>1 byte</td></tr>
+                <tr><td>2 bytes</td></tr>
+                </tbody></table>
+        </td>
+</tr>
+</tbody></table>
+</ul>
+
+<p>
+The <em>learn ID</em> element appears to be a dummy parameter: any value
+number can be sent.  The Windows software for the PC to IR Linc
+stores learned IR commands in the Windows registry, and uses
+an ID value that corresponds to the IR code's position in the list
+of saved IR codes (e.g., if there are 5 learned codes, then the <em>learn
+ID</em> will be 7).  Since an individual code's position in the list can
+change as IR codes are deleted from the registry, it's clear that the
+ID itself is meaningless, and it is apparently ignored by the PC to IR 
+Linc device.
+</p>
+
+<p>
+The device returns only if an IR command has successfully been learned.
+The learning mode timer expires after 5 to 6 seconds, so if no response
+is received within 6 seconds, then the learn function was unsuccessful.
+</p>
+
+<p>
+If status is non-zero, then the learn command was not successful, and the
+other fields will not be present.
+</p>
+
+<ul>
+<b>Figure 5: "Learn IR" response message</b><br>
+<table border="0" cellpadding="0" cellspacing="3">
+<tbody><tr>
+        <td>
+                <table border="1" cellpadding="3" cellspacing="0">
+                <tbody><tr><td>status</td></tr>
+                <tr><td>learn ID</td></tr>
+                <tr><td>IR code length, <em>lcode</em></td></tr>
+                <tr><td>IR code data</td></tr>
+                </tbody></table>
+        </td>
+        <td>
+                <table border="0" cellpadding="3" cellspacing="1">
+                <tbody><tr><td>1 byte</td></tr>
+                <tr><td>2 bytes</td></tr>
+                <tr><td>1 byte</td></tr>
+                <tr><td><em>lcode</em> bytes</td></tr>
+                </tbody></table>
+        </td>
+</tr>
+</tbody></table>
+</ul>
+
+
+</blockquote>
+
+<a name="4.3">
+<h3>4.3 Send learned IR</h3>
+</a>
+
+<blockquote>
+
+<p>
+This command allows you to transmit an IR signal that was previously 
+learned via the "Learn IR" command.  The message structure is as follows:
+</p>
+
+<ul>
+<b>Figure 6: "Send learned IR" message</b><br>
+<table border="0" cellpadding="0" cellspacing="3">
+<tbody><tr>
+        <td>
+                <table border="1" cellpadding="3" cellspacing="0">
+                <tbody><tr><td>0x10</td></tr>
+                <tr><td>learn ID</td></tr>
+                <tr><td>0x10</td></tr>
+                <tr><td>learn ID</td></tr>
+                <tr><td>IR data length, <em>ldata</em></td></tr>
+                <tr><td>IR data</td></tr>
+                <tr><td>0x00</td></tr>
+                </tbody></table>
+        </td>
+        <td>
+                <table border="0" cellpadding="3" cellspacing="1">
+                <tbody><tr><td>1 byte</td></tr>
+                <tr><td>2 bytes</td></tr>
+                <tr><td>1 byte</td></tr>
+                <tr><td>2 bytes</td></tr>
+                <tr><td>1 byte</td></tr>
+                <tr><td><em>ldata</em> bytes</td></tr>
+                <tr><td>1 byte</td></tr>
+                </tbody></table>
+        </td>
+</tr>
+</tbody></table>
+</ul>
+
+<p>
+As in the "Learn IR" command, the <em>learn ID</em> element is a dummy 
+parameter, and any value can be sent.
+</p>
+
+<p>
+The response to this command consists of a single status byte:
+</p>
+
+<ul>
+<b>Figure 7: "Send Learned IR" response message</b>
+<table border="0" cellpadding="0" cellspacing="3">
+<tbody><tr>
+        <td>
+                <table border="1" cellpadding="3" cellspacing="0">
+                <tbody><tr><td>status</td></tr>
+                </tbody></table>
+        </td>
+        <td>
+                <table border="0" cellpadding="3" cellspacing="0">
+                <tbody><tr><td>1 byte</td></tr>
+                </tbody></table>
+        </td>
+</tr>
+</tbody></table>
+</ul>
+
+</blockquote>
+
+
+
+
+<!-- sf.net/safe_html -->
+<!-- DOCMANAGER DOCUMENT END -->
+</div>
+
+            </div>
+
+        
+    
+    
+            <div id="breadcrumb">
+            <ul>
+                            <li class="begin"><a href="http://sourceforge.net/">SF.net</a></li>
+<li><a href="http://sourceforge.net/softwaremap/">Projects</a></li>
+<li><a href="http://sourceforge.net/projects/pcirlinc/">PC IR Linc Control</a></li>
+<li class="selected"><a href="http://sourceforge.net/docman/?group_id=50024">Documentation</a></li>
+                        </ul>
+                            <span class="report_link"><a href="http://sourceforge.net/project/report_inappropriate.php?group_id=50024">Report inappropriate content</a></span>
+                    </div>
+            <div id="ft">
+            <div class="yui-g">
+                <div class="yui-u first">
+                    Copyright © 1999-2009 <a href="http://sourceforge.com/" title="Network which provides and promotes Open Source software downloads, development, discussion and news.">SourceForge, Inc.</a> All rights reserved.
+                    <br>
+                    <span id="icons">
+                        <span>follow us on</span><a class="twitter" href="http://twitter.com/sourceforge">Twitter</a>
+                        <a class="feed" href="http://sourceforge.net/export/rss2_projnews.php?group_id=141424&amp;rss_fulltext=1">RSS</a>
+                        <a class="linkedin" href="http://www.linkedin.com/companies/sourceforge-inc.">LinkedIn</a>
+                    </span>
+                </div>
+                            <div class="yui-u">
+                                <div class="yui-gb">
+                        <div class="yui-u first" style="width: 23%;">
+                            <a href="http://sourceforge.net/sitestatus">Site&nbsp;Status</a><br>
+                            <a href="http://sourceforge.net/support/getsupport.php">Support</a><br>
+                            <a href="http://p.sf.net/sourceforge/terms">Legal</a><br>
+                        </div>
+                        <div class="yui-u" style="width: 38%;">
+                            <a href="http://p.sf.net/sourceforge/rssfeeds">Syndication&nbsp;Feeds&nbsp;/&nbsp;RSS</a><br>
+                            <a href="http://sourceforge.net/community/">Community</a><br>
+                            <a href="http://sourceforge.net/services/buy/index.php">Marketplace</a><br>
+                        </div>
+                        <div class="yui-u" style="width: 33%;">
+                            <a href="http://p.sf.net/sourceforge/about">About&nbsp;SourceForge.net</a><br>
+                            <a href="http://sourceforge.com/">About&nbsp;SourceForge,&nbsp;Inc.</a><br>
+                            <a href="http://web.sourceforge.com/media_kit.php">Advertising</a><br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ad calls and positioning -->
+    <div id="adbatch" class="docman pville">
+            </div>
+
+
+    <script type="text/javascript">
+        pageTracker._trackPageview();
+    </script>
+
+    <!-- Quantcast -->
+    <script type="text/javascript">
+        _qoptions={
+            qacct:"p-93nPV3-Eb4x22"
+        };
+    </script>
+    <script type="text/javascript" src="display_doc.php_files/quant.js"></script>
+    <noscript><img
+src="//secure.quantserve.com/pixel/p-93nPV3-Eb4x22.gif" style="display:
+none;" border="0" height="1" width="1" alt="Quantcast"/></noscript>
+    <!-- End Quantcast tag -->
+
+
+    <script type="text/javascript">if(jQuery.browser.msie && jQuery.browser.version=='6.0'){jQuery(document).ready(function(){jQuery("body").append("<div class=\"killie6\"><p>Your browser isn't supported, so some things might not work as expected.  Please upgrade to a newer version of IE, or to Firefox.</p><span><a>x</a></span></div>");jQuery("head").append('<style type="text/css">div.killie6{display:none;z-index:100;background:#ffffe1;height:21px;padding:0pt;margin:0pt;position:absolute;top:0pt;left:0pt;width:100%;border-bottom:1px solid #716f64;border-top:1px solid #e0dfd0;}div.killie6 p{padding:0pt;margin:0pt;height:21px;border-bottom:1px solid #aca899;border-top:1px solid #cdcabb;background:url\("/images/sflogofavicon.gif"\) no-repeat 3px center;text-indent:22px;font-family:Arial,sans-serif !important;font-size:11px !important;font-weight:lighter;line-height:21px;overflow:hidden;text-align:left !important;}div.killie6 p,div.killie6 p a{color:#000;}div.killie6 span a{background:url\("/images/phoneix/x.gif"\) no-repeat top left;text-indent:-9999px;display:block;position:absolute;right:5px;top:5px;width:8px;height:8px;padding:0pt .1em;margin:0pt;}</style>');function showKillie6(){jQuery("div.killie6").show("fast");scrollTo(0,0);}jQuery("div.killie6 span a").mousedown(function(){jQuery("div.killie6").slideUp("fast");jQuery.cookie('ie6_warning_shown',1,{path:'/',expires:14});});if(!jQuery.cookie('ie6_warning_shown')){setTimeout(showKillie6,1000);}});}</script>
+    
+    <script type="text/javascript">
+        //<![CDATA[
+        cmSetProduction();cmCreatePageviewTag("project_docman", null, null, null, "pcirlinc");
+        //]]>
+    </script>        
+    
+    </body></html>

@@ -1,0 +1,17 @@
+# Process this file with autoconf to produce a configure script.
+AC_INIT(irrc, 0.1, [mechalas@sourceforge.net])
+AC_CONFIG_SRCDIR(irlearn.c)
+AC_CONFIG_HEADER(config.h)
+
+# Checks for programs.
+AC_PROG_CC
+AC_PROG_INSTALL
+
+# Checks for libraries.
+AC_CHECK_LIB(db1, dbopen)
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_TYPE_SIZE_T
+
+AC_CONFIG_FILES(Makefile)
+AC_OUTPUT

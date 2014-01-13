@@ -1,0 +1,10 @@
+#! /bin/sh
+
+CPPFLAGS=-I/usr/local/include
+LDFLAGS=-L/usr/local/lib
+
+export CPPFLAGS LDFLAGS
+
+./configure CPPFLAGS=-I/usr/local/include LDFLAGS=-L/usr/local/lib
+
+
