@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Date;
 import java.util.Properties;
 
 /**
@@ -24,7 +23,7 @@ public class PropertyUtil {
 	 */
 	public static void store(Properties properties, File file) throws IOException {
 		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
-			properties.store(out, "# Saving state " + new Date());
+			properties.store(out, "Saving state");
 		}
 	}
 	
