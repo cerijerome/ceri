@@ -1,7 +1,10 @@
 package ceri.ci.audio;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -14,13 +17,25 @@ public class Audio {
 	private final AudioFormat format;
 	private final byte[] data;
 
-	public Audio(AudioFormat format, byte[] data) {
+	private Audio(AudioFormat format, byte[] data) {
 		this.format = format;
 		this.data = data;
 	}
 
+	public static Audio create(byte[] data) throws IOException {
+		try (InputStream in = new ByteArrayInputStream(data)) {
+			return create(in);
+		}
+	}
+
 	public static Audio create(File file) throws IOException {
-		try (AudioInputStream in = AudioSystem.getAudioInputStream(file)) {
+		try (InputStream in = new FileInputStream(file)) {
+			return create(in);
+		}
+	}
+
+	private static Audio create(InputStream is) throws IOException {
+		try (AudioInputStream in = AudioSystem.getAudioInputStream(is)) {
 			AudioFormat format = in.getFormat();
 			byte[] data = IoUtil.getContent(in, 0);
 			return new Audio(format, data);

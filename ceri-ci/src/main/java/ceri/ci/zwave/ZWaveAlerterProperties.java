@@ -1,4 +1,4 @@
-package ceri.ci.veralite;
+package ceri.ci.zwave;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -6,15 +6,15 @@ import java.util.Properties;
 import ceri.common.property.BaseProperties;
 import ceri.common.property.Key;
 
-public class VeraLiteAlerterProperties extends BaseProperties {
+public class ZWaveAlerterProperties extends BaseProperties {
 	private static final String HOST_KEY = "host";
 	private static final String DEVICE_KEY = "device";
 
-	public VeraLiteAlerterProperties(Properties properties) {
+	public ZWaveAlerterProperties(Properties properties) {
 		this(properties, null);
 	}
 
-	public VeraLiteAlerterProperties(Properties properties, String prefix) {
+	public ZWaveAlerterProperties(Properties properties, String prefix) {
 		super(properties, prefix);
 	}
 

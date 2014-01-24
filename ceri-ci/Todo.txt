@@ -1,0 +1,35 @@
+To do
+=====
+
+1) Grouping of build and job
+e.g.
+mweb/build
+mweb/smoke
+mweb/integration
+bolt/smoke
+
+2) Clear
+- clear by build/job
+- clear by build
+- clear all
+
+3) Fix
+- build/job
+- build all
+- all
+
+4) Broken
+- build/job
+- build all
+- all
+
+5) ZWave (+X10)
+- component tracks each device on/off state (by build? - TBD)
+- change =>
+  - turn off ones that were on
+  - turn on ones that were off
+  - turn off ones that were off (to be sure)
+  
+6) Create jsp for web
+
+  
