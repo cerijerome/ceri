@@ -18,7 +18,7 @@ public class GrammarUtil {
 
 	public static String loadJsgfResource(Class<?> cls) {
 		try {
-			return IoUtil.getClassResourceString(cls, "jsgf");
+			return IoUtil.getClassResourceAsString(cls, "jsgf");
 		} catch (IOException e) {
 			throw new IllegalStateException("Unable to load resource", e);
 		}

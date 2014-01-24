@@ -24,7 +24,7 @@ public class ControlGrammar extends ActionGrammar {
 
 	private static String createJsgf() {
 		try {
-			return IoUtil.getClassResourceString(ControlGrammar.class, "jsgf");
+			return IoUtil.getClassResourceAsString(ControlGrammar.class, "jsgf");
 		} catch (IOException e) {
 			throw new IllegalStateException("Unable to load resource", e);
 		}

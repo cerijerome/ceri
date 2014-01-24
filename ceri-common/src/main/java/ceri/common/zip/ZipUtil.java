@@ -30,6 +30,8 @@ import ceri.common.util.BasicUtil;
  */
 public class ZipUtil {
 
+	private ZipUtil() {}
+	
 	/**
 	 * Creates ZIP data from all files under given directory as byte array.
 	 */

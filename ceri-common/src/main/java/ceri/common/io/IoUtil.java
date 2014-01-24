@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -326,14 +327,14 @@ public class IoUtil {
 	}
 
 	/**
-	 * Gets resource as a string.
+	 * Gets resource as a string from same package as class, with given filename.
 	 */
 	public static String getResourceString(Class<?> cls, String resourceName) throws IOException {
 		return new String(getResource(cls, resourceName)).intern();
 	}
 
 	/**
-	 * Gets resource from same package as class.
+	 * Gets resource from same package as class, with given filename.
 	 */
 	public static byte[] getResource(Class<?> cls, String resourceName) throws IOException {
 		try (InputStream in = cls.getResourceAsStream(resourceName)) {
@@ -344,7 +345,7 @@ public class IoUtil {
 	/**
 	 * Gets resource from same package as class, with name <simple-class-name>.<suffix>
 	 */
-	public static String getClassResourceString(Class<?> cls, String suffix) throws IOException {
+	public static String getClassResourceAsString(Class<?> cls, String suffix) throws IOException {
 		return new String(getClassResource(cls, suffix)).intern();
 	}
 
@@ -353,6 +354,17 @@ public class IoUtil {
 	 */
 	public static byte[] getClassResource(Class<?> cls, String suffix) throws IOException {
 		return getResource(cls, cls.getSimpleName() + "." + suffix);
+	}
+
+	/**
+	 * Returns the root directory for class resources.
+	 */
+	public static File getPackageDir(Class<?> cls) {
+		try {
+			return new File(cls.getResource(".").toURI());
+		} catch (URISyntaxException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	/**

@@ -111,7 +111,7 @@ public class MacroGrammar extends ActionGrammar {
 
 	private static String createJsgf() {
 		try {
-			return IoUtil.getClassResourceString(MacroGrammar.class, "jsgf");
+			return IoUtil.getClassResourceAsString(MacroGrammar.class, "jsgf");
 		} catch (IOException e) {
 			throw new IllegalStateException("Unable to load resource", e);
 		}

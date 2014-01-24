@@ -53,6 +53,7 @@ public class PropertyUtil {
 	 */
 	public static Properties load(Class<?> cls, String name) throws IOException {
 		Properties properties = new Properties();
+		cls.getResourceAsStream(".");
 		try (InputStream in = cls.getResourceAsStream(name)) {
 			properties.load(in);
 		}
