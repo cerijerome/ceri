@@ -9,6 +9,12 @@ import java.util.Collections;
 import org.junit.Test;
 
 public class EventBehavior {
+	
+	@Test(expected=Exception.class)
+	public void shouldBeImmutable() {
+		Event event = new Event(Event.Type.broken, 100, "a", "b", "c");
+		event.names.add("d");
+	}
 
 	@Test
 	public void shouldBeCreatedWithCurrentTime() {
