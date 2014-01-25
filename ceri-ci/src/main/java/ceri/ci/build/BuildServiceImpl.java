@@ -1,10 +1,17 @@
 package ceri.ci.build;
 
 import java.util.Collection;
+import ceri.ci.service.BuildService;
 
 public class BuildServiceImpl implements BuildService {
 	private final Builds builds = new Builds();
 
+	@Override
+	public void purge() {
+		// No need for notification.
+		builds.purge();
+	}
+	
 	@Override
 	public void clear(String build) {
 		builds.build(build).clear();
@@ -30,7 +37,18 @@ public class BuildServiceImpl implements BuildService {
 	}
 
 	private void alert() {
-		Builds builds = new Builds(this.builds);
+		Builds aggrBuilds = new Builds();
+		for (Build build : builds.builds) {
+			for (Job job : build.jobs) {
+				Job j = new Job(job);
+				j.purge();
+				Event lastBreak = BuildUtil.aggregate(Event.Type.broken, j.events);
+				Event lastFix = BuildUtil.earliest(Event.Type.fixed, j.events);
+				Job aggrJob = aggrBuilds.build(build.name).job(job.name);
+				if (lastBreak != null) aggrJob.event(lastBreak);
+				if (lastFix != null) aggrJob.event(lastFix);
+			}
+		}
 		//@TODO notify alerters
 	}
 	

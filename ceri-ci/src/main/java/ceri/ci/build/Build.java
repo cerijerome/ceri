@@ -17,12 +17,15 @@ public class Build {
 	public Build(Build build) {
 		this(build.name);
 		for (Job job : build.jobs)
-			add(job);
+			add(new Job(job));
 	}
 
 	public Job job(String name) {
 		Job job = mutableJobs.get(name);
-		if (job == null) add(new Job(name));
+		if (job == null) {
+			job = new Job(name);
+			add(job);
+		}
 		return job;
 	}
 

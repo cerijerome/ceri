@@ -1,5 +1,6 @@
 package ceri.ci.build;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -9,7 +10,7 @@ import ceri.common.comparator.Comparators;
 /**
  * Keeps state of fix/break events on a named job.
  */
-public class Job implements Comparable<Job> {
+public class Job {
 	// Events sorted in order of descending time-stamp
 	private final Collection<Event> mutableEvents = new TreeSet<>(Comparators
 		.reverse(EventComparators.TIMESTAMP));
@@ -21,15 +22,25 @@ public class Job implements Comparable<Job> {
 	}
 
 	/**
-	 * Copy constructor 
+	 * Copy constructor.
 	 */
 	public Job(Job job) {
 		this(job.name);
 		mutableEvents.addAll(job.events);
 	}
 
-	public void event(Event event) {
-		mutableEvents.add(event);
+	/**
+	 * Apply new events to this job.
+	 */
+	public void event(Event...events) {
+		events(Arrays.asList(events));
+	}
+
+	/**
+	 * Apply new events to this job.
+	 */
+	public void events(Collection<Event> events) {
+		mutableEvents.addAll(events);
 	}
 
 	/**
@@ -50,20 +61,18 @@ public class Job implements Comparable<Job> {
 		while (i.hasNext() && (!fixTransition || !breakTransition)) {
 			Event event = i.next();
 			// Check if transition from one event type to another
-			if (lastEvent != null && !event.equals(lastEvent)) {
-				if (event.type == Event.Type.broken) breakTransition = true;
-				else fixTransition = true;
+			if (lastEvent != null && event.type != lastEvent.type) {
+				if (event.type == Event.Type.broken) fixTransition = true;
+				else breakTransition = true;
+				if (breakTransition && fixTransition) i.remove();
 			}
 			lastEvent = event;
 		}
 		// Remove remaining events
-		while (i.hasNext())
+		while (i.hasNext()) {
+			i.next();
 			i.remove();
+		}
 	}
 
-	@Override
-	public int compareTo(Job job) {
-		return Comparators.STRING.compare(name, job.name);
-	}
-	
 }

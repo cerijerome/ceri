@@ -1,5 +1,6 @@
 package ceri.ci.build;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import ceri.common.collection.ImmutableUtil;
@@ -21,6 +22,10 @@ public class Event implements Comparable<Event> {
 		broken;
 	}
 
+	Event(Type type, long timeStamp, String...names) {
+		this(type, timeStamp, Arrays.asList(names));
+	}
+	
 	Event(Type type, long timeStamp, Collection<String> names) {
 		this.timeStamp = timeStamp;
 		this.type = type;
@@ -32,10 +37,18 @@ public class Event implements Comparable<Event> {
 		this(event.type, event.timeStamp, event.names);
 	}
 	
+	public static Event fixed(String...names) {
+		return fixed(Arrays.asList(names));
+	}
+	
 	public static Event fixed(Collection<String> names) {
 		return new Event(Type.fixed, System.currentTimeMillis(), names);
 	}
 
+	public static Event broken(String...names) {
+		return broken(Arrays.asList(names));
+	}
+	
 	public static Event broken(Collection<String> names) {
 		return new Event(Type.broken, System.currentTimeMillis(), names);
 	}

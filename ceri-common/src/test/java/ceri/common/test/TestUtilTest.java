@@ -7,7 +7,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +18,21 @@ import java.util.TreeSet;
 import org.junit.Test;
 
 public class TestUtilTest {
+
+	@Test
+	public void testAssertCollection() {
+		List<Integer> list = new ArrayList<>();
+		Collections.addAll(list, 5, 1, 4, 2, 3);
+		TestUtil.assertCollection(list, 1, 2, 3, 4, 5);
+		try {
+			TestUtil.assertCollection(list, 1, 2, 4, 5);
+			fail();
+		} catch (AssertionError e) {}
+		try {
+			TestUtil.assertCollection(list, 1, 2, 3, 4, 5, 6);
+			fail();
+		} catch (AssertionError e) {}
+	}
 
 	@Test
 	public void testToReadableString() {

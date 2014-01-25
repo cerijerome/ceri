@@ -52,13 +52,14 @@ public class TestUtil {
 	}
 
 	/**
-	 * Checks a value is within given range, with detailed failure information if not.
+	 * Checks a value is within given range, with detailed failure information
+	 * if not.
 	 */
 	public static void assertRange(long value, long min, long max) {
 		assertTrue("Expected >= " + min + " but was " + value, value >= min);
 		assertTrue("Expected <= " + max + " but was " + value, value <= max);
 	}
-	
+
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
@@ -105,12 +106,22 @@ public class TestUtil {
 	}
 
 	/**
+	 * Checks collection contains exactly given elements in any order, with specific failure
+	 * information if not.
+	 */
+	@SafeVarargs
+	public static <T> void assertCollection(Collection<T> lhs, T...ts) {
+		assertCollection(lhs, Arrays.asList(ts));
+	}
+
+	/**
 	 * Checks two collections have equal elements, with specific failure
 	 * information if not.
 	 */
 	public static <T> void assertCollection(Collection<T> lhs, Collection<T> rhs) {
 		assertSize(lhs.size(), rhs.size());
-		assertElements(lhs, rhs);
+		for (T t : lhs) assertTrue("Unexpected element " + t, rhs.contains(t)); 
+		for (T t : rhs) assertTrue("Missing element " + t, lhs.contains(t)); 
 	}
 
 	/**
@@ -118,13 +129,14 @@ public class TestUtil {
 	 * information if not.
 	 */
 	@SafeVarargs
-	public static <T> void assertElements(Iterable<T> lhs, T...ts) {
+	public static <T> void assertElements(Iterable<T> lhs, T... ts) {
 		assertElements(lhs, Arrays.asList(ts));
 	}
-	
+
 	/**
 	 * Checks two iterable types have equal elements, with specific failure
-	 * information if not.
+	 * information if not. Useful for testing Collections.unmodifiableXXX as
+	 * they don't implement equals().
 	 */
 	public static <T> void assertElements(Iterable<T> lhs, Iterable<T> rhs) {
 		Iterator<T> iLhs = lhs.iterator();
@@ -143,7 +155,7 @@ public class TestUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	@SafeVarargs
-	public static <T> void assertElements(T[] lhs, T...ts) {
+	public static <T> void assertElements(T[] lhs, T... ts) {
 		assertElements(Arrays.asList(lhs), ts);
 	}
 
@@ -357,7 +369,7 @@ public class TestUtil {
 			throw new IllegalArgumentException(e);
 		}
 		for (int i = 0; i < b.length(); i++) {
-			if(!StringUtil.printable(b.charAt(i))) b.setCharAt(i, readableChar);
+			if (!StringUtil.printable(b.charAt(i))) b.setCharAt(i, readableChar);
 			//if (b.charAt(i) < ' ') b.setCharAt(i, readableChar);
 		}
 		return b.toString();

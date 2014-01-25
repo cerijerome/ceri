@@ -14,12 +14,15 @@ public class Builds {
 
 	public Builds(Builds builds) {
 		for (Build build : builds.builds)
-			add(build);
+			add(new Build(build));
 	}
 
 	public Build build(String name) {
 		Build build = mutableBuilds.get(name);
-		if (build == null) add(new Build(name));
+		if (build == null) {
+			build = new Build(name);
+			add(build);
+		}
 		return build;
 	}
 
