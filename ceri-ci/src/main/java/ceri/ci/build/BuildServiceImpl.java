@@ -1,11 +1,28 @@
 package ceri.ci.build;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import ceri.ci.alert.Alerters;
 import ceri.ci.service.BuildService;
 
-public class BuildServiceImpl implements BuildService {
+public class BuildServiceImpl implements BuildService, Closeable {
 	private final Builds builds = new Builds();
-
+	private boolean alert = false;
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	private final Alerters alerters;
+	
+	public BuildServiceImpl() {
+		alerters = new Alerters();
+	}
+	
+	@Override
+	public void close() throws IOException {
+		executor.shutdown();
+	}
+	
 	@Override
 	public void purge() {
 		// No need for notification.
@@ -36,11 +53,18 @@ public class BuildServiceImpl implements BuildService {
 		alert();
 	}
 
+	private Builds copyBuilds() {
+		return new Builds(this.builds);
+	}
+	
 	private void alert() {
-		Builds builds = new Builds(this.builds);
+		Builds builds = copyBuilds();
 		Builds summarizedBuilds = BuildUtil.summarize(builds);
-		Collection<String> breakNames = BuildUtil.breakNames(summarizedBuilds);
-		//@TODO notify alerters
+		Collection<String> breakNames = BuildUtil.summarizedBreakNames(summarizedBuilds);
+		if (alerters.x10 != null) alerters.x10.alert(breakNames);
+		if (alerters.zwave != null) alerters.zwave.alert(breakNames);
+		if (alerters.web != null) alerters.web.update(builds);
+		if (alerters.audio != null) alerters.audio.alert(summarizedBuilds);
 	}
 
 }

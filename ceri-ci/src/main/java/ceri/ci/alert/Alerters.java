@@ -12,28 +12,19 @@ import ceri.common.io.IoUtil;
 import ceri.common.property.PropertyUtil;
 
 /**
- * List of jobs A, B, C, D, E
- * Each one has:
- * - name
- * - good/bad state
- * - time of last state change
- * - alert reminder period?
- * - who last fixed it
- * - who last broke it
- * 
+ * Container for alerter components.
  * Web => heroes/villains grouped by job
  * ZWave => aggregate of broken jobs
  * X10 => aggregate of broken jobs
- * Audio =>
- * 
+ * Audio => spoken warnings when build fails or is fixed
  */
-public class AlertCentral implements Closeable {
-	private final X10Alerter x10;
-	private final ZWaveAlerter zwave;
-	private final AudioAlerter audio;
-	private final WebAlerter web;
+public class Alerters implements Closeable {
+	public final X10Alerter x10;
+	public final ZWaveAlerter zwave;
+	public final AudioAlerter audio;
+	public final WebAlerter web;
 
-	public AlertCentral() {
+	public Alerters() {
 		x10 = createX10();
 		zwave = createZWave();
 		audio = createAudio();

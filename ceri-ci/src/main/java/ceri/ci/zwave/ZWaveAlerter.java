@@ -73,18 +73,12 @@ public class ZWaveAlerter {
 
 	public void alert(Collection<String> keys) {
 		Collection<Integer> devices = keysToDevices(keys);
-		for (Integer device : devices) {
-			if (!activeDevices.contains(device)) deviceOn(device);
-		}
 		for (Integer device : new HashSet<>(activeDevices)) {
 			if (!devices.contains(device)) deviceOff(device);
 		}
-	}
-
-	public void clear(Collection<String> keys) {
-		Collection<Integer> devices = keysToDevices(keys);
-		for (int device : devices)
-			deviceOff(device);
+		for (Integer device : devices) {
+			if (!activeDevices.contains(device)) deviceOn(device);
+		}
 	}
 
 	public void clear() {

@@ -9,6 +9,7 @@ import ceri.ci.build.EventBehavior;
 import ceri.ci.build.EventComparatorsTest;
 import ceri.ci.build.JobBehavior;
 import ceri.ci.x10.X10AlerterBehavior;
+import ceri.ci.zwave.ZWaveAlerterBehavior;
 import ceri.common.test.TestUtil;
 
 @RunWith(Suite.class)
@@ -23,6 +24,8 @@ import ceri.common.test.TestUtil;
 	//SummaryBehavior.class,
 	// x10
 	X10AlerterBehavior.class,
+	// zwave
+	ZWaveAlerterBehavior.class,
 })
 public class _Tests {
 	public static void main(String... args) {

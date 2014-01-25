@@ -3,6 +3,8 @@ package ceri.ci.audio;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import ceri.ci.build.Builds;
+import ceri.ci.build.Event;
 import ceri.common.date.TimeUnit;
 import ceri.common.io.IoUtil;
 import ceri.common.util.BasicUtil;
@@ -19,7 +21,9 @@ public class AudioAlerter implements Closeable {
 
 	public static void main(String[] args) throws Exception {
 		try (AudioAlerter alerter = new AudioAlerter(IoUtil.getPackageDir(AudioAlerter.class))) {
-			alerter.alert("shuochen", "fuzhong", "dxie");
+			Builds builds = new Builds();
+			builds.build("bolt").job("smoke").event(Event.broken("shuochen", "dxie"));
+			alerter.alert(builds);
 			BasicUtil.delay(20000);
 		}
 	}
@@ -34,12 +38,11 @@ public class AudioAlerter implements Closeable {
 		this.shutdownPollMs = shutdownPollMs;
 	}
 
-	public void alert(String... keys) {
-		start(createThread(keys));
+	public void alert(Builds builds) {
+		//start(createThread(keys));
 	}
 
 	public void clear(String... keys) throws IOException {
-		stop();
 		Clip.build_ok.play();
 		Clip.thank_you.play();
 		for (String key : keys)
@@ -48,7 +51,6 @@ public class AudioAlerter implements Closeable {
 
 	@Override
 	public void close() throws IOException {
-		stop();
 	}
 
 	private void play(String key) throws IOException {
@@ -74,37 +76,4 @@ public class AudioAlerter implements Closeable {
 		Clip.out_of_time.play();
 	}
 
-	private Thread createThread(final String... keys) {
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					doAlert(keys);
-				} catch (IOException e) {
-				} catch (InterruptedException e) {
-					// thread stopped
-				}
-			}
-		});
-		return thread;
-	}
-
-	private void start(Thread thread) {
-		synchronized (sync) {
-			stop();
-			this.thread = thread;
-			thread.start();
-		}
-	}
-
-	private void stop() {
-		synchronized (sync) {
-			if (thread == null) return;
-			while (thread.isAlive()) {
-				thread.interrupt();
-				BasicUtil.delay(shutdownPollMs);
-			}
-			thread = null;
-		}
-	}
 }

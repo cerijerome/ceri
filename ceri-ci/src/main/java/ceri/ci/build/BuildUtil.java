@@ -13,7 +13,7 @@ public class BuildUtil {
 	 * Copies the summarized last break names of all builds into given
 	 * collection. Given Builds should already be summarized.
 	 */
-	public static Collection<String> breakNames(Builds summarizedBuilds) {
+	public static Collection<String> summarizedBreakNames(Builds summarizedBuilds) {
 		Collection<String> names = new HashSet<>();
 		for (Build build : summarizedBuilds.builds) {
 			breakNames(build, names);
@@ -40,7 +40,7 @@ public class BuildUtil {
 	}
 
 	/**
-	 * Summarizes all builds into toBuilds, which is expected to be empty.
+	 * Summarizes all build job events into last fix and last break events. 
 	 */
 	public static Builds summarize(Builds fromBuilds) {
 		Builds toBuilds = new Builds();

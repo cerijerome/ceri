@@ -27,7 +27,7 @@ public class BuildUtilTest {
 		builds.build("b0").job("j1").event();
 		builds.build("b1").job("j0").event(e0, e3, e4);
 		builds = BuildUtil.summarize(builds);
-		Collection<String> names = BuildUtil.breakNames(builds);
+		Collection<String> names = BuildUtil.summarizedBreakNames(builds);
 		assertCollection(names, "c1", "c2", "c3");
 	}
 

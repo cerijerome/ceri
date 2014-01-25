@@ -1,35 +1,34 @@
 To do
 =====
 
-1) Grouping of build and job
-e.g.
-mweb/build
-mweb/smoke
-mweb/integration
-bolt/smoke
+Audio
+- store previous build info to check for changes
+- clips: get names of builds
+- clips: get names of jobs
+- timer for reminder if build broken (15 mins)
+- updates:
+  - group by build (newly broken, still broken, fixed)
+  - list jobs in order
+  - audio for job just broken
+  - audio for job still broken
+  - audio for job fixed
+  - audio for all names responsible for a break
+  - audio for all names responsible for a fix
+- reminder:
+  - group by build (still broken)
+  - list jobs in order if broken
+  - list who is still in the doghouse
 
-2) Clear
-- clear by build/job
-- clear by build
-- clear all
+Notification alert flag
+- single thread worker
+- waits for flag to be set
 
-3) Fix
-- build/job
-- build all
-- all
+Figure out resource warnings
+      
+Create jsp for web
 
-4) Broken
-- build/job
-- build all
-- all
+Save state and reload on restart
 
-5) ZWave (+X10)
-- component tracks each device on/off state (by build? - TBD)
-- change =>
-  - turn off ones that were on
-  - turn on ones that were off
-  - turn off ones that were off (to be sure)
-  
-6) Create jsp for web
+Build purge on timer
 
-  
+Add logger

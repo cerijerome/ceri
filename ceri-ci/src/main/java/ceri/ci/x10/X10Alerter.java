@@ -3,6 +3,8 @@ package ceri.ci.x10;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,12 +29,11 @@ public class X10Alerter implements Closeable {
 	}
 
 	public static void main(String[] args) throws Exception {
-		try (X10Alerter x10 = create((File)null,  null)) {
+		try (X10Alerter x10 = create((File) null, null)) {
 			x10.clear();
 		}
 	}
-	
-	@SuppressWarnings("resource")
+
 	public static X10Alerter create(Properties properties, String prefix) throws IOException {
 		X10AlerterProperties x10Properties = new X10AlerterProperties(properties, prefix);
 		String commPort = x10Properties.commPort();
@@ -80,6 +81,10 @@ public class X10Alerter implements Closeable {
 	}
 
 	public void alert(String... keys) {
+		alert(Arrays.asList(keys));
+	}
+
+	public void alert(Collection<String> keys) {
 		clearAlerts();
 		for (String key : keys)
 			doAlert(key);
