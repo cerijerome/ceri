@@ -24,9 +24,7 @@ public class PropertyUtilTest {
 			String s = IoUtil.getContentString(file);
 			BufferedReader r = new BufferedReader(new StringReader(s));
 			String line;
-			while ((line = r.readLine()).startsWith("#")) {
-				System.out.println(line);
-			}
+			while ((line = r.readLine()).startsWith("#")) {}
 			// Order doesn't matter
 			assertThat(line, is("a.b.c=abc"));
 			assertThat(r.readLine(), is("a.b=ab"));

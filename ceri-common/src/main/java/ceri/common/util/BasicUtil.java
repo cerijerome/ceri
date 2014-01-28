@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
+import ceri.common.concurrent.RuntimeInterruptedException;
 
 
 /**
@@ -40,7 +41,14 @@ public class BasicUtil {
 	}
 
 	/**
-	 * Make a beep sound
+	 * Returns default value if main value is null.
+	 */
+	public static <T> T defaultValue(T value, T def) {
+		return value != null ? value : def;
+	}
+	
+	/**
+	 * Make a system beep sound
 	 */
 	public static void beep() {
 		java.awt.Toolkit.getDefaultToolkit().beep();

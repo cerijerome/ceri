@@ -18,8 +18,8 @@ import javax.speech.recognition.RecognizerProperties;
 import javax.speech.recognition.ResultListener;
 import javax.speech.recognition.RuleGrammar;
 import javax.speech.recognition.SpeakerProfile;
+import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.RuntimeInterruptedException;
 
 public class SpeechRecognizer {
 	private static String DICTATION_CONTEXT = "dictation";

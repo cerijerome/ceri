@@ -1,4 +1,4 @@
-package ceri.common.util;
+package ceri.common.concurrent;
 
 public class RuntimeInterruptedException extends RuntimeException {
 	private static final long serialVersionUID = 4222882577886865396L;

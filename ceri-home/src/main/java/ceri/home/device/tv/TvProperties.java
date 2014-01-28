@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import ceri.common.property.BaseProperties;
-import ceri.common.util.PrimitiveUtil;
 import ceri.speech.grammar.SpeechItem;
 
 public class TvProperties extends BaseProperties {
@@ -35,13 +34,11 @@ public class TvProperties extends BaseProperties {
 	}
 
 	public int maxChannel() {
-		String value = value(CHANNEL, MAX);
-		return PrimitiveUtil.valueOf(value, MAX_CHANNEL_DEF);
+		return intValue(MAX_CHANNEL_DEF, CHANNEL, MAX);
 	}
 
 	public int maxVolume() {
-		String value = value(VOLUME, MAX);
-		return PrimitiveUtil.valueOf(value, MAX_VOLUME_DEF);
+		return intValue(MAX_VOLUME_DEF, VOLUME, MAX);
 	}
 
 	public Collection<TvInput> inputs() {

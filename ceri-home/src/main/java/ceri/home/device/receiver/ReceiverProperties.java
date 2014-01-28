@@ -26,13 +26,11 @@ public class ReceiverProperties extends BaseProperties {
 	}
 
 	public int minVolume() {
-		String value = value(VOLUME, MIN);
-		return Integer.parseInt(value);
+		return intValue(VOLUME, MIN);
 	}
 
 	public int maxVolume() {
-		String value = value(VOLUME, MAX);
-		return Integer.parseInt(value);
+		return intValue(VOLUME, MAX);
 	}
 
 	public Collection<ReceiverInput> inputs() {
@@ -56,8 +54,7 @@ public class ReceiverProperties extends BaseProperties {
 		for (int i = 1;; i++) {
 			String name = value(INPUT, String.valueOf(i), NAME);
 			if (name == null) break;
-			String volumeStr = value(INPUT, String.valueOf(i), VOLUME);
-			int volume = Integer.parseInt(volumeStr);
+			int volume = intValue(INPUT, String.valueOf(i), VOLUME);
 			String speech = value(INPUT, String.valueOf(i), SPEECH);
 			if (speech == null) speech = name;
 			String[] spokenWords = speech.split(",\\s*");

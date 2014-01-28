@@ -26,8 +26,7 @@ public final class IrProperties extends BaseProperties {
 	}
 
 	public short vendorCode() {
-		String value = value(VENDOR_CODE);
-		return Short.parseShort(value);
+		return shortValue(VENDOR_CODE);
 	}
 
 	public int buttonDelayMs(PcIrLincButton button) {
@@ -43,8 +42,7 @@ public final class IrProperties extends BaseProperties {
 	}
 
 	public int buttonRepeat(PcIrLincButton button) {
-		String value = value(REPEAT, button.name());
-		return PrimitiveUtil.valueOf(value, 1);
+		return intValue(1, REPEAT, button.name());
 	}
 
 }

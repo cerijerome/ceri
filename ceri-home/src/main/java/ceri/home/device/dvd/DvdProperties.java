@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import ceri.common.property.BaseProperties;
-import ceri.common.util.PrimitiveUtil;
 
 public class DvdProperties extends BaseProperties {
 	private static final String SPEED = "speed";
@@ -35,10 +34,8 @@ public class DvdProperties extends BaseProperties {
 	}
 
 	private int speed(ScanType scanType, Dvd.Direction direction, int index) {
-		String value =
-			value(scanType.name().toLowerCase(), direction.name().toLowerCase(), String
-				.valueOf(index), SPEED);
-		return PrimitiveUtil.valueOf(value, 0);
+		return intValue(0, scanType.name().toLowerCase(), direction.name().toLowerCase(), String
+			.valueOf(index), SPEED);
 	}
 
 	private Map<Dvd.Direction, List<Integer>> getSpeedMap(ScanType scanType) {

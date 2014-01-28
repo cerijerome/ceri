@@ -1,8 +1,9 @@
-package ceri.common.util;
+package ceri.common.concurrent;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.concurrent.AsyncRunner;
 
 public class AsyncRunnerBehavior {
 

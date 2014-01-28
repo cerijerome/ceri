@@ -1,4 +1,4 @@
-package ceri.common.util;
+package ceri.common.collection;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

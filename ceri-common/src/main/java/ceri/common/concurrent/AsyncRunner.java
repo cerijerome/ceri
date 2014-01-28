@@ -1,4 +1,6 @@
-package ceri.common.util;
+package ceri.common.concurrent;
+
+import ceri.common.util.BasicUtil;
 
 /**
  * Simple class for running a separate thread, capturing errors,

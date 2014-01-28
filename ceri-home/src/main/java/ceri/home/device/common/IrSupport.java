@@ -1,8 +1,8 @@
 package ceri.home.device.common;
 
 import java.io.IOException;
+import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.RuntimeInterruptedException;
 import ceri.home.io.pcirlinc.PcIrLinc;
 import ceri.home.io.pcirlinc.PcIrLincButton;
 

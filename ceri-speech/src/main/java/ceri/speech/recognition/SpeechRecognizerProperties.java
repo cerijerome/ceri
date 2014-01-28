@@ -2,7 +2,6 @@ package ceri.speech.recognition;
 
 import java.util.Properties;
 import ceri.common.property.BaseProperties;
-import ceri.common.util.PrimitiveUtil;
 
 public class SpeechRecognizerProperties extends BaseProperties {
 	private static final String ENGINE_NAME = "engineName";
@@ -24,32 +23,31 @@ public class SpeechRecognizerProperties extends BaseProperties {
 	}
 
 	public int numResultAlternatives() {
-		return PrimitiveUtil.valueOf(value(NUM_RESULT_ALTERNATIVES),
-			NUM_RESULT_ALTERNATIVES_DEFAULT);
+		return intValue(NUM_RESULT_ALTERNATIVES_DEFAULT, NUM_RESULT_ALTERNATIVES);
 	}
 
-	public boolean resultAudioProvided() {
-		return PrimitiveUtil.valueOf(value(RESULT_AUDIO_PROVIDED), false);
+	public Boolean resultAudioProvided() {
+		return booleanValue(RESULT_AUDIO_PROVIDED);
 	}
 
 	public Float sensitivity() {
-		return PrimitiveUtil.valueOf(value(SENSITIVITY), (Float) null);
+		return floatValue(SENSITIVITY);
 	}
 
 	public Float speedVsAccuracy() {
-		return PrimitiveUtil.valueOf(value(SPEED_VS_ACCURACY), (Float) null);
+		return floatValue(SPEED_VS_ACCURACY);
 	}
 
 	public Float confidenceLevel() {
-		return PrimitiveUtil.valueOf(value(CONFIDENCE_LEVEL), (Float) null);
+		return floatValue(CONFIDENCE_LEVEL);
 	}
 
 	public Float completeTimeout() {
-		return PrimitiveUtil.valueOf(value(COMPLETE_TIMEOUT), (Float) null);
+		return floatValue(COMPLETE_TIMEOUT);
 	}
 
 	public Float incompleteTimeout() {
-		return PrimitiveUtil.valueOf(value(INCOMPLETE_TIMEOUT), (Float) null);
+		return floatValue(INCOMPLETE_TIMEOUT);
 	}
 
 }

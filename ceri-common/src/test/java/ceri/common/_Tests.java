@@ -5,11 +5,13 @@ import org.junit.runners.Suite;
 import ceri.common.collection.ArrayIteratorBehavior;
 import ceri.common.collection.ArrayUtilTest;
 import ceri.common.collection.CollectionUtilTest;
+import ceri.common.collection.FixedSizeCacheBehavior;
 import ceri.common.collection.ImmutableUtilTest;
 import ceri.common.comparator.BaseComparatorBehavior;
 import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
+import ceri.common.concurrent.AsyncRunnerBehavior;
 import ceri.common.date.ImmutableDateBehavior;
 import ceri.common.date.ImmutableTimeZoneBehavior;
 import ceri.common.date.MultiDateParserBehavior;
@@ -49,10 +51,8 @@ import ceri.common.tree.TreeNodeComparatorsTest;
 import ceri.common.tree.TreeUtilTest;
 import ceri.common.unit.InchUnitTest;
 import ceri.common.unit.NormalizedValueBehavior;
-import ceri.common.util.AsyncRunnerBehavior;
 import ceri.common.util.BasicUtilTest;
 import ceri.common.util.EqualsUtilTest;
-import ceri.common.util.FixedSizeCacheBehavior;
 import ceri.common.util.HashCoderBehavior;
 import ceri.common.util.LocaleUtilTest;
 import ceri.common.util.MathUtilTest;
@@ -70,12 +70,15 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ArrayIteratorBehavior.class,
 	ArrayUtilTest.class,
 	CollectionUtilTest.class,
+	FixedSizeCacheBehavior.class,
 	ImmutableUtilTest.class,
 	// comparator
 	BaseComparatorBehavior.class,
 	ComparatorSequenceBehavior.class,
 	ComparatorsTest.class,
 	EnumComparatorsTest.class,
+	// concurrent
+	AsyncRunnerBehavior.class,
 	// date
 	ImmutableDateBehavior.class,
 	ImmutableTimeZoneBehavior.class,
@@ -126,10 +129,8 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	InchUnitTest.class,
 	NormalizedValueBehavior.class,
 	// util
-	AsyncRunnerBehavior.class,
 	BasicUtilTest.class,
 	EqualsUtilTest.class,
-	FixedSizeCacheBehavior.class,
 	HashCoderBehavior.class,
 	LocaleUtilTest.class,
 	MathUtilTest.class,

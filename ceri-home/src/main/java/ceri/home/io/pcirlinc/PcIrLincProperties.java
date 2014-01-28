@@ -2,7 +2,6 @@ package ceri.home.io.pcirlinc;
 
 import java.util.Properties;
 import ceri.common.property.BaseProperties;
-import ceri.common.util.PrimitiveUtil;
 
 public class PcIrLincProperties extends BaseProperties {
 	private static final String SERIAL_PORT = "serialPort";
@@ -21,25 +20,23 @@ public class PcIrLincProperties extends BaseProperties {
 	}
 
 	public String serialPort() {
-		String serialPort = value(SERIAL_PORT);
-		if (serialPort == null) serialPort = SERIAL_PORT_DEFAULT;
-		return serialPort;
+		return stringValue(SERIAL_PORT_DEFAULT, SERIAL_PORT);
 	}
 
 	public int baud() {
-		return PrimitiveUtil.valueOf(value(BAUD), BAUD_DEFAULT);
+		return intValue(BAUD_DEFAULT, BAUD);
 	}
 
 	public int timeoutMs() {
-		return PrimitiveUtil.valueOf(value(TIMEOUT_MS), TIMEOUT_MS_DEFAULT);
+		return intValue(TIMEOUT_MS_DEFAULT, TIMEOUT_MS);
 	}
 
 	public int delayMs() {
-		return PrimitiveUtil.valueOf(value(DELAY_MS), DELAY_MS_DEFAULT);
+		return intValue(DELAY_MS_DEFAULT, DELAY_MS);
 	}
 
 	public int responseWaitMs() {
-		return PrimitiveUtil.valueOf(value(RESPONSE_WAIT_MS), RESPONSE_WAIT_MS_DEFAULT);
+		return intValue(RESPONSE_WAIT_MS_DEFAULT, RESPONSE_WAIT_MS);
 	}
 
 }
