@@ -6,7 +6,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 
 public class FactoriesTest {
@@ -78,10 +80,11 @@ public class FactoriesTest {
 
 	@Test
 	public void testSet() {
-		final Factory<List<Long>, Iterable<String>> f = Factories.list(StringFactories.TO_LONG);
+		final Factory<Set<Long>, Iterable<String>> f = Factories.set(StringFactories.TO_LONG);
 		assertNull(f.create(null));
-		assertThat(f.create(Collections.<String>emptyList()), is(Collections.<Long>emptyList()));
-		assertThat(f.create(Arrays.asList("0", "1")), is(Arrays.asList(0L, 1L)));
+		assertThat(f.create(Collections.<String>emptySet()), is(Collections.<Long>emptySet()));
+		assertThat(f.create(Arrays.asList("0", "1")), is((Set<Long>) new HashSet<>(Arrays.asList(
+			0L, 1L))));
 		assertException(NumberFormatException.class, new Runnable() {
 			@Override
 			public void run() {

@@ -1,10 +1,13 @@
 package ceri.common.zip;
 
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertDir;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
 import java.util.zip.Adler32;
 import java.util.zip.Checksum;
 import org.junit.AfterClass;
@@ -29,6 +32,28 @@ public class ZipUtilTest {
 	@AfterClass
 	public static void deleteTempFiles() {
 		helper.close();
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void testMisbehavingInputStream() throws IOException {
+		File unzipDir = new File(helper.root, "unzip");
+		try (InputStream in = new InputStream() {
+			@Override
+			public int read() throws IOException {
+				throw new RuntimeException();
+			}
+		}) {
+			ZipUtil.unzip(in, unzipDir);
+		}
+	}
+
+	@Test
+	public void testUnzipDirs() throws IOException {
+		// File contains dirs [ a/a/a, b/b, c ]
+		File unzipDir = new File(helper.root, "unzip");
+		ZipUtil.unzip(IoUtil.getResource(getClass(), "dirs.zip"), unzipDir);
+		Collection<String> dirs = IoUtil.getFilenames(unzipDir);
+		assertCollection(dirs, "a", "a/a", "a/a/a", "b", "b/b", "c");
 	}
 
 	@Test
@@ -83,28 +108,26 @@ public class ZipUtilTest {
 			IoUtil.deleteAll(unzipDir);
 		}
 	}
-	
+
 	@Test
 	public void testZipWithChecksum() throws IOException {
 		// Create files z100..299 with contents a..z
 		FileTestHelper.Builder builder = FileTestHelper.builder(helper.root).root("zip");
 		for (int i = 100; i < 250; i++)
 			builder.file(i + "/z" + i, "abcdefghijklmnopqrstuvwxyz");
-		try (
-			FileTestHelper zipHelper = builder.build();
-			ByteBufferStream stream = new ByteBufferStream()
-		) {
+		try (FileTestHelper zipHelper = builder.build();
+			ByteBufferStream stream = new ByteBufferStream()) {
 			File unzipDir = new File(helper.root, "unzip");
 			Checksum zipChecksum = new Adler32();
 			ZipUtil.zip(zipHelper.root, stream, zipChecksum, 100);
 			Checksum unzipChecksum = new Adler32();
 			ZipUtil.unzip(stream.asInputStream(), unzipDir, unzipChecksum, 100);
-	
+
 			assertDir(unzipDir, zipHelper.root);
 			// Checksum fails depending on buffer boundaries, unzip seems to leave unread data.
 			assertThat(unzipChecksum.getValue(), is(zipChecksum.getValue()));
 			IoUtil.deleteAll(unzipDir);
 		}
 	}
-	
+
 }

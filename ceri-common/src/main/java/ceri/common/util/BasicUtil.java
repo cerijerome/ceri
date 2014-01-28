@@ -11,33 +11,30 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import ceri.common.concurrent.RuntimeInterruptedException;
 
-
 /**
  * Basic utility methods.
  */
 public class BasicUtil {
 	private static Map<Class<?>, Object> loadedClasses = new WeakHashMap<>();
 
-	private BasicUtil() {
-	}
+	private BasicUtil() {}
 
 	/**
-	 * Stops the warning for an unused parameter.
-	 * Use only when absolutely necessary.
+	 * Stops the warning for an unused parameter. Use only when absolutely
+	 * necessary.
 	 */
-	public static void unused(@SuppressWarnings("unused") Object... o) {
-	}
+	public static void unused(@SuppressWarnings("unused") Object... o) {}
 
 	/**
 	 * Are you really sure you need to call this? If you're not sure why you
-	 * need to call this method you may be hiding a coding error.
-	 * Performs an unchecked cast from an object to the given type,
-	 * preventing a warning. Sometimes necessary for collections, etc.
-	 * Will not prevent a runtime cast exception.
+	 * need to call this method you may be hiding a coding error. Performs an
+	 * unchecked cast from an object to the given type, preventing a warning.
+	 * Sometimes necessary for collections, etc. Will not prevent a runtime cast
+	 * exception.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T uncheckedCast(Object o) {
-		return (T)o;
+		return (T) o;
 	}
 
 	/**
@@ -46,16 +43,17 @@ public class BasicUtil {
 	public static <T> T defaultValue(T value, T def) {
 		return value != null ? value : def;
 	}
-	
+
 	/**
 	 * Make a system beep sound
 	 */
 	public static void beep() {
 		java.awt.Toolkit.getDefaultToolkit().beep();
 	}
-	
+
 	/**
-	 * Convenience method that calls Enum.valueOf and returns default value if no match.
+	 * Convenience method that calls Enum.valueOf and returns default value if
+	 * no match.
 	 */
 	public static <T extends Enum<T>> T valueOf(Class<T> cls, String value, T def) {
 		if (value == null || cls == null) return def;
@@ -65,7 +63,7 @@ public class BasicUtil {
 			return def;
 		}
 	}
-	
+
 	/**
 	 * Makes an iterator compatible with a for-each loop.
 	 */
@@ -77,7 +75,7 @@ public class BasicUtil {
 			}
 		};
 	}
-	
+
 	/**
 	 * Casts object to given type or returns null if not compatible.
 	 */
@@ -87,17 +85,18 @@ public class BasicUtil {
 	}
 
 	/**
-	 * Sleeps for given milliseconds, or not if 0.
-	 * Throws RuntimeInterruptedException if interrupted.
+	 * Sleeps for given milliseconds, or not if 0. Throws
+	 * RuntimeInterruptedException if interrupted.
 	 */
 	public static void delay(int delayMs) {
+		if (delayMs == 0) return;
 		try {
-			if (delayMs > 0) Thread.sleep(delayMs);
+			Thread.sleep(delayMs);
 		} catch (InterruptedException e) {
 			throw new RuntimeInterruptedException(e);
 		}
 	}
-	
+
 	/**
 	 * Gets the stack trace as a string.
 	 */
@@ -106,16 +105,16 @@ public class BasicUtil {
 		t.printStackTrace(new PrintWriter(w));
 		return w.toString();
 	}
-	
+
 	/**
-	 * Attaches a throwable cause to an exception without losing type.
-	 * Use as: throw initCause(new MyException(...), cause);
+	 * Attaches a throwable cause to an exception without losing type. Use as:
+	 * throw initCause(new MyException(...), cause);
 	 */
 	public static <E extends Exception> E initCause(E e, Throwable cause) {
 		e.initCause(cause);
 		return e;
 	}
-	
+
 	/**
 	 * Picks the first one if not null, otherwise the second one.
 	 */
@@ -152,8 +151,8 @@ public class BasicUtil {
 	}
 
 	/**
-	 * Makes sure a Class<?> is loaded. Use when static initialization
-	 * is required but only the Class<?> is referenced.
+	 * Makes sure a Class<?> is loaded. Use when static initialization is
+	 * required but only the Class<?> is referenced.
 	 */
 	public static <T> Class<T> forceInit(Class<T> cls) {
 		if (loadedClasses.containsKey(cls)) return cls;

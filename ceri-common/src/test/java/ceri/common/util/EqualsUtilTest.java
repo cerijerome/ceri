@@ -37,6 +37,9 @@ public class EqualsUtilTest {
 	public void testObjectEquals() {
 		assertTrue(EqualsUtil.equals(null, null));
 		assertFalse(EqualsUtil.equals("", null));
+		assertFalse(EqualsUtil.equals(null, ""));
+		assertTrue(EqualsUtil.equals(new Float(Float.MAX_VALUE), new Float(Float.MAX_VALUE)));
+		assertTrue(EqualsUtil.equals(new Double(Double.MIN_VALUE), new Double(Double.MIN_VALUE)));
 		Date date = new Date(0);
 		java.sql.Date sqlDate = new java.sql.Date(0);
 		assertTrue(EqualsUtil.equals(date, sqlDate));

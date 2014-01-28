@@ -6,21 +6,33 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 public class HashCoderBehavior {
+	private static final boolean bl = true;
+	private static final char c = '7';
 	private static final byte b = 0x77;
 	private static final short s = 0x7777;
 	private static final int i = 0x7777_7777;
 	private static final long l = 0x7777_7777_7777_7777L;
+	private static final float f = 0.7777f;
+	private static final double d = 0.7777_7777;
 	
 	@Test
 	public void shouldHaveDifferentValuesByPrimitiveType() {
+		int blHash = HashCoder.create().add(bl).hashCode();
+		int cHash = HashCoder.create().add(c).hashCode();
 		int bHash = HashCoder.create().add(b).hashCode();
 		int sHash = HashCoder.create().add(s).hashCode();
 		int iHash = HashCoder.create().add(i).hashCode();
 		int lHash = HashCoder.create().add(l).hashCode();
+		int fHash = HashCoder.create().add(f).hashCode();
+		int dHash = HashCoder.create().add(d).hashCode();
+		assertThat(blHash, not(cHash));
+		assertThat(cHash, not(bHash));
 		assertThat(bHash, not(sHash));
 		assertThat(sHash, not(iHash));
 		assertThat(iHash, not(lHash));
-		assertThat(lHash, not(bHash));
+		assertThat(lHash, not(fHash));
+		assertThat(fHash, not(dHash));
+		assertThat(dHash, not(blHash));
 	}
 	
 	@Test

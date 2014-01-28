@@ -42,7 +42,7 @@ public class TreeUtil {
 	}
 
 	public static <T extends Parent<T>> String toString(T node) {
-		if (node == null) return String.valueOf(null);
+		if (node == null) return String.valueOf((Object)null);
 		StringBuilder b = new StringBuilder();
 		addString(b, node, 0);
 		return b.toString();

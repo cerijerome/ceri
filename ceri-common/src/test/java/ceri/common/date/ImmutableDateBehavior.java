@@ -24,9 +24,44 @@ public class ImmutableDateBehavior {
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
+	public void shouldNotAllowSetTime() {
+		new ImmutableDate(new Date(0)).setTime(0);
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test(expected = UnsupportedOperationException.class)
 	public void shouldNotAllowSetDate() {
-		Date d = new ImmutableDate(new Date(0));
-		d.setTime(0);
+		new ImmutableDate(new Date(0)).setDate(0);
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test(expected = UnsupportedOperationException.class)
+	public void shouldNotAllowSetHours() {
+		new ImmutableDate(new Date(0)).setHours(0);
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test(expected = UnsupportedOperationException.class)
+	public void shouldNotAllowSetMinutes() {
+		new ImmutableDate(new Date(0)).setMinutes(0);
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test(expected = UnsupportedOperationException.class)
+	public void shouldNotAllowSetMonth() {
+		new ImmutableDate(new Date(0)).setMonth(0);
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test(expected = UnsupportedOperationException.class)
+	public void shouldNotAllowSetSeconds() {
+		new ImmutableDate(new Date(0)).setSeconds(0);
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test(expected = UnsupportedOperationException.class)
+	public void shouldNotAllowSetYear() {
+		new ImmutableDate(new Date(0)).setYear(0);
 	}
 	
 }

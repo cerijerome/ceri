@@ -12,6 +12,7 @@ import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
 import ceri.common.concurrent.AsyncRunnerBehavior;
+import ceri.common.concurrent.RuntimeInterruptedExceptionBehavior;
 import ceri.common.date.ImmutableDateBehavior;
 import ceri.common.date.ImmutableTimeZoneBehavior;
 import ceri.common.date.MultiDateParserBehavior;
@@ -20,6 +21,7 @@ import ceri.common.email.EmailUtilTest;
 import ceri.common.event.EventListenerSupportBehavior;
 import ceri.common.factory.DateFactoriesTest;
 import ceri.common.factory.FactoriesTest;
+import ceri.common.factory.FactoryExceptionBehavior;
 import ceri.common.factory.NumberFactoriesTest;
 import ceri.common.factory.StringFactoriesTest;
 import ceri.common.filter.CollectionFiltersTest;
@@ -36,11 +38,16 @@ import ceri.common.io.StringPrintStreamBehavior;
 import ceri.common.property.BasePropertiesBehavior;
 import ceri.common.property.KeyBehavior;
 import ceri.common.property.PropertyUtilTest;
+import ceri.common.reflect.CallerBehavior;
+import ceri.common.reflect.CreateExceptionBehavior;
 import ceri.common.reflect.ReflectUtilTest;
 import ceri.common.test.DebuggerBehavior;
 import ceri.common.test.HexPrinterBehavior;
+import ceri.common.test.RegexMatcherBehavior;
 import ceri.common.test.TestPrinterBehavior;
 import ceri.common.test.TestRunPrinterBehavior;
+import ceri.common.test.TestStateBehavior;
+import ceri.common.test.TestThreadBehavior;
 import ceri.common.test.TestTimerBehavior;
 import ceri.common.test.TestUtil;
 import ceri.common.test.TestUtilTest;
@@ -79,6 +86,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	EnumComparatorsTest.class,
 	// concurrent
 	AsyncRunnerBehavior.class,
+	RuntimeInterruptedExceptionBehavior.class,
 	// date
 	ImmutableDateBehavior.class,
 	ImmutableTimeZoneBehavior.class,
@@ -91,6 +99,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	//factory
 	DateFactoriesTest.class,
 	FactoriesTest.class,
+	FactoryExceptionBehavior.class,
 	NumberFactoriesTest.class,
 	StringFactoriesTest.class,
 	// filter
@@ -111,12 +120,17 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	KeyBehavior.class,
 	PropertyUtilTest.class,
 	// reflect
+	CallerBehavior.class,
+	CreateExceptionBehavior.class,
 	ReflectUtilTest.class,
 	//test
 	DebuggerBehavior.class,
 	HexPrinterBehavior.class,
+	RegexMatcherBehavior.class,
 	TestPrinterBehavior.class,
 	TestRunPrinterBehavior.class,
+	TestStateBehavior.class,
+	TestThreadBehavior.class,
 	TestTimerBehavior.class,
 	TestUtilTest.class,
 	// tree

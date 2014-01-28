@@ -1,8 +1,8 @@
 package ceri.common.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,9 +23,7 @@ public class MultiPattern {
 		}
 
 		public Builder pattern(String... patterns) {
-			for (String pattern : patterns)
-				this.patterns.add(Pattern.compile(pattern));
-			return this;
+			return patternStrings(Arrays.asList(patterns));
 		}
 
 		public Builder patterns(Collection<Pattern> patterns) {
@@ -34,8 +32,7 @@ public class MultiPattern {
 		}
 
 		public Builder pattern(Pattern... patterns) {
-			Collections.addAll(this.patterns, patterns);
-			return this;
+			return patterns(Arrays.asList(patterns));
 		}
 
 		public MultiPattern build() {

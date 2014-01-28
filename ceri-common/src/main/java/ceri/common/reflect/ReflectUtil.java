@@ -104,7 +104,7 @@ public class ReflectUtil {
 
 	private static StackTraceElement previousStackTraceElement(String callingMethodName,
 		int countBack) {
-		StackTraceElement e[] = Thread.currentThread().getStackTrace();
+		StackTraceElement[] e = Thread.currentThread().getStackTrace();
 		int count = countBack;
 		for (StackTraceElement s : e) {
 			if (count < 0) return s;
