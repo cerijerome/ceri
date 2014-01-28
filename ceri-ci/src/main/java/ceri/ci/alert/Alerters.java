@@ -3,8 +3,11 @@ package ceri.ci.alert;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Properties;
 import ceri.ci.audio.AudioAlerter;
+import ceri.ci.build.BuildUtil;
+import ceri.ci.build.Builds;
 import ceri.ci.web.WebAlerter;
 import ceri.ci.x10.X10Alerter;
 import ceri.ci.zwave.ZWaveAlerter;
@@ -31,9 +34,24 @@ public class Alerters implements Closeable {
 		web = createWeb();
 	}
 	
+	public void alert(Builds builds) {
+		Builds summarizedBuilds = BuildUtil.summarize(builds);
+		Collection<String> breakNames = BuildUtil.summarizedBreakNames(summarizedBuilds);
+		if (x10 != null) x10.alert(breakNames);
+		if (zwave != null) zwave.alert(breakNames);
+		if (web != null) web.update(summarizedBuilds);
+		if (audio != null) audio.alert(summarizedBuilds);
+	}
+	
+	public void clear() {
+		if (x10 != null) x10.clear();
+		if (zwave != null) zwave.clear();
+		if (web != null) web.clear();
+		if (audio != null) audio.clear();
+	}
+	
 	@Override
 	public void close() throws IOException {
-		IoUtil.close(audio);
 		IoUtil.close(x10);
 	}
 
@@ -58,8 +76,13 @@ public class Alerters implements Closeable {
 	}
 
 	private AudioAlerter createAudio() {
-		File rootDir = IoUtil.getPackageDir(AudioAlerter.class);
-		return new AudioAlerter(rootDir);
+		try {
+			Properties properties = PropertyUtil.load(AudioAlerter.class, "audio.properties");
+			return AudioAlerter.create(properties, null);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	private WebAlerter createWeb() {

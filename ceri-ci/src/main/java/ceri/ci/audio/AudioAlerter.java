@@ -1,79 +1,127 @@
 package ceri.ci.audio;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Properties;
+import ceri.ci.build.Build;
+import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
-import ceri.common.date.TimeUnit;
+import ceri.ci.build.Job;
 import ceri.common.io.IoUtil;
-import ceri.common.util.BasicUtil;
 
-public class AudioAlerter implements Closeable {
-	private static final String AUDIO_FILE_SUFFIX = ".wav";
-	private static final long TEN_MINS_MS = TimeUnit.minute.ms * 10;
-	private static final int SHUTDOWN_POLL_MS = 200;
-	private final File soundDir;
-	private final long delayMs;
-	private final int shutdownPollMs;
-	private final Object sync = new Object();
-	private Thread thread;
+public class AudioAlerter {
+	private final AudioMessage message;
+	private final long reminderMs;
+	private final long shutdownMs;
+	private volatile Builds summarizedBuilds;
 
 	public static void main(String[] args) throws Exception {
-		try (AudioAlerter alerter = new AudioAlerter(IoUtil.getPackageDir(AudioAlerter.class))) {
-			Builds builds = new Builds();
-			builds.build("bolt").job("smoke").event(Event.broken("shuochen", "dxie"));
-			alerter.alert(builds);
-			BasicUtil.delay(20000);
+		File dir = IoUtil.getPackageDir(AudioAlerter.class);
+		float pitch = 1.3f;
+		AudioAlerter alerter = builder(dir).pitch(pitch).build();
+		Builds builds = new Builds();
+		builds.build("bolt").job("smoke").event(Event.broken("shuochen", "dxie"));
+		alerter.alert(builds);
+	}
+
+	public static class Builder {
+		final File soundDir;
+		float pitch = AudioAlerterProperties.PITCH_DEF;
+		long reminderMs = AudioAlerterProperties.REMINDER_MS_DEF;
+		long shutdownMs = AudioAlerterProperties.SHUTDOWN_MS_DEF;
+
+		Builder(File soundDir) {
+			this.soundDir = soundDir;
+		}
+
+		public Builder reminderMs(long reminderMs) {
+			this.reminderMs = reminderMs;
+			return this;
+		}
+
+		public Builder shutdownMs(long shutdownMs) {
+			this.shutdownMs = shutdownMs;
+			return this;
+		}
+
+		public Builder pitch(float pitch) {
+			this.pitch = pitch;
+			return this;
+		}
+
+		public AudioAlerter build() {
+			return new AudioAlerter(this);
 		}
 	}
 
-	public AudioAlerter(File soundDir) {
-		this(soundDir, TEN_MINS_MS, SHUTDOWN_POLL_MS);
+	public static Builder builder(File soundDir) {
+		return new Builder(soundDir);
 	}
 
-	AudioAlerter(File soundDir, long delayMs, int shutdownPollMs) {
-		this.soundDir = soundDir;
-		this.delayMs = delayMs;
-		this.shutdownPollMs = shutdownPollMs;
+	public static AudioAlerter create(Properties properties, String prefix) {
+		AudioAlerterProperties audioProperties = new AudioAlerterProperties(properties, prefix);
+		File dir = IoUtil.getPackageDir(AudioAlerter.class);
+		return builder(dir).reminderMs(audioProperties.reminderMs()).shutdownMs(
+			audioProperties.shutdownreminderMs()).pitch(audioProperties.pitch()).build();
 	}
 
-	public void alert(Builds builds) {
-		//start(createThread(keys));
+	AudioAlerter(Builder builder) {
+		message = new AudioMessage(builder.soundDir, builder.pitch);
+		reminderMs = builder.reminderMs;
+		shutdownMs = builder.shutdownMs;
+		clear();
 	}
 
-	public void clear(String... keys) throws IOException {
-		Clip.build_ok.play();
-		Clip.thank_you.play();
-		for (String key : keys)
-			play(key);
+	/**
+	 * For each build, check which jobs are just broken, still broken and just fixed.
+	 * Gives an audio message for each of these cases.
+	 */
+	public void alert(Builds summarizedBuilds) {
+		Builds previousBuilds = this.summarizedBuilds;
+		this.summarizedBuilds = summarizedBuilds;
+		try {
+			for (Build latestBuild : summarizedBuilds.builds) {
+				Build previousBuild = previousBuilds.build(latestBuild.name);
+				JobAnalyzer analyzer = new JobAnalyzer(latestBuild, previousBuild);
+				playJustBroken(latestBuild.name, analyzer.justBroken);
+				playStillBroken(latestBuild.name, analyzer.stillBroken);
+				playJustFixed(latestBuild.name, analyzer.justFixed);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	@Override
-	public void close() throws IOException {
+	/**
+	 * Clears build state.
+	 */
+	public void clear() {
+		this.summarizedBuilds = new Builds();
 	}
 
-	private void play(String key) throws IOException {
-		Audio.create(new File(soundDir, key + AUDIO_FILE_SUFFIX)).play();
+	private void playJustBroken(String buildName, Collection<Job> jobs) throws IOException {
+		if (!jobs.isEmpty()) return;
+		message.playAlarm();
+		for (Job job : jobs) {
+			Event event = BuildUtil.latestEvent(job);
+			message.playJustBroken(buildName, job.name, event.names);
+		}
 	}
-
-	void doAlert(String... keys) throws IOException, InterruptedException {
-		Clip.alarm.play();
-		Clip.build_broken.play();
-		for (String key : keys) play(key);
-		Clip.you_have_30min.play();
-		// Wait
-		if (delayMs > 0) Thread.sleep(delayMs);
-		for (String key : keys) play(key);
-		Clip.you_have_20min.play();
-		// Wait
-		if (delayMs > 0) Thread.sleep(delayMs);
-		for (String key : keys) play(key);
-		Clip.you_have_10min.play();
-		// Wait
-		if (delayMs > 0) Thread.sleep(delayMs);
-		for (String key : keys) play(key);
-		Clip.out_of_time.play();
+	
+	private void playStillBroken(String buildName, Collection<Job> jobs) throws IOException {
+		for (Job job : jobs) {
+			Event event = BuildUtil.latestEvent(job);
+			message.playStillBroken(buildName, job.name, event.names);
+		}
 	}
-
+	
+	private void playJustFixed(String buildName, Collection<Job> jobs) throws IOException {
+		for (Job job : jobs) {
+			Event event = BuildUtil.latestEvent(job);
+			message.playJustBroken(buildName, job.name, event.names);
+		}
+	}
+	
 }

@@ -1,12 +1,13 @@
 package ceri.ci.build;
 
+import static ceri.ci.build.BuildTestUtil.assertBuildNames;
+import static ceri.ci.build.BuildTestUtil.assertJobNames;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertElements;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import java.util.ArrayList;
 import java.util.Collection;
 import org.junit.Test;
 
@@ -38,9 +39,9 @@ public class BuildUtilTest {
 		builds.build("b0").job("j1").event();
 		builds.build("b1").job("j0").event(e0, e3, e4);
 		builds = BuildUtil.summarize(builds);
-		assertElements(names(builds.builds), "b0", "b1");
-		assertElements(jobNames(builds.build("b0").jobs), "j0", "j1");
-		assertElements(jobNames(builds.build("b1").jobs), "j0");
+		assertBuildNames(builds.builds, "b0", "b1");
+		assertJobNames(builds.build("b0").jobs, "j0", "j1");
+		assertJobNames(builds.build("b1").jobs, "j0");
 		assertElements(builds.build("b0").job("j0").events, new Event(Event.Type.fixed, 6),
 			new Event(Event.Type.broken, 3, "c1", "c2", "c3", "e1", "e2", "e3", "e4"));
 		assertTrue(builds.build("b0").job("j1").events.isEmpty());
@@ -88,20 +89,6 @@ public class BuildUtilTest {
 		assertThat(event.type, is(Event.Type.fixed));
 		assertThat(event.timeStamp, is(1L));
 		assertCollection(event.names, "a1", "b1", "b2", "g1");
-	}
-
-	private Collection<String> names(Collection<Build> builds) {
-		Collection<String> names = new ArrayList<>();
-		for (Build build : builds)
-			names.add(build.name);
-		return names;
-	}
-
-	private Collection<String> jobNames(Collection<Job> jobs) {
-		Collection<String> names = new ArrayList<>();
-		for (Job job : jobs)
-			names.add(job.name);
-		return names;
 	}
 
 }

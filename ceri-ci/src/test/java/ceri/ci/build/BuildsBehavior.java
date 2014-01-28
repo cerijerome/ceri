@@ -1,9 +1,12 @@
 package ceri.ci.build;
 
+import static ceri.ci.build.BuildTestUtil.assertBuildNames;
+import static ceri.ci.build.BuildTestUtil.assertJobNames;
 import static ceri.common.test.TestUtil.assertElements;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import java.util.ArrayList;
-import java.util.Collection;
 import org.junit.Test;
 
 public class BuildsBehavior {
@@ -23,9 +26,9 @@ public class BuildsBehavior {
 		builds.build("b0").job("j1").event(e0, e2, e4, e5, e6);
 		builds.build("b1").job("j0").event();
 		builds.purge();
-		assertElements(names(builds.builds), "b0", "b1");
-		assertElements(jobNames(builds.build("b0").jobs), "j0", "j1");
-		assertElements(jobNames(builds.build("b1").jobs), "j0");
+		assertBuildNames(builds.builds, "b0", "b1");
+		assertJobNames(builds.build("b0").jobs, "j0", "j1");
+		assertJobNames(builds.build("b1").jobs, "j0");
 		assertElements(builds.build("b0").job("j0").events, e4, e3, e2, e1);
 		assertElements(builds.build("b0").job("j1").events, e6, e5, e4);
 		assertTrue(builds.build("b1").job("j0").events.isEmpty());
@@ -39,9 +42,9 @@ public class BuildsBehavior {
 		builds.build("b1").job("j0").event(e4);
 		builds.build("b1").job("j1").event(e5, e6, e7);
 		builds.clear();
-		assertElements(names(builds.builds), "b0", "b1");
-		assertElements(jobNames(builds.build("b0").jobs), "j0", "j1");
-		assertElements(jobNames(builds.build("b1").jobs), "j0", "j1");
+		assertBuildNames(builds.builds, "b0", "b1");
+		assertJobNames(builds.build("b0").jobs, "j0", "j1");
+		assertJobNames(builds.build("b1").jobs, "j0", "j1");
 		assertTrue(builds.build("b0").job("j0").events.isEmpty());
 		assertTrue(builds.build("b0").job("j1").events.isEmpty());
 		assertTrue(builds.build("b1").job("j0").events.isEmpty());
@@ -69,16 +72,21 @@ public class BuildsBehavior {
 		assertElements(builds2.build("b2").job("j2").events, e7, e6, e5);
 	}
 
-	private Collection<String> names(Collection<Build> builds) {
-		Collection<String> names = new ArrayList<>();
-		for (Build build : builds) names.add(build.name);
-		return names;
-	}
-	
-	private Collection<String> jobNames(Collection<Job> jobs) {
-		Collection<String> names = new ArrayList<>();
-		for (Job job : jobs) names.add(job.name);
-		return names;
+	@Test
+	public void shouldConformToEqualsContract() {
+		Builds builds = new Builds();
+		assertFalse(builds.equals(null));
+		assertTrue(builds.equals(new Builds()));
+		assertTrue(builds.equals(builds));
+		Event e0 = new Event(Event.Type.broken, 0);
+		Event e1 = new Event(Event.Type.fixed, 1);
+		builds.build("b0").job("j0").event(e0);
+		builds.build("b0").job("j1").event();
+		builds.build("b1").job("j0").event(e0, e1);
+		Builds builds2 = new Builds(builds);
+		assertTrue(builds.equals(builds2));
+		assertThat(builds.hashCode(), is(builds2.hashCode()));
+		assertThat(builds.toString(), is(builds2.toString()));
 	}
 	
 }

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collection;
 import ceri.ci.build.Builds;
-import ceri.ci.build.Event;
 import ceri.common.io.IoUtil;
 
 public class WebAlerter {
@@ -14,25 +13,19 @@ public class WebAlerter {
 	private static final MessageFormat IMAGE = new MessageFormat(
 		"<li><img src=\"{0}/{1}.jpg\"/></li>");
 	private final File webDir;
-	private volatile Builds builds = new Builds();
-	private volatile String html;
+	private volatile Builds builds;
 
 	public WebAlerter(File webDir) {
 		this.webDir = webDir;
+		clear();
 	}
 
 	public void update(Builds builds) {
 		this.builds = new Builds(builds);
-		try {
-			setHtml(loadHtml(null));//event.responsible));
-		} catch (IOException e) {
-			e.printStackTrace();
-			setHtml(null); // ???
-		}
 	}
 
-	public String html() {
-		return html;
+	public void clear() {
+		builds = new Builds();
 	}
 
 	private String loadHtml(Collection<String> keys) throws IOException {
@@ -41,10 +34,6 @@ public class WebAlerter {
 		for (String key : keys)
 			b.append(IMAGE.format(new String[] { "/", key }));
 		return html.replaceAll(PLACEHOLDER, b.toString());
-	}
-
-	private void setHtml(String html) {
-		this.html = html;
 	}
 
 }

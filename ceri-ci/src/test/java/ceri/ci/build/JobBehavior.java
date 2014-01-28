@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class JobBehavior {
-	
+
 	@Test
 	public void shouldStoreEventsInDecreasingChronologicalOrder() {
 		Event e0 = new Event(Event.Type.broken, 0);
@@ -42,7 +42,6 @@ public class JobBehavior {
 		Event e5 = new Event(Event.Type.broken, 5, "e1", "e2", "e3", "e4");
 		Event e6 = new Event(Event.Type.fixed, 6);
 		Event e7 = new Event(Event.Type.fixed, 7, "g1");
-		
 		Job job = new Job("test");
 		job.event(e0, e1, e2, e3, e4, e5, e6, e7);
 		Job job2 = new Job("test");
@@ -83,5 +82,21 @@ public class JobBehavior {
 		assertElements(job1.events, job2.events);
 		assertTrue(job1.events != job2.events);
 	}
-	
+
+	@Test
+	public void shouldConformToEqualsContract() {
+		Event e0 = new Event(Event.Type.broken, 0);
+		Event e1 = new Event(Event.Type.fixed, 1);
+		Job job = new Job("test");
+		assertFalse(job.equals(null));
+		assertFalse(job.equals(new Job("Test")));
+		assertTrue(job.equals(new Job("test")));
+		assertTrue(job.equals(job));
+		job.event(e0, e1);
+		Job job2 = new Job(job);
+		assertTrue(job.equals(job2));
+		assertThat(job.hashCode(), is(job2.hashCode()));
+		assertThat(job.toString(), is(job2.toString()));
+	}
+
 }

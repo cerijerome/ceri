@@ -2,26 +2,11 @@ To do
 =====
 
 Audio
-- store previous build info to check for changes
-- clips: get names of builds
-- clips: get names of jobs
-- timer for reminder if build broken (15 mins)
-- updates:
-  - group by build (newly broken, still broken, fixed)
-  - list jobs in order
-  - audio for job just broken
-  - audio for job still broken
-  - audio for job fixed
-  - audio for all names responsible for a break
-  - audio for all names responsible for a fix
 - reminder:
   - group by build (still broken)
   - list jobs in order if broken
   - list who is still in the doghouse
-
-Notification alert flag
-- single thread worker
-- waits for flag to be set
+- check for interruption correctly
 
 Figure out resource warnings
       

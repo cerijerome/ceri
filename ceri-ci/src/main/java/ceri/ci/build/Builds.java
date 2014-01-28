@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
+import ceri.common.util.HashCoder;
+import ceri.common.util.ToStringHelper;
 
 public class Builds {
 	private final Map<String, Build> mutableBuilds = new TreeMap<>();
@@ -36,6 +38,24 @@ public class Builds {
 			build.purge();
 	}
 
+	@Override
+	public int hashCode() {
+		return HashCoder.hash(mutableBuilds);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof Builds)) return false;
+		Builds builds = (Builds) obj;
+		return mutableBuilds.equals(builds.mutableBuilds);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringHelper.createByClass(this).childrens(builds).toString();
+	}
+	
 	private void add(Build build) {
 		mutableBuilds.put(build.name, build);
 	}

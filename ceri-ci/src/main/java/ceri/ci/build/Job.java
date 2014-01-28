@@ -6,12 +6,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.TreeSet;
 import ceri.common.comparator.Comparators;
+import ceri.common.util.HashCoder;
+import ceri.common.util.ToStringHelper;
 
 /**
- * Keeps state of fix/break events on a named job.
+ * Keeps state of fix/break events on a named job. Events are sorted in order of
+ * descending time-stamp.
  */
 public class Job {
-	// Events sorted in order of descending time-stamp
 	private final Collection<Event> mutableEvents = new TreeSet<>(Comparators
 		.reverse(EventComparators.TIMESTAMP));
 	public final Collection<Event> events = Collections.unmodifiableCollection(mutableEvents);
@@ -32,7 +34,7 @@ public class Job {
 	/**
 	 * Apply new events to this job.
 	 */
-	public void event(Event...events) {
+	public void event(Event... events) {
 		events(Arrays.asList(events));
 	}
 
@@ -51,7 +53,8 @@ public class Job {
 	}
 
 	/**
-	 * Remove events up to the latest break and fix event sequences.
+	 * Remove events up to the latest break and fix event sequences. Checks for
+	 * transitions from one event type to another, and keeps the latest of each.
 	 */
 	public void purge() {
 		boolean fixTransition = false;
@@ -73,6 +76,24 @@ public class Job {
 			i.next();
 			i.remove();
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCoder.hash(name, mutableEvents);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof Job)) return false;
+		Job job = (Job) obj;
+		return name.equals(job.name) && mutableEvents.equals(job.mutableEvents);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringHelper.createByClass(this, name).childrens(mutableEvents).toString();
 	}
 
 }

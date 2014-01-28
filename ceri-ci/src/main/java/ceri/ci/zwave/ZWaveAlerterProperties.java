@@ -23,14 +23,7 @@ public class ZWaveAlerterProperties extends BaseProperties {
 	}
 
 	public Integer device(String name) {
-		String value = value(DEVICE_KEY, name);
-		if (value == null) return null;
-		try {
-			return Integer.valueOf(value);
-		} catch (NumberFormatException e) {
-			throw new NumberFormatException("Invalid device for " + key(DEVICE_KEY, name) + ": " +
-				value);
-		}
+		return intValue(DEVICE_KEY, name);
 	}
 
 	public Collection<String> names() {

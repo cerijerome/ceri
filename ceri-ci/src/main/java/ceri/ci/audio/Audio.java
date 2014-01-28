@@ -17,31 +17,64 @@ public class Audio {
 	private final AudioFormat format;
 	private final byte[] data;
 
-	private Audio(AudioFormat format, byte[] data) {
+	public static class Builder {
+		float pitch = 1.0f;
+		AudioFormat format;
+		byte[] data;
+
+		public Builder(byte[] data) throws IOException {
+			try (InputStream in = new ByteArrayInputStream(data)) {
+				setFromInputStream(in);
+			}
+		}
+		
+		public Builder(File file) throws IOException {
+			try (InputStream in = new FileInputStream(file)) {
+				setFromInputStream(in);
+			}
+		}
+		
+		public Builder(InputStream in) throws IOException {
+			setFromInputStream(in);
+		}
+		
+		public Builder pitch(float pitch) {
+			this.pitch = pitch;
+			return this;
+		}
+		
+		private void setFromInputStream(InputStream is) throws IOException {
+			try (AudioInputStream in = AudioSystem.getAudioInputStream(is)) {
+				format = in.getFormat();
+				data = IoUtil.getContent(in, 0);
+			} catch (UnsupportedAudioFileException e) {
+				throw new IOException(e);
+			}
+		}
+		
+		public Audio build() {
+			AudioFormat f = pitch == 1.0f ? format : adjustPitch(format, pitch);
+			return new Audio(f, data);
+		}
+	}
+
+	Audio(AudioFormat format, byte[] data) {
 		this.format = format;
 		this.data = data;
 	}
 
+	static AudioFormat adjustPitch(AudioFormat format, float pitch) {
+		return new AudioFormat(format.getEncoding(), format.getSampleRate() * pitch, format
+			.getSampleSizeInBits(), format.getChannels(), format.getFrameSize(), format
+			.getFrameRate(), format.isBigEndian());
+	}
+
 	public static Audio create(byte[] data) throws IOException {
-		try (InputStream in = new ByteArrayInputStream(data)) {
-			return create(in);
-		}
+		return new Builder(data).build();
 	}
 
 	public static Audio create(File file) throws IOException {
-		try (InputStream in = new FileInputStream(file)) {
-			return create(in);
-		}
-	}
-
-	private static Audio create(InputStream is) throws IOException {
-		try (AudioInputStream in = AudioSystem.getAudioInputStream(is)) {
-			AudioFormat format = in.getFormat();
-			byte[] data = IoUtil.getContent(in, 0);
-			return new Audio(format, data);
-		} catch (UnsupportedAudioFileException e) {
-			throw new IOException(e);
-		}
+		return new Builder(file).build();
 	}
 
 	public void play() throws IOException {
@@ -57,4 +90,3 @@ public class Audio {
 	}
 
 }
-

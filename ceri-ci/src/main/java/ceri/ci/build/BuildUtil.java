@@ -10,6 +10,24 @@ public class BuildUtil {
 	private BuildUtil() {}
 
 	/**
+	 * Counts the total number of events stored by all builds.
+	 */
+	public static int countEvents(Builds builds) {
+		int count = 0;
+		for (Build build : builds.builds) count += countEvents(build);
+		return count;
+	}
+	
+	/**
+	 * Counts the total number of events stored by the build.
+	 */
+	public static int countEvents(Build build) {
+		int count = 0;
+		for (Job job : build.jobs) count += job.events.size();
+		return count;
+	}
+	
+	/**
 	 * Copies the summarized last break names of all builds into given
 	 * collection. Given Builds should already be summarized.
 	 */
@@ -35,7 +53,7 @@ public class BuildUtil {
 	 */
 	private static void breakNames(Job summarizedJob, Collection<String> names) {
 		if (summarizedJob.events.isEmpty()) return;
-		Event event = summarizedJob.events.iterator().next();
+		Event event = latestEvent(summarizedJob);
 		if (event.type == Event.Type.broken) names.addAll(event.names);
 	}
 
@@ -74,14 +92,14 @@ public class BuildUtil {
 	}
 
 	/**
-	 * Finds the earliest event of given type.
+	 * Finds the earliest event of given type from the events.
 	 */
 	public static Event earliest(Event.Type type, Event... events) {
 		return earliest(type, Arrays.asList(events));
 	}
 
 	/**
-	 * Finds the earliest event of given type.
+	 * Finds the earliest event of given type from the events.
 	 */
 	public static Event earliest(Event.Type type, Collection<Event> events) {
 		long t = Long.MAX_VALUE;
@@ -96,14 +114,22 @@ public class BuildUtil {
 	}
 
 	/**
-	 * Finds the latest event of given type.
+	 * Returns the latest event from given job, or null if no events.
+	 */
+	public static Event latestEvent(Job job) {
+		if (job.events.isEmpty()) return null;
+		return job.events.iterator().next();
+	}
+
+	/**
+	 * Finds the latest event of given type from the events.
 	 */
 	public static Event latest(Event.Type type, Event... events) {
 		return latest(type, Arrays.asList(events));
 	}
 
 	/**
-	 * Finds the latest event of given type.
+	 * Finds the latest event of given type from the events.
 	 */
 	public static Event latest(Event.Type type, Collection<Event> events) {
 		long t = Long.MIN_VALUE;
