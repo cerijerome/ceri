@@ -12,6 +12,8 @@ Figure out resource warnings
       
 Create jsp for web
 
+Run alerters in parallel
+
 Save state and reload on restart
 
 Build purge on timer

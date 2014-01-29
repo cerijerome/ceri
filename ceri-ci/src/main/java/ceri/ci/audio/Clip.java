@@ -4,19 +4,19 @@ import java.io.IOException;
 import ceri.common.io.IoUtil;
 
 public enum Clip {
-	has_just_been_broken_by,
+	alarm,
+	and,
+	build,
+	by,
+	has_just_been_broken,
+	is_now_fixed,
 	is_still_broken,
-	please_take_a_look,
-	is_now_fixed_thanks_to,
-	//
-	build_broken,
-	build_ok,
+	job,
+	please_fix_it,
 	thank_you,
-	out_of_time,
-	you_have_10min,
-	you_have_20min,
-	you_have_30min,
-	alarm;
+	thanks_to,
+	the_build,
+	;
 	
 	private static final String FILE_SUFFIX = ".wav";
 	public final String filename;

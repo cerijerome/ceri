@@ -27,6 +27,13 @@ public abstract class TestThread {
 	protected abstract void run() throws Exception;
 
 	/**
+	 * Interrupt the thread.
+	 */
+	public void interrupt() {
+		thread.interrupt();
+	}
+	
+	/**
 	 * Starts the thread. Will throw an exception if called more than once.
 	 */
 	public void start() {

@@ -1,7 +1,6 @@
 package ceri.ci.zwave;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,23 +8,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.util.BasicUtil;
 import ceri.zwave.veralite.VeraLite;
 
 public class ZWaveAlerter {
 	private final Map<String, Integer> devices;
 	private final Set<Integer> activeDevices = new HashSet<>();
 	private final ZWaveController zwave;
-
-	public static void main(String[] args) {
-		String host = "192.168.0.109:3480";
-		ZWaveController zwave = new ZWaveController(new VeraLite(host));
-		ZWaveAlerter alerter =
-			ZWaveAlerter.builder(zwave).device("ceri", 5).device("cj", 6).build();
-		alerter.alert(Arrays.asList("ceri", "cj"));
-		BasicUtil.delay(5000);
-		alerter.clear();
-	}
 
 	public static ZWaveAlerter create(Properties properties, String prefix) {
 		ZWaveAlerterProperties zwProperties = new ZWaveAlerterProperties(properties, prefix);

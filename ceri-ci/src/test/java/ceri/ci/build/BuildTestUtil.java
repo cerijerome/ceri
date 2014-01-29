@@ -17,6 +17,13 @@ public class BuildTestUtil {
 	private BuildTestUtil() {}
 
 	/**
+	 * Create an event
+	 */
+	public static Event event(Event.Type type, long timeStamp, String...names) {
+		return new Event(type, timeStamp, names);
+	}
+	
+	/**
 	 * Checks event fields except for time-stamp.
 	 */
 	public static void assertEvent(Event lhs, Event rhs) {

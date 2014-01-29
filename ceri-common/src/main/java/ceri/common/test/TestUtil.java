@@ -1,7 +1,6 @@
 package ceri.common.test;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -16,7 +15,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import org.hamcrest.Matcher;
@@ -66,7 +64,7 @@ public class TestUtil {
 	public static void assertArray(Object lhs, Object rhs) {
 		assertIsArray(lhs);
 		assertIsArray(rhs);
-		assertSize(Array.getLength(lhs), Array.getLength(rhs));
+		assertSize("Array size", Array.getLength(lhs), Array.getLength(rhs));
 		assertArray(lhs, 0, rhs, 0, Array.getLength(lhs));
 	}
 
@@ -88,7 +86,7 @@ public class TestUtil {
 	 * Checks two lists are equal, with specific failure information if not.
 	 */
 	public static <T> void assertList(List<? extends T> lhs, List<? extends T> rhs) {
-		assertSize(lhs.size(), rhs.size());
+		assertSize("List size", lhs.size(), rhs.size());
 		assertList(lhs, 0, rhs, 0, lhs.size());
 	}
 
@@ -119,7 +117,7 @@ public class TestUtil {
 	 * information if not.
 	 */
 	public static <T> void assertCollection(Collection<T> lhs, Collection<T> rhs) {
-		assertSize(lhs.size(), rhs.size());
+		assertSize("Collection size", lhs.size(), rhs.size());
 		for (T t : lhs) assertTrue("Unexpected element " + t, rhs.contains(t)); 
 		for (T t : rhs) assertTrue("Missing element " + t, lhs.contains(t)); 
 	}
@@ -139,16 +137,11 @@ public class TestUtil {
 	 * they don't implement equals().
 	 */
 	public static <T> void assertElements(Iterable<T> lhs, Iterable<T> rhs) {
-		Iterator<T> iLhs = lhs.iterator();
-		Iterator<T> iRhs = rhs.iterator();
-		int i = 0;
-		while (iLhs.hasNext()) {
-			assertTrue("Expected maximum size of " + i, iRhs.hasNext());
-			T lhsVal = iLhs.next();
-			T rhsVal = iRhs.next();
-			assertIndex(lhsVal, rhsVal, i++);
-		}
-		assertFalse("Expected minimum size of " + (i + 1), iRhs.hasNext());
+		List<T> lhsC = new ArrayList<>();
+		for (T t : lhs) lhsC.add(t);
+		List<T> rhsC = new ArrayList<>();
+		for (T t : rhs) rhsC.add(t);
+		assertList(lhsC, rhsC);
 	}
 
 	/**
@@ -159,8 +152,8 @@ public class TestUtil {
 		assertElements(Arrays.asList(lhs), ts);
 	}
 
-	private static void assertSize(long lhsSize, long rhsSize) {
-		assertThat("Expected size " + rhsSize + " but was " + lhsSize, lhsSize, is(rhsSize));
+	private static void assertSize(String message, long lhsSize, long rhsSize) {
+		assertThat(message, lhsSize, is(rhsSize));
 	}
 
 	private static void assertMinSize(long lhsSize, long minSize) {

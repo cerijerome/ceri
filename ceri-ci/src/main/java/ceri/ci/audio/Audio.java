@@ -2,7 +2,6 @@ package ceri.ci.audio;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.sound.sampled.AudioFormat;
@@ -16,6 +15,7 @@ import ceri.common.io.IoUtil;
 public class Audio {
 	private final AudioFormat format;
 	private final byte[] data;
+	public final float pitch;
 
 	public static class Builder {
 		float pitch = 1.0f;
@@ -27,22 +27,16 @@ public class Audio {
 				setFromInputStream(in);
 			}
 		}
-		
+
 		public Builder(File file) throws IOException {
-			try (InputStream in = new FileInputStream(file)) {
-				setFromInputStream(in);
-			}
+			this(IoUtil.getContent(file));
 		}
-		
-		public Builder(InputStream in) throws IOException {
-			setFromInputStream(in);
-		}
-		
+
 		public Builder pitch(float pitch) {
 			this.pitch = pitch;
 			return this;
 		}
-		
+
 		private void setFromInputStream(InputStream is) throws IOException {
 			try (AudioInputStream in = AudioSystem.getAudioInputStream(is)) {
 				format = in.getFormat();
@@ -51,16 +45,16 @@ public class Audio {
 				throw new IOException(e);
 			}
 		}
-		
+
 		public Audio build() {
-			AudioFormat f = pitch == 1.0f ? format : adjustPitch(format, pitch);
-			return new Audio(f, data);
+			return new Audio(this);
 		}
 	}
 
-	Audio(AudioFormat format, byte[] data) {
-		this.format = format;
-		this.data = data;
+	Audio(Builder builder) {
+		pitch = builder.pitch;
+		format = pitch == 1.0f ? builder.format : adjustPitch(builder.format, pitch);
+		data = builder.data;
 	}
 
 	static AudioFormat adjustPitch(AudioFormat format, float pitch) {
@@ -78,7 +72,7 @@ public class Audio {
 	}
 
 	public void play() throws IOException {
-		try (SourceDataLine out = AudioSystem.getSourceDataLine(format)) {
+		try (SourceDataLine out = getSourceDataLine(format)) {
 			out.open();
 			out.start();
 			out.write(data, 0, data.length);
@@ -89,4 +83,9 @@ public class Audio {
 		}
 	}
 
+	SourceDataLine getSourceDataLine(AudioFormat format)
+		throws LineUnavailableException {
+		return AudioSystem.getSourceDataLine(format);
+	}
+	
 }

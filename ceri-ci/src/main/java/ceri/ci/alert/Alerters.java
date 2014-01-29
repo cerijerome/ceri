@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Properties;
 import ceri.ci.audio.AudioAlerter;
+import ceri.ci.audio.AudioMessage;
 import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.web.WebAlerter;
@@ -15,11 +16,9 @@ import ceri.common.io.IoUtil;
 import ceri.common.property.PropertyUtil;
 
 /**
- * Container for alerter components.
- * Web => heroes/villains grouped by job
- * ZWave => aggregate of broken jobs
- * X10 => aggregate of broken jobs
- * Audio => spoken warnings when build fails or is fixed
+ * Container for alerter components. Web => heroes/villains grouped by job ZWave
+ * => aggregate of broken jobs X10 => aggregate of broken jobs Audio => spoken
+ * warnings when build fails or is fixed
  */
 public class Alerters implements Closeable {
 	public final X10Alerter x10;
@@ -33,8 +32,9 @@ public class Alerters implements Closeable {
 		audio = createAudio();
 		web = createWeb();
 	}
-	
+
 	public void alert(Builds builds) {
+		System.out.println("alert");
 		Builds summarizedBuilds = BuildUtil.summarize(builds);
 		Collection<String> breakNames = BuildUtil.summarizedBreakNames(summarizedBuilds);
 		if (x10 != null) x10.alert(breakNames);
@@ -42,14 +42,20 @@ public class Alerters implements Closeable {
 		if (web != null) web.update(summarizedBuilds);
 		if (audio != null) audio.alert(summarizedBuilds);
 	}
-	
+
 	public void clear() {
+		System.out.println("clear");
 		if (x10 != null) x10.clear();
 		if (zwave != null) zwave.clear();
 		if (web != null) web.clear();
 		if (audio != null) audio.clear();
 	}
-	
+
+	public void remind() {
+		System.out.println("remind");
+		if (audio != null) audio.remind();
+	}
+
 	@Override
 	public void close() throws IOException {
 		IoUtil.close(x10);
@@ -64,7 +70,7 @@ public class Alerters implements Closeable {
 			return null;
 		}
 	}
-	
+
 	private X10Alerter createX10() {
 		try {
 			Properties properties = PropertyUtil.load(X10Alerter.class, "x10.properties");
@@ -76,13 +82,7 @@ public class Alerters implements Closeable {
 	}
 
 	private AudioAlerter createAudio() {
-		try {
-			Properties properties = PropertyUtil.load(AudioAlerter.class, "audio.properties");
-			return AudioAlerter.create(properties, null);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+		return new AudioAlerter(new AudioMessage());
 	}
 
 	private WebAlerter createWeb() {

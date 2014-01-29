@@ -7,6 +7,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -20,7 +21,7 @@ public class CiAlertServiceImplBehavior {
 	@SuppressWarnings("resource")
 	public void should() {
 		Alerters alerters = Mockito.mock(Alerters.class);
-		CiAlertServiceImpl ci = new CiAlertServiceImpl(alerters);
+		CiAlertServiceImpl ci = new CiAlertServiceImpl(alerters, TimeUnit.MINUTES.toMillis(30) );
 		ci.broken("b0", "j0", Arrays.asList("n0", "n1"));
 		Builds builds = captureProcessAlertBuilds(alerters);
 		assertBuildNames(builds.builds, "b0");

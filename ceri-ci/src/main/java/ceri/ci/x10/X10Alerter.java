@@ -28,12 +28,6 @@ public class X10Alerter implements Closeable {
 		return create(PropertyUtil.load(propertyFile), prefix);
 	}
 
-	public static void main(String[] args) throws Exception {
-		try (X10Alerter x10 = create((File) null, null)) {
-			x10.clear();
-		}
-	}
-
 	public static X10Alerter create(Properties properties, String prefix) throws IOException {
 		X10AlerterProperties x10Properties = new X10AlerterProperties(properties, prefix);
 		String commPort = x10Properties.commPort();
