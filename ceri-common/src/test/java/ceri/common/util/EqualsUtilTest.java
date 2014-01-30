@@ -1,11 +1,17 @@
 package ceri.common.util;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import java.util.Date;
 import org.junit.Test;
 
 public class EqualsUtilTest {
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(EqualsUtil.class);
+	}
 
 	@Test
 	public void testFloatEquals() {

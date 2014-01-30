@@ -1,11 +1,17 @@
 package ceri.common.tree;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 public class TreeUtilTest {
 	private final TreeNodeTestHelper helper = new TreeNodeTestHelper();
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(TreeUtil.class);
+	}
 
 	@Test(expected = NullPointerException.class)
 	public void testLeavesOfNull() {

@@ -2,6 +2,7 @@ package ceri.common.property;
 
 import static ceri.common.test.TestUtil.isSame;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
@@ -21,12 +22,16 @@ public class KeyBehavior {
 	public void shouldNavigateParents() {
 		Key key = Key.create("a", "b", "c");
 		assertThat(key.value, is("a.b.c"));
+		assertTrue(key.hasParent());
 		key = key.parent();
 		assertThat(key.value, is("a.b"));
+		assertTrue(key.hasParent());
 		key = key.parent();
 		assertThat(key.value, is("a"));
+		assertFalse(key.hasParent());
 		key = key.parent();
 		assertThat(key, isSame(Key.NULL));
+		assertFalse(key.hasParent());
 	}
 
 	@Test

@@ -31,12 +31,18 @@ public class IoUtil {
 	private static final int MAX_UUID_ATTEMPTS = 10; // Shouldn't be needed
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 32;
 
+	private IoUtil() {}
+
+	/**
+	 * Returns the system tmp directory.
+	 */
 	public static File systemTempDir() {
 		return new File(System.getProperty("java.io.tmpdir"));
 	}
 
 	/**
-	 * Create a temp dir with random name under given dir. Use null for current dir.
+	 * Create a temp dir with random name under given dir. Use null for current
+	 * dir.
 	 */
 	public static File createTempDir(File rootDir) {
 		FileTracker tracker = new FileTracker();
@@ -57,8 +63,8 @@ public class IoUtil {
 	}
 
 	/**
-	 * Delete all files under the directory, and the directory itself.
-	 * Be careful!
+	 * Delete all files under the directory, and the directory itself. Be
+	 * careful!
 	 */
 	public static void deleteAll(File root) {
 		if (root.isDirectory()) for (File file : root.listFiles())
@@ -110,30 +116,31 @@ public class IoUtil {
 	}
 
 	/**
-	 * Convert file path to unix-style 
+	 * Convert file path to unix-style
 	 */
 	public static String unixPath(File file) {
 		return unixPath(file.getPath());
 	}
-	
+
 	/**
-	 * Convert file path to unix-style 
+	 * Convert file path to unix-style
 	 */
 	public static String unixPath(String path) {
 		if (File.separatorChar == '/') return path;
 		return UNIX_PATH_REGEX.matcher(path).replaceAll("/");
 	}
-	
+
 	/**
-	 * Returns the set of relative file paths under a given directory in Unix '/' format
+	 * Returns the set of relative file paths under a given directory in Unix
+	 * '/' format
 	 */
 	public static List<String> getFilenames(File dir) {
 		return getFilenames(dir, null);
 	}
 
 	/**
-	 * Returns the set of relative file paths under a given directory in Unix '/' format.
-	 * A null filter matches all files.
+	 * Returns the set of relative file paths under a given directory in Unix
+	 * '/' format. A null filter matches all files.
 	 */
 	public static List<String> getFilenames(File dir, FilenameFilter filter) {
 		List<String> list = new ArrayList<>();
@@ -149,8 +156,8 @@ public class IoUtil {
 	}
 
 	/**
-	 * Returns the set of file paths under a given directory. 
-	 * A null filter matches all files.
+	 * Returns the set of file paths under a given directory. A null filter
+	 * matches all files.
 	 */
 	public static List<File> getFiles(File dir, FileFilter filter) {
 		List<File> list = new ArrayList<>();
@@ -175,8 +182,8 @@ public class IoUtil {
 	}
 
 	/**
-	 * Returns the file path relative to a given dir in '/' format. Or the returns the file if
-	 * not relative.
+	 * Returns the file path relative to a given dir in '/' format. Or the
+	 * returns the file if not relative.
 	 */
 	public static String getRelativePath(File dir, File file) throws IOException {
 		dir = dir.getCanonicalFile();
@@ -212,10 +219,8 @@ public class IoUtil {
 	 */
 	public static void copyFile(File src, File dest) throws IOException {
 		FileTracker tracker = new FileTracker().file(dest); // creates parent dirs
-		try (
-			InputStream in = new BufferedInputStream(new FileInputStream(src));
-			OutputStream out = new BufferedOutputStream(new FileOutputStream(dest));
-		) {
+		try (InputStream in = new BufferedInputStream(new FileInputStream(src));
+			OutputStream out = new BufferedOutputStream(new FileOutputStream(dest));) {
 			transferContent(in, out, 0);
 		} catch (IOException e) {
 			tracker.delete();
@@ -308,8 +313,9 @@ public class IoUtil {
 	}
 
 	/**
-	 * Attempts to fill given buffer by reading from the input stream until full.
-	 * Returns the last position filled in the buffer. Returns 0 if end of stream.
+	 * Attempts to fill given buffer by reading from the input stream until
+	 * full. Returns the last position filled in the buffer. Returns 0 if end of
+	 * stream.
 	 */
 	public static int fillBuffer(InputStream in, byte[] buffer, int offset, int len)
 		throws IOException {
@@ -327,7 +333,8 @@ public class IoUtil {
 	}
 
 	/**
-	 * Gets resource as a string from same package as class, with given filename.
+	 * Gets resource as a string from same package as class, with given
+	 * filename.
 	 */
 	public static String getResourceString(Class<?> cls, String resourceName) throws IOException {
 		return new String(getResource(cls, resourceName)).intern();
@@ -343,14 +350,16 @@ public class IoUtil {
 	}
 
 	/**
-	 * Gets resource from same package as class, with name <simple-class-name>.<suffix>
+	 * Gets resource from same package as class, with name
+	 * <simple-class-name>.<suffix>
 	 */
 	public static String getClassResourceAsString(Class<?> cls, String suffix) throws IOException {
 		return new String(getClassResource(cls, suffix)).intern();
 	}
 
 	/**
-	 * Gets resource from same package as class, with name <simple-class-name>.<suffix>
+	 * Gets resource from same package as class, with name
+	 * <simple-class-name>.<suffix>
 	 */
 	public static byte[] getClassResource(Class<?> cls, String suffix) throws IOException {
 		return getResource(cls, cls.getSimpleName() + "." + suffix);

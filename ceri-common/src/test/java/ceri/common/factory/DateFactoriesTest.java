@@ -1,5 +1,6 @@
 package ceri.common.factory;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -10,6 +11,11 @@ import ceri.common.test.TestUtil;
 
 public class DateFactoriesTest {
 
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(DateFactories.class);
+	}
+	
 	@Test
 	public void testNullConversions() {
 		TimeZone tz = TimeZone.getTimeZone("UTC");

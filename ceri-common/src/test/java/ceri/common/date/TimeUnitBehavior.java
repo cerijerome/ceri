@@ -8,12 +8,12 @@ import org.junit.Test;
 import ceri.common.unit.NormalizedValue;
 
 public class TimeUnitBehavior {
-
+	
 	@Test
 	public void testSetCalendar() {
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		cal.setTimeInMillis(0);
-		NormalizedValue<TimeUnit> n = NormalizedValue.create(1000000000, TimeUnit.class);
+		NormalizedValue<TimeUnit> n = TimeUnit.normalize(1000000000);
 		TimeUnit.set(cal, n);
 		assertThat(cal.get(Calendar.YEAR), is(1970));
 		assertThat(cal.get(Calendar.MONTH), is(0));

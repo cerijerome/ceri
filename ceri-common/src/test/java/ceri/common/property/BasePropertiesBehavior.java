@@ -1,6 +1,7 @@
 package ceri.common.property;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -47,6 +48,20 @@ public class BasePropertiesBehavior {
 		assertThat(bp.longValue(Long.MIN_VALUE, "xx"), is(Long.MIN_VALUE));
 		assertThat(bp.floatValue(Float.MIN_VALUE, "xx"), is(Float.MIN_VALUE));
 		assertThat(bp.doubleValue(Double.MIN_VALUE, "xx"), is(Double.MIN_VALUE));
+	}
+
+	@Test
+	public void shouldReadBooleanValuesAsFalseForUnparseableStrings() {
+		BaseProperties bp = new BaseProperties(properties, null) {};
+		assertFalse(bp.booleanValue("a.b"));
+		assertFalse(bp.booleanValue("a.b.c"));
+	}
+	
+	@Test
+	public void shouldReadCharValuesAsFirstCharInString() {
+		BaseProperties bp = new BaseProperties(properties, null) {};
+		assertThat(bp.charValue("a.b"), is('A'));
+		assertThat(bp.charValue("a.b.c"), is('3'));
 	}
 
 	@Test(expected = NumberFormatException.class)

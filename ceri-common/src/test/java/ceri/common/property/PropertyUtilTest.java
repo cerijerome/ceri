@@ -1,5 +1,6 @@
 package ceri.common.property;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.io.BufferedReader;
@@ -13,6 +14,11 @@ import ceri.common.test.FileTestHelper;
 
 public class PropertyUtilTest {
 	
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(PropertyUtil.class);
+	}
+
 	@Test
 	public void testStore() throws IOException {
 		try (FileTestHelper helper = FileTestHelper.builder().build()) {

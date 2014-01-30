@@ -1,5 +1,6 @@
 package ceri.common.filter;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
@@ -9,6 +10,11 @@ import java.util.List;
 import org.junit.Test;
 
 public class CollectionFiltersTest {
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(CollectionFilters.class);
+	}
 
 	@Test
 	public void testNotEmpty() {
@@ -27,7 +33,7 @@ public class CollectionFiltersTest {
 		assertFalse(filter.filter(Arrays.asList(-1, 1)));
 		assertFalse(filter.filter(null));
 	}
-	
+
 	@Test
 	public void testAtIndex() {
 		Filter<List<String>> filter = CollectionFilters.atIndex(1, Filters.max("B"));

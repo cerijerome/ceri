@@ -2,6 +2,7 @@ package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.isList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -37,6 +38,11 @@ public class IoUtilTest {
 	@AfterClass
 	public static void deleteTempFiles() {
 		helper.close();
+	}
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(IoUtil.class);
 	}
 
 	@Test

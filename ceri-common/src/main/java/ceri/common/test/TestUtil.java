@@ -12,6 +12,9 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,6 +33,21 @@ public class TestUtil {
 	private static final Random RND = new Random();
 
 	private TestUtil() {}
+
+	/**
+	 * Calls private constructor. Useful for code coverage of utility classes.
+	 */
+	public static void assertPrivateConstructor(Class<?> cls) {
+		try {
+			Constructor<?> constructor = cls.getDeclaredConstructor();
+			assertTrue("Constructor is not private", Modifier.isPrivate(constructor.getModifiers()));
+			constructor.setAccessible(true);
+			constructor.newInstance();
+		} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException
+			| InstantiationException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	/**
 	 * Executes tests and prints names in readable phrases to stdout.
@@ -104,11 +122,11 @@ public class TestUtil {
 	}
 
 	/**
-	 * Checks collection contains exactly given elements in any order, with specific failure
-	 * information if not.
+	 * Checks collection contains exactly given elements in any order, with
+	 * specific failure information if not.
 	 */
 	@SafeVarargs
-	public static <T> void assertCollection(Collection<T> lhs, T...ts) {
+	public static <T> void assertCollection(Collection<T> lhs, T... ts) {
 		assertCollection(lhs, Arrays.asList(ts));
 	}
 
@@ -118,8 +136,10 @@ public class TestUtil {
 	 */
 	public static <T> void assertCollection(Collection<T> lhs, Collection<T> rhs) {
 		assertSize("Collection size", lhs.size(), rhs.size());
-		for (T t : lhs) assertTrue("Unexpected element " + t, rhs.contains(t)); 
-		for (T t : rhs) assertTrue("Missing element " + t, lhs.contains(t)); 
+		for (T t : lhs)
+			assertTrue("Unexpected element " + t, rhs.contains(t));
+		for (T t : rhs)
+			assertTrue("Missing element " + t, lhs.contains(t));
 	}
 
 	/**
@@ -138,9 +158,11 @@ public class TestUtil {
 	 */
 	public static <T> void assertElements(Iterable<T> lhs, Iterable<T> rhs) {
 		List<T> lhsC = new ArrayList<>();
-		for (T t : lhs) lhsC.add(t);
+		for (T t : lhs)
+			lhsC.add(t);
 		List<T> rhsC = new ArrayList<>();
-		for (T t : rhs) rhsC.add(t);
+		for (T t : rhs)
+			rhsC.add(t);
 		assertList(lhsC, rhsC);
 	}
 

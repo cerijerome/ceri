@@ -1,10 +1,16 @@
 package ceri.common.email;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class EmailUtilTest {
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(EmailUtil.class);
+	}
 
 	@Test
 	public void testValidEmails() {

@@ -18,7 +18,7 @@ public class TestThreadBehavior {
 		try {
 			thread.stop();
 			fail();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			assertTrue(e.getCause() instanceof InterruptedException);
 		}
 	}

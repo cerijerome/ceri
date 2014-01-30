@@ -1,5 +1,6 @@
 package ceri.common.tree;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.util.Comparator;
@@ -8,7 +9,12 @@ import ceri.common.tree.TreeNodeTestHelper.TestNode;
 
 public class TreeNodeComparatorsTest {
 	private final TreeNodeTestHelper helper = new TreeNodeTestHelper();
-	
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(TreeNodeComparators.class);
+	}
+
 	@Test
 	public void testById() {
 		Comparator<TestNode> comparator = TreeNodeComparators.id();

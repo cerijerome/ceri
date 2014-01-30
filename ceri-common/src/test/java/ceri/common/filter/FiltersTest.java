@@ -1,5 +1,6 @@
 package ceri.common.filter;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -11,6 +12,11 @@ import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 
 public class FiltersTest {
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(Filters.class);
+	}
 
 	@Test
 	public void testNul() {
@@ -30,7 +36,7 @@ public class FiltersTest {
 		assertFalse(filter.filter(0));
 		assertFalse(filter.filter(null));
 	}
-	
+
 	@Test
 	public void testNot() {
 		assertFalse(Filters.not(Filters._true()).filter(null));

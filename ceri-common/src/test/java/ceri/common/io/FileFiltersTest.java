@@ -1,5 +1,6 @@
 package ceri.common.io;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.isList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -26,6 +27,11 @@ public class FileFiltersTest {
 	@AfterClass
 	public static void deleteTempFiles() {
 		helper.close();
+	}
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(FileFilters.class);
 	}
 
 	@Test

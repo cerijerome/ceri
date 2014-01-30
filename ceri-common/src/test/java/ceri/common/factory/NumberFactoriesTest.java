@@ -1,5 +1,6 @@
 package ceri.common.factory;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -7,6 +8,11 @@ import org.junit.Test;
 
 public class NumberFactoriesTest {
 
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(NumberFactories.class);
+	}
+	
 	@Test
 	public void testByte() {
 		assertThat(NumberFactories.TO_BYTE.create(Long.MAX_VALUE), is((byte)Long.MAX_VALUE));

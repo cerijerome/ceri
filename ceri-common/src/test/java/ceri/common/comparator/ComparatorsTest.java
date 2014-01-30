@@ -1,5 +1,6 @@
 package ceri.common.comparator;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.util.Comparator;
@@ -7,6 +8,11 @@ import org.junit.Test;
 
 public class ComparatorsTest {
 	
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(Comparators.class);
+	}
+
 	@Test
 	public void testGroupComparator() {
 		Comparator<Integer> comparator = Comparators.group(Comparators.INTEGER, 3, 4, 5);

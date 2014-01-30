@@ -6,6 +6,11 @@ import org.junit.Test;
 
 public class InchUnitTest {
 
+	@Test(expected = IllegalArgumentException.class)
+	public void testBadHeightFromString() {
+		InchUnit.heightFromString("ab");
+	}
+	
 	@Test
 	public void testHeightFromString() {
 		NormalizedValue<InchUnit> n = InchUnit.heightFromString("10'");

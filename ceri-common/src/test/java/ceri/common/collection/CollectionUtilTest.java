@@ -1,6 +1,7 @@
 package ceri.common.collection;
 
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -26,6 +27,11 @@ import java.util.TreeSet;
 import org.junit.Test;
 
 public class CollectionUtilTest {
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(CollectionUtil.class);
+	}
 
 	@Test
 	public void testDefaultValueMap() {

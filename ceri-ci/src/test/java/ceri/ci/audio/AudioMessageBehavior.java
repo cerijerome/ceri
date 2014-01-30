@@ -9,7 +9,7 @@ import ceri.common.test.TestThread;
 public class AudioMessageBehavior {
 	
 	@Test
-	public void shouldFailIfInterrupted() throws Exception {
+	public void shouldFailIfInterrupted() throws Throwable {
 		final AudioMessage audio = new AudioMessage();
 		TestThread thread = new TestThread() {	
 			@Override

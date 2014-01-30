@@ -11,6 +11,8 @@ import java.util.TimeZone;
 public class DateFactories {
 	private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
 
+	private DateFactories() {}
+	
 	public static final Factory<Date, Long> FROM_LONG = new Factory.Base<Date, Long>() {
 		@Override
 		protected Date createNonNull(Long value) {

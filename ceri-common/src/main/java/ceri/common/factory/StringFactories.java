@@ -5,6 +5,8 @@ package ceri.common.factory;
  */
 public class StringFactories {
 
+	private StringFactories() {}
+	
 	public static final Factory<String, char[]> FROM_CHAR_ARRAY =
 		new Factory.Base<String, char[]>() {
 			@Override

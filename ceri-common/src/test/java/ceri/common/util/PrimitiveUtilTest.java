@@ -2,6 +2,7 @@ package ceri.common.util;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
@@ -10,6 +11,11 @@ import java.util.Collection;
 import org.junit.Test;
 
 public class PrimitiveUtilTest {
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(PrimitiveUtil.class);
+	}
 
 	@Test
 	public void testConvertArrays() {
@@ -52,8 +58,24 @@ public class PrimitiveUtilTest {
 	}
 
 	@Test
-	public void testGetClass() {
+	public void testGetPrimitiveClass() {
 		assertSame(double.class, PrimitiveUtil.getPrimitiveClass(Double.class));
+		assertException(IllegalArgumentException.class, new Runnable() {
+			@Override
+			public void run() {
+				PrimitiveUtil.getPrimitiveClass(Boolean.TYPE);
+			}
+		});
+		assertException(IllegalArgumentException.class, new Runnable() {
+			@Override
+			public void run() {
+				PrimitiveUtil.getPrimitiveClass(String.class);
+			}
+		});
+	}
+
+	@Test
+	public void testGetObjectClass() {
 		assertSame(Double.class, PrimitiveUtil.getObjectClass(double.class));
 		assertException(IllegalArgumentException.class, new Runnable() {
 			@Override
@@ -77,11 +99,12 @@ public class PrimitiveUtilTest {
 		assertThat(PrimitiveUtil.toByteArray(collection), is(new byte[] { 1, 16, 0, 0, 0 }));
 		assertThat(PrimitiveUtil.toShortArray(collection), is(new short[] { 1, 16, 256, 4096, 0 }));
 		assertThat(PrimitiveUtil.toIntArray(collection), is(new int[] { 1, 16, 256, 4096, 65536 }));
-		assertThat(PrimitiveUtil.toLongArray(collection), is(new long[] { 1, 16, 256, 4096, 65536 }));
+		assertThat(PrimitiveUtil.toLongArray(collection),
+			is(new long[] { 1, 16, 256, 4096, 65536 }));
 		assertThat(PrimitiveUtil.toFloatArray(collection),
 			is(new float[] { 1, 16, 256, 4096, 65536 }));
-		assertThat(PrimitiveUtil.toDoubleArray(collection),
-			is(new double[] { 1, 16, 256, 4096, 65536 }));
+		assertThat(PrimitiveUtil.toDoubleArray(collection), is(new double[] { 1, 16, 256, 4096,
+			65536 }));
 	}
 
 	@Test
@@ -95,12 +118,12 @@ public class PrimitiveUtilTest {
 
 	@Test
 	public void testValueOfNumbers() {
-		assertThat(PrimitiveUtil.valueOf(null, (byte)0), is((byte)0));
+		assertThat(PrimitiveUtil.valueOf(null, (byte) 0), is((byte) 0));
 		assertThat(PrimitiveUtil.valueOf("x", Byte.MIN_VALUE), is(Byte.MIN_VALUE));
-		assertThat(PrimitiveUtil.valueOf("-1", Byte.MIN_VALUE), is((byte)-1));
-		assertThat(PrimitiveUtil.valueOf(null, (short)-1), is((short)-1));
+		assertThat(PrimitiveUtil.valueOf("-1", Byte.MIN_VALUE), is((byte) -1));
+		assertThat(PrimitiveUtil.valueOf(null, (short) -1), is((short) -1));
 		assertThat(PrimitiveUtil.valueOf("x", Short.MIN_VALUE), is(Short.MIN_VALUE));
-		assertThat(PrimitiveUtil.valueOf("1", Short.MIN_VALUE), is((short)1));
+		assertThat(PrimitiveUtil.valueOf("1", Short.MIN_VALUE), is((short) 1));
 		assertThat(PrimitiveUtil.valueOf(null, Integer.MIN_VALUE), is(Integer.MIN_VALUE));
 		assertThat(PrimitiveUtil.valueOf("--", Integer.MAX_VALUE), is(Integer.MAX_VALUE));
 		assertThat(PrimitiveUtil.valueOf("100", Integer.MAX_VALUE), is(100));
@@ -117,22 +140,21 @@ public class PrimitiveUtilTest {
 
 	@Test
 	public void testAsList() {
-		assertThat(PrimitiveUtil.asList(new boolean[] { true, false }),
-			is(Arrays.asList(true, false)));
-		assertThat(PrimitiveUtil.asList(new char[] { 'a', '\0' }),
-			is(Arrays.asList('a', '\0')));
-		assertThat(PrimitiveUtil.asList(Byte.MAX_VALUE, Byte.MIN_VALUE),
-			is(Arrays.asList(Byte.MAX_VALUE, Byte.MIN_VALUE)));
-		assertThat(PrimitiveUtil.asList(Short.MAX_VALUE, Short.MIN_VALUE),
-			is(Arrays.asList(Short.MAX_VALUE, Short.MIN_VALUE)));
-		assertThat(PrimitiveUtil.asList(Integer.MAX_VALUE, Integer.MIN_VALUE),
-			is(Arrays.asList(Integer.MAX_VALUE, Integer.MIN_VALUE)));
-		assertThat(PrimitiveUtil.asList(Long.MAX_VALUE, Long.MIN_VALUE),
-			is(Arrays.asList(Long.MAX_VALUE, Long.MIN_VALUE)));
-		assertThat(PrimitiveUtil.asList(Double.MAX_VALUE, Double.MIN_VALUE),
-			is(Arrays.asList(Double.MAX_VALUE, Double.MIN_VALUE)));
-		assertThat(PrimitiveUtil.asList(Float.MAX_VALUE, Float.MIN_VALUE),
-			is(Arrays.asList(Float.MAX_VALUE, Float.MIN_VALUE)));
+		assertThat(PrimitiveUtil.asList(new boolean[] { true, false }), is(Arrays.asList(true,
+			false)));
+		assertThat(PrimitiveUtil.asList(new char[] { 'a', '\0' }), is(Arrays.asList('a', '\0')));
+		assertThat(PrimitiveUtil.asList(Byte.MAX_VALUE, Byte.MIN_VALUE), is(Arrays.asList(
+			Byte.MAX_VALUE, Byte.MIN_VALUE)));
+		assertThat(PrimitiveUtil.asList(Short.MAX_VALUE, Short.MIN_VALUE), is(Arrays.asList(
+			Short.MAX_VALUE, Short.MIN_VALUE)));
+		assertThat(PrimitiveUtil.asList(Integer.MAX_VALUE, Integer.MIN_VALUE), is(Arrays.asList(
+			Integer.MAX_VALUE, Integer.MIN_VALUE)));
+		assertThat(PrimitiveUtil.asList(Long.MAX_VALUE, Long.MIN_VALUE), is(Arrays.asList(
+			Long.MAX_VALUE, Long.MIN_VALUE)));
+		assertThat(PrimitiveUtil.asList(Double.MAX_VALUE, Double.MIN_VALUE), is(Arrays.asList(
+			Double.MAX_VALUE, Double.MIN_VALUE)));
+		assertThat(PrimitiveUtil.asList(Float.MAX_VALUE, Float.MIN_VALUE), is(Arrays.asList(
+			Float.MAX_VALUE, Float.MIN_VALUE)));
 	}
 
 }

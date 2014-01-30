@@ -11,15 +11,38 @@ import ceri.common.test.TestThread;
 
 public class BlockingBufferStreamBehavior {
 	byte[] buffer;
-	
+
 	@Before
 	public void init() {
 		buffer = new byte[256];
-		for (int i = 0; i < buffer.length; i++) buffer[i] = (byte)i;
+		for (int i = 0; i < buffer.length; i++)
+			buffer[i] = (byte) i;
 	}
-	
+
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldFailForInvalidConstructorArguments() {
+		try (BlockingBufferStream stream = new BlockingBufferStream(2, 1)) {}
+	}
+
 	@Test
-	public void shouldWritePartialDataIfNotAtMaximum() throws Exception {
+	public void shouldWriteAndReadSynchronously() throws Throwable {
+		try (final BlockingBufferStream stream = new BlockingBufferStream()) {
+			TestThread thread = new TestThread() {
+				@Override
+				protected void run() throws Exception {
+					assertThat(stream.read(), is(0xff));
+					assertThat(stream.read(), is(0));
+				}
+			};
+			thread.start();
+			stream.write(0xff);
+			stream.write(0);
+			thread.join();
+		}
+	}
+
+	@Test
+	public void shouldWritePartialDataIfNotAtMaximum() throws Throwable {
 		try (final BlockingBufferStream stream = new BlockingBufferStream(10, 10)) {
 			TestThread readThread = new TestThread() {
 				@Override
@@ -35,9 +58,9 @@ public class BlockingBufferStreamBehavior {
 			readThread.stop();
 		}
 	}
-	
+
 	@Test
-	public void shouldBlockOnReadIfNoDataInBuffer() throws Exception {
+	public void shouldBlockOnReadIfNoDataInBuffer() throws Throwable {
 		final TestState<Integer> state = new TestState<>(0);
 		try (final BlockingBufferStream stream = new BlockingBufferStream(10, 100)) {
 			TestThread readThread = new TestThread() {
@@ -66,7 +89,7 @@ public class BlockingBufferStreamBehavior {
 	}
 
 	@Test
-	public void shouldBlockOnWriteIfBufferIsNotBigEnough() throws Exception {
+	public void shouldBlockOnWriteIfBufferIsNotBigEnough() throws Throwable {
 		final TestState<Integer> state = new TestState<>(0);
 		try (final BlockingBufferStream stream = new BlockingBufferStream(10, 100)) {
 			TestThread writeThread = new TestThread() {
@@ -87,5 +110,5 @@ public class BlockingBufferStreamBehavior {
 			writeThread.stop();
 		}
 	}
-	
+
 }

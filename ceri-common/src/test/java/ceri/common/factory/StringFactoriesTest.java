@@ -1,5 +1,6 @@
 package ceri.common.factory;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -7,6 +8,11 @@ import org.junit.Test;
 import ceri.common.test.TestUtil;
 
 public class StringFactoriesTest {
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(StringFactories.class);
+	}
 
 	@Test
 	public void testFromCharArray() {

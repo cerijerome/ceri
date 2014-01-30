@@ -2,6 +2,7 @@ package ceri.common.util;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -20,6 +21,11 @@ public class MathUtilTest {
 		double[] dx = { Double.POSITIVE_INFINITY, Double.NaN, Double.NEGATIVE_INFINITY };
 		float[] f = { Float.MAX_VALUE, -1, 0, 1, -Float.MAX_VALUE };
 		float[] fx = { Float.POSITIVE_INFINITY, Float.NaN, Float.NEGATIVE_INFINITY };
+	}
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(MathUtil.class);
 	}
 
 	@Test

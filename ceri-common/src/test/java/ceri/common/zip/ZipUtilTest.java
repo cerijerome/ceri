@@ -2,6 +2,7 @@ package ceri.common.zip;
 
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertDir;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.io.File;
@@ -32,6 +33,11 @@ public class ZipUtilTest {
 	@AfterClass
 	public static void deleteTempFiles() {
 		helper.close();
+	}
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(ZipUtil.class);
 	}
 
 	@Test(expected = RuntimeException.class)

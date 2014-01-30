@@ -1,5 +1,6 @@
 package ceri.common.util;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
@@ -9,13 +10,18 @@ import org.junit.Test;
 public class LocaleUtilTest {
 
 	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(LocaleUtil.class);
+	}
+
+	@Test
 	public void testFromString() {
 		Locale locale = new Locale("en", "US", "Test");
 		assumeThat("en_US_Test", is(locale.toString()));
 		Locale localeFromString = LocaleUtil.fromString("en_US_Test");
 		assertThat(locale, is(localeFromString));
 	}
-	
+
 	@Test
 	public void testParentOf() {
 		Locale locale = new Locale("en", "US", "Test");
@@ -28,5 +34,5 @@ public class LocaleUtilTest {
 		locale = LocaleUtil.parentOf(locale);
 		assertThat(locale, is(new Locale("")));
 	}
-	
+
 }

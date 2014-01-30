@@ -1,6 +1,7 @@
 package ceri.common.collection;
 
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.isClass;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -14,6 +15,11 @@ import org.junit.Test;
 
 public class ArrayUtilTest {
 	
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(ArrayUtil.class);
+	}
+
 	@Test
 	public void testEmptyArrays() {
 		assertThat(ArrayUtil.EMPTY_BOOLEAN, is(new boolean[0]));

@@ -1,6 +1,7 @@
 package ceri.common.factory;
 
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -20,6 +21,11 @@ public class FactoriesTest {
 	};
 
 	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(Factories.class);
+	}
+
+	@Test
 	public void testAssign() {
 		assertNull(Factories.assign().create(null));
 		assertThat(Factories.<Integer>assign().create(1), is(1));
@@ -31,6 +37,7 @@ public class FactoriesTest {
 	public void testNul() {
 		assertNull(Factories.nul(null).create(null));
 		assertNull(Factories.nul(testFactory).create(null));
+		assertThat(Factories.nul(StringFactories.TO_INTEGER).create("-1"), is(-1));
 		assertException(UnsupportedOperationException.class, new Runnable() {
 			@Override
 			public void run() {
@@ -41,6 +48,19 @@ public class FactoriesTest {
 
 	@Test
 	public void testCreate() {
+		assertThat(Factories.create(StringFactories.TO_INTEGER, "123"), is(123));
+		final Factory<Integer, String> badFactory = new Factory<Integer, String>() {
+			@Override
+			public Integer create(String from) {
+				throw new FactoryException("");
+			}
+		};
+		assertException(FactoryException.class, new Runnable() {
+			@Override
+			public void run() {
+				Factories.create(badFactory, "1");
+			}
+		});
 		assertException(FactoryException.class, new Runnable() {
 			@Override
 			public void run() {

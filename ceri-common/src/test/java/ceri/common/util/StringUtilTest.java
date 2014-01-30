@@ -1,5 +1,6 @@
 package ceri.common.util;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.io.PrintStream;
@@ -8,6 +9,11 @@ import org.junit.Test;
 import ceri.common.util.StringUtil.Align;
 
 public class StringUtilTest {
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(StringUtil.class);
+	}
 
 	@Test
 	public void testToString() {

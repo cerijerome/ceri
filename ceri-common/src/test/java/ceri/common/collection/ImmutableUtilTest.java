@@ -1,6 +1,7 @@
 package ceri.common.collection;
 
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
@@ -18,6 +19,11 @@ import ceri.common.util.BasicUtil;
 
 public class ImmutableUtilTest {
 
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(ImmutableUtil.class);
+	}
+	
 	@Test
 	public void testIterableShouldIterateItems() {
 		List<String> list = new ArrayList<>();

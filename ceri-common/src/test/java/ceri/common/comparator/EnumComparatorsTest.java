@@ -1,5 +1,6 @@
 package ceri.common.comparator;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.util.Comparator;
@@ -10,6 +11,11 @@ public class EnumComparatorsTest {
 		C, B, A
 	}
 	
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(EnumComparators.class);
+	}
+
 	@Test
 	public void testByOrdinal() {
 		Comparator<TestEnum> comparator = EnumComparators.ordinal();

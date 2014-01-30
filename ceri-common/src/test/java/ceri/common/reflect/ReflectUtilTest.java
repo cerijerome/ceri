@@ -1,5 +1,6 @@
 package ceri.common.reflect;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertFalse;
@@ -12,14 +13,19 @@ public class ReflectUtilTest {
 
 	private static abstract class Abstract {
 		@SuppressWarnings("unused")
-		public Abstract() {
-		}
+		public Abstract() {}
 	}
+
 	private static class Error {
 		@SuppressWarnings("unused")
 		public Error() {
 			throw new RuntimeException();
 		}
+	}
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(ReflectUtil.class);
 	}
 
 	@Test(expected = CreateException.class)

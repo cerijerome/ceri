@@ -6,8 +6,9 @@ package ceri.common.test;
 public abstract class TestThread {
 	private static final int DEFAULT_WAIT_MS = 1000;
 	private final Thread thread;
-	private Exception error;
-	private boolean completed;
+	private Throwable error;
+	private boolean started = false;
+	private volatile boolean completed;
 
 	/**
 	 * Creates the thread. Call start to execute.
@@ -32,14 +33,15 @@ public abstract class TestThread {
 	public void interrupt() {
 		thread.interrupt();
 	}
-	
+
 	/**
 	 * Starts the thread. Will throw an exception if called more than once.
 	 */
 	public void start() {
-		if (completed) throw new IllegalStateException("Thread is already running.");
+		if (started) throw new IllegalStateException("Thread is already running.");
 		error = null;
 		completed = false;
+		started = true;
 		thread.start();
 	}
 
@@ -48,8 +50,9 @@ public abstract class TestThread {
 	 * the thread does not stop in the given time a RuntimeException will be
 	 * thrown.
 	 */
-	public void stop() throws Exception {
-		stop(DEFAULT_WAIT_MS);
+	public void stop() throws Throwable {
+		interrupt();
+		join();
 	}
 
 	/**
@@ -57,10 +60,29 @@ public abstract class TestThread {
 	 * milliseconds. A value of 0 will wait indefinitely. If the thread does not
 	 * stop in the given time a RuntimeException will be thrown.
 	 */
-	public void stop(int ms) throws Exception {
-		thread.interrupt();
+	public void stop(int ms) throws Throwable {
+		interrupt();
+		join(ms);
+	}
+
+	/**
+	 * Waits for max of 1 second for thread to complete. A value of 0 will wait
+	 * indefinitely. If the thread does not stop in the given time a
+	 * RuntimeException will be thrown.
+	 */
+	public void join() throws Throwable {
+		join(DEFAULT_WAIT_MS);
+	}
+
+	/**
+	 * Waits given maximum number of milliseconds for thread to complete. A
+	 * value of 0 will wait indefinitely. If the thread does not stop in the
+	 * given time a RuntimeException will be thrown.
+	 */
+	public void join(int ms) throws Throwable {
 		try {
 			thread.join(ms);
+			if (!started) throw new RuntimeException("Thread was not started");
 			if (!completed()) throw new RuntimeException("Thread not complete");
 			if (error != null) throw error;
 		} catch (InterruptedException e) {
@@ -78,7 +100,7 @@ public abstract class TestThread {
 	void execute() {
 		try {
 			run();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			error = e;
 		}
 		completed = true;

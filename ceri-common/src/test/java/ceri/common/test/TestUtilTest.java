@@ -20,6 +20,11 @@ import org.junit.Test;
 public class TestUtilTest {
 
 	@Test
+	public void testConstructorIsPrivate() {
+		TestUtil.assertPrivateConstructor(TestUtil.class);
+	}
+
+	@Test
 	public void testAssertCollection() {
 		List<Integer> list = new ArrayList<>();
 		Collections.addAll(list, 5, 1, 4, 2, 3);

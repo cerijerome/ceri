@@ -1,5 +1,6 @@
 package ceri.common.util;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertFalse;
@@ -17,6 +18,11 @@ import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 
 public class BasicUtilTest {
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(BasicUtil.class);
+	}
 
 	@Test
 	public void testDefaultValue() {
