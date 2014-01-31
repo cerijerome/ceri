@@ -14,6 +14,7 @@ import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
 import ceri.common.concurrent.AsyncRunnerBehavior;
+import ceri.common.concurrent.ConcurrentUtilTest;
 import ceri.common.concurrent.RuntimeInterruptedExceptionBehavior;
 import ceri.common.date.ImmutableDateBehavior;
 import ceri.common.date.ImmutableTimeZoneBehavior;
@@ -90,6 +91,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	EnumComparatorsTest.class,
 	// concurrent
 	AsyncRunnerBehavior.class,
+	ConcurrentUtilTest.class,
 	RuntimeInterruptedExceptionBehavior.class,
 	// date
 	ImmutableDateBehavior.class,

@@ -4,17 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import ceri.common.io.IoUtil;
+import ceri.common.concurrent.ConcurrentUtil;
 
 public class AudioMessage {
 	private static final String AUDIO_FILE_SUFFIX = ".wav";
 	private final File soundDir;
 	private final float pitch;
 
-	public AudioMessage() {
-		this(IoUtil.getPackageDir(Audio.class), 1.0f);
+	public AudioMessage(File soundDir) {
+		this(soundDir, Audio.NORMAL_PITCH);
 	}
-
+	
 	public AudioMessage(File soundDir, float pitch) {
 		this.soundDir = soundDir;
 		this.pitch = pitch;
@@ -24,8 +24,7 @@ public class AudioMessage {
 	 * Plays alarm sound.
 	 */
 	public void playAlarm() throws IOException {
-		if (true == true) IoUtil.checkIoInterrupted();
-		if (true == false) play(Clip.alarm);
+		play(Clip.alarm);
 	}
 
 	/**
@@ -99,19 +98,19 @@ public class AudioMessage {
 	}
 
 	private void play(String key) throws IOException {
-		IoUtil.checkIoInterrupted();
+		ConcurrentUtil.checkRuntimeInterrupted();
 		File file = audioFile(key);
 		if (!file.exists()) return;
-		play(IoUtil.getContent(file));
+		play(Audio.create(file));
 	}
 
 	private void play(Clip clip) throws IOException {
-		play(clip.load());
+		ConcurrentUtil.checkRuntimeInterrupted();
+		play(Audio.create(clip.load()));
 	}
 
-	void play(byte[] data) throws IOException {
-		IoUtil.checkIoInterrupted();
-		new Audio.Builder(data).pitch(pitch).build().play();
+	void play(Audio audio) throws IOException {
+		audio.changePitch(pitch).play();
 	}
-
+	
 }

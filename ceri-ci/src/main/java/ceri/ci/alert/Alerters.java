@@ -1,19 +1,16 @@
 package ceri.ci.alert;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Properties;
 import ceri.ci.audio.AudioAlerter;
-import ceri.ci.audio.AudioMessage;
 import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.web.WebAlerter;
 import ceri.ci.x10.X10Alerter;
 import ceri.ci.zwave.ZWaveAlerter;
 import ceri.common.io.IoUtil;
-import ceri.common.property.PropertyUtil;
 
 /**
  * Container for alerter components. Web => heroes/villains grouped by job ZWave
@@ -26,11 +23,12 @@ public class Alerters implements Closeable {
 	public final AudioAlerter audio;
 	public final WebAlerter web;
 
-	public Alerters() {
-		x10 = createX10();
-		zwave = createZWave();
-		audio = createAudio();
-		web = createWeb();
+	public Alerters(Properties properties, String prefix) throws IOException {
+		AlertersProperties props = new AlertersProperties(properties, prefix);
+		x10 = props.x10Enabled() ? createX10(properties) : null;
+		zwave = props.zwaveEnabled() ? createZWave(properties) : null;
+		web = props.webEnabled() ? createWeb(properties) : null;
+		audio = props.audioEnabled() ? createAudio(properties) : null;
 	}
 
 	public void alert(Builds builds) {
@@ -61,33 +59,20 @@ public class Alerters implements Closeable {
 		IoUtil.close(x10);
 	}
 
-	private ZWaveAlerter createZWave() {
-		try {
-			Properties properties = PropertyUtil.load(ZWaveAlerter.class, "zwave.properties");
-			return ZWaveAlerter.create(properties, null);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+	ZWaveAlerter createZWave(Properties properties) {
+		return ZWaveAlerter.create(properties, "zwave");
 	}
 
-	private X10Alerter createX10() {
-		try {
-			Properties properties = PropertyUtil.load(X10Alerter.class, "x10.properties");
-			return X10Alerter.create(properties, null);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+	X10Alerter createX10(Properties properties) throws IOException {
+		return X10Alerter.create(properties, "x10");
 	}
 
-	private AudioAlerter createAudio() {
-		return new AudioAlerter(new AudioMessage());
+	AudioAlerter createAudio(Properties properties) {
+		return AudioAlerter.create(properties, "audio");
 	}
 
-	private WebAlerter createWeb() {
-		File rootDir = IoUtil.getPackageDir(WebAlerter.class);
-		return new WebAlerter(rootDir);
+	WebAlerter createWeb(Properties properties) {
+		return WebAlerter.create(properties, "web");
 	}
 
 }

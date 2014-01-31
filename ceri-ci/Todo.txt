@@ -1,15 +1,11 @@
 To do
 =====
 
-Audio
-- reminder:
-  - group by build (still broken)
-  - list jobs in order if broken
-  - list who is still in the doghouse
-- check for interruption correctly
+Move to IoC
 
-Figure out resource warnings
-      
+ZWave, X10
+- check for runtime interruption
+
 Create jsp for web
 
 Run alerters in parallel

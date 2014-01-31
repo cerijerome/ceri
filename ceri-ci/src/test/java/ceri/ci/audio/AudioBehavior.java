@@ -1,6 +1,9 @@
 package ceri.ci.audio;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import java.io.File;
 import java.io.IOException;
 import javax.sound.sampled.AudioFormat;
@@ -16,12 +19,20 @@ public class AudioBehavior {
 		"test.wav");
 
 	@Test
+	public void shouldOnlyChangePitchIfNotNormalPitch() throws IOException {
+		Audio audio = Audio.create(testFile);
+		Audio audio2 = audio.changePitch(1.0f);
+		Audio audio3 = audio.changePitch(2.0f);
+		assertThat(audio, is(audio2));
+		assertThat(audio, not(audio3));
+	}
+
+	@Test
 	public void shouldNotThrowConstructorExceptionsForValidData() throws IOException {
 		byte[] data = IoUtil.getContent(testFile);
-		Audio audio = new Audio.Builder(testFile).pitch(2.0f).build();
-		audio = new Audio.Builder(data).pitch(1.0f).build();
+		Audio audio = Audio.create(testFile);
+		assertNotNull(audio);
 		audio = Audio.create(data);
-		audio = Audio.create(testFile);
 		assertNotNull(audio);
 	}
 
@@ -36,8 +47,8 @@ public class AudioBehavior {
 	@Test
 	public void shouldPlayAudioData() throws IOException {
 		final SourceDataLine line = Mockito.mock(SourceDataLine.class);
-		Audio.Builder builder = new Audio.Builder(testFile);
-		Audio audio = new Audio(builder) {
+		Audio audio = Audio.create(testFile);
+		audio = new Audio(null, new byte[0]) {
 			@Override
 			SourceDataLine getSourceDataLine(AudioFormat format) throws LineUnavailableException {
 				return line;

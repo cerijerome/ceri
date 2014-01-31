@@ -97,19 +97,12 @@ public class IoUtil {
 
 	/**
 	 * Checks if the current thread has been interrupted, and throws an
-	 * InterruptedException. With blocking I/O, (i.e. anything that doesn't use
-	 * the nio packages) a thread can be interrupted, but the I/O will still
+	 * InterruptedIOException. With blocking I/O, (i.e. anything that doesn't
+	 * use the nio packages) a thread can be interrupted, but the I/O will still
 	 * proceed, and the InterruptedException is only thrown when a call to
-	 * Thread.sleep() or Object.wait() is made. This method is recommended to be
-	 * called after any blocking I/O calls.
-	 */
-	public static void checkInterrupted() throws InterruptedException {
-		if (Thread.interrupted()) throw new InterruptedException("Thread has been interrupted");
-	}
-
-	/**
-	 * This performs the same task as checkInterrupted, but throws an
-	 * InterruptedIOException instead.
+	 * Thread.sleep() or Object.wait() is made. This method or the
+	 * BasicUtil.checkInterrupted() method is recommended to be called after any
+	 * blocking I/O calls.
 	 */
 	public static void checkIoInterrupted() throws InterruptedIOException {
 		if (Thread.interrupted()) throw new InterruptedIOException("Thread has been interrupted");

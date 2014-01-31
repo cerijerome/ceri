@@ -1,45 +1,65 @@
-package ceri.ci.service;
+package ceri.ci.alert;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import ceri.ci.alert.Alerters;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
+import ceri.ci.service.CiAlertService;
+import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.property.PropertyUtil;
 import ceri.common.util.BasicUtil;
 
-public class CiAlertServiceImpl implements CiAlertService, Closeable {
+public class AlertService implements CiAlertService, Closeable {
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	private final Alerters alerters;
 	private final long reminderMs;
+	private final long shutdownTimeoutMs;
 	private final Lock lock = new ReentrantLock();
 	private final Condition condition = lock.newCondition();
 	private final Builds builds = new Builds();
 	private boolean buildsChanged = false;
 
-	public static void main(String[] args) {
-		Alerters alerters = new Alerters();
-		CiAlertService service = new CiAlertServiceImpl(alerters, 10000);
-		service.broken("bolt", "smoke", Arrays.asList("cdehaudt"));
-		BasicUtil.delay(20000);
-		service.fixed("bolt", "smoke", Arrays.asList("cdehaudt"));
-		service.broken("bolt", "regression", Arrays.asList("machung"));
-		BasicUtil.delay(20000);
-		service.broken("bolt", "smoke", Arrays.asList("dxie"));
-		BasicUtil.delay(20000);
-		service.broken("bolt", "smoke", Arrays.asList("fuzhong", "cjerome"));
+	public static void main(String[] args) throws IOException {
+		try (AlertService service = new AlertService()) {
+			service.broken("bolt", "smoke", Arrays.asList("cdehaudt"));
+			BasicUtil.delay(10000);
+			service.fixed("bolt", "smoke", Arrays.asList("cdehaudt"));
+			service.broken("bolt", "regression", Arrays.asList("machung"));
+			BasicUtil.delay(10000);
+			service.broken("bolt", "smoke", Arrays.asList("dxie"));
+			BasicUtil.delay(10000);
+			service.broken("bolt", "smoke", Arrays.asList("fuzhong", "cjerome"));
+			//BasicUtil.delay(10000);
+		}
 	}
-	
-	public CiAlertServiceImpl(Alerters alerters, long reminderMs) {
+
+	public AlertService() throws IOException {
+		Properties properties = PropertyUtil.load(AlertService.class, "alert.properties");
+		AlertServiceProperties serviceProps = new AlertServiceProperties(properties, "alert");
+		alerters = new Alerters(properties, null);
+		reminderMs = serviceProps.reminderMs();
+		shutdownTimeoutMs = serviceProps.shutdownTimeoutMs();
+		startThread();
+	}
+
+	AlertService(Alerters alerters, long reminderMs, long shutdownTimeoutMs) {
 		this.alerters = alerters;
 		this.reminderMs = reminderMs;
+		this.shutdownTimeoutMs = shutdownTimeoutMs;
+		startThread();
+	}
+
+	private void startThread() {
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -50,7 +70,12 @@ public class CiAlertServiceImpl implements CiAlertService, Closeable {
 
 	@Override
 	public void close() throws IOException {
-		executor.shutdown();
+		executor.shutdownNow();
+		try {
+			executor.awaitTermination(shutdownTimeoutMs, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			throw new InterruptedIOException();
+		}
 	}
 
 	public void purge() {
@@ -97,6 +122,10 @@ public class CiAlertServiceImpl implements CiAlertService, Closeable {
 		}
 	}
 
+	public void fixed(String build, String job, String... names) {
+		fixed(build, job, Arrays.asList(names));
+	}
+
 	@Override
 	public void fixed(String build, String job, Collection<String> names) {
 		lock.lock();
@@ -106,6 +135,10 @@ public class CiAlertServiceImpl implements CiAlertService, Closeable {
 		} finally {
 			lock.unlock();
 		}
+	}
+
+	public void broken(String build, String job, String... names) {
+		broken(build, job, Arrays.asList(names));
 	}
 
 	@Override
@@ -127,8 +160,10 @@ public class CiAlertServiceImpl implements CiAlertService, Closeable {
 	private Builds waitForAndCopyChangedBuilds(long ms) throws InterruptedException {
 		lock.lock();
 		try {
-			while (!buildsChanged)
-				if (!condition.await(ms, TimeUnit.MILLISECONDS)) return null;
+			while (!buildsChanged) {
+				if (reminderMs == 0) condition.await();
+				else if (!condition.await(ms, TimeUnit.MILLISECONDS)) return null;
+			}
 			buildsChanged = false;
 			return new Builds(builds);
 		} finally {
@@ -150,7 +185,8 @@ public class CiAlertServiceImpl implements CiAlertService, Closeable {
 				else if (builds.builds.isEmpty()) alerters.clear();
 				else alerters.alert(builds);
 			}
-		} catch (InterruptedException e) {
+		} catch (RuntimeInterruptedException | InterruptedException e) {
+			e.printStackTrace(System.out);
 			// exit 
 		}
 	}

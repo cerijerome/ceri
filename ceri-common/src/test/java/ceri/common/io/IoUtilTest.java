@@ -46,18 +46,6 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testCheckInterrupted() throws InterruptedException {
-		IoUtil.checkInterrupted();
-		Thread.currentThread().interrupt();
-		assertException(InterruptedException.class, new TestRunnable() {
-			@Override
-			public void run() throws InterruptedException {
-				IoUtil.checkInterrupted();
-			}
-		});
-	}
-
-	@Test
 	public void testCheckIoInterrupted() throws InterruptedIOException {
 		IoUtil.checkIoInterrupted();
 		Thread.currentThread().interrupt();

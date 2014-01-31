@@ -1,6 +1,7 @@
 package ceri.ci.build;
 
 import static ceri.common.test.TestUtil.assertElements;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +14,11 @@ public class EventComparatorsTest {
 	private static final Event e3 = new Event(Event.Type.fixed, 3, "3");
 	private static final Event e4 = new Event(Event.Type.broken, 4, "4");
 
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(EventComparators.class);
+	}
+	
 	@Test
 	public void testSortByType() {
 		List<Event> events = new ArrayList<>();

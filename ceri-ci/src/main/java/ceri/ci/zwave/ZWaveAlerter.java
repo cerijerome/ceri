@@ -16,25 +16,27 @@ public class ZWaveAlerter {
 	private final ZWaveController zwave;
 
 	public static ZWaveAlerter create(Properties properties, String prefix) {
+		return builder(properties, prefix).build();
+	}
+
+	static Builder builder(Properties properties, String prefix) {
 		ZWaveAlerterProperties zwProperties = new ZWaveAlerterProperties(properties, prefix);
 		String host = zwProperties.host();
-		VeraLite veraLite = new VeraLite(host);
-		// TODO: check connectivity
-		Builder builder = builder(new ZWaveController(veraLite));
+		Builder builder = builder(host);
 		for (String name : zwProperties.names()) {
 			Integer device = zwProperties.device(name);
 			builder.device(name, device);
 		}
-		return builder.build();
+		return builder;
 	}
 
 	public static class Builder {
 		final Map<String, Integer> devices = new HashMap<>();
-		final ZWaveController zwave;
+		final String host;
 
-		Builder(ZWaveController zwave) {
-			if (zwave == null) throw new NullPointerException("zwave controller cannot be null");
-			this.zwave = zwave;
+		Builder(String host) {
+			if (host == null) throw new NullPointerException("Host cannot be null");
+			this.host = host;
 		}
 
 		public Builder device(String name, int device) {
@@ -50,12 +52,12 @@ public class ZWaveAlerter {
 		}
 	}
 
-	public static Builder builder(ZWaveController zwave) {
-		return new Builder(zwave);
+	public static Builder builder(String host) {
+		return new Builder(host);
 	}
 
 	ZWaveAlerter(Builder builder) {
-		zwave = builder.zwave;
+		zwave = createController(builder.host);
 		devices = ImmutableUtil.copyAsMap(builder.devices);
 	}
 
@@ -101,4 +103,8 @@ public class ZWaveAlerter {
 		}
 	}
 
+	ZWaveController createController(String host) {
+		return new ZWaveController(new VeraLite(host));
+	}
+	
 }

@@ -1,7 +1,6 @@
 package ceri.ci.x10;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,7 +13,6 @@ import java.util.Set;
 import x10.Command;
 import x10.Controller;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.property.PropertyUtil;
 import ceri.x10.X10ControllerType;
 import ceri.x10.X10Util;
 
@@ -24,31 +22,38 @@ public class X10Alerter implements Closeable {
 	private final Map<String, String> addresses;
 	private final Set<String> houseCodes;
 
-	public static X10Alerter create(File propertyFile, String prefix) throws IOException {
-		return create(PropertyUtil.load(propertyFile), prefix);
+	public static X10Alerter create(Properties properties, String prefix) throws IOException {
+		return builder(properties, prefix).build();
 	}
 
-	public static X10Alerter create(Properties properties, String prefix) throws IOException {
+	static Builder builder(Properties properties, String prefix) {
 		X10AlerterProperties x10Properties = new X10AlerterProperties(properties, prefix);
 		String commPort = x10Properties.commPort();
-		X10ControllerType type = x10Properties.controllerType();
-		if (type == null) type = X10ControllerType.cm17a;
-		Controller x10 = X10Util.createController(commPort, type);
-		Builder builder = builder(x10);
+		X10ControllerType controllerType = x10Properties.controllerType();
+		Builder builder = builder(commPort);
+		if (controllerType != null) builder.controllerType(controllerType);
 		for (String name : x10Properties.names()) {
 			String address = x10Properties.address(name);
 			builder.address(name, address);
 		}
-		return builder.build();
+		return builder;
 	}
 
 	public static class Builder {
 		final Map<String, String> addresses = new HashMap<>();
-		final Controller x10;
+		final String commPort;
+		X10ControllerType controllerType = X10ControllerType.cm17a;
 
-		Builder(Controller x10) {
-			if (x10 == null) throw new NullPointerException("X10 Controller cannot be null");
-			this.x10 = x10;
+		Builder(String commPort) {
+			if (commPort == null) throw new NullPointerException("Comm port cannot be null");
+			this.commPort = commPort;
+		}
+
+		public Builder controllerType(X10ControllerType controllerType) {
+			if (controllerType == null) throw new NullPointerException(
+				"Controller type cannot be null");
+			this.controllerType = controllerType;
+			return this;
 		}
 
 		public Builder address(String name, String address) {
@@ -59,17 +64,17 @@ public class X10Alerter implements Closeable {
 			return this;
 		}
 
-		public X10Alerter build() {
+		public X10Alerter build() throws IOException {
 			return new X10Alerter(this);
 		}
 	}
 
-	public static Builder builder(Controller x10) {
-		return new Builder(x10);
+	public static Builder builder(String commPort) {
+		return new Builder(commPort);
 	}
 
-	X10Alerter(Builder builder) {
-		x10 = builder.x10;
+	X10Alerter(Builder builder) throws IOException {
+		x10 = createController(builder.commPort, builder.controllerType);
 		addresses = ImmutableUtil.copyAsMap(builder.addresses);
 		houseCodes = Collections.unmodifiableSet(houseCodes(addresses));
 	}
@@ -109,6 +114,11 @@ public class X10Alerter implements Closeable {
 		for (String address : addresses.values())
 			houseCodes.add("" + address.charAt(0) + DEVICE_DEF);
 		return houseCodes;
+	}
+
+	Controller createController(String commPort, X10ControllerType controllerType)
+		throws IOException {
+		return X10Util.createController(commPort, controllerType);
 	}
 
 }

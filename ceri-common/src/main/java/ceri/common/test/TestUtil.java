@@ -135,11 +135,10 @@ public class TestUtil {
 	 * information if not.
 	 */
 	public static <T> void assertCollection(Collection<T> lhs, Collection<T> rhs) {
-		assertSize("Collection size", lhs.size(), rhs.size());
 		for (T t : lhs)
-			assertTrue("Unexpected element " + t, rhs.contains(t));
+			assertTrue("Unexpected element: " + t, rhs.contains(t));
 		for (T t : rhs)
-			assertTrue("Missing element " + t, lhs.contains(t));
+			assertTrue("Missing element: " + t, lhs.contains(t));
 	}
 
 	/**

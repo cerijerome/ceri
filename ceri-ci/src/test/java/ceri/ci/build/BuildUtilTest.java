@@ -4,6 +4,7 @@ import static ceri.ci.build.BuildTestUtil.assertBuildNames;
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertElements;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -20,6 +21,11 @@ public class BuildUtilTest {
 	private static final Event e5 = new Event(Event.Type.broken, 5, "e1", "e2", "e3", "e4");
 	private static final Event e6 = new Event(Event.Type.fixed, 6);
 	private static final Event e7 = new Event(Event.Type.fixed, 7, "g1");
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(BuildUtil.class);
+	}
 
 	@Test
 	public void testBreakNames() {
