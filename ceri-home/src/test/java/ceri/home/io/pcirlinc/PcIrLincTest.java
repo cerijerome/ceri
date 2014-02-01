@@ -2,10 +2,10 @@ package ceri.home.io.pcirlinc;
 
 import java.io.IOException;
 import java.util.Properties;
-import junit.framework.TestCase;
+import org.junit.Test;
 import ceri.common.property.PropertyUtil;
 
-public class PcIrLincTest extends TestCase {
+public class PcIrLincTest {
 
 	//	public void testPreset() throws IOException, InterruptedException {
 	//		PcIrLinc pcIrLinc = create();
@@ -16,6 +16,7 @@ public class PcIrLincTest extends TestCase {
 	//		pcIrLinc.close();
 	//	}
 
+	@Test
 	public void testLearning() throws IOException, InterruptedException {
 		try (PcIrLinc pcIrLinc = create()) {
 			byte[] code = pcIrLinc.learnIr(10000);

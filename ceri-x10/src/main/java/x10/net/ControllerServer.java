@@ -21,8 +21,9 @@ package x10.net;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import x10.Controller;
-import x10.util.LogHandler;
 
 /**
  * ControllerServer is a Network daemon for providing access to a Controller
@@ -33,8 +34,8 @@ import x10.util.LogHandler;
  * 
  * @version 1.0
  */
-
 public class ControllerServer extends Thread {
+	private static final Logger logger = LogManager.getLogger();
 	private final Controller c;
 	private final int port;
 	private boolean alive;
@@ -47,9 +48,7 @@ public class ControllerServer extends Thread {
 	 *            the Controller to provide network access to.
 	 * @param port
 	 *            the TCP port that the daemon will listen for connections
-	 * 
 	 */
-
 	public ControllerServer(Controller c, int port) {
 		this.c = c;
 		this.port = port;
@@ -62,7 +61,6 @@ public class ControllerServer extends Thread {
 	 * @see x10.net.ServerDispatchProxy
 	 * @see x10.net.SocketController
 	 */
-
 	@Override
 	public void run() {
 		alive = true;
@@ -72,12 +70,13 @@ public class ControllerServer extends Thread {
 					ServerDispatchProxy sdp = new ServerDispatchProxy(s, c);
 					c.addUnitListener(sdp);
 				} catch (Exception e) {
-					LogHandler.logException(e, 1);
+					logger.catching(e);
 					alive = false;
 				}
 			}
 		} catch (Exception e) {
-			LogHandler.logException(e, 1);
+			logger.catching(e);
 		}
 	}
+	
 }

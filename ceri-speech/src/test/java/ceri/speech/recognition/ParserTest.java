@@ -11,6 +11,9 @@ import javax.speech.recognition.ResultEvent;
 import javax.speech.recognition.ResultToken;
 import javax.speech.recognition.RuleGrammar;
 
+/**
+ * Manual parser test.
+ */
 public class ParserTest {
 	public ParserTest() {}
 

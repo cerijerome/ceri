@@ -6,6 +6,8 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ceri.common.event.EventListener;
 import ceri.common.property.PropertyUtil;
 import ceri.home.audio.Audio;
@@ -35,6 +37,7 @@ import ceri.speech.recognition.SpeechRecognizer;
 import ceri.speech.recognition.SpeechRecognizerProperties;
 
 public class Teatree implements Runnable {
+	private static final Logger logger = LogManager.getLogger();
 	private static final File ROOT = new File(".");
 	private static final String TV_STATE_KEY = "tv.state";
 	private static final String RECEIVER_STATE_KEY = "receiver.state";
@@ -107,7 +110,7 @@ public class Teatree implements Runnable {
 			try {
 				PropertyUtil.store(state, stateFile);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.catching(e);
 			}
 			speechParser.close();
 			pcIrLinc.close();
@@ -207,7 +210,7 @@ public class Teatree implements Runnable {
 		try {
 			soundLibrary.play(parseState);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.catching(e);
 		}
 	}
 

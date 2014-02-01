@@ -23,39 +23,35 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import x10.Command;
 import x10.Controller;
 import x10.UnitEvent;
 import x10.UnitListener;
-import x10.util.LogHandler;
 import x10.util.ThreadSafeQueue;
 
 /**
  * ServerDispatchProxy is the server-side proxy which dispatches events to and
- * recieves commands from the SocketController assigned to this object. A new
+ * receives commands from the SocketController assigned to this object. A new
  * ServerDispatchProxy is constructed for each SocketController that connects to
  * a ControllerServer.
- * 
  * 
  * @author Wade Wassenberg
  * 
  * @version 1.0
  */
-
 public class ServerDispatchProxy extends Thread implements UnitListener {
-
+	private static final Logger logger = LogManager.getLogger();
 	private final Controller c;
 	private final ObjectOutputStream oos;
 	private final ObjectInputStream ois;
 
 	/**
 	 * s Socket the Socket connection to the client SocketController
-	 * 
 	 */
-
 	Socket s;
-
-	private boolean alive;
+	private volatile boolean alive;
 	private final ThreadSafeQueue commandQueue;
 
 	/**
@@ -71,9 +67,7 @@ public class ServerDispatchProxy extends Thread implements UnitListener {
 	 * @exception IOException
 	 *                if an error occurs obtaining streams to/from the connected
 	 *                SocketController.
-	 * 
 	 */
-
 	public ServerDispatchProxy(Socket s, Controller c) throws IOException {
 		this.s = s;
 		this.c = c;
@@ -84,28 +78,25 @@ public class ServerDispatchProxy extends Thread implements UnitListener {
 	}
 
 	/**
-	 * run reads Commands from the SocketController and propogates them along to
+	 * run reads Commands from the SocketController and propagates them along to
 	 * the local Controller object.
-	 * 
-	 * 
 	 */
-
 	@Override
 	public void run() {
-		LogHandler.logMessage("ServerDispatchProxy running", 2);
+		logger.info("ServerDispatchProxy running");
 		alive = true;
 		while (alive) {
 			try {
-				LogHandler.logMessage("blocking read...", 2);
+				logger.info("blocking read...");
 				Command nextCommand = (Command) ois.readObject();
-				LogHandler.logMessage("Command recieved from client", 2);
+				logger.info("Command recieved from client");
 				commandQueue.enqueue(nextCommand);
 				c.addCommand(nextCommand);
-			} catch (IOException ioe) {
-				LogHandler.logException(ioe, 1);
+			} catch (IOException e) {
+				logger.catching(e);
 				alive = false;
-			} catch (ClassNotFoundException cnfe) {
-				LogHandler.logException(cnfe, 1);
+			} catch (ClassNotFoundException e) {
+				logger.catching(e);
 			}
 		}
 		c.removeUnitListener(this);
@@ -117,9 +108,7 @@ public class ServerDispatchProxy extends Thread implements UnitListener {
 	 * 
 	 * @param event
 	 *            the event to dispatch to the SocketController
-	 * 
 	 */
-
 	private synchronized void dispatchEvent(UnitEvent event) {
 		if (event.getCommand() == commandQueue.peek()) {
 			commandQueue.dequeue();
@@ -127,34 +116,31 @@ public class ServerDispatchProxy extends Thread implements UnitListener {
 			try {
 				oos.writeObject(event);
 				oos.flush();
-				LogHandler.logMessage("Event written to client", 2);
+				logger.info("Event written to client");
 			} catch (Exception e) {
-				LogHandler.logException(e, 1);
+				logger.catching(e);
 			}
 		}
 	}
 
 	/**
-	 * allUnitsOff recieves the UnitListener event to be dispatched to the
+	 * allUnitsOff receives the UnitListener event to be dispatched to the
 	 * SocketController
 	 * 
 	 * @param event
 	 *            the event to be dispatched
-	 * 
 	 */
-
 	@Override
 	public void allUnitsOff(UnitEvent event) {
 		dispatchEvent(event);
 	}
 
 	/**
-	 * allLightsOff recieves the UnitListener event to be dispatched to the
+	 * allLightsOff receives the UnitListener event to be dispatched to the
 	 * SocketController
 	 * 
 	 * @param event
 	 *            the event to be dispatched
-	 * 
 	 */
 
 	@Override
@@ -163,72 +149,63 @@ public class ServerDispatchProxy extends Thread implements UnitListener {
 	}
 
 	/**
-	 * allLightsOn recieves the UnitListener event to be dispatched to the
+	 * allLightsOn receives the UnitListener event to be dispatched to the
 	 * SocketController
 	 * 
 	 * @param event
 	 *            the event to be dispatched
-	 * 
 	 */
-
 	@Override
 	public void allLightsOn(UnitEvent event) {
 		dispatchEvent(event);
 	}
 
 	/**
-	 * unitOn recieves the UnitListener event to be dispatched to the
+	 * unitOn receives the UnitListener event to be dispatched to the
 	 * SocketController
 	 * 
 	 * @param event
 	 *            the event to be dispatched
-	 * 
 	 */
-
 	@Override
 	public void unitOn(UnitEvent event) {
 		dispatchEvent(event);
 	}
 
 	/**
-	 * unitOff recieves the UnitListener event to be dispatched to the
+	 * unitOff receives the UnitListener event to be dispatched to the
 	 * SocketController
 	 * 
 	 * @param event
 	 *            the event to be dispatched
-	 * 
 	 */
-
 	@Override
 	public void unitOff(UnitEvent event) {
 		dispatchEvent(event);
 	}
 
 	/**
-	 * unitDim recieves the UnitListener event to be dispatched to the
+	 * unitDim receives the UnitListener event to be dispatched to the
 	 * SocketController
 	 * 
 	 * @param event
 	 *            the event to be dispatched
-	 * 
 	 */
-
 	@Override
 	public void unitDim(UnitEvent event) {
 		dispatchEvent(event);
 	}
 
 	/**
-	 * unitBright recieves the UnitListener event to be dispatched to the
+	 * unitBright receives the UnitListener event to be dispatched to the
 	 * SocketController
 	 * 
 	 * @param event
 	 *            the event to be dispatched
-	 * 
 	 */
-
 	@Override
 	public void unitBright(UnitEvent event) {
 		dispatchEvent(event);
 	}
+
 }

@@ -21,8 +21,8 @@ package x10;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
-import x10.util.LogHandler;
 import x10.util.ThreadSafeQueue;
+import ceri.common.concurrent.RuntimeInterruptedException;
 
 /**
  * UnitEventDispatcher is a threaded dispatcher that calls each registered
@@ -39,9 +39,7 @@ import x10.util.ThreadSafeQueue;
  * 
  * @version 1.3
  */
-
 public class UnitEventDispatcher extends Thread {
-
 	private final LinkedList<UnitListener> listeners;
 	private final ThreadSafeQueue eventQueue;
 	private boolean running;
@@ -49,10 +47,7 @@ public class UnitEventDispatcher extends Thread {
 
 	/**
 	 * UnitEventDispatcher constructs an unstarted dispatcher.
-	 * 
-	 * 
 	 */
-
 	public UnitEventDispatcher() {
 		listeners = new LinkedList<>();
 		eventQueue = new ThreadSafeQueue();
@@ -61,10 +56,7 @@ public class UnitEventDispatcher extends Thread {
 	/**
 	 * run blocks until an event comes in, and then dispatches it to all
 	 * registered listeners.
-	 * 
-	 * 
 	 */
-
 	@Override
 	public void run() {
 		running = true;
@@ -100,8 +92,8 @@ public class UnitEventDispatcher extends Thread {
 						}
 					}
 				}
-			} catch (InterruptedException ie) {
-				LogHandler.logException(ie, 1);
+			} catch (InterruptedException e) {
+				throw new RuntimeInterruptedException(e);
 			}
 		}
 	}
@@ -112,7 +104,6 @@ public class UnitEventDispatcher extends Thread {
 	 * 
 	 * @param event
 	 *            the UnitEvent to be dispatched
-	 * 
 	 */
 
 	public void dispatchUnitEvent(UnitEvent event) {
@@ -125,9 +116,7 @@ public class UnitEventDispatcher extends Thread {
 	 * 
 	 * @param listener
 	 *            the listener to add.
-	 * 
 	 */
-
 	public void addUnitListener(UnitListener listener) {
 		if (!listeners.contains(listener)) {
 			listeners.add(listener);
@@ -140,9 +129,7 @@ public class UnitEventDispatcher extends Thread {
 	 * 
 	 * @param listener
 	 *            the listener to be removed.
-	 * 
 	 */
-
 	public void removeUnitListener(UnitListener listener) {
 		listeners.remove(listener);
 	}
@@ -150,12 +137,10 @@ public class UnitEventDispatcher extends Thread {
 	/**
 	 * kill terminates the dispatcher thread. This typically occurs when the
 	 * system is shutting down.
-	 * 
-	 * 
 	 */
-
 	public void kill() {
 		running = false;
 		dispatchUnitEvent(STOP);
 	}
+
 }

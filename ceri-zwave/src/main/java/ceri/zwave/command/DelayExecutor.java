@@ -7,12 +7,16 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ceri.common.util.BasicUtil;
 
 /**
  * Makes sure a delay occurs before sending a command. Thread safe.
  */
 public class DelayExecutor implements Executor {
+	private static final Logger logger = LogManager.getLogger();
 	private static final int DELAY_DEF = 300;
 	private static final int RETRIES_DEF = 2;
 	private static final int RETRY_DELAY_DEF = 100;
@@ -49,9 +53,9 @@ public class DelayExecutor implements Executor {
 	}
 
 	public String doExecute(String url) throws IOException {
-		System.out.println(url);
+		logger.info("Executing {}", url);
 		waitForDelay();
-		System.out.println(System.currentTimeMillis() - lastRun);
+		logger.info("Waited {}ms", System.currentTimeMillis() - lastRun);
 		Content response = requestContent(url);
 		resetDelay();
 		String content = response.asString();
@@ -68,7 +72,7 @@ public class DelayExecutor implements Executor {
 					"Unexpected http response: " + statusCode);
 				return response.returnContent();
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.catching(Level.WARN, e);
 				ex = e;
 				if (i > 0) BasicUtil.delay(retryDelay);
 			}

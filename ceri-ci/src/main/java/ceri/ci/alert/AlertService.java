@@ -11,12 +11,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
 import ceri.ci.service.CiAlertService;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.log.LogUtil;
 
 public class AlertService implements CiAlertService, Closeable {
+	private static final Logger logger = LogManager.getFormatterLogger(AlertService.class);
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	private final Alerters alerters;
 	private final long reminderMs;
@@ -33,6 +38,17 @@ public class AlertService implements CiAlertService, Closeable {
 		startThread();
 	}
 
+	public static void main(String[] args) {
+		logger.info("info");
+		logger.warn("warn");
+		logger.error("error %x", 10000);
+		logger.fatal("fatal");
+		Exception e = new RuntimeException();
+		logger.fatal(e);
+		logger.throwing(e);
+		logger.catching(Level.FATAL, e);
+	}
+
 	private void startThread() {
 		executor.execute(new Runnable() {
 			@Override
@@ -46,7 +62,9 @@ public class AlertService implements CiAlertService, Closeable {
 	public void close() throws IOException {
 		executor.shutdownNow();
 		try {
-			executor.awaitTermination(shutdownTimeoutMs, TimeUnit.MILLISECONDS);
+			boolean shutdown = executor.awaitTermination(shutdownTimeoutMs, TimeUnit.MILLISECONDS);
+			if (!shutdown) logger.warn("Processing thread did not shut down within limit of {} ms",
+				shutdownTimeoutMs);
 		} catch (InterruptedException e) {
 			throw new InterruptedIOException();
 		}
@@ -151,18 +169,22 @@ public class AlertService implements CiAlertService, Closeable {
 	}
 
 	void processAlerts() {
+		logger.info("Started processing thread: {}", Thread.currentThread());
 		try {
 			while (true) {
+				logger.info("Waiting for signal");
 				Builds builds = waitForAndCopyChangedBuilds(reminderMs);
-				System.out.println("Here we go...");
+				//logger.info("Alerting for builds: {}", builds);
+				logger.info("Alerting for builds: {}", LogUtil.compact(builds));
 				if (builds == null) alerters.remind();
 				else if (builds.builds.isEmpty()) alerters.clear();
 				else alerters.alert(builds);
 			}
 		} catch (RuntimeInterruptedException | InterruptedException e) {
-			e.printStackTrace(System.out);
-			// exit 
+			// interrupt exit request
+			logger.catching(Level.INFO, e);
 		}
+		logger.info("Stopped processing thread: {}", Thread.currentThread());
 	}
 
 }

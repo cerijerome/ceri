@@ -38,6 +38,7 @@ import ceri.common.io.FilenameIteratorBehavior;
 import ceri.common.io.IoUtilTest;
 import ceri.common.io.RegexFilenameFilterBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
+import ceri.common.log.LogUtilTest;
 import ceri.common.property.BasePropertiesBehavior;
 import ceri.common.property.KeyBehavior;
 import ceri.common.property.PropertyUtilTest;
@@ -121,6 +122,8 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	IoUtilTest.class,
 	RegexFilenameFilterBehavior.class,
 	StringPrintStreamBehavior.class,
+	// log
+	LogUtilTest.class,
 	// property
 	BasePropertiesBehavior.class,
 	KeyBehavior.class,

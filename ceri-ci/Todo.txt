@@ -1,6 +1,8 @@
 To do
 =====
 
+Logger: not working for Alerters/MasterMold main
+
 ZWave, X10
 - check for runtime interruption
 
@@ -12,4 +14,3 @@ Save state and reload on restart
 
 Build purge on timer
 
-Add logger

@@ -10,8 +10,11 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class PcIrLinc implements Closeable {
+	private static final Logger logger = LogManager.getLogger();
 	private static final int BASE16 = 16;
 	private static final int RESPONSE_DATA_OFFSET = 5;
 	private static final byte[] EMPTY_RESPONSE = new byte[0];
@@ -51,7 +54,7 @@ public class PcIrLinc implements Closeable {
 
 	public void sendPreset(PcIrLincType type, short vendor, PcIrLincButton button)
 		throws IOException, InterruptedException {
-		System.out.println("Sending: " + type + ", " + vendor + ", " + button);
+		logger.info("Sending: {}, {}, {}", type, vendor, button);
 		int i = 0;
 		byte[] presetCmd = new byte[PRESET_CMD_LEN];
 		presetCmd[i++] = (byte) (presetCmd.length - 1);
@@ -77,7 +80,7 @@ public class PcIrLinc implements Closeable {
 	public byte[] learnIr(int waitMs) throws IOException, InterruptedException {
 		serialPort.setRTS(true);
 		Thread.sleep(properties.delayMs());
-		System.out.println("Tx: " + bytesToHex(LEARN_CMD));
+		logger.info("Tx: {}", bytesToHex(LEARN_CMD));
 		serialPort.getOutputStream().flush();
 		serialPort.getOutputStream().write(LEARN_CMD);
 		serialPort.setRTS(false);
@@ -105,7 +108,7 @@ public class PcIrLinc implements Closeable {
 		serialPort.setRTS(true);
 		for (i = 0; i < count; i++) {
 			Thread.sleep(properties.delayMs());
-			System.out.println("Tx: " + bytesToHex(buffer));
+			logger.info("Tx: {}", bytesToHex(buffer));
 			serialPort.getOutputStream().flush();
 			serialPort.getOutputStream().write(buffer);
 		}

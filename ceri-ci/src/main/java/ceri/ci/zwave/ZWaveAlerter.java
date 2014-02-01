@@ -6,10 +6,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ImmutableUtil;
 import ceri.zwave.veralite.VeraLite;
 
 public class ZWaveAlerter {
+	private static final Logger logger = LogManager.getLogger();
 	private final Map<String, Integer> devices;
 	private final Set<Integer> activeDevices = new HashSet<>();
 	private final ZWaveController zwave;
@@ -74,7 +77,7 @@ public class ZWaveAlerter {
 			zwave.on(device);
 			activeDevices.add(device);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.catching(e);
 		}
 	}
 
@@ -83,7 +86,7 @@ public class ZWaveAlerter {
 			zwave.off(device);
 			activeDevices.remove(device);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.catching(e);
 		}
 	}
 

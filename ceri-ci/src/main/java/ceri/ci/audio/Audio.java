@@ -51,6 +51,15 @@ public class Audio {
 		return new Audio(newFormat, data);
 	}
 
+	public Audio clip(int startOffset, int endOffset) {
+		int len = data.length - startOffset - endOffset;
+		if (len < 0) throw new IllegalArgumentException("Offsets cannot be larger than data size " +
+			data.length);
+		byte[] data = new byte[len];
+		System.arraycopy(this.data, startOffset, data, 0, data.length);
+		return new Audio(format, data);
+	}
+
 	public void play() throws IOException {
 		try (SourceDataLine out = getSourceDataLine(format)) {
 			out.open();

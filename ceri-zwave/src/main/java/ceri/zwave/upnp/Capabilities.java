@@ -30,13 +30,6 @@ public class Capabilities {
 	public final Collection<CommandClass> commandClasses;
 	private final int hashCode;
 
-	public static void main(String[] args) {
-		String s = "209,140,0,4,17,1,L,R,B,RS,|38,39,112,114,115,117,134,";
-		System.out.println(s);
-		Capabilities cp = create(s);
-		System.out.println(cp.toString());
-	}
-
 	public static enum Flag {
 		L,	// Listens
 		R,	// Routes

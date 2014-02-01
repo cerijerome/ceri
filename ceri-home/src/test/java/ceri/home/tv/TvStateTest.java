@@ -1,13 +1,14 @@
 package ceri.home.tv;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import java.security.SecureRandom;
-
+import org.junit.Test;
 import ceri.home.device.tv.TvState;
 
-import junit.framework.TestCase;
+public class TvStateTest {
 
-public class TvStateTest extends TestCase {
-
+	@Test
 	public void test() {
 		SecureRandom rnd = new SecureRandom();
 		for (int i = 0; i < 1000; i++) {
@@ -21,8 +22,7 @@ public class TvStateTest extends TestCase {
 			state.setUseChannelAsLast(rnd.nextBoolean());
 			String s1 = state.toString();
 			String s2 = TvState.createFromString(s1).toString();
-			assertEquals(s1, s2);
-			//System.out.println(s2);
+			assertThat(s1, is(s2));
 		}
 	}
 

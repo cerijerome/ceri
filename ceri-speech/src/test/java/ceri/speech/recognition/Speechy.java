@@ -11,6 +11,9 @@ import javax.speech.recognition.SpeakerProfile;
 
 import com.cloudgarden.speech.userinterface.SpeechEngineChooser;
 
+/**
+ * Manual speech test
+ */
 public class Speechy {
 
 	public static void main(String[] args) throws Exception {

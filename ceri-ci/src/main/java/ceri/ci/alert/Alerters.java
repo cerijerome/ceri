@@ -1,6 +1,8 @@
 package ceri.ci.alert;
 
 import java.util.Collection;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ceri.ci.audio.AudioAlerter;
 import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
@@ -12,6 +14,7 @@ import ceri.ci.zwave.ZWaveAlerter;
  * Container for alerter components.
  */
 public class Alerters {
+	private static final Logger logger = LogManager.getLogger();
 	public final X10Alerter x10;
 	public final ZWaveAlerter zwave;
 	public final AudioAlerter audio;
@@ -28,7 +31,7 @@ public class Alerters {
 	 * Notify alerters that builds have changed.
 	 */
 	public void alert(Builds builds) {
-		System.out.println("alert");
+		logger.info("alert");
 		Builds summarizedBuilds = BuildUtil.summarize(builds);
 		Collection<String> breakNames = BuildUtil.summarizedBreakNames(summarizedBuilds);
 		if (x10 != null) x10.alert(breakNames);
@@ -41,7 +44,7 @@ public class Alerters {
 	 * Clear alerters' states.
 	 */
 	public void clear() {
-		System.out.println("clear");
+		logger.info("clear");
 		if (x10 != null) x10.clear();
 		if (zwave != null) zwave.clear();
 		if (web != null) web.clear();
@@ -52,7 +55,7 @@ public class Alerters {
 	 * Remind alerters of current state.
 	 */
 	public void remind() {
-		System.out.println("remind");
+		logger.info("remind");
 		if (audio != null) audio.remind();
 	}
 

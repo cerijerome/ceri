@@ -1,8 +1,9 @@
 package ceri.ci.audio;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.util.Collection;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ceri.ci.build.Build;
 import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
@@ -10,6 +11,7 @@ import ceri.ci.build.Event;
 import ceri.ci.build.Job;
 
 public class AudioAlerter {
+	private static final Logger logger = LogManager.getLogger();
 	private final AudioMessage message;
 	private volatile Builds summarizedBuilds;
 
@@ -33,10 +35,8 @@ public class AudioAlerter {
 				playStillBroken(latestBuild.name, analyzer.stillBroken);
 				playJustFixed(latestBuild.name, analyzer.justFixed);
 			}
-		} catch (InterruptedIOException e) {
-			// 
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.catching(e);
 		}
 	}
 
@@ -58,7 +58,7 @@ public class AudioAlerter {
 				playStillBroken(latestBuild.name, analyzer.justBroken);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.catching(e);
 		}
 	}
 

@@ -26,7 +26,8 @@ public class AudioMessage {
 	 * Plays alarm sound.
 	 */
 	public void playAlarm() throws IOException {
-		play(Clip.alarm);
+		Audio audio = Clip.red_alert.audio().clip(0, 256);
+		play(audio);
 	}
 
 	/**
@@ -100,18 +101,17 @@ public class AudioMessage {
 	}
 
 	private void play(String key) throws IOException {
-		ConcurrentUtil.checkRuntimeInterrupted();
 		File file = audioFile(key);
 		if (!file.exists()) return;
 		play(Audio.create(file));
 	}
 
 	private void play(Clip clip) throws IOException {
-		ConcurrentUtil.checkRuntimeInterrupted();
-		play(Audio.create(clip.load()));
+		play(clip.audio());
 	}
 
 	private void play(Audio audio) throws IOException {
+		ConcurrentUtil.checkRuntimeInterrupted();
 		player.play(audio.changePitch(pitch));
 	}
 	

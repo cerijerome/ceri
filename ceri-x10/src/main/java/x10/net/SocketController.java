@@ -24,12 +24,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import x10.Command;
 import x10.Controller;
 import x10.UnitEvent;
 import x10.UnitEventDispatcher;
 import x10.UnitListener;
-import x10.util.LogHandler;
 import x10.util.ThreadSafeQueue;
 
 /**
@@ -41,8 +42,8 @@ import x10.util.ThreadSafeQueue;
  * 
  * @version 1.0
  */
-
 public class SocketController implements Runnable, Controller {
+	private static final Logger logger = LogManager.getLogger();
 	private final UnitEventDispatcher dispatcher;
 	private final Socket s;
 	private final ThreadSafeQueue queue;
@@ -67,9 +68,7 @@ public class SocketController implements Runnable, Controller {
 	 * @exception SocketException
 	 *                thrown if an error occurs connecting to the
 	 *                ControllerServer
-	 * 
 	 */
-
 	public SocketController(String host, int port) throws IOException, SocketException {
 		this.host = host;
 		this.port = port;
@@ -92,9 +91,7 @@ public class SocketController implements Runnable, Controller {
 	 * 
 	 * @param listener
 	 *            the listener to register
-	 * 
 	 */
-
 	@Override
 	public void addUnitListener(UnitListener listener) {
 		dispatcher.addUnitListener(listener);
@@ -105,9 +102,7 @@ public class SocketController implements Runnable, Controller {
 	 * 
 	 * @param listener
 	 *            the listener to remove.
-	 * 
 	 */
-
 	@Override
 	public void removeUnitListener(UnitListener listener) {
 		dispatcher.removeUnitListener(listener);
@@ -119,12 +114,10 @@ public class SocketController implements Runnable, Controller {
 	 * 
 	 * @param command
 	 *            the Command to be queued.
-	 * 
 	 */
-
 	@Override
 	public void addCommand(Command command) {
-		LogHandler.logMessage("enqueueing command", 2);
+		logger.info("enqueueing command");
 		if (queue.peek() != null) {
 			queue.enqueue(command);
 		} else {
@@ -140,9 +133,9 @@ public class SocketController implements Runnable, Controller {
 			try {
 				oos.writeObject(nextCommand);
 				oos.flush();
-				LogHandler.logMessage("command written to server", 2);
-			} catch (IOException ioe) {
-				LogHandler.logException(ioe, 1);
+				logger.info("command written to server");
+			} catch (IOException e) {
+				logger.catching(e);
 			}
 		}
 	}
@@ -150,8 +143,6 @@ public class SocketController implements Runnable, Controller {
 	/**
 	 * run loops receiving events from the ControllerServer and then dispatching
 	 * the events to locally registered UnitListeners.
-	 * 
-	 * 
 	 */
 	@Override
 	public void run() {
@@ -159,17 +150,18 @@ public class SocketController implements Runnable, Controller {
 		dispatcher.start();
 		try {
 			while (running) {
-				LogHandler.logMessage("blocking read...", 2);
+				logger.info("blocking read...");
 				UnitEvent nextEvent = (UnitEvent) ois.readObject();
-				LogHandler.logMessage("event recieved from server", 2);
+				logger.info("event recieved from server");
 				dispatcher.dispatchUnitEvent(nextEvent);
 				if (running) {
 					initiateNextCommand();
 				}
 			}
 		} catch (Exception e) {
-			LogHandler.logException(e, 1);
+			logger.catching(e);
 		}
 		dispatcher.kill();
 	}
+
 }

@@ -13,6 +13,7 @@ public enum Clip {
 	is_still_broken,
 	job,
 	please_fix_it,
+	red_alert,
 	thank_you,
 	thanks_to,
 	the_build,
@@ -25,12 +26,8 @@ public enum Clip {
 		filename = "_" + name().replaceAll("_", "-") + FILE_SUFFIX;
 	}
 	
-	public byte[] load() throws IOException {
-		return IoUtil.getResource(getClass(), filename);
-	}
-	
-	public void play() throws IOException {
-		Audio.create(load()).play();
+	public Audio audio() throws IOException {
+		return Audio.create(IoUtil.getResource(getClass(), filename));
 	}
 	
 }

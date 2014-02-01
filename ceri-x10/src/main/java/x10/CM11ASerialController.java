@@ -27,7 +27,9 @@ import javax.comm.NoSuchPortException;
 import javax.comm.PortInUseException;
 import javax.comm.SerialPort;
 import javax.comm.UnsupportedCommOperationException;
-import x10.util.LogHandler;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import x10.util.ThreadSafeQueue;
 
 /**
@@ -41,62 +43,48 @@ import x10.util.ThreadSafeQueue;
  * 
  * @version 1.3
  */
-
 public class CM11ASerialController implements Runnable, Controller {
+	private static final Logger logger = LogManager.getFormatterLogger(CM11ASerialController.class);
 	private static final int DEFAULT_SHUTDOWN_MS = 10000;
 
 	/**
 	 * OK byte - the x10 "CM11A" protocol OK byte.
-	 * 
 	 */
-
 	public static final byte OK = ((byte) 0x00);
 
 	/**
 	 * READY byte - the x10 "CM11A" protocol READY byte.
-	 * 
 	 */
-
 	public static final byte READY = ((byte) 0x55);
 
 	/**
 	 * TIME byte - the x10 "CM11A" protocol TIME byte.
-	 * 
 	 */
-
 	public static final byte TIME = ((byte) 0x9B);
 
 	/**
 	 * TIME_POLL byte - the x10 "CM11A" protocol TIME_POLL byte.
-	 * 
 	 */
-
 	public static final byte TIME_POLL = ((byte) 0xA5);
 
 	/**
 	 * DATA_POLL byte - the x10 "CM11A" protocol DATA_POLL byte.
-	 * 
 	 */
-
 	public static final byte DATA_POLL = ((byte) 0x5A);
 
 	/**
 	 * PC_READY byte - the x10 "CM11A" protocol PC_READY byte.
-	 * 
 	 */
-
 	public static final byte PC_READY = ((byte) 0xC3);
 
 	private static final Command STOP = new Command("A1", Command.DIM, 0);
-
 	private DataInputStream fromX10;
 	private DataOutputStream toX10;
-	private SerialPort sp;
+	private volatile SerialPort sp;
 	private boolean running;
 	private byte[] lastAddresses;
 	private final UnitEventDispatcher dispatcher;
 	private final ThreadSafeQueue queue;
-
 	private boolean commandInitiated = false;
 
 	/**
@@ -110,9 +98,7 @@ public class CM11ASerialController implements Runnable, Controller {
 	 * @exception IOException
 	 *                if an error occurs while trying to connect to the
 	 *                specified Communications Port.
-	 * 
 	 */
-
 	public CM11ASerialController(String comport) throws IOException {
 		try {
 			CommPortIdentifier cpi = CommPortIdentifier.getPortIdentifier(comport);
@@ -139,7 +125,6 @@ public class CM11ASerialController implements Runnable, Controller {
 	 * 
 	 * @param listener
 	 *            the listener to register for events.
-	 * 
 	 */
 	@Override
 	public void addUnitListener(UnitListener listener) {
@@ -151,9 +136,7 @@ public class CM11ASerialController implements Runnable, Controller {
 	 * 
 	 * @param listener
 	 *            the listener to remove.
-	 * 
 	 */
-
 	@Override
 	public void removeUnitListener(UnitListener listener) {
 		dispatcher.removeUnitListener(listener);
@@ -180,9 +163,7 @@ public class CM11ASerialController implements Runnable, Controller {
 	 * 
 	 * @param command
 	 *            the Command to be dispatched.
-	 * 
 	 */
-
 	@Override
 	public void addCommand(Command command) {
 		if (queue.peek() != null) {
@@ -207,10 +188,7 @@ public class CM11ASerialController implements Runnable, Controller {
 	/**
 	 * finalize disconnects the serial port connection and closes the
 	 * Controller.
-	 * 
-	 * 
 	 */
-
 	@Override
 	protected void finalize() {
 		addCommand(STOP);
@@ -237,9 +215,7 @@ public class CM11ASerialController implements Runnable, Controller {
 	 *                the amount of time specified.
 	 * @exception InterruptedException
 	 *                thrown if the thread is unexpectedly interrupted
-	 * 
 	 */
-
 	public void shutdown(long millis) throws OperationTimedOutException, InterruptedException {
 		if (running) {
 			try {
@@ -262,9 +238,7 @@ public class CM11ASerialController implements Runnable, Controller {
 	 * immediately. shutdown(long) is the preferred method of shutting down the
 	 * controller, but this method provides an immediate, unclean, non-graceful
 	 * means to shut down the controller.
-	 * 
 	 */
-
 	public void shutdownNow() {
 		SerialPort sp = this.sp;
 		this.sp = null;
@@ -273,21 +247,17 @@ public class CM11ASerialController implements Runnable, Controller {
 	}
 
 	private synchronized void initiateNextCommand() {
-
 		if (!commandInitiated) {
 			Command nextCommand = (Command) queue.peek();
 			if (nextCommand != null) {
 				try {
 					toX10.writeShort(nextCommand.getAddress());
 					toX10.flush();
-
 					commandInitiated = true;
-
-				} catch (IOException ioe) {
-					if (sp != null) //shutdownNow was not invoked
-					{
-						LogHandler.logException(ioe, 1);
-					}
+				} catch (IOException e) {
+					// Warning only if shutdownNow was invoked
+					Level level = sp == null ? Level.WARN : Level.ERROR;
+					logger.catching(level, e);
 				}
 			}
 		}
@@ -318,19 +288,16 @@ public class CM11ASerialController implements Runnable, Controller {
 							}
 						}
 					}
-				} catch (IOException ioe) {
-					if (sp != null) //shutdownNow was not invoked
-					{
-						LogHandler.logException(ioe, 1);
-					}
+				} catch (IOException e) {
+					// Warning only if shutdownNow was invoked
+					Level level = sp == null ? Level.WARN : Level.ERROR;
+					logger.catching(level, e);
 				}
 			} else {
-				LogHandler.logMessage("CheckSum: " + Integer.toHexString(checksum), 2);
+				logger.info("CheckSum: 0x%x", checksum);
 			}
 		}
-
 		commandInitiated = false;
-
 	}
 
 	private synchronized void handleData() throws IOException {
@@ -398,10 +365,7 @@ public class CM11ASerialController implements Runnable, Controller {
 	/**
 	 * run is the thread loop that constantly blocks and reads events off of the
 	 * serial port from the "CM11A" module.
-	 * 
-	 * 
 	 */
-
 	@Override
 	public void run() {
 		running = true;
@@ -425,11 +389,11 @@ public class CM11ASerialController implements Runnable, Controller {
 			}
 			sp.close();
 			doNotify();
-		} catch (IOException ioe) {
-			if (sp != null) //shutdownNow was not invoked
-			{
-				LogHandler.logException(ioe, 1);
-			}
+		} catch (IOException e) {
+			// Warning only if shutdownNow was invoked
+			Level level = sp == null ? Level.WARN : Level.ERROR;
+			logger.catching(level, e);
 		}
 	}
+	
 }

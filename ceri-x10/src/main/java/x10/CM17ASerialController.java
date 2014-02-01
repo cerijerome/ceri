@@ -30,6 +30,7 @@ import javax.comm.CommPortIdentifier;
 import javax.comm.NoSuchPortException;
 import javax.comm.PortInUseException;
 import javax.comm.SerialPort;
+import ceri.common.concurrent.RuntimeInterruptedException;
 import x10.util.ThreadSafeQueue;
 
 /**
@@ -43,18 +44,14 @@ import x10.util.ThreadSafeQueue;
  * 
  * @version 1.3
  */
-
 public class CM17ASerialController implements Runnable, Controller {
 	private static final int DEFAULT_SHUTDOWN_MS = 10000;
 	private final long WAIT_INTERVAL = 1L;
 	private final long RESET_INTERVAL = 10L;
 	private final long COMMAND_INTERVAL = 1000L;
-
 	private final String HEADER = "1101010110101010";
 	private final String FOOTER = "10101101";
-
 	private final String FIRECRACKER_MAP_FILE = "x10/cm17aCommand.map";
-
 	private SerialPort sp;
 	private boolean running;
 	private final UnitEventDispatcher dispatcher;
@@ -73,9 +70,7 @@ public class CM17ASerialController implements Runnable, Controller {
 	 * @exception IOException
 	 *                if an error occurs while trying to connect to the
 	 *                specified Communications Port.
-	 * 
 	 */
-
 	public CM17ASerialController(String comport) throws IOException {
 		try {
 			CommPortIdentifier cpi = CommPortIdentifier.getPortIdentifier(comport);
@@ -112,9 +107,7 @@ public class CM17ASerialController implements Runnable, Controller {
 	 * 
 	 * @param listener
 	 *            the listener to register for events.
-	 * 
 	 */
-
 	@Override
 	public void addUnitListener(UnitListener listener) {
 		dispatcher.addUnitListener(listener);
@@ -125,9 +118,7 @@ public class CM17ASerialController implements Runnable, Controller {
 	 * 
 	 * @param listener
 	 *            the listener to remove.
-	 * 
 	 */
-
 	@Override
 	public void removeUnitListener(UnitListener listener) {
 		dispatcher.removeUnitListener(listener);
@@ -138,9 +129,7 @@ public class CM17ASerialController implements Runnable, Controller {
 	 * 
 	 * @param command
 	 *            the Command to be dispatched.
-	 * 
 	 */
-
 	@Override
 	public void addCommand(Command command) {
 		queue.enqueue(command);
@@ -149,10 +138,7 @@ public class CM17ASerialController implements Runnable, Controller {
 	/**
 	 * finalize disconnects the serial port connection and closes the
 	 * Controller.
-	 * 
-	 * 
 	 */
-
 	@Override
 	protected void finalize() {
 		addCommand(STOP);
@@ -172,7 +158,7 @@ public class CM17ASerialController implements Runnable, Controller {
 		try {
 			shutdown(DEFAULT_SHUTDOWN_MS);
 		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeInterruptedException(e);
 		} catch (OperationTimedOutException e) {
 			throw new IOException(e);
 		}
@@ -189,9 +175,7 @@ public class CM17ASerialController implements Runnable, Controller {
 	 *                the amount of time specified.
 	 * @exception InterruptedException
 	 *                thrown if the thread is unexpectedly interrupted
-	 * 
 	 */
-
 	public void shutdown(long millis) throws OperationTimedOutException, InterruptedException {
 		if (running) {
 			try {
@@ -214,9 +198,7 @@ public class CM17ASerialController implements Runnable, Controller {
 	 * immediately. shutdown(long) is the preferred method of shutting down the
 	 * controller, but this method provides an immediate, unclean, non-graceful
 	 * means to shut down the controller.
-	 * 
 	 */
-
 	public void shutdownNow() {
 		sp.close();
 		finalize();
@@ -225,10 +207,7 @@ public class CM17ASerialController implements Runnable, Controller {
 	/**
 	 * run is the thread loop that constantly blocks and writes events to the
 	 * serial port to the "Firecracker" module.
-	 * 
-	 * 
 	 */
-
 	@Override
 	public void run() {
 		running = true;
@@ -269,7 +248,6 @@ public class CM17ASerialController implements Runnable, Controller {
 		sp.setDTR(false);
 		sp.setRTS(false);
 		sleep(RESET_INTERVAL);
-
 		sp.setDTR(true);
 		sp.setRTS(true);
 		sleep(RESET_INTERVAL);
@@ -297,6 +275,8 @@ public class CM17ASerialController implements Runnable, Controller {
 	private void sleep(long interval) {
 		try {
 			Thread.sleep(interval);
-		} catch (InterruptedException ie) {}
+		} catch (InterruptedException e) {
+			throw new RuntimeInterruptedException(e);
+		}
 	}
 }
