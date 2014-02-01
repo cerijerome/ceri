@@ -1,16 +1,13 @@
 package ceri.ci.audio;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.Collection;
-import java.util.Properties;
 import ceri.ci.build.Build;
 import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
 import ceri.ci.build.Job;
-import ceri.common.io.IoUtil;
 
 public class AudioAlerter {
 	private final AudioMessage message;
@@ -21,13 +18,6 @@ public class AudioAlerter {
 		clear();
 	}
 
-	public static AudioAlerter create(Properties properties, String prefix) {
-		AudioAlerterProperties audioProperties = new AudioAlerterProperties(properties, prefix);
-		File dir = IoUtil.getPackageDir(AudioAlerter.class);
-		AudioMessage message = new AudioMessage(dir, audioProperties.pitch());
-		return new AudioAlerter(message);
-	}
-	
 	/**
 	 * For each build, check which jobs are just broken, still broken and just
 	 * fixed. Gives an audio message for each of these cases.

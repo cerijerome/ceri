@@ -1,14 +1,10 @@
 package ceri.ci.alert;
 
 import static ceri.common.test.TestUtil.assertCollection;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import java.io.IOException;
 import java.util.Collection;
-import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -22,51 +18,28 @@ import ceri.ci.zwave.ZWaveAlerter;
 import ceri.common.util.BasicUtil;
 
 public class AlertersBehavior {
-	X10Alerter x10;
-	ZWaveAlerter zwave;
-	AudioAlerter audio;
-	WebAlerter web;
-	Alerters alerters;
+	private X10Alerter x10;
+	private ZWaveAlerter zwave;
+	private AudioAlerter audio;
+	private WebAlerter web;
+	private Alerters alerters;
 
 	@Before
-	public void init() throws IOException {
+	public void init() {
 		x10 = mock(X10Alerter.class);
 		zwave = mock(ZWaveAlerter.class);
 		audio = mock(AudioAlerter.class);
 		web = mock(WebAlerter.class);
-		alerters = createAlerters(allEnabledProperties());
+		alerters = new Alerters(x10, zwave, audio, web);
 	}
 
 	@Test
-	public void shouldNotCreateDisabledAlerters() throws IOException {
-		Properties properties = new Properties();
-		try (Alerters alerters = new Alerters(properties, null)) {
-			assertNull(alerters.x10);
-			assertNull(alerters.zwave);
-			assertNull(alerters.web);
-			assertNull(alerters.audio);
-		}
-	}
-
-	@Test
-	public void shouldNotCallDisabledAlerters() throws IOException {
-		Properties properties = new Properties();
-		try (Alerters alerters = new Alerters(properties, null)) {
-			alerters.alert(new Builds());
-			alerters.clear();
-			alerters.remind();
-			verifyNoMoreInteractions(x10, zwave, web, audio);
-		}
-	}
-
-	@Test
-	public void shouldCreateEnabledAlerters() throws IOException {
-		try (Alerters alerters = createAlerters(allEnabledProperties())) {
-			assertNotNull(alerters.x10);
-			assertNotNull(alerters.zwave);
-			assertNotNull(alerters.web);
-			assertNotNull(alerters.audio);
-		}
+	public void shouldNotCallDisabledAlerters() {
+		Alerters alerters = new Alerters(null, null, null, null);
+		alerters.alert(new Builds());
+		alerters.clear();
+		alerters.remind();
+		verifyNoMoreInteractions(x10, zwave, web, audio);
 	}
 
 	@Test
@@ -101,52 +74,17 @@ public class AlertersBehavior {
 		verify(zwave).clear();
 		verify(web).clear();
 		verify(audio).clear();
-		verifyNoMoreInteractions(x10, zwave, web, audio);
 	}
 
 	@Test
 	public void shouldRemindAlerters() {
 		alerters.remind();
 		verify(audio).remind();
-		verifyNoMoreInteractions(x10, zwave, web, audio);
 	}
 
 	private ArgumentCaptor<Collection<String>> createStringsCaptor() {
 		Class<Collection<String>> cls = BasicUtil.uncheckedCast(Collection.class);
 		return ArgumentCaptor.forClass(cls);
-	}
-
-	private Properties allEnabledProperties() {
-		Properties properties = new Properties();
-		properties.put("x10.enabled", "true");
-		properties.put("zwave.enabled", "true");
-		properties.put("web.enabled", "true");
-		properties.put("audio.enabled", "true");
-		return properties;
-	}
-
-	private Alerters createAlerters(Properties properties) throws IOException {
-		return new Alerters(properties, null) {
-			@Override
-			X10Alerter createX10(Properties properties) throws IOException {
-				return AlertersBehavior.this.x10;
-			}
-
-			@Override
-			ZWaveAlerter createZWave(Properties properties) {
-				return AlertersBehavior.this.zwave;
-			}
-
-			@Override
-			WebAlerter createWeb(Properties properties) {
-				return AlertersBehavior.this.web;
-			}
-
-			@Override
-			AudioAlerter createAudio(Properties properties) {
-				return AlertersBehavior.this.audio;
-			}
-		};
 	}
 
 }

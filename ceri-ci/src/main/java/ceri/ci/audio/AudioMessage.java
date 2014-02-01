@@ -10,12 +10,14 @@ public class AudioMessage {
 	private static final String AUDIO_FILE_SUFFIX = ".wav";
 	private final File soundDir;
 	private final float pitch;
+	private final AudioPlayer player;
 
-	public AudioMessage(File soundDir) {
-		this(soundDir, Audio.NORMAL_PITCH);
+	public AudioMessage(AudioPlayer player, File soundDir) {
+		this(player, soundDir, Audio.NORMAL_PITCH);
 	}
 	
-	public AudioMessage(File soundDir, float pitch) {
+	public AudioMessage(AudioPlayer player, File soundDir, float pitch) {
+		this.player = player;
 		this.soundDir = soundDir;
 		this.pitch = pitch;
 	}
@@ -109,8 +111,8 @@ public class AudioMessage {
 		play(Audio.create(clip.load()));
 	}
 
-	void play(Audio audio) throws IOException {
-		audio.changePitch(pitch).play();
+	private void play(Audio audio) throws IOException {
+		player.play(audio.changePitch(pitch));
 	}
 	
 }

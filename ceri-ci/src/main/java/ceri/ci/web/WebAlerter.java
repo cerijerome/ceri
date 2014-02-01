@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.Properties;
 import ceri.ci.build.Build;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Job;
@@ -22,12 +21,6 @@ public class WebAlerter implements CiWebService {
 	public WebAlerter(File webDir) {
 		this.webDir = webDir;
 		clear();
-	}
-
-	public static WebAlerter create(Properties properties, String prefix) {
-		WebAlerterProperties webProperties = new WebAlerterProperties(properties, prefix);
-		File dir = IoUtil.getPackageDir(WebAlerter.class);
-		return new WebAlerter(dir);
 	}
 
 	public void update(Builds builds) {

@@ -1,36 +1,32 @@
 package ceri.ci.alert;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.Collection;
-import java.util.Properties;
 import ceri.ci.audio.AudioAlerter;
 import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.web.WebAlerter;
 import ceri.ci.x10.X10Alerter;
 import ceri.ci.zwave.ZWaveAlerter;
-import ceri.common.io.IoUtil;
 
 /**
- * Container for alerter components. Web => heroes/villains grouped by job ZWave
- * => aggregate of broken jobs X10 => aggregate of broken jobs Audio => spoken
- * warnings when build fails or is fixed
+ * Container for alerter components.
  */
-public class Alerters implements Closeable {
+public class Alerters {
 	public final X10Alerter x10;
 	public final ZWaveAlerter zwave;
 	public final AudioAlerter audio;
 	public final WebAlerter web;
 
-	public Alerters(Properties properties, String prefix) throws IOException {
-		AlertersProperties props = new AlertersProperties(properties, prefix);
-		x10 = props.x10Enabled() ? createX10(properties) : null;
-		zwave = props.zwaveEnabled() ? createZWave(properties) : null;
-		web = props.webEnabled() ? createWeb(properties) : null;
-		audio = props.audioEnabled() ? createAudio(properties) : null;
+	public Alerters(X10Alerter x10, ZWaveAlerter zwave, AudioAlerter audio, WebAlerter web) {
+		this.x10 = x10;
+		this.zwave = zwave;
+		this.audio = audio;
+		this.web = web;
 	}
 
+	/**
+	 * Notify alerters that builds have changed.
+	 */
 	public void alert(Builds builds) {
 		System.out.println("alert");
 		Builds summarizedBuilds = BuildUtil.summarize(builds);
@@ -41,6 +37,9 @@ public class Alerters implements Closeable {
 		if (audio != null) audio.alert(summarizedBuilds);
 	}
 
+	/**
+	 * Clear alerters' states.
+	 */
 	public void clear() {
 		System.out.println("clear");
 		if (x10 != null) x10.clear();
@@ -49,30 +48,12 @@ public class Alerters implements Closeable {
 		if (audio != null) audio.clear();
 	}
 
+	/**
+	 * Remind alerters of current state.
+	 */
 	public void remind() {
 		System.out.println("remind");
 		if (audio != null) audio.remind();
-	}
-
-	@Override
-	public void close() throws IOException {
-		IoUtil.close(x10);
-	}
-
-	ZWaveAlerter createZWave(Properties properties) {
-		return ZWaveAlerter.create(properties, "zwave");
-	}
-
-	X10Alerter createX10(Properties properties) throws IOException {
-		return X10Alerter.create(properties, "x10");
-	}
-
-	AudioAlerter createAudio(Properties properties) {
-		return AudioAlerter.create(properties, "audio");
-	}
-
-	WebAlerter createWeb(Properties properties) {
-		return WebAlerter.create(properties, "web");
 	}
 
 }

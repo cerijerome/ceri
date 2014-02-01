@@ -7,15 +7,16 @@ import ceri.common.property.BaseProperties;
 import ceri.common.property.Key;
 
 public class ZWaveAlerterProperties extends BaseProperties {
+	private static final String ENABLED_KEY = "enabled";
 	private static final String HOST_KEY = "host";
 	private static final String DEVICE_KEY = "device";
 
-	public ZWaveAlerterProperties(Properties properties) {
-		this(properties, null);
-	}
-
 	public ZWaveAlerterProperties(Properties properties, String prefix) {
 		super(properties, prefix);
+	}
+
+	public boolean enabled() {
+		return booleanValue(false, ENABLED_KEY);
 	}
 
 	public String host() {

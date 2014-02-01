@@ -1,6 +1,5 @@
 package ceri.ci.audio;
 
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -8,7 +7,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -23,14 +21,6 @@ public class AudioAlerterBehavior {
 	public void init() {
 		message = Mockito.mock(AudioMessage.class);
 		audio = new AudioAlerter(message);
-	}
-
-	@Test
-	public void shouldCreateFromProperties() {
-		Properties properties = new Properties();
-		properties.put("pitch", "0.5");
-		AudioAlerter audio = AudioAlerter.create(properties, null);
-		assertNotNull(audio);
 	}
 
 	@Test

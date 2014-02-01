@@ -5,7 +5,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import java.io.IOException;
-import java.util.Properties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +17,7 @@ public class AlertServiceBehavior {
 	AlertService service;
 	
 	@Before
-	public void init() throws IOException {
+	public void init() {
 		alerters = mock(Alerters.class);
 		sync = new BooleanCondition();
 		service = new AlertService(createAlerters(), 0, 0);
@@ -70,8 +69,8 @@ public class AlertServiceBehavior {
 		verifyZeroInteractions(alerters);
 	}
 
-	private Alerters createAlerters() throws IOException {
-		return new Alerters(new Properties(), null) {
+	private Alerters createAlerters() {
+		return new Alerters(null, null, null, null) {
 			@Override
 			public void alert(Builds builds) {
 				alerters.alert(builds);

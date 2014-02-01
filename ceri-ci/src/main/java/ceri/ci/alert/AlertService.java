@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -16,8 +15,6 @@ import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
 import ceri.ci.service.CiAlertService;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.property.PropertyUtil;
-import ceri.common.util.BasicUtil;
 
 public class AlertService implements CiAlertService, Closeable {
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -29,30 +26,7 @@ public class AlertService implements CiAlertService, Closeable {
 	private final Builds builds = new Builds();
 	private boolean buildsChanged = false;
 
-	public static void main(String[] args) throws IOException {
-		try (AlertService service = new AlertService()) {
-			service.broken("bolt", "smoke", Arrays.asList("cdehaudt"));
-			BasicUtil.delay(10000);
-			service.fixed("bolt", "smoke", Arrays.asList("cdehaudt"));
-			service.broken("bolt", "regression", Arrays.asList("machung"));
-			BasicUtil.delay(10000);
-			service.broken("bolt", "smoke", Arrays.asList("dxie"));
-			BasicUtil.delay(10000);
-			service.broken("bolt", "smoke", Arrays.asList("fuzhong", "cjerome"));
-			//BasicUtil.delay(10000);
-		}
-	}
-
-	public AlertService() throws IOException {
-		Properties properties = PropertyUtil.load(AlertService.class, "alert.properties");
-		AlertServiceProperties serviceProps = new AlertServiceProperties(properties, "alert");
-		alerters = new Alerters(properties, null);
-		reminderMs = serviceProps.reminderMs();
-		shutdownTimeoutMs = serviceProps.shutdownTimeoutMs();
-		startThread();
-	}
-
-	AlertService(Alerters alerters, long reminderMs, long shutdownTimeoutMs) {
+	public AlertService(Alerters alerters, long reminderMs, long shutdownTimeoutMs) {
 		this.alerters = alerters;
 		this.reminderMs = reminderMs;
 		this.shutdownTimeoutMs = shutdownTimeoutMs;

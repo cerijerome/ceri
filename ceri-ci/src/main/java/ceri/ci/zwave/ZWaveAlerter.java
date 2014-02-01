@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import ceri.common.collection.ImmutableUtil;
 import ceri.zwave.veralite.VeraLite;
@@ -15,28 +14,13 @@ public class ZWaveAlerter {
 	private final Set<Integer> activeDevices = new HashSet<>();
 	private final ZWaveController zwave;
 
-	public static ZWaveAlerter create(Properties properties, String prefix) {
-		return builder(properties, prefix).build();
-	}
-
-	static Builder builder(Properties properties, String prefix) {
-		ZWaveAlerterProperties zwProperties = new ZWaveAlerterProperties(properties, prefix);
-		String host = zwProperties.host();
-		Builder builder = builder(host);
-		for (String name : zwProperties.names()) {
-			Integer device = zwProperties.device(name);
-			builder.device(name, device);
-		}
-		return builder;
-	}
-
 	public static class Builder {
 		final Map<String, Integer> devices = new HashMap<>();
-		final String host;
+		final ZWaveController controller;
 
-		Builder(String host) {
-			if (host == null) throw new NullPointerException("Host cannot be null");
-			this.host = host;
+		Builder(ZWaveController controller) {
+			if (controller == null) throw new NullPointerException("Controller cannot be null");
+			this.controller = controller;
 		}
 
 		public Builder device(String name, int device) {
@@ -52,12 +36,12 @@ public class ZWaveAlerter {
 		}
 	}
 
-	public static Builder builder(String host) {
-		return new Builder(host);
+	public static Builder builder(ZWaveController controller) {
+		return new Builder(controller);
 	}
 
 	ZWaveAlerter(Builder builder) {
-		zwave = createController(builder.host);
+		zwave = builder.controller;
 		devices = ImmutableUtil.copyAsMap(builder.devices);
 	}
 

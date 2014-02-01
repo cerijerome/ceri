@@ -5,7 +5,6 @@ import org.junit.runners.Suite;
 import ceri.ci.alert.AlertServiceBehavior;
 import ceri.ci.alert.AlertServicePropertiesBehavior;
 import ceri.ci.alert.AlertersBehavior;
-import ceri.ci.alert.AlertersPropertiesBehavior;
 import ceri.ci.audio.AudioAlerterBehavior;
 import ceri.ci.audio.AudioAlerterPropertiesBehavior;
 import ceri.ci.audio.AudioBehavior;
@@ -29,7 +28,6 @@ import ceri.common.test.TestUtil;
 @Suite.SuiteClasses({
 	// alert
 	AlertersBehavior.class,
-	AlertersPropertiesBehavior.class,
 	AlertServiceBehavior.class,
 	AlertServicePropertiesBehavior.class,
 	// audio

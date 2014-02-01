@@ -1,8 +1,6 @@
 To do
 =====
 
-Move to IoC
-
 ZWave, X10
 - check for runtime interruption
 

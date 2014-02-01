@@ -1,5 +1,7 @@
 package ceri.ci.web;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -9,18 +11,13 @@ public class WebAlerterPropertiesBehavior {
 	
 	@BeforeClass
 	public static void init() {
-		props.put("x.key", "aaa");
-		props.put("key", "xxx");
+		props.put("x.enabled", "true");
 	}
 	
 	@Test
 	public void shouldReadValuesWithPrefix() {
 		WebAlerterProperties web = new WebAlerterProperties(props, "x");
-	}
-
-	@Test
-	public void shouldReadValuesWithoutPrefix() {
-		WebAlerterProperties web = new WebAlerterProperties(props);
+		assertThat(web.enabled(), is(true));
 	}
 
 }

@@ -1,14 +1,12 @@
 package ceri.ci.zwave;
 
 import static ceri.common.test.TestUtil.assertException;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,14 +17,13 @@ public class ZWaveAlerterBehavior {
 	@Before
 	public void before() {
 		controller = mock(ZWaveController.class);
-		ZWaveAlerter.Builder builder =
-			ZWaveAlerter.builder("a").device("1", 1).device("2", 2).device("3", 3);
-		alerter = createZWaveAlerter(builder);
+		alerter =
+			ZWaveAlerter.builder(controller).device("1", 1).device("2", 2).device("3", 3).build();
 	}
 
 	@Test
 	public void shouldFailToBuildWithInvalidAddress() {
-		final ZWaveAlerter.Builder builder = ZWaveAlerter.builder("123");
+		final ZWaveAlerter.Builder builder = ZWaveAlerter.builder(controller);
 		assertException(new Runnable() {
 			@Override
 			public void run() {
@@ -39,16 +36,6 @@ public class ZWaveAlerterBehavior {
 				builder.device("x", -1);
 			}
 		});
-	}
-
-	@Test
-	public void shouldCreateFromProperties() {
-		Properties properties = new Properties();
-		properties.put("host", "xxx");
-		properties.put("device.x", "1");
-		ZWaveAlerter.Builder builder = ZWaveAlerter.builder(properties, null);
-		ZWaveAlerter zwave = createZWaveAlerter(builder);
-		assertNotNull(zwave);
 	}
 
 	@Test
@@ -92,15 +79,6 @@ public class ZWaveAlerterBehavior {
 		verify(controller).on(1);
 		verify(controller).off(3);
 		verifyNoMoreInteractions(controller);
-	}
-
-	private ZWaveAlerter createZWaveAlerter(ZWaveAlerter.Builder builder) {
-		return new ZWaveAlerter(builder) {
-			@Override
-			ZWaveController createController(String host) {
-				return controller;
-			}
-		};
 	}
 
 }

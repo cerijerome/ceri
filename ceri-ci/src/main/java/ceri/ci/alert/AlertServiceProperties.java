@@ -10,10 +10,6 @@ public class AlertServiceProperties extends BaseProperties {
 	private static final String REMINDER_MS_KEY = "reminder.ms";
 	private static final String SHUTDOWN_TIMEOUT_MS_KEY = "shutdown.timeout.ms";
 
-	public AlertServiceProperties(Properties properties) {
-		this(properties, null);
-	}
-
 	public AlertServiceProperties(Properties properties, String prefix) {
 		super(properties, prefix);
 	}
