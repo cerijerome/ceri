@@ -1,6 +1,7 @@
 package ceri.common.log;
 
 import java.util.regex.Pattern;
+import ceri.common.reflect.ReflectUtil;
 
 /**
  * Utility methods to assist with logging.
@@ -23,4 +24,19 @@ public class LogUtil {
 		};
 	}
 
+	/**
+	 * Returns an object with a toString() that returns the caller's method name.
+	 */
+	public static Object method() {
+		return new Object() {
+			@Override
+			public String toString() {
+				return ReflectUtil.previousMethodName(4);
+			}
+		};
+	}
+
+	public static void main(String[] args) {
+		System.out.println(method());
+	}
 }

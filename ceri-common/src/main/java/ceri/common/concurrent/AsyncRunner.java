@@ -5,6 +5,7 @@ import ceri.common.util.BasicUtil;
 /**
  * Simple class for running a separate thread, capturing errors,
  * and surfacing them on the main thread on completion.
+ * Most use cases better served with Future
  */
 public abstract class AsyncRunner<T extends Exception> {
 	private final Thread thread;

@@ -4,6 +4,7 @@ import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -26,6 +27,34 @@ public class MathUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(MathUtil.class);
+	}
+
+	@Test
+	public void testShortToBytes() {
+		byte ff = (byte) 0xff;
+		byte _80 = (byte) 0x80;
+		assertArrayEquals(MathUtil.shortToBytes(0xffff), new byte[] { ff, ff });
+		assertArrayEquals(MathUtil.shortToBytes(0x7fff), new byte[] { 0x7f, ff });
+		assertArrayEquals(MathUtil.shortToBytes(0x8000), new byte[] { _80, 0, });
+		assertArrayEquals(MathUtil.shortToBytes(0x7f), new byte[] { 0, 0x7f });
+		assertArrayEquals(MathUtil.shortToBytes(0x80), new byte[] { 0, _80 });
+		assertArrayEquals(MathUtil.shortToBytes(0), new byte[] { 0, 0 });
+	}
+
+	@Test
+	public void testIntToBytes() {
+		byte ff = (byte) 0xff;
+		byte _80 = (byte) 0x80;
+		assertArrayEquals(MathUtil.intToBytes(0xffffffff), new byte[] { ff, ff, ff, ff });
+		assertArrayEquals(MathUtil.intToBytes(0x7fffffff), new byte[] { 0x7f, ff, ff, ff });
+		assertArrayEquals(MathUtil.intToBytes(0x80000000), new byte[] { _80, 0, 0, 0 });
+		assertArrayEquals(MathUtil.intToBytes(0x7fffff), new byte[] { 0, 0x7f, ff, ff });
+		assertArrayEquals(MathUtil.intToBytes(0x800000), new byte[] { 0, _80, 0, 0 });
+		assertArrayEquals(MathUtil.intToBytes(0x7fff), new byte[] { 0, 0, 0x7f, ff });
+		assertArrayEquals(MathUtil.intToBytes(0x8000), new byte[] { 0, 0, _80, 0, });
+		assertArrayEquals(MathUtil.intToBytes(0x7f), new byte[] { 0, 0, 0, 0x7f });
+		assertArrayEquals(MathUtil.intToBytes(0x80), new byte[] { 0, 0, 0, _80 });
+		assertArrayEquals(MathUtil.intToBytes(0), new byte[] { 0, 0, 0, 0 });
 	}
 
 	@Test

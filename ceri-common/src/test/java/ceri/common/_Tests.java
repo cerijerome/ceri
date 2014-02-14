@@ -30,12 +30,15 @@ import ceri.common.factory.StringFactoriesTest;
 import ceri.common.filter.CollectionFiltersTest;
 import ceri.common.filter.FiltersTest;
 import ceri.common.io.BlockingBufferStreamBehavior;
+import ceri.common.io.ByteArrayDataInputBehavior;
+import ceri.common.io.ByteArrayDataOutputBehavior;
 import ceri.common.io.ByteBufferStreamBehavior;
 import ceri.common.io.FileFiltersTest;
 import ceri.common.io.FileIteratorBehavior;
 import ceri.common.io.FileTrackerBehavior;
 import ceri.common.io.FilenameIteratorBehavior;
 import ceri.common.io.IoUtilTest;
+import ceri.common.io.PollingInputStreamBehavior;
 import ceri.common.io.RegexFilenameFilterBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
 import ceri.common.log.LogUtilTest;
@@ -114,12 +117,15 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	FiltersTest.class,
 	// io
 	BlockingBufferStreamBehavior.class,
+	ByteArrayDataInputBehavior.class,
+	ByteArrayDataOutputBehavior.class,
 	ByteBufferStreamBehavior.class,
 	FileFiltersTest.class,
 	FileIteratorBehavior.class,
 	FilenameIteratorBehavior.class,
 	FileTrackerBehavior.class,
 	IoUtilTest.class,
+	PollingInputStreamBehavior.class,
 	RegexFilenameFilterBehavior.class,
 	StringPrintStreamBehavior.class,
 	// log

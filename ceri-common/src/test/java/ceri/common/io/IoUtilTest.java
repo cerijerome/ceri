@@ -254,9 +254,9 @@ public class IoUtilTest {
 		count = IoUtil.fillBuffer(in, outBuffer, 0, 150);
 		assertThat(count, is(150));
 		count = IoUtil.fillBuffer(in, outBuffer, 150, 100);
-		assertThat(count, is(200));
+		assertThat(count, is(50));
 		count = IoUtil.fillBuffer(in, outBuffer, 200, 50);
-		assertThat(count, is(200));
+		assertThat(count, is(0));
 		assertArray(Arrays.copyOf(outBuffer, 200), inBuffer);
 	}
 

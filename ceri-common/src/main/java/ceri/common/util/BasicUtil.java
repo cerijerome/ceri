@@ -88,7 +88,7 @@ public class BasicUtil {
 	 * Sleeps for given milliseconds, or not if 0. Throws
 	 * RuntimeInterruptedException if interrupted.
 	 */
-	public static void delay(int delayMs) {
+	public static void delay(long delayMs) {
 		if (delayMs == 0) return;
 		try {
 			Thread.sleep(delayMs);

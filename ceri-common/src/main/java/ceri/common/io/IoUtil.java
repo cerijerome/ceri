@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.MissingResourceException;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -41,8 +42,7 @@ public class IoUtil {
 	}
 
 	/**
-	 * Create a temp dir with random name under given dir. Use null for current
-	 * dir.
+	 * Create a temp dir with random name under given dir. Use null for current dir.
 	 */
 	public static File createTempDir(File rootDir) {
 		FileTracker tracker = new FileTracker();
@@ -63,8 +63,7 @@ public class IoUtil {
 	}
 
 	/**
-	 * Delete all files under the directory, and the directory itself. Be
-	 * careful!
+	 * Delete all files under the directory, and the directory itself. Be careful!
 	 */
 	public static void deleteAll(File root) {
 		if (root.isDirectory()) for (File file : root.listFiles())
@@ -96,13 +95,11 @@ public class IoUtil {
 	}
 
 	/**
-	 * Checks if the current thread has been interrupted, and throws an
-	 * InterruptedIOException. With blocking I/O, (i.e. anything that doesn't
-	 * use the nio packages) a thread can be interrupted, but the I/O will still
-	 * proceed, and the InterruptedException is only thrown when a call to
-	 * Thread.sleep() or Object.wait() is made. This method or the
-	 * BasicUtil.checkInterrupted() method is recommended to be called after any
-	 * blocking I/O calls.
+	 * Checks if the current thread has been interrupted, and throws an InterruptedIOException. With
+	 * blocking I/O, (i.e. anything that doesn't use the nio packages) a thread can be interrupted,
+	 * but the I/O will still proceed, and the InterruptedException is only thrown when a call to
+	 * Thread.sleep() or Object.wait() is made. This method or the BasicUtil.checkInterrupted()
+	 * method is recommended to be called after any blocking I/O calls.
 	 */
 	public static void checkIoInterrupted() throws InterruptedIOException {
 		if (Thread.interrupted()) throw new InterruptedIOException("Thread has been interrupted");
@@ -124,16 +121,15 @@ public class IoUtil {
 	}
 
 	/**
-	 * Returns the set of relative file paths under a given directory in Unix
-	 * '/' format
+	 * Returns the set of relative file paths under a given directory in Unix '/' format
 	 */
 	public static List<String> getFilenames(File dir) {
 		return getFilenames(dir, null);
 	}
 
 	/**
-	 * Returns the set of relative file paths under a given directory in Unix
-	 * '/' format. A null filter matches all files.
+	 * Returns the set of relative file paths under a given directory in Unix '/' format. A null
+	 * filter matches all files.
 	 */
 	public static List<String> getFilenames(File dir, FilenameFilter filter) {
 		List<String> list = new ArrayList<>();
@@ -149,8 +145,7 @@ public class IoUtil {
 	}
 
 	/**
-	 * Returns the set of file paths under a given directory. A null filter
-	 * matches all files.
+	 * Returns the set of file paths under a given directory. A null filter matches all files.
 	 */
 	public static List<File> getFiles(File dir, FileFilter filter) {
 		List<File> list = new ArrayList<>();
@@ -159,8 +154,7 @@ public class IoUtil {
 	}
 
 	/**
-	 * Joins two '/' based paths together, making sure only one '/' is between
-	 * the two paths.
+	 * Joins two '/' based paths together, making sure only one '/' is between the two paths.
 	 */
 	public static String joinPaths(String path1, String path2) {
 		if (path1 == null) path1 = "";
@@ -175,8 +169,8 @@ public class IoUtil {
 	}
 
 	/**
-	 * Returns the file path relative to a given dir in '/' format. Or the
-	 * returns the file if not relative.
+	 * Returns the file path relative to a given dir in '/' format. Or the returns the file if not
+	 * relative.
 	 */
 	public static String getRelativePath(File dir, File file) throws IOException {
 		dir = dir.getCanonicalFile();
@@ -207,8 +201,8 @@ public class IoUtil {
 	}
 
 	/**
-	 * Copies file contents from one file to another, creating the destination
-	 * directories if necessary.
+	 * Copies file contents from one file to another, creating the destination directories if
+	 * necessary.
 	 */
 	public static void copyFile(File src, File dest) throws IOException {
 		FileTracker tracker = new FileTracker().file(dest); // creates parent dirs
@@ -236,8 +230,7 @@ public class IoUtil {
 	}
 
 	/**
-	 * Gets content from input stream as a string. Use 0 for default buffer
-	 * size.
+	 * Gets content from input stream as a string. Use 0 for default buffer size.
 	 */
 	public static String getContentString(InputStream in, int bufferSize) throws IOException {
 		byte[] bytes = getContent(in, bufferSize);
@@ -245,8 +238,7 @@ public class IoUtil {
 	}
 
 	/**
-	 * Gets content from an input stream as byte array. Use 0 for default buffer
-	 * size.
+	 * Gets content from an input stream as byte array. Use 0 for default buffer size.
 	 */
 	public static byte[] getContent(InputStream in, int bufferSize) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -282,8 +274,8 @@ public class IoUtil {
 	}
 
 	/**
-	 * Transfers content from an input stream to an output stream, using the
-	 * specified buffer size, or 0 for default buffer size.
+	 * Transfers content from an input stream to an output stream, using the specified buffer size,
+	 * or 0 for default buffer size.
 	 */
 	public static void transferContent(InputStream in, OutputStream out, int bufferSize)
 		throws IOException {
@@ -298,17 +290,16 @@ public class IoUtil {
 	}
 
 	/**
-	 * Attempts to fill given buffer by reading from the input stream. Returns
-	 * the last position filled in the buffer. Returns 0 if end of stream.
+	 * Attempts to fill given buffer by reading from the input stream. Returns the last position
+	 * filled in the buffer. Returns less than given length if end of stream is reached.
 	 */
 	public static int fillBuffer(InputStream in, byte[] buffer) throws IOException {
 		return fillBuffer(in, buffer, 0, buffer.length);
 	}
 
 	/**
-	 * Attempts to fill given buffer by reading from the input stream until
-	 * full. Returns the last position filled in the buffer. Returns 0 if end of
-	 * stream.
+	 * Attempts to fill given buffer by reading from the input stream until full. Returns the total
+	 * number of bytes read. Returns less than given length if end of stream is reached.
 	 */
 	public static int fillBuffer(InputStream in, byte[] buffer, int offset, int len)
 		throws IOException {
@@ -322,12 +313,11 @@ public class IoUtil {
 			if (count == -1) break;
 			pos += count;
 		}
-		return pos;
+		return pos - offset;
 	}
 
 	/**
-	 * Gets resource as a string from same package as class, with given
-	 * filename.
+	 * Gets resource as a string from same package as class, with given filename.
 	 */
 	public static String getResourceString(Class<?> cls, String resourceName) throws IOException {
 		return new String(getResource(cls, resourceName)).intern();
@@ -338,21 +328,21 @@ public class IoUtil {
 	 */
 	public static byte[] getResource(Class<?> cls, String resourceName) throws IOException {
 		try (InputStream in = cls.getResourceAsStream(resourceName)) {
+			if (in == null) throw new MissingResourceException("Missing resource for class " +
+				cls.getName() + ": " + resourceName, cls.getName(), resourceName);
 			return IoUtil.getContent(in, 0);
 		}
 	}
 
 	/**
-	 * Gets resource from same package as class, with name
-	 * <simple-class-name>.<suffix>
+	 * Gets resource from same package as class, with name <simple-class-name>.<suffix>
 	 */
 	public static String getClassResourceAsString(Class<?> cls, String suffix) throws IOException {
 		return new String(getClassResource(cls, suffix)).intern();
 	}
 
 	/**
-	 * Gets resource from same package as class, with name
-	 * <simple-class-name>.<suffix>
+	 * Gets resource from same package as class, with name <simple-class-name>.<suffix>
 	 */
 	public static byte[] getClassResource(Class<?> cls, String suffix) throws IOException {
 		return getResource(cls, cls.getSimpleName() + "." + suffix);
