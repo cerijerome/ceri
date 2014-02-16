@@ -14,7 +14,7 @@ public class HashCoderBehavior {
 	private static final long l = 0x7777_7777_7777_7777L;
 	private static final float f = 0.7777f;
 	private static final double d = 0.7777_7777;
-	
+
 	@Test
 	public void shouldHaveDifferentValuesByPrimitiveType() {
 		int blHash = HashCoder.create().add(bl).hashCode();
@@ -34,17 +34,18 @@ public class HashCoderBehavior {
 		assertThat(fHash, not(dHash));
 		assertThat(dHash, not(blHash));
 	}
-	
+
 	@Test
 	public void shouldHaveSameValueForAutoboxedPrimitives() {
-		int autoBoxHash = HashCoder.hash(b, s, i, l);
-		int primitiveHash = HashCoder.create().add(b).add(s).add(i).add(l).hashCode();
+		int autoBoxHash = HashCoder.hash(bl, c, b, s, i, l, f, d);
+		int primitiveHash =
+			HashCoder.create().add(bl).add(c).add(b).add(s).add(i).add(l).add(f).add(d).hashCode();
 		assertThat(autoBoxHash, is(primitiveHash));
 	}
 
 	@Test
 	public void shouldIterateOverArray() {
-		int[] values = { 1, 2, 3 }; 
+		int[] values = { 1, 2, 3 };
 		int primitiveHash = HashCoder.hash(1, 2, 3);
 		int arrayHash = HashCoder.create().add(values).hashCode();
 		assertThat(primitiveHash, is(arrayHash));

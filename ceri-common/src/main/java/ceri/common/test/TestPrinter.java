@@ -98,9 +98,9 @@ public class TestPrinter extends RunListener {
 
 	private void capture(Description description) {
 		String testClassName = description.getClassName();
+		String simpleName = description.getTestClass().getSimpleName();
 		Matcher m = CLASS_NAME_PATTERN.matcher(description.getTestClass().getSimpleName());
-		if (!m.find()) return;
-		String className = m.group(1);
+		String className = m.find() ? m.group(1) : simpleName;
 
 		String methodName = description.getMethodName();
 		captureTest(testClassName, className, methodName);

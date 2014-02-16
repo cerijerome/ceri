@@ -52,14 +52,14 @@ public class TestUtil {
 	/**
 	 * Executes tests and prints names in readable phrases to stdout.
 	 */
-	public static void exec(Class<?> classes) {
+	public static void exec(Class<?>...classes) {
 		exec(System.out, classes);
 	}
 
 	/**
 	 * Executes tests and prints test names in readable phrases.
 	 */
-	public static void exec(PrintStream out, Class<?> classes) {
+	public static void exec(PrintStream out, Class<?>...classes) {
 		JUnitCore core = new JUnitCore();
 		TestPrinter tp = new TestPrinter();
 		core.addListener(tp);
@@ -374,7 +374,7 @@ public class TestUtil {
 	 * given char.
 	 */
 	public static String toReadableString(byte[] array, int offset, int len, String charset,
-		char readableChar) {
+		char unreadableChar) {
 		StringBuilder b = new StringBuilder();
 		try {
 			if (charset == null || charset.isEmpty()) b.append(new String(array, offset, len));
@@ -383,7 +383,7 @@ public class TestUtil {
 			throw new IllegalArgumentException(e);
 		}
 		for (int i = 0; i < b.length(); i++) {
-			if (!StringUtil.printable(b.charAt(i))) b.setCharAt(i, readableChar);
+			if (!StringUtil.printable(b.charAt(i))) b.setCharAt(i, unreadableChar);
 			//if (b.charAt(i) < ' ') b.setCharAt(i, readableChar);
 		}
 		return b.toString();

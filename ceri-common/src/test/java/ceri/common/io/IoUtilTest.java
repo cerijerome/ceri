@@ -4,10 +4,12 @@ import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.isList;
+import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -19,6 +21,7 @@ import java.io.InterruptedIOException;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
+import java.util.MissingResourceException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -173,11 +176,25 @@ public class IoUtilTest {
 	}
 
 	@Test
+	public void testGetPackageDir() {
+		File dir = IoUtil.getPackageDir(getClass());
+		assertThat(dir.getPath(), matchesRegex(".*" + getClass().getPackage().getName()));
+	}
+	
+	@Test
 	public void testGetResource() throws IOException {
 		byte[] bytes = IoUtil.getResource(getClass(), getClass().getSimpleName() + ".properties");
 		assertThat(bytes, is(new byte[] { 'a', '=', 'b' }));
+		bytes = IoUtil.getClassResource(getClass(), "properties");
+		assertThat(bytes, is(new byte[] { 'a', '=', 'b' }));
 		String s = IoUtil.getResourceString(getClass(), getClass().getSimpleName() + ".properties");
 		assertThat(s, is("a=b"));
+		s = IoUtil.getClassResourceAsString(getClass(), "properties");
+		assertThat(s, is("a=b"));
+		try {
+			IoUtil.getResource(getClass(), "test");
+			fail();
+		} catch (MissingResourceException e) {}
 	}
 
 	@Test

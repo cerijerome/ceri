@@ -16,12 +16,76 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.Test;
+import ceri.common.util.StringUtil;
 
 public class TestUtilTest {
 
+	static class Uncreatable {
+		private Uncreatable() {
+			throw new RuntimeException();
+		}
+	}
+
 	@Test
-	public void testConstructorIsPrivate() {
+	public void testAssertPrivateConstructor() {
 		TestUtil.assertPrivateConstructor(TestUtil.class);
+		try {
+			TestUtil.assertPrivateConstructor(TestUtilTest.class);
+		} catch (AssertionError e) {}
+		try {
+			TestUtil.assertPrivateConstructor(TestUtilTest.Uncreatable.class);
+		} catch (RuntimeException e) {}
+	}
+
+	public static class ExecTest {
+		@Test
+		public void shouldDoThis() {}
+		@Test
+		public void testThat() {}
+	}
+
+	@Test
+	public void testExec() {
+		StringBuilder b = new StringBuilder();
+		TestUtil.exec(StringUtil.asPrintStream(b), ExecTest.class);
+		assertTrue(b.toString().contains("Exec should do this"));
+		assertTrue(b.toString().contains("Exec test that"));
+	}
+
+	@Test
+	public void testAssertException() {
+		TestUtil.assertException(new TestRunnable() {
+			@Override
+			public void run() {
+				throw new IllegalArgumentException();
+			}
+		});
+		try {
+			TestUtil.assertException(new Runnable() {
+				@Override
+				public void run() {}
+			});
+		} catch (AssertionError e) {}
+		try {
+			TestUtil.assertException(RuntimeException.class, new TestRunnable() {
+				@Override
+				public void run() throws IOException {
+					throw new IOException();
+				}
+			});
+		} catch (AssertionError e) {}
+	}
+
+	@Test
+	public void testAssertRange() {
+		try {
+			TestUtil.assertRange(Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE - 1);
+			fail();
+		} catch (AssertionError e) {}
+		try {
+			TestUtil.assertRange(Long.MIN_VALUE, Long.MIN_VALUE + 1, Long.MAX_VALUE - 1);
+			fail();
+		} catch (AssertionError e) {}
 	}
 
 	@Test
@@ -43,6 +107,10 @@ public class TestUtilTest {
 	public void testToReadableString() {
 		byte[] bytes = { 0, 'a', '.', Byte.MAX_VALUE, Byte.MIN_VALUE, '~', '!', -1 };
 		assertThat(TestUtil.toReadableString(bytes), is("?a.??~!?"));
+		try {
+			TestUtil.toReadableString(bytes, 3, 2, "test", '?');
+			fail();
+		} catch (IllegalArgumentException e) {}
 	}
 
 	@Test

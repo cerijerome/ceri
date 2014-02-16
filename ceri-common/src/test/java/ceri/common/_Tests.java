@@ -41,6 +41,9 @@ import ceri.common.io.IoUtilTest;
 import ceri.common.io.PollingInputStreamBehavior;
 import ceri.common.io.RegexFilenameFilterBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
+import ceri.common.log.BinaryLogInputStreamBehavior;
+import ceri.common.log.BinaryLogOutputStreamBehavior;
+import ceri.common.log.BinaryPrinterBehavior;
 import ceri.common.log.LogUtilTest;
 import ceri.common.property.BasePropertiesBehavior;
 import ceri.common.property.KeyBehavior;
@@ -49,7 +52,6 @@ import ceri.common.reflect.CallerBehavior;
 import ceri.common.reflect.CreateExceptionBehavior;
 import ceri.common.reflect.ReflectUtilTest;
 import ceri.common.test.DebuggerBehavior;
-import ceri.common.test.HexPrinterBehavior;
 import ceri.common.test.RegexMatcherBehavior;
 import ceri.common.test.TestPrinterBehavior;
 import ceri.common.test.TestRunPrinterBehavior;
@@ -129,6 +131,9 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	RegexFilenameFilterBehavior.class,
 	StringPrintStreamBehavior.class,
 	// log
+	BinaryLogInputStreamBehavior.class,
+	BinaryLogOutputStreamBehavior.class,
+	BinaryPrinterBehavior.class,
 	LogUtilTest.class,
 	// property
 	BasePropertiesBehavior.class,
@@ -140,7 +145,6 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ReflectUtilTest.class,
 	//test
 	DebuggerBehavior.class,
-	HexPrinterBehavior.class,
 	RegexMatcherBehavior.class,
 	TestPrinterBehavior.class,
 	TestRunPrinterBehavior.class,

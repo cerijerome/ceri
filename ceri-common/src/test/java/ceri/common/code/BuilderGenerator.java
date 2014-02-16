@@ -30,6 +30,12 @@ public class BuilderGenerator {
 	private final String className;
 	private final Map<String, String> fields;
 
+	public static void main(String[] args) {
+		System.out.println("Enter class name then fields:\n");
+		Reader r = new InputStreamReader(System.in);
+		generate(r);
+	}
+
 	public static class Builder {
 		final String className;
 		final Map<String, String> fields = new LinkedHashMap<>();
@@ -128,12 +134,6 @@ public class BuilderGenerator {
 			}
 		} catch (IOException e) {}
 		if (builder != null) builder.build().generate(System.out);
-	}
-
-	public static void main(String[] args) {
-		System.out.println("Enter class name then fields:\n");
-		Reader r = new InputStreamReader(System.in);
-		generate(r);
 	}
 
 }

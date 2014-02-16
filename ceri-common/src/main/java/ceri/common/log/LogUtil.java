@@ -12,8 +12,8 @@ public class LogUtil {
 	private LogUtil() {}
 
 	/**
-	 * Returns an object with a compact toString(), replacing multiple
-	 * whitespace with a single space.
+	 * Returns an object with a compact toString(), replacing multiple whitespace with a single
+	 * space.
 	 */
 	public static Object compact(final Object obj) {
 		return new Object() {
@@ -25,7 +25,10 @@ public class LogUtil {
 	}
 
 	/**
-	 * Returns an object with a toString() that returns the caller's method name.
+	 * Returns an object with a toString() that returns the caller's method name. Useful for log4j2
+	 * logging (delayed toString formatting) such as <code>
+	 * logger.info("Method: {}", method());
+	 * </code>
 	 */
 	public static Object method() {
 		return new Object() {
