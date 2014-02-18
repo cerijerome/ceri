@@ -1,14 +1,13 @@
 To do
 =====
 
-Logger: not working for Alerters/MasterMold main
+x10 emulator
+x10 command work
+x10 test shutdown
 
-ZWave, X10
-- check for runtime interruption
+Tests for new common classes
 
 Create jsp for web
-
-Run alerters in parallel
 
 Save state and reload on restart
 

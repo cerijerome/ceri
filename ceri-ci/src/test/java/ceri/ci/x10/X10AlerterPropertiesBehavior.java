@@ -6,7 +6,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ceri.x10.X10ControllerType;
+import ceri.x10.util.X10ControllerType;
 
 public class X10AlerterPropertiesBehavior {
 	private static Properties props = new Properties();

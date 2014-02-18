@@ -12,14 +12,14 @@ public class AlertServicePropertiesBehavior {
 	@BeforeClass
 	public static void init() {
 		props.put("x.reminder.ms", "999999");
-		props.put("x.shutdown.timeout.ms", "999");
+		props.put("x.timeout.ms", "999");
 	}
 	
 	@Test
 	public void shouldReadValuesWithPrefix() {
 		AlertServiceProperties serviceProps = new AlertServiceProperties(props, "x");
 		assertThat(serviceProps.reminderMs(), is(999999L));
-		assertThat(serviceProps.shutdownTimeoutMs(), is(999L));
+		assertThat(serviceProps.timeoutMs(), is(999L));
 	}
 
 }

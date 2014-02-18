@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Properties;
 import ceri.common.property.BaseProperties;
 import ceri.common.property.Key;
-import ceri.x10.X10ControllerType;
+import ceri.x10.util.X10ControllerType;
 
 public class X10AlerterProperties extends BaseProperties {
 	private static final X10ControllerType CONTROLLER_DEF = X10ControllerType.cm17a;

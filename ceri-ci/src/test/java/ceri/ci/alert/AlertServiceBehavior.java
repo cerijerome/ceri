@@ -70,7 +70,7 @@ public class AlertServiceBehavior {
 	}
 
 	private Alerters createAlerters() {
-		return new Alerters(null, null, null, null) {
+		return new TestAlerters(Alerters.builder()) {
 			@Override
 			public void alert(Builds builds) {
 				alerters.alert(builds);

@@ -13,8 +13,8 @@
     },
     "loggers": {
       "root": {
-        "level": "info",
-        "appenderref": {
+        "level": "warn",
+        "appender-ref": {
           "ref": "Console"
         }
       }

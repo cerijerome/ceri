@@ -13,8 +13,8 @@
     },
     "loggers": {
       "root": {
-        "level": "info",
-        "appenderref": {
+        "level": "trace",
+        "appender-ref": {
           "ref": "Console"
         }
       }

@@ -7,31 +7,29 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import x10.Command;
-import x10.Controller;
 import ceri.common.collection.ImmutableUtil;
-import ceri.x10.X10Util;
+import ceri.x10.command.CommandFactory;
+import ceri.x10.type.Address;
+import ceri.x10.type.House;
+import ceri.x10.util.X10Controller;
 
 public class X10Alerter {
-	private static final int DEVICE_DEF = 1;
-	private final Controller x10;
-	private final Map<String, String> addresses;
-	private final Set<String> houseCodes;
+	private final X10Controller x10;
+	private final Map<String, Address> addresses;
+	private final Set<House> houseCodes;
 
 	public static class Builder {
-		final Map<String, String> addresses = new HashMap<>();
-		final Controller x10;
+		final Map<String, Address> addresses = new HashMap<>();
+		final X10Controller x10;
 
-		Builder(Controller x10) {
+		Builder(X10Controller x10) {
 			if (x10 == null) throw new NullPointerException("Controller cannot be null");
 			this.x10 = x10;
 		}
 
 		public Builder address(String name, String address) {
 			if (name == null) throw new NullPointerException("Name cannot be null");
-			if (!X10Util.isValidAddress(address)) throw new IllegalArgumentException(
-				"Not a valid x10 address for " + name + ": " + address);
-			addresses.put(name, address);
+			addresses.put(name, Address.fromString(address));
 			return this;
 		}
 
@@ -40,7 +38,7 @@ public class X10Alerter {
 		}
 	}
 
-	public static Builder builder(Controller x10) {
+	public static Builder builder(X10Controller x10) {
 		return new Builder(x10);
 	}
 
@@ -65,20 +63,20 @@ public class X10Alerter {
 	}
 
 	private void clearAlerts() {
-		for (String houseCode : houseCodes)
-			x10.addCommand(new Command(houseCode, Command.ALL_UNITS_OFF));
+		for (House houseCode : houseCodes)
+			x10.command(CommandFactory.allUnitsOff(houseCode));
 	}
 
 	private void doAlert(String key) {
-		String address = addresses.get(key);
+		Address address = addresses.get(key);
 		if (address == null) return;
-		x10.addCommand(new Command(address, Command.ON));
+		x10.command(CommandFactory.on(address.house, address.unit));
 	}
 
-	private Set<String> houseCodes(Map<String, String> addresses) {
-		Set<String> houseCodes = new HashSet<>();
-		for (String address : addresses.values())
-			houseCodes.add("" + address.charAt(0) + DEVICE_DEF);
+	private Set<House> houseCodes(Map<String, Address> addresses) {
+		Set<House> houseCodes = new HashSet<>();
+		for (Address address : addresses.values())
+			houseCodes.add(address.house);
 		return houseCodes;
 	}
 

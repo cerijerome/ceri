@@ -11,6 +11,7 @@ import javax.comm.SerialPort;
 import javax.comm.UnsupportedCommOperationException;
 
 public class Cm11aConnector implements Closeable {
+	private static final int CONNECTION_TIMEOUT_MS_DEF = 5000;
 	private static final int BAUD = 4800;
 	private static final int DATA_BITS = SerialPort.DATABITS_8;
 	private static final int STOP_BITS = SerialPort.STOPBITS_1;
@@ -19,6 +20,9 @@ public class Cm11aConnector implements Closeable {
 	private final InputStream in;
 	private final OutputStream out;
 
+	public Cm11aConnector(String commPort) throws IOException {
+		this(commPort, CONNECTION_TIMEOUT_MS_DEF);
+	}
 	public Cm11aConnector(String commPort, int connectionTimeoutMs) throws IOException {
 		sp = openSerialPort(commPort, connectionTimeoutMs);
 		in = sp.getInputStream();
