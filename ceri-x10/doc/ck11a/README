@@ -4,3 +4,54 @@ CK11A
 This is the ActiveHome version of CM11A
 http://www.smarthome.com/1140/X10-Activehome-CM11A-Computer-Interface-CM11A/p.aspx
 
+Standard Command
+----------------
+PC         Device
+2 bytes =>
+        <= checksum
+0 ack   =>
+        <= 0x55 ready
+
+1) Address command
+  15 14 13 12 11 10 9  8 - 7  6  5  4  3  2  1  0
+  0  0  0  0  0  1  0  0   <housecode> <devicecode>
+
+2) Function command (no dim)
+  15 14 13 12 11 10 9  8 - 7  6  5  4  3  2  1  0
+  0  0  0  0  0  1  1  0   <housecode> <funccode>
+
+2) Function command (dim/bright)
+  15 14 13 12 11 10 9  8 - 7  6  5  4  3  2  1  0
+    <dim-level>  1  1  0   <housecode> <funccode>
+
+
+Extended Command
+----------------
+PC         Device
+4 bytes =>
+        <= checksum
+0 ack   =>
+        <= 0x55 ready
+
+  15 14 13 12 11 10 9  8 - 7  6  5  4  3  2  1  0
+  0  0  0  0  0  1  1  1   <housecode> 0  1  1  1
+
+  15 14 13 12 11 10 9  8 - 7  6  5  4  3  2  1  0
+  <data>                   <command>
+
+
+Communication
+-------------
+
+Device will poll PC with 0x5a once per second.
+PC sends ack 0xc3 to stop poll and initiate data receive.
+Device sends up to 10 bytes
+  0 => buffer size
+  1 => function(1) or address(0) bits for next 8 bytes
+  2-9 => data bytes house:device or house:function
+
+
+
+
+
+
