@@ -55,7 +55,7 @@ public class DelayExecutor implements Executor {
 	public String doExecute(String url) throws IOException {
 		logger.info("Executing {}", url);
 		waitForDelay();
-		logger.info("Waited {}ms", System.currentTimeMillis() - lastRun);
+		logger.debug("Waited {}ms", System.currentTimeMillis() - lastRun);
 		Content response = requestContent(url);
 		resetDelay();
 		String content = response.asString();

@@ -14,7 +14,7 @@
     "loggers": {
       "root": {
         "level": "info",
-        "appenderref": {
+        "appender-ref": {
           "ref": "Console"
         }
       }
