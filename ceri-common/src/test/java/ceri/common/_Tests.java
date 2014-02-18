@@ -29,6 +29,7 @@ import ceri.common.factory.NumberFactoriesTest;
 import ceri.common.factory.StringFactoriesTest;
 import ceri.common.filter.CollectionFiltersTest;
 import ceri.common.filter.FiltersTest;
+import ceri.common.io.BitIteratorBehavior;
 import ceri.common.io.BlockingBufferStreamBehavior;
 import ceri.common.io.ByteArrayDataInputBehavior;
 import ceri.common.io.ByteArrayDataOutputBehavior;
@@ -37,6 +38,7 @@ import ceri.common.io.FileFiltersTest;
 import ceri.common.io.FileIteratorBehavior;
 import ceri.common.io.FileTrackerBehavior;
 import ceri.common.io.FilenameIteratorBehavior;
+import ceri.common.io.InputStreamIteratorBehavior;
 import ceri.common.io.IoUtilTest;
 import ceri.common.io.PollingInputStreamBehavior;
 import ceri.common.io.RegexFilenameFilterBehavior;
@@ -118,6 +120,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	CollectionFiltersTest.class,
 	FiltersTest.class,
 	// io
+	BitIteratorBehavior.class,
 	BlockingBufferStreamBehavior.class,
 	ByteArrayDataInputBehavior.class,
 	ByteArrayDataOutputBehavior.class,
@@ -126,6 +129,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	FileIteratorBehavior.class,
 	FilenameIteratorBehavior.class,
 	FileTrackerBehavior.class,
+	InputStreamIteratorBehavior.class,
 	IoUtilTest.class,
 	PollingInputStreamBehavior.class,
 	RegexFilenameFilterBehavior.class,

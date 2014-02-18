@@ -76,7 +76,8 @@ public class ImmutableUtil {
 	/**
 	 * Copies an array of objects into an immutable ArrayList.
 	 */
-	public static <T> List<T> arrayAsList(T[] array) {
+	@SafeVarargs
+	public static <T> List<T> asList(T...array) {
 		if (array.length == 0) return Collections.emptyList();
 		List<T> list = new ArrayList<>();
 		Collections.addAll(list, array);
@@ -86,27 +87,12 @@ public class ImmutableUtil {
 	/**
 	 * Copies an array of objects into an immutable HashSet.
 	 */
-	public static <T> Set<T> arrayAsSet(T[] array) {
+	@SafeVarargs
+	public static <T> Set<T> asSet(T...array) {
 		if (array.length == 0) return Collections.emptySet();
 		Set<T> set = new HashSet<>();
 		Collections.addAll(set, array);
 		return Collections.unmodifiableSet(set);
 	}
 
-	/**
-	 * Copies objects into an immutable ArrayList.
-	 */
-	@SafeVarargs
-	public static <T> List<T> asList(T... array) {
-		return arrayAsList(array);
-	}
-	
-	/**
-	 * Copies objects into an immutable HashSet.
-	 */
-	@SafeVarargs
-	public static <T> Set<T> asSet(T... array) {
-		return arrayAsSet(array);
-	}
-	
 }

@@ -26,7 +26,7 @@ public enum InchUnit implements Unit {
 	private final String regex;
 
 	private InchUnit(long inches, String... aliases) {
-		this.aliases = ImmutableUtil.arrayAsSet(aliases);
+		this.aliases = ImmutableUtil.asSet(aliases);
 		this.inches = inches;
 		regex = StringUtil.toString("(?:\\Q", "\\E)", "\\E|\\Q", aliases);
 	}

@@ -1,9 +1,10 @@
 package ceri.common.collection;
 
-import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,7 +24,35 @@ public class ImmutableUtilTest {
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ImmutableUtil.class);
 	}
-	
+
+	@Test
+	public void testEmptyCopyAsSet() {
+		Set<?> set = ImmutableUtil.copyAsSet(new HashSet<>());
+		assertTrue(set.isEmpty());
+		assertImmutableCollection(set);
+	}
+
+	@Test
+	public void testEmptyCopyAsList() {
+		List<?> list = ImmutableUtil.copyAsList(new ArrayList<>());
+		assertTrue(list.isEmpty());
+		assertImmutableList(list);
+	}
+
+	@Test
+	public void testEmptyAsList() {
+		List<?> list = ImmutableUtil.asList();
+		assertTrue(list.isEmpty());
+		assertImmutableList(list);
+	}
+
+	@Test
+	public void testEmptyCopyAsMap() {
+		Map<?, ?> map = ImmutableUtil.copyAsMap(new HashMap<>());
+		assertTrue(map.isEmpty());
+		assertImmutableMap(map);
+	}
+
 	@Test
 	public void testIterableShouldIterateItems() {
 		List<String> list = new ArrayList<>();
@@ -34,7 +63,7 @@ public class ImmutableUtilTest {
 		}
 	}
 
-	@Test(expected=UnsupportedOperationException.class)
+	@Test(expected = UnsupportedOperationException.class)
 	public void testIterableShouldNotAllowRemovals() {
 		List<String> list = new ArrayList<>();
 		Collections.addAll(list, "A", "B", "C");
@@ -45,15 +74,8 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
-	public void testCopy() {
-		final List<Integer> list = ImmutableUtil.asList(1, 2, 3, 4, 5);
-		assertThat(list, is(Arrays.asList(1, 2, 3, 4, 5)));
-		assertImmutableList(list);
-	}
-
-	@Test
-	public void testArrayCopyAsList() {
-		final List<Integer> list = ImmutableUtil.arrayAsList(new Integer[] { 1, 2, 3, 4, 5 });
+	public void testAsList() {
+		final List<Integer> list = ImmutableUtil.asList(new Integer[] { 1, 2, 3, 4, 5 });
 		assertThat(list, is(Arrays.asList(1, 2, 3, 4, 5)));
 		assertImmutableList(list);
 	}
@@ -99,112 +121,88 @@ public class ImmutableUtilTest {
 		assertImmutableCollection(map.entrySet());
 		assertImmutableCollection(map.keySet());
 		assertImmutableCollection(map.values());
-		assertException(new Runnable() {
-			@Override
-			public void run() {
-				map.clear();
-			}
-		});
-		assertException(new Runnable() {
-			@Override
-			public void run() {
-				map.put(null, null);
-			}
-		});
-		assertException(new Runnable() {
-			@Override
-			public void run() {
+		if (!map.isEmpty()) try {
+			map.clear();
+			fail();
+		} catch (Exception e) {}
+		try {
+			map.put(null, null);
+			fail();
+		} catch (Exception e) {}
+		if (!map.isEmpty()) {
+			try {
 				Map<Object, Object> objMap = BasicUtil.uncheckedCast(map);
 				objMap.putAll(map);
-			}
-		});
-		assertException(new Runnable() {
-			@Override
-			public void run() {
+				fail();
+			} catch (Exception e) {}
+			try {
 				map.remove(null);
-			}
-		});
+				fail();
+			} catch (Exception e) {}
+		}
 	}
-	
+
 	private static void assertImmutableList(final List<?> list) {
 		assertImmutableCollection(list);
 		assertImmutableIterator(list.listIterator());
 		assertImmutableIterator(list.listIterator(0));
-		assertException(new Runnable() {
-			@Override
-			public void run() {
-				list.add(0, null);
-			}
-		});
-		assertException(new Runnable() {
-			@Override
-			public void run() {
-				list.addAll(0, null);
-			}
-		});
-		assertException(new Runnable() {
-			@Override
-			public void run() {
+		try {
+			list.add(0, null);
+			fail();
+		} catch (Exception e) {}
+		try {
+			list.addAll(0, null);
+			fail();
+		} catch (Exception e) {}
+		try {
+			list.set(0, null);
+			fail();
+		} catch (Exception e) {}
+		if (!list.isEmpty()) {
+			try {
 				list.remove(0);
-			}
-		});
-		assertException(new Runnable() {
-			@Override
-			public void run() {
-				list.set(0, null);
-			}
-		});
+				fail();
+			} catch (Exception e) {}
+		}
 	}
-	
+
 	private static void assertImmutableCollection(final Collection<?> collection) {
 		assertImmutableIterator(collection.iterator());
-		assertException(new Runnable() {
-			@Override
-			public void run() {
-				collection.add(null);
-			}
-		});
-		assertException(new Runnable() {
-			@Override
-			public void run() {
-				collection.addAll(null);
-			}
-		});
-		assertException(new Runnable() {
-			@Override
-			public void run() {
+		try {
+			collection.add(null);
+			fail();
+		} catch (Exception e) {}
+		try {
+			collection.addAll(null);
+			fail();
+		} catch (Exception e) {}
+		if (!collection.isEmpty()) {
+			try {
 				collection.clear();
-			}
-		});
-		assertException(new Runnable() {
-			@Override
-			public void run() {
+				fail();
+			} catch (Exception e) {}
+			try {
 				collection.remove(null);
-			}
-		});
-		assertException(new Runnable() {
-			@Override
-			public void run() {
+				fail();
+			} catch (Exception e) {}
+			try {
 				collection.removeAll(Collections.emptySet());
-			}
-		});
-		assertException(new Runnable() {
-			@Override
-			public void run() {
+				fail();
+			} catch (Exception e) {}
+			try {
 				collection.retainAll(Collections.emptySet());
-			}
-		});
+				fail();
+			} catch (Exception e) {}
+		}
 	}
 
 	private static void assertImmutableIterator(final Iterator<?> iterator) {
 		if (!iterator.hasNext()) return;
-		assertException(new Runnable() {
-			@Override
-			public void run() {
-				iterator.next();
-				iterator.remove();
-			}
-		});
+		try {
+			iterator.next();
+			iterator.remove();
+			fail();
+		} catch (Exception e) {}
 	}
-	
+
 }
