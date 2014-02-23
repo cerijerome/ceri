@@ -13,6 +13,8 @@ import ceri.common.io.ByteArrayDataInput;
 import ceri.common.io.ByteArrayDataOutput;
 import ceri.common.util.ToStringHelper;
 import ceri.x10.cm11a.Entry;
+import ceri.x10.cm11a.EntryDispatcher;
+import ceri.x10.command.BaseCommand;
 import ceri.x10.util.UnexpectedByteException;
 
 /**
@@ -59,8 +61,18 @@ public class InputBuffer {
 	}
 
 	/**
-	 * Creates DataBuffers from given collection of address/function entries. As entries fill a
-	 * DataBuffer, a new one is created to hold subsequent entries.
+	 * Creates an InputBuffer from given command.
+	 */
+	public static InputBuffer create(BaseCommand<?> command) {
+		Collection<Entry> entries = EntryDispatcher.toEntries(command);
+		Collection<InputBuffer> buffers = create(entries);
+		if (buffers.size() != 1) throw new IllegalArgumentException("Should not happen");
+		return buffers.iterator().next();
+	}
+
+	/**
+	 * Creates InputBuffers from given collection of address/function entries. As entries fill each
+	 * InputBuffer, a new one is created to hold subsequent entries.
 	 */
 	public static Collection<InputBuffer> create(Iterable<Entry> entries) {
 		Collection<InputBuffer> buffers = new ArrayList<>();
@@ -81,7 +93,7 @@ public class InputBuffer {
 	}
 
 	/**
-	 * Collects all entries from collection of DataBuffers.
+	 * Collects all entries from collection of InputBuffers.
 	 */
 	public static Collection<Entry> combine(Iterable<InputBuffer> buffers) {
 		List<Entry> entries = new ArrayList<>();

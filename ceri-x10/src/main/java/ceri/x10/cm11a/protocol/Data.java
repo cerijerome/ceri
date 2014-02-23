@@ -97,6 +97,10 @@ public class Data {
 
 	private Data() {}
 
+	public static byte shortChecksum(int sh) {
+		return checksum((byte)(sh >>> 8), (byte)(sh & 0xff));
+	}
+	
 	public static byte checksum(byte...bytes) {
 		int sum = 0;
 		for (byte b : bytes) sum += b;
@@ -162,6 +166,7 @@ public class Data {
 		int dayOfYear = in.readByte();
 		dayOfYear += (in.readByte() << 1) & 0x100;
 		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.MILLISECOND, 0);
 		cal.set(Calendar.SECOND, second);
 		cal.set(Calendar.MINUTE, minute);
 		cal.set(Calendar.HOUR_OF_DAY, hour);
@@ -185,6 +190,7 @@ public class Data {
 	public static void writeDateTo(Date date, DataOutput out) throws IOException {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
+		cal.set(Calendar.MILLISECOND, 0);
 		int sec = cal.get(Calendar.SECOND);
 		int min = cal.get(Calendar.MINUTE);
 		int day = cal.get(Calendar.DAY_OF_YEAR);

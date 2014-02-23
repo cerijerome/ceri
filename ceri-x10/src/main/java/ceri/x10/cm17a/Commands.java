@@ -28,7 +28,7 @@ public class Commands {
 	private static final String FILE_SUFFIX = "map";
 	private final Map<Key, Short> commands;
 
-	private static class Key {
+	static class Key {
 		public final House house;
 		public final Unit unit;
 		public final FunctionType type;

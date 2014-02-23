@@ -5,6 +5,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Date;
 import ceri.common.date.ImmutableDate;
+import ceri.common.util.EqualsUtil;
+import ceri.common.util.HashCoder;
 import ceri.common.util.ToStringHelper;
 import ceri.x10.type.House;
 
@@ -33,13 +35,14 @@ public class WriteStatus {
 	public final boolean clearBatteryTimer;
 	public final boolean clearMonitoredStatus;
 	public final boolean purgeTimer;
+	private final int hashCode;
 
 	public static class Builder {
 		Date date = new Date();
-		House house;
-		boolean clearBatteryTimer;
-		boolean clearMonitoredStatus;
-		boolean purgeTimer;
+		House house = null;
+		boolean clearBatteryTimer = false;
+		boolean clearMonitoredStatus = false;
+		boolean purgeTimer = false;
 
 		public Builder date(Date date) {
 			this.date = date;
@@ -77,12 +80,28 @@ public class WriteStatus {
 		clearBatteryTimer = builder.clearBatteryTimer;
 		clearMonitoredStatus = builder.clearMonitoredStatus;
 		purgeTimer = builder.purgeTimer;
+		hashCode = HashCoder.hash(date, house, clearBatteryTimer, clearMonitoredStatus, purgeTimer);
 	}
 
 	public static WriteStatus createDefault() {
 		return new Builder().build();
 	}
-	
+
+	@Override
+	public int hashCode() {
+		return hashCode;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof WriteStatus)) return false;
+		WriteStatus other = (WriteStatus) obj;
+		return date.equals(other.date) && EqualsUtil.equals(house, other.house) &&
+			clearBatteryTimer == other.clearBatteryTimer &&
+			clearMonitoredStatus == other.clearMonitoredStatus && purgeTimer == other.purgeTimer;
+	}
+
 	@Override
 	public String toString() {
 		return ToStringHelper.createByClass(this, date, house, clearBatteryTimer,
@@ -92,7 +111,7 @@ public class WriteStatus {
 	public void writeTo(DataOutput out) throws IOException {
 		out.writeByte(Protocol.TIME.value);
 		Data.writeDateTo(date, out);
-		int b = Data.fromHouse(house) << 4;
+		int b = house == null ? 0 : Data.fromHouse(house) << 4;
 		if (clearBatteryTimer) b |= 0x4;
 		if (clearMonitoredStatus) b |= 0x2;
 		if (purgeTimer) b |= 0x1;
@@ -103,7 +122,7 @@ public class WriteStatus {
 		Builder builder = new Builder();
 		byte b = in.readByte();
 		if (b != Protocol.TIME.value) throw new IllegalArgumentException("Expected TIME byte 0x" +
-		 Integer.toHexString(Protocol.TIME.value) + ": 0x" + Integer.toHexString(b));
+			Integer.toHexString(Protocol.TIME.value) + ": 0x" + Integer.toHexString(b));
 		builder.date(Data.readDateFrom(in));
 		b = in.readByte();
 		builder.house(Data.toHouse(b >> 4));

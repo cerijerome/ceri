@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,21 +16,19 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.io.IoTimeoutException;
 import ceri.common.io.PollingInputStream;
+import ceri.common.log.LogUtil;
 import ceri.x10.cm11a.protocol.Data;
 import ceri.x10.cm11a.protocol.InputBuffer;
 import ceri.x10.cm11a.protocol.Protocol;
-import ceri.x10.cm11a.protocol.ProtocolState;
 import ceri.x10.cm11a.protocol.WriteStatus;
 import ceri.x10.command.BaseCommand;
-import ceri.x10.command.CommandState;
-import ceri.x10.util.UnexpectedByteException;
 
 /**
- * Handles all communication with the device.
- * Reads commands from the input queue, and dispatches notifications to the output queue.
+ * Handles all communication with the device. Reads commands from the input queue, and dispatches
+ * notifications to the output queue.
  */
 public class Processor implements Closeable {
-	private static final Logger logger = LogManager.getFormatterLogger(Processor.class);
+	private static final Logger logger = LogManager.getLogger();
 	private final int maxSendAttempts;
 	private final int queuePollTimeoutMs;
 	private final BlockingQueue<? extends BaseCommand<?>> inQueue;
@@ -44,9 +43,9 @@ public class Processor implements Closeable {
 		final BlockingQueue<? extends BaseCommand<?>> inQueue;
 		final Collection<? super BaseCommand<?>> outQueue;
 		int maxSendAttempts = 3;
-		int queuePollTimeoutMs = 100;
-		int readPollMs = 50;
-		int readTimeoutMs = 5000;
+		int queuePollTimeoutMs = 50;
+		int readPollMs = 20;
+		int readTimeoutMs = 3000;
 
 		Builder(Cm11aConnector connector, BlockingQueue<? extends BaseCommand<?>> inQueue,
 			Collection<? super BaseCommand<?>> outQueue) {
@@ -59,22 +58,22 @@ public class Processor implements Closeable {
 			this.maxSendAttempts = maxSendAttempts;
 			return this;
 		}
-		
+
 		public Builder queuePollTimeoutMs(int queuePollTimeoutMs) {
 			this.queuePollTimeoutMs = queuePollTimeoutMs;
 			return this;
 		}
-		
+
 		public Builder readPollMs(int readPollMs) {
 			this.readPollMs = readPollMs;
 			return this;
 		}
-		
+
 		public Builder readTimeoutMs(int readTimeoutMs) {
 			this.readTimeoutMs = readTimeoutMs;
 			return this;
 		}
-		
+
 		public Processor build() {
 			return new Processor(this);
 		}
@@ -133,25 +132,19 @@ public class Processor implements Closeable {
 	 * Processing loop.
 	 */
 	private void process() throws InterruptedException {
-		ProtocolState protocolState = new ProtocolState(in);
-		CommandState commandState = new CommandState(inQueue, maxSendAttempts, queuePollTimeoutMs);
 		while (true) {
 			try {
 				ConcurrentUtil.checkInterrupted();
-				Protocol protocol = protocolState.protocol();
-				if (protocol != null) {
-					processInput(protocol);
+				if (in.available() > 0) {
+					processInput(in.readByte());
 				} else {
-					BaseCommand<?> command = commandState.command();
+					BaseCommand<?> command =
+						inQueue.poll(queuePollTimeoutMs, TimeUnit.MILLISECONDS);
 					if (command != null) {
-						sendCommand(command);
-						commandState.success();
+						sendCommand(command, maxSendAttempts);
 						outQueue.add(command);
 					}
 				}
-			} catch (UnexpectedByteException e) {
-				logger.catching(Level.WARN, e);
-				protocolState.unexpected(e.actual);
 			} catch (IOException | IoTimeoutException e) {
 				logger.catching(e);
 			}
@@ -159,12 +152,15 @@ public class Processor implements Closeable {
 	}
 
 	/**
-	 * Waits for a specific byte from the device.
+	 * Processes next byte from the device.
 	 */
-	private void await(byte expected) throws IOException {
-		logger.debug("Waiting for 0x%x", expected);
-		int actual = in.read();
-		if (actual != expected) throw new UnexpectedByteException(expected, actual);
+	private void processInput(byte b) throws IOException {
+		try {
+			Protocol protocol = Protocol.fromValue(b);
+			processInput(protocol);
+		} catch (IllegalArgumentException e) {
+			logger.catching(e);
+		}
 	}
 
 	/**
@@ -180,7 +176,7 @@ public class Processor implements Closeable {
 			processInputData();
 			break;
 		default:
-			logger.warn("Ignoring %s", protocol.name());
+			logger.warn("Ignoring {}", protocol.name());
 		}
 	}
 
@@ -206,24 +202,55 @@ public class Processor implements Closeable {
 	/**
 	 * Sends a command by breaking it into entries and sending each entry.
 	 */
-	private void sendCommand(BaseCommand<?> command) throws IOException {
+	private void sendCommand(BaseCommand<?> command, int maxSendAttempts) {
 		for (Entry entry : EntryDispatcher.toEntries(command))
-			sendEntry(entry);
+			sendEntry(entry, maxSendAttempts);
 	}
 
 	/**
 	 * Sends a single entry to the device. Waits for checksum response, checks the value then sends
 	 * acknowledgment.
 	 */
-	private void sendEntry(Entry entry) throws IOException {
-		logger.debug("Sending: %s", entry);
+	private void sendEntry(Entry entry, int maxSendAttempts) {
+		logger.debug("Sending: {}", entry);
 		byte[] data = Data.write.fromEntry(entry);
-		out.write(data);
-		out.flush();
-		await(Data.checksum(data));
-		out.write(Protocol.OK.value);
-		out.flush();
-		await(Protocol.READY.value);
+		int attempts = 0;
+		while (attempts++ < maxSendAttempts) {
+			try {
+				out.write(data);
+				out.flush();
+				await(Data.checksum(data), maxSendAttempts);
+				out.write(Protocol.OK.value);
+				out.flush();
+				await(Protocol.READY.value, maxSendAttempts);
+				return;
+			} catch (IoTimeoutException e) {
+				Level level = attempts < maxSendAttempts ? Level.INFO : Level.ERROR;
+				logger.catching(level, e);
+			} catch (IOException e) {
+				Level level = attempts < maxSendAttempts ? Level.WARN : Level.ERROR;
+				logger.catching(level, e);
+			}
+		}
+	}
+
+	/**
+	 * Waits for a specific byte from the device. If the byte is a protocol input value, process
+	 * that then wait again. Only retry the given maximum number of times.
+	 */
+	private void await(byte expected, int maxAttempts) throws IOException {
+		logger.debug("Waiting for byte 0x{}", LogUtil.toHex(expected & 0xff));
+		int attempt = 0;
+		while (attempt++ < maxAttempts) {
+			byte actual = in.readByte();
+			if (actual == expected) {
+				logger.debug("Byte received 0x{}", LogUtil.toHex(expected & 0xff));
+				return;
+			}
+			processInput(actual);
+		}
+		throw new IOException("Failed to receive byte 0x" + Integer.toHexString(expected & 0xff) +
+			" in " + maxAttempts + " tries");
 	}
 
 }

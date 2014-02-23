@@ -1,9 +1,5 @@
-Programmers!  Here are the programming specs for the Activehome Interface.
-Use this information to build your own home automation program.  This
-information is provided AS-IS and we cannot provide any technical support
-for programming issues.  Copy this file to your machine and view it with an
-ordinary word processor.
-			Interface Communication Protocol
+CK11A Interface Communication Protocol
+
 
 1.	X-10 Transmission Coding (overview).
 

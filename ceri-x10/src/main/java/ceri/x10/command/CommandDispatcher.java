@@ -34,7 +34,7 @@ public class CommandDispatcher implements Closeable {
 		thread.start();
 	}
 
-	public static void dispatchTo(CommandListener listener, BaseCommand<?> command) {
+	public static void dispatch(BaseCommand<?> command, CommandListener listener) {
 		switch (command.type) {
 		case ALL_UNITS_OFF:
 			listener.allUnitsOff((HouseCommand) command);
@@ -92,7 +92,7 @@ public class CommandDispatcher implements Closeable {
 		while (true) {
 			try {
 				BaseCommand<?> command = queue.poll(pollTimeoutMs, TimeUnit.MILLISECONDS);
-				if (command != null) dispatchTo(listener, command);
+				if (command != null) dispatch(command, listener);
 			} catch (RuntimeException e) {
 				logger.catching(e);
 			}

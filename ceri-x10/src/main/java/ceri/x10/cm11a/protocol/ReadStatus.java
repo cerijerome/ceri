@@ -5,6 +5,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Date;
 import ceri.common.date.ImmutableDate;
+import ceri.common.util.EqualsUtil;
+import ceri.common.util.HashCoder;
 import ceri.common.util.ToStringHelper;
 import ceri.x10.type.House;
 
@@ -34,11 +36,12 @@ public class ReadStatus {
 	public final short addressed;
 	public final short onOff;
 	public final short dim;
+	private final int hashCode;
 
 	public static class Builder {
 		short batteryTimer = 0;
-		Date date = null;
-		House house = null;
+		Date date = new Date();
+		House house = House.M;
 		int firmware = 1;
 		short addressed = 0;
 		short onOff = 0;
@@ -86,12 +89,28 @@ public class ReadStatus {
 
 	ReadStatus(Builder builder) {
 		batteryTimer = builder.batteryTimer;
-		date = new ImmutableDate(builder.date);
+		date = builder.date == null ? null : new ImmutableDate(builder.date);
 		house = builder.house;
 		firmware = builder.firmware;
 		addressed = builder.addressed;
 		onOff = builder.onOff;
 		dim = builder.dim;
+		hashCode = HashCoder.hash(batteryTimer, date, house, firmware, addressed, onOff, dim);
+	}
+
+	@Override
+	public int hashCode() {
+		return hashCode;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof ReadStatus)) return false;
+		ReadStatus other = (ReadStatus) obj;
+		return batteryTimer == other.batteryTimer && EqualsUtil.equals(date, other.date) &&
+			EqualsUtil.equals(house, other.house) && firmware == other.firmware &&
+			addressed == other.addressed && onOff == other.onOff && dim == other.dim;
 	}
 
 	@Override

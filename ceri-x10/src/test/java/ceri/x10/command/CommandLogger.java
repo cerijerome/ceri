@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * An implementation of command listener that logs all activity.
+ * Useful for debugging.
  */
 public class CommandLogger implements CommandListener {
 	private static final Logger logger = LogManager.getLogger();

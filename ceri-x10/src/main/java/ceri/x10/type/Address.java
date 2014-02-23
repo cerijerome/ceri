@@ -26,7 +26,7 @@ public class Address {
 		Matcher m = FROM_STRING_REGEX.matcher(address);
 		if (!m.find()) throw new IllegalArgumentException("Invalid address format: " + address);
 		House house = House.valueOf(m.group(1));
-		Unit unit = Unit.valueOf("_" + m.group(2));
+		Unit unit = Unit.fromIndex(m.group(2));
 		return new Address(house, unit);
 	}
 	

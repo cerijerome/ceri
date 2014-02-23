@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,10 +18,10 @@ import ceri.common.util.EqualsUtil;
 import ceri.x10.command.BaseCommand;
 import ceri.x10.command.BaseUnitCommand;
 import ceri.x10.command.CommandFactory;
-import ceri.x10.command.CommandState;
 import ceri.x10.command.DimCommand;
 import ceri.x10.command.UnitCommand;
 import ceri.x10.type.Address;
+import ceri.x10.type.FunctionType;
 
 /**
  * Handles all communication with the device. Reads commands from the input queue, and dispatches
@@ -29,7 +30,6 @@ import ceri.x10.type.Address;
 public class Processor implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int DIM_PERCENT_PER_SEND = 5;
-	private final int maxSendAttempts;
 	private final int queuePollTimeoutMs;
 	private final int waitIntervalMs;
 	private final int resetIntervalMs;
@@ -44,7 +44,6 @@ public class Processor implements Closeable {
 		final Cm17aConnector connector;
 		final BlockingQueue<? extends BaseCommand<?>> inQueue;
 		final Collection<? super BaseCommand<?>> outQueue;
-		int maxSendAttempts = 3;
 		int queuePollTimeoutMs = 10000;
 		int waitIntervalMs = 1;
 		int resetIntervalMs = 10;
@@ -55,11 +54,6 @@ public class Processor implements Closeable {
 			this.connector = connector;
 			this.inQueue = inQueue;
 			this.outQueue = outQueue;
-		}
-
-		public Builder maxSendAttempts(int maxSendAttempts) {
-			this.maxSendAttempts = maxSendAttempts;
-			return this;
 		}
 
 		public Builder queuePollTimeoutMs(int queuePollTimeoutMs) {
@@ -98,7 +92,6 @@ public class Processor implements Closeable {
 		inQueue = builder.inQueue;
 		outQueue = builder.outQueue;
 		commands = new Commands();
-		maxSendAttempts = builder.maxSendAttempts;
 		queuePollTimeoutMs = builder.queuePollTimeoutMs;
 		waitIntervalMs = builder.waitIntervalMs;
 		resetIntervalMs = builder.resetIntervalMs;
@@ -122,6 +115,25 @@ public class Processor implements Closeable {
 		}
 	}
 
+	/**
+	 * Returns true if the function type is supported.
+	 */
+	public boolean supported(FunctionType type) {
+		switch (type) {
+		case OFF:
+		case ON:
+		case DIM:
+		case BRIGHT:
+			return true;
+		case EXTENDED:
+		case ALL_UNITS_OFF:
+		case ALL_LIGHTS_OFF:
+		case ALL_LIGHTS_ON:
+		default:
+			return false;
+		}
+	}
+	
 	void run() {
 		logger.info("Processor thread started");
 		try {
@@ -139,14 +151,12 @@ public class Processor implements Closeable {
 	 * Processing loop.
 	 */
 	private void process() throws InterruptedException {
-		CommandState commandState = new CommandState(inQueue, maxSendAttempts, queuePollTimeoutMs);
 		sendReset();
 		Address lastAddress = null;
 		while (true) {
-			BaseCommand<?> command = commandState.command();
+			BaseCommand<?> command = inQueue.poll(queuePollTimeoutMs, TimeUnit.MILLISECONDS);
 			if (command != null) {
 				sendCommand(lastAddress, command);
-				commandState.success();
 				lastAddress = getAddress(lastAddress, command);
 				outQueue.add(command);
 				BasicUtil.delay(commandIntervalMs);
@@ -192,7 +202,8 @@ public class Processor implements Closeable {
 		case ALL_LIGHTS_OFF:
 		case ALL_LIGHTS_ON:
 		default:
-			return null;
+			logger.warn("Not supported: {}", command);
+			return Collections.emptyList();
 		}
 	}
 
@@ -219,7 +230,7 @@ public class Processor implements Closeable {
 	 * Sends a binary transmission to the device by toggling RTS(0) and DTS(1).
 	 */
 	private void send(byte[] transmission) {
-		logger.debug("Sending: " + transmission);
+		logger.debug("Sending: {}", transmission);
 		for (Boolean bit : BasicUtil.forEach(new BitIterator(high, transmission))) {
 			if (bit.booleanValue()) {
 				connector.setDtr(false);

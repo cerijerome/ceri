@@ -1,17 +1,13 @@
 package ceri.x10.cm11a;
 
-import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.util.BasicUtil;
 import ceri.x10.command.BaseCommand;
 import ceri.x10.command.CommandDispatcher;
-import ceri.x10.command.CommandFactory;
 import ceri.x10.command.CommandListener;
-import ceri.x10.command.CommandLogger;
 import ceri.x10.util.X10Controller;
 
 public class Cm11aController implements X10Controller {
@@ -21,18 +17,6 @@ public class Cm11aController implements X10Controller {
 	private final BlockingQueue<BaseCommand<?>> outQueue;
 	private final Processor processor;
 	private final CommandDispatcher dispatcher;
-
-	public static void main(String[] args) throws IOException {
-		try (Cm11aConnector connector = new Cm11aConnector("/dev/cu.usbserial", 5000)) {
-			try (Cm11aController controller = new Cm11aController(connector, new CommandLogger())) {
-				BasicUtil.delay(5000);
-				controller.command(CommandFactory.on("A2"));
-				BasicUtil.delay(5000);
-				controller.command(CommandFactory.off("A2"));
-				BasicUtil.delay(500000);
-			}
-		}
-	}
 
 	public Cm11aController(Cm11aConnector connector, CommandListener listener) {
 		inQueue = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE_DEF);

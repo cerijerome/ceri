@@ -117,7 +117,7 @@ public class WriteData {
 		House house = Data.toHouse(b >> 4);
 		FunctionType type = Data.toFunctionType(b);
 		if (DimFunction.isAllowed(type)) {
-			int percent = Data.write.toDim(header >> 3);
+			int percent = toDim(header >> 3);
 			return new Entry(new DimFunction(house, type, percent));
 		}
 		if (ExtFunction.isAllowed(type)) {
