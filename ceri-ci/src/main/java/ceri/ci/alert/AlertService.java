@@ -4,8 +4,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -22,36 +20,24 @@ import ceri.common.log.LogUtil;
 
 public class AlertService implements CiAlertService, Closeable {
 	private static final Logger logger = LogManager.getFormatterLogger(AlertService.class);
-	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	private final Alerters alerters;
 	private final long reminderMs;
-	private final long timeoutMs;
 	private final Lock lock = new ReentrantLock();
 	private final Condition condition = lock.newCondition();
 	private final Builds builds = new Builds();
+	private final Thread thread;
 	private boolean buildsChanged = false;
 
-	public static void main(String[] args) {
-		logger.debug("debug");
-		logger.info("info");
-		logger.warn("warn");
-		logger.error("error");
-	}
-	
-	public AlertService(Alerters alerters, long reminderMs, long shutdownTimeoutMs) {
+	public AlertService(Alerters alerters, long reminderMs) {
 		this.alerters = alerters;
 		this.reminderMs = reminderMs;
-		this.timeoutMs = shutdownTimeoutMs;
-		startThread();
-	}
-
-	private void startThread() {
-		executor.execute(new Runnable() {
+		thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				processAlerts();
+				AlertService.this.run();
 			}
 		});
+		thread.start();
 	}
 
 	public void purge() {
@@ -130,27 +116,30 @@ public class AlertService implements CiAlertService, Closeable {
 
 	@Override
 	public void close() throws IOException {
-		logger.debug("Shutting down thread");
-		executor.shutdownNow();
-		awaitTermination();
+		thread.interrupt();
+		try {
+			thread.join();
+		} catch (InterruptedException e) {
+			logger.catching(Level.WARN, e);
+		}
 	}
 
-	private boolean awaitTermination() {
+	void run() {
+		logger.info("Service thread started");
 		try {
-			logger.debug("Awaiting thread termination");
-			boolean complete = executor.awaitTermination(timeoutMs, TimeUnit.MILLISECONDS);
-			if (!complete) logger.warn("Thread did not shut down in {}ms", timeoutMs);
-			else logger.debug("Thread shut down successfully");
-			return complete;
-		} catch (InterruptedException e) {
-			throw new RuntimeInterruptedException(e);
+			process();
+		} catch (InterruptedException | RuntimeInterruptedException e) {
+			logger.info("Service thread interrupted");
+		} catch (RuntimeException e) {
+			logger.catching(e);
+		} finally {
+			logger.info("Service thread stopped");
 		}
 	}
 
 	/**
-	 * Waits for builds to change with given millisecond timeout. If a clear was
-	 * called then builds will be empty. Null is returned if the wait timeout
-	 * expires.
+	 * Waits for builds to change with given millisecond timeout. If a clear was called then builds
+	 * will be empty. Null is returned if the wait timeout expires.
 	 */
 	private Builds waitForAndCopyChangedBuilds(long ms) throws InterruptedException {
 		lock.lock();
@@ -172,24 +161,15 @@ public class AlertService implements CiAlertService, Closeable {
 		condition.signal();
 	}
 
-	void processAlerts() {
-		logger.debug("Thread started");
-		try {
-			while (true) {
-				logger.debug("Waiting for signal");
-				Builds builds = waitForAndCopyChangedBuilds(reminderMs);
-				logger.debug("Alerting for builds: {}", LogUtil.compact(builds));
-				if (builds == null) alerters.remind();
-				else if (builds.builds.isEmpty()) alerters.clear();
-				else alerters.alert(builds);
-			}
-		} catch (RuntimeInterruptedException | InterruptedException e) {
-			// interrupt exit request
-			logger.catching(Level.INFO, e);
-		} catch (RuntimeException e) {
-			logger.catching(e);
+	void process() throws InterruptedException {
+		while (true) {
+			logger.debug("Waiting for signal");
+			Builds builds = waitForAndCopyChangedBuilds(reminderMs);
+			logger.debug("Alerting for builds: {}", LogUtil.compact(builds));
+			if (builds == null) alerters.remind();
+			else if (builds.builds.isEmpty()) alerters.clear();
+			else alerters.alert(builds);
 		}
-		logger.debug("Thread complete");
 	}
 
 }

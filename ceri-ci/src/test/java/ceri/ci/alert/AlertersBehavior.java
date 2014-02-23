@@ -38,7 +38,8 @@ public class AlertersBehavior {
 		zwave = mock(ZWaveAlerter.class);
 		audio = mock(AudioAlerter.class);
 		web = mock(WebAlerter.class);
-		alerters = Alerters.builder().x10(x10).zwave(zwave).audio(audio).web(web).build();
+		alerters =
+			Alerters.builder().x10(x10).zwave(zwave).audio(audio).web(web).timeoutMs(0).build();
 	}
 
 	@Test

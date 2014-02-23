@@ -92,7 +92,10 @@ public class CommandDispatcher implements Closeable {
 		while (true) {
 			try {
 				BaseCommand<?> command = queue.poll(pollTimeoutMs, TimeUnit.MILLISECONDS);
-				if (command != null) dispatch(command, listener);
+				if (command != null && listener != null) {
+					logger.info("Dispatching: {}", command);
+					dispatch(command, listener);
+				}
 			} catch (RuntimeException e) {
 				logger.catching(e);
 			}

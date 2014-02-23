@@ -1,23 +1,29 @@
 package ceri.x10.cm17a;
 
-import java.io.Closeable;
 import java.io.IOException;
 import javax.comm.CommPortIdentifier;
 import javax.comm.NoSuchPortException;
 import javax.comm.PortInUseException;
 import javax.comm.SerialPort;
 
-public class Cm17aSerialConnector implements Closeable {
+public class Cm17aSerialConnector implements Cm17aConnector {
+	private static final int CONNECTION_TIMEOUT_MS_DEF = 5000;
 	private final SerialPort sp;
 
+	public Cm17aSerialConnector(String commPort) throws IOException {
+		this(commPort, CONNECTION_TIMEOUT_MS_DEF);
+	}
+	
 	public Cm17aSerialConnector(String commPort, int connectionTimeoutMs) throws IOException {
 		sp = openSerialPort(commPort, connectionTimeoutMs);
 	}
 
+	@Override
 	public void setRts(boolean on) {
 		sp.setRTS(on);
 	}
 
+	@Override
 	public void setDtr(boolean on) {
 		sp.setDTR(on);
 	}

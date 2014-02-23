@@ -1,6 +1,5 @@
 package ceri.x10.cm17a;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -10,8 +9,9 @@ import org.apache.logging.log4j.Logger;
 import ceri.x10.command.BaseCommand;
 import ceri.x10.command.CommandDispatcher;
 import ceri.x10.command.CommandListener;
+import ceri.x10.util.X10Controller;
 
-public class Cm17aController implements Closeable {
+public class Cm17aController implements X10Controller {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int MAX_QUEUE_SIZE_DEF = 100;
 	private final BlockingQueue<BaseCommand<?>> inQueue;
@@ -31,6 +31,7 @@ public class Cm17aController implements Closeable {
 		dispatcher.close();
 	}
 
+	@Override
 	public void command(BaseCommand<?> command) {
 		logger.info("Command: {}", command);
 		if (!processor.supported(command.type)) throw new UnsupportedOperationException(

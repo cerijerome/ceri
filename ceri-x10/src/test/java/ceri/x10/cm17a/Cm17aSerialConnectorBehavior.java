@@ -29,7 +29,7 @@ public class Cm17aSerialConnectorBehavior {
 	public void shouldFailForPortInUse() throws IOException, PortInUseException {
 		final CommPortIdentifier identifier = this.identifier;
 		when(identifier.open(anyString(), anyInt())).thenThrow(new PortInUseException(null));
-		try (Cm17aSerialConnector connector = new Cm17aSerialConnector("test", 0) {
+		try (Cm17aSerialConnector connector = new Cm17aSerialConnector("test") {
 			@Override
 			CommPortIdentifier portIdentifier(String commPort) throws NoSuchPortException {
 				return identifier;

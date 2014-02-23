@@ -10,7 +10,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ci.audio.AudioAlerter;
@@ -162,7 +161,7 @@ public class Alerters implements Closeable {
 
 	@Override
 	public void close() throws IOException {
-		logger.debug("Shutting down any running threads");
+		logger.info("Shutting down any running threads");
 		executor.shutdownNow();
 		awaitTermination();
 	}
@@ -175,7 +174,7 @@ public class Alerters implements Closeable {
 				try {
 					runnable.run();
 				} catch (RuntimeInterruptedException e) {
-					logger.catching(Level.INFO, e);
+					logger.info("Thread interrupted");
 				} catch (RuntimeException e) {
 					logger.catching(e);
 				}

@@ -20,7 +20,7 @@ public class AlertServiceBehavior {
 	public void init() {
 		alerters = mock(Alerters.class);
 		sync = new BooleanCondition();
-		service = new AlertService(createAlerters(), 0, 1000);
+		service = new AlertService(createAlerters(), 0);
 	}
 	
 	@After

@@ -1,7 +1,6 @@
 package ceri.ci;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
@@ -11,41 +10,24 @@ import ceri.ci.alert.AlertService;
 import ceri.ci.alert.AlertServiceProperties;
 import ceri.ci.alert.Alerters;
 import ceri.ci.audio.AudioAlerter;
-import ceri.ci.audio.AudioAlerterProperties;
-import ceri.ci.audio.AudioMessage;
-import ceri.ci.audio.AudioPlayer;
 import ceri.ci.service.CiAlertService;
 import ceri.ci.service.CiWebService;
 import ceri.ci.web.WebAlerter;
-import ceri.ci.web.WebAlerterProperties;
 import ceri.ci.x10.X10Alerter;
-import ceri.ci.x10.X10AlerterProperties;
 import ceri.ci.zwave.ZWaveAlerter;
-import ceri.ci.zwave.ZWaveAlerterProperties;
-import ceri.ci.zwave.ZWaveController;
 import ceri.common.io.IoUtil;
 import ceri.common.property.PropertyUtil;
 import ceri.common.util.BasicUtil;
-import ceri.x10.cm11a.Cm11aConnector;
-import ceri.x10.cm11a.Cm11aController;
-import ceri.x10.command.CommandLogger;
-import ceri.x10.util.X10Controller;
-import ceri.zwave.veralite.VeraLite;
 
 /**
  * Creates everything, 'nuff said.
  */
 public class MasterMold implements Closeable {
 	private final Logger logger = LogManager.getLogger();
-	private final ZWaveController zwaveController;
-	private final ZWaveAlerter zwaveAlerter;
-	private final Cm11aConnector x10Connector;
-	private final Cm11aController x10Controller;
-	private final X10Alerter x10Alerter;
-	private final AudioPlayer audioPlayer;
-	private final AudioMessage audioMessage;
-	private final AudioAlerter audioAlerter;
-	private final WebAlerter webAlerter;
+	private final X10 x10;
+	private final ZWave zwave;
+	private final Audio audio;
+	private final Web web;
 	private final Alerters alerters;
 	private final AlertService alertService;
 
@@ -69,22 +51,13 @@ public class MasterMold implements Closeable {
 	}
 
 	public MasterMold(Properties properties) throws IOException {
-		ZWaveAlerterProperties zwaveProperties = new ZWaveAlerterProperties(properties, "zwave");
-		zwaveController = createZWaveController(zwaveProperties);
-		zwaveAlerter = createZWaveAlerter(zwaveController, zwaveProperties);
-		X10AlerterProperties x10Properties = new X10AlerterProperties(properties, "x10");
-		x10Connector = createX10Connector(x10Properties);
-		x10Controller = createX10Controller(x10Connector, x10Properties);
-		x10Alerter = createX10Alerter(x10Controller, x10Properties);
-		AudioAlerterProperties audioProperties = new AudioAlerterProperties(properties, "audio");
-		audioPlayer = createAudioPlayer(audioProperties);
-		audioMessage = createAudioMessage(audioPlayer, audioProperties);
-		audioAlerter = createAudioAlerter(audioMessage, audioProperties);
-		WebAlerterProperties webProperties = new WebAlerterProperties(properties, "web");
-		webAlerter = createWebAlerter(webProperties);
+		x10 = new X10(properties);
+		zwave = new ZWave(properties);
+		audio = new Audio(properties);
+		web = new Web(properties);
 		AlertServiceProperties alertProperties = new AlertServiceProperties(properties, "alert");
 		alerters =
-			createAlerters(x10Alerter, zwaveAlerter, audioAlerter, webAlerter, alertProperties);
+			createAlerters(x10.alerter, zwave.alerter, audio.alerter, web.alerter, alertProperties);
 		alertService = createAlertService(alerters, alertProperties);
 	}
 
@@ -93,7 +66,7 @@ public class MasterMold implements Closeable {
 	}
 
 	public CiWebService webService() {
-		return webAlerter;
+		return web.alerter;
 	}
 
 	@Override
@@ -102,78 +75,17 @@ public class MasterMold implements Closeable {
 		if (alertService != null) IoUtil.close(alertService);
 		logger.info("Closing alerters");
 		if (alerters != null) IoUtil.close(alerters);
-		logger.info("Closing x10Controller");
-		if (x10Controller != null) IoUtil.close(x10Controller);
+		x10.close();
 	}
 
 	private AlertService createAlertService(Alerters alerters, AlertServiceProperties properties) {
-		return new AlertService(alerters, properties.reminderMs(), properties.timeoutMs());
+		return new AlertService(alerters, properties.reminderMs());
 	}
 
 	private Alerters createAlerters(X10Alerter x10, ZWaveAlerter zwave, AudioAlerter audio,
 		WebAlerter web, AlertServiceProperties properties) {
 		return Alerters.builder().x10(x10).zwave(zwave).web(web).audio(audio).timeoutMs(
 			properties.timeoutMs()).build();
-	}
-
-	private WebAlerter createWebAlerter(WebAlerterProperties properties) {
-		if (!properties.enabled()) return null;
-		File dir = IoUtil.getPackageDir(WebAlerter.class);
-		return new WebAlerter(dir);
-	}
-
-	private AudioPlayer createAudioPlayer(AudioAlerterProperties properties) {
-		if (!properties.enabled()) return null;
-		return new AudioPlayer.Default();
-	}
-
-	private AudioMessage createAudioMessage(AudioPlayer player, AudioAlerterProperties properties) {
-		if (!properties.enabled()) return null;
-		File soundDir = IoUtil.getPackageDir(AudioMessage.class);
-		return new AudioMessage(player, soundDir, properties.pitch());
-	}
-
-	private AudioAlerter
-		createAudioAlerter(AudioMessage message, AudioAlerterProperties properties) {
-		if (!properties.enabled()) return null;
-		return new AudioAlerter(message);
-	}
-
-	private X10Alerter createX10Alerter(X10Controller controller, X10AlerterProperties properties) {
-		if (!properties.enabled()) return null;
-		X10Alerter.Builder builder = X10Alerter.builder(controller);
-		for (String name : properties.names()) {
-			String address = properties.address(name);
-			builder.address(name, address);
-		}
-		return builder.build();
-	}
-
-	private Cm11aController createX10Controller(Cm11aConnector connector,
-		X10AlerterProperties properties) {
-		if (!properties.enabled()) return null;
-		return new Cm11aController(connector, new CommandLogger());
-	}
-
-	private Cm11aConnector createX10Connector(X10AlerterProperties properties) throws IOException {
-		if (!properties.enabled()) return null;
-		return new Cm11aConnector(properties.commPort());
-	}
-
-	private ZWaveAlerter createZWaveAlerter(ZWaveController controller,
-		ZWaveAlerterProperties properties) {
-		if (!properties.enabled()) return null;
-		ZWaveAlerter.Builder builder = ZWaveAlerter.builder(controller);
-		for (String name : properties.names()) {
-			Integer device = properties.device(name);
-			builder.device(name, device);
-		}
-		return builder.build();
-	}
-
-	private ZWaveController createZWaveController(ZWaveAlerterProperties properties) {
-		if (!properties.enabled()) return null;
-		return new ZWaveController(new VeraLite(properties.host()));
 	}
 
 }
