@@ -26,6 +26,7 @@ import ceri.common.test.TestUtil;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	MasterMoldBehavior.class,
 	// alert
 	AlertersBehavior.class,
 	AlertServiceBehavior.class,

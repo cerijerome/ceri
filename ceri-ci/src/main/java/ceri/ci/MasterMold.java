@@ -2,7 +2,6 @@ package ceri.ci;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +16,6 @@ import ceri.ci.x10.X10Alerter;
 import ceri.ci.zwave.ZWaveAlerter;
 import ceri.common.io.IoUtil;
 import ceri.common.property.PropertyUtil;
-import ceri.common.util.BasicUtil;
 
 /**
  * Creates everything, 'nuff said.
@@ -30,21 +28,6 @@ public class MasterMold implements Closeable {
 	private final Web web;
 	private final Alerters alerters;
 	private final AlertService alertService;
-
-	public static void main(String[] args) throws IOException {
-		try (MasterMold masterMold = new MasterMold()) {
-			AlertService service = masterMold.alertService;
-			service.broken("bolt", "smoke", Arrays.asList("cdehaudt"));
-			BasicUtil.delay(10000);
-			service.fixed("bolt", "smoke", Arrays.asList("cdehaudt"));
-			service.broken("bolt", "regression", Arrays.asList("machung"));
-			BasicUtil.delay(10000);
-			service.broken("bolt", "smoke", Arrays.asList("dxie"));
-			BasicUtil.delay(10000);
-			service.broken("bolt", "smoke", Arrays.asList("fuzhong", "cjerome"));
-			//BasicUtil.delay(10000);
-		}
-	}
 
 	public MasterMold() throws IOException {
 		this(PropertyUtil.load(AlertService.class, "alert.properties"));
