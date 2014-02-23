@@ -52,14 +52,14 @@ public class TestUtil {
 	/**
 	 * Executes tests and prints names in readable phrases to stdout.
 	 */
-	public static void exec(Class<?>...classes) {
+	public static void exec(Class<?>... classes) {
 		exec(System.out, classes);
 	}
 
 	/**
 	 * Executes tests and prints test names in readable phrases.
 	 */
-	public static void exec(PrintStream out, Class<?>...classes) {
+	public static void exec(PrintStream out, Class<?>... classes) {
 		JUnitCore core = new JUnitCore();
 		TestPrinter tp = new TestPrinter();
 		core.addListener(tp);
@@ -68,8 +68,7 @@ public class TestUtil {
 	}
 
 	/**
-	 * Checks a value is within given range, with detailed failure information
-	 * if not.
+	 * Checks a value is within given range, with detailed failure information if not.
 	 */
 	public static void assertRange(long value, long min, long max) {
 		assertTrue("Expected >= " + min + " but was " + value, value >= min);
@@ -122,8 +121,8 @@ public class TestUtil {
 	}
 
 	/**
-	 * Checks collection contains exactly given elements in any order, with
-	 * specific failure information if not.
+	 * Checks collection contains exactly given elements in any order, with specific failure
+	 * information if not.
 	 */
 	@SafeVarargs
 	public static <T> void assertCollection(Collection<T> lhs, T... ts) {
@@ -131,10 +130,10 @@ public class TestUtil {
 	}
 
 	/**
-	 * Checks two collections have equal elements, with specific failure
-	 * information if not.
+	 * Checks two collections have equal elements, with specific failure information if not.
 	 */
-	public static <T> void assertCollection(Collection<T> lhs, Collection<T> rhs) {
+	public static <T> void
+		assertCollection(Collection<? extends T> lhs, Collection<? extends T> rhs) {
 		for (T t : lhs)
 			assertTrue("Unexpected element: " + t, rhs.contains(t));
 		for (T t : rhs)
@@ -142,8 +141,7 @@ public class TestUtil {
 	}
 
 	/**
-	 * Checks iterable type against given list of items, with specific failure
-	 * information if not.
+	 * Checks iterable type against given list of items, with specific failure information if not.
 	 */
 	@SafeVarargs
 	public static <T> void assertElements(Iterable<T> lhs, T... ts) {
@@ -151,9 +149,8 @@ public class TestUtil {
 	}
 
 	/**
-	 * Checks two iterable types have equal elements, with specific failure
-	 * information if not. Useful for testing Collections.unmodifiableXXX as
-	 * they don't implement equals().
+	 * Checks two iterable types have equal elements, with specific failure information if not.
+	 * Useful for testing Collections.unmodifiableXXX as they don't implement equals().
 	 */
 	public static <T> void assertElements(Iterable<T> lhs, Iterable<T> rhs) {
 		List<T> lhsC = new ArrayList<>();
@@ -235,8 +232,7 @@ public class TestUtil {
 	}
 
 	/**
-	 * Checks contents of two directories are equal, with specific failure
-	 * information if not.
+	 * Checks contents of two directories are equal, with specific failure information if not.
 	 */
 	public static void assertDir(File lhsDir, File rhsDir) throws IOException {
 		List<String> lhsFilenames = IoUtil.getFilenames(lhsDir);
@@ -250,8 +246,7 @@ public class TestUtil {
 	}
 
 	/**
-	 * Checks contents of two files are equal, with specific failure information
-	 * if not.
+	 * Checks contents of two files are equal, with specific failure information if not.
 	 */
 	public static void assertFile(File lhsFile, File rhsFile) throws IOException {
 		if (lhsFile.isDirectory() && rhsFile.isDirectory()) return;
@@ -307,8 +302,7 @@ public class TestUtil {
 	}
 
 	/**
-	 * Version of CoreMatchers.is(Class<T>) that checks for class, not instance
-	 * of class.
+	 * Version of CoreMatchers.is(Class<T>) that checks for class, not instance of class.
 	 */
 	public static <T> Matcher<T> isClass(Class<?> cls) {
 		IsSame<?> isSame = new IsSame<>(cls);
@@ -370,8 +364,7 @@ public class TestUtil {
 	}
 
 	/**
-	 * Converts a byte array to string, with non-visible chars converted to
-	 * given char.
+	 * Converts a byte array to string, with non-visible chars converted to given char.
 	 */
 	public static String toReadableString(byte[] array, int offset, int len, String charset,
 		char unreadableChar) {
