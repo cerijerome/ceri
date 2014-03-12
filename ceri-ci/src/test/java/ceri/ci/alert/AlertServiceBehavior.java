@@ -30,14 +30,14 @@ public class AlertServiceBehavior {
 	
 	@Test
 	public void shouldClearAll() throws InterruptedException {
-		service.clear();
+		service.clear(null, null);
 		sync.await();
 		verify(alerters).clear();
 	}
 
 	@Test
 	public void shouldClearBuild() throws InterruptedException {
-		service.clear("b0");
+		service.clear("b0", null);
 		sync.await();
 		verify(alerters).alert((Builds)any());
 	}

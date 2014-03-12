@@ -54,6 +54,7 @@ public class X10 implements Closeable {
 	}
 
 	private X10Alerter createAlerter(X10Controller controller, X10AlerterProperties properties) {
+		logger.debug("Creating X10 alerter");
 		X10Alerter.Builder builder = X10Alerter.builder(controller);
 		for (String name : properties.names()) {
 			String address = properties.address(name);

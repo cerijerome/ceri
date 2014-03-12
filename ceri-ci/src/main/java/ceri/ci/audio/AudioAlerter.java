@@ -9,6 +9,7 @@ import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
 import ceri.ci.build.Job;
+import ceri.common.log.LogUtil;
 
 public class AudioAlerter {
 	private static final Logger logger = LogManager.getLogger();
@@ -25,6 +26,7 @@ public class AudioAlerter {
 	 * fixed. Gives an audio message for each of these cases.
 	 */
 	public void alert(Builds summarizedBuilds) {
+		logger.debug("alert: {}", LogUtil.compact(summarizedBuilds));
 		Builds previousBuilds = this.summarizedBuilds;
 		this.summarizedBuilds = new Builds(summarizedBuilds);
 		try {
@@ -44,6 +46,7 @@ public class AudioAlerter {
 	 * Clears build state.
 	 */
 	public void clear() {
+		logger.debug("clear");
 		this.summarizedBuilds = new Builds();
 	}
 
@@ -52,6 +55,7 @@ public class AudioAlerter {
 	 * message for any jobs in a broken state.
 	 */
 	public void remind() {
+		logger.debug("remind");
 		try {
 			for (Build latestBuild : summarizedBuilds.builds) {
 				JobAnalyzer analyzer = new JobAnalyzer(latestBuild, new Build(latestBuild.name));

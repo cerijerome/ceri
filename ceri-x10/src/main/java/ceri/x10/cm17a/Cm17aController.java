@@ -35,7 +35,7 @@ public class Cm17aController implements X10Controller {
 	public void command(BaseCommand<?> command) {
 		logger.info("Command: {}", command);
 		if (!processor.supported(command.type)) throw new UnsupportedOperationException(
-			"Command not supported: " + command);
+			"Function not supported: " + command.type);
 		inQueue.add(command);
 	}
 

@@ -34,7 +34,11 @@ public class CommandFactory {
 
 	public static UnitCommand off(String address) {
 		Address addr = Address.fromString(address);
-		return off(addr.house, addr.unit);
+		return off(addr);
+	}
+
+	public static UnitCommand off(Address address) {
+		return off(address.house, address.unit);
 	}
 
 	public static UnitCommand off(House house, Unit unit) {
@@ -43,7 +47,11 @@ public class CommandFactory {
 
 	public static UnitCommand on(String address) {
 		Address addr = Address.fromString(address);
-		return on(addr.house, addr.unit);
+		return on(addr);
+	}
+
+	public static UnitCommand on(Address address) {
+		return on(address.house, address.unit);
 	}
 
 	public static UnitCommand on(House house, Unit unit) {
@@ -52,7 +60,11 @@ public class CommandFactory {
 
 	public static DimCommand dim(String address, int percent) {
 		Address addr = Address.fromString(address);
-		return dim(addr.house, addr.unit, percent);
+		return dim(addr, percent);
+	}
+
+	public static DimCommand dim(Address address, int percent) {
+		return dim(address.house, address.unit, percent);
 	}
 
 	public static DimCommand dim(House house, Unit unit, int percent) {
@@ -61,7 +73,11 @@ public class CommandFactory {
 
 	public static DimCommand bright(String address, int percent) {
 		Address addr = Address.fromString(address);
-		return bright(addr.house, addr.unit, percent);
+		return bright(addr, percent);
+	}
+
+	public static DimCommand bright(Address address, int percent) {
+		return bright(address.house, address.unit, percent);
 	}
 
 	public static DimCommand bright(House house, Unit unit, int percent) {
@@ -70,7 +86,11 @@ public class CommandFactory {
 
 	public static ExtCommand extended(String address, int data, int command) {
 		Address addr = Address.fromString(address);
-		return extended(addr.house, addr.unit, data, command);
+		return extended(addr, data, command);
+	}
+
+	public static ExtCommand extended(Address address, int data, int command) {
+		return extended(address.house, address.unit, data, command);
 	}
 
 	public static ExtCommand extended(House house, Unit unit, int data, int command) {

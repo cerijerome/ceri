@@ -1,6 +1,8 @@
 package ceri.ci;
 
 import java.util.Properties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ceri.ci.zwave.ZWaveAlerter;
 import ceri.ci.zwave.ZWaveAlerterProperties;
 import ceri.ci.zwave.ZWaveController;
@@ -10,6 +12,7 @@ import ceri.zwave.veralite.VeraLite;
  * Creates z-wave alerter.
  */
 public class ZWave {
+	private static final Logger logger = LogManager.getLogger();
 	public final ZWaveAlerter alerter;
 
 	public ZWave(Properties properties) {
@@ -24,6 +27,7 @@ public class ZWave {
 
 	private ZWaveAlerter
 		createAlerter(ZWaveController controller, ZWaveAlerterProperties properties) {
+		logger.debug("Creating ZWave alerter");
 		ZWaveAlerter.Builder builder = ZWaveAlerter.builder(controller);
 		for (String name : properties.names()) {
 			Integer device = properties.device(name);

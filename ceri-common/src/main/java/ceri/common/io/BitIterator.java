@@ -27,7 +27,7 @@ public class BitIterator implements Iterator<Boolean> {
 	}
 	
 	public BitIterator(Start start, byte...bytes) {
-		this(start, ArrayIterator.create(bytes));
+		this(start, ArrayIterator.createByte(bytes));
 	}
 
 	@Override

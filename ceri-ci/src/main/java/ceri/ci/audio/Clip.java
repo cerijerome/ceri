@@ -1,10 +1,7 @@
 package ceri.ci.audio;
 
-import java.io.IOException;
-import ceri.common.io.IoUtil;
 
 public enum Clip {
-	alarm,
 	and,
 	build,
 	by,
@@ -24,10 +21,6 @@ public enum Clip {
 	
 	private Clip() {
 		filename = "_" + name().replaceAll("_", "-") + FILE_SUFFIX;
-	}
-	
-	public Audio audio() throws IOException {
-		return Audio.create(IoUtil.getResource(getClass(), filename));
 	}
 	
 }

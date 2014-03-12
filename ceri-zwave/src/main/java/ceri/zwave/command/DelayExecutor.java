@@ -3,13 +3,14 @@ package ceri.zwave.command;
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.io.IoUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -52,25 +53,25 @@ public class DelayExecutor implements Executor {
 		}
 	}
 
-	public String doExecute(String url) throws IOException {
+	private String doExecute(String url) throws IOException {
 		logger.info("Executing {}", url);
 		waitForDelay();
 		logger.debug("Waited {}ms", System.currentTimeMillis() - lastRun);
-		Content response = requestContent(url);
+		String content = requestContent(url);
 		resetDelay();
-		String content = response.asString();
 		return content;
 	}
 
-	private Content requestContent(String url) throws IOException {
+	private String requestContent(String url) throws IOException {
 		IOException ex = null;
 		for (int i = retries; i >= 0; i--) {
 			try {
 				Response response = Request.Get(url).execute();
-				int statusCode = response.returnResponse().getStatusLine().getStatusCode();
+				HttpResponse httpResponse = response.returnResponse();
+				int statusCode = httpResponse.getStatusLine().getStatusCode();
 				if (statusCode != HttpStatus.SC_OK) throw new IOException(
 					"Unexpected http response: " + statusCode);
-				return response.returnContent();
+				return IoUtil.getContentString(httpResponse.getEntity().getContent(), 0);
 			} catch (IOException e) {
 				logger.catching(Level.WARN, e);
 				ex = e;

@@ -33,6 +33,14 @@ public class Builds {
 			build.clear();
 	}
 
+	public void delete() {
+		mutableBuilds.clear();
+	}
+
+	public void delete(String name) {
+		mutableBuilds.remove(name);
+	}
+
 	public void purge() {
 		for (Build build : builds)
 			build.purge();

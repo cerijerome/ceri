@@ -36,6 +36,10 @@ public class Build {
 			job.clear();
 	}
 
+	public void delete(String name) {
+		mutableJobs.remove(name);
+	}
+
 	public void purge() {
 		for (Job job : jobs)
 			job.purge();

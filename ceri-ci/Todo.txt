@@ -1,13 +1,9 @@
 To do
 =====
 
-x10 emulator
-x10 command work
-x10 test shutdown
-
-Tests for new common classes
-
 Create jsp for web
+
+Create command controller for alert and web services
 
 Save state and reload on restart
 
