@@ -31,6 +31,7 @@ public class MasterMold implements Closeable {
 
 	public static void main(String[] args) throws IOException {
 		try (MasterMold masterMold = new MasterMold()) {
+			@SuppressWarnings("resource")
 			AlertService service = masterMold.alertService();
 			service.broken("bolt", "smoke", Arrays.asList("cdehaudt"));
 			BasicUtil.delay(10000);

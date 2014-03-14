@@ -5,6 +5,7 @@ public enum Clip {
 	and,
 	build,
 	by,
+	eas,
 	has_just_been_broken,
 	is_now_fixed,
 	is_still_broken,

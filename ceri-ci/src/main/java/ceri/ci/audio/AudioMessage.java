@@ -26,7 +26,8 @@ public class AudioMessage {
 	 * Plays alarm sound.
 	 */
 	public void playAlarm() throws IOException {
-		Audio audio = clipAudio(Clip.red_alert).clip(0, 256);
+		//Audio audio = clipAudio(Clip.red_alert).clip(0, 256);
+		Audio audio = clipAudio(Clip.eas);
 		play(audio);
 	}
 

@@ -1,9 +1,41 @@
-<%@ page import="ceri.ci.servlet.WebModel" %>
-<%@ page import="ceri.ci.servlet.WebParams" %>
-<% WebModel model = (WebModel) request.getAttribute("model"); %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
-<body>
-<h2>model = <%= model.toString() %></h2>
-</body>
+  <head>
+    <link rel="stylesheet" href="/static/ci.css">
+    <script src="/static/ci.js"></script>
+  </head>
+  <body>
+	<c:set var="build" value="${model.builds.bolt}"/>
+	<div id="villains">
+		<h1>
+			<p>WANTED</p>
+			<p>by Jenkins</p>
+		</h1>
+		<ul>
+			<c:forEach var="item" items="${build.villains}">
+			<li>${item.job}<br />
+			  <img src="/static/img/${item.name}.jpg" />
+			</li>
+			</c:forEach>
+		</ul>
+		<p>For breaking the build</p>
+	</div>
+	<div id="heroes">
+		<h1>
+			<p>HEROES</p>
+			<p>of Jenkins</p>
+		</h1>
+		<ul>
+			<c:forEach var="item" items="${build.heroes}">
+			<li>${item.job}<br />
+			  <img src="/static/img/${item.name}.jpg" />
+			</li>
+			</c:forEach>
+		</ul>
+		<p>By fixing the build</p>
+	</div>
+    
+    
+  </body>
 </html>
