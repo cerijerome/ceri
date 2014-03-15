@@ -12,6 +12,14 @@ public class AudioMessage {
 	private final float pitch;
 	private final AudioPlayer player;
 
+	public static void main(String[] args) throws Exception {
+		File dir = new File("src/main/resources/ceri/ci/audio/en-us/lauren/");
+		System.out.println(dir.getAbsolutePath());
+		Audio.create(new File(dir, "_eas.wav")).play();
+		Audio.create(new File(dir, "gimp.wav")).play();
+		Audio.create(new File(dir, "_eas.wav")).play();
+	}
+	
 	public AudioMessage(AudioPlayer player, File soundDir) {
 		this(player, soundDir, Audio.NORMAL_PITCH);
 	}

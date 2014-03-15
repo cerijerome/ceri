@@ -2,11 +2,21 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1"/>
     <link rel="stylesheet" href="/static/ci.css">
     <script src="/static/ci.js"></script>
   </head>
   <body>
 	<c:set var="build" value="${model.builds.bolt}"/>
+
+	<div id="logo">
+		<div>
+		<div>C.I.</div>
+		<div>ALERT</div>
+		<div>SYSTEM</div>
+		</div>
+	</div>
+	
 	<div id="villains">
 		<h1>
 			<p>WANTED</p>

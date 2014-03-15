@@ -6,7 +6,8 @@
 	<Set name="handler">
 		<New class="org.eclipse.jetty.server.handler.ResourceHandler">
 			<Set name="directoriesListed">true</Set>
-			<Set name="cacheControl">max-age=3600,public</Set>
+			<!-- Set name="cacheControl">max-age=3600,public</Set -->
+			<Set name="cacheControl">no-cache</Set>
 		</New>
 	</Set>
 </Configure>

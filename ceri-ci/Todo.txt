@@ -1,11 +1,11 @@
 To do
 =====
 
-Create jsp for web
-
-Create command controller for alert and web services
-
+Fix audio 'and' for missing files
+Find out why init servlet didn't remind for broken jobs
+Add timeout for zwave
+Finish jsps for web
+Log requests
 Save state and reload on restart
-
 Build purge on timer
 

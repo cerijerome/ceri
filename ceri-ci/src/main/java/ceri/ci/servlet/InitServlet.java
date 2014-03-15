@@ -21,6 +21,11 @@ public class InitServlet extends HttpServlet {
 		try {
 			logger.info("Creating MasterMold");
 			masterMold = new MasterMold();
+			masterMold.alertService().broken("bolt", "smoke", "cjerome");
+			masterMold.alertService().fixed("bolt", "smoke", "cjerome");
+			masterMold.alertService().broken("bolt", "integration", "shuochen","tantony");
+			masterMold.alertService().broken("bolt", "regression", "sseamon","tantony");
+			masterMold.alertService().broken("mweb", "regression", "punpal");
 			add(masterMold.alertService());
 			add(masterMold.webService());
 		} catch (Exception e) {
