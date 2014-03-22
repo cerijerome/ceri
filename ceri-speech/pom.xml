@@ -11,7 +11,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jdk.version>1.7</jdk.version>
+		<jdk.version>1.8</jdk.version>
 		<maven.compiler.version>3.1</maven.compiler.version>
 		<maven.surefire.version>2.16</maven.surefire.version>
 		<maven.assembly.version>2.4</maven.assembly.version>
@@ -29,6 +29,11 @@
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.cloudgarden</groupId>
+			<artifactId>cgjsapi</artifactId>
+			<version>1.7.0</version>
 		</dependency>
 	</dependencies>
 
@@ -48,6 +53,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${maven.surefire.version}</version>
 				<configuration>
+					<skipTests>true</skipTests>
 					<includes>
 						<include>**/*Test.java</include>
 						<include>**/*Behavior.java</include>

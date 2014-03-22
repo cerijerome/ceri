@@ -58,7 +58,7 @@ public class ArrayUtilTest {
 	@Test
 	public void testComponentType() {
 		assertThat(ArrayUtil.componentType(Boolean[].class), equalTo(Boolean.class));
-		assertThat(ArrayUtil.componentType(boolean[][].class), equalTo(boolean[].class));
+		assertThat(ArrayUtil.<boolean[]>componentType(boolean[][].class), equalTo(boolean[].class));
 	}
 
 	@Test
