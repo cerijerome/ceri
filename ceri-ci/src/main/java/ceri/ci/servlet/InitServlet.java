@@ -17,12 +17,11 @@ public class InitServlet extends HttpServlet {
 
 	@Override
 	public void init() throws ServletException {
-		System.out.println("Creating MasterMold");
 		try {
 			logger.info("Creating MasterMold");
 			masterMold = new MasterMold();
 			masterMold.alertService().broken("bolt", "smoke", "cjerome");
-			masterMold.alertService().fixed("bolt", "smoke", "cjerome");
+			//masterMold.alertService().fixed("bolt", "smoke", "cjerome");
 			masterMold.alertService().broken("bolt", "integration", "shuochen","tantony");
 			masterMold.alertService().broken("bolt", "regression", "sseamon","tantony");
 			masterMold.alertService().broken("mweb", "regression", "punpal");
@@ -35,6 +34,7 @@ public class InitServlet extends HttpServlet {
 
 	@Override
 	public void destroy() {
+		logger.info("Shutting down");
 		try {
 			remove(masterMold.webService());
 			remove(masterMold.alertService());

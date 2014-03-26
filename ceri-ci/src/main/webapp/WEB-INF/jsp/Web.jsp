@@ -23,9 +23,15 @@
 			<p>by Jenkins</p>
 		</h1>
 		<ul>
+			<c:if test="${empty build.villains}">
+			<li>
+				<img src="/static/img/_nobody2.gif" />
+			</li>
+			</c:if>
 			<c:forEach var="item" items="${build.villains}">
-			<li>${item.job}<br />
-			  <img src="/static/img/${item.name}.jpg" />
+			<li>
+				<p>${item.job}</p>
+				<img src="/static/img/${item.name}.jpg" />
 			</li>
 			</c:forEach>
 		</ul>
@@ -37,9 +43,15 @@
 			<p>of Jenkins</p>
 		</h1>
 		<ul>
+			<c:if test="${empty build.heroes}">
+			<li>
+				<img src="/static/img/_nobody2.gif" />
+			</li>
+			</c:if>
 			<c:forEach var="item" items="${build.heroes}">
-			<li>${item.job}<br />
-			  <img src="/static/img/${item.name}.jpg" />
+			<li>
+				<p>${item.job}</p>
+				<img src="/static/img/${item.name}.jpg" />
 			</li>
 			</c:forEach>
 		</ul>

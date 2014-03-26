@@ -14,6 +14,7 @@ body {
 
 #logo {
 	width: 100%;
+	position: absolute;
 }
 
 #logo div {
@@ -46,29 +47,30 @@ body {
 #villains {
 	width: 50%;
 	font-family: Stencil;
-	padding: 0.8em 0 2em 0;
+	padding: 0 0 2em 0;
 	float: left;
 }
 
 #heroes {
 	width: 50%;
 	font-family: "Anchor Jack";
-	padding: 0.8em 0 2em 0;
+	padding: 0 0 2em 0;
 	float: right;
 }
 
 h1 {
-	text-align: center;
-	margin: 0 0 2em 0;
+	border: 1px solid red;
 }
 
-h1 p:first-child {
+h1 p:nth-child(1) {
 	font-size: 3em;
-	height: 1.3em;
+	border: 1px solid lime;
+	line-height: 1em;
 }
 
-#villains h1 p:first-child {
-	padding-top: 0.2em;
+h1 p:nth-child(2) {
+	border: 1px solid blue;
+	line-height: 2em;
 }
 
 img {
@@ -82,18 +84,20 @@ ul {
 
 ul li {
 	display: inline-block;
-	font-size: 0.7em;
-	color: wheat;
 	height: 10em;
 	width: 8em;
-	display: inline-block;
+}
+
+ul li p {
+	font-size: 0.7em;
+	color: wheat;
 }
 
 @media screen and (max-width: 65em) {
 	h1 {
 		font-size: 0.7em;
 	}
-	p {
+	h1 p {
 		font-size: 1em;
 	}
 	#logo div div:nth-child(1) {

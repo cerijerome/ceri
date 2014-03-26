@@ -60,29 +60,17 @@ public class PrimitiveUtilTest {
 	@Test
 	public void testGetPrimitiveClass() {
 		assertSame(double.class, PrimitiveUtil.getPrimitiveClass(Double.class));
-		assertException(IllegalArgumentException.class, new Runnable() {
-			@Override
-			public void run() {
-				PrimitiveUtil.getPrimitiveClass(Boolean.TYPE);
-			}
-		});
-		assertException(IllegalArgumentException.class, new Runnable() {
-			@Override
-			public void run() {
-				PrimitiveUtil.getPrimitiveClass(String.class);
-			}
-		});
+		assertException(IllegalArgumentException.class, () -> PrimitiveUtil
+			.getPrimitiveClass(Boolean.TYPE));
+		assertException(IllegalArgumentException.class, () -> PrimitiveUtil
+			.getPrimitiveClass(String.class));
 	}
 
 	@Test
 	public void testGetObjectClass() {
 		assertSame(Double.class, PrimitiveUtil.getObjectClass(double.class));
-		assertException(IllegalArgumentException.class, new Runnable() {
-			@Override
-			public void run() {
-				PrimitiveUtil.getObjectClass(Boolean.class);
-			}
-		});
+		assertException(IllegalArgumentException.class, () -> PrimitiveUtil
+			.getObjectClass(Boolean.class));
 	}
 
 	@Test

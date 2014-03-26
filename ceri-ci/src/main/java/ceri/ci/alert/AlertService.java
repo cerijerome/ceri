@@ -32,12 +32,7 @@ public class AlertService implements Closeable {
 	public AlertService(Alerters alerters, long reminderMs) {
 		this.alerters = alerters;
 		this.reminderMs = reminderMs;
-		thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				AlertService.this.run();
-			}
-		});
+		thread = new Thread(() -> AlertService.this.run());
 		thread.start();
 	}
 

@@ -134,8 +134,11 @@ public class TestUtil {
 	 */
 	public static <T> void
 		assertCollection(Collection<? extends T> lhs, Collection<? extends T> rhs) {
-		for (T t : lhs)
-			assertTrue("Unexpected element: " + t, rhs.contains(t));
+		int i = 0;
+		for (T t : lhs) {
+			assertTrue("Unexpected element at position " + i + ": " + t, rhs.contains(t));
+			i++;
+		}
 		for (T t : rhs)
 			assertTrue("Missing element: " + t, lhs.contains(t));
 	}
@@ -190,22 +193,8 @@ public class TestUtil {
 	/**
 	 * Use this for more flexibility than adding @Test(expected=...)
 	 */
-	public static void assertException(Runnable runnable) {
-		assertException(Exception.class, runnable);
-	}
-
-	/**
-	 * Use this for more flexibility than adding @Test(expected=...)
-	 */
 	public static void assertException(TestRunnable runnable) {
 		assertException(Exception.class, runnable);
-	}
-
-	/**
-	 * Use this for more flexibility than adding @Test(expected=...)
-	 */
-	public static void assertException(Class<? extends Exception> exceptionCls, Runnable runnable) {
-		assertException(exceptionCls, runnable(runnable));
 	}
 
 	/**
@@ -220,15 +209,6 @@ public class TestUtil {
 			fail("Should throw " + exceptionCls.getSimpleName() + " but threw " + e);
 		}
 		fail("Should throw " + exceptionCls.getSimpleName() + " but nothing thrown");
-	}
-
-	private static TestRunnable runnable(final Runnable runnable) {
-		return new TestRunnable() {
-			@Override
-			public void run() throws Exception {
-				runnable.run();
-			}
-		};
 	}
 
 	/**

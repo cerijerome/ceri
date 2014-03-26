@@ -14,12 +14,7 @@ public abstract class TestThread {
 	 * Creates the thread. Call start to execute.
 	 */
 	public TestThread() {
-		thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				TestThread.this.execute();
-			}
-		});
+		thread = new Thread(() -> TestThread.this.execute());
 	}
 
 	/**

@@ -71,12 +71,7 @@ public class DateFactoriesTest {
 	}
 
 	private static <F> void assertFailFrom(final Factory<Date, F> factory, final F from) {
-		TestUtil.assertException(FactoryException.class, new Runnable() {
-			@Override
-			public void run() {
-				factory.create(from);
-			}
-		});
+		TestUtil.assertException(FactoryException.class, () -> factory.create(from));
 	}
 
 }

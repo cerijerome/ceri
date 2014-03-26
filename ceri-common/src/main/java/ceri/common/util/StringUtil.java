@@ -3,6 +3,10 @@ package ceri.common.util;
 import java.awt.event.KeyEvent;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,9 +17,22 @@ import java.util.regex.Pattern;
 public class StringUtil {
 	public static final String UTF8 = "UTF8";
 	public static final Pattern NEWLINE_REGEX = Pattern.compile("(\\r\\n|\\n|\\r)");
+	public static final Pattern COMMA_SPLIT_REGEX = Pattern.compile("\\s*,\\s*");
 
 	private StringUtil() {}
 
+	/**
+	 * Splits a string by commas and trims each entry.
+	 * Trailing empty strings are dropped as with the regular split method.
+	 */
+	public static Collection<String> commaSplit(String s) {
+		if (BasicUtil.isEmpty(s)) return Collections.emptySet();
+		String[] ss = COMMA_SPLIT_REGEX.split(s);
+		List<String> list = new ArrayList<>();
+		for (String str : ss) list.add(str.trim());
+		return list;
+	}
+	
 	/**
 	 * Checks if a char is printable
 	 */

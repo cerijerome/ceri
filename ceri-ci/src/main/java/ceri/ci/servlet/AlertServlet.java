@@ -8,12 +8,12 @@ import java.util.LinkedHashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import ceri.ci.alert.AlertService;
 import ceri.common.util.StringUtil;
+
 
 /**
  * Handles the following requests:
@@ -32,13 +32,12 @@ import ceri.common.util.StringUtil;
  * /build/job?broken&names=...
  * </pre>
  */
-@WebServlet(name = "alertServlet", urlPatterns = { "/alert/*" })
+@javax.servlet.annotation.WebServlet(name = "alertServlet", urlPatterns = { "/alert/*" })
 public class AlertServlet extends HttpServlet {
 	private static final long serialVersionUID = 749914795926651883L;
 	private static final String SUCCESS = "SUCCESS";
 	private static final String ERROR = "ERROR";
 	private static final Pattern PATH_SPLIT = Pattern.compile("/+([^/]+)");
-	private static final Pattern PARAM_SPLIT = Pattern.compile("\\s*,\\s*");
 	private static final String NAMES = "names";
 	private AlertService service;
 
@@ -138,10 +137,8 @@ public class AlertServlet extends HttpServlet {
 		String[] values = request.getParameterValues(NAMES);
 		if (values == null) return Collections.emptySet();
 		Collection<String> names = new LinkedHashSet<>();
-		for (String value : values) {
-			String[] ss = PARAM_SPLIT.split(value);
-			Collections.addAll(names,  ss);
-		}
+		for (String value : values)
+			names.addAll(StringUtil.commaSplit(value));
 		return names;
 	}
 

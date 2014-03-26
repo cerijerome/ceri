@@ -1,5 +1,6 @@
 package ceri.common.util;
 
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -13,6 +14,20 @@ public class StringUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(StringUtil.class);
+	}
+
+	@Test
+	public void testCommaSplit() {
+		assertCollection(StringUtil.commaSplit(null));
+		assertCollection(StringUtil.commaSplit(""));
+		assertCollection(StringUtil.commaSplit(" "));
+		assertCollection(StringUtil.commaSplit("a"), "a");
+		assertCollection(StringUtil.commaSplit(" a "), "a");
+		assertCollection(StringUtil.commaSplit(",,a"), "", "", "a");
+		assertCollection(StringUtil.commaSplit("a,,"), "a");
+		assertCollection(StringUtil.commaSplit(" , a "), "", "a");
+		assertCollection(StringUtil.commaSplit("a,b"), "a", "b");
+		assertCollection(StringUtil.commaSplit(" a , b "), "a", "b");
 	}
 
 	@Test

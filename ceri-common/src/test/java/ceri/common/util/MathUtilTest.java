@@ -99,12 +99,7 @@ public class MathUtilTest {
 	public void testFactorial() {
 		assertThat(MathUtil.factorial(0), is(1.0));
 		assertEquals(9.33262e157, MathUtil.factorial(100), 0.00001e157);
-		assertException(IllegalArgumentException.class, new Runnable() {
-			@Override
-			public void run() {
-				MathUtil.longFactorial(21);
-			}
-		});
+		assertException(IllegalArgumentException.class, () -> MathUtil.longFactorial(21));
 	}
 
 	@Test

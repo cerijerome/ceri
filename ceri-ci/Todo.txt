@@ -2,10 +2,13 @@ To do
 =====
 
 Fix audio 'and' for missing files
+Fix styling for item <p>
+Placeholder image for no items
 Find out why init servlet didn't remind for broken jobs
-Add timeout for zwave
+Change timeout for zwave
 Finish jsps for web
-Log requests
+Email retriever
+Repeater for multiple locations (2 x SJC, 1 x CN)
 Save state and reload on restart
 Build purge on timer
 

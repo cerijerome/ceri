@@ -126,12 +126,7 @@ public class StringFactoriesTest {
 	}
 
 	private static <T> void assertFail(final Factory<T, String> factory, final String from) {
-		TestUtil.assertException(NumberFormatException.class, new Runnable() {
-			@Override
-			public void run() {
-				factory.create(from);
-			}
-		});
+		TestUtil.assertException(NumberFormatException.class, () -> factory.create(from));
 	}
 
 }

@@ -98,18 +98,8 @@ public class Alerters implements Closeable {
 		try {
 			final Builds summarizedBuilds = BuildUtil.summarize(builds);
 			final Collection<String> breakNames = BuildUtil.summarizedBreakNames(summarizedBuilds);
-			Future<?> x10Future = x10 == null ? null : execute(new Runnable() {
-				@Override
-				public void run() {
-					x10.alert(breakNames);
-				}
-			});
-			Future<?> zwaveFuture = zwave == null ? null : execute(new Runnable() {
-				@Override
-				public void run() {
-					zwave.alert(breakNames);
-				}
-			});
+			Future<?> x10Future = x10 == null ? null : execute(() -> x10.alert(breakNames));
+			Future<?> zwaveFuture = zwave == null ? null : execute(() -> zwave.alert(breakNames));
 			if (web != null) web.update(summarizedBuilds);
 			if (audio != null) audio.alert(summarizedBuilds);
 			awaitFuture(x10Future);
@@ -126,18 +116,8 @@ public class Alerters implements Closeable {
 		logger.debug("clear");
 		lock.lock();
 		try {
-			Future<?> x10Future = x10 == null ? null : execute(new Runnable() {
-				@Override
-				public void run() {
-					x10.clear();
-				}
-			});
-			Future<?> zwaveFuture = zwave == null ? null : execute(new Runnable() {
-				@Override
-				public void run() {
-					zwave.clear();
-				}
-			});
+			Future<?> x10Future = x10 == null ? null : execute(() -> x10.clear());
+			Future<?> zwaveFuture = zwave == null ? null : execute(() -> zwave.clear());
 			if (web != null) web.clear();
 			if (audio != null) audio.clear();
 			awaitFuture(x10Future);
@@ -169,19 +149,16 @@ public class Alerters implements Closeable {
 
 	private Future<?> execute(final Runnable runnable) {
 		if (executor.isShutdown()) throw new RuntimeInterruptedException("Executor is shut down");
-		return executor.submit(new Runnable() {
-			@Override
-			public void run() {
-				logger.debug("Thread started");
-				try {
-					runnable.run();
-				} catch (RuntimeInterruptedException e) {
-					logger.info("Thread interrupted");
-				} catch (RuntimeException e) {
-					logger.catching(e);
-				}
-				logger.debug("Thread complete");
+		return executor.submit(() -> {
+			logger.debug("Thread started");
+			try {
+				runnable.run();
+			} catch (RuntimeInterruptedException e) {
+				logger.info("Thread interrupted");
+			} catch (RuntimeException e) {
+				logger.catching(e);
 			}
+			logger.debug("Thread complete");
 		});
 	}
 

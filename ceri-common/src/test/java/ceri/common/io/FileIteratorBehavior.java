@@ -36,12 +36,7 @@ public class FileIteratorBehavior {
 	public void shouldThrowExceptionIfNoMoreElements() {
 		final FileIterator iterator = new FileIterator(helper.file("a/a"));
 		iterator.next();
-		assertException(NoSuchElementException.class, new Runnable() {
-			@Override
-			public void run() {
-				iterator.next();
-			}
-		});
+		assertException(NoSuchElementException.class, () -> iterator.next());
 	}
 	
 	@Test

@@ -3,6 +3,7 @@ package ceri.ci;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,6 +29,7 @@ public class MasterMold implements Closeable {
 	private final Web web;
 	private final Alerters alerters;
 	private final AlertService alertService;
+	//private final Collection<String> hosts;
 
 	public static void main(String[] args) throws IOException {
 		try (MasterMold masterMold = new MasterMold()) {

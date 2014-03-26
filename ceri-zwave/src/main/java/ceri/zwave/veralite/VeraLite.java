@@ -28,14 +28,11 @@ public class VeraLite {
 
 	private static Runnable r(final VeraLite vl, final int device, final int delay,
 		final int iterations) {
-		return new Runnable() {
-			@Override
-			public void run() {
-				try {
-					onOff(vl, device, delay, iterations);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+		return () -> {
+			try {
+				onOff(vl, device, delay, iterations);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		};
 	}

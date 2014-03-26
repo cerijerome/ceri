@@ -55,12 +55,7 @@ public class CollectionUtilTest {
 		assertThat(iterator.next(), is("B"));
 		assertThat(iterator.next(), is("A"));
 		assertFalse(iterator.hasNext());
-		assertException(NoSuchElementException.class, new Runnable() {
-			@Override
-			public void run() {
-				iterator.next();
-			}
-		});
+		assertException(NoSuchElementException.class, () -> iterator.next());
 	}
 
 	@Test

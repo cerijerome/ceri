@@ -22,18 +22,8 @@ public class X10AlerterBehavior {
 	@Test
 	public void shouldFailToBuildWithInvalidAddress() {
 		final X10Alerter.Builder builder = X10Alerter.builder(controller);
-		assertException(new Runnable() {
-			@Override
-			public void run() {
-				builder.address(null, "A1");
-			}
-		});
-		assertException(new Runnable() {
-			@Override
-			public void run() {
-				builder.address("x", "A0");
-			}
-		});
+		assertException(() -> builder.address(null, "A1"));
+		assertException(() -> builder.address("x", "A0"));
 	}
 
 	@Test

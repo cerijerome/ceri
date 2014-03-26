@@ -96,12 +96,7 @@ public class Processor implements Closeable {
 		waitIntervalMs = builder.waitIntervalMs;
 		resetIntervalMs = builder.resetIntervalMs;
 		commandIntervalMs = builder.commandIntervalMs;
-		thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Processor.this.run();
-			}
-		});
+		thread = new Thread(() -> Processor.this.run());
 		thread.start();
 	}
 
