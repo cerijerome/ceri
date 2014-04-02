@@ -3,9 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>ceri</groupId>
-	<artifactId>ceri-ci</artifactId>
+	<artifactId>ceri-common-ee</artifactId>
 	<version>1.0-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>${project.artifactId}</name>
 	<url>https://github.com/cerijerome/ceri/tree/master/${project.artifactId}</url>
 
@@ -42,21 +42,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>ceri</groupId>
-			<artifactId>ceri-common-ee</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ceri</groupId>
-			<artifactId>ceri-x10</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ceri</groupId>
-			<artifactId>ceri-zwave</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>fluent-hc</artifactId>
 			<version>${fluent-hc.version}</version>
@@ -87,20 +72,9 @@
 			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-server</artifactId>
-			<version>${jetty.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet.jsp</groupId>
-			<artifactId>javax.servlet.jsp-api</artifactId>
-			<version>2.3.1</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.geronimo.specs</groupId>
@@ -108,25 +82,10 @@
 			<version>1.0</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-jsp_2.2_spec</artifactId>
-			<version>1.2</version>
-			<scope>provided</scope>
-		</dependency>
 	</dependencies>
 
 	<build>
-		<!--finalName>simple-webapp</finalName -->
 		<plugins>
-			<plugin>
-				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-maven-plugin</artifactId>
-				<version>${jetty.version}</version>
-				<configuration>
-					<requestLog implementation="org.eclipse.jetty.server.NCSARequestLog" />
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

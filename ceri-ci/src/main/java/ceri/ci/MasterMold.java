@@ -3,7 +3,6 @@ package ceri.ci;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,6 +10,7 @@ import ceri.ci.alert.AlertService;
 import ceri.ci.alert.AlertServiceProperties;
 import ceri.ci.alert.Alerters;
 import ceri.ci.audio.AudioAlerter;
+import ceri.ci.proxy.MultiProxy;
 import ceri.ci.web.WebAlerter;
 import ceri.ci.x10.X10Alerter;
 import ceri.ci.zwave.ZWaveAlerter;
@@ -29,7 +29,7 @@ public class MasterMold implements Closeable {
 	private final Web web;
 	private final Alerters alerters;
 	private final AlertService alertService;
-	//private final Collection<String> hosts;
+	private final Proxy proxy;
 
 	public static void main(String[] args) throws IOException {
 		try (MasterMold masterMold = new MasterMold()) {
@@ -61,6 +61,7 @@ public class MasterMold implements Closeable {
 		alerters =
 			createAlerters(x10.alerter, zwave.alerter, audio.alerter, web.alerter, alertProperties);
 		alertService = createAlertService(alerters, alertProperties);
+		proxy = new Proxy(properties);
 	}
 
 	@Override
@@ -72,6 +73,10 @@ public class MasterMold implements Closeable {
 		x10.close();
 	}
 
+	public MultiProxy proxy() {
+		return proxy.multi;
+	}
+	
 	public AlertService alertService() {
 		return alertService;
 	}

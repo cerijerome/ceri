@@ -11,6 +11,30 @@ public class LogUtil {
 	private LogUtil() {}
 
 	/**
+	 * Interface used with toString to lazily generate a string.
+	 */
+	public static interface ToLazyString {
+		String toLazyString() throws Exception;
+	}
+
+	/**
+	 * Returns an object whose toString() executes the given object's toString() method.
+	 * Convenient for use with lambda notation.
+	 */
+	public static Object toString(final ToLazyString toLazyString) {
+		return new Object() {
+			@Override
+			public String toString() {
+				try {
+					return toLazyString.toLazyString();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		};
+	}
+
+	/**
 	 * Returns an object whose toString() returns the hex string of the given integer value.
 	 */
 	public static Object toHex(final int value) {

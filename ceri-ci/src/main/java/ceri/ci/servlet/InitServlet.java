@@ -27,6 +27,7 @@ public class InitServlet extends HttpServlet {
 			masterMold.alertService().broken("mweb", "regression", "punpal");
 			add(masterMold.alertService());
 			add(masterMold.webService());
+			add(masterMold.proxy());
 		} catch (Exception e) {
 			throw new ServletException("Failed to initialize", e);
 		}
@@ -36,6 +37,7 @@ public class InitServlet extends HttpServlet {
 	public void destroy() {
 		logger.info("Shutting down");
 		try {
+			remove(masterMold.proxy());
 			remove(masterMold.webService());
 			remove(masterMold.alertService());
 			masterMold.close();
