@@ -2,21 +2,22 @@ package ceri.ci.x10;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ImmutableUtil;
 import ceri.x10.command.CommandFactory;
 import ceri.x10.type.Address;
-import ceri.x10.type.House;
 import ceri.x10.util.X10Controller;
 
 public class X10Alerter {
+	private static final Logger logger = LogManager.getLogger();
 	private final X10Controller x10;
 	private final Map<String, Address> addresses;
-	private final Set<House> houseCodes;
+	private final Set<Address> activeAddresses = new HashSet<>();
 
 	public static class Builder {
 		final Map<String, Address> addresses = new HashMap<>();
@@ -43,9 +44,9 @@ public class X10Alerter {
 	}
 
 	X10Alerter(Builder builder) {
+		logger.debug("Creating X10 alerter");
 		x10 = builder.x10;
 		addresses = ImmutableUtil.copyAsMap(builder.addresses);
-		houseCodes = Collections.unmodifiableSet(houseCodes(addresses));
 	}
 
 	public void alert(String... keys) {
@@ -53,31 +54,49 @@ public class X10Alerter {
 	}
 
 	public void alert(Collection<String> keys) {
-		clearAlerts();
-		for (String key : keys)
-			doAlert(key);
+		logger.debug("alert: {}", keys);
+		Collection<Address> addresses = keysToAddresses(keys);
+		for (Address address : new HashSet<>(activeAddresses)) {
+			if (!addresses.contains(address)) deviceOff(address);
+		}
+		for (Address address : addresses) {
+			if (!activeAddresses.contains(address)) deviceOn(address);
+		}
 	}
 
 	public void clear() {
-		clearAlerts();
-	}
-
-	private void clearAlerts() {
-		for (House houseCode : houseCodes)
-			x10.command(CommandFactory.allUnitsOff(houseCode));
-	}
-
-	private void doAlert(String key) {
-		Address address = addresses.get(key);
-		if (address == null) return;
-		x10.command(CommandFactory.on(address.house, address.unit));
-	}
-
-	private Set<House> houseCodes(Map<String, Address> addresses) {
-		Set<House> houseCodes = new HashSet<>();
+		logger.debug("clear");
 		for (Address address : addresses.values())
-			houseCodes.add(address.house);
-		return houseCodes;
+			deviceOff(address);
+	}
+
+	private Collection<Address> keysToAddresses(Collection<String> keys) {
+		Collection<Address> addresses = new HashSet<>();
+		for (String key : keys) {
+			Address address = this.addresses.get(key);
+			if (address != null) addresses.add(address);
+		}
+		return addresses;
+	}
+
+	private void deviceOn(Address address) {
+		try {
+			logger.debug("deviceOn: {}", address);
+			x10.command(CommandFactory.on(address));
+			activeAddresses.add(address);
+		} catch (RuntimeException e) {
+			logger.catching(e);
+		}
+	}
+
+	private void deviceOff(Address address) {
+		try {
+			logger.debug("deviceOff: {}", address);
+			x10.command(CommandFactory.off(address));
+			activeAddresses.remove(address);
+		} catch (RuntimeException e) {
+			logger.catching(e);
+		}
 	}
 
 }

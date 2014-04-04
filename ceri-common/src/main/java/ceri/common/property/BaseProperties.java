@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Properties;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.StringUtil;
 
 /**
  * Abstract class for accessing properties with a common key prefix. Useful when
@@ -43,6 +44,16 @@ public abstract class BaseProperties {
 	protected String stringValue(String def, String... keyParts) {
 		String value = value(keyParts);
 		return value == null ? def : value;
+	}
+
+	/**
+	 * Retrieves a collection of comma-separated Strings from prefixed, dot-separated key. Returns
+	 * default values if no values exist for the key.
+	 */
+	protected Collection<String> stringValues(Collection<String> def, String... keyParts) {
+		String value = value(keyParts);
+		Collection<String> values = StringUtil.commaSplit(value);
+		return values.isEmpty() ? def : values;
 	}
 
 	/**

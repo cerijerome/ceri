@@ -12,7 +12,7 @@ public class ArrayIteratorBehavior {
 	@Test
 	public void shouldIteratePrimitives() {
 		boolean[] array = { true, false, true };
-		final Iterator<Boolean> iterator = ArrayIterator.create(array);
+		final Iterator<Boolean> iterator = ArrayIterator.createBoolean(array);
 		assertThat(iterator.next(), is(true));
 		assertThat(iterator.next(), is(false));
 		assertThat(iterator.next(), is(true));
@@ -24,14 +24,14 @@ public class ArrayIteratorBehavior {
 			iterator.remove();
 			fail();
 		} catch (Exception e) {}
-		assertThat(ArrayIterator.create(Byte.MIN_VALUE).next(), is(Byte.MIN_VALUE));
-		assertThat(ArrayIterator.create(Character.MAX_VALUE).next(), is(Character.MAX_VALUE));
-		for (int i : ArrayIterator.create(Integer.MIN_VALUE))
+		assertThat(ArrayIterator.createByte(Byte.MIN_VALUE).next(), is(Byte.MIN_VALUE));
+		assertThat(ArrayIterator.createChar(Character.MAX_VALUE).next(), is(Character.MAX_VALUE));
+		for (int i : ArrayIterator.createInt(Integer.MIN_VALUE))
 			assertThat(i, is(Integer.MIN_VALUE));
-		assertThat(ArrayIterator.create(Short.MAX_VALUE).next(), is(Short.MAX_VALUE));
-		assertThat(ArrayIterator.create(Long.MIN_VALUE).next(), is(Long.MIN_VALUE));
-		assertThat(ArrayIterator.create(Float.MAX_VALUE).next(), is(Float.MAX_VALUE));
-		assertThat(ArrayIterator.create(Double.NaN).next(), is(Double.NaN));
+		assertThat(ArrayIterator.createShort(Short.MAX_VALUE).next(), is(Short.MAX_VALUE));
+		assertThat(ArrayIterator.createLong(Long.MIN_VALUE).next(), is(Long.MIN_VALUE));
+		assertThat(ArrayIterator.createFloat(Float.MAX_VALUE).next(), is(Float.MAX_VALUE));
+		assertThat(ArrayIterator.createDouble(Double.NaN).next(), is(Double.NaN));
 	}
 
 	@Test

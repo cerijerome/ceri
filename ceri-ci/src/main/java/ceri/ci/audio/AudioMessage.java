@@ -12,6 +12,14 @@ public class AudioMessage {
 	private final float pitch;
 	private final AudioPlayer player;
 
+	public static void main(String[] args) throws Exception {
+		File dir = new File("src/main/resources/ceri/ci/audio/en-us/lauren/");
+		System.out.println(dir.getAbsolutePath());
+		Audio.create(new File(dir, "_eas.wav")).play();
+		Audio.create(new File(dir, "gimp.wav")).play();
+		Audio.create(new File(dir, "_eas.wav")).play();
+	}
+	
 	public AudioMessage(AudioPlayer player, File soundDir) {
 		this(player, soundDir, Audio.NORMAL_PITCH);
 	}
@@ -26,7 +34,8 @@ public class AudioMessage {
 	 * Plays alarm sound.
 	 */
 	public void playAlarm() throws IOException {
-		Audio audio = Clip.red_alert.audio().clip(0, 256);
+		//Audio audio = clipAudio(Clip.red_alert).clip(0, 256);
+		Audio audio = clipAudio(Clip.eas);
 		play(audio);
 	}
 
@@ -107,12 +116,16 @@ public class AudioMessage {
 	}
 
 	private void play(Clip clip) throws IOException {
-		play(clip.audio());
+		play(clipAudio(clip));
 	}
 
 	private void play(Audio audio) throws IOException {
 		ConcurrentUtil.checkRuntimeInterrupted();
 		player.play(audio.changePitch(pitch));
+	}
+	
+	private Audio clipAudio(Clip clip) throws IOException {
+		return Audio.create(new File(soundDir, clip.filename));
 	}
 	
 }

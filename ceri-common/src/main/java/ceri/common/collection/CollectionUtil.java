@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -12,6 +13,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
+import ceri.common.util.BasicUtil;
 
 /**
  * Utility methods to test and manipulate collections.
@@ -19,6 +21,35 @@ import java.util.Set;
 public class CollectionUtil {
 
 	private CollectionUtil() {}
+
+	/**
+	 * Allows an enumeration to be run in a for-each loop.
+	 */
+	public static final <T> Iterable<T> iterable(final Enumeration<? extends T> enumeration) {
+		return BasicUtil.forEach(iterator(enumeration));
+	}
+	
+	/**
+	 * Returns an iterator for an enumeration.
+	 */
+	public static final <T> Iterator<T> iterator(final Enumeration<? extends T> enumeration) {
+		return new Iterator<T>() {
+			@Override
+			public final boolean hasNext() {
+				return enumeration.hasMoreElements();
+			}
+
+			@Override
+			public final T next() {
+				return enumeration.nextElement();
+			}
+
+			@Override
+			public final void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
+	}
 
 	/**
 	 * Returns a reversed list iterator.
@@ -80,8 +111,7 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Map wrapper that returns a default value if key is not in map or its
-	 * value is null.
+	 * Map wrapper that returns a default value if key is not in map or its value is null.
 	 */
 	public static <K, V> Map<K, V> defaultValueMap(Map<K, V> map, final V def) {
 		return new DelegatingMap<K, V>(map) {
@@ -124,8 +154,7 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Returns the item at given index for an iterable instance. Optimized for
-	 * Lists.
+	 * Returns the item at given index for an iterable instance. Optimized for Lists.
 	 */
 	public static <T> T get(Iterable<T> iterable, int index) {
 		if (iterable instanceof LinkedList<?>) {
@@ -140,8 +169,7 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Removes all given items from the collection. Returns true if the
-	 * collection is modified.
+	 * Removes all given items from the collection. Returns true if the collection is modified.
 	 */
 	@SafeVarargs
 	public static <T> boolean removeAll(Collection<? super T> collection, T... ts) {
@@ -158,9 +186,8 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Creates a typed array from a collection and given type. The type must not
-	 * be a primitive class type such as int.class otherwise a
-	 * ClassCastException will be thrown.
+	 * Creates a typed array from a collection and given type. The type must not be a primitive
+	 * class type such as int.class otherwise a ClassCastException will be thrown.
 	 */
 	public static <T> T[] toArray(Collection<? extends T> collection, Class<T> type) {
 		if (type.isPrimitive()) throw new IllegalArgumentException("Primitives types not allowed");

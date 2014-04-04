@@ -26,7 +26,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.TestRunnable;
 
 public class IoUtilTest {
 	private static FileTestHelper helper = null;
@@ -52,34 +51,21 @@ public class IoUtilTest {
 	public void testCheckIoInterrupted() throws InterruptedIOException {
 		IoUtil.checkIoInterrupted();
 		Thread.currentThread().interrupt();
-		assertException(InterruptedIOException.class, new TestRunnable() {
-			@Override
-			public void run() throws IOException {
-				IoUtil.checkIoInterrupted();
-			}
-		});
+		assertException(InterruptedIOException.class, () -> IoUtil.checkIoInterrupted());
 	}
 
 	@Test
 	public void testClose() {
 		final StringReader in = new StringReader("0123456789");
 		IoUtil.close(in);
-		assertException(IOException.class, new TestRunnable() {
-			@Override
-			public void run() throws Exception {
-				in.read();
-			}
-		});
+		assertException(IOException.class, () -> in.read());
 	}
 
 	@Test
 	public void testCloseException() {
 		@SuppressWarnings("resource")
-		Closeable closeable = new Closeable() {
-			@Override
-			public void close() throws IOException {
-				throw new IOException();
-			}
+		Closeable closeable = () -> {
+			throw new IOException();
 		};
 		assertFalse(IoUtil.close(closeable));
 	}
@@ -180,7 +166,7 @@ public class IoUtilTest {
 		File dir = IoUtil.getPackageDir(getClass());
 		assertThat(dir.getPath(), matchesRegex(".*" + getClass().getPackage().getName()));
 	}
-	
+
 	@Test
 	public void testGetResource() throws IOException {
 		byte[] bytes = IoUtil.getResource(getClass(), getClass().getSimpleName() + ".properties");
@@ -242,18 +228,10 @@ public class IoUtilTest {
 		final byte[] inBuffer = new byte[200];
 		final byte[] outBuffer = new byte[256];
 		final ByteArrayInputStream in = new ByteArrayInputStream(inBuffer);
-		assertException(IllegalArgumentException.class, new TestRunnable() {
-			@Override
-			public void run() throws IOException {
-				IoUtil.fillBuffer(in, outBuffer, 255, 2);
-			}
-		});
-		assertException(IllegalArgumentException.class, new TestRunnable() {
-			@Override
-			public void run() throws IOException {
-				IoUtil.fillBuffer(in, outBuffer, -1, 2);
-			}
-		});
+		assertException(IllegalArgumentException.class, () -> IoUtil.fillBuffer(in, outBuffer, 255,
+			2));
+		assertException(IllegalArgumentException.class, () -> IoUtil.fillBuffer(in, outBuffer, -1,
+			2));
 	}
 
 	@Test

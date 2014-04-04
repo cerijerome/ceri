@@ -38,35 +38,15 @@ public class FactoriesTest {
 		assertNull(Factories.nul(null).create(null));
 		assertNull(Factories.nul(testFactory).create(null));
 		assertThat(Factories.nul(StringFactories.TO_INTEGER).create("-1"), is(-1));
-		assertException(UnsupportedOperationException.class, new Runnable() {
-			@Override
-			public void run() {
-				testFactory.create("");
-			}
-		});
+		assertException(UnsupportedOperationException.class, () -> testFactory.create(""));
 	}
 
 	@Test
 	public void testCreate() {
 		assertThat(Factories.create(StringFactories.TO_INTEGER, "123"), is(123));
-		final Factory<Integer, String> badFactory = new Factory<Integer, String>() {
-			@Override
-			public Integer create(String from) {
-				throw new FactoryException("");
-			}
-		};
-		assertException(FactoryException.class, new Runnable() {
-			@Override
-			public void run() {
-				Factories.create(badFactory, "1");
-			}
-		});
-		assertException(FactoryException.class, new Runnable() {
-			@Override
-			public void run() {
-				Factories.create(testFactory, "");
-			}
-		});
+		final Factory<Integer, String> badFactory = from -> { throw new FactoryException(""); };
+		assertException(FactoryException.class, () -> Factories.create(badFactory, "1"));
+		assertException(FactoryException.class, () -> Factories.create(testFactory, ""));
 	}
 
 	@Test
@@ -76,12 +56,7 @@ public class FactoriesTest {
 		assertNull(f.create(null));
 		assertThat(f.create(new String[0]), is(new Integer[0]));
 		assertThat(f.create(new String[] { "1", "2" }), is(new Integer[] { 1, 2 }));
-		assertException(NumberFormatException.class, new Runnable() {
-			@Override
-			public void run() {
-				f.create(new String[] { "" });
-			}
-		});
+		assertException(NumberFormatException.class, () -> f.create(new String[] { "" }));
 	}
 
 	@Test
@@ -90,12 +65,7 @@ public class FactoriesTest {
 		assertNull(f.create(null));
 		assertThat(f.create(Collections.<String>emptyList()), is(Collections.<Double>emptyList()));
 		assertThat(f.create(Arrays.asList("0.0", "1.0")), is(Arrays.asList(0.0, 1.0)));
-		assertException(NumberFormatException.class, new Runnable() {
-			@Override
-			public void run() {
-				f.create(Collections.singleton(""));
-			}
-		});
+		assertException(NumberFormatException.class, () -> f.create(Collections.singleton("")));
 	}
 
 	@Test
@@ -105,12 +75,7 @@ public class FactoriesTest {
 		assertThat(f.create(Collections.<String>emptySet()), is(Collections.<Long>emptySet()));
 		assertThat(f.create(Arrays.asList("0", "1")), is((Set<Long>) new HashSet<>(Arrays.asList(
 			0L, 1L))));
-		assertException(NumberFormatException.class, new Runnable() {
-			@Override
-			public void run() {
-				f.create(Collections.singleton(""));
-			}
-		});
+		assertException(NumberFormatException.class, () -> f.create(Collections.singleton("")));
 	}
 
 }

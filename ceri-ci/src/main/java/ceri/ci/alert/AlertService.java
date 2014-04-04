@@ -11,15 +11,16 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.ci.build.Build;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
-import ceri.ci.service.CiAlertService;
+import ceri.ci.build.Job;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.log.LogUtil;
 
-public class AlertService implements CiAlertService, Closeable {
-	private static final Logger logger = LogManager.getFormatterLogger(AlertService.class);
+public class AlertService implements Closeable {
+	private static final Logger logger = LogManager.getLogger();
 	private final Alerters alerters;
 	private final long reminderMs;
 	private final Lock lock = new ReentrantLock();
@@ -31,17 +32,13 @@ public class AlertService implements CiAlertService, Closeable {
 	public AlertService(Alerters alerters, long reminderMs) {
 		this.alerters = alerters;
 		this.reminderMs = reminderMs;
-		thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				AlertService.this.run();
-			}
-		});
+		thread = new Thread(() -> AlertService.this.run());
 		thread.start();
 	}
 
+	// @TODO: put on timer, or based on event count
 	public void purge() {
-		// @TODO: put on timer, or based on event count
+		logger.debug("purge");
 		lock.lock();
 		try {
 			builds.purge();
@@ -51,34 +48,54 @@ public class AlertService implements CiAlertService, Closeable {
 		}
 	}
 
-	@Override
-	public void clear() {
+	public Builds builds() {
 		lock.lock();
 		try {
-			builds.clear();
-			signal();
+			return new Builds(builds);
 		} finally {
 			lock.unlock();
 		}
 	}
 
-	@Override
-	public void clear(String build) {
+	public Build build(String build) {
 		lock.lock();
 		try {
-			builds.build(build).clear();
-			signal();
+			return new Build(builds.build(build));
 		} finally {
 			lock.unlock();
 		}
 	}
 
-	@Override
+	public Job job(String build, String job) {
+		lock.lock();
+		try {
+			return new Job(builds.build(build).job(job));
+		} finally {
+			lock.unlock();
+		}
+	}
+
 	public void clear(String build, String job) {
+		logger.debug("clear: {}, {}", build, job);
 		lock.lock();
 		try {
-			builds.build(build).job(job).clear();
+			if (build == null) builds.clear();
+			else if (job == null) builds.build(build).clear();
+			else builds.build(build).job(job).clear();
 			signal();
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public void delete(String build, String job) {
+		logger.debug("delete: {}, {}", build, job);
+		lock.lock();
+		try {
+			if (build == null) builds.delete();
+			else if (job == null) builds.delete(build);
+			else builds.build(build).delete(job);
+			// No need for notification.
 		} finally {
 			lock.unlock();
 		}
@@ -88,8 +105,8 @@ public class AlertService implements CiAlertService, Closeable {
 		fixed(build, job, Arrays.asList(names));
 	}
 
-	@Override
 	public void fixed(String build, String job, Collection<String> names) {
+		logger.debug("fixed: {}, {}, {}", build, job, names);
 		lock.lock();
 		try {
 			builds.build(build).job(job).event(Event.fixed(names));
@@ -103,8 +120,8 @@ public class AlertService implements CiAlertService, Closeable {
 		broken(build, job, Arrays.asList(names));
 	}
 
-	@Override
 	public void broken(String build, String job, Collection<String> names) {
+		logger.debug("broken: {}, {}, {}", build, job, names);
 		lock.lock();
 		try {
 			builds.build(build).job(job).event(Event.broken(names));
@@ -116,9 +133,12 @@ public class AlertService implements CiAlertService, Closeable {
 
 	@Override
 	public void close() throws IOException {
+		logger.debug("close");
 		thread.interrupt();
 		try {
+			logger.debug("joining...");
 			thread.join();
+			logger.debug("join complete");
 		} catch (InterruptedException e) {
 			logger.catching(Level.WARN, e);
 		}
@@ -145,11 +165,13 @@ public class AlertService implements CiAlertService, Closeable {
 		lock.lock();
 		try {
 			while (!buildsChanged) {
+				ConcurrentUtil.checkInterrupted();
 				if (reminderMs == 0) condition.await();
 				else if (!condition.await(ms, TimeUnit.MILLISECONDS)) return null;
-				ConcurrentUtil.checkInterrupted();
 			}
 			buildsChanged = false;
+			logger.info("-------------------- buildsChanged = false");
+			//logger.info("{}", builds);
 			return new Builds(builds);
 		} finally {
 			lock.unlock();
@@ -158,6 +180,8 @@ public class AlertService implements CiAlertService, Closeable {
 
 	private void signal() {
 		buildsChanged = true;
+		logger.info("++++++++++++++++++++ buildsChanged = true");
+		//logger.info("{}", builds);
 		condition.signal();
 	}
 

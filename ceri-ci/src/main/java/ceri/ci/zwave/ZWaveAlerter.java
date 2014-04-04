@@ -1,6 +1,7 @@
 package ceri.ci.zwave;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,7 +49,12 @@ public class ZWaveAlerter {
 		devices = ImmutableUtil.copyAsMap(builder.devices);
 	}
 
+	public void alert(String...keys) {
+		alert(Arrays.asList(keys));
+	}
+	
 	public void alert(Collection<String> keys) {
+		logger.debug("alert: {}", keys);
 		Collection<Integer> devices = keysToDevices(keys);
 		for (Integer device : new HashSet<>(activeDevices)) {
 			if (!devices.contains(device)) deviceOff(device);
@@ -59,6 +65,7 @@ public class ZWaveAlerter {
 	}
 
 	public void clear() {
+		logger.debug("clear");
 		for (int device : devices.values())
 			deviceOff(device);
 	}

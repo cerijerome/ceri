@@ -3,9 +3,8 @@ package ceri.common.concurrent;
 import ceri.common.util.BasicUtil;
 
 /**
- * Simple class for running a separate thread, capturing errors,
- * and surfacing them on the main thread on completion.
- * Most use cases better served with Future
+ * Simple class for running a separate thread, capturing errors, and surfacing them on the main
+ * thread on completion. Most use cases better served with Future
  */
 public abstract class AsyncRunner<T extends Exception> {
 	private final Thread thread;
@@ -14,14 +13,11 @@ public abstract class AsyncRunner<T extends Exception> {
 
 	public AsyncRunner(Class<T> errorClass) {
 		this.errorClass = errorClass;
-		thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					AsyncRunner.this.run();
-				} catch (Exception e) {
-					AsyncRunner.this.error = e;
-				}
+		thread = new Thread(() -> {
+			try {
+				AsyncRunner.this.run();
+			} catch (Exception e) {
+				AsyncRunner.this.error = e;
 			}
 		});
 	}
@@ -44,7 +40,7 @@ public abstract class AsyncRunner<T extends Exception> {
 		}
 		if (error != null) {
 			if (errorClass.isInstance(error)) throw BasicUtil.<T>uncheckedCast(error);
-			if (error instanceof RuntimeException) throw (RuntimeException)error;
+			if (error instanceof RuntimeException) throw (RuntimeException) error;
 			throw new RuntimeException(error);
 		}
 	}

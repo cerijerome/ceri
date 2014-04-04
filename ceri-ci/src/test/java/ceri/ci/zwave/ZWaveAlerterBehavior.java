@@ -24,18 +24,8 @@ public class ZWaveAlerterBehavior {
 	@Test
 	public void shouldFailToBuildWithInvalidAddress() {
 		final ZWaveAlerter.Builder builder = ZWaveAlerter.builder(controller);
-		assertException(new Runnable() {
-			@Override
-			public void run() {
-				builder.device(null, 0);
-			}
-		});
-		assertException(new Runnable() {
-			@Override
-			public void run() {
-				builder.device("x", -1);
-			}
-		});
+		assertException(() -> builder.device(null, 0));
+		assertException(() -> builder.device("x", -1));
 	}
 
 	@Test

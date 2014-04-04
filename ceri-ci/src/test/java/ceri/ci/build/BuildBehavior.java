@@ -71,12 +71,7 @@ public class BuildBehavior {
 	public void shouldNotAllowModificationOfJobsField() {
 		final Build build = new Build("build");
 		assertTrue(build.jobs.isEmpty());
-		assertException(new Runnable() {
-			@Override
-			public void run() {
-				build.jobs.add(new Job("job"));
-			}
-		});
+		assertException(() -> build.jobs.add(new Job("job")));
 	}
 
 	@Test

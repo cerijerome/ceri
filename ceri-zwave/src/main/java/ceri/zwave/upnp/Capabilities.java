@@ -3,23 +3,21 @@ package ceri.zwave.upnp;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.TreeSet;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
+import ceri.common.util.StringUtil;
 
 /**
  * Encapsulation of http://wiki.micasaverde.com/index.php/ZWave_Command_Classes
- * 209,140,0,4,17,1,L,R,B,RS,|38,39,112,114,115,117,134,
- * 209 => 1101 0001
- * 201,4,0,3,17,0,L,R,|38,39,117,
- * 201 => 1100 1001
- * 211,156,0,4,16,1,L,R,B,RS,|37,39,114,115,117,119,134,
- * 211 => 1101 0011
+ * 209,140,0,4,17,1,L,R,B,RS,|38,39,112,114,115,117,134, 209 => 1101 0001
+ * 201,4,0,3,17,0,L,R,|38,39,117, 201 => 1100 1001
+ * 211,156,0,4,16,1,L,R,B,RS,|37,39,114,115,117,119,134, 211 => 1101 0011
  */
 public class Capabilities {
 	private static final int PROTOCOL_INFO_COUNT = 6;
 	private static final String PIPE_SPLIT = "\\s*\\|\\s*";
-	private static final String COMMA_SPLIT = "\\s*\\,\\s*";
 	public final int capability;
 	public final int security;
 	public final int reserved = 0;
@@ -31,11 +29,11 @@ public class Capabilities {
 	private final int hashCode;
 
 	public static enum Flag {
-		L,	// Listens
-		R,	// Routes
-		B,	// Beams
-		RS,	// Routing slave
-		W1;	// Requires beaming
+		L, // Listens
+		R, // Routes
+		B, // Beams
+		RS, // Routing slave
+		W1; // Requires beaming
 	}
 
 	public static class Builder {
@@ -48,7 +46,7 @@ public class Capabilities {
 		final Collection<CommandClass> commandClasses = new HashSet<>();
 
 		Builder() {}
-		
+
 		public Builder capability(int capability) {
 			this.capability = capability;
 			return this;
@@ -115,21 +113,21 @@ public class Capabilities {
 	public int hashCode() {
 		return hashCode;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (!(obj instanceof Capabilities)) return false;
-		Capabilities capabilities = (Capabilities)obj;
+		Capabilities capabilities = (Capabilities) obj;
 		if (capability != capabilities.capability) return false;
 		if (security != capabilities.security) return false;
 		if (basicDeviceClass != capabilities.basicDeviceClass) return false;
 		if (genericDeviceClass != capabilities.genericDeviceClass) return false;
 		if (specificDeviceClass != capabilities.specificDeviceClass) return false;
-		if (!EqualsUtil.equals(flags,  capabilities.flags)) return false;
+		if (!EqualsUtil.equals(flags, capabilities.flags)) return false;
 		return EqualsUtil.equals(commandClasses, capabilities.commandClasses);
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
@@ -157,22 +155,22 @@ public class Capabilities {
 	}
 
 	private static void addProtocolInfo(Builder builder, String protocolInfo) {
-		String[] valuesStr = protocolInfo.split(COMMA_SPLIT);
-		if (valuesStr.length < PROTOCOL_INFO_COUNT) throw new IllegalArgumentException(
+		Collection<String> values = StringUtil.commaSplit(protocolInfo);
+		if (values.size() < PROTOCOL_INFO_COUNT) throw new IllegalArgumentException(
 			"Must have at least " + PROTOCOL_INFO_COUNT + " values: " + protocolInfo);
-		int i = 0;
-		builder.capability(Integer.parseInt(valuesStr[i++]));
-		builder.security(Integer.parseInt(valuesStr[i++]));
-		i++; // 0 reserved
-		builder.basicDeviceClass(Integer.parseInt(valuesStr[i++]));
-		builder.genericDeviceClass(Integer.parseInt(valuesStr[i++]));
-		builder.specificDeviceClass(Integer.parseInt(valuesStr[i++]));
-		while (i < valuesStr.length)
-			builder.flag(Flag.valueOf(valuesStr[i++]));
+		Iterator<String> i = values.iterator();
+		builder.capability(Integer.parseInt(i.next()));
+		builder.security(Integer.parseInt(i.next()));
+		i.next(); // 0 reserved
+		builder.basicDeviceClass(Integer.parseInt(i.next()));
+		builder.genericDeviceClass(Integer.parseInt(i.next()));
+		builder.specificDeviceClass(Integer.parseInt(i.next()));
+		while (i.hasNext())
+			builder.flag(Flag.valueOf(i.next()));
 	}
 
 	private static void addCommandClasses(Builder builder, String commandClassIdsStr) {
-		for (String commandClassIdStr : commandClassIdsStr.split(COMMA_SPLIT)) {
+		for (String commandClassIdStr : StringUtil.commaSplit(commandClassIdsStr)) {
 			builder.commandClass(Integer.parseInt(commandClassIdStr));
 		}
 	}

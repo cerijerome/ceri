@@ -51,17 +51,14 @@ public class BasicUtilTest {
 	@Test
 	public void testDelay() throws InterruptedException {
 		final BooleanCondition flag = new BooleanCondition();
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					BasicUtil.delay(0);
-					BasicUtil.delay(1);
-					flag.signal();
-					BasicUtil.delay(10000);
-					fail("RuntimeInterruptedException should be thrown");
-				} catch (RuntimeInterruptedException e) {}
-			}
+		Thread thread = new Thread(() -> {
+			try {
+				BasicUtil.delay(0);
+				BasicUtil.delay(1);
+				flag.signal();
+				BasicUtil.delay(10000);
+				fail("RuntimeInterruptedException should be thrown");
+			} catch (RuntimeInterruptedException e) {}
 		});
 		thread.start();
 		flag.await();

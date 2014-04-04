@@ -1,15 +1,14 @@
 To do
 =====
 
-x10 emulator
-x10 command work
-x10 test shutdown
-
-Tests for new common classes
-
-Create jsp for web
-
+Fix audio 'and' for missing files
+Fix styling for item <p>
+Placeholder image for no items
+Find out why init servlet didn't remind for broken jobs
+Change timeout for zwave
+Finish jsps for web
+Email retriever
+Repeater for multiple locations (2 x SJC, 1 x CN)
 Save state and reload on restart
-
 Build purge on timer
 

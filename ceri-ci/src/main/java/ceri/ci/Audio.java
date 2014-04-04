@@ -19,7 +19,8 @@ public class Audio {
 		if (!audioProperties.enabled()) {
 			alerter = null;
 		} else {
-			File soundDir = IoUtil.getPackageDir(AudioMessage.class);
+			File soundDir =
+				new File(IoUtil.getPackageDir(AudioMessage.class), audioProperties.voice());
 			AudioPlayer player = new AudioPlayer.Default();
 			AudioMessage message = new AudioMessage(player, soundDir, audioProperties.pitch());
 			alerter = new AudioAlerter(message);

@@ -2,6 +2,7 @@ package ceri.zwave.veralite;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import ceri.common.util.BasicUtil;
 import ceri.zwave.command.CommandFactory;
 import ceri.zwave.command.DelayExecutor;
@@ -15,25 +16,23 @@ public class VeraLite {
 	public final Dimming dimming;
 
 	public static void main(String[] args) throws Exception {
-		final VeraLite vl = new VeraLite("192.168.0.109:3480");
+		//final VeraLite vl = new VeraLite("192.168.0.109:3480");
+		final VeraLite vl = new VeraLite("10.244.160.105:3480");
 
-		ExecutorService exs = Executors.newFixedThreadPool(2);
-		exs.execute(r(vl, 5, 100, 10));
-		exs.execute(r(vl, 6, 100, 10));
-		exs.shutdown();
-		//exs.awaitTermination(100, TimeUnit.SECONDS);
+		ExecutorService exs = Executors.newFixedThreadPool(1);
+		exs.execute(r(vl, 6, 400, 6));
+		exs.execute(r(vl, 7, 300, 8));
+		//exs.shutdown();
+		exs.awaitTermination(100, TimeUnit.SECONDS);
 	}
 
 	private static Runnable r(final VeraLite vl, final int device, final int delay,
 		final int iterations) {
-		return new Runnable() {
-			@Override
-			public void run() {
-				try {
-					onOff(vl, device, delay, iterations);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+		return () -> {
+			try {
+				onOff(vl, device, delay, iterations);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		};
 	}

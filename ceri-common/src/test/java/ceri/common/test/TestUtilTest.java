@@ -40,6 +40,7 @@ public class TestUtilTest {
 	public static class ExecTest {
 		@Test
 		public void shouldDoThis() {}
+
 		@Test
 		public void testThat() {}
 	}
@@ -54,24 +55,12 @@ public class TestUtilTest {
 
 	@Test
 	public void testAssertException() {
-		TestUtil.assertException(new TestRunnable() {
-			@Override
-			public void run() {
-				throw new IllegalArgumentException();
-			}
-		});
 		try {
-			TestUtil.assertException(new Runnable() {
-				@Override
-				public void run() {}
-			});
+			TestUtil.assertException(() -> {});
 		} catch (AssertionError e) {}
 		try {
-			TestUtil.assertException(RuntimeException.class, new TestRunnable() {
-				@Override
-				public void run() throws IOException {
-					throw new IOException();
-				}
+			TestUtil.assertException(IllegalArgumentException.class, () -> {
+				throw new RuntimeException();
 			});
 		} catch (AssertionError e) {}
 	}

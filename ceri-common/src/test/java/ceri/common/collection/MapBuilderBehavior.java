@@ -22,30 +22,11 @@ public class MapBuilderBehavior {
 	@Test
 	public void shouldBeImmutable() {
 		final Map<Integer, String> map1 = MapBuilder.<Integer, String>create().put(0, "0").build();
-		assertException(UnsupportedOperationException.class, new Runnable() {
-			@Override
-			public void run() {
-				map1.clear();
-			}
-		});
-		assertException(UnsupportedOperationException.class, new Runnable() {
-			@Override
-			public void run() {
-				map1.put(1, "1");
-			}
-		});
-		assertException(UnsupportedOperationException.class, new Runnable() {
-			@Override
-			public void run() {
-				map1.putAll(Collections.singletonMap(1, "1"));
-			}
-		});
-		assertException(UnsupportedOperationException.class, new Runnable() {
-			@Override
-			public void run() {
-				map1.remove(0);
-			}
-		});
+		assertException(UnsupportedOperationException.class, () -> map1.clear());
+		assertException(UnsupportedOperationException.class, () -> map1.put(1, "1"));
+		assertException(UnsupportedOperationException.class, () -> map1.putAll(Collections
+			.singletonMap(1, "1")));
+		assertException(UnsupportedOperationException.class, () -> map1.remove(0));
 		assertThat(map1, is(Collections.singletonMap(0, "0")));
 	}
 

@@ -24,12 +24,7 @@ public class JobBehavior {
 	public void shouldNotAllowModificationOfEventsField() {
 		final Job job = new Job("test");
 		assertTrue(job.events.isEmpty());
-		assertException(new Runnable() {
-			@Override
-			public void run() {
-				job.events.add(Event.fixed());
-			}
-		});
+		assertException(() -> job.events.add(Event.fixed()));
 	}
 
 	@Test

@@ -68,11 +68,8 @@ public class FileFiltersTest {
 
 	@Test
 	public void testReverseFilter() {
-		FileFilter filter = new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.getPath().endsWith(File.separatorChar + "a");
-			}
+		FileFilter filter = pathname -> {
+			return pathname.getPath().endsWith(File.separatorChar + "a");
 		};
 		List<File> list = IoUtil.getFiles(helper.root, filter);
 		assertThat(list, isList(helper.files("a", "a/a")));

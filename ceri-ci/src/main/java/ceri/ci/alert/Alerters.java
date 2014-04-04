@@ -10,6 +10,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ci.audio.AudioAlerter;
@@ -22,8 +23,8 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.log.LogUtil;
 
 /**
- * Container for alerter components. Executes alerts in parallel. - only allow
- * one call at a time (lock) - count active threads
+ * Container for alerter components. Executes alerts in parallel. - only allow one call at a time
+ * (lock) - count active threads
  */
 public class Alerters implements Closeable {
 	static final Logger logger = LogManager.getLogger();
@@ -92,23 +93,13 @@ public class Alerters implements Closeable {
 	 * Notify alerters that builds have changed.
 	 */
 	public void alert(Builds builds) {
-		logger.debug("Alert: {}", LogUtil.compact(builds));
+		logger.debug("alert: {}", LogUtil.compact(builds));
 		lock.lock();
 		try {
 			final Builds summarizedBuilds = BuildUtil.summarize(builds);
 			final Collection<String> breakNames = BuildUtil.summarizedBreakNames(summarizedBuilds);
-			Future<?> x10Future = x10 == null ? null : execute(new Runnable() {
-				@Override
-				public void run() {
-					x10.alert(breakNames);
-				}
-			});
-			Future<?> zwaveFuture = zwave == null ? null : execute(new Runnable() {
-				@Override
-				public void run() {
-					zwave.alert(breakNames);
-				}
-			});
+			Future<?> x10Future = x10 == null ? null : execute(() -> x10.alert(breakNames));
+			Future<?> zwaveFuture = zwave == null ? null : execute(() -> zwave.alert(breakNames));
 			if (web != null) web.update(summarizedBuilds);
 			if (audio != null) audio.alert(summarizedBuilds);
 			awaitFuture(x10Future);
@@ -122,21 +113,11 @@ public class Alerters implements Closeable {
 	 * Clear alerters' states.
 	 */
 	public void clear() {
-		logger.debug("Clear");
+		logger.debug("clear");
 		lock.lock();
 		try {
-			Future<?> x10Future = x10 == null ? null : execute(new Runnable() {
-				@Override
-				public void run() {
-					x10.clear();
-				}
-			});
-			Future<?> zwaveFuture = zwave == null ? null : execute(new Runnable() {
-				@Override
-				public void run() {
-					zwave.clear();
-				}
-			});
+			Future<?> x10Future = x10 == null ? null : execute(() -> x10.clear());
+			Future<?> zwaveFuture = zwave == null ? null : execute(() -> zwave.clear());
 			if (web != null) web.clear();
 			if (audio != null) audio.clear();
 			awaitFuture(x10Future);
@@ -150,7 +131,7 @@ public class Alerters implements Closeable {
 	 * Remind alerters of current state.
 	 */
 	public void remind() {
-		logger.debug("Remind");
+		logger.debug("remind");
 		lock.lock();
 		try {
 			if (audio != null) audio.remind();
@@ -167,19 +148,17 @@ public class Alerters implements Closeable {
 	}
 
 	private Future<?> execute(final Runnable runnable) {
-		return executor.submit(new Runnable() {
-			@Override
-			public void run() {
-				logger.debug("Thread started");
-				try {
-					runnable.run();
-				} catch (RuntimeInterruptedException e) {
-					logger.info("Thread interrupted");
-				} catch (RuntimeException e) {
-					logger.catching(e);
-				}
-				logger.debug("Thread complete");
+		if (executor.isShutdown()) throw new RuntimeInterruptedException("Executor is shut down");
+		return executor.submit(() -> {
+			logger.debug("Thread started");
+			try {
+				runnable.run();
+			} catch (RuntimeInterruptedException e) {
+				logger.info("Thread interrupted");
+			} catch (RuntimeException e) {
+				logger.catching(e);
 			}
+			logger.debug("Thread complete");
 		});
 	}
 
@@ -188,8 +167,10 @@ public class Alerters implements Closeable {
 		try {
 			future.get();
 		} catch (InterruptedException e) {
+			logger.throwing(Level.DEBUG, e);
 			throw new RuntimeInterruptedException(e);
 		} catch (ExecutionException e) {
+			logger.throwing(Level.DEBUG, e);
 			throw new RuntimeException(e.getCause());
 		}
 	}
@@ -202,6 +183,7 @@ public class Alerters implements Closeable {
 			else logger.debug("Threads shut down successfully");
 			return complete;
 		} catch (InterruptedException e) {
+			logger.throwing(Level.DEBUG, e);
 			throw new RuntimeInterruptedException(e);
 		}
 	}

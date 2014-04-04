@@ -1,5 +1,6 @@
 package ceri.common.log;
 
+import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.io.ByteArrayInputStream;
@@ -13,7 +14,7 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldPrintToString() {
 		String s = new BinaryPrinter().toString();
-		assertThat(s, is("BinaryPrinter(PrintStream,8,1,true,true,true)"));
+		assertThat(s, matchesRegex("BinaryPrinter\\(\\w+Stream,8,1,true,true,true\\)"));
 	}
 
 	@Test

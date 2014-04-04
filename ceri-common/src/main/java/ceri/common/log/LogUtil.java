@@ -1,7 +1,6 @@
 package ceri.common.log;
 
 import java.util.regex.Pattern;
-import ceri.common.reflect.ReflectUtil;
 
 /**
  * Utility methods to assist with logging.
@@ -10,6 +9,30 @@ public class LogUtil {
 	static final Pattern SPACE_REGEX = Pattern.compile("\\s+");
 
 	private LogUtil() {}
+
+	/**
+	 * Interface used with toString to lazily generate a string.
+	 */
+	public static interface ToLazyString {
+		String toLazyString() throws Exception;
+	}
+
+	/**
+	 * Returns an object whose toString() executes the given object's toString() method.
+	 * Convenient for use with lambda notation.
+	 */
+	public static Object toString(final ToLazyString toLazyString) {
+		return new Object() {
+			@Override
+			public String toString() {
+				try {
+					return toLazyString.toLazyString();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		};
+	}
 
 	/**
 	 * Returns an object whose toString() returns the hex string of the given integer value.
@@ -36,22 +59,4 @@ public class LogUtil {
 		};
 	}
 
-	/**
-	 * Returns an object with a toString() that returns the caller's method name. Useful for log4j2
-	 * logging (delayed toString formatting) such as <code>
-	 * logger.info("Method: {}", method());
-	 * </code>
-	 */
-	public static Object method() {
-		return new Object() {
-			@Override
-			public String toString() {
-				return ReflectUtil.previousMethodName(4);
-			}
-		};
-	}
-
-	public static void main(String[] args) {
-		System.out.println(method());
-	}
 }
