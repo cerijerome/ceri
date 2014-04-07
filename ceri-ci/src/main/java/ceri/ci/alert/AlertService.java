@@ -101,34 +101,22 @@ public class AlertService implements Closeable {
 		}
 	}
 
-	public void fixed(String build, String job, String... names) {
-		fixed(build, job, Arrays.asList(names));
+	public Event fixed(String build, String job, String... names) {
+		return fixed(build, job, Arrays.asList(names));
 	}
 
-	public void fixed(String build, String job, Collection<String> names) {
+	public Event fixed(String build, String job, Collection<String> names) {
 		logger.debug("fixed: {}, {}, {}", build, job, names);
-		lock.lock();
-		try {
-			builds.build(build).job(job).event(Event.fixed(names));
-			signal();
-		} finally {
-			lock.unlock();
-		}
+		return event(build, job, Event.fixed(names));
 	}
 
-	public void broken(String build, String job, String... names) {
-		broken(build, job, Arrays.asList(names));
+	public Event broken(String build, String job, String... names) {
+		return broken(build, job, Arrays.asList(names));
 	}
 
-	public void broken(String build, String job, Collection<String> names) {
+	public Event broken(String build, String job, Collection<String> names) {
 		logger.debug("broken: {}, {}, {}", build, job, names);
-		lock.lock();
-		try {
-			builds.build(build).job(job).event(Event.broken(names));
-			signal();
-		} finally {
-			lock.unlock();
-		}
+		return event(build, job, Event.broken(names));
 	}
 
 	@Override
@@ -154,6 +142,17 @@ public class AlertService implements Closeable {
 			logger.catching(e);
 		} finally {
 			logger.info("Service thread stopped");
+		}
+	}
+
+	private Event event(String build, String job, Event event) {
+		lock.lock();
+		try {
+			builds.build(build).job(job).event(event);
+			signal();
+			return event;
+		} finally {
+			lock.unlock();
 		}
 	}
 

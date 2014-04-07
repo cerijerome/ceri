@@ -17,6 +17,9 @@ import ceri.ci.build.BuildsBehavior;
 import ceri.ci.build.EventBehavior;
 import ceri.ci.build.EventComparatorsTest;
 import ceri.ci.build.JobBehavior;
+import ceri.ci.proxy.MultiProxyBehavior;
+import ceri.ci.proxy.MultiProxyPropertiesBehavior;
+import ceri.ci.web.WebAlerterBehavior;
 import ceri.ci.web.WebAlerterPropertiesBehavior;
 import ceri.ci.x10.X10AlerterBehavior;
 import ceri.ci.x10.X10AlerterPropertiesBehavior;
@@ -45,8 +48,12 @@ import ceri.common.test.TestUtil;
 	EventBehavior.class,
 	EventComparatorsTest.class,
 	JobBehavior.class,
-	// service
+	// proxy
+	MultiProxyBehavior.class,
+	MultiProxyPropertiesBehavior.class,
+	// servlet
 	// web
+	WebAlerterBehavior.class,
 	WebAlerterPropertiesBehavior.class,
 	// x10
 	X10AlerterBehavior.class,
