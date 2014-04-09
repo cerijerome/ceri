@@ -1,9 +1,9 @@
 package ceri.ci.email;
 
-import ceri.ci.build.Event;
+import ceri.ci.build.BuildEvent;
 
 public interface EmailEventMatcher {
 
-	Event getEvent(Email email);
+	BuildEvent getEvent(Email email);
 	
 }

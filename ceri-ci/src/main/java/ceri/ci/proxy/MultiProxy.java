@@ -5,17 +5,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Executors;
-import org.apache.http.HttpEntity;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.http.HttpStatus;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.ee.HttpUtil;
 import ceri.common.ee.LoggingExecutor;
 
 public class MultiProxy implements Closeable {
@@ -55,19 +50,14 @@ public class MultiProxy implements Closeable {
 	}
 
 	private void proxy(CloseableHttpClient client, String target, String uri) {
-		HttpGet httpGet = new HttpGet("http://" + target + "/" + uri);
-		logger.debug("Request start: {}", httpGet.getURI());
-		try (CloseableHttpResponse response = client.execute(httpGet)) {
-			StatusLine statusLine = response.getStatusLine();
-			if (statusLine.getStatusCode() != HttpStatus.OK_200) throw new IOException(statusLine
-				.toString());
-			HttpEntity entity = response.getEntity();
-			//logger.debug("Response: {}", LogUtil.toString(() -> EntityUtils.toString(entity)));
-			EntityUtils.consume(entity);
+		String url = "http://" + target + "/" + uri;
+		logger.debug("Request start: {}", url);
+		try {
+			HttpUtil.httpGetString(client, url);
 		} catch (IOException e) {
 			logger.catching(e);
 		}
-		logger.debug("Request complete: {}", httpGet.getURI());
+		logger.debug("Request complete: {}", url);
 	}
 
 }

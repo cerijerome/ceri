@@ -16,7 +16,7 @@ import javax.mail.search.ComparisonTerm;
 import javax.mail.search.SentDateTerm;
 import ceri.common.util.ToStringHelper;
 
-public class EmailFetcher {
+public class EmailRetriever {
 	private final String protocol;
 	private final String host;
 	private final int port;
@@ -61,8 +61,8 @@ public class EmailFetcher {
 			return this;
 		}
 
-		public EmailFetcher build() {
-			return new EmailFetcher(this);
+		public EmailRetriever build() {
+			return new EmailRetriever(this);
 		}
 	}
 
@@ -70,7 +70,7 @@ public class EmailFetcher {
 		return new Builder(host, name, password);
 	}
 
-	EmailFetcher(Builder builder) {
+	EmailRetriever(Builder builder) {
 		protocol = builder.protocol;
 		host = builder.host;
 		port = builder.port;
