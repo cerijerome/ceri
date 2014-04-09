@@ -21,6 +21,11 @@
 		<fluent-hc.version>4.3.1</fluent-hc.version>
 		<mockito.version>1.9.5</mockito.version>
 		<junit.version>4.11</junit.version>
+		<servlet-api.version>3.1.0</servlet-api.version>
+		<jsp-api.version>2.3.1</jsp-api.version>
+		<geronimo.servlet.version>1.0</geronimo.servlet.version>
+		<geronimo.jsp.version>1.2</geronimo.jsp.version>
+		<mail-api.version>1.5.1</mail-api.version>
 	</properties>
 
 	<dependencies>
@@ -94,25 +99,35 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
-			<version>3.1.0</version>
+			<version>${servlet-api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet.jsp</groupId>
 			<artifactId>javax.servlet.jsp-api</artifactId>
-			<version>2.3.1</version>
+			<version>${jsp-api.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.geronimo.specs</groupId>
 			<artifactId>geronimo-servlet_3.0_spec</artifactId>
-			<version>1.0</version>
+			<version>${geronimo.servlet.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.geronimo.specs</groupId>
 			<artifactId>geronimo-jsp_2.2_spec</artifactId>
-			<version>1.2</version>
+			<version>${geronimo.jsp.version}</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>javax.mail-api</artifactId>
+			<version>${mail-api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
+			<version>${mail-api.version}</version>
 		</dependency>
 	</dependencies>
 

@@ -58,8 +58,7 @@ public class MasterMold implements Closeable {
 		audio = new Audio(properties);
 		web = new Web(properties);
 		AlertServiceProperties alertProperties = new AlertServiceProperties(properties, "alert");
-		alerters =
-			createAlerters(x10.alerter, zwave.alerter, audio.alerter, web.alerter, alertProperties);
+		alerters = createAlerters(x10.alerter, zwave.alerter, audio.alerter, web.alerter);
 		alertService = createAlertService(alerters, alertProperties);
 		proxy = new Proxy(properties);
 	}
@@ -76,23 +75,22 @@ public class MasterMold implements Closeable {
 	public MultiProxy proxy() {
 		return proxy.multi;
 	}
-	
+
 	public AlertService alertService() {
 		return alertService;
 	}
-	
+
 	public WebAlerter webService() {
 		return web.alerter;
 	}
-	
+
 	private AlertService createAlertService(Alerters alerters, AlertServiceProperties properties) {
 		return new AlertService(alerters, properties.reminderMs());
 	}
 
 	private Alerters createAlerters(X10Alerter x10, ZWaveAlerter zwave, AudioAlerter audio,
-		WebAlerter web, AlertServiceProperties properties) {
-		return Alerters.builder().x10(x10).zwave(zwave).web(web).audio(audio).timeoutMs(
-			properties.timeoutMs()).build();
+		WebAlerter web) {
+		return Alerters.builder().x10(x10).zwave(zwave).web(web).audio(audio).build();
 	}
 
 }

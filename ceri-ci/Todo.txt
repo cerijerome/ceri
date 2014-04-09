@@ -1,6 +1,7 @@
 To do
 =====
 
+Theme tune for people events
 Fix audio 'and' for missing files
 Fix styling for item <p>
 Placeholder image for no items

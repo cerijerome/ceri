@@ -35,8 +35,11 @@ Set up a repo
 Set up repo on github.com
 $ git init
 $ git remote add origin <https|ssh>
+$ git config --system http.sslcainfo "C:\Program Files (x86)\git\bin\curl-ca-bundle.crt" (windows)
 $ git pull origin master => pull from remote
 $ git push origin master => push to remote
+$ git fetch origin => pulls data but doesn't merge it
+$ git remote show origin => see info about remote
 
 
 General actions
@@ -61,7 +64,8 @@ Master = pointer to latest commit
 HEAD = current branch pointer
 $ git branch <branch-name> => create a branch
 $ git checkout <branch-name|master> => repoint HEAD, change working dir contents
-
-
+$ git tag -a <version> -m <comment> => create tag
+$ git push --tags => push tags to github
+$ git merge <branch> => merge branch to current branch
 
 

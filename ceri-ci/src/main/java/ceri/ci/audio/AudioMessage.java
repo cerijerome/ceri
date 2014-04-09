@@ -4,26 +4,22 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.log.LogUtil;
 
 public class AudioMessage {
+	private static final Logger logger = LogManager.getLogger();
 	private static final String AUDIO_FILE_SUFFIX = ".wav";
 	private final File soundDir;
 	private final float pitch;
 	private final AudioPlayer player;
 
-	public static void main(String[] args) throws Exception {
-		File dir = new File("src/main/resources/ceri/ci/audio/en-us/lauren/");
-		System.out.println(dir.getAbsolutePath());
-		Audio.create(new File(dir, "_eas.wav")).play();
-		Audio.create(new File(dir, "gimp.wav")).play();
-		Audio.create(new File(dir, "_eas.wav")).play();
-	}
-	
 	public AudioMessage(AudioPlayer player, File soundDir) {
 		this(player, soundDir, Audio.NORMAL_PITCH);
 	}
-	
+
 	public AudioMessage(AudioPlayer player, File soundDir, float pitch) {
 		this.player = player;
 		this.soundDir = soundDir;
@@ -34,7 +30,6 @@ public class AudioMessage {
 	 * Plays alarm sound.
 	 */
 	public void playAlarm() throws IOException {
-		//Audio audio = clipAudio(Clip.red_alert).clip(0, 256);
 		Audio audio = clipAudio(Clip.eas);
 		play(audio);
 	}
@@ -111,11 +106,16 @@ public class AudioMessage {
 
 	private void play(String key) throws IOException {
 		File file = audioFile(key);
-		if (!file.exists()) return;
+		if (!file.exists()) {
+			logger.warn("No sound file for {}", key);
+			return;
+		}
+		logger.debug("Speech: {}", key);
 		play(Audio.create(file));
 	}
 
 	private void play(Clip clip) throws IOException {
+		logger.debug("Speech: {}", LogUtil.toString(() -> clip.name()));
 		play(clipAudio(clip));
 	}
 
@@ -123,9 +123,9 @@ public class AudioMessage {
 		ConcurrentUtil.checkRuntimeInterrupted();
 		player.play(audio.changePitch(pitch));
 	}
-	
+
 	private Audio clipAudio(Clip clip) throws IOException {
 		return Audio.create(new File(soundDir, clip.filename));
 	}
-	
+
 }
