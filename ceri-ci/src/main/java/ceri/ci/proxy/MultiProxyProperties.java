@@ -12,7 +12,7 @@ public class MultiProxyProperties extends BaseProperties {
 	private static final int THREADS_DEF = 10;
 	private static final Collection<String> TARGETS_DEF = Collections.singleton("localhost");
 
-	public MultiProxyProperties(Properties properties, String prefix) {
+	public MultiProxyProperties(Properties properties, String...prefix) {
 		super(properties, prefix);
 	}
 

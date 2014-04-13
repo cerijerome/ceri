@@ -22,6 +22,20 @@ public class BasePropertiesBehavior {
 	}
 
 	@Test
+	public void shouldAllowNullPrefix() {
+		BaseProperties bp = new BaseProperties(properties, new String[] { null }) {};
+		assertThat(bp.value("a"), is("A"));
+		bp = new BaseProperties(properties, (String[]) null) {};
+		assertThat(bp.value("a"), is("A"));
+		bp = new BaseProperties(properties, null, null) {};
+		assertThat(bp.value("a"), is("A"));
+		bp = new BaseProperties(properties, "a", null) {};
+		assertThat(bp.value("b"), is("AB"));
+		bp = new BaseProperties(properties, null, "a") {};
+		assertThat(bp.value("b"), is("AB"));
+	}
+
+	@Test
 	public void shouldOnlyReadPrefixedProperties() {
 		BaseProperties bp = new BaseProperties(properties, "a") {};
 		assertThat(bp.key("b.c"), is("a.b.c"));
@@ -38,7 +52,7 @@ public class BasePropertiesBehavior {
 
 	@Test
 	public void shouldReturnDefaultValuesForMissingProperties() {
-		BaseProperties bp = new BaseProperties(properties, null) {};
+		BaseProperties bp = new BaseProperties(properties) {};
 		assertThat(bp.booleanValue(true, "xx"), is(true));
 		assertThat(bp.charValue('x', "xx"), is('x'));
 		assertThat(bp.stringValue("x", "xx"), is("x"));
@@ -52,51 +66,51 @@ public class BasePropertiesBehavior {
 
 	@Test
 	public void shouldReadBooleanValuesAsFalseForUnparseableStrings() {
-		BaseProperties bp = new BaseProperties(properties, null) {};
+		BaseProperties bp = new BaseProperties(properties) {};
 		assertFalse(bp.booleanValue("a.b"));
 		assertFalse(bp.booleanValue("a.b.c"));
 	}
-	
+
 	@Test
 	public void shouldReadCharValuesAsFirstCharInString() {
-		BaseProperties bp = new BaseProperties(properties, null) {};
+		BaseProperties bp = new BaseProperties(properties) {};
 		assertThat(bp.charValue("a.b"), is('A'));
 		assertThat(bp.charValue("a.b.c"), is('3'));
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionForUnparseableByte() {
-		BaseProperties bp = new BaseProperties(properties, null) {};
+		BaseProperties bp = new BaseProperties(properties) {};
 		bp.byteValue("x");
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionForUnparseableShort() {
-		BaseProperties bp = new BaseProperties(properties, null) {};
+		BaseProperties bp = new BaseProperties(properties) {};
 		bp.shortValue("x");
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionForUnparseableInt() {
-		BaseProperties bp = new BaseProperties(properties, null) {};
+		BaseProperties bp = new BaseProperties(properties) {};
 		bp.intValue("x");
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionForUnparseableLong() {
-		BaseProperties bp = new BaseProperties(properties, null) {};
+		BaseProperties bp = new BaseProperties(properties) {};
 		bp.longValue("x");
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionForUnparseableFloat() {
-		BaseProperties bp = new BaseProperties(properties, null) {};
+		BaseProperties bp = new BaseProperties(properties) {};
 		bp.floatValue("x");
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionForUnparseableDouble() {
-		BaseProperties bp = new BaseProperties(properties, null) {};
+		BaseProperties bp = new BaseProperties(properties) {};
 		bp.doubleValue("x");
 	}
 

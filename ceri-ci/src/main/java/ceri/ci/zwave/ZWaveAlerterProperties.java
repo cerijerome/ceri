@@ -11,7 +11,7 @@ public class ZWaveAlerterProperties extends BaseProperties {
 	private static final String HOST_KEY = "host";
 	private static final String DEVICE_KEY = "device";
 
-	public ZWaveAlerterProperties(Properties properties, String prefix) {
+	public ZWaveAlerterProperties(Properties properties, String...prefix) {
 		super(properties, prefix);
 	}
 

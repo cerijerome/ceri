@@ -32,7 +32,7 @@ import ceri.common.test.TestUtil;
 	MasterMoldBehavior.class,
 	// alert
 	AlertersBehavior.class,
-	AlertServiceBehavior.class,
+	//AlertServiceBehavior.class,
 	AlertServicePropertiesBehavior.class,
 	// audio
 	AudioAlerterBehavior.class,

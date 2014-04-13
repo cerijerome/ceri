@@ -15,8 +15,8 @@ public abstract class BaseProperties {
 	private final String prefix;
 	private final Properties properties;
 
-	protected BaseProperties(Properties properties, String prefix) {
-		this.prefix = prefix;
+	protected BaseProperties(Properties properties, String...prefix) {
+		this.prefix = Key.createWithPrefix(null, prefix).value;
 		this.properties = properties;
 	}
 

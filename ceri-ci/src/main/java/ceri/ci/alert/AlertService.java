@@ -12,14 +12,16 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ci.build.Build;
+import ceri.ci.build.BuildEvent;
+import ceri.ci.build.BuildEventProcessor;
 import ceri.ci.build.Builds;
-import ceri.ci.build.Event;
 import ceri.ci.build.Job;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.io.IoUtil;
 import ceri.common.log.LogUtil;
 
-public class AlertService implements Closeable {
+public class AlertService implements Closeable, BuildEventProcessor {
 	private static final Logger logger = LogManager.getLogger();
 	private final Alerters alerters;
 	private final long reminderMs;
@@ -101,28 +103,28 @@ public class AlertService implements Closeable {
 		}
 	}
 
-	public Event fixed(String build, String job, String... names) {
-		return fixed(build, job, Arrays.asList(names));
+	public void process(BuildEvent...events) {
+		process(Arrays.asList(events));
 	}
-
-	public Event fixed(String build, String job, Collection<String> names) {
-		logger.debug("fixed: {}, {}, {}", build, job, names);
-		return event(build, job, Event.fixed(names));
+	
+	@Override
+	public void process(Collection<BuildEvent> events) {
+		lock.lock();
+		try {
+			for (BuildEvent event : events) {
+				builds.build(event.build).job(event.job).event(event.event);
+			}
+			signal();
+		} finally {
+			lock.unlock();
+		}
 	}
-
-	public Event broken(String build, String job, String... names) {
-		return broken(build, job, Arrays.asList(names));
-	}
-
-	public Event broken(String build, String job, Collection<String> names) {
-		logger.debug("broken: {}, {}, {}", build, job, names);
-		return event(build, job, Event.broken(names));
-	}
-
+	
 	@Override
 	public void close() throws IOException {
-		logger.debug("close");
+		logger.info("Closing");
 		thread.interrupt();
+		IoUtil.close(alerters);
 		try {
 			logger.debug("joining...");
 			thread.join();
@@ -145,17 +147,6 @@ public class AlertService implements Closeable {
 		}
 	}
 
-	private Event event(String build, String job, Event event) {
-		lock.lock();
-		try {
-			builds.build(build).job(job).event(event);
-			signal();
-			return event;
-		} finally {
-			lock.unlock();
-		}
-	}
-
 	/**
 	 * Waits for builds to change with given millisecond timeout. If a clear was called then builds
 	 * will be empty. Null is returned if the wait timeout expires.
@@ -169,18 +160,17 @@ public class AlertService implements Closeable {
 				else if (!condition.await(ms, TimeUnit.MILLISECONDS)) return null;
 			}
 			buildsChanged = false;
-			logger.info("-------------------- buildsChanged = false");
-			//logger.info("{}", builds);
 			return new Builds(builds);
 		} finally {
 			lock.unlock();
 		}
 	}
 
+	/**
+	 * Must be called within a lock block.
+	 */
 	private void signal() {
 		buildsChanged = true;
-		logger.info("++++++++++++++++++++ buildsChanged = true");
-		//logger.info("{}", builds);
 		condition.signal();
 	}
 

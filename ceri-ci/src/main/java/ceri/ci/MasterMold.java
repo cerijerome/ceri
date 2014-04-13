@@ -2,7 +2,6 @@ package ceri.ci;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,6 +9,8 @@ import ceri.ci.alert.AlertService;
 import ceri.ci.alert.AlertServiceProperties;
 import ceri.ci.alert.Alerters;
 import ceri.ci.audio.AudioAlerter;
+import ceri.ci.build.BuildEvent;
+import ceri.ci.build.Event;
 import ceri.ci.proxy.MultiProxy;
 import ceri.ci.web.WebAlerter;
 import ceri.ci.x10.X10Alerter;
@@ -23,27 +24,32 @@ import ceri.common.util.BasicUtil;
  */
 public class MasterMold implements Closeable {
 	private final Logger logger = LogManager.getLogger();
+	private final MasterSlave masterSlave;
 	private final X10 x10;
 	private final ZWave zwave;
 	private final Audio audio;
 	private final Web web;
 	private final Alerters alerters;
 	private final AlertService alertService;
+	private final Email email;
 	private final Proxy proxy;
 
 	public static void main(String[] args) throws IOException {
 		try (MasterMold masterMold = new MasterMold()) {
 			@SuppressWarnings("resource")
 			AlertService service = masterMold.alertService();
-			service.broken("bolt", "smoke", Arrays.asList("cdehaudt"));
+			BuildEvent event0 = new BuildEvent("bolt", "smoke", Event.broken("cdehaudt"));
+			service.process(event0);
 			BasicUtil.delay(10000);
-			service.fixed("bolt", "smoke", Arrays.asList("cdehaudt"));
-			service.broken("bolt", "regression", Arrays.asList("machung"));
+			BuildEvent event1 = new BuildEvent("bolt", "smoke", Event.fixed("cdehaudt"));
+			BuildEvent event2 = new BuildEvent("bolt", "regression", Event.broken("machung"));
+			service.process(event1, event2);
 			BasicUtil.delay(10000);
-			service.broken("bolt", "smoke", Arrays.asList("dxie"));
+			BuildEvent event3 = new BuildEvent("bolt", "smoke", Event.fixed("dxie"));
+			service.process(event3);
 			BasicUtil.delay(10000);
-			service.broken("bolt", "smoke", Arrays.asList("fuzhong", "cjerome"));
-			BasicUtil.delay(1000);
+			//			service.broken("bolt", "smoke", Arrays.asList("fuzhong", "cjerome"));
+			BasicUtil.delay(10000);
 		}
 	}
 
@@ -53,21 +59,25 @@ public class MasterMold implements Closeable {
 
 	public MasterMold(Properties properties) throws IOException {
 		logger.debug(properties);
-		x10 = new X10(properties);
-		zwave = new ZWave(properties);
-		audio = new Audio(properties);
-		web = new Web(properties);
-		AlertServiceProperties alertProperties = new AlertServiceProperties(properties, "alert");
+		masterSlave = MasterSlave.createFromEnv();
+		String prefix = masterSlave.name;
+		x10 = new X10(properties, prefix);
+		zwave = new ZWave(properties, prefix);
+		audio = new Audio(properties, prefix);
+		web = new Web(properties, prefix);
+		AlertServiceProperties alertProperties =
+			new AlertServiceProperties(properties, prefix, "alert");
 		alerters = createAlerters(x10.alerter, zwave.alerter, audio.alerter, web.alerter);
 		alertService = createAlertService(alerters, alertProperties);
-		proxy = new Proxy(properties);
+		email = new Email(alertService, properties, prefix);
+		proxy = new Proxy(properties, prefix);
 	}
 
 	@Override
 	public void close() throws IOException {
-		logger.info("Closing alerters");
+		logger.info("Closing");
+		if (email != null) IoUtil.close(email);
 		if (alerters != null) IoUtil.close(alerters);
-		logger.info("Closing alertService");
 		if (alertService != null) IoUtil.close(alertService);
 		x10.close();
 	}

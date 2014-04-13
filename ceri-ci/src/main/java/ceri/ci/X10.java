@@ -26,8 +26,8 @@ public class X10 implements Closeable {
 	private final X10Controller controller;
 	public final X10Alerter alerter;
 
-	public X10(Properties properties) throws IOException {
-		X10AlerterProperties x10Properties = new X10AlerterProperties(properties, "x10");
+	public X10(Properties properties, String prefix) throws IOException {
+		X10AlerterProperties x10Properties = new X10AlerterProperties(properties, prefix, "x10");
 		if (!x10Properties.enabled()) {
 			connector = null;
 			controller = null;
@@ -47,10 +47,14 @@ public class X10 implements Closeable {
 
 	@Override
 	public void close() throws IOException {
-		logger.info("Closing x10Controller");
-		if (controller != null) IoUtil.close(controller);
-		logger.info("Closing x10Connector");
-		if (connector != null) IoUtil.close(connector);
+		if (controller != null) {
+			logger.info("Closing x10Controller");
+			IoUtil.close(controller);
+		}
+		if (connector != null) {
+			logger.info("Closing x10Connector");
+			IoUtil.close(connector);
+		}
 	}
 
 	private X10Alerter createAlerter(X10Controller controller, X10AlerterProperties properties) {

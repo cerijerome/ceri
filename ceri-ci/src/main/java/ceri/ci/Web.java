@@ -10,13 +10,12 @@ import ceri.ci.web.WebAlerterProperties;
 public class Web {
 	public final WebAlerter alerter;
 
-	public Web(Properties properties) {
-		WebAlerterProperties webProperties = new WebAlerterProperties(properties, "web");
+	public Web(Properties properties, String prefix) {
+		WebAlerterProperties webProperties = new WebAlerterProperties(properties, prefix, "web");
 		if (!webProperties.enabled()) {
 			alerter = null;
 		} else {
 			alerter = new WebAlerter();
 		}
 	}
-
 }

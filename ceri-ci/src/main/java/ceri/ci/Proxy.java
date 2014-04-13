@@ -10,8 +10,9 @@ import ceri.ci.proxy.MultiProxyProperties;
 public class Proxy {
 	public final MultiProxy multi;
 
-	public Proxy(Properties properties) {
-		MultiProxyProperties proxyProperties = new MultiProxyProperties(properties, "proxy");
+	public Proxy(Properties properties, String prefix) {
+		MultiProxyProperties proxyProperties =
+			new MultiProxyProperties(properties, prefix, "proxy");
 		if (!proxyProperties.enabled()) {
 			multi = null;
 		} else {

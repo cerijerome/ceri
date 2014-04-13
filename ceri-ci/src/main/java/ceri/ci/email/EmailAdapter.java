@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ci.build.BuildEvent;
+import ceri.ci.build.BuildEventProcessor;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.ee.ExecutorUtil;
 
@@ -80,24 +81,22 @@ public class EmailAdapter implements Closeable {
 	private void run() {
 		try {
 			Collection<Email> emails = retriever.fetch();
-			for (Email email : emails) {
-				for (EmailEventMatcher matcher : matchers) {
-					BuildEvent event = matcher.getEvent(email);
-					if (event == null) continue;
-					process(event);
-				}
+			Collection<BuildEvent> events = createEvents(emails);
+			processor.process(events);
+		} catch (IOException e) {
+			logger.catching(e);
+		}
+	}
+
+	private Collection<BuildEvent> createEvents(Collection<Email> emails) {
+		List<BuildEvent> events = new ArrayList<>();
+		for (Email email : emails) {
+			for (EmailEventMatcher matcher : matchers) {
+				BuildEvent event = matcher.getEvent(email);
+				if (event != null) events.add(event);
 			}
-		} catch (IOException e) {
-			logger.catching(e);
 		}
+		return events;
 	}
-
-	private void process(BuildEvent event) {
-		try {
-			processor.process(event);
-		} catch (IOException e) {
-			logger.catching(e);
-		}
-	}
-
+	
 }

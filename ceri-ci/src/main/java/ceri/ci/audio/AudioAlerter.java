@@ -22,6 +22,14 @@ public class AudioAlerter {
 	}
 
 	/**
+	 * Interrupts AudioMessage processing. This is needed as InterruptedExceptions thrown 
+	 * after a thread.interrupt() are swallowed by audio library code.
+	 */
+	public void interrupt() {
+		message.interrupt();
+	}
+	
+	/**
 	 * For each build, check which jobs are just broken, still broken and just
 	 * fixed. Gives an audio message for each of these cases.
 	 */

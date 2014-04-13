@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import ceri.ci.alert.AlertService;
+import ceri.ci.build.BuildEvent;
+import ceri.ci.build.Event;
 import ceri.common.util.StringUtil;
 
 
@@ -71,10 +73,10 @@ public class AlertServlet extends HttpServlet {
 			service.clear(params.build, params.job);
 			break;
 		case broken:
-			service.broken(params.build, params.job, params.names);
+			service.process(new BuildEvent(params.build, params.job, Event.broken(params.names)));
 			break;
 		case fixed:
-			service.fixed(params.build, params.job, params.names);
+			service.process(new BuildEvent(params.build, params.job, Event.fixed(params.names)));
 			break;
 		}
 		if (params.build == null) return service.builds();

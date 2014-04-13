@@ -7,7 +7,7 @@ public class ClipBehavior {
 
 	@Test
 	public void shouldLoadDataForEachClip() {
-		for (Clip clip : Clip.values()) {
+		for (AudioPhrase clip : AudioPhrase.values()) {
 			assertNotNull(clip.filename);
 		}
 	}

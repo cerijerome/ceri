@@ -8,7 +8,7 @@ public class AlertServiceProperties extends BaseProperties {
 	private static final long REMINDER_MS_DEF = TimeUnit.MINUTES.toMillis(15);
 	private static final String REMINDER_MS_KEY = "reminder.ms";
 
-	public AlertServiceProperties(Properties properties, String prefix) {
+	public AlertServiceProperties(Properties properties, String...prefix) {
 		super(properties, prefix);
 	}
 

@@ -8,6 +8,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ci.MasterMold;
+import ceri.ci.build.BuildEvent;
+import ceri.ci.build.Event;
 
 @WebServlet(loadOnStartup = 1, urlPatterns = { "" })
 public class InitServlet extends HttpServlet {
@@ -20,14 +22,16 @@ public class InitServlet extends HttpServlet {
 		try {
 			logger.info("Creating MasterMold");
 			masterMold = new MasterMold();
-			masterMold.alertService().broken("bolt", "smoke", "cjerome");
-			//masterMold.alertService().fixed("bolt", "smoke", "cjerome");
-			masterMold.alertService().broken("bolt", "integration", "shuochen","tantony");
-			masterMold.alertService().broken("bolt", "regression", "sseamon","tantony");
-			masterMold.alertService().broken("mweb", "regression", "punpal");
 			add(masterMold.alertService());
 			add(masterMold.webService());
 			add(masterMold.proxy());
+			// Fake events -----------------
+			BuildEvent ev0 = new BuildEvent("bolt", "smoke", Event.broken("cjerome"));
+			//BuildEvent ev1 = new BuildEvent("bolt", "smoke", Event.fixed("cjerome"));
+			BuildEvent ev2 = new BuildEvent("bolt", "integration", Event.broken("shuochen","tantony"));
+			BuildEvent ev3 = new BuildEvent("bolt", "regression", Event.broken("sseamon","tantony"));
+			BuildEvent ev4 = new BuildEvent("mweb", "regression", Event.broken("punpal"));
+			masterMold.alertService().process(ev0, ev2, ev3, ev4);
 		} catch (Exception e) {
 			throw new ServletException("Failed to initialize", e);
 		}

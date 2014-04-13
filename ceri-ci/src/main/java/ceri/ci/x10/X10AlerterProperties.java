@@ -14,7 +14,7 @@ public class X10AlerterProperties extends BaseProperties {
 	private static final String CONTROLLER_KEY = "controller";
 	private static final String ADDRESS_KEY = "address";
 
-	public X10AlerterProperties(Properties properties, String prefix) {
+	public X10AlerterProperties(Properties properties, String...prefix) {
 		super(properties, prefix);
 	}
 

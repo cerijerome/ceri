@@ -7,6 +7,7 @@ import java.util.Collection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.log.LogUtil;
 
 public class AudioMessage {
@@ -15,6 +16,8 @@ public class AudioMessage {
 	private final File soundDir;
 	private final float pitch;
 	private final AudioPlayer player;
+	// Needed as audio library code swallows InterruptedExceptions
+	private volatile boolean interrupted = false;
 
 	public AudioMessage(AudioPlayer player, File soundDir) {
 		this(player, soundDir, Audio.NORMAL_PITCH);
@@ -26,12 +29,18 @@ public class AudioMessage {
 		this.pitch = pitch;
 	}
 
+	public void interrupt() {
+		interrupted = true;
+	}
+	
 	/**
-	 * Plays alarm sound.
+	 * Plays random alarm sound.
 	 */
 	public void playAlarm() throws IOException {
-		Audio audio = clipAudio(Clip.eas);
-		play(audio);
+		checkRuntimeInterrupted();
+		int index = (int)(Math.random() * AudioClip.values().length);
+		AudioClip clip = AudioClip.values()[index];
+		player.play(clip.load());
 	}
 
 	/**
@@ -40,9 +49,9 @@ public class AudioMessage {
 	public void playJustBroken(String build, String job, Collection<String> names)
 		throws IOException {
 		playBuildJob(build, job);
-		play(Clip.has_just_been_broken);
+		play(AudioPhrase.has_just_been_broken);
 		if (audioExists(names)) {
-			play(Clip.by);
+			play(AudioPhrase.by);
 			playNames(names);
 		}
 	}
@@ -53,9 +62,9 @@ public class AudioMessage {
 	public void playStillBroken(String build, String job, Collection<String> names)
 		throws IOException {
 		playBuildJob(build, job);
-		play(Clip.is_still_broken);
+		play(AudioPhrase.is_still_broken);
 		playNames(names);
-		play(Clip.please_fix_it);
+		play(AudioPhrase.please_fix_it);
 	}
 
 	/**
@@ -64,20 +73,20 @@ public class AudioMessage {
 	public void playJustFixed(String build, String job, Collection<String> names)
 		throws IOException {
 		playBuildJob(build, job);
-		play(Clip.is_now_fixed);
+		play(AudioPhrase.is_now_fixed);
 		if (audioExists(names)) {
-			play(Clip.thanks_to);
+			play(AudioPhrase.thanks_to);
 			playNames(names);
-		} else play(Clip.thank_you);
+		} else play(AudioPhrase.thank_you);
 	}
 
 	private void playBuildJob(String build, String job) throws IOException {
 		if (!audioExists(build)) {
-			play(Clip.the_build);
+			play(AudioPhrase.the_build);
 			return;
 		}
 		play(build);
-		if (!audioExists(job)) play(Clip.job);
+		if (!audioExists(job)) play(AudioPhrase.job);
 		else play(job);
 	}
 
@@ -85,7 +94,7 @@ public class AudioMessage {
 		int i = names.size();
 		for (String name : names) {
 			play(name);
-			if (--i == 1) play(Clip.and);
+			if (--i == 1) play(AudioPhrase.and);
 		}
 	}
 
@@ -114,18 +123,26 @@ public class AudioMessage {
 		play(Audio.create(file));
 	}
 
-	private void play(Clip clip) throws IOException {
-		logger.debug("Speech: {}", LogUtil.toString(() -> clip.name()));
-		play(clipAudio(clip));
+	private void play(AudioPhrase phrase) throws IOException {
+		logger.debug("Speech: {}", LogUtil.toString(() -> phrase.name()));
+		play(loadPhrase(phrase));
 	}
 
 	private void play(Audio audio) throws IOException {
-		ConcurrentUtil.checkRuntimeInterrupted();
+		checkRuntimeInterrupted();
 		player.play(audio.changePitch(pitch));
 	}
 
-	private Audio clipAudio(Clip clip) throws IOException {
-		return Audio.create(new File(soundDir, clip.filename));
+	private Audio loadPhrase(AudioPhrase phrase) throws IOException {
+		return Audio.create(new File(soundDir, phrase.filename));
 	}
 
+	private void checkRuntimeInterrupted() {
+		ConcurrentUtil.checkRuntimeInterrupted();
+		if (interrupted) {
+			interrupted = false;
+			throw new RuntimeInterruptedException("Thread has been interrupted");
+		}
+	}
+	
 }

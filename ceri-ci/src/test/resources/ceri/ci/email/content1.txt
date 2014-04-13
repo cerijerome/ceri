@@ -1,0 +1,17 @@
+CONGRATULATIONS!!!!
+TAG:  NEW-BOLTCI-COMMIT-1105
+
+BoltCI-Commit - Build # 1105 - Successful:
+
+Check console output at http://10.9.210.66:8080/job/BoltCI-Commit/1105/ to view the results.
+
+###################
+Changes for Build #1105
+[tantony] CSS refactoring changes - search bar
+        rui/bolt-rui-webapp/src/main/webapp/scss/partials/main/_search.scss
+
+[ngarga] removing test text from html
+        rui/bolt-rui-webapp/src/main/webapp/WEB-INF/hbs/search/filters/controls/CategoryAttribute.html
+        rui/bolt-rui-webapp/src/main/webapp/scss/Gumtree/ZA/partials/pages/MyAdsPage/_thumbnail.scss
+        rui/bolt-rui-webapp/src/main/webapp/WEB-INF/hbs/my/Ads.html
+        rui/bolt-rui-webapp/src/main/webapp/WEB-INF/hbs/my/SellerBadge/ZA/SellerBadge.html

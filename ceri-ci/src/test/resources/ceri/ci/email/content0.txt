@@ -1,0 +1,18 @@
+CONGRATULATIONS!!!!
+TAG:  NEW-BOLTCI-COMMIT-1116
+
+BoltCI-Commit - Build # 1116 - Successful:
+
+Check console output at http://10.9.210.66:8080/job/BoltCI-Commit/1116/ to view the results.
+
+###################
+Changes for Build #1116
+[tnguyen1] bolt 8449 zk settings
+        shared/bolt-platform-shared-entity/src/main/java/com/ebay/ecg/bolt/platform/shared/entity/config/ConfigCountrySettings.java
+
+[tnguyen1] bolt 8449 zk settings
+        service/bolt-platform-service-country-impl/src/main/java/com/ebay/ecg/bolt/platform/service/country/impl/CountryServiceImpl.java
+        service/bolt-platform-service-country-impl/src/main/java/com/ebay/ecg/bolt/platform/shared/entity/country/CountrySettingsBuilder.java
+        shared/bolt-platform-shared-entity/src/main/java/com/ebay/ecg/bolt/platform/shared/entity/country/CountrySettings.java
+        rui/bolt-rui-webapp/src/main/java/com/ebay/ecg/bolt/rui/webapp/controller/page/post/PostAdPageController.java
+        shared/bolt-platform-shared-config-resources/src/main/resources/country/tree/MX/country_settings.json

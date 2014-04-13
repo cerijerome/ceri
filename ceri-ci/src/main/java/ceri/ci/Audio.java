@@ -14,8 +14,9 @@ import ceri.common.io.IoUtil;
 public class Audio {
 	public final AudioAlerter alerter;
 
-	public Audio(Properties properties) {
-		AudioAlerterProperties audioProperties = new AudioAlerterProperties(properties, "audio");
+	public Audio(Properties properties, String prefix) {
+		AudioAlerterProperties audioProperties =
+			new AudioAlerterProperties(properties, prefix, "audio");
 		if (!audioProperties.enabled()) {
 			alerter = null;
 		} else {

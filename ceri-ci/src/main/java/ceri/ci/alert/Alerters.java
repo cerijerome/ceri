@@ -128,6 +128,7 @@ public class Alerters implements Closeable {
 	@Override
 	public void close() throws IOException {
 		executor.close();
+		if (audio != null) audio.interrupt();
 	}
 
 }

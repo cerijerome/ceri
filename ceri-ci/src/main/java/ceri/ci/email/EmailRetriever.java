@@ -30,10 +30,10 @@ public class EmailRetriever {
 		String host;
 		String name;
 		String password;
-		String protocol = "imap";
+		String protocol = "imaps";
 		int port = -1; // Default port
-		String folder = null; // Default folder
-		long maxLookBackMs = TimeUnit.DAYS.toMillis(1); // Look back 1 day max
+		String folder = "inbox";
+		long maxLookBackMs = TimeUnit.HOURS.toMillis(24); // Look back max 24 hours
 
 		Builder(String host, String name, String password) {
 			this.host = host;
@@ -104,7 +104,8 @@ public class EmailRetriever {
 			Folder folder = openFolder(store);
 			Message[] messages = search(folder, minSentDate());
 			List<Email> emails = new ArrayList<>();
-			for (Message message : messages) emails.add(Email.createFrom(message));
+			for (Message message : messages)
+				emails.add(Email.createFrom(message));
 			return emails;
 		} finally {
 			if (store != null) store.close();

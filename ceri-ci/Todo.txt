@@ -1,15 +1,23 @@
 To do
 =====
 
-Theme tune for people events
+Add date to event from email
+Shutdown timeout ms for all join() etc
+Config for devices
+Make sure multiple successful events don't trigger alerts
+Balance volume levels for clips
+Multi event post with json
+Admin link page
 Fix audio 'and' for missing files
-Fix styling for item <p>
-Placeholder image for no items
 Find out why init servlet didn't remind for broken jobs
 Change timeout for zwave
-Finish jsps for web
-Email retriever
 Repeater for multiple locations (2 x SJC, 1 x CN)
+Master/slave config
+Move work-specific settings and code to new private project
+Startup scripts master/slave
 Save state and reload on restart
 Build purge on timer
+Fix styling for item <p>
+Placeholder image for no items
+Finish jsps for web
 

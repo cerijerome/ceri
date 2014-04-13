@@ -36,10 +36,10 @@ public class Key {
 	}
 
 	private static String createValue(Key prefix, String...parts) {
-		if (prefix != null && parts.length == 0) return prefix.value;
+		if (prefix != null && (parts == null || parts.length == 0)) return prefix.value;
 		StringBuilder b = new StringBuilder();
 		if (prefix != null && prefix != NULL) b.append(prefix);
-		for (String part : parts) {
+		if (parts != null) for (String part : parts) {
 			if (part == null || part.isEmpty()) continue;
 			if (b.length() > 0) b.append('.');
 			b.append(part);

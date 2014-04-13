@@ -15,8 +15,9 @@ public class ZWave {
 	private static final Logger logger = LogManager.getLogger();
 	public final ZWaveAlerter alerter;
 
-	public ZWave(Properties properties) {
-		ZWaveAlerterProperties zwaveProperties = new ZWaveAlerterProperties(properties, "zwave");
+	public ZWave(Properties properties, String prefix) {
+		ZWaveAlerterProperties zwaveProperties =
+			new ZWaveAlerterProperties(properties, prefix, "zwave");
 		if (!zwaveProperties.enabled()) {
 			alerter = null;
 		} else {

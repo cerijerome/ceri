@@ -9,7 +9,7 @@ public class AudioAlerterProperties extends BaseProperties {
 	private static final String PITCH_KEY = "pitch";
 	private static final String VOICE_KEY = "voice";
 
-	public AudioAlerterProperties(Properties properties, String prefix) {
+	public AudioAlerterProperties(Properties properties, String...prefix) {
 		super(properties, prefix);
 	}
 
