@@ -1,7 +1,6 @@
 package ceri.ci;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.Properties;
 import ceri.ci.build.BuildEventProcessor;
 import ceri.ci.email.BoltEmailMatcher;
@@ -24,7 +23,7 @@ public class Email implements Closeable {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		if (adapter != null) adapter.close();
 	}
 

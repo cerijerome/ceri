@@ -1,18 +1,18 @@
 To do
 =====
 
-Why does retriever bring all emails each time?
-Add date to event from email
-Shutdown timeout ms for all join() etc
-Config for devices
+Fix tests, add tests
 Make sure multiple successful events don't trigger alerts
-Multi event post with json
-Admin link page
 Fix audio 'and' for missing files
-Find out why init servlet didn't remind for broken jobs
-Change timeout for zwave
-Repeater for multiple locations (2 x SJC, 1 x CN)
+
+Combine AlertService and Alerters?
+Multi event post with json
+Add proxy to AlertService
 Master/slave config
+Repeater for multiple locations (2 x SJC, 1 x CN)
+
+Admin link page
+Change timeout for zwave
 Move work-specific settings and code to new private project
 Startup scripts master/slave
 Save state and reload on restart

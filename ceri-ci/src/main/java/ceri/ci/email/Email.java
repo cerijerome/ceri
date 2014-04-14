@@ -17,7 +17,7 @@ import ceri.common.util.ToStringHelper;
 public class Email {
 	public final Collection<String> recipients;
 	public final String from;
-	public final long sentDate;
+	public final long sentDateMs;
 	public final String subject;
 	public final String content;
 	private final int hashCode;
@@ -25,7 +25,7 @@ public class Email {
 	public static class Builder {
 		Collection<String> recipients = Collections.emptySet();
 		String from = null;
-		long sentDate = 0;
+		long sentDateMs = 0;
 		String subject = null;
 		String content = null;
 
@@ -41,8 +41,8 @@ public class Email {
 			return this;
 		}
 
-		public Builder sentDate(long sentDate) {
-			this.sentDate = sentDate;
+		public Builder sentDateMs(long sentDateMs) {
+			this.sentDateMs = sentDateMs;
 			return this;
 		}
 
@@ -68,10 +68,10 @@ public class Email {
 	Email(Builder builder) {
 		recipients = Collections.unmodifiableCollection(new TreeSet<>(builder.recipients));
 		from = builder.from;
-		sentDate = builder.sentDate;
+		sentDateMs = builder.sentDateMs;
 		subject = builder.subject;
 		content = builder.content;
-		hashCode = HashCoder.hash(recipients, from, sentDate, subject, content);
+		hashCode = HashCoder.hash(recipients, from, sentDateMs, subject, content);
 	}
 
 	public static Email createFrom(Message message) throws MessagingException, IOException {
@@ -79,7 +79,7 @@ public class Email {
 		b.recipients(EmailUtil.addressesFrom(message.getAllRecipients()));
 		b.from(EmailUtil.from(message.getFrom()));
 		b.subject(message.getSubject());
-		b.sentDate(message.getSentDate().getTime());
+		b.sentDateMs(message.getSentDate().getTime());
 		b.content(EmailUtil.content(message));
 		return b.build();
 	}
@@ -91,7 +91,7 @@ public class Email {
 		Email other = (Email) obj;
 		if (!EqualsUtil.equals(other.recipients, recipients)) return false;
 		if (!EqualsUtil.equals(other.from, from)) return false;
-		if (other.sentDate != sentDate) return false;
+		if (other.sentDateMs != sentDateMs) return false;
 		if (!EqualsUtil.equals(other.subject, subject)) return false;
 		return !EqualsUtil.equals(other.content, content);
 	}
@@ -103,8 +103,8 @@ public class Email {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, recipients, from, new Date(sentDate), subject)
-			.toString();
+		return ToStringHelper.createByClass(this, recipients, from, sentDateMs,
+			new Date(sentDateMs), subject).toString();
 	}
 
 }

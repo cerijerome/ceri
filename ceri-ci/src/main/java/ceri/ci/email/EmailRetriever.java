@@ -14,8 +14,10 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.search.ComparisonTerm;
 import javax.mail.search.SentDateTerm;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.util.BasicUtil;
 import ceri.common.util.ToStringHelper;
 
 public class EmailRetriever {
@@ -28,6 +30,18 @@ public class EmailRetriever {
 	private final String folder;
 	private final long maxLookBackMs;
 	private Email lastEmail = null;
+
+	public static void main(String[] args) throws IOException {
+		EmailRetriever ret =
+			builder("imap.gmail.com", "ecg.sjc.ci.alert@gmail.com", "ecgsjccialert").maxLookBackMs(
+				TimeUnit.DAYS.toMillis(5)).build();
+		while (true) {
+			Collection<Email> emails = ret.fetch();
+			for (Email email : emails) System.out.println(email);
+			System.out.println("----------------------------------------------");
+			BasicUtil.delay(20000);
+		}
+	}
 
 	public static class Builder {
 		String host;
@@ -100,21 +114,35 @@ public class EmailRetriever {
 		}
 	}
 
-	private List<Email> fetchEmail() throws MessagingException, IOException {
+	private List<Email> fetchEmail() throws MessagingException {
 		Store store = null;
 		try {
 			store = openStore();
 			Folder folder = openFolder(store);
-			Message[] messages = search(folder, minSentDate());
-			List<Email> emails = new ArrayList<>();
-			for (Message message : messages)
-				emails.add(Email.createFrom(message));
-			return emails;
+			Date minSentDate = minSentDate();
+			logger.debug("Fetching emails sent after {}", minSentDate);
+			Message[] messages = search(folder, minSentDate);
+			return createFromMessages(minSentDate, messages);
 		} finally {
 			if (store != null) store.close();
 		}
 	}
 
+	private List<Email> createFromMessages(Date minSentDate, Message...messages) {
+		List<Email> emails = new ArrayList<>();
+		long minSentMs = minSentDate.getTime();
+		for (Message message : messages) {
+			try {
+				Email email = Email.createFrom(message);
+				if (email.sentDateMs <= minSentMs) continue;
+				emails.add(email);
+			} catch (MessagingException|IOException e) {
+				logger.catching(Level.WARN, e);
+			}
+		}
+		return emails;
+	}
+	
 	private Store openStore() throws MessagingException {
 		Session session = EmailUtil.createSession(protocol);
 		Store store = session.getStore();
@@ -130,7 +158,7 @@ public class EmailRetriever {
 
 	private Date minSentDate() {
 		long t = System.currentTimeMillis() - maxLookBackMs;
-		if (lastEmail != null && lastEmail.sentDate > t) t = lastEmail.sentDate;
+		if (lastEmail != null && lastEmail.sentDateMs > t) t = lastEmail.sentDateMs;
 		return new Date(t);
 	}
 

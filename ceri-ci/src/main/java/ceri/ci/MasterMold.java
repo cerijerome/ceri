@@ -62,7 +62,7 @@ public class MasterMold implements Closeable {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		logger.info("Closing");
 		IoUtil.close(email);
 		IoUtil.close(x10);

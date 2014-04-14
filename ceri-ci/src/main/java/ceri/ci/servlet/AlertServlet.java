@@ -16,7 +16,6 @@ import ceri.ci.build.BuildEvent;
 import ceri.ci.build.Event;
 import ceri.common.util.StringUtil;
 
-
 /**
  * Handles the following requests:
  * 
@@ -73,10 +72,12 @@ public class AlertServlet extends HttpServlet {
 			service.clear(params.build, params.job);
 			break;
 		case broken:
-			service.process(new BuildEvent(params.build, params.job, Event.broken(params.names)));
+			service.process(new BuildEvent(params.build, params.job, new Event(Event.Type.broken,
+				null, params.names)));
 			break;
 		case fixed:
-			service.process(new BuildEvent(params.build, params.job, Event.fixed(params.names)));
+			service.process(new BuildEvent(params.build, params.job, new Event(Event.Type.fixed,
+				null, params.names)));
 			break;
 		}
 		if (params.build == null) return service.builds();

@@ -8,7 +8,7 @@ public class EmailComparators {
 	public static final Comparator<Email> SENT_DATE = new BaseComparator<Email>() {
 		@Override
 		protected int compareNonNull(Email o1, Email o2) {
-			return Comparators.LONG.compare(o1.sentDate, o2.sentDate);
+			return Comparators.LONG.compare(o1.sentDateMs, o2.sentDateMs);
 		}
 	};
 

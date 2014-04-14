@@ -22,12 +22,12 @@ public class Event implements Comparable<Event> {
 		broken;
 	}
 
-	Event(Type type, long timeStamp, String...names) {
+	public Event(Type type, Long timeStamp, String...names) {
 		this(type, timeStamp, Arrays.asList(names));
 	}
 	
-	Event(Type type, long timeStamp, Collection<String> names) {
-		this.timeStamp = timeStamp;
+	public Event(Type type, Long timeStamp, Collection<String> names) {
+		this.timeStamp = timeStamp == null ? System.currentTimeMillis() : timeStamp.longValue();
 		this.type = type;
 		this.names = ImmutableUtil.copyAsSet(names);
 		hashCode = HashCoder.hash(type, timeStamp, this.names);
@@ -38,21 +38,13 @@ public class Event implements Comparable<Event> {
 	}
 	
 	public static Event fixed(String...names) {
-		return fixed(Arrays.asList(names));
+		return new Event(Type.fixed, null, names);
 	}
 	
-	public static Event fixed(Collection<String> names) {
-		return new Event(Type.fixed, System.currentTimeMillis(), names);
-	}
-
 	public static Event broken(String...names) {
-		return broken(Arrays.asList(names));
+		return new Event(Type.broken, null, names);
 	}
 	
-	public static Event broken(Collection<String> names) {
-		return new Event(Type.broken, System.currentTimeMillis(), names);
-	}
-
 	@Override
 	public int compareTo(Event event) {
 		return Comparators.LONG.compare(timeStamp, event.timeStamp);

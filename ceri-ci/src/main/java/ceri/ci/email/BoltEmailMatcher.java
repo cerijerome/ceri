@@ -57,31 +57,32 @@ public class BoltEmailMatcher implements EmailEventMatcher {
 
 	@Override
 	public BuildEvent getEvent(Email email) {
-		if (email == null || email.subject == null || email.content == null) return null;
-		Matcher m = BUILD_JOB_NAME_REGEX.matcher(email.subject);
+		if (email == null || email.subject == null) return null;
+		Event event = createEvent(email);
+		if (event == null) return null;
+		return createBuildEvent(email.subject, event);
+	}
+
+	private BuildEvent createBuildEvent(String subject, Event event) {
+		Matcher m = BUILD_JOB_NAME_REGEX.matcher(subject);
 		if (!m.find()) return null;
 		String build = m.group(1).toLowerCase();
 		String job = m.group(2).toLowerCase();
-		Boolean success = success(email.subject);
-		if (success == null) return null;
-		Collection<String> committers = committers(email);
-		return createEvent(build, job, success, committers);
-	}
-
-	private BuildEvent createEvent(String build, String job, Boolean success,
-		Collection<String> committers) {
 		String buildAlias = buildAliasMap.get(build);
 		if (buildAlias != null) build = buildAlias;
 		String jobAlias = jobAliasMap.get(job);
 		if (jobAlias != null) job = jobAlias;
-		Event event = success ? Event.fixed(committers) : Event.broken(committers);
 		return new BuildEvent(build, job, event);
 	}
 
-	private Collection<String> committers(Email email) {
-		String commitId = commitId(email.subject);
-		if (commitId == null) return null;
-		return committers(commitId, email.content);
+	private Event createEvent(Email email) {
+		if (email.subject == null || email.content == null) return null;
+		Boolean success = success(email.subject);
+		if (success == null) return null;
+		Collection<String> committers = committers(email.subject, email.content);
+		if (committers == null) return null;
+		Event.Type type = success ? Event.Type.fixed : Event.Type.broken;
+		return new Event(type, email.sentDateMs, committers);
 	}
 
 	private String commitId(String line) {
@@ -90,7 +91,9 @@ public class BoltEmailMatcher implements EmailEventMatcher {
 		return m.group(1);
 	}
 
-	private Collection<String> committers(String commitId, String content) {
+	private Collection<String> committers(String subject, String content) {
+		String commitId = commitId(subject);
+		if (commitId == null) return null;
 		String[] lines = StringUtil.NEWLINE_REGEX.split(content);
 		Iterator<String> i = Arrays.asList(lines).iterator();
 		skipToCommits(i);
