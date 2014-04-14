@@ -22,16 +22,16 @@ public class InitServlet extends HttpServlet {
 		try {
 			logger.info("Creating MasterMold");
 			masterMold = new MasterMold();
-			add(masterMold.alertService());
-			add(masterMold.webService());
-			add(masterMold.proxy());
+			add(masterMold.alert.service);
+			add(masterMold.web.alerter);
+			add(masterMold.proxy.multi);
 			// Fake events -----------------
 			BuildEvent ev0 = new BuildEvent("bolt", "smoke", Event.broken("cjerome"));
 			//BuildEvent ev1 = new BuildEvent("bolt", "smoke", Event.fixed("cjerome"));
 			BuildEvent ev2 = new BuildEvent("bolt", "integration", Event.broken("shuochen","tantony"));
 			BuildEvent ev3 = new BuildEvent("bolt", "regression", Event.broken("sseamon","tantony"));
 			BuildEvent ev4 = new BuildEvent("mweb", "regression", Event.broken("punpal"));
-			masterMold.alertService().process(ev0, ev2, ev3, ev4);
+			masterMold.alert.service.process(ev0, ev2, ev3, ev4);
 		} catch (Exception e) {
 			throw new ServletException("Failed to initialize", e);
 		}
@@ -41,9 +41,9 @@ public class InitServlet extends HttpServlet {
 	public void destroy() {
 		logger.info("Shutting down");
 		try {
-			remove(masterMold.proxy());
-			remove(masterMold.webService());
-			remove(masterMold.alertService());
+			remove(masterMold.proxy.multi);
+			remove(masterMold.web.alerter);
+			remove(masterMold.alert.service);
 			masterMold.close();
 		} catch (Exception e) {
 			logger.catching(Level.WARN, e);

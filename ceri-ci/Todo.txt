@@ -1,11 +1,11 @@
 To do
 =====
 
+Why does retriever bring all emails each time?
 Add date to event from email
 Shutdown timeout ms for all join() etc
 Config for devices
 Make sure multiple successful events don't trigger alerts
-Balance volume levels for clips
 Multi event post with json
 Admin link page
 Fix audio 'and' for missing files

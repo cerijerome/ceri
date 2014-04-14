@@ -4,11 +4,11 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ci.build.Build;
@@ -18,7 +18,7 @@ import ceri.ci.build.Builds;
 import ceri.ci.build.Job;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.io.IoUtil;
+import ceri.common.ee.LoggingExecutor;
 import ceri.common.log.LogUtil;
 
 public class AlertService implements Closeable, BuildEventProcessor {
@@ -28,14 +28,14 @@ public class AlertService implements Closeable, BuildEventProcessor {
 	private final Lock lock = new ReentrantLock();
 	private final Condition condition = lock.newCondition();
 	private final Builds builds = new Builds();
-	private final Thread thread;
+	private final LoggingExecutor executor;
 	private boolean buildsChanged = false;
 
-	public AlertService(Alerters alerters, long reminderMs) {
+	public AlertService(Alerters alerters, long reminderMs, long shutdownTimeoutMs) {
 		this.alerters = alerters;
 		this.reminderMs = reminderMs;
-		thread = new Thread(() -> AlertService.this.run());
-		thread.start();
+		executor = new LoggingExecutor(Executors.newSingleThreadExecutor(), shutdownTimeoutMs);
+		executor.execute(() -> run());
 	}
 
 	// @TODO: put on timer, or based on event count
@@ -103,10 +103,10 @@ public class AlertService implements Closeable, BuildEventProcessor {
 		}
 	}
 
-	public void process(BuildEvent...events) {
+	public void process(BuildEvent... events) {
 		process(Arrays.asList(events));
 	}
-	
+
 	@Override
 	public void process(Collection<BuildEvent> events) {
 		lock.lock();
@@ -119,39 +119,17 @@ public class AlertService implements Closeable, BuildEventProcessor {
 			lock.unlock();
 		}
 	}
-	
+
 	@Override
 	public void close() throws IOException {
-		logger.info("Closing");
-		thread.interrupt();
-		IoUtil.close(alerters);
-		try {
-			logger.debug("joining...");
-			thread.join();
-			logger.debug("join complete");
-		} catch (InterruptedException e) {
-			logger.catching(Level.WARN, e);
-		}
-	}
-
-	void run() {
-		logger.info("Service thread started");
-		try {
-			process();
-		} catch (InterruptedException | RuntimeInterruptedException e) {
-			logger.info("Service thread interrupted");
-		} catch (RuntimeException e) {
-			logger.catching(e);
-		} finally {
-			logger.info("Service thread stopped");
-		}
+		executor.close();
 	}
 
 	/**
 	 * Waits for builds to change with given millisecond timeout. If a clear was called then builds
 	 * will be empty. Null is returned if the wait timeout expires.
 	 */
-	private Builds waitForAndCopyChangedBuilds(long ms) throws InterruptedException {
+	private Builds waitForAndCopyChangedBuilds(long ms) {
 		lock.lock();
 		try {
 			while (!buildsChanged) {
@@ -161,6 +139,8 @@ public class AlertService implements Closeable, BuildEventProcessor {
 			}
 			buildsChanged = false;
 			return new Builds(builds);
+		} catch (InterruptedException e) {
+			throw new RuntimeInterruptedException(e);
 		} finally {
 			lock.unlock();
 		}
@@ -174,7 +154,7 @@ public class AlertService implements Closeable, BuildEventProcessor {
 		condition.signal();
 	}
 
-	void process() throws InterruptedException {
+	private void run() {
 		while (true) {
 			logger.debug("Waiting for signal");
 			Builds builds = waitForAndCopyChangedBuilds(reminderMs);

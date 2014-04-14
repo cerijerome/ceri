@@ -14,9 +14,12 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.search.ComparisonTerm;
 import javax.mail.search.SentDateTerm;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ceri.common.util.ToStringHelper;
 
 public class EmailRetriever {
+	private static final Logger logger = LogManager.getLogger();
 	private final String protocol;
 	private final String host;
 	private final int port;

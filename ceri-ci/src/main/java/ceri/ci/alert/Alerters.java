@@ -36,6 +36,7 @@ public class Alerters implements Closeable {
 		ZWaveAlerter zwave = null;
 		AudioAlerter audio = null;
 		WebAlerter web = null;
+		long shutdownTimeoutMs = 3000;
 
 		Builder() {}
 
@@ -59,6 +60,11 @@ public class Alerters implements Closeable {
 			return this;
 		}
 
+		public Builder shutdownTimeoutMs(long shutdownTimeoutMs) {
+			this.shutdownTimeoutMs = shutdownTimeoutMs;
+			return this;
+		}
+
 		public Alerters build() {
 			return new Alerters(this);
 		}
@@ -73,7 +79,9 @@ public class Alerters implements Closeable {
 		zwave = builder.zwave;
 		audio = builder.audio;
 		web = builder.web;
-		executor = new LoggingExecutor(Executors.newFixedThreadPool(ASYNC_COMPONENT_COUNT));
+		executor =
+			new LoggingExecutor(Executors.newFixedThreadPool(ASYNC_COMPONENT_COUNT),
+				builder.shutdownTimeoutMs);
 	}
 
 	/**

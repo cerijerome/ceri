@@ -5,19 +5,31 @@ import ceri.common.io.IoUtil;
 
 public enum AudioClip {
 	bieber,
+	bodyguard,
 	boss,
 	bubblepop,
+	callmemaybe,
+	dontstopbelievin,
 	eas,
 	ebay,
+	finalcountdown,
 	fox,
 	friday,
 	gangnam,
 	gangnam2,
+	ironside,
+	ironside2,
+	liveletdie,
+	lmfao,
 	numa,
 	nyan,
 	redalert,
 	rickroll,
+	sirmixalot,
+	stayingalive,
+	titanic,
 	trololo,
+	wannabe,
 	whisper;
 
 	private static final String SUBDIR = "clip";

@@ -23,7 +23,8 @@ public class ExecutorUtil {
 	}
 
 	public static <T> Future<T> execute(ExecutorService service, final Runnable runnable, T result) {
-		if (service.isShutdown()) throw new RuntimeInterruptedException("Executor is shut down");
+		if (service.isShutdown()) throw new RuntimeInterruptedException(
+			"Executor service is shut down");
 		return service.submit(() -> {
 			logger.debug("Thread started");
 			try {
@@ -38,7 +39,7 @@ public class ExecutorUtil {
 	}
 
 	public static void close(ExecutorService service, long timeoutMs) {
-		logger.info("Shutting down any running threads");
+		logger.info("Shutting down executor service");
 		service.shutdownNow();
 		awaitTermination(service, timeoutMs);
 	}
