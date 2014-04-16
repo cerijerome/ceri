@@ -100,10 +100,10 @@ public class AlertersBehavior {
 	@Test
 	public void shouldAlertAlertersWithSummarizedBuilds() {
 		Builds builds = new Builds();
-		Event b0 = BuildTestUtil.event(Event.Type.broken, 0, "b00", "b01");
-		Event f1 = BuildTestUtil.event(Event.Type.fixed, 1, "f1");
-		Event b2 = BuildTestUtil.event(Event.Type.broken, 2, "b20");
-		Event b4 = BuildTestUtil.event(Event.Type.broken, 4, "b40", "b41");
+		Event b0 = BuildTestUtil.event(Event.Type.failure, 0, "b00", "b01");
+		Event f1 = BuildTestUtil.event(Event.Type.success, 1, "f1");
+		Event b2 = BuildTestUtil.event(Event.Type.failure, 2, "b20");
+		Event b4 = BuildTestUtil.event(Event.Type.failure, 4, "b40", "b41");
 		builds.build("b0").job("j0").event(b0, f1, b2, b4);
 		alerters.alert(builds);
 
@@ -114,8 +114,8 @@ public class AlertersBehavior {
 		assertCollection(namesCaptor.getValue(), "b20", "b40", "b41");
 
 		Builds summarizedBuilds = new Builds();
-		Event sf = BuildTestUtil.event(Event.Type.fixed, 1, "f1");
-		Event sb = BuildTestUtil.event(Event.Type.broken, 2, "b20", "b40", "b41");
+		Event sf = BuildTestUtil.event(Event.Type.success, 1, "f1");
+		Event sb = BuildTestUtil.event(Event.Type.failure, 2, "b20", "b40", "b41");
 		summarizedBuilds.build("b0").job("j0").event(sf, sb);
 
 		verify(web).update(summarizedBuilds);

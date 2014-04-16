@@ -37,12 +37,12 @@ public class AlertParams {
 
 	public static AlertParams
 		fixed(String path, String build, String job, Collection<String> names) {
-		return new AlertParams(path, build, job, AlertAction.fixed, names);
+		return new AlertParams(path, build, job, AlertAction.success, names);
 	}
 
 	public static AlertParams
 		broken(String path, String build, String job, Collection<String> names) {
-		return new AlertParams(path, build, job, AlertAction.broken, names);
+		return new AlertParams(path, build, job, AlertAction.failure, names);
 	}
 
 	@Override

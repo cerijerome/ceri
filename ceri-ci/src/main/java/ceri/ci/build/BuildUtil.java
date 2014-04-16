@@ -54,7 +54,7 @@ public class BuildUtil {
 	private static void breakNames(Job summarizedJob, Collection<String> names) {
 		if (summarizedJob.events.isEmpty()) return;
 		Event event = latestEvent(summarizedJob);
-		if (event.type == Event.Type.broken) names.addAll(event.names);
+		if (event.type == Event.Type.failure) names.addAll(event.names);
 	}
 
 	/**
@@ -85,8 +85,8 @@ public class BuildUtil {
 	private static void summarize(Job fromJob, Job toJob) {
 		Job job = new Job(fromJob);
 		job.purge();
-		Event lastBreak = aggregate(Event.Type.broken, job.events);
-		Event lastFix = earliest(Event.Type.fixed, job.events);
+		Event lastBreak = aggregate(Event.Type.failure, job.events);
+		Event lastFix = earliest(Event.Type.success, job.events);
 		if (lastBreak != null) toJob.event(lastBreak);
 		if (lastFix != null) toJob.event(lastFix);
 	}

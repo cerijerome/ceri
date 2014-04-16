@@ -16,12 +16,9 @@ import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ceri.common.collection.CollectionUtil;
 
 public class HttpUtil {
-	private static final Logger logger = LogManager.getLogger();
 
 	private HttpUtil() {}
 

@@ -26,11 +26,11 @@ public class InitServlet extends HttpServlet {
 			add(masterMold.web.alerter);
 			add(masterMold.proxy.multi);
 			// Fake events -----------------
-			BuildEvent ev0 = new BuildEvent("bolt", "smoke", Event.broken("cjerome"));
+			BuildEvent ev0 = new BuildEvent("bolt", "smoke", Event.failure("cjerome"));
 			//BuildEvent ev1 = new BuildEvent("bolt", "smoke", Event.fixed("cjerome"));
-			BuildEvent ev2 = new BuildEvent("bolt", "integration", Event.broken("shuochen","tantony"));
-			BuildEvent ev3 = new BuildEvent("bolt", "regression", Event.broken("sseamon","tantony"));
-			BuildEvent ev4 = new BuildEvent("mweb", "regression", Event.broken("punpal"));
+			BuildEvent ev2 = new BuildEvent("bolt", "integration", Event.failure("shuochen","tantony"));
+			BuildEvent ev3 = new BuildEvent("bolt", "regression", Event.failure("sseamon","tantony"));
+			BuildEvent ev4 = new BuildEvent("mweb", "regression", Event.failure("punpal"));
 			masterMold.alert.service.process(ev0, ev2, ev3, ev4);
 		} catch (Exception e) {
 			throw new ServletException("Failed to initialize", e);

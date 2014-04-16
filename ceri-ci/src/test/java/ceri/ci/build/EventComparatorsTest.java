@@ -8,11 +8,11 @@ import java.util.List;
 import org.junit.Test;
 
 public class EventComparatorsTest {
-	private static final Event e0 = new Event(Event.Type.broken, 0, "0");
-	private static final Event e1 = new Event(Event.Type.fixed, 1, "1");
-	private static final Event e2 = new Event(Event.Type.broken, 2, "2");
-	private static final Event e3 = new Event(Event.Type.fixed, 3, "3");
-	private static final Event e4 = new Event(Event.Type.broken, 4, "4");
+	private static final Event e0 = new Event(Event.Type.failure, 0L, "0");
+	private static final Event e1 = new Event(Event.Type.success, 1L, "1");
+	private static final Event e2 = new Event(Event.Type.failure, 2L, "2");
+	private static final Event e3 = new Event(Event.Type.success, 3L, "3");
+	private static final Event e4 = new Event(Event.Type.failure, 4L, "4");
 
 	@Test
 	public void testConstructorIsPrivate() {

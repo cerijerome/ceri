@@ -80,7 +80,7 @@ public class Alerters implements Closeable {
 		audio = builder.audio;
 		web = builder.web;
 		executor =
-			new LoggingExecutor(Executors.newFixedThreadPool(ASYNC_COMPONENT_COUNT),
+			new LoggingExecutor(null, Executors.newFixedThreadPool(ASYNC_COMPONENT_COUNT),
 				builder.shutdownTimeoutMs);
 	}
 

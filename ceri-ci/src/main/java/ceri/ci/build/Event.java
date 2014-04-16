@@ -9,7 +9,7 @@ import ceri.common.util.HashCoder;
 import ceri.common.util.ToStringHelper;
 
 /**
- * Immutable fixed or broken event.
+ * Immutable successful or failed build event.
  */
 public class Event implements Comparable<Event> {
 	public final long timeStamp;
@@ -18,8 +18,8 @@ public class Event implements Comparable<Event> {
 	private int hashCode;
 
 	public static enum Type {
-		fixed,
-		broken;
+		success,
+		failure;
 	}
 
 	public Event(Type type, Long timeStamp, String...names) {
@@ -30,19 +30,19 @@ public class Event implements Comparable<Event> {
 		this.timeStamp = timeStamp == null ? System.currentTimeMillis() : timeStamp.longValue();
 		this.type = type;
 		this.names = ImmutableUtil.copyAsSet(names);
-		hashCode = HashCoder.hash(type, timeStamp, this.names);
+		hashCode = HashCoder.hash(this.type, this.timeStamp, this.names);
 	}
 
 	public Event(Event event) {
 		this(event.type, event.timeStamp, event.names);
 	}
 	
-	public static Event fixed(String...names) {
-		return new Event(Type.fixed, null, names);
+	public static Event success(String...names) {
+		return new Event(Type.success, null, names);
 	}
 	
-	public static Event broken(String...names) {
-		return new Event(Type.broken, null, names);
+	public static Event failure(String...names) {
+		return new Event(Type.failure, null, names);
 	}
 	
 	@Override

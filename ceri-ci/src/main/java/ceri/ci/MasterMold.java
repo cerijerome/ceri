@@ -6,6 +6,8 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ci.alert.AlertService;
+import ceri.ci.build.BuildEvent;
+import ceri.ci.build.Event;
 import ceri.common.io.IoUtil;
 import ceri.common.property.PropertyUtil;
 import ceri.common.util.BasicUtil;
@@ -26,20 +28,22 @@ public class MasterMold implements Closeable {
 
 	public static void main(String[] args) throws IOException {
 		try (MasterMold masterMold = new MasterMold()) {
-			//			@SuppressWarnings("resource")
-			//			AlertService service = masterMold.alertService();
-			//			BuildEvent event0 = new BuildEvent("bolt", "smoke", Event.broken("cdehaudt"));
-			//			service.process(event0);
-			//			BasicUtil.delay(10000);
-			//			BuildEvent event1 = new BuildEvent("bolt", "smoke", Event.fixed("cdehaudt"));
-			//			BuildEvent event2 = new BuildEvent("bolt", "regression", Event.broken("machung"));
-			//			service.process(event1, event2);
-			//			BasicUtil.delay(10000);
-			//			BuildEvent event3 = new BuildEvent("bolt", "smoke", Event.fixed("dxie"));
-			//			service.process(event3);
-			BasicUtil.delay(10000);
-			//			service.broken("bolt", "smoke", Arrays.asList("fuzhong", "cjerome"));
-			BasicUtil.delay(100000);
+			AlertService service = masterMold.alert.service;
+			BuildEvent ev0 = new BuildEvent("bolt", "smoke", Event.failure("cdehaudt", "cjerome"));
+			BuildEvent ev1 = new BuildEvent("bolt", "smokes", Event.failure("punpal"));
+			BuildEvent ev2 = new BuildEvent("bolts", "smoke", Event.failure("punpal"));
+			service.process(ev0, ev1, ev2);
+			//						//BasicUtil.delay(10000);
+			//						BuildEvent event1 = new BuildEvent("bolt", "smoke", Event.fixed("cdehaudt"));
+			//						BuildEvent event2 = new BuildEvent("bolt", "regression", Event.broken("machung"));
+			//						service.process(event1, event2);
+			//						BasicUtil.delay(10000);
+			//						BuildEvent event3 = new BuildEvent("bolt", "smoke", Event.fixed("dxie"));
+			//						service.process(event3);
+			while (true)
+				BasicUtil.delay(10000);
+			//						service.broken("bolt", "smoke", Arrays.asList("fuzhong", "cjerome"));
+			//			BasicUtil.delay(1000000);
 		}
 	}
 

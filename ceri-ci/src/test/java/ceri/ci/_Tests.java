@@ -12,6 +12,7 @@ import ceri.ci.audio.AudioMessageBehavior;
 import ceri.ci.audio.ClipBehavior;
 import ceri.ci.audio.JobAnalyzerBehavior;
 import ceri.ci.build.BuildBehavior;
+import ceri.ci.build.BuildEventBehavior;
 import ceri.ci.build.BuildUtilTest;
 import ceri.ci.build.BuildsBehavior;
 import ceri.ci.build.EventBehavior;
@@ -32,7 +33,7 @@ import ceri.common.test.TestUtil;
 	MasterMoldBehavior.class,
 	// alert
 	AlertersBehavior.class,
-	//AlertServiceBehavior.class,
+	AlertServiceBehavior.class,
 	AlertServicePropertiesBehavior.class,
 	// audio
 	AudioAlerterBehavior.class,
@@ -43,6 +44,7 @@ import ceri.common.test.TestUtil;
 	JobAnalyzerBehavior.class,
 	// build
 	BuildBehavior.class,
+	BuildEventBehavior.class,
 	BuildsBehavior.class,
 	BuildUtilTest.class,
 	EventBehavior.class,

@@ -26,8 +26,8 @@ public class AudioAlerterBehavior {
 	@Test
 	public void shouldPlayReminderAudioForAnyBrokenJobs() throws IOException {
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(Event.broken("n0", "n1"));
-		builds.build("b0").job("j1").event(Event.broken());
+		builds.build("b0").job("j0").event(Event.failure("n0", "n1"));
+		builds.build("b0").job("j1").event(Event.failure());
 		builds.build("b1").job("j0").event();
 		audio.alert(builds);
 		reset(message);
@@ -40,8 +40,8 @@ public class AudioAlerterBehavior {
 	@Test
 	public void shouldPlayAudioForJustBrokenJobs() throws IOException {
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(Event.broken("n0", "n1"));
-		builds.build("b0").job("j1").event(Event.broken());
+		builds.build("b0").job("j0").event(Event.failure("n0", "n1"));
+		builds.build("b0").job("j1").event(Event.failure());
 		builds.build("b1").job("j0").event();
 		audio.alert(builds);
 		verify(message).playAlarm();
@@ -53,13 +53,13 @@ public class AudioAlerterBehavior {
 	@Test
 	public void shouldPlayAudioForStillBrokenJobs() throws IOException {
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(Event.broken("n0", "n1"));
-		builds.build("b0").job("j1").event(Event.broken());
+		builds.build("b0").job("j0").event(Event.failure("n0", "n1"));
+		builds.build("b0").job("j1").event(Event.failure());
 		audio.alert(builds);
 		reset(message);
 		builds = new Builds();
-		builds.build("b0").job("j0").event(Event.broken());
-		builds.build("b0").job("j1").event(Event.broken("n2"));
+		builds.build("b0").job("j0").event(Event.failure());
+		builds.build("b0").job("j1").event(Event.failure("n2"));
 		audio.alert(builds);
 		verify(message).playStillBroken("b0", "j0", names());
 		verify(message).playStillBroken("b0", "j1", names("n2"));
@@ -69,13 +69,13 @@ public class AudioAlerterBehavior {
 	@Test
 	public void shouldPlayAudioForJustFixedJobs() throws IOException {
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(Event.broken("n0", "n1"));
-		builds.build("b0").job("j1").event(Event.broken());
+		builds.build("b0").job("j0").event(Event.failure("n0", "n1"));
+		builds.build("b0").job("j1").event(Event.failure());
 		audio.alert(builds);
 		reset(message);
 		builds = new Builds();
-		builds.build("b0").job("j0").event(Event.fixed());
-		builds.build("b0").job("j1").event(Event.fixed("n2"));
+		builds.build("b0").job("j0").event(Event.success());
+		builds.build("b0").job("j1").event(Event.success("n2"));
 		audio.alert(builds);
 		verify(message).playJustFixed("b0", "j0", names());
 		verify(message).playJustFixed("b0", "j1", names("n2"));

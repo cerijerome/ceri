@@ -14,21 +14,29 @@ import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import ceri.common.io.IoUtil;
+import ceri.common.property.Key;
 
 /**
  * Utility methods for processing emails.
  */
 public class EmailUtil {
-	public static final String MAIL_STORE_PROTOCOL_KEY = "mail.store.protocol";
+	private static final String MAIL = "mail";
+	private static final String TIMEOUT = "timeout";
+	private static final String CONNECTION_TIMEOUT = "connectiontimeout";
+	private static final String MAIL_STORE_PROTOCOL_KEY = "mail.store.protocol";
 
 	private EmailUtil() {}
 
 	/**
-	 * Creates a session with the email provider
+	 * Creates a session with the email provider with given protocol and timeout settings.
 	 */
-	public static Session createSession(String protocol) {
+	public static Session createSession(String protocol, long timeoutMs) {
+		String timeoutKey = Key.create(MAIL, protocol, TIMEOUT).value;
+		String connectionTimeoutKey = Key.create(MAIL, protocol, CONNECTION_TIMEOUT).value;
 		Properties properties = new Properties();
 		properties.setProperty(MAIL_STORE_PROTOCOL_KEY, protocol);
+		properties.setProperty(timeoutKey, String.valueOf(timeoutMs));
+		properties.setProperty(connectionTimeoutKey, String.valueOf(timeoutMs));
 		return Session.getInstance(properties, null);
 	}
 

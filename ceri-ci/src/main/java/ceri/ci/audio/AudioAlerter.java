@@ -41,6 +41,8 @@ public class AudioAlerter {
 			for (Build latestBuild : this.summarizedBuilds.builds) {
 				Build previousBuild = previousBuilds.build(latestBuild.name);
 				JobAnalyzer analyzer = new JobAnalyzer(latestBuild, previousBuild);
+				if (!analyzer.hasJobs()) continue;
+				message.playAlarm();
 				playJustBroken(latestBuild.name, analyzer.justBroken);
 				playStillBroken(latestBuild.name, analyzer.stillBroken);
 				playJustFixed(latestBuild.name, analyzer.justFixed);
@@ -67,6 +69,8 @@ public class AudioAlerter {
 		try {
 			for (Build latestBuild : summarizedBuilds.builds) {
 				JobAnalyzer analyzer = new JobAnalyzer(latestBuild, new Build(latestBuild.name));
+				if (analyzer.justBroken.isEmpty()) continue;
+				message.playAlarm();
 				playStillBroken(latestBuild.name, analyzer.justBroken);
 			}
 		} catch (IOException e) {
@@ -76,7 +80,6 @@ public class AudioAlerter {
 
 	private void playJustBroken(String buildName, Collection<Job> jobs) throws IOException {
 		if (jobs.isEmpty()) return;
-		message.playAlarm();
 		for (Job job : jobs) {
 			Event event = BuildUtil.latestEvent(job);
 			message.playJustBroken(buildName, job.name, event.names);
@@ -84,6 +87,7 @@ public class AudioAlerter {
 	}
 
 	private void playStillBroken(String buildName, Collection<Job> jobs) throws IOException {
+		if (jobs.isEmpty()) return;
 		for (Job job : jobs) {
 			Event event = BuildUtil.latestEvent(job);
 			message.playStillBroken(buildName, job.name, event.names);
@@ -91,6 +95,7 @@ public class AudioAlerter {
 	}
 
 	private void playJustFixed(String buildName, Collection<Job> jobs) throws IOException {
+		if (jobs.isEmpty()) return;
 		for (Job job : jobs) {
 			Event event = BuildUtil.latestEvent(job);
 			message.playJustFixed(buildName, job.name, event.names);

@@ -74,8 +74,8 @@ public class WebModel {
 	}
 
 	private BuildModel build(Build build) {
-		return new BuildModel(build.name, items(build, Event.Type.broken), items(build,
-			Event.Type.fixed));
+		return new BuildModel(build.name, items(build, Event.Type.failure), items(build,
+			Event.Type.success));
 	}
 
 	private List<ItemModel> items(Build build, Event.Type type) {

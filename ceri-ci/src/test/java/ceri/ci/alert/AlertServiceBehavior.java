@@ -11,12 +11,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.ci.build.Build;
+import ceri.ci.build.BuildEvent;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
 import ceri.ci.build.Job;
 import ceri.common.concurrent.BooleanCondition;
 
 public class AlertServiceBehavior {
+	private static final Event e0 = new Event(Event.Type.failure, 0L, "test");
+	private static final Event e1 = new Event(Event.Type.success, 1L, "test");
+	private static final Event e2 = new Event(Event.Type.failure, 2L, "test");
 	Alerters alerters;
 	BooleanCondition sync;
 	AlertService service;
@@ -25,7 +29,7 @@ public class AlertServiceBehavior {
 	public void init() {
 		alerters = mock(Alerters.class);
 		sync = new BooleanCondition();
-		service = new AlertService(createAlerters(), 0);
+		service = new AlertService(createAlerters(), 0, 1000);
 	}
 	
 	@After
@@ -35,41 +39,41 @@ public class AlertServiceBehavior {
 	
 	@Test
 	public void shouldReturnSnapshotOfBuilds() {
-		Event broken = service.fixed("build0", "job0", "test");
-		Event fixed = service.fixed("build0", "job0", "test");
+		service.process(new BuildEvent("build0", "job0", e0));
+		service.process(new BuildEvent("build0", "job0", e1));
 		Builds builds = service.builds();
-		service.broken("build1",  "job1", "test");
+		service.process(new BuildEvent("build1",  "job1", e2));
 		Builds refBuilds = new Builds();
-		refBuilds.build("build0").job("job0").event(broken, fixed);
+		refBuilds.build("build0").job("job0").event(e0, e1);
 		assertThat(builds, is(refBuilds));
 	}
 
 	@Test
 	public void shouldReturnSnapshotOfBuild() {
-		Event broken = service.fixed("build0", "job0", "test");
-		Event fixed = service.fixed("build0", "job0", "test");
+		service.process(new BuildEvent("build0", "job0", e0));
+		service.process(new BuildEvent("build0", "job0", e1));
 		Build build = service.build("build0");
-		service.broken("build0",  "job1", "test");
+		service.process(new BuildEvent("build0", "job1", e2));
 		Build refBuild = new Build("build0");
-		refBuild.job("job0").event(broken, fixed);
+		refBuild.job("job0").event(e0, e1);
 		assertThat(build, is(refBuild));
 	}
 
 	@Test
 	public void shouldReturnJob() {
-		Event broken = service.fixed("build0", "job0", "test");
-		Event fixed = service.fixed("build0", "job0", "test");
+		service.process(new BuildEvent("build0", "job0", e0));
+		service.process(new BuildEvent("build0", "job0", e1));
 		Job job = service.job("build0", "job0");
-		service.broken("build0",  "job0", "test");
+		service.process(new BuildEvent("build0", "job0", e2));
 		Job refJob = new Job("job0");
-		refJob.event(broken, fixed);
+		refJob.event(e0, e1);
 		assertThat(job, is(refJob));
 	}
 
 	@Test
 	public void shouldDeleteBuild() {
-		service.fixed("build0", "job0", "test");
-		service.fixed("build0", "job0", "test");
+		service.process(new BuildEvent("build0", "job0", e0));
+		service.process(new BuildEvent("build0", "job0", e1));
 		service.delete("build0", null);
 		Builds builds = service.builds();
 		assertThat(builds, is(new Builds()));
@@ -77,8 +81,8 @@ public class AlertServiceBehavior {
 	
 	@Test
 	public void shouldDeleteJob() {
-		service.fixed("build0", "job0", "test");
-		service.fixed("build0", "job0", "test");
+		service.process(new BuildEvent("build0", "job0", e0));
+		service.process(new BuildEvent("build0", "job0", e1));
 		service.delete("build0", "job0");
 		Build build = service.build("build0");
 		assertThat(build, is(new Build("build0")));
@@ -107,14 +111,14 @@ public class AlertServiceBehavior {
 
 	@Test
 	public void shouldBreak() throws InterruptedException  {
-		service.broken("b0", "j0", "n000");
+		service.process(new BuildEvent("build0", "job0", e0));
 		sync.await();
 		verify(alerters).alert((Builds)any());
 	}
 
 	@Test
 	public void shouldFix() throws InterruptedException  {
-		service.fixed("b0", "j0", "n000");
+		service.process(new BuildEvent("build0", "job0", e1));
 		sync.await();
 		verify(alerters).alert((Builds)any());
 	}

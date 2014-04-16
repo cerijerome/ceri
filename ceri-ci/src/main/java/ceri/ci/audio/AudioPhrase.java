@@ -1,6 +1,5 @@
 package ceri.ci.audio;
 
-
 public enum AudioPhrase {
 	and,
 	build,
@@ -14,14 +13,5 @@ public enum AudioPhrase {
 	red_alert,
 	thank_you,
 	thanks_to,
-	the_build,
-	;
-	
-	private static final String FILE_SUFFIX = ".wav";
-	public final String filename;
-	
-	private AudioPhrase() {
-		filename = "_" + name().replaceAll("_", "-") + FILE_SUFFIX;
-	}
-	
+	the_build;
 }

@@ -12,9 +12,9 @@ public class JobBehavior {
 
 	@Test
 	public void shouldStoreEventsInDecreasingChronologicalOrder() {
-		Event e0 = new Event(Event.Type.broken, 0);
-		Event e1 = new Event(Event.Type.fixed, 1);
-		Event e2 = new Event(Event.Type.broken, 2);
+		Event e0 = new Event(Event.Type.failure, 0L);
+		Event e1 = new Event(Event.Type.success, 1L);
+		Event e2 = new Event(Event.Type.failure, 2L);
 		Job job = new Job("test");
 		job.event(e1, e0, e2);
 		assertElements(job.events, e2, e1, e0);
@@ -24,19 +24,19 @@ public class JobBehavior {
 	public void shouldNotAllowModificationOfEventsField() {
 		final Job job = new Job("test");
 		assertTrue(job.events.isEmpty());
-		assertException(() -> job.events.add(Event.fixed()));
+		assertException(() -> job.events.add(Event.success()));
 	}
 
 	@Test
 	public void shouldPurgeBreakAndFixEventsUpToLatestSequences() {
-		Event e0 = new Event(Event.Type.broken, 0);
-		Event e1 = new Event(Event.Type.fixed, 1, "a1");
-		Event e2 = new Event(Event.Type.fixed, 2, "b1", "b2");
-		Event e3 = new Event(Event.Type.broken, 3, "c1", "c2", "c3");
-		Event e4 = new Event(Event.Type.broken, 4);
-		Event e5 = new Event(Event.Type.broken, 5, "e1", "e2", "e3", "e4");
-		Event e6 = new Event(Event.Type.fixed, 6);
-		Event e7 = new Event(Event.Type.fixed, 7, "g1");
+		Event e0 = new Event(Event.Type.failure, 0L);
+		Event e1 = new Event(Event.Type.success, 1L, "a1");
+		Event e2 = new Event(Event.Type.success, 2L, "b1", "b2");
+		Event e3 = new Event(Event.Type.failure, 3L, "c1", "c2", "c3");
+		Event e4 = new Event(Event.Type.failure, 4L);
+		Event e5 = new Event(Event.Type.failure, 5L, "e1", "e2", "e3", "e4");
+		Event e6 = new Event(Event.Type.success, 6L);
+		Event e7 = new Event(Event.Type.success, 7L, "g1");
 		Job job = new Job("test");
 		job.event(e0, e1, e2, e3, e4, e5, e6, e7);
 		Job job2 = new Job("test");
@@ -48,10 +48,10 @@ public class JobBehavior {
 	@Test
 	public void shouldNotPurgeLatestSequencesOfBreakAndFixEvents() {
 		Job job = new Job("test");
-		job.event(Event.fixed("a"));
-		job.event(Event.fixed("b1", "b2"));
-		job.event(Event.broken("c1", "c2", "c3"));
-		job.event(Event.broken());
+		job.event(Event.success("a"));
+		job.event(Event.success("b1", "b2"));
+		job.event(Event.failure("c1", "c2", "c3"));
+		job.event(Event.failure());
 		Job job2 = new Job(job);
 		job.purge();
 		assertElements(job.events, job2.events);
@@ -60,8 +60,8 @@ public class JobBehavior {
 	@Test
 	public void shouldClearEvents() {
 		Job job = new Job("test");
-		job.event(Event.fixed("a"));
-		job.event(Event.broken("b1", "b2"));
+		job.event(Event.success("a"));
+		job.event(Event.failure("b1", "b2"));
 		assertFalse(job.events.isEmpty());
 		job.clear();
 		assertTrue(job.events.isEmpty());
@@ -70,8 +70,8 @@ public class JobBehavior {
 	@Test
 	public void shouldCopyAllFieldsWithCopyConstructor() {
 		Job job1 = new Job("test");
-		job1.event(Event.fixed("a1", "a2"));
-		job1.event(Event.broken());
+		job1.event(Event.success("a1", "a2"));
+		job1.event(Event.failure());
 		Job job2 = new Job(job1);
 		assertThat(job1.name, is(job2.name));
 		assertElements(job1.events, job2.events);
@@ -80,8 +80,8 @@ public class JobBehavior {
 
 	@Test
 	public void shouldConformToEqualsContract() {
-		Event e0 = new Event(Event.Type.broken, 0);
-		Event e1 = new Event(Event.Type.fixed, 1);
+		Event e0 = new Event(Event.Type.failure, 0L);
+		Event e1 = new Event(Event.Type.success, 1L);
 		Job job = new Job("test");
 		assertFalse(job.equals(null));
 		assertFalse(job.equals(new Job("Test")));

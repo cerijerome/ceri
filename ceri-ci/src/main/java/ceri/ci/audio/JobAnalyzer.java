@@ -39,21 +39,25 @@ public class JobAnalyzer {
 		this.justFixed = Collections.unmodifiableCollection(justFixed);
 	}
 
+	public boolean hasJobs() {
+		return !justBroken.isEmpty() || !stillBroken.isEmpty() || !justFixed.isEmpty();
+	}
+	
 	private Event.Type type(Event event) {
-		if (event == null) return Event.Type.fixed;
+		if (event == null) return Event.Type.success;
 		return event.type;
 	}
 
 	private boolean justBroken(Event.Type latestType, Event.Type previousType) {
-		return latestType == Event.Type.broken && previousType == Event.Type.fixed;
+		return latestType == Event.Type.failure && previousType == Event.Type.success;
 	}
 	
 	private boolean stillBroken(Event.Type latestType, Event.Type previousType) {
-		return latestType == Event.Type.broken && previousType == Event.Type.broken;
+		return latestType == Event.Type.failure && previousType == Event.Type.failure;
 	}
 	
 	private boolean justFixed(Event.Type latestType, Event.Type previousType) {
-		return latestType == Event.Type.fixed && previousType == Event.Type.broken;
+		return latestType == Event.Type.success && previousType == Event.Type.failure;
 	}
 	
 }

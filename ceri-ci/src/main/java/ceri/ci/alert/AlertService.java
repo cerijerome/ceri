@@ -34,7 +34,7 @@ public class AlertService implements Closeable, BuildEventProcessor {
 	public AlertService(Alerters alerters, long reminderMs, long shutdownTimeoutMs) {
 		this.alerters = alerters;
 		this.reminderMs = reminderMs;
-		executor = new LoggingExecutor(Executors.newSingleThreadExecutor(), shutdownTimeoutMs);
+		executor = new LoggingExecutor(null, Executors.newSingleThreadExecutor(), shutdownTimeoutMs);
 		executor.execute(() -> run());
 	}
 

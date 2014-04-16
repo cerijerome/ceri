@@ -9,8 +9,8 @@ import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
 
 public class WebAlerterBehavior {
-	private static final Event broken = BuildTestUtil.event(Event.Type.broken, 1, "broken");
-	private static final Event fixed = BuildTestUtil.event(Event.Type.fixed, 2, "fixed");
+	private static final Event broken = BuildTestUtil.event(Event.Type.failure, 1, "broken");
+	private static final Event fixed = BuildTestUtil.event(Event.Type.success, 2, "fixed");
 	private WebAlerter webAlerter;
 	
 	@Before

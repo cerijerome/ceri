@@ -12,6 +12,7 @@ public class EmailAdapterProperties extends BaseProperties {
 	private static final String FOLDER_KEY = "folder";
 	private static final String PROTOCOL_KEY = "protocol";
 	private static final String POLL_MS_KEY = "poll.ms";
+	private static final String SENT_DATE_BUFFER_MS_KEY = "sent.date.buffer.ms";
 	private static final String SHUTDOWN_TIMEOUT_MS_KEY = "shutdown.timeout.ms";
 
 	public EmailAdapterProperties(Properties properties, String...prefix) {
@@ -42,6 +43,10 @@ public class EmailAdapterProperties extends BaseProperties {
 		return value(FOLDER_KEY);
 	}
 	
+	public Long sentDateBufferMs() {
+		return longValue(SENT_DATE_BUFFER_MS_KEY);
+	}
+
 	public Long maxLookBackMs() {
 		return longValue(MAX_LOOK_BACK_MS_KEY);
 	}

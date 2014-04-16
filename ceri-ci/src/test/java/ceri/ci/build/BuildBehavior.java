@@ -10,14 +10,14 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class BuildBehavior {
-	private static final Event e0 = new Event(Event.Type.broken, 0);
-	private static final Event e1 = new Event(Event.Type.fixed, 1, "a1");
-	private static final Event e2 = new Event(Event.Type.fixed, 2, "b1", "b2");
-	private static final Event e3 = new Event(Event.Type.broken, 3, "c1", "c2", "c3");
-	private static final Event e4 = new Event(Event.Type.broken, 4);
-	private static final Event e5 = new Event(Event.Type.broken, 5, "e1", "e2", "e3", "e4");
-	private static final Event e6 = new Event(Event.Type.fixed, 6);
-	private static final Event e7 = new Event(Event.Type.fixed, 7, "g1");
+	private static final Event e0 = new Event(Event.Type.failure, 0L);
+	private static final Event e1 = new Event(Event.Type.success, 1L, "a1");
+	private static final Event e2 = new Event(Event.Type.success, 2L, "b1", "b2");
+	private static final Event e3 = new Event(Event.Type.failure, 3L, "c1", "c2", "c3");
+	private static final Event e4 = new Event(Event.Type.failure, 4L);
+	private static final Event e5 = new Event(Event.Type.failure, 5L, "e1", "e2", "e3", "e4");
+	private static final Event e6 = new Event(Event.Type.success, 6L);
+	private static final Event e7 = new Event(Event.Type.success, 7L, "g1");
 
 	@Test
 	public void shouldCopyAllJobs() {
@@ -90,8 +90,8 @@ public class BuildBehavior {
 		assertFalse(build.equals(new Build("Test")));
 		assertTrue(build.equals(new Build("test")));
 		assertTrue(build.equals(build));
-		Event e0 = new Event(Event.Type.broken, 0);
-		Event e1 = new Event(Event.Type.fixed, 1);
+		Event e0 = new Event(Event.Type.failure, 0L);
+		Event e1 = new Event(Event.Type.success, 1L);
 		build.job("j0").event(e0);
 		build.job("j1").event(e0, e1);
 		Build build2 = new Build(build);

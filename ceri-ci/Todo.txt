@@ -1,16 +1,14 @@
 To do
 =====
 
+Only play alarm once for all builds?
 Fix tests, add tests
-Make sure multiple successful events don't trigger alerts
-Fix audio 'and' for missing files
-
 Combine AlertService and Alerters?
 Multi event post with json
 Add proxy to AlertService
 Master/slave config
 Repeater for multiple locations (2 x SJC, 1 x CN)
-
+Tidy up email code?
 Admin link page
 Change timeout for zwave
 Move work-specific settings and code to new private project

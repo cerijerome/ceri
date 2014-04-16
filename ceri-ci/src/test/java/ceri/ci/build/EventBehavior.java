@@ -12,32 +12,32 @@ public class EventBehavior {
 	
 	@Test(expected=Exception.class)
 	public void shouldBeImmutable() {
-		Event event = new Event(Event.Type.broken, 100, "a", "b", "c");
+		Event event = new Event(Event.Type.failure, 100L, "a", "b", "c");
 		event.names.add("d");
 	}
 
 	@Test
 	public void shouldBeCreatedWithCurrentTime() {
 		long t0 = System.currentTimeMillis();
-		Event event1 = Event.fixed("ceri");
-		Event event2 = Event.broken("ceri");
+		Event event1 = Event.success("ceri");
+		Event event2 = Event.failure("ceri");
 		long t1 = System.currentTimeMillis();
 		assertRange(event1.timeStamp, t0, t1);
-		assertThat(event1.type, is(Event.Type.fixed));
+		assertThat(event1.type, is(Event.Type.success));
 		assertRange(event2.timeStamp, t0, t1);
-		assertThat(event2.type, is(Event.Type.broken));
+		assertThat(event2.type, is(Event.Type.failure));
 	}
 
 	@Test
 	public void shouldAllowEmptyNames() throws Exception {
-		Event event = Event.fixed(Collections.<String>emptyList());
+		Event event = new Event(Event.Type.success, null, Collections.emptyList());
 		assertTrue(event.names.isEmpty());
-		assertThat(event.type, is(Event.Type.fixed));
+		assertThat(event.type, is(Event.Type.success));
 	}
 
 	@Test
 	public void shouldCopyAllFieldsWithCopyConstructor() {
-		Event event1 = Event.fixed("a", "b");
+		Event event1 = Event.success("a", "b");
 		Event event2 = new Event(event1);
 		assertThat(event1, is(event2));
 		assertThat(event1.names, is(event2.names));
@@ -47,9 +47,9 @@ public class EventBehavior {
 
 	@Test
 	public void shouldConformToEqualsContract() {
-		Event event = Event.fixed("a", "b");
+		Event event = Event.success("a", "b");
 		assertFalse(event.equals(null));
-		assertFalse(event.equals(Event.broken("a", "b")));
+		assertFalse(event.equals(Event.failure("a", "b")));
 		assertTrue(event.equals(event));
 		Event event2 = new Event(event);
 		assertTrue(event.equals(event2));

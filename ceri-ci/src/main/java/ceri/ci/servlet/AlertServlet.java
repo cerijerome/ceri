@@ -71,12 +71,12 @@ public class AlertServlet extends HttpServlet {
 		case clear:
 			service.clear(params.build, params.job);
 			break;
-		case broken:
-			service.process(new BuildEvent(params.build, params.job, new Event(Event.Type.broken,
+		case failure:
+			service.process(new BuildEvent(params.build, params.job, new Event(Event.Type.failure,
 				null, params.names)));
 			break;
-		case fixed:
-			service.process(new BuildEvent(params.build, params.job, new Event(Event.Type.fixed,
+		case success:
+			service.process(new BuildEvent(params.build, params.job, new Event(Event.Type.success,
 				null, params.names)));
 			break;
 		}
@@ -122,9 +122,9 @@ public class AlertServlet extends HttpServlet {
 			return AlertParams.clear(path, build, job);
 		case delete:
 			return AlertParams.delete(path, build, job);
-		case fixed:
+		case success:
 			return AlertParams.fixed(path, build, job, names(request));
-		case broken:
+		case failure:
 			return AlertParams.broken(path, build, job, names(request));
 		}
 		throw new AssertionError("Should not happen");

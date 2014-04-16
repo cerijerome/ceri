@@ -37,6 +37,10 @@ public class Email implements Closeable {
 		if (pollMs != null) builder.pollMs(pollMs);
 		Long shutdownTimeoutMs = properties.shutdownTimeoutMs();
 		if (shutdownTimeoutMs != null) builder.shutdownTimeoutMs(shutdownTimeoutMs);
+		Long maxLookBackMs = properties.maxLookBackMs();
+		if (maxLookBackMs != null) builder.maxLookBackMs(maxLookBackMs);
+		Long sentDateBufferMs = properties.sentDateBufferMs();
+		if (sentDateBufferMs != null) builder.sentDateBufferMs(sentDateBufferMs);
 		return builder.build();
 	}
 
@@ -51,8 +55,6 @@ public class Email implements Closeable {
 		if (protocol != null) builder.protocol(protocol);
 		String folder = properties.folder();
 		if (folder != null) builder.folder(folder);
-		Long maxLookBackMs = properties.maxLookBackMs();
-		if (maxLookBackMs != null) builder.maxLookBackMs(maxLookBackMs);
 		return builder.build();
 	}
 

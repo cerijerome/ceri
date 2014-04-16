@@ -65,7 +65,7 @@ public class Job {
 			Event event = i.next();
 			// Check if transition from one event type to another
 			if (lastEvent != null && event.type != lastEvent.type) {
-				if (event.type == Event.Type.broken) fixTransition = true;
+				if (event.type == Event.Type.failure) fixTransition = true;
 				else breakTransition = true;
 				if (breakTransition && fixTransition) i.remove();
 			}

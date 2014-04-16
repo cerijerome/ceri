@@ -1,6 +1,5 @@
 package ceri.ci.email;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,19 +9,18 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import javax.mail.Message;
+import javax.mail.MessagingException;
 import ceri.ci.build.BuildEvent;
 import ceri.ci.build.Event;
 import ceri.common.util.StringUtil;
 
 public class BoltEmailMatcher implements EmailEventMatcher {
-	private static final Logger logger = LogManager.getLogger();
 	private static final Pattern BUILD_JOB_NAME_REGEX = Pattern.compile("(\\w+)\\-(\\w+)");
 	private static final Pattern CONTENT_SEPARATOR_REGEX = Pattern.compile("^#+");
 	private static final Pattern COMMIT_ID_REGEX = Pattern.compile("(?i)build\\s*#\\s*(\\d+)");
 	private static final Pattern COMMITTER_REGEX = Pattern.compile("^\\[(\\w+)\\]");
-	private static final Pattern SUCCESS_REGEX = Pattern.compile("(?i)success");
+	private static final Pattern FIXED_REGEX = Pattern.compile("(?i)fixed");
 	private static final Pattern FAIL_REGEX = Pattern.compile("(?i)fail");
 	private static final Map<String, String> buildAliasMap;
 	private static final Map<String, String> jobAliasMap;
@@ -41,20 +39,12 @@ public class BoltEmailMatcher implements EmailEventMatcher {
 		jobAliasMap = Collections.unmodifiableMap(map);
 	}
 
-	public static void main(String[] args) throws IOException {
-		EmailRetriever retriever =
-			EmailRetriever.builder("imap.gmail.com", "ecg.sjc.ci.alert@gmail.com", "ecgsjccialert")
-				.build();
-		BoltEmailMatcher matcher = new BoltEmailMatcher();
-		Collection<Email> emails = retriever.fetch();
-		for (Email email : emails) {
-			System.out.println(email);
-			BuildEvent event = matcher.getEvent(email);
-			System.out.println(event);
-			System.out.println("--------------------");
-		}
+	@Override
+	public boolean matches(Message message) throws MessagingException {
+		String subject = message.getSubject();
+		return eventType(subject) != null;
 	}
-
+	
 	@Override
 	public BuildEvent getEvent(Email email) {
 		if (email == null || email.subject == null) return null;
@@ -77,11 +67,10 @@ public class BoltEmailMatcher implements EmailEventMatcher {
 
 	private Event createEvent(Email email) {
 		if (email.subject == null || email.content == null) return null;
-		Boolean success = success(email.subject);
-		if (success == null) return null;
+		Event.Type type = eventType(email.subject);
+		if (type == null) return null;
 		Collection<String> committers = committers(email.subject, email.content);
 		if (committers == null) return null;
-		Event.Type type = success ? Event.Type.fixed : Event.Type.broken;
 		return new Event(type, email.sentDateMs, committers);
 	}
 
@@ -125,15 +114,12 @@ public class BoltEmailMatcher implements EmailEventMatcher {
 		return committers;
 	}
 
-	private Boolean success(String subject) {
-		boolean success = SUCCESS_REGEX.matcher(subject).find();
+	private Event.Type eventType(String subject) {
 		boolean fail = FAIL_REGEX.matcher(subject).find();
-		if (!success && !fail) return null;
-		if (success && fail) {
-			logger.warn("Success and Failure both detected: {}", subject);
-			return null;
-		}
-		return Boolean.valueOf(success);
+		if (fail) return Event.Type.failure;
+		boolean success = FIXED_REGEX.matcher(subject).find();
+		if (success) return Event.Type.success;
+		return null;
 	}
 
 }
