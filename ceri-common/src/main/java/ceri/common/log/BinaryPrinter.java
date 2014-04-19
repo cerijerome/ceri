@@ -139,39 +139,56 @@ public class BinaryPrinter {
 		StringBuilder charB = new StringBuilder();
 		int rowLen = bytesPerColumn * columns;
 		for (int i = 0; i < len; i += rowLen) {
-			binB.setLength(0);
-			hexB.setLength(0);
-			charB.setLength(0);
+			resetBuffers(binB, hexB, charB);
 			for (int j = 0; j < rowLen; j++) {
-				if (j > 0 && j % bytesPerColumn == 0) {
-					binB.append(' ');
-					hexB.append(' ');
-					charB.append(' ');
-				}
-				if (i + j >= len) {
-					binB.append("        ");
-					hexB.append("  ");
-					charB.append(' ');
-				} else {
+				if (j > 0 && j % bytesPerColumn == 0) appendColumnSpace(binB, hexB, charB);
+				if (i + j >= len) appendMissingItemSpace(binB, hexB, charB);
+				else {
 					int b = 0xff & bytes[off + i + j];
-					String s =
-						StringUtil.pad(Integer.toBinaryString(b), BITS_IN_BYTE, "0",
-							StringUtil.Align.RIGHT);
-					binB.append(s);
-					s = Integer.toHexString(b).toUpperCase();
-					if (s.length() == 1) hexB.append('0');
-					hexB.append(s);
-					if (b >= ASCII_MIN && b <= ASCII_MAX) charB.append((char) b);
-					else charB.append('.');
+					appendByte(binB, hexB, charB, b);
 				}
-				binB.append(' ');
-				hexB.append(' ');
+				appendItemSpace(binB, hexB);
 			}
 			if (showBinary) out.print(binB.append(' ').toString());
 			if (showHex) out.print(hexB.append(' ').toString());
 			if (showChar) out.print(charB.toString());
 			out.println();
 		}
+	}
+
+	private void appendItemSpace(StringBuilder binB, StringBuilder hexB) {
+		binB.append(' ');
+		hexB.append(' ');
+	}
+
+	private void appendByte(StringBuilder binB, StringBuilder hexB, StringBuilder charB, int b) {
+		String s =
+			StringUtil.pad(Integer.toBinaryString(b), BITS_IN_BYTE, "0",
+				StringUtil.Align.RIGHT);
+		binB.append(s);
+		s = Integer.toHexString(b).toUpperCase();
+		if (s.length() == 1) hexB.append('0');
+		hexB.append(s);
+		if (b >= ASCII_MIN && b <= ASCII_MAX) charB.append((char) b);
+		else charB.append('.');
+	}
+
+	private void resetBuffers(StringBuilder binB, StringBuilder hexB, StringBuilder charB) {
+		binB.setLength(0);
+		hexB.setLength(0);
+		charB.setLength(0);
+	}
+
+	private void
+		appendMissingItemSpace(StringBuilder binB, StringBuilder hexB, StringBuilder charB) {
+		binB.append("        ");
+		hexB.append("  ");
+		charB.append(' ');
+	}
+
+	private void appendColumnSpace(StringBuilder binB, StringBuilder hexB, StringBuilder charB) {
+		appendItemSpace(binB, hexB);
+		charB.append(' ');
 	}
 
 }

@@ -2,12 +2,13 @@ package ceri.ci.build;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import ceri.common.util.HashCoder;
 import ceri.common.util.ToStringHelper;
 
-public class Builds {
+public class Builds implements Iterable<Build> {
 	private final Map<String, Build> mutableBuilds = new TreeMap<>();
 	public final Collection<Build> builds = Collections.unmodifiableCollection(mutableBuilds
 		.values());
@@ -46,6 +47,11 @@ public class Builds {
 			build.purge();
 	}
 
+	@Override
+	public Iterator<Build> iterator() {
+		return builds.iterator();
+	}
+	
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(mutableBuilds);

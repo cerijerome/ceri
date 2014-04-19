@@ -1,7 +1,7 @@
 To do
 =====
 
-Only play alarm once for all builds?
+Find out where and why email connection stops
 Fix tests, add tests
 Combine AlertService and Alerters?
 Multi event post with json
@@ -9,6 +9,7 @@ Add proxy to AlertService
 Master/slave config
 Repeater for multiple locations (2 x SJC, 1 x CN)
 Tidy up email code?
+Review logging levels
 Admin link page
 Change timeout for zwave
 Move work-specific settings and code to new private project

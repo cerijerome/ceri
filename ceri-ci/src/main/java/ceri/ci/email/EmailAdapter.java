@@ -24,6 +24,13 @@ import ceri.common.collection.ImmutableUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.util.BasicUtil;
 
+/**
+ * Polls the email server for emails. Uses the last received email's sent date for the minimum sent
+ * date on the next server query. A maximum look back time is used to limit the server query for the
+ * first time the code runs, and when the last email is too old. Matchers should be registered to
+ * optimize email filtering, and to convert emails to build events. A buffer is used to store emails
+ * from the previous run to check for late-arrivals.
+ */
 public class EmailAdapter implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private final EmailRetriever retriever;
@@ -33,8 +40,8 @@ public class EmailAdapter implements Closeable {
 	private final long shutdownTimeoutMs;
 	private final long maxLookBackMs;
 	private final long sentDateBufferMs;
-	private final Collection<Email> emailBuffer = new TreeSet<>(EmailComparators.SENT_DATE);
 	private final EmailRetriever.Matcher messageMatcher;
+	private final Collection<Email> emailBuffer = new TreeSet<>(EmailComparators.SENT_DATE);
 	private Email lastEmail = null;
 
 	public static void main(String[] args) throws Exception {
@@ -42,15 +49,14 @@ public class EmailAdapter implements Closeable {
 			EmailRetriever.builder("imap.gmail.com", "ecg.sjc.ci.alert@gmail.com", "ecgsjccialert")
 				.build();
 		BoltEmailMatcher matcher = new BoltEmailMatcher();
-		EmailAdapter adapter = builder(retriever, (events) -> {
-			for (BuildEvent event : events) {
-				logger.debug("{}", event);
-			}
-		}).matchers(matcher).build();
-		BasicUtil.delay(300000);
-		adapter.close();
+		try (EmailAdapter adapter = builder(retriever, null).matchers(matcher).build()) {
+			BasicUtil.delay(30000000);
+		}
 	}
 
+	/**
+	 * Builds the email adapter with optional parameters.
+	 */
 	public static class Builder {
 		final EmailRetriever retriever;
 		final BuildEventProcessor processor;
@@ -59,46 +65,71 @@ public class EmailAdapter implements Closeable {
 		long pollMs = TimeUnit.SECONDS.toMillis(30);
 		long maxLookBackMs = TimeUnit.HOURS.toMillis(20);
 		long sentDateBufferMs = TimeUnit.MINUTES.toMillis(10);
-		
+
 		Builder(EmailRetriever retriever, BuildEventProcessor processor) {
 			this.retriever = retriever;
 			this.processor = processor;
 		}
 
+		/**
+		 * Registers matchers to optimize email filtering, and convert emails to build events.
+		 */
 		public Builder matchers(EmailEventMatcher... matchers) {
 			return matchers(Arrays.asList(matchers));
 		}
 
+		/**
+		 * Registers matchers to optimize email filtering, and convert emails to build events.
+		 */
 		public Builder matchers(Collection<EmailEventMatcher> matchers) {
 			this.matchers.addAll(matchers);
 			return this;
 		}
 
+		/**
+		 * Sets the polling interval for fetching emails from the server.
+		 */
 		public Builder pollMs(long pollMs) {
 			this.pollMs = pollMs;
 			return this;
 		}
 
+		/**
+		 * Set the maximum look back time from the current time for the server query.
+		 */
 		public Builder maxLookBackMs(long maxLookBackMs) {
 			this.maxLookBackMs = maxLookBackMs;
 			return this;
 		}
 
+		/**
+		 * Sets the timeout in milliseconds to wait for shutdown on close.
+		 */
 		public Builder shutdownTimeoutMs(long shutdownTimeoutMs) {
 			this.shutdownTimeoutMs = shutdownTimeoutMs;
 			return this;
 		}
 
+		/**
+		 * Sets the additional look back buffer in milliseconds for emails arriving late since the
+		 * last fetch.
+		 */
 		public Builder sentDateBufferMs(long sentDateBufferMs) {
 			this.sentDateBufferMs = sentDateBufferMs;
 			return this;
 		}
 
+		/**
+		 * Builds the email adapter.
+		 */
 		public EmailAdapter build() {
 			return new EmailAdapter(this);
 		}
 	}
 
+	/**
+	 * Creates the builder with mandatory parameters.
+	 */
 	public static Builder builder(EmailRetriever retriever, BuildEventProcessor processor) {
 		return new Builder(retriever, processor);
 	}
@@ -112,9 +143,13 @@ public class EmailAdapter implements Closeable {
 		sentDateBufferMs = builder.sentDateBufferMs;
 		messageMatcher = (message) -> matches(message);
 		executor = Executors.newSingleThreadScheduledExecutor();
-		executor.scheduleAtFixedRate(() -> run(), 0, builder.pollMs, TimeUnit.MILLISECONDS);
+		executor.scheduleWithFixedDelay(() -> run(), 0, builder.pollMs, TimeUnit.MILLISECONDS);
 	}
 
+	/**
+	 * Shuts down the execution thread and waits for it to finish. Throws
+	 * RuntimeInterruptedException if interrupted during shutdown.
+	 */
 	@Override
 	public void close() {
 		try {
@@ -123,7 +158,7 @@ public class EmailAdapter implements Closeable {
 			logger.debug("Awaiting termination");
 			boolean complete = executor.awaitTermination(shutdownTimeoutMs, TimeUnit.MILLISECONDS);
 			if (!complete) logger.warn("Did not shut down in {}ms", shutdownTimeoutMs);
-			else logger.debug("Shut down successfully");
+			else logger.info("Shut down successfully");
 		} catch (InterruptedException e) {
 			logger.throwing(Level.DEBUG, e);
 			throw new RuntimeInterruptedException(e);
@@ -131,16 +166,21 @@ public class EmailAdapter implements Closeable {
 	}
 
 	/**
-	 * Use this filter to drop any messages we are not interested in.
+	 * Uses the filter to drop any messages we are not interested in.
 	 */
 	private boolean matches(Message message) throws MessagingException {
 		for (EmailEventMatcher matcher : matchers)
 			if (matcher.matches(message)) return true;
 		return false;
 	}
-	
+
+	/**
+	 * Execution thread method. A single thread executes this method continuously after a fixed
+	 * delay.
+	 */
 	private void run() {
 		try {
+			logger.debug("Thread started");
 			Date minDate = minDate(lastEmail);
 			List<Email> emails = retriever.fetch(minDate, messageMatcher);
 			filterAndUpdateBuffer(emails);
@@ -148,16 +188,20 @@ public class EmailAdapter implements Closeable {
 			lastEmail = emails.get(emails.size() - 1);
 			logger.debug("Last email: {}", lastEmail.subject);
 			Collection<BuildEvent> events = createEvents(emails);
-			logger.debug("Processing {} event(s)", events.size());
+			logger.info("Processing {} event(s)", events.size());
 			if (events.isEmpty()) return;
-			processor.process(events);
+			for (BuildEvent event : events)
+				logger.debug("{}", event);
+			if (processor != null) processor.process(events);
 		} catch (IOException e) {
 			logger.catching(e);
+		} finally {
+			logger.debug("Thread complete");
 		}
 	}
 
 	/**
-	 * Filter emails already in the buffer, then update the buffer.
+	 * Filters emails already in the buffer, then updates the buffer.
 	 */
 	private void filterAndUpdateBuffer(List<Email> emails) {
 		if (emails.isEmpty()) return;
@@ -175,7 +219,12 @@ public class EmailAdapter implements Closeable {
 		emailBuffer.clear();
 		emailBuffer.addAll(copy);
 	}
-	
+
+	/**
+	 * Determines the minimum sent date for the query. Uses the last email date or maximum look back
+	 * time, depending which is later. Adds an additional look back buffer in case emails turned up
+	 * late since the last request.
+	 */
 	private Date minDate(Email lastEmail) {
 		long t = System.currentTimeMillis() - maxLookBackMs;
 		if (lastEmail != null && lastEmail.sentDateMs > t) t = lastEmail.sentDateMs;
@@ -184,6 +233,9 @@ public class EmailAdapter implements Closeable {
 		return new Date(t);
 	}
 
+	/**
+	 * Converts emails to build events, using registered matcher objects.
+	 */
 	private Collection<BuildEvent> createEvents(Collection<Email> emails) {
 		List<BuildEvent> events = new ArrayList<>();
 		for (Email email : emails) {

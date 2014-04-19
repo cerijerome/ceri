@@ -2,7 +2,9 @@ package ceri.common.property;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Properties;
@@ -16,9 +18,25 @@ public class BasePropertiesBehavior {
 	@BeforeClass
 	public static void createProperties() {
 		properties.put("x", "X");
+		properties.put("y", "YyY,yy , y   ,");
+		properties.put("z", ",");
 		properties.put("a", "A");
 		properties.put("a.b", "AB");
 		properties.put("a.b.c", "3");
+	}
+
+	@Test
+	public void shouldReturnStringValuesFromACommaSeparatedList() {
+		BaseProperties bp = new BaseProperties(properties) {};
+		assertThat(bp.stringValues("x"), is(Arrays.asList("X")));
+		assertThat(bp.stringValues("y"), is(Arrays.asList("YyY", "yy", "y")));
+		assertThat(bp.stringValues("z"), is(Arrays.asList()));
+		assertNull(bp.stringValues("Z"));
+		Collection<String> def = Arrays.asList("d,ef");
+		assertThat(bp.stringValues(def, "x"), is(Arrays.asList("X")));
+		assertThat(bp.stringValues(def, "y"), is(Arrays.asList("YyY", "yy", "y")));
+		assertThat(bp.stringValues(def, "z"), is(def));
+		assertThat(bp.stringValues(def, "Z"), is(def));
 	}
 
 	@Test

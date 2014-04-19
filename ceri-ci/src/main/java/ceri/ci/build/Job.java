@@ -13,7 +13,7 @@ import ceri.common.util.ToStringHelper;
  * Keeps state of fix/break events on a named job. Events are sorted in order of
  * descending time-stamp.
  */
-public class Job {
+public class Job implements Iterable<Event> {
 	private final Collection<Event> mutableEvents = new TreeSet<>(Comparators
 		.reverse(EventComparators.TIMESTAMP));
 	public final Collection<Event> events = Collections.unmodifiableCollection(mutableEvents);
@@ -78,6 +78,11 @@ public class Job {
 		}
 	}
 
+	@Override
+	public Iterator<Event> iterator() {
+		return events.iterator();
+	}
+	
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(name, mutableEvents);

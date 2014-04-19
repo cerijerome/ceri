@@ -3,6 +3,9 @@ package ceri.ci.email;
 import java.util.Properties;
 import ceri.common.property.BaseProperties;
 
+/**
+ * Properties for fetching emails from the server.
+ */
 public class EmailAdapterProperties extends BaseProperties {
 	private static final String ENABLED_KEY = "enabled";
 	private static final String ACCOUNT_KEY = "account";

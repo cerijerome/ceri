@@ -20,24 +20,42 @@ import ceri.common.property.Key;
  * Utility methods for processing emails.
  */
 public class EmailUtil {
+	private static final String SECURE_SUFFIX = "s";
 	private static final String MAIL = "mail";
 	private static final String TIMEOUT = "timeout";
 	private static final String CONNECTION_TIMEOUT = "connectiontimeout";
+	private static final String CONNECTION_POOL_TIMEOUT = "connectionpooltimeout";
 	private static final String MAIL_STORE_PROTOCOL_KEY = "mail.store.protocol";
 
 	private EmailUtil() {}
 
 	/**
-	 * Creates a session with the email provider with given protocol and timeout settings.
+	 * Creates a session with the email provider with given protocol and timeout settings. Sets the
+	 * timeout settings for secure and non-secure versions of the protocol, in case IMAP server
+	 * reads the wrong ones.
 	 */
 	public static Session createSession(String protocol, long timeoutMs) {
-		String timeoutKey = Key.create(MAIL, protocol, TIMEOUT).value;
-		String connectionTimeoutKey = Key.create(MAIL, protocol, CONNECTION_TIMEOUT).value;
 		Properties properties = new Properties();
 		properties.setProperty(MAIL_STORE_PROTOCOL_KEY, protocol);
+		setSessionProperties(properties, protocol, timeoutMs);
+		if (!protocol.endsWith(SECURE_SUFFIX)) setSessionProperties(properties, protocol +
+			SECURE_SUFFIX, timeoutMs);
+		else setSessionProperties(properties, protocol.substring(0, protocol.length() - 1),
+			timeoutMs);
+		return Session.getInstance(properties);
+	}
+
+	/**
+	 * Sets protocol timeout properties. 
+	 */
+	private static void
+		setSessionProperties(Properties properties, String protocol, long timeoutMs) {
+		String timeoutKey = Key.create(MAIL, protocol, TIMEOUT).value;
+		String connectionTimeoutKey = Key.create(MAIL, protocol, CONNECTION_TIMEOUT).value;
+		String connectionPoolTimeoutKey = Key.create(MAIL, protocol, CONNECTION_POOL_TIMEOUT).value;
 		properties.setProperty(timeoutKey, String.valueOf(timeoutMs));
 		properties.setProperty(connectionTimeoutKey, String.valueOf(timeoutMs));
-		return Session.getInstance(properties, null);
+		properties.setProperty(connectionPoolTimeoutKey, String.valueOf(timeoutMs));
 	}
 
 	/**

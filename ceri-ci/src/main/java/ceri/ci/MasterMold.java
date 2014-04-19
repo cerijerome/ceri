@@ -28,22 +28,18 @@ public class MasterMold implements Closeable {
 
 	public static void main(String[] args) throws IOException {
 		try (MasterMold masterMold = new MasterMold()) {
-			AlertService service = masterMold.alert.service;
-			BuildEvent ev0 = new BuildEvent("bolt", "smoke", Event.failure("cdehaudt", "cjerome"));
-			BuildEvent ev1 = new BuildEvent("bolt", "smokes", Event.failure("punpal"));
-			BuildEvent ev2 = new BuildEvent("bolts", "smoke", Event.failure("punpal"));
-			service.process(ev0, ev1, ev2);
-			//						//BasicUtil.delay(10000);
-			//						BuildEvent event1 = new BuildEvent("bolt", "smoke", Event.fixed("cdehaudt"));
-			//						BuildEvent event2 = new BuildEvent("bolt", "regression", Event.broken("machung"));
-			//						service.process(event1, event2);
-			//						BasicUtil.delay(10000);
-			//						BuildEvent event3 = new BuildEvent("bolt", "smoke", Event.fixed("dxie"));
-			//						service.process(event3);
+//			AlertService service = masterMold.alert.service;
+//			BuildEvent ev0 = new BuildEvent("bolt", "smoke", Event.failure("cdehaudt", "cjerome"));
+//			BuildEvent ev1 = new BuildEvent("bolt", "metrics", Event.failure("punpal"));
+//			BuildEvent ev2 = new BuildEvent("mweb", "integration", Event.failure("adicohen"));
+//			service.process(ev0, ev1, ev2);
+//			BasicUtil.delay(60000);
+//			BuildEvent ev3 = new BuildEvent("bolt", "smoke", Event.success());
+//			BuildEvent ev4 = new BuildEvent("bolt", "commit", Event.failure("uroblesmellin"));
+//			BuildEvent ev5 = new BuildEvent("mweb", "integration", Event.failure("adicohen"));
+//			service.process(ev3, ev4, ev5);
 			while (true)
 				BasicUtil.delay(10000);
-			//						service.broken("bolt", "smoke", Arrays.asList("fuzhong", "cjerome"));
-			//			BasicUtil.delay(1000000);
 		}
 	}
 

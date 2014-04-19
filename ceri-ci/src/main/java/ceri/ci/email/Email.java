@@ -12,7 +12,7 @@ import ceri.common.util.HashCoder;
 import ceri.common.util.ToStringHelper;
 
 /**
- * Keeps track of the main
+ * Keeps track of the main fields of an email.
  */
 public class Email {
 	public final Collection<String> recipients;

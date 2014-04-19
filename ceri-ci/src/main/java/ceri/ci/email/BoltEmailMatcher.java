@@ -15,6 +15,9 @@ import ceri.ci.build.BuildEvent;
 import ceri.ci.build.Event;
 import ceri.common.util.StringUtil;
 
+/**
+ * Parses build event emails sent from the Bolt and MWeb Jenkins environments.
+ */
 public class BoltEmailMatcher implements EmailEventMatcher {
 	private static final Pattern BUILD_JOB_NAME_REGEX = Pattern.compile("(\\w+)\\-(\\w+)");
 	private static final Pattern CONTENT_SEPARATOR_REGEX = Pattern.compile("^#+");
@@ -25,6 +28,10 @@ public class BoltEmailMatcher implements EmailEventMatcher {
 	private static final Map<String, String> buildAliasMap;
 	private static final Map<String, String> jobAliasMap;
 
+	/**
+	 * Builds the map of build name aliases. Used to convert names found in the email to actual
+	 * build names.
+	 */
 	static {
 		Map<String, String> map = new HashMap<>();
 		map.put("boltci", "bolt");
@@ -32,6 +39,10 @@ public class BoltEmailMatcher implements EmailEventMatcher {
 		buildAliasMap = Collections.unmodifiableMap(map);
 	}
 
+	/**
+	 * Builds the map of job name aliases. Used to convert names found in the email to actual job
+	 * names.
+	 */
 	static {
 		Map<String, String> map = new HashMap<>();
 		map.put("boltci", "bolt");
@@ -39,12 +50,19 @@ public class BoltEmailMatcher implements EmailEventMatcher {
 		jobAliasMap = Collections.unmodifiableMap(map);
 	}
 
+	/**
+	 * Check email subject if it matches the expected syntax.
+	 */
 	@Override
 	public boolean matches(Message message) throws MessagingException {
 		String subject = message.getSubject();
 		return eventType(subject) != null;
 	}
-	
+
+	/**
+	 * Parses the email subject and content to create a build event. Returns null if not in the
+	 * correct syntax.
+	 */
 	@Override
 	public BuildEvent getEvent(Email email) {
 		if (email == null || email.subject == null) return null;
@@ -53,6 +71,9 @@ public class BoltEmailMatcher implements EmailEventMatcher {
 		return createBuildEvent(email.subject, event);
 	}
 
+	/**
+	 * Creates a build event.
+	 */
 	private BuildEvent createBuildEvent(String subject, Event event) {
 		Matcher m = BUILD_JOB_NAME_REGEX.matcher(subject);
 		if (!m.find()) return null;
@@ -65,6 +86,9 @@ public class BoltEmailMatcher implements EmailEventMatcher {
 		return new BuildEvent(build, job, event);
 	}
 
+	/**
+	 * Creates a success or fail event from email subject and content.
+	 */
 	private Event createEvent(Email email) {
 		if (email.subject == null || email.content == null) return null;
 		Event.Type type = eventType(email.subject);
@@ -74,12 +98,19 @@ public class BoltEmailMatcher implements EmailEventMatcher {
 		return new Event(type, email.sentDateMs, committers);
 	}
 
+	/**
+	 * Attempts to find a commit id in the given line. Returns null if no match.
+	 */
 	private String commitId(String line) {
 		Matcher m = COMMIT_ID_REGEX.matcher(line);
 		if (!m.find()) return null;
 		return m.group(1);
 	}
 
+	/**
+	 * Finds committer names based on the commit id in the subject, and the commit detail block for
+	 * the commit id in the email content.
+	 */
 	private Collection<String> committers(String subject, String content) {
 		String commitId = commitId(subject);
 		if (commitId == null) return null;
@@ -90,11 +121,17 @@ public class BoltEmailMatcher implements EmailEventMatcher {
 		return readCommitters(i);
 	}
 
+	/**
+	 * Skips lines until the marker for the start of commit details.
+	 */
 	private void skipToCommits(Iterator<String> i) {
 		while (i.hasNext())
 			if (CONTENT_SEPARATOR_REGEX.matcher(i.next()).matches()) break;
 	}
 
+	/**
+	 * Skips lines until the given commit id is found.
+	 */
 	private void skipToCommitId(String commitId, Iterator<String> i) {
 		while (i.hasNext()) {
 			String id = commitId(i.next());
@@ -102,6 +139,10 @@ public class BoltEmailMatcher implements EmailEventMatcher {
 		}
 	}
 
+	/**
+	 * Reads committer names from each line until a new commit id is found, or no more lines are
+	 * left.
+	 */
 	private Collection<String> readCommitters(Iterator<String> i) {
 		Collection<String> committers = new LinkedHashSet<>();
 		while (i.hasNext()) {
@@ -114,6 +155,9 @@ public class BoltEmailMatcher implements EmailEventMatcher {
 		return committers;
 	}
 
+	/**
+	 * Checks the email subject for failure or success events.
+	 */
 	private Event.Type eventType(String subject) {
 		boolean fail = FAIL_REGEX.matcher(subject).find();
 		if (fail) return Event.Type.failure;

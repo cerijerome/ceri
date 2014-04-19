@@ -2,12 +2,13 @@ package ceri.ci.build;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import ceri.common.util.HashCoder;
 import ceri.common.util.ToStringHelper;
 
-public class Build {
+public class Build implements Iterable<Job> {
 	private final Map<String, Job> mutableJobs = new TreeMap<>();
 	public final Collection<Job> jobs = Collections.unmodifiableCollection(mutableJobs.values());
 	public final String name;
@@ -44,11 +45,16 @@ public class Build {
 		for (Job job : jobs)
 			job.purge();
 	}
-
+	
 	private void add(Job job) {
 		mutableJobs.put(job.name, job);
 	}
 
+	@Override
+	public Iterator<Job> iterator() {
+		return jobs.iterator();
+	}
+	
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(name, mutableJobs);

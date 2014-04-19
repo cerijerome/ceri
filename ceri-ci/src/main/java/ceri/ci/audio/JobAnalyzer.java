@@ -13,6 +13,7 @@ import ceri.ci.build.Job;
  * Builds should be summarized before using this class.
  */
 public class JobAnalyzer {
+	public final String build;
 	public final Collection<Job> justBroken;
 	public final Collection<Job> stillBroken;
 	public final Collection<Job> justFixed;
@@ -21,6 +22,7 @@ public class JobAnalyzer {
 	 * Analyzes current and previous summarized builds.
 	 */
 	public JobAnalyzer(Build latestBuild, Build previousBuild) {
+		build = latestBuild.name;
 		Collection<Job> justBroken = new ArrayList<>();
 		Collection<Job> stillBroken = new ArrayList<>();
 		Collection<Job> justFixed = new ArrayList<>();
@@ -39,8 +41,8 @@ public class JobAnalyzer {
 		this.justFixed = Collections.unmodifiableCollection(justFixed);
 	}
 
-	public boolean hasJobs() {
-		return !justBroken.isEmpty() || !stillBroken.isEmpty() || !justFixed.isEmpty();
+	public boolean isEmpty() {
+		return justBroken.isEmpty() && stillBroken.isEmpty() && justFixed.isEmpty();
 	}
 	
 	private Event.Type type(Event event) {

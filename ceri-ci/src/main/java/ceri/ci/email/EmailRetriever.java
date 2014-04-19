@@ -6,8 +6,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 import javax.mail.FetchProfile;
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -23,6 +21,11 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.util.ToStringHelper;
 
+/**
+ * Fetches email messages from a server. Uses a server-side limit query based on minimum sent date,
+ * and a client side matcher to filter the retrieved messages. For matching messages content is
+ * downloaded and the message is converted to an email object.
+ */
 public class EmailRetriever {
 	private static final Logger logger = LogManager.getLogger();
 	private static final Matcher DEFAULT_MATCHER = (message) -> true;
@@ -33,31 +36,6 @@ public class EmailRetriever {
 	private final String name;
 	private final String password;
 	private final String folder;
-
-	public static void main(String[] args) throws Exception {
-		Properties properties = new Properties();
-		properties.setProperty("mail.store.protocol", "imaps");
-		properties.setProperty("mail.imaps.timeout", "5000");
-		properties.setProperty("mail.imaps.connectiontimeout", "5000");
-		Session session = Session.getInstance(properties, null);
-		Store store = session.getStore();
-		store.connect("imap.gmail.com", "ecg.sjc.ci.alert@gmail.com", "ecgsjccialert");
-		Folder folder = store.getFolder("inbox");
-		folder.open(Folder.READ_ONLY);
-		Date date = new Date(System.currentTimeMillis() - TimeUnit.HOURS.toMillis(22));
-		SearchTerm search = new SentDateTerm(ComparisonTerm.GT, date);
-		Message[] messages = folder.search(search);
-		logger.debug("{} messages", messages.length);
-
-		FetchProfile fp = new FetchProfile();
-		fp.add(FetchProfile.Item.ENVELOPE);
-		folder.fetch(messages, fp);
-		logger.debug("Fetch complete");
-
-		for (Message message : messages) {
-			logger.debug("Sent: {}", message.getSentDate());
-		}
-	}
 
 	/**
 	 * Interface for client-side filtering of email messages.
@@ -71,6 +49,9 @@ public class EmailRetriever {
 		boolean matches(Message message) throws MessagingException;
 	}
 
+	/**
+	 * Builder class to set optional parameters.
+	 */
 	public static class Builder {
 		String host;
 		String name;
@@ -86,31 +67,50 @@ public class EmailRetriever {
 			this.password = password;
 		}
 
+		/**
+		 * Set the protocol used to fetch emails. Defaults to imaps.
+		 */
 		public Builder protocol(String protocol) {
 			this.protocol = protocol;
 			return this;
 		}
 
+		/**
+		 * Set the server-side port. Default protocol port is otherwise used.
+		 */
 		public Builder port(int port) {
 			this.port = port;
 			return this;
 		}
 
+		/**
+		 * Sets the timeout in milliseconds for socket, connection, and connection-pool. Default is
+		 * 5 seconds.
+		 */
 		public Builder timeoutMs(long timeoutMs) {
 			this.timeoutMs = timeoutMs;
 			return this;
 		}
 
+		/**
+		 * Sets the name of the email folder. Defaults to inbox.
+		 */
 		public Builder folder(String folder) {
 			this.folder = folder;
 			return this;
 		}
 
+		/**
+		 * Builds the retriever object.
+		 */
 		public EmailRetriever build() {
 			return new EmailRetriever(this);
 		}
 	}
 
+	/**
+	 * Creates the builder with mandatory parameters.
+	 */
 	public static Builder builder(String host, String name, String password) {
 		return new Builder(host, name, password);
 	}
@@ -146,27 +146,49 @@ public class EmailRetriever {
 		}
 	}
 
+	/**
+	 * Fetch messages from the server, filter them client-side, and convert them to email objects.
+	 */
 	private List<Email> fetchEmail(Date minDate, Matcher matcher) throws MessagingException {
 		Store store = null;
 		try {
+			logger.debug("Opening store");
 			store = openStore();
-			Folder folder = openFolder(store);
-			logger.debug("Fetching emails sent from {}", minDate);
-			Collection<Message> messages = fetchMessages(folder, minDate, matcher);
-			logger.debug("{} email(s) to process", messages.size());
-			List<Email> emails = createFromMessages(messages);
-			return emails;
+			return fetchFromStore(minDate, matcher, store);
 		} finally {
 			if (store != null) store.close();
 		}
 	}
 
+	/**
+	 * Fetches messages from the server, filters them, and converts to email objects.
+	 */
+	private List<Email> fetchFromStore(Date minDate, Matcher matcher, Store store)
+		throws MessagingException {
+		Folder folder = null;
+		try {
+			logger.debug("Opening folder");
+			folder = openFolder(store);
+			logger.info("Fetching emails sent from {}", minDate);
+			Collection<Message> messages = fetchMessages(folder, minDate, matcher);
+			logger.debug("{} email(s) to process", messages.size());
+			List<Email> emails = createFromMessages(messages);
+			logger.debug("{} email(s) converted", messages.size());
+			return emails;
+		} finally {
+			if (folder != null) folder.close(false);
+		}
+	}
+
+	/**
+	 * Fetches messages from the open email server folder.
+	 */
 	private Collection<Message> fetchMessages(Folder folder, Date minDate, Matcher matcher)
 		throws MessagingException {
 		// Search term not fully implemented on mail servers, but can prevent fetching all email
 		SearchTerm searchTerm = new SentDateTerm(ComparisonTerm.GT, minDate);
 		Message[] messages = folder.search(searchTerm);
-		logger.debug("{} email(s) returned", messages.length);
+		logger.info("{} email(s) returned", messages.length);
 		bulkFetchMessageEnvelopes(folder, messages);
 		List<Message> filteredMessages = new ArrayList<>();
 		for (Message message : messages) {
@@ -188,6 +210,10 @@ public class EmailRetriever {
 		folder.fetch(messages, fp);
 	}
 
+	/**
+	 * Creates email objects from messages. Headers are already loaded, but content will be
+	 * downloaded one by one.
+	 */
 	private List<Email> createFromMessages(Collection<Message> messages) {
 		List<Email> emails = new ArrayList<>();
 		for (Message message : messages) {
@@ -202,6 +228,10 @@ public class EmailRetriever {
 		return emails;
 	}
 
+	/**
+	 * Creates a session with protocol and timeout properties, connects to a store, and returns the
+	 * store object.
+	 */
 	private Store openStore() throws MessagingException {
 		Session session = EmailUtil.createSession(protocol, timeoutMs);
 		Store store = session.getStore();
@@ -209,6 +239,9 @@ public class EmailRetriever {
 		return store;
 	}
 
+	/**
+	 * Opens the folder of the given store in read only mode.
+	 */
 	private Folder openFolder(Store store) throws MessagingException {
 		Folder f = folder == null ? store.getDefaultFolder() : store.getFolder(folder);
 		f.open(Folder.READ_ONLY);

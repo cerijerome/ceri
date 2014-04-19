@@ -123,7 +123,7 @@ public class AudioMessage {
 
 	private void play(File file) throws IOException {
 		if (!verify(file)) return;
-		logger.debug("Speech: {}", file.getName());
+		logger.debug("Speech: {}", name(file));
 		checkRuntimeInterrupted();
 		Audio audio = Audio.create(file);
 		player.play(audio.changePitch(pitch));
@@ -138,6 +138,13 @@ public class AudioMessage {
 		return files;
 	}
 
+	private String name(File file) {
+		String name = file.getName();
+		int index = name.lastIndexOf('.');
+		if (index == -1) return name;
+		return name.substring(0, index);
+	}
+	
 	private File file(String dir, String key) {
 		return new File(soundDir, dir + "/" + key + AUDIO_FILE_SUFFIX);
 	}
