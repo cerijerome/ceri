@@ -2,11 +2,13 @@ package ceri.ci.x10;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.Properties;
 import ceri.common.property.BaseProperties;
 import ceri.common.property.Key;
 import ceri.x10.util.X10ControllerType;
 
+/**
+ * Properties to configure the x10 alerter.
+ */
 public class X10AlerterProperties extends BaseProperties {
 	private static final X10ControllerType CONTROLLER_DEF = X10ControllerType.cm17a;
 	private static final String ENABLED_KEY = "enabled";
@@ -14,8 +16,8 @@ public class X10AlerterProperties extends BaseProperties {
 	private static final String CONTROLLER_KEY = "controller";
 	private static final String ADDRESS_KEY = "address";
 
-	public X10AlerterProperties(Properties properties, String...prefix) {
-		super(properties, prefix);
+	public X10AlerterProperties(BaseProperties properties, String group) {
+		super(properties, group);
 	}
 
 	public boolean enabled() {

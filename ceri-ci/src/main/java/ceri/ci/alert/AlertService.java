@@ -1,7 +1,6 @@
 package ceri.ci.alert;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Executors;
@@ -19,11 +18,16 @@ import ceri.ci.build.Job;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.ee.LoggingExecutor;
+import ceri.common.io.IoUtil;
 import ceri.common.log.LogUtil;
 
+/**
+ * Service that manages the state of builds, and call update, remind, and clear on the
+ * alerter group. Is thread-safe.
+ */
 public class AlertService implements Closeable, BuildEventProcessor {
 	private static final Logger logger = LogManager.getLogger();
-	private final Alerters alerters;
+	private final AlerterGroup alerterGroup;
 	private final long reminderMs;
 	private final Lock lock = new ReentrantLock();
 	private final Condition condition = lock.newCondition();
@@ -31,16 +35,21 @@ public class AlertService implements Closeable, BuildEventProcessor {
 	private final LoggingExecutor executor;
 	private boolean buildsChanged = false;
 
-	public AlertService(Alerters alerters, long reminderMs, long shutdownTimeoutMs) {
-		this.alerters = alerters;
+	public AlertService(AlerterGroup alerterGroup, long reminderMs, long shutdownTimeoutMs) {
+		this.alerterGroup = alerterGroup;
 		this.reminderMs = reminderMs;
-		executor = new LoggingExecutor(null, Executors.newSingleThreadExecutor(), shutdownTimeoutMs);
+		executor =
+			new LoggingExecutor(Executors.newSingleThreadExecutor(), shutdownTimeoutMs, null);
 		executor.execute(() -> run());
 	}
 
-	// @TODO: put on timer, or based on event count
+	/**
+	 * Purges older events from the builds.
+	 * 
+	 * @TODO: put on timer, or based on event count
+	 */
 	public void purge() {
-		logger.debug("purge");
+		logger.info("Purging events");
 		lock.lock();
 		try {
 			builds.purge();
@@ -50,6 +59,9 @@ public class AlertService implements Closeable, BuildEventProcessor {
 		}
 	}
 
+	/**
+	 * Returns a copy of the state of all builds.
+	 */
 	public Builds builds() {
 		lock.lock();
 		try {
@@ -59,6 +71,9 @@ public class AlertService implements Closeable, BuildEventProcessor {
 		}
 	}
 
+	/**
+	 * Returns a copy of the state of the specified build.
+	 */
 	public Build build(String build) {
 		lock.lock();
 		try {
@@ -68,6 +83,9 @@ public class AlertService implements Closeable, BuildEventProcessor {
 		}
 	}
 
+	/**
+	 * Returns a copy of the state of the specified job.
+	 */
 	public Job job(String build, String job) {
 		lock.lock();
 		try {
@@ -77,8 +95,12 @@ public class AlertService implements Closeable, BuildEventProcessor {
 		}
 	}
 
+	/**
+	 * Clears events from jobs. If build is null, all events are cleared. If job is null, all
+	 * events for the build are cleared. Otherwise only events for job are cleared.
+	 */
 	public void clear(String build, String job) {
-		logger.debug("clear: {}, {}", build, job);
+		logger.debug("Clearing events from {}/{}", build, job);
 		lock.lock();
 		try {
 			if (build == null) builds.clear();
@@ -90,8 +112,12 @@ public class AlertService implements Closeable, BuildEventProcessor {
 		}
 	}
 
+	/**
+	 * Deletes builds and/or jobs. If build is null, all builds are deleted. If job is null, all
+	 * jobs for the build are deleted. Otherwise only the job specified is deleted.
+	 */
 	public void delete(String build, String job) {
-		logger.debug("delete: {}, {}", build, job);
+		logger.debug("Deleting {}/{}", build, job);
 		lock.lock();
 		try {
 			if (build == null) builds.delete();
@@ -103,12 +129,20 @@ public class AlertService implements Closeable, BuildEventProcessor {
 		}
 	}
 
+	/**
+	 * Processes new build events.
+	 */
 	public void process(BuildEvent... events) {
 		process(Arrays.asList(events));
 	}
 
+	/**
+	 * Processes new build events. Any running alerts will complete, then these events will trigger
+	 * the alerts again.
+	 */
 	@Override
 	public void process(Collection<BuildEvent> events) {
+		logger.info("Processing {} build events", events.size());
 		lock.lock();
 		try {
 			for (BuildEvent event : events) {
@@ -121,13 +155,15 @@ public class AlertService implements Closeable, BuildEventProcessor {
 	}
 
 	@Override
-	public void close() throws IOException {
-		executor.close();
+	public void close() {
+		logger.info("Closing the alert service");
+		IoUtil.close(executor);
 	}
 
 	/**
-	 * Waits for builds to change with given millisecond timeout. If a clear was called then builds
-	 * will be empty. Null is returned if the wait timeout expires.
+	 * Waits for builds to change with given millisecond timeout. If the clear method was called
+	 * then builds will be empty. Null is returned if the wait timeout expires; this is the reminder
+	 * timeout.
 	 */
 	private Builds waitForAndCopyChangedBuilds(long ms) {
 		lock.lock();
@@ -147,21 +183,33 @@ public class AlertService implements Closeable, BuildEventProcessor {
 	}
 
 	/**
-	 * Must be called within a lock block.
+	 * Signals build state has changed. Must be called within a lock block.
 	 */
 	private void signal() {
 		buildsChanged = true;
 		condition.signal();
 	}
 
+	/**
+	 * Execution thread method. Waits for build changes and calls update, remind, or clear on the
+	 * alerters, depending on the change. Null indicates the wait timed out and a reminder will be
+	 * sent. Empty builds indicate a full delete or clear was called and alerters should clear their
+	 * states. Every other case will call update on the alerters.
+	 */
 	private void run() {
 		while (true) {
-			logger.debug("Waiting for signal");
-			Builds builds = waitForAndCopyChangedBuilds(reminderMs);
-			logger.debug("Alerting for builds: {}", LogUtil.compact(builds));
-			if (builds == null) alerters.remind();
-			else if (builds.builds.isEmpty()) alerters.clear();
-			else alerters.alert(builds);
+			try {
+				logger.debug("Waiting for signal");
+				Builds builds = waitForAndCopyChangedBuilds(reminderMs);
+				logger.debug("Alerting for builds: {}", LogUtil.compact(builds));
+				if (builds == null) alerterGroup.remind();
+				else if (builds.builds.isEmpty()) alerterGroup.clear();
+				else alerterGroup.update(builds);
+			} catch (RuntimeInterruptedException e) {
+				throw e;
+			} catch (RuntimeException e) {
+				logger.catching(e);
+			}
 		}
 	}
 

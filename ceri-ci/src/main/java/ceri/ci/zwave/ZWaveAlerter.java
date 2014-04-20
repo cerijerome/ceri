@@ -9,10 +9,15 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.ci.build.BuildUtil;
+import ceri.ci.build.Builds;
+import ceri.ci.common.Alerter;
 import ceri.common.collection.ImmutableUtil;
-import ceri.zwave.veralite.VeraLite;
 
-public class ZWaveAlerter {
+/**
+ * Alerter that turns on zwave devices for build failure events.
+ */
+public class ZWaveAlerter implements Alerter {
 	private static final Logger logger = LogManager.getLogger();
 	private final Map<String, Integer> devices;
 	private final Set<Integer> activeDevices = new HashSet<>();
@@ -49,12 +54,18 @@ public class ZWaveAlerter {
 		devices = ImmutableUtil.copyAsMap(builder.devices);
 	}
 
+	@Override
+	public void update(Builds builds) {
+		Collection<String> breakNames = BuildUtil.summarizedBreakNames(builds);
+		alert(breakNames);
+	}
+	
 	public void alert(String...keys) {
 		alert(Arrays.asList(keys));
 	}
 	
 	public void alert(Collection<String> keys) {
-		logger.debug("alert: {}", keys);
+		logger.info("Alerting for {}", keys);
 		Collection<Integer> devices = keysToDevices(keys);
 		for (Integer device : new HashSet<>(activeDevices)) {
 			if (!devices.contains(device)) deviceOff(device);
@@ -64,12 +75,18 @@ public class ZWaveAlerter {
 		}
 	}
 
+	@Override
 	public void clear() {
-		logger.debug("clear");
+		logger.info("Clearing state");
 		for (int device : devices.values())
 			deviceOff(device);
 	}
 
+	@Override
+	public void remind() {
+		// Do nothing
+	}
+	
 	private Collection<Integer> keysToDevices(Collection<String> keys) {
 		Collection<Integer> devices = new HashSet<>();
 		for (String key : keys) {
@@ -97,8 +114,4 @@ public class ZWaveAlerter {
 		}
 	}
 
-	ZWaveController createController(String host) {
-		return new ZWaveController(new VeraLite(host));
-	}
-	
 }

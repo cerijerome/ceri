@@ -74,9 +74,9 @@ public class EmailUtil {
 	}
 
 	/**
-	 * Get the raw from email address.
+	 * Get the raw first email address.
 	 */
-	public static String from(Address[] from) {
+	public static String firstAddress(Address[] from) {
 		Collection<String> fr = addressesFrom(from);
 		if (fr.isEmpty()) return null;
 		return fr.iterator().next();

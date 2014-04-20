@@ -3,9 +3,12 @@ package ceri.ci.web;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ci.build.Builds;
-import ceri.common.log.LogUtil;
+import ceri.ci.common.Alerter;
 
-public class WebAlerter {
+/**
+ * Captures the build state for web page view.
+ */
+public class WebAlerter implements Alerter {
 	private static final Logger logger = LogManager.getLogger();
 	private volatile Builds builds;
 
@@ -13,16 +16,23 @@ public class WebAlerter {
 		clear();
 	}
 
+	@Override
 	public void update(Builds builds) {
-		logger.debug("update: {}", LogUtil.compact(builds));
+		logger.debug("Updating build state");
 		this.builds = new Builds(builds);
 	}
 
+	@Override
 	public void clear() {
-		logger.debug("clear");
+		logger.debug("Clearing state");
 		builds = new Builds();
 	}
 
+	@Override
+	public void remind() {
+		// Do nothing
+	}
+	
 	public Builds builds() {
 		return builds;
 	}

@@ -8,12 +8,18 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.ci.build.BuildUtil;
+import ceri.ci.build.Builds;
+import ceri.ci.common.Alerter;
 import ceri.common.collection.ImmutableUtil;
 import ceri.x10.command.CommandFactory;
 import ceri.x10.type.Address;
 import ceri.x10.util.X10Controller;
 
-public class X10Alerter {
+/**
+ * Alerter that turns on X10 devices for build failures. 
+ */
+public class X10Alerter implements Alerter {
 	private static final Logger logger = LogManager.getLogger();
 	private final X10Controller x10;
 	private final Map<String, Address> addresses;
@@ -44,17 +50,22 @@ public class X10Alerter {
 	}
 
 	X10Alerter(Builder builder) {
-		logger.debug("Creating X10 alerter");
 		x10 = builder.x10;
 		addresses = ImmutableUtil.copyAsMap(builder.addresses);
 	}
 
+	@Override
+	public void update(Builds builds) {
+		Collection<String> breakNames = BuildUtil.summarizedBreakNames(builds);
+		alert(breakNames);
+	}
+	
 	public void alert(String... keys) {
 		alert(Arrays.asList(keys));
 	}
 
 	public void alert(Collection<String> keys) {
-		logger.debug("alert: {}", keys);
+		logger.info("Alerting for {}", keys);
 		Collection<Address> addresses = keysToAddresses(keys);
 		for (Address address : new HashSet<>(activeAddresses)) {
 			if (!addresses.contains(address)) deviceOff(address);
@@ -64,12 +75,18 @@ public class X10Alerter {
 		}
 	}
 
+	@Override
 	public void clear() {
-		logger.debug("clear");
+		logger.info("Clearing state");
 		for (Address address : addresses.values())
 			deviceOff(address);
 	}
 
+	@Override
+	public void remind() {
+		// Do nothing
+	}
+	
 	private Collection<Address> keysToAddresses(Collection<String> keys) {
 		Collection<Address> addresses = new HashSet<>();
 		for (String key : keys) {
@@ -81,7 +98,7 @@ public class X10Alerter {
 
 	private void deviceOn(Address address) {
 		try {
-			logger.debug("deviceOn: {}", address);
+			logger.debug("Turning on {}", address);
 			x10.command(CommandFactory.on(address));
 			activeAddresses.add(address);
 		} catch (RuntimeException e) {
@@ -91,7 +108,7 @@ public class X10Alerter {
 
 	private void deviceOff(Address address) {
 		try {
-			logger.debug("deviceOff: {}", address);
+			logger.debug("Turning off {}", address);
 			x10.command(CommandFactory.off(address));
 			activeAddresses.remove(address);
 		} catch (RuntimeException e) {

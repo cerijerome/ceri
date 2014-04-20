@@ -1,12 +1,8 @@
-package ceri.ci.audio;
+package ceri.ci.build;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import ceri.ci.build.Build;
-import ceri.ci.build.BuildUtil;
-import ceri.ci.build.Event;
-import ceri.ci.build.Job;
 
 /**
  * Checks a build for jobs that have just been broken, are still broken, or have just been fixed.

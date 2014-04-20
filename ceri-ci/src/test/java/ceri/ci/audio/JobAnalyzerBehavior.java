@@ -7,6 +7,7 @@ import org.junit.Test;
 import ceri.ci.build.Build;
 import ceri.ci.build.BuildTestUtil;
 import ceri.ci.build.Event;
+import ceri.ci.build.JobAnalyzer;
 
 public class JobAnalyzerBehavior {
 	private static final Event b0 = BuildTestUtil.event(Event.Type.failure, 0);

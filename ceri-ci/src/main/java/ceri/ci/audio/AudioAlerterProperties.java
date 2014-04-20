@@ -1,16 +1,18 @@
 package ceri.ci.audio;
 
-import java.util.Properties;
 import ceri.common.property.BaseProperties;
 
+/**
+ * Properties to configure the audio alerter.
+ */
 public class AudioAlerterProperties extends BaseProperties {
 	private static final String VOICE_DEF = "en-us/lauren";
 	private static final String ENABLED_KEY = "enabled";
 	private static final String PITCH_KEY = "pitch";
 	private static final String VOICE_KEY = "voice";
 
-	public AudioAlerterProperties(Properties properties, String...prefix) {
-		super(properties, prefix);
+	public AudioAlerterProperties(BaseProperties properties, String group) {
+		super(properties, group);
 	}
 
 	public boolean enabled() {

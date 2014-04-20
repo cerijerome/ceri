@@ -1,6 +1,5 @@
 package ceri.ci.email;
 
-import java.util.Properties;
 import ceri.common.property.BaseProperties;
 
 /**
@@ -18,8 +17,8 @@ public class EmailAdapterProperties extends BaseProperties {
 	private static final String SENT_DATE_BUFFER_MS_KEY = "sent.date.buffer.ms";
 	private static final String SHUTDOWN_TIMEOUT_MS_KEY = "shutdown.timeout.ms";
 
-	public EmailAdapterProperties(Properties properties, String...prefix) {
-		super(properties, prefix);
+	public EmailAdapterProperties(BaseProperties properties, String group) {
+		super(properties, group);
 	}
 
 	public boolean enabled() {

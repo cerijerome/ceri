@@ -23,6 +23,18 @@ public class BasePropertiesBehavior {
 		properties.put("a", "A");
 		properties.put("a.b", "AB");
 		properties.put("a.b.c", "3");
+		properties.put("a.b.c.d", "4");
+	}
+
+	@Test
+	public void shouldExtendPrefixWhenCreatingFromBaseProperties() {
+		BaseProperties bp0 = new BaseProperties(properties) {};
+		BaseProperties bp1 = new BaseProperties(bp0) {};
+		assertThat(bp1.value("a"), is("A"));
+		BaseProperties bp2 = new BaseProperties(bp1, "a") {};
+		assertThat(bp2.value("b"), is("AB"));
+		BaseProperties bp3 = new BaseProperties(bp2, "b", "c") {};
+		assertThat(bp3.value("d"), is("4"));
 	}
 
 	@Test
@@ -58,7 +70,7 @@ public class BasePropertiesBehavior {
 		BaseProperties bp = new BaseProperties(properties, "a") {};
 		assertThat(bp.key("b.c"), is("a.b.c"));
 		Collection<String> keys = new LinkedHashSet<>();
-		assertThat(bp.keys(), is(CollectionUtil.addAll(keys, "a.b.c", "a.b", "a")));
+		assertThat(bp.keys(), is(CollectionUtil.addAll(keys, "a.b.c.d", "a.b.c", "a.b", "a")));
 	}
 
 	@Test

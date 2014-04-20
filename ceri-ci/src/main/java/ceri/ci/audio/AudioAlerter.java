@@ -1,5 +1,6 @@
 package ceri.ci.audio;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,9 +11,13 @@ import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
 import ceri.ci.build.Job;
-import ceri.common.log.LogUtil;
+import ceri.ci.build.JobAnalyzer;
+import ceri.ci.common.Alerter;
 
-public class AudioAlerter {
+/**
+ * Plays alarms and phrases when build events occur.
+ */
+public class AudioAlerter implements Alerter, Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private final AudioMessage message;
 	private volatile Builds summarizedBuilds;
@@ -26,7 +31,8 @@ public class AudioAlerter {
 	 * Interrupts AudioMessage processing. This is needed as InterruptedExceptions thrown after a
 	 * thread.interrupt() are swallowed by audio library code.
 	 */
-	public void interrupt() {
+	@Override
+	public void close() {
 		message.interrupt();
 	}
 
@@ -34,8 +40,9 @@ public class AudioAlerter {
 	 * For each build, check which jobs are just broken, still broken and just fixed. Gives an audio
 	 * message for each of these cases. Grouped by build.
 	 */
-	public void alert(Builds summarizedBuilds) {
-		logger.debug("alert: {}", LogUtil.compact(summarizedBuilds));
+	@Override
+	public void update(Builds summarizedBuilds) {
+		logger.info("Audio update");
 		Builds previousBuilds = this.summarizedBuilds;
 		this.summarizedBuilds = new Builds(summarizedBuilds);
 		try {
@@ -55,8 +62,9 @@ public class AudioAlerter {
 	/**
 	 * Clears build state.
 	 */
+	@Override
 	public void clear() {
-		logger.debug("clear");
+		logger.info("Clearing state");
 		this.summarizedBuilds = new Builds();
 	}
 
@@ -64,8 +72,9 @@ public class AudioAlerter {
 	 * Alert reminder for builds still broken. Gives the still broken audio message for any jobs in
 	 * a broken state.
 	 */
+	@Override
 	public void remind() {
-		logger.debug("remind");
+		logger.info("Audio reminder");
 		try {
 			Collection<JobAnalyzer> analyzers = analyzeStillBrokenJobs(summarizedBuilds);
 			if (analyzers.isEmpty()) return;

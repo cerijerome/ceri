@@ -77,7 +77,7 @@ public class Email {
 	public static Email createFrom(Message message) throws MessagingException, IOException {
 		Builder b = builder();
 		b.recipients(EmailUtil.addressesFrom(message.getAllRecipients()));
-		b.from(EmailUtil.from(message.getFrom()));
+		b.from(EmailUtil.firstAddress(message.getFrom()));
 		b.subject(message.getSubject());
 		b.sentDateMs(message.getSentDate().getTime());
 		b.content(EmailUtil.content(message));

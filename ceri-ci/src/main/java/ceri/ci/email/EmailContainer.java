@@ -1,20 +1,16 @@
-package ceri.ci;
+package ceri.ci.email;
 
 import java.io.Closeable;
-import java.util.Properties;
 import ceri.ci.build.BuildEventProcessor;
-import ceri.ci.email.BoltEmailMatcher;
-import ceri.ci.email.EmailAdapter;
-import ceri.ci.email.EmailAdapterProperties;
-import ceri.ci.email.EmailEventMatcher;
-import ceri.ci.email.EmailRetriever;
+import ceri.common.io.IoUtil;
+import ceri.common.property.BaseProperties;
 
-public class Email implements Closeable {
+public class EmailContainer implements Closeable {
+	private static final String GROUP = "email";
 	public final EmailAdapter adapter;
 
-	public Email(BuildEventProcessor eventProcessor, Properties properties, String prefix) {
-		EmailAdapterProperties emailProperties =
-			new EmailAdapterProperties(properties, prefix, "email");
+	public EmailContainer(BuildEventProcessor eventProcessor, BaseProperties properties) {
+		EmailAdapterProperties emailProperties = new EmailAdapterProperties(properties, GROUP);
 		if (!emailProperties.enabled()) {
 			adapter = null;
 		} else {
@@ -24,7 +20,7 @@ public class Email implements Closeable {
 
 	@Override
 	public void close() {
-		if (adapter != null) adapter.close();
+		if (adapter != null) IoUtil.close(adapter);
 	}
 
 	private EmailAdapter createAdapter(BuildEventProcessor eventProcessor,
