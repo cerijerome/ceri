@@ -1,18 +1,18 @@
 To do
 =====
 
-Convert alerters to interface
+Fix test failures from linux
 Create audio file cache for alarms, names, builds, jobs 
-Combine AlertService and Alerters?
-Pass in email event matchers to  email container 
+Special device-on for build fix
+Twilio for sms, voicemail
 Fix tests, add tests
 Multi event post with json
 Add proxy to AlertService
 Master/slave config
 Repeater for multiple locations (2 x SJC, 1 x CN)
-Tidy up email code?
 Find out where and why email connection stops
 Review logging levels
+Convert builds to jsTree format?
 Admin link page
 Change timeout for zwave
 Move work-specific settings and code to new private project

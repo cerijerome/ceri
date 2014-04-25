@@ -15,9 +15,9 @@ import ceri.ci.build.BuildEvent;
 import ceri.ci.build.BuildEventProcessor;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Job;
+import ceri.ci.common.LoggingExecutor;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.ee.LoggingExecutor;
 import ceri.common.io.IoUtil;
 import ceri.common.log.LogUtil;
 

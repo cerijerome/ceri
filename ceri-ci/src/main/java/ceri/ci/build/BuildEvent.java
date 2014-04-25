@@ -8,13 +8,11 @@ public class BuildEvent {
 	public final String build;
 	public final String job;
 	public final Event event;
-	private final int hashCode;
 
 	public BuildEvent(String build, String job, Event event) {
 		this.build = build;
 		this.job = job;
 		this.event = event;
-		hashCode = HashCoder.hash(build, job, event);
 	}
 
 	public void applyTo(Builds builds) {
@@ -23,7 +21,7 @@ public class BuildEvent {
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return HashCoder.hash(build, job, event);
 	}
 
 	@Override

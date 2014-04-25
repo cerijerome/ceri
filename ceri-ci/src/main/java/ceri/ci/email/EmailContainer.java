@@ -1,34 +1,50 @@
 package ceri.ci.email;
 
 import java.io.Closeable;
+import java.util.Arrays;
+import java.util.Collection;
 import ceri.ci.build.BuildEventProcessor;
 import ceri.common.io.IoUtil;
 import ceri.common.property.BaseProperties;
 
+/**
+ * Creates the service to fetch emails and parse them into build events.
+ */
 public class EmailContainer implements Closeable {
 	private static final String GROUP = "email";
-	public final EmailAdapter adapter;
+	public final EmailService service;
 
-	public EmailContainer(BuildEventProcessor eventProcessor, BaseProperties properties) {
+	public EmailContainer(BaseProperties properties, BuildEventProcessor processor,
+		EmailEventParser...parsers) {
+		this(properties, processor, Arrays.asList(parsers));
+	}
+	
+	public EmailContainer(BaseProperties properties, BuildEventProcessor processor,
+		Collection<EmailEventParser> parsers) {
 		EmailAdapterProperties emailProperties = new EmailAdapterProperties(properties, GROUP);
 		if (!emailProperties.enabled()) {
-			adapter = null;
+			service = null;
 		} else {
-			adapter = createAdapter(eventProcessor, emailProperties);
+			service = createService(emailProperties, processor, parsers);
 		}
 	}
 
 	@Override
 	public void close() {
-		if (adapter != null) IoUtil.close(adapter);
+		if (service != null) IoUtil.close(service);
 	}
 
-	private EmailAdapter createAdapter(BuildEventProcessor eventProcessor,
-		EmailAdapterProperties properties) {
+	private EmailService createService(EmailAdapterProperties properties,
+		BuildEventProcessor processor, Collection<EmailEventParser> parsers) {
 		EmailRetriever retriever = createRetriever(properties);
-		EmailEventMatcher matcher = createEventMatcher();
-		EmailAdapter.Builder builder =
-			EmailAdapter.builder(retriever, eventProcessor).matchers(matcher);
+		EmailService.Builder builder = EmailService.builder(retriever, processor);
+		for (EmailEventParser parser : parsers)
+			if (parser != null) builder.parsers(parser);
+		setProperties(builder, properties);
+		return builder.build();
+	}
+
+	private void setProperties(EmailService.Builder builder, EmailAdapterProperties properties) {
 		Long pollMs = properties.pollMs();
 		if (pollMs != null) builder.pollMs(pollMs);
 		Long shutdownTimeoutMs = properties.shutdownTimeoutMs();
@@ -37,11 +53,6 @@ public class EmailContainer implements Closeable {
 		if (maxLookBackMs != null) builder.maxLookBackMs(maxLookBackMs);
 		Long sentDateBufferMs = properties.sentDateBufferMs();
 		if (sentDateBufferMs != null) builder.sentDateBufferMs(sentDateBufferMs);
-		return builder.build();
-	}
-
-	private EmailEventMatcher createEventMatcher() {
-		return new BoltEmailMatcher();
 	}
 
 	private EmailRetriever createRetriever(EmailAdapterProperties properties) {

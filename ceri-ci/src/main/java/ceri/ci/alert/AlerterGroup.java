@@ -13,8 +13,8 @@ import org.apache.logging.log4j.Logger;
 import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.common.Alerter;
+import ceri.ci.common.LoggingExecutor;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.ee.LoggingExecutor;
 import ceri.common.io.IoUtil;
 
 /**
@@ -58,7 +58,8 @@ public class AlerterGroup implements Alerter, Closeable {
 
 	AlerterGroup(Builder builder) {
 		alerters = ImmutableUtil.copyAsList(builder.alerters);
-		ExecutorService service = Executors.newFixedThreadPool(alerters.size());
+		int threadPoolSize = Math.max(1, alerters.size());
+		ExecutorService service = Executors.newFixedThreadPool(threadPoolSize);
 		executor = new LoggingExecutor(service, builder.shutdownTimeoutMs, null);
 	}
 

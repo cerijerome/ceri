@@ -9,9 +9,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.ci.common.HttpUtil;
+import ceri.ci.common.LoggingExecutor;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.ee.HttpUtil;
-import ceri.common.ee.LoggingExecutor;
 
 public class MultiProxy implements Closeable {
 	private static final Logger logger = LogManager.getLogger();

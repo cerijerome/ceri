@@ -50,7 +50,7 @@ public class X10Container implements Closeable {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		if (controller != null) {
 			logger.info("Closing X10 controller");
 			IoUtil.close(controller);

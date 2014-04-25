@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.TreeSet;
 import ceri.common.comparator.Comparators;
+import ceri.common.util.BasicUtil;
 import ceri.common.util.HashCoder;
 import ceri.common.util.ToStringHelper;
 
@@ -14,12 +15,14 @@ import ceri.common.util.ToStringHelper;
  * descending time-stamp.
  */
 public class Job implements Iterable<Event> {
-	private final Collection<Event> mutableEvents = new TreeSet<>(Comparators
+	private transient final Collection<Event> mutableEvents = new TreeSet<>(Comparators
 		.reverse(EventComparators.TIMESTAMP));
 	public final Collection<Event> events = Collections.unmodifiableCollection(mutableEvents);
 	public final String name;
 
 	public Job(String name) {
+		if (BasicUtil.isEmpty(name)) throw new IllegalArgumentException("Name cannot be empty: " +
+			name);
 		this.name = name;
 	}
 

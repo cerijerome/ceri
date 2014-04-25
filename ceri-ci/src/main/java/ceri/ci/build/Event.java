@@ -15,7 +15,6 @@ public class Event implements Comparable<Event> {
 	public final long timeStamp;
 	public final Type type;
 	public final Collection<String> names;
-	private int hashCode;
 
 	public static enum Type {
 		success,
@@ -30,7 +29,6 @@ public class Event implements Comparable<Event> {
 		this.timeStamp = timeStamp == null ? System.currentTimeMillis() : timeStamp.longValue();
 		this.type = type;
 		this.names = ImmutableUtil.copyAsSet(names);
-		hashCode = HashCoder.hash(this.type, this.timeStamp, this.names);
 	}
 
 	public Event(Event event) {
@@ -52,7 +50,7 @@ public class Event implements Comparable<Event> {
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return HashCoder.hash(type, timeStamp, names);
 	}
 
 	@Override

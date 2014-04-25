@@ -30,7 +30,7 @@ public class AlertersBehavior {
 	private ZWaveAlerter zwave;
 	private AudioAlerter audio;
 	private WebAlerter web;
-	private Alerters alerters;
+	private AlerterGroup alerters;
 
 	@Before
 	public void init() {
@@ -38,7 +38,7 @@ public class AlertersBehavior {
 		zwave = mock(ZWaveAlerter.class);
 		audio = mock(AudioAlerter.class);
 		web = mock(WebAlerter.class);
-		alerters = Alerters.builder().x10(x10).zwave(zwave).audio(audio).web(web).build();
+		alerters = AlerterGroup.builder().x10(x10).zwave(zwave).audio(audio).web(web).build();
 	}
 
 	@Test
@@ -59,7 +59,7 @@ public class AlertersBehavior {
 				state.set(2);
 			}
 		};
-		alerters = Alerters.builder().x10(x10).zwave(zwave).build();
+		alerters = AlerterGroup.builder().x10(x10).zwave(zwave).build();
 		alerters.alert(new Builds());
 		assertThat(state.get(), is(3));
 	}
@@ -82,14 +82,14 @@ public class AlertersBehavior {
 				state.set(2);
 			}
 		};
-		alerters = Alerters.builder().x10(x10).zwave(zwave).build();
+		alerters = AlerterGroup.builder().x10(x10).zwave(zwave).build();
 		alerters.clear();
 		assertThat(state.get(), is(3));
 	}
 
 	@Test
 	public void shouldNotCallDisabledAlerters() throws IOException {
-		try (Alerters alerters = Alerters.builder().build()) {
+		try (AlerterGroup alerters = AlerterGroup.builder().build()) {
 			alerters.alert(new Builds());
 			alerters.clear();
 			alerters.remind();

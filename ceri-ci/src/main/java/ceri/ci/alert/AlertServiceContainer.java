@@ -1,7 +1,7 @@
 package ceri.ci.alert;
 
 import java.io.Closeable;
-import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,12 +9,19 @@ import ceri.ci.common.Alerter;
 import ceri.common.io.IoUtil;
 import ceri.common.property.BaseProperties;
 
+/**
+ * Creates the alert service.
+ */
 public class AlertServiceContainer implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final String GROUP = "alert";
 	private final AlerterGroup alerters;
 	public final AlertService service;
 
+	public AlertServiceContainer(BaseProperties properties, Alerter...alerters) {
+		this(properties, Arrays.asList(alerters));
+	}
+	
 	public AlertServiceContainer(BaseProperties properties, Collection<Alerter> alerters) {
 		AlertServiceProperties alertProperties = new AlertServiceProperties(properties, GROUP);
 		logger.info("Creating alerter group");
@@ -24,7 +31,7 @@ public class AlertServiceContainer implements Closeable {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		IoUtil.close(alerters);
 		IoUtil.close(service);
 	}

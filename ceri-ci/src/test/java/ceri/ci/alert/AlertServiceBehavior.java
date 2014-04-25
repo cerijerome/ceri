@@ -21,13 +21,13 @@ public class AlertServiceBehavior {
 	private static final Event e0 = new Event(Event.Type.failure, 0L, "test");
 	private static final Event e1 = new Event(Event.Type.success, 1L, "test");
 	private static final Event e2 = new Event(Event.Type.failure, 2L, "test");
-	Alerters alerters;
+	AlerterGroup alerters;
 	BooleanCondition sync;
 	AlertService service;
 	
 	@Before
 	public void init() {
-		alerters = mock(Alerters.class);
+		alerters = mock(AlerterGroup.class);
 		sync = new BooleanCondition();
 		service = new AlertService(createAlerters(), 0, 1000);
 	}
@@ -129,8 +129,8 @@ public class AlertServiceBehavior {
 		verifyZeroInteractions(alerters);
 	}
 
-	private Alerters createAlerters() {
-		return new TestAlerters(Alerters.builder()) {
+	private AlerterGroup createAlerters() {
+		return new TestAlerters(AlerterGroup.builder()) {
 			@Override
 			public void alert(Builds builds) {
 				alerters.alert(builds);

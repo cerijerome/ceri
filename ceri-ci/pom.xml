@@ -26,6 +26,7 @@
 		<geronimo.servlet.version>1.0</geronimo.servlet.version>
 		<geronimo.jsp.version>1.2</geronimo.jsp.version>
 		<mail-api.version>1.5.1</mail-api.version>
+		<gson.version>2.2.4</gson.version>
 	</properties>
 
 	<dependencies>
@@ -128,6 +129,11 @@
 			<groupId>com.sun.mail</groupId>
 			<artifactId>javax.mail</artifactId>
 			<version>${mail-api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${gson.version}</version>
 		</dependency>
 	</dependencies>
 

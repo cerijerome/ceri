@@ -9,7 +9,7 @@ import ceri.common.util.HashCoder;
 import ceri.common.util.ToStringHelper;
 
 public class Builds implements Iterable<Build> {
-	private final Map<String, Build> mutableBuilds = new TreeMap<>();
+	private transient final Map<String, Build> mutableBuilds = new TreeMap<>();
 	public final Collection<Build> builds = Collections.unmodifiableCollection(mutableBuilds
 		.values());
 
