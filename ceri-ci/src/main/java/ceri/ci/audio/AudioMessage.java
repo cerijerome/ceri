@@ -60,7 +60,9 @@ public class AudioMessage {
 		int index = (int) (Math.random() * clipKeys.size());
 		String key = clipKeys.get(index);
 		File file = clips.file(key);
-		play(file);
+		logger.debug("Alarm: {}", file);
+		checkRuntimeInterrupted();
+		player.play(Audio.create(file));
 	}
 
 	/**
@@ -133,19 +135,12 @@ public class AudioMessage {
 	}
 
 	private void play(File file) throws IOException {
-		logger.debug("Audio: {}", file);
+		logger.debug("Speech: {}", file);
 		checkRuntimeInterrupted();
 		Audio audio = Audio.create(file);
 		player.play(audio.changePitch(pitch));
 	}
 
-	private String name(File file) {
-		String name = file.getName();
-		int index = name.lastIndexOf('.');
-		if (index == -1) return name;
-		return name.substring(0, index);
-	}
-	
 	private void checkRuntimeInterrupted() {
 		ConcurrentUtil.checkRuntimeInterrupted();
 		if (interrupted) {
