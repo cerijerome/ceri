@@ -1,5 +1,6 @@
 package ceri.common.io;
 
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.isList;
 import static org.hamcrest.CoreMatchers.is;
@@ -45,15 +46,15 @@ public class FileFiltersTest {
 	@Test
 	public void testAllFilter() {
 		File[] files = helper.root.listFiles(FileFilters.ALL);
-		assertThat(files, is(helper.files("a", "b", "c.txt")));
+		assertCollection(files, helper.files("a", "b", "c.txt"));
 		List<File> list = IoUtil.getFiles(helper.root, FileFilters.ALL);
-		assertThat(list, isList(helper.files("a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt")));
+		assertCollection(list, helper.files("a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt"));
 	}
 
 	@Test
 	public void testDirFilter() {
 		File[] files = helper.root.listFiles(FileFilters.DIR);
-		assertThat(files, is(helper.files("a", "b")));
+		assertCollection(files, helper.files("a", "b"));
 		List<File> list = IoUtil.getFiles(helper.root, FileFilters.DIR);
 		assertThat(list, isList(helper.files("a", "a/a", "b")));
 	}
@@ -61,9 +62,9 @@ public class FileFiltersTest {
 	@Test
 	public void testFileFilter() {
 		File[] files = helper.root.listFiles(FileFilters.FILE);
-		assertThat(files, is(helper.files("c.txt")));
+		assertCollection(files, helper.files("c.txt"));
 		List<File> list = IoUtil.getFiles(helper.root, FileFilters.FILE);
-		assertThat(list, isList(helper.files("a/a/a.txt", "b/b.txt", "c.txt")));
+		assertCollection(list, helper.files("a/a/a.txt", "b/b.txt", "c.txt"));
 	}
 
 	@Test
@@ -72,25 +73,25 @@ public class FileFiltersTest {
 			return pathname.getPath().endsWith(File.separatorChar + "a");
 		};
 		List<File> list = IoUtil.getFiles(helper.root, filter);
-		assertThat(list, isList(helper.files("a", "a/a")));
+		assertCollection(list, helper.files("a", "a/a"));
 
 		filter = FileFilters.reverse(filter);
 		list = IoUtil.getFiles(helper.root, filter);
-		assertThat(list, isList(helper.files("a/a/a.txt", "b", "b/b.txt", "c.txt")));
+		assertCollection(list, helper.files("a/a/a.txt", "b", "b/b.txt", "c.txt"));
 	}
 
 	@Test
 	public void testModifiedSince() {
 		File[] files = helper.root.listFiles(FileFilters.byModifiedSince(0));
-		assertThat(files, is(helper.files("a", "b", "c.txt")));
+		assertCollection(files, helper.files("a", "b", "c.txt"));
 		files = helper.root.listFiles(FileFilters.byModifiedSince(Long.MAX_VALUE));
-		assertThat(files, is(helper.files()));
+		assertCollection(files, helper.files());
 	}
 
 	@Test
 	public void testMaxLength() {
 		List<File> files = IoUtil.getFiles(helper.root, FileFilters.byMaxLength(2));
-		assertThat(files, is(helper.fileList("a/a/a.txt", "b/b.txt")));
+		assertCollection(files, helper.fileList("a/a/a.txt", "b/b.txt"));
 	}
 
 	@Test

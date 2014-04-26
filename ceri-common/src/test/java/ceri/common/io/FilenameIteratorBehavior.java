@@ -1,10 +1,11 @@
 package ceri.common.io;
 
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.TestUtil.assertCollection;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -28,9 +29,15 @@ public class FilenameIteratorBehavior {
 	@Test
 	public void shouldHaveRelativeFilePaths() {
 		FilenameIterator iterator = new FilenameIterator(helper.root);
-		assertThat(iterator.next(), is("a"));
-		assertThat(IoUtil.unixPath(iterator.next()), is("a/a"));
-		assertThat(IoUtil.unixPath(iterator.next()), is("a/a/a.txt"));
+		Collection<String> filenames = new HashSet<>();
+		filenames.add(IoUtil.unixPath(iterator.next()));
+		filenames.add(IoUtil.unixPath(iterator.next()));
+		filenames.add(IoUtil.unixPath(iterator.next()));
+		filenames.add(IoUtil.unixPath(iterator.next()));
+		filenames.add(IoUtil.unixPath(iterator.next()));
+		filenames.add(IoUtil.unixPath(iterator.next()));
+		assertFalse(iterator.hasNext());
+		assertCollection(filenames, "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt");
 	}
 
 	@Test

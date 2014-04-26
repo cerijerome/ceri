@@ -1,10 +1,12 @@
 package ceri.common.io;
 
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertException;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -42,13 +44,15 @@ public class FileIteratorBehavior {
 	@Test
 	public void shouldIterateAllFilesByDefault() {
 		FileIterator iterator = new FileIterator(helper.root);
-		assertThat(iterator.next(), is(helper.file("a")));
-		assertThat(iterator.next(), is(helper.file("a/a")));
-		assertThat(iterator.next(), is(helper.file("a/a/a.txt")));
-		assertThat(iterator.next(), is(helper.file("b")));
-		assertThat(iterator.next(), is(helper.file("b/b.txt")));
-		assertThat(iterator.next(), is(helper.file("c.txt")));
+		Collection<File> files = new HashSet<>();
+		files.add(iterator.next());
+		files.add(iterator.next());
+		files.add(iterator.next());
+		files.add(iterator.next());
+		files.add(iterator.next());
+		files.add(iterator.next());
 		assertFalse(iterator.hasNext());
+		assertCollection(files,  helper.files("a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt"));
 	}
 
 	@Test
@@ -66,15 +70,19 @@ public class FileIteratorBehavior {
 	@Test
 	public void shouldOnlyListFilesThatMatchTheFilter() {
 		FileIterator iterator = new FileIterator(helper.root, FileFilters.FILE);
-		assertThat(iterator.next(), is(helper.file("a/a/a.txt")));
-		assertThat(iterator.next(), is(helper.file("b/b.txt")));
-		assertThat(iterator.next(), is(helper.file("c.txt")));
+		Collection<File> files = new HashSet<>();
+		files.add(iterator.next());
+		files.add(iterator.next());
+		files.add(iterator.next());
 		assertFalse(iterator.hasNext());
+		assertCollection(files,  helper.files("a/a/a.txt", "b/b.txt", "c.txt"));
 		iterator = new FileIterator(helper.root, FileFilters.DIR);
-		assertThat(iterator.next(), is(helper.file("a")));
-		assertThat(iterator.next(), is(helper.file("a/a")));
-		assertThat(iterator.next(), is(helper.file("b")));
+		files = new HashSet<>();
+		files.add(iterator.next());
+		files.add(iterator.next());
+		files.add(iterator.next());
 		assertFalse(iterator.hasNext());
+		assertCollection(files,  helper.files("a", "a/a", "b"));
 	}
 
 	@Test

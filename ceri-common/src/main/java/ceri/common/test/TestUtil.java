@@ -125,6 +125,14 @@ public class TestUtil {
 	 * information if not.
 	 */
 	@SafeVarargs
+	public static <T> void assertCollection(T[] lhs, T... ts) {
+		assertCollection(Arrays.asList(lhs), ts);
+	}
+
+	/**
+	 * Checks exact items in any order, with specific failure information if not.
+	 */
+	@SafeVarargs
 	public static <T> void assertCollection(Collection<T> lhs, T... ts) {
 		assertCollection(lhs, Arrays.asList(ts));
 	}

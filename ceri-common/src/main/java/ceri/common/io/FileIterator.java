@@ -9,18 +9,19 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Iterates over files under the given root directory.
+ * Iterates over files under the given root directory. Order is dependent on the underlying file
+ * system, much like File.listFiles()
  */
 public class FileIterator implements Iterator<File> {
 	public final File rootDir;
 	private final FileFilter filter;
 	private final Deque<Iterator<File>> iterators = new ArrayDeque<>(); // Iterator for each dir
 	private File next = null;
-	
+
 	public FileIterator(File rootDir) {
 		this(rootDir, null);
 	}
-	
+
 	public FileIterator(File rootDir, FileFilter filter) {
 		this.filter = filter == null ? FileFilters.ALL : filter;
 		this.rootDir = rootDir;
@@ -47,7 +48,7 @@ public class FileIterator implements Iterator<File> {
 	public void remove() {
 		throw new UnsupportedOperationException("File iteration is immutable.");
 	}
-	
+
 	private File findNext() {
 		// iterator for each level of dir hierarchy
 		while (!iterators.isEmpty()) {
@@ -73,5 +74,5 @@ public class FileIterator implements Iterator<File> {
 		if (files == null || files.length == 0) return null;
 		return Arrays.asList(files).iterator();
 	}
-	
+
 }

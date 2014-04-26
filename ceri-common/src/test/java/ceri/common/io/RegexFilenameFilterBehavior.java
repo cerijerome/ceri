@@ -1,5 +1,6 @@
 package ceri.common.io;
 
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.isArray;
 import static org.junit.Assert.assertThat;
 import java.io.File;
@@ -46,7 +47,7 @@ public class RegexFilenameFilterBehavior {
 			RegexFilenameFilter.builder().absolutePath(true).unixPath(true).pattern(
 				".*/" + helper.root.getName() + "/.*").build();
 		String[] filenames = helper.root.list(filter);
-		assertThat(filenames, isArray("a", "b", "c.txt"));
+		assertCollection(filenames, "a", "b", "c.txt");
 	}
 
 }

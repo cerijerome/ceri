@@ -1,9 +1,9 @@
 package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.isList;
 import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -138,17 +138,17 @@ public class IoUtilTest {
 	@Test
 	public void testGetFilenames() {
 		List<String> filenames = IoUtil.getFilenames(helper.root);
-		assertThat(filenames, isList("a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt"));
+		assertCollection(filenames, "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt");
 		filenames = IoUtil.getFilenames(helper.root, RegexFilenameFilter.create(".*\\.txt"));
-		assertThat(filenames, isList("a/a/a.txt", "b/b.txt", "c.txt"));
+		assertCollection(filenames, "a/a/a.txt", "b/b.txt", "c.txt");
 	}
 
 	@Test
 	public void testGetFiles() {
 		List<File> files = IoUtil.getFiles(helper.root);
-		assertThat(files, is(helper.fileList("a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt")));
+		assertCollection(files, helper.fileList("a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt"));
 		files = IoUtil.getFiles(helper.root, RegexFilenameFilter.create(".*[^\\.txt]"));
-		assertThat(files, is(helper.fileList("a", "a/a", "b")));
+		assertCollection(files, helper.fileList("a", "a/a", "b"));
 	}
 
 	@Test

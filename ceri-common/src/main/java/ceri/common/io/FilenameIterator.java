@@ -5,8 +5,8 @@ import java.io.FileFilter;
 import java.util.Iterator;
 
 /**
- * Iterates over files under the given root directory. Elements are file paths
- * relative to root.
+ * Iterates over files under the given root directory. Elements are file paths relative to root.
+ * Order is dependent on the underlying file system, much like File.listFiles()
  */
 public class FilenameIterator implements Iterator<String> {
 	public final File rootDir;
