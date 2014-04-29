@@ -26,7 +26,7 @@ public class AudioMessageBehavior {
 		TestThread thread = new TestThread() {
 			@Override
 			protected void run() throws Exception {
-				audio.playAlarm();
+				audio.playRandomAlarm();
 			}
 		};
 		thread.interrupt();
@@ -42,7 +42,7 @@ public class AudioMessageBehavior {
 	@Test
 	public void shouldPlayAudioMessages() throws IOException {
 		AudioMessage audio = new AudioMessage(player, dir);
-		audio.playAlarm();
+		audio.playRandomAlarm();
 		audio.playJustFixed("test", "test", Arrays.asList("test"));
 		audio.playJustBroken("x", "test", Arrays.asList("test"));
 		audio.playStillBroken("test", "x", Arrays.asList("test"));

@@ -2,6 +2,7 @@ package ceri.ci.audio;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.io.IoUtil;
@@ -15,7 +16,7 @@ public class AudioContainer implements Closeable {
 	private static final String GROUP = "audio";
 	public final AudioAlerter alerter;
 
-	public AudioContainer(BaseProperties properties) {
+	public AudioContainer(BaseProperties properties) throws IOException {
 		AudioAlerterProperties audioProperties = new AudioAlerterProperties(properties, GROUP);
 		if (!audioProperties.enabled()) {
 			logger.info("Audio alerter disabled");

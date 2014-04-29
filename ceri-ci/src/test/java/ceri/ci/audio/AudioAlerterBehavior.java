@@ -44,7 +44,7 @@ public class AudioAlerterBehavior {
 		builds.build("b0").job("j1").event(Event.failure());
 		builds.build("b1").job("j0").event();
 		audio.alert(builds);
-		verify(message).playAlarm();
+		verify(message).playRandomAlarm();
 		verify(message).playJustBroken("b0", "j0", names("n0", "n1"));
 		verify(message).playJustBroken("b0", "j1", names());
 		verifyNoMoreInteractions(message);

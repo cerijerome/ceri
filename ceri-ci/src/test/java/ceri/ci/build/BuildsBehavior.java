@@ -1,8 +1,8 @@
 package ceri.ci.build;
 
 import static ceri.ci.build.BuildTestUtil.assertBuildNames;
+import static ceri.ci.build.BuildTestUtil.assertEvents;
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
-import static ceri.common.test.TestUtil.assertElements;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -18,7 +18,33 @@ public class BuildsBehavior {
 	private static final Event e5 = new Event(Event.Type.failure, 5L, "e1", "e2", "e3", "e4");
 	private static final Event e6 = new Event(Event.Type.success, 6L);
 	private static final Event e7 = new Event(Event.Type.success, 7L, "g1");
-	
+
+	@Test
+	public void shouldDeleteBuilds() {
+		Builds builds = new Builds();
+		builds.build("b0").job("j0").event(e0, e1);
+		builds.build("b0").job("j1").event(e0, e2);
+		builds.build("b1").job("j0").event(e3);
+		builds.delete("b0");
+		assertBuildNames(builds, "b1");
+		assertJobNames(builds.build("b1"), "j0");
+		assertEvents(builds.build("b1").job("j0").events, e3);
+		builds.delete();
+		assertThat(builds, is(new Builds()));
+	}
+
+	@Test
+	public void shouldProcessBuildEvents() {
+		BuildEvent b0 = new BuildEvent("b0", "j0", e0);
+		BuildEvent b1 = new BuildEvent("b0", "j1", e1);
+		Builds builds = new Builds();
+		builds.process(b0, b1);
+		assertBuildNames(builds, "b0");
+		assertJobNames(builds.build("b0"), "j0", "j1");
+		assertEvents(builds.build("b0").job("j0").events, e0);
+		assertEvents(builds.build("b0").job("j1").events, e1);
+	}
+
 	@Test
 	public void shouldPurgeJobEvents() {
 		Builds builds = new Builds();
@@ -26,11 +52,11 @@ public class BuildsBehavior {
 		builds.build("b0").job("j1").event(e0, e2, e4, e5, e6);
 		builds.build("b1").job("j0").event();
 		builds.purge();
-		assertBuildNames(builds.builds, "b0", "b1");
-		assertJobNames(builds.build("b0").jobs, "j0", "j1");
-		assertJobNames(builds.build("b1").jobs, "j0");
-		assertElements(builds.build("b0").job("j0").events, e4, e3, e2, e1);
-		assertElements(builds.build("b0").job("j1").events, e6, e5, e4);
+		assertBuildNames(builds, "b0", "b1");
+		assertJobNames(builds.build("b0"), "j0", "j1");
+		assertJobNames(builds.build("b1"), "j0");
+		assertEvents(builds.build("b0").job("j0").events, e4, e3, e2, e1);
+		assertEvents(builds.build("b0").job("j1").events, e6, e5, e4);
 		assertTrue(builds.build("b1").job("j0").events.isEmpty());
 	}
 
@@ -42,9 +68,9 @@ public class BuildsBehavior {
 		builds.build("b1").job("j0").event(e4);
 		builds.build("b1").job("j1").event(e5, e6, e7);
 		builds.clear();
-		assertBuildNames(builds.builds, "b0", "b1");
-		assertJobNames(builds.build("b0").jobs, "j0", "j1");
-		assertJobNames(builds.build("b1").jobs, "j0", "j1");
+		assertBuildNames(builds, "b0", "b1");
+		assertJobNames(builds.build("b0"), "j0", "j1");
+		assertJobNames(builds.build("b1"), "j0", "j1");
 		assertTrue(builds.build("b0").job("j0").events.isEmpty());
 		assertTrue(builds.build("b0").job("j1").events.isEmpty());
 		assertTrue(builds.build("b1").job("j0").events.isEmpty());
@@ -59,17 +85,17 @@ public class BuildsBehavior {
 		builds.build("b2").job("j1").event(e4);
 		builds.build("b2").job("j2").event(e5, e6, e7);
 		Builds builds2 = new Builds(builds);
-		assertElements(builds2.build("b1").job("j1").events, e1, e0);
-		assertElements(builds2.build("b1").job("j2").events, e3);
-		assertElements(builds2.build("b2").job("j1").events, e4);
-		assertElements(builds2.build("b2").job("j2").events, e7, e6, e5);
+		assertEvents(builds2.build("b1").job("j1").events, e1, e0);
+		assertEvents(builds2.build("b1").job("j2").events, e3);
+		assertEvents(builds2.build("b2").job("j1").events, e4);
+		assertEvents(builds2.build("b2").job("j2").events, e7, e6, e5);
 		builds.build("b1").job("j1").event(e7);
 		builds.build("b1").job("j2").event(e7);
 		builds.build("b2").job("j1").event(e7);
-		assertElements(builds2.build("b1").job("j1").events, e1, e0);
-		assertElements(builds2.build("b1").job("j2").events, e3);
-		assertElements(builds2.build("b2").job("j1").events, e4);
-		assertElements(builds2.build("b2").job("j2").events, e7, e6, e5);
+		assertEvents(builds2.build("b1").job("j1").events, e1, e0);
+		assertEvents(builds2.build("b1").job("j2").events, e3);
+		assertEvents(builds2.build("b2").job("j1").events, e4);
+		assertEvents(builds2.build("b2").job("j2").events, e7, e6, e5);
 	}
 
 	@Test
@@ -88,5 +114,5 @@ public class BuildsBehavior {
 		assertThat(builds.hashCode(), is(builds2.hashCode()));
 		assertThat(builds.toString(), is(builds2.toString()));
 	}
-	
+
 }

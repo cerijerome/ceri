@@ -21,7 +21,7 @@ public class EmailContainer implements Closeable {
 	
 	public EmailContainer(BaseProperties properties, BuildEventProcessor processor,
 		Collection<EmailEventParser> parsers) {
-		EmailAdapterProperties emailProperties = new EmailAdapterProperties(properties, GROUP);
+		EmailServiceProperties emailProperties = new EmailServiceProperties(properties, GROUP);
 		if (!emailProperties.enabled()) {
 			service = null;
 		} else {
@@ -34,7 +34,7 @@ public class EmailContainer implements Closeable {
 		if (service != null) IoUtil.close(service);
 	}
 
-	private EmailService createService(EmailAdapterProperties properties,
+	private EmailService createService(EmailServiceProperties properties,
 		BuildEventProcessor processor, Collection<EmailEventParser> parsers) {
 		EmailRetriever retriever = createRetriever(properties);
 		EmailService.Builder builder = EmailService.builder(retriever, processor);
@@ -44,7 +44,7 @@ public class EmailContainer implements Closeable {
 		return builder.build();
 	}
 
-	private void setProperties(EmailService.Builder builder, EmailAdapterProperties properties) {
+	private void setProperties(EmailService.Builder builder, EmailServiceProperties properties) {
 		Long pollMs = properties.pollMs();
 		if (pollMs != null) builder.pollMs(pollMs);
 		Long shutdownTimeoutMs = properties.shutdownTimeoutMs();
@@ -55,7 +55,7 @@ public class EmailContainer implements Closeable {
 		if (sentDateBufferMs != null) builder.sentDateBufferMs(sentDateBufferMs);
 	}
 
-	private EmailRetriever createRetriever(EmailAdapterProperties properties) {
+	private EmailRetriever createRetriever(EmailServiceProperties properties) {
 		EmailRetriever.Builder builder =
 			EmailRetriever.builder(properties.host(), properties.account(), properties.password());
 		String protocol = properties.protocol();

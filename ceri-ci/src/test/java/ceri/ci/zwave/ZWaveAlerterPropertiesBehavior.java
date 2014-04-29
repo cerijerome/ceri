@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import ceri.common.property.BaseProperties;
 
 public class ZWaveAlerterPropertiesBehavior {
 	private static Properties props = new Properties();
@@ -20,7 +21,8 @@ public class ZWaveAlerterPropertiesBehavior {
 
 	@Test
 	public void shouldReadValuesWithPrefix() {
-		ZWaveAlerterProperties zwave = new ZWaveAlerterProperties(props, "x");
+		ZWaveAlerterProperties zwave =
+			new ZWaveAlerterProperties(new BaseProperties(props) {}, "x");
 		assertThat(zwave.enabled(), is(true));
 		assertThat(zwave.host(), is("aaa"));
 		assertThat(zwave.device("A"), is(1));

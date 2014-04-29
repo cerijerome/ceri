@@ -10,13 +10,14 @@ import ceri.ci.audio.AudioAlerterPropertiesBehavior;
 import ceri.ci.audio.AudioBehavior;
 import ceri.ci.audio.AudioMessageBehavior;
 import ceri.ci.audio.ClipBehavior;
-import ceri.ci.audio.JobAnalyzerBehavior;
+import ceri.ci.build.BuildAnalyzerBehavior;
 import ceri.ci.build.BuildBehavior;
 import ceri.ci.build.BuildEventBehavior;
 import ceri.ci.build.BuildUtilTest;
 import ceri.ci.build.BuildsBehavior;
 import ceri.ci.build.EventBehavior;
 import ceri.ci.build.EventComparatorsTest;
+import ceri.ci.build.AnalyzedJobBehavior;
 import ceri.ci.build.JobBehavior;
 import ceri.ci.proxy.MultiProxyBehavior;
 import ceri.ci.proxy.MultiProxyPropertiesBehavior;
@@ -30,19 +31,20 @@ import ceri.common.test.TestUtil;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	MasterMoldBehavior.class,
-	// alert
-	AlertersBehavior.class,
-	AlertServiceBehavior.class,
-	AlertServicePropertiesBehavior.class,
-	// audio
-	AudioAlerterBehavior.class,
-	AudioAlerterPropertiesBehavior.class,
-	AudioBehavior.class,
-	AudioMessageBehavior.class,
-	ClipBehavior.class,
-	JobAnalyzerBehavior.class,
+//	MasterMoldBehavior.class,
+//	// alert
+//	AlertersBehavior.class,
+//	AlertServiceBehavior.class,
+//	AlertServicePropertiesBehavior.class,
+//	// audio
+//	AudioAlerterBehavior.class,
+//	AudioAlerterPropertiesBehavior.class,
+//	AudioBehavior.class,
+//	AudioMessageBehavior.class,
+//	ClipBehavior.class,
 	// build
+	AnalyzedJobBehavior.class,
+	BuildAnalyzerBehavior.class,
 	BuildBehavior.class,
 	BuildEventBehavior.class,
 	BuildsBehavior.class,

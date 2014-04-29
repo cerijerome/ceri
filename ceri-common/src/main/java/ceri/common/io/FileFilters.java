@@ -5,7 +5,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 public class FileFilters {
-
+	private static final char EXTENSION_SEPARATOR = '.';
+	
 	private FileFilters() {}
 
 	/**
@@ -37,16 +38,39 @@ public class FileFilters {
 	/**
 	 * Creates a filter that reverses the given filter.
 	 */
-	public static FileFilter reverse(final FileFilter filter) {
+	public static FileFilter reverse(FileFilter filter) {
 		return pathname -> {
 			return !filter.accept(pathname);
 		};
 	}
 
 	/**
+	 * Creates a filter that only accepts files whose extension matches one of the given types.
+	 * Types should be specified in lower case.
+	 */
+	public static FileFilter byExtension(String...extensions) {
+		return byExtension(Arrays.asList(extensions));
+	}
+	
+	/**
+	 * Creates a filter that only accepts files whose extension matches one of the given types.
+	 * Types should be specified in lower case.
+	 */
+	public static FileFilter byExtension(Collection<String> extensions) {
+		return pathname -> {
+			if (!pathname.isFile()) return false;
+			String name = pathname.getName();
+			int i = name.lastIndexOf(EXTENSION_SEPARATOR);
+			if (i <= 0 || i >= name.length() - 1) return false;
+			String ext = name.substring(i + 1).toLowerCase();
+			return extensions.contains(ext);
+		};
+	}
+	
+	/**
 	 * Creates a filter that only accepts files modified since the given time in ms.
 	 */
-	public static FileFilter byModifiedSince(final long ms) {
+	public static FileFilter byModifiedSince(long ms) {
 		return pathname -> {
 			return pathname.lastModified() > ms;
 		};
@@ -55,7 +79,7 @@ public class FileFilters {
 	/**
 	 * Creates a filter that only accepts files up to the given length in bytes.
 	 */
-	public static FileFilter byMaxLength(final long maxSize) {
+	public static FileFilter byMaxLength(long maxSize) {
 		return file -> {
 			return file.length() <= maxSize;
 		};
@@ -71,7 +95,7 @@ public class FileFilters {
 	/**
 	 * Create a filter that accepts a file if any filters accept.
 	 */
-	public static FileFilter or(final Collection<FileFilter> filters) {
+	public static FileFilter or(Collection<FileFilter> filters) {
 		return pathname -> {
 			for (FileFilter filter : filters) {
 				if (filter.accept(pathname)) return true;
@@ -90,7 +114,7 @@ public class FileFilters {
 	/**
 	 * Create a filter that accepts a file only if all filters accept.
 	 */
-	public static FileFilter and(final Collection<FileFilter> filters) {
+	public static FileFilter and(Collection<FileFilter> filters) {
 		return pathname -> {
 			for (FileFilter filter : filters)
 				if (!filter.accept(pathname)) return false;

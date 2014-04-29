@@ -2,47 +2,53 @@ package ceri.ci.audio;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.ci.common.FileLib;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.io.IoUtil;
 
 public class AudioMessage {
 	private static final Logger logger = LogManager.getLogger();
+	private static final Collection<String> EXT_DEF = Arrays.asList("wav", "mp3");
 	private static final String CLIP_DIR = "clip";
 	private static final String BUILD_DIR = "build";
 	private static final String JOB_DIR = "job";
 	private static final String NAME_DIR = "name";
 	private static final String PHRASE_DIR = "phrase";
 	private final List<String> clipKeys;
-	private final AudioLib clips;
-	private final AudioLib builds;
-	private final AudioLib jobs;
-	private final AudioLib names;
-	private final AudioLib phrases;
+	private final FileLib clips;
+	private final FileLib builds;
+	private final FileLib jobs;
+	private final FileLib names;
+	private final FileLib phrases;
 	private final float pitch;
 	private final AudioPlayer player;
 	// Needed as audio library code swallows InterruptedExceptions
 	private volatile boolean interrupted = false;
 
-	public AudioMessage(AudioPlayer player, File soundDir) {
+	public AudioMessage(AudioPlayer player, File soundDir) throws IOException {
 		this(player, soundDir, Audio.NORMAL_PITCH);
 	}
 
-	public AudioMessage(AudioPlayer player, File soundDir, float pitch) {
+	public AudioMessage(AudioPlayer player, File soundDir, float pitch) throws IOException {
 		this.player = player;
 		this.pitch = pitch;
-		File clipDir = new File(IoUtil.getPackageDir(getClass()), CLIP_DIR);
-		clips = new AudioLib(clipDir);
+		File clipDir = clipDir();
+		clips = new FileLib(clipDir, EXT_DEF);
 		clipKeys = ImmutableUtil.copyAsList(clips.keys());
-		builds = new AudioLib(new File(soundDir, BUILD_DIR));
-		jobs = new AudioLib(new File(soundDir, JOB_DIR));
-		names = new AudioLib(new File(soundDir, NAME_DIR));
-		phrases = new AudioLib(new File(soundDir, PHRASE_DIR));
+		builds = new FileLib(new File(soundDir, BUILD_DIR), EXT_DEF);
+		jobs = new FileLib(new File(soundDir, JOB_DIR), EXT_DEF);
+		names = new FileLib(new File(soundDir, NAME_DIR), EXT_DEF);
+		phrases = new FileLib(new File(soundDir, PHRASE_DIR), EXT_DEF);
+		// Check all phrases exist
+		for (AudioPhrase phrase : AudioPhrase.values())
+			phrases.file(phrase.name());
 	}
 
 	/**
@@ -55,12 +61,12 @@ public class AudioMessage {
 	/**
 	 * Play a random alarm sound.
 	 */
-	public void playAlarm() throws IOException {
+	public void playRandomAlarm() throws IOException {
 		checkRuntimeInterrupted();
 		int index = (int) (Math.random() * clipKeys.size());
 		String key = clipKeys.get(index);
 		File file = clips.file(key);
-		logger.debug("Alarm: {}", file);
+		logger.debug("Alarm: {}", file.getName());
 		checkRuntimeInterrupted();
 		player.play(Audio.create(file));
 	}
@@ -135,7 +141,7 @@ public class AudioMessage {
 	}
 
 	private void play(File file) throws IOException {
-		logger.debug("Speech: {}", file);
+		logger.debug("Speech: {}", file.getName());
 		checkRuntimeInterrupted();
 		Audio audio = Audio.create(file);
 		player.play(audio.changePitch(pitch));
@@ -146,6 +152,14 @@ public class AudioMessage {
 		if (interrupted) {
 			interrupted = false;
 			throw new RuntimeInterruptedException("Thread has been interrupted");
+		}
+	}
+
+	private File clipDir() throws IOException {
+		try {
+			return new File(getClass().getResource(CLIP_DIR).toURI());
+		} catch (URISyntaxException e) {
+			throw new IOException(e);
 		}
 	}
 

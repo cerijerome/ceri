@@ -20,10 +20,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ci.build.BuildEvent;
 import ceri.ci.build.BuildEventProcessor;
-import ceri.ci.ecg.sjc.BoltMWebEmailParser;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.util.BasicUtil;
 
 /**
  * Polls the email server for emails. Uses the last received email's sent date for the minimum sent
@@ -44,16 +42,6 @@ public class EmailService implements Closeable {
 	private final EmailRetriever.Matcher messageMatcher;
 	private final Collection<Email> emailBuffer = new TreeSet<>(EmailComparators.SENT_DATE);
 	private Email lastEmail = null;
-
-	public static void main(String[] args) throws Exception {
-		EmailRetriever retriever =
-			EmailRetriever.builder("imap.gmail.com", "ecg.sjc.ci.alert@gmail.com", "ecgsjccialert")
-				.build();
-		BoltMWebEmailParser parser = new BoltMWebEmailParser();
-		try (EmailService service = builder(retriever, null).parsers(parser).build()) {
-			BasicUtil.delay(30000000);
-		}
-	}
 
 	/**
 	 * Builds the email service with optional parameters.

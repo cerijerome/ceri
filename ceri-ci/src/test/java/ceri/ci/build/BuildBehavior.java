@@ -19,6 +19,18 @@ public class BuildBehavior {
 	private static final Event e6 = new Event(Event.Type.success, 6L);
 	private static final Event e7 = new Event(Event.Type.success, 7L, "g1");
 
+	
+	@Test
+	public void shouldDeleteJobs() {
+		Build build = new Build("test");
+		build.job("job1").event(e0, e1);
+		build.job("job2").event(e0, e2);
+		Build build2 = new Build(build);
+		build.delete("job2");
+		BuildTestUtil.assertJobNames(build, "job1");
+		BuildTestUtil.assertJobNames(build2, "job1", "job2");
+	}
+
 	@Test
 	public void shouldCopyAllJobs() {
 		Build build = new Build("test");

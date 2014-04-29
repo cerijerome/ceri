@@ -28,15 +28,15 @@ public class X10AlerterBehavior {
 
 	@Test
 	public void shouldTurnOnDeviceForGivenKeyAlert() {
-		X10Alerter x10 = X10Alerter.builder(controller).address("ceri", "F13").build();
-		x10.alert("ceri");
+		X10Alerter x10 = X10Alerter.builder(controller).address("key", "F13").build();
+		x10.alert("key");
 		InOrder inOrder = inOrder(controller);
 		inOrder.verify(controller).command(CommandFactory.on("F13"));
 	}
 
 	@Test
 	public void shouldNotTurnOnDeviceForMissingKeyAlert() {
-		X10Alerter x10 = X10Alerter.builder(controller).address("ceri", "F13").build();
+		X10Alerter x10 = X10Alerter.builder(controller).address("key", "F13").build();
 		x10.alert("xxx");
 		verifyZeroInteractions(controller);
 	}
@@ -44,16 +44,27 @@ public class X10AlerterBehavior {
 	@Test
 	public void shouldNotTurnOnDeviceForEmptyKeyAlert() {
 		X10Alerter x10 =
-			X10Alerter.builder(controller).address("ceri1", "F13").address("ceri2", "P16").build();
+			X10Alerter.builder(controller).address("key1", "F13").address("key2", "P16").build();
 		x10.alert();
 		verifyZeroInteractions(controller);
 	}
 
 	@Test
+	public void shouldTurnOffDevicesForFixedKeyAlerts() {
+		X10Alerter x10 =
+			X10Alerter.builder(controller).address("key1", "F13").address("key2", "P16").build();
+		x10.alert("key1");
+		verify(controller).command(CommandFactory.on("F13"));
+		x10.alert("key2");
+		verify(controller).command(CommandFactory.off("F13"));
+		verify(controller).command(CommandFactory.on("P16"));
+	}
+
+	@Test
 	public void shouldTurnOnDevicesForGivenKeyAlerts() {
 		X10Alerter x10 =
-			X10Alerter.builder(controller).address("ceri1", "F13").address("ceri2", "P16").build();
-		x10.alert("ceri2", "ceri1");
+			X10Alerter.builder(controller).address("key1", "F13").address("key2", "P16").build();
+		x10.alert("key2", "key1");
 		verify(controller).command(CommandFactory.on("P16"));
 		verify(controller).command(CommandFactory.on("F13"));
 	}
@@ -61,8 +72,8 @@ public class X10AlerterBehavior {
 	@Test
 	public void shouldTurnOffDevicesForClearAlerts() {
 		X10Alerter x10 =
-			X10Alerter.builder(controller).address("ceri1", "F13").address("ceri2", "P16").build();
-		x10.alert("ceri1", "ceri2");
+			X10Alerter.builder(controller).address("key1", "F13").address("key2", "P16").build();
+		x10.alert("key1", "key2");
 		x10.clear();
 		verify(controller).command(CommandFactory.off("F13"));
 		verify(controller).command(CommandFactory.off("P16"));

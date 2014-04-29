@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import ceri.ci.build.Builds;
 
-@javax.servlet.annotation.WebServlet(name = "webServlet", urlPatterns = { "/web/*" })
 public class WebServlet extends HttpServlet {
 	private static final String WEB_ATTRIBUTE = WebAlerter.class.getName();
 	private static final long serialVersionUID = -8414876117635334465L;

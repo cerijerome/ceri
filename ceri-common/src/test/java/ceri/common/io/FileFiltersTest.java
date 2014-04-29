@@ -36,6 +36,16 @@ public class FileFiltersTest {
 	}
 
 	@Test
+	public void test() {
+		File[] files = helper.root.listFiles(FileFilters.byExtension());
+		assertCollection(files);
+		files = helper.root.listFiles(FileFilters.byExtension("txt", "jpg"));
+		assertCollection(files, helper.files("c.txt"));
+		files = helper.root.listFiles(FileFilters.byExtension("jpg"));
+		assertCollection(files);
+	}
+
+	@Test
 	public void testNullFilter() {
 		File[] files = helper.root.listFiles(FileFilters.NULL);
 		assertThat(files.length, is(0));

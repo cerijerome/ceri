@@ -1,5 +1,6 @@
 package ceri.ci.build;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -8,7 +9,7 @@ import java.util.TreeMap;
 import ceri.common.util.HashCoder;
 import ceri.common.util.ToStringHelper;
 
-public class Builds implements Iterable<Build> {
+public class Builds implements Iterable<Build>, BuildEventProcessor {
 	private transient final Map<String, Build> mutableBuilds = new TreeMap<>();
 	public final Collection<Build> builds = Collections.unmodifiableCollection(mutableBuilds
 		.values());
@@ -50,6 +51,15 @@ public class Builds implements Iterable<Build> {
 	@Override
 	public Iterator<Build> iterator() {
 		return builds.iterator();
+	}
+	
+	public void process(BuildEvent...events) {
+		process(Arrays.asList(events));
+	}
+	
+	@Override
+	public void process(Collection<BuildEvent> events) {
+		for (BuildEvent event : events) event.applyTo(this);
 	}
 	
 	@Override

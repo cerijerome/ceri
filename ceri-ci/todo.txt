@@ -1,0 +1,19 @@
+To do
+=====
+
+Optimize pom for ecg-sjc project
+Fix tests, add tests
+Startup scripts master/slave
+Revisit master/slave config = node0, node1, etc
+Change timeout for zwave
+Save state and reload on restart
+Build purge on timer
+
+
+Admin/Web
+---------
+Convert builds to jsTree format?
+Admin link page
+Fix styling for item <p>
+Placeholder image for no items
+Finish jsps for web

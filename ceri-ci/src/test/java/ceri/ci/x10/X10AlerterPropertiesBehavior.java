@@ -6,11 +6,13 @@ import static org.junit.Assert.assertThat;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import ceri.common.property.BaseProperties;
 import ceri.x10.util.X10ControllerType;
 
 public class X10AlerterPropertiesBehavior {
 	private static Properties props = new Properties();
-	
+	private static BaseProperties baseProps = new BaseProperties(props) {};
+
 	@BeforeClass
 	public static void init() {
 		props.put("x.enabled", "true");
@@ -20,10 +22,10 @@ public class X10AlerterPropertiesBehavior {
 		props.put("x.address.B", "F1");
 		props.put("y.controller", "xxx");
 	}
-	
+
 	@Test
 	public void shouldReadValuesWithPrefix() {
-		X10AlerterProperties x10 = new X10AlerterProperties(props, "x");
+		X10AlerterProperties x10 = new X10AlerterProperties(baseProps, "x");
 		assertThat(x10.enabled(), is(true));
 		assertThat(x10.commPort(), is("COM1"));
 		assertThat(x10.controllerType(), is(X10ControllerType.cm11a));
@@ -34,8 +36,8 @@ public class X10AlerterPropertiesBehavior {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailForInvalidControllerType() {
-		X10AlerterProperties x10 = new X10AlerterProperties(props, "y");
+		X10AlerterProperties x10 = new X10AlerterProperties(baseProps, "y");
 		x10.controllerType();
 	}
-	
+
 }
