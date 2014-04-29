@@ -10,7 +10,7 @@ import java.util.TreeSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ci.build.AnalyzedJob;
-import ceri.ci.build.BuildAnalyzerBehavior;
+import ceri.ci.build.BuildAnalyzer;
 import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
@@ -22,7 +22,7 @@ public class PhoneAlerter implements Alerter {
 	private static final Logger logger = LogManager.getLogger();
 	private final PhoneClient client;
 	private final Map<String, String> phoneNumbers;
-	private BuildAnalyzerBehavior buildAnalyzer = new BuildAnalyzerBehavior();
+	private BuildAnalyzer buildAnalyzer = new BuildAnalyzer();
 
 	public static class Builder {
 		final Map<String, String> phoneNumbers = new HashMap<>();

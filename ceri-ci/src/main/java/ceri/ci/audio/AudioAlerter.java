@@ -6,7 +6,7 @@ import java.util.Collection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ci.build.AnalyzedJob;
-import ceri.ci.build.BuildAnalyzerBehavior;
+import ceri.ci.build.BuildAnalyzer;
 import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
@@ -19,7 +19,7 @@ import ceri.ci.common.Alerter;
 public class AudioAlerter implements Alerter, Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private final AudioMessage message;
-	private BuildAnalyzerBehavior buildAnalyzer = new BuildAnalyzerBehavior();
+	private BuildAnalyzer buildAnalyzer = new BuildAnalyzer();
 
 	public AudioAlerter(AudioMessage message) {
 		this.message = message;
