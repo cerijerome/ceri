@@ -17,7 +17,7 @@ public class AudioContainer implements Closeable {
 	public final AudioAlerter alerter;
 
 	public AudioContainer(BaseProperties properties) throws IOException {
-		AudioAlerterProperties audioProperties = new AudioAlerterProperties(properties, GROUP);
+		AudioProperties audioProperties = new AudioProperties(properties, GROUP);
 		if (!audioProperties.enabled()) {
 			logger.info("Audio alerter disabled");
 			alerter = null;

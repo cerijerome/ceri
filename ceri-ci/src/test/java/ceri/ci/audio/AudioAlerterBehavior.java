@@ -29,7 +29,7 @@ public class AudioAlerterBehavior {
 		builds.build("b0").job("j0").event(Event.failure("n0", "n1"));
 		builds.build("b0").job("j1").event(Event.failure());
 		builds.build("b1").job("j0").event();
-		audio.alert(builds);
+		audio.update(builds);
 		reset(message);
 		audio.remind();
 		verify(message).playStillBroken("b0", "j0", names("n0", "n1"));
@@ -43,7 +43,7 @@ public class AudioAlerterBehavior {
 		builds.build("b0").job("j0").event(Event.failure("n0", "n1"));
 		builds.build("b0").job("j1").event(Event.failure());
 		builds.build("b1").job("j0").event();
-		audio.alert(builds);
+		audio.update(builds);
 		verify(message).playRandomAlarm();
 		verify(message).playJustBroken("b0", "j0", names("n0", "n1"));
 		verify(message).playJustBroken("b0", "j1", names());
@@ -55,12 +55,12 @@ public class AudioAlerterBehavior {
 		Builds builds = new Builds();
 		builds.build("b0").job("j0").event(Event.failure("n0", "n1"));
 		builds.build("b0").job("j1").event(Event.failure());
-		audio.alert(builds);
+		audio.update(builds);
 		reset(message);
 		builds = new Builds();
 		builds.build("b0").job("j0").event(Event.failure());
 		builds.build("b0").job("j1").event(Event.failure("n2"));
-		audio.alert(builds);
+		audio.update(builds);
 		verify(message).playStillBroken("b0", "j0", names());
 		verify(message).playStillBroken("b0", "j1", names("n2"));
 		verifyNoMoreInteractions(message);
@@ -71,12 +71,12 @@ public class AudioAlerterBehavior {
 		Builds builds = new Builds();
 		builds.build("b0").job("j0").event(Event.failure("n0", "n1"));
 		builds.build("b0").job("j1").event(Event.failure());
-		audio.alert(builds);
+		audio.update(builds);
 		reset(message);
 		builds = new Builds();
 		builds.build("b0").job("j0").event(Event.success());
 		builds.build("b0").job("j1").event(Event.success("n2"));
-		audio.alert(builds);
+		audio.update(builds);
 		verify(message).playJustFixed("b0", "j0", names());
 		verify(message).playJustFixed("b0", "j1", names("n2"));
 		verifyNoMoreInteractions(message);

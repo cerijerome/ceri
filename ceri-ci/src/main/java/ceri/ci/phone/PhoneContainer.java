@@ -13,7 +13,7 @@ public class PhoneContainer {
 	public final PhoneAlerter alerter;
 
 	public PhoneContainer(BaseProperties properties) {
-		PhoneAlerterProperties phoneProperties = new PhoneAlerterProperties(properties, GROUP);
+		PhoneProperties phoneProperties = new PhoneProperties(properties, GROUP);
 		if (!phoneProperties.enabled()) {
 			logger.info("Phone alerter disabled");
 			alerter = null;
@@ -22,7 +22,7 @@ public class PhoneContainer {
 		}
 	}
 
-	private PhoneAlerter createAlerter(PhoneAlerterProperties properties) {
+	private PhoneAlerter createAlerter(PhoneProperties properties) {
 		logger.info("Creating phone client");
 		PhoneClient client = new TwilioClient(properties.accountSid(), properties.authToken(),
 			properties.fromPhoneNumber());

@@ -7,11 +7,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.io.IoUtil;
 import ceri.common.property.BaseProperties;
 import ceri.x10.cm11a.Cm11aConnector;
-import ceri.x10.cm11a.Cm11aController;
-import ceri.x10.cm11a.Cm11aSerialConnector;
 import ceri.x10.cm17a.Cm17aConnector;
-import ceri.x10.cm17a.Cm17aController;
-import ceri.x10.cm17a.Cm17aSerialConnector;
 import ceri.x10.util.X10Controller;
 import ceri.x10.util.X10ControllerType;
 
@@ -26,7 +22,11 @@ public class X10Container implements Closeable {
 	public final X10Alerter alerter;
 
 	public X10Container(BaseProperties properties) throws IOException {
-		X10AlerterProperties x10Properties = new X10AlerterProperties(properties, GROUP);
+		this(properties, new X10FactoryImpl());
+	}
+
+	public X10Container(BaseProperties properties, X10Factory factory) throws IOException {
+		X10Properties x10Properties = new X10Properties(properties, GROUP);
 		if (!x10Properties.enabled()) {
 			logger.info("X10 alerter disabled");
 			connector = null;
@@ -34,18 +34,18 @@ public class X10Container implements Closeable {
 			alerter = null;
 		} else if (x10Properties.controllerType() == X10ControllerType.cm11a) {
 			logger.info("Creating CM11A connector");
-			Cm11aConnector cm11aConnector = new Cm11aSerialConnector(x10Properties.commPort());
+			Cm11aConnector cm11aConnector = factory.createCm11aConnector(x10Properties.commPort());
 			connector = cm11aConnector;
 			logger.info("Creating CM11A controller");
-			controller = new Cm11aController(cm11aConnector, null);
-			alerter = createAlerter(controller, x10Properties);
+			controller = factory.createCm11aController(cm11aConnector);
+			alerter = createAlerter(x10Properties, factory, controller);
 		} else {
 			logger.info("Creating CM17A connector");
-			Cm17aConnector cm17aConnector = new Cm17aSerialConnector(x10Properties.commPort());
+			Cm17aConnector cm17aConnector = factory.createCm17aConnector(x10Properties.commPort());
 			connector = cm17aConnector;
 			logger.info("Creating CM17A controller");
-			controller = new Cm17aController(cm17aConnector, null);
-			alerter = createAlerter(controller, x10Properties);
+			controller = factory.createCm17aController(cm17aConnector);
+			alerter = createAlerter(x10Properties, factory, controller);
 		}
 	}
 
@@ -61,9 +61,10 @@ public class X10Container implements Closeable {
 		}
 	}
 
-	private X10Alerter createAlerter(X10Controller controller, X10AlerterProperties properties) {
+	private X10Alerter createAlerter(X10Properties properties, X10Factory factory,
+		X10Controller controller) {
 		logger.debug("Creating X10 alerter");
-		X10Alerter.Builder builder = X10Alerter.builder(controller);
+		X10Alerter.Builder builder = factory.builder(controller);
 		for (String name : properties.names()) {
 			String address = properties.address(name);
 			builder.address(name, address);

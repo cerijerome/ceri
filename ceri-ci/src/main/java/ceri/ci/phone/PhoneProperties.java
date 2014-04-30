@@ -8,14 +8,14 @@ import ceri.common.property.Key;
 /**
  * Properties to configure the zwave alerter.
  */
-public class PhoneAlerterProperties extends BaseProperties {
+public class PhoneProperties extends BaseProperties {
 	private static final String ENABLED_KEY = "enabled";
 	private static final String ACCOUNT_SID_KEY = "account.sid";
 	private static final String AUTH_TOKEN_KEY = "auth.token";
 	private static final String FROM_KEY = "from";
 	private static final String PHONE_NUMBER_KEY = "phone.number";
 
-	public PhoneAlerterProperties(BaseProperties properties, String group) {
+	public PhoneProperties(BaseProperties properties, String group) {
 		super(properties, group);
 	}
 

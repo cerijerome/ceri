@@ -9,7 +9,7 @@ import org.junit.Test;
 import ceri.common.property.BaseProperties;
 import ceri.x10.util.X10ControllerType;
 
-public class X10AlerterPropertiesBehavior {
+public class X10PropertiesBehavior {
 	private static Properties props = new Properties();
 	private static BaseProperties baseProps = new BaseProperties(props) {};
 
@@ -25,7 +25,7 @@ public class X10AlerterPropertiesBehavior {
 
 	@Test
 	public void shouldReadValuesWithPrefix() {
-		X10AlerterProperties x10 = new X10AlerterProperties(baseProps, "x");
+		X10Properties x10 = new X10Properties(baseProps, "x");
 		assertThat(x10.enabled(), is(true));
 		assertThat(x10.commPort(), is("COM1"));
 		assertThat(x10.controllerType(), is(X10ControllerType.cm11a));
@@ -36,7 +36,7 @@ public class X10AlerterPropertiesBehavior {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailForInvalidControllerType() {
-		X10AlerterProperties x10 = new X10AlerterProperties(baseProps, "y");
+		X10Properties x10 = new X10Properties(baseProps, "y");
 		x10.controllerType();
 	}
 

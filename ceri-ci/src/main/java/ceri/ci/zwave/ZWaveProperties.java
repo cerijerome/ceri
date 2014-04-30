@@ -8,14 +8,14 @@ import ceri.common.property.Key;
 /**
  * Properties to configure the zwave alerter.
  */
-public class ZWaveAlerterProperties extends BaseProperties {
+public class ZWaveProperties extends BaseProperties {
 	private static final String ENABLED_KEY = "enabled";
 	private static final String HOST_KEY = "host";
 	private static final String DEVICE_KEY = "device";
 	private static final String ALERT_KEY = "alert";
 	private static final String TIME_MS_KEY = "time.ms";
 
-	public ZWaveAlerterProperties(BaseProperties properties, String group) {
+	public ZWaveProperties(BaseProperties properties, String group) {
 		super(properties, group);
 	}
 

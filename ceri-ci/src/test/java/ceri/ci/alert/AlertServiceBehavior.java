@@ -6,7 +6,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +32,7 @@ public class AlertServiceBehavior {
 	}
 	
 	@After
-	public void close() throws IOException {
+	public void close() {
 		service.close();
 	}
 	
@@ -99,28 +98,28 @@ public class AlertServiceBehavior {
 	public void shouldClearBuild() throws InterruptedException {
 		service.clear("b0", null);
 		sync.await();
-		verify(alerters).alert((Builds)any());
+		verify(alerters).update((Builds)any());
 	}
 
 	@Test
 	public void shouldClearJob() throws InterruptedException  {
 		service.clear("b0", "j0");
 		sync.await();
-		verify(alerters).alert((Builds)any());
+		verify(alerters).update((Builds)any());
 	}
 
 	@Test
 	public void shouldBreak() throws InterruptedException  {
 		service.process(new BuildEvent("build0", "job0", e0));
 		sync.await();
-		verify(alerters).alert((Builds)any());
+		verify(alerters).update((Builds)any());
 	}
 
 	@Test
 	public void shouldFix() throws InterruptedException  {
 		service.process(new BuildEvent("build0", "job0", e1));
 		sync.await();
-		verify(alerters).alert((Builds)any());
+		verify(alerters).update((Builds)any());
 	}
 
 	@Test
@@ -132,8 +131,8 @@ public class AlertServiceBehavior {
 	private AlerterGroup createAlerters() {
 		return new TestAlerters(AlerterGroup.builder()) {
 			@Override
-			public void alert(Builds builds) {
-				alerters.alert(builds);
+			public void update(Builds builds) {
+				alerters.update(builds);
 				sync.signal();
 			}
 			@Override

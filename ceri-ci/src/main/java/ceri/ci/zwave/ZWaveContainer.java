@@ -3,7 +3,6 @@ package ceri.ci.zwave;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.property.BaseProperties;
-import ceri.zwave.veralite.VeraLite;
 
 /**
  * Creates the zwave alerter.
@@ -14,20 +13,24 @@ public class ZWaveContainer {
 	public final ZWaveAlerter alerter;
 
 	public ZWaveContainer(BaseProperties properties) {
-		ZWaveAlerterProperties zwaveProperties = new ZWaveAlerterProperties(properties, GROUP);
+		this(properties, new ZWaveFactoryImpl());
+	}
+
+	public ZWaveContainer(BaseProperties properties, ZWaveFactory factory) {
+		ZWaveProperties zwaveProperties = new ZWaveProperties(properties, GROUP);
 		if (!zwaveProperties.enabled()) {
 			logger.info("Zwave alerter disabled");
 			alerter = null;
 		} else {
-			alerter = createAlerter(zwaveProperties);
+			alerter = createAlerter(zwaveProperties, factory);
 		}
 	}
 
-	private ZWaveAlerter createAlerter(ZWaveAlerterProperties properties) {
+	private ZWaveAlerter createAlerter(ZWaveProperties properties, ZWaveFactory factory) {
 		logger.info("Creating zwave controller");
-		ZWaveController controller = new ZWaveController(new VeraLite(properties.host()));
+		ZWaveController controller = factory.createController(properties.host());
 		logger.info("Creating zwave alerter");
-		ZWaveAlerter.Builder builder = ZWaveAlerter.builder(controller);
+		ZWaveAlerter.Builder builder = factory.builder(controller);
 		for (String name : properties.names()) {
 			Integer device = properties.device(name);
 			builder.device(name, device);

@@ -8,7 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.property.BaseProperties;
 
-public class ZWaveAlerterPropertiesBehavior {
+public class ZWavePropertiesBehavior {
 	private static Properties props = new Properties();
 
 	@BeforeClass
@@ -21,8 +21,8 @@ public class ZWaveAlerterPropertiesBehavior {
 
 	@Test
 	public void shouldReadValuesWithPrefix() {
-		ZWaveAlerterProperties zwave =
-			new ZWaveAlerterProperties(new BaseProperties(props) {}, "x");
+		ZWaveProperties zwave =
+			new ZWaveProperties(new BaseProperties(props) {}, "x");
 		assertThat(zwave.enabled(), is(true));
 		assertThat(zwave.host(), is("aaa"));
 		assertThat(zwave.device("A"), is(1));

@@ -5,8 +5,9 @@ import static org.junit.Assert.assertThat;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import ceri.common.property.BaseProperties;
 
-public class AlertServicePropertiesBehavior {
+public class AlertPropertiesBehavior {
 	private static Properties props = new Properties();
 	
 	@BeforeClass
@@ -16,7 +17,7 @@ public class AlertServicePropertiesBehavior {
 	
 	@Test
 	public void shouldReadValuesWithPrefix() {
-		AlertServiceProperties serviceProps = new AlertServiceProperties(props, "x");
+		AlertProperties serviceProps = new AlertProperties(new BaseProperties(props) {}, "x");
 		assertThat(serviceProps.reminderMs(), is(999999L));
 	}
 

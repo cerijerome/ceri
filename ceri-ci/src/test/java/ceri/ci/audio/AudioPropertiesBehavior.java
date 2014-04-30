@@ -5,8 +5,9 @@ import static org.junit.Assert.assertThat;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import ceri.common.property.BaseProperties;
 
-public class AudioAlerterPropertiesBehavior {
+public class AudioPropertiesBehavior {
 	private static Properties props = new Properties();
 	
 	@BeforeClass
@@ -17,7 +18,7 @@ public class AudioAlerterPropertiesBehavior {
 	
 	@Test
 	public void shouldReadValuesWithPrefix() {
-		AudioAlerterProperties audio = new AudioAlerterProperties(props, "x");
+		AudioProperties audio = new AudioProperties(new BaseProperties(props) {}, "x");
 		assertThat(audio.enabled(), is(true));
 		assertThat(audio.pitch(), is(1.2f));
 	}

@@ -23,7 +23,7 @@ public class AlertServiceContainer implements Closeable {
 	}
 	
 	public AlertServiceContainer(BaseProperties properties, Collection<Alerter> alerters) {
-		AlertServiceProperties alertProperties = new AlertServiceProperties(properties, GROUP);
+		AlertProperties alertProperties = new AlertProperties(properties, GROUP);
 		logger.info("Creating alerter group");
 		this.alerters = createAlerterGroup(alertProperties, alerters);
 		logger.info("Creating alert service");
@@ -37,11 +37,11 @@ public class AlertServiceContainer implements Closeable {
 	}
 
 	private AlertService
-		createAlertService(AlerterGroup alerters, AlertServiceProperties properties) {
+		createAlertService(AlerterGroup alerters, AlertProperties properties) {
 		return new AlertService(alerters, properties.reminderMs(), properties.shutdownTimeoutMs());
 	}
 
-	private AlerterGroup createAlerterGroup(AlertServiceProperties properties,
+	private AlerterGroup createAlerterGroup(AlertProperties properties,
 		Collection<Alerter> alerters) {
 		AlerterGroup.Builder builder =
 			AlerterGroup.builder().shutdownTimeoutMs(properties.shutdownTimeoutMs());

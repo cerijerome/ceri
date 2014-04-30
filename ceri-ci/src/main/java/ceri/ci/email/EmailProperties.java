@@ -5,7 +5,7 @@ import ceri.common.property.BaseProperties;
 /**
  * Properties for fetching emails from the server.
  */
-public class EmailServiceProperties extends BaseProperties {
+public class EmailProperties extends BaseProperties {
 	private static final String ENABLED_KEY = "enabled";
 	private static final String ACCOUNT_KEY = "account";
 	private static final String PASSWORD_KEY = "password";
@@ -17,7 +17,7 @@ public class EmailServiceProperties extends BaseProperties {
 	private static final String SENT_DATE_BUFFER_MS_KEY = "sent.date.buffer.ms";
 	private static final String SHUTDOWN_TIMEOUT_MS_KEY = "shutdown.timeout.ms";
 
-	public EmailServiceProperties(BaseProperties properties, String group) {
+	public EmailProperties(BaseProperties properties, String group) {
 		super(properties, group);
 	}
 
