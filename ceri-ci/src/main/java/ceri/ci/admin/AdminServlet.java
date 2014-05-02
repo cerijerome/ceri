@@ -28,7 +28,7 @@ import ceri.common.util.StringUtil;
  * /{build}/{job}?delete
  * </pre>
  */
-@WebServlet(name = "adminServlet", urlPatterns = { "/admin/*" })
+//@WebServlet(name = "adminServlet", urlPatterns = { "/admin/*" })
 public class AdminServlet extends HttpServlet {
 	private static final String ALERT_ATTRIBUTE = AlertService.class.getName();
 	private static final long serialVersionUID = 749914795926651883L;

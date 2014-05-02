@@ -1,7 +1,7 @@
 To do
 =====
 
-Optimize pom for ecg-sjc project
+Optimize poms
 Fix tests, add tests
 Startup scripts master/slave
 Revisit master/slave config = node0, node1, etc

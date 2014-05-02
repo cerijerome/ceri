@@ -39,6 +39,8 @@ public class ZWaveAlerter implements Alerter {
 		}
 
 		public Builder alertTimeMs(long alertTimeMs) {
+			if (alertTimeMs < 0) throw new IllegalArgumentException("Alert time must be >= 0ms: " +
+				alertTimeMs);
 			this.alertTimeMs = alertTimeMs;
 			return this;
 		}
@@ -48,6 +50,9 @@ public class ZWaveAlerter implements Alerter {
 		}
 
 		public Builder alertDevices(Collection<Integer> devices) {
+			for (Integer device : devices)
+				if (device.intValue() < 0) throw new IllegalArgumentException("Invalid device " +
+					device);
 			alertDevices.addAll(devices);
 			return this;
 		}

@@ -17,6 +17,10 @@ public class AudioContainer implements Closeable {
 	public final AudioAlerter alerter;
 
 	public AudioContainer(BaseProperties properties) throws IOException {
+		this(properties, new AudioFactoryImpl());
+	}
+	
+	public AudioContainer(BaseProperties properties, AudioFactory factory) throws IOException {
 		AudioProperties audioProperties = new AudioProperties(properties, GROUP);
 		if (!audioProperties.enabled()) {
 			logger.info("Audio alerter disabled");
@@ -24,11 +28,10 @@ public class AudioContainer implements Closeable {
 		} else {
 			logger.info("Creating audio message player");
 			File soundDir =
-				new File(IoUtil.getPackageDir(AudioMessage.class), audioProperties.voice());
-			AudioPlayer player = new AudioPlayer.Default();
-			AudioMessage message = new AudioMessage(player, soundDir, audioProperties.pitch());
+				new File(IoUtil.getPackageDir(AudioMessages.class), audioProperties.voice());
+			AudioMessages message = factory.createMessages(soundDir, audioProperties.pitch());
 			logger.info("Creating audio alerter");
-			alerter = new AudioAlerter(message);
+			alerter = factory.createAlerter(message);
 		}
 	}
 

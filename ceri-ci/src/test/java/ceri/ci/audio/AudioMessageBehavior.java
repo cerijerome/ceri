@@ -1,7 +1,10 @@
 package ceri.ci.audio;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -22,7 +25,7 @@ public class AudioMessageBehavior {
 	
 	@Test
 	public void shouldFailIfInterrupted() throws Throwable {
-		final AudioMessage audio = new AudioMessage(player, dir);
+		final AudioMessages audio = new AudioMessages(player, dir);
 		TestThread thread = new TestThread() {
 			@Override
 			protected void run() throws Exception {
@@ -41,11 +44,15 @@ public class AudioMessageBehavior {
 
 	@Test
 	public void shouldPlayAudioMessages() throws IOException {
-		AudioMessage audio = new AudioMessage(player, dir);
+		AudioMessages audio = new AudioMessages(player, dir);
 		audio.playRandomAlarm();
-		audio.playJustFixed("test", "test", Arrays.asList("test"));
-		audio.playJustBroken("x", "test", Arrays.asList("test"));
-		audio.playStillBroken("test", "x", Arrays.asList("test"));
+		verify(player).play(any(Audio.class));
+		audio.playJustFixed("build", "job", Arrays.asList("name"));
+		verify(player, atLeast(3)).play(any(Audio.class));
+		audio.playJustBroken("build2", "job", Arrays.asList("name"));
+		verify(player, atLeast(3)).play(any(Audio.class));
+		audio.playStillBroken("build", "job2", Arrays.asList("name"));
+		verify(player, atLeast(3)).play(any(Audio.class));
 	}
 
 }

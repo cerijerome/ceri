@@ -14,6 +14,7 @@ public class AudioPropertiesBehavior {
 	public static void init() {
 		props.put("x.enabled", "true");
 		props.put("x.pitch", "1.2");
+		props.put("x.voice", "a/b/c");
 	}
 	
 	@Test
@@ -21,6 +22,7 @@ public class AudioPropertiesBehavior {
 		AudioProperties audio = new AudioProperties(new BaseProperties(props) {}, "x");
 		assertThat(audio.enabled(), is(true));
 		assertThat(audio.pitch(), is(1.2f));
+		assertThat(audio.voice(), is("a/b/c"));
 	}
 
 }

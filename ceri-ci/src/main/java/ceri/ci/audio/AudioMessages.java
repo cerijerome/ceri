@@ -13,7 +13,7 @@ import ceri.common.collection.ImmutableUtil;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 
-public class AudioMessage {
+public class AudioMessages {
 	private static final Logger logger = LogManager.getLogger();
 	private static final Collection<String> EXT_DEF = Arrays.asList("wav", "mp3");
 	private static final String CLIP_DIR = "clip";
@@ -32,11 +32,11 @@ public class AudioMessage {
 	// Needed as audio library code swallows InterruptedExceptions
 	private volatile boolean interrupted = false;
 
-	public AudioMessage(AudioPlayer player, File soundDir) throws IOException {
+	public AudioMessages(AudioPlayer player, File soundDir) throws IOException {
 		this(player, soundDir, Audio.NORMAL_PITCH);
 	}
 
-	public AudioMessage(AudioPlayer player, File soundDir, float pitch) throws IOException {
+	public AudioMessages(AudioPlayer player, File soundDir, float pitch) throws IOException {
 		this.player = player;
 		this.pitch = pitch;
 		File clipDir = clipDir();
@@ -137,7 +137,9 @@ public class AudioMessage {
 	}
 
 	private void play(AudioPhrase phrase) throws IOException {
-		play(phrases.file(phrase.name()));
+		File file = phrases.file(phrase.name());
+		if (file == null) throw new IOException("Missing file for phrase " + phrase.name());
+		play(file);
 	}
 
 	private void play(File file) throws IOException {

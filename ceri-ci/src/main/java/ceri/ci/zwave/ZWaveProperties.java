@@ -37,6 +37,7 @@ public class ZWaveProperties extends BaseProperties {
 	
 	public Collection<Integer> alertDevices() {
 		Collection<String> values = stringValues(ALERT_KEY, DEVICE_KEY);
+		if (values == null) return null;
 		return integers(values);
 	}
 	

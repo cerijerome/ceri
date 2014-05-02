@@ -37,7 +37,7 @@ public class X10ContainerBehavior {
 	}
 
 	@Test
-	public void should() throws IOException {
+	public void shouldRegisterKeysToX10Addresses() throws IOException {
 		properties.put("x10.enabled", "true");
 		properties.put("x10.comm.port", "com");
 		properties.put("x10.controller", "cm17a");

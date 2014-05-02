@@ -1,5 +1,6 @@
 package ceri.ci.audio;
 
+import static ceri.common.test.TestUtil.assertException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertNotNull;
@@ -17,6 +18,21 @@ import ceri.common.test.FileTestHelper;
 public class AudioBehavior {
 	private static final File testFile = new File(IoUtil.getPackageDir(AudioBehavior.class),
 		"test.wav");
+
+	@Test
+	public void shouldClipToANewAudioObject() throws IOException {
+		Audio audio = Audio.create(testFile);
+		Audio audio2 = audio.clip(0, 16);
+		assertThat(audio, not(audio2));
+	}
+
+	@Test
+	public void shouldFailIfClipLimitsAreNotWithinDataRange() throws IOException {
+		Audio audio = Audio.create(testFile);
+		assertException(() -> audio.clip(11000, 11000));
+		Audio audio2 = audio.clip(0, 16);
+		assertThat(audio, not(audio2));
+	}
 
 	@Test
 	public void shouldOnlyChangePitchIfNotNormalPitch() throws IOException {
@@ -42,6 +58,18 @@ public class AudioBehavior {
 			FileTestHelper.builder().file("bad.wav", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx").build()) {
 			Audio.create(helper.file("bad.wav"));
 		}
+	}
+
+	@Test(expected = IOException.class)
+	public void shouldThrowIOExceptionWhenLineIsUnavailable() throws IOException {
+		Audio audio = Audio.create(testFile);
+		audio = new Audio(null, new byte[0]) {
+			@Override
+			SourceDataLine getSourceDataLine(AudioFormat format) throws LineUnavailableException {
+				throw new LineUnavailableException();
+			}
+		};
+		audio.play();
 	}
 
 	@Test

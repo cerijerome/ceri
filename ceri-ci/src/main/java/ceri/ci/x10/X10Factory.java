@@ -7,6 +7,9 @@ import ceri.x10.cm17a.Cm17aConnector;
 import ceri.x10.cm17a.Cm17aController;
 import ceri.x10.util.X10Controller;
 
+/**
+ * Creates the components for the X10 alerter.
+ */
 public interface X10Factory {
 
 	Cm11aConnector createCm11aConnector(String commPort) throws IOException;

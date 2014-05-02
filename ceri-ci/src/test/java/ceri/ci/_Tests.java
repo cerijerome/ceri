@@ -7,6 +7,7 @@ import ceri.ci.alert.AlertServiceBehavior;
 import ceri.ci.alert.AlerterGroupBehavior;
 import ceri.ci.audio.AudioAlerterBehavior;
 import ceri.ci.audio.AudioBehavior;
+import ceri.ci.audio.AudioContainerBehavior;
 import ceri.ci.audio.AudioMessageBehavior;
 import ceri.ci.audio.AudioPropertiesBehavior;
 import ceri.ci.build.AnalyzedJobBehavior;
@@ -26,6 +27,8 @@ import ceri.ci.x10.X10AlerterBehavior;
 import ceri.ci.x10.X10ContainerBehavior;
 import ceri.ci.x10.X10PropertiesBehavior;
 import ceri.ci.zwave.ZWaveAlerterBehavior;
+import ceri.ci.zwave.ZWaveContainer;
+import ceri.ci.zwave.ZWaveContainerBehavior;
 import ceri.ci.zwave.ZWavePropertiesBehavior;
 import ceri.common.test.TestUtil;
 
@@ -37,9 +40,10 @@ import ceri.common.test.TestUtil;
 	AlertPropertiesBehavior.class,
 	// audio
 	AudioAlerterBehavior.class,
-	AudioPropertiesBehavior.class,
 	AudioBehavior.class,
+	AudioContainerBehavior.class,
 	AudioMessageBehavior.class,
+	AudioPropertiesBehavior.class,
 	// build
 	AnalyzedJobBehavior.class,
 	BuildAnalyzerBehavior.class,
@@ -63,6 +67,7 @@ import ceri.common.test.TestUtil;
 	X10PropertiesBehavior.class,
 	// zwave
 	ZWaveAlerterBehavior.class,
+	ZWaveContainerBehavior.class,
 	ZWavePropertiesBehavior.class,
 })
 public class _Tests {

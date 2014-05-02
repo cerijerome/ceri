@@ -31,6 +31,8 @@ public class ZWaveContainer {
 		ZWaveController controller = factory.createController(properties.host());
 		logger.info("Creating zwave alerter");
 		ZWaveAlerter.Builder builder = factory.builder(controller);
+		builder.alertDevices(properties.alertDevices());
+		builder.alertTimeMs(properties.alertTimeMs());
 		for (String name : properties.names()) {
 			Integer device = properties.device(name);
 			builder.device(name, device);

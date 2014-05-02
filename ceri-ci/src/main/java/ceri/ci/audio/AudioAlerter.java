@@ -18,10 +18,10 @@ import ceri.ci.common.Alerter;
  */
 public class AudioAlerter implements Alerter, Closeable {
 	private static final Logger logger = LogManager.getLogger();
-	private final AudioMessage message;
+	private final AudioMessages message;
 	private BuildAnalyzer buildAnalyzer = new BuildAnalyzer();
 
-	public AudioAlerter(AudioMessage message) {
+	public AudioAlerter(AudioMessages message) {
 		this.message = message;
 		clear();
 	}
@@ -73,6 +73,8 @@ public class AudioAlerter implements Alerter, Closeable {
 	public void remind() {
 		logger.info("Audio reminder");
 		try {
+			// Update builds?
+			// Or just get list of broken builds?
 			Collection<AnalyzedJob> analyzedJobs = buildAnalyzer.stillBrokenJobs();
 			if (analyzedJobs.isEmpty()) return;
 			message.playRandomAlarm();

@@ -2,11 +2,11 @@ package ceri.ci.audio;
 
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -14,15 +14,20 @@ import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
 
 public class AudioAlerterBehavior {
-	private AudioMessage message;
+	private AudioMessages message;
 	private AudioAlerter audio;
 
 	@Before
 	public void init() {
-		message = Mockito.mock(AudioMessage.class);
+		message = Mockito.mock(AudioMessages.class);
 		audio = new AudioAlerter(message);
 	}
 
+	@After
+	public void end() {
+		audio.close();
+	}
+	
 	@Test
 	public void shouldPlayReminderAudioForAnyBrokenJobs() throws IOException {
 		Builds builds = new Builds();
@@ -34,7 +39,6 @@ public class AudioAlerterBehavior {
 		audio.remind();
 		verify(message).playStillBroken("b0", "j0", names("n0", "n1"));
 		verify(message).playStillBroken("b0", "j1", names());
-		verifyNoMoreInteractions(message);
 	}
 
 	@Test
@@ -44,10 +48,8 @@ public class AudioAlerterBehavior {
 		builds.build("b0").job("j1").event(Event.failure());
 		builds.build("b1").job("j0").event();
 		audio.update(builds);
-		verify(message).playRandomAlarm();
 		verify(message).playJustBroken("b0", "j0", names("n0", "n1"));
 		verify(message).playJustBroken("b0", "j1", names());
-		verifyNoMoreInteractions(message);
 	}
 
 	@Test
@@ -63,7 +65,6 @@ public class AudioAlerterBehavior {
 		audio.update(builds);
 		verify(message).playStillBroken("b0", "j0", names());
 		verify(message).playStillBroken("b0", "j1", names("n2"));
-		verifyNoMoreInteractions(message);
 	}
 
 	@Test
@@ -79,7 +80,6 @@ public class AudioAlerterBehavior {
 		audio.update(builds);
 		verify(message).playJustFixed("b0", "j0", names());
 		verify(message).playJustFixed("b0", "j1", names("n2"));
-		verifyNoMoreInteractions(message);
 	}
 
 	private Collection<String> names(String... names) {
