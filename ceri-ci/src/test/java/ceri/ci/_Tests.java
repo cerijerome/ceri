@@ -22,6 +22,12 @@ import ceri.ci.build.BuildsBehavior;
 import ceri.ci.build.EventBehavior;
 import ceri.ci.build.EventComparatorsTest;
 import ceri.ci.build.JobBehavior;
+import ceri.ci.email.EmailBehavior;
+import ceri.ci.email.EmailContainerBehavior;
+import ceri.ci.email.EmailPropertiesBehavior;
+import ceri.ci.email.EmailRetrieverBehavior;
+import ceri.ci.email.EmailServiceBehavior;
+import ceri.ci.email.EmailUtilTest;
 import ceri.ci.phone.PhoneAlerterBehavior;
 import ceri.ci.phone.PhoneContainerBehavior;
 import ceri.ci.phone.PhonePropertiesBehavior;
@@ -64,6 +70,13 @@ import ceri.common.test.TestUtil;
 	EventBehavior.class,
 	EventComparatorsTest.class,
 	JobBehavior.class,
+	// email
+	EmailBehavior.class,
+	EmailContainerBehavior.class,
+	EmailPropertiesBehavior.class,
+	EmailRetrieverBehavior.class,
+	EmailServiceBehavior.class,
+	EmailUtilTest.class,
 	// phone
 	PhoneAlerterBehavior.class,
 	PhoneContainerBehavior.class,

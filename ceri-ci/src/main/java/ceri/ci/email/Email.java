@@ -1,9 +1,11 @@
 package ceri.ci.email;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.TreeSet;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -23,7 +25,7 @@ public class Email {
 	private final int hashCode;
 
 	public static class Builder {
-		Collection<String> recipients = Collections.emptySet();
+		Collection<String> recipients = new HashSet<>();
 		String from = null;
 		long sentDateMs = 0;
 		String subject = null;
@@ -31,8 +33,12 @@ public class Email {
 
 		Builder() {}
 
+		public Builder recipients(String...recipients) {
+			return recipients(Arrays.asList(recipients));
+		}
+
 		public Builder recipients(Collection<String> recipients) {
-			this.recipients = recipients;
+			this.recipients.addAll(recipients);
 			return this;
 		}
 
@@ -66,7 +72,7 @@ public class Email {
 	}
 
 	Email(Builder builder) {
-		recipients = Collections.unmodifiableCollection(new TreeSet<>(builder.recipients));
+		recipients = Collections.unmodifiableSet(new TreeSet<>(builder.recipients));
 		from = builder.from;
 		sentDateMs = builder.sentDateMs;
 		subject = builder.subject;
@@ -93,7 +99,7 @@ public class Email {
 		if (!EqualsUtil.equals(other.from, from)) return false;
 		if (other.sentDateMs != sentDateMs) return false;
 		if (!EqualsUtil.equals(other.subject, subject)) return false;
-		return !EqualsUtil.equals(other.content, content);
+		return EqualsUtil.equals(other.content, content);
 	}
 
 	@Override

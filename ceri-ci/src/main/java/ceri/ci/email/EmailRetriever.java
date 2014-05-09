@@ -53,9 +53,9 @@ public class EmailRetriever {
 	 * Builder class to set optional parameters.
 	 */
 	public static class Builder {
-		String host;
-		String name;
-		String password;
+		final String host;
+		final String name;
+		final String password;
 		String protocol = "imaps";
 		int port = -1; // Default port
 		String folder = "inbox";
@@ -233,10 +233,17 @@ public class EmailRetriever {
 	 * store object.
 	 */
 	private Store openStore() throws MessagingException {
-		Session session = EmailUtil.createSession(protocol, timeoutMs);
-		Store store = session.getStore();
+		Store store = getStore();
 		store.connect(host, port, name, password);
 		return store;
+	}
+
+	/**
+	 * Creates a session with protocol and timeout properties.
+	 */
+	protected Store getStore() throws MessagingException {
+		Session session = EmailUtil.createSession(protocol, timeoutMs);
+		return session.getStore();
 	}
 
 	/**
