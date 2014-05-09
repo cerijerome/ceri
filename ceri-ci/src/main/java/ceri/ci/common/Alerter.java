@@ -8,8 +8,7 @@ import ceri.ci.build.Builds;
 public interface Alerter {
 
 	/**
-	 * Called when a new build event occurs. The builds are summarized and only contain the last
-	 * success and fail events per job.
+	 * Called when a new build event occurs.
 	 */
 	void update(Builds builds);
 

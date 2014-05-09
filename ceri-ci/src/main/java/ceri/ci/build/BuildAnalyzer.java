@@ -8,11 +8,15 @@ import java.util.Collections;
  * Keeps track of builds, and analyzes the changes to jobs after an update. Not thread-safe.
  */
 public class BuildAnalyzer {
-	private Builds builds;
+	private Builds summarizedBuilds;
 	private Collection<AnalyzedJob> analyzedJobs;
 
 	public BuildAnalyzer() {
 		clear();
+	}
+
+	public Collection<AnalyzedJob> update() {
+		return update(null);
 	}
 
 	/**
@@ -20,9 +24,12 @@ public class BuildAnalyzer {
 	 * which jobs are just broken, still broken and just fixed.
 	 */
 	public Collection<AnalyzedJob> update(Builds builds) {
-		Builds previousBuilds = this.builds;
-		this.builds = new Builds(builds);
-		analyzedJobs = Collections.unmodifiableCollection(analyzeJobs(this.builds, previousBuilds));
+		if (builds == null) builds = this.summarizedBuilds;
+		else builds = BuildUtil.summarize(builds);
+		Builds previousBuilds = this.summarizedBuilds;
+		this.summarizedBuilds = new Builds(builds);
+		analyzedJobs =
+			Collections.unmodifiableCollection(analyzeJobs(this.summarizedBuilds, previousBuilds));
 		return analyzedJobs;
 	}
 
@@ -34,22 +41,10 @@ public class BuildAnalyzer {
 	}
 
 	/**
-	 * Returns a subset of the analyzed jobs that are still broken.
-	 */
-	public Collection<AnalyzedJob> stillBrokenJobs() {
-		Collection<AnalyzedJob> stillBrokenJobs = new ArrayList<>();
-		for (AnalyzedJob analyzedJob : analyzedJobs) {
-			if (analyzedJob.stillBroken.isEmpty()) continue;
-			stillBrokenJobs.add(analyzedJob);
-		}
-		return stillBrokenJobs;
-	}
-
-	/**
 	 * Clears build state and analyzed jobs.
 	 */
 	public void clear() {
-		builds = new Builds();
+		summarizedBuilds = new Builds();
 		analyzedJobs = Collections.emptySet();
 	}
 

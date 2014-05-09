@@ -23,27 +23,43 @@ public class AlertServiceBehavior {
 	AlerterGroup alerters;
 	BooleanCondition sync;
 	AlertService service;
-	
+
 	@Before
 	public void init() {
 		alerters = mock(AlerterGroup.class);
 		sync = new BooleanCondition();
 		service = new AlertService(createAlerters(), 0, 1000);
 	}
-	
+
 	@After
 	public void close() {
 		service.close();
 	}
-	
+
+	@Test
+	public void shouldRemind() throws InterruptedException {
+		try (AlerterGroup remindAlerters = new AlerterGroup(AlerterGroup.builder()) {
+			@Override
+			public void remind() {
+				alerters.remind();
+				sync.signal();
+			}
+		}) {
+			service = new AlertService(remindAlerters, 1, 1000);
+			service.clear(null, null);
+			sync.await();
+			verify(alerters).remind();
+		}
+	}
+
 	@Test
 	public void shouldReturnSnapshotOfBuilds() {
 		service.process(new BuildEvent("build0", "job0", e0));
 		service.process(new BuildEvent("build0", "job0", e1));
 		Builds builds = service.builds();
-		service.process(new BuildEvent("build1",  "job1", e2));
+		service.process(new BuildEvent("build1", "job1", e2));
 		Builds refBuilds = new Builds();
-		refBuilds.build("build0").job("job0").event(e0, e1);
+		refBuilds.build("build0").job("job0").events(e0, e1);
 		assertThat(builds, is(refBuilds));
 	}
 
@@ -54,7 +70,7 @@ public class AlertServiceBehavior {
 		Build build = service.build("build0");
 		service.process(new BuildEvent("build0", "job1", e2));
 		Build refBuild = new Build("build0");
-		refBuild.job("job0").event(e0, e1);
+		refBuild.job("job0").events(e0, e1);
 		assertThat(build, is(refBuild));
 	}
 
@@ -65,7 +81,7 @@ public class AlertServiceBehavior {
 		Job job = service.job("build0", "job0");
 		service.process(new BuildEvent("build0", "job0", e2));
 		Job refJob = new Job("job0");
-		refJob.event(e0, e1);
+		refJob.events(e0, e1);
 		assertThat(job, is(refJob));
 	}
 
@@ -77,7 +93,7 @@ public class AlertServiceBehavior {
 		Builds builds = service.builds();
 		assertThat(builds, is(new Builds()));
 	}
-	
+
 	@Test
 	public void shouldDeleteJob() {
 		service.process(new BuildEvent("build0", "job0", e0));
@@ -86,7 +102,7 @@ public class AlertServiceBehavior {
 		Build build = service.build("build0");
 		assertThat(build, is(new Build("build0")));
 	}
-	
+
 	@Test
 	public void shouldClearAll() throws InterruptedException {
 		service.clear(null, null);
@@ -98,48 +114,50 @@ public class AlertServiceBehavior {
 	public void shouldClearBuild() throws InterruptedException {
 		service.clear("b0", null);
 		sync.await();
-		verify(alerters).update((Builds)any());
+		verify(alerters).update((Builds) any());
 	}
 
 	@Test
-	public void shouldClearJob() throws InterruptedException  {
+	public void shouldClearJob() throws InterruptedException {
 		service.clear("b0", "j0");
 		sync.await();
-		verify(alerters).update((Builds)any());
+		verify(alerters).update((Builds) any());
 	}
 
 	@Test
-	public void shouldBreak() throws InterruptedException  {
+	public void shouldBreak() throws InterruptedException {
 		service.process(new BuildEvent("build0", "job0", e0));
 		sync.await();
-		verify(alerters).update((Builds)any());
+		verify(alerters).update((Builds) any());
 	}
 
 	@Test
-	public void shouldFix() throws InterruptedException  {
+	public void shouldFix() throws InterruptedException {
 		service.process(new BuildEvent("build0", "job0", e1));
 		sync.await();
-		verify(alerters).update((Builds)any());
+		verify(alerters).update((Builds) any());
 	}
 
 	@Test
-	public void shouldPurge()  {
+	public void shouldPurge() {
 		service.purge();
 		verifyZeroInteractions(alerters);
 	}
 
 	private AlerterGroup createAlerters() {
-		return new TestAlerters(AlerterGroup.builder()) {
+		return new AlerterGroup(AlerterGroup.builder()) {
 			@Override
 			public void update(Builds builds) {
 				alerters.update(builds);
 				sync.signal();
 			}
+
 			@Override
 			public void clear() {
 				alerters.clear();
 				sync.signal();
 			}
+
 			@Override
 			public void remind() {
 				alerters.remind();
@@ -147,5 +165,5 @@ public class AlertServiceBehavior {
 			}
 		};
 	}
-	
+
 }

@@ -2,16 +2,17 @@ package ceri.ci.zwave;
 
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyCollectionOf;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import ceri.common.collection.CollectionUtil;
 import ceri.common.property.BaseProperties;
 
 public class ZWaveContainerBehavior {
@@ -25,8 +26,6 @@ public class ZWaveContainerBehavior {
 		MockitoAnnotations.initMocks(this);
 		when(factory.createController(any())).thenReturn(controller);
 		when(factory.builder(any())).thenReturn(builder);
-		when(builder.alertDevices(any())).thenReturn(builder);
-		when(builder.alertTimeMs(anyLong())).thenReturn(builder);
 		when(builder.device(any(), anyInt())).thenReturn(builder);
 		properties = new Properties();
 	}
@@ -45,15 +44,14 @@ public class ZWaveContainerBehavior {
 	}
 
 	@Test
-	public void shouldRegisterAlertDevices() {
+	public void shouldRegisterGroupDevices() {
 		properties.put("zwave.enabled", "true");
 		properties.put("zwave.host", "host");
-		properties.put("zwave.alert.device", "7,33");
-		properties.put("zwave.alert.time.ms", "100000");
+		properties.put("zwave.group.devices", "7,33");
 		@SuppressWarnings({ "unused" })
 		ZWaveContainer container = new ZWaveContainer(baseProperties(), factory);
-		verify(builder).alertDevices(anyCollectionOf(Integer.class));
-		verify(builder).alertTimeMs(100000L);
+		Set<Integer> devices = CollectionUtil.addAll(new HashSet<Integer>(), 7, 33);
+		verify(factory).createGroup(controller, devices);
 	}
 
 	@Test

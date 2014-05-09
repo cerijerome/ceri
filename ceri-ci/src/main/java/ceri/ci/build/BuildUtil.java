@@ -87,8 +87,8 @@ public class BuildUtil {
 		job.purge();
 		Event lastBreak = aggregate(Event.Type.failure, job.events);
 		Event lastFix = earliest(Event.Type.success, job.events);
-		if (lastBreak != null) toJob.event(lastBreak);
-		if (lastFix != null) toJob.event(lastFix);
+		if (lastBreak != null) toJob.events(lastBreak);
+		if (lastFix != null) toJob.events(lastFix);
 	}
 
 	/**

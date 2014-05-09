@@ -14,7 +14,6 @@ import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.common.Alerter;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.util.BasicUtil;
 
 /**
  * Alerter that turns on zwave devices for build failure events.
@@ -22,39 +21,17 @@ import ceri.common.util.BasicUtil;
 public class ZWaveAlerter implements Alerter {
 	private static final Logger logger = LogManager.getLogger();
 	private final Map<String, Integer> devices;
-	private final long alertTimeMs;
-	private final Collection<Integer> alertDevices;
 	private final Set<Integer> activeDevices = new HashSet<>();
 	private final ZWaveController zwave;
 
 	public static class Builder {
 		final Map<String, Integer> devices = new HashMap<>();
-		final Collection<Integer> alertDevices = new HashSet<>();
 		final ZWaveController controller;
 		long alertTimeMs = TimeUnit.SECONDS.toMillis(20);
 
 		Builder(ZWaveController controller) {
 			if (controller == null) throw new NullPointerException("Controller cannot be null");
 			this.controller = controller;
-		}
-
-		public Builder alertTimeMs(long alertTimeMs) {
-			if (alertTimeMs < 0) throw new IllegalArgumentException("Alert time must be >= 0ms: " +
-				alertTimeMs);
-			this.alertTimeMs = alertTimeMs;
-			return this;
-		}
-
-		public Builder alertDevices(Integer... devices) {
-			return alertDevices(Arrays.asList(devices));
-		}
-
-		public Builder alertDevices(Collection<Integer> devices) {
-			for (Integer device : devices)
-				if (device.intValue() < 0) throw new IllegalArgumentException("Invalid device " +
-					device);
-			alertDevices.addAll(devices);
-			return this;
 		}
 
 		public Builder device(String name, int device) {
@@ -77,8 +54,6 @@ public class ZWaveAlerter implements Alerter {
 	ZWaveAlerter(Builder builder) {
 		zwave = builder.controller;
 		devices = ImmutableUtil.copyAsMap(builder.devices);
-		alertTimeMs = builder.alertTimeMs;
-		alertDevices = ImmutableUtil.copyAsSet(builder.alertDevices);
 	}
 
 	@Override
@@ -93,18 +68,11 @@ public class ZWaveAlerter implements Alerter {
 
 	public void alert(Collection<String> keys) {
 		logger.info("Alerting for {}", keys);
-		long t0 = System.currentTimeMillis();
-		for (Integer device : alertDevices)
-			deviceOn(device);
 		Collection<Integer> devices = keysToDevices(keys);
 		for (Integer device : new HashSet<>(activeDevices))
 			if (!devices.contains(device)) deviceOff(device);
 		for (Integer device : devices)
 			if (!activeDevices.contains(device)) deviceOn(device);
-		long waitMs = t0 + alertTimeMs - System.currentTimeMillis();
-		if (waitMs > 0 && !alertDevices.isEmpty()) BasicUtil.delay(waitMs);
-		for (Integer device : alertDevices)
-			deviceOff(device);
 	}
 
 	@Override

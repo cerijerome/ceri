@@ -37,9 +37,9 @@ public class Params {
 		for (BuildEvent be : bes2)
 			System.out.println(be);
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(e0);
-		builds.build("b0").job("j1").event(e1);
-		builds.build("b1").job("j0").event(e2);
+		builds.build("b0").job("j0").events(e0);
+		builds.build("b0").job("j1").events(e1);
+		builds.build("b1").job("j0").events(e2);
 		json = gson.toJson(builds, Builds.class);
 		System.out.println(json);
 	}

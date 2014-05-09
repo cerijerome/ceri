@@ -37,7 +37,7 @@ public class Job implements Iterable<Event> {
 	/**
 	 * Apply new events to this job.
 	 */
-	public void event(Event... events) {
+	public void events(Event... events) {
 		events(Arrays.asList(events));
 	}
 

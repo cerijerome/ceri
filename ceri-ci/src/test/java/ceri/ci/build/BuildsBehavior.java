@@ -22,9 +22,9 @@ public class BuildsBehavior {
 	@Test
 	public void shouldDeleteBuilds() {
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(e0, e1);
-		builds.build("b0").job("j1").event(e0, e2);
-		builds.build("b1").job("j0").event(e3);
+		builds.build("b0").job("j0").events(e0, e1);
+		builds.build("b0").job("j1").events(e0, e2);
+		builds.build("b1").job("j0").events(e3);
 		builds.delete("b0");
 		assertBuildNames(builds, "b1");
 		assertJobNames(builds.build("b1"), "j0");
@@ -48,9 +48,9 @@ public class BuildsBehavior {
 	@Test
 	public void shouldPurgeJobEvents() {
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(e0, e1, e2, e3, e4);
-		builds.build("b0").job("j1").event(e0, e2, e4, e5, e6);
-		builds.build("b1").job("j0").event();
+		builds.build("b0").job("j0").events(e0, e1, e2, e3, e4);
+		builds.build("b0").job("j1").events(e0, e2, e4, e5, e6);
+		builds.build("b1").job("j0").events();
 		builds.purge();
 		assertBuildNames(builds, "b0", "b1");
 		assertJobNames(builds.build("b0"), "j0", "j1");
@@ -63,10 +63,10 @@ public class BuildsBehavior {
 	@Test
 	public void shouldClearEventsFromJobs() {
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(e0, e1);
-		builds.build("b0").job("j1").event(e2, e3);
-		builds.build("b1").job("j0").event(e4);
-		builds.build("b1").job("j1").event(e5, e6, e7);
+		builds.build("b0").job("j0").events(e0, e1);
+		builds.build("b0").job("j1").events(e2, e3);
+		builds.build("b1").job("j0").events(e4);
+		builds.build("b1").job("j1").events(e5, e6, e7);
 		builds.clear();
 		assertBuildNames(builds, "b0", "b1");
 		assertJobNames(builds.build("b0"), "j0", "j1");
@@ -80,18 +80,18 @@ public class BuildsBehavior {
 	@Test
 	public void shouldCopyAllBuilds() {
 		Builds builds = new Builds();
-		builds.build("b1").job("j1").event(e0, e1);
-		builds.build("b1").job("j2").event(e3);
-		builds.build("b2").job("j1").event(e4);
-		builds.build("b2").job("j2").event(e5, e6, e7);
+		builds.build("b1").job("j1").events(e0, e1);
+		builds.build("b1").job("j2").events(e3);
+		builds.build("b2").job("j1").events(e4);
+		builds.build("b2").job("j2").events(e5, e6, e7);
 		Builds builds2 = new Builds(builds);
 		assertEvents(builds2.build("b1").job("j1").events, e1, e0);
 		assertEvents(builds2.build("b1").job("j2").events, e3);
 		assertEvents(builds2.build("b2").job("j1").events, e4);
 		assertEvents(builds2.build("b2").job("j2").events, e7, e6, e5);
-		builds.build("b1").job("j1").event(e7);
-		builds.build("b1").job("j2").event(e7);
-		builds.build("b2").job("j1").event(e7);
+		builds.build("b1").job("j1").events(e7);
+		builds.build("b1").job("j2").events(e7);
+		builds.build("b2").job("j1").events(e7);
 		assertEvents(builds2.build("b1").job("j1").events, e1, e0);
 		assertEvents(builds2.build("b1").job("j2").events, e3);
 		assertEvents(builds2.build("b2").job("j1").events, e4);
@@ -106,9 +106,9 @@ public class BuildsBehavior {
 		assertTrue(builds.equals(builds));
 		Event e0 = new Event(Event.Type.failure, 0L);
 		Event e1 = new Event(Event.Type.success, 1L);
-		builds.build("b0").job("j0").event(e0);
-		builds.build("b0").job("j1").event();
-		builds.build("b1").job("j0").event(e0, e1);
+		builds.build("b0").job("j0").events(e0);
+		builds.build("b0").job("j1").events();
+		builds.build("b1").job("j0").events(e0, e1);
 		Builds builds2 = new Builds(builds);
 		assertTrue(builds.equals(builds2));
 		assertThat(builds.hashCode(), is(builds2.hashCode()));

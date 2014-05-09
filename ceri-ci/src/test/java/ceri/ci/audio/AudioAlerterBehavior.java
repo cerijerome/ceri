@@ -9,17 +9,18 @@ import java.util.HashSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
 
 public class AudioAlerterBehavior {
-	private AudioMessages message;
+	@Mock private AudioMessages message;
 	private AudioAlerter audio;
 
 	@Before
 	public void init() {
-		message = Mockito.mock(AudioMessages.class);
+		MockitoAnnotations.initMocks(this);
 		audio = new AudioAlerter(message);
 	}
 
@@ -31,9 +32,9 @@ public class AudioAlerterBehavior {
 	@Test
 	public void shouldPlayReminderAudioForAnyBrokenJobs() throws IOException {
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(Event.failure("n0", "n1"));
-		builds.build("b0").job("j1").event(Event.failure());
-		builds.build("b1").job("j0").event();
+		builds.build("b0").job("j0").events(Event.failure("n0", "n1"));
+		builds.build("b0").job("j1").events(Event.failure());
+		builds.build("b1").job("j0").events();
 		audio.update(builds);
 		reset(message);
 		audio.remind();
@@ -44,9 +45,9 @@ public class AudioAlerterBehavior {
 	@Test
 	public void shouldPlayAudioForJustBrokenJobs() throws IOException {
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(Event.failure("n0", "n1"));
-		builds.build("b0").job("j1").event(Event.failure());
-		builds.build("b1").job("j0").event();
+		builds.build("b0").job("j0").events(Event.failure("n0", "n1"));
+		builds.build("b0").job("j1").events(Event.failure());
+		builds.build("b1").job("j0").events();
 		audio.update(builds);
 		verify(message).playJustBroken("b0", "j0", names("n0", "n1"));
 		verify(message).playJustBroken("b0", "j1", names());
@@ -55,13 +56,13 @@ public class AudioAlerterBehavior {
 	@Test
 	public void shouldPlayAudioForStillBrokenJobs() throws IOException {
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(Event.failure("n0", "n1"));
-		builds.build("b0").job("j1").event(Event.failure());
+		builds.build("b0").job("j0").events(Event.failure("n0", "n1"));
+		builds.build("b0").job("j1").events(Event.failure());
 		audio.update(builds);
 		reset(message);
 		builds = new Builds();
-		builds.build("b0").job("j0").event(Event.failure());
-		builds.build("b0").job("j1").event(Event.failure("n2"));
+		builds.build("b0").job("j0").events(Event.failure());
+		builds.build("b0").job("j1").events(Event.failure("n2"));
 		audio.update(builds);
 		verify(message).playStillBroken("b0", "j0", names());
 		verify(message).playStillBroken("b0", "j1", names("n2"));
@@ -70,13 +71,13 @@ public class AudioAlerterBehavior {
 	@Test
 	public void shouldPlayAudioForJustFixedJobs() throws IOException {
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(Event.failure("n0", "n1"));
-		builds.build("b0").job("j1").event(Event.failure());
+		builds.build("b0").job("j0").events(Event.failure("n0", "n1"));
+		builds.build("b0").job("j1").events(Event.failure());
 		audio.update(builds);
 		reset(message);
 		builds = new Builds();
-		builds.build("b0").job("j0").event(Event.success());
-		builds.build("b0").job("j1").event(Event.success("n2"));
+		builds.build("b0").job("j0").events(Event.success());
+		builds.build("b0").job("j1").events(Event.success("n2"));
 		audio.update(builds);
 		verify(message).playJustFixed("b0", "j0", names());
 		verify(message).playJustFixed("b0", "j1", names("n2"));

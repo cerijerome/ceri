@@ -6,6 +6,6 @@ import java.io.IOException;
 public interface AudioFactory {
 
 	AudioMessages createMessages(File soundDir, float pitch) throws IOException;
-	AudioAlerter createAlerter(AudioMessages message);
+	AudioAlerter createAlerter(AudioMessages message, AudioListener listener);
 	
 }

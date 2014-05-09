@@ -16,11 +16,12 @@ public class AudioContainer implements Closeable {
 	private static final String GROUP = "audio";
 	public final AudioAlerter alerter;
 
-	public AudioContainer(BaseProperties properties) throws IOException {
-		this(properties, new AudioFactoryImpl());
+	public AudioContainer(BaseProperties properties, AudioListener listener) throws IOException {
+		this(properties, new AudioFactoryImpl(), listener);
 	}
-	
-	public AudioContainer(BaseProperties properties, AudioFactory factory) throws IOException {
+
+	public AudioContainer(BaseProperties properties, AudioFactory factory, AudioListener listener)
+		throws IOException {
 		AudioProperties audioProperties = new AudioProperties(properties, GROUP);
 		if (!audioProperties.enabled()) {
 			logger.info("Audio alerter disabled");
@@ -31,7 +32,7 @@ public class AudioContainer implements Closeable {
 				new File(IoUtil.getPackageDir(AudioMessages.class), audioProperties.voice());
 			AudioMessages message = factory.createMessages(soundDir, audioProperties.pitch());
 			logger.info("Creating audio alerter");
-			alerter = factory.createAlerter(message);
+			alerter = factory.createAlerter(message, listener);
 		}
 	}
 

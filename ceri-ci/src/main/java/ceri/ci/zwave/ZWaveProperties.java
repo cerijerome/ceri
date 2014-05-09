@@ -12,8 +12,8 @@ public class ZWaveProperties extends BaseProperties {
 	private static final String ENABLED_KEY = "enabled";
 	private static final String HOST_KEY = "host";
 	private static final String DEVICE_KEY = "device";
-	private static final String ALERT_KEY = "alert";
-	private static final String TIME_MS_KEY = "time.ms";
+	private static final String GROUP_KEY = "group";
+	private static final String DEVICES_KEY = "devices";
 
 	public ZWaveProperties(BaseProperties properties, String group) {
 		super(properties, group);
@@ -31,12 +31,8 @@ public class ZWaveProperties extends BaseProperties {
 		return intValue(DEVICE_KEY, name);
 	}
 
-	public long alertTimeMs() {
-		return longValue(0, ALERT_KEY, TIME_MS_KEY);
-	}
-	
-	public Collection<Integer> alertDevices() {
-		Collection<String> values = stringValues(ALERT_KEY, DEVICE_KEY);
+	public Collection<Integer> groupDevices() {
+		Collection<String> values = stringValues(GROUP_KEY, DEVICES_KEY);
 		if (values == null) return null;
 		return integers(values);
 	}

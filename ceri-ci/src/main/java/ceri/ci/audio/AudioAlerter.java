@@ -18,11 +18,17 @@ import ceri.ci.common.Alerter;
  */
 public class AudioAlerter implements Alerter, Closeable {
 	private static final Logger logger = LogManager.getLogger();
-	private final AudioMessages message;
+	private final AudioMessages messages;
+	private final AudioListener listener;
 	private BuildAnalyzer buildAnalyzer = new BuildAnalyzer();
 
-	public AudioAlerter(AudioMessages message) {
-		this.message = message;
+	public AudioAlerter(AudioMessages messages) {
+		this(messages, null);
+	}
+	
+	public AudioAlerter(AudioMessages messages, AudioListener listener) {
+		this.messages = messages;
+		this.listener = listener;
 		clear();
 	}
 
@@ -32,7 +38,7 @@ public class AudioAlerter implements Alerter, Closeable {
 	 */
 	@Override
 	public void close() {
-		message.interrupt();
+		messages.interrupt();
 	}
 
 	/**
@@ -40,20 +46,9 @@ public class AudioAlerter implements Alerter, Closeable {
 	 * message for each of these cases. Grouped by build.
 	 */
 	@Override
-	public void update(Builds builds) {
+	public void update(Builds summarizedBuilds) {
 		logger.info("Audio update");
-		Collection<AnalyzedJob> analyzedJobs = buildAnalyzer.update(builds);
-		if (analyzedJobs.isEmpty()) return;
-		try {
-			message.playRandomAlarm();
-			for (AnalyzedJob analyzedJob : analyzedJobs) {
-				playJustBroken(analyzedJob.build, analyzedJob.justBroken);
-				playStillBroken(analyzedJob.build, analyzedJob.stillBroken);
-				playJustFixed(analyzedJob.build, analyzedJob.justFixed);
-			}
-		} catch (IOException e) {
-			logger.catching(e);
-		}
+		analyze(summarizedBuilds);
 	}
 
 	/**
@@ -72,24 +67,40 @@ public class AudioAlerter implements Alerter, Closeable {
 	@Override
 	public void remind() {
 		logger.info("Audio reminder");
+		analyze(null);
+	}
+
+	private void analyze(Builds builds) {
+		Collection<AnalyzedJob> analyzedJobs = buildAnalyzer.update(builds);
+		if (analyzedJobs.isEmpty()) return;
 		try {
-			// Update builds?
-			// Or just get list of broken builds?
-			Collection<AnalyzedJob> analyzedJobs = buildAnalyzer.stillBrokenJobs();
-			if (analyzedJobs.isEmpty()) return;
-			message.playRandomAlarm();
-			for (AnalyzedJob analyzer : analyzedJobs)
-				playStillBroken(analyzer.build, analyzer.stillBroken);
+			audioStart();
+			messages.playRandomAlarm();
+			for (AnalyzedJob analyzedJob : analyzedJobs) {
+				playJustBroken(analyzedJob.build, analyzedJob.justBroken);
+				playStillBroken(analyzedJob.build, analyzedJob.stillBroken);
+				playJustFixed(analyzedJob.build, analyzedJob.justFixed);
+			}
 		} catch (IOException e) {
 			logger.catching(e);
+		} finally {
+			audioEnd();
 		}
 	}
 
+	private void audioStart() {
+		if (listener != null) listener.audioStart();
+	}
+	
+	private void audioEnd() {
+		if (listener != null) listener.audioEnd();
+	}
+	
 	private void playJustBroken(String buildName, Collection<Job> jobs) throws IOException {
 		if (jobs.isEmpty()) return;
 		for (Job job : jobs) {
 			Event event = BuildUtil.latestEvent(job);
-			message.playJustBroken(buildName, job.name, event.names);
+			messages.playJustBroken(buildName, job.name, event.names);
 		}
 	}
 
@@ -97,7 +108,7 @@ public class AudioAlerter implements Alerter, Closeable {
 		if (jobs.isEmpty()) return;
 		for (Job job : jobs) {
 			Event event = BuildUtil.latestEvent(job);
-			message.playStillBroken(buildName, job.name, event.names);
+			messages.playStillBroken(buildName, job.name, event.names);
 		}
 	}
 
@@ -105,7 +116,7 @@ public class AudioAlerter implements Alerter, Closeable {
 		if (jobs.isEmpty()) return;
 		for (Job job : jobs) {
 			Event event = BuildUtil.latestEvent(job);
-			message.playJustFixed(buildName, job.name, event.names);
+			messages.playJustFixed(buildName, job.name, event.names);
 		}
 	}
 

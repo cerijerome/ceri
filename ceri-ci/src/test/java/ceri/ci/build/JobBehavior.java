@@ -16,7 +16,7 @@ public class JobBehavior {
 		Event e1 = new Event(Event.Type.success, 1L);
 		Event e2 = new Event(Event.Type.failure, 2L);
 		Job job = new Job("test");
-		job.event(e1, e0, e2);
+		job.events(e1, e0, e2);
 		assertElements(job.events, e2, e1, e0);
 	}
 
@@ -38,9 +38,9 @@ public class JobBehavior {
 		Event e6 = new Event(Event.Type.success, 6L);
 		Event e7 = new Event(Event.Type.success, 7L, "g1");
 		Job job = new Job("test");
-		job.event(e0, e1, e2, e3, e4, e5, e6, e7);
+		job.events(e0, e1, e2, e3, e4, e5, e6, e7);
 		Job job2 = new Job("test");
-		job2.event(e3, e4, e5, e6, e7);
+		job2.events(e3, e4, e5, e6, e7);
 		job.purge();
 		assertElements(job.events, job2.events);
 	}
@@ -48,10 +48,10 @@ public class JobBehavior {
 	@Test
 	public void shouldNotPurgeLatestSequencesOfBreakAndFixEvents() {
 		Job job = new Job("test");
-		job.event(Event.success("a"));
-		job.event(Event.success("b1", "b2"));
-		job.event(Event.failure("c1", "c2", "c3"));
-		job.event(Event.failure());
+		job.events(Event.success("a"));
+		job.events(Event.success("b1", "b2"));
+		job.events(Event.failure("c1", "c2", "c3"));
+		job.events(Event.failure());
 		Job job2 = new Job(job);
 		job.purge();
 		assertElements(job.events, job2.events);
@@ -60,8 +60,8 @@ public class JobBehavior {
 	@Test
 	public void shouldClearEvents() {
 		Job job = new Job("test");
-		job.event(Event.success("a"));
-		job.event(Event.failure("b1", "b2"));
+		job.events(Event.success("a"));
+		job.events(Event.failure("b1", "b2"));
 		assertFalse(job.events.isEmpty());
 		job.clear();
 		assertTrue(job.events.isEmpty());
@@ -70,8 +70,8 @@ public class JobBehavior {
 	@Test
 	public void shouldCopyAllFieldsWithCopyConstructor() {
 		Job job1 = new Job("test");
-		job1.event(Event.success("a1", "a2"));
-		job1.event(Event.failure());
+		job1.events(Event.success("a1", "a2"));
+		job1.events(Event.failure());
 		Job job2 = new Job(job1);
 		assertThat(job1.name, is(job2.name));
 		assertElements(job1.events, job2.events);
@@ -87,7 +87,7 @@ public class JobBehavior {
 		assertFalse(job.equals(new Job("Test")));
 		assertTrue(job.equals(new Job("test")));
 		assertTrue(job.equals(job));
-		job.event(e0, e1);
+		job.events(e0, e1);
 		Job job2 = new Job(job);
 		assertTrue(job.equals(job2));
 		assertThat(job.hashCode(), is(job2.hashCode()));

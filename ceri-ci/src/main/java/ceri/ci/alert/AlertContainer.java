@@ -26,13 +26,11 @@ public class AlertContainer implements Closeable {
 	private final AlertServiceContainer alert;
 
 	public static class Builder {
-		public final MasterSlave masterSlave;
 		public final BaseProperties properties;
 		Collection<EmailEventParser> parsers = new ArrayList<>();
 		Collection<Alerter> alerters = new ArrayList<>();
 
-		Builder(MasterSlave masterSlave, BaseProperties properties) {
-			this.masterSlave = masterSlave;
+		Builder(BaseProperties properties) {
 			this.properties = properties;
 		}
 
@@ -66,13 +64,12 @@ public class AlertContainer implements Closeable {
 	public static Builder builder(Properties properties) throws IOException {
 		if (properties == null) properties =
 			PropertyUtil.load(AlertService.class, PROPERTY_FILE_DEF);
-		MasterSlave masterSlave = MasterSlave.createFromEnv();
-		String prefix = masterSlave.name;
+		String prefix = Node.createFromEnv().name;
 		BaseProperties baseProperties = new BaseProperties(properties, prefix) {};
-		return new Builder(masterSlave, baseProperties);
+		return new Builder(baseProperties);
 	}
 
-	public AlertContainer(Builder builder) {
+	AlertContainer(Builder builder) {
 		logger.debug(builder.properties);
 		alert = new AlertServiceContainer(builder.properties, builder.alerters);
 		email = new EmailContainer(builder.properties, alert.service, builder.parsers);

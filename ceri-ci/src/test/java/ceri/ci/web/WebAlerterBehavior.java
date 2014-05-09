@@ -22,11 +22,11 @@ public class WebAlerterBehavior {
 	@Test
 	public void shouldReturnUpdateBuildsSnapshot() {
 		Builds builds = new Builds();
-		builds.build("build0").job("job0").event(broken);
+		builds.build("build0").job("job0").events(broken);
 		Builds refB0 = new Builds(builds);
 		webAlerter.update(builds);
 		Builds b0 = webAlerter.builds();
-		builds.build("build0").job("job0").event(fixed);
+		builds.build("build0").job("job0").events(fixed);
 		Builds refB1 = new Builds(builds);
 		webAlerter.update(builds);
 		Builds b1 = webAlerter.builds();

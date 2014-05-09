@@ -58,7 +58,7 @@ public class BuilderGenerator {
 		return new Builder(className);
 	}
 
-	public BuilderGenerator(Builder builder) {
+	BuilderGenerator(Builder builder) {
 		className = builder.className;
 		fields = Collections.unmodifiableMap(new LinkedHashMap<>(builder.fields));
 	}

@@ -10,7 +10,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.common.Alerter;
 import ceri.ci.common.LoggingExecutor;
@@ -71,9 +70,8 @@ public class AlerterGroup implements Alerter, Closeable {
 		logger.info("Update");
 		lock.lock();
 		try {
-			final Builds summarizedBuilds = BuildUtil.summarize(builds);
 			for (Alerter alerter : alerters)
-				executor.execute(() -> alerter.update(summarizedBuilds));
+				executor.execute(() -> alerter.update(builds));
 			executor.awaitCompletion();
 		} finally {
 			lock.unlock();

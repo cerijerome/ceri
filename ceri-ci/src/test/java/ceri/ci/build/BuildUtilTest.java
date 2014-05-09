@@ -30,20 +30,20 @@ public class BuildUtilTest {
 	@Test
 	public void testCountEvents() {
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(e0, e1);
+		builds.build("b0").job("j0").events(e0, e1);
 		assertThat(BuildUtil.countEvents(builds), is(2));
-		builds.build("b0").job("j1").event(e2);
+		builds.build("b0").job("j1").events(e2);
 		assertThat(BuildUtil.countEvents(builds), is(3));
-		builds.build("b1").job("j0").event(e0);
+		builds.build("b1").job("j0").events(e0);
 		assertThat(BuildUtil.countEvents(builds), is(4));
 	}
 
 	@Test
 	public void testBreakNames() {
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(e0, e1, e2, e3, e4, e5, e6, e7);
-		builds.build("b0").job("j1").event();
-		builds.build("b1").job("j0").event(e0, e3, e4);
+		builds.build("b0").job("j0").events(e0, e1, e2, e3, e4, e5, e6, e7);
+		builds.build("b0").job("j1").events();
+		builds.build("b1").job("j0").events(e0, e3, e4);
 		builds = BuildUtil.summarize(builds);
 		Collection<String> names = BuildUtil.summarizedBreakNames(builds);
 		assertCollection(names, "c1", "c2", "c3");
@@ -52,9 +52,9 @@ public class BuildUtilTest {
 	@Test
 	public void testSummarize() {
 		Builds builds = new Builds();
-		builds.build("b0").job("j0").event(e0, e1, e2, e3, e4, e5, e6, e7);
-		builds.build("b0").job("j1").event();
-		builds.build("b1").job("j0").event(e0, e3, e4);
+		builds.build("b0").job("j0").events(e0, e1, e2, e3, e4, e5, e6, e7);
+		builds.build("b0").job("j1").events();
+		builds.build("b1").job("j0").events(e0, e3, e4);
 		builds = BuildUtil.summarize(builds);
 		assertBuildNames(builds.builds, "b0", "b1");
 		assertJobNames(builds.build("b0").jobs, "j0", "j1");

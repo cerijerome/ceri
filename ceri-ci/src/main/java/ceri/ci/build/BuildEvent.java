@@ -16,7 +16,7 @@ public class BuildEvent {
 	}
 
 	public void applyTo(Builds builds) {
-		builds.build(build).job(job).event(event);
+		builds.build(build).job(job).events(event);
 	}
 
 	@Override

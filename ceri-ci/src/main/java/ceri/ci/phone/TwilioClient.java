@@ -17,26 +17,26 @@ public class TwilioClient implements PhoneClient {
 	private static final String FROM = "From";
 	private static final String BODY = "Body";
 	private final TwilioRestClient twilio;
-	private final String fromPhoneNumber;
+	private final String fromNumber;
 
-	public TwilioClient(String accountSid, String authToken, String fromPhoneNumber) {
+	public TwilioClient(String accountSid, String authToken, String fromNumber,
+		TwilioFactory factory) {
 		if (accountSid == null) throw new NullPointerException("Account SID cannot be null");
 		if (authToken == null) throw new NullPointerException("Auth token cannot be null");
-		if (fromPhoneNumber == null) throw new NullPointerException(
-			"From phone number cannot be null");
-		twilio = new TwilioRestClient(accountSid, authToken);
-		this.fromPhoneNumber = fromPhoneNumber;
+		if (fromNumber == null) throw new NullPointerException("From phone number cannot be null");
+		twilio = factory.createRestClient(accountSid, authToken);
+		this.fromNumber = fromNumber;
 	}
 
 	@Override
 	public void sendSms(String phoneNumber, String content) {
 		List<NameValuePair> params = new ArrayList<>();
 		params.add(new BasicNameValuePair(TO, phoneNumber));
-		params.add(new BasicNameValuePair(FROM, fromPhoneNumber));
+		params.add(new BasicNameValuePair(FROM, fromNumber));
 		params.add(new BasicNameValuePair(BODY, content));
 		MessageFactory messageFactory = twilio.getAccount().getMessageFactory();
 		try {
-			logger.debug("Sending SMS to {}: {}", phoneNumber, content);
+			logger.info("Sending SMS to {}: {}", phoneNumber, content);
 			Message message = messageFactory.create(params);
 			logger.debug("Returned message SID {}", message.getSid());
 		} catch (TwilioRestException e) {

@@ -26,11 +26,11 @@ public class LoggingExecutor implements Closeable {
 	private Collection<Future<?>> futures = new ArrayList<>();
 
 	public LoggingExecutor(ExecutorService service) {
-		this(service, SHUTDOWN_TIMEOUT_MS_DEF, ReflectUtil.currentCaller().cls);
+		this(service, SHUTDOWN_TIMEOUT_MS_DEF, ReflectUtil.previousCaller(1).cls);
 	}
 
 	public LoggingExecutor(ExecutorService service, long shutdownTimeoutMs, String name) {
-		this.name = name == null ? ReflectUtil.currentCaller().cls : name;
+		this.name = name == null ? ReflectUtil.previousCaller(1).cls : name;
 		this.service = service;
 		this.shutdownTimeoutMs = shutdownTimeoutMs;
 	}

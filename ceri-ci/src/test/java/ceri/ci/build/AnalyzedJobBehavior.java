@@ -1,8 +1,10 @@
 package ceri.ci.build;
 
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
+import static ceri.common.test.TestUtil.assertException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,14 +24,21 @@ public class AnalyzedJobBehavior {
 		testBuild = new Build("test");
 		testBuild.job("j0"); // ok
 		testBuild.job("j1"); // ok
-		testBuild.job("j2").event(b0); // broken
-		testBuild.job("j3").event(b1); // broken
-		testBuild.job("j4").event(f2); // fixed
-		testBuild.job("j5").event(f3); // fixed
-		testBuild.job("j6").event(b0, f3); // fixed
-		testBuild.job("j7").event(b1, f2); // fixed
-		testBuild.job("j8").event(f2, b4); // broken
-		testBuild.job("j9").event(f3, b5); // broken
+		testBuild.job("j2").events(b0); // broken
+		testBuild.job("j3").events(b1); // broken
+		testBuild.job("j4").events(f2); // fixed
+		testBuild.job("j5").events(f3); // fixed
+		testBuild.job("j6").events(b0, f3); // fixed
+		testBuild.job("j7").events(b1, f2); // fixed
+		testBuild.job("j8").events(f2, b4); // broken
+		testBuild.job("j9").events(f3, b5); // broken
+	}
+
+	@Test
+	public void shouldNotAllowBuildsWithDifferentNames() {
+		Build build0 = new Build("b0");
+		Build build1 = new Build("b1");
+		assertException(() -> new AnalyzedJob(build0, build1));
 	}
 
 	@Test
@@ -41,22 +50,27 @@ public class AnalyzedJobBehavior {
 		assertTrue(analyzer.equals(analyzer2));
 		assertEquals(analyzer.hashCode(), analyzer2.hashCode());
 		assertEquals(analyzer.toString(), analyzer2.toString());
+		AnalyzedJob analyzer3 = new AnalyzedJob(new Build("test0"), new Build("test0"));
+		assertNotEquals(analyzer, analyzer3);
+		testBuild.job("j10").events(b5);
+		AnalyzedJob analyzer4 = new AnalyzedJob(testBuild, new Build("test"));
+		assertNotEquals(analyzer, analyzer4);
 	}
 
 	@Test
 	public void shouldIdentifyJobTransitionsBetweenNonEmptyBuilds() {
 		Build previousBuild = new Build(testBuild.name);
 		// Event times are not considered when comparing old and new builds.
-		previousBuild.job("j0").event(b0); // broken
-		previousBuild.job("j1").event(b1, f3); // fixed
-		previousBuild.job("j2").event(f2, b4); // broken
-		previousBuild.job("j3").event(f3); // fixed
-		previousBuild.job("j4").event(b4); // broken
-		previousBuild.job("j5").event(b0, f3); // fixed
-		previousBuild.job("j6").event(f3, b5); // broken
-		previousBuild.job("j7").event(f2); // fixed
-		previousBuild.job("j8").event(b4); // broken
-		previousBuild.job("j9").event(b1, f3); // fixed
+		previousBuild.job("j0").events(b0); // broken
+		previousBuild.job("j1").events(b1, f3); // fixed
+		previousBuild.job("j2").events(f2, b4); // broken
+		previousBuild.job("j3").events(f3); // fixed
+		previousBuild.job("j4").events(b4); // broken
+		previousBuild.job("j5").events(b0, f3); // fixed
+		previousBuild.job("j6").events(f3, b5); // broken
+		previousBuild.job("j7").events(f2); // fixed
+		previousBuild.job("j8").events(b4); // broken
+		previousBuild.job("j9").events(b1, f3); // fixed
 		AnalyzedJob analyzer = new AnalyzedJob(testBuild, previousBuild);
 		assertJobNames(analyzer.justBroken, "j3", "j9");
 		assertJobNames(analyzer.stillBroken, "j2", "j8");

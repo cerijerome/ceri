@@ -17,7 +17,7 @@ public class AudioFactoryImpl implements AudioFactory {
 	}
 	
 	@Override
-	public AudioAlerter createAlerter(AudioMessages message) {
-		return null;
+	public AudioAlerter createAlerter(AudioMessages messages, AudioListener listener) {
+		return new AudioAlerter(messages, listener);
 	}
 }

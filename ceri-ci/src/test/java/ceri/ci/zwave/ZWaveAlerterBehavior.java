@@ -1,24 +1,24 @@
 package ceri.ci.zwave;
 
 import static ceri.common.test.TestUtil.assertException;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.io.IOException;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 public class ZWaveAlerterBehavior {
-	ZWaveController controller;
+	@Mock private ZWaveController controller;
 	private ZWaveAlerter alerter;
 
 	@Before
 	public void before() {
-		controller = mock(ZWaveController.class);
+		MockitoAnnotations.initMocks(this);
 		alerter =
-			ZWaveAlerter.builder(controller).alertDevices(5).alertTimeMs(0).device("1", 1)
-				.device("2", 2).device("3", 3).build();
+			ZWaveAlerter.builder(controller).device("1", 1).device("2", 2).device("3", 3).build();
 	}
 
 	@Test
@@ -26,8 +26,6 @@ public class ZWaveAlerterBehavior {
 		final ZWaveAlerter.Builder builder = ZWaveAlerter.builder(controller);
 		assertException(() -> builder.device(null, 0));
 		assertException(() -> builder.device("x", -1));
-		assertException(() -> builder.alertDevices(-1));
-		assertException(() -> builder.alertTimeMs(-1));
 	}
 
 	@Test

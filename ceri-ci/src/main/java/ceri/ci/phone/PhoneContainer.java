@@ -13,24 +13,28 @@ public class PhoneContainer {
 	public final PhoneAlerter alerter;
 
 	public PhoneContainer(BaseProperties properties) {
+		this(properties, new PhoneFactoryImpl());
+	}
+	
+	public PhoneContainer(BaseProperties properties, PhoneFactory factory) {
 		PhoneProperties phoneProperties = new PhoneProperties(properties, GROUP);
 		if (!phoneProperties.enabled()) {
 			logger.info("Phone alerter disabled");
 			alerter = null;
 		} else {
-			alerter = createAlerter(phoneProperties);
+			alerter = createAlerter(phoneProperties, factory);
 		}
 	}
 
-	private PhoneAlerter createAlerter(PhoneProperties properties) {
+	private PhoneAlerter createAlerter(PhoneProperties properties, PhoneFactory factory) {
 		logger.info("Creating phone client");
-		PhoneClient client = new TwilioClient(properties.accountSid(), properties.authToken(),
-			properties.fromPhoneNumber());
+		PhoneClient client = factory.createClient(properties.accountSid(), properties.authToken(),
+			properties.fromNumber());
 		logger.info("Creating phone alerter");
-		PhoneAlerter.Builder builder = PhoneAlerter.builder(client);
+		PhoneAlerter.Builder builder = factory.builder(client);
 		for (String name : properties.names()) {
-			String phoneNumber = properties.phoneNumber(name);
-			builder.phoneNumber(name, phoneNumber);
+			String number = properties.number(name);
+			builder.number(name, number);
 		}
 		return builder.build();
 	}

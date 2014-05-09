@@ -146,7 +146,7 @@ public class AlertService implements Closeable, BuildEventProcessor {
 		lock.lock();
 		try {
 			for (BuildEvent event : events) {
-				builds.build(event.build).job(event.job).event(event.event);
+				builds.build(event.build).job(event.job).events(event.event);
 			}
 			signal();
 		} finally {

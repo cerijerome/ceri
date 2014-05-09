@@ -11,20 +11,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.ci.audio.Audio;
-import ceri.common.io.IoUtil;
 
 public class FileLib {
 	private static final Logger logger = LogManager.getLogger();
 	private static final Pattern NAME_REGEX = Pattern.compile("(.*)\\.(.*)");
 	private final Map<String, File> fileMap;
 	private final File dir;
-
-	public static void main(String[] args) throws Exception {
-		FileLib af = new FileLib(new File(IoUtil.getPackageDir(FileLib.class), "clip"));
-		for (File file : af.files())
-			Audio.create(file).play();
-	}
 
 	public FileLib(File dir, String... fileExtensions) {
 		this(dir, Arrays.asList(fileExtensions));

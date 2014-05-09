@@ -21,21 +21,21 @@ import ceri.common.collection.ImmutableUtil;
 public class PhoneAlerter implements Alerter {
 	private static final Logger logger = LogManager.getLogger();
 	private final PhoneClient client;
-	private final Map<String, String> phoneNumbers;
+	private final Map<String, String> numbers;
 	private BuildAnalyzer buildAnalyzer = new BuildAnalyzer();
 
 	public static class Builder {
-		final Map<String, String> phoneNumbers = new HashMap<>();
+		final Map<String, String> numbers = new HashMap<>();
 		final PhoneClient client;
 
 		Builder(PhoneClient client) {
 			this.client = client;
 		}
 
-		public Builder phoneNumber(String name, String phoneNumber) {
+		public Builder number(String name, String phoneNumber) {
 			if (name == null) throw new NullPointerException("Name cannot be null");
 			if (phoneNumber == null) throw new NullPointerException("Phone number cannot be null");
-			phoneNumbers.put(name, phoneNumber);
+			numbers.put(name, phoneNumber);
 			return this;
 		}
 
@@ -50,7 +50,7 @@ public class PhoneAlerter implements Alerter {
 
 	PhoneAlerter(Builder builder) {
 		client = builder.client;
-		phoneNumbers = ImmutableUtil.copyAsMap(builder.phoneNumbers);
+		numbers = ImmutableUtil.copyAsMap(builder.numbers);
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class PhoneAlerter implements Alerter {
 		logger.info("Alerting for {}", nameBuildJobs.keySet());
 		for (Map.Entry<String, Map<String, Collection<String>>> entry : nameBuildJobs.entrySet()) {
 			String name = entry.getKey();
-			if (phoneNumbers.get(name) == null) continue;
+			if (numbers.get(name) == null) continue;
 			String message = createMessage(name, entry.getValue());
 			alert(name, message);
 		}
@@ -84,7 +84,7 @@ public class PhoneAlerter implements Alerter {
 	 * Send message as SMS if a phone number is configured for the name.
 	 */
 	public void alert(String name, String message) {
-		String phoneNumber = phoneNumbers.get(name);
+		String phoneNumber = numbers.get(name);
 		if (phoneNumber == null) return;
 		client.sendSms(phoneNumber, message);
 	}
