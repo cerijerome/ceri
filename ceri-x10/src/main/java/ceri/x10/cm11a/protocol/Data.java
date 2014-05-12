@@ -163,7 +163,7 @@ public class Data {
 			minute -= MINUTES_IN_HOUR;
 			hour++;
 		}
-		int dayOfYear = in.readByte();
+		int dayOfYear = in.readByte() & 0xff;
 		dayOfYear += (in.readByte() << 1) & 0x100;
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.MILLISECOND, 0);

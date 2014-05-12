@@ -2,7 +2,6 @@ package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.isList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -66,7 +65,7 @@ public class FileFiltersTest {
 		File[] files = helper.root.listFiles(FileFilters.DIR);
 		assertCollection(files, helper.files("a", "b"));
 		List<File> list = IoUtil.getFiles(helper.root, FileFilters.DIR);
-		assertThat(list, isList(helper.files("a", "a/a", "b")));
+		assertCollection(list, helper.files("a", "a/a", "b"));
 	}
 
 	@Test

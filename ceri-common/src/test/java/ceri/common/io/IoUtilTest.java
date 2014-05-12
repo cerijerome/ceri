@@ -162,9 +162,11 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testGetPackageDir() {
-		File dir = IoUtil.getPackageDir(getClass());
-		assertThat(dir.getPath(), matchesRegex(".*" + getClass().getPackage().getName()));
+	public void testGetResourcePath() {
+		String path = IoUtil.getResourcePath(getClass());
+		assertThat(path, matchesRegex("file:.*" + getClass().getPackage().getName() + "/"));
+		path = IoUtil.getResourcePath(String.class);
+		assertThat(path, matchesRegex("jar:file:.*" + String.class.getPackage().getName() + "/"));
 	}
 
 	@Test

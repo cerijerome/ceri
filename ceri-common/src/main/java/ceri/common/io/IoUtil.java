@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.MissingResourceException;
@@ -24,13 +25,11 @@ import java.util.regex.Pattern;
  * I/O utility functions.
  */
 public class IoUtil {
-	/**
-	 * File path separator which can be used inside regex.
-	 */
-	public static final String REGEX_SEPARATOR = "\\" + File.separatorChar;
-	private static final Pattern UNIX_PATH_REGEX = Pattern.compile(REGEX_SEPARATOR);
+	public static final String REGEX_PATH_SEPARATOR = "\\" + File.separatorChar;
+	private static final Pattern UNIX_PATH_REGEX = Pattern.compile(REGEX_PATH_SEPARATOR);
 	private static final int MAX_UUID_ATTEMPTS = 10; // Shouldn't be needed
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 32;
+	private static final String CLASS_SUFFIX = ".class";
 
 	private IoUtil() {}
 
@@ -317,6 +316,20 @@ public class IoUtil {
 	}
 
 	/**
+	 * Gets a file representing a resource. Will fail if the class is in a jar file.
+	 */
+	public static File getResourceFile(Class<?> cls, String resourceName) {
+		try {
+			URL url = cls.getResource(resourceName);
+			if (url == null) throw new NullPointerException("Resource not found for " + cls + ": " +
+				resourceName);
+			return new File(url.toURI());
+		} catch (URISyntaxException e) {
+			throw new IllegalStateException("Should not happen", e);
+		}
+	}
+
+	/**
 	 * Gets resource as a string from same package as class, with given filename.
 	 */
 	public static String getResourceString(Class<?> cls, String resourceName) throws IOException {
@@ -335,28 +348,35 @@ public class IoUtil {
 	}
 
 	/**
-	 * Gets resource from same package as class, with name <simple-class-name>.<suffix>
+	 * Gets resource from same package as class, with same name as the class and given suffix.
 	 */
 	public static String getClassResourceAsString(Class<?> cls, String suffix) throws IOException {
 		return new String(getClassResource(cls, suffix)).intern();
 	}
 
 	/**
-	 * Gets resource from same package as class, with name <simple-class-name>.<suffix>
+	 * Gets resource from same package as class, with same name as the class and given suffix.
 	 */
 	public static byte[] getClassResource(Class<?> cls, String suffix) throws IOException {
 		return getResource(cls, cls.getSimpleName() + "." + suffix);
 	}
 
 	/**
-	 * Returns the root directory for class resources.
+	 * Returns the root url path for class resources.
 	 */
-	public static File getPackageDir(Class<?> cls) {
-		try {
-			return new File(cls.getResource(".").toURI());
-		} catch (URISyntaxException e) {
-			throw new IllegalStateException(e);
-		}
+	public static String getResourcePath(Class<?> cls) {
+		String name = cls.getSimpleName() + CLASS_SUFFIX;
+		URL url = cls.getResource(name);
+		String urlStr = url.toString();
+		return urlStr.substring(0, urlStr.length() - name.length());
+	}
+
+	/**
+	 * Returns the url path for class.
+	 */
+	public static URL getClassUrl(Class<?> cls) {
+		String name = cls.getSimpleName() + CLASS_SUFFIX;
+		return cls.getResource(name);
 	}
 
 	/**

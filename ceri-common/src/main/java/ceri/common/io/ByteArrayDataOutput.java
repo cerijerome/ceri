@@ -4,6 +4,7 @@ import java.io.DataOutput;
 
 /**
  * Provides DataOutput access to a given byte array. The underlying byte array will be modified.
+ * IndexOutOfBoundsException will be thrown if attempting to write past the end of the array.
  */
 public class ByteArrayDataOutput implements DataOutput {
 	private final byte[] data;

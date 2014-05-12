@@ -50,15 +50,15 @@ public class DebuggerBehavior {
 		}
 		String method1 = debugMethod(null, "test1");
 		String method2 = debugMethod(null, "test2");
-		assertThat(b, matchesRegex("(?ms)\\Q" + method1 + " (" + file() +
-			":\\E\\d+\\) 0\n" + "\\Q" + method2 + " (" + file() + ":\\E\\d+\\) 1\n"));
+		assertThat(b, matchesRegex("(?ms)\\Q" + method1 + " (" + file() + ":\\E\\d+\\) 0\n" +
+			"\\Q" + method2 + " (" + file() + ":\\E\\d+\\) 1\n"));
 	}
 
 	private String debugMethod(Debugger dbg, String msg) {
 		if (dbg != null) dbg.method(msg);
 		return method(msg);
 	}
-	
+
 	private String file() {
 		return ReflectUtil.currentCaller().file;
 	}

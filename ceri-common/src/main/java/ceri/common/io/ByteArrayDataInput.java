@@ -3,7 +3,8 @@ package ceri.common.io;
 import java.io.DataInput;
 
 /**
- * Provides DataInput access to a given byte array. The underlying byte array will be modified.
+ * Provides DataInput access to a given byte array. IndexOutOfBoundsException thrown is attempting
+ * to read past the end of the buffer.
  */
 public class ByteArrayDataInput implements DataInput {
 	private final byte[] data;
@@ -27,7 +28,7 @@ public class ByteArrayDataInput implements DataInput {
 
 	@Override
 	public int skipBytes(int n) {
-		if ((long)pos + n > data.length) n = data.length - pos;
+		if ((long) pos + n > data.length) n = data.length - pos;
 		pos += n;
 		return n;
 	}
