@@ -5,17 +5,14 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.io.IoUtil;
 import ceri.common.test.TestThread;
 
 public class AudioMessageBehavior {
-	private static final File dir = IoUtil.getPackageDir(AudioMessageBehavior.class);
 	private AudioPlayer player;
 	
 	@Before
@@ -25,7 +22,7 @@ public class AudioMessageBehavior {
 	
 	@Test
 	public void shouldFailIfInterrupted() throws Throwable {
-		final AudioMessages audio = new AudioMessages(player, dir);
+		final AudioMessages audio = new AudioMessages(player, getClass(), "");
 		TestThread thread = new TestThread() {
 			@Override
 			protected void run() throws Exception {
@@ -44,7 +41,7 @@ public class AudioMessageBehavior {
 
 	@Test
 	public void shouldPlayAudioMessages() throws IOException {
-		AudioMessages audio = new AudioMessages(player, dir);
+		AudioMessages audio = new AudioMessages(player, getClass(), "");
 		audio.playRandomAlarm();
 		verify(player).play(any(Audio.class));
 		audio.playJustFixed("build", "job", Arrays.asList("name"));

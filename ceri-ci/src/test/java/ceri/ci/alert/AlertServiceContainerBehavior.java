@@ -24,7 +24,7 @@ public class AlertServiceContainerBehavior {
 	public void shouldCreateAlertService() {
 		try (AlertServiceContainer con =
 			new AlertServiceContainer(baseProperties(), alerter0, alerter1)) {
-			assertNotNull(con.service);
+			assertNotNull(con.service());
 		}
 	}
 

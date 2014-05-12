@@ -53,6 +53,7 @@ public class Builds implements Iterable<Build>, BuildEventProcessor {
 		return builds.iterator();
 	}
 	
+	@Override
 	public void process(BuildEvent...events) {
 		process(Arrays.asList(events));
 	}

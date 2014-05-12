@@ -16,8 +16,7 @@ import ceri.common.io.IoUtil;
 import ceri.common.test.FileTestHelper;
 
 public class AudioBehavior {
-	private static final File testFile = new File(IoUtil.getPackageDir(AudioBehavior.class),
-		"test.wav");
+	private static final File testFile = IoUtil.getResourceFile(AudioBehavior.class, "test.wav");
 
 	@Test
 	public void shouldClipToANewAudioObject() throws IOException {

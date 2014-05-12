@@ -15,17 +15,22 @@ public class EmailContainer implements Closeable {
 	public final EmailService service;
 
 	public EmailContainer(BaseProperties properties, BuildEventProcessor processor,
-		EmailEventParser...parsers) {
-		this(properties, processor, Arrays.asList(parsers));
-	}
-	
-	public EmailContainer(BaseProperties properties, BuildEventProcessor processor,
 		Collection<EmailEventParser> parsers) {
+		this(properties, new EmailFactoryImpl(), processor, parsers);
+	}
+
+	public EmailContainer(BaseProperties properties, EmailFactory factory,
+		BuildEventProcessor processor, EmailEventParser... parsers) {
+		this(properties, factory, processor, Arrays.asList(parsers));
+	}
+
+	public EmailContainer(BaseProperties properties, EmailFactory factory,
+		BuildEventProcessor processor, Collection<EmailEventParser> parsers) {
 		EmailProperties emailProperties = new EmailProperties(properties, GROUP);
 		if (!emailProperties.enabled()) {
 			service = null;
 		} else {
-			service = createService(emailProperties, processor, parsers);
+			service = createService(emailProperties, processor, factory, parsers);
 		}
 	}
 
@@ -34,10 +39,10 @@ public class EmailContainer implements Closeable {
 		if (service != null) IoUtil.close(service);
 	}
 
-	private EmailService createService(EmailProperties properties,
-		BuildEventProcessor processor, Collection<EmailEventParser> parsers) {
-		EmailRetriever retriever = createRetriever(properties);
-		EmailService.Builder builder = EmailService.builder(retriever, processor);
+	private EmailService createService(EmailProperties properties, BuildEventProcessor processor,
+		EmailFactory factory, Collection<EmailEventParser> parsers) {
+		EmailRetriever retriever = createRetriever(properties, factory);
+		EmailService.Builder builder = factory.serviceBuilder(retriever, processor);
 		for (EmailEventParser parser : parsers)
 			if (parser != null) builder.parsers(parser);
 		setProperties(builder, properties);
@@ -55,9 +60,10 @@ public class EmailContainer implements Closeable {
 		if (sentDateBufferMs != null) builder.sentDateBufferMs(sentDateBufferMs);
 	}
 
-	private EmailRetriever createRetriever(EmailProperties properties) {
-		EmailRetriever.Builder builder =
-			EmailRetriever.builder(properties.host(), properties.account(), properties.password());
+	private EmailRetriever createRetriever(EmailProperties properties, EmailFactory factory) {
+		EmailRetrieverImpl.Builder builder =
+			factory
+				.retrieverBuilder(properties.host(), properties.account(), properties.password());
 		String protocol = properties.protocol();
 		if (protocol != null) builder.protocol(protocol);
 		String folder = properties.folder();

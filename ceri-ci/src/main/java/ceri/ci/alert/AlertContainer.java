@@ -72,7 +72,7 @@ public class AlertContainer implements Closeable {
 	AlertContainer(Builder builder) {
 		logger.debug(builder.properties);
 		alert = new AlertServiceContainer(builder.properties, builder.alerters);
-		email = new EmailContainer(builder.properties, alert.service, builder.parsers);
+		email = new EmailContainer(builder.properties, alert.service(), builder.parsers);
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class AlertContainer implements Closeable {
 	}
 
 	public AlertService alert() {
-		return alert.service;
+		return alert.service();
 	}
 
 }

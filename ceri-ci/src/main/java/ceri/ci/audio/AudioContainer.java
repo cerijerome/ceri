@@ -1,7 +1,6 @@
 package ceri.ci.audio;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,8 +15,9 @@ public class AudioContainer implements Closeable {
 	private static final String GROUP = "audio";
 	public final AudioAlerter alerter;
 
-	public AudioContainer(BaseProperties properties, AudioListener listener) throws IOException {
-		this(properties, new AudioFactoryImpl(), listener);
+	public AudioContainer(BaseProperties properties, Class<?> cls, AudioListener listener)
+		throws IOException {
+		this(properties, new AudioFactoryImpl(cls), listener);
 	}
 
 	public AudioContainer(BaseProperties properties, AudioFactory factory, AudioListener listener)
@@ -28,9 +28,8 @@ public class AudioContainer implements Closeable {
 			alerter = null;
 		} else {
 			logger.info("Creating audio message player");
-			File soundDir =
-				new File(IoUtil.getPackageDir(AudioMessages.class), audioProperties.voice());
-			AudioMessages message = factory.createMessages(soundDir, audioProperties.pitch());
+			String voiceDir = audioProperties.voice();
+			AudioMessages message = factory.createMessages(voiceDir, audioProperties.pitch());
 			logger.info("Creating audio alerter");
 			alerter = factory.createAlerter(message, listener);
 		}

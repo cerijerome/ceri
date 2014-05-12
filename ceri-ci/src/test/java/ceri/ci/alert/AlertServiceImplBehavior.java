@@ -16,19 +16,19 @@ import ceri.ci.build.Event;
 import ceri.ci.build.Job;
 import ceri.common.concurrent.BooleanCondition;
 
-public class AlertServiceBehavior {
+public class AlertServiceImplBehavior {
 	private static final Event e0 = new Event(Event.Type.failure, 0L, "test");
 	private static final Event e1 = new Event(Event.Type.success, 1L, "test");
 	private static final Event e2 = new Event(Event.Type.failure, 2L, "test");
 	AlerterGroup alerters;
 	BooleanCondition sync;
-	AlertService service;
+	AlertServiceImpl service;
 
 	@Before
 	public void init() {
 		alerters = mock(AlerterGroup.class);
 		sync = new BooleanCondition();
-		service = new AlertService(createAlerters(), 0, 1000);
+		service = new AlertServiceImpl(createAlerters(), 0, 1000);
 	}
 
 	@After
@@ -45,7 +45,7 @@ public class AlertServiceBehavior {
 				sync.signal();
 			}
 		}) {
-			service = new AlertService(remindAlerters, 1, 1000);
+			service = new AlertServiceImpl(remindAlerters, 1, 1000);
 			service.clear(null, null);
 			sync.await();
 			verify(alerters).remind();

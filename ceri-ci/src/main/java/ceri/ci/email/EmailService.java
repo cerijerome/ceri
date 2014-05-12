@@ -39,7 +39,7 @@ public class EmailService implements Closeable {
 	private final long shutdownTimeoutMs;
 	private final long maxLookBackMs;
 	private final long sentDateBufferMs;
-	private final EmailRetriever.Matcher messageMatcher;
+	final EmailRetriever.Matcher messageMatcher;
 	private final Collection<Email> emailBuffer = new TreeSet<>(EmailComparators.SENT_DATE);
 	private Email lastEmail = null;
 
@@ -156,6 +156,7 @@ public class EmailService implements Closeable {
 
 	/**
 	 * Uses the filter to drop any messages we are not interested in.
+	 * This is called by the email retriever.
 	 */
 	private boolean matches(Message message) throws MessagingException {
 		for (EmailEventParser parser : parsers)
@@ -171,7 +172,7 @@ public class EmailService implements Closeable {
 		try {
 			logger.debug("Thread started");
 			Date minDate = minDate(lastEmail);
-			List<Email> emails = retriever.fetch(minDate, messageMatcher);
+			List<Email> emails = retriever.retrieve(minDate, messageMatcher);
 			filterAndUpdateBuffer(emails);
 			if (emails.isEmpty()) return;
 			lastEmail = emails.get(emails.size() - 1);

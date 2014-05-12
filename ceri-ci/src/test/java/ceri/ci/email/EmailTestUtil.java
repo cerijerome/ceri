@@ -33,4 +33,14 @@ public class EmailTestUtil {
 		return mock;
 	}
 
+	public static Email.Builder presetEmail() {
+		Email.Builder builder = Email.builder();
+		builder.content("content" );
+		builder.from("from@test.com");
+		builder.recipients("to@test.com");
+		builder.sentDateMs(0);
+		builder.subject("subject");
+		return builder;
+	}
+	
 }

@@ -4,6 +4,6 @@ import ceri.ci.alert.AlertService;
 
 public interface Command {
 
-	String execute(AlertService service);
+	Response execute(AlertService service) throws Exception;
 
 }

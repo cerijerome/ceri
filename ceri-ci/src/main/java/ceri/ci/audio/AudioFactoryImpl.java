@@ -1,6 +1,5 @@
 package ceri.ci.audio;
 
-import java.io.File;
 import java.io.IOException;
 
 public class AudioFactoryImpl implements AudioFactory {
@@ -10,12 +9,17 @@ public class AudioFactoryImpl implements AudioFactory {
 			audio.play();
 		}
 	};
+	private final Class<?> resourceCls;
+
+	public AudioFactoryImpl(Class<?> resourceCls) {
+		this.resourceCls = resourceCls;
+	}
 
 	@Override
-	public AudioMessages createMessages(File soundDir, float pitch) throws IOException {
-		return new AudioMessages(player, soundDir);
+	public AudioMessages createMessages(String voiceDir, float pitch) throws IOException {
+		return new AudioMessages(player, resourceCls, voiceDir, pitch);
 	}
-	
+
 	@Override
 	public AudioAlerter createAlerter(AudioMessages messages, AudioListener listener) {
 		return new AudioAlerter(messages, listener);

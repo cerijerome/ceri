@@ -19,7 +19,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ceri.ci.email.EmailRetriever.Matcher;
 
-public class EmailRetrieverBehavior {
+public class EmailRetrieverImplBehavior {
 	@Mock Store store;
 	@Mock Folder defaultFolder;
 	@Mock Folder folder;
@@ -28,7 +28,7 @@ public class EmailRetrieverBehavior {
 	public void init() throws MessagingException {
 		MockitoAnnotations.initMocks(this);
 		when(store.getDefaultFolder()).thenReturn(defaultFolder);
-		when(store.getFolder(any())).thenReturn(folder);
+		when(store.getFolder(anyString())).thenReturn(folder);
 	}
 
 	@Test
@@ -40,7 +40,7 @@ public class EmailRetrieverBehavior {
 	@Test
 	public void shouldFailIfNoMinimumDateForFetchingEmails() {
 		EmailRetriever retriever = create(presetBuilder());
-		assertException(() -> retriever.fetch(null, null));
+		assertException(() -> retriever.retrieve(null, null));
 	}
 	
 	@Test
@@ -50,7 +50,7 @@ public class EmailRetrieverBehavior {
 		Message msg2 = mockMessage(11);
 		when(folder.search(any())).thenReturn(new Message[] { msg0, msg1, msg2 });
 		EmailRetriever retriever = create(presetBuilder());
-		List<Email> emails = retriever.fetch(new Date(2), new Matcher() {
+		List<Email> emails = retriever.retrieve(new Date(2), new Matcher() {
 			@Override
 			public boolean matches(Message message) throws MessagingException {
 				return message.getSentDate().getTime() < 10;
@@ -67,19 +67,19 @@ public class EmailRetrieverBehavior {
 		Message msg2 = mockMessage(2);
 		when(folder.search(any())).thenReturn(new Message[] { msg0, msg1, msg2 });
 		EmailRetriever retriever = create(presetBuilder());
-		List<Email> emails = retriever.fetch(new Date(1), null);
+		List<Email> emails = retriever.retrieve(new Date(1), null);
 		assertThat(emails.size(), is(2));
 		assertThat(emails.get(0).sentDateMs, is(1L));
 		assertThat(emails.get(1).sentDateMs, is(2L));
 	}
 
-	private EmailRetriever.Builder presetBuilder() {
-		return EmailRetriever.builder("host", "name", "password").folder("folder").port(1)
+	private EmailRetrieverImpl.Builder presetBuilder() {
+		return EmailRetrieverImpl.builder("host", "name", "password").folder("folder").port(1)
 			.protocol("protocol").timeoutMs(10000L);
 	}
 
-	private EmailRetriever create(EmailRetriever.Builder builder) {
-		return new EmailRetriever(builder) {
+	private EmailRetriever create(EmailRetrieverImpl.Builder builder) {
+		return new EmailRetrieverImpl(builder) {
 			@Override
 			protected Store getStore() throws MessagingException {
 				return store;

@@ -4,7 +4,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import ceri.ci.alert.AlertContainerBehavior;
 import ceri.ci.alert.AlertPropertiesBehavior;
-import ceri.ci.alert.AlertServiceBehavior;
+import ceri.ci.alert.AlertServiceImplBehavior;
 import ceri.ci.alert.AlertServiceContainerBehavior;
 import ceri.ci.alert.AlerterGroupBehavior;
 import ceri.ci.alert.NodeBehavior;
@@ -22,18 +22,17 @@ import ceri.ci.build.BuildsBehavior;
 import ceri.ci.build.EventBehavior;
 import ceri.ci.build.EventComparatorsTest;
 import ceri.ci.build.JobBehavior;
+import ceri.ci.common.ResourceMapBehavior;
 import ceri.ci.email.EmailBehavior;
 import ceri.ci.email.EmailContainerBehavior;
 import ceri.ci.email.EmailPropertiesBehavior;
-import ceri.ci.email.EmailRetrieverBehavior;
+import ceri.ci.email.EmailRetrieverImplBehavior;
 import ceri.ci.email.EmailServiceBehavior;
 import ceri.ci.email.EmailUtilTest;
 import ceri.ci.phone.PhoneAlerterBehavior;
 import ceri.ci.phone.PhoneContainerBehavior;
 import ceri.ci.phone.PhonePropertiesBehavior;
 import ceri.ci.phone.TwilioClientBehavior;
-import ceri.ci.proxy.MultiProxyBehavior;
-import ceri.ci.proxy.MultiProxyPropertiesBehavior;
 import ceri.ci.web.WebAlerterBehavior;
 import ceri.ci.web.WebAlerterPropertiesBehavior;
 import ceri.ci.x10.X10AlerterBehavior;
@@ -50,7 +49,7 @@ import ceri.common.test.TestUtil;
 	// alert
 	AlertContainerBehavior.class,
 	AlerterGroupBehavior.class,
-	AlertServiceBehavior.class,
+	AlertServiceImplBehavior.class,
 	AlertServiceContainerBehavior.class,
 	AlertPropertiesBehavior.class,
 	NodeBehavior.class,
@@ -70,11 +69,13 @@ import ceri.common.test.TestUtil;
 	EventBehavior.class,
 	EventComparatorsTest.class,
 	JobBehavior.class,
+	// common
+	ResourceMapBehavior.class,
 	// email
 	EmailBehavior.class,
 	EmailContainerBehavior.class,
 	EmailPropertiesBehavior.class,
-	EmailRetrieverBehavior.class,
+	EmailRetrieverImplBehavior.class,
 	EmailServiceBehavior.class,
 	EmailUtilTest.class,
 	// phone
@@ -82,10 +83,6 @@ import ceri.common.test.TestUtil;
 	PhoneContainerBehavior.class,
 	PhonePropertiesBehavior.class,
 	TwilioClientBehavior.class,
-	// proxy
-	MultiProxyBehavior.class,
-	MultiProxyPropertiesBehavior.class,
-	// servlet
 	// web
 	WebAlerterBehavior.class,
 	WebAlerterPropertiesBehavior.class,

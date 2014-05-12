@@ -4,7 +4,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyFloat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 import org.junit.Before;
@@ -22,7 +21,7 @@ public class AudioContainerBehavior {
 	@Before
 	public void init() throws IOException {
 		MockitoAnnotations.initMocks(this);
-		when(factory.createMessages(any(File.class), anyFloat())).thenReturn(messages);
+		when(factory.createMessages(any(), anyFloat())).thenReturn(messages);
 		when(factory.createAlerter(messages, null)).thenReturn(alerter);
 		properties = new Properties();
 	}
@@ -32,7 +31,7 @@ public class AudioContainerBehavior {
 		properties.put("audio.enabled", "true");
 		@SuppressWarnings({ "unused", "resource" })
 		AudioContainer container = new AudioContainer(baseProperties(), factory, null);
-		verify(factory).createMessages(any(File.class), anyFloat());
+		verify(factory).createMessages(any(), anyFloat());
 		verify(factory).createAlerter(messages, null);
 	}
 

@@ -1,14 +1,13 @@
 package ceri.ci.audio;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.ci.common.FileLib;
+import ceri.ci.common.Resource;
+import ceri.ci.common.ResourceMap;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
@@ -22,33 +21,35 @@ public class AudioMessages {
 	private static final String NAME_DIR = "name";
 	private static final String PHRASE_DIR = "phrase";
 	private final List<String> clipKeys;
-	private final FileLib clips;
-	private final FileLib builds;
-	private final FileLib jobs;
-	private final FileLib names;
-	private final FileLib phrases;
+	private final ResourceMap clips;
+	private final ResourceMap builds;
+	private final ResourceMap jobs;
+	private final ResourceMap names;
+	private final ResourceMap phrases;
 	private final float pitch;
 	private final AudioPlayer player;
 	// Needed as audio library code swallows InterruptedExceptions
 	private volatile boolean interrupted = false;
 
-	public AudioMessages(AudioPlayer player, File soundDir) throws IOException {
-		this(player, soundDir, Audio.NORMAL_PITCH);
+	public AudioMessages(AudioPlayer player, Class<?> cls, String voiceDir) throws IOException {
+		this(player, cls, voiceDir, Audio.NORMAL_PITCH);
 	}
 
-	public AudioMessages(AudioPlayer player, File soundDir, float pitch) throws IOException {
+	public AudioMessages(AudioPlayer player, Class<?> cls, String voiceDir, float pitch)
+		throws IOException {
+		if (voiceDir == null || voiceDir.length() == 0) voiceDir = "";
+		else if (!voiceDir.endsWith("/")) voiceDir += "/";
 		this.player = player;
 		this.pitch = pitch;
-		File clipDir = clipDir();
-		clips = new FileLib(clipDir, EXT_DEF);
+		clips = new ResourceMap(getClass(), CLIP_DIR, EXT_DEF);
 		clipKeys = ImmutableUtil.copyAsList(clips.keys());
-		builds = new FileLib(new File(soundDir, BUILD_DIR), EXT_DEF);
-		jobs = new FileLib(new File(soundDir, JOB_DIR), EXT_DEF);
-		names = new FileLib(new File(soundDir, NAME_DIR), EXT_DEF);
-		phrases = new FileLib(new File(soundDir, PHRASE_DIR), EXT_DEF);
+		builds = new ResourceMap(cls, voiceDir + BUILD_DIR, EXT_DEF);
+		jobs = new ResourceMap(cls, voiceDir + JOB_DIR, EXT_DEF);
+		names = new ResourceMap(cls, voiceDir + NAME_DIR, EXT_DEF);
+		phrases = new ResourceMap(cls, voiceDir + PHRASE_DIR, EXT_DEF);
 		// Check all phrases exist
 		for (AudioPhrase phrase : AudioPhrase.values())
-			phrases.file(phrase.name());
+			phrases.verify(phrase.name());
 	}
 
 	/**
@@ -65,10 +66,10 @@ public class AudioMessages {
 		checkRuntimeInterrupted();
 		int index = (int) (Math.random() * clipKeys.size());
 		String key = clipKeys.get(index);
-		File file = clips.file(key);
-		logger.debug("Alarm: {}", file.getName());
+		Resource resource = clips.resource(key);
+		logger.debug("Alarm: {}", resource.name);
 		checkRuntimeInterrupted();
-		player.play(Audio.create(file));
+		player.play(Audio.create(resource.data));
 	}
 
 	/**
@@ -78,10 +79,10 @@ public class AudioMessages {
 		throws IOException {
 		playBuildJob(build, job);
 		play(AudioPhrase.has_just_been_broken);
-		Collection<File> nameFiles = this.names.files(names);
-		if (nameFiles.isEmpty()) return;
+		Collection<Resource> nameResources = this.names.resources(names);
+		if (nameResources.isEmpty()) return;
 		play(AudioPhrase.by);
-		play(nameFiles);
+		play(nameResources);
 	}
 
 	/**
@@ -91,9 +92,9 @@ public class AudioMessages {
 		throws IOException {
 		playBuildJob(build, job);
 		play(AudioPhrase.is_still_broken);
-		Collection<File> nameFiles = this.names.files(names);
-		if (nameFiles.isEmpty()) return;
-		play(nameFiles);
+		Collection<Resource> nameResources = this.names.resources(names);
+		if (nameResources.isEmpty()) return;
+		play(nameResources);
 		play(AudioPhrase.please_fix_it);
 	}
 
@@ -104,10 +105,10 @@ public class AudioMessages {
 		throws IOException {
 		playBuildJob(build, job);
 		play(AudioPhrase.is_now_fixed);
-		Collection<File> nameFiles = this.names.files(names);
-		if (!nameFiles.isEmpty()) {
+		Collection<Resource> nameResources = this.names.resources(names);
+		if (!nameResources.isEmpty()) {
 			play(AudioPhrase.thanks_to);
-			play(nameFiles);
+			play(nameResources);
 		} else play(AudioPhrase.thank_you);
 	}
 
@@ -116,36 +117,35 @@ public class AudioMessages {
 	}
 
 	private boolean playBuild(String build) throws IOException {
-		File file = builds.file(build);
-		if (file != null) play(file);
+		Resource resource = builds.resource(build);
+		if (resource != null) play(resource);
 		else play(AudioPhrase.the_build);
-		return file != null;
+		return resource != null;
 	}
 
 	private boolean playJob(String job) throws IOException {
-		File file = jobs.file(job);
-		if (file != null) play(file);
-		return file != null;
+		Resource resource = jobs.resource(job);
+		if (resource != null) play(resource);
+		return resource != null;
 	}
 
-	private void play(Collection<File> files) throws IOException {
-		int i = files.size();
-		for (File file : files) {
-			play(file);
+	private void play(Collection<Resource> resources) throws IOException {
+		int i = resources.size();
+		for (Resource resource : resources) {
+			play(resource);
 			if (--i == 1) play(AudioPhrase.and);
 		}
 	}
 
 	private void play(AudioPhrase phrase) throws IOException {
-		File file = phrases.file(phrase.name());
-		if (file == null) throw new IOException("Missing file for phrase " + phrase.name());
-		play(file);
+		Resource resource = phrases.resource(phrase.name());
+		play(resource);
 	}
 
-	private void play(File file) throws IOException {
-		logger.debug("Speech: {}", file.getName());
+	private void play(Resource resource) throws IOException {
+		logger.debug("Speech: {}", resource.name);
 		checkRuntimeInterrupted();
-		Audio audio = Audio.create(file);
+		Audio audio = Audio.create(resource.data);
 		player.play(audio.changePitch(pitch));
 	}
 
@@ -154,14 +154,6 @@ public class AudioMessages {
 		if (interrupted) {
 			interrupted = false;
 			throw new RuntimeInterruptedException("Thread has been interrupted");
-		}
-	}
-
-	private File clipDir() throws IOException {
-		try {
-			return new File(getClass().getResource(CLIP_DIR).toURI());
-		} catch (URISyntaxException e) {
-			throw new IOException(e);
 		}
 	}
 

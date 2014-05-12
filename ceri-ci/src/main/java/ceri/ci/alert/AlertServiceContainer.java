@@ -16,12 +16,16 @@ public class AlertServiceContainer implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final String GROUP = "alert";
 	private final AlerterGroup alerters;
-	public final AlertService service;
+	private final AlertServiceImpl service;
 
-	public AlertServiceContainer(BaseProperties properties, Alerter...alerters) {
+	public AlertServiceContainer(BaseProperties properties, Alerter... alerters) {
 		this(properties, Arrays.asList(alerters));
 	}
-	
+
+	public AlertService service() {
+		return service;
+	}
+
 	public AlertServiceContainer(BaseProperties properties, Collection<Alerter> alerters) {
 		AlertProperties alertProperties = new AlertProperties(properties, GROUP);
 		logger.info("Creating alerter group");
@@ -36,16 +40,17 @@ public class AlertServiceContainer implements Closeable {
 		IoUtil.close(service);
 	}
 
-	private AlertService
-		createAlertService(AlerterGroup alerters, AlertProperties properties) {
-		return new AlertService(alerters, properties.reminderMs(), properties.shutdownTimeoutMs());
+	private AlertServiceImpl createAlertService(AlerterGroup alerters, AlertProperties properties) {
+		return new AlertServiceImpl(alerters, properties.reminderMs(), properties
+			.shutdownTimeoutMs());
 	}
 
-	private AlerterGroup createAlerterGroup(AlertProperties properties,
-		Collection<Alerter> alerters) {
+	private AlerterGroup
+		createAlerterGroup(AlertProperties properties, Collection<Alerter> alerters) {
 		AlerterGroup.Builder builder =
 			AlerterGroup.builder().shutdownTimeoutMs(properties.shutdownTimeoutMs());
-		for (Alerter alerter : alerters) if (alerter != null) builder.alerters(alerter);
+		for (Alerter alerter : alerters)
+			if (alerter != null) builder.alerters(alerter);
 		return builder.build();
 	}
 

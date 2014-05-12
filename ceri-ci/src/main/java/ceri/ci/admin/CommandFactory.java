@@ -2,21 +2,26 @@ package ceri.ci.admin;
 
 import java.util.Collection;
 import ceri.ci.admin.Params.BuildJob;
+import ceri.ci.alert.AlertService;
 import ceri.ci.build.BuildEvent;
 
 public class CommandFactory {
 	public static final String SUCCESS = "success";
-	
-	public static Command create(Params params) {
+	private final Serializer serializer;
+
+	public CommandFactory(Serializer serializer) {
+		this.serializer = serializer;
+	}
+
+	public Command create(Params params) {
 		Action action = params.action();
-		BuildJob buildJob = params.buildJob();
 		switch (action) {
 		case view:
-			return view(buildJob.build, buildJob.job);
+			return view(params.buildJob());
 		case clear:
-			return clear(buildJob.build, buildJob.job);
+			return clear(params.buildJob());
 		case delete:
-			return delete(buildJob.build, buildJob.job);
+			return delete(params.buildJob());
 		case process:
 			Collection<BuildEvent> events = params.buildEvents();
 			return process(events);
@@ -25,41 +30,46 @@ public class CommandFactory {
 		}
 		throw new IllegalStateException("Should not happen");
 	}
-	
-	public static Command view(String build, String job) {
+
+	private Command view(BuildJob buildJob) {
 		return (service) -> {
-			if (build == null) return service.builds().toString();
-			if (job == null) return service.build(build).toString();
-			return service.job(build, job).toString(); 
+			String json = serialize(buildJob, service);
+			return Response.success(json);
 		};
 	}
 
-	public static Command clear(String build, String job) {
+	private String serialize(BuildJob buildJob, AlertService service) {
+		if (buildJob.build == null) return serializer.fromBuilds(service.builds());
+		if (buildJob.job == null) return service.build(buildJob.build).toString();
+		return service.job(buildJob.build, buildJob.job).toString();
+	}
+
+	private Command clear(BuildJob buildJob) {
 		return (service) -> {
-			service.clear(build, job);
-			return SUCCESS;
+			service.clear(buildJob.build, buildJob.job);
+			return Response.success();
 		};
 	}
-	
-	public static Command delete(String build, String job) {
+
+	private Command delete(BuildJob buildJob) {
 		return (service) -> {
-			service.delete(build, job);
-			return SUCCESS;
+			service.delete(buildJob.build, buildJob.job);
+			return Response.success();
 		};
 	}
-	
-	public static Command process(Collection<BuildEvent> events) {
+
+	private Command process(Collection<BuildEvent> events) {
 		return (service) -> {
 			service.process(events);
-			return SUCCESS;
+			return Response.success();
 		};
 	}
-	
-	public static Command purge() {
+
+	private Command purge() {
 		return (service) -> {
 			service.purge();
-			return SUCCESS;
+			return Response.success();
 		};
 	}
-	
+
 }
