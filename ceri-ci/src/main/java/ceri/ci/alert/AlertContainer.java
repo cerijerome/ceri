@@ -65,12 +65,12 @@ public class AlertContainer implements Closeable {
 		if (properties == null) properties =
 			PropertyUtil.load(AlertService.class, PROPERTY_FILE_DEF);
 		String prefix = Node.createFromEnv().name;
+		logger.info("*** Node = {} ***", prefix);
 		BaseProperties baseProperties = new BaseProperties(properties, prefix) {};
 		return new Builder(baseProperties);
 	}
 
 	AlertContainer(Builder builder) {
-		logger.debug(builder.properties);
 		alert = new AlertServiceContainer(builder.properties, builder.alerters);
 		email = new EmailContainer(builder.properties, alert.service(), builder.parsers);
 	}
