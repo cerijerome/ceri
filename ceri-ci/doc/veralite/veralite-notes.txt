@@ -7,7 +7,6 @@ http://wiki.micasaverde.com/index.php/Luup_Intro
 http://wiki.micasaverde.com/index.php/Category:Development
 https://fwdN.mios.com/<user>/<pass>/<vera#>/data_request?id=user_data
 
-https://fwd2.mios.com/cerijerome/cjerome123/35018570/data_request?id=user_data
 
 Commands
 --------

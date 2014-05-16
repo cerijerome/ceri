@@ -17,13 +17,13 @@ public class ZWaveFactoryImpl implements ZWaveFactory {
 			@Override
 			public void on(int device) throws IOException {
 				veraLite.switchPower.on(device);
-				logger.debug("+++ ON {} +++", device);
+				logger.debug("Device {} on", device);
 			}
 
 			@Override
 			public void off(int device) throws IOException {
 				veraLite.switchPower.off(device);
-				logger.debug("--- OFF {} ---", device);
+				logger.debug("Device {} off", device);
 			}
 		};
 	}
