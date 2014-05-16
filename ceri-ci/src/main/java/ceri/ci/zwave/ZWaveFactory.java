@@ -4,7 +4,7 @@ import java.util.Collection;
 
 public interface ZWaveFactory {
 
-	ZWaveController createController(String host);
+	ZWaveController createController(String host, int callDelayMs);
 	ZWaveAlerter.Builder builder(ZWaveController controller);
 	ZWaveGroup createGroup(ZWaveController controller, Collection<Integer> devices);
 

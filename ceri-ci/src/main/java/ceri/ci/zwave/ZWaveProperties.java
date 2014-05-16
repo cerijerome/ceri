@@ -14,6 +14,8 @@ public class ZWaveProperties extends BaseProperties {
 	private static final String DEVICE_KEY = "device";
 	private static final String GROUP_KEY = "group";
 	private static final String DEVICES_KEY = "devices";
+	private static final int CALL_DELAY_MS_DEF = 300;
+	private static final String CALL_DELAY_MS_KEY = "call.delay.ms";
 
 	public ZWaveProperties(BaseProperties properties, String group) {
 		super(properties, group);
@@ -27,6 +29,10 @@ public class ZWaveProperties extends BaseProperties {
 		return value(HOST_KEY);
 	}
 
+	public int callDelayMs() {
+		return intValue(CALL_DELAY_MS_DEF, CALL_DELAY_MS_KEY);
+	}
+	
 	public Integer device(String name) {
 		return intValue(DEVICE_KEY, name);
 	}

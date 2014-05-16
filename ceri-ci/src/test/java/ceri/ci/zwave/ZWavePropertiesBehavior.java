@@ -15,6 +15,7 @@ public class ZWavePropertiesBehavior {
 	public static void init() {
 		props.put("x.enabled", "true");
 		props.put("x.host", "aaa");
+		props.put("x.call.delay.ms", "111");
 		props.put("x.group.devices", "1,3, 100");
 		props.put("x.device.A", "1");
 		props.put("x.device.B", "2");
@@ -26,6 +27,7 @@ public class ZWavePropertiesBehavior {
 			new ZWaveProperties(new BaseProperties(props) {}, "x");
 		assertThat(zwave.enabled(), is(true));
 		assertThat(zwave.host(), is("aaa"));
+		assertThat(zwave.callDelayMs(), is(111));
 		assertCollection(zwave.groupDevices(), 1, 3, 100);
 		assertThat(zwave.device("A"), is(1));
 		assertThat(zwave.device("B"), is(2));

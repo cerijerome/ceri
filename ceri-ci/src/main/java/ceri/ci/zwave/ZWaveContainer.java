@@ -26,7 +26,8 @@ public class ZWaveContainer {
 			group = null;
 		} else {
 			logger.info("Creating zwave controller");
-			ZWaveController controller = factory.createController(zwaveProperties.host());
+			ZWaveController controller =
+				factory.createController(zwaveProperties.host(), zwaveProperties.callDelayMs());
 			alerter = createAlerter(zwaveProperties, controller, factory);
 			group = createGroup(zwaveProperties, controller, factory);
 		}

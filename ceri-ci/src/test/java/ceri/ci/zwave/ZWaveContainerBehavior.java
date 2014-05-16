@@ -24,7 +24,7 @@ public class ZWaveContainerBehavior {
 	@Before
 	public void init() {
 		MockitoAnnotations.initMocks(this);
-		when(factory.createController(any())).thenReturn(controller);
+		when(factory.createController(any(), anyInt())).thenReturn(controller);
 		when(factory.builder(any())).thenReturn(builder);
 		when(builder.device(any(), anyInt())).thenReturn(builder);
 		properties = new Properties();

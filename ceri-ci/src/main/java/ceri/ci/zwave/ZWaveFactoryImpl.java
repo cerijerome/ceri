@@ -11,8 +11,8 @@ public class ZWaveFactoryImpl implements ZWaveFactory {
 	static final Logger logger = LogManager.getLogger();
 
 	@Override
-	public ZWaveController createController(String host) {
-		final VeraLite veraLite = new VeraLite(host);
+	public ZWaveController createController(String host, int callDelayMs) {
+		final VeraLite veraLite = new VeraLite(host, callDelayMs);
 		return new ZWaveController() {
 			@Override
 			public void on(int device) throws IOException {
