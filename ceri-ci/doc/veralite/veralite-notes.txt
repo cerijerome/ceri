@@ -1,5 +1,6 @@
 VeraLite Notes
 ==============
+http://getvera.com/controllers/veralite/
 
 Developer docs:
 http://docs5.mios.com/doc.php?language=1&manual=1&platform=3Lite&page=developers

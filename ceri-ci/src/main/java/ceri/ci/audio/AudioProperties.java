@@ -6,7 +6,7 @@ import ceri.common.property.BaseProperties;
  * Properties to configure the audio alerter.
  */
 public class AudioProperties extends BaseProperties {
-	private static final String VOICE_DEF = "en-us/lauren";
+	private static final String VOICE_DEF = "";
 	private static final String ENABLED_KEY = "enabled";
 	private static final String PITCH_KEY = "pitch";
 	private static final String VOICE_KEY = "voice";

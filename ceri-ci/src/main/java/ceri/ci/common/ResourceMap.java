@@ -74,8 +74,11 @@ public class ResourceMap {
 
 	public String verify(String key) {
 		String name = map.get(key);
-		if (name == null) logger.warn("No resource for key '{}' in directory {}", key, cls
-			.getResource(subDir));
+		if (name == null) {
+			URL url = cls.getResource(subDir);
+			if (url == null) logger.warn("No resource for key '{}'", key);
+			else logger.warn("No resource for key '{}' in directory {}", key, url);
+		}
 		return name;
 	}
 
@@ -92,6 +95,7 @@ public class ResourceMap {
 		throws IOException {
 		try {
 			URL url = IoUtil.getClassUrl(cls);
+			if (url == null) return Collections.emptyMap();
 			if (FILE.equals(url.getProtocol())) return fileMap(url, subDir, fileExtensions);
 			if (JAR.equals(url.getProtocol())) return jarMap(url, subDir, fileExtensions);
 			throw new IllegalArgumentException("Unsupported URL type: " + url);
@@ -126,15 +130,17 @@ public class ResourceMap {
 		else end++;
 		return urlStr.substring(start, end) + subDir;
 	}
-	
+
 	private Map<String, String> fileMap(URL url, String subDir, Collection<String> fileExtensions)
 		throws URISyntaxException {
 		File dir = new File(new File(url.toURI()).getParentFile(), subDir);
 		Map<String, String> map = new TreeMap<>();
-		for (File file : dir.listFiles()) {
+		if (dir.exists()) for (File file : dir.listFiles()) {
 			if (file.isDirectory()) continue;
 			addMatchingEntry(map, file.getName(), fileExtensions);
 		}
+		else logger.warn("Directory does not exist, using empty resource map: " +
+			dir.getAbsolutePath());
 		return map;
 	}
 
