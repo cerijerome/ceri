@@ -49,7 +49,7 @@ public class Params {
 	public Collection<BuildEvent> buildEvents() {
 		String json = request.getParameter(EVENTS);
 		if (json == null) return Collections.emptyList();
-		return serializer.tobuildEvents(json);
+		return serializer.toBuildEvents(json);
 	}
 
 }

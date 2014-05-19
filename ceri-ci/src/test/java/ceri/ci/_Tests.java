@@ -2,10 +2,14 @@ package ceri.ci;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import ceri.ci.admin.CommandFactoryBehavior;
+import ceri.ci.admin.ParamsBehavior;
+import ceri.ci.admin.ResponseBehavior;
+import ceri.ci.admin.SerializerBehavior;
 import ceri.ci.alert.AlertContainerBehavior;
 import ceri.ci.alert.AlertPropertiesBehavior;
-import ceri.ci.alert.AlertServiceImplBehavior;
 import ceri.ci.alert.AlertServiceContainerBehavior;
+import ceri.ci.alert.AlertServiceImplBehavior;
 import ceri.ci.alert.AlerterGroupBehavior;
 import ceri.ci.alert.NodeBehavior;
 import ceri.ci.audio.AudioAlerterBehavior;
@@ -46,6 +50,11 @@ import ceri.common.test.TestUtil;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	// admin
+	CommandFactoryBehavior.class,
+	ParamsBehavior.class,
+	ResponseBehavior.class,
+	SerializerBehavior.class,
 	// alert
 	AlertContainerBehavior.class,
 	AlerterGroupBehavior.class,

@@ -2,6 +2,10 @@ package ceri.ci.alert;
 
 import ceri.common.util.PrimitiveUtil;
 
+/**
+ * Used to distinguish configuration between multiple instances of the alert system.
+ * System integer property <em>node</em> determines the node id.
+ */
 public class Node {
 	private static final String NODE = "node";
 	public final int index;

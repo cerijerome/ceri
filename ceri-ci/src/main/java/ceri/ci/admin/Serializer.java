@@ -1,12 +1,14 @@
 package ceri.ci.admin;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import ceri.ci.build.Build;
 import ceri.ci.build.BuildEvent;
 import ceri.ci.build.Builds;
+import ceri.ci.build.Event;
 import ceri.ci.build.Job;
 import ceri.common.util.BasicUtil;
 import com.google.gson.Gson;
@@ -28,9 +30,15 @@ public class Serializer {
 		gson = builder.create();
 	}
 	
-	public Collection<BuildEvent> tobuildEvents(String json) {
+	public Collection<BuildEvent> toBuildEvents(String json) {
 		if (BasicUtil.isEmpty(json)) return Collections.emptyList();
-		return gson.fromJson(json, buildEventCollectionType);
+		Collection<BuildEvent> gsonBuildEvents = gson.fromJson(json, buildEventCollectionType);
+		Collection<BuildEvent> buildEvents = new ArrayList<>();
+		for (BuildEvent gsonBuildEvent : gsonBuildEvents) {
+			Event event = new Event(gsonBuildEvent.event);
+			buildEvents.add(new BuildEvent(gsonBuildEvent.build, gsonBuildEvent.job, event));
+		}
+		return buildEvents;
 	}
 
 	public String fromBuildEvents(BuildEvent...buildEvents) {
