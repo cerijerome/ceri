@@ -25,7 +25,38 @@ public class CommandFactoryBehavior {
 	}
 
 	@Test
-	public void should() throws Exception {
+	public void shouldCreateViewCommands() throws Exception {
+		BuildJob buildJob = new BuildJob(null, null);
+		when(params.action()).thenReturn(Action.view);
+		when(params.buildJob()).thenReturn(buildJob);
+		Command command = factory.create(params);
+		Response response = command.execute(service);
+		verify(serializer).fromBuilds(null);
+		assertThat(response.success, is(true));
+	}
+
+	@Test
+	public void shouldCreatePurgeCommands() throws Exception {
+		when(params.action()).thenReturn(Action.purge);
+		Command command = factory.create(params);
+		Response response = command.execute(service);
+		verify(service).purge();
+		assertThat(response.success, is(true));
+	}
+
+	@Test
+	public void shouldCreateDeleteCommands() throws Exception {
+		BuildJob buildJob = new BuildJob("b0", null);
+		when(params.action()).thenReturn(Action.delete);
+		when(params.buildJob()).thenReturn(buildJob);
+		Command command = factory.create(params);
+		Response response = command.execute(service);
+		verify(service).delete("b0", null);
+		assertThat(response.success, is(true));
+	}
+
+	@Test
+	public void shouldCreateClearCommands() throws Exception {
 		BuildJob buildJob = new BuildJob("b0", "j0");
 		when(params.action()).thenReturn(Action.clear);
 		when(params.buildJob()).thenReturn(buildJob);

@@ -115,6 +115,7 @@ public class ResourceMap {
 				String name = entry.getName();
 				if (name == null || !name.startsWith(prefix)) continue;
 				name = name.substring(prefixLen);
+				if (name.isEmpty() || name.contains("/")) continue;
 				addMatchingEntry(map, name, fileExtensions);
 			}
 		}
