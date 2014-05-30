@@ -2,6 +2,7 @@ package ceri.ci;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import ceri.ci.admin.AdminServletBehavior;
 import ceri.ci.admin.CommandFactoryBehavior;
 import ceri.ci.admin.ParamsBehavior;
 import ceri.ci.admin.ResponseBehavior;
@@ -51,6 +52,7 @@ import ceri.common.test.TestUtil;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	// admin
+	AdminServletBehavior.class,
 	CommandFactoryBehavior.class,
 	ParamsBehavior.class,
 	ResponseBehavior.class,

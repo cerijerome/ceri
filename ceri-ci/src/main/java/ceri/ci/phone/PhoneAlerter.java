@@ -1,6 +1,8 @@
 package ceri.ci.phone;
 
+import java.text.DateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -22,7 +24,8 @@ public class PhoneAlerter implements Alerter {
 	private static final Logger logger = LogManager.getLogger();
 	private final PhoneClient client;
 	private final Map<String, String> numbers;
-	private BuildAnalyzer buildAnalyzer = new BuildAnalyzer();
+	private final BuildAnalyzer buildAnalyzer = new BuildAnalyzer();
+	private final DateFormat dateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
 
 	public static class Builder {
 		final Map<String, String> numbers = new HashMap<>();
@@ -51,6 +54,7 @@ public class PhoneAlerter implements Alerter {
 	PhoneAlerter(Builder builder) {
 		client = builder.client;
 		numbers = ImmutableUtil.copyAsMap(builder.numbers);
+		
 	}
 
 	/**
@@ -92,6 +96,7 @@ public class PhoneAlerter implements Alerter {
 	private String createMessage(String name, Map<String, Collection<String>> buildJobs) {
 		Collection<String> jobNames = jobNames(buildJobs);
 		StringBuilder b = new StringBuilder();
+		b.append("(").append(currentTimeStamp()).append(") ");
 		b.append("Hi ").append(name).append(", the build is broken. Please fix ");
 		b.append(jobNamesPhrase(jobNames));
 		b.append(". Thank you.");
@@ -148,4 +153,8 @@ public class PhoneAlerter implements Alerter {
 		jobs.add(job);
 	}
 
+	private String currentTimeStamp() {
+		return dateFormat.format(new Date());
+	}
+	
 }

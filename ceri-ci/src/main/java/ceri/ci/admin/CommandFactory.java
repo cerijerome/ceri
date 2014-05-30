@@ -40,8 +40,8 @@ public class CommandFactory {
 
 	private String serialize(BuildJob buildJob, AlertService service) {
 		if (buildJob.build == null) return serializer.fromBuilds(service.builds());
-		if (buildJob.job == null) return service.build(buildJob.build).toString();
-		return service.job(buildJob.build, buildJob.job).toString();
+		if (buildJob.job == null) return serializer.fromBuild(service.build(buildJob.build));
+		return serializer.fromJob(service.job(buildJob.build, buildJob.job));
 	}
 
 	private Command clear(BuildJob buildJob) {
