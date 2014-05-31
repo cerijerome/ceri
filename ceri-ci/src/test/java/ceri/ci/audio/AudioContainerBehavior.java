@@ -27,7 +27,7 @@ public class AudioContainerBehavior {
 	}
 
 	@Test
-	public void should() throws IOException {
+	public void shouldCreateAudioAlerterIfPropertyIsEnabled() throws IOException {
 		properties.put("audio.enabled", "true");
 		@SuppressWarnings({ "unused", "resource" })
 		AudioContainer container = new AudioContainer(baseProperties(), factory, null);

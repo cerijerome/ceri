@@ -10,12 +10,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class AnalyzedJobBehavior {
-	private static final Event b0 = BuildTestUtil.event(Event.Type.failure, 0);
-	private static final Event b1 = BuildTestUtil.event(Event.Type.failure, 1, "b10", "b11", "b12");
-	private static final Event f2 = BuildTestUtil.event(Event.Type.success, 2);
-	private static final Event f3 = BuildTestUtil.event(Event.Type.success, 3, "f30", "f31", "f32");
-	private static final Event b4 = BuildTestUtil.event(Event.Type.failure, 4, "b4");
-	private static final Event b5 = BuildTestUtil.event(Event.Type.failure, 5);
+	private static final Event b0 = new Event(Event.Type.failure, 0L);
+	private static final Event b1 = new Event(Event.Type.failure, 1L, "b10", "b11", "b12");
+	private static final Event f2 = new Event(Event.Type.success, 2L);
+	private static final Event f3 = new Event(Event.Type.success, 3L, "f30", "f31", "f32");
+	private static final Event b4 = new Event(Event.Type.failure, 4L, "b4");
+	private static final Event b5 = new Event(Event.Type.failure, 5L);
 	private static Build testBuild;
 
 	@BeforeClass

@@ -46,9 +46,9 @@ public class AudioAlerter implements Alerter, Closeable {
 	 * message for each of these cases. Grouped by build.
 	 */
 	@Override
-	public void update(Builds summarizedBuilds) {
+	public void update(Builds builds) {
 		logger.info("Audio update");
-		analyze(summarizedBuilds);
+		analyze(builds);
 	}
 
 	/**

@@ -38,8 +38,12 @@ import ceri.ci.phone.PhoneAlerterBehavior;
 import ceri.ci.phone.PhoneContainerBehavior;
 import ceri.ci.phone.PhonePropertiesBehavior;
 import ceri.ci.phone.TwilioClientBehavior;
+import ceri.ci.web.ActorBehavior;
+import ceri.ci.web.ActorComparatorsTest;
+import ceri.ci.web.AnalyzedActorsBehavior;
 import ceri.ci.web.WebAlerterBehavior;
 import ceri.ci.web.WebAlerterPropertiesBehavior;
+import ceri.ci.web.WebContainerBehavior;
 import ceri.ci.x10.X10AlerterBehavior;
 import ceri.ci.x10.X10ContainerBehavior;
 import ceri.ci.x10.X10PropertiesBehavior;
@@ -95,8 +99,12 @@ import ceri.common.test.TestUtil;
 	PhonePropertiesBehavior.class,
 	TwilioClientBehavior.class,
 	// web
+	ActorBehavior.class,
+	ActorComparatorsTest.class,
+	AnalyzedActorsBehavior.class,
 	WebAlerterBehavior.class,
 	WebAlerterPropertiesBehavior.class,
+	WebContainerBehavior.class,
 	// x10
 	X10AlerterBehavior.class,
 	X10ContainerBehavior.class,
