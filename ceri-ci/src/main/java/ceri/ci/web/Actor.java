@@ -17,6 +17,18 @@ public class Actor implements Comparable<Actor> {
 		hashCode = HashCoder.hash(name, build, job);
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public String getBuild() {
+		return build;
+	}
+
+	public String getJob() {
+		return job;
+	}
+
 	@Override
 	public int compareTo(Actor actor) {
 		return ActorComparators.DEFAULT.compare(this, actor);

@@ -34,6 +34,14 @@ public class AnalyzedActors {
 		hashCode = HashCoder.hash(this.heroes, this.villains);
 	}
 
+	public Collection<Actor> getHeroes() {
+		return heroes;
+	}
+	
+	public Collection<Actor> getVillains() {
+		return villains;
+	}
+	
 	@Override
 	public int hashCode() {
 		return hashCode;
