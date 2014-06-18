@@ -12,6 +12,10 @@ import ceri.ci.build.Job;
 import ceri.common.util.HashCoder;
 import ceri.common.util.ToStringHelper;
 
+/**
+ * Analyzes the builds for heroes and villains. Villains have broken the build, whereas heroes
+ * have fixed a broken build.
+ */
 public class AnalyzedActors {
 	public static AnalyzedActors EMPTY = new AnalyzedActors();
 	public final Collection<Actor> heroes;
