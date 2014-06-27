@@ -132,13 +132,6 @@ public class AlertServiceImplBehavior {
 	}
 
 	@Test
-	public void shouldFix() throws InterruptedException {
-		service.process(new BuildEvent("build0", "job0", e1));
-		sync.await();
-		verify(alerters).update((Builds) any());
-	}
-
-	@Test
 	public void shouldPurge() {
 		service.purge();
 		verifyZeroInteractions(alerters);

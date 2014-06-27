@@ -12,7 +12,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ci.build.Build;
 import ceri.ci.build.BuildEvent;
+import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
+import ceri.ci.build.Event;
 import ceri.ci.build.Job;
 import ceri.ci.common.LoggingExecutor;
 import ceri.common.concurrent.ConcurrentUtil;
@@ -151,10 +153,15 @@ public class AlertServiceImpl implements AlertService, Closeable {
 		logger.info("Processing {} build events", events.size());
 		lock.lock();
 		try {
+			boolean changed = false;
 			for (BuildEvent event : events) {
-				builds.build(event.build).job(event.job).events(event.event);
+				Job job = builds.build(event.build).job(event.job);
+				Event previous = BuildUtil.latestEvent(job);
+				job.events(event.event);
+				if (event.event.type == Event.Type.failure ||
+					(previous != null && previous.type == Event.Type.failure)) changed = true;
 			}
-			signal();
+			if (changed) signal();
 		} finally {
 			lock.unlock();
 		}
