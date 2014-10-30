@@ -122,7 +122,9 @@ public class ImageUtil {
 	 * Creates an image from a file. The factory determines the implementation.
 	 */
 	public static Image readFromFile(Image.Factory factory, File file) throws IOException {
-		return read(factory, new FileInputStream(file), 0);
+		try (FileInputStream in = new FileInputStream(file)) {
+			return read(factory, in, 0);
+		}
 	}
 
 	/**

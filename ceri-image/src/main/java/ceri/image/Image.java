@@ -15,7 +15,7 @@ public interface Image {
 	
 	static interface Factory {
 		Image create(byte[] data) throws IOException;
-	};
+	}
 	
 	/**
 	 * Image width.
