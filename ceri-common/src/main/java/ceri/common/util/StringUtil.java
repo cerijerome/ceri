@@ -3,6 +3,9 @@ package ceri.common.util;
 import java.awt.event.KeyEvent;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +24,28 @@ public class StringUtil {
 
 	private StringUtil() {}
 
+	/**
+	 * Uses URLEncoder with UTF8 encoding. Throws IllegalArgumentException for encoding issues.
+	 */
+	public static String urlEncode(String s) {
+		try {
+			return URLEncoder.encode(s, UTF8);
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+	
+	/**
+	 * Uses URLDecoder with UTF8 encoding. Throws IllegalArgumentException for encoding issues.
+	 */
+	public static String urlDecode(String s) {
+		try {
+			return URLDecoder.decode(s, UTF8);
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+	
 	/**
 	 * Splits a string by commas and trims each entry.
 	 * Trailing empty strings are dropped as with the regular split method.
