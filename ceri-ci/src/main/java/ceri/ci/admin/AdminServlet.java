@@ -2,7 +2,6 @@ package ceri.ci.admin;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -34,17 +33,13 @@ public class AdminServlet extends HttpServlet {
 	private static final String TEXT_CONTENT_TYPE = "text/plain";
 	private static final String SUCCESS = "success";
 	private static final String ERROR = "error";
-	private final Serializer serializer = new Serializer();
+	private final Serializer serializer = new Serializer(true);
 	private final CommandFactory commandFactory = new CommandFactory(serializer);
 	private AlertService service;
 
 	/**
-	 * Call this to initialize the alert service used by this servlet.
+	 * Servlet context attribute must be set to retrieve the service. 
 	 */
-	public static void set(ServletContext context, AlertService alert) {
-		context.setAttribute(ALERT_ATTRIBUTE, alert);
-	}
-
 	@Override
 	public void init() throws ServletException {
 		service = (AlertService) getServletContext().getAttribute(ALERT_ATTRIBUTE);

@@ -46,7 +46,7 @@ public class AdminServletBehavior {
 		servlet.init(config);
 		servlet.doGet(request, response);
 		verify(response).setContentType("application/json");
-		verify(writer).write("{\"builds\":[]}");
+		verify(writer).write("{\n  \"builds\": []\n}");
 	}
 
 	@Test
@@ -56,12 +56,6 @@ public class AdminServletBehavior {
 		servlet.doGet(request, response);
 		verify(response).setContentType("text/plain");
 		verify(response).sendError(anyInt(), any());
-	}
-
-	@Test
-	public void shouldSetContextForAlertService() {
-		AdminServlet.set(context, service);
-		verify(context).setAttribute("ceri.ci.alert.AlertService", service);
 	}
 
 	@Test
