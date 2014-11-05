@@ -11,7 +11,7 @@ import ceri.common.property.BaseProperties;
  * Creates the service to fetch emails and parse them into build events.
  */
 public class EmailContainer implements Closeable {
-	private static final String GROUP = "email";
+	public static final String GROUP = "email";
 	public final EmailService service;
 
 	public EmailContainer(BaseProperties properties, BuildEventProcessor processor,

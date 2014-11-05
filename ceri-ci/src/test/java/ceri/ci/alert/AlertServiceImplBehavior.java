@@ -28,7 +28,7 @@ public class AlertServiceImplBehavior {
 	public void init() {
 		alerters = mock(AlerterGroup.class);
 		sync = new BooleanCondition();
-		service = new AlertServiceImpl(createAlerters(), 0, 1000);
+		service = new AlertServiceImpl(createAlerters(), 0, 1000, 100000);
 	}
 
 	@After
@@ -45,7 +45,7 @@ public class AlertServiceImplBehavior {
 				sync.signal();
 			}
 		}) {
-			service = new AlertServiceImpl(remindAlerters, 1, 1000);
+			service = new AlertServiceImpl(remindAlerters, 1, 1000, 100000);
 			service.clear(null, null);
 			sync.await();
 			verify(alerters).remind();

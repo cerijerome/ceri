@@ -21,10 +21,11 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.io.IoUtil;
 import ceri.common.log.LogUtil;
+import ceri.common.util.BasicUtil;
 
 /**
- * Service that manages the state of builds, and call update, remind, and clear on the
- * alerter group. Is thread-safe.
+ * Service that manages the state of builds, and call update, remind, and clear on the alerter
+ * group. Is thread-safe.
  */
 public class AlertServiceImpl implements AlertService, Closeable {
 	private static final Logger logger = LogManager.getLogger();
@@ -36,12 +37,13 @@ public class AlertServiceImpl implements AlertService, Closeable {
 	private final LoggingExecutor executor;
 	private boolean buildsChanged = false;
 
-	public AlertServiceImpl(AlerterGroup alerterGroup, long reminderMs, long shutdownTimeoutMs) {
+	public AlertServiceImpl(AlerterGroup alerterGroup, long reminderMs, long shutdownTimeoutMs,
+		long purgeDelayMs) {
 		this.alerterGroup = alerterGroup;
 		this.reminderMs = reminderMs;
-		executor =
-			new LoggingExecutor(Executors.newSingleThreadExecutor(), shutdownTimeoutMs, null);
+		executor = new LoggingExecutor(Executors.newFixedThreadPool(2), shutdownTimeoutMs, null);
 		executor.execute(() -> run());
+		executor.execute(() -> purgeCycle(purgeDelayMs));
 	}
 
 	/**
@@ -101,8 +103,8 @@ public class AlertServiceImpl implements AlertService, Closeable {
 	}
 
 	/**
-	 * Clears events from jobs. If build is null, all events are cleared. If job is null, all
-	 * events for the build are cleared. Otherwise only events for job are cleared.
+	 * Clears events from jobs. If build is null, all events are cleared. If job is null, all events
+	 * for the build are cleared. Otherwise only events for job are cleared.
 	 */
 	@Override
 	public void clear(String build, String job) {
@@ -218,6 +220,22 @@ public class AlertServiceImpl implements AlertService, Closeable {
 				if (builds == null) alerterGroup.remind();
 				else if (builds.builds.isEmpty()) alerterGroup.clear();
 				else alerterGroup.update(builds);
+			} catch (RuntimeInterruptedException e) {
+				throw e;
+			} catch (RuntimeException e) {
+				logger.catching(e);
+			}
+		}
+	}
+
+	/**
+	 * Purge the events every so often.
+	 */
+	private void purgeCycle(long purgeDelayMs) {
+		while (true) {
+			try {
+				BasicUtil.delay(purgeDelayMs);
+				purge();
 			} catch (RuntimeInterruptedException e) {
 				throw e;
 			} catch (RuntimeException e) {

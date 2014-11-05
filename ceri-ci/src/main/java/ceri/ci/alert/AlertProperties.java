@@ -9,8 +9,10 @@ import ceri.common.property.BaseProperties;
 public class AlertProperties extends BaseProperties {
 	private static final long REMINDER_MS_DEF = TimeUnit.MINUTES.toMillis(15);
 	private static final long SHUTDOWN_TIMEOUT_MS_DEF = TimeUnit.SECONDS.toMillis(3);
+	private static final long PURGE_DELAY_MS_DEF = TimeUnit.HOURS.toMillis(1);
 	private static final String REMINDER_MS_KEY = "reminder.ms";
 	private static final String SHUTDOWN_TIMEOUT_MS_KEY = "shutdown.timeout.ms";
+	private static final String PURGE_DELAY_MS_KEY = "purge.delay.ms";
 
 	public AlertProperties(BaseProperties properties, String group) {
 		super(properties, group);
@@ -22,6 +24,10 @@ public class AlertProperties extends BaseProperties {
 
 	public long shutdownTimeoutMs() {
 		return longValue(SHUTDOWN_TIMEOUT_MS_DEF, SHUTDOWN_TIMEOUT_MS_KEY);
+	}
+
+	public long purgeDelayMs() {
+		return longValue(PURGE_DELAY_MS_DEF, PURGE_DELAY_MS_KEY);
 	}
 
 }
