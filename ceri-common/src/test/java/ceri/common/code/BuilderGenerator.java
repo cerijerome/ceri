@@ -9,13 +9,13 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import ceri.common.util.StringUtil;
 
 /**
- * Generates code text for a class with a builder. Run main then enter class
- * name followed by fields on subsequent lines. Fields can contain
- * public/protected/private/final/; as these will be removed. Finish with an
- * empty line and the class with builder will be generated. Copy the output into
- * a new Java file. e.g.
+ * Generates code text for a class with a builder. Run main then enter class name followed by fields
+ * on subsequent lines. Fields can contain public/protected/private/final/; as these will be
+ * removed. Finish with an empty line and the class with builder will be generated. Copy the output
+ * into a new Java file. e.g.
  * 
  * <pre>
  * MyClass
@@ -27,6 +27,8 @@ import java.util.regex.Pattern;
 public class BuilderGenerator {
 	private static final Pattern CLEAN_REGEX = Pattern
 		.compile("(public |protected |private |final |;)");
+	private static final Pattern PRIMITIVE_REGEX = Pattern
+		.compile("^(boolean|byte|short|int|long|float)$");
 	private final String className;
 	private final Map<String, String> fields;
 
@@ -79,9 +81,38 @@ public class BuilderGenerator {
 			out.println("\t\t" + name + " = builder." + name + ";");
 		out.println("\t}");
 		out.println();
+		generateHashCode(out);
+		out.println();
+		generateEquals(out);
+		out.println();
 		generateToString(out);
 		out.println();
 		out.println("}");
+	}
+
+	private void generateEquals(PrintStream out) {
+		out.println("\t@Override");
+		out.println("\tpublic boolean equals(Object obj) {");
+		out.println("\t\tif (this == obj) return true;");
+		out.println("\t\tif (!(obj instanceof " + className + ")) return false;");
+		out.println("\t\t" + className + " other = (" + className + ") obj;");
+		for (Map.Entry<String, String> entry : fields.entrySet()) {
+			String name = entry.getKey();
+			String type = entry.getValue();
+			if (PRIMITIVE_REGEX.matcher(type).find()) out.println("\t\tif (" + name + " != other." +
+				name + ") return false;");
+			else out.println("\t\tif (!EqualsUtil.equals(" + name + ", other." + name +
+				")) return false;");
+		}
+		out.println("\t\treturn true;");
+		out.println("\t}");
+	}
+
+	private void generateHashCode(PrintStream out) {
+		out.println("\t@Override");
+		out.println("\tpublic int hashCode() {");
+		out.println(StringUtil.toString("\t\treturn HashCoder.hash(", ");", ", ", fields.keySet()));
+		out.println("\t}");
 	}
 
 	private void generateToString(PrintStream out) {

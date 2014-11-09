@@ -9,6 +9,7 @@ import java.util.TimeZone;
  * UnsupportedOperationException is thrown for mutator methods.
  */
 public class ImmutableTimeZone extends TimeZone {
+	public static final TimeZone UTC = new ImmutableTimeZone(TimeZone.getTimeZone("UTC"));
 	private static final long serialVersionUID = -3596503137048104086L;
 	private final TimeZone timeZone;
 	

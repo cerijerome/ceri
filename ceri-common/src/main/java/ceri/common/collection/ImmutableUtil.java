@@ -1,6 +1,7 @@
 package ceri.common.collection;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Utility methods for creating immutable objects.
@@ -95,4 +97,26 @@ public class ImmutableUtil {
 		return Collections.unmodifiableSet(set);
 	}
 
+	@SafeVarargs
+	public static <F, T> List<T> convertAsList(Function<? super F, ? extends T> fn, F...fs) {
+		return convertAsList(fn, Arrays.asList(fs));
+	}
+	
+	public static <F, T> List<T> convertAsList(Function<? super F, ? extends T> fn, Iterable<F> fs) {
+		List<T> ts = new ArrayList<>();
+		for (F f : fs) ts.add(fn.apply(f));
+		return Collections.unmodifiableList(ts);
+	}
+	
+	@SafeVarargs
+	public static <F, T> Set<T> convertAsSet(Function<? super F, ? extends T> fn, F...fs) {
+		return convertAsSet(fn, Arrays.asList(fs));
+	}
+	
+	public static <F, T> Set<T> convertAsSet(Function<? super F, ? extends T> fn, Iterable<F> fs) {
+		Set<T> ts = new HashSet<>();
+		for (F f : fs) ts.add(fn.apply(f));
+		return Collections.unmodifiableSet(ts);
+	}
+	
 }

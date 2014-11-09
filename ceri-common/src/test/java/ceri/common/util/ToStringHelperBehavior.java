@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.TimeZone;
 import org.junit.Test;
 
 public class ToStringHelperBehavior {
@@ -18,6 +19,14 @@ public class ToStringHelperBehavior {
 	public void shouldShowValues() {
 		String toString = ToStringHelper.create("Test", "Value1", "Value2").toString();
 		assertThat(toString, is("Test(Value1,Value2)"));
+	}
+
+	@Test
+	public void shouldShowFormattedDateValues() {
+		Date date = new Date(0);
+		TimeZone utc = TimeZone.getTimeZone("UTC");
+		String toString = ToStringHelper.create("Test", date).dateFormat(utc).toString();
+		assertThat(toString, is("Test(1970-01-01 00:00:00 UTC)"));
 	}
 
 	@Test
