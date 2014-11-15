@@ -17,7 +17,7 @@ public class BuildUtilTest {
 	private static final Event e1 = new Event(Event.Type.success, 1L, "a1");
 	private static final Event e2 = new Event(Event.Type.success, 2L, "b1", "b2");
 	private static final Event e3 = new Event(Event.Type.failure, 3L, "c1", "c2", "c3");
-	private static final Event e4 = new Event(Event.Type.failure, 4L);
+	private static final Event e4 = new Event(Event.Type.failure, 4L, "d1");
 	private static final Event e5 = new Event(Event.Type.failure, 5L, "e1", "e2", "e3", "e4");
 	private static final Event e6 = new Event(Event.Type.success, 6L);
 	private static final Event e7 = new Event(Event.Type.success, 7L, "g1");
@@ -46,7 +46,7 @@ public class BuildUtilTest {
 		builds.build("b1").job("j0").events(e0, e3, e4);
 		builds = BuildUtil.summarize(builds);
 		Collection<String> names = BuildUtil.summarizedBreakNames(builds);
-		assertCollection(names, "c1", "c2", "c3");
+		assertCollection(names, "c1", "c2", "c3", "d1");
 	}
 
 	@Test
@@ -60,10 +60,10 @@ public class BuildUtilTest {
 		assertJobNames(builds.build("b0").jobs, "j0", "j1");
 		assertJobNames(builds.build("b1").jobs, "j0");
 		assertElements(builds.build("b0").job("j0").events, new Event(Event.Type.success, 6L),
-			new Event(Event.Type.failure, 3L, "c1", "c2", "c3", "e1", "e2", "e3", "e4"));
+			new Event(Event.Type.failure, 3L, "c1", "c2", "c3", "d1", "e1", "e2", "e3", "e4"));
 		assertTrue(builds.build("b0").job("j1").events.isEmpty());
 		assertElements(builds.build("b1").job("j0").events, new Event(Event.Type.failure, 0L, "c1",
-			"c2", "c3"));
+			"c2", "c3", "d1"));
 	}
 
 	@Test
@@ -101,7 +101,7 @@ public class BuildUtilTest {
 		Event event = BuildUtil.aggregate(Event.Type.failure, e0, e1, e2, e3, e4, e5, e6, e7);
 		assertThat(event.type, is(Event.Type.failure));
 		assertThat(event.timeStamp, is(0L));
-		assertCollection(event.names, "c1", "c2", "c3", "e1", "e2", "e3", "e4");
+		assertCollection(event.names, "c1", "c2", "c3", "d1", "e1", "e2", "e3", "e4");
 		event = BuildUtil.aggregate(Event.Type.success, e0, e1, e2, e3, e4, e5, e6, e7);
 		assertThat(event.type, is(Event.Type.success));
 		assertThat(event.timeStamp, is(1L));

@@ -53,8 +53,10 @@ public class BuildUtil {
 	 */
 	private static void breakNames(Job summarizedJob, Collection<String> names) {
 		if (summarizedJob.events.isEmpty()) return;
-		Event event = latestEvent(summarizedJob);
-		if (event.type == Event.Type.failure) names.addAll(event.names);
+		for (Event event : summarizedJob) {
+			if (event.type != Event.Type.failure) break;
+			names.addAll(event.names);
+		}
 	}
 
 	/**

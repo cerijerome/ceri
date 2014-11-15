@@ -49,6 +49,7 @@ public class ZWaveContainer {
 			Integer device = properties.device(name);
 			builder.device(name, device);
 		}
+		builder.randomize(properties.randomizeDelayMs(), properties.randomizePeriodMs());
 		return builder.build();
 	}
 

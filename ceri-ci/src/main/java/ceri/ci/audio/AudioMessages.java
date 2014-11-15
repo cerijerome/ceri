@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ci.common.Resource;
@@ -20,6 +21,7 @@ public class AudioMessages {
 	private static final String JOB_DIR = "job";
 	private static final String NAME_DIR = "name";
 	private static final String PHRASE_DIR = "phrase";
+	private final Random random = new Random();
 	private final List<String> clipKeys;
 	private final ResourceMap clips;
 	private final ResourceMap builds;
@@ -64,7 +66,7 @@ public class AudioMessages {
 	 */
 	public void playRandomAlarm() throws IOException {
 		checkRuntimeInterrupted();
-		int index = (int) (Math.random() * clipKeys.size());
+		int index = (int) (random.nextDouble() * clipKeys.size());
 		String key = clipKeys.get(index);
 		Resource resource = clips.resource(key);
 		logger.debug("Alarm: {}", resource.name);

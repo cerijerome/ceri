@@ -1,10 +1,13 @@
 package ceri.ci.zwave;
 
 import static ceri.common.test.TestUtil.assertException;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -18,7 +21,18 @@ public class ZWaveAlerterBehavior {
 	public void before() {
 		MockitoAnnotations.initMocks(this);
 		alerter =
-			ZWaveAlerter.builder(controller).device("1", 1).device("2", 2).device("3", 3).build();
+			ZWaveAlerter.builder(controller).device("1", 1).device("2", 2).device("3", 3)
+				.randomize(0, 0).build();
+	}
+
+	@Test
+	public void shouldTurnOffDevicesAfterRandomize() {
+		Set<Integer> activeDevices = new HashSet<>();
+		controller = captureController(activeDevices);
+		alerter =
+			ZWaveAlerter.builder(controller).device("1", 1).device("2", 2).randomize(0, 10).build();
+		alerter.alert("3");
+		assertTrue(activeDevices.isEmpty());
 	}
 
 	@Test
@@ -69,6 +83,20 @@ public class ZWaveAlerterBehavior {
 		verify(controller).on(1);
 		verify(controller).off(3);
 		verifyNoMoreInteractions(controller);
+	}
+
+	private ZWaveController captureController(final Set<Integer> activeDevices) {
+		return new ZWaveController() {
+			@Override
+			public void on(int device) throws IOException {
+				activeDevices.add(device);
+			}
+
+			@Override
+			public void off(int device) throws IOException {
+				activeDevices.remove(device);
+			}
+		};
 	}
 
 }

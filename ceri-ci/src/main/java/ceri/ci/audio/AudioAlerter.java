@@ -74,8 +74,9 @@ public class AudioAlerter implements Alerter, Closeable {
 		Collection<AnalyzedJob> analyzedJobs = buildAnalyzer.update(builds);
 		if (analyzedJobs.isEmpty()) return;
 		try {
-			audioStart();
+			audioStarted();
 			messages.playRandomAlarm();
+			voiceStarted();
 			for (AnalyzedJob analyzedJob : analyzedJobs) {
 				playJustBroken(analyzedJob.build, analyzedJob.justBroken);
 				playStillBroken(analyzedJob.build, analyzedJob.stillBroken);
@@ -84,15 +85,19 @@ public class AudioAlerter implements Alerter, Closeable {
 		} catch (IOException e) {
 			logger.catching(e);
 		} finally {
-			audioEnd();
+			audioEnded();
 		}
 	}
 
-	private void audioStart() {
+	private void audioStarted() {
 		if (listener != null) listener.audioStart();
 	}
 	
-	private void audioEnd() {
+	private void voiceStarted() {
+		if (listener != null) listener.voiceStart();
+	}
+	
+	private void audioEnded() {
 		if (listener != null) listener.audioEnd();
 	}
 	

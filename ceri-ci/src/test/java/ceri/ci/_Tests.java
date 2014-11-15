@@ -16,6 +16,7 @@ import ceri.ci.alert.NodeBehavior;
 import ceri.ci.audio.AudioAlerterBehavior;
 import ceri.ci.audio.AudioBehavior;
 import ceri.ci.audio.AudioContainerBehavior;
+import ceri.ci.audio.AudioListenerBehavior;
 import ceri.ci.audio.AudioMessageBehavior;
 import ceri.ci.audio.AudioPropertiesBehavior;
 import ceri.ci.build.AnalyzedJobBehavior;
@@ -72,6 +73,7 @@ import ceri.common.test.TestUtil;
 	AudioAlerterBehavior.class,
 	AudioBehavior.class,
 	AudioContainerBehavior.class,
+	AudioListenerBehavior.class,
 	AudioMessageBehavior.class,
 	AudioPropertiesBehavior.class,
 	// build
