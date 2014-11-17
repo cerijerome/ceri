@@ -7,7 +7,7 @@ import ceri.common.util.PrimitiveUtil;
  * System integer property <em>node</em> determines the node id.
  */
 public class Node {
-	private static final String NODE = "node";
+	public static final String NODE = "node";
 	public final int index;
 	public final String name;
 	
