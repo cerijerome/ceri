@@ -43,6 +43,7 @@ public class TestUtil {
 			assertTrue("Constructor is not private", Modifier.isPrivate(constructor.getModifiers()));
 			constructor.setAccessible(true);
 			constructor.newInstance();
+			constructor.setAccessible(false);
 		} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException
 			| InstantiationException e) {
 			throw new RuntimeException(e);
