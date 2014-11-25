@@ -14,10 +14,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import org.junit.Test;
+import org.mockito.Mock;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.reflect.ReflectUtil;
 
 public class BasicUtilTest {
+	@Mock Class<?> badClass;
 
 	@Test
 	public void testConstructorIsPrivate() {
@@ -111,8 +114,11 @@ public class BasicUtilTest {
 		String stackTrace = BasicUtil.stackTrace(new Exception());
 		String[] lines = stackTrace.split("[\\r\\n]+");
 		assertThat(lines[0], is("java.lang.Exception"));
-		assertTrue(lines[1].trim().startsWith(
-			"at ceri.common.util.BasicUtilTest.testStackTrace(BasicUtilTest.java:"));
+		String fullClassName = getClass().getName();
+		String className = getClass().getSimpleName();
+		String methodName = ReflectUtil.currentMethodName();
+		String s = String.format("at %s.%s(%s.java:", fullClassName, methodName, className);
+		assertTrue(lines[1].trim().startsWith(s));
 	}
 
 	@Test

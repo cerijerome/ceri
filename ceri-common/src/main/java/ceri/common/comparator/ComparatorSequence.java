@@ -34,10 +34,6 @@ public class ComparatorSequence<T> implements Comparator<T> {
 			return this;
 		}
 
-		public boolean isEmpty() {
-			return comparators.isEmpty();
-		}
-		
 		public ComparatorSequence<T> build() {
 			return new ComparatorSequence<>(comparators);
 		}

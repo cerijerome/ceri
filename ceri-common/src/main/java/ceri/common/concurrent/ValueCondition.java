@@ -22,34 +22,23 @@ public class ValueCondition<T> {
 	}
 	
 	public void signal(T value) {
-		lock.lock();
-		try {
+		ConcurrentUtil.execute(lock, () -> {
 			this.value = value;
 			condition.signal();
-		} finally {
-			lock.unlock();
-		}
+		});
 	}
 	
 	public T await() throws InterruptedException {
-		lock.lock();
-		try {
+		return ConcurrentUtil.executeGet(lock, () -> {
 			while (value == null) condition.await();
 			T returnValue = value;
 			value = null;
 			return returnValue;
-		} finally {
-			lock.unlock();
-		}
+		});
 	}
 	
 	public T value() {
-		lock.lock();
-		try {
-			return value;
-		} finally {
-			lock.unlock();
-		}
+		return ConcurrentUtil.executeGet(lock, () -> value);
 	}
 	
 }

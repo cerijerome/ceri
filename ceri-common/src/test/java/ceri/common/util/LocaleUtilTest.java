@@ -20,6 +20,13 @@ public class LocaleUtilTest {
 		assumeThat("en_US_Test", is(locale.toString()));
 		Locale localeFromString = LocaleUtil.fromString("en_US_Test");
 		assertThat(locale, is(localeFromString));
+		assertThat(LocaleUtil.fromString(""), is(new Locale("")));
+		assertThat(LocaleUtil.fromString("a"), is(new Locale("a")));
+		assertThat(LocaleUtil.fromString("a_"), is(new Locale("a")));
+		assertThat(LocaleUtil.fromString("a_b"), is(new Locale("a", "b")));
+		assertThat(LocaleUtil.fromString("a_b_"), is(new Locale("a", "b")));
+		assertThat(LocaleUtil.fromString("a_b_c"), is(new Locale("a", "b", "c")));
+		assertThat(LocaleUtil.fromString("a_b_c_"), is(new Locale("a", "b", "c_")));
 	}
 
 	@Test

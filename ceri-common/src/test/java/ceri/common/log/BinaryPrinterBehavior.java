@@ -13,8 +13,23 @@ public class BinaryPrinterBehavior {
 
 	@Test
 	public void shouldPrintToString() {
-		String s = new BinaryPrinter().toString();
-		assertThat(s, matchesRegex("BinaryPrinter\\(\\w+Stream,8,1,true,true,true\\)"));
+		assertThat(new BinaryPrinter().toString(),
+			matchesRegex("BinaryPrinter\\(\\w+Stream,8,1,true,true,true\\)"));
+		assertThat(BinaryPrinter.builder().out(null).build().toString(),
+			is("BinaryPrinter(null,8,1,true,true,true)"));
+	}
+
+	@Test
+	public void shouldAllowCustomBufferSize() throws IOException {
+		StringBuilder b = new StringBuilder();
+		BinaryPrinter bin =
+			BinaryPrinter.builder().out(StringUtil.asPrintStream(b)).bufferSize(1)
+				.bytesPerColumn(1).build();
+		byte[] bytes = { 0, 0 };
+		try (InputStream in = new ByteArrayInputStream(bytes)) {
+			bin.print(in, 1);
+			assertThat(b.toString(), is("00000000  00  .\n"));
+		}
 	}
 
 	@Test

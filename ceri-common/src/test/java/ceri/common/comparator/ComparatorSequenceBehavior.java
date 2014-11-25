@@ -2,6 +2,7 @@ package ceri.common.comparator;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
+import java.util.Collections;
 import java.util.Comparator;
 import org.junit.Test;
 
@@ -34,6 +35,13 @@ public class ComparatorSequenceBehavior {
 			return Comparators.INTEGER.compare(a1.j, a2.j);
 		}
 	};
+
+	@Test
+	public void should() {
+		ComparatorSequence<String> comparator = ComparatorSequence.<String>builder().build();
+		assertThat(comparator.comparators(), is(Collections.emptyList()));
+		assertThat(comparator.compare("1", ""), is(0));
+	}
 
 	@Test
 	public void shouldHaveSameBehaviorWithSingleComparator() {

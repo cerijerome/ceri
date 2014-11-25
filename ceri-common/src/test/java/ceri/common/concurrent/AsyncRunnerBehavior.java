@@ -1,65 +1,60 @@
 package ceri.common.concurrent;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.junit.Test;
 
 public class AsyncRunnerBehavior {
 
-	@Test(expected = IOException.class)
+	@Test
 	public void shouldOnlyThrowSpecifiedExceptions() throws Exception {
-		AsyncRunner<IOException> runner = new AsyncRunner<IOException>(IOException.class) {
-			@Override
-			protected void run() throws Exception {
-				throw new FileNotFoundException();
-			}
-		};
+		AsyncRunner<IOException> runner = runner(IOException.class, () -> {
+			throw new FileNotFoundException();
+		});
 		runner.start();
-		runner.join(0);
+		assertException(IOException.class, () -> runner.join(0));
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void shouldNotWrapRuntimeExceptions() throws Exception {
-		AsyncRunner<IOException> runner = new AsyncRunner<IOException>(IOException.class) {
-			@Override
-			protected void run() throws Exception {
-				throw new IllegalStateException();
-			}
-		};
+		AsyncRunner<IOException> runner = runner(IOException.class, () -> {
+			throw new IllegalStateException();
+		});
 		runner.start();
-		runner.join(0);
+		assertException(IllegalStateException.class, () -> runner.join(0));
 	}
 
-	@Test(expected = RuntimeException.class)
-	public void shouldInterrupt() {
-		AsyncRunner<RuntimeException> runner =
-			new AsyncRunner<RuntimeException>(RuntimeException.class) {
-				@Override
-				protected void run() throws Exception {
-					Thread.sleep(1000);
-				}
-			};
+	@Test
+	public void shouldNotThrowExceptionIfJoinIsInterrupted() {
+		Thread thread = Thread.currentThread();
+		AsyncRunner<RuntimeException> runner = runner(() -> Thread.sleep(1000000));
+		AsyncRunner<RuntimeException> runner2 = runner(() -> thread.interrupt());
 		runner.start();
-		runner.interrupt();
+		runner2.start();
 		runner.join(0);
 	}
 
 	@Test
-	public void should() {
-		final BooleanCondition flag = new BooleanCondition();
-		AsyncRunner<RuntimeException> runner =
-			new AsyncRunner<RuntimeException>(RuntimeException.class) {
-				@Override
-				protected void run() {
-					flag.signal();
-				}
-			};
-		assertFalse(flag.value());
+	public void shouldThrowExceptionIfInterrupted() {
+		AsyncRunner<RuntimeException> runner = runner(() -> Thread.sleep(1000000));
 		runner.start();
-		runner.join(0);
-		assertTrue(flag.value());
+		runner.interrupt();
+		assertException(RuntimeException.class, () -> runner.join(0));
+	}
+
+	private AsyncRunner<RuntimeException> runner(ExceptionRunnable<?> runnable) {
+		return runner(RuntimeException.class, runnable);
+	}
+
+	private <E extends Exception> AsyncRunner<E>
+		runner(Class<E> cls, ExceptionRunnable<?> runnable) {
+		return new AsyncRunner<E>(cls) {
+			@Override
+			protected void run() throws Exception {
+				runnable.run();
+			}
+		};
 	}
 
 }

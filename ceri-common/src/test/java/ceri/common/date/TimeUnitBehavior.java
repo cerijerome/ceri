@@ -1,5 +1,6 @@
 package ceri.common.date;
 
+import static ceri.common.test.TestUtil.exerciseEnum;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.util.Calendar;
@@ -8,7 +9,12 @@ import org.junit.Test;
 import ceri.common.unit.NormalizedValue;
 
 public class TimeUnitBehavior {
-	
+
+	@Test
+	public void testCoverage() {
+		exerciseEnum(TimeUnit.class);
+	}
+
 	@Test
 	public void testSetCalendar() {
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -23,7 +29,7 @@ public class TimeUnitBehavior {
 		assertThat(cal.get(Calendar.SECOND), is(40));
 		assertThat(cal.get(Calendar.MILLISECOND), is(0));
 	}
-	
+
 	@Test
 	public void shouldConvertMsToCorrectUnits() {
 		NormalizedValue<TimeUnit> n = NormalizedValue.create(9999L, TimeUnit.class);
@@ -41,19 +47,16 @@ public class TimeUnitBehavior {
 
 	@Test
 	public void shouldConvertUnitsToMsCorrectly() {
-		NormalizedValue<TimeUnit> n = NormalizedValue.builder(TimeUnit.class)
-			.value(999, TimeUnit.millisec)
-			.value(9, TimeUnit.second)
-			.build();
+		NormalizedValue<TimeUnit> n =
+			NormalizedValue.builder(TimeUnit.class).value(999, TimeUnit.millisec).value(9,
+				TimeUnit.second).build();
 		assertThat(n.value, is(9999L));
 
-		n = NormalizedValue.builder(TimeUnit.class).value(999, TimeUnit.millisec)
-			.value(59, TimeUnit.second)
-			.value(59, TimeUnit.minute)
-			.value(23, TimeUnit.hour)
-			.value(1, TimeUnit.day)
-			.build();
+		n =
+			NormalizedValue.builder(TimeUnit.class).value(999, TimeUnit.millisec).value(59,
+				TimeUnit.second).value(59, TimeUnit.minute).value(23, TimeUnit.hour).value(1,
+				TimeUnit.day).build();
 		assertThat(n.value, is(TimeUnit.day.ms * 2 - 1));
 	}
-	
+
 }

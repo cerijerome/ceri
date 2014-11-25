@@ -27,6 +27,8 @@ public class LogUtil {
 			public String toString() {
 				try {
 					return toLazyString.toLazyString();
+				} catch (RuntimeException e) {
+					throw e;
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}

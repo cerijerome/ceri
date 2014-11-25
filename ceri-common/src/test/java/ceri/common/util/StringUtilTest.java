@@ -4,6 +4,7 @@ import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import java.awt.event.KeyEvent;
 import java.io.PrintStream;
 import java.util.Collections;
 import org.junit.Test;
@@ -14,6 +15,20 @@ public class StringUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(StringUtil.class);
+	}
+
+	@Test
+	public void testUrlEncode() {
+		assertThat(StringUtil.urlEncode(""), is(""));
+		assertThat(StringUtil.urlEncode("a b&c"), is("a+b%26c"));
+		assertThat(StringUtil.urlDecode(""), is(""));
+		assertThat(StringUtil.urlDecode("a+b%26c"), is("a b&c"));
+	}
+
+	@Test
+	public void testPrintable() {
+		assertThat(StringUtil.printable(KeyEvent.CHAR_UNDEFINED), is(false));
+		assertThat(StringUtil.printable('\uffff'), is(false));
 	}
 
 	@Test
@@ -42,38 +57,33 @@ public class StringUtilTest {
 
 	@Test
 	public void testPaddingNumbers() {
-		String padded = StringUtil.pad(Long.MAX_VALUE, 0);
-		assertThat(padded, is("9223372036854775807"));
-		padded = StringUtil.pad(Long.MAX_VALUE, 20);
-		assertThat(padded, is("09223372036854775807"));
-		padded = StringUtil.pad(Long.MIN_VALUE, 20);
-		assertThat(padded, is("-9223372036854775808"));
-		padded = StringUtil.pad(Long.MIN_VALUE, 25);
-		assertThat(padded, is("-000009223372036854775808"));
+		assertThat(StringUtil.pad(100, 5), is("00100"));
+		assertThat(StringUtil.pad(-100, 5), is("-0100"));
+		assertThat(StringUtil.pad(Long.MAX_VALUE, 0), is("9223372036854775807"));
+		assertThat(StringUtil.pad(Long.MAX_VALUE, 20), is("09223372036854775807"));
+		assertThat(StringUtil.pad(Long.MIN_VALUE, 20), is("-9223372036854775808"));
+		assertThat(StringUtil.pad(Long.MIN_VALUE, 25), is("-000009223372036854775808"));
 	}
 
 	@Test
 	public void testPaddingString() {
-		String padded = StringUtil.pad("", 0);
-		assertThat(padded, is(""));
-		padded = StringUtil.pad("\uffff", 2);
-		assertThat(padded, is(" \uffff"));
-		padded = StringUtil.pad("\u1fffhello\u2fff", 10, "\u3fff", Align.LEFT);
-		assertThat(padded, is("\u1fffhello\u2fff\u3fff\u3fff\u3fff"));
+		assertThat(StringUtil.pad("", 0), is(""));
+		assertThat(StringUtil.pad("\uffff", 2), is(" \uffff"));
+		assertThat(StringUtil.pad("\u1fffhello\u2fff", 10, "\u3fff", Align.LEFT),
+			is("\u1fffhello\u2fff\u3fff\u3fff\u3fff"));
+		assertThat(StringUtil.pad(null, 5, "aa", Align.LEFT), is("aaaa"));
+		assertThat(StringUtil.pad("aaa", 5, null, Align.LEFT), is("aaa"));
 	}
 
 	@Test
 	public void testSafeSubstring() {
-		String sub = StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", 0);
-		assertThat(sub, is("\u3fff\u3ffe\u3ffd"));
-		sub = StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", 2);
-		assertThat(sub, is("\u3ffd"));
-		sub = StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", 4);
-		assertThat(sub, is(""));
-		sub = StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", -3, -1);
-		assertThat(sub, is("\u3fff\u3ffe\u3ffd"));
-		sub = StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", -4, 5);
-		assertThat(sub, is("\u3fff\u3ffe\u3ffd"));
+		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", 0), is("\u3fff\u3ffe\u3ffd"));
+		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", 2), is("\u3ffd"));
+		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", 4), is(""));
+		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", -3, -1), is("\u3fff\u3ffe\u3ffd"));
+		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", -4, 5), is("\u3fff\u3ffe\u3ffd"));
+		assertThat(StringUtil.safeSubstring(null, 0, 0), is(""));
+		assertThat(StringUtil.safeSubstring("abc", 0, 3), is("abc"));
 	}
 
 	@Test
@@ -92,7 +102,11 @@ public class StringUtilTest {
 	@Test
 	public void testCount() {
 		assertThat(StringUtil.count("abcaaabbbccc", 'a'), is(4));
+		assertThat(StringUtil.count("abcaaabbbccc", 'a'), is(4));
 		assertThat(StringUtil.count("", 'a'), is(0));
+		assertThat(StringUtil.count("", ""), is(0));
+		assertThat(StringUtil.count("a", ""), is(0));
+		assertThat(StringUtil.count("bcd", 'a'), is(0));
 		assertThat(StringUtil.count("abcaaabbbccc", "ab"), is(2));
 		assertThat(StringUtil.count("", "ab"), is(0));
 	}

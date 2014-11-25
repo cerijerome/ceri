@@ -1,7 +1,10 @@
 package ceri.common.test;
 
 import static ceri.common.test.TestUtil.assertElements;
+import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertFile;
 import static ceri.common.test.TestUtil.assertRange;
+import static ceri.common.test.TestUtil.isList;
 import static ceri.common.test.TestUtil.isObject;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -9,6 +12,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.Test;
+import ceri.common.concurrent.ExceptionRunnable;
 import ceri.common.util.StringUtil;
 
 public class TestUtilTest {
@@ -23,6 +28,40 @@ public class TestUtilTest {
 	static class Uncreatable {
 		private Uncreatable() {
 			throw new RuntimeException();
+		}
+	}
+
+	static enum BadEnum {
+		bad;
+
+		BadEnum() {
+			throw new RuntimeException();
+		}
+	}
+
+	@Test
+	public void testExerciseEnums() {
+		TestUtil.exerciseEnum(StringUtil.Align.class);
+		assertException(() -> TestUtil.exerciseEnum(BadEnum.class));
+	}
+
+	@Test
+	public void testIsList() {
+		List<Integer> list = Arrays.asList(1, 2, 3);
+		assertThat(list, isList(1, 2, 3));
+	}
+
+	@Test
+	public void testAssertFile() throws IOException {
+		try (FileTestHelper helper =
+			FileTestHelper.builder().dir("a").dir("b").file("c", "").file("d", "D").build()) {
+			assertAssertion(() -> assertFile(helper.file("a"), helper.file("c")));
+			assertAssertion(() -> assertFile(helper.file("c"), helper.file("a")));
+			assertFile(helper.file("c"), helper.file("c"));
+			assertAssertion(() -> assertFile(helper.file("c"), helper.file("d")));
+			assertAssertion(() -> assertFile(helper.file("d"), helper.file("c")));
+			assertFile(helper.file("d"), helper.file("d"));
+			assertException(() -> assertFile(helper.file("e"), helper.file("e")));
 		}
 	}
 
@@ -47,34 +86,42 @@ public class TestUtilTest {
 
 	@Test
 	public void testExec() {
+		PrintStream sysOut = System.out;
 		StringBuilder b = new StringBuilder();
-		TestUtil.exec(StringUtil.asPrintStream(b), ExecTest.class);
+		System.setOut(StringUtil.asPrintStream(b));
+		TestUtil.exec(ExecTest.class);
 		assertTrue(b.toString().contains("Exec should do this"));
 		assertTrue(b.toString().contains("Exec test that"));
+		System.setOut(sysOut);
 	}
 
 	@Test
 	public void testAssertException() {
-		try {
-			TestUtil.assertException(() -> {});
-		} catch (AssertionError e) {}
-		try {
-			TestUtil.assertException(IllegalArgumentException.class, () -> {
-				throw new RuntimeException();
-			});
-		} catch (AssertionError e) {}
+		assertAssertion(() -> TestUtil.assertException(() -> {}));
+		assertAssertion(() -> TestUtil.assertException(IllegalArgumentException.class, () -> {
+			throw new RuntimeException();
+		}));
+		TestUtil.assertException(IllegalArgumentException.class, () -> {
+			throw new IllegalArgumentException();
+		});
+		assertAssertion(() -> TestUtil.assertException(IllegalArgumentException.class, () -> {
+			throw new RuntimeException();
+		}));
 	}
 
 	@Test
 	public void testAssertRange() {
-		try {
-			TestUtil.assertRange(Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE - 1);
-			fail();
-		} catch (AssertionError e) {}
-		try {
-			TestUtil.assertRange(Long.MIN_VALUE, Long.MIN_VALUE + 1, Long.MAX_VALUE - 1);
-			fail();
-		} catch (AssertionError e) {}
+		assertAssertion(() -> TestUtil.assertRange(Long.MAX_VALUE, Long.MIN_VALUE,
+			Long.MAX_VALUE - 1));
+		assertAssertion(() -> TestUtil.assertRange(Long.MIN_VALUE, Long.MIN_VALUE + 1,
+			Long.MAX_VALUE - 1));
+	}
+
+	@Test
+	public void testAssertArray() {
+		boolean[] b0 = { false, false };
+		boolean[] b1 = { false, false };
+		assertAssertion(() -> TestUtil.assertArray(b0, 0, b1, 0, 3));
 	}
 
 	@Test
@@ -82,24 +129,18 @@ public class TestUtilTest {
 		List<Integer> list = new ArrayList<>();
 		Collections.addAll(list, 5, 1, 4, 2, 3);
 		TestUtil.assertCollection(list, 1, 2, 3, 4, 5);
-		try {
-			TestUtil.assertCollection(list, 1, 2, 4, 5);
-			fail();
-		} catch (AssertionError e) {}
-		try {
-			TestUtil.assertCollection(list, 1, 2, 3, 4, 5, 6);
-			fail();
-		} catch (AssertionError e) {}
+		assertAssertion(() -> TestUtil.assertCollection(list, 1, 2, 4, 5));
+		assertAssertion(() -> TestUtil.assertCollection(list, 1, 2, 3, 4, 5, 6));
 	}
 
 	@Test
 	public void testToReadableString() {
 		byte[] bytes = { 0, 'a', '.', Byte.MAX_VALUE, Byte.MIN_VALUE, '~', '!', -1 };
 		assertThat(TestUtil.toReadableString(bytes), is("?a.??~!?"));
-		try {
-			TestUtil.toReadableString(bytes, 3, 2, "test", '?');
-			fail();
-		} catch (IllegalArgumentException e) {}
+		assertException(IllegalArgumentException.class, () -> TestUtil.toReadableString(bytes, 3,
+			2, "test", '?'));
+		assertThat(TestUtil.toReadableString(new byte[0], 0, 0, null, '.'), is(""));
+		assertThat(TestUtil.toReadableString(new byte[0], 0, 0, "", '.'), is(""));
 	}
 
 	@Test
@@ -155,6 +196,17 @@ public class TestUtilTest {
 	public void testAssertElementsForArrays() {
 		Integer[] array = { Integer.MAX_VALUE, Integer.MIN_VALUE, 0 };
 		assertElements(array, Integer.MAX_VALUE, Integer.MIN_VALUE, 0);
+	}
+
+	private void assertAssertion(ExceptionRunnable<Exception> runnable) {
+		try {
+			runnable.run();
+			fail();
+		} catch (Exception e) {
+			fail();
+		} catch (AssertionError e) {
+			// Success
+		}
 	}
 
 }

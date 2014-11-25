@@ -1,5 +1,7 @@
 package ceri.common.log;
 
+import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -14,6 +16,30 @@ public class LogUtilTest {
 		public String toString() {
 			return ToStringHelper.createByClass(this).children("A", "B", "C").toString();
 		}
+	}
+
+	@Test
+	public void testPrivateConstructor() {
+		assertPrivateConstructor(LogUtil.class);
+	}
+
+	@Test
+	public void testToHex() {
+		assertThat(LogUtil.toHex(127).toString(), is("7f"));
+		assertThat(LogUtil.toHex(-1).toString(), is("ffffffff"));
+	}
+
+	@Test
+	public void testToString() {
+		assertThat(LogUtil.toString(() -> "aaa").toString(), is("aaa"));
+		Object obj = LogUtil.toString(() -> {
+			throw new RuntimeException();
+		});
+		assertException(() -> obj.toString());
+		Object obj2 = LogUtil.toString(() -> {
+			throw new Exception();
+		});
+		assertException(() -> obj2.toString());
 	}
 
 	@Test

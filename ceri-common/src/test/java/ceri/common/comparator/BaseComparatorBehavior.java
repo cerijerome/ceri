@@ -26,6 +26,7 @@ public class BaseComparatorBehavior {
 	@Test
 	public void shouldReturnZeroForEqualObjects() {
 		assertThat(comparator.compare("", ""), is(0));
+		assertThat(comparator.compare("", new String("")), is(0));
 	}
 
 	@Test

@@ -1,5 +1,6 @@
 package ceri.common.tree;
 
+import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -11,6 +12,17 @@ public class TreeUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(TreeUtil.class);
+	}
+
+	@Test
+	public void testIterable() {
+		assertException(() -> TreeUtil.iterable(null));
+	}
+
+	@Test
+	public void testIsChild() {
+		assertException(() -> TreeUtil.isChild(null, null));
+		assertException(() -> TreeUtil.isChild(helper.root, null));
 	}
 
 	@Test(expected = NullPointerException.class)

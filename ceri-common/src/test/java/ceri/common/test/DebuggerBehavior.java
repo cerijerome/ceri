@@ -1,6 +1,7 @@
 package ceri.common.test;
 
 import static ceri.common.test.TestUtil.matchesRegex;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import java.io.PrintStream;
 import org.junit.Test;
@@ -9,6 +10,57 @@ import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.StringUtil;
 
 public class DebuggerBehavior {
+
+	@Test
+	public void shouldAllowLoggingOfNullObjects() {
+		StringBuilder b = new StringBuilder();
+		try (PrintStream out = StringUtil.asPrintStream(b)) {
+			Debugger dbg = new Debugger(out, Integer.MAX_VALUE, 0);
+			dbg.log((Object[]) null);
+			dbg.method((Object[]) null);
+		}
+		assertThat(b, matchesRegex("(?ms).*\\) \n.*"));
+		assertThat(b, matchesRegex("(?ms).*\\(\\)[^\n]+\n"));
+	}
+
+	@Test
+	public void shouldLogMultipleObjects() {
+		StringBuilder b = new StringBuilder();
+		try (PrintStream out = StringUtil.asPrintStream(b)) {
+			Debugger dbg = new Debugger(out, Integer.MAX_VALUE, 0);
+			dbg.log("test1", "test2");
+			dbg.method("test3", "test4");
+		}
+		assertThat(b, matchesRegex("(?ms).* test1, test2\n.*"));
+		assertThat(b, matchesRegex("(?ms).*\\(test3, test4\\).*"));
+	}
+
+	@Test
+	public void shouldStopLoggingAfterGivenLimit() {
+		StringBuilder b = new StringBuilder();
+		try (PrintStream out = StringUtil.asPrintStream(b)) {
+			Debugger dbg = new Debugger(out, Integer.MAX_VALUE, 1);
+			dbg.log("test1");
+			dbg.log("test2");
+			dbg.method("test2");
+		}
+		assertThat(b, matchesRegex("(?ms).* test1\n"));
+		assertThat(b, not(matchesRegex("(?ms).* test2\n")));
+	}
+
+	@Test
+	public void shouldWriteToSysErrByDefault() {
+		StringBuilder b = new StringBuilder();
+		PrintStream sysErr = System.err;
+		try (PrintStream out = StringUtil.asPrintStream(b)) {
+			System.setErr(out);
+			Debugger dbg = new Debugger();
+			dbg.log("test");
+		} finally {
+			System.setErr(sysErr);
+		}
+		assertThat(b, matchesRegex("(?ms).* test\n"));
+	}
 
 	@Test
 	public void shouldLogMethodFileAndMessage() {

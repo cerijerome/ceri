@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.Test;
@@ -31,6 +33,27 @@ public class CollectionUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(CollectionUtil.class);
+	}
+
+	@Test
+	public void testIterable() {
+		Properties props = new Properties();
+		props.put("A", 1);
+		props.put("B", 2);
+		props.put("C", 3);
+		Iterable<Object> iterable = CollectionUtil.iterable(props.propertyNames());
+		Set<String> set = new HashSet<>();
+		for (Object obj : iterable)
+			set.add((String) obj);
+		assertCollection(set, "A", "B", "C");
+		assertException(() -> iterable.iterator().remove());
+	}
+
+	@Test
+	public void testToArray() {
+		assertException(() -> CollectionUtil.toArray(Collections.emptyList(), Integer.TYPE));
+		Number[] numbers = CollectionUtil.toArray(Arrays.asList(1, 2, 3), Number.class);
+		assertCollection(numbers, 1, 2, 3);
 	}
 
 	@Test
@@ -81,14 +104,19 @@ public class CollectionUtilTest {
 		List<Integer> ii = new LinkedList<>();
 		Collections.addAll(ii, 1, 0, -1);
 		assertThat(CollectionUtil.last(ii), is(-1));
+		Iterator<Integer> i = Arrays.asList(1, 2, 3).iterator();
+		assertThat(CollectionUtil.last(() -> i), is(3));
 	}
 
 	@Test
 	public void testGet() {
-		assertThat(CollectionUtil.get(Arrays.asList("1", "2", "3"), 1), is("2"));
-		Set<String> set = new LinkedHashSet<>();
-		Collections.addAll(set, "1", "2", "3");
-		assertThat(CollectionUtil.get(set, 1), is("2"));
+		LinkedList<Integer> ll = new LinkedList<>(Arrays.asList(1, 2, 3));
+		assertThat(CollectionUtil.get(ll, 0), is(1));
+		assertThat(CollectionUtil.get(ll, 1), is(2));
+		assertThat(CollectionUtil.get(ll, 2), is(3));
+		assertException(() -> CollectionUtil.get(ll, 4));
+		Iterator<Integer> i = Arrays.asList(1, 2, 3).iterator();
+		assertException(() -> CollectionUtil.get(() -> i, 4));
 	}
 
 	@Test
@@ -140,6 +168,7 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testKey() {
+		assertThat(CollectionUtil.key(Collections.emptyMap(), "a"), is((Integer) null));
 		Map<Integer, String> map = new LinkedHashMap<>();
 		map.put(1, "1");
 		map.put(-1, null);

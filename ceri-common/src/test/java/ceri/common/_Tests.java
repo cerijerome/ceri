@@ -14,8 +14,11 @@ import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
 import ceri.common.concurrent.AsyncRunnerBehavior;
+import ceri.common.concurrent.BooleanConditionBehavior;
 import ceri.common.concurrent.ConcurrentUtilTest;
 import ceri.common.concurrent.RuntimeInterruptedExceptionBehavior;
+import ceri.common.concurrent.ValueConditionBehavior;
+import ceri.common.date.CalendarFieldBehavior;
 import ceri.common.date.ImmutableDateBehavior;
 import ceri.common.date.ImmutableTimeZoneBehavior;
 import ceri.common.date.MultiDateParserBehavior;
@@ -39,9 +42,11 @@ import ceri.common.io.FileIteratorBehavior;
 import ceri.common.io.FileTrackerBehavior;
 import ceri.common.io.FilenameIteratorBehavior;
 import ceri.common.io.InputStreamIteratorBehavior;
+import ceri.common.io.IoTimeoutExceptionBehavior;
 import ceri.common.io.IoUtilTest;
 import ceri.common.io.PollingInputStreamBehavior;
 import ceri.common.io.RegexFilenameFilterBehavior;
+import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
 import ceri.common.log.BinaryLogInputStreamBehavior;
 import ceri.common.log.BinaryLogOutputStreamBehavior;
@@ -56,6 +61,7 @@ import ceri.common.reflect.ReflectUtilTest;
 import ceri.common.test.DebuggerBehavior;
 import ceri.common.test.RegexMatcherBehavior;
 import ceri.common.test.TestPrinterBehavior;
+import ceri.common.test.TestRunAdapterBehavior;
 import ceri.common.test.TestRunPrinterBehavior;
 import ceri.common.test.TestStateBehavior;
 import ceri.common.test.TestThreadBehavior;
@@ -72,9 +78,11 @@ import ceri.common.unit.NormalizedValueBehavior;
 import ceri.common.util.BasicUtilTest;
 import ceri.common.util.EqualsUtilTest;
 import ceri.common.util.HashCoderBehavior;
+import ceri.common.util.KeyValueBehavior;
 import ceri.common.util.LocaleUtilTest;
 import ceri.common.util.MathUtilTest;
 import ceri.common.util.MultiPatternBehavior;
+import ceri.common.util.NameValueBehavior;
 import ceri.common.util.PrimitiveUtilTest;
 import ceri.common.util.StringUtilTest;
 import ceri.common.util.TextUtilTest;
@@ -99,9 +107,12 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	EnumComparatorsTest.class,
 	// concurrent
 	AsyncRunnerBehavior.class,
+	BooleanConditionBehavior.class,
 	ConcurrentUtilTest.class,
 	RuntimeInterruptedExceptionBehavior.class,
+	ValueConditionBehavior.class,
 	// date
+	CalendarFieldBehavior.class,
 	ImmutableDateBehavior.class,
 	ImmutableTimeZoneBehavior.class,
 	MultiDateParserBehavior.class,
@@ -130,9 +141,11 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	FilenameIteratorBehavior.class,
 	FileTrackerBehavior.class,
 	InputStreamIteratorBehavior.class,
+	IoTimeoutExceptionBehavior.class,
 	IoUtilTest.class,
 	PollingInputStreamBehavior.class,
 	RegexFilenameFilterBehavior.class,
+	RuntimeIoExceptionBehavior.class,
 	StringPrintStreamBehavior.class,
 	// log
 	BinaryLogInputStreamBehavior.class,
@@ -151,6 +164,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	DebuggerBehavior.class,
 	RegexMatcherBehavior.class,
 	TestPrinterBehavior.class,
+	TestRunAdapterBehavior.class,
 	TestRunPrinterBehavior.class,
 	TestStateBehavior.class,
 	TestThreadBehavior.class,
@@ -169,9 +183,11 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	BasicUtilTest.class,
 	EqualsUtilTest.class,
 	HashCoderBehavior.class,
+	KeyValueBehavior.class,
 	LocaleUtilTest.class,
 	MathUtilTest.class,
 	MultiPatternBehavior.class,
+	NameValueBehavior.class,
 	PrimitiveUtilTest.class,
 	StringUtilTest.class,
 	TextUtilTest.class,

@@ -27,13 +27,10 @@ public class BlockingBufferStreamBehavior {
 	@Test
 	public void shouldWriteAndReadSynchronously() throws Throwable {
 		try (final BlockingBufferStream stream = new BlockingBufferStream()) {
-			TestThread thread = new TestThread() {
-				@Override
-				protected void run() throws Exception {
-					assertThat(stream.read(), is(0xff));
-					assertThat(stream.read(), is(0));
-				}
-			};
+			TestThread<?> thread = TestThread.create(() -> {
+				assertThat(stream.read(), is(0xff));
+				assertThat(stream.read(), is(0));
+			});
 			thread.start();
 			stream.write(0xff);
 			stream.write(0);
@@ -44,14 +41,11 @@ public class BlockingBufferStreamBehavior {
 	@Test
 	public void shouldWritePartialDataIfNotAtMaximum() throws Throwable {
 		try (final BlockingBufferStream stream = new BlockingBufferStream(10, 10)) {
-			TestThread readThread = new TestThread() {
-				@Override
-				protected void run() throws Exception {
-					byte[] b = new byte[20];
-					assertThat(stream.asInputStream().read(b), is(10));
-					assertThat(stream.asInputStream().read(b), is(10));
-				}
-			};
+			TestThread<?> readThread = TestThread.create(() -> {
+				byte[] b = new byte[20];
+				assertThat(stream.asInputStream().read(b), is(10));
+				assertThat(stream.asInputStream().read(b), is(10));
+			});
 			readThread.start();
 			stream.write(buffer, 0, 25);
 			assertThat(stream.asInputStream().available(), is(5));
@@ -63,20 +57,17 @@ public class BlockingBufferStreamBehavior {
 	public void shouldBlockOnReadIfNoDataInBuffer() throws Throwable {
 		final TestState<Integer> state = new TestState<>(0);
 		try (final BlockingBufferStream stream = new BlockingBufferStream(10, 100)) {
-			TestThread readThread = new TestThread() {
-				@Override
-				protected void run() throws Exception {
-					state.set(1);
-					byte[] b = new byte[10];
-					int count = stream.asInputStream().read(b);
-					assertTrue(count > 0);
-					state.set(2);
-					count += stream.asInputStream().read(b, count, b.length - count);
-					assertThat(count, is(10));
-					assertArray(b, 0, buffer, 0, 10);
-					state.set(3);
-				}
-			};
+			TestThread<?> readThread = TestThread.create(() -> {
+				state.set(1);
+				byte[] b = new byte[10];
+				int count = stream.asInputStream().read(b);
+				assertTrue(count > 0);
+				state.set(2);
+				count += stream.asInputStream().read(b, count, b.length - count);
+				assertThat(count, is(10));
+				assertArray(b, 0, buffer, 0, 10);
+				state.set(3);
+			});
 			readThread.start();
 			assertThat(state.waitFor(1), is(1));
 			assertThat(state.waitFor(2, 100), is(1));
@@ -92,16 +83,13 @@ public class BlockingBufferStreamBehavior {
 	public void shouldBlockOnWriteIfBufferIsNotBigEnough() throws Throwable {
 		final TestState<Integer> state = new TestState<>(0);
 		try (final BlockingBufferStream stream = new BlockingBufferStream(10, 100)) {
-			TestThread writeThread = new TestThread() {
-				@Override
-				protected void run() {
-					stream.write(buffer, 0, 50);
-					stream.write(buffer, 50, 50);
-					state.set(1);
-					stream.write(buffer, 100, 50);
-					state.set(2);
-				}
-			};
+			TestThread<?> writeThread = TestThread.create(() -> {
+				stream.write(buffer, 0, 50);
+				stream.write(buffer, 50, 50);
+				state.set(1);
+				stream.write(buffer, 100, 50);
+				state.set(2);
+			});
 			writeThread.start();
 			assertThat(state.waitFor(1), is(1));
 			assertThat(state.waitFor(2, 100), is(1));

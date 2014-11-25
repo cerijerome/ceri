@@ -19,7 +19,7 @@ public class BooleanCondition {
 		condition.await();
 	}
 
-	public boolean value() {
+	public boolean isSet() {
 		return condition.value() != null;
 	}
 

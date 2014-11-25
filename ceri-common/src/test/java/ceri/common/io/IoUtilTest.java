@@ -230,10 +230,8 @@ public class IoUtilTest {
 		final byte[] inBuffer = new byte[200];
 		final byte[] outBuffer = new byte[256];
 		final ByteArrayInputStream in = new ByteArrayInputStream(inBuffer);
-		assertException(IllegalArgumentException.class, () -> IoUtil.fillBuffer(in, outBuffer, 255,
-			2));
-		assertException(IllegalArgumentException.class, () -> IoUtil.fillBuffer(in, outBuffer, -1,
-			2));
+		assertException(() -> IoUtil.fillBuffer(in, outBuffer, 255, 2));
+		assertException(() -> IoUtil.fillBuffer(in, outBuffer, -1, 2));
 	}
 
 	@Test

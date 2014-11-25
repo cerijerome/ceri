@@ -12,7 +12,7 @@ public class LocaleUtil {
 	public static Locale fromString(String localeStr) {
 		if (BasicUtil.isEmpty(localeStr)) return new Locale("");
 		String[] split = localeStr.split("_", 3);
-		String lang = split.length > 0 ? split[0] : "";
+		String lang = split[0];
 		String country = split.length > 1 ? split[1] : "";
 		String variant = split.length > 2 ? split[2] : "";
 		return new Locale(lang, country, variant);

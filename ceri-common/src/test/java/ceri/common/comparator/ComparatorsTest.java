@@ -1,31 +1,45 @@
 package ceri.common.comparator;
 
+import static ceri.common.test.TestUtil.assertElements;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import org.junit.Test;
+import ceri.common.collection.ArrayUtil;
 
 public class ComparatorsTest {
-	
+
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(Comparators.class);
 	}
 
 	@Test
+	public void testSequence() {
+		Comparator<String> comparator =
+			Comparators.sequence(Comparators.nonNullComparator(), Comparators.STRING);
+		List<String> list = ArrayUtil.asList(null, "2", "1", null);
+		Collections.sort(list, comparator);
+		assertElements(list, null, null, "1", "2");
+	}
+
+	@Test
 	public void testGroupComparator() {
 		Comparator<Integer> comparator = Comparators.group(Comparators.INTEGER, 3, 4, 5);
-		assertThat(comparator.compare(1,  2), is(-1));
-		assertThat(comparator.compare(1,  6), is(-1));
-		assertThat(comparator.compare(6,  1), is(1));
-		assertThat(comparator.compare(7,  6), is(1));
-		assertThat(comparator.compare(1,  3), is(1));
-		assertThat(comparator.compare(7,  3), is(1));
-		assertThat(comparator.compare(3,  5), is(-1));
-		assertThat(comparator.compare(5,  4), is(1));
+		assertThat(comparator.compare(1, 2), is(-1));
+		assertThat(comparator.compare(1, 6), is(-1));
+		assertThat(comparator.compare(6, 1), is(1));
+		assertThat(comparator.compare(7, 6), is(1));
+		assertThat(comparator.compare(1, 3), is(1));
+		assertThat(comparator.compare(7, 3), is(1));
+		assertThat(comparator.compare(3, 2), is(-1));
+		assertThat(comparator.compare(3, 5), is(-1));
+		assertThat(comparator.compare(5, 4), is(1));
 	}
-	
+
 	@Test
 	public void testPrimitiveComparator() {
 		assertThat(Comparators.BOOLEAN.compare(null, null), is(0));
@@ -47,7 +61,7 @@ public class ComparatorsTest {
 		assertThat(comparator.compare("A", "A"), is(0));
 		assertThat(comparator.compare("B", "A") > 0, is(true));
 	}
-	
+
 	@Test
 	public void testByString() {
 		Comparator<String> comparator = Comparators.string();

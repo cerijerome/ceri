@@ -3,7 +3,6 @@ package ceri.common.test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +23,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsSame;
 import org.junit.runner.JUnitCore;
+import ceri.common.concurrent.ExceptionRunnable;
 import ceri.common.io.IoUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.StringUtil;
@@ -66,6 +66,18 @@ public class TestUtil {
 		core.addListener(tp);
 		core.run(classes);
 		tp.print(out);
+	}
+
+	/**
+	 * Call this for code coverage of enum hidden bytecode.
+	 */
+	public static void exerciseEnum(Class<? extends Enum<?>> enumClass) {
+		try {
+			for (Object o : (Object[]) enumClass.getMethod("values").invoke(null))
+				enumClass.getMethod("valueOf", String.class).invoke(null, o.toString());
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
@@ -202,7 +214,7 @@ public class TestUtil {
 	/**
 	 * Use this for more flexibility than adding @Test(expected=...)
 	 */
-	public static void assertException(TestRunnable runnable) {
+	public static void assertException(ExceptionRunnable<Exception> runnable) {
 		assertException(Exception.class, runnable);
 	}
 
@@ -210,14 +222,16 @@ public class TestUtil {
 	 * Use this for more flexibility than adding @Test(expected=...)
 	 */
 	public static void assertException(Class<? extends Exception> exceptionCls,
-		TestRunnable runnable) {
+		ExceptionRunnable<?> runnable) {
 		try {
 			runnable.run();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (exceptionCls.isAssignableFrom(e.getClass())) return;
-			fail("Should throw " + exceptionCls.getSimpleName() + " but threw " + e);
+			throw new AssertionError("Should throw " + exceptionCls.getSimpleName() +
+				" but threw " + e);
 		}
-		fail("Should throw " + exceptionCls.getSimpleName() + " but nothing thrown");
+		throw new AssertionError("Should throw " + exceptionCls.getSimpleName() +
+			" but nothing thrown");
 	}
 
 	/**
@@ -360,7 +374,7 @@ public class TestUtil {
 		StringBuilder b = new StringBuilder();
 		try {
 			if (charset == null || charset.isEmpty()) b.append(new String(array, offset, len));
-			b.append(new String(array, offset, len, charset));
+			else b.append(new String(array, offset, len, charset));
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalArgumentException(e);
 		}

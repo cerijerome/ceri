@@ -1,13 +1,28 @@
 package ceri.common.collection;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 public class DelegatingMapBehavior {
+
+	@Test
+	public void shouldObeyEqualsContract() {
+		Map<String, String> map = new HashMap<>();
+		map.put("A", "1");
+		map.put("B", "2");
+		map.put("C", "3");
+		DelegatingMap<String, String> delegate = new DelegatingMap<>(map);
+		DelegatingMap<String, String> delegate1 = new DelegatingMap<>(map);
+		assertThat(delegate, is(delegate1));
+		assertThat(delegate.hashCode(), is(delegate1.hashCode()));
+	}
 
 	@Test
 	public void shouldDelegateMethods() {

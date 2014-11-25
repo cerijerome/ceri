@@ -78,23 +78,24 @@ public class ToStringHelper {
 	 * Sets the date format for value and field string representations.
 	 */
 	public ToStringHelper dateFormat(String format) {
-		return dateFormat(format, null);
+		dateFormatStr = format;
+		return this;
 	}
 
 	/**
 	 * Sets the time zone for value and field string representations.
 	 */
 	public ToStringHelper dateFormat(TimeZone timeZone) {
-		return dateFormat(null, timeZone);
+		this.timeZone = timeZone;
+		return this;
 	}
 
 	/**
 	 * Sets the date format and time zone for value and field string representations.
 	 */
 	public ToStringHelper dateFormat(String format, TimeZone timeZone) {
-		dateFormatStr = format;
-		this.timeZone = timeZone;
-		return this;
+		dateFormat(format);
+		return dateFormat(timeZone);
 	}
 
 	/**

@@ -3,6 +3,7 @@ package ceri.common.tree;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Set;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.HashCoder;
 
@@ -20,7 +21,7 @@ public abstract class TreeNode<T extends TreeNode<T>> implements Parent<T> {
 	private final T parent;
 	public final int level;
 	public final int id;
-	private final Collection<T> children;
+	private final Set<T> children;
 	private final int hashCode;
 
 	protected TreeNode(T parent, Builder<T> builder) {
@@ -28,10 +29,10 @@ public abstract class TreeNode<T extends TreeNode<T>> implements Parent<T> {
 		this.parent = parent;
 		this.id = builder.id;
 		level = parent == null ? 0 : parent.level + 1;
-		Collection<T> children = new LinkedHashSet<>();
+		Set<T> children = new LinkedHashSet<>();
 		for (Builder<T> child : builder.children)
 			children.add(child.build(typedThis()));
-		this.children = Collections.unmodifiableCollection(children);
+		this.children = Collections.unmodifiableSet(children);
 		hashCode = HashCoder.create().add(id).add(cls).add(this.children).hashCode();
 	}
 

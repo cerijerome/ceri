@@ -170,14 +170,13 @@ public class StringUtil {
 	 * Pads a string with leading or trailing characters.
 	 */
 	public static String pad(String str, int minLength, String pad, Align align) {
-		if (str == null) throw new NullPointerException("String cannot be null");
-		if (pad == null) throw new NullPointerException("String cannot be null");
-		if (pad.isEmpty()) throw new IllegalArgumentException("Padding cannot be empty");
+		if (str == null) str = "";
+		if (pad == null) pad = "";
 		int len = str.length();
 		if (len >= minLength) return str;
 
 		int padLen = pad.length();
-		int padCount = (minLength - len) / padLen;
+		int padCount = padLen > 0 ? (minLength - len) / padLen : 0;
 		if (padCount == 0) return str;
 
 		StringBuilder b = new StringBuilder(minLength);

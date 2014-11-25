@@ -39,6 +39,9 @@ public class CollectionFiltersTest {
 		Filter<List<String>> filter = CollectionFilters.atIndex(1, Filters.max("B"));
 		assertTrue(filter.filter(Arrays.asList("C", "A", "C")));
 		assertFalse(filter.filter(Arrays.asList("A", "C", "A")));
+		filter = CollectionFilters.atIndex(2, Filters.max("B"));
+		assertFalse(filter.filter(Arrays.asList("C", "A")));
+		assertFalse(filter.filter(Arrays.asList("A", "C")));
 	}
 
 	@Test

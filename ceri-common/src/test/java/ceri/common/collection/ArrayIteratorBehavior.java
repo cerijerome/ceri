@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import static ceri.common.test.TestUtil.assertException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -8,6 +9,16 @@ import java.util.NoSuchElementException;
 import org.junit.Test;
 
 public class ArrayIteratorBehavior {
+
+	@Test
+	public void shouldThrowExceptionForNullArray() {
+		assertException(() -> ArrayIterator.createFrom((Object[]) null));
+	}
+
+	@Test
+	public void shouldAllowEmptyArray() {
+		assertThat(ArrayIterator.createFrom().hasNext(), is(false));
+	}
 
 	@Test
 	public void shouldIteratePrimitives() {

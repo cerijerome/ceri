@@ -16,11 +16,11 @@ import ceri.common.util.ToStringHelper;
  * for 4 bytes per column, and 1 column. Unprintable ascii chars will show as "."
  */
 public class BinaryPrinter {
-	private static final int BUFFER_SIZE = 32 * 1024;
 	private static final int BITS_IN_BYTE = 8;
 	private static final int ASCII_MIN = '!';
 	private static final int ASCII_MAX = '~';
 	private final PrintStream out;
+	private final int bufferSize;
 	private final int bytesPerColumn;
 	private final int columns;
 	private final boolean showBinary;
@@ -29,6 +29,7 @@ public class BinaryPrinter {
 
 	public static class Builder {
 		PrintStream out = System.out;
+		int bufferSize = 32 * 1024;
 		int bytesPerColumn = 8;
 		int columns = 1;
 		boolean showBinary = true;
@@ -39,6 +40,11 @@ public class BinaryPrinter {
 
 		public Builder out(PrintStream out) {
 			this.out = out;
+			return this;
+		}
+
+		public Builder bufferSize(int bufferSize) {
+			this.bufferSize = bufferSize;
 			return this;
 		}
 
@@ -78,6 +84,7 @@ public class BinaryPrinter {
 
 	BinaryPrinter(Builder builder) {
 		out = builder.out;
+		bufferSize = builder.bufferSize;
 		bytesPerColumn = builder.bytesPerColumn;
 		columns = builder.columns;
 		showBinary = builder.showBinary;
@@ -110,7 +117,7 @@ public class BinaryPrinter {
 	 * Print data from the given input stream up to given number of bytes.
 	 */
 	public void print(InputStream in, long len) throws IOException {
-		byte[] buffer = new byte[BUFFER_SIZE];
+		byte[] buffer = new byte[bufferSize];
 		long n = 0;
 		while (true) {
 			int readLen = buffer.length;

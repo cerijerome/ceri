@@ -1,5 +1,6 @@
 package ceri.common.reflect;
 
+import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -33,9 +34,9 @@ public class ReflectUtilTest {
 		ReflectUtil.createObject(Abstract.class);
 	}
 
-	@Test(expected = CreateException.class)
-	public void testCreateErrorObject() throws CreateException {
-		ReflectUtil.createObject(Error.class);
+	@Test
+	public void testCreateErrorObject() {
+		assertException(() -> ReflectUtil.createObject(Error.class));
 	}
 
 	@Test

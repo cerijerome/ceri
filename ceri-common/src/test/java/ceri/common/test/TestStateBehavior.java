@@ -10,13 +10,10 @@ public class TestStateBehavior {
 	public void shouldHandleInterruption() {
 		final TestState<Integer> state = new TestState<>();
 		final Thread current = Thread.currentThread();
-		TestThread thread = new TestThread() {
-			@Override
-			protected void run() throws Exception {
-				state.set(0);
-				current.interrupt();
-			}
-		};
+		TestThread<?> thread = TestThread.create(() -> {
+			state.set(0);
+			current.interrupt();
+		});
 		thread.start();
 		state.waitFor(0, 0);
 		try {

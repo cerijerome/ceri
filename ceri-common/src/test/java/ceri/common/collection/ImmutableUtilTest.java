@@ -117,6 +117,22 @@ public class ImmutableUtilTest {
 		assertImmutableMap(map);
 	}
 
+	@Test
+	public void testConvertAsList() {
+		List<Integer> list =
+			ImmutableUtil.convertAsList((s) -> Integer.parseInt(s), "1", "2", "3", "4", "5");
+		assertThat(list, is(Arrays.asList(1, 2, 3, 4, 5)));
+		assertImmutableList(list);
+	}
+
+	@Test
+	public void testConvertAsSet() {
+		Set<Integer> set =
+			ImmutableUtil.convertAsSet((s) -> Integer.parseInt(s), "1", "2", "3", "4", "5");
+		assertThat(set, is(new HashSet<>(Arrays.asList(1, 2, 3, 4, 5))));
+		assertImmutableCollection(set);
+	}
+
 	private static void assertImmutableMap(final Map<?, ?> map) {
 		assertImmutableCollection(map.entrySet());
 		assertImmutableCollection(map.keySet());

@@ -1,5 +1,6 @@
 package ceri.common.date;
 
+import static ceri.common.test.TestUtil.assertException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.text.ParseException;
@@ -7,9 +8,21 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import org.junit.Test;
-import ceri.common.date.MultiDateParser;
 
 public class MultiDateParserBehavior {
+
+	@Test
+	public void shouldReturnNullIfNoFormats() throws ParseException {
+		MultiDateParser parser = new MultiDateParser();
+		assertThat(parser.parse(""), is((Date)null));
+		assertThat(parser.parse("1970"), is((Date)null));
+	}
+
+	@Test
+	public void shouldThrowExceptionForInvalidDateFormat() {
+		MultiDateParser parser = new MultiDateParser("yyyy", "MM-yyyy");
+		assertException(() -> parser.parse("aaaa"));
+	}
 
 	@Test
 	public void shouldFormatInDefaultTimeZoneIfTimeZoneNotSpecified() {

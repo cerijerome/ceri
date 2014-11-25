@@ -195,7 +195,7 @@ public class MathUtil {
 	 * no values.
 	 */
 	public static byte min(byte... array) {
-		if (array.length == 0) return 0;
+		if (array == null || array.length == 0) return 0;
 		byte min = Byte.MAX_VALUE;
 		for (byte val : array)
 			if (min > val) min = val;
@@ -207,7 +207,7 @@ public class MathUtil {
 	 * no values.
 	 */
 	public static short min(short... array) {
-		if (array.length == 0) return 0;
+		if (array == null || array.length == 0) return 0;
 		short min = Short.MAX_VALUE;
 		for (short val : array)
 			if (min > val) min = val;
@@ -219,7 +219,7 @@ public class MathUtil {
 	 * no values.
 	 */
 	public static int min(int... array) {
-		if (array.length == 0) return 0;
+		if (array == null || array.length == 0) return 0;
 		int min = Integer.MAX_VALUE;
 		for (int val : array)
 			if (min > val) min = val;
@@ -231,7 +231,7 @@ public class MathUtil {
 	 * no values.
 	 */
 	public static long min(long... array) {
-		if (array == null) return 0;
+		if (array == null || array.length == 0) return 0;
 		long min = Long.MAX_VALUE;
 		for (long val : array)
 			if (min > val) min = val;
@@ -243,7 +243,7 @@ public class MathUtil {
 	 * no values.
 	 */
 	public static float min(float... array) {
-		if (array == null) return 0;
+		if (array == null || array.length == 0) return 0;
 		float min = Float.MAX_VALUE;
 		for (float val : array)
 			if (min > val) min = val;
@@ -255,7 +255,7 @@ public class MathUtil {
 	 * no values.
 	 */
 	public static double min(double... array) {
-		if (array == null) return 0;
+		if (array == null || array.length == 0) return 0;
 		double min = Double.MAX_VALUE;
 		for (double val : array)
 			if (min > val) min = val;
@@ -267,7 +267,7 @@ public class MathUtil {
 	 * no values.
 	 */
 	public static byte max(byte... array) {
-		if (array == null) return 0;
+		if (array == null || array.length == 0) return 0;
 		byte max = Byte.MIN_VALUE;
 		for (byte val : array)
 			if (max < val) max = val;
@@ -279,7 +279,7 @@ public class MathUtil {
 	 * no values.
 	 */
 	public static short max(short... array) {
-		if (array == null) return 0;
+		if (array == null || array.length == 0) return 0;
 		short max = Short.MIN_VALUE;
 		for (short val : array)
 			if (max < val) max = val;
@@ -291,7 +291,7 @@ public class MathUtil {
 	 * no values.
 	 */
 	public static int max(int... array) {
-		if (array == null) return 0;
+		if (array == null || array.length == 0) return 0;
 		int max = Integer.MIN_VALUE;
 		for (int val : array)
 			if (max < val) max = val;
@@ -303,7 +303,7 @@ public class MathUtil {
 	 * no values.
 	 */
 	public static long max(long... array) {
-		if (array == null) return 0;
+		if (array == null || array.length == 0) return 0;
 		long max = Long.MIN_VALUE;
 		for (long val : array)
 			if (max < val) max = val;
@@ -315,7 +315,7 @@ public class MathUtil {
 	 * no values.
 	 */
 	public static float max(float... array) {
-		if (array == null) return 0;
+		if (array == null || array.length == 0) return 0;
 		float max = Float.MIN_VALUE;
 		for (float val : array)
 			if (max < val) max = val;
@@ -327,7 +327,7 @@ public class MathUtil {
 	 * no values.
 	 */
 	public static double max(double... array) {
-		if (array == null) return 0;
+		if (array == null || array.length == 0) return 0;
 		double max = Double.MIN_VALUE;
 		for (double val : array)
 			if (max < val) max = val;

@@ -52,8 +52,8 @@ public class MultiDateParser {
 				if (firstEx == null) firstEx = e;
 			}
 		}
-		if (firstEx == null) throw new AssertionError("firstEx should not be null");
-		throw firstEx;
+		if (firstEx != null) throw firstEx;
+		return null;
 	}
 
 	/**

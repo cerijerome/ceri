@@ -96,7 +96,6 @@ public class Filters {
 	 */
 	@SafeVarargs
 	public static <T> Filter<T> any(final Filter<? super T>... filters) {
-		if (BasicUtil.isEmpty(filters)) return _true();
 		return any(Arrays.asList(filters));
 	}
 
@@ -105,7 +104,6 @@ public class Filters {
 	 */
 	@SafeVarargs
 	public static <T> Filter<T> all(final Filter<? super T>... filters) {
-		if (BasicUtil.isEmpty(filters)) return _true();
 		return all(Arrays.asList(filters));
 	}
 
@@ -184,7 +182,7 @@ public class Filters {
 		return new BaseFilter<String>() {
 			@Override
 			public boolean filterNonNull(String s) {
-				String lower = s == null ? s : s.toLowerCase();
+				String lower = s.toLowerCase();
 				return filter.filter(lower);
 			}
 		};

@@ -2,13 +2,47 @@ package ceri.common.test;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import java.util.Iterator;
 import org.junit.Test;
 import org.junit.runner.Description;
+import ceri.common.test.TestPrinterBehavior.MyClass.MySubClass;
 import ceri.common.util.StringUtil;
 
 public class TestPrinterBehavior {
+
+	static class MyClass {
+		static class MySubClass {
+			void mySubMethod() {}
+		}
+
+		void myMethod() {}
+	}
+
+	@Test
+	public void shouldObeyEqualsContract() {
+		TestPrinter.Test test = new TestPrinter.Test("testClassName", "className", "description");
+		TestPrinter.Test test1 = new TestPrinter.Test("testClassName", "className", "description");
+		assertFalse(test.equals(null));
+		assertFalse(test.equals(""));
+		assertThat(test, is(test));
+		assertThat(test, is(test1));
+		assertThat(test.hashCode(), is(test1.hashCode()));
+	}
+
+	@Test
+	public void shouldIterateOverChildren() {
+		TestPrinter p = new TestPrinter();
+		Description d = Description.createTestDescription(MyClass.class, "myMethod");
+		d.addChild(Description.createTestDescription(MySubClass.class, "mySubMethod"));
+		p.testStarted(d);
+		assertThat(p.tests().size(), is(2));
+		Iterator<TestPrinter.Test> i = p.tests().iterator();
+		assertThat(i.next().description, is("mySubMethod"));
+		assertThat(i.next().description, is("myMethod"));
+	}
 
 	@Test
 	public void shouldConvertBehaviorMethodNameToPhrase() {

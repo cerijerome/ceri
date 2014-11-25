@@ -1,12 +1,15 @@
 package ceri.common.test;
 
+import ceri.common.concurrent.ExceptionRunnable;
+import ceri.common.util.BasicUtil;
+
 /**
  * A runnable container for testing behavior in a thread.
  */
-public abstract class TestThread {
+public abstract class TestThread<T extends Throwable> {
 	private static final int DEFAULT_WAIT_MS = 1000;
 	private final Thread thread;
-	private Throwable error;
+	private T error;
 	private boolean started = false;
 	private volatile boolean completed;
 
@@ -18,9 +21,21 @@ public abstract class TestThread {
 	}
 
 	/**
+	 * Creates the thread. Call start to execute.
+	 */
+	public static <T extends Exception> TestThread<T> create(ExceptionRunnable<T> runnable) {
+		return new TestThread<T>() {
+			@Override
+			protected void run() throws T {
+				runnable.run();
+			}
+		};
+	}
+
+	/**
 	 * Override this to execute when the thread starts.
 	 */
-	protected abstract void run() throws Exception;
+	protected abstract void run() throws T;
 
 	/**
 	 * Interrupt the thread.
@@ -45,7 +60,7 @@ public abstract class TestThread {
 	 * the thread does not stop in the given time a RuntimeException will be
 	 * thrown.
 	 */
-	public void stop() throws Throwable {
+	public void stop() throws T {
 		interrupt();
 		join();
 	}
@@ -55,7 +70,7 @@ public abstract class TestThread {
 	 * milliseconds. A value of 0 will wait indefinitely. If the thread does not
 	 * stop in the given time a RuntimeException will be thrown.
 	 */
-	public void stop(int ms) throws Throwable {
+	public void stop(int ms) throws T {
 		interrupt();
 		join(ms);
 	}
@@ -65,7 +80,7 @@ public abstract class TestThread {
 	 * indefinitely. If the thread does not stop in the given time a
 	 * RuntimeException will be thrown.
 	 */
-	public void join() throws Throwable {
+	public void join() throws T {
 		join(DEFAULT_WAIT_MS);
 	}
 
@@ -74,7 +89,7 @@ public abstract class TestThread {
 	 * value of 0 will wait indefinitely. If the thread does not stop in the
 	 * given time a RuntimeException will be thrown.
 	 */
-	public void join(int ms) throws Throwable {
+	public void join(int ms) throws T {
 		try {
 			thread.join(ms);
 			if (!started) throw new RuntimeException("Thread was not started");
@@ -95,8 +110,8 @@ public abstract class TestThread {
 	void execute() {
 		try {
 			run();
-		} catch (Throwable e) {
-			error = e;
+		} catch (Throwable t) {
+			error = BasicUtil.uncheckedCast(t);
 		}
 		completed = true;
 	}

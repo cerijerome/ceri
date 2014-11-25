@@ -86,17 +86,12 @@ public class ReflectUtil {
 		throws CreateException {
 		try {
 			Constructor<T> constructor = classType.getConstructor(argTypes);
-			T obj = constructor.newInstance(args);
-			if (obj == null) throw new CreateException("Created null object");
-			return obj;
+			return constructor.newInstance(args);
 		} catch (NoSuchMethodException e) {
 			throw new CreateException("Data type '" + classType +
 				"' does not have a constructor matching arguments " + Arrays.toString(argTypes), e);
-		} catch (InstantiationException e) {
+		} catch (InstantiationException | IllegalAccessException e) {
 			throw new CreateException("Unable to instantiate data type '" + classType + "'", e);
-		} catch (IllegalAccessException e) {
-			throw new CreateException("Unable to access constructor for data type '" + classType +
-				"'", e);
 		} catch (InvocationTargetException e) {
 			throw new CreateException("Unexpected data type", e);
 		}

@@ -7,6 +7,7 @@ import org.junit.Test;
 
 public class HashCoderBehavior {
 	private static final boolean bl = true;
+	private static final boolean bl2 = false;
 	private static final char c = '7';
 	private static final byte b = 0x77;
 	private static final short s = 0x7777;
@@ -25,6 +26,7 @@ public class HashCoderBehavior {
 		int lHash = HashCoder.create().add(l).hashCode();
 		int fHash = HashCoder.create().add(f).hashCode();
 		int dHash = HashCoder.create().add(d).hashCode();
+		int nHash = HashCoder.create().add((Object)null).hashCode();
 		assertThat(blHash, not(cHash));
 		assertThat(cHash, not(bHash));
 		assertThat(bHash, not(sHash));
@@ -32,14 +34,15 @@ public class HashCoderBehavior {
 		assertThat(iHash, not(lHash));
 		assertThat(lHash, not(fHash));
 		assertThat(fHash, not(dHash));
-		assertThat(dHash, not(blHash));
+		assertThat(dHash, not(nHash));
+		assertThat(nHash, not(blHash));
 	}
 
 	@Test
 	public void shouldHaveSameValueForAutoboxedPrimitives() {
-		int autoBoxHash = HashCoder.hash(bl, c, b, s, i, l, f, d);
+		int autoBoxHash = HashCoder.hash(bl2, c, b, s, i, l, f, d);
 		int primitiveHash =
-			HashCoder.create().add(bl).add(c).add(b).add(s).add(i).add(l).add(f).add(d).hashCode();
+			HashCoder.create().add(bl2).add(c).add(b).add(s).add(i).add(l).add(f).add(d).hashCode();
 		assertThat(autoBoxHash, is(primitiveHash));
 	}
 

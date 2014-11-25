@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 
@@ -19,13 +20,31 @@ public class FiltersTest {
 	}
 
 	@Test
-	public void testNul() {
+	public void testLower() {
+		assertTrue(Filters.lower(null).filter("aaa"));
+		Filter<String> filter = Filters.lower(Filters.eqAny("a"));
+		assertTrue(filter.filter("A"));
+		assertTrue(filter.filter("a"));
+		assertFalse(filter.filter(null));
+	}
+
+	@Test
+	public void testTrue() {
 		assertTrue(Filters._true() == Filters._true()); // same instance
 		assertTrue(Filters._true().filter(null));
 		assertTrue(Filters._true().filter(false));
+		assertTrue(Filters._true().filter(true));
 		assertTrue(Filters._true().filter(Double.NaN));
 		assertTrue(Filters._true().filter(Double.NEGATIVE_INFINITY));
 		assertTrue(Filters._true().filter(Long.MIN_VALUE));
+	}
+
+	@Test
+	public void testFalse() {
+		assertTrue(Filters._false() == Filters._false()); // same instance
+		assertFalse(Filters._false().filter(null));
+		assertFalse(Filters._false().filter(false));
+		assertFalse(Filters._false().filter(true));
 	}
 
 	@Test
@@ -44,10 +63,12 @@ public class FiltersTest {
 		assertTrue(filter.filter(1));
 		assertFalse(filter.filter(0));
 		assertTrue(filter.filter(-1));
+		assertFalse(Filters.not(null).filter(true));
 	}
 
 	@Test
 	public void testAll() {
+		assertTrue(Filters.all().filter(true));
 		Filter<Double> filter1 = Filters.eq(1.0);
 		Filter<Comparable<?>> filter2 = Filters.not(Filters.eq(null));
 		Collection<Filter<? super Double>> filters =
@@ -64,6 +85,7 @@ public class FiltersTest {
 
 	@Test
 	public void testAny() {
+		assertTrue(Filters.any().filter(false));
 		Filter<Double> filter1 = Filters.eq(1.0);
 		Filter<Comparable<?>> filter2 = Filters.eq(null);
 		Collection<Filter<? super Double>> filters =
@@ -80,6 +102,8 @@ public class FiltersTest {
 
 	@Test
 	public void testContains() {
+		assertTrue(Filters.contains(null, true).filter("aaa"));
+		assertTrue(Filters.contains("", true).filter("aaa"));
 		Filter<String> filter = Filters.contains("hElLo", true);
 		assertTrue(filter.filter("...hello there..."));
 		assertTrue(filter.filter("HELLO"));
@@ -92,6 +116,7 @@ public class FiltersTest {
 
 	@Test
 	public void testMin() {
+		assertTrue(Filters.<String>min(null).filter("aaa"));
 		Filter<String> filter = Filters.min("N");
 		assertTrue(filter.filter("N"));
 		assertTrue(filter.filter("N "));
@@ -103,6 +128,7 @@ public class FiltersTest {
 
 	@Test
 	public void testMax() {
+		assertTrue(Filters.<String>max(null).filter("aaa"));
 		Filter<String> filter = Filters.max("N");
 		assertTrue(filter.filter("N"));
 		assertFalse(filter.filter("N "));
@@ -142,6 +168,8 @@ public class FiltersTest {
 
 	@Test
 	public void testPattern() {
+		assertTrue(Filters.pattern("").filter("aaa"));
+		assertTrue(Filters.pattern((Pattern)null).filter("aaa"));
 		Filter<String> filter = Filters.pattern("(?i)^a.*z$");
 		assertTrue(filter.filter("ABC..XYZ"));
 		assertTrue(filter.filter("aAzZ"));
@@ -153,7 +181,7 @@ public class FiltersTest {
 	@Test
 	public void testFilter() {
 		Filter<Character> filter = Filters.eq('A');
-		List<Character> items = ArrayUtil.asList('A', 'B', 'a', 'A', 'b');
+		List<Character> items = ArrayUtil.asList('A', null, 'B', 'a', null, 'A', 'b');
 		Filters.filter(items, filter);
 		assertThat(items, is(Arrays.asList('A', 'A')));
 	}
