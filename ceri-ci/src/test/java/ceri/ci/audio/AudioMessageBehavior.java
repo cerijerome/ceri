@@ -1,6 +1,6 @@
 package ceri.ci.audio;
 
-import static org.junit.Assert.fail;
+import static ceri.common.test.TestUtil.assertException;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
@@ -23,20 +23,10 @@ public class AudioMessageBehavior {
 	@Test
 	public void shouldFailIfInterrupted() throws Throwable {
 		final AudioMessages audio = new AudioMessages(player, getClass(), "");
-		TestThread thread = new TestThread() {
-			@Override
-			protected void run() throws Exception {
-				audio.playRandomAlarm();
-			}
-		};
+		TestThread<?> thread = TestThread.create(() -> audio.playRandomAlarm());
 		thread.interrupt();
 		thread.start();
-		try {
-			thread.stop();
-			fail();
-		} catch (RuntimeInterruptedException e) {
-			// expected
-		}
+		assertException(RuntimeInterruptedException.class, () -> thread.stop());
 	}
 
 	@Test
