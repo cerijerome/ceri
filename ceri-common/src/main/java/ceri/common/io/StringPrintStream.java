@@ -5,28 +5,27 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
 /**
- * A PrintStream where the output can be captured with toString().
- * Stream is auto-flushed.
+ * A PrintStream where the output can be captured with toString(). Stream is auto-flushed.
  */
 public class StringPrintStream extends PrintStream {
 	private final String charSet;
 	private final ByteArrayOutputStream baos;
-	
+
 	/**
-	 * Constructor using default character set. 
+	 * Constructor using default character set.
 	 */
 	public StringPrintStream() {
 		super(new ByteArrayOutputStream(), true);
-		baos = (ByteArrayOutputStream)out;
+		baos = (ByteArrayOutputStream) out;
 		this.charSet = null;
 	}
 
 	/**
-	 * Constructor using given character set. 
+	 * Constructor using given character set.
 	 */
 	public StringPrintStream(String charSet) throws UnsupportedEncodingException {
 		super(new ByteArrayOutputStream(), true, charSet);
-		baos = (ByteArrayOutputStream)out;
+		baos = (ByteArrayOutputStream) out;
 		this.charSet = charSet;
 	}
 
@@ -42,4 +41,5 @@ public class StringPrintStream extends PrintStream {
 			throw new IllegalStateException("Should not happen", e);
 		}
 	}
+
 }

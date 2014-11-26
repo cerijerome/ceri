@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.StringReader;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.MissingResourceException;
@@ -45,6 +46,12 @@ public class IoUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(IoUtil.class);
+	}
+
+	@Test
+	public void testGetClassUrl() {
+		URL url = IoUtil.getClassUrl(String.class);
+		assertTrue(url.getPath().endsWith("/java/lang/String.class"));
 	}
 
 	@Test
@@ -159,6 +166,13 @@ public class IoUtilTest {
 		assertThat(IoUtil.unixPath(relative), is("d/e"));
 		relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/a/x/y"));
 		assertThat(IoUtil.unixPath(relative), is("../../x/y"));
+	}
+
+	@Test
+	public void testGetResourceFile() {
+		File f = IoUtil.getResourceFile(getClass(), getClass().getSimpleName() + ".properties");
+		assertTrue(f.exists());
+		assertException(() -> IoUtil.getResourceFile(getClass(), "missing"));
 	}
 
 	@Test

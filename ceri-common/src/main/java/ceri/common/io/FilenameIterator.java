@@ -35,7 +35,7 @@ public class FilenameIterator implements Iterator<String> {
 
 	@Override
 	public void remove() {
-		iterator.remove();
+		throw new UnsupportedOperationException("Filename iteration is immutable.");
 	}
 
 }

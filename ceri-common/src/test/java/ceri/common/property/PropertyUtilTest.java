@@ -1,22 +1,50 @@
 package ceri.common.property;
 
+import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.Properties;
 import org.junit.Test;
+import org.mockito.Mockito;
 import ceri.common.io.IoUtil;
 import ceri.common.test.FileTestHelper;
 
 public class PropertyUtilTest {
-	
+
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(PropertyUtil.class);
+	}
+
+	@Test
+	public void testStoreWithFailingIO() throws IOException {
+		try (FileTestHelper helper = FileTestHelper.builder().build()) {
+			Properties properties = Mockito.mock(Properties.class);
+			doThrow(new IOException()).when(properties).store((OutputStream) any(), anyString());
+			File file = helper.file("test.properties");
+			assertException(() -> PropertyUtil.store(properties, file));
+		}
+	}
+
+	@Test
+	public void testLoadWithFailingIO() throws IOException {
+		try (FileTestHelper helper = FileTestHelper.builder().build()) {
+			Properties properties = Mockito.mock(Properties.class);
+			doThrow(new IOException()).when(properties).load((InputStream) any());
+			File file = helper.file("test.properties");
+			assertException(() -> PropertyUtil.load(file));
+			assertException(() -> PropertyUtil.load(getClass(), "test.properties"));
+		}
 	}
 
 	@Test

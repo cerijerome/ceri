@@ -29,18 +29,26 @@ public class FileIteratorBehavior {
 	}
 
 	@Test
+	public void shouldFailOnRemove() {
+		FileIterator iterator = new FileIterator(helper.file("a"));
+		assertException(() -> iterator.remove());
+		iterator.next();
+		assertException(() -> iterator.remove());
+	}
+
+	@Test
 	public void shouldHaveNoElementsIfRootIsAFile() {
 		FileIterator iterator = new FileIterator(helper.file("a/a/a.txt"));
 		assertFalse(iterator.hasNext());
 	}
-	
+
 	@Test
 	public void shouldThrowExceptionIfNoMoreElements() {
 		final FileIterator iterator = new FileIterator(helper.file("a/a"));
 		iterator.next();
 		assertException(NoSuchElementException.class, () -> iterator.next());
 	}
-	
+
 	@Test
 	public void shouldIterateAllFilesByDefault() {
 		FileIterator iterator = new FileIterator(helper.root);
@@ -52,7 +60,7 @@ public class FileIteratorBehavior {
 		files.add(iterator.next());
 		files.add(iterator.next());
 		assertFalse(iterator.hasNext());
-		assertCollection(files,  helper.files("a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt"));
+		assertCollection(files, helper.files("a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt"));
 	}
 
 	@Test
@@ -63,10 +71,11 @@ public class FileIteratorBehavior {
 			}
 		}
 		FileIterator iterator = new FileIterator(helper.root);
-		while (iterator.hasNext()) iterator.next();
+		while (iterator.hasNext())
+			iterator.next();
 		IoUtil.deleteAll(helper.file("dirs"));
 	}
-	
+
 	@Test
 	public void shouldOnlyListFilesThatMatchTheFilter() {
 		FileIterator iterator = new FileIterator(helper.root, FileFilters.FILE);
@@ -75,14 +84,14 @@ public class FileIteratorBehavior {
 		files.add(iterator.next());
 		files.add(iterator.next());
 		assertFalse(iterator.hasNext());
-		assertCollection(files,  helper.files("a/a/a.txt", "b/b.txt", "c.txt"));
+		assertCollection(files, helper.files("a/a/a.txt", "b/b.txt", "c.txt"));
 		iterator = new FileIterator(helper.root, FileFilters.DIR);
 		files = new HashSet<>();
 		files.add(iterator.next());
 		files.add(iterator.next());
 		files.add(iterator.next());
 		assertFalse(iterator.hasNext());
-		assertCollection(files,  helper.files("a", "a/a", "b"));
+		assertCollection(files, helper.files("a", "a/a", "b"));
 	}
 
 	@Test

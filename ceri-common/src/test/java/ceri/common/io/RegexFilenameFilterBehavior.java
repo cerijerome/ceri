@@ -3,6 +3,7 @@ package ceri.common.io;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.isArray;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import org.junit.AfterClass;
@@ -48,6 +49,7 @@ public class RegexFilenameFilterBehavior {
 				".*/" + helper.root.getName() + "/.*").build();
 		String[] filenames = helper.root.list(filter);
 		assertCollection(filenames, "a", "b", "c.txt");
+		assertTrue(filter.accept(helper.file("a")));
 	}
 
 }

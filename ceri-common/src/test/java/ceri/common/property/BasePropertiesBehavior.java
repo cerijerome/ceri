@@ -1,5 +1,6 @@
 package ceri.common.property;
 
+import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -24,6 +25,36 @@ public class BasePropertiesBehavior {
 		properties.put("a.b", "AB");
 		properties.put("a.b.c", "3");
 		properties.put("a.b.c.d", "4");
+	}
+
+	@Test
+	public void shouldReadValues() {
+		BaseProperties bp = new BaseProperties(properties) {};
+		assertThat(bp.stringValue("", "a"), is("A"));
+		assertThat(bp.booleanValue("a"), is(false));
+		assertThat(bp.booleanValue(true, "a"), is(false));
+		assertThat(bp.charValue("a"), is('A'));
+		assertThat(bp.charValue('B', "a"), is('A'));
+		assertThat(bp.shortValue("a.b.c"), is((short) 3));
+		assertThat(bp.shortValue((short) 1, "a.b.c"), is((short) 3));
+		assertThat(bp.intValue("a.b.c"), is(3));
+		assertThat(bp.intValue(1, "a.b.c"), is(3));
+		assertThat(bp.longValue("a.b.c"), is(3L));
+		assertThat(bp.longValue(1L, "a.b.c"), is(3L));
+		assertThat(bp.floatValue("a.b.c"), is(3.0f));
+		assertThat(bp.floatValue(1.0f, "a.b.c"), is(3.0f));
+		assertThat(bp.doubleValue("a.b.c"), is(3.0));
+		assertThat(bp.doubleValue(1.0, "a.b.c"), is(3.0));
+	}
+
+	@Test
+	public void shouldHaveStringRepresentationOfProperties() {
+		Properties properties = new Properties();
+		properties.put("a", "A");
+		properties.put("b", "B");
+		BaseProperties bp = new BaseProperties(properties) {};
+		assertThat(bp.toString(), matchesRegex(".*a=A.*"));
+		assertThat(bp.toString(), matchesRegex(".*b=B.*"));
 	}
 
 	@Test

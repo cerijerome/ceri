@@ -1,6 +1,7 @@
 package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertException;
 import static org.junit.Assert.assertFalse;
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +25,14 @@ public class FilenameIteratorBehavior {
 	@AfterClass
 	public static void deleteTempFiles() {
 		helper.close();
+	}
+
+	@Test
+	public void shouldFailOnRemove() {
+		FilenameIterator iterator = new FilenameIterator(helper.file("a"));
+		assertException(() -> iterator.remove());
+		iterator.next();
+		assertException(() -> iterator.remove());
 	}
 
 	@Test

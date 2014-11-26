@@ -1,6 +1,7 @@
 package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -17,6 +18,49 @@ public class BlockingBufferStreamBehavior {
 		buffer = new byte[256];
 		for (int i = 0; i < buffer.length; i++)
 			buffer[i] = (byte) i;
+	}
+
+	@Test
+	public void shouldNotWriteToClosedStream() {
+		try (BlockingBufferStream stream = new BlockingBufferStream()) {
+			stream.close();
+			stream.write(0);
+			stream.write(new byte[1], 0, 1);
+			assertThat(stream.available(), is(0));
+		}
+	}
+
+	@Test
+	public void shouldFailForInvalidReadParameters() {
+		byte[] b = { 0 };
+		try (BlockingBufferStream bbs = new BlockingBufferStream()) {
+			assertException(() -> bbs.read(null, 0, 0));
+			assertException(() -> bbs.read(b, -1, 0));
+			assertException(() -> bbs.read(b, 0, -1));
+			assertException(() -> bbs.read(b, 0, 2));
+			assertThat(bbs.read(new byte[0], 0, 0), is(0));
+		}
+	}
+
+	@Test
+	public void shouldFailForInvalidWriteParameters() {
+		byte[] b = { 0 };
+		try (BlockingBufferStream bbs = new BlockingBufferStream()) {
+			assertException(() -> bbs.write(null, 0, 0));
+			assertException(() -> bbs.write(b, -1, 0));
+			assertException(() -> bbs.write(b, 0, -1));
+			assertException(() -> bbs.write(b, 0, 2));
+			bbs.write(new byte[0], 0, 0);
+		}
+	}
+
+	@Test
+	public void shouldReadInvalidCodeForClosedStream() {
+		try (BlockingBufferStream bbs = new BlockingBufferStream()) {
+			bbs.close();
+			assertThat(bbs.read(), is(-1));
+			assertThat(bbs.read(new byte[1], 0, 1), is(-1));
+		}
 	}
 
 	@Test(expected = IllegalArgumentException.class)

@@ -1,5 +1,6 @@
 package ceri.common.io;
 
+import static ceri.common.test.TestUtil.exerciseEnum;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -11,6 +12,11 @@ public class BitIteratorBehavior {
 	@Test(expected = UnsupportedOperationException.class)
 	public void shouldNotAllowRemove() {
 		new BitIterator((byte) 0).remove();
+	}
+
+	@Test
+	public void shouldHaveEnumCodeCoverage() {
+		exerciseEnum(BitIterator.Start.class);
 	}
 
 	@Test

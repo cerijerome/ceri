@@ -7,17 +7,37 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import org.junit.Test;
 
 public class KeyBehavior {
-	
+
+	@Test
+	public void shouldObeyEqualsContract() {
+		Key key = Key.create("a");
+		Key key1 = key.clone();
+		assertFalse(key.equals(null));
+		assertThat(key, is(key));
+		assertThat(key, is(key1));
+		assertThat(key.hashCode(), is(key1.hashCode()));
+	}
+
+	@Test
+	public void shouldIterateParts() {
+		Key key = Key.create("a", "b", "c");
+		Iterator<String> i = key.partIterator();
+		assertThat(i.next(), is("a"));
+		assertThat(i.next(), is("b"));
+		assertThat(i.next(), is("c"));
+	}
+
 	@Test
 	public void shouldAllowPrefixParts() {
 		Key key = Key.createWithPrefix("a.b", "c");
 		assertThat(key.value, is("a.b.c"));
 		assertTrue(Key.createWithPrefix("a", "b.c").equals(key));
 	}
-	
+
 	@Test
 	public void shouldNavigateParents() {
 		Key key = Key.create("a", "b", "c");
@@ -68,18 +88,18 @@ public class KeyBehavior {
 		assertThat(key.asParts(), is(Collections.<String>emptyList()));
 		assertThat(Key.NULL.asParts(), is(Collections.<String>emptyList()));
 	}
-	
+
 	@Test
 	public void shouldIgnoreBlankParts() {
-		Key key = Key.create((String)null, "", "a", null, "b", "c", "", null);
+		Key key = Key.create((String) null, "", "a", null, "b", "c", "", null);
 		assertThat(key.value, is("a.b.c"));
 	}
 
 	@Test
 	public void shouldNotCreateNewNullInstances() {
-		Key key = Key.create((String)null);
+		Key key = Key.create((String) null);
 		assertThat(key, isSame(Key.NULL));
-		key = Key.create((Key)null);
+		key = Key.create((Key) null);
 		assertThat(key, isSame(Key.NULL));
 		key = Key.create();
 		assertThat(key, isSame(Key.NULL));
@@ -91,7 +111,8 @@ public class KeyBehavior {
 		assertThat(key, isSame(Key.NULL));
 		key = Key.create(Key.NULL, "", "");
 		assertThat(key, isSame(Key.NULL));
+		key = Key.create((Key)null, (String[])null);
+		assertThat(key, isSame(Key.NULL));
 	}
-
 
 }
