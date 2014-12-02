@@ -21,7 +21,7 @@ public class AudioMessageBehavior {
 	}
 	
 	@Test
-	public void shouldFailIfInterrupted() throws Throwable {
+	public void shouldFailIfInterrupted() throws Exception {
 		final AudioMessages audio = new AudioMessages(player, getClass(), "");
 		TestThread<?> thread = TestThread.create(() -> audio.playRandomAlarm());
 		thread.interrupt();

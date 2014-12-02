@@ -3,6 +3,7 @@ package ceri.common.property;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,8 +52,8 @@ public class PropertyUtil {
 	 */
 	public static Properties load(Class<?> cls, String name) throws IOException {
 		Properties properties = new Properties();
-		cls.getResourceAsStream(".");
 		try (InputStream in = cls.getResourceAsStream(name)) {
+			if (in == null) throw new FileNotFoundException(cls.getName() + ":" + name);
 			properties.load(in);
 		}
 		return properties;

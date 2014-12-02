@@ -13,6 +13,11 @@ public class ImmutableDate extends Date {
 		super(date.getTime());
 	}
 	
+	public static ImmutableDate create(Date date) {
+		if (date == null) return null;
+		return new ImmutableDate(date);
+	}
+	
 	@Override
 	public void setTime(long time) {
 		throw new UnsupportedOperationException();
