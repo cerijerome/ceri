@@ -7,7 +7,7 @@ import org.junit.Test;
 public class NameValueBehavior {
 
 	@Test
-	public void shouldConstructKeyValue() {
+	public void shouldConstructNameValue() {
 		NameValue<Integer> nv = new NameValue<>("test", 1);
 		assertThat(nv.key, is("test"));
 		assertThat(nv.value, is(1));
