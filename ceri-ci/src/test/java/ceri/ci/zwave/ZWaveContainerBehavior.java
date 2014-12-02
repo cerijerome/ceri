@@ -2,6 +2,7 @@ package ceri.ci.zwave;
 
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,7 +25,7 @@ public class ZWaveContainerBehavior {
 	@Before
 	public void init() {
 		MockitoAnnotations.initMocks(this);
-		when(factory.createController(any(), anyInt())).thenReturn(controller);
+		when(factory.createController(any(), anyInt(), anyBoolean())).thenReturn(controller);
 		when(factory.builder(any())).thenReturn(builder);
 		when(builder.device(any(), anyInt())).thenReturn(builder);
 		properties = new Properties();
@@ -66,5 +67,5 @@ public class ZWaveContainerBehavior {
 	private BaseProperties baseProperties() {
 		return new BaseProperties(properties) {};
 	}
-	
+
 }

@@ -21,6 +21,7 @@ public class ZWaveProperties extends BaseProperties {
 	private static final int RANDOMIZE_DELAY_MS_DEF = 100;
 	private static final int RANDOMIZE_PERIOD_MS_DEF = 0;
 	private static final String PERIOD_MS_KEY = "period.ms";
+	private static final String TEST_MODE_KEY = "test.mode";
 
 	public ZWaveProperties(BaseProperties properties, String group) {
 		super(properties, group);
@@ -28,6 +29,10 @@ public class ZWaveProperties extends BaseProperties {
 
 	public boolean enabled() {
 		return booleanValue(false, ENABLED_KEY);
+	}
+
+	public boolean testMode() {
+		return booleanValue(false, TEST_MODE_KEY);
 	}
 
 	public String host() {

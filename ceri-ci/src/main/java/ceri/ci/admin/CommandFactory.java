@@ -1,11 +1,14 @@
 package ceri.ci.admin;
 
 import java.util.Collection;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ceri.ci.admin.Params.BuildJob;
 import ceri.ci.alert.AlertService;
 import ceri.ci.build.BuildEvent;
 
 public class CommandFactory {
+	private static final Logger logger = LogManager.getLogger();
 	public static final String SUCCESS = "success";
 	private final Serializer serializer;
 
@@ -24,6 +27,7 @@ public class CommandFactory {
 			return delete(params.buildJob());
 		case process:
 			Collection<BuildEvent> events = params.buildEvents();
+			logger.info("Processing {}", events);
 			return process(events);
 		case purge:
 			return purge();

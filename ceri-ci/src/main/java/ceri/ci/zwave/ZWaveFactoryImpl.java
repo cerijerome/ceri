@@ -11,18 +11,19 @@ public class ZWaveFactoryImpl implements ZWaveFactory {
 	static final Logger logger = LogManager.getLogger();
 
 	@Override
-	public ZWaveController createController(String host, int callDelayMs) {
-		final VeraLite veraLite = new VeraLite(host, callDelayMs);
+	public ZWaveController createController(String host, int callDelayMs, boolean testMode) {
+		if (testMode) logger.info("Creating ZWave controller in test mode");
+		final VeraLite veraLite = testMode ? null : new VeraLite(host, callDelayMs);
 		return new ZWaveController() {
 			@Override
 			public void on(int device) throws IOException {
-				veraLite.switchPower.on(device);
+				if (veraLite != null) veraLite.switchPower.on(device);
 				logger.debug("Device {} on", device);
 			}
 
 			@Override
 			public void off(int device) throws IOException {
-				veraLite.switchPower.off(device);
+				if (veraLite != null) veraLite.switchPower.off(device);
 				logger.debug("Device {} off", device);
 			}
 		};
