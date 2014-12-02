@@ -23,7 +23,7 @@ public class AudioMessageBehavior {
 	@Test
 	public void shouldFailIfInterrupted() throws Exception {
 		final AudioMessages audio = new AudioMessages(player, getClass(), "");
-		TestThread<?> thread = TestThread.create(() -> audio.playRandomAlarm());
+		TestThread<Exception> thread = TestThread.create(() -> audio.playRandomAlarm());
 		thread.interrupt();
 		thread.start();
 		assertException(RuntimeInterruptedException.class, () -> thread.stop());
