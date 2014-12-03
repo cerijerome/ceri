@@ -15,10 +15,10 @@ public class ZWaveProperties extends BaseProperties {
 	private static final String GROUP_KEY = "group";
 	private static final String DEVICES_KEY = "devices";
 	private static final String CALL_KEY = "call";
-	private static final int CALL_DELAY_MS_DEF = 300;
+	private static final int CALL_DELAY_MS_DEF = 250;
 	private static final String DELAY_MS_KEY = "delay.ms";
 	private static final String RANDOMIZE_KEY = "randomize";
-	private static final int RANDOMIZE_DELAY_MS_DEF = 100;
+	private static final int RANDOMIZE_DELAY_MS_DEF = 0;
 	private static final int RANDOMIZE_PERIOD_MS_DEF = 0;
 	private static final String PERIOD_MS_KEY = "period.ms";
 	private static final String TEST_MODE_KEY = "test.mode";
