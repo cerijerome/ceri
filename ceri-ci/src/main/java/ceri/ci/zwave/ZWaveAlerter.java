@@ -85,7 +85,7 @@ public class ZWaveAlerter implements Alerter {
 
 	public void alert(Collection<String> keys) {
 		logger.info("Alerting for {}", keys);
-		if (!keys.isEmpty()) randomize();
+		randomize();
 		setDevicesOn(keys);
 	}
 
