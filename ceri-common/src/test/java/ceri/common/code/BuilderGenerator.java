@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.util.StringUtil;
 
@@ -29,6 +30,8 @@ public class BuilderGenerator {
 		.compile("(public |protected |private |final |;)");
 	private static final Pattern PRIMITIVE_REGEX = Pattern
 		.compile("^(boolean|byte|short|int|long|float)$");
+	private static final Pattern FIELD_REGEX = Pattern
+		.compile("^(.*)\\s+([\\w]+)$");
 	private final String className;
 	private final Map<String, String> fields;
 
@@ -159,9 +162,9 @@ public class BuilderGenerator {
 					builder = builder(line);
 					continue;
 				}
-				String[] ss = line.split("\\s+");
-				if (ss == null || ss.length < 2) break;
-				builder.field(ss[0], ss[1]);
+				Matcher m = FIELD_REGEX.matcher(line);
+				if (!m.find()) break;
+				builder.field(m.group(1), m.group(2));
 			}
 		} catch (IOException e) {}
 		if (builder != null) builder.build().generate(System.out);

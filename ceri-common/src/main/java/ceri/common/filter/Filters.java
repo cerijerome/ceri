@@ -79,6 +79,19 @@ public class Filters {
 	}
 
 	/**
+	 * Wraps a filter, returning false for null values.
+	 */
+	public static <T> Filter<T> nonNull(final Filter<? super T> filter) {
+		if (filter == null) return _false();
+		return new Filter<T>() {
+			@Override
+			public boolean filter(T t) {
+				return t != null && filter.filter(t);
+			}
+		};
+	}
+
+	/**
 	 * Inverts a given filter.
 	 */
 	public static <T> Filter<T> not(final Filter<? super T> filter) {
