@@ -16,7 +16,7 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 public class AudioMessages {
 	private static final Logger logger = LogManager.getLogger();
 	private static final Collection<String> EXT_DEF = Arrays.asList("wav");
-	private static final String CLIP_DIR = "clip/xmas";
+	private static final String CLIP_DIR = "clip/guardians";
 	private static final String BUILD_DIR = "build";
 	private static final String JOB_DIR = "job";
 	private static final String NAME_DIR = "name";
