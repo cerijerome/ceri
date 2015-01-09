@@ -5,8 +5,24 @@ import java.util.Arrays;
 public class MathUtil {
 	private static final char ZERO = '0';
 	private static final int BASE10 = 10;
+	private static final int MAX_ROUND_PLACES = 10;
+	private static final double MAX_ROUND = 1000000000.0;
 
 	private MathUtil() {}
+
+	/**
+	 * Too inaccurate for very large or small values.
+	 */
+	public static double simpleRound(double value, int places) {
+		if (places > MAX_ROUND_PLACES) throw new IllegalArgumentException("places must be <= " +
+			MAX_ROUND_PLACES + ": " + places);
+		if (value > MAX_ROUND || value < -MAX_ROUND) throw new IllegalArgumentException(
+			"value magnitude must be <= " + MAX_ROUND);
+		long factor = (long) Math.pow(10, places);
+		value = value * factor;
+		long tmp = Math.round(value);
+		return (double) tmp / factor;
+	}
 
 	/**
 	 * Convert a short value to an array of 2 bytes.
@@ -57,8 +73,8 @@ public class MathUtil {
 	}
 
 	/**
-	 * Converts a long value into an array of digits in given radix. If radix is
-	 * outside of Character.MIN_RADIX and Character.MAX_RADIX then 10 is used.
+	 * Converts a long value into an array of digits in given radix. If radix is outside of
+	 * Character.MIN_RADIX and Character.MAX_RADIX then 10 is used.
 	 */
 	public static byte[] digits(long value, int radix) {
 		String valueStr = Long.toString(value, radix);
@@ -79,8 +95,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Factorial value (value!). Double is used as values may be larger than
-	 * long can handle.
+	 * Factorial value (value!). Double is used as values may be larger than long can handle.
 	 */
 	public static double factorial(long value) {
 		if (value < 0) throw new IllegalArgumentException(value + "! not defined.");
@@ -89,8 +104,8 @@ public class MathUtil {
 	}
 
 	/**
-	 * Factorial value (value!). Checks and throws exception if factorial value
-	 * is too big for long type.
+	 * Factorial value (value!). Checks and throws exception if factorial value is too big for long
+	 * type.
 	 */
 	public static long longFactorial(long value) {
 		double factorial = factorial(value);
@@ -100,8 +115,8 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the value at given index on given level of Pascal's triangle.
-	 * Defined as: c!/r!(c-r)! where level = c, index = r.
+	 * Returns the value at given index on given level of Pascal's triangle. Defined as: c!/r!(c-r)!
+	 * where level = c, index = r.
 	 */
 	public static long pascal(long level, long index) {
 		if (level < 0 || index < 0 || index > level) return 0;
@@ -109,8 +124,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the percentage for a value in a range. Returns NaN for a zero
-	 * range.
+	 * Returns the percentage for a value in a range. Returns NaN for a zero range.
 	 */
 	public static double percentage(double value, double range) {
 		if (range == 0) return Double.NaN;
@@ -131,8 +145,8 @@ public class MathUtil {
 	}
 
 	/**
-	 * Increments all values in the primitive array. If the amount is negative
-	 * the values will be decremented.
+	 * Increments all values in the primitive array. If the amount is negative the values will be
+	 * decremented.
 	 */
 	public static byte[] increment(byte[] array, byte amount) {
 		if (amount != 0) for (int i = 0; i < array.length; i++)
@@ -141,8 +155,8 @@ public class MathUtil {
 	}
 
 	/**
-	 * Increments all values in the primitive array. If the amount is negative
-	 * the values will be decremented.
+	 * Increments all values in the primitive array. If the amount is negative the values will be
+	 * decremented.
 	 */
 	public static short[] increment(short[] array, short amount) {
 		if (amount != 0) for (int i = 0; i < array.length; i++)
@@ -151,8 +165,8 @@ public class MathUtil {
 	}
 
 	/**
-	 * Increments all values in the primitive array. If the amount is negative
-	 * the values will be decremented.
+	 * Increments all values in the primitive array. If the amount is negative the values will be
+	 * decremented.
 	 */
 	public static int[] increment(int[] array, int amount) {
 		if (amount != 0) for (int i = 0; i < array.length; i++)
@@ -161,8 +175,8 @@ public class MathUtil {
 	}
 
 	/**
-	 * Increments all values in the primitive array. If the amount is negative
-	 * the values will be decremented.
+	 * Increments all values in the primitive array. If the amount is negative the values will be
+	 * decremented.
 	 */
 	public static long[] increment(long[] array, long amount) {
 		if (amount != 0) for (int i = 0; i < array.length; i++)
@@ -171,8 +185,8 @@ public class MathUtil {
 	}
 
 	/**
-	 * Increments all values in the primitive array. If the amount is negative
-	 * the values will be decremented.
+	 * Increments all values in the primitive array. If the amount is negative the values will be
+	 * decremented.
 	 */
 	public static float[] increment(float[] array, float amount) {
 		if (amount != 0) for (int i = 0; i < array.length; i++)
@@ -181,8 +195,8 @@ public class MathUtil {
 	}
 
 	/**
-	 * Increments all values in the primitive array. If the amount is negative
-	 * the values will be decremented.
+	 * Increments all values in the primitive array. If the amount is negative the values will be
+	 * decremented.
 	 */
 	public static double[] increment(double[] array, double amount) {
 		if (amount != 0) for (int i = 0; i < array.length; i++)
@@ -191,8 +205,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the minimum value in the primitive array, or 0 if the array has
-	 * no values.
+	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
 	 */
 	public static byte min(byte... array) {
 		if (array == null || array.length == 0) return 0;
@@ -203,8 +216,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the minimum value in the primitive array, or 0 if the array has
-	 * no values.
+	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
 	 */
 	public static short min(short... array) {
 		if (array == null || array.length == 0) return 0;
@@ -215,8 +227,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the minimum value in the primitive array, or 0 if the array has
-	 * no values.
+	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
 	 */
 	public static int min(int... array) {
 		if (array == null || array.length == 0) return 0;
@@ -227,8 +238,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the minimum value in the primitive array, or 0 if the array has
-	 * no values.
+	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
 	 */
 	public static long min(long... array) {
 		if (array == null || array.length == 0) return 0;
@@ -239,8 +249,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the minimum value in the primitive array, or 0 if the array has
-	 * no values.
+	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
 	 */
 	public static float min(float... array) {
 		if (array == null || array.length == 0) return 0;
@@ -251,8 +260,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the minimum value in the primitive array, or 0 if the array has
-	 * no values.
+	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
 	 */
 	public static double min(double... array) {
 		if (array == null || array.length == 0) return 0;
@@ -263,8 +271,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the maximum value in the primitive array, or 0 if the array has
-	 * no values.
+	 * Returns the maximum value in the primitive array, or 0 if the array has no values.
 	 */
 	public static byte max(byte... array) {
 		if (array == null || array.length == 0) return 0;
@@ -275,8 +282,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the maximum value in the primitive array, or 0 if the array has
-	 * no values.
+	 * Returns the maximum value in the primitive array, or 0 if the array has no values.
 	 */
 	public static short max(short... array) {
 		if (array == null || array.length == 0) return 0;
@@ -287,8 +293,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the maximum value in the primitive array, or 0 if the array has
-	 * no values.
+	 * Returns the maximum value in the primitive array, or 0 if the array has no values.
 	 */
 	public static int max(int... array) {
 		if (array == null || array.length == 0) return 0;
@@ -299,8 +304,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the maximum value in the primitive array, or 0 if the array has
-	 * no values.
+	 * Returns the maximum value in the primitive array, or 0 if the array has no values.
 	 */
 	public static long max(long... array) {
 		if (array == null || array.length == 0) return 0;
@@ -311,8 +315,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the maximum value in the primitive array, or 0 if the array has
-	 * no values.
+	 * Returns the maximum value in the primitive array, or 0 if the array has no values.
 	 */
 	public static float max(float... array) {
 		if (array == null || array.length == 0) return 0;
@@ -323,8 +326,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the maximum value in the primitive array, or 0 if the array has
-	 * no values.
+	 * Returns the maximum value in the primitive array, or 0 if the array has no values.
 	 */
 	public static double max(double... array) {
 		if (array == null || array.length == 0) return 0;
