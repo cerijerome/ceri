@@ -8,7 +8,7 @@ import org.junit.Test;
 public class AsyncRunnerBehavior {
 
 	@Test
-	public void shouldOnlyThrowSpecifiedExceptions() throws Exception {
+	public void shouldOnlyThrowSpecifiedExceptions() {
 		AsyncRunner<IOException> runner = runner(IOException.class, () -> {
 			throw new FileNotFoundException();
 		});
@@ -17,7 +17,7 @@ public class AsyncRunnerBehavior {
 	}
 
 	@Test
-	public void shouldNotWrapRuntimeExceptions() throws Exception {
+	public void shouldNotWrapRuntimeExceptions() {
 		AsyncRunner<IOException> runner = runner(IOException.class, () -> {
 			throw new IllegalStateException();
 		});

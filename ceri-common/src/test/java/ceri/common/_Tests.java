@@ -84,6 +84,7 @@ import ceri.common.util.MathUtilTest;
 import ceri.common.util.MultiPatternBehavior;
 import ceri.common.util.NameValueBehavior;
 import ceri.common.util.PrimitiveUtilTest;
+import ceri.common.util.RegexUtilTest;
 import ceri.common.util.StringUtilTest;
 import ceri.common.util.TextUtilTest;
 import ceri.common.util.ToStringHelperBehavior;
@@ -189,6 +190,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	MultiPatternBehavior.class,
 	NameValueBehavior.class,
 	PrimitiveUtilTest.class,
+	RegexUtilTest.class,
 	StringUtilTest.class,
 	TextUtilTest.class,
 	ToStringHelperBehavior.class,

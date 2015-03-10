@@ -14,7 +14,7 @@ public class TestThreadBehavior {
 	}
 
 	@Test
-	public void shouldFailToStopAnIncompleteThread() throws Exception {
+	public void shouldFailToStopAnIncompleteThread() {
 		TestThread<Exception> t = TestThread.create(() -> {
 			try {
 				Thread.sleep(30000);

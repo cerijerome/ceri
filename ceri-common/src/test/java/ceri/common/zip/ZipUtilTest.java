@@ -45,7 +45,7 @@ public class ZipUtilTest {
 		File unzipDir = new File(helper.root, "unzip");
 		try (InputStream in = new InputStream() {
 			@Override
-			public int read() throws IOException {
+			public int read() {
 				throw new RuntimeException();
 			}
 		}) {
