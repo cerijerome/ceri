@@ -81,7 +81,7 @@ public class EmailRetrieverImplBehavior {
 	private EmailRetriever create(EmailRetrieverImpl.Builder builder) {
 		return new EmailRetrieverImpl(builder) {
 			@Override
-			protected Store getStore() throws MessagingException {
+			protected Store getStore() {
 				return store;
 			}
 		};

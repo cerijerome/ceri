@@ -31,7 +31,7 @@ public class Cm17aSerialConnectorBehavior {
 		when(identifier.open(anyString(), anyInt())).thenThrow(new PortInUseException(null));
 		try (Cm17aSerialConnector connector = new Cm17aSerialConnector("test") {
 			@Override
-			CommPortIdentifier portIdentifier(String commPort) throws NoSuchPortException {
+			CommPortIdentifier portIdentifier(String commPort) {
 				return identifier;
 			}
 		}) {
@@ -58,7 +58,7 @@ public class Cm17aSerialConnectorBehavior {
 		final CommPortIdentifier identifier = this.identifier;
 		try (Cm17aSerialConnector connector = new Cm17aSerialConnector("test", 0) {
 			@Override
-			CommPortIdentifier portIdentifier(String commPort) throws NoSuchPortException {
+			CommPortIdentifier portIdentifier(String commPort) {
 				return identifier;
 			}
 		}) {

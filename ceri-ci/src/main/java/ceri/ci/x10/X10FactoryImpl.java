@@ -18,7 +18,7 @@ public class X10FactoryImpl implements X10Factory {
 	}
 
 	@Override
-	public Cm11aController createCm11aController(Cm11aConnector connector) throws IOException {
+	public Cm11aController createCm11aController(Cm11aConnector connector) {
 		return new Cm11aController(connector, null);
 	}
 

@@ -77,7 +77,7 @@ public class AudioBehavior {
 		Audio audio = Audio.create(testFile);
 		audio = new Audio(null, new byte[0]) {
 			@Override
-			SourceDataLine getSourceDataLine(AudioFormat format) throws LineUnavailableException {
+			SourceDataLine getSourceDataLine(AudioFormat format) {
 				return line;
 			}
 		};

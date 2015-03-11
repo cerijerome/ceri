@@ -120,7 +120,7 @@ public class EmailServiceBehavior {
 	private EmailEventParser testParser() {
 		return new EmailEventParser() {
 			@Override
-			public boolean matches(Message message) throws MessagingException {
+			public boolean matches(Message message) {
 				return true;
 			}
 

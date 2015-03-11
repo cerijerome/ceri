@@ -29,7 +29,7 @@ public class EventBehavior {
 	}
 
 	@Test
-	public void shouldAllowEmptyNames() throws Exception {
+	public void shouldAllowEmptyNames() {
 		Event event = new Event(Event.Type.success, null, Collections.emptyList());
 		assertTrue(event.names.isEmpty());
 		assertThat(event.type, is(Event.Type.success));

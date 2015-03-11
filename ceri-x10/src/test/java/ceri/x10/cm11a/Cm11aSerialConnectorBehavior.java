@@ -34,7 +34,7 @@ public class Cm11aSerialConnectorBehavior {
 		final CommPortIdentifier identifier = this.identifier;
 		try (Cm11aSerialConnector connector = new Cm11aSerialConnector("test") {
 			@Override
-			CommPortIdentifier portIdentifier(String commPort) throws NoSuchPortException {
+			CommPortIdentifier portIdentifier(String commPort) {
 				return identifier;
 			}
 		}) {
@@ -48,7 +48,7 @@ public class Cm11aSerialConnectorBehavior {
 		when(identifier.open(anyString(), anyInt())).thenThrow(new PortInUseException(null));
 		try (Cm11aSerialConnector connector = new Cm11aSerialConnector("test") {
 			@Override
-			CommPortIdentifier portIdentifier(String commPort) throws NoSuchPortException {
+			CommPortIdentifier portIdentifier(String commPort) {
 				return identifier;
 			}
 		}) {
@@ -73,7 +73,7 @@ public class Cm11aSerialConnectorBehavior {
 		final CommPortIdentifier identifier = this.identifier;
 		try (Cm11aSerialConnector connector = new Cm11aSerialConnector("test") {
 			@Override
-			CommPortIdentifier portIdentifier(String commPort) throws NoSuchPortException {
+			CommPortIdentifier portIdentifier(String commPort) {
 				return identifier;
 			}
 		}) {

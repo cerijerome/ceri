@@ -88,12 +88,12 @@ public class ZWaveAlerterBehavior {
 	private ZWaveController captureController(final Set<Integer> activeDevices) {
 		return new ZWaveController() {
 			@Override
-			public void on(int device) throws IOException {
+			public void on(int device) {
 				activeDevices.add(device);
 			}
 
 			@Override
-			public void off(int device) throws IOException {
+			public void off(int device) {
 				activeDevices.remove(device);
 			}
 		};

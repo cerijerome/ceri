@@ -38,7 +38,7 @@ public class AdminServlet extends HttpServlet {
 	private AlertService service;
 
 	/**
-	 * Servlet context attribute must be set to retrieve the service. 
+	 * Servlet context attribute must be set to retrieve the service.
 	 */
 	@Override
 	public void init() throws ServletException {
@@ -47,8 +47,7 @@ public class AdminServlet extends HttpServlet {
 	}
 
 	@Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response)
-		throws ServletException, IOException {
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Response commandResponse = null;
 		try {
 			Params params = new Params(request, serializer);
@@ -64,8 +63,7 @@ public class AdminServlet extends HttpServlet {
 		throws IOException {
 		response.setContentType(contentType(commandResponse));
 		String content = content(commandResponse);
-		if (commandResponse.success)
-			response.getWriter().write(content);
+		if (commandResponse.success) response.getWriter().write(content);
 		else response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, content);
 	}
 
