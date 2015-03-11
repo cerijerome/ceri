@@ -16,8 +16,8 @@ Config
 
 Set up identity
 ---------------
-$ git config --global user.name "Ceri Jerome"
-$ git config --global user.email cerijerome@gmail.com
+$ git config --global user.name "<name>"
+$ git config --global user.email <email>
 (--global for ~/.gitconfig, otherwise .git/config)
 $ git config --list
 
@@ -34,7 +34,7 @@ Set up a repo
 -------------
 Set up repo on github.com
 $ git init
-$ git remote add origin <https|ssh>
+$ git remote add origin <https|ssh-repolink>
 $ git config --system http.sslcainfo "C:\Program Files (x86)\git\bin\curl-ca-bundle.crt" (windows)
 $ git pull origin master => pull from remote
 $ git push origin master => push to remote
