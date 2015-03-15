@@ -10,8 +10,8 @@ import java.util.Map;
 import ceri.common.io.IoUtil;
 
 /**
- * Creates files and dirs under a temp directory, and deletes them on close. Use
- * this to test file-based actions.
+ * Creates files and dirs under a temp directory, and deletes them on close. Use this to test
+ * file-based actions.
  */
 public class FileTestHelper implements Closeable {
 	public final File root;

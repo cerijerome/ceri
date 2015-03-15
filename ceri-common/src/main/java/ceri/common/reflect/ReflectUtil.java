@@ -18,19 +18,20 @@ public class ReflectUtil {
 	 * Checks if the object is an instance of any of the given classes.
 	 */
 	@SafeVarargs
-	public static <T> boolean instanceOfAny(T obj, Class<? extends T>...classes) {
+	public static <T> boolean instanceOfAny(T obj, Class<? extends T>... classes) {
 		return instanceOfAny(obj, Arrays.asList(classes));
 	}
-	
+
 	/**
 	 * Checks if the object is an instance of any of the given classes.
 	 */
 	public static <T> boolean instanceOfAny(T obj, Iterable<Class<? extends T>> classes) {
 		if (obj == null) return false;
-		for (Class<?> cls : classes) if (cls.isInstance(obj)) return true;
+		for (Class<?> cls : classes)
+			if (cls.isInstance(obj)) return true;
 		return false;
 	}
-	
+
 	/**
 	 * Gets the info on the caller of this method by looking at the stack trace.
 	 */
@@ -39,8 +40,7 @@ public class ReflectUtil {
 	}
 
 	/**
-	 * Gets the info of a previous caller of this method by looking at the stack
-	 * trace.
+	 * Gets the info of a previous caller of this method by looking at the stack trace.
 	 */
 	public static Caller previousCaller(int countBack) {
 		StackTraceElement s = previousStackTraceElement("previousCaller", countBack);
@@ -48,16 +48,14 @@ public class ReflectUtil {
 	}
 
 	/**
-	 * Gets the current method name by looking at the previous method on the
-	 * stack trace.
+	 * Gets the current method name by looking at the previous method on the stack trace.
 	 */
 	public static String currentMethodName() {
 		return previousMethodName(1);
 	}
 
 	/**
-	 * Gets the current method name by looking at the previous method on the
-	 * stack trace.
+	 * Gets the current method name by looking at the previous method on the stack trace.
 	 */
 	public static String previousMethodName(int countBack) {
 		return previousCaller(countBack + 1).method;
@@ -71,9 +69,8 @@ public class ReflectUtil {
 	}
 
 	/**
-	 * Creates an object of given type, using constructor that matches given
-	 * argument types.
-	 * 
+	 * Creates an object of given type, using constructor that matches given argument types.
+	 *
 	 * @param classType
 	 *            new object type
 	 * @param argTypes

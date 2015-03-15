@@ -10,7 +10,7 @@ import ceri.common.util.BasicUtil;
 
 /**
  * Utility methods to test and manipulate arrays.
- * 
+ *
  * @see ceri.common.collection.CollectionUtil
  * @see ceri.common.util.PrimitiveUtil
  */
@@ -56,8 +56,8 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Creates an array of given size based on array type component class.
-	 * Compile-time typing for Array.newInstance().
+	 * Creates an array of given size based on array type component class. Compile-time typing for
+	 * Array.newInstance().
 	 */
 	public static <T> T[] create(Class<T> type, int size) {
 		if (type.isPrimitive()) throw new IllegalArgumentException("Primitive types not allowed: " +
@@ -66,9 +66,9 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Returns the array class of the type component superclass. Or the regular
-	 * superclass if not an array type. For example:
-	 * 
+	 * Returns the array class of the type component superclass. Or the regular superclass if not an
+	 * array type. For example:
+	 *
 	 * <pre>
 	 * Class<Integer[][]> =>
 	 *   Class<Number[][]> =>
@@ -99,8 +99,7 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Returns true if the given array contains all of the given elements in any
-	 * order.
+	 * Returns true if the given array contains all of the given elements in any order.
 	 */
 	@SafeVarargs
 	public static <T> boolean containsAll(T[] array, T... ts) {
@@ -186,9 +185,8 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Copies values from one array to another. Less strict than
-	 * System.arraycopy as it allows copying from/to primitive arrays, but also
-	 * not as efficient.
+	 * Copies values from one array to another. Less strict than System.arraycopy as it allows
+	 * copying from/to primitive arrays, but also not as efficient.
 	 */
 	public static Object arrayCopy(Object from, int fromIndex, Object to, int toIndex, int length) {
 		for (int i = 0; i < length; i++) {
@@ -198,8 +196,7 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Creates a non fixed-size list of the given array.
-	 * Use Arrays.asList() for fixed-size list.
+	 * Creates a non fixed-size list of the given array. Use Arrays.asList() for fixed-size list.
 	 */
 	@SafeVarargs
 	public static <T> List<T> asList(T... ts) {
@@ -207,8 +204,8 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Returns true if the given object is an instance of an array. Returns
-	 * false if the object is null.
+	 * Returns true if the given object is an instance of an array. Returns false if the object is
+	 * null.
 	 */
 	public static boolean isArray(Object obj) {
 		if (obj == null) return false;

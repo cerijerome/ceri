@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
 import ceri.common.collection.ImmutableUtil;
 
 /**
- * Filename and File Filter that tries to match any one of the given regular expressions.
- * Can match against absolute or single names in system-specific or unix-style formats.
+ * Filename and File Filter that tries to match any one of the given regular expressions. Can match
+ * against absolute or single names in system-specific or unix-style formats.
  */
 public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 	private final List<Pattern> patterns;
@@ -23,17 +23,16 @@ public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 		boolean absolutePath = false;
 		boolean unixPath = false;
 		List<Pattern> patterns = new ArrayList<>();
-		
-		Builder() {
-		}
-		
+
+		Builder() {}
+
 		/**
 		 * Add regex patterns to check.
 		 */
-		public Builder pattern(String...patterns) {
+		public Builder pattern(String... patterns) {
 			return pattern(Arrays.asList(patterns));
 		}
-		
+
 		/**
 		 * Add regex patterns to check.
 		 */
@@ -42,7 +41,7 @@ public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 				this.patterns.add(Pattern.compile(pattern));
 			return this;
 		}
-		
+
 		/**
 		 * Specify whether to check against absolute paths.
 		 */
@@ -50,7 +49,7 @@ public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 			this.absolutePath = absolutePath;
 			return this;
 		}
-		
+
 		/**
 		 * Specify whether to check against unix-style '/' paths.
 		 */
@@ -58,7 +57,7 @@ public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 			this.unixPath = unixPath;
 			return this;
 		}
-		
+
 		/**
 		 * Build the filter.
 		 */
@@ -66,7 +65,7 @@ public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 			return new RegexFilenameFilter(this);
 		}
 	}
-	
+
 	RegexFilenameFilter(Builder builder) {
 		patterns = ImmutableUtil.copyAsList(builder.patterns);
 		absolutePath = builder.absolutePath;
@@ -74,19 +73,19 @@ public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 	}
 
 	/**
-	 * Creates the builder to construct a regex filter. 
+	 * Creates the builder to construct a regex filter.
 	 */
 	public static Builder builder() {
 		return new Builder();
 	}
-	
+
 	/**
 	 * Convenience method to create a filter based on given patterns.
 	 */
-	public static RegexFilenameFilter create(String...patterns) {
+	public static RegexFilenameFilter create(String... patterns) {
 		return builder().pattern(patterns).build();
 	}
-	
+
 	/**
 	 * FilenameFilter interface implementation.
 	 */
@@ -111,7 +110,7 @@ public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 			if (pattern.matcher(path).matches()) return true;
 		return false;
 	}
-	
+
 	public FileFilter asFile() {
 		return this;
 	}

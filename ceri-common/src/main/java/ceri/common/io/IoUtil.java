@@ -305,7 +305,7 @@ public class IoUtil {
 		if (offset < 0) throw new IllegalArgumentException("Offset must be >= 0: " + offset);
 		if (offset + len > buffer.length) throw new IllegalArgumentException(
 			"Offset plus length must not exceed buffer size (" + buffer.length + "): " + offset +
-				" + " + len);
+			" + " + len);
 		int pos = offset;
 		while (pos < offset + len) {
 			int count = in.read(buffer, pos, offset + len - pos);

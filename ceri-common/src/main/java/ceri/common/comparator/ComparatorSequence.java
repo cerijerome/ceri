@@ -10,9 +10,8 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * A list of comparators to be applied in sequence. If the first comparator
- * returns 0, the next comparator is checked. If the end of the list is reached,
- * 0 is returned.
+ * A list of comparators to be applied in sequence. If the first comparator returns 0, the next
+ * comparator is checked. If the end of the list is reached, 0 is returned.
  */
 public class ComparatorSequence<T> implements Comparator<T> {
 	private final List<Comparator<? super T>> comparators;
@@ -20,9 +19,8 @@ public class ComparatorSequence<T> implements Comparator<T> {
 	public static class Builder<T> {
 		private final List<Comparator<? super T>> comparators = new ArrayList<>();
 
-		Builder() {
-		}
-		
+		Builder() {}
+
 		@SafeVarargs
 		public final Builder<T> add(Comparator<? super T>... comparators) {
 			Collections.addAll(this.comparators, comparators);
@@ -46,7 +44,7 @@ public class ComparatorSequence<T> implements Comparator<T> {
 	public static <T> Builder<T> builder() {
 		return new Builder<>();
 	}
-	
+
 	public List<Comparator<? super T>> comparators() {
 		return comparators;
 	}

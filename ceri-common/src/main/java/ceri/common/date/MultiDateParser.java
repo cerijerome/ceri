@@ -11,9 +11,9 @@ import java.util.TimeZone;
 import ceri.common.collection.ImmutableUtil;
 
 /**
- * Encapsulates a list of date format patterns for parsing dates.
- * Attempts parsing in the given order, so use the most stringent pattern first.
- * Not thread-safe due to internal usage of DateFormat. 
+ * Encapsulates a list of date format patterns for parsing dates. Attempts parsing in the given
+ * order, so use the most stringent pattern first. Not thread-safe due to internal usage of
+ * DateFormat.
  */
 public class MultiDateParser {
 	public final List<String> patterns;
@@ -22,14 +22,14 @@ public class MultiDateParser {
 	/**
 	 * Constructs the parser with given patterns in default timezone.
 	 */
-	public MultiDateParser(String...patterns) {
+	public MultiDateParser(String... patterns) {
 		this(null, patterns);
 	}
-	
+
 	/**
 	 * Constructs the parser with given patterns in given timezone.
 	 */
-	public MultiDateParser(TimeZone tz, String...patterns) {
+	public MultiDateParser(TimeZone tz, String... patterns) {
 		List<DateFormat> dateFormats = new ArrayList<>();
 		for (String format : patterns) {
 			DateFormat dateFormat = new SimpleDateFormat(format);
@@ -39,7 +39,7 @@ public class MultiDateParser {
 		this.dateFormats = Collections.unmodifiableList(dateFormats);
 		this.patterns = ImmutableUtil.asList(patterns);
 	}
-	
+
 	/**
 	 * Tries each format in order until no parse exception is thrown.
 	 */

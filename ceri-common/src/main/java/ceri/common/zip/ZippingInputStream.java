@@ -18,8 +18,7 @@ import ceri.common.io.IoUtil;
 import ceri.common.util.ToStringHelper;
 
 /**
- * Zips files under given root directory as bytes are read from the input
- * stream. Not thread safe.
+ * Zips files under given root directory as bytes are read from the input stream. Not thread safe.
  */
 public class ZippingInputStream extends FilterInputStream {
 	private static final int BUFFER_SIZE_DEF = 32 * 1024; // 32k;
@@ -68,8 +67,7 @@ public class ZippingInputStream extends FilterInputStream {
 	}
 
 	/**
-	 * Returns the current checksum value, or 0 if none specified in the
-	 * constructor.
+	 * Returns the current checksum value, or 0 if none specified in the constructor.
 	 */
 	public long checksum() {
 		if (checksum == null) return 0;

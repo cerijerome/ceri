@@ -1,9 +1,8 @@
 package ceri.common.io;
 
 /**
- * A ByteBufferStream that blocks on writing if the buffer exceeds max size, and
- * blocks on reading if not closed and no bytes available. Writing and reading
- * should occur in different threads.
+ * A ByteBufferStream that blocks on writing if the buffer exceeds max size, and blocks on reading
+ * if not closed and no bytes available. Writing and reading should occur in different threads.
  */
 public class BlockingBufferStream extends ByteBufferStream {
 	private final int maxSize;
@@ -11,7 +10,7 @@ public class BlockingBufferStream extends ByteBufferStream {
 	public BlockingBufferStream() {
 		this(0, 0);
 	}
-	
+
 	public BlockingBufferStream(int initialSize, int maxSize) {
 		super(initialSize);
 		if (maxSize == 0) maxSize = ByteBufferStream.BUFFER_SIZE_DEFAULT;
@@ -98,11 +97,13 @@ public class BlockingBufferStream extends ByteBufferStream {
 	}
 
 	private void waitToWrite() throws InterruptedException {
-		while (!closed() && availableForWriting() == 0) wait();
+		while (!closed() && availableForWriting() == 0)
+			wait();
 	}
 
 	private void waitToRead() throws InterruptedException {
-		while (!closed() && available() == 0) wait();
+		while (!closed() && available() == 0)
+			wait();
 	}
 
 }

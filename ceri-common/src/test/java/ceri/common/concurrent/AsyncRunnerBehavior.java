@@ -24,14 +24,13 @@ public class AsyncRunnerBehavior {
 		runner.start();
 		assertException(IllegalStateException.class, () -> runner.join(0));
 	}
-
+	
 	@Test
-	public void shouldNotThrowExceptionIfJoinIsInterrupted() {
-		Thread thread = Thread.currentThread();
-		AsyncRunner<RuntimeException> runner = runner(() -> Thread.sleep(1000000));
-		AsyncRunner<RuntimeException> runner2 = runner(() -> thread.interrupt());
+	public void shouldExecuteRunnerTask() throws InterruptedException {
+		BooleanCondition flag = new BooleanCondition();
+		AsyncRunner<RuntimeException> runner = runner(() -> flag.signal());
 		runner.start();
-		runner2.start();
+		flag.await();
 		runner.join(0);
 	}
 

@@ -8,11 +8,11 @@ import ceri.common.util.ToStringHelper;
 
 /**
  * Pretty-prints data in binary, hex and/or char format. e.g.
- * 
+ *
  * <pre>
  * 00101111 00000000 01000011 10100000  2F 00 43 A0  /.C.
  * </pre>
- * 
+ *
  * for 4 bytes per column, and 1 column. Unprintable ascii chars will show as "."
  */
 public class BinaryPrinter {
@@ -96,7 +96,7 @@ public class BinaryPrinter {
 	public String toString() {
 		return ToStringHelper.createByClass(this,
 			out == null ? null : out.getClass().getSimpleName(), bytesPerColumn, columns,
-			showBinary, showHex, showChar).toString();
+				showBinary, showHex, showChar).toString();
 	}
 
 	/**
@@ -170,8 +170,7 @@ public class BinaryPrinter {
 
 	private void appendByte(StringBuilder binB, StringBuilder hexB, StringBuilder charB, int b) {
 		String s =
-			StringUtil.pad(Integer.toBinaryString(b), BITS_IN_BYTE, "0",
-				StringUtil.Align.RIGHT);
+			StringUtil.pad(Integer.toBinaryString(b), BITS_IN_BYTE, "0", StringUtil.Align.RIGHT);
 		binB.append(s);
 		s = Integer.toHexString(b).toUpperCase();
 		if (s.length() == 1) hexB.append('0');
@@ -187,7 +186,7 @@ public class BinaryPrinter {
 	}
 
 	private void
-		appendMissingItemSpace(StringBuilder binB, StringBuilder hexB, StringBuilder charB) {
+	appendMissingItemSpace(StringBuilder binB, StringBuilder hexB, StringBuilder charB) {
 		binB.append("        ");
 		hexB.append("  ");
 		charB.append(' ');

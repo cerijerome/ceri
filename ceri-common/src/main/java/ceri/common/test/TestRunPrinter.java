@@ -8,11 +8,11 @@ import ceri.common.reflect.ReflectUtil;
  */
 public class TestRunPrinter extends TestRunAdapter {
 	private final PrintStream out;
-	
+
 	public TestRunPrinter(PrintStream out) {
 		this.out = out;
 	}
-	
+
 	@Override
 	public void testEnded(String arg0) {
 		out.println(ReflectUtil.currentMethodName() + ": " + arg0);
@@ -20,8 +20,7 @@ public class TestRunPrinter extends TestRunAdapter {
 
 	@Override
 	public void testFailed(int arg0, String arg1, String arg2) {
-		out.println(ReflectUtil.currentMethodName() + ": " + arg0 + ", " + arg1 + ", " +
-			arg2);
+		out.println(ReflectUtil.currentMethodName() + ": " + arg0 + ", " + arg1 + ", " + arg2);
 	}
 
 	@Override

@@ -17,7 +17,7 @@ import java.util.Iterator;
  */
 public class TreeIterator<T extends Parent<T>> implements Iterator<T> {
 	public final T node;
-	private Deque<Iterator<T>> iterators = new ArrayDeque<>();
+	private final Deque<Iterator<T>> iterators = new ArrayDeque<>();
 
 	public TreeIterator(T node) {
 		this.node = node;

@@ -30,8 +30,7 @@ public class Caller {
 	 */
 	public static Caller fromStackTraceElement(StackTraceElement s) {
 		if (s == null) return NULL;
-		return new Caller(s.getClassName(), s.getLineNumber(), s.getMethodName(), s
-			.getFileName());
+		return new Caller(s.getClassName(), s.getLineNumber(), s.getMethodName(), s.getFileName());
 	}
 
 	@Override
@@ -43,7 +42,7 @@ public class Caller {
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (!(obj instanceof Caller)) return false;
-		Caller other = (Caller)obj;
+		Caller other = (Caller) obj;
 		if (line != other.line) return false;
 		if (!EqualsUtil.equals(fullCls, other.fullCls)) return false;
 		if (!EqualsUtil.equals(method, other.method)) return false;

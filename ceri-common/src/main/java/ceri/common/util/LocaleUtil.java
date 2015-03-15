@@ -19,8 +19,8 @@ public class LocaleUtil {
 	}
 
 	/**
-	 * Returns a locale with the last part removed as follows:
-	 * lang_COUNTRY_VARIANT => lang_COUNTRY => lang => [empty] => [empty]
+	 * Returns a locale with the last part removed as follows: lang_COUNTRY_VARIANT => lang_COUNTRY
+	 * => lang => [empty] => [empty]
 	 */
 	public static Locale parentOf(Locale locale) {
 		String lang = locale.getLanguage();

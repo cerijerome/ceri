@@ -8,13 +8,10 @@ import ceri.common.util.BasicUtil;
 import ceri.common.util.HashCoder;
 
 /**
- * Abstract class for a node in a tree. Supports immutability through builder construction.
- * Subclass as follows: 
- * MyNode extends TreeNode<MyNode>
- *   constructor should have minimum of (MyNode parent, MyNode.Builder builder)
- * MyNode.Builder extends TreeNode.Builder<MyNode>
- *   constructor should have minimum of (int id)
- *   build(MyNode parent) should construct MyNode(parent, this)
+ * Abstract class for a node in a tree. Supports immutability through builder construction. Subclass
+ * as follows: MyNode extends TreeNode<MyNode> constructor should have minimum of (MyNode parent,
+ * MyNode.Builder builder) MyNode.Builder extends TreeNode.Builder<MyNode> constructor should have
+ * minimum of (int id) build(MyNode parent) should construct MyNode(parent, this)
  */
 public abstract class TreeNode<T extends TreeNode<T>> implements Parent<T> {
 	protected final Class<T> cls;

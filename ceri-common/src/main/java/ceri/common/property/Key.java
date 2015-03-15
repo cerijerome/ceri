@@ -20,22 +20,22 @@ public class Key {
 	private Key(String value) {
 		this.value = value;
 	}
-	
-	public static Key create(String...parts) {
+
+	public static Key create(String... parts) {
 		return create(null, parts);
 	}
 
-	public static Key createWithPrefix(String prefix, String...parts) {
+	public static Key createWithPrefix(String prefix, String... parts) {
 		return create(Key.create(prefix), parts);
 	}
 
-	public static Key create(Key key, String...parts) {
+	public static Key create(Key key, String... parts) {
 		String value = createValue(key, parts);
 		if (value.isEmpty()) return NULL;
 		return new Key(value);
 	}
 
-	private static String createValue(Key prefix, String...parts) {
+	private static String createValue(Key prefix, String... parts) {
 		if (prefix != null && (parts == null || parts.length == 0)) return prefix.value;
 		StringBuilder b = new StringBuilder();
 		if (prefix != null && prefix != NULL) b.append(prefix);
@@ -46,26 +46,26 @@ public class Key {
 		}
 		return b.toString();
 	}
-	
+
 	@Override
 	public Key clone() {
 		return create(this);
 	}
 
-	public Key child(String...parts) {
+	public Key child(String... parts) {
 		return create(this, parts);
 	}
-	
+
 	public Iterator<String> partIterator() {
 		return asParts().iterator();
 	}
-	
+
 	public List<String> asParts() {
 		if (this == NULL) return Collections.emptyList();
 		String[] parts = SEPARATOR_REGEX.split(value);
 		return ArrayUtil.asList(parts);
 	}
-	
+
 	public int parts() {
 		return StringUtil.count(value, SEPARATOR) + 1;
 	}
@@ -90,7 +90,7 @@ public class Key {
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (!(obj instanceof Key)) return false;
-		Key other = (Key)obj;
+		Key other = (Key) obj;
 		return EqualsUtil.equals(value, other.value);
 	}
 

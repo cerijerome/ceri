@@ -7,12 +7,8 @@ import ceri.common.util.BasicUtil;
  * Comparators for enum types.
  */
 public class EnumComparators {
-	private static final Comparator<Enum<?>> NAME = new BaseComparator<Enum<?>>() {
-		@Override
-		protected int compareNonNull(Enum<?> o1, Enum<?> o2) {
-			return Comparators.STRING.compare(o1.name(), o2.name());
-		}
-	};
+	private static final Comparator<Enum<?>> NAME = Comparators
+		.nonNull((lhs, rhs) -> Comparators.STRING.compare(lhs.name(), rhs.name()));
 
 	private EnumComparators() {}
 

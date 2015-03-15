@@ -11,12 +11,12 @@ import java.util.TimeZone;
 
 /**
  * Helps create string representations of objects.
- * 
+ *
  * Output takes the form: Name(Value1,Value2,...)[Field1,Field2,...]
- * 
+ *
  * Fields can be of the form "Key=Value" Also has support for classes such as
  * ClassName(Value,...)[Field,...] and Name(Value,...)[ClassName=Value,...]
- * 
+ *
  * Typical usage is Value for intrinsic or unnamed data, Field for supplementary or named data.
  */
 public class ToStringHelper {

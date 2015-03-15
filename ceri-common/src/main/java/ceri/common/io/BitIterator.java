@@ -13,20 +13,21 @@ public class BitIterator implements Iterator<Boolean> {
 	private Byte currentByte = null;
 
 	public static enum Start {
-		high, low
+		high,
+		low
 	}
-	
+
 	public BitIterator(Start start, Iterator<Byte> byteIterator) {
 		this.byteIterator = byteIterator;
 		this.start = start;
 		mask = initialMask();
 	}
-	
-	public BitIterator(byte...bytes) {
+
+	public BitIterator(byte... bytes) {
 		this(Start.low, bytes);
 	}
-	
-	public BitIterator(Start start, byte...bytes) {
+
+	public BitIterator(Start start, byte... bytes) {
 		this(start, ArrayIterator.createByte(bytes));
 	}
 
@@ -61,5 +62,5 @@ public class BitIterator implements Iterator<Boolean> {
 	private int initialMask() {
 		return start == Start.high ? MAX_MASK : MIN_MASK;
 	}
-	
+
 }

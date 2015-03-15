@@ -3,6 +3,8 @@
  */
 package ceri.common.util;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
@@ -20,17 +22,15 @@ public class BasicUtil {
 	private BasicUtil() {}
 
 	/**
-	 * Stops the warning for an unused parameter. Use only when absolutely
-	 * necessary.
+	 * Stops the warning for an unused parameter. Use only when absolutely necessary.
 	 */
 	public static void unused(@SuppressWarnings("unused") Object... o) {}
 
 	/**
-	 * Are you really sure you need to call this? If you're not sure why you
-	 * need to call this method you may be hiding a coding error. Performs an
-	 * unchecked cast from an object to the given type, preventing a warning.
-	 * Sometimes necessary for collections, etc. Will not prevent a runtime cast
-	 * exception.
+	 * Are you really sure you need to call this? If you're not sure why you need to call this
+	 * method you may be hiding a coding error. Performs an unchecked cast from an object to the
+	 * given type, preventing a warning. Sometimes necessary for collections, etc. Will not prevent
+	 * a runtime cast exception.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T uncheckedCast(Object o) {
@@ -48,12 +48,19 @@ public class BasicUtil {
 	 * Make a system beep sound
 	 */
 	public static void beep() {
-		java.awt.Toolkit.getDefaultToolkit().beep();
+		Toolkit.getDefaultToolkit().beep();
 	}
 
 	/**
-	 * Convenience method that calls Enum.valueOf and returns default value if
-	 * no match.
+	 * Copy string to the clipboard
+	 */
+	public static void copyToClipBoard(String s) {
+		StringSelection selection = new StringSelection(s);
+		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+	}
+
+	/**
+	 * Convenience method that calls Enum.valueOf and returns default value if no match.
 	 */
 	public static <T extends Enum<T>> T valueOf(Class<T> cls, String value, T def) {
 		if (value == null || cls == null) return def;
@@ -85,8 +92,8 @@ public class BasicUtil {
 	}
 
 	/**
-	 * Sleeps for given milliseconds, or not if 0. Throws
-	 * RuntimeInterruptedException if interrupted.
+	 * Sleeps for given milliseconds, or not if 0. Throws RuntimeInterruptedException if
+	 * interrupted.
 	 */
 	public static void delay(long delayMs) {
 		if (delayMs == 0) return;
@@ -107,8 +114,8 @@ public class BasicUtil {
 	}
 
 	/**
-	 * Attaches a throwable cause to an exception without losing type. Use as:
-	 * throw initCause(new MyException(...), cause);
+	 * Attaches a throwable cause to an exception without losing type. Use as: throw initCause(new
+	 * MyException(...), cause);
 	 */
 	public static <E extends Exception> E initCause(E e, Throwable cause) {
 		e.initCause(cause);
@@ -151,8 +158,8 @@ public class BasicUtil {
 	}
 
 	/**
-	 * Makes sure a Class<?> is loaded. Use when static initialization is
-	 * required but only the Class<?> is referenced.
+	 * Makes sure a Class<?> is loaded. Use when static initialization is required but only the
+	 * Class<?> is referenced.
 	 */
 	public static <T> Class<T> forceInit(Class<T> cls) {
 		if (loadedClasses.containsKey(cls)) return cls;

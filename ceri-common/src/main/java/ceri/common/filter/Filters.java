@@ -12,12 +12,7 @@ import ceri.common.util.BasicUtil;
  * Basic filters and filter utilities.
  */
 public class Filters {
-	private static final Filter<Object> TRUE = new Filter<Object>() {
-		@Override
-		public boolean filter(Object t) {
-			return true;
-		}
-	};
+	private static final Filter<Object> TRUE = (t -> true);
 	private static final Filter<Object> FALSE = not(TRUE);
 
 	private Filters() {}
@@ -68,14 +63,12 @@ public class Filters {
 	 * Returns true if value equals given value.
 	 */
 	public static <T> Filter<T> eq(final T value) {
-		return new Filter<T>() {
-			@Override
-			public boolean filter(T t) {
-				if (t == value) return true;
-				if (t == null || value == null) return false;
-				return t.equals(value);
-			}
-		};
+		return (t -> {
+			if (t == value) return true;
+			if (t == null || value == null) return false;
+			return t.equals(value);
+
+		});
 	}
 
 	/**
@@ -83,12 +76,7 @@ public class Filters {
 	 */
 	public static <T> Filter<T> nonNull(final Filter<? super T> filter) {
 		if (filter == null) return _false();
-		return new Filter<T>() {
-			@Override
-			public boolean filter(T t) {
-				return t != null && filter.filter(t);
-			}
-		};
+		return (t -> t != null && filter.filter(t));
 	}
 
 	/**
@@ -96,12 +84,7 @@ public class Filters {
 	 */
 	public static <T> Filter<T> not(final Filter<? super T> filter) {
 		if (filter == null) return _false();
-		return new Filter<T>() {
-			@Override
-			public boolean filter(T t) {
-				return !filter.filter(t);
-			}
-		};
+		return (t -> !filter.filter(t));
 	}
 
 	/**
@@ -125,14 +108,11 @@ public class Filters {
 	 */
 	public static <T> Filter<T> any(final Collection<? extends Filter<? super T>> filters) {
 		if (BasicUtil.isEmpty(filters)) return _true();
-		return new Filter<T>() {
-			@Override
-			public boolean filter(T t) {
-				for (Filter<? super T> filter : filters)
-					if (filter.filter(t)) return true;
-				return false;
-			}
-		};
+		return (t -> {
+			for (Filter<? super T> filter : filters)
+				if (filter.filter(t)) return true;
+			return false;
+		});
 	}
 
 	/**
@@ -140,14 +120,11 @@ public class Filters {
 	 */
 	public static <T> Filter<T> all(final Collection<? extends Filter<? super T>> filters) {
 		if (BasicUtil.isEmpty(filters)) return _true();
-		return new Filter<T>() {
-			@Override
-			public boolean filter(T t) {
-				for (Filter<? super T> filter : filters)
-					if (!filter.filter(t)) return false;
-				return true;
-			}
-		};
+		return (t -> {
+			for (Filter<? super T> filter : filters)
+				if (!filter.filter(t)) return false;
+			return true;
+		});
 	}
 
 	/**
@@ -163,28 +140,20 @@ public class Filters {
 	 */
 	public static Filter<String> pattern(final Pattern pattern) {
 		if (pattern == null) return _true();
-		return new BaseFilter<String>() {
-			@Override
-			public boolean filterNonNull(String s) {
-				return pattern.matcher(s).find();
-			}
-		};
+		return (s -> pattern.matcher(s).find());
 	}
 
 	/**
-	 * Filter that returns true for strings that contain the given substring.
-	 * Can specify to ignore case.
+	 * Filter that returns true for strings that contain the given substring. Can specify to ignore
+	 * case.
 	 */
 	public static Filter<String> contains(String str, final boolean ignoreCase) {
 		if (str == null || str.isEmpty()) return _true();
 		final String containsStr = ignoreCase ? str.toLowerCase() : str;
-		return new BaseFilter<String>() {
-			@Override
-			public boolean filterNonNull(String s) {
-				String str = ignoreCase ? s.toLowerCase() : s;
-				return str.contains(containsStr);
-			}
-		};
+		return (s -> {
+			s = ignoreCase ? s.toLowerCase() : s;
+			return s.contains(containsStr);
+		});
 	}
 
 	/**
@@ -192,13 +161,10 @@ public class Filters {
 	 */
 	public static Filter<String> lower(final Filter<? super String> filter) {
 		if (filter == null) return _true();
-		return new BaseFilter<String>() {
-			@Override
-			public boolean filterNonNull(String s) {
-				String lower = s.toLowerCase();
-				return filter.filter(lower);
-			}
-		};
+		return (s -> {
+			String lower = s.toLowerCase();
+			return filter.filter(lower);
+		});
 	}
 
 	/**
@@ -206,12 +172,7 @@ public class Filters {
 	 */
 	public static <T extends Comparable<T>> Filter<T> min(final T min) {
 		if (min == null) return _true();
-		return new BaseFilter<T>() {
-			@Override
-			public boolean filterNonNull(T t) {
-				return t.compareTo(min) >= 0;
-			}
-		};
+		return (t -> t.compareTo(min) >= 0);
 	}
 
 	/**
@@ -219,28 +180,20 @@ public class Filters {
 	 */
 	public static <T extends Comparable<T>> Filter<T> max(final T max) {
 		if (max == null) return _true();
-		return new BaseFilter<T>() {
-			@Override
-			public boolean filterNonNull(T t) {
-				return t.compareTo(max) <= 0;
-			}
-		};
+		return (t -> t.compareTo(max) <= 0);
 	}
 
 	/**
-	 * Comparable filter that returns true if the value is between given values.
-	 * A null limit value means don't check that end of the limit.
+	 * Comparable filter that returns true if the value is between given values. A null limit value
+	 * means don't check that end of the limit.
 	 */
 	public static <T extends Comparable<T>> Filter<T> range(final T min, final T max) {
 		if (min == null && max == null) return _true();
-		return new BaseFilter<T>() {
-			@Override
-			public boolean filterNonNull(T t) {
-				if (min != null && t.compareTo(min) < 0) return false;
-				if (max != null && t.compareTo(max) > 0) return false;
-				return true;
-			}
-		};
+		return (t -> {
+			if (min != null && t.compareTo(min) < 0) return false;
+			if (max != null && t.compareTo(max) > 0) return false;
+			return true;
+		});
 	}
 
 }

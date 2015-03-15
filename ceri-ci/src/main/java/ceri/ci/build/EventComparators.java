@@ -1,23 +1,14 @@
 package ceri.ci.build;
 
 import java.util.Comparator;
-import ceri.common.comparator.BaseComparator;
+import ceri.common.comparator.Comparators;
 import ceri.common.comparator.EnumComparators;
 
 public class EventComparators {
-	public static final Comparator<Event> TIMESTAMP = new BaseComparator<Event>() {
-		@Override
-		protected int compareNonNull(Event o1, Event o2) {
-			return o1.compareTo(o2);
-		}
-	};
-	
-	public static final Comparator<Event> TYPE = new BaseComparator<Event>() {
-		@Override
-		protected int compareNonNull(Event o1, Event o2) {
-			return EnumComparators.<Event.Type>ordinal().compare(o1.type, o2.type);
-		}
-	};
+	public static final Comparator<Event> TIMESTAMP = Comparators.nonNull((lhs, rhs) -> lhs
+		.compareTo(rhs));
+	public static final Comparator<Event> TYPE = Comparators.nonNull((lhs, rhs) -> EnumComparators
+		.<Event.Type>ordinal().compare(lhs.type, rhs.type));
 
 	private EventComparators() {}
 

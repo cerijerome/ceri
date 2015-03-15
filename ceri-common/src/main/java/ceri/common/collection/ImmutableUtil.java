@@ -30,7 +30,7 @@ public class ImmutableUtil {
 			}
 		};
 	}
-	
+
 	/**
 	 * Creates an immutable iterator wrapper.
 	 */
@@ -40,17 +40,19 @@ public class ImmutableUtil {
 			public boolean hasNext() {
 				return iterator.hasNext();
 			}
+
 			@Override
 			public T next() {
 				return iterator.next();
 			}
+
 			@Override
 			public void remove() {
 				throw new UnsupportedOperationException("Iterator is immutable.");
 			}
 		};
 	}
-	
+
 	/**
 	 * Copies a collection of objects into an immutable HashSet.
 	 */
@@ -79,7 +81,7 @@ public class ImmutableUtil {
 	 * Copies an array of objects into an immutable ArrayList.
 	 */
 	@SafeVarargs
-	public static <T> List<T> asList(T...array) {
+	public static <T> List<T> asList(T... array) {
 		if (array.length == 0) return Collections.emptyList();
 		List<T> list = new ArrayList<>();
 		Collections.addAll(list, array);
@@ -90,7 +92,7 @@ public class ImmutableUtil {
 	 * Copies an array of objects into an immutable HashSet.
 	 */
 	@SafeVarargs
-	public static <T> Set<T> asSet(T...array) {
+	public static <T> Set<T> asSet(T... array) {
 		if (array.length == 0) return Collections.emptySet();
 		Set<T> set = new HashSet<>();
 		Collections.addAll(set, array);
@@ -98,25 +100,27 @@ public class ImmutableUtil {
 	}
 
 	@SafeVarargs
-	public static <F, T> List<T> convertAsList(Function<? super F, ? extends T> fn, F...fs) {
+	public static <F, T> List<T> convertAsList(Function<? super F, ? extends T> fn, F... fs) {
 		return convertAsList(fn, Arrays.asList(fs));
 	}
-	
+
 	public static <F, T> List<T> convertAsList(Function<? super F, ? extends T> fn, Iterable<F> fs) {
 		List<T> ts = new ArrayList<>();
-		for (F f : fs) ts.add(fn.apply(f));
+		for (F f : fs)
+			ts.add(fn.apply(f));
 		return Collections.unmodifiableList(ts);
 	}
-	
+
 	@SafeVarargs
-	public static <F, T> Set<T> convertAsSet(Function<? super F, ? extends T> fn, F...fs) {
+	public static <F, T> Set<T> convertAsSet(Function<? super F, ? extends T> fn, F... fs) {
 		return convertAsSet(fn, Arrays.asList(fs));
 	}
-	
+
 	public static <F, T> Set<T> convertAsSet(Function<? super F, ? extends T> fn, Iterable<F> fs) {
 		Set<T> ts = new HashSet<>();
-		for (F f : fs) ts.add(fn.apply(f));
+		for (F f : fs)
+			ts.add(fn.apply(f));
 		return Collections.unmodifiableSet(ts);
 	}
-	
+
 }

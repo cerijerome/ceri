@@ -28,7 +28,7 @@ public class CollectionUtil {
 	public static final <T> Iterable<T> iterable(final Enumeration<? extends T> enumeration) {
 		return BasicUtil.forEach(iterator(enumeration));
 	}
-	
+
 	/**
 	 * Returns an iterator for an enumeration.
 	 */

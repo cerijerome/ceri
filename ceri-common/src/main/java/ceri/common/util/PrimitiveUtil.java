@@ -17,10 +17,9 @@ public class PrimitiveUtil {
 	private static final Map<Class<?>, Class<?>> classMap = createMap();
 
 	private PrimitiveUtil() {}
-	
+
 	/**
-	 * Converts a string to a value or returns the default value
-	 * if the string cannot be parsed.
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Boolean valueOf(String value, Boolean def) {
 		if (BasicUtil.isEmpty(value)) return def;
@@ -28,8 +27,7 @@ public class PrimitiveUtil {
 	}
 
 	/**
-	 * Converts a string to a value or returns the default value
-	 * if the string cannot be parsed.
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Byte valueOf(String value, Byte def) {
 		try {
@@ -41,8 +39,7 @@ public class PrimitiveUtil {
 	}
 
 	/**
-	 * Converts a string to a value or returns the default value
-	 * if the string cannot be parsed.
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Character valueOf(String value, Character def) {
 		if (BasicUtil.isEmpty(value)) return def;
@@ -50,8 +47,7 @@ public class PrimitiveUtil {
 	}
 
 	/**
-	 * Converts a string to a value or returns the default value
-	 * if the string cannot be parsed.
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Short valueOf(String value, Short def) {
 		try {
@@ -63,8 +59,7 @@ public class PrimitiveUtil {
 	}
 
 	/**
-	 * Converts a string to a value or returns the default value
-	 * if the string cannot be parsed.
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Integer valueOf(String value, Integer def) {
 		try {
@@ -76,8 +71,7 @@ public class PrimitiveUtil {
 	}
 
 	/**
-	 * Converts a string to a value or returns the default value
-	 * if the string cannot be parsed.
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Long valueOf(String value, Long def) {
 		try {
@@ -89,8 +83,7 @@ public class PrimitiveUtil {
 	}
 
 	/**
-	 * Converts a string to a value or returns the default value
-	 * if the string cannot be parsed.
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Float valueOf(String value, Float def) {
 		try {
@@ -102,8 +95,7 @@ public class PrimitiveUtil {
 	}
 
 	/**
-	 * Converts a string to a value or returns the default value
-	 * if the string cannot be parsed.
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Double valueOf(String value, Double def) {
 		try {
@@ -229,56 +221,56 @@ public class PrimitiveUtil {
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Boolean> asList(boolean...array) {
+	public static List<Boolean> asList(boolean... array) {
 		return Arrays.asList(convertBooleanArray(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Byte> asList(byte...array) {
+	public static List<Byte> asList(byte... array) {
 		return Arrays.asList(convertByteArray(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Character> asList(char...array) {
+	public static List<Character> asList(char... array) {
 		return Arrays.asList(convertCharArray(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Double> asList(double...array) {
+	public static List<Double> asList(double... array) {
 		return Arrays.asList(convertDoubleArray(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Float> asList(float...array) {
+	public static List<Float> asList(float... array) {
 		return Arrays.asList(convertFloatArray(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Integer> asList(int...array) {
+	public static List<Integer> asList(int... array) {
 		return Arrays.asList(convertIntArray(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Long> asList(long...array) {
+	public static List<Long> asList(long... array) {
 		return Arrays.asList(convertLongArray(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Short> asList(short...array) {
+	public static List<Short> asList(short... array) {
 		return Arrays.asList(convertShortArray(array));
 	}
 
@@ -288,7 +280,8 @@ public class PrimitiveUtil {
 	public static byte[] toByteArray(Collection<? extends Number> collection) {
 		byte[] result = new byte[collection.size()];
 		int i = 0;
-		for (Number number : collection) result[i++] = number.byteValue();
+		for (Number number : collection)
+			result[i++] = number.byteValue();
 		return result;
 	}
 
@@ -298,7 +291,8 @@ public class PrimitiveUtil {
 	public static short[] toShortArray(Collection<? extends Number> collection) {
 		short[] result = new short[collection.size()];
 		int i = 0;
-		for (Number number : collection) result[i++] = number.shortValue();
+		for (Number number : collection)
+			result[i++] = number.shortValue();
 		return result;
 	}
 
@@ -308,7 +302,8 @@ public class PrimitiveUtil {
 	public static int[] toIntArray(Collection<? extends Number> collection) {
 		int[] result = new int[collection.size()];
 		int i = 0;
-		for (Number number : collection) result[i++] = number.intValue();
+		for (Number number : collection)
+			result[i++] = number.intValue();
 		return result;
 	}
 
@@ -318,7 +313,8 @@ public class PrimitiveUtil {
 	public static long[] toLongArray(Collection<? extends Number> collection) {
 		long[] result = new long[collection.size()];
 		int i = 0;
-		for (Number number : collection) result[i++] = number.longValue();
+		for (Number number : collection)
+			result[i++] = number.longValue();
 		return result;
 	}
 
@@ -328,7 +324,8 @@ public class PrimitiveUtil {
 	public static float[] toFloatArray(Collection<? extends Number> collection) {
 		float[] result = new float[collection.size()];
 		int i = 0;
-		for (Number number : collection) result[i++] = number.floatValue();
+		for (Number number : collection)
+			result[i++] = number.floatValue();
 		return result;
 	}
 
@@ -338,7 +335,8 @@ public class PrimitiveUtil {
 	public static double[] toDoubleArray(Collection<? extends Number> collection) {
 		double[] result = new double[collection.size()];
 		int i = 0;
-		for (Number number : collection) result[i++] = number.doubleValue();
+		for (Number number : collection)
+			result[i++] = number.doubleValue();
 		return result;
 	}
 
@@ -350,10 +348,10 @@ public class PrimitiveUtil {
 		fromCls = fromCls.isPrimitive() ? classMap.get(fromCls) : fromCls;
 		return toCls.isAssignableFrom(fromCls);
 	}
-	
+
 	/**
-	 * Returns the corresponding primitive class for an object class.
-	 * If the specified class is not an object class, exception is thrown.
+	 * Returns the corresponding primitive class for an object class. If the specified class is not
+	 * an object class, exception is thrown.
 	 */
 	public static Class<?> getPrimitiveClass(Class<?> objectCls) {
 		if (objectCls.isPrimitive()) throw new IllegalArgumentException(
@@ -365,8 +363,8 @@ public class PrimitiveUtil {
 	}
 
 	/**
-	 * Returns the corresponding object class for a primitive class.
-	 * If the specified class is not primitive, exception is thrown.
+	 * Returns the corresponding object class for a primitive class. If the specified class is not
+	 * primitive, exception is thrown.
 	 */
 	public static Class<?> getObjectClass(Class<?> primitiveCls) {
 		if (!primitiveCls.isPrimitive()) throw new IllegalArgumentException(
@@ -376,7 +374,8 @@ public class PrimitiveUtil {
 
 	private static <T> T copyArray(Object from, T to) {
 		int length = Array.getLength(from);
-		for (int i = 0; i < length; i++) Array.set(to, i, Array.get(from, i));
+		for (int i = 0; i < length; i++)
+			Array.set(to, i, Array.get(from, i));
 		return to;
 	}
 
@@ -394,8 +393,7 @@ public class PrimitiveUtil {
 		return classMap;
 	}
 
-	private static void add(Map<Class<?>, Class<?>> classMap,
-		Class<?> primitive, Class<?> object) {
+	private static void add(Map<Class<?>, Class<?>> classMap, Class<?> primitive, Class<?> object) {
 		classMap.put(primitive, object);
 		classMap.put(object, primitive);
 	}

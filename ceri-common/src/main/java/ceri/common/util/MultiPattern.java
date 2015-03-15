@@ -15,7 +15,7 @@ public class MultiPattern {
 		List<Pattern> patterns = new ArrayList<>();
 
 		Builder() {}
-		
+
 		public Builder patternStrings(Collection<String> patterns) {
 			for (String pattern : patterns)
 				this.patterns.add(Pattern.compile(pattern));
@@ -47,7 +47,7 @@ public class MultiPattern {
 	public static Builder builder() {
 		return new Builder();
 	}
-	
+
 	public Matcher find(CharSequence s) {
 		for (Pattern pattern : patterns) {
 			Matcher m = pattern.matcher(s);
@@ -55,5 +55,5 @@ public class MultiPattern {
 		}
 		return null;
 	}
-	
+
 }

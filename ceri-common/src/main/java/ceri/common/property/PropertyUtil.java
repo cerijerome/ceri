@@ -39,16 +39,15 @@ public class PropertyUtil {
 	}
 
 	/**
-	 * Creates properties from resource file. Location is same package as the
-	 * class, file name is <simple-class-name>.properties
+	 * Creates properties from resource file. Location is same package as the class, file name is
+	 * <simple-class-name>.properties
 	 */
 	public static Properties load(Class<?> cls) throws IOException {
 		return load(cls, cls.getSimpleName() + PROPERTIES_FILE_EXT);
 	}
 
 	/**
-	 * Creates properties from resource file. Location is same package as the
-	 * class.
+	 * Creates properties from resource file. Location is same package as the class.
 	 */
 	public static Properties load(Class<?> cls, String name) throws IOException {
 		Properties properties = new Properties();

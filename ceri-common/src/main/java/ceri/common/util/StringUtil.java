@@ -14,8 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * String-based utilities. See also TextUtil for more word-based formatting
- * utilities.
+ * String-based utilities. See also TextUtil for more word-based formatting utilities.
  */
 public class StringUtil {
 	public static final String UTF8 = "UTF8";
@@ -34,7 +33,7 @@ public class StringUtil {
 			throw new IllegalArgumentException(e);
 		}
 	}
-	
+
 	/**
 	 * Uses URLDecoder with UTF8 encoding. Throws IllegalArgumentException for encoding issues.
 	 */
@@ -45,26 +44,27 @@ public class StringUtil {
 			throw new IllegalArgumentException(e);
 		}
 	}
-	
+
 	/**
-	 * Splits a string by commas and trims each entry.
-	 * Trailing empty strings are dropped as with the regular split method.
+	 * Splits a string by commas and trims each entry. Trailing empty strings are dropped as with
+	 * the regular split method.
 	 */
 	public static Collection<String> commaSplit(String s) {
 		if (BasicUtil.isEmpty(s)) return Collections.emptySet();
 		String[] ss = COMMA_SPLIT_REGEX.split(s);
 		List<String> list = new ArrayList<>();
-		for (String str : ss) list.add(str.trim());
+		for (String str : ss)
+			list.add(str.trim());
 		return list;
 	}
-	
+
 	/**
 	 * Checks if a char is printable
 	 */
 	public static boolean printable(char c) {
 		if (Character.isISOControl(c) || c == KeyEvent.CHAR_UNDEFINED) return false;
 		Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
-		return block != null &&	block != Character.UnicodeBlock.SPECIALS;
+		return block != null && block != Character.UnicodeBlock.SPECIALS;
 	}
 
 	/**
@@ -103,8 +103,7 @@ public class StringUtil {
 	}
 
 	/**
-	 * Creates a formatted string for iterable items:
-	 * [pre]item1[separator]item2[separator]...[post]
+	 * Creates a formatted string for iterable items: [pre]item1[separator]item2[separator]...[post]
 	 */
 	public static String toString(String pre, String post, String separator, Iterable<?> iterable) {
 		StringBuilder b = new StringBuilder(pre);
@@ -193,16 +192,16 @@ public class StringUtil {
 	}
 
 	/**
-	 * Returns substring, or "" if null or index out of bounds. Use start < 0
-	 * for length relative to end.
+	 * Returns substring, or "" if null or index out of bounds. Use start < 0 for length relative to
+	 * end.
 	 */
 	public static String safeSubstring(String s, int start) {
 		return safeSubstring(s, start, -1);
 	}
 
 	/**
-	 * Returns substring, or "" if null or index out of bounds. Use end = -1 for
-	 * no end limit. Use start < 0 for length relative to end.
+	 * Returns substring, or "" if null or index out of bounds. Use end = -1 for no end limit. Use
+	 * start < 0 for length relative to end.
 	 */
 	public static String safeSubstring(String s, int start, int end) {
 		if (s == null) return "";
@@ -215,8 +214,7 @@ public class StringUtil {
 	}
 
 	/**
-	 * Wrap a PrintStream around a string builder. PrintStream will not flush
-	 * automatically.
+	 * Wrap a PrintStream around a string builder. PrintStream will not flush automatically.
 	 */
 	public static PrintStream asPrintStream(final StringBuilder s) {
 		return new PrintStream(new OutputStream() {

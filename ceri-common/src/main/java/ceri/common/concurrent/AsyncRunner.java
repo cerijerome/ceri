@@ -8,7 +8,7 @@ import ceri.common.util.BasicUtil;
  */
 public abstract class AsyncRunner<T extends Exception> {
 	private final Thread thread;
-	private Class<T> errorClass;
+	private final Class<T> errorClass;
 	Exception error = null;
 
 	public AsyncRunner(Class<T> errorClass) {

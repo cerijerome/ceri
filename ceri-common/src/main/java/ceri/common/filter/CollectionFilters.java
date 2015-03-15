@@ -7,70 +7,53 @@ import java.util.List;
  * Simple filters to be applied to collections.
  */
 public class CollectionFilters {
-	
+
 	private CollectionFilters() {}
-	
+
 	/**
 	 * Filter that returns true if the collection is not empty.
 	 */
 	public static <T> Filter<Collection<T>> notEmpty() {
-		return new BaseFilter<Collection<T>>() {
-			@Override
-			public boolean filterNonNull(Collection<T> ts) {
-				return !ts.isEmpty();
-			}
-		};
+		return (ts -> !ts.isEmpty());
 	}
-	
+
 	/**
 	 * Filter that applies given filter to the size of the collection.
 	 */
 	public static <T> Filter<Collection<T>> size(final Filter<? super Integer> filter) {
-		return new BaseFilter<Collection<T>>() {
-			@Override
-			public boolean filterNonNull(Collection<T> ts) {
-				return filter.filter(ts.size());
-			}
-		};
+		return (ts -> filter.filter(ts.size()));
 	}
-	
+
 	/**
 	 * Filter that applies given filter to item at index i of the list.
 	 */
 	public static <T> Filter<List<T>> atIndex(final int i, final Filter<? super T> filter) {
-		return new BaseFilter<List<T>>() {
-			@Override
-			public boolean filterNonNull(List<T> ts) {
-				if (i >= ts.size()) return false;
-				return filter.filter(ts.get(i));
-			}
-		};
+		return (ts -> {
+			if (i >= ts.size()) return false;
+			return filter.filter(ts.get(i));
+		});
 	}
-	
+
 	/**
 	 * Filter that returns true if the given filter matches any elements in the collection.
 	 */
 	public static <T> Filter<Collection<T>> any(final Filter<? super T> filter) {
-		return new BaseFilter<Collection<T>>() {
-			@Override
-			public boolean filterNonNull(Collection<T> ts) {
-				for (T t : ts) if (filter.filter(t)) return true;
-				return false;
-			}
-		};
+		return (ts -> {
+			for (T t : ts)
+				if (filter.filter(t)) return true;
+			return false;
+		});
 	}
-	
+
 	/**
 	 * Filter that only returns true if the given filter matches all elements in the collection.
 	 */
 	public static <T> Filter<Collection<T>> all(final Filter<? super T> filter) {
-		return new BaseFilter<Collection<T>>() {
-			@Override
-			public boolean filterNonNull(Collection<T> ts) {
-				for (T t : ts) if (!filter.filter(t)) return false;
-				return true;
-			}
-		};
+		return (ts -> {
+			for (T t : ts)
+				if (!filter.filter(t)) return false;
+			return true;
+		});
 	}
-	
+
 }

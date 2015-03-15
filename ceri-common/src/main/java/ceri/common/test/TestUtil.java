@@ -154,7 +154,7 @@ public class TestUtil {
 	 * Checks two collections have equal elements, with specific failure information if not.
 	 */
 	public static <T> void
-		assertCollection(Collection<? extends T> lhs, Collection<? extends T> rhs) {
+	assertCollection(Collection<? extends T> lhs, Collection<? extends T> rhs) {
 		int i = 0;
 		for (T t : lhs) {
 			assertTrue("Unexpected element at position " + i + ": " + t, rhs.contains(t));

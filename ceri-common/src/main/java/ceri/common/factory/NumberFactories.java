@@ -6,7 +6,7 @@ package ceri.common.factory;
 public class NumberFactories {
 
 	private NumberFactories() {}
-	
+
 	public static final Factory<Long, Number> TO_LONG = new Factory.Base<Long, Number>() {
 		@Override
 		protected Long createNonNull(Number from) {

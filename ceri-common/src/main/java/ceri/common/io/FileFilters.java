@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public class FileFilters {
 	private static final char EXTENSION_SEPARATOR = '.';
-	
+
 	private FileFilters() {}
 
 	/**
@@ -48,10 +48,10 @@ public class FileFilters {
 	 * Creates a filter that only accepts files whose extension matches one of the given types.
 	 * Types should be specified in lower case.
 	 */
-	public static FileFilter byExtension(String...extensions) {
+	public static FileFilter byExtension(String... extensions) {
 		return byExtension(Arrays.asList(extensions));
 	}
-	
+
 	/**
 	 * Creates a filter that only accepts files whose extension matches one of the given types.
 	 * Types should be specified in lower case.
@@ -66,7 +66,7 @@ public class FileFilters {
 			return extensions.contains(ext);
 		};
 	}
-	
+
 	/**
 	 * Creates a filter that only accepts files modified since the given time in ms.
 	 */

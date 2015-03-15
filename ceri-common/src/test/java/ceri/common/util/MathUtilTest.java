@@ -30,6 +30,18 @@ public class MathUtilTest {
 	}
 
 	@Test
+	public void testSimpleRound() {
+		assertThat(MathUtil.simpleRound(11111.11111, 2), is(11111.11));
+		assertThat(MathUtil.simpleRound(11111.11111, 10), is(11111.11111));
+		assertThat(MathUtil.simpleRound(11111.111111111111111, 2), is(11111.11));
+		assertThat(MathUtil.simpleRound(777.7777, 3), is(777.778));
+		assertThat(MathUtil.simpleRound(-777.7777, 3), is(-777.778));
+		assertException(() -> MathUtil.simpleRound(777.7777, 11));
+		assertException(() -> MathUtil.simpleRound(1000000000.1, 1));
+		assertException(() -> MathUtil.simpleRound(-1000000000.1, 1));
+	}
+
+	@Test
 	public void testShortToBytes() {
 		byte ff = (byte) 0xff;
 		byte _80 = (byte) 0x80;

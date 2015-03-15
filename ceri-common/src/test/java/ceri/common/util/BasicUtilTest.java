@@ -8,6 +8,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -25,6 +29,22 @@ public class BasicUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(BasicUtil.class);
+	}
+
+	
+	@Test
+	public void testBeep() {
+		// Make sure no error thrown
+		BasicUtil.beep();
+	}
+
+	@Test
+	public void testCopyToClipboard() throws IOException, UnsupportedFlavorException {
+		String s = "clipboard\ntest\n";
+		BasicUtil.copyToClipBoard(s);
+		Transferable trans = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+		Object obj = trans.getTransferData(trans.getTransferDataFlavors()[0]);
+		assertThat(obj, is(s));
 	}
 
 	@Test

@@ -31,7 +31,7 @@ import ceri.common.util.BasicUtil;
 public class ZipUtil {
 
 	private ZipUtil() {}
-	
+
 	/**
 	 * Creates ZIP data from all files under given directory as byte array.
 	 */
@@ -51,17 +51,15 @@ public class ZipUtil {
 	}
 
 	/**
-	 * Creates ZIP data from all files under given directory. Writes to given
-	 * output stream.
+	 * Creates ZIP data from all files under given directory. Writes to given output stream.
 	 */
 	public static void zip(File dirToZip, OutputStream out) throws IOException {
 		zip(dirToZip, out, null, 0);
 	}
 
 	/**
-	 * Creates ZIP data from all files under given directory. Writes to given
-	 * output stream. Use null for no checksum, and use 0 for default buffer
-	 * size.
+	 * Creates ZIP data from all files under given directory. Writes to given output stream. Use
+	 * null for no checksum, and use 0 for default buffer size.
 	 */
 	public static void zip(File dirToZip, OutputStream out, Checksum checksum, int bufferSize)
 		throws IOException {
@@ -70,9 +68,8 @@ public class ZipUtil {
 	}
 
 	/**
-	 * Creates ZIP data from all files under given directory. Writes to given
-	 * output stream. Use null for no checksum, and use 0 for default buffer
-	 * size.
+	 * Creates ZIP data from all files under given directory. Writes to given output stream. Use
+	 * null for no checksum, and use 0 for default buffer size.
 	 */
 	public static void zip(FilenameIterator iterator, OutputStream out, Checksum checksum,
 		int bufferSize) throws IOException {
@@ -94,16 +91,14 @@ public class ZipUtil {
 	}
 
 	/**
-	 * Create files from ZIP under given directory. If an exception occurs files
-	 * are cleaned up.
+	 * Create files from ZIP under given directory. If an exception occurs files are cleaned up.
 	 */
 	public static void unzip(byte[] zipData, File unzipDir) throws IOException {
 		unzip(new ByteArrayInputStream(zipData), unzipDir, null, 0);
 	}
 
 	/**
-	 * Create files from ZIP under given directory. If an exception occurs files
-	 * are cleaned up.
+	 * Create files from ZIP under given directory. If an exception occurs files are cleaned up.
 	 */
 	public static void unzip(File zipFile, File unzipDir) throws IOException {
 		try (InputStream in = new FileInputStream(zipFile)) {
@@ -112,19 +107,17 @@ public class ZipUtil {
 	}
 
 	/**
-	 * Create files from ZIP under given directory. If an exception occurs files
-	 * are cleaned up.
+	 * Create files from ZIP under given directory. If an exception occurs files are cleaned up.
 	 */
 	public static void unzip(InputStream in, File unzipDir) throws IOException {
 		unzip(in, unzipDir, null, 0);
 	}
 
 	/**
-	 * Create files from ZIP under given directory. Use null for no checksum,
-	 * and use 0 for default buffer size. If an exception occurs files are
-	 * cleaned up. Note: when reading, checksum doesn't always match the one
-	 * during writing, especially for large data. Seems to be unread data that
-	 * doesn't make it into the checksum, so remaining data is read via skip.
+	 * Create files from ZIP under given directory. Use null for no checksum, and use 0 for default
+	 * buffer size. If an exception occurs files are cleaned up. Note: when reading, checksum
+	 * doesn't always match the one during writing, especially for large data. Seems to be unread
+	 * data that doesn't make it into the checksum, so remaining data is read via skip.
 	 */
 	public static void unzip(InputStream in, File unzipDir, Checksum checksum, int bufferSize)
 		throws IOException {
@@ -145,7 +138,7 @@ public class ZipUtil {
 				}
 				zIn.closeEntry();
 			}
-			if (checksum != null) while (cIn.skip(bufferSize) > 0) {} // read remaining for checksum 
+			if (checksum != null) while (cIn.skip(bufferSize) > 0) {} // read remaining for checksum
 		} catch (IOException e) {
 			tracker.delete();
 			throw e;

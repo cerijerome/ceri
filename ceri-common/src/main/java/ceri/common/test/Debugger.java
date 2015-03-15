@@ -7,8 +7,8 @@ import ceri.common.reflect.Caller;
 import ceri.common.reflect.ReflectUtil;
 
 /**
- * Useful class for printf-style debugging. Log methods of interest, with
- * information automatically logged based on stack trace.
+ * Useful class for printf-style debugging. Log methods of interest, with information automatically
+ * logged based on stack trace.
  */
 public class Debugger {
 	public static final Debugger DBG = new Debugger(System.err, 8, 0); // Global debugger
@@ -23,9 +23,8 @@ public class Debugger {
 	}
 
 	/**
-	 * Creates a debugger writing to given stream, indent starting at given
-	 * index in stack trace, stopping output after given number of method calls
-	 * to the debugger.
+	 * Creates a debugger writing to given stream, indent starting at given index in stack trace,
+	 * stopping output after given number of method calls to the debugger.
 	 */
 	public Debugger(PrintStream stream, int traceStartIndex, int stopCount) {
 		this.stream = stream;
@@ -34,8 +33,8 @@ public class Debugger {
 	}
 
 	/**
-	 * Write caller info to log, with given message. Use this to log additional
-	 * info within a method.
+	 * Write caller info to log, with given message. Use this to log additional info within a
+	 * method.
 	 */
 	public void log(Object... objs) {
 		if (shouldStop(totalCalls++)) return;
@@ -49,8 +48,8 @@ public class Debugger {
 	}
 
 	/**
-	 * Write caller info to log, increment method count, and output current
-	 * count. Use this to log when a method is called.
+	 * Write caller info to log, increment method count, and output current count. Use this to log
+	 * when a method is called.
 	 */
 	public void method(Object... objs) {
 		if (shouldStop(totalCalls++)) return;
@@ -61,7 +60,7 @@ public class Debugger {
 
 	private void print(Caller caller, int indentOffset, Object msg, Object... objs) {
 		StringBuilder b = new StringBuilder();
-		int indents = indents(++indentOffset); // don't count this method 
+		int indents = indents(++indentOffset); // don't count this method
 		while (indents-- > 0)
 			b.append("  ");
 		b.append(caller.cls).append('.').append(caller.method).append('(');

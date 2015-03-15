@@ -9,8 +9,8 @@ import ceri.common.util.PrimitiveUtil;
 import ceri.common.util.StringUtil;
 
 /**
- * Example of Unit covering distance/height in inches.
- * Only handles values in integral number of inches.
+ * Example of Unit covering distance/height in inches. Only handles values in integral number of
+ * inches.
  */
 public enum InchUnit implements Unit {
 	inch(1, "\""),
@@ -51,8 +51,8 @@ public enum InchUnit implements Unit {
 	}
 
 	/**
-	 * Converts height string into a normalized value.
-	 * Allowed formats are of the form: 10ft, 10ft11", 10ft11, 10', 10'11", 10'11, 11", 11 
+	 * Converts height string into a normalized value. Allowed formats are of the form: 10ft,
+	 * 10ft11", 10ft11, 10', 10'11", 10'11, 11", 11
 	 */
 	public static NormalizedValue<InchUnit> heightFromString(String s) {
 		Matcher m = HEIGHT_PATTERNS.find(s);

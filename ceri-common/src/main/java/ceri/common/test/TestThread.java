@@ -56,9 +56,8 @@ public abstract class TestThread<T extends Throwable> {
 	}
 
 	/**
-	 * Attempts to stop the thread, waiting for a maximum time of 1 second. If
-	 * the thread does not stop in the given time a RuntimeException will be
-	 * thrown.
+	 * Attempts to stop the thread, waiting for a maximum time of 1 second. If the thread does not
+	 * stop in the given time a RuntimeException will be thrown.
 	 */
 	public void stop() throws T {
 		interrupt();
@@ -66,9 +65,9 @@ public abstract class TestThread<T extends Throwable> {
 	}
 
 	/**
-	 * Attempts to stop the thread, waiting for given maximum number of
-	 * milliseconds. A value of 0 will wait indefinitely. If the thread does not
-	 * stop in the given time a RuntimeException will be thrown.
+	 * Attempts to stop the thread, waiting for given maximum number of milliseconds. A value of 0
+	 * will wait indefinitely. If the thread does not stop in the given time a RuntimeException will
+	 * be thrown.
 	 */
 	public void stop(int ms) throws T {
 		interrupt();
@@ -76,18 +75,17 @@ public abstract class TestThread<T extends Throwable> {
 	}
 
 	/**
-	 * Waits for max of 1 second for thread to complete. A value of 0 will wait
-	 * indefinitely. If the thread does not stop in the given time a
-	 * RuntimeException will be thrown.
+	 * Waits for max of 1 second for thread to complete. A value of 0 will wait indefinitely. If the
+	 * thread does not stop in the given time a RuntimeException will be thrown.
 	 */
 	public void join() throws T {
 		join(DEFAULT_WAIT_MS);
 	}
 
 	/**
-	 * Waits given maximum number of milliseconds for thread to complete. A
-	 * value of 0 will wait indefinitely. If the thread does not stop in the
-	 * given time a RuntimeException will be thrown.
+	 * Waits given maximum number of milliseconds for thread to complete. A value of 0 will wait
+	 * indefinitely. If the thread does not stop in the given time a RuntimeException will be
+	 * thrown.
 	 */
 	public void join(int ms) throws T {
 		try {

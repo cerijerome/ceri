@@ -12,7 +12,7 @@ import ceri.common.util.BasicUtil;
  */
 public class Comparators {
 	private static final Comparator<Comparable<Comparable<?>>> COMPARABLE =
-		new ComparableComparator<>();
+		nonNull((lhs, rhs) -> lhs.compareTo(rhs));
 	public static final Comparator<Double> DOUBLE = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Float> FLOAT = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Byte> BYTE = BasicUtil.uncheckedCast(COMPARABLE);
@@ -24,42 +24,26 @@ public class Comparators {
 	public static final Comparator<String> STRING = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Date> DATE = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Locale> LOCALE = string();
-
-	/**
-	 * Comparator for comparable types that handles null cases.
-	 */
-	private static class ComparableComparator<T extends Comparable<? super T>> extends
-		BaseComparator<T> {
-		ComparableComparator() {}
-
-		@Override
-		protected int compareNonNull(T o1, T o2) {
-			return o1.compareTo(o2);
-		}
-	}
-
-	private static final Comparator<?> STRING_VALUE = new BaseComparator<Object>() {
-		@Override
-		protected int compareNonNull(Object lhs, Object rhs) {
-			return STRING.compare(String.valueOf(lhs), String.valueOf(rhs));
-		}
-	};
-
-	private static final Comparator<?> NULL = new Comparator<Object>() {
-		@Override
-		public int compare(Object lhs, Object rhs) {
-			return 0;
-		}
-	};
-
-	private static final Comparator<?> NON_NULL = new BaseComparator<Object>() {
-		@Override
-		protected int compareNonNull(Object lhs, Object rhs) {
-			return 0;
-		}
-	};
+	private static final Comparator<?> STRING_VALUE = nonNull((lhs, rhs) -> STRING.compare(String
+		.valueOf(lhs), String.valueOf(rhs)));
+	private static final Comparator<?> NULL = ((lhs, rhs) -> 0);
+	private static final Comparator<?> NON_NULL = nonNull((lhs, rhs) -> 0);
 
 	private Comparators() {}
+
+	/**
+	 * Wraps a comparator, where null values are considered inferior to non-null values.
+	 */
+	public static <T> Comparator<T> nonNull(final Comparator<? super T> comparator) {
+		if (comparator == null) return BasicUtil.uncheckedCast(NULL);
+		return ((lhs, rhs) -> {
+			if (lhs == rhs) return 0;
+			if (lhs == null) return -1;
+			if (rhs == null) return 1;
+			if (lhs.equals(rhs)) return 0;
+			return comparator.compare(lhs, rhs);
+		});
+	}
 
 	/**
 	 * Comparator for comparable objects.
@@ -101,7 +85,7 @@ public class Comparators {
 	 * Create a comparator the checks comparators in sequence.
 	 */
 	public static <T> Comparator<T>
-		sequence(Collection<? extends Comparator<? super T>> comparators) {
+	sequence(Collection<? extends Comparator<? super T>> comparators) {
 		return ComparatorSequence.<T>builder().add(comparators).build();
 	}
 
@@ -118,29 +102,21 @@ public class Comparators {
 	 */
 	public static <T> Comparator<T> group(final Comparator<? super T> comparator,
 		final Collection<T> ts) {
-		return new BaseComparator<T>() {
-			@Override
-			protected int compareNonNull(T lhs, T rhs) {
-				boolean lhsEq = ts.contains(lhs);
-				boolean rhsEq = ts.contains(rhs);
-				if (lhsEq && rhsEq) return comparator.compare(lhs, rhs);
-				if (lhsEq) return -1;
-				if (rhsEq) return 1;
-				return comparator.compare(lhs, rhs);
-			}
-		};
+		return nonNull((lhs, rhs) -> {
+			boolean lhsEq = ts.contains(lhs);
+			boolean rhsEq = ts.contains(rhs);
+			if (lhsEq && rhsEq) return comparator.compare(lhs, rhs);
+			if (lhsEq) return -1;
+			if (rhsEq) return 1;
+			return comparator.compare(lhs, rhs);
+		});
 	}
 
 	/**
 	 * Reverses a given comparator.
 	 */
 	public static <T> Comparator<T> reverse(final Comparator<T> comparator) {
-		return new Comparator<T>() {
-			@Override
-			public int compare(T lhs, T rhs) {
-				return -comparator.compare(lhs, rhs);
-			}
-		};
+		return ((lhs, rhs) -> -comparator.compare(lhs, rhs));
 	}
 
 }

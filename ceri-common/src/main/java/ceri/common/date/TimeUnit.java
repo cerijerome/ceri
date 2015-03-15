@@ -6,8 +6,8 @@ import ceri.common.unit.NormalizedValue;
 import ceri.common.unit.Unit;
 
 /**
- * Time units to be used with NormalizedValue and Calendar.
- * For other use cases java.util.concurrent.TimeUnit is preferred.
+ * Time units to be used with NormalizedValue and Calendar. For other use cases
+ * java.util.concurrent.TimeUnit is preferred.
  */
 public enum TimeUnit implements Unit {
 	millisec("ms", CalendarField.millisec, 1),
@@ -45,5 +45,5 @@ public enum TimeUnit implements Unit {
 		for (Map.Entry<TimeUnit, Long> entry : value.values.entrySet())
 			entry.getKey().field.set(cal, entry.getValue().intValue());
 	}
-	
+
 }

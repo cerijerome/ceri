@@ -12,9 +12,8 @@ import ceri.common.comparator.Comparators;
 import ceri.common.util.TextUtil;
 
 /**
- * Prints out tests (traditionl unit tests) and behaviors (BDD-style) in
- * readable phrases. Works with JUnitCore running a suite of test classes. Used
- * by TestUtil.exec
+ * Prints out tests (traditionl unit tests) and behaviors (BDD-style) in readable phrases. Works
+ * with JUnitCore running a suite of test classes. Used by TestUtil.exec
  */
 public class TestPrinter extends RunListener {
 	private static final Pattern CLASS_NAME_PATTERN = Pattern.compile("^(.*?)(?:Test|Behavior)$");
@@ -47,17 +46,17 @@ public class TestPrinter extends RunListener {
 		public String toString() {
 			return toString;
 		}
-		
+
 		@Override
 		public int hashCode() {
 			return hashCode;
 		}
-		
+
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) return true;
 			if (!(obj instanceof Test)) return false;
-			Test other = (Test)obj;
+			Test other = (Test) obj;
 			return toString.equals(other.toString);
 		}
 	}
@@ -115,7 +114,7 @@ public class TestPrinter extends RunListener {
 		if (m.find()) {
 			behaviors.add(new Test(testClassName, className, getBehaviorDescription(m.group(1))));
 			return;
-		} 
+		}
 		m = TEST_METHOD_PATTERN.matcher(methodName);
 		if (m.find()) {
 			tests.add(new Test(testClassName, className, getTestDescription(m.group(1))));

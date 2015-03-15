@@ -5,8 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A map that delegates all method calls. Useful as a base for adding extra
- * functionality to a map.
+ * A map that delegates all method calls. Useful as a base for adding extra functionality to a map.
  */
 public class DelegatingMap<K, V> implements Map<K, V> {
 	private final Map<K, V> map;

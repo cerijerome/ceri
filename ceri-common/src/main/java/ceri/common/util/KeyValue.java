@@ -6,12 +6,12 @@ package ceri.common.util;
 public class KeyValue<K, V> {
 	public final K key;
 	public final V value;
-	
+
 	public KeyValue(K key, V value) {
 		this.key = key;
 		this.value = value;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(key, value);
@@ -31,5 +31,5 @@ public class KeyValue<K, V> {
 	public String toString() {
 		return ToStringHelper.createByClass(this, key, value).toString();
 	}
-	
+
 }

@@ -1,7 +1,5 @@
 package ceri.common.code;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.util.BasicUtil;
 import ceri.common.util.StringUtil;
 
 /**
@@ -90,7 +89,7 @@ public class BuilderGenerator {
 		if (builder == null) return;
 		String s = builder.build().generate();
 		System.out.print("Copied to clipboard");
-		copyToClipBoard(s);
+		BasicUtil.copyToClipBoard(s);
 	}
 
 	public String generate() {
@@ -283,11 +282,6 @@ public class BuilderGenerator {
 		out.printf("\t\tpublic %s build() {%n", className);
 		out.printf("\t\t\treturn new %s(this);%n", className);
 		out.println("\t\t}");
-	}
-
-	private static void copyToClipBoard(String s) {
-		StringSelection selection = new StringSelection(s);
-		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
 	}
 
 }

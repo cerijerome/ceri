@@ -6,9 +6,9 @@ import java.nio.BufferUnderflowException;
 import ceri.common.util.ToStringHelper;
 
 /**
- * A byte buffer for writing and reading. Buffer grows as necessary during
- * writes. Will throw a BufferUnderflowException if reading from an empty
- * non-closed buffer. If blocking behavior is required use Piped streams.
+ * A byte buffer for writing and reading. Buffer grows as necessary during writes. Will throw a
+ * BufferUnderflowException if reading from an empty non-closed buffer. If blocking behavior is
+ * required use Piped streams.
  */
 public class ByteBufferStream extends ByteArrayOutputStream {
 	static final int BUFFER_SIZE_DEFAULT = 1024;

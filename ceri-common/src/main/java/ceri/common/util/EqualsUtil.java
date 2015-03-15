@@ -32,8 +32,8 @@ public class EqualsUtil {
 	}
 
 	/**
-	 * Checks if string representations of objects are equal. Returns false if
-	 * one is null. Does not trim strings before checking equality.
+	 * Checks if string representations of objects are equal. Returns false if one is null. Does not
+	 * trim strings before checking equality.
 	 */
 	public static boolean stringEquals(Object lhs, Object rhs) {
 		if (lhs == rhs) return true;

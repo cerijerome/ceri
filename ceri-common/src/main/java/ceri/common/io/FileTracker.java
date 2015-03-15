@@ -6,14 +6,13 @@ import java.util.Deque;
 import java.util.Iterator;
 
 /**
- * Used for creating dirs and files, and keeping track of which ones were created.
- * Useful if an atomic file-based operation fails and need to undo.
+ * Used for creating dirs and files, and keeping track of which ones were created. Useful if an
+ * atomic file-based operation fails and need to undo.
  */
 public class FileTracker {
 	private final Deque<File> createdFiles = new ArrayDeque<>();
-	
-	public FileTracker() {
-	}
+
+	public FileTracker() {}
 
 	/**
 	 * Adds a file to track, and creates parent dirs.
@@ -24,7 +23,7 @@ public class FileTracker {
 		add(file);
 		return this;
 	}
-	
+
 	/**
 	 * Creates and tracks dir path.
 	 */
@@ -35,18 +34,18 @@ public class FileTracker {
 		add(dir);
 		return this;
 	}
-	
+
 	/**
 	 * Delete all tracked files and dirs.
 	 */
 	public void delete() {
-		for (Iterator<File> i = createdFiles.iterator(); i.hasNext(); ) {
+		for (Iterator<File> i = createdFiles.iterator(); i.hasNext();) {
 			File file = i.next();
 			file.delete();
 			i.remove();
 		}
 	}
-	
+
 	private void add(File file) {
 		createdFiles.addFirst(file);
 	}

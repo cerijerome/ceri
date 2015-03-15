@@ -5,14 +5,13 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * An immutable extension to TimeZone.
- * UnsupportedOperationException is thrown for mutator methods.
+ * An immutable extension to TimeZone. UnsupportedOperationException is thrown for mutator methods.
  */
 public class ImmutableTimeZone extends TimeZone {
 	public static final TimeZone UTC = new ImmutableTimeZone(TimeZone.getTimeZone("UTC"));
 	private static final long serialVersionUID = -3596503137048104086L;
 	private final TimeZone timeZone;
-	
+
 	public ImmutableTimeZone(TimeZone timeZone) {
 		this.timeZone = timeZone;
 	}
@@ -43,10 +42,8 @@ public class ImmutableTimeZone extends TimeZone {
 	}
 
 	@Override
-	public int getOffset(int era, int year, int month, int day, int dayOfWeek,
-		int milliseconds) {
-		return timeZone.getOffset(era, year, month, day, dayOfWeek,
-			milliseconds);
+	public int getOffset(int era, int year, int month, int day, int dayOfWeek, int milliseconds) {
+		return timeZone.getOffset(era, year, month, day, dayOfWeek, milliseconds);
 	}
 
 	@Override
@@ -93,5 +90,5 @@ public class ImmutableTimeZone extends TimeZone {
 	public boolean useDaylightTime() {
 		return timeZone.useDaylightTime();
 	}
-	
+
 }

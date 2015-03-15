@@ -21,10 +21,9 @@ public enum CalendarField {
 		this.calendarField = calendarField;
 		this.firstValue = firstValue;
 	}
-	
+
 	/**
-	 * Sets given Calendar field with zero-based value.
-	 * Days start at 0 for 1st of the month.
+	 * Sets given Calendar field with zero-based value. Days start at 0 for 1st of the month.
 	 */
 	public void set(Calendar cal, int value) {
 		cal.set(calendarField, value + firstValue);

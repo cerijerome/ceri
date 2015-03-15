@@ -18,8 +18,8 @@ public class LogUtil {
 	}
 
 	/**
-	 * Returns an object whose toString() executes the given object's toString() method.
-	 * Convenient for use with lambda notation.
+	 * Returns an object whose toString() executes the given object's toString() method. Convenient
+	 * for use with lambda notation.
 	 */
 	public static Object toString(final ToLazyString toLazyString) {
 		return new Object() {
