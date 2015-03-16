@@ -36,9 +36,25 @@ public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 		/**
 		 * Add regex patterns to check.
 		 */
+		public Builder patternRegex(Pattern... patterns) {
+			return patternRegex(Arrays.asList(patterns));
+		}
+
+		/**
+		 * Add regex patterns to check.
+		 */
 		public Builder pattern(Collection<String> patterns) {
 			for (String pattern : patterns)
 				this.patterns.add(Pattern.compile(pattern));
+			return this;
+		}
+
+		/**
+		 * Add regex patterns to check.
+		 */
+		public Builder patternRegex(Collection<Pattern> patterns) {
+			for (Pattern pattern : patterns)
+				this.patterns.add(pattern);
 			return this;
 		}
 
@@ -84,6 +100,13 @@ public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 	 */
 	public static RegexFilenameFilter create(String... patterns) {
 		return builder().pattern(patterns).build();
+	}
+
+	/**
+	 * Convenience method to create a filter based on given patterns.
+	 */
+	public static RegexFilenameFilter create(Pattern... patterns) {
+		return builder().patternRegex(patterns).build();
 	}
 
 	/**
