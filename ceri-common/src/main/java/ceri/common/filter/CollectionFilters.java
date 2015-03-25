@@ -14,21 +14,21 @@ public class CollectionFilters {
 	 * Filter that returns true if the collection is not empty.
 	 */
 	public static <T> Filter<Collection<T>> notEmpty() {
-		return (ts -> !ts.isEmpty());
+		return Filters.nonNull(ts -> !ts.isEmpty());
 	}
 
 	/**
 	 * Filter that applies given filter to the size of the collection.
 	 */
 	public static <T> Filter<Collection<T>> size(Filter<? super Integer> filter) {
-		return (ts -> filter.filter(ts.size()));
+		return Filters.nonNull(ts -> filter.filter(ts.size()));
 	}
 
 	/**
 	 * Filter that applies given filter to item at index i of the list.
 	 */
 	public static <T> Filter<List<T>> atIndex(int i, Filter<? super T> filter) {
-		return (ts -> {
+		return Filters.nonNull(ts -> {
 			if (i >= ts.size()) return false;
 			return filter.filter(ts.get(i));
 		});
@@ -38,7 +38,7 @@ public class CollectionFilters {
 	 * Filter that returns true if the given filter matches any elements in the collection.
 	 */
 	public static <T> Filter<Collection<T>> any(Filter<? super T> filter) {
-		return (ts -> {
+		return Filters.nonNull(ts -> {
 			for (T t : ts)
 				if (filter.filter(t)) return true;
 			return false;
@@ -49,7 +49,7 @@ public class CollectionFilters {
 	 * Filter that only returns true if the given filter matches all elements in the collection.
 	 */
 	public static <T> Filter<Collection<T>> all(Filter<? super T> filter) {
-		return (ts -> {
+		return Filters.nonNull(ts -> {
 			for (T t : ts)
 				if (!filter.filter(t)) return false;
 			return true;

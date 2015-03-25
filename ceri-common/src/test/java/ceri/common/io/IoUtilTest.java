@@ -19,10 +19,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.MissingResourceException;
+import java.util.regex.Pattern;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -166,6 +168,21 @@ public class IoUtilTest {
 		assertThat(IoUtil.unixPath(relative), is("d/e"));
 		relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/a/x/y"));
 		assertThat(IoUtil.unixPath(relative), is("../../x/y"));
+	}
+
+	@Test
+	public void testListResourcesFromFile() throws Exception {
+		List<String> resources = IoUtil.listResources(getClass(), "res/test", null);
+		assertCollection(resources, "A.txt", "BB.txt", "CCC.txt");
+	}
+
+	@Test
+	public void testListResourcesFromJar() throws Exception {
+		List<String> resources = IoUtil.listResources(BigDecimal.class);
+		assertTrue(resources.contains("BigDecimal.class"));
+		assertTrue(resources.contains("BigInteger.class"));
+		resources = IoUtil.listResources(BigDecimal.class, "", Pattern.compile("BigDecimal\\..*"));
+		assertCollection(resources, "BigDecimal.class");
 	}
 
 	@Test

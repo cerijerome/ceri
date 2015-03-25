@@ -305,7 +305,7 @@ public class IoUtil {
 		if (offset < 0) throw new IllegalArgumentException("Offset must be >= 0: " + offset);
 		if (offset + len > buffer.length) throw new IllegalArgumentException(
 			"Offset plus length must not exceed buffer size (" + buffer.length + "): " + offset +
-			" + " + len);
+				" + " + len);
 		int pos = offset;
 		while (pos < offset + len) {
 			int count = in.read(buffer, pos, offset + len - pos);
@@ -313,6 +313,23 @@ public class IoUtil {
 			pos += count;
 		}
 		return pos - offset;
+	}
+
+	/**
+	 * Lists resources from same package as class. Handles file resources and resources within a jar
+	 * file.
+	 */
+	public static List<String> listResources(Class<?> cls) throws IOException {
+		return new ResourceLister(cls).list();
+	}
+
+	/**
+	 * Lists resources from same package as class, under given sub-directory, matching given regex
+	 * pattern. Handles file resources and resources within a jar file.
+	 */
+	public static List<String> listResources(Class<?> cls, String subDir, Pattern pattern)
+		throws IOException {
+		return new ResourceLister(cls, subDir, pattern).list();
 	}
 
 	/**

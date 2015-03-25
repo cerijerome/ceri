@@ -93,10 +93,10 @@ public class FiltersTest {
 		Filter<Double> fAll0 = Filters.any(filters);
 		Filter<Double> fAll1 = Filters.any(filter1, filter2);
 		assertTrue(fAll0.filter(1.0));
-		assertTrue(fAll0.filter(null));
+		assertFalse(fAll0.filter(null));
 		assertFalse(fAll0.filter(Double.NaN));
 		assertTrue(fAll1.filter(1.0));
-		assertTrue(fAll1.filter(null));
+		assertFalse(fAll1.filter(null));
 		assertFalse(fAll1.filter(Double.NaN));
 	}
 

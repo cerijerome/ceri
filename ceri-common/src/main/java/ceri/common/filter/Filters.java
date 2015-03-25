@@ -84,7 +84,7 @@ public class Filters {
 	 */
 	public static <T> Filter<T> not(final Filter<? super T> filter) {
 		if (filter == null) return _false();
-		return (t -> !filter.filter(t));
+		return nonNull(t -> !filter.filter(t));
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class Filters {
 	 */
 	public static <T> Filter<T> any(final Collection<? extends Filter<? super T>> filters) {
 		if (BasicUtil.isEmpty(filters)) return _true();
-		return (t -> {
+		return nonNull(t -> {
 			for (Filter<? super T> filter : filters)
 				if (filter.filter(t)) return true;
 			return false;
@@ -120,7 +120,7 @@ public class Filters {
 	 */
 	public static <T> Filter<T> all(final Collection<? extends Filter<? super T>> filters) {
 		if (BasicUtil.isEmpty(filters)) return _true();
-		return (t -> {
+		return nonNull(t -> {
 			for (Filter<? super T> filter : filters)
 				if (!filter.filter(t)) return false;
 			return true;
@@ -140,7 +140,7 @@ public class Filters {
 	 */
 	public static Filter<String> pattern(final Pattern pattern) {
 		if (pattern == null) return _true();
-		return (s -> pattern.matcher(s).find());
+		return nonNull(s -> pattern.matcher(s).find());
 	}
 
 	/**
@@ -150,7 +150,7 @@ public class Filters {
 	public static Filter<String> contains(String str, final boolean ignoreCase) {
 		if (str == null || str.isEmpty()) return _true();
 		final String containsStr = ignoreCase ? str.toLowerCase() : str;
-		return (s -> {
+		return nonNull(s -> {
 			s = ignoreCase ? s.toLowerCase() : s;
 			return s.contains(containsStr);
 		});
@@ -161,7 +161,7 @@ public class Filters {
 	 */
 	public static Filter<String> lower(final Filter<? super String> filter) {
 		if (filter == null) return _true();
-		return (s -> {
+		return nonNull(s -> {
 			String lower = s.toLowerCase();
 			return filter.filter(lower);
 		});
@@ -172,7 +172,7 @@ public class Filters {
 	 */
 	public static <T extends Comparable<T>> Filter<T> min(final T min) {
 		if (min == null) return _true();
-		return (t -> t.compareTo(min) >= 0);
+		return nonNull(t -> t.compareTo(min) >= 0);
 	}
 
 	/**
@@ -180,7 +180,7 @@ public class Filters {
 	 */
 	public static <T extends Comparable<T>> Filter<T> max(final T max) {
 		if (max == null) return _true();
-		return (t -> t.compareTo(max) <= 0);
+		return nonNull(t -> t.compareTo(max) <= 0);
 	}
 
 	/**
@@ -189,7 +189,7 @@ public class Filters {
 	 */
 	public static <T extends Comparable<T>> Filter<T> range(final T min, final T max) {
 		if (min == null && max == null) return _true();
-		return (t -> {
+		return nonNull(t -> {
 			if (min != null && t.compareTo(min) < 0) return false;
 			if (max != null && t.compareTo(max) > 0) return false;
 			return true;
