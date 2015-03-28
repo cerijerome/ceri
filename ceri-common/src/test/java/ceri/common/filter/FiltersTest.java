@@ -102,14 +102,14 @@ public class FiltersTest {
 
 	@Test
 	public void testContains() {
-		assertTrue(Filters.contains(null, true).filter("aaa"));
-		assertTrue(Filters.contains("", true).filter("aaa"));
-		Filter<String> filter = Filters.contains("hElLo", true);
+		assertTrue(Filters.contains(null).filter("aaa"));
+		assertTrue(Filters.containsIgnoreCase("").filter("aaa"));
+		Filter<String> filter = Filters.containsIgnoreCase("hElLo");
 		assertTrue(filter.filter("...hello there..."));
 		assertTrue(filter.filter("HELLO"));
 		assertFalse(filter.filter("H ELLO"));
 		assertFalse(filter.filter(null));
-		filter = Filters.contains("hElLo", false);
+		filter = Filters.contains("hElLo");
 		assertTrue(filter.filter("hElLo ThErE"));
 		assertFalse(filter.filter("hello"));
 	}

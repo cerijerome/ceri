@@ -1,5 +1,6 @@
 package ceri.common.property;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Properties;
@@ -251,6 +252,25 @@ public abstract class BaseProperties {
 	protected double doubleValue(double def, String... keyParts) {
 		Double value = doubleValue(keyParts);
 		return value == null ? def : value;
+	}
+
+	/**
+	 * Retrieves the File property from prefixed, dot-separated key. Returns null if no value
+	 * exists for the key.
+	 */
+	protected File fileValue(String...keyParts) {
+		String name = value(keyParts);
+		if (name == null) return null;
+		return new File(name);
+	}
+
+	/**
+	 * Retrieves the File property from prefixed, dot-separated key. Returns default value if no
+	 * value exists for the key.
+	 */
+	protected File fileValue(File def, String...keyParts) {
+		File file = fileValue(keyParts);
+		return file == null ? def : file;
 	}
 
 	/**

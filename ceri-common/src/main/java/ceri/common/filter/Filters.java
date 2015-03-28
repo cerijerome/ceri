@@ -144,16 +144,20 @@ public class Filters {
 	}
 
 	/**
-	 * Filter that returns true for strings that contain the given substring. Can specify to ignore
-	 * case.
+	 * Filter that returns true for strings that contain the given substring.
 	 */
-	public static Filter<String> contains(String str, final boolean ignoreCase) {
+	public static Filter<String> contains(String str) {
 		if (str == null || str.isEmpty()) return _true();
-		final String containsStr = ignoreCase ? str.toLowerCase() : str;
-		return nonNull(s -> {
-			s = ignoreCase ? s.toLowerCase() : s;
-			return s.contains(containsStr);
-		});
+		return nonNull(s -> s.contains(str));
+	}
+
+	/**
+	 * Filter that returns true for strings that contain the given substring, ignoring case.
+	 */
+	public static Filter<String> containsIgnoreCase(String str) {
+		if (str == null || str.isEmpty()) return _true();
+		String lowerStr = str.toLowerCase();
+		return nonNull(s -> s.toLowerCase().contains(lowerStr));
 	}
 
 	/**
