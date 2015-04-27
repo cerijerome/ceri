@@ -7,7 +7,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -49,8 +48,8 @@ public class StringUtil {
 	 * Splits a string by commas and trims each entry. Trailing empty strings are dropped as with
 	 * the regular split method.
 	 */
-	public static Collection<String> commaSplit(String s) {
-		if (BasicUtil.isEmpty(s)) return Collections.emptySet();
+	public static List<String> commaSplit(String s) {
+		if (BasicUtil.isEmpty(s)) return Collections.emptyList();
 		String[] ss = COMMA_SPLIT_REGEX.split(s);
 		List<String> list = new ArrayList<>();
 		for (String str : ss)
