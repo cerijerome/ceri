@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import ceri.common.util.BasicUtil;
+import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 
 public class XPathUtil {
@@ -11,8 +12,18 @@ public class XPathUtil {
 
 	private XPathUtil() {}
 
+	public static String attribute(DomElement dom, String attributeName) {
+		String attribute = dom.getAttribute(attributeName);
+		if (DomElement.ATTRIBUTE_NOT_DEFINED == attribute) return null;
+		return attribute;
+	}
+	
 	public static List<DomNode> xPaths(DomNode dom, String xPath) {
 		return BasicUtil.<List<DomNode>>uncheckedCast(dom.getByXPath(xPath));
+	}
+
+	public static List<DomElement> xPathElements(DomNode dom, String xPath) {
+		return BasicUtil.<List<DomElement>>uncheckedCast(dom.getByXPath(xPath));
 	}
 
 	public static String xPathText(DomNode node, String xPath) {
