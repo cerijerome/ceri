@@ -17,4 +17,8 @@ public class SafeReadWrite {
 		ConcurrentUtil.execute(lock.writeLock(), runnable);
 	}
 
+	public <E extends Exception, T> T writeWithReturn(ExceptionSupplier<E, T> supplier) throws E {
+		return ConcurrentUtil.executeGet(lock.writeLock(), supplier);
+	}
+
 }

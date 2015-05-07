@@ -17,7 +17,7 @@ public class PersistentService<K, V> implements Persistable {
 	private final SafeReadWrite safe = new SafeReadWrite();
 	private final Map<K, V> map = new TreeMap<>();
 	private final Factory<K, V> identifier;
-	
+
 	public PersistentService(PersistentStore<Collection<V>> store, Factory<K, V> identifier) {
 		this.store = store;
 		this.identifier = identifier;
@@ -30,7 +30,7 @@ public class PersistentService<K, V> implements Persistable {
 	public Collection<V> find(Filter<V> filter) {
 		return find(filter, UNLIMITED_COUNT);
 	}
-	
+
 	public Collection<V> find(Filter<V> filter, int maxCount) {
 		return safe.read(() -> {
 			Collection<V> values = new HashSet<>();
@@ -42,7 +42,20 @@ public class PersistentService<K, V> implements Persistable {
 			return values;
 		});
 	}
+
+	public int removeKeys(@SuppressWarnings("unchecked") K...keys) {
+		return removeKeys(Arrays.asList(keys));
+	}
 	
+	public int removeKeys(Iterable<K> keys) {
+		return safe.writeWithReturn(() -> {
+			int removed = 0;
+			for (K key : keys)
+				if (map.remove(key) != null) removed++;
+			return removed;
+		});
+	}
+
 	public void add(@SuppressWarnings("unchecked") V... values) {
 		add(Arrays.asList(values));
 	}
@@ -54,7 +67,7 @@ public class PersistentService<K, V> implements Persistable {
 			K id = identifier.create(value);
 			map.put(id, value);
 		}
-		safe.write(() -> this.map.putAll(map));
+		safe.write(() -> safeAdd(map));
 	}
 
 	@Override
@@ -74,4 +87,8 @@ public class PersistentService<K, V> implements Persistable {
 		safe.write(() -> map.clear());
 	}
 
+	protected void safeAdd(Map<K, V> map) {
+		this.map.putAll(map);
+	}
+	
 }
