@@ -1,5 +1,6 @@
 package ceri.common.util;
 
+
 public class EqualsUtil {
 
 	private EqualsUtil() {}
@@ -19,7 +20,7 @@ public class EqualsUtil {
 	}
 
 	/**
-	 * Checks if objects are equal.
+	 * Checks if objects are equal. For arrays, use Arrays.equals methods instead.
 	 */
 	public static boolean equals(Object o1, Object o2) {
 		if (o1 == o2) return true;

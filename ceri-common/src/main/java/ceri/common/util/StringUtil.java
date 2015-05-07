@@ -23,6 +23,17 @@ public class StringUtil {
 	private StringUtil() {}
 
 	/**
+	 * Converts a number to radix-based string with exactly the numbers of specified digits. For
+	 * numbers larger than the digits specified, the most significant digits are dropped.
+	 */
+	public static String toUnsignedString(long l, int radix, int digits) {
+		String s = Long.toUnsignedString(l, radix);
+		s = pad(s, digits, "0", Align.RIGHT);
+		int len = s.length();
+		return s.substring(len - digits, len);
+	}
+
+	/**
 	 * Uses URLEncoder with UTF8 encoding. Throws IllegalArgumentException for encoding issues.
 	 */
 	public static String urlEncode(String s) {

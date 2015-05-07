@@ -18,6 +18,17 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testToUnsignedString() {
+		assertThat(StringUtil.toUnsignedString(0, 16, 2), is("00"));
+		assertThat(StringUtil.toUnsignedString(0, 26, 16), is("0000000000000000"));
+		assertThat(StringUtil.toUnsignedString(-1, 8, 5), is("77777"));
+		assertThat(StringUtil.toUnsignedString(-1, 16, 18), is("00ffffffffffffffff"));
+		assertThat(StringUtil.toUnsignedString(65535, 16, 10), is("000000ffff"));
+		assertThat(StringUtil.toUnsignedString(Long.MAX_VALUE, 36, 14), is("01y2p0ij32e8e7"));
+		assertThat(StringUtil.toUnsignedString(Long.MIN_VALUE, 8, 22), is("1000000000000000000000"));
+	}
+
+	@Test
 	public void testUrlEncode() {
 		assertThat(StringUtil.urlEncode(""), is(""));
 		assertThat(StringUtil.urlEncode("a b&c"), is("a+b%26c"));

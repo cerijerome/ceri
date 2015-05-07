@@ -136,6 +136,7 @@ public class BuilderGenerator {
 	private void generateConstructorAssignment(PrintStream out, String name, String type) {
 		if (generateConstructorCollectionAssignment(out, name, type)) return;
 		if (generateConstructorMapAssignment(out, name, type)) return;
+		if (generateConstructorDateAssignment(out, name, type)) return;
 		out.printf("\t\t%s = builder.%s;%n", name, name);
 	}
 
@@ -153,6 +154,12 @@ public class BuilderGenerator {
 		MapType mapType = MapType.createFrom(type);
 		if (mapType == null) return false;
 		out.printf("\t\t%s = ImmutableUtil.copyAsMap(builder.%s);%n", name, name);
+		return true;
+	}
+
+	private boolean generateConstructorDateAssignment(PrintStream out, String name, String type) {
+		if (!"Date".equals(type)) return false;
+		out.printf("\t\t%s = ImmutableDate.create(builder.%s);%n", name, name);
 		return true;
 	}
 

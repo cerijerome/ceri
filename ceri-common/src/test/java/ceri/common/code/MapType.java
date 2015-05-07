@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 
 public class MapType {
 	private static final Pattern MAP_REGEX = Pattern.compile("(Map)\\s*<(.*),\\s*(.*)>");
-
 	public final String type;
 	public final String keyType;
 	public final String valueType;
