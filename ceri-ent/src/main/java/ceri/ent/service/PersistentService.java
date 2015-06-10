@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import ceri.common.factory.Factory;
 import ceri.common.filter.Filter;
+import ceri.common.filter.Filters;
 
 public class PersistentService<K, V> implements Persistable {
 	private static final int UNLIMITED_COUNT = -1;
@@ -25,6 +26,10 @@ public class PersistentService<K, V> implements Persistable {
 
 	public V findById(K id) {
 		return safe.read(() -> map.get(id));
+	}
+
+	protected Collection<V> findAll() {
+		return find(Filters._true());
 	}
 
 	public Collection<V> find(Filter<V> filter) {
@@ -56,11 +61,11 @@ public class PersistentService<K, V> implements Persistable {
 		});
 	}
 
-	public void add(@SuppressWarnings("unchecked") V... values) {
+	protected void add(@SuppressWarnings("unchecked") V... values) {
 		add(Arrays.asList(values));
 	}
 
-	public void add(Iterable<V> values) {
+	protected void add(Iterable<V> values) {
 		if (values == null) return;
 		Map<K, V> map = new HashMap<>();
 		for (V value : values) {
@@ -83,7 +88,7 @@ public class PersistentService<K, V> implements Persistable {
 		store.save(values);
 	}
 
-	public void clear() {
+	protected void clear() {
 		safe.write(() -> map.clear());
 	}
 
