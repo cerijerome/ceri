@@ -60,6 +60,15 @@ public class Filters {
 	}
 
 	/**
+	 * Filter that returns true for strings that equal the given substring, ignoring case.
+	 */
+	public static Filter<String> eqIgnoreCase(String str) {
+		if (str == null) return _true();
+		String lowerStr = str.toLowerCase();
+		return nonNull(s -> s.toLowerCase().contains(lowerStr));
+	}
+
+	/**
 	 * Returns true if value equals given value.
 	 */
 	public static <T> Filter<T> eq(final T value) {
