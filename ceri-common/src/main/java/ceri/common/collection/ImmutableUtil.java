@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,7 +58,7 @@ public class ImmutableUtil {
 	 */
 	public static <T> Set<T> copyAsSet(Collection<? extends T> set) {
 		if (set.isEmpty()) return Collections.emptySet();
-		return Collections.unmodifiableSet(new HashSet<>(set));
+		return Collections.unmodifiableSet(new LinkedHashSet<>(set));
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class ImmutableUtil {
 	@SafeVarargs
 	public static <T> Set<T> asSet(T... array) {
 		if (array.length == 0) return Collections.emptySet();
-		Set<T> set = new HashSet<>();
+		Set<T> set = new LinkedHashSet<>();
 		Collections.addAll(set, array);
 		return Collections.unmodifiableSet(set);
 	}
@@ -117,7 +117,7 @@ public class ImmutableUtil {
 	}
 
 	public static <F, T> Set<T> convertAsSet(Function<? super F, ? extends T> fn, Iterable<F> fs) {
-		Set<T> ts = new HashSet<>();
+		Set<T> ts = new LinkedHashSet<>();
 		for (F f : fs)
 			ts.add(fn.apply(f));
 		return Collections.unmodifiableSet(ts);
