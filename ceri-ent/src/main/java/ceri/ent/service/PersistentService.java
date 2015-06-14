@@ -12,7 +12,7 @@ import ceri.common.factory.Factory;
 import ceri.common.filter.Filter;
 import ceri.common.filter.Filters;
 
-public class PersistentService<K, V> implements Persistable {
+public class PersistentService<K extends Comparable<K>, V> implements Persistable {
 	private static final int UNLIMITED_COUNT = -1;
 	private final PersistentStore<Collection<V>> store;
 	private final SafeReadWrite safe = new SafeReadWrite();
