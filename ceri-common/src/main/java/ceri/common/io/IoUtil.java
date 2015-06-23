@@ -86,11 +86,11 @@ public class IoUtil {
 	/**
 	 * Get a char from stdin, return 0 if no key pressed
 	 */
-	public static char getChar() throws IOException {
-		if (System.in.available() > 0) {
-			return (char) System.in.read();
-		}
-		return (char) 0;
+	public static char getChar() {
+		try {
+			if (System.in.available() > 0) return (char) System.in.read();
+		} catch (IOException e) {}
+		return (char)0;
 	}
 
 	/**
