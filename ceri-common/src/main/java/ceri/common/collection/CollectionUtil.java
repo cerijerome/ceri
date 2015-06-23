@@ -3,16 +3,20 @@ package ceri.common.collection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.Set;
+import java.util.stream.Stream;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -21,6 +25,17 @@ import ceri.common.util.BasicUtil;
 public class CollectionUtil {
 
 	private CollectionUtil() {}
+
+	/**
+	 * Returns a map copy with entries sorted by value.
+	 */
+	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
+		Map<K, V> result = new LinkedHashMap<>();
+		Stream<Entry<K, V>> stream = map.entrySet().stream();
+		stream.sorted(Comparator.comparing(e -> e.getValue())).forEach(
+			e -> result.put(e.getKey(), e.getValue()));
+		return result;
+	}
 
 	/**
 	 * Allows an enumeration to be run in a for-each loop.
