@@ -14,10 +14,9 @@ import ceri.image.ebay.EpsDomain;
 import ceri.image.ebay.EpsImageType;
 
 /**
- * Implementation of the CropperService that takes a path, downloads the image,
- * extracts the key to lookup a Cropper instance, processes the image, and
- * returns the image data as a byte array. The path should take the form
- * (/)key/imageurl
+ * Implementation of the CropperService that takes a path, downloads the image, extracts the key to
+ * lookup a Cropper instance, processes the image, and returns the image data as a byte array. The
+ * path should take the form (/)key/imageurl
  */
 public class CropperServiceImpl implements CropperService {
 	private static final String HTTP = "http://";
@@ -69,15 +68,14 @@ public class CropperServiceImpl implements CropperService {
 		}
 
 		/**
-		 * Set an EPS image type to use for sourcing.
-		 * If a request is for an EPS image it will modify the image URL to the given type
-		 * before requesting the image.
+		 * Set an EPS image type to use for sourcing. If a request is for an EPS image it will
+		 * modify the image URL to the given type before requesting the image.
 		 */
 		public Builder epsSourceType(EpsImageType epsSourceType) {
 			this.epsSourceType = epsSourceType;
 			return this;
 		}
-		
+
 		/**
 		 * Builds the service.
 		 */
@@ -110,11 +108,10 @@ public class CropperServiceImpl implements CropperService {
 	}
 
 	/**
-	 * Downloads and crops an image. The path should be in the format
-	 * (/)key/imageurl and is typically taken as the path after the domain in
-	 * the request URL. Key is used to get the registered Cropper instance.
-	 * Image urls must match a pattern added during construction or an exception
-	 * will be thrown.
+	 * Downloads and crops an image. The path should be in the format (/)key/imageurl and is
+	 * typically taken as the path after the domain in the request URL. Key is used to get the
+	 * registered Cropper instance. Image urls must match a pattern added during construction or an
+	 * exception will be thrown.
 	 */
 	@Override
 	public byte[] cropImage(String path) throws CropperServiceException {
@@ -147,8 +144,8 @@ public class CropperServiceImpl implements CropperService {
 	private byte[] loadImageData(String imageUrl) throws CropperServiceException {
 		try {
 			if (!imageUrl.toLowerCase().startsWith(HTTP)) imageUrl = HTTP + imageUrl;
-			if (epsSourceType != null && EpsDomain.domain(imageUrl) != null)
-				imageUrl = epsSourceType.url(imageUrl);
+			if (epsSourceType != null && EpsDomain.domain(imageUrl) != null) imageUrl =
+				epsSourceType.url(imageUrl);
 			return downloader.download(imageUrl);
 		} catch (IOException e) {
 			throw new CropperServiceException("Failed to load " + imageUrl, e);

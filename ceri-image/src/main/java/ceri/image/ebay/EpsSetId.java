@@ -1,6 +1,31 @@
 package ceri.image.ebay;
 
-import static ceri.image.ebay.EpsImageType.*;
+import static ceri.image.ebay.EpsImageType._0;
+import static ceri.image.ebay.EpsImageType._1;
+import static ceri.image.ebay.EpsImageType._12;
+import static ceri.image.ebay.EpsImageType._14;
+import static ceri.image.ebay.EpsImageType._21;
+import static ceri.image.ebay.EpsImageType._23;
+import static ceri.image.ebay.EpsImageType._26;
+import static ceri.image.ebay.EpsImageType._28;
+import static ceri.image.ebay.EpsImageType._33;
+import static ceri.image.ebay.EpsImageType._34;
+import static ceri.image.ebay.EpsImageType._35;
+import static ceri.image.ebay.EpsImageType._37;
+import static ceri.image.ebay.EpsImageType._39;
+import static ceri.image.ebay.EpsImageType._40;
+import static ceri.image.ebay.EpsImageType._41;
+import static ceri.image.ebay.EpsImageType._42;
+import static ceri.image.ebay.EpsImageType._43;
+import static ceri.image.ebay.EpsImageType._44;
+import static ceri.image.ebay.EpsImageType._49;
+import static ceri.image.ebay.EpsImageType._50;
+import static ceri.image.ebay.EpsImageType._51;
+import static ceri.image.ebay.EpsImageType._52;
+import static ceri.image.ebay.EpsImageType._53;
+import static ceri.image.ebay.EpsImageType._54;
+import static ceri.image.ebay.EpsImageType._55;
+import static ceri.image.ebay.EpsImageType._7;
 import java.util.Arrays;
 import java.util.EnumSet;
 

@@ -7,8 +7,8 @@ import ceri.image.Cropper;
 import ceri.image.magick.MagickImage;
 
 /**
- * Class used to test the results of Cropper configuration.
- * Writes the cropped images to disk for visual inspection.
+ * Class used to test the results of Cropper configuration. Writes the cropped images to disk for
+ * visual inspection.
  */
 public class ImageTester {
 

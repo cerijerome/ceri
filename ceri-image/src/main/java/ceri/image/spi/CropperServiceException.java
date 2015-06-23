@@ -6,9 +6,9 @@ public class CropperServiceException extends Exception {
 	public CropperServiceException(String message, Throwable cause) {
 		super(message, cause);
 	}
-	
+
 	public CropperServiceException(String message) {
 		super(message);
 	}
-	
+
 }

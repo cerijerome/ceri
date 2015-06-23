@@ -8,11 +8,11 @@ public enum GeoSpecial {
 	percent("%"),
 	min("^"),
 	stretch("!");
-	
+
 	public final String value;
-	
+
 	private GeoSpecial(String value) {
 		this.value = value;
 	}
-	
+
 }

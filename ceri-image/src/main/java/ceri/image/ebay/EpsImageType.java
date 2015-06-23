@@ -107,27 +107,27 @@ public enum EpsImageType {
 	_102(247, 187, true),
 	_103(180, 180),
 	_104(720, 215);
-	
+
 	private static final Pattern pathPattern = Pattern.compile("(?i)_\\d+\\.(jpg)$");
 	public final int id;
 	public final int width;
 	public final int height;
 	public boolean padded;
-	
+
 	private EpsImageType(int width, int height) {
 		this(width, height, false);
 	}
-	
+
 	private EpsImageType(int width, int height, boolean padded) {
 		id = Integer.parseInt(name().substring(1));
 		this.width = width;
 		this.height = height;
 		this.padded = padded;
 	}
-	
+
 	/**
-	 * Attempts to creates an EPS url for this id type from a given EPS url.
-	 * Does not attempt to match domain, just the ending of the url.
+	 * Attempts to creates an EPS url for this id type from a given EPS url. Does not attempt to
+	 * match domain, just the ending of the url.
 	 */
 	public String url(String epsPath) {
 		return pathPattern.matcher(epsPath).replaceFirst("_" + id + ".$1");
@@ -139,7 +139,7 @@ public enum EpsImageType {
 	public static EpsImageType largestType() {
 		return largestType(Arrays.asList(EpsImageType.values()));
 	}
-	
+
 	/**
 	 * Returns the largest image type by area from the given types.
 	 */

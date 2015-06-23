@@ -13,11 +13,11 @@ public enum MagickInterpolation {
 	bicubic,
 	spline,
 	filter;
-	
+
 	public final String value;
-	
+
 	private MagickInterpolation() {
 		value = name().replaceAll("_", "-");
 	}
-	
+
 }

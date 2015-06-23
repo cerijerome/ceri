@@ -3,15 +3,10 @@ package ceri.image.spi;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 /**
- * Downloads data from a given URL using Apache HttpClient.
- * maxSize specifies the maximum data size allowed, or 0 for unlimited.
+ * Downloads data from a given URL using Apache HttpClient. maxSize specifies the maximum data size
+ * allowed, or 0 for unlimited.
  */
 public class HttpClientDownloader implements Downloader {
 	private static final int BUFFER_SIZE = 32 * 1024;

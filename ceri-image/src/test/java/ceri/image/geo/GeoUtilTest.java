@@ -1,10 +1,13 @@
-package ceri.geo;
+package ceri.image.geo;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import org.junit.Test;
+import ceri.image.geo.AlignX;
+import ceri.image.geo.AlignY;
+import ceri.image.geo.GeoUtil;
 
 public class GeoUtilTest {
 	private static final Dimension MAX_MAX = dim(Integer.MAX_VALUE, Integer.MAX_VALUE);

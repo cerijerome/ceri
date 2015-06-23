@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import ceri.geo.AlignX;
-import ceri.geo.AlignY;
-import ceri.geo.GeoUtil;
+import ceri.image.geo.AlignX;
+import ceri.image.geo.AlignY;
+import ceri.image.geo.GeoUtil;
 
 /**
  * Utility methods for Image instances.
@@ -24,8 +24,8 @@ public class ImageUtil {
 	private ImageUtil() {}
 
 	/**
-	 * Resize image by multiplying width and height by percentages, without
-	 * maintaining aspect ratio.
+	 * Resize image by multiplying width and height by percentages, without maintaining aspect
+	 * ratio.
 	 */
 	public static Image resizePercent(Image image, int widthPercent, int heightPercent,
 		Interpolation interpolation) {
@@ -36,48 +36,44 @@ public class ImageUtil {
 	}
 
 	/**
-	 * Resize image to fit at least given dimensions while maintaining aspect
-	 * ratio.
+	 * Resize image to fit at least given dimensions while maintaining aspect ratio.
 	 */
 	public static Image
-		resizeToMin(Image image, int width, int height, Interpolation interpolation) {
+	resizeToMin(Image image, int width, int height, Interpolation interpolation) {
 		Dimension resizeDimension =
 			GeoUtil.resizeToMin(new Dimension(image.getWidth(), image.getHeight()), width, height);
 		return resize(image, resizeDimension.width, resizeDimension.height, interpolation);
 	}
 
 	/**
-	 * Resize image to fit within given dimensions while maintaining aspect
-	 * ratio.
+	 * Resize image to fit within given dimensions while maintaining aspect ratio.
 	 */
 	public static Image
-		resizeToMax(Image image, int width, int height, Interpolation interpolation) {
+	resizeToMax(Image image, int width, int height, Interpolation interpolation) {
 		Dimension resizeDimension =
 			GeoUtil.resizeToMax(new Dimension(image.getWidth(), image.getHeight()), width, height);
 		return resize(image, resizeDimension.width, resizeDimension.height, interpolation);
 	}
 
 	/**
-	 * Resize to given dimensions without necessarily maintaining aspect ratio.
-	 * Interpolation specifies the algorithm used for resizing.
+	 * Resize to given dimensions without necessarily maintaining aspect ratio. Interpolation
+	 * specifies the algorithm used for resizing.
 	 */
 	public static Image resize(Image image, int width, int height, Interpolation interpolation) {
 		return image.resize(new Dimension(width, height), interpolation);
 	}
 
 	/**
-	 * Crop image to given dimensions, with center crop window alignment. If the
-	 * image is smaller than the desired crop in one dimension that dimension is
-	 * not cropped.
+	 * Crop image to given dimensions, with center crop window alignment. If the image is smaller
+	 * than the desired crop in one dimension that dimension is not cropped.
 	 */
 	public static Image crop(Image image, int width, int height) {
 		return crop(image, width, height, AlignX.Center, AlignY.Center);
 	}
 
 	/**
-	 * Crop image to given dimensions, with specified crop window alignment. If
-	 * the image is smaller than the desired crop in one dimension that
-	 * dimension is not cropped.
+	 * Crop image to given dimensions, with specified crop window alignment. If the image is smaller
+	 * than the desired crop in one dimension that dimension is not cropped.
 	 */
 	public static Image crop(Image image, int width, int height, AlignX alignX, AlignY alignY) {
 		Rectangle rectangle =
@@ -87,19 +83,17 @@ public class ImageUtil {
 	}
 
 	/**
-	 * Creates an image from byte array. The factory determines the
-	 * implementation.
+	 * Creates an image from byte array. The factory determines the implementation.
 	 */
 	public static Image read(Image.Factory factory, byte[] data) throws IOException {
 		return factory.create(data);
 	}
 
 	/**
-	 * Creates an image from an input stream, with maximum data size. The factory
-	 * determines the implementation.
+	 * Creates an image from an input stream, with maximum data size. The factory determines the
+	 * implementation.
 	 */
-	public static Image read(Image.Factory factory, InputStream in, int max)
-		throws IOException {
+	public static Image read(Image.Factory factory, InputStream in, int max) throws IOException {
 		try {
 			byte[] data = readMax(in, max);
 			return factory.create(data);
@@ -109,8 +103,8 @@ public class ImageUtil {
 	}
 
 	/**
-	 * Creates an image from a url, with maximum data size. The factory
-	 * determines the implementation.
+	 * Creates an image from a url, with maximum data size. The factory determines the
+	 * implementation.
 	 */
 	public static Image readFromUrl(Image.Factory factory, String urlStr, int max)
 		throws IOException {
@@ -152,8 +146,7 @@ public class ImageUtil {
 	}
 
 	/**
-	 * Writes image to a byte array in given format. Quality is only used for
-	 * JPEG.
+	 * Writes image to a byte array in given format. Quality is only used for JPEG.
 	 */
 	public static byte[] writeBytes(Image image, Format format, float quality) {
 		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -166,8 +159,8 @@ public class ImageUtil {
 	}
 
 	/**
-	 * Read byte array from input stream up to given maximum size. Throws
-	 * IOException if max size is exceeded. Use 0 to specify unlimited size.
+	 * Read byte array from input stream up to given maximum size. Throws IOException if max size is
+	 * exceeded. Use 0 to specify unlimited size.
 	 */
 	private static byte[] readMax(InputStream in, int max) throws IOException {
 		try (InputStream bIn = new BufferedInputStream(in, BUFFER_SIZE)) {

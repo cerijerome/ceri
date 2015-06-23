@@ -12,7 +12,7 @@ import ceri.image.test.TestImage;
 
 /**
  * Sets up a test for a CropperService with multiple threads running for a given period of time.
- * Collects statistics for the test run. 
+ * Collects statistics for the test run.
  */
 public class CropperServiceLoadTester {
 	private static final Pattern epsPattern = Pattern.compile("http://([^/]+\\.ebayimg\\.com/.*)");
@@ -35,7 +35,7 @@ public class CropperServiceLoadTester {
 	}
 
 	public static void main(String[] args) throws Exception {
-		CropperService service = DefaultCropperService.create();		
+		CropperService service = DefaultCropperService.create();
 		CropperServiceLoadTester tester = new CropperServiceLoadTester(service, 10, 100);
 		tester.run(5 * 1000);
 	}

@@ -12,7 +12,7 @@ public class ImageMock implements Image {
 	public Interpolation interpolation;
 	public Format format;
 	public float quality;
-	
+
 	public static Image.Factory factory(final Image image) {
 		return new Image.Factory() {
 			@Override
@@ -21,22 +21,22 @@ public class ImageMock implements Image {
 			}
 		};
 	}
-	
+
 	public ImageMock(int w, int h) {
 		this.w = w;
 		this.h = h;
 	}
-	
+
 	@Override
 	public int getWidth() {
 		return w;
 	}
-	
+
 	@Override
 	public int getHeight() {
 		return h;
 	}
-	
+
 	@Override
 	public Image resize(Dimension dimension, Interpolation interpolation) {
 		w = dimension.width;
@@ -44,7 +44,7 @@ public class ImageMock implements Image {
 		this.interpolation = interpolation;
 		return this;
 	};
-	
+
 	@Override
 	public Image crop(Rectangle rectangle) {
 		x = rectangle.x;
@@ -53,11 +53,11 @@ public class ImageMock implements Image {
 		h = rectangle.height;
 		return this;
 	}
-	
+
 	@Override
 	public void write(Format format, float quality, OutputStream out) {
 		this.format = format;
 		this.quality = quality;
 	}
-	
+
 }

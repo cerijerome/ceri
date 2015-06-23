@@ -2,19 +2,17 @@ package ceri.image;
 
 import java.awt.Dimension;
 import ceri.common.util.HashCoder;
-import ceri.geo.AlignX;
-import ceri.geo.AlignY;
-import ceri.geo.GeoUtil;
+import ceri.image.geo.AlignX;
+import ceri.image.geo.AlignY;
+import ceri.image.geo.GeoUtil;
 
 /**
- * Cropper that will resize and crop images based on limit parameters.
- * maxSizeIncrease specifies how many times larger an image can be resized.
- * interpolation specifies the algorithm used in resizing up/down. format
- * specifies the file type of the converted image. x2Quality specifies that an
- * image at least 2x larger than the desired crop will be resized to 2x, and
- * with given quality. Specifying a low quality such as 0.2 will not have a
- * noticeable effect on quality but has a superior file size. x1Quality
- * specifies the quality of a cropped image.
+ * Cropper that will resize and crop images based on limit parameters. maxSizeIncrease specifies how
+ * many times larger an image can be resized. interpolation specifies the algorithm used in resizing
+ * up/down. format specifies the file type of the converted image. x2Quality specifies that an image
+ * at least 2x larger than the desired crop will be resized to 2x, and with given quality.
+ * Specifying a low quality such as 0.2 will not have a noticeable effect on quality but has a
+ * superior file size. x1Quality specifies the quality of a cropped image.
  */
 public class Cropper {
 	static final float X1_QUALITY_DEF = 0.9f;
@@ -65,8 +63,8 @@ public class Cropper {
 		}
 
 		/**
-		 * Specifies the maximum amount an image can be resized larger while
-		 * trying to meet output width and height requirements.
+		 * Specifies the maximum amount an image can be resized larger while trying to meet output
+		 * width and height requirements.
 		 */
 		public Builder maxSizeIncrease(float maxSizeIncrease) {
 			this.maxSizeIncrease = maxSizeIncrease;
@@ -90,9 +88,9 @@ public class Cropper {
 		}
 
 		/**
-		 * Quality used when creating a double-sized image. A double-sized lower
-		 * quality image displayed at half-size is very close in visual quality
-		 * to a full quality single-sized image, but with much lower file size.
+		 * Quality used when creating a double-sized image. A double-sized lower quality image
+		 * displayed at half-size is very close in visual quality to a full quality single-sized
+		 * image, but with much lower file size.
 		 */
 		public Builder x2Quality(float x2Quality) {
 			this.x2Quality = x2Quality;
@@ -138,9 +136,8 @@ public class Cropper {
 	}
 
 	/**
-	 * Resize and crop, allowing 2x image with lower quality if the image is
-	 * large enough (saves file size). If image resize exceeds the specified
-	 * maximum increase, crop only.
+	 * Resize and crop, allowing 2x image with lower quality if the image is large enough (saves
+	 * file size). If image resize exceeds the specified maximum increase, crop only.
 	 */
 	public byte[] crop(Image image) {
 		int w = image.getWidth();
@@ -150,8 +147,8 @@ public class Cropper {
 			image = ImageUtil.crop(image, width * 2, height * 2, alignX, alignY);
 			return ImageUtil.writeBytes(image, format, x2Quality);
 		}
-		int maxW = (int)((ONE + maxSizeIncrease) * w);
-		int maxH = (int)((ONE + maxSizeIncrease) * h);
+		int maxW = (int) ((ONE + maxSizeIncrease) * w);
+		int maxH = (int) ((ONE + maxSizeIncrease) * h);
 		Dimension resizeDimension = GeoUtil.resizeToMin(new Dimension(maxW, maxH), width, height);
 		if (resizeDimension.width <= maxW && resizeDimension.height <= maxH) {
 			image = ImageUtil.resizeToMin(image, width, height, interpolation);

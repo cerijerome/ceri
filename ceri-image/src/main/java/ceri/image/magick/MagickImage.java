@@ -5,24 +5,17 @@ import java.awt.Rectangle;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import org.im4java.core.ConvertCmd;
-import org.im4java.core.IM4JavaException;
-import org.im4java.core.IMOperation;
-import org.im4java.core.IMOps;
-import org.im4java.core.Info;
-import org.im4java.core.InfoException;
-import org.im4java.process.Pipe;
-import org.im4java.process.ProcessStarter;
-import ceri.geo.GeoUtil;
+import java.nio.channels.Pipe;
 import ceri.image.Format;
 import ceri.image.Image;
 import ceri.image.Interpolation;
+import ceri.image.geo.GeoUtil;
 
 /**
- * This class keeps track of images to be processed by ImageMagick. It queues up
- * operations and modifies image dimensions to match the operation. The
- * processing is executed only when write is called. Image can be written
- * multiple times. Class is immutable, any operation generates a new image.
+ * This class keeps track of images to be processed by ImageMagick. It queues up operations and
+ * modifies image dimensions to match the operation. The processing is executed only when write is
+ * called. Image can be written multiple times. Class is immutable, any operation generates a new
+ * image.
  */
 public class MagickImage implements Image {
 	private static final String IM_PATH_PROPERTY = "IM4JAVA_TOOLPATH";
@@ -85,14 +78,14 @@ public class MagickImage implements Image {
 		IMOps op = copy(this.op);
 		// Not really sure if this setting is used for resize..
 		if (magickInterpolation != MagickInterpolation.none) op
-			.interpolate(magickInterpolation.value);
+		.interpolate(magickInterpolation.value);
 		op.resize(dimension.width, dimension.height, GeoSpecial.stretch.value);
 		return new MagickImage(dimension, data, op);
 	}
 
 	/**
-	 * Crop image to given dimensions and offset. If the crop window extends
-	 * past the image it will be adjusted to fit.
+	 * Crop image to given dimensions and offset. If the crop window extends past the image it will
+	 * be adjusted to fit.
 	 */
 	@Override
 	public Image crop(Rectangle rectangle) {
@@ -105,8 +98,7 @@ public class MagickImage implements Image {
 	}
 
 	/**
-	 * Writes image to an output stream in given format. Quality is only used
-	 * for JPEG.
+	 * Writes image to an output stream in given format. Quality is only used for JPEG.
 	 */
 	@Override
 	public void write(Format format, float quality, OutputStream out) throws IOException {

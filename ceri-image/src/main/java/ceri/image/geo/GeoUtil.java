@@ -1,4 +1,4 @@
-package ceri.geo;
+package ceri.image.geo;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -11,8 +11,8 @@ public class GeoUtil {
 	private GeoUtil() {}
 
 	/**
-	 * Resize dimension by multiplying width and height by percentages, without
-	 * maintaining aspect ratio.
+	 * Resize dimension by multiplying width and height by percentages, without maintaining aspect
+	 * ratio.
 	 */
 	public static Dimension resizePercent(Dimension dimension, int widthPercent, int heightPercent) {
 		validateDimension(dimension);
@@ -26,8 +26,7 @@ public class GeoUtil {
 	}
 
 	/**
-	 * Resize dimension to fit at least given dimensions while maintaining
-	 * aspect ratio.
+	 * Resize dimension to fit at least given dimensions while maintaining aspect ratio.
 	 */
 	public static Dimension resizeToMin(Dimension dimension, int width, int height) {
 		validateDimension(dimension);
@@ -45,8 +44,7 @@ public class GeoUtil {
 	}
 
 	/**
-	 * Resize dimension to fit within given dimensions while maintaining aspect
-	 * ratio.
+	 * Resize dimension to fit within given dimensions while maintaining aspect ratio.
 	 */
 	public static Dimension resizeToMax(Dimension dimension, int width, int height) {
 		validateDimension(dimension);
@@ -64,8 +62,8 @@ public class GeoUtil {
 	}
 
 	/**
-	 * Crop dimension to given dimensions. If dimension is smaller than the
-	 * desired crop it will remain unchanged.
+	 * Crop dimension to given dimensions. If dimension is smaller than the desired crop it will
+	 * remain unchanged.
 	 */
 	public static Dimension crop(Dimension dimension, int width, int height) {
 		validateDimension(dimension);
@@ -78,10 +76,9 @@ public class GeoUtil {
 	}
 
 	/**
-	 * Crop to given dimensions, with specified crop window alignment. If the
-	 * original size is smaller than the desired crop in one dimension that
-	 * dimension is not cropped. If alignX is null it defaults to Left
-	 * alignment. If alignY is null it defaults to Top alignment.
+	 * Crop to given dimensions, with specified crop window alignment. If the original size is
+	 * smaller than the desired crop in one dimension that dimension is not cropped. If alignX is
+	 * null it defaults to Left alignment. If alignY is null it defaults to Top alignment.
 	 */
 	public static Rectangle crop(Dimension dimension, int width, int height, AlignX alignX,
 		AlignY alignY) {
@@ -99,15 +96,14 @@ public class GeoUtil {
 	}
 
 	/**
-	 * Adjust given rectangle so that it fits within given dimensions. If the
-	 * rectangle is completely outside, it returns a zero size rectangle.
+	 * Adjust given rectangle so that it fits within given dimensions. If the rectangle is
+	 * completely outside, it returns a zero size rectangle.
 	 */
 	public static Rectangle overlap(Rectangle rectangle, Dimension dimension) {
 		rectangle = new Rectangle(rectangle);
-		if (rectangle.x < 0 || rectangle.y < 0 || rectangle.width < 0 || rectangle.height < 0) 
-			throw new IllegalArgumentException(
-			"Rectangle values must be >= 0: " + rectangle.x + ", " + rectangle.y + ", " +
-				rectangle.width + ", " + rectangle.height);
+		if (rectangle.x < 0 || rectangle.y < 0 || rectangle.width < 0 || rectangle.height < 0) throw new IllegalArgumentException(
+				"Rectangle values must be >= 0: " + rectangle.x + ", " + rectangle.y + ", " +
+					rectangle.width + ", " + rectangle.height);
 		validateDimension(dimension);
 		if (rectangle.x >= dimension.width || rectangle.y >= dimension.height) return new Rectangle();
 		if (rectangle.x + rectangle.width > dimension.width) rectangle.width =

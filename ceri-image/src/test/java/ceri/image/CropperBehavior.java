@@ -3,8 +3,8 @@ package ceri.image;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import ceri.geo.AlignX;
-import ceri.geo.AlignY;
+import ceri.image.geo.AlignX;
+import ceri.image.geo.AlignY;
 
 public class CropperBehavior {
 
@@ -57,7 +57,7 @@ public class CropperBehavior {
 		Cropper.builder(200, 100).alignY(AlignY.Top3rd).build().crop(image);
 		assertThat(image.y, is(100));
 	}
-	
+
 	@Test
 	public void shouldConvertToGivenFormat() {
 		ImageMock image = new ImageMock(200, 100);

@@ -1,7 +1,5 @@
 package ceri.image.spi;
 
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import ceri.image.Cropper;
 import ceri.image.magick.MagickImage;
 
@@ -23,5 +21,5 @@ public class DefaultCropperService {
 		builder.cropper("200x200", Cropper.builder(200, 200).maxSizeIncrease(MAX_SIZE).build());
 		return builder.build();
 	}
-	
+
 }

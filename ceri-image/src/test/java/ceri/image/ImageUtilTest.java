@@ -7,8 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.junit.Test;
-import ceri.geo.AlignX;
-import ceri.geo.AlignY;
+import ceri.image.geo.AlignX;
+import ceri.image.geo.AlignY;
 import ceri.image.magick.MagickImage;
 import ceri.image.test.TestImage;
 

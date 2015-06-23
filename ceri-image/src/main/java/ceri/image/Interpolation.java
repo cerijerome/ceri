@@ -10,7 +10,7 @@ public enum Interpolation {
 	NEAREST_NEIGHBOR(RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
 	public final Object value;
-	
+
 	private Interpolation(Object value) {
 		this.value = value;
 	}

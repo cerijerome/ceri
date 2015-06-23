@@ -10,17 +10,17 @@ public enum TestImage {
 	jpg_small_10x10,
 	jpg_eps_450x600(
 		"http://i.ebayimg.com/00/s/NjQwWDQ4MA==/$T2eC16NHJG!E9nm3o)QWBRL)(5qCkg~~48_20.JPG"),
-	jpg_eps_604x453(
-		"http://i.ebayimg.com/00/s/NDUzWDYwNA==/$T2eC16dHJGIE9nnWrdEFBRLvQU0Jsw~~48_20.JPG"),
-	jpg_eps_800x456(
-		"http://i.ebayimg.com/00/s/NDU2WDgwMA==/$(KGrHqR,!pQFD8qB!CEcBRL)dcN67w~~48_20.JPG"),
-	jpg_eps_cmyk_500x333(
-		"http://i.ebayimg.com/00/s/MzMzWDUwMA==/$(KGrHqN,!lUFEF4J6rB9BRM-dcBtp!~~48_3.JPG"),
-	jpg_eps_exif_800x800(
-		"http://i.ebayimg.com/00/s/MTAwMFgxMDAw/$(KGrHqZ,!pQFD8e95s+hBRM-d4,CSg~~48_3.JPG"),
-	gif_multi_100x100,
-	png_rgb_8_300x300,
-	png_rgb_16_600x600;
+		jpg_eps_604x453(
+			"http://i.ebayimg.com/00/s/NDUzWDYwNA==/$T2eC16dHJGIE9nnWrdEFBRLvQU0Jsw~~48_20.JPG"),
+			jpg_eps_800x456(
+				"http://i.ebayimg.com/00/s/NDU2WDgwMA==/$(KGrHqR,!pQFD8qB!CEcBRL)dcN67w~~48_20.JPG"),
+				jpg_eps_cmyk_500x333(
+					"http://i.ebayimg.com/00/s/MzMzWDUwMA==/$(KGrHqN,!lUFEF4J6rB9BRM-dcBtp!~~48_3.JPG"),
+					jpg_eps_exif_800x800(
+						"http://i.ebayimg.com/00/s/MTAwMFgxMDAw/$(KGrHqZ,!pQFD8e95s+hBRM-d4,CSg~~48_3.JPG"),
+						gif_multi_100x100,
+						png_rgb_8_300x300,
+						png_rgb_16_600x600;
 
 	public static final EnumSet<TestImage> epsImages = EnumSet.of(jpg_eps_450x600, jpg_eps_604x453,
 		jpg_eps_800x456, jpg_eps_cmyk_500x333, jpg_eps_exif_800x800);
@@ -40,7 +40,7 @@ public enum TestImage {
 	public InputStream getInputStream() {
 		return getClass().getResourceAsStream(filename);
 	}
-	
+
 	public byte[] read() throws IOException {
 		try (InputStream in = getInputStream()) {
 			ByteArrayOutputStream out = new ByteArrayOutputStream(BUFFER_SIZE);

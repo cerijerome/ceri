@@ -13,7 +13,7 @@ public class EpsDomainBehavior {
 			"http://i1.ebayimg.com/00/s/NDU2WDgwMA==/$(KGrHqR,!pQFD8qB!CEcBRL)dcN67w~~48_20.JPG";
 		assertThat(EpsDomain.domain(url), is(EpsDomain.ebayimg));
 		url = "http://ebayimg.com/00/s/NDU2WDgwMA==/$(KGrHqR,!pQFD8qB!CEcBRL)dcN67w~~48_20.JPG";
-		assertThat(EpsDomain.domain(url), is((EpsDomain)null));
+		assertThat(EpsDomain.domain(url), is((EpsDomain) null));
 	}
 
 }
