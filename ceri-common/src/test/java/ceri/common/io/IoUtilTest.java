@@ -128,7 +128,7 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testGetChar() throws IOException {
+	public void testGetChar() {
 		assertThat(IoUtil.getChar(), is('\0'));
 	}
 
