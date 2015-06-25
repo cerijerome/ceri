@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.util.BasicUtil;
 
@@ -26,6 +28,14 @@ public class CollectionUtil {
 
 	private CollectionUtil() {}
 
+	/**
+	 * Converts a collection to a new list by mapping elements from the original collection. 
+	 */
+	public static <F, T> List<T> convertToList(Collection<F> collection,
+		Function<? super F, ? extends T> mapper) {
+		return collection.stream().map(mapper).collect(Collectors.toList());
+	}
+	
 	/**
 	 * Returns a map copy with entries sorted by value.
 	 */
