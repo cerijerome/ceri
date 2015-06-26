@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.function.Function;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -28,6 +29,14 @@ public class ArrayUtil {
 	public static final String[] EMPTY_STRING = emptyArray(String.class);
 
 	private ArrayUtil() {}
+
+	/**
+	 * Converts a collection to a new list by mapping elements from the original collection.
+	 */
+	@SafeVarargs
+	public static <F, T> List<T> convertToList(Function<? super F, ? extends T> mapper, F... fs) {
+		return CollectionUtil.convertToList(mapper, Arrays.asList(fs));
+	}
 
 	/**
 	 * Returns an immutable zero-size array for the given component type.

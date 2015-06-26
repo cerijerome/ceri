@@ -31,8 +31,8 @@ public class CollectionUtil {
 	/**
 	 * Converts a collection to a new list by mapping elements from the original collection. 
 	 */
-	public static <F, T> List<T> convertToList(Collection<F> collection,
-		Function<? super F, ? extends T> mapper) {
+	public static <F, T> List<T> convertToList(Function<? super F, ? extends T> mapper,
+		Collection<F> collection) {
 		return collection.stream().map(mapper).collect(Collectors.toList());
 	}
 	
