@@ -75,12 +75,7 @@ public class BasicUtil {
 	 * Makes an iterator compatible with a for-each loop.
 	 */
 	public static <T> Iterable<T> forEach(final Iterator<T> iterator) {
-		return new Iterable<T>() {
-			@Override
-			public Iterator<T> iterator() {
-				return iterator;
-			}
-		};
+		return () -> iterator;
 	}
 
 	/**

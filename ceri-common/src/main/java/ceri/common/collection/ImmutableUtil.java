@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,12 +23,7 @@ public class ImmutableUtil {
 	 * Creates an immutable iterable wrapper that returns an immutable iterator.
 	 */
 	public static <T> Iterable<T> iterable(final Iterable<T> iterable) {
-		return new Iterable<T>() {
-			@Override
-			public Iterator<T> iterator() {
-				return ImmutableUtil.iterator(iterable.iterator());
-			}
-		};
+		return () -> ImmutableUtil.iterator(iterable.iterator());
 	}
 
 	/**
@@ -66,7 +61,7 @@ public class ImmutableUtil {
 	 */
 	public static <K, V> Map<K, V> copyAsMap(Map<? extends K, ? extends V> map) {
 		if (map.isEmpty()) return Collections.emptyMap();
-		return Collections.unmodifiableMap(new HashMap<>(map));
+		return Collections.unmodifiableMap(new LinkedHashMap<>(map));
 	}
 
 	/**
