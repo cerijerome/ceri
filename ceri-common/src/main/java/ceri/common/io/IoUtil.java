@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.regex.Pattern;
  * I/O utility functions.
  */
 public class IoUtil {
+	private static final NullOutputStream NULL_OUTPUT_STREAM = new NullOutputStream();
 	public static final String REGEX_PATH_SEPARATOR = "\\" + File.separatorChar;
 	private static final Pattern UNIX_PATH_REGEX = Pattern.compile(REGEX_PATH_SEPARATOR);
 	private static final int MAX_UUID_ATTEMPTS = 10; // Shouldn't be needed
@@ -33,6 +35,20 @@ public class IoUtil {
 
 	private IoUtil() {}
 
+	/**
+	 * Returns an output stream that swallows all output.
+	 */
+	public static OutputStream nullOutputStream() {
+		return NULL_OUTPUT_STREAM;
+	}
+	
+	/**
+	 * Returns a print stream that swallows all output.
+	 */
+	public static PrintStream nullPrintStream() {
+		return new PrintStream(nullOutputStream());
+	}
+	
 	/**
 	 * Returns the system tmp directory.
 	 */
