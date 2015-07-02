@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,13 +30,22 @@ public class CollectionUtil {
 	private CollectionUtil() {}
 
 	/**
-	 * Converts a collection to a new list by mapping elements from the original collection. 
+	 * Converts a collection to a new list by mapping elements from the original collection.
 	 */
 	public static <F, T> List<T> convertToList(Function<? super F, ? extends T> mapper,
 		Collection<F> collection) {
 		return collection.stream().map(mapper).collect(Collectors.toList());
 	}
-	
+
+	/**
+	 * Converts a map to a list by mapping entry elements from the original map.
+	 */
+	public static <K, V, T> List<T> convertToList(
+		BiFunction<? super K, ? super V, ? extends T> mapper, Map<K, V> map) {
+		Function<Map.Entry<K, V>, T> fn = (entry -> mapper.apply(entry.getKey(), entry.getValue()));
+		return map.entrySet().stream().map(fn).collect(Collectors.toList());
+	}
+
 	/**
 	 * Returns a map copy with entries sorted by value.
 	 */
