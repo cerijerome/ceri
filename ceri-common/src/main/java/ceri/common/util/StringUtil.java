@@ -113,6 +113,13 @@ public class StringUtil {
 	}
 
 	/**
+	 * Creates a formatted string for iterable items: item1[separator]item2[separator]...
+	 */
+	public static String toString(String separator, Iterable<?> iterable) {
+		return toString("", "", separator, iterable);
+	}
+	
+	/**
 	 * Creates a formatted string for iterable items: [pre]item1[separator]item2[separator]...[post]
 	 */
 	public static String toString(String pre, String post, String separator, Iterable<?> iterable) {
