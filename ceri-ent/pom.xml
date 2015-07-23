@@ -12,23 +12,16 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.8</jdk.version>
-		<maven.compiler.version>3.1</maven.compiler.version>
-		<maven.surefire.version>2.16</maven.surefire.version>
-		<jetty.version>9.2.0.M1</jetty.version>
-		<jackson.version>2.2.2</jackson.version>
-		<log4j.version>2.0-rc1</log4j.version>
-		<fluent-hc.version>4.3.1</fluent-hc.version>
-		<mockito.version>1.9.5</mockito.version>
+		<maven.compiler.version>3.3</maven.compiler.version>
+		<maven.surefire.version>2.18.1</maven.surefire.version>
 		<junit.version>4.12</junit.version>
-		<htmlunit.version>2.15</htmlunit.version>
-		<servlet-api.version>3.1.0</servlet-api.version>
-		<jsp-api.version>2.3.1</jsp-api.version>
-		<geronimo.servlet.version>1.0</geronimo.servlet.version>
-		<geronimo.jsp.version>1.2</geronimo.jsp.version>
-		<gson.version>2.2.4</gson.version>
-		<json.simple.version>0.4</json.simple.version>
-		<scribe.version>1.3.5</scribe.version>
-		<selenium.java.version>2.45.0</selenium.java.version>
+		<mockito.version>1.10.19</mockito.version>
+		<log4j.version>2.3</log4j.version>
+		<jackson.version>2.6.0</jackson.version>
+		<jetty.version>9.3.1.v20150714</jetty.version>
+		<fluent-hc.version>4.5</fluent-hc.version>
+		<htmlunit.version>2.17</htmlunit.version>
+		<selenium.java.version>2.46.0</selenium.java.version>
 	</properties>
 
 	<dependencies>
@@ -50,16 +43,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>ceri</groupId>
-			<artifactId>ceri-parser</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>fluent-hc</artifactId>
-			<version>${fluent-hc.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
 			<version>${log4j.version}</version>
@@ -70,9 +53,9 @@
 			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>${jackson.version}</version>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-web</artifactId>
+			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -80,14 +63,9 @@
 			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-annotations</artifactId>
-			<version>${jackson.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>${gson.version}</version>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>fluent-hc</artifactId>
+			<version>${fluent-hc.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
@@ -95,44 +73,9 @@
 			<version>${jetty.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-webapp</artifactId>
-			<version>${jetty.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-servlet</artifactId>
-			<version>${jetty.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-jsp</artifactId>
-			<version>${jetty.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>${servlet-api.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet.jsp</groupId>
-			<artifactId>javax.servlet.jsp-api</artifactId>
-			<version>${jsp-api.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>net.sourceforge.htmlunit</groupId>
 			<artifactId>htmlunit</artifactId>
 			<version>${htmlunit.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.scribe</groupId>
-			<artifactId>scribe</artifactId>
-			<version>${scribe.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.clerezza.ext</groupId>
-			<artifactId>org.json.simple</artifactId>
-			<version>${json.simple.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
@@ -142,16 +85,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>${project.artifactId}</finalName>
 		<plugins>
-			<plugin>
-				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-maven-plugin</artifactId>
-				<version>${jetty.version}</version>
-				<configuration>
-					<requestLog implementation="org.eclipse.jetty.server.NCSARequestLog" />
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

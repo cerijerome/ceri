@@ -15,31 +15,60 @@ import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class WebClientHelper implements Closeable {
-	private static final SampleHeader HEADER_DEF = SampleHeader.Chrome_MaxOSX;
 	private static final int DEFAULT_TIMEOUT_MS = 60_000;
 	protected final WebClient webClient;
 
 	static {
-		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.SEVERE);
+		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 	}
 
-	public WebClientHelper() {
-		this(HEADER_DEF);
+	public static class Builder {
+		boolean jsEnabled = false;
+		SampleHeader header = SampleHeader.Chrome_MacOSX;
+		
+		Builder() {}
+
+		public Builder enableJs() {
+			jsEnabled = true;
+			return this;
+		}
+		
+		public Builder header(SampleHeader header) {
+			this.header = header;
+			return this;
+		}
+		
+		public WebClientHelper build() {
+			return new WebClientHelper(this);
+		}
+		
 	}
 
-	public WebClientHelper(SampleHeader header) {
+	public static Builder builder() {
+		return new Builder();
+	}
+	
+	public static WebClientHelper create() {
+		return builder().build();
+	}
+	
+	public static WebClientHelper createWithJs() {
+		return builder().enableJs().build();
+	}
+	
+	WebClientHelper(Builder builder) {
 		webClient = new WebClient();
 		webClient.getOptions().setThrowExceptionOnScriptError(false);
-		webClient.getOptions().setJavaScriptEnabled(false);
+		webClient.getOptions().setJavaScriptEnabled(builder.jsEnabled);
 		webClient.setCssErrorHandler(new SilentCssErrorHandler());
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setTimeout(DEFAULT_TIMEOUT_MS);
-		if (header != null) setHeaders(webClient, header);
+		if (builder.header != null) setHeaders(webClient, builder.header);
 	}
 
 	@Override
 	public void close() {
-		webClient.closeAllWindows();
+		webClient.close();
 	}
 
 	public String getContent(String url) throws IOException {
@@ -71,13 +100,13 @@ public class WebClientHelper implements Closeable {
 	}
 
 	public static HtmlPage page(String url) throws IOException {
-		try (WebClientHelper downloader = new WebClientHelper()) {
+		try (WebClientHelper downloader = WebClientHelper.create()) {
 			return downloader.getPage(url);
 		}
 	}
 
 	public static String content(String url) throws IOException {
-		try (WebClientHelper downloader = new WebClientHelper()) {
+		try (WebClientHelper downloader = WebClientHelper.create()) {
 			return downloader.getContent(url);
 		}
 	}

@@ -11,17 +11,17 @@ import ceri.common.collection.ImmutableUtil;
 
 public class Persistables implements Closeable, Persistable {
 	private static final Logger logger = LogManager.getLogger();
-	private final List<Persistable> persistables;
+	private final List<? extends Persistable> persistables;
 
 	public static Persistables create(Persistable...persistables) {
 		return create(Arrays.asList(persistables));
 	}
 	
-	public static Persistables create(Collection<Persistable> persistables) {
+	public static Persistables create(Collection<? extends Persistable> persistables) {
 		return new Persistables(persistables);
 	}
 	
-	Persistables(Collection<Persistable> persistables) {
+	Persistables(Collection<? extends Persistable> persistables) {
 		this.persistables = ImmutableUtil.copyAsList(persistables);
 	}
 

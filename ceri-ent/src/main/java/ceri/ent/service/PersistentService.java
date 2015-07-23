@@ -48,10 +48,11 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 		});
 	}
 
-	public int removeKeys(@SuppressWarnings("unchecked") K...keys) {
+	@SuppressWarnings("unchecked")
+	public int removeKeys(K... keys) {
 		return removeKeys(Arrays.asList(keys));
 	}
-	
+
 	public int removeKeys(Iterable<K> keys) {
 		return safe.writeWithReturn(() -> {
 			int removed = 0;
@@ -61,7 +62,8 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 		});
 	}
 
-	protected void add(@SuppressWarnings("unchecked") V... values) {
+	@SuppressWarnings("unchecked")
+	protected void add(V... values) {
 		add(Arrays.asList(values));
 	}
 
@@ -95,5 +97,5 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 	protected void safeAdd(Map<K, V> map) {
 		this.map.putAll(map);
 	}
-	
+
 }

@@ -12,25 +12,15 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.8</jdk.version>
-		<maven.compiler.version>3.1</maven.compiler.version>
-		<maven.surefire.version>2.16</maven.surefire.version>
-		<jackson.version>2.2.2</jackson.version>
-		<log4j.version>2.0-rc1</log4j.version>
-		<mockito.version>1.9.5</mockito.version>
-		<junit.version>4.11</junit.version>
+		<maven.compiler.version>3.3</maven.compiler.version>
+		<maven.surefire.version>2.18.1</maven.surefire.version>
+		<junit.version>4.12</junit.version>
+		<mockito.version>1.10.19</mockito.version>
+		<log4j.version>2.3</log4j.version>
+		<jackson.version>2.6.0</jackson.version>
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>ceri</groupId>
-			<artifactId>ceri-common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ceri</groupId>
-			<artifactId>ceri-rxtx</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -44,9 +34,14 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>${log4j.version}</version>
+			<groupId>ceri</groupId>
+			<artifactId>ceri-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ceri</groupId>
+			<artifactId>ceri-rxtx</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
@@ -55,17 +50,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>${jackson.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-annotations</artifactId>
 			<version>${jackson.version}</version>
 		</dependency>
 	</dependencies>
