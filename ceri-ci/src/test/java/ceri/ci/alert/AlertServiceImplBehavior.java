@@ -3,6 +3,7 @@ package ceri.ci.alert;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -48,7 +49,7 @@ public class AlertServiceImplBehavior {
 			service = new AlertServiceImpl(remindAlerters, 1, 1000, 100000);
 			service.clear(null, null);
 			sync.await();
-			verify(alerters).remind();
+			verify(alerters, atLeastOnce()).remind();
 		}
 	}
 

@@ -48,8 +48,6 @@ public class AlertServiceImpl implements AlertService, Closeable {
 
 	/**
 	 * Purges older events from the builds.
-	 * 
-	 * @TODO: put on timer, or based on event count
 	 */
 	@Override
 	public void purge() {
