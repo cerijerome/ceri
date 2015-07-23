@@ -4,12 +4,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import ceri.common.filter.Filter;
+import ceri.common.collection.ImmutableUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 import ceri.common.util.ToStringHelper;
 
-public class ScoreLookup<T> implements Score<T> {
+public class ScoreLookup<T> implements Scorer<T> {
 	private final Map<T, Double> map;
 
 	public static class Builder<T> {
@@ -38,16 +38,17 @@ public class ScoreLookup<T> implements Score<T> {
 	}
 
 	ScoreLookup(Builder<T> builder) {
-		map = Collections.unmodifiableMap(builder.normalize ? normalize(builder.map) : builder.map);
+		map =
+			builder.normalize ? Collections.unmodifiableMap(normalize(builder.map)) : ImmutableUtil
+				.copyAsMap(builder.map);
 	}
 
 	private Map<T, Double> normalize(Map<T, Double> map) {
 		Map<T, Double> normalizedMap = new HashMap<>();
 		double sum = sum(map.values());
 		if (sum == 0.0) return Collections.emptyMap();
-		for (Map.Entry<T, Double> entry : map.entrySet()) {
+		for (Map.Entry<T, Double> entry : map.entrySet())
 			normalizedMap.put(entry.getKey(), entry.getValue() / sum);
-		}
 		return normalizedMap;
 	}
 
@@ -58,13 +59,6 @@ public class ScoreLookup<T> implements Score<T> {
 		return sum;
 	}
 
-	public Filter<T> filter() {
-		return (t -> {
-			Double value = map.get(t);
-			return (value != null && value.doubleValue() > 0.0);
-		});
-	}
-	
 	@Override
 	public double score(T t) {
 		Double value = map.get(t);

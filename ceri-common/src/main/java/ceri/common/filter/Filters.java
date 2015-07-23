@@ -193,17 +193,33 @@ public class Filters {
 	/**
 	 * Comparable filter that returns true if the value >= given minimum value.
 	 */
-	public static <T extends Comparable<T>> Filter<T> min(final T min) {
+	public static <T extends Comparable<T>> Filter<T> gte(final T min) {
 		if (min == null) return _true();
 		return nonNull(t -> t.compareTo(min) >= 0);
 	}
 
 	/**
+	 * Comparable filter that returns true if the value > given minimum value.
+	 */
+	public static <T extends Comparable<T>> Filter<T> gt(final T min) {
+		if (min == null) return _true();
+		return nonNull(t -> t.compareTo(min) > 0);
+	}
+
+	/**
 	 * Comparable filter that returns true if the value <= given maximum value.
 	 */
-	public static <T extends Comparable<T>> Filter<T> max(final T max) {
+	public static <T extends Comparable<T>> Filter<T> lte(final T max) {
 		if (max == null) return _true();
 		return nonNull(t -> t.compareTo(max) <= 0);
+	}
+
+	/**
+	 * Comparable filter that returns true if the value < given maximum value.
+	 */
+	public static <T extends Comparable<T>> Filter<T> lt(final T max) {
+		if (max == null) return _true();
+		return nonNull(t -> t.compareTo(max) < 0);
 	}
 
 	/**

@@ -115,9 +115,9 @@ public class FiltersTest {
 	}
 
 	@Test
-	public void testMin() {
-		assertTrue(Filters.<String>min(null).filter("aaa"));
-		Filter<String> filter = Filters.min("N");
+	public void testGte() {
+		assertTrue(Filters.<String>gte(null).filter("aaa"));
+		Filter<String> filter = Filters.gte("N");
 		assertTrue(filter.filter("N"));
 		assertTrue(filter.filter("N "));
 		assertTrue(filter.filter("NNN"));
@@ -127,9 +127,9 @@ public class FiltersTest {
 	}
 
 	@Test
-	public void testMax() {
-		assertTrue(Filters.<String>max(null).filter("aaa"));
-		Filter<String> filter = Filters.max("N");
+	public void testLte() {
+		assertTrue(Filters.<String>lte(null).filter("aaa"));
+		Filter<String> filter = Filters.lte("N");
 		assertTrue(filter.filter("N"));
 		assertFalse(filter.filter("N "));
 		assertFalse(filter.filter("NNN"));

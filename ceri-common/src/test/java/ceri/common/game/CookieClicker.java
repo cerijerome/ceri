@@ -20,7 +20,7 @@ public class CookieClicker {
 	private final int delayMs;
 
 	public static class Builder {
-		Rectangle clickArea = new Rectangle(150, 400, 200, 200);
+		Rectangle clickArea = new Rectangle(90, 320, 250, 250);
 		int gcReminderMs = 130000;
 		Rectangle gcResetArea = new Rectangle(0, 0, 20, 20);
 		int delayMs = 10;

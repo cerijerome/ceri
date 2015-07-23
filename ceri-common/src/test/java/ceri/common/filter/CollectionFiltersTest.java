@@ -36,10 +36,10 @@ public class CollectionFiltersTest {
 
 	@Test
 	public void testAtIndex() {
-		Filter<List<String>> filter = CollectionFilters.atIndex(1, Filters.max("B"));
+		Filter<List<String>> filter = CollectionFilters.atIndex(1, Filters.lte("B"));
 		assertTrue(filter.filter(Arrays.asList("C", "A", "C")));
 		assertFalse(filter.filter(Arrays.asList("A", "C", "A")));
-		filter = CollectionFilters.atIndex(2, Filters.max("B"));
+		filter = CollectionFilters.atIndex(2, Filters.gte("B"));
 		assertFalse(filter.filter(Arrays.asList("C", "A")));
 		assertFalse(filter.filter(Arrays.asList("A", "C")));
 	}

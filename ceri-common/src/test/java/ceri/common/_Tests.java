@@ -57,6 +57,9 @@ import ceri.common.property.PropertyUtilTest;
 import ceri.common.reflect.CallerBehavior;
 import ceri.common.reflect.CreateExceptionBehavior;
 import ceri.common.reflect.ReflectUtilTest;
+import ceri.common.score.CollectionScorersTest;
+import ceri.common.score.ScoreLookupBehavior;
+import ceri.common.score.ScorersTest;
 import ceri.common.test.DebuggerBehavior;
 import ceri.common.test.RegexMatcherBehavior;
 import ceri.common.test.TestPrinterBehavior;
@@ -159,6 +162,10 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	CallerBehavior.class,
 	CreateExceptionBehavior.class,
 	ReflectUtilTest.class,
+	// score
+	CollectionScorersTest.class,
+	ScoreLookupBehavior.class,
+	ScorersTest.class,
 	//test
 	DebuggerBehavior.class,
 	RegexMatcherBehavior.class,

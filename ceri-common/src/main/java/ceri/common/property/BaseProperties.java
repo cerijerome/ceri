@@ -16,6 +16,10 @@ public abstract class BaseProperties {
 	private final String prefix;
 	private final Properties properties;
 
+	public static BaseProperties from(Properties properties) {
+		return new BaseProperties(properties) {};
+	}
+	
 	@Override
 	public String toString() {
 		return properties.toString();

@@ -74,9 +74,9 @@ public class ZippingInputStreamBehavior {
 	
 	@Test
 	public void testZipWithLargeNumberOfFiles() throws IOException {
-		// Create files z100..299 with contents a..z
+		// Create files z100..199 with contents a..z
 		FileTestHelper.Builder builder = FileTestHelper.builder(helper.root).root("zip");
-		for (int i = 100; i < 300; i++)
+		for (int i = 100; i < 199; i++)
 			builder.file("z" + i, "abcdefghijklmnopqrstuvwxyz");
 		try (
 			FileTestHelper zipHelper = builder.build();
