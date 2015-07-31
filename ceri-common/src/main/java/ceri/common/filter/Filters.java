@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 import ceri.common.util.BasicUtil;
@@ -17,15 +16,6 @@ public class Filters {
 	private static final Filter<Object> FALSE = not(TRUE);
 
 	private Filters() {}
-
-	/**
-	 * Applies a filter to a collection, copying matching items to a new collection.
-	 */
-	public static <T> Collection<T> filterCopy(Iterable<T> ts, Filter<? super T> filter) {
-		Collection<T> filtered = new LinkedHashSet<>();
-		for (T t : ts) if (filter.filter(t)) filtered.add(t);
-		return filtered;
-	}
 
 	/**
 	 * Applies a filter to a collection, removing items that do not match.

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Utility methods for creating immutable objects.
@@ -118,4 +120,21 @@ public class ImmutableUtil {
 		return Collections.unmodifiableSet(ts);
 	}
 
+	@SafeVarargs
+	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
+		T...ts) {
+		return convertAsMap(fn, Arrays.asList(ts));
+	}
+
+	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
+		Collection<T> ts) {
+		return Collections.unmodifiableMap(ts.stream().collect(
+			Collectors.toMap(fn, Function.identity())));
+	}
+
+	public static <K, T extends Enum<T>> Map<K, T> enumMap(Function<T, K> fn,
+		Class<T> cls) {
+		return convertAsMap(fn, EnumSet.allOf(cls));
+	}
+	
 }
