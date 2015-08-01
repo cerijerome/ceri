@@ -1,6 +1,7 @@
 package ceri.common.game;
 
 import java.awt.AWTException;
+import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -16,15 +17,18 @@ import ceri.common.util.BasicUtil;
 public class CookieClicker {
 	private final Rectangle clickArea;
 	private final int gcReminderMs;
-	private final Rectangle gcResetArea;
+	private final Rectangle resetArea;
+	private final Rectangle disableArea;
 	private final int delayMs;
+	private final Dimension screenSize;
 
 	public static class Builder {
 		Rectangle clickArea = new Rectangle(80, 310, 270, 270);
 		int gcReminderMs = 130000;
-		Rectangle gcResetArea = new Rectangle(0, 0, 20, 20);
+		Rectangle resetArea = new Rectangle(0, 0, 20, 20);
+		Rectangle disableArea = new Rectangle(0, -20, 20, 20);
 		int delayMs = 10;
-
+		
 		Builder() {}
 
 		public Builder clickArea(int x, int y, int w, int h) {
@@ -37,8 +41,13 @@ public class CookieClicker {
 			return this;
 		}
 
-		public Builder gcResetArea(int x, int y, int w, int h) {
-			gcResetArea = new Rectangle(x, y, w, h);
+		public Builder resetArea(int x, int y, int w, int h) {
+			resetArea = new Rectangle(x, y, w, h);
+			return this;
+		}
+
+		public Builder disableArea(int x, int y, int w, int h) {
+			disableArea = new Rectangle(x, y, w, h);
 			return this;
 		}
 
@@ -53,12 +62,22 @@ public class CookieClicker {
 	}
 
 	CookieClicker(Builder builder) {
-		clickArea = new Rectangle(builder.clickArea);
+		screenSize = screenSize();
+		clickArea = rectangle(builder.clickArea);
 		gcReminderMs = builder.gcReminderMs;
-		gcResetArea = new Rectangle(builder.gcResetArea);
+		resetArea = rectangle(builder.resetArea);
+		disableArea = rectangle(builder.disableArea);
+		System.out.println(resetArea);
+		System.out.println(disableArea);
 		delayMs = builder.delayMs;
 	}
 
+	private Rectangle rectangle(Rectangle r) {
+		int x = r.x >= 0 ? r.x : screenSize.width + r.x;
+		int y = r.y >= 0 ? r.y : screenSize.height + r.y;
+		return new Rectangle(x, y, r.width, r.height);
+	}
+	
 	public static Builder builder() {
 		return new Builder();
 	}
@@ -67,16 +86,20 @@ public class CookieClicker {
 		Robot r = new Robot();
 		//r.setAutoWaitForIdle(true);
 		long gc = 0;
+		boolean enabled = true;
 		while (true) {
 			Point p = MouseInfo.getPointerInfo().getLocation();
-			if (clickArea.contains(p)) {
+			if (enabled && clickArea.contains(p)) {
 				r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 				r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-			} else if (gcResetArea.contains(p)) {
+			} else if (resetArea.contains(p)) {
 				gc = System.currentTimeMillis();
+				enabled = changeState(enabled, true);
+			} else if (disableArea.contains(p)) {
+				enabled = changeState(enabled, false);
 			}
 			long t = System.currentTimeMillis();
-			if (t > gc + gcReminderMs) {
+			if (enabled && t > gc + gcReminderMs) {
 				gc = t;
 				BasicUtil.beep();
 			}
@@ -84,7 +107,17 @@ public class CookieClicker {
 		}
 	}
 
+	private boolean changeState(boolean from, boolean to) {
+		if (from != to) BasicUtil.beep();
+		return to;
+	}
+	
+	public static Dimension screenSize() {
+		return MouseInfo.getPointerInfo().getDevice().getDefaultConfiguration().getBounds().getSize();
+	}
+	
 	public static void main(String[] args) throws Exception {
+		System.out.println(screenSize());
 		builder().build().start();
 	}
 

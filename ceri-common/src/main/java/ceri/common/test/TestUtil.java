@@ -91,7 +91,7 @@ public class TestUtil {
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
-	public static void assertArray(Object lhs, Object rhs) {
+	private static void assertArrayObject(Object lhs, Object rhs) {
 		assertIsArray(lhs);
 		assertIsArray(rhs);
 		assertSize("Array size", Array.getLength(lhs), Array.getLength(rhs));
@@ -110,6 +110,70 @@ public class TestUtil {
 			Object rhsVal = Array.get(rhs, rhsOffset + i);
 			assertIndex(lhsVal, rhsVal, lhsOffset + i);
 		}
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	@SafeVarargs
+	public static <T> void assertArray(T[] array, T...expected) {
+		assertArrayObject(array, expected);
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	public static void assertArray(boolean[] array, boolean...expected) {
+		assertArrayObject(array, expected);
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	public static void assertArray(char[] array, char...expected) {
+		assertArrayObject(array, expected);
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	public static void assertArray(byte[] array, byte...expected) {
+		assertArrayObject(array, expected);
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	public static void assertArray(short[] array, short...expected) {
+		assertArrayObject(array, expected);
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	public static void assertArray(int[] array, int...expected) {
+		assertArrayObject(array, expected);
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	public static void assertArray(long[] array, long...expected) {
+		assertArrayObject(array, expected);
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	public static void assertArray(float[] array, float...expected) {
+		assertArrayObject(array, expected);
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	public static void assertArray(double[] array, double...expected) {
+		assertArrayObject(array, expected);
 	}
 
 	/**

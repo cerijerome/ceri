@@ -7,6 +7,7 @@ import ceri.common.collection.ArrayUtilTest;
 import ceri.common.collection.CollectionUtilTest;
 import ceri.common.collection.DelegatingMapBehavior;
 import ceri.common.collection.FixedSizeCacheBehavior;
+import ceri.common.collection.ImmutableByteArrayBehavior;
 import ceri.common.collection.ImmutableUtilTest;
 import ceri.common.collection.MapBuilderBehavior;
 import ceri.common.comparator.ComparatorSequenceBehavior;
@@ -101,6 +102,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	CollectionUtilTest.class,
 	DelegatingMapBehavior.class,
 	FixedSizeCacheBehavior.class,
+	ImmutableByteArrayBehavior.class,
 	ImmutableUtilTest.class,
 	MapBuilderBehavior.class,
 	// comparator
