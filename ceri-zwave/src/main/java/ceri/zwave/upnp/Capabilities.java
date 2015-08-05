@@ -5,9 +5,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TreeSet;
+import ceri.common.text.StringUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
-import ceri.common.util.StringUtil;
 
 /**
  * Encapsulation of http://wiki.micasaverde.com/index.php/ZWave_Command_Classes

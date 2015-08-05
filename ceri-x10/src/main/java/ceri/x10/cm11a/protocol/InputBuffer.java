@@ -11,7 +11,7 @@ import java.util.List;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.io.ByteArrayDataInput;
 import ceri.common.io.ByteArrayDataOutput;
-import ceri.common.util.ToStringHelper;
+import ceri.common.text.ToStringHelper;
 import ceri.x10.cm11a.Entry;
 import ceri.x10.cm11a.EntryDispatcher;
 import ceri.x10.command.BaseCommand;
