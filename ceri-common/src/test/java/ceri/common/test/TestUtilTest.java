@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.junit.Test;
 import ceri.common.concurrent.ExceptionRunnable;
-import ceri.common.util.StringUtil;
+import ceri.common.text.StringUtil;
 
 public class TestUtilTest {
 
@@ -121,7 +121,7 @@ public class TestUtilTest {
 	public void testAssertArray() {
 		boolean[] b0 = { false, false };
 		boolean[] b1 = { false, false };
-		assertAssertion(() -> TestUtil.assertArray(b0, 0, b1, 0, 3));
+		assertAssertion(() -> TestUtil.assertArrayObject(b0, 0, b1, 0, 3));
 	}
 
 	@Test

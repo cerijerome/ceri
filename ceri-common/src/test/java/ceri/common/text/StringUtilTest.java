@@ -1,4 +1,4 @@
-package ceri.common.util;
+package ceri.common.text;
 
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
@@ -8,7 +8,8 @@ import java.awt.event.KeyEvent;
 import java.io.PrintStream;
 import java.util.Collections;
 import org.junit.Test;
-import ceri.common.util.StringUtil.Align;
+import ceri.common.text.StringUtil;
+import ceri.common.text.StringUtil.Align;
 
 public class StringUtilTest {
 

@@ -1,6 +1,6 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertArrayObject;
 import static ceri.common.test.TestUtil.assertException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -109,7 +109,7 @@ public class BlockingBufferStreamBehavior {
 				state.set(2);
 				count += stream.asInputStream().read(b, count, b.length - count);
 				assertThat(count, is(10));
-				assertArray(b, 0, buffer, 0, 10);
+				assertArrayObject(b, 0, buffer, 0, 10);
 				state.set(3);
 			});
 			readThread.start();

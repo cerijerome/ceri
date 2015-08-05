@@ -3,7 +3,7 @@ package ceri.common.test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import ceri.common.util.StringUtil;
+import ceri.common.text.StringUtil;
 
 public class TestRunPrinterBehavior {
 

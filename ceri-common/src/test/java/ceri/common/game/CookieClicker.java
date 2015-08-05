@@ -4,6 +4,7 @@ import java.awt.AWTException;
 import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.PointerInfo;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
@@ -19,6 +20,7 @@ public class CookieClicker {
 	private final int gcReminderMs;
 	private final Rectangle resetArea;
 	private final Rectangle disableArea;
+	private final Rectangle exitArea;
 	private final int delayMs;
 	private final Dimension screenSize;
 
@@ -27,6 +29,7 @@ public class CookieClicker {
 		int gcReminderMs = 130000;
 		Rectangle resetArea = new Rectangle(0, 0, 20, 20);
 		Rectangle disableArea = new Rectangle(0, -20, 20, 20);
+		Rectangle exitArea = new Rectangle(-20, -20, 20, 20);
 		int delayMs = 10;
 		
 		Builder() {}
@@ -67,8 +70,7 @@ public class CookieClicker {
 		gcReminderMs = builder.gcReminderMs;
 		resetArea = rectangle(builder.resetArea);
 		disableArea = rectangle(builder.disableArea);
-		System.out.println(resetArea);
-		System.out.println(disableArea);
+		exitArea = rectangle(builder.exitArea);
 		delayMs = builder.delayMs;
 	}
 
@@ -88,7 +90,9 @@ public class CookieClicker {
 		long gc = 0;
 		boolean enabled = true;
 		while (true) {
-			Point p = MouseInfo.getPointerInfo().getLocation();
+			r.delay(delayMs);
+			Point p = mousePosition();
+			if (p == null) continue;
 			if (enabled && clickArea.contains(p)) {
 				r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 				r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
@@ -97,16 +101,24 @@ public class CookieClicker {
 				enabled = changeState(enabled, true);
 			} else if (disableArea.contains(p)) {
 				enabled = changeState(enabled, false);
+			} else if (exitArea.contains(p)) {
+				BasicUtil.beep();
+				break;
 			}
 			long t = System.currentTimeMillis();
 			if (enabled && t > gc + gcReminderMs) {
 				gc = t;
 				BasicUtil.beep();
 			}
-			r.delay(delayMs);
 		}
 	}
 
+	private Point mousePosition() {
+		PointerInfo info = MouseInfo.getPointerInfo();
+		if (info == null) return null;
+		return info.getLocation();
+	}
+	
 	private boolean changeState(boolean from, boolean to) {
 		if (from != to) BasicUtil.beep();
 		return to;
@@ -117,7 +129,6 @@ public class CookieClicker {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		System.out.println(screenSize());
 		builder().build().start();
 	}
 

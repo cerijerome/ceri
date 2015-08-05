@@ -1,4 +1,4 @@
-package ceri.common.util;
+package ceri.common.text;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 import org.junit.Test;
+import ceri.common.text.StringUtil;
+import ceri.common.text.ToStringHelper;
 
 public class ToStringHelperBehavior {
 

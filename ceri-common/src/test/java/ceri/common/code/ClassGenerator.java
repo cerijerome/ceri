@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.StringUtil;
 
 /**
  * Generates code text for an immutable class optionally with a builder. Class contains methods for

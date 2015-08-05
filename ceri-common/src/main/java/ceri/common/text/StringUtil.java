@@ -1,4 +1,4 @@
-package ceri.common.util;
+package ceri.common.text;
 
 import java.awt.event.KeyEvent;
 import java.io.OutputStream;
@@ -11,16 +11,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.util.BasicUtil;
 
 /**
  * String-based utilities. See also TextUtil for more word-based formatting utilities.
  */
 public class StringUtil {
-	public static final String UTF8 = "UTF8";
+	private static final String UTF8 = "UTF8";
+	private static final int HEX_RADIX = 16;
 	public static final Pattern NEWLINE_REGEX = Pattern.compile("(\\r\\n|\\n|\\r)");
 	public static final Pattern COMMA_SPLIT_REGEX = Pattern.compile("\\s*,\\s*");
 
 	private StringUtil() {}
+
+	/**
+	 * Converts a number to radix-based string with exactly the numbers of specified digits. For
+	 * numbers larger than the digits specified, the most significant digits are dropped.
+	 */
+	public static String toHexString(long l, int digits) {
+		return toUnsignedString(l, HEX_RADIX, digits);
+	}
 
 	/**
 	 * Converts a number to radix-based string with exactly the numbers of specified digits. For

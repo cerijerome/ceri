@@ -6,7 +6,7 @@ import static org.junit.Assert.assertThat;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.util.StringUtil;
+import ceri.common.text.StringUtil;
 
 public class BinaryLogOutputStreamBehavior {
 	private ByteArrayOutputStream bOut;

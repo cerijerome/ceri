@@ -15,7 +15,7 @@ import ceri.common.io.ByteBufferStream;
 import ceri.common.io.FileFilters;
 import ceri.common.io.FilenameIterator;
 import ceri.common.io.IoUtil;
-import ceri.common.util.ToStringHelper;
+import ceri.common.text.ToStringHelper;
 
 /**
  * Zips files under given root directory as bytes are read from the input stream. Not thread safe.

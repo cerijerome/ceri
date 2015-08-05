@@ -5,9 +5,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
-import ceri.common.util.ToStringHelper;
 
 public class ScoreLookup<T> implements Scorer<T> {
 	private final Map<T, Double> map;

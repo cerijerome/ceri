@@ -7,7 +7,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
-import ceri.common.util.ToStringHelper;
+import ceri.common.text.ToStringHelper;
 
 public class LogUtilTest {
 

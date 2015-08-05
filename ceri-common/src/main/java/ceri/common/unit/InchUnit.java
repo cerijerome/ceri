@@ -4,9 +4,9 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.text.StringUtil;
 import ceri.common.util.MultiPattern;
 import ceri.common.util.PrimitiveUtil;
-import ceri.common.util.StringUtil;
 
 /**
  * Example of Unit covering distance/height in inches. Only handles values in integral number of

@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.text.StringUtil;
 import ceri.common.util.EqualsUtil;
-import ceri.common.util.StringUtil;
 
 /**
  * Represents an immutable lookup key with '.' separator.

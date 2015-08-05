@@ -3,7 +3,7 @@ package ceri.common.tree;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import ceri.common.util.ToStringHelper;
+import ceri.common.text.ToStringHelper;
 
 /**
  * Test node and builder static classes to help test TreeNodes. Sample tree to

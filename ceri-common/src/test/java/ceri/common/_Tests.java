@@ -71,6 +71,11 @@ import ceri.common.test.TestThreadBehavior;
 import ceri.common.test.TestTimerBehavior;
 import ceri.common.test.TestUtil;
 import ceri.common.test.TestUtilTest;
+import ceri.common.text.RegexUtilTest;
+import ceri.common.text.StringUtilTest;
+import ceri.common.text.TextUtilTest;
+import ceri.common.text.ToStringHelperBehavior;
+import ceri.common.text.Utf8UtilTest;
 import ceri.common.tree.NodeTreeBehavior;
 import ceri.common.tree.TreeIteratorBehavior;
 import ceri.common.tree.TreeNodeBehavior;
@@ -87,10 +92,6 @@ import ceri.common.util.MathUtilTest;
 import ceri.common.util.MultiPatternBehavior;
 import ceri.common.util.NameValueBehavior;
 import ceri.common.util.PrimitiveUtilTest;
-import ceri.common.util.RegexUtilTest;
-import ceri.common.util.StringUtilTest;
-import ceri.common.util.TextUtilTest;
-import ceri.common.util.ToStringHelperBehavior;
 import ceri.common.zip.ZipUtilTest;
 import ceri.common.zip.ZippingInputStreamBehavior;
 
@@ -178,6 +179,12 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	TestThreadBehavior.class,
 	TestTimerBehavior.class,
 	TestUtilTest.class,
+	//text
+	RegexUtilTest.class,
+	StringUtilTest.class,
+	TextUtilTest.class,
+	ToStringHelperBehavior.class,
+	Utf8UtilTest.class,
 	// tree
 	NodeTreeBehavior.class,
 	TreeIteratorBehavior.class,
@@ -197,10 +204,6 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	MultiPatternBehavior.class,
 	NameValueBehavior.class,
 	PrimitiveUtilTest.class,
-	RegexUtilTest.class,
-	StringUtilTest.class,
-	TextUtilTest.class,
-	ToStringHelperBehavior.class,
 	// zip
 	ZippingInputStreamBehavior.class,
 	ZipUtilTest.class,

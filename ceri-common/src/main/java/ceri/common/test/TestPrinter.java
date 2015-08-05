@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunListener;
 import ceri.common.comparator.Comparators;
-import ceri.common.util.TextUtil;
+import ceri.common.text.TextUtil;
 
 /**
  * Prints out tests (traditionl unit tests) and behaviors (BDD-style) in readable phrases. Works

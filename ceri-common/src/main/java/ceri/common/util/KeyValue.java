@@ -1,5 +1,7 @@
 package ceri.common.util;
 
+import ceri.common.text.ToStringHelper;
+
 /**
  * Useful for storing key values in a list where multiple values exist for a key.
  */

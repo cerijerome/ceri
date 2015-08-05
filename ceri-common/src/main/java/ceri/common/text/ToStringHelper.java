@@ -1,4 +1,4 @@
-package ceri.common.util;
+package ceri.common.text;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

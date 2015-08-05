@@ -25,8 +25,8 @@ import org.hamcrest.core.IsSame;
 import org.junit.runner.JUnitCore;
 import ceri.common.concurrent.ExceptionRunnable;
 import ceri.common.io.IoUtil;
+import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.StringUtil;
 
 public class TestUtil {
 	private static final int BUFFER_SIZE = 1024 * 32;
@@ -95,13 +95,14 @@ public class TestUtil {
 		assertIsArray(lhs);
 		assertIsArray(rhs);
 		assertSize("Array size", Array.getLength(lhs), Array.getLength(rhs));
-		assertArray(lhs, 0, rhs, 0, Array.getLength(lhs));
+		assertArrayObject(lhs, 0, rhs, 0, Array.getLength(lhs));
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
-	public static void assertArray(Object lhs, int lhsOffset, Object rhs, int rhsOffset, int len) {
+	public static void assertArrayObject(Object lhs, int lhsOffset, Object rhs, int rhsOffset,
+		int len) {
 		assertIsArray(lhs);
 		assertIsArray(rhs);
 		assertMinSize(Array.getLength(lhs), lhsOffset + len);
@@ -116,63 +117,75 @@ public class TestUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	@SafeVarargs
-	public static <T> void assertArray(T[] array, T...expected) {
+	public static <T> void assertArray(T[] array, T... expected) {
 		assertArrayObject(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
-	public static void assertArray(boolean[] array, boolean...expected) {
+	public static void assertArray(boolean[] array, boolean... expected) {
 		assertArrayObject(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
-	public static void assertArray(char[] array, char...expected) {
+	public static void assertArray(char[] array, char... expected) {
 		assertArrayObject(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
-	public static void assertArray(byte[] array, byte...expected) {
+	public static void assertArray(byte[] array, byte... expected) {
 		assertArrayObject(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
-	public static void assertArray(short[] array, short...expected) {
+	public static void assertArray(byte[] array, int... values) {
+		byte[] expected = new byte[values.length];
+		for (int i = 0; i < values.length; i++) {
+			assertTrue(values[i] >= 0 && values[i] < 0x100);
+			expected[i] = (byte) values[i];
+		}
+		assertArray(array, expected);
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	public static void assertArray(short[] array, short... expected) {
 		assertArrayObject(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
-	public static void assertArray(int[] array, int...expected) {
+	public static void assertArray(int[] array, int... expected) {
 		assertArrayObject(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
-	public static void assertArray(long[] array, long...expected) {
+	public static void assertArray(long[] array, long... expected) {
 		assertArrayObject(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
-	public static void assertArray(float[] array, float...expected) {
+	public static void assertArray(float[] array, float... expected) {
 		assertArrayObject(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
-	public static void assertArray(double[] array, double...expected) {
+	public static void assertArray(double[] array, double... expected) {
 		assertArrayObject(array, expected);
 	}
 
@@ -218,7 +231,7 @@ public class TestUtil {
 	 * Checks two collections have equal elements, with specific failure information if not.
 	 */
 	public static <T> void
-	assertCollection(Collection<? extends T> lhs, Collection<? extends T> rhs) {
+		assertCollection(Collection<? extends T> lhs, Collection<? extends T> rhs) {
 		int i = 0;
 		for (T t : lhs) {
 			assertTrue("Unexpected element at position " + i + ": " + t, rhs.contains(t));

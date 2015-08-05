@@ -1,10 +1,11 @@
-package ceri.common.util;
+package ceri.common.text;
 
 import static ceri.common.test.TestUtil.assertElements;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.text.TextUtil;
 
 public class TextUtilTest {
 

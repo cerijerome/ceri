@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Properties;
+import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.StringUtil;
 
 /**
  * Abstract class for accessing properties with a common key prefix. Useful when sharing one

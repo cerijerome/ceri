@@ -3,8 +3,8 @@ package ceri.common.log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import ceri.common.util.StringUtil;
-import ceri.common.util.ToStringHelper;
+import ceri.common.text.StringUtil;
+import ceri.common.text.ToStringHelper;
 
 /**
  * Pretty-prints data in binary, hex and/or char format. e.g.

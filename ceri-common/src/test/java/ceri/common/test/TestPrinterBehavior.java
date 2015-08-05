@@ -9,7 +9,7 @@ import java.util.Iterator;
 import org.junit.Test;
 import org.junit.runner.Description;
 import ceri.common.test.TestPrinterBehavior.MyClass.MySubClass;
-import ceri.common.util.StringUtil;
+import ceri.common.text.StringUtil;
 
 public class TestPrinterBehavior {
 

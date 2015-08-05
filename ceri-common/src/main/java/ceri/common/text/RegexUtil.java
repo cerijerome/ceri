@@ -1,4 +1,4 @@
-package ceri.common.util;
+package ceri.common.text;
 
 import java.util.ArrayList;
 import java.util.List;

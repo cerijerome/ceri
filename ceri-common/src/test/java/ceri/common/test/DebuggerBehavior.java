@@ -7,7 +7,7 @@ import java.io.PrintStream;
 import org.junit.Test;
 import ceri.common.reflect.Caller;
 import ceri.common.reflect.ReflectUtil;
-import ceri.common.util.StringUtil;
+import ceri.common.text.StringUtil;
 
 public class DebuggerBehavior {
 

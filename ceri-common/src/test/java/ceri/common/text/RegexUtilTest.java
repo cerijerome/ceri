@@ -1,4 +1,4 @@
-package ceri.common.util;
+package ceri.common.text;
 
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertException;
@@ -8,6 +8,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import java.util.regex.Pattern;
 import org.junit.Test;
+import ceri.common.text.RegexUtil;
 
 public class RegexUtilTest {
 	private static final Pattern LSTRING_PATTERN = Pattern.compile("([a-z]+)");

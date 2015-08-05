@@ -3,7 +3,7 @@ package ceri.common.io;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.BufferUnderflowException;
-import ceri.common.util.ToStringHelper;
+import ceri.common.text.ToStringHelper;
 
 /**
  * A byte buffer for writing and reading. Buffer grows as necessary during writes. Will throw a

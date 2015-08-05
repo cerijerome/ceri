@@ -1,8 +1,10 @@
 package ceri.common.collection;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
+import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
-import ceri.common.util.ToStringHelper;
 
 /**
  * Wrapper for byte array that does not allow modification. It allows slicing of views, to promote
@@ -95,6 +97,20 @@ public class ImmutableByteArray {
 		if (length == 0) return destOffset;
 		System.arraycopy(array, offset + srcOffset, dest, destOffset, length);
 		return destOffset + length;
+	}
+
+	public void writeTo(OutputStream out) throws IOException {
+		writeTo(out, 0);
+	}
+	
+	public void writeTo(OutputStream out, int offset) throws IOException {
+		writeTo(out, offset, length - offset);
+	}
+	
+	public void writeTo(OutputStream out, int offset, int length) throws IOException {
+		validate(this.length, offset, length);
+		if (length == 0) return;
+		out.write(array, this.offset + offset, length);
 	}
 
 	@Override
