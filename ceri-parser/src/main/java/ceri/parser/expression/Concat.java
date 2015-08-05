@@ -1,9 +1,9 @@
 package ceri.parser.expression;
 
 import java.util.regex.Pattern;
+import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
-import ceri.common.util.ToStringHelper;
 
 public class Concat implements Expression {
 	private final Expression lhs;

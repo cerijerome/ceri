@@ -9,8 +9,8 @@ import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
 import ceri.ci.build.Job;
+import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
-import ceri.common.util.ToStringHelper;
 
 /**
  * Analyzes the builds for heroes and villains. Villains have broken the build, whereas heroes

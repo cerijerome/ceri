@@ -2,9 +2,9 @@ package ceri.parser.token;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
-import ceri.common.util.ToStringHelper;
 
 public class QuoteToken extends Token.Base {
 	static final Pattern PATTERN = Pattern.compile("^\"([^\"]*)\"");

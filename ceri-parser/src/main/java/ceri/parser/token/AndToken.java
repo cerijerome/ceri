@@ -1,7 +1,7 @@
 package ceri.parser.token;
 
 import java.util.regex.Pattern;
-import ceri.common.util.ToStringHelper;
+import ceri.common.text.ToStringHelper;
 
 public class AndToken extends Token.Base {
 	static final Pattern PATTERN = Pattern.compile("^\\s+");

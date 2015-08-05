@@ -19,7 +19,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.util.ToStringHelper;
+import ceri.common.text.ToStringHelper;
 
 /**
  * Fetches email messages from a server. Uses a server-side limit query based on minimum sent date,

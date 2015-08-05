@@ -1,8 +1,8 @@
 package ceri.ci.build;
 
+import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
-import ceri.common.util.ToStringHelper;
 
 public class BuildEvent {
 	public final String build;

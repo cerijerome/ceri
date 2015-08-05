@@ -9,9 +9,9 @@ import java.util.HashSet;
 import java.util.TreeSet;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
-import ceri.common.util.ToStringHelper;
 
 /**
  * Keeps track of the main fields of an email.

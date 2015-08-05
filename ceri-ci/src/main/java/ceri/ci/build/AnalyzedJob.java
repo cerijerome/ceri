@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
-import ceri.common.util.ToStringHelper;
 
 /**
  * Checks a build for jobs that have just been broken, are still broken, or have just been fixed.

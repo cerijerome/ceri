@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.TreeSet;
 import ceri.common.comparator.Comparators;
+import ceri.common.text.ToStringHelper;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.HashCoder;
-import ceri.common.util.ToStringHelper;
 
 /**
  * Keeps state of fix/break events on a named job. Events are sorted in order of

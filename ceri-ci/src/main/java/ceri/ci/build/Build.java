@@ -5,9 +5,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import ceri.common.text.ToStringHelper;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.HashCoder;
-import ceri.common.util.ToStringHelper;
 
 public class Build implements Iterable<Job> {
 	private transient final Map<String, Job> mutableJobs = new TreeMap<>();

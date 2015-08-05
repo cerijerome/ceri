@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.Date;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.comparator.Comparators;
+import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
-import ceri.common.util.ToStringHelper;
 
 /**
  * Immutable successful or failed build event.

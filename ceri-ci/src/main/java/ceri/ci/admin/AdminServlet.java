@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import ceri.ci.alert.AlertService;
-import ceri.common.util.StringUtil;
+import ceri.common.text.StringUtil;
 
 /**
  * Handles the following requests:

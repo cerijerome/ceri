@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import ceri.common.factory.Factory;
+import ceri.common.text.StringUtil;
 import ceri.common.util.PrimitiveUtil;
-import ceri.common.util.StringUtil;
 
 public class Request {
 	private final HttpServletRequest request;

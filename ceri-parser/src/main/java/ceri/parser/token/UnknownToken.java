@@ -1,7 +1,7 @@
 package ceri.parser.token;
 
+import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
-import ceri.common.util.ToStringHelper;
 
 public class UnknownToken extends Token.Base {
 	public static final Token.Factory FACTORY = new Token.Factory() {

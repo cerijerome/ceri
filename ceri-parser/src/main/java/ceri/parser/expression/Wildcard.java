@@ -1,7 +1,7 @@
 package ceri.parser.expression;
 
+import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
-import ceri.common.util.ToStringHelper;
 
 
 public class Wildcard implements Expression {
