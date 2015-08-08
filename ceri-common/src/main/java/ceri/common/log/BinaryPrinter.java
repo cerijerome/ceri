@@ -16,6 +16,7 @@ import ceri.common.text.ToStringHelper;
  * for 4 bytes per column, and 1 column. Unprintable ascii chars will show as "."
  */
 public class BinaryPrinter {
+	public static final BinaryPrinter DEFAULT = builder().build();
 	private static final int BITS_IN_BYTE = 8;
 	private static final int ASCII_MIN = '!';
 	private static final int ASCII_MAX = '~';
