@@ -1,9 +1,9 @@
 package ceri.common.text;
 
 import static java.nio.charset.CodingErrorAction.REPLACE;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.PrimitiveIterator.OfInt;
 import ceri.common.collection.ArrayUtil;
 
@@ -12,7 +12,6 @@ import ceri.common.collection.ArrayUtil;
  */
 public class Utf8Util {
 	public static final int MAX_BYTES_PER_CODE_POINT = 4;
-	private static final String UTF8 = "UTF8";
 	private static final int ONE_BYTE_START_MASK = 0x80;
 	private static final int ONE_BYTE_START_VALUE = 0x00;
 	private static final int ONE_BYTE_MAX_CODE_POINT = 0x7f;
@@ -38,18 +37,14 @@ public class Utf8Util {
 	 * Returns the string as UTF8 bytes.
 	 */
 	public static byte[] encode(String s) {
-		try {
-			return s.getBytes(UTF8);
-		} catch (UnsupportedEncodingException e) {
-			throw new IllegalStateException("Should not happen");
-		}
+		return s.getBytes(charset());
 	}
 
 	/**
 	 * Returns the UTF8 charset.
 	 */
 	public static Charset charset() {
-		return Charset.forName(UTF8);
+		return StandardCharsets.UTF_8;
 	}
 
 	/**
