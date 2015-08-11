@@ -21,22 +21,54 @@ public class StringUtil {
 	private static final int HEX_RADIX = 16;
 	public static final Pattern NEWLINE_REGEX = Pattern.compile("(\\r\\n|\\n|\\r)");
 	public static final Pattern COMMA_SPLIT_REGEX = Pattern.compile("\\s*,\\s*");
-
+	private static final int LONG_HEX_DIGITS = 16;
+	private static final int INT_HEX_DIGITS = 8;
+	private static final int SHORT_HEX_DIGITS = 4;
+	private static final int BYTE_HEX_DIGITS = 2;
+	
 	private StringUtil() {}
 
 	/**
-	 * Converts a number to radix-based string with exactly the numbers of specified digits. For
-	 * numbers larger than the digits specified, the most significant digits are dropped.
+	 * Convenience method to convert a long to a 16-digit hex string.
 	 */
-	public static String toHexString(long l, int digits) {
-		return toUnsignedString(l, HEX_RADIX, digits);
+	public static String toHex(long l) {
+		return toHex(l, LONG_HEX_DIGITS);
+	}
+
+	/**
+	 * Convenience method to convert an int to a 8-digit hex string.
+	 */
+	public static String toHex(int i) {
+		return toHex(i, INT_HEX_DIGITS);
+	}
+
+	/**
+	 * Convenience method to convert a short to a 4-digit hex string.
+	 */
+	public static String toHex(short s) {
+		return toHex(s, SHORT_HEX_DIGITS);
+	}
+
+	/**
+	 * Convenience method to convert an int to a 8-digit hex string.
+	 */
+	public static String toHex(byte b) {
+		return toHex(b, BYTE_HEX_DIGITS);
 	}
 
 	/**
 	 * Converts a number to radix-based string with exactly the numbers of specified digits. For
 	 * numbers larger than the digits specified, the most significant digits are dropped.
 	 */
-	public static String toUnsignedString(long l, int radix, int digits) {
+	public static String toHex(long l, int digits) {
+		return toUnsigned(l, HEX_RADIX, digits);
+	}
+
+	/**
+	 * Converts a number to radix-based string with exactly the numbers of specified digits. For
+	 * numbers larger than the digits specified, the most significant digits are dropped.
+	 */
+	public static String toUnsigned(long l, int radix, int digits) {
 		String s = Long.toUnsignedString(l, radix);
 		s = pad(s, digits, "0", Align.RIGHT);
 		int len = s.length();
