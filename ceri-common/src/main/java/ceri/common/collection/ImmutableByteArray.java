@@ -129,14 +129,37 @@ public class ImmutableByteArray {
 		return equals(0, array, offset);
 	}
 
+	public boolean equals(byte[] array, int offset, int length) {
+		return equals(0, array, offset, length);
+	}
+
 	public boolean equals(int srcOffset, byte[] array, int offset) {
-		return equals(srcOffset, array, offset, length);
+		return equals(srcOffset, array, offset, length - srcOffset);
 	}
 
 	public boolean equals(int srcOffset, byte[] array, int offset, int length) {
 		validate(this.length, srcOffset, length);
 		for (int i = 0; i < length; i++)
 			if (at(srcOffset + i) != array[offset + i]) return false;
+		return true;
+	}
+
+	public boolean equals(ImmutableByteArray array, int offset) {
+		return equals(array, offset, length);
+	}
+	
+	public boolean equals(ImmutableByteArray array, int offset, int length) {
+		return equals(0, array, offset, length);
+	}
+	
+	public boolean equals(int srcOffset, ImmutableByteArray array, int offset) {
+		return equals(srcOffset, array, offset, length - srcOffset);
+	}
+	
+	public boolean equals(int srcOffset, ImmutableByteArray array, int offset, int length) {
+		validate(this.length, srcOffset, length);
+		for (int i = 0; i < length; i++)
+			if (at(srcOffset + i) != array.at(offset + i)) return false;
 		return true;
 	}
 
