@@ -148,7 +148,6 @@ public class TestUtil {
 	public static void assertArray(byte[] array, int... values) {
 		byte[] expected = new byte[values.length];
 		for (int i = 0; i < values.length; i++) {
-			assertTrue(values[i] >= 0 && values[i] < 0x100);
 			expected[i] = (byte) values[i];
 		}
 		assertArray(array, expected);
