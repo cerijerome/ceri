@@ -3,6 +3,7 @@ package ceri.common.io;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -15,7 +16,15 @@ public class PollingInputStream extends FilterInputStream {
 	private volatile boolean closed = false;
 
 	/**
-	 * Constructor with given polling interval and maximum wait time for data to be available.
+	 * Constructor with given polling interval and unlimited wait time for data to be available.
+	 */
+	public PollingInputStream(InputStream in, long pollingMs) {
+		this(in, pollingMs, 0);
+	}
+
+	/**
+	 * Constructor with given polling interval and maximum wait time for data to be available. Use
+	 * timeout of 0 for unlimited wait.
 	 */
 	public PollingInputStream(InputStream in, long pollingMs, long timeoutMs) {
 		super(in);
@@ -52,9 +61,10 @@ public class PollingInputStream extends FilterInputStream {
 		long t = System.currentTimeMillis();
 		while (true) {
 			if (in.available() >= count) return;
-			if (System.currentTimeMillis() - t > timeoutMs) throw new IoTimeoutException(
+			if (timeoutMs != 0 && (System.currentTimeMillis() - t > timeoutMs)) throw new IoTimeoutException(
 				"No bytes available within " + timeoutMs + "ms");
 			BasicUtil.delay(pollingMs);
+			ConcurrentUtil.checkRuntimeInterrupted();
 		}
 	}
 
