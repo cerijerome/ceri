@@ -19,7 +19,7 @@
 		<log4j.version>2.3</log4j.version>
 		<jackson.version>2.6.0</jackson.version>
 		<jetty.version>9.3.1.v20150714</jetty.version>
-		<fluent-hc.version>4.5</fluent-hc.version>
+		<httpcomponents.version>4.5</httpcomponents.version>
 		<htmlunit.version>2.17</htmlunit.version>
 		<selenium.java.version>2.46.0</selenium.java.version>
 	</properties>
@@ -65,7 +65,7 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>fluent-hc</artifactId>
-			<version>${fluent-hc.version}</version>
+			<version>${httpcomponents.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>

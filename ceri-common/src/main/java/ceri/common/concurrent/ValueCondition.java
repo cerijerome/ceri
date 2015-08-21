@@ -1,5 +1,6 @@
 package ceri.common.concurrent;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,6 +33,16 @@ public class ValueCondition<T> {
 		return ConcurrentUtil.executeGet(lock, () -> {
 			while (value == null)
 				condition.await();
+			T returnValue = value;
+			value = null;
+			return returnValue;
+		});
+	}
+
+	public T await(long timeoutMs) throws InterruptedException {
+		return ConcurrentUtil.executeGet(lock, () -> {
+			if (value == null)
+				condition.await(timeoutMs, TimeUnit.MILLISECONDS);
 			T returnValue = value;
 			value = null;
 			return returnValue;
