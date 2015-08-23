@@ -19,6 +19,10 @@ public class BooleanCondition {
 		condition.await();
 	}
 
+	public void await(long timeoutMs) throws InterruptedException {
+		condition.await(timeoutMs);
+	}
+
 	public boolean isSet() {
 		return condition.value() != null;
 	}

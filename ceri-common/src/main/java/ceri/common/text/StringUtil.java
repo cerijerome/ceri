@@ -19,6 +19,7 @@ import ceri.common.util.BasicUtil;
 public class StringUtil {
 	private static final String UTF8 = "UTF8";
 	private static final int HEX_RADIX = 16;
+	private static final int BINARY_RADIX = 2;
 	public static final Pattern NEWLINE_REGEX = Pattern.compile("(\\r\\n|\\n|\\r)");
 	public static final Pattern COMMA_SPLIT_REGEX = Pattern.compile("\\s*,\\s*");
 	private static final int LONG_HEX_DIGITS = 16;
@@ -62,6 +63,14 @@ public class StringUtil {
 	 */
 	public static String toHex(long l, int digits) {
 		return toUnsigned(l, HEX_RADIX, digits);
+	}
+
+	/**
+	 * Converts a number to radix-based string with exactly the numbers of specified digits. For
+	 * numbers larger than the digits specified, the most significant digits are dropped.
+	 */
+	public static String toBinary(long l, int digits) {
+		return toUnsigned(l, BINARY_RADIX, digits);
 	}
 
 	/**
