@@ -48,10 +48,6 @@ import ceri.common.io.PollingInputStreamBehavior;
 import ceri.common.io.RegexFilenameFilterBehavior;
 import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
-import ceri.common.log.BinaryLogInputStreamBehavior;
-import ceri.common.log.BinaryLogOutputStreamBehavior;
-import ceri.common.log.BinaryPrinterBehavior;
-import ceri.common.log.LogUtilTest;
 import ceri.common.property.BasePropertiesBehavior;
 import ceri.common.property.KeyBehavior;
 import ceri.common.property.PropertyUtilTest;
@@ -152,11 +148,6 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	RegexFilenameFilterBehavior.class,
 	RuntimeIoExceptionBehavior.class,
 	StringPrintStreamBehavior.class,
-	// log
-	BinaryLogInputStreamBehavior.class,
-	BinaryLogOutputStreamBehavior.class,
-	BinaryPrinterBehavior.class,
-	LogUtilTest.class,
 	// property
 	BasePropertiesBehavior.class,
 	KeyBehavior.class,

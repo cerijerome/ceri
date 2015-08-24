@@ -16,7 +16,7 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.io.IoTimeoutException;
 import ceri.common.io.PollingInputStream;
-import ceri.common.log.LogUtil;
+import ceri.log.util.LogUtil;
 import ceri.x10.cm11a.protocol.Data;
 import ceri.x10.cm11a.protocol.InputBuffer;
 import ceri.x10.cm11a.protocol.Protocol;

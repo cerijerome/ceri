@@ -20,8 +20,8 @@ import ceri.ci.common.LoggingExecutor;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.io.IoUtil;
-import ceri.common.log.LogUtil;
 import ceri.common.util.BasicUtil;
+import ceri.log.util.LogUtil;
 
 /**
  * Service that manages the state of builds, and call update, remind, and clear on the alerter

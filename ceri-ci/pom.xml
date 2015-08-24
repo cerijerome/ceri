@@ -44,7 +44,17 @@
 		</dependency>
 		<dependency>
 			<groupId>ceri</groupId>
+			<artifactId>ceri-log</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ceri</groupId>
 			<artifactId>ceri-x10</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ceri</groupId>
+			<artifactId>ceri-log</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
