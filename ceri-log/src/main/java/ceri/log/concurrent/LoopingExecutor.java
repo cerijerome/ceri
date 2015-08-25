@@ -38,12 +38,12 @@ public abstract class LoopingExecutor implements Closeable {
 	}
 
 	public LoopingExecutor(int exitTimeoutMs) {
-		logger.info("{} started", getClass().getSimpleName());
 		this.exitTimeoutMs = exitTimeoutMs;
 		executor = Executors.newSingleThreadExecutor();
 	}
 
-	protected synchronized void start() {
+	protected void start() {
+		logger.info("{} started", getClass().getSimpleName());
 		executor.execute(this::loops);
 	}
 	
