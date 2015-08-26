@@ -1,7 +1,11 @@
 package ceri.log.util;
 
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.regex.Pattern;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Utility methods to assist with logging.
@@ -11,6 +15,20 @@ public class LogUtil {
 
 	private LogUtil() {}
 
+	/**
+	 * Closes a closeable, and logs any exceptions as a warning.
+	 */
+	public static boolean close(Logger logger, Closeable closeable) {
+		if (closeable == null) return false;
+		try {
+			closeable.close();
+			return true;
+		} catch (IOException e) {
+			logger.catching(Level.WARN, e);
+			return false;
+		}
+	}
+	
 	/**
 	 * Interface used with toString to lazily generate a string.
 	 */

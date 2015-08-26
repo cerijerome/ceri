@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template autoinsert="true" context="java" deleted="false" description="Sets up static imports for unit test class" enabled="true" name="behavior">	${:import(org.junit.Test)}@Test
+public void should${cursor}() {
+	
+}
+</template><template autoinsert="true" context="java" deleted="false" description="Log4j2 logger declaration" enabled="true" name="logger">${:import(org.apache.logging.log4j.LogManager,org.apache.logging.log4j.Logger)}private static final Logger logger = LogManager.getLogger();</template><template autoinsert="true" context="java" deleted="false" description="init mocks" enabled="true" name="mock">${:import(org.junit.Before,org.mockito.Mock,org.mockito.MockitoAnnotations)}
+@Before
+public void init() {
+	MockitoAnnotations.initMocks(this);
+}
+</template><template autoinsert="true" context="java" deleted="false" description="int const" enabled="true" name="ssi">private static final int </template><template autoinsert="true" context="java" deleted="false" description="string const" enabled="true" name="sss">private static final String </template><template autoinsert="true" context="java" deleted="false" description="Sets up static imports for unit test class" enabled="true" name="test">	${:import(org.junit.Test)}@Test
+public void test${cursor}() {
+	
+}
+</template><template autoinsert="true" context="java" deleted="false" description="Test for private constructor" enabled="true" name="tpc">${:importStatic('ceri.common.test.TestUtil.*')}
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(${enclosing_type}x${cursor}.class);
+	}
+
+</template><template autoinsert="true" context="java" deleted="false" description="Test static imports" enabled="true" name="tsi">${:importStatic('ceri.common.test.TestUtil.*',
+'org.hamcrest.CoreMatchers.*',
+'org.junit.Assert.*',
+'org.mockito.Mockito.*')}</template><template autoinsert="true" context="java" deleted="false" description="Create utility class boilerplate" enabled="true" name="util">
+	private ${enclosing_type}() {}
+
+	public static void X() {
+	}</template></templates>

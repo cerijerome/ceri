@@ -1,5 +1,7 @@
 package ceri.common.concurrent;
 
+import java.util.concurrent.TimeoutException;
+
 /**
  * Simple condition to signal and wait for a boolean state change.
  */
@@ -19,8 +21,8 @@ public class BooleanCondition {
 		condition.await();
 	}
 
-	public void await(long timeoutMs) throws InterruptedException {
-		condition.await(timeoutMs);
+	public void await(long timeoutMs) throws InterruptedException, TimeoutException {
+		if (condition.await(timeoutMs) == null) throw new TimeoutException();
 	}
 
 	public boolean isSet() {
