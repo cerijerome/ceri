@@ -1,6 +1,5 @@
 package ceri.log.util;
 
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.regex.Pattern;
@@ -28,7 +27,7 @@ public class LogUtil {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Interface used with toString to lazily generate a string.
 	 */

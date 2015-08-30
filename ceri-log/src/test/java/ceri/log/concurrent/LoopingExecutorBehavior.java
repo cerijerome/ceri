@@ -14,7 +14,7 @@ public class LoopingExecutorBehavior {
 	@Before
 	public void init() {
 		count = 0;
-		condition = new ValueCondition<>();
+		condition = ValueCondition.create();
 	}
 
 	@Test
