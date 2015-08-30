@@ -8,7 +8,7 @@ public class ValueConditionBehavior {
 
 	@Test
 	public void shouldSetAndClearValues() throws InterruptedException {
-		ValueCondition<Integer> flag = new ValueCondition<>();
+		ValueCondition<Integer> flag = ValueCondition.create();
 		assertThat(flag.value(), is((Integer) null));
 		flag.signal(1);
 		assertThat(flag.value(), is(1));

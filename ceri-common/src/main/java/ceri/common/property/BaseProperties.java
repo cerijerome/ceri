@@ -13,7 +13,7 @@ import ceri.common.util.BasicUtil;
  * accessors.
  */
 public abstract class BaseProperties {
-	private final String prefix;
+	protected final String prefix;
 	private final Properties properties;
 
 	public static BaseProperties from(Properties properties) {

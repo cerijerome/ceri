@@ -10,7 +10,7 @@ public class BooleanCondition {
 	private final ValueCondition<Object> condition;
 
 	public BooleanCondition() {
-		condition = new ValueCondition<>();
+		condition = ValueCondition.create();
 	}
 
 	public void signal() {

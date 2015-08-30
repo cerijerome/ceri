@@ -118,13 +118,6 @@ public class BasicUtil {
 	}
 
 	/**
-	 * Picks the first one if not null, otherwise the second one.
-	 */
-	public static <T> T chooseNonNull(T lhs, T rhs) {
-		return lhs != null ? lhs : rhs;
-	}
-
-	/**
 	 * Checks if the given map is null or empty.
 	 */
 	public static boolean isEmpty(Map<?, ?> map) {

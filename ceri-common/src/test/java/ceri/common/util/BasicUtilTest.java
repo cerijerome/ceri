@@ -97,13 +97,6 @@ public class BasicUtilTest {
 	}
 
 	@Test
-	public void testChooseNonNull() {
-		assertThat(BasicUtil.chooseNonNull(null, "Test"), is("Test"));
-		assertThat(BasicUtil.chooseNonNull("Test", null), is("Test"));
-		assertThat(BasicUtil.chooseNonNull(null, null), nullValue());
-	}
-
-	@Test
 	public void testCastOrNull() {
 		java.sql.Date sqlDate = new java.sql.Date(0);
 		assertThat(BasicUtil.castOrNull(Date.class, sqlDate), is((Date) sqlDate));
