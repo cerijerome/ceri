@@ -22,7 +22,7 @@ public class LogUtil {
 		try {
 			closeable.close();
 			return true;
-		} catch (IOException e) {
+		} catch (IOException | RuntimeException e) {
 			logger.catching(Level.WARN, e);
 			return false;
 		}
@@ -36,8 +36,8 @@ public class LogUtil {
 	}
 
 	/**
-	 * Returns an object whose toString() executes the given object's toString() method. Convenient
-	 * for use with lambda notation.
+	 * Returns an object whose toString() executes the given toLazyString() method.
+	 * Used for logging lazy string instantiations.
 	 */
 	public static Object toString(final ToLazyString toLazyString) {
 		return new Object() {
@@ -58,12 +58,7 @@ public class LogUtil {
 	 * Returns an object whose toString() returns the hex string of the given integer value.
 	 */
 	public static Object toHex(final int value) {
-		return new Object() {
-			@Override
-			public String toString() {
-				return Integer.toHexString(value);
-			}
-		};
+		return toString(() -> Integer.toHexString(value));
 	}
 
 	/**
@@ -71,12 +66,7 @@ public class LogUtil {
 	 * space.
 	 */
 	public static Object compact(final Object obj) {
-		return new Object() {
-			@Override
-			public String toString() {
-				return SPACE_REGEX.matcher(String.valueOf(obj)).replaceAll(" ");
-			}
-		};
+		return toString(() -> SPACE_REGEX.matcher(String.valueOf(obj)).replaceAll(" "));
 	}
 
 }
