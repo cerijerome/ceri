@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Properties;
+import ceri.common.filter.Filter;
+import ceri.common.filter.Filters;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
@@ -281,10 +283,18 @@ public abstract class BaseProperties {
 	 * Returns all the keys that start with prefix.
 	 */
 	protected Collection<String> keys() {
+		return keys(Filters._true());
+	}
+
+	/**
+	 * Returns all the keys that start with prefix, and match given filter.
+	 */
+	protected Collection<String> keys(Filter<String> filter) {
 		Collection<String> keys = new LinkedHashSet<>();
 		for (Object o : properties.keySet()) {
 			String key = String.valueOf(o);
-			if (prefix == null || prefix.isEmpty() || key.startsWith(prefix)) keys.add(key);
+			if (prefix != null && !key.startsWith(prefix)) continue;
+			if (filter.filter(key)) keys.add(key);
 		}
 		return keys;
 	}
