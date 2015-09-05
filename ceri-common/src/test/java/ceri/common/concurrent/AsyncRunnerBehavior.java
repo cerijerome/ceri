@@ -27,7 +27,7 @@ public class AsyncRunnerBehavior {
 	
 	@Test
 	public void shouldExecuteRunnerTask() throws InterruptedException {
-		BooleanCondition flag = new BooleanCondition();
+		BooleanCondition flag = BooleanCondition.create();
 		AsyncRunner<RuntimeException> runner = runner(() -> flag.signal());
 		runner.start();
 		flag.await();

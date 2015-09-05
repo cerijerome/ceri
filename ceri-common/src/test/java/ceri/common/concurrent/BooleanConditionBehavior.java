@@ -8,7 +8,7 @@ public class BooleanConditionBehavior {
 
 	@Test
 	public void shouldSetAndClearValues() throws InterruptedException {
-		BooleanCondition flag = new BooleanCondition();
+		BooleanCondition flag = BooleanCondition.create();
 		assertFalse(flag.isSet());
 		flag.signal();
 		assertTrue(flag.isSet());

@@ -65,6 +65,13 @@ public class ValueCondition<T> {
 		});
 	}
 
+	public T peek() throws InterruptedException {
+		return ConcurrentUtil.executeGet(lock, () -> {
+			while (value == null) condition.await();
+			return value;
+		});
+	}
+
 	public T peek(long timeoutMs) throws InterruptedException {
 		return ConcurrentUtil.executeGet(lock, () -> {
 			if (value == null) condition.await(timeoutMs, TimeUnit.MILLISECONDS);

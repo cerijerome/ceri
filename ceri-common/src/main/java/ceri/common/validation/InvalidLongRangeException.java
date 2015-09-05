@@ -3,8 +3,8 @@ package ceri.common.validation;
 public class InvalidLongRangeException extends IllegalArgumentException {
 	private static final long serialVersionUID = 2683785652371313243L;
 	private static final String NO_NAME = "Value";
-	public final long min;
-	public final long max;
+	public final Long min;
+	public final Long max;
 	public final long value;
 
 	public static InvalidLongRangeException equal(long value, long expected) {

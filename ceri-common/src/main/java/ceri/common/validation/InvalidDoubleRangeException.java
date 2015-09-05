@@ -3,8 +3,8 @@ package ceri.common.validation;
 public class InvalidDoubleRangeException extends IllegalArgumentException {
 	private static final long serialVersionUID = 3544099867489070075L;
 	private static final String NO_NAME = "Value";
-	public final double min;
-	public final double max;
+	public final Double min;
+	public final Double max;
 	public final double value;
 
 	public static InvalidDoubleRangeException equal(double value, double expected) {

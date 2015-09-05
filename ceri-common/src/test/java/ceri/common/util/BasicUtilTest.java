@@ -73,7 +73,7 @@ public class BasicUtilTest {
 
 	@Test
 	public void testDelay() throws InterruptedException {
-		final BooleanCondition flag = new BooleanCondition();
+		final BooleanCondition flag = BooleanCondition.create();
 		Thread thread = new Thread(() -> {
 			try {
 				BasicUtil.delay(0);
