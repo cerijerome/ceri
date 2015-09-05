@@ -3,13 +3,12 @@ package ceri.log.concurrent;
 import java.io.Closeable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.ExceptionRunnable;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.log.util.LogUtil;
 
 /**
  * Executes a runnable method in a repeating loop until an exception is thrown.
@@ -19,7 +18,7 @@ public abstract class LoopingExecutor implements Closeable {
 	private static final int EXIT_TIMEOUT_MS_DEF = 1000;
 	private final int exitTimeoutMs;
 	private final ExecutorService executor;
-
+	
 	public static LoopingExecutor create(ExceptionRunnable<Exception> runnable) {
 		return create(EXIT_TIMEOUT_MS_DEF, runnable);
 	}
@@ -51,12 +50,7 @@ public abstract class LoopingExecutor implements Closeable {
 	
 	@Override
 	public void close() {
-		executor.shutdownNow();
-		try {
-			executor.awaitTermination(exitTimeoutMs, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			logger.catching(Level.WARN, e);
-		}
+		LogUtil.close(logger, executor, exitTimeoutMs);
 		logger.info("{} stopped", getClass().getSimpleName());
 	}
 

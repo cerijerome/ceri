@@ -2,6 +2,8 @@ package ceri.log.util;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
@@ -10,12 +12,35 @@ import org.apache.logging.log4j.Logger;
  * Utility methods to assist with logging.
  */
 public class LogUtil {
+	private static final int TIMEOUT_MS_DEF = 1000;
 	static final Pattern SPACE_REGEX = Pattern.compile("\\s+");
 
 	private LogUtil() {}
 
 	/**
-	 * Closes a closeable, and logs any exceptions as a warning.
+	 * Shuts down an executor service, and waits for shutdown to complete, up to a default time in
+	 * milliseconds.
+	 */
+	public static boolean close(Logger logger, ExecutorService executor) {
+		return close(logger, executor, TIMEOUT_MS_DEF);
+	}
+
+	/**
+	 * Shuts down an executor service, and waits for shutdown to complete, up to given time in
+	 * milliseconds.
+	 */
+	public static boolean close(Logger logger, ExecutorService executor, int timeoutMs) {
+		executor.shutdownNow();
+		try {
+			return executor.awaitTermination(timeoutMs, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			logger.catching(Level.WARN, e);
+		}
+		return false;
+	}
+
+	/**
+	 * Closes a closeable, and logs a thrown exception as a warning.
 	 */
 	public static boolean close(Logger logger, Closeable closeable) {
 		if (closeable == null) return false;
@@ -36,8 +61,8 @@ public class LogUtil {
 	}
 
 	/**
-	 * Returns an object whose toString() executes the given toLazyString() method.
-	 * Used for logging lazy string instantiations.
+	 * Returns an object whose toString() executes the given toLazyString() method. Used for logging
+	 * lazy string instantiations.
 	 */
 	public static Object toString(final ToLazyString toLazyString) {
 		return new Object() {

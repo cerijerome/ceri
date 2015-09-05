@@ -19,7 +19,7 @@ public class LoopingExecutorBehavior {
 
 	@Test
 	public void shouldAllowCloseToBeInterrupted() {
-		BooleanCondition flag = new BooleanCondition();
+		BooleanCondition flag = BooleanCondition.create();
 		try (LoopingExecutor loop = LoopingExecutor.create(100000, () -> {
 			try {
 				Thread.sleep(100000);
