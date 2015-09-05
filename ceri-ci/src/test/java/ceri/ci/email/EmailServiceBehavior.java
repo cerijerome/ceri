@@ -46,7 +46,7 @@ public class EmailServiceBehavior {
 		builder =
 			EmailService.builder(retriever, processor).parsers(parser0, parser1).maxLookBackMs(
 				30000).pollMs(100000).sentDateBufferMs(5000).shutdownTimeoutMs(5000);
-		sync = new BooleanCondition();
+		sync = BooleanCondition.create();
 		testStartTime = System.currentTimeMillis();
 		server = new TestEmailServer();
 	}
