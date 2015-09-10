@@ -2,7 +2,7 @@ RXTX Project
 ============
 
 Provides a bridge for RXTX to make it compatible with Java Comms API.
-Not fully supported so far, just enough for X10 lib to work.
+Not fully supported so far, just enough for x10, dmx, and audio projects to work.
 
 Project contains the RXTX comm library (gnu.io.*) and PL2303 USB to serial drivers.
 

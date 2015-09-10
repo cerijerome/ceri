@@ -22,6 +22,16 @@
 			<artifactId>rxtx</artifactId>
 			<version>${rxtx.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>ceri</groupId>
+			<artifactId>ceri-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ceri</groupId>
+			<artifactId>ceri-log</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

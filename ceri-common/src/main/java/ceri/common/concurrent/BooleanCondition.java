@@ -1,6 +1,5 @@
 package ceri.common.concurrent;
 
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -23,6 +22,10 @@ public class BooleanCondition {
 		this.condition = condition;
 	}
 
+	public void clear() {
+		condition.clear();
+	}
+
 	public void signal() {
 		condition.signal(value);
 	}
@@ -31,8 +34,16 @@ public class BooleanCondition {
 		condition.await();
 	}
 
-	public void await(long timeoutMs) throws InterruptedException, TimeoutException {
-		if (condition.await(timeoutMs) == null) throw new TimeoutException();
+	public boolean await(long timeoutMs) throws InterruptedException {
+		return condition.await(timeoutMs) != null;
+	}
+
+	public boolean awaitPeek() throws InterruptedException {
+		return condition.awaitPeek() != null;
+	}
+
+	public boolean awaitPeek(long timeoutMs) throws InterruptedException {
+		return condition.awaitPeek(timeoutMs) != null;
 	}
 
 	public boolean isSet() {

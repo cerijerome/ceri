@@ -41,7 +41,7 @@ public abstract class LoopingExecutor implements Closeable {
 		executor = Executors.newSingleThreadExecutor();
 	}
 
-	protected void start() {
+	public void start() {
 		logger.info("{} started", getClass().getSimpleName());
 		executor.execute(this::loops);
 	}

@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import ceri.common.concurrent.ExceptionRunnable;
 
 /**
  * Utility methods to assist with logging.
@@ -16,6 +17,14 @@ public class LogUtil {
 	static final Pattern SPACE_REGEX = Pattern.compile("\\s+");
 
 	private LogUtil() {}
+
+	public static void execute(Logger logger, ExceptionRunnable<Exception> runnable) {
+		try {
+			runnable.run();
+		} catch (Exception e) {
+			logger.catching(e);
+		}
+	}
 
 	/**
 	 * Shuts down an executor service, and waits for shutdown to complete, up to a default time in
