@@ -3,6 +3,7 @@ package ceri.ent.server;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import javax.servlet.http.HttpServletRequest;
 import ceri.common.factory.Factory;
 import ceri.common.text.StringUtil;
@@ -41,12 +42,12 @@ public class Request {
 		}
 	}
 
-	public <T> List<T> commaValues(String name, Factory<T, String> factory) {
+	public <T> List<T> commaValues(String name, Function<String, T> factory) {
 		List<String> values = commaValues(name);
 		if (values.isEmpty()) return Collections.emptyList();
 		List<T> ts = new ArrayList<>();
 		for (String value : values) {
-			T t = factory.create(value);
+			T t = factory.apply(value);
 			if (t != null) ts.add(t);
 		}
 		return ts;
