@@ -173,7 +173,7 @@ public class ClassGenerator {
 			arguments.add(entry.getValue() + " " + entry.getKey());
 		return arguments;
 	}
-	
+
 	private void generateConstructorWithBuilder(PrintStream out) {
 		out.println("\t" + className + "(Builder builder) {");
 		for (Map.Entry<String, String> entry : fields.entrySet())
@@ -279,16 +279,16 @@ public class ClassGenerator {
 		String type) {
 		CollectionType collectionType = CollectionType.createFrom(type);
 		if (collectionType == null) return false;
-		out.printf("\t\tCollection<%s> %s = new LinkedHashSet<>();%n", collectionType.itemType,
-			name);
+		out.printf("\t\tfinal Collection<%s> %s = new LinkedHashSet<>();%n",
+			collectionType.itemType, name);
 		return true;
 	}
 
 	private boolean generateBuilderMapFieldDeclaration(PrintStream out, String name, String type) {
 		MapType mapType = MapType.createFrom(type);
 		if (mapType == null) return false;
-		out.printf("\t\tMap<%s, %s> %s = new HashMap<>();%n", mapType.keyType, mapType.valueType,
-			name);
+		out.printf("\t\tfinal Map<%s, %s> %s = new HashMap<>();%n", mapType.keyType,
+			mapType.valueType, name);
 		return true;
 	}
 
