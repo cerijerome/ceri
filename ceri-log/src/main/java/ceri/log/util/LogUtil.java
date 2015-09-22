@@ -2,6 +2,7 @@ package ceri.log.util;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -63,22 +64,15 @@ public class LogUtil {
 	}
 
 	/**
-	 * Interface used with toString to lazily generate a string.
-	 */
-	public static interface ToLazyString {
-		String toLazyString() throws Exception;
-	}
-
-	/**
-	 * Returns an object whose toString() executes the given toLazyString() method. Used for logging
+	 * Returns an object whose toString() executes the supplier method. Used for logging
 	 * lazy string instantiations.
 	 */
-	public static Object toString(final ToLazyString toLazyString) {
+	public static Object toString(final Callable<String> stringSupplier) {
 		return new Object() {
 			@Override
 			public String toString() {
 				try {
-					return toLazyString.toLazyString();
+					return stringSupplier.call();
 				} catch (RuntimeException e) {
 					throw e;
 				} catch (Exception e) {
