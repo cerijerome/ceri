@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -22,12 +24,31 @@ public class StringUtil {
 	private static final int BINARY_RADIX = 2;
 	public static final Pattern NEWLINE_REGEX = Pattern.compile("(\\r\\n|\\n|\\r)");
 	public static final Pattern COMMA_SPLIT_REGEX = Pattern.compile("\\s*,\\s*");
+	public static final Pattern WHITE_SPACE_REGEX = Pattern.compile("\\s+");
 	private static final int LONG_HEX_DIGITS = 16;
 	private static final int INT_HEX_DIGITS = 8;
 	private static final int SHORT_HEX_DIGITS = 4;
 	private static final int BYTE_HEX_DIGITS = 2;
-	
+
 	private StringUtil() {}
+
+	/**
+	 * Convert a byte array into a list of hex strings.
+	 */
+	public static String toHex(byte[] data) {
+		if (data.length == 0) return "[]";
+		return IntStream.range(0, data.length).mapToObj(i -> toHex(data[i])).collect(
+			Collectors.joining(", 0x", "[0x", "]"));
+	}
+
+	/**
+	 * Converts a byte array into a single hex string.
+	 */
+	public static String toSingleHex(byte[] data) {
+		if (data.length == 0) return "";
+		return IntStream.range(0, data.length).mapToObj(i -> toHex(data[i])).collect(
+			Collectors.joining("", "0x", ""));
+	}
 
 	/**
 	 * Convenience method to convert a long to a 16-digit hex string.
@@ -169,7 +190,7 @@ public class StringUtil {
 	public static String toString(String separator, Iterable<?> iterable) {
 		return toString("", "", separator, iterable);
 	}
-	
+
 	/**
 	 * Creates a formatted string for iterable items: [pre]item1[separator]item2[separator]...[post]
 	 */

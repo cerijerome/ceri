@@ -8,7 +8,6 @@ import java.awt.event.KeyEvent;
 import java.io.PrintStream;
 import java.util.Collections;
 import org.junit.Test;
-import ceri.common.text.StringUtil;
 import ceri.common.text.StringUtil.Align;
 
 public class StringUtilTest {
@@ -18,6 +17,20 @@ public class StringUtilTest {
 		assertPrivateConstructor(StringUtil.class);
 	}
 
+	@Test
+	public void testToHex() {
+		byte[] bb = { 0, -1, 1, Byte.MAX_VALUE, Byte.MIN_VALUE };
+		assertThat(StringUtil.toHex(bb), is("[0x00, 0xff, 0x01, 0x7f, 0x80]"));
+		assertThat(StringUtil.toHex(new byte[] {}), is("[]"));
+	}
+
+	@Test
+	public void testToSingleHex() {
+		byte[] bb = { 0, -1, 1, Byte.MAX_VALUE, Byte.MIN_VALUE };
+		assertThat(StringUtil.toSingleHex(bb), is("0x00ff017f80"));
+		assertThat(StringUtil.toSingleHex(new byte[] {}), is(""));
+	}
+	
 	@Test
 	public void testToUnsignedString() {
 		assertThat(StringUtil.toUnsigned(0, 16, 2), is("00"));
