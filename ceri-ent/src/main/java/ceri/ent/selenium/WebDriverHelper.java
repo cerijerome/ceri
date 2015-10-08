@@ -4,16 +4,19 @@ import java.io.Closeable;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import com.google.common.base.Function;
 
 public class WebDriverHelper implements Closeable {
 	private static final int TIMEOUT_SEC_DEF = 5;
 	private final int timeoutSec;
 	public final WebDriver driver;
+	public final JavascriptExecutor js;
 
 	public WebDriverHelper(WebDriver driver) {
 		this(driver, TIMEOUT_SEC_DEF);
@@ -22,6 +25,7 @@ public class WebDriverHelper implements Closeable {
 	public WebDriverHelper(WebDriver driver, int timeoutSec) {
 		this.driver = driver;
 		this.timeoutSec = timeoutSec;
+		js = driver instanceof JavascriptExecutor ? (JavascriptExecutor) driver : null;
 	}
 
 	@Override
@@ -39,23 +43,28 @@ public class WebDriverHelper implements Closeable {
 		return findElements(xPath);
 	}
 
+	public <T> T waitFor(Function<? super WebDriver, T> isTrue) {
+		return (new WebDriverWait(driver, timeoutSec)).until(isTrue);
+	}
+
 	public void waitFor(BooleanSupplier test) {
-		(new WebDriverWait(driver, timeoutSec)).until(new ExpectedCondition<Boolean>() {
-			@Override
-			public Boolean apply(WebDriver driver) {
-				return test.getAsBoolean();
-			}
-		});
+		waitFor(driver -> test.getAsBoolean());
 	}
 
 	public static WebDriverHelper firefox(int timeoutSec) {
 		return new WebDriverHelper(new FirefoxDriver(), timeoutSec);
 	}
 
+	public WebElement findElement(By by) {
+		try {
+			return driver.findElement(by);
+		} catch (NoSuchElementException e) {
+			return null;
+		}
+	}
+
 	public WebElement findElementById(String id) {
-		List<WebElement> elements = driver.findElements(By.id(id));
-		if (elements.isEmpty()) return null;
-		return elements.get(0);
+		return findElement(By.id(id));
 	}
 
 	public List<WebElement> findElementsById(String id) {
@@ -63,9 +72,7 @@ public class WebDriverHelper implements Closeable {
 	}
 
 	public WebElement findElement(String xPath) {
-		List<WebElement> elements = driver.findElements(By.xpath(xPath));
-		if (elements.isEmpty()) return null;
-		return elements.get(0);
+		return findElement(By.xpath(xPath));
 	}
 
 	public List<WebElement> findElements(String xPath) {
