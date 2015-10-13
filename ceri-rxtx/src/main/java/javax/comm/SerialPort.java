@@ -18,7 +18,6 @@ public class SerialPort extends CommPort {
 	public static final int FLOWCONTROL_RTSCTS_OUT = gnu.io.SerialPort.FLOWCONTROL_RTSCTS_OUT;
 	public static final int FLOWCONTROL_XONXOFF_IN = gnu.io.SerialPort.FLOWCONTROL_XONXOFF_IN;
 	public static final int FLOWCONTROL_XONXOFF_OUT = gnu.io.SerialPort.FLOWCONTROL_XONXOFF_OUT;
-
 	private final gnu.io.SerialPort serialPort;
 
 	SerialPort(gnu.io.SerialPort serialPort) {
@@ -35,8 +34,32 @@ public class SerialPort extends CommPort {
 		}
 	}
 
+	public boolean isDTR() {
+		return serialPort.isDTR();
+	}
+
 	public void setDTR(boolean state) {
 		serialPort.setDTR(state);
+	}
+
+	public boolean isCD() {
+		return serialPort.isCD();
+	}
+
+	public boolean isCTS() {
+		return serialPort.isCTS();
+	}
+
+	public boolean isDSR() {
+		return serialPort.isDSR();
+	}
+
+	public boolean isRI() {
+		return serialPort.isRI();
+	}
+
+	public boolean isRTS() {
+		return serialPort.isRTS();
 	}
 
 	public void setRTS(boolean state) {

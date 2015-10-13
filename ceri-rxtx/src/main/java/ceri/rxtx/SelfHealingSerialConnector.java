@@ -44,7 +44,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 	private final ReplaceableInputStream in = new ReplaceableInputStream();
 	private final ReplaceableOutputStream out = new ReplaceableOutputStream();
 	private final BooleanCondition sync = BooleanCondition.create();
-	private SerialPort serialPort;
+	private volatile SerialPort serialPort;
 
 	public static class Builder {
 		final String commPort;
@@ -155,6 +155,14 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 		return out;
 	}
 
+	public void setDTR(boolean state) {
+		serialPort.setDTR(state);
+	}
+	
+	public void setRTS(boolean state) {
+		serialPort.setRTS(state);
+	}
+	
 	@Override
 	public void close() {
 		super.close();
