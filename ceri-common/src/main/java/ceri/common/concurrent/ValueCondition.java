@@ -58,7 +58,7 @@ public class ValueCondition<T> {
 
 	public T await(long timeoutMs) throws InterruptedException {
 		return ConcurrentUtil.executeGet(lock, () -> {
-			if (value == null) condition.await(timeoutMs, TimeUnit.MILLISECONDS);
+			if (value == null && timeoutMs > 0) condition.await(timeoutMs, TimeUnit.MILLISECONDS);
 			T returnValue = value;
 			value = null;
 			return returnValue;
@@ -83,7 +83,7 @@ public class ValueCondition<T> {
 
 	public T awaitPeek(long timeoutMs) throws InterruptedException {
 		return ConcurrentUtil.executeGet(lock, () -> {
-			if (value == null) condition.await(timeoutMs, TimeUnit.MILLISECONDS);
+			if (value == null && timeoutMs > 0) condition.await(timeoutMs, TimeUnit.MILLISECONDS);
 			return value;
 		});
 	}

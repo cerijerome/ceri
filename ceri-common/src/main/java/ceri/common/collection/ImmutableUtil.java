@@ -121,8 +121,7 @@ public class ImmutableUtil {
 	}
 
 	@SafeVarargs
-	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
-		T...ts) {
+	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn, T... ts) {
 		return convertAsMap(fn, Arrays.asList(ts));
 	}
 
@@ -132,9 +131,8 @@ public class ImmutableUtil {
 			Collectors.toMap(fn, Function.identity())));
 	}
 
-	public static <K, T extends Enum<T>> Map<K, T> enumMap(Function<T, K> fn,
-		Class<T> cls) {
+	public static <K, T extends Enum<T>> Map<K, T> enumMap(Function<T, K> fn, Class<T> cls) {
 		return convertAsMap(fn, EnumSet.allOf(cls));
 	}
-	
+
 }
