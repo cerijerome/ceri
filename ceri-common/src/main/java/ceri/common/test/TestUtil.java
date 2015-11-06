@@ -29,6 +29,7 @@ import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
 public class TestUtil {
+	private static final int SMALL_BUFFER_SIZE = 1024;
 	private static final int BUFFER_SIZE = 1024 * 32;
 	private static final Random RND = new Random();
 
@@ -78,6 +79,16 @@ public class TestUtil {
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Reads a string from given input stream.
+	 */
+	public static String readString(InputStream in) throws IOException {
+		byte[] buffer = new byte[SMALL_BUFFER_SIZE];
+		int n = in.read(buffer);
+		if (n < 1) return "";
+		return new String(buffer, 0, n).trim();
 	}
 
 	/**
