@@ -1,5 +1,6 @@
 package ceri.common.property;
 
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -7,11 +8,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ceri.common.collection.CollectionUtil;
 
 public class BasePropertiesBehavior {
 	private static Properties properties = new Properties();
@@ -25,8 +24,47 @@ public class BasePropertiesBehavior {
 		properties.put("a.b", "AB");
 		properties.put("a.b.c", "3");
 		properties.put("a.b.c.d", "4");
+		properties.put("m.n.0.a", "mn0a");
+		properties.put("m.n.0.b", "mn0b");
+		properties.put("m.n.0.b.c", "mn0bc");
+		properties.put("m.n.0.b.c.d", "mn0bcd");
+		properties.put("m.n.0.b.d", "mn0bd");
+		properties.put("m.n.1", "mn1");
+		properties.put("m.n.2.a", "mn2a");
+		properties.put("3.1", "31");
+		properties.put("7.2", "72");
 	}
 
+	@Test
+	public void shouldReturnDescendants() {
+		BaseProperties bp = new BaseProperties(properties, "m.n.0") {};
+		assertCollection(bp.descendants(), "a", "b", "b.c", "b.c.d", "b.d");
+		assertCollection(bp.descendants("b"), "c", "c.d", "d");
+	}
+	
+	@Test
+	public void shouldReturnChildren() {
+		BaseProperties bp = new BaseProperties(properties) {};
+		assertCollection(bp.children(), "x", "y", "z", "a", "m", "3", "7");
+		assertCollection(bp.children("m.n.0"), "a", "b");
+		bp = new BaseProperties(properties, "m.n.0") {};
+		assertCollection(bp.children(), "a", "b");
+		assertCollection(bp.children("b"), "c", "d");
+	}
+	
+	@Test
+	public void shouldReturnChildIds() {
+		BaseProperties bp = new BaseProperties(properties) {};
+		assertCollection(bp.childIds("m.n"), 0, 1, 2);
+		assertCollection(bp.childIds("m"));
+		assertCollection(bp.childIds(""), 3, 7);
+		assertCollection(bp.childIds(), 3, 7);
+		bp = new BaseProperties(properties, "m") {};
+		assertCollection(bp.childIds("n"), 0, 1, 2);
+		bp = new BaseProperties(properties, "m.n") {};
+		assertCollection(bp.childIds(""), 0, 1, 2);
+	}
+	
 	@Test
 	public void shouldReadValues() {
 		BaseProperties bp = new BaseProperties(properties) {};
@@ -100,8 +138,7 @@ public class BasePropertiesBehavior {
 	public void shouldOnlyReadPrefixedProperties() {
 		BaseProperties bp = new BaseProperties(properties, "a") {};
 		assertThat(bp.key("b.c"), is("a.b.c"));
-		Collection<String> keys = new LinkedHashSet<>();
-		assertThat(bp.keys(), is(CollectionUtil.addAll(keys, "a.b.c.d", "a.b.c", "a.b", "a")));
+		assertCollection(bp.keys(), "a.b.c.d", "a.b.c", "a.b", "a");
 	}
 
 	@Test
