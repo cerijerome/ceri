@@ -1,5 +1,7 @@
 package ceri.ent.server;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -9,12 +11,13 @@ import org.eclipse.jetty.annotations.ServletContainerInitializersStarter;
 import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
 import org.eclipse.jetty.plus.annotation.ContainerInitializer;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
 import ceri.common.util.BasicUtil;
 
 public class JettyUtil {
 	private static final Pattern PACKAGE_SEPARATOR_REGEX = Pattern.compile("\\.");
-	private static final String TARGET_PREFIX = "target/classes/";
 	private static final String CONTAINER_INCLUDE_JAR_PATTERN_ATTRIBUTE =
 		"org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern";
 	private static final String TAGLIBS_JAR_PATTERN = ".*/.*taglibs.*\\.jar$";
@@ -24,10 +27,20 @@ public class JettyUtil {
 
 	private JettyUtil() {}
 
-	public static void setResourceBase(ContextHandler context, Class<?> cls) {
+	public static void setResourceBase(ContextHandler context, Class<?>...classes) {
+		setResourceBase(context, Arrays.asList(classes));
+	}
+
+	@SuppressWarnings("resource")
+	public static void setResourceBase(ContextHandler context, Collection<Class<?>> classes) {
+		Resource[] resources = classes.stream().map(JettyUtil::resource).toArray(Resource[]::new);
+		context.setBaseResource(new ResourceCollection(resources));
+	}
+
+	private static Resource resource(Class<?> cls) {
 		String packageName = cls.getPackage().getName();
 		String path = PACKAGE_SEPARATOR_REGEX.matcher(packageName).replaceAll("/");
-		context.setResourceBase(TARGET_PREFIX + path);
+		return Resource.newResource(cls.getClassLoader().getResource(path));
 	}
 
 	public static void initForJsp(WebAppContext context) {
