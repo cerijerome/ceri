@@ -25,8 +25,8 @@ import ceri.log.util.LogUtil;
 
 /**
  * A self-healing serial connector. It will automatically reconnect if the cable is removed and
- * replaced. For USB-to-serial connectors, their device names can change after disconnecting and
- * reconnecting. The commPortSupplier can contain logic to handle this situation.
+ * replaced. USB-to-serial connector device names can change after disconnecting and reconnecting.
+ * The CommPortSupplier interface can be used to provide handling logic in this case.
  */
 public class SelfHealingSerialConnector extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
