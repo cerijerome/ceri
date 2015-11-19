@@ -116,7 +116,7 @@ public class BasePropertiesBehavior {
 		Collection<String> def = Arrays.asList("d,ef");
 		assertThat(bp.stringValues(def, "x"), is(Arrays.asList("X")));
 		assertThat(bp.stringValues(def, "y"), is(Arrays.asList("YyY", "yy", "y")));
-		assertThat(bp.stringValues(def, "z"), is(def));
+		assertThat(bp.stringValues(def, "z"), is(Arrays.asList()));
 		assertThat(bp.stringValues(def, "Z"), is(def));
 	}
 

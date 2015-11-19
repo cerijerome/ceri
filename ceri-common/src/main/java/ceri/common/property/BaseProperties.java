@@ -2,11 +2,13 @@ package ceri.common.property;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -76,22 +78,42 @@ public abstract class BaseProperties {
 
 	/**
 	 * Retrieves a collection of comma-separated Strings from prefixed, dot-separated key. Returns
-	 * null if no values exist for the key.
+	 * null if the key does not exist.
 	 */
 	protected Collection<String> stringValues(String... keyParts) {
-		String value = value(keyParts);
-		if (value == null) return null;
-		return StringUtil.commaSplit(value);
+		return stringValues((Collection<String>) null, keyParts);
 	}
 
 	/**
 	 * Retrieves a collection of comma-separated Strings from prefixed, dot-separated key. Returns
-	 * default values if no values exist for the key.
+	 * default values if the key doesn not exist.
 	 */
 	protected Collection<String> stringValues(Collection<String> def, String... keyParts) {
 		String value = value(keyParts);
+		if (value == null) return def;
 		Collection<String> values = StringUtil.commaSplit(value);
-		return values.isEmpty() ? def : values;
+		return values.isEmpty() ? Collections.emptyList() : values;
+	}
+
+	/**
+	 * Retrieves a collection of comma-separated values from prefixed, dot-separated key. Returns
+	 * null if no values exist for the key. The constructor converts from each string to the desired
+	 * type.
+	 */
+	protected <T> Collection<T> values(Function<String, T> constructor, String... keyParts) {
+		return values(null, constructor, keyParts);
+	}
+
+	/**
+	 * Retrieves a collection of comma-separated values from prefixed, dot-separated key. Returns
+	 * default values if no values exist for the key. The constructor converts from each string to
+	 * the desired type.
+	 */
+	protected <T> Collection<T> values(Collection<T> def, Function<String, T> constructor,
+		String... keyParts) {
+		Collection<String> stringValues = stringValues(keyParts);
+		if (stringValues == null) return def;
+		return stringValues.stream().map(constructor).collect(Collectors.toList());
 	}
 
 	/**
@@ -293,7 +315,7 @@ public abstract class BaseProperties {
 	protected Set<Integer> childIds() {
 		return childIds(null);
 	}
-	
+
 	/**
 	 * Returns all the integer ids that are children of the given key.
 	 */
@@ -322,7 +344,7 @@ public abstract class BaseProperties {
 	protected List<String> descendants() {
 		return descendants(null);
 	}
-	
+
 	/**
 	 * Returns all the descendants of the given key.
 	 */
