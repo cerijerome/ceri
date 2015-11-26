@@ -7,8 +7,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.Level;
@@ -29,9 +32,9 @@ public class LogUtil {
 	 */
 	public static void execute(Logger logger, ExceptionRunnable<Exception> runnable) {
 		try {
-			runnable.run();
+			if (runnable != null) runnable.run();
 		} catch (Exception e) {
-			logger.catching(e);
+			if (logger != null) logger.catching(e);
 		}
 	}
 
@@ -75,11 +78,36 @@ public class LogUtil {
 	 * milliseconds.
 	 */
 	public static boolean close(Logger logger, ExecutorService executor, int timeoutMs) {
+		if (executor == null) return false;
 		executor.shutdownNow();
 		try {
 			return executor.awaitTermination(timeoutMs, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			logger.catching(Level.WARN, e);
+			if (logger != null) logger.catching(Level.WARN, e);
+		}
+		return false;
+	}
+
+	/**
+	 * Shuts down a future request, and waits for shutdown to complete, up to default time in
+	 * milliseconds.
+	 */
+	public static boolean close(Logger logger, Future<?> future) {
+		return close(logger, future, TIMEOUT_MS_DEF);
+	}
+	
+	/**
+	 * Shuts down a future request, and waits for shutdown to complete, up to given time in
+	 * milliseconds.
+	 */
+	public static boolean close(Logger logger, Future<?> future, int timeoutMs) {
+		if (future == null) return false;
+		future.cancel(true);
+		try {
+			future.get(timeoutMs, TimeUnit.MILLISECONDS);
+			return true;
+		} catch (ExecutionException | TimeoutException | InterruptedException e) {
+			if (logger != null) logger.catching(Level.WARN, e);
 		}
 		return false;
 	}
