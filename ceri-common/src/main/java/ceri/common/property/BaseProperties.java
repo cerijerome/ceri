@@ -68,6 +68,29 @@ public abstract class BaseProperties {
 	}
 
 	/**
+	 * Retrieves enum type from prefixed, dot-separated key. Returns null if no value exists for the
+	 * key. Throws IllegalArgumentException if the type cannot be evaluated.
+	 */
+	protected <T extends Enum<T>> T enumValue(Class<T> cls, String... keyParts) {
+		String value = value(keyParts);
+		try {
+			return value == null ? null : Enum.valueOf(cls, value);
+		} catch (IllegalArgumentException e) {
+			throw BasicUtil.initCause(new IllegalArgumentException("Invalid " +
+				cls.getSimpleName() + " for " + key(keyParts) + ": " + value), e);
+		}
+	}
+
+	/**
+	 * Retrieves enum type from prefixed, dot-separated key. Returns the given default value if no
+	 * value exists for the key. Throws IllegalArgumentException if the type cannot be evaluated.
+	 */
+	protected <T extends Enum<T>> T enumValue(Class<T> cls, T def, String... keyParts) {
+		T value = enumValue(cls, keyParts);
+		return value == null ? def : value;
+	}
+
+	/**
 	 * Retrieves the String property from prefixed, dot-separated key. Returns default value if no
 	 * value exists for the key.
 	 */
