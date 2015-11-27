@@ -10,6 +10,7 @@ import ceri.common.collection.FixedSizeCacheBehavior;
 import ceri.common.collection.ImmutableByteArrayBehavior;
 import ceri.common.collection.ImmutableUtilTest;
 import ceri.common.collection.MapBuilderBehavior;
+import ceri.common.collection.StreamUtilTest;
 import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
@@ -103,6 +104,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ImmutableByteArrayBehavior.class,
 	ImmutableUtilTest.class,
 	MapBuilderBehavior.class,
+	StreamUtilTest.class,
 	// comparator
 	ComparatorSequenceBehavior.class,
 	ComparatorsTest.class,

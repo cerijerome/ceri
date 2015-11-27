@@ -1,5 +1,6 @@
 package ceri.common.property;
 
+import static ceri.common.collection.StreamUtil.*;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
@@ -136,7 +137,7 @@ public abstract class BaseProperties {
 		String... keyParts) {
 		Collection<String> stringValues = stringValues(keyParts);
 		if (stringValues == null) return def;
-		return stringValues.stream().map(constructor).collect(Collectors.toList());
+		return toList(stringValues.stream().map(constructor));
 	}
 
 	/**
@@ -358,7 +359,7 @@ public abstract class BaseProperties {
 	 * Returns all the children of the given key.
 	 */
 	protected List<String> children(String key) {
-		return childKeyStream(key, CHILD_KEY_PATTERN).collect(Collectors.toList());
+		return toList(childKeyStream(key, CHILD_KEY_PATTERN));
 	}
 
 	/**
@@ -372,15 +373,15 @@ public abstract class BaseProperties {
 	 * Returns all the descendants of the given key.
 	 */
 	protected List<String> descendants(String key) {
-		return childKeyStream(key, DESCENDENT_KEY_PATTERN).collect(Collectors.toList());
+		return toList(childKeyStream(key, DESCENDENT_KEY_PATTERN));
 	}
 
 	/**
 	 * Returns the full keys that start with prefix.
 	 */
 	protected Collection<String> keys() {
-		return properties.stringPropertyNames().stream().filter(this::hasPrefix).distinct()
-			.collect(Collectors.toList());
+		return toList(properties.stringPropertyNames().stream().filter(this::hasPrefix).distinct()
+			);
 	}
 
 	private Stream<String> childKeyStream(String key, String capturePattern) {

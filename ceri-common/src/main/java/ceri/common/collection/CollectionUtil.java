@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import static ceri.common.collection.StreamUtil.toList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,7 +19,6 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.util.BasicUtil;
 
@@ -34,7 +34,7 @@ public class CollectionUtil {
 	 */
 	public static <F, T> List<T> convertToList(Function<? super F, ? extends T> mapper,
 		Collection<F> collection) {
-		return collection.stream().map(mapper).collect(Collectors.toList());
+		return toList(collection.stream().map(mapper));
 	}
 
 	/**
@@ -43,7 +43,7 @@ public class CollectionUtil {
 	public static <K, V, T> List<T> convertToList(
 		BiFunction<? super K, ? super V, ? extends T> mapper, Map<K, V> map) {
 		Function<Map.Entry<K, V>, T> fn = (entry -> mapper.apply(entry.getKey(), entry.getValue()));
-		return map.entrySet().stream().map(fn).collect(Collectors.toList());
+		return toList(map.entrySet().stream().map(fn));
 	}
 
 	/**

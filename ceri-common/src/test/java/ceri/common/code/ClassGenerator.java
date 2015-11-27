@@ -287,7 +287,7 @@ public class ClassGenerator {
 	private boolean generateBuilderMapFieldDeclaration(PrintStream out, String name, String type) {
 		MapType mapType = MapType.createFrom(type);
 		if (mapType == null) return false;
-		out.printf("\t\tfinal Map<%s, %s> %s = new HashMap<>();%n", mapType.keyType,
+		out.printf("\t\tfinal Map<%s, %s> %s = new LinkedHashMap<>();%n", mapType.keyType,
 			mapType.valueType, name);
 		return true;
 	}
@@ -327,7 +327,8 @@ public class ClassGenerator {
 	private boolean generateBuilderMapSetters(PrintStream out, String name, String type) {
 		MapType mapType = MapType.createFrom(type);
 		if (mapType == null) return false;
-		out.printf("\t\tpublic Builder %s(%s key, %s value) {%n", name, mapType.keyType,
+		String nonPluralName = name.endsWith("s") ? name.substring(0, name.length() - 1) : name;
+		out.printf("\t\tpublic Builder %s(%s key, %s value) {%n", nonPluralName, mapType.keyType,
 			mapType.valueType);
 		out.printf("\t\t\t%s.put(key, value);%n", name);
 		out.println("\t\t\treturn this;");

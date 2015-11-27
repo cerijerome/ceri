@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class CollectionType {
 	private static final Pattern COLLECTION_REGEX = Pattern
-		.compile("(List|Set|Collection)\\s*<(.*)>");
+		.compile("^(List|Set|Collection)\\s*<(.*)>$");
 	public final String type;
 	public final String itemType;
 
