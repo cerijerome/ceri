@@ -89,6 +89,7 @@ import ceri.common.util.LocaleUtilTest;
 import ceri.common.util.MathUtilTest;
 import ceri.common.util.MultiPatternBehavior;
 import ceri.common.util.NameValueBehavior;
+import ceri.common.util.OsUtilTest;
 import ceri.common.util.PrimitiveUtilTest;
 import ceri.common.zip.ZipUtilTest;
 import ceri.common.zip.ZippingInputStreamBehavior;
@@ -198,6 +199,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	MathUtilTest.class,
 	MultiPatternBehavior.class,
 	NameValueBehavior.class,
+	OsUtilTest.class,
 	PrimitiveUtilTest.class,
 	// zip
 	ZippingInputStreamBehavior.class,

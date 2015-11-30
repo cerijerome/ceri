@@ -1,6 +1,6 @@
 package ceri.common.property;
 
-import static ceri.common.collection.StreamUtil.*;
+import static ceri.common.collection.StreamUtil.toList;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,13 +39,16 @@ public abstract class BaseProperties {
 	}
 
 	/**
-	 * Constructor for
+	 * Constructor for properties with given prefix keys.
 	 */
 	protected BaseProperties(BaseProperties properties, String... prefix) {
 		this.prefix = Key.createWithPrefix(properties.prefix, prefix).value;
 		this.properties = properties.properties;
 	}
 
+	/**
+	 * Constructor for properties with given prefix keys.
+	 */
 	protected BaseProperties(Properties properties, String... prefix) {
 		this.prefix = Key.createWithPrefix(null, prefix).value;
 		this.properties = properties;
@@ -183,7 +186,7 @@ public abstract class BaseProperties {
 	protected Byte byteValue(String... keyParts) {
 		String value = value(keyParts);
 		try {
-			return value == null ? null : Byte.valueOf(value);
+			return value == null ? null : Byte.decode(value);
 		} catch (NumberFormatException e) {
 			throw BasicUtil.initCause(new NumberFormatException("Invalid format for " +
 				key(keyParts) + ": " + value), e);
@@ -206,7 +209,7 @@ public abstract class BaseProperties {
 	protected Short shortValue(String... keyParts) {
 		String value = value(keyParts);
 		try {
-			return value == null ? null : Short.valueOf(value);
+			return value == null ? null : Short.decode(value);
 		} catch (NumberFormatException e) {
 			throw BasicUtil.initCause(new NumberFormatException("Invalid format for " +
 				key(keyParts) + ": " + value), e);
@@ -229,7 +232,7 @@ public abstract class BaseProperties {
 	protected Integer intValue(String... keyParts) {
 		String value = value(keyParts);
 		try {
-			return value == null ? null : Integer.valueOf(value);
+			return value == null ? null : Integer.decode(value);
 		} catch (NumberFormatException e) {
 			throw BasicUtil.initCause(new NumberFormatException("Invalid format for " +
 				key(keyParts) + ": " + value), e);
@@ -252,7 +255,7 @@ public abstract class BaseProperties {
 	protected Long longValue(String... keyParts) {
 		String value = value(keyParts);
 		try {
-			return value == null ? null : Long.valueOf(value);
+			return value == null ? null : Long.decode(value);
 		} catch (NumberFormatException e) {
 			throw BasicUtil.initCause(new NumberFormatException("Invalid format for " +
 				key(keyParts) + ": " + value), e);
@@ -380,8 +383,7 @@ public abstract class BaseProperties {
 	 * Returns the full keys that start with prefix.
 	 */
 	protected Collection<String> keys() {
-		return toList(properties.stringPropertyNames().stream().filter(this::hasPrefix).distinct()
-			);
+		return toList(properties.stringPropertyNames().stream().filter(this::hasPrefix).distinct());
 	}
 
 	private Stream<String> childKeyStream(String key, String capturePattern) {
