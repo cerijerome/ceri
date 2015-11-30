@@ -58,8 +58,8 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 		int stopBits = SerialPort.STOPBITS_1;
 		int parity = SerialPort.PARITY_NONE;
 		int connectionTimeoutMs = 3000;
-		int fixRetryDelayMs = 1000;
-		int recoveryDelayMs = 500;
+		int fixRetryDelayMs = 2000;
+		int recoveryDelayMs = fixRetryDelayMs / 2;
 		Predicate<IOException> brokenPredicate = e -> streamNotSet(e) ||
 			messageMatches(BROKEN_CONNECTION_REGEX, e);
 
@@ -164,12 +164,18 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 		return out;
 	}
 
-	public void setDTR(boolean state) {
-		serialPort.setDTR(state);
+	public void setDTR(boolean state) throws IOException {
+		serialPort().setDTR(state);
 	}
 
-	public void setRTS(boolean state) {
-		serialPort.setRTS(state);
+	public void setRTS(boolean state) throws IOException {
+		serialPort().setRTS(state);
+	}
+
+	private SerialPort serialPort() throws IOException {
+		SerialPort serialPort = this.serialPort;
+		if (serialPort == null) throw new IOException("Serial port not connected");
+		return serialPort;
 	}
 
 	@Override
