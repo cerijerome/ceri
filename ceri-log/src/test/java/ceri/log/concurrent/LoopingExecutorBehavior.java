@@ -20,7 +20,7 @@ public class LoopingExecutorBehavior {
 	@Test
 	public void shouldAllowCloseToBeInterrupted() {
 		BooleanCondition flag = BooleanCondition.create();
-		try (LoopingExecutor loop = LoopingExecutor.create(100000, () -> {
+		try (LoopingExecutor loop = LoopingExecutor.start(100000, () -> {
 			try {
 				Thread.sleep(100000);
 			} catch (InterruptedException e) { // happens when close() is called
@@ -28,7 +28,6 @@ public class LoopingExecutorBehavior {
 				Thread.sleep(100000);
 			}
 		})) {
-			loop.start();
 			Thread current = Thread.currentThread();
 			Executors.newSingleThreadExecutor().execute(() -> {
 				waitFor(flag); // wait for loop to be interrupted
@@ -53,8 +52,7 @@ public class LoopingExecutorBehavior {
 
 	@Test
 	public void shouldStopOnException() throws InterruptedException {
-		try (LoopingExecutor loop = LoopingExecutor.create(() -> countWithException(10))) {
-			loop.start();
+		try (LoopingExecutor loop = LoopingExecutor.start(() -> countWithException(10))) {
 			while (condition.await() < 9) {}
 			loop.start();
 		}

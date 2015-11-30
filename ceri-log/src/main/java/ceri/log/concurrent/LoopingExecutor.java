@@ -18,20 +18,22 @@ public abstract class LoopingExecutor implements Closeable {
 	private static final int EXIT_TIMEOUT_MS_DEF = 1000;
 	private final int exitTimeoutMs;
 	private final ExecutorService executor;
-	
-	public static LoopingExecutor create(ExceptionRunnable<Exception> runnable) {
-		return create(EXIT_TIMEOUT_MS_DEF, runnable);
+
+	public static LoopingExecutor start(ExceptionRunnable<Exception> runnable) {
+		return start(EXIT_TIMEOUT_MS_DEF, runnable);
 	}
-	
-	public static LoopingExecutor create(int exitTimeoutMs, ExceptionRunnable<Exception> runnable) {
-		return new LoopingExecutor(exitTimeoutMs) {
+
+	public static LoopingExecutor start(int exitTimeoutMs, ExceptionRunnable<Exception> runnable) {
+		LoopingExecutor executor = new LoopingExecutor(exitTimeoutMs) {
 			@Override
 			protected void loop() throws Exception {
 				runnable.run();
 			}
 		};
+		executor.start();
+		return executor;
 	}
-	
+
 	public LoopingExecutor() {
 		this(EXIT_TIMEOUT_MS_DEF);
 	}
@@ -41,13 +43,13 @@ public abstract class LoopingExecutor implements Closeable {
 		executor = Executors.newSingleThreadExecutor();
 	}
 
-	public void start() {
+	protected void start() {
 		logger.info("{} started", getClass().getSimpleName());
 		executor.execute(this::loops);
 	}
-	
+
 	protected abstract void loop() throws Exception;
-	
+
 	@Override
 	public void close() {
 		LogUtil.close(logger, executor, exitTimeoutMs);
