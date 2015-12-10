@@ -82,6 +82,17 @@ public class TestUtil {
 	}
 
 	/**
+	 * Reads a string from given stdin.
+	 */
+	public static String readString() {
+		try {
+			return readString(System.in);
+		} catch (IOException e) {
+			throw new RuntimeException("Shouldn't happen", e);
+		}
+	}
+	
+	/**
 	 * Reads a string from given input stream.
 	 */
 	public static String readString(InputStream in) throws IOException {
