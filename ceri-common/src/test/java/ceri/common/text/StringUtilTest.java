@@ -2,6 +2,8 @@ package ceri.common.text;
 
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static java.lang.Character.toUpperCase;
+import static java.lang.String.valueOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.awt.event.KeyEvent;
@@ -18,6 +20,24 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testUnEscape() {
+		assertThat(StringUtil.unEscape("\\z\\\\\\\\\\\\z"), is("\\z\\\\\\z"));
+		assertThat(StringUtil.unEscape("\\\\\\b\\e\\f\\n\\r\\t"), is("\\\u0008\u001b\f\n\r\t"));
+		assertThat(StringUtil.unEscape("abc\\0\\00\\000\\077\\0377def"), is("abc\0\0\0?\u00ffdef"));
+		assertThat(StringUtil.unEscape("ABC\\x00\\xffDEF"), is("ABC\0\u00ffDEF"));
+		assertThat(StringUtil.unEscape("xyz\\u0000\\u1234"), is("xyz\0\u1234"));
+		assertThat(StringUtil.unEscape("\\x0\\u0\\u00\\u000"), is("\\x0\\u0\\u00\\u000"));
+		assertThat(StringUtil.unEscape("\\0777"), is("?7"));
+	}
+	
+	@Test
+	public void testReplaceAll() {
+		String s = "abcdefghijklmnopqrstuvwxyz";
+		s = StringUtil.replaceAll(s, "[aeiou]", m -> valueOf(toUpperCase(m.group().charAt(0))));
+		assertThat(s, is("AbcdEfghIjklmnOpqrstUvwxyz"));
+	}
+
+	@Test
 	public void testToHex() {
 		byte[] bb = { 0, -1, 1, Byte.MAX_VALUE, Byte.MIN_VALUE };
 		assertThat(StringUtil.toHex(bb), is("[0x00, 0xff, 0x01, 0x7f, 0x80]"));
@@ -30,7 +50,7 @@ public class StringUtilTest {
 		assertThat(StringUtil.toSingleHex(bb), is("0x00ff017f80"));
 		assertThat(StringUtil.toSingleHex(new byte[] {}), is(""));
 	}
-	
+
 	@Test
 	public void testToUnsignedString() {
 		assertThat(StringUtil.toUnsigned(0, 16, 2), is("00"));

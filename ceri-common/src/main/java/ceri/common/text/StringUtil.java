@@ -9,6 +9,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -19,8 +21,31 @@ import ceri.common.util.BasicUtil;
  * String-based utilities. See also TextUtil for more word-based formatting utilities.
  */
 public class StringUtil {
+	private static final char BACKSLASH = '\\';
+	private static final char BACKSPACE = '\b';
+	private static final char ESCAPE = '\u001b';
+	private static final char TAB = '\t';
+	private static final char FF = '\f';
+	private static final char CR = '\r';
+	private static final char NL = '\n';
+	private static final char NULL = '\0';
+	private static final String ESCAPED_BACKSLASH = "\\\\";
+	private static final String ESCAPED_BACKSPACE = "\\b";
+	private static final String ESCAPED_ESCAPE = "\\e";
+	private static final String ESCAPED_TAB = "\\t";
+	private static final String ESCAPED_FF = "\\f";
+	private static final String ESCAPED_CR = "\\r";
+	private static final String ESCAPED_NL = "\\n";
+	private static final String ESCAPED_OCTAL = "\\0";
+	private static final String ESCAPED_HEX = "\\x";
+	private static final String ESCAPED_UTF16 = "\\u";
+	private static final Pattern ESCAPE_REGEX = Pattern
+		.compile("\\\\\\\\|\\\\b|\\\\e|\\\\t|\\\\f|\\\\r|\\\\n|"
+			+ "\\\\0[0-3][0-7]{2}|\\\\0[0-7]{2}|\\\\0[0-7]|\\\\0|"
+			+ "\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
 	private static final String UTF8 = "UTF8";
 	private static final int HEX_RADIX = 16;
+	private static final int OCTAL_RADIX = 8;
 	private static final int BINARY_RADIX = 2;
 	public static final Pattern NEWLINE_REGEX = Pattern.compile("(\\r\\n|\\n|\\r)");
 	public static final Pattern COMMA_SPLIT_REGEX = Pattern.compile("\\s*,\\s*");
@@ -31,6 +56,70 @@ public class StringUtil {
 	private static final int BYTE_HEX_DIGITS = 2;
 
 	private StringUtil() {}
+
+	/**
+	 * Encodes escaped characters within the given string.
+	 */
+	public static String unEscape(String s) {
+		return replaceAll(s, ESCAPE_REGEX, m -> String.valueOf(unEscapeChar(m.group())));
+	}
+
+	/**
+	 * Encodes an escaped character string.
+	 */
+	private static char unEscapeChar(String escapedChar) {
+		switch (escapedChar) {
+		case ESCAPED_BACKSLASH:
+			return BACKSLASH;
+		case ESCAPED_BACKSPACE:
+			return BACKSPACE;
+		case ESCAPED_ESCAPE:
+			return ESCAPE;
+		case ESCAPED_FF:
+			return FF;
+		case ESCAPED_NL:
+			return NL;
+		case ESCAPED_CR:
+			return CR;
+		case ESCAPED_TAB:
+			return TAB;
+		case ESCAPED_OCTAL:
+			return NULL;
+		}
+		Character c = escaped(escapedChar, ESCAPED_OCTAL, OCTAL_RADIX);
+		if (c == null) c = escaped(escapedChar, ESCAPED_HEX, HEX_RADIX);
+		if (c == null) c = escaped(escapedChar, ESCAPED_UTF16, HEX_RADIX);
+		if (c != null) return c.charValue();
+		throw new IllegalArgumentException("Invalid escaped char: " + escapedChar);
+	}
+
+	private static Character escaped(String escapedChar, String prefix, int radix) {
+		if (!escapedChar.startsWith(prefix)) return null;
+		return (char) Integer.parseInt(escapedChar.substring(prefix.length()), radix);
+	}
+
+	/**
+	 * Replace all instances of the pattern using the replacer function.
+	 */
+	public static String
+		replaceAll(String s, String pattern, Function<MatchResult, String> replacer) {
+		return replaceAll(s, Pattern.compile(pattern), replacer);
+	}
+
+	/**
+	 * Replace all instances of the pattern using the replacer function.
+	 */
+	public static String replaceAll(String s, Pattern p, Function<MatchResult, String> replacer) {
+		StringBuffer output = new StringBuffer();
+		Matcher m = p.matcher(s);
+		while (m.find()) {
+			String replacement = replacer.apply(m);
+			m.appendReplacement(output, "");
+			output.append(replacement);
+		}
+		m.appendTail(output);
+		return output.toString();
+	}
 
 	/**
 	 * Convert a byte array into a list of hex strings.
