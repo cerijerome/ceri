@@ -34,8 +34,8 @@ public class ArrayUtil {
 	 * Converts a collection to a new list by mapping elements from the original collection.
 	 */
 	@SafeVarargs
-	public static <F, T> List<T> convertToList(Function<? super F, ? extends T> mapper, F... fs) {
-		return CollectionUtil.convertToList(mapper, Arrays.asList(fs));
+	public static <F, T> List<T> toList(Function<? super F, ? extends T> mapper, F... fs) {
+		return CollectionUtil.toList(mapper, Arrays.asList(fs));
 	}
 
 	/**

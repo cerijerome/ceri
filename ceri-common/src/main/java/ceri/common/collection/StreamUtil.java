@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -24,7 +25,16 @@ public class StreamUtil {
 	public static <T> T first(Stream<T> stream) {
 		return stream.findFirst().orElse(null);
 	}
-	
+
+	/**
+	 * Convert a map to an object stream.
+	 */
+	public static <K, V, T> Stream<T> stream(Map<K, V> map,
+		BiFunction<? super K, ? super V, ? extends T> mapFn) {
+		Function<Map.Entry<K, V>, T> fn = (entry -> mapFn.apply(entry.getKey(), entry.getValue()));
+		return map.entrySet().stream().map(fn);
+	}
+
 	/**
 	 * Convert a stream to a TreeSet.
 	 */
@@ -49,9 +59,17 @@ public class StreamUtil {
 	/**
 	 * Convert a stream to a LinkedHashMap and don't allow duplicate keys.
 	 */
-	public static <K, V> Map<K, V> toMap(Stream<V> stream, Function<V, K> keyFn) {
+	public static <K, V> Map<K, V> toMap(Stream<V> stream, Function<? super V, ? extends K> keyFn) {
 		return stream.collect(Collectors.toMap(keyFn, Function.identity(), mergeError(),
 			LinkedHashMap::new));
+	}
+
+	/**
+	 * Convert a stream to a LinkedHashMap and don't allow duplicate keys.
+	 */
+	public static <K, V, T> Map<K, V> toMap(Stream<T> stream,
+		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn) {
+		return stream.collect(Collectors.toMap(keyFn, valueFn, mergeError(), LinkedHashMap::new));
 	}
 
 	/**

@@ -41,14 +41,14 @@ public class IoUtil {
 	public static OutputStream nullOutputStream() {
 		return NULL_OUTPUT_STREAM;
 	}
-	
+
 	/**
 	 * Returns a print stream that swallows all output.
 	 */
 	public static PrintStream nullPrintStream() {
 		return new PrintStream(nullOutputStream());
 	}
-	
+
 	/**
 	 * Returns the system tmp directory.
 	 */
@@ -106,7 +106,7 @@ public class IoUtil {
 		try {
 			if (System.in.available() > 0) return (char) System.in.read();
 		} catch (IOException e) {}
-		return (char)0;
+		return (char) 0;
 	}
 
 	/**
@@ -237,6 +237,10 @@ public class IoUtil {
 		try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
 			return getContent(in, 0);
 		}
+	}
+
+	public static String getContentString(String filename) throws IOException {
+		return getContentString(new File(filename));
 	}
 
 	public static String getContentString(File file) throws IOException {

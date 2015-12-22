@@ -1,6 +1,5 @@
 package ceri.common.collection;
 
-import static ceri.common.collection.StreamUtil.toList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,20 +29,27 @@ public class CollectionUtil {
 	private CollectionUtil() {}
 
 	/**
+	 * Converts a map to a list by mapping entry elements from the original map.
+	 */
+	public static <K, V, T> Map<K, V> toMap(Function<? super T, ? extends K> keyMapper,
+		Function<? super T, ? extends V> valueMapper, Collection<T> collection) {
+		return StreamUtil.toMap(collection.stream(), keyMapper, valueMapper);
+	}
+
+	/**
 	 * Converts a collection to a new list by mapping elements from the original collection.
 	 */
-	public static <F, T> List<T> convertToList(Function<? super F, ? extends T> mapper,
+	public static <F, T> List<T> toList(Function<? super F, ? extends T> mapper,
 		Collection<F> collection) {
-		return toList(collection.stream().map(mapper));
+		return StreamUtil.toList(collection.stream().map(mapper));
 	}
 
 	/**
 	 * Converts a map to a list by mapping entry elements from the original map.
 	 */
-	public static <K, V, T> List<T> convertToList(
-		BiFunction<? super K, ? super V, ? extends T> mapper, Map<K, V> map) {
-		Function<Map.Entry<K, V>, T> fn = (entry -> mapper.apply(entry.getKey(), entry.getValue()));
-		return toList(map.entrySet().stream().map(fn));
+	public static <K, V, T> List<T> toList(BiFunction<? super K, ? super V, ? extends T> mapper,
+		Map<K, V> map) {
+		return StreamUtil.toList(StreamUtil.stream(map, mapper));
 	}
 
 	/**

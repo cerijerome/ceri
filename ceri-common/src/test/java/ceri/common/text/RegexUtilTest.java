@@ -1,6 +1,7 @@
 package ceri.common.text;
 
 import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertElements;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
@@ -14,10 +15,17 @@ public class RegexUtilTest {
 	private static final Pattern LSTRING_PATTERN = Pattern.compile("([a-z]+)");
 	private static final Pattern USTRING_PATTERN = Pattern.compile("([A-Z]+)");
 	private static final Pattern INT_PATTERN = Pattern.compile("(\\d+)");
+	private static final Pattern MULTI_PATTERN = Pattern.compile("(\\w+)\\W+(\\w+)\\W+(\\w+)");
 
 	@Test
 	public void testPrivateConstructor() {
 		assertPrivateConstructor(RegexUtil.class);
+	}
+
+	@Test
+	public void testGroups() {
+		assertElements(RegexUtil.groups(MULTI_PATTERN, " ab CD--ef"), "ab", "CD", "ef");
+		assertElements(RegexUtil.groups(MULTI_PATTERN, ""));
 	}
 
 	@Test

@@ -1,9 +1,12 @@
 package ceri.common.text;
 
+import static ceri.common.collection.StreamUtil.toList;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import ceri.common.factory.Factories;
 import ceri.common.factory.Factory;
 import ceri.common.factory.StringFactories;
@@ -25,6 +28,25 @@ public class RegexUtil {
 		.list(StringFactories.TO_DOUBLE);
 
 	private RegexUtil() {}
+
+	/**
+	 * Returns the groups of the given matcher as a list.
+	 */
+	public static final List<String> groups(Pattern regex, String s) {
+		Matcher m = regex.matcher(s);
+		if (!m.find()) return Collections.emptyList();
+		return groups(m);
+	}
+
+	/**
+	 * Returns the groups of the given matcher as a list. A successful find() must be called on the
+	 * given matcher before using this method.
+	 */
+	public static final List<String> groups(Matcher m) {
+		int count = m.groupCount();
+		if (count <= 0) return Collections.emptyList();
+		return toList(IntStream.range(1, count + 1).mapToObj(m::group));
+	}
 
 	/**
 	 * Finds the first matching regex and returns the first group.
