@@ -17,3 +17,6 @@ For Ubuntu:
 - Copy librxtxSerial.so to jre/lib/amd64 and make executable, e.g.:
   sudo cp /usr/lib/jni/librxtxSerial.so /usr/lib/jvm/java-8-oracle/jre/lib/amd64/
   sudo chmod a+x /usr/lib/jvm/java-8-oracle/jre/lib/amd64/librxtxSerial.so
+- Change permissions on USB ports, e.g.:
+  sudo chmod a+rw /dev/ttyUSB*
+  sudo chmod a+rw /dev/usb
