@@ -5,9 +5,11 @@ import java.util.regex.Pattern;
 public class OsUtil {
 	public static final String OS_NAME = System.getProperty("os.name");
 	public static final String OS_ARCH = System.getProperty("os.arch");
+	public static final String OS_VERSION = System.getProperty("os.version");
 	public static final boolean IS_MAC = matches(OS_NAME, "^Mac");
+	public static final boolean IS_LINUX = matches(OS_NAME, "^Linux");
 	public static final boolean IS_X86 = matches(OS_ARCH, "^x86");
-	public static final boolean IS_64BIT = matches(OS_ARCH, "_64$");
+	public static final boolean IS_64BIT = matches(OS_ARCH, "64$");
 		
 	private OsUtil() {}
 
