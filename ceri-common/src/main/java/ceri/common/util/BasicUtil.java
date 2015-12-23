@@ -109,11 +109,11 @@ public class BasicUtil {
 	}
 
 	/**
-	 * Attaches a throwable cause to an exception without losing type. Use as: throw initCause(new
-	 * MyException(...), cause);
+	 * Attaches a throwable cause to an exception without losing type. If the given cause is null it
+	 * will not be initialized. Use as: throw initCause(new MyException(...), cause);
 	 */
 	public static <E extends Exception> E initCause(E e, Throwable cause) {
-		e.initCause(cause);
+		if (cause != null) e.initCause(cause);
 		return e;
 	}
 
