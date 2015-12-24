@@ -35,6 +35,7 @@ Set up a repo
 Set up repo on github.com
 $ git init
 $ git remote add origin <https|ssh-repolink>
+$ git remote add origin https://username@github.com/username/project.git
 $ git config --system http.sslcainfo "C:\Program Files (x86)\git\bin\curl-ca-bundle.crt" (windows)
 $ git pull origin master => pull from remote
 $ git push origin master => push to remote
