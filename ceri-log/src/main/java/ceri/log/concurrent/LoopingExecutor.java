@@ -63,7 +63,7 @@ public abstract class LoopingExecutor implements Closeable {
 				loop();
 			}
 		} catch (InterruptedException | RuntimeInterruptedException e) {
-			logger.info("{} interrupted", getClass().getSimpleName());
+			logger.debug("{} interrupted", getClass().getSimpleName());
 		} catch (Exception e) {
 			logger.catching(e);
 		}

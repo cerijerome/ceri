@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -105,6 +106,8 @@ public class LogUtil {
 		future.cancel(true);
 		try {
 			future.get(timeoutMs, TimeUnit.MILLISECONDS);
+			return true;
+		} catch (CancellationException e) {
 			return true;
 		} catch (ExecutionException | TimeoutException | InterruptedException e) {
 			if (logger != null) logger.catching(Level.WARN, e);
