@@ -25,6 +25,7 @@ import ceri.common.date.ImmutableTimeZoneBehavior;
 import ceri.common.date.MultiDateParserBehavior;
 import ceri.common.date.TimeUnitBehavior;
 import ceri.common.email.EmailUtilTest;
+import ceri.common.event.EventTrackerBehavior;
 import ceri.common.event.IntListenersBehavior;
 import ceri.common.event.ListenersBehavior;
 import ceri.common.factory.DateFactoriesTest;
@@ -125,6 +126,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	// email
 	EmailUtilTest.class,
 	// event
+	EventTrackerBehavior.class,
 	IntListenersBehavior.class,
 	ListenersBehavior.class,
 	//factory
