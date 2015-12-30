@@ -44,7 +44,6 @@ public abstract class LoopingExecutor implements Closeable {
 	}
 
 	protected void start() {
-		logger.info("{} started", getClass().getSimpleName());
 		executor.execute(this::loops);
 	}
 
@@ -53,10 +52,10 @@ public abstract class LoopingExecutor implements Closeable {
 	@Override
 	public void close() {
 		LogUtil.close(logger, executor, exitTimeoutMs);
-		logger.info("{} stopped", getClass().getSimpleName());
 	}
 
 	private void loops() {
+		logger.info("{} started", getClass().getSimpleName());
 		try {
 			while (true) {
 				ConcurrentUtil.checkInterrupted();
@@ -66,6 +65,8 @@ public abstract class LoopingExecutor implements Closeable {
 			logger.debug("{} interrupted", getClass().getSimpleName());
 		} catch (Exception e) {
 			logger.catching(e);
+		} finally {
+			logger.info("{} stopped", getClass().getSimpleName());
 		}
 	}
 
