@@ -49,6 +49,10 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 
 	public static interface CommPortSupplier {
 		String get() throws IOException;
+
+		static CommPortSupplier fixed(String commPort) {
+			return () -> commPort;
+		}
 	}
 
 	public static class Builder {
@@ -113,7 +117,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 	}
 
 	public static Builder builder(String commPort) {
-		return new Builder(() -> commPort);
+		return new Builder(CommPortSupplier.fixed(commPort));
 	}
 
 	public static Builder builder(CommPortSupplier commPortSupplier) {
