@@ -65,9 +65,8 @@ public abstract class LoopingExecutor implements Closeable {
 			logger.debug("{} interrupted", getClass().getSimpleName());
 		} catch (Exception e) {
 			logger.catching(e);
-		} finally {
-			logger.info("{} stopped", getClass().getSimpleName());
 		}
+		logger.info("{} stopped", getClass().getSimpleName());
 	}
 
 }

@@ -7,6 +7,7 @@ import ceri.log.binary.BinaryLogInputStreamBehavior;
 import ceri.log.binary.BinaryLogOutputStreamBehavior;
 import ceri.log.binary.BinaryPrinterBehavior;
 import ceri.log.concurrent.LoopingExecutorBehavior;
+import ceri.log.concurrent.SocketListenerBehavior;
 import ceri.log.util.LogUtilTest;
 
 @RunWith(Suite.class)
@@ -17,6 +18,7 @@ import ceri.log.util.LogUtilTest;
 	BinaryPrinterBehavior.class,
 	// concurrent
 	LoopingExecutorBehavior.class,
+	SocketListenerBehavior.class,
 	// util
 	LogUtilTest.class, })
 public class _Tests {
