@@ -9,7 +9,6 @@ import java.util.function.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ImmutableByteArray;
-import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listeners;
 import ceri.log.util.LogUtil;
@@ -23,13 +22,6 @@ public class SocketListener extends LoopingExecutor {
 	private final int bufferSize;
 	private final ServerSocket serverSocket;
 	private final Listeners<ImmutableByteArray> listeners = new Listeners<>();
-
-	public static void main(String[] args) throws IOException, InterruptedException {
-		BooleanCondition sync = BooleanCondition.create();
-		try (SocketListener sl = create(9999, sync::signal)) {
-			sync.await();
-		}
-	}
 
 	public static SocketListener create(int port, Runnable listenable) throws IOException {
 		return create(port, listenable, null);
