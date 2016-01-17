@@ -1,5 +1,6 @@
 package ceri.ent.server;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,6 +9,7 @@ import java.util.regex.Pattern;
 import org.eclipse.jetty.annotations.ServletContainerInitializersStarter;
 import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
 import org.eclipse.jetty.plus.annotation.ContainerInitializer;
+import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
@@ -21,10 +23,28 @@ public class JettyUtil {
 	private static final String CONTAINER_INITIALIZERS_ATTRIBUTE =
 		"org.eclipse.jetty.containerInitializers";
 	private static final List<ContainerInitializer> JSP_INITIALIZERS = jspInitializers();
+	private static final String TMP_DIR = "tmp";
+	private static final String CONTEXT_PATH_DEF = "/";
 
 	private JettyUtil() {}
 
-	public static void setResourceBase(ContextHandler context, Class<?>...classes) {
+	public static Server createServer(WebAppContext webapp, int port) {
+		Server server = new Server(port);
+		server.setHandler(webapp);
+		return server;
+	}
+
+	public static WebAppContext createWebApp() {
+		return createWebApp(CONTEXT_PATH_DEF);
+	}
+
+	public static WebAppContext createWebApp(String contextPath) {
+		WebAppContext webapp = new WebAppContext();
+		webapp.setContextPath(contextPath);
+		return webapp;
+	}
+
+	public static void setResourceBase(ContextHandler context, Class<?>... classes) {
 		setResourceBase(context, Arrays.asList(classes));
 	}
 
@@ -41,9 +61,23 @@ public class JettyUtil {
 	}
 
 	public static void initForJsp(WebAppContext context) {
+		initForJsp(context, (File) null);
+	}
+
+	public static void initForJsp(WebAppContext context, Class<?> jspTmpDirClass) {
+		String jspTmpDir = TMP_DIR + "/" + jspTmpDirClass.getPackage().getName();
+		initForJsp(context, jspTmpDir);
+	}
+
+	public static void initForJsp(WebAppContext context, String jspTmpDir) {
+		initForJsp(context, new File(jspTmpDir));
+	}
+
+	public static void initForJsp(WebAppContext context, File jspTmpDir) {
 		context.setAttribute(CONTAINER_INCLUDE_JAR_PATTERN_ATTRIBUTE, TAGLIBS_JAR_PATTERN);
 		context.setAttribute(CONTAINER_INITIALIZERS_ATTRIBUTE, JSP_INITIALIZERS);
 		context.addBean(new ServletContainerInitializersStarter(context), true);
+		if (jspTmpDir != null) context.setTempDirectory(jspTmpDir);
 	}
 
 	private static List<ContainerInitializer> jspInitializers() {
