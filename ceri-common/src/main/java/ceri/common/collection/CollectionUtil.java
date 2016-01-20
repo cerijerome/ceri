@@ -29,11 +29,30 @@ public class CollectionUtil {
 	private CollectionUtil() {}
 
 	/**
-	 * Converts a map to a list by mapping entry elements from the original map.
+	 * Converts a collection to a map.
 	 */
 	public static <K, V, T> Map<K, V> toMap(Function<? super T, ? extends K> keyMapper,
 		Function<? super T, ? extends V> valueMapper, Collection<T> collection) {
 		return StreamUtil.toMap(collection.stream(), keyMapper, valueMapper);
+	}
+
+	/**
+	 * Transforms a map.
+	 */
+	public static <K, V, T, U> Map<K, V> transform(Function<? super T, ? extends K> keyMapper,
+		Function<? super U, ? extends V> valueMapper, Map<T, U> map) {
+		return StreamUtil.toMap(map.entrySet().stream(), e -> keyMapper.apply(e.getKey()),
+			e -> valueMapper.apply(e.getValue()));
+	}
+
+	/**
+	 * Transforms a map.
+	 */
+	public static <K, V, T, U> Map<K, V> transform(
+		BiFunction<? super T, ? super U, ? extends K> keyMapper,
+		BiFunction<? super T, ? super U, ? extends V> valueMapper, Map<T, U> map) {
+		return StreamUtil.toMap(map.entrySet().stream(), e -> keyMapper.apply(e.getKey(), e
+			.getValue()), e -> valueMapper.apply(e.getKey(), e.getValue()));
 	}
 
 	/**
