@@ -46,6 +46,22 @@ public class CollectionUtil {
 	}
 
 	/**
+	 * Transforms a map's keys.
+	 */
+	public static <K, T, U> Map<K, U> transformKeys(
+		Function<? super T, ? extends K> keyMapper, Map<T, U> map) {
+		return transform(keyMapper, v -> v, map);
+	}
+
+	/**
+	 * Transforms a map's values.
+	 */
+	public static <K, V, U> Map<K, V> transformValues(
+		Function<? super U, ? extends V> valueMapper, Map<K, U> map) {
+		return transform(k -> k, valueMapper, map);
+	}
+
+	/**
 	 * Transforms a map.
 	 */
 	public static <K, V, T, U> Map<K, V> transform(
@@ -53,6 +69,22 @@ public class CollectionUtil {
 		BiFunction<? super T, ? super U, ? extends V> valueMapper, Map<T, U> map) {
 		return StreamUtil.toMap(map.entrySet().stream(), e -> keyMapper.apply(e.getKey(), e
 			.getValue()), e -> valueMapper.apply(e.getKey(), e.getValue()));
+	}
+
+	/**
+	 * Transforms a map's keys.
+	 */
+	public static <K, T, U> Map<K, U> transformKeys(
+		BiFunction<? super T, ? super U, ? extends K> keyMapper, Map<T, U> map) {
+		return transform(keyMapper, (k, v) -> v, map);
+	}
+
+	/**
+	 * Transforms a map's keys.
+	 */
+	public static <K, V, U> Map<K, V> transformValues(
+		BiFunction<? super K, ? super U, ? extends V> valueMapper, Map<K, U> map) {
+		return transform((k, v) -> k, valueMapper, map);
 	}
 
 	/**
