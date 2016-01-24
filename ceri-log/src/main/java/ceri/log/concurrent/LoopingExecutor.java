@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LoggingException;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.ExceptionRunnable;
 import ceri.common.concurrent.RuntimeInterruptedException;
@@ -17,14 +18,17 @@ public abstract class LoopingExecutor implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int EXIT_TIMEOUT_MS_DEF = 1000;
 	private final int exitTimeoutMs;
+	private final String logName;
 	private final ExecutorService executor;
 
 	public static LoopingExecutor start(ExceptionRunnable<Exception> runnable) {
-		return start(EXIT_TIMEOUT_MS_DEF, runnable);
+		return start(null, EXIT_TIMEOUT_MS_DEF, runnable);
 	}
 
-	public static LoopingExecutor start(int exitTimeoutMs, ExceptionRunnable<Exception> runnable) {
-		LoopingExecutor executor = new LoopingExecutor(exitTimeoutMs) {
+	public static LoopingExecutor start(String logName, int exitTimeoutMs,
+		ExceptionRunnable<Exception> runnable) {
+		if (logName == null) logName = LoggingException.class.getSimpleName();
+		LoopingExecutor executor = new LoopingExecutor(logName, exitTimeoutMs) {
 			@Override
 			protected void loop() throws Exception {
 				runnable.run();
@@ -35,10 +39,15 @@ public abstract class LoopingExecutor implements Closeable {
 	}
 
 	public LoopingExecutor() {
-		this(EXIT_TIMEOUT_MS_DEF);
+		this(null);
 	}
 
-	public LoopingExecutor(int exitTimeoutMs) {
+	public LoopingExecutor(String logName) {
+		this(logName, EXIT_TIMEOUT_MS_DEF);
+	}
+
+	public LoopingExecutor(String logName, int exitTimeoutMs) {
+		this.logName = logName == null ? getClass().getSimpleName() : logName;
 		this.exitTimeoutMs = exitTimeoutMs;
 		executor = Executors.newSingleThreadExecutor();
 	}
@@ -55,18 +64,18 @@ public abstract class LoopingExecutor implements Closeable {
 	}
 
 	private void loops() {
-		logger.info("{} started", getClass().getSimpleName());
+		logger.info("{} started", logName);
 		try {
 			while (true) {
 				ConcurrentUtil.checkInterrupted();
 				loop();
 			}
 		} catch (InterruptedException | RuntimeInterruptedException e) {
-			logger.debug("{} interrupted", getClass().getSimpleName());
+			logger.debug("{} interrupted", logName);
 		} catch (Exception e) {
 			logger.catching(e);
 		}
-		logger.info("{} stopped", getClass().getSimpleName());
+		logger.info("{} stopped", logName);
 	}
 
 }

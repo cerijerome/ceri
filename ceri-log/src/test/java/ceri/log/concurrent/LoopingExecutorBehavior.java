@@ -20,7 +20,7 @@ public class LoopingExecutorBehavior {
 	@Test
 	public void shouldAllowCloseToBeInterrupted() {
 		BooleanCondition flag = BooleanCondition.create();
-		try (LoopingExecutor loop = LoopingExecutor.start(100000, () -> {
+		try (LoopingExecutor loop = LoopingExecutor.start(null, 100000, () -> {
 			try {
 				Thread.sleep(100000);
 			} catch (InterruptedException e) { // happens when close() is called
