@@ -340,33 +340,42 @@ public class StringUtil {
 	 */
 	public static enum Align {
 		LEFT,
-		RIGHT
+		RIGHT,
+		CENTER
 	}
 
+	/**
+	 * Pads a string with leading or trailing characters.
+	 */
+	public static String pad(String str, int minLength, Align align) {
+		return pad(str, minLength, " ", align);
+	}
+	
 	/**
 	 * Pads a string with leading or trailing characters.
 	 */
 	public static String pad(String str, int minLength, String pad, Align align) {
 		if (str == null) str = "";
 		if (pad == null) pad = "";
-		int len = str.length();
-		if (len >= minLength) return str;
-
-		int padLen = pad.length();
-		int padCount = padLen > 0 ? (minLength - len) / padLen : 0;
-		if (padCount == 0) return str;
-
+		if (str.length() >= minLength) return str;
+		int pads = pads(pad.length(), minLength - str.length());
+		int left = leftCount(pads, align);
+		if (pads == 0) return str;
 		StringBuilder b = new StringBuilder(minLength);
-		if (align == Align.LEFT) {
-			b.append(str);
-			for (int i = 0; i < padCount; i++)
-				b.append(pad);
-		} else {
-			for (int i = 0; i < padCount; i++)
-				b.append(pad);
-			b.append(str);
-		}
+		for (int i = 0; i < left; i++) b.append(pad);
+		b.append(str);
+		for (int i = 0; i < pads - left; i++) b.append(pad);
 		return b.toString();
+	}
+
+	private static int pads(int padLen, int len) {
+		return padLen > 0 ? len / padLen : 0;
+	}
+	
+	private static int leftCount(int count, Align align) {
+		if (align == Align.RIGHT) return count;
+		if (align == Align.CENTER) return count / 2;
+		return 0;
 	}
 
 	/**

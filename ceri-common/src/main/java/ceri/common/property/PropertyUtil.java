@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Properties;
 
 /**
@@ -17,6 +19,22 @@ public class PropertyUtil {
 	private static final String PROPERTIES_FILE_EXT = ".properties";
 
 	private PropertyUtil() {}
+
+	/**
+	 * Merges multiple properties. Latter properties override the former.
+	 */
+	public static Properties merge(Properties... properties) {
+		return merge(Arrays.asList(properties));
+	}
+
+	/**
+	 * Merges multiple properties. Latter properties override the former.
+	 */
+	public static Properties merge(Collection<Properties> properties) {
+		Properties merged = new Properties();
+		properties.forEach(p -> merged.putAll(p));
+		return merged;
+	}
 
 	/**
 	 * Stores properties in given file.
