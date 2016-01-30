@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.MissingResourceException;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import ceri.common.collection.ImmutableByteArray;
 
 /**
  * I/O utility functions.
@@ -281,6 +282,16 @@ public class IoUtil {
 	public static void setContent(File file, byte[] content) throws IOException {
 		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
 			out.write(content);
+			out.flush();
+		}
+	}
+
+	/**
+	 * Writes byte array content to a file.
+	 */
+	public static void setContent(File file, ImmutableByteArray data) throws IOException {
+		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
+			data.writeTo(out);
 			out.flush();
 		}
 	}
