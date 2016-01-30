@@ -1,5 +1,6 @@
 package ceri.log.util;
 
+import static ceri.common.text.StringUtil.WHITE_SPACE_REGEX;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +15,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ExceptionRunnable;
@@ -24,7 +24,6 @@ import ceri.common.concurrent.ExceptionRunnable;
  */
 public class LogUtil {
 	private static final int TIMEOUT_MS_DEF = 1000;
-	static final Pattern SPACE_REGEX = Pattern.compile("\\s+");
 
 	private LogUtil() {}
 
@@ -180,7 +179,7 @@ public class LogUtil {
 	 * space.
 	 */
 	public static Object compact(final Object obj) {
-		return toString(() -> SPACE_REGEX.matcher(String.valueOf(obj)).replaceAll(" "));
+		return toString(() -> WHITE_SPACE_REGEX.matcher(String.valueOf(obj)).replaceAll(" "));
 	}
 
 }
