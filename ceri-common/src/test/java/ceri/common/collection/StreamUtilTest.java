@@ -1,13 +1,17 @@
 package ceri.common.collection;
 
-import static ceri.common.test.TestUtil.assertElements;
+import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertList;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static java.lang.Double.parseDouble;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,12 +25,33 @@ public class StreamUtilTest {
 	}
 
 	@Test
+	public void testFirst() {
+		Stream<Integer> stream = Stream.of(1, 2, 3, 4, 5).filter(i -> i % 2 == 0);
+		assertThat(StreamUtil.first(stream), is(2));
+	}
+
+	@Test
+	public void testStream() {
+		Map<Integer, String> map = MapBuilder.of(1, "1", 3, "3", 2, "2").build();
+		Object[] array = StreamUtil.stream(map, (i, s) -> parseDouble(s + "." + (i * i))).toArray();
+		assertArray(array, 1.1, 3.9, 2.4);
+	}
+
+	@Test
+	public void testToSet() {
+		Set<Integer> set = StreamUtil.toSet(Stream.of(1, 3, 2));
+		assertCollection(set, 1, 3, 2);
+		set = StreamUtil.toTreeSet(Stream.of(1, 3, 2));
+		assertIterable(set, 1, 2, 3);
+	}
+
+	@Test
 	public void testMergeFirst() {
 		Stream<String> stream = Stream.of("1", "2", "3", "01");
 		Map<Integer, String> map =
 			stream.collect(Collectors.toMap(Integer::parseInt, Function.identity(), StreamUtil
 				.mergeFirst()));
-		assertElements(map.values(), "1", "2", "3");
+		assertIterable(map.values(), "1", "2", "3");
 	}
 
 	@Test
@@ -35,7 +60,7 @@ public class StreamUtilTest {
 		Map<Integer, String> map =
 			stream.collect(Collectors.toMap(Integer::parseInt, Function.identity(), StreamUtil
 				.mergeSecond()));
-		assertElements(map.values(), "01", "2", "3");
+		assertIterable(map.values(), "01", "2", "3");
 	}
 
 	@Test
@@ -56,10 +81,18 @@ public class StreamUtilTest {
 	}
 
 	@Test
-	public void testToMap() {
+	public void testToMapKeysAndValues() {
+		Stream<Integer> stream = Stream.of(1, 3, 2);
+		Map<Integer, String> map = StreamUtil.toMap(stream, i -> i + 10, String::valueOf);
+		assertCollection(map.keySet(), 11, 12, 13);
+		assertCollection(map.values(), "1", "2", "3");
+	}
+
+	@Test
+	public void testToMapKeys() {
 		Stream<String> stream = Stream.of("1", "2", "3", "4");
 		Map<Integer, String> map = StreamUtil.toMap(stream, Integer::parseInt);
-		assertElements(map.keySet(), 1, 2, 3, 4);
+		assertIterable(map.keySet(), 1, 2, 3, 4);
 		assertThat(map.get(1), is("1"));
 		assertThat(map.get(2), is("2"));
 		assertThat(map.get(3), is("3"));

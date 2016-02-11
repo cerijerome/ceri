@@ -10,7 +10,7 @@ import ceri.common.reflect.ReflectUtil;
 
 /**
  * Used to modify source code for operations more complicated than search/replace.
- * File contents are not replace - instead use print() to check results, then manually 
+ * File contents are not replaced - instead use print() to check results, then manually 
  * copy to the file.
  */
 public class SourceManipulator {

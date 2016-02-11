@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertElements;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertFile;
 import static ceri.common.test.TestUtil.assertRange;
@@ -11,7 +11,9 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +45,18 @@ public class TestUtilTest {
 	public void testExerciseEnums() {
 		TestUtil.exerciseEnum(StringUtil.Align.class);
 		assertException(() -> TestUtil.exerciseEnum(BadEnum.class));
+	}
+
+	@Test
+	public void testReadString() throws IOException {
+		InputStream stdin = System.in;
+		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
+			System.setIn(in);
+			assertThat(TestUtil.readString(), is("test"));
+			assertThat(TestUtil.readString(), is(""));
+		} finally {
+			System.setIn(stdin);
+		}
 	}
 
 	@Test
@@ -131,6 +145,14 @@ public class TestUtilTest {
 		TestUtil.assertCollection(list, 1, 2, 3, 4, 5);
 		assertAssertion(() -> TestUtil.assertCollection(list, 1, 2, 4, 5));
 		assertAssertion(() -> TestUtil.assertCollection(list, 1, 2, 3, 4, 5, 6));
+		assertAssertion(() -> TestUtil.assertCollection(new boolean[] { true, false }, true, false));
+		assertAssertion(() -> TestUtil.assertCollection(new byte[] { -1, 1 }, -1, 1));
+		assertAssertion(() -> TestUtil.assertCollection(new char[] { 'a', 'b' }, 'a', 'b'));
+		assertAssertion(() -> TestUtil.assertCollection(new short[] { -1, 1 }, (short) -1,
+			(short) 1));
+		assertAssertion(() -> TestUtil.assertCollection(new int[] { -1, 1 }, -1, 1));
+		assertAssertion(() -> TestUtil.assertCollection(new long[] { -1, 1 }, -1, 1));
+		assertAssertion(() -> TestUtil.assertCollection(new float[] { -1, 1 }, -1, 1));
 	}
 
 	@Test
@@ -185,17 +207,11 @@ public class TestUtilTest {
 	}
 
 	@Test
-	public void testAssertElements() {
+	public void testAssertIterable() {
 		final Set<Integer> set = new TreeSet<>();
-		assertElements(set);
+		assertIterable(set);
 		Collections.addAll(set, Integer.MAX_VALUE, Integer.MIN_VALUE, 0);
-		assertElements(set, Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
-	}
-
-	@Test
-	public void testAssertElementsForArrays() {
-		Integer[] array = { Integer.MAX_VALUE, Integer.MIN_VALUE, 0 };
-		assertElements(array, Integer.MAX_VALUE, Integer.MIN_VALUE, 0);
+		assertIterable(set, Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
 	}
 
 	private void assertAssertion(ExceptionRunnable<Exception> runnable) {

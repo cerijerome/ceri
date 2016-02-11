@@ -23,11 +23,11 @@ public class KeyChecker implements Closeable {
 	private final InputStream in;
 
 	public static KeyChecker create() {
-		return create(input -> true);
+		return create(null);
 	}
 
 	public static KeyChecker create(Predicate<String> checkFunction) {
-		return create(checkFunction, POLL_MS);
+		return create(checkFunction, null);
 	}
 
 	public static KeyChecker create(Predicate<String> checkFunction, Long pollMs) {

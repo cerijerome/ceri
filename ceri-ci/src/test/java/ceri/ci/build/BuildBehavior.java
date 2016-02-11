@@ -1,7 +1,7 @@
 package ceri.ci.build;
 
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
-import static ceri.common.test.TestUtil.assertElements;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -37,11 +37,11 @@ public class BuildBehavior {
 		build.job("job1").events(e0, e1, e2, e3, e4, e5, e6, e7);
 		build.job("job2").events(e0, e2);
 		Build build2 = new Build(build);
-		assertElements(build2.job("job1").events, e7, e6, e5, e4, e3, e2, e1, e0);
-		assertElements(build2.job("job2").events, e2, e0);
+		assertIterable(build2.job("job1").events, e7, e6, e5, e4, e3, e2, e1, e0);
+		assertIterable(build2.job("job2").events, e2, e0);
 		build.job("job2").events(e1);
-		assertElements(build.job("job2").events, e2, e1, e0);
-		assertElements(build2.job("job2").events, e2, e0);
+		assertIterable(build.job("job2").events, e2, e1, e0);
+		assertIterable(build2.job("job2").events, e2, e0);
 	}
 
 	@Test
@@ -51,9 +51,9 @@ public class BuildBehavior {
 		build.job("job2").events(e0, e2, e3, e4, e5);
 		build.job("job3").events(e1, e2, e4, e6, e7);
 		build.purge();
-		assertElements(build.job("job1").events, e7, e6, e5, e4, e3);
-		assertElements(build.job("job2").events, e5, e4, e3, e2);
-		assertElements(build.job("job3").events, e7, e6, e4);
+		assertIterable(build.job("job1").events, e7, e6, e5, e4, e3);
+		assertIterable(build.job("job2").events, e5, e4, e3, e2);
+		assertIterable(build.job("job3").events, e7, e6, e4);
 	}
 
 	@Test
@@ -62,8 +62,8 @@ public class BuildBehavior {
 		build.job("a").events(e0);
 		build.job("a").events(e1);
 		build.job("b").events(e2);
-		assertElements(build.job("a").events, e1, e0);
-		assertElements(build.job("b").events, e2);
+		assertIterable(build.job("a").events, e1, e0);
+		assertIterable(build.job("b").events, e2);
 		build.clear();
 		assertJobNames(build.jobs, "a", "b");
 		assertTrue(build.job("a").events.isEmpty());

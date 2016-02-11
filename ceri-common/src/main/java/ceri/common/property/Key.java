@@ -26,7 +26,7 @@ public class Key {
 	}
 
 	public static Key createWithPrefix(String prefix, String... parts) {
-		return create(Key.create(prefix), parts);
+		return create(create(prefix), parts);
 	}
 
 	public static Key create(Key key, String... parts) {

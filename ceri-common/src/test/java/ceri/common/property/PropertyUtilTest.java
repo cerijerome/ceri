@@ -27,6 +27,22 @@ public class PropertyUtilTest {
 	}
 
 	@Test
+	public void testMerge() {
+		Properties prop1 = new Properties();
+		prop1.put("a", "a");
+		prop1.put("a.b", "ab");
+		prop1.put("a.b.c", "abc");
+		Properties prop2 = new Properties();
+		prop2.put("a.b", "AB");
+		prop2.put("a.b.c.d", "ABCD");
+		Properties properties = PropertyUtil.merge(prop1, prop2);
+		assertThat(properties.getProperty("a"), is("a"));
+		assertThat(properties.getProperty("a.b"), is("AB"));
+		assertThat(properties.getProperty("a.b.c"), is("abc"));
+		assertThat(properties.getProperty("a.b.c.d"), is("ABCD"));
+	}
+
+	@Test
 	public void testStoreWithFailingIO() throws IOException {
 		try (FileTestHelper helper = FileTestHelper.builder().build()) {
 			Properties properties = Mockito.mock(Properties.class);

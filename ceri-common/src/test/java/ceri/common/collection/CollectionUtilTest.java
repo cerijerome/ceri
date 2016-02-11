@@ -2,9 +2,9 @@ package ceri.common.collection;
 
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -33,6 +33,66 @@ public class CollectionUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(CollectionUtil.class);
+	}
+
+	@Test
+	public void testTransformValues() {
+		Map<Integer, String> map = MapBuilder.of(1, "1", 3, "333", 2, "22").build();
+		Map<Integer, Integer> imap = CollectionUtil.transformValues(s -> s.length(), map);
+		assertCollection(imap.keySet(), 1, 3, 2);
+		assertCollection(imap.values(), 1, 3, 2);
+		imap = CollectionUtil.transformValues((i, s) -> i + s.length(), map);
+		assertCollection(imap.keySet(), 1, 3, 2);
+		assertCollection(imap.values(), 2, 6, 4);
+	}
+
+	@Test
+	public void testTransformKeys() {
+		Map<Double, String> map = MapBuilder.of(1.1, "1.10", 3.3, "3.3000", 2.2, "2.200").build();
+		Map<Integer, String> imap = CollectionUtil.transformKeys(d -> d.intValue(), map);
+		assertCollection(imap.keySet(), 1, 3, 2);
+		assertCollection(imap.values(), "1.10", "3.3000", "2.200");
+		imap = CollectionUtil.transformKeys((d, s) -> d.intValue() + s.length(), map);
+		assertCollection(imap.keySet(), 5, 9, 7);
+		assertCollection(imap.values(), "1.10", "3.3000", "2.200");
+	}
+
+	@Test
+	public void testTransform() {
+		Map<Double, String> map = MapBuilder.of(1.1, "1.10", 3.3, "3.3000", 2.2, "2.200").build();
+		Map<Integer, Integer> imap =
+			CollectionUtil.transform(d -> d.intValue(), s -> s.length(), map);
+		assertCollection(imap.keySet(), 1, 3, 2);
+		assertCollection(imap.values(), 4, 6, 5);
+		imap = CollectionUtil.transform((d, s) -> s.length(), (d, s) -> d.intValue(), map);
+		assertCollection(imap.keySet(), 4, 6, 5);
+		assertCollection(imap.values(), 1, 3, 2);
+	}
+
+	@Test
+	public void testToMap() {
+		List<String> list = Arrays.asList("A", "ABC", "AB");
+		Map<String, Integer> map =
+			CollectionUtil.toMap(s -> s.toLowerCase(), s -> s.length(), list);
+		assertCollection(map.keySet(), "a", "abc", "ab");
+		assertCollection(map.values(), 1, 3, 2);
+	}
+
+	@Test
+	public void testToList() {
+		Map<Integer, String> map = MapBuilder.create(new LinkedHashMap<Integer, String>()) //
+			.put(1, "1").put(0, null).put(4, "4").put(2, "2").put(-2, "-2").build();
+		List<String> list = CollectionUtil.toList((i, s) -> String.valueOf(s) + i, map);
+		assertIterable(list, "11", "null0", "44", "22", "-2-2");
+	}
+
+	@Test
+	public void testSortByValue() {
+		Map<Integer, String> map = MapBuilder.create(new LinkedHashMap<Integer, String>()) //
+			.put(1, "1").put(0, null).put(4, "4").put(2, "2").put(-2, "-2").build();
+		map = CollectionUtil.sortByValue(map);
+		assertIterable(map.keySet(), 0, -2, 1, 2, 4);
+		assertIterable(map.values(), null, "-2", "1", "2", "4");
 	}
 
 	@Test
@@ -169,28 +229,22 @@ public class CollectionUtilTest {
 	@Test
 	public void testKey() {
 		assertThat(CollectionUtil.key(Collections.emptyMap(), "a"), is((Integer) null));
-		Map<Integer, String> map = new LinkedHashMap<>();
-		map.put(1, "1");
-		map.put(-1, null);
-		map.put(2, "2");
-		map.put(22, "2");
-		map.put(-2, null);
+		Map<Integer, String> map = MapBuilder.create(new LinkedHashMap<Integer, String>()) //
+			.put(1, "1").put(-1, null).put(2, "2").put(22, "2").put(-2, null).build();
 		assertThat(CollectionUtil.key(map, "1"), is(1));
 		assertThat(CollectionUtil.key(map, "2"), is(2));
+		assertThat(CollectionUtil.key(map, new String("2")), is(2));
 		assertThat(CollectionUtil.key(map, null), is(-1));
 	}
 
 	@Test
 	public void testKeys() {
-		Map<Integer, String> map = new LinkedHashMap<>();
-		map.put(1, "1");
-		map.put(-1, null);
-		map.put(2, "2");
-		map.put(22, "2");
-		map.put(-2, null);
-		assertEquals(CollectionUtil.keys(map, "1"), Collections.singleton(1));
-		assertEquals(CollectionUtil.keys(map, "2"), new HashSet<>(Arrays.asList(2, 22)));
-		assertEquals(CollectionUtil.keys(map, null), new HashSet<>(Arrays.asList(-1, -2)));
+		Map<Integer, String> map = MapBuilder.create(new LinkedHashMap<Integer, String>()) //
+			.put(1, "1").put(-1, null).put(2, "2").put(22, "2").put(-2, null).build();
+		assertCollection(CollectionUtil.keys(map, "1"), 1);
+		assertCollection(CollectionUtil.keys(map, "2"), 2, 22);
+		assertCollection(CollectionUtil.keys(map, new String("2")), 2, 22);
+		assertCollection(CollectionUtil.keys(map, null), -1, -2);
 	}
 
 }

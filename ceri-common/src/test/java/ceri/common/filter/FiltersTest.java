@@ -45,8 +45,17 @@ public class FiltersTest {
 		assertFalse(Filters._false().filter(null));
 		assertFalse(Filters._false().filter(false));
 		assertFalse(Filters._false().filter(true));
+		assertFalse(Filters.nonNull(null).filter(true));
 	}
 
+	@Test
+	public void testEqIgnoreCase() {
+		assertTrue(Filters.eqIgnoreCase(null).filter(""));
+		Filter<String> filter = Filters.eqIgnoreCase("aBc");
+		assertTrue(filter.filter("abcdef"));
+		assertTrue(filter.filter("defABC"));
+	}
+	
 	@Test
 	public void testEq() {
 		Filter<Integer> filter = Filters.eqAny(-1, 1);
@@ -103,6 +112,8 @@ public class FiltersTest {
 	@Test
 	public void testContains() {
 		assertTrue(Filters.contains(null).filter("aaa"));
+		assertTrue(Filters.contains("").filter("aaa"));
+		assertTrue(Filters.containsIgnoreCase(null).filter("aaa"));
 		assertTrue(Filters.containsIgnoreCase("").filter("aaa"));
 		Filter<String> filter = Filters.containsIgnoreCase("hElLo");
 		assertTrue(filter.filter("...hello there..."));
@@ -115,6 +126,15 @@ public class FiltersTest {
 	}
 
 	@Test
+	public void testGt() {
+		assertTrue(Filters.<Long>gt(null).filter(0L));
+		Filter<Long> filter = Filters.gt(0L);
+		assertTrue(filter.filter(Long.MAX_VALUE));
+		assertFalse(filter.filter(0L));
+		assertFalse(filter.filter(Long.MIN_VALUE));
+	}
+	
+	@Test
 	public void testGte() {
 		assertTrue(Filters.<String>gte(null).filter("aaa"));
 		Filter<String> filter = Filters.gte("N");
@@ -126,6 +146,15 @@ public class FiltersTest {
 		assertFalse(filter.filter(null));
 	}
 
+	@Test
+	public void testLt() {
+		assertTrue(Filters.<Long>lt(null).filter(0L));
+		Filter<Long> filter = Filters.lt(0L);
+		assertTrue(filter.filter(Long.MIN_VALUE));
+		assertFalse(filter.filter(0L));
+		assertFalse(filter.filter(Long.MAX_VALUE));
+	}
+	
 	@Test
 	public void testLte() {
 		assertTrue(Filters.<String>lte(null).filter("aaa"));
@@ -186,4 +215,10 @@ public class FiltersTest {
 		assertThat(items, is(Arrays.asList('A', 'A')));
 	}
 
+	@Test
+	public void testPredicate() {
+		assertTrue(Filters.contains("ABC").test("xyzABCdef"));
+		assertFalse(Filters.contains("ABC").test("xyzA BCdef"));
+	}
+	
 }

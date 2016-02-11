@@ -2,6 +2,8 @@ package ceri.common.validation;
 
 public class ValidationUtil {
 
+	private ValidationUtil() {}
+
 	public static void validateNotNull(Object obj) {
 		if (obj == null) throw new NullPointerException();
 	}
@@ -82,8 +84,8 @@ public class ValidationUtil {
 	}
 
 	public static void validateRange(double value, double min, double max, String name) {
-		if (value < min || value > max) throw InvalidDoubleRangeException
-			.range(value, min, max, name);
+		if (value < min || value > max) throw InvalidDoubleRangeException.range(value, min, max,
+			name);
 	}
 
 }

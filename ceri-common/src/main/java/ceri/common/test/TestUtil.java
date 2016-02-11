@@ -27,6 +27,7 @@ import ceri.common.concurrent.ExceptionRunnable;
 import ceri.common.io.IoUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.PrimitiveUtil;
 
 public class TestUtil {
 	private static final int SMALL_BUFFER_SIZE = 1024;
@@ -70,6 +71,22 @@ public class TestUtil {
 	}
 
 	/**
+	 * Checks equals, hashCode and toString methods against first object.
+	 */
+	@SafeVarargs
+	public static <T> void exerciseEquals(T t0, T... ts) {
+		exerciseEqual(t0, t0);
+		for (T t : ts)
+			exerciseEqual(t0, t);
+	}
+
+	private static <T> void exerciseEqual(T t0, T t1) {
+		assertTrue(t0.equals(t1));
+		assertThat(t0.hashCode(), is(t1.hashCode()));
+		assertThat(t0.toString(), is(t1.toString()));
+	}
+
+	/**
 	 * Call this for code coverage of enum hidden bytecode.
 	 */
 	public static void exerciseEnum(Class<? extends Enum<?>> enumClass) {
@@ -91,7 +108,7 @@ public class TestUtil {
 			throw new RuntimeException("Shouldn't happen", e);
 		}
 	}
-	
+
 	/**
 	 * Reads a string from given input stream.
 	 */
@@ -169,9 +186,8 @@ public class TestUtil {
 	 */
 	public static void assertArray(byte[] array, int... values) {
 		byte[] expected = new byte[values.length];
-		for (int i = 0; i < values.length; i++) {
+		for (int i = 0; i < values.length; i++)
 			expected[i] = (byte) values[i];
-		}
 		assertArray(array, expected);
 	}
 
@@ -241,6 +257,81 @@ public class TestUtil {
 	}
 
 	/**
+	 * Checks array contains exactly given elements in any order, with specific failure information
+	 * if not.
+	 */
+	public static void assertCollection(boolean[] lhs, boolean... expected) {
+		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+	}
+
+	/**
+	 * Checks array contains exactly given elements in any order, with specific failure information
+	 * if not.
+	 */
+	public static void assertCollection(byte[] lhs, byte... expected) {
+		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+	}
+
+	/**
+	 * Checks array contains exactly given elements in any order, with specific failure information
+	 * if not.
+	 */
+	public static void assertCollection(byte[] lhs, int... values) {
+		byte[] expected = new byte[values.length];
+		for (int i = 0; i < values.length; i++)
+			expected[i] = (byte) values[i];
+		assertCollection(lhs, expected);
+	}
+
+	/**
+	 * Checks array contains exactly given elements in any order, with specific failure information
+	 * if not.
+	 */
+	public static void assertCollection(char[] lhs, char... expected) {
+		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+	}
+
+	/**
+	 * Checks array contains exactly given elements in any order, with specific failure information
+	 * if not.
+	 */
+	public static void assertCollection(short[] lhs, short... expected) {
+		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+	}
+
+	/**
+	 * Checks array contains exactly given elements in any order, with specific failure information
+	 * if not.
+	 */
+	public static void assertCollection(int[] lhs, int... expected) {
+		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+	}
+
+	/**
+	 * Checks array contains exactly given elements in any order, with specific failure information
+	 * if not.
+	 */
+	public static void assertCollection(long[] lhs, long... expected) {
+		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+	}
+
+	/**
+	 * Checks array contains exactly given elements in any order, with specific failure information
+	 * if not.
+	 */
+	public static void assertCollection(float[] lhs, float... expected) {
+		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+	}
+
+	/**
+	 * Checks array contains exactly given elements in any order, with specific failure information
+	 * if not.
+	 */
+	public static void assertCollection(double[] lhs, double... expected) {
+		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+	}
+
+	/**
 	 * Checks exact items in any order, with specific failure information if not.
 	 */
 	@SafeVarargs
@@ -266,15 +357,15 @@ public class TestUtil {
 	 * Checks iterable type against given list of items, with specific failure information if not.
 	 */
 	@SafeVarargs
-	public static <T> void assertElements(Iterable<T> lhs, T... ts) {
-		assertElements(lhs, Arrays.asList(ts));
+	public static <T> void assertIterable(Iterable<T> lhs, T... ts) {
+		assertIterable(lhs, Arrays.asList(ts));
 	}
 
 	/**
 	 * Checks two iterable types have equal elements, with specific failure information if not.
 	 * Useful for testing Collections.unmodifiableXXX as they don't implement equals().
 	 */
-	public static <T> void assertElements(Iterable<T> lhs, Iterable<T> rhs) {
+	public static <T> void assertIterable(Iterable<T> lhs, Iterable<T> rhs) {
 		List<T> lhsC = new ArrayList<>();
 		for (T t : lhs)
 			lhsC.add(t);
@@ -282,14 +373,6 @@ public class TestUtil {
 		for (T t : rhs)
 			rhsC.add(t);
 		assertList(lhsC, rhsC);
-	}
-
-	/**
-	 * Checks two arrays are equal, with specific failure information if not.
-	 */
-	@SafeVarargs
-	public static <T> void assertElements(T[] lhs, T... ts) {
-		assertElements(Arrays.asList(lhs), ts);
 	}
 
 	private static void assertSize(String message, long lhsSize, long rhsSize) {

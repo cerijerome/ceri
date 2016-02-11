@@ -1,6 +1,7 @@
-package ceri.common.util;
+package ceri.common.math;
 
 import java.util.Arrays;
+import java.util.stream.DoubleStream;
 
 public class MathUtil {
 	private static final char ZERO = '0';
@@ -11,7 +12,16 @@ public class MathUtil {
 	private MathUtil() {}
 
 	/**
-	 * Too inaccurate for very large or small values.
+	 * Rounds an array of values to the given number of decimal places. Too inaccurate for very
+	 * large or small values.
+	 */
+	public static double[] simpleRound(int places, double... values) {
+		return DoubleStream.of(values).map(d -> simpleRound(d, places)).toArray();
+	}
+
+	/**
+	 * Rounds a value to the given number of decimal places. Too inaccurate for very large or small
+	 * values.
 	 */
 	public static double simpleRound(double value, int places) {
 		if (places > MAX_ROUND_PLACES) throw new IllegalArgumentException("places must be <= " +
@@ -92,35 +102,6 @@ public class MathUtil {
 	public static int compare(int lhs, int rhs) {
 		if (lhs == rhs) return 0;
 		return (lhs > rhs ? 1 : -1);
-	}
-
-	/**
-	 * Factorial value (value!). Double is used as values may be larger than long can handle.
-	 */
-	public static double factorial(long value) {
-		if (value < 0) throw new IllegalArgumentException(value + "! not defined.");
-		if (value == 0) return 1;
-		return value * factorial(value - 1);
-	}
-
-	/**
-	 * Factorial value (value!). Checks and throws exception if factorial value is too big for long
-	 * type.
-	 */
-	public static long longFactorial(long value) {
-		double factorial = factorial(value);
-		if (factorial > Long.MAX_VALUE) throw new IllegalArgumentException(value +
-			"! is larger than long type allows: " + factorial);
-		return (long) factorial;
-	}
-
-	/**
-	 * Returns the value at given index on given level of Pascal's triangle. Defined as: c!/r!(c-r)!
-	 * where level = c, index = r.
-	 */
-	public static long pascal(long level, long index) {
-		if (level < 0 || index < 0 || index > level) return 0;
-		return (long) (factorial(level, index) / factorial(index));
 	}
 
 	/**
@@ -355,14 +336,6 @@ public class MathUtil {
 	 */
 	public static long unsignedInt(int i) {
 		return (0x100000000L + i) & 0xffffffffL;
-	}
-
-	/**
-	 * c!/(c-r)! where value = c, count = r.
-	 */
-	private static double factorial(long value, long count) {
-		if (value == 0 || count == 0) return 1;
-		return value * factorial(value - 1, count - 1);
 	}
 
 }

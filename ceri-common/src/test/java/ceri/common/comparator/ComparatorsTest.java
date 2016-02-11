@@ -1,6 +1,6 @@
 package ceri.common.comparator;
 
-import static ceri.common.test.TestUtil.assertElements;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -23,7 +23,7 @@ public class ComparatorsTest {
 			Comparators.sequence(Comparators.nonNullComparator(), Comparators.STRING);
 		List<String> list = ArrayUtil.asList(null, "2", "1", null);
 		Collections.sort(list, comparator);
-		assertElements(list, null, null, "1", "2");
+		assertIterable(list, null, null, "1", "2");
 	}
 
 	@Test
@@ -82,6 +82,7 @@ public class ComparatorsTest {
 
 	@Test
 	public void testNonNullComparator() {
+		assertThat(Comparators.nonNull(null).compare("A", "B"), is(0));
 		assertThat(Comparators.nonNullComparator().compare("A", "B"), is(0));
 		assertThat(Comparators.nonNullComparator().compare("A", null) > 0, is(true));
 		assertThat(Comparators.nonNullComparator().compare(null, "A") < 0, is(true));

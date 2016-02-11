@@ -102,7 +102,8 @@ public class ToStringHelper {
 	 * Adds values to the string representation. ...(Value1,Value2,...)
 	 */
 	public ToStringHelper values(Object... values) {
-		if (values.length > 0 && this.values.isEmpty()) this.values = new ArrayList<>();
+		if (values.length == 0) return this;
+		if (this.values.isEmpty()) this.values = new ArrayList<>();
 		Collections.addAll(this.values, values);
 		return this;
 	}
@@ -116,17 +117,13 @@ public class ToStringHelper {
 		return this;
 	}
 
-	private ToStringHelper addFields(Field... fields) {
-		if (fields.length > 0 && this.fields.isEmpty()) this.fields = new ArrayList<>();
-		Collections.addAll(this.fields, fields);
-		return this;
-	}
-
 	/**
 	 * Add a key-value field to the string representation. ...[Key=Value]
 	 */
 	public ToStringHelper field(String key, Object value) {
-		return addFields(new Field(key, value));
+		if (this.fields.isEmpty()) this.fields = new ArrayList<>();
+		this.fields.add(new Field(key, value));
+		return this;
 	}
 
 	/**
@@ -183,7 +180,7 @@ public class ToStringHelper {
 	}
 
 	private String stringValue(Object obj) {
-		if (obj != null && (obj instanceof Date)) return dateFormatter().format((Date) obj);
+		if (obj instanceof Date) return dateFormatter().format((Date) obj);
 		return String.valueOf(obj);
 	}
 

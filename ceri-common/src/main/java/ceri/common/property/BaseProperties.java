@@ -29,6 +29,9 @@ public abstract class BaseProperties {
 	protected final String prefix;
 	private final Properties properties;
 
+	/**
+	 * Creates base properties with no prefix from given properties.
+	 */
 	public static BaseProperties from(Properties properties) {
 		return new BaseProperties(properties) {};
 	}
@@ -157,8 +160,8 @@ public abstract class BaseProperties {
 	 * value exists for the key.
 	 */
 	protected boolean booleanValue(boolean def, String... keyParts) {
-		String value = value(keyParts);
-		return value == null ? def : Boolean.valueOf(value);
+		Boolean value = booleanValue(keyParts);
+		return value == null ? def : value;
 	}
 
 	/**
@@ -175,8 +178,8 @@ public abstract class BaseProperties {
 	 * value exists for the key.
 	 */
 	protected char charValue(char def, String... keyParts) {
-		String value = value(keyParts);
-		return value == null ? def : value.charAt(0);
+		Character value = charValue(keyParts);
+		return value == null ? def : value;
 	}
 
 	/**
@@ -401,7 +404,7 @@ public abstract class BaseProperties {
 	}
 
 	private boolean hasPrefix(String key) {
-		return prefix == null || key.startsWith(prefix);
+		return key.startsWith(prefix);
 	}
 
 }

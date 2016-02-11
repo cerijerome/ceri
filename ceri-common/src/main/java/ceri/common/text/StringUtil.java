@@ -54,6 +54,10 @@ public class StringUtil {
 	private static final int INT_HEX_DIGITS = 8;
 	private static final int SHORT_HEX_DIGITS = 4;
 	private static final int BYTE_HEX_DIGITS = 2;
+	private static final int LONG_BINARY_DIGITS = 64;
+	private static final int INT_BINARY_DIGITS = 32;
+	private static final int SHORT_BINARY_DIGITS = 16;
+	private static final int BYTE_BINARY_DIGITS = 8;
 
 	private StringUtil() {}
 
@@ -89,8 +93,7 @@ public class StringUtil {
 		Character c = escaped(escapedChar, ESCAPED_OCTAL, OCTAL_RADIX);
 		if (c == null) c = escaped(escapedChar, ESCAPED_HEX, HEX_RADIX);
 		if (c == null) c = escaped(escapedChar, ESCAPED_UTF16, HEX_RADIX);
-		if (c != null) return c.charValue();
-		throw new IllegalArgumentException("Invalid escaped char: " + escapedChar);
+		return c.charValue();
 	}
 
 	private static Character escaped(String escapedChar, String prefix, int radix) {
@@ -161,7 +164,7 @@ public class StringUtil {
 	}
 
 	/**
-	 * Convenience method to convert an int to a 8-digit hex string.
+	 * Convenience method to convert a byte to a 2-digit hex string.
 	 */
 	public static String toHex(byte b) {
 		return toHex(b, BYTE_HEX_DIGITS);
@@ -175,6 +178,34 @@ public class StringUtil {
 		return toUnsigned(l, HEX_RADIX, digits);
 	}
 
+	/**
+	 * Convenience method to convert a byte to an 8-digit binary string.
+	 */
+	public static String toBinary(byte b) {
+		return toBinary(b, BYTE_BINARY_DIGITS);
+	}
+	
+	/**
+	 * Convenience method to convert a short to a 16-digit binary string.
+	 */
+	public static String toBinary(short s) {
+		return toBinary(s, SHORT_BINARY_DIGITS);
+	}
+	
+	/**
+	 * Convenience method to convert an int to a 32-digit binary string.
+	 */
+	public static String toBinary(int i) {
+		return toBinary(i, INT_BINARY_DIGITS);
+	}
+	
+	/**
+	 * Convenience method to convert a long to a 64-digit binary string.
+	 */
+	public static String toBinary(long l) {
+		return toBinary(l, LONG_BINARY_DIGITS);
+	}
+	
 	/**
 	 * Converts a number to radix-based string with exactly the numbers of specified digits. For
 	 * numbers larger than the digits specified, the most significant digits are dropped.
@@ -235,7 +266,7 @@ public class StringUtil {
 	public static boolean printable(char c) {
 		if (Character.isISOControl(c) || c == KeyEvent.CHAR_UNDEFINED) return false;
 		Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
-		return block != null && block != Character.UnicodeBlock.SPECIALS;
+		return block != Character.UnicodeBlock.SPECIALS;
 	}
 
 	/**
@@ -408,11 +439,6 @@ public class StringUtil {
 			@Override
 			public void write(int b) {
 				s.append((char) b);
-			}
-
-			@Override
-			public void write(byte[] b) {
-				s.append(new String(b));
 			}
 
 			@Override

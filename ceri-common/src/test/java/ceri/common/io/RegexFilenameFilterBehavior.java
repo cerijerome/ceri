@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Pattern;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -50,6 +51,13 @@ public class RegexFilenameFilterBehavior {
 		String[] filenames = helper.root.list(filter);
 		assertCollection(filenames, "a", "b", "c.txt");
 		assertTrue(filter.accept(helper.file("a")));
+	}
+
+	@Test
+	public void testMatchesPattern() {
+		RegexFilenameFilter filter = RegexFilenameFilter.create(Pattern.compile("[ac].*"));
+		String[] filenames = helper.root.list(filter);
+		assertThat(filenames, isArray("a", "c.txt"));
 	}
 
 }

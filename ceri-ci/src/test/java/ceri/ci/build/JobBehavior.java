@@ -1,6 +1,6 @@
 package ceri.ci.build;
 
-import static ceri.common.test.TestUtil.assertElements;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -17,7 +17,7 @@ public class JobBehavior {
 		Event e2 = new Event(Event.Type.failure, 2L);
 		Job job = new Job("test");
 		job.events(e1, e0, e2);
-		assertElements(job.events, e2, e1, e0);
+		assertIterable(job.events, e2, e1, e0);
 	}
 
 	@Test
@@ -42,7 +42,7 @@ public class JobBehavior {
 		Job job2 = new Job("test");
 		job2.events(e3, e4, e5, e6, e7);
 		job.purge();
-		assertElements(job.events, job2.events);
+		assertIterable(job.events, job2.events);
 	}
 
 	@Test
@@ -54,7 +54,7 @@ public class JobBehavior {
 		job.events(Event.failure());
 		Job job2 = new Job(job);
 		job.purge();
-		assertElements(job.events, job2.events);
+		assertIterable(job.events, job2.events);
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class JobBehavior {
 		job1.events(Event.failure());
 		Job job2 = new Job(job1);
 		assertThat(job1.name, is(job2.name));
-		assertElements(job1.events, job2.events);
+		assertIterable(job1.events, job2.events);
 		assertTrue(job1.events != job2.events);
 	}
 

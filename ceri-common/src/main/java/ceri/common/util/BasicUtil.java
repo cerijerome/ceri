@@ -151,13 +151,17 @@ public class BasicUtil {
 	 */
 	public static <T> Class<T> forceInit(Class<T> cls) {
 		if (loadedClasses.containsKey(cls)) return cls;
-		try {
-			Class.forName(cls.getName(), true, cls.getClassLoader());
-			loadedClasses.put(cls, null);
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException("Cannot find Class<?> " + cls, e);
-		}
+		load(cls.getName(), cls.getClassLoader());
+		loadedClasses.put(cls, null);
 		return cls;
+	}
+
+	static void load(String className, ClassLoader classLoader) {
+		try {
+			Class.forName(className, true, classLoader);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException("Cannot find Class<?> " + className, e);
+		}
 	}
 
 }

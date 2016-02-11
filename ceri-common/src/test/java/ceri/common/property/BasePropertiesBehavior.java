@@ -1,19 +1,29 @@
 package ceri.common.property;
 
 import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class BasePropertiesBehavior {
 	private static Properties properties = new Properties();
+
+	private static enum E {
+		A,
+		AB,
+		ABC;
+	}
 
 	@BeforeClass
 	public static void createProperties() {
@@ -41,7 +51,7 @@ public class BasePropertiesBehavior {
 		assertCollection(bp.descendants(), "a", "b", "b.c", "b.c.d", "b.d");
 		assertCollection(bp.descendants("b"), "c", "c.d", "d");
 	}
-	
+
 	@Test
 	public void shouldReturnChildren() {
 		BaseProperties bp = new BaseProperties(properties) {};
@@ -51,7 +61,7 @@ public class BasePropertiesBehavior {
 		assertCollection(bp.children(), "a", "b");
 		assertCollection(bp.children("b"), "c", "d");
 	}
-	
+
 	@Test
 	public void shouldReturnChildIds() {
 		BaseProperties bp = new BaseProperties(properties) {};
@@ -64,13 +74,31 @@ public class BasePropertiesBehavior {
 		bp = new BaseProperties(properties, "m.n") {};
 		assertCollection(bp.childIds(""), 0, 1, 2);
 	}
-	
+
+	@Test
+	public void shouldReadCommaSeparatedValues() {
+		BaseProperties bp = BaseProperties.from(properties);
+		assertIterable(bp.values(s -> s.length(), "y"), 3, 2, 1);
+		assertIterable(bp.values(Collections.singleton(999), s -> s.length(), "xx"), 999);
+	}
+
+	@Test
+	public void shouldReadEnums() {
+		BaseProperties bp = BaseProperties.from(properties);
+		assertThat(bp.enumValue(E.class, "a.b"), is(E.AB));
+		assertThat(bp.enumValue(E.class, E.A, "a.b"), is(E.AB));
+		assertThat(bp.enumValue(E.class, E.A, "xx"), is(E.A));
+		assertException(() -> bp.enumValue(E.class, "a.b.c"));
+	}
+
 	@Test
 	public void shouldReadValues() {
 		BaseProperties bp = new BaseProperties(properties) {};
 		assertThat(bp.stringValue("", "a"), is("A"));
 		assertThat(bp.booleanValue("a"), is(false));
 		assertThat(bp.booleanValue(true, "a"), is(false));
+		assertThat(bp.byteValue("a.b.c"), is((byte) 3));
+		assertThat(bp.byteValue((byte) 0, "a.b.c"), is((byte) 3));
 		assertThat(bp.charValue("a"), is('A'));
 		assertThat(bp.charValue('B', "a"), is('A'));
 		assertThat(bp.shortValue("a.b.c"), is((short) 3));
@@ -83,6 +111,8 @@ public class BasePropertiesBehavior {
 		assertThat(bp.floatValue(1.0f, "a.b.c"), is(3.0f));
 		assertThat(bp.doubleValue("a.b.c"), is(3.0));
 		assertThat(bp.doubleValue(1.0, "a.b.c"), is(3.0));
+		assertThat(bp.fileValue("m.n.0.b.c.d"), is(new File("mn0bcd")));
+		assertThat(bp.fileValue(new File("a"), "m.n.0.b.c.d"), is(new File("mn0bcd")));
 	}
 
 	@Test
@@ -139,6 +169,9 @@ public class BasePropertiesBehavior {
 		BaseProperties bp = new BaseProperties(properties, "a") {};
 		assertThat(bp.key("b.c"), is("a.b.c"));
 		assertCollection(bp.keys(), "a.b.c.d", "a.b.c", "a.b", "a");
+		bp = new BaseProperties(properties) {};
+		assertThat(bp.key("a.b"), is("a.b"));
+		assertCollection(bp.keys(), properties.keySet());
 	}
 
 	@Test
@@ -160,6 +193,7 @@ public class BasePropertiesBehavior {
 		assertThat(bp.longValue(Long.MIN_VALUE, "xx"), is(Long.MIN_VALUE));
 		assertThat(bp.floatValue(Float.MIN_VALUE, "xx"), is(Float.MIN_VALUE));
 		assertThat(bp.doubleValue(Double.MIN_VALUE, "xx"), is(Double.MIN_VALUE));
+		assertThat(bp.fileValue(new File("a"), "xx"), is(new File("a")));
 	}
 
 	@Test

@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.awt.event.KeyEvent;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
 import ceri.common.text.StringUtil.Align;
@@ -28,8 +29,9 @@ public class StringUtilTest {
 		assertThat(StringUtil.unEscape("xyz\\u0000\\u1234"), is("xyz\0\u1234"));
 		assertThat(StringUtil.unEscape("\\x0\\u0\\u00\\u000"), is("\\x0\\u0\\u00\\u000"));
 		assertThat(StringUtil.unEscape("\\0777"), is("?7"));
+		assertThat(StringUtil.unEscape("\\\\\\\\\\\\"), is("\\\\\\"));
 	}
-	
+
 	@Test
 	public void testReplaceAll() {
 		String s = "abcdefghijklmnopqrstuvwxyz";
@@ -42,6 +44,9 @@ public class StringUtilTest {
 		byte[] bb = { 0, -1, 1, Byte.MAX_VALUE, Byte.MIN_VALUE };
 		assertThat(StringUtil.toHex(bb), is("[0x00, 0xff, 0x01, 0x7f, 0x80]"));
 		assertThat(StringUtil.toHex(new byte[] {}), is("[]"));
+		assertThat(StringUtil.toHex(Long.MAX_VALUE), is("7fffffffffffffff"));
+		assertThat(StringUtil.toHex(Integer.MAX_VALUE), is("7fffffff"));
+		assertThat(StringUtil.toHex(Short.MAX_VALUE), is("7fff"));
 	}
 
 	@Test
@@ -49,6 +54,16 @@ public class StringUtilTest {
 		byte[] bb = { 0, -1, 1, Byte.MAX_VALUE, Byte.MIN_VALUE };
 		assertThat(StringUtil.toSingleHex(bb), is("0x00ff017f80"));
 		assertThat(StringUtil.toSingleHex(new byte[] {}), is(""));
+	}
+
+	@Test
+	public void testToBinary() {
+		assertThat(StringUtil.toBinary(255, 8), is("11111111"));
+		assertThat(StringUtil.toBinary(Byte.MIN_VALUE), is("10000000"));
+		assertThat(StringUtil.toBinary(Short.MAX_VALUE), is("0111111111111111"));
+		assertThat(StringUtil.toBinary(-1), is("11111111111111111111111111111111"));
+		assertThat(StringUtil.toBinary(Long.MAX_VALUE),
+			is("0111111111111111111111111111111111111111111111111111111111111111"));
 	}
 
 	@Test
@@ -74,6 +89,9 @@ public class StringUtilTest {
 	public void testPrintable() {
 		assertThat(StringUtil.printable(KeyEvent.CHAR_UNDEFINED), is(false));
 		assertThat(StringUtil.printable('\uffff'), is(false));
+		assertThat(StringUtil.printable('\u1c00'), is(true));
+		assertThat(StringUtil.printable(Character.MAX_HIGH_SURROGATE), is(true));
+		assertThat(StringUtil.printable('\0'), is(false));
 	}
 
 	@Test
@@ -98,6 +116,8 @@ public class StringUtilTest {
 		assertThat(toString, is("{Test}"));
 		toString = StringUtil.toString("{", "}", "|", Collections.singleton("Test"));
 		assertThat(toString, is("{Test}"));
+		toString = StringUtil.toString("|", Arrays.asList(1, 2, 3));
+		assertThat(toString, is("1|2|3"));
 	}
 
 	@Test
@@ -118,6 +138,7 @@ public class StringUtilTest {
 			is("\u1fffhello\u2fff\u3fff\u3fff\u3fff"));
 		assertThat(StringUtil.pad(null, 5, "aa", Align.LEFT), is("aaaa"));
 		assertThat(StringUtil.pad("aaa", 5, null, Align.LEFT), is("aaa"));
+		assertThat(StringUtil.pad("aaa", 5, Align.CENTER), is(" aaa "));
 	}
 
 	@Test
@@ -147,7 +168,8 @@ public class StringUtilTest {
 	@Test
 	public void testCount() {
 		assertThat(StringUtil.count("abcaaabbbccc", 'a'), is(4));
-		assertThat(StringUtil.count("abcaaabbbccc", 'a'), is(4));
+		assertThat(StringUtil.count("AAAAAAaa", 'a'), is(2));
+		assertThat(StringUtil.count("AAAAAAaa", "a"), is(2));
 		assertThat(StringUtil.count("", 'a'), is(0));
 		assertThat(StringUtil.count("", ""), is(0));
 		assertThat(StringUtil.count("a", ""), is(0));

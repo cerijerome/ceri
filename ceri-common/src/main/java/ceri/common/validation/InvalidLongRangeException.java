@@ -24,7 +24,7 @@ public class InvalidLongRangeException extends IllegalArgumentException {
 	}
 
 	public static InvalidLongRangeException max(long value, long max) {
-		return max(value, max);
+		return max(value, max, NO_NAME);
 	}
 
 	public static InvalidLongRangeException max(long value, long max, String name) {

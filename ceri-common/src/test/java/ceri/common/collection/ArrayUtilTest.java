@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.isClass;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -47,6 +48,12 @@ public class ArrayUtilTest {
 		ArrayUtil.arrayType(boolean.class); // Primitive types not allowed
 	}
 
+	@Test
+	public void testToList() {
+		List<Integer> list = ArrayUtil.toList(s -> s.length(), "A", "ABC", "BC");
+		assertIterable(list, 1, 3, 2);
+	}
+	
 	@Test
 	public void testAsList() {
 		List<Integer> list = ArrayUtil.asList(1, 2, 3);

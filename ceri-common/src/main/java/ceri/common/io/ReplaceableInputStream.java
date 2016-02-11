@@ -12,7 +12,7 @@ import ceri.common.event.Listeners;
  */
 public class ReplaceableInputStream extends InputStream implements Listenable<IOException> {
 	private final Listeners<IOException> listeners = new Listeners<>();
-	private volatile InputStream in;
+	private volatile InputStream in = null;
 
 	@Override
 	public boolean listen(Consumer<? super IOException> listener) {
@@ -85,8 +85,7 @@ public class ReplaceableInputStream extends InputStream implements Listenable<IO
 
 	@Override
 	public void close() throws IOException {
-		checkState();
-		in.close();
+		if (in != null) in.close();
 	}
 
 	@Override

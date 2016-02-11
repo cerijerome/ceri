@@ -24,7 +24,7 @@ public class InvalidDoubleRangeException extends IllegalArgumentException {
 	}
 
 	public static InvalidDoubleRangeException max(double value, double max) {
-		return max(value, max);
+		return max(value, max, NO_NAME);
 	}
 
 	public static InvalidDoubleRangeException max(double value, double max, String name) {
@@ -49,8 +49,7 @@ public class InvalidDoubleRangeException extends IllegalArgumentException {
 	private static String message(double value, Double min, Double max, String name) {
 		StringBuilder b = new StringBuilder();
 		b.append(name).append(" must be ");
-		if (min == max) b.append(max);
-		else if (min == null) b.append("<= ").append(max);
+		if (min == null) b.append("<= ").append(max);
 		else if (max == null) b.append(">= ").append(min);
 		else if (min.equals(max)) b.append(max);
 		else b.append(min).append('-').append(max);

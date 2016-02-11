@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -23,6 +24,28 @@ public class ImmutableUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ImmutableUtil.class);
+	}
+
+	private static enum E {
+		A,
+		ABC,
+		BC;
+	}
+
+	@Test
+	public void testEnumMap() {
+		Map<Integer, E> map = ImmutableUtil.enumMap(e -> e.name().length(), E.class);
+		assertImmutableMap(map);
+		assertCollection(map.keySet(), 1, 3, 2);
+		assertCollection(map.values(), E.A, E.ABC, E.BC);
+	}
+
+	@Test
+	public void testConvertAsMap() {
+		Map<String, Integer> map = ImmutableUtil.convertAsMap(i -> String.valueOf(i), 1, 3, 2);
+		assertImmutableMap(map);
+		assertCollection(map.keySet(), "1", "3", "2");
+		assertCollection(map.values(), 1, 3, 2);
 	}
 
 	@Test

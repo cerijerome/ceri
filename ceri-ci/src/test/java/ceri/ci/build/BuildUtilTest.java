@@ -3,7 +3,7 @@ package ceri.ci.build;
 import static ceri.ci.build.BuildTestUtil.assertBuildNames;
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertElements;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
@@ -59,10 +59,10 @@ public class BuildUtilTest {
 		assertBuildNames(builds.builds, "b0", "b1");
 		assertJobNames(builds.build("b0").jobs, "j0", "j1");
 		assertJobNames(builds.build("b1").jobs, "j0");
-		assertElements(builds.build("b0").job("j0").events, new Event(Event.Type.success, 6L),
+		assertIterable(builds.build("b0").job("j0").events, new Event(Event.Type.success, 6L),
 			new Event(Event.Type.failure, 3L, "c1", "c2", "c3", "d1", "e1", "e2", "e3", "e4"));
 		assertTrue(builds.build("b0").job("j1").events.isEmpty());
-		assertElements(builds.build("b1").job("j0").events, new Event(Event.Type.failure, 0L, "c1",
+		assertIterable(builds.build("b1").job("j0").events, new Event(Event.Type.failure, 0L, "c1",
 			"c2", "c3", "d1"));
 	}
 

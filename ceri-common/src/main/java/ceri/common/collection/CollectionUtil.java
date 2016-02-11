@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import ceri.common.comparator.Comparators;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -48,16 +49,16 @@ public class CollectionUtil {
 	/**
 	 * Transforms a map's keys.
 	 */
-	public static <K, T, U> Map<K, U> transformKeys(
-		Function<? super T, ? extends K> keyMapper, Map<T, U> map) {
+	public static <K, T, U> Map<K, U> transformKeys(Function<? super T, ? extends K> keyMapper,
+		Map<T, U> map) {
 		return transform(keyMapper, v -> v, map);
 	}
 
 	/**
 	 * Transforms a map's values.
 	 */
-	public static <K, V, U> Map<K, V> transformValues(
-		Function<? super U, ? extends V> valueMapper, Map<K, U> map) {
+	public static <K, V, U> Map<K, V> transformValues(Function<? super U, ? extends V> valueMapper,
+		Map<K, U> map) {
 		return transform(k -> k, valueMapper, map);
 	}
 
@@ -109,8 +110,10 @@ public class CollectionUtil {
 	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
 		Map<K, V> result = new LinkedHashMap<>();
 		Stream<Entry<K, V>> stream = map.entrySet().stream();
-		stream.sorted(Comparator.comparing(e -> e.getValue())).forEach(
-			e -> result.put(e.getKey(), e.getValue()));
+		Comparator<V> comparator = Comparators.comparable();
+		Comparator<Entry<K, V>> entryComparator = (e1, e2) -> comparator.compare(
+			e1.getValue(), e2.getValue());
+		stream.sorted(entryComparator).forEach(e -> result.put(e.getKey(), e.getValue()));
 		return result;
 	}
 

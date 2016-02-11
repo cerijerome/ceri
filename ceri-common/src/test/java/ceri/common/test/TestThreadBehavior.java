@@ -40,7 +40,7 @@ public class TestThreadBehavior {
 		});
 		thread.start();
 		try {
-			thread.stop();
+			thread.stop(1000);
 			fail();
 		} catch (Throwable e) {
 			assertTrue(e.getCause() instanceof InterruptedException);

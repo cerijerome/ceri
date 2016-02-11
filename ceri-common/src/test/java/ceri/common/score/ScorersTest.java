@@ -23,6 +23,7 @@ public class ScorersTest {
 		assertThat(Scorers.score(0f), is(0.0));
 		assertThat(Scorers.score((byte) 100), is(100.0));
 		assertThat(Scorers.score(Long.MAX_VALUE), is((double) Long.MAX_VALUE));
+		assertThat(Scorers.nonNull(null).score(1), is(0.0));
 	}
 
 	@Test

@@ -1,6 +1,6 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.assertElements;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -16,96 +16,96 @@ public class TextUtilTest {
 
 	@Test
 	public void testToWordsWithSpaces() {
-		assertElements(TextUtil.toWords(""));
-		assertElements(TextUtil.toWords("  "));
+		assertIterable(TextUtil.toWords(""));
+		assertIterable(TextUtil.toWords("  "));
 
-		assertElements(TextUtil.toWords("a "), "a");
-		assertElements(TextUtil.toWords(" a"), "a");
-		assertElements(TextUtil.toWords("A "), "A");
-		assertElements(TextUtil.toWords(" A"), "A");
+		assertIterable(TextUtil.toWords("a "), "a");
+		assertIterable(TextUtil.toWords(" a"), "a");
+		assertIterable(TextUtil.toWords("A "), "A");
+		assertIterable(TextUtil.toWords(" A"), "A");
 
-		assertElements(TextUtil.toWords("a b"), "a", "b");
-		assertElements(TextUtil.toWords(" ab"), "ab");
-		assertElements(TextUtil.toWords("A b"), "A", "b");
-		assertElements(TextUtil.toWords(" Ab"), "Ab");
-		assertElements(TextUtil.toWords("a B"), "a", "B");
-		assertElements(TextUtil.toWords(" aB"), "a", "B");
-		assertElements(TextUtil.toWords("A B"), "A", "B");
-		assertElements(TextUtil.toWords(" AB"), "AB");
+		assertIterable(TextUtil.toWords("a b"), "a", "b");
+		assertIterable(TextUtil.toWords(" ab"), "ab");
+		assertIterable(TextUtil.toWords("A b"), "A", "b");
+		assertIterable(TextUtil.toWords(" Ab"), "Ab");
+		assertIterable(TextUtil.toWords("a B"), "a", "B");
+		assertIterable(TextUtil.toWords(" aB"), "a", "B");
+		assertIterable(TextUtil.toWords("A B"), "A", "B");
+		assertIterable(TextUtil.toWords(" AB"), "AB");
 	}
 
 	@Test
 	public void testToWordsWithUnderscores() {
-		assertElements(TextUtil.toWords("_"));
-		assertElements(TextUtil.toWords("__"));
-		assertElements(TextUtil.toWords("__ _ "));
+		assertIterable(TextUtil.toWords("_"));
+		assertIterable(TextUtil.toWords("__"));
+		assertIterable(TextUtil.toWords("__ _ "));
 
-		assertElements(TextUtil.toWords("a_"), "a");
-		assertElements(TextUtil.toWords("_a"), "a");
-		assertElements(TextUtil.toWords("A_"), "A");
-		assertElements(TextUtil.toWords("_A"), "A");
+		assertIterable(TextUtil.toWords("a_"), "a");
+		assertIterable(TextUtil.toWords("_a"), "a");
+		assertIterable(TextUtil.toWords("A_"), "A");
+		assertIterable(TextUtil.toWords("_A"), "A");
 
-		assertElements(TextUtil.toWords("a_b"), "a", "b");
-		assertElements(TextUtil.toWords("_ab"), "ab");
-		assertElements(TextUtil.toWords("A_b"), "A", "b");
-		assertElements(TextUtil.toWords("_Ab"), "Ab");
-		assertElements(TextUtil.toWords("a_B"), "a", "B");
-		assertElements(TextUtil.toWords("_aB"), "a", "B");
-		assertElements(TextUtil.toWords("A_B"), "A", "B");
-		assertElements(TextUtil.toWords("_AB"), "AB");
+		assertIterable(TextUtil.toWords("a_b"), "a", "b");
+		assertIterable(TextUtil.toWords("_ab"), "ab");
+		assertIterable(TextUtil.toWords("A_b"), "A", "b");
+		assertIterable(TextUtil.toWords("_Ab"), "Ab");
+		assertIterable(TextUtil.toWords("a_B"), "a", "B");
+		assertIterable(TextUtil.toWords("_aB"), "a", "B");
+		assertIterable(TextUtil.toWords("A_B"), "A", "B");
+		assertIterable(TextUtil.toWords("_AB"), "AB");
 	}
 
 	@Test
 	public void testToWordsWithLettersAndNumbers() {
-		assertElements(TextUtil.toWords("a1"), "a", "1");
-		assertElements(TextUtil.toWords("1a"), "1a");
-		assertElements(TextUtil.toWords("A1"), "A1");
-		assertElements(TextUtil.toWords("1A"), "1", "A");
-		assertElements(TextUtil.toWords("a1b"), "a", "1b");
-		assertElements(TextUtil.toWords("1ab"), "1ab");
-		assertElements(TextUtil.toWords("A1b"), "A1b");
-		assertElements(TextUtil.toWords("1Ab"), "1", "Ab");
-		assertElements(TextUtil.toWords("a1B"), "a", "1", "B");
-		assertElements(TextUtil.toWords("1aB"), "1a", "B");
-		assertElements(TextUtil.toWords("A1B"), "A1", "B");
-		assertElements(TextUtil.toWords("1AB"), "1", "AB");
+		assertIterable(TextUtil.toWords("a1"), "a", "1");
+		assertIterable(TextUtil.toWords("1a"), "1a");
+		assertIterable(TextUtil.toWords("A1"), "A1");
+		assertIterable(TextUtil.toWords("1A"), "1", "A");
+		assertIterable(TextUtil.toWords("a1b"), "a", "1b");
+		assertIterable(TextUtil.toWords("1ab"), "1ab");
+		assertIterable(TextUtil.toWords("A1b"), "A1b");
+		assertIterable(TextUtil.toWords("1Ab"), "1", "Ab");
+		assertIterable(TextUtil.toWords("a1B"), "a", "1", "B");
+		assertIterable(TextUtil.toWords("1aB"), "1a", "B");
+		assertIterable(TextUtil.toWords("A1B"), "A1", "B");
+		assertIterable(TextUtil.toWords("1AB"), "1", "AB");
 	}
 
 	@Test
 	public void testToWordsWithLetters() {
-		assertElements(TextUtil.toWords("a"), "a");
-		assertElements(TextUtil.toWords("A"), "A");
+		assertIterable(TextUtil.toWords("a"), "a");
+		assertIterable(TextUtil.toWords("A"), "A");
 
-		assertElements(TextUtil.toWords("ab"), "ab");
-		assertElements(TextUtil.toWords("Ab"), "Ab");
-		assertElements(TextUtil.toWords("aB"), "a", "B");
-		assertElements(TextUtil.toWords("AB"), "AB");
+		assertIterable(TextUtil.toWords("ab"), "ab");
+		assertIterable(TextUtil.toWords("Ab"), "Ab");
+		assertIterable(TextUtil.toWords("aB"), "a", "B");
+		assertIterable(TextUtil.toWords("AB"), "AB");
 
-		assertElements(TextUtil.toWords("abc"), "abc");
-		assertElements(TextUtil.toWords("Abc"), "Abc");
-		assertElements(TextUtil.toWords("aBc"), "a", "Bc");
-		assertElements(TextUtil.toWords("ABc"), "A", "Bc");
-		assertElements(TextUtil.toWords("abC"), "ab", "C");
-		assertElements(TextUtil.toWords("AbC"), "Ab", "C");
-		assertElements(TextUtil.toWords("aBC"), "a", "BC");
-		assertElements(TextUtil.toWords("ABC"), "ABC");
+		assertIterable(TextUtil.toWords("abc"), "abc");
+		assertIterable(TextUtil.toWords("Abc"), "Abc");
+		assertIterable(TextUtil.toWords("aBc"), "a", "Bc");
+		assertIterable(TextUtil.toWords("ABc"), "A", "Bc");
+		assertIterable(TextUtil.toWords("abC"), "ab", "C");
+		assertIterable(TextUtil.toWords("AbC"), "Ab", "C");
+		assertIterable(TextUtil.toWords("aBC"), "a", "BC");
+		assertIterable(TextUtil.toWords("ABC"), "ABC");
 
-		assertElements(TextUtil.toWords("abcd"), "abcd");
-		assertElements(TextUtil.toWords("Abcd"), "Abcd");
-		assertElements(TextUtil.toWords("aBcd"), "a", "Bcd");
-		assertElements(TextUtil.toWords("ABcd"), "A", "Bcd");
-		assertElements(TextUtil.toWords("abCd"), "ab", "Cd");
-		assertElements(TextUtil.toWords("AbCd"), "Ab", "Cd");
-		assertElements(TextUtil.toWords("aBCd"), "a", "B", "Cd");
-		assertElements(TextUtil.toWords("ABCd"), "AB", "Cd");
-		assertElements(TextUtil.toWords("abcD"), "abc", "D");
-		assertElements(TextUtil.toWords("AbcD"), "Abc", "D");
-		assertElements(TextUtil.toWords("aBcD"), "a", "Bc", "D");
-		assertElements(TextUtil.toWords("ABcD"), "A", "Bc", "D");
-		assertElements(TextUtil.toWords("abCD"), "ab", "CD");
-		assertElements(TextUtil.toWords("AbCD"), "Ab", "CD");
-		assertElements(TextUtil.toWords("aBCD"), "a", "BCD");
-		assertElements(TextUtil.toWords("ABCD"), "ABCD");
+		assertIterable(TextUtil.toWords("abcd"), "abcd");
+		assertIterable(TextUtil.toWords("Abcd"), "Abcd");
+		assertIterable(TextUtil.toWords("aBcd"), "a", "Bcd");
+		assertIterable(TextUtil.toWords("ABcd"), "A", "Bcd");
+		assertIterable(TextUtil.toWords("abCd"), "ab", "Cd");
+		assertIterable(TextUtil.toWords("AbCd"), "Ab", "Cd");
+		assertIterable(TextUtil.toWords("aBCd"), "a", "B", "Cd");
+		assertIterable(TextUtil.toWords("ABCd"), "AB", "Cd");
+		assertIterable(TextUtil.toWords("abcD"), "abc", "D");
+		assertIterable(TextUtil.toWords("AbcD"), "Abc", "D");
+		assertIterable(TextUtil.toWords("aBcD"), "a", "Bc", "D");
+		assertIterable(TextUtil.toWords("ABcD"), "A", "Bc", "D");
+		assertIterable(TextUtil.toWords("abCD"), "ab", "CD");
+		assertIterable(TextUtil.toWords("AbCD"), "Ab", "CD");
+		assertIterable(TextUtil.toWords("aBCD"), "a", "BCD");
+		assertIterable(TextUtil.toWords("ABCD"), "ABCD");
 	}
 
 	@Test

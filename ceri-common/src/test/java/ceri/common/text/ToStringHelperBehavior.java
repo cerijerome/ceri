@@ -5,9 +5,8 @@ import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
-import ceri.common.text.StringUtil;
-import ceri.common.text.ToStringHelper;
 
 public class ToStringHelperBehavior {
 
@@ -21,6 +20,8 @@ public class ToStringHelperBehavior {
 	public void shouldShowValues() {
 		String toString = ToStringHelper.create("Test", "Value1", "Value2").toString();
 		assertThat(toString, is("Test(Value1,Value2)"));
+		toString = ToStringHelper.create("Test").values().values("v1").values("v2").toString();
+		assertThat(toString, is("Test(v1,v2)"));
 	}
 
 	@Test
@@ -36,8 +37,11 @@ public class ToStringHelperBehavior {
 		Date date = new Date(0);
 		TimeZone utc = TimeZone.getTimeZone("UTC");
 		String toString =
-			ToStringHelper.create("Test", date).dateFormat("yyyy", utc).toString();
-		assertThat(toString, is("Test(1970)"));
+			ToStringHelper.create("Test", date).fields(date).dateFormat("yyyy", utc).toString();
+		assertThat(toString, is("Test(1970)[1970]"));
+		date = new Date(TimeUnit.DAYS.toMillis(100));
+		toString = ToStringHelper.create("Test", date).fields(date).dateFormat("yyyy").toString();
+		assertThat(toString, is("Test(1970)[1970]"));
 	}
 
 	@Test
@@ -54,8 +58,9 @@ public class ToStringHelperBehavior {
 
 	@Test
 	public void shouldUseClassNameFieldKeyIfSpecified() {
-		String toString = ToStringHelper.create("Test").fieldsByClass("Field").toString();
-		assertThat(toString, is("Test[String=Field]"));
+		String toString = ToStringHelper.create("Test").fieldsByClass("Field") //
+			.fieldsByClass((Object) null).toString();
+		assertThat(toString, is("Test[String=Field,null]"));
 	}
 
 	@Test

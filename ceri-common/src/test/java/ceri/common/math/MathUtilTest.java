@@ -1,11 +1,10 @@
-package ceri.common.util;
+package ceri.common.math;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -110,18 +109,9 @@ public class MathUtilTest {
 	}
 
 	@Test
-	public void testFactorial() {
-		assertThat(MathUtil.factorial(0), is(1.0));
-		assertEquals(9.33262e157, MathUtil.factorial(100), 0.00001e157);
-		assertException(() -> MathUtil.factorial(-1));
-		assertException(() -> MathUtil.longFactorial(21));
-		assertThat(MathUtil.longFactorial(20), is(2432902008176640000L));
-	}
-
-	@Test
 	public void testIncrementByte() {
 		byte[] b = { Byte.MAX_VALUE, Byte.MIN_VALUE };
-		assertThat(MathUtil.increment(b, (byte)0), is(b));
+		assertThat(MathUtil.increment(b, (byte) 0), is(b));
 		assertArray(b, new byte[] { Byte.MAX_VALUE, Byte.MIN_VALUE });
 		assertThat(MathUtil.increment(b, Byte.MIN_VALUE), is(b));
 		assertArray(b, new byte[] { -1, 0 });
@@ -130,7 +120,7 @@ public class MathUtilTest {
 	@Test
 	public void testIncrementShort() {
 		short[] s = { Short.MAX_VALUE, Short.MIN_VALUE };
-		assertThat(MathUtil.increment(s, (short)0), is(s));
+		assertThat(MathUtil.increment(s, (short) 0), is(s));
 		assertArray(s, new short[] { Short.MAX_VALUE, Short.MIN_VALUE });
 		assertThat(MathUtil.increment(s, Short.MIN_VALUE), is(s));
 		assertArray(s, new short[] { -1, 0 });
@@ -175,22 +165,22 @@ public class MathUtilTest {
 	@Test
 	public void testMaxAndMinByte() {
 		byte[] b = { Byte.MAX_VALUE, -1, 0, 1, Byte.MIN_VALUE };
-		assertThat(MathUtil.max(new byte[0]), is((byte)0));
-		assertThat(MathUtil.max((byte[])null), is((byte)0));
+		assertThat(MathUtil.max(new byte[0]), is((byte) 0));
+		assertThat(MathUtil.max((byte[]) null), is((byte) 0));
 		assertThat(MathUtil.max(b), is(Byte.MAX_VALUE));
-		assertThat(MathUtil.min(new byte[0]), is((byte)0));
-		assertThat(MathUtil.min((byte[])null), is((byte)0));
+		assertThat(MathUtil.min(new byte[0]), is((byte) 0));
+		assertThat(MathUtil.min((byte[]) null), is((byte) 0));
 		assertThat(MathUtil.min(b), is(Byte.MIN_VALUE));
 	}
 
 	@Test
 	public void testMaxAndMinShort() {
 		short[] s = { Short.MIN_VALUE, -1, 0, 1, Short.MAX_VALUE };
-		assertThat(MathUtil.max(new short[0]), is((short)0));
-		assertThat(MathUtil.max((short[])null), is((short)0));
+		assertThat(MathUtil.max(new short[0]), is((short) 0));
+		assertThat(MathUtil.max((short[]) null), is((short) 0));
 		assertThat(MathUtil.max(s), is(Short.MAX_VALUE));
-		assertThat(MathUtil.min(new short[0]), is((short)0));
-		assertThat(MathUtil.min((short[])null), is((short)0));
+		assertThat(MathUtil.min(new short[0]), is((short) 0));
+		assertThat(MathUtil.min((short[]) null), is((short) 0));
 		assertThat(MathUtil.min(s), is(Short.MIN_VALUE));
 	}
 
@@ -198,21 +188,21 @@ public class MathUtilTest {
 	public void testMaxAndMinInt() {
 		int[] i = { Integer.MAX_VALUE, -1, 0, 1, Integer.MIN_VALUE };
 		assertThat(MathUtil.max(new int[0]), is(0));
-		assertThat(MathUtil.max((int[])null), is(0));
+		assertThat(MathUtil.max((int[]) null), is(0));
 		assertThat(MathUtil.max(i), is(Integer.MAX_VALUE));
 		assertThat(MathUtil.min(new int[0]), is(0));
-		assertThat(MathUtil.min((int[])null), is(0));
+		assertThat(MathUtil.min((int[]) null), is(0));
 		assertThat(MathUtil.min(i), is(Integer.MIN_VALUE));
 	}
 
 	@Test
 	public void testMaxAndMinLong() {
 		long[] l = { Long.MIN_VALUE, -1, 0, 1, Long.MAX_VALUE };
-		assertThat(MathUtil.max(new long[0]), is((long)0));
-		assertThat(MathUtil.max((long[])null), is((long)0));
+		assertThat(MathUtil.max(new long[0]), is((long) 0));
+		assertThat(MathUtil.max((long[]) null), is((long) 0));
 		assertThat(MathUtil.max(l), is(Long.MAX_VALUE));
-		assertThat(MathUtil.min(new long[0]), is((long)0));
-		assertThat(MathUtil.min((long[])null), is((long)0));
+		assertThat(MathUtil.min(new long[0]), is((long) 0));
+		assertThat(MathUtil.min((long[]) null), is((long) 0));
 		assertThat(MathUtil.min(l), is(Long.MIN_VALUE));
 	}
 
@@ -220,40 +210,23 @@ public class MathUtilTest {
 	public void testMaxAndMinDouble() {
 		double[] d =
 			{ -Double.MAX_VALUE, Double.MAX_VALUE, -1, 0, 1, Double.MIN_VALUE, Double.NaN };
-		assertThat(MathUtil.max(new double[0]), is((double)0));
-		assertThat(MathUtil.max((double[])null), is((double)0));
+		assertThat(MathUtil.max(new double[0]), is((double) 0));
+		assertThat(MathUtil.max((double[]) null), is((double) 0));
 		assertThat(MathUtil.max(d), is(Double.MAX_VALUE));
-		assertThat(MathUtil.min(new double[0]), is((double)0));
-		assertThat(MathUtil.min((double[])null), is((double)0));
+		assertThat(MathUtil.min(new double[0]), is((double) 0));
+		assertThat(MathUtil.min((double[]) null), is((double) 0));
 		assertThat(MathUtil.min(d), is(-Double.MAX_VALUE));
 	}
 
 	@Test
 	public void testMaxAndMinFloat() {
 		float[] f = { -Float.MAX_VALUE, Float.MAX_VALUE, -1, 0, 1, Float.MIN_VALUE, Float.NaN };
-		assertThat(MathUtil.max(new float[0]), is((float)0));
-		assertThat(MathUtil.max((float[])null), is((float)0));
+		assertThat(MathUtil.max(new float[0]), is((float) 0));
+		assertThat(MathUtil.max((float[]) null), is((float) 0));
 		assertThat(MathUtil.max(f), is(Float.MAX_VALUE));
-		assertThat(MathUtil.min(new float[0]), is((float)0));
-		assertThat(MathUtil.min((float[])null), is((float)0));
+		assertThat(MathUtil.min(new float[0]), is((float) 0));
+		assertThat(MathUtil.min((float[]) null), is((float) 0));
 		assertThat(MathUtil.min(f), is(-Float.MAX_VALUE));
-	}
-
-	@Test
-	public void testPascal() {
-		assertThat(MathUtil.pascal(0, 0), is(1L));
-		assertThat(MathUtil.pascal(1, 0), is(1L));
-		assertThat(MathUtil.pascal(1, 1), is(1L));
-		assertThat(MathUtil.pascal(5, 0), is(1L));
-		assertThat(MathUtil.pascal(5, 1), is(5L));
-		assertThat(MathUtil.pascal(5, 2), is(10L));
-		assertThat(MathUtil.pascal(5, 3), is(10L));
-		assertThat(MathUtil.pascal(5, 4), is(5L));
-		assertThat(MathUtil.pascal(5, 5), is(1L));
-		assertThat(MathUtil.pascal(-1, 0), is(0L));
-		assertThat(MathUtil.pascal(0, -1), is(0L));
-		assertThat(MathUtil.pascal(0, 1), is(0L));
-		assertThat(MathUtil.pascal(1, 2), is(0L));
 	}
 
 	@Test

@@ -23,14 +23,21 @@ public class ColorComparators {
 		.nonNull((lhs, rhs) -> Comparators.FLOAT.compare(toHsb(lhs)[1], toHsb(rhs)[1]));
 	public static final Comparator<Color> BY_BRIGHTNESS = Comparators
 		.nonNull((lhs, rhs) -> Comparators.FLOAT.compare(toHsb(lhs)[2], toHsb(rhs)[2]));
-	public static final Comparator<Color> BY_HSB = Comparators.sequence(BY_HUE, BY_SATURATION,
-		BY_BRIGHTNESS);
+	public static final Comparator<Color> BY_HSB = Comparators.nonNull((lhs, rhs) -> compareHsb(
+		toHsb(lhs), toHsb(rhs)));
 
 	private ColorComparators() {}
 
 	private static float[] toHsb(Color color) {
 		float[] hsb = new float[3];
 		return Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), hsb);
+	}
+
+	private static int compareHsb(float[] lhs, float[] rhs) {
+		int result = Comparators.FLOAT.compare(lhs[0], rhs[0]);
+		if (result == 0) result = Comparators.FLOAT.compare(lhs[1], rhs[1]);
+		if (result == 0) result = Comparators.FLOAT.compare(lhs[2], rhs[2]);
+		return result;
 	}
 
 }

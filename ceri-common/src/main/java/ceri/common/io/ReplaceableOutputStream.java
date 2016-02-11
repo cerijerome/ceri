@@ -74,8 +74,7 @@ public class ReplaceableOutputStream extends OutputStream implements Listenable<
 
 	@Override
 	public void close() throws IOException {
-		checkState();
-		out.close();
+		if (out != null) out.close();
 	}
 
 	private void checkState() throws IOException {

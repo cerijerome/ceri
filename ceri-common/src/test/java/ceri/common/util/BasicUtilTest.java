@@ -1,9 +1,11 @@
 package ceri.common.util;
 
+import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -31,7 +33,6 @@ public class BasicUtilTest {
 		assertPrivateConstructor(BasicUtil.class);
 	}
 
-	
 	@Test
 	public void testBeep() {
 		// Make sure no error thrown
@@ -110,8 +111,9 @@ public class BasicUtilTest {
 		Class<ForceInitTestClass> cls = BasicUtil.forceInit(ForceInitTestClass.class);
 		assertThat(ForceInitTestClassHelper.count, is(1));
 		cls = BasicUtil.forceInit(ForceInitTestClass.class);
-		BasicUtil.unused(cls);
+		assertNotNull(cls);
 		assertThat(ForceInitTestClassHelper.count, is(1));
+		assertException(() -> BasicUtil.load("", this.getClass().getClassLoader()));
 	}
 
 	@Test
@@ -120,6 +122,8 @@ public class BasicUtilTest {
 		IllegalArgumentException e2 = new IllegalArgumentException();
 		IllegalStateException e = BasicUtil.initCause(e1, e2);
 		assertThat(e.getCause(), is((Throwable) e2));
+		BasicUtil.initCause(e1, null);
+		assertThat(e1.getCause(), is((Throwable) e2));
 	}
 
 	@Test

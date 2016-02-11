@@ -1,7 +1,7 @@
 package ceri.common.text;
 
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertElements;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
@@ -24,8 +24,9 @@ public class RegexUtilTest {
 
 	@Test
 	public void testGroups() {
-		assertElements(RegexUtil.groups(MULTI_PATTERN, " ab CD--ef"), "ab", "CD", "ef");
-		assertElements(RegexUtil.groups(MULTI_PATTERN, ""));
+		assertIterable(RegexUtil.groups(MULTI_PATTERN, " ab CD--ef"), "ab", "CD", "ef");
+		assertIterable(RegexUtil.groups(MULTI_PATTERN, ""));
+		assertIterable(RegexUtil.groups(Pattern.compile("abc"), "abc"));
 	}
 
 	@Test

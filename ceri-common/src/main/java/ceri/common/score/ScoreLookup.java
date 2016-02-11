@@ -1,10 +1,11 @@
 package ceri.common.score;
 
+import static ceri.common.collection.ImmutableUtil.copyAsMap;
+import static java.util.Collections.unmodifiableMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import ceri.common.collection.ImmutableUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
@@ -18,7 +19,7 @@ public class ScoreLookup<T> implements Scorer<T> {
 
 		Builder() {}
 
-		public Builder<T> score(T t, Double score) {
+		public Builder<T> score(T t, double score) {
 			map.put(t, score);
 			return this;
 		}
@@ -38,9 +39,7 @@ public class ScoreLookup<T> implements Scorer<T> {
 	}
 
 	ScoreLookup(Builder<T> builder) {
-		map =
-			builder.normalize ? Collections.unmodifiableMap(normalize(builder.map)) : ImmutableUtil
-				.copyAsMap(builder.map);
+		map = builder.normalize ? unmodifiableMap(normalize(builder.map)) : copyAsMap(builder.map);
 	}
 
 	private Map<T, Double> normalize(Map<T, Double> map) {

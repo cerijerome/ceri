@@ -5,10 +5,30 @@ import static org.junit.Assert.assertThat;
 import java.util.function.Supplier;
 import org.junit.Test;
 import ceri.common.event.EventTracker.State;
+import ceri.common.test.TestUtil;
 import ceri.common.util.PrimitiveUtil;
 
 public class EventTrackerBehavior {
 
+	@Test
+	public void codeCoverage() {
+		TestUtil.exerciseEnum(EventTracker.State.class);
+	}
+	
+	@Test
+	public void shouldClearEvents() {
+		EventTracker tracker = new EventTracker(2, 100000);
+		assertThat(tracker.events(), is(0));
+		assertThat(tracker.addEvent(), is(State.ok));
+		assertThat(tracker.addEvent(), is(State.ok));
+		assertThat(tracker.addEvent(), is(State.exceeded));
+		assertThat(tracker.events(), is(3));
+		tracker.clear();
+		assertThat(tracker.addEvent(), is(State.ok));
+		assertThat(tracker.addEvent(), is(State.ok));
+		assertThat(tracker.events(), is(2));
+	}
+	
 	@Test
 	public void shouldCheckTheNumberOfEventsWithinTheWindow() {
 		EventTracker tracker = new EventTracker(5, 10);

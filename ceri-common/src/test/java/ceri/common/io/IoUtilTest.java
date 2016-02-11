@@ -9,7 +9,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -18,6 +17,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -28,6 +29,7 @@ import java.util.regex.Pattern;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import ceri.common.collection.ImmutableByteArray;
 import ceri.common.test.FileTestHelper;
 
 public class IoUtilTest {
@@ -48,6 +50,24 @@ public class IoUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(IoUtil.class);
+	}
+
+	@Test
+	public void testNullPrintStream() throws IOException {
+		try (PrintStream out = IoUtil.nullPrintStream()) {
+			out.write(-1);
+			out.write(new byte[1000]);
+			out.write(new byte[1000], 1, 999);
+		}
+	}
+
+	@Test
+	public void testNullOutputStream() throws IOException {
+		try (OutputStream out = IoUtil.nullOutputStream()) {
+			out.write(-1);
+			out.write(new byte[1000]);
+			out.write(new byte[1000], 1, 999);
+		}
 	}
 
 	@Test
@@ -128,8 +148,19 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testGetChar() {
-		assertThat(IoUtil.getChar(), is('\0'));
+	public void testGetChar() throws IOException {
+		InputStream stdin = System.in;
+		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
+			System.setIn(in);
+			assertThat(IoUtil.getChar(), is('t'));
+			assertThat(IoUtil.getChar(), is('e'));
+			assertThat(IoUtil.getChar(), is('s'));
+			assertThat(IoUtil.getChar(), is('t'));
+			in.close();
+			assertThat(IoUtil.getChar(), is('\0'));
+		} finally {
+			System.setIn(stdin);
+		}
 	}
 
 	@Test
@@ -139,6 +170,7 @@ public class IoUtilTest {
 			assertThat(IoUtil.getContent(in, 0), is(new byte[] { 'b', 'b', 'b' }));
 		}
 		assertThat(IoUtil.getContentString(helper.file("a/a/a.txt")), is("aaa"));
+		assertThat(IoUtil.getContentString(helper.file("a/a/a.txt").getAbsolutePath()), is("aaa"));
 		try (InputStream in = new FileInputStream(helper.file("b/b.txt"))) {
 			assertThat(IoUtil.getContentString(in, 0), is("bbb"));
 		}
@@ -150,6 +182,7 @@ public class IoUtilTest {
 		assertCollection(filenames, "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt");
 		filenames = IoUtil.getFilenames(helper.root, RegexFilenameFilter.create(".*\\.txt"));
 		assertCollection(filenames, "a/a/a.txt", "b/b.txt", "c.txt");
+		assertCollection(IoUtil.getFilenames(new File("")));
 	}
 
 	@Test
@@ -158,6 +191,7 @@ public class IoUtilTest {
 		assertCollection(files, helper.fileList("a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt"));
 		files = IoUtil.getFiles(helper.root, RegexFilenameFilter.create(".*[^\\.txt]"));
 		assertCollection(files, helper.fileList("a", "a/a", "b"));
+		assertCollection(IoUtil.getFiles(new File("")));
 	}
 
 	@Test
@@ -210,10 +244,9 @@ public class IoUtilTest {
 		assertThat(s, is("a=b"));
 		s = IoUtil.getClassResourceAsString(getClass(), "properties");
 		assertThat(s, is("a=b"));
-		try {
-			IoUtil.getResource(getClass(), "test");
-			fail();
-		} catch (MissingResourceException e) {}
+		assertException(MissingResourceException.class, () -> IoUtil
+			.getResource(getClass(), "test"));
+		assertException(() -> IoUtil.getResource(getClass(), null));
 	}
 
 	@Test
@@ -233,6 +266,8 @@ public class IoUtilTest {
 		File file = helper.file("x/x/x.txt");
 		file.getParentFile().mkdirs();
 		IoUtil.setContent(file, "abc".getBytes());
+		assertThat(IoUtil.getContentString(file), is("abc"));
+		IoUtil.setContent(file, ImmutableByteArray.wrap("abc".getBytes()));
 		assertThat(IoUtil.getContentString(file), is("abc"));
 		IoUtil.setContentString(file, "xyz");
 		assertThat(IoUtil.getContentString(file), is("xyz"));
@@ -254,6 +289,8 @@ public class IoUtilTest {
 		out.reset();
 		IoUtil.transferContent(in, out, 0);
 		assertThat(new String(out.toByteArray(), "UTF8"), is(s));
+		in.reset();
+		IoUtil.transferContent(in, null, 0);
 	}
 
 	@Test

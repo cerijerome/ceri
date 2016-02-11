@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -9,6 +10,13 @@ import java.util.Map;
 import org.junit.Test;
 
 public class MapBuilderBehavior {
+
+	@Test
+	public void shouldInitializeFromGivenData() {
+		Map<String, Integer> map = MapBuilder.of("A", 1, "ABC", 3, "BC", 2).build();
+		assertCollection(map.keySet(), "A", "ABC", "BC");
+		assertCollection(map.values(), 1, 3, 2);
+	}
 
 	@Test
 	public void shouldWrapGivenMapForStorage() {

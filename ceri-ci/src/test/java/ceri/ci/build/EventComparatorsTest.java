@@ -1,6 +1,6 @@
 package ceri.ci.build;
 
-import static ceri.common.test.TestUtil.assertElements;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +24,7 @@ public class EventComparatorsTest {
 		List<Event> events = new ArrayList<>();
 		Collections.addAll(events, e0, e1, e2, e3, e4);
 		Collections.sort(events, EventComparators.TYPE);
-		assertElements(events, e1, e3, e0, e2, e4);
+		assertIterable(events, e1, e3, e0, e2, e4);
 	}
 
 	@Test
@@ -32,7 +32,7 @@ public class EventComparatorsTest {
 		List<Event> events = new ArrayList<>();
 		Collections.addAll(events, e4, e0, e3, e2, e1);
 		Collections.sort(events, EventComparators.TIMESTAMP);
-		assertElements(events, e0, e1, e2, e3, e4);
+		assertIterable(events, e0, e1, e2, e3, e4);
 	}
 
 }

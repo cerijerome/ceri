@@ -11,6 +11,7 @@ import ceri.common.collection.ImmutableByteArrayBehavior;
 import ceri.common.collection.ImmutableUtilTest;
 import ceri.common.collection.MapBuilderBehavior;
 import ceri.common.collection.StreamUtilTest;
+import ceri.common.comparator.ColorComparatorsTest;
 import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
@@ -47,10 +48,16 @@ import ceri.common.io.FilenameIteratorBehavior;
 import ceri.common.io.InputStreamIteratorBehavior;
 import ceri.common.io.IoTimeoutExceptionBehavior;
 import ceri.common.io.IoUtilTest;
+import ceri.common.io.KeyCheckerBehavior;
 import ceri.common.io.PollingInputStreamBehavior;
 import ceri.common.io.RegexFilenameFilterBehavior;
+import ceri.common.io.ReplaceableInputStreamBehavior;
+import ceri.common.io.ReplaceableOutputStreamBehavior;
 import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
+import ceri.common.math.AlgebraUtilTest;
+import ceri.common.math.GeometryUtilTest;
+import ceri.common.math.MathUtilTest;
 import ceri.common.property.BasePropertiesBehavior;
 import ceri.common.property.KeyBehavior;
 import ceri.common.property.PropertyUtilTest;
@@ -62,6 +69,7 @@ import ceri.common.score.ScoreLookupBehavior;
 import ceri.common.score.ScorersTest;
 import ceri.common.test.DebuggerBehavior;
 import ceri.common.test.RegexMatcherBehavior;
+import ceri.common.test.SourceManipulatorBehavior;
 import ceri.common.test.TestPrinterBehavior;
 import ceri.common.test.TestRunAdapterBehavior;
 import ceri.common.test.TestRunPrinterBehavior;
@@ -87,11 +95,13 @@ import ceri.common.util.EqualsUtilTest;
 import ceri.common.util.HashCoderBehavior;
 import ceri.common.util.KeyValueBehavior;
 import ceri.common.util.LocaleUtilTest;
-import ceri.common.util.MathUtilTest;
 import ceri.common.util.MultiPatternBehavior;
 import ceri.common.util.NameValueBehavior;
 import ceri.common.util.OsUtilTest;
 import ceri.common.util.PrimitiveUtilTest;
+import ceri.common.validation.ValidationUtilTest;
+import ceri.common.xml.RuntimeXPathExceptionBehavior;
+import ceri.common.xml.XPathUtilTest;
 import ceri.common.zip.ZipUtilTest;
 import ceri.common.zip.ZippingInputStreamBehavior;
 
@@ -108,6 +118,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	MapBuilderBehavior.class,
 	StreamUtilTest.class,
 	// comparator
+	ColorComparatorsTest.class,
 	ComparatorSequenceBehavior.class,
 	ComparatorsTest.class,
 	EnumComparatorsTest.class,
@@ -151,10 +162,17 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	InputStreamIteratorBehavior.class,
 	IoTimeoutExceptionBehavior.class,
 	IoUtilTest.class,
+	KeyCheckerBehavior.class,
 	PollingInputStreamBehavior.class,
 	RegexFilenameFilterBehavior.class,
+	ReplaceableInputStreamBehavior.class,
+	ReplaceableOutputStreamBehavior.class,
 	RuntimeIoExceptionBehavior.class,
 	StringPrintStreamBehavior.class,
+	// math
+	AlgebraUtilTest.class,
+	GeometryUtilTest.class,
+	MathUtilTest.class,
 	// property
 	BasePropertiesBehavior.class,
 	KeyBehavior.class,
@@ -170,6 +188,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	//test
 	DebuggerBehavior.class,
 	RegexMatcherBehavior.class,
+	SourceManipulatorBehavior.class,
 	TestPrinterBehavior.class,
 	TestRunAdapterBehavior.class,
 	TestRunPrinterBehavior.class,
@@ -198,11 +217,15 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	HashCoderBehavior.class,
 	KeyValueBehavior.class,
 	LocaleUtilTest.class,
-	MathUtilTest.class,
 	MultiPatternBehavior.class,
 	NameValueBehavior.class,
 	OsUtilTest.class,
 	PrimitiveUtilTest.class,
+	// validation
+	ValidationUtilTest.class,
+	// xml
+	RuntimeXPathExceptionBehavior.class,
+	XPathUtilTest.class,
 	// zip
 	ZippingInputStreamBehavior.class,
 	ZipUtilTest.class,

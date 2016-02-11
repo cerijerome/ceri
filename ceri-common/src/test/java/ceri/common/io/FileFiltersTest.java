@@ -35,7 +35,7 @@ public class FileFiltersTest {
 	}
 
 	@Test
-	public void test() {
+	public void testByExtension() {
 		File[] files = helper.root.listFiles(FileFilters.byExtension());
 		assertCollection(files);
 		files = helper.root.listFiles(FileFilters.byExtension("txt", "jpg"));

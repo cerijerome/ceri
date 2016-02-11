@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import ceri.common.collection.MapBuilder;
-import ceri.common.util.MathUtil;
+import ceri.common.math.MathUtil;
 
 public class CollectionScorersTest {
 

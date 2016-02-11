@@ -29,6 +29,40 @@ public class XPathUtil {
 		return new InputSource(new StringReader(s));
 	}
 	
+	public static Node node(String expression, InputSource in) 
+		throws XPathExpressionException {
+		return node(compile(expression), in);
+	}
+
+	public static Node node(String expression, Object dom) 
+		throws XPathExpressionException {
+		return node(compile(expression), dom);
+	}
+
+	public static Node node(XPathExpression expression, InputSource in)
+		throws XPathExpressionException {
+		List<Node> nodes = nodeList(expression, in);
+		if (nodes.isEmpty()) return null;
+		return nodes.get(0);
+	}
+	
+	public static Node node(XPathExpression expression, Object dom)
+		throws XPathExpressionException {
+		List<Node> nodes = nodeList(expression, dom);
+		if (nodes.isEmpty()) return null;
+		return nodes.get(0);
+	}
+	
+	public static List<Node> nodeList(String expression, InputSource in)
+		throws XPathExpressionException {
+		return nodeList(compile(expression), in);
+	}
+	
+	public static List<Node> nodeList(String expression, Object dom)
+		throws XPathExpressionException {
+		return nodeList(compile(expression), dom);
+	}
+	
 	public static List<Node> nodeList(XPathExpression expression, InputSource in)
 		throws XPathExpressionException {
 		return nodeList((NodeList) expression.evaluate(in, XPathConstants.NODESET));

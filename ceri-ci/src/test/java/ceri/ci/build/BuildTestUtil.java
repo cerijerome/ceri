@@ -1,7 +1,7 @@
 package ceri.ci.build;
 
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertElements;
+import static ceri.common.test.TestUtil.assertIterable;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
@@ -75,14 +75,14 @@ public class BuildTestUtil {
 	 * Checks build names in order.
 	 */
 	public static void assertBuildNames(Iterable<Build> builds, String... names) {
-		assertElements(buildNames(builds), names);
+		assertIterable(buildNames(builds), names);
 	}
 
 	/**
 	 * Checks job names in order.
 	 */
 	public static void assertJobNames(Iterable<Job> jobs, String... names) {
-		assertElements(jobNames(jobs), names);
+		assertIterable(jobNames(jobs), names);
 	}
 
 	private static Collection<String> buildNames(Iterable<Build> builds) {

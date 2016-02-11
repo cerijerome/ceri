@@ -367,10 +367,13 @@ public class IoUtil {
 	 * Gets a file representing a resource. Will fail if the class is in a jar file.
 	 */
 	public static File getResourceFile(Class<?> cls, String resourceName) {
+		URL url = cls.getResource(resourceName);
+		if (url != null) return fileFromUrl(url);
+		throw new NullPointerException("Resource not found for " + cls + ": " + resourceName);
+	}
+
+	static File fileFromUrl(URL url) {
 		try {
-			URL url = cls.getResource(resourceName);
-			if (url == null) throw new NullPointerException("Resource not found for " + cls + ": " +
-				resourceName);
 			return new File(url.toURI());
 		} catch (URISyntaxException e) {
 			throw new IllegalStateException("Should not happen", e);
@@ -434,7 +437,6 @@ public class IoUtil {
 		FilenameFilter filter) {
 		String[] files = rootDir.list();
 		if (files == null) return;
-
 		for (String file : files) {
 			String path = root == null ? file : root + "/" + file;
 			if (filter == null || filter.accept(rootDir, path)) list.add(path);
@@ -449,7 +451,6 @@ public class IoUtil {
 	private static void addFiles(List<File> list, File root, FileFilter filter) {
 		File[] files = root.listFiles();
 		if (files == null) return;
-
 		for (File file : files) {
 			if (filter == null || filter.accept(file)) list.add(file);
 			if (file.isDirectory()) addFiles(list, file, filter);
