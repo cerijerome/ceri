@@ -56,8 +56,12 @@ import ceri.common.io.ReplaceableOutputStreamBehavior;
 import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
 import ceri.common.math.AlgebraUtilTest;
+import ceri.common.math.Dimension2dBehavior;
 import ceri.common.math.GeometryUtilTest;
 import ceri.common.math.MathUtilTest;
+import ceri.common.math.Point2dBehavior;
+import ceri.common.math.Ratio2dBehavior;
+import ceri.common.math.RectangleBehavior;
 import ceri.common.property.BasePropertiesBehavior;
 import ceri.common.property.KeyBehavior;
 import ceri.common.property.PropertyUtilTest;
@@ -171,8 +175,12 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	StringPrintStreamBehavior.class,
 	// math
 	AlgebraUtilTest.class,
+	Dimension2dBehavior.class,
 	GeometryUtilTest.class,
 	MathUtilTest.class,
+	Point2dBehavior.class,
+	Ratio2dBehavior.class,
+	RectangleBehavior.class,
 	// property
 	BasePropertiesBehavior.class,
 	KeyBehavior.class,

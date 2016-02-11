@@ -13,13 +13,11 @@ public class GeometryUtil {
 	 * Resize dimension to fit at least given dimensions while maintaining aspect ratio.
 	 */
 	public static Dimension2d resizeToMin(Dimension2d size, Dimension2d min) {
-		double w = size.w;
-		double h = size.h;
-		if (w == 0 && h == 0) return size;
-		if (w == 0 || Double.isInfinite(w)) w = min.w;
-		if (h == 0 || Double.isInfinite(h)) h = min.h;
-		if (h > 0) w = Math.max(min.w, min.h * w / h);
-		if (w > 0) h = Math.max(min.h, min.w * h / w);
+		if (size.isNull()) return size;
+		if (size.w == 0) return new Dimension2d(0, min.h);
+		if (size.h == 0) return new Dimension2d(min.w, 0);
+		double w = Math.max(min.w, min.h * size.aspectRatio());
+		double h = Math.max(min.h, min.w / size.aspectRatio());
 		return new Dimension2d(w, h);
 	}
 
@@ -27,15 +25,11 @@ public class GeometryUtil {
 	 * Resize dimension to fit within given dimensions while maintaining aspect ratio.
 	 */
 	public static Dimension2d resizeToMax(Dimension2d size, Dimension2d max) {
-		double w = size.w;
-		double h = size.h;
-		if (w > 0 && w * max.h >= max.w * h) {
-			h = max.w * h / w;
-			w = max.w;
-		} else if (h > 0) {
-			w = w * max.h / h;
-			h = max.h;
-		}
+		if (size.isNull()) return size;
+		if (size.w == 0) return new Dimension2d(0, max.h);
+		if (size.h == 0) return new Dimension2d(max.w, 0);
+		double w = Math.min(max.w, max.h * size.aspectRatio());
+		double h = Math.min(max.h, max.w / size.aspectRatio());
 		return new Dimension2d(w, h);
 	}
 
@@ -44,21 +38,17 @@ public class GeometryUtil {
 	 * remain unchanged.
 	 */
 	public static Dimension2d crop(Dimension2d size, Dimension2d crop) {
-		double w = crop.w;
-		double h = crop.h;
-		if (w >= size.w) w = size.w;
-		if (h >= size.h) h = size.h;
-		return new Dimension2d(w, h);
+		return new Dimension2d(Math.min(size.w, crop.w), Math.min(size.h, crop.h));
 	}
 
 	/**
-	 * Crop to given dimensions, with specified crop window alignment. If the original size is
+	 * Crop to given dimensions, with spacing alignment. If the original size is
 	 * smaller than the desired crop in one dimension that dimension is not cropped.
 	 */
 	public static Rectangle crop(Dimension2d size, Dimension2d crop, Ratio2d ratio) {
 		crop = crop(size, crop);
-		validateMax(ratio.x, 1, "X ratio");
-		validateMax(ratio.y, 1, "Y ratio");
+		validateMax(ratio.x, 1, "X spacing ratio");
+		validateMax(ratio.y, 1, "Y spacing ratio");
 		double x = ratio.x * (size.w - crop.w);
 		double y = ratio.y * (size.h - crop.h);
 		return new Rectangle(x, y, crop.w, crop.h);

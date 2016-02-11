@@ -16,6 +16,10 @@ public class Dimension2d {
 		this.h = h;
 	}
 
+	public boolean isNull() {
+		return w == 0 && h == 0;
+	}
+	
 	public Dimension2d resize(double ratio) {
 		return new Dimension2d(w * ratio, h * ratio);
 	}
@@ -25,6 +29,7 @@ public class Dimension2d {
 	}
 
 	public double aspectRatio() {
+		if (Double.doubleToRawLongBits(w) == Double.doubleToRawLongBits(h)) return 1;
 		if (w == 0) return 0;
 		if (h == 0) return Double.POSITIVE_INFINITY;
 		return w / h;

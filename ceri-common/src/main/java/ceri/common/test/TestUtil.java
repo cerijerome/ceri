@@ -1,6 +1,7 @@
 package ceri.common.test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.io.BufferedInputStream;
@@ -78,6 +79,8 @@ public class TestUtil {
 		exerciseEqual(t0, t0);
 		for (T t : ts)
 			exerciseEqual(t0, t);
+		assertNotEquals(t0, null);
+		assertNotEquals(t0, new Object());
 	}
 
 	private static <T> void exerciseEqual(T t0, T t1) {
