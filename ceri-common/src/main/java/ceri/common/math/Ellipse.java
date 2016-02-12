@@ -36,6 +36,13 @@ public class Ellipse {
 	}
 
 	/**
+	 * Approximation of the perimeter of the ellipse.
+	 */
+	public double perimeter() {
+		return perimeter(a, b);
+	}
+	
+	/**
 	 * Returns the area of the ellipse.
 	 */
 	public double area() {
@@ -54,6 +61,15 @@ public class Ellipse {
 	 */
 	public double areaBetweenY(double y0, double y1) {
 		return integral(y1, b, a) - integral(y0, b, a);
+	}
+	
+	/**
+	 * Approximation of the perimeter of the ellipse. Not accurate for large a/b and b/a ratios.
+	 */
+	public static double perimeter(double a, double b) {
+		double h = (a - b) / (a + b);
+		h *= h;
+		return Math.PI * (a + b) * (1 + (3 * h / (10 + Math.sqrt(4 - (3 * h)))));
 	}
 	
 	/**

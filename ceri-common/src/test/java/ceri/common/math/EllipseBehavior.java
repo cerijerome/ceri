@@ -25,6 +25,14 @@ public class EllipseBehavior {
 	}
 
 	@Test
+	public void shouldCalculatePerimeter() {
+		assertApprox(new Ellipse(1, 1).perimeter(), 2 * Math.PI);
+		assertApprox(new Ellipse(1000000, 1000000).perimeter(), 2 * Math.PI * 1000000);
+		assertApprox(e0.perimeter(), 19.377);
+		assertApprox(e1.perimeter(), 17.157);
+	}
+	
+	@Test
 	public void shouldCalculateXAndYCoordinates() {
 		assertTrue(Double.isNaN(e0.yFromX(4.00001)));
 		assertTrue(Double.isNaN(e0.yFromX(-4.00001)));

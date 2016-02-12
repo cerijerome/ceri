@@ -4,11 +4,11 @@ import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
-public class Cone {
+public class Cylinder {
 	private final double r;
 	private final double h;
 
-	public Cone(double r, double h) {
+	public Cylinder(double r, double h) {
 		if (r <= 0) throw new IllegalArgumentException("Radius must be > 0: " + r);
 		if (h <= 0) throw new IllegalArgumentException("Height must be > 0: " + h);
 		this.r = r;
@@ -16,10 +16,10 @@ public class Cone {
 	}
 
 	/**
-	 * Calculates h from given volume, with h starting at the apex.
+	 * Calculates h from given volume.
 	 */
 	public double hFromVolume(double v) {
-		return Math.cbrt(3.0 * h * h * v / (Math.PI * r * r));
+		return v / (Math.PI * r * r);
 	}
 	
 	/**
@@ -40,7 +40,7 @@ public class Cone {
 	 * Calculates the volume of a cone.
 	 */
 	public static double volume(double r, double h) {
-		return Math.PI * r * r * h / 3;
+		return Math.PI * r * r * h;
 	}
 
 	@Override
@@ -51,8 +51,8 @@ public class Cone {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Cone)) return false;
-		Cone other = (Cone) obj;
+		if (!(obj instanceof Cylinder)) return false;
+		Cylinder other = (Cylinder) obj;
 		if (!EqualsUtil.equals(r, other.r)) return false;
 		if (!EqualsUtil.equals(h, other.h)) return false;
 		return true;
@@ -65,7 +65,7 @@ public class Cone {
 
 	private double volume(double h0) {
 		if (h0 < 0) return Double.NaN;
-		return volume(r * h0 / h, h0);
+		return volume(r, h0);
 	}
 	
 }

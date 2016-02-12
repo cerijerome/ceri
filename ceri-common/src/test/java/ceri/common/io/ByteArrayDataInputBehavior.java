@@ -44,6 +44,12 @@ public class ByteArrayDataInputBehavior {
 		in.readUTF();
 	}
 
+	@SuppressWarnings("deprecation")
+	@Test(expected = UnsupportedOperationException.class)
+	public void shouldNotSupportReadLine() {
+		in.readLine();
+	}
+
 	@Test
 	public void shouldReadLongCorrectly() throws IOException {
 		assertThat(in.readLong(), is(truth.readLong()));
