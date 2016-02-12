@@ -35,9 +35,12 @@ public class MathUtilTest {
 		assertThat(MathUtil.simpleRound(11111.111111111111111, 2), is(11111.11));
 		assertThat(MathUtil.simpleRound(777.7777, 3), is(777.778));
 		assertThat(MathUtil.simpleRound(-777.7777, 3), is(-777.778));
+		assertTrue(Double.isNaN(MathUtil.simpleRound(Double.NaN, 0)));
 		assertException(() -> MathUtil.simpleRound(777.7777, 11));
 		assertException(() -> MathUtil.simpleRound(1000000000.1, 1));
 		assertException(() -> MathUtil.simpleRound(-1000000000.1, 1));
+		assertException(() -> MathUtil.simpleRound(Double.POSITIVE_INFINITY, 1));
+		assertException(() -> MathUtil.simpleRound(Double.NEGATIVE_INFINITY, 1));
 	}
 
 	@Test

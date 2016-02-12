@@ -17,7 +17,7 @@ public class AlgebraUtil {
 
 	/**
 	 * Factorial value (value!). Checks and throws exception if factorial value is too big for long
-	 * type.
+	 * type. Values 0-20 are long-compatible.
 	 */
 	public static long longFactorial(long value) {
 		double factorial = factorial(value);

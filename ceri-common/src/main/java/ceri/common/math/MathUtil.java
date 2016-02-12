@@ -24,6 +24,7 @@ public class MathUtil {
 	 * values.
 	 */
 	public static double simpleRound(double value, int places) {
+		if (Double.isNaN(value)) return Double.NaN;
 		if (places > MAX_ROUND_PLACES) throw new IllegalArgumentException("places must be <= " +
 			MAX_ROUND_PLACES + ": " + places);
 		if (value > MAX_ROUND || value < -MAX_ROUND) throw new IllegalArgumentException(

@@ -56,7 +56,10 @@ import ceri.common.io.ReplaceableOutputStreamBehavior;
 import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
 import ceri.common.math.AlgebraUtilTest;
+import ceri.common.math.ConeBehavior;
 import ceri.common.math.Dimension2dBehavior;
+import ceri.common.math.EllipseBehavior;
+import ceri.common.math.EllipsoidBehavior;
 import ceri.common.math.GeometryUtilTest;
 import ceri.common.math.MathUtilTest;
 import ceri.common.math.Point2dBehavior;
@@ -175,8 +178,11 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	StringPrintStreamBehavior.class,
 	// math
 	AlgebraUtilTest.class,
+	ConeBehavior.class,
 	Dimension2dBehavior.class,
 	GeometryUtilTest.class,
+	EllipseBehavior.class,
+	EllipsoidBehavior.class,
 	MathUtilTest.class,
 	Point2dBehavior.class,
 	Ratio2dBehavior.class,

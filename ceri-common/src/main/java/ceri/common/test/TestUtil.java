@@ -26,6 +26,7 @@ import org.hamcrest.core.IsSame;
 import org.junit.runner.JUnitCore;
 import ceri.common.concurrent.ExceptionRunnable;
 import ceri.common.io.IoUtil;
+import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.PrimitiveUtil;
@@ -33,6 +34,7 @@ import ceri.common.util.PrimitiveUtil;
 public class TestUtil {
 	private static final int SMALL_BUFFER_SIZE = 1024;
 	private static final int BUFFER_SIZE = 1024 * 32;
+	private static final int APPROX_DECIMAL_PLACES_DEF = 3;
 	private static final Random RND = new Random();
 
 	private TestUtil() {}
@@ -122,6 +124,22 @@ public class TestUtil {
 		return new String(buffer, 0, n).trim();
 	}
 
+	/**
+	 * Checks a double value is correct to 3 decimal places.
+	 */
+	public static void assertApprox(double value, double expected) {
+		assertApprox(value, expected, APPROX_DECIMAL_PLACES_DEF);
+	}
+	
+	/**
+	 * Checks a double value is correct to given number of decimal places.
+	 */
+	public static void assertApprox(double value, double expected, int decimalPlaces) {
+		double approxValue = MathUtil.simpleRound(value, decimalPlaces);
+		double approxExpected = MathUtil.simpleRound(expected, decimalPlaces);
+		assertThat(approxValue, is(approxExpected));
+	}
+	
 	/**
 	 * Checks a value is within given range, with detailed failure information if not.
 	 */
