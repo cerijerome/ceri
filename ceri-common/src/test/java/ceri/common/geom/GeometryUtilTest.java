@@ -1,10 +1,14 @@
-package ceri.common.math;
+package ceri.common.geom;
 
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static java.lang.Double.MAX_VALUE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.geom.Dimension2d;
+import ceri.common.geom.GeometryUtil;
+import ceri.common.geom.Ratio2d;
+import ceri.common.geom.Rectangle;
 
 public class GeometryUtilTest {
 	private final Dimension2d d0 = new Dimension2d(400, 100);

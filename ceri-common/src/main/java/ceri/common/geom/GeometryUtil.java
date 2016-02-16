@@ -1,4 +1,4 @@
-package ceri.common.math;
+package ceri.common.geom;
 
 import static ceri.common.validation.ValidationUtil.validateMax;
 
@@ -42,8 +42,8 @@ public class GeometryUtil {
 	}
 
 	/**
-	 * Crop to given dimensions, with spacing alignment. If the original size is
-	 * smaller than the desired crop in one dimension that dimension is not cropped.
+	 * Crop to given dimensions, with spacing alignment. If the original size is smaller than the
+	 * desired crop in one dimension that dimension is not cropped.
 	 */
 	public static Rectangle crop(Dimension2d size, Dimension2d crop, Ratio2d ratio) {
 		crop = crop(size, crop);

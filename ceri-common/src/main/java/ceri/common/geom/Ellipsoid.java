@@ -1,18 +1,26 @@
-package ceri.common.math;
+package ceri.common.geom;
 
+import static ceri.common.validation.ValidationUtil.validateMin;
+import ceri.common.math.AlgebraUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public class Ellipsoid {
+	public static final Ellipsoid NULL = new Ellipsoid(0, 0, 0);
 	public final double a;
 	public final double b;
 	public final double c;
 
-	public Ellipsoid(double a, double b, double c) {
-		if (a <= 0) throw new IllegalArgumentException("Axis a must be > 0: " + a);
-		if (b <= 0) throw new IllegalArgumentException("Axis b must be > 0: " + b);
-		if (c <= 0) throw new IllegalArgumentException("Axis c must be > 0: " + c);
+	public static Ellipsoid create(double a, double b, double c) {
+		if (a == 0 || b == 0 || c == 0) return NULL;
+		validateMin(a, 0, "Axis a");
+		validateMin(b, 0, "Axis b");
+		validateMin(c, 0, "Axis c");
+		return new Ellipsoid(a, b, c);
+	}
+
+	private Ellipsoid(double a, double b, double c) {
 		this.a = a;
 		this.b = b;
 		this.c = c;
@@ -74,6 +82,13 @@ public class Ellipsoid {
 		return 4.0 * Math.PI * a * b * c / 3.0;
 	}
 
+	/**
+	 * Is this a null ellipsoid?
+	 */
+	public boolean isNull() {
+		return a == 0;
+	}
+	
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(a, b, c);
@@ -103,6 +118,7 @@ public class Ellipsoid {
 	 * </pre>
 	 */
 	private double integral(double x, double a, double b, double c) {
+		if (a == 0) return 0;
 		if (Double.isNaN(x)) return Double.NaN;
 		if (x < -a || x > a) return Double.NaN;
 		return Math.PI * b * c * x * ((3 * a * a) - (x * x)) / (3 * a * a);
@@ -116,6 +132,7 @@ public class Ellipsoid {
 	 * </pre>
 	 */
 	private double root(double v, double a, double b, double c) {
+		if (a == 0) return 0;
 		if (Double.isNaN(v)) return Double.NaN;
 		double a1 = -3.0 * a * a;
 		double a0 = (3.0 * a * a * v / (Math.PI * b * c)) - (2 * a * a * a);

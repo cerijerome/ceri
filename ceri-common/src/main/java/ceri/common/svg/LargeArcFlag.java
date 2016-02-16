@@ -1,0 +1,13 @@
+package ceri.common.svg;
+
+public enum LargeArcFlag {
+	small(0),
+	large(1);
+
+	public final int value;
+
+	private LargeArcFlag(int value) {
+		this.value = value;
+	}
+
+}

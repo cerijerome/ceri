@@ -1,14 +1,21 @@
-package ceri.common.math;
+package ceri.common.geom;
 
+import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public class Circle {
+	public static final Circle NULL = new Circle(0);
 	public final double r;
 
-	public Circle(double r) {
-		if (r <= 0) throw new IllegalArgumentException("Radius must be > 0: " + r);
+	public static Circle create(double r) {
+		if (r == 0) return NULL;
+		validateMin(r, 0, "Radius");
+		return new Circle(r);
+	}
+
+	private Circle(double r) {
 		this.r = r;
 	}
 
@@ -26,6 +33,13 @@ public class Circle {
 
 	public static double circumference(double r) {
 		return Math.PI * 2 * r;
+	}
+
+	/**
+	 * Is this a null circle?
+	 */
+	public boolean isNull() {
+		return r == 0;
 	}
 
 	@Override

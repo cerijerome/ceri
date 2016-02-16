@@ -187,6 +187,42 @@ public class MathUtil {
 	}
 
 	/**
+	 * Returns the min or max value if outside of the range.
+	 */
+	public static float within(float value, float min, float max) {
+		if (value < min) return min;
+		if (value > max) return max;
+		return value;
+	}
+	
+	/**
+	 * Returns the min or max value if outside of the range.
+	 */
+	public static double within(double value, double min, double max) {
+		if (value < min) return min;
+		if (value > max) return max;
+		return value;
+	}
+	
+	/**
+	 * Returns the min or max value if outside of the range.
+	 */
+	public static int within(int value, int min, int max) {
+		if (value < min) return min;
+		if (value > max) return max;
+		return value;
+	}
+	
+	/**
+	 * Returns the min or max value if outside of the range.
+	 */
+	public static long within(long value, long min, long max) {
+		if (value < min) return min;
+		if (value > max) return max;
+		return value;
+	}
+	
+	/**
 	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
 	 */
 	public static byte min(byte... array) {

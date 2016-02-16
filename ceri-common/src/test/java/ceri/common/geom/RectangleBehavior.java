@@ -1,10 +1,13 @@
-package ceri.common.math;
+package ceri.common.geom;
 
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.geom.Dimension2d;
+import ceri.common.geom.Point2d;
+import ceri.common.geom.Rectangle;
 
 public class RectangleBehavior {
 
@@ -23,6 +26,12 @@ public class RectangleBehavior {
 		assertNotEquals(r0, r5);
 	}
 
+	@Test
+	public void shouldCalculateArea() {
+		assertThat(new Rectangle(100, -200, 0, 0).area(), is(0.0));
+		assertThat(new Rectangle(10, -20, 50, 20).area(), is(1000.0));
+	}
+	
 	@Test
 	public void shouldExposeDimensions() {
 		Rectangle r = new Rectangle(100, -20, 50, 10);

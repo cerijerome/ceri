@@ -1,29 +1,41 @@
-package ceri.common.math;
+package ceri.common.geom;
 
 import static ceri.common.test.TestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.exerciseEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class EllipsoidBehavior {
-	private final Ellipsoid e0 = new Ellipsoid(4, 2, 1);
-	private final Ellipsoid e1 = new Ellipsoid(1, 2, 4);
+	private final Ellipsoid e0 = Ellipsoid.create(4, 2, 1);
+	private final Ellipsoid e1 = Ellipsoid.create(1, 2, 4);
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		exerciseEquals(e0, new Ellipsoid(4, 2, 1));
-		assertNotEquals(e0, new Ellipsoid(4.1, 2, 1));
-		assertNotEquals(e0, new Ellipsoid(4, 1.9, 1));
-		assertNotEquals(e0, new Ellipsoid(4, 2, 1.1));
+		exerciseEquals(e0, Ellipsoid.create(4, 2, 1));
+		assertNotEquals(e0, Ellipsoid.create(4.1, 2, 1));
+		assertNotEquals(e0, Ellipsoid.create(4, 1.9, 1));
+		assertNotEquals(e0, Ellipsoid.create(4, 2, 1.1));
 	}
 
 	@Test
 	public void shouldOnlyAllowPositiveAxes() {
-		assertException(() -> new Ellipsoid(0, 2, 1));
-		assertException(() -> new Ellipsoid(4, 0, 1));
-		assertException(() -> new Ellipsoid(4, 2, 0));
+		assertException(() -> Ellipsoid.create(-0.1, 2, 1));
+		assertException(() -> Ellipsoid.create(4, -0.1, 1));
+		assertException(() -> Ellipsoid.create(4, 2, -0.1));
+	}
+
+	@Test
+	public void shouldDefineNull() {
+		assertThat(Ellipsoid.create(0, 2, 1), is(Ellipsoid.NULL));
+		assertThat(Ellipsoid.create(4, 0, 1), is(Ellipsoid.NULL));
+		assertThat(Ellipsoid.create(4, 2, 0), is(Ellipsoid.NULL));
+		assertTrue(Ellipsoid.NULL.isNull());
+		assertFalse(e0.isNull());
 	}
 
 	@Test
@@ -41,8 +53,11 @@ public class EllipsoidBehavior {
 			double v = e0.volumeBetweenZ(-1, z);
 			assertApprox(e0.zFromVolume(v), z);
 		}
+		assertApprox(Ellipsoid.NULL.xFromVolume(1), 0);
+		assertApprox(Ellipsoid.NULL.yFromVolume(1), 0);
+		assertApprox(Ellipsoid.NULL.zFromVolume(1), 0);
 	}
-	
+
 	@Test
 	public void shouldCalculatePartialVolume() {
 		assertTrue(Double.isNaN(e0.volumeBetweenX(-4.1, 0)));
@@ -61,8 +76,11 @@ public class EllipsoidBehavior {
 		assertApprox(e0.volumeBetweenZ(0.2, 0.8), 10.857);
 		assertApprox(e0.volumeBetweenZ(0.1, 0.8), 13.312);
 		assertApprox(e0.volumeBetweenZ(-0.8, -0.1), 13.312);
+		assertApprox(Ellipsoid.NULL.volumeBetweenX(0, 1), 0);
+		assertApprox(Ellipsoid.NULL.volumeBetweenY(0, 1), 0);
+		assertApprox(Ellipsoid.NULL.volumeBetweenZ(0, 1), 0);
 	}
-	
+
 	@Test
 	public void shouldCalculateVolume() {
 		assertApprox(e0.volume(), 33.510);

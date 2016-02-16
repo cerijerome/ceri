@@ -36,6 +36,20 @@ import ceri.common.factory.NumberFactoriesTest;
 import ceri.common.factory.StringFactoriesTest;
 import ceri.common.filter.CollectionFiltersTest;
 import ceri.common.filter.FiltersTest;
+import ceri.common.geom.CircleBehavior;
+import ceri.common.geom.ConeBehavior;
+import ceri.common.geom.ConicalFrustumBehavior;
+import ceri.common.geom.CylinderBehavior;
+import ceri.common.geom.Dimension2dBehavior;
+import ceri.common.geom.EllipseBehavior;
+import ceri.common.geom.EllipsoidBehavior;
+import ceri.common.geom.GeometryUtilTest;
+import ceri.common.geom.Line2dBehavior;
+import ceri.common.geom.Point2dBehavior;
+import ceri.common.geom.PolarBehavior;
+import ceri.common.geom.Ratio2dBehavior;
+import ceri.common.geom.RectangleBehavior;
+import ceri.common.geom.TruncatedSpheroidBehavior;
 import ceri.common.io.BitIteratorBehavior;
 import ceri.common.io.BlockingBufferStreamBehavior;
 import ceri.common.io.ByteArrayDataInputBehavior;
@@ -56,17 +70,7 @@ import ceri.common.io.ReplaceableOutputStreamBehavior;
 import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
 import ceri.common.math.AlgebraUtilTest;
-import ceri.common.math.CircleBehavior;
-import ceri.common.math.ConeBehavior;
-import ceri.common.math.CylinderBehavior;
-import ceri.common.math.Dimension2dBehavior;
-import ceri.common.math.EllipseBehavior;
-import ceri.common.math.EllipsoidBehavior;
-import ceri.common.math.GeometryUtilTest;
 import ceri.common.math.MathUtilTest;
-import ceri.common.math.Point2dBehavior;
-import ceri.common.math.Ratio2dBehavior;
-import ceri.common.math.RectangleBehavior;
 import ceri.common.property.BasePropertiesBehavior;
 import ceri.common.property.KeyBehavior;
 import ceri.common.property.PropertyUtilTest;
@@ -158,6 +162,21 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	// filter
 	CollectionFiltersTest.class,
 	FiltersTest.class,
+	// geom
+	CircleBehavior.class,
+	ConeBehavior.class,
+	ConicalFrustumBehavior.class,
+	CylinderBehavior.class,
+	Dimension2dBehavior.class,
+	GeometryUtilTest.class,
+	EllipseBehavior.class,
+	EllipsoidBehavior.class,
+	Line2dBehavior.class,
+	Point2dBehavior.class,
+	PolarBehavior.class,
+	Ratio2dBehavior.class,
+	RectangleBehavior.class,
+	TruncatedSpheroidBehavior.class,
 	// io
 	BitIteratorBehavior.class,
 	BlockingBufferStreamBehavior.class,
@@ -180,17 +199,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	StringPrintStreamBehavior.class,
 	// math
 	AlgebraUtilTest.class,
-	CircleBehavior.class,
-	ConeBehavior.class,
-	CylinderBehavior.class,
-	Dimension2dBehavior.class,
-	GeometryUtilTest.class,
-	EllipseBehavior.class,
-	EllipsoidBehavior.class,
 	MathUtilTest.class,
-	Point2dBehavior.class,
-	Ratio2dBehavior.class,
-	RectangleBehavior.class,
 	// property
 	BasePropertiesBehavior.class,
 	KeyBehavior.class,

@@ -130,7 +130,7 @@ public class TestUtil {
 	public static void assertApprox(double value, double expected) {
 		assertApprox(value, expected, APPROX_DECIMAL_PLACES_DEF);
 	}
-	
+
 	/**
 	 * Checks a double value is correct to given number of decimal places.
 	 */
@@ -139,7 +139,28 @@ public class TestUtil {
 		double approxExpected = MathUtil.simpleRound(expected, decimalPlaces);
 		assertThat(approxValue, is(approxExpected));
 	}
+
+	/**
+	 * Checks double values are correct to 3 decimal places.
+	 */
+	public static void assertApprox(double[] values, double... expecteds) {
+		assertApproxPlaces(values, APPROX_DECIMAL_PLACES_DEF, expecteds);
+	}
 	
+	/**
+	 * Checks double values are correct to given number of decimal places.
+	 */
+	public static void assertApproxPlaces(double[] values, int decimalPlaces, double... expecteds) {
+		assertThat("Array size", values.length, is(expecteds.length));
+		for (int i = 0; i < values.length; i++) {
+			double approxValue = MathUtil.simpleRound(values[i], decimalPlaces);
+			double approxExpected = MathUtil.simpleRound(expecteds[i], decimalPlaces);
+			assertThat("Expected " + approxExpected + " but value at index " + i + " was " +
+				approxValue, approxValue, is(approxExpected));
+
+		}
+	}
+
 	/**
 	 * Checks a value is within given range, with detailed failure information if not.
 	 */

@@ -1,4 +1,4 @@
-package ceri.common.math;
+package ceri.common.geom;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.util.EqualsUtil;
@@ -36,6 +36,10 @@ public class Rectangle {
 		return new Point2d(x + w, y + h);
 	}
 
+	public double area() {
+		return w * h;
+	}
+	
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(x, y, w, h);

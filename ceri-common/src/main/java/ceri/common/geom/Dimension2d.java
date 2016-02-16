@@ -1,4 +1,4 @@
-package ceri.common.math;
+package ceri.common.geom;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.util.EqualsUtil;
