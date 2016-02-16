@@ -187,36 +187,36 @@ public class MathUtil {
 	}
 
 	/**
-	 * Returns the min or max value if outside of the range.
+	 * Limits the value to be within the min and max.
 	 */
-	public static float within(float value, float min, float max) {
+	public static float limit(float value, float min, float max) {
 		if (value < min) return min;
 		if (value > max) return max;
 		return value;
 	}
 	
 	/**
-	 * Returns the min or max value if outside of the range.
+	 * Limits the value to be within the min and max.
 	 */
-	public static double within(double value, double min, double max) {
+	public static double limit(double value, double min, double max) {
 		if (value < min) return min;
 		if (value > max) return max;
 		return value;
 	}
 	
 	/**
-	 * Returns the min or max value if outside of the range.
+	 * Limits the value to be within the min and max.
 	 */
-	public static int within(int value, int min, int max) {
+	public static int limit(int value, int min, int max) {
 		if (value < min) return min;
 		if (value > max) return max;
 		return value;
 	}
 	
 	/**
-	 * Returns the min or max value if outside of the range.
+	 * Limits the value to be within the min and max.
 	 */
-	public static long within(long value, long min, long max) {
+	public static long limit(long value, long min, long max) {
 		if (value < min) return min;
 		if (value > max) return max;
 		return value;

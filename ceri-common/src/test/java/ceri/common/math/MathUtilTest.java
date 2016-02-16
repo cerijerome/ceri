@@ -29,6 +29,20 @@ public class MathUtilTest {
 	}
 
 	@Test
+	public void testLimit() {
+		assertThat(MathUtil.limit(2, -3, -2), is(-2));
+		assertThat(MathUtil.limit(-2, 2, 3), is(2));
+		assertThat(MathUtil.limit(3, 2, 3), is(3));
+		assertThat(MathUtil.limit(3, 2, 1), is(1));
+		assertThat(MathUtil.limit(Long.MAX_VALUE, Long.MIN_VALUE, 0), is(0L));
+		assertThat(MathUtil.limit(Long.MIN_VALUE, Long.MAX_VALUE, Long.MAX_VALUE), is(Long.MAX_VALUE));
+		assertThat(MathUtil.limit(0, Long.MIN_VALUE, Long.MAX_VALUE), is(0L));
+		assertThat(MathUtil.limit(Float.MAX_VALUE, 0, Float.MIN_VALUE), is(Float.MIN_VALUE));
+		assertThat(MathUtil.limit(Float.MIN_VALUE, 0, Float.MAX_VALUE), is(Float.MIN_VALUE));
+		assertThat(MathUtil.limit(-Float.MAX_VALUE, 0, Float.MAX_VALUE), is(0f));
+	}
+	
+	@Test
 	public void testSimpleRound() {
 		assertThat(MathUtil.simpleRound(11111.11111, 2), is(11111.11));
 		assertThat(MathUtil.simpleRound(11111.11111, 10), is(11111.11111));

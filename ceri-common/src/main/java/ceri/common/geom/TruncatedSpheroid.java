@@ -81,8 +81,8 @@ public class TruncatedSpheroid {
 	 */
 	public double volumeBetweenH(double h0, double h1) {
 		if (isNull()) return 0;
-		h0 = MathUtil.within(h0, 0, h);
-		h1 = MathUtil.within(h1, 0, h);
+		h0 = MathUtil.limit(h0, 0, h);
+		h1 = MathUtil.limit(h1, 0, h);
 		return ellipsoid.volumeBetweenZ(h0 + this.h0, h1 + this.h0);
 	}
 

@@ -21,6 +21,7 @@ import ceri.common.util.BasicUtil;
  * String-based utilities. See also TextUtil for more word-based formatting utilities.
  */
 public class StringUtil {
+	private static final String INTEGRAL_FLOAT = ".0";
 	private static final char BACKSLASH = '\\';
 	private static final char BACKSPACE = '\b';
 	private static final char ESCAPE = '\u001b';
@@ -124,6 +125,24 @@ public class StringUtil {
 		return output.toString();
 	}
 
+	/**
+	 * Compact floating point representation - trailing .0 is removed if present.
+	 */
+	public static String compact(float f) {
+		String s = Float.toString(f);
+		if (s.endsWith(INTEGRAL_FLOAT)) s = s.substring(0, s.length() - INTEGRAL_FLOAT.length());
+		return s;
+	}
+	
+	/**
+	 * Compact floating point representation - trailing .0 is removed if present.
+	 */
+	public static String compact(double d) {
+		String s = Double.toString(d);
+		if (s.endsWith(INTEGRAL_FLOAT)) s = s.substring(0, s.length() - INTEGRAL_FLOAT.length());
+		return s;
+	}
+	
 	/**
 	 * Convert a byte array into a list of hex strings.
 	 */

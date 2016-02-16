@@ -34,32 +34,40 @@ public class EllipseBehavior {
 
 	@Test
 	public void shouldCalculateAngle() {
+		assertTrue(Double.isNaN(e0.angleFromX(-5)));
 		assertApprox(e0.angleFromX(-4), Math.PI / 2);
 		assertApprox(e0.angleFromX(-2), 0.281);
 		assertApprox(e0.angleFromX(0), 0);
 		assertApprox(e0.angleFromX(2), -0.281);
 		assertApprox(e0.angleFromX(4), -Math.PI / 2);
+		assertTrue(Double.isNaN(e0.angleFromX(5)));
+		assertTrue(Double.isNaN(e0.angleFromY(-3)));
 		assertApprox(e0.angleFromY(-2), 0);
 		assertApprox(e0.angleFromY(-1), 0.714);
 		assertApprox(e0.angleFromY(0), Math.PI / 2);
 		assertApprox(e0.angleFromY(1), -0.714);
 		assertApprox(e0.angleFromY(2), 0);
+		assertTrue(Double.isNaN(e0.angleFromY(3)));
 		assertApprox(Ellipse.NULL.angleFromX(1), 0);
 		assertApprox(Ellipse.NULL.angleFromY(1), 0);
 	}
 	
 	@Test
 	public void shouldCalculateGradient() {
+		assertTrue(Double.isNaN(e0.gradientFromX(-5)));
 		assertThat(e0.gradientFromX(-4), is(Double.POSITIVE_INFINITY));
 		assertApprox(e0.gradientFromX(-2), 0.289);
 		assertApprox(e0.gradientFromX(0), 0);
 		assertApprox(e0.gradientFromX(2), -0.289);
 		assertThat(e0.gradientFromX(4), is(Double.NEGATIVE_INFINITY));
+		assertTrue(Double.isNaN(e0.gradientFromX(5)));
+		assertTrue(Double.isNaN(e0.gradientFromY(-3)));
 		assertApprox(e0.gradientFromY(-2), 0);
 		assertApprox(e0.gradientFromY(-1), 0.866);
 		assertThat(e0.gradientFromY(0), is(Double.POSITIVE_INFINITY));
 		assertApprox(e0.gradientFromY(1), -0.866);
 		assertApprox(e0.gradientFromY(2), 0);
+		assertTrue(Double.isNaN(e0.gradientFromY(3)));
 		assertApprox(Ellipse.NULL.gradientFromX(1), 0);
 		assertApprox(Ellipse.NULL.gradientFromY(1), 0);
 	}

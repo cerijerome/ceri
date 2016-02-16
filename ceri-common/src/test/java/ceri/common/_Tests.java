@@ -45,6 +45,7 @@ import ceri.common.geom.EllipseBehavior;
 import ceri.common.geom.EllipsoidBehavior;
 import ceri.common.geom.GeometryUtilTest;
 import ceri.common.geom.Line2dBehavior;
+import ceri.common.geom.Line2dEquationBehavior;
 import ceri.common.geom.Point2dBehavior;
 import ceri.common.geom.PolarBehavior;
 import ceri.common.geom.Ratio2dBehavior;
@@ -172,6 +173,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	EllipseBehavior.class,
 	EllipsoidBehavior.class,
 	Line2dBehavior.class,
+	Line2dEquationBehavior.class,
 	Point2dBehavior.class,
 	PolarBehavior.class,
 	Ratio2dBehavior.class,

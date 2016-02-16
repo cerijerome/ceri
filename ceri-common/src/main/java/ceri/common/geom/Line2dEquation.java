@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import ceri.common.text.ToStringHelper;
+import static ceri.common.text.StringUtil.compact;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
@@ -8,6 +8,9 @@ import ceri.common.util.HashCoder;
  * Line formula ax + by + c = 0.
  */
 public class Line2dEquation {
+	public static final Line2dEquation NULL = new Line2dEquation(0, 0, 0);
+	public static final Line2dEquation X_AXIS = from(Line2d.X_UNIT);
+	public static final Line2dEquation Y_AXIS = from(Line2d.Y_UNIT);
 	public final double a;
 	public final double b;
 	public final double c;
@@ -17,8 +20,7 @@ public class Line2dEquation {
 	}
 
 	public static Line2dEquation between(Point2d from, Point2d to) {
-		if (from.equals(to)) throw new IllegalArgumentException("Points cannot be identical: " +
-			from + ", " + to);
+		if (from.equals(to)) return NULL;
 		double dx = to.x - from.x;
 		double dy = to.y - from.y;
 		if (dx == 0) return new Line2dEquation(1, 0, -from.x);
@@ -28,37 +30,52 @@ public class Line2dEquation {
 		return new Line2dEquation(1, b, c);
 	}
 
-	public Line2dEquation(double a, double b, double c) {
-		if (a == 0 && b == 0) throw new IllegalArgumentException("a and b cannot both be 0: " + a +
-			", " + b);
+	public static Line2dEquation create(double a, double b, double c) {
+		if (a == 0 && b == 0) return NULL;
+		return new Line2dEquation(a, b, c);
+	}
+
+	private Line2dEquation(double a, double b, double c) {
 		this.a = a;
 		this.b = b;
 		this.c = c;
 	}
 
 	public Point2d reflect(Point2d point) {
+		if (isNull()) return point;
+		return reflect(point.x, point.y);
+	}
+	
+	public Point2d reflect(double x, double y) {
+		if (isNull()) return new Point2d(x, y);
 		double aa = a * a;
 		double bb = b * b;
-		double x = ((point.x * (bb - aa)) - (point.y * a * b * 2) - (a * c * 2)) / (aa + bb);
-		double y = ((point.y * (aa - bb)) - (point.x * a * b * 2) - (b * c * 2)) / (aa + bb);
-		return new Point2d(x, y);
+		double newX = ((x * (bb - aa)) - (y * a * b * 2) - (a * c * 2)) / (aa + bb);
+		double newY = ((y * (aa - bb)) - (x * a * b * 2) - (b * c * 2)) / (aa + bb);
+		return new Point2d(newX, newY);
 	}
-	
+
 	public double angle() {
-		if (a == 0) return 0;
-		if (b == 0) return Math.PI / 2;
+		if (isNull()) return Double.NaN;
+		if (b <= 0) return Math.atan2(a, -b);
 		return Math.atan2(-a, b);
 	}
-	
+
 	public double gradient() {
+		if (isNull()) return Double.NaN;
 		if (a == 0) return 0;
 		if (b == 0) return Double.POSITIVE_INFINITY;
 		return -a / b;
 	}
-	
+
 	public Line2dEquation normalize() {
-		if (a != 0) return new Line2dEquation(1, b / a, c / a);
-		return new Line2dEquation(a / b, 1, c / b);
+		if (isNull()) return this;
+		if (a != 0) return new Line2dEquation(1, 0.0 + b / a, 0.0 + c / a); // avoid -0.0
+		return new Line2dEquation(0, 1, 0.0 + c / b); // avoid -0.0
+	}
+
+	public boolean isNull() {
+		return a == 0 && b == 0;
 	}
 
 	@Override
@@ -79,7 +96,20 @@ public class Line2dEquation {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, a, b, c).toString();
+		if (isNull()) return "0 = 0";
+		StringBuilder s = new StringBuilder();
+		addTerm(s, a, "x");
+		addTerm(s, b, "y");
+		addTerm(s, c, "");
+		return s.append(" = 0").toString();
+	}
+
+	private void addTerm(StringBuilder b, double d, String suffix) {
+		if (d == 0) return;
+		if (d < 0) b.append(b.length() == 0 ? "-" : " - ");
+		if (d > 0) b.append(b.length() == 0 ? "" : " + ");
+		if (suffix.isEmpty() || (d != 1 && d != -1)) b.append(compact(Math.abs(d)));
+		b.append(suffix);
 	}
 
 }
