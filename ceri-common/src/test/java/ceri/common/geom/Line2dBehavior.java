@@ -1,5 +1,6 @@
 package ceri.common.geom;
 
+import static ceri.common.test.TestUtil.assertApprox;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
@@ -18,6 +19,23 @@ public class Line2dBehavior {
 		assertNotEquals(l0, Line2d.create(-1, 2, 2.1, -1));
 		assertNotEquals(l0, Line2d.create(-1, 2, 2, -0.9));
 		exerciseEquals(l1, Line2d.create(1, 3));
+	}
+
+	@Test
+	public void shouldCalculateAngle() {
+		assertThat(Line2d.ZERO.angle(), is(Double.NaN));
+		assertThat(Line2d.create(-1, 1, -1, 1).angle(), is(Double.NaN));
+		assertApprox(Line2d.create(-1, 1, 1, 3).angle(), 0.785);
+	}
+
+	@Test
+	public void shouldCalculateGradient() {
+		assertThat(Line2d.ZERO.gradient(), is(Double.NaN));
+		assertThat(Line2d.create(-1, 1, -1, 1).gradient(), is(Double.NaN));
+		assertThat(Line2d.create(-1, 1, -1, 3).gradient(), is(Double.POSITIVE_INFINITY));
+		assertThat(Line2d.create(-1, 1, -1, -1).gradient(), is(Double.NEGATIVE_INFINITY));
+		assertApprox(Line2d.create(-1, 1, 1, 3).gradient(), 1);
+		assertApprox(Line2d.create(1, 3, -1, 1).gradient(), 1);
 	}
 
 	@Test

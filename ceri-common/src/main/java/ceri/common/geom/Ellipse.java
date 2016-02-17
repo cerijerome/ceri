@@ -33,7 +33,7 @@ public class Ellipse {
 		if (Double.isNaN(y)) return Double.NaN;
 		return Math.atan2(-x * b * b, a * a * y);
 	}
-	
+
 	/**
 	 * Returns the gradient angle at y for x >= 0. Value returned is from -pi/2 to +pi/2.
 	 */
@@ -45,7 +45,7 @@ public class Ellipse {
 		if (y < 0) return Math.atan2(x * b * b, -a * a * y);
 		return Math.atan2(-x * b * b, a * a * y);
 	}
-	
+
 	/**
 	 * Returns the gradient at x for y >= 0.
 	 */
@@ -67,6 +67,20 @@ public class Ellipse {
 		double x = xFromY(y);
 		if (Double.isNaN(x)) return Double.NaN;
 		return -x * b * b / (a * a * y);
+	}
+
+	/**
+	 * Returns the coordinates (x, y), x >= 0, corresponding to the given gradient.
+	 */
+	public Point2d pointFromGradient(double m) {
+		if (isNull()) return Point2d.ZERO;
+		if (m == 0) return new Point2d(0, b);
+		if (m == Double.POSITIVE_INFINITY || m == Double.NEGATIVE_INFINITY) return new Point2d(a, 0);
+		double d = Math.sqrt((b * b) + (m * m * a * a));
+		double x = m * a * a / d;
+		double y = -b * b / d;
+		if (x >= 0) return new Point2d(x, y);
+		return new Point2d(-x, -y);
 	}
 
 	/**
@@ -125,7 +139,7 @@ public class Ellipse {
 	public boolean isNull() {
 		return a == 0;
 	}
-	
+
 	/**
 	 * Perimeter of the ellipse using Ramanujan's approximation. Not accurate for large a/b and b/a
 	 * ratios.

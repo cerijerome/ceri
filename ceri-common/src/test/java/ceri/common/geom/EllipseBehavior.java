@@ -1,5 +1,6 @@
 package ceri.common.geom;
 
+import static ceri.common.geom.GeometryTestUtil.*;
 import static ceri.common.test.TestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.exerciseEquals;
@@ -72,6 +73,18 @@ public class EllipseBehavior {
 		assertApprox(Ellipse.NULL.gradientFromY(1), 0);
 	}
 
+	@Test
+	public void shouldCalculatePointFromGradient() {
+		assertApprox(e0.pointFromGradient(0), 0, 2);
+		assertApprox(e0.pointFromGradient(Double.POSITIVE_INFINITY), 4, 0);
+		assertApprox(e0.pointFromGradient(Double.NEGATIVE_INFINITY), 4, 0);
+		assertApprox(e0.pointFromGradient(-0.1), 0.784, 1.961);
+		assertApprox(e0.pointFromGradient(-1), 3.578, 0.894);
+		assertApprox(e0.pointFromGradient(-100), 4, 0.01);
+		assertApprox(e0.pointFromGradient(0.1), 0.784, -1.961);
+		assertApprox(e0.pointFromGradient(1), 3.578, -0.894);
+		assertApprox(e0.pointFromGradient(100), 4, -0.01);
+	}
 	@Test
 	public void shouldCalculatePerimeter() {
 		assertApprox(Ellipse.create(1, 1).perimeter(), 2 * Math.PI);

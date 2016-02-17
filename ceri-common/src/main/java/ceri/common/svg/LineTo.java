@@ -11,14 +11,18 @@ public class LineTo implements Path<LineTo> {
 	private final Position position;
 
 	public static LineTo absolute(double x, double y) {
-		return new LineTo(new Position(PositionType.absolute, x, y));
+		return create(Position.absolute(x, y));
 	}
 
 	public static LineTo relative(double x, double y) {
-		return new LineTo(new Position(PositionType.relative, x, y));
+		return create(Position.relative(x, y));
 	}
 
-	public LineTo(Position position) {
+	public static LineTo create(Position position) {
+		return new LineTo(position);
+	}
+	
+	private LineTo(Position position) {
 		this.position = position;
 	}
 

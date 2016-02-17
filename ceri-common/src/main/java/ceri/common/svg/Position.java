@@ -13,11 +13,31 @@ public class Position {
 	public final double x;
 	public final double y;
 
-	public Position(PositionType type, Point2d position) {
-		this(type, position.x, position.y);
+	public static Position relative(Point2d position) {
+		return relative(position.x, position.y);
 	}
 
-	public Position(PositionType type, double x, double y) {
+	public static Position relative(double x, double y) {
+		return create(PositionType.relative, x, y);
+	}
+
+	public static Position absolute(Point2d position) {
+		return absolute(position.x, position.y);
+	}
+
+	public static Position absolute(double x, double y) {
+		return create(PositionType.absolute, x, y);
+	}
+
+	public static Position create(PositionType type, Point2d position) {
+		return create(type, position.x, position.y);
+	}
+	
+	public static Position create(PositionType type, double x, double y) {
+		return new Position(type, x, y);
+	}
+	
+	private Position(PositionType type, double x, double y) {
 		this.type = type;
 		this.x = x;
 		this.y = y;
@@ -34,7 +54,7 @@ public class Position {
 	}
 
 	public Position reflect(Line2d line) {
-		return new Position(type, line.reflect(new Point2d(x, y)));
+		return Position.create(type, line.reflect(new Point2d(x, y)));
 	}
 	
 	public Position reverse() {

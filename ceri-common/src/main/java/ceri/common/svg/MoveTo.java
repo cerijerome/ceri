@@ -11,14 +11,18 @@ public class MoveTo implements Path<MoveTo> {
 	private final Position position;
 
 	public static MoveTo absolute(double x, double y) {
-		return new MoveTo(new Position(PositionType.absolute, x, y));
+		return create(Position.create(PositionType.absolute, x, y));
 	}
 	
 	public static MoveTo relative(double x, double y) {
-		return new MoveTo(new Position(PositionType.relative, x, y));
+		return create(Position.create(PositionType.relative, x, y));
 	}
-	
-	public MoveTo(Position position) {
+
+	public static MoveTo create(Position position) {
+		return new MoveTo(position);
+	}
+
+	private MoveTo(Position position) {
 		this.position = position;
 	}
 

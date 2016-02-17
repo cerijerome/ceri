@@ -14,9 +14,11 @@ public class TruncatedSpheroid {
 	private final Ellipsoid ellipsoid;
 	private final Ellipse ellipse;
 	private final double V0;
-	private final double h0;
+	public final double h0;
 	private final double V;
 	public final double h;
+	public final double c;
+	public final double r;
 
 	public static TruncatedSpheroid create(double r, double c, double h0, double h) {
 		if (r == 0 || c == 0 || h == 0) return NULL;
@@ -32,6 +34,8 @@ public class TruncatedSpheroid {
 		ellipse = Ellipse.create(r, c);
 		V0 = ellipsoid.volumeBetweenZ(-c, h0);
 		V = ellipsoid.volumeBetweenZ(-c, h0 + h) - V0;
+		this.r = r;
+		this.c = c;
 		this.h0 = h0;
 		this.h = h;
 	}
@@ -109,7 +113,7 @@ public class TruncatedSpheroid {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(ellipse.a, ellipse.b, h0, h);
+		return HashCoder.hash(r, c, h0, h);
 	}
 
 	@Override
@@ -117,8 +121,8 @@ public class TruncatedSpheroid {
 		if (this == obj) return true;
 		if (!(obj instanceof TruncatedSpheroid)) return false;
 		TruncatedSpheroid other = (TruncatedSpheroid) obj;
-		if (!EqualsUtil.equals(ellipse.a, other.ellipse.a)) return false;
-		if (!EqualsUtil.equals(ellipse.b, other.ellipse.b)) return false;
+		if (!EqualsUtil.equals(r, other.r)) return false;
+		if (!EqualsUtil.equals(c, other.c)) return false;
 		if (!EqualsUtil.equals(h0, other.h0)) return false;
 		if (!EqualsUtil.equals(h, other.h)) return false;
 		return true;
@@ -126,7 +130,7 @@ public class TruncatedSpheroid {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, ellipse.a, ellipse.b, h0, h).toString();
+		return ToStringHelper.createByClass(this, r, c, h0, h).toString();
 	}
 
 }

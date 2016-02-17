@@ -17,7 +17,7 @@ public class GroundedPath<T extends Path<T>> implements Path<GroundedPath<T>> {
 	}
 
 	private GroundedPath(Position start, T path) {
-		move = new MoveTo(start);
+		move = MoveTo.create(start);
 		this.path = path;
 		end = SvgUtil.combinedEnd(move, path);
 	}

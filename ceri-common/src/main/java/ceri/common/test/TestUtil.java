@@ -34,7 +34,7 @@ import ceri.common.util.PrimitiveUtil;
 public class TestUtil {
 	private static final int SMALL_BUFFER_SIZE = 1024;
 	private static final int BUFFER_SIZE = 1024 * 32;
-	private static final int APPROX_DECIMAL_PLACES_DEF = 3;
+	public static final int APPROX_PRECISION_DEF = 3;
 	private static final Random RND = new Random();
 
 	private TestUtil() {}
@@ -128,37 +128,47 @@ public class TestUtil {
 	 * Checks a double value is correct to 3 decimal places.
 	 */
 	public static void assertApprox(double value, double expected) {
-		assertApprox(value, expected, APPROX_DECIMAL_PLACES_DEF);
+		assertApprox("", value, expected);
 	}
 
 	/**
-	 * Checks a double value is correct to given number of decimal places.
+	 * Checks a double value is correct to 3 decimal places.
 	 */
-	public static void assertApprox(double value, double expected, int decimalPlaces) {
-		double approxValue = MathUtil.simpleRound(value, decimalPlaces);
-		double approxExpected = MathUtil.simpleRound(expected, decimalPlaces);
-		assertThat(approxValue, is(approxExpected));
+	public static void assertApprox(String reason, double value, double expected) {
+		assertApprox(reason, value, expected, APPROX_PRECISION_DEF);
+	}
+
+	/**
+	 * Checks a double value is correct to given number of digits after the decimal separator.
+	 */
+	public static void assertApprox(double value, double expected, int precision) {
+		assertApprox("", value, expected, precision);
+	}
+
+	/**
+	 * Checks a double value is correct to given number of digits after the decimal separator.
+	 */
+	public static void
+		assertApprox(String reason, double value, double expected, int precision) {
+		double approxValue = MathUtil.simpleRound(value, precision);
+		double approxExpected = MathUtil.simpleRound(expected, precision);
+		assertThat(reason, approxValue, is(approxExpected));
 	}
 
 	/**
 	 * Checks double values are correct to 3 decimal places.
 	 */
 	public static void assertApprox(double[] values, double... expecteds) {
-		assertApproxPlaces(values, APPROX_DECIMAL_PLACES_DEF, expecteds);
+		assertApproxPrecision(values, APPROX_PRECISION_DEF, expecteds);
 	}
-	
+
 	/**
 	 * Checks double values are correct to given number of decimal places.
 	 */
-	public static void assertApproxPlaces(double[] values, int decimalPlaces, double... expecteds) {
+	public static void assertApproxPrecision(double[] values, int precision, double... expecteds) {
 		assertThat("Array size", values.length, is(expecteds.length));
-		for (int i = 0; i < values.length; i++) {
-			double approxValue = MathUtil.simpleRound(values[i], decimalPlaces);
-			double approxExpected = MathUtil.simpleRound(expecteds[i], decimalPlaces);
-			assertThat("Expected " + approxExpected + " but value at index " + i + " was " +
-				approxValue, approxValue, is(approxExpected));
-
-		}
+		for (int i = 0; i < values.length; i++)
+			assertApprox("Index " + i, values[i], expecteds[i], precision);
 	}
 
 	/**

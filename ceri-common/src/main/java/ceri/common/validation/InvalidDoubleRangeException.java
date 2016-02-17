@@ -52,7 +52,7 @@ public class InvalidDoubleRangeException extends IllegalArgumentException {
 		if (min == null) b.append("<= ").append(max);
 		else if (max == null) b.append(">= ").append(min);
 		else if (min.equals(max)) b.append(max);
-		else b.append(min).append('-').append(max);
+		else b.append("between ").append(min).append(" and ").append(max);
 		b.append(": ").append(value);
 		return b.toString();
 	}

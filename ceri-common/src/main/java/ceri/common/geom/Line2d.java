@@ -76,6 +76,14 @@ public class Line2d {
 	}
 
 	/**
+	 * Gradient of the line.
+	 */
+	public double gradient() {
+		if (Point2d.ZERO.equals(vector)) return Double.NaN;
+		return vector.y / vector.x;
+	}
+
+	/**
 	 * Length of the line.
 	 */
 	public double length() {
