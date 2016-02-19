@@ -50,7 +50,7 @@ public class Line2d {
 	 * Reflect the given point in the extended line.
 	 */
 	public Point2d reflect(Point2d point) {
-		return Line2dEquation.from(this).reflect(point);
+		return LineEquation2d.from(this).reflect(point);
 	}
 
 	/**

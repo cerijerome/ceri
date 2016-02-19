@@ -148,11 +148,14 @@ public class TestUtil {
 	/**
 	 * Checks a double value is correct to given number of digits after the decimal separator.
 	 */
-	public static void
-		assertApprox(String reason, double value, double expected, int precision) {
-		double approxValue = MathUtil.simpleRound(value, precision);
-		double approxExpected = MathUtil.simpleRound(expected, precision);
-		assertThat(reason, approxValue, is(approxExpected));
+	public static void assertApprox(String reason, double value, double expected, int precision) {
+		if (!Double.isFinite(expected) || !Double.isFinite(value)) {
+			assertThat(reason, value, is(expected));
+		} else {
+			double approxValue = MathUtil.simpleRound(value, precision);
+			double approxExpected = MathUtil.simpleRound(expected, precision);
+			assertThat(reason, approxValue, is(approxExpected));
+		}
 	}
 
 	/**

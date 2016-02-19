@@ -4,18 +4,18 @@ import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
-public class Rectangle {
-	public static final Rectangle NULL = new Rectangle(0, 0, 0, 0);
+public class Rectangle2d {
+	public static final Rectangle2d NULL = new Rectangle2d(0, 0, 0, 0);
 	public final double x;
 	public final double y;
 	public final double w;
 	public final double h;
 
-	public Rectangle(Point2d position, Dimension2d size) {
+	public Rectangle2d(Point2d position, Dimension2d size) {
 		this(position.x, position.y, size.w, size.h);
 	}
 
-	public Rectangle(double x, double y, double w, double h) {
+	public Rectangle2d(double x, double y, double w, double h) {
 		validateMin(w, 0, "Width");
 		validateMin(h, 0, "Height");
 		this.x = x;
@@ -48,8 +48,8 @@ public class Rectangle {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Rectangle)) return false;
-		Rectangle other = (Rectangle) obj;
+		if (!(obj instanceof Rectangle2d)) return false;
+		Rectangle2d other = (Rectangle2d) obj;
 		if (!EqualsUtil.equals(x, other.x)) return false;
 		if (!EqualsUtil.equals(y, other.y)) return false;
 		if (!EqualsUtil.equals(w, other.w)) return false;

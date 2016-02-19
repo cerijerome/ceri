@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.stream.DoubleStream;
 
 public class MathUtil {
+	public static final double PI_BY_2 = Math.PI / 2; // common calculation
 	private static final char ZERO = '0';
 	private static final int BASE10 = 10;
 	private static final int MAX_ROUND_PLACES = 10;

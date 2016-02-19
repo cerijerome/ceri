@@ -5,23 +5,23 @@ import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
-public class Polar {
-	public static final Polar ZERO = new Polar(0, 0);
+public class Polar2d {
+	public static final Polar2d ZERO = new Polar2d(0, 0);
 	public final double r;
 	public final double phi;
 
-	public static Polar from(Point2d point) {
+	public static Polar2d from(Point2d point) {
 		if (point.equals(Point2d.ZERO)) return ZERO;
 		Line2d line = Line2d.create(Point2d.ZERO, point);
-		return new Polar(line.length(), line.angle());
+		return new Polar2d(line.length(), line.angle());
 	}
 	
-	public static Polar create(double r, double phi) {
+	public static Polar2d create(double r, double phi) {
 		validateMin(r, 0, "Radius");
-		return new Polar(r, phi);
+		return new Polar2d(r, phi);
 	}
 	
-	private Polar(double r, double phi) {
+	private Polar2d(double r, double phi) {
 		this.r = r;
 		this.phi = phi;
 	}
@@ -38,8 +38,8 @@ public class Polar {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Polar)) return false;
-		Polar other = (Polar) obj;
+		if (!(obj instanceof Polar2d)) return false;
+		Polar2d other = (Polar2d) obj;
 		if (!EqualsUtil.equals(r, other.r)) return false;
 		if (!EqualsUtil.equals(phi, other.phi)) return false;
 		return true;

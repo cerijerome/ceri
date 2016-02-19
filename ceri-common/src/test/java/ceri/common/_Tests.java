@@ -36,21 +36,23 @@ import ceri.common.factory.NumberFactoriesTest;
 import ceri.common.factory.StringFactoriesTest;
 import ceri.common.filter.CollectionFiltersTest;
 import ceri.common.filter.FiltersTest;
-import ceri.common.geom.CircleBehavior;
-import ceri.common.geom.ConeBehavior;
-import ceri.common.geom.ConicalFrustumBehavior;
-import ceri.common.geom.CylinderBehavior;
+import ceri.common.geom.Circle2dBehavior;
+import ceri.common.geom.Cone3dBehavior;
+import ceri.common.geom.Cylinder3dBehavior;
 import ceri.common.geom.Dimension2dBehavior;
-import ceri.common.geom.EllipseBehavior;
-import ceri.common.geom.EllipsoidBehavior;
+import ceri.common.geom.Ellipse2dBehavior;
+import ceri.common.geom.Ellipsoid3dBehavior;
 import ceri.common.geom.GeometryUtilTest;
+import ceri.common.geom.InvertedRadial3dBehavior;
 import ceri.common.geom.Line2dBehavior;
 import ceri.common.geom.Line2dEquationBehavior;
 import ceri.common.geom.Point2dBehavior;
-import ceri.common.geom.PolarBehavior;
+import ceri.common.geom.Polar2dBehavior;
+import ceri.common.geom.Radial3dBehavior;
 import ceri.common.geom.Ratio2dBehavior;
-import ceri.common.geom.RectangleBehavior;
-import ceri.common.geom.TruncatedSpheroidBehavior;
+import ceri.common.geom.Rectangle2dBehavior;
+import ceri.common.geom.Spheroid3dBehavior;
+import ceri.common.geom.TruncatedRadial3dBehavior;
 import ceri.common.io.BitIteratorBehavior;
 import ceri.common.io.BlockingBufferStreamBehavior;
 import ceri.common.io.ByteArrayDataInputBehavior;
@@ -72,6 +74,7 @@ import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
 import ceri.common.math.AlgebraUtilTest;
 import ceri.common.math.MathUtilTest;
+import ceri.common.math.ReverseFunctionBehavior;
 import ceri.common.property.BasePropertiesBehavior;
 import ceri.common.property.KeyBehavior;
 import ceri.common.property.PropertyUtilTest;
@@ -164,21 +167,23 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	CollectionFiltersTest.class,
 	FiltersTest.class,
 	// geom
-	CircleBehavior.class,
-	ConeBehavior.class,
-	ConicalFrustumBehavior.class,
-	CylinderBehavior.class,
+	Circle2dBehavior.class,
+	Cone3dBehavior.class,
+	Cylinder3dBehavior.class,
 	Dimension2dBehavior.class,
 	GeometryUtilTest.class,
-	EllipseBehavior.class,
-	EllipsoidBehavior.class,
+	Ellipse2dBehavior.class,
+	Ellipsoid3dBehavior.class,
+	InvertedRadial3dBehavior.class,
 	Line2dBehavior.class,
 	Line2dEquationBehavior.class,
 	Point2dBehavior.class,
-	PolarBehavior.class,
+	Polar2dBehavior.class,
+	Radial3dBehavior.class,
 	Ratio2dBehavior.class,
-	RectangleBehavior.class,
-	TruncatedSpheroidBehavior.class,
+	Rectangle2dBehavior.class,
+	Spheroid3dBehavior.class,
+	TruncatedRadial3dBehavior.class,
 	// io
 	BitIteratorBehavior.class,
 	BlockingBufferStreamBehavior.class,
@@ -202,6 +207,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	// math
 	AlgebraUtilTest.class,
 	MathUtilTest.class,
+	ReverseFunctionBehavior.class,
 	// property
 	BasePropertiesBehavior.class,
 	KeyBehavior.class,
@@ -215,50 +221,34 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ScoreLookupBehavior.class,
 	ScorersTest.class,
 	//test
-	DebuggerBehavior.class,
-	RegexMatcherBehavior.class,
-	SourceManipulatorBehavior.class,
-	TestPrinterBehavior.class,
-	TestRunAdapterBehavior.class,
-	TestRunPrinterBehavior.class,
+	DebuggerBehavior.class, RegexMatcherBehavior.class, SourceManipulatorBehavior.class,
+	TestPrinterBehavior.class, TestRunAdapterBehavior.class, TestRunPrinterBehavior.class,
 	TestStateBehavior.class,
 	TestThreadBehavior.class,
 	TestTimerBehavior.class,
 	TestUtilTest.class,
 	//text
-	RegexUtilTest.class,
-	StringUtilTest.class,
+	RegexUtilTest.class, StringUtilTest.class,
 	TextUtilTest.class,
 	ToStringHelperBehavior.class,
 	Utf8UtilTest.class,
 	// tree
-	NodeTreeBehavior.class,
-	TreeIteratorBehavior.class,
-	TreeNodeBehavior.class,
+	NodeTreeBehavior.class, TreeIteratorBehavior.class, TreeNodeBehavior.class,
 	TreeNodeComparatorsTest.class,
 	TreeUtilTest.class,
 	// unit
 	InchUnitTest.class,
 	NormalizedValueBehavior.class,
 	// util
-	BasicUtilTest.class,
-	EqualsUtilTest.class,
-	HashCoderBehavior.class,
-	KeyValueBehavior.class,
-	LocaleUtilTest.class,
-	MultiPatternBehavior.class,
-	NameValueBehavior.class,
-	OsUtilTest.class,
+	BasicUtilTest.class, EqualsUtilTest.class, HashCoderBehavior.class, KeyValueBehavior.class,
+	LocaleUtilTest.class, MultiPatternBehavior.class, NameValueBehavior.class, OsUtilTest.class,
 	PrimitiveUtilTest.class,
 	// validation
 	ValidationUtilTest.class,
 	// xml
-	RuntimeXPathExceptionBehavior.class,
-	XPathUtilTest.class,
+	RuntimeXPathExceptionBehavior.class, XPathUtilTest.class,
 	// zip
-	ZippingInputStreamBehavior.class,
-	ZipUtilTest.class,
-})
+	ZippingInputStreamBehavior.class, ZipUtilTest.class, })
 public class _Tests {
 	public static void main(String... args) {
 		TestUtil.exec(_Tests.class);

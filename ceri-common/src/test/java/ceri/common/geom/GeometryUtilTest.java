@@ -1,14 +1,17 @@
 package ceri.common.geom;
 
+import static ceri.common.test.TestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static java.lang.Double.MAX_VALUE;
+import static java.lang.Double.NaN;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import ceri.common.geom.Dimension2d;
 import ceri.common.geom.GeometryUtil;
 import ceri.common.geom.Ratio2d;
-import ceri.common.geom.Rectangle;
+import ceri.common.geom.Rectangle2d;
+import ceri.common.math.MathUtil;
 
 public class GeometryUtilTest {
 	private final Dimension2d d0 = new Dimension2d(400, 100);
@@ -24,16 +27,26 @@ public class GeometryUtilTest {
 	private final Ratio2d r2 = new Ratio2d(0.2, 0.5);
 	private final Ratio2d r3 = new Ratio2d(0, 0);
 	private final Ratio2d r4 = new Ratio2d(1, 0);
-	private final Rectangle rt0 = new Rectangle(0, 0, 200, 100);
-	private final Rectangle rt1 = new Rectangle(-50, 50, 100, 40);
-	private final Rectangle rt2 = new Rectangle(-40, -100, 0, 400);
-	private final Rectangle rt3 = new Rectangle(-20, -200, 100, 100);
+	private final Rectangle2d rt0 = new Rectangle2d(0, 0, 200, 100);
+	private final Rectangle2d rt1 = new Rectangle2d(-50, 50, 100, 40);
+	private final Rectangle2d rt2 = new Rectangle2d(-40, -100, 0, 400);
+	private final Rectangle2d rt3 = new Rectangle2d(-20, -200, 100, 100);
 
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(GeometryUtil.class);
 	}
 
+	@Test
+	public void testAngleFromGradient() {
+		assertApprox(GeometryUtil.angleFromGradient(NaN), NaN);
+		assertApprox(GeometryUtil.angleFromGradient(0), 0);
+		assertApprox(GeometryUtil.angleFromGradient(Double.POSITIVE_INFINITY), MathUtil.PI_BY_2);
+		assertApprox(GeometryUtil.angleFromGradient(Double.NEGATIVE_INFINITY), -MathUtil.PI_BY_2);
+		assertApprox(GeometryUtil.angleFromGradient(1), Math.PI / 4);
+		assertApprox(GeometryUtil.angleFromGradient(-1), -Math.PI / 4);
+	}
+	
 	@Test
 	public void testOverlap() {
 		assertRect(GeometryUtil.overlap(rt0, rt0), 0, 0, 200, 100);
@@ -82,7 +95,7 @@ public class GeometryUtilTest {
 		assertThat(dim.h, is(h));
 	}
 
-	private void assertRect(Rectangle rect, double x, double y, double w, double h) {
+	private void assertRect(Rectangle2d rect, double x, double y, double w, double h) {
 		assertThat(rect.x, is(x));
 		assertThat(rect.y, is(y));
 		assertThat(rect.w, is(w));

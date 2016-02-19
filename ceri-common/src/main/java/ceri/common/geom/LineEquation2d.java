@@ -7,35 +7,35 @@ import ceri.common.util.HashCoder;
 /**
  * Line formula ax + by + c = 0.
  */
-public class Line2dEquation {
-	public static final Line2dEquation NULL = new Line2dEquation(0, 0, 0);
-	public static final Line2dEquation X_AXIS = from(Line2d.X_UNIT);
-	public static final Line2dEquation Y_AXIS = from(Line2d.Y_UNIT);
+public class LineEquation2d {
+	public static final LineEquation2d NULL = new LineEquation2d(0, 0, 0);
+	public static final LineEquation2d X_AXIS = from(Line2d.X_UNIT);
+	public static final LineEquation2d Y_AXIS = from(Line2d.Y_UNIT);
 	public final double a;
 	public final double b;
 	public final double c;
 
-	public static Line2dEquation from(Line2d line) {
+	public static LineEquation2d from(Line2d line) {
 		return between(line.from, line.to);
 	}
 
-	public static Line2dEquation between(Point2d from, Point2d to) {
+	public static LineEquation2d between(Point2d from, Point2d to) {
 		if (from.equals(to)) return NULL;
 		double dx = to.x - from.x;
 		double dy = to.y - from.y;
-		if (dx == 0) return new Line2dEquation(1, 0, -from.x);
-		if (dy == 0) return new Line2dEquation(0, 1, -from.y);
+		if (dx == 0) return new LineEquation2d(1, 0, -from.x);
+		if (dy == 0) return new LineEquation2d(0, 1, -from.y);
 		double b = -dx / dy;
 		double c = -from.x - (b * from.y);
-		return new Line2dEquation(1, b, c);
+		return new LineEquation2d(1, b, c);
 	}
 
-	public static Line2dEquation create(double a, double b, double c) {
+	public static LineEquation2d create(double a, double b, double c) {
 		if (a == 0 && b == 0) return NULL;
-		return new Line2dEquation(a, b, c);
+		return new LineEquation2d(a, b, c);
 	}
 
-	private Line2dEquation(double a, double b, double c) {
+	private LineEquation2d(double a, double b, double c) {
 		this.a = a;
 		this.b = b;
 		this.c = c;
@@ -68,10 +68,10 @@ public class Line2dEquation {
 		return -a / b;
 	}
 
-	public Line2dEquation normalize() {
+	public LineEquation2d normalize() {
 		if (isNull()) return this;
-		if (a != 0) return new Line2dEquation(1, 0.0 + b / a, 0.0 + c / a); // avoid -0.0
-		return new Line2dEquation(0, 1, 0.0 + c / b); // avoid -0.0
+		if (a != 0) return new LineEquation2d(1, 0.0 + b / a, 0.0 + c / a); // avoid -0.0
+		return new LineEquation2d(0, 1, 0.0 + c / b); // avoid -0.0
 	}
 
 	public boolean isNull() {
@@ -86,8 +86,8 @@ public class Line2dEquation {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Line2dEquation)) return false;
-		Line2dEquation other = (Line2dEquation) obj;
+		if (!(obj instanceof LineEquation2d)) return false;
+		LineEquation2d other = (LineEquation2d) obj;
 		if (!EqualsUtil.equals(a, other.a)) return false;
 		if (!EqualsUtil.equals(b, other.b)) return false;
 		if (!EqualsUtil.equals(c, other.c)) return false;
