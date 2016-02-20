@@ -40,6 +40,9 @@ public class MathUtilTest {
 		assertThat(MathUtil.limit(Float.MAX_VALUE, 0, Float.MIN_VALUE), is(Float.MIN_VALUE));
 		assertThat(MathUtil.limit(Float.MIN_VALUE, 0, Float.MAX_VALUE), is(Float.MIN_VALUE));
 		assertThat(MathUtil.limit(-Float.MAX_VALUE, 0, Float.MAX_VALUE), is(0f));
+		assertThat(MathUtil.limit(Double.MAX_VALUE, 0, Double.MIN_VALUE), is(Double.MIN_VALUE));
+		assertThat(MathUtil.limit(Double.MIN_VALUE, 0, Double.MAX_VALUE), is(Double.MIN_VALUE));
+		assertThat(MathUtil.limit(-Double.MAX_VALUE, 0, Double.MAX_VALUE), is(0.0));
 	}
 	
 	@Test

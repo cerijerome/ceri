@@ -75,7 +75,6 @@ public class Debugger {
 
 	private int indents(int indentOffset) {
 		StackTraceElement e[] = Thread.currentThread().getStackTrace();
-		if (e == null) return 0;
 		int len = e.length - ++indentOffset; // don't count this method
 		if (len <= traceStartIndex) return 0;
 		return len - traceStartIndex;

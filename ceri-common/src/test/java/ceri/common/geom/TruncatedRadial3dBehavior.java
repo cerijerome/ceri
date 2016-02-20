@@ -4,14 +4,16 @@ import static ceri.common.test.TestUtil.assertApprox;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.NaN;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 public class TruncatedRadial3dBehavior {
 	private final Cone3d c0 = Cone3d.create(1, 4);
 	private final Spheroid3d s0 = Spheroid3d.create(4, 2);
-	private final TruncatedRadial3d t0 = TruncatedRadial3d.create(c0, 1, 2);
-	private final TruncatedRadial3d t1 = TruncatedRadial3d.create(s0, 0, 2);
+	private final TruncatedRadial3d<Cone3d> t0 = TruncatedRadial3d.create(c0, 1, 2);
+	private final TruncatedRadial3d<Spheroid3d> t1 = TruncatedRadial3d.create(s0, 0, 2);
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
@@ -20,6 +22,12 @@ public class TruncatedRadial3dBehavior {
 		assertNotEquals(t0, TruncatedRadial3d.create(Cone3d.create(1, 3.9), 1, 2));
 		assertNotEquals(t0, TruncatedRadial3d.create(Cone3d.create(1, 4), 0.9, 2));
 		assertNotEquals(t0, TruncatedRadial3d.create(Cone3d.create(1, 4), 1, 2.1));
+	}
+
+	@Test
+	public void shouldExposeWrappedRadial3d() {
+		assertThat(t0.wrapped(), is(c0));
+		assertThat(t1.wrapped(), is(s0));
 	}
 
 	@Test

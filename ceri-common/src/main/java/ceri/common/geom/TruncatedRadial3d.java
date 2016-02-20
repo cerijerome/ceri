@@ -4,23 +4,27 @@ import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
-public class TruncatedRadial3d implements Radial3d {
-	private final Radial3d radial;
+public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
+	private final T radial;
 	private final double h0;
 	private final double h;
 	private final double v0;
 	private final double v;
 
-	public static TruncatedRadial3d create(Radial3d radial, double h0, double h) {
-		return new TruncatedRadial3d(radial, h0, h);
+	public static <T extends Radial3d> TruncatedRadial3d<T> create(T radial, double h0, double h) {
+		return new TruncatedRadial3d<>(radial, h0, h);
 	}
 
-	private TruncatedRadial3d(Radial3d radial, double h0, double h) {
+	private TruncatedRadial3d(T radial, double h0, double h) {
 		this.radial = radial;
 		this.h0 = h0;
 		this.h = h;
 		v0 = radial.volumeFromHeight(h0);
 		v = radial.volumeFromHeight(h0 + h) - v0;
+	}
+
+	public T wrapped() {
+		return radial;
 	}
 
 	@Override
@@ -69,7 +73,7 @@ public class TruncatedRadial3d implements Radial3d {
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (!(obj instanceof TruncatedRadial3d)) return false;
-		TruncatedRadial3d other = (TruncatedRadial3d) obj;
+		TruncatedRadial3d<?> other = (TruncatedRadial3d<?>) obj;
 		if (!EqualsUtil.equals(radial, other.radial)) return false;
 		if (!EqualsUtil.equals(h0, other.h0)) return false;
 		if (!EqualsUtil.equals(h, other.h)) return false;

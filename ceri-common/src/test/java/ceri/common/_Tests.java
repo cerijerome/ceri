@@ -37,6 +37,7 @@ import ceri.common.factory.StringFactoriesTest;
 import ceri.common.filter.CollectionFiltersTest;
 import ceri.common.filter.FiltersTest;
 import ceri.common.geom.Circle2dBehavior;
+import ceri.common.geom.ConcaveSpheroidBehavior;
 import ceri.common.geom.Cone3dBehavior;
 import ceri.common.geom.Cylinder3dBehavior;
 import ceri.common.geom.Dimension2dBehavior;
@@ -51,6 +52,7 @@ import ceri.common.geom.Polar2dBehavior;
 import ceri.common.geom.Radial3dBehavior;
 import ceri.common.geom.Ratio2dBehavior;
 import ceri.common.geom.Rectangle2dBehavior;
+import ceri.common.geom.Shape3dUtilTest;
 import ceri.common.geom.Spheroid3dBehavior;
 import ceri.common.geom.TruncatedRadial3dBehavior;
 import ceri.common.io.BitIteratorBehavior;
@@ -168,6 +170,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	FiltersTest.class,
 	// geom
 	Circle2dBehavior.class,
+	ConcaveSpheroidBehavior.class,
 	Cone3dBehavior.class,
 	Cylinder3dBehavior.class,
 	Dimension2dBehavior.class,
@@ -182,6 +185,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	Radial3dBehavior.class,
 	Ratio2dBehavior.class,
 	Rectangle2dBehavior.class,
+	Shape3dUtilTest.class,
 	Spheroid3dBehavior.class,
 	TruncatedRadial3dBehavior.class,
 	// io

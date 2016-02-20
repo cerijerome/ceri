@@ -1,8 +1,8 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertFile;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertRange;
 import static ceri.common.test.TestUtil.isList;
 import static ceri.common.test.TestUtil.isObject;
@@ -45,6 +45,15 @@ public class TestUtilTest {
 	public void testExerciseEnums() {
 		TestUtil.exerciseEnum(StringUtil.Align.class);
 		assertException(() -> TestUtil.exerciseEnum(BadEnum.class));
+	}
+
+	@Test
+	public void testApprox() {
+		assertAssertion(() -> TestUtil.assertApprox(Double.POSITIVE_INFINITY, Double.MAX_VALUE));
+		TestUtil.assertApprox(0.000995, 0.00099499, 4);
+		assertAssertion(() -> TestUtil.assertApprox(0.000995, 0.00099499, 5));
+		double[] dd = { 1.0015, -0.00501, 0 };
+		assertAssertion(() -> TestUtil.assertApprox(dd, 1.0015, -0.00502, 0));
 	}
 
 	@Test

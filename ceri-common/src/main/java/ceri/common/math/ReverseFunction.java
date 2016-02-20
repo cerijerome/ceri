@@ -18,8 +18,9 @@ public class ReverseFunction {
 	public static ReverseFunction create(double x0, double x1, int steps, DoubleUnaryOperator fn) {
 		Builder b = builder();
 		for (int i = 0; i <= steps; i++) {
-			double x = x0 + (i * (x1 - x0) / steps);
-			b.add(fn.applyAsDouble(x), x);
+			double x = steps == 0 ? x0 : x0 + (i * (x1 - x0) / steps);
+			double y = fn.applyAsDouble(x);
+			b.add(y, x);
 		}
 		return b.build();
 	}
@@ -60,7 +61,7 @@ public class ReverseFunction {
 			ceiling = values.higherEntry(ceiling.getKey());
 		} else if (ceiling == null && floor != null) {
 			ceiling = floor;
-			ceiling = values.higherEntry(ceiling.getKey());
+			floor = values.lowerEntry(floor.getKey());
 		}
 		return x(y, floor, ceiling);
 	}
