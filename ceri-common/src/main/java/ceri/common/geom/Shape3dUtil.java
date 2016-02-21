@@ -29,13 +29,50 @@ public class Shape3dUtil {
 	}
 
 	/**
-	 * Creates a truncated spheroid with lower radius r0, upper radius r1, of given height h, and
-	 * gradient m at r1.
+	 * Creates a truncated concave spheroid with given radius r, elliptical axes a and c , lower
+	 * height offset h0 (-c to +c) and height h (0 to 2c).
 	 */
-	public static TruncatedRadial3d<Spheroid3d> truncatedSpheroidFromGradient(double r0, double r1,
-		double h, double m) {
-		if (m > 0) return spheroidFromPositiveGradient(r0, r1, h, m);
-		return spheroidFromNegativeGradient(r0, r1, h, m);
+	public static TruncatedRadial3d<ConcaveSpheroid3d> truncatedConcaveSpheroid(double r, double a,
+		double c, double h0, double h) {
+		ConcaveSpheroid3d spheroid = ConcaveSpheroid3d.create(r, a, c);
+		return truncate(spheroid, h0, h);
+	}
+
+	/**
+	 * Creates a truncated concave semi-spheroid with minimum radius r0, large radius 1, height h,
+	 * with gradient m at r1. The truncated concave spheroid either starts (m < 0) or ends (m > 0)
+	 * at the spheroid mid-point.
+	 */
+	public static TruncatedRadial3d<ConcaveSpheroid3d> truncatedConcaveSemiSpheroidFromGradient(
+		double r0, double r1, double h, double m) {
+		validateMin(r0, 0, "Minimum radius r0");
+		if (r1 <= r0) throw new IllegalArgumentException("Large radius r1 must be > " + r0 + ": " +
+			r1);
+		if (m == 0) throw new IllegalArgumentException("Gradient m cannot be 0: " + m);
+		if (m > 0) return truncatedConcaveSemiSpheroidFromPositiveGradient(r0, r1, h, m);
+		return truncatedConcaveSemiSpheroidFromNegativeGradient(r0, r1, h, m);
+	}
+
+	private static TruncatedRadial3d<ConcaveSpheroid3d>
+		truncatedConcaveSemiSpheroidFromPositiveGradient(double r0, double r1, double h, double m) {
+		double rd = r1 - r0;
+		double d = 2.0 * m * rd;
+		validateMin(h, d, "Height");
+		double a = rd * (h - (m * rd)) / (h - d);
+		double c = a * Math.sqrt(m * h / (a - rd));
+		double r = r0 + a;
+		return truncatedConcaveSpheroid(r, a, c, c, h);
+	}
+
+	private static TruncatedRadial3d<ConcaveSpheroid3d>
+		truncatedConcaveSemiSpheroidFromNegativeGradient(double r0, double r1, double h, double m) {
+		double rd = r1 - r0;
+		double d = 2.0 * -m * rd;
+		validateMin(h, d, "Height");
+		double a = rd * (h - (-m * rd)) / (h - d);
+		double c = a * Math.sqrt(-m * h / (a - rd));
+		double r = r0 + a;
+		return truncatedConcaveSpheroid(r, a, c, c - h, h);
 	}
 
 	/**
@@ -48,6 +85,16 @@ public class Shape3dUtil {
 		return truncate(spheroid, h0, h);
 	}
 
+	/**
+	 * Creates a truncated spheroid with lower radius r0, upper radius r1, of given height h, and
+	 * gradient m at r1.
+	 */
+	public static TruncatedRadial3d<Spheroid3d> truncatedSpheroidFromGradient(double r0, double r1,
+		double h, double m) {
+		if (m > 0) return spheroidFromPositiveGradient(r0, r1, h, m);
+		return spheroidFromNegativeGradient(r0, r1, h, m);
+	}
+
 	private static TruncatedRadial3d<Spheroid3d> spheroidFromPositiveGradient(double r0, double r1,
 		double h, double m) {
 		if (r0 >= r1) throw new IllegalArgumentException("r1 must be > " + r0 + ": " + r1);
@@ -56,8 +103,8 @@ public class Shape3dUtil {
 		double h1 = h * h / ((f - h) * 2);
 		double a = Math.sqrt(r1 * (h1 + (m * r1)) / m);
 		double b = Math.sqrt(h1 * (h1 + (m * r1)));
-		double h0 = r0 == 0 ? -b : -(h1 + h);
-		return truncatedSpheroid(a, b, h0, h);
+		double h0 = r0 == 0 ? 0 : h + h1;
+		return truncatedSpheroid(a, b, b - h0, h);
 	}
 
 	private static TruncatedRadial3d<Spheroid3d> spheroidFromNegativeGradient(double r0, double r1,
@@ -68,8 +115,8 @@ public class Shape3dUtil {
 		double h1 = h * h / ((h - f) * 2);
 		double a = Math.sqrt(r1 * (h1 + (-m * r1)) / -m);
 		double b = Math.sqrt(h1 * (h1 + (-m * r1)));
-		double h0 = r0 == 0 ? -b : h1 - h;
-		return truncatedSpheroid(a, b, h0, h);
+		double h0 = r0 == 0 ? b : h - h1;
+		return truncatedSpheroid(a, b, b - h0, h);
 	}
 
 }
