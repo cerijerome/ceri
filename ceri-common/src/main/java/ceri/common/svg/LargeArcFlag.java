@@ -10,4 +10,8 @@ public enum LargeArcFlag {
 		this.value = value;
 	}
 
+	public LargeArcFlag reverse() {
+		return this == small ? large : small;
+	}
+	
 }

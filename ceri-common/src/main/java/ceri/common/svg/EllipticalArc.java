@@ -81,12 +81,12 @@ public class EllipticalArc implements Path<EllipticalArc> {
 
 	@Override
 	public EllipticalArc reverse() {
-		return builder(this).end(end.reverse()).build();
+		return builder(this).end(end.reverse()).flag(sweep.reverse()).build();
 	}
 
 	@Override
 	public EllipticalArc reflect(Line2d line) {
-		return builder(this).end(end.reflect(line)).build();
+		return builder(this).end(end.reflect(line)).flag(sweep.reverse()).build();
 	}
 
 	@Override
