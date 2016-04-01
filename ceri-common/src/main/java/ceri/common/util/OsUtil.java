@@ -10,6 +10,7 @@ public class OsUtil {
 	public static final boolean IS_LINUX = matches(OS_NAME, "^Linux");
 	public static final boolean IS_X86 = matches(OS_ARCH, "^x86");
 	public static final boolean IS_64BIT = matches(OS_ARCH, "64$");
+	public static final boolean IS_ARM = matches(OS_ARCH, "arm");
 		
 	private OsUtil() {}
 

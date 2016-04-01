@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.geom.GeometryTestUtil.*;
+import static ceri.common.geom.GeometryTestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.exerciseEquals;
