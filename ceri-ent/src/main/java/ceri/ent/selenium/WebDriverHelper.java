@@ -79,4 +79,8 @@ public class WebDriverHelper implements Closeable {
 		return driver.findElements(By.xpath(xPath));
 	}
 
+	public String pageSource() {
+		return driver.getPageSource();
+	}
+	
 }
