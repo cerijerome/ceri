@@ -2,6 +2,7 @@ package ceri.common.property;
 
 import static ceri.common.collection.StreamUtil.toList;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +35,22 @@ public abstract class BaseProperties {
 	 */
 	public static BaseProperties from(Properties properties) {
 		return new BaseProperties(properties) {};
+	}
+
+	/**
+	 * Merges base properties to one with no prefix.
+	 */
+	public static BaseProperties merge(BaseProperties... properties) {
+		return merge(Arrays.asList(properties));
+	}
+
+	/**
+	 * Merges base properties to one with no prefix.
+	 */
+	public static BaseProperties merge(Collection<BaseProperties> collection) {
+		Properties properties = new Properties();
+		collection.forEach(bp -> properties.putAll(bp.properties));
+		return from(properties);
 	}
 
 	@Override
