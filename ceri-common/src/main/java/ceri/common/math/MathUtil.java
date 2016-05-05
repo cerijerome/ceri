@@ -13,6 +13,20 @@ public class MathUtil {
 	private MathUtil() {}
 
 	/**
+	 * Generates a pseudo-random number from min to max inclusive.
+	 */
+	public static int randomInt(int min, int max) {
+		return (int) random(min, max);
+	}
+
+	/**
+	 * Generates a pseudo-random number from min to max inclusive.
+	 */
+	public static long random(long min, long max) {
+		return Math.round((Math.random() * (max - min)) + min);
+	}
+
+	/**
 	 * Rounds an array of values to the given number of decimal places. Too inaccurate for very
 	 * large or small values.
 	 */
@@ -195,7 +209,7 @@ public class MathUtil {
 		if (value > max) return max;
 		return value;
 	}
-	
+
 	/**
 	 * Limits the value to be within the min and max.
 	 */
@@ -204,7 +218,7 @@ public class MathUtil {
 		if (value > max) return max;
 		return value;
 	}
-	
+
 	/**
 	 * Limits the value to be within the min and max.
 	 */
@@ -213,7 +227,7 @@ public class MathUtil {
 		if (value > max) return max;
 		return value;
 	}
-	
+
 	/**
 	 * Limits the value to be within the min and max.
 	 */
@@ -222,7 +236,7 @@ public class MathUtil {
 		if (value > max) return max;
 		return value;
 	}
-	
+
 	/**
 	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
 	 */

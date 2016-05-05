@@ -3,11 +3,17 @@ package ceri.common.math;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertRange;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Test;
+import ceri.common.collection.CollectionUtil;
+import ceri.common.test.TestTimer;
 
 public class MathUtilTest {
 
@@ -28,6 +34,27 @@ public class MathUtilTest {
 		assertPrivateConstructor(MathUtil.class);
 	}
 
+	@Test
+	public void testRandom() {
+		assertEquals(0, MathUtil.random(0, 0));
+		assertEquals(Long.MAX_VALUE, MathUtil.random(Long.MAX_VALUE, Long.MAX_VALUE));
+		assertEquals(Long.MIN_VALUE, MathUtil.random(Long.MIN_VALUE, Long.MIN_VALUE));
+		for (int i = 0; i < 100; i++) {
+			assertRange(MathUtil.random(0, 1), 0, 1);
+			assertRange(MathUtil.random(-1, 0), -1, 0);
+			assertRange(MathUtil.random(1000, Long.MAX_VALUE), 1000, Long.MAX_VALUE);
+			assertRange(MathUtil.random(Long.MIN_VALUE, -1000), Long.MIN_VALUE, -1000);
+		}
+		Set<Long> numbers = CollectionUtil.addAll(new HashSet<>(), -1L, 0L, 1L, 2L, 3L, 4L);
+		TestTimer t = new TestTimer();
+		while (!numbers.isEmpty()) {
+			long l = MathUtil.random(-1, 4);
+			assertRange(l, -1, 4);
+			numbers.remove(l);
+			t.assertLessThan(1000);
+		}
+	}
+	
 	@Test
 	public void testLimit() {
 		assertThat(MathUtil.limit(2, -3, -2), is(-2));
