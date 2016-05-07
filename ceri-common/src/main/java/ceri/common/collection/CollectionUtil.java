@@ -30,6 +30,38 @@ public class CollectionUtil {
 	private CollectionUtil() {}
 
 	/**
+	 * Fills a list with a given number of elements from a given offset. Returns the offset after
+	 * the filled elements.
+	 */
+	public static <T> int fill(List<? super T> list, int offset, int length, T fill) {
+		for (int i = 0; i < length; i++)
+			list.set(offset + i, fill);
+		return offset + length;
+	}
+
+	/**
+	 * Inserts elements from one list to another. Returns the destination offset after the copied
+	 * elements.
+	 */
+	public static <T> int insert(List<? extends T> from, int srcOffset, List<? super T> to,
+		int destOffset, int length) {
+		for (int i = 0; i < length; i++)
+			to.add(destOffset + i, from.get(srcOffset + i));
+		return destOffset + length;
+	}
+
+	/**
+	 * Copies elements from one list to another. Returns the destination offset after the copied
+	 * elements.
+	 */
+	public static <T> int copy(List<? extends T> from, int srcOffset, List<? super T> to,
+		int destOffset, int length) {
+		for (int i = 0; i < length; i++)
+			to.set(destOffset + i, from.get(srcOffset + i));
+		return destOffset + length;
+	}
+
+	/**
 	 * Converts a collection to a map.
 	 */
 	public static <K, V, T> Map<K, V> toMap(Function<? super T, ? extends K> keyMapper,
@@ -111,8 +143,8 @@ public class CollectionUtil {
 		Map<K, V> result = new LinkedHashMap<>();
 		Stream<Entry<K, V>> stream = map.entrySet().stream();
 		Comparator<V> comparator = Comparators.comparable();
-		Comparator<Entry<K, V>> entryComparator = (e1, e2) -> comparator.compare(
-			e1.getValue(), e2.getValue());
+		Comparator<Entry<K, V>> entryComparator =
+			(e1, e2) -> comparator.compare(e1.getValue(), e2.getValue());
 		stream.sorted(entryComparator).forEach(e -> result.put(e.getKey(), e.getValue()));
 		return result;
 	}

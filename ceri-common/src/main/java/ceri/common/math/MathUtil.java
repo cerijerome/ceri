@@ -23,6 +23,7 @@ public class MathUtil {
 	 * Generates a pseudo-random number from min to max inclusive.
 	 */
 	public static long random(long min, long max) {
+		if (min == max) return min;
 		return Math.round((Math.random() * (max - min)) + min);
 	}
 
