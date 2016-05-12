@@ -29,6 +29,11 @@ public class EllipticalArc implements Path<EllipticalArc> {
 			return this;
 		}
 
+		Builder radius(double radius) {
+			this.radii = new Dimension2d(radius, radius);
+			return this;
+		}
+
 		Builder radii(Dimension2d radii) {
 			this.radii = radii;
 			return this;
@@ -59,12 +64,24 @@ public class EllipticalArc implements Path<EllipticalArc> {
 			.flag(arc.sweep);
 	}
 
+	public static Builder builder(Position end, double radius) {
+		return builder(end, new Dimension2d(radius, radius));
+	}
+
 	public static Builder builder(Position end, Dimension2d radii) {
 		return new Builder().end(end).radii(radii);
 	}
 
+	public static Builder absolute(double endX, double endY, double r) {
+		return absolute(endX, endY, r, r);
+	}
+
 	public static Builder absolute(double endX, double endY, double rx, double ry) {
 		return builder(Position.absolute(endX, endY), new Dimension2d(rx, ry));
+	}
+
+	public static Builder relative(double endX, double endY, double r) {
+		return relative(endX, endY, r, r);
 	}
 
 	public static Builder relative(double endX, double endY, double rx, double ry) {

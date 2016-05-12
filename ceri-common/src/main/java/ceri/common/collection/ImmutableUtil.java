@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Utility methods for creating immutable objects.
@@ -51,7 +52,7 @@ public class ImmutableUtil {
 	}
 
 	/**
-	 * Copies a collection of objects into an immutable HashSet.
+	 * Copies a collection of objects into an immutable LinkedHashSet.
 	 */
 	public static <T> Set<T> copyAsSet(Collection<? extends T> set) {
 		if (set.isEmpty()) return Collections.emptySet();
@@ -59,7 +60,7 @@ public class ImmutableUtil {
 	}
 
 	/**
-	 * Copies a map of objects into an immutable HashMap.
+	 * Copies a map of objects into an immutable LinkedHashMap.
 	 */
 	public static <K, V> Map<K, V> copyAsMap(Map<? extends K, ? extends V> map) {
 		if (map.isEmpty()) return Collections.emptyMap();
@@ -72,6 +73,21 @@ public class ImmutableUtil {
 	public static <T> List<T> copyAsList(Collection<? extends T> list) {
 		if (list.isEmpty()) return Collections.emptyList();
 		return Collections.unmodifiableList(new ArrayList<>(list));
+	}
+
+	/**
+	 * Copies a stream of objects into an immutable LinkedHashSet.
+	 */
+	public static <T> Set<T> collectAsSet(Stream<? extends T> stream) {
+		return Collections.<T>unmodifiableSet(stream.collect(Collectors
+			.toCollection(LinkedHashSet::new)));
+	}
+
+	/**
+	 * Copies a stream of objects into an immutable ArrayList.
+	 */
+	public static <T> List<T> collectAsList(Stream<? extends T> stream) {
+		return Collections.unmodifiableList(stream.collect(Collectors.toList()));
 	}
 
 	/**
