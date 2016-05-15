@@ -143,8 +143,8 @@ public class ImmutableUtil {
 
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
 		Collection<T> ts) {
-		return Collections.unmodifiableMap(ts.stream().collect(
-			Collectors.toMap(fn, Function.identity())));
+		return Collections.unmodifiableMap(ts.stream().collect(Collectors.toMap( //
+			fn, Function.identity(), StreamUtil.mergeError(), LinkedHashMap::new)));
 	}
 
 	public static <K, T extends Enum<T>> Map<K, T> enumMap(Function<T, K> fn, Class<T> cls) {

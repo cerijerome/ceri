@@ -73,6 +73,14 @@ public class TextUtil {
 	}
 
 	/**
+	 * Changes camel case to lower-case hyphenated e.g. _helloThereABC_ => _hello-there-abc_
+	 */
+	public static String camelToHyphen(String str) {
+		if (str.isEmpty()) return str;
+		return CASE_BOUNDARY_PATTERN.matcher(str).replaceAll("$1-$2").toLowerCase();
+	}
+	
+	/**
 	 * Changes camel case to Pascal case. e.g. _helloThereABC_ => _HelloThereABC_
 	 */
 	public static String camelToPascal(String str) {

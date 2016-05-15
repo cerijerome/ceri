@@ -109,8 +109,9 @@ public class Ellipse implements Path<Ellipse> {
 		double radians = Math.toRadians(xRotation);
 		double x0 = radii.w * Math.cos(radians);
 		double y0 = radii.w * Math.sin(radians);
+		Position start = center.combine(Position.relative(-x0, -y0));
 		Position offset = Position.relative(x0 * 2, y0 * 2);
-		return PathGroup.of(MoveTo.create(center).translate(new Point2d(-x0, -y0)), //
+		return PathGroup.of(MoveTo.create(start), //
 			EllipticalArc.builder(offset, radii).build(), //
 			EllipticalArc.builder(offset.reverse(), radii).build(), //
 			MoveTo.relative(x0, y0)).path();
