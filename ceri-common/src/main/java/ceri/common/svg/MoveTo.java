@@ -55,7 +55,7 @@ public class MoveTo implements Path<MoveTo> {
 
 	@Override
 	public String path() {
-		return String.format("%s%.0f,%.0f", position.absolute() ? "M" : "m", position.x,
+		return String.format("%s%f,%f", position.absolute() ? "M" : "m", position.x,
 			position.y);
 	}
 

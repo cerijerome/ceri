@@ -56,7 +56,7 @@ public class LineTo implements Path<LineTo> {
 	@Override
 	public String path() {
 		return String
-			.format("%s%.0f,%.0f", position.absolute() ? "L" : "l", position.x, position.y);
+			.format("%s%f,%f", position.absolute() ? "L" : "l", position.x, position.y);
 	}
 
 	@Override

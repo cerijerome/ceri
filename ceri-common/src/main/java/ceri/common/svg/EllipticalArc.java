@@ -123,7 +123,7 @@ public class EllipticalArc implements Path<EllipticalArc> {
 
 	@Override
 	public String path() {
-		return String.format("%s%.0f,%.0f %.0f %d,%d %.0f,%.0f", end.absolute() ? "A" : "a",
+		return String.format("%s%f,%f %f %d,%d %f,%f", end.absolute() ? "A" : "a",
 			radii.w, radii.h, xRotation, large.value, sweep.value, end.x, end.y);
 	}
 
