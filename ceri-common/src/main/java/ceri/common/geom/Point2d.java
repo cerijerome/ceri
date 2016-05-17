@@ -15,8 +15,24 @@ public class Point2d {
 		this.y = y;
 	}
 
+	public Point2d reverse() {
+		return new Point2d(-x, -y);
+	}
+	
 	public Point2d translate(Point2d offset) {
-		return new Point2d(x + offset.x, y + offset.y);
+		return translate(offset.x, offset.y);
+	}
+	
+	public Point2d translate(double x, double y) {
+		return new Point2d(this.x + x, this.y + y);
+	}
+	
+	public Point2d to(Point2d end) {
+		return new Point2d(end.x - x, end.y - y);
+	}
+	
+	public Point2d from(Point2d start) {
+		return start.to(this);
 	}
 	
 	public Point2d scale(Ratio2d scale) {

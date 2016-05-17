@@ -72,16 +72,32 @@ public class EllipticalArc implements Path<EllipticalArc> {
 		return new Builder().end(end).radii(radii);
 	}
 
+	public static Builder absolute(Point2d end, double r) {
+		return absolute(end.x, end.y, r, r);
+	}
+
 	public static Builder absolute(double endX, double endY, double r) {
 		return absolute(endX, endY, r, r);
+	}
+
+	public static Builder absolute(Point2d end, Dimension2d r) {
+		return builder(Position.absolute(end), r);
 	}
 
 	public static Builder absolute(double endX, double endY, double rx, double ry) {
 		return builder(Position.absolute(endX, endY), new Dimension2d(rx, ry));
 	}
 
+	public static Builder relative(Point2d end, double r) {
+		return relative(end.x, end.y, r, r);
+	}
+
 	public static Builder relative(double endX, double endY, double r) {
 		return relative(endX, endY, r, r);
+	}
+
+	public static Builder relative(Point2d end, Dimension2d r) {
+		return builder(Position.relative(end), r);
 	}
 
 	public static Builder relative(double endX, double endY, double rx, double ry) {

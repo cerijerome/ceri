@@ -8,12 +8,20 @@ import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public class MoveTo implements Path<MoveTo> {
-	private final Position position;
+	public final Position position;
+
+	public static MoveTo absolute(Point2d p) {
+		return absolute(p.x, p.y);
+	}
 
 	public static MoveTo absolute(double x, double y) {
 		return create(Position.create(PositionType.absolute, x, y));
 	}
 	
+	public static MoveTo relative(Point2d p) {
+		return relative(p.x, p.y);
+	}
+
 	public static MoveTo relative(double x, double y) {
 		return create(Position.create(PositionType.relative, x, y));
 	}

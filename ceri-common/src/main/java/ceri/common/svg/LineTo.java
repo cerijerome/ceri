@@ -8,10 +8,18 @@ import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public class LineTo implements Path<LineTo> {
-	private final Position position;
+	public final Position position;
+
+	public static LineTo absolute(Point2d p) {
+		return absolute(p.x, p.y);
+	}
 
 	public static LineTo absolute(double x, double y) {
 		return create(Position.absolute(x, y));
+	}
+
+	public static LineTo relative(Point2d p) {
+		return relative(p.x, p.y);
 	}
 
 	public static LineTo relative(double x, double y) {

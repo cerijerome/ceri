@@ -27,7 +27,7 @@ public class Polar2d {
 	}
 
 	public Point2d asPoint() {
-		return new Point2d(r * Math.cos(phi), r * Math.sin(phi));
+		return GeometryUtil.offset(r, phi);
 	}
 	
 	@Override

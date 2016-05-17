@@ -57,12 +57,20 @@ public class Ellipse implements Path<Ellipse> {
 		return new Builder().center(center).radii(radii);
 	}
 
+	public static Ellipse absoluteCircle(Point2d center, double radius) {
+		return absoluteCircle(center.x, center.y, radius);
+	}
+
 	public static Ellipse absoluteCircle(double x, double y, double r) {
 		return absolute(x, y, r, r).build();
 	}
 
 	public static Builder absolute(double x, double y, double rx, double ry) {
 		return builder(Position.absolute(x, y), new Dimension2d(rx, ry));
+	}
+
+	public static Ellipse relativeCircle(Point2d center, double radius) {
+		return relativeCircle(center.x, center.y, radius);
 	}
 
 	public static Ellipse relativeCircle(double x, double y, double r) {

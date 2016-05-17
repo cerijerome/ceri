@@ -11,6 +11,13 @@ public class GeometryUtil {
 	private GeometryUtil() {}
 
 	/**
+	 * Vector from given radius and angle.
+	 */
+	public static Point2d offset(double radius, double angle) {
+		return new Point2d(radius * Math.cos(angle), radius * Math.sin(angle));
+	}
+
+	/**
 	 * Calculates the angle of a given gradient from -pi/2 to +pi/2
 	 */
 	public static double angleFromGradient(double m) {

@@ -43,6 +43,10 @@ public class Position {
 		this.y = y;
 	}
 
+	public Point2d vector() {
+		return new Point2d(x, y);
+	}
+	
 	public boolean absolute() {
 		return type == PositionType.absolute;
 	}
