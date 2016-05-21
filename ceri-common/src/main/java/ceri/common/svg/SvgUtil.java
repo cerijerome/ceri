@@ -8,6 +8,16 @@ public class SvgUtil {
 
 	private SvgUtil() {}
 
+	public static String string(Object obj) {
+		if (obj == null) return "";
+		return String.valueOf(obj);
+	}
+
+	public static String string(Object obj, String suffix) {
+		if (obj == null) return "";
+		return String.valueOf(obj) + suffix;
+	}
+
 	public static Position combinedEnd(Path<?>... paths) {
 		return combinedEnd(Arrays.asList(paths));
 	}

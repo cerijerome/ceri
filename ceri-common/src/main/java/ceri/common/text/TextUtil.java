@@ -75,7 +75,7 @@ public class TextUtil {
 	/**
 	 * Changes camel case to lower-case hyphenated e.g. _helloThereABC_ => _hello-there-abc_
 	 */
-	public static String camelToHyphen(String str) {
+	public static String camelToHyphenated(String str) {
 		if (str.isEmpty()) return str;
 		return CASE_BOUNDARY_PATTERN.matcher(str).replaceAll("$1-$2").toLowerCase();
 	}
