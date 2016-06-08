@@ -57,4 +57,21 @@ public class ServletUtil {
 		response.getWriter().write(json);
 	}
 
+	public static void setErrorResponse(HttpServletResponse response, Exception e)
+		throws IOException {
+		setErrorResponse(response, message(e));
+	}
+
+	public static void setErrorResponse(HttpServletResponse response, String message)
+		throws IOException {
+		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message);
+	}
+
+	private static String message(Exception e) {
+		if (e == null) return "";
+		String message = e.getMessage();
+		if (message == null) return "";
+		return message;
+	}
+
 }
