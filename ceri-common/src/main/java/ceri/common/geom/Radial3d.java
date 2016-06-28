@@ -1,6 +1,8 @@
 package ceri.common.geom;
 
-
+/**
+ * Describes a 3d shape in which every cross-section perpendicular to the vertical axis is a circle.
+ */
 public interface Radial3d {
 
 	double height();
