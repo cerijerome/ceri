@@ -9,7 +9,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import org.junit.Test;
-import ceri.common.io.ByteArrayDataInput;
+import ceri.common.data.ByteArrayDataInput;
 import ceri.x10.type.House;
 
 public class ReadStatusBehavior {
