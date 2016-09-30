@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -41,9 +42,34 @@ public class ImmutableByteArray {
 	}
 
 	public static ImmutableByteArray wrap(byte[] array, int offset, int length) {
-		validate(array.length, offset, length);
+		ArrayUtil.validateSlice(array.length, offset, length);
 		if (length == 0) return EMPTY;
 		return new ImmutableByteArray(array, offset, length);
+	}
+
+	public static void writeTo(ImmutableByteArray b, ByteArrayOutputStream out) {
+		try {
+			b.writeTo(out);
+		} catch (IOException e) {
+			throw new IllegalStateException("Should not happen");
+		}
+	}
+
+	public static void writeTo(ImmutableByteArray b, ByteArrayOutputStream out, int offset) {
+		try {
+			b.writeTo(out, offset);
+		} catch (IOException e) {
+			throw new IllegalStateException("Should not happen");
+		}
+	}
+
+	public static void writeTo(ImmutableByteArray b, ByteArrayOutputStream out, int offset,
+		int length) {
+		try {
+			b.writeTo(out, offset, length);
+		} catch (IOException e) {
+			throw new IllegalStateException("Should not happen");
+		}
 	}
 
 	private ImmutableByteArray(byte[] array, int offset, int length) {
@@ -52,12 +78,42 @@ public class ImmutableByteArray {
 		this.length = length;
 	}
 
+	public ImmutableByteArray append(ImmutableByteArray array) {
+		return append(array, 0);
+	}
+	
+	public ImmutableByteArray append(ImmutableByteArray array, int offset) {
+		return append(array, offset, array.length - offset);
+	}
+	
+	public ImmutableByteArray append(ImmutableByteArray array, int offset, int length) {
+		ArrayUtil.validateSlice(offset, 0, array.length);
+		ArrayUtil.validateSlice(length, 0, array.length - offset);
+		if (length == 0) return this;
+		byte[] buffer = new byte[this.length + length];
+		copyTo(buffer);
+		array.copyTo(offset, buffer, this.length, length);
+		return wrap(buffer);
+	}
+	
+	public ImmutableByteArray append(byte...array) {
+		return append(array, 0);
+	}
+	
+	public ImmutableByteArray append(byte[] array, int offset) {
+		return append(array, offset, array.length - offset);
+	}
+	
+	public ImmutableByteArray append(byte[] array, int offset, int length) {
+		return append(wrap(array, offset, length));
+	}
+
 	public ImmutableByteArray slice(int offset) {
 		return slice(offset, length - offset);
 	}
 
 	public ImmutableByteArray slice(int offset, int length) {
-		validate(this.length, offset, length);
+		ArrayUtil.validateSlice(this.length, offset, length);
 		if (length == this.length) return this;
 		return wrap(array, this.offset + offset, length);
 	}
@@ -75,7 +131,7 @@ public class ImmutableByteArray {
 	}
 
 	public byte[] copy(int offset, int length) {
-		validate(this.length, offset, length);
+		ArrayUtil.validateSlice(this.length, offset, length);
 		if (length == 0) return ArrayUtil.EMPTY_BYTE;
 		return Arrays.copyOfRange(array, this.offset + offset, this.offset + offset + length);
 	}
@@ -93,7 +149,7 @@ public class ImmutableByteArray {
 	}
 
 	public int copyTo(int srcOffset, byte[] dest, int destOffset, int length) {
-		validate(this.length, srcOffset, length);
+		ArrayUtil.validateSlice(this.length, srcOffset, length);
 		if (length == 0) return destOffset;
 		System.arraycopy(array, offset + srcOffset, dest, destOffset, length);
 		return destOffset + length;
@@ -102,13 +158,13 @@ public class ImmutableByteArray {
 	public void writeTo(OutputStream out) throws IOException {
 		writeTo(out, 0);
 	}
-	
+
 	public void writeTo(OutputStream out, int offset) throws IOException {
 		writeTo(out, offset, length - offset);
 	}
-	
+
 	public void writeTo(OutputStream out, int offset, int length) throws IOException {
-		validate(this.length, offset, length);
+		ArrayUtil.validateSlice(this.length, offset, length);
 		if (length == 0) return;
 		out.write(array, this.offset + offset, length);
 	}
@@ -138,7 +194,7 @@ public class ImmutableByteArray {
 	}
 
 	public boolean equals(int srcOffset, byte[] array, int offset, int length) {
-		validate(this.length, srcOffset, length);
+		ArrayUtil.validateSlice(this.length, srcOffset, length);
 		for (int i = 0; i < length; i++)
 			if (at(srcOffset + i) != array[offset + i]) return false;
 		return true;
@@ -147,17 +203,17 @@ public class ImmutableByteArray {
 	public boolean equals(ImmutableByteArray array, int offset) {
 		return equals(array, offset, length);
 	}
-	
+
 	public boolean equals(ImmutableByteArray array, int offset, int length) {
 		return equals(0, array, offset, length);
 	}
-	
+
 	public boolean equals(int srcOffset, ImmutableByteArray array, int offset) {
 		return equals(srcOffset, array, offset, length - srcOffset);
 	}
-	
+
 	public boolean equals(int srcOffset, ImmutableByteArray array, int offset, int length) {
-		validate(this.length, srcOffset, length);
+		ArrayUtil.validateSlice(this.length, srcOffset, length);
 		for (int i = 0; i < length; i++)
 			if (at(srcOffset + i) != array.at(offset + i)) return false;
 		return true;
@@ -177,13 +233,6 @@ public class ImmutableByteArray {
 	@Override
 	public String toString() {
 		return ToStringHelper.createByClass(this, length).toString();
-	}
-
-	private static void validate(int sliceLen, int offset, int length) {
-		if (offset < 0 || offset > sliceLen) throw new IndexOutOfBoundsException(
-			"Offset must be 0-" + sliceLen + ": " + offset);
-		if (length < 0 || offset + length > sliceLen) throw new IndexOutOfBoundsException(
-			"Length must be 0-" + (sliceLen - offset) + ": " + length);
 	}
 
 }

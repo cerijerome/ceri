@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -28,13 +29,20 @@ public abstract class BaseProperties {
 	private static final String DESCENDENT_KEY_PATTERN = "[\\w\\.]+";
 	private static final String CHILD_ID_PATTERN = "\\d+";
 	protected final String prefix;
-	private final Properties properties;
+	private final PropertyAccessor properties;
 
 	/**
 	 * Creates base properties with no prefix from given properties.
 	 */
 	public static BaseProperties from(Properties properties) {
 		return new BaseProperties(properties) {};
+	}
+
+	/**
+	 * Creates base properties with no prefix from given resource bundle.
+	 */
+	public static BaseProperties from(ResourceBundle bundle) {
+		return new BaseProperties(bundle) {};
 	}
 
 	/**
@@ -49,7 +57,7 @@ public abstract class BaseProperties {
 	 */
 	public static BaseProperties merge(Collection<BaseProperties> collection) {
 		Properties properties = new Properties();
-		collection.forEach(bp -> properties.putAll(bp.properties));
+		collection.forEach(bp -> properties.putAll(bp.properties.properties()));
 		return from(properties);
 	}
 
@@ -67,9 +75,23 @@ public abstract class BaseProperties {
 	}
 
 	/**
-	 * Constructor for properties with given prefix keys.
+	 * Constructor for properties file with given prefix keys.
 	 */
 	protected BaseProperties(Properties properties, String... prefix) {
+		this(PropertyAccessor.from(properties), prefix);
+	}
+
+	/**
+	 * Constructor for resource bundle with given prefix keys.
+	 */
+	protected BaseProperties(ResourceBundle bundle, String... prefix) {
+		this(PropertyAccessor.from(bundle), prefix);
+	}
+
+	/**
+	 * Constructor for properties with given prefix keys.
+	 */
+	protected BaseProperties(PropertyAccessor properties, String... prefix) {
 		this.prefix = Key.createWithPrefix(null, prefix).value;
 		this.properties = properties;
 	}
@@ -87,7 +109,7 @@ public abstract class BaseProperties {
 	 * exists for the key.
 	 */
 	protected String value(String... keyParts) {
-		String value = properties.getProperty(key(keyParts));
+		String value = properties.property(key(keyParts));
 		return BasicUtil.isEmpty(value) ? null : value.trim();
 	}
 
@@ -403,15 +425,15 @@ public abstract class BaseProperties {
 	 * Returns the full keys that start with prefix.
 	 */
 	protected Collection<String> keys() {
-		return toList(properties.stringPropertyNames().stream().filter(this::hasPrefix).distinct());
+		return toList(properties.keys().stream().filter(this::hasPrefix).distinct());
 	}
 
 	private Stream<String> childKeyStream(String key, String capturePattern) {
 		String s = key(key);
 		if (!s.isEmpty()) s += ".";
 		Pattern pattern = Pattern.compile(String.format("^\\Q%s\\E(%s)", s, capturePattern));
-		return properties.stringPropertyNames().stream().map(k -> keyMatch(k, pattern)).filter(
-			Objects::nonNull).distinct();
+		return properties.keys().stream().map(k -> keyMatch(k, pattern)).filter(Objects::nonNull)
+			.distinct();
 	}
 
 	private String keyMatch(String key, Pattern pattern) {

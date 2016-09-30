@@ -31,6 +31,16 @@ public class ArrayUtil {
 	private ArrayUtil() {}
 
 	/**
+	 * Performs a validation on parameters to slice an array.
+	 */
+	public static void validateSlice(int arrayLength, int offset, int length) {
+		if (offset < 0 || offset > arrayLength) throw new IndexOutOfBoundsException(
+			"Offset must be 0-" + arrayLength + ": " + offset);
+		if (length < 0 || offset + length > arrayLength) throw new IndexOutOfBoundsException(
+			"Length must be 0-" + (arrayLength - offset) + ": " + length);
+	}
+
+	/**
 	 * Converts a collection to a new list by mapping elements from the original collection.
 	 */
 	@SafeVarargs

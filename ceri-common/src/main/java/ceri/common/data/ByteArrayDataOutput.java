@@ -1,4 +1,4 @@
-package ceri.common.io;
+package ceri.common.data;
 
 import java.io.DataOutput;
 

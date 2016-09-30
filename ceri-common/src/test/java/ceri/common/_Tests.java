@@ -20,6 +20,9 @@ import ceri.common.concurrent.BooleanConditionBehavior;
 import ceri.common.concurrent.ConcurrentUtilTest;
 import ceri.common.concurrent.RuntimeInterruptedExceptionBehavior;
 import ceri.common.concurrent.ValueConditionBehavior;
+import ceri.common.data.ByteArrayDataInputBehavior;
+import ceri.common.data.ByteArrayDataOutputBehavior;
+import ceri.common.data.ByteUtilTest;
 import ceri.common.date.CalendarFieldBehavior;
 import ceri.common.date.ImmutableDateBehavior;
 import ceri.common.date.ImmutableTimeZoneBehavior;
@@ -57,8 +60,6 @@ import ceri.common.geom.Spheroid3dBehavior;
 import ceri.common.geom.TruncatedRadial3dBehavior;
 import ceri.common.io.BitIteratorBehavior;
 import ceri.common.io.BlockingBufferStreamBehavior;
-import ceri.common.io.ByteArrayDataInputBehavior;
-import ceri.common.io.ByteArrayDataOutputBehavior;
 import ceri.common.io.ByteBufferStreamBehavior;
 import ceri.common.io.FileFiltersTest;
 import ceri.common.io.FileIteratorBehavior;
@@ -147,6 +148,10 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ConcurrentUtilTest.class,
 	RuntimeInterruptedExceptionBehavior.class,
 	ValueConditionBehavior.class,
+	// data
+	ByteArrayDataInputBehavior.class,
+	ByteArrayDataOutputBehavior.class,
+	ByteUtilTest.class,
 	// date
 	CalendarFieldBehavior.class,
 	ImmutableDateBehavior.class,
@@ -191,8 +196,6 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	// io
 	BitIteratorBehavior.class,
 	BlockingBufferStreamBehavior.class,
-	ByteArrayDataInputBehavior.class,
-	ByteArrayDataOutputBehavior.class,
 	ByteBufferStreamBehavior.class,
 	FileFiltersTest.class,
 	FileIteratorBehavior.class,
@@ -225,8 +228,12 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ScoreLookupBehavior.class,
 	ScorersTest.class,
 	//test
-	DebuggerBehavior.class, RegexMatcherBehavior.class, SourceManipulatorBehavior.class,
-	TestPrinterBehavior.class, TestRunAdapterBehavior.class, TestRunPrinterBehavior.class,
+	DebuggerBehavior.class,
+	RegexMatcherBehavior.class,
+	SourceManipulatorBehavior.class,
+	TestPrinterBehavior.class,
+	TestRunAdapterBehavior.class,
+	TestRunPrinterBehavior.class,
 	TestStateBehavior.class,
 	TestThreadBehavior.class,
 	TestTimerBehavior.class,
@@ -237,22 +244,33 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ToStringHelperBehavior.class,
 	Utf8UtilTest.class,
 	// tree
-	NodeTreeBehavior.class, TreeIteratorBehavior.class, TreeNodeBehavior.class,
+	NodeTreeBehavior.class,
+	TreeIteratorBehavior.class,
+	TreeNodeBehavior.class,
 	TreeNodeComparatorsTest.class,
 	TreeUtilTest.class,
 	// unit
 	InchUnitTest.class,
 	NormalizedValueBehavior.class,
 	// util
-	BasicUtilTest.class, EqualsUtilTest.class, HashCoderBehavior.class, KeyValueBehavior.class,
-	LocaleUtilTest.class, MultiPatternBehavior.class, NameValueBehavior.class, OsUtilTest.class,
+	BasicUtilTest.class,
+	EqualsUtilTest.class,
+	HashCoderBehavior.class,
+	KeyValueBehavior.class,
+	LocaleUtilTest.class,
+	MultiPatternBehavior.class,
+	NameValueBehavior.class,
+	OsUtilTest.class,
 	PrimitiveUtilTest.class,
 	// validation
 	ValidationUtilTest.class,
 	// xml
-	RuntimeXPathExceptionBehavior.class, XPathUtilTest.class,
+	RuntimeXPathExceptionBehavior.class,
+	XPathUtilTest.class,
 	// zip
-	ZippingInputStreamBehavior.class, ZipUtilTest.class, })
+	ZippingInputStreamBehavior.class,
+	ZipUtilTest.class,
+})
 public class _Tests {
 	public static void main(String... args) {
 		TestUtil.exec(_Tests.class);

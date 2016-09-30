@@ -1,4 +1,4 @@
-package ceri.common.io;
+package ceri.common.data;
 
 import static org.junit.Assert.assertArrayEquals;
 import java.io.ByteArrayOutputStream;
@@ -7,6 +7,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
+import ceri.common.data.ByteArrayDataOutput;
 
 public class ByteArrayDataOutputBehavior {
 	private byte[] outBytes;
