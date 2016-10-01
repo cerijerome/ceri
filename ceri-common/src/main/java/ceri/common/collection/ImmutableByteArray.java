@@ -87,8 +87,7 @@ public class ImmutableByteArray {
 	}
 	
 	public ImmutableByteArray append(ImmutableByteArray array, int offset, int length) {
-		ArrayUtil.validateSlice(offset, 0, array.length);
-		ArrayUtil.validateSlice(length, 0, array.length - offset);
+		ArrayUtil.validateSlice(array.length, offset, length);
 		if (length == 0) return this;
 		byte[] buffer = new byte[this.length + length];
 		copyTo(buffer);

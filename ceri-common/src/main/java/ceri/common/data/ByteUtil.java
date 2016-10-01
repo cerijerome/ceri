@@ -1,6 +1,8 @@
 package ceri.common.data;
 
 import static ceri.common.validation.ValidationUtil.validateMax;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableByteArray;
@@ -14,8 +16,16 @@ public class ByteUtil {
 
 	private ByteUtil() {}
 
+	public static void write(ByteArrayOutputStream out, byte...bytes) {
+		try {
+			out.write(bytes);
+		} catch (IOException e) {
+			throw new IllegalStateException("Should not happen");
+		}
+	}
+	
 	public static byte[] toAscii(String s) {
-		return s.getBytes(StandardCharsets.US_ASCII);
+		return s.getBytes(StandardCharsets.ISO_8859_1);
 	}
 
 	public static String fromAscii(byte[] data) {
@@ -27,7 +37,7 @@ public class ByteUtil {
 	}
 
 	public static String fromAscii(byte[] data, int offset, int length) {
-		return new String(data, offset, length, StandardCharsets.US_ASCII);
+		return new String(data, offset, length, StandardCharsets.ISO_8859_1);
 	}
 
 	public static String fromAscii(ImmutableByteArray data) {
