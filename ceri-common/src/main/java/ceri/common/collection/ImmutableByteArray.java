@@ -1,6 +1,5 @@
 package ceri.common.collection;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -8,7 +7,7 @@ import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
 
 /**
- * Wrapper for byte array that does not allow modification. It allows slicing of views, to promote
+ * Wrapper for byte array that does not allow modification. It allows slicing of views to promote
  * re-use rather than copying of bytes. Note that wrap() does not copy the original byte array, and
  * modifications of the original array will modify the wrapped array. If slicing large arrays,
  * copying may be better for long-term objects, as the reference to the original array is kept.
@@ -45,31 +44,6 @@ public class ImmutableByteArray {
 		ArrayUtil.validateSlice(array.length, offset, length);
 		if (length == 0) return EMPTY;
 		return new ImmutableByteArray(array, offset, length);
-	}
-
-	public static void writeTo(ImmutableByteArray b, ByteArrayOutputStream out) {
-		try {
-			b.writeTo(out);
-		} catch (IOException e) {
-			throw new IllegalStateException("Should not happen");
-		}
-	}
-
-	public static void writeTo(ImmutableByteArray b, ByteArrayOutputStream out, int offset) {
-		try {
-			b.writeTo(out, offset);
-		} catch (IOException e) {
-			throw new IllegalStateException("Should not happen");
-		}
-	}
-
-	public static void writeTo(ImmutableByteArray b, ByteArrayOutputStream out, int offset,
-		int length) {
-		try {
-			b.writeTo(out, offset, length);
-		} catch (IOException e) {
-			throw new IllegalStateException("Should not happen");
-		}
 	}
 
 	private ImmutableByteArray(byte[] array, int offset, int length) {

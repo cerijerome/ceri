@@ -16,14 +16,43 @@ public class ByteUtil {
 
 	private ByteUtil() {}
 
-	public static void write(ByteArrayOutputStream out, byte...bytes) {
+	public static void writeTo(ByteArrayOutputStream out, byte... bytes) {
 		try {
 			out.write(bytes);
 		} catch (IOException e) {
 			throw new IllegalStateException("Should not happen");
 		}
 	}
-	
+
+	public static void writeTo(ByteArrayOutputStream out, byte[] bytes, int offset) {
+		out.write(bytes, offset, bytes.length - offset);
+	}
+
+	public static void writeTo(ByteArrayOutputStream out, ImmutableByteArray b) {
+		try {
+			b.writeTo(out);
+		} catch (IOException e) {
+			throw new IllegalStateException("Should not happen");
+		}
+	}
+
+	public static void writeTo(ByteArrayOutputStream out, ImmutableByteArray b, int offset) {
+		try {
+			b.writeTo(out, offset);
+		} catch (IOException e) {
+			throw new IllegalStateException("Should not happen");
+		}
+	}
+
+	public static void writeTo(ByteArrayOutputStream out, ImmutableByteArray b, int offset,
+		int length) {
+		try {
+			b.writeTo(out, offset, length);
+		} catch (IOException e) {
+			throw new IllegalStateException("Should not happen");
+		}
+	}
+
 	public static byte[] toAscii(String s) {
 		return s.getBytes(StandardCharsets.ISO_8859_1);
 	}
