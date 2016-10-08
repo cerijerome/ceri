@@ -1,6 +1,5 @@
 package ceri.common.unit;
 
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import ceri.common.collection.ImmutableUtil;
@@ -18,7 +17,7 @@ public enum InchUnit implements Unit {
 	yard(foot.inches * 3, "yds", "yd"),
 	mile(yard.inches * 1760);
 
-	private static final EnumSet<InchUnit> HEIGHT_UNITS = EnumSet.of(foot, inch);
+	private static final Set<InchUnit> HEIGHT_UNITS = ImmutableUtil.asSet(foot, inch);
 	private static final MultiPattern HEIGHT_PATTERNS = MultiPattern.builder().pattern(
 		"(\\d+)" + foot.regex + "(\\d+)\"?", "(\\d+)" + foot.regex, "(\\d+)\"", "(\\d+)").build();
 	public final Set<String> aliases;

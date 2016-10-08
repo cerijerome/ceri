@@ -151,4 +151,13 @@ public class ImmutableUtil {
 		return convertAsMap(fn, EnumSet.allOf(cls));
 	}
 
+	public static <T extends Enum<T>> Set<T> enumSet(T one) {
+		return Collections.unmodifiableSet(EnumSet.of(one));
+	}
+
+	@SafeVarargs
+	public static <T extends Enum<T>> Set<T> enumSet(T first, T... rest) {
+		return Collections.unmodifiableSet(EnumSet.of(first, rest));
+	}
+
 }

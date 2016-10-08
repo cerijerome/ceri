@@ -91,7 +91,7 @@ public class StreamUtil {
 	 */
 	public static <T> BinaryOperator<T> mergeError() {
 		return (first, second) -> {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Duplicate keys: " + first + ", " + second);
 		};
 	}
 
