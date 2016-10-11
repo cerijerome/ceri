@@ -22,6 +22,7 @@ import ceri.common.util.BasicUtil;
  */
 public class StringUtil {
 	private static final String INTEGRAL_FLOAT = ".0";
+	private static final char UNPRINTABLE_CHAR = '.';
 	private static final char BACKSLASH = '\\';
 	private static final char BACKSPACE = '\b';
 	private static final char ESCAPE = '\u001b';
@@ -286,6 +287,25 @@ public class StringUtil {
 		if (Character.isISOControl(c) || c == KeyEvent.CHAR_UNDEFINED) return false;
 		Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
 		return block != Character.UnicodeBlock.SPECIALS;
+	}
+
+	/**
+	 * Replaces unprintable chars with given char.
+	 */
+	public static String replaceUnprintable(String s, char replace) {
+		StringBuilder b = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			b.append(printable(c) ? c : replace);
+		}
+		return b.toString();
+	}
+
+	/**
+	 * Replaces unprintable chars with '.'.
+	 */
+	public static String printable(String s) {
+		return replaceUnprintable(s, UNPRINTABLE_CHAR);
 	}
 
 	/**

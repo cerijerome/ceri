@@ -37,9 +37,8 @@ public class IoUtilTest {
 
 	@BeforeClass
 	public static void createTempFiles() throws IOException {
-		helper =
-			FileTestHelper.builder(IoUtil.systemTempDir()).file("a/a/a.txt", "aaa").file("b/b.txt",
-				"bbb").file("c.txt", "ccc").build();
+		helper = FileTestHelper.builder(IoUtil.systemTempDir()) //
+			.file("a/a/a.txt", "aaa").file("b/b.txt", "bbb").file("c.txt", "ccc").build();
 	}
 
 	@AfterClass
@@ -50,6 +49,20 @@ public class IoUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(IoUtil.class);
+	}
+
+	@Test
+	public void testClear() throws IOException {
+		assertClearBuffer(new byte[0]);
+		assertClearBuffer(new byte[100]);
+		assertClearBuffer(new byte[32 * 1024]);
+		assertClearBuffer(new byte[65 * 1024]);
+	}
+
+	private void assertClearBuffer(byte[] buffer) throws IOException {
+		InputStream in = new ByteArrayInputStream(buffer);
+		assertThat(IoUtil.clear(in), is(buffer.length));
+		assertThat(in.available(), is(0));
 	}
 
 	@Test

@@ -30,11 +30,29 @@ public class IoUtil {
 	private static final NullOutputStream NULL_OUTPUT_STREAM = new NullOutputStream();
 	public static final String REGEX_PATH_SEPARATOR = "\\" + File.separatorChar;
 	private static final Pattern UNIX_PATH_REGEX = Pattern.compile(REGEX_PATH_SEPARATOR);
+	private static final int MAX_CLEAR_BUFFER = 32 * 1024;
 	private static final int MAX_UUID_ATTEMPTS = 10; // Shouldn't be needed
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 32;
 	private static final String CLASS_SUFFIX = ".class";
 
 	private IoUtil() {}
+
+	/**
+	 * Clears available bytes from an input stream and returns the total number of bytes cleared.
+	 */
+	public static int clear(InputStream in) throws IOException {
+		int count = 0;
+		byte[] buffer = null;
+		while (true) {
+			int n = Math.min(in.available(), MAX_CLEAR_BUFFER);
+			if (n <= 0) break;
+			if (buffer == null) buffer = new byte[n];
+			int i = in.read(buffer);
+			if (i <= 0) break;
+			count += i;
+		}
+		return count;
+	}
 
 	/**
 	 * Returns an output stream that swallows all output.
