@@ -24,6 +24,7 @@ import ceri.common.data.ByteArrayDataInputBehavior;
 import ceri.common.data.ByteArrayDataOutputBehavior;
 import ceri.common.data.ByteUtilTest;
 import ceri.common.date.CalendarFieldBehavior;
+import ceri.common.date.DateUtilTest;
 import ceri.common.date.ImmutableDateBehavior;
 import ceri.common.date.ImmutableTimeZoneBehavior;
 import ceri.common.date.MultiDateParserBehavior;
@@ -154,6 +155,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ByteUtilTest.class,
 	// date
 	CalendarFieldBehavior.class,
+	DateUtilTest.class,
 	ImmutableDateBehavior.class,
 	ImmutableTimeZoneBehavior.class,
 	MultiDateParserBehavior.class,
