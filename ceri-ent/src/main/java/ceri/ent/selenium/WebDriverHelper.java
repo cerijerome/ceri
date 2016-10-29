@@ -3,28 +3,34 @@ package ceri.ent.selenium;
 import java.io.Closeable;
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import ceri.common.math.MathUtil;
 import com.google.common.base.Function;
 
 public class WebDriverHelper implements Closeable {
-	private static final int TIMEOUT_SEC_DEF = 5;
+	private static final Logger logger = LogManager.getLogger();
+	private static final int TIMEOUT_MS_DEF = 5000;
 	private final int timeoutSec;
 	public final WebDriver driver;
 	public final JavascriptExecutor js;
 
 	public WebDriverHelper(WebDriver driver) {
-		this(driver, TIMEOUT_SEC_DEF);
+		this(driver, TIMEOUT_MS_DEF);
 	}
 
-	public WebDriverHelper(WebDriver driver, int timeoutSec) {
+	public WebDriverHelper(WebDriver driver, long timeoutMs) {
 		this.driver = driver;
-		this.timeoutSec = timeoutSec;
+		this.timeoutSec = (int) MathUtil.roundDiv(timeoutMs, 1000);
 		js = driver instanceof JavascriptExecutor ? (JavascriptExecutor) driver : null;
 	}
 
@@ -33,6 +39,15 @@ public class WebDriverHelper implements Closeable {
 		if (driver != null) driver.quit();
 	}
 
+	public void get(String url) {
+		try {
+			driver.get(url);
+		} catch (TimeoutException e) {
+			logger.catching(Level.WARN, e);
+			driver.navigate().refresh();
+		}
+	}
+	
 	public WebElement waitForElement(String xPath) {
 		waitFor(() -> findElement(xPath) != null);
 		return findElement(xPath);
@@ -51,8 +66,8 @@ public class WebDriverHelper implements Closeable {
 		waitFor(driver -> test.getAsBoolean());
 	}
 
-	public static WebDriverHelper firefox(int timeoutSec) {
-		return new WebDriverHelper(new FirefoxDriver(), timeoutSec);
+	public static WebDriverHelper firefox(int timeoutMs) {
+		return new WebDriverHelper(new FirefoxDriver(), timeoutMs);
 	}
 
 	public WebElement findElement(By by) {
