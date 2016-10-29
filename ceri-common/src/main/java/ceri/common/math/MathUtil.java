@@ -29,6 +29,13 @@ public class MathUtil {
 	}
 
 	/**
+	 * Rounds the division of two long values.
+	 */
+	public static long roundDiv(long x, long y) {
+		return Math.round(((double) x) / y);
+	}
+	
+	/**
 	 * Rounds an array of values to the given number of decimal places. Too inaccurate for very
 	 * large or small values.
 	 */
