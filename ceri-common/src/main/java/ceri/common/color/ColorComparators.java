@@ -1,7 +1,8 @@
-package ceri.common.comparator;
+package ceri.common.color;
 
 import java.awt.Color;
 import java.util.Comparator;
+import ceri.common.comparator.Comparators;
 
 /**
  * Comparators for Color.

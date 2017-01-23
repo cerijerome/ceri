@@ -1,4 +1,4 @@
-package ceri.common.comparator;
+package ceri.common.color;
 
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static java.awt.Color.black;

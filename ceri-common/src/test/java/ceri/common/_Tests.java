@@ -11,7 +11,10 @@ import ceri.common.collection.ImmutableByteArrayBehavior;
 import ceri.common.collection.ImmutableUtilTest;
 import ceri.common.collection.MapBuilderBehavior;
 import ceri.common.collection.StreamUtilTest;
-import ceri.common.comparator.ColorComparatorsTest;
+import ceri.common.color.ColorComparatorsTest;
+import ceri.common.color.ColorUtilTest;
+import ceri.common.color.ColorableTest;
+import ceri.common.color.X11ColorTest;
 import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
@@ -138,8 +141,12 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ImmutableUtilTest.class,
 	MapBuilderBehavior.class,
 	StreamUtilTest.class,
-	// comparator
+	// color
+	ColorableTest.class,
 	ColorComparatorsTest.class,
+	ColorUtilTest.class,
+	X11ColorTest.class,
+	// comparator
 	ComparatorSequenceBehavior.class,
 	ComparatorsTest.class,
 	EnumComparatorsTest.class,
