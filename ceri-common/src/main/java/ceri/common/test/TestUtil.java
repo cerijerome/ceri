@@ -74,6 +74,15 @@ public class TestUtil {
 	}
 
 	/**
+	 * Checks all objects are not equal to the first given object.
+	 */
+	@SafeVarargs
+	public static <T> void assertAllNotEqual(T t0, T... ts) {
+		for (T t : ts)
+			assertNotEquals(t0, t);
+	}
+
+	/**
 	 * Checks equals, hashCode and toString methods against first object.
 	 */
 	@SafeVarargs

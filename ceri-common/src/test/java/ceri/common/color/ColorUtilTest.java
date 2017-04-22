@@ -1,6 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -10,9 +9,6 @@ import static org.junit.Assert.assertTrue;
 import java.awt.Color;
 import java.util.List;
 import org.junit.Test;
-import ceri.common.color.Biases;
-import ceri.common.color.ColorUtil;
-import ceri.common.color.X11Color;
 import ceri.common.math.MathUtil;
 
 public class ColorUtilTest {
@@ -63,31 +59,10 @@ public class ColorUtilTest {
 	}
 
 	@Test
-	public void testHsb() {
-		assertArray(ColorUtil.hsb(Color.black), 0.0, 0.0, 0.0);
-		assertArray(ColorUtil.hsb(Color.white), 0.0, 0.0, 1.0);
-		assertArray(ColorUtil.hsb(Color.red), 0.0, 1.0, 1.0);
-		assertArray(ColorUtil.hsb(Color.green), 0.33333, 1.0, 1.0);
-		assertArray(ColorUtil.hsb(Color.blue), 0.66667, 1.0, 1.0);
-		assertArray(ColorUtil.hsb(Color.yellow), 0.16667, 1.0, 1.0);
-		assertArray(ColorUtil.hsb(Color.cyan), 0.5, 1.0, 1.0);
-		assertArray(ColorUtil.hsb(Color.magenta), 0.83333, 1.0, 1.0);
-	}
-
-	@Test
-	public void testColorFromHsb() {
-		assertThat(ColorUtil.color(0.0, 0.0, 1.0), is(Color.white));
-		assertThat(ColorUtil.color(0.5, 0.0, 1.0), is(Color.white));
-		assertThat(ColorUtil.color(1.0, 0.0, 1.0), is(Color.white));
-		assertThat(ColorUtil.color(0.0, 0.0, 0.0), is(Color.black));
-		assertThat(ColorUtil.color(0.5, 0.0, 0.0), is(Color.black));
-		assertThat(ColorUtil.color(1.0, 0.0, 0.0), is(Color.black));
-		assertThat(ColorUtil.color(0.0, 1.0, 1.0), is(Color.red));
-		assertThat(ColorUtil.color(0.33333, 1.0, 1.0), is(Color.green));
-		assertThat(ColorUtil.color(0.66667, 1.0, 1.0), is(Color.blue));
-		assertThat(ColorUtil.color(0.16667, 1.0, 1.0), is(Color.yellow));
-		assertThat(ColorUtil.color(0.5, 1.0, 1.0), is(Color.cyan));
-		assertThat(ColorUtil.color(0.83333, 1.0, 1.0), is(Color.magenta));
+	public void testAlphaColor() {
+		assertColor(ColorUtil.alphaColor(Color.magenta, 100), 255, 0, 255, 100);
+		assertColor(ColorUtil.alphaColor(Color.yellow, 0), 255, 255, 0, 0);
+		assertColor(ColorUtil.alphaColor(Color.cyan, 255), 0, 255, 255, 255);
 	}
 
 	@Test
@@ -175,14 +150,18 @@ public class ColorUtilTest {
 	}
 
 	private void assertApproximateHsb(Color color, double h, double s, double b) {
-		double[] hsb = ColorUtil.hsb(color);
-		assertThat(MathUtil.simpleRound(hsb[0], 2), is(h));
-		assertThat(MathUtil.simpleRound(hsb[1], 2), is(s));
-		assertThat(MathUtil.simpleRound(hsb[2], 2), is(b));
+		HsbColor hsb = HsbColor.from(color);
+		assertThat(MathUtil.simpleRound(hsb.h, 2), is(h));
+		assertThat(MathUtil.simpleRound(hsb.s, 2), is(s));
+		assertThat(MathUtil.simpleRound(hsb.b, 2), is(b));
 	}
 
 	private void assertColor(Color color, int r, int g, int b) {
 		assertThat(color, is(new Color(r, g, b)));
+	}
+
+	private void assertColor(Color color, int r, int g, int b, int a) {
+		assertThat(color, is(new Color(r, g, b, a)));
 	}
 
 }

@@ -14,6 +14,7 @@ import ceri.common.collection.StreamUtilTest;
 import ceri.common.color.ColorComparatorsTest;
 import ceri.common.color.ColorUtilTest;
 import ceri.common.color.ColorableTest;
+import ceri.common.color.HsbColorBehavior;
 import ceri.common.color.X11ColorTest;
 import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
@@ -145,6 +146,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ColorableTest.class,
 	ColorComparatorsTest.class,
 	ColorUtilTest.class,
+	HsbColorBehavior.class,
 	X11ColorTest.class,
 	// comparator
 	ComparatorSequenceBehavior.class,

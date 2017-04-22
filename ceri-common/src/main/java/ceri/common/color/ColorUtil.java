@@ -25,7 +25,7 @@ public class ColorUtil {
 	private static final int TRIPLE_HEX_LEN = 3;
 	private static final int BITS4 = 4;
 	private static final int BITS8 = 8;
-	private static final int HSB_DECIMALS = 5;
+	//private static final int HSB_DECIMALS = 5;
 	private static final int RGB_MASK = 0xffffff;
 	private static final Map<Integer, String> awtColorNames = colorMap();
 
@@ -49,24 +49,6 @@ public class ColorUtil {
 		return (int) (channel / ratio);
 	}
 
-	public static Color color(double hue, double saturation, double brightness) {
-		return Color.getHSBColor((float) hue, (float) saturation, (float) brightness);
-	}
-
-	public static double[] hsb(Color color) {
-		return hsb(color.getRGB());
-	}
-
-	public static double[] hsb(int rgb) {
-		return hsb(ByteUtil.shiftRight(rgb, 2), ByteUtil.shiftRight(rgb, 1), rgb & 0xff);
-	}
-
-	public static double[] hsb(int r, int g, int b) {
-		float[] hsb = Color.RGBtoHSB(r & 0xff, g & 0xff, b & 0xff, null);
-		return new double[] { MathUtil.simpleRound(hsb[0], HSB_DECIMALS),
-			MathUtil.simpleRound(hsb[1], HSB_DECIMALS), MathUtil.simpleRound(hsb[2], HSB_DECIMALS) };
-	}
-
 	public static Color colorFromName(String name) {
 		Color color = awtColor(name);
 		if (color != null) return color;
@@ -87,6 +69,13 @@ public class ColorUtil {
 		return toList(names.stream().map(ColorUtil::color).filter(Objects::nonNull));
 	}
 
+	/**
+	 * Returns the given color with modified alpha value.
+	 */
+	public static Color alphaColor(Color color, int alpha) {
+		return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+	}
+	
 	public static Color color(String name) {
 		Color color = colorFromName(name);
 		if (color != null) return color;
@@ -186,12 +175,12 @@ public class ColorUtil {
 	}
 
 	public static List<Color> rotateHue(Color color, int steps, Bias bias) {
-		double[] hsb = hsb(color);
+		HsbColor hsb = HsbColor.from(color);
 		List<Color> colors = new ArrayList<>(steps);
 		for (int i = 1; i <= steps; i++) {
-			double h = hsb[0] + bias.bias((double) i / steps);
+			double h = hsb.h + bias.bias((double) i / steps);
 			if (h >= 1.0) h -= 1.0;
-			colors.add(color(h, hsb[1], hsb[2]));
+			colors.add(HsbColor.toColor(h, hsb.s, hsb.b));
 		}
 		return colors;
 	}

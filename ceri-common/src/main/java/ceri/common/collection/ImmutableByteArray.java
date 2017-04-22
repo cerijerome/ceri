@@ -10,7 +10,8 @@ import ceri.common.util.HashCoder;
  * Wrapper for byte array that does not allow modification. It allows slicing of views to promote
  * re-use rather than copying of bytes. Note that wrap() does not copy the original byte array, and
  * modifications of the original array will modify the wrapped array. If slicing large arrays,
- * copying may be better for long-term objects, as the reference to the original array is kept.
+ * copying may be better for long-term objects, as the reference to the original array is no longer
+ * held.
  */
 public class ImmutableByteArray {
 	public static final ImmutableByteArray EMPTY = new ImmutableByteArray(ArrayUtil.EMPTY_BYTE, 0,
@@ -55,11 +56,11 @@ public class ImmutableByteArray {
 	public ImmutableByteArray append(ImmutableByteArray array) {
 		return append(array, 0);
 	}
-	
+
 	public ImmutableByteArray append(ImmutableByteArray array, int offset) {
 		return append(array, offset, array.length - offset);
 	}
-	
+
 	public ImmutableByteArray append(ImmutableByteArray array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
 		if (length == 0) return this;
@@ -68,15 +69,15 @@ public class ImmutableByteArray {
 		array.copyTo(offset, buffer, this.length, length);
 		return wrap(buffer);
 	}
-	
-	public ImmutableByteArray append(byte...array) {
+
+	public ImmutableByteArray append(byte... array) {
 		return append(array, 0);
 	}
-	
+
 	public ImmutableByteArray append(byte[] array, int offset) {
 		return append(array, offset, array.length - offset);
 	}
-	
+
 	public ImmutableByteArray append(byte[] array, int offset, int length) {
 		return append(wrap(array, offset, length));
 	}
