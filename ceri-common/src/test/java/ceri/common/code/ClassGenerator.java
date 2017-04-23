@@ -32,7 +32,7 @@ import ceri.common.util.BasicUtil;
  */
 public class ClassGenerator {
 	private static final Pattern CLEAN_REGEX = Pattern
-		.compile("(public |protected |private |final |;)");
+		.compile("(public |protected |private |final |=.*|;)");
 	private static final Pattern PRIMITIVE_REGEX = Pattern
 		.compile("^(boolean|byte|short|int|long|float)$");
 	private static final Pattern FIELD_REGEX = Pattern.compile("^(.*)\\s+([\\w]+)$");
