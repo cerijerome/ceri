@@ -66,6 +66,29 @@ public class LogUtil {
 	}
 
 	/**
+	 * Shuts down a process, and waits for shutdown to complete, up to a default time in
+	 * milliseconds.
+	 */
+	public static boolean close(Logger logger, Process process) {
+		return close(logger, process, TIMEOUT_MS_DEF);
+	}
+	
+	/**
+	 * Shuts down a process, and waits for shutdown to complete, up to given time in
+	 * milliseconds.
+	 */
+	public static boolean close(Logger logger, Process process, int timeoutMs) {
+		if (process == null) return false;
+		process.destroy();
+		try {
+			return process.waitFor(timeoutMs, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			if (logger != null) logger.catching(Level.WARN, e);
+		}
+		return false;
+	}
+
+	/**
 	 * Shuts down an executor service, and waits for shutdown to complete, up to a default time in
 	 * milliseconds.
 	 */
