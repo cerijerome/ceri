@@ -31,6 +31,15 @@ public class ArrayUtil {
 	private ArrayUtil() {}
 
 	/**
+	 * Performs a validation on index to an array.
+	 */
+	public static void validateIndex(int arrayLength, int index) {
+		if (index >= 0 && index < arrayLength) return;
+		throw new IndexOutOfBoundsException(
+			"Index must be 0-" + (arrayLength - 1) + ": " + index);
+	}
+	
+	/**
 	 * Performs a validation on parameters to slice an array.
 	 */
 	public static void validateSlice(int arrayLength, int offset, int length) {

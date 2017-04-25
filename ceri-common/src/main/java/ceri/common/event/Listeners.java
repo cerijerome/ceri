@@ -7,6 +7,14 @@ import java.util.function.Consumer;
 public class Listeners<T> implements Consumer<T>, Listenable<T> {
 	private final Collection<Consumer<? super T>> listeners = new ConcurrentLinkedQueue<>();
 
+	public int size() {
+		return listeners.size();
+	}
+
+	public boolean isEmpty() {
+		return listeners.isEmpty();
+	}
+
 	@Override
 	public boolean listen(Consumer<? super T> listener) {
 		return listeners.add(listener);
