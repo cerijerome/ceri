@@ -55,9 +55,10 @@ public class SelfHealingSocketTest implements Closeable {
 	}
 
 	private void log(Exception e) {
-		logger.error("{}: {}\n\tat {}", e.getClass().getName(), e.getMessage(), e.getStackTrace()[0]);
+		logger.error("{}: {}\n\tat {}", e.getClass().getName(), e.getMessage(),
+			e.getStackTrace()[0]);
 	}
-	
+
 	private void inputs() throws IOException {
 		while (true) {
 			String s = readString(System.in);
