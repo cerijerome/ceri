@@ -83,7 +83,7 @@ public class LogUtil {
 		try {
 			return process.waitFor(timeoutMs, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			if (logger != null) logger.catching(Level.WARN, e);
+			if (logger != null) logger.catching(Level.INFO, e);
 		}
 		return false;
 	}
@@ -106,7 +106,7 @@ public class LogUtil {
 		try {
 			return executor.awaitTermination(timeoutMs, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			if (logger != null) logger.catching(Level.WARN, e);
+			if (logger != null) logger.catching(Level.INFO, e);
 		}
 		return false;
 	}
