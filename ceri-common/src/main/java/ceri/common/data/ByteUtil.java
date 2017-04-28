@@ -81,6 +81,10 @@ public class ByteUtil {
 		return fromAscii(data.copy(), offset, length);
 	}
 
+	public static ImmutableByteArray wrap(int... values) {
+		return ImmutableByteArray.wrap(bytes(values));
+	}
+	
 	public static byte[] bytes(int... values) {
 		byte[] bytes = new byte[values.length];
 		for (int i = 0; i < bytes.length; i++)

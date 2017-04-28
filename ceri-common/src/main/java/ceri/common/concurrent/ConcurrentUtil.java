@@ -1,10 +1,76 @@
 package ceri.common.concurrent;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
+import java.util.function.Function;
 
 public class ConcurrentUtil {
 
 	private ConcurrentUtil() {}
+
+	public static <E extends Exception> void executeAndWait(ExecutorService executor,
+		ExceptionRunnable<E> runnable, Function<Throwable, E> exceptionConstructor) throws E {
+		get(submit(executor, runnable), exceptionConstructor);
+	}
+
+	public static <E extends Exception> void executeAndWait(ExecutorService executor,
+		ExceptionRunnable<E> runnable, Function<Throwable, E> exceptionConstructor, int timeoutMs)
+		throws E {
+		get(submit(executor, runnable), exceptionConstructor, timeoutMs);
+	}
+
+	/**
+	 * Calls future get with support for converting exceptions.
+	 */
+	public static <T, E extends Exception> T get(Future<T> future,
+		Function<Throwable, E> exceptionConstructor) throws E {
+		try {
+			return future.get();
+		} catch (InterruptedException e) {
+			throw new RuntimeInterruptedException(e);
+		} catch (ExecutionException e) {
+			throw exceptionConstructor.apply(e.getCause());
+		}
+	}
+
+	/**
+	 * Calls future get with millisecond time limit, with support for converting exceptions.
+	 */
+	public static <T, E extends Exception> T get(Future<T> future,
+		Function<Throwable, E> exceptionConstructor, int timeoutMs) throws E {
+		try {
+			return future.get(timeoutMs, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			throw new RuntimeInterruptedException(e);
+		} catch (TimeoutException e) {
+			throw exceptionConstructor.apply(e);
+		} catch (ExecutionException e) {
+			throw exceptionConstructor.apply(e.getCause());
+		}
+	}
+
+	/**
+	 * Submits a runnable to the executor service, allowing exceptions to be thrown. Returns a
+	 * boolean Future.
+	 */
+	public static Future<?> submit(ExecutorService executor, ExceptionRunnable<?> runnable) {
+		return executor.submit(callable(runnable));
+	}
+
+	/**
+	 * Converts a runnable with exception into a callable type.
+	 */
+	public static Callable<?> callable(ExceptionRunnable<?> runnable) {
+		return () -> {
+			runnable.run();
+			return Boolean.TRUE;
+		};
+	}
 
 	/**
 	 * Executes the operation within the lock and returns the result.
