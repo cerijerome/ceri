@@ -30,6 +30,14 @@ public class Polar2d {
 		return GeometryUtil.offset(r, phi);
 	}
 	
+	public Polar2d rotate(double angle) {
+		return new Polar2d(r, phi + angle);
+	}
+	
+	public Polar2d reverse() {
+		return new Polar2d(r, -phi);
+	}
+	
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(r, phi);

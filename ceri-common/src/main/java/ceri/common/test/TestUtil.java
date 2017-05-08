@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -131,6 +132,20 @@ public class TestUtil {
 		int n = in.read(buffer);
 		if (n < 1) return "";
 		return new String(buffer, 0, n).trim();
+	}
+
+	/**
+	 * Checks a double value is NaN.
+	 */
+	public static void assertNaN(double value) {
+		assertNaN("Expected NaN: " + value, value);
+	}
+
+	/**
+	 * Checks a double value is NaN.
+	 */
+	public static void assertNaN(String reason, double value) {
+		if (!Double.isNaN(value)) fail(reason);
 	}
 
 	/**
