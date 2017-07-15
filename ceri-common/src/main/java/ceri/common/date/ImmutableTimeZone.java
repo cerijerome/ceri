@@ -12,6 +12,10 @@ public class ImmutableTimeZone extends TimeZone {
 	private static final long serialVersionUID = -3596503137048104086L;
 	private final TimeZone timeZone;
 
+	public static TimeZone getDefault() {
+		return new ImmutableTimeZone(TimeZone.getDefault());
+	}
+	
 	public ImmutableTimeZone(TimeZone timeZone) {
 		this.timeZone = timeZone;
 	}

@@ -4,6 +4,14 @@ public class ValidationUtil {
 
 	private ValidationUtil() {}
 
+	public static void validate(boolean expr) {
+		if (!expr) throw new IllegalArgumentException();
+	}
+
+	public static void validate(boolean expr, String name) {
+		if (!expr) throw new IllegalArgumentException(name + " failed");
+	}
+
 	public static void validateNotNull(Object obj) {
 		if (obj == null) throw new NullPointerException();
 	}

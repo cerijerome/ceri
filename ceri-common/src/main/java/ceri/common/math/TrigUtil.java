@@ -3,8 +3,31 @@ package ceri.common.math;
 import static ceri.common.validation.ValidationUtil.*;
 
 public class TrigUtil {
+	public static final DoubleInterval INTERVAL = DoubleInterval.create(DoubleBound.inclusive(0),
+		DoubleBound.exclusive(MathUtil.PIx2));
 
 	private TrigUtil() {}
+
+	/**
+	 * Normalizes given angle in radians to the range [0..2PI).
+	 */
+	public static double normalize(double angle) {
+		while (angle < 0)
+			angle += MathUtil.PIx2;
+		while (angle >= MathUtil.PIx2)
+			angle -= MathUtil.PIx2;
+		return angle;
+	}
+
+	/**
+	 * Determines if given angle is within inclusive bounds, normalized to [0..2PI).
+	 */
+	public static boolean withinNormalizedBounds(double value, double lower, double range) {
+		value = normalize(value);
+		lower = normalize(lower);
+		if (value < lower) value += MathUtil.PIx2;
+		return DoubleInterval.inclusive(lower, lower + range).contains(value);
+	}
 
 	/**
 	 * Finds the area of a segment of a circle with given radius and segment angle in radians.
@@ -15,8 +38,8 @@ public class TrigUtil {
 	}
 
 	/**
-	 * Finds the angle in radians of the tangent to the circle of given radius, from the given
-	 * distance from the circle origin.
+	 * Finds the angle in radians between the line through the center of a circle and a tangent to
+	 * the circle starting at the same point at given distance away from the center.
 	 */
 	public static double tangentAngle(double radius, double distance) {
 		validateMin(distance, radius, "distance");
