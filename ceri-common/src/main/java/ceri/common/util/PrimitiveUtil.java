@@ -18,6 +18,94 @@ public class PrimitiveUtil {
 
 	private PrimitiveUtil() {}
 
+	public static <T> boolean lookupBoolean(Map<T, Boolean> map, T type) {
+		return lookupBoolean(map, type, false);
+	}
+
+	public static <T> boolean lookupBoolean(Map<T, Boolean> map, T type, boolean def) {
+		if (map == null) return def;
+		Boolean value = map.get(type);
+		if (value == null) return def;
+		return value.booleanValue();
+	}
+
+	public static <T> char lookupChar(Map<T, Character> map, T type) {
+		return lookupChar(map, type, (char) 0);
+	}
+
+	public static <T> char lookupChar(Map<T, Character> map, T type, char def) {
+		if (map == null) return def;
+		Character value = map.get(type);
+		if (value == null) return def;
+		return value.charValue();
+	}
+
+	public static <T> byte lookupByte(Map<T, Byte> map, T type) {
+		return lookupByte(map, type, (byte) 0);
+	}
+
+	public static <T> byte lookupByte(Map<T, Byte> map, T type, byte def) {
+		if (map == null) return def;
+		Byte value = map.get(type);
+		if (value == null) return def;
+		return value.byteValue();
+	}
+
+	public static <T> short lookupShort(Map<T, Short> map, T type) {
+		return lookupShort(map, type, (short) 0);
+	}
+
+	public static <T> short lookupShort(Map<T, Short> map, T type, short def) {
+		if (map == null) return def;
+		Short value = map.get(type);
+		if (value == null) return def;
+		return value.shortValue();
+	}
+
+	public static <T> int lookupInt(Map<T, Integer> map, T type) {
+		return lookupInt(map, type, 0);
+	}
+
+	public static <T> int lookupInt(Map<T, Integer> map, T type, int def) {
+		if (map == null) return def;
+		Integer value = map.get(type);
+		if (value == null) return def;
+		return value.intValue();
+	}
+
+	public static <T> long lookupLong(Map<T, Long> map, T type) {
+		return lookupLong(map, type, (long) 0);
+	}
+
+	public static <T> long lookupLong(Map<T, Long> map, T type, long def) {
+		if (map == null) return def;
+		Long value = map.get(type);
+		if (value == null) return def;
+		return value.longValue();
+	}
+
+	public static <T> float lookupFloat(Map<T, Float> map, T type) {
+		return lookupFloat(map, type, (float) 0);
+	}
+
+	public static <T> float lookupFloat(Map<T, Float> map, T type, float def) {
+		if (map == null) return def;
+		Float value = map.get(type);
+		if (value == null) return def;
+		return value.floatValue();
+	}
+
+	public static <T> double lookupDouble(Map<T, Double> map, T type) {
+		return lookupDouble(map, type, (double) 0);
+	}
+
+	public static <T> double lookupDouble(Map<T, Double> map, T type, double def) {
+		if (map == null) return def;
+		Double value = map.get(type);
+		if (value == null) return def;
+		return value.doubleValue();
+	}
+
 	/**
 	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
