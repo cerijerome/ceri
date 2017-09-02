@@ -1,8 +1,0 @@
-RXTX JNI library for Mac OS X
------------------------------
-
-Works with Mac OS X 10.8
-
-Copy RXTXComm.jar and librxtxSerial.jnilib to /Library/Java/Extensions/
-Source jar for RXTX is RXTXComm-src.jar
-
