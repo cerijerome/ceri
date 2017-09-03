@@ -37,18 +37,18 @@ public class XPathUtilTest {
 
 	@Test
 	public void testNode() throws XPathException {
-		InputSource in = XPathUtil.input(XML);
+		InputSource in = XmlUtil.input(XML);
 		Node root = XPathUtil.node("*", in);
 		Node node = XPathUtil.node("//c1/text()", root);
 		assertThat(node.getTextContent(), is("C11"));
-		in = XPathUtil.input(XML);
+		in = XmlUtil.input(XML);
 		assertNull(XPathUtil.node("//d0", in));
 		assertNull(XPathUtil.node("//d0", root));
 	}
 
 	@Test
 	public void testNodeListFromInputSource() throws XPathException {
-		InputSource in = XPathUtil.input(XML);
+		InputSource in = XmlUtil.input(XML);
 		List<Node> nodes = XPathUtil.nodeList("//*[@n='0']", in);
 		assertThat(nodes.size(), is(3));
 		assertThat(nodes.get(0).getNodeName(), is("a0"));
@@ -58,7 +58,7 @@ public class XPathUtilTest {
 
 	@Test
 	public void testNodeListFromNode() throws XPathException {
-		InputSource in = XPathUtil.input(XML);
+		InputSource in = XmlUtil.input(XML);
 		Node root = XPathUtil.node("*", in);
 		assertThat(root.getNodeName(), is("a0"));
 		List<Node> nodes = XPathUtil.nodeList("//*[text()='B0']/following-sibling::*", root);

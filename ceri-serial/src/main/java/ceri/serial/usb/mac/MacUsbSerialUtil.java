@@ -5,7 +5,9 @@ import java.io.IOException;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 import ceri.common.xml.XPathUtil;
+import ceri.common.xml.XmlUtil;
 import ceri.process.ioreg.Ioreg;
 import ceri.serial.usb.UsbSerialDevices;
 
@@ -39,7 +41,7 @@ public class MacUsbSerialUtil {
 		String ioregXml = new Ioreg().exec(IOREG_OPTIONS, IOREG_NAME_OPTION, name);
 		try {
 			UsbSerialDevices.Builder builder = UsbSerialDevices.builder();
-			for (Node usb : XPathUtil.nodeList(USB_XPATH, XPathUtil.input(ioregXml))) {
+			for (Node usb : XPathUtil.nodeList(USB_XPATH, XmlUtil.unvalidatedDocument(ioregXml))) {
 				String locationIdStr = LOCATION_ID_XPATH.evaluate(usb);
 				String device = DEVICE_XPATH.evaluate(usb);
 				if (device.isEmpty()) continue;
@@ -47,7 +49,7 @@ public class MacUsbSerialUtil {
 				builder.device(locationId, device);
 			}
 			return builder.build();
-		} catch (XPathExpressionException e) {
+		} catch (SAXException | XPathExpressionException e) {
 			throw new IOException("Should not happen", e);
 		}
 	}
