@@ -145,6 +145,14 @@ public class StringUtil {
 	}
 	
 	/**
+	 * Replace multiple whitespaces with a single space, then trim.
+	 */
+	public static String compact(String s) {
+		if (s == null) return "";
+		return WHITE_SPACE_REGEX.matcher(s).replaceAll(" ").trim();
+	}
+
+	/**
 	 * Convert a byte array into a list of hex strings.
 	 */
 	public static String toHex(byte[] data) {
@@ -448,6 +456,14 @@ public class StringUtil {
 		return 0;
 	}
 
+	/**
+	 * Trims a string if not null.
+	 */
+	public static String trim(String s) {
+		if (s == null) return s;
+		return s.trim();
+	}
+	
 	/**
 	 * Returns substring, or "" if null or index out of bounds. Use start < 0 for length relative to
 	 * end.

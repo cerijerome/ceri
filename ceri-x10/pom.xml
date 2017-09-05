@@ -45,7 +45,7 @@
 		</dependency>
 		<dependency>
 			<groupId>ceri</groupId>
-			<artifactId>ceri-rxtx</artifactId>
+			<artifactId>ceri-serial</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

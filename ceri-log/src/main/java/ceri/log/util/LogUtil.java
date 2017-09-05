@@ -1,6 +1,5 @@
 package ceri.log.util;
 
-import static ceri.common.text.StringUtil.WHITE_SPACE_REGEX;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import java.util.function.Function;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ExceptionRunnable;
+import ceri.common.text.StringUtil;
 
 /**
  * Utility methods to assist with logging.
@@ -202,7 +202,7 @@ public class LogUtil {
 	 * space.
 	 */
 	public static Object compact(final Object obj) {
-		return toString(() -> WHITE_SPACE_REGEX.matcher(String.valueOf(obj)).replaceAll(" "));
+		return toString(() -> StringUtil.compact(String.valueOf(obj)));
 	}
 
 }
