@@ -15,9 +15,7 @@
 		<maven.compiler.version>3.3</maven.compiler.version>
 		<maven.surefire.version>2.18.1</maven.surefire.version>
 		<junit.version>4.12</junit.version>
-		<mockito.version>1.10.19</mockito.version>
-		<log4j.version>2.3</log4j.version>
-		<jackson.version>2.6.0</jackson.version>
+		<mockito.version>2.9.0</mockito.version>
 	</properties>
 
 	<dependencies>
@@ -35,11 +33,6 @@
 		</dependency>
 		<dependency>
 			<groupId>ceri</groupId>
-			<artifactId>ceri-common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ceri</groupId>
 			<artifactId>ceri-log</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -47,16 +40,6 @@
 			<groupId>ceri</groupId>
 			<artifactId>ceri-serial</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
 		</dependency>
 	</dependencies>
 
