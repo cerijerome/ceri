@@ -15,9 +15,9 @@
 		<maven.compiler.version>3.3</maven.compiler.version>
 		<maven.surefire.version>2.18.1</maven.surefire.version>
 		<junit.version>4.12</junit.version>
-		<mockito.version>1.10.19</mockito.version>
-		<log4j.version>2.3</log4j.version>
-		<httpcomponents.version>4.5</httpcomponents.version>
+		<mockito.version>2.9.0</mockito.version>
+		<log4j.version>2.9.0</log4j.version>
+		<httpcomponents.version>4.5.3</httpcomponents.version>
 	</properties>
 
 	<dependencies>
