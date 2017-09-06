@@ -1,16 +1,16 @@
 package ceri.ent.web;
 
 import java.io.IOException;
-import java.io.InputStream;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.fluent.Request;
-import org.apache.http.client.fluent.Response;
+import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.io.IoUtil;
 
+/**
+ * Simple url requester. For more complex requests use httpclient.
+ */
 public class UrlRequester {
 	private static final Logger logger = LogManager.getLogger();
 	public static final UrlRequester DEFAULT = new UrlRequester(3);
@@ -20,18 +20,19 @@ public class UrlRequester {
 		this.retries = retries;
 	}
 
-	public byte[] get(String url) throws IOException {
+	public byte[] getBytes(String url) throws IOException {
+		return EntityUtils.toByteArray(getEntity(url));
+	}
+
+	public String getString(String url) throws IOException {
+		return RequestUtil.toString(getEntity(url));
+	}
+
+	private HttpEntity getEntity(String url) throws IOException {
 		IOException ex = null;
 		for (int i = retries; i >= 0; i--) {
 			try {
-				Response response = Request.Get(url).execute();
-				HttpResponse httpResponse = response.returnResponse();
-				int statusCode = httpResponse.getStatusLine().getStatusCode();
-				if (statusCode != HttpStatus.SC_OK) throw new IOException(
-					"Unexpected http response: " + statusCode);
-				try (InputStream in = httpResponse.getEntity().getContent()) {
-					return IoUtil.getContent(in, 0);
-				}
+				return RequestUtil.contentEntity(Request.Get(url));
 			} catch (IOException e) {
 				logger.catching(Level.WARN, e);
 				ex = e;

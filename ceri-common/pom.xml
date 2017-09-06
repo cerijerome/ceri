@@ -15,7 +15,7 @@
 		<maven.compiler.version>3.3</maven.compiler.version>
 		<maven.surefire.version>2.18.1</maven.surefire.version>
 		<junit.version>4.12</junit.version>
-		<mockito.version>1.10.19</mockito.version>
+		<mockito.version>2.9.0</mockito.version>
 	</properties>
 	
 	<dependencies>
