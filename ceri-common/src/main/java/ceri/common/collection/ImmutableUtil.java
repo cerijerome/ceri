@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -79,15 +80,16 @@ public class ImmutableUtil {
 	 * Copies a stream of objects into an immutable LinkedHashSet.
 	 */
 	public static <T> Set<T> collectAsSet(Stream<? extends T> stream) {
-		return Collections.<T>unmodifiableSet(stream.collect(Collectors
-			.toCollection(LinkedHashSet::new)));
+		Collector<T, ?, LinkedHashSet<T>> collector = Collectors.toCollection(LinkedHashSet::new);
+		return Collections.<T>unmodifiableSet(stream.collect(collector));
 	}
 
 	/**
 	 * Copies a stream of objects into an immutable ArrayList.
 	 */
 	public static <T> List<T> collectAsList(Stream<? extends T> stream) {
-		return Collections.unmodifiableList(stream.collect(Collectors.toList()));
+		Collector<T, ?, List<T>> collector = Collectors.toList();
+		return Collections.unmodifiableList(stream.collect(collector));
 	}
 
 	/**

@@ -104,7 +104,8 @@ public class WebDriverContainer implements Closeable {
 	}
 
 	public void waitFor(BooleanSupplier test) {
-		waitFor(driver -> test.getAsBoolean());
+		Function<WebDriver, Boolean> fn = driver -> test.getAsBoolean(); 
+		waitFor(fn);
 	}
 
 	public WebElement findElement(By by) {
