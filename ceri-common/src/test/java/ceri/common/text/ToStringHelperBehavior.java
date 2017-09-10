@@ -2,10 +2,11 @@ package ceri.common.text;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 
 public class ToStringHelperBehavior {
@@ -27,21 +28,11 @@ public class ToStringHelperBehavior {
 	@Test
 	public void shouldShowDefaultFormattedDateValues() {
 		Date date = new Date(0);
-		TimeZone utc = TimeZone.getTimeZone("UTC");
-		String toString = ToStringHelper.create("Test", date).dateFormat(utc).toString();
-		assertThat(toString, is("Test(1970-01-01 00:00:00 UTC)"));
-	}
-
-	@Test
-	public void shouldShowFormattedDateValues() {
-		Date date = new Date(0);
-		TimeZone utc = TimeZone.getTimeZone("UTC");
-		String toString =
-			ToStringHelper.create("Test", date).fields(date).dateFormat("yyyy", utc).toString();
-		assertThat(toString, is("Test(1970)[1970]"));
-		date = new Date(TimeUnit.DAYS.toMillis(100));
-		toString = ToStringHelper.create("Test", date).fields(date).dateFormat("yyyy").toString();
-		assertThat(toString, is("Test(1970)[1970]"));
+		String toString = ToStringHelper.create("Test", date).toString();
+		Instant.ofEpochMilli(0);
+		LocalDateTime dt =
+			LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.systemDefault());
+		assertThat(toString, is("Test(" + dt +")"));
 	}
 
 	@Test

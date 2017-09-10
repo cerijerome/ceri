@@ -1,13 +1,12 @@
 package ceri.common.text;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 /**
  * Helps create string representations of objects.
@@ -20,16 +19,12 @@ import java.util.TimeZone;
  * Typical usage is Value for intrinsic or unnamed data, Field for supplementary or named data.
  */
 public class ToStringHelper {
-	private static final String DATE_FORMAT_DEF = "yyyy-MM-dd HH:mm:ss z";
 	private static final String CHILD_INDENT_DEF = "  ";
 	private final String name;
 	private List<Object> values = Collections.emptyList();
 	private List<Field> fields = Collections.emptyList();
 	private String childIndent = CHILD_INDENT_DEF;
 	private List<Object> children = Collections.emptyList();
-	private TimeZone timeZone = null;
-	private String dateFormatStr = null;
-	private DateFormat dateFormat = null;
 
 	private static class Field {
 		final String name;
@@ -72,30 +67,6 @@ public class ToStringHelper {
 	 */
 	public static ToStringHelper createByClass(Object obj, Object... values) {
 		return create(obj.getClass().getSimpleName()).values(values);
-	}
-
-	/**
-	 * Sets the date format for value and field string representations.
-	 */
-	public ToStringHelper dateFormat(String format) {
-		dateFormatStr = format;
-		return this;
-	}
-
-	/**
-	 * Sets the time zone for value and field string representations.
-	 */
-	public ToStringHelper dateFormat(TimeZone timeZone) {
-		this.timeZone = timeZone;
-		return this;
-	}
-
-	/**
-	 * Sets the date format and time zone for value and field string representations.
-	 */
-	public ToStringHelper dateFormat(String format, TimeZone timeZone) {
-		dateFormat(format);
-		return dateFormat(timeZone);
 	}
 
 	/**
@@ -180,16 +151,14 @@ public class ToStringHelper {
 	}
 
 	private String stringValue(Object obj) {
-		if (obj instanceof Date) return dateFormatter().format((Date) obj);
+		if (obj instanceof Date) return toString((Date) obj);
 		return String.valueOf(obj);
 	}
 
-	private DateFormat dateFormatter() {
-		if (dateFormat != null) return dateFormat;
-		if (dateFormatStr == null) dateFormatStr = DATE_FORMAT_DEF;
-		dateFormat = new SimpleDateFormat(dateFormatStr);
-		if (timeZone != null) dateFormat.setTimeZone(timeZone);
-		return dateFormat;
+	private String toString(Date date) {
+		if (date == null) return String.valueOf(null);
+		LocalDateTime local = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+		return local.toString();
 	}
 
 	private void appendValues(StringBuilder b, Iterable<Object> values) {

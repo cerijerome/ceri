@@ -30,7 +30,7 @@ public class CookieClicker {
 		Rectangle resetArea = new Rectangle(0, 0, 20, 20);
 		Rectangle disableArea = new Rectangle(0, -20, 20, 20);
 		Rectangle exitArea = new Rectangle(-20, -20, 20, 20);
-		int delayMs = 10;
+		int delayMs = 50;
 		
 		Builder() {}
 
