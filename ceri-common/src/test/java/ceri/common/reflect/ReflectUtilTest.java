@@ -2,6 +2,7 @@ package ceri.common.reflect;
 
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.isClass;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertFalse;
@@ -75,6 +76,7 @@ public class ReflectUtilTest {
 		assertThat(caller.cls, is(cls.getSimpleName()));
 		assertThat(caller.fullCls, is(cls.getName()));
 		assertThat(caller.file, is(cls.getSimpleName() + ".java"));
+		assertThat(caller.cls(), isClass(cls));
 		Caller caller2 = ReflectUtil.currentCaller();
 		assertThat(caller, not(caller2));
 		assertThat(new Caller(caller2.fullCls, caller.line, caller2.method, caller2.file),

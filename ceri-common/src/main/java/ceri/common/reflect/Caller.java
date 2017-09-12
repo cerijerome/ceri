@@ -33,6 +33,14 @@ public class Caller {
 		return new Caller(s.getClassName(), s.getLineNumber(), s.getMethodName(), s.getFileName());
 	}
 
+	public Class<?> cls() {
+		try {
+			return Class.forName(fullCls);
+		} catch (ClassNotFoundException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+	
 	@Override
 	public int hashCode() {
 		return hashCode;

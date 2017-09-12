@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Callable;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsSame;
@@ -28,6 +29,7 @@ import org.junit.runner.JUnitCore;
 import ceri.common.concurrent.ExceptionRunnable;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
+import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.PrimitiveUtil;
@@ -74,6 +76,29 @@ public class TestUtil {
 		tp.print(out);
 	}
 
+	/**
+	 * Reads a string resource from the caller's package with given name.
+	 */
+	public static String resource(String name) {
+		try {
+			Class<?> cls = ReflectUtil.previousCaller(1).cls();
+			return IoUtil.getResourceString(cls, name);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Used to initialize a variable without the need to handle checked exceptions.
+	 */
+	public static <T> T init(Callable<T> callable) {
+		try {
+			return callable.call();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	/**
 	 * Checks all objects are not equal to the first given object.
 	 */
