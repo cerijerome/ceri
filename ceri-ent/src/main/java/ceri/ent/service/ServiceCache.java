@@ -11,11 +11,13 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.FixedSizeCache;
+import ceri.common.math.MathUtil;
 import com.google.gson.reflect.TypeToken;
 
 public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	private static final Logger logger = LogManager.getLogger();
-	public final long cacheDurationMs;
+	private final long cacheDurationMs;
+	private final long cacheRandomizeMs;
 	private final int retries;
 	private final boolean cacheNulls;
 	private final Service<K, V> service;
@@ -28,6 +30,8 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 		ServiceCache.Builder<K, V> builder = ServiceCache.builder(service);
 		Long cacheDurationMs = properties.cacheDurationMs();
 		if (cacheDurationMs != null) builder.cacheDurationMs(cacheDurationMs);
+		Long cacheRandomizeMs = properties.cacheRandomizeMs();
+		if (cacheRandomizeMs != null) builder.cacheRandomizeMs(cacheRandomizeMs);
 		Integer maxEntries = properties.maxEntries();
 		if (maxEntries != null) builder.maxEntries(maxEntries);
 		Boolean cacheNulls = properties.cacheNulls();
@@ -42,6 +46,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	public static class Builder<K, V> {
 		final Service<K, V> service;
 		long cacheDurationMs = TimeUnit.DAYS.toMillis(1);
+		long cacheRandomizeMs = cacheDurationMs;
 		int maxEntries = 100000;
 		int retries = 1;
 		boolean cacheNulls = false;
@@ -53,6 +58,11 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 
 		public Builder<K, V> cacheDurationMs(long cacheDurationMs) {
 			this.cacheDurationMs = cacheDurationMs;
+			return this;
+		}
+
+		public Builder<K, V> cacheRandomizeMs(long cacheRandomizeMs) {
+			this.cacheRandomizeMs = cacheRandomizeMs;
 			return this;
 		}
 
@@ -92,6 +102,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	ServiceCache(Builder<K, V> builder) {
 		service = builder.service;
 		cacheDurationMs = builder.cacheDurationMs;
+		cacheRandomizeMs = builder.cacheRandomizeMs;
 		retries = builder.retries;
 		cacheNulls = builder.cacheNulls;
 		store = builder.store;
@@ -132,11 +143,14 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 
 	private boolean writeToCache(K key, V value) {
 		if (value == null && !cacheNulls) return false;
-		long expiration = System.currentTimeMillis() + cacheDurationMs;
-		safe.write(() -> cache.put(key, new Entry<>(key, value, expiration)));
+		safe.write(() -> cache.put(key, new Entry<>(key, value, expiration())));
 		return true;
 	}
 
+	private long expiration() {
+		return System.currentTimeMillis() + cacheDurationMs + MathUtil.random(0, cacheRandomizeMs);
+	}
+	
 	private Entry<K, V> readFromCache(K key) {
 		Entry<K, V> entry = safe.read(() -> cache.get(key));
 		if (entry != null) {

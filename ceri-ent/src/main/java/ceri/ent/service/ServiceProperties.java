@@ -10,6 +10,7 @@ import ceri.common.property.BaseProperties;
 public class ServiceProperties extends BaseProperties {
 	private static final String CACHE_KEY = "cache";
 	private static final String DURATION_KEY = "duration";
+	private static final String RANDOMIZE_KEY = "randomize";
 	private static final String HOURS_KEY = "hours";
 	private static final String DAYS_KEY = "days";
 	private static final String MAX_ENTRIES_KEY = "max.entries";
@@ -35,12 +36,28 @@ public class ServiceProperties extends BaseProperties {
 		return null;
 	}
 	
+	public Long cacheRandomizeMs() {
+		Long hours = cacheRandomizeHours();
+		if (hours != null) return TimeUnit.HOURS.toMillis(hours);
+		Long days = cacheRandomizeDays();
+		if (days != null) return TimeUnit.DAYS.toMillis(days);
+		return null;
+	}
+	
 	private Long cacheDurationDays() {
 		return longValue(CACHE_KEY, DURATION_KEY, DAYS_KEY);
 	}
 
 	private Long cacheDurationHours() {
 		return longValue(CACHE_KEY, DURATION_KEY, HOURS_KEY);
+	}
+
+	private Long cacheRandomizeDays() {
+		return longValue(CACHE_KEY, RANDOMIZE_KEY, DAYS_KEY);
+	}
+
+	private Long cacheRandomizeHours() {
+		return longValue(CACHE_KEY, RANDOMIZE_KEY, HOURS_KEY);
 	}
 
 	public Integer retries() {
