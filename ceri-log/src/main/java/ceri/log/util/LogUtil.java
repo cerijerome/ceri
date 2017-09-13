@@ -18,12 +18,14 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ExceptionRunnable;
 import ceri.common.text.StringUtil;
+import ceri.common.text.StringUtil.Align;
 
 /**
  * Utility methods to assist with logging.
  */
 public class LogUtil {
 	private static final int TIMEOUT_MS_DEF = 1000;
+	private static final int TITLE_MAX_WIDTH = 76;
 
 	private LogUtil() {}
 
@@ -203,6 +205,19 @@ public class LogUtil {
 	 */
 	public static Object compact(final Object obj) {
 		return toString(() -> StringUtil.compact(String.valueOf(obj)));
+	}
+
+	/**
+	 * Intro logging message.
+	 */
+	public static String introMessage(String title) {
+		if (title.length() > TITLE_MAX_WIDTH) title = title.substring(0, TITLE_MAX_WIDTH);
+		return "\n" +
+			"================================================================================\n" +
+			"|                                                                              |\n" +
+			"| " + StringUtil.pad(title, TITLE_MAX_WIDTH, Align.CENTER) + " |\n" +
+			"|                                                                              |\n" +
+			"================================================================================";
 	}
 
 }
