@@ -31,23 +31,15 @@ public class Persistables implements Closeable, Persistable {
 	}
 
 	@Override
-	public void load() {
+	public void load() throws IOException {
 		for (Persistable persistable : persistables)
-			load(persistable);
+			persistable.load();
 	}
 
 	@Override
 	public void save() {
 		for (Persistable persistable : persistables)
 			save(persistable);
-	}
-
-	private void load(Persistable persistable) {
-		try {
-			persistable.load();
-		} catch (IOException e) {
-			logger.catching(e);
-		}
 	}
 
 	private void save(Persistable persistable) {

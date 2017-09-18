@@ -16,6 +16,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	private static final Logger logger = LogManager.getLogger();
+	private final String logName;
 	private final long cacheDurationMs;
 	private final long cacheRandomizeMs;
 	private final int retries;
@@ -27,7 +28,13 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 
 	public static <K, V> ServiceCache<K, V> create(Service<K, V> service,
 		ServiceProperties properties, TypeToken<Collection<Entry<K, V>>> typeToken) {
+		return create(service, null, properties, typeToken);
+	}
+	
+	public static <K, V> ServiceCache<K, V> create(Service<K, V> service, String logName,
+		ServiceProperties properties, TypeToken<Collection<Entry<K, V>>> typeToken) {
 		ServiceCache.Builder<K, V> builder = ServiceCache.builder(service);
+		if (logName != null) builder.logName(logName);
 		Long cacheDurationMs = properties.cacheDurationMs();
 		if (cacheDurationMs != null) builder.cacheDurationMs(cacheDurationMs);
 		Long cacheRandomizeMs = properties.cacheRandomizeMs();
@@ -45,6 +52,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 
 	public static class Builder<K, V> {
 		final Service<K, V> service;
+		String logName;
 		long cacheDurationMs = TimeUnit.DAYS.toMillis(1);
 		long cacheRandomizeMs = cacheDurationMs;
 		int maxEntries = 100000;
@@ -81,6 +89,11 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 			return this;
 		}
 
+		public Builder<K, V> logName(String logName) {
+			this.logName = logName;
+			return this;
+		}
+
 		public Builder<K, V> store(TypeToken<Collection<Entry<K, V>>> typeToken, File file) {
 			return store(JsonFileStore.create(typeToken, file));
 		}
@@ -101,6 +114,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 
 	ServiceCache(Builder<K, V> builder) {
 		service = builder.service;
+		logName = logName(service, builder.logName);
 		cacheDurationMs = builder.cacheDurationMs;
 		cacheRandomizeMs = builder.cacheRandomizeMs;
 		retries = builder.retries;
@@ -109,6 +123,11 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 		cache = new FixedSizeCache<>(builder.maxEntries);
 	}
 
+	private String logName(Service<K, V> service, String logName) {
+		if (logName != null) return logName;
+		return service.getClass().getSimpleName();
+	}
+	
 	@Override
 	public void load() throws IOException {
 		if (store == null) return;
@@ -154,9 +173,9 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	private Entry<K, V> readFromCache(K key) {
 		Entry<K, V> entry = safe.read(() -> cache.get(key));
 		if (entry != null) {
-			logger.debug("Entry found in cache: {}", key);
+			logger.debug("{} entry found in cache: {}", logName, key);
 			if (!entry.expired()) return entry;
-			logger.debug("Entry expired: {}", key);
+			logger.debug("{} entry expired: {}", logName, key);
 		}
 		return null;
 	}
@@ -168,7 +187,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 				return service.retrieve(key);
 			} catch (RuntimeException | ServiceException e) {
 				if (retries <= 0) throw e;
-				logger.warn("Service failed, retrying " + key, e);
+				logger.warn("{} request failed, retrying {}: {}", logName, key, e);
 				retries--;
 			}
 		}

@@ -1,28 +1,15 @@
-package ceri.ent.service;
+package ceri.ent.service.fixer;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.factory.Factory;
 
 /**
- * Class to encapsulate values to be corrected based on key.
+ * Replaces values by key and sub-field. Useful for correcting fields retrieved by services.
+ * {@link FixerPropertyParser} is used to load fixes from property files.
  */
 public class Fixer<K, V> {
 	private final Map<K, V> map;
-
-	public static <K, V> Fixer<K, V> create(Properties properties, Factory<K, String> keyFactory,
-		Factory<V, String> valueFactory) {
-		Builder<K, V> builder = builder();
-		for (String key : properties.stringPropertyNames()) {
-			String value = properties.getProperty(key);
-			K k = keyFactory.create(key);
-			V v = valueFactory.create(value);
-			builder.add(k, v);
-		}
-		return builder.build();
-	}
 
 	public static class Builder<K, V> {
 		Map<K, V> map = new HashMap<>();
@@ -47,8 +34,12 @@ public class Fixer<K, V> {
 		map = ImmutableUtil.copyAsMap(builder.map);
 	}
 
+	public V value(K key) {
+		return map.get(key);
+	}
+
 	public V fix(K key, V value) {
-		V fixedValue = map.get(key);
+		V fixedValue = value(key);
 		if (fixedValue != null) return fixedValue;
 		return value;
 	}
