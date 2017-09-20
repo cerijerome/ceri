@@ -13,7 +13,8 @@ public class OsUtil {
 	public static final boolean IS_ARM = matches(OS_ARCH, "arm");
 	public static final String FULL_DESCRIPTOR = String.format( //
 		"%s; %s; %s", OS_NAME, OS_ARCH, OS_VERSION);
-
+	public static final boolean IS_AWS = !BasicUtil.isEmpty(System.getProperty("AWS_PATH"));
+	
 	private OsUtil() {}
 
 	private static boolean matches(String s, String regex) {

@@ -10,6 +10,7 @@ import ceri.common.text.StringUtil;
 import ceri.common.util.PrimitiveUtil;
 
 public class Request {
+	private static final String USER_AGENT_HEADER = "User-Agent";
 	private static final String XFF_HEADER = "X-Forwarded-For";
 	public final HttpServletRequest http;
 
@@ -17,6 +18,10 @@ public class Request {
 		this.http = http;
 	}
 
+	public String userAgent() {
+		return http.getHeader(USER_AGENT_HEADER);
+	}
+	
 	public String remoteAddress() {
 		String ipAddress = http.getHeader(XFF_HEADER);
 		if (ipAddress != null) ipAddress = StringUtil.commaSplit(ipAddress).get(0);
