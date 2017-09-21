@@ -1,5 +1,8 @@
 package ceri.ent.server;
 
+import static org.eclipse.jetty.annotations.AnnotationConfiguration.CONTAINER_INITIALIZERS;
+import static org.eclipse.jetty.servlet.DefaultServlet.CONTEXT_INIT;
+import static org.eclipse.jetty.webapp.WebInfConfiguration.CONTAINER_JAR_PATTERN;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,14 +20,11 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 public class JettyUtil {
 	private static final Pattern PACKAGE_SEPARATOR_REGEX = Pattern.compile("\\.");
-	private static final String CONTAINER_INCLUDE_JAR_PATTERN_ATTRIBUTE =
-		"org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern";
 	private static final String TAGLIBS_JAR_PATTERN = ".*/.*taglibs.*\\.jar$";
-	private static final String CONTAINER_INITIALIZERS_ATTRIBUTE =
-		"org.eclipse.jetty.containerInitializers";
 	private static final List<ContainerInitializer> JSP_INITIALIZERS = jspInitializers();
 	private static final String TMP_DIR = "tmp";
 	private static final String CONTEXT_PATH_DEF = "/";
+	private static final String DIR_ALLOWED = CONTEXT_INIT + "dirAllowed";
 
 	private JettyUtil() {}
 
@@ -60,6 +60,17 @@ public class JettyUtil {
 		return Resource.newResource(cls.getClassLoader().getResource(path));
 	}
 
+	public static void disableDirectory(WebAppContext context) {
+		context.setInitParameter(DIR_ALLOWED, String.valueOf(false));
+	}
+	
+	/**
+	 * Doesn't show the powered-by jetty line in error pages.
+	 */
+	public static void minimalErrorPages(WebAppContext context) {
+		context.setErrorHandler(new MinimalErrorHandler());
+	}
+	
 	public static void initForJsp(WebAppContext context) {
 		initForJsp(context, (File) null);
 	}
@@ -74,8 +85,8 @@ public class JettyUtil {
 	}
 
 	public static void initForJsp(WebAppContext context, File jspTmpDir) {
-		context.setAttribute(CONTAINER_INCLUDE_JAR_PATTERN_ATTRIBUTE, TAGLIBS_JAR_PATTERN);
-		context.setAttribute(CONTAINER_INITIALIZERS_ATTRIBUTE, JSP_INITIALIZERS);
+		context.setAttribute(CONTAINER_JAR_PATTERN, TAGLIBS_JAR_PATTERN);
+		context.setAttribute(CONTAINER_INITIALIZERS, JSP_INITIALIZERS);
 		context.addBean(new ServletContainerInitializersStarter(context), true);
 		if (jspTmpDir != null) context.setTempDirectory(jspTmpDir);
 	}
