@@ -1,0 +1,71 @@
+/*--------------------------------------------------------------------------*/
+/* Web fonts */
+/*--------------------------------------------------------------------------*/
+@font-face {
+  font-family: 'Montserrat';
+  src: url('../font/Montserrat/Montserrat-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  font-style: italic;
+  src: url('../font/Montserrat/Montserrat-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  font-weight: bold;
+  src: url('../font/Montserrat/Montserrat-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Nunito';
+  src: url('../font/Nunito/Nunito-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Nunito';
+  font-style: italic;
+  src: url('../font/Nunito/Nunito-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Nunito';
+  font-weight: bold;
+  src: url('../font/Nunito/Nunito-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../font/Roboto/Roboto-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  src: url('../font/Roboto/Roboto-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-weight: bold;
+  src: url('../font/Roboto/Roboto-Bold.ttf');
+}
+
+/*--------------------------------------------------------------------------*/
+/* Element overrides */
+/*--------------------------------------------------------------------------*/
+html {
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+ol, ul {
+  list-style-position: inside;
+}
+
