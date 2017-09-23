@@ -1,6 +1,7 @@
 package ceri.ent.service;
 
 import java.io.File;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import ceri.common.property.BaseProperties;
 
@@ -18,6 +19,10 @@ public class ServiceProperties extends BaseProperties {
 	private static final String NULLS_KEY = "nulls";
 	private static final String FILE_KEY = "file";
 	
+	public ServiceProperties(Properties properties, String...groups) {
+		this(BaseProperties.from(properties), groups);
+	}
+
 	public ServiceProperties(BaseProperties properties, String...groups) {
 		super(properties, groups);
 	}

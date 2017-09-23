@@ -5,9 +5,12 @@ import java.util.Map;
 import ceri.common.property.Key;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.PrimitiveUtil;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class GsonUtil {
-
+	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+	
 	private GsonUtil() {}
 
 	/**

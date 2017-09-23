@@ -39,10 +39,10 @@ public class Persistables implements Closeable, Persistable {
 	@Override
 	public void save() {
 		for (Persistable persistable : persistables)
-			save(persistable);
+			save(logger, persistable);
 	}
 
-	private void save(Persistable persistable) {
+	public static void save(Logger logger, Persistable persistable) {
 		try {
 			persistable.save();
 		} catch (IOException e) {
