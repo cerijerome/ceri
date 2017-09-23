@@ -4,6 +4,7 @@ import java.util.function.Predicate;
 
 /**
  * Filter interface - returns true if the conditions are met.
+ * Was created before Predicate; retrofitted to match.
  */
 public interface Filter<T> extends Predicate<T> {
 

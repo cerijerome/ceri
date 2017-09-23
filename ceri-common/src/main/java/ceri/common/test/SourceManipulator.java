@@ -70,6 +70,10 @@ public class SourceManipulator {
 		src = src.replaceAll(regex, replacement);
 	}
 	
+	public void replaceText(String from, String to) {
+		src = src.replaceAll("\\Q" + from + "\\E", to);
+	}
+	
 	public void replaceIdentifier(String from, String to) {
 		src = src.replaceAll("\\b\\Q" + from + "\\E\\b", to);
 	}
