@@ -11,6 +11,7 @@ public class LatLngUtil {
 	private LatLngUtil() {}
 
 	public static LatLng parse(String value) {
+		if (value == null) return null;
 		Matcher m = PARSE_REGEX.matcher(value);
 		if (!m.find()) return null;
 		return new LatLng(Double.parseDouble(m.group(1)), Double.parseDouble(m.group(2)));
