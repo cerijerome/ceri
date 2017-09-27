@@ -13,6 +13,7 @@ import ceri.common.text.StringUtil;
 public class ByteUtil {
 	public static final int BITS_PER_BYTE = 8;
 	public static final int BITS_PER_NYBBLE = 4;
+	public static final int HEX_DIGIT_BITS = BITS_PER_NYBBLE;
 	public static final int BYTE_MASK = 0xff;
 	public static final int SHORT_BYTES = 2;
 	public static final int INT_BYTES = 4;
