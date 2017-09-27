@@ -49,12 +49,14 @@ public class RegexUtil {
 	}
 
 	/**
-	 * Finds the first matching regex and returns the first group.
+	 * Finds the first matching regex and returns the first group if it exists, otherwise the entire
+	 * matched pattern.
 	 */
 	public static final String find(Pattern regex, String s) {
 		Matcher m = regex.matcher(s);
 		if (!m.find()) return null;
-		return m.group(1);
+		int group = m.groupCount() > 0 ? 1 : 0;
+		return m.group(group);
 	}
 
 	/**

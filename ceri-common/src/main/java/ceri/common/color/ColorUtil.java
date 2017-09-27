@@ -206,7 +206,7 @@ public class ColorUtil {
 	}
 
 	public static int rgb(int r, int g, int b) {
-		return ByteUtil.shiftLeft(r, 2) | ByteUtil.shiftLeft(g, 1) | b & 0xff;
+		return (int) (ByteUtil.shiftByteLeft(r, 2) | ByteUtil.shiftByteLeft(g, 1) | b & 0xff);
 	}
 
 	public static int rgb(Color color) {

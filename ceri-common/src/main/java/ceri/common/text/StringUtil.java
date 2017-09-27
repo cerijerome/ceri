@@ -134,7 +134,7 @@ public class StringUtil {
 		if (s.endsWith(INTEGRAL_FLOAT)) s = s.substring(0, s.length() - INTEGRAL_FLOAT.length());
 		return s;
 	}
-	
+
 	/**
 	 * Compact floating point representation - trailing .0 is removed if present.
 	 */
@@ -143,7 +143,7 @@ public class StringUtil {
 		if (s.endsWith(INTEGRAL_FLOAT)) s = s.substring(0, s.length() - INTEGRAL_FLOAT.length());
 		return s;
 	}
-	
+
 	/**
 	 * Replace multiple whitespaces with a single space, then trim.
 	 */
@@ -155,7 +155,7 @@ public class StringUtil {
 	/**
 	 * Convert a byte array into a list of hex strings.
 	 */
-	public static String toHex(byte[] data) {
+	public static String toHexArray(byte[] data) {
 		if (data.length == 0) return "[]";
 		return IntStream.range(0, data.length).mapToObj(i -> toHex(data[i])).collect(
 			Collectors.joining(", 0x", "[0x", "]"));
@@ -164,10 +164,10 @@ public class StringUtil {
 	/**
 	 * Converts a byte array into a single hex string.
 	 */
-	public static String toSingleHex(byte[] data) {
+	public static String toHex(byte[] data) {
 		if (data.length == 0) return "";
 		return IntStream.range(0, data.length).mapToObj(i -> toHex(data[i])).collect(
-			Collectors.joining("", "0x", ""));
+			Collectors.joining());
 	}
 
 	/**
@@ -212,28 +212,28 @@ public class StringUtil {
 	public static String toBinary(byte b) {
 		return toBinary(b, BYTE_BINARY_DIGITS);
 	}
-	
+
 	/**
 	 * Convenience method to convert a short to a 16-digit binary string.
 	 */
 	public static String toBinary(short s) {
 		return toBinary(s, SHORT_BINARY_DIGITS);
 	}
-	
+
 	/**
 	 * Convenience method to convert an int to a 32-digit binary string.
 	 */
 	public static String toBinary(int i) {
 		return toBinary(i, INT_BINARY_DIGITS);
 	}
-	
+
 	/**
 	 * Convenience method to convert a long to a 64-digit binary string.
 	 */
 	public static String toBinary(long l) {
 		return toBinary(l, LONG_BINARY_DIGITS);
 	}
-	
+
 	/**
 	 * Converts a number to radix-based string with exactly the numbers of specified digits. For
 	 * numbers larger than the digits specified, the most significant digits are dropped.
@@ -428,7 +428,7 @@ public class StringUtil {
 	public static String pad(String str, int minLength, Align align) {
 		return pad(str, minLength, " ", align);
 	}
-	
+
 	/**
 	 * Pads a string with leading or trailing characters.
 	 */
@@ -440,16 +440,18 @@ public class StringUtil {
 		int left = leftCount(pads, align);
 		if (pads == 0) return str;
 		StringBuilder b = new StringBuilder(minLength);
-		for (int i = 0; i < left; i++) b.append(pad);
+		for (int i = 0; i < left; i++)
+			b.append(pad);
 		b.append(str);
-		for (int i = 0; i < pads - left; i++) b.append(pad);
+		for (int i = 0; i < pads - left; i++)
+			b.append(pad);
 		return b.toString();
 	}
 
 	private static int pads(int padLen, int len) {
 		return padLen > 0 ? len / padLen : 0;
 	}
-	
+
 	private static int leftCount(int count, Align align) {
 		if (align == Align.RIGHT) return count;
 		if (align == Align.CENTER) return count / 2;
@@ -463,7 +465,7 @@ public class StringUtil {
 		if (s == null) return s;
 		return s.trim();
 	}
-	
+
 	/**
 	 * Returns substring, or "" if null or index out of bounds. Use start < 0 for length relative to
 	 * end.

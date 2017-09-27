@@ -1,8 +1,13 @@
 package ceri.common.collection;
 
+import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.IntStream;
+import ceri.common.data.ByteConsumer;
+import ceri.common.data.ByteUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
 
@@ -14,8 +19,7 @@ import ceri.common.util.HashCoder;
  * held.
  */
 public class ImmutableByteArray {
-	public static final ImmutableByteArray EMPTY = new ImmutableByteArray(ArrayUtil.EMPTY_BYTE, 0,
-		0);
+	public static final ImmutableByteArray EMPTY = new ImmutableByteArray(EMPTY_BYTE, 0, 0);
 	private final byte[] array;
 	private final int offset;
 	public final int length;
@@ -31,6 +35,10 @@ public class ImmutableByteArray {
 	public static ImmutableByteArray copyOf(byte[] array, int offset, int length) {
 		byte[] newArray = Arrays.copyOfRange(array, offset, offset + length);
 		return wrap(newArray);
+	}
+
+	public static ImmutableByteArray wrap(int... array) {
+		return wrap(ByteUtil.bytes(array));
 	}
 
 	public static ImmutableByteArray wrap(byte... array) {
@@ -94,6 +102,16 @@ public class ImmutableByteArray {
 
 	public byte at(int index) {
 		return array[offset + index];
+	}
+
+	public IntStream stream() {
+		return ByteUtil.streamOf(array);
+	}
+
+	public void forEach(ByteConsumer action) {
+        Objects.requireNonNull(action);
+        for (int i = 0; i < array.length; i++)
+            action.accept(at(i));
 	}
 
 	public byte[] copy() {

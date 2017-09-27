@@ -14,6 +14,7 @@ import java.util.Map;
  * Utility methods for handling primitives and primitive wrappers.
  */
 public class PrimitiveUtil {
+	private static final int DECIMAL_RADIX = 10;
 	private static final Map<Class<?>, Class<?>> classMap = createMap();
 
 	private PrimitiveUtil() {}
@@ -118,9 +119,16 @@ public class PrimitiveUtil {
 	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Byte valueOf(String value, Byte def) {
+		return valueOf(value, def, DECIMAL_RADIX);
+	}
+
+	/**
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
+	 */
+	public static Byte valueOf(String value, Byte def, int radix) {
 		try {
 			if (BasicUtil.isEmpty(value)) return def;
-			return Byte.valueOf(value.trim());
+			return Byte.valueOf(value.trim(), radix);
 		} catch (NumberFormatException e) {
 			return def;
 		}
@@ -138,9 +146,16 @@ public class PrimitiveUtil {
 	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Short valueOf(String value, Short def) {
+		return valueOf(value, def, DECIMAL_RADIX);
+	}
+
+	/**
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
+	 */
+	public static Short valueOf(String value, Short def, int radix) {
 		try {
 			if (BasicUtil.isEmpty(value)) return def;
-			return Short.valueOf(value);
+			return Short.valueOf(value, radix);
 		} catch (NumberFormatException e) {
 			return def;
 		}
@@ -150,9 +165,16 @@ public class PrimitiveUtil {
 	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Integer valueOf(String value, Integer def) {
+		return valueOf(value, def, DECIMAL_RADIX);
+	}
+
+	/**
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
+	 */
+	public static Integer valueOf(String value, Integer def, int radix) {
 		try {
 			if (BasicUtil.isEmpty(value)) return def;
-			return Integer.valueOf(value);
+			return Integer.valueOf(value, radix);
 		} catch (NumberFormatException e) {
 			return def;
 		}
@@ -162,9 +184,16 @@ public class PrimitiveUtil {
 	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Long valueOf(String value, Long def) {
+		return valueOf(value, def, DECIMAL_RADIX);
+	}
+
+	/**
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
+	 */
+	public static Long valueOf(String value, Long def, int radix) {
 		try {
 			if (BasicUtil.isEmpty(value)) return def;
-			return Long.valueOf(value);
+			return Long.valueOf(value, radix);
 		} catch (NumberFormatException e) {
 			return def;
 		}

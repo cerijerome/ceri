@@ -1,5 +1,7 @@
 package ceri.common.validation;
 
+import static java.lang.Long.compareUnsigned;
+
 public class ValidationUtil {
 
 	private ValidationUtil() {}
@@ -38,6 +40,14 @@ public class ValidationUtil {
 		if (value != expected) throw InvalidLongRangeException.equal(value, expected, name);
 	}
 
+	public static void validateEqualUnsigned(long value, long expected) {
+		if (value != expected) throw InvalidUnsignedLongRangeException.equal(value, expected);
+	}
+
+	public static void validateEqualUnsigned(long value, long expected, String name) {
+		if (value != expected) throw InvalidUnsignedLongRangeException.equal(value, expected, name);
+	}
+
 	public static void validateMin(long value, long min) {
 		if (value < min) throw InvalidLongRangeException.min(value, min);
 	}
@@ -60,6 +70,36 @@ public class ValidationUtil {
 
 	public static void validateRange(long value, long min, long max, String name) {
 		if (value < min || value > max) throw InvalidLongRangeException
+			.range(value, min, max, name);
+	}
+
+	public static void validateMinUnsigned(long value, long min) {
+		if (compareUnsigned(value, min) < 0) throw InvalidUnsignedLongRangeException
+			.min(value, min);
+	}
+
+	public static void validateMinUnsigned(long value, long min, String name) {
+		if (compareUnsigned(value, min) < 0) throw InvalidUnsignedLongRangeException.min(value,
+			min, name);
+	}
+
+	public static void validateMaxUnsigned(long value, long max) {
+		if (compareUnsigned(value, max) > 0) throw InvalidUnsignedLongRangeException
+			.max(value, max);
+	}
+
+	public static void validateMaxUnsigned(long value, long max, String name) {
+		if (compareUnsigned(value, max) > 0) throw InvalidUnsignedLongRangeException.max(value,
+			max, name);
+	}
+
+	public static void validateRangeUnsigned(long value, long min, long max) {
+		if (compareUnsigned(value, min) < 0 || compareUnsigned(value, max) > 0) throw InvalidUnsignedLongRangeException
+			.range(value, min, max);
+	}
+
+	public static void validateRangeUnsigned(long value, long min, long max, String name) {
+		if (compareUnsigned(value, min) < 0 || compareUnsigned(value, max) > 0) throw InvalidUnsignedLongRangeException
 			.range(value, min, max, name);
 	}
 

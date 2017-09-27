@@ -305,6 +305,13 @@ public class TestUtil {
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
+	public static void assertArray(short[] array, int... expected) {
+		assertArrayObject(array, expected);
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
 	public static void assertArray(int[] array, int... expected) {
 		assertArrayObject(array, expected);
 	}

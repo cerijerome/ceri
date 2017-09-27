@@ -24,7 +24,7 @@ public class HsbColor {
 	}
 
 	public static HsbColor from(int rgb) {
-		return from(ByteUtil.shiftRight(rgb, 2), ByteUtil.shiftRight(rgb, 1), rgb & 0xff);
+		return from(ByteUtil.byteAt(rgb, 2), ByteUtil.byteAt(rgb, 1), rgb);
 	}
 
 	public static HsbColor from(int red, int green, int blue) {
@@ -66,7 +66,7 @@ public class HsbColor {
 
 	public Color asColor() {
 		int rgb = Color.HSBtoRGB((float) h, (float) s, (float) b) & RGB_MASK;
-		int a = ByteUtil.shiftLeft((int) (this.a * MAX_COLOR_VALUE), RGB_BYTES);
+		int a = (int) ByteUtil.shiftByteLeft((int) (this.a * MAX_COLOR_VALUE), RGB_BYTES);
 		return new Color(a | rgb, true);
 	}
 

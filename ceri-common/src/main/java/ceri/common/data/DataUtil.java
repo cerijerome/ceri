@@ -24,19 +24,19 @@ public class DataUtil {
 	}
 
 	public static int decodeIntMsb(ImmutableByteArray data, int offset) {
-		return ByteUtil.fromBigEndian(data, offset, ByteUtil.INT_BYTES);
+		return (int) ByteUtil.fromBigEndian(data, offset, ByteUtil.INT_BYTES);
 	}
 
 	public static int decodeIntLsb(ImmutableByteArray data, int offset) {
-		return ByteUtil.fromLittleEndian(data, offset, ByteUtil.INT_BYTES);
+		return (int) ByteUtil.fromLittleEndian(data, offset, ByteUtil.INT_BYTES);
 	}
 
 	public static int decodeShortMsb(ImmutableByteArray data, int offset) {
-		return ByteUtil.fromBigEndian(data, offset, ByteUtil.SHORT_BYTES);
+		return (int) ByteUtil.fromBigEndian(data, offset, ByteUtil.SHORT_BYTES);
 	}
 
 	public static int decodeShortLsb(ImmutableByteArray data, int offset) {
-		return ByteUtil.fromLittleEndian(data, offset, ByteUtil.SHORT_BYTES);
+		return (int) ByteUtil.fromLittleEndian(data, offset, ByteUtil.SHORT_BYTES);
 	}
 
 	public static void validateByte(int expected, int actual) {

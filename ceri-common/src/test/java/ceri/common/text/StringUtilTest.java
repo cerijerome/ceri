@@ -42,18 +42,13 @@ public class StringUtilTest {
 	@Test
 	public void testToHex() {
 		byte[] bb = { 0, -1, 1, Byte.MAX_VALUE, Byte.MIN_VALUE };
-		assertThat(StringUtil.toHex(bb), is("[0x00, 0xff, 0x01, 0x7f, 0x80]"));
-		assertThat(StringUtil.toHex(new byte[] {}), is("[]"));
+		assertThat(StringUtil.toHexArray(bb), is("[0x00, 0xff, 0x01, 0x7f, 0x80]"));
+		assertThat(StringUtil.toHexArray(new byte[] {}), is("[]"));
 		assertThat(StringUtil.toHex(Long.MAX_VALUE), is("7fffffffffffffff"));
 		assertThat(StringUtil.toHex(Integer.MAX_VALUE), is("7fffffff"));
 		assertThat(StringUtil.toHex(Short.MAX_VALUE), is("7fff"));
-	}
-
-	@Test
-	public void testToSingleHex() {
-		byte[] bb = { 0, -1, 1, Byte.MAX_VALUE, Byte.MIN_VALUE };
-		assertThat(StringUtil.toSingleHex(bb), is("0x00ff017f80"));
-		assertThat(StringUtil.toSingleHex(new byte[] {}), is(""));
+		assertThat(StringUtil.toHex(bb), is("00ff017f80"));
+		assertThat(StringUtil.toHex(new byte[] {}), is(""));
 	}
 
 	@Test
