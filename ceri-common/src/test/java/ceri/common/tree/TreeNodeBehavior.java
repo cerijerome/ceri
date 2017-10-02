@@ -37,6 +37,7 @@ public class TreeNodeBehavior {
 		assertThat(tree.get(1).isRoot(), is(false));
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
 	@Test
 	public void shouldObeyEqualsContract() {
 		TestNode root = builder(0).child(builder(1)).build();

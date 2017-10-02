@@ -32,7 +32,7 @@ public class DelegatingMapBehavior {
 		delegate.size();
 		delegate.isEmpty();
 		delegate.containsKey(0);
-		delegate.containsValue(0);
+		delegate.containsValue("0");
 		delegate.get(0);
 		delegate.put(0, "0");
 		delegate.remove(0);
@@ -44,7 +44,7 @@ public class DelegatingMapBehavior {
 		verify(map).size();
 		verify(map).isEmpty();
 		verify(map).containsKey(0);
-		verify(map).containsValue(0);
+		verify(map).containsValue("0");
 		verify(map).get(0);
 		verify(map).put(0, "0");
 		verify(map).remove(0);

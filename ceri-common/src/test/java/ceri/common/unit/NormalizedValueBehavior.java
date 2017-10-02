@@ -78,6 +78,7 @@ public class NormalizedValueBehavior {
 		assertThat(n1, is(not(n2)));
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
 	@Test
 	public void shouldConformToEqualsContract() {
 		NormalizedValue<EnumUnit> n1 = NormalizedValue.create(100L, EnumUnit._3, EnumUnit._33);

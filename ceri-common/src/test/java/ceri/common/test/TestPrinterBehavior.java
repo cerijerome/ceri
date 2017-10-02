@@ -21,6 +21,7 @@ public class TestPrinterBehavior {
 		void myMethod() {}
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
 	@Test
 	public void shouldObeyEqualsContract() {
 		TestPrinter.Test test = new TestPrinter.Test("testClassName", "className", "description");
