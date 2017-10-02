@@ -39,16 +39,16 @@ public class Cone3d implements Radial3d {
 		if (h < 0 || h > this.h) return Double.NaN;
 		return gradient();
 	}
-	
+
 	@Override
 	public double height() {
 		return h;
 	}
-	
+
 	public double radius() {
 		return r;
 	}
-	
+
 	@Override
 	public double heightFromVolume(double v) {
 		if (v < 0 || v > this.v) return Double.NaN;
@@ -56,14 +56,14 @@ public class Cone3d implements Radial3d {
 		if (v == this.v) return h;
 		return Math.cbrt(3.0 * h * h * v / (Math.PI * r * r));
 	}
-	
+
 	@Override
 	public double volumeFromHeight(double h) {
 		if (h <= 0) return 0;
 		if (h >= this.h) return v;
 		return volume(radiusFromHeight(h), h);
 	}
-	
+
 	@Override
 	public double radiusFromHeight(double h) {
 		if (h < 0 || h > this.h) return Double.NaN;
@@ -71,7 +71,7 @@ public class Cone3d implements Radial3d {
 		if (h == this.h) return r;
 		return this.r * h / this.h;
 	}
-	
+
 	public double heightFromRadius(double r) {
 		if (r < 0 || r > this.r) return Double.NaN;
 		if (r == 0) return 0;

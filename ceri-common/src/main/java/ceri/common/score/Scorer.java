@@ -6,5 +6,5 @@ package ceri.common.score;
 public interface Scorer<T> {
 
 	double score(T t);
-	
+
 }

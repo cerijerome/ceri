@@ -8,20 +8,20 @@ public class OctetBitSet extends BitSet {
 	public static OctetBitSet create() {
 		return new OctetBitSet();
 	}
-	
+
 	public static OctetBitSet create(byte value) {
 		OctetBitSet bitSet = new OctetBitSet();
 		for (int i = 0; i < ByteUtil.BITS_PER_BYTE; i++)
 			bitSet.set(i, ByteUtil.bit(value, i));
 		return bitSet;
 	}
-	
+
 	public byte value() {
 		return toByteArray()[0];
 	}
-	
+
 	private OctetBitSet() {
 		super(ByteUtil.BITS_PER_BYTE);
 	}
-	
+
 }

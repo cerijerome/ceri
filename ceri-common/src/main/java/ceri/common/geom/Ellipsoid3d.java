@@ -120,7 +120,7 @@ public class Ellipsoid3d {
 
 	/**
 	 * Integral from volume formula from -a to x:
-	 * 
+	 *
 	 * <pre>
 	 * (pi.b.c / 3.a^2)[x(3.a^2 - x^2)]
 	 * </pre>
@@ -131,7 +131,7 @@ public class Ellipsoid3d {
 
 	/**
 	 * Solution of volume formula where x is known:
-	 * 
+	 *
 	 * <pre>
 	 * x^3 - 3.a^2.x + (3.a^2.v / pi.b.c) - 2.a^3
 	 * </pre>

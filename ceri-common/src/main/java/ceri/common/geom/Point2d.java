@@ -18,28 +18,28 @@ public class Point2d {
 	public Point2d reverse() {
 		return new Point2d(-x, -y);
 	}
-	
+
 	public Point2d translate(Point2d offset) {
 		return translate(offset.x, offset.y);
 	}
-	
+
 	public Point2d translate(double x, double y) {
 		return new Point2d(this.x + x, this.y + y);
 	}
-	
+
 	public Point2d to(Point2d end) {
 		return new Point2d(end.x - x, end.y - y);
 	}
-	
+
 	public Point2d from(Point2d start) {
 		return start.to(this);
 	}
-	
+
 	public Point2d scale(Ratio2d scale) {
 		// +0.0 converts any -0.0 to 0.0
 		return new Point2d(x * scale.x + 0.0, y * scale.y + 0.0);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(x, y);

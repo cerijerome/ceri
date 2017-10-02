@@ -13,5 +13,5 @@ public enum SweepFlag {
 	public SweepFlag reverse() {
 		return this == negative ? positive : negative;
 	}
-	
+
 }

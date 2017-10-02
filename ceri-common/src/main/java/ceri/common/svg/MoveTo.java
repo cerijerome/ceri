@@ -17,7 +17,7 @@ public class MoveTo implements Path<MoveTo> {
 	public static MoveTo absolute(double x, double y) {
 		return create(Position.create(PositionType.absolute, x, y));
 	}
-	
+
 	public static MoveTo relative(Point2d p) {
 		return relative(p.x, p.y);
 	}
@@ -38,24 +38,24 @@ public class MoveTo implements Path<MoveTo> {
 	public MoveTo reverse() {
 		return new MoveTo(position.reverse());
 	}
-	
+
 	@Override
 	public MoveTo reflect(Line2d line) {
 		return new MoveTo(position.reflect(line));
 	}
-	
+
 	@Override
 	public MoveTo scale(Ratio2d scale) {
 		return new MoveTo(position.scale(scale));
 	}
-	
+
 	@Override
 	public MoveTo translate(Point2d offset) {
 		Position position = this.position.translate(offset);
 		if (position == this.position) return this;
 		return new MoveTo(position);
 	}
-	
+
 	@Override
 	public Position end() {
 		return position;

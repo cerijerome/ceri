@@ -20,7 +20,7 @@ public class ConcurrentUtil {
 
 	public static <E extends Exception> void executeAndWait(ExecutorService executor,
 		ExceptionRunnable<E> runnable, Function<Throwable, E> exceptionConstructor, int timeoutMs)
-		throws E {
+			throws E {
 		get(submit(executor, runnable), exceptionConstructor, timeoutMs);
 	}
 
@@ -76,7 +76,7 @@ public class ConcurrentUtil {
 	 * Executes the operation within the lock and returns the result.
 	 */
 	public static <E extends Exception, T> T
-		executeGet(Lock lock, ExceptionSupplier<E, T> supplier) throws E {
+	executeGet(Lock lock, ExceptionSupplier<E, T> supplier) throws E {
 		lock.lock();
 		try {
 			return supplier.get();

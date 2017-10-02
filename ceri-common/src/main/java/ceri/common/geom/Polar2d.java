@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
@@ -15,12 +15,12 @@ public class Polar2d {
 		Line2d line = Line2d.create(Point2d.ZERO, point);
 		return new Polar2d(line.length(), line.angle());
 	}
-	
+
 	public static Polar2d create(double r, double phi) {
 		validateMin(r, 0, "Radius");
 		return new Polar2d(r, phi);
 	}
-	
+
 	private Polar2d(double r, double phi) {
 		this.r = r;
 		this.phi = phi;
@@ -29,15 +29,15 @@ public class Polar2d {
 	public Point2d asPoint() {
 		return GeometryUtil.offset(r, phi);
 	}
-	
+
 	public Polar2d rotate(double angle) {
 		return new Polar2d(r, phi + angle);
 	}
-	
+
 	public Polar2d reverse() {
 		return new Polar2d(r, -phi);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(r, phi);

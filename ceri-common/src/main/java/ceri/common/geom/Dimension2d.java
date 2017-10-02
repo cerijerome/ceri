@@ -19,11 +19,11 @@ public class Dimension2d {
 	public boolean isNull() {
 		return w == 0 && h == 0;
 	}
-	
+
 	public Dimension2d resize(double ratio) {
 		return new Dimension2d(w * ratio, h * ratio);
 	}
-	
+
 	public Dimension2d resize(Ratio2d ratio) {
 		return new Dimension2d(w * ratio.x, h * ratio.y);
 	}

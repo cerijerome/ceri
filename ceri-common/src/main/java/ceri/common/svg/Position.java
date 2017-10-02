@@ -32,11 +32,11 @@ public class Position {
 	public static Position create(PositionType type, Point2d position) {
 		return create(type, position.x, position.y);
 	}
-	
+
 	public static Position create(PositionType type, double x, double y) {
 		return new Position(type, x, y);
 	}
-	
+
 	private Position(PositionType type, double x, double y) {
 		this.type = type;
 		this.x = x;
@@ -46,11 +46,11 @@ public class Position {
 	public Point2d vector() {
 		return new Point2d(x, y);
 	}
-	
+
 	public boolean absolute() {
 		return type == PositionType.absolute;
 	}
-	
+
 	public Position combine(Position position) {
 		if (position == null) return this;
 		if (position.absolute()) return position;
@@ -60,20 +60,20 @@ public class Position {
 	public Position reflect(Line2d line) {
 		return Position.create(type, line.reflect(new Point2d(x, y)));
 	}
-	
+
 	public Position reverse() {
 		if (absolute()) return this;
 		return new Position(type, -x, -y);
 	}
-	
+
 	public Position scale(double scaleX, double scaleY) {
 		return new Position(type, x * scaleX, y * scaleY);
 	}
-	
+
 	public Position scale(Ratio2d scale) {
 		return scale(scale.x, scale.y);
 	}
-	
+
 	public Position translate(Point2d offset) {
 		return translate(offset.x, offset.y);
 	}

@@ -12,11 +12,11 @@ public class DoubleBound {
 	public static DoubleBound inclusive(double value) {
 		return new DoubleBound(value, BoundType.inclusive);
 	}
-	
+
 	public static DoubleBound exclusive(double value) {
 		return new DoubleBound(value, BoundType.exclusive);
 	}
-	
+
 	private DoubleBound(Double value, BoundType type) {
 		this.value = value;
 		this.type = type;
@@ -25,21 +25,21 @@ public class DoubleBound {
 	public boolean unbound() {
 		return value == null;
 	}
-	
+
 	public boolean upperFor(double value) {
 		if (unbound()) return true;
 		if (value < this.value.doubleValue()) return true;
 		if (type == BoundType.exclusive) return false;
 		return EqualsUtil.equals(value, this.value.doubleValue());
 	}
-	
+
 	public boolean lowerFor(double value) {
 		if (unbound()) return true;
 		if (value > this.value.doubleValue()) return true;
 		if (type == BoundType.exclusive) return false;
 		return EqualsUtil.equals(value, this.value.doubleValue());
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(value, type);

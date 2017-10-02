@@ -25,7 +25,7 @@ public interface Colorable {
 	static Colorable multi(Colorable...colorables) {
 		return multi(Arrays.asList(colorables));
 	}
-	
+
 	static Colorable multi(Collection<Colorable> colorables) {
 		return new Colorable() {
 

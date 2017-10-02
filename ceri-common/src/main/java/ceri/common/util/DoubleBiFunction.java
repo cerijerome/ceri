@@ -11,5 +11,5 @@ public interface DoubleBiFunction<R> {
 		Objects.requireNonNull(after);
 		return (t, u) -> after.apply(apply(t, u));
 	}
-	
+
 }

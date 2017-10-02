@@ -36,5 +36,5 @@ public class UsHolidays {
 		System.out.println(LABOR_DAY.date(2017));
 		System.out.println(THANKSGIVING_DAY.date(2017));
 	}
-	
+
 }

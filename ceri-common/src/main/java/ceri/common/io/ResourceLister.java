@@ -30,7 +30,7 @@ public class ResourceLister {
 	public ResourceLister(Class<?> cls) {
 		this(cls, null, null);
 	}
-	
+
 	public ResourceLister(Class<?> cls, String subDir, Pattern pattern) {
 		if (subDir == null || subDir.length() == 0) subDir = "";
 		else if (!subDir.endsWith("/")) subDir += "/";
@@ -40,9 +40,9 @@ public class ResourceLister {
 	}
 
 	public List<String> list() throws IOException {
-		return new ArrayList<>(names(cls, subDir)); 
+		return new ArrayList<>(names(cls, subDir));
 	}
-	
+
 	private Collection<String> names(Class<?> cls, String subDir) throws IOException {
 		try {
 			URL url = IoUtil.getClassUrl(cls);
@@ -96,5 +96,5 @@ public class ResourceLister {
 		if (pattern != null && !pattern.matcher(name).matches()) return;
 		names.add(name);
 	}
-	
+
 }

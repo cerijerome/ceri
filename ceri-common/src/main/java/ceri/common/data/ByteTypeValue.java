@@ -35,11 +35,11 @@ public class ByteTypeValue<T extends Enum<T>> {
 	public String toString() {
 		return name() + "(0x" + StringUtil.toHex(value) + ")";
 	}
-	
+
 	public String name() {
 		if (type != null) return type.name();
 		if (name != null) return name;
 		return getClass().getSimpleName();
 	}
-	
+
 }

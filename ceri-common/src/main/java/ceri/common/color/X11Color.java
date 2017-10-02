@@ -169,7 +169,7 @@ public enum X11Color {
 	public static X11Color from(String name) {
 		return BasicUtil.valueOf(X11Color.class, name, null);
 	}
-	
+
 	public static X11Color from(Color color) {
 		return from(color.getRGB());
 	}

@@ -29,7 +29,7 @@ public class LineTo implements Path<LineTo> {
 	public static LineTo create(Position position) {
 		return new LineTo(position);
 	}
-	
+
 	private LineTo(Position position) {
 		this.position = position;
 	}
@@ -38,7 +38,7 @@ public class LineTo implements Path<LineTo> {
 	public LineTo reverse() {
 		return new LineTo(position.reverse());
 	}
-	
+
 	@Override
 	public LineTo reflect(Line2d line) {
 		return new LineTo(position.reflect(line));

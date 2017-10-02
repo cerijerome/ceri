@@ -75,7 +75,7 @@ public class ColorUtil {
 	public static Color alphaColor(Color color, int alpha) {
 		return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
 	}
-	
+
 	public static Color color(String name) {
 		Color color = colorFromName(name);
 		if (color != null) return color;

@@ -31,7 +31,7 @@ public class Rectangle2d {
 	public Point2d position() {
 		return new Point2d(x, y);
 	}
-	
+
 	public Point2d corner() {
 		return new Point2d(x + w, y + h);
 	}
@@ -39,7 +39,7 @@ public class Rectangle2d {
 	public double area() {
 		return w * h;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(x, y, w, h);

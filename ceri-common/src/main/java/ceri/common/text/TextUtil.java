@@ -79,7 +79,7 @@ public class TextUtil {
 		if (str.isEmpty()) return str;
 		return CASE_BOUNDARY_PATTERN.matcher(str).replaceAll("$1-$2").toLowerCase();
 	}
-	
+
 	/**
 	 * Changes camel case to Pascal case. e.g. _helloThereABC_ => _HelloThereABC_
 	 */

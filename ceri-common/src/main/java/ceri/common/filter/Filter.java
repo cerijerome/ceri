@@ -14,5 +14,5 @@ public interface Filter<T> extends Predicate<T> {
 	default boolean test(T t) {
 		return filter(t);
 	}
-	
+
 }

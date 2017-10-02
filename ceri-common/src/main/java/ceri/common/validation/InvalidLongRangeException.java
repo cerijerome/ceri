@@ -10,11 +10,11 @@ public class InvalidLongRangeException extends IllegalArgumentException {
 	public static InvalidLongRangeException equal(long value, long expected) {
 		return equal(value, expected, NO_NAME);
 	}
-	
+
 	public static InvalidLongRangeException equal(long value, long expected, String name) {
 		return new InvalidLongRangeException(value, expected, expected, name);
 	}
-	
+
 	public static InvalidLongRangeException min(long value, long min) {
 		return min(value, min, NO_NAME);
 	}
@@ -34,11 +34,11 @@ public class InvalidLongRangeException extends IllegalArgumentException {
 	public static InvalidLongRangeException range(long value, long min, long max) {
 		return range(value, min, max, NO_NAME);
 	}
-	
+
 	public static InvalidLongRangeException range(long value, long min, long max, String name) {
 		return new InvalidLongRangeException(value, min, max, name);
 	}
-	
+
 	private InvalidLongRangeException(long value, Long min, Long max, String name) {
 		super(message(value, min, max, name));
 		this.min = min;
@@ -57,5 +57,5 @@ public class InvalidLongRangeException extends IllegalArgumentException {
 		b.append(": ").append(value);
 		return b.toString();
 	}
-	
+
 }

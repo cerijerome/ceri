@@ -1,6 +1,7 @@
 package ceri.common.collection;
 
 import java.util.Arrays;
+import java.util.function.Function;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
 
@@ -13,6 +14,7 @@ import ceri.common.util.HashCoder;
  */
 public class ImmutableIntArray {
 	public static final ImmutableIntArray EMPTY = new ImmutableIntArray(ArrayUtil.EMPTY_INT, 0, 0);
+	public static final Function<int[], ImmutableIntArray> wrapFn = ImmutableIntArray::wrap;
 	private final int[] array;
 	private final int offset;
 	public final int length;

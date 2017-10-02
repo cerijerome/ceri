@@ -145,8 +145,8 @@ public class CollectionUtil {
 		Comparator<V> comparator = Comparators.comparable();
 		Comparator<Entry<K, V>> entryComparator =
 			(e1, e2) -> comparator.compare(e1.getValue(), e2.getValue());
-		stream.sorted(entryComparator).forEach(e -> result.put(e.getKey(), e.getValue()));
-		return result;
+			stream.sorted(entryComparator).forEach(e -> result.put(e.getKey(), e.getValue()));
+			return result;
 	}
 
 	/**

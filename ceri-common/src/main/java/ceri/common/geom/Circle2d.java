@@ -29,7 +29,7 @@ public class Circle2d {
 		if (x == r) return Double.NEGATIVE_INFINITY;
 		if (x == 0) return 0;
 		return -x / yFromX(x);
-	}	
+	}
 
 	/**
 	 * Calculates the gradient at y for x >= 0.
@@ -39,7 +39,7 @@ public class Circle2d {
 		if (y == -r || y == r) return 0;
 		if (y == 0) return Double.NEGATIVE_INFINITY;
 		return -xFromY(y) / y;
-	}	
+	}
 
 	/**
 	 * Returns the coordinates (x, y), y >= 0, corresponding to the given gradient.
@@ -64,14 +64,14 @@ public class Circle2d {
 		if (y == 0) return r;
 		return Math.sqrt((r * r) - (y * y));
 	}
-	
+
 	/**
 	 * Calculates y >= 0 from given x.
 	 */
 	public double yFromX(double x) {
 		return xFromY(x);
 	}
-	
+
 	/**
 	 * Area of the circle.
 	 */
@@ -87,14 +87,14 @@ public class Circle2d {
 		if (x >= r) return area();
 		return integral(x, r) - integral(-r, r);
 	}
-	
+
 	/**
 	 * Area from y = -r to given y.
 	 */
 	public double areaToY(double y) {
 		return areaToX(y);
 	}
-	
+
 	/**
 	 * Circumference of the circle.
 	 */

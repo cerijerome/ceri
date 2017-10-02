@@ -69,7 +69,7 @@ public class UnexpectedValueException extends IllegalArgumentException {
 		if (expected == null) return "Unexpected" + name + " value: 0x" + hex(actual);
 		return "Expected" + name + " value 0x" + hex(expected) + ": 0x" + hex(actual);
 	}
-	
+
 	private static String hex(int value) {
 		return Integer.toUnsignedString(value & 0xffffffff, 16);
 	}

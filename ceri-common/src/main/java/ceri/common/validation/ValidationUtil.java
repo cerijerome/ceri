@@ -70,12 +70,12 @@ public class ValidationUtil {
 
 	public static void validateRange(long value, long min, long max, String name) {
 		if (value < min || value > max) throw InvalidLongRangeException
-			.range(value, min, max, name);
+		.range(value, min, max, name);
 	}
 
 	public static void validateMinUnsigned(long value, long min) {
 		if (compareUnsigned(value, min) < 0) throw InvalidUnsignedLongRangeException
-			.min(value, min);
+		.min(value, min);
 	}
 
 	public static void validateMinUnsigned(long value, long min, String name) {
@@ -85,7 +85,7 @@ public class ValidationUtil {
 
 	public static void validateMaxUnsigned(long value, long max) {
 		if (compareUnsigned(value, max) > 0) throw InvalidUnsignedLongRangeException
-			.max(value, max);
+		.max(value, max);
 	}
 
 	public static void validateMaxUnsigned(long value, long max, String name) {
@@ -95,12 +95,12 @@ public class ValidationUtil {
 
 	public static void validateRangeUnsigned(long value, long min, long max) {
 		if (compareUnsigned(value, min) < 0 || compareUnsigned(value, max) > 0) throw InvalidUnsignedLongRangeException
-			.range(value, min, max);
+		.range(value, min, max);
 	}
 
 	public static void validateRangeUnsigned(long value, long min, long max, String name) {
 		if (compareUnsigned(value, min) < 0 || compareUnsigned(value, max) > 0) throw InvalidUnsignedLongRangeException
-			.range(value, min, max, name);
+		.range(value, min, max, name);
 	}
 
 	public static void validateEqual(double value, double expected) {

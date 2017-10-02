@@ -1,6 +1,7 @@
 package ceri.common.math;
 
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateRange;
 
 public class TrigUtil {
 	public static final DoubleInterval INTERVAL = DoubleInterval.create(DoubleBound.inclusive(0),

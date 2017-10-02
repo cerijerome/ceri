@@ -45,7 +45,7 @@ public class LineEquation2d {
 		if (isNull()) return point;
 		return reflect(point.x, point.y);
 	}
-	
+
 	public Point2d reflect(double x, double y) {
 		if (isNull()) return new Point2d(x, y);
 		double aa = a * a;

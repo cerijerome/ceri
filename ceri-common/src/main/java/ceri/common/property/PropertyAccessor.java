@@ -24,7 +24,7 @@ public interface PropertyAccessor {
 			public Set<String> keys() {
 				return bundle.keySet();
 			}
-			
+
 			@Override
 			public String property(String key) {
 				try {
@@ -33,14 +33,14 @@ public interface PropertyAccessor {
 					return null;
 				}
 			}
-			
+
 			@Override
 			public String toString() {
 				return bundle.toString();
 			}
 		};
 	}
-	
+
 	static PropertyAccessor from(Properties properties) {
 		return new PropertyAccessor() {
 			@Override
@@ -57,12 +57,12 @@ public interface PropertyAccessor {
 			public Map<? super String, ? super String> properties() {
 				return properties;
 			}
-			
+
 			@Override
 			public String toString() {
 				return properties.toString();
 			}
-			
+
 		};
 
 	}

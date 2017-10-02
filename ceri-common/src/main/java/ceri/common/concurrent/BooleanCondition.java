@@ -13,7 +13,7 @@ public class BooleanCondition {
 	public static BooleanCondition create() {
 		return create(new ReentrantLock());
 	}
-	
+
 	public static BooleanCondition create(Lock lock) {
 		return new BooleanCondition(ValueCondition.create(lock));
 	}

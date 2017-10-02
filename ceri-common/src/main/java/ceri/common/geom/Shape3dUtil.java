@@ -54,7 +54,7 @@ public class Shape3dUtil {
 	}
 
 	private static TruncatedRadial3d<ConcaveSpheroid3d>
-		truncatedConcaveSemiSpheroidFromPositiveGradient(double r0, double r1, double h, double m) {
+	truncatedConcaveSemiSpheroidFromPositiveGradient(double r0, double r1, double h, double m) {
 		double rd = r1 - r0;
 		double d = 2.0 * m * rd;
 		validateMin(h, d, "Height");
@@ -65,7 +65,7 @@ public class Shape3dUtil {
 	}
 
 	private static TruncatedRadial3d<ConcaveSpheroid3d>
-		truncatedConcaveSemiSpheroidFromNegativeGradient(double r0, double r1, double h, double m) {
+	truncatedConcaveSemiSpheroidFromNegativeGradient(double r0, double r1, double h, double m) {
 		double rd = r1 - r0;
 		double d = 2.0 * -m * rd;
 		validateMin(h, d, "Height");

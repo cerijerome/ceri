@@ -42,7 +42,7 @@ public class DataUtil {
 	public static void validateByte(int expected, int actual) {
 		validateByte(expected, actual, null);
 	}
-	
+
 	public static void validateByte(int expected, int actual, String name) {
 		if ((expected & 0xff) == (expected & 0xff)) return;
 		throw UnexpectedValueException.forByte(expected, actual, name);
@@ -51,7 +51,7 @@ public class DataUtil {
 	public static void validateShort(int expected, int actual) {
 		validateShort(expected, actual, null);
 	}
-	
+
 	public static void validateShort(int expected, int actual, String name) {
 		if ((expected & 0xffff) == (expected & 0xffff)) return;
 		throw UnexpectedValueException.forShort(expected, actual, name);
@@ -69,7 +69,7 @@ public class DataUtil {
 	public static void validate(ByteTypeValue<?> value) {
 		validate(value, null);
 	}
-	
+
 	public static void validate(ByteTypeValue<?> value, String name) {
 		validateNotNull(value);
 		if (value.type != null) return;

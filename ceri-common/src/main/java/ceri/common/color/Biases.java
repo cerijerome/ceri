@@ -11,27 +11,27 @@ public class Biases {
 	private static final double PI_2 = PI / 2;
 	private static final Bias UP = r -> r > MIN_RATIO ? MAX_RATIO : MIN_RATIO;
 	private static final Bias DOWN = r -> r < MAX_RATIO ? MIN_RATIO : MAX_RATIO;
-	
+
 	/**
 	 * Sine curve from 0 to +PI/2.
 	 */
 	public static final Bias Q1_SINE = r -> Math.sin(r * PI_2);
-	
+
 	/**
 	 * Transposed sine curve from -PI/2 to 0.
 	 */
 	public static final Bias Q4_SINE = inverse(Q1_SINE);
-	
+
 	/**
 	 * Transposed sine curve from -PI/2 to +PI/2.
 	 */
 	public static final Bias HALF_SINE = r -> (1.0 + Math.sin((r * PI) - PI_2)) / 2.0;
-	
+
 	/**
 	 * Transposed circle arc for x > 0, y < 0.
 	 */
 	public static final Bias Q2_CIRCLE = r -> MAX_RATIO - Math.sqrt(MAX_RATIO - (r * r));
-	
+
 	/**
 	 * Transposed circle arc for x < 0, y > 0.
 	 */
@@ -40,8 +40,8 @@ public class Biases {
 	/**
 	 * Transposed circle arcs for x > 0, y < 0, followed by x < 0, y > 0.
 	 */
-	public static final Bias CIRCLE_INFLECTION = sequence(Q2_CIRCLE, Q4_CIRCLE); 
-		
+	public static final Bias CIRCLE_INFLECTION = sequence(Q2_CIRCLE, Q4_CIRCLE);
+
 	/**
 	 * Pass-through bias.
 	 */
@@ -92,21 +92,21 @@ public class Biases {
 		while (ratio > MAX_RATIO) ratio -= MAX_RATIO;
 		return ratio;
 	}
-	
+
 	/**
 	 * Inverts the bias.
 	 */
 	public static Bias inverse(Bias bias) {
 		return r -> MAX_RATIO - bias.bias(MAX_RATIO - r);
 	}
-	
+
 	/**
 	 * Sequences the biases.
 	 */
 	public static Bias sequence(Bias...biases) {
 		return sequence(Arrays.asList(biases));
 	}
-	
+
 	/**
 	 * Sequences the biases.
 	 */
@@ -119,5 +119,5 @@ public class Biases {
 			return biases.get(i).bias(r / partial) * partial;
 		};
 	}
-	
+
 }

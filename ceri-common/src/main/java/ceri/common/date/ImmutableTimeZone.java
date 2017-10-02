@@ -15,7 +15,7 @@ public class ImmutableTimeZone extends TimeZone {
 	public static TimeZone getDefault() {
 		return new ImmutableTimeZone(TimeZone.getDefault());
 	}
-	
+
 	public ImmutableTimeZone(TimeZone timeZone) {
 		this.timeZone = timeZone;
 	}

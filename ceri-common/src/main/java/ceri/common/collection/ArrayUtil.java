@@ -38,7 +38,7 @@ public class ArrayUtil {
 		throw new IndexOutOfBoundsException(
 			"Index must be 0-" + (arrayLength - 1) + ": " + index);
 	}
-	
+
 	/**
 	 * Performs a validation on parameters to slice an array.
 	 */

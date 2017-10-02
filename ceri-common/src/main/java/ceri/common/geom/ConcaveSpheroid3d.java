@@ -55,7 +55,7 @@ public class ConcaveSpheroid3d implements Radial3d {
 	public double radiusFromHeight(double h) {
 		return r - ellipse.xFromY(h - c);
 	}
-	
+
 	@Override
 	public double volume() {
 		return v;

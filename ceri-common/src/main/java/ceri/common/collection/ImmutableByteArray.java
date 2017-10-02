@@ -109,9 +109,9 @@ public class ImmutableByteArray {
 	}
 
 	public void forEach(ByteConsumer action) {
-        Objects.requireNonNull(action);
-        for (int i = 0; i < array.length; i++)
-            action.accept(at(i));
+		Objects.requireNonNull(action);
+		for (int i = 0; i < array.length; i++)
+			action.accept(at(i));
 	}
 
 	public byte[] copy() {

@@ -10,11 +10,11 @@ public class InvalidDoubleRangeException extends IllegalArgumentException {
 	public static InvalidDoubleRangeException equal(double value, double expected) {
 		return equal(value, expected, NO_NAME);
 	}
-	
+
 	public static InvalidDoubleRangeException equal(double value, double expected, String name) {
 		return new InvalidDoubleRangeException(value, expected, expected, name);
 	}
-	
+
 	public static InvalidDoubleRangeException min(double value, double min) {
 		return min(value, min, NO_NAME);
 	}
@@ -34,11 +34,11 @@ public class InvalidDoubleRangeException extends IllegalArgumentException {
 	public static InvalidDoubleRangeException range(double value, double min, double max) {
 		return range(value, min, max, NO_NAME);
 	}
-	
+
 	public static InvalidDoubleRangeException range(double value, double min, double max, String name) {
 		return new InvalidDoubleRangeException(value, min, max, name);
 	}
-	
+
 	private InvalidDoubleRangeException(double value, Double min, Double max, String name) {
 		super(message(value, min, max, name));
 		this.min = min;
@@ -56,5 +56,5 @@ public class InvalidDoubleRangeException extends IllegalArgumentException {
 		b.append(": ").append(value);
 		return b.toString();
 	}
-	
+
 }

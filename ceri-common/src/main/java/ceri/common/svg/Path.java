@@ -12,5 +12,5 @@ public interface Path<T extends Path<T>> {
 	T scale(Ratio2d scale);
 	T reverse();
 	T reflect(Line2d line);
-	
+
 }

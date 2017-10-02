@@ -107,7 +107,7 @@ public class StringUtil {
 	 * Replace all instances of the pattern using the replacer function.
 	 */
 	public static String
-		replaceAll(String s, String pattern, Function<MatchResult, String> replacer) {
+	replaceAll(String s, String pattern, Function<MatchResult, String> replacer) {
 		return replaceAll(s, Pattern.compile(pattern), replacer);
 	}
 

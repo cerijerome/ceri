@@ -13,15 +13,15 @@ public class DoubleInterval {
 	public static DoubleInterval point(double value) {
 		return inclusive(value, value);
 	}
-	
+
 	public static DoubleInterval inclusive(double lower, double upper) {
 		return create(DoubleBound.inclusive(lower), DoubleBound.inclusive(upper));
 	}
-	
+
 	public static DoubleInterval exclusive(double lower, double upper) {
 		return create(DoubleBound.exclusive(lower), DoubleBound.exclusive(upper));
 	}
-	
+
 	public static DoubleInterval lower(DoubleBound lower) {
 		return create(lower, null);
 	}
@@ -48,7 +48,7 @@ public class DoubleInterval {
 	public boolean contains(double value) {
 		return lower.lowerFor(value) && upper.upperFor(value);
 	}
-	
+
 	public boolean empty() {
 		if (lower.unbound() || upper.unbound()) return false;
 		int compare = lower.value.compareTo(upper.value);
@@ -63,12 +63,12 @@ public class DoubleInterval {
 		if (upper.unbound()) return Double.POSITIVE_INFINITY;
 		return (lower.value + upper.value) / 2;
 	}
-	
+
 	public double width() {
 		if (lower.unbound() || upper.unbound()) return Double.POSITIVE_INFINITY;
 		return upper.value - lower.value;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(lower, upper);
