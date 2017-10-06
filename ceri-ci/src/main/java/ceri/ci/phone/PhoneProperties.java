@@ -3,7 +3,6 @@ package ceri.ci.phone;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import ceri.common.property.BaseProperties;
-import ceri.common.property.Key;
 
 /**
  * Properties to configure the zwave alerter.
@@ -40,7 +39,7 @@ public class PhoneProperties extends BaseProperties {
 	}
 
 	public Collection<String> names() {
-		String prefix = key(NUMBER_KEY) + Key.SEPARATOR;
+		String prefix = key(NUMBER_KEY) + ".";
 		int offset = prefix.length();
 		Collection<String> names = new LinkedHashSet<>();
 		for (String key : keys()) {

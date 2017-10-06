@@ -3,7 +3,6 @@ package ceri.ci.zwave;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import ceri.common.property.BaseProperties;
-import ceri.common.property.Key;
 
 /**
  * Properties to configure the zwave alerter.
@@ -69,7 +68,7 @@ public class ZWaveProperties extends BaseProperties {
 	}
 	
 	public Collection<String> names() {
-		String prefix = key(DEVICE_KEY) + Key.SEPARATOR;
+		String prefix = key(DEVICE_KEY) + ".";
 		int offset = prefix.length();
 		Collection<String> names = new LinkedHashSet<>();
 		for (String key : keys()) {

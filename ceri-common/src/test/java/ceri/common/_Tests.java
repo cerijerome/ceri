@@ -85,7 +85,9 @@ import ceri.common.math.MathUtilTest;
 import ceri.common.math.ReverseFunctionBehavior;
 import ceri.common.math.TrigUtilTest;
 import ceri.common.property.BasePropertiesBehavior;
-import ceri.common.property.KeyBehavior;
+import ceri.common.property.LocatorBehavior;
+import ceri.common.property.PathBehavior;
+import ceri.common.property.PathFactoryBehavior;
 import ceri.common.property.PropertyUtilTest;
 import ceri.common.reflect.CallerBehavior;
 import ceri.common.reflect.CreateExceptionBehavior;
@@ -231,7 +233,9 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	TrigUtilTest.class,
 	// property
 	BasePropertiesBehavior.class,
-	KeyBehavior.class,
+	LocatorBehavior.class,
+	PathBehavior.class,
+	PathFactoryBehavior.class,
 	PropertyUtilTest.class,
 	// reflect
 	CallerBehavior.class,

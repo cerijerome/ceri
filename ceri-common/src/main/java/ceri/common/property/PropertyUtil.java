@@ -10,7 +10,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Utility methods for property files.
@@ -77,9 +79,48 @@ public class PropertyUtil {
 	}
 
 	/**
+	 * Creates properties from resource file locators and their ancestors. Properties are merged
+	 * starting with top level ancestor for each locator, in the order given.
+	 */
+	public static Properties loadPaths(Locator... locators) throws IOException {
+		return loadPaths(Arrays.asList(locators));
+	}
+
+	/**
+	 * Creates properties from resource file locators and their ancestors. Properties are merged
+	 * starting with top level ancestor for each locator, in the order given.
+	 */
+	public static Properties loadPaths(Collection<Locator> locators) throws IOException {
+		Set<Locator> locs = new LinkedHashSet<>();
+		locators.forEach(locator -> locs.addAll(locator.ancestors()));
+		return load(locs);
+	}
+
+	/**
+	 * Creates properties from resource file locators. Properties are merged in the order given.
+	 */
+	public static Properties load(Locator... locators) throws IOException {
+		return load(Arrays.asList(locators));
+	}
+
+	/**
+	 * Creates properties from resource file locators. Properties are merged in the order given.
+	 */
+	public static Properties load(Collection<Locator> locators) throws IOException {
+		Properties properties = new Properties();
+		for (Locator locator : locators) {
+			try (InputStream in = locator.cls.getResourceAsStream(locator.filename())) {
+				if (in == null) continue;
+				properties.load(in);
+			}
+		}
+		return properties;
+	}
+
+	/**
 	 * Returns the String property for given Key.
 	 */
-	public static String property(Properties properties, Key key) {
+	public static String property(Properties properties, Path key) {
 		return properties.getProperty(key.value);
 	}
 

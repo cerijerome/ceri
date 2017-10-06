@@ -14,7 +14,7 @@ import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import ceri.common.io.IoUtil;
-import ceri.common.property.Key;
+import ceri.common.property.PathFactory;
 
 /**
  * Utility methods for processing emails.
@@ -38,21 +38,23 @@ public class EmailUtil {
 		Properties properties = new Properties();
 		properties.setProperty(MAIL_STORE_PROTOCOL_KEY, protocol);
 		setSessionProperties(properties, protocol, timeoutMs);
-		if (!protocol.endsWith(SECURE_SUFFIX)) setSessionProperties(properties, protocol +
-			SECURE_SUFFIX, timeoutMs);
+		if (!protocol.endsWith(SECURE_SUFFIX))
+			setSessionProperties(properties, protocol + SECURE_SUFFIX, timeoutMs);
 		else setSessionProperties(properties, protocol.substring(0, protocol.length() - 1),
 			timeoutMs);
 		return Session.getInstance(properties);
 	}
 
 	/**
-	 * Sets protocol timeout properties. 
+	 * Sets protocol timeout properties.
 	 */
-	private static void
-		setSessionProperties(Properties properties, String protocol, long timeoutMs) {
-		String timeoutKey = Key.create(MAIL, protocol, TIMEOUT).value;
-		String connectionTimeoutKey = Key.create(MAIL, protocol, CONNECTION_TIMEOUT).value;
-		String connectionPoolTimeoutKey = Key.create(MAIL, protocol, CONNECTION_POOL_TIMEOUT).value;
+	private static void setSessionProperties(Properties properties, String protocol,
+		long timeoutMs) {
+		String timeoutKey = PathFactory.dot.path(MAIL, protocol, TIMEOUT).value;
+		String connectionTimeoutKey = PathFactory.dot.path( //
+			MAIL, protocol, CONNECTION_TIMEOUT).value;
+		String connectionPoolTimeoutKey = PathFactory.dot.path( //
+			MAIL, protocol, CONNECTION_POOL_TIMEOUT).value;
 		properties.setProperty(timeoutKey, String.valueOf(timeoutMs));
 		properties.setProperty(connectionTimeoutKey, String.valueOf(timeoutMs));
 		properties.setProperty(connectionPoolTimeoutKey, String.valueOf(timeoutMs));

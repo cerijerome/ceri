@@ -4,8 +4,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.function.Function;
 import ceri.common.util.BasicUtil;
 
@@ -16,8 +14,6 @@ import ceri.common.util.BasicUtil;
  * @see ceri.common.util.PrimitiveUtil
  */
 public class ArrayUtil {
-	private static final Map<Class<?>, Object[]> emptyArrayMap = new WeakHashMap<>();
-
 	public static final boolean[] EMPTY_BOOLEAN = new boolean[0];
 	public static final byte[] EMPTY_BYTE = new byte[0];
 	public static final char[] EMPTY_CHAR = new char[0];
@@ -26,7 +22,8 @@ public class ArrayUtil {
 	public static final long[] EMPTY_LONG = new long[0];
 	public static final float[] EMPTY_FLOAT = new float[0];
 	public static final double[] EMPTY_DOUBLE = new double[0];
-	public static final String[] EMPTY_STRING = emptyArray(String.class);
+	public static final String[] EMPTY_STRING = new String[0];
+	public static final Object[] EMPTY_OBJECT = new Object[0];
 
 	private ArrayUtil() {}
 
@@ -35,16 +32,15 @@ public class ArrayUtil {
 	 */
 	public static void validateIndex(int arrayLength, int index) {
 		if (index >= 0 && index < arrayLength) return;
-		throw new IndexOutOfBoundsException(
-			"Index must be 0-" + (arrayLength - 1) + ": " + index);
+		throw new IndexOutOfBoundsException("Index must be 0-" + (arrayLength - 1) + ": " + index);
 	}
 
 	/**
 	 * Performs a validation on parameters to slice an array.
 	 */
 	public static void validateSlice(int arrayLength, int offset, int length) {
-		if (offset < 0 || offset > arrayLength) throw new IndexOutOfBoundsException(
-			"Offset must be 0-" + arrayLength + ": " + offset);
+		if (offset < 0 || offset > arrayLength)
+			throw new IndexOutOfBoundsException("Offset must be 0-" + arrayLength + ": " + offset);
 		if (length < 0 || offset + length > arrayLength) throw new IndexOutOfBoundsException(
 			"Length must be 0-" + (arrayLength - offset) + ": " + length);
 	}
@@ -61,12 +57,9 @@ public class ArrayUtil {
 	 * Returns an immutable zero-size array for the given component type.
 	 */
 	public static <T> T[] emptyArray(Class<T> cls) {
-		T[] array = BasicUtil.uncheckedCast(emptyArrayMap.get(cls));
-		if (array == null) {
-			array = create(cls, 0);
-			emptyArrayMap.put(cls, array);
-		}
-		return array;
+		if (cls == String.class) return BasicUtil.uncheckedCast(EMPTY_OBJECT);
+		if (cls == Object.class) return BasicUtil.uncheckedCast(EMPTY_OBJECT);
+		return create(cls, 0);
 	}
 
 	/**
@@ -88,8 +81,8 @@ public class ArrayUtil {
 	 * Array.newInstance().
 	 */
 	public static <T> T[] create(Class<T> type, int size) {
-		if (type.isPrimitive()) throw new IllegalArgumentException("Primitive types not allowed: " +
-			type);
+		if (type.isPrimitive())
+			throw new IllegalArgumentException("Primitive types not allowed: " + type);
 		return BasicUtil.uncheckedCast(Array.newInstance(type, size));
 	}
 

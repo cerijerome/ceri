@@ -3,7 +3,6 @@ package ceri.ci.x10;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import ceri.common.property.BaseProperties;
-import ceri.common.property.Key;
 import ceri.x10.util.X10ControllerType;
 
 /**
@@ -34,8 +33,8 @@ public class X10Properties extends BaseProperties {
 		try {
 			return X10ControllerType.valueOf(controllerType.toLowerCase());
 		} catch (IllegalArgumentException e) {
-			throw new IllegalArgumentException("Invalid type for " + key(CONTROLLER_KEY) + ": " +
-				controllerType, e);
+			throw new IllegalArgumentException(
+				"Invalid type for " + key(CONTROLLER_KEY) + ": " + controllerType, e);
 		}
 	}
 
@@ -44,7 +43,7 @@ public class X10Properties extends BaseProperties {
 	}
 
 	public Collection<String> names() {
-		String prefix = key(ADDRESS_KEY) + Key.SEPARATOR;
+		String prefix = key(ADDRESS_KEY) + ".";
 		int offset = prefix.length();
 		Collection<String> names = new LinkedHashSet<>();
 		for (String key : keys()) {

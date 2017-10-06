@@ -70,7 +70,7 @@ public abstract class BaseProperties {
 	 * Constructor for properties with given prefix keys.
 	 */
 	protected BaseProperties(BaseProperties properties, String... prefix) {
-		this.prefix = Key.createWithPrefix(properties.prefix, prefix).value;
+		this.prefix = PathFactory.dot.path(properties.prefix, prefix).value;
 		this.properties = properties.properties;
 	}
 
@@ -92,7 +92,7 @@ public abstract class BaseProperties {
 	 * Constructor for properties with given prefix keys.
 	 */
 	protected BaseProperties(PropertyAccessor properties, String... prefix) {
-		this.prefix = Key.createWithPrefix(null, prefix).value;
+		this.prefix = PathFactory.dot.path(prefix).value;
 		this.properties = properties;
 	}
 
@@ -101,7 +101,7 @@ public abstract class BaseProperties {
 	 * <prefix>.ab.cd.ef
 	 */
 	protected String key(String... keyParts) {
-		return Key.createWithPrefix(prefix, keyParts).value;
+		return PathFactory.dot.path(prefix, keyParts).value;
 	}
 
 	/**

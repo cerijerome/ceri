@@ -2,15 +2,15 @@ package ceri.ent.json;
 
 import java.util.List;
 import java.util.Map;
-import ceri.common.property.Key;
-import ceri.common.util.BasicUtil;
-import ceri.common.util.PrimitiveUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ceri.common.property.PathFactory;
+import ceri.common.util.BasicUtil;
+import ceri.common.util.PrimitiveUtil;
 
 public class GsonUtil {
 	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-	
+
 	private GsonUtil() {}
 
 	/**
@@ -20,7 +20,7 @@ public class GsonUtil {
 	 * such as "abc.def.1.ghi".
 	 */
 	public static Object extract(Object gsonObject, String path) {
-		List<String> parts = Key.create(path).asParts();
+		List<String> parts = PathFactory.dot.split(path);
 		Object value = gsonObject;
 		for (String part : parts) {
 			Map<?, ?> map = BasicUtil.castOrNull(Map.class, value);

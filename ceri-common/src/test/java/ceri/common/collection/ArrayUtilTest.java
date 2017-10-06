@@ -24,7 +24,7 @@ public class ArrayUtilTest {
 	@Test
 	public void testEmptyArrays() {
 		assertThat(ArrayUtil.EMPTY_BOOLEAN, is(new boolean[0]));
-		assertTrue(ArrayUtil.emptyArray(Date.class) == ArrayUtil.emptyArray(Date.class));
+		assertThat(ArrayUtil.emptyArray(Date.class), is(ArrayUtil.emptyArray(Date.class)));
 	}
 
 	@Test
