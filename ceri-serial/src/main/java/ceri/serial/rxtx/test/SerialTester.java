@@ -5,10 +5,10 @@ import java.nio.charset.StandardCharsets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.test.BinaryPrinter;
 import ceri.common.test.TestUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
-import ceri.log.binary.BinaryPrinter;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.serial.rxtx.SelfHealingSerialConnector;
 

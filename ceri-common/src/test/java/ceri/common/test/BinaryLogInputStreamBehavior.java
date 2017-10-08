@@ -1,4 +1,4 @@
-package ceri.log.binary;
+package ceri.common.test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
@@ -6,6 +6,8 @@ import static org.junit.Assert.assertThat;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.BinaryLogInputStream;
+import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
 
 public class BinaryLogInputStreamBehavior {

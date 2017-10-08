@@ -15,18 +15,14 @@ public class ByteUtil {
 	public static final int BITS_PER_NYBBLE = 4;
 	public static final int HEX_DIGIT_BITS = BITS_PER_NYBBLE;
 	public static final int BYTE_MASK = 0xff;
-	public static final int SHORT_BYTES = 2;
-	public static final int INT_BYTES = 4;
-	public static final int LONG_BYTES = 8;
-	public static final int SHORT_BITS = SHORT_BYTES * BITS_PER_BYTE;
-	public static final int INT_BITS = INT_BYTES * BITS_PER_BYTE;
-	public static final int LONG_BITS = LONG_BYTES * BITS_PER_BYTE;
+	public static final int SHORT_MASK = 0xffff;
+	public static final long INT_MASK = 0xffffffff;
 
 	private ByteUtil() {}
 
 	public static String toHex(ImmutableByteArray array, String delimiter) {
-		return array.stream().mapToObj(b -> StringUtil.toHex((byte) b)).collect(
-			Collectors.joining(delimiter));
+		return array.stream().mapToObj(b -> StringUtil.toHex((byte) b))
+			.collect(Collectors.joining(delimiter));
 	}
 
 	public static IntStream streamOf(byte... array) {
@@ -37,6 +33,10 @@ public class ByteUtil {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		stream.forEach(b -> out.write(b));
 		return out.toByteArray();
+	}
+
+	public static void writeTo(ByteArrayOutputStream out, int... bytes) {
+		writeTo(out, bytes(bytes));
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, byte... bytes) {
@@ -80,7 +80,11 @@ public class ByteUtil {
 		return s.getBytes(StandardCharsets.ISO_8859_1);
 	}
 
-	public static String fromAscii(byte[] data) {
+	public static String fromAscii(int... data) {
+		return fromAscii(bytes(data));
+	}
+
+	public static String fromAscii(byte... data) {
 		return fromAscii(data, 0);
 	}
 
@@ -104,10 +108,6 @@ public class ByteUtil {
 		return fromAscii(data.copy(), offset, length);
 	}
 
-	public static ImmutableByteArray wrap(int... values) {
-		return ImmutableByteArray.wrap(bytes(values));
-	}
-
 	public static byte[] bytes(int... values) {
 		byte[] bytes = new byte[values.length];
 		for (int i = 0; i < bytes.length; i++)
@@ -118,7 +118,7 @@ public class ByteUtil {
 	public static long mask(int... bits) {
 		long value = 0;
 		for (int bit : bits)
-			value |= 1 << bit;
+			if (bit < Long.SIZE) value |= 1L << bit;
 		return value;
 	}
 
@@ -128,19 +128,19 @@ public class ByteUtil {
 	}
 
 	public static boolean bit(long value, int bit) {
-		return (value & (1 << bit)) != 0;
+		return (value & (1L << bit)) != 0;
 	}
 
 	public static byte[] toBigEndian(short value) {
-		return toBigEndian(value, SHORT_BYTES);
+		return toBigEndian(value, Short.BYTES);
 	}
 
 	public static byte[] toBigEndian(int value) {
-		return toBigEndian(value, INT_BYTES);
+		return toBigEndian(value, Integer.BYTES);
 	}
 
 	public static byte[] toBigEndian(long value) {
-		return toBigEndian(value, LONG_BYTES);
+		return toBigEndian(value, Long.BYTES);
 	}
 
 	public static byte[] toBigEndian(long value, int length) {
@@ -150,15 +150,15 @@ public class ByteUtil {
 	}
 
 	public static byte[] toLittleEndian(short value) {
-		return toLittleEndian(value, SHORT_BYTES);
+		return toLittleEndian(value, Short.BYTES);
 	}
 
 	public static byte[] toLittleEndian(int value) {
-		return toLittleEndian(value, INT_BYTES);
+		return toLittleEndian(value, Integer.BYTES);
 	}
 
 	public static byte[] toLittleEndian(long value) {
-		return toLittleEndian(value, LONG_BYTES);
+		return toLittleEndian(value, Long.BYTES);
 	}
 
 	public static byte[] toLittleEndian(long value, int length) {
@@ -177,7 +177,7 @@ public class ByteUtil {
 
 	public static int writeBigEndian(long value, byte[] data, int offset, int length) {
 		ArrayUtil.validateSlice(data.length, offset, length);
-		validateMax(length, LONG_BYTES);
+		validateMax(length, Long.BYTES);
 		for (int i = 0; i < length; i++)
 			data[offset + i] = byteAt(value, length - i - 1);
 		return offset + length;
@@ -193,7 +193,7 @@ public class ByteUtil {
 
 	public static int writeLittleEndian(long value, byte[] data, int offset, int length) {
 		ArrayUtil.validateSlice(data.length, offset, length);
-		validateMax(length, LONG_BYTES);
+		validateMax(length, Long.BYTES);
 		for (int i = 0; i < length; i++)
 			data[offset + i] = byteAt(value, i);
 		return offset + length;
@@ -209,11 +209,15 @@ public class ByteUtil {
 
 	public static long fromBigEndian(ImmutableByteArray array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
-		validateMax(length, LONG_BYTES);
+		validateMax(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
 			value |= shiftByteLeft(array.at(offset + i), length - i - 1);
 		return value;
+	}
+
+	public static long fromBigEndian(int... array) {
+		return fromBigEndian(bytes(array));
 	}
 
 	public static long fromBigEndian(byte... array) {
@@ -226,7 +230,7 @@ public class ByteUtil {
 
 	public static long fromBigEndian(byte[] array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
-		validateMax(length, LONG_BYTES);
+		validateMax(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
 			value |= shiftByteLeft(array[offset + i], length - i - 1);
@@ -243,11 +247,15 @@ public class ByteUtil {
 
 	public static long fromLittleEndian(ImmutableByteArray array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
-		validateMax(length, LONG_BYTES);
+		validateMax(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
 			value |= shiftByteLeft(array.at(offset + i), i);
 		return value;
+	}
+
+	public static long fromLittleEndian(int... array) {
+		return fromLittleEndian(bytes(array));
 	}
 
 	public static long fromLittleEndian(byte... array) {
@@ -260,7 +268,7 @@ public class ByteUtil {
 
 	public static long fromLittleEndian(byte[] array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
-		validateMax(length, LONG_BYTES);
+		validateMax(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
 			value |= shiftByteLeft(array[offset + i], i);
@@ -290,34 +298,42 @@ public class ByteUtil {
 
 	public static byte shiftBits(byte value, int bits) {
 		if (bits == 0) return value;
-		if (Math.abs(bits) >= BITS_PER_BYTE) return 0;
-		return (byte) (bits > 0 ? value >>> bits : value << -bits);
+		if (value == 0 || Math.abs(bits) >= BITS_PER_BYTE) return 0;
+		return (byte) (bits > 0 ? (value & BYTE_MASK) >>> bits : value << -bits);
 	}
 
 	public static short shiftBits(short value, int bits) {
 		if (bits == 0) return value;
-		if (Math.abs(bits) >= SHORT_BITS) return 0;
-		return (short) (bits > 0 ? value >>> bits : value << -bits);
+		if (value == 0 || Math.abs(bits) >= Short.SIZE) return 0;
+		return (short) (bits > 0 ? (value & SHORT_MASK) >>> bits : value << -bits);
 	}
 
 	public static int shiftBits(int value, int bits) {
 		if (bits == 0) return value;
-		if (Math.abs(bits) >= INT_BITS) return 0;
+		if (value == 0 || Math.abs(bits) >= Integer.SIZE) return 0;
 		return bits > 0 ? value >>> bits : value << -bits;
 	}
 
 	public static long shiftBits(long value, int bits) {
 		if (bits == 0) return value;
-		if (Math.abs(bits) >= LONG_BITS) return 0;
+		if (value == 0 || Math.abs(bits) >= Long.SIZE) return 0;
 		return bits > 0 ? value >>> bits : value << -bits;
 	}
 
-	public static byte invert(byte b) {
-		return (byte) (~b & 0xff);
+	public static byte invert(byte value) {
+		return (byte) (~value & BYTE_MASK);
 	}
 
-	public static byte reverse(byte b) {
-		return (byte) (Integer.reverse(b) >>> (Integer.SIZE - Byte.SIZE));
+	public static short invert(short value) {
+		return (short) (~value & SHORT_MASK);
+	}
+
+	public static byte reverse(byte value) {
+		return (byte) (Integer.reverse(value) >>> (Integer.SIZE - Byte.SIZE));
+	}
+
+	public static short reverse(short value) {
+		return (short) (Integer.reverse(value) >>> (Integer.SIZE - Short.SIZE));
 	}
 
 	public static void fill(byte[] array, int fill, int offset, int length) {
@@ -329,7 +345,7 @@ public class ByteUtil {
 	/**
 	 * Alignment for padding.
 	 */
-	private static enum Align {
+	public static enum Align {
 		LEFT,
 		RIGHT
 	}

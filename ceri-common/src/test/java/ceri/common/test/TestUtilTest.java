@@ -24,6 +24,7 @@ import java.util.TreeSet;
 import org.junit.Test;
 import ceri.common.concurrent.ExceptionRunnable;
 import ceri.common.text.StringUtil;
+import ceri.common.util.HAlign;
 
 public class TestUtilTest {
 
@@ -43,7 +44,7 @@ public class TestUtilTest {
 
 	@Test
 	public void testExerciseEnums() {
-		TestUtil.exerciseEnum(StringUtil.Align.class);
+		TestUtil.exerciseEnum(HAlign.class);
 		assertException(() -> TestUtil.exerciseEnum(BadEnum.class));
 	}
 
@@ -134,10 +135,10 @@ public class TestUtilTest {
 
 	@Test
 	public void testAssertRange() {
-		assertAssertion(() -> TestUtil.assertRange(Long.MAX_VALUE, Long.MIN_VALUE,
-			Long.MAX_VALUE - 1));
-		assertAssertion(() -> TestUtil.assertRange(Long.MIN_VALUE, Long.MIN_VALUE + 1,
-			Long.MAX_VALUE - 1));
+		assertAssertion(
+			() -> TestUtil.assertRange(Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE - 1));
+		assertAssertion(
+			() -> TestUtil.assertRange(Long.MIN_VALUE, Long.MIN_VALUE + 1, Long.MAX_VALUE - 1));
 	}
 
 	@Test
@@ -154,11 +155,12 @@ public class TestUtilTest {
 		TestUtil.assertCollection(list, 1, 2, 3, 4, 5);
 		assertAssertion(() -> TestUtil.assertCollection(list, 1, 2, 4, 5));
 		assertAssertion(() -> TestUtil.assertCollection(list, 1, 2, 3, 4, 5, 6));
-		assertAssertion(() -> TestUtil.assertCollection(new boolean[] { true, false }, true, false));
+		assertAssertion(
+			() -> TestUtil.assertCollection(new boolean[] { true, false }, true, false));
 		assertAssertion(() -> TestUtil.assertCollection(new byte[] { -1, 1 }, -1, 1));
 		assertAssertion(() -> TestUtil.assertCollection(new char[] { 'a', 'b' }, 'a', 'b'));
-		assertAssertion(() -> TestUtil.assertCollection(new short[] { -1, 1 }, (short) -1,
-			(short) 1));
+		assertAssertion(
+			() -> TestUtil.assertCollection(new short[] { -1, 1 }, (short) -1, (short) 1));
 		assertAssertion(() -> TestUtil.assertCollection(new int[] { -1, 1 }, -1, 1));
 		assertAssertion(() -> TestUtil.assertCollection(new long[] { -1, 1 }, -1, 1));
 		assertAssertion(() -> TestUtil.assertCollection(new float[] { -1, 1 }, -1, 1));
@@ -168,8 +170,8 @@ public class TestUtilTest {
 	public void testToReadableString() {
 		byte[] bytes = { 0, 'a', '.', Byte.MAX_VALUE, Byte.MIN_VALUE, '~', '!', -1 };
 		assertThat(TestUtil.toReadableString(bytes), is("?a.??~!?"));
-		assertException(IllegalArgumentException.class, () -> TestUtil.toReadableString(bytes, 3,
-			2, "test", '?'));
+		assertException(IllegalArgumentException.class,
+			() -> TestUtil.toReadableString(bytes, 3, 2, "test", '?'));
 		assertThat(TestUtil.toReadableString(new byte[0], 0, 0, null, '.'), is(""));
 		assertThat(TestUtil.toReadableString(new byte[0], 0, 0, "", '.'), is(""));
 	}
@@ -193,9 +195,8 @@ public class TestUtilTest {
 
 	@Test
 	public void testToUnixFromFile() throws IOException {
-		try (FileTestHelper helper =
-			FileTestHelper.builder().dir("c").file("b/b.txt", "bb").file("a/b/c.txt", "ccc")
-				.build()) {
+		try (FileTestHelper helper = FileTestHelper.builder().dir("c").file("b/b.txt", "bb")
+			.file("a/b/c.txt", "ccc").build()) {
 			List<String> unixPaths = TestUtil.toUnixFromFile(helper.fileList("c", "a/b/c.txt"));
 			assertTrue(unixPaths.get(0).endsWith("/c"));
 			assertTrue(unixPaths.get(1).endsWith("/a/b/c.txt"));
@@ -204,9 +205,8 @@ public class TestUtilTest {
 
 	@Test
 	public void testToUnixFromPath() throws IOException {
-		try (FileTestHelper helper =
-			FileTestHelper.builder().dir("c").file("b/b.txt", "bb").file("a/b/c.txt", "ccc")
-				.build()) {
+		try (FileTestHelper helper = FileTestHelper.builder().dir("c").file("b/b.txt", "bb")
+			.file("a/b/c.txt", "ccc").build()) {
 			List<String> paths =
 				Arrays.asList(helper.file("c").getPath(), helper.file("a/b/c.txt").getPath());
 			List<String> unixPaths = TestUtil.toUnixFromPath(paths);

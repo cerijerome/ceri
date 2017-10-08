@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ExceptionRunnable;
 import ceri.common.text.StringUtil;
-import ceri.common.text.StringUtil.Align;
+import ceri.common.util.HAlign;
 
 /**
  * Utility methods to assist with logging.
@@ -45,17 +45,17 @@ public class LogUtil {
 	 * exception occurs the already created instances will be closed.
 	 */
 	@SafeVarargs
-	public static <T, R extends Closeable> List<R> create(Logger logger,
-		Function<T, R> constructor, T...inputs) {
+	public static <T, R extends Closeable> List<R> create(Logger logger, Function<T, R> constructor,
+		T... inputs) {
 		return create(logger, constructor, Arrays.asList(inputs));
 	}
-	
+
 	/**
 	 * Constructs a list of Closeable instances from each input object and the constructor. If any
 	 * exception occurs the already created instances will be closed.
 	 */
-	public static <T, R extends Closeable> List<R> create(Logger logger,
-		Function<T, R> constructor, Collection<T> inputs) {
+	public static <T, R extends Closeable> List<R> create(Logger logger, Function<T, R> constructor,
+		Collection<T> inputs) {
 		List<R> results = new ArrayList<>();
 		try {
 			for (T input : inputs)
@@ -74,10 +74,9 @@ public class LogUtil {
 	public static boolean close(Logger logger, Process process) {
 		return close(logger, process, TIMEOUT_MS_DEF);
 	}
-	
+
 	/**
-	 * Shuts down a process, and waits for shutdown to complete, up to given time in
-	 * milliseconds.
+	 * Shuts down a process, and waits for shutdown to complete, up to given time in milliseconds.
 	 */
 	public static boolean close(Logger logger, Process process, int timeoutMs) {
 		if (process == null) return false;
@@ -120,7 +119,7 @@ public class LogUtil {
 	public static boolean close(Logger logger, Future<?> future) {
 		return close(logger, future, TIMEOUT_MS_DEF);
 	}
-	
+
 	/**
 	 * Shuts down a future request, and waits for shutdown to complete, up to given time in
 	 * milliseconds.
@@ -143,10 +142,10 @@ public class LogUtil {
 	 * Closes a collection of closeables, and logs thrown exceptions as a warnings. Returns true
 	 * only if all closeables are successfully closed.
 	 */
-	public static boolean close(Logger logger, Closeable...closeables) {
+	public static boolean close(Logger logger, Closeable... closeables) {
 		return close(logger, Arrays.asList(closeables));
 	}
-	
+
 	/**
 	 * Closes a collection of closeables, and logs thrown exceptions as a warnings. Returns true
 	 * only if all closeables are successfully closed.
@@ -215,7 +214,7 @@ public class LogUtil {
 		return "\n" +
 			"================================================================================\n" +
 			"|                                                                              |\n" +
-			"| " + StringUtil.pad(title, TITLE_MAX_WIDTH, Align.CENTER) + " |\n" +
+			"| " + StringUtil.pad(title, TITLE_MAX_WIDTH, HAlign.center) + " |\n" +
 			"|                                                                              |\n" +
 			"================================================================================";
 	}

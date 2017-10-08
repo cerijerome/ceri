@@ -1,4 +1,4 @@
-package ceri.log.binary;
+package ceri.common.test;
 
 
 import java.io.IOException;
@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToStringHelper;
+import ceri.common.util.HAlign;
 
 /**
  * Pretty-prints data in binary, hex and/or char format. e.g.
@@ -172,7 +173,7 @@ public class BinaryPrinter {
 
 	private void appendByte(StringBuilder binB, StringBuilder hexB, StringBuilder charB, int b) {
 		String s =
-			StringUtil.pad(Integer.toBinaryString(b), BITS_IN_BYTE, "0", StringUtil.Align.RIGHT);
+			StringUtil.pad(Integer.toBinaryString(b), BITS_IN_BYTE, "0", HAlign.right);
 		binB.append(s);
 		s = Integer.toHexString(b).toUpperCase();
 		if (s.length() == 1) hexB.append('0');

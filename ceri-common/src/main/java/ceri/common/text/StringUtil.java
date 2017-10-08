@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.HAlign;
 
 /**
  * String-based utilities. See also TextUtil for more word-based formatting utilities.
@@ -248,7 +249,7 @@ public class StringUtil {
 	 */
 	public static String toUnsigned(long l, int radix, int digits) {
 		String s = Long.toUnsignedString(l, radix);
-		s = pad(s, digits, "0", Align.RIGHT);
+		s = pad(s, digits, "0", HAlign.right);
 		int len = s.length();
 		return s.substring(len - digits, len);
 	}
@@ -400,39 +401,30 @@ public class StringUtil {
 	public static String pad(long value, int minLength) {
 		if (value == Long.MIN_VALUE) {
 			String str = String.valueOf(value).substring(1);
-			return "-" + pad(str, minLength - 1, "0", Align.RIGHT);
+			return "-" + pad(str, minLength - 1, "0", HAlign.right);
 		}
 		if (value < 0) return "-" + pad(-value, minLength - 1);
-		return pad(String.valueOf(value), minLength, "0", Align.RIGHT);
+		return pad(String.valueOf(value), minLength, "0", HAlign.right);
 	}
 
 	/**
 	 * Pads a string with leading spaces.
 	 */
 	public static String pad(String str, int minLength) {
-		return pad(str, minLength, " ", Align.RIGHT);
-	}
-
-	/**
-	 * Alignment for padding.
-	 */
-	public static enum Align {
-		LEFT,
-		RIGHT,
-		CENTER
+		return pad(str, minLength, " ", HAlign.right);
 	}
 
 	/**
 	 * Pads a string with leading or trailing characters.
 	 */
-	public static String pad(String str, int minLength, Align align) {
+	public static String pad(String str, int minLength, HAlign align) {
 		return pad(str, minLength, " ", align);
 	}
 
 	/**
 	 * Pads a string with leading or trailing characters.
 	 */
-	public static String pad(String str, int minLength, String pad, Align align) {
+	public static String pad(String str, int minLength, String pad, HAlign align) {
 		if (str == null) str = "";
 		if (pad == null) pad = "";
 		if (str.length() >= minLength) return str;
@@ -452,9 +444,9 @@ public class StringUtil {
 		return padLen > 0 ? len / padLen : 0;
 	}
 
-	private static int leftCount(int count, Align align) {
-		if (align == Align.RIGHT) return count;
-		if (align == Align.CENTER) return count / 2;
+	private static int leftCount(int count, HAlign align) {
+		if (align == HAlign.right) return count;
+		if (align == HAlign.center) return count / 2;
 		return 0;
 	}
 

@@ -11,7 +11,7 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
-import ceri.common.text.StringUtil.Align;
+import ceri.common.util.HAlign;
 
 public class StringUtilTest {
 
@@ -129,11 +129,11 @@ public class StringUtilTest {
 	public void testPaddingString() {
 		assertThat(StringUtil.pad("", 0), is(""));
 		assertThat(StringUtil.pad("\uffff", 2), is(" \uffff"));
-		assertThat(StringUtil.pad("\u1fffhello\u2fff", 10, "\u3fff", Align.LEFT),
+		assertThat(StringUtil.pad("\u1fffhello\u2fff", 10, "\u3fff", HAlign.left),
 			is("\u1fffhello\u2fff\u3fff\u3fff\u3fff"));
-		assertThat(StringUtil.pad(null, 5, "aa", Align.LEFT), is("aaaa"));
-		assertThat(StringUtil.pad("aaa", 5, null, Align.LEFT), is("aaa"));
-		assertThat(StringUtil.pad("aaa", 5, Align.CENTER), is(" aaa "));
+		assertThat(StringUtil.pad(null, 5, "aa", HAlign.left), is("aaaa"));
+		assertThat(StringUtil.pad("aaa", 5, null, HAlign.left), is("aaa"));
+		assertThat(StringUtil.pad("aaa", 5, HAlign.center), is(" aaa "));
 	}
 
 	@Test
@@ -141,7 +141,8 @@ public class StringUtilTest {
 		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", 0), is("\u3fff\u3ffe\u3ffd"));
 		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", 2), is("\u3ffd"));
 		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", 4), is(""));
-		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", -3, -1), is("\u3fff\u3ffe\u3ffd"));
+		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", -3, -1),
+			is("\u3fff\u3ffe\u3ffd"));
 		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", -4, 5), is("\u3fff\u3ffe\u3ffd"));
 		assertThat(StringUtil.safeSubstring(null, 0, 0), is(""));
 		assertThat(StringUtil.safeSubstring("abc", 0, 3), is("abc"));
@@ -155,8 +156,8 @@ public class StringUtilTest {
 			p.write(0);
 			p.println("\b\t\f\'\"");
 			p.close();
-			assertThat(b.toString(), is("Testing1" + System.lineSeparator() + "\0\b\t\f\'\"" +
-				System.lineSeparator()));
+			assertThat(b.toString(),
+				is("Testing1" + System.lineSeparator() + "\0\b\t\f\'\"" + System.lineSeparator()));
 		}
 	}
 

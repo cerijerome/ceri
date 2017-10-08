@@ -1,4 +1,4 @@
-package ceri.log.binary;
+package ceri.common.test;
 
 
 import java.io.FilterOutputStream;

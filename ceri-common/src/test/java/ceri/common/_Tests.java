@@ -88,6 +88,7 @@ import ceri.common.property.BasePropertiesBehavior;
 import ceri.common.property.LocatorBehavior;
 import ceri.common.property.PathBehavior;
 import ceri.common.property.PathFactoryBehavior;
+import ceri.common.property.PropertyAccessorBehavior;
 import ceri.common.property.PropertyUtilTest;
 import ceri.common.reflect.CallerBehavior;
 import ceri.common.reflect.CreateExceptionBehavior;
@@ -95,6 +96,9 @@ import ceri.common.reflect.ReflectUtilTest;
 import ceri.common.score.CollectionScorersTest;
 import ceri.common.score.ScoreLookupBehavior;
 import ceri.common.score.ScorersTest;
+import ceri.common.test.BinaryLogInputStreamBehavior;
+import ceri.common.test.BinaryLogOutputStreamBehavior;
+import ceri.common.test.BinaryPrinterBehavior;
 import ceri.common.test.DebuggerBehavior;
 import ceri.common.test.RegexMatcherBehavior;
 import ceri.common.test.SourceManipulatorBehavior;
@@ -236,6 +240,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	LocatorBehavior.class,
 	PathBehavior.class,
 	PathFactoryBehavior.class,
+	PropertyAccessorBehavior.class,
 	PropertyUtilTest.class,
 	// reflect
 	CallerBehavior.class,
@@ -246,6 +251,9 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ScoreLookupBehavior.class,
 	ScorersTest.class,
 	//test
+	BinaryLogInputStreamBehavior.class,
+	BinaryLogOutputStreamBehavior.class,
+	BinaryPrinterBehavior.class,
 	DebuggerBehavior.class,
 	RegexMatcherBehavior.class,
 	SourceManipulatorBehavior.class,

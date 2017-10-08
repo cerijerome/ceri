@@ -8,35 +8,35 @@ public class DataUtil {
 	private DataUtil() {}
 
 	public static int encodeIntMsb(int value, byte[] data, int offset) {
-		return ByteUtil.writeBigEndian(value, data, offset, ByteUtil.INT_BYTES);
+		return ByteUtil.writeBigEndian(value, data, offset, Integer.BYTES);
 	}
 
 	public static int encodeIntLsb(int value, byte[] data, int offset) {
-		return ByteUtil.writeLittleEndian(value, data, offset, ByteUtil.INT_BYTES);
+		return ByteUtil.writeLittleEndian(value, data, offset, Integer.BYTES);
 	}
 
 	public static int encodeShortMsb(int value, byte[] data, int offset) {
-		return ByteUtil.writeBigEndian(value, data, offset, ByteUtil.SHORT_BYTES);
+		return ByteUtil.writeBigEndian(value, data, offset, Short.BYTES);
 	}
 
 	public static int encodeShortLsb(int value, byte[] data, int offset) {
-		return ByteUtil.writeLittleEndian(value, data, offset, ByteUtil.SHORT_BYTES);
+		return ByteUtil.writeLittleEndian(value, data, offset, Short.BYTES);
 	}
 
 	public static int decodeIntMsb(ImmutableByteArray data, int offset) {
-		return (int) ByteUtil.fromBigEndian(data, offset, ByteUtil.INT_BYTES);
+		return (int) ByteUtil.fromBigEndian(data, offset, Integer.BYTES);
 	}
 
 	public static int decodeIntLsb(ImmutableByteArray data, int offset) {
-		return (int) ByteUtil.fromLittleEndian(data, offset, ByteUtil.INT_BYTES);
+		return (int) ByteUtil.fromLittleEndian(data, offset, Integer.BYTES);
 	}
 
 	public static int decodeShortMsb(ImmutableByteArray data, int offset) {
-		return (int) ByteUtil.fromBigEndian(data, offset, ByteUtil.SHORT_BYTES);
+		return (int) ByteUtil.fromBigEndian(data, offset, Short.BYTES);
 	}
 
 	public static int decodeShortLsb(ImmutableByteArray data, int offset) {
-		return (int) ByteUtil.fromLittleEndian(data, offset, ByteUtil.SHORT_BYTES);
+		return (int) ByteUtil.fromLittleEndian(data, offset, Short.BYTES);
 	}
 
 	public static void validateByte(int expected, int actual) {
