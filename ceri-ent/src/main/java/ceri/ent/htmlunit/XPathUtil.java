@@ -27,21 +27,23 @@ public class XPathUtil {
 	}
 
 	public static String xPathText(DomNode node, String xPath) {
-		DomNode dom = node.getFirstByXPath(xPath);
-		if (dom == null) return null;
-		return trim(dom.getTextContent());
+		return textContent(node.getFirstByXPath(xPath));
 	}
 
 	public static List<String> xPathTexts(DomNode dom, String xPath) {
 		List<String> texts = new ArrayList<>();
 		for (Object obj : dom.getByXPath(xPath)) {
-			DomNode node = (DomNode) obj;
-			String s = trim(node.getTextContent());
+			String s = textContent((DomNode) obj);
 			if (s != null && s.length() > 0) texts.add(s);
 		}
 		return texts;
 	}
 
+	public static String textContent(DomNode dom) {
+		if (dom == null) return null;
+		return trim(dom.getTextContent());
+	}
+	
 	public static String trim(String s) {
 		if (s == null) return null;
 		s = WHITESPACE.matcher(s).replaceAll(" ");
