@@ -50,10 +50,13 @@ public class FiltersTest {
 
 	@Test
 	public void testEqIgnoreCase() {
-		assertTrue(Filters.eqIgnoreCase(null).filter(""));
+		assertTrue(Filters.eqIgnoreCase(null).filter(null));
+		assertFalse(Filters.eqIgnoreCase(null).filter(""));
 		Filter<String> filter = Filters.eqIgnoreCase("aBc");
-		assertTrue(filter.filter("abcdef"));
-		assertTrue(filter.filter("defABC"));
+		assertTrue(filter.filter("aBc"));
+		assertTrue(filter.filter("abc"));
+		assertTrue(filter.filter("ABC"));
+		assertFalse(filter.filter("aBcd"));
 	}
 	
 	@Test
@@ -208,10 +211,10 @@ public class FiltersTest {
 	}
 
 	@Test
-	public void testFilter() {
+	public void testRemove() {
 		Filter<Character> filter = Filters.eq('A');
 		List<Character> items = ArrayUtil.asList('A', null, 'B', 'a', null, 'A', 'b');
-		Filters.filter(items, filter);
+		Filters.remove(items, filter);
 		assertThat(items, is(Arrays.asList('A', 'A')));
 	}
 

@@ -11,6 +11,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -61,6 +63,14 @@ public class ImmutableUtil {
 	}
 
 	/**
+	 * Copies a collection of objects into an immutable TreeSet.
+	 */
+	public static <T> SortedSet<T> copyAsSortedSet(Collection<? extends T> set) {
+		if (set.isEmpty()) return Collections.emptySortedSet();
+		return Collections.unmodifiableSortedSet(new TreeSet<>(set));
+	}
+
+	/**
 	 * Copies a map of objects into an immutable LinkedHashMap.
 	 */
 	public static <K, V> Map<K, V> copyAsMap(Map<? extends K, ? extends V> map) {
@@ -82,6 +92,14 @@ public class ImmutableUtil {
 	public static <T> Set<T> collectAsSet(Stream<? extends T> stream) {
 		Collector<T, ?, LinkedHashSet<T>> collector = Collectors.toCollection(LinkedHashSet::new);
 		return Collections.<T>unmodifiableSet(stream.collect(collector));
+	}
+
+	/**
+	 * Copies a stream of objects into an immutable LinkedHashSet.
+	 */
+	public static <T> SortedSet<T> collectAsSortedSet(Stream<? extends T> stream) {
+		Collector<T, ?, TreeSet<T>> collector = Collectors.toCollection(TreeSet::new);
+		return Collections.<T>unmodifiableSortedSet(stream.collect(collector));
 	}
 
 	/**
@@ -119,7 +137,8 @@ public class ImmutableUtil {
 		return convertAsList(fn, Arrays.asList(fs));
 	}
 
-	public static <F, T> List<T> convertAsList(Function<? super F, ? extends T> fn, Iterable<F> fs) {
+	public static <F, T> List<T> convertAsList(Function<? super F, ? extends T> fn,
+		Iterable<F> fs) {
 		List<T> ts = new ArrayList<>();
 		for (F f : fs)
 			ts.add(fn.apply(f));
@@ -136,6 +155,20 @@ public class ImmutableUtil {
 		for (F f : fs)
 			ts.add(fn.apply(f));
 		return Collections.unmodifiableSet(ts);
+	}
+
+	@SafeVarargs
+	public static <F, T> SortedSet<T> convertAsSortedSet(Function<? super F, ? extends T> fn,
+		F... fs) {
+		return convertAsSortedSet(fn, Arrays.asList(fs));
+	}
+
+	public static <F, T> SortedSet<T> convertAsSortedSet(Function<? super F, ? extends T> fn,
+		Iterable<F> fs) {
+		SortedSet<T> ts = new TreeSet<>();
+		for (F f : fs)
+			ts.add(fn.apply(f));
+		return Collections.unmodifiableSortedSet(ts);
 	}
 
 	@SafeVarargs

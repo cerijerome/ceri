@@ -14,13 +14,15 @@ import ceri.common.util.BasicUtil;
 public class Filters {
 	private static final Filter<Object> TRUE = (t -> true);
 	private static final Filter<Object> FALSE = not(TRUE);
+	private static final Filter<Object> IS_NULL = (t -> t == null);
+	public static final Filter<String> NOT_EMPTY = not(BasicUtil::isEmpty);
 
 	private Filters() {}
 
 	/**
 	 * Applies a filter to a collection, removing items that do not match.
 	 */
-	public static <T> void filter(Iterable<T> ts, Filter<? super T> filter) {
+	public static <T> void remove(Iterable<T> ts, Filter<? super T> filter) {
 		for (Iterator<T> i = ts.iterator(); i.hasNext();) {
 			T t = i.next();
 			if (!filter.filter(t)) i.remove();
@@ -39,6 +41,13 @@ public class Filters {
 	 */
 	public static <T> Filter<T> _false() {
 		return BasicUtil.uncheckedCast(FALSE);
+	}
+
+	/**
+	 * A filter that returns true if the value is null.
+	 */
+	public static <T> Filter<T> _null() {
+		return BasicUtil.uncheckedCast(IS_NULL);
 	}
 
 	/**
@@ -62,10 +71,13 @@ public class Filters {
 	/**
 	 * Filter that returns true for strings that equal the given substring, ignoring case.
 	 */
-	public static Filter<String> eqIgnoreCase(String str) {
-		if (str == null) return _true();
-		String lowerStr = str.toLowerCase();
-		return nonNull(s -> s.toLowerCase().contains(lowerStr));
+	public static Filter<String> eqIgnoreCase(String value) {
+		return (t -> {
+			if (t == value) return true;
+			if (t == null || value == null) return false;
+			return t.equalsIgnoreCase(value);
+
+		});
 	}
 
 	/**

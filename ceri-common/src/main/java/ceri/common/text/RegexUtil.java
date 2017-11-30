@@ -53,6 +53,7 @@ public class RegexUtil {
 	 * matched pattern.
 	 */
 	public static final String find(Pattern regex, String s) {
+		if (s == null) return null;
 		Matcher m = regex.matcher(s);
 		if (!m.find()) return null;
 		int group = m.groupCount() > 0 ? 1 : 0;

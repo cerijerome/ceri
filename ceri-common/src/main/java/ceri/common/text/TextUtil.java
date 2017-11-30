@@ -1,6 +1,7 @@
 package ceri.common.text;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,6 +28,7 @@ public class TextUtil {
 	 * underscores, or whitespace.
 	 */
 	public static List<String> toWords(String str) {
+		if (str == null) return Collections.emptyList();
 		List<String> words = new ArrayList<>();
 		for (String word : WORD_SPLIT_PATTERN.split(str)) {
 			word = word.trim();
@@ -42,7 +44,7 @@ public class TextUtil {
 	 * method/class names to a phrase.
 	 */
 	public static String toPhrase(String str) {
-		if (str.isEmpty()) return str;
+		if (str == null || str.isEmpty()) return str;
 		StringBuilder b = new StringBuilder();
 		boolean first = true;
 		for (String word : toWords(str)) {
@@ -60,7 +62,7 @@ public class TextUtil {
 	 * single-space separated sequence of the words.
 	 */
 	public static String toCapitalizedPhrase(String str) {
-		if (str.isEmpty()) return str;
+		if (str == null || str.isEmpty()) return str;
 		StringBuilder b = new StringBuilder();
 		boolean first = true;
 		for (String word : toWords(str)) {
@@ -76,7 +78,7 @@ public class TextUtil {
 	 * Changes camel case to lower-case hyphenated e.g. _helloThereABC_ => _hello-there-abc_
 	 */
 	public static String camelToHyphenated(String str) {
-		if (str.isEmpty()) return str;
+		if (str == null || str.isEmpty()) return str;
 		return CASE_BOUNDARY_PATTERN.matcher(str).replaceAll("$1-$2").toLowerCase();
 	}
 
@@ -84,7 +86,7 @@ public class TextUtil {
 	 * Changes camel case to Pascal case. e.g. _helloThereABC_ => _HelloThereABC_
 	 */
 	public static String camelToPascal(String str) {
-		if (str.isEmpty()) return str;
+		if (str == null || str.isEmpty()) return str;
 		Matcher m = WORD_BOUNDARY_PATTERN.matcher(str);
 		StringBuilder sb = new StringBuilder();
 		int last = 0;
@@ -103,7 +105,7 @@ public class TextUtil {
 	 * Make the first character upper case.
 	 */
 	public static String firstToUpper(String str) {
-		if (str.isEmpty()) return str;
+		if (str == null || str.isEmpty()) return str;
 		char first = str.charAt(0);
 		char upper = Character.toUpperCase(first);
 		if (first == upper) return str;
@@ -114,7 +116,7 @@ public class TextUtil {
 	 * Make the first character lower case.
 	 */
 	public static String firstToLower(String str) {
-		if (str.isEmpty()) return str;
+		if (str == null || str.isEmpty()) return str;
 		char first = str.charAt(0);
 		char lower = Character.toLowerCase(first);
 		if (first == lower) return str;
@@ -126,7 +128,7 @@ public class TextUtil {
 	 * separated. e.g. _HelloThereABC_ => _HELLO_THERE_ABC_
 	 */
 	public static String pascalToUpper(String str) {
-		if (str.isEmpty()) return str;
+		if (str == null || str.isEmpty()) return str;
 		return CASE_BOUNDARY_PATTERN.matcher(str).replaceAll("$1_$2").toUpperCase();
 	}
 
@@ -142,7 +144,7 @@ public class TextUtil {
 	 * _Hello_There_Abc_
 	 */
 	public static String upperToCapitalized(String str) {
-		if (str.isEmpty()) return str;
+		if (str == null || str.isEmpty()) return str;
 		Matcher m = UPPER_CASE_WORD_PATTERN.matcher(str);
 		StringBuilder sb = new StringBuilder();
 		int last = 0;
@@ -161,7 +163,7 @@ public class TextUtil {
 	 * letters are removed. e.g. _HELLO_THERE_ABC_ => _HelloThereAbc_
 	 */
 	public static String upperToPascal(String str) {
-		if (str.isEmpty()) return str;
+		if (str == null || str.isEmpty()) return str;
 		return UNDERSCORE_WORD_SEPARATOR_PATTERN.matcher(upperToCapitalized(str))
 			.replaceAll("$1$2");
 	}
@@ -171,7 +173,7 @@ public class TextUtil {
 	 * surrounded by letters are converted. e.g. HELLO_THERE_ABC => hello.there.abc
 	 */
 	public static String upperToProperty(String str) {
-		if (str.isEmpty()) return str;
+		if (str == null || str.isEmpty()) return str;
 		return UNDERSCORE_WORD_SEPARATOR_PATTERN.matcher(str).replaceAll("$1.$2").toLowerCase();
 	}
 
@@ -180,7 +182,7 @@ public class TextUtil {
 	 * HELLO_THERE_ABC
 	 */
 	public static String propertyToUpper(String str) {
-		if (str.isEmpty()) return str;
+		if (str == null || str.isEmpty()) return str;
 		return DOT_PATTERN.matcher(str.toUpperCase()).replaceAll("_");
 	}
 

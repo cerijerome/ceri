@@ -2,6 +2,7 @@ package ceri.common.filter;
 
 import java.util.Collection;
 import java.util.List;
+import ceri.common.util.BasicUtil;
 
 /**
  * Simple filters to be applied to collections.
@@ -9,6 +10,13 @@ import java.util.List;
 public class CollectionFilters {
 
 	private CollectionFilters() {}
+
+	/**
+	 * Filter that returns true if the array is not empty.
+	 */
+	public static <T> Filter<T[]> notEmptyArray() {
+		return Filters.not(BasicUtil::isEmpty);
+	}
 
 	/**
 	 * Filter that returns true if the collection is not empty.

@@ -111,7 +111,7 @@ public class CookieClicker {
 			long t = System.currentTimeMillis();
 			if (enabled && t > gc + gcReminderMs) {
 				gc = t;
-				BasicUtil.beep();
+				//BasicUtil.beep();
 			}
 		}
 	}

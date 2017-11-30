@@ -116,6 +116,13 @@ public class PrimitiveUtil {
 	}
 
 	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Boolean booleanValue(String value) {
+		return valueOf(value, (Boolean) null);
+	}
+
+	/**
 	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Byte valueOf(String value, Byte def) {
@@ -135,11 +142,32 @@ public class PrimitiveUtil {
 	}
 
 	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Byte byteValue(String value) {
+		return valueOf(value, (Byte) null);
+	}
+
+	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Byte byteValue(String value, int radix) {
+		return valueOf(value, (Byte) null, radix);
+	}
+
+	/**
 	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Character valueOf(String value, Character def) {
 		if (BasicUtil.isEmpty(value)) return def;
 		return Character.valueOf(value.trim().charAt(0));
+	}
+
+	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Character charValue(String value) {
+		return valueOf(value, (Character) null);
 	}
 
 	/**
@@ -162,6 +190,20 @@ public class PrimitiveUtil {
 	}
 
 	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Short shortValue(String value) {
+		return valueOf(value, (Short) null);
+	}
+
+	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Short shortValue(String value, int radix) {
+		return valueOf(value, (Short) null, radix);
+	}
+
+	/**
 	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Integer valueOf(String value, Integer def) {
@@ -178,6 +220,20 @@ public class PrimitiveUtil {
 		} catch (NumberFormatException e) {
 			return def;
 		}
+	}
+
+	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Integer intValue(String value) {
+		return valueOf(value, (Integer) null);
+	}
+
+	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Integer intValue(String value, int radix) {
+		return valueOf(value, (Integer) null, radix);
 	}
 
 	/**
@@ -200,6 +256,20 @@ public class PrimitiveUtil {
 	}
 
 	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Long longValue(String value) {
+		return valueOf(value, (Long) null);
+	}
+
+	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Long longValue(String value, int radix) {
+		return valueOf(value, (Long) null, radix);
+	}
+
+	/**
 	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Float valueOf(String value, Float def) {
@@ -212,6 +282,13 @@ public class PrimitiveUtil {
 	}
 
 	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Float floatValue(String value) {
+		return valueOf(value, (Float) null);
+	}
+
+	/**
 	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Double valueOf(String value, Double def) {
@@ -221,6 +298,13 @@ public class PrimitiveUtil {
 		} catch (NumberFormatException e) {
 			return def;
 		}
+	}
+
+	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Double doubleValue(String value) {
+		return valueOf(value, (Double) null);
 	}
 
 	/**

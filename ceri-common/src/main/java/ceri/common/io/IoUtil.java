@@ -22,6 +22,7 @@ import java.util.MissingResourceException;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.concurrent.ExceptionRunnable;
 
 /**
  * I/O utility functions.
@@ -37,6 +38,14 @@ public class IoUtil {
 
 	private IoUtil() {}
 
+	public void run(ExceptionRunnable<IOException> runnable) {
+		try {
+			runnable.run();
+		} catch (IOException e) {
+			throw new RuntimeIoException(e);
+		}
+	}
+	
 	/**
 	 * Clears available bytes from an input stream and returns the total number of bytes cleared.
 	 */

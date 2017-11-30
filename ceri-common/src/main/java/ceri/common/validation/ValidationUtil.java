@@ -14,12 +14,20 @@ public class ValidationUtil {
 		if (!expr) throw new IllegalArgumentException(name + " failed");
 	}
 
-	public static void validateNotNull(Object obj) {
-		if (obj == null) throw new NullPointerException();
+	public static void validateNotNull(Object value) {
+		if (value == null) throw new NullPointerException();
 	}
 
-	public static void validateNotNull(Object obj, String name) {
-		if (obj == null) throw new NullPointerException(name);
+	public static void validateNotNull(Object value, String name) {
+		if (value == null) throw new NullPointerException(name);
+	}
+
+	public static void validateNull(Object value) {
+		validateNull(value, "Value");
+	}
+
+	public static void validateNull(Object value, String name) {
+		if (value != null) throw new IllegalArgumentException(name + " must be null: " + value);
 	}
 
 	public static void validateEqual(Object value, Object expected) {

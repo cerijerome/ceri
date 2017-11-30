@@ -7,8 +7,10 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import ceri.common.concurrent.RuntimeInterruptedException;
@@ -71,6 +73,13 @@ public class BasicUtil {
 		}
 	}
 
+	/**
+	 * Convenience method that returns all enum constants as a list.
+	 */
+	public static <T extends Enum<T>> List<T> enums(Class<T> cls) {
+		return Arrays.asList(cls.getEnumConstants());
+	}
+	
 	/**
 	 * Makes an iterator compatible with a for-each loop.
 	 */
