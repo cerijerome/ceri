@@ -9,7 +9,6 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -100,23 +99,24 @@ public class CollectionUtil {
 	public static <K, V, T, U> Map<K, V> transform(
 		BiFunction<? super T, ? super U, ? extends K> keyMapper,
 		BiFunction<? super T, ? super U, ? extends V> valueMapper, Map<T, U> map) {
-		return StreamUtil.toMap(map.entrySet().stream(), e -> keyMapper.apply(e.getKey(), e
-			.getValue()), e -> valueMapper.apply(e.getKey(), e.getValue()));
+		return StreamUtil.toMap(map.entrySet().stream(),
+			e -> keyMapper.apply(e.getKey(), e.getValue()),
+			e -> valueMapper.apply(e.getKey(), e.getValue()));
 	}
 
 	/**
 	 * Transforms a map's keys.
 	 */
-	public static <K, T, U> Map<K, U> transformKeys(
-		BiFunction<? super T, ? super U, ? extends K> keyMapper, Map<T, U> map) {
+	public static <K, T, U> Map<K, U>
+		transformKeys(BiFunction<? super T, ? super U, ? extends K> keyMapper, Map<T, U> map) {
 		return transform(keyMapper, (k, v) -> v, map);
 	}
 
 	/**
 	 * Transforms a map's keys.
 	 */
-	public static <K, V, U> Map<K, V> transformValues(
-		BiFunction<? super K, ? super U, ? extends V> valueMapper, Map<K, U> map) {
+	public static <K, V, U> Map<K, V>
+		transformValues(BiFunction<? super K, ? super U, ? extends V> valueMapper, Map<K, U> map) {
 		return transform((k, v) -> k, valueMapper, map);
 	}
 
@@ -145,8 +145,8 @@ public class CollectionUtil {
 		Comparator<V> comparator = Comparators.comparable();
 		Comparator<Entry<K, V>> entryComparator =
 			(e1, e2) -> comparator.compare(e1.getValue(), e2.getValue());
-			stream.sorted(entryComparator).forEach(e -> result.put(e.getKey(), e.getValue()));
-			return result;
+		stream.sorted(entryComparator).forEach(e -> result.put(e.getKey(), e.getValue()));
+		return result;
 	}
 
 	/**
@@ -261,38 +261,29 @@ public class CollectionUtil {
 	}
 
 	/**
+	 * Variation of Collection.addAll that returns the collection type.
+	 */
+	public static <T, C extends Collection<? super T>> C addAll(C collection, Collection<? extends T> items) {
+		collection.addAll(items);
+		return collection;
+	}
+
+	/**
 	 * Returns the last element.
 	 */
-	public static <T> T last(Iterable<T> iterable) {
-		if (iterable instanceof Collection<?>) return get(iterable, ((Collection<?>) iterable)
-			.size() - 1);
-		Iterator<T> i = iterable.iterator();
-		while (true) {
-			T t = i.next();
-			if (!i.hasNext()) return t;
-		}
+	public static <T> T last(List<T> list) {
+		if (list == null || list.isEmpty()) return null;
+		return list.get(list.size() - 1);
 	}
 
 	/**
 	 * Returns the first element.
 	 */
 	public static <T> T first(Iterable<T> iterable) {
-		return get(iterable, 0);
-	}
-
-	/**
-	 * Returns the item at given index for an iterable instance. Optimized for Lists.
-	 */
-	public static <T> T get(Iterable<T> iterable, int index) {
-		if (iterable instanceof LinkedList<?>) {
-			LinkedList<T> linkedList = (LinkedList<T>) iterable;
-			if (index == 0) return linkedList.getFirst();
-			if (index == linkedList.size() - 1) return linkedList.getLast();
-		}
-		if (iterable instanceof List<?>) return ((List<T>) iterable).get(index);
-		for (T t : iterable)
-			if (index-- <= 0) return t;
-		throw new IndexOutOfBoundsException("Iterable does not contain item at index " + index);
+		if (iterable == null) return null;
+		Iterator<T> i = iterable.iterator();
+		if (!i.hasNext()) return null;
+		return i.next();
 	}
 
 	/**
@@ -340,8 +331,8 @@ public class CollectionUtil {
 		Set<K> keys = new LinkedHashSet<>();
 		for (Map.Entry<K, V> entry : map.entrySet()) {
 			if (entry.getValue() == null && value != null) continue;
-			if (entry.getValue() == value || entry.getValue().equals(value)) keys.add(entry
-				.getKey());
+			if (entry.getValue() == value || entry.getValue().equals(value))
+				keys.add(entry.getKey());
 		}
 		return keys;
 	}

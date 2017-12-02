@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import static ceri.common.collection.CollectionUtil.addAll;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,6 +15,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -58,32 +60,106 @@ public class ImmutableUtil {
 	 * Copies a collection of objects into an immutable LinkedHashSet.
 	 */
 	public static <T> Set<T> copyAsSet(Collection<? extends T> set) {
+		return copyAsSet(set, LinkedHashSet::new);
+	}
+
+	/**
+	 * Copies a collection of objects into an immutable LinkedHashSet.
+	 */
+	public static <T> Set<T> copyAsSet(Collection<? extends T> set, Supplier<Set<T>> supplier) {
 		if (set.isEmpty()) return Collections.emptySet();
-		return Collections.unmodifiableSet(new LinkedHashSet<>(set));
+		Set<T> copy = supplier.get();
+		copy.addAll(set);
+		return Collections.unmodifiableSet(copy);
 	}
 
 	/**
 	 * Copies a collection of objects into an immutable TreeSet.
 	 */
 	public static <T> SortedSet<T> copyAsSortedSet(Collection<? extends T> set) {
+		return copyAsSortedSet(set, TreeSet::new);
+	}
+
+	/**
+	 * Copies a collection of objects into an immutable SortedSet.
+	 */
+	public static <T> SortedSet<T> copyAsSortedSet(Collection<? extends T> set,
+		Supplier<SortedSet<T>> supplier) {
 		if (set.isEmpty()) return Collections.emptySortedSet();
-		return Collections.unmodifiableSortedSet(new TreeSet<>(set));
+		SortedSet<T> copy = supplier.get();
+		copy.addAll(set);
+		return Collections.unmodifiableSortedSet(copy);
 	}
 
 	/**
 	 * Copies a map of objects into an immutable LinkedHashMap.
 	 */
 	public static <K, V> Map<K, V> copyAsMap(Map<? extends K, ? extends V> map) {
+		return copyAsMap(map, LinkedHashMap::new);
+	}
+
+	/**
+	 * Copies a map of objects into an immutable Map.
+	 */
+	public static <K, V> Map<K, V> copyAsMap(Map<? extends K, ? extends V> map,
+		Supplier<Map<K, V>> supplier) {
 		if (map.isEmpty()) return Collections.emptyMap();
-		return Collections.unmodifiableMap(new LinkedHashMap<>(map));
+		Map<K, V> copy = supplier.get();
+		copy.putAll(map);
+		return Collections.unmodifiableMap(copy);
+	}
+
+	/**
+	 * Copies a map of collections into an immutable map.
+	 */
+	public static <K, V> Map<K, Set<V>>
+		copyAsMapOfSets(Map<? extends K, ? extends Collection<? extends V>> map) {
+		return copyAsMapOfCollections(map, LinkedHashSet::new);
+	}
+
+	/**
+	 * Copies a map of collections into an immutable map.
+	 */
+	public static <K, V> Map<K, List<V>>
+		copyAsMapOfLists(Map<? extends K, ? extends Collection<? extends V>> map) {
+		return copyAsMapOfCollections(map, ArrayList::new);
+	}
+
+	/**
+	 * Copies a map of collections into an immutable map.
+	 */
+	public static <K, V, T extends Collection<V>> Map<K, T> copyAsMapOfCollections(
+		Map<? extends K, ? extends Collection<? extends V>> map, Supplier<T> collectionSupplier) {
+		return copyAsMapOfCollections(map, LinkedHashMap::new, collectionSupplier);
+	}
+
+	/**
+	 * Copies a map of collections into an immutable map.
+	 */
+	public static <K, V, T extends Collection<V>> Map<K, T> copyAsMapOfCollections(
+		Map<? extends K, ? extends Collection<? extends V>> map, Supplier<Map<K, T>> mapSupplier,
+		Supplier<T> collectionSupplier) {
+		if (map.isEmpty()) return Collections.emptyMap();
+		Map<K, T> copy = mapSupplier.get();
+		map.forEach((key, set) -> copy.put(key, addAll(collectionSupplier.get(), set)));
+		return Collections.unmodifiableMap(copy);
 	}
 
 	/**
 	 * Copies a collection of objects into an immutable ArrayList.
 	 */
 	public static <T> List<T> copyAsList(Collection<? extends T> list) {
+		return copyAsList(list, ArrayList::new);
+	}
+
+	/**
+	 * Copies a collection of objects into an immutable ArrayList.
+	 */
+	public static <T> List<T> copyAsList(Collection<? extends T> list, Supplier<List<T>> supplier) {
 		if (list.isEmpty()) return Collections.emptyList();
-		return Collections.unmodifiableList(new ArrayList<>(list));
+		List<T> copy = supplier.get();
+		copy.addAll(list);
+		return Collections.unmodifiableList(copy);
 	}
 
 	/**
@@ -165,7 +241,12 @@ public class ImmutableUtil {
 
 	public static <F, T> SortedSet<T> convertAsSortedSet(Function<? super F, ? extends T> fn,
 		Iterable<F> fs) {
-		SortedSet<T> ts = new TreeSet<>();
+		return convertAsSortedSet(fn, fs, TreeSet::new);
+	}
+
+	public static <F, T> SortedSet<T> convertAsSortedSet(Function<? super F, ? extends T> fn,
+		Iterable<F> fs, Supplier<SortedSet<T>> supplier) {
+		SortedSet<T> ts = supplier.get();
 		for (F f : fs)
 			ts.add(fn.apply(f));
 		return Collections.unmodifiableSortedSet(ts);

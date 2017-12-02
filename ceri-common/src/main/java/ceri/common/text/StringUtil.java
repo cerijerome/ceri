@@ -395,6 +395,23 @@ public class StringUtil {
 		return b.append(post).toString();
 	}
 
+	public static String toLowerCase(String s) {
+		if (s == null) return null;
+		return s.toLowerCase();
+	}
+	
+	public static String toUpperCase(String s) {
+		if (s == null) return null;
+		return s.toUpperCase();
+	}
+	
+	public static boolean startsWithIgnoreCase(String lhs, String rhs) {
+		if (lhs == rhs) return true;
+		if (lhs == null || rhs == null) return false;
+		if (lhs.length() < rhs.length()) return false;
+		return lhs.substring(0, rhs.length()).toLowerCase().equals(rhs.toLowerCase());
+	}
+	
 	/**
 	 * Pads a number with leading zeros.
 	 */

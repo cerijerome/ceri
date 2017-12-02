@@ -6,6 +6,7 @@ import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.ArrayDeque;
@@ -158,25 +159,10 @@ public class CollectionUtilTest {
 	@Test
 	public void testLast() {
 		assertThat(CollectionUtil.last(Arrays.asList("1", "2", "3")), is("3"));
-		Set<String> set = new LinkedHashSet<>();
-		Collections.addAll(set, "1", "2", "3");
-		assertThat(CollectionUtil.last(set), is("3"));
 		List<Integer> ii = new LinkedList<>();
+		assertNull(CollectionUtil.last(ii));
 		Collections.addAll(ii, 1, 0, -1);
 		assertThat(CollectionUtil.last(ii), is(-1));
-		Iterator<Integer> i = Arrays.asList(1, 2, 3).iterator();
-		assertThat(CollectionUtil.last(() -> i), is(3));
-	}
-
-	@Test
-	public void testGet() {
-		LinkedList<Integer> ll = new LinkedList<>(Arrays.asList(1, 2, 3));
-		assertThat(CollectionUtil.get(ll, 0), is(1));
-		assertThat(CollectionUtil.get(ll, 1), is(2));
-		assertThat(CollectionUtil.get(ll, 2), is(3));
-		assertException(() -> CollectionUtil.get(ll, 4));
-		Iterator<Integer> i = Arrays.asList(1, 2, 3).iterator();
-		assertException(() -> CollectionUtil.get(() -> i, 4));
 	}
 
 	@Test
