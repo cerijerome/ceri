@@ -20,7 +20,8 @@ public class WebClientHelper implements Closeable {
 	private static final int DEFAULT_JS_TIMEOUT_MS = 10_000;
 	protected final WebClient webClient;
 
-	static {
+	public static void disableGargoyleLog() {
+		 // Static initialization doesn't always work, now called from constructor
 		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 	}
 
@@ -68,6 +69,7 @@ public class WebClientHelper implements Closeable {
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setTimeout(DEFAULT_TIMEOUT_MS);
 		if (builder.header != null) setHeaders(webClient, builder.header);
+		disableGargoyleLog();
 	}
 
 	@Override

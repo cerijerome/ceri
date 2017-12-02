@@ -16,9 +16,10 @@ public class HtmlPageSampler {
 	 * Sample mode for saving/loading pages as xml (debugging)
 	 */
 	public static enum Mode {
-		off,
-		save,
-		load
+		off,  // always load from url
+		save, // always load from url, save to file 
+		load, // always load from file
+		auto  // if file exists, follow 'load', otherwise follow 'save'
 	}
 
 	/**
@@ -35,10 +36,11 @@ public class HtmlPageSampler {
 	public static HtmlPage loadPage(Mode mode,
 		ExceptionSupplier<IOException, HtmlPage> pageSupplier, Supplier<File> fileSupplier)
 		throws IOException {
-		if (mode == Mode.load) return loadPageFile(fileSupplier.get());
-		HtmlPage page = pageSupplier.get();
-		if (mode == Mode.save) savePageFile(page, fileSupplier.get());
-		return page;
+		if (mode == null || mode == Mode.off) return pageSupplier.get();
+		File f = fileSupplier.get();
+		if (mode == Mode.auto) mode = f.exists() ? Mode.load : Mode.save; 
+		if (mode == Mode.load) return loadPageFile(f);
+		return savePageFile(pageSupplier.get(), f);
 	}
 
 	private static HtmlPage loadPageFile(File file) throws IOException {
@@ -46,9 +48,10 @@ public class HtmlPageSampler {
 		return WebClientHelper.page(file);
 	}
 
-	private static void savePageFile(HtmlPage page, File file) throws IOException {
+	private static HtmlPage savePageFile(HtmlPage page, File file) throws IOException {
 		logger.info("Saving page to file: {}", file);
 		IoUtil.setContentString(file, page.asXml());
+		return page;
 	}
 
 }
