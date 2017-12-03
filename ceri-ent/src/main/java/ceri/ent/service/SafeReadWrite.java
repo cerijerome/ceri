@@ -3,8 +3,8 @@ package ceri.ent.service;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.concurrent.ExceptionRunnable;
-import ceri.common.concurrent.ExceptionSupplier;
+import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.ExceptionSupplier;
 
 public class SafeReadWrite {
 	private final ReadWriteLock lock = new ReentrantReadWriteLock();
