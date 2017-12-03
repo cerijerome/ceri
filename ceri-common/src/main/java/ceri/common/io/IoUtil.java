@@ -22,7 +22,7 @@ import java.util.MissingResourceException;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import ceri.common.collection.ImmutableByteArray;
-import ceri.common.concurrent.ExceptionRunnable;
+import ceri.common.function.ExceptionRunnable;
 
 /**
  * I/O utility functions.

@@ -4,6 +4,7 @@ import static ceri.common.test.TestUtil.assertException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.function.ExceptionRunnable;
 
 public class AsyncRunnerBehavior {
 

@@ -1,4 +1,4 @@
-package ceri.common.concurrent;
+package ceri.common.function;
 
 /**
  * Consumer that can throw exceptions.

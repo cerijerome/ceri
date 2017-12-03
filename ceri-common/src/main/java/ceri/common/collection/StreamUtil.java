@@ -11,8 +11,6 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import ceri.common.concurrent.ExceptionConsumer;
-import ceri.common.util.BasicUtil;
 
 /**
  * Convenience shortcuts for common stream methods.
@@ -20,48 +18,6 @@ import ceri.common.util.BasicUtil;
 public class StreamUtil {
 
 	private StreamUtil() {}
-
-	private static class StreamException extends RuntimeException {
-		private static final long serialVersionUID = -7884771697875904804L;
-
-		StreamException(Exception e) {
-			super(e);
-		}
-	}
-
-	/**
-	 * Executes for-each, allowing exception of given type to be thrown.
-	 */
-	public static <T, E extends Exception> void forEach(Iterable<T> iter,
-		ExceptionConsumer<E, ? super T> consumer) throws E {
-		try {
-			iter.forEach(t -> exec(consumer, t));
-		} catch (StreamException ex) {
-			throw BasicUtil.<E>uncheckedCast(ex.getCause());
-		}
-	}
-
-	/**
-	 * Executes for-each, allowing exception of given type to be thrown.
-	 */
-	public static <T, E extends Exception> void forEach(Stream<T> stream,
-		ExceptionConsumer<E, ? super T> consumer) throws E {
-		try {
-			stream.forEach(t -> exec(consumer, t));
-		} catch (StreamException ex) {
-			throw BasicUtil.<E>uncheckedCast(ex.getCause());
-		}
-	}
-
-	private static <T, E extends Exception> void exec(ExceptionConsumer<E, T> consumer, T t) {
-		try {
-			consumer.accept(t);
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new StreamException(e);
-		}
-	}
 
 	/**
 	 * Returns the first entry in the stream, or null if empty.

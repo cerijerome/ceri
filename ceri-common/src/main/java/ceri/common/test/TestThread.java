@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import ceri.common.concurrent.ExceptionRunnable;
+import ceri.common.function.ExceptionRunnable;
 import ceri.common.util.BasicUtil;
 
 /**

@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
+import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.ExceptionSupplier;
 
 public class ConcurrentUtil {
 

@@ -1,4 +1,4 @@
-package ceri.common.concurrent;
+package ceri.common.function;
 
 /**
  * Runnable that can throw exceptions.

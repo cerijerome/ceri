@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.Test;
-import ceri.common.concurrent.ExceptionRunnable;
+import ceri.common.function.ExceptionRunnable;
 import ceri.common.text.StringUtil;
 import ceri.common.util.HAlign;
 
