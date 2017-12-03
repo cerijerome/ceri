@@ -16,7 +16,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-import ceri.common.concurrent.ExceptionRunnable;
+import ceri.common.function.ExceptionRunnable;
 import ceri.common.text.StringUtil;
 import ceri.common.util.HAlign;
 

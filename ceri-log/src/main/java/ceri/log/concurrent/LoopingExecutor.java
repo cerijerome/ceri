@@ -7,8 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LoggingException;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.concurrent.ExceptionRunnable;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.function.ExceptionRunnable;
 import ceri.log.util.LogUtil;
 
 /**
