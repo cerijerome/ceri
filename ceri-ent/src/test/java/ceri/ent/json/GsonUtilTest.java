@@ -18,6 +18,7 @@ public class GsonUtilTest {
 		assertThat(GsonUtil.extract(OBJ1,
 			"glossary.GlossDiv.GlossList.GlossEntry.GlossDef.GlossSeeAlso.1"), is("XML"));
 		assertThat(GsonUtil.extract(OBJ2, "cars.2.models.0"), is("500"));
+		assertThat(GsonUtil.extractInt(OBJ2, "cars.2.models.0"), is(500));
 	}
 
 }

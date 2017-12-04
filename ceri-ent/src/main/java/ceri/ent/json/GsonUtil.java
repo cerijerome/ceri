@@ -2,8 +2,11 @@ package ceri.ent.json;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.reflect.TypeToken;
 import ceri.common.property.PathFactory;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.PrimitiveUtil;
@@ -12,6 +15,14 @@ public class GsonUtil {
 	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
 	private GsonUtil() {}
+
+	public static <T> JsonCoder<T> coder(TypeToken<T> typeToken) {
+		return JsonCoder.create(GSON, typeToken);
+	}
+
+	public static <T> JsonDeserializer<T> deserializer(Function<String, T> constructor) {
+		return (json, typeOfT, context) -> constructor.apply(json.getAsString());
+	}
 
 	/**
 	 * Given a simple object structure created from gson such as
@@ -41,35 +52,49 @@ public class GsonUtil {
 	}
 
 	public static Character extractChar(Object gsonObject, String path) {
-		return PrimitiveUtil.valueOf(extractString(gsonObject, path), (Character) null);
+		Object obj = extract(gsonObject, path);
+		return PrimitiveUtil.charValue(BasicUtil.castOrNull(String.class, obj));
 	}
 
 	public static Boolean extractBoolean(Object gsonObject, String path) {
-		return PrimitiveUtil.valueOf(extractString(gsonObject, path), (Boolean) null);
+		Object obj = extract(gsonObject, path);
+		if (obj == null) return null;
+		Boolean b = BasicUtil.castOrNull(Boolean.class, obj);
+		if (b != null) return b;
+		return PrimitiveUtil.booleanValue(BasicUtil.castOrNull(String.class, obj));
 	}
 
 	public static Byte extractByte(Object gsonObject, String path) {
-		return PrimitiveUtil.valueOf(extractString(gsonObject, path), (Byte) null);
+		return extractNumber(gsonObject, path, Number::byteValue, PrimitiveUtil::byteValue);
 	}
 
 	public static Short extractShort(Object gsonObject, String path) {
-		return PrimitiveUtil.valueOf(extractString(gsonObject, path), (Short) null);
+		return extractNumber(gsonObject, path, Number::shortValue, PrimitiveUtil::shortValue);
 	}
 
 	public static Integer extractInt(Object gsonObject, String path) {
-		return PrimitiveUtil.valueOf(extractString(gsonObject, path), (Integer) null);
+		return extractNumber(gsonObject, path, Number::intValue, PrimitiveUtil::intValue);
 	}
 
 	public static Long extractLong(Object gsonObject, String path) {
-		return PrimitiveUtil.valueOf(extractString(gsonObject, path), (Long) null);
+		return extractNumber(gsonObject, path, Number::longValue, PrimitiveUtil::longValue);
 	}
 
 	public static Float extractFloat(Object gsonObject, String path) {
-		return PrimitiveUtil.valueOf(extractString(gsonObject, path), (Float) null);
+		return extractNumber(gsonObject, path, Number::floatValue, PrimitiveUtil::floatValue);
 	}
 
 	public static Double extractDouble(Object gsonObject, String path) {
-		return PrimitiveUtil.valueOf(extractString(gsonObject, path), (Double) null);
+		return extractNumber(gsonObject, path, Number::doubleValue, PrimitiveUtil::doubleValue);
+	}
+
+	private static <T extends Number> T extractNumber(Object gsonObject, String path,
+		Function<Number, T> nFn, Function<String, T> sFn) {
+		Object obj = extract(gsonObject, path);
+		if (obj == null) return null;
+		Number n = BasicUtil.castOrNull(Number.class, obj);
+		if (n != null) return nFn.apply(n);
+		return sFn.apply(BasicUtil.castOrNull(String.class, obj));
 	}
 
 }

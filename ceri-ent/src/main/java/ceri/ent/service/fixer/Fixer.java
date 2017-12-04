@@ -1,6 +1,6 @@
 package ceri.ent.service.fixer;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import ceri.common.collection.ImmutableUtil;
 
@@ -9,10 +9,10 @@ import ceri.common.collection.ImmutableUtil;
  * {@link FixerPropertyParser} is used to load fixes from property files.
  */
 public class Fixer<K, V> {
-	private final Map<K, V> map;
+	public final Map<K, V> map;
 
 	public static class Builder<K, V> {
-		Map<K, V> map = new HashMap<>();
+		Map<K, V> map = new LinkedHashMap<>();
 
 		Builder() {}
 

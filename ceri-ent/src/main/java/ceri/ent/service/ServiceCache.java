@@ -12,7 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.FixedSizeCache;
 import ceri.common.math.MathUtil;
-import com.google.gson.reflect.TypeToken;
+import ceri.ent.json.JsonCoder;
 
 public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	private static final Logger logger = LogManager.getLogger();
@@ -27,12 +27,12 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	private final Map<K, Entry<K, V>> cache;
 
 	public static <K, V> ServiceCache<K, V> create(Service<K, V> service,
-		ServiceProperties properties, TypeToken<Collection<Entry<K, V>>> typeToken) {
-		return create(service, null, properties, typeToken);
+		ServiceProperties properties, JsonCoder<Collection<Entry<K, V>>> coder) {
+		return create(service, null, properties, coder);
 	}
-	
+
 	public static <K, V> ServiceCache<K, V> create(Service<K, V> service, String logName,
-		ServiceProperties properties, TypeToken<Collection<Entry<K, V>>> typeToken) {
+		ServiceProperties properties, JsonCoder<Collection<Entry<K, V>>> coder) {
 		ServiceCache.Builder<K, V> builder = ServiceCache.builder(service);
 		if (logName != null) builder.logName(logName);
 		Long cacheDurationMs = properties.cacheDurationMs();
@@ -46,7 +46,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 		Integer retries = properties.retries();
 		if (retries != null) builder.retries(retries);
 		File cacheFile = properties.cacheFile();
-		if (cacheFile != null && typeToken != null) builder.store(typeToken, cacheFile);
+		if (cacheFile != null && coder != null) builder.store(coder, cacheFile);
 		return builder.build();
 	}
 
@@ -94,8 +94,8 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 			return this;
 		}
 
-		public Builder<K, V> store(TypeToken<Collection<Entry<K, V>>> typeToken, File file) {
-			return store(JsonFileStore.create(typeToken, file));
+		public Builder<K, V> store(JsonCoder<Collection<Entry<K, V>>> coder, File file) {
+			return store(JsonFileStore.create(coder, file));
 		}
 
 		public Builder<K, V> store(PersistentStore<Collection<Entry<K, V>>> store) {
@@ -127,7 +127,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 		if (logName != null) return logName;
 		return service.getClass().getSimpleName();
 	}
-	
+
 	@Override
 	public void load() throws IOException {
 		if (store == null) return;
@@ -169,7 +169,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	private long expiration() {
 		return System.currentTimeMillis() + cacheDurationMs + MathUtil.random(0, cacheRandomizeMs);
 	}
-	
+
 	private Entry<K, V> readFromCache(K key) {
 		Entry<K, V> entry = safe.read(() -> cache.get(key));
 		if (entry != null) {
