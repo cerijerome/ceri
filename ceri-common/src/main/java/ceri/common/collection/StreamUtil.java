@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import ceri.common.comparator.Comparators;
 
 /**
  * Convenience shortcuts for common stream methods.
@@ -24,6 +26,34 @@ public class StreamUtil {
 	 */
 	public static <T> T first(Stream<T> stream) {
 		return stream.findFirst().orElse(null);
+	}
+
+	/**
+	 * Returns the max entry in the stream, or null if empty.
+	 */
+	public static <T extends Comparable<T>> T max(Stream<T> stream) {
+		return max(stream, Comparators.comparable());
+	}
+
+	/**
+	 * Returns the max entry in the stream, or null if empty.
+	 */
+	public static <T> T max(Stream<T> stream, Comparator<? super T> comparator) {
+		return stream.max(comparator).orElse(null);
+	}
+
+	/**
+	 * Returns the min entry in the stream, or null if empty.
+	 */
+	public static <T extends Comparable<T>> T min(Stream<T> stream) {
+		return min(stream, Comparators.comparable());
+	}
+
+	/**
+	 * Returns the min entry in the stream, or null if empty.
+	 */
+	public static <T> T min(Stream<T> stream, Comparator<? super T> comparator) {
+		return stream.min(comparator).orElse(null);
 	}
 
 	/**

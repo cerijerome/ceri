@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -64,6 +65,13 @@ public class StringUtil {
 
 	private StringUtil() {}
 
+	
+	public static DecimalFormat decimalFormat(int decimalPlaces) {
+		StringBuilder b = new StringBuilder("#.");
+		while (decimalPlaces-- > 0) b.append("#");
+		return new DecimalFormat(b.toString());
+	}
+	
 	/**
 	 * Encodes escaped characters within the given string.
 	 */

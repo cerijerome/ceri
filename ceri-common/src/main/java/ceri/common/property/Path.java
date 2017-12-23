@@ -1,5 +1,6 @@
 package ceri.common.property;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -23,6 +24,10 @@ public class Path {
 	}
 
 	public Path child(String... parts) {
+		return factory.path(value, parts);
+	}
+
+	public Path child(Collection<String> parts) {
 		return factory.path(value, parts);
 	}
 

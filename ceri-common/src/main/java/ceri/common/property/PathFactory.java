@@ -2,6 +2,7 @@ package ceri.common.property;
 
 import static ceri.common.filter.Filters.not;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +45,10 @@ public class PathFactory {
 	}
 
 	public Path path(String value, String... values) {
+		return path(value, Arrays.asList(values));
+	}
+
+	public Path path(String value, Collection<String> values) {
 		List<String> parts = splitTo(new ArrayList<>(), value);
 		if (values != null) for (String val : values)
 			splitTo(parts, val);
