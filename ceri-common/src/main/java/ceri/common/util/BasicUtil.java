@@ -62,6 +62,13 @@ public class BasicUtil {
 	}
 
 	/**
+	 * Convenience method that calls Enum.valueOf and returns null if no match.
+	 */
+	public static <T extends Enum<T>> T valueOf(Class<T> cls, String value) {
+		return valueOf(cls, value, null);
+	}
+	
+	/**
 	 * Convenience method that calls Enum.valueOf and returns default value if no match.
 	 */
 	public static <T extends Enum<T>> T valueOf(Class<T> cls, String value, T def) {

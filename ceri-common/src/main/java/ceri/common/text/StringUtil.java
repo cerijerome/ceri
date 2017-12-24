@@ -4,6 +4,7 @@ import java.awt.event.KeyEvent;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.math.RoundingMode;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
@@ -67,9 +68,11 @@ public class StringUtil {
 
 	
 	public static DecimalFormat decimalFormat(int decimalPlaces) {
-		StringBuilder b = new StringBuilder("#.");
+		StringBuilder b = new StringBuilder("0.");
 		while (decimalPlaces-- > 0) b.append("#");
-		return new DecimalFormat(b.toString());
+		DecimalFormat format = new DecimalFormat(b.toString());
+		format.setRoundingMode(RoundingMode.HALF_UP);
+		return format;
 	}
 	
 	/**
