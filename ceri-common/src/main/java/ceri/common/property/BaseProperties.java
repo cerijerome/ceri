@@ -379,45 +379,27 @@ public abstract class BaseProperties {
 	}
 
 	/**
-	 * Returns all the child integer ids.
-	 */
-	protected Set<Integer> childIds() {
-		return childIds(null);
-	}
-
-	/**
 	 * Returns all the integer ids that are children of the given key.
 	 */
-	protected Set<Integer> childIds(String key) {
+	protected Set<Integer> childIds(String...keyParts) {
+		String key = PathFactory.dot.path(keyParts).value;
 		return childKeyStream(key, CHILD_ID_PATTERN).map(Integer::parseInt).collect(
 			Collectors.toCollection(() -> new TreeSet<>()));
 	}
 
 	/**
-	 * Returns all the children.
-	 */
-	protected List<String> children() {
-		return children(null);
-	}
-
-	/**
 	 * Returns all the children of the given key.
 	 */
-	protected List<String> children(String key) {
+	protected List<String> children(String...keyParts) {
+		String key = PathFactory.dot.path(keyParts).value;
 		return toList(childKeyStream(key, CHILD_KEY_PATTERN));
-	}
-
-	/**
-	 * Returns all the descendants.
-	 */
-	protected List<String> descendants() {
-		return descendants(null);
 	}
 
 	/**
 	 * Returns all the descendants of the given key.
 	 */
-	protected List<String> descendants(String key) {
+	protected List<String> descendants(String...keyParts) {
+		String key = PathFactory.dot.path(keyParts).value;
 		return toList(childKeyStream(key, DESCENDENT_KEY_PATTERN));
 	}
 

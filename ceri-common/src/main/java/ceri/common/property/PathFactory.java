@@ -45,7 +45,7 @@ public class PathFactory {
 	}
 
 	public Path path(String value, String... values) {
-		return path(value, Arrays.asList(values));
+		return path(value, values == null ? null : Arrays.asList(values));
 	}
 
 	public Path path(String value, Collection<String> values) {
