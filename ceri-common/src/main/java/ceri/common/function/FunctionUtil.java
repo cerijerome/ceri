@@ -1,11 +1,34 @@
 package ceri.common.function;
 
+import java.util.function.Function;
 import java.util.stream.Stream;
+import ceri.common.util.EqualsUtil;
 
 public class FunctionUtil {
-
+	private static final int MAX_RECURSIONS_DEF = 20;
+	
 	private FunctionUtil() {}
 
+	/**
+	 * Execute the function until no change, or the maximum number of recursions is met.
+	 */
+	public static <T> T recurse(T t, Function<T, T> fn) {
+		return recurse(t, fn, MAX_RECURSIONS_DEF);
+	}
+	
+	/**
+	 * Execute the function until no change, or the maximum number of recursions is met.
+	 */
+	public static <T> T recurse(T t, Function<T, T> fn, int max) {
+		T last;
+		while (max-- > 0) {
+			last = t;
+			t = fn.apply(t);
+			if (EqualsUtil.equals(t, last)) break;
+		}
+		return t;
+	}
+	
 	/**
 	 * Executes for-each, allowing exception of given type to be thrown.
 	 */

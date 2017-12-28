@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.function.FunctionUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
@@ -24,19 +25,26 @@ import ceri.common.util.BasicUtil;
  * an empty line and the class will be generated then copied to the clipboard. Example:
  * 
  * <pre>
- * MyClass
- * int id
- * String name
+ * public MyClass<T, S extends Enum<S>>
+ * final int id;
+ * S s
+ * private List<String> names
  * Date date
  * </pre>
  */
 public class ClassGenerator {
-	private static final Pattern CLEAN_REGEX = Pattern
-		.compile("(public |protected |private |final |=.*|;)");
-	private static final Pattern PRIMITIVE_REGEX = Pattern
-		.compile("^(boolean|byte|short|int|long|float)$");
+	private static final Pattern CLASS_REGEX =
+		Pattern.compile("^(?:public |class )*([\\w]+)((?:<.*>)?)[\\s{]*$");
+	private static final Pattern CLEAN_GENERICS_REGEX =
+		Pattern.compile("(<[^<>]+>|extends|super|(?<=\\w+)\\s\\w+)");
+	private static final Pattern CLEAN_REGEX =
+		Pattern.compile("(public |protected |private |final |=.*|;)");
+	private static final Pattern PRIMITIVE_EQUALS_REGEX =
+		Pattern.compile("^(boolean|char|byte|short|int|long)$");
 	private static final Pattern FIELD_REGEX = Pattern.compile("^(.*)\\s+([\\w]+)$");
 	private final String className;
+	private final String classGenerics;
+	private final String simpleGenerics;
 	private final Map<String, String> fields;
 	private final boolean hasBuilder;
 
@@ -62,7 +70,9 @@ public class ClassGenerator {
 			while ((line = in.readLine()) != null) {
 				line = CLEAN_REGEX.matcher(line).replaceAll("").trim();
 				if (builder == null) {
-					builder = builder(line);
+					Matcher m = CLASS_REGEX.matcher(line);
+					if (!m.find()) break;
+					builder = builder(m.group(1), m.group(2));
 					continue;
 				}
 				Matcher m = FIELD_REGEX.matcher(line);
@@ -77,8 +87,8 @@ public class ClassGenerator {
 
 	private static class AssignmentPrefix {
 		public static final AssignmentPrefix CONSTRUCTOR = new AssignmentPrefix("this.", "");
-		public static final AssignmentPrefix CONSTRUCTOR_WITH_BUILDER = new AssignmentPrefix("",
-			"builder.");
+		public static final AssignmentPrefix CONSTRUCTOR_WITH_BUILDER =
+			new AssignmentPrefix("", "builder.");
 		public final String field;
 		public final String argument;
 
@@ -90,11 +100,13 @@ public class ClassGenerator {
 
 	public static class Builder {
 		final String className;
+		final String classGenerics;
 		final Map<String, String> fields = new LinkedHashMap<>();
 		boolean hasBuilder;
 
-		Builder(String className) {
+		Builder(String className, String classGenerics) {
 			this.className = className;
+			this.classGenerics = classGenerics;
 		}
 
 		public Builder field(String type, String name) {
@@ -112,12 +124,14 @@ public class ClassGenerator {
 		}
 	}
 
-	public static Builder builder(String className) {
-		return new Builder(className);
+	public static Builder builder(String className, String classGenerics) {
+		return new Builder(className, classGenerics);
 	}
 
 	ClassGenerator(Builder builder) {
 		className = builder.className;
+		classGenerics = builder.classGenerics;
+		simpleGenerics = simpleGenerics(classGenerics);
 		fields = Collections.unmodifiableMap(new LinkedHashMap<>(builder.fields));
 		hasBuilder = builder.hasBuilder;
 	}
@@ -125,7 +139,7 @@ public class ClassGenerator {
 	public String generate() {
 		StringBuilder b = new StringBuilder();
 		try (PrintStream out = StringUtil.asPrintStream(b)) {
-			out.println("public class " + className + " {");
+			out.printf("public class %s%s {%n", className, classGenerics);
 			for (Map.Entry<String, String> entry : fields.entrySet())
 				generateFieldDeclaration(out, entry.getKey(), entry.getValue());
 			out.println();
@@ -153,8 +167,9 @@ public class ClassGenerator {
 	}
 
 	private void generateBuilderMethod(PrintStream out) {
-		out.println("\tpublic static Builder builder() {");
-		out.println("\t\treturn new Builder();");
+		String classGenerics = this.classGenerics.isEmpty() ? "" : this.classGenerics + " ";
+		out.printf("\tpublic static %sBuilder%s builder() {%n", classGenerics, simpleGenerics);
+		out.printf("\t\treturn new Builder%s();%n", emptyGenerics());
 		out.println("\t}");
 	}
 
@@ -162,8 +177,8 @@ public class ClassGenerator {
 		List<String> arguments = toArguments(fields);
 		out.print(StringUtil.toString("\tpublic " + className + "(", ") {\n", ", ", arguments));
 		for (Map.Entry<String, String> entry : fields.entrySet())
-			generateConstructorAssignment(out, AssignmentPrefix.CONSTRUCTOR, entry.getKey(), entry
-				.getValue());
+			generateConstructorAssignment(out, AssignmentPrefix.CONSTRUCTOR, entry.getKey(),
+				entry.getValue());
 		out.println("\t}");
 	}
 
@@ -175,10 +190,10 @@ public class ClassGenerator {
 	}
 
 	private void generateConstructorWithBuilder(PrintStream out) {
-		out.println("\t" + className + "(Builder builder) {");
+		out.printf("\t%s(Builder%s builder) {%n", className, simpleGenerics);
 		for (Map.Entry<String, String> entry : fields.entrySet())
-			generateConstructorAssignment(out, AssignmentPrefix.CONSTRUCTOR_WITH_BUILDER, entry
-				.getKey(), entry.getValue());
+			generateConstructorAssignment(out, AssignmentPrefix.CONSTRUCTOR_WITH_BUILDER,
+				entry.getKey(), entry.getValue());
 		out.println("\t}");
 	}
 
@@ -194,8 +209,8 @@ public class ClassGenerator {
 		AssignmentPrefix prefix, String name, String type) {
 		CollectionType collectionType = CollectionType.createFrom(type);
 		if (collectionType == null) return false;
-		if ("List".equals(collectionType.type)) out.printf(prefixFormat(
-			"\t\t%s%s = ImmutableUtil.copyAsList(%s%s);%n", prefix, name));
+		if ("List".equals(collectionType.type))
+			out.printf(prefixFormat("\t\t%s%s = ImmutableUtil.copyAsList(%s%s);%n", prefix, name));
 		else out.printf(prefixFormat("\t\t%s%s = ImmutableUtil.copyAsSet(%s%s);%n", prefix, name));
 		return true;
 	}
@@ -224,14 +239,14 @@ public class ClassGenerator {
 		out.println("\tpublic boolean equals(Object obj) {");
 		out.println("\t\tif (this == obj) return true;");
 		out.printf("\t\tif (!(obj instanceof %s)) return false;%n", className);
-		out.printf("\t\t%s other = (%s) obj;%n", className, className);
+		out.printf("\t\t%s%s other = (%1$s%2$s) obj;%n", className, wildcardGenerics());
 		for (Map.Entry<String, String> entry : fields.entrySet()) {
 			String name = entry.getKey();
 			String type = entry.getValue();
-			if (PRIMITIVE_REGEX.matcher(type).find()) out.printf(
-				"\t\tif (%s != other.%s) return false;%n", name, name);
-			else out
-				.printf("\t\tif (!EqualsUtil.equals(%s, other.%s)) return false;%n", name, name);
+			if (PRIMITIVE_EQUALS_REGEX.matcher(type).find())
+				out.printf("\t\tif (%s != other.%s) return false;%n", name, name);
+			else out.printf("\t\tif (!EqualsUtil.equals(%s, other.%s)) return false;%n", name,
+				name);
 		}
 		out.println("\t\treturn true;");
 		out.println("\t}");
@@ -255,7 +270,7 @@ public class ClassGenerator {
 	}
 
 	private void generateBuilder(PrintStream out) {
-		out.println("\tpublic static class Builder {");
+		out.printf("\tpublic static class Builder%s {%n", classGenerics);
 		for (Map.Entry<String, String> entry : fields.entrySet())
 			generateBuilderFieldDeclaration(out, entry.getKey(), entry.getValue());
 		out.println();
@@ -303,7 +318,7 @@ public class ClassGenerator {
 	}
 
 	private void generateBuilderStandardSetter(PrintStream out, String name, String type) {
-		out.printf("\t\tpublic Builder %s(%s %s) {%n", name, type, name);
+		out.printf("\t\tpublic Builder%s %s(%s %2$s) {%n", simpleGenerics, name, type);
 		out.printf("\t\t\tthis.%s = %s;%n", name, name);
 		out.println("\t\t\treturn this;");
 		out.println("\t\t}");
@@ -312,12 +327,13 @@ public class ClassGenerator {
 	private boolean generateBuilderCollectionSetters(PrintStream out, String name, String type) {
 		CollectionType collectionType = CollectionType.createFrom(type);
 		if (collectionType == null) return false;
-		out.printf("\t\tpublic Builder %s(%s... %s) {%n", name, collectionType.itemType, name);
-		out.printf("\t\t\treturn %s(Arrays.asList(%s));%n", name, name);
+		out.printf("\t\tpublic Builder%s %s(%s... %2$s) {%n", simpleGenerics, name,
+			collectionType.itemType);
+		out.printf("\t\t\treturn %s(Arrays.asList(%1$s));%n", name);
 		out.println("\t\t}");
 		out.println();
-		out.printf("\t\tpublic Builder %s(Collection<%s> %s) {%n", name, collectionType.itemType,
-			name);
+		out.printf("\t\tpublic Builder%s %s(Collection<%s> %2$s) {%n", simpleGenerics, name,
+			collectionType.itemType);
 		out.printf("\t\t\tthis.%s.addAll(%s);%n", name, name);
 		out.println("\t\t\treturn this;");
 		out.println("\t\t}");
@@ -328,24 +344,41 @@ public class ClassGenerator {
 		MapType mapType = MapType.createFrom(type);
 		if (mapType == null) return false;
 		String nonPluralName = name.endsWith("s") ? name.substring(0, name.length() - 1) : name;
-		out.printf("\t\tpublic Builder %s(%s key, %s value) {%n", nonPluralName, mapType.keyType,
-			mapType.valueType);
+		out.printf("\t\tpublic Builder%s %s(%s key, %s value) {%n", simpleGenerics, nonPluralName,
+			mapType.keyType, mapType.valueType);
 		out.printf("\t\t\t%s.put(key, value);%n", name);
 		out.println("\t\t\treturn this;");
 		out.println("\t\t}");
 		out.println();
-		out.printf("\t\tpublic Builder %s(Map<%s, %s> %s) {%n", name, mapType.keyType,
-			mapType.valueType, name);
-		out.printf("\t\t\tthis.%s.putAll(%s);%n", name, name);
+		out.printf("\t\tpublic Builder%s %s(Map<%s, %s> %2$s) {%n", simpleGenerics, name,
+			mapType.keyType, mapType.valueType);
+		out.printf("\t\t\tthis.%s.putAll(%1$s);%n", name);
 		out.println("\t\t\treturn this;");
 		out.println("\t\t}");
 		return true;
 	}
 
 	private void generateBuilderBuild(PrintStream out) {
-		out.printf("\t\tpublic %s build() {%n", className);
-		out.printf("\t\t\treturn new %s(this);%n", className);
+		out.printf("\t\tpublic %s%s build() {%n", className, simpleGenerics);
+		out.printf("\t\t\treturn new %s%s(this);%n", className, emptyGenerics());
 		out.println("\t\t}");
+	}
+
+	private String emptyGenerics() {
+		if (classGenerics.isEmpty()) return "";
+		return "<>";
+	}
+
+	private String wildcardGenerics() {
+		if (classGenerics.isEmpty()) return "";
+		return simpleGenerics.replaceAll("\\w+", "?");
+	}
+
+	public String simpleGenerics(String generics) {
+		if (generics.isEmpty()) return "";
+		String str = FunctionUtil.recurse(generics.substring(1, generics.length() - 1),
+			s -> CLEAN_GENERICS_REGEX.matcher(s).replaceAll(""));
+		return "<" + str + ">";
 	}
 
 }
