@@ -30,6 +30,17 @@ public class RegexUtil {
 	private RegexUtil() {}
 
 	/**
+	 * Returns named group or null.
+	 */
+	public static final String namedGroup(Matcher m, String name) {
+		try {
+			return m.group(name);
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
+	
+	/**
 	 * Returns the groups of the given matcher as a list.
 	 */
 	public static final List<String> groups(Pattern regex, String s) {
