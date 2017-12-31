@@ -72,7 +72,7 @@ public class PropertyUtil {
 	public static Properties load(Class<?> cls, String name) throws IOException {
 		Properties properties = new Properties();
 		try (InputStream in = cls.getResourceAsStream(name)) {
-			if (in == null) throw new FileNotFoundException(cls.getName() + ":" + name);
+			if (in == null) throw new FileNotFoundException(cls.getName() + ": " + name);
 			properties.load(in);
 		}
 		return properties;

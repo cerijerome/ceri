@@ -257,10 +257,31 @@ public class ImmutableUtil {
 		return convertAsMap(fn, Arrays.asList(ts));
 	}
 
+	@SafeVarargs
+	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
+		Supplier<Map<K, T>> mapSupplier, T... ts) {
+		return convertAsMap(fn, Arrays.asList(ts), mapSupplier);
+	}
+
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
 		Collection<T> ts) {
-		return Collections.unmodifiableMap(ts.stream().collect(Collectors.toMap( //
-			fn, Function.identity(), StreamUtil.mergeError(), LinkedHashMap::new)));
+		return convertAsMap(fn, ts, LinkedHashMap::new);
+	}
+
+	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
+		Collection<T> ts, Supplier<Map<K, T>> mapSupplier) {
+		return convertAsMap(fn, ts.stream(), mapSupplier);
+	}
+
+	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
+		Stream<T> stream) {
+		return convertAsMap(fn, stream, LinkedHashMap::new);
+	}
+
+	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
+		Stream<T> stream, Supplier<Map<K, T>> mapSupplier) {
+		return Collections.unmodifiableMap(stream.collect(Collectors.toMap( //
+			fn, Function.identity(), StreamUtil.mergeError(), mapSupplier)));
 	}
 
 	public static <K, T extends Enum<T>> Map<K, T> enumMap(Function<T, K> fn, Class<T> cls) {

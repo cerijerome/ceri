@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
@@ -20,6 +21,17 @@ import ceri.common.comparator.Comparators;
 public class StreamUtil {
 
 	private StreamUtil() {}
+
+	public static <K, V, T> Stream<T> map(Map<K, V> map, BiFunction<K, V, T> keyValueFn) {
+		return map.entrySet().stream().map(e -> keyValueFn.apply(e.getKey(), e.getValue()));
+	}
+	
+	/**
+	 * Returns the first entry in the stream, or null if empty.
+	 */
+	public static <T> T firstNonNull(Stream<T> stream) {
+		return first(stream.filter(Objects::nonNull));
+	}
 
 	/**
 	 * Returns the first entry in the stream, or null if empty.
@@ -69,14 +81,14 @@ public class StreamUtil {
 	 * Convert a stream to a TreeSet.
 	 */
 	public static <T> Set<T> toTreeSet(Stream<T> stream) {
-		return stream.collect(Collectors.toCollection(() -> new TreeSet<>()));
+		return stream.collect(Collectors.toCollection(TreeSet::new));
 	}
 
 	/**
 	 * Convert a stream to a LinkedHashSet.
 	 */
 	public static <T> Set<T> toSet(Stream<T> stream) {
-		return stream.collect(Collectors.toCollection(() -> new LinkedHashSet<>()));
+		return stream.collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	/**
