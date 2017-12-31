@@ -32,7 +32,6 @@ import ceri.common.date.DateUtilTest;
 import ceri.common.date.ImmutableDateBehavior;
 import ceri.common.date.ImmutableTimeZoneBehavior;
 import ceri.common.date.MultiDateParserBehavior;
-import ceri.common.date.TimeUnitBehavior;
 import ceri.common.email.EmailUtilTest;
 import ceri.common.event.EventTrackerBehavior;
 import ceri.common.event.IntListenersBehavior;
@@ -121,8 +120,6 @@ import ceri.common.tree.TreeIteratorBehavior;
 import ceri.common.tree.TreeNodeBehavior;
 import ceri.common.tree.TreeNodeComparatorsTest;
 import ceri.common.tree.TreeUtilTest;
-import ceri.common.unit.InchUnitTest;
-import ceri.common.unit.NormalizedValueBehavior;
 import ceri.common.util.BasicUtilTest;
 import ceri.common.util.EqualsUtilTest;
 import ceri.common.util.HashCoderBehavior;
@@ -176,7 +173,6 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ImmutableDateBehavior.class,
 	ImmutableTimeZoneBehavior.class,
 	MultiDateParserBehavior.class,
-	TimeUnitBehavior.class,
 	// email
 	EmailUtilTest.class,
 	// event
@@ -277,9 +273,6 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	TreeNodeBehavior.class,
 	TreeNodeComparatorsTest.class,
 	TreeUtilTest.class,
-	// unit
-	InchUnitTest.class,
-	NormalizedValueBehavior.class,
 	// util
 	BasicUtilTest.class,
 	EqualsUtilTest.class,
