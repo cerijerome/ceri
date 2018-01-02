@@ -36,7 +36,7 @@ public class ClassGenerator {
 	private static final Pattern CLASS_REGEX =
 		Pattern.compile("^(?:public |class )*([\\w]+)((?:<.*>)?)[\\s{]*$");
 	private static final Pattern CLEAN_GENERICS_REGEX =
-		Pattern.compile("(<[^<>]+>|extends|super|(?<=\\w+)\\s\\w+)");
+		Pattern.compile("(<[^<>]+>|&|extends|super|(?<=\\w+)\\s+\\w+)");
 	private static final Pattern CLEAN_REGEX =
 		Pattern.compile("(public |protected |private |final |=.*|;)");
 	private static final Pattern PRIMITIVE_EQUALS_REGEX =
