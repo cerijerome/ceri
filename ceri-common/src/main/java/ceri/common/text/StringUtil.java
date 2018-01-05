@@ -124,6 +124,13 @@ public class StringUtil {
 	}
 	
 	/**
+	 * Calls String.replaceAll with well behaved \ and $ in the replacement string.
+	 */
+	public static String replaceAllQuoted(String s, String pattern, String replacement) {
+		return s.replaceAll(pattern, Matcher.quoteReplacement(replacement));
+	}
+	
+	/**
 	 * Replace all instances of the pattern using the replacer function.
 	 */
 	public static String replaceAll(String s, String pattern,
