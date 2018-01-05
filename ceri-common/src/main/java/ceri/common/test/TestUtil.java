@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.regex.Pattern;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsSame;
@@ -571,6 +572,13 @@ public class TestUtil {
 	 */
 	public static <T> Matcher<T> matchesRegex(String regex) {
 		return new RegexMatcher<>(regex);
+	}
+
+	/**
+	 * Convenience method for creating a regex matcher.
+	 */
+	public static <T> Matcher<T> matchesRegex(Pattern pattern) {
+		return new RegexMatcher<>(pattern);
 	}
 
 	/**

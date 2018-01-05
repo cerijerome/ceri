@@ -1,5 +1,6 @@
 package ceri.common.code;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,6 +37,10 @@ public class MapType {
 			if (ch == '>') openBrackets--;
 		}
 		return -1;
+	}
+
+	public Class<?> typeClass() {
+		return Map.class;
 	}
 
 }

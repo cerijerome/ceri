@@ -7,8 +7,12 @@ import org.hamcrest.Description;
 public class RegexMatcher<T> extends BaseMatcher<T> {
 	private final Pattern pattern;
 
+	public RegexMatcher(Pattern pattern) {
+		this.pattern = pattern;
+	}
+
 	public RegexMatcher(String regex) {
-		pattern = Pattern.compile(regex);
+		this(Pattern.compile(regex));
 	}
 
 	@Override

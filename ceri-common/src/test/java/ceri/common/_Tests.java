@@ -81,6 +81,7 @@ import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
 import ceri.common.math.AlgebraUtilTest;
 import ceri.common.math.MathUtilTest;
+import ceri.common.math.NumberPatternsBehavior;
 import ceri.common.math.ReverseFunctionBehavior;
 import ceri.common.math.TrigUtilTest;
 import ceri.common.property.BasePropertiesBehavior;
@@ -229,6 +230,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	// math
 	AlgebraUtilTest.class,
 	MathUtilTest.class,
+	NumberPatternsBehavior.class,
 	ReverseFunctionBehavior.class,
 	TrigUtilTest.class,
 	// property

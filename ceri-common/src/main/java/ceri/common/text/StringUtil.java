@@ -44,10 +44,10 @@ public class StringUtil {
 	private static final String ESCAPED_OCTAL = "\\0";
 	private static final String ESCAPED_HEX = "\\x";
 	private static final String ESCAPED_UTF16 = "\\u";
-	private static final Pattern ESCAPE_REGEX = Pattern
-		.compile("\\\\\\\\|\\\\b|\\\\e|\\\\t|\\\\f|\\\\r|\\\\n|"
-			+ "\\\\0[0-3][0-7]{2}|\\\\0[0-7]{2}|\\\\0[0-7]|\\\\0|"
-			+ "\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
+	private static final Pattern ESCAPE_REGEX =
+		Pattern.compile("\\\\\\\\|\\\\b|\\\\e|\\\\t|\\\\f|\\\\r|\\\\n|" +
+			"\\\\0[0-3][0-7]{2}|\\\\0[0-7]{2}|\\\\0[0-7]|\\\\0|" +
+			"\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
 	private static final String UTF8 = "UTF8";
 	private static final int HEX_RADIX = 16;
 	private static final int OCTAL_RADIX = 8;
@@ -66,15 +66,16 @@ public class StringUtil {
 
 	private StringUtil() {}
 
-	
 	public static DecimalFormat decimalFormat(int decimalPlaces) {
-		StringBuilder b = new StringBuilder("0.");
-		while (decimalPlaces-- > 0) b.append("#");
+		StringBuilder b = new StringBuilder("0");
+		if (decimalPlaces > 0) b.append(".");
+		while (decimalPlaces-- > 0)
+			b.append("#");
 		DecimalFormat format = new DecimalFormat(b.toString());
 		format.setRoundingMode(RoundingMode.HALF_UP);
 		return format;
 	}
-	
+
 	/**
 	 * Encodes escaped characters within the given string.
 	 */
@@ -115,11 +116,18 @@ public class StringUtil {
 		return (char) Integer.parseInt(escapedChar.substring(prefix.length()), radix);
 	}
 
+	public static String repeat(int n, String s) {
+		if (s == null) return null;
+		if (n == 0 || s.isEmpty()) return "";
+		if (n == 1) return s;
+		return IntStream.range(0, n).mapToObj(i -> s).collect(Collectors.joining());
+	}
+	
 	/**
 	 * Replace all instances of the pattern using the replacer function.
 	 */
-	public static String
-	replaceAll(String s, String pattern, Function<MatchResult, String> replacer) {
+	public static String replaceAll(String s, String pattern,
+		Function<MatchResult, String> replacer) {
 		return replaceAll(s, Pattern.compile(pattern), replacer);
 	}
 
@@ -169,8 +177,8 @@ public class StringUtil {
 	 */
 	public static String toHexArray(byte[] data) {
 		if (data.length == 0) return "[]";
-		return IntStream.range(0, data.length).mapToObj(i -> toHex(data[i])).collect(
-			Collectors.joining(", 0x", "[0x", "]"));
+		return IntStream.range(0, data.length).mapToObj(i -> toHex(data[i]))
+			.collect(Collectors.joining(", 0x", "[0x", "]"));
 	}
 
 	/**
@@ -178,8 +186,8 @@ public class StringUtil {
 	 */
 	public static String toHex(byte[] data) {
 		if (data.length == 0) return "";
-		return IntStream.range(0, data.length).mapToObj(i -> toHex(data[i])).collect(
-			Collectors.joining());
+		return IntStream.range(0, data.length).mapToObj(i -> toHex(data[i]))
+			.collect(Collectors.joining());
 	}
 
 	/**
@@ -410,19 +418,19 @@ public class StringUtil {
 		if (s == null) return null;
 		return s.toLowerCase();
 	}
-	
+
 	public static String toUpperCase(String s) {
 		if (s == null) return null;
 		return s.toUpperCase();
 	}
-	
+
 	public static boolean startsWithIgnoreCase(String lhs, String rhs) {
 		if (lhs == rhs) return true;
 		if (lhs == null || rhs == null) return false;
 		if (lhs.length() < rhs.length()) return false;
 		return lhs.substring(0, rhs.length()).toLowerCase().equals(rhs.toLowerCase());
 	}
-	
+
 	/**
 	 * Pads a number with leading zeros.
 	 */

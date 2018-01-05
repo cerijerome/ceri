@@ -225,6 +225,15 @@ public class ArrayUtil {
 	}
 
 	/**
+	 * Creates a non fixed-size list joining the given element and array.
+	 */
+	public static <T> List<T> asList(T t, T[] ts) {
+		List<T> list = new ArrayList<>();
+		list.add(t);
+		return CollectionUtil.addAll(list, ts);
+	}
+
+	/**
 	 * Returns true if the given object is an instance of an array. Returns false if the object is
 	 * null.
 	 */
