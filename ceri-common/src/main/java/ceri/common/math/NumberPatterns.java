@@ -11,15 +11,15 @@ public class NumberPatterns {
 	public static final NumberPatterns DEFAULT = new NumberPatterns();
 	private static final String decimal = "[.][0-9]+";
 	private final Pattern separator;
-	public final Parser integral;
-	public final Parser integralStrictSeparator;
-	public final Parser integralLooseSeparator;
-	public final Parser floatingPoint;
-	public final Parser floatingPointStrictSeparator;
-	public final Parser floatingPointLooseSeparator;
+	public final Parser integer;
+	public final Parser integerStrictSeparator;
+	public final Parser integerLooseSeparator;
+	public final Parser number;
+	public final Parser numberStrictSeparator;
+	public final Parser numberLooseSeparator;
 
 	public static class Parser {
-		public final Pattern pattern;
+		private final Pattern pattern;
 		private final Function<String, Double> parser;
 
 		Parser(Pattern pattern, Function<String, Double> parser) {
@@ -27,10 +27,14 @@ public class NumberPatterns {
 			this.parser = parser;
 		}
 
+		public Pattern pattern() {
+			return pattern;
+		}
+
 		public String format() {
 			return pattern.pattern();
 		}
-		
+
 		public Double parse(String number) {
 			return parser.apply(number);
 		}
@@ -38,24 +42,24 @@ public class NumberPatterns {
 
 	private NumberPatterns() {
 		separator = Pattern.compile("(?<=[0-9])[,](?=[0-9])");
-		integral = parser("[0-9]+");
-		integralStrictSeparator = parser("[0-9]{1,3}(?:[,][0-9]{3})*");
-		integralLooseSeparator = parser("[0-9]+(?:[,][0-9]+)*");
-		floatingPoint = floatParser(integral);
-		floatingPointStrictSeparator = floatParser(integralStrictSeparator);
-		floatingPointLooseSeparator = floatParser(integralLooseSeparator);
+		integer = parser("[0-9]+");
+		integerStrictSeparator = parser("[0-9]{1,3}(?:[,][0-9]{3})*");
+		integerLooseSeparator = parser("[0-9]+(?:[,][0-9]+)*");
+		number = floatParser(integer);
+		numberStrictSeparator = floatParser(integerStrictSeparator);
+		numberLooseSeparator = floatParser(integerLooseSeparator);
 	}
 
 	private Parser parser(String pattern) {
 		Pattern p = Pattern.compile(pattern);
 		return new Parser(p, s -> parseNumber(p, s));
 	}
-	
+
 	private Parser floatParser(Parser parser) {
-		Pattern p = floatingPoint(parser.pattern);
+		Pattern p = floatingPoint(parser.pattern());
 		return new Parser(p, s -> parseNumber(p, s));
 	}
-	
+
 	/**
 	 * Removes separators loosely from integral values.
 	 */

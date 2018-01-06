@@ -9,6 +9,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.HAlign;
+import ceri.common.util.PrimitiveUtil;
 
 /**
  * String-based utilities. See also TextUtil for more word-based formatting utilities.
@@ -153,6 +155,28 @@ public class StringUtil {
 		return output.toString();
 	}
 
+	/**
+	 * Splits a string at given indexes.
+	 */
+	public static List<String> split(String s, Collection<Integer> indexes) {
+		return split(s, PrimitiveUtil.toIntArray(indexes));
+	}
+	
+	/**
+	 * Splits a string at given indexes.
+	 */
+	public static List<String> split(String s, int...indexes) {
+		List<String> list = new ArrayList<>(indexes.length);
+		int last = 0;
+		for (int i : indexes) {
+			if (i >= s.length()) i = s.length();
+			list.add(s.substring(last, i));
+			last = i;
+		}
+		list.add(s.substring(last));
+		return list;
+	}
+		
 	/**
 	 * Compact floating point representation - trailing .0 is removed if present.
 	 */

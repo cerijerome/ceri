@@ -12,22 +12,54 @@ import ceri.common.factory.Factory;
 import ceri.common.factory.StringFactories;
 
 public class RegexUtil {
-	private static final Factory<List<Boolean>, Iterable<String>> BOOLEAN_LIST_FACTORY = Factories
-		.list(StringFactories.TO_BOOLEAN);
-	private static final Factory<List<Byte>, Iterable<String>> BYTE_LIST_FACTORY = Factories
-		.list(StringFactories.TO_BYTE);
-	private static final Factory<List<Short>, Iterable<String>> SHORT_LIST_FACTORY = Factories
-		.list(StringFactories.TO_SHORT);
-	private static final Factory<List<Integer>, Iterable<String>> INT_LIST_FACTORY = Factories
-		.list(StringFactories.TO_INTEGER);
-	private static final Factory<List<Long>, Iterable<String>> LONG_LIST_FACTORY = Factories
-		.list(StringFactories.TO_LONG);
-	private static final Factory<List<Float>, Iterable<String>> FLOAT_LIST_FACTORY = Factories
-		.list(StringFactories.TO_FLOAT);
-	private static final Factory<List<Double>, Iterable<String>> DOUBLE_LIST_FACTORY = Factories
-		.list(StringFactories.TO_DOUBLE);
+	private static final Factory<List<Boolean>, Iterable<String>> BOOLEAN_LIST_FACTORY =
+		Factories.list(StringFactories.TO_BOOLEAN);
+	private static final Factory<List<Byte>, Iterable<String>> BYTE_LIST_FACTORY =
+		Factories.list(StringFactories.TO_BYTE);
+	private static final Factory<List<Short>, Iterable<String>> SHORT_LIST_FACTORY =
+		Factories.list(StringFactories.TO_SHORT);
+	private static final Factory<List<Integer>, Iterable<String>> INT_LIST_FACTORY =
+		Factories.list(StringFactories.TO_INTEGER);
+	private static final Factory<List<Long>, Iterable<String>> LONG_LIST_FACTORY =
+		Factories.list(StringFactories.TO_LONG);
+	private static final Factory<List<Float>, Iterable<String>> FLOAT_LIST_FACTORY =
+		Factories.list(StringFactories.TO_FLOAT);
+	private static final Factory<List<Double>, Iterable<String>> DOUBLE_LIST_FACTORY =
+		Factories.list(StringFactories.TO_DOUBLE);
 
 	private RegexUtil() {}
+
+	/**
+	 * Splits a string by splitting before each instance of the pattern.
+	 */
+	public static List<String> splitBefore(Pattern pattern, String s) {
+		Matcher m = pattern.matcher(s);
+		List<String> list = new ArrayList<>();
+		int last = 0;
+		while (m.find()) {
+			if (m.start() == 0) continue;
+			list.add(s.substring(last, m.start()));
+			last = m.start();
+		}
+		list.add(s.substring(last));
+		return list;
+	}
+
+	/**
+	 * Splits a string by splitting before each instance of the pattern.
+	 */
+	public static List<String> splitAfter(Pattern pattern, String s) {
+		Matcher m = pattern.matcher(s);
+		List<String> list = new ArrayList<>();
+		int last = 0;
+		while (m.find()) {
+			if (m.end() == s.length()) break;
+			list.add(s.substring(last, m.end()));
+			last = m.end();
+		}
+		list.add(s.substring(last));
+		return list;
+	}
 
 	/**
 	 * Returns named group or null.
@@ -39,7 +71,7 @@ public class RegexUtil {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Returns the groups of the given matcher as a list.
 	 */

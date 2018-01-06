@@ -1,15 +1,14 @@
 package ceri.common.text;
 
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import java.util.regex.Pattern;
 import org.junit.Test;
-import ceri.common.text.RegexUtil;
 
 public class RegexUtilTest {
 	private static final Pattern LSTRING_PATTERN = Pattern.compile("([a-z]+)");
@@ -20,6 +19,22 @@ public class RegexUtilTest {
 	@Test
 	public void testPrivateConstructor() {
 		assertPrivateConstructor(RegexUtil.class);
+	}
+
+	@Test
+	public void testSplitBefore() {
+		assertIterable(RegexUtil.splitBefore(INT_PATTERN, "123abcA1B2C3"), //
+			"123abcA", "1B", "2C", "3");
+		assertIterable(RegexUtil.splitBefore(Pattern.compile("(?=\\d++)"), "123abcA1B2C3"), //
+			"1", "2", "3abcA", "1B", "2C", "3");
+	}
+
+	@Test
+	public void testSplitAfter() {
+		assertIterable(RegexUtil.splitAfter(INT_PATTERN, "123abcA1B2C3"), //
+			"123", "abcA1", "B2", "C3");
+		assertIterable(RegexUtil.splitAfter(Pattern.compile("(?=\\d++)"), "123abcA1B2C3"), //
+			"", "1", "2", "3abcA", "1B", "2C", "3");
 	}
 
 	@Test
@@ -92,8 +107,8 @@ public class RegexUtilTest {
 	public void testFindAllBooleans() {
 		assertCollection(RegexUtil.findAllBooleans(LSTRING_PATTERN, "abcDEFtrue123TRUE456True"),
 			false, true, false);
-		assertCollection(RegexUtil.findAllBooleans(LSTRING_PATTERN, "abc123DEF456ghi789JKL"),
-			false, false);
+		assertCollection(RegexUtil.findAllBooleans(LSTRING_PATTERN, "abc123DEF456ghi789JKL"), false,
+			false);
 	}
 
 	@Test
@@ -105,14 +120,15 @@ public class RegexUtilTest {
 
 	@Test
 	public void testFindAllShorts() {
-		assertCollection(RegexUtil.findAllShorts(INT_PATTERN, "abc123DEF456ghi789JKL"),
-			(short) 123, (short) 456, (short) 789);
+		assertCollection(RegexUtil.findAllShorts(INT_PATTERN, "abc123DEF456ghi789JKL"), (short) 123,
+			(short) 456, (short) 789);
 		assertException(() -> RegexUtil.findAllShorts(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindAllInts() {
-		assertCollection(RegexUtil.findAllInts(INT_PATTERN, "abc123DEF456ghi789JKL"), 123, 456, 789);
+		assertCollection(RegexUtil.findAllInts(INT_PATTERN, "abc123DEF456ghi789JKL"), 123, 456,
+			789);
 		assertException(() -> RegexUtil.findAllInts(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
