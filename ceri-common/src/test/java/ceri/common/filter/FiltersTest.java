@@ -49,8 +49,15 @@ public class FiltersTest {
 	}
 
 	@Test
+	public void testNull() {
+		assertTrue(Filters._null().filter(null));
+		assertFalse(Filters._null().filter(""));
+	}
+
+	@Test
 	public void testEqIgnoreCase() {
 		assertTrue(Filters.eqIgnoreCase(null).filter(null));
+		assertFalse(Filters.eqIgnoreCase("").filter(null));
 		assertFalse(Filters.eqIgnoreCase(null).filter(""));
 		Filter<String> filter = Filters.eqIgnoreCase("aBc");
 		assertTrue(filter.filter("aBc"));

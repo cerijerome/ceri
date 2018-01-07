@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE test SYSTEM "test.dtd">
+<test>
+    <title>Title</title>
+    <content>Content</content>
+</test>

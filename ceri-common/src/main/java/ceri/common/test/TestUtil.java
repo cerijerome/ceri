@@ -49,7 +49,8 @@ public class TestUtil {
 	public static void assertPrivateConstructor(Class<?> cls) {
 		try {
 			Constructor<?> constructor = cls.getDeclaredConstructor();
-			assertTrue("Constructor is not private", Modifier.isPrivate(constructor.getModifiers()));
+			assertTrue("Constructor is not private",
+				Modifier.isPrivate(constructor.getModifiers()));
 			constructor.setAccessible(true);
 			constructor.newInstance();
 			constructor.setAccessible(false);
@@ -454,8 +455,8 @@ public class TestUtil {
 	/**
 	 * Checks two collections have equal elements, with specific failure information if not.
 	 */
-	public static <T> void
-	assertCollection(Collection<? extends T> lhs, Collection<? extends T> rhs) {
+	public static <T> void assertCollection(Collection<? extends T> lhs,
+		Collection<? extends T> rhs) {
 		int i = 0;
 		for (T t : lhs) {
 			assertTrue("Unexpected element at position " + i + ": " + t, rhs.contains(t));
@@ -501,7 +502,8 @@ public class TestUtil {
 	}
 
 	private static <T> void assertIndex(T lhs, T rhs, int index) {
-		assertThat("Expected " + rhs + " but value at index " + index + " was " + lhs, lhs, is(rhs));
+		assertThat("Expected " + rhs + " but value at index " + index + " was " + lhs, lhs,
+			is(rhs));
 	}
 
 	/**
@@ -520,11 +522,11 @@ public class TestUtil {
 			runnable.run();
 		} catch (Throwable e) {
 			if (exceptionCls.isAssignableFrom(e.getClass())) return;
-			throw new AssertionError("Should throw " + exceptionCls.getSimpleName() +
-				" but threw " + e);
+			throw new AssertionError(
+				"Should throw " + exceptionCls.getSimpleName() + " but threw " + e);
 		}
-		throw new AssertionError("Should throw " + exceptionCls.getSimpleName() +
-			" but nothing thrown");
+		throw new AssertionError(
+			"Should throw " + exceptionCls.getSimpleName() + " but nothing thrown");
 	}
 
 	/**
@@ -557,9 +559,10 @@ public class TestUtil {
 				int lhsCount = IoUtil.fillBuffer(lhsIn, lhsBuffer);
 				int rhsCount = IoUtil.fillBuffer(rhsIn, rhsBuffer);
 				if (lhsCount == 0 && rhsCount == 0) break;
-				assertThat("Expected read count " + (totalCount + rhsCount) + " for file " +
-					lhsFile + " but was " + (totalCount + lhsCount), totalCount + lhsCount,
-					is(totalCount + rhsCount));
+				assertThat(
+					"Expected read count " + (totalCount + rhsCount) + " for file " + lhsFile +
+						" but was " + (totalCount + lhsCount),
+					totalCount + lhsCount, is(totalCount + rhsCount));
 				for (int i = 0; i < lhsCount; i++)
 					assertIndex(lhsBuffer[i], rhsBuffer[i], (totalCount + i));
 				totalCount += lhsCount;
@@ -680,7 +683,7 @@ public class TestUtil {
 		}
 		for (int i = 0; i < b.length(); i++) {
 			if (!StringUtil.printable(b.charAt(i))) b.setCharAt(i, unreadableChar);
-			//if (b.charAt(i) < ' ') b.setCharAt(i, readableChar);
+			// if (b.charAt(i) < ' ') b.setCharAt(i, readableChar);
 		}
 		return b.toString();
 	}

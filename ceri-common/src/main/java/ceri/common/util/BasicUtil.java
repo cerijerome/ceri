@@ -67,7 +67,7 @@ public class BasicUtil {
 	public static <T extends Enum<T>> T valueOf(Class<T> cls, String value) {
 		return valueOf(cls, value, null);
 	}
-	
+
 	/**
 	 * Convenience method that calls Enum.valueOf and returns default value if no match.
 	 */
@@ -86,12 +86,20 @@ public class BasicUtil {
 	public static <T extends Enum<T>> List<T> enums(Class<T> cls) {
 		return Arrays.asList(cls.getEnumConstants());
 	}
-	
+
 	/**
 	 * Makes an iterator compatible with a for-each loop.
 	 */
 	public static <T> Iterable<T> forEach(final Iterator<T> iterator) {
 		return () -> iterator;
+	}
+
+	/**
+	 * Throws the exception if it is assignable to given type.
+	 */
+	public static <E extends Exception> void throwIfType(Class<E> exceptionCls, Throwable t)
+		throws E {
+		if (exceptionCls.isInstance(t)) throw BasicUtil.<E>uncheckedCast(t);
 	}
 
 	/**

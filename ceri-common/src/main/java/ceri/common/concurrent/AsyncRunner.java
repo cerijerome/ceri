@@ -1,5 +1,6 @@
 package ceri.common.concurrent;
 
+import ceri.common.function.ExceptionRunnable;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -11,7 +12,21 @@ public abstract class AsyncRunner<T extends Exception> {
 	private final Class<T> errorClass;
 	Exception error = null;
 
-	public AsyncRunner(Class<T> errorClass) {
+	public static AsyncRunner<RuntimeException> create(ExceptionRunnable<?> runnable) {
+		return create(RuntimeException.class, runnable);
+	}
+	
+	public static <T extends Exception> AsyncRunner<T> create(Class<T> errorClass,
+		ExceptionRunnable<?> runnable) {
+		return new AsyncRunner<T>(errorClass) {
+			@Override
+			protected void run() throws Exception {
+				runnable.run();
+			}
+		};
+	}
+	
+	AsyncRunner(Class<T> errorClass) {
 		this.errorClass = errorClass;
 		thread = new Thread(() -> {
 			try {
@@ -22,12 +37,14 @@ public abstract class AsyncRunner<T extends Exception> {
 		});
 	}
 
-	public void start() {
+	public AsyncRunner<T> start() {
 		thread.start();
+		return this;
 	}
 
-	public void interrupt() {
+	public AsyncRunner<T> interrupt() {
 		thread.interrupt();
+		return this;
 	}
 
 	public void join(long ms) throws T {
@@ -39,8 +56,8 @@ public abstract class AsyncRunner<T extends Exception> {
 			thread.interrupt(); // does nothing if thread is complete
 		}
 		if (error != null) {
-			if (errorClass.isInstance(error)) throw BasicUtil.<T>uncheckedCast(error);
-			if (error instanceof RuntimeException) throw (RuntimeException) error;
+			BasicUtil.throwIfType(errorClass, error);
+			BasicUtil.throwIfType(RuntimeException.class, error);
 			throw new RuntimeException(error);
 		}
 	}

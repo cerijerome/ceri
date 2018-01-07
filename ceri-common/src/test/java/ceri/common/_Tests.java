@@ -42,6 +42,7 @@ import ceri.common.factory.FactoryExceptionBehavior;
 import ceri.common.factory.NumberFactoriesTest;
 import ceri.common.factory.StringFactoriesTest;
 import ceri.common.filter.CollectionFiltersTest;
+import ceri.common.filter.EnumFiltersTest;
 import ceri.common.filter.FiltersTest;
 import ceri.common.geom.Circle2dBehavior;
 import ceri.common.geom.ConcaveSpheroidBehavior;
@@ -133,6 +134,7 @@ import ceri.common.util.PrimitiveUtilTest;
 import ceri.common.validation.ValidationUtilTest;
 import ceri.common.xml.RuntimeXPathExceptionBehavior;
 import ceri.common.xml.XPathUtilTest;
+import ceri.common.xml.XmlUtilTest;
 import ceri.common.zip.ZipUtilTest;
 import ceri.common.zip.ZippingInputStreamBehavior;
 
@@ -188,6 +190,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	StringFactoriesTest.class,
 	// filter
 	CollectionFiltersTest.class,
+	EnumFiltersTest.class,
 	FiltersTest.class,
 	// geom
 	Circle2dBehavior.class,
@@ -289,6 +292,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ValidationUtilTest.class,
 	// xml
 	RuntimeXPathExceptionBehavior.class,
+	XmlUtilTest.class,
 	XPathUtilTest.class,
 	// zip
 	ZippingInputStreamBehavior.class,

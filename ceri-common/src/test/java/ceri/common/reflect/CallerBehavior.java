@@ -1,5 +1,6 @@
 package ceri.common.reflect;
 
+import static ceri.common.test.TestUtil.assertException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -7,6 +8,11 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class CallerBehavior {
+
+	@Test
+	public void shouldSupportNull() {
+		assertException(() -> Caller.NULL.cls());
+	}
 
 	@Test
 	public void shouldConformToEqualsContract() {

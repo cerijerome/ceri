@@ -5,16 +5,64 @@ import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.junit.Test;
+import ceri.common.util.BasicUtil;
 
 public class ConcurrentUtilTest {
+	private final ExecutorService exec = Executors.newSingleThreadExecutor();
 
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ConcurrentUtil.class);
+	}
+
+	@Test
+	public void testExecuteAndWait() throws IOException {
+		BooleanCondition signal = BooleanCondition.create();
+		ConcurrentUtil.executeAndWait(exec, signal::signal, IOException::new);
+		assertTrue(signal.isSet());
+		signal.clear();
+		ConcurrentUtil.executeAndWait(exec, signal::signal, IOException::new, 10000);
+		assertTrue(signal.isSet());
+	}
+
+	@Test
+	public void testExecuteAndWaitThrowExceptionsOfGivenType() {
+		assertException(IOException.class, () -> ConcurrentUtil.executeAndWait(exec, () -> {
+			throw new ParseException("hello", 0);
+		}, IOException::new));
+		assertException(IOException.class, () -> ConcurrentUtil.executeAndWait(exec, () -> {
+			throw new ParseException("hello", 0);
+		}, IOException::new, 10000));
+	}
+
+	@Test
+	public void testExecuteAndWaitTimeoutException() {
+		assertException(IOException.class, () -> ConcurrentUtil.executeAndWait(exec, //
+			() -> Thread.sleep(1000), IOException::new, 1));
+	}
+
+	@Test
+	public void testExecuteAndWaitInterruptions() throws Exception {
+		AsyncRunner<?> runner1 = AsyncRunner.create(() -> ConcurrentUtil.executeAndWait(exec,
+			() -> BasicUtil.delay(100000), IOException::new, 10000)).start();
+		AsyncRunner<?> runner2 = AsyncRunner.create(
+			() -> ConcurrentUtil.executeAndWait(exec, () -> runner1.join(100000), IOException::new))
+			.start();
+		AsyncRunner<?> runner3 = AsyncRunner.create(() -> {
+			runner1.interrupt();
+			runner2.interrupt();
+		}).start();
+		runner3.join(10000);
+		assertException(() -> runner2.join(10000));
+		assertException(() -> runner1.join(10000));
 	}
 
 	@Test
@@ -65,8 +113,8 @@ public class ConcurrentUtilTest {
 	public void testCheckRuntimeInterrupted() {
 		ConcurrentUtil.checkRuntimeInterrupted();
 		Thread.currentThread().interrupt();
-		assertException(RuntimeInterruptedException.class, () -> ConcurrentUtil
-			.checkRuntimeInterrupted());
+		assertException(RuntimeInterruptedException.class,
+			() -> ConcurrentUtil.checkRuntimeInterrupted());
 	}
 
 }

@@ -5,6 +5,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 public class Listeners<T> implements Consumer<T>, Listenable<T> {
+	// No ConcurrentLinkedHashSet: need to choose if single unordered entries (set),
+	// or multiple ordered entries (list) are preferred to store listeners.
 	private final Collection<Consumer<? super T>> listeners = new ConcurrentLinkedQueue<>();
 
 	public int size() {

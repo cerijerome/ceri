@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
+import ceri.common.collection.ArrayUtil;
 
 public class CollectionFiltersTest {
 
@@ -16,6 +17,15 @@ public class CollectionFiltersTest {
 		assertPrivateConstructor(CollectionFilters.class);
 	}
 
+	@Test
+	public void testNotEmptyArray() {
+		assertFalse(CollectionFilters.notEmptyArray().filter(ArrayUtil.EMPTY_STRING));
+		assertTrue(CollectionFilters.notEmptyArray().filter(new Integer[] { 0 }));
+		Filter<String[]> filter = CollectionFilters.notEmptyArray();
+		String[] array = { "aaa", "bb", "c" };
+		assertTrue(filter.filter(array));
+	}
+	
 	@Test
 	public void testNotEmpty() {
 		assertFalse(CollectionFilters.notEmpty().filter(Collections.emptySet()));

@@ -15,9 +15,11 @@ public class ListenersBehavior {
 		Consumer<String> l0 = s -> b.append(s.charAt(0));
 		Consumer<String> l1 = s -> b.append(s.charAt(1));
 		Listeners<String> ls = new Listeners<>();
+		assertTrue(ls.isEmpty());
 		ls.listen(l0);
 		ls.listen(l0);
 		ls.listen(l1);
+		assertThat(ls.size(), is(3)); // listeners stored in list, not set
 		ls.accept("ab");
 		assertThat(b.toString(), is("aab"));
 		ls.unlisten(l0);

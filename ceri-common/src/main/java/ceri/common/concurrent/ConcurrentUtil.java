@@ -16,12 +16,12 @@ public class ConcurrentUtil {
 	private ConcurrentUtil() {}
 
 	public static <E extends Exception> void executeAndWait(ExecutorService executor,
-		ExceptionRunnable<E> runnable, Function<Throwable, E> exceptionConstructor) throws E {
+		ExceptionRunnable<?> runnable, Function<Throwable, E> exceptionConstructor) throws E {
 		get(submit(executor, runnable), exceptionConstructor);
 	}
 
 	public static <E extends Exception> void executeAndWait(ExecutorService executor,
-		ExceptionRunnable<E> runnable, Function<Throwable, E> exceptionConstructor, int timeoutMs)
+		ExceptionRunnable<?> runnable, Function<Throwable, E> exceptionConstructor, int timeoutMs)
 			throws E {
 		get(submit(executor, runnable), exceptionConstructor, timeoutMs);
 	}
