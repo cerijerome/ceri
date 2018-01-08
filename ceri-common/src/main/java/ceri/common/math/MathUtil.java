@@ -1,5 +1,6 @@
 package ceri.common.math;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.stream.DoubleStream;
 
@@ -13,6 +14,13 @@ public class MathUtil {
 
 	private MathUtil() {}
 
+	/**
+	 * Calculates the greatest common divisor of two numbers.
+	 */
+	public static long gcd(long lhs, long rhs) {
+		return BigInteger.valueOf(lhs).gcd(BigInteger.valueOf(rhs)).longValueExact();
+	}
+	
 	/**
 	 * Generates a pseudo-random number from min to max inclusive.
 	 */

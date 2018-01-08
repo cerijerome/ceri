@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
+import java.util.function.Function;
+import ceri.common.function.FunctionUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -24,12 +26,21 @@ public class Comparators {
 	public static final Comparator<String> STRING = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Date> DATE = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Locale> LOCALE = string();
-	private static final Comparator<?> STRING_VALUE = nonNull((lhs, rhs) -> STRING.compare(String
-		.valueOf(lhs), String.valueOf(rhs)));
+	private static final Comparator<?> STRING_VALUE =
+		nonNull((lhs, rhs) -> STRING.compare(String.valueOf(lhs), String.valueOf(rhs)));
 	private static final Comparator<?> NULL = ((lhs, rhs) -> 0);
 	private static final Comparator<?> NON_NULL = nonNull((lhs, rhs) -> 0);
 
 	private Comparators() {}
+
+	/**
+	 * Transforms a comparator of one type to another using an accessor.
+	 */
+	public static <T, R> Comparator<T> transform(Comparator<? super R> comparator,
+		Function<T, R> accessor) {
+		Function<T, R> safe = FunctionUtil.safe(accessor);
+		return (lhs, rhs) -> comparator.compare(safe.apply(lhs), safe.apply(rhs));
+	}
 
 	/**
 	 * Wraps a comparator, where null values are considered inferior to non-null values.
@@ -85,7 +96,7 @@ public class Comparators {
 	 * Create a comparator the checks comparators in sequence.
 	 */
 	public static <T> Comparator<T>
-	sequence(Collection<? extends Comparator<? super T>> comparators) {
+		sequence(Collection<? extends Comparator<? super T>> comparators) {
 		return ComparatorSequence.<T>builder().add(comparators).build();
 	}
 

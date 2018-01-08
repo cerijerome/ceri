@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import ceri.common.function.FunctionUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -19,6 +21,14 @@ public class Filters {
 
 	private Filters() {}
 
+	/**
+	 * Transforms a filter of one type to another using an accessor.
+	 */
+	public static <T, R> Filter<T> transform(Filter<R> filter, Function<T, R> accessor) {
+		Function<T, R> safe = FunctionUtil.safe(accessor);
+		return t -> filter.filter(safe.apply(t));
+	}
+	
 	/**
 	 * Applies a filter to a collection, removing items that do not match.
 	 */

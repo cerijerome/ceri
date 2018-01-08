@@ -10,6 +10,13 @@ public class FunctionUtil {
 	private FunctionUtil() {}
 
 	/**
+	 * Wraps a function that passes through null values.
+	 */
+	public static <T, R> Function<T, R> safe(Function<T, R> function) {
+		return t -> t == null ? null : function.apply(t);
+	}
+	
+	/**
 	 * Execute the function until no change, or the maximum number of recursions is met.
 	 */
 	public static <T> T recurse(T t, Function<T, T> fn) {

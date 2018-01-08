@@ -12,6 +12,7 @@ import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.comparator.Comparators;
 
@@ -22,10 +23,18 @@ public class StreamUtil {
 
 	private StreamUtil() {}
 
+	public static String toString(IntStream codePointStream) {
+		return codePointStream.collect(StringBuilder::new, StringBuilder::appendCodePoint, //
+			StringBuilder::append).toString();
+	}
+
+	/**
+	 * Collects a stream of int code points into a string.
+	 */
 	public static <K, V, T> Stream<T> map(Map<K, V> map, BiFunction<K, V, T> keyValueFn) {
 		return map.entrySet().stream().map(e -> keyValueFn.apply(e.getKey(), e.getValue()));
 	}
-	
+
 	/**
 	 * Returns the first entry in the stream, or null if empty.
 	 */

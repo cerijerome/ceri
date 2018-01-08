@@ -16,7 +16,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.function.FunctionUtil;
-import ceri.common.text.StringUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.EqualsUtil;
@@ -44,7 +43,7 @@ public class ClassGenerator {
 	private static final Pattern CLEAN_GENERICS_REGEX =
 		Pattern.compile("(<[^<>]+>|&|extends|super|(?<=\\w+)\\s+\\w+)");
 	private static final Pattern CLEAN_REGEX =
-		Pattern.compile("(import .*| public |protected |private |final |=.*|;)");
+		Pattern.compile("(import .*|public |protected |private |final |=.*|;)");
 	private static final Pattern PRIMITIVE_EQUALS_REGEX =
 		Pattern.compile("^(boolean|char|byte|short|int|long)$");
 	private static final Pattern FIELD_REGEX = Pattern.compile("^(.*)\\s+([\\w]+)$");
@@ -155,7 +154,11 @@ public class ClassGenerator {
 			generateBuilderMethod(con);
 			con.println();
 			generateConstructorWithBuilder(con);
-		} else generateConstructor(con);
+		} else {
+			generateOf(con);
+			con.println();
+			generateConstructor(con);
+		}
 		con.println();
 		generateHashCode(con);
 		con.println();
@@ -172,15 +175,21 @@ public class ClassGenerator {
 	}
 
 	private void generateBuilderMethod(Context con) {
-		String classGenerics = this.classGenerics.isEmpty() ? "" : this.classGenerics + " ";
-		con.printf("\tpublic static %sBuilder%s builder() {%n", classGenerics, simpleGenerics);
+		con.printf("\tpublic static %sBuilder%s builder() {%n", staticGenerics(), simpleGenerics);
 		con.printf("\t\treturn new Builder%s();%n", emptyGenerics());
 		con.println("\t}");
 	}
 
+	private void generateOf(Context con) {
+		con.printf("\tpublic static %s%s of(%s) {%n", staticGenerics(), className,
+			String.join(", ", toArguments(fields)));
+		con.printf("\t\treturn new %s%s(%s);%n", className, emptyGenerics(),
+			String.join(", ", fields.keySet()));
+		con.println("\t}");
+	}
+
 	private void generateConstructor(Context con) {
-		List<String> arguments = toArguments(fields);
-		con.print(StringUtil.toString("\tpublic " + className + "(", ") {\n", ", ", arguments));
+		con.printf("\tprivate %s(%s) {%n", className, String.join(", ", toArguments(fields)));
 		for (Map.Entry<String, String> entry : fields.entrySet())
 			generateConstructorAssignment(con, AssignmentPrefix.CONSTRUCTOR, entry.getKey(),
 				entry.getValue());
@@ -256,7 +265,7 @@ public class ClassGenerator {
 	private void generateHashCode(Context con) {
 		con.println("\t@Override");
 		con.println("\tpublic int hashCode() {");
-		con.println(StringUtil.toString("\t\treturn HashCoder.hash(", ");", ", ", fields.keySet()));
+		con.printf("\t\treturn HashCoder.hash(%s);%n", String.join(", ", fields.keySet()));
 		con.println("\t}");
 		con.imports(HashCoder.class);
 	}
@@ -369,6 +378,10 @@ public class ClassGenerator {
 		con.printf("\t\tpublic %s%s build() {%n", className, simpleGenerics);
 		con.printf("\t\t\treturn new %s%s(this);%n", className, emptyGenerics());
 		con.println("\t\t}");
+	}
+
+	private String staticGenerics() {
+		return classGenerics.isEmpty() ? "" : classGenerics + " ";
 	}
 
 	private String emptyGenerics() {
