@@ -1,9 +1,10 @@
 package ceri.common.test;
 
-
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import ceri.common.data.ByteUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.HAlign;
@@ -97,9 +98,9 @@ public class BinaryPrinter {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this,
+		return ToStringHelper.createByClass(this, //
 			out == null ? null : out.getClass().getSimpleName(), bytesPerColumn, columns,
-				showBinary, showHex, showChar).toString();
+			showBinary, showHex, showChar).toString();
 	}
 
 	/**
@@ -107,6 +108,15 @@ public class BinaryPrinter {
 	 */
 	public BinaryPrinter() {
 		this(new Builder());
+	}
+
+	/**
+	 * Print string as unicode code points.
+	 */
+	public void print(String s) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		s.codePoints().forEach(cp -> ByteUtil.writeTo(out, ByteUtil.toBigEndian((short) cp)));
+		print(out.toByteArray());
 	}
 
 	/**
@@ -172,8 +182,7 @@ public class BinaryPrinter {
 	}
 
 	private void appendByte(StringBuilder binB, StringBuilder hexB, StringBuilder charB, int b) {
-		String s =
-			StringUtil.pad(Integer.toBinaryString(b), BITS_IN_BYTE, "0", HAlign.right);
+		String s = StringUtil.pad(Integer.toBinaryString(b), BITS_IN_BYTE, "0", HAlign.right);
 		binB.append(s);
 		s = Integer.toHexString(b).toUpperCase();
 		if (s.length() == 1) hexB.append('0');
@@ -188,8 +197,8 @@ public class BinaryPrinter {
 		charB.setLength(0);
 	}
 
-	private void
-	appendMissingItemSpace(StringBuilder binB, StringBuilder hexB, StringBuilder charB) {
+	private void appendMissingItemSpace(StringBuilder binB, StringBuilder hexB,
+		StringBuilder charB) {
 		binB.append("        ");
 		hexB.append("  ");
 		charB.append(' ');

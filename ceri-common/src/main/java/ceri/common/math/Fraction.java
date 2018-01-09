@@ -12,6 +12,10 @@ public class Fraction {
 		return new Fraction(numerator, denominator);
 	}
 
+	private static Fraction of(BigInteger numerator, BigInteger denominator) {
+		return of(numerator.longValueExact(), denominator.longValueExact());
+	}
+	
 	private Fraction(long numerator, long denominator) {
 		this.numerator = numerator;
 		this.denominator = denominator;
@@ -36,8 +40,8 @@ public class Fraction {
 		BigInteger numerator = multiply(this.numerator, fraction.denominator)
 			.add(multiply(fraction.numerator, this.denominator));
 		BigInteger denominator = multiply(this.denominator, fraction.denominator);
-		BigInteger gcd = numerator.gcd(denominator);
-		return of(numerator.divide(gcd), denominator.divide(gcd));
+		Fraction reduced = reduced(numerator, denominator);
+		return reduced == null ? of(numerator, denominator) : reduced;
 	}
 
 	public Fraction multiply(Fraction fraction) {
@@ -45,7 +49,26 @@ public class Fraction {
 		if (fraction.numerator == 1 && fraction.denominator == 1) return this;
 		BigInteger numerator = multiply(this.numerator, fraction.numerator);
 		BigInteger denominator = multiply(this.denominator, fraction.denominator);
+		Fraction reduced = reduced(numerator, denominator);
+		return reduced == null ? of(numerator, denominator) : reduced;
+	}
+
+	public Fraction reduce() {
+		if (isWhole()) return of(numerator / denominator, 1);
+		BigInteger numerator = BigInteger.valueOf(this.numerator);
+		BigInteger denominator = BigInteger.valueOf(this.denominator);
+		Fraction reduced = reduced(numerator, denominator);
+		return reduced == null ? this : reduced;
+	}
+
+	private Fraction reduced(BigInteger numerator, BigInteger denominator) {
 		BigInteger gcd = numerator.gcd(denominator);
+		int signum = denominator.signum();
+		if (gcd.longValueExact() == 1 && signum != -1) return null;
+		if (signum == -1) {
+			numerator = numerator.negate();
+			denominator = denominator.negate();
+		}
 		return of(numerator.divide(gcd), denominator.divide(gcd));
 	}
 
@@ -81,15 +104,6 @@ public class Fraction {
 		return of(numerator - (whole() * denominator), denominator);
 	}
 
-	public Fraction reduce() {
-		if (isWhole()) return of(numerator / denominator, 1);
-		BigInteger numerator = BigInteger.valueOf(this.numerator);
-		BigInteger denominator = BigInteger.valueOf(this.denominator);
-		BigInteger gcd = numerator.gcd(denominator);
-		if (gcd.longValueExact() == 1) return this;
-		return of(numerator.divide(gcd).longValueExact(), denominator.divide(gcd).longValueExact());
-	}
-
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(numerator, denominator);
@@ -112,10 +126,6 @@ public class Fraction {
 
 	private static BigInteger multiply(long lhs, long rhs) {
 		return BigInteger.valueOf(lhs).multiply(BigInteger.valueOf(rhs));
-	}
-
-	private static Fraction of(BigInteger numerator, BigInteger denominator) {
-		return of(numerator.longValueExact(), denominator.longValueExact());
 	}
 
 }

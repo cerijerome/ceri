@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import ceri.common.collection.StreamUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.HAlign;
 import ceri.common.util.PrimitiveUtil;
@@ -78,6 +79,13 @@ public class StringUtil {
 		return format;
 	}
 
+	/**
+	 * Creates a string from code points.
+	 */
+	public static String toString(int...codePoints) {
+		return StreamUtil.toString(IntStream.of(codePoints));
+	}
+	
 	/**
 	 * Encodes escaped characters within the given string.
 	 */

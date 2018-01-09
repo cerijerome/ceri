@@ -3,6 +3,7 @@ package ceri.common.math;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.text.RegexUtil;
 
 /**
  * Regular expressions for parsing numbers. Needs refactoring to handle non-english locales.
@@ -76,7 +77,7 @@ public class NumberPatterns {
 	}
 
 	private static Pattern floatingPoint(Pattern integral) {
-		return Pattern.compile(String.format("(?:%s(?:%s)?|%2$s)", integral.pattern(), decimal));
+		return RegexUtil.compile("(?:%s(?:%s)?|%2$s)", integral.pattern(), decimal);
 	}
 
 }

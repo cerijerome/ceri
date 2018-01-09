@@ -112,6 +112,7 @@ import ceri.common.test.TestTimerBehavior;
 import ceri.common.test.TestUtil;
 import ceri.common.test.TestUtilTest;
 import ceri.common.text.DsvCodecBehavior;
+import ceri.common.text.FractionFormatsTest;
 import ceri.common.text.RegexUtilTest;
 import ceri.common.text.StringUtilTest;
 import ceri.common.text.TextUtilTest;
@@ -141,162 +142,163 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	// collection
-	ArrayIteratorBehavior.class,
-	ArrayUtilTest.class,
-	CollectionUtilTest.class,
-	DelegatingMapBehavior.class,
-	FixedSizeCacheBehavior.class,
-	ImmutableByteArrayBehavior.class,
-	ImmutableUtilTest.class,
-	MapBuilderBehavior.class,
-	StreamUtilTest.class,
+	ArrayIteratorBehavior.class, //
+	ArrayUtilTest.class, //
+	CollectionUtilTest.class, //
+	DelegatingMapBehavior.class, //
+	FixedSizeCacheBehavior.class, //
+	ImmutableByteArrayBehavior.class, //
+	ImmutableUtilTest.class, //
+	MapBuilderBehavior.class, //
+	StreamUtilTest.class, //
 	// color
-	ColorableTest.class,
-	ColorComparatorsTest.class,
-	ColorUtilTest.class,
-	HsbColorBehavior.class,
-	X11ColorTest.class,
+	ColorableTest.class, //
+	ColorComparatorsTest.class, //
+	ColorUtilTest.class, //
+	HsbColorBehavior.class, //
+	X11ColorTest.class, //
 	// comparator
-	ComparatorSequenceBehavior.class,
-	ComparatorsTest.class,
-	EnumComparatorsTest.class,
+	ComparatorSequenceBehavior.class, //
+	ComparatorsTest.class, //
+	EnumComparatorsTest.class, //
 	// concurrent
-	AsyncRunnerBehavior.class,
-	BooleanConditionBehavior.class,
-	ConcurrentUtilTest.class,
-	RuntimeInterruptedExceptionBehavior.class,
-	ValueConditionBehavior.class,
+	AsyncRunnerBehavior.class, //
+	BooleanConditionBehavior.class, //
+	ConcurrentUtilTest.class, //
+	RuntimeInterruptedExceptionBehavior.class, //
+	ValueConditionBehavior.class, //
 	// data
-	ByteArrayDataInputBehavior.class,
-	ByteArrayDataOutputBehavior.class,
-	ByteUtilTest.class,
+	ByteArrayDataInputBehavior.class, //
+	ByteArrayDataOutputBehavior.class, //
+	ByteUtilTest.class, //
 	// date
-	CalendarFieldBehavior.class,
-	DateUtilTest.class,
-	ImmutableDateBehavior.class,
-	ImmutableTimeZoneBehavior.class,
-	MultiDateParserBehavior.class,
+	CalendarFieldBehavior.class, //
+	DateUtilTest.class, //
+	ImmutableDateBehavior.class, //
+	ImmutableTimeZoneBehavior.class, //
+	MultiDateParserBehavior.class, //
 	// email
-	EmailUtilTest.class,
+	EmailUtilTest.class, //
 	// event
-	EventTrackerBehavior.class,
-	IntListenersBehavior.class,
-	ListenersBehavior.class,
+	EventTrackerBehavior.class, //
+	IntListenersBehavior.class, //
+	ListenersBehavior.class, //
 	//factory
-	DateFactoriesTest.class,
-	FactoriesTest.class,
-	FactoryExceptionBehavior.class,
-	NumberFactoriesTest.class,
-	StringFactoriesTest.class,
+	DateFactoriesTest.class, //
+	FactoriesTest.class, //
+	FactoryExceptionBehavior.class, //
+	NumberFactoriesTest.class, //
+	StringFactoriesTest.class, //
 	// filter
-	CollectionFiltersTest.class,
-	EnumFiltersTest.class,
-	FiltersTest.class,
+	CollectionFiltersTest.class, //
+	EnumFiltersTest.class, //
+	FiltersTest.class, //
 	// geom
-	Circle2dBehavior.class,
-	ConcaveSpheroidBehavior.class,
-	Cone3dBehavior.class,
-	Cylinder3dBehavior.class,
-	Dimension2dBehavior.class,
-	GeometryUtilTest.class,
-	Ellipse2dBehavior.class,
-	Ellipsoid3dBehavior.class,
-	InvertedRadial3dBehavior.class,
-	Line2dBehavior.class,
-	Line2dEquationBehavior.class,
-	Point2dBehavior.class,
-	Polar2dBehavior.class,
-	Radial3dBehavior.class,
-	Ratio2dBehavior.class,
-	Rectangle2dBehavior.class,
-	Shape3dUtilTest.class,
-	Spheroid3dBehavior.class,
-	TruncatedRadial3dBehavior.class,
+	Circle2dBehavior.class, //
+	ConcaveSpheroidBehavior.class, //
+	Cone3dBehavior.class, //
+	Cylinder3dBehavior.class, //
+	Dimension2dBehavior.class, //
+	GeometryUtilTest.class, //
+	Ellipse2dBehavior.class, //
+	Ellipsoid3dBehavior.class, //
+	InvertedRadial3dBehavior.class, //
+	Line2dBehavior.class, //
+	Line2dEquationBehavior.class, //
+	Point2dBehavior.class, //
+	Polar2dBehavior.class, //
+	Radial3dBehavior.class, //
+	Ratio2dBehavior.class, //
+	Rectangle2dBehavior.class, //
+	Shape3dUtilTest.class, //
+	Spheroid3dBehavior.class, //
+	TruncatedRadial3dBehavior.class, //
 	// io
-	BitIteratorBehavior.class,
-	BlockingBufferStreamBehavior.class,
-	ByteBufferStreamBehavior.class,
-	FileFiltersTest.class,
-	FileIteratorBehavior.class,
-	FilenameIteratorBehavior.class,
-	FileTrackerBehavior.class,
-	InputStreamIteratorBehavior.class,
-	IoTimeoutExceptionBehavior.class,
-	IoUtilTest.class,
-	KeyCheckerBehavior.class,
-	PollingInputStreamBehavior.class,
-	RegexFilenameFilterBehavior.class,
-	ReplaceableInputStreamBehavior.class,
-	ReplaceableOutputStreamBehavior.class,
-	RuntimeIoExceptionBehavior.class,
-	StringPrintStreamBehavior.class,
+	BitIteratorBehavior.class, //
+	BlockingBufferStreamBehavior.class, //
+	ByteBufferStreamBehavior.class, //
+	FileFiltersTest.class, //
+	FileIteratorBehavior.class, //
+	FilenameIteratorBehavior.class, //
+	FileTrackerBehavior.class, //
+	InputStreamIteratorBehavior.class, //
+	IoTimeoutExceptionBehavior.class, //
+	IoUtilTest.class, //
+	KeyCheckerBehavior.class, //
+	PollingInputStreamBehavior.class, //
+	RegexFilenameFilterBehavior.class, //
+	ReplaceableInputStreamBehavior.class, //
+	ReplaceableOutputStreamBehavior.class, //
+	RuntimeIoExceptionBehavior.class, //
+	StringPrintStreamBehavior.class, //
 	// math
-	AlgebraUtilTest.class,
-	MathUtilTest.class,
-	NumberPatternsBehavior.class,
-	ReverseFunctionBehavior.class,
-	TrigUtilTest.class,
+	AlgebraUtilTest.class, //
+	MathUtilTest.class, //
+	NumberPatternsBehavior.class, //
+	ReverseFunctionBehavior.class, //
+	TrigUtilTest.class, //
 	// property
-	BasePropertiesBehavior.class,
-	LocatorBehavior.class,
-	PathBehavior.class,
-	PathFactoryBehavior.class,
-	PropertyAccessorBehavior.class,
-	PropertyUtilTest.class,
+	BasePropertiesBehavior.class, //
+	LocatorBehavior.class, //
+	PathBehavior.class, //
+	PathFactoryBehavior.class, //
+	PropertyAccessorBehavior.class, //
+	PropertyUtilTest.class, //
 	// reflect
-	CallerBehavior.class,
-	CreateExceptionBehavior.class,
-	ReflectUtilTest.class,
+	CallerBehavior.class, //
+	CreateExceptionBehavior.class, //
+	ReflectUtilTest.class, //
 	// score
-	CollectionScorersTest.class,
-	ScoreLookupBehavior.class,
-	ScorersTest.class,
+	CollectionScorersTest.class, //
+	ScoreLookupBehavior.class, //
+	ScorersTest.class, //
 	//test
-	BinaryLogInputStreamBehavior.class,
-	BinaryLogOutputStreamBehavior.class,
-	BinaryPrinterBehavior.class,
-	DebuggerBehavior.class,
-	RegexMatcherBehavior.class,
-	SourceManipulatorBehavior.class,
-	TestPrinterBehavior.class,
-	TestRunAdapterBehavior.class,
-	TestRunPrinterBehavior.class,
-	TestStateBehavior.class,
-	TestThreadBehavior.class,
-	TestTimerBehavior.class,
-	TestUtilTest.class,
+	BinaryLogInputStreamBehavior.class, //
+	BinaryLogOutputStreamBehavior.class, //
+	BinaryPrinterBehavior.class, //
+	DebuggerBehavior.class, //
+	RegexMatcherBehavior.class, //
+	SourceManipulatorBehavior.class, //
+	TestPrinterBehavior.class, //
+	TestRunAdapterBehavior.class, //
+	TestRunPrinterBehavior.class, //
+	TestStateBehavior.class, //
+	TestThreadBehavior.class, //
+	TestTimerBehavior.class, //
+	TestUtilTest.class, //
 	//text
-	DsvCodecBehavior.class,
-	RegexUtilTest.class,
-	StringUtilTest.class,
-	TextUtilTest.class,
-	ToStringHelperBehavior.class,
-	Utf8UtilTest.class,
+	DsvCodecBehavior.class, //
+	FractionFormatsTest.class, //
+	RegexUtilTest.class, //
+	StringUtilTest.class, //
+	TextUtilTest.class, //
+	ToStringHelperBehavior.class, //
+	Utf8UtilTest.class, //
 	// tree
-	NodeTreeBehavior.class,
-	TreeIteratorBehavior.class,
-	TreeNodeBehavior.class,
-	TreeNodeComparatorsTest.class,
-	TreeUtilTest.class,
+	NodeTreeBehavior.class, //
+	TreeIteratorBehavior.class, //
+	TreeNodeBehavior.class, //
+	TreeNodeComparatorsTest.class, //
+	TreeUtilTest.class, //
 	// util
-	BasicUtilTest.class,
-	EqualsUtilTest.class,
-	HashCoderBehavior.class,
-	KeyValueBehavior.class,
-	LocaleUtilTest.class,
-	MultiPatternBehavior.class,
-	NameValueBehavior.class,
-	OsUtilTest.class,
-	PrimitiveUtilTest.class,
+	BasicUtilTest.class, //
+	EqualsUtilTest.class, //
+	HashCoderBehavior.class, //
+	KeyValueBehavior.class, //
+	LocaleUtilTest.class, //
+	MultiPatternBehavior.class, //
+	NameValueBehavior.class, //
+	OsUtilTest.class, //
+	PrimitiveUtilTest.class, //
 	// validation
-	ValidationUtilTest.class,
+	ValidationUtilTest.class, //
 	// xml
-	RuntimeXPathExceptionBehavior.class,
-	XmlUtilTest.class,
-	XPathUtilTest.class,
+	RuntimeXPathExceptionBehavior.class, //
+	XmlUtilTest.class, //
+	XPathUtilTest.class, //
 	// zip
-	ZippingInputStreamBehavior.class,
-	ZipUtilTest.class,
+	ZippingInputStreamBehavior.class, //
+	ZipUtilTest.class, //
 })
 public class _Tests {
 	public static void main(String... args) {

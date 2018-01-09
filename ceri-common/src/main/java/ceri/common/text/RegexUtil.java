@@ -30,6 +30,13 @@ public class RegexUtil {
 	private RegexUtil() {}
 
 	/**
+	 * Compiles a pattern from string format.
+	 */
+	public static Pattern compile(String format, Object... objs) {
+		return Pattern.compile(String.format(format, objs));
+	}
+
+	/**
 	 * Splits a string by splitting before each instance of the pattern.
 	 */
 	public static List<String> splitBefore(Pattern pattern, String s) {
@@ -62,9 +69,9 @@ public class RegexUtil {
 	}
 
 	/**
-	 * Returns named group or null.
+	 * Returns named group or null. Matcher match should have been attempted.
 	 */
-	public static final String namedGroup(Matcher m, String name) {
+	public static String namedGroup(Matcher m, String name) {
 		try {
 			return m.group(name);
 		} catch (IllegalArgumentException e) {
@@ -75,17 +82,16 @@ public class RegexUtil {
 	/**
 	 * Returns the groups of the given matcher as a list.
 	 */
-	public static final List<String> groups(Pattern regex, String s) {
+	public static List<String> groups(Pattern regex, String s) {
 		Matcher m = regex.matcher(s);
 		if (!m.find()) return Collections.emptyList();
 		return groups(m);
 	}
 
 	/**
-	 * Returns the groups of the given matcher as a list. A successful find() must be called on the
-	 * given matcher before using this method.
+	 * Returns the groups of the given matcher as a list. Matcher match should have been attempted.
 	 */
-	public static final List<String> groups(Matcher m) {
+	public static List<String> groups(Matcher m) {
 		int count = m.groupCount();
 		if (count <= 0) return Collections.emptyList();
 		return toList(IntStream.range(1, count + 1).mapToObj(m::group));
@@ -95,67 +101,109 @@ public class RegexUtil {
 	 * Finds the first matching regex and returns the first group if it exists, otherwise the entire
 	 * matched pattern.
 	 */
-	public static final String find(Pattern regex, String s) {
+	public static String find(Pattern regex, String s) {
+		return groupOrAll(found(regex, s), 1);
+	}
+
+	/**
+	 * Matches the regex and returns the first group if it exists, otherwise the entire matched
+	 * pattern.
+	 */
+	public static String match(Pattern regex, String s) {
+		return groupOrAll(matched(regex, s), 1);
+	}
+
+	/**
+	 * Returns the group or null. Matcher match should have been attempted.
+	 */
+	private static String groupOrAll(Matcher m, int group) {
+		String s = group(m, group);
+		if (s != null) return s;
+		return group(m, 0);
+	}
+
+	/**
+	 * Return matcher if pattern found, otherwise null.
+	 */
+	public static Matcher found(Pattern regex, String s) {
 		if (s == null) return null;
 		Matcher m = regex.matcher(s);
 		if (!m.find()) return null;
-		int group = m.groupCount() > 0 ? 1 : 0;
+		return m;
+	}
+
+	/**
+	 * Return matcher if pattern matched, otherwise null.
+	 */
+	public static Matcher matched(Pattern regex, String s) {
+		if (s == null) return null;
+		Matcher m = regex.matcher(s);
+		if (!m.matches()) return null;
+		return m;
+	}
+
+	/**
+	 * Returns the group or null. Matcher match should have been attempted.
+	 */
+	public static String group(Matcher m, int group) {
+		if (m == null) return null;
+		if (m.groupCount() < group) return null;
 		return m.group(group);
 	}
 
 	/**
 	 * Finds the first matching regex and returns the first group.
 	 */
-	public static final Boolean findBoolean(Pattern regex, String s) {
+	public static Boolean findBoolean(Pattern regex, String s) {
 		return StringFactories.TO_BOOLEAN.create(find(regex, s));
 	}
 
 	/**
 	 * Finds the first matching regex and returns the first group.
 	 */
-	public static final Byte findByte(Pattern regex, String s) {
+	public static Byte findByte(Pattern regex, String s) {
 		return StringFactories.TO_BYTE.create(find(regex, s));
 	}
 
 	/**
 	 * Finds the first matching regex and returns the first group.
 	 */
-	public static final Short findShort(Pattern regex, String s) {
+	public static Short findShort(Pattern regex, String s) {
 		return StringFactories.TO_SHORT.create(find(regex, s));
 	}
 
 	/**
 	 * Finds the first matching regex and returns the first group.
 	 */
-	public static final Integer findInt(Pattern regex, String s) {
+	public static Integer findInt(Pattern regex, String s) {
 		return StringFactories.TO_INTEGER.create(find(regex, s));
 	}
 
 	/**
 	 * Finds the first matching regex and returns the first group.
 	 */
-	public static final Long findLong(Pattern regex, String s) {
+	public static Long findLong(Pattern regex, String s) {
 		return StringFactories.TO_LONG.create(find(regex, s));
 	}
 
 	/**
 	 * Finds the first matching regex and returns the first group.
 	 */
-	public static final Float findFloat(Pattern regex, String s) {
+	public static Float findFloat(Pattern regex, String s) {
 		return StringFactories.TO_FLOAT.create(find(regex, s));
 	}
 
 	/**
 	 * Finds the first matching regex and returns the first group.
 	 */
-	public static final Double findDouble(Pattern regex, String s) {
+	public static Double findDouble(Pattern regex, String s) {
 		return StringFactories.TO_DOUBLE.create(find(regex, s));
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
-	public static final List<String> findAll(Pattern regex, String s) {
+	public static List<String> findAll(Pattern regex, String s) {
 		List<String> values = new ArrayList<>();
 		Matcher m = regex.matcher(s);
 		while (m.find())
@@ -166,49 +214,49 @@ public class RegexUtil {
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
-	public static final List<Boolean> findAllBooleans(Pattern regex, String s) {
+	public static List<Boolean> findAllBooleans(Pattern regex, String s) {
 		return BOOLEAN_LIST_FACTORY.create(findAll(regex, s));
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
-	public static final List<Byte> findAllBytes(Pattern regex, String s) {
+	public static List<Byte> findAllBytes(Pattern regex, String s) {
 		return BYTE_LIST_FACTORY.create(findAll(regex, s));
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
-	public static final List<Short> findAllShorts(Pattern regex, String s) {
+	public static List<Short> findAllShorts(Pattern regex, String s) {
 		return SHORT_LIST_FACTORY.create(findAll(regex, s));
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
-	public static final List<Integer> findAllInts(Pattern regex, String s) {
+	public static List<Integer> findAllInts(Pattern regex, String s) {
 		return INT_LIST_FACTORY.create(findAll(regex, s));
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
-	public static final List<Long> findAllLongs(Pattern regex, String s) {
+	public static List<Long> findAllLongs(Pattern regex, String s) {
 		return LONG_LIST_FACTORY.create(findAll(regex, s));
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
-	public static final List<Float> findAllFloats(Pattern regex, String s) {
+	public static List<Float> findAllFloats(Pattern regex, String s) {
 		return FLOAT_LIST_FACTORY.create(findAll(regex, s));
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
-	public static final List<Double> findAllDoubles(Pattern regex, String s) {
+	public static List<Double> findAllDoubles(Pattern regex, String s) {
 		return DOUBLE_LIST_FACTORY.create(findAll(regex, s));
 	}
 
