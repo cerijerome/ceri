@@ -1,6 +1,5 @@
 package ceri.common.math;
 
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.stream.DoubleStream;
 
@@ -17,10 +16,59 @@ public class MathUtil {
 	/**
 	 * Calculates the greatest common divisor of two numbers.
 	 */
-	public static long gcd(long lhs, long rhs) {
-		return BigInteger.valueOf(lhs).gcd(BigInteger.valueOf(rhs)).longValueExact();
+	public static int gcd(int lhs, int rhs) {
+		return Math.toIntExact(gcd((long) lhs, (long) rhs));
 	}
-	
+
+	/**
+	 * Calculates the greatest common divisor of two numbers.
+	 */
+	public static long gcd(long lhs, long rhs) {
+		if (lhs == rhs) return absExact(lhs);
+		if (lhs == 0) return absExact(rhs);
+		if (rhs == 0) return absExact(lhs);
+		if (lhs == 1 || lhs == -1 || rhs == 1 || rhs == -1) return 1;
+		if (lhs % rhs == 0) return absExact(rhs);
+		if (rhs % lhs == 0) return absExact(lhs);
+		return gcd(rhs, lhs % rhs);
+	}
+
+	/**
+	 * Calculates the lowest common multiple of two numbers.
+	 */
+	public static int lcm(int lhs, int rhs) {
+		return Math.toIntExact(lcm((long) lhs, (long) rhs));
+	}
+
+	/**
+	 * Calculates the lowest common multiple of two numbers.
+	 */
+	public static long lcm(long lhs, long rhs) {
+		if (lhs == rhs) return absExact(lhs);
+		if (lhs == 0 || rhs == 0) return 0; // debatable
+		if (lhs == 1 || lhs == -1) return absExact(rhs);
+		if (rhs == 1 || rhs == -1) return absExact(lhs);
+		if (lhs % rhs == 0) return absExact(lhs);
+		if (rhs % lhs == 0) return absExact(rhs);
+		return absExact(Math.multiplyExact(lhs / gcd(lhs, rhs), rhs));
+	}
+
+	/**
+	 * Return absolute value. Throws ArithmeticException if overflow.
+	 */
+	public static long absExact(long value) {
+		if (value != Long.MIN_VALUE) return Math.abs(value);
+		throw new ArithmeticException("long overflow");
+	}
+
+	/**
+	 * Return absolute value. Throws ArithmeticException if overflow.
+	 */
+	public static int absExact(int value) {
+		if (value != Integer.MIN_VALUE) return Math.abs(value);
+		throw new ArithmeticException("int overflow");
+	}
+
 	/**
 	 * Generates a pseudo-random number from min to max inclusive.
 	 */
@@ -57,10 +105,10 @@ public class MathUtil {
 	 */
 	public static double simpleRound(double value, int places) {
 		if (Double.isNaN(value)) return Double.NaN;
-		if (places > MAX_ROUND_PLACES) throw new IllegalArgumentException("places must be <= " +
-			MAX_ROUND_PLACES + ": " + places);
-		if (value > MAX_ROUND || value < -MAX_ROUND) throw new IllegalArgumentException(
-			"value magnitude must be <= " + MAX_ROUND);
+		if (places > MAX_ROUND_PLACES) throw new IllegalArgumentException(
+			"places must be <= " + MAX_ROUND_PLACES + ": " + places);
+		if (value > MAX_ROUND || value < -MAX_ROUND)
+			throw new IllegalArgumentException("value magnitude must be <= " + MAX_ROUND);
 		long factor = (long) Math.pow(10, places);
 		value = value * factor;
 		long tmp = Math.round(value);

@@ -17,7 +17,7 @@ import ceri.common.test.TestTimer;
 
 public class MathUtilTest {
 
-	// Class to help test methods with overrides for each primitive number 
+	// Class to help test methods with overrides for each primitive number
 	static class Numbers {
 		byte[] b = { Byte.MAX_VALUE, -1, 0, 1, Byte.MIN_VALUE };
 		short[] s = { Short.MAX_VALUE, -1, 0, 1, Short.MIN_VALUE };
@@ -35,8 +35,84 @@ public class MathUtilTest {
 	}
 
 	@Test
+	public void testGcd() {
+		assertThat(MathUtil.gcd(0, 0), is(0));
+		assertThat(MathUtil.gcd(1, 0), is(1));
+		assertThat(MathUtil.gcd(0, 1), is(1));
+		assertThat(MathUtil.gcd(-1, 1), is(1));
+		assertThat(MathUtil.gcd(-1, -1), is(1));
+		assertThat(MathUtil.gcd(99, -44), is(11));
+		assertThat(MathUtil.gcd(99999, 22222), is(11111));
+		assertThat(MathUtil.gcd(22222, 99999), is(11111));
+		assertThat(MathUtil.gcd(-99999, 22222), is(11111));
+		assertThat(MathUtil.gcd(99999, -22222), is(11111));
+		assertThat(MathUtil.gcd(-99999, -22222), is(11111));
+		assertException(() -> MathUtil.gcd(Integer.MIN_VALUE, 0));
+		assertThat(MathUtil.gcd(Integer.MIN_VALUE, 1), is(1));
+		assertThat(MathUtil.gcd(Integer.MAX_VALUE, 0), is(Integer.MAX_VALUE));
+		assertThat(MathUtil.gcd(Integer.MAX_VALUE, 1), is(1));
+		assertException(() -> MathUtil.gcd(Integer.MIN_VALUE, Integer.MIN_VALUE));
+		assertThat(MathUtil.gcd(Integer.MAX_VALUE, Integer.MAX_VALUE), is(Integer.MAX_VALUE));
+		assertThat(MathUtil.gcd(Integer.MIN_VALUE, Integer.MAX_VALUE), is(1));
+		assertException(() -> MathUtil.gcd(Long.MIN_VALUE, 0));
+		assertThat(MathUtil.gcd(Long.MIN_VALUE, 1), is(1L));
+		assertThat(MathUtil.gcd(Long.MAX_VALUE, 0), is(Long.MAX_VALUE));
+		assertThat(MathUtil.gcd(Long.MAX_VALUE, 1), is(1L));
+		assertException(() -> MathUtil.gcd(Long.MIN_VALUE, Long.MIN_VALUE));
+		assertThat(MathUtil.gcd(Long.MAX_VALUE, Long.MAX_VALUE), is(Long.MAX_VALUE));
+		assertThat(MathUtil.gcd(Long.MIN_VALUE, Long.MAX_VALUE), is(1L));
+	}
+
+	@Test
+	public void testLcm() {
+		assertThat(MathUtil.lcm(0, 0), is(0));
+		assertThat(MathUtil.lcm(1, 0), is(0));
+		assertThat(MathUtil.lcm(0, 1), is(0));
+		assertThat(MathUtil.lcm(-1, 1), is(1));
+		assertThat(MathUtil.lcm(1, -1), is(1));
+		assertThat(MathUtil.lcm(-1, -1), is(1));
+		assertThat(MathUtil.lcm(12, 4), is(12));
+		assertThat(MathUtil.lcm(8, 16), is(16));
+		assertThat(MathUtil.lcm(99, -44), is(396));
+		assertThat(MathUtil.lcm(99999, 22222), is(199998));
+		assertThat(MathUtil.lcm(22222, 99999), is(199998));
+		assertThat(MathUtil.lcm(-99999, 22222), is(199998));
+		assertThat(MathUtil.lcm(99999, -22222), is(199998));
+		assertThat(MathUtil.lcm(-99999, -22222), is(199998));
+		assertThat(MathUtil.lcm(Integer.MIN_VALUE, 0), is(0));
+		assertException(() -> MathUtil.lcm(Integer.MIN_VALUE, 1));
+		assertThat(MathUtil.lcm(Integer.MAX_VALUE, 0), is(0));
+		assertThat(MathUtil.lcm(Integer.MAX_VALUE, 1), is(Integer.MAX_VALUE));
+		assertException(() -> MathUtil.lcm(Integer.MIN_VALUE, Integer.MIN_VALUE));
+		assertThat(MathUtil.lcm(Integer.MAX_VALUE, Integer.MAX_VALUE), is(Integer.MAX_VALUE));
+		assertException(() -> MathUtil.lcm(Integer.MIN_VALUE, Integer.MAX_VALUE));
+		assertThat(MathUtil.lcm(Long.MIN_VALUE, 0), is(0L));
+		assertException(() -> MathUtil.lcm(Long.MIN_VALUE, 1L));
+		assertThat(MathUtil.lcm(Long.MAX_VALUE, 0), is(0L));
+		assertThat(MathUtil.lcm(Long.MAX_VALUE, 1), is(Long.MAX_VALUE));
+		assertException(() -> MathUtil.lcm(Long.MIN_VALUE, Long.MIN_VALUE));
+		assertThat(MathUtil.lcm(Long.MAX_VALUE, Long.MAX_VALUE), is(Long.MAX_VALUE));
+		assertException(() -> MathUtil.lcm(Long.MIN_VALUE, Long.MAX_VALUE));
+	}
+
+	@Test
+	public void testAbsExact() {
+		assertThat(MathUtil.absExact(0), is(0));
+		assertThat(MathUtil.absExact(Integer.MAX_VALUE), is(Integer.MAX_VALUE));
+		assertThat(MathUtil.absExact(Integer.MIN_VALUE + 1), is(Integer.MAX_VALUE));
+		assertException(() -> MathUtil.absExact(Integer.MIN_VALUE));
+	}
+
+	@Test
+	public void testRoundDiv() {
+		assertThat(MathUtil.roundDiv(10, 4), is(3L));
+		assertThat(MathUtil.roundDiv(10, 3), is(3L));
+	}
+
+	@Test
 	public void testRandom() {
 		assertEquals(0, MathUtil.random(0, 0));
+		assertEquals(0, MathUtil.randomInt(0, 0));
 		assertEquals(Long.MAX_VALUE, MathUtil.random(Long.MAX_VALUE, Long.MAX_VALUE));
 		assertEquals(Long.MIN_VALUE, MathUtil.random(Long.MIN_VALUE, Long.MIN_VALUE));
 		for (int i = 0; i < 100; i++) {
@@ -54,7 +130,7 @@ public class MathUtilTest {
 			t.assertLessThan(1000);
 		}
 	}
-	
+
 	@Test
 	public void testLimit() {
 		assertThat(MathUtil.limit(2, -3, -2), is(-2));
@@ -62,7 +138,8 @@ public class MathUtilTest {
 		assertThat(MathUtil.limit(3, 2, 3), is(3));
 		assertThat(MathUtil.limit(3, 2, 1), is(1));
 		assertThat(MathUtil.limit(Long.MAX_VALUE, Long.MIN_VALUE, 0), is(0L));
-		assertThat(MathUtil.limit(Long.MIN_VALUE, Long.MAX_VALUE, Long.MAX_VALUE), is(Long.MAX_VALUE));
+		assertThat(MathUtil.limit(Long.MIN_VALUE, Long.MAX_VALUE, Long.MAX_VALUE),
+			is(Long.MAX_VALUE));
 		assertThat(MathUtil.limit(0, Long.MIN_VALUE, Long.MAX_VALUE), is(0L));
 		assertThat(MathUtil.limit(Float.MAX_VALUE, 0, Float.MIN_VALUE), is(Float.MIN_VALUE));
 		assertThat(MathUtil.limit(Float.MIN_VALUE, 0, Float.MAX_VALUE), is(Float.MIN_VALUE));
@@ -71,7 +148,7 @@ public class MathUtilTest {
 		assertThat(MathUtil.limit(Double.MIN_VALUE, 0, Double.MAX_VALUE), is(Double.MIN_VALUE));
 		assertThat(MathUtil.limit(-Double.MAX_VALUE, 0, Double.MAX_VALUE), is(0.0));
 	}
-	
+
 	@Test
 	public void testSimpleRound() {
 		assertThat(MathUtil.simpleRound(11111.11111, 2), is(11111.11));
@@ -149,10 +226,10 @@ public class MathUtilTest {
 	public void testDigits() {
 		assertThat(MathUtil.digits(123456789L), is(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }));
 		assertThat(MathUtil.digits(153, 2), is(new byte[] { 1, 0, 0, 1, 1, 0, 0, 1 }));
-		assertThat(MathUtil.digits(0x123456789ABCDEFL, 16), is(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8,
-			9, 10, 11, 12, 13, 14, 15 }));
-		assertThat(MathUtil.digits(123456789L, Character.MAX_RADIX + 1), is(new byte[] { 1, 2, 3,
-			4, 5, 6, 7, 8, 9 }));
+		assertThat(MathUtil.digits(0x123456789ABCDEFL, 16),
+			is(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }));
+		assertThat(MathUtil.digits(123456789L, Character.MAX_RADIX + 1),
+			is(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }));
 	}
 
 	@Test

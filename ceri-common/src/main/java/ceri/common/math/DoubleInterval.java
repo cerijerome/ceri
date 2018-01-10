@@ -54,7 +54,7 @@ public class DoubleInterval {
 		int compare = lower.value.compareTo(upper.value);
 		if (compare < 0) return false;
 		if (compare > 0) return true;
-		return lower.type == BoundType.inclusive && upper.type == BoundType.inclusive;
+		return lower.type != BoundType.inclusive || upper.type != BoundType.inclusive;
 	}
 
 	public double midPoint() {

@@ -1,112 +1,113 @@
 package ceri.common.math;
 
-import java.math.BigInteger;
+import static ceri.common.math.MathUtil.gcd;
+import static ceri.common.math.MathUtil.lcm;
+import static java.lang.Math.abs;
+import static java.lang.Math.addExact;
+import static java.lang.Math.multiplyExact;
+import static java.lang.Math.negateExact;
+import static java.lang.Math.subtractExact;
 import ceri.common.util.HashCoder;
 
+/**
+ * Holds a numerator and denominator. This is a visual representation, so reduction is not
+ * automatic. A zero denominator is allowed to exist, but may fail arithmetic operations.
+ * 
+ * May need some optimization.
+ */
 public class Fraction {
+	public static final Fraction ZERO = new Fraction(0, 1);
+	public static final Fraction ONE = new Fraction(1, 1);
 	public final long numerator;
-	public final long denominator;
+	public final long denominator; // always > 0
 	public final double value;
 
 	public static Fraction of(long numerator, long denominator) {
-		return new Fraction(numerator, denominator);
+		if (denominator == 0) throw new IllegalArgumentException("Zero denominator");
+		if (numerator == 0) return ZERO;
+		if (numerator == denominator) return ONE;
+		if (denominator < 0) {
+			numerator = Math.negateExact(numerator);
+			denominator = Math.negateExact(denominator);
+		}
+		long gcd = gcd(numerator, denominator);
+		return new Fraction(numerator / gcd, denominator / gcd);
 	}
 
-	private static Fraction of(BigInteger numerator, BigInteger denominator) {
-		return of(numerator.longValueExact(), denominator.longValueExact());
-	}
-	
 	private Fraction(long numerator, long denominator) {
 		this.numerator = numerator;
 		this.denominator = denominator;
 		value = (double) numerator / denominator;
 	}
 
+	public boolean isZero() {
+		return numerator == 0;
+	}
+
 	public boolean isNegative() {
-		return value < 0.0; 
+		return numerator < 0;
 	}
 
 	public boolean isWhole() {
-		return numerator % denominator == 0;
+		return denominator == 1;
 	}
 
 	public boolean isProper() {
-		return Math.abs(numerator) < Math.abs(denominator);
-	}
-
-	public Fraction add(Fraction fraction) {
-		if (numerator == 0) return fraction;
-		if (fraction.numerator == 0) return this;
-		BigInteger numerator = multiply(this.numerator, fraction.denominator)
-			.add(multiply(fraction.numerator, this.denominator));
-		BigInteger denominator = multiply(this.denominator, fraction.denominator);
-		Fraction reduced = reduced(numerator, denominator);
-		return reduced == null ? of(numerator, denominator) : reduced;
-	}
-
-	public Fraction multiply(Fraction fraction) {
-		if (numerator == 1 && denominator == 1) return fraction;
-		if (fraction.numerator == 1 && fraction.denominator == 1) return this;
-		BigInteger numerator = multiply(this.numerator, fraction.numerator);
-		BigInteger denominator = multiply(this.denominator, fraction.denominator);
-		Fraction reduced = reduced(numerator, denominator);
-		return reduced == null ? of(numerator, denominator) : reduced;
-	}
-
-	public Fraction reduce() {
-		if (isWhole()) return of(numerator / denominator, 1);
-		BigInteger numerator = BigInteger.valueOf(this.numerator);
-		BigInteger denominator = BigInteger.valueOf(this.denominator);
-		Fraction reduced = reduced(numerator, denominator);
-		return reduced == null ? this : reduced;
-	}
-
-	private Fraction reduced(BigInteger numerator, BigInteger denominator) {
-		BigInteger gcd = numerator.gcd(denominator);
-		int signum = denominator.signum();
-		if (gcd.longValueExact() == 1 && signum != -1) return null;
-		if (signum == -1) {
-			numerator = numerator.negate();
-			denominator = denominator.negate();
-		}
-		return of(numerator.divide(gcd), denominator.divide(gcd));
-	}
-
-	public Fraction multiply(long value) {
-		if (value == 1) return this;
-		return multiply(of(value, 1));
+		return numerator != Long.MIN_VALUE && abs(numerator) < denominator;
 	}
 
 	public Fraction negate() {
 		if (numerator == 0) return this;
-		return of(Math.negateExact(numerator), denominator);
-	}
-
-	public Fraction divide(Fraction fraction) {
-		return multiply(fraction.invert());
-	}
-
-	public Fraction divide(long value) {
-		return multiply(of(1, value));
+		return of(negateExact(numerator), denominator);
 	}
 
 	public Fraction invert() {
-		if (numerator == denominator) return this;
 		return of(denominator, numerator);
 	}
 
 	public long whole() {
-		return (long) value;
+		return numerator / denominator;
 	}
 
 	public Fraction proper() {
-		if (numerator < denominator) return this;
-		return of(numerator - (whole() * denominator), denominator);
+		if (isProper()) return this;
+		return of(subtractExact(numerator, multiplyExact(whole(), denominator)), denominator);
+	}
+
+	public Fraction add(Fraction fraction) {
+		if (fraction.isZero()) return this;
+		if (isZero()) return fraction;
+		if (denominator == fraction.denominator)
+			return of(addExact(numerator, fraction.numerator), denominator);
+		long lcm = lcm(denominator, fraction.denominator);
+		long lhs = multiplyExact(numerator, lcm / denominator);
+		long rhs = multiplyExact(fraction.numerator, lcm / fraction.denominator);
+		return of(addExact(lhs, rhs), lcm);
+	}
+
+	public Fraction multiply(Fraction fraction) {
+		if (this == ZERO || fraction == ZERO) return ZERO;
+		if (this == ONE) return fraction;
+		if (fraction == ONE) return this;
+		long numerator = multiplyExact(this.numerator, fraction.numerator);
+		long denominator = multiplyExact(this.denominator, fraction.denominator);
+		return of(numerator, denominator);
+	}
+
+	public Fraction divide(Fraction fraction) {
+		if (fraction.isZero()) throw new ArithmeticException("Divide by 0");
+		if (this == ZERO) return ZERO;
+		if (fraction == ONE) return this;
+		return multiply(fraction.invert());
 	}
 
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(numerator, denominator);
+	}
+
+	public boolean equals(long numerator, long denominator) {
+		return this.numerator == numerator && this.denominator == denominator;
 	}
 
 	@Override
@@ -122,10 +123,6 @@ public class Fraction {
 	@Override
 	public String toString() {
 		return numerator + "/" + denominator;
-	}
-
-	private static BigInteger multiply(long lhs, long rhs) {
-		return BigInteger.valueOf(lhs).multiply(BigInteger.valueOf(rhs));
 	}
 
 }

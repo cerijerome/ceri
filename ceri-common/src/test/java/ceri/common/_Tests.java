@@ -81,7 +81,11 @@ import ceri.common.io.ReplaceableOutputStreamBehavior;
 import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
 import ceri.common.math.AlgebraUtilTest;
+import ceri.common.math.DoubleBoundBehavior;
+import ceri.common.math.DoubleIntervalBehavior;
+import ceri.common.math.FractionBehavior;
 import ceri.common.math.MathUtilTest;
+import ceri.common.math.MixedFractionBehavior;
 import ceri.common.math.NumberPatternsBehavior;
 import ceri.common.math.ReverseFunctionBehavior;
 import ceri.common.math.TrigUtilTest;
@@ -183,7 +187,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	EventTrackerBehavior.class, //
 	IntListenersBehavior.class, //
 	ListenersBehavior.class, //
-	//factory
+	// factory
 	DateFactoriesTest.class, //
 	FactoriesTest.class, //
 	FactoryExceptionBehavior.class, //
@@ -233,7 +237,11 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	StringPrintStreamBehavior.class, //
 	// math
 	AlgebraUtilTest.class, //
+	DoubleBoundBehavior.class, //
+	DoubleIntervalBehavior.class, //
+	FractionBehavior.class, //
 	MathUtilTest.class, //
+	MixedFractionBehavior.class, //
 	NumberPatternsBehavior.class, //
 	ReverseFunctionBehavior.class, //
 	TrigUtilTest.class, //
@@ -252,7 +260,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	CollectionScorersTest.class, //
 	ScoreLookupBehavior.class, //
 	ScorersTest.class, //
-	//test
+	// test
 	BinaryLogInputStreamBehavior.class, //
 	BinaryLogOutputStreamBehavior.class, //
 	BinaryPrinterBehavior.class, //
@@ -266,7 +274,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	TestThreadBehavior.class, //
 	TestTimerBehavior.class, //
 	TestUtilTest.class, //
-	//text
+	// text
 	DsvCodecBehavior.class, //
 	FractionFormatsTest.class, //
 	RegexUtilTest.class, //

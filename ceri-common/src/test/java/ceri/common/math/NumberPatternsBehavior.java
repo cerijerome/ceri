@@ -9,6 +9,11 @@ public class NumberPatternsBehavior {
 	private static final NumberPatterns patterns = NumberPatterns.DEFAULT;
 
 	@Test
+	public void shouldExposePatternStrings() {
+		assertThat(patterns.integer.format(), is("[0-9]+"));
+	}
+
+	@Test
 	public void shouldRemoveSeparators() {
 		assertNull(patterns.removeSeparators(null));
 		assertThat(patterns.removeSeparators(""), is(""));
