@@ -43,7 +43,8 @@ public class SourceManipulatorBehavior {
 		SourceManipulator sm = SourceManipulator.from(s);
 		sm.replaceIdentifier("abc", "def");
 		sm.replaceAll("def", "DEF");
-		assertThat(print(sm).trim(), is("abc0 DEF() (DEF) _abc :DEF;"));
+		sm.replaceText("(", "[");
+		assertThat(print(sm).trim(), is("abc0 DEF[) [DEF) _abc :DEF;"));
 
 	}
 

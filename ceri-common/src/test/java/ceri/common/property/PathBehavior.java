@@ -63,8 +63,8 @@ public class PathBehavior {
 		assertThat(key.value, is("a.b.c"));
 		key = key.child("d");
 		assertThat(key.value, is("a.b.c.d"));
-		key = key.child("e");
-		assertThat(key.value, is("a.b.c.d.e"));
+		key = key.child(Arrays.asList("e", "f"));
+		assertThat(key.value, is("a.b.c.d.e.f"));
 	}
 
 	@Test

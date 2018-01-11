@@ -50,7 +50,7 @@ public class BasicUtil {
 	 * Make a system beep sound
 	 */
 	public static void beep() {
-		Toolkit.getDefaultToolkit().beep();
+		//Toolkit.getDefaultToolkit().beep();
 	}
 
 	/**

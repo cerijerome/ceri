@@ -29,6 +29,7 @@ import ceri.common.data.ByteArrayDataOutputBehavior;
 import ceri.common.data.ByteUtilTest;
 import ceri.common.date.CalendarFieldBehavior;
 import ceri.common.date.DateUtilTest;
+import ceri.common.date.HolidayBehavior;
 import ceri.common.date.ImmutableDateBehavior;
 import ceri.common.date.ImmutableTimeZoneBehavior;
 import ceri.common.date.MultiDateParserBehavior;
@@ -130,6 +131,7 @@ import ceri.common.tree.TreeUtilTest;
 import ceri.common.util.BasicUtilTest;
 import ceri.common.util.EqualsUtilTest;
 import ceri.common.util.HashCoderBehavior;
+import ceri.common.util.HolderBehavior;
 import ceri.common.util.KeyValueBehavior;
 import ceri.common.util.LocaleUtilTest;
 import ceri.common.util.MultiPatternBehavior;
@@ -178,6 +180,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	// date
 	CalendarFieldBehavior.class, //
 	DateUtilTest.class, //
+	HolidayBehavior.class, //
 	ImmutableDateBehavior.class, //
 	ImmutableTimeZoneBehavior.class, //
 	MultiDateParserBehavior.class, //
@@ -292,6 +295,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	BasicUtilTest.class, //
 	EqualsUtilTest.class, //
 	HashCoderBehavior.class, //
+	HolderBehavior.class, //
 	KeyValueBehavior.class, //
 	LocaleUtilTest.class, //
 	MultiPatternBehavior.class, //

@@ -71,7 +71,7 @@ public class SourceManipulator {
 	}
 
 	public void replaceText(String from, String to) {
-		src = src.replaceAll("\\Q" + from + "\\E", to);
+		src = src.replace(from, to);
 	}
 
 	public void replaceIdentifier(String from, String to) {

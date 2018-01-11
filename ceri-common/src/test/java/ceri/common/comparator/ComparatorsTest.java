@@ -18,6 +18,12 @@ public class ComparatorsTest {
 	}
 
 	@Test
+	public void testTransform() {
+		Comparator<String> c = Comparators.transform(Comparators.INTEGER, String::length);
+		assertThat(c.compare("001", "2") > 0, is(true));
+	}
+
+	@Test
 	public void testSequence() {
 		Comparator<String> comparator =
 			Comparators.sequence(Comparators.nonNullComparator(), Comparators.STRING);

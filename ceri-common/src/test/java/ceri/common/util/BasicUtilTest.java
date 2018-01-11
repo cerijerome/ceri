@@ -1,7 +1,9 @@
 package ceri.common.util;
 
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.exerciseEnum;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertFalse;
@@ -26,7 +28,8 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.reflect.ReflectUtil;
 
 public class BasicUtilTest {
-	@Mock Class<?> badClass;
+	@Mock
+	Class<?> badClass;
 
 	@Test
 	public void testConstructorIsPrivate() {
@@ -37,6 +40,14 @@ public class BasicUtilTest {
 	public void testBeep() {
 		// Make sure no error thrown
 		BasicUtil.beep();
+	}
+
+	@Test
+	public void testEnums() {
+		assertIterable(BasicUtil.enums(HAlign.class), HAlign.left, HAlign.center, HAlign.right);
+		assertIterable(BasicUtil.enums(VAlign.class), VAlign.top, VAlign.middle, VAlign.bottom);
+		exerciseEnum(HAlign.class);
+		exerciseEnum(VAlign.class);
 	}
 
 	@Test
@@ -65,6 +76,8 @@ public class BasicUtilTest {
 	@Test
 	public void testValueOf() {
 		assertThat(BasicUtil.valueOf(null, "a", Enum.a), is(Enum.a));
+		assertThat(BasicUtil.valueOf(Enum.class, "a"), is(Enum.a));
+		assertNull(BasicUtil.valueOf(Enum.class, "ab"));
 		assertNull(BasicUtil.valueOf(Enum.class, null, null));
 		assertThat(BasicUtil.valueOf(Enum.class, "b", null), is(Enum.b));
 		assertThat(BasicUtil.valueOf(Enum.class, null, Enum.a), is(Enum.a));

@@ -28,4 +28,11 @@ public class OsUtilTest {
 		assertThat(OsUtil.IS_MAC, is(isMac));
 	}
 
+	@Test
+	public void testAws() {
+		String name = System.getProperty("AWS_PATH");
+		boolean isAws = name != null && !name.isEmpty();
+		assertThat(OsUtil.IS_AWS, is(isAws));
+	}
+
 }

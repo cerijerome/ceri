@@ -34,6 +34,15 @@ public class BinaryPrinterBehavior {
 	}
 
 	@Test
+	public void shouldPrintCodePoints() {
+		StringBuilder b = new StringBuilder();
+		BinaryPrinter bin = BinaryPrinter.builder().out(StringUtil.asPrintStream(b))
+			.showBinary(false).build();
+		bin.print("abc");
+		assertThat(b.toString(), is("00 61 00 62 00 63        .a.b.c  \n"));
+	}
+
+	@Test
 	public void shouldPrintHex() {
 		StringBuilder b = new StringBuilder();
 		BinaryPrinter bin =

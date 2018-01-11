@@ -1,5 +1,6 @@
 package ceri.common.property;
 
+import static ceri.common.property.PropertyUtil.load;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertIterable;
@@ -9,10 +10,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -43,6 +47,24 @@ public class BasePropertiesBehavior {
 		properties.put("m.n.2.a", "mn2a");
 		properties.put("3.1", "31");
 		properties.put("7.2", "72");
+	}
+
+	@Test
+	public void shouldMerge() throws IOException {
+		BaseProperties bp = BaseProperties.merge( //
+			BaseProperties.from(load(getClass(), "property-test-a-b-c.properties")),
+			BaseProperties.from(load(getClass(), "property-test-d-e-f.properties")));
+		assertThat(bp.value("name"), is("property-test-d-e-f"));
+		assertThat(bp.value("a.b.c"), is("true"));
+		assertThat(bp.value("d.e.f"), is("true"));
+	}
+
+	@Test
+	public void shouldCreateFromResourceBundle() {
+		ResourceBundle r = ResourceBundle.getBundle( //
+			"ceri.common.property.PropertyAccessor", Locale.ENGLISH);
+		BaseProperties bp = BaseProperties.from(r);
+		assertThat(bp.value("name"), is("PropertyAccessor"));
 	}
 
 	@Test

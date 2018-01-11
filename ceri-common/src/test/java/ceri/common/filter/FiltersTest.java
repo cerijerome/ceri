@@ -20,6 +20,12 @@ public class FiltersTest {
 	}
 
 	@Test
+	public void testTransform() {
+		Filter<String> filter = Filters.transform(Filters.gt(3), String::length);
+		assertTrue(filter.filter("test"));
+	}
+
+	@Test
 	public void testLower() {
 		assertTrue(Filters.lower(null).filter("aaa"));
 		Filter<String> filter = Filters.lower(Filters.eqAny("a"));
@@ -65,7 +71,7 @@ public class FiltersTest {
 		assertTrue(filter.filter("ABC"));
 		assertFalse(filter.filter("aBcd"));
 	}
-	
+
 	@Test
 	public void testEq() {
 		Filter<Integer> filter = Filters.eqAny(-1, 1);
@@ -143,7 +149,7 @@ public class FiltersTest {
 		assertFalse(filter.filter(0L));
 		assertFalse(filter.filter(Long.MIN_VALUE));
 	}
-	
+
 	@Test
 	public void testGte() {
 		assertTrue(Filters.<String>gte(null).filter("aaa"));
@@ -164,7 +170,7 @@ public class FiltersTest {
 		assertFalse(filter.filter(0L));
 		assertFalse(filter.filter(Long.MAX_VALUE));
 	}
-	
+
 	@Test
 	public void testLte() {
 		assertTrue(Filters.<String>lte(null).filter("aaa"));
@@ -208,7 +214,7 @@ public class FiltersTest {
 	@Test
 	public void testPattern() {
 		assertTrue(Filters.pattern("").filter("aaa"));
-		assertTrue(Filters.pattern((Pattern)null).filter("aaa"));
+		assertTrue(Filters.pattern((Pattern) null).filter("aaa"));
 		Filter<String> filter = Filters.pattern("(?i)^a.*z$");
 		assertTrue(filter.filter("ABC..XYZ"));
 		assertTrue(filter.filter("aAzZ"));
@@ -230,5 +236,5 @@ public class FiltersTest {
 		assertTrue(Filters.contains("ABC").test("xyzABCdef"));
 		assertFalse(Filters.contains("ABC").test("xyzA BCdef"));
 	}
-	
+
 }

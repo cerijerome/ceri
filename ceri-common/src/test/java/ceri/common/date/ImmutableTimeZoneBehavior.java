@@ -1,11 +1,18 @@
 package ceri.common.date;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 import org.junit.Test;
 
 public class ImmutableTimeZoneBehavior {
+
+	@Test
+	public void shouldReturnCurrentTimeZone() {
+		assertThat(ImmutableTimeZone.getDefault(), is(TimeZone.getDefault()));
+	}
 
 	@Test
 	public void shouldAllowAllNonSetterMethods() {
@@ -34,11 +41,11 @@ public class ImmutableTimeZoneBehavior {
 		TimeZone tz = new ImmutableTimeZone(TimeZone.getTimeZone("GMT"));
 		tz.setID("GMT");
 	}
-	
+
 	@Test(expected = UnsupportedOperationException.class)
 	public void shouldNotAllowSetRawOffset() {
 		TimeZone tz = new ImmutableTimeZone(TimeZone.getTimeZone("GMT"));
 		tz.setRawOffset(0);
 	}
-	
+
 }

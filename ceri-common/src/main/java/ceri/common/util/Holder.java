@@ -16,6 +16,8 @@ public class Holder<T> {
 		return holder;
 	}
 
+	private Holder() {}
+	
 	public T set(T value) {
 		T oldValue = this.value;
 		this.value = value;
