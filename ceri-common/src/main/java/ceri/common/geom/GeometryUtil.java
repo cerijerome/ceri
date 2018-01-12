@@ -14,7 +14,7 @@ public class GeometryUtil {
 	 * Vector from given radius and angle.
 	 */
 	public static Point2d offset(double radius, double angle) {
-		return new Point2d(radius * Math.cos(angle), radius * Math.sin(angle));
+		return Point2d.of(radius * Math.cos(angle), radius * Math.sin(angle));
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class GeometryUtil {
 		validateMax(ratio.y, 1, "Y spacing ratio");
 		double x = ratio.x * (size.w - crop.w);
 		double y = ratio.y * (size.h - crop.h);
-		return new Rectangle2d(x, y, crop.w, crop.h);
+		return Rectangle2d.of(x, y, crop.w, crop.h);
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class GeometryUtil {
 		double y = Math.max(r0.y, r1.y);
 		double yh = Math.min(r0.y + r0.h, r1.y + r1.h);
 		if (y > yh || x > xw) return Rectangle2d.NULL;
-		return new Rectangle2d(x, y, xw - x, yh - y);
+		return Rectangle2d.of(x, y, xw - x, yh - y);
 	}
 
 }

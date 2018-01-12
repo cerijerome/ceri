@@ -11,13 +11,16 @@ public class Polar2d {
 	public final double phi;
 
 	public static Polar2d from(Point2d point) {
-		if (point.equals(Point2d.ZERO)) return ZERO;
-		Line2d line = Line2d.create(Point2d.ZERO, point);
-		return new Polar2d(line.length(), line.angle());
+		if (point == Point2d.ZERO) return ZERO;
+		Line2d line = Line2d.of(Point2d.ZERO, point);
+		return of(line.length(), line.angle());
 	}
 
-	public static Polar2d create(double r, double phi) {
+	public static Polar2d of(double r, double phi) {
+		r += .0;
+		phi += .0;
 		validateMin(r, 0, "Radius");
+		if (r == ZERO.r && phi == ZERO.phi) return ZERO;
 		return new Polar2d(r, phi);
 	}
 
@@ -31,11 +34,11 @@ public class Polar2d {
 	}
 
 	public Polar2d rotate(double angle) {
-		return new Polar2d(r, phi + angle);
+		return of(r, phi + angle);
 	}
 
 	public Polar2d reverse() {
-		return new Polar2d(r, -phi);
+		return of(r, -phi);
 	}
 
 	@Override

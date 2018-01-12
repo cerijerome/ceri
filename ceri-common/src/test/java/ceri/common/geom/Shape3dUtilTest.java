@@ -15,6 +15,23 @@ public class Shape3dUtilTest {
 	}
 
 	@Test
+	public void testTruncatedConcaveSemiSpheroidFromNegativeGradient() {
+		assertException(() -> Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(4, 4, 8, 1));
+		assertException(() -> Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(2, 4, 8, 0));
+		TruncatedRadial3d<ConcaveSpheroid3d> r =
+			Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(2, 4, 8, 1);
+		ConcaveSpheroid3d c = r.wrapped();
+		assertApprox(c.r, 5);
+		assertApprox(c.a, 3);
+		assertApprox(c.c, 8.485);
+		r = 	Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(2, 4, 8, -1);
+		c = r.wrapped();
+		assertApprox(c.r, 5);
+		assertApprox(c.a, 3);
+		assertApprox(c.c, 8.485);
+	}
+
+	@Test
 	public void testTruncatedSpheroidFromPositiveGradient() {
 		TruncatedRadial3d<Spheroid3d> r = Shape3dUtil.truncatedSpheroidFromGradient(2, 4, 2, 2);
 		Spheroid3d s = r.wrapped();
@@ -24,9 +41,9 @@ public class Shape3dUtilTest {
 		s = r.wrapped();
 		assertApprox(s.r, 2.236);
 		assertApprox(s.c, 2.236);
-		// Upper radius must be larger than lower radius 
+		// Upper radius must be larger than lower radius
 		assertException(() -> Shape3dUtil.truncatedSpheroidFromGradient(2, 2, 1, 1000));
-		// Too much height for curvature 
+		// Too much height for curvature
 		assertException(() -> Shape3dUtil.truncatedSpheroidFromGradient(0, 2, 1, 1));
 		Shape3dUtil.truncatedSpheroidFromGradient(0, 2, 0.7, 1);
 	}
@@ -56,8 +73,8 @@ public class Shape3dUtilTest {
 		r = Shape3dUtil.conicalFrustum(1, 2, 1);
 		assertThat(r, is(TruncatedRadial3d.create(Cone3d.create(2, 2), 1, 1)));
 		r = Shape3dUtil.conicalFrustum(2, 1, 1);
-		assertThat(r, is(InvertedRadial3d.create(TruncatedRadial3d
-			.create(Cone3d.create(2, 2), 1, 1))));
+		assertThat(r,
+			is(InvertedRadial3d.create(TruncatedRadial3d.create(Cone3d.create(2, 2), 1, 1))));
 	}
 
 }

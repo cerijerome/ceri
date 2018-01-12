@@ -428,7 +428,7 @@ public class MathUtil {
 	 */
 	public static double max(double... array) {
 		if (array == null || array.length == 0) return 0;
-		double max = Double.MIN_VALUE;
+		double max = -Double.MAX_VALUE;
 		for (double val : array)
 			if (max < val) max = val;
 		return max;

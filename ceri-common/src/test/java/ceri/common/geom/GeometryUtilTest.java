@@ -27,10 +27,10 @@ public class GeometryUtilTest {
 	private final Ratio2d r2 = new Ratio2d(0.2, 0.5);
 	private final Ratio2d r3 = new Ratio2d(0, 0);
 	private final Ratio2d r4 = new Ratio2d(1, 0);
-	private final Rectangle2d rt0 = new Rectangle2d(0, 0, 200, 100);
-	private final Rectangle2d rt1 = new Rectangle2d(-50, 50, 100, 40);
-	private final Rectangle2d rt2 = new Rectangle2d(-40, -100, 0, 400);
-	private final Rectangle2d rt3 = new Rectangle2d(-20, -200, 100, 100);
+	private final Rectangle2d rt0 = Rectangle2d.of(0, 0, 200, 100);
+	private final Rectangle2d rt1 = Rectangle2d.of(-50, 50, 100, 40);
+	private final Rectangle2d rt2 = Rectangle2d.of(-40, -100, 0, 400);
+	private final Rectangle2d rt3 = Rectangle2d.of(-20, -200, 100, 100);
 
 	@Test
 	public void testConstructorIsPrivate() {

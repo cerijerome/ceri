@@ -54,8 +54,8 @@ public class Biases {
 	 */
 	public static Bias limiter(Bias bias) {
 		return r -> {
-			if (r == MAX_RATIO) return MAX_RATIO;
-			if (r == MIN_RATIO) return MIN_RATIO;
+			if (r <= MIN_RATIO) return MIN_RATIO;
+			if (r >= MAX_RATIO) return MAX_RATIO;
 			r = bias.bias(r);
 			if (r < MIN_RATIO) return MIN_RATIO;
 			if (r > MAX_RATIO) return MAX_RATIO;
@@ -64,8 +64,8 @@ public class Biases {
 	}
 
 	/**
-	 * Scales a partial bias starting at 0.
-	 * If the given bias is not an increasing bias the result may be clipped.
+	 * Scales a partial bias starting at 0. If the given bias is not an increasing bias the result
+	 * may be clipped.
 	 */
 	public static Bias partial(Bias bias, double len) {
 		validateRange(len, MIN_RATIO, MAX_RATIO);
@@ -76,20 +76,19 @@ public class Biases {
 	}
 
 	/**
-	 * Wrapping bias offset.
+	 * Wrapping bias offset. Smoother if start and end gradients of the given bias are equal.
 	 */
 	public static Bias offset(Bias bias, double offset) {
-		return ratio -> {
-			ratio = offset(ratio, offset);
-			ratio = bias.bias(ratio);
-			return offset(ratio, -offset);
-		};
+		double start = bias.bias(offset);
+		return limiter(r -> offset(bias.bias(offset(r, offset)), -start));
 	}
 
 	private static double offset(double ratio, double offset) {
-		ratio = ratio - offset;
-		while (ratio < MIN_RATIO) ratio += MAX_RATIO;
-		while (ratio > MAX_RATIO) ratio -= MAX_RATIO;
+		ratio = ratio + offset;
+		while (ratio < MIN_RATIO)
+			ratio += MAX_RATIO;
+		while (ratio > MAX_RATIO)
+			ratio -= MAX_RATIO;
 		return ratio;
 	}
 
@@ -103,7 +102,7 @@ public class Biases {
 	/**
 	 * Sequences the biases.
 	 */
-	public static Bias sequence(Bias...biases) {
+	public static Bias sequence(Bias... biases) {
 		return sequence(Arrays.asList(biases));
 	}
 
@@ -114,9 +113,10 @@ public class Biases {
 		int n = biases.size();
 		double partial = MAX_RATIO / n;
 		return r -> {
-			int i = (int)(r / partial);
+			int i = (int) (r / partial);
 			if (i >= n) i = n - 1;
-			return biases.get(i).bias(r / partial) * partial;
+			double start = partial * i;
+			return start + (biases.get(i).bias((r - start) * n) * partial);
 		};
 	}
 

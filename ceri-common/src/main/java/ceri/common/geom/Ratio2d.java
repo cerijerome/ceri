@@ -15,6 +15,8 @@ public class Ratio2d {
 	}
 
 	public Ratio2d(double x, double y) {
+		x += 0.0;
+		y += 0.0;
 		validateMin(x, 0, "X ratio");
 		validateMin(y, 0, "Y ratio");
 		this.x = x;

@@ -11,7 +11,7 @@ import ceri.common.util.BasicUtil;
  */
 public class FunctionWrapper<E extends Exception> {
 	private WrapperException.Agent<E> agent = WrapperException.agent();
-	
+
 	public static <E extends Exception> FunctionWrapper<E> create() {
 		return new FunctionWrapper<>();
 	}

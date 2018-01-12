@@ -51,13 +51,13 @@ public class Ellipse2d {
 	 */
 	public Point2d pointFromGradient(double m) {
 		if (a == 0 && b == 0) return Point2d.ZERO;
-		if (m == 0) return new Point2d(0, b);
-		if (m == Double.POSITIVE_INFINITY) return new Point2d(-a, 0);
-		if (m == Double.NEGATIVE_INFINITY) return new Point2d(a, 0);
+		if (m == 0) return Point2d.of(0, b);
+		if (m == Double.POSITIVE_INFINITY) return Point2d.of(-a, 0);
+		if (m == Double.NEGATIVE_INFINITY) return Point2d.of(a, 0);
 		double d = Math.sqrt((b * b) + (m * m * a * a));
 		double x = -m * a * a / d;
 		double y = b * b / d;
-		return new Point2d(x, y);
+		return Point2d.of(x, y);
 	}
 
 	/**

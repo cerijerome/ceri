@@ -507,6 +507,18 @@ public class TestUtil {
 	}
 
 	/**
+	 * Capture and return any thrown exception.
+	 */
+	public static Exception exception(ExceptionRunnable<Exception> runnable) {
+		try {
+			runnable.run();
+			return null;
+		} catch (Exception e) {
+			return e;
+		}
+	}
+
+	/**
 	 * Use this for more flexibility than adding @Test(expected=...)
 	 */
 	public static void assertException(ExceptionRunnable<Exception> runnable) {
@@ -518,12 +530,28 @@ public class TestUtil {
 	 */
 	public static void assertException(Class<? extends Exception> exceptionCls,
 		ExceptionRunnable<?> runnable) {
+		assertException(exceptionCls, null, runnable);
+	}
+
+	/**
+	 * Use this for more flexibility than adding @Test(expected=...)
+	 */
+	public static void assertException(String message, ExceptionRunnable<Exception> runnable) {
+		assertException(Exception.class, message, runnable);
+	}
+
+	/**
+	 * Tests if an exception is thrown with given message.
+	 */
+	public static void assertException(Class<? extends Exception> exceptionCls, String message,
+		ExceptionRunnable<?> runnable) {
 		try {
 			runnable.run();
 		} catch (Throwable e) {
-			if (exceptionCls.isAssignableFrom(e.getClass())) return;
-			throw new AssertionError(
+			if (!exceptionCls.isAssignableFrom(e.getClass())) throw new AssertionError(
 				"Should throw " + exceptionCls.getSimpleName() + " but threw " + e);
+			if (message != null) assertThat("Exception message", e.getMessage(), is(message));
+			return;
 		}
 		throw new AssertionError(
 			"Should throw " + exceptionCls.getSimpleName() + " but nothing thrown");

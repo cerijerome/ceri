@@ -1,6 +1,9 @@
 package ceri.common.color;
 
+import static ceri.common.collection.StreamUtil.toList;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.exerciseEnum;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -8,7 +11,9 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.awt.Color;
 import java.util.List;
+import java.util.stream.IntStream;
 import org.junit.Test;
+import ceri.common.data.ByteUtil;
 import ceri.common.math.MathUtil;
 
 public class ColorUtilTest {
@@ -16,6 +21,18 @@ public class ColorUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ColorUtil.class);
+	}
+
+	@Test
+	public void codeCoverage() {
+		exerciseEnum(ColorPreset.class);
+	}
+
+	@Test
+	public void testMax() {
+		ColorUtil.max(Color.black);
+		assertColor(ColorUtil.max(Color.black), 0xffffff);
+		assertColor(ColorUtil.max(X11Color.coral.color), 0xff7f50);
 	}
 
 	@Test
@@ -44,7 +61,7 @@ public class ColorUtilTest {
 		assertApproximateHsb(colors.get(0), 0, 0, 0.25);
 		assertApproximateHsb(colors.get(1), 0, 0, 0.25);
 		assertApproximateHsb(colors.get(2), 0, 0, 0.25);
-		colors = ColorUtil.rotateHue(0x408080, 4);
+		colors = ColorUtil.rotateHue(new Color(0x408080), 4);
 		assertThat(colors.size(), is(4));
 		assertApproximateHsb(colors.get(0), 0.75, 0.5, 0.5);
 		assertApproximateHsb(colors.get(1), 0.0, 0.5, 0.5);
@@ -59,10 +76,24 @@ public class ColorUtilTest {
 	}
 
 	@Test
+	public void testScaleChannel() {
+		assertThat(ColorUtil.scaleChannel(50, 150, 0), is(50));
+		assertThat(ColorUtil.scaleChannel(50, 150, -1), is(50));
+		assertThat(ColorUtil.scaleChannel(50, 150, 1), is(150));
+		assertThat(ColorUtil.scaleChannel(50, 150, 1.1), is(150));
+	}
+
+	@Test
 	public void testAlphaColor() {
 		assertColor(ColorUtil.alphaColor(Color.magenta, 100), 255, 0, 255, 100);
 		assertColor(ColorUtil.alphaColor(Color.yellow, 0), 255, 255, 0, 0);
 		assertColor(ColorUtil.alphaColor(Color.cyan, 255), 0, 255, 255, 255);
+	}
+
+	@Test
+	public void testColors() {
+		assertIterable(ColorUtil.colors("black", "white", "cyan"), Color.black, Color.white,
+			Color.cyan);
 	}
 
 	@Test
@@ -120,6 +151,13 @@ public class ColorUtilTest {
 	}
 
 	@Test
+	public void testDimAll() {
+		assertColors(ColorUtil.dimAll(0.5, Color.black, Color.white, Color.yellow, Color.cyan,
+			Color.magenta), 0, 0x808080, 0x808000, 0x008080, 0x800080);
+		assertColors(ColorUtil.dimAll(0.5, 0, 0xffffff, 0x806040), 0, 0x808080, 0x403020);
+	}
+
+	@Test
 	public void testToString() {
 		assertThat(ColorUtil.toString(Color.cyan), is("cyan"));
 		assertThat(ColorUtil.toString(Color.black), is("black"));
@@ -154,6 +192,18 @@ public class ColorUtilTest {
 		assertThat(MathUtil.simpleRound(hsb.h, 2), is(h));
 		assertThat(MathUtil.simpleRound(hsb.s, 2), is(s));
 		assertThat(MathUtil.simpleRound(hsb.b, 2), is(b));
+	}
+
+	private void assertColors(Iterable<Color> colors, int... colorValues) {
+		assertIterable(colors, toList(IntStream.of(colorValues).mapToObj(Color::new)));
+	}
+
+	private void assertColor(Color color, int rgb) {
+		assertColor(color, byteAt(rgb, 2), byteAt(rgb, 1), byteAt(rgb, 0));
+	}
+
+	private int byteAt(int color, int i) {
+		return ByteUtil.byteAt(color, i) & 0xff;
 	}
 
 	private void assertColor(Color color, int r, int g, int b) {

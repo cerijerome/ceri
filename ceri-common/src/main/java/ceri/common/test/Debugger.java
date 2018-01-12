@@ -18,15 +18,22 @@ public class Debugger {
 	private final Map<Caller, Integer> methodCounts = new HashMap<>();
 	private long totalCalls = 0;
 
-	public Debugger() {
-		this(System.err, 0, 0);
+	/**
+	 * Creates a debugger writing to given stderr.
+	 */
+	public static Debugger of() {
+		return of(System.err, 0, 0);
 	}
-
+	
 	/**
 	 * Creates a debugger writing to given stream, indent starting at given index in stack trace,
 	 * stopping output after given number of method calls to the debugger.
 	 */
-	public Debugger(PrintStream stream, int traceStartIndex, int stopCount) {
+	public static Debugger of(PrintStream stream, int traceStartIndex, int stopCount) {
+		return new Debugger(stream, traceStartIndex, stopCount);
+	}
+
+	private Debugger(PrintStream stream, int traceStartIndex, int stopCount) {
 		this.stream = stream;
 		this.traceStartIndex = traceStartIndex;
 		this.stopCount = stopCount;

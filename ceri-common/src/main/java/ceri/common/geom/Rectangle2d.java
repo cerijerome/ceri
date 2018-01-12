@@ -11,13 +11,22 @@ public class Rectangle2d {
 	public final double w;
 	public final double h;
 
-	public Rectangle2d(Point2d position, Dimension2d size) {
-		this(position.x, position.y, size.w, size.h);
+	public static Rectangle2d of(Point2d position, Dimension2d size) {
+		return of(position.x, position.y, size.w, size.h);
 	}
 
-	public Rectangle2d(double x, double y, double w, double h) {
+	public static Rectangle2d of(double x, double y, double w, double h) {
+		x += 0.0;
+		y += 0.0;
+		w += 0.0;
+		h += 0.0;
 		validateMin(w, 0, "Width");
 		validateMin(h, 0, "Height");
+		if (NULL.equals(x, y, w, h)) return null;
+		return new Rectangle2d(x,  y, w, h);
+	}
+
+	private Rectangle2d(double x, double y, double w, double h) {
 		this.x = x;
 		this.y = y;
 		this.w = w;
@@ -29,15 +38,19 @@ public class Rectangle2d {
 	}
 
 	public Point2d position() {
-		return new Point2d(x, y);
+		return Point2d.of(x, y);
 	}
 
 	public Point2d corner() {
-		return new Point2d(x + w, y + h);
+		return Point2d.of(x + w, y + h);
 	}
 
 	public double area() {
 		return w * h;
+	}
+
+	private boolean equals(double x, double y, double w, double h) {
+		return this.x == x && this.y == y && this.w == w && this.h == h;
 	}
 
 	@Override

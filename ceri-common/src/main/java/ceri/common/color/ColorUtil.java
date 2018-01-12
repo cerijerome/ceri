@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import ceri.common.data.ByteUtil;
 import ceri.common.math.MathUtil;
@@ -25,7 +24,7 @@ public class ColorUtil {
 	private static final int TRIPLE_HEX_LEN = 3;
 	private static final int BITS4 = 4;
 	private static final int BITS8 = 8;
-	//private static final int HSB_DECIMALS = 5;
+	// private static final int HSB_DECIMALS = 5;
 	private static final int RGB_MASK = 0xffffff;
 	private static final Map<Integer, String> awtColorNames = colorMap();
 
@@ -45,7 +44,7 @@ public class ColorUtil {
 	}
 
 	private static int divide(int channel, double ratio) {
-		if (ratio == 0.0) return channel;
+		if (ratio == 0.0) return 0xff;
 		return (int) (channel / ratio);
 	}
 
@@ -88,9 +87,8 @@ public class ColorUtil {
 	}
 
 	public static Color awtColor(String name) {
-		Integer rgb =
-			first(colorMap().entrySet().stream().filter(e -> e.getValue().equals(name)).map(
-				Map.Entry::getKey));
+		Integer rgb = first(colorMap().entrySet().stream().filter(e -> e.getValue().equals(name))
+			.map(Map.Entry::getKey));
 		if (rgb == null) return null;
 		return new Color(rgb);
 	}
@@ -101,10 +99,6 @@ public class ColorUtil {
 
 	public static boolean isNamedAwtColor(int rgb) {
 		return awtColorNames.containsKey(rgb & RGB_MASK);
-	}
-
-	public static String toString(Collection<Color> colors) {
-		return colors.stream().map(ColorUtil::toString).collect(Collectors.joining(", ", "[", "]"));
 	}
 
 	public static String toString(Color color) {

@@ -44,7 +44,7 @@ public class Position {
 	}
 
 	public Point2d vector() {
-		return new Point2d(x, y);
+		return Point2d.of(x, y);
 	}
 
 	public boolean absolute() {
@@ -58,7 +58,7 @@ public class Position {
 	}
 
 	public Position reflect(Line2d line) {
-		return Position.create(type, line.reflect(new Point2d(x, y)));
+		return Position.create(type, line.reflect(Point2d.of(x, y)));
 	}
 
 	public Position reverse() {

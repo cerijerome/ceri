@@ -15,42 +15,49 @@ public class Line2d {
 	/**
 	 * Creates a line from origin to the given point.
 	 */
-	public static Line2d create(double x, double y) {
-		return create(new Point2d(x, y));
+	public static Line2d of(double x, double y) {
+		return of(Point2d.of(x, y));
 	}
 
 	/**
 	 * Creates a line from origin to the given point.
 	 */
-	public static Line2d create(Point2d to) {
-		return create(Point2d.ZERO, to);
+	public static Line2d of(Point2d to) {
+		return of(Point2d.ZERO, to);
 	}
 
 	/**
 	 * Creates a line from one point to another.
 	 */
-	public static Line2d create(double x0, double y0, double x1, double y1) {
-		return create(new Point2d(x0, y0), new Point2d(x1, y1));
+	public static Line2d of(double x0, double y0, double x1, double y1) {
+		return of(Point2d.of(x0, y0), Point2d.of(x1, y1));
 	}
 
 	/**
 	 * Creates a line from one point to another.
 	 */
-	public static Line2d create(Point2d from, Point2d to) {
+	public static Line2d of(Point2d from, Point2d to) {
+		if (ZERO.equals(from, to)) return ZERO;
+		if (X_UNIT.equals(from, to)) return X_UNIT;
+		if (Y_UNIT.equals(from, to)) return Y_UNIT;
 		return new Line2d(from, to);
 	}
 
 	private Line2d(Point2d from, Point2d to) {
 		this.from = from;
 		this.to = to;
-		vector = new Point2d(to.x - from.x, to.y - from.y);
+		vector = Point2d.of(to.x - from.x, to.y - from.y);
 	}
 
+	private boolean equals(Point2d from, Point2d to) {
+		return this.from.equals(from) && this.to.equals(to);
+	}
+	
 	/**
 	 * Reflect the given point in the extended line.
 	 */
 	public Point2d reflect(Point2d point) {
-		return LineEquation2d.from(this).reflect(point);
+		return LineEquation2d.of(this).reflect(point);
 	}
 
 	/**

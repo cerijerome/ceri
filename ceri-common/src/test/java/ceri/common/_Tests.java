@@ -11,6 +11,7 @@ import ceri.common.collection.ImmutableByteArrayBehavior;
 import ceri.common.collection.ImmutableUtilTest;
 import ceri.common.collection.MapBuilderBehavior;
 import ceri.common.collection.StreamUtilTest;
+import ceri.common.color.BiasesTest;
 import ceri.common.color.ColorComparatorsTest;
 import ceri.common.color.ColorUtilTest;
 import ceri.common.color.ColorableTest;
@@ -45,6 +46,10 @@ import ceri.common.factory.StringFactoriesTest;
 import ceri.common.filter.CollectionFiltersTest;
 import ceri.common.filter.EnumFiltersTest;
 import ceri.common.filter.FiltersTest;
+import ceri.common.function.FunctionUtilTest;
+import ceri.common.function.FunctionWrapperBehavior;
+import ceri.common.geo.LatLngBehavior;
+import ceri.common.geo.LatLngUtilTest;
 import ceri.common.geom.Circle2dBehavior;
 import ceri.common.geom.ConcaveSpheroidBehavior;
 import ceri.common.geom.Cone3dBehavior;
@@ -158,6 +163,7 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	MapBuilderBehavior.class, //
 	StreamUtilTest.class, //
 	// color
+	BiasesTest.class, //
 	ColorableTest.class, //
 	ColorComparatorsTest.class, //
 	ColorUtilTest.class, //
@@ -200,6 +206,12 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	CollectionFiltersTest.class, //
 	EnumFiltersTest.class, //
 	FiltersTest.class, //
+	// function
+	FunctionUtilTest.class, //
+	FunctionWrapperBehavior.class, //
+	// geo
+	LatLngBehavior.class, //
+	LatLngUtilTest.class, //
 	// geom
 	Circle2dBehavior.class, //
 	ConcaveSpheroidBehavior.class, //

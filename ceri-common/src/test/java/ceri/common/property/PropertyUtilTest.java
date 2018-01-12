@@ -49,6 +49,7 @@ public class PropertyUtilTest {
 			doThrow(new IOException()).when(properties).store((OutputStream) any(), anyString());
 			File file = helper.file("test.properties");
 			assertException(() -> PropertyUtil.store(properties, file));
+			PropertyUtil.store(new Properties(), file);
 		}
 	}
 

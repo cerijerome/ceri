@@ -10,23 +10,23 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 public class Circle2dBehavior {
-	private final Circle2d c0 = Circle2d.create(4);
-	private final Circle2d c1 = Circle2d.create(1);
+	private final Circle2d c0 = Circle2d.of(4);
+	private final Circle2d c1 = Circle2d.of(1);
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		exerciseEquals(c0, Circle2d.create(4));
-		assertNotEquals(c0, Circle2d.create(4.1));
+		exerciseEquals(c0, Circle2d.of(4));
+		assertNotEquals(c0, Circle2d.of(4.1));
 	}
 
 	@Test
 	public void shouldOnlyAllowPositiveRadius() {
-		assertException(() -> Circle2d.create(-0.1));
+		assertException(() -> Circle2d.of(-0.1));
 	}
 
 	@Test
 	public void shouldDefineNull() {
-		assertThat(Circle2d.create(0), is(Circle2d.NULL));
+		assertThat(Circle2d.of(0), is(Circle2d.NULL));
 	}
 
 	@Test

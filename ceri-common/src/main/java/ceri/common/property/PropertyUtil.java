@@ -54,8 +54,8 @@ public class PropertyUtil {
 		Properties properties = new Properties();
 		try (InputStream in = new FileInputStream(file)) {
 			properties.load(in);
+			return properties;
 		}
-		return properties;
 	}
 
 	/**
@@ -74,8 +74,8 @@ public class PropertyUtil {
 		try (InputStream in = cls.getResourceAsStream(name)) {
 			if (in == null) throw new FileNotFoundException(cls.getName() + ": " + name);
 			properties.load(in);
+			return properties;
 		}
-		return properties;
 	}
 
 	/**

@@ -10,13 +10,22 @@ public class Point2d {
 	public final double x;
 	public final double y;
 
-	public Point2d(double x, double y) {
+	public static Point2d of(double x, double y) {
+		x += .0;
+		y += .0;
+		if (ZERO.equals(x, y)) return ZERO;
+		if (X_UNIT.equals(x, y)) return X_UNIT;
+		if (Y_UNIT.equals(x, y)) return Y_UNIT;
+		return new Point2d(x, y);
+	}
+	
+	private Point2d(double x, double y) {
 		this.x = x;
 		this.y = y;
 	}
 
 	public Point2d reverse() {
-		return new Point2d(-x, -y);
+		return Point2d.of(-x, -y);
 	}
 
 	public Point2d translate(Point2d offset) {
@@ -24,11 +33,11 @@ public class Point2d {
 	}
 
 	public Point2d translate(double x, double y) {
-		return new Point2d(this.x + x, this.y + y);
+		return Point2d.of(this.x + x, this.y + y);
 	}
 
 	public Point2d to(Point2d end) {
-		return new Point2d(end.x - x, end.y - y);
+		return Point2d.of(end.x - x, end.y - y);
 	}
 
 	public Point2d from(Point2d start) {
@@ -37,9 +46,13 @@ public class Point2d {
 
 	public Point2d scale(Ratio2d scale) {
 		// +0.0 converts any -0.0 to 0.0
-		return new Point2d(x * scale.x + 0.0, y * scale.y + 0.0);
+		return Point2d.of(x * scale.x + 0.0, y * scale.y + 0.0);
 	}
 
+	private boolean equals(double x, double y) {
+		return this.x == x && this.y == y;
+	}
+	
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(x, y);

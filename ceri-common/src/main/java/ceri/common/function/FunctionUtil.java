@@ -70,7 +70,7 @@ public class FunctionUtil {
 		};
 	}
 
-	public static <E extends Exception, T> ExceptionFunction<E, ?, T>
+	public static <E extends Exception, T, U> ExceptionFunction<E, U, T>
 		asFunction(ExceptionSupplier<E, T> supplier) {
 		return t -> supplier.get();
 	}

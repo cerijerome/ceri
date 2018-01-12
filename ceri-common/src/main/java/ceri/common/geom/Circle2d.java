@@ -10,7 +10,7 @@ public class Circle2d {
 	public static final Circle2d NULL = new Circle2d(0);
 	public final double r;
 
-	public static Circle2d create(double r) {
+	public static Circle2d of(double r) {
 		if (r == 0) return NULL;
 		validateMin(r, 0, "Radius");
 		return new Circle2d(r);
@@ -46,13 +46,13 @@ public class Circle2d {
 	 */
 	public Point2d pointFromGradient(double m) {
 		if (r == 0) return Point2d.ZERO;
-		if (m == 0) return new Point2d(0, r);
-		if (m == Double.POSITIVE_INFINITY) return new Point2d(-r, 0);
-		if (m == Double.NEGATIVE_INFINITY) return new Point2d(r, 0);
+		if (m == 0) return Point2d.of(0, r);
+		if (m == Double.POSITIVE_INFINITY) return Point2d.of(-r, 0);
+		if (m == Double.NEGATIVE_INFINITY) return Point2d.of(r, 0);
 		double d = Math.sqrt(1 + (m * m));
 		double y = r / d;
 		double x = -m * y;
-		return new Point2d(x, y);
+		return Point2d.of(x, y);
 	}
 
 	/**

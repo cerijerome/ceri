@@ -9,28 +9,31 @@ import ceri.common.util.HashCoder;
  */
 public class LineEquation2d {
 	public static final LineEquation2d NULL = new LineEquation2d(0, 0, 0);
-	public static final LineEquation2d X_AXIS = from(Line2d.X_UNIT);
-	public static final LineEquation2d Y_AXIS = from(Line2d.Y_UNIT);
+	public static final LineEquation2d X_AXIS = of(Line2d.X_UNIT);
+	public static final LineEquation2d Y_AXIS = of(Line2d.Y_UNIT);
 	public final double a;
 	public final double b;
 	public final double c;
 
-	public static LineEquation2d from(Line2d line) {
+	public static LineEquation2d of(Line2d line) {
 		return between(line.from, line.to);
 	}
 
 	public static LineEquation2d between(Point2d from, Point2d to) {
 		if (from.equals(to)) return NULL;
-		double dx = to.x - from.x;
-		double dy = to.y - from.y;
-		if (dx == 0) return new LineEquation2d(1, 0, -from.x);
-		if (dy == 0) return new LineEquation2d(0, 1, -from.y);
+		double dx = to.x - from.x + .0;
+		double dy = to.y - from.y + .0;
+		if (dx == 0) return of(1, 0, -from.x);
+		if (dy == 0) return of(0, 1, -from.y);
 		double b = -dx / dy;
 		double c = -from.x - (b * from.y);
-		return new LineEquation2d(1, b, c);
+		return of(1, b, c);
 	}
 
-	public static LineEquation2d create(double a, double b, double c) {
+	public static LineEquation2d of(double a, double b, double c) {
+		a += .0;
+		b += .0;
+		c += .0;
 		if (a == 0 && b == 0) return NULL;
 		return new LineEquation2d(a, b, c);
 	}
@@ -47,12 +50,12 @@ public class LineEquation2d {
 	}
 
 	public Point2d reflect(double x, double y) {
-		if (isNull()) return new Point2d(x, y);
+		if (isNull()) return Point2d.of(x, y);
 		double aa = a * a;
 		double bb = b * b;
 		double newX = ((x * (bb - aa)) - (y * a * b * 2) - (a * c * 2)) / (aa + bb);
 		double newY = ((y * (aa - bb)) - (x * a * b * 2) - (b * c * 2)) / (aa + bb);
-		return new Point2d(newX, newY);
+		return Point2d.of(newX, newY);
 	}
 
 	public double angle() {
