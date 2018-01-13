@@ -150,7 +150,7 @@ public class FractionFormats {
 		}
 	}
 
-	private static class Parser {
+	static class Parser {
 		private static final Map<Character, String> EXPANSIONS = expansions();
 		private static final Pattern EXPAND_REGEX = RegexUtil.compile("[%s]", expandables());
 		private static final String INTEGERS = "[+-]?[0-9]+";
@@ -212,7 +212,7 @@ public class FractionFormats {
 		}
 	}
 
-	private static class Formatter {
+	static class Formatter {
 
 		private Formatter() {}
 

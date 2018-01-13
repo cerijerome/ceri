@@ -16,13 +16,14 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import ceri.common.collection.ImmutableByteArray;
-import ceri.common.function.ExceptionRunnable;
 
 /**
  * I/O utility functions.
@@ -38,14 +39,6 @@ public class IoUtil {
 
 	private IoUtil() {}
 
-	public void run(ExceptionRunnable<IOException> runnable) {
-		try {
-			runnable.run();
-		} catch (IOException e) {
-			throw new RuntimeIoException(e);
-		}
-	}
-	
 	/**
 	 * Clears available bytes from an input stream and returns the total number of bytes cleared.
 	 */
@@ -96,13 +89,13 @@ public class IoUtil {
 			tracker.dir(tempDir); // create dir path
 			if (!tempDir.exists()) {
 				tracker.delete(); // delete any created parent dirs
-				throw new IllegalStateException("Unable to create directory " +
-					tempDir.getAbsolutePath());
+				throw new IllegalStateException(
+					"Unable to create directory " + tempDir.getAbsolutePath());
 			}
 			return tempDir;
 		}
-		throw new IllegalStateException("Unable to create random temp dir in " + MAX_UUID_ATTEMPTS +
-			" attempts");
+		throw new IllegalStateException(
+			"Unable to create random temp dir in " + MAX_UUID_ATTEMPTS + " attempts");
 	}
 
 	/**
@@ -222,8 +215,8 @@ public class IoUtil {
 		while (dir != null) {
 			String dirName = unixPath(dir);
 			if (!dirName.endsWith("/")) dirName += "/";
-			if (fileName.startsWith(dirName)) return backPath +
-				fileName.substring(dirName.length());
+			if (fileName.startsWith(dirName))
+				return backPath + fileName.substring(dirName.length());
 			backPath += "../";
 			dir = dir.getParentFile();
 		}
@@ -361,9 +354,9 @@ public class IoUtil {
 	public static int fillBuffer(InputStream in, byte[] buffer, int offset, int len)
 		throws IOException {
 		if (offset < 0) throw new IllegalArgumentException("Offset must be >= 0: " + offset);
-		if (offset + len > buffer.length) throw new IllegalArgumentException(
-			"Offset plus length must not exceed buffer size (" + buffer.length + "): " + offset +
-			" + " + len);
+		if (offset + len > buffer.length)
+			throw new IllegalArgumentException("Offset plus length must not exceed buffer size (" +
+				buffer.length + "): " + offset + " + " + len);
 		int pos = offset;
 		while (pos < offset + len) {
 			int count = in.read(buffer, pos, offset + len - pos);
@@ -390,6 +383,13 @@ public class IoUtil {
 		return new ResourceLister(cls, subDir, pattern).list();
 	}
 
+	/**
+	 * Gets a path representing a resource. Will fail if the class is in a jar file.
+	 */
+	public static Path getResourcePath(Class<?> cls, String resourceName) {
+		return Paths.get(getResourceFile(cls, resourceName).toURI());
+	}
+	
 	/**
 	 * Gets a file representing a resource. Will fail if the class is in a jar file.
 	 */
@@ -419,8 +419,9 @@ public class IoUtil {
 	 */
 	public static byte[] getResource(Class<?> cls, String resourceName) throws IOException {
 		try (InputStream in = cls.getResourceAsStream(resourceName)) {
-			if (in == null) throw new MissingResourceException("Missing resource for class " +
-				cls.getName() + ": " + resourceName, cls.getName(), resourceName);
+			if (in == null) throw new MissingResourceException(
+				"Missing resource for class " + cls.getName() + ": " + resourceName, cls.getName(),
+				resourceName);
 			return IoUtil.getContent(in, 0);
 		}
 	}

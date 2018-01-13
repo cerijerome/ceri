@@ -156,7 +156,6 @@ public class ToStringHelper {
 	}
 
 	private String toString(Date date) {
-		if (date == null) return String.valueOf(null);
 		LocalDateTime local = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
 		return local.toString();
 	}

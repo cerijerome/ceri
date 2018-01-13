@@ -2,6 +2,7 @@ package ceri.common.text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -24,7 +25,7 @@ public class DsvCodec {
 	public final char delimiter;
 	private final String delimiterStr;
 
-	public static DsvCodec create(char delimiter) {
+	public static DsvCodec of(char delimiter) {
 		if (delimiter == '\t') return TSV;
 		if (delimiter == ',') return CSV;
 		return new DsvCodec(delimiter);
@@ -37,14 +38,14 @@ public class DsvCodec {
 
 	public String encode(String[]... lines) {
 		if (lines == null) return null;
-		return Stream.of(lines).map(this::encodeLine).filter(Objects::nonNull).collect(
-			Collectors.joining(NEW_LINE));
+		return Stream.of(lines).map(this::encodeLine).filter(Objects::nonNull)
+			.collect(Collectors.joining(NEW_LINE));
 	}
 
 	public String encode(List<List<String>> lines) {
 		if (lines == null) return null;
-		return lines.stream().map(this::encodeLine).filter(Objects::nonNull).collect(
-			Collectors.joining(NEW_LINE));
+		return lines.stream().map(this::encodeLine).filter(Objects::nonNull)
+			.collect(Collectors.joining(NEW_LINE));
 	}
 
 	public String encodeLine(String... values) {
@@ -55,8 +56,8 @@ public class DsvCodec {
 	public String encodeLine(List<String> values) {
 		if (values == null) return null;
 		if (values.isEmpty()) return "";
-		return values.stream().map(this::encodeValue).filter(Objects::nonNull).collect(
-			Collectors.joining(delimiterStr));
+		return values.stream().map(this::encodeValue).filter(Objects::nonNull)
+			.collect(Collectors.joining(delimiterStr));
 	}
 
 	public String encodeValue(String s) {
@@ -68,8 +69,8 @@ public class DsvCodec {
 
 	public List<List<String>> decode(String document) {
 		if (document == null) return null;
-		return StreamUtil.toList(NEW_LINE_REGEX.splitAsStream(document).map(this::decodeLine)
-			.filter(Objects::nonNull));
+		return StreamUtil.toList(
+			NEW_LINE_REGEX.splitAsStream(document).map(this::decodeLine).filter(Objects::nonNull));
 	}
 
 	public List<String> decodeLine(String line) {
@@ -100,6 +101,7 @@ public class DsvCodec {
 	}
 
 	private List<String> splitLine(String line) {
+		if (line.isEmpty()) return Collections.emptyList();
 		List<String> values = new ArrayList<>();
 		StringBuilder b = new StringBuilder();
 		boolean inQuotes = false;
@@ -115,7 +117,7 @@ public class DsvCodec {
 	}
 
 	private static String flush(StringBuilder b) {
-		String s = b.toString();
+		String s = b.toString().trim();
 		b.setLength(0);
 		return s;
 	}

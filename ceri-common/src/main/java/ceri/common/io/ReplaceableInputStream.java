@@ -112,7 +112,7 @@ public class ReplaceableInputStream extends InputStream implements Listenable<IO
 	}
 
 	private void checkState() throws IOException {
-		if (in == null) throw new StreamNotSetException("InputStream is not set");
+		if (in == null) throw new StreamNotSetException("in");
 	}
 
 }

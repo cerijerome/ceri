@@ -13,7 +13,11 @@ public class DsvParser {
 	private final List<String> immutableHeader = Collections.unmodifiableList(header);
 	private final List<String> immutableCurrent = Collections.unmodifiableList(current);
 
-	public DsvParser(DsvCodec codec) {
+	public static DsvParser of(DsvCodec codec) {
+		return new DsvParser(codec);
+	}
+	
+	private DsvParser(DsvCodec codec) {
 		this.codec = codec;
 	}
 

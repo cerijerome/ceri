@@ -3,9 +3,10 @@ package ceri.common.text;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
-import ceri.common.text.TextUtil;
 
 public class TextUtilTest {
 
@@ -16,6 +17,7 @@ public class TextUtilTest {
 
 	@Test
 	public void testToWordsWithSpaces() {
+		assertTrue(TextUtil.toWords(null).isEmpty());
 		assertIterable(TextUtil.toWords(""));
 		assertIterable(TextUtil.toWords("  "));
 
@@ -110,6 +112,7 @@ public class TextUtilTest {
 
 	@Test
 	public void testToPhrase() {
+		assertNull(TextUtil.toPhrase(null));
 		assertThat(TextUtil.toPhrase(""), is(""));
 		assertThat(TextUtil.toPhrase("_"), is(""));
 
@@ -138,6 +141,7 @@ public class TextUtilTest {
 
 	@Test
 	public void testToCapitalizedPhrase() {
+		assertNull(TextUtil.toCapitalizedPhrase(null));
 		assertThat(TextUtil.toCapitalizedPhrase(""), is(""));
 		assertThat(TextUtil.toCapitalizedPhrase("_"), is(""));
 
@@ -165,7 +169,16 @@ public class TextUtilTest {
 	}
 
 	@Test
+	public void testCamelToHyphenated() {
+		assertNull(TextUtil.camelToHyphenated(null));
+		assertThat(TextUtil.camelToHyphenated(""), is(""));
+		assertThat(TextUtil.camelToHyphenated("_helloThereABC_"), is("_hello-there-abc_"));
+		assertThat(TextUtil.camelToHyphenated("hello1there2ABC3_"), is("hello1there2-abc3_"));
+	}
+
+	@Test
 	public void testCamelToPascal() {
+		assertNull(TextUtil.camelToPascal(null));
 		assertThat(TextUtil.camelToPascal(""), is(""));
 		assertThat(TextUtil.camelToPascal("_helloThereABC_"), is("_HelloThereABC_"));
 		assertThat(TextUtil.camelToPascal("hello1there2ABC3_"), is("Hello1There2ABC3_"));
@@ -173,6 +186,7 @@ public class TextUtilTest {
 
 	@Test
 	public void testPascalToProperty() {
+		assertNull(TextUtil.pascalToProperty(null));
 		assertThat(TextUtil.pascalToProperty(""), is(""));
 		assertThat(TextUtil.pascalToProperty("_HelloThereABC_"), is("_hello.there.abc_"));
 		assertThat(TextUtil.pascalToProperty("hello1there2ABC3_"), is("hello1there2.abc3_"));
@@ -180,6 +194,7 @@ public class TextUtilTest {
 
 	@Test
 	public void testFirstToUpper() {
+		assertNull(TextUtil.firstToUpper(null));
 		assertThat(TextUtil.firstToUpper(""), is(""));
 		assertThat(TextUtil.firstToUpper("hello"), is("Hello"));
 		assertThat(TextUtil.firstToUpper("Hello"), is("Hello"));
@@ -188,6 +203,7 @@ public class TextUtilTest {
 
 	@Test
 	public void testFirstToLower() {
+		assertNull(TextUtil.firstToLower(null));
 		assertThat(TextUtil.firstToLower(""), is(""));
 		assertThat(TextUtil.firstToLower("hello"), is("hello"));
 		assertThat(TextUtil.firstToLower("Hello"), is("hello"));
@@ -196,6 +212,7 @@ public class TextUtilTest {
 
 	@Test
 	public void testPascalToUpper() {
+		assertNull(TextUtil.pascalToUpper(null));
 		assertThat(TextUtil.pascalToUpper(""), is(""));
 		assertThat(TextUtil.pascalToUpper("_HelloThereABC_"), is("_HELLO_THERE_ABC_"));
 		assertThat(TextUtil.pascalToUpper("_Hello1There2ABC3_"), is("_HELLO1_THERE2_ABC3_"));
@@ -203,6 +220,7 @@ public class TextUtilTest {
 
 	@Test
 	public void testUpperToCapitalized() {
+		assertNull(TextUtil.upperToCapitalized(null));
 		assertThat(TextUtil.upperToCapitalized(""), is(""));
 		assertThat(TextUtil.upperToCapitalized("_HELLO_THERE_ABC_"), is("_Hello_There_Abc_"));
 		assertThat(TextUtil.upperToCapitalized("_HELLO1_THERE2_ABC3_"), is("_Hello1_There2_Abc3_"));
@@ -210,6 +228,7 @@ public class TextUtilTest {
 
 	@Test
 	public void testUpperToPascal() {
+		assertNull(TextUtil.upperToPascal(null));
 		assertThat(TextUtil.upperToPascal(""), is(""));
 		assertThat(TextUtil.upperToPascal("_HELLO_THERE_ABC_"), is("_HelloThereAbc_"));
 		assertThat(TextUtil.upperToPascal("_HELLO1_THERE2_ABC3_"), is("_Hello1There2Abc3_"));
@@ -217,6 +236,7 @@ public class TextUtilTest {
 
 	@Test
 	public void testUpperToProperty() {
+		assertNull(TextUtil.upperToProperty(null));
 		assertThat(TextUtil.upperToProperty(""), is(""));
 		assertThat(TextUtil.upperToProperty("HELLO_THERE_ABC"), is("hello.there.abc"));
 		assertThat(TextUtil.upperToProperty("HELLO1_THERE2_ABC3"), is("hello1.there2.abc3"));
@@ -224,6 +244,7 @@ public class TextUtilTest {
 
 	@Test
 	public void testPropertyToUpper() {
+		assertNull(TextUtil.propertyToUpper(null));
 		assertThat(TextUtil.propertyToUpper(""), is(""));
 		assertThat(TextUtil.propertyToUpper("hello.there.abc"), is("HELLO_THERE_ABC"));
 		assertThat(TextUtil.propertyToUpper("hello1.there2.abc3"), is("HELLO1_THERE2_ABC3"));

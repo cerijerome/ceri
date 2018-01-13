@@ -19,9 +19,8 @@ public class FileFiltersTest {
 
 	@BeforeClass
 	public static void createTempFiles() throws IOException {
-		helper =
-			FileTestHelper.builder().file("a/a/a.txt", "a").file("b/b.txt", "bb").file("c.txt",
-				"ccc").build();
+		helper = FileTestHelper.builder() //
+			.file("a/a/a.txt", "a").file("b/b.txt", "bb").file("c.txt", "ccc").build();
 	}
 
 	@AfterClass
@@ -35,13 +34,17 @@ public class FileFiltersTest {
 	}
 
 	@Test
-	public void testByExtension() {
+	public void testByExtension() throws IOException {
 		File[] files = helper.root.listFiles(FileFilters.byExtension());
 		assertCollection(files);
 		files = helper.root.listFiles(FileFilters.byExtension("txt", "jpg"));
 		assertCollection(files, helper.files("c.txt"));
 		files = helper.root.listFiles(FileFilters.byExtension("jpg"));
 		assertCollection(files);
+		try (FileTestHelper helper = FileTestHelper.builder().file(".txt", "").build()) {
+			files = helper.root.listFiles(FileFilters.byExtension("txt"));
+			assertCollection(files);
+		}
 	}
 
 	@Test

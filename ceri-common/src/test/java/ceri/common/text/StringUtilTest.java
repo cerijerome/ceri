@@ -1,11 +1,15 @@
 package ceri.common.text;
 
 import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static java.lang.Character.toUpperCase;
 import static java.lang.String.valueOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import java.awt.event.KeyEvent;
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -18,6 +22,90 @@ public class StringUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(StringUtil.class);
+	}
+
+	@Test
+	public void testDecimalFormat() {
+		assertThat(StringUtil.decimalFormat(0).format(0.01), is("0"));
+		assertThat(StringUtil.decimalFormat(0).format(0.50001), is("1"));
+		assertThat(StringUtil.decimalFormat(2).format(0.5), is("0.5"));
+		assertThat(StringUtil.decimalFormat(2).format(10), is("10"));
+		assertThat(StringUtil.decimalFormat(2).format(10.011), is("10.01"));
+	}
+
+	@Test
+	public void testToStringFromCodePoints() {
+		assertThat(StringUtil.toString(new int[] {}), is(""));
+		assertThat(StringUtil.toString(1, 2, 3), is("\u0001\u0002\u0003"));
+	}
+
+	@Test
+	public void testRepeat() {
+		assertNull(StringUtil.repeat(null, 0));
+		assertNull(StringUtil.repeat(null, 10));
+		assertThat(StringUtil.repeat("", 0), is(""));
+		assertThat(StringUtil.repeat("", 10), is(""));
+		assertThat(StringUtil.repeat("abc", 1), is("abc"));
+		assertThat(StringUtil.repeat("abc", 3), is("abcabcabc"));
+	}
+
+	@Test
+	public void testReplaceAllQuoted() {
+		assertThat(StringUtil.replaceAllQuoted("abc123de45f6", "\\d+", "N\\$"),
+			is("abcN\\$deN\\$fN\\$"));
+	}
+
+	@Test
+	public void testSplit() {
+		assertIterable(StringUtil.split("Thisisatest", Arrays.asList(4, 6, 7, 20)), //
+			"This", "is", "a", "test", "");
+	}
+
+	@Test
+	public void testCompact() {
+		assertNull(StringUtil.compact(null));
+		assertThat(StringUtil.compact(""), is(""));
+		assertThat(StringUtil.compact("  \t\rt\r   \ne s\tt"), is("t e s t"));
+		assertThat(StringUtil.compact(0.15f), is("0.15"));
+		assertThat(StringUtil.compact(100.0f), is("100"));
+		assertThat(StringUtil.compact(1.2), is("1.2"));
+		assertThat(StringUtil.compact(11.0), is("11"));
+	}
+
+	@Test
+	public void testReplaceUnprintable() {
+		assertNull(StringUtil.printable(null));
+		assertThat(StringUtil.printable(""), is(""));
+		assertThat(StringUtil.printable("ab\0c\u2081"), is("ab.c\u2081"));
+	}
+
+	@Test
+	public void testToLowerCase() {
+		assertNull(StringUtil.toLowerCase(null));
+		assertThat(StringUtil.toLowerCase(""), is(""));
+		assertThat(StringUtil.toLowerCase("abCDeF"), is("abcdef"));
+	}
+
+	@Test
+	public void testToUpperCase() {
+		assertNull(StringUtil.toUpperCase(null));
+		assertThat(StringUtil.toUpperCase(""), is(""));
+		assertThat(StringUtil.toUpperCase("abCDeF"), is("ABCDEF"));
+	}
+
+	@Test
+	public void testStartsWithIgnoreCase() {
+		assertTrue(StringUtil.startsWithIgnoreCase(null, null));
+		assertFalse(StringUtil.startsWithIgnoreCase(null, ""));
+		assertFalse(StringUtil.startsWithIgnoreCase(null, "abCDeF"));
+		assertFalse(StringUtil.startsWithIgnoreCase("", null));
+		assertTrue(StringUtil.startsWithIgnoreCase("", ""));
+		assertFalse(StringUtil.startsWithIgnoreCase("", "abCDeF"));
+		assertFalse(StringUtil.startsWithIgnoreCase("abcd", null));
+		assertTrue(StringUtil.startsWithIgnoreCase("abcd", ""));
+		assertFalse(StringUtil.startsWithIgnoreCase("abcd", "abCDeF"));
+		assertTrue(StringUtil.startsWithIgnoreCase("abcdef", "abCDeF"));
+		assertTrue(StringUtil.startsWithIgnoreCase("ABCdefGHI", "abCDeF"));
 	}
 
 	@Test

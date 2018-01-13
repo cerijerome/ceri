@@ -78,7 +78,7 @@ public class ReplaceableOutputStream extends OutputStream implements Listenable<
 	}
 
 	private void checkState() throws IOException {
-		if (out == null) throw new StreamNotSetException("OutputStream is not set");
+		if (out == null) throw new StreamNotSetException("out");
 	}
 
 }

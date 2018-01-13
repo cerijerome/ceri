@@ -7,8 +7,16 @@ public class RegexSequencer {
 	private String s;
 	private Matcher lastMatcher = null;
 
-	public RegexSequencer(String s) {
+	public static RegexSequencer of(String s) {
+		return new RegexSequencer(s);
+	}
+
+	private RegexSequencer(String s) {
 		this.s = s;
+	}
+
+	public Matcher matcher(String pattern) {
+		return matcher(Pattern.compile(pattern));
 	}
 
 	public Matcher matcher(Pattern pattern) {

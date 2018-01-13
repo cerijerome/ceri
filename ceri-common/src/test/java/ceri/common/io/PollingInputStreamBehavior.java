@@ -19,7 +19,7 @@ public class PollingInputStreamBehavior {
 	@Test
 	public void shouldReadData() throws IOException {
 		byte[] data = { Byte.MIN_VALUE, Byte.MAX_VALUE };
-		try (PollingInputStream in = new PollingInputStream(new ByteArrayInputStream(data), 1, 1)) {
+		try (PollingInputStream in = new PollingInputStream(new ByteArrayInputStream(data), 1)) {
 			assertThat((byte) in.read(), is(Byte.MIN_VALUE));
 			assertThat((byte) in.read(), is(Byte.MAX_VALUE));
 		}

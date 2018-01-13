@@ -97,6 +97,7 @@ public class StringUtil {
 	 * Encodes an escaped character string.
 	 */
 	private static char unEscapeChar(String escapedChar) {
+		if (escapedChar == null) return NULL;
 		switch (escapedChar) {
 		case ESCAPED_BACKSLASH:
 			return BACKSLASH;
@@ -126,7 +127,7 @@ public class StringUtil {
 		return (char) Integer.parseInt(escapedChar.substring(prefix.length()), radix);
 	}
 
-	public static String repeat(int n, String s) {
+	public static String repeat(String s, int n) {
 		if (s == null) return null;
 		if (n == 0 || s.isEmpty()) return "";
 		if (n == 1) return s;
@@ -207,7 +208,7 @@ public class StringUtil {
 	 * Replace multiple whitespaces with a single space, then trim.
 	 */
 	public static String compact(String s) {
-		if (s == null) return "";
+		if (s == null) return null;
 		return WHITE_SPACE_REGEX.matcher(s).replaceAll(" ").trim();
 	}
 
@@ -360,6 +361,7 @@ public class StringUtil {
 	 * Replaces unprintable chars with given char.
 	 */
 	public static String replaceUnprintable(String s, char replace) {
+		if (s == null) return null;
 		StringBuilder b = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);

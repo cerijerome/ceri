@@ -6,7 +6,11 @@ public class Marshaller<T> {
 	private final Function<T, String> to;
 	private final Function<String, T> from;
 
-	public Marshaller(Function<T, String> to, Function<String, T> from) {
+	public static <T> Marshaller<T> of(Function<T, String> to, Function<String, T> from) {
+		return new Marshaller<>(to, from);
+	}
+	
+	private Marshaller(Function<T, String> to, Function<String, T> from) {
 		this.to = to;
 		this.from = from;
 	}

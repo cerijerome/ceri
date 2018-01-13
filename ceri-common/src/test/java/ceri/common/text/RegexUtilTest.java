@@ -7,6 +7,8 @@ import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Test;
 
@@ -42,6 +44,48 @@ public class RegexUtilTest {
 		assertIterable(RegexUtil.groups(MULTI_PATTERN, " ab CD--ef"), "ab", "CD", "ef");
 		assertIterable(RegexUtil.groups(MULTI_PATTERN, ""));
 		assertIterable(RegexUtil.groups(Pattern.compile("abc"), "abc"));
+	}
+
+	@Test
+	public void testNamedGroup() {
+		Pattern named = Pattern.compile("(?:(?<letter>[a-z]+)|(?<number>[0-9]+))");
+		Matcher m = named.matcher("123abc45de6f");
+		assertTrue(m.find());
+		assertNull(RegexUtil.namedGroup(m, "test"));
+		assertNull(RegexUtil.namedGroup(m, "letter"));
+		assertThat(RegexUtil.namedGroup(m, "number"), is("123"));
+		assertTrue(m.find());
+		assertThat(RegexUtil.namedGroup(m, "letter"), is("abc"));
+		assertNull(RegexUtil.namedGroup(m, "number"));
+		assertTrue(m.find());
+		assertNull(RegexUtil.namedGroup(m, "letter"));
+		assertThat(RegexUtil.namedGroup(m, "number"), is("45"));
+		assertTrue(m.find());
+		assertThat(RegexUtil.namedGroup(m, "letter"), is("de"));
+		assertNull(RegexUtil.namedGroup(m, "number"));
+		assertTrue(m.find());
+		assertNull(RegexUtil.namedGroup(m, "letter"));
+		assertThat(RegexUtil.namedGroup(m, "number"), is("6"));
+		assertTrue(m.find());
+		assertThat(RegexUtil.namedGroup(m, "letter"), is("f"));
+		assertNull(RegexUtil.namedGroup(m, "number"));
+	}
+
+	@Test
+	public void testFound() {
+		assertNull(RegexUtil.found(INT_PATTERN, null));
+		assertNull(RegexUtil.found(INT_PATTERN, "abc"));
+		assertThat(RegexUtil.found(INT_PATTERN, "abc123de45f6").group(), is("123"));
+	}
+
+	@Test
+	public void testMatch() {
+		Pattern p0 = Pattern.compile("(abc).*");
+		Pattern p1 = Pattern.compile("abc.*");
+		assertNull(RegexUtil.match(p0, null));
+		assertNull(RegexUtil.match(p0, "ab"));
+		assertThat(RegexUtil.match(p0, "abcdef"), is("abc"));
+		assertThat(RegexUtil.match(p1, "abcdef"), is("abcdef"));
 	}
 
 	@Test

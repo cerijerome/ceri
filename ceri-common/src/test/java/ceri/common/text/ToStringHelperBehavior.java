@@ -28,11 +28,10 @@ public class ToStringHelperBehavior {
 	@Test
 	public void shouldShowDefaultFormattedDateValues() {
 		Date date = new Date(0);
-		String toString = ToStringHelper.create("Test", date).toString();
+		String toString = ToStringHelper.create("Test", date, (Date)null).toString();
 		Instant.ofEpochMilli(0);
-		LocalDateTime dt =
-			LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.systemDefault());
-		assertThat(toString, is("Test(" + dt +")"));
+		LocalDateTime dt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.systemDefault());
+		assertThat(toString, is("Test(" + dt + ",null)"));
 	}
 
 	@Test
@@ -56,8 +55,9 @@ public class ToStringHelperBehavior {
 
 	@Test
 	public void shouldAddIndentedChildren() {
-		String toString = ToStringHelper.create("Test").children("aaa", "bbb", "ccc").toString();
-		assertThat(toString, is(lines("Test {", "  aaa", "  bbb", "  ccc", "}")));
+		String toString = ToStringHelper.create("Test").children("aaa", "bbb")
+			.childrens(Arrays.asList("ccc", "ddd")).toString();
+		assertThat(toString, is(lines("Test {", "  aaa", "  bbb", "  ccc", "  ddd", "}")));
 	}
 
 	@Test

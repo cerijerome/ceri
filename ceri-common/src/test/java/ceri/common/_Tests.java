@@ -122,7 +122,10 @@ import ceri.common.test.TestTimerBehavior;
 import ceri.common.test.TestUtil;
 import ceri.common.test.TestUtilTest;
 import ceri.common.text.DsvCodecBehavior;
+import ceri.common.text.DsvParserBehavior;
 import ceri.common.text.FractionFormatsTest;
+import ceri.common.text.MarshallerBehavior;
+import ceri.common.text.RegexSequencerBehavior;
 import ceri.common.text.RegexUtilTest;
 import ceri.common.text.StringUtilTest;
 import ceri.common.text.TextUtilTest;
@@ -291,7 +294,10 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	TestUtilTest.class, //
 	// text
 	DsvCodecBehavior.class, //
+	DsvParserBehavior.class, //
 	FractionFormatsTest.class, //
+	MarshallerBehavior.class, //
+	RegexSequencerBehavior.class, //
 	RegexUtilTest.class, //
 	StringUtilTest.class, //
 	TextUtilTest.class, //

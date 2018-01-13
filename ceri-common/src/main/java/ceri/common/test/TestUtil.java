@@ -509,7 +509,7 @@ public class TestUtil {
 	/**
 	 * Capture and return any thrown exception.
 	 */
-	public static Exception exception(ExceptionRunnable<Exception> runnable) {
+	public static Exception exception(ExceptionRunnable<?> runnable) {
 		try {
 			runnable.run();
 			return null;

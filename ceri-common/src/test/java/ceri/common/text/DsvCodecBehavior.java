@@ -7,10 +7,19 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 
 public class DsvCodecBehavior {
+
+	@Test
+	public void shouldCreateCodecFromDelimiter() {
+		assertThat(DsvCodec.of('\t'), is(DsvCodec.TSV));
+		assertThat(DsvCodec.of(','), is(DsvCodec.CSV));
+		DsvCodec psv = DsvCodec.of('|');
+		assertThat(psv.encodeLine("a", "b", "c"), is("a|b|c"));
+	}
 
 	@Test
 	public void shouldEncodeTsv() {
@@ -28,15 +37,18 @@ public class DsvCodecBehavior {
 
 	@Test
 	public void shouldEncodeDocument() {
+		assertNull(CSV.encode((String[][]) null));
 		assertNull(CSV.encode((List<List<String>>) null));
 		assertThat(CSV.encode(new String[][] {}), is(""));
 		assertThat(CSV.encode(new String[][] { {} }), is(""));
 		assertThat(CSV.encode(new String[][] { {}, {} }), is("\r\n"));
-		assertThat(CSV.encode(new String[][] { { ",", "" }, { "\"" } }), is("\",\",\r\n\"\""));
+		assertThat(CSV.encode(Arrays.asList(Arrays.asList(",", ""), Arrays.asList("\""))),
+			is("\",\",\r\n\"\""));
 	}
 
 	@Test
 	public void shouldEncodeLines() {
+		assertNull(CSV.encodeLine((List<String>) null));
 		assertNull(CSV.encodeLine((String[]) null));
 		assertThat(CSV.encodeLine((String) null), is(""));
 		assertThat(CSV.encodeLine(""), is(""));
@@ -65,21 +77,21 @@ public class DsvCodecBehavior {
 	public void shouldDecodeDocument() {
 		assertNull(CSV.decode(null));
 		assertIterable(CSV.decode(""));
-		assertIterable(CSV.decode(" "), asList(" "));
+		assertIterable(CSV.decode(" "), asList(""));
 		assertIterable(CSV.decode(","), asList("", ""));
 		assertIterable(CSV.decode(",,\r\n\",\"\n\n"), asList("", "", ""), asList(","));
-		assertIterable(CSV.decode(",,\r\n\",\"\n\n "), asList("", "", ""), asList(","), asList(""),
-			asList(" "));
+		assertIterable(CSV.decode(",,\r\n\",\"\n\n "), asList("", "", ""), asList(","), asList(),
+			asList(""));
 	}
 
 	@Test
 	public void shouldDecodeLines() {
 		assertNull(CSV.decodeLine(null));
-		assertIterable(CSV.decodeLine(""), "");
-		assertIterable(CSV.decodeLine(" "), " ");
+		assertIterable(CSV.decodeLine(""));
+		assertIterable(CSV.decodeLine(" "), "");
 		assertIterable(CSV.decodeLine(","), "", "");
 		assertIterable(CSV.decodeLine(",,"), "", "", "");
-		assertIterable(CSV.decodeLine(" , ,"), " ", " ", "");
+		assertIterable(CSV.decodeLine(" , ,"), "", "", "");
 		assertIterable(CSV.decodeLine(", \",\"\" ,\",\" , \""), "", ",\" ,", " , ");
 	}
 
