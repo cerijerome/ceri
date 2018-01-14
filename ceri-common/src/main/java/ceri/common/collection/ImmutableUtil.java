@@ -114,7 +114,23 @@ public class ImmutableUtil {
 	 */
 	public static <K, V> Map<K, Set<V>>
 		copyAsMapOfSets(Map<? extends K, ? extends Collection<? extends V>> map) {
-		return copyAsMapOfCollections(map, LinkedHashSet::new);
+		return copyAsMapOfSets(map, LinkedHashMap::new, LinkedHashSet::new);
+	}
+
+	/**
+	 * Copies a map of collections into an immutable map.
+	 */
+	public static <K, V> Map<K, Set<V>> copyAsMapOfSets(
+		Map<? extends K, ? extends Collection<? extends V>> map,
+		Supplier<Map<K, Set<V>>> mapSupplier, Supplier<Set<V>> listSupplier) {
+		if (map.isEmpty()) return Collections.emptyMap();
+		return Collections.unmodifiableMap(CollectionUtil.transformValues( //
+			c -> set(c, listSupplier), mapSupplier, map));
+	}
+
+	private static <T> Set<T> set(Collection<? extends T> collection, Supplier<Set<T>> supplier) {
+		if (collection == null) return null;
+		return Collections.unmodifiableSet(addAll(supplier.get(), collection));
 	}
 
 	/**
@@ -122,27 +138,24 @@ public class ImmutableUtil {
 	 */
 	public static <K, V> Map<K, List<V>>
 		copyAsMapOfLists(Map<? extends K, ? extends Collection<? extends V>> map) {
-		return copyAsMapOfCollections(map, ArrayList::new);
+		return copyAsMapOfLists(map, LinkedHashMap::new, ArrayList::new);
 	}
 
 	/**
 	 * Copies a map of collections into an immutable map.
 	 */
-	public static <K, V, T extends Collection<V>> Map<K, T> copyAsMapOfCollections(
-		Map<? extends K, ? extends Collection<? extends V>> map, Supplier<T> collectionSupplier) {
-		return copyAsMapOfCollections(map, LinkedHashMap::new, collectionSupplier);
-	}
-
-	/**
-	 * Copies a map of collections into an immutable map.
-	 */
-	public static <K, V, T extends Collection<V>> Map<K, T> copyAsMapOfCollections(
-		Map<? extends K, ? extends Collection<? extends V>> map, Supplier<Map<K, T>> mapSupplier,
-		Supplier<T> collectionSupplier) {
+	public static <K, V> Map<K, List<V>> copyAsMapOfLists(
+		Map<? extends K, ? extends Collection<? extends V>> map,
+		Supplier<Map<K, List<V>>> mapSupplier, Supplier<List<V>> listSupplier) {
 		if (map.isEmpty()) return Collections.emptyMap();
-		Map<K, T> copy = mapSupplier.get();
-		map.forEach((key, set) -> copy.put(key, addAll(collectionSupplier.get(), set)));
-		return Collections.unmodifiableMap(copy);
+		return Collections.unmodifiableMap(CollectionUtil.transformValues( //
+			c -> list(c, listSupplier), mapSupplier, map));
+	}
+
+	private static <T> List<T> list(Collection<? extends T> collection,
+		Supplier<List<T>> supplier) {
+		if (collection == null) return null;
+		return Collections.unmodifiableList(addAll(supplier.get(), collection));
 	}
 
 	/**
@@ -198,7 +211,7 @@ public class ImmutableUtil {
 	}
 
 	/**
-	 * Copies an array of objects into an immutable HashSet.
+	 * Copies an array of objects into an immutable LinkedHashSet.
 	 */
 	@SafeVarargs
 	public static <T> Set<T> asSet(T... array) {
@@ -254,7 +267,7 @@ public class ImmutableUtil {
 
 	@SafeVarargs
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn, T... ts) {
-		return convertAsMap(fn, Arrays.asList(ts));
+		return convertAsMap(fn, LinkedHashMap::new, ts);
 	}
 
 	@SafeVarargs

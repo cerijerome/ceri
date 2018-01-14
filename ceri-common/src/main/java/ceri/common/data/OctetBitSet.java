@@ -6,10 +6,14 @@ public class OctetBitSet extends BitSet {
 	private static final long serialVersionUID = -4005476760615651068L;
 
 	public static OctetBitSet create() {
-		return new OctetBitSet();
+		return of(0);
 	}
 
-	public static OctetBitSet create(byte value) {
+	public static OctetBitSet of(int value) {
+		return of((byte) value);
+	}
+	
+	public static OctetBitSet of(byte value) {
 		OctetBitSet bitSet = new OctetBitSet();
 		for (int i = 0; i < ByteUtil.BITS_PER_BYTE; i++)
 			bitSet.set(i, ByteUtil.bit(value, i));

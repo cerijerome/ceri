@@ -8,7 +8,8 @@ import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public class Position {
-	public static final Position ZERO = new Position(PositionType.relative, 0, 0);
+	public static final Position RELATIVE_ZERO = new Position(PositionType.relative, 0, 0);
+	public static final Position ABSOLUTE_ZERO = new Position(PositionType.absolute, 0, 0);
 	public final PositionType type;
 	public final double x;
 	public final double y;
@@ -18,7 +19,7 @@ public class Position {
 	}
 
 	public static Position relative(double x, double y) {
-		return create(PositionType.relative, x, y);
+		return of(PositionType.relative, x, y);
 	}
 
 	public static Position absolute(Point2d position) {
@@ -26,14 +27,14 @@ public class Position {
 	}
 
 	public static Position absolute(double x, double y) {
-		return create(PositionType.absolute, x, y);
+		return of(PositionType.absolute, x, y);
 	}
 
-	public static Position create(PositionType type, Point2d position) {
-		return create(type, position.x, position.y);
+	public static Position of(PositionType type, Point2d position) {
+		return of(type, position.x, position.y);
 	}
 
-	public static Position create(PositionType type, double x, double y) {
+	public static Position of(PositionType type, double x, double y) {
 		return new Position(type, x, y);
 	}
 
@@ -58,7 +59,7 @@ public class Position {
 	}
 
 	public Position reflect(Line2d line) {
-		return Position.create(type, line.reflect(Point2d.of(x, y)));
+		return Position.of(type, line.reflect(Point2d.of(x, y)));
 	}
 
 	public Position reverse() {

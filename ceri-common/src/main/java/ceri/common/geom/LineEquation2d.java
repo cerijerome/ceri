@@ -31,11 +31,8 @@ public class LineEquation2d {
 	}
 
 	public static LineEquation2d of(double a, double b, double c) {
-		a += .0;
-		b += .0;
-		c += .0;
 		if (a == 0 && b == 0) return NULL;
-		return new LineEquation2d(a, b, c);
+		return new LineEquation2d(a + .0, b + .0, c + .0);
 	}
 
 	private LineEquation2d(double a, double b, double c) {

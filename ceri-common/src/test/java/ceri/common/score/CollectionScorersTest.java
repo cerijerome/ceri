@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
-import ceri.common.collection.MapBuilder;
+import ceri.common.collection.MapPopulator;
 import ceri.common.math.MathUtil;
 
 public class CollectionScorersTest {
@@ -47,7 +47,7 @@ public class CollectionScorersTest {
 
 	@Test
 	public void testMapMultiplySum() {
-		Map<Integer, Float> map = MapBuilder.of(2, 0.1f, 3, 1.1f).build();
+		Map<Integer, Float> map = MapPopulator.of(2, 0.1f, 3, 1.1f).map;
 		Scorer<Map<Integer, Float>> scorer = CollectionScorers.mapMultiplySum(Scorers.value());
 		assertThat(MathUtil.simpleRound(scorer.score(map), 6), is(3.5));
 		scorer = CollectionScorers.mapMultiplySum(i -> i / 2.0, f -> f + 1.0);

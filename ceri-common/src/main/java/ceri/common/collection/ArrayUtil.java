@@ -57,7 +57,7 @@ public class ArrayUtil {
 	 * Returns an immutable zero-size array for the given component type.
 	 */
 	public static <T> T[] emptyArray(Class<T> cls) {
-		if (cls == String.class) return BasicUtil.uncheckedCast(EMPTY_OBJECT);
+		if (cls == String.class) return BasicUtil.uncheckedCast(EMPTY_STRING);
 		if (cls == Object.class) return BasicUtil.uncheckedCast(EMPTY_OBJECT);
 		return create(cls, 0);
 	}

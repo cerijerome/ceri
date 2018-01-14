@@ -61,7 +61,7 @@ public class Line2dBehavior {
 
 	@Test
 	public void shouldScale() {
-		assertThat(l0.scale(Ratio2d.create(1.5)), is(Line2d.of(-1.5, 3, 3, -1.5)));
+		assertThat(l0.scale(Ratio2d.uniform(1.5)), is(Line2d.of(-1.5, 3, 3, -1.5)));
 		assertThat(l0.scale(Ratio2d.ONE), is(l0));
 		assertThat(l0.scale(Ratio2d.ZERO), is(Line2d.ZERO));
 	}

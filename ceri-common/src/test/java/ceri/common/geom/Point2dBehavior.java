@@ -45,8 +45,8 @@ public class Point2dBehavior {
 	@Test
 	public void shouldScaleCoordinates() {
 		Point2d p0 = Point2d.of(-5, 10);
-		Ratio2d r0 = new Ratio2d(2, 0.5);
-		Ratio2d r1 = Ratio2d.create(0.1);
+		Ratio2d r0 = Ratio2d.of(2, 0.5);
+		Ratio2d r1 = Ratio2d.uniform(0.1);
 		assertThat(p0.scale(r0), is(Point2d.of(-10, 5)));
 		assertThat(p0.scale(r1), is(Point2d.of(-0.5, 1)));
 		assertThat(p0.scale(Ratio2d.ONE), is(p0));

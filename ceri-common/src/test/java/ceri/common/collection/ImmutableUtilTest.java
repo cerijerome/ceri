@@ -1,8 +1,13 @@
 package ceri.common.collection;
 
+import static ceri.common.collection.CollectionUtil.asSet;
 import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.testMap;
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -16,6 +21,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.stream.Stream;
 import org.junit.Test;
 import ceri.common.util.BasicUtil;
 
@@ -41,11 +48,13 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
-	public void testConvertAsMap() {
-		Map<String, Integer> map = ImmutableUtil.convertAsMap(i -> String.valueOf(i), 1, 3, 2);
-		assertImmutableMap(map);
-		assertCollection(map.keySet(), "1", "3", "2");
-		assertCollection(map.values(), 1, 3, 2);
+	public void testEnumSet() {
+		Set<E> one = ImmutableUtil.enumSet(E.A);
+		Set<E> two = ImmutableUtil.enumSet(E.ABC, E.BC);
+		assertImmutableCollection(one);
+		assertCollection(one, E.A);
+		assertImmutableCollection(two);
+		assertCollection(two, E.ABC, E.BC);
 	}
 
 	@Test
@@ -60,6 +69,20 @@ public class ImmutableUtilTest {
 		List<?> list = ImmutableUtil.copyAsList(new ArrayList<>());
 		assertTrue(list.isEmpty());
 		assertImmutableList(list);
+	}
+
+	@Test
+	public void testAsSet() {
+		Set<String> set = ImmutableUtil.asSet("1", "2", "3");
+		assertCollection(set, "1", "2", "3");
+		assertImmutableCollection(set);
+	}
+
+	@Test
+	public void testEmptyAsSet() {
+		Set<?> set = ImmutableUtil.asSet();
+		assertTrue(set.isEmpty());
+		assertImmutableCollection(set);
 	}
 
 	@Test
@@ -104,6 +127,34 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
+	public void testCopyAsMapOfSets() {
+		assertTrue(ImmutableUtil.copyAsMapOfSets(new HashMap<>()).isEmpty());
+		Map<String, Set<Integer>> srcMap = testMap( //
+			"123", asSet(1, 2, 3), "4", asSet(4), "", asSet(), "null", null);
+		Map<String, Set<Integer>> copy = testMap( //
+			"123", asSet(1, 2, 3), "4", asSet(4), "", asSet(), "null", null);
+		final Map<String, Set<Integer>> map = ImmutableUtil.copyAsMapOfSets(srcMap);
+		assertThat(srcMap.get("123").remove(1), is(true));
+		assertNotNull(srcMap.remove("4"));
+		assertThat(map, is(copy));
+		assertImmutableMap(map);
+	}
+
+	@Test
+	public void testCopyAsMapOfLists() {
+		assertTrue(ImmutableUtil.copyAsMapOfLists(new HashMap<>()).isEmpty());
+		Map<String, List<Integer>> srcMap = testMap( //
+			"123", asList(1, 2, 3), "4", asList(4), "", asList(), "null", null);
+		Map<String, List<Integer>> copy = testMap( //
+			"123", asList(1, 2, 3), "4", asList(4), "", asList(), "null", null);
+		final Map<String, List<Integer>> map = ImmutableUtil.copyAsMapOfLists(srcMap);
+		assertThat(srcMap.get("123").set(0, -1), is(1));
+		assertNotNull(srcMap.remove("4"));
+		assertThat(map, is(copy));
+		assertImmutableMap(map);
+	}
+
+	@Test
 	public void testCopyAsList() {
 		List<Integer> srcList = new ArrayList<>();
 		Collections.addAll(srcList, 1, 2, 3, 4, 5);
@@ -112,6 +163,17 @@ public class ImmutableUtilTest {
 		srcList.remove(0);
 		assertThat(list, is(copy));
 		assertImmutableList(list);
+	}
+
+	@Test
+	public void testCopyAsSortedSet() {
+		assertIterable(ImmutableUtil.copyAsSortedSet(asSet()));
+		Set<Integer> srcSet = new HashSet<>();
+		Collections.addAll(srcSet, 2, 3, 1, 5, 4);
+		final SortedSet<Integer> set = ImmutableUtil.copyAsSortedSet(srcSet);
+		srcSet.remove(0);
+		assertIterable(set, 1, 2, 3, 4, 5);
+		assertImmutableCollection(set);
 	}
 
 	@Test
@@ -141,9 +203,31 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
+	public void testCollectAsList() {
+		List<String> list = ImmutableUtil.collectAsList(Stream.of("1", "2", "3", "4", "5"));
+		assertThat(list, is(Arrays.asList("1", "2", "3", "4", "5")));
+		assertImmutableList(list);
+	}
+
+	@Test
+	public void testCollectAsSet() {
+		Set<String> set = ImmutableUtil.collectAsSet(Stream.of("1", "2", "3", "4", "5"));
+		assertThat(set, is(asSet("1", "2", "3", "4", "5")));
+		assertImmutableCollection(set);
+	}
+
+	@Test
+	public void testCollectAsSortedSet() {
+		SortedSet<String> set =
+			ImmutableUtil.collectAsSortedSet(Stream.of("4", "1", "3", "5", "2"));
+		assertThat(set, is(asSet("1", "2", "3", "4", "5")));
+		assertImmutableCollection(set);
+	}
+
+	@Test
 	public void testConvertAsList() {
 		List<Integer> list =
-			ImmutableUtil.convertAsList((s) -> Integer.parseInt(s), "1", "2", "3", "4", "5");
+			ImmutableUtil.convertAsList(Integer::parseInt, "1", "2", "3", "4", "5");
 		assertThat(list, is(Arrays.asList(1, 2, 3, 4, 5)));
 		assertImmutableList(list);
 	}
@@ -151,9 +235,34 @@ public class ImmutableUtilTest {
 	@Test
 	public void testConvertAsSet() {
 		Set<Integer> set =
-			ImmutableUtil.convertAsSet((s) -> Integer.parseInt(s), "1", "2", "3", "4", "5");
+			ImmutableUtil.convertAsSet(Integer::parseInt, "1", "2", "3", "4", "5");
 		assertThat(set, is(new HashSet<>(Arrays.asList(1, 2, 3, 4, 5))));
 		assertImmutableCollection(set);
+	}
+
+	@Test
+	public void testConvertAsSortedSet() {
+		SortedSet<Integer> set =
+			ImmutableUtil.convertAsSortedSet(Integer::parseInt, "5", "4", "1", "3", "2");
+		assertIterable(set, 1, 2, 3, 4, 5);
+		assertImmutableCollection(set);
+	}
+
+	@Test
+	public void testConvertAsMap() {
+		Map<String, Integer> map = ImmutableUtil.convertAsMap(i -> String.valueOf(i), 1, 3, 2);
+		assertImmutableMap(map);
+		assertCollection(map.keySet(), "1", "3", "2");
+		assertCollection(map.values(), 1, 3, 2);
+	}
+
+	@Test
+	public void testConvertStreamAsMap() {
+		Map<String, Integer> map =
+			ImmutableUtil.convertAsMap(i -> String.valueOf(i), Stream.of(1, 3, 2));
+		assertImmutableMap(map);
+		assertCollection(map.keySet(), "1", "3", "2");
+		assertCollection(map.values(), 1, 3, 2);
 	}
 
 	private static void assertImmutableMap(final Map<?, ?> map) {

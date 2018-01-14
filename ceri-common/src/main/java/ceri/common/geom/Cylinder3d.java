@@ -15,7 +15,7 @@ public class Cylinder3d implements Radial3d {
 		if (r == 0 && h == 0) return NULL;
 		validateMin(r, 0, "Radius");
 		validateMin(h, 0, "Height");
-		return new Cylinder3d(r, h);
+		return new Cylinder3d(r + .0, h + .0);
 	}
 
 	private Cylinder3d(double r, double h) {

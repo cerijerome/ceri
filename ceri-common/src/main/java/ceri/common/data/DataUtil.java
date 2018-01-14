@@ -44,7 +44,7 @@ public class DataUtil {
 	}
 
 	public static void validateByte(int expected, int actual, String name) {
-		if ((expected & 0xff) == (expected & 0xff)) return;
+		if ((expected & 0xff) == (actual & 0xff)) return;
 		throw UnexpectedValueException.forByte(expected, actual, name);
 	}
 
@@ -53,7 +53,7 @@ public class DataUtil {
 	}
 
 	public static void validateShort(int expected, int actual, String name) {
-		if ((expected & 0xffff) == (expected & 0xffff)) return;
+		if ((expected & 0xffff) == (actual & 0xffff)) return;
 		throw UnexpectedValueException.forShort(expected, actual, name);
 	}
 

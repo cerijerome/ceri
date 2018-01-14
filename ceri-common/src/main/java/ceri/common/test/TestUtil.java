@@ -19,7 +19,9 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
@@ -101,6 +103,20 @@ public class TestUtil {
 		}
 	}
 
+	/**
+	 * Simple map creation with alternating keys and values.
+	 */
+	public static <K, V> Map<K, V> testMap(Object...objs) {
+		Map<K, V> map = new LinkedHashMap<>();
+		int i = 0;
+		while (i < objs.length) {
+			K key = BasicUtil.uncheckedCast(objs[i++]);
+			V value = i < objs.length ? BasicUtil.uncheckedCast(objs[i++]) : null;
+			map.put(key, value);
+		}
+		return map;
+	}
+	
 	/**
 	 * Checks all objects are not equal to the first given object.
 	 */
@@ -307,8 +323,11 @@ public class TestUtil {
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
-	public static void assertArray(short[] array, int... expected) {
-		assertArrayObject(array, expected);
+	public static void assertArray(short[] array, int... values) {
+		short[] expected = new short[values.length];
+		for (int i = 0; i < values.length; i++)
+			expected[i] = (short) values[i];
+		assertArray(array, expected);
 	}
 
 	/**

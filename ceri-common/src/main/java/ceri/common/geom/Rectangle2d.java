@@ -5,7 +5,7 @@ import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public class Rectangle2d {
-	public static final Rectangle2d NULL = new Rectangle2d(0, 0, 0, 0);
+	public static final Rectangle2d ZERO = new Rectangle2d(0, 0, 0, 0);
 	public final double x;
 	public final double y;
 	public final double w;
@@ -16,14 +16,10 @@ public class Rectangle2d {
 	}
 
 	public static Rectangle2d of(double x, double y, double w, double h) {
-		x += 0.0;
-		y += 0.0;
-		w += 0.0;
-		h += 0.0;
 		validateMin(w, 0, "Width");
 		validateMin(h, 0, "Height");
-		if (NULL.equals(x, y, w, h)) return null;
-		return new Rectangle2d(x,  y, w, h);
+		if (ZERO.equals(x, y, w, h)) return null;
+		return new Rectangle2d(x + .0, y + .0, w + .0, h + .0);
 	}
 
 	private Rectangle2d(double x, double y, double w, double h) {
@@ -34,7 +30,7 @@ public class Rectangle2d {
 	}
 
 	public Dimension2d size() {
-		return new Dimension2d(w, h);
+		return Dimension2d.of(w, h);
 	}
 
 	public Point2d position() {

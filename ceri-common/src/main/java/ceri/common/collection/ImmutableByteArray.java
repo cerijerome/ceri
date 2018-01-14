@@ -169,7 +169,7 @@ public class ImmutableByteArray {
 		return hashCoder.hashCode();
 	}
 
-	public boolean equals(byte[] array) {
+	public boolean equals(byte...array) {
 		return equals(array, 0);
 	}
 

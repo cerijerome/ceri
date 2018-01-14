@@ -11,6 +11,7 @@ import java.util.TreeSet;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -23,13 +24,16 @@ public class StreamUtil {
 
 	private StreamUtil() {}
 
+	/**
+	 * Collects a stream of int code points into a string.
+	 */
 	public static String toString(IntStream codePointStream) {
 		return codePointStream.collect(StringBuilder::new, StringBuilder::appendCodePoint, //
 			StringBuilder::append).toString();
 	}
 
 	/**
-	 * Collects a stream of int code points into a string.
+	 * Collects a stream from a map's key/value pairs.
 	 */
 	public static <K, V, T> Stream<T> map(Map<K, V> map, BiFunction<K, V, T> keyValueFn) {
 		return map.entrySet().stream().map(e -> keyValueFn.apply(e.getKey(), e.getValue()));
@@ -111,8 +115,7 @@ public class StreamUtil {
 	 * Convert a stream to a LinkedHashMap and don't allow duplicate keys.
 	 */
 	public static <K, V> Map<K, V> toMap(Stream<V> stream, Function<? super V, ? extends K> keyFn) {
-		return stream.collect(
-			Collectors.toMap(keyFn, Function.identity(), mergeError(), LinkedHashMap::new));
+		return toMap(stream, keyFn, (Supplier<Map<K, V>>) LinkedHashMap::new);
 	}
 
 	/**
@@ -120,7 +123,25 @@ public class StreamUtil {
 	 */
 	public static <K, V, T> Map<K, V> toMap(Stream<T> stream,
 		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn) {
-		return stream.collect(Collectors.toMap(keyFn, valueFn, mergeError(), LinkedHashMap::new));
+		return toMap(stream, keyFn, valueFn, LinkedHashMap::new);
+	}
+
+	/**
+	 * Convert a stream to a LinkedHashMap and don't allow duplicate keys.
+	 */
+	public static <K, V> Map<K, V> toMap(Stream<V> stream, Function<? super V, ? extends K> keyFn,
+		Supplier<Map<K, V>> mapSupplier) {
+		return toMap(stream, keyFn, Function.identity(), mapSupplier);
+	}
+
+	/**
+	 * Convert a stream to a map and don't allow duplicate keys.
+	 */
+	public static <K, V, T> Map<K, V> toMap(Stream<T> stream,
+		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn,
+		Supplier<Map<K, V>> mapSupplier) {
+		return stream.collect(mapSupplier, (m, t) -> m.put(keyFn.apply(t), valueFn.apply(t)),
+			Map::putAll);
 	}
 
 	/**

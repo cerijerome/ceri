@@ -1,7 +1,9 @@
 package ceri.common.collection;
 
 import java.util.Arrays;
-import java.util.function.Function;
+import java.util.Objects;
+import java.util.function.IntConsumer;
+import java.util.stream.IntStream;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
 
@@ -14,7 +16,6 @@ import ceri.common.util.HashCoder;
  */
 public class ImmutableIntArray {
 	public static final ImmutableIntArray EMPTY = new ImmutableIntArray(ArrayUtil.EMPTY_INT, 0, 0);
-	public static final Function<int[], ImmutableIntArray> wrapFn = ImmutableIntArray::wrap;
 	private final int[] array;
 	private final int offset;
 	public final int length;
@@ -95,6 +96,16 @@ public class ImmutableIntArray {
 		return array[offset + index];
 	}
 
+	public IntStream stream() {
+		return IntStream.range(0, array.length).map(i -> array[i]);
+	}
+
+	public void forEach(IntConsumer action) {
+		Objects.requireNonNull(action);
+		for (int i = 0; i < array.length; i++)
+			action.accept(at(i));
+	}
+
 	public int[] copy() {
 		return copy(0);
 	}
@@ -136,7 +147,7 @@ public class ImmutableIntArray {
 		return hashCoder.hashCode();
 	}
 
-	public boolean equals(int[] array) {
+	public boolean equals(int...array) {
 		return equals(array, 0);
 	}
 

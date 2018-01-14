@@ -12,12 +12,12 @@ public class GroundedPath<T extends Path<T>> implements Path<GroundedPath<T>> {
 	public final T path;
 	private final Position end;
 
-	public static <T extends Path<T>> GroundedPath<T> create(Position start, T path) {
+	public static <T extends Path<T>> GroundedPath<T> of(Position start, T path) {
 		return new GroundedPath<>(start, path);
 	}
 
 	private GroundedPath(Position start, T path) {
-		move = MoveTo.create(start);
+		move = MoveTo.position(start);
 		this.path = path;
 		end = SvgUtil.combinedEnd(move, path);
 	}

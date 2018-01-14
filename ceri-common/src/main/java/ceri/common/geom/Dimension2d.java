@@ -5,27 +5,32 @@ import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public class Dimension2d {
-	public static final Dimension2d NULL = new Dimension2d(0, 0);
+	public static final Dimension2d ZERO = new Dimension2d(0, 0);
 	public final double w;
 	public final double h;
 
-	public Dimension2d(double w, double h) {
+	public static Dimension2d of(double w, double h) {
 		validateMin(w, 0, "Width");
 		validateMin(h, 0, "Height");
+		if (w == 0 && h == 0) return ZERO;
+		return new Dimension2d(w + .0, h + .0);
+	}
+
+	private Dimension2d(double w, double h) {
 		this.w = w;
 		this.h = h;
 	}
 
-	public boolean isNull() {
+	public boolean isZero() {
 		return w == 0 && h == 0;
 	}
 
 	public Dimension2d resize(double ratio) {
-		return new Dimension2d(w * ratio, h * ratio);
+		return Dimension2d.of(w * ratio, h * ratio);
 	}
 
 	public Dimension2d resize(Ratio2d ratio) {
-		return new Dimension2d(w * ratio.x, h * ratio.y);
+		return Dimension2d.of(w * ratio.x, h * ratio.y);
 	}
 
 	public double aspectRatio() {

@@ -1,5 +1,6 @@
 package ceri.common.svg;
 
+import static ceri.common.svg.SvgUtil.string;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
@@ -15,7 +16,7 @@ public class MoveTo implements Path<MoveTo> {
 	}
 
 	public static MoveTo absolute(double x, double y) {
-		return create(Position.create(PositionType.absolute, x, y));
+		return position(Position.of(PositionType.absolute, x, y));
 	}
 
 	public static MoveTo relative(Point2d p) {
@@ -23,10 +24,10 @@ public class MoveTo implements Path<MoveTo> {
 	}
 
 	public static MoveTo relative(double x, double y) {
-		return create(Position.create(PositionType.relative, x, y));
+		return position(Position.of(PositionType.relative, x, y));
 	}
 
-	public static MoveTo create(Position position) {
+	public static MoveTo position(Position position) {
 		return new MoveTo(position);
 	}
 
@@ -63,8 +64,8 @@ public class MoveTo implements Path<MoveTo> {
 
 	@Override
 	public String path() {
-		return String.format("%s%f,%f", position.absolute() ? "M" : "m", position.x,
-			position.y);
+		return String.format("%s%s,%s", position.absolute() ? "M" : "m", string(position.x),
+			string(position.y));
 	}
 
 	@Override

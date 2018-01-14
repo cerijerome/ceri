@@ -15,7 +15,7 @@ public class Ellipse2d {
 		if (a == 0 && b == 0) return NULL;
 		validateMin(a, 0, "Axis a");
 		validateMin(b, 0, "Axis b");
-		return new Ellipse2d(a, b);
+		return new Ellipse2d(a + .0, b + .0);
 	}
 
 	private Ellipse2d(double a, double b) {

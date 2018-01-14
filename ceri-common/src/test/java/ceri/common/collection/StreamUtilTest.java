@@ -25,6 +25,25 @@ public class StreamUtilTest {
 	}
 
 	@Test
+	public void testMap() {
+		Map<String, Integer> map = MapPopulator.of("abc", 1, "DE", 1, "f", 0).map;
+		assertArray(StreamUtil.map(map, (s, i) -> s.charAt(i)).toArray(), 'b', 'E', 'f');
+	}
+
+	@Test
+	public void testFirstNonNull() {
+		assertThat(StreamUtil.firstNonNull(Stream.of(null, null, "abc", "def")), is("abc"));
+	}
+
+	@Test
+	public void testMaxAndMin() {
+		assertThat(StreamUtil.min(Stream.of("abc", "", "ABC")), is(""));
+		assertThat(StreamUtil.max(Stream.of("abc", "", "ABC")), is("abc"));
+		assertException(() -> StreamUtil.min(Stream.of("abc", null, "ABC")));
+		assertThat(StreamUtil.max(Stream.of("abc", null, "ABC")), is("abc"));
+	}
+
+	@Test
 	public void testFirst() {
 		Stream<Integer> stream = Stream.of(1, 2, 3, 4, 5).filter(i -> i % 2 == 0);
 		assertThat(StreamUtil.first(stream), is(2));
@@ -32,7 +51,7 @@ public class StreamUtilTest {
 
 	@Test
 	public void testStream() {
-		Map<Integer, String> map = MapBuilder.of(1, "1", 3, "3", 2, "2").build();
+		Map<Integer, String> map = MapPopulator.of(1, "1", 3, "3", 2, "2").map;
 		Object[] array = StreamUtil.stream(map, (i, s) -> parseDouble(s + "." + (i * i))).toArray();
 		assertArray(array, 1.1, 3.9, 2.4);
 	}
@@ -48,26 +67,24 @@ public class StreamUtilTest {
 	@Test
 	public void testMergeFirst() {
 		Stream<String> stream = Stream.of("1", "2", "3", "01");
-		Map<Integer, String> map =
-			stream.collect(Collectors.toMap(Integer::parseInt, Function.identity(), StreamUtil
-				.mergeFirst()));
+		Map<Integer, String> map = stream.collect(
+			Collectors.toMap(Integer::parseInt, Function.identity(), StreamUtil.mergeFirst()));
 		assertIterable(map.values(), "1", "2", "3");
 	}
 
 	@Test
 	public void testMergeSecond() {
 		Stream<String> stream = Stream.of("1", "2", "3", "01");
-		Map<Integer, String> map =
-			stream.collect(Collectors.toMap(Integer::parseInt, Function.identity(), StreamUtil
-				.mergeSecond()));
+		Map<Integer, String> map = stream.collect(
+			Collectors.toMap(Integer::parseInt, Function.identity(), StreamUtil.mergeSecond()));
 		assertIterable(map.values(), "01", "2", "3");
 	}
 
 	@Test
 	public void testMergeError() {
 		Stream<String> stream = Stream.of("1", "2", "3", "1");
-		assertException(() -> stream.collect(Collectors.toMap(Integer::parseInt, Function
-			.identity(), StreamUtil.mergeError())));
+		assertException(() -> stream.collect(
+			Collectors.toMap(Integer::parseInt, Function.identity(), StreamUtil.mergeError())));
 	}
 
 	@Test

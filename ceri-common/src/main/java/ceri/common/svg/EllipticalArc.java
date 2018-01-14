@@ -1,5 +1,6 @@
 package ceri.common.svg;
 
+import static ceri.common.svg.SvgUtil.string;
 import ceri.common.geom.Dimension2d;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
@@ -10,15 +11,15 @@ import ceri.common.util.HashCoder;
 
 public class EllipticalArc implements Path<EllipticalArc> {
 	public final Dimension2d radii;
-	public final double xRotation;
-	public final LargeArcFlag large;
+	public final double rotation;
+	public final LargeArcFlag size;
 	public final SweepFlag sweep;
 	private final Position end;
 
 	public static class Builder {
 		Dimension2d radii = null;
-		double xRotation = 0;
-		LargeArcFlag large = LargeArcFlag.small;
+		double rotation = 0; // degrees
+		LargeArcFlag size = LargeArcFlag.small;
 		SweepFlag sweep = SweepFlag.positive;
 		Position end;
 
@@ -29,23 +30,18 @@ public class EllipticalArc implements Path<EllipticalArc> {
 			return this;
 		}
 
-		Builder radius(double radius) {
-			this.radii = new Dimension2d(radius, radius);
-			return this;
-		}
-
 		Builder radii(Dimension2d radii) {
 			this.radii = radii;
 			return this;
 		}
 
-		public Builder xRotation(double xRotation) {
-			this.xRotation = xRotation;
+		public Builder rotation(double rotation) {
+			this.rotation = rotation;
 			return this;
 		}
 
 		public Builder flag(LargeArcFlag large) {
-			this.large = large;
+			this.size = large;
 			return this;
 		}
 
@@ -60,56 +56,44 @@ public class EllipticalArc implements Path<EllipticalArc> {
 	}
 
 	public static Builder builder(EllipticalArc arc) {
-		return new Builder().end(arc.end).radii(arc.radii).xRotation(arc.xRotation).flag(arc.large)
+		return new Builder().end(arc.end).radii(arc.radii).rotation(arc.rotation).flag(arc.size)
 			.flag(arc.sweep);
-	}
-
-	public static Builder builder(Position end, double radius) {
-		return builder(end, new Dimension2d(radius, radius));
 	}
 
 	public static Builder builder(Position end, Dimension2d radii) {
 		return new Builder().end(end).radii(radii);
 	}
 
-	public static Builder absolute(Point2d end, double r) {
-		return absolute(end.x, end.y, r, r);
+	public static EllipticalArc circular(Position end, double radii) {
+		return builder(end, Dimension2d.of(radii, radii)).build();
 	}
 
-	public static Builder absolute(double endX, double endY, double r) {
-		return absolute(endX, endY, r, r);
-	}
-
-	public static Builder absolute(Point2d end, Dimension2d r) {
-		return builder(Position.absolute(end), r);
-	}
-
-	public static Builder absolute(double endX, double endY, double rx, double ry) {
-		return builder(Position.absolute(endX, endY), new Dimension2d(rx, ry));
-	}
-
-	public static Builder relative(Point2d end, double r) {
-		return relative(end.x, end.y, r, r);
-	}
-
-	public static Builder relative(double endX, double endY, double r) {
-		return relative(endX, endY, r, r);
-	}
-
-	public static Builder relative(Point2d end, Dimension2d r) {
-		return builder(Position.relative(end), r);
-	}
-
-	public static Builder relative(double endX, double endY, double rx, double ry) {
-		return builder(Position.relative(endX, endY), new Dimension2d(rx, ry));
+	public static EllipticalArc of(Position end, Dimension2d radii) {
+		return builder(end, radii).build();
 	}
 
 	EllipticalArc(Builder builder) {
 		radii = builder.radii;
-		xRotation = builder.xRotation;
-		large = builder.large;
+		rotation = builder.rotation;
+		size = builder.size;
 		sweep = builder.sweep;
 		end = builder.end;
+	}
+
+	public EllipticalArc flag(LargeArcFlag large) {
+		return builder(this).flag(large).build();
+	}
+
+	public EllipticalArc flag(SweepFlag sweep) {
+		return builder(this).flag(sweep).build();
+	}
+
+	/**
+	 * Rotate x-axis in degrees.
+	 */
+	public EllipticalArc rotate(double rotation) {
+		if (rotation == 0) return this;
+		return builder(this).rotation(rotation).build();
 	}
 
 	@Override
@@ -139,13 +123,14 @@ public class EllipticalArc implements Path<EllipticalArc> {
 
 	@Override
 	public String path() {
-		return String.format("%s%f,%f %f %d,%d %f,%f", end.absolute() ? "A" : "a",
-			radii.w, radii.h, xRotation, large.value, sweep.value, end.x, end.y);
+		return String.format("%s%s,%s %s %d,%d %s,%s", end.absolute() ? "A" : "a", string(radii.w),
+			string(radii.h), string(rotation), size.value, sweep.value, string(end.x),
+			string(end.y));
 	}
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(radii, xRotation, large, sweep, end);
+		return HashCoder.hash(radii, rotation, size, sweep, end);
 	}
 
 	@Override
@@ -154,8 +139,8 @@ public class EllipticalArc implements Path<EllipticalArc> {
 		if (!(obj instanceof EllipticalArc)) return false;
 		EllipticalArc other = (EllipticalArc) obj;
 		if (!EqualsUtil.equals(radii, other.radii)) return false;
-		if (!EqualsUtil.equals(xRotation, other.xRotation)) return false;
-		if (!EqualsUtil.equals(large, other.large)) return false;
+		if (!EqualsUtil.equals(rotation, other.rotation)) return false;
+		if (!EqualsUtil.equals(size, other.size)) return false;
 		if (!EqualsUtil.equals(sweep, other.sweep)) return false;
 		if (!EqualsUtil.equals(end, other.end)) return false;
 		return true;
@@ -163,7 +148,7 @@ public class EllipticalArc implements Path<EllipticalArc> {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, end, radii, xRotation, large, sweep).toString();
+		return ToStringHelper.createByClass(this, end, radii, rotation, size, sweep).toString();
 	}
 
 }

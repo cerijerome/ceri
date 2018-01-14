@@ -12,7 +12,25 @@ import java.io.IOException;
 import org.junit.Test;
 
 public class ImmutableByteArrayBehavior {
-	private final byte[] b = { 0, -1, 1, Byte.MAX_VALUE, Byte.MIN_VALUE }; // Don't overwrite!
+	// Don't overwrite!
+	private final byte[] b = { 0, -1, 1, Byte.MAX_VALUE, Byte.MIN_VALUE };
+
+	@Test
+	public void shouldAppendBytes() {
+		ImmutableByteArray ba1 = ImmutableByteArray.wrap(0, 1, 2);
+		ImmutableByteArray ba2 = ImmutableByteArray.wrap(3, 4, 5);
+		assertArray(ba1.append(ImmutableByteArray.EMPTY).copy(), 0, 1, 2);
+		assertArray(ba1.append(ba2).copy(), 0, 1, 2, 3, 4, 5);
+		assertArray(ba1.append(ba2.copy()).copy(), 0, 1, 2, 3, 4, 5);
+	}
+
+	@Test
+	public void shouldIterateEachByte() {
+		ImmutableByteArray ba = ImmutableByteArray.wrap(b);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ba.forEach(b -> out.write(b));
+		assertArray(out.toByteArray(), b);
+	}
 
 	@Test
 	public void shouldWriteToOutput() throws IOException {

@@ -6,8 +6,8 @@ import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 /**
- * Describes an ellipsoid with equal radii on at least the non-vertical axes.
- * A simplified rugby ball on its end.
+ * Describes an ellipsoid with equal radii on at least the non-vertical axes. A simplified rugby
+ * ball on its end.
  */
 public class Spheroid3d implements Radial3d {
 	public static final Spheroid3d NULL = new Spheroid3d(0, 0);
@@ -21,7 +21,7 @@ public class Spheroid3d implements Radial3d {
 		if (r == 0 && c == 0) return NULL;
 		validateMin(r, 0, "Radius");
 		validateMin(c, 0, "Axis c");
-		return new Spheroid3d(r, c);
+		return new Spheroid3d(r + .0, c + .0);
 	}
 
 	private Spheroid3d(double r, double c) {

@@ -32,24 +32,24 @@ public class GeometryUtil {
 	 * Resize dimension to fit at least given dimensions while maintaining aspect ratio.
 	 */
 	public static Dimension2d resizeToMin(Dimension2d size, Dimension2d min) {
-		if (size.isNull()) return size;
-		if (size.w == 0) return new Dimension2d(0, min.h);
-		if (size.h == 0) return new Dimension2d(min.w, 0);
+		if (size.isZero()) return size;
+		if (size.w == 0) return Dimension2d.of(0, min.h);
+		if (size.h == 0) return Dimension2d.of(min.w, 0);
 		double w = Math.max(min.w, min.h * size.aspectRatio());
 		double h = Math.max(min.h, min.w / size.aspectRatio());
-		return new Dimension2d(w, h);
+		return Dimension2d.of(w, h);
 	}
 
 	/**
 	 * Resize dimension to fit within given dimensions while maintaining aspect ratio.
 	 */
 	public static Dimension2d resizeToMax(Dimension2d size, Dimension2d max) {
-		if (size.isNull()) return size;
-		if (size.w == 0) return new Dimension2d(0, max.h);
-		if (size.h == 0) return new Dimension2d(max.w, 0);
+		if (size.isZero()) return size;
+		if (size.w == 0) return Dimension2d.of(0, max.h);
+		if (size.h == 0) return Dimension2d.of(max.w, 0);
 		double w = Math.min(max.w, max.h * size.aspectRatio());
 		double h = Math.min(max.h, max.w / size.aspectRatio());
-		return new Dimension2d(w, h);
+		return Dimension2d.of(w, h);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class GeometryUtil {
 	 * remain unchanged.
 	 */
 	public static Dimension2d crop(Dimension2d size, Dimension2d crop) {
-		return new Dimension2d(Math.min(size.w, crop.w), Math.min(size.h, crop.h));
+		return Dimension2d.of(Math.min(size.w, crop.w), Math.min(size.h, crop.h));
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class GeometryUtil {
 		double xw = Math.min(r0.x + r0.w, r1.x + r1.w);
 		double y = Math.max(r0.y, r1.y);
 		double yh = Math.min(r0.y + r0.h, r1.y + r1.h);
-		if (y > yh || x > xw) return Rectangle2d.NULL;
+		if (y > yh || x > xw) return Rectangle2d.ZERO;
 		return Rectangle2d.of(x, y, xw - x, yh - y);
 	}
 

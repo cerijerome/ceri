@@ -18,7 +18,7 @@ public class Ellipsoid3d {
 		validateMin(a, 0, "Axis a");
 		validateMin(b, 0, "Axis b");
 		validateMin(c, 0, "Axis c");
-		return new Ellipsoid3d(a, b, c);
+		return new Ellipsoid3d(a + .0, b + .0, c + .0);
 	}
 
 	protected Ellipsoid3d(double a, double b, double c) {

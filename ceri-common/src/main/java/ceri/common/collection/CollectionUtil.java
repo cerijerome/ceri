@@ -17,6 +17,7 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import ceri.common.comparator.Comparators;
 import ceri.common.util.BasicUtil;
@@ -28,6 +29,14 @@ public class CollectionUtil {
 
 	private CollectionUtil() {}
 
+	/**
+	 * Copies an array of objects into an mutable LinkedHashSet.
+	 */
+	@SafeVarargs
+	public static <T> Set<T> asSet(T... array) {
+		return addAll(new LinkedHashSet<>(), array);
+	}
+	
 	/**
 	 * Fills a list with a given number of elements from a given offset. Returns the offset after
 	 * the filled elements.
@@ -73,24 +82,17 @@ public class CollectionUtil {
 	 */
 	public static <K, V, T, U> Map<K, V> transform(Function<? super T, ? extends K> keyMapper,
 		Function<? super U, ? extends V> valueMapper, Map<T, U> map) {
-		return StreamUtil.toMap(map.entrySet().stream(), e -> keyMapper.apply(e.getKey()),
-			e -> valueMapper.apply(e.getValue()));
+		return transform(keyMapper, valueMapper, LinkedHashMap::new, map);
 	}
 
 	/**
-	 * Transforms a map's keys.
+	 * Transforms a map.
 	 */
-	public static <K, T, U> Map<K, U> transformKeys(Function<? super T, ? extends K> keyMapper,
+	public static <K, V, T, U> Map<K, V> transform(Function<? super T, ? extends K> keyMapper,
+		Function<? super U, ? extends V> valueMapper, Supplier<Map<K, V>> mapSupplier,
 		Map<T, U> map) {
-		return transform(keyMapper, v -> v, map);
-	}
-
-	/**
-	 * Transforms a map's values.
-	 */
-	public static <K, V, U> Map<K, V> transformValues(Function<? super U, ? extends V> valueMapper,
-		Map<K, U> map) {
-		return transform(k -> k, valueMapper, map);
+		return StreamUtil.toMap(map.entrySet().stream(), e -> keyMapper.apply(e.getKey()),
+			e -> valueMapper.apply(e.getValue()), mapSupplier);
 	}
 
 	/**
@@ -99,9 +101,35 @@ public class CollectionUtil {
 	public static <K, V, T, U> Map<K, V> transform(
 		BiFunction<? super T, ? super U, ? extends K> keyMapper,
 		BiFunction<? super T, ? super U, ? extends V> valueMapper, Map<T, U> map) {
+		return transform(keyMapper, valueMapper, LinkedHashMap::new, map);
+	}
+
+	/**
+	 * Transforms a map.
+	 */
+	public static <K, V, T, U> Map<K, V> transform(
+		BiFunction<? super T, ? super U, ? extends K> keyMapper,
+		BiFunction<? super T, ? super U, ? extends V> valueMapper, Supplier<Map<K, V>> mapSupplier,
+		Map<T, U> map) {
 		return StreamUtil.toMap(map.entrySet().stream(),
 			e -> keyMapper.apply(e.getKey(), e.getValue()),
-			e -> valueMapper.apply(e.getKey(), e.getValue()));
+			e -> valueMapper.apply(e.getKey(), e.getValue()), mapSupplier);
+	}
+
+	/**
+	 * Transforms a map's keys.
+	 */
+	public static <K, T, U> Map<K, U> transformKeys(Function<? super T, ? extends K> keyMapper,
+		Map<T, U> map) {
+		return transformKeys(keyMapper, LinkedHashMap::new, map);
+	}
+
+	/**
+	 * Transforms a map's keys.
+	 */
+	public static <K, T, U> Map<K, U> transformKeys(Function<? super T, ? extends K> keyMapper,
+		Supplier<Map<K, U>> mapSupplier, Map<T, U> map) {
+		return transform(keyMapper, v -> v, mapSupplier, map);
 	}
 
 	/**
@@ -109,22 +137,57 @@ public class CollectionUtil {
 	 */
 	public static <K, T, U> Map<K, U>
 		transformKeys(BiFunction<? super T, ? super U, ? extends K> keyMapper, Map<T, U> map) {
-		return transform(keyMapper, (k, v) -> v, map);
+		return transformKeys(keyMapper, LinkedHashMap::new, map);
 	}
 
 	/**
 	 * Transforms a map's keys.
 	 */
-	public static <K, V, U> Map<K, V>
-		transformValues(BiFunction<? super K, ? super U, ? extends V> valueMapper, Map<K, U> map) {
-		return transform((k, v) -> k, valueMapper, map);
+	public static <K, T, U> Map<K, U> transformKeys(
+		BiFunction<? super T, ? super U, ? extends K> keyMapper, Supplier<Map<K, U>> mapSupplier,
+		Map<T, ? extends U> map) {
+		return transform(keyMapper, (k, v) -> v, mapSupplier, map);
+	}
+
+	/**
+	 * Transforms a map's values.
+	 */
+	public static <K, V, U> Map<K, V> transformValues(Function<? super U, ? extends V> valueMapper,
+		Map<? extends K, U> map) {
+		return transformValues(valueMapper, LinkedHashMap::new, map);
+	}
+
+	/**
+	 * Transforms a map's values.
+	 */
+	public static <K, V, U> Map<K, V> transformValues(Function<? super U, ? extends V> valueMapper,
+		Supplier<Map<K, V>> mapSupplier, Map<? extends K, U> map) {
+		return transform(k -> k, valueMapper, mapSupplier, map);
+	}
+
+	/**
+	 * Transforms a map's keys.
+	 */
+	public static <K, V, U> Map<K, V> transformValues(
+		BiFunction<? super K, ? super U, ? extends V> valueMapper,
+		Map<? extends K, U> map) {
+		return transformValues(valueMapper, LinkedHashMap::new, map);
+	}
+
+	/**
+	 * Transforms a map's keys.
+	 */
+	public static <K, V, U> Map<K, V> transformValues(
+		BiFunction<? super K, ? super U, ? extends V> valueMapper, Supplier<Map<K, V>> mapSupplier,
+		Map<? extends K, U> map) {
+		return transform((k, v) -> k, valueMapper, mapSupplier, map);
 	}
 
 	/**
 	 * Converts a collection to a new list by mapping elements from the original collection.
 	 */
 	public static <F, T> List<T> toList(Function<? super F, ? extends T> mapper,
-		Collection<F> collection) {
+		Collection<? extends F> collection) {
 		return StreamUtil.toList(collection.stream().map(mapper));
 	}
 
@@ -132,12 +195,12 @@ public class CollectionUtil {
 	 * Converts a map to a list by mapping entry elements from the original map.
 	 */
 	public static <K, V, T> List<T> toList(BiFunction<? super K, ? super V, ? extends T> mapper,
-		Map<K, V> map) {
+		Map<? extends K, ? extends V> map) {
 		return StreamUtil.toList(StreamUtil.stream(map, mapper));
 	}
 
 	/**
-	 * Returns a map copy with entries sorted by value.
+	 * Returns a linked hash map copy with entries sorted by value.
 	 */
 	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
 		Map<K, V> result = new LinkedHashMap<>();
@@ -263,7 +326,8 @@ public class CollectionUtil {
 	/**
 	 * Variation of Collection.addAll that returns the collection type.
 	 */
-	public static <T, C extends Collection<? super T>> C addAll(C collection, Collection<? extends T> items) {
+	public static <T, C extends Collection<? super T>> C addAll(C collection,
+		Collection<? extends T> items) {
 		collection.addAll(items);
 		return collection;
 	}

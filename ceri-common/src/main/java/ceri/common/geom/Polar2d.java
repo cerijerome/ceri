@@ -17,11 +17,9 @@ public class Polar2d {
 	}
 
 	public static Polar2d of(double r, double phi) {
-		r += .0;
-		phi += .0;
-		validateMin(r, 0, "Radius");
 		if (r == ZERO.r && phi == ZERO.phi) return ZERO;
-		return new Polar2d(r, phi);
+		validateMin(r, 0, "Radius");
+		return new Polar2d(r + .0, phi + .0);
 	}
 
 	private Polar2d(double r, double phi) {

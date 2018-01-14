@@ -10,15 +10,19 @@ public class Ratio2d {
 	public final double x;
 	public final double y;
 
-	public static Ratio2d create(double scale) {
-		return new Ratio2d(scale, scale);
+	public static Ratio2d uniform(double scale) {
+		return of(scale, scale);
 	}
 
-	public Ratio2d(double x, double y) {
-		x += 0.0;
-		y += 0.0;
+	public static Ratio2d of(double x, double y) {
+		if (x == 0 && y == 0) return ZERO;
+		if (x == 1 && y == 1) return ONE;
 		validateMin(x, 0, "X ratio");
 		validateMin(y, 0, "Y ratio");
+		return new Ratio2d(x + .0, y + .0);
+	}
+
+	private Ratio2d(double x, double y) {
 		this.x = x;
 		this.y = y;
 	}

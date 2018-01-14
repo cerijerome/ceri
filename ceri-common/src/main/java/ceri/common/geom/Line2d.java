@@ -52,7 +52,7 @@ public class Line2d {
 	private boolean equals(Point2d from, Point2d to) {
 		return this.from.equals(from) && this.to.equals(to);
 	}
-	
+
 	/**
 	 * Reflect the given point in the extended line.
 	 */

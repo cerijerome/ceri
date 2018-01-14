@@ -27,7 +27,7 @@ public class ConcaveSpheroid3d implements Radial3d {
 		validateMin(r, 0, "Radius");
 		validateRange(a, 0, r, "Axis a");
 		validateMin(c, 0, "Axis c");
-		return new ConcaveSpheroid3d(r, a, c, REVERSE_STEPS_DEF);
+		return new ConcaveSpheroid3d(r + .0, a + .0, c + .0, REVERSE_STEPS_DEF);
 	}
 
 	private ConcaveSpheroid3d(double r, double a, double c, int steps) {

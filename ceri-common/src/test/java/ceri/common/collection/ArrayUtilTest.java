@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.isClass;
@@ -9,7 +10,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.junit.Test;
@@ -24,7 +24,18 @@ public class ArrayUtilTest {
 	@Test
 	public void testEmptyArrays() {
 		assertThat(ArrayUtil.EMPTY_BOOLEAN, is(new boolean[0]));
+		assertThat(ArrayUtil.emptyArray(String.class), is(new String[0]));
+		assertThat(ArrayUtil.emptyArray(Object.class), is(new Object[0]));
 		assertThat(ArrayUtil.emptyArray(Date.class), is(ArrayUtil.emptyArray(Date.class)));
+	}
+
+	@Test
+	public void testValidateIndex() {
+		int[] array = { 1, 2, 3, 4 };
+		ArrayUtil.validateIndex(array.length, 0);
+		ArrayUtil.validateIndex(array.length, 3);
+		assertException(() -> ArrayUtil.validateIndex(array.length, -1));
+		assertException(() -> ArrayUtil.validateIndex(array.length, 4));
 	}
 
 	@Test
@@ -53,13 +64,14 @@ public class ArrayUtilTest {
 		List<Integer> list = ArrayUtil.toList(s -> s.length(), "A", "ABC", "BC");
 		assertIterable(list, 1, 3, 2);
 	}
-	
+
 	@Test
 	public void testAsList() {
 		List<Integer> list = ArrayUtil.asList(1, 2, 3);
 		list.add(4);
 		list.add(5);
-		assertThat(list, is(Arrays.asList(1, 2, 3, 4, 5)));
+		assertIterable(list, 1, 2, 3, 4, 5);
+		assertIterable(ArrayUtil.asList("a", new String[] { "b", "c" }), "a", "b", "c");
 	}
 
 	@Test

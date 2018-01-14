@@ -8,8 +8,9 @@ import ceri.common.collection.CollectionUtilTest;
 import ceri.common.collection.DelegatingMapBehavior;
 import ceri.common.collection.FixedSizeCacheBehavior;
 import ceri.common.collection.ImmutableByteArrayBehavior;
+import ceri.common.collection.ImmutableIntArrayBehavior;
 import ceri.common.collection.ImmutableUtilTest;
-import ceri.common.collection.MapBuilderBehavior;
+import ceri.common.collection.MapPopulatorBehavior;
 import ceri.common.collection.StreamUtilTest;
 import ceri.common.color.BiasesTest;
 import ceri.common.color.ColorComparatorsTest;
@@ -25,9 +26,19 @@ import ceri.common.concurrent.BooleanConditionBehavior;
 import ceri.common.concurrent.ConcurrentUtilTest;
 import ceri.common.concurrent.RuntimeInterruptedExceptionBehavior;
 import ceri.common.concurrent.ValueConditionBehavior;
+import ceri.common.data.BinaryStateBehavior;
 import ceri.common.data.ByteArrayDataInputBehavior;
 import ceri.common.data.ByteArrayDataOutputBehavior;
+import ceri.common.data.ByteTypeValueBehavior;
 import ceri.common.data.ByteUtilTest;
+import ceri.common.data.DataUtilTest;
+import ceri.common.data.DecodingExceptionBehavior;
+import ceri.common.data.IntTypeValueBehavior;
+import ceri.common.data.OctetBitSetBehavior;
+import ceri.common.data.ShortTypeValueBehavior;
+import ceri.common.data.UnexpectedValueExceptionBehavior;
+import ceri.common.data.UnsignedOctetTypeBehavior;
+import ceri.common.data.XorBehavior;
 import ceri.common.date.CalendarFieldBehavior;
 import ceri.common.date.DateUtilTest;
 import ceri.common.date.HolidayBehavior;
@@ -107,6 +118,16 @@ import ceri.common.reflect.ReflectUtilTest;
 import ceri.common.score.CollectionScorersTest;
 import ceri.common.score.ScoreLookupBehavior;
 import ceri.common.score.ScorersTest;
+import ceri.common.svg.EllipseBehavior;
+import ceri.common.svg.EllipticalArcBehavior;
+import ceri.common.svg.GroundedPathBehavior;
+import ceri.common.svg.LargeArcFlagBehavior;
+import ceri.common.svg.LineToBehavior;
+import ceri.common.svg.MoveToBehavior;
+import ceri.common.svg.PathGroupBehavior;
+import ceri.common.svg.PositionBehavior;
+import ceri.common.svg.SvgUtilTest;
+import ceri.common.svg.SweepFlagBehavior;
 import ceri.common.test.BinaryLogInputStreamBehavior;
 import ceri.common.test.BinaryLogOutputStreamBehavior;
 import ceri.common.test.BinaryPrinterBehavior;
@@ -162,8 +183,9 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	DelegatingMapBehavior.class, //
 	FixedSizeCacheBehavior.class, //
 	ImmutableByteArrayBehavior.class, //
+	ImmutableIntArrayBehavior.class, //
 	ImmutableUtilTest.class, //
-	MapBuilderBehavior.class, //
+	MapPopulatorBehavior.class, //
 	StreamUtilTest.class, //
 	// color
 	BiasesTest.class, //
@@ -183,9 +205,19 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	RuntimeInterruptedExceptionBehavior.class, //
 	ValueConditionBehavior.class, //
 	// data
+	BinaryStateBehavior.class, //
 	ByteArrayDataInputBehavior.class, //
 	ByteArrayDataOutputBehavior.class, //
+	ByteTypeValueBehavior.class, //
 	ByteUtilTest.class, //
+	DataUtilTest.class, //
+	DecodingExceptionBehavior.class, //
+	IntTypeValueBehavior.class, //
+	OctetBitSetBehavior.class, //
+	ShortTypeValueBehavior.class, //
+	UnexpectedValueExceptionBehavior.class, //
+	UnsignedOctetTypeBehavior.class, //
+	XorBehavior.class, //
 	// date
 	CalendarFieldBehavior.class, //
 	DateUtilTest.class, //
@@ -278,6 +310,17 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	CollectionScorersTest.class, //
 	ScoreLookupBehavior.class, //
 	ScorersTest.class, //
+	// svg
+	EllipseBehavior.class, //
+	EllipticalArcBehavior.class, //
+	GroundedPathBehavior.class, //
+	LargeArcFlagBehavior.class, //
+	LineToBehavior.class, //
+	MoveToBehavior.class, //
+	PathGroupBehavior.class, //
+	PositionBehavior.class, //
+	SvgUtilTest.class, //
+	SweepFlagBehavior.class, //
 	// test
 	BinaryLogInputStreamBehavior.class, //
 	BinaryLogOutputStreamBehavior.class, //

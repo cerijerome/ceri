@@ -18,7 +18,7 @@ public class Cone3d implements Radial3d {
 		if (r == 0 && h == 0) return NULL;
 		validateMin(r, 0, "Radius");
 		validateMin(h, 0, "Height");
-		return new Cone3d(r, h);
+		return new Cone3d(r + .0, h + .0);
 	}
 
 	private Cone3d(double r, double h) {

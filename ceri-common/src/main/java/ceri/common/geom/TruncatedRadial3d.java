@@ -16,7 +16,7 @@ public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 	public static <T extends Radial3d> TruncatedRadial3d<T> create(T radial, double h0, double h) {
 		validateMin(h0, 0, "Height offset");
 		validateRange(h, 0, radial.height() - h0, "Height");
-		return new TruncatedRadial3d<>(radial, h0, h);
+		return new TruncatedRadial3d<>(radial, h0 + .0, h + .0);
 	}
 
 	private TruncatedRadial3d(T radial, double h0, double h) {

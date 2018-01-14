@@ -1,13 +1,21 @@
 package ceri.common.test;
 
+import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertFile;
 import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.TestUtil.assertNaN;
 import static ceri.common.test.TestUtil.assertRange;
+import static ceri.common.test.TestUtil.exception;
+import static ceri.common.test.TestUtil.init;
 import static ceri.common.test.TestUtil.isList;
 import static ceri.common.test.TestUtil.isObject;
+import static ceri.common.test.TestUtil.matchesRegex;
+import static ceri.common.test.TestUtil.resource;
+import static ceri.common.test.TestUtil.testMap;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -19,8 +27,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.text.StringUtil;
@@ -120,6 +130,51 @@ public class TestUtilTest {
 	}
 
 	@Test
+	public void testException() {
+		Exception e = exception(() -> {
+			throw new IOException("test");
+		});
+		assertTrue(e instanceof IOException);
+		assertThat(e.getMessage(), is("test"));
+		assertNull(exception(() -> {}));
+	}
+
+	@Test
+	public void testInit() {
+		boolean throwIt = false;
+		assertThat(init(() -> {
+			if (throwIt) throw new IOException();
+			return "test";
+		}), is("test"));
+		assertException(RuntimeException.class, () -> init(() -> {
+			throw new IOException();
+		}));
+	}
+
+	@Test
+	public void testTestMap() {
+		Map<Integer, String> map = testMap(1, "1", 2, "2", 3);
+		assertThat(map.size(), is(3));
+		assertThat(map.get(1), is("1"));
+		assertThat(map.get(2), is("2"));
+		assertNull(map.get(3));
+	}
+
+	@Test
+	public void testResource() {
+		assertThat(resource("resource.txt"), is("test"));
+		assertException(RuntimeException.class, () -> resource("not-found.txt"));
+	}
+
+	@Test
+	public void testAssertNan() {
+		assertNaN(Double.NaN);
+		assertNaN("test", Double.NaN);
+		assertAssertion(() -> assertNaN(Double.MAX_VALUE));
+		assertAssertion(() -> assertNaN("test", 0.0));
+	}
+
+	@Test
 	public void testAssertException() {
 		assertAssertion(() -> TestUtil.assertException(() -> {}));
 		assertAssertion(() -> TestUtil.assertException(IllegalArgumentException.class, () -> {
@@ -130,6 +185,12 @@ public class TestUtilTest {
 		});
 		assertAssertion(() -> TestUtil.assertException(IllegalArgumentException.class, () -> {
 			throw new RuntimeException();
+		}));
+		TestUtil.assertException("test", () -> {
+			throw new IOException("test");
+		});
+		assertAssertion(() -> TestUtil.assertException("test", () -> {
+			throw new IOException("tests");
 		}));
 	}
 
@@ -146,6 +207,8 @@ public class TestUtilTest {
 		boolean[] b0 = { false, false };
 		boolean[] b1 = { false, false };
 		assertAssertion(() -> TestUtil.assertArrayObject(b0, 0, b1, 0, 3));
+		assertArray(new short[] { 1, 2 }, 1, 2);
+
 	}
 
 	@Test
@@ -174,6 +237,12 @@ public class TestUtilTest {
 			() -> TestUtil.toReadableString(bytes, 3, 2, "test", '?'));
 		assertThat(TestUtil.toReadableString(new byte[0], 0, 0, null, '.'), is(""));
 		assertThat(TestUtil.toReadableString(new byte[0], 0, 0, "", '.'), is(""));
+	}
+
+	@Test
+	public void testMatchesRegex() {
+		Pattern p = Pattern.compile("[a-z]+");
+		assertThat("abc", matchesRegex(p));
 	}
 
 	@Test

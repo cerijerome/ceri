@@ -74,8 +74,4 @@ public class UnexpectedValueException extends IllegalArgumentException {
 		return Integer.toUnsignedString(value & 0xffffffff, 16);
 	}
 
-	public static void main(String[] args) {
-		throw forShort(-1, 1);
-	}
-
 }

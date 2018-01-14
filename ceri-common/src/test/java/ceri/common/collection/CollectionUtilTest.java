@@ -37,8 +37,31 @@ public class CollectionUtilTest {
 	}
 
 	@Test
+	public void testFill() {
+		List<Integer> list = ArrayUtil.asList(1, 2, 3, 4, 5);
+		assertThat(CollectionUtil.fill(list, 1, 2, 0), is(3));
+		assertIterable(list, 1, 0, 0, 4, 5);
+	}
+
+	@Test
+	public void testInsert() {
+		List<Integer> list1 = ArrayUtil.asList(1, 2, 3);
+		List<Integer> list2 = ArrayUtil.asList(4, 5, 6);
+		assertThat(CollectionUtil.insert(list2, 1, list1, 1, 2), is(3));
+		assertIterable(list1, 1, 5, 6, 2, 3);
+	}
+
+	@Test
+	public void testCopy() {
+		List<Integer> list1 = ArrayUtil.asList(1, 2, 3);
+		List<Integer> list2 = ArrayUtil.asList(4, 5, 6);
+		assertThat(CollectionUtil.copy(list2, 1, list1, 1, 2), is(3));
+		assertIterable(list1, 1, 5, 6);
+	}
+
+	@Test
 	public void testTransformValues() {
-		Map<Integer, String> map = MapBuilder.of(1, "1", 3, "333", 2, "22").build();
+		Map<Integer, String> map = MapPopulator.of(1, "1", 3, "333", 2, "22").map;
 		Map<Integer, Integer> imap = CollectionUtil.transformValues(s -> s.length(), map);
 		assertCollection(imap.keySet(), 1, 3, 2);
 		assertCollection(imap.values(), 1, 3, 2);
@@ -49,7 +72,7 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testTransformKeys() {
-		Map<Double, String> map = MapBuilder.of(1.1, "1.10", 3.3, "3.3000", 2.2, "2.200").build();
+		Map<Double, String> map = MapPopulator.of(1.1, "1.10", 3.3, "3.3000", 2.2, "2.200").map;
 		Map<Integer, String> imap = CollectionUtil.transformKeys(d -> d.intValue(), map);
 		assertCollection(imap.keySet(), 1, 3, 2);
 		assertCollection(imap.values(), "1.10", "3.3000", "2.200");
@@ -60,7 +83,7 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testTransform() {
-		Map<Double, String> map = MapBuilder.of(1.1, "1.10", 3.3, "3.3000", 2.2, "2.200").build();
+		Map<Double, String> map = MapPopulator.of(1.1, "1.10", 3.3, "3.3000", 2.2, "2.200").map;
 		Map<Integer, Integer> imap =
 			CollectionUtil.transform(d -> d.intValue(), s -> s.length(), map);
 		assertCollection(imap.keySet(), 1, 3, 2);
@@ -81,16 +104,16 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testToList() {
-		Map<Integer, String> map = MapBuilder.create(new LinkedHashMap<Integer, String>()) //
-			.put(1, "1").put(0, null).put(4, "4").put(2, "2").put(-2, "-2").build();
+		Map<Integer, String> map = MapPopulator.wrap(new LinkedHashMap<Integer, String>()) //
+			.put(1, "1").put(0, null).put(4, "4").put(2, "2").put(-2, "-2").map;
 		List<String> list = CollectionUtil.toList((i, s) -> String.valueOf(s) + i, map);
 		assertIterable(list, "11", "null0", "44", "22", "-2-2");
 	}
 
 	@Test
 	public void testSortByValue() {
-		Map<Integer, String> map = MapBuilder.create(new LinkedHashMap<Integer, String>()) //
-			.put(1, "1").put(0, null).put(4, "4").put(2, "2").put(-2, "-2").build();
+		Map<Integer, String> map = MapPopulator.wrap(new LinkedHashMap<Integer, String>()) //
+			.put(1, "1").put(0, null).put(4, "4").put(2, "2").put(-2, "-2").map;
 		map = CollectionUtil.sortByValue(map);
 		assertIterable(map.keySet(), 0, -2, 1, 2, 4);
 		assertIterable(map.values(), null, "-2", "1", "2", "4");
@@ -146,10 +169,14 @@ public class CollectionUtilTest {
 	public void testAddAll() {
 		List<String> list = CollectionUtil.addAll(new ArrayList<String>(), "1", "2", "3");
 		assertThat(list, is(Arrays.asList("1", "2", "3")));
+		assertThat(CollectionUtil.addAll(list, list),
+			is(Arrays.asList("1", "2", "3", "1", "2", "3")));
 	}
 
 	@Test
 	public void testFirst() {
+		assertNull(CollectionUtil.first(null));
+		assertNull(CollectionUtil.first(Collections.emptySet()));
 		assertThat(CollectionUtil.first(Arrays.asList("1", "2", "3")), is("1"));
 		Set<String> set = new LinkedHashSet<>();
 		Collections.addAll(set, "1", "2", "3");
@@ -158,6 +185,8 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testLast() {
+		assertNull(CollectionUtil.last(null));
+		assertNull(CollectionUtil.last(Collections.emptyList()));
 		assertThat(CollectionUtil.last(Arrays.asList("1", "2", "3")), is("3"));
 		List<Integer> ii = new LinkedList<>();
 		assertNull(CollectionUtil.last(ii));
@@ -215,8 +244,8 @@ public class CollectionUtilTest {
 	@Test
 	public void testKey() {
 		assertThat(CollectionUtil.key(Collections.emptyMap(), "a"), is((Integer) null));
-		Map<Integer, String> map = MapBuilder.create(new LinkedHashMap<Integer, String>()) //
-			.put(1, "1").put(-1, null).put(2, "2").put(22, "2").put(-2, null).build();
+		Map<Integer, String> map = MapPopulator.wrap(new LinkedHashMap<Integer, String>()) //
+			.put(1, "1").put(-1, null).put(2, "2").put(22, "2").put(-2, null).map;
 		assertThat(CollectionUtil.key(map, "1"), is(1));
 		assertThat(CollectionUtil.key(map, "2"), is(2));
 		assertThat(CollectionUtil.key(map, new String("2")), is(2));
@@ -225,8 +254,8 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testKeys() {
-		Map<Integer, String> map = MapBuilder.create(new LinkedHashMap<Integer, String>()) //
-			.put(1, "1").put(-1, null).put(2, "2").put(22, "2").put(-2, null).build();
+		Map<Integer, String> map = MapPopulator.wrap(new LinkedHashMap<Integer, String>()) //
+			.put(1, "1").put(-1, null).put(2, "2").put(22, "2").put(-2, null).map;
 		assertCollection(CollectionUtil.keys(map, "1"), 1);
 		assertCollection(CollectionUtil.keys(map, "2"), 2, 22);
 		assertCollection(CollectionUtil.keys(map, new String("2")), 2, 22);

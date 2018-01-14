@@ -10,12 +10,12 @@ import ceri.common.util.HashCoder;
 
 public class Ellipse implements Path<Ellipse> {
 	public final Dimension2d radii;
-	public final double xRotation;
+	public final double rotation;
 	private final Position center;
 
 	public static class Builder {
 		Dimension2d radii = null;
-		double xRotation = 0;
+		double rotation = 0; // degrees
 		Position center;
 
 		Builder() {}
@@ -25,18 +25,13 @@ public class Ellipse implements Path<Ellipse> {
 			return this;
 		}
 
-		Builder radius(double radius) {
-			this.radii = new Dimension2d(radius, radius);
-			return this;
-		}
-
 		Builder radii(Dimension2d radii) {
 			this.radii = radii;
 			return this;
 		}
 
-		public Builder xRotation(double xRotation) {
-			this.xRotation = xRotation;
+		public Builder rotation(double rotation) {
+			this.rotation = rotation;
 			return this;
 		}
 
@@ -46,50 +41,38 @@ public class Ellipse implements Path<Ellipse> {
 	}
 
 	public static Builder builder(Ellipse arc) {
-		return new Builder().center(arc.center).radii(arc.radii).xRotation(arc.xRotation);
-	}
-
-	public static Ellipse circle(Position center, double radius) {
-		return builder(center, new Dimension2d(radius, radius)).build();
+		return new Builder().center(arc.center).radii(arc.radii).rotation(arc.rotation);
 	}
 
 	public static Builder builder(Position center, Dimension2d radii) {
 		return new Builder().center(center).radii(radii);
 	}
 
-	public static Ellipse absoluteCircle(Point2d center, double radius) {
-		return absoluteCircle(center.x, center.y, radius);
+	public static Ellipse circle(Position center, double radius) {
+		return builder(center, Dimension2d.of(radius, radius)).build();
 	}
 
-	public static Ellipse absoluteCircle(double x, double y, double r) {
-		return absolute(x, y, r, r).build();
-	}
-
-	public static Builder absolute(double x, double y, double rx, double ry) {
-		return builder(Position.absolute(x, y), new Dimension2d(rx, ry));
-	}
-
-	public static Ellipse relativeCircle(Point2d center, double radius) {
-		return relativeCircle(center.x, center.y, radius);
-	}
-
-	public static Ellipse relativeCircle(double x, double y, double r) {
-		return relative(x, y, r, r).build();
-	}
-
-	public static Builder relative(double x, double y, double rx, double ry) {
-		return builder(Position.relative(x, y), new Dimension2d(rx, ry));
+	public static Ellipse of(Position center, Dimension2d radii) {
+		return builder(center, radii).build();
 	}
 
 	Ellipse(Builder builder) {
 		radii = builder.radii;
-		xRotation = builder.xRotation;
+		rotation = builder.rotation;
 		center = builder.center;
 	}
 
+	/**
+	 * Rotate x-axis in degrees.
+	 */
+	public Ellipse rotate(double xRotation) {
+		if (xRotation == 0) return this;
+		return builder(this).rotation(xRotation).build();
+	}
+	
 	@Override
 	public Ellipse reverse() {
-		return builder(this).center(center.reverse()).build();
+		return builder(this).center(center.reverse()).rotation(-rotation).build();
 	}
 
 	@Override
@@ -114,12 +97,12 @@ public class Ellipse implements Path<Ellipse> {
 
 	@Override
 	public String path() {
-		double radians = Math.toRadians(xRotation);
+		double radians = Math.toRadians(rotation);
 		double x0 = radii.w * Math.cos(radians);
 		double y0 = radii.w * Math.sin(radians);
 		Position start = center.combine(Position.relative(-x0, -y0));
 		Position offset = Position.relative(x0 * 2, y0 * 2);
-		return PathGroup.of(MoveTo.create(start), //
+		return PathGroup.of(MoveTo.position(start), //
 			EllipticalArc.builder(offset, radii).build(), //
 			EllipticalArc.builder(offset.reverse(), radii).build(), //
 			MoveTo.relative(x0, y0)).path();
@@ -127,7 +110,7 @@ public class Ellipse implements Path<Ellipse> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(radii, xRotation, center);
+		return HashCoder.hash(radii, rotation, center);
 	}
 
 	@Override
@@ -136,14 +119,14 @@ public class Ellipse implements Path<Ellipse> {
 		if (!(obj instanceof Ellipse)) return false;
 		Ellipse other = (Ellipse) obj;
 		if (!EqualsUtil.equals(radii, other.radii)) return false;
-		if (!EqualsUtil.equals(xRotation, other.xRotation)) return false;
+		if (!EqualsUtil.equals(rotation, other.rotation)) return false;
 		if (!EqualsUtil.equals(center, other.center)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, center, radii, xRotation).toString();
+		return ToStringHelper.createByClass(this, center, radii, rotation).toString();
 	}
 
 }

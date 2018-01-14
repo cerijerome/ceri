@@ -11,14 +11,12 @@ public class Point2d {
 	public final double y;
 
 	public static Point2d of(double x, double y) {
-		x += .0;
-		y += .0;
 		if (ZERO.equals(x, y)) return ZERO;
 		if (X_UNIT.equals(x, y)) return X_UNIT;
 		if (Y_UNIT.equals(x, y)) return Y_UNIT;
-		return new Point2d(x, y);
+		return new Point2d(x + .0, y + .0);
 	}
-	
+
 	private Point2d(double x, double y) {
 		this.x = x;
 		this.y = y;
@@ -52,7 +50,7 @@ public class Point2d {
 	private boolean equals(double x, double y) {
 		return this.x == x && this.y == y;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(x, y);

@@ -13,7 +13,7 @@ public class Circle2d {
 	public static Circle2d of(double r) {
 		if (r == 0) return NULL;
 		validateMin(r, 0, "Radius");
-		return new Circle2d(r);
+		return new Circle2d(r + .0);
 	}
 
 	private Circle2d(double r) {
