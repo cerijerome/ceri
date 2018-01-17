@@ -21,4 +21,8 @@ public class BuilderGenerator {
 		ClassGenerator.createToClipBoardFromSystemIn(true);
 	}
 
+	public static String from(String input) {
+		return ClassGenerator.from(input, true);
+	}
+
 }

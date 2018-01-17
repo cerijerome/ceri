@@ -29,20 +29,20 @@ public class GroundedPathBehavior {
 
 	@Test
 	public void shouldMove() {
-		GroundedPath<?> p = GroundedPath.of(Position.relative(1, 1), MoveTo.relative(2, -2));
+		GroundedPath<MoveTo> p = GroundedPath.of(Position.relative(1, 1), MoveTo.relative(2, -2));
 		assertPath(p, "m1,1 m2,-2");
 		assertPath(p.move(Position.absolute(-1, -1)), "M0,0 m2,-2");
 	}
 
 	@Test
 	public void shouldDetermineEnd() {
-		GroundedPath<?> p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
+		GroundedPath<MoveTo> p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
 		assertThat(p.end(), is(Position.absolute(3, -1)));
 	}
 
 	@Test
 	public void shouldReflect() {
-		GroundedPath<?> p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
+		GroundedPath<MoveTo> p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
 		Line2d line = Line2d.of(-1, 0, 1, 0);
 		assertPath(p, "M1,1 m2,-2");
 		assertPath(p.reflect(line), "M1,-1 m2,2");
@@ -50,21 +50,21 @@ public class GroundedPathBehavior {
 
 	@Test
 	public void shouldScale() {
-		GroundedPath<?> p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
+		GroundedPath<MoveTo> p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
 		assertPath(p, "M1,1 m2,-2");
 		assertPath(p.scale(Ratio2d.uniform(0.5)), "M0.5,0.5 m1,-1");
 	}
 
 	@Test
 	public void shouldTranslate() {
-		GroundedPath<?> p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
+		GroundedPath<MoveTo> p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
 		assertPath(p, "M1,1 m2,-2");
 		assertPath(p.translate(Point2d.of(-1, -1)), "M0,0 m2,-2");
 	}
 
 	@Test
 	public void shouldReverse() {
-		GroundedPath<?> p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
+		GroundedPath<MoveTo> p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
 		assertPath(p, "M1,1 m2,-2");
 		assertPath(p.reverse(), "M3,-1 m-2,2");
 	}

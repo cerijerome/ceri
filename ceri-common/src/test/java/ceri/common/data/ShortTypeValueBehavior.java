@@ -14,8 +14,8 @@ public class ShortTypeValueBehavior {
 		ShortTypeValue<?> eq0 = DataTestType.shortValue(1);
 		ShortTypeValue<?> ne0 = DataTestType.shortValue(0);
 		ShortTypeValue<?> ne1 = DataTestType.shortValue(3);
-		ShortTypeValue<?> ne2 = new ShortTypeValue<>(DataTestType.one, null, (short) 0);
-		ShortTypeValue<?> ne3 = new ShortTypeValue<>(DataTestType.one, "one", (short) 1);
+		ShortTypeValue<DataTestType> ne2 = new ShortTypeValue<>(DataTestType.one, null, (short) 0);
+		ShortTypeValue<DataTestType> ne3 = new ShortTypeValue<>(DataTestType.one, "one", (short) 1);
 		exerciseEquals(v, eq0);
 		assertAllNotEqual(v, ne0, ne1, ne2, ne3);
 	}

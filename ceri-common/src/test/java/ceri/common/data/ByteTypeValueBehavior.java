@@ -14,8 +14,8 @@ public class ByteTypeValueBehavior {
 		ByteTypeValue<?> eq0 = DataTestType.byteValue(1);
 		ByteTypeValue<?> ne0 = DataTestType.byteValue(0);
 		ByteTypeValue<?> ne1 = DataTestType.byteValue(3);
-		ByteTypeValue<?> ne2 = new ByteTypeValue<>(DataTestType.one, null, (byte) 0);
-		ByteTypeValue<?> ne3 = new ByteTypeValue<>(DataTestType.one, "one", (byte) 1);
+		ByteTypeValue<DataTestType> ne2 = new ByteTypeValue<>(DataTestType.one, null, (byte) 0);
+		ByteTypeValue<DataTestType> ne3 = new ByteTypeValue<>(DataTestType.one, "one", (byte) 1);
 		exerciseEquals(v, eq0);
 		assertAllNotEqual(v, ne0, ne1, ne2, ne3);
 	}

@@ -114,7 +114,7 @@ public class ImmutableUtil {
 	 */
 	public static <K, V> Map<K, Set<V>>
 		copyAsMapOfSets(Map<? extends K, ? extends Collection<? extends V>> map) {
-		return copyAsMapOfSets(map, LinkedHashMap::new, LinkedHashSet::new);
+		return copyAsMapOfSets(map, LinkedHashMap::new, (Supplier<Set<V>>) LinkedHashSet::new);
 	}
 
 	/**

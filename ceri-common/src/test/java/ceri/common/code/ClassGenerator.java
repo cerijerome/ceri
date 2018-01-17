@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -56,19 +57,27 @@ public class ClassGenerator {
 		createToClipBoardFromSystemIn(false);
 	}
 
-	public static void createToClipBoardFromSystemIn(boolean hasBuilder) {
+	public static String from(String input) {
+		return from(input, false);
+	}
+
+	static String from(String input, boolean hasBuilder) {
+		return createFrom(new StringReader(input), hasBuilder);
+	}
+
+	static void createToClipBoardFromSystemIn(boolean hasBuilder) {
 		System.out.println("Enter class name then fields:\n");
 		Reader r = new InputStreamReader(System.in);
-		Builder builder = createBuilderFrom(r);
-		if (hasBuilder) builder.hasBuilder();
-		String s = builder.build().generate().toString();
+		String s = createFrom(r, hasBuilder);
 		System.out.print("Copied to clipboard");
 		BasicUtil.copyToClipBoard(s);
 	}
 
-	private static Builder createBuilderFrom(Reader r) {
+	private static String createFrom(Reader r, boolean hasBuilder) {
 		try {
-			return builderFrom(r);
+			Builder b = builderFrom(r);
+			if (hasBuilder) b.hasBuilder();
+			return b.build().generate().toString();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -94,7 +103,7 @@ public class ClassGenerator {
 		return builder;
 	}
 
-	public static class Builder {
+	private static class Builder {
 		final String className;
 		final String classGenerics;
 		final Set<Field> fields = new LinkedHashSet<>();
@@ -120,7 +129,7 @@ public class ClassGenerator {
 		}
 	}
 
-	public static Builder builder(String className, String classGenerics) {
+	private static Builder builder(String className, String classGenerics) {
 		return new Builder(className, classGenerics);
 	}
 
