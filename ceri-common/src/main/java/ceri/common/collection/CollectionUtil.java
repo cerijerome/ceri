@@ -335,9 +335,17 @@ public class CollectionUtil {
 	/**
 	 * Returns the last element.
 	 */
-	public static <T> T last(List<T> list) {
-		if (list == null || list.isEmpty()) return null;
-		return list.get(list.size() - 1);
+	public static <T> T last(Iterable<T> iterable) {
+		if (iterable == null) return null;
+		if (iterable instanceof List) {
+			List<T> list = BasicUtil.uncheckedCast(iterable);
+			if (list.isEmpty()) return null;
+			return list.get(list.size() - 1);
+		}
+		T last = null;
+		Iterator<T> i = iterable.iterator();
+		while (i.hasNext()) last = i.next();
+		return last;
 	}
 
 	/**
