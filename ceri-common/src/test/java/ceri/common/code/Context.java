@@ -1,6 +1,7 @@
 package ceri.common.code;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,7 +30,11 @@ public class Context {
 	}
 
 	public void imports(Class<?>... classes) {
-		Collections.addAll(imports, classes);
+		imports(Arrays.asList(classes));
+	}
+
+	public void imports(Collection<Class<?>> classes) {
+		imports.addAll(classes);
 	}
 
 	@Override
@@ -49,12 +54,20 @@ public class Context {
 		return new Comparator<String>() {
 			@Override
 			public int compare(String lhs, String rhs) {
-				boolean lhsJava = lhs.startsWith("java");
-				boolean rhsJava = rhs.startsWith("java");
-				if (lhsJava == rhsJava) return Comparators.STRING.compare(lhs, rhs);
-				return lhsJava ? -1 : 1;
+				int result = Integer.compare(importScore(lhs), importScore(rhs));
+				if (result != 0) return result;
+				return Comparators.STRING.compare(lhs, rhs);
+			}
+			
+			private int importScore(String s) {
+				if (s.startsWith("java.")) return 1;
+				if (s.startsWith("javax.")) return 2;
+				if (s.startsWith("org.")) return 3;
+				if (s.startsWith("com.")) return 4;
+				return 5;
 			}
 		};
 	}
 	
+
 }
