@@ -4,6 +4,7 @@ import static org.eclipse.jetty.annotations.AnnotationConfiguration.CONTAINER_IN
 import static org.eclipse.jetty.servlet.DefaultServlet.CONTEXT_INIT;
 import static org.eclipse.jetty.webapp.WebInfConfiguration.CONTAINER_JAR_PATTERN;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +28,19 @@ public class JettyUtil {
 	private static final String DIR_ALLOWED = CONTEXT_INIT + "dirAllowed";
 
 	private JettyUtil() {}
+
+	public static JettyServer startSimplServer(int port, Class<?>... classes) throws IOException {
+		return startSimplServer(port, Arrays.asList(classes));
+	}
+
+	public static JettyServer startSimplServer(int port, Collection<Class<?>> classes)
+		throws IOException {
+		WebAppContext webapp = JettyUtil.createWebApp();
+		JettyUtil.setResourceBase(webapp, classes);
+		JettyServer server = new JettyServer(createServer(webapp, port));
+		server.start();
+		return server;
+	}
 
 	public static Server createServer(WebAppContext webapp, int port) {
 		Server server = new Server(port);
@@ -63,14 +77,14 @@ public class JettyUtil {
 	public static void disableDirectory(WebAppContext context) {
 		context.setInitParameter(DIR_ALLOWED, String.valueOf(false));
 	}
-	
+
 	/**
 	 * Doesn't show the powered-by jetty line in error pages.
 	 */
 	public static void minimalErrorPages(WebAppContext context) {
 		context.setErrorHandler(new MinimalErrorHandler());
 	}
-	
+
 	public static void initForJsp(WebAppContext context) {
 		initForJsp(context, (File) null);
 	}

@@ -1,4 +1,4 @@
-package ceri.serial.jssc;
+package ceri.serial;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
