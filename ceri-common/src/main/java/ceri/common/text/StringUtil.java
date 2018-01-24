@@ -80,6 +80,26 @@ public class StringUtil {
 	}
 
 	/**
+	 * Extracts the first substring with matching open and close brackets.
+	 */
+	public static String extractBrackets(String s, char open, char close) {
+		if (s == null) return null;
+		int count = 0;
+		int start = 0;
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (c == open) {
+				if (count == 0) start = i;
+				count++;
+			} else if (c == close) {
+				count--;
+				if (count == 0) return s.substring(start, i + 1);
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * Creates a string from code points.
 	 */
 	public static String toString(int...codePoints) {
