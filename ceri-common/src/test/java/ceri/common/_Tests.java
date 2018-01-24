@@ -174,6 +174,9 @@ import ceri.common.xml.XmlUtilTest;
 import ceri.common.zip.ZipUtilTest;
 import ceri.common.zip.ZippingInputStreamBehavior;
 
+/**
+ * Tests for ceri-common generated 2018-01-23
+ */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	// collection
@@ -189,9 +192,9 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	StreamUtilTest.class, //
 	// color
 	BiasesTest.class, //
-	ColorableTest.class, //
 	ColorComparatorsTest.class, //
 	ColorUtilTest.class, //
+	ColorableTest.class, //
 	HsbColorBehavior.class, //
 	X11ColorTest.class, //
 	// comparator
@@ -253,9 +256,9 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	Cone3dBehavior.class, //
 	Cylinder3dBehavior.class, //
 	Dimension2dBehavior.class, //
-	GeometryUtilTest.class, //
 	Ellipse2dBehavior.class, //
 	Ellipsoid3dBehavior.class, //
+	GeometryUtilTest.class, //
 	InvertedRadial3dBehavior.class, //
 	Line2dBehavior.class, //
 	Line2dEquationBehavior.class, //
@@ -273,8 +276,8 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ByteBufferStreamBehavior.class, //
 	FileFiltersTest.class, //
 	FileIteratorBehavior.class, //
-	FilenameIteratorBehavior.class, //
 	FileTrackerBehavior.class, //
+	FilenameIteratorBehavior.class, //
 	InputStreamIteratorBehavior.class, //
 	IoTimeoutExceptionBehavior.class, //
 	IoUtilTest.class, //
@@ -367,11 +370,11 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	ValidationUtilTest.class, //
 	// xml
 	RuntimeXPathExceptionBehavior.class, //
-	XmlUtilTest.class, //
 	XPathUtilTest.class, //
+	XmlUtilTest.class, //
 	// zip
-	ZippingInputStreamBehavior.class, //
 	ZipUtilTest.class, //
+	ZippingInputStreamBehavior.class, //
 })
 public class _Tests {
 	public static void main(String... args) {

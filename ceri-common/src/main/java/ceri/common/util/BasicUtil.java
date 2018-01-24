@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.function.Predicate;
+import ceri.common.collection.StreamUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 
 /**
@@ -80,6 +82,13 @@ public class BasicUtil {
 		}
 	}
 
+	/**
+	 * Finds the first enum matching the filter.
+	 */
+	public static <T extends Enum<T>> T find(Class<T> cls, Predicate<T> filter) {
+		return StreamUtil.first(BasicUtil.enums(cls).stream().filter(filter));
+	}
+	
 	/**
 	 * Convenience method that returns all enum constants as a list.
 	 */

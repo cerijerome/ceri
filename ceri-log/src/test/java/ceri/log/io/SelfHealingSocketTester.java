@@ -17,7 +17,7 @@ import ceri.common.util.BasicUtil;
 import ceri.log.io.SelfHealingSocket;
 import ceri.log.util.LogUtil;
 
-public class SelfHealingSocketTest implements Closeable {
+public class SelfHealingSocketTester implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private final ExecutorService exec = Executors.newCachedThreadPool();
 	private volatile boolean pause = false;
@@ -25,12 +25,12 @@ public class SelfHealingSocketTest implements Closeable {
 
 	public static void main(String[] args) {
 		int port = 7890;
-		try (SelfHealingSocketTest test = new SelfHealingSocketTest(port)) {
+		try (SelfHealingSocketTester test = new SelfHealingSocketTester(port)) {
 			BasicUtil.delay(60 * 60 * 1000);
 		}
 	}
 
-	private SelfHealingSocketTest(int port) {
+	private SelfHealingSocketTester(int port) {
 		execute(() -> inputs());
 		execute(() -> startServer(port));
 		execute(() -> startClient(port));
