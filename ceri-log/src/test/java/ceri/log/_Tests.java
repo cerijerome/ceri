@@ -8,7 +8,7 @@ import ceri.log.concurrent.SocketListenerBehavior;
 import ceri.log.util.LogUtilTest;
 
 /**
- * Tests for ceri-log generated 2018-01-23
+ * Generated test suite for ceri-log
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({

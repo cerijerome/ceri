@@ -52,9 +52,9 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testExecuteAndWaitInterruptions() throws Exception {
 		AsyncRunner<?> runner1 = AsyncRunner.create(() -> ConcurrentUtil.executeAndWait(exec,
-			() -> BasicUtil.delay(100000), IOException::new, 10000)).start();
+			() -> BasicUtil.delay(10000), IOException::new, 5000)).start();
 		AsyncRunner<?> runner2 = AsyncRunner.create(
-			() -> ConcurrentUtil.executeAndWait(exec, () -> runner1.join(100000), IOException::new))
+			() -> ConcurrentUtil.executeAndWait(exec, () -> runner1.join(10000), IOException::new))
 			.start();
 		AsyncRunner<?> runner3 = AsyncRunner.create(() -> {
 			runner1.interrupt();

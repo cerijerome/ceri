@@ -42,6 +42,18 @@ public class BasicUtil {
 	}
 
 	/**
+	 * Gets the root cause of a throwable.
+	 */
+	public static Throwable rootCause(Throwable t) {
+		if (t == null) return null;
+		while (true) {
+			Throwable cause = t.getCause();
+			if (cause == null) return t;
+			t = cause;
+		}
+	}
+
+	/**
 	 * Returns default value if main value is null.
 	 */
 	public static <T> T defaultValue(T value, T def) {
@@ -52,7 +64,7 @@ public class BasicUtil {
 	 * Make a system beep sound
 	 */
 	public static void beep() {
-		//Toolkit.getDefaultToolkit().beep();
+		// Toolkit.getDefaultToolkit().beep();
 	}
 
 	/**
@@ -88,7 +100,7 @@ public class BasicUtil {
 	public static <T extends Enum<T>> T find(Class<T> cls, Predicate<T> filter) {
 		return StreamUtil.first(BasicUtil.enums(cls).stream().filter(filter));
 	}
-	
+
 	/**
 	 * Convenience method that returns all enum constants as a list.
 	 */

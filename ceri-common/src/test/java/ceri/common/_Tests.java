@@ -171,11 +171,9 @@ import ceri.common.validation.ValidationUtilTest;
 import ceri.common.xml.RuntimeXPathExceptionBehavior;
 import ceri.common.xml.XPathUtilTest;
 import ceri.common.xml.XmlUtilTest;
-import ceri.common.zip.ZipUtilTest;
-import ceri.common.zip.ZippingInputStreamBehavior;
 
 /**
- * Tests for ceri-common generated 2018-01-23
+ * Generated test suite for ceri-common
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -372,9 +370,6 @@ import ceri.common.zip.ZippingInputStreamBehavior;
 	RuntimeXPathExceptionBehavior.class, //
 	XPathUtilTest.class, //
 	XmlUtilTest.class, //
-	// zip
-	ZipUtilTest.class, //
-	ZippingInputStreamBehavior.class, //
 })
 public class _Tests {
 	public static void main(String... args) {
