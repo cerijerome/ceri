@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -188,7 +187,7 @@ public class CollectionUtilTest {
 		assertNull(CollectionUtil.last(null));
 		assertNull(CollectionUtil.last(Collections.emptyList()));
 		assertThat(CollectionUtil.last(Arrays.asList("1", "2", "3")), is("3"));
-		List<Integer> ii = new LinkedList<>();
+		Set<Integer> ii = new LinkedHashSet<>();
 		assertNull(CollectionUtil.last(ii));
 		Collections.addAll(ii, 1, 0, -1);
 		assertThat(CollectionUtil.last(ii), is(-1));

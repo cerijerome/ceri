@@ -43,6 +43,22 @@ public class BasicUtilTest {
 	}
 
 	@Test
+	public void testRootCause() {
+		assertNull(BasicUtil.rootCause(null));
+		IOException io = new IOException();
+		assertThat(BasicUtil.rootCause(io), is(io));
+		RuntimeException r = new RuntimeException(io);
+		assertThat(BasicUtil.rootCause(r), is(io));
+	}
+
+	@Test
+	public void testFind() {
+		assertThat(BasicUtil.find(HAlign.class, t -> t != HAlign.left), is(HAlign.center));
+		assertThat(BasicUtil.find(HAlign.class, t -> t.name().endsWith("t")), is(HAlign.left));
+		assertNull(BasicUtil.find(HAlign.class, t -> t.name().endsWith("x")));
+	}
+
+	@Test
 	public void testEnums() {
 		assertIterable(BasicUtil.enums(HAlign.class), HAlign.left, HAlign.center, HAlign.right);
 		assertIterable(BasicUtil.enums(VAlign.class), VAlign.top, VAlign.middle, VAlign.bottom);
