@@ -30,8 +30,7 @@ import ceri.common.collection.ImmutableByteArray;
  */
 public class IoUtil {
 	private static final NullOutputStream NULL_OUTPUT_STREAM = new NullOutputStream();
-	public static final String REGEX_PATH_SEPARATOR = "\\" + File.separatorChar;
-	private static final Pattern UNIX_PATH_REGEX = Pattern.compile(REGEX_PATH_SEPARATOR);
+	private static final Pattern FILE_SEPARATOR_REGEX = Pattern.compile("\\" + File.separatorChar);
 	private static final int MAX_CLEAR_BUFFER = 32 * 1024;
 	private static final int MAX_UUID_ATTEMPTS = 10; // Shouldn't be needed
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 32;
@@ -153,7 +152,7 @@ public class IoUtil {
 	 */
 	public static String unixPath(String path) {
 		if (File.separatorChar == '/') return path;
-		return UNIX_PATH_REGEX.matcher(path).replaceAll("/");
+		return FILE_SEPARATOR_REGEX.matcher(path).replaceAll("/");
 	}
 
 	/**
