@@ -7,6 +7,11 @@ public class DataUtil {
 
 	private DataUtil() {}
 
+	public static int encodeByte(int value, byte[] data, int offset) {
+		data[offset++] = (byte) (value & ByteUtil.BYTE_MASK);
+		return offset;
+	}
+
 	public static int encodeIntMsb(int value, byte[] data, int offset) {
 		return ByteUtil.writeBigEndian(value, data, offset, Integer.BYTES);
 	}
@@ -21,6 +26,10 @@ public class DataUtil {
 
 	public static int encodeShortLsb(int value, byte[] data, int offset) {
 		return ByteUtil.writeLittleEndian(value, data, offset, Short.BYTES);
+	}
+
+	public static int decodeByte(ImmutableByteArray data, int offset) {
+		return data.at(offset) & ByteUtil.BYTE_MASK;
 	}
 
 	public static int decodeIntMsb(ImmutableByteArray data, int offset) {
