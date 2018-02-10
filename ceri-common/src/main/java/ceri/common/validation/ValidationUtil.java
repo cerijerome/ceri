@@ -14,6 +14,10 @@ public class ValidationUtil {
 		if (!expr) throw new IllegalArgumentException(name + " failed");
 	}
 
+	public static void validate(boolean expr, String format, Object... args) {
+		if (!expr) throw new IllegalArgumentException(String.format(format, args));
+	}
+
 	public static void validateNotNull(Object value) {
 		if (value == null) throw new NullPointerException();
 	}
@@ -77,38 +81,36 @@ public class ValidationUtil {
 	}
 
 	public static void validateRange(long value, long min, long max, String name) {
-		if (value < min || value > max) throw InvalidLongRangeException
-		.range(value, min, max, name);
+		if (value < min || value > max)
+			throw InvalidLongRangeException.range(value, min, max, name);
 	}
 
 	public static void validateMinUnsigned(long value, long min) {
-		if (compareUnsigned(value, min) < 0) throw InvalidUnsignedRangeException
-		.min(value, min);
+		if (compareUnsigned(value, min) < 0) throw InvalidUnsignedRangeException.min(value, min);
 	}
 
 	public static void validateMinUnsigned(long value, long min, String name) {
-		if (compareUnsigned(value, min) < 0) throw InvalidUnsignedRangeException.min(value,
-			min, name);
+		if (compareUnsigned(value, min) < 0)
+			throw InvalidUnsignedRangeException.min(value, min, name);
 	}
 
 	public static void validateMaxUnsigned(long value, long max) {
-		if (compareUnsigned(value, max) > 0) throw InvalidUnsignedRangeException
-		.max(value, max);
+		if (compareUnsigned(value, max) > 0) throw InvalidUnsignedRangeException.max(value, max);
 	}
 
 	public static void validateMaxUnsigned(long value, long max, String name) {
-		if (compareUnsigned(value, max) > 0) throw InvalidUnsignedRangeException.max(value,
-			max, name);
+		if (compareUnsigned(value, max) > 0)
+			throw InvalidUnsignedRangeException.max(value, max, name);
 	}
 
 	public static void validateRangeUnsigned(long value, long min, long max) {
-		if (compareUnsigned(value, min) < 0 || compareUnsigned(value, max) > 0) throw InvalidUnsignedRangeException
-		.range(value, min, max);
+		if (compareUnsigned(value, min) < 0 || compareUnsigned(value, max) > 0)
+			throw InvalidUnsignedRangeException.range(value, min, max);
 	}
 
 	public static void validateRangeUnsigned(long value, long min, long max, String name) {
-		if (compareUnsigned(value, min) < 0 || compareUnsigned(value, max) > 0) throw InvalidUnsignedRangeException
-		.range(value, min, max, name);
+		if (compareUnsigned(value, min) < 0 || compareUnsigned(value, max) > 0)
+			throw InvalidUnsignedRangeException.range(value, min, max, name);
 	}
 
 	public static void validateEqual(double value, double expected) {
@@ -140,8 +142,8 @@ public class ValidationUtil {
 	}
 
 	public static void validateRange(double value, double min, double max, String name) {
-		if (value < min || value > max) throw InvalidDoubleRangeException.range(value, min, max,
-			name);
+		if (value < min || value > max)
+			throw InvalidDoubleRangeException.range(value, min, max, name);
 	}
 
 }

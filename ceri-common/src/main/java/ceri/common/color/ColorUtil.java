@@ -35,12 +35,16 @@ public class ColorUtil {
 	}
 
 	public static Color max(int r, int g, int b) {
-		double ratio = MathUtil.max(ratio(r), ratio(g), ratio(b));
+		double ratio = MathUtil.max(toRatio(r), toRatio(g), toRatio(b));
 		return new Color(divide(r, ratio), divide(g, ratio), divide(b, ratio));
 	}
 
-	private static double ratio(int channel) {
+	public static double toRatio(int channel) {
 		return ((double) channel) / 0xff;
+	}
+
+	public static int fromRatio(double ratio) {
+		return (int) Math.round(ratio * 0xff);
 	}
 
 	private static int divide(int channel, double ratio) {

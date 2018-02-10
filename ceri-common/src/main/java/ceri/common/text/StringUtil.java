@@ -52,20 +52,20 @@ public class StringUtil {
 			"\\\\0[0-3][0-7]{2}|\\\\0[0-7]{2}|\\\\0[0-7]|\\\\0|" +
 			"\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
 	private static final String UTF8 = "UTF8";
-	private static final int HEX_RADIX = 16;
-	private static final int OCTAL_RADIX = 8;
-	private static final int BINARY_RADIX = 2;
+	public static final int HEX_RADIX = 16;
+	public static final int OCTAL_RADIX = 8;
+	public static final int BINARY_RADIX = 2;
 	public static final Pattern NEWLINE_REGEX = Pattern.compile("(\\r\\n|\\n|\\r)");
 	public static final Pattern COMMA_SPLIT_REGEX = Pattern.compile("\\s*,\\s*");
 	public static final Pattern WHITE_SPACE_REGEX = Pattern.compile("\\s+");
-	private static final int LONG_HEX_DIGITS = 16;
-	private static final int INT_HEX_DIGITS = 8;
-	private static final int SHORT_HEX_DIGITS = 4;
-	private static final int BYTE_HEX_DIGITS = 2;
-	private static final int LONG_BINARY_DIGITS = 64;
-	private static final int INT_BINARY_DIGITS = 32;
-	private static final int SHORT_BINARY_DIGITS = 16;
-	private static final int BYTE_BINARY_DIGITS = 8;
+	public static final int LONG_HEX_DIGITS = 16;
+	public static final int INT_HEX_DIGITS = 8;
+	public static final int SHORT_HEX_DIGITS = 4;
+	public static final int BYTE_HEX_DIGITS = 2;
+	public static final int LONG_BINARY_DIGITS = 64;
+	public static final int INT_BINARY_DIGITS = 32;
+	public static final int SHORT_BINARY_DIGITS = 16;
+	public static final int BYTE_BINARY_DIGITS = 8;
 
 	private StringUtil() {}
 

@@ -1,13 +1,18 @@
 package ceri.common.data;
 
+import static ceri.common.text.StringUtil.BYTE_HEX_DIGITS;
+import static ceri.common.text.StringUtil.HEX_RADIX;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
 public class ByteUtil {
@@ -17,8 +22,18 @@ public class ByteUtil {
 	public static final int BYTE_MASK = 0xff;
 	public static final int SHORT_MASK = 0xffff;
 	public static final long INT_MASK = 0xffffffff;
+	private static final Pattern HEX_SPLIT_REGEX =
+		RegexUtil.compile("(?<=\\G.{%d})", BYTE_HEX_DIGITS);
 
 	private ByteUtil() {}
+
+	public static ImmutableByteArray fromHex(String hex) {
+		if (hex == null) return null;
+		if (hex.isEmpty()) return ImmutableByteArray.EMPTY;
+		if (hex.length() % BYTE_HEX_DIGITS != 0) hex += "0"; // pad the end
+		return ImmutableByteArray.wrap(
+			Stream.of(HEX_SPLIT_REGEX.split(hex)).mapToInt(s -> Integer.parseInt(s, HEX_RADIX)));
+	}
 
 	public static String toHex(ImmutableByteArray array, String delimiter) {
 		return array.stream().mapToObj(b -> StringUtil.toHex((byte) b))

@@ -47,6 +47,14 @@ public class Point2d {
 		return Point2d.of(x * scale.x + 0.0, y * scale.y + 0.0);
 	}
 
+	public double distance() {
+		return Math.sqrt((x * x) + (y * y));
+	}
+	
+	public double distanceTo(Point2d end) {
+		return to(end).distance();
+	}
+	
 	private boolean equals(double x, double y) {
 		return this.x == x && this.y == y;
 	}

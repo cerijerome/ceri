@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import ceri.common.collection.StreamUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
@@ -51,6 +52,15 @@ public class BasicUtil {
 			if (cause == null) return t;
 			t = cause;
 		}
+	}
+
+	/**
+	 * Creates an exception with formatted message.
+	 */
+	public static <E extends Exception> E formatted(Function<String, E> fn, String format,
+		Object... args) {
+		String message = String.format(format, args);
+		return fn.apply(message);
 	}
 
 	/**

@@ -37,6 +37,10 @@ public class ImmutableByteArray {
 		return wrap(newArray);
 	}
 
+	public static ImmutableByteArray wrap(IntStream stream) {
+		return wrap(ByteUtil.toByteArray(stream));
+	}
+
 	public static ImmutableByteArray wrap(int... array) {
 		return wrap(ByteUtil.bytes(array));
 	}

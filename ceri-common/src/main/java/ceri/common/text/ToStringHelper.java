@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import ceri.common.collection.ArrayUtil;
 
 /**
  * Helps create string representations of objects.
@@ -151,8 +152,9 @@ public class ToStringHelper {
 	}
 
 	private String stringValue(Object obj) {
+		if (obj == null) return String.valueOf(obj);
 		if (obj instanceof Date) return toString((Date) obj);
-		return String.valueOf(obj);
+		return ArrayUtil.deepToString(obj);
 	}
 
 	private String toString(Date date) {

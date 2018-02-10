@@ -3,7 +3,10 @@ package ceri.common.collection;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import ceri.common.util.BasicUtil;
 
@@ -24,6 +27,7 @@ public class ArrayUtil {
 	public static final double[] EMPTY_DOUBLE = new double[0];
 	public static final String[] EMPTY_STRING = new String[0];
 	public static final Object[] EMPTY_OBJECT = new Object[0];
+	private static final Map<Class<?>, Function<Object, String>> toStringMap = toStringMap();
 
 	private ArrayUtil() {}
 
@@ -240,6 +244,31 @@ public class ArrayUtil {
 	public static boolean isArray(Object obj) {
 		if (obj == null) return false;
 		return obj.getClass().isArray();
+	}
+
+	/**
+	 * Extends Arrays.deepToString to include any object type.
+	 */
+	public static String deepToString(Object obj) {
+		if (obj == null) return String.valueOf(null);
+		Class<?> cls = obj.getClass();
+		if (!cls.isArray()) return String.valueOf(obj);
+		Function<Object, String> fn = toStringMap.get(cls);
+		if (fn != null) return fn.apply(obj);
+		return Arrays.deepToString((Object[]) obj);
+	}
+
+	private static Map<Class<?>, Function<Object, String>> toStringMap() {
+		Map<Class<?>, Function<Object, String>> map = new HashMap<>();
+		map.put(boolean[].class, obj -> Arrays.toString((boolean[]) obj));
+		map.put(char[].class, obj -> Arrays.toString((char[]) obj));
+		map.put(byte[].class, obj -> Arrays.toString((byte[]) obj));
+		map.put(short[].class, obj -> Arrays.toString((short[]) obj));
+		map.put(int[].class, obj -> Arrays.toString((int[]) obj));
+		map.put(long[].class, obj -> Arrays.toString((long[]) obj));
+		map.put(float[].class, obj -> Arrays.toString((float[]) obj));
+		map.put(double[].class, obj -> Arrays.toString((double[]) obj));
+		return Collections.unmodifiableMap(map);
 	}
 
 }
