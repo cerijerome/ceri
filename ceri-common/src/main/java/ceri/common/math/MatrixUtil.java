@@ -1,33 +1,12 @@
 package ceri.common.math;
 
-import static ceri.common.util.BasicUtil.formatted;
 import static ceri.common.validation.ValidationUtil.validate;
 import java.util.stream.IntStream;
 
 public class MatrixUtil {
 	private static final int SIZE_2 = 2;
-	private static final int SIZE_3 = 3;
-	private static final int SIZE_7 = 7;
 
 	private MatrixUtil() {}
-
-	public static void main(String[] args) {
-		double[][] d = { { -5, 0, -1 }, { 1, 2, -1 }, { -3, 4, 1 } };
-		Matrix m = Matrix.of(d);
-		System.out.println(m);
-		System.out.println(determinant(m));
-		System.out.println(simpleRound(invert(m), 5));
-		System.out.println(simpleRound(m.multiply(invert(m)), 5));
-		System.out.println(simpleRound(invert(m).multiply(m), 5));
-	}
-
-	public static double scalarProduct(Matrix vector1, Matrix vector2) {
-		verifyVector(vector1);
-		verifyVector(vector2);
-		if (vector1.rows != 1) vector1 = vector1.transpose();
-		if (vector2.columns != 1) vector2 = vector2.transpose();
-		return vector1.multiply(vector2).valueAt(0, 0);
-	}
 
 	public static double determinant(Matrix m) {
 		verifySquare(m);
@@ -69,34 +48,12 @@ public class MatrixUtil {
 		return m.wrappedSubMatrix(row + 1, column + 1, m.rows - 1, m.columns - 1);
 	}
 
-	public static double crossProduct2d(Matrix v1, Matrix v2) {
-		verifyVector(v1, SIZE_2);
-		verifyVector(v2, SIZE_2);
-		if (v1.columns != 1) v1 = v1.transpose();
-		if (v2.columns != 1) v2 = v2.transpose();
-		return (v1.valueAt(0, 0) * v2.valueAt(0, 1)) - (v1.valueAt(0, 1) * v2.valueAt(0, 0));
-	}
-
 	public static Matrix simpleRound(Matrix m, int decimals) {
 		Matrix.Builder b = Matrix.builder(m.rows, m.columns);
 		for (int row = 0; row < m.rows; row++)
 			for (int column = 0; column < m.columns; column++)
 				b.set(row, column, MathUtil.simpleRound(m.valueAt(row, column), decimals));
 		return b.build();
-	}
-
-	public static Matrix crossProduct(Matrix v1, Matrix v2) {
-		verifyVector(v1);
-		verifyVector(v2);
-		if (v1.columns != 1) v1 = v1.transpose();
-		if (v2.columns != 1) v2 = v2.transpose();
-		validate(v1.rows == v2.rows, "Vectors must be the same size: %dx%d, %d%d", v1.rows,
-			v1.columns, v2.rows, v2.columns);
-		if (v1.rows == SIZE_7) throw formatted(UnsupportedOperationException::new,
-			"Crossproduct exists for size %d, but is not supported here", v1.rows);
-		validate(v1.rows == SIZE_3, "Crossproduct only supported for size %d: %dx1", SIZE_3,
-			v1.rows);
-		return Matrix.columnVector();
 	}
 
 	public static void verifySquare(Matrix m) {

@@ -4,8 +4,8 @@ import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateRange;
 
 public class TrigUtil {
-	public static final DoubleInterval INTERVAL = DoubleInterval.create(DoubleBound.inclusive(0),
-		DoubleBound.exclusive(MathUtil.PIx2));
+	public static final Interval<Double> INTERVAL =
+		Interval.of(Bound.inclusive(0.0), Bound.exclusive(MathUtil.PIx2));
 
 	private TrigUtil() {}
 
@@ -27,7 +27,7 @@ public class TrigUtil {
 		value = normalize(value);
 		lower = normalize(lower);
 		if (value < lower) value += MathUtil.PIx2;
-		return DoubleInterval.inclusive(lower, lower + range).contains(value);
+		return Interval.inclusive(lower, lower + range).contains(value);
 	}
 
 	/**

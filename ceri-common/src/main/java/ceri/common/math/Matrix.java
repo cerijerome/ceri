@@ -13,13 +13,6 @@ public class Matrix {
 	public final int rows;
 	public final int columns;
 
-	public static void main(String[] args) {
-		Matrix m1 = columnVector(1, 2, 3);
-		Matrix m2 = rowVector(4, 1, 0);
-		System.out.println(MatrixUtil.scalarProduct(m1, m2));
-		System.out.println(MatrixUtil.scalarProduct(m2, m1));
-	}
-
 	public static class Builder {
 		double[][] values = {};
 		int rows = 0;
@@ -204,11 +197,21 @@ public class Matrix {
 	private double getWrapped(int row, int column, double[][] values) {
 		return Builder.get(wrappedIndex(row, rows), wrappedIndex(column, columns), values);
 	}
-	
+
 	private static int wrappedIndex(int value, int max) {
-		while (value >= max) value -= max;
-		while (value < 0) value += max;
+		while (value >= max)
+			value -= max;
+		while (value < 0)
+			value += max;
 		return value;
+	}
+
+	public Matrix negate() {
+		Builder b = builder(rows, columns);
+		for (int row = 0; row < rows; row++)
+			for (int column = 0; column < columns; column++)
+				b.set(row, column, -valueAt(row, column));
+		return b.build();
 	}
 	
 	public Matrix add(Matrix m) {

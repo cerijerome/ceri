@@ -98,9 +98,9 @@ import ceri.common.io.ReplaceableOutputStreamBehavior;
 import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
 import ceri.common.math.AlgebraUtilTest;
-import ceri.common.math.DoubleBoundBehavior;
-import ceri.common.math.DoubleIntervalBehavior;
+import ceri.common.math.BoundBehavior;
 import ceri.common.math.FractionBehavior;
+import ceri.common.math.IntervalBehavior;
 import ceri.common.math.MathUtilTest;
 import ceri.common.math.MixedFractionBehavior;
 import ceri.common.math.NumberPatternsBehavior;
@@ -288,9 +288,9 @@ import ceri.common.xml.XmlUtilTest;
 	StringPrintStreamBehavior.class, //
 	// math
 	AlgebraUtilTest.class, //
-	DoubleBoundBehavior.class, //
-	DoubleIntervalBehavior.class, //
+	BoundBehavior.class, //
 	FractionBehavior.class, //
+	IntervalBehavior.class, //
 	MathUtilTest.class, //
 	MixedFractionBehavior.class, //
 	NumberPatternsBehavior.class, //
