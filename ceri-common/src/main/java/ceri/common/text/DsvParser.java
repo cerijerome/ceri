@@ -75,19 +75,19 @@ public class DsvParser {
 	}
 	
 	public Integer intField(String headerValue) {
-		return PrimitiveUtil.intValue(trim(field(headerValue)));
+		return PrimitiveUtil.intDecode(trim(field(headerValue)));
 	}
 	
 	public Integer intField(String headerValue, Integer def) {
-		return PrimitiveUtil.valueOf(trim(field(headerValue)), def);
+		return PrimitiveUtil.decode(trim(field(headerValue)), def);
 	}
 	
 	public Long longField(String headerValue) {
-		return PrimitiveUtil.longValue(trim(field(headerValue)));
+		return PrimitiveUtil.longDecode(trim(field(headerValue)));
 	}
 	
 	public Long longField(String headerValue, Long def) {
-		return PrimitiveUtil.valueOf(trim(field(headerValue)), def);
+		return PrimitiveUtil.decode(trim(field(headerValue)), def);
 	}
 	
 	public Double doubleField(String headerValue) {

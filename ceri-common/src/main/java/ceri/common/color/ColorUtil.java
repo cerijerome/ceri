@@ -26,6 +26,7 @@ public class ColorUtil {
 	private static final int BITS8 = 8;
 	// private static final int HSB_DECIMALS = 5;
 	private static final int RGB_MASK = 0xffffff;
+	private static final int CHANNEL_MAX = 0xff;
 	private static final Map<Integer, String> awtColorNames = colorMap();
 
 	private ColorUtil() {}
@@ -40,15 +41,15 @@ public class ColorUtil {
 	}
 
 	public static double toRatio(int channel) {
-		return ((double) channel) / 0xff;
+		return MathUtil.limit(((double) channel) / CHANNEL_MAX, 0, 1.0);
 	}
 
 	public static int fromRatio(double ratio) {
-		return (int) Math.round(ratio * 0xff);
+		return (int) MathUtil.limit(Math.round(ratio * CHANNEL_MAX), 0, CHANNEL_MAX);
 	}
 
 	private static int divide(int channel, double ratio) {
-		if (ratio == 0.0) return 0xff;
+		if (ratio == 0.0) return CHANNEL_MAX;
 		return (int) (channel / ratio);
 	}
 
@@ -204,7 +205,7 @@ public class ColorUtil {
 	}
 
 	public static int rgb(int r, int g, int b) {
-		return (int) (ByteUtil.shiftByteLeft(r, 2) | ByteUtil.shiftByteLeft(g, 1) | b & 0xff);
+		return (int) (ByteUtil.shiftByteLeft(r, 2) | ByteUtil.shiftByteLeft(g, 1) | b & CHANNEL_MAX);
 	}
 
 	public static int rgb(Color color) {

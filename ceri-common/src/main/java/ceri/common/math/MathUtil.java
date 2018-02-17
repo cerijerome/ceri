@@ -112,6 +112,13 @@ public class MathUtil {
 	}
 
 	/**
+	 * Rounds a double value to an int. Throws an ArithmeticException if the value overflows.
+	 */
+	public static int intRoundExact(double value) {
+		return Math.toIntExact(Math.round(value));
+	}
+	
+	/**
 	 * Rounds an array of values to the given number of decimal places. Too inaccurate for very
 	 * large or small values.
 	 */

@@ -33,13 +33,6 @@ public class StreamUtil {
 	}
 
 	/**
-	 * Collects a stream from a map's key/value pairs.
-	 */
-	public static <K, V, T> Stream<T> map(Map<K, V> map, BiFunction<K, V, T> keyValueFn) {
-		return map.entrySet().stream().map(e -> keyValueFn.apply(e.getKey(), e.getValue()));
-	}
-
-	/**
 	 * Returns the first entry in the stream, or null if empty.
 	 */
 	public static <T> T firstNonNull(Stream<T> stream) {

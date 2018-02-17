@@ -142,6 +142,18 @@ public class PrimitiveUtil {
 	}
 
 	/**
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
+	 */
+	public static Byte decode(String value, Byte def) {
+		try {
+			if (BasicUtil.isEmpty(value)) return def;
+			return Byte.valueOf(value.trim());
+		} catch (NumberFormatException e) {
+			return def;
+		}
+	}
+
+	/**
 	 * Converts a string to a value or returns null if the string cannot be parsed.
 	 */
 	public static Byte byteValue(String value) {
@@ -153,6 +165,13 @@ public class PrimitiveUtil {
 	 */
 	public static Byte byteValue(String value, int radix) {
 		return valueOf(value, (Byte) null, radix);
+	}
+
+	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Byte byteDecode(String value) {
+		return decode(value, (Byte) null);
 	}
 
 	/**
@@ -190,6 +209,18 @@ public class PrimitiveUtil {
 	}
 
 	/**
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
+	 */
+	public static Short decode(String value, Short def) {
+		try {
+			if (BasicUtil.isEmpty(value)) return def;
+			return Short.decode(value);
+		} catch (NumberFormatException e) {
+			return def;
+		}
+	}
+
+	/**
 	 * Converts a string to a value or returns null if the string cannot be parsed.
 	 */
 	public static Short shortValue(String value) {
@@ -201,6 +232,13 @@ public class PrimitiveUtil {
 	 */
 	public static Short shortValue(String value, int radix) {
 		return valueOf(value, (Short) null, radix);
+	}
+
+	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Short shortDecode(String value) {
+		return decode(value, (Short) null);
 	}
 
 	/**
@@ -223,6 +261,18 @@ public class PrimitiveUtil {
 	}
 
 	/**
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
+	 */
+	public static Integer decode(String value, Integer def) {
+		try {
+			if (BasicUtil.isEmpty(value)) return def;
+			return Integer.decode(value);
+		} catch (NumberFormatException e) {
+			return def;
+		}
+	}
+
+	/**
 	 * Converts a string to a value or returns null if the string cannot be parsed.
 	 */
 	public static Integer intValue(String value) {
@@ -234,6 +284,13 @@ public class PrimitiveUtil {
 	 */
 	public static Integer intValue(String value, int radix) {
 		return valueOf(value, (Integer) null, radix);
+	}
+
+	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Integer intDecode(String value) {
+		return decode(value, (Integer) null);
 	}
 
 	/**
@@ -256,6 +313,18 @@ public class PrimitiveUtil {
 	}
 
 	/**
+	 * Converts a string to a value or returns the default value if the string cannot be parsed.
+	 */
+	public static Long decode(String value, Long def) {
+		try {
+			if (BasicUtil.isEmpty(value)) return def;
+			return Long.decode(value);
+		} catch (NumberFormatException e) {
+			return def;
+		}
+	}
+
+	/**
 	 * Converts a string to a value or returns null if the string cannot be parsed.
 	 */
 	public static Long longValue(String value) {
@@ -267,6 +336,13 @@ public class PrimitiveUtil {
 	 */
 	public static Long longValue(String value, int radix) {
 		return valueOf(value, (Long) null, radix);
+	}
+
+	/**
+	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 */
+	public static Long longDecode(String value) {
+		return decode(value, (Long) null);
 	}
 
 	/**
@@ -555,8 +631,8 @@ public class PrimitiveUtil {
 	 * an object class, exception is thrown.
 	 */
 	public static Class<?> getPrimitiveClass(Class<?> objectCls) {
-		if (objectCls.isPrimitive()) throw new IllegalArgumentException(
-			"Class is already primitive type: " + objectCls);
+		if (objectCls.isPrimitive())
+			throw new IllegalArgumentException("Class is already primitive type: " + objectCls);
 		Class<?> primitiveCls = classMap.get(objectCls);
 		if (primitiveCls == null) throw new IllegalArgumentException(
 			"Class does not map to a primitive type: " + objectCls);
@@ -568,8 +644,8 @@ public class PrimitiveUtil {
 	 * primitive, exception is thrown.
 	 */
 	public static Class<?> getObjectClass(Class<?> primitiveCls) {
-		if (!primitiveCls.isPrimitive()) throw new IllegalArgumentException(
-			"Class is not primitive type: " + primitiveCls);
+		if (!primitiveCls.isPrimitive())
+			throw new IllegalArgumentException("Class is not primitive type: " + primitiveCls);
 		return classMap.get(primitiveCls);
 	}
 

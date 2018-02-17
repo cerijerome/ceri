@@ -36,7 +36,7 @@ public class CollectionUtil {
 	public static <T> Set<T> asSet(T... array) {
 		return addAll(new LinkedHashSet<>(), array);
 	}
-	
+
 	/**
 	 * Fills a list with a given number of elements from a given offset. Returns the offset after
 	 * the filled elements.
@@ -72,9 +72,34 @@ public class CollectionUtil {
 	/**
 	 * Converts a collection to a map.
 	 */
+	public static <K, T> Map<K, T> toMap(Function<? super T, ? extends K> keyMapper,
+		Collection<T> collection) {
+		return StreamUtil.toMap(collection.stream(), keyMapper);
+	}
+
+	/**
+	 * Converts a collection to a map.
+	 */
+	public static <K, T> Map<K, T> toMap(Function<? super T, ? extends K> keyMapper,
+		Supplier<Map<K, T>> mapSupplier, Collection<T> collection) {
+		return StreamUtil.toMap(collection.stream(), keyMapper, mapSupplier);
+	}
+
+	/**
+	 * Converts a collection to a map.
+	 */
 	public static <K, V, T> Map<K, V> toMap(Function<? super T, ? extends K> keyMapper,
 		Function<? super T, ? extends V> valueMapper, Collection<T> collection) {
 		return StreamUtil.toMap(collection.stream(), keyMapper, valueMapper);
+	}
+
+	/**
+	 * Converts a collection to a map.
+	 */
+	public static <K, V, T> Map<K, V> toMap(Function<? super T, ? extends K> keyMapper,
+		Function<? super T, ? extends V> valueMapper, Supplier<Map<K, V>> mapSupplier,
+		Collection<T> collection) {
+		return StreamUtil.toMap(collection.stream(), keyMapper, valueMapper, mapSupplier);
 	}
 
 	/**
@@ -169,8 +194,7 @@ public class CollectionUtil {
 	 * Transforms a map's keys.
 	 */
 	public static <K, V, U> Map<K, V> transformValues(
-		BiFunction<? super K, ? super U, ? extends V> valueMapper,
-		Map<? extends K, U> map) {
+		BiFunction<? super K, ? super U, ? extends V> valueMapper, Map<? extends K, U> map) {
 		return transformValues(valueMapper, LinkedHashMap::new, map);
 	}
 
@@ -344,7 +368,8 @@ public class CollectionUtil {
 		}
 		T last = null;
 		Iterator<T> i = iterable.iterator();
-		while (i.hasNext()) last = i.next();
+		while (i.hasNext())
+			last = i.next();
 		return last;
 	}
 

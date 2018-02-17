@@ -25,12 +25,6 @@ public class StreamUtilTest {
 	}
 
 	@Test
-	public void testMap() {
-		Map<String, Integer> map = MapPopulator.of("abc", 1, "DE", 1, "f", 0).map;
-		assertArray(StreamUtil.map(map, (s, i) -> s.charAt(i)).toArray(), 'b', 'E', 'f');
-	}
-
-	@Test
 	public void testFirstNonNull() {
 		assertThat(StreamUtil.firstNonNull(Stream.of(null, null, "abc", "def")), is("abc"));
 	}
@@ -51,8 +45,11 @@ public class StreamUtilTest {
 
 	@Test
 	public void testStream() {
-		Map<Integer, String> map = MapPopulator.of(1, "1", 3, "3", 2, "2").map;
-		Object[] array = StreamUtil.stream(map, (i, s) -> parseDouble(s + "." + (i * i))).toArray();
+		Map<String, Integer> map0 = MapPopulator.of("abc", 1, "DE", 1, "f", 0).map;
+		assertArray(StreamUtil.stream(map0, (s, i) -> s.charAt(i)).toArray(), 'b', 'E', 'f');
+		Map<Integer, String> map1 = MapPopulator.of(1, "1", 3, "3", 2, "2").map;
+		Object[] array =
+			StreamUtil.stream(map1, (i, s) -> parseDouble(s + "." + (i * i))).toArray();
 		assertArray(array, 1.1, 3.9, 2.4);
 	}
 

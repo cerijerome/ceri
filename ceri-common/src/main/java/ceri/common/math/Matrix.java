@@ -87,11 +87,11 @@ public class Matrix {
 		}
 
 		private static int rows(double[][] values) {
-			return Stream.of(values).mapToInt(line -> line.length).max().orElse(0);
+			return values.length;
 		}
 
 		private static int columns(double[][] values) {
-			return values.length;
+			return Stream.of(values).mapToInt(line -> line.length).max().orElse(0);
 		}
 
 		static double get(int row, int column, double[][] values) {
