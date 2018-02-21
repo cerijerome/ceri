@@ -10,6 +10,7 @@ import java.util.stream.IntStream;
 import ceri.common.factory.Factories;
 import ceri.common.factory.Factory;
 import ceri.common.factory.StringFactories;
+import ceri.common.util.PrimitiveUtil;
 
 public class RegexUtil {
 	private static final Factory<List<Boolean>, Iterable<String>> BOOLEAN_LIST_FACTORY =
@@ -149,6 +150,55 @@ public class RegexUtil {
 		if (m == null) return null;
 		if (m.groupCount() < group) return null;
 		return m.group(group);
+	}
+
+	/**
+	 * Returns the group or null. Matcher match should have been attempted.
+	 */
+	public static Boolean booleanGroup(Matcher m, int group) {
+		return PrimitiveUtil.booleanValue(group(m, group));
+	}
+
+	/**
+	 * Returns the group or null. Matcher match should have been attempted.
+	 */
+	public static Byte byteGroup(Matcher m, int group) {
+		return PrimitiveUtil.byteDecode(group(m, group));
+	}
+
+	/**
+	 * Returns the group or null. Matcher match should have been attempted.
+	 */
+	public static Short shortGroup(Matcher m, int group) {
+		return PrimitiveUtil.shortDecode(group(m, group));
+	}
+
+	/**
+	 * Returns the group or null. Matcher match should have been attempted.
+	 */
+	public static Integer intGroup(Matcher m, int group) {
+		return PrimitiveUtil.intDecode(group(m, group));
+	}
+
+	/**
+	 * Returns the group or null. Matcher match should have been attempted.
+	 */
+	public static Long longGroup(Matcher m, int group) {
+		return PrimitiveUtil.longDecode(group(m, group));
+	}
+
+	/**
+	 * Returns the group or null. Matcher match should have been attempted.
+	 */
+	public static Float floatGroup(Matcher m, int group) {
+		return PrimitiveUtil.floatValue(group(m, group));
+	}
+
+	/**
+	 * Returns the group or null. Matcher match should have been attempted.
+	 */
+	public static Double doubleGroup(Matcher m, int group) {
+		return PrimitiveUtil.doubleValue(group(m, group));
 	}
 
 	/**

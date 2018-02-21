@@ -91,8 +91,8 @@ public class ByteUtil {
 		}
 	}
 
-	public static byte[] toAscii(String s) {
-		return s.getBytes(StandardCharsets.ISO_8859_1);
+	public static ImmutableByteArray toAscii(String s) {
+		return ImmutableByteArray.wrap(s.getBytes(StandardCharsets.ISO_8859_1));
 	}
 
 	public static String fromAscii(int... data) {

@@ -74,7 +74,8 @@ public class ByteUtilTest {
 
 	@Test
 	public void testToAscii() {
-		assertArray(ByteUtil.toAscii("\0\t\r\ntest"), 0, '\t', '\r', '\n', 't', 'e', 's', 't');
+		assertArray(ByteUtil.toAscii("\0\t\r\ntest").copy(), //
+			0, '\t', '\r', '\n', 't', 'e', 's', 't');
 	}
 
 	@Test

@@ -1,7 +1,9 @@
 package ceri.common.data;
 
 import static ceri.common.validation.ValidationUtil.validateNotNull;
+import java.util.function.Predicate;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.validation.ValidationUtil;
 
 public class DataUtil {
 
@@ -103,6 +105,21 @@ public class DataUtil {
 		validateNotNull(value);
 		if (value.type != null) return;
 		throw UnexpectedValueException.forInt(value.value, name);
+	}
+
+	public static void validateAscii(Predicate<String> predicate, ImmutableByteArray data) {
+		validateAscii(predicate, data, 0);
+	}
+
+	public static void validateAscii(Predicate<String> predicate, ImmutableByteArray data,
+		int offset) {
+		validateAscii(predicate, data, offset, data.length - offset);
+	}
+
+	public static void validateAscii(Predicate<String> predicate, ImmutableByteArray data,
+		int offset, int length) {
+		String actual = ByteUtil.fromAscii(data, offset, length);
+		ValidationUtil.validate(predicate, actual);
 	}
 
 }

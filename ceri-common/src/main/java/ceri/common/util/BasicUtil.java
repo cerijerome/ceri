@@ -57,7 +57,15 @@ public class BasicUtil {
 	/**
 	 * Creates an exception with formatted message.
 	 */
-	public static <E extends Exception> E formatted(Function<String, E> fn, String format,
+	public static IllegalArgumentException exceptionf(String format,
+		Object... args) {
+		return exceptionf(IllegalArgumentException::new, format, args);
+	}
+	
+	/**
+	 * Creates an exception with formatted message.
+	 */
+	public static <E extends Exception> E exceptionf(Function<String, E> fn, String format,
 		Object... args) {
 		String message = String.format(format, args);
 		return fn.apply(message);

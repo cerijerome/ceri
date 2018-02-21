@@ -18,9 +18,8 @@ public class BinaryLogInputStreamBehavior {
 
 	private void init(int bytesPerColumn, byte... bytes) {
 		s = new StringBuilder();
-		printer =
-			BinaryPrinter.builder().bytesPerColumn(bytesPerColumn).out(StringUtil.asPrintStream(s))
-				.build();
+		printer = BinaryPrinter.builder().bytesPerColumn(bytesPerColumn) //
+			.out(StringUtil.asPrintStream(s)).build();
 		bIn = new ByteArrayInputStream(bytes);
 		in = new BinaryLogInputStream(printer, bIn);
 	}
@@ -61,5 +60,5 @@ public class BinaryLogInputStreamBehavior {
 		assertThat(in.read(), is(-1));
 		assertThat(s.toString(), is(""));
 	}
-	
+
 }

@@ -6,8 +6,9 @@ import java.util.function.Supplier;
 import ceri.common.util.BasicUtil;
 
 /**
- * Wraps and unwraps functions that throw exceptions, for use in functional interfaces. Not
- * thread-safe.
+ * Wraps and unwraps functions that throw exceptions, for use in functional interfaces. Use handle
+ * for the outer function to capture and re-throw exceptions, and wrap for inner functions to
+ * collect exceptions. Intended for single-thread usage.
  */
 public class FunctionWrapper<E extends Exception> {
 	private WrapperException.Agent<E> agent = WrapperException.agent();

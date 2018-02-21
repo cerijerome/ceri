@@ -126,7 +126,7 @@ public class Ellipsoid3d {
 	 * </pre>
 	 */
 	private double integral(double x, double a, double b, double c) {
-		return Math.PI * b * c * x * ((3 * a * a) - (x * x)) / (3 * a * a);
+		return Math.PI * b * c * x * ((3.0 * a * a) - (x * x)) / (3.0 * a * a);
 	}
 
 	/**
@@ -138,7 +138,7 @@ public class Ellipsoid3d {
 	 */
 	private double root(double v, double a, double b, double c) {
 		double a1 = -3.0 * a * a;
-		double a0 = (3.0 * a * a * v / (Math.PI * b * c)) - (2 * a * a * a);
+		double a0 = (3.0 * a * a * v / (Math.PI * b * c)) - (2.0 * a * a * a);
 		return validRoot(AlgebraUtil.cubicRealRoots(0, a1, a0), a);
 	}
 

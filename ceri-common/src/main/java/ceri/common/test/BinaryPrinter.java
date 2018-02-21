@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import ceri.common.collection.ImmutableByteArray;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToStringHelper;
@@ -20,7 +21,8 @@ import ceri.common.util.HAlign;
  */
 public class BinaryPrinter {
 	public static final BinaryPrinter DEFAULT = builder().build();
-	private static final int BITS_IN_BYTE = 8;
+	public static final BinaryPrinter ASCII =
+		builder().showBinary(false).bytesPerColumn(16).build();
 	private static final int ASCII_MIN = '!';
 	private static final int ASCII_MAX = '~';
 	private final PrintStream out;
@@ -146,25 +148,53 @@ public class BinaryPrinter {
 	/**
 	 * Print binary data.
 	 */
+	public void print(ImmutableByteArray data) {
+		print(data.copy(), 0);
+	}
+
+	/**
+	 * Print binary data.
+	 */
+	public void print(ImmutableByteArray data, int offset) {
+		print(data, offset, data.length - offset);
+	}
+
+	/**
+	 * Print binary data.
+	 */
+	public void print(ImmutableByteArray data, int offset, int length) {
+		print(data.copy(), offset, length);
+	}
+
+	/**
+	 * Print binary data.
+	 */
 	public void print(byte[] bytes) {
-		print(bytes, 0, bytes.length);
+		print(bytes, 0);
+	}
+
+	/**
+	 * Print binary data.
+	 */
+	public void print(byte[] bytes, int offset) {
+		print(bytes, offset, bytes.length - offset);
 	}
 
 	/**
 	 * Print binary data from given offset with given length.
 	 */
-	public void print(byte[] bytes, int off, int len) {
+	public void print(byte[] bytes, int offset, int length) {
 		StringBuilder binB = new StringBuilder();
 		StringBuilder hexB = new StringBuilder();
 		StringBuilder charB = new StringBuilder();
 		int rowLen = bytesPerColumn * columns;
-		for (int i = 0; i < len; i += rowLen) {
+		for (int i = 0; i < length; i += rowLen) {
 			resetBuffers(binB, hexB, charB);
 			for (int j = 0; j < rowLen; j++) {
 				if (j > 0 && j % bytesPerColumn == 0) appendColumnSpace(binB, hexB, charB);
-				if (i + j >= len) appendMissingItemSpace(binB, hexB, charB);
+				if (i + j >= length) appendMissingItemSpace(binB, hexB, charB);
 				else {
-					int b = 0xff & bytes[off + i + j];
+					int b = 0xff & bytes[offset + i + j];
 					appendByte(binB, hexB, charB, b);
 				}
 				appendItemSpace(binB, hexB);
@@ -182,7 +212,7 @@ public class BinaryPrinter {
 	}
 
 	private void appendByte(StringBuilder binB, StringBuilder hexB, StringBuilder charB, int b) {
-		String s = StringUtil.pad(Integer.toBinaryString(b), BITS_IN_BYTE, "0", HAlign.right);
+		String s = StringUtil.pad(Integer.toBinaryString(b), Byte.SIZE, "0", HAlign.right);
 		binB.append(s);
 		s = Integer.toHexString(b).toUpperCase();
 		if (s.length() == 1) hexB.append('0');

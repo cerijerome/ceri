@@ -1,10 +1,20 @@
 package ceri.common.validation;
 
 import static java.lang.Long.compareUnsigned;
+import java.util.function.Predicate;
+import ceri.common.util.BasicUtil;
 
 public class ValidationUtil {
 
 	private ValidationUtil() {}
+
+	public static <T> void validate(Predicate<T> predicate, T value) {
+		validate(predicate.test(value), "Unexpected value: %s", value);
+	}
+
+	public static <T> void validate(Predicate<T> predicate, T value, String name) {
+		validate(predicate.test(value), "Unexpected %s value: %s", name, value);
+	}
 
 	public static void validate(boolean expr) {
 		if (!expr) throw new IllegalArgumentException();
@@ -15,7 +25,7 @@ public class ValidationUtil {
 	}
 
 	public static void validate(boolean expr, String format, Object... args) {
-		if (!expr) throw new IllegalArgumentException(String.format(format, args));
+		if (!expr) throw BasicUtil.exceptionf(format, args);
 	}
 
 	public static void validateNotNull(Object value) {
@@ -31,7 +41,7 @@ public class ValidationUtil {
 	}
 
 	public static void validateNull(Object value, String name) {
-		if (value != null) throw new IllegalArgumentException(name + " must be null: " + value);
+		if (value != null) throw BasicUtil.exceptionf("%s must be null: %s", name, value);
 	}
 
 	public static void validateEqual(Object value, Object expected) {
@@ -41,7 +51,7 @@ public class ValidationUtil {
 	public static void validateEqual(Object value, Object expected, String name) {
 		if (value == expected) return;
 		if (value != null && value.equals(expected)) return;
-		throw new IllegalArgumentException(name + " must be " + expected + ": " + value);
+		throw BasicUtil.exceptionf("%s must be %s: %s", name, expected, value);
 	}
 
 	public static void validateEqual(long value, long expected) {

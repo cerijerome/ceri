@@ -1,6 +1,6 @@
 package ceri.common.math;
 
-import static ceri.common.util.BasicUtil.formatted;
+import static ceri.common.util.BasicUtil.exceptionf;
 import static ceri.common.validation.ValidationUtil.validate;
 
 public class VectorUtil {
@@ -22,7 +22,7 @@ public class VectorUtil {
 
 	public static Vector crossProduct(Vector u, Vector v) {
 		verifySameSize(u, v);
-		if (u.size() == SIZE_7) throw formatted(UnsupportedOperationException::new,
+		if (u.size() == SIZE_7) throw exceptionf(UnsupportedOperationException::new,
 			"Cross product exists for size %d, but is not supported here", u.size());
 		validate(u.size() == SIZE_3, "Cross product only supported for size %d: %d", SIZE_3,
 			u.size());

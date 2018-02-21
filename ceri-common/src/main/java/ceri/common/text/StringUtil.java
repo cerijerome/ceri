@@ -18,7 +18,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import ceri.common.collection.StreamUtil;
+import ceri.common.function.ExceptionConsumer;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.HAlign;
 import ceri.common.util.PrimitiveUtil;
@@ -98,14 +100,14 @@ public class StringUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Creates a string from code points.
 	 */
-	public static String toString(int...codePoints) {
+	public static String toString(int... codePoints) {
 		return StreamUtil.toString(IntStream.of(codePoints));
 	}
-	
+
 	/**
 	 * Encodes escaped characters within the given string.
 	 */
@@ -153,14 +155,14 @@ public class StringUtil {
 		if (n == 1) return s;
 		return IntStream.range(0, n).mapToObj(i -> s).collect(Collectors.joining());
 	}
-	
+
 	/**
 	 * Calls String.replaceAll with well behaved \ and $ in the replacement string.
 	 */
 	public static String replaceAllQuoted(String s, String pattern, String replacement) {
 		return s.replaceAll(pattern, Matcher.quoteReplacement(replacement));
 	}
-	
+
 	/**
 	 * Replace all instances of the pattern using the replacer function.
 	 */
@@ -190,11 +192,11 @@ public class StringUtil {
 	public static List<String> split(String s, Collection<Integer> indexes) {
 		return split(s, PrimitiveUtil.toIntArray(indexes));
 	}
-	
+
 	/**
 	 * Splits a string at given indexes.
 	 */
-	public static List<String> split(String s, int...indexes) {
+	public static List<String> split(String s, int... indexes) {
 		List<String> list = new ArrayList<>(indexes.length);
 		int last = 0;
 		for (int i : indexes) {
@@ -205,7 +207,7 @@ public class StringUtil {
 		list.add(s.substring(last));
 		return list;
 	}
-		
+
 	/**
 	 * Compact floating point representation - trailing .0 is removed if present.
 	 */
@@ -360,12 +362,24 @@ public class StringUtil {
 	 * the regular split method.
 	 */
 	public static List<String> commaSplit(String s) {
+		return split(s, COMMA_SPLIT_REGEX);
+	}
+
+	/**
+	 * Splits a string by whitespace and trims each entry. Trailing empty strings are dropped as
+	 * with the regular split method.
+	 */
+	public static List<String> whiteSpaceSplit(String s) {
+		return split(s, WHITE_SPACE_REGEX);
+	}
+
+	/**
+	 * Splits a string by pattern and trims each entry. Trailing empty strings are dropped as
+	 * with the regular split method.
+	 */
+	public static List<String> split(String s, Pattern pattern) {
 		if (BasicUtil.isEmpty(s)) return Collections.emptyList();
-		String[] ss = COMMA_SPLIT_REGEX.split(s);
-		List<String> list = new ArrayList<>();
-		for (String str : ss)
-			list.add(str.trim());
-		return list;
+		return StreamUtil.toList(Stream.of(pattern.split(s)).map(String::trim));
 	}
 
 	/**
@@ -575,6 +589,19 @@ public class StringUtil {
 		if (start < 0) start = end + start;
 		if (start < 0) start = 0;
 		return s.substring(start, end);
+	}
+
+	/**
+	 * 
+	 */
+	public static <E extends Exception> String print(ExceptionConsumer<E, PrintStream> consumer)
+		throws E {
+		StringBuilder b = new StringBuilder();
+		try (PrintStream out = asPrintStream(b)) {
+			consumer.accept(out);
+			out.flush();
+		}
+		return b.toString();
 	}
 
 	/**

@@ -1,20 +1,26 @@
 package ceri.common.collection;
 
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import ceri.common.comparator.Comparators;
 
 /**
@@ -158,6 +164,42 @@ public class StreamUtil {
 		return (first, second) -> {
 			throw new IllegalArgumentException("Duplicate keys: " + first + ", " + second);
 		};
+	}
+
+	/**
+	 * Stream subarray. The case missing from Arrays.stream
+	 */
+	public static <T> Stream<T> stream(T[] array, int offset) {
+		return Arrays.stream(array, offset, array.length);
+	}
+	
+	/**
+	 * Returns a stream for an Enumeration.
+	 */
+	public static <T> Stream<T> stream(Enumeration<T> e) {
+		return StreamSupport.stream(new EnumerationSpliterator<>(e), false);
+	}
+
+	private static class EnumerationSpliterator<T> extends Spliterators.AbstractSpliterator<T> {
+		private final Enumeration<T> e;
+
+		public EnumerationSpliterator(Enumeration<T> e) {
+			super(Long.MAX_VALUE, Spliterator.ORDERED);
+			this.e = e;
+		}
+
+		@Override
+		public boolean tryAdvance(Consumer<? super T> action) {
+			if (!e.hasMoreElements()) return false;
+			action.accept(e.nextElement());
+			return true;
+		}
+
+		@Override
+		public void forEachRemaining(Consumer<? super T> action) {
+			while (e.hasMoreElements())
+				action.accept(e.nextElement());
+		}
 	}
 
 }
