@@ -15,7 +15,7 @@ public class OctetBitSet extends BitSet {
 	
 	public static OctetBitSet of(byte value) {
 		OctetBitSet bitSet = new OctetBitSet();
-		for (int i = 0; i < ByteUtil.BITS_PER_BYTE; i++)
+		for (int i = 0; i < Byte.SIZE; i++)
 			bitSet.set(i, ByteUtil.bit(value, i));
 		return bitSet;
 	}
@@ -25,7 +25,7 @@ public class OctetBitSet extends BitSet {
 	}
 
 	private OctetBitSet() {
-		super(ByteUtil.BITS_PER_BYTE);
+		super(Byte.SIZE);
 	}
 
 }

@@ -56,7 +56,6 @@ public class Timer {
 		public <E extends Exception> Timer.Snapshot
 			applyRemaining(ExceptionConsumer<E, Integer> consumer) throws E {
 			if (infinite() || remaining == 0) return this;
-			System.out.printf("Applying %d ms%n", remainingInt());
 			consumer.accept(remainingInt());
 			return this;
 		}

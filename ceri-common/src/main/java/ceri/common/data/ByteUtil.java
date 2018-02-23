@@ -16,12 +16,12 @@ import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
 public class ByteUtil {
-	public static final int BITS_PER_BYTE = 8;
 	public static final int BITS_PER_NYBBLE = 4;
 	public static final int HEX_DIGIT_BITS = BITS_PER_NYBBLE;
 	public static final int BYTE_MASK = 0xff;
 	public static final int SHORT_MASK = 0xffff;
-	public static final long INT_MASK = 0xffffffff;
+	public static final long INT_MASK = 0xffff_ffff;
+	public static final long LONG_MASK = 0xffff_ffff_ffff_ffffL;
 	private static final Pattern HEX_SPLIT_REGEX =
 		RegexUtil.compile("(?<=\\G.{%d})", BYTE_HEX_DIGITS);
 
@@ -300,20 +300,20 @@ public class ByteUtil {
 	}
 
 	public static short shift(short value, int bytes) {
-		return shiftBits(value, BITS_PER_BYTE * bytes);
+		return shiftBits(value, Byte.SIZE * bytes);
 	}
 
 	public static int shift(int value, int bytes) {
-		return shiftBits(value, BITS_PER_BYTE * bytes);
+		return shiftBits(value, Byte.SIZE * bytes);
 	}
 
 	public static long shift(long value, int bytes) {
-		return shiftBits(value, BITS_PER_BYTE * bytes);
+		return shiftBits(value, Byte.SIZE * bytes);
 	}
 
 	public static byte shiftBits(byte value, int bits) {
 		if (bits == 0) return value;
-		if (value == 0 || Math.abs(bits) >= BITS_PER_BYTE) return 0;
+		if (value == 0 || Math.abs(bits) >= Byte.SIZE) return 0;
 		return (byte) (bits > 0 ? (value & BYTE_MASK) >>> bits : value << -bits);
 	}
 
