@@ -1,6 +1,8 @@
 package ceri.common.function;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import ceri.common.util.EqualsUtil;
 
@@ -14,6 +16,20 @@ public class FunctionUtil {
 	 */
 	public static <T, R> Function<T, R> safe(Function<T, R> function) {
 		return t -> t == null ? null : function.apply(t);
+	}
+	
+	/**
+	 * Passes only non-null values to consumer.
+	 */
+	public static <T> void safeAccept(T t, Consumer<T> consumer) {
+		if (t != null) consumer.accept(t);
+	}
+	
+	/**
+	 * Passes only non-null values to consumer.
+	 */
+	public static <T> void safeAccept(T t, Predicate<T> predicate, Consumer<T> consumer) {
+		if (t != null && predicate.test(t)) consumer.accept(t);
 	}
 	
 	/**

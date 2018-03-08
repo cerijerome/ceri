@@ -1,8 +1,10 @@
 package ceri.ent.service;
 
+import static ceri.common.function.FunctionUtil.safeAccept;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,6 +16,9 @@ import ceri.common.collection.FixedSizeCache;
 import ceri.common.math.MathUtil;
 import ceri.ent.json.JsonCoder;
 
+/**
+ * A caching layer over a service, with persistence.
+ */
 public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	private static final Logger logger = LogManager.getLogger();
 	private final String logName;
@@ -21,10 +26,12 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	private final long cacheRandomizeMs;
 	private final int retries;
 	private final boolean cacheNulls;
+	private final boolean alwaysSave;
 	private final Service<K, V> service;
 	private final PersistentStore<Collection<Entry<K, V>>> store;
 	private final SafeReadWrite safe = new SafeReadWrite();
 	private final Map<K, Entry<K, V>> cache;
+	private boolean modified = false;
 
 	public static <K, V> ServiceCache<K, V> create(Service<K, V> service,
 		ServiceProperties properties, JsonCoder<Collection<Entry<K, V>>> coder) {
@@ -35,18 +42,14 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 		ServiceProperties properties, JsonCoder<Collection<Entry<K, V>>> coder) {
 		ServiceCache.Builder<K, V> builder = ServiceCache.builder(service);
 		if (logName != null) builder.logName(logName);
-		Long cacheDurationMs = properties.cacheDurationMs();
-		if (cacheDurationMs != null) builder.cacheDurationMs(cacheDurationMs);
-		Long cacheRandomizeMs = properties.cacheRandomizeMs();
-		if (cacheRandomizeMs != null) builder.cacheRandomizeMs(cacheRandomizeMs);
-		Integer maxEntries = properties.maxEntries();
-		if (maxEntries != null) builder.maxEntries(maxEntries);
-		Boolean cacheNulls = properties.cacheNulls();
-		if (cacheNulls != null) builder.cacheNulls(cacheNulls);
-		Integer retries = properties.retries();
-		if (retries != null) builder.retries(retries);
-		File cacheFile = properties.cacheFile();
-		if (cacheFile != null && coder != null) builder.store(coder, cacheFile);
+		safeAccept(properties.cacheDurationMs(), builder::cacheDurationMs);
+		safeAccept(properties.cacheRandomizeMs(), builder::cacheRandomizeMs);
+		safeAccept(properties.maxEntries(), builder::maxEntries);
+		safeAccept(properties.cacheNulls(), builder::cacheNulls);
+		safeAccept(properties.alwaysSave(), builder::alwaysSave);
+		safeAccept(properties.retries(), builder::retries);
+		if (coder != null) safeAccept( //
+			properties.cacheFile(), cacheFile -> builder.store(coder, cacheFile));
 		return builder.build();
 	}
 
@@ -58,6 +61,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 		int maxEntries = 100000;
 		int retries = 1;
 		boolean cacheNulls = false;
+		boolean alwaysSave = false;
 		PersistentStore<Collection<Entry<K, V>>> store;
 
 		Builder(Service<K, V> service) {
@@ -86,6 +90,11 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 
 		public Builder<K, V> cacheNulls(boolean cacheNulls) {
 			this.cacheNulls = cacheNulls;
+			return this;
+		}
+
+		public Builder<K, V> alwaysSave(boolean alwaysSave) {
+			this.alwaysSave = alwaysSave;
 			return this;
 		}
 
@@ -119,6 +128,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 		cacheRandomizeMs = builder.cacheRandomizeMs;
 		retries = builder.retries;
 		cacheNulls = builder.cacheNulls;
+		alwaysSave = builder.alwaysSave;
 		store = builder.store;
 		cache = new FixedSizeCache<>(builder.maxEntries);
 	}
@@ -131,14 +141,11 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	@Override
 	public void load() throws IOException {
 		if (store == null) return;
-		Collection<Entry<K, V>> entries = store.load();
-		if (entries == null) return;
-		Map<K, Entry<K, V>> map = new HashMap<>();
-		for (Iterator<Entry<K, V>> i = entries.iterator(); i.hasNext();) {
-			Entry<K, V> entry = i.next();
-			map.put(entry.key, entry);
-		}
-		cache.putAll(map);
+		Map<K, Entry<K, V>> map = toMap(store.load());
+		safe.write(() -> {
+			cache.putAll(map);
+			modified = false;
+		});
 	}
 
 	public Collection<Entry<K, V>> entries() {
@@ -147,8 +154,16 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 
 	@Override
 	public void save() throws IOException {
-		if (store == null) return;
-		store.save(entries());
+		if (!saveEntries()) return;
+		Collection<Entry<K, V>> values = safe.read(() -> new HashSet<>(cache.values()));
+		store.save(values);
+		safe.write(() -> modified = false); // but entries may have been written after read...
+	}
+
+	private boolean saveEntries() {
+		if (store == null) return false;
+		if (alwaysSave) return true;
+		return safe.read(() -> modified);
 	}
 
 	@Override
@@ -160,9 +175,22 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 		return value;
 	}
 
+	private Map<K, Entry<K, V>> toMap(Collection<Entry<K, V>> entries) {
+		if (entries == null) return Collections.emptyMap();
+		Map<K, Entry<K, V>> map = new HashMap<>();
+		for (Iterator<Entry<K, V>> i = entries.iterator(); i.hasNext();) {
+			Entry<K, V> entry = i.next();
+			map.put(entry.key, entry);
+		}
+		return map;
+	}
+	
 	private boolean writeToCache(K key, V value) {
 		if (value == null && !cacheNulls) return false;
-		safe.write(() -> cache.put(key, new Entry<>(key, value, expiration())));
+		safe.write(() -> {
+			cache.put(key, new Entry<>(key, value, expiration()));
+			modified = true;
+		});
 		return true;
 	}
 
@@ -194,11 +222,16 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	}
 
 	public void clear(K key) {
-		safe.write(() -> cache.remove(key));
+		safe.write(() -> {
+			if (cache.remove(key) != null) modified = true;
+		});
 	}
 
 	public void clear() {
-		safe.write(() -> cache.clear());
+		safe.write(() -> {
+			if (!cache.isEmpty()) modified = true;
+			cache.clear();
+		});
 	}
 
 }

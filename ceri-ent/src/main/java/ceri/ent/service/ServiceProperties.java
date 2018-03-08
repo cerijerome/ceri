@@ -17,6 +17,7 @@ public class ServiceProperties extends BaseProperties {
 	private static final String MAX_ENTRIES_KEY = "max.entries";
 	private static final String RETRIES_KEY = "retries";
 	private static final String NULLS_KEY = "nulls";
+	private static final String ALWAYS_SAVE_KEY = "always.save";
 	private static final String FILE_KEY = "file";
 	
 	public ServiceProperties(Properties properties, String...groups) {
@@ -75,6 +76,10 @@ public class ServiceProperties extends BaseProperties {
 
 	public Boolean cacheNulls() {
 		return booleanValue(CACHE_KEY, NULLS_KEY);
+	}
+	
+	public Boolean alwaysSave() {
+		return booleanValue(ALWAYS_SAVE_KEY);
 	}
 	
 }
