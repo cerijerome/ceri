@@ -3,11 +3,11 @@ package ceri.ent;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import ceri.common.test.TestUtil;
-import ceri.ent.json.GsonUtilTest;
+import ceri.ent.json.JsonUtilTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	GsonUtilTest.class,
+	JsonUtilTest.class,
 })
 public class _Tests {
 	public static void main(String... args) {

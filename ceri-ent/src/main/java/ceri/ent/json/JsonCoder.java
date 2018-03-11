@@ -7,6 +7,10 @@ public class JsonCoder<T> {
 	private final Gson gson;
 	private final TypeToken<T> typeToken;
 
+	public static <T> JsonCoder<T> create(Gson gson, Class<T> cls) {
+		return create(gson, TypeToken.get(cls));
+	}
+
 	public static <T> JsonCoder<T> create(Gson gson, TypeToken<T> typeToken) {
 		return new JsonCoder<>(gson, typeToken);
 	}

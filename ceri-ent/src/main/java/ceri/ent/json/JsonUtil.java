@@ -2,26 +2,48 @@ package ceri.ent.json;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import ceri.common.property.PathFactory;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.PrimitiveUtil;
 
-public class GsonUtil {
+public class JsonUtil {
 	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-	private GsonUtil() {}
+	private JsonUtil() {}
+
+	/**
+	 * Convenience method to match mechanics of JsonElement getAs...
+	 */
+	public static JsonObject getAsJsonObject(JsonObject json, String memberName) {
+		JsonObject obj = json.getAsJsonObject(memberName);
+		if (obj != null) return obj;
+		throw new IllegalStateException("No json object named " + memberName + ": " + json);
+	}
+	
+	public static void forEach(JsonObject obj,
+		BiConsumer<? super String, ? super JsonElement> action) {
+		for (Map.Entry<String, JsonElement> entry : obj.entrySet())
+			action.accept(entry.getKey(), entry.getValue());
+	}
 
 	public static <T> JsonCoder<T> coder(TypeToken<T> typeToken) {
 		return JsonCoder.create(GSON, typeToken);
 	}
 
-	public static <T> JsonDeserializer<T> deserializer(Function<String, T> constructor) {
+	public static <T> JsonDeserializer<T> stringDeserializer(Function<String, T> constructor) {
 		return (json, typeOfT, context) -> constructor.apply(json.getAsString());
+	}
+
+	public static <T> JsonDeserializer<T> deserializer(Function<JsonElement, T> constructor) {
+		return (json, typeOfT, context) -> constructor.apply(json);
 	}
 
 	/**
