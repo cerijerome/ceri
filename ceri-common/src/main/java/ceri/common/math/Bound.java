@@ -1,6 +1,6 @@
 package ceri.common.math;
 
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.validation.ValidationUtil.validateNotNull;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.EqualsUtil;
@@ -9,7 +9,12 @@ import ceri.common.util.HashCoder;
 public class Bound<T extends Comparable<T>> {
 	private static final Bound<?> UNBOUND = new Bound<>(null, null);
 	public final T value;
-	public final BoundType type;
+	public final Type type;
+
+	public static enum Type {
+		inclusive,
+		exclusive
+	}
 
 	public static <T extends Comparable<T>> Bound<T> unbound() {
 		return BasicUtil.uncheckedCast(UNBOUND);
@@ -17,19 +22,19 @@ public class Bound<T extends Comparable<T>> {
 
 	public static <T extends Comparable<T>> Bound<T> inclusive(T value) {
 		validateNotNull(value);
-		return of(value, BoundType.inclusive);
+		return of(value, Type.inclusive);
 	}
 
 	public static <T extends Comparable<T>> Bound<T> exclusive(T value) {
-		return of(value, BoundType.exclusive);
+		return of(value, Type.exclusive);
 	}
 
-	public static <T extends Comparable<T>> Bound<T> of(T value, BoundType type) {
+	public static <T extends Comparable<T>> Bound<T> of(T value, Type type) {
 		if (value == null) return unbound();
 		return new Bound<>(value, type);
 	}
 
-	private Bound(T value, BoundType type) {
+	private Bound(T value, Type type) {
 		this.value = value;
 		this.type = type;
 	}
@@ -42,14 +47,14 @@ public class Bound<T extends Comparable<T>> {
 		if (value == null) return false;
 		if (isUnbound()) return true;
 		int compare = this.value.compareTo(value);
-		return compare > 0 || (compare == 0 && type == BoundType.inclusive);
+		return compare > 0 || (compare == 0 && type == Type.inclusive);
 	}
 
 	public boolean lowerFor(T value) {
 		if (value == null) return false;
 		if (isUnbound()) return true;
 		int compare = this.value.compareTo(value);
-		return compare < 0 || (compare == 0 && type == BoundType.inclusive);
+		return compare < 0 || (compare == 0 && type == Type.inclusive);
 	}
 
 	@Override

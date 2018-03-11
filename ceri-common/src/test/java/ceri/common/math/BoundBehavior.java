@@ -19,7 +19,7 @@ public class BoundBehavior {
 		Bound<Double> ne3 = Bound.unbound();
 		exerciseEquals(b, eq0);
 		assertAllNotEqual(b, ne0, ne1, ne2, ne3);
-		exerciseEnum(BoundType.class);
+		exerciseEnum(Bound.Type.class);
 	}
 
 	@Test

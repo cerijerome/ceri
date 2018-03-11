@@ -1,5 +1,6 @@
 package ceri.common.math;
 
+import ceri.common.math.Bound.Type;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
@@ -60,7 +61,7 @@ public class Interval<T extends Comparable<T>> {
 		int compare = lower.value.compareTo(upper.value);
 		if (compare < 0) return false;
 		if (compare > 0) return true;
-		return lower.type != BoundType.inclusive || upper.type != BoundType.inclusive;
+		return lower.type != Type.inclusive || upper.type != Type.inclusive;
 	}
 
 	@Override
