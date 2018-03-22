@@ -12,6 +12,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,7 +58,7 @@ public class StreamUtilTest {
 	public void testToSet() {
 		Set<Integer> set = StreamUtil.toSet(Stream.of(1, 3, 2));
 		assertCollection(set, 1, 3, 2);
-		set = StreamUtil.toTreeSet(Stream.of(1, 3, 2));
+		set = StreamUtil.toSet(Stream.of(1, 3, 2), TreeSet::new);
 		assertIterable(set, 1, 2, 3);
 	}
 

@@ -114,6 +114,16 @@ public abstract class BaseProperties {
 	}
 
 	/**
+	 * Retrieves the typed property from prefixed, dot-separated key. Returns null if no value
+	 * exists for the key.
+	 */
+	protected <T> T value(Function<String, T> constructor, String... keyParts) {
+		String value = value(keyParts);
+		if (value == null) return null;
+		return constructor.apply(value);
+	}
+
+	/**
 	 * Retrieves enum type from prefixed, dot-separated key. Returns null if no value exists for the
 	 * key. Throws IllegalArgumentException if the type cannot be evaluated.
 	 */

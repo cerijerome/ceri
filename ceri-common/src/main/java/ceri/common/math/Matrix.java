@@ -213,7 +213,7 @@ public class Matrix {
 				b.set(row, column, -valueAt(row, column));
 		return b.build();
 	}
-	
+
 	public Matrix add(Matrix m) {
 		validate(rows == m.rows && columns == m.columns, "Matrix must be %dx%d: %dx%d", rows,
 			columns, m.rows, m.columns);
@@ -244,6 +244,10 @@ public class Matrix {
 	private double multiplyLine(int row, int column, Matrix m) {
 		return IntStream.range(0, columns).mapToDouble( //
 			i -> valueAt(row, i) * m.valueAt(i, column)).sum();
+	}
+
+	public double[][] values() {
+		return values.clone();
 	}
 
 	@Override

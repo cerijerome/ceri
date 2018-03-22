@@ -1,6 +1,8 @@
 package ceri.common.date;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -10,6 +12,16 @@ import java.time.temporal.ChronoUnit;
 public class DateUtil {
 
 	private DateUtil() {}
+
+	public static LocalTime durationToTime(Duration duration) {
+		if (duration == null) return null;
+		return LocalTime.MIN.plus(duration);
+	}
+
+	public static Duration timeToDuration(LocalTime time) {
+		if (time == null) return null;
+		return Duration.between(LocalTime.MIN, time);
+	}
 
 	public static String formatIso(long t) {
 		return format(t, ZoneOffset.UTC, DateTimeFormatter.ISO_OFFSET_DATE_TIME);

@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import ceri.common.collection.ArrayUtil;
 
 /**
@@ -126,6 +127,10 @@ public class ToStringHelper {
 		return childrens(Arrays.asList(children));
 	}
 
+	public ToStringHelper childrens(Map<?, ?> children) {
+		return childrens(children.entrySet());
+	}
+
 	public ToStringHelper childrens(Iterable<?> children) {
 		if (this.children.isEmpty()) this.children = new ArrayList<>();
 		for (Object child : children)
@@ -144,11 +149,17 @@ public class ToStringHelper {
 		if (children.isEmpty()) return b.toString();
 		b.append(" {").append(System.lineSeparator());
 		for (Object child : children) {
-			String childStr = StringUtil.prefixLines(childIndent, stringValue(child));
+			String childStr = StringUtil.prefixLines(childIndent, childStringValue(child));
 			b.append(childStr).append(System.lineSeparator());
 		}
 		b.append('}');
 		return b.toString();
+	}
+
+	private String childStringValue(Object obj) {
+		if (!(obj instanceof Map.Entry)) return stringValue(obj);
+		Map.Entry<?, ?> entry = (Map.Entry<?, ?>) obj;
+		return stringValue(entry.getKey()) + ": " + stringValue(entry.getValue());
 	}
 
 	private String stringValue(Object obj) {

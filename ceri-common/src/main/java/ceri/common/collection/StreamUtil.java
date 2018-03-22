@@ -11,7 +11,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.TreeSet;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
@@ -90,17 +89,17 @@ public class StreamUtil {
 	}
 
 	/**
-	 * Convert a stream to a TreeSet.
+	 * Convert a stream to a LinkedHashSet.
 	 */
-	public static <T> Set<T> toTreeSet(Stream<T> stream) {
-		return stream.collect(Collectors.toCollection(TreeSet::new));
+	public static <T> Set<T> toSet(Stream<T> stream) {
+		return toSet(stream, LinkedHashSet::new);
 	}
 
 	/**
 	 * Convert a stream to a LinkedHashSet.
 	 */
-	public static <T> Set<T> toSet(Stream<T> stream) {
-		return stream.collect(Collectors.toCollection(LinkedHashSet::new));
+	public static <T> Set<T> toSet(Stream<? extends T> stream, Supplier<Set<T>> supplier) {
+		return stream.collect(Collectors.toCollection(supplier));
 	}
 
 	/**
@@ -172,7 +171,7 @@ public class StreamUtil {
 	public static <T> Stream<T> stream(T[] array, int offset) {
 		return Arrays.stream(array, offset, array.length);
 	}
-	
+
 	/**
 	 * Returns a stream for an Enumeration.
 	 */

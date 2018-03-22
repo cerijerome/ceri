@@ -1,5 +1,6 @@
 package ceri.common.math;
 
+import java.util.stream.Stream;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
@@ -37,6 +38,10 @@ public class Vector {
 
 	public double valueAt(int index) {
 		return matrix.valueAt(index, 0);
+	}
+
+	public double[] values() {
+		return Stream.of(matrix.values()).mapToDouble(r -> r[0]).toArray();
 	}
 
 	public Vector subVector(int offset, int size) {

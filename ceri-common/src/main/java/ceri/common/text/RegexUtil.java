@@ -4,15 +4,19 @@ import static ceri.common.collection.StreamUtil.toList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+import ceri.common.collection.CollectionUtil;
 import ceri.common.factory.Factories;
 import ceri.common.factory.Factory;
 import ceri.common.factory.StringFactories;
 import ceri.common.util.PrimitiveUtil;
 
 public class RegexUtil {
+	private static final Pattern GROUP_NAME_REGEX = Pattern.compile("\\(\\?\\<([^>]+)\\>");
 	private static final Factory<List<Boolean>, Iterable<String>> BOOLEAN_LIST_FACTORY =
 		Factories.list(StringFactories.TO_BOOLEAN);
 	private static final Factory<List<Byte>, Iterable<String>> BYTE_LIST_FACTORY =
@@ -78,6 +82,31 @@ public class RegexUtil {
 		} catch (IllegalArgumentException e) {
 			return null;
 		}
+	}
+
+	/**
+	 * Returns named group or null. Matcher match should have been attempted.
+	 */
+	public static Map<String, String> namedGroups(Matcher m) {
+		if (m == null) return Collections.emptyMap();
+		List<String> names = groupNames(m);
+		if (names.isEmpty()) return Collections.emptyMap();
+		return CollectionUtil.toMap(Function.identity(), name -> namedGroup(m, name), names);
+	}
+
+	/**
+	 * Returns group names from the pattern.
+	 */
+	public static List<String> groupNames(Matcher m) {
+		return groupNames(m.pattern());
+	}
+
+	/**
+	 * Returns group names from the pattern.
+	 */
+	public static List<String> groupNames(Pattern pattern) {
+		if (pattern == null) return Collections.emptyList();
+		return findAll(GROUP_NAME_REGEX, pattern.pattern());
 	}
 
 	/**

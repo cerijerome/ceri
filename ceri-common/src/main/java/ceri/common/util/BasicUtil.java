@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import ceri.common.collection.StreamUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 
 /**
@@ -116,7 +115,14 @@ public class BasicUtil {
 	 * Finds the first enum matching the filter.
 	 */
 	public static <T extends Enum<T>> T find(Class<T> cls, Predicate<T> filter) {
-		return StreamUtil.first(BasicUtil.enums(cls).stream().filter(filter));
+		return find(cls, filter, null);
+	}
+
+	/**
+	 * Finds the first enum matching the filter.
+	 */
+	public static <T extends Enum<T>> T find(Class<T> cls, Predicate<T> filter, T def) {
+		return BasicUtil.enums(cls).stream().filter(filter).findFirst().orElse(def);
 	}
 
 	/**
