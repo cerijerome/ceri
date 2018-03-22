@@ -1,4 +1,4 @@
-package ceri.ent.json;
+package ceri.ent.json.adapter;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;

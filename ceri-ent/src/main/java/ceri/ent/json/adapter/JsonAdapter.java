@@ -1,4 +1,4 @@
-package ceri.ent.json;
+package ceri.ent.json.adapter;
 
 import java.io.IOException;
 import com.google.gson.GsonBuilder;
@@ -9,8 +9,8 @@ import com.google.gson.stream.JsonWriter;
 
 public class JsonAdapter<T> extends TypeAdapter<T> {
 	public final Class<T> cls;
-	private final Read<T> read;
-	private final Write<T> write;
+	public final Read<T> read;
+	public final Write<T> write;
 
 	public static interface Read<T> {
 		static <T> Read<T> _null() {
