@@ -1,5 +1,6 @@
 package ceri.ent.json.adapter;
 
+import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.function.Function;
@@ -11,37 +12,37 @@ public class JsonAdapters {
 
 	private JsonAdapters() {}
 
-	public static <T> JsonAdapter<T> ofString(Class<T> cls, Function<String, T> deserializer) {
-		return ofString(cls, deserializer, String::valueOf);
+	public static <T> JsonAdapter<T> ofString(Type type, Function<String, T> deserializer) {
+		return ofString(type, deserializer, String::valueOf);
 	}
 
-	public static <T> JsonAdapter<T> ofString(Class<T> cls, Function<String, T> deserializer,
+	public static <T> JsonAdapter<T> ofString(Type type, Function<String, T> deserializer,
 		Function<T, String> serializer) {
-		return JsonAdapter.of(cls, in -> deserializer.apply(in.nextString()),
+		return JsonAdapter.of(type, in -> deserializer.apply(in.nextString()),
 			(out, t) -> out.value(serializer.apply(t)));
 	}
 
-	public static <T> JsonAdapter<T> ofInt(Class<T> cls, Function<Integer, T> deserializer,
+	public static <T> JsonAdapter<T> ofInt(Type type, Function<Integer, T> deserializer,
 		Function<T, Integer> serializer) {
-		return JsonAdapter.of(cls, in -> deserializer.apply(in.nextInt()),
+		return JsonAdapter.of(type, in -> deserializer.apply(in.nextInt()),
 			(out, t) -> out.value(serializer.apply(t)));
 	}
 
-	public static <T> JsonAdapter<T> ofLong(Class<T> cls, Function<Long, T> deserializer,
+	public static <T> JsonAdapter<T> ofLong(Type type, Function<Long, T> deserializer,
 		Function<T, Long> serializer) {
-		return JsonAdapter.of(cls, in -> deserializer.apply(in.nextLong()),
+		return JsonAdapter.of(type, in -> deserializer.apply(in.nextLong()),
 			(out, t) -> out.value(serializer.apply(t)));
 	}
 
-	public static <T> JsonAdapter<T> ofDouble(Class<T> cls, Function<Double, T> deserializer,
+	public static <T> JsonAdapter<T> ofDouble(Type type, Function<Double, T> deserializer,
 		Function<T, Double> serializer) {
-		return JsonAdapter.of(cls, in -> deserializer.apply(in.nextDouble()),
+		return JsonAdapter.of(type, in -> deserializer.apply(in.nextDouble()),
 			(out, t) -> out.value(serializer.apply(t)));
 	}
 
-	public static <T> JsonAdapter<T> ofBoolean(Class<T> cls, Function<Boolean, T> deserializer,
+	public static <T> JsonAdapter<T> ofBoolean(Type type, Function<Boolean, T> deserializer,
 		Function<T, Boolean> serializer) {
-		return JsonAdapter.of(cls, in -> deserializer.apply(in.nextBoolean()),
+		return JsonAdapter.of(type, in -> deserializer.apply(in.nextBoolean()),
 			(out, t) -> out.value(serializer.apply(t)));
 	}
 
