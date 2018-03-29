@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 import com.google.gson.reflect.TypeToken;
 import ceri.common.property.PathFactory;
 import ceri.common.util.BasicUtil;
@@ -28,10 +29,24 @@ public class JsonUtil {
 		throw new IllegalStateException("No json object named " + memberName + ": " + json);
 	}
 	
+	/**
+	 * Iterates over names and elements of a json object.
+	 */
 	public static void forEach(JsonObject obj,
 		BiConsumer<? super String, ? super JsonElement> action) {
 		for (Map.Entry<String, JsonElement> entry : obj.entrySet())
 			action.accept(entry.getKey(), entry.getValue());
+	}
+
+	/**
+	 * Serializes value and adds to json object if non-null.
+	 */
+	public static JsonElement addTo(JsonObject obj, JsonSerializationContext context, String name,
+		Object value) {
+		if (obj == null || context == null || name == null || value == null) return null;
+		JsonElement element = context.serialize(value);
+		obj.add(name, element);
+		return element;
 	}
 
 	public static <T> JsonCoder<T> coder(TypeToken<T> typeToken) {
