@@ -18,6 +18,7 @@ import ceri.common.util.HashCoder;
 public class PathFactory {
 	public static final PathFactory dot = new PathFactory(".");
 	public static final PathFactory dash = new PathFactory("-");
+	public static final PathFactory slash = new PathFactory("/");
 	public final Pattern splitRegex;
 	public final Path emptyPath;
 	public final String separator;
@@ -88,6 +89,20 @@ public class PathFactory {
 		int i = path.indexOf(separator);
 		if (i == -1 || i == path.length() - 1) return emptyPath;
 		return new Path(this, path.substring(i + 1));
+	}
+
+	public String firstPart(String path) {
+		if (path == null || path.isEmpty()) return "";
+		int i = path.indexOf(separator);
+		if (i == -1) return path;
+		return path.substring(0, i);
+	}
+
+	public String lastPart(String path) {
+		if (path == null || path.isEmpty()) return "";
+		int i = path.lastIndexOf(separator);
+		if (i == -1) return path;
+		return path.substring(i + 1, path.length());
 	}
 
 	private Path pathFromParts(List<String> parts) {

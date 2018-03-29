@@ -128,6 +128,7 @@ public class ToStringHelper {
 	}
 
 	public ToStringHelper childrens(Map<?, ?> children) {
+		if (children == null) children = Collections.emptyMap();
 		return childrens(children.entrySet());
 	}
 

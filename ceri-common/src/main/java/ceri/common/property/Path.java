@@ -40,6 +40,14 @@ public class Path {
 		return factory.split(value);
 	}
 
+	public String firstPart() {
+		return factory.firstPart(value);
+	}
+
+	public String lastPart() {
+		return factory.lastPart(value);
+	}
+
 	public int parts() {
 		return factory.parts(value);
 	}
