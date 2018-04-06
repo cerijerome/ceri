@@ -1,8 +1,7 @@
-package ceri.ent.service;
+package ceri.common.concurrent;
 
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
 
