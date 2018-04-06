@@ -130,14 +130,20 @@ public class ByteUtil {
 		return bytes;
 	}
 
-	public static long mask(int... bits) {
+	public static long mask(int bitCount) {
+		if (bitCount == 0) return 0;
+		if (bitCount == Long.SIZE) return -1L;
+		return (1L << bitCount) - 1;
+	}
+	
+	public static long maskOfBits(int... bits) {
 		long value = 0;
 		for (int bit : bits)
 			if (bit < Long.SIZE) value |= 1L << bit;
 		return value;
 	}
 
-	public static long mask(boolean flag, int bit) {
+	public static long maskOfBit(boolean flag, int bit) {
 		if (!flag) return 0;
 		return 1L << bit;
 	}

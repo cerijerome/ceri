@@ -87,10 +87,10 @@ public class ByteUtilTest {
 
 	@Test
 	public void testMask() {
-		assertThat(ByteUtil.mask(63, 32, 31, 16, 15, 8, 7, 0), is(0x8000_0001_8001_8181L));
-		assertThat(ByteUtil.mask(64), is(0L));
-		assertThat(ByteUtil.mask(true, 63), is(0x8000_0000_0000_0000L));
-		assertThat(ByteUtil.mask(false, 63), is(0L));
+		assertThat(ByteUtil.maskOfBits(63, 32, 31, 16, 15, 8, 7, 0), is(0x8000_0001_8001_8181L));
+		assertThat(ByteUtil.maskOfBits(64), is(0L));
+		assertThat(ByteUtil.maskOfBit(true, 63), is(0x8000_0000_0000_0000L));
+		assertThat(ByteUtil.maskOfBit(false, 63), is(0L));
 
 	}
 

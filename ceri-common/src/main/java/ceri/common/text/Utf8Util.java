@@ -41,6 +41,13 @@ public class Utf8Util {
 	}
 
 	/**
+	 * Returns the string as UTF8 bytes.
+	 */
+	public static String decode(byte[] utf8Bytes) {
+		return new String(utf8Bytes, charset());
+	}
+
+	/**
 	 * Returns the UTF8 charset.
 	 */
 	public static Charset charset() {
