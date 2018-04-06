@@ -16,6 +16,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.text.StringUtil;
 import ceri.common.util.HAlign;
@@ -154,17 +155,18 @@ public class LogUtil {
 		if (closeables == null) return false;
 		boolean closed = true;
 		for (Closeable closeable : closeables)
-			if (!closeWithLogging(logger, closeable)) closed = false;
+			if (!close(logger, closeable, Closeable::close)) closed = false;
 		return closed;
 	}
 
 	/**
 	 * Closes a closeable, and logs a thrown exception as a warning.
 	 */
-	private static boolean closeWithLogging(Logger logger, Closeable closeable) {
+	public static <T> boolean close(Logger logger, T closeable,
+		ExceptionConsumer<IOException, T> closer) {
 		if (closeable == null) return false;
 		try {
-			closeable.close();
+			closer.accept(closeable);
 			return true;
 		} catch (IOException | RuntimeException e) {
 			logger.catching(Level.WARN, e);
