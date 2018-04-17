@@ -12,8 +12,8 @@ import static org.junit.Assert.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -101,7 +101,7 @@ public class BasePropertiesBehavior {
 	public void shouldReadCommaSeparatedValues() {
 		BaseProperties bp = BaseProperties.from(properties);
 		assertIterable(bp.values(s -> s.length(), "y"), 3, 2, 1);
-		assertIterable(bp.values(Collections.singleton(999), s -> s.length(), "xx"), 999);
+		assertIterable(bp.values(Collections.singletonList(999), s -> s.length(), "xx"), 999);
 	}
 
 	@Test
@@ -165,7 +165,7 @@ public class BasePropertiesBehavior {
 		assertThat(bp.stringValues("y"), is(Arrays.asList("YyY", "yy", "y")));
 		assertThat(bp.stringValues("z"), is(Arrays.asList()));
 		assertNull(bp.stringValues("Z"));
-		Collection<String> def = Arrays.asList("d,ef");
+		List<String> def = Arrays.asList("d,ef");
 		assertThat(bp.stringValues(def, "x"), is(Arrays.asList("X")));
 		assertThat(bp.stringValues(def, "y"), is(Arrays.asList("YyY", "yy", "y")));
 		assertThat(bp.stringValues(def, "z"), is(Arrays.asList()));

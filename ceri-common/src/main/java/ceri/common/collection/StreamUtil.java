@@ -15,6 +15,7 @@ import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -38,7 +39,14 @@ public class StreamUtil {
 	}
 
 	/**
-	 * Returns the first entry in the stream, or null if empty.
+	 * Returns the first matching non-null entry in the stream, or null if no match.
+	 */
+	public static <T> T findFirstNonNull(Stream<T> stream, Predicate<? super T> predicate) {
+		return first(stream.filter(Objects::nonNull).filter(predicate));
+	}
+
+	/**
+	 * Returns the first non-null entry in the stream, or null.
 	 */
 	public static <T> T firstNonNull(Stream<T> stream) {
 		return first(stream.filter(Objects::nonNull));

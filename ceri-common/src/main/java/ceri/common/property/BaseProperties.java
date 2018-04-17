@@ -105,12 +105,21 @@ public abstract class BaseProperties {
 	}
 
 	/**
+	 * Returns the full keys that start with prefix.
+	 */
+	protected List<String> keys() {
+		return toList(properties.keys().stream().filter(this::hasPrefix).distinct());
+	}
+
+	/**
 	 * Retrieves the String property from prefixed, dot-separated key. Returns null if no value
 	 * exists for the key.
 	 */
 	protected String value(String... keyParts) {
 		String value = properties.property(key(keyParts));
-		return BasicUtil.isEmpty(value) ? null : value.trim();
+		if (value == null) return null;
+		value = value.trim();
+		return value.isEmpty() ? null : value;
 	}
 
 	/**
@@ -118,32 +127,55 @@ public abstract class BaseProperties {
 	 * exists for the key.
 	 */
 	protected <T> T value(Function<String, T> constructor, String... keyParts) {
-		String value = value(keyParts);
-		if (value == null) return null;
-		return constructor.apply(value);
+		return value(null, constructor, keyParts);
 	}
 
 	/**
-	 * Retrieves enum type from prefixed, dot-separated key. Returns null if no value exists for the
-	 * key. Throws IllegalArgumentException if the type cannot be evaluated.
+	 * Retrieves the typed property from prefixed, dot-separated key. Returns default if no value
+	 * exists for the key.
 	 */
-	protected <T extends Enum<T>> T enumValue(Class<T> cls, String... keyParts) {
-		String value = value(keyParts);
-		try {
-			return value == null ? null : Enum.valueOf(cls, value);
-		} catch (IllegalArgumentException e) {
-			throw BasicUtil.initCause(new IllegalArgumentException("Invalid " +
-				cls.getSimpleName() + " for " + key(keyParts) + ": " + value), e);
-		}
+	protected <T> T value(T def, Function<String, T> constructor, String... keyParts) {
+		return value(null, def, constructor, keyParts);
 	}
 
 	/**
-	 * Retrieves enum type from prefixed, dot-separated key. Returns the given default value if no
-	 * value exists for the key. Throws IllegalArgumentException if the type cannot be evaluated.
+	 * Retrieves the typed property from prefixed, dot-separated key. Returns default if no value
+	 * exists for the key.
 	 */
-	protected <T extends Enum<T>> T enumValue(Class<T> cls, T def, String... keyParts) {
-		T value = enumValue(cls, keyParts);
-		return value == null ? def : value;
+	protected <T> T value(Class<T> cls, T def, Function<String, T> constructor,
+		String... keyParts) {
+		return parseValue(cls, def, value(keyParts), constructor, keyParts);
+	}
+
+	/**
+	 * Retrieves a collection of comma-separated values from prefixed, dot-separated key. Returns
+	 * null if no values exist for the key. The constructor converts from each string to the desired
+	 * type.
+	 */
+	protected <T> List<T> values(Function<String, T> constructor, String... keyParts) {
+		return parseValues(null, value -> parseValue(null, null, value, constructor, keyParts),
+			keyParts);
+	}
+
+	/**
+	 * Retrieves a collection of comma-separated values from prefixed, dot-separated key. Returns
+	 * default values if no values exist for the key. The constructor converts from each string to
+	 * the desired type.
+	 */
+	protected <T> List<T> values(List<T> def, Function<String, T> constructor, String... keyParts) {
+		return parseValues(def, value -> parseValue(null, null, value, constructor, keyParts),
+			keyParts);
+	}
+
+	/**
+	 * Retrieves a collection of comma-separated values from prefixed, dot-separated key. Returns
+	 * default values if no values exist for the key. The constructor converts from each string to
+	 * the desired type.
+	 */
+	protected <T> List<T> values(Class<T> cls, List<T> def, Function<String, T> constructor,
+		String... keyParts) {
+		return parseValues(def, value -> parseValue(cls, null, value, constructor, keyParts),
+			keyParts);
 	}
 
 	/**
@@ -159,40 +191,54 @@ public abstract class BaseProperties {
 	 * Retrieves a collection of comma-separated Strings from prefixed, dot-separated key. Returns
 	 * null if the key does not exist.
 	 */
-	protected Collection<String> stringValues(String... keyParts) {
-		return stringValues((Collection<String>) null, keyParts);
+	protected List<String> stringValues(String... keyParts) {
+		return stringValues((List<String>) null, keyParts);
 	}
 
 	/**
 	 * Retrieves a collection of comma-separated Strings from prefixed, dot-separated key. Returns
 	 * default values if the key doesn not exist.
 	 */
-	protected Collection<String> stringValues(Collection<String> def, String... keyParts) {
+	protected List<String> stringValues(List<String> def, String... keyParts) {
 		String value = value(keyParts);
 		if (value == null) return def;
-		Collection<String> values = StringUtil.commaSplit(value);
+		List<String> values = StringUtil.commaSplit(value);
 		return values.isEmpty() ? Collections.emptyList() : values;
 	}
 
 	/**
-	 * Retrieves a collection of comma-separated values from prefixed, dot-separated key. Returns
-	 * null if no values exist for the key. The constructor converts from each string to the desired
-	 * type.
+	 * Retrieves enum type from prefixed, dot-separated key. Returns null if no value exists for the
+	 * key. Throws IllegalArgumentException if the type cannot be evaluated.
 	 */
-	protected <T> Collection<T> values(Function<String, T> constructor, String... keyParts) {
-		return values(null, constructor, keyParts);
+	protected <T extends Enum<T>> T enumValue(Class<T> cls, String... keyParts) {
+		return enumValue(cls, null, keyParts);
 	}
 
 	/**
-	 * Retrieves a collection of comma-separated values from prefixed, dot-separated key. Returns
-	 * default values if no values exist for the key. The constructor converts from each string to
-	 * the desired type.
+	 * Retrieves enum type from prefixed, dot-separated key. Returns the given default value if no
+	 * value exists for the key. Throws IllegalArgumentException if the type cannot be evaluated.
 	 */
-	protected <T> Collection<T> values(Collection<T> def, Function<String, T> constructor,
+	protected <T extends Enum<T>> T enumValue(Class<T> cls, T def, String... keyParts) {
+		return value(cls, def, value -> Enum.valueOf(cls, value), keyParts);
+	}
+
+	/**
+	 * Retrieves list of enum types from prefixed, dot-separated key. Returns the given default
+	 * values if no value exists for the key. Throws IllegalArgumentException if the type cannot be
+	 * evaluated.
+	 */
+	protected <T extends Enum<T>> List<T> enumValues(Class<T> cls, String... keyParts) {
+		return enumValues(cls, null, keyParts);
+	}
+
+	/**
+	 * Retrieves list of enum types from prefixed, dot-separated key. Returns the given default
+	 * values if no value exists for the key. Throws IllegalArgumentException if the type cannot be
+	 * evaluated.
+	 */
+	protected <T extends Enum<T>> List<T> enumValues(Class<T> cls, List<T> def,
 		String... keyParts) {
-		Collection<String> stringValues = stringValues(keyParts);
-		if (stringValues == null) return def;
-		return toList(stringValues.stream().map(constructor));
+		return values(cls, def, value -> Enum.valueOf(cls, value), keyParts);
 	}
 
 	/**
@@ -200,8 +246,7 @@ public abstract class BaseProperties {
 	 * exists for the key.
 	 */
 	protected Boolean booleanValue(String... keyParts) {
-		String value = value(keyParts);
-		return value == null ? null : Boolean.valueOf(value);
+		return value(Boolean::valueOf, keyParts);
 	}
 
 	/**
@@ -209,8 +254,21 @@ public abstract class BaseProperties {
 	 * value exists for the key.
 	 */
 	protected boolean booleanValue(boolean def, String... keyParts) {
-		Boolean value = booleanValue(keyParts);
-		return value == null ? def : value;
+		return value(def, Boolean::valueOf, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Boolean> booleanValues(String... keyParts) {
+		return booleanValues(null, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Boolean> booleanValues(List<Boolean> def, String... keyParts) {
+		return values(def, Boolean::valueOf, keyParts);
 	}
 
 	/**
@@ -218,8 +276,7 @@ public abstract class BaseProperties {
 	 * exists for the key.
 	 */
 	protected Character charValue(String... keyParts) {
-		String value = value(keyParts);
-		return value == null ? null : value.charAt(0);
+		return value(value -> value.charAt(0), keyParts);
 	}
 
 	/**
@@ -227,8 +284,21 @@ public abstract class BaseProperties {
 	 * value exists for the key.
 	 */
 	protected char charValue(char def, String... keyParts) {
-		Character value = charValue(keyParts);
-		return value == null ? def : value;
+		return value(def, value -> value.charAt(0), keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Character> charValues(String... keyParts) {
+		return charValues(null, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Character> charValues(List<Boolean> def, String... keyParts) {
+		return values(def, value -> value.charAt(0), keyParts);
 	}
 
 	/**
@@ -236,13 +306,7 @@ public abstract class BaseProperties {
 	 * for the key.
 	 */
 	protected Byte byteValue(String... keyParts) {
-		String value = value(keyParts);
-		try {
-			return value == null ? null : Byte.decode(value);
-		} catch (NumberFormatException e) {
-			throw BasicUtil.initCause(new NumberFormatException("Invalid format for " +
-				key(keyParts) + ": " + value), e);
-		}
+		return value(Byte::decode, keyParts);
 	}
 
 	/**
@@ -250,8 +314,21 @@ public abstract class BaseProperties {
 	 * value exists for the key.
 	 */
 	protected byte byteValue(byte def, String... keyParts) {
-		Byte value = byteValue(keyParts);
-		return value == null ? def : value;
+		return value(def, Byte::decode, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Byte> byteValues(String... keyParts) {
+		return byteValues(null, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Byte> byteValues(List<Byte> def, String... keyParts) {
+		return values(def, Byte::decode, keyParts);
 	}
 
 	/**
@@ -259,13 +336,7 @@ public abstract class BaseProperties {
 	 * exists for the key.
 	 */
 	protected Short shortValue(String... keyParts) {
-		String value = value(keyParts);
-		try {
-			return value == null ? null : Short.decode(value);
-		} catch (NumberFormatException e) {
-			throw BasicUtil.initCause(new NumberFormatException("Invalid format for " +
-				key(keyParts) + ": " + value), e);
-		}
+		return value(Short::decode, keyParts);
 	}
 
 	/**
@@ -273,8 +344,21 @@ public abstract class BaseProperties {
 	 * value exists for the key.
 	 */
 	protected short shortValue(short def, String... keyParts) {
-		Short value = shortValue(keyParts);
-		return value == null ? def : value;
+		return value(def, Short::decode, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Short> shortValues(String... keyParts) {
+		return shortValues(null, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Short> shortValues(List<Short> def, String... keyParts) {
+		return values(def, Short::decode, keyParts);
 	}
 
 	/**
@@ -282,13 +366,7 @@ public abstract class BaseProperties {
 	 * exists for the key.
 	 */
 	protected Integer intValue(String... keyParts) {
-		String value = value(keyParts);
-		try {
-			return value == null ? null : Integer.decode(value);
-		} catch (NumberFormatException e) {
-			throw BasicUtil.initCause(new NumberFormatException("Invalid format for " +
-				key(keyParts) + ": " + value), e);
-		}
+		return value(Integer::decode, keyParts);
 	}
 
 	/**
@@ -296,8 +374,21 @@ public abstract class BaseProperties {
 	 * value exists for the key.
 	 */
 	protected int intValue(int def, String... keyParts) {
-		Integer value = intValue(keyParts);
-		return value == null ? def : value;
+		return value(def, Integer::decode, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Integer> intValues(String... keyParts) {
+		return intValues(null, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Integer> intValues(List<Integer> def, String... keyParts) {
+		return values(def, Integer::decode, keyParts);
 	}
 
 	/**
@@ -305,13 +396,7 @@ public abstract class BaseProperties {
 	 * for the key.
 	 */
 	protected Long longValue(String... keyParts) {
-		String value = value(keyParts);
-		try {
-			return value == null ? null : Long.decode(value);
-		} catch (NumberFormatException e) {
-			throw BasicUtil.initCause(new NumberFormatException("Invalid format for " +
-				key(keyParts) + ": " + value), e);
-		}
+		return value(Long::decode, keyParts);
 	}
 
 	/**
@@ -319,8 +404,21 @@ public abstract class BaseProperties {
 	 * value exists for the key.
 	 */
 	protected long longValue(long def, String... keyParts) {
-		Long value = longValue(keyParts);
-		return value == null ? def : value;
+		return value(def, Long::decode, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Long> longValues(String... keyParts) {
+		return longValues(null, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Long> longValues(List<Long> def, String... keyParts) {
+		return values(def, Long::decode, keyParts);
 	}
 
 	/**
@@ -328,13 +426,7 @@ public abstract class BaseProperties {
 	 * exists for the key.
 	 */
 	protected Float floatValue(String... keyParts) {
-		String value = value(keyParts);
-		try {
-			return value == null ? null : Float.valueOf(value);
-		} catch (NumberFormatException e) {
-			throw BasicUtil.initCause(new NumberFormatException("Invalid format for " +
-				key(keyParts) + ": " + value), e);
-		}
+		return value(Float::valueOf, keyParts);
 	}
 
 	/**
@@ -342,8 +434,21 @@ public abstract class BaseProperties {
 	 * value exists for the key.
 	 */
 	protected float floatValue(float def, String... keyParts) {
-		Float value = floatValue(keyParts);
-		return value == null ? def : value;
+		return value(def, Float::valueOf, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Float> floatValues(String... keyParts) {
+		return floatValues(null, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Float> floatValues(List<Float> def, String... keyParts) {
+		return values(def, Float::valueOf, keyParts);
 	}
 
 	/**
@@ -351,13 +456,7 @@ public abstract class BaseProperties {
 	 * exists for the key.
 	 */
 	protected Double doubleValue(String... keyParts) {
-		String value = value(keyParts);
-		try {
-			return value == null ? null : Double.valueOf(value);
-		} catch (NumberFormatException e) {
-			throw BasicUtil.initCause(new NumberFormatException("Invalid format for " +
-				key(keyParts) + ": " + value), e);
-		}
+		return value(Double::valueOf, keyParts);
 	}
 
 	/**
@@ -365,8 +464,21 @@ public abstract class BaseProperties {
 	 * value exists for the key.
 	 */
 	protected double doubleValue(double def, String... keyParts) {
-		Double value = doubleValue(keyParts);
-		return value == null ? def : value;
+		return value(def, Double::valueOf, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Double> doubleValues(String... keyParts) {
+		return doubleValues(null, keyParts);
+	}
+
+	/**
+	 * Retrieves the list of property from prefixed, dot-separated key.
+	 */
+	protected List<Double> doubleValues(List<Double> def, String... keyParts) {
+		return values(def, Double::valueOf, keyParts);
 	}
 
 	/**
@@ -374,9 +486,7 @@ public abstract class BaseProperties {
 	 * for the key.
 	 */
 	protected File fileValue(String... keyParts) {
-		String name = value(keyParts);
-		if (name == null) return null;
-		return new File(name);
+		return fileValue(null, keyParts);
 	}
 
 	/**
@@ -384,23 +494,22 @@ public abstract class BaseProperties {
 	 * value exists for the key.
 	 */
 	protected File fileValue(File def, String... keyParts) {
-		File file = fileValue(keyParts);
-		return file == null ? def : file;
+		return value(def, File::new, keyParts);
 	}
 
 	/**
 	 * Returns all the integer ids that are children of the given key.
 	 */
-	protected Set<Integer> childIds(String...keyParts) {
+	protected Set<Integer> childIds(String... keyParts) {
 		String key = PathFactory.dot.path(keyParts).value;
-		return childKeyStream(key, CHILD_ID_PATTERN).map(Integer::parseInt).collect(
-			Collectors.toCollection(() -> new TreeSet<>()));
+		return childKeyStream(key, CHILD_ID_PATTERN).map(Integer::parseInt)
+			.collect(Collectors.toCollection(() -> new TreeSet<>()));
 	}
 
 	/**
 	 * Returns all the children of the given key.
 	 */
-	protected List<String> children(String...keyParts) {
+	protected List<String> children(String... keyParts) {
 		String key = PathFactory.dot.path(keyParts).value;
 		return toList(childKeyStream(key, CHILD_KEY_PATTERN));
 	}
@@ -408,16 +517,9 @@ public abstract class BaseProperties {
 	/**
 	 * Returns all the descendants of the given key.
 	 */
-	protected List<String> descendants(String...keyParts) {
+	protected List<String> descendants(String... keyParts) {
 		String key = PathFactory.dot.path(keyParts).value;
 		return toList(childKeyStream(key, DESCENDENT_KEY_PATTERN));
-	}
-
-	/**
-	 * Returns the full keys that start with prefix.
-	 */
-	protected Collection<String> keys() {
-		return toList(properties.keys().stream().filter(this::hasPrefix).distinct());
 	}
 
 	private Stream<String> childKeyStream(String key, String capturePattern) {
@@ -436,6 +538,24 @@ public abstract class BaseProperties {
 
 	private boolean hasPrefix(String key) {
 		return key.startsWith(prefix);
+	}
+
+	private <T> T parseValue(Class<T> cls, T def, String value, Function<String, T> constructor,
+		String... keyParts) {
+		try {
+			return value == null ? def : constructor.apply(value);
+		} catch (RuntimeException e) {
+			String typeName = cls == null ? "format" : cls.getSimpleName();
+			throw BasicUtil.initCause(new NumberFormatException(
+				"Invalid " + typeName + " for " + key(keyParts) + ": " + value), e);
+		}
+	}
+
+	private <T> List<T> parseValues(List<T> def, Function<String, T> constructor,
+		String... keyParts) {
+		List<String> stringValues = stringValues(keyParts);
+		if (stringValues == null) return def;
+		return toList(stringValues.stream().map(constructor));
 	}
 
 }

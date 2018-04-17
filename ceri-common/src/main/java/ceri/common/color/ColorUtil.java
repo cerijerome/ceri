@@ -120,7 +120,19 @@ public class ColorUtil {
 		if (name != null) return name;
 		X11Color x11 = X11Color.from(rgb);
 		if (x11 != null) return x11.name();
-		return "#" + StringUtil.toHex(rgb, 6);
+		return toHex(rgb);
+	}
+
+	public static String toHex(Color color) {
+		return toHex(color.getRGB());
+	}
+
+	public static String toHex(int r, int g, int b) {
+		return toHex(rgb(r, g, b));
+	}
+
+	public static String toHex(int rgb) {
+		return "#" + StringUtil.toHex(rgb & RGB_MASK, 6);
 	}
 
 	public static List<Color> fade(int rgbMin, int rgbMax, int steps) {

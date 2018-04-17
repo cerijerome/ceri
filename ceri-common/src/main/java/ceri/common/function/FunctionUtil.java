@@ -4,12 +4,18 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import ceri.common.util.BasicUtil;
 import ceri.common.util.EqualsUtil;
 
 public class FunctionUtil {
 	private static final int MAX_RECURSIONS_DEF = 20;
-	
+	private static final Consumer<Object> NULL_CONSUMER = t -> {};
+
 	private FunctionUtil() {}
+
+	public static <T> Consumer<T> nullConsumer() {
+		return BasicUtil.uncheckedCast(NULL_CONSUMER);
+	}
 
 	/**
 	 * Wraps a function that passes through null values.
@@ -17,28 +23,28 @@ public class FunctionUtil {
 	public static <T, R> Function<T, R> safe(Function<T, R> function) {
 		return t -> t == null ? null : function.apply(t);
 	}
-	
+
 	/**
 	 * Passes only non-null values to consumer.
 	 */
 	public static <T> void safeAccept(T t, Consumer<T> consumer) {
 		if (t != null) consumer.accept(t);
 	}
-	
+
 	/**
 	 * Passes only non-null values to consumer.
 	 */
 	public static <T> void safeAccept(T t, Predicate<T> predicate, Consumer<T> consumer) {
 		if (t != null && predicate.test(t)) consumer.accept(t);
 	}
-	
+
 	/**
 	 * Execute the function until no change, or the maximum number of recursions is met.
 	 */
 	public static <T> T recurse(T t, Function<T, T> fn) {
 		return recurse(t, fn, MAX_RECURSIONS_DEF);
 	}
-	
+
 	/**
 	 * Execute the function until no change, or the maximum number of recursions is met.
 	 */
@@ -51,7 +57,7 @@ public class FunctionUtil {
 		}
 		return t;
 	}
-	
+
 	/**
 	 * Executes for-each, allowing exception of given type to be thrown.
 	 */

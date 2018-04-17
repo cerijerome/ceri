@@ -149,6 +149,7 @@ public class ImmutableUtil {
 	public static <K, V> Map<K, List<V>> copyAsMapOfLists(
 		Map<? extends K, ? extends Collection<? extends V>> map,
 		Supplier<Map<K, List<V>>> mapSupplier, Supplier<List<V>> listSupplier) {
+		if (map == null) return null;
 		if (map.isEmpty()) return Collections.emptyMap();
 		return Collections.unmodifiableMap(CollectionUtil.transformValues( //
 			c -> list(c, listSupplier), mapSupplier, map));
@@ -171,6 +172,7 @@ public class ImmutableUtil {
 	 * Copies a collection of objects into an immutable ArrayList.
 	 */
 	public static <T> List<T> copyAsList(Collection<? extends T> list, Supplier<List<T>> supplier) {
+		if (list == null) return null;
 		if (list.isEmpty()) return Collections.emptyList();
 		List<T> copy = supplier.get();
 		copy.addAll(list);
