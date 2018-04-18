@@ -17,13 +17,17 @@
 		<ceri.version>${project.version}</ceri.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.release>10</jdk.release>
-		<jdk.version>1.8</jdk.version>
 		<maven.compiler.version>3.7.0</maven.compiler.version>
 		<maven.surefire.version>2.21.0</maven.surefire.version>
 		<junit.version>4.12</junit.version>
 		<mockito.version>2.18.0</mockito.version>
-		<log4j.version>2.9.0</log4j.version>
-		<jackson.version>2.9.0</jackson.version>
+		<log4j.version>2.11.0</log4j.version>
+		<jackson.version>2.9.5</jackson.version>
+        <httpcomponents.version>4.5.5</httpcomponents.version>
+		<jetty.version>9.4.9.v20180320</jetty.version>
+		<htmlunit.version>2.30</htmlunit.version>
+		<selenium.java.version>3.11.0</selenium.java.version>
+		<gson.version>2.8.2</gson.version>
 	</properties>
 
 	<!-- Dependencies included in all children -->
@@ -83,6 +87,46 @@
 				<artifactId>jackson-annotations</artifactId>
 				<version>${jackson.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>fluent-hc</artifactId>
+				<version>${httpcomponents.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-server</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-annotations</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>apache-jsp</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.websocket</groupId>
+				<artifactId>javax-websocket-server-impl</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.sourceforge.htmlunit</groupId>
+				<artifactId>htmlunit</artifactId>
+				<version>${htmlunit.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.seleniumhq.selenium</groupId>
+				<artifactId>selenium-java</artifactId>
+				<version>${selenium.java.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.code.gson</groupId>
+				<artifactId>gson</artifactId>
+				<version>${gson.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -93,10 +137,6 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven.compiler.version}</version>
 				<configuration>
-				    <!--
-					<source>${jdk.version}</source>
-					<target>${jdk.version}</target>
-					-->
 					<release>${jdk.release}</release>
 				</configuration>
 			</plugin>
