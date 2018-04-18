@@ -38,7 +38,7 @@ public class ImmutableUtil {
 	 * Creates an immutable iterator wrapper.
 	 */
 	public static <T> Iterator<T> iterator(final Iterator<T> iterator) {
-		return new Iterator<T>() {
+		return new Iterator<>() {
 			@Override
 			public boolean hasNext() {
 				return iterator.hasNext();
@@ -208,8 +208,16 @@ public class ImmutableUtil {
 	 */
 	@SafeVarargs
 	public static <T> List<T> asList(T... array) {
+		return asList(ArrayList::new, array);
+	}
+
+	/**
+	 * Copies an array of objects into an immutable list.
+	 */
+	@SafeVarargs
+	public static <T> List<T> asList(Supplier<List<T>> supplier, T... array) {
 		if (array.length == 0) return Collections.emptyList();
-		List<T> list = new ArrayList<>();
+		List<T> list = supplier.get();
 		Collections.addAll(list, array);
 		return Collections.unmodifiableList(list);
 	}
@@ -219,10 +227,51 @@ public class ImmutableUtil {
 	 */
 	@SafeVarargs
 	public static <T> Set<T> asSet(T... array) {
+		return asSet(LinkedHashSet::new, array);
+	}
+
+	/**
+	 * Copies an array of objects into an immutable set.
+	 */
+	@SafeVarargs
+	public static <T> Set<T> asSet(Supplier<Set<T>> supplier, T... array) {
 		if (array.length == 0) return Collections.emptySet();
-		Set<T> set = new LinkedHashSet<>();
+		Set<T> set = supplier.get();
 		Collections.addAll(set, array);
 		return Collections.unmodifiableSet(set);
+	}
+
+	/**
+	 * Creates an immutable map.
+	 */
+	public static <K, V> Map<K, V> asMap(K key, V value) {
+		return asMap(LinkedHashMap::new, key, value);
+	}
+
+	/**
+	 * Creates an immutable map.
+	 */
+	public static <K, V> Map<K, V> asMap(Supplier<Map<K, V>> supplier, K key, V value) {
+		Map<K, V> map = supplier.get();
+		map.put(key, value);
+		return Collections.unmodifiableMap(map);
+	}
+
+	/**
+	 * Creates an immutable map.
+	 */
+	public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1) {
+		return asMap(LinkedHashMap::new, k0, v0, k1, v1);
+	}
+
+	/**
+	 * Creates an immutable map.
+	 */
+	public static <K, V> Map<K, V> asMap(Supplier<Map<K, V>> supplier, K k0, V v0, K k1, V v1) {
+		Map<K, V> map = supplier.get();
+		map.put(k0, v0);
+		map.put(k1, v1);
+		return Collections.unmodifiableMap(map);
 	}
 
 	@SafeVarargs

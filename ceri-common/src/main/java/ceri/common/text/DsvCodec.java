@@ -69,6 +69,7 @@ public class DsvCodec {
 
 	public List<List<String>> decode(String document) {
 		if (document == null) return null;
+		if (document.isEmpty()) return Collections.emptyList();
 		return StreamUtil.toList(
 			NEW_LINE_REGEX.splitAsStream(document).map(this::decodeLine).filter(Objects::nonNull));
 	}

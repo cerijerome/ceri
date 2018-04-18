@@ -247,7 +247,7 @@ public class CollectionUtil {
 	 * Returns an iterator for an enumeration.
 	 */
 	public static final <T> Iterator<T> iterator(final Enumeration<? extends T> enumeration) {
-		return new Iterator<T>() {
+		return new Iterator<>() {
 			@Override
 			public final boolean hasNext() {
 				return enumeration.hasMoreElements();
@@ -270,7 +270,7 @@ public class CollectionUtil {
 	 */
 	public static <T> Iterator<T> reverseListIterator(List<T> list) {
 		final ListIterator<T> listIterator = list.listIterator(list.size());
-		return new Iterator<T>() {
+		return new Iterator<>() {
 			@Override
 			public boolean hasNext() {
 				return listIterator.hasPrevious();
@@ -292,7 +292,7 @@ public class CollectionUtil {
 	 * Returns a reverse iterable type useful in for-each loops.
 	 */
 	public static <T> Iterable<T> reverseIterableList(final List<T> list) {
-		return new Iterable<T>() {
+		return new Iterable<>() {
 			@Override
 			public Iterator<T> iterator() {
 				return reverseListIterator(list);
@@ -304,7 +304,7 @@ public class CollectionUtil {
 	 * Returns a reverse iterable type useful in for-each loops.
 	 */
 	public static <T> Iterable<T> reverseIterableQueue(final Deque<T> deque) {
-		return new Iterable<T>() {
+		return new Iterable<>() {
 			@Override
 			public Iterator<T> iterator() {
 				return deque.descendingIterator();
@@ -316,7 +316,7 @@ public class CollectionUtil {
 	 * Returns a reverse iterable type useful in for-each loops.
 	 */
 	public static <T> Iterable<T> reverseIterableSet(final NavigableSet<T> navSet) {
-		return new Iterable<T>() {
+		return new Iterable<>() {
 			@Override
 			public Iterator<T> iterator() {
 				return navSet.descendingIterator();
@@ -328,7 +328,7 @@ public class CollectionUtil {
 	 * Map wrapper that returns a default value if key is not in map or its value is null.
 	 */
 	public static <K, V> Map<K, V> defaultValueMap(Map<K, V> map, final V def) {
-		return new DelegatingMap<K, V>(map) {
+		return new DelegatingMap<>(map) {
 			@Override
 			public V get(Object key) {
 				V value = super.get(key);

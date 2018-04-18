@@ -297,7 +297,7 @@ public abstract class BaseProperties {
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Character> charValues(List<Boolean> def, String... keyParts) {
+	protected List<Character> charValues(List<Character> def, String... keyParts) {
 		return values(def, value -> value.charAt(0), keyParts);
 	}
 

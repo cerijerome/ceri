@@ -83,7 +83,8 @@ public class Scorers {
 	 * Creates a scorer by multiplying scorer values together.
 	 */
 	@SafeVarargs
-	public static <T> Scorer<T> multiply(Scorer<? super T>... scorers) {
+	//public static <T> Scorer<T> multiply(Scorer<? super T>... scorers) {
+	public static <T> Scorer<T> multiply(Scorer<T>... scorers) {
 		return multiply(Arrays.asList(scorers));
 	}
 
@@ -99,7 +100,7 @@ public class Scorers {
 	 * Creates a scorer by adding scorer values together.
 	 */
 	@SafeVarargs
-	public static <T> Scorer<T> sum(Scorer<? super T>... scorers) {
+	public static <T> Scorer<T> sum(Scorer<T>... scorers) {
 		return sum(Arrays.asList(scorers));
 	}
 

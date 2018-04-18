@@ -20,7 +20,6 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
-import java.math.BigDecimal;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -135,9 +134,8 @@ public class IoUtilTest {
 
 	@Test
 	public void testDeleteAll() throws IOException {
-		try (FileTestHelper deleteHelper =
-			FileTestHelper.builder(helper.root).file("x/x/x.txt", "").dir("y/y").file("z.txt", "")
-				.build()) {
+		try (FileTestHelper deleteHelper = FileTestHelper.builder(helper.root).file("x/x/x.txt", "")
+			.dir("y/y").file("z.txt", "").build()) {
 			assertTrue(deleteHelper.file("x/x/x.txt").exists());
 			assertTrue(deleteHelper.file("y/y").exists());
 			assertTrue(deleteHelper.file("z.txt").exists());
@@ -224,12 +222,20 @@ public class IoUtilTest {
 	}
 
 	@Test
+	public void testListResourcesFromModule() throws Exception {
+		List<String> resources = IoUtil.listResources(String.class);
+		assertTrue(resources.contains("String.class"));
+		assertTrue(resources.contains("Object.class"));
+		resources = IoUtil.listResources(String.class, "ref", Pattern.compile("Cleaner\\..*"));
+		assertCollection(resources, "Cleaner.class");
+	}
+
+	@Test
 	public void testListResourcesFromJar() throws Exception {
-		List<String> resources = IoUtil.listResources(BigDecimal.class);
-		assertTrue(resources.contains("BigDecimal.class"));
-		assertTrue(resources.contains("BigInteger.class"));
-		resources = IoUtil.listResources(BigDecimal.class, "", Pattern.compile("BigDecimal\\..*"));
-		assertCollection(resources, "BigDecimal.class");
+		List<String> resources = ResourceLister.of(Test.class).list();
+		assertTrue(resources.contains("Test.class"));
+		resources = ResourceLister.of(Test.class, "runner", "Run.*").list();
+		assertCollection(resources, "Runner.class", "RunWith.class");
 	}
 
 	@Test
@@ -244,7 +250,7 @@ public class IoUtilTest {
 		String path = IoUtil.getResourcePath(getClass());
 		assertThat(path, matchesRegex("file:.*" + getClass().getPackage().getName() + "/"));
 		path = IoUtil.getResourcePath(String.class);
-		assertThat(path, matchesRegex("jar:file:.*" + String.class.getPackage().getName() + "/"));
+		assertThat(path, matchesRegex("jrt:.*" + String.class.getPackage().getName() + "/"));
 	}
 
 	@Test
@@ -257,8 +263,8 @@ public class IoUtilTest {
 		assertThat(s, is("a=b"));
 		s = IoUtil.getClassResourceAsString(getClass(), "properties");
 		assertThat(s, is("a=b"));
-		assertException(MissingResourceException.class, () -> IoUtil
-			.getResource(getClass(), "test"));
+		assertException(MissingResourceException.class,
+			() -> IoUtil.getResource(getClass(), "test"));
 		assertException(() -> IoUtil.getResource(getClass(), null));
 	}
 

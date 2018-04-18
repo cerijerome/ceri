@@ -95,9 +95,8 @@ public class FiltersTest {
 	public void testAll() {
 		assertTrue(Filters.all().filter(true));
 		Filter<Double> filter1 = Filters.eq(1.0);
-		Filter<Comparable<?>> filter2 = Filters.not(Filters.eq(null));
-		Collection<Filter<? super Double>> filters =
-			Arrays.<Filter<? super Double>>asList(filter1, filter2);
+		Filter<Double> filter2 = Filters.not(Filters.eq(null));
+		Collection<Filter<Double>> filters = Arrays.asList(filter1, filter2);
 		Filter<Double> fAll0 = Filters.all(filters);
 		Filter<Double> fAll1 = Filters.all(filter1, filter2);
 		assertTrue(fAll0.filter(1.0));
@@ -112,9 +111,8 @@ public class FiltersTest {
 	public void testAny() {
 		assertTrue(Filters.any().filter(false));
 		Filter<Double> filter1 = Filters.eq(1.0);
-		Filter<Comparable<?>> filter2 = Filters.eq(null);
-		Collection<Filter<? super Double>> filters =
-			Arrays.<Filter<? super Double>>asList(filter1, filter2);
+		Filter<Double> filter2 = Filters.eq(null);
+		Collection<Filter<Double>> filters = Arrays.asList(filter1, filter2);
 		Filter<Double> fAll0 = Filters.any(filters);
 		Filter<Double> fAll1 = Filters.any(filter1, filter2);
 		assertTrue(fAll0.filter(1.0));

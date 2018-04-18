@@ -370,7 +370,7 @@ public class IoUtil {
 	 * file.
 	 */
 	public static List<String> listResources(Class<?> cls) throws IOException {
-		return new ResourceLister(cls).list();
+		return ResourceLister.of(cls).list();
 	}
 
 	/**
@@ -379,7 +379,7 @@ public class IoUtil {
 	 */
 	public static List<String> listResources(Class<?> cls, String subDir, Pattern pattern)
 		throws IOException {
-		return new ResourceLister(cls, subDir, pattern).list();
+		return ResourceLister.of(cls, subDir, pattern).list();
 	}
 
 	/**

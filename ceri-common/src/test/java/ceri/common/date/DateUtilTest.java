@@ -18,7 +18,7 @@ public class DateUtilTest {
 	public void testFormatIso() {
 		assertThat(DateUtil.formatIso(0), is("1970-01-01T00:00:00Z"));
 		assertThat(DateUtil.formatIso(-1000), is("1969-12-31T23:59:59Z"));
-		assertThat(DateUtil.formatIso(-999), is("1970-01-01T00:00:00Z")); // jdk bug?
+		assertThat(DateUtil.formatIso(-999), is("1969-12-31T23:59:59Z"));
 		assertThat(DateUtil.formatIso(999), is("1970-01-01T00:00:00Z"));
 		assertThat(DateUtil.formatIso(1000), is("1970-01-01T00:00:01Z"));
 	}

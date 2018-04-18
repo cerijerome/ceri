@@ -1,7 +1,7 @@
 package ceri.common.comparator;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import java.util.Collections;
 import java.util.Comparator;
 import org.junit.Test;
@@ -22,14 +22,14 @@ public class ComparatorSequenceBehavior {
 		}
 	}
 
-	private static final Comparator<A> aIComparator = new Comparator<A>() {
+	private static final Comparator<A> aIComparator = new Comparator<>() {
 		@Override
 		public int compare(A a1, A a2) {
 			return Comparators.INTEGER.compare(a1.i, a2.i);
 		}
 	};
 
-	private static final Comparator<A> aJComparator = new Comparator<A>() {
+	private static final Comparator<A> aJComparator = new Comparator<>() {
 		@Override
 		public int compare(A a1, A a2) {
 			return Comparators.INTEGER.compare(a1.j, a2.j);

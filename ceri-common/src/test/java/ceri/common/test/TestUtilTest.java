@@ -257,9 +257,9 @@ public class TestUtilTest {
 
 	@Test
 	public void testIsObject() {
-		assertThat(new Integer(1), isObject(1));
-		assertThat(1, isObject(new Integer(1)));
-		assertThat(new Integer(1), not(isObject(1L)));
+		assertThat(Integer.valueOf(1), isObject(1));
+		assertThat(1, isObject(Integer.valueOf(1)));
+		assertThat(Integer.valueOf(1), not(isObject(1L)));
 	}
 
 	@Test

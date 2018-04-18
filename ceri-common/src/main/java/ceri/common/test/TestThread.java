@@ -24,7 +24,7 @@ public abstract class TestThread<T extends Throwable> {
 	 * Creates the thread. Call start to execute.
 	 */
 	public static <T extends Exception> TestThread<T> create(ExceptionRunnable<T> runnable) {
-		return new TestThread<T>() {
+		return new TestThread<>() {
 			@Override
 			protected void run() throws T {
 				runnable.run();

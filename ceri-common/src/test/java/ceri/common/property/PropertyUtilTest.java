@@ -1,5 +1,7 @@
 package ceri.common.property;
 
+import static ceri.common.collection.StreamUtil.toList;
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
@@ -7,16 +9,16 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Properties;
 import org.junit.Test;
 import org.mockito.Mockito;
-import ceri.common.io.IoUtil;
 import ceri.common.test.FileTestHelper;
 
 public class PropertyUtilTest {
@@ -72,13 +74,9 @@ public class PropertyUtilTest {
 			properties.put("a.b.c", "abc");
 			File file = helper.file("test.properties");
 			PropertyUtil.store(properties, file);
-			String s = IoUtil.getContentString(file);
-			BufferedReader r = new BufferedReader(new StringReader(s));
-			String line;
-			while ((line = r.readLine()).startsWith("#")) {}
-			// Order doesn't matter
-			assertThat(line, is("a.b.c=abc"));
-			assertThat(r.readLine(), is("a.b=ab"));
+			List<String> lines =
+				toList(Files.lines(Paths.get(file.toURI())).filter(line -> !line.startsWith("#")));
+			assertCollection(lines, "a.b.c=abc", "a.b=ab");
 		}
 	}
 
@@ -104,7 +102,7 @@ public class PropertyUtilTest {
 			assertThat(properties.getProperty("b"), is("c"));
 		}
 	}
-	
+
 	@Test
 	public void testLoadLocators() throws IOException {
 		Locator abc = Locator.of(getClass(), "property-test-a-b-c");

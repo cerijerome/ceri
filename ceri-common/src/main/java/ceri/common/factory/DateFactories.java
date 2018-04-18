@@ -13,14 +13,14 @@ public class DateFactories {
 
 	private DateFactories() {}
 
-	public static final Factory<Date, Long> FROM_LONG = new Factory.Base<Date, Long>() {
+	public static final Factory<Date, Long> FROM_LONG = new Factory.Base<>() {
 		@Override
 		protected Date createNonNull(Long value) {
 			return new Date(value);
 		}
 	};
 
-	public static final Factory<Long, Date> TO_LONG = new Factory.Base<Long, Date>() {
+	public static final Factory<Long, Date> TO_LONG = new Factory.Base<>() {
 		@Override
 		protected Long createNonNull(Date value) {
 			return value.getTime();
@@ -30,8 +30,8 @@ public class DateFactories {
 	/**
 	 * Converts date to string format yyyy-MM-dd. Factory is thread-safe.
 	 */
-	public static final Factory<String, Date> TO_STRING = Factories.threadSafe(toString(
-		DEFAULT_DATE_FORMAT, null));
+	public static final Factory<String, Date> TO_STRING =
+		Factories.threadSafe(toString(DEFAULT_DATE_FORMAT, null));
 
 	/**
 	 * Converts date to given string date format. Factory is not thread-safe due to internal usage
@@ -48,7 +48,7 @@ public class DateFactories {
 	public static Factory<String, Date> toString(String format, TimeZone timeZone) {
 		final SimpleDateFormat dateFormat = new SimpleDateFormat(format);
 		if (timeZone != null) dateFormat.setTimeZone(timeZone);
-		return new Factory.Base<String, Date>() {
+		return new Factory.Base<>() {
 			@Override
 			protected String createNonNull(Date from) {
 				return dateFormat.format(from);
@@ -60,8 +60,8 @@ public class DateFactories {
 	 * Converts string in format yyyy-MM-dd to date. Failed conversions throw runtime
 	 * FactoryException.
 	 */
-	public static final Factory<Date, String> FROM_STRING = Factories.threadSafe(fromString(
-		DEFAULT_DATE_FORMAT, null));
+	public static final Factory<Date, String> FROM_STRING =
+		Factories.threadSafe(fromString(DEFAULT_DATE_FORMAT, null));
 
 	/**
 	 * Converts string in given date format to date. Factory is not thread-safe due to internal
@@ -79,7 +79,7 @@ public class DateFactories {
 		final SimpleDateFormat dateFormat = new SimpleDateFormat(format);
 		if (timeZone != null) dateFormat.setTimeZone(timeZone);
 		dateFormat.setLenient(true);
-		return new Factory.Base<Date, String>() {
+		return new Factory.Base<>() {
 			@Override
 			protected Date createNonNull(String from) {
 				try {

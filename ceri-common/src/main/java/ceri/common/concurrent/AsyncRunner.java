@@ -15,17 +15,17 @@ public abstract class AsyncRunner<T extends Exception> {
 	public static AsyncRunner<RuntimeException> create(ExceptionRunnable<?> runnable) {
 		return create(RuntimeException.class, runnable);
 	}
-	
+
 	public static <T extends Exception> AsyncRunner<T> create(Class<T> errorClass,
 		ExceptionRunnable<?> runnable) {
-		return new AsyncRunner<T>(errorClass) {
+		return new AsyncRunner<>(errorClass) {
 			@Override
 			protected void run() throws Exception {
 				runnable.run();
 			}
 		};
 	}
-	
+
 	AsyncRunner(Class<T> errorClass) {
 		this.errorClass = errorClass;
 		thread = new Thread(() -> {

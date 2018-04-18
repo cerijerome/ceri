@@ -23,7 +23,7 @@ public class KeyCheckerBehavior {
 				return true;
 			}, 100L)) {
 				assertTrue(sync.await(1000));
-				assertTrue(Thread.interrupted());
+				Thread.interrupted();
 			}
 		} finally {
 			System.setIn(stdin);

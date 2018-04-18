@@ -25,7 +25,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 	}
 
 	public static ArrayIterator<Boolean> createBoolean(final boolean... array) {
-		return new ArrayIterator<Boolean>(array) {
+		return new ArrayIterator<>(array) {
 			@Override
 			protected Boolean get(int i) {
 				return Boolean.valueOf(array[i]);
@@ -34,7 +34,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 	}
 
 	public static ArrayIterator<Byte> createByte(final byte... array) {
-		return new ArrayIterator<Byte>(array) {
+		return new ArrayIterator<>(array) {
 			@Override
 			protected Byte get(int i) {
 				return Byte.valueOf(array[i]);
@@ -43,7 +43,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 	}
 
 	public static ArrayIterator<Character> createChar(final char... array) {
-		return new ArrayIterator<Character>(array) {
+		return new ArrayIterator<>(array) {
 			@Override
 			protected Character get(int i) {
 				return Character.valueOf(array[i]);
@@ -52,7 +52,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 	}
 
 	public static ArrayIterator<Short> createShort(final short... array) {
-		return new ArrayIterator<Short>(array) {
+		return new ArrayIterator<>(array) {
 			@Override
 			protected Short get(int i) {
 				return Short.valueOf(array[i]);
@@ -61,7 +61,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 	}
 
 	public static ArrayIterator<Integer> createInt(final int... array) {
-		return new ArrayIterator<Integer>(array) {
+		return new ArrayIterator<>(array) {
 			@Override
 			protected Integer get(int i) {
 				return Integer.valueOf(array[i]);
@@ -70,7 +70,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 	}
 
 	public static ArrayIterator<Long> createLong(final long... array) {
-		return new ArrayIterator<Long>(array) {
+		return new ArrayIterator<>(array) {
 			@Override
 			protected Long get(int i) {
 				return Long.valueOf(array[i]);
@@ -79,7 +79,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 	}
 
 	public static ArrayIterator<Float> createFloat(final float... array) {
-		return new ArrayIterator<Float>(array) {
+		return new ArrayIterator<>(array) {
 			@Override
 			protected Float get(int i) {
 				return Float.valueOf(array[i]);
@@ -88,7 +88,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 	}
 
 	public static ArrayIterator<Double> createDouble(final double... array) {
-		return new ArrayIterator<Double>(array) {
+		return new ArrayIterator<>(array) {
 			@Override
 			protected Double get(int i) {
 				return Double.valueOf(array[i]);

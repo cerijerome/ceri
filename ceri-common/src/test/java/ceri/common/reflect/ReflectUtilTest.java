@@ -54,7 +54,7 @@ public class ReflectUtilTest {
 	public void testInstanceOfAny() {
 		assertFalse(ReflectUtil.instanceOfAny(null));
 		assertFalse(ReflectUtil.instanceOfAny(Object.class));
-		Object obj = new Long(Long.MAX_VALUE);
+		Object obj = Long.valueOf(Long.MAX_VALUE);
 		assertTrue(ReflectUtil.instanceOfAny(obj, Long.class));
 		assertTrue(ReflectUtil.instanceOfAny(obj, Number.class));
 		assertTrue(ReflectUtil.instanceOfAny(obj, Object.class));

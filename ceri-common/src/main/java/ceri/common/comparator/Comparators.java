@@ -88,7 +88,8 @@ public class Comparators {
 	 * Create a comparator the checks comparators in sequence.
 	 */
 	@SafeVarargs
-	public static <T> Comparator<T> sequence(Comparator<? super T>... comparators) {
+	//public static <T> Comparator<T> sequence(Comparator<? super T>... comparators) {
+	public static <T> Comparator<T> sequence(Comparator<T>... comparators) {
 		return sequence(Arrays.asList(comparators));
 	}
 
@@ -96,7 +97,8 @@ public class Comparators {
 	 * Create a comparator the checks comparators in sequence.
 	 */
 	public static <T> Comparator<T>
-		sequence(Collection<? extends Comparator<? super T>> comparators) {
+		sequence(Collection<? extends Comparator<T>> comparators) {
+		//sequence(Collection<? extends Comparator<? super T>> comparators) {
 		return ComparatorSequence.<T>builder().add(comparators).build();
 	}
 

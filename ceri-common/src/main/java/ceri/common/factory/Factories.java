@@ -29,7 +29,7 @@ public class Factories {
 		}
 	}
 
-	private static final Factory<Object, Object> ASSIGN = new Factory<Object, Object>() {
+	private static final Factory<Object, Object> ASSIGN = new Factory<>() {
 		@Override
 		public Object create(Object from) {
 			return from;
@@ -48,7 +48,7 @@ public class Factories {
 	 * that don't want to handle nulls.
 	 */
 	public static <T, F> Factory<T, F> nul(final Factory<T, F> factory) {
-		return new Factory<T, F>() {
+		return new Factory<>() {
 			@Override
 			public T create(F from) {
 				if (from == null) return null;
@@ -61,8 +61,8 @@ public class Factories {
 	 * A wrapper that synchronizes over itself.
 	 */
 	public static <T, F> Factory<T, F>
-	threadSafe(final Factory<? extends T, ? super F> constructor) {
-		return new Factory<T, F>() {
+		threadSafe(final Factory<? extends T, ? super F> constructor) {
+		return new Factory<>() {
 			@Override
 			public synchronized T create(F from) {
 				return constructor.create(from);
@@ -76,7 +76,7 @@ public class Factories {
 	 */
 	public static <T, F> Factory<T[], F[]> array(final Factory<T, F> constructor,
 		final Class<T> toClass) {
-		return new Factory.Base<T[], F[]>() {
+		return new Factory.Base<>() {
 			@Override
 			protected T[] createNonNull(F[] from) {
 				T[] toArray = ArrayUtil.create(toClass, from.length);
@@ -92,7 +92,7 @@ public class Factories {
 	 * factory exceptions are thrown unmodified.
 	 */
 	public static <T, F> Factory<List<T>, Iterable<F>> list(final Factory<T, F> constructor) {
-		return new Factory.Base<List<T>, Iterable<F>>() {
+		return new Factory.Base<>() {
 			@Override
 			protected List<T> createNonNull(Iterable<F> from) {
 				List<T> list = new ArrayList<>();
@@ -110,7 +110,7 @@ public class Factories {
 	 * exceptions are thrown unmodified.
 	 */
 	public static <T, F> Factory<Set<T>, Iterable<F>> set(final Factory<T, F> constructor) {
-		return new Factory.Base<Set<T>, Iterable<F>>() {
+		return new Factory.Base<>() {
 			@Override
 			protected Set<T> createNonNull(Iterable<F> from) {
 				Set<T> set = new HashSet<>();

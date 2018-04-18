@@ -13,7 +13,7 @@ import java.util.Set;
 import org.junit.Test;
 
 public class FactoriesTest {
-	static final Factory<Integer, String> testFactory = new Factory<Integer, String>() {
+	static final Factory<Integer, String> testFactory = new Factory<>() {
 		@Override
 		public Integer create(String from) {
 			throw new UnsupportedOperationException();
@@ -44,7 +44,9 @@ public class FactoriesTest {
 	@Test
 	public void testCreate() {
 		assertThat(Factories.create(StringFactories.TO_INTEGER, "123"), is(123));
-		final Factory<Integer, String> badFactory = from -> { throw new FactoryException(""); };
+		final Factory<Integer, String> badFactory = from -> {
+			throw new FactoryException("");
+		};
 		assertException(FactoryException.class, () -> Factories.create(badFactory, "1"));
 		assertException(FactoryException.class, () -> Factories.create(testFactory, ""));
 	}
@@ -73,8 +75,8 @@ public class FactoriesTest {
 		final Factory<Set<Long>, Iterable<String>> f = Factories.set(StringFactories.TO_LONG);
 		assertNull(f.create(null));
 		assertThat(f.create(Collections.<String>emptySet()), is(Collections.<Long>emptySet()));
-		assertThat(f.create(Arrays.asList("0", "1")), is((Set<Long>) new HashSet<>(Arrays.asList(
-			0L, 1L))));
+		assertThat(f.create(Arrays.asList("0", "1")),
+			is((Set<Long>) new HashSet<>(Arrays.asList(0L, 1L))));
 		assertException(NumberFormatException.class, () -> f.create(Collections.singleton("")));
 	}
 
