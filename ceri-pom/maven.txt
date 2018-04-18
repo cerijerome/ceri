@@ -1,0 +1,35 @@
+Maven notes
+===========
+
+Installation
+------------
+- Download and unpack in directory, e.g. ~/apache-maven-3.5.3
+- Set up env:
+  export M2_HOME = "~/apache-maven-3.5.3" (~/.bash_profile)
+  export PATH="$PATH:$M2_HOME" (~/.bash_profile)
+- Make sure JAVA_HOME is set to correct location
+- Configure eclipse:
+  Preferences.../Maven/Installations
+
+Parent Pom
+----------
+- Must be common group id
+- Use to set common properties, plugins, dependencies
+- Use to configure optional plugins, dependencies
+
+Build Commands
+--------------
+- Clean build:
+  mvn clean install
+- Skip tests:
+  mvn install -DskipTests
+- Skip compiling tests:
+  mvn install -Dmaven.test.skip=true
+
+Troubleshooting Commands
+------------------------
+- Show pom with all inherited settings:
+  mvn help:effective-pom
+- Show dependency tree:
+  mvn dependency:tree
+  mvn dependency:tree -Dverbose -Dincludes=commons-collections
