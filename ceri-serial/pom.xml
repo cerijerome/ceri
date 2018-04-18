@@ -2,71 +2,37 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>ceri</groupId>
 	<artifactId>ceri-serial</artifactId>
-	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>${project.artifactId}</name>
-	<url>https://github.com/cerijerome/ceri/tree/master/${project.artifactId}</url>
+	<url>https://github.com/cerijerome/${project.groupId}/tree/master/${project.artifactId}</url>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jdk.version>1.8</jdk.version>
-        <maven.compiler.version>3.3</maven.compiler.version>
-        <maven.surefire.version>2.18.1</maven.surefire.version>
-        <junit.version>4.12</junit.version>
-        <mockito.version>2.9.0</mockito.version>
-		<rxtx.version>1.2</rxtx.version>
-        <jssc.version>2.8.0</jssc.version>
-	</properties>
-
+    <parent>
+        <groupId>ceri</groupId>
+        <artifactId>ceri-pom</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../ceri-pom</relativePath>
+    </parent>
+    
 	<dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
 		<dependency>
 			<groupId>ceri</groupId>
 			<artifactId>ceri-log</artifactId>
 			<version>${project.version}</version>
 		</dependency>
         <dependency>
-            <groupId>ceri-priv</groupId>
+            <groupId>ceri</groupId>
             <artifactId>ceri-process</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.scream3r</groupId>
             <artifactId>jssc</artifactId>
-            <version>${jssc.version}</version>
         </dependency>
         <dependency>
             <groupId>com.jamierf</groupId>
             <artifactId>rxtx</artifactId>
-            <version>${rxtx.version}</version>
         </dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven.compiler.version}</version>
-				<configuration>
-					<source>${jdk.version}</source>
-					<target>${jdk.version}</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 
 </project>
