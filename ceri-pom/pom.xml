@@ -93,9 +93,11 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven.compiler.version}</version>
 				<configuration>
+				    <!--
 					<source>${jdk.version}</source>
 					<target>${jdk.version}</target>
-					<!-- release>${jdk.release}</release -->
+					-->
+					<release>${jdk.release}</release>
 				</configuration>
 			</plugin>
 			<plugin>
