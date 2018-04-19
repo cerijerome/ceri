@@ -133,7 +133,6 @@ import ceri.common.test.BinaryLogOutputStreamBehavior;
 import ceri.common.test.BinaryPrinterBehavior;
 import ceri.common.test.DebuggerBehavior;
 import ceri.common.test.RegexMatcherBehavior;
-import ceri.common.test.SourceManipulatorBehavior;
 import ceri.common.test.TestPrinterBehavior;
 import ceri.common.test.TestRunAdapterBehavior;
 import ceri.common.test.TestRunPrinterBehavior;
@@ -328,7 +327,6 @@ import ceri.common.xml.XmlUtilTest;
 	BinaryPrinterBehavior.class, //
 	DebuggerBehavior.class, //
 	RegexMatcherBehavior.class, //
-	SourceManipulatorBehavior.class, //
 	TestPrinterBehavior.class, //
 	TestRunAdapterBehavior.class, //
 	TestRunPrinterBehavior.class, //
