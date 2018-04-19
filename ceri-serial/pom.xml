@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -7,32 +8,32 @@
 	<name>${project.artifactId}</name>
 	<url>https://github.com/cerijerome/${project.groupId}/tree/master/${project.artifactId}</url>
 
-    <parent>
-        <groupId>ceri</groupId>
-        <artifactId>ceri-pom</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../ceri-pom</relativePath>
-    </parent>
-    
+	<parent>
+		<groupId>ceri</groupId>
+		<artifactId>ceri-pom</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../ceri-pom</relativePath>
+	</parent>
+
 	<dependencies>
 		<dependency>
 			<groupId>ceri</groupId>
 			<artifactId>ceri-log</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-        <dependency>
-            <groupId>ceri</groupId>
-            <artifactId>ceri-process</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.scream3r</groupId>
-            <artifactId>jssc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jamierf</groupId>
-            <artifactId>rxtx</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>ceri</groupId>
+			<artifactId>ceri-process</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.scream3r</groupId>
+			<artifactId>jssc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.qbang.rxtx</groupId>
+			<artifactId>rxtx</artifactId>
+		</dependency>
 	</dependencies>
 
 </project>

@@ -1,9 +1,9 @@
 package ceri.serial.rxtx;
 
-import gnu.io.CommPortIdentifier;
 import java.util.Enumeration;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.util.BasicUtil;
+import gnu.io.CommPortIdentifier;
 
 
 public class PortLister {

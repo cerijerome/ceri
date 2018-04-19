@@ -1,0 +1,16 @@
+#!/bin/bash
+#------------------------------------------------------------------------------
+# Installs RXTXComm.jar version into local maven repository.
+#------------------------------------------------------------------------------
+set -e
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+VER="${1:-2.2pre2}"
+SRC="$DIR/$VER/mac/librxtxSerial.jnilib"
+DST="/Library/Java/Extensions"
+
+echo "Installing rxtx $VER jni"  
+echo "Copying $SRC to $DST"  
+sudo cp "$SRC" "$DST"
+

@@ -1,5 +1,7 @@
 package javax.comm;
 
+import java.io.FileDescriptor;
+
 public class CommPortIdentifier {
 	private final gnu.io.CommPortIdentifier identifier;
 
@@ -30,4 +32,28 @@ public class CommPortIdentifier {
 		}
 	}
 
+	public String getCurrentOwner() {
+		return identifier.getCurrentOwner();
+	}
+
+	public String getName() {
+		return identifier.getName();
+	}
+
+	public int getPortType() {
+		return identifier.getPortType();
+	}
+
+	public boolean isCurrentlyOwned() {
+		return identifier.isCurrentlyOwned();
+	}
+
+	public gnu.io.CommPort open(FileDescriptor arg0) throws UnsupportedCommOperationException {
+		try {
+		return identifier.open(arg0);
+		} catch (gnu.io.UnsupportedCommOperationException e) {
+			throw new UnsupportedCommOperationException(e);
+		}
+	}
+	
 }
