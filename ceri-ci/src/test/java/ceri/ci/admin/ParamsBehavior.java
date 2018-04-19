@@ -29,7 +29,7 @@ public class ParamsBehavior {
 	public void shouldParseEventsFromRequestParameter() {
 		assertTrue(params.buildEvents().isEmpty());
 		@SuppressWarnings("serial")
-		Collection<BuildEvent> events = new ArrayList<BuildEvent>() {};
+		Collection<BuildEvent> events = new ArrayList<>() {};
 		when(request.getParameter("events")).thenReturn("test");
 		when(serializer.toBuildEvents("test")).thenReturn(events);
 		assertThat(params.buildEvents(), is(events));

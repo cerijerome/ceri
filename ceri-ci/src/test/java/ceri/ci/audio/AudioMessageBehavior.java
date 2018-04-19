@@ -1,7 +1,7 @@
 package ceri.ci.audio;
 
 import static ceri.common.test.TestUtil.assertException;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

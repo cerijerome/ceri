@@ -6,9 +6,9 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class ResourceMapBehavior {
@@ -44,9 +44,9 @@ public class ResourceMapBehavior {
 
 	@Test
 	public void shouldFindResourcesFromJar() throws Exception {
-		ResourceMap map = new ResourceMap(BigDecimal.class, "");
-		assertTrue(map.keys().contains("BigDecimal"));
-		assertTrue(map.keys().contains("BigInteger"));
+		ResourceMap map = new ResourceMap(Assert.class, "");
+		assertTrue(map.keys().contains("Assert"));
+		assertTrue(map.keys().contains("Before"));
 	}
 
 }

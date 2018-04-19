@@ -4,7 +4,7 @@ import static ceri.ci.email.EmailTestUtil.messageBuilder;
 import static ceri.common.test.TestUtil.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import java.io.IOException;
 import java.util.Date;

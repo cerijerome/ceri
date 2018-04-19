@@ -3,7 +3,7 @@ package ceri.common.io;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertIterable;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

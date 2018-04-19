@@ -1,9 +1,9 @@
 package ceri.ci.email;
 
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,7 +26,6 @@ public class EmailContainerBehavior {
 	@Mock private EmailEventParser parser1;
 	private Properties properties;
 
-	@SuppressWarnings("unchecked")
 	@Before
 	public void init() {
 		MockitoAnnotations.initMocks(this);

@@ -2,46 +2,25 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>ceri</groupId>
 	<artifactId>ceri-ci</artifactId>
-	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>${project.artifactId}</name>
 	<url>https://github.com/cerijerome/${project.groupId}/tree/master/${project.artifactId}</url>
 
+   <parent>
+        <groupId>ceri</groupId>
+        <artifactId>ceri-pom</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../ceri-pom</relativePath>
+    </parent>
+    
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jdk.version>1.8</jdk.version>
-		<maven.compiler.version>3.3</maven.compiler.version>
-		<maven.surefire.version>2.18.1</maven.surefire.version>
-		<junit.version>4.12</junit.version>
-		<mockito.version>1.10.19</mockito.version>
-		<log4j.version>2.3</log4j.version>
-		<jackson.version>2.6.0</jackson.version>
 		<servlet-api.version>3.1.0</servlet-api.version>
-		<gson.version>2.3.1</gson.version>
 		<mail-api.version>1.5.4</mail-api.version>
 		<twilio.sdk.version>4.4.4</twilio.sdk.version>
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<version>${mockito.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>ceri</groupId>
-			<artifactId>ceri-log</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>ceri</groupId>
 			<artifactId>ceri-x10</artifactId>
@@ -55,58 +34,27 @@
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-web</artifactId>
-			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
-			<version>${servlet-api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.mail</groupId>
 			<artifactId>javax.mail-api</artifactId>
-			<version>${mail-api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.mail</groupId>
 			<artifactId>javax.mail</artifactId>
-			<version>${mail-api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>${gson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.twilio.sdk</groupId>
 			<artifactId>twilio-java-sdk</artifactId>
-			<version>${twilio.sdk.version}</version>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven.compiler.version}</version>
-				<configuration>
-					<source>${jdk.version}</source>
-					<target>${jdk.version}</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven.surefire.version}</version>
-				<configuration>
-					<includes>
-						<include>**/*Test.java</include>
-						<include>**/*Behavior.java</include>
-					</includes>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 
 </project>

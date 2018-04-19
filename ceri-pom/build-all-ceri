@@ -1,0 +1,31 @@
+#!/bin/bash
+#------------------------------------------------------------------------------
+# Runs mvn clean install for all projects in the group
+#------------------------------------------------------------------------------
+set -e
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+pushd "$DIR"
+
+mvn clean install
+cd ../ceri-common
+mvn clean install -DskipTests
+cd ../ceri-log
+mvn clean install
+cd ../ceri-ent
+mvn clean install
+cd ../ceri-process
+mvn clean install
+cd ../ceri-serial
+mvn clean install
+cd ../ceri-x10
+mvn clean install
+cd ../ceri-zwave
+mvn clean install
+cd ../ceri-misc
+mvn clean install
+cd ../ceri-ci
+mvn clean install -DskipTests
+
+popd
