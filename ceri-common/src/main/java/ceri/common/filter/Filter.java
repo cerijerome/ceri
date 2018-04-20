@@ -15,4 +15,12 @@ public interface Filter<T> extends Predicate<T> {
 		return filter(t);
 	}
 
+	default <S extends T> Filter<S> up() {
+		return this::filter;
+	}
+	
+	static <T> Filter<T> from(Predicate<? super T> predicate) {
+		return predicate::test;
+	}
+	
 }

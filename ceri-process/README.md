@@ -1,6 +1,6 @@
-#Process - running executables from java
+# Process - running executables from java
 
-##MacOSX
+## MacOSX
 When running via eclipse, `PATH` may not include `/usr/local/bin`.  
 One solution is to run 
 `sudo launchctl config user path <new path>`, such as:  
