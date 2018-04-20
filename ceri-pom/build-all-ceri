@@ -26,6 +26,6 @@ mvn clean install
 cd ../ceri-misc
 mvn clean install
 cd ../ceri-ci
-mvn clean install -DskipTests
+##mvn clean install -DskipTests
 
 popd
