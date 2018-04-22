@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import ceri.common.data.ByteUtil;
 import ceri.common.math.MathUtil;
+import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
 public class ColorUtil {
@@ -83,8 +84,8 @@ public class ColorUtil {
 	public static Color color(String name) {
 		Color color = colorFromName(name);
 		if (color != null) return color;
-		Matcher m = COLOR_REGEX.matcher(name);
-		if (!m.find()) return null;
+		Matcher m = RegexUtil.matched(COLOR_REGEX, name);
+		if (m == null) return null;
 		String hex = m.group(1);
 		int rgb = Integer.valueOf(hex, HEX);
 		if (hex.length() == TRIPLE_HEX_LEN) rgb = tripleHexToRgb(rgb);

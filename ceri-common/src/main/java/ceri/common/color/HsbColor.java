@@ -7,6 +7,9 @@ import ceri.common.math.MathUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
+/**
+ * Encapsulates HSBA color with values 0-1.
+ */
 public class HsbColor {
 	private static final int MAX_COLOR_VALUE = 255;
 	private static final int HSB_DECIMALS = 5;
@@ -49,15 +52,19 @@ public class HsbColor {
 		return new HsbColor(hue, saturation, brightness, alpha).asColor();
 	}
 
-	public HsbColor(double hue, double saturation, double brightness) {
-		this(hue, saturation, brightness, MAX_VALUE);
+	public static HsbColor of(double hue, double saturation, double brightness) {
+		return of(hue, saturation, brightness, MAX_VALUE);
 	}
 
-	public HsbColor(double hue, double saturation, double brightness, double alpha) {
+	public static HsbColor of(double hue, double saturation, double brightness, double alpha) {
 		validateRange(hue, MIN_VALUE, MAX_VALUE);
 		validateRange(saturation, MIN_VALUE, MAX_VALUE);
 		validateRange(brightness, MIN_VALUE, MAX_VALUE);
 		validateRange(alpha, MIN_VALUE, MAX_VALUE);
+		return new HsbColor(hue, saturation, brightness, alpha);
+	}
+	
+	private HsbColor(double hue, double saturation, double brightness, double alpha) {
 		this.h = hue;
 		this.s = saturation;
 		this.b = brightness;
@@ -70,6 +77,10 @@ public class HsbColor {
 		return new Color(a | rgb, true);
 	}
 
+	public boolean hasAlpha() {
+		return a < MAX_VALUE;
+	}
+	
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(h, s, b, a);
@@ -90,7 +101,7 @@ public class HsbColor {
 	@Override
 	public String toString() {
 		String name = getClass().getSimpleName();
-		return a < 1.0 ? String.format("%s[h=%.3f,s=%.3f,b=%.3f,a=%.3f]", name, h, s, b, a)
+		return hasAlpha() ? String.format("%s[h=%.3f,s=%.3f,b=%.3f,a=%.3f]", name, h, s, b, a)
 			: String.format("%s[h=%.3f,s=%.3f,b=%.3f]", name, h, s, b);
 	}
 
