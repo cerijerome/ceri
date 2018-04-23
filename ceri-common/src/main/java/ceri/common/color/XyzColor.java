@@ -1,7 +1,5 @@
 package ceri.common.color;
 
-import java.awt.color.ColorSpace;
-import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
@@ -18,20 +16,15 @@ public class XyzColor {
 	public static final XyzColor CIE_D55 = of(0.9568, 1.0000, 0.9214);
 	public static final XyzColor CIE_D65 = of(0.9504, 1.0000, 1.0888);
 	public static final XyzColor CIE_ICC = of(0.9642, 1.0000, 0.8249);
-	
-	public static final double MAX_ALPHA_VALUE = 1.0;
+
+	public static final double MAX_ALPHA = 1.0;
 	public final double x;
 	public final double y;
 	public final double z;
 	public final double a;
 
-	public static XyzColor normalized(double x, double y, double z) {
-		
-		return new XyzColor(x, y, z, MAX_ALPHA_VALUE);
-	}
-
 	public static XyzColor of(double x, double y, double z) {
-		return new XyzColor(x, y, z, MAX_ALPHA_VALUE);
+		return new XyzColor(x, y, z, MAX_ALPHA);
 	}
 
 	public static XyzColor of(double x, double y, double z, double a) {
@@ -45,16 +38,14 @@ public class XyzColor {
 		this.a = a;
 	}
 
-	public RgbColor toRgb() {
-		float[] values = { (float) x, (float) y, (float) z };
-		ColorSpace.getInstance(ColorSpace.CS_CIEXYZ);
-		return null;
-	}
-	
 	public XybColor toXyb() {
 		double sum = x + y + z;
 		if (sum == 0.0) return XybColor.of(0, 0, 0, a);
 		return XybColor.of(x / sum, y / sum, y, a);
+	}
+
+	public boolean hasAlpha() {
+		return a < MAX_ALPHA;
 	}
 
 	@Override
@@ -76,7 +67,9 @@ public class XyzColor {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, x, y, z, a).toString();
+		String name = getClass().getSimpleName();
+		return hasAlpha() ? String.format("%s[x=%.5f,y=%.5f,z=%.5f,a=%.5f]", name, x, y, z, a) :
+			String.format("%s[x=%.5f,y=%.5f,z=%.5f]", name, x, y, z);
 	}
 
 }

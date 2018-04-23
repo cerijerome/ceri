@@ -1,15 +1,13 @@
 package ceri.common.color;
 
 import ceri.common.geom.Point2d;
-import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 /**
- * Represents xyY color.
+ * Represents xyY color, Y = brightness (b).
  */
 public class XybColor {
-	public static final double MIN_VALUE = 0.0;
 	public static final double MAX_VALUE = 1.0;
 	public final double x;
 	public final double y;
@@ -59,6 +57,10 @@ public class XybColor {
 		return Point2d.of(x, y);
 	}
 
+	public boolean hasAlpha() {
+		return a < MAX_VALUE;
+	}
+
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(x, y, b, a);
@@ -78,7 +80,9 @@ public class XybColor {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, x, y, b, a).toString();
+		String name = getClass().getSimpleName();
+		return hasAlpha() ? String.format("%s[x=%.5f,y=%.5f,b=%.5f,a=%.5f]", name, x, y, b, a) :
+			String.format("%s[x=%.5f,y=%.5f,b=%.5f]", name, x, y, b);
 	}
 
 }

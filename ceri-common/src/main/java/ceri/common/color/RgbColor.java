@@ -15,7 +15,6 @@ import ceri.common.util.HashCoder;
 public class RgbColor {
 	private static final int MAX_COLOR_VALUE = 255;
 	private static final int RGB_DECIMALS = 5;
-	public static final double MIN_VALUE = 0.0;
 	public static final double MAX_VALUE = 1.0;
 	public final double r; // red
 	public final double g; // green
@@ -53,7 +52,7 @@ public class RgbColor {
 	public static RgbColor normalize(double red, double green, double blue) {
 		return normalize(red, green, blue, MAX_VALUE);
 	}
-	
+
 	public static RgbColor normalize(double red, double green, double blue, double alpha) {
 		double max = MathUtil.max(red, green, blue);
 		if (max <= 1.0) return limit(red, green, blue, alpha);
@@ -65,22 +64,22 @@ public class RgbColor {
 	}
 
 	public static RgbColor limit(double red, double green, double blue, double alpha) {
-		red = MathUtil.limit(red, MIN_VALUE, MAX_VALUE);
-		green = MathUtil.limit(green, MIN_VALUE, MAX_VALUE);
-		blue = MathUtil.limit(blue, MIN_VALUE, MAX_VALUE);
-		alpha = MathUtil.limit(alpha, MIN_VALUE, MAX_VALUE);
+		red = MathUtil.limit(red, 0, MAX_VALUE);
+		green = MathUtil.limit(green, 0, MAX_VALUE);
+		blue = MathUtil.limit(blue, 0, MAX_VALUE);
+		alpha = MathUtil.limit(alpha, 0, MAX_VALUE);
 		return of(red, green, blue, alpha);
 	}
-	
+
 	public static RgbColor of(double red, double green, double blue) {
 		return of(red, green, blue, MAX_VALUE);
 	}
 
 	public static RgbColor of(double red, double green, double blue, double alpha) {
-		validateRange(red, MIN_VALUE, MAX_VALUE);
-		validateRange(green, MIN_VALUE, MAX_VALUE);
-		validateRange(blue, MIN_VALUE, MAX_VALUE);
-		validateRange(alpha, MIN_VALUE, MAX_VALUE);
+		validateRange(red, 0, MAX_VALUE);
+		validateRange(green, 0, MAX_VALUE);
+		validateRange(blue, 0, MAX_VALUE);
+		validateRange(alpha, 0, MAX_VALUE);
 		return new RgbColor(red, green, blue, alpha);
 	}
 
@@ -119,8 +118,8 @@ public class RgbColor {
 	@Override
 	public String toString() {
 		String name = getClass().getSimpleName();
-		return hasAlpha() ? String.format("%s[r=%.3f,g=%.3f,b=%.3f,a=%.3f]", name, r, g, b, a) :
-			String.format("%s[r=%.3f,g=%.3f,b=%.3f]", name, r, g, b);
+		return hasAlpha() ? String.format("%s[r=%.5f,g=%.5f,b=%.5f,a=%.5f]", name, r, g, b, a) :
+			String.format("%s[r=%.5f,g=%.5f,b=%.5f]", name, r, g, b);
 	}
 
 }

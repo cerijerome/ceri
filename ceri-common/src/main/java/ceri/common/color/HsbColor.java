@@ -15,7 +15,6 @@ public class HsbColor {
 	private static final int HSB_DECIMALS = 5;
 	private static final int RGB_MASK = 0xffffff;
 	private static final int RGB_BYTES = 3;
-	public static final double MIN_VALUE = 0.0;
 	public static final double MAX_VALUE = 1.0;
 	public final double h; // hue
 	public final double s; // saturation
@@ -57,10 +56,10 @@ public class HsbColor {
 	}
 
 	public static HsbColor of(double hue, double saturation, double brightness, double alpha) {
-		validateRange(hue, MIN_VALUE, MAX_VALUE);
-		validateRange(saturation, MIN_VALUE, MAX_VALUE);
-		validateRange(brightness, MIN_VALUE, MAX_VALUE);
-		validateRange(alpha, MIN_VALUE, MAX_VALUE);
+		validateRange(hue, 0, MAX_VALUE);
+		validateRange(saturation, 0, MAX_VALUE);
+		validateRange(brightness, 0, MAX_VALUE);
+		validateRange(alpha, 0, MAX_VALUE);
 		return new HsbColor(hue, saturation, brightness, alpha);
 	}
 	
@@ -101,8 +100,8 @@ public class HsbColor {
 	@Override
 	public String toString() {
 		String name = getClass().getSimpleName();
-		return hasAlpha() ? String.format("%s[h=%.3f,s=%.3f,b=%.3f,a=%.3f]", name, h, s, b, a)
-			: String.format("%s[h=%.3f,s=%.3f,b=%.3f]", name, h, s, b);
+		return hasAlpha() ? String.format("%s[h=%.5f,s=%.5f,b=%.5f,a=%.5f]", name, h, s, b, a)
+			: String.format("%s[h=%.5f,s=%.5f,b=%.5f]", name, h, s, b);
 	}
 
 }
