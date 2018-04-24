@@ -10,9 +10,8 @@ import ceri.common.util.HashCoder;
 /**
  * Encapsulates HSBA color with values 0-1.
  */
-public class HsbColor {
+public class HsbColor implements ComponentColor<HsbColor> {
 	private static final int MAX_COLOR_VALUE = 255;
-	private static final int HSB_DECIMALS = 5;
 	private static final int RGB_MASK = 0xffffff;
 	private static final int RGB_BYTES = 3;
 	public static final double MAX_VALUE = 1.0;
@@ -36,10 +35,10 @@ public class HsbColor {
 	public static HsbColor from(int red, int green, int blue, int alpha) {
 		float[] hsb = Color.RGBtoHSB(red & 0xff, green & 0xff, blue & 0xff, null);
 		int i = 0;
-		double hue = MathUtil.simpleRound(hsb[i++], HSB_DECIMALS);
-		double saturation = MathUtil.simpleRound(hsb[i++], HSB_DECIMALS);
-		double brightness = MathUtil.simpleRound(hsb[i++], HSB_DECIMALS);
-		double a = MathUtil.simpleRound(alpha / MAX_COLOR_VALUE, HSB_DECIMALS);
+		double hue = hsb[i++];
+		double saturation = hsb[i++];
+		double brightness = hsb[i++];
+		double a = alpha / MAX_COLOR_VALUE;
 		return new HsbColor(hue, saturation, brightness, a);
 	}
 
@@ -56,13 +55,9 @@ public class HsbColor {
 	}
 
 	public static HsbColor of(double hue, double saturation, double brightness, double alpha) {
-		validateRange(hue, 0, MAX_VALUE);
-		validateRange(saturation, 0, MAX_VALUE);
-		validateRange(brightness, 0, MAX_VALUE);
-		validateRange(alpha, 0, MAX_VALUE);
 		return new HsbColor(hue, saturation, brightness, alpha);
 	}
-	
+
 	private HsbColor(double hue, double saturation, double brightness, double alpha) {
 		this.h = hue;
 		this.s = saturation;
@@ -76,10 +71,47 @@ public class HsbColor {
 		return new Color(a | rgb, true);
 	}
 
+	@Override
 	public boolean hasAlpha() {
 		return a < MAX_VALUE;
 	}
-	
+
+	@Override
+	public HsbColor normalize() {
+		double h = MathUtil.periodicLimit(this.h, MAX_VALUE);
+		double s = limit(this.s);
+		double b = limit(this.b);
+		double a = limit(this.a);
+		if (h == this.h && s == this.s && b == this.b && a == this.a) return this;
+		return of(h, s, b, a);
+	}
+
+	@Override
+	public HsbColor limit() {
+		double h = limit(this.h);
+		double s = limit(this.s);
+		double b = limit(this.b);
+		double a = limit(this.a);
+		if (h == this.h && s == this.s && b == this.b && a == this.a) return this;
+		return of(h, s, b, a);
+	}
+
+	@Override
+	public void verify() {
+		validate(h, "hue");
+		validate(s, "saturation");
+		validate(b, "brightness");
+		validate(a, "alpha");
+	}
+
+	private void validate(double value, String name) {
+		validateRange(value, 0, MAX_VALUE, name);
+	}
+
+	private double limit(double value) {
+		return MathUtil.limit(value, 0, MAX_VALUE);
+	}
+
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(h, s, b, a);
@@ -100,8 +132,8 @@ public class HsbColor {
 	@Override
 	public String toString() {
 		String name = getClass().getSimpleName();
-		return hasAlpha() ? String.format("%s[h=%.5f,s=%.5f,b=%.5f,a=%.5f]", name, h, s, b, a)
-			: String.format("%s[h=%.5f,s=%.5f,b=%.5f]", name, h, s, b);
+		return hasAlpha() ? String.format("%s[h=%.5f,s=%.5f,b=%.5f,a=%.5f]", name, h, s, b, a) :
+			String.format("%s[h=%.5f,s=%.5f,b=%.5f]", name, h, s, b);
 	}
 
 }

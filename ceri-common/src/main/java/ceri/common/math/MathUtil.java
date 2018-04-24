@@ -330,6 +330,42 @@ public class MathUtil {
 	}
 
 	/**
+	 * Adjust a periodic value to be within 0 and period.
+	 */
+	public static float periodicLimit(float value, float period) {
+		while (value > period) value -= period;
+		while (value < 0) value += period;
+		return value;
+	}
+	
+	/**
+	 * Adjust a periodic value to be within 0 and period.
+	 */
+	public static double periodicLimit(double value, double period) {
+		while (value > period) value -= period;
+		while (value < 0) value += period;
+		return value;
+	}
+	
+	/**
+	 * Adjust a periodic value to be within 0 and period.
+	 */
+	public static int periodicLimit(int value, int period) {
+		while (value > period) value -= period;
+		while (value < 0) value += period;
+		return value;
+	}
+	
+	/**
+	 * Adjust a periodic value to be within 0 and period.
+	 */
+	public static long periodicLimit(long value, long period) {
+		while (value > period) value -= period;
+		while (value < 0) value += period;
+		return value;
+	}
+	
+	/**
 	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
 	 */
 	public static byte min(byte... array) {

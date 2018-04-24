@@ -12,9 +12,8 @@ import ceri.common.util.HashCoder;
 /**
  * Encapsulates RGBA color with values 0-1.
  */
-public class RgbColor {
+public class RgbColor implements ComponentColor<RgbColor> {
 	private static final int MAX_COLOR_VALUE = 255;
-	private static final int RGB_DECIMALS = 5;
 	public static final double MAX_VALUE = 1.0;
 	public final double r; // red
 	public final double g; // green
@@ -34,11 +33,7 @@ public class RgbColor {
 	}
 
 	public static RgbColor from(int red, int green, int blue, int alpha) {
-		double r = MathUtil.simpleRound(toRatio(red), RGB_DECIMALS);
-		double g = MathUtil.simpleRound(toRatio(green), RGB_DECIMALS);
-		double b = MathUtil.simpleRound(toRatio(blue), RGB_DECIMALS);
-		double a = MathUtil.simpleRound(toRatio(alpha), RGB_DECIMALS);
-		return of(r, g, b, a);
+		return of(toRatio(red), toRatio(green), toRatio(blue), toRatio(alpha));
 	}
 
 	public static Color toColor(double red, double green, double blue) {
@@ -49,37 +44,11 @@ public class RgbColor {
 		return of(red, green, blue, alpha).asColor();
 	}
 
-	public static RgbColor normalize(double red, double green, double blue) {
-		return normalize(red, green, blue, MAX_VALUE);
-	}
-
-	public static RgbColor normalize(double red, double green, double blue, double alpha) {
-		double max = MathUtil.max(red, green, blue);
-		if (max <= 1.0) return limit(red, green, blue, alpha);
-		return limit(red / max, green / max, blue / max, alpha);
-	}
-
-	public static RgbColor limit(double red, double green, double blue) {
-		return limit(red, green, blue, MAX_VALUE);
-	}
-
-	public static RgbColor limit(double red, double green, double blue, double alpha) {
-		red = MathUtil.limit(red, 0, MAX_VALUE);
-		green = MathUtil.limit(green, 0, MAX_VALUE);
-		blue = MathUtil.limit(blue, 0, MAX_VALUE);
-		alpha = MathUtil.limit(alpha, 0, MAX_VALUE);
-		return of(red, green, blue, alpha);
-	}
-
 	public static RgbColor of(double red, double green, double blue) {
 		return of(red, green, blue, MAX_VALUE);
 	}
 
 	public static RgbColor of(double red, double green, double blue, double alpha) {
-		validateRange(red, 0, MAX_VALUE);
-		validateRange(green, 0, MAX_VALUE);
-		validateRange(blue, 0, MAX_VALUE);
-		validateRange(alpha, 0, MAX_VALUE);
 		return new RgbColor(red, green, blue, alpha);
 	}
 
@@ -94,8 +63,42 @@ public class RgbColor {
 		return new Color(fromRatio(r), fromRatio(g), fromRatio(b), fromRatio(a));
 	}
 
+	@Override
 	public boolean hasAlpha() {
 		return a < MAX_VALUE;
+	}
+
+	@Override
+	public RgbColor normalize() {
+		double max = MathUtil.max(r, g, b);
+		if (max <= MAX_VALUE || max == 0.0) return this;
+		return of(r / max, g / max, b / max, limit(a));
+	}
+
+	@Override
+	public RgbColor limit() {
+		double r = limit(this.r);
+		double g = limit(this.g);
+		double b = limit(this.b);
+		double a = limit(this.a);
+		if (r == this.r && g == this.g && b == this.b && a == this.a) return this;
+		return of(r, g, b, a);
+	}
+
+	@Override
+	public void verify() {
+		validate(r, "red");
+		validate(g, "green");
+		validate(b, "blue");
+		validate(a, "alpha");
+	}
+
+	private void validate(double value, String name) {
+		validateRange(value, 0, MAX_VALUE, name);
+	}
+
+	private double limit(double value) {
+		return MathUtil.limit(value, 0, MAX_VALUE);
 	}
 
 	@Override

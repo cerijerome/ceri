@@ -1,13 +1,16 @@
 package ceri.common.color;
 
+import static ceri.common.validation.ValidationUtil.validateRange;
 import ceri.common.geom.Point2d;
+import ceri.common.math.MathUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 /**
  * Represents xyY color, Y = brightness (b).
  */
-public class XybColor {
+public class XybColor implements ComponentColor<XybColor> {
+	public static final Point2d CENTER = XyzColor.CIE_E.toXyb().xy();
 	public static final double MAX_VALUE = 1.0;
 	public final double x;
 	public final double y;
@@ -25,7 +28,7 @@ public class XybColor {
 	public static XybColor of(Point2d xy, double b) {
 		return of(xy.x, xy.y, b);
 	}
-	
+
 	public static XybColor of(double x, double y, double b) {
 		return of(x, y, b, MAX_VALUE);
 	}
@@ -33,7 +36,7 @@ public class XybColor {
 	public static XybColor of(Point2d xy, double b, double a) {
 		return of(xy.x, xy.y, b, a);
 	}
-	
+
 	public static XybColor of(double x, double y, double b, double a) {
 		return new XybColor(x, y, b, a);
 	}
@@ -57,8 +60,55 @@ public class XybColor {
 		return Point2d.of(x, y);
 	}
 
+	@Override
 	public boolean hasAlpha() {
 		return a < MAX_VALUE;
+	}
+
+	@Override
+	public XybColor normalize() {
+		Point2d xy = normalize(x, y);
+		double b = limit(this.b);
+		double a = limit(this.a);
+		if (xy.x == this.x && xy.y == this.y && b == this.b && a == this.a) return this;
+		return of(xy, b, a);
+	}
+
+	private Point2d normalize(double x, double y) {
+		// normalize around CIE_E
+		double factor = MathUtil.max(MAX_VALUE, //
+			(x - CENTER.x) / (MAX_VALUE - CENTER.x), (CENTER.x - x) / CENTER.x,
+			(y - CENTER.y) / (MAX_VALUE - CENTER.y), (CENTER.y - y) / CENTER.y);
+		if (factor == MAX_VALUE) return Point2d.of(x, y);
+		x = ((x - CENTER.x) / factor) + CENTER.x;
+		y = ((y - CENTER.y) / factor) + CENTER.y;
+		return Point2d.of(x, y);
+	}
+
+	@Override
+	public XybColor limit() {
+		double x = limit(this.x);
+		double y = limit(this.y);
+		double b = limit(this.b);
+		double a = limit(this.a);
+		if (x == this.x && y == this.y && b == this.b && a == this.a) return this;
+		return of(x, y, b, a);
+	}
+
+	@Override
+	public void verify() {
+		validate(x, "x");
+		validate(y, "y");
+		validate(b, "brightness");
+		validate(a, "alpha");
+	}
+
+	private void validate(double value, String name) {
+		validateRange(value, 0, MAX_VALUE, name);
+	}
+
+	private double limit(double value) {
+		return MathUtil.limit(value, 0, MAX_VALUE);
 	}
 
 	@Override

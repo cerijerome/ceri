@@ -3,19 +3,19 @@ package ceri.common.color;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
-public class XyzColor {
+public class XyzColor implements ComponentColor<XyzColor> {
 	public static final XyzColor D50 = of(0.964212, 1.0, 0.825188);
 	public static final XyzColor D55 = of(0.956797, 1.0, 0.921481);
 	public static final XyzColor D65 = of(0.950429, 1.0, 1.088900);
 	public static final XyzColor D75 = of(0.949722, 1.0, 1.226394);
 
-	public static final XyzColor CIE_A = of(1.0985, 1.0000, 0.3558);
-	public static final XyzColor CIE_C = of(0.9807, 1.0000, 1.1822);
-	public static final XyzColor CIE_E = of(1.0000, 1.0000, 1.0000);
-	public static final XyzColor CIE_D50 = of(0.9642, 1.0000, 0.8251);
-	public static final XyzColor CIE_D55 = of(0.9568, 1.0000, 0.9214);
-	public static final XyzColor CIE_D65 = of(0.9504, 1.0000, 1.0888);
-	public static final XyzColor CIE_ICC = of(0.9642, 1.0000, 0.8249);
+	public static final XyzColor CIE_A = of(1.0985, 1.0, 0.3558);
+	public static final XyzColor CIE_C = of(0.9807, 1.0, 1.1822);
+	public static final XyzColor CIE_E = of(1.0000, 1.0, 1.0000);
+	public static final XyzColor CIE_D50 = of(0.9642, 1.0, 0.8251);
+	public static final XyzColor CIE_D55 = of(0.9568, 1.0, 0.9214);
+	public static final XyzColor CIE_D65 = of(0.9504, 1.0, 1.0888);
+	public static final XyzColor CIE_ICC = of(0.9642, 1.0, 0.8249);
 
 	public static final double MAX_ALPHA = 1.0;
 	public final double x;
@@ -44,8 +44,30 @@ public class XyzColor {
 		return XybColor.of(x / sum, y / sum, y, a);
 	}
 
+	@Override
 	public boolean hasAlpha() {
 		return a < MAX_ALPHA;
+	}
+
+	@Override
+	public XyzColor normalize() {
+		XybColor xyb = toXyb();
+		XybColor normalXyb = xyb.normalize();
+		if (xyb == normalXyb) return this;
+		return normalXyb.toXyz();
+	}
+
+	@Override
+	public XyzColor limit() {
+		XybColor xyb = toXyb();
+		XybColor limitXyb = xyb.limit();
+		if (xyb == limitXyb) return this;
+		return limitXyb.toXyz();
+	}
+
+	@Override
+	public void verify() {
+		toXyb().verify();
 	}
 
 	@Override
