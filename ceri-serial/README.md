@@ -6,10 +6,8 @@ Not fully supported so far, just enough for x10, dmx, audio, and video projects 
 For MacOSX:
 - Project contains the RXTX comm library (`gnu.io.*`) and PL2303 USB to serial drivers.
 - Follow instructions under `lib/pl2303/mac` to install the serial usb driver
-- Follow instructions under `lib/qbang` to install gnu rxtx jar and jni library
-  - Update `ceri-pom/pom.xml` to reference the rxtx version
+- `nrjavaserial` from pom will load serial lib  
 - Comm port name should be `/dev/tty.usbserial` or similar
-- Can ignore the warning "RXTX Version mismatch"
 
 For Ubuntu: (needs update)
 - `sudo apt-get install librxtx-java`
@@ -21,4 +19,12 @@ For Ubuntu: (needs update)
 - Change permissions on USB ports, e.g.:  
   `sudo chmod a+rw /dev/ttyUSB*`  
   `sudo chmod a+rw /dev/usb`
+
+  
+For MacOSX (old):
+- Follow instructions under `lib/qbang` to install gnu rxtx jar and jni library
+  - Update `ceri-pom/pom.xml` to reference the rxtx version
+- Comm port name should be `/dev/tty.usbserial` or similar
+- Can ignore the warning "RXTX Version mismatch"
+
   

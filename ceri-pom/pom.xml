@@ -28,8 +28,9 @@
 		<htmlunit.version>2.30</htmlunit.version>
 		<selenium.java.version>3.11.0</selenium.java.version>
 		<gson.version>2.8.2</gson.version>
-		<!-- Seg fault on this version 2.2pre2 -->
+		<!-- Seg fault on this version 2.2pre2; try nrjavaserial instead -->
 		<rxtx.version>2.2pre2</rxtx.version>
+		<nrjavaserial.version>3.13.0</nrjavaserial.version>
 		<jssc.version>2.8.0</jssc.version>
 		<servlet-api.version>4.0.0</servlet-api.version>
 		<mail-api.version>1.6.1</mail-api.version>
@@ -143,6 +144,11 @@
 				<artifactId>rxtx</artifactId>
 				<version>${rxtx.version}</version>
 			</dependency>
+	        <dependency>
+	            <groupId>com.neuronrobotics</groupId>
+	            <artifactId>nrjavaserial</artifactId>
+	            <version>${nrjavaserial.version}</version>
+	        </dependency>
 			<dependency>
 				<groupId>javax.servlet</groupId>
 				<artifactId>javax.servlet-api</artifactId>

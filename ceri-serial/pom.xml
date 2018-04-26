@@ -26,8 +26,8 @@
 			<artifactId>jssc</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.qbang.rxtx</groupId>
-			<artifactId>rxtx</artifactId>
+			<groupId>com.neuronrobotics</groupId>
+			<artifactId>nrjavaserial</artifactId>
 		</dependency>
 	</dependencies>
 

@@ -11,7 +11,7 @@ public class XyzColor implements ComponentColor<XyzColor> {
 
 	public static final XyzColor CIE_A = of(1.0985, 1.0, 0.3558);
 	public static final XyzColor CIE_C = of(0.9807, 1.0, 1.1822);
-	public static final XyzColor CIE_E = of(1.0000, 1.0, 1.0000);
+	public static final XyzColor CIE_E = of(1.0, 1.0, 1.0);
 	public static final XyzColor CIE_D50 = of(0.9642, 1.0, 0.8251);
 	public static final XyzColor CIE_D55 = of(0.9568, 1.0, 0.9214);
 	public static final XyzColor CIE_D65 = of(0.9504, 1.0, 1.0888);

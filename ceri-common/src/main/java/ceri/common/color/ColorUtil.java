@@ -27,7 +27,7 @@ public class ColorUtil {
 	private static final int BITS8 = 8;
 	// private static final int HSB_DECIMALS = 5;
 	private static final int RGB_MASK = 0xffffff;
-	private static final int CHANNEL_MAX = 0xff;
+	public static final int CHANNEL_MAX = 0xff;
 	private static final Map<Integer, String> awtColorNames = colorMap();
 
 	private ColorUtil() {}
