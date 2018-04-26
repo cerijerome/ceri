@@ -7,6 +7,7 @@ For MacOSX:
 - Project contains the RXTX comm library (`gnu.io.*`) and PL2303 USB to serial drivers.
 - Follow instructions under `lib/pl2303/mac` to install the serial usb driver
 - Follow instructions under `lib/qbang` to install gnu rxtx jar and jni library
+  - Update `ceri-pom/pom.xml` to reference the rxtx version
 - Comm port name should be `/dev/tty.usbserial` or similar
 - Can ignore the warning "RXTX Version mismatch"
 

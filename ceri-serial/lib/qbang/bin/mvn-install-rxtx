@@ -14,3 +14,4 @@ ART="rxtx"
 echo "Installing rxtx $VER jar:"  
 echo "Copying $SRC to maven: $GRP:$ART:$VER"  
 mvn -q install:install-file -Dfile="$DIR/../$SRC" -DgroupId="$GRP" -DartifactId="$ART" -Dversion="$VER" -Dpackaging=jar
+echo "Update ceri-pom/pom.xml: <rxtx.version>$VER</rxtx.version>"

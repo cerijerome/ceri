@@ -7,10 +7,10 @@ set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 VER="${1:-2.2pre2}"
-SRC="$VER/mac/librxtxSerial.jnilib"
+SRC="$VER/mac/librxtxSerial*.jnilib"
 DST="/Library/Java/Extensions"
 
 echo "Installing rxtx $VER jni:"  
 echo "Copying $SRC to $DST"  
-sudo cp "$DIR/../$SRC" "$DST"
+sudo cp "$DIR"/../$SRC "$DST"
 
