@@ -7,10 +7,10 @@ set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 VER="${1:-2.2pre2}"
-SRC="$DIR/$VER/RXTXcomm.jar"
-GRP="org.qbang.rxtx"
-ART="rxtx"
+SRC="$VER/mac/librxtxSerial.jnilib"
+DST="/Library/Java/Extensions"
 
-echo "Installing rxtx $VER jar"  
-echo "Copying $SRC to maven: $GRP:$ART:$VER"  
-mvn -q install:install-file -Dfile="$SRC" -DgroupId="$GRP" -DartifactId="$ART" -Dversion="$VER" -Dpackaging=jar
+echo "Installing rxtx $VER jni:"  
+echo "Copying $SRC to $DST"  
+sudo cp "$DIR/../$SRC" "$DST"
+

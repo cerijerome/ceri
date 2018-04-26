@@ -1,18 +1,23 @@
 #Qbang RXTX
 
-Source: `http://rxtx.qbang.org/wiki/index.php/Download`  
+Sources:
+- `http://rxtx.qbang.org/wiki/index.php/Download`  
+- `https://github.com/CMU-CREATE-Lab/finch/tree/master/java`  
 
-## Install RXTXComm.jar
-Copy the versions of `RXTXComm.jar` to local maven repository:
-- Run `mvn-install-rxtx`
-- Coordinates: `org.qbang.rxtx:rxtx:2.2pre2`
+## Mac install script
+Run script:
+- `mac-install <ver>`  
 
-## Install native lib - Mac
-Copy `librxtxSerial.jnilib` to Java extensions dir:  
+Copies the version of `RXTXComm.jar` to local maven repository:
+- Coordinates: `org.qbang.rxtx:rxtx:<ver>`
+
+Copies `librxtxSerial.jnilib` to Java extensions dir:  
 - `sudo cp <ver>/mac/librxtxSerial.jnilib /Library/Java/Extensions` for all users
-- `cp <ver>/mac/librxtxSerial.jnilib ~/Library/Java/Extensions` for current user
-- Script `mac-install-jni`
+- (Use `cp <ver>/mac/librxtxSerial.jnilib ~/Library/Java/Extensions` for current user only)
 
 ## Notes
+`2.2cmu` was built by CMU-CREATE-lab  
 `2.2pre2` contains rxtx `2.2pre1`, and a warning will be printed.  
 `2.2pre1` has no warning, but not sure what was fixed in `2.2pre2`.  
+`2.x` is the original from jamierf with only mac lib
+`2.1-7` is the old version (doesn't seem to work)  

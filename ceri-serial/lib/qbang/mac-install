@@ -1,0 +1,11 @@
+#!/bin/bash
+#------------------------------------------------------------------------------
+# Installs RXTXComm.jar and librxtxSerial.jnilib.
+#------------------------------------------------------------------------------
+set -e
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+VER="${1:-2.2cmu}"
+$DIR/bin/mac-install-jni "$VER"
+$DIR/bin/mvn-install-rxtx "$VER"
