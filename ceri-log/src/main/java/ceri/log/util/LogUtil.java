@@ -162,11 +162,11 @@ public class LogUtil {
 	/**
 	 * Closes a closeable, and logs a thrown exception as a warning.
 	 */
-	public static <T> boolean close(Logger logger, T closeable,
-		ExceptionConsumer<IOException, T> closer) {
-		if (closeable == null) return false;
+	public static <T> boolean close(Logger logger, T subject,
+		ExceptionConsumer<IOException, T> closeFunction) {
+		if (subject == null) return false;
 		try {
-			closer.accept(closeable);
+			closeFunction.accept(subject);
 			return true;
 		} catch (IOException | RuntimeException e) {
 			logger.catching(Level.WARN, e);
