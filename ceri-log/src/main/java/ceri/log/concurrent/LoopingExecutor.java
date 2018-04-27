@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LoggingException;
+import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.ExceptionRunnable;
@@ -20,6 +21,7 @@ public abstract class LoopingExecutor implements Closeable {
 	private final int exitTimeoutMs;
 	private final String logName;
 	private final ExecutorService executor;
+	private final BooleanCondition stopped = BooleanCondition.create();
 
 	public static LoopingExecutor start(ExceptionRunnable<Exception> runnable) {
 		return start(null, EXIT_TIMEOUT_MS_DEF, runnable);
@@ -63,6 +65,14 @@ public abstract class LoopingExecutor implements Closeable {
 		LogUtil.close(logger, executor, exitTimeoutMs);
 	}
 
+	public void waitUntilStopped() throws InterruptedException {
+		stopped.await();
+	}
+
+	public void waitUntilStopped(long timeoutMs) throws InterruptedException {
+		stopped.await(timeoutMs);
+	}
+
 	private void loops() {
 		logger.info("{} started", logName);
 		try {
@@ -76,6 +86,7 @@ public abstract class LoopingExecutor implements Closeable {
 			logger.catching(e);
 		}
 		logger.info("{} stopped", logName);
+		stopped.signal();
 	}
 
 }

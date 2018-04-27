@@ -89,9 +89,8 @@ public class XyzColor implements ComponentColor<XyzColor> {
 
 	@Override
 	public String toString() {
-		String name = getClass().getSimpleName();
-		return hasAlpha() ? String.format("%s[x=%.5f,y=%.5f,z=%.5f,a=%.5f]", name, x, y, z, a) :
-			String.format("%s[x=%.5f,y=%.5f,z=%.5f]", name, x, y, z);
+		return hasAlpha() ? String.format("(x=%.5f,y=%.5f,z=%.5f,a=%.5f)", x, y, z, a) :
+			String.format("(x=%.5f,y=%.5f,z=%.5f)", x, y, z);
 	}
 
 }

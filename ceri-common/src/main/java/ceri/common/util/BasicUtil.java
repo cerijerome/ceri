@@ -81,6 +81,7 @@ public class BasicUtil {
 	 * Make a system beep sound
 	 */
 	public static void beep() {
+		// Disabled to avoid annoying unit test sound...
 		// Toolkit.getDefaultToolkit().beep();
 	}
 

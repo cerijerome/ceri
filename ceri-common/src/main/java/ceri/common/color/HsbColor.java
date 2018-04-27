@@ -131,9 +131,8 @@ public class HsbColor implements ComponentColor<HsbColor> {
 
 	@Override
 	public String toString() {
-		String name = getClass().getSimpleName();
-		return hasAlpha() ? String.format("%s[h=%.5f,s=%.5f,b=%.5f,a=%.5f]", name, h, s, b, a) :
-			String.format("%s[h=%.5f,s=%.5f,b=%.5f]", name, h, s, b);
+		return hasAlpha() ? String.format("(h=%.5f,s=%.5f,b=%.5f,a=%.5f)", h, s, b, a) :
+			String.format("(h=%.5f,s=%.5f,b=%.5f)", h, s, b);
 	}
 
 }

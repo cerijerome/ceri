@@ -130,9 +130,8 @@ public class XybColor implements ComponentColor<XybColor> {
 
 	@Override
 	public String toString() {
-		String name = getClass().getSimpleName();
-		return hasAlpha() ? String.format("%s[x=%.5f,y=%.5f,b=%.5f,a=%.5f]", name, x, y, b, a) :
-			String.format("%s[x=%.5f,y=%.5f,b=%.5f]", name, x, y, b);
+		return hasAlpha() ? String.format("(x=%.5f,y=%.5f,b=%.5f,a=%.5f)", x, y, b, a) :
+			String.format("(x=%.5f,y=%.5f,b=%.5f)", x, y, b);
 	}
 
 }

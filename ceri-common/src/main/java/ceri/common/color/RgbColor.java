@@ -120,9 +120,8 @@ public class RgbColor implements ComponentColor<RgbColor> {
 
 	@Override
 	public String toString() {
-		String name = getClass().getSimpleName();
-		return hasAlpha() ? String.format("%s[r=%.5f,g=%.5f,b=%.5f,a=%.5f]", name, r, g, b, a) :
-			String.format("%s[r=%.5f,g=%.5f,b=%.5f]", name, r, g, b);
+		return hasAlpha() ? String.format("(r=%.5f,g=%.5f,b=%.5f,a=%.5f)", r, g, b, a) :
+			String.format("(r=%.5f,g=%.5f,b=%.5f)", r, g, b);
 	}
 
 }
