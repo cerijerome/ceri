@@ -1,6 +1,8 @@
 package ceri.common.collection;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -94,6 +96,36 @@ public class StreamUtil {
 		BiFunction<? super K, ? super V, ? extends T> mapFn) {
 		Function<Map.Entry<K, V>, T> fn = (entry -> mapFn.apply(entry.getKey(), entry.getValue()));
 		return map.entrySet().stream().map(fn);
+	}
+
+	/**
+	 * Join streams of collections.
+	 */
+	public static <T> Set<T> joinToSet(Stream<? extends Collection<? extends T>> stream) {
+		return joinToSet(stream, LinkedHashSet::new);
+	}
+
+	/**
+	 * Join streams of collections.
+	 */
+	public static <T> Set<T> joinToSet(Stream<? extends Collection<? extends T>> stream,
+		Supplier<Set<T>> supplier) {
+		return stream.collect(supplier, Set::addAll, Set::addAll);
+	}
+
+	/**
+	 * Join streams of collections.
+	 */
+	public static <T> List<T> joinToList(Stream<? extends Collection<? extends T>> stream) {
+		return joinToList(stream, ArrayList::new);
+	}
+
+	/**
+	 * Join streams of collections.
+	 */
+	public static <T> List<T> joinToList(Stream<? extends Collection<? extends T>> stream,
+		Supplier<List<T>> supplier) {
+		return stream.collect(supplier, List::addAll, List::addAll);
 	}
 
 	/**

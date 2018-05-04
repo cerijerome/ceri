@@ -1,6 +1,7 @@
 package ceri.common.color;
 
 import static ceri.common.collection.StreamUtil.toList;
+import static ceri.common.test.TestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.exerciseEnum;
@@ -75,6 +76,42 @@ public class ColorUtilTest {
 		assertThat(ColorUtil.scale(0x102030, 0x405060, -2), is(new Color(0x102030)));
 	}
 
+	@Test
+	public void testScaleHsb() {
+		assertThat(ColorUtil.scaleHsb(Color.black, Color.white, 0.5), is(Color.gray));
+		assertThat(ColorUtil.scaleHsb(Color.yellow, Color.magenta, 0.5), is(Color.red));
+		assertThat(ColorUtil.scaleHsb(Color.magenta, Color.yellow, 0.5), is(Color.red));
+		assertThat(ColorUtil.scaleHsb(Color.cyan, Color.red, 0.33333), is(Color.green));
+	}
+
+	@Test
+	public void testScaleHue() {
+		assertApprox(ColorUtil.scaleHue(0.2, 0.8, 0), 0.2);
+		assertApprox(ColorUtil.scaleHue(0.2, 0.8, -1), 0.2);
+		assertApprox(ColorUtil.scaleHue(0.2, 0.8, 0.5), 0.0);
+		assertApprox(ColorUtil.scaleHue(0.2, 0.8, 0.25), 0.1);
+		assertApprox(ColorUtil.scaleHue(0.2, 0.8, 1), 0.8);
+		assertApprox(ColorUtil.scaleHue(0.2, 0.8, 2), 0.8);
+		assertApprox(ColorUtil.scaleHue(0.8, 0.2, 0.5), 1.0);
+		assertApprox(ColorUtil.scaleHue(0.8, 0.2, 0.25), 0.9);
+		assertApprox(ColorUtil.scaleHue(0.5, 1, 0.8), 0.9);
+		assertApprox(ColorUtil.scaleHue(1, 0.5, 0.8), 0.6);
+	}
+	
+	@Test
+	public void testScaleRatio() {
+		assertApprox(ColorUtil.scaleRatio(0.2, 0.7, 0), 0.2);
+		assertApprox(ColorUtil.scaleRatio(0.2, 0.7, -1), 0.2);
+		assertApprox(ColorUtil.scaleRatio(0.2, 0.7, 1), 0.7);
+		assertApprox(ColorUtil.scaleRatio(0.2, 0.7, 2), 0.7);
+		assertApprox(ColorUtil.scaleRatio(0.7, 0.2, 0), 0.7);
+		assertApprox(ColorUtil.scaleRatio(0.7, 0.2, -1), 0.7);
+		assertApprox(ColorUtil.scaleRatio(0.7, 0.2, 1), 0.2);
+		assertApprox(ColorUtil.scaleRatio(0.7, 0.2, 2), 0.2);
+		assertApprox(ColorUtil.scaleRatio(0.2, 0.7, 0.4), 0.4);
+		assertApprox(ColorUtil.scaleRatio(0.7, 0.2, 0.4), 0.5);
+	}
+	
 	@Test
 	public void testScaleChannel() {
 		assertThat(ColorUtil.scaleChannel(50, 150, 0), is(50));

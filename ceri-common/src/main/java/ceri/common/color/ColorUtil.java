@@ -11,6 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -27,11 +31,45 @@ public class ColorUtil {
 	private static final int BITS8 = 8;
 	// private static final int HSB_DECIMALS = 5;
 	private static final int RGB_MASK = 0xffffff;
+	private static final double HALF = 0.5;
 	public static final int CHANNEL_MAX = 0xff;
 	private static final Map<Integer, String> awtColorNames = colorMap();
 
 	private ColorUtil() {}
 
+	public static class Fn {
+
+		private Fn() {}
+
+		public static UnaryOperator<Color> dim(double scale) {
+			return color -> ColorUtil.dim(color, scale);
+		}
+		
+		public static UnaryOperator<List<Color>> dimAll(double scale) {
+			return colors -> ColorUtil.dimAll(scale, colors);
+		}
+		
+		public static BinaryOperator<Color> scale(double ratio) {
+			return (min, max) -> ColorUtil.scale(min, max, ratio);
+		}
+
+		public static BinaryOperator<Color> scaleHsb(double ratio) {
+			return (min, max) -> ColorUtil.scaleHsb(min, max, ratio);
+		}
+
+		public static Function<Color, List<Color>> rotateHue(int steps, Bias bias) {
+			return color -> ColorUtil.rotateHue(color, steps, bias);
+		}
+
+		public static BiFunction<Color, Color, List<Color>> fade(int steps, Bias bias) {
+			return (min, max) -> ColorUtil.fade(min, max, steps, bias);
+		}
+
+		public static BiFunction<Color, Color, List<Color>> fadeHsb(int steps, Bias bias) {
+			return (min, max) -> ColorUtil.fadeHsb(min, max, steps, bias);
+		}
+	}
+	
 	public static Color max(Color color) {
 		return max(color.getRed(), color.getGreen(), color.getBlue());
 	}
@@ -155,23 +193,70 @@ public class ColorUtil {
 		return colors;
 	}
 
+	public static List<Color> fadeHsb(int rgbMin, int rgbMax, int steps) {
+		return fadeHsb(rgbMin, rgbMax, steps, Biases.NONE);
+	}
+
+	public static List<Color> fadeHsb(int rgbMin, int rgbMax, int steps, Bias bias) {
+		return fadeHsb(new Color(rgbMin), new Color(rgbMax), steps, bias);
+	}
+
+	public static List<Color> fadeHsb(Color min, Color max, int steps) {
+		return fadeHsb(min, max, steps, Biases.NONE);
+	}
+
+	public static List<Color> fadeHsb(Color min, Color max, int steps, Bias bias) {
+		List<Color> colors = new ArrayList<>(steps);
+		for (int i = 1; i <= steps; i++)
+			colors.add(scaleHsb(min, max, bias.bias((double) i / steps)));
+		return colors;
+	}
+
 	public static Color scale(int rgbMin, int rgbMax, double ratio) {
 		return scale(new Color(rgbMin), new Color(rgbMax), ratio);
 	}
 
+	public static Color scaleHsb(Color min, Color max, double ratio) {
+		if (ratio <= 0.0) return min;
+		if (ratio >= 1.0) return max;
+		HsbColor hsbMin = HsbColor.from(min).normalize();
+		HsbColor hsbMax = HsbColor.from(max).normalize();
+		double h = scaleHue(hsbMin.h, hsbMax.h, ratio);
+		double s = scaleRatio(hsbMin.s, hsbMax.s, ratio);
+		double b = scaleRatio(hsbMin.b, hsbMax.b, ratio);
+		double a = scaleRatio(hsbMin.a, hsbMax.a, ratio);
+		return HsbColor.of(h, s, b, a).asColor();
+	}
+
+	public static double scaleHue(double min, double max, double ratio) {
+		if (ratio <= 0.0) return min;
+		if (ratio >= 1.0) return max;
+		double diff = max - min;
+		if (Math.abs(diff) > HALF) diff -= Math.signum(diff);
+		double h = min + (ratio * diff);
+		return MathUtil.periodicLimit(h, 1);
+	}
+	
 	public static Color scale(Color min, Color max, double ratio) {
 		if (ratio <= 0.0) return min;
 		if (ratio >= 1.0) return max;
 		int r = scaleChannel(min.getRed(), max.getRed(), ratio);
 		int g = scaleChannel(min.getGreen(), max.getGreen(), ratio);
 		int b = scaleChannel(min.getBlue(), max.getBlue(), ratio);
-		return new Color(r, g, b);
+		int a = scaleChannel(min.getAlpha(), max.getAlpha(), ratio);
+		return new Color(r, g, b, a);
 	}
 
 	public static int scaleChannel(int min, int max, double ratio) {
 		if (ratio <= 0.0) return min;
 		if (ratio >= 1.0) return max;
 		return min + (int) Math.round(ratio * (max - min));
+	}
+
+	public static double scaleRatio(double min, double max, double ratio) {
+		if (ratio <= 0.0) return min;
+		if (ratio >= 1.0) return max;
+		return min + (ratio * (max - min));
 	}
 
 	public static List<Color> rotateHue(int rgb, int steps) {
