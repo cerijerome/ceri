@@ -30,8 +30,8 @@ public class ServletUtil {
 	}
 
 	public static void log(Logger logger, Level level, Request request) {
-		logger.log(level, "Request from {}: {}", LogUtil.toString(request::remoteAddress),
-			LogUtil.compact(request.http.getParameterMap()));
+		logger.log(level, "Request from {}: {} {}", LogUtil.toString(request::remoteAddress),
+			request.http.getServletPath(), LogUtil.compact(request.http.getParameterMap()));
 	}
 
 	public static void dispatchJsp(HttpServletRequest request, HttpServletResponse response,

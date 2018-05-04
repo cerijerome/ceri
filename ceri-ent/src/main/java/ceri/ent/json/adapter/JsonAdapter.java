@@ -9,7 +9,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 /**
- * Json adapter using JsonReader and JsonWriter.
+ * Json adapter using JsonReader and JsonWriter. For fine-detailed sequential processing.
  */
 public class JsonAdapter<T> extends TypeAdapter<T> {
 	public final Type type;
