@@ -21,6 +21,14 @@ public class JsonUtil {
 	private JsonUtil() {}
 
 	/**
+	 * Convenience method to return string if element can be cast, null otherwise.
+	 */
+	public static String string(JsonElement json) {
+		if (json == null || !json.isJsonPrimitive()) return null;
+		return json.getAsString();
+	}
+	
+	/**
 	 * Convenience method to match mechanics of JsonElement getAs...
 	 */
 	public static JsonObject getAsJsonObject(JsonObject json, String memberName) {
