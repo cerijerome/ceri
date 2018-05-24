@@ -11,10 +11,12 @@ import ceri.common.util.HashCoder;
  * Encapsulates HSBA color with values 0-1.
  */
 public class HsbColor implements ComponentColor<HsbColor> {
+	public static final double MAX_VALUE = 1.0;
+	public static final HsbColor BLACK = HsbColor.of(0, 0, 0);
+	public static final HsbColor WHITE = HsbColor.of(0, 0, MAX_VALUE);
 	private static final int MAX_COLOR_VALUE = 255;
 	private static final int RGB_MASK = 0xffffff;
 	private static final int RGB_BYTES = 3;
-	public static final double MAX_VALUE = 1.0;
 	public final double h; // hue
 	public final double s; // saturation
 	public final double b; // brightness
@@ -22,6 +24,10 @@ public class HsbColor implements ComponentColor<HsbColor> {
 
 	public static HsbColor from(Color color) {
 		return from(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+	}
+
+	public static HsbColor from(RgbColor color) {
+		return from(color.asColor());
 	}
 
 	public static HsbColor from(int rgb) {
@@ -71,6 +77,23 @@ public class HsbColor implements ComponentColor<HsbColor> {
 		return new Color(a | rgb, true);
 	}
 
+	public RgbColor asRgb() {
+		return RgbColor.from(asColor());
+	}
+	
+	public boolean isBlack() {
+		return b <= 0;
+	}
+	
+	public boolean isWhite() {
+		return s <= 0 && b >= MAX_VALUE;
+	}
+	
+	public HsbColor dim(double ratio) {
+		if (ratio == 1) return this;
+		return of(h, s, b * ratio);
+	}
+	
 	@Override
 	public boolean hasAlpha() {
 		return a < MAX_VALUE;

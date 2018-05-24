@@ -1,13 +1,15 @@
 package ceri.common.collection;
 
 import static ceri.common.collection.CollectionUtil.addAll;
+import static ceri.common.collection.CollectionUtil.listSupplier;
+import static ceri.common.collection.CollectionUtil.mapSupplier;
+import static ceri.common.collection.CollectionUtil.setSupplier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +62,7 @@ public class ImmutableUtil {
 	 * Copies a collection of objects into an immutable LinkedHashSet.
 	 */
 	public static <T> Set<T> copyAsSet(Collection<? extends T> set) {
-		return copyAsSet(set, LinkedHashSet::new);
+		return copyAsSet(set, setSupplier());
 	}
 
 	/**
@@ -95,7 +97,7 @@ public class ImmutableUtil {
 	 * Copies a map of objects into an immutable LinkedHashMap.
 	 */
 	public static <K, V> Map<K, V> copyAsMap(Map<? extends K, ? extends V> map) {
-		return copyAsMap(map, LinkedHashMap::new);
+		return copyAsMap(map, mapSupplier());
 	}
 
 	/**
@@ -114,8 +116,7 @@ public class ImmutableUtil {
 	 */
 	public static <K, V> Map<K, Set<V>>
 		copyAsMapOfSets(Map<? extends K, ? extends Collection<? extends V>> map) {
-		return copyAsMapOfSets(map, (Supplier<Map<K, Set<V>>>) LinkedHashMap::new,
-			(Supplier<Set<V>>) LinkedHashSet::new);
+		return copyAsMapOfSets(map, mapSupplier(), setSupplier());
 	}
 
 	/**
@@ -139,8 +140,7 @@ public class ImmutableUtil {
 	 */
 	public static <K, V> Map<K, List<V>>
 		copyAsMapOfLists(Map<? extends K, ? extends Collection<? extends V>> map) {
-		return copyAsMapOfLists(map, (Supplier<Map<K, List<V>>>) LinkedHashMap::new,
-			(Supplier<List<V>>) ArrayList::new);
+		return copyAsMapOfLists(map, mapSupplier(), listSupplier());
 	}
 
 	/**
@@ -165,7 +165,7 @@ public class ImmutableUtil {
 	 * Copies a collection of objects into an immutable ArrayList.
 	 */
 	public static <T> List<T> copyAsList(Collection<? extends T> list) {
-		return copyAsList(list, ArrayList::new);
+		return copyAsList(list, listSupplier());
 	}
 
 	/**
@@ -183,7 +183,7 @@ public class ImmutableUtil {
 	 * Copies a stream of objects into an immutable LinkedHashSet.
 	 */
 	public static <T> Set<T> collectAsSet(Stream<? extends T> stream) {
-		Collector<T, ?, LinkedHashSet<T>> collector = Collectors.toCollection(LinkedHashSet::new);
+		Collector<T, ?, Set<T>> collector = Collectors.toCollection(setSupplier());
 		return Collections.<T>unmodifiableSet(stream.collect(collector));
 	}
 
@@ -208,7 +208,7 @@ public class ImmutableUtil {
 	 */
 	@SafeVarargs
 	public static <T> List<T> asList(T... array) {
-		return asList(ArrayList::new, array);
+		return asList(listSupplier(), array);
 	}
 
 	/**
@@ -227,7 +227,7 @@ public class ImmutableUtil {
 	 */
 	@SafeVarargs
 	public static <T> Set<T> asSet(T... array) {
-		return asSet(LinkedHashSet::new, array);
+		return asSet(setSupplier(), array);
 	}
 
 	/**
@@ -245,7 +245,7 @@ public class ImmutableUtil {
 	 * Creates an immutable map.
 	 */
 	public static <K, V> Map<K, V> asMap(K key, V value) {
-		return asMap(LinkedHashMap::new, key, value);
+		return asMap(mapSupplier(), key, value);
 	}
 
 	/**
@@ -261,7 +261,7 @@ public class ImmutableUtil {
 	 * Creates an immutable map.
 	 */
 	public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1) {
-		return asMap(LinkedHashMap::new, k0, v0, k1, v1);
+		return asMap(mapSupplier(), k0, v0, k1, v1);
 	}
 
 	/**
@@ -320,7 +320,7 @@ public class ImmutableUtil {
 
 	@SafeVarargs
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn, T... ts) {
-		return convertAsMap(fn, LinkedHashMap::new, ts);
+		return convertAsMap(fn, mapSupplier(), ts);
 	}
 
 	@SafeVarargs
@@ -331,7 +331,7 @@ public class ImmutableUtil {
 
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
 		Collection<T> ts) {
-		return convertAsMap(fn, ts, LinkedHashMap::new);
+		return convertAsMap(fn, ts, mapSupplier());
 	}
 
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
@@ -341,13 +341,21 @@ public class ImmutableUtil {
 
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
 		Stream<T> stream) {
-		return convertAsMap(fn, stream, LinkedHashMap::new);
+		return convertAsMap(fn, stream, mapSupplier());
 	}
 
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
 		Stream<T> stream, Supplier<Map<K, T>> mapSupplier) {
 		return Collections.unmodifiableMap(stream.collect(Collectors.toMap( //
 			fn, Function.identity(), StreamUtil.mergeError(), mapSupplier)));
+	}
+
+	public static <K, V> Map<V, K> invert(Map<K, V> map) {
+		return invert(map, mapSupplier());
+	}
+
+	public static <K, V> Map<V, K> invert(Map<K, V> map, Supplier<Map<V, K>> mapSupplier) {
+		return Collections.unmodifiableMap(CollectionUtil.invert(map, mapSupplier));
 	}
 
 	public static <K, T extends Enum<T>> Map<K, T> enumMap(Function<T, K> fn, Class<T> cls) {

@@ -146,6 +146,7 @@ public class ColorUtil {
 	}
 
 	public static String toString(Color color) {
+		if (color == null) return null;
 		return toString(color.getRGB());
 	}
 
@@ -163,6 +164,7 @@ public class ColorUtil {
 	}
 
 	public static String toHex(Color color) {
+		if (color == null) return null;
 		return toHex(color.getRGB());
 	}
 

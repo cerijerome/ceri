@@ -13,8 +13,10 @@ import ceri.common.util.HashCoder;
  * Encapsulates RGBA color with values 0-1.
  */
 public class RgbColor implements ComponentColor<RgbColor> {
-	private static final int MAX_COLOR_VALUE = 255;
 	public static final double MAX_VALUE = 1.0;
+	public static final RgbColor BLACK = RgbColor.of(0, 0, 0);
+	public static final RgbColor WHITE = RgbColor.of(MAX_VALUE, MAX_VALUE, MAX_VALUE);
+	private static final int MAX_COLOR_VALUE = 255;
 	public final double r; // red
 	public final double g; // green
 	public final double b; // blue
@@ -63,6 +65,11 @@ public class RgbColor implements ComponentColor<RgbColor> {
 		return new Color(fromRatio(r), fromRatio(g), fromRatio(b), fromRatio(a));
 	}
 
+	public RgbColor dim(double ratio) {
+		if (ratio == 1) return this;
+		return HsbColor.from(this).dim(ratio).asRgb();
+	}
+	
 	@Override
 	public boolean hasAlpha() {
 		return a < MAX_VALUE;

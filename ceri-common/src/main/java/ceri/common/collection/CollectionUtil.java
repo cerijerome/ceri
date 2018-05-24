@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,6 +27,9 @@ import ceri.common.util.BasicUtil;
  * Utility methods to test and manipulate collections.
  */
 public class CollectionUtil {
+	private static final Supplier<Map<?, ?>> mapSupplier = LinkedHashMap::new;
+	private static final Supplier<Set<?>> setSupplier = LinkedHashSet::new;
+	private static final Supplier<List<?>> listSupplier = ArrayList::new;
 
 	private CollectionUtil() {}
 
@@ -34,7 +38,7 @@ public class CollectionUtil {
 	 */
 	@SafeVarargs
 	public static <T> Set<T> asSet(T... array) {
-		return addAll(new LinkedHashSet<>(), array);
+		return addAll(CollectionUtil.<T>setSupplier().get(), array);
 	}
 
 	/**
@@ -67,6 +71,20 @@ public class CollectionUtil {
 		for (int i = 0; i < length; i++)
 			to.set(destOffset + i, from.get(srcOffset + i));
 		return destOffset + length;
+	}
+
+	/**
+	 * Inverts keys and values.
+	 */
+	public static <K, V> Map<V, K> invert(Map<K, V> map) {
+		return invert(map, mapSupplier());
+	}
+
+	/**
+	 * Inverts keys and values.
+	 */
+	public static <K, V> Map<V, K> invert(Map<K, V> map, Supplier<Map<V, K>> supplier) {
+		return transform((k, v) -> v, (k, v) -> k, supplier, map);
 	}
 
 	/**
@@ -107,7 +125,7 @@ public class CollectionUtil {
 	 */
 	public static <K, V, T, U> Map<K, V> transform(Function<? super T, ? extends K> keyMapper,
 		Function<? super U, ? extends V> valueMapper, Map<T, U> map) {
-		return transform(keyMapper, valueMapper, LinkedHashMap::new, map);
+		return transform(keyMapper, valueMapper, mapSupplier(), map);
 	}
 
 	/**
@@ -126,7 +144,7 @@ public class CollectionUtil {
 	public static <K, V, T, U> Map<K, V> transform(
 		BiFunction<? super T, ? super U, ? extends K> keyMapper,
 		BiFunction<? super T, ? super U, ? extends V> valueMapper, Map<T, U> map) {
-		return transform(keyMapper, valueMapper, LinkedHashMap::new, map);
+		return transform(keyMapper, valueMapper, mapSupplier(), map);
 	}
 
 	/**
@@ -146,7 +164,7 @@ public class CollectionUtil {
 	 */
 	public static <K, T, U> Map<K, U> transformKeys(Function<? super T, ? extends K> keyMapper,
 		Map<T, U> map) {
-		return transformKeys(keyMapper, LinkedHashMap::new, map);
+		return transformKeys(keyMapper, mapSupplier(), map);
 	}
 
 	/**
@@ -162,7 +180,7 @@ public class CollectionUtil {
 	 */
 	public static <K, T, U> Map<K, U>
 		transformKeys(BiFunction<? super T, ? super U, ? extends K> keyMapper, Map<T, U> map) {
-		return transformKeys(keyMapper, LinkedHashMap::new, map);
+		return transformKeys(keyMapper, mapSupplier(), map);
 	}
 
 	/**
@@ -179,7 +197,7 @@ public class CollectionUtil {
 	 */
 	public static <K, V, U> Map<K, V> transformValues(Function<? super U, ? extends V> valueMapper,
 		Map<? extends K, U> map) {
-		return transformValues(valueMapper, LinkedHashMap::new, map);
+		return transformValues(valueMapper, mapSupplier(), map);
 	}
 
 	/**
@@ -195,7 +213,7 @@ public class CollectionUtil {
 	 */
 	public static <K, V, U> Map<K, V> transformValues(
 		BiFunction<? super K, ? super U, ? extends V> valueMapper, Map<? extends K, U> map) {
-		return transformValues(valueMapper, LinkedHashMap::new, map);
+		return transformValues(valueMapper, mapSupplier(), map);
 	}
 
 	/**
@@ -227,7 +245,7 @@ public class CollectionUtil {
 	 * Returns a linked hash map copy with entries sorted by value.
 	 */
 	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
-		Map<K, V> result = new LinkedHashMap<>();
+		Map<K, V> result = CollectionUtil.<K, V>mapSupplier().get();
 		Stream<Entry<K, V>> stream = map.entrySet().stream();
 		Comparator<V> comparator = Comparators.comparable();
 		Comparator<Entry<K, V>> entryComparator =
@@ -425,13 +443,25 @@ public class CollectionUtil {
 	 * Finds all keys with matching value.
 	 */
 	public static <K, V> Collection<K> keys(Map<K, V> map, V value) {
-		Set<K> keys = new LinkedHashSet<>();
+		Set<K> keys = CollectionUtil.<K>setSupplier().get();
 		for (Map.Entry<K, V> entry : map.entrySet()) {
 			if (entry.getValue() == null && value != null) continue;
 			if (entry.getValue() == value || entry.getValue().equals(value))
 				keys.add(entry.getKey());
 		}
 		return keys;
+	}
+
+	public static <K, V> Supplier<Map<K, V>> mapSupplier() {
+		return BasicUtil.uncheckedCast(mapSupplier);
+	}
+
+	public static <T> Supplier<Set<T>> setSupplier() {
+		return BasicUtil.uncheckedCast(setSupplier);
+	}
+
+	public static <T> Supplier<List<T>> listSupplier() {
+		return BasicUtil.uncheckedCast(listSupplier);
 	}
 
 }
