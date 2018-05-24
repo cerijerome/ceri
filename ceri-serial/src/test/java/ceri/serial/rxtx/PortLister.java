@@ -3,7 +3,7 @@ package ceri.serial.rxtx;
 import java.util.Enumeration;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.util.BasicUtil;
-import gnu.io.CommPortIdentifier;
+import purejavacomm.CommPortIdentifier;
 
 
 public class PortLister {

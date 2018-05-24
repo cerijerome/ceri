@@ -6,9 +6,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public abstract class CommPort implements Closeable {
-	private final gnu.io.CommPort commPort;
+	private final purejavacomm.CommPort commPort;
 
-	CommPort(gnu.io.CommPort commPort) {
+	CommPort(purejavacomm.CommPort commPort) {
 		this.commPort = commPort;
 	}
 

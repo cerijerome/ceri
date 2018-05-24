@@ -1,4 +1,4 @@
-package ceri.serial.rxtx;
+package ceri.serial.javax;
 
 import java.io.IOException;
 import java.io.InputStream;

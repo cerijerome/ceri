@@ -1,4 +1,4 @@
-package ceri.serial.rxtx.test;
+package ceri.serial.javax.test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -10,7 +10,7 @@ import ceri.common.test.TestUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
-import ceri.serial.rxtx.SelfHealingSerialConnector;
+import ceri.serial.javax.SelfHealingSerialConnector;
 
 /**
  * Class to test serial ports. Writes data received from the port in binary, and reads input from

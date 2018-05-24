@@ -26,8 +26,8 @@
 			<artifactId>jssc</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.neuronrobotics</groupId>
-			<artifactId>nrjavaserial</artifactId>
+			<groupId>com.github.purejavacomm</groupId>
+			<artifactId>purejavacomm</artifactId>
 		</dependency>
 	</dependencies>
 

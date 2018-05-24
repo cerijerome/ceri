@@ -1,7 +1,7 @@
 package ceri.serial.usb;
 
 import ceri.common.property.BaseProperties;
-import ceri.serial.rxtx.SelfHealingSerialConnector.CommPortSupplier;
+import ceri.serial.javax.SelfHealingSerialConnector.CommPortSupplier;
 
 public class UsbSerialProperties extends BaseProperties {
 	private static final String LOCATION_ID_KEY = "location.id";
