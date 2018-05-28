@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import ceri.common.concurrent.RuntimeInterruptedException;
@@ -21,7 +22,9 @@ import ceri.common.concurrent.RuntimeInterruptedException;
  * Basic utility methods.
  */
 public class BasicUtil {
-	private static Map<Class<?>, Object> loadedClasses = new WeakHashMap<>();
+	private static final int MICROS_IN_MILLIS = (int) TimeUnit.MILLISECONDS.toMicros(1);
+	private static final int NANOS_IN_MICROS = (int) TimeUnit.MICROSECONDS.toNanos(1);
+	private final static Map<Class<?>, Object> loadedClasses = new WeakHashMap<>();
 
 	private BasicUtil() {}
 
@@ -56,11 +59,10 @@ public class BasicUtil {
 	/**
 	 * Creates an exception with formatted message.
 	 */
-	public static IllegalArgumentException exceptionf(String format,
-		Object... args) {
+	public static IllegalArgumentException exceptionf(String format, Object... args) {
 		return exceptionf(IllegalArgumentException::new, format, args);
 	}
-	
+
 	/**
 	 * Creates an exception with formatted message.
 	 */
@@ -164,6 +166,21 @@ public class BasicUtil {
 		if (delayMs == 0) return;
 		try {
 			Thread.sleep(delayMs);
+		} catch (InterruptedException e) {
+			throw new RuntimeInterruptedException(e);
+		}
+	}
+
+	/**
+	 * Sleeps for given microseconds, or not if 0. Throws RuntimeInterruptedException if
+	 * interrupted.
+	 */
+	public static void delayMicros(long delayMicros) {
+		long ms = delayMicros / MICROS_IN_MILLIS;
+		int ns = (int) ((delayMicros % MICROS_IN_MILLIS) * NANOS_IN_MICROS);
+		if (ms == 0 && ns == 0) return;
+		try {
+			Thread.sleep(ms, ns);
 		} catch (InterruptedException e) {
 			throw new RuntimeInterruptedException(e);
 		}
