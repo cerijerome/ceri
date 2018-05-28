@@ -5,11 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import javax.comm.CommPortIdentifier;
-import javax.comm.NoSuchPortException;
-import javax.comm.PortInUseException;
-import javax.comm.SerialPort;
-import javax.comm.UnsupportedCommOperationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BooleanCondition;
@@ -30,13 +25,10 @@ import ceri.log.util.LogUtil;
  */
 public class SelfHealingSerialConnector extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
-	public static final Pattern BROKEN_CONNECTION_REGEX = Pattern
-		.compile("(?i)device not configured");
+	public static final Pattern BROKEN_CONNECTION_REGEX =
+		Pattern.compile("(?i)device not configured");
 	private final CommPortSupplier commPortSupplier;
-	private final int baud;
-	private final int dataBits;
-	private final int stopBits;
-	private final int parity;
+	private final SerialPortParams params;
 	private final int connectionTimeoutMs;
 	private final int fixRetryDelayMs;
 	private final int recoveryDelayMs;
@@ -57,37 +49,19 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 
 	public static class Builder {
 		final CommPortSupplier commPortSupplier;
-		int baud = 9600;
-		int dataBits = SerialPort.DATABITS_8;
-		int stopBits = SerialPort.STOPBITS_1;
-		int parity = SerialPort.PARITY_NONE;
+		SerialPortParams params = SerialPortParams.DEFAULT;
 		int connectionTimeoutMs = 3000;
 		int fixRetryDelayMs = 2000;
 		int recoveryDelayMs = fixRetryDelayMs / 2;
-		Predicate<IOException> brokenPredicate = e -> streamNotSet(e) ||
-			messageMatches(BROKEN_CONNECTION_REGEX, e);
+		Predicate<IOException> brokenPredicate =
+			e -> streamNotSet(e) || messageMatches(BROKEN_CONNECTION_REGEX, e);
 
 		Builder(CommPortSupplier commPortSupplier) {
 			this.commPortSupplier = commPortSupplier;
 		}
 
-		public Builder baud(int baud) {
-			this.baud = baud;
-			return this;
-		}
-
-		public Builder dataBits(int dataBits) {
-			this.dataBits = dataBits;
-			return this;
-		}
-
-		public Builder stopBits(int stopBits) {
-			this.stopBits = stopBits;
-			return this;
-		}
-
-		public Builder parity(int parity) {
-			this.parity = parity;
+		public Builder params(SerialPortParams params) {
+			this.params = params;
 			return this;
 		}
 
@@ -126,10 +100,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 
 	SelfHealingSerialConnector(Builder builder) {
 		commPortSupplier = builder.commPortSupplier;
-		baud = builder.baud;
-		stopBits = builder.stopBits;
-		dataBits = builder.dataBits;
-		parity = builder.parity;
+		params = builder.params;
 		connectionTimeoutMs = builder.connectionTimeoutMs;
 		fixRetryDelayMs = builder.fixRetryDelayMs;
 		recoveryDelayMs = builder.recoveryDelayMs;
@@ -199,14 +170,14 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 				break;
 			} catch (IOException e) {
 				String errorMsg = e.getMessage();
-				if (lastErrorMsg == null || !lastErrorMsg.equals(errorMsg)) logger.debug(
-					"Failed to fix connection, retrying: {}", errorMsg);
+				if (lastErrorMsg == null || !lastErrorMsg.equals(errorMsg))
+					logger.debug("Failed to fix connection, retrying: {}", errorMsg);
 				lastErrorMsg = errorMsg;
 				BasicUtil.delay(fixRetryDelayMs);
 			}
 		}
 		logger.info("Connection is now fixed");
-		BasicUtil.delay(recoveryDelayMs); // wait for streams to recover before clearing 
+		BasicUtil.delay(recoveryDelayMs); // wait for streams to recover before clearing
 		sync.clear();
 		notifyListeners(State.fixed);
 	}
@@ -242,22 +213,15 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 	}
 
 	private SerialPort openSerialPort(String commPort, int connectionTimeoutMs) throws IOException {
+		SerialPort sp = null;
 		try {
-			CommPortIdentifier cpi = portIdentifier(commPort);
-			SerialPort sp = (SerialPort) cpi.open(getClass().getSimpleName(), connectionTimeoutMs);
-			sp.setSerialPortParams(baud, dataBits, stopBits, parity);
+			sp = SerialPort.open(commPort, getClass().getSimpleName(), connectionTimeoutMs);
+			sp.setParams(params);
 			return sp;
-		} catch (NoSuchPortException e) {
-			throw new IOException(e);
-		} catch (PortInUseException e) {
-			throw new IOException(e);
-		} catch (UnsupportedCommOperationException e) {
-			throw new IOException(e);
+		} catch (RuntimeException | IOException e) {
+			LogUtil.close(logger, sp);
+			throw e;
 		}
-	}
-
-	CommPortIdentifier portIdentifier(String commPort) throws NoSuchPortException {
-		return CommPortIdentifier.getPortIdentifier(commPort);
 	}
 
 	public static boolean streamNotSet(IOException e) {

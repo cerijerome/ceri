@@ -1,8 +1,9 @@
-package javax.comm;
+package ceri.serial.javax;
 
 import java.io.FileDescriptor;
 
 public class CommPortIdentifier {
+	public static final int CONNECTION_TIMEOUT_MS_DEF = 3000;
 	private final purejavacomm.CommPortIdentifier identifier;
 
 	public static CommPortIdentifier getPortIdentifier(String s) throws NoSuchPortException {
@@ -20,11 +21,15 @@ public class CommPortIdentifier {
 		this.identifier = identifier;
 	}
 
-	public CommPort open(String theOwner, int i) throws PortInUseException {
+	public CommPort open(String owner) throws PortInUseException {
+		return open(owner, CONNECTION_TIMEOUT_MS_DEF);
+	}
+
+	public CommPort open(String owner, int timeoutMs) throws PortInUseException {
 		try {
-			return commPort(identifier.open(theOwner, i));
-		} catch (purejavacomm.PortInUseException e) {
-			throw new PortInUseException(e);
+			return commPort(identifier.open(owner, timeoutMs));
+		} catch (purejavacomm.PortInUseException | purejavacomm.PureJavaIllegalStateException e) {
+			throw new PortInUseException(identifier.getName(), e);
 		}
 	}
 
@@ -44,8 +49,7 @@ public class CommPortIdentifier {
 		return identifier.isCurrentlyOwned();
 	}
 
-	public CommPort open(FileDescriptor arg0)
-		throws UnsupportedCommOperationException {
+	public CommPort open(FileDescriptor arg0) throws UnsupportedCommOperationException {
 		try {
 			return commPort(identifier.open(arg0));
 		} catch (purejavacomm.UnsupportedCommOperationException e) {

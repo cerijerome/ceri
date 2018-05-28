@@ -1,4 +1,4 @@
-package javax.comm;
+package ceri.serial.javax;
 
 import java.io.Closeable;
 import java.io.IOException;
