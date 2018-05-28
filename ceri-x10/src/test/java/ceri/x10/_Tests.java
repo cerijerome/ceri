@@ -4,7 +4,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import ceri.common.test.TestUtil;
 import ceri.x10.cm11a.Cm11aControllerBehavior;
-import ceri.x10.cm11a.Cm11aSerialConnectorBehavior;
 import ceri.x10.cm11a.EntryBehavior;
 import ceri.x10.cm11a.EntryDispatcherBehavior;
 import ceri.x10.cm11a.protocol.InputBufferBehavior;
@@ -13,7 +12,6 @@ import ceri.x10.cm11a.protocol.ReadStatusBehavior;
 import ceri.x10.cm11a.protocol.WriteDataBehavior;
 import ceri.x10.cm11a.protocol.WriteStatusBehavior;
 import ceri.x10.cm17a.Cm17aControllerBehavior;
-import ceri.x10.cm17a.Cm17aSerialConnectorBehavior;
 import ceri.x10.cm17a.CommandsBehavior;
 import ceri.x10.cm17a.ProcessorBehavior;
 import ceri.x10.command.CommandDispatcherBehavior;
@@ -28,7 +26,6 @@ import ceri.x10.util.UnexpectedByteExceptionBehavior;
 @Suite.SuiteClasses({
 	// cm11a
 	Cm11aControllerBehavior.class,
-	Cm11aSerialConnectorBehavior.class,
 	EntryBehavior.class,
 	EntryDispatcherBehavior.class,
 	ceri.x10.cm11a.ProcessorBehavior.class,
@@ -40,7 +37,6 @@ import ceri.x10.util.UnexpectedByteExceptionBehavior;
 	WriteStatusBehavior.class,
 	// cm17a
 	Cm17aControllerBehavior.class,
-	Cm17aSerialConnectorBehavior.class,
 	CommandsBehavior.class,
 	ProcessorBehavior.class,
 	// command
