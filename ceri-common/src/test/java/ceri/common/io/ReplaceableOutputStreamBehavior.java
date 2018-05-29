@@ -22,7 +22,7 @@ public class ReplaceableOutputStreamBehavior {
 		try (OutputStream out = Mockito.mock(OutputStream.class)) {
 			try (ReplaceableOutputStream rout = new ReplaceableOutputStream()) {
 				rout.setOutputStream(out);
-				Consumer<IOException> consumer = e -> list.add(e.getMessage());
+				Consumer<Exception> consumer = e -> list.add(e.getMessage());
 				rout.listen(consumer);
 				doThrow(new IOException("1")).when(out).write(anyInt());
 				assertException(() -> rout.write(0));

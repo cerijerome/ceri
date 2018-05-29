@@ -186,6 +186,10 @@ public class BasicUtil {
 		}
 	}
 
+	public static long microTime() {
+		return System.nanoTime() / NANOS_IN_MICROS;
+	}
+	
 	/**
 	 * Gets the stack trace as a string.
 	 */

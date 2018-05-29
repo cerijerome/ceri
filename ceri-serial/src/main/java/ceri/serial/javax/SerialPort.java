@@ -1,36 +1,30 @@
 package ceri.serial.javax;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.regex.Pattern;
 import com.sun.jna.Platform;
 import ceri.common.io.IoUtil;
+import ceri.common.io.StreamNotSetException;
+import ceri.common.reflect.ReflectUtil;
+import ceri.common.text.RegexUtil;
 import ceri.common.util.BasicUtil;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.TermiosUtil;
 import jtermios.Termios;
+import purejavacomm.PureJavaIllegalStateException;
 import purejavacomm.PureJavaSerialPort;
 
 public class SerialPort extends CommPort {
 	public static final int CONNECTION_TIMEOUT_MS_DEF =
 		CommPortIdentifier.CONNECTION_TIMEOUT_MS_DEF;
 	private static final String UNKNOWN_OWNER = "Unknown";
-	public static final int DATABITS_5 = purejavacomm.SerialPort.DATABITS_5;
-	public static final int DATABITS_6 = purejavacomm.SerialPort.DATABITS_6;
-	public static final int DATABITS_7 = purejavacomm.SerialPort.DATABITS_7;
-	public static final int DATABITS_8 = purejavacomm.SerialPort.DATABITS_8;
-	public static final int PARITY_NONE = purejavacomm.SerialPort.PARITY_NONE;
-	public static final int PARITY_EVEN = purejavacomm.SerialPort.PARITY_EVEN;
-	public static final int PARITY_ODD = purejavacomm.SerialPort.PARITY_ODD;
-	public static final int PARITY_SPACE = purejavacomm.SerialPort.PARITY_SPACE;
-	public static final int PARITY_MARK = purejavacomm.SerialPort.PARITY_MARK;
-	public static final int STOPBITS_1 = purejavacomm.SerialPort.STOPBITS_1;
-	public static final int STOPBITS_1_5 = purejavacomm.SerialPort.STOPBITS_1_5;
-	public static final int STOPBITS_2 = purejavacomm.SerialPort.STOPBITS_2;
-	public static final int FLOWCONTROL_NONE = purejavacomm.SerialPort.FLOWCONTROL_NONE;
-	public static final int FLOWCONTROL_RTSCTS_IN = purejavacomm.SerialPort.FLOWCONTROL_RTSCTS_IN;
-	public static final int FLOWCONTROL_RTSCTS_OUT = purejavacomm.SerialPort.FLOWCONTROL_RTSCTS_OUT;
-	public static final int FLOWCONTROL_XONXOFF_IN = purejavacomm.SerialPort.FLOWCONTROL_XONXOFF_IN;
-	public static final int FLOWCONTROL_XONXOFF_OUT =
-		purejavacomm.SerialPort.FLOWCONTROL_XONXOFF_OUT;
+	// These exceptions types/messages signify the serial port is broken
+	private static final List<Class<? extends Exception>> BROKEN_EXCEPTIONS = List.of( //
+		StreamNotSetException.class, NoSuchPortException.class,
+		PureJavaIllegalStateException.class);
+	private static final Pattern BROKEN_MESSAGE_REGEX =
+		Pattern.compile("(?i)(?:device not configured|\\bioctl\\b)");
 	private final purejavacomm.SerialPort serialPort;
 	private final int nativeFileDescriptor;
 
@@ -59,6 +53,22 @@ public class SerialPort extends CommPort {
 			IoUtil.close(commPort);
 			throw e;
 		}
+	}
+
+	/**
+	 * Checks if an exception thrown from serial port or input/output activities means the serial
+	 * port is down. Used by self-healing serial port.
+	 */
+	public static boolean isBroken(Exception e) {
+		if (e == null) return false;
+		if (ReflectUtil.instanceOfAny(e, BROKEN_EXCEPTIONS)) return true;
+		return (RegexUtil.found(BROKEN_MESSAGE_REGEX, e.getMessage()) != null);
+	}
+
+	public static boolean messageMatches(Pattern pattern, Exception e) {
+		String message = e.getMessage();
+		if (message == null) return false;
+		return pattern.matcher(message).find();
 	}
 
 	SerialPort(purejavacomm.SerialPort serialPort) {
@@ -125,15 +135,33 @@ public class SerialPort extends CommPort {
 		serialPort.setRTS(state);
 	}
 
+	public void setFlowControl(FlowControl flowControl) throws UnsupportedCommOperationException {
+		try {
+			serialPort.setFlowControlMode(flowControl.value);
+		} catch (purejavacomm.UnsupportedCommOperationException e) {
+			throw new UnsupportedCommOperationException(e);
+		}
+	}
+
+	/**
+	 * Implementation-specific, usually a fixed 0.25/0.5s duration. Better to use set/clear break
+	 * bit with a sleep in between.
+	 */
 	public void sendBreak(int duration) {
 		serialPort.sendBreak(duration);
 	}
 
+	/**
+	 * Starts a break (low signal). Make sure writing is complete or output will be overwritten.
+	 */
 	public void setBreakBit() throws IOException {
 		JnaUtil.validateFileDescriptor(nativeFileDescriptor);
 		TermiosUtil.setBreakBit(nativeFileDescriptor);
 	}
 
+	/**
+	 * Stops a break and returns to a high signal (mark/idle).
+	 */
 	public void clearBreakBit() throws IOException {
 		JnaUtil.validateFileDescriptor(nativeFileDescriptor);
 		TermiosUtil.clearBreakBit(nativeFileDescriptor);

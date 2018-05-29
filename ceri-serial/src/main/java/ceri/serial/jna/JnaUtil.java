@@ -10,7 +10,7 @@ public class JnaUtil {
 
 	public static int exec(IntSupplier supplier, String name) throws IOException {
 		int result = supplier.getAsInt();
-		if (result < 0) throw new IOException(name + " returned " + result);
+		if (result < 0) throw new IOException("JNA " + name + " failed (" + result + ")");
 		return result;
 	}
 

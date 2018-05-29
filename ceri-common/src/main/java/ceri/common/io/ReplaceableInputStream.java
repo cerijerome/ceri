@@ -10,17 +10,17 @@ import ceri.common.event.Listeners;
  * A filter input stream that can be reset with a new input stream. Useful for mending broken
  * streams.
  */
-public class ReplaceableInputStream extends InputStream implements Listenable<IOException> {
-	private final Listeners<IOException> listeners = new Listeners<>();
+public class ReplaceableInputStream extends InputStream implements Listenable<Exception> {
+	private final Listeners<Exception> listeners = new Listeners<>();
 	private volatile InputStream in = null;
 
 	@Override
-	public boolean listen(Consumer<? super IOException> listener) {
+	public boolean listen(Consumer<? super Exception> listener) {
 		return listeners.listen(listener);
 	}
 
 	@Override
-	public boolean unlisten(Consumer<? super IOException> listener) {
+	public boolean unlisten(Consumer<? super Exception> listener) {
 		return listeners.unlisten(listener);
 	}
 
@@ -33,7 +33,7 @@ public class ReplaceableInputStream extends InputStream implements Listenable<IO
 		try {
 			checkState();
 			return in.read();
-		} catch (IOException e) {
+		} catch (RuntimeException | IOException e) {
 			listeners.accept(e);
 			throw e;
 		}
@@ -44,7 +44,7 @@ public class ReplaceableInputStream extends InputStream implements Listenable<IO
 		try {
 			checkState();
 			return in.read(b);
-		} catch (IOException e) {
+		} catch (RuntimeException | IOException e) {
 			listeners.accept(e);
 			throw e;
 		}
@@ -55,7 +55,7 @@ public class ReplaceableInputStream extends InputStream implements Listenable<IO
 		try {
 			checkState();
 			return in.read(b, off, len);
-		} catch (IOException e) {
+		} catch (RuntimeException | IOException e) {
 			listeners.accept(e);
 			throw e;
 		}
@@ -66,7 +66,7 @@ public class ReplaceableInputStream extends InputStream implements Listenable<IO
 		try {
 			checkState();
 			return in.skip(n);
-		} catch (IOException e) {
+		} catch (RuntimeException | IOException e) {
 			listeners.accept(e);
 			throw e;
 		}
@@ -77,7 +77,7 @@ public class ReplaceableInputStream extends InputStream implements Listenable<IO
 		try {
 			checkState();
 			return in.available();
-		} catch (IOException e) {
+		} catch (RuntimeException | IOException e) {
 			listeners.accept(e);
 			throw e;
 		}
@@ -90,8 +90,12 @@ public class ReplaceableInputStream extends InputStream implements Listenable<IO
 
 	@Override
 	public void mark(int readlimit) {
-		if (in == null) return;
-		in.mark(readlimit);
+		try {
+			if (in != null) in.mark(readlimit);
+		} catch (RuntimeException e) {
+			listeners.accept(e);
+			throw e;
+		}
 	}
 
 	@Override
@@ -99,7 +103,7 @@ public class ReplaceableInputStream extends InputStream implements Listenable<IO
 		try {
 			checkState();
 			in.reset();
-		} catch (IOException e) {
+		} catch (RuntimeException | IOException e) {
 			listeners.accept(e);
 			throw e;
 		}
@@ -107,8 +111,12 @@ public class ReplaceableInputStream extends InputStream implements Listenable<IO
 
 	@Override
 	public boolean markSupported() {
-		if (in == null) return false;
-		return in.markSupported();
+		try {
+			return (in != null) && in.markSupported();
+		} catch (RuntimeException e) {
+			listeners.accept(e);
+			throw e;
+		}
 	}
 
 	private void checkState() throws IOException {

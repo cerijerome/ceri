@@ -22,7 +22,7 @@ public class ReplaceableInputStreamBehavior {
 			when(in.read()).thenThrow(new IOException("1"), new IOException("2"));
 			try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
 				rin.setInputStream(in);
-				Consumer<IOException> consumer = e -> list.add(e.getMessage());
+				Consumer<Exception> consumer = e -> list.add(e.getMessage());
 				rin.listen(consumer);
 				assertException(() -> rin.read());
 				assertException(() -> rin.read());

@@ -4,16 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
+import ceri.common.function.ExceptionConsumer;
 import ceri.common.io.ReplaceableInputStream;
 import ceri.common.io.ReplaceableOutputStream;
-import ceri.common.io.StreamNotSetException;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
@@ -25,14 +24,12 @@ import ceri.log.util.LogUtil;
  */
 public class SelfHealingSerialConnector extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
-	public static final Pattern BROKEN_CONNECTION_REGEX =
-		Pattern.compile("(?i)device not configured");
 	private final CommPortSupplier commPortSupplier;
 	private final SerialPortParams params;
 	private final int connectionTimeoutMs;
 	private final int fixRetryDelayMs;
 	private final int recoveryDelayMs;
-	private final Predicate<IOException> brokenPredicate;
+	private final Predicate<Exception> brokenPredicate;
 	private final Listeners<State> listeners = new Listeners<>();
 	private final ReplaceableInputStream in = new ReplaceableInputStream();
 	private final ReplaceableOutputStream out = new ReplaceableOutputStream();
@@ -53,8 +50,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 		int connectionTimeoutMs = 3000;
 		int fixRetryDelayMs = 2000;
 		int recoveryDelayMs = fixRetryDelayMs / 2;
-		Predicate<IOException> brokenPredicate =
-			e -> streamNotSet(e) || messageMatches(BROKEN_CONNECTION_REGEX, e);
+		Predicate<Exception> brokenPredicate = SerialPort::isBroken;
 
 		Builder(CommPortSupplier commPortSupplier) {
 			this.commPortSupplier = commPortSupplier;
@@ -80,7 +76,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 			return this;
 		}
 
-		public Builder brokenPredicate(Predicate<IOException> brokenPredicate) {
+		public Builder brokenPredicate(Predicate<Exception> brokenPredicate) {
 			this.brokenPredicate = brokenPredicate;
 			return this;
 		}
@@ -105,8 +101,8 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 		fixRetryDelayMs = builder.fixRetryDelayMs;
 		recoveryDelayMs = builder.recoveryDelayMs;
 		brokenPredicate = builder.brokenPredicate;
-		in.listen(this::ioException);
-		out.listen(this::ioException);
+		in.listen(this::checkIfBroken);
+		out.listen(this::checkIfBroken);
 		start();
 	}
 
@@ -140,13 +136,36 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 	}
 
 	public void setDTR(boolean state) throws IOException {
-		serialPort().setDTR(state);
+		exec(port -> port.setDTR(state));
 	}
 
 	public void setRTS(boolean state) throws IOException {
-		serialPort().setRTS(state);
+		exec(port -> port.setRTS(state));
 	}
 
+	public void setFlowControl(FlowControl flowControl) throws IOException {
+		exec(port -> port.setFlowControl(flowControl));
+	}
+
+	public void setBreakBit() throws IOException {
+		exec(SerialPort::setBreakBit);
+	}
+
+	public void clearBreakBit() throws IOException {
+		exec(SerialPort::clearBreakBit);
+	}
+	
+	@SuppressWarnings("resource")
+	private void exec(ExceptionConsumer<IOException, SerialPort> consumer) throws IOException {
+		SerialPort serialPort = serialPort();
+		try {
+			consumer.accept(serialPort);
+		} catch (RuntimeException | IOException e) {
+			checkIfBroken(e);
+			throw e;
+		}
+	}
+	
 	private SerialPort serialPort() throws IOException {
 		SerialPort serialPort = this.serialPort;
 		if (serialPort == null) throw new IOException("Serial port not connected");
@@ -162,7 +181,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 	@Override
 	protected void loop() throws InterruptedException {
 		sync.awaitPeek();
-		logger.info("Attempting to fix connection");
+		logger.info("Connection is broken - attempting to fix");
 		String lastErrorMsg = null;
 		while (true) {
 			try {
@@ -192,7 +211,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 		}
 	}
 
-	private void ioException(IOException e) {
+	private void checkIfBroken(Exception e) {
 		if (!brokenPredicate.test(e)) return;
 		if (sync.isSet()) return;
 		setBroken();
@@ -200,7 +219,6 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 
 	private void setBroken() {
 		sync.signal();
-		logger.warn("Connection is broken");
 		notifyListeners(State.broken);
 	}
 
@@ -222,16 +240,6 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 			LogUtil.close(logger, sp);
 			throw e;
 		}
-	}
-
-	public static boolean streamNotSet(IOException e) {
-		return e instanceof StreamNotSetException;
-	}
-
-	public static boolean messageMatches(Pattern pattern, IOException e) {
-		String message = e.getMessage();
-		if (message == null) return false;
-		return pattern.matcher(message).find();
 	}
 
 }

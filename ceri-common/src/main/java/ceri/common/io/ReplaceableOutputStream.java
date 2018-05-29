@@ -10,17 +10,17 @@ import ceri.common.event.Listeners;
  * A filter output stream that can be reset with a new output stream. Useful for mending broken
  * streams.
  */
-public class ReplaceableOutputStream extends OutputStream implements Listenable<IOException> {
-	private final Listeners<IOException> listeners = new Listeners<>();
+public class ReplaceableOutputStream extends OutputStream implements Listenable<Exception> {
+	private final Listeners<Exception> listeners = new Listeners<>();
 	private volatile OutputStream out;
 
 	@Override
-	public boolean listen(Consumer<? super IOException> listener) {
+	public boolean listen(Consumer<? super Exception> listener) {
 		return listeners.listen(listener);
 	}
 
 	@Override
-	public boolean unlisten(Consumer<? super IOException> listener) {
+	public boolean unlisten(Consumer<? super Exception> listener) {
 		return listeners.unlisten(listener);
 	}
 
@@ -33,7 +33,7 @@ public class ReplaceableOutputStream extends OutputStream implements Listenable<
 		try {
 			checkState();
 			out.write(b);
-		} catch (IOException e) {
+		} catch (RuntimeException | IOException e) {
 			listeners.accept(e);
 			throw e;
 		}
@@ -44,7 +44,7 @@ public class ReplaceableOutputStream extends OutputStream implements Listenable<
 		try {
 			checkState();
 			out.write(b);
-		} catch (IOException e) {
+		} catch (RuntimeException | IOException e) {
 			listeners.accept(e);
 			throw e;
 		}
@@ -55,7 +55,7 @@ public class ReplaceableOutputStream extends OutputStream implements Listenable<
 		try {
 			checkState();
 			out.write(b, off, len);
-		} catch (IOException e) {
+		} catch (RuntimeException | IOException e) {
 			listeners.accept(e);
 			throw e;
 		}
@@ -66,7 +66,7 @@ public class ReplaceableOutputStream extends OutputStream implements Listenable<
 		try {
 			checkState();
 			out.flush();
-		} catch (IOException e) {
+		} catch (RuntimeException | IOException e) {
 			listeners.accept(e);
 			throw e;
 		}
