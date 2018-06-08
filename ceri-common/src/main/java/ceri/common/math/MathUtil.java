@@ -330,7 +330,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Adjust a periodic value to be within 0 and period.
+	 * Adjust a periodic value to be within 0 and period (inclusive).
 	 */
 	public static float periodicLimit(float value, float period) {
 		while (value > period) value -= period;
@@ -339,7 +339,7 @@ public class MathUtil {
 	}
 	
 	/**
-	 * Adjust a periodic value to be within 0 and period.
+	 * Adjust a periodic value to be within 0 and period (inclusive).
 	 */
 	public static double periodicLimit(double value, double period) {
 		while (value > period) value -= period;
@@ -350,17 +350,26 @@ public class MathUtil {
 	/**
 	 * Adjust a periodic value to be within 0 and period.
 	 */
-	public static int periodicLimit(int value, int period) {
+	public static long periodicLimit(long value, long period) {
 		while (value > period) value -= period;
 		while (value < 0) value += period;
 		return value;
 	}
 	
 	/**
-	 * Adjust a periodic value to be within 0 and period.
+	 * Adjust a periodic value to be within 0 and period (exclusive).
 	 */
-	public static long periodicLimit(long value, long period) {
-		while (value > period) value -= period;
+	public static int periodicLimitEx(int value, int period) {
+		while (value >= period) value -= period;
+		while (value < 0) value += period;
+		return value;
+	}
+	
+	/**
+	 * Adjust a periodic value to be within 0 and period (exclusive).
+	 */
+	public static long periodicLimitEx(long value, long period) {
+		while (value >= period) value -= period;
 		while (value < 0) value += period;
 		return value;
 	}

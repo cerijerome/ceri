@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -176,6 +177,12 @@ public enum X11Color {
 
 	public static X11Color from(int rgb) {
 		return lookup.get(rgb & 0xffffff);
+	}
+
+	public static X11Color random() {
+		X11Color[] values = X11Color.values();
+		int rnd = ThreadLocalRandom.current().nextInt(values.length);
+		return values[rnd];
 	}
 
 }

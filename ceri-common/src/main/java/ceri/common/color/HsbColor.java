@@ -64,6 +64,10 @@ public class HsbColor implements ComponentColor<HsbColor> {
 		return new HsbColor(hue, saturation, brightness, alpha);
 	}
 
+	public static HsbColor max(double hue) {
+		return of(hue, MAX_VALUE, MAX_VALUE);
+	}
+
 	private HsbColor(double hue, double saturation, double brightness, double alpha) {
 		this.h = hue;
 		this.s = saturation;

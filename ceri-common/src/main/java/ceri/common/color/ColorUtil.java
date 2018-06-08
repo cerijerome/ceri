@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -317,6 +319,12 @@ public class ColorUtil {
 		int g = (tripleHex & 0xf0) << BITS4;
 		int b = tripleHex & 0xf;
 		return (r | g | b) * (HEX + 1);
+	}
+
+	public static Color random() {
+		Random rnd = ThreadLocalRandom.current();
+		int max = CHANNEL_MAX + 1;
+		return new Color(rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max));
 	}
 
 	private static Map<Integer, String> colorMap() {

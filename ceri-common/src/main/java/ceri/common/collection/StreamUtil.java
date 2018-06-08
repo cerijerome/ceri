@@ -24,6 +24,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import ceri.common.comparator.Comparators;
+import ceri.common.util.BasicUtil;
 
 /**
  * Convenience shortcuts for common stream methods.
@@ -32,6 +33,13 @@ public class StreamUtil {
 
 	private StreamUtil() {}
 
+	/**
+	 * Filters objects of given type and casts the stream.
+	 */
+	public static <T> Stream<T> castAny(Stream<?> stream, Class<T> cls) {
+		return stream.map(obj -> BasicUtil.castOrNull(cls, obj)).filter(Objects::nonNull);
+	}
+	
 	/**
 	 * Collects a stream of int code points into a string.
 	 */
