@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -148,15 +147,6 @@ public class LogUtil {
 		return close(logger, Arrays.asList(closeables));
 	}
 
-	/**
-	 * Closes a collection of closeables, and logs thrown exceptions as a warnings. Returns true
-	 * only if all closeables are successfully closed.
-	 */
-	public static boolean close(Logger logger, Map<?, ? extends Closeable> closeables) {
-		if (closeables == null) return false;
-		return close(logger, closeables.values());
-	}
-	
 	/**
 	 * Closes a collection of closeables, and logs thrown exceptions as a warnings. Returns true
 	 * only if all closeables are successfully closed.

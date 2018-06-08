@@ -14,8 +14,6 @@ import ceri.common.io.ReplaceableInputStream;
 import ceri.common.io.ReplaceableOutputStream;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
 
@@ -127,8 +125,8 @@ public class SelfHealingSocket extends LoopingExecutor {
 		keepAlive = builder.keepAlive;
 		fixRetryDelayMs = builder.fixRetryDelayMs;
 		recoveryDelayMs = builder.recoveryDelayMs;
-		in.listen(e -> ioException());
-		out.listen(e -> ioException());
+		in.listen(e -> checkIfBroken(e));
+		out.listen(e -> checkIfBroken(e));
 		start();
 	}
 
@@ -170,7 +168,7 @@ public class SelfHealingSocket extends LoopingExecutor {
 	@Override
 	protected void loop() throws InterruptedException {
 		sync.awaitPeek();
-		logger.info("Attempting to fix connection");
+		logger.warn("Connection is broken - attempting to fix");
 		String lastErrorMsg = null;
 		while (true) {
 			try {
@@ -178,14 +176,14 @@ public class SelfHealingSocket extends LoopingExecutor {
 				break;
 			} catch (IOException e) {
 				String errorMsg = e.getMessage();
-				if (lastErrorMsg == null || !lastErrorMsg.equals(errorMsg)) logger.debug(
-					"Failed to fix connection, retrying: {}", errorMsg);
+				if (lastErrorMsg == null || !lastErrorMsg.equals(errorMsg))
+					logger.debug("Failed to fix connection, retrying: {}", errorMsg);
 				lastErrorMsg = errorMsg;
 				BasicUtil.delay(fixRetryDelayMs);
 			}
 		}
 		logger.info("Connection is now fixed");
-		BasicUtil.delay(recoveryDelayMs); // wait for streams to recover before clearing 
+		BasicUtil.delay(recoveryDelayMs); // wait for streams to recover before clearing
 		sync.clear();
 		notifyListeners(State.fixed);
 	}
@@ -200,13 +198,13 @@ public class SelfHealingSocket extends LoopingExecutor {
 		}
 	}
 
-	private void ioException() {
+	private void checkIfBroken(Exception e) {
+		BasicUtil.unused(e); // may use later
 		if (sync.isSet()) return;
 		setBroken();
 	}
 
 	private void setBroken() {
-		logger.warn("Connection is broken");
 		sync.signal();
 		notifyListeners(State.broken);
 	}
@@ -227,32 +225,6 @@ public class SelfHealingSocket extends LoopingExecutor {
 		if (soTimeoutSeconds != null) socket.setSoTimeout(soLingerSeconds);
 		if (soLingerEnabled != null) socket.setSoLinger(soLingerEnabled, soLingerSeconds);
 		return socket;
-	}
-
-	@Override
-	public int hashCode() {
-		return HashCoder.hash(host, port, receiveBufferSize, sendBufferSize, tcpNoDelay,
-			soTimeoutSeconds, soLingerEnabled, soLingerSeconds, keepAlive, fixRetryDelayMs,
-			recoveryDelayMs);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof SelfHealingSocket)) return false;
-		SelfHealingSocket other = (SelfHealingSocket) obj;
-		if (!EqualsUtil.equals(host, other.host)) return false;
-		if (port != other.port) return false;
-		if (!EqualsUtil.equals(receiveBufferSize, other.receiveBufferSize)) return false;
-		if (!EqualsUtil.equals(sendBufferSize, other.sendBufferSize)) return false;
-		if (!EqualsUtil.equals(tcpNoDelay, other.tcpNoDelay)) return false;
-		if (!EqualsUtil.equals(soTimeoutSeconds, other.soTimeoutSeconds)) return false;
-		if (!EqualsUtil.equals(soLingerEnabled, other.soLingerEnabled)) return false;
-		if (!EqualsUtil.equals(soLingerSeconds, other.soLingerSeconds)) return false;
-		if (!EqualsUtil.equals(keepAlive, other.keepAlive)) return false;
-		if (fixRetryDelayMs != other.fixRetryDelayMs) return false;
-		if (recoveryDelayMs != other.recoveryDelayMs) return false;
-		return true;
 	}
 
 	@Override
