@@ -116,4 +116,26 @@ public class ConcurrentUtil {
 			"Thread has been interrupted");
 	}
 
+	/**
+	 * Executes and converts InterruptedException to runtime.
+	 */
+	public static void executeInterruptible(ExceptionRunnable<InterruptedException> runnable) {
+		try {
+			runnable.run();
+		} catch (InterruptedException e) {
+			throw new RuntimeInterruptedException(e);
+		}
+	}
+	
+	/**
+	 * Executes and converts InterruptedException to runtime.
+	 */
+	public static <T> T executeGetInterruptible(ExceptionSupplier<InterruptedException, T> supplier) {
+		try {
+			return supplier.get();
+		} catch (InterruptedException e) {
+			throw new RuntimeInterruptedException(e);
+		}
+	}
+	
 }

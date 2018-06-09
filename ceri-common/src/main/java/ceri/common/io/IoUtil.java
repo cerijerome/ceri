@@ -24,6 +24,8 @@ import java.util.MissingResourceException;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.util.BasicUtil;
 
 /**
  * I/O utility functions.
@@ -35,6 +37,7 @@ public class IoUtil {
 	private static final int MAX_UUID_ATTEMPTS = 10; // Shouldn't be needed
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 32;
 	private static final String CLASS_SUFFIX = ".class";
+	private static final int READ_POLL_MS = 100;
 
 	private IoUtil() {}
 
@@ -127,6 +130,47 @@ public class IoUtil {
 			if (System.in.available() > 0) return (char) System.in.read();
 		} catch (IOException e) {}
 		return (char) 0;
+	}
+
+	/**
+	 * Get a string from input stream in interruptible way.
+	 */
+	public static String readString(InputStream in) throws IOException {
+		int n = waitForData(in, 1);
+		byte[] buffer = new byte[n];
+		n = in.read(buffer);
+		return new String(buffer, 0, n);
+	}
+
+	/**
+	 * Wait for given number of bytes to be available on input stream.
+	 */
+	public static int waitForData(InputStream in, int count) throws IOException {
+		return waitForData(in, count, 0);
+	}
+
+	/**
+	 * Wait for given number of bytes to be available on input stream.
+	 */
+	public static int waitForData(InputStream in, int count, long timeoutMs) throws IOException {
+		return waitForData(in, count, timeoutMs, READ_POLL_MS);
+	}
+
+	/**
+	 * Wait for given number of bytes to be available on input stream.
+	 */
+	public static int waitForData(InputStream in, int count, long timeoutMs, long pollMs)
+		throws IOException {
+		long t = System.currentTimeMillis();
+		while (true) {
+			int n = in.available();
+			if (n >= count) return n;
+			if (timeoutMs != 0 && (System.currentTimeMillis() - t > timeoutMs))
+				throw new IoTimeoutException(
+					"Bytes not available within " + timeoutMs + "ms: " + n + "/" + count);
+			BasicUtil.delay(pollMs);
+			ConcurrentUtil.checkRuntimeInterrupted();
+		}
 	}
 
 	/**
@@ -388,7 +432,7 @@ public class IoUtil {
 	public static Path getResourcePath(Class<?> cls, String resourceName) {
 		return Paths.get(getResourceFile(cls, resourceName).toURI());
 	}
-	
+
 	/**
 	 * Gets a file representing a resource. Will fail if the class is in a jar file.
 	 */

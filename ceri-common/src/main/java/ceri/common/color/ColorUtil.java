@@ -157,12 +157,26 @@ public class ColorUtil {
 	}
 
 	public static String toString(int rgb) {
+		String name = toName(rgb);
+		if (name != null) return name;
+		return toHex(rgb);
+	}
+
+	public static String toName(Color color) {
+		if (color == null) return null;
+		return toName(color.getRGB());
+	}
+
+	public static String toName(int r, int g, int b) {
+		return toName(rgb(r, g, b));
+	}
+
+	public static String toName(int rgb) {
 		rgb = rgb & RGB_MASK;
 		String name = awtColorNames.get(rgb);
 		if (name != null) return name;
 		X11Color x11 = X11Color.from(rgb);
-		if (x11 != null) return x11.name();
-		return toHex(rgb);
+		return x11 == null ? null : x11.name();
 	}
 
 	public static String toHex(Color color) {

@@ -73,6 +73,10 @@ public abstract class LoopingExecutor implements Closeable {
 		stopped.await(timeoutMs);
 	}
 
+	public boolean stopped() {
+		return stopped.isSet();
+	}
+
 	private void loops() {
 		logger.info("{} started", logName);
 		try {

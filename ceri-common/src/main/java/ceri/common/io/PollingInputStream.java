@@ -3,8 +3,6 @@ package ceri.common.io;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.util.BasicUtil;
 
 /**
  * An input stream that polls the underlying stream until data is available. This allows I/O to
@@ -58,14 +56,7 @@ public class PollingInputStream extends FilterInputStream {
 
 	private void waitForData(int count) throws IOException {
 		if (closed) return;
-		long t = System.currentTimeMillis();
-		while (true) {
-			if (in.available() >= count) return;
-			if (timeoutMs != 0 && (System.currentTimeMillis() - t > timeoutMs)) throw new IoTimeoutException(
-				"No bytes available within " + timeoutMs + "ms");
-			BasicUtil.delay(pollingMs);
-			ConcurrentUtil.checkRuntimeInterrupted();
-		}
+		IoUtil.waitForData(in, count, timeoutMs, pollingMs);
 	}
 
 }
