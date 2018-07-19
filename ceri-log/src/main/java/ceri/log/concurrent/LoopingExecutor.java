@@ -5,7 +5,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LoggingException;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
@@ -29,7 +28,7 @@ public abstract class LoopingExecutor implements Closeable {
 
 	public static LoopingExecutor start(String logName, int exitTimeoutMs,
 		ExceptionRunnable<Exception> runnable) {
-		if (logName == null) logName = LoggingException.class.getSimpleName();
+		if (logName == null) logName = LoopingExecutor.class.getSimpleName();
 		LoopingExecutor executor = new LoopingExecutor(logName, exitTimeoutMs) {
 			@Override
 			protected void loop() throws Exception {
