@@ -6,8 +6,20 @@ import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
 
 public class SafeReadWrite {
-	private final ReadWriteLock lock = new ReentrantReadWriteLock();
+	public final ReadWriteLock lock;
 
+	public static SafeReadWrite create() {
+		return create(false);
+	}
+	
+	public static SafeReadWrite create(boolean fair) {
+		return new SafeReadWrite(new ReentrantReadWriteLock(fair));
+	}
+	
+	private SafeReadWrite(ReadWriteLock lock) {
+		this.lock = lock;
+	}
+	
 	public <E extends Exception, T> T read(ExceptionSupplier<E, T> supplier) throws E {
 		return ConcurrentUtil.executeGet(lock.readLock(), supplier);
 	}

@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -39,7 +40,7 @@ public class StreamUtil {
 	public static <T> Stream<T> castAny(Stream<?> stream, Class<T> cls) {
 		return stream.map(obj -> BasicUtil.castOrNull(cls, obj)).filter(Objects::nonNull);
 	}
-	
+
 	/**
 	 * Collects a stream of int code points into a string.
 	 */
@@ -188,6 +189,36 @@ public class StreamUtil {
 		Supplier<Map<K, V>> mapSupplier) {
 		return stream.collect(mapSupplier, (m, t) -> m.put(keyFn.apply(t), valueFn.apply(t)),
 			Map::putAll);
+	}
+
+	/**
+	 * Convert a map entry stream back to a map.
+	 */
+	public static <K, V> Map<K, V> toEntryMap(Stream<Map.Entry<K, V>> stream) {
+		return toEntryMap(stream, LinkedHashMap::new);
+	}
+
+	/**
+	 * Convert a map entry stream back to a map.
+	 */
+	public static <K, V> Map<K, V> toEntryMap(Stream<Map.Entry<K, V>> stream,
+		Supplier<Map<K, V>> mapSupplier) {
+		return stream.collect(entryCollector(mergeSecond(), mapSupplier));
+	}
+
+	/**
+	 * Collector for map entry back to map.
+	 */
+	public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> entryCollector() {
+		return entryCollector(mergeError(), LinkedHashMap::new);
+	}
+
+	/**
+	 * Collector for map entry back to map.
+	 */
+	public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>>
+		entryCollector(BinaryOperator<V> mergeFn, Supplier<Map<K, V>> mapSupplier) {
+		return Collectors.toMap(e -> e.getKey(), e -> e.getValue(), mergeFn, mapSupplier);
 	}
 
 	/**

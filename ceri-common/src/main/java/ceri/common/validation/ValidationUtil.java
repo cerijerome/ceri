@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import ceri.common.util.BasicUtil;
 
 public class ValidationUtil {
+	private static final String VALUE = "Value";
 
 	private ValidationUtil() {}
 
@@ -37,7 +38,7 @@ public class ValidationUtil {
 	}
 
 	public static void validateNull(Object value) {
-		validateNull(value, "Value");
+		validateNull(value, VALUE);
 	}
 
 	public static void validateNull(Object value, String name) {
@@ -45,7 +46,7 @@ public class ValidationUtil {
 	}
 
 	public static void validateEqual(Object value, Object expected) {
-		validateEqual(value, expected, "Value");
+		validateEqual(value, expected, VALUE);
 	}
 
 	public static void validateEqual(Object value, Object expected, String name) {

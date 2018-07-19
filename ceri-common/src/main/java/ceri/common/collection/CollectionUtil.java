@@ -255,6 +255,14 @@ public class CollectionUtil {
 	}
 
 	/**
+	 * Reverses the items in a list and returns the given reference.
+	 */
+	public static <T> List<T> reverse(List<T> ts) {
+		Collections.reverse(ts);
+		return ts;
+	}
+	
+	/**
 	 * Allows an enumeration to be run in a for-each loop.
 	 */
 	public static final <T> Iterable<T> iterable(final Enumeration<? extends T> enumeration) {

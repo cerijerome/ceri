@@ -319,35 +319,70 @@ public class ImmutableUtil {
 	}
 
 	@SafeVarargs
-	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn, T... ts) {
-		return convertAsMap(fn, mapSupplier(), ts);
+	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn, T... ts) {
+		return convertAsMap(keyFn, mapSupplier(), ts);
 	}
 
 	@SafeVarargs
-	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
+	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
 		Supplier<Map<K, T>> mapSupplier, T... ts) {
-		return convertAsMap(fn, Arrays.asList(ts), mapSupplier);
+		return convertAsMap(keyFn, Arrays.asList(ts), mapSupplier);
 	}
 
-	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
+	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
 		Collection<T> ts) {
-		return convertAsMap(fn, ts, mapSupplier());
+		return convertAsMap(keyFn, ts, mapSupplier());
 	}
 
-	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
+	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
 		Collection<T> ts, Supplier<Map<K, T>> mapSupplier) {
-		return convertAsMap(fn, ts.stream(), mapSupplier);
+		return convertAsMap(keyFn, ts.stream(), mapSupplier);
 	}
 
-	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
+	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
 		Stream<T> stream) {
-		return convertAsMap(fn, stream, mapSupplier());
+		return convertAsMap(keyFn, stream, mapSupplier());
 	}
 
-	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> fn,
+	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
 		Stream<T> stream, Supplier<Map<K, T>> mapSupplier) {
 		return Collections.unmodifiableMap(stream.collect(Collectors.toMap( //
-			fn, Function.identity(), StreamUtil.mergeError(), mapSupplier)));
+			keyFn, Function.identity(), StreamUtil.mergeError(), mapSupplier)));
+	}
+
+	@SafeVarargs
+	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
+		Function<? super T, ? extends V> valueFn, T... ts) {
+		return convertAsMap(keyFn, valueFn, mapSupplier(), ts);
+	}
+
+	@SafeVarargs
+	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
+		Function<? super T, ? extends V> valueFn, Supplier<Map<K, V>> mapSupplier, T... ts) {
+		return convertAsMap(keyFn, valueFn, Arrays.asList(ts), mapSupplier);
+	}
+
+	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
+		Function<? super T, ? extends V> valueFn, Collection<T> collection) {
+		return convertAsMap(keyFn, valueFn, collection, mapSupplier());
+	}
+
+	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
+		Function<? super T, ? extends V> valueFn, Collection<T> collection,
+		Supplier<Map<K, V>> mapSupplier) {
+		return convertAsMap(keyFn, valueFn, collection.stream(), mapSupplier);
+	}
+
+	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
+		Function<? super T, ? extends V> valueFn, Stream<T> stream) {
+		return convertAsMap(keyFn, valueFn, stream, mapSupplier());
+	}
+
+	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
+		Function<? super T, ? extends V> valueFn, Stream<T> stream,
+		Supplier<Map<K, V>> mapSupplier) {
+		return Collections.unmodifiableMap(stream.collect(Collectors.toMap( //
+			keyFn, valueFn, StreamUtil.mergeError(), mapSupplier)));
 	}
 
 	public static <K, V> Map<V, K> invert(Map<K, V> map) {

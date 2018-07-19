@@ -97,4 +97,19 @@ public class FunctionUtil {
 		return t -> supplier.get();
 	}
 
+	public static <E extends Exception, T> ExceptionRunnable<E> asRunnable(T t,
+		ExceptionConsumer<E, T> consumer) {
+		return () -> consumer.accept(t);
+	}
+
+	public static <E extends Exception, T> ExceptionRunnable<E> asRunnable(T t,
+		ExceptionFunction<E, T, ?> fn) {
+		return () -> fn.apply(t);
+	}
+
+	public static <E extends Exception, T, U> ExceptionConsumer<E, T> asConsumer(
+		ExceptionFunction<E, T, U> fn) {
+		return t -> fn.apply(t);
+	}
+	
 }
