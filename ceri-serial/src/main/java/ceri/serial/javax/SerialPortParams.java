@@ -73,7 +73,7 @@ public class SerialPortParams {
 	}
 
 	public double sendTimeMicros(int frames) {
-		return microsPerFrame() *frames;
+		return microsPerFrame() * frames;
 	}
 
 	public double microsPerFrame() {
@@ -105,12 +105,6 @@ public class SerialPortParams {
 	@Override
 	public String toString() {
 		return ToStringHelper.createByClass(this, baudRate, dataBits, stopBits, parity).toString();
-	}
-
-	public static void main(String[] args) {
-		SerialPortParams p = builder().baudRate(250000).stopBits(StopBits._2).build();
-		System.out.println(p.microsPerBit());
-		System.out.println(p.microsPerFrame());
 	}
 
 }
