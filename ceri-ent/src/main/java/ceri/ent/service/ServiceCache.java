@@ -30,7 +30,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	private final boolean alwaysSave;
 	private final Service<K, V> service;
 	private final PersistentStore<Collection<Entry<K, V>>> store;
-	private final SafeReadWrite safe = new SafeReadWrite();
+	private final SafeReadWrite safe = SafeReadWrite.create();
 	private final Map<K, Entry<K, V>> cache;
 	private boolean modified = false;
 
