@@ -19,16 +19,25 @@ public class WrapperException extends RuntimeException {
 
 		Agent() {}
 
-		public <T> T wrap(E exception) {
-			throw new WrapperException(this, exception);
+		public <T, R> R wrap(ExceptionFunction<E, T, R> function, T t) {
+			try {
+				return function.apply(t);
+			} catch (RuntimeException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new WrapperException(this, BasicUtil.uncheckedCast(e));
+			}
 		}
-
-		public <T> T handle(WrapperException exception) throws E {
-			if (this != exception.agent)
-				throw new IllegalStateException("Mis-matched agent: " + exception.agent);
-			throw BasicUtil.<E>uncheckedCast(exception.getCause());
+		
+		public <T, R> R handle(ExceptionFunction<E, T, R> function, T t) throws E {
+			try {
+				return function.apply(t);
+			} catch (WrapperException e) {
+				if (this != e.agent)
+					throw new IllegalStateException("Mis-matched agent: " + e.agent);
+				throw BasicUtil.<E>uncheckedCast(e.getCause());
+			}
 		}
-
 	}
 
 }

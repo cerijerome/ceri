@@ -1,8 +1,10 @@
 package ceri.common.io;
 
+import static ceri.common.validation.ValidationUtil.validateMax;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.BufferUnderflowException;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.text.ToStringHelper;
 
 /**
@@ -84,7 +86,7 @@ public class ByteBufferStream extends ByteArrayOutputStream {
 
 	protected int read(byte[] b, int off, int len) {
 		if (b == null) throw new NullPointerException();
-		if (off < 0 || len < 0 || len > b.length - off) throw new IndexOutOfBoundsException();
+		ArrayUtil.validateSlice(b.length, off, len);
 		if (len == 0) return 0;
 		int available = available();
 		if (closed && available == 0) return -1;
@@ -100,8 +102,7 @@ public class ByteBufferStream extends ByteArrayOutputStream {
 	}
 
 	private void compact(int offset) {
-		if (offset == 0) return;
-		if (count < offset) throw new IllegalStateException();
+		validateMax(offset, count);
 		int len = count - offset;
 		if (len > 0) System.arraycopy(buf, offset, buf, 0, len);
 		count = len;

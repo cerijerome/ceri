@@ -1,35 +1,72 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertException;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
+import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 public class ReplaceableInputStreamBehavior {
+	private @Mock Consumer<Exception> listener;
+	private @Mock InputStream in;
+
+	@Before
+	public void init() {
+		MockitoAnnotations.initMocks(this);
+	}
+
+	@Test
+	public void shouldNotifyListenerOfMarkException() throws IOException {
+		RuntimeException ex = new RuntimeException();
+		doThrow(ex).when(in).mark(anyInt());
+		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
+			rin.listen(listener);
+			rin.setInputStream(in);
+			assertException(() -> rin.mark(0));
+		}
+		verify(listener).accept(ex);
+	}
+
+	@Test
+	public void shouldNotifyListenerOfMarkSupportedException() throws IOException {
+		RuntimeException ex = new RuntimeException();
+		doThrow(ex).when(in).markSupported();
+		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
+			rin.listen(listener);
+			assertFalse(rin.markSupported());
+			rin.setInputStream(in);
+			assertException(() -> rin.markSupported());
+		}
+		verify(listener).accept(ex);
+	}
 
 	@Test
 	public void shouldNotifyListenersOfErrors() throws IOException {
-		List<String> list = new ArrayList<>();
-		try (InputStream in = Mockito.mock(InputStream.class)) {
-			when(in.read()).thenThrow(new IOException("1"), new IOException("2"));
-			try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
-				rin.setInputStream(in);
-				Consumer<Exception> consumer = e -> list.add(e.getMessage());
-				rin.listen(consumer);
-				assertException(() -> rin.read());
-				assertException(() -> rin.read());
-				rin.unlisten(consumer);
-				assertIterable(list, "1", "2");
-			}
+		IOException e0 = new IOException();
+		IOException e1 = new IOException();
+		when(in.read()).thenThrow(e0, e1);
+		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
+			rin.setInputStream(in);
+			rin.listen(listener);
+			assertException(() -> rin.read());
+			assertException(() -> rin.read());
+			rin.unlisten(listener);
 		}
+		verify(listener).accept(e0);
+		verify(listener).accept(e1);
 	}
 
 	@Test

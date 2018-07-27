@@ -12,6 +12,8 @@ import java.util.stream.Stream;
 
 public class NetUtil {
 
+	private NetUtil() {}
+
 	public static InetAddress regularAddress() throws SocketException {
 		return findLocalAddress(NetUtil::isRegularAddress);
 	}
@@ -40,7 +42,7 @@ public class NetUtil {
 	}
 
 	public static boolean isRegularAddress(InetAddress i) {
-		if (!i.isSiteLocalAddress()) return false;
+		if (i.isSiteLocalAddress()) return true;
 		if (i.isAnyLocalAddress()) return false;
 		if (i.isLinkLocalAddress()) return false;
 		if (i.isLoopbackAddress()) return false;

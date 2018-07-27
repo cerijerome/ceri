@@ -3,12 +3,17 @@ package ceri.common.io;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertFile;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -28,8 +33,10 @@ import java.util.regex.Pattern;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.test.FileTestHelper;
+import ceri.common.test.SystemIo;
 
 public class IoUtilTest {
 	private static FileTestHelper helper = null;
@@ -56,6 +63,11 @@ public class IoUtilTest {
 		assertClearBuffer(new byte[100]);
 		assertClearBuffer(new byte[32 * 1024]);
 		assertClearBuffer(new byte[65 * 1024]);
+		try (InputStream in = Mockito.mock(InputStream.class)) {
+			when(in.available()).thenReturn(1);
+			when(in.read(any())).thenReturn(0);
+			assertThat(IoUtil.clear(in), is(0));
+		}
 	}
 
 	private void assertClearBuffer(byte[] buffer) throws IOException {
@@ -98,7 +110,8 @@ public class IoUtilTest {
 	@Test
 	public void testClose() {
 		final StringReader in = new StringReader("0123456789");
-		IoUtil.close(in);
+		assertFalse(IoUtil.close(null));
+		assertTrue(IoUtil.close(in));
 		assertException(IOException.class, () -> in.read());
 	}
 
@@ -115,21 +128,23 @@ public class IoUtilTest {
 	public void testCopyFile() throws IOException {
 		File toFile = helper.file("x/x/x.txt");
 		IoUtil.copyFile(helper.file("a/a/a.txt"), toFile);
-
-		try (FileInputStream in = new FileInputStream(toFile)) {
-			byte[] b = new byte[5];
-			assertThat(in.read(b), is(3));
-			assertThat(b, is(new byte[] { 'a', 'a', 'a', 0, 0 }));
-		}
+		assertFile(helper.file("a/a/a.txt"), toFile);
 		IoUtil.deleteAll(helper.file("x"));
+		File badFile = mock(File.class);
+		assertException(RuntimeException.class,
+			() -> IoUtil.copyFile(helper.file("a/a/a.txt"), badFile));
 	}
 
 	@Test
 	public void testCreateTempDir() {
-		File tempDir = IoUtil.createTempDir(new File("."));
+		File tempDir = IoUtil.createTempDir(helper.root);
 		assertTrue(tempDir.exists());
 		assertTrue(tempDir.isDirectory());
 		tempDir.delete();
+		// Should fail - generating same dir each iteration
+		assertException(() -> IoUtil.createTempDir(helper.root, file -> helper.file("a")));
+		// Should fail - parent path is an existing file
+		assertException(() -> IoUtil.createTempDir(helper.root, file -> helper.file("c.txt/c")));
 	}
 
 	@Test
@@ -160,18 +175,67 @@ public class IoUtilTest {
 
 	@Test
 	public void testGetChar() throws IOException {
-		InputStream stdin = System.in;
-		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
-			System.setIn(in);
+		try (SystemIo sys = SystemIo.of()) {
+			sys.in(new ByteArrayInputStream("test".getBytes()));
 			assertThat(IoUtil.getChar(), is('t'));
 			assertThat(IoUtil.getChar(), is('e'));
 			assertThat(IoUtil.getChar(), is('s'));
 			assertThat(IoUtil.getChar(), is('t'));
-			in.close();
+			sys.in().close();
 			assertThat(IoUtil.getChar(), is('\0'));
-		} finally {
-			System.setIn(stdin);
 		}
+		try (InputStream in = Mockito.mock(InputStream.class)) {
+			doThrow(new IOException()).when(in).available();
+			assertThat(IoUtil.getChar(in), is('\0'));
+		}
+	}
+
+	@Test
+	public void testReadString() throws IOException {
+		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
+			String s = IoUtil.readString(in);
+			assertThat(s, is("test"));
+		}
+	}
+
+	@Test
+	public void testWaitForData() throws IOException {
+		try (InputStream in = Mockito.mock(InputStream.class)) {
+			assertException(IoTimeoutException.class, () -> IoUtil.waitForData(in, 1, 1, 1));
+			when(in.available()).thenReturn(0).thenReturn(2);
+			assertThat(IoUtil.waitForData(in, 1, 0, 1), is(2));
+		}
+	}
+
+	@Test
+	public void testExecIo() throws IOException {
+		IoUtil.execIo(() -> {});
+		assertException(RuntimeException.class, () -> IoUtil.execIo(() -> Integer.valueOf(null)));
+		assertException(IOException.class, () -> IoUtil.execIo(() -> {
+			throw new Exception();
+		}));
+		assertException(IOException.class, () -> IoUtil.execIo(() -> {
+			throw new IOException();
+		}));
+	}
+
+	@Test
+	public void testCallableIo() throws IOException {
+		IoUtil.callableIo(() -> "a");
+		assertException(RuntimeException.class,
+			() -> IoUtil.callableIo(() -> Integer.valueOf(null)));
+		assertException(IOException.class, () -> IoUtil.callableIo(() -> {
+			throw new Exception();
+		}));
+		assertException(IOException.class, () -> IoUtil.callableIo(() -> {
+			throw new IOException();
+		}));
+	}
+
+	@Test
+	public void testUnixPath() {
+		assertThat(IoUtil.unixPath(new File("a/b/c")), is("a/b/c"));
+		assertThat(IoUtil.unixPath("a\\b\\c", '\\', Pattern.compile("\\\\")), is("a/b/c"));
 	}
 
 	@Test
@@ -206,13 +270,17 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testGetRelativeUnixPath() throws IOException {
+	public void testGetRelativePath() throws IOException {
 		String relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/d/e/f"));
 		assertThat(IoUtil.unixPath(relative), is("../../../d/e/f"));
 		relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/a/b/c/d/e"));
 		assertThat(IoUtil.unixPath(relative), is("d/e"));
 		relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/a/x/y"));
 		assertThat(IoUtil.unixPath(relative), is("../../x/y"));
+		File dir = mock(File.class);
+		when(dir.getCanonicalFile()).thenReturn(null);
+		relative = IoUtil.getRelativePath(dir, new File("/a/b/c"));
+		assertThat(IoUtil.unixPath(relative), is("/a/b/c"));
 	}
 
 	@Test
@@ -290,6 +358,10 @@ public class IoUtilTest {
 		assertThat(IoUtil.getContentString(file), is("abc"));
 		IoUtil.setContentString(file, "xyz");
 		assertThat(IoUtil.getContentString(file), is("xyz"));
+		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
+			IoUtil.setContent(file, in);
+		}
+		assertThat(IoUtil.getContentString(file), is("test"));
 		IoUtil.deleteAll(helper.file("x"));
 	}
 

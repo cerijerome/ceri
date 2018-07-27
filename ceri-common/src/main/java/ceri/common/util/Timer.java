@@ -8,7 +8,8 @@ import ceri.common.text.ToStringHelper;
  * Timer to keep track of elapsed and remaining time. Not thread-safe.
  */
 public class Timer {
-	public static final Timer INFINITE = new Timer(0);
+	public static final Timer INFINITE = new Timer(-1);
+	public static final Timer ZERO = new Timer(0);
 	public final long periodMs;
 	private State state = State.notStarted;
 	private long started = 0;
@@ -87,7 +88,8 @@ public class Timer {
 	}
 
 	public static Timer of(long periodMs) {
-		if (periodMs == 0) return INFINITE;
+		if (periodMs == ZERO.periodMs) return ZERO;
+		if (periodMs == INFINITE.periodMs) return INFINITE;
 		validateMin(periodMs, 0);
 		return new Timer(periodMs);
 	}
@@ -124,8 +126,12 @@ public class Timer {
 		state = State.stopped;
 	}
 
+	public boolean isZero() {
+		return periodMs == ZERO.periodMs;
+	}
+
 	public boolean isInfinite() {
-		return periodMs == 0;
+		return periodMs == INFINITE.periodMs;
 	}
 
 	public <E extends Exception> Timer.Snapshot
@@ -139,7 +145,7 @@ public class Timer {
 	}
 
 	private long remaining(long t) {
-		if (isInfinite()) return 0;
+		if (isInfinite() || isZero()) return 0;
 		long elapsed = this.elapsed;
 		if (state == State.started) elapsed += (t - lastStart);
 		return Math.max(0, periodMs - elapsed);

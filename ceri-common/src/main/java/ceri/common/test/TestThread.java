@@ -1,5 +1,6 @@
 package ceri.common.test;
 
+import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.util.BasicUtil;
 
@@ -94,7 +95,7 @@ public abstract class TestThread<T extends Throwable> {
 			if (!completed()) throw new RuntimeException("Thread not complete");
 			if (error != null) throw error;
 		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeInterruptedException(e);
 		}
 	}
 

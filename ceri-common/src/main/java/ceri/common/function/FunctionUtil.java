@@ -9,12 +9,17 @@ import ceri.common.util.EqualsUtil;
 
 public class FunctionUtil {
 	private static final int MAX_RECURSIONS_DEF = 20;
+	private static final Predicate<Object> TRUE_PREDICATE = t -> true;
 	private static final Consumer<Object> NULL_CONSUMER = t -> {};
 
 	private FunctionUtil() {}
 
 	public static <T> Consumer<T> nullConsumer() {
 		return BasicUtil.uncheckedCast(NULL_CONSUMER);
+	}
+
+	public static <T> Predicate<T> truePredicate() {
+		return BasicUtil.uncheckedCast(TRUE_PREDICATE);
 	}
 
 	/**

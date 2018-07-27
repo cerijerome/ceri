@@ -21,20 +21,18 @@ public class XmlUtil {
 	 * Creates an xml document object.
 	 */
 	public static Document document(String s) throws SAXException {
-		try {
+		return execute(() -> {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = dbf.newDocumentBuilder();
 			return builder.parse(input(s));
-		} catch (IOException | ParserConfigurationException e) {
-			throw new IllegalStateException("Should not happen", e);
-		}
+		});
 	}
 
 	/**
 	 * Creates an xml document object that doesn't validate DTDs.
 	 */
 	public static Document unvalidatedDocument(String s) throws SAXException {
-		try {
+		return execute(() -> {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			dbf.setValidating(false);
 			dbf.setNamespaceAware(true);
@@ -42,9 +40,19 @@ public class XmlUtil {
 			dbf.setFeature(XercesConstants.LOAD_EXTERNAL_DTD_FEATURE, false);
 			DocumentBuilder builder = dbf.newDocumentBuilder();
 			return builder.parse(input(s));
+		});
+	}
+
+	static Document execute(DocumentSupplier supplier) throws SAXException {
+		try {
+			return supplier.document();
 		} catch (IOException | ParserConfigurationException e) {
 			throw new IllegalStateException("Should not happen", e);
 		}
+	}
+
+	static interface DocumentSupplier {
+		Document document() throws IOException, SAXException, ParserConfigurationException;
 	}
 
 }

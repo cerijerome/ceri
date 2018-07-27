@@ -82,7 +82,7 @@ public class ByteBufferStreamBehavior {
 
 	@Test
 	public void shouldMaintainWrittenByteValuesOnBulkReads() throws IOException {
-		try (ByteBufferStream bbs = new ByteBufferStream(1000)) {
+		try (ByteBufferStream bbs = new ByteBufferStream()) {
 			bbs.write(buffer);
 			assertThat(bbs.available(), is(256));
 			byte[] b = new byte[256];

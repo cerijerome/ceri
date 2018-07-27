@@ -7,50 +7,64 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.function.FunctionUtil;
 
-/**
- * Asynchronously checks input from a stream, and interrupts the given thread if the input matches.
- * Useful for manually stopping long running threads without killing the process. The check runs at
- * a scheduled interval, and drops historical readings. To check multiple characters it is
- * recommended to have the predicate keep the history each time test() is called.
- */
 public class KeyChecker implements Closeable {
 	private static final long POLL_MS = 500;
 	private final Thread threadToInterrupt;
-	private final ScheduledExecutorService executor;
 	private final Predicate<String> checkFunction;
 	private final InputStream in;
+	private final ScheduledExecutorService executor;
 
-	public static KeyChecker create() {
-		return create(null);
+	public static KeyChecker of() {
+		return builder().build();
 	}
 
-	public static KeyChecker create(Predicate<String> checkFunction) {
-		return create(checkFunction, null);
+	public static class Builder {
+		long pollMs = POLL_MS;
+		Thread threadToInterrupt = Thread.currentThread();
+		Predicate<String> checkFunction = FunctionUtil.truePredicate();
+		InputStream in = System.in;
+
+		Builder() {}
+
+		public Builder pollMs(long pollMs) {
+			this.pollMs = pollMs;
+			return this;
+		}
+
+		public Builder threadToInterrupt(Thread threadToInterrupt) {
+			this.threadToInterrupt = threadToInterrupt;
+			return this;
+		}
+
+		public Builder checkFunction(Predicate<String> checkFunction) {
+			this.checkFunction = checkFunction;
+			return this;
+		}
+
+		public Builder in(InputStream in) {
+			this.in = in;
+			return this;
+		}
+
+		public KeyChecker build() {
+			return new KeyChecker(this);
+		}
 	}
 
-	public static KeyChecker create(Predicate<String> checkFunction, Long pollMs) {
-		return create(checkFunction, pollMs, System.in);
+	public static Builder builder() {
+		return new Builder();
 	}
 
-	public static KeyChecker create(Predicate<String> checkFunction, Long pollMs, InputStream in) {
-		return create(checkFunction, pollMs, in, Thread.currentThread());
-	}
-
-	public static KeyChecker create(Predicate<String> checkFunction, Long pollMs, InputStream in,
-		Thread threadToInterrupt) {
-		return new KeyChecker(checkFunction, pollMs, in, threadToInterrupt);
-	}
-
-	private KeyChecker(Predicate<String> checkFunction, Long pollMs, InputStream in,
-		Thread threadToInterrupt) {
-		this.in = in;
-		this.threadToInterrupt = threadToInterrupt;
-		if (pollMs == null) pollMs = POLL_MS;
-		this.checkFunction = checkFunction == null ? (input) -> true : checkFunction;
+	KeyChecker(Builder builder) {
+		threadToInterrupt = builder.threadToInterrupt;
+		checkFunction = builder.checkFunction;
+		in = builder.in;
 		executor = Executors.newSingleThreadScheduledExecutor();
-		executor.scheduleAtFixedRate(() -> checkForInput(), 0, pollMs, TimeUnit.MILLISECONDS);
+		executor.scheduleAtFixedRate(() -> checkForInput(), 0, builder.pollMs,
+			TimeUnit.MILLISECONDS);
 	}
 
 	private void checkForInput() {
@@ -69,12 +83,10 @@ public class KeyChecker implements Closeable {
 
 	@Override
 	public void close() {
-		try {
+		ConcurrentUtil.executeInterruptible(() -> {
 			executor.shutdown();
 			executor.awaitTermination(POLL_MS, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			throw new RuntimeInterruptedException(e);
-		}
+		});
 	}
 
 }

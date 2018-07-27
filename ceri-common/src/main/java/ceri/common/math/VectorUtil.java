@@ -2,6 +2,7 @@ package ceri.common.math;
 
 import static ceri.common.util.BasicUtil.exceptionf;
 import static ceri.common.validation.ValidationUtil.validate;
+import ceri.common.geom.Point2d;
 
 public class VectorUtil {
 	private static final int SIZE_2 = 2;
@@ -10,6 +11,15 @@ public class VectorUtil {
 
 	private VectorUtil() {}
 
+	public static Point2d toPoint(Vector v) {
+		verifySize(v, SIZE_2);
+		return Point2d.of(v.valueAt(0), v.valueAt(1));
+	}
+
+	public static Vector fromPoint(Point2d point) {
+		return Vector.of(point.x, point.y);
+	}
+	
 	public static double crossProduct2d(Vector v1, Vector v2) {
 		verifySize(v1, SIZE_2);
 		verifySize(v2, SIZE_2);

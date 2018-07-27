@@ -149,7 +149,7 @@ public class BinaryPrinter {
 	 * Print binary data.
 	 */
 	public void print(ImmutableByteArray data) {
-		print(data.copy(), 0);
+		print(data, 0);
 	}
 
 	/**

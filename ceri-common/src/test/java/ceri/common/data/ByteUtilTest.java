@@ -6,6 +6,7 @@ import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -39,6 +40,14 @@ public class ByteUtilTest {
 	public void testToHex() {
 		ImmutableByteArray b = ImmutableByteArray.wrap(-1, 0, 127, 128);
 		assertThat(ByteUtil.toHex(b, ":"), is("ff:00:7f:80"));
+	}
+
+	@Test
+	public void testFromHex() {
+		assertArray(ByteUtil.fromHex("abcde").copy(), 0xab, 0xcd, 0xe0);
+		assertArray(ByteUtil.fromHex("abcdef").copy(), 0xab, 0xcd, 0xef);
+		assertNull(ByteUtil.fromHex(null));
+		assertArray(ByteUtil.fromHex("").copy());
 	}
 
 	@Test
@@ -87,11 +96,17 @@ public class ByteUtilTest {
 
 	@Test
 	public void testMask() {
+		assertThat(ByteUtil.mask(0), is(0L));
+		assertThat(ByteUtil.mask(7), is(0x7fL));
+		assertThat(ByteUtil.mask(64), is(0xffffffff_ffffffffL));
+	}
+
+	@Test
+	public void testMaskOfBits() {
 		assertThat(ByteUtil.maskOfBits(63, 32, 31, 16, 15, 8, 7, 0), is(0x8000_0001_8001_8181L));
 		assertThat(ByteUtil.maskOfBits(64), is(0L));
 		assertThat(ByteUtil.maskOfBit(true, 63), is(0x8000_0000_0000_0000L));
 		assertThat(ByteUtil.maskOfBit(false, 63), is(0L));
-
 	}
 
 	@Test

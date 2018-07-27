@@ -1,6 +1,7 @@
 package ceri.common.test;
 
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertDir;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertFile;
 import static ceri.common.test.TestUtil.assertIterable;
@@ -22,7 +23,6 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,14 +68,26 @@ public class TestUtilTest {
 	}
 
 	@Test
-	public void testReadString() throws IOException {
-		InputStream stdin = System.in;
-		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
-			System.setIn(in);
+	public void testReadString() {
+		try (SystemIo sys = SystemIo.of()) {
+			sys.in(new ByteArrayInputStream("test".getBytes()));
 			assertThat(TestUtil.readString(), is("test"));
 			assertThat(TestUtil.readString(), is(""));
-		} finally {
-			System.setIn(stdin);
+		}
+	}
+
+	@Test
+	public void testReadStringWithBadInputStream() throws IOException {
+		try (SystemIo sys = SystemIo.of()) {
+			try (InputStream badIn = new InputStream() {
+				@Override
+				public int read() throws IOException {
+					throw new IOException();
+				}
+			}) {
+				sys.in(badIn);
+				assertException(() -> TestUtil.readString());
+			}
 		}
 	}
 
@@ -83,6 +95,25 @@ public class TestUtilTest {
 	public void testIsList() {
 		List<Integer> list = Arrays.asList(1, 2, 3);
 		assertThat(list, isList(1, 2, 3));
+	}
+
+	@Test
+	public void testAssertDir() throws IOException {
+		try (FileTestHelper helper = FileTestHelper.builder().root("a") //
+			.dir("a/0/d0").file("a/0/f0", "xxxxxx").file("a/0/f1", "") //
+			.dir("a/1/d0").file("a/1/f0", "xxxxxx").file("a/1/f1", "") //
+			.dir("a/2/d0").file("a/2/f", "xxxxxx").file("a/2/f1", "") //
+			.dir("a/3/d0").file("a/3/f0", "").file("a/3/f1", "") //
+			.dir("a/4/d0").file("a/4/f0", "xxxxxx").file("a/4/f1", "x") //
+			.dir("a/5/d1").file("a/5/f0", "xxxxxx").file("a/5/f1", "") //
+			.build()) {
+			assertDir(helper.file("a/0"), helper.file("a/1"));
+			assertAssertion(() -> assertDir(helper.file("a/0"), helper.file("a/2")));
+			assertAssertion(() -> assertDir(helper.file("a/0"), helper.file("a/3")));
+			assertAssertion(() -> assertDir(helper.file("a/0"), helper.file("a/4")));
+			assertAssertion(() -> assertDir(helper.file("a/0"), helper.file("a/5")));
+		}
+
 	}
 
 	@Test
@@ -120,13 +151,13 @@ public class TestUtilTest {
 
 	@Test
 	public void testExec() {
-		PrintStream sysOut = System.out;
-		StringBuilder b = new StringBuilder();
-		System.setOut(StringUtil.asPrintStream(b));
-		TestUtil.exec(ExecTest.class);
-		assertTrue(b.toString().contains("Exec should do this"));
-		assertTrue(b.toString().contains("Exec test that"));
-		System.setOut(sysOut);
+		try (SystemIo sys = SystemIo.of()) {
+			StringBuilder b = new StringBuilder();
+			sys.out(StringUtil.asPrintStream(b));
+			TestUtil.exec(ExecTest.class);
+			assertTrue(b.toString().contains("Exec should do this"));
+			assertTrue(b.toString().contains("Exec test that"));
+		}
 	}
 
 	@Test

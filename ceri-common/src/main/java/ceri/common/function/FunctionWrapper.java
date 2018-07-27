@@ -3,7 +3,6 @@ package ceri.common.function;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import ceri.common.util.BasicUtil;
 
 /**
  * Wraps and unwraps functions that throw exceptions, for use in functional interfaces. Use handle
@@ -70,21 +69,11 @@ public class FunctionWrapper<E extends Exception> {
 	}
 
 	private <T, R> R handleIt(ExceptionFunction<E, T, R> function, T t) throws E {
-		try {
-			return function.apply(t);
-		} catch (WrapperException ex) {
-			return agent.handle(ex);
-		}
+		return agent.handle(function, t);
 	}
 
 	private <T, R> R wrapIt(ExceptionFunction<E, T, R> function, T t) {
-		try {
-			return function.apply(t);
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (Exception e) {
-			return agent.wrap(BasicUtil.uncheckedCast(e));
-		}
+		return agent.wrap(function, t);
 	}
 
 }

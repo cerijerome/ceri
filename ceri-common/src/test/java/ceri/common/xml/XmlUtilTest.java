@@ -5,6 +5,8 @@ import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.resource;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import java.io.IOException;
+import javax.xml.parsers.ParserConfigurationException;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -30,6 +32,16 @@ public class XmlUtilTest {
 	public void testUnvalidatedDocument() throws SAXException {
 		Document doc = XmlUtil.unvalidatedDocument(xmlWithDtd);
 		assertThat(doc.getChildNodes().getLength(), is(2));
+	}
+
+	@Test
+	public void testExecute() {
+		assertException(() -> XmlUtil.execute(() -> {
+			throw new ParserConfigurationException();
+		}));
+		assertException(() -> XmlUtil.execute(() -> {
+			throw new IOException();
+		}));
 	}
 
 }

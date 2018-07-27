@@ -16,6 +16,12 @@ public class DataUtilTest {
 	}
 
 	@Test
+	public void testValidateAscii() {
+		ImmutableByteArray data = ByteUtil.toAscii("test");
+		DataUtil.validateAscii(s -> s.equals("test"), data);
+	}
+
+	@Test
 	public void testValidateType() {
 		DataUtil.validate(DataTestType.intValue(255));
 		assertException(() -> DataUtil.validate(DataTestType.intValue(0), "test"));
@@ -43,22 +49,25 @@ public class DataUtilTest {
 
 	@Test
 	public void testEncode() {
-		byte[] data = new byte[12];
+		byte[] data = new byte[13];
 		assertThat(DataUtil.encodeIntLsb(0xfedc1234, data, 0), is(4));
 		assertThat(DataUtil.encodeIntMsb(0xfedc1234, data, 4), is(8));
 		assertThat(DataUtil.encodeShortLsb(0xa98765, data, 8), is(10));
 		assertThat(DataUtil.encodeShortMsb(0xa98765, data, 10), is(12));
-		assertArray(data, 0x34, 0x12, 0xdc, 0xfe, 0xfe, 0xdc, 0x12, 0x34, 0x65, 0x87, 0x87, 0x65);
+		assertThat(DataUtil.encodeByte(0xabcde, data, 12), is(13));
+		assertArray(data, //
+			0x34, 0x12, 0xdc, 0xfe, 0xfe, 0xdc, 0x12, 0x34, 0x65, 0x87, 0x87, 0x65, 0xde);
 	}
 
 	@Test
 	public void testDecode() {
 		ImmutableByteArray data = ImmutableByteArray.wrap(0x34, 0x12, 0xdc, 0xfe, 0xfe, 0xdc, 0x12,
-			0x34, 0x65, 0x87, 0x87, 0x65);
+			0x34, 0x65, 0x87, 0x87, 0x65, 0xde);
 		assertThat(DataUtil.decodeIntLsb(data, 0), is(0xfedc1234));
 		assertThat(DataUtil.decodeIntMsb(data, 4), is(0xfedc1234));
 		assertThat(DataUtil.decodeShortLsb(data, 8), is(0x8765));
 		assertThat(DataUtil.decodeShortMsb(data, 10), is(0x8765));
+		assertThat(DataUtil.decodeByte(data, 12), is(0xde));
 	}
 
 }

@@ -4,7 +4,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -84,12 +83,8 @@ public class TestUtil {
 	 * Reads a string resource from the caller's package with given name.
 	 */
 	public static String resource(String name) {
-		try {
-			Class<?> cls = ReflectUtil.previousCaller(1).cls();
-			return IoUtil.getResourceString(cls, name);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		Class<?> cls = ReflectUtil.previousCaller(1).cls();
+		return init(() -> IoUtil.getResourceString(cls, name));
 	}
 
 	/**
@@ -106,7 +101,7 @@ public class TestUtil {
 	/**
 	 * Simple map creation with alternating keys and values.
 	 */
-	public static <K, V> Map<K, V> testMap(Object...objs) {
+	public static <K, V> Map<K, V> testMap(Object... objs) {
 		Map<K, V> map = new LinkedHashMap<>();
 		int i = 0;
 		while (i < objs.length) {
@@ -116,7 +111,7 @@ public class TestUtil {
 		}
 		return map;
 	}
-	
+
 	/**
 	 * Checks all objects are not equal to the first given object.
 	 */
@@ -188,7 +183,7 @@ public class TestUtil {
 	 * Checks a double value is NaN.
 	 */
 	public static void assertNaN(String reason, double value) {
-		if (!Double.isNaN(value)) fail(reason);
+		assertTrue(reason, Double.isNaN(value));
 	}
 
 	/**

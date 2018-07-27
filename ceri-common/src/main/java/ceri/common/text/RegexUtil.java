@@ -16,6 +16,7 @@ import ceri.common.factory.StringFactories;
 import ceri.common.util.PrimitiveUtil;
 
 public class RegexUtil {
+	public static final Pattern ALL = Pattern.compile(".*");
 	private static final Pattern GROUP_NAME_REGEX = Pattern.compile("\\(\\?\\<([^>]+)\\>");
 	private static final Factory<List<Boolean>, Iterable<String>> BOOLEAN_LIST_FACTORY =
 		Factories.list(StringFactories.TO_BOOLEAN);

@@ -1,5 +1,7 @@
 package ceri.common.io;
 
+import ceri.common.concurrent.ConcurrentUtil;
+
 /**
  * A ByteBufferStream that blocks on writing if the buffer exceeds max size, and blocks on reading
  * if not closed and no bytes available. Writing and reading should occur in different threads.
@@ -27,15 +29,12 @@ public class BlockingBufferStream extends ByteBufferStream {
 
 	@Override
 	public synchronized void write(int b) {
-		if (closed()) return;
-		try {
+		ConcurrentUtil.executeInterruptible(() -> {
 			waitToWrite();
 			if (closed()) return;
 			super.write(b);
 			notifyAll();
-		} catch (InterruptedException e) {
-			// exit gracefully
-		}
+		});
 	}
 
 	@Override
@@ -43,8 +42,7 @@ public class BlockingBufferStream extends ByteBufferStream {
 		if (b == null) throw new NullPointerException();
 		if (off < 0 || len < 0 || len > b.length - off) throw new IndexOutOfBoundsException();
 		if (len == 0) return;
-		if (closed()) return;
-		try {
+		ConcurrentUtil.executeInterruptible(() -> {
 			// write what you can first then block
 			waitToWrite();
 			if (closed()) return;
@@ -56,23 +54,19 @@ public class BlockingBufferStream extends ByteBufferStream {
 			}
 			super.write(b, off, len);
 			notifyAll();
-		} catch (InterruptedException e) {
-			// exit gracefully
-		}
+		});
 	}
 
 	@Override
 	protected synchronized int read() {
-		if (closed() && available() == 0) return -1;
-		int read = -1;
-		try {
+		if (eof()) return -1;
+		return ConcurrentUtil.executeGetInterruptible(() -> {
+			int read = -1;
 			waitToRead();
 			read = super.read();
 			notifyAll();
-		} catch (InterruptedException e) {
-			// exit gracefully
-		}
-		return read;
+			return read;
+		});
 	}
 
 	@Override
@@ -80,16 +74,14 @@ public class BlockingBufferStream extends ByteBufferStream {
 		if (b == null) throw new NullPointerException();
 		if (off < 0 || len < 0 || len > b.length - off) throw new IndexOutOfBoundsException();
 		if (len == 0) return 0;
-		if (closed() && available() == 0) return -1;
-		int read = -1;
-		try {
+		if (eof()) return -1;
+		return ConcurrentUtil.executeGetInterruptible(() -> {
+			int read = -1;
 			waitToRead();
 			read = super.read(b, off, len);
 			notifyAll();
-		} catch (InterruptedException e) {
-			// exit gracefully
-		}
-		return read;
+			return read;
+		});
 	}
 
 	private int availableForWriting() {
@@ -106,4 +98,8 @@ public class BlockingBufferStream extends ByteBufferStream {
 			wait();
 	}
 
+	private boolean eof() {
+		return closed() && available() == 0;
+	}
+	
 }

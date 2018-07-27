@@ -25,6 +25,7 @@ import ceri.common.concurrent.AsyncRunnerBehavior;
 import ceri.common.concurrent.BooleanConditionBehavior;
 import ceri.common.concurrent.ConcurrentUtilTest;
 import ceri.common.concurrent.RuntimeInterruptedExceptionBehavior;
+import ceri.common.concurrent.SafeReadWriteBehavior;
 import ceri.common.concurrent.ValueConditionBehavior;
 import ceri.common.data.BinaryStateBehavior;
 import ceri.common.data.ByteArrayDataInputBehavior;
@@ -56,7 +57,9 @@ import ceri.common.factory.NumberFactoriesTest;
 import ceri.common.factory.StringFactoriesTest;
 import ceri.common.filter.CollectionFiltersTest;
 import ceri.common.filter.EnumFiltersTest;
+import ceri.common.filter.FilterBehavior;
 import ceri.common.filter.FiltersTest;
+import ceri.common.function.ExceptionPredicateBehavior;
 import ceri.common.function.FunctionUtilTest;
 import ceri.common.function.FunctionWrapperBehavior;
 import ceri.common.geo.LatLngBehavior;
@@ -72,6 +75,7 @@ import ceri.common.geom.GeometryUtilTest;
 import ceri.common.geom.InvertedRadial3dBehavior;
 import ceri.common.geom.Line2dBehavior;
 import ceri.common.geom.Line2dEquationBehavior;
+import ceri.common.geom.LineUtilTest;
 import ceri.common.geom.Point2dBehavior;
 import ceri.common.geom.Polar2dBehavior;
 import ceri.common.geom.Radial3dBehavior;
@@ -83,6 +87,7 @@ import ceri.common.geom.TruncatedRadial3dBehavior;
 import ceri.common.io.BitIteratorBehavior;
 import ceri.common.io.BlockingBufferStreamBehavior;
 import ceri.common.io.ByteBufferStreamBehavior;
+import ceri.common.io.CloseableWrapperBehavior;
 import ceri.common.io.FileFiltersTest;
 import ceri.common.io.FileIteratorBehavior;
 import ceri.common.io.FileTrackerBehavior;
@@ -95,6 +100,7 @@ import ceri.common.io.PollingInputStreamBehavior;
 import ceri.common.io.RegexFilenameFilterBehavior;
 import ceri.common.io.ReplaceableInputStreamBehavior;
 import ceri.common.io.ReplaceableOutputStreamBehavior;
+import ceri.common.io.ResourceListerBehavior;
 import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
 import ceri.common.math.AlgebraUtilTest;
@@ -106,6 +112,8 @@ import ceri.common.math.MixedFractionBehavior;
 import ceri.common.math.NumberPatternsBehavior;
 import ceri.common.math.ReverseFunctionBehavior;
 import ceri.common.math.TrigUtilTest;
+import ceri.common.net.NetUtilTest;
+import ceri.common.net.UdpUtilTest;
 import ceri.common.property.BasePropertiesBehavior;
 import ceri.common.property.LocatorBehavior;
 import ceri.common.property.PathBehavior;
@@ -166,6 +174,7 @@ import ceri.common.util.MultiPatternBehavior;
 import ceri.common.util.NameValueBehavior;
 import ceri.common.util.OsUtilTest;
 import ceri.common.util.PrimitiveUtilTest;
+import ceri.common.util.TimerBehavior;
 import ceri.common.validation.ValidationUtilTest;
 import ceri.common.xml.RuntimeXPathExceptionBehavior;
 import ceri.common.xml.XPathUtilTest;
@@ -203,6 +212,7 @@ import ceri.common.xml.XmlUtilTest;
 	BooleanConditionBehavior.class, //
 	ConcurrentUtilTest.class, //
 	RuntimeInterruptedExceptionBehavior.class, //
+	SafeReadWriteBehavior.class, //
 	ValueConditionBehavior.class, //
 	// data
 	BinaryStateBehavior.class, //
@@ -240,8 +250,10 @@ import ceri.common.xml.XmlUtilTest;
 	// filter
 	CollectionFiltersTest.class, //
 	EnumFiltersTest.class, //
+	FilterBehavior.class, //
 	FiltersTest.class, //
 	// function
+	ExceptionPredicateBehavior.class, //
 	FunctionUtilTest.class, //
 	FunctionWrapperBehavior.class, //
 	// geo
@@ -259,6 +271,7 @@ import ceri.common.xml.XmlUtilTest;
 	InvertedRadial3dBehavior.class, //
 	Line2dBehavior.class, //
 	Line2dEquationBehavior.class, //
+	LineUtilTest.class, //
 	Point2dBehavior.class, //
 	Polar2dBehavior.class, //
 	Radial3dBehavior.class, //
@@ -271,6 +284,7 @@ import ceri.common.xml.XmlUtilTest;
 	BitIteratorBehavior.class, //
 	BlockingBufferStreamBehavior.class, //
 	ByteBufferStreamBehavior.class, //
+	CloseableWrapperBehavior.class, //
 	FileFiltersTest.class, //
 	FileIteratorBehavior.class, //
 	FileTrackerBehavior.class, //
@@ -283,6 +297,7 @@ import ceri.common.xml.XmlUtilTest;
 	RegexFilenameFilterBehavior.class, //
 	ReplaceableInputStreamBehavior.class, //
 	ReplaceableOutputStreamBehavior.class, //
+	ResourceListerBehavior.class, //
 	RuntimeIoExceptionBehavior.class, //
 	StringPrintStreamBehavior.class, //
 	// math
@@ -295,6 +310,9 @@ import ceri.common.xml.XmlUtilTest;
 	NumberPatternsBehavior.class, //
 	ReverseFunctionBehavior.class, //
 	TrigUtilTest.class, //
+	// net
+	NetUtilTest.class, //
+	UdpUtilTest.class, //
 	// property
 	BasePropertiesBehavior.class, //
 	LocatorBehavior.class, //
@@ -362,6 +380,7 @@ import ceri.common.xml.XmlUtilTest;
 	NameValueBehavior.class, //
 	OsUtilTest.class, //
 	PrimitiveUtilTest.class, //
+	TimerBehavior.class, //
 	// validation
 	ValidationUtilTest.class, //
 	// xml

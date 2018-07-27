@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import org.junit.Test;
+import ceri.common.data.ByteUtil;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
 
@@ -31,6 +32,15 @@ public class BinaryPrinterBehavior {
 			bin.print(in, 1);
 			assertThat(b.toString(), is("00000000  00  .\n"));
 		}
+	}
+
+	@Test
+	public void shouldPrintByteArray() {
+		StringBuilder b = new StringBuilder();
+		BinaryPrinter bin = BinaryPrinter.builder().out(StringUtil.asPrintStream(b))
+			.showBinary(false).build();
+		bin.print(ByteUtil.toAscii("abc"));
+		assertThat(b.toString(), is("61 62 63                 abc     \n"));
 	}
 
 	@Test

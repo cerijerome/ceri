@@ -51,13 +51,10 @@ public class DebuggerBehavior {
 	@Test
 	public void shouldWriteToSysErrByDefault() {
 		StringBuilder b = new StringBuilder();
-		PrintStream sysErr = System.err;
-		try (PrintStream out = StringUtil.asPrintStream(b)) {
-			System.setErr(out);
+		try (SystemIo sys = SystemIo.of()) {
+			sys.err(StringUtil.asPrintStream(b));
 			Debugger dbg = Debugger.of();
 			dbg.log("test");
-		} finally {
-			System.setErr(sysErr);
 		}
 		assertThat(b, matchesRegex("(?ms).* test\n"));
 	}

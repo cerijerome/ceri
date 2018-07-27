@@ -15,11 +15,27 @@ public class ValidationUtilTest {
 	}
 
 	@Test
+	public void testValidatePredicate() {
+		ValidationUtil.validate(i -> i < 0, -1);
+		assertException(() -> ValidationUtil.validate(i -> i < 0, 0));
+		ValidationUtil.validate(i -> i < 0, -1, "int");
+		assertException(() -> ValidationUtil.validate(i -> i < 0, 0, "int"));
+	}
+
+	@Test
 	public void testValidate() {
 		ValidationUtil.validate(1 > 0);
 		ValidationUtil.validate(1 > 0, "test");
 		assertException(() -> ValidationUtil.validate(1 < 0));
 		assertException(() -> ValidationUtil.validate(1 < 0, "test"));
+	}
+
+	@Test
+	public void testValidateWithFormattedException() {
+		int i0 = -1;
+		ValidationUtil.validate(i0 < 0, "%d >= 0", i0);
+		int i1 = 1;
+		assertException(() -> ValidationUtil.validate(i1 < 0, "%d >= 0", i1));
 	}
 
 	@Test
@@ -65,6 +81,8 @@ public class ValidationUtilTest {
 		ValidationUtil.validateRangeUnsigned(Long.MAX_VALUE, 0, Long.MIN_VALUE, "test");
 		assertException(
 			() -> ValidationUtil.validateRangeUnsigned(Long.MIN_VALUE, 0, Long.MAX_VALUE));
+		assertException(
+			() -> ValidationUtil.validateRangeUnsigned(0, Long.MAX_VALUE, Long.MIN_VALUE));
 		assertException(() -> ValidationUtil.validateRangeUnsigned(0, Long.MIN_VALUE, 0, "test"));
 		assertException(() -> ValidationUtil.validateRangeUnsigned(-1, 0, -2, "test"));
 	}

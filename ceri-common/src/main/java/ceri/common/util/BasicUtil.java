@@ -13,10 +13,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.function.ExceptionRunnable;
 
 /**
  * Basic utility methods.
@@ -54,6 +56,24 @@ public class BasicUtil {
 			if (cause == null) return t;
 			t = cause;
 		}
+	}
+
+	/**
+	 * Gets the stack trace as a string.
+	 */
+	public static String stackTrace(Throwable t) {
+		StringWriter w = new StringWriter();
+		t.printStackTrace(new PrintWriter(w));
+		return w.toString();
+	}
+
+	/**
+	 * Attaches a throwable cause to an exception without losing type. If the given cause is null it
+	 * will not be initialized. Use as: throw initCause(new MyException(...), cause);
+	 */
+	public static <E extends Exception> E initCause(E e, Throwable cause) {
+		if (cause != null) e.initCause(cause);
+		return e;
 	}
 
 	/**
@@ -191,24 +211,6 @@ public class BasicUtil {
 	}
 	
 	/**
-	 * Gets the stack trace as a string.
-	 */
-	public static String stackTrace(Throwable t) {
-		StringWriter w = new StringWriter();
-		t.printStackTrace(new PrintWriter(w));
-		return w.toString();
-	}
-
-	/**
-	 * Attaches a throwable cause to an exception without losing type. If the given cause is null it
-	 * will not be initialized. Use as: throw initCause(new MyException(...), cause);
-	 */
-	public static <E extends Exception> E initCause(E e, Throwable cause) {
-		if (cause != null) e.initCause(cause);
-		return e;
-	}
-
-	/**
 	 * Checks if the given map is null or empty.
 	 */
 	public static boolean isEmpty(Map<?, ?> map) {
@@ -236,6 +238,22 @@ public class BasicUtil {
 		return str == null || str.length() == 0 || str.trim().length() == 0;
 	}
 
+	public static void shouldNotThrow(ExceptionRunnable<Exception> runnable) {
+		try {
+			runnable.run();
+		} catch (Exception e) {
+			throw new IllegalStateException("Should not happen", e);
+		}
+	}
+	
+	public static <T> T shouldNotThrow(Callable<T> callable) {
+		try {
+			return callable.call();
+		} catch (Exception e) {
+			throw new IllegalStateException("Should not happen", e);
+		}
+	}
+	
 	/**
 	 * Makes sure a Class<?> is loaded. Use when static initialization is required but only the
 	 * Class<?> is referenced.

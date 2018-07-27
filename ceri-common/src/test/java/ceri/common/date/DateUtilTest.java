@@ -2,8 +2,11 @@ package ceri.common.date;
 
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.TimeZone;
 import org.junit.Test;
 
@@ -28,6 +31,18 @@ public class DateUtilTest {
 		int offset = TimeZone.getDefault().getOffset(0);
 		if (offset < 0) assertTrue(DateUtil.formatLocalIso(0).startsWith("1969-12-31"));
 		else assertTrue(DateUtil.formatLocalIso(0).startsWith("1970-01-01"));
+	}
+
+	@Test
+	public void testTimeToDuration() {
+		assertThat(DateUtil.timeToDuration(LocalTime.of(2, 15)), is(Duration.ofMinutes(135)));
+		assertNull(DateUtil.timeToDuration(null));
+	}
+
+	@Test
+	public void testDurationToTime() {
+		assertThat(DateUtil.durationToTime(Duration.ofMinutes(135)), is(LocalTime.of(2, 15)));
+		assertNull(DateUtil.durationToTime(null));
 	}
 
 }

@@ -2,9 +2,9 @@ package ceri.common.data;
 
 import static ceri.common.text.StringUtil.BYTE_HEX_DIGITS;
 import static ceri.common.text.StringUtil.HEX_RADIX;
+import static ceri.common.util.BasicUtil.shouldNotThrow;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -55,11 +55,7 @@ public class ByteUtil {
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, byte... bytes) {
-		try {
-			out.write(bytes);
-		} catch (IOException e) {
-			throw new IllegalStateException("Should not happen");
-		}
+		shouldNotThrow(() -> out.write(bytes));
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, byte[] bytes, int offset) {
@@ -67,28 +63,16 @@ public class ByteUtil {
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, ImmutableByteArray b) {
-		try {
-			b.writeTo(out);
-		} catch (IOException e) {
-			throw new IllegalStateException("Should not happen");
-		}
+		shouldNotThrow(() -> b.writeTo(out));
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, ImmutableByteArray b, int offset) {
-		try {
-			b.writeTo(out, offset);
-		} catch (IOException e) {
-			throw new IllegalStateException("Should not happen");
-		}
+		shouldNotThrow(() -> b.writeTo(out, offset));
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, ImmutableByteArray b, int offset,
 		int length) {
-		try {
-			b.writeTo(out, offset, length);
-		} catch (IOException e) {
-			throw new IllegalStateException("Should not happen");
-		}
+		shouldNotThrow(() -> b.writeTo(out, offset, length));
 	}
 
 	public static ImmutableByteArray toAscii(String s) {
@@ -135,7 +119,7 @@ public class ByteUtil {
 		if (bitCount == Long.SIZE) return -1L;
 		return (1L << bitCount) - 1;
 	}
-	
+
 	public static long maskOfBits(int... bits) {
 		long value = 0;
 		for (int bit : bits)

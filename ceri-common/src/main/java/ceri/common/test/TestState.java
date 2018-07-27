@@ -1,17 +1,22 @@
 package ceri.common.test;
 
+import java.util.Objects;
+import ceri.common.util.Timer;
+
 /**
  * This is a holder for a state value. Useful when testing behavior across threads. For example, set
  * a value on one thread and wait for it on another.
  */
 public class TestState<T> {
 	private static final int DEFAULT_WAIT_MS = 1000;
-	private T value = null;
+	private T value;
 
 	/**
 	 * Constructor with null initial state value.
 	 */
-	public TestState() {}
+	public TestState() {
+		this(null);
+	}
 
 	/**
 	 * Constructor that sets initial state value.
@@ -50,21 +55,22 @@ public class TestState<T> {
 	 */
 	public synchronized T waitFor(T value, long ms) {
 		try {
-			long t = System.currentTimeMillis() + ms;
-			while (!equalsValue(value) && (ms == 0 || System.currentTimeMillis() < t)) {
-				if (ms == 0) wait(0);
-				else wait(t - System.currentTimeMillis());
-			}
+			waitForValue(value, ms);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
 		return get();
 	}
 
-	private boolean equalsValue(T value) {
-		if (this.value == value) return true;
-		if (this.value == null) return false;
-		return this.value.equals(value);
+	private void waitForValue(T value, long ms) throws InterruptedException {
+		Timer timer = ms == 0 ? Timer.INFINITE : Timer.of(ms);
+		timer.start();
+		while (!Objects.equals(this.value, value)) {
+			Timer.Snapshot snapshot = timer.snapshot();
+			if (snapshot.expired()) break;
+			if (snapshot.infinite()) wait(0);
+			else snapshot.applyRemaining(this::wait);
+		}
 	}
 
 }

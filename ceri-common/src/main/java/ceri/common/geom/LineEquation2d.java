@@ -78,6 +78,15 @@ public class LineEquation2d {
 		return a == 0 && b == 0;
 	}
 
+	public double distanceTo(Point2d point) {
+		return distanceTo(point.x, point.y);
+	}
+	
+	public double distanceTo(double x, double y) {
+		if (isNull()) return Double.NaN;
+		return Math.abs((a * x) + (b * y) + c) / Math.sqrt((a * a) + (b * b));
+	}
+	
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(a, b, c);

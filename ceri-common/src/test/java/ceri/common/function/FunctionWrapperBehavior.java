@@ -6,10 +6,12 @@ import static ceri.common.function.FunctionTestUtil.consumer;
 import static ceri.common.function.FunctionTestUtil.function;
 import static ceri.common.function.FunctionTestUtil.runnable;
 import static ceri.common.function.FunctionTestUtil.supplier;
+import static ceri.common.test.TestUtil.assertException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import java.io.IOException;
+import java.util.List;
 import org.junit.Test;
 
 public class FunctionWrapperBehavior {
@@ -25,6 +27,17 @@ public class FunctionWrapperBehavior {
 		} catch (RuntimeException e) {
 			// mis-matched agent
 		}
+	}
+
+	@Test
+	public void shouldWrapAndUnwrapForEachExceptions() throws IOException {
+		ExceptionConsumer<IOException, String> consumer = s -> {
+			if (s.isEmpty()) throw new IOException();
+		};
+		FunctionWrapper<IOException> w = FunctionWrapper.create();
+		w.handle(() -> List.of("a", "b", "c").forEach(w.wrap(consumer)));
+		assertException(IOException.class, () -> //
+		w.handle(() -> List.of("").forEach(w.wrap(consumer))));
 	}
 
 	@Test

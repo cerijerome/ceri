@@ -15,7 +15,7 @@ public class Vector {
 	public static Vector of(Matrix matrix) {
 		if (matrix == null) return null;
 		MatrixUtil.verifyVector(matrix);
-		if (matrix.rows == 1) matrix = matrix.transpose();
+		if (matrix.rows == 1 && matrix.columns > 1) matrix = matrix.transpose();
 		return new Vector(matrix);
 	}
 
@@ -24,7 +24,7 @@ public class Vector {
 	}
 
 	public int size() {
-		return matrix.columns;
+		return matrix.rows;
 	}
 
 	public double magnitude() {
@@ -53,16 +53,16 @@ public class Vector {
 	}
 
 	public Vector negate() {
-		return Vector.of(matrix.negate());
+		return new Vector(matrix.negate());
 	}
 
 	public Vector add(Vector v) {
 		verifySize(v);
-		return Vector.of(matrix.add(v.matrix));
+		return new Vector(matrix.add(v.matrix));
 	}
 
 	public Vector multiply(double scalar) {
-		return Vector.of(matrix.multiply(scalar));
+		return new Vector(matrix.multiply(scalar));
 	}
 
 	private void verifySize(Vector v) {

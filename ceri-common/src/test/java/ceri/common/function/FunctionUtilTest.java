@@ -5,13 +5,16 @@ import static ceri.common.function.FunctionTestUtil.assertRtEx;
 import static ceri.common.function.FunctionTestUtil.consumer;
 import static ceri.common.function.FunctionTestUtil.runnable;
 import static ceri.common.function.FunctionTestUtil.supplier;
+import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.junit.Test;
@@ -24,10 +27,68 @@ public class FunctionUtilTest {
 	}
 
 	@Test
+	public void testNullConsumer() {
+		FunctionUtil.nullConsumer().accept(null);
+		FunctionUtil.nullConsumer().accept("test");
+	}
+
+	@Test
+	public void testTruePredicate() {
+		assertTrue(FunctionUtil.truePredicate().test(null));
+		assertTrue(FunctionUtil.truePredicate().test("test"));
+	}
+
+	@Test
+	public void testConsumerAsRunnable() throws Exception {
+		String[] store = { "" };
+		ExceptionConsumer<?, String> consumer = s -> store[0] = s;
+		FunctionUtil.asRunnable("test", consumer).run();
+		assertArray(store, "test");
+	}
+
+	@Test
+	public void testFunctionAsRunnable() throws Exception {
+		String[] store = { "" };
+		ExceptionFunction<?, String, Integer> function = s -> {
+			store[0] = "" + s.length();
+			return s.length();
+		};
+		FunctionUtil.asRunnable("abc", function).run();
+		assertArray(store, "3");
+	}
+
+	@Test
+	public void testFunctionAsConsumer() throws Exception {
+		String[] store = { "" };
+		ExceptionFunction<?, String, Integer> function = s -> {
+			store[0] = "" + s.length();
+			return s.length();
+		};
+		FunctionUtil.asConsumer(function).accept("abc");
+		assertArray(store, "3");
+	}
+
+	@Test
 	public void testSafe() {
 		Function<String, String> fn = FunctionUtil.safe(s -> s.trim());
 		assertThat(fn.apply(" "), is(""));
 		assertNull(fn.apply(null));
+	}
+
+	@Test
+	public void testSafeAccept() {
+		String[] store = { "" };
+		Consumer<String> consumer = s -> store[0] = s;
+		FunctionUtil.safeAccept("test", consumer);
+		assertArray(store, "test");
+		FunctionUtil.safeAccept((String) null, consumer);
+		assertArray(store, "test");
+		FunctionUtil.safeAccept("abc", s -> s.length() <= 3, consumer);
+		assertArray(store, "abc");
+		FunctionUtil.safeAccept((String) null, s -> s.length() <= 3, consumer);
+		assertArray(store, "abc");
+		FunctionUtil.safeAccept("abcd", s -> s.length() <= 3, consumer);
+		assertArray(store, "abc");
 	}
 
 	@Test

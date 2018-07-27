@@ -1,9 +1,11 @@
 package ceri.common.geom;
 
+import static ceri.common.validation.ValidationUtil.*;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public class Point2d {
+	public static final Point2d NULL = new Point2d(Double.NaN, Double.NaN);
 	public static final Point2d ZERO = new Point2d(0, 0);
 	public static final Point2d X_UNIT = new Point2d(1, 0);
 	public static final Point2d Y_UNIT = new Point2d(0, 1);
@@ -11,6 +13,8 @@ public class Point2d {
 	public final double y;
 
 	public static Point2d of(double x, double y) {
+		validate(!Double.isNaN(x), "x");
+		validate(!Double.isNaN(y), "y");
 		if (ZERO.equals(x, y)) return ZERO;
 		if (X_UNIT.equals(x, y)) return X_UNIT;
 		if (Y_UNIT.equals(x, y)) return Y_UNIT;
@@ -22,6 +26,10 @@ public class Point2d {
 		this.y = y;
 	}
 
+	public boolean isNull() {
+		return Double.isNaN(x);
+	}
+	
 	public Point2d reverse() {
 		return Point2d.of(-x, -y);
 	}
@@ -50,11 +58,11 @@ public class Point2d {
 	public double distance() {
 		return Math.sqrt((x * x) + (y * y));
 	}
-	
+
 	public double distanceTo(Point2d end) {
 		return to(end).distance();
 	}
-	
+
 	private boolean equals(double x, double y) {
 		return this.x == x && this.y == y;
 	}

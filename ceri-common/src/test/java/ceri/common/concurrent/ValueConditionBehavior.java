@@ -15,10 +15,12 @@ public class ValueConditionBehavior {
 		assertThat(count.awaitPeek(), is(1));
 		assertThat(count.awaitPeek(0), is(1));
 		assertThat(count.awaitPeek(1), is(1));
+		assertThat(count.awaitPeek((Integer) 1), is(1));
 		count.signal(2);
 		assertThat(count.awaitPeek(), is(3));
 		assertThat(count.awaitPeek(0), is(3));
 		assertThat(count.awaitPeek(1), is(3));
+		assertThat(count.awaitPeek(0, 2), is(3));
 	}
 
 	private Integer merge(Integer i, Integer j) {
@@ -41,7 +43,9 @@ public class ValueConditionBehavior {
 		assertThat(flag.value(), is((Integer) null));
 		flag.signal(3);
 		flag.clear();
-		assertThat(flag.await(1), is((Integer) null));
+		assertThat(flag.await((Integer) null), is((Integer) null));
+		flag.signal(4);
+		assertThat(flag.await(0, 4), is(4));
 	}
 
 }

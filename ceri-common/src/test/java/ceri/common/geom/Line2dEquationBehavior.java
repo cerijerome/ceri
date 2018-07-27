@@ -1,6 +1,7 @@
 package ceri.common.geom;
 
 import static ceri.common.test.TestUtil.assertApprox;
+import static ceri.common.test.TestUtil.assertNaN;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
@@ -12,6 +13,15 @@ public class Line2dEquationBehavior {
 	private final LineEquation2d l0 = LineEquation2d.of(4, -1, 3);
 	private final LineEquation2d l1 = LineEquation2d.of(1, 0, -1);
 	private final LineEquation2d l2 = LineEquation2d.of(0, -1, 1);
+
+	@Test
+	public void shouldCalculateDistanceToPoint() {
+		assertApprox(LineEquation2d.X_AXIS.distanceTo(Point2d.X_UNIT), 0);
+		assertApprox(LineEquation2d.X_AXIS.distanceTo(0, 1), 1);
+		assertApprox(LineEquation2d.of(1, -1, 0).distanceTo(0, 0), 0);
+		assertApprox(LineEquation2d.of(1, -1, 0).distanceTo(1, 2), 0.707);
+		assertNaN(LineEquation2d.NULL.distanceTo(Point2d.ZERO));
+	}
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
@@ -44,14 +54,11 @@ public class Line2dEquationBehavior {
 	public void shouldNormalizeToUnitXOrY() {
 		assertThat(l0.normalize(), is(LineEquation2d.of(1, -0.25, 0.75)));
 		assertThat(LineEquation2d.of(0, 0, 0).normalize(), is(LineEquation2d.of(0, 0, 0)));
-		assertThat(LineEquation2d.of(-1, 4, 2).normalize(),
-			is(LineEquation2d.of(1, -4, -2)));
+		assertThat(LineEquation2d.of(-1, 4, 2).normalize(), is(LineEquation2d.of(1, -4, -2)));
 		assertThat(LineEquation2d.of(1, 4, 2).normalize(), is(LineEquation2d.of(1, 4, 2)));
-		assertThat(LineEquation2d.of(4, -1, 0).normalize(), is(LineEquation2d.of(1, -0.25,
-			0)));
+		assertThat(LineEquation2d.of(4, -1, 0).normalize(), is(LineEquation2d.of(1, -0.25, 0)));
 		assertThat(LineEquation2d.of(2, -2, 2).normalize(), is(LineEquation2d.of(1, -1, 1)));
-		assertThat(LineEquation2d.of(-2, 2, 2).normalize(),
-			is(LineEquation2d.of(1, -1, -1)));
+		assertThat(LineEquation2d.of(-2, 2, 2).normalize(), is(LineEquation2d.of(1, -1, -1)));
 		assertThat(LineEquation2d.of(0, -2, 2).normalize(), is(LineEquation2d.of(0, 1, -1)));
 		assertThat(LineEquation2d.of(-3, 0, 6).normalize(), is(LineEquation2d.of(1, 0, -2)));
 	}

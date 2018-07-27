@@ -4,6 +4,7 @@ import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
+
 public class Line2d {
 	public static final Line2d ZERO = new Line2d(Point2d.ZERO, Point2d.ZERO);
 	public static final Line2d X_UNIT = new Line2d(Point2d.ZERO, Point2d.X_UNIT);

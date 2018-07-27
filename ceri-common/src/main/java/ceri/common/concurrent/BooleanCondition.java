@@ -35,19 +35,23 @@ public class BooleanCondition {
 	}
 
 	public boolean await(long timeoutMs) throws InterruptedException {
-		return condition.await(timeoutMs) != null;
+		return isSet(condition.await(timeoutMs));
 	}
 
 	public boolean awaitPeek() throws InterruptedException {
-		return condition.awaitPeek() != null;
+		return isSet(condition.awaitPeek());
 	}
 
 	public boolean awaitPeek(long timeoutMs) throws InterruptedException {
-		return condition.awaitPeek(timeoutMs) != null;
+		return isSet(condition.awaitPeek(timeoutMs));
 	}
 
 	public boolean isSet() {
 		return condition.value() != null;
 	}
 
+	private boolean isSet(Object value) {
+		return value != null;
+	}
+	
 }

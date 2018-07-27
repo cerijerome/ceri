@@ -1,5 +1,6 @@
 package ceri.common.io;
 
+import static ceri.common.util.BasicUtil.shouldNotThrow;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,7 +15,6 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,9 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.function.ExceptionRunnable;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -83,21 +86,26 @@ public class IoUtil {
 	 * Create a temp dir with random name under given dir. Use null for current dir.
 	 */
 	public static File createTempDir(File rootDir) {
+		return createTempDir(rootDir, IoUtil::generateTempDir);
+	}
+
+	static File createTempDir(File rootDir, Function<File, File> generator) {
 		FileTracker tracker = new FileTracker();
 		for (int i = MAX_UUID_ATTEMPTS; i > 0; i--) {
-			String dirName = UUID.randomUUID().toString();
-			File tempDir = new File(rootDir, dirName);
+			File tempDir = generator.apply(rootDir);
 			if (tempDir.exists()) continue;
 			tracker.dir(tempDir); // create dir path
-			if (!tempDir.exists()) {
-				tracker.delete(); // delete any created parent dirs
-				throw new IllegalStateException(
-					"Unable to create directory " + tempDir.getAbsolutePath());
-			}
-			return tempDir;
+			if (tempDir.exists()) return tempDir;
+			// unable to create full path, delete any created parent dirs
+			tracker.delete();
 		}
 		throw new IllegalStateException(
 			"Unable to create random temp dir in " + MAX_UUID_ATTEMPTS + " attempts");
+	}
+	
+	private static File generateTempDir(File rootDir) {
+		String dirName = UUID.randomUUID().toString();
+		return new File(rootDir, dirName);
 	}
 
 	/**
@@ -126,9 +134,18 @@ public class IoUtil {
 	 * Get a char from stdin, return 0 if no key pressed
 	 */
 	public static char getChar() {
+		return getChar(System.in);
+	}
+
+	/**
+	 * Get a char from input stream, return 0 if nothing available
+	 */
+	public static char getChar(InputStream in) {
 		try {
-			if (System.in.available() > 0) return (char) System.in.read();
-		} catch (IOException e) {}
+			if (in.available() > 0) return (char) in.read();
+		} catch (IOException e) {
+			//
+		}
 		return (char) 0;
 	}
 
@@ -185,6 +202,36 @@ public class IoUtil {
 	}
 
 	/**
+	 * Execute runnable and convert non-io exception to io exception.
+	 */
+	public static void execIo(ExceptionRunnable<Exception> runnable) throws IOException {
+		try {
+			runnable.run();
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (IOException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new IOException(e);
+		}
+	}
+	
+	/**
+	 * Execute callable and convert non-io exception to io exception.
+	 */
+	public static <T> T callableIo(Callable<T> callable) throws IOException {
+		try {
+			return callable.call();
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (IOException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new IOException(e);
+		}
+	}
+	
+	/**
 	 * Convert file path to unix-style
 	 */
 	public static String unixPath(File file) {
@@ -195,10 +242,14 @@ public class IoUtil {
 	 * Convert file path to unix-style
 	 */
 	public static String unixPath(String path) {
-		if (File.separatorChar == '/') return path;
-		return FILE_SEPARATOR_REGEX.matcher(path).replaceAll("/");
+		return unixPath(path, File.separatorChar, FILE_SEPARATOR_REGEX);
 	}
 
+	static String unixPath(String path, char separator, Pattern regex) {
+		if (separator == '/') return path;
+		return regex.matcher(path).replaceAll("/");
+	}
+	
 	/**
 	 * Returns the set of relative file paths under a given directory in Unix '/' format
 	 */
@@ -288,7 +339,7 @@ public class IoUtil {
 		try (InputStream in = new BufferedInputStream(new FileInputStream(src));
 			OutputStream out = new BufferedOutputStream(new FileOutputStream(dest));) {
 			transferContent(in, out, 0);
-		} catch (IOException e) {
+		} catch (RuntimeException | IOException e) {
 			tracker.delete();
 			throw e;
 		}
@@ -438,16 +489,8 @@ public class IoUtil {
 	 */
 	public static File getResourceFile(Class<?> cls, String resourceName) {
 		URL url = cls.getResource(resourceName);
-		if (url != null) return fileFromUrl(url);
+		if (url != null) return shouldNotThrow(() -> new File(url.toURI()));
 		throw new NullPointerException("Resource not found for " + cls + ": " + resourceName);
-	}
-
-	static File fileFromUrl(URL url) {
-		try {
-			return new File(url.toURI());
-		} catch (URISyntaxException e) {
-			throw new IllegalStateException("Should not happen", e);
-		}
 	}
 
 	/**

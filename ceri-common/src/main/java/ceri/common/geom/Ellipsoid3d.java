@@ -1,6 +1,7 @@
 package ceri.common.geom;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
+import java.util.stream.DoubleStream;
 import ceri.common.math.AlgebraUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
@@ -146,9 +147,8 @@ public class Ellipsoid3d {
 	 * Finds the first cubic root that is within range.
 	 */
 	private double validRoot(double[] roots, double max) {
-		for (double root : roots)
-			if (root >= -max && root <= max) return root;
-		return Double.NaN;
+		return DoubleStream.of(roots).filter(root -> root >= -max && root <= max).findFirst()
+			.orElse(Double.NaN);
 	}
 
 }

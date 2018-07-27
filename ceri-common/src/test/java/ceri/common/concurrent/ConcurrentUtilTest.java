@@ -117,4 +117,22 @@ public class ConcurrentUtilTest {
 			() -> ConcurrentUtil.checkRuntimeInterrupted());
 	}
 
+	@Test
+	public void testExecuteInterruptible() {
+		ConcurrentUtil.executeInterruptible(() -> {});
+		assertException(RuntimeInterruptedException.class,
+			() -> ConcurrentUtil.executeInterruptible(() -> {
+				throw new InterruptedException();
+			}));
+	}
+
+	@Test
+	public void testExecuteGetInterruptible() {
+		assertThat(ConcurrentUtil.executeGetInterruptible(() -> "x"), is("x"));
+		assertException(RuntimeInterruptedException.class,
+			() -> ConcurrentUtil.executeGetInterruptible(() -> {
+				throw new InterruptedException();
+			}));
+	}
+
 }
