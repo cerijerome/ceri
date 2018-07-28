@@ -26,6 +26,35 @@ public class PathFactoryBehavior {
 	}
 
 	@Test
+	public void shouldReturnParentForPath() {
+		assertThat(PathFactory.dash.parentOf(null), is(PathFactory.dash.emptyPath));
+		assertThat(PathFactory.dash.parentOf(""), is(PathFactory.dash.emptyPath));
+	}
+
+	@Test
+	public void shouldReturnOrphanForPath() {
+		assertThat(PathFactory.dash.orphanOf(null), is(PathFactory.dash.emptyPath));
+		assertThat(PathFactory.dash.orphanOf(""), is(PathFactory.dash.emptyPath));
+		assertThat(PathFactory.dash.orphanOf("abc"), is(PathFactory.dash.emptyPath));
+	}
+
+	@Test
+	public void shouldReturnFirstPartOfPath() {
+		assertThat(PathFactory.dash.firstPart(null), is(""));
+		assertThat(PathFactory.dash.firstPart(""), is(""));
+		assertThat(PathFactory.dash.firstPart("abc"), is("abc"));
+		assertThat(PathFactory.dash.firstPart("abc-def"), is("abc"));
+	}
+
+	@Test
+	public void shouldReturnLastPartOfPath() {
+		assertThat(PathFactory.dash.lastPart(null), is(""));
+		assertThat(PathFactory.dash.lastPart(""), is(""));
+		assertThat(PathFactory.dash.lastPart("abc"), is("abc"));
+		assertThat(PathFactory.dash.lastPart("abc-def"), is("def"));
+	}
+
+	@Test
 	public void shouldNotCreateBlankFactory() {
 		assertException(() -> PathFactory.create(null));
 		assertException(() -> PathFactory.create(""));
@@ -37,7 +66,7 @@ public class PathFactoryBehavior {
 		assertThat(factory.parts(null), is(0));
 		assertThat(factory.parts(" abc d e "), is(3));
 	}
-	
+
 	@Test
 	public void shouldSplitPaths() {
 		PathFactory factory = PathFactory.create(" ");

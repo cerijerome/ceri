@@ -87,7 +87,7 @@ public class DsvCodec {
 	private String unquote(String s) {
 		if (!quoted(s)) return s;
 		Matcher m = UNQUOTE_REGEX.matcher(s);
-		if (!m.find()) return s;
+		m.find(); // always matches quoted strings
 		return m.group(1);
 	}
 

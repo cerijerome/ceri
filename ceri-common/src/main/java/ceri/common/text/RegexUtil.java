@@ -89,7 +89,6 @@ public class RegexUtil {
 	 * Returns named group or null. Matcher match should have been attempted.
 	 */
 	public static Map<String, String> namedGroups(Matcher m) {
-		if (m == null) return Collections.emptyMap();
 		List<String> names = groupNames(m);
 		if (names.isEmpty()) return Collections.emptyMap();
 		return CollectionUtil.toMap(Function.identity(), name -> namedGroup(m, name), names);
@@ -99,6 +98,7 @@ public class RegexUtil {
 	 * Returns group names from the pattern.
 	 */
 	public static List<String> groupNames(Matcher m) {
+		if (m == null) return Collections.emptyList();
 		return groupNames(m.pattern());
 	}
 

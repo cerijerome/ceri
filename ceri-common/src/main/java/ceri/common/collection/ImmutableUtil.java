@@ -4,6 +4,7 @@ import static ceri.common.collection.CollectionUtil.addAll;
 import static ceri.common.collection.CollectionUtil.listSupplier;
 import static ceri.common.collection.CollectionUtil.mapSupplier;
 import static ceri.common.collection.CollectionUtil.setSupplier;
+import static java.util.function.Function.identity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -346,8 +347,7 @@ public class ImmutableUtil {
 
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
 		Stream<T> stream, Supplier<Map<K, T>> mapSupplier) {
-		return Collections.unmodifiableMap(stream.collect(Collectors.toMap( //
-			keyFn, Function.identity(), StreamUtil.mergeError(), mapSupplier)));
+		return convertAsMap(keyFn, identity(), stream, mapSupplier);
 	}
 
 	@SafeVarargs
@@ -364,7 +364,7 @@ public class ImmutableUtil {
 
 	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
 		Function<? super T, ? extends V> valueFn, Collection<T> collection) {
-		return convertAsMap(keyFn, valueFn, collection, mapSupplier());
+		return convertAsMap(keyFn, valueFn, collection.stream());
 	}
 
 	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,

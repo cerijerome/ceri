@@ -1,6 +1,5 @@
 package ceri.common.math;
 
-import static java.lang.Math.addExact;
 import static java.lang.Math.subtractExact;
 
 public class IntervalUtil {
@@ -22,10 +21,10 @@ public class IntervalUtil {
 	public static Long longMidPoint(Interval<Long> interval) {
 		if (interval.isUnbound()) return 0L;
 		if (interval.isInfinite()) return null;
-		return addExact(interval.lower.value, interval.upper.value) / 2;
+		return Math.round((interval.lower.value / 2.0) + (interval.upper.value / 2.0));
 	}
 
-	public static <T extends Number & Comparable<T>> Long longWidth(Interval<Long> interval) {
+	public static Long longWidth(Interval<Long> interval) {
 		if (interval.isInfinite()) return null;
 		return subtractExact(interval.upper.value, interval.lower.value);
 	}
@@ -33,10 +32,10 @@ public class IntervalUtil {
 	public static Integer intMidPoint(Interval<Integer> interval) {
 		if (interval.isUnbound()) return 0;
 		if (interval.isInfinite()) return null;
-		return addExact(interval.lower.value, interval.upper.value) / 2;
+		return (int) Math.round((interval.lower.value / 2.0) + (interval.upper.value / 2.0));
 	}
 
-	public static <T extends Number & Comparable<T>> Integer intWidth(Interval<Integer> interval) {
+	public static Integer intWidth(Interval<Integer> interval) {
 		if (interval.isInfinite()) return null;
 		return subtractExact(interval.upper.value, interval.lower.value);
 	}

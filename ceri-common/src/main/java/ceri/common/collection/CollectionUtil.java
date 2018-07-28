@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import static java.util.function.Function.identity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -92,7 +93,7 @@ public class CollectionUtil {
 	 */
 	public static <K, T> Map<K, T> toMap(Function<? super T, ? extends K> keyMapper,
 		Collection<T> collection) {
-		return StreamUtil.toMap(collection.stream(), keyMapper);
+		return toMap(keyMapper, mapSupplier(), collection);
 	}
 
 	/**
@@ -100,7 +101,7 @@ public class CollectionUtil {
 	 */
 	public static <K, T> Map<K, T> toMap(Function<? super T, ? extends K> keyMapper,
 		Supplier<Map<K, T>> mapSupplier, Collection<T> collection) {
-		return StreamUtil.toMap(collection.stream(), keyMapper, mapSupplier);
+		return toMap(keyMapper, identity(), mapSupplier, collection);
 	}
 
 	/**
@@ -108,7 +109,7 @@ public class CollectionUtil {
 	 */
 	public static <K, V, T> Map<K, V> toMap(Function<? super T, ? extends K> keyMapper,
 		Function<? super T, ? extends V> valueMapper, Collection<T> collection) {
-		return StreamUtil.toMap(collection.stream(), keyMapper, valueMapper);
+		return toMap(keyMapper, valueMapper, mapSupplier(), collection);
 	}
 
 	/**

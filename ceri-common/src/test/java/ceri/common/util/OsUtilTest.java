@@ -35,4 +35,10 @@ public class OsUtilTest {
 		assertThat(OsUtil.IS_AWS, is(isAws));
 	}
 
+	@Test
+	public void testPropertyIsSet() {
+		OsUtil.propertyIsSet("\0\0\0\0");
+		OsUtil.propertyIsSet("os.name");
+	}
+
 }

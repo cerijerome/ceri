@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import org.junit.Test;
 import org.mockito.Mock;
 import ceri.common.concurrent.BooleanCondition;
@@ -40,6 +41,21 @@ public class BasicUtilTest {
 	public void testBeep() {
 		// Make sure no error thrown
 		BasicUtil.beep();
+	}
+
+	@Test
+	public void shouldReturnElapsedTimeInMicros() {
+		long t0 = BasicUtil.microTime();
+		long t1 = BasicUtil.microTime();
+		assertTrue(t1 >= t0);
+	}
+
+	@Test
+	public void testShouldNotThrow() {
+		Callable<String> callable = () -> {
+			throw new IOException();
+		};
+		assertException(RuntimeException.class, () -> BasicUtil.shouldNotThrow(callable));
 	}
 
 	@Test
@@ -107,7 +123,10 @@ public class BasicUtilTest {
 		Thread thread = new Thread(() -> {
 			try {
 				BasicUtil.delay(0);
-				BasicUtil.delay(1);
+				BasicUtil.delayMicros(0);
+				BasicUtil.delayMicros(1);
+				BasicUtil.delayMicros(1000);
+				// BasicUtil.delay(1);
 				flag.signal();
 				BasicUtil.delay(10000);
 				fail("RuntimeInterruptedException should be thrown");

@@ -36,7 +36,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.SystemIo;
 
 public class IoUtilTest {
 	private static FileTestHelper helper = null;

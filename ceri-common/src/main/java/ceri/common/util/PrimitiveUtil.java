@@ -147,7 +147,7 @@ public class PrimitiveUtil {
 	public static Byte decode(String value, Byte def) {
 		try {
 			if (BasicUtil.isEmpty(value)) return def;
-			return Byte.valueOf(value.trim());
+			return Byte.decode(value.trim());
 		} catch (NumberFormatException e) {
 			return def;
 		}

@@ -108,16 +108,20 @@ public class ImmutableByteArray {
 		return array[offset + index];
 	}
 
-	public int indexOf(byte...array) {
+	public int indexOf(int... array) {
+		return indexOf(ByteUtil.bytes(array));
+	}
+
+	public int indexOf(byte... array) {
 		return indexOf(wrap(array));
 	}
-	
+
 	public int indexOf(ImmutableByteArray array) {
 		for (int i = 0; i <= length - array.length; i++)
 			if (array.equals(this.array, offset + i)) return i;
 		return -1;
 	}
-	
+
 	public IntStream stream() {
 		return ByteUtil.streamOf(array);
 	}
@@ -183,7 +187,7 @@ public class ImmutableByteArray {
 		return hashCoder.hashCode();
 	}
 
-	public boolean equals(byte...array) {
+	public boolean equals(byte... array) {
 		return equals(array, 0);
 	}
 

@@ -5,6 +5,7 @@ import static ceri.common.test.TestUtil.assertDir;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertFile;
 import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.TestUtil.assertMap;
 import static ceri.common.test.TestUtil.assertNaN;
 import static ceri.common.test.TestUtil.assertRange;
 import static ceri.common.test.TestUtil.exception;
@@ -33,6 +34,7 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.function.ExceptionRunnable;
+import ceri.common.io.SystemIo;
 import ceri.common.text.StringUtil;
 import ceri.common.util.HAlign;
 
@@ -258,6 +260,13 @@ public class TestUtilTest {
 		assertAssertion(() -> TestUtil.assertCollection(new int[] { -1, 1 }, -1, 1));
 		assertAssertion(() -> TestUtil.assertCollection(new long[] { -1, 1 }, -1, 1));
 		assertAssertion(() -> TestUtil.assertCollection(new float[] { -1, 1 }, -1, 1));
+	}
+
+	@Test
+	public void testAssertMap() {
+		assertMap(Map.of());
+		assertMap(Map.of(1, "A"), 1, "A");
+		assertMap(Map.of(1, "A", 2, "B"), 1, "A", 2, "B");
 	}
 
 	@Test

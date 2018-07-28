@@ -117,7 +117,7 @@ public class MathUtil {
 	public static int intRoundExact(double value) {
 		return Math.toIntExact(Math.round(value));
 	}
-	
+
 	/**
 	 * Rounds an array of values to the given number of decimal places. Too inaccurate for very
 	 * large or small values.
@@ -333,47 +333,57 @@ public class MathUtil {
 	 * Adjust a periodic value to be within 0 and period (inclusive).
 	 */
 	public static float periodicLimit(float value, float period) {
-		while (value > period) value -= period;
-		while (value < 0) value += period;
+		while (value > period)
+			value -= period;
+		while (value < 0)
+			value += period;
 		return value;
 	}
-	
+
 	/**
 	 * Adjust a periodic value to be within 0 and period (inclusive).
 	 */
 	public static double periodicLimit(double value, double period) {
-		while (value > period) value -= period;
-		while (value < 0) value += period;
+		while (value > period)
+			value -= period;
+		while (value < 0)
+			value += period;
 		return value;
 	}
-	
+
 	/**
 	 * Adjust a periodic value to be within 0 and period.
 	 */
 	public static long periodicLimit(long value, long period) {
-		while (value > period) value -= period;
-		while (value < 0) value += period;
+		while (value > period)
+			value -= period;
+		while (value < 0)
+			value += period;
 		return value;
 	}
-	
+
 	/**
 	 * Adjust a periodic value to be within 0 and period (exclusive).
 	 */
 	public static int periodicLimitEx(int value, int period) {
-		while (value >= period) value -= period;
-		while (value < 0) value += period;
+		while (value >= period)
+			value -= period;
+		while (value < 0)
+			value += period;
 		return value;
 	}
-	
+
 	/**
 	 * Adjust a periodic value to be within 0 and period (exclusive).
 	 */
 	public static long periodicLimitEx(long value, long period) {
-		while (value >= period) value -= period;
-		while (value < 0) value += period;
+		while (value >= period)
+			value -= period;
+		while (value < 0)
+			value += period;
 		return value;
 	}
-	
+
 	/**
 	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
 	 */

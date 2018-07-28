@@ -26,6 +26,18 @@ public class PathBehavior {
 	}
 
 	@Test
+	public void shouldReturnFirstPart() {
+		Path key = PathFactory.dot.path("a", "b", "c");
+		assertThat(key.firstPart(), is("a"));
+	}
+
+	@Test
+	public void shouldReturnLastPart() {
+		Path key = PathFactory.dot.path("a", "b", "c");
+		assertThat(key.lastPart(), is("c"));
+	}
+
+	@Test
 	public void shouldIterateParts() {
 		Path key = PathFactory.dot.path("a", "b", "c");
 		Iterator<String> i = key.partIterator();

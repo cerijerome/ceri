@@ -3,7 +3,6 @@ package ceri.common.property;
 import static ceri.common.property.PropertyUtil.load;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertException;
-import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -31,11 +30,13 @@ public class BasePropertiesBehavior {
 
 	@BeforeClass
 	public static void createProperties() {
+		properties.put("xyz", "");
 		properties.put("x", "X");
 		properties.put("y", "YyY,yy , y   ,");
 		properties.put("z", ",");
 		properties.put("a", "A");
 		properties.put("a.b", "AB");
+		properties.put("a.abc", "A,ABC");
 		properties.put("a.b.c", "3");
 		properties.put("a.b.c.d", "4");
 		properties.put("m.n.0.a", "mn0a");
@@ -47,6 +48,9 @@ public class BasePropertiesBehavior {
 		properties.put("m.n.2.a", "mn2a");
 		properties.put("3.1", "31");
 		properties.put("7.2", "72");
+		properties.put("7.2.b", "true,false");
+		properties.put("7.2.i", "7,2");
+		properties.put("7.2.f", "7.2, 0.1");
 	}
 
 	@Test
@@ -77,7 +81,7 @@ public class BasePropertiesBehavior {
 	@Test
 	public void shouldReturnChildren() {
 		BaseProperties bp = new BaseProperties(properties) {};
-		assertCollection(bp.children(), "x", "y", "z", "a", "m", "3", "7");
+		assertCollection(bp.children(), "xyz", "x", "y", "z", "a", "m", "3", "7");
 		assertCollection(bp.children("m.n.0"), "a", "b");
 		bp = new BaseProperties(properties, "m.n.0") {};
 		assertCollection(bp.children(), "a", "b");
@@ -100,8 +104,16 @@ public class BasePropertiesBehavior {
 	@Test
 	public void shouldReadCommaSeparatedValues() {
 		BaseProperties bp = BaseProperties.from(properties);
-		assertIterable(bp.values(s -> s.length(), "y"), 3, 2, 1);
-		assertIterable(bp.values(Collections.singletonList(999), s -> s.length(), "xx"), 999);
+		assertCollection(bp.values(s -> s.length(), "y"), 3, 2, 1);
+		assertCollection(bp.values(Collections.singletonList(999), s -> s.length(), "xx"), 999);
+		assertCollection(bp.booleanValues("7.2.b"), true, false);
+		assertCollection(bp.byteValues("7.2.i"), (byte) 7, (byte) 2);
+		assertCollection(bp.charValues("7.2.i"), '7', '2');
+		assertCollection(bp.shortValues("7.2.i"), (short) 7, (short) 2);
+		assertCollection(bp.intValues("7.2.i"), 7, 2);
+		assertCollection(bp.longValues("7.2.i"), 7L, 2L);
+		assertCollection(bp.floatValues("7.2.f"), 7.2f, 0.1f);
+		assertCollection(bp.doubleValues("7.2.f"), 7.2, 0.1);
 	}
 
 	@Test
@@ -111,11 +123,13 @@ public class BasePropertiesBehavior {
 		assertThat(bp.enumValue(E.class, E.A, "a.b"), is(E.AB));
 		assertThat(bp.enumValue(E.class, E.A, "xx"), is(E.A));
 		assertException(() -> bp.enumValue(E.class, "a.b.c"));
+		assertCollection(bp.enumValues(E.class, "a", "abc"), E.A, E.ABC);
 	}
 
 	@Test
 	public void shouldReadValues() {
 		BaseProperties bp = new BaseProperties(properties) {};
+		assertNull(bp.value("xyz"));
 		assertThat(bp.stringValue("", "a"), is("A"));
 		assertThat(bp.booleanValue("a"), is(false));
 		assertThat(bp.booleanValue(true, "a"), is(false));
@@ -190,7 +204,7 @@ public class BasePropertiesBehavior {
 	public void shouldOnlyReadPrefixedProperties() {
 		BaseProperties bp = new BaseProperties(properties, "a") {};
 		assertThat(bp.key("b.c"), is("a.b.c"));
-		assertCollection(bp.keys(), "a.b.c.d", "a.b.c", "a.b", "a");
+		assertCollection(bp.keys(), "a.b.c.d", "a.b.c", "a.b", "a.abc", "a");
 		bp = new BaseProperties(properties) {};
 		assertThat(bp.key("a.b"), is("a.b"));
 		assertCollection(bp.keys(), properties.keySet());

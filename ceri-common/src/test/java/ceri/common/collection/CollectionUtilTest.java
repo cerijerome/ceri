@@ -36,6 +36,13 @@ public class CollectionUtilTest {
 	}
 
 	@Test
+	public void testInvert() {
+		assertThat(CollectionUtil.invert(Map.of()), is(Map.of()));
+		assertThat(CollectionUtil.invert(Map.of(1, "1")), is(Map.of("1", 1)));
+		assertTrue(CollectionUtil.invert(Map.of(1, "1", 2, "1")).containsKey("1"));
+	}
+
+	@Test
 	public void testFill() {
 		List<Integer> list = ArrayUtil.asList(1, 2, 3, 4, 5);
 		assertThat(CollectionUtil.fill(list, 1, 2, 0), is(3));
@@ -94,11 +101,11 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testToMap() {
-		List<String> list = Arrays.asList("A", "ABC", "AB");
-		Map<String, Integer> map =
-			CollectionUtil.toMap(s -> s.toLowerCase(), s -> s.length(), list);
-		assertCollection(map.keySet(), "a", "abc", "ab");
-		assertCollection(map.values(), 1, 3, 2);
+		List<String> list = List.of("A", "ABC", "AB");
+		Map<?, ?> map = CollectionUtil.toMap(s -> s.length(), list);
+		assertThat(map, is(Map.of(1, "A", 3, "ABC", 2, "AB")));
+		map = CollectionUtil.toMap(s -> s.toLowerCase(), s -> s.length(), list);
+		assertThat(map, is(Map.of("a", 1, "abc", 3, "ab", 2)));
 	}
 
 	@Test
@@ -206,6 +213,12 @@ public class CollectionUtilTest {
 		List<Integer> list = ArrayUtil.asList(0, 1, 2, 3, 4);
 		CollectionUtil.removeAll(list, 1, 3, 5, 7, 9);
 		assertThat(list, is(Arrays.asList(0, 2, 4)));
+	}
+
+	@Test
+	public void testReverse() {
+		List<Integer> list = Arrays.asList(1, 2, 3);
+		assertThat(CollectionUtil.reverse(list), is(List.of(3, 2, 1)));
 	}
 
 	@Test(expected = NoSuchElementException.class)

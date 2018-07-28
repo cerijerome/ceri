@@ -3,10 +3,11 @@ package ceri.common.text;
 import java.awt.event.KeyEvent;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.math.RoundingMode;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +54,7 @@ public class StringUtil {
 		Pattern.compile("\\\\\\\\|\\\\b|\\\\e|\\\\t|\\\\f|\\\\r|\\\\n|" +
 			"\\\\0[0-3][0-7]{2}|\\\\0[0-7]{2}|\\\\0[0-7]|\\\\0|" +
 			"\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
-	private static final String UTF8 = "UTF8";
+	private static final Charset UTF8 = StandardCharsets.UTF_8;
 	public static final int HEX_RADIX = 16;
 	public static final int OCTAL_RADIX = 8;
 	public static final int BINARY_RADIX = 2;
@@ -82,7 +83,9 @@ public class StringUtil {
 	}
 
 	/**
-	 * Extracts the first substring with matching open and close brackets.
+	 * Extracts the first substring with matching open and close brackets. Extraction includes
+	 * bracket chars.
+	 * 
 	 */
 	public static String extractBrackets(String s, char open, char close) {
 		if (s == null) return null;
@@ -118,7 +121,7 @@ public class StringUtil {
 	/**
 	 * Encodes an escaped character string.
 	 */
-	private static char unEscapeChar(String escapedChar) {
+	static char unEscapeChar(String escapedChar) {
 		if (escapedChar == null) return NULL;
 		switch (escapedChar) {
 		case ESCAPED_BACKSLASH:
@@ -141,6 +144,7 @@ public class StringUtil {
 		Character c = escaped(escapedChar, ESCAPED_OCTAL, OCTAL_RADIX);
 		if (c == null) c = escaped(escapedChar, ESCAPED_HEX, HEX_RADIX);
 		if (c == null) c = escaped(escapedChar, ESCAPED_UTF16, HEX_RADIX);
+		if (c == null) return NULL;
 		return c.charValue();
 	}
 
@@ -339,22 +343,14 @@ public class StringUtil {
 	 * Uses URLEncoder with UTF8 encoding. Throws IllegalArgumentException for encoding issues.
 	 */
 	public static String urlEncode(String s) {
-		try {
-			return URLEncoder.encode(s, UTF8);
-		} catch (UnsupportedEncodingException e) {
-			throw new IllegalArgumentException(e);
-		}
+		return URLEncoder.encode(s, UTF8);
 	}
 
 	/**
 	 * Uses URLDecoder with UTF8 encoding. Throws IllegalArgumentException for encoding issues.
 	 */
 	public static String urlDecode(String s) {
-		try {
-			return URLDecoder.decode(s, UTF8);
-		} catch (UnsupportedEncodingException e) {
-			throw new IllegalArgumentException(e);
-		}
+		return URLDecoder.decode(s, UTF8);
 	}
 
 	/**
@@ -374,8 +370,8 @@ public class StringUtil {
 	}
 
 	/**
-	 * Splits a string by pattern and trims each entry. Trailing empty strings are dropped as
-	 * with the regular split method.
+	 * Splits a string by pattern and trims each entry. Trailing empty strings are dropped as with
+	 * the regular split method.
 	 */
 	public static List<String> split(String s, Pattern pattern) {
 		if (BasicUtil.isEmpty(s)) return Collections.emptyList();

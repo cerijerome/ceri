@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 import org.junit.Test;
 
 public class ToStringHelperBehavior {
@@ -28,7 +29,7 @@ public class ToStringHelperBehavior {
 	@Test
 	public void shouldShowDefaultFormattedDateValues() {
 		Date date = new Date(0);
-		String toString = ToStringHelper.create("Test", date, (Date)null).toString();
+		String toString = ToStringHelper.create("Test", date, (Date) null).toString();
 		Instant.ofEpochMilli(0);
 		LocalDateTime dt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.systemDefault());
 		assertThat(toString, is("Test(" + dt + ",null)"));
@@ -51,6 +52,13 @@ public class ToStringHelperBehavior {
 		String toString = ToStringHelper.create("Test").fieldsByClass("Field") //
 			.fieldsByClass((Object) null).toString();
 		assertThat(toString, is("Test[String=Field,null]"));
+	}
+
+	@Test
+	public void shouldAddMapsOfChildren() {
+		String toString = ToStringHelper.create("Test").children("aaa", "bbb")
+			.childrens(Map.of("k0", "v0")).childrens((Map<String, String>) null).toString();
+		assertThat(toString, is(lines("Test {", "  aaa", "  bbb", "  k0: v0", "}")));
 	}
 
 	@Test

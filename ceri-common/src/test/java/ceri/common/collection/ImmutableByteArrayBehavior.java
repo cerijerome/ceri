@@ -16,6 +16,13 @@ public class ImmutableByteArrayBehavior {
 	private final byte[] b = { 0, -1, 1, Byte.MAX_VALUE, Byte.MIN_VALUE };
 
 	@Test
+	public void shouldFindIndexOfBytes() {
+		ImmutableByteArray ba = ImmutableByteArray.wrap(b);
+		assertThat(ba.indexOf(-1, 1), is(1));
+		assertThat(ba.indexOf(1, -1), is(-1));
+	}
+
+	@Test
 	public void shouldAppendBytes() {
 		ImmutableByteArray ba1 = ImmutableByteArray.wrap(0, 1, 2);
 		ImmutableByteArray ba2 = ImmutableByteArray.wrap(3, 4, 5);

@@ -1,11 +1,11 @@
-package ceri.common.test;
+package ceri.common.io;
 
 import java.io.Closeable;
 import java.io.InputStream;
 import java.io.PrintStream;
 
 /**
- * Restores system io streams on close.
+ * Helper when overriding System i/o streams. Restores original streams on close.
  */
 public class SystemIo implements Closeable {
 	private final InputStream in;

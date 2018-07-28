@@ -250,7 +250,7 @@ public class ArrayUtil {
 	 * Extends Arrays.deepToString to include any object type.
 	 */
 	public static String deepToString(Object obj) {
-		if (obj == null) return String.valueOf(null);
+		if (obj == null) return String.valueOf((String) null);
 		Class<?> cls = obj.getClass();
 		if (!cls.isArray()) return String.valueOf(obj);
 		Function<Object, String> fn = toStringMap.get(cls);

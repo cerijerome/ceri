@@ -6,6 +6,7 @@ import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public class Vector {
+	public static final Vector EMPTY = new Vector(Matrix.EMPTY);
 	public final Matrix matrix;
 
 	public static Vector of(double... values) {
@@ -14,6 +15,7 @@ public class Vector {
 
 	public static Vector of(Matrix matrix) {
 		if (matrix == null) return null;
+		if (matrix.isEmpty()) return EMPTY;
 		MatrixUtil.verifyVector(matrix);
 		if (matrix.rows == 1 && matrix.columns > 1) matrix = matrix.transpose();
 		return new Vector(matrix);
@@ -48,6 +50,9 @@ public class Vector {
 		return Vector.of(matrix.subMatrix(offset, 0, size, 1));
 	}
 
+	/**
+	 * Sub matrix that allows rows indexes to wrap.
+	 */
 	public Vector wrappedSubVector(int offset, int size) {
 		return Vector.of(matrix.wrappedSubMatrix(offset, 0, size, 1));
 	}

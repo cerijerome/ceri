@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.ExceptionRunnable;
 
 /**
@@ -184,11 +184,7 @@ public class BasicUtil {
 	 */
 	public static void delay(long delayMs) {
 		if (delayMs == 0) return;
-		try {
-			Thread.sleep(delayMs);
-		} catch (InterruptedException e) {
-			throw new RuntimeInterruptedException(e);
-		}
+		ConcurrentUtil.executeInterruptible(() -> Thread.sleep(delayMs));
 	}
 
 	/**
@@ -199,17 +195,13 @@ public class BasicUtil {
 		long ms = delayMicros / MICROS_IN_MILLIS;
 		int ns = (int) ((delayMicros % MICROS_IN_MILLIS) * NANOS_IN_MICROS);
 		if (ms == 0 && ns == 0) return;
-		try {
-			Thread.sleep(ms, ns);
-		} catch (InterruptedException e) {
-			throw new RuntimeInterruptedException(e);
-		}
+		ConcurrentUtil.executeInterruptible(() -> Thread.sleep(ms, ns));
 	}
 
 	public static long microTime() {
 		return System.nanoTime() / NANOS_IN_MICROS;
 	}
-	
+
 	/**
 	 * Checks if the given map is null or empty.
 	 */
@@ -245,7 +237,7 @@ public class BasicUtil {
 			throw new IllegalStateException("Should not happen", e);
 		}
 	}
-	
+
 	public static <T> T shouldNotThrow(Callable<T> callable) {
 		try {
 			return callable.call();
@@ -253,7 +245,7 @@ public class BasicUtil {
 			throw new IllegalStateException("Should not happen", e);
 		}
 	}
-	
+
 	/**
 	 * Makes sure a Class<?> is loaded. Use when static initialization is required but only the
 	 * Class<?> is referenced.

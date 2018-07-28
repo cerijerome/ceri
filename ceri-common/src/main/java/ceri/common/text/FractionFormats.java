@@ -1,6 +1,6 @@
 package ceri.common.text;
 
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.*;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -173,7 +173,7 @@ public class FractionFormats {
 			if (!PATTERN.matcher(s).matches()) return null;
 			String expanded = expand(s);
 			Matcher m = EXPANDED_REGEX.matcher(expanded);
-			if (!m.matches()) throw new IllegalArgumentException("Bad expansion: " + expanded);
+			validate(m.matches(), "Expansion failed: %s", expanded);
 			return Fraction.of(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
 		}
 

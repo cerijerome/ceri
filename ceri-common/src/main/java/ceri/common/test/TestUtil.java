@@ -24,10 +24,13 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsSame;
 import org.junit.runner.JUnitCore;
+import ceri.common.collection.ImmutableUtil;
+import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
@@ -149,6 +152,17 @@ public class TestUtil {
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Call this for code coverage of switch with strings. Bytecode checks hashes then values, but
+	 * the value check is only 1 of 2 branches. The methods calls the code using strings with same
+	 * hashes but different values.
+	 */
+	public static <E extends Exception> void exerciseSwitch(ExceptionConsumer<E, String> consumer,
+		String... strings) throws E {
+		for (String s : strings)
+			consumer.accept("\0" + s);
 	}
 
 	/**
@@ -520,6 +534,23 @@ public class TestUtil {
 			is(rhs));
 	}
 
+	public static <K, V> void assertMap(Map<K, V> subject) {
+		assertThat(subject, is(Map.of()));
+	}
+
+	public static <K, V> void assertMap(Map<K, V> subject, K k, V v) {
+		assertThat(subject, is(ImmutableUtil.asMap(k, v)));
+	}
+
+	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1) {
+		assertThat(subject, is(ImmutableUtil.asMap(k0, v0, k1, v1)));
+	}
+
+	@SafeVarargs
+	public static <T> void assertStream(Stream<T> stream, T...ts) {
+		assertArray(stream.toArray(), ts);
+	}
+	
 	/**
 	 * Capture and return any thrown exception.
 	 */

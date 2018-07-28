@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import java.io.PrintStream;
 import org.junit.Test;
+import ceri.common.io.SystemIo;
 import ceri.common.reflect.Caller;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.StringUtil;

@@ -22,6 +22,21 @@ public class ArrayUtilTest {
 	}
 
 	@Test
+	public void testDeepToString() {
+		assertThat(ArrayUtil.deepToString(null), is("null"));
+		assertThat(ArrayUtil.deepToString("test"), is("test"));
+		assertThat(ArrayUtil.deepToString(new boolean[] { true, false }), is("[true, false]"));
+		assertThat(ArrayUtil.deepToString(new byte[] { 1, 2 }), is("[1, 2]"));
+		assertThat(ArrayUtil.deepToString(new char[] { '1', '2' }), is("[1, 2]"));
+		assertThat(ArrayUtil.deepToString(new short[] { 1, 2 }), is("[1, 2]"));
+		assertThat(ArrayUtil.deepToString(new int[] { 1, 2 }), is("[1, 2]"));
+		assertThat(ArrayUtil.deepToString(new long[] { 1, 2 }), is("[1, 2]"));
+		assertThat(ArrayUtil.deepToString(new float[] { 1, 2 }), is("[1.0, 2.0]"));
+		assertThat(ArrayUtil.deepToString(new double[] { 1, 2 }), is("[1.0, 2.0]"));
+		assertThat(ArrayUtil.deepToString(new String[] { "1", "2" }), is("[1, 2]"));
+	}
+
+	@Test
 	public void testEmptyArrays() {
 		assertThat(ArrayUtil.EMPTY_BOOLEAN, is(new boolean[0]));
 		assertThat(ArrayUtil.emptyArray(String.class), is(new String[0]));

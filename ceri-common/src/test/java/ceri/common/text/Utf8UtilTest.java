@@ -1,5 +1,6 @@
 package ceri.common.text;
 
+import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
@@ -195,6 +196,14 @@ public class Utf8UtilTest {
 		assertThat(Utf8Util.byteCount(Integer.MIN_VALUE), is(0));
 		assertThat(Utf8Util.byteCount(Integer.MAX_VALUE), is(0));
 		assertThat(Utf8Util.byteCount(COMBO), is(11));
+	}
+
+	@Test
+	public void testDecode() {
+		assertThat(Utf8Util.decode(bytes('A')), is(StringUtil.toString(_1B)));
+		assertThat(Utf8Util.decode(bytes(0xc2, 0xa9)), is(StringUtil.toString(_2B)));
+		assertThat(Utf8Util.decode(bytes(0xe2, 0x84, 0x83)), is(StringUtil.toString(_3B)));
+		assertThat(Utf8Util.decode(bytes(0xf0, 0x9d, 0x90, 0x80)), is(StringUtil.toString(_4B)));
 	}
 
 	@Test

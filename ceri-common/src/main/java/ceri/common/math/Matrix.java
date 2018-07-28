@@ -1,10 +1,12 @@
 package ceri.common.math;
 
 import static ceri.common.validation.ValidationUtil.validate;
+import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateNotNull;
+import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public class Matrix {
@@ -30,13 +32,16 @@ public class Matrix {
 
 		public Builder size(int rows, int columns) {
 			if (this.rows == rows && this.columns == columns) return this;
+			validateMin(rows, 0);
+			validateMin(columns, 0);
 			this.rows = rows;
 			this.columns = columns;
 			values = resize(rows, columns, values);
 			return this;
 		}
 
-		public Builder set(double[]... values) {
+		public Builder setAll(double[]... values) {
+			validateNotNull(values);
 			this.rows = rows(values);
 			this.columns = columns(values);
 			this.values = resize(rows, columns, values);
@@ -44,12 +49,16 @@ public class Matrix {
 		}
 
 		public Builder set(int row, int column, double value) {
+			validateMin(row, 0);
+			validateMin(column, 0);
 			size(Math.max(row + 1, this.rows), Math.max(column + 1, this.columns));
 			set(row, column, values, value);
 			return this;
 		}
 
 		public Builder setRow(int row, double... line) {
+			validateMin(row, 0);
+			validateNotNull(line);
 			size(Math.max(row + 1, rows), Math.max(line.length, columns));
 			for (int column = 0; column < line.length; column++)
 				set(row, column, values, line[column]);
@@ -61,6 +70,8 @@ public class Matrix {
 		}
 
 		public Builder setColumn(int column, double... line) {
+			validateMin(column, 0);
+			validateNotNull(line);
 			size(Math.max(line.length, rows), Math.max(column + 1, columns));
 			for (int row = 0; row < line.length; row++)
 				set(row, column, values, line[row]);
@@ -102,10 +113,9 @@ public class Matrix {
 		}
 
 		private static void set(int row, int column, double[][] values, double value) {
-			if (row < 0 || row >= values.length) return;
+			// parameters already validated
 			double[] line = values[row];
-			if (column < 0 || column >= line.length) return;
-			line[column] = value;
+			line[column] = value + 0.0;
 		}
 
 		private static double[][] create(int rows, int columns) {
@@ -122,7 +132,7 @@ public class Matrix {
 	}
 
 	public static Matrix of(double[]... values) {
-		return builder().set(values).build();
+		return builder().setAll(values).build();
 	}
 
 	public static Matrix rowVector(double... values) {
@@ -155,7 +165,11 @@ public class Matrix {
 	}
 
 	public boolean isVector() {
-		return rows == 1 || columns == 1;
+		return isEmpty() || rows == 1 || columns == 1;
+	}
+
+	public boolean isEmpty() {
+		return rows == 0 && columns == 0;
 	}
 
 	public double valueAt(int row, int column) {
@@ -178,6 +192,9 @@ public class Matrix {
 		return subMatrix(0, column, rows, 1);
 	}
 
+	/**
+	 * Sub matrix with 0.0 values outside the rows and columns.
+	 */
 	public Matrix subMatrix(int offsetRow, int offsetColumn, int rows, int columns) {
 		Builder b = builder(rows, columns);
 		for (int row = 0; row < rows; row++)
@@ -186,6 +203,9 @@ public class Matrix {
 		return b.build();
 	}
 
+	/**
+	 * Sub matrix that allows row and columns indexes to wrap.
+	 */
 	public Matrix wrappedSubMatrix(int offsetRow, int offsetColumn, int rows, int columns) {
 		Builder b = builder(rows, columns);
 		for (int row = 0; row < rows; row++)
@@ -210,7 +230,7 @@ public class Matrix {
 		Builder b = builder(rows, columns);
 		for (int row = 0; row < rows; row++)
 			for (int column = 0; column < columns; column++)
-				b.set(row, column, -valueAt(row, column));
+				b.set(row, column, -valueAt(row, column) + 0.0);
 		return b.build();
 	}
 
@@ -262,7 +282,7 @@ public class Matrix {
 		Matrix other = (Matrix) obj;
 		if (rows != other.rows) return false;
 		if (columns != other.columns) return false;
-		if (!EqualsUtil.equals(values, other.values)) return false;
+		if (!Arrays.deepEquals(values, other.values)) return false;
 		return true;
 	}
 

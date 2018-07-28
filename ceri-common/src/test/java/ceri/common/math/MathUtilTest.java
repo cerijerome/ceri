@@ -1,9 +1,11 @@
 package ceri.common.math;
 
+import static ceri.common.test.TestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertRange;
+import static java.lang.Math.PI;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -32,6 +34,50 @@ public class MathUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(MathUtil.class);
+	}
+
+	@Test
+	public void testSafeToLong() {
+		double d0 = Long.MIN_VALUE;
+		double d1 = Long.MAX_VALUE;
+		assertThat(MathUtil.safeToLong(d0), is(Long.MIN_VALUE));
+		assertThat(MathUtil.safeToLong(d1), is(Long.MAX_VALUE));
+		assertException(() -> MathUtil.safeToLong(Double.NaN));
+		assertException(() -> MathUtil.safeToLong(Double.POSITIVE_INFINITY));
+		assertException(() -> MathUtil.safeToLong(Double.NEGATIVE_INFINITY));
+		assertException(() -> MathUtil.safeToLong(Double.MAX_VALUE));
+	}
+
+	@Test
+	public void testSafeToInt() {
+		double d0 = Integer.MIN_VALUE;
+		double d1 = Integer.MAX_VALUE;
+		assertThat(MathUtil.safeToInt(d0), is(Integer.MIN_VALUE));
+		assertThat(MathUtil.safeToInt(d1), is(Integer.MAX_VALUE));
+		assertException(() -> MathUtil.safeToInt(Double.NaN));
+		assertException(() -> MathUtil.safeToInt(Double.POSITIVE_INFINITY));
+		assertException(() -> MathUtil.safeToInt(Double.NEGATIVE_INFINITY));
+		assertException(() -> MathUtil.safeToInt(Double.MAX_VALUE));
+	}
+
+	@Test
+	public void testToShortExact() {
+		long l0 = Short.MIN_VALUE;
+		long l1 = Short.MAX_VALUE;
+		assertThat(MathUtil.toShortExact(l0), is(Short.MIN_VALUE));
+		assertThat(MathUtil.toShortExact(l1), is(Short.MAX_VALUE));
+		assertException(() -> MathUtil.toShortExact(Short.MIN_VALUE - 1));
+		assertException(() -> MathUtil.toShortExact(Short.MAX_VALUE + 1));
+	}
+
+	@Test
+	public void testToByteExact() {
+		long l0 = Byte.MIN_VALUE;
+		long l1 = Byte.MAX_VALUE;
+		assertThat(MathUtil.toByteExact(l0), is(Byte.MIN_VALUE));
+		assertThat(MathUtil.toByteExact(l1), is(Byte.MAX_VALUE));
+		assertException(() -> MathUtil.toByteExact(Byte.MIN_VALUE - 1));
+		assertException(() -> MathUtil.toByteExact(Byte.MAX_VALUE + 1));
 	}
 
 	@Test
@@ -68,9 +114,10 @@ public class MathUtilTest {
 		assertThat(MathUtil.lcm(0, 0), is(0));
 		assertThat(MathUtil.lcm(1, 0), is(0));
 		assertThat(MathUtil.lcm(0, 1), is(0));
-		assertThat(MathUtil.lcm(-1, 1), is(1));
-		assertThat(MathUtil.lcm(1, -1), is(1));
-		assertThat(MathUtil.lcm(-1, -1), is(1));
+		assertThat(MathUtil.lcm(-1, 2), is(2));
+		assertThat(MathUtil.lcm(1, -2), is(2));
+		assertThat(MathUtil.lcm(2, -1), is(2));
+		assertThat(MathUtil.lcm(-2, 1), is(2));
 		assertThat(MathUtil.lcm(12, 4), is(12));
 		assertThat(MathUtil.lcm(8, 16), is(16));
 		assertThat(MathUtil.lcm(99, -44), is(396));
@@ -107,6 +154,37 @@ public class MathUtilTest {
 	public void testRoundDiv() {
 		assertThat(MathUtil.roundDiv(10, 4), is(3L));
 		assertThat(MathUtil.roundDiv(10, 3), is(3L));
+	}
+
+	@Test
+	public void testIntRoundExact() {
+		double d0 = Integer.MIN_VALUE;
+		double d1 = Integer.MAX_VALUE;
+		assertThat(MathUtil.intRoundExact(d0), is(Integer.MIN_VALUE));
+		assertThat(MathUtil.intRoundExact(d1), is(Integer.MAX_VALUE));
+		assertException(() -> MathUtil.intRoundExact(d0 - 1));
+		assertException(() -> MathUtil.intRoundExact(d1 + 1));
+	}
+
+	@Test
+	public void testPeriodicLimit() {
+		assertApprox(MathUtil.periodicLimit(3f, 2.5f), 0.5f);
+		assertApprox(MathUtil.periodicLimit(2.5f, 2.5f), 2.5f);
+		assertApprox(MathUtil.periodicLimit(-2.4f, 2.5f), 0.1f);
+		assertApprox(MathUtil.periodicLimit(2.5 * PI, PI), 0.5 * PI);
+		assertApprox(MathUtil.periodicLimit(PI, PI), PI);
+		assertApprox(MathUtil.periodicLimit(-PI, PI), 0.0);
+		assertThat(MathUtil.periodicLimit(100L, 10L), is(10L));
+		assertThat(MathUtil.periodicLimit(-100L, 10L), is(0L));
+	}
+
+	@Test
+	public void testPeriodicLimitEx() {
+		assertThat(MathUtil.periodicLimitEx(100, 10), is(0));
+		assertThat(MathUtil.periodicLimitEx(-100, 10), is(0));
+		assertThat(MathUtil.periodicLimitEx(100L, 10L), is(0L));
+		assertThat(MathUtil.periodicLimitEx(-100L, 10L), is(0L));
+
 	}
 
 	@Test

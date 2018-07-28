@@ -8,6 +8,7 @@ import static ceri.common.test.TestUtil.testMap;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -40,11 +41,17 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
+	public void testInvert() {
+		Map<String, Integer> map = ImmutableUtil.invert(Map.of(1, "1", 2, "2"));
+		assertImmutableMap(map);
+		assertThat(map, is(Map.of("1", 1, "2", 2)));
+	}
+
+	@Test
 	public void testEnumMap() {
 		Map<Integer, E> map = ImmutableUtil.enumMap(e -> e.name().length(), E.class);
 		assertImmutableMap(map);
-		assertCollection(map.keySet(), 1, 3, 2);
-		assertCollection(map.values(), E.A, E.ABC, E.BC);
+		assertThat(map, is(Map.of(1, E.A, 3, E.ABC, 2, E.BC)));
 	}
 
 	@Test
@@ -142,6 +149,7 @@ public class ImmutableUtilTest {
 
 	@Test
 	public void testCopyAsMapOfLists() {
+		assertNull(ImmutableUtil.copyAsMapOfLists(null));
 		assertTrue(ImmutableUtil.copyAsMapOfLists(new HashMap<>()).isEmpty());
 		Map<String, List<Integer>> srcMap = testMap( //
 			"123", asList(1, 2, 3), "4", asList(4), "", asList(), "null", null);
@@ -156,6 +164,7 @@ public class ImmutableUtilTest {
 
 	@Test
 	public void testCopyAsList() {
+		assertNull(ImmutableUtil.copyAsList(null));
 		List<Integer> srcList = new ArrayList<>();
 		Collections.addAll(srcList, 1, 2, 3, 4, 5);
 		List<Integer> copy = new ArrayList<>(srcList);
@@ -234,8 +243,7 @@ public class ImmutableUtilTest {
 
 	@Test
 	public void testConvertAsSet() {
-		Set<Integer> set =
-			ImmutableUtil.convertAsSet(Integer::parseInt, "1", "2", "3", "4", "5");
+		Set<Integer> set = ImmutableUtil.convertAsSet(Integer::parseInt, "1", "2", "3", "4", "5");
 		assertThat(set, is(new HashSet<>(Arrays.asList(1, 2, 3, 4, 5))));
 		assertImmutableCollection(set);
 	}
@@ -250,19 +258,20 @@ public class ImmutableUtilTest {
 
 	@Test
 	public void testConvertAsMap() {
-		Map<String, Integer> map = ImmutableUtil.convertAsMap(i -> String.valueOf(i), 1, 3, 2);
+		Map<String, Integer> map = ImmutableUtil.convertAsMap(String::valueOf, 1, 3, 2);
 		assertImmutableMap(map);
-		assertCollection(map.keySet(), "1", "3", "2");
-		assertCollection(map.values(), 1, 3, 2);
+		assertThat(map, is(Map.of("1", 1, "3", 3, "2", 2)));
+		map = ImmutableUtil.convertAsMap(String::valueOf, i -> i + 1, new Integer[] { 1, 3, 2 });
+		assertThat(map, is(Map.of("1", 2, "3", 4, "2", 3)));
+		map = ImmutableUtil.convertAsMap(String::valueOf, i -> i + 1, List.of(1, 3, 2));
+		assertThat(map, is(Map.of("1", 2, "3", 4, "2", 3)));
 	}
 
 	@Test
 	public void testConvertStreamAsMap() {
-		Map<String, Integer> map =
-			ImmutableUtil.convertAsMap(i -> String.valueOf(i), Stream.of(1, 3, 2));
+		Map<String, Integer> map = ImmutableUtil.convertAsMap(String::valueOf, Stream.of(1, 3, 2));
 		assertImmutableMap(map);
-		assertCollection(map.keySet(), "1", "3", "2");
-		assertCollection(map.values(), 1, 3, 2);
+		assertThat(map, is(Map.of("1", 1, "3", 3, "2", 2)));
 	}
 
 	private static void assertImmutableMap(final Map<?, ?> map) {

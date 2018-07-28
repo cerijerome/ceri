@@ -3,6 +3,7 @@ package ceri.common.text;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.exerciseSwitch;
 import static java.lang.Character.toUpperCase;
 import static java.lang.String.valueOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -22,6 +23,18 @@ public class StringUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(StringUtil.class);
+	}
+
+	@Test
+	public void testExtractBrackets() {
+		assertNull(StringUtil.extractBrackets(null, '<', '>'));
+		assertNull(StringUtil.extractBrackets("", '<', '>'));
+		assertNull(StringUtil.extractBrackets("<", '<', '>'));
+		assertNull(StringUtil.extractBrackets(">", '<', '>'));
+		assertThat(StringUtil.extractBrackets("<>", '<', '>'), is("<>"));
+		assertNull(StringUtil.extractBrackets("<<>", '<', '>'));
+		assertThat(StringUtil.extractBrackets("<a<b>>", '<', '>'), is("<a<b>>"));
+		assertThat(StringUtil.extractBrackets("a<b<>c>d", '<', '>'), is("<b<>c>"));
 	}
 
 	@Test
@@ -110,6 +123,10 @@ public class StringUtilTest {
 
 	@Test
 	public void testUnEscape() {
+		assertThat(StringUtil.unEscapeChar(null), is('\0'));
+		exerciseSwitch(StringUtil::unEscapeChar, //
+			"\\\\", "\\b", "\\e", "\\f", "\\n", "\\r", "\\t", "\\0");
+		assertThat(StringUtil.unEscapeChar("\0\\\\"), is('\0'));
 		assertThat(StringUtil.unEscape("\\z\\\\\\\\\\\\z"), is("\\z\\\\\\z"));
 		assertThat(StringUtil.unEscape("\\\\\\b\\e\\f\\n\\r\\t"), is("\\\u0008\u001b\f\n\r\t"));
 		assertThat(StringUtil.unEscape("abc\\0\\00\\000\\077\\0377def"), is("abc\0\0\0?\u00ffdef"));
@@ -192,6 +209,15 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testWhitespaceSplit() {
+		assertCollection(StringUtil.whiteSpaceSplit(null));
+		assertCollection(StringUtil.whiteSpaceSplit(""));
+		assertCollection(StringUtil.whiteSpaceSplit(" "));
+		assertCollection(StringUtil.whiteSpaceSplit("a"), "a");
+		assertCollection(StringUtil.whiteSpaceSplit(" a b "), "", "a", "b");
+	}
+
+	@Test
 	public void testToString() {
 		String toString = StringUtil.toString("{", "}", "|", "Test1", "Test2", "Test3");
 		assertThat(toString, is("{Test1|Test2|Test3}"));
@@ -234,6 +260,11 @@ public class StringUtilTest {
 		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", -4, 5), is("\u3fff\u3ffe\u3ffd"));
 		assertThat(StringUtil.safeSubstring(null, 0, 0), is(""));
 		assertThat(StringUtil.safeSubstring("abc", 0, 3), is("abc"));
+	}
+
+	@Test
+	public void testPrint() {
+		assertThat(StringUtil.print(out -> out.print("test")), is("test"));
 	}
 
 	@Test

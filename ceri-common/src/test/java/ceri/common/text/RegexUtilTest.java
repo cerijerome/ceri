@@ -3,6 +3,7 @@ package ceri.common.text;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.TestUtil.assertMap;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
@@ -16,7 +17,7 @@ public class RegexUtilTest {
 	private static final Pattern LSTRING_PATTERN = Pattern.compile("([a-z]+)");
 	private static final Pattern USTRING_PATTERN = Pattern.compile("([A-Z]+)");
 	private static final Pattern INT_PATTERN = Pattern.compile("(\\d+)");
-	private static final Pattern MULTI_PATTERN = Pattern.compile("(\\w+)\\W+(\\w+)\\W+(\\w+)");
+	private static final Pattern MULTI_PATTERN = Pattern.compile("(\\w+)\\W+(\\w+)\\W+([\\w\\.]+)");
 
 	@Test
 	public void testPrivateConstructor() {
@@ -47,6 +48,19 @@ public class RegexUtilTest {
 	}
 
 	@Test
+	public void testTypedGroups() {
+		Matcher m = MULTI_PATTERN.matcher("123 true 4.5");
+		assertTrue(m.find());
+		assertThat(RegexUtil.booleanGroup(m, 2), is(true));
+		assertThat(RegexUtil.byteGroup(m, 1), is((byte) 123));
+		assertThat(RegexUtil.shortGroup(m, 1), is((short) 123));
+		assertThat(RegexUtil.intGroup(m, 1), is(123));
+		assertThat(RegexUtil.longGroup(m, 1), is(123L));
+		assertThat(RegexUtil.floatGroup(m, 3), is(4.5f));
+		assertThat(RegexUtil.doubleGroup(m, 3), is(4.5));
+	}
+
+	@Test
 	public void testNamedGroup() {
 		Pattern named = Pattern.compile("(?:(?<letter>[a-z]+)|(?<number>[0-9]+))");
 		Matcher m = named.matcher("123abc45de6f");
@@ -69,6 +83,19 @@ public class RegexUtilTest {
 		assertTrue(m.find());
 		assertThat(RegexUtil.namedGroup(m, "letter"), is("f"));
 		assertNull(RegexUtil.namedGroup(m, "number"));
+	}
+
+	@Test
+	public void testNamedGroups() {
+		Pattern named = Pattern.compile("(?:(?<letter>[a-z]+)|(?<number>[0-9]+))");
+		Matcher m = named.matcher("123abc45de6f");
+		assertTrue(m.find());
+		assertMap(RegexUtil.namedGroups(m), "letter", null, "number", "123");
+		assertTrue(m.find());
+		assertMap(RegexUtil.namedGroups(m), "letter", "abc", "number", null);
+		assertMap(RegexUtil.namedGroups(null));
+		assertCollection(RegexUtil.groupNames((Matcher) null));
+		assertCollection(RegexUtil.groupNames((Pattern) null));
 	}
 
 	@Test

@@ -107,11 +107,16 @@ import ceri.common.math.AlgebraUtilTest;
 import ceri.common.math.BoundBehavior;
 import ceri.common.math.FractionBehavior;
 import ceri.common.math.IntervalBehavior;
+import ceri.common.math.IntervalUtilTest;
 import ceri.common.math.MathUtilTest;
+import ceri.common.math.MatrixBehavior;
+import ceri.common.math.MatrixUtilTest;
 import ceri.common.math.MixedFractionBehavior;
 import ceri.common.math.NumberPatternsBehavior;
 import ceri.common.math.ReverseFunctionBehavior;
 import ceri.common.math.TrigUtilTest;
+import ceri.common.math.VectorBehavior;
+import ceri.common.math.VectorUtilTest;
 import ceri.common.net.NetUtilTest;
 import ceri.common.net.UdpUtilTest;
 import ceri.common.property.BasePropertiesBehavior;
@@ -305,11 +310,16 @@ import ceri.common.xml.XmlUtilTest;
 	BoundBehavior.class, //
 	FractionBehavior.class, //
 	IntervalBehavior.class, //
+	IntervalUtilTest.class, //
 	MathUtilTest.class, //
+	MatrixBehavior.class, //
+	MatrixUtilTest.class, //
 	MixedFractionBehavior.class, //
 	NumberPatternsBehavior.class, //
 	ReverseFunctionBehavior.class, //
 	TrigUtilTest.class, //
+	VectorBehavior.class, //
+	VectorUtilTest.class, //
 	// net
 	NetUtilTest.class, //
 	UdpUtilTest.class, //

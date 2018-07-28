@@ -3,9 +3,12 @@ package ceri.common.math;
 import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static ceri.common.test.TestUtil.exerciseEquals;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.math.Bound.Type;
 
 public class BoundBehavior {
 
@@ -20,6 +23,11 @@ public class BoundBehavior {
 		exerciseEquals(b, eq0);
 		assertAllNotEqual(b, ne0, ne1, ne2, ne3);
 		exerciseEnum(Bound.Type.class);
+	}
+
+	@Test
+	public void shouldBeUnboundForNullValue() {
+		assertThat(Bound.of((String) null, Type.exclusive), is(Bound.unbound()));
 	}
 
 	@Test
@@ -62,6 +70,14 @@ public class BoundBehavior {
 		assertFalse(b.upperFor(-33.33));
 		assertTrue(b.upperFor(-33.34));
 		assertFalse(b.upperFor(33.33));
+	}
+
+	@Test
+	public void shouldNotBeABoundNull() {
+		assertFalse(Bound.unbound().lowerFor(null));
+		assertFalse(Bound.unbound().upperFor(null));
+		assertFalse(Bound.exclusive(1).lowerFor(null));
+		assertFalse(Bound.exclusive(1).upperFor(null));
 	}
 
 }

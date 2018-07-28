@@ -2,6 +2,7 @@ package ceri.common.math;
 
 import static ceri.common.validation.ValidationUtil.validate;
 import java.util.stream.IntStream;
+import ceri.common.util.BasicUtil;
 
 public class MatrixUtil {
 	private static final int SIZE_2 = 2;
@@ -69,8 +70,11 @@ public class MatrixUtil {
 	}
 
 	public static void verifyVector(Matrix m, int size) {
-		validate((m.rows == 1 && m.columns == size) || (m.rows == size && m.columns == 1),
-			"Matrix must be 1x%1$d or %1$dx1: %2$dx%3$d", size, m.rows, m.columns);
+		if (m.isEmpty() && size == 0) return;
+		if (m.rows == 1 && m.columns == size) return;
+		if (m.rows == size && m.columns == 1) return;
+		throw BasicUtil.exceptionf("Matrix must be 1x%1$d or %1$dx1: %2$dx%3$d", size, m.rows,
+			m.columns);
 	}
 
 	public static void verifySize(Matrix m, int rows, int columns) {

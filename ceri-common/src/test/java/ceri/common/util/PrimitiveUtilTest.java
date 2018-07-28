@@ -20,6 +20,18 @@ public class PrimitiveUtilTest {
 	}
 
 	@Test
+	public void testDecode() {
+		assertThat(PrimitiveUtil.decode("", Byte.MIN_VALUE), is(Byte.MIN_VALUE));
+		assertThat(PrimitiveUtil.decode("088", Byte.MIN_VALUE), is(Byte.MIN_VALUE));
+		assertThat(PrimitiveUtil.decode("", Short.MIN_VALUE), is(Short.MIN_VALUE));
+		assertThat(PrimitiveUtil.decode("088", Short.MIN_VALUE), is(Short.MIN_VALUE));
+		assertThat(PrimitiveUtil.decode("", Integer.MIN_VALUE), is(Integer.MIN_VALUE));
+		assertThat(PrimitiveUtil.decode("088", Integer.MIN_VALUE), is(Integer.MIN_VALUE));
+		assertThat(PrimitiveUtil.decode("", Long.MIN_VALUE), is(Long.MIN_VALUE));
+		assertThat(PrimitiveUtil.decode("088", Long.MIN_VALUE), is(Long.MIN_VALUE));
+	}
+
+	@Test
 	public void testConvertArrays() {
 		boolean[] b = { true, false };
 		Boolean[] B = { true, false };

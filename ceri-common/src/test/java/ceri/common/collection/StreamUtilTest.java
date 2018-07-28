@@ -6,10 +6,13 @@ import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertList;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertStream;
 import static java.lang.Double.parseDouble;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -26,8 +29,21 @@ public class StreamUtilTest {
 	}
 
 	@Test
+	public void testCastAny() {
+		Stream<Number> stream = StreamUtil.castAny(Stream.of("1", 1, 0.1, null, 2), Number.class);
+		assertStream(stream, 1, 0.1, 2);
+	}
+
+	@Test
+	public void testFindFirstNonNull() {
+		Stream<String> stream = Stream.of(null, null, "abc", "de", "f");
+		assertThat(StreamUtil.findFirstNonNull(stream, s -> s.length() < 3), is("de"));
+	}
+
+	@Test
 	public void testFirstNonNull() {
-		assertThat(StreamUtil.firstNonNull(Stream.of(null, null, "abc", "def")), is("abc"));
+		Stream<String> stream = Stream.of(null, null, "abc", "def");
+		assertThat(StreamUtil.firstNonNull(stream), is("abc"));
 	}
 
 	@Test
@@ -45,6 +61,30 @@ public class StreamUtilTest {
 	}
 
 	@Test
+	public void testJoinToSet() {
+		Stream<Collection<String>> stream = Stream.of(List.of("1", "2"), List.of("2", "3"));
+		assertCollection(StreamUtil.joinToSet(stream), "1", "2", "3");
+	}
+
+	@Test
+	public void testJoinToList() {
+		Stream<Collection<String>> stream = Stream.of(List.of("1", "2"), List.of("2", "3"));
+		assertIterable(StreamUtil.joinToList(stream), "1", "2", "2", "3");
+	}
+
+	@Test
+	public void testToEntryMap() {
+		assertThat(StreamUtil.toEntryMap(Map.of(1, "1", 2, "2").entrySet().stream()),
+			is(Map.of(1, "1", 2, "2")));
+	}
+
+	@Test
+	public void testEntryCollector() {
+		assertThat(Map.of(1, "1", 2, "2").entrySet().stream().collect(StreamUtil.entryCollector()),
+			is(Map.of(1, "1", 2, "2")));
+	}
+
+	@Test
 	public void testStream() {
 		Map<String, Integer> map0 = MapPopulator.of("abc", 1, "DE", 1, "f", 0).map;
 		assertArray(StreamUtil.stream(map0, (s, i) -> s.charAt(i)).toArray(), 'b', 'E', 'f');
@@ -52,6 +92,11 @@ public class StreamUtilTest {
 		Object[] array =
 			StreamUtil.stream(map1, (i, s) -> parseDouble(s + "." + (i * i))).toArray();
 		assertArray(array, 1.1, 3.9, 2.4);
+	}
+
+	@Test
+	public void testStreamArray() {
+		assertStream(StreamUtil.stream(new Integer[] { 1, 2, 3 }, 1), 2, 3);
 	}
 
 	@Test

@@ -19,7 +19,7 @@ public class VectorUtil {
 	public static Vector fromPoint(Point2d point) {
 		return Vector.of(point.x, point.y);
 	}
-	
+
 	public static double crossProduct2d(Vector v1, Vector v2) {
 		verifySize(v1, SIZE_2);
 		verifySize(v2, SIZE_2);
@@ -36,9 +36,9 @@ public class VectorUtil {
 			"Cross product exists for size %d, but is not supported here", u.size());
 		validate(u.size() == SIZE_3, "Cross product only supported for size %d: %d", SIZE_3,
 			u.size());
-		return Vector.of((u.valueAt(2) * v.valueAt(3)) - (u.valueAt(3) * v.valueAt(2)),
-			(u.valueAt(3) * v.valueAt(1)) - (u.valueAt(1) * v.valueAt(3)),
-			(u.valueAt(1) * v.valueAt(2)) - (u.valueAt(2) * v.valueAt(1)));
+		return Vector.of((u.valueAt(1) * v.valueAt(2)) - (u.valueAt(2) * v.valueAt(1)),
+			(u.valueAt(2) * v.valueAt(0)) - (u.valueAt(0) * v.valueAt(2)),
+			(u.valueAt(0) * v.valueAt(1)) - (u.valueAt(1) * v.valueAt(0)));
 	}
 
 	public static void verifySameSize(Vector v1, Vector v2) {
