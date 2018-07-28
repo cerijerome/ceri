@@ -280,6 +280,10 @@ public class ByteUtil {
 		return value;
 	}
 
+	public static int byteValueAt(long value, int byteOffset) {
+		return byteAt(value, byteOffset) & 0xff;
+	}
+	
 	public static byte byteAt(long value, int byteOffset) {
 		if (byteOffset == 0) return (byte) value;
 		return (byte) shift(value, byteOffset);

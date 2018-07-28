@@ -10,7 +10,7 @@ import ceri.common.util.HashCoder;
  */
 public class CtColor {
 	private static final double MEGA = 1_000_000;
-	public static final double MAX_BRIGHTESS = 0.0;
+	public static final double MAX_BRIGHTESS = 1.0;
 	public static final double MAX_ALPHA = 1.0;
 	public final int k;
 	public final double b;
@@ -45,7 +45,7 @@ public class CtColor {
 	public double mired() {
 		return kelvinToMired(k);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(k, b, a);

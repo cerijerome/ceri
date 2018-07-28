@@ -16,8 +16,12 @@ import ceri.common.color.BiasesTest;
 import ceri.common.color.ColorComparatorsTest;
 import ceri.common.color.ColorUtilTest;
 import ceri.common.color.ColorableTest;
+import ceri.common.color.CtColorBehavior;
 import ceri.common.color.HsbColorBehavior;
+import ceri.common.color.RgbColorBehavior;
 import ceri.common.color.X11ColorTest;
+import ceri.common.color.XybColorBehavior;
+import ceri.common.color.XyzColorBehavior;
 import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
@@ -206,8 +210,12 @@ import ceri.common.xml.XmlUtilTest;
 	ColorComparatorsTest.class, //
 	ColorUtilTest.class, //
 	ColorableTest.class, //
+	CtColorBehavior.class, //
 	HsbColorBehavior.class, //
+	RgbColorBehavior.class, //
 	X11ColorTest.class, //
+	XybColorBehavior.class, //
+	XyzColorBehavior.class, //
 	// comparator
 	ComparatorSequenceBehavior.class, //
 	ComparatorsTest.class, //

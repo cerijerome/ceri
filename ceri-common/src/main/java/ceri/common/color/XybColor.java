@@ -76,9 +76,9 @@ public class XybColor implements ComponentColor<XybColor> {
 
 	public XybColor dim(double ratio) {
 		if (ratio == 1) return this;
-		return of(x, y, b * ratio);
+		return of(x, y, b * ratio, a);
 	}
-	
+
 	private Point2d normalize(double x, double y) {
 		// normalize around CIE_E
 		double factor = MathUtil.max(MAX_VALUE, //

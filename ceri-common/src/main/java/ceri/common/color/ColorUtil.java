@@ -13,10 +13,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -39,39 +35,6 @@ public class ColorUtil {
 
 	private ColorUtil() {}
 
-	public static class Fn {
-
-		private Fn() {}
-
-		public static UnaryOperator<Color> dim(double scale) {
-			return color -> ColorUtil.dim(color, scale);
-		}
-		
-		public static UnaryOperator<List<Color>> dimAll(double scale) {
-			return colors -> ColorUtil.dimAll(scale, colors);
-		}
-		
-		public static BinaryOperator<Color> scale(double ratio) {
-			return (min, max) -> ColorUtil.scale(min, max, ratio);
-		}
-
-		public static BinaryOperator<Color> scaleHsb(double ratio) {
-			return (min, max) -> ColorUtil.scaleHsb(min, max, ratio);
-		}
-
-		public static Function<Color, List<Color>> rotateHue(int steps, Bias bias) {
-			return color -> ColorUtil.rotateHue(color, steps, bias);
-		}
-
-		public static BiFunction<Color, Color, List<Color>> fade(int steps, Bias bias) {
-			return (min, max) -> ColorUtil.fade(min, max, steps, bias);
-		}
-
-		public static BiFunction<Color, Color, List<Color>> fadeHsb(int steps, Bias bias) {
-			return (min, max) -> ColorUtil.fadeHsb(min, max, steps, bias);
-		}
-	}
-	
 	public static Color max(Color color) {
 		return max(color.getRed(), color.getGreen(), color.getBlue());
 	}
@@ -254,7 +217,7 @@ public class ColorUtil {
 		double h = min + (ratio * diff);
 		return MathUtil.periodicLimit(h, 1);
 	}
-	
+
 	public static Color scale(Color min, Color max, double ratio) {
 		if (ratio <= 0.0) return min;
 		if (ratio >= 1.0) return max;
@@ -321,7 +284,8 @@ public class ColorUtil {
 	}
 
 	public static int rgb(int r, int g, int b) {
-		return (int) (ByteUtil.shiftByteLeft(r, 2) | ByteUtil.shiftByteLeft(g, 1) | b & CHANNEL_MAX);
+		return (int) (ByteUtil.shiftByteLeft(r, 2) | ByteUtil.shiftByteLeft(g, 1) |
+			b & CHANNEL_MAX);
 	}
 
 	public static int rgb(Color color) {

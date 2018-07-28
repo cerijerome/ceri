@@ -2,9 +2,9 @@ package ceri.common.color;
 
 import static ceri.common.color.ColorUtil.fromRatio;
 import static ceri.common.color.ColorUtil.toRatio;
+import static ceri.common.data.ByteUtil.byteValueAt;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import java.awt.Color;
-import ceri.common.data.ByteUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
@@ -27,7 +27,7 @@ public class RgbColor implements ComponentColor<RgbColor> {
 	}
 
 	public static RgbColor from(int rgb) {
-		return from(ByteUtil.byteAt(rgb, 2), ByteUtil.byteAt(rgb, 1), rgb);
+		return from(byteValueAt(rgb, 2), byteValueAt(rgb, 1), byteValueAt(rgb, 0));
 	}
 
 	public static RgbColor from(int red, int green, int blue) {
@@ -67,9 +67,9 @@ public class RgbColor implements ComponentColor<RgbColor> {
 
 	public RgbColor dim(double ratio) {
 		if (ratio == 1) return this;
-		return HsbColor.from(this).dim(ratio).asRgb();
+		return of(r * ratio, g * ratio, b * ratio, a);
 	}
-	
+
 	@Override
 	public boolean hasAlpha() {
 		return a < MAX_VALUE;
@@ -77,9 +77,15 @@ public class RgbColor implements ComponentColor<RgbColor> {
 
 	@Override
 	public RgbColor normalize() {
-		double max = MathUtil.max(r, g, b);
-		if (max <= MAX_VALUE || max == 0.0) return this;
-		return of(r / max, g / max, b / max, limit(a));
+		double min = MathUtil.min(r, g, b, 0);
+		double max = MathUtil.max(r, g, b, 0);
+		double divisor = Math.max(max - min, 1);
+		double r = (this.r - min) / divisor;
+		double g = (this.g - min) / divisor;
+		double b = (this.b - min) / divisor;
+		double a = limit(this.a);
+		if (r == this.r && g == this.g && b == this.b && a == this.a) return this;
+		return of(r, g, b, a);
 	}
 
 	@Override

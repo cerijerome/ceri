@@ -1,12 +1,15 @@
 package ceri.common.color;
 
 import static ceri.common.collection.StreamUtil.toList;
+import static ceri.common.color.ColorTestUtil.assertColor;
+import static ceri.common.color.ColorTestUtil.assertHsb;
 import static ceri.common.test.TestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -14,8 +17,6 @@ import java.awt.Color;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Test;
-import ceri.common.data.ByteUtil;
-import ceri.common.math.MathUtil;
 
 public class ColorUtilTest {
 
@@ -40,48 +41,50 @@ public class ColorUtilTest {
 	public void testRotateBiasedHue() {
 		List<Color> colors = ColorUtil.rotateHue(0x404040, 3, Biases.HALF_SINE);
 		assertThat(colors.size(), is(3));
-		assertApproximateHsb(colors.get(0), 0, 0, 0.25);
-		assertApproximateHsb(colors.get(1), 0, 0, 0.25);
-		assertApproximateHsb(colors.get(2), 0, 0, 0.25);
+		assertHsb(colors.get(0), 0, 0, 0.251);
+		assertHsb(colors.get(1), 0, 0, 0.251);
+		assertHsb(colors.get(2), 0, 0, 0.251);
 		colors = ColorUtil.rotateHue(0x408080, 4, Biases.HALF_SINE);
 		assertThat(colors.size(), is(4));
-		assertApproximateHsb(colors.get(0), 0.65, 0.5, 0.5);
-		assertApproximateHsb(colors.get(1), 0.0, 0.5, 0.5);
-		assertApproximateHsb(colors.get(2), 0.35, 0.5, 0.5);
-		assertApproximateHsb(colors.get(3), 0.5, 0.5, 0.5);
+		assertHsb(colors.get(0), 0.646, 0.5, 0.502);
+		assertHsb(colors.get(1), 0.0, 0.5, 0.502);
+		assertHsb(colors.get(2), 0.354, 0.5, 0.502);
+		assertHsb(colors.get(3), 0.5, 0.5, 0.502);
 	}
 
 	@Test
 	public void testRotateHue() {
 		List<Color> colors = ColorUtil.rotateHue(0x800000, 2);
 		assertThat(colors.size(), is(2));
-		assertApproximateHsb(colors.get(0), 0.5, 1.0, 0.5);
-		assertApproximateHsb(colors.get(1), 0.0, 1.0, 0.5);
+		assertHsb(colors.get(0), 0.5, 1.0, 0.502);
+		assertHsb(colors.get(1), 0.0, 1.0, 0.502);
 		colors = ColorUtil.rotateHue(0x404040, 3);
 		assertThat(colors.size(), is(3));
-		assertApproximateHsb(colors.get(0), 0, 0, 0.25);
-		assertApproximateHsb(colors.get(1), 0, 0, 0.25);
-		assertApproximateHsb(colors.get(2), 0, 0, 0.25);
+		assertHsb(colors.get(0), 0, 0, 0.251);
+		assertHsb(colors.get(1), 0, 0, 0.251);
+		assertHsb(colors.get(2), 0, 0, 0.251);
 		colors = ColorUtil.rotateHue(new Color(0x408080), 4);
 		assertThat(colors.size(), is(4));
-		assertApproximateHsb(colors.get(0), 0.75, 0.5, 0.5);
-		assertApproximateHsb(colors.get(1), 0.0, 0.5, 0.5);
-		assertApproximateHsb(colors.get(2), 0.25, 0.5, 0.5);
-		assertApproximateHsb(colors.get(3), 0.5, 0.5, 0.5);
+		assertHsb(colors.get(0), 0.75, 0.5, 0.502);
+		assertHsb(colors.get(1), 0.0, 0.5, 0.502);
+		assertHsb(colors.get(2), 0.25, 0.5, 0.502);
+		assertHsb(colors.get(3), 0.5, 0.5, 0.502);
 	}
 
 	@Test
 	public void testScale() {
-		assertThat(ColorUtil.scale(Color.black, Color.gray, 2), is(Color.gray));
-		assertThat(ColorUtil.scale(0x102030, 0x405060, -2), is(new Color(0x102030)));
+		assertColor(ColorUtil.scale(Color.black, Color.gray, 2), Color.gray);
+		assertColor(ColorUtil.scale(0x102030, 0x405060, -2), 0x102030);
 	}
 
 	@Test
 	public void testScaleHsb() {
-		assertThat(ColorUtil.scaleHsb(Color.black, Color.white, 0.5), is(Color.gray));
-		assertThat(ColorUtil.scaleHsb(Color.yellow, Color.magenta, 0.5), is(Color.red));
-		assertThat(ColorUtil.scaleHsb(Color.magenta, Color.yellow, 0.5), is(Color.red));
-		assertThat(ColorUtil.scaleHsb(Color.cyan, Color.red, 0.33333), is(Color.green));
+		assertColor(ColorUtil.scaleHsb(Color.black, Color.white, 1.1), Color.white);
+		assertColor(ColorUtil.scaleHsb(Color.black, Color.white, -1), Color.black);
+		assertColor(ColorUtil.scaleHsb(Color.black, Color.white, 0.5), Color.gray);
+		assertColor(ColorUtil.scaleHsb(Color.yellow, Color.magenta, 0.5), Color.red);
+		assertColor(ColorUtil.scaleHsb(Color.magenta, Color.yellow, 0.5), Color.red);
+		assertColor(ColorUtil.scaleHsb(Color.cyan, Color.red, 0.33333), Color.green);
 	}
 
 	@Test
@@ -97,7 +100,7 @@ public class ColorUtilTest {
 		assertApprox(ColorUtil.scaleHue(0.5, 1, 0.8), 0.9);
 		assertApprox(ColorUtil.scaleHue(1, 0.5, 0.8), 0.6);
 	}
-	
+
 	@Test
 	public void testScaleRatio() {
 		assertApprox(ColorUtil.scaleRatio(0.2, 0.7, 0), 0.2);
@@ -111,7 +114,7 @@ public class ColorUtilTest {
 		assertApprox(ColorUtil.scaleRatio(0.2, 0.7, 0.4), 0.4);
 		assertApprox(ColorUtil.scaleRatio(0.7, 0.2, 0.4), 0.5);
 	}
-	
+
 	@Test
 	public void testScaleChannel() {
 		assertThat(ColorUtil.scaleChannel(50, 150, 0), is(50));
@@ -128,6 +131,11 @@ public class ColorUtilTest {
 	}
 
 	@Test
+	public void testRandom() {
+		assertNotNull(ColorUtil.random());
+	}
+
+	@Test
 	public void testColors() {
 		assertIterable(ColorUtil.colors("black", "white", "cyan"), Color.black, Color.white,
 			Color.cyan);
@@ -135,25 +143,25 @@ public class ColorUtilTest {
 
 	@Test
 	public void testColorFromString() {
-		assertThat(ColorUtil.color("black"), is(Color.black));
-		assertThat(ColorUtil.color("teal"), is(X11Color.teal.color));
-		assertThat(ColorUtil.color("0"), is(Color.black));
-		assertThat(ColorUtil.color("#0"), is(Color.black));
-		assertThat(ColorUtil.color("0x0"), is(Color.black));
-		assertThat(ColorUtil.color("0x000"), is(Color.black));
-		assertThat(ColorUtil.color("0x0000"), is(Color.black));
-		assertThat(ColorUtil.color("0xffffff"), is(Color.white));
-		assertThat(ColorUtil.color("0xfff"), is(Color.white));
-		assertThat(ColorUtil.color("#fff"), is(Color.white));
-		assertThat(ColorUtil.color("fff"), is(Color.white));
-		assertThat(ColorUtil.color("ffff"), is(Color.cyan));
+		assertColor(ColorUtil.color("black"), Color.black);
+		assertColor(ColorUtil.color("teal"), X11Color.teal.color);
+		assertColor(ColorUtil.color("0"), Color.black);
+		assertColor(ColorUtil.color("#0"), Color.black);
+		assertColor(ColorUtil.color("0x0"), Color.black);
+		assertColor(ColorUtil.color("0x000"), Color.black);
+		assertColor(ColorUtil.color("0x0000"), Color.black);
+		assertColor(ColorUtil.color("0xffffff"), Color.white);
+		assertColor(ColorUtil.color("0xfff"), Color.white);
+		assertColor(ColorUtil.color("#fff"), Color.white);
+		assertColor(ColorUtil.color("fff"), Color.white);
+		assertColor(ColorUtil.color("ffff"), Color.cyan);
 		assertNull(ColorUtil.color("xxx"));
 	}
 
 	@Test
 	public void testColorFromName() {
-		assertThat(ColorUtil.colorFromName("black"), is(Color.black));
-		assertThat(ColorUtil.colorFromName("teal"), is(X11Color.teal.color));
+		assertColor(ColorUtil.colorFromName("black"), Color.black);
+		assertColor(ColorUtil.colorFromName("teal"), X11Color.teal.color);
 		assertNull(ColorUtil.colorFromName(""));
 		assertNull(ColorUtil.colorFromName("xxx"));
 	}
@@ -177,6 +185,14 @@ public class ColorUtilTest {
 	}
 
 	@Test
+	public void testFadeHsb() {
+		assertIterable(ColorUtil.fadeHsb(Color.red, Color.blue, 2), //
+			new Color(255, 0, 255), new Color(0, 0, 255));
+		assertIterable(ColorUtil.fadeHsb(Color.red.getRGB(), Color.green.getRGB(), 2), //
+			new Color(255, 255, 0), new Color(0, 255, 0));
+	}
+
+	@Test
 	public void testDim() {
 		assertColor(ColorUtil.dim(new Color(255, 153, 51), 0), 0, 0, 0);
 		assertColor(ColorUtil.dim(new Color(255, 153, 51), .7), 179, 107, 36);
@@ -196,12 +212,27 @@ public class ColorUtilTest {
 
 	@Test
 	public void testToString() {
+		assertNull(ColorUtil.toString(null));
 		assertThat(ColorUtil.toString(Color.cyan), is("cyan"));
 		assertThat(ColorUtil.toString(Color.black), is("black"));
 		assertThat(ColorUtil.toString(0), is("black"));
 		assertThat(ColorUtil.toString(X11Color.beige.color), is("beige"));
 		assertThat(ColorUtil.toString(0xaabbcc), is("#aabbcc"));
 		assertThat(ColorUtil.toString(255, 127, 80), is("coral"));
+	}
+
+	@Test
+	public void testToHex() {
+		assertNull(ColorUtil.toHex(null));
+		assertThat(ColorUtil.toHex(X11Color.beige.color), is("#f5f5dc"));
+		assertThat(ColorUtil.toHex(255, 255, 0), is("#ffff00"));
+	}
+
+	@Test
+	public void testToName() {
+		assertNull(ColorUtil.toName(null));
+		assertThat(ColorUtil.toName(X11Color.beige.color), is("beige"));
+		assertThat(ColorUtil.toName(255, 0, 255), is("magenta"));
 	}
 
 	@Test
@@ -224,31 +255,8 @@ public class ColorUtilTest {
 		assertThat(ColorUtil.rgb(-1, 257, -128), is(0xff0180));
 	}
 
-	private void assertApproximateHsb(Color color, double h, double s, double b) {
-		HsbColor hsb = HsbColor.from(color);
-		assertThat(MathUtil.simpleRound(hsb.h, 2), is(h));
-		assertThat(MathUtil.simpleRound(hsb.s, 2), is(s));
-		assertThat(MathUtil.simpleRound(hsb.b, 2), is(b));
-	}
-
 	private void assertColors(Iterable<Color> colors, int... colorValues) {
 		assertIterable(colors, toList(IntStream.of(colorValues).mapToObj(Color::new)));
-	}
-
-	private void assertColor(Color color, int rgb) {
-		assertColor(color, byteAt(rgb, 2), byteAt(rgb, 1), byteAt(rgb, 0));
-	}
-
-	private int byteAt(int color, int i) {
-		return ByteUtil.byteAt(color, i) & 0xff;
-	}
-
-	private void assertColor(Color color, int r, int g, int b) {
-		assertThat(color, is(new Color(r, g, b)));
-	}
-
-	private void assertColor(Color color, int r, int g, int b, int a) {
-		assertThat(color, is(new Color(r, g, b, a)));
 	}
 
 }

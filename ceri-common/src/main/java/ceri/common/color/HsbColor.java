@@ -1,5 +1,7 @@
 package ceri.common.color;
 
+import static ceri.common.color.ColorUtil.toRatio;
+import static ceri.common.data.ByteUtil.byteValueAt;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import java.awt.Color;
 import ceri.common.data.ByteUtil;
@@ -31,7 +33,7 @@ public class HsbColor implements ComponentColor<HsbColor> {
 	}
 
 	public static HsbColor from(int rgb) {
-		return from(ByteUtil.byteAt(rgb, 2), ByteUtil.byteAt(rgb, 1), rgb);
+		return from(byteValueAt(rgb, 2), byteValueAt(rgb, 1), byteValueAt(rgb, 0));
 	}
 
 	public static HsbColor from(int red, int green, int blue) {
@@ -82,22 +84,24 @@ public class HsbColor implements ComponentColor<HsbColor> {
 	}
 
 	public RgbColor asRgb() {
-		return RgbColor.from(asColor());
+		Color color = asColor();
+		return RgbColor.of(toRatio(color.getRed()), toRatio(color.getGreen()),
+			toRatio(color.getBlue()), a);
 	}
-	
+
 	public boolean isBlack() {
 		return b <= 0;
 	}
-	
+
 	public boolean isWhite() {
 		return s <= 0 && b >= MAX_VALUE;
 	}
-	
+
 	public HsbColor dim(double ratio) {
 		if (ratio == 1) return this;
-		return of(h, s, b * ratio);
+		return of(h, s, b * ratio, a);
 	}
-	
+
 	@Override
 	public boolean hasAlpha() {
 		return a < MAX_VALUE;
