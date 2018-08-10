@@ -94,6 +94,18 @@ public class ImmutableByteArray {
 		return append(wrap(array, offset, length));
 	}
 
+	public ImmutableByteArray resize(int length) {
+		return resize(0, length);
+	}
+	
+	public ImmutableByteArray resize(int offset, int length) {
+		if (length == 0) return ImmutableByteArray.EMPTY;
+		if (offset == 0 && length == this.length) return this;
+		byte[] buffer = new byte[length];
+		slice(offset, Math.min(this.length - offset, length)).copyTo(buffer);
+		return wrap(buffer);
+	}
+
 	public ImmutableByteArray slice(int offset) {
 		return slice(offset, length - offset);
 	}

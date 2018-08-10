@@ -1,6 +1,12 @@
 package ceri.common.data;
 
+import static ceri.common.data.ByteUtil.fromAscii;
+import static ceri.common.data.ByteUtil.toHex;
+import static ceri.common.text.StringUtil.escape;
+import static ceri.common.util.BasicUtil.exceptionf;
+import static ceri.common.validation.ValidationUtil.validateEqual;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.validation.ValidationUtil;
@@ -107,6 +113,17 @@ public class DataUtil {
 		throw UnexpectedValueException.forInt(value.value, name);
 	}
 
+	public static int validateAscii(String value, ImmutableByteArray data) {
+		return validateAscii(value, data, 0);
+	}
+
+	public static int validateAscii(String value, ImmutableByteArray data, int offset) {
+		ImmutableByteArray expected = ByteUtil.toAscii(value);
+		if (expected.equals(data, offset)) return offset + expected.length;
+		throw exceptionf("Expected %s: %s", escape(value),
+			escape(fromAscii(data, offset, expected.length)));
+	}
+
 	public static void validateAscii(Predicate<String> predicate, ImmutableByteArray data) {
 		validateAscii(predicate, data, 0);
 	}
@@ -118,8 +135,38 @@ public class DataUtil {
 
 	public static void validateAscii(Predicate<String> predicate, ImmutableByteArray data,
 		int offset, int length) {
-		String actual = ByteUtil.fromAscii(data, offset, length);
+		String actual = fromAscii(data, offset, length);
 		ValidationUtil.validate(predicate, actual);
+	}
+
+	public static int validate(ImmutableByteArray expected, ImmutableByteArray data) {
+		return validate(expected, data, 0);
+	}
+
+	public static int validate(ImmutableByteArray expected, ImmutableByteArray data, int offset) {
+		if (expected.equals(data, offset)) return offset + expected.length;
+		throw exceptionf("Expected %s: %s", toHex(expected),
+			toHex(data.slice(offset, expected.length)));
+	}
+
+	public static <T> T validate(IntFunction<T> fn, int value) {
+		return validate(fn, value, null);
+	}
+
+	public static <T> T validate(IntFunction<T> fn, int value, String name) {
+		T t = fn.apply(value);
+		if (t != null) return t;
+		throw UnexpectedValueException.forInt(value, name);
+	}
+
+	public static <T> void validate(IntFunction<T> fn, T expected, int value) {
+		validate(fn, expected, value, null);
+	}
+
+	public static <T> void validate(IntFunction<T> fn, T expected, int value,
+		String name) {
+		T actual = validate(fn, value, name);
+		validateEqual(actual, expected, name);
 	}
 
 }

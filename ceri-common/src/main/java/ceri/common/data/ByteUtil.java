@@ -35,6 +35,10 @@ public class ByteUtil {
 			Stream.of(HEX_SPLIT_REGEX.split(hex)).mapToInt(s -> Integer.parseInt(s, HEX_RADIX)));
 	}
 
+	public static String toHex(ImmutableByteArray array) {
+		return toHex(array, " ");
+	}
+	
 	public static String toHex(ImmutableByteArray array, String delimiter) {
 		return array.stream().mapToObj(b -> StringUtil.toHex((byte) b))
 			.collect(Collectors.joining(delimiter));

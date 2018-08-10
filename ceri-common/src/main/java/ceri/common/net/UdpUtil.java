@@ -8,6 +8,7 @@ import java.net.SocketTimeoutException;
 import ceri.common.collection.ImmutableByteArray;
 
 public class UdpUtil {
+	public static final int MAX_PACKET_DATA = 65507; // = 65535 - 8(udp) - 20(ip)
 
 	private UdpUtil() {}
 

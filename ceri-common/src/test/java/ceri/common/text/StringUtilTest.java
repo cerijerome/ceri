@@ -187,11 +187,11 @@ public class StringUtilTest {
 
 	@Test
 	public void testPrintable() {
-		assertThat(StringUtil.printable(KeyEvent.CHAR_UNDEFINED), is(false));
-		assertThat(StringUtil.printable('\uffff'), is(false));
-		assertThat(StringUtil.printable('\u1c00'), is(true));
-		assertThat(StringUtil.printable(Character.MAX_HIGH_SURROGATE), is(true));
-		assertThat(StringUtil.printable('\0'), is(false));
+		assertThat(StringUtil.isPrintable(KeyEvent.CHAR_UNDEFINED), is(false));
+		assertThat(StringUtil.isPrintable('\uffff'), is(false));
+		assertThat(StringUtil.isPrintable('\u1c00'), is(true));
+		assertThat(StringUtil.isPrintable(Character.MAX_HIGH_SURROGATE), is(true));
+		assertThat(StringUtil.isPrintable('\0'), is(false));
 	}
 
 	@Test

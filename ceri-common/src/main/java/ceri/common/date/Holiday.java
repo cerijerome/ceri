@@ -29,7 +29,7 @@ public interface Holiday {
 			LocalDate date = holiday.date(year);
 			DayOfWeek day = date.getDayOfWeek();
 			if (day == SATURDAY) return date.minusDays(1);
-			if (day == SUNDAY) date.plusDays(1);
+			if (day == SUNDAY) return date.plusDays(1);
 			return date;
 		};
 	}

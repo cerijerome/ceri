@@ -17,6 +17,7 @@ import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntBinaryOperator;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
@@ -31,9 +32,19 @@ import ceri.common.util.BasicUtil;
  * Convenience shortcuts for common stream methods.
  */
 public class StreamUtil {
-
+	private static final IntBinaryOperator intBitwiseAnd = (lhs, rhs) -> lhs & rhs;
+	private static final IntBinaryOperator intBitwiseOr = (lhs, rhs) -> lhs | rhs;
+	
 	private StreamUtil() {}
 
+	public static int bitwiseAnd(IntStream stream) {
+		return stream.reduce(intBitwiseAnd).orElse(0);
+	}
+	
+	public static int bitwiseOr(IntStream stream) {
+		return stream.reduce(0, intBitwiseOr);
+	}
+	
 	/**
 	 * Filters objects of given type and casts the stream.
 	 */
@@ -251,6 +262,13 @@ public class StreamUtil {
 		return Arrays.stream(array, offset, array.length);
 	}
 
+	/**
+	 * Returns a stream for all enum values.
+	 */
+	public static <T extends Enum<T>> Stream<T> stream(Class<T> enumCls) {
+		return BasicUtil.enums(enumCls).stream();
+	}
+	
 	/**
 	 * Returns a stream for an Enumeration.
 	 */

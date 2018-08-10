@@ -755,7 +755,7 @@ public class TestUtil {
 			throw new IllegalArgumentException(e);
 		}
 		for (int i = 0; i < b.length(); i++) {
-			if (!StringUtil.printable(b.charAt(i))) b.setCharAt(i, unreadableChar);
+			if (!StringUtil.isPrintable(b.charAt(i))) b.setCharAt(i, unreadableChar);
 			// if (b.charAt(i) < ' ') b.setCharAt(i, readableChar);
 		}
 		return b.toString();

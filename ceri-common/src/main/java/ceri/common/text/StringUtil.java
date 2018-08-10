@@ -40,6 +40,7 @@ public class StringUtil {
 	private static final char CR = '\r';
 	private static final char NL = '\n';
 	private static final char NULL = '\0';
+	private static final String ESCAPED_NULL = "\\0";
 	private static final String ESCAPED_BACKSLASH = "\\\\";
 	private static final String ESCAPED_BACKSPACE = "\\b";
 	private static final String ESCAPED_ESCAPE = "\\e";
@@ -112,6 +113,39 @@ public class StringUtil {
 	}
 
 	/**
+	 * Escapes non-visible characters within the given string.
+	 */
+	public static String escape(String s) {
+		return replaceUnprintable(s, StringUtil::escapeChar);
+	}
+
+	/**
+	 * Escapes a non-printable char.
+	 */
+	static String escapeChar(char c) {
+		switch (c) {
+		case BACKSLASH:
+			return ESCAPED_BACKSLASH;
+		case BACKSPACE:
+			return ESCAPED_BACKSPACE;
+		case ESCAPE:
+			return ESCAPED_ESCAPE;
+		case FF:
+			return ESCAPED_FF;
+		case NL:
+			return ESCAPED_NL;
+		case CR:
+			return ESCAPED_CR;
+		case TAB:
+			return ESCAPED_TAB;
+		case NULL:
+			return ESCAPED_NULL;
+		default:
+			return ESCAPED_UTF16 + toHex(c, SHORT_HEX_DIGITS);
+		}
+	}
+
+	/**
 	 * Encodes escaped characters within the given string.
 	 */
 	public static String unEscape(String s) {
@@ -138,7 +172,7 @@ public class StringUtil {
 			return CR;
 		case ESCAPED_TAB:
 			return TAB;
-		case ESCAPED_OCTAL:
+		case ESCAPED_NULL:
 			return NULL;
 		}
 		Character c = escaped(escapedChar, ESCAPED_OCTAL, OCTAL_RADIX);
@@ -381,10 +415,17 @@ public class StringUtil {
 	/**
 	 * Checks if a char is printable
 	 */
-	public static boolean printable(char c) {
+	public static boolean isPrintable(char c) {
 		if (Character.isISOControl(c) || c == KeyEvent.CHAR_UNDEFINED) return false;
 		Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
 		return block != Character.UnicodeBlock.SPECIALS;
+	}
+
+	/**
+	 * Replaces unprintable chars with '.'.
+	 */
+	public static String printable(String s) {
+		return replaceUnprintable(s, UNPRINTABLE_CHAR);
 	}
 
 	/**
@@ -395,16 +436,23 @@ public class StringUtil {
 		StringBuilder b = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
-			b.append(printable(c) ? c : replace);
+			b.append(isPrintable(c) ? c : replace);
 		}
 		return b.toString();
 	}
 
 	/**
-	 * Replaces unprintable chars with '.'.
+	 * Replaces unprintable chars using replacer function.
 	 */
-	public static String printable(String s) {
-		return replaceUnprintable(s, UNPRINTABLE_CHAR);
+	public static String replaceUnprintable(String s, Function<Character, String> replacer) {
+		if (s == null) return null;
+		StringBuilder b = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (isPrintable(c)) b.append(c);
+			else b.append(replacer.apply(c));
+		}
+		return b.toString();
 	}
 
 	/**

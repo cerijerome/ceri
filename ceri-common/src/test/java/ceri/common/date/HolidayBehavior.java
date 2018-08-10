@@ -14,7 +14,7 @@ public class HolidayBehavior {
 	@Test
 	public void shouldReturnDateForTheYear() {
 		assertThat(UsHoliday.christmasDay.day.date(2018), is(LocalDate.of(2018, 12, 25)));
-		assertThat(UsHoliday.veteransDay.observed.date(2018), is(LocalDate.of(2018, 11, 11)));
+		assertThat(UsHoliday.veteransDay.observed.date(2018), is(LocalDate.of(2018, 11, 12)));
 		assertThat(UsHoliday.veteransDay.observed.date(2017), is(LocalDate.of(2017, 11, 10)));
 		assertThat(UsHoliday.veteransDay.observed.date(2016), is(LocalDate.of(2016, 11, 11)));
 		assertThat(UsHoliday.independenceDay.day.date(2018), is(LocalDate.of(2018, 7, 4)));

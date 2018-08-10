@@ -42,7 +42,7 @@ public class NetUtil {
 	}
 
 	public static boolean isRegularAddress(InetAddress i) {
-		if (i.isSiteLocalAddress()) return true;
+		if (!i.isSiteLocalAddress()) return false;
 		if (i.isAnyLocalAddress()) return false;
 		if (i.isLinkLocalAddress()) return false;
 		if (i.isLoopbackAddress()) return false;
