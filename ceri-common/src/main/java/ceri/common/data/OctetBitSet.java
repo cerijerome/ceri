@@ -20,12 +20,42 @@ public class OctetBitSet extends BitSet {
 		return bitSet;
 	}
 
-	public byte value() {
-		return toByteArray()[0];
-	}
-
 	private OctetBitSet() {
 		super(Byte.SIZE);
+	}
+
+	public int setBit(int bitIndex, boolean value) {
+		set(bitIndex, value);
+		return bitIndex + 1;
+	}
+	
+	public int setBits(int bitIndex, int value, int bits) {
+		bits = Math.min(bits, size() - bitIndex);
+		int mask = 1;
+		for (int i = 0; i < bits; i++) {
+			set(bitIndex + i, (value & mask) != 0);
+			mask <<= 1;
+		}
+		return bitIndex + bits;
+	}
+	
+	public int getBits(int bitIndex, int bits) {
+		bits = Math.min(bits, size() - bitIndex);
+		int mask = 1;
+		int value = 0;
+		for (int i = 0; i < bits; i++) {
+			if (get(bitIndex + i)) value |= mask;
+			mask <<= 1;
+		}
+		return value;
+	}
+	
+	public int intValue() {
+		return value() & 0xff;
+	}
+	
+	public byte value() {
+		return toByteArray()[0];
 	}
 
 }

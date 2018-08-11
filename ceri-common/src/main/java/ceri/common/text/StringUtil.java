@@ -57,6 +57,7 @@ public class StringUtil {
 			"\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
 	private static final Charset UTF8 = StandardCharsets.UTF_8;
 	public static final int HEX_RADIX = 16;
+	public static final int DECIMAL_RADIX = 10;
 	public static final int OCTAL_RADIX = 8;
 	public static final int BINARY_RADIX = 2;
 	public static final Pattern NEWLINE_REGEX = Pattern.compile("(\\r\\n|\\n|\\r)");

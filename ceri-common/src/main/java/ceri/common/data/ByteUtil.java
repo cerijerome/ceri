@@ -45,7 +45,7 @@ public class ByteUtil {
 	}
 
 	public static IntStream streamOf(byte... array) {
-		return IntStream.range(0, array.length).map(i -> array[i]);
+		return IntStream.range(0, array.length).map(i -> array[i] & 0xff);
 	}
 
 	public static byte[] toByteArray(IntStream stream) {
