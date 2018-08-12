@@ -20,7 +20,7 @@ public class IntBitSet extends BitSet {
 	}
 
 	public static IntBitSet of() {
-		return of(0);
+		return new IntBitSet();
 	}
 
 	public static IntBitSet ofByte(int value) {
@@ -74,6 +74,10 @@ public class IntBitSet extends BitSet {
 
 	public Set<Integer> bits() {
 		return StreamUtil.toSet(stream().boxed());
+	}
+
+	public byte byteValue() {
+		return (byte) longValue();
 	}
 
 	public int value() {

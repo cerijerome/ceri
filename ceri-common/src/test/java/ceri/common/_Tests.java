@@ -38,8 +38,8 @@ import ceri.common.data.ByteTypeValueBehavior;
 import ceri.common.data.ByteUtilTest;
 import ceri.common.data.DataUtilTest;
 import ceri.common.data.DecodingExceptionBehavior;
+import ceri.common.data.IntBitSetBehavior;
 import ceri.common.data.IntTypeValueBehavior;
-import ceri.common.data.OctetBitSetBehavior;
 import ceri.common.data.ShortTypeValueBehavior;
 import ceri.common.data.UnexpectedValueExceptionBehavior;
 import ceri.common.data.UnsignedOctetTypeBehavior;
@@ -235,8 +235,8 @@ import ceri.common.xml.XmlUtilTest;
 	ByteUtilTest.class, //
 	DataUtilTest.class, //
 	DecodingExceptionBehavior.class, //
+	IntBitSetBehavior.class, //
 	IntTypeValueBehavior.class, //
-	OctetBitSetBehavior.class, //
 	ShortTypeValueBehavior.class, //
 	UnexpectedValueExceptionBehavior.class, //
 	UnsignedOctetTypeBehavior.class, //
