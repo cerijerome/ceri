@@ -230,6 +230,10 @@ public class ImmutableByteArray {
 		return equals(0, array, offset, length);
 	}
 
+	public boolean equals(int srcOffset, ImmutableByteArray array) {
+		return equals(srcOffset, array, 0);
+	}
+
 	public boolean equals(int srcOffset, ImmutableByteArray array, int offset) {
 		return equals(srcOffset, array, offset, length - srcOffset);
 	}

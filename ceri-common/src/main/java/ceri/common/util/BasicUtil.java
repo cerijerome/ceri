@@ -155,6 +155,10 @@ public class BasicUtil {
 		return Arrays.asList(cls.getEnumConstants());
 	}
 
+	public static <E extends Exception> void repeat(int count, ExceptionRunnable<E> runnable) throws E {
+		for (int i = 0; i < count; i++) runnable.run();
+	}
+	
 	/**
 	 * Makes an iterator compatible with a for-each loop.
 	 */
