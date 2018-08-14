@@ -6,12 +6,18 @@ import static ceri.common.util.BasicUtil.exceptionf;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
+import java.util.function.Function;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.text.Utf8Util;
 
 public class DataDecoder {
 	private final ImmutableByteArray data;
 	private int offset = 0;
 
+	public static <T> T decode(ImmutableByteArray data, Function<DataDecoder, T> fn) {
+		return fn.apply(of(data));
+	}
+	
 	public static DataDecoder of(ImmutableByteArray data, int offset) {
 		return of(data.slice(offset));
 	}
@@ -29,6 +35,10 @@ public class DataDecoder {
 		this.data = data;
 	}
 
+	public DataDecoder sub(int length) {
+		return DataDecoder.of(slice(length));
+	}
+	
 	public ImmutableByteArray slice() {
 		return slice(remaining());
 	}
@@ -84,6 +94,10 @@ public class DataDecoder {
 
 	public String decodeAscii(int length) {
 		return ByteUtil.fromAscii(data, offset(length), length);
+	}
+
+	public String decodeUtf8(int length) {
+		return Utf8Util.decode(data, offset(length), length);
 	}
 
 	public DataDecoder validateAscii(String value) {

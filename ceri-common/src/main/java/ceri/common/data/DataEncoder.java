@@ -3,14 +3,48 @@ package ceri.common.data;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
+import java.nio.ByteBuffer;
+import java.util.BitSet;
+import java.util.function.Consumer;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.text.Utf8Util;
+import ceri.common.util.BasicUtil;
 
 public class DataEncoder {
 	private final byte[] data;
 	private int start;
 	private int length;
 	private int offset = 0;
+
+	public static interface EncodableField {
+		/**
+		 * Returns the offset after encoding.
+		 */
+		int encode(byte[] data, int offset);
+	}
+
+	public static interface Encodable {
+		default int size() {
+			return 0;
+		}
+
+		default ImmutableByteArray encode() {
+			int size = size();
+			if (size == 0) return ImmutableByteArray.EMPTY;
+			return DataEncoder.encode(size, this::encode);
+		}
+
+		default void encode(DataEncoder encoder) {
+			BasicUtil.unused(encoder);
+		}
+	}
+
+	public static ImmutableByteArray encode(int size, Consumer<DataEncoder> consumer) {
+		byte[] data = new byte[size];
+		consumer.accept(DataEncoder.of(data));
+		return ImmutableByteArray.wrap(data);
+	}
 
 	public static DataEncoder of(int size) {
 		return of(new byte[size]);
@@ -59,6 +93,18 @@ public class DataEncoder {
 		return length;
 	}
 
+	public ImmutableByteArray slice(int offset) {
+		return slice(offset, length - offset);
+	}
+
+	public ImmutableByteArray slice(int offset, int length) {
+		return ImmutableByteArray.wrap(data, start, this.length).slice(offset, length);
+	}
+
+	public BitSet bitSet(int length) {
+		return BitSet.valueOf(ByteBuffer.wrap(data, offset(length), length));
+	}
+
 	public DataEncoder encodeByte(int value) {
 		data[position(Byte.BYTES)] = (byte) (value & ByteUtil.BYTE_MASK);
 		return this;
@@ -79,13 +125,23 @@ public class DataEncoder {
 		return this;
 	}
 
-	public DataEncoder decodeIntLsb(int value) {
+	public DataEncoder encodeIntLsb(int value) {
 		ByteUtil.writeLittleEndian(value, data, position(Integer.BYTES), Integer.BYTES);
 		return this;
 	}
 
 	public DataEncoder encodeAscii(String value) {
 		return copy(ByteUtil.toAscii(value));
+	}
+
+	public DataEncoder encodeUtf8(String value) {
+		setOffset(Utf8Util.encodeTo(value, data, offset));
+		return this;
+	}
+
+	public DataEncoder encode(EncodableField encodable) {
+		setOffset(encodable.encode(data, offset));
+		return this;
 	}
 
 	public DataEncoder copy(ImmutableByteArray data) {
@@ -98,9 +154,13 @@ public class DataEncoder {
 	}
 
 	private int offset(int count) {
-		validateMax(offset + count, length);
-		int old = offset;
-		offset += count;
+		return setOffset(offset + count);
+	}
+
+	private int setOffset(int offset) {
+		validateMax(offset, length);
+		int old = this.offset;
+		this.offset = offset;
 		return old;
 	}
 
