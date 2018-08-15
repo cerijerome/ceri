@@ -37,6 +37,10 @@ public class StreamUtil {
 	
 	private StreamUtil() {}
 
+	public static IntStream toInt(Stream<? extends Number> stream) {
+		return stream.mapToInt(Number::intValue);
+	}
+	
 	public static int bitwiseAnd(IntStream stream) {
 		return stream.reduce(intBitwiseAnd).orElse(0);
 	}

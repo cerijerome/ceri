@@ -6,6 +6,7 @@ import static ceri.common.text.StringUtil.escape;
 import static ceri.common.util.BasicUtil.exceptionf;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import ceri.common.collection.ImmutableByteArray;
@@ -169,4 +170,12 @@ public class DataUtil {
 		validateEqual(actual, expected, name);
 	}
 
+	public static void validateByteRange(int value) {
+		validateRange(value, 0, ByteUtil.BYTE_MASK);
+	}
+	
+	public static void validateShortRange(int value) {
+		validateRange(value, 0, ByteUtil.SHORT_MASK);
+	}
+	
 }
