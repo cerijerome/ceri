@@ -32,8 +32,7 @@ public class JsonFileStore<T> implements PersistentStore<T> {
 		} catch (FileNotFoundException e) {
 			return null;
 		} catch (JsonSyntaxException e) {
-			logger.catching(e);
-			return null;
+			throw new IOException(e);
 		}
 	}
 

@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class JsonCoder<T> {
-	private final Gson gson;
-	private final TypeToken<T> typeToken;
+	public final Gson gson;
+	public final TypeToken<T> typeToken;
 
 	public static <T> JsonCoder<T> create(Gson gson, Class<T> cls) {
 		return create(gson, TypeToken.get(cls));

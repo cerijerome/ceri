@@ -1,13 +1,19 @@
 package ceri.ent.json.adapter;
 
 import java.lang.reflect.Type;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.function.Function;
 
 public class JsonAdapters {
 	public static final JsonAdapter<LocalDateTime> LOCAL_DATE_TIME =
 		ofString(LocalDateTime.class, LocalDateTime::parse);
+	public static final JsonAdapter<LocalDate> LOCAL_DATE =
+		ofString(LocalDate.class, LocalDate::parse);
+	public static final JsonAdapter<LocalTime> LOCAL_TIME =
+		ofString(LocalTime.class, LocalTime::parse);
 	public static final JsonAdapter<ZoneId> ZONE_ID = ofString(ZoneId.class, ZoneId::of);
 
 	private JsonAdapters() {}
