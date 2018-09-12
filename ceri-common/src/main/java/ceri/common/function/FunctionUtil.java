@@ -1,5 +1,6 @@
 package ceri.common.function;
 
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -79,6 +80,15 @@ public class FunctionUtil {
 		ExceptionConsumer<E, ? super T> consumer) throws E {
 		FunctionWrapper<E> w = FunctionWrapper.create();
 		w.handle(() -> stream.forEach(w.wrap(consumer)));
+	}
+
+	/**
+	 * Executes for-each, allowing exception of given type to be thrown.
+	 */
+	public static <E extends Exception, K, V> void forEach(Map<K, V> map,
+		ExceptionBiConsumer<E, ? super K, ? super V> consumer) throws E {
+		FunctionWrapper<E> w = FunctionWrapper.create();
+		w.handle(() -> map.forEach(w.wrapBi(consumer)));
 	}
 
 	public static <E extends Exception, T> ExceptionFunction<E, T, Boolean>

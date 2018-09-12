@@ -38,6 +38,11 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 		return find(Filters._true());
 	}
 
+	public V findFirst(Filter<V> filter) {
+		Collection<V> collection = find(filter, 1);
+		return collection.isEmpty() ? null : collection.iterator().next();
+	}
+
 	public Collection<V> find(Filter<V> filter) {
 		return find(filter, UNLIMITED_COUNT);
 	}

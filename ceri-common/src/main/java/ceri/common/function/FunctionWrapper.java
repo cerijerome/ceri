@@ -1,5 +1,7 @@
 package ceri.common.function;
 
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -50,6 +52,14 @@ public class FunctionWrapper<E extends Exception> {
 		return () -> wrapIt(asFunction(supplier), null);
 	}
 
+	public <T, U, R> BiFunction<T, U, R> wrapBi(ExceptionBiFunction<E, T, U, R> function) {
+		return (t, u) -> wrapIt(function, t, u);
+	}
+
+	public <T, U> BiConsumer<T, U> wrapBi(ExceptionBiConsumer<E, T, U> consumer) {
+		return (t, u) -> wrapIt(asBiFunction(consumer), t, u);
+	}
+
 	private <T> ExceptionFunction<E, T, Boolean> asFunction(ExceptionRunnable<E> runnable) {
 		return t -> {
 			runnable.run();
@@ -64,6 +74,13 @@ public class FunctionWrapper<E extends Exception> {
 		};
 	}
 
+	private <T, U> ExceptionBiFunction<E, T, U, Boolean> asBiFunction(ExceptionBiConsumer<E, T, U> consumer) {
+		return (t, u) -> {
+			consumer.accept(t, u);
+			return Boolean.TRUE;
+		};
+	}
+
 	private <T> ExceptionFunction<E, ?, T> asFunction(ExceptionSupplier<E, T> supplier) {
 		return t -> supplier.get();
 	}
@@ -74,6 +91,10 @@ public class FunctionWrapper<E extends Exception> {
 
 	private <T, R> R wrapIt(ExceptionFunction<E, T, R> function, T t) {
 		return agent.wrap(function, t);
+	}
+
+	private <T, U, R> R wrapIt(ExceptionBiFunction<E, T, U, R> function, T t, U u) {
+		return agent.wrap(function, t, u);
 	}
 
 }

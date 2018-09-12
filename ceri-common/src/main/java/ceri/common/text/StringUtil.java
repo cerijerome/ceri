@@ -548,7 +548,7 @@ public class StringUtil {
 		if (lhs == rhs) return true;
 		if (lhs == null || rhs == null) return false;
 		if (lhs.length() < rhs.length()) return false;
-		return lhs.substring(0, rhs.length()).toLowerCase().equals(rhs.toLowerCase());
+		return lhs.substring(0, rhs.length()).equalsIgnoreCase(rhs);
 	}
 
 	/**

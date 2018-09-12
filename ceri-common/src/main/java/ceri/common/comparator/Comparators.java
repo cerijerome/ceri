@@ -4,8 +4,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
+import ceri.common.collection.ImmutableUtil;
 import ceri.common.function.FunctionUtil;
 import ceri.common.util.BasicUtil;
 
@@ -33,6 +35,19 @@ public class Comparators {
 
 	private Comparators() {}
 
+	/**
+	 * Comparator based on position in a given list. Items not in the list are placed at the end.
+	 */
+	public static <T> Comparator<T> order(Collection<T> ts) {
+		List<T> list = ImmutableUtil.copyAsList(ts);
+		return transform(INTEGER, t -> indexOf(list, t));
+	}
+
+	private static <T> int indexOf(List<T> list, T t) {
+		int i = list.indexOf(t);
+		return i == -1 ? list.size() : i;
+	}
+	
 	/**
 	 * Transforms a comparator of one type to another using an accessor.
 	 */
@@ -88,7 +103,7 @@ public class Comparators {
 	 * Create a comparator the checks comparators in sequence.
 	 */
 	@SafeVarargs
-	//public static <T> Comparator<T> sequence(Comparator<? super T>... comparators) {
+	// public static <T> Comparator<T> sequence(Comparator<? super T>... comparators) {
 	public static <T> Comparator<T> sequence(Comparator<T>... comparators) {
 		return sequence(Arrays.asList(comparators));
 	}
@@ -96,9 +111,8 @@ public class Comparators {
 	/**
 	 * Create a comparator the checks comparators in sequence.
 	 */
-	public static <T> Comparator<T>
-		sequence(Collection<? extends Comparator<T>> comparators) {
-		//sequence(Collection<? extends Comparator<? super T>> comparators) {
+	public static <T> Comparator<T> sequence(Collection<? extends Comparator<T>> comparators) {
+		// sequence(Collection<? extends Comparator<? super T>> comparators) {
 		return ComparatorSequence.<T>builder().add(comparators).build();
 	}
 

@@ -29,9 +29,29 @@ public class WrapperException extends RuntimeException {
 			}
 		}
 		
+		public <T, U, R> R wrap(ExceptionBiFunction<E, T, U, R> function, T t, U u) {
+			try {
+				return function.apply(t, u);
+			} catch (RuntimeException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new WrapperException(this, BasicUtil.uncheckedCast(e));
+			}
+		}
+		
 		public <T, R> R handle(ExceptionFunction<E, T, R> function, T t) throws E {
 			try {
 				return function.apply(t);
+			} catch (WrapperException e) {
+				if (this != e.agent)
+					throw new IllegalStateException("Mis-matched agent: " + e.agent);
+				throw BasicUtil.<E>uncheckedCast(e.getCause());
+			}
+		}
+		
+		public <T, U, R> R handle(ExceptionBiFunction<E, T, U, R> function, T t, U u) throws E {
+			try {
+				return function.apply(t, u);
 			} catch (WrapperException e) {
 				if (this != e.agent)
 					throw new IllegalStateException("Mis-matched agent: " + e.agent);
