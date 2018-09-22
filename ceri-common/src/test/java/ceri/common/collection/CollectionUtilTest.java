@@ -36,6 +36,16 @@ public class CollectionUtilTest {
 	}
 
 	@Test
+	public void testGetOrDefault() {
+		List<Integer> list = List.of(100, 10, 1000);
+		assertNull(CollectionUtil.getOrDefault(list, -1, null));
+		assertThat(CollectionUtil.getOrDefault(list, -1, 1), is(1));
+		assertThat(CollectionUtil.getOrDefault(list, 0, null), is(100));
+		assertThat(CollectionUtil.getOrDefault(list, 3, -1), is(-1));
+		assertThat(CollectionUtil.getOrDefault(List.of(), 1, -1), is(-1));
+	}
+
+	@Test
 	public void testInvert() {
 		assertThat(CollectionUtil.invert(Map.of()), is(Map.of()));
 		assertThat(CollectionUtil.invert(Map.of(1, "1")), is(Map.of("1", 1)));

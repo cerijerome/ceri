@@ -2,6 +2,7 @@ package ceri.common.score;
 
 import static ceri.common.collection.ImmutableUtil.copyAsMap;
 import static java.util.Collections.unmodifiableMap;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,8 +20,13 @@ public class ScoreLookup<T> implements Scorer<T> {
 
 		Builder() {}
 
-		public Builder<T> score(T t, double score) {
-			map.put(t, score);
+		@SafeVarargs
+		public final Builder<T> score(double score, T... ts) {
+			return score(score, Arrays.asList(ts));
+		}
+
+		public Builder<T> score(double score, Collection<? extends T> ts) {
+			ts.forEach(t -> map.put(t, score));
 			return this;
 		}
 

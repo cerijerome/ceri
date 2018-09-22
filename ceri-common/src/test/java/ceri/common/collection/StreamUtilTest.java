@@ -18,14 +18,32 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;
 
 public class StreamUtilTest {
+	private static enum Abc {
+		A,
+		B,
+		C;
+	}
 
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(StreamUtil.class);
+	}
+
+	@Test
+	public void testToInt() {
+		assertThat(StreamUtil.toInt(List.of(1.2, 2.4, 3.6, 4.8).stream()).toArray(),
+			is(new int[] { 1, 2, 3, 4 }));
+	}
+
+	@Test
+	public void testBitwiseOperators() {
+		assertThat(StreamUtil.bitwiseOr(IntStream.of(1, 2, 5)), is(7));
+		assertThat(StreamUtil.bitwiseAnd(IntStream.of(15, 7, 14)), is(6));
 	}
 
 	@Test
@@ -97,6 +115,11 @@ public class StreamUtilTest {
 	@Test
 	public void testStreamArray() {
 		assertStream(StreamUtil.stream(new Integer[] { 1, 2, 3 }, 1), 2, 3);
+	}
+
+	@Test
+	public void testStreamEnums() {
+		assertIterable(StreamUtil.toList(StreamUtil.stream(Abc.class)), Abc.A, Abc.B, Abc.C);
 	}
 
 	@Test

@@ -36,7 +36,15 @@ public class Comparators {
 	private Comparators() {}
 
 	/**
-	 * Comparator based on position in a given list. Items not in the list are placed at the end.
+	 * Comparator based on position in a given collection. Items not in the list are placed at the end.
+	 */
+	@SafeVarargs
+	public static <T> Comparator<T> order(T...ts) {
+		return order(Arrays.asList(ts));
+	}
+	
+	/**
+	 * Comparator based on position in a given collection. Items not in the list are placed at the end.
 	 */
 	public static <T> Comparator<T> order(Collection<T> ts) {
 		List<T> list = ImmutableUtil.copyAsList(ts);

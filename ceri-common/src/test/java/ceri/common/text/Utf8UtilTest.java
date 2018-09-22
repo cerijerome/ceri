@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import org.junit.Test;
+import ceri.common.collection.ImmutableByteArray;
 
 public class Utf8UtilTest {
 	private static final int _1B = 'A';
@@ -199,7 +200,7 @@ public class Utf8UtilTest {
 	}
 
 	@Test
-	public void testDecode() {
+	public void testDecodeBytes() {
 		assertThat(Utf8Util.decode(bytes('A')), is(StringUtil.toString(_1B)));
 		assertThat(Utf8Util.decode(bytes(0xc2, 0xa9)), is(StringUtil.toString(_2B)));
 		assertThat(Utf8Util.decode(bytes(0xe2, 0x84, 0x83)), is(StringUtil.toString(_3B)));
@@ -207,7 +208,18 @@ public class Utf8UtilTest {
 	}
 
 	@Test
-	public void testEncode() {
+	public void testDecodeImmutableByteArray() {
+		assertThat(Utf8Util.decode(ImmutableByteArray.wrap('A')), is(StringUtil.toString(_1B)));
+		assertThat(Utf8Util.decode(ImmutableByteArray.wrap(0xc2, 0xa9)),
+			is(StringUtil.toString(_2B)));
+		assertThat(Utf8Util.decode(ImmutableByteArray.wrap(0xe2, 0x84, 0x83)),
+			is(StringUtil.toString(_3B)));
+		assertThat(Utf8Util.decode(ImmutableByteArray.wrap(0xf0, 0x9d, 0x90, 0x80)),
+			is(StringUtil.toString(_4B)));
+	}
+
+	@Test
+	public void testEncodeBytes() {
 		assertArray(Utf8Util.encode(-1));
 		assertArray(Utf8Util.encode(0), 0);
 		assertArray(Utf8Util.encode(_1B), 'A');

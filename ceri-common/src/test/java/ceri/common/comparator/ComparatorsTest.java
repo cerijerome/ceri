@@ -18,6 +18,17 @@ public class ComparatorsTest {
 	}
 
 	@Test
+	public void testOrder() {
+		Comparator<Integer> c = Comparators.order(100, 10, 1000);
+		assertThat(c.compare(0, 0), is(0));
+		assertThat(c.compare(100, 100), is(0));
+		assertThat(c.compare(10, 100), is(1));
+		assertThat(c.compare(1000, 100), is(1));
+		assertThat(c.compare(10, 1000), is(-1));
+		assertThat(c.compare(0, 100), is(1));
+	}
+
+	@Test
 	public void testTransform() {
 		Comparator<String> c = Comparators.transform(Comparators.INTEGER, String::length);
 		assertThat(c.compare("001", "2") > 0, is(true));

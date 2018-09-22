@@ -14,6 +14,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -113,6 +114,14 @@ public class FunctionUtilTest {
 		assertIoEx("2", () -> FunctionUtil.forEach(Arrays.asList(1, 2, 3), consumer(2)));
 		assertRtEx("0", () -> FunctionUtil.forEach(Arrays.asList(1, 0, 3), consumer(2)));
 		FunctionUtil.forEach(Arrays.asList(1, 2, 3), consumer(4));
+	}
+
+	@Test
+	public void testForEachMapEntry() throws IOException {
+		Map<Integer, String> map = Map.of(1, "1", 2, "2", 3, "3");
+		FunctionUtil.forEach(map, (k, v) -> {
+			if (k < 1) throw new IOException();
+		});
 	}
 
 }

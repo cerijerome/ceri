@@ -1,7 +1,6 @@
 package ceri.common.function;
 
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -52,10 +51,6 @@ public class FunctionWrapper<E extends Exception> {
 		return () -> wrapIt(asFunction(supplier), null);
 	}
 
-	public <T, U, R> BiFunction<T, U, R> wrapBi(ExceptionBiFunction<E, T, U, R> function) {
-		return (t, u) -> wrapIt(function, t, u);
-	}
-
 	public <T, U> BiConsumer<T, U> wrapBi(ExceptionBiConsumer<E, T, U> consumer) {
 		return (t, u) -> wrapIt(asBiFunction(consumer), t, u);
 	}
@@ -74,7 +69,8 @@ public class FunctionWrapper<E extends Exception> {
 		};
 	}
 
-	private <T, U> ExceptionBiFunction<E, T, U, Boolean> asBiFunction(ExceptionBiConsumer<E, T, U> consumer) {
+	private <T, U> ExceptionBiFunction<E, T, U, Boolean>
+		asBiFunction(ExceptionBiConsumer<E, T, U> consumer) {
 		return (t, u) -> {
 			consumer.accept(t, u);
 			return Boolean.TRUE;

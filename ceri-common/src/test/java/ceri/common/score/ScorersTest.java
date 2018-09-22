@@ -47,15 +47,15 @@ public class ScorersTest {
 	}
 
 	@Test
-	public void testSum() {
+	public void test() {
 		Scorer<String> len = Scorers.nonNull(s -> s.length());
 		Scorer<String> firstChar = Scorers.nonNull(s -> s.isEmpty() ? 0.0 : s.charAt(0) - 'A');
-		Scorer<String> scorer = Scorers.sum(len, firstChar);
+		Scorer<String> scorer = Scorers.average(len, firstChar);
 		assertThat(scorer.score(null), is(0.0));
 		assertThat(scorer.score(""), is(0.0));
-		assertThat(scorer.score("AAA"), is(3.0));
-		assertThat(scorer.score("B"), is(2.0));
-		assertThat(scorer.score("CC"), is(4.0));
+		assertThat(scorer.score("AAA"), is(1.5));
+		assertThat(scorer.score("B"), is(1.0));
+		assertThat(scorer.score("CC"), is(2.0));
 	}
 
 	@Test

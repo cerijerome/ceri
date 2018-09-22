@@ -90,6 +90,9 @@ public class StringUtilTest {
 		assertNull(StringUtil.printable(null));
 		assertThat(StringUtil.printable(""), is(""));
 		assertThat(StringUtil.printable("ab\0c\u2081"), is("ab.c\u2081"));
+		assertNull(StringUtil.replaceUnprintable(null, c -> "."));
+		assertThat(StringUtil.replaceUnprintable("ab\0\1\2c", c -> String.valueOf((int) c)),
+			is("ab012c"));
 	}
 
 	@Test
@@ -135,6 +138,13 @@ public class StringUtilTest {
 		assertThat(StringUtil.unEscape("\\x0\\u0\\u00\\u000"), is("\\x0\\u0\\u00\\u000"));
 		assertThat(StringUtil.unEscape("\\0777"), is("?7"));
 		assertThat(StringUtil.unEscape("\\\\\\\\\\\\"), is("\\\\\\"));
+	}
+
+	@Test
+	public void testEscape() {
+		assertThat(StringUtil.escape("\\ \b \u001b \t \f \r \n \0 \1"),
+			is("\\ \\b \\e \\t \\f \\r \\n \\0 \\u0001"));
+		assertThat(StringUtil.escapeChar('\\'), is("\\\\"));
 	}
 
 	@Test

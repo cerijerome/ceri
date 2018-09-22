@@ -38,6 +38,7 @@ public class NetUtilTest {
 	@Test
 	public void testRegularAddress() throws SocketException {
 		InetAddress addr = NetUtil.regularAddress();
+		if (addr == null) return; // not connected
 		assertTrue(NetUtil.isRegularAddress(addr));
 		NetworkInterface n = NetUtil.regularInterface();
 		addr = NetUtil.regularAddressFor(n);

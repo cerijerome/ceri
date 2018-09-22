@@ -32,6 +32,16 @@ public class ImmutableByteArrayBehavior {
 	}
 
 	@Test
+	public void shouldResize() {
+		ImmutableByteArray ba = ImmutableByteArray.wrap(0, 1, 2);
+		assertThat(ba.resize(0), is(ImmutableByteArray.EMPTY));
+		assertThat(ba.resize(0, 3), is(ba));
+		assertThat(ba.resize(0, 3), is(ba));
+		assertThat(ba.resize(0, 2), is(ImmutableByteArray.wrap(0, 1)));
+		assertThat(ba.resize(1, 3), is(ImmutableByteArray.wrap(1, 2, 0)));
+	}
+
+	@Test
 	public void shouldIterateEachByte() {
 		ImmutableByteArray ba = ImmutableByteArray.wrap(b);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -57,10 +67,12 @@ public class ImmutableByteArrayBehavior {
 		ImmutableByteArray ba2 = ImmutableByteArray.wrap(bytes, 0, 4);
 		ImmutableByteArray ba3 = ImmutableByteArray.wrap(bytes);
 		ImmutableByteArray ba4 = ImmutableByteArray.wrap(bytes(-1, 1, -1));
+		ImmutableByteArray ba5 = ImmutableByteArray.wrap(1, Byte.MAX_VALUE, 0);
 		assertTrue(ba.equals(ba2, 1));
 		assertTrue(ba.equals(ba3, 1, 3));
 		assertTrue(ba3.equals(1, ba2, 1));
 		assertFalse(ba2.equals(1, ba4, 0));
+		assertTrue(ba3.equals(2, ba5));
 	}
 
 	@Test

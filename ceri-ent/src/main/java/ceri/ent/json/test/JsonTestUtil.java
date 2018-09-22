@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 
 public class JsonTestUtil {
 	private static final JsonParser parser = new JsonParser();
-	private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
 	private JsonTestUtil() {}
 

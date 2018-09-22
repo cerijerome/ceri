@@ -24,6 +24,7 @@ import com.google.common.base.Function;
 public class WebDriverContainer implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int TIMEOUT_MS_DEF = 5000;
+	private static final String BLANK_URL = "about:blank";
 	private final Supplier<WebDriver> constructor;
 	private final int timeoutSec;
 	private final boolean canReset;
@@ -80,6 +81,10 @@ public class WebDriverContainer implements Closeable {
 		return WebDriverUtil.nullJs();
 	}
 
+	public void getBlank() {
+		get(BLANK_URL);
+	}
+	
 	public void get(String url) {
 		try {
 			driver().get(url);
@@ -90,22 +95,38 @@ public class WebDriverContainer implements Closeable {
 	}
 
 	public WebElement waitForElement(String xPath) {
-		waitFor(() -> findElement(xPath) != null);
+		return waitForElement(xPath, timeoutSec);
+	}
+
+	public WebElement waitForElement(String xPath, int timeoutSec) {
+		waitFor(() -> findElement(xPath) != null, timeoutSec);
 		return findElement(xPath);
 	}
 
 	public List<WebElement> waitForElements(String xPath) {
-		waitFor(() -> !findElements(xPath).isEmpty());
+		return waitForElements(xPath, timeoutSec);
+	}
+
+	public List<WebElement> waitForElements(String xPath, int timeoutSec) {
+		waitFor(() -> !findElements(xPath).isEmpty(), timeoutSec);
 		return findElements(xPath);
 	}
 
-	public <T> T waitFor(Function<? super WebDriver, T> isTrue) {
-		return (new WebDriverWait(driver, timeoutSec)).until(isTrue);
+	public void waitFor(BooleanSupplier test) {
+		waitFor(test, timeoutSec);
 	}
 
-	public void waitFor(BooleanSupplier test) {
+	public void waitFor(BooleanSupplier test, int timeoutSec) {
 		Function<WebDriver, Boolean> fn = driver -> test.getAsBoolean(); 
-		waitFor(fn);
+		waitFor(fn, timeoutSec);
+	}
+
+	public <T> T waitFor(Function<? super WebDriver, T> isTrue) {
+		return waitFor(isTrue, timeoutSec);
+	}
+
+	public <T> T waitFor(Function<? super WebDriver, T> isTrue, int timeoutSec) {
+		return (new WebDriverWait(driver, timeoutSec)).until(isTrue);
 	}
 
 	public WebElement findElement(By by) {

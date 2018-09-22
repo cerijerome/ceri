@@ -1,5 +1,6 @@
 package ceri.common.score;
 
+import static ceri.common.collection.StreamUtil.toList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +32,11 @@ public class Scorers {
 	public static <T> void sort(List<T> ts, Scorer<? super T> scorer) {
 		Comparator<? super T> comparator = comparator(scorer);
 		Collections.sort(ts, comparator);
+	}
+
+	public static <T> List<ScoreResult<T>> results(Collection<? extends T> ts,
+		Scorer<? super T> scorer) {
+		return toList(ts.stream().map(t -> ScoreResult.<T>of(t, scorer.score(t))).sorted());
 	}
 
 	public static <T> Filter<T> filter(Scorer<T> scorer, Filter<Double> filter) {
@@ -83,32 +89,32 @@ public class Scorers {
 	 * Creates a scorer by multiplying scorer values together.
 	 */
 	@SafeVarargs
-	//public static <T> Scorer<T> multiply(Scorer<? super T>... scorers) {
-	public static <T> Scorer<T> multiply(Scorer<T>... scorers) {
+	public static <T> Scorer<T> multiply(final Scorer<? super T>... scorers) {
 		return multiply(Arrays.asList(scorers));
 	}
 
 	/**
 	 * Creates a scorer by multiplying scorer values together.
 	 */
-	public static <T> Scorer<T> multiply(Collection<Scorer<? super T>> scorers) {
-		return nonNull(t -> scorers.stream().mapToDouble(scorer -> scorer.score(t)).reduce(
-			(i, j) -> i * j).orElse(0.0));
+	public static <T> Scorer<T> multiply(Collection<? extends Scorer<? super T>> scorers) {
+		return nonNull(t -> scorers.stream().mapToDouble(scorer -> scorer.score(t))
+			.reduce((i, j) -> i * j).orElse(0.0));
 	}
 
 	/**
-	 * Creates a scorer by adding scorer values together.
+	 * Creates a scorer by averaging scorer values.
 	 */
 	@SafeVarargs
-	public static <T> Scorer<T> sum(Scorer<T>... scorers) {
-		return sum(Arrays.asList(scorers));
+	public static <T> Scorer<T> average(Scorer<T>... scorers) {
+		return average(Arrays.asList(scorers));
 	}
 
 	/**
-	 * Creates a scorer by multiplying scorer values together.
+	 * Creates a scorer by averaging scorer values.
 	 */
-	public static <T> Scorer<T> sum(Collection<Scorer<? super T>> scorers) {
-		return nonNull(t -> scorers.stream().mapToDouble(scorer -> scorer.score(t)).sum());
+	public static <T> Scorer<T> average(Collection<Scorer<? super T>> scorers) {
+		return nonNull(
+			t -> scorers.stream().mapToDouble(scorer -> scorer.score(t)).average().orElse(0));
 	}
 
 }
