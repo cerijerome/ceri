@@ -1,10 +1,10 @@
 package ceri.ent.selenium;
 
-import static ceri.common.collection.StreamUtil.toList;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.openqa.selenium.WebElement;
+import ceri.common.collection.StreamUtil;
 
 public class WebElementUtil {
 	private static final Pattern WHITESPACE = Pattern.compile("\\p{Zs}+");
@@ -30,17 +30,17 @@ public class WebElementUtil {
 
 	public static List<String> innerHtmls(Collection<WebElement> elements) {
 		if (elements == null) return null;
-		return toList(elements.stream().map(WebElementUtil::innerHtml));
+		return StreamUtil.toList(elements.stream().map(WebElementUtil::innerHtml));
 	}
 
 	public static List<String> outerHtmls(Collection<WebElement> elements) {
 		if (elements == null) return null;
-		return toList(elements.stream().map(WebElementUtil::outerHtml));
+		return StreamUtil.toList(elements.stream().map(WebElementUtil::outerHtml));
 	}
 
 	public static List<String> texts(Collection<WebElement> elements) {
 		if (elements == null) return null;
-		return toList(elements.stream().map(WebElementUtil::text));
+		return StreamUtil.toList(elements.stream().map(WebElementUtil::text));
 	}
 
 	public static String trim(String s) {

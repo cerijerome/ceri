@@ -89,14 +89,14 @@ public class Scorers {
 	 * Creates a scorer by multiplying scorer values together.
 	 */
 	@SafeVarargs
-	public static <T> Scorer<T> multiply(final Scorer<? super T>... scorers) {
+	public static <T> Scorer<T> multiply(final Scorer<T>... scorers) {
 		return multiply(Arrays.asList(scorers));
 	}
 
 	/**
 	 * Creates a scorer by multiplying scorer values together.
 	 */
-	public static <T> Scorer<T> multiply(Collection<? extends Scorer<? super T>> scorers) {
+	public static <T> Scorer<T> multiply(Collection<Scorer<T>> scorers) {
 		return nonNull(t -> scorers.stream().mapToDouble(scorer -> scorer.score(t))
 			.reduce((i, j) -> i * j).orElse(0.0));
 	}
