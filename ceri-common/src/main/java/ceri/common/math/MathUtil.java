@@ -213,6 +213,13 @@ public class MathUtil {
 	}
 
 	/**
+	 * Returns the percentage for a value 0..1. Returns NaN for a zero range.
+	 */
+	public static double percentage(double value) {
+		return percentage(value, 1.0);
+	}
+	
+	/**
 	 * Returns the percentage for a value in a range. Returns NaN for a zero range.
 	 */
 	public static double percentage(double value, double range) {
@@ -222,6 +229,13 @@ public class MathUtil {
 		return (value * 100) / range;
 	}
 
+	/**
+	 * Returns the value for a percentage of a 0..1.
+	 */
+	public static double valueFromPercentage(double percentage) {
+		return valueFromPercentage(percentage, 1.0);
+	}
+	
 	/**
 	 * Returns the value for a percentage of a range.
 	 */

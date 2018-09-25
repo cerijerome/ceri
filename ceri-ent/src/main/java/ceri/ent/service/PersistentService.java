@@ -122,6 +122,10 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 		this.map.putAll(map);
 	}
 
+	protected int size() {
+		return safe.read(() -> map.size());
+	}
+	
 	private Map<K, V> toMap(Iterable<V> values) {
 		if (values == null) return Collections.emptyMap();
 		Map<K, V> map = new HashMap<>();

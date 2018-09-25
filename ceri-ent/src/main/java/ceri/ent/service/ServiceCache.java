@@ -202,7 +202,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	private Entry<K, V> readFromCache(K key) {
 		Entry<K, V> entry = safe.read(() -> cache.get(key));
 		if (entry != null) {
-			logger.debug("{} entry found in cache: {}", logName, key);
+			logger.trace("{} entry found in cache: {}", logName, key);
 			if (!entry.expired()) return entry;
 			logger.debug("{} entry expired: {}", logName, key);
 		}
