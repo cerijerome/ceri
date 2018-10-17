@@ -30,6 +30,14 @@ bin/
 Can add user-specific .gitignore
 
 
+2FA command-line issue
+----------------------
+Settings / Developer Settings / Personal access tokens
+Generate for repo access
+Needed one time when accessing from command-line
+Use instead of password
+
+
 Set up a repo
 -------------
 Set up repo on github.com
@@ -41,7 +49,8 @@ $ git pull origin master => pull from remote
 $ git push origin master => push to remote
 $ git fetch origin => pulls data but doesn't merge it
 $ git remote show origin => see info about remote
-
+With https link + 2FA, can store access token (without 2FA = plain text pwd):
+$ git config credential.helper store
 
 General actions
 ---------------

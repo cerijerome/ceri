@@ -28,7 +28,8 @@ public class CookieClicker {
 //       |         |         |         |         |         |         |         |         |         |
 
 	public static class Builder {
-		Rectangle clickArea = new Rectangle(80, 310, 270, 270);
+		//Rectangle clickArea = new Rectangle(80, 310, 270, 270);
+		Rectangle clickArea = new Rectangle(110, 340, 200, 200);
 		int gcReminderMs = 130000;
 		Rectangle resetArea = new Rectangle(0, 0, 20, 20);
 		Rectangle disableArea = new Rectangle(0, -20, 20, 20);
@@ -128,9 +129,10 @@ public class CookieClicker {
 	}
 	
 	public static Dimension screenSize() {
-		return MouseInfo.getPointerInfo().getDevice().getDefaultConfiguration().getBounds().getSize();
+		return MouseInfo.getPointerInfo().getDevice().getDefaultConfiguration().getBounds()
+			.getSize();
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		builder().build().start();
 	}
