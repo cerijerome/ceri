@@ -1,6 +1,6 @@
 # Ignore paths and file patterns
 *.class
-bin/
+# bin/
 .classpath
 .DS_Store
 .old/
