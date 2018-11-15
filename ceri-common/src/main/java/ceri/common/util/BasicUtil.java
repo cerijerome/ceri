@@ -4,7 +4,10 @@
 package ceri.common.util;
 
 import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -113,6 +116,17 @@ public class BasicUtil {
 	public static void copyToClipBoard(String s) {
 		StringSelection selection = new StringSelection(s);
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+	}
+
+	/**
+	 * Copy string from the clipboard
+	 */
+	public static String copyFromClipBoard() {
+		try {
+			return (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+		} catch (IOException | UnsupportedFlavorException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	/**
