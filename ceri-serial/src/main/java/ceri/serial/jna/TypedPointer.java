@@ -2,7 +2,7 @@ package ceri.serial.jna;
 
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
+import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 
@@ -10,52 +10,46 @@ import com.sun.jna.PointerType;
  * Used for typing pointers that get set in native lib.
  */
 public class TypedPointer extends PointerType {
-	public static class ByReference<T extends TypedPointer> extends com.sun.jna.ptr.ByReference {
-		private final Supplier<T> constructor;
-
-		public ByReference(Supplier<T> constructor) {
-			super(Pointer.SIZE);
-			this.constructor = constructor;
-		}
-
-		public T[] toArray(int size, IntFunction<T[]> arrayConstructor) {
-			return IntStream.range(0, size).mapToObj(this::getValue).toArray(arrayConstructor);
-		}
-		
-		public T[] populate(T[] array) {
-			for (int i = 0; i < array.length; i++) array[i] = getValue(i);
-			return array;
-		}
-		
-		public T getValue(int offset) {
-			T t = constructor.get();
-			t.setPointer(getPointer().getPointer(offset));
-			return t;
-		}
-		
-		public T getValue() {
-			return getValue(0);
-		}
-	}
-
-	public static class ArrayReference<T extends TypedPointer> extends com.sun.jna.ptr.ByReference {
+	
+	/**
+	 * A reference to a typed pointer. Can be nested multiple times.
+	 */
+	public static class ByReference<T extends TypedPointer> extends TypedPointer {
 		private final Supplier<T> constructor;
 		private final IntFunction<T[]> arrayConstructor;
 
-		public ArrayReference(Supplier<T> constructor, IntFunction<T[]> arrayConstructor) {
-			super(Pointer.SIZE);
+		public ByReference(Supplier<T> constructor) {
+			this(constructor, null);
+		}
+
+		public ByReference(Supplier<T> constructor, IntFunction<T[]> arrayConstructor) {
+			setPointer(new Memory(Pointer.SIZE));
 			this.constructor = constructor;
 			this.arrayConstructor = arrayConstructor;
 		}
 
-		public T[] toArray(int size) {
-			return ref().toArray(size, arrayConstructor);
+		public T[] typedArray(int size) {
+			if (arrayConstructor == null)
+				throw new UnsupportedOperationException("Typed arrays are not supported");
+			Pointer[] pointerArray = getPointer().getPointerArray(0, size);
+			T[] array = arrayConstructor.apply(pointerArray.length);
+			for (int i = 0; i < pointerArray.length; i++)
+				array[i] = typedValue(pointerArray[i]);
+			return array;
+		}
+
+		private T typedValue(Pointer pointer) {
+			T t = constructor.get();
+			t.setPointer(pointer);
+			return t;
 		}
 		
-		protected ByReference<T> ref() {
-			ByReference<T> ref = new ByReference<>(constructor);
-			ref.setPointer(getPointer().getPointer(0));
-			return ref;
+		public T typedValue(int offset) {
+			return typedValue(getPointer().getPointer(offset));
+		}
+
+		public T typedValue() {
+			return typedValue(0);
 		}
 	}
 

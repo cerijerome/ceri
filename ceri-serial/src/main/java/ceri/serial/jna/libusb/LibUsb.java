@@ -3,30 +3,37 @@ package ceri.serial.jna.libusb;
 import static ceri.serial.jna.JnaUtil.verify;
 import static com.sun.jna.Pointer.NULL;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.common.collection.ImmutableUtil;
+import com.sun.jna.ptr.IntByReference;
+import ceri.common.collection.EnumLookup;
+import ceri.serial.jna.FieldMapper;
 import ceri.serial.jna.JnaUtil;
+import ceri.serial.jna.TypeTranscoder;
 import ceri.serial.jna.TypedPointer;
 
-public class LibUsb {
-	private static final ILibUsb LIBUSB = JnaUtil.loadLibrary("usb-1.0.0", ILibUsb.class);
-	public static final int LIBUSB_API_VERSION = 0x01000104;
-	public static final int LIBUSBX_API_VERSION = LIBUSB_API_VERSION;
+public interface LibUsb extends Library {
+	static final Logger logger = LogManager.getLogger();
+	LibUsb LIBUSB = loadLibrary("usb-1.0.0");
+	int LIBUSB_API_VERSION = 0x01000104;
+	int LIBUSBX_API_VERSION = LIBUSB_API_VERSION;
 
-	public static short libusb_cpu_to_le16(short x) {
+	private static short libusb_cpu_to_le16(short x) {
 		return (short) (((x & 0xff) << 8) | ((x & 0xff00) >> 8));
 	}
 
-	public static short libusb_le16_to_cpu(short x) {
+	private static short libusb_le16_to_cpu(short x) {
 		return libusb_cpu_to_le16(x);
 	}
 
+	/**
+	 * Device and/or Interface Class codes
+	 */
 	public static enum libusb_class_code {
 		LIBUSB_CLASS_PER_INTERFACE(0),
 		LIBUSB_CLASS_AUDIO(1),
@@ -34,7 +41,7 @@ public class LibUsb {
 		LIBUSB_CLASS_HID(3),
 		LIBUSB_CLASS_PHYSICAL(5),
 		LIBUSB_CLASS_PRINTER(7),
-		LIBUSB_CLASS_PTP(6),
+		// LIBUSB_CLASS_PTP(6), // legacy name from libusb-0.1
 		LIBUSB_CLASS_IMAGE(6),
 		LIBUSB_CLASS_MASS_STORAGE(8),
 		LIBUSB_CLASS_HUB(9),
@@ -48,19 +55,18 @@ public class LibUsb {
 		LIBUSB_CLASS_APPLICATION(0xfe),
 		LIBUSB_CLASS_VENDOR_SPEC(0xff);
 
-		private static final Map<Integer, libusb_class_code> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_class_code.class);
-		public final int value;
+		public static final EnumLookup.ByInt<libusb_class_code> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_class_code.class);
+		public final byte value;
 
 		private libusb_class_code(int value) {
-			this.value = value;
-		}
-
-		public static libusb_class_code from(int value) {
-			return lookup.get(value);
+			this.value = (byte) value;
 		}
 	}
 
+	/**
+	 * Descriptor types as defined by the USB specification.
+	 */
 	public static enum libusb_descriptor_type {
 		LIBUSB_DT_DEVICE(0x01),
 		LIBUSB_DT_CONFIG(0x02),
@@ -76,20 +82,16 @@ public class LibUsb {
 		LIBUSB_DT_SUPERSPEED_HUB(0x2a),
 		LIBUSB_DT_SS_ENDPOINT_COMPANION(0x30);
 
-		private static final Map<Integer, libusb_descriptor_type> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_descriptor_type.class);
+		public static final TypeTranscoder.Single<libusb_descriptor_type> xcoder =
+			TypeTranscoder.single(t -> t.value, libusb_descriptor_type.class);
 		public final int value;
 
 		private libusb_descriptor_type(int value) {
 			this.value = value;
 		}
-
-		public static libusb_descriptor_type from(int value) {
-			return lookup.get(value);
-		}
 	}
 
-	//
+	// Descriptor sizes per descriptor type
 	public static final int LIBUSB_DT_DEVICE_SIZE = 18;
 	public static final int LIBUSB_DT_CONFIG_SIZE = 9;
 	public static final int LIBUSB_DT_INTERFACE_SIZE = 9;
@@ -99,36 +101,40 @@ public class LibUsb {
 	public static final int LIBUSB_DT_SS_ENDPOINT_COMPANION_SIZE = 6;
 	public static final int LIBUSB_DT_BOS_SIZE = 5;
 	public static final int LIBUSB_DT_DEVICE_CAPABILITY_SIZE = 3;
-	//
+	// BOS descriptor sizes
 	public static final int LIBUSB_BT_USB_2_0_EXTENSION_SIZE = 7;
 	public static final int LIBUSB_BT_SS_USB_DEVICE_CAPABILITY_SIZE = 10;
 	public static final int LIBUSB_BT_CONTAINER_ID_SIZE = 20;
 	public static final int LIBUSB_DT_BOS_MAX_SIZE =
 		LIBUSB_DT_BOS_SIZE + LIBUSB_BT_USB_2_0_EXTENSION_SIZE +
 			LIBUSB_BT_SS_USB_DEVICE_CAPABILITY_SIZE + LIBUSB_BT_CONTAINER_ID_SIZE;
-	//
+	// Endpoint masks
 	public static final int LIBUSB_ENDPOINT_ADDRESS_MASK = 0x0f;
 	public static final int LIBUSB_ENDPOINT_DIR_MASK = 0x80;
 
+	/**
+	 * Endpoint direction. Values for bit 7 of the libusb_endpoint_descriptor.bEndpointAddress
+	 * "endpoint address" scheme.
+	 */
 	public static enum libusb_endpoint_direction {
 		LIBUSB_ENDPOINT_IN(0x80),
 		LIBUSB_ENDPOINT_OUT(0x00);
 
-		private static final Map<Integer, libusb_endpoint_direction> lookup =
-			ImmutableUtil.enumMap(t -> (int) t.value, libusb_endpoint_direction.class);
-		public final byte value;
+		public static final EnumLookup.ByInt<libusb_endpoint_direction> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_endpoint_direction.class);
+		public final int value;
 
 		private libusb_endpoint_direction(int value) {
-			this.value = (byte) value;
-		}
-
-		public static libusb_endpoint_direction from(int value) {
-			return lookup.get(value);
+			this.value = value;
 		}
 	}
 
 	public static final int LIBUSB_TRANSFER_TYPE_MASK = 0x03;
 
+	/**
+	 * Endpoint transfer type. Values for bits 0:1 of the libusb_endpoint_descriptor.bmAttributes
+	 * "endpoint attributes" field.
+	 */
 	public static enum libusb_transfer_type {
 		LIBUSB_TRANSFER_TYPE_CONTROL(0),
 		LIBUSB_TRANSFER_TYPE_ISOCHRONOUS(1),
@@ -136,23 +142,24 @@ public class LibUsb {
 		LIBUSB_TRANSFER_TYPE_INTERRUPT(3),
 		LIBUSB_TRANSFER_TYPE_BULK_STREAM(4);
 
-		private static final Map<Integer, libusb_transfer_type> lookup =
-			ImmutableUtil.enumMap(t -> (int) t.value, libusb_transfer_type.class);
-		public final byte value;
+		public static final EnumLookup.ByInt<libusb_transfer_type> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_transfer_type.class);
+		public final int value;
 
 		private libusb_transfer_type(int value) {
-			this.value = (byte) value;
-		}
-
-		public static libusb_transfer_type from(int value) {
-			return lookup.get(value);
+			this.value = value;
 		}
 	}
 
+	/**
+	 * Standard requests, as defined in table 9-5 of the USB 3.0 specifications
+	 */
 	public static enum libusb_standard_request {
 		LIBUSB_REQUEST_GET_STATUS(0x00),
 		LIBUSB_REQUEST_CLEAR_FEATURE(0x01),
+		// 0x02 is reserved
 		LIBUSB_REQUEST_SET_FEATURE(0x03),
+		// 0x04 is reserved
 		LIBUSB_REQUEST_SET_ADDRESS(0x05),
 		LIBUSB_REQUEST_GET_DESCRIPTOR(0x06),
 		LIBUSB_REQUEST_SET_DESCRIPTOR(0x07),
@@ -164,98 +171,99 @@ public class LibUsb {
 		LIBUSB_REQUEST_SET_SEL(0x30),
 		LIBUSB_SET_ISOCH_DELAY(0x31);
 
-		private static final Map<Integer, libusb_standard_request> lookup =
-			ImmutableUtil.enumMap(t -> (int) t.value, libusb_standard_request.class);
-		public final byte value;
+		public static final EnumLookup.ByInt<libusb_standard_request> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_standard_request.class);
+		public final int value;
 
 		private libusb_standard_request(int value) {
-			this.value = (byte) value;
-		}
-
-		public static libusb_standard_request from(int value) {
-			return lookup.get(value);
+			this.value = value;
 		}
 	}
 
+	/**
+	 * Request type bits of the libusb_control_setup.bmRequestType "bmRequestType" field in control
+	 * transfers.
+	 */
 	public static enum libusb_request_type {
-		LIBUSB_REQUEST_TYPE_STANDARD((0x00 << 5)),
-		LIBUSB_REQUEST_TYPE_CLASS((0x01 << 5)),
-		LIBUSB_REQUEST_TYPE_VENDOR((0x02 << 5)),
-		LIBUSB_REQUEST_TYPE_RESERVED((0x03 << 5));
+		LIBUSB_REQUEST_TYPE_STANDARD(0x00 << 5),
+		LIBUSB_REQUEST_TYPE_CLASS(0x01 << 5),
+		LIBUSB_REQUEST_TYPE_VENDOR(0x02 << 5),
+		LIBUSB_REQUEST_TYPE_RESERVED(0x03 << 5);
 
-		private static final Map<Integer, libusb_request_type> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_request_type.class);
+		public static final EnumLookup.ByInt<libusb_request_type> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_request_type.class);
 		public final int value;
 
 		private libusb_request_type(int value) {
 			this.value = value;
 		}
-
-		public static libusb_request_type from(int value) {
-			return lookup.get(value);
-		}
 	}
 
+	/**
+	 * Recipient bits of the libusb_control_setup.bmRequestType "bmRequestType" field in control
+	 * transfers. Values 4 through 31 are reserved.
+	 */
 	public static enum libusb_request_recipient {
 		LIBUSB_RECIPIENT_DEVICE(0x00),
 		LIBUSB_RECIPIENT_INTERFACE(0x01),
 		LIBUSB_RECIPIENT_ENDPOINT(0x02),
 		LIBUSB_RECIPIENT_OTHER(0x03);
 
-		private static final Map<Integer, libusb_request_recipient> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_request_recipient.class);
+		public static final EnumLookup.ByInt<libusb_request_recipient> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_request_recipient.class);
 		public final int value;
 
 		private libusb_request_recipient(int value) {
 			this.value = value;
 		}
-
-		public static libusb_request_recipient from(int value) {
-			return lookup.get(value);
-		}
 	}
 
 	public static final int LIBUSB_ISO_SYNC_TYPE_MASK = 0x0C;
 
+	/**
+	 * Synchronization type for isochronous endpoints. Values for bits 2:3 of the
+	 * libusb_endpoint_descriptor.bmAttributes "bmAttributes" field in libusb_endpoint_descriptor.
+	 */
 	public static enum libusb_iso_sync_type {
 		LIBUSB_ISO_SYNC_TYPE_NONE(0),
 		LIBUSB_ISO_SYNC_TYPE_ASYNC(1),
 		LIBUSB_ISO_SYNC_TYPE_ADAPTIVE(2),
 		LIBUSB_ISO_SYNC_TYPE_SYNC(3);
 
-		private static final Map<Integer, libusb_iso_sync_type> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_iso_sync_type.class);
+		public static final EnumLookup.ByInt<libusb_iso_sync_type> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_iso_sync_type.class);
 		public final int value;
 
 		private libusb_iso_sync_type(int value) {
 			this.value = value;
 		}
-
-		public static libusb_iso_sync_type from(int value) {
-			return lookup.get(value);
-		}
 	}
 
 	public static final int LIBUSB_ISO_USAGE_TYPE_MASK = 0x30;
 
+	/**
+	 * Usage type for isochronous endpoints. Values for bits 4:5 of the
+	 * libusb_endpoint_descriptor.bmAttributes "bmAttributes" field in libusb_endpoint_descriptor.
+	 */
 	public static enum libusb_iso_usage_type {
 		LIBUSB_ISO_USAGE_TYPE_DATA(0),
 		LIBUSB_ISO_USAGE_TYPE_FEEDBACK(1),
 		LIBUSB_ISO_USAGE_TYPE_IMPLICIT(2);
 
-		private static final Map<Integer, libusb_iso_usage_type> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_iso_usage_type.class);
+		public static final EnumLookup.ByInt<libusb_iso_usage_type> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_iso_usage_type.class);
 		public final int value;
 
 		private libusb_iso_usage_type(int value) {
 			this.value = value;
 		}
-
-		public static libusb_iso_usage_type from(int value) {
-			return lookup.get(value);
-		}
 	}
 
+	/**
+	 * A structure representing the standard USB device descriptor. This descriptor is documented in
+	 * section 9.6.1 of the USB 3.0 specification. All multiple-byte fields are represented in
+	 * host-endian format.
+	 */
 	public static class libusb_device_descriptor extends Structure {
 		private static final List<String> FIELDS = List.of( //
 			"bLength", "bDescriptorType", "bcdUSB", "bDeviceClass", "bDeviceSubClass",
@@ -269,7 +277,7 @@ public class LibUsb {
 			implements Structure.ByReference {}
 
 		public byte bLength;
-		public byte bDescriptorType;
+		public byte bDescriptorType; // libusb_descriptor_type
 		public short bcdUSB;
 		public byte bDeviceClass;
 		public byte bDeviceSubClass;
@@ -287,6 +295,11 @@ public class LibUsb {
 
 		public libusb_device_descriptor(Pointer p) {
 			super(p);
+		}
+
+		public FieldMapper.Single<libusb_descriptor_type> bDescriptorType() {
+			return libusb_descriptor_type.xcoder.mapper(() -> this.bDescriptorType,
+				i -> this.bDescriptorType = (byte) i);
 		}
 
 		@Override
@@ -661,16 +674,12 @@ public class LibUsb {
 		LIBUSB_SPEED_HIGH(3),
 		LIBUSB_SPEED_SUPER(4);
 
-		private static final Map<Integer, libusb_speed> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_speed.class);
+		public static final EnumLookup.ByInt<libusb_speed> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_speed.class);
 		public final int value;
 
 		private libusb_speed(int value) {
 			this.value = value;
-		}
-
-		public static libusb_speed from(int value) {
-			return lookup.get(value);
 		}
 	}
 
@@ -680,48 +689,36 @@ public class LibUsb {
 		LIBUSB_HIGH_SPEED_OPERATION(4),
 		LIBUSB_SUPER_SPEED_OPERATION(8);
 
-		private static final Map<Integer, libusb_supported_speed> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_supported_speed.class);
+		public static final EnumLookup.ByInt<libusb_supported_speed> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_supported_speed.class);
 		public final int value;
 
 		private libusb_supported_speed(int value) {
 			this.value = value;
-		}
-
-		public static libusb_supported_speed from(int value) {
-			return lookup.get(value);
 		}
 	}
 
 	public static enum libusb_usb_2_0_extension_attributes {
 		LIBUSB_BM_LPM_SUPPORT(2);
 
-		private static final Map<Integer, libusb_usb_2_0_extension_attributes> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_usb_2_0_extension_attributes.class);
+		public static final EnumLookup.ByInt<libusb_usb_2_0_extension_attributes> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_usb_2_0_extension_attributes.class);
 		public final int value;
 
 		private libusb_usb_2_0_extension_attributes(int value) {
 			this.value = value;
-		}
-
-		public static libusb_usb_2_0_extension_attributes from(int value) {
-			return lookup.get(value);
 		}
 	}
 
 	public static enum libusb_ss_usb_device_capability_attributes {
 		LIBUSB_BM_LTM_SUPPORT(2);
 
-		private static final Map<Integer, libusb_ss_usb_device_capability_attributes> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_ss_usb_device_capability_attributes.class);
+		public static final EnumLookup.ByInt<libusb_ss_usb_device_capability_attributes> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_ss_usb_device_capability_attributes.class);
 		public final int value;
 
 		private libusb_ss_usb_device_capability_attributes(int value) {
 			this.value = value;
-		}
-
-		public static libusb_ss_usb_device_capability_attributes from(int value) {
-			return lookup.get(value);
 		}
 	}
 
@@ -731,20 +728,16 @@ public class LibUsb {
 		LIBUSB_BT_SS_USB_DEVICE_CAPABILITY(3),
 		LIBUSB_BT_CONTAINER_ID(4);
 
-		private static final Map<Integer, libusb_bos_type> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_bos_type.class);
+		public static final EnumLookup.ByInt<libusb_bos_type> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_bos_type.class);
 		public final int value;
 
 		private libusb_bos_type(int value) {
 			this.value = value;
 		}
-
-		public static libusb_bos_type from(int value) {
-			return lookup.get(value);
-		}
 	}
 
-	public enum libusb_error {
+	public static enum libusb_error {
 		LIBUSB_SUCCESS(0),
 		LIBUSB_ERROR_IO(-1),
 		LIBUSB_ERROR_INVALID_PARAM(-2),
@@ -760,16 +753,12 @@ public class LibUsb {
 		LIBUSB_ERROR_NOT_SUPPORTED(-12),
 		LIBUSB_ERROR_OTHER(-99);
 
-		private static final Map<Integer, libusb_error> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_error.class);
+		public static final EnumLookup.ByInt<libusb_error> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_error.class);
 		public final int value;
 
 		private libusb_error(int value) {
 			this.value = value;
-		}
-
-		public static libusb_error from(int value) {
-			return lookup.get(value);
 		}
 	}
 
@@ -784,16 +773,12 @@ public class LibUsb {
 		LIBUSB_TRANSFER_NO_DEVICE(5),
 		LIBUSB_TRANSFER_OVERFLOW(6);
 
-		private static final Map<Integer, libusb_transfer_status> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_transfer_status.class);
+		public static final EnumLookup.ByInt<libusb_transfer_status> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_transfer_status.class);
 		public final int value;
 
 		private libusb_transfer_status(int value) {
 			this.value = value;
-		}
-
-		public static libusb_transfer_status from(int value) {
-			return lookup.get(value);
 		}
 	}
 
@@ -803,16 +788,12 @@ public class LibUsb {
 		LIBUSB_TRANSFER_FREE_TRANSFER(1 << 2),
 		LIBUSB_TRANSFER_ADD_ZERO_PACKET(1 << 3);
 
-		private static final Map<Integer, libusb_transfer_flags> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_transfer_flags.class);
+		public static final EnumLookup.ByInt<libusb_transfer_flags> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_transfer_flags.class);
 		public final int value;
 
 		private libusb_transfer_flags(int value) {
 			this.value = value;
-		}
-
-		public static libusb_transfer_flags from(int value) {
-			return lookup.get(value);
 		}
 	}
 
@@ -870,7 +851,6 @@ public class LibUsb {
 		public Pointer user_data;
 		public Pointer buffer;
 		public int num_iso_packets;
-		// TODO: is correct?
 		public libusb_iso_packet_descriptor.ByReference[] iso_packet_desc;
 
 		public libusb_transfer() {}
@@ -891,36 +871,28 @@ public class LibUsb {
 		LIBUSB_CAP_HAS_HID_ACCESS(0x0100),
 		LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER(0x0101);
 
-		private static final Map<Integer, libusb_capability> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_capability.class);
+		public static final EnumLookup.ByInt<libusb_capability> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_capability.class);
 		public final int value;
 
 		private libusb_capability(int value) {
 			this.value = value;
 		}
-
-		public static libusb_capability from(int value) {
-			return lookup.get(value);
-		}
 	}
 
-	public enum libusb_log_level {
+	public static enum libusb_log_level {
 		LIBUSB_LOG_LEVEL_NONE(0),
 		LIBUSB_LOG_LEVEL_ERROR(1),
 		LIBUSB_LOG_LEVEL_WARNING(2),
 		LIBUSB_LOG_LEVEL_INFO(3),
 		LIBUSB_LOG_LEVEL_DEBUG(4);
 
-		private static final Map<Integer, libusb_log_level> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_log_level.class);
+		public static final EnumLookup.ByInt<libusb_log_level> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_log_level.class);
 		public final int value;
 
 		private libusb_log_level(int value) {
 			this.value = value;
-		}
-
-		public static libusb_log_level from(int value) {
-			return lookup.get(value);
 		}
 	}
 
@@ -947,7 +919,7 @@ public class LibUsb {
 		libusb_control_setup setup = new libusb_control_setup(buffer);
 		transfer.dev_handle = dev_handle;
 		transfer.endpoint = 0;
-		transfer.type = libusb_transfer_type.LIBUSB_TRANSFER_TYPE_CONTROL.value;
+		transfer.type = (byte) libusb_transfer_type.LIBUSB_TRANSFER_TYPE_CONTROL.value;
 		transfer.timeout = timeout;
 		transfer.buffer = buffer;
 		if (JnaUtil.isNonZero(setup))
@@ -961,7 +933,7 @@ public class LibUsb {
 		Pointer user_data, int timeout) {
 		transfer.dev_handle = dev_handle;
 		transfer.endpoint = endpoint;
-		transfer.type = libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK.value;
+		transfer.type = (byte) libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK.value;
 		transfer.timeout = timeout;
 		transfer.buffer = buffer;
 		transfer.length = length;
@@ -974,7 +946,7 @@ public class LibUsb {
 		libusb_transfer_cb_fn callback, Pointer user_data, int timeout) {
 		libusb_fill_bulk_transfer(transfer, dev_handle, endpoint, buffer, length, callback,
 			user_data, timeout);
-		transfer.type = libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK_STREAM.value;
+		transfer.type = (byte) libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK_STREAM.value;
 		transfer.write(); // TODO: is needed?
 		LIBUSB.libusb_transfer_set_stream_id(transfer, stream_id);
 	}
@@ -984,7 +956,7 @@ public class LibUsb {
 		Pointer user_data, int timeout) {
 		transfer.dev_handle = dev_handle;
 		transfer.endpoint = endpoint;
-		transfer.type = libusb_transfer_type.LIBUSB_TRANSFER_TYPE_INTERRUPT.value;
+		transfer.type = (byte) libusb_transfer_type.LIBUSB_TRANSFER_TYPE_INTERRUPT.value;
 		transfer.timeout = timeout;
 		transfer.buffer = buffer;
 		transfer.length = length;
@@ -997,7 +969,7 @@ public class LibUsb {
 		libusb_transfer_cb_fn callback, Pointer user_data, int timeout) {
 		transfer.dev_handle = dev_handle;
 		transfer.endpoint = endpoint;
-		transfer.type = libusb_transfer_type.LIBUSB_TRANSFER_TYPE_ISOCHRONOUS.value;
+		transfer.type = (byte) libusb_transfer_type.LIBUSB_TRANSFER_TYPE_ISOCHRONOUS.value;
 		transfer.timeout = timeout;
 		transfer.buffer = buffer;
 		transfer.length = length;
@@ -1030,16 +1002,16 @@ public class LibUsb {
 	public static int libusb_get_descriptor(Pointer dev, byte desc_type, byte desc_index,
 		Pointer data, int length) {
 		return LIBUSB.libusb_control_transfer(dev,
-			libusb_endpoint_direction.LIBUSB_ENDPOINT_IN.value,
-			libusb_standard_request.LIBUSB_REQUEST_GET_DESCRIPTOR.value,
+			(byte) libusb_endpoint_direction.LIBUSB_ENDPOINT_IN.value,
+			(byte) libusb_standard_request.LIBUSB_REQUEST_GET_DESCRIPTOR.value,
 			(short) ((desc_type << 8) | desc_index), (short) 0, data, (short) length, 1000);
 	}
 
 	public static int libusb_get_string_descriptor(Pointer dev, byte desc_index, short langid,
 		Pointer data, int length) {
 		return LIBUSB.libusb_control_transfer(dev,
-			libusb_endpoint_direction.LIBUSB_ENDPOINT_IN.value,
-			libusb_standard_request.LIBUSB_REQUEST_GET_DESCRIPTOR.value,
+			(byte) libusb_endpoint_direction.LIBUSB_ENDPOINT_IN.value,
+			(byte) libusb_standard_request.LIBUSB_REQUEST_GET_DESCRIPTOR.value,
 			(short) ((libusb_descriptor_type.LIBUSB_DT_STRING.value << 8) | desc_index), langid,
 			data, (short) length, 1000);
 	}
@@ -1081,16 +1053,12 @@ public class LibUsb {
 		LIBUSB_HOTPLUG_NO_FLAGS(0),
 		LIBUSB_HOTPLUG_ENUMERATE(1 << 0);
 
-		private static final Map<Integer, libusb_hotplug_flag> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_hotplug_flag.class);
+		public static final EnumLookup.ByInt<libusb_hotplug_flag> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_hotplug_flag.class);
 		public final int value;
 
 		private libusb_hotplug_flag(int value) {
 			this.value = value;
-		}
-
-		public static libusb_hotplug_flag from(int value) {
-			return lookup.get(value);
 		}
 	}
 
@@ -1098,16 +1066,12 @@ public class LibUsb {
 		LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED(0x01),
 		LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT(0x02);
 
-		private static final Map<Integer, libusb_hotplug_event> lookup =
-			ImmutableUtil.enumMap(t -> t.value, libusb_hotplug_event.class);
+		public static final EnumLookup.ByInt<libusb_hotplug_event> lookup =
+			EnumLookup.ofInt(t -> t.value, libusb_hotplug_event.class);
 		public final int value;
 
 		private libusb_hotplug_event(int value) {
 			this.value = value;
-		}
-
-		public static libusb_hotplug_event from(int value) {
-			return lookup.get(value);
 		}
 	}
 
@@ -1128,13 +1092,14 @@ public class LibUsb {
 
 	// struct libusb_device;
 	public static class libusb_device extends TypedPointer {
-		public static class ByReference extends TypedPointer.ByReference<libusb_device> {
-			public ByReference() {
-				super(libusb_device::new);
+		public static class ArrayRef extends TypedPointer.ByReference<libusb_device> {
+			public static class ByRef extends TypedPointer.ByReference<ArrayRef> {
+				public ByRef() {
+					super(ArrayRef::new);
+				}
 			}
-		}
-		public static class ArrayReference extends TypedPointer.ArrayReference<libusb_device> {
-			public ArrayReference() {
+
+			public ArrayRef() {
 				super(libusb_device::new, libusb_device[]::new);
 			}
 		}
@@ -1151,213 +1116,240 @@ public class LibUsb {
 
 	public static void main(String[] args) throws IOException {
 		JnaUtil.setProtected();
-		ILibUsb usb = LibUsb.LIBUSB;
+		LibUsb usb = LIBUSB;
 
 		libusb_context.ByReference ctxPtr = new libusb_context.ByReference();
 		verify(usb.libusb_init(ctxPtr), "init");
-		libusb_context ctx = ctxPtr.getValue();
+		libusb_context ctx = ctxPtr.typedValue();
 
 		libusb_version version = usb.libusb_get_version();
 		System.out.println(version);
 
-		libusb_device.ArrayReference listRef = new libusb_device.ArrayReference();
+		libusb_device.ArrayRef.ByRef listRef = new libusb_device.ArrayRef.ByRef();
 		int size = verify(usb.libusb_get_device_list(ctx, listRef), "get_device_list");
-		libusb_device[] devices = listRef.toArray(size);
+		libusb_device[] devices = listRef.typedValue().typedArray(size);
 		System.out.printf("%d items", size);
-		System.out.println(Arrays.toString(devices));
-		
-		usb.libusb_free_device_list(devices, size);
+		for (libusb_device device : devices) {
+			libusb_device_descriptor descriptor = new libusb_device_descriptor();
+			verify(usb.libusb_get_device_descriptor(device, descriptor), "get_device_descriptor");
+			System.out.println(descriptor);
+		}
+
+		usb.libusb_free_device_list(listRef.typedValue(), size);
 		usb.libusb_exit(ctx);
 	}
 
 	/**
 	 * Native functions mapped to library
 	 */
-	private static interface ILibUsb extends Library {
-		// int LIBUSB_CALL libusb_init(libusb_context **ctx);
-		int libusb_init(libusb_context.ByReference ctx);
+	// int LIBUSB_CALL libusb_init(libusb_context **ctx);
+	int libusb_init(libusb_context.ByReference ctx);
 
-		// void LIBUSB_CALL libusb_exit(libusb_context *ctx);
-		void libusb_exit(libusb_context ctx);
+	// void LIBUSB_CALL libusb_exit(libusb_context *ctx);
+	void libusb_exit(libusb_context ctx);
 
-		// void LIBUSB_CALL libusb_set_debug(libusb_context *ctx, int level);
-		void libusb_set_debug(libusb_context ctx, int level);
+	// void LIBUSB_CALL libusb_set_debug(libusb_context *ctx, int level);
+	void libusb_set_debug(libusb_context ctx, int level);
 
-		// const struct libusb_version * LIBUSB_CALL libusb_get_version(void);
-		libusb_version libusb_get_version();
+	// const struct libusb_version * LIBUSB_CALL libusb_get_version(void);
+	libusb_version libusb_get_version();
 
-		// int LIBUSB_CALL libusb_has_capability(uint32_t capability);
-		int libusb_has_capability(int capability);
+	// int LIBUSB_CALL libusb_has_capability(uint32_t capability);
+	int libusb_has_capability(int capability);
 
-		// const char * LIBUSB_CALL libusb_error_name(int errcode);
-		String libusb_error_name(int errcode);
+	// const char * LIBUSB_CALL libusb_error_name(int errcode);
+	String libusb_error_name(int errcode);
 
-		// int LIBUSB_CALL libusb_setlocale(const char *locale);
-		int libusb_setlocale(String locale);
+	// int LIBUSB_CALL libusb_setlocale(const char *locale);
+	int libusb_setlocale(String locale);
 
-		// const char * LIBUSB_CALL libusb_strerror(enum libusb_error errcode);
-		String libusb_strerror(int errcode);
+	// const char * LIBUSB_CALL libusb_strerror(enum libusb_error errcode);
+	String libusb_strerror(int errcode);
 
-		// ssize_t LIBUSB_CALL libusb_get_device_list(libusb_context *ctx, libusb_device ***list);
-		int libusb_get_device_list(libusb_context ctx, libusb_device.ArrayReference list);
-		//int libusb_get_device_list(libusb_context ctx, PointerByReference list);
+	//
+	// ssize_t LIBUSB_CALL libusb_get_device_list(libusb_context *ctx, libusb_device ***list);
+	int libusb_get_device_list(libusb_context ctx, libusb_device.ArrayRef.ByRef list);
+	// int libusb_get_device_list(libusb_context ctx, PointerByReference list);
 
-		// void LIBUSB_CALL libusb_free_device_list(libusb_device **list, int unref_devices);
-		void libusb_free_device_list(libusb_device[] list, int unref_devices);
+	// void LIBUSB_CALL libusb_free_device_list(libusb_device **list, int unref_devices);
+	void libusb_free_device_list(libusb_device.ArrayRef list, int unref_devices);
+	// void libusb_free_device_list(Pointer list, int unref_devices);
 
-		// libusb_device * LIBUSB_CALL libusb_ref_device(libusb_device *dev);
-		libusb_device libusb_ref_device(libusb_device dev);
+	// libusb_device * LIBUSB_CALL libusb_ref_device(libusb_device *dev);
+	libusb_device libusb_ref_device(libusb_device dev);
 
-		// void LIBUSB_CALL libusb_unref_device(libusb_device *dev);
-		void libusb_unref_device(libusb_device dev);
+	// void LIBUSB_CALL libusb_unref_device(libusb_device *dev);
+	void libusb_unref_device(libusb_device dev);
 
-		// int libusb_get_configuration(Pointer dev, IntByReference config);
-		// int libusb_get_device_descriptor(Pointer dev, libusb_device_descriptor desc);
-		// int libusb_get_active_config_descriptor(Pointer dev, PointerByReference config);
-		// int libusb_get_config_descriptor(Pointer dev, byte config_index, PointerByReference
-		// config);
-		// int libusb_get_config_descriptor_by_value(Pointer dev,
-		// byte bConfigurationValue, struct libusb_config_descriptor **config);
-		// void libusb_free_config_descriptor(struct libusb_config_descriptor *config);
-		// int libusb_get_ss_endpoint_companion_descriptor(
-		// struct Pointer ctx,
-		// const struct libusb_endpoint_descriptor *endpoint,
-		// struct libusb_ss_endpoint_companion_descriptor **ep_comp);
-		// void libusb_free_ss_endpoint_companion_descriptor(
-		// struct libusb_ss_endpoint_companion_descriptor *ep_comp);
-		// int libusb_get_bos_descriptor(Pointer handle,
-		// struct libusb_bos_descriptor **bos);
-		// void libusb_free_bos_descriptor(struct libusb_bos_descriptor *bos);
-		// int libusb_get_usb_2_0_extension_descriptor(
-		// struct Pointer ctx,
-		// struct libusb_bos_dev_capability_descriptor *dev_cap,
-		// struct libusb_usb_2_0_extension_descriptor **usb_2_0_extension);
-		// void libusb_free_usb_2_0_extension_descriptor(
-		// struct libusb_usb_2_0_extension_descriptor *usb_2_0_extension);
-		// int libusb_get_ss_usb_device_capability_descriptor(
-		// struct Pointer ctx,
-		// struct libusb_bos_dev_capability_descriptor *dev_cap,
-		// struct libusb_ss_usb_device_capability_descriptor **ss_usb_device_cap);
-		// void libusb_free_ss_usb_device_capability_descriptor(
-		// struct libusb_ss_usb_device_capability_descriptor *ss_usb_device_cap);
-		// int libusb_get_container_id_descriptor(struct Pointer ctx,
-		// struct libusb_bos_dev_capability_descriptor *dev_cap,
-		// struct libusb_container_id_descriptor **container_id);
-		// void libusb_free_container_id_descriptor(
-		// struct libusb_container_id_descriptor *container_id);
-		// byte libusb_get_bus_number(Pointer dev);
-		// byte libusb_get_port_number(Pointer dev);
-		// int libusb_get_port_numbers(Pointer dev, byte* port_numbers, int
-		// port_numbers_len);
-		// int libusb_get_port_path(Pointer ctx, Pointer dev, byte* path, byte
-		// path_length);
-		// Pointer libusb_get_parent(Pointer dev);
-		// byte libusb_get_device_address(Pointer dev);
-		// int libusb_get_device_speed(Pointer dev);
-		// int libusb_get_max_packet_size(Pointer dev,
-		// unsigned char endpoint);
-		// int libusb_get_max_iso_packet_size(Pointer dev,
-		// unsigned char endpoint);
-		//
-		// int libusb_open(Pointer dev, PointerByReference handle);
-		// void libusb_close(Pointer dev_handle);
-		// Pointer libusb_get_device(Pointer dev_handle);
-		//
-		// int libusb_set_configuration(Pointer dev,
-		// int configuration);
-		// int libusb_claim_interface(Pointer dev,
-		// int interface_number);
-		// int libusb_release_interface(Pointer dev,
-		// int interface_number);
-		//
-		// Pointer libusb_open_device_with_vid_pid(
-		// Pointer ctx, short vendor_id, short product_id);
-		//
-		// int libusb_set_interface_alt_setting(Pointer dev,
-		// int interface_number, int alternate_setting);
-		// int libusb_clear_halt(Pointer dev,
-		// unsigned char endpoint);
-		// int libusb_reset_device(Pointer dev);
-		//
-		// int libusb_alloc_streams(Pointer dev,
-		// int num_streams, unsigned char *endpoints, int num_endpoints);
-		// int libusb_free_streams(Pointer dev,
-		// unsigned char *endpoints, int num_endpoints);
-		//
-		// int libusb_kernel_driver_active(Pointer dev,
-		// int interface_number);
-		// int libusb_detach_kernel_driver(Pointer dev,
-		// int interface_number);
-		// int libusb_attach_kernel_driver(Pointer dev,
-		// int interface_number);
-		// int libusb_set_auto_detach_kernel_driver(
-		// Pointer dev, int enable);
+	//
+	// int LIBUSB_CALL libusb_get_configuration(libusb_device_handle *dev, int *config);
+	int libusb_get_configuration(libusb_device_handle dev, IntByReference config);
 
-		// int libusb_control_transfer(Pointer dev_handle, byte request_type, byte
-		// bRequest,
-		// short wValue, short wIndex, unsigned char *data, short wLength, unsigned int timeout);
-		int libusb_control_transfer(Pointer dev_handle, byte request_type, byte bRequest,
-			short wValue, short wIndex, Pointer data, short wLength, int timeout);
-		//
-		// int libusb_bulk_transfer(Pointer dev_handle,
-		// unsigned char endpoint, unsigned char *data, int length,
-		// int *actual_length, unsigned int timeout);
-		//
-		// int libusb_interrupt_transfer(Pointer dev_handle,
-		// unsigned char endpoint, unsigned char *data, int length,
-		// int *actual_length, unsigned int timeout);
+	// int LIBUSB_CALL libusb_get_device_descriptor(libusb_device *dev, struct
+	// libusb_device_descriptor *desc);
+	int libusb_get_device_descriptor(libusb_device dev, libusb_device_descriptor desc);
 
-		// struct libusb_transfer * libusb_alloc_transfer(int iso_packets);
-		// int libusb_submit_transfer(struct libusb_transfer *transfer);
-		// int libusb_cancel_transfer(struct libusb_transfer *transfer);
-		// void libusb_free_transfer(struct libusb_transfer *transfer);
-		// void libusb_transfer_set_stream_id(struct libusb_transfer *transfer, int stream_id);
-		void libusb_transfer_set_stream_id(libusb_transfer transfer, int stream_id);
-		// int libusb_transfer_get_stream_id(struct libusb_transfer *transfer);
+	// int LIBUSB_CALL libusb_get_active_config_descriptor(libusb_device *dev, struct
+	// libusb_config_descriptor **config);
+	int libusb_get_active_config_descriptor(libusb_device dev,
+		libusb_config_descriptor.ByReference config);
 
-		// int libusb_get_string_descriptor_ascii(Pointer dev,
-		// byte desc_index, unsigned char *data, int length);
-		//
-		// int libusb_try_lock_events(Pointer ctx);
-		// void libusb_lock_events(Pointer ctx);
-		// void libusb_unlock_events(Pointer ctx);
-		// int libusb_event_handling_ok(Pointer ctx);
-		// int libusb_event_handler_active(Pointer ctx);
-		// void libusb_lock_event_waiters(Pointer ctx);
-		// void libusb_unlock_event_waiters(Pointer ctx);
-		// int libusb_wait_for_event(Pointer ctx, struct timeval *tv);
-		//
-		// int libusb_handle_events_timeout(Pointer ctx,
-		// struct timeval *tv);
-		// int libusb_handle_events_timeout_completed(Pointer ctx,
-		// struct timeval *tv, int *completed);
-		// int libusb_handle_events(Pointer ctx);
-		// int libusb_handle_events_completed(Pointer ctx, int *completed);
-		// int libusb_handle_events_locked(Pointer ctx,
-		// struct timeval *tv);
-		// int libusb_pollfds_handle_timeouts(Pointer ctx);
-		// int libusb_get_next_timeout(Pointer ctx,
-		// struct timeval *tv);
+	// int LIBUSB_CALL libusb_get_config_descriptor(libusb_device *dev, uint8_t config_index,
+	// struct libusb_config_descriptor **config);
+	int libusb_get_config_descriptor(libusb_device dev, byte config_index,
+		libusb_config_descriptor.ByReference config);
 
-		// const struct libusb_pollfd ** libusb_get_pollfds(Pointer ctx);
-		// void libusb_free_pollfds(const struct libusb_pollfd **pollfds);
-		// void libusb_set_pollfd_notifiers(Pointer ctx,
-		// libusb_pollfd_added_cb added_cb, libusb_pollfd_removed_cb removed_cb,
-		// void *user_data);
-		// typedef int libusb_hotplug_callback_handle;
+	// int LIBUSB_CALL libusb_get_config_descriptor_by_value(libusb_device *dev, uint8_t
+	// bConfigurationValue, struct libusb_config_descriptor **config);
+	int libusb_get_config_descriptor_by_value(libusb_device dev, byte bConfigurationValue,
+		libusb_config_descriptor.ByReference config);
 
-		// int libusb_hotplug_register_callback(Pointer ctx,
-		// libusb_hotplug_event events,
-		// libusb_hotplug_flag flags,
-		// int vendor_id, int product_id,
-		// int dev_class,
-		// libusb_hotplug_callback_fn cb_fn,
-		// void *user_data,
-		// libusb_hotplug_callback_handle *handle);
-		//
-		// void libusb_hotplug_deregister_callback(Pointer ctx,
-		// libusb_hotplug_callback_handle handle);
+	// void LIBUSB_CALL libusb_free_config_descriptor(struct libusb_config_descriptor *config);
+	void libusb_free_config_descriptor(libusb_config_descriptor config);
+	// int libusb_get_ss_endpoint_companion_descriptor(
+	// struct Pointer ctx,
+	// const struct libusb_endpoint_descriptor *endpoint,
+	// struct libusb_ss_endpoint_companion_descriptor **ep_comp);
+	// void libusb_free_ss_endpoint_companion_descriptor(
+	// struct libusb_ss_endpoint_companion_descriptor *ep_comp);
+	// int libusb_get_bos_descriptor(Pointer handle,
+	// struct libusb_bos_descriptor **bos);
+	// void libusb_free_bos_descriptor(struct libusb_bos_descriptor *bos);
+	// int libusb_get_usb_2_0_extension_descriptor(
+	// struct Pointer ctx,
+	// struct libusb_bos_dev_capability_descriptor *dev_cap,
+	// struct libusb_usb_2_0_extension_descriptor **usb_2_0_extension);
+	// void libusb_free_usb_2_0_extension_descriptor(
+	// struct libusb_usb_2_0_extension_descriptor *usb_2_0_extension);
+	// int libusb_get_ss_usb_device_capability_descriptor(
+	// struct Pointer ctx,
+	// struct libusb_bos_dev_capability_descriptor *dev_cap,
+	// struct libusb_ss_usb_device_capability_descriptor **ss_usb_device_cap);
+	// void libusb_free_ss_usb_device_capability_descriptor(
+	// struct libusb_ss_usb_device_capability_descriptor *ss_usb_device_cap);
+	// int libusb_get_container_id_descriptor(struct Pointer ctx,
+	// struct libusb_bos_dev_capability_descriptor *dev_cap,
+	// struct libusb_container_id_descriptor **container_id);
+	// void libusb_free_container_id_descriptor(
+	// struct libusb_container_id_descriptor *container_id);
+	// byte libusb_get_bus_number(Pointer dev);
+	// byte libusb_get_port_number(Pointer dev);
+	// int libusb_get_port_numbers(Pointer dev, byte* port_numbers, int
+	// port_numbers_len);
+	// int libusb_get_port_path(Pointer ctx, Pointer dev, byte* path, byte
+	// path_length);
+	// Pointer libusb_get_parent(Pointer dev);
+	// byte libusb_get_device_address(Pointer dev);
+	// int libusb_get_device_speed(Pointer dev);
+	// int libusb_get_max_packet_size(Pointer dev,
+	// unsigned char endpoint);
+	// int libusb_get_max_iso_packet_size(Pointer dev,
+	// unsigned char endpoint);
+	//
+	// int libusb_open(Pointer dev, PointerByReference handle);
+	// void libusb_close(Pointer dev_handle);
+	// Pointer libusb_get_device(Pointer dev_handle);
+	//
+	// int libusb_set_configuration(Pointer dev,
+	// int configuration);
+	// int libusb_claim_interface(Pointer dev,
+	// int interface_number);
+	// int libusb_release_interface(Pointer dev,
+	// int interface_number);
+	//
+	// Pointer libusb_open_device_with_vid_pid(
+	// Pointer ctx, short vendor_id, short product_id);
+	//
+	// int libusb_set_interface_alt_setting(Pointer dev,
+	// int interface_number, int alternate_setting);
+	// int libusb_clear_halt(Pointer dev,
+	// unsigned char endpoint);
+	// int libusb_reset_device(Pointer dev);
+	//
+	// int libusb_alloc_streams(Pointer dev,
+	// int num_streams, unsigned char *endpoints, int num_endpoints);
+	// int libusb_free_streams(Pointer dev,
+	// unsigned char *endpoints, int num_endpoints);
+	//
+	// int libusb_kernel_driver_active(Pointer dev,
+	// int interface_number);
+	// int libusb_detach_kernel_driver(Pointer dev,
+	// int interface_number);
+	// int libusb_attach_kernel_driver(Pointer dev,
+	// int interface_number);
+	// int libusb_set_auto_detach_kernel_driver(
+	// Pointer dev, int enable);
 
+	// int libusb_control_transfer(Pointer dev_handle, byte request_type, byte
+	// bRequest,
+	// short wValue, short wIndex, unsigned char *data, short wLength, unsigned int timeout);
+	int libusb_control_transfer(Pointer dev_handle, byte request_type, byte bRequest, short wValue,
+		short wIndex, Pointer data, short wLength, int timeout);
+	//
+	// int libusb_bulk_transfer(Pointer dev_handle,
+	// unsigned char endpoint, unsigned char *data, int length,
+	// int *actual_length, unsigned int timeout);
+	//
+	// int libusb_interrupt_transfer(Pointer dev_handle,
+	// unsigned char endpoint, unsigned char *data, int length,
+	// int *actual_length, unsigned int timeout);
+
+	// struct libusb_transfer * libusb_alloc_transfer(int iso_packets);
+	// int libusb_submit_transfer(struct libusb_transfer *transfer);
+	// int libusb_cancel_transfer(struct libusb_transfer *transfer);
+	// void libusb_free_transfer(struct libusb_transfer *transfer);
+	// void libusb_transfer_set_stream_id(struct libusb_transfer *transfer, int stream_id);
+	void libusb_transfer_set_stream_id(libusb_transfer transfer, int stream_id);
+	// int libusb_transfer_get_stream_id(struct libusb_transfer *transfer);
+
+	// int libusb_get_string_descriptor_ascii(Pointer dev,
+	// byte desc_index, unsigned char *data, int length);
+	//
+	// int libusb_try_lock_events(Pointer ctx);
+	// void libusb_lock_events(Pointer ctx);
+	// void libusb_unlock_events(Pointer ctx);
+	// int libusb_event_handling_ok(Pointer ctx);
+	// int libusb_event_handler_active(Pointer ctx);
+	// void libusb_lock_event_waiters(Pointer ctx);
+	// void libusb_unlock_event_waiters(Pointer ctx);
+	// int libusb_wait_for_event(Pointer ctx, struct timeval *tv);
+	//
+	// int libusb_handle_events_timeout(Pointer ctx,
+	// struct timeval *tv);
+	// int libusb_handle_events_timeout_completed(Pointer ctx,
+	// struct timeval *tv, int *completed);
+	// int libusb_handle_events(Pointer ctx);
+	// int libusb_handle_events_completed(Pointer ctx, int *completed);
+	// int libusb_handle_events_locked(Pointer ctx,
+	// struct timeval *tv);
+	// int libusb_pollfds_handle_timeouts(Pointer ctx);
+	// int libusb_get_next_timeout(Pointer ctx,
+	// struct timeval *tv);
+
+	// const struct libusb_pollfd ** libusb_get_pollfds(Pointer ctx);
+	// void libusb_free_pollfds(const struct libusb_pollfd **pollfds);
+	// void libusb_set_pollfd_notifiers(Pointer ctx,
+	// libusb_pollfd_added_cb added_cb, libusb_pollfd_removed_cb removed_cb,
+	// void *user_data);
+	// typedef int libusb_hotplug_callback_handle;
+
+	// int libusb_hotplug_register_callback(Pointer ctx,
+	// libusb_hotplug_event events,
+	// libusb_hotplug_flag flags,
+	// int vendor_id, int product_id,
+	// int dev_class,
+	// libusb_hotplug_callback_fn cb_fn,
+	// void *user_data,
+	// libusb_hotplug_callback_handle *handle);
+	//
+	// void libusb_hotplug_deregister_callback(Pointer ctx,
+	// libusb_hotplug_callback_handle handle);
+
+	private static LibUsb loadLibrary(String name) {
+		logger.info("Loading {} started", name);
+		LibUsb lib = JnaUtil.loadLibrary(name, LibUsb.class);
+		logger.info("Loading {} complete", name);
+		return lib;
 	}
 
 }
