@@ -34,6 +34,7 @@ import ceri.common.util.BasicUtil;
 public class StreamUtil {
 	private static final IntBinaryOperator intBitwiseAnd = (lhs, rhs) -> lhs & rhs;
 	private static final IntBinaryOperator intBitwiseOr = (lhs, rhs) -> lhs | rhs;
+	private static final IntBinaryOperator intBitwiseXor = (lhs, rhs) -> lhs ^ rhs;
 	
 	private StreamUtil() {}
 
@@ -47,6 +48,10 @@ public class StreamUtil {
 	
 	public static int bitwiseOr(IntStream stream) {
 		return stream.reduce(0, intBitwiseOr);
+	}
+	
+	public static int bitwiseXor(IntStream stream) {
+		return stream.reduce(0, intBitwiseXor);
 	}
 	
 	/**
