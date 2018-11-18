@@ -3,7 +3,6 @@ package ceri.serial.jna;
 import java.io.IOException;
 import java.util.function.IntSupplier;
 import com.sun.jna.Native;
-import com.sun.jna.Structure;
 import ceri.common.util.BasicUtil;
 
 public class JnaUtil {
@@ -35,10 +34,6 @@ public class JnaUtil {
 
 	public static void setProtected() {
 		Native.setProtected(true);
-	}
-
-	public static boolean isNonZero(Structure struct) {
-		return struct.getPointer().getByte(0) != 0;
 	}
 
 }
