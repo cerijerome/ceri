@@ -18,17 +18,14 @@ public class LibUsbTest {
 	public static void main(String[] args) throws IOException {
 		logger.info("Started");
 		// JnaUtil.setProtected();
-		LibUsbNative usb = LibUsb.LIBUSB;
 
 		libusb_context ctx = LibUsb.libusb_init();
 
 		// libusb_version version = usb.libusb_get_version();
 		// System.out.println(version);
-
-		libusb_device.ArrayRef.ByRef listRef = new libusb_device.ArrayRef.ByRef();
-		int size = verify(usb.libusb_get_device_list(ctx, listRef), "get_device_list");
-		libusb_device[] devices = listRef.typedValue().typedArray(size);
-		System.out.printf("%d items%n", size);
+		libusb_device.ArrayRef list = LibUsb.libusb_get_device_list(ctx);
+		libusb_device[] devices = list.typedArray();
+		System.out.printf("%d items%n", devices.length);
 		for (libusb_device device : devices) {
 			libusb_device_descriptor descriptor = LibUsb.libusb_get_device_descriptor(device);
 			System.out.println(descriptor);
@@ -41,8 +38,8 @@ public class LibUsbTest {
 			//	process(usb, ctx, device, descriptor);
 		}
 
-		usb.libusb_free_device_list(listRef.typedValue(), size);
-		usb.libusb_exit(ctx);
+		LibUsb.libusb_free_device_list(list);
+		LibUsb.libusb_exit(ctx);
 	}
 
 	private static void process(LibUsbNative usb, libusb_context ctx, libusb_device device,
