@@ -13,10 +13,12 @@ public class TypedPointer extends PointerType {
 	
 	/**
 	 * A reference to a typed pointer. Can be nested multiple times.
+	 * Allows a count to be stored with the reference to generate arrays.
 	 */
 	public static class ByReference<T extends TypedPointer> extends TypedPointer {
 		private final Supplier<T> constructor;
 		private final IntFunction<T[]> arrayConstructor;
+		private int count;
 
 		public ByReference(Supplier<T> constructor) {
 			this(constructor, null);
@@ -28,6 +30,18 @@ public class TypedPointer extends PointerType {
 			this.arrayConstructor = arrayConstructor;
 		}
 
+		public void setCount(int count) {
+			this.count = count;
+		}
+		
+		public int getCount() {
+			return count;
+		}
+		
+		public T[] typedArray() {
+			return typedArray(count);
+		}
+		
 		public T[] typedArray(int size) {
 			if (arrayConstructor == null)
 				throw new UnsupportedOperationException("Typed arrays are not supported");

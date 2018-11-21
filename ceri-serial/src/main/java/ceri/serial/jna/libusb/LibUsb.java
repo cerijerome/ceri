@@ -1,13 +1,18 @@
 package ceri.serial.jna.libusb;
 
+import static ceri.common.util.BasicUtil.exceptionf;
 import static com.sun.jna.Pointer.NULL;
+import java.io.IOException;
+import java.nio.ByteOrder;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Callback;
-import com.sun.jna.Library;
+import com.sun.jna.Memory;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import ceri.serial.jna.FieldMapper;
 import ceri.serial.jna.JnaUtil;
@@ -16,12 +21,14 @@ import ceri.serial.jna.TypedPointer;
 
 public class LibUsb {
 	private static final Logger logger = LogManager.getLogger();
-	static LibUsbNative LIBUSB = loadLibrary("usb-1.0.0");
+	private static LibUsbNative LIBUSB = loadLibrary("usb-1.0.0");
+	// TODO: get version from lib?
 	public static int LIBUSB_API_VERSION = 0x01000104;
 	public static int LIBUSBX_API_VERSION = LIBUSB_API_VERSION;
 
 	private static short libusb_cpu_to_le16(short x) {
-		return (short) (((x & 0xff) << 8) | ((x & 0xff00) >> 8));
+		if (ByteOrder.LITTLE_ENDIAN.equals(ByteOrder.nativeOrder())) return x;
+		return Short.reverseBytes(x);
 	}
 
 	private static short libusb_le16_to_cpu(short x) {
@@ -1153,108 +1160,9 @@ public class LibUsb {
 		}
 	}
 
-	// @formatter:off
-	//	int LIBUSB_CALL libusb_init(libusb_context **ctx);
-	//	void LIBUSB_CALL libusb_exit(libusb_context *ctx);
-	//	void LIBUSB_CALL libusb_set_debug(libusb_context *ctx, int level);
-	//	const struct libusb_version * LIBUSB_CALL libusb_get_version(void);
-	//	int LIBUSB_CALL libusb_has_capability(uint32_t capability);
-	//	const char * LIBUSB_CALL libusb_error_name(int errcode);
-	//	int LIBUSB_CALL libusb_setlocale(const char *locale);
-	//	const char * LIBUSB_CALL libusb_strerror(enum libusb_error errcode);
-	//
-	//	ssize_t LIBUSB_CALL libusb_get_device_list(libusb_context *ctx,
-	//		libusb_device ***list);
-	//	void LIBUSB_CALL libusb_free_device_list(libusb_device **list,
-	//		int unref_devices);
-	//	libusb_device * LIBUSB_CALL libusb_ref_device(libusb_device *dev);
-	//	void LIBUSB_CALL libusb_unref_device(libusb_device *dev);
-	//
-	//	int LIBUSB_CALL libusb_get_configuration(libusb_device_handle *dev,
-	//		int *config);
-	//	int LIBUSB_CALL libusb_get_device_descriptor(libusb_device *dev,
-	//		struct libusb_device_descriptor *desc);
-	//	int LIBUSB_CALL libusb_get_active_config_descriptor(libusb_device *dev,
-	//		struct libusb_config_descriptor **config);
-	//	int LIBUSB_CALL libusb_get_config_descriptor(libusb_device *dev,
-	//		uint8_t config_index, struct libusb_config_descriptor **config);
-	//	int LIBUSB_CALL libusb_get_config_descriptor_by_value(libusb_device *dev,
-	//		uint8_t bConfigurationValue, struct libusb_config_descriptor **config);
-	//	void LIBUSB_CALL libusb_free_config_descriptor(
-	//		struct libusb_config_descriptor *config);
-	//	int LIBUSB_CALL libusb_get_ss_endpoint_companion_descriptor(
-	//		struct libusb_context *ctx,
-	//		const struct libusb_endpoint_descriptor *endpoint,
-	//		struct libusb_ss_endpoint_companion_descriptor **ep_comp);
-	//	void LIBUSB_CALL libusb_free_ss_endpoint_companion_descriptor(
-	//		struct libusb_ss_endpoint_companion_descriptor *ep_comp);
-	//	int LIBUSB_CALL libusb_get_bos_descriptor(libusb_device_handle *handle,
-	//		struct libusb_bos_descriptor **bos);
-	//	void LIBUSB_CALL libusb_free_bos_descriptor(struct libusb_bos_descriptor *bos);
-	//	int LIBUSB_CALL libusb_get_usb_2_0_extension_descriptor(
-	//		struct libusb_context *ctx,
-	//		struct libusb_bos_dev_capability_descriptor *dev_cap,
-	//		struct libusb_usb_2_0_extension_descriptor **usb_2_0_extension);
-	//	void LIBUSB_CALL libusb_free_usb_2_0_extension_descriptor(
-	//		struct libusb_usb_2_0_extension_descriptor *usb_2_0_extension);
-	//	int LIBUSB_CALL libusb_get_ss_usb_device_capability_descriptor(
-	//		struct libusb_context *ctx,
-	//		struct libusb_bos_dev_capability_descriptor *dev_cap,
-	//		struct libusb_ss_usb_device_capability_descriptor **ss_usb_device_cap);
-	//	void LIBUSB_CALL libusb_free_ss_usb_device_capability_descriptor(
-	//		struct libusb_ss_usb_device_capability_descriptor *ss_usb_device_cap);
-	//	int LIBUSB_CALL libusb_get_container_id_descriptor(struct libusb_context *ctx,
-	//		struct libusb_bos_dev_capability_descriptor *dev_cap,
-	//		struct libusb_container_id_descriptor **container_id);
-	//	void LIBUSB_CALL libusb_free_container_id_descriptor(
-	//		struct libusb_container_id_descriptor *container_id);
-	//	uint8_t LIBUSB_CALL libusb_get_bus_number(libusb_device *dev);
-	//	uint8_t LIBUSB_CALL libusb_get_port_number(libusb_device *dev);
-	//	int LIBUSB_CALL libusb_get_port_numbers(libusb_device *dev, uint8_t* port_numbers, int port_numbers_len);
-	//	LIBUSB_DEPRECATED_FOR(libusb_get_port_numbers)
-	//	int LIBUSB_CALL libusb_get_port_path(libusb_context *ctx, libusb_device *dev, uint8_t* path, uint8_t path_length);
-	//	libusb_device * LIBUSB_CALL libusb_get_parent(libusb_device *dev);
-	//	uint8_t LIBUSB_CALL libusb_get_device_address(libusb_device *dev);
-	//	int LIBUSB_CALL libusb_get_device_speed(libusb_device *dev);
-	//	int LIBUSB_CALL libusb_get_max_packet_size(libusb_device *dev,
-	//		unsigned char endpoint);
-	//	int LIBUSB_CALL libusb_get_max_iso_packet_size(libusb_device *dev,
-	//		unsigned char endpoint);
-	//
-	//	int LIBUSB_CALL libusb_open(libusb_device *dev, libusb_device_handle **handle);
-	//	void LIBUSB_CALL libusb_close(libusb_device_handle *dev_handle);
-	//	libusb_device * LIBUSB_CALL libusb_get_device(libusb_device_handle *dev_handle);
-	//
-	//	int LIBUSB_CALL libusb_set_configuration(libusb_device_handle *dev,
-	//		int configuration);
-	//	int LIBUSB_CALL libusb_claim_interface(libusb_device_handle *dev,
-	//		int interface_number);
-	//	int LIBUSB_CALL libusb_release_interface(libusb_device_handle *dev,
-	//		int interface_number);
-	//
-	//	libusb_device_handle * LIBUSB_CALL libusb_open_device_with_vid_pid(
-	//		libusb_context *ctx, uint16_t vendor_id, uint16_t product_id);
-	//
-	//	int LIBUSB_CALL libusb_set_interface_alt_setting(libusb_device_handle *dev,
-	//		int interface_number, int alternate_setting);
-	//	int LIBUSB_CALL libusb_clear_halt(libusb_device_handle *dev,
-	//		unsigned char endpoint);
-	//	int LIBUSB_CALL libusb_reset_device(libusb_device_handle *dev);
-	//
-	//	int LIBUSB_CALL libusb_alloc_streams(libusb_device_handle *dev,
-	//		uint32_t num_streams, unsigned char *endpoints, int num_endpoints);
-	//	int LIBUSB_CALL libusb_free_streams(libusb_device_handle *dev,
-	//		unsigned char *endpoints, int num_endpoints);
-	//
-	//	int LIBUSB_CALL libusb_kernel_driver_active(libusb_device_handle *dev,
-	//		int interface_number);
-	//	int LIBUSB_CALL libusb_detach_kernel_driver(libusb_device_handle *dev,
-	//		int interface_number);
-	//	int LIBUSB_CALL libusb_attach_kernel_driver(libusb_device_handle *dev,
-	//		int interface_number);
-	//	int LIBUSB_CALL libusb_set_auto_detach_kernel_driver(
-	//		libusb_device_handle *dev, int enable);
-	// @formatter:on
+	/*
+	 * Native calls here
+	 */
 
 	/* async I/O */
 
@@ -1319,16 +1227,9 @@ public class LibUsb {
 		setup.wLength = libusb_cpu_to_le16(wLength);
 	}
 
-	// @formatter:off
-	//	struct libusb_transfer * LIBUSB_CALL libusb_alloc_transfer(int iso_packets);
-	//	int LIBUSB_CALL libusb_submit_transfer(struct libusb_transfer *transfer);
-	//	int LIBUSB_CALL libusb_cancel_transfer(struct libusb_transfer *transfer);
-	//	void LIBUSB_CALL libusb_free_transfer(struct libusb_transfer *transfer);
-	//	void LIBUSB_CALL libusb_transfer_set_stream_id(
-	//		struct libusb_transfer *transfer, uint32_t stream_id);
-	//	uint32_t LIBUSB_CALL libusb_transfer_get_stream_id(
-	//		struct libusb_transfer *transfer);
-	// @formatter:on
+	/*
+	 * Native calls here
+	 */
 
 	/**
 	 * Helper function to populate the required libusb_transfer fields for a control transfer.
@@ -1593,19 +1494,9 @@ public class LibUsb {
 
 	/* sync I/O */
 
-	// @formatter:off
-	//	int LIBUSB_CALL libusb_control_transfer(libusb_device_handle *dev_handle,
-	//		uint8_t request_type, uint8_t bRequest, uint16_t wValue, uint16_t wIndex,
-	//		unsigned char *data, uint16_t wLength, unsigned int timeout);
-	//
-	//	int LIBUSB_CALL libusb_bulk_transfer(libusb_device_handle *dev_handle,
-	//		unsigned char endpoint, unsigned char *data, int length,
-	//		int *actual_length, unsigned int timeout);
-	//
-	//	int LIBUSB_CALL libusb_interrupt_transfer(libusb_device_handle *dev_handle,
-	//		unsigned char endpoint, unsigned char *data, int length,
-	//		int *actual_length, unsigned int timeout);
-	// @formatter:on
+	/*
+	 * Native calls here
+	 */
 
 	/**
 	 * Retrieve a descriptor from the default control pipe. This is a convenience function which
@@ -1623,9 +1514,9 @@ public class LibUsb {
 	 *            size of data buffer
 	 * @return number of bytes returned in data, or LIBUSB_ERROR code on failure
 	 */
-	public static int libusb_get_descriptor(Pointer dev, byte desc_type, byte desc_index,
-		Pointer data, int length) {
-		// TODO: use Buffer/Memory?
+	public static int libusb_get_descriptor(libusb_device_handle dev, byte desc_type,
+		byte desc_index, ByteByReference data, int length) {
+		// TODO: use Pointer/Memory/ByteBuffer?
 		return LIBUSB.libusb_control_transfer(dev,
 			(byte) libusb_endpoint_direction.LIBUSB_ENDPOINT_IN.value,
 			(byte) libusb_standard_request.LIBUSB_REQUEST_GET_DESCRIPTOR.value,
@@ -1638,17 +1529,21 @@ public class LibUsb {
 	 * detailed in the USB specifications.
 	 *
 	 * @param dev
-	 *            a device handle @param desc_index the index of the descriptor to retrieve @param
-	 *            langid the language ID for the string descriptor @param data output buffer for
-	 *            descriptor
+	 *            a device handle
+	 * @param desc_index
+	 *            the index of the descriptor to retrieve
+	 * @param langid
+	 *            the language ID for the string descriptor
+	 * @param data
+	 *            output buffer for descriptor
 	 * @param length
 	 *            size of data buffer
 	 * 
 	 * @return number of bytes returned in data, or LIBUSB_ERROR code on failure see
 	 *         libusb_get_string_descriptor_ascii()
 	 */
-	public static int libusb_get_string_descriptor(Pointer dev, byte desc_index, short langid,
-		Pointer data, int length) {
+	public static int libusb_get_string_descriptor(libusb_device_handle dev, byte desc_index,
+		short langid, ByteByReference data, int length) {
 		return LIBUSB.libusb_control_transfer(dev,
 			(byte) libusb_endpoint_direction.LIBUSB_ENDPOINT_IN.value,
 			(byte) libusb_standard_request.LIBUSB_REQUEST_GET_DESCRIPTOR.value,
@@ -1656,33 +1551,43 @@ public class LibUsb {
 			data, (short) length, 1000);
 	}
 
-	// @formatter:off
-	//	int LIBUSB_CALL libusb_get_string_descriptor_ascii(libusb_device_handle *dev,
-	//		uint8_t desc_index, unsigned char *data, int length);
+	/*
+	 * Native calls here
+	 */
 
 	/* polling and timeouts */
 
-	//	int LIBUSB_CALL libusb_try_lock_events(libusb_context *ctx);
-	//	void LIBUSB_CALL libusb_lock_events(libusb_context *ctx);
-	//	void LIBUSB_CALL libusb_unlock_events(libusb_context *ctx);
-	//	int LIBUSB_CALL libusb_event_handling_ok(libusb_context *ctx);
-	//	int LIBUSB_CALL libusb_event_handler_active(libusb_context *ctx);
-	//	void LIBUSB_CALL libusb_lock_event_waiters(libusb_context *ctx);
-	//	void LIBUSB_CALL libusb_unlock_event_waiters(libusb_context *ctx);
-	//	int LIBUSB_CALL libusb_wait_for_event(libusb_context *ctx, struct timeval *tv);
-	//
-	//	int LIBUSB_CALL libusb_handle_events_timeout(libusb_context *ctx,
-	//		struct timeval *tv);
-	//	int LIBUSB_CALL libusb_handle_events_timeout_completed(libusb_context *ctx,
-	//		struct timeval *tv, int *completed);
-	//	int LIBUSB_CALL libusb_handle_events(libusb_context *ctx);
-	//	int LIBUSB_CALL libusb_handle_events_completed(libusb_context *ctx, int *completed);
-	//	int LIBUSB_CALL libusb_handle_events_locked(libusb_context *ctx,
-	//		struct timeval *tv);
-	//	int LIBUSB_CALL libusb_pollfds_handle_timeouts(libusb_context *ctx);
-	//	int LIBUSB_CALL libusb_get_next_timeout(libusb_context *ctx,
-	//		struct timeval *tv);
-	// @formatter:on
+	/*
+	 * Native calls here
+	 */
+
+	/**
+	 * Added from time.h
+	 */
+	public static class timeval extends Structure {
+		private static final List<String> FIELDS = List.of( //
+			"tv_sec", "tv_usec");
+
+		public static class ByValue extends libusb_pollfd //
+			implements Structure.ByValue {}
+
+		public static class ByReference extends libusb_pollfd //
+			implements Structure.ByReference {}
+
+		public NativeLong tv_sec;
+		public NativeLong tv_usec;
+
+		public timeval() {}
+
+		public timeval(Pointer p) {
+			super(p);
+		}
+
+		@Override
+		protected List<String> getFieldOrder() {
+			return FIELDS;
+		}
+	}
 
 	/**
 	 * File descriptor for polling
@@ -1735,14 +1640,9 @@ public class LibUsb {
 		public void invoke(int fd, Pointer user_data);
 	}
 
-	// @formatter:off
-	//	const struct libusb_pollfd ** LIBUSB_CALL libusb_get_pollfds(
-	//		libusb_context *ctx);
-	//	void LIBUSB_CALL libusb_free_pollfds(const struct libusb_pollfd **pollfds);
-	//	void LIBUSB_CALL libusb_set_pollfd_notifiers(libusb_context *ctx,
-	//		libusb_pollfd_added_cb added_cb, libusb_pollfd_removed_cb removed_cb,
-	//		void *user_data);
-	// @formatter:on
+	/*
+	 * Native calls here
+	 */
 
 	/**
 	 * Callback handle.
@@ -1793,7 +1693,7 @@ public class LibUsb {
 		}
 	}
 
-	public static final Object LIBUSB_HOTPLUG_MATCH_ANY = -1;
+	public static final int LIBUSB_HOTPLUG_MATCH_ANY = -1;
 
 	/**
 	 * Hotplug callback function type. When requesting hotplug event notifications, you pass a
@@ -1827,224 +1727,376 @@ public class LibUsb {
 		public void invoke(libusb_context ctx, Pointer device, int event, Pointer user_data);
 	}
 
-	// @formatter:off
-	//	int libusb_hotplug_register_callback(libusb_context *ctx, libusb_hotplug_event events,
-	//		libusb_hotplug_flag flags, int vendor_id, int product_id, int dev_class,
-	//		libusb_hotplug_callback_fn cb_fn, void *user_data, libusb_hotplug_callback_handle *handle);
-	//	void LIBUSB_CALL libusb_hotplug_deregister_callback(libusb_context *ctx,
-	//		libusb_hotplug_callback_handle handle);
-	// @formatter:on
+	/*
+	 * Native calls here
+	 */
 
-	public static interface LibUsbNative extends Library {
-		/**
-		 * Native functions mapped to library
-		 */
-		// int LIBUSB_CALL libusb_init(libusb_context **ctx);
-		int libusb_init(libusb_context.ByReference ctx);
+	/*
+	 * Added typed calls here
+	 */
 
-		// void LIBUSB_CALL libusb_exit(libusb_context *ctx);
-		void libusb_exit(libusb_context ctx);
+	public static libusb_context libusb_init() throws IOException {
+		libusb_context.ByReference ctxPtr = new libusb_context.ByReference();
+		verify(LIBUSB.libusb_init(ctxPtr), "init");
+		return ctxPtr.typedValue();
+	}
 
-		// void LIBUSB_CALL libusb_set_debug(libusb_context *ctx, int level);
-		void libusb_set_debug(libusb_context ctx, int level);
+	public static void libusb_exit(libusb_context ctx) {
+		LIBUSB.libusb_exit(ctx);
+	}
 
-		// const struct libusb_version * LIBUSB_CALL libusb_get_version(void);
-		libusb_version libusb_get_version();
+	public static void libusb_set_debug(libusb_context ctx, libusb_log_level level) {
+		LIBUSB.libusb_set_debug(ctx, level.value);
+	}
 
-		// int LIBUSB_CALL libusb_has_capability(uint32_t capability);
-		int libusb_has_capability(int capability);
+	public static libusb_version libusb_get_version() {
+		return LIBUSB.libusb_get_version();
+	}
 
-		// const char * LIBUSB_CALL libusb_error_name(int errcode);
-		String libusb_error_name(int errcode);
+	public static boolean libusb_has_capability(libusb_capability capability) {
+		return LIBUSB.libusb_has_capability(capability.value) != 0;
+	}
 
-		// int LIBUSB_CALL libusb_setlocale(const char *locale);
-		int libusb_setlocale(String locale);
+	public static String libusb_error_name(libusb_error errcode) {
+		return LIBUSB.libusb_error_name(errcode.value);
+	}
 
-		// const char * LIBUSB_CALL libusb_strerror(enum libusb_error errcode);
-		String libusb_strerror(int errcode);
+	public static void libusb_setlocale(String locale) throws IOException {
+		verify(LIBUSB.libusb_setlocale(locale), "setlocale");
+	}
 
-		//
-		// ssize_t LIBUSB_CALL libusb_get_device_list(libusb_context *ctx, libusb_device ***list);
-		int libusb_get_device_list(libusb_context ctx, libusb_device.ArrayRef.ByRef list);
-		// int libusb_get_device_list(libusb_context ctx, PointerByReference list);
+	public static String libusb_strerror(libusb_error errcode) {
+		return LIBUSB.libusb_strerror(errcode.value);
+	}
 
-		// void LIBUSB_CALL libusb_free_device_list(libusb_device **list, int unref_devices);
-		void libusb_free_device_list(libusb_device.ArrayRef list, int unref_devices);
-		// void libusb_free_device_list(Pointer list, int unref_devices);
+	public static libusb_device.ArrayRef libusb_get_device_list(libusb_context ctx)
+		throws IOException {
+		libusb_device.ArrayRef.ByRef listRef = new libusb_device.ArrayRef.ByRef();
+		int size = verify(LIBUSB.libusb_get_device_list(ctx, listRef), "get_device_list");
+		libusb_device.ArrayRef list = listRef.typedValue();
+		list.setCount(size);
+		return list;
+	}
 
-		// libusb_device * LIBUSB_CALL libusb_ref_device(libusb_device *dev);
-		libusb_device libusb_ref_device(libusb_device dev);
+	public static void libusb_free_device_list(libusb_device.ArrayRef list) {
+		LIBUSB.libusb_free_device_list(list, list.getCount());
+	}
 
-		// void LIBUSB_CALL libusb_unref_device(libusb_device *dev);
-		void libusb_unref_device(libusb_device dev);
+	public static libusb_device libusb_ref_device(libusb_device dev) {
+		return LIBUSB.libusb_ref_device(dev);
+	}
 
-		//
-		// int LIBUSB_CALL libusb_get_configuration(libusb_device_handle *dev, int *config);
-		int libusb_get_configuration(libusb_device_handle dev, IntByReference config);
+	public static void libusb_unref_device(libusb_device dev) {
+		LIBUSB.libusb_unref_device(dev);
+	}
 
-		// int LIBUSB_CALL libusb_get_device_descriptor(libusb_device *dev, struct
-		// libusb_device_descriptor *desc);
-		int libusb_get_device_descriptor(libusb_device dev, libusb_device_descriptor desc);
+	public static int libusb_get_configuration(libusb_device_handle dev) throws IOException {
+		IntByReference config = new IntByReference();
+		verify(LIBUSB.libusb_get_configuration(dev, config), "get_configuration");
+		return config.getValue();
+	}
 
-		// int LIBUSB_CALL libusb_get_active_config_descriptor(libusb_device *dev, struct
-		// libusb_config_descriptor **config);
-		int libusb_get_active_config_descriptor(libusb_device dev,
-			libusb_config_descriptor.ByReference config);
+	public static libusb_device_descriptor libusb_get_device_descriptor(libusb_device device)
+		throws IOException {
+		libusb_device_descriptor descriptor = new libusb_device_descriptor();
+		verify(LIBUSB.libusb_get_device_descriptor(device, descriptor), "get_device_descriptor");
+		return descriptor;
+	}
 
-		// int LIBUSB_CALL libusb_get_config_descriptor(libusb_device *dev, uint8_t config_index,
-		// struct libusb_config_descriptor **config);
-		int libusb_get_config_descriptor(libusb_device dev, byte config_index,
-			libusb_config_descriptor.ByReference config);
+	public static libusb_config_descriptor libusb_get_active_config_descriptor(libusb_device dev)
+		throws IOException {
+		libusb_config_descriptor.ByReference config = new libusb_config_descriptor.ByReference();
+		verify(LIBUSB.libusb_get_active_config_descriptor(dev, config),
+			"get_active_config_descriptor");
+		return config; // TODO: needs evaluation?
+	}
 
-		// int LIBUSB_CALL libusb_get_config_descriptor_by_value(libusb_device *dev, uint8_t
-		// bConfigurationValue, struct libusb_config_descriptor **config);
-		int libusb_get_config_descriptor_by_value(libusb_device dev, byte bConfigurationValue,
-			libusb_config_descriptor.ByReference config);
+	public static libusb_config_descriptor libusb_get_config_descriptor(libusb_device dev,
+		byte config_index) throws IOException {
+		libusb_config_descriptor.ByReference config = new libusb_config_descriptor.ByReference();
+		verify(LIBUSB.libusb_get_config_descriptor(dev, config_index, config),
+			"get_config_descriptor");
+		return config; // TODO: needs evaluation?
+	}
 
-		// void LIBUSB_CALL libusb_free_config_descriptor(struct libusb_config_descriptor *config);
-		void libusb_free_config_descriptor(libusb_config_descriptor config);
-		// int libusb_get_ss_endpoint_companion_descriptor(
-		// struct Pointer ctx,
-		// const struct libusb_endpoint_descriptor *endpoint,
-		// struct libusb_ss_endpoint_companion_descriptor **ep_comp);
-		// void libusb_free_ss_endpoint_companion_descriptor(
-		// struct libusb_ss_endpoint_companion_descriptor *ep_comp);
-		// int libusb_get_bos_descriptor(Pointer handle,
-		// struct libusb_bos_descriptor **bos);
-		// void libusb_free_bos_descriptor(struct libusb_bos_descriptor *bos);
-		// int libusb_get_usb_2_0_extension_descriptor(
-		// struct Pointer ctx,
-		// struct libusb_bos_dev_capability_descriptor *dev_cap,
-		// struct libusb_usb_2_0_extension_descriptor **usb_2_0_extension);
-		// void libusb_free_usb_2_0_extension_descriptor(
-		// struct libusb_usb_2_0_extension_descriptor *usb_2_0_extension);
-		// int libusb_get_ss_usb_device_capability_descriptor(
-		// struct Pointer ctx,
-		// struct libusb_bos_dev_capability_descriptor *dev_cap,
-		// struct libusb_ss_usb_device_capability_descriptor **ss_usb_device_cap);
-		// void libusb_free_ss_usb_device_capability_descriptor(
-		// struct libusb_ss_usb_device_capability_descriptor *ss_usb_device_cap);
-		// int libusb_get_container_id_descriptor(struct Pointer ctx,
-		// struct libusb_bos_dev_capability_descriptor *dev_cap,
-		// struct libusb_container_id_descriptor **container_id);
-		// void libusb_free_container_id_descriptor(
-		// struct libusb_container_id_descriptor *container_id);
-		// byte libusb_get_bus_number(Pointer dev);
-		// byte libusb_get_port_number(Pointer dev);
-		// int libusb_get_port_numbers(Pointer dev, byte* port_numbers, int
-		// port_numbers_len);
-		// int libusb_get_port_path(Pointer ctx, Pointer dev, byte* path, byte
-		// path_length);
-		// Pointer libusb_get_parent(Pointer dev);
-		// byte libusb_get_device_address(Pointer dev);
-		// int libusb_get_device_speed(Pointer dev);
-		// int libusb_get_max_packet_size(Pointer dev,
-		// unsigned char endpoint);
-		// int libusb_get_max_iso_packet_size(Pointer dev,
-		// unsigned char endpoint);
-		//
-		// int libusb_open(Pointer dev, PointerByReference handle);
-		// void libusb_close(Pointer dev_handle);
-		// Pointer libusb_get_device(Pointer dev_handle);
-		//
-		// int libusb_set_configuration(Pointer dev,
-		// int configuration);
-		// int libusb_claim_interface(Pointer dev,
-		// int interface_number);
-		// int libusb_release_interface(Pointer dev,
-		// int interface_number);
-		//
-		// Pointer libusb_open_device_with_vid_pid(
-		// Pointer ctx, short vendor_id, short product_id);
-		//
-		// int libusb_set_interface_alt_setting(Pointer dev,
-		// int interface_number, int alternate_setting);
-		// int libusb_clear_halt(Pointer dev,
-		// unsigned char endpoint);
-		// int libusb_reset_device(Pointer dev);
-		//
-		// int libusb_alloc_streams(Pointer dev,
-		// int num_streams, unsigned char *endpoints, int num_endpoints);
-		// int libusb_free_streams(Pointer dev,
-		// unsigned char *endpoints, int num_endpoints);
-		//
-		// int libusb_kernel_driver_active(Pointer dev,
-		// int interface_number);
-		// int libusb_detach_kernel_driver(Pointer dev,
-		// int interface_number);
-		// int libusb_attach_kernel_driver(Pointer dev,
-		// int interface_number);
-		// int libusb_set_auto_detach_kernel_driver(
-		// Pointer dev, int enable);
+	public static libusb_config_descriptor libusb_get_config_descriptor_by_value(libusb_device dev,
+		byte bConfigurationValue) throws IOException {
+		libusb_config_descriptor.ByReference config = new libusb_config_descriptor.ByReference();
+		verify(LIBUSB.libusb_get_config_descriptor_by_value(dev, bConfigurationValue, config),
+			"get_config_descriptor_by_value");
+		return config; // TODO: needs evaluation?
+	}
 
-		// int libusb_control_transfer(Pointer dev_handle, byte request_type, byte
-		// bRequest,
-		// short wValue, short wIndex, unsigned char *data, short wLength, unsigned int timeout);
-		int libusb_control_transfer(Pointer dev_handle, byte request_type, byte bRequest,
-			short wValue, short wIndex, Pointer data, short wLength, int timeout);
-		//
-		// int libusb_bulk_transfer(Pointer dev_handle,
-		// unsigned char endpoint, unsigned char *data, int length,
-		// int *actual_length, unsigned int timeout);
-		//
-		// int libusb_interrupt_transfer(Pointer dev_handle,
-		// unsigned char endpoint, unsigned char *data, int length,
-		// int *actual_length, unsigned int timeout);
+	public static void libusb_free_config_descriptor(libusb_config_descriptor config) {
+		LIBUSB.libusb_free_config_descriptor(config);
+	}
 
-		// struct libusb_transfer * libusb_alloc_transfer(int iso_packets);
-		// int libusb_submit_transfer(struct libusb_transfer *transfer);
-		// int libusb_cancel_transfer(struct libusb_transfer *transfer);
-		// void libusb_free_transfer(struct libusb_transfer *transfer);
-		// void libusb_transfer_set_stream_id(struct libusb_transfer *transfer, int stream_id);
-		void libusb_transfer_set_stream_id(libusb_transfer transfer, int stream_id);
-		// int libusb_transfer_get_stream_id(struct libusb_transfer *transfer);
+	public static libusb_ss_endpoint_companion_descriptor
+		libusb_get_ss_endpoint_companion_descriptor(libusb_context ctx,
+			libusb_endpoint_descriptor endpoint) throws IOException {
+		libusb_ss_endpoint_companion_descriptor.ByReference ep_comp =
+			new libusb_ss_endpoint_companion_descriptor.ByReference();
+		verify(LIBUSB.libusb_get_ss_endpoint_companion_descriptor(ctx, endpoint, ep_comp),
+			"get_config_descriptor_by_value");
+		return ep_comp; // TODO: needs evaluation?
+	}
 
-		// int libusb_get_string_descriptor_ascii(Pointer dev,
-		// byte desc_index, unsigned char *data, int length);
-		//
-		// int libusb_try_lock_events(Pointer ctx);
-		// void libusb_lock_events(Pointer ctx);
-		// void libusb_unlock_events(Pointer ctx);
-		// int libusb_event_handling_ok(Pointer ctx);
-		// int libusb_event_handler_active(Pointer ctx);
-		// void libusb_lock_event_waiters(Pointer ctx);
-		// void libusb_unlock_event_waiters(Pointer ctx);
-		// int libusb_wait_for_event(Pointer ctx, struct timeval *tv);
-		//
-		// int libusb_handle_events_timeout(Pointer ctx,
-		// struct timeval *tv);
-		// int libusb_handle_events_timeout_completed(Pointer ctx,
-		// struct timeval *tv, int *completed);
-		// int libusb_handle_events(Pointer ctx);
-		// int libusb_handle_events_completed(Pointer ctx, int *completed);
-		// int libusb_handle_events_locked(Pointer ctx,
-		// struct timeval *tv);
-		// int libusb_pollfds_handle_timeouts(Pointer ctx);
-		// int libusb_get_next_timeout(Pointer ctx,
-		// struct timeval *tv);
+	public static void libusb_free_ss_endpoint_companion_descriptor(
+		libusb_ss_endpoint_companion_descriptor ep_comp) {
+		LIBUSB.libusb_free_ss_endpoint_companion_descriptor(ep_comp);
+	}
 
-		// const struct libusb_pollfd ** libusb_get_pollfds(Pointer ctx);
-		// void libusb_free_pollfds(const struct libusb_pollfd **pollfds);
-		// void libusb_set_pollfd_notifiers(Pointer ctx,
-		// libusb_pollfd_added_cb added_cb, libusb_pollfd_removed_cb removed_cb,
-		// void *user_data);
-		// typedef int libusb_hotplug_callback_handle;
+	public static libusb_bos_descriptor libusb_get_bos_descriptor(libusb_device_handle handle)
+		throws IOException {
+		libusb_bos_descriptor.ByReference bos = new libusb_bos_descriptor.ByReference();
+		verify(LIBUSB.libusb_get_bos_descriptor(handle, bos), "get_bos_descriptor");
+		return bos;
+	}
 
-		// int libusb_hotplug_register_callback(Pointer ctx,
-		// libusb_hotplug_event events,
-		// libusb_hotplug_flag flags,
-		// int vendor_id, int product_id,
-		// int dev_class,
-		// libusb_hotplug_callback_fn cb_fn,
-		// void *user_data,
-		// libusb_hotplug_callback_handle *handle);
-		//
-		// void libusb_hotplug_deregister_callback(Pointer ctx,
-		// libusb_hotplug_callback_handle handle);
+	public static void libusb_free_bos_descriptor(libusb_bos_descriptor bos) {
+		LIBUSB.libusb_free_bos_descriptor(bos);
+	}
+
+	public static libusb_usb_2_0_extension_descriptor libusb_get_usb_2_0_extension_descriptor(
+		libusb_context ctx, libusb_bos_dev_capability_descriptor dev_cap) throws IOException {
+		libusb_usb_2_0_extension_descriptor.ByReference usb_2_0_extension =
+			new libusb_usb_2_0_extension_descriptor.ByReference();
+		verify(LIBUSB.libusb_get_usb_2_0_extension_descriptor(ctx, dev_cap, usb_2_0_extension),
+			"get_usb_2_0_extension_descriptor");
+		return usb_2_0_extension;
+	}
+
+	public static void libusb_free_usb_2_0_extension_descriptor(
+		libusb_usb_2_0_extension_descriptor usb_2_0_extension) {
+		LIBUSB.libusb_free_usb_2_0_extension_descriptor(usb_2_0_extension);
+	}
+
+	public static libusb_ss_usb_device_capability_descriptor
+		libusb_get_ss_usb_device_capability_descriptor(libusb_context ctx,
+			libusb_bos_dev_capability_descriptor dev_cap) throws IOException {
+		libusb_ss_usb_device_capability_descriptor.ByReference ss_usb_device_cap =
+			new libusb_ss_usb_device_capability_descriptor.ByReference();
+		verify(LIBUSB.libusb_get_ss_usb_device_capability_descriptor( //
+			ctx, dev_cap, ss_usb_device_cap), "get_ss_usb_device_capability_descriptor");
+		return ss_usb_device_cap;
+	}
+
+	public static void libusb_free_ss_usb_device_capability_descriptor(
+		libusb_ss_usb_device_capability_descriptor ss_usb_device_cap) {
+		LIBUSB.libusb_free_ss_usb_device_capability_descriptor(ss_usb_device_cap);
+	}
+
+	public static libusb_container_id_descriptor libusb_get_container_id_descriptor(
+		libusb_context ctx, libusb_bos_dev_capability_descriptor dev_cap) throws IOException {
+		libusb_container_id_descriptor.ByReference container_id =
+			new libusb_container_id_descriptor.ByReference();
+		verify(LIBUSB.libusb_get_container_id_descriptor(ctx, dev_cap, container_id),
+			"get_container_id_descriptor");
+		return container_id;
+	}
+
+	public static void
+		libusb_free_container_id_descriptor(libusb_container_id_descriptor container_id) {
+		LIBUSB.libusb_free_container_id_descriptor(container_id);
+	}
+
+	public static byte libusb_get_bus_number(libusb_device dev) {
+		return LIBUSB.libusb_get_bus_number(dev);
+	}
+
+	public static byte libusb_get_port_number(libusb_device dev) {
+		return LIBUSB.libusb_get_port_number(dev);
+	}
+
+	private static final int LIBUSB_MAX_PORT_NUMBERS = 7;
+
+	public static byte[] libusb_get_port_numbers(libusb_device dev) throws IOException {
+		Memory memory = new Memory(LIBUSB_MAX_PORT_NUMBERS);
+		int size = verify(LIBUSB.libusb_get_port_numbers(dev, memory, (int) memory.size()),
+			"get_port_numbers");
+		return memory.getByteArray(0, size);
+	}
+
+	public static libusb_device libusb_get_parent(libusb_device dev) {
+		return LIBUSB.libusb_get_parent(dev);
+	}
+
+	public static byte libusb_get_device_address(libusb_device dev) {
+		return LIBUSB.libusb_get_device_address(dev);
+	}
+
+	public static libusb_speed libusb_get_device_speed(libusb_device dev) throws IOException {
+		int speed = verify(LIBUSB.libusb_get_device_speed(dev), "get_device_speed");
+		return libusb_speed.xcoder.decode(speed);
+	}
+
+	public static int libusb_get_max_packet_size(libusb_device dev, byte endpoint)
+		throws IOException {
+		return verify(LIBUSB.libusb_get_max_packet_size(dev, endpoint), "get_max_packet_size");
+	}
+
+	public static int libusb_get_max_iso_packet_size(libusb_device dev, byte endpoint)
+		throws IOException {
+		return verify(LIBUSB.libusb_get_max_iso_packet_size(dev, endpoint),
+			"get_max_iso_packet_size");
+	}
+
+	public static libusb_device_handle libusb_open(libusb_device dev) throws IOException {
+		libusb_device_handle.ByReference handle = new libusb_device_handle.ByReference();
+		verify(LIBUSB.libusb_open(dev, handle), "open");
+		return handle.typedValue();
+	}
+	
+	public static void libusb_close(libusb_device_handle dev_handle) {
+		LIBUSB.libusb_close(dev_handle);
+	}
+	
+	public static libusb_device libusb_get_device(libusb_device_handle dev_handle) {
+		return LIBUSB.libusb_get_device(dev_handle);
+	}
+
+	public static void libusb_set_configuration(libusb_device_handle dev, int configuration) 
+		throws IOException {
+		verify(LIBUSB.libusb_set_configuration(dev, configuration), "set_configuration");
+	}
+	
+	public static void libusb_claim_interface(libusb_device_handle dev, int interface_number)
+		throws IOException {
+		verify(LIBUSB.libusb_claim_interface(dev, interface_number), "claim_interface");
+	}
+
+	public static void libusb_release_interface(libusb_device_handle dev, int interface_number)
+		throws IOException {
+		verify(LIBUSB.libusb_release_interface(dev, interface_number), "release_interface");
+	}
+
+	public static libusb_device_handle libusb_open_device_with_vid_pid(libusb_context ctx, short vendor_id,
+		short product_id) {
+		return LIBUSB.libusb_open_device_with_vid_pid(ctx, vendor_id, product_id);
+	}
+
+	public static void libusb_set_interface_alt_setting(libusb_device_handle dev,
+		int interface_number, int alternate_setting) throws IOException {
+		verify(LIBUSB.libusb_set_interface_alt_setting(dev, interface_number, alternate_setting),
+			"set_interface_alt_setting");
+	}
+
+	public static void libusb_clear_halt(libusb_device_handle dev, byte endpoint) throws IOException {
+		verify(LIBUSB.libusb_clear_halt(dev, endpoint), "clear_halt");
+	}
+	
+	public static void libusb_reset_device(libusb_device_handle dev) throws IOException {
+		verify(LIBUSB.libusb_reset_device(dev), "reset_device");
+	}
+
+	public static int libusb_alloc_streams(libusb_device_handle dev, int num_streams, byte endpoint)
+		throws IOException {
+		return libusb_alloc_streams(dev, num_streams, new byte[] { endpoint });
+	}
+
+	public static int libusb_alloc_streams(libusb_device_handle dev, int num_streams,
+		byte[] endpoints) throws IOException {
+		Memory m = JnaUtil.malloc(endpoints);
+		return verify(LIBUSB.libusb_alloc_streams(dev, num_streams, m, endpoints.length),
+			"alloc_streams");
+	}
+	
+	public static void libusb_free_streams(libusb_device_handle dev, byte endpoint) 
+	throws IOException {
+		libusb_free_streams(dev, new byte[] { endpoint });
+	}
+	
+	public static void libusb_free_streams(libusb_device_handle dev, byte[] endpoints)
+		throws IOException {
+		Memory m = JnaUtil.malloc(endpoints);
+		verify(LIBUSB.libusb_free_streams(dev, m, endpoints.length), "free_streams");
+	}
+
+	public static boolean libusb_kernel_driver_active(libusb_device_handle dev,
+		int interface_number) throws IOException {
+		return verify(LIBUSB.libusb_kernel_driver_active(dev, interface_number),
+			"kernel_driver_active") != 0;
+	}
+
+	public static void libusb_detach_kernel_driver(libusb_device_handle dev, int interface_number)
+		throws IOException {
+		verify(LIBUSB.libusb_detach_kernel_driver(dev, interface_number), "detach_kernel_driver");
+	}
+
+	public static void libusb_attach_kernel_driver(libusb_device_handle dev, int interface_number)
+		throws IOException {
+		verify(LIBUSB.libusb_attach_kernel_driver(dev, interface_number), "attach_kernel_driver");
+	}
+
+	public static void libusb_set_auto_detach_kernel_driver(libusb_device_handle dev,
+		boolean enable) throws IOException {
+		verify(LIBUSB.libusb_set_auto_detach_kernel_driver(dev, enable ? 1 : 0),
+			"set_auto_detach_kernel_driver");
+	}
+
+	/*
+	// struct libusb_transfer * LIBUSB_CALL libusb_alloc_transfer(int iso_packets);
+	libusb_transfer libusb_alloc_transfer(int iso_packets);
+
+	// int LIBUSB_CALL libusb_submit_transfer(struct libusb_transfer *transfer);
+	int libusb_submit_transfer(libusb_transfer transfer);
+
+	// int LIBUSB_CALL libusb_cancel_transfer(struct libusb_transfer *transfer);
+	int libusb_cancel_transfer(libusb_transfer transfer);
+
+	// void LIBUSB_CALL libusb_free_transfer(struct libusb_transfer *transfer);
+	void libusb_free_transfer(libusb_transfer transfer);
+
+	// void LIBUSB_CALL libusb_transfer_set_stream_id(struct libusb_transfer *transfer, uint32_t
+	// stream_id);
+	void libusb_transfer_set_stream_id(libusb_transfer transfer, int stream_id);
+
+	// uint32_t LIBUSB_CALL libusb_transfer_get_stream_id(struct libusb_transfer *transfer);
+	int libusb_transfer_get_stream_id(libusb_transfer transfer);
+
+
+	// int LIBUSB_CALL libusb_control_transfer(libusb_device_handle *dev_handle,
+	// uint8_t request_type, uint8_t bRequest, uint16_t wValue, uint16_t wIndex,
+	// unsigned char *data, uint16_t wLength, unsigned int timeout);
+	// TODO: Pointer/Memory/ByteBuffer?
+	int libusb_control_transfer(libusb_device_handle dev_handle, byte request_type, byte bRequest,
+		short wValue, short wIndex, ByteByReference data, short wLength, int timeout);
+
+	//
+
+	// int LIBUSB_CALL libusb_bulk_transfer(libusb_device_handle *dev_handle,
+	// unsigned char endpoint, unsigned char *data, int length, int *actual_length,
+	// unsigned int timeout);
+	// TODO: Pointer/Memory/ByteBuffer?
+	int libusb_bulk_transfer(libusb_device_handle dev_handle, byte endpoint, ByteByReference data,
+		int length, IntByReference actual_length, int timeout);
+
+	//
+
+	// int LIBUSB_CALL libusb_interrupt_transfer(libusb_device_handle *dev_handle,
+	// unsigned char endpoint, unsigned char *data, int length, int *actual_length,
+	// unsigned int timeout);
+	// TODO: Pointer/Memory/ByteBuffer?
+	int libusb_interrupt_transfer(libusb_device_handle dev_handle, byte endpoint,
+		ByteByReference data, int length, IntByReference actual_length, int timeout);
+
+	// int LIBUSB_CALL libusb_get_string_descriptor_ascii(libusb_device_handle *dev,
+	// uint8_t desc_index, unsigned char *data, int length);
+	// TODO: Pointer/Memory/ByteBuffer?
+	int libusb_get_string_descriptor_ascii(libusb_device_handle dev, byte desc_index,
+		ByteByReference data, int length);
+
+	 */
+	 
+	private static int verify(int result, String name) throws IOException {
+		if (result >= 0) return result;
+		libusb_error error = libusb_error.xcoder.decode(result);
+		throw exceptionf(IOException::new, "libusb_%s failed: %d (%s)", name, result, error);
 	}
 
 	private static LibUsbNative loadLibrary(String name) {
 		logger.info("Loading {} started", name);
+		JnaUtil.setProtected();
 		LibUsbNative lib = JnaUtil.loadLibrary(name, LibUsbNative.class);
 		logger.info("Loading {} complete", name);
 		return lib;
