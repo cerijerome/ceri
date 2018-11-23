@@ -2,7 +2,6 @@ package ceri.serial.jna.libusb;
 
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import ceri.serial.jna.libusb.LibUsb.libusb_bos_descriptor;
 import ceri.serial.jna.libusb.LibUsb.libusb_bos_dev_capability_descriptor;
@@ -165,8 +164,7 @@ interface LibUsbNative extends Library {
 
 	// int LIBUSB_CALL libusb_get_port_path(libusb_context *ctx, libusb_device *dev,
 	// uint8_t* path, uint8_t path_length);
-	int libusb_get_port_path(libusb_context ctx, libusb_device dev, Pointer path,
-		byte path_length);
+	int libusb_get_port_path(libusb_context ctx, libusb_device dev, Pointer path, byte path_length);
 
 	// libusb_device * LIBUSB_CALL libusb_get_parent(libusb_device *dev);
 	libusb_device libusb_get_parent(libusb_device dev);
@@ -284,17 +282,15 @@ interface LibUsbNative extends Library {
 	// int LIBUSB_CALL libusb_control_transfer(libusb_device_handle *dev_handle,
 	// uint8_t request_type, uint8_t bRequest, uint16_t wValue, uint16_t wIndex,
 	// unsigned char *data, uint16_t wLength, unsigned int timeout);
-	// TODO: Pointer/Memory/ByteBuffer?
 	int libusb_control_transfer(libusb_device_handle dev_handle, byte request_type, byte bRequest,
-		short wValue, short wIndex, ByteByReference data, short wLength, int timeout);
+		short wValue, short wIndex, Pointer data, short wLength, int timeout);
 
 	//
 
 	// int LIBUSB_CALL libusb_bulk_transfer(libusb_device_handle *dev_handle,
 	// unsigned char endpoint, unsigned char *data, int length, int *actual_length,
 	// unsigned int timeout);
-	// TODO: Pointer/Memory/ByteBuffer?
-	int libusb_bulk_transfer(libusb_device_handle dev_handle, byte endpoint, ByteByReference data,
+	int libusb_bulk_transfer(libusb_device_handle dev_handle, byte endpoint, Pointer data,
 		int length, IntByReference actual_length, int timeout);
 
 	//
@@ -302,9 +298,8 @@ interface LibUsbNative extends Library {
 	// int LIBUSB_CALL libusb_interrupt_transfer(libusb_device_handle *dev_handle,
 	// unsigned char endpoint, unsigned char *data, int length, int *actual_length,
 	// unsigned int timeout);
-	// TODO: Pointer/Memory/ByteBuffer?
-	int libusb_interrupt_transfer(libusb_device_handle dev_handle, byte endpoint,
-		ByteByReference data, int length, IntByReference actual_length, int timeout);
+	int libusb_interrupt_transfer(libusb_device_handle dev_handle, byte endpoint, Pointer data,
+		int length, IntByReference actual_length, int timeout);
 
 	/*
 	 * inline methods here
@@ -312,9 +307,8 @@ interface LibUsbNative extends Library {
 
 	// int LIBUSB_CALL libusb_get_string_descriptor_ascii(libusb_device_handle *dev,
 	// uint8_t desc_index, unsigned char *data, int length);
-	// TODO: Pointer/Memory/ByteBuffer?
-	int libusb_get_string_descriptor_ascii(libusb_device_handle dev, byte desc_index,
-		ByteByReference data, int length);
+	int libusb_get_string_descriptor_ascii(libusb_device_handle dev, byte desc_index, Pointer data,
+		int length);
 
 	/* polling and timeouts */
 
@@ -349,7 +343,6 @@ interface LibUsbNative extends Library {
 
 	// int LIBUSB_CALL libusb_handle_events_timeout_completed(libusb_context *ctx, struct timeval
 	// *tv, int *completed);
-	// TODO: Pointer/Memory/IntBuffer
 	int libusb_handle_events_timeout_completed(libusb_context ctx, timeval tv,
 		IntByReference completed);
 
@@ -357,7 +350,6 @@ interface LibUsbNative extends Library {
 	int libusb_handle_events(libusb_context ctx);
 
 	// int LIBUSB_CALL libusb_handle_events_completed(libusb_context *ctx, int *completed);
-	// TODO: Pointer/Memory/IntBuffer
 	int libusb_handle_events_completed(libusb_context ctx, IntByReference completed);
 
 	// int LIBUSB_CALL libusb_handle_events_locked(libusb_context *ctx, struct timeval *tv);

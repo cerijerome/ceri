@@ -1,4 +1,4 @@
-package ceri.serial.jna;
+package ceri.common.data;
 
 import java.util.Arrays;
 import java.util.Collection;
