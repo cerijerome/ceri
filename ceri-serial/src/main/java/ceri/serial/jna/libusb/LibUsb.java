@@ -355,6 +355,11 @@ public class LibUsb {
 			super(p);
 		}
 
+		public FieldMapper.Single<libusb_descriptor_type> bDescriptorType() {
+			return libusb_descriptor_type.xcoder.mapper(() -> this.bDescriptorType,
+				i -> this.bDescriptorType = (byte) i);
+		}
+		
 		public byte[] extra() {
 			// TODO: ByteBuffer/String instead?
 			return extra.getByteArray(0, extra_length);
@@ -400,6 +405,11 @@ public class LibUsb {
 
 		public libusb_interface_descriptor(Pointer p) {
 			super(p);
+		}
+
+		public FieldMapper.Single<libusb_descriptor_type> bDescriptorType() {
+			return libusb_descriptor_type.xcoder.mapper(() -> this.bDescriptorType,
+				i -> this.bDescriptorType = (byte) i);
 		}
 
 		public libusb_endpoint_descriptor[] endpoints() {
@@ -483,13 +493,21 @@ public class LibUsb {
 			super(p);
 		}
 
+		public FieldMapper.Single<libusb_descriptor_type> bDescriptorType() {
+			return libusb_descriptor_type.xcoder.mapper(() -> this.bDescriptorType,
+				i -> this.bDescriptorType = (byte) i);
+		}
+
 		public libusb_interface[] interfaces() {
-			return (libusb_interface[]) _interface.toArray(bNumInterfaces);
+			if (_interface != null)	return (libusb_interface[]) _interface.toArray(bNumInterfaces);
+			if (bNumInterfaces != 0) throw new IllegalArgumentException("Null interface reference");
+			return null;
 		}
 
 		public byte[] extra() {
-			// TODO: ByteBuffer/String instead?
-			return extra.getByteArray(0, extra_length);
+			if (extra != null) return extra.getByteArray(0, extra_length);
+			if (extra_length != 0) throw new IllegalArgumentException("Null extra reference");
+			return null;
 		}
 
 		@Override
@@ -526,6 +544,11 @@ public class LibUsb {
 			super(p);
 		}
 
+		public FieldMapper.Single<libusb_descriptor_type> bDescriptorType() {
+			return libusb_descriptor_type.xcoder.mapper(() -> this.bDescriptorType,
+				i -> this.bDescriptorType = (byte) i);
+		}
+
 		@Override
 		protected List<String> getFieldOrder() {
 			return FIELDS;
@@ -557,6 +580,11 @@ public class LibUsb {
 
 		public libusb_bos_dev_capability_descriptor(Pointer p) {
 			super(p);
+		}
+
+		public FieldMapper.Single<libusb_descriptor_type> bDescriptorType() {
+			return libusb_descriptor_type.xcoder.mapper(() -> this.bDescriptorType,
+				i -> this.bDescriptorType = (byte) i);
 		}
 
 		public byte[] dev_capability_data() {
@@ -596,6 +624,11 @@ public class LibUsb {
 			super(p);
 		}
 
+		public FieldMapper.Single<libusb_descriptor_type> bDescriptorType() {
+			return libusb_descriptor_type.xcoder.mapper(() -> this.bDescriptorType,
+				i -> this.bDescriptorType = (byte) i);
+		}
+
 		public libusb_bos_dev_capability_descriptor[] dev_capabilities() {
 			return (libusb_bos_dev_capability_descriptor[]) dev_capability.toArray(bNumDeviceCaps);
 		}
@@ -624,13 +657,23 @@ public class LibUsb {
 
 		public byte bLength;
 		public byte bDescriptorType; // libusb_descriptor_type.LIBUSB_DT_DEVICE_CAPABILITY
-		public byte bDevCapabilityType; // libusb_capability_type.LIBUSB_BT_USB_2_0_EXTENSION
+		public byte bDevCapabilityType; // libusb_bos_type.LIBUSB_BT_USB_2_0_EXTENSION
 		public int bmAttributes; // libusb_usb_2_0_extension_attributes
 
 		public libusb_usb_2_0_extension_descriptor() {}
 
 		public libusb_usb_2_0_extension_descriptor(Pointer p) {
 			super(p);
+		}
+
+		public FieldMapper.Single<libusb_descriptor_type> bDescriptorType() {
+			return libusb_descriptor_type.xcoder.mapper(() -> this.bDescriptorType,
+				i -> this.bDescriptorType = (byte) i);
+		}
+
+		public FieldMapper.Single<libusb_bos_type> bDevCapabilityType() {
+			return libusb_bos_type.xcoder.mapper(() -> this.bDevCapabilityType,
+				i -> this.bDevCapabilityType = (byte) i);
 		}
 
 		public FieldMapper.Flag<libusb_usb_2_0_extension_attributes> bmAttributes() {
@@ -662,7 +705,7 @@ public class LibUsb {
 
 		public byte bLength;
 		public byte bDescriptorType; // libusb_descriptor_type.LIBUSB_DT_DEVICE_CAPABILITY
-		public byte bDevCapabilityType;// libusb_capability_type.LIBUSB_BT_SS_USB_DEVICE_CAPABILITY
+		public byte bDevCapabilityType;// libusb_bos_type.LIBUSB_BT_SS_USB_DEVICE_CAPABILITY
 		public byte bmAttributes; // libusb_ss_usb_device_capability_attributes
 		public short wSpeedSupported; // libusb_supported_speed
 		public byte bFunctionalitySupport;
@@ -673,6 +716,16 @@ public class LibUsb {
 
 		public libusb_ss_usb_device_capability_descriptor(Pointer p) {
 			super(p);
+		}
+
+		public FieldMapper.Single<libusb_descriptor_type> bDescriptorType() {
+			return libusb_descriptor_type.xcoder.mapper(() -> this.bDescriptorType,
+				i -> this.bDescriptorType = (byte) i);
+		}
+
+		public FieldMapper.Single<libusb_bos_type> bDevCapabilityType() {
+			return libusb_bos_type.xcoder.mapper(() -> this.bDevCapabilityType,
+				i -> this.bDevCapabilityType = (byte) i);
 		}
 
 		public FieldMapper.Flag<libusb_ss_usb_device_capability_attributes> bmAttributes() {
@@ -708,7 +761,7 @@ public class LibUsb {
 
 		public byte bLength;
 		public byte bDescriptorType; // libusb_descriptor_type.LIBUSB_DT_DEVICE_CAPABILITY
-		public byte bDevCapabilityType; // libusb_capability_type.LIBUSB_BT_CONTAINER_ID
+		public byte bDevCapabilityType; // libusb_bos_type.LIBUSB_BT_CONTAINER_ID
 		public byte bReserved;
 		public byte[] ContainerID = new byte[16];
 
@@ -716,6 +769,16 @@ public class LibUsb {
 
 		public libusb_container_id_descriptor(Pointer p) {
 			super(p);
+		}
+
+		public FieldMapper.Single<libusb_descriptor_type> bDescriptorType() {
+			return libusb_descriptor_type.xcoder.mapper(() -> this.bDescriptorType,
+				i -> this.bDescriptorType = (byte) i);
+		}
+
+		public FieldMapper.Single<libusb_bos_type> bDevCapabilityType() {
+			return libusb_bos_type.xcoder.mapper(() -> this.bDevCapabilityType,
+				i -> this.bDevCapabilityType = (byte) i);
 		}
 
 		@Override
@@ -1824,6 +1887,10 @@ public class LibUsb {
 		return config; // TODO: needs evaluation?
 	}
 
+	public static libusb_config_descriptor libusb_get_config_descriptor(libusb_device dev) throws LibUsbException {
+		return libusb_get_config_descriptor(dev, (byte) 0);
+	}
+	
 	public static libusb_config_descriptor libusb_get_config_descriptor(libusb_device dev,
 		byte config_index) throws LibUsbException {
 		libusb_config_descriptor.ByReference config = new libusb_config_descriptor.ByReference();
@@ -2124,6 +2191,7 @@ public class LibUsb {
 
 	public static String libusb_get_string_descriptor_ascii(libusb_device_handle dev,
 		byte desc_index) throws LibUsbException {
+		if (desc_index == 0) return null;
 		Memory m = new Memory(LIBUSB_MAX_DESCRIPTOR_SIZE);
 		int size = verify(LIBUSB.libusb_get_string_descriptor_ascii( //
 			dev, desc_index, m, (int) m.size()), "get_string_descriptor_ascii");
