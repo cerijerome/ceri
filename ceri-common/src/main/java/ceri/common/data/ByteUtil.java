@@ -40,6 +40,7 @@ public class ByteUtil {
 	}
 	
 	public static String toHex(ImmutableByteArray array, String delimiter) {
+		if (array == null) return null;
 		return array.stream().mapToObj(b -> StringUtil.toHex((byte) b))
 			.collect(Collectors.joining(delimiter));
 	}

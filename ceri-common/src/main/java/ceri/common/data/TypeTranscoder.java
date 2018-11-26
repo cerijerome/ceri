@@ -6,8 +6,6 @@ import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.IntConsumer;
-import java.util.function.IntSupplier;
 import java.util.function.ToIntFunction;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.StreamUtil;
@@ -24,10 +22,10 @@ public abstract class TypeTranscoder<T> {
 			super(valueFn, ts);
 		}
 
-		public FieldMapper.Single<T> mapper(IntSupplier getFn, IntConsumer setFn) {
-			return FieldMapper.single(getFn, setFn, this);
+		public FieldTranscoder.Single<T> field(IntAccessor accessor) {
+			return FieldTranscoder.single(accessor, this);
 		}
-		
+
 		public int encode(T t) {
 			if (t == null) return 0;
 			return valueFn.applyAsInt(t);
@@ -36,10 +34,10 @@ public abstract class TypeTranscoder<T> {
 		public boolean isValid(int value) {
 			return decode(value) != null;
 		}
-		
+
 		public T decode(int value) {
 			return lookup.get(value);
-		}		
+		}
 	}
 
 	public static class Flag<T> extends TypeTranscoder<T> {
@@ -47,10 +45,10 @@ public abstract class TypeTranscoder<T> {
 			super(valueFn, ts);
 		}
 
-		public FieldMapper.Flag<T> mapper(IntSupplier getFn, IntConsumer setFn) {
-			return FieldMapper.flag(getFn, setFn, this);
+		public FieldTranscoder.Flag<T> field(IntAccessor accessor) {
+			return FieldTranscoder.flag(accessor, this);
 		}
-		
+
 		@SafeVarargs
 		public final int encode(T... ts) {
 			return encode(Arrays.asList(ts));
@@ -70,7 +68,7 @@ public abstract class TypeTranscoder<T> {
 			}
 			return value == 0;
 		}
-		
+
 		public Set<T> decode(int value) {
 			if (value == 0) return Set.of();
 			Set<T> set = new LinkedHashSet<>();
