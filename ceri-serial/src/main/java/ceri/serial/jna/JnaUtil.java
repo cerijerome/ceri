@@ -1,8 +1,11 @@
 package ceri.serial.jna;
 
 import java.io.IOException;
+import java.util.function.IntFunction;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.util.BasicUtil;
 
@@ -37,6 +40,24 @@ public class JnaUtil {
 		Native.setProtected(true);
 	}
 
+	public static <T extends Structure> T[] array(Structure p, int count,
+		IntFunction<T[]> arrayConstructor) {
+		T[] array = BasicUtil.uncheckedCast(array(p, count));
+		return array != null ? array : arrayConstructor.apply(0);
+	}
+	
+	public static Structure[] array(Structure p, int count) {
+		if (p != null) return BasicUtil.uncheckedCast(p.toArray(count));
+		if (count == 0) return null; 
+		throw new IllegalArgumentException("Null pointer but count > 0: " + count);
+	}
+	
+	public static byte[] buffer(Pointer p, int len) {
+		if (p != null) return p.getByteArray(0, len);
+		if (len == 0) return null; 
+		throw new IllegalArgumentException("Null pointer but length > 0: " + len);
+	}
+	
 	public static Memory malloc(byte[] array) {
 		return malloc(array, 0);
 	}

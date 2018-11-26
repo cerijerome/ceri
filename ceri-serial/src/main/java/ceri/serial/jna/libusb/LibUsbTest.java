@@ -10,6 +10,8 @@ import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.ptr.ByteByReference;
+import ceri.common.data.FieldTranscoder.Flag;
+import ceri.common.data.FieldTranscoder.Single;
 import ceri.common.math.MathUtil;
 import ceri.common.util.BasicUtil;
 import ceri.serial.jna.libusb.LibUsb.libusb_context;
@@ -26,7 +28,56 @@ public class LibUsbTest {
 	private static final byte SIO_SET_BITMODE_REQUEST = 0x0b;
 	private static final byte SIO_READ_PINS_REQUEST = 0x0c;
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
+		libusb_endpoint_descriptor ed = new libusb_endpoint_descriptor();
+		System.out.printf("%d %s(%d)%n", ed.bDescriptorType, ed.bDescriptorType().get(),
+			ed.bDescriptorType().accessor().get());
+		ed.bDescriptorType().set(libusb_descriptor_type.LIBUSB_DT_SUPERSPEED_HUB);
+		System.out.printf("%d %s(%d)%n", ed.bDescriptorType, ed.bDescriptorType().get(),
+			ed.bDescriptorType().accessor().get());
+
+		System.out.printf("0x%02x 0x%02x %s(0x%02x)%n", ed.bEndpointAddress, ed.bEndpointNumber().get(),
+			ed.bEndpointDirection().get(),
+			ed.bEndpointDirection().get() == null ? 0 : ed.bEndpointDirection().get().value);
+		ed.bEndpointDirection().set(LIBUSB_ENDPOINT_IN);
+		System.out.printf("0x%02x 0x%02x %s(0x%02x)%n", ed.bEndpointAddress, ed.bEndpointNumber().get(),
+			ed.bEndpointDirection().get(),
+			ed.bEndpointDirection().get() == null ? 0 : ed.bEndpointDirection().get().value);
+		ed.bEndpointNumber().set(19);
+		System.out.printf("0x%02x 0x%02x %s(0x%02x)%n", ed.bEndpointAddress, ed.bEndpointNumber().get(),
+			ed.bEndpointDirection().get(),
+			ed.bEndpointDirection().get() == null ? 0 : ed.bEndpointDirection().get().value);
+		ed.bEndpointAddress = (byte) 0xff;
+		System.out.printf("0x%02x 0x%02x %s(0x%02x)%n", ed.bEndpointAddress, ed.bEndpointNumber().get(),
+			ed.bEndpointDirection().get(),
+			ed.bEndpointDirection().get() == null ? 0 : ed.bEndpointDirection().get().value);
+
+		// bits 0:1 libusb_transfer_type, 2:3 libusb_iso_sync_type (iso only)
+				// 4:5 libusb_iso_usage_type (both iso only) 6:7 reserved
+		System.out.printf("0x%02x %s %s %s%n", ed.bmAttributes,
+			value(ed.bmAttributesTransferType()),
+			value(ed.bmAttributesIsoSyncType()),
+			value(ed.bmAttributesIsoUsageType()));
+		ed.bmAttributesTransferType().set(libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK);
+		ed.bmAttributesIsoSyncType().set(libusb_iso_sync_type.LIBUSB_ISO_SYNC_TYPE_ADAPTIVE);
+		ed.bmAttributesIsoUsageType().set(libusb_iso_usage_type.LIBUSB_ISO_USAGE_TYPE_FEEDBACK);
+		System.out.printf("0x%02x %s %s %s%n", ed.bmAttributes,
+			value(ed.bmAttributesTransferType()),
+			value(ed.bmAttributesIsoSyncType()),
+			value(ed.bmAttributesIsoUsageType()));
+	}
+	
+	private static String value(Single<?> t) {
+		Object obj = t.get();
+		return obj != null ? String.valueOf(obj) : String.format("null(0x%02x)", t.accessor().get());
+	}
+	
+	private static String value(Flag<?> t) {
+		Object obj = t.get();
+		return obj != null ? String.valueOf(obj) : String.format("null(0x%02x)", t.accessor().get());
+	}
+	
+	public static void main0(String[] args) throws IOException {
 		System.out.printf("FTDI_DEVICE_OUT_REQTYPE=0x%02x%n", FTDI_DEVICE_OUT_REQTYPE);
 		System.out.printf("FTDI_DEVICE_IN_REQTYPE=0x%02x%n", FTDI_DEVICE_IN_REQTYPE);
 		if (true) return;

@@ -3,6 +3,7 @@ package ceri.serial.jna.libusb;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 import ceri.serial.jna.libusb.LibUsb.libusb_bos_descriptor;
 import ceri.serial.jna.libusb.LibUsb.libusb_bos_dev_capability_descriptor;
 import ceri.serial.jna.libusb.LibUsb.libusb_config_descriptor;
@@ -25,7 +26,8 @@ import ceri.serial.jna.libusb.LibUsb.libusb_usb_2_0_extension_descriptor;
 import ceri.serial.jna.libusb.LibUsb.libusb_version;
 import ceri.serial.jna.libusb.LibUsb.timeval;
 
-interface LibUsbNative extends Library {
+//interface LibUsbNative extends Library {
+public interface LibUsbNative extends Library {
 	// LibUsbNative INSTANCE = JnaUtil.loadLibrary("usb-1.0.0", LibUsbNative.class);
 
 	/*
@@ -86,8 +88,10 @@ interface LibUsbNative extends Library {
 
 	// int LIBUSB_CALL libusb_get_config_descriptor(libusb_device *dev, uint8_t config_index,
 	// struct libusb_config_descriptor **config);
+	//int libusb_get_config_descriptor(libusb_device dev, byte config_index,
+	//	libusb_config_descriptor.ByReference config);
 	int libusb_get_config_descriptor(libusb_device dev, byte config_index,
-		libusb_config_descriptor.ByReference config);
+		PointerByReference config);
 
 	// int LIBUSB_CALL libusb_get_config_descriptor_by_value(libusb_device *dev,
 	// uint8_t bConfigurationValue, struct libusb_config_descriptor **config);
@@ -95,7 +99,8 @@ interface LibUsbNative extends Library {
 		libusb_config_descriptor.ByReference config);
 
 	// void LIBUSB_CALL libusb_free_config_descriptor(struct libusb_config_descriptor *config);
-	void libusb_free_config_descriptor(libusb_config_descriptor config);
+	//void libusb_free_config_descriptor(libusb_config_descriptor config);
+	void libusb_free_config_descriptor(Pointer config);
 
 	// int LIBUSB_CALL libusb_get_ss_endpoint_companion_descriptor(struct libusb_context *ctx,
 	// const struct libusb_endpoint_descriptor *endpoint,
