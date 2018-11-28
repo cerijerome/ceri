@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteUtil;
-import ceri.serial.jna.libusb.LibUsb;
+import ceri.common.text.StringUtil;
 import ceri.serial.jna.libusb.LibUsb.libusb_config_descriptor;
 import ceri.serial.jna.libusb.LibUsb.libusb_context;
 import ceri.serial.jna.libusb.LibUsb.libusb_device;
@@ -23,12 +23,14 @@ import ceri.serial.jna.libusb.LibUsb.libusb_device_handle;
 import ceri.serial.jna.libusb.LibUsb.libusb_endpoint_descriptor;
 import ceri.serial.jna.libusb.LibUsb.libusb_interface;
 import ceri.serial.jna.libusb.LibUsb.libusb_interface_descriptor;
-import ceri.serial.jna.libusb.LibUsbException;
+import ceri.serial.jna.libusb.LibUsb.libusb_log_level;
+import ceri.serial.jna.libusb.LibUsb.libusb_version;
 
 public class LibUsbPrinter {
 	private static final Logger logger = LogManager.getLogger();
 	private final List<Predicate<libusb_device_descriptor>> skips;
 	private final PrintStream out;
+	private final libusb_log_level logLevel;
 
 	public static void main(String[] args) {
 		// Skips devices that cause seg fault
@@ -38,8 +40,14 @@ public class LibUsbPrinter {
 	public static class Builder {
 		final Collection<Predicate<libusb_device_descriptor>> skips = new LinkedHashSet<>();
 		PrintStream out = System.out;
+		libusb_log_level logLevel = null;
 
 		Builder() {}
+
+		public Builder logLevel(libusb_log_level logLevel) {
+			this.logLevel = logLevel;
+			return this;
+		}
 
 		public Builder out(PrintStream out) {
 			this.out = out;
@@ -47,8 +55,8 @@ public class LibUsbPrinter {
 		}
 
 		public final Builder skip(int vendorId, int productId) {
-			return skip(
-				desc -> desc.idVendor == (short) vendorId && desc.idProduct == (short) productId);
+			return skip(desc -> (vendorId == 0 || desc.idVendor == (short) vendorId) &&
+				(productId == 0 || desc.idProduct == (short) productId));
 		}
 
 		@SafeVarargs
@@ -73,12 +81,16 @@ public class LibUsbPrinter {
 	LibUsbPrinter(Builder builder) {
 		skips = ImmutableUtil.copyAsList(builder.skips);
 		out = builder.out;
+		logLevel = builder.logLevel;
 	}
 
 	public void print() {
+		String pre = "";
 		try {
+			version(pre);
 			libusb_context ctx = LibUsb.libusb_init();
-			findFtdi(ctx);
+			if (logLevel != null) LibUsb.libusb_set_debug(ctx, logLevel);
+			devices(pre, ctx);
 			LibUsb.libusb_exit(ctx);
 		} catch (Exception e) {
 			logger.catching(e);
@@ -89,19 +101,29 @@ public class LibUsbPrinter {
 		return skips.stream().anyMatch(skip -> skip.test(desc));
 	}
 
-	private void findFtdi(libusb_context ctx) throws Exception {
+	private void version(String pre) {
+		out.printf("%s: [libusb_version]%n", pre);
+		libusb_version v = LibUsb.libusb_get_version();
+		out.printf("%s: describe=%04x-%04x-%04x-%04x%n", pre, v.major, v.minor, v.micro, v.nano);
+		out.printf("%s: describe=%s%n", pre, v.describe);
+		out.printf("%s: rc=%s%n", pre, v.rc);
+		out.println();
+	}
+
+	private void devices(String pre0, libusb_context ctx) throws Exception {
 		libusb_device.ArrayRef list = LibUsb.libusb_get_device_list(ctx);
 		libusb_device[] devices = list.typedArray();
 		out.printf("#devices=%d%n", devices.length);
 		for (int i = 0; i < devices.length; i++) {
-			String pre = "" + i;
+			String pre = pre0 + i;
 			out.printf("----------------------------------------%n", pre);
-			out.printf("%s: [Device #%d]%n", pre, i);
+			out.printf("%s: [libusb_device #%d]%n", pre, i);
 			libusb_device device = devices[i];
 			libusb_device_descriptor desc = LibUsb.libusb_get_device_descriptor(device);
 			libusb_device_handle handle = LibUsb.libusb_open(device);
 
 			desc(pre, handle, desc);
+			other(pre, device);
 			if (skip(desc)) out.printf("%s: <Skipping device>", pre);
 			else configs(pre, device, handle, desc.bNumConfigurations);
 
@@ -133,8 +155,19 @@ public class LibUsbPrinter {
 		out.printf("%s: bNumConfigurations=%d%n", pre, desc.bNumConfigurations);
 	}
 
+	private void other(String pre, libusb_device device) throws Exception {
+
+		out.printf("%s: bus_number()=0x%02x%n", pre, LibUsb.libusb_get_bus_number(device));
+		out.printf("%s: port_number()=0x%02x%n", pre, LibUsb.libusb_get_port_number(device));
+		out.printf("%s: port_numbers()=0x%s%n", pre,
+			StringUtil.toHex(LibUsb.libusb_get_port_numbers(device)));
+		out.printf("%s: device_address()=0x%02x%n", pre, LibUsb.libusb_get_device_address(device));
+		out.printf("%s: device_speed()=%s%n", pre, LibUsb.libusb_get_device_speed(device));
+	}
+
 	private void configs(String pre, libusb_device device, libusb_device_handle handle, int configs)
 		throws Exception {
+		out.printf("%s: configuration()=0x%04x%n", pre, LibUsb.libusb_get_configuration(handle));
 		for (byte i = 0; i < configs; i++) {
 			libusb_config_descriptor config = LibUsb.libusb_get_config_descriptor(device, i);
 			config(pre + "." + i, handle, config);

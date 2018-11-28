@@ -4,10 +4,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
-import ceri.serial.jna.libusb.LibUsb.libusb_bos_descriptor;
 import ceri.serial.jna.libusb.LibUsb.libusb_bos_dev_capability_descriptor;
-import ceri.serial.jna.libusb.LibUsb.libusb_config_descriptor;
-import ceri.serial.jna.libusb.LibUsb.libusb_container_id_descriptor;
 import ceri.serial.jna.libusb.LibUsb.libusb_context;
 import ceri.serial.jna.libusb.LibUsb.libusb_device;
 import ceri.serial.jna.libusb.LibUsb.libusb_device_descriptor;
@@ -19,10 +16,7 @@ import ceri.serial.jna.libusb.LibUsb.libusb_hotplug_flag;
 import ceri.serial.jna.libusb.LibUsb.libusb_pollfd;
 import ceri.serial.jna.libusb.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.jna.libusb.LibUsb.libusb_pollfd_removed_cb;
-import ceri.serial.jna.libusb.LibUsb.libusb_ss_endpoint_companion_descriptor;
-import ceri.serial.jna.libusb.LibUsb.libusb_ss_usb_device_capability_descriptor;
 import ceri.serial.jna.libusb.LibUsb.libusb_transfer;
-import ceri.serial.jna.libusb.LibUsb.libusb_usb_2_0_extension_descriptor;
 import ceri.serial.jna.libusb.LibUsb.libusb_version;
 import ceri.serial.jna.libusb.LibUsb.timeval;
 
@@ -83,79 +77,70 @@ public interface LibUsbNative extends Library {
 
 	// int LIBUSB_CALL libusb_get_active_config_descriptor(libusb_device *dev,
 	// struct libusb_config_descriptor **config);
-	int libusb_get_active_config_descriptor(libusb_device dev,
-		libusb_config_descriptor.ByReference config);
+	int libusb_get_active_config_descriptor(libusb_device dev, PointerByReference config);
 
 	// int LIBUSB_CALL libusb_get_config_descriptor(libusb_device *dev, uint8_t config_index,
 	// struct libusb_config_descriptor **config);
-	//int libusb_get_config_descriptor(libusb_device dev, byte config_index,
-	//	libusb_config_descriptor.ByReference config);
+	// int libusb_get_config_descriptor(libusb_device dev, byte config_index,
+	// libusb_config_descriptor.ByReference config);
 	int libusb_get_config_descriptor(libusb_device dev, byte config_index,
 		PointerByReference config);
 
 	// int LIBUSB_CALL libusb_get_config_descriptor_by_value(libusb_device *dev,
 	// uint8_t bConfigurationValue, struct libusb_config_descriptor **config);
 	int libusb_get_config_descriptor_by_value(libusb_device dev, byte bConfigurationValue,
-		libusb_config_descriptor.ByReference config);
+		PointerByReference config);
 
 	// void LIBUSB_CALL libusb_free_config_descriptor(struct libusb_config_descriptor *config);
-	//void libusb_free_config_descriptor(libusb_config_descriptor config);
+	// void libusb_free_config_descriptor(libusb_config_descriptor config);
 	void libusb_free_config_descriptor(Pointer config);
 
 	// int LIBUSB_CALL libusb_get_ss_endpoint_companion_descriptor(struct libusb_context *ctx,
 	// const struct libusb_endpoint_descriptor *endpoint,
 	// struct libusb_ss_endpoint_companion_descriptor **ep_comp);
 	int libusb_get_ss_endpoint_companion_descriptor(libusb_context ctx,
-		libusb_endpoint_descriptor endpoint,
-		libusb_ss_endpoint_companion_descriptor.ByReference ep_comp);
+		libusb_endpoint_descriptor endpoint, PointerByReference ep_comp);
 
 	// void LIBUSB_CALL libusb_free_ss_endpoint_companion_descriptor(
 	// struct libusb_ss_endpoint_companion_descriptor *ep_comp);
-	void libusb_free_ss_endpoint_companion_descriptor(
-		libusb_ss_endpoint_companion_descriptor ep_comp);
+	void libusb_free_ss_endpoint_companion_descriptor(Pointer ep_comp);
 
 	// int LIBUSB_CALL libusb_get_bos_descriptor(libusb_device_handle *handle,
 	// struct libusb_bos_descriptor **bos);
-	int libusb_get_bos_descriptor(libusb_device_handle handle,
-		libusb_bos_descriptor.ByReference bos);
+	int libusb_get_bos_descriptor(libusb_device_handle handle, PointerByReference bos);
 
 	// void LIBUSB_CALL libusb_free_bos_descriptor(struct libusb_bos_descriptor *bos);
-	void libusb_free_bos_descriptor(libusb_bos_descriptor bos);
+	void libusb_free_bos_descriptor(Pointer bos);
 
 	// int LIBUSB_CALL libusb_get_usb_2_0_extension_descriptor(struct libusb_context *ctx,
 	// struct libusb_bos_dev_capability_descriptor *dev_cap,
 	// struct libusb_usb_2_0_extension_descriptor **usb_2_0_extension);
 	int libusb_get_usb_2_0_extension_descriptor(libusb_context ctx,
-		libusb_bos_dev_capability_descriptor dev_cap,
-		libusb_usb_2_0_extension_descriptor.ByReference usb_2_0_extension);
+		libusb_bos_dev_capability_descriptor dev_cap, PointerByReference usb_2_0_extension);
 
 	// void LIBUSB_CALL libusb_free_usb_2_0_extension_descriptor(
 	// struct libusb_usb_2_0_extension_descriptor *usb_2_0_extension);
-	void libusb_free_usb_2_0_extension_descriptor(
-		libusb_usb_2_0_extension_descriptor usb_2_0_extension);
+	void libusb_free_usb_2_0_extension_descriptor(Pointer usb_2_0_extension);
 
 	// int LIBUSB_CALL libusb_get_ss_usb_device_capability_descriptor(struct libusb_context *ctx,
 	// struct libusb_bos_dev_capability_descriptor *dev_cap,
 	// struct libusb_ss_usb_device_capability_descriptor **ss_usb_device_cap);
 	int libusb_get_ss_usb_device_capability_descriptor(libusb_context ctx,
-		libusb_bos_dev_capability_descriptor dev_cap,
-		libusb_ss_usb_device_capability_descriptor.ByReference ss_usb_device_cap);
+		libusb_bos_dev_capability_descriptor dev_cap, PointerByReference ss_usb_device_cap);
 
 	// void LIBUSB_CALL libusb_free_ss_usb_device_capability_descriptor(
 	// struct libusb_ss_usb_device_capability_descriptor *ss_usb_device_cap);
-	void libusb_free_ss_usb_device_capability_descriptor(
-		libusb_ss_usb_device_capability_descriptor ss_usb_device_cap);
+	void libusb_free_ss_usb_device_capability_descriptor(Pointer ss_usb_device_cap);
 
 	// int LIBUSB_CALL libusb_get_container_id_descriptor(struct libusb_context *ctx,
 	// struct libusb_bos_dev_capability_descriptor *dev_cap,
 	// struct libusb_container_id_descriptor **container_id);
 	int libusb_get_container_id_descriptor(libusb_context ctx,
-		libusb_bos_dev_capability_descriptor dev_cap,
-		libusb_container_id_descriptor.ByReference container_id);
+		libusb_bos_dev_capability_descriptor dev_cap, PointerByReference container_id);
 
 	// void LIBUSB_CALL libusb_free_container_id_descriptor(
 	// struct libusb_container_id_descriptor *container_id);
-	void libusb_free_container_id_descriptor(libusb_container_id_descriptor container_id);
+	void libusb_free_container_id_descriptor(Pointer container_id);
 
 	// uint8_t LIBUSB_CALL libusb_get_bus_number(libusb_device *dev);
 	byte libusb_get_bus_number(libusb_device dev);

@@ -1,5 +1,6 @@
 package ceri.serial.jna.libusb;
 
+import static ceri.serial.jna.JnaUtil.ubyte;
 import static com.sun.jna.Pointer.NULL;
 import java.nio.ByteOrder;
 import java.util.List;
@@ -7,7 +8,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Callback;
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
@@ -18,16 +18,13 @@ import ceri.common.data.IntAccessor;
 import ceri.common.data.MaskAccessor;
 import ceri.common.data.TypeTranscoder;
 import ceri.serial.jna.JnaUtil;
+//import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.Struct;
 import ceri.serial.jna.TypedPointer;
 
 public class LibUsb {
 	private static final Logger logger = LogManager.getLogger();
-	// private static LibUsbNative LIBUSB = loadLibrary("usb-1.0.0");
-	public static LibUsbNative LIBUSB = loadLibrary("usb-1.0.0");
-	// TODO: get version from lib?
-	public static int LIBUSB_API_VERSION = 0x01000104;
-	public static int LIBUSBX_API_VERSION = LIBUSB_API_VERSION;
+	private static LibUsbNative LIBUSB = loadLibrary("usb-1.0.0");
 
 	private static short libusb_cpu_to_le16(short x) {
 		if (ByteOrder.LITTLE_ENDIAN.equals(ByteOrder.nativeOrder())) return x;
@@ -64,10 +61,10 @@ public class LibUsb {
 
 		public static final TypeTranscoder.Single<libusb_class_code> xcoder =
 			TypeTranscoder.single(t -> t.value, libusb_class_code.class);
-		public final byte value;
+		public final int value;
 
 		private libusb_class_code(int value) {
-			this.value = (byte) value;
+			this.value = value;
 		}
 
 		@Override
@@ -327,9 +324,9 @@ public class LibUsb {
 			"bDeviceProtocol", "bMaxPacketSize0", "idVendor", "idProduct", "bcdDevice",
 			"iManufacturer", "iProduct", "iSerialNumber", "bNumConfigurations");
 		private static final IntAccessor.Typed<libusb_device_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typed(t -> t.bDescriptorType, (t, i) -> t.bDescriptorType = (byte) i);
+			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 		private static final IntAccessor.Typed<libusb_device_descriptor> bDeviceClassAccessor =
-			IntAccessor.typed(t -> t.bDeviceClass, (t, i) -> t.bDeviceClass = (byte) i);
+			IntAccessor.typedByte(t -> t.bDeviceClass, (t, b) -> t.bDeviceClass = b);
 
 		public static class ByValue extends libusb_device_descriptor //
 			implements Structure.ByValue {}
@@ -382,11 +379,11 @@ public class LibUsb {
 			"bLength", "bDescriptorType", "bEndpointAddress", "bmAttributes", "wMaxPacketSize",
 			"bInterval", "bRefresh", "bSynchAddress", "extra", "extra_length");
 		private static final IntAccessor.Typed<libusb_endpoint_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typed(t -> t.bDescriptorType, (t, i) -> t.bDescriptorType = (byte) i);
+			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 		private static final IntAccessor.Typed<libusb_endpoint_descriptor> bEndpointAddressAccessor =
-			IntAccessor.typed(t -> t.bEndpointAddress, (t, i) -> t.bEndpointAddress = (byte) i);
+			IntAccessor.typedByte(t -> t.bEndpointAddress, (t, b) -> t.bEndpointAddress = b);
 		private static final IntAccessor.Typed<libusb_endpoint_descriptor> bmAttributesAccessor =
-			IntAccessor.typed(t -> t.bmAttributes, (t, i) -> t.bmAttributes = (byte) i);
+			IntAccessor.typedByte(t -> t.bmAttributes, (t, b) -> t.bmAttributes = b);
 
 		public static class ByValue extends libusb_endpoint_descriptor //
 			implements Structure.ByValue {}
@@ -443,7 +440,7 @@ public class LibUsb {
 		}
 
 		public byte[] extra() {
-			return JnaUtil.buffer(extra, extra_length);
+			return JnaUtil.byteArray(extra, extra_length);
 		}
 
 		@Override
@@ -463,9 +460,9 @@ public class LibUsb {
 			"bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "iInterface", "endpoint",
 			"extra", "extra_length");
 		private static final IntAccessor.Typed<libusb_interface_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typed(t -> t.bDescriptorType, (t, i) -> t.bDescriptorType = (byte) i);
+			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 		private static final IntAccessor.Typed<libusb_interface_descriptor> bInterfaceClassAccessor =
-			IntAccessor.typed(t -> t.bInterfaceClass, (t, i) -> t.bInterfaceClass = (byte) i);
+			IntAccessor.typedByte(t -> t.bInterfaceClass, (t, b) -> t.bInterfaceClass = b);
 
 		public static class ByValue extends libusb_interface_descriptor //
 			implements Structure.ByValue {}
@@ -501,11 +498,11 @@ public class LibUsb {
 		}
 
 		public libusb_endpoint_descriptor[] endpoints() {
-			return JnaUtil.array(endpoint, bNumEndpoints, libusb_endpoint_descriptor[]::new);
+			return JnaUtil.array(endpoint, ubyte(bNumEndpoints), libusb_endpoint_descriptor[]::new);
 		}
 
 		public byte[] extra() {
-			return JnaUtil.buffer(extra, extra_length);
+			return JnaUtil.byteArray(extra, extra_length);
 		}
 
 		@Override
@@ -556,7 +553,7 @@ public class LibUsb {
 			"bLength", "bDescriptorType", "wTotalLength", "bNumInterfaces", "bConfigurationValue",
 			"iConfiguration", "bmAttributes", "MaxPower", "interfaces", "extra", "extra_length");
 		private static final IntAccessor.Typed<libusb_config_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typed(t -> t.bDescriptorType, (t, i) -> t.bDescriptorType = (byte) i);
+			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 
 		public static class ByValue extends libusb_config_descriptor //
 			implements Structure.ByValue {}
@@ -587,11 +584,11 @@ public class LibUsb {
 		}
 
 		public libusb_interface[] interfaces() {
-			return JnaUtil.array(interfaces, bNumInterfaces, libusb_interface[]::new);
+			return JnaUtil.array(interfaces, ubyte(bNumInterfaces), libusb_interface[]::new);
 		}
 
 		public byte[] extra() {
-			return JnaUtil.buffer(extra, extra_length);
+			return JnaUtil.byteArray(extra, extra_length);
 		}
 
 		@Override
@@ -609,9 +606,9 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of( //
 			"bLength", "bDescriptorType", "bMaxBurst", "bmAttributes", "wBytesPerInterval");
 		private static final IntAccessor.Typed<libusb_ss_endpoint_companion_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typed(t -> t.bDescriptorType, (t, i) -> t.bDescriptorType = (byte) i);
+			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 		private static final IntAccessor.Typed<libusb_ss_endpoint_companion_descriptor> bmAttributesAccessor =
-			IntAccessor.typed(t -> t.bmAttributes, (t, i) -> t.bmAttributes = (byte) i);
+			IntAccessor.typedByte(t -> t.bmAttributes, (t, b) -> t.bmAttributes = b);
 
 		public static class ByValue extends libusb_ss_endpoint_companion_descriptor //
 			implements Structure.ByValue {}
@@ -625,7 +622,6 @@ public class LibUsb {
 		// bulk: bits 0:4 max number of streams
 		// iso: bits 0:1 Mult
 		public byte bmAttributes;
-
 		public short wBytesPerInterval;
 
 		public libusb_ss_endpoint_companion_descriptor() {}
@@ -661,7 +657,7 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of( //
 			"bLength", "bDescriptorType", "bDevCapabilityType", "dev_capability_data");
 		private static final IntAccessor.Typed<libusb_bos_dev_capability_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typed(t -> t.bDescriptorType, (t, i) -> t.bDescriptorType = (byte) i);
+			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 
 		public static class ByValue extends libusb_bos_dev_capability_descriptor //
 			implements Structure.ByValue {}
@@ -685,9 +681,8 @@ public class LibUsb {
 		}
 
 		public byte[] dev_capability_data() {
-			// TODO: initialize field instead?
-			int offset = fieldOffset("dev_capability_data");
-			return getPointer().getByteArray(offset, bLength - offset);
+			// TODO: init field instead?
+			return fieldByteArrayRem("dev_capability_data", ubyte(bLength));
 		}
 
 		@Override
@@ -705,7 +700,7 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of( //
 			"bLength", "bDescriptorType", "wTotalLength", "bNumDeviceCaps", "dev_capability");
 		private static final IntAccessor.Typed<libusb_bos_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typed(t -> t.bDescriptorType, (t, i) -> t.bDescriptorType = (byte) i);
+			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 
 		public static class ByValue extends libusb_bos_descriptor //
 			implements Structure.ByValue {}
@@ -717,7 +712,7 @@ public class LibUsb {
 		public byte bDescriptorType; // libusb_descriptor_type.LIBUSB_DT_BOS LIBUSB_DT_BOS
 		public short wTotalLength;
 		public byte bNumDeviceCaps;
-		public libusb_bos_dev_capability_descriptor.ByReference dev_capability;
+		public libusb_bos_dev_capability_descriptor.ByReference[] dev_capability;
 
 		public libusb_bos_descriptor() {}
 
@@ -729,8 +724,10 @@ public class LibUsb {
 			return libusb_descriptor_type.xcoder.field(bDescriptorTypeAccessor.from(this));
 		}
 
-		public libusb_bos_dev_capability_descriptor[] dev_capabilities() {
-			return JnaUtil.array(dev_capability, bNumDeviceCaps,
+		public libusb_bos_dev_capability_descriptor[] dev_capability() {
+			// TODO: init field instead?
+			return fieldArrayByRef("dev_capability", ubyte(bNumDeviceCaps),
+				libusb_bos_dev_capability_descriptor::new,
 				libusb_bos_dev_capability_descriptor[]::new);
 		}
 
@@ -750,9 +747,9 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of( //
 			"bLength", "bDescriptorType", "bDevCapabilityType", "bmAttributes");
 		private static final IntAccessor.Typed<libusb_usb_2_0_extension_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typed(t -> t.bDescriptorType, (t, i) -> t.bDescriptorType = (byte) i);
+			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 		private static final IntAccessor.Typed<libusb_usb_2_0_extension_descriptor> bDevCapabilityTypeAccessor =
-			IntAccessor.typed(t -> t.bDevCapabilityType, (t, i) -> t.bDevCapabilityType = (byte) i);
+			IntAccessor.typedByte(t -> t.bDevCapabilityType, (t, b) -> t.bDevCapabilityType = b);
 		private static final IntAccessor.Typed<libusb_usb_2_0_extension_descriptor> bmAttributesTypeAccessor =
 			IntAccessor.typed(t -> t.bmAttributes, (t, i) -> t.bmAttributes = i);
 
@@ -802,13 +799,13 @@ public class LibUsb {
 			"bLength", "bDescriptorType", "bDevCapabilityType", "bmAttributes", "wSpeedSupported",
 			"bFunctionalitySupport", "bU1DevExitLat", "bU2DevExitLat");
 		private static final IntAccessor.Typed<libusb_ss_usb_device_capability_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typed(t -> t.bDescriptorType, (t, i) -> t.bDescriptorType = (byte) i);
+			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 		private static final IntAccessor.Typed<libusb_ss_usb_device_capability_descriptor> bDevCapabilityTypeAccessor =
-			IntAccessor.typed(t -> t.bDevCapabilityType, (t, i) -> t.bDevCapabilityType = (byte) i);
+			IntAccessor.typedByte(t -> t.bDevCapabilityType, (t, b) -> t.bDevCapabilityType = b);
 		private static final IntAccessor.Typed<libusb_ss_usb_device_capability_descriptor> bmAttributesTypeAccessor =
-			IntAccessor.typed(t -> t.bmAttributes, (t, i) -> t.bmAttributes = (byte) i);
+			IntAccessor.typedByte(t -> t.bmAttributes, (t, b) -> t.bmAttributes = b);
 		private static final IntAccessor.Typed<libusb_ss_usb_device_capability_descriptor> wSpeedSupportedAccessor =
-			IntAccessor.typed(t -> t.wSpeedSupported, (t, i) -> t.wSpeedSupported = (short) i);
+			IntAccessor.typedShort(t -> t.wSpeedSupported, (t, s) -> t.wSpeedSupported = s);
 
 		public static class ByValue extends libusb_ss_usb_device_capability_descriptor //
 			implements Structure.ByValue {}
@@ -863,9 +860,9 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of( //
 			"bLength", "bDescriptorType", "bDevCapabilityType", "bReserved", "ContainerID");
 		private static final IntAccessor.Typed<libusb_container_id_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typed(t -> t.bDescriptorType, (t, i) -> t.bDescriptorType = (byte) i);
+			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 		private static final IntAccessor.Typed<libusb_container_id_descriptor> bDevCapabilityTypeAccessor =
-			IntAccessor.typed(t -> t.bDevCapabilityType, (t, i) -> t.bDevCapabilityType = (byte) i);
+			IntAccessor.typedByte(t -> t.bDevCapabilityType, (t, b) -> t.bDevCapabilityType = b);
 
 		public static class ByValue extends libusb_container_id_descriptor //
 			implements Structure.ByValue {}
@@ -906,9 +903,9 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of( //
 			"bmRequestType", "bRequest", "wValue", "wIndex", "wLength");
 		private static final IntAccessor.Typed<libusb_control_setup> bmRequestTypeAccessor =
-			IntAccessor.typed(t -> t.bmRequestType, (t, i) -> t.bmRequestType = (byte) i);
+			IntAccessor.typedByte(t -> t.bmRequestType, (t, b) -> t.bmRequestType = b);
 		private static final IntAccessor.Typed<libusb_control_setup> bRequestAccessor =
-			IntAccessor.typed(t -> t.bRequest, (t, i) -> t.bRequest = (byte) i);
+			IntAccessor.typedByte(t -> t.bRequest, (t, b) -> t.bRequest = b);
 
 		public static class ByValue extends libusb_control_setup //
 			implements Structure.ByValue {}
@@ -1317,9 +1314,9 @@ public class LibUsb {
 			"actual_length", "callback", "user_data", "buffer", "num_iso_packets",
 			"iso_packet_desc");
 		private static final IntAccessor.Typed<libusb_transfer> flagsAccessor =
-			IntAccessor.typed(t -> t.flags, (t, i) -> t.flags = (byte) i);
+			IntAccessor.typedByte(t -> t.flags, (t, b) -> t.flags = b);
 		private static final IntAccessor.Typed<libusb_transfer> typeAccessor =
-			IntAccessor.typed(t -> t.type, (t, i) -> t.type = (byte) i);
+			IntAccessor.typedByte(t -> t.type, (t, b) -> t.type = b);
 		private static final IntAccessor.Typed<libusb_transfer> statusAccessor =
 			IntAccessor.typed(t -> t.status, (t, i) -> t.status = i);
 
@@ -1341,8 +1338,7 @@ public class LibUsb {
 		public Pointer user_data;
 		public Pointer buffer;
 		public int num_iso_packets;
-		// TODO: use [] and fieldOffset?
-		public libusb_iso_packet_descriptor.ByReference iso_packet_desc;
+		public libusb_iso_packet_descriptor[] iso_packet_desc;
 
 		public libusb_transfer() {}
 
@@ -1362,9 +1358,14 @@ public class LibUsb {
 			return libusb_transfer_status.xcoder.field(statusAccessor.from(this));
 		}
 
-		public libusb_iso_packet_descriptor[] iso_packet_descs() {
-			return JnaUtil.array(iso_packet_desc, num_iso_packets,
+		public libusb_iso_packet_descriptor[] iso_packet_desc(int count) {
+			return fieldArray("iso_packet_desc", count, libusb_iso_packet_descriptor::new,
 				libusb_iso_packet_descriptor[]::new);
+		}
+
+		public libusb_iso_packet_descriptor[] iso_packet_desc() {
+			// TODO: initialize field instead?
+			return iso_packet_desc(num_iso_packets);
 		}
 
 		@Override
@@ -1688,7 +1689,7 @@ public class LibUsb {
 	 */
 	public static void libusb_set_iso_packet_lengths(libusb_transfer transfer, int length) {
 		// TODO: write()? better way?
-		libusb_iso_packet_descriptor[] iso_packet_descs = transfer.iso_packet_descs();
+		libusb_iso_packet_descriptor[] iso_packet_descs = transfer.iso_packet_desc();
 		for (int i = 0; i < iso_packet_descs.length; i++)
 			iso_packet_descs[i].length = length;
 	}
@@ -1714,8 +1715,7 @@ public class LibUsb {
 		if (packet > Short.MAX_VALUE) return NULL;
 		if (packet >= transfer.num_iso_packets) return NULL;
 		// TODO: write()? better way?
-		libusb_iso_packet_descriptor[] iso_packet_descs =
-			JnaUtil.array(transfer.iso_packet_desc, packet, libusb_iso_packet_descriptor[]::new);
+		libusb_iso_packet_descriptor[] iso_packet_descs = transfer.iso_packet_desc(packet);
 		for (int i = 0; i < packet; i++)
 			offset += iso_packet_descs[i].length;
 		// TODO: is correct?
@@ -2087,10 +2087,10 @@ public class LibUsb {
 
 	public static libusb_config_descriptor libusb_get_active_config_descriptor(libusb_device dev)
 		throws LibUsbException {
-		libusb_config_descriptor.ByReference config = new libusb_config_descriptor.ByReference();
+		PointerByReference config = new PointerByReference();
 		verify(LIBUSB.libusb_get_active_config_descriptor(dev, config),
 			"get_active_config_descriptor");
-		return config; // TODO: needs evaluation?
+		return new libusb_config_descriptor(config.getValue());
 	}
 
 	public static libusb_config_descriptor libusb_get_config_descriptor(libusb_device dev)
@@ -2100,10 +2100,6 @@ public class LibUsb {
 
 	public static libusb_config_descriptor libusb_get_config_descriptor(libusb_device dev,
 		byte config_index) throws LibUsbException {
-		// libusb_config_descriptor.ByReference config = new libusb_config_descriptor.ByReference();
-		// verify(LIBUSB.libusb_get_config_descriptor(dev, config_index, config),
-		// "get_config_descriptor");
-		// return config; // TODO: needs evaluation?
 		PointerByReference config = new PointerByReference();
 		verify(LIBUSB.libusb_get_config_descriptor(dev, config_index, config),
 			"get_config_descriptor");
@@ -2112,10 +2108,10 @@ public class LibUsb {
 
 	public static libusb_config_descriptor libusb_get_config_descriptor_by_value(libusb_device dev,
 		byte bConfigurationValue) throws LibUsbException {
-		libusb_config_descriptor.ByReference config = new libusb_config_descriptor.ByReference();
+		PointerByReference config = new PointerByReference();
 		verify(LIBUSB.libusb_get_config_descriptor_by_value(dev, bConfigurationValue, config),
 			"get_config_descriptor_by_value");
-		return config; // TODO: needs evaluation?
+		return new libusb_config_descriptor(config.getValue());
 	}
 
 	public static void libusb_free_config_descriptor(libusb_config_descriptor config) {
@@ -2125,70 +2121,66 @@ public class LibUsb {
 	public static libusb_ss_endpoint_companion_descriptor
 		libusb_get_ss_endpoint_companion_descriptor(libusb_context ctx,
 			libusb_endpoint_descriptor endpoint) throws LibUsbException {
-		libusb_ss_endpoint_companion_descriptor.ByReference ep_comp =
-			new libusb_ss_endpoint_companion_descriptor.ByReference();
+		PointerByReference ep_comp = new PointerByReference();
 		verify(LIBUSB.libusb_get_ss_endpoint_companion_descriptor(ctx, endpoint, ep_comp),
 			"get_config_descriptor_by_value");
-		return ep_comp; // TODO: needs evaluation?
+		return new libusb_ss_endpoint_companion_descriptor(ep_comp.getValue());
 	}
 
 	public static void libusb_free_ss_endpoint_companion_descriptor(
 		libusb_ss_endpoint_companion_descriptor ep_comp) {
-		LIBUSB.libusb_free_ss_endpoint_companion_descriptor(ep_comp);
+		LIBUSB.libusb_free_ss_endpoint_companion_descriptor(ep_comp.getPointer());
 	}
 
 	public static libusb_bos_descriptor libusb_get_bos_descriptor(libusb_device_handle handle)
 		throws LibUsbException {
-		libusb_bos_descriptor.ByReference bos = new libusb_bos_descriptor.ByReference();
+		PointerByReference bos = new PointerByReference();
 		verify(LIBUSB.libusb_get_bos_descriptor(handle, bos), "get_bos_descriptor");
-		return bos;
+		return new libusb_bos_descriptor(bos.getValue());
 	}
 
 	public static void libusb_free_bos_descriptor(libusb_bos_descriptor bos) {
-		LIBUSB.libusb_free_bos_descriptor(bos);
+		LIBUSB.libusb_free_bos_descriptor(bos.getPointer());
 	}
 
 	public static libusb_usb_2_0_extension_descriptor libusb_get_usb_2_0_extension_descriptor(
 		libusb_context ctx, libusb_bos_dev_capability_descriptor dev_cap) throws LibUsbException {
-		libusb_usb_2_0_extension_descriptor.ByReference usb_2_0_extension =
-			new libusb_usb_2_0_extension_descriptor.ByReference();
+		PointerByReference usb_2_0_extension = new PointerByReference();
 		verify(LIBUSB.libusb_get_usb_2_0_extension_descriptor(ctx, dev_cap, usb_2_0_extension),
 			"get_usb_2_0_extension_descriptor");
-		return usb_2_0_extension;
+		return new libusb_usb_2_0_extension_descriptor(usb_2_0_extension.getValue());
 	}
 
 	public static void libusb_free_usb_2_0_extension_descriptor(
 		libusb_usb_2_0_extension_descriptor usb_2_0_extension) {
-		LIBUSB.libusb_free_usb_2_0_extension_descriptor(usb_2_0_extension);
+		LIBUSB.libusb_free_usb_2_0_extension_descriptor(usb_2_0_extension.getPointer());
 	}
 
 	public static libusb_ss_usb_device_capability_descriptor
 		libusb_get_ss_usb_device_capability_descriptor(libusb_context ctx,
 			libusb_bos_dev_capability_descriptor dev_cap) throws LibUsbException {
-		libusb_ss_usb_device_capability_descriptor.ByReference ss_usb_device_cap =
-			new libusb_ss_usb_device_capability_descriptor.ByReference();
+		PointerByReference ss_usb_device_cap = new PointerByReference();
 		verify(LIBUSB.libusb_get_ss_usb_device_capability_descriptor( //
 			ctx, dev_cap, ss_usb_device_cap), "get_ss_usb_device_capability_descriptor");
-		return ss_usb_device_cap;
+		return new libusb_ss_usb_device_capability_descriptor(ss_usb_device_cap.getValue());
 	}
 
 	public static void libusb_free_ss_usb_device_capability_descriptor(
 		libusb_ss_usb_device_capability_descriptor ss_usb_device_cap) {
-		LIBUSB.libusb_free_ss_usb_device_capability_descriptor(ss_usb_device_cap);
+		LIBUSB.libusb_free_ss_usb_device_capability_descriptor(ss_usb_device_cap.getPointer());
 	}
 
 	public static libusb_container_id_descriptor libusb_get_container_id_descriptor(
 		libusb_context ctx, libusb_bos_dev_capability_descriptor dev_cap) throws LibUsbException {
-		libusb_container_id_descriptor.ByReference container_id =
-			new libusb_container_id_descriptor.ByReference();
+		PointerByReference container_id = new PointerByReference();
 		verify(LIBUSB.libusb_get_container_id_descriptor(ctx, dev_cap, container_id),
 			"get_container_id_descriptor");
-		return container_id;
+		return new libusb_container_id_descriptor(container_id.getValue());
 	}
 
 	public static void
 		libusb_free_container_id_descriptor(libusb_container_id_descriptor container_id) {
-		LIBUSB.libusb_free_container_id_descriptor(container_id);
+		LIBUSB.libusb_free_container_id_descriptor(container_id.getPointer());
 	}
 
 	public static byte libusb_get_bus_number(libusb_device dev) {
@@ -2417,8 +2409,7 @@ public class LibUsb {
 
 	private static LibUsbNative loadLibrary(String name) {
 		logger.info("Loading {} started", name);
-		JnaUtil.setProtected();
-		logger.info("Protected: {}", Native.isProtected());
+		logger.info("Protected: {}", JnaUtil.setProtected());
 		LibUsbNative lib = JnaUtil.loadLibrary(name, LibUsbNative.class);
 		logger.info("Loading {} complete", name);
 		return lib;
