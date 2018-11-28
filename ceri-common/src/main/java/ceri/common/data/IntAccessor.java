@@ -4,6 +4,10 @@ import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 import java.util.function.ObjIntConsumer;
 import java.util.function.ToIntFunction;
+import ceri.common.function.ObjByteConsumer;
+import ceri.common.function.ObjShortConsumer;
+import ceri.common.function.ToByteFunction;
+import ceri.common.function.ToShortFunction;
 
 public interface IntAccessor {
 	
@@ -25,6 +29,14 @@ public interface IntAccessor {
 
 	static <T> IntAccessor.Typed<T> typed(ToIntFunction<T> getFn, ObjIntConsumer<T> setFn) {
 		return new Typed<>(getFn, setFn);
+	}
+
+	static <T> IntAccessor.Typed<T> typedByte(ToByteFunction<T> getFn, ObjByteConsumer<T> setFn) {
+		return new Typed<>(ToByteFunction.toUint(getFn), ObjByteConsumer.toInt(setFn));
+	}
+
+	static <T> IntAccessor.Typed<T> typedShort(ToShortFunction<T> getFn, ObjShortConsumer<T> setFn) {
+		return new Typed<>(ToShortFunction.toUint(getFn), ObjShortConsumer.toInt(setFn));
 	}
 
 	static class Typed<T> {
