@@ -11,9 +11,9 @@ import com.sun.jna.Structure;
  */
 public abstract class Struct extends Structure {
 
-	public Struct() {}
+	protected Struct() {}
 
-	public Struct(Pointer p) {
+	protected Struct(Pointer p) {
 		super(p);
 		read();
 	}

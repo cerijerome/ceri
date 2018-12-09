@@ -1,35 +1,30 @@
-package ceri.serial.jna.libusb;
+package ceri.serial.libusb.jna;
 
+import java.nio.ByteBuffer;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
-import ceri.serial.jna.libusb.LibUsb.libusb_bos_dev_capability_descriptor;
-import ceri.serial.jna.libusb.LibUsb.libusb_context;
-import ceri.serial.jna.libusb.LibUsb.libusb_device;
-import ceri.serial.jna.libusb.LibUsb.libusb_device_descriptor;
-import ceri.serial.jna.libusb.LibUsb.libusb_device_handle;
-import ceri.serial.jna.libusb.LibUsb.libusb_endpoint_descriptor;
-import ceri.serial.jna.libusb.LibUsb.libusb_hotplug_callback_fn;
-import ceri.serial.jna.libusb.LibUsb.libusb_hotplug_event;
-import ceri.serial.jna.libusb.LibUsb.libusb_hotplug_flag;
-import ceri.serial.jna.libusb.LibUsb.libusb_pollfd;
-import ceri.serial.jna.libusb.LibUsb.libusb_pollfd_added_cb;
-import ceri.serial.jna.libusb.LibUsb.libusb_pollfd_removed_cb;
-import ceri.serial.jna.libusb.LibUsb.libusb_transfer;
-import ceri.serial.jna.libusb.LibUsb.libusb_version;
-import ceri.serial.jna.libusb.LibUsb.timeval;
+import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_context;
+import ceri.serial.libusb.jna.LibUsb.libusb_device;
+import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
+import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
+import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event;
+import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_flag;
+import ceri.serial.libusb.jna.LibUsb.libusb_pollfd;
+import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
+import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
+import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
+import ceri.serial.libusb.jna.LibUsb.libusb_version;
+import ceri.serial.libusb.jna.LibUsb.timeval;
 
-//interface LibUsbNative extends Library {
-public interface LibUsbNative extends Library {
-	// LibUsbNative INSTANCE = JnaUtil.loadLibrary("usb-1.0.0", LibUsbNative.class);
-
-	/*
-	 * Inline methods here
-	 */
+interface LibUsbNative extends Library {
 
 	// int LIBUSB_CALL libusb_init(libusb_context **ctx);
-	int libusb_init(libusb_context.ByReference ctx);
+	int libusb_init(PointerByReference ctx);
 
 	// void LIBUSB_CALL libusb_exit(libusb_context *ctx);
 	void libusb_exit(libusb_context ctx);
@@ -55,10 +50,10 @@ public interface LibUsbNative extends Library {
 	//
 
 	// ssize_t LIBUSB_CALL libusb_get_device_list(libusb_context *ctx, libusb_device ***list);
-	int libusb_get_device_list(libusb_context ctx, libusb_device.ArrayRef.ByRef list);
+	int libusb_get_device_list(libusb_context ctx, PointerByReference list);
 
 	// void LIBUSB_CALL libusb_free_device_list(libusb_device **list, int unref_devices);
-	void libusb_free_device_list(libusb_device.ArrayRef list, int unref_devices);
+	void libusb_free_device_list(Pointer list, int unref_devices);
 
 	// libusb_device * LIBUSB_CALL libusb_ref_device(libusb_device *dev);
 	libusb_device libusb_ref_device(libusb_device dev);
@@ -81,8 +76,6 @@ public interface LibUsbNative extends Library {
 
 	// int LIBUSB_CALL libusb_get_config_descriptor(libusb_device *dev, uint8_t config_index,
 	// struct libusb_config_descriptor **config);
-	// int libusb_get_config_descriptor(libusb_device dev, byte config_index,
-	// libusb_config_descriptor.ByReference config);
 	int libusb_get_config_descriptor(libusb_device dev, byte config_index,
 		PointerByReference config);
 
@@ -92,7 +85,6 @@ public interface LibUsbNative extends Library {
 		PointerByReference config);
 
 	// void LIBUSB_CALL libusb_free_config_descriptor(struct libusb_config_descriptor *config);
-	// void libusb_free_config_descriptor(libusb_config_descriptor config);
 	void libusb_free_config_descriptor(Pointer config);
 
 	// int LIBUSB_CALL libusb_get_ss_endpoint_companion_descriptor(struct libusb_context *ctx,
@@ -174,7 +166,7 @@ public interface LibUsbNative extends Library {
 	//
 
 	// int LIBUSB_CALL libusb_open(libusb_device *dev, libusb_device_handle **handle);
-	int libusb_open(libusb_device dev, libusb_device_handle.ByReference handle);
+	int libusb_open(libusb_device dev, PointerByReference handle);
 
 	// void LIBUSB_CALL libusb_close(libusb_device_handle *dev_handle);
 	void libusb_close(libusb_device_handle dev_handle);
@@ -240,10 +232,6 @@ public interface LibUsbNative extends Library {
 
 	/* async I/O */
 
-	/*
-	 * inline methods here
-	 */
-
 	// struct libusb_transfer * LIBUSB_CALL libusb_alloc_transfer(int iso_packets);
 	libusb_transfer libusb_alloc_transfer(int iso_packets);
 
@@ -263,24 +251,20 @@ public interface LibUsbNative extends Library {
 	// uint32_t LIBUSB_CALL libusb_transfer_get_stream_id(struct libusb_transfer *transfer);
 	int libusb_transfer_get_stream_id(libusb_transfer transfer);
 
-	/*
-	 * inline methods here
-	 */
-
 	/* sync I/O */
 
 	// int LIBUSB_CALL libusb_control_transfer(libusb_device_handle *dev_handle,
 	// uint8_t request_type, uint8_t bRequest, uint16_t wValue, uint16_t wIndex,
 	// unsigned char *data, uint16_t wLength, unsigned int timeout);
 	int libusb_control_transfer(libusb_device_handle dev_handle, byte request_type, byte bRequest,
-		short wValue, short wIndex, Pointer data, short wLength, int timeout);
+		short wValue, short wIndex, ByteBuffer data, short wLength, int timeout);
 
 	//
 
 	// int LIBUSB_CALL libusb_bulk_transfer(libusb_device_handle *dev_handle,
 	// unsigned char endpoint, unsigned char *data, int length, int *actual_length,
 	// unsigned int timeout);
-	int libusb_bulk_transfer(libusb_device_handle dev_handle, byte endpoint, Pointer data,
+	int libusb_bulk_transfer(libusb_device_handle dev_handle, byte endpoint, ByteBuffer data,
 		int length, IntByReference actual_length, int timeout);
 
 	//
@@ -288,17 +272,15 @@ public interface LibUsbNative extends Library {
 	// int LIBUSB_CALL libusb_interrupt_transfer(libusb_device_handle *dev_handle,
 	// unsigned char endpoint, unsigned char *data, int length, int *actual_length,
 	// unsigned int timeout);
-	int libusb_interrupt_transfer(libusb_device_handle dev_handle, byte endpoint, Pointer data,
+	int libusb_interrupt_transfer(libusb_device_handle dev_handle, byte endpoint, ByteBuffer data,
 		int length, IntByReference actual_length, int timeout);
 
-	/*
-	 * inline methods here
-	 */
+	//
 
 	// int LIBUSB_CALL libusb_get_string_descriptor_ascii(libusb_device_handle *dev,
 	// uint8_t desc_index, unsigned char *data, int length);
-	int libusb_get_string_descriptor_ascii(libusb_device_handle dev, byte desc_index, Pointer data,
-		int length);
+	int libusb_get_string_descriptor_ascii(libusb_device_handle dev, byte desc_index,
+		ByteBuffer data, int length);
 
 	/* polling and timeouts */
 
@@ -351,9 +333,7 @@ public interface LibUsbNative extends Library {
 	// int LIBUSB_CALL libusb_get_next_timeout(libusb_context *ctx, struct timeval *tv);
 	int libusb_get_next_timeout(libusb_context ctx, timeval tv);
 
-	/*
-	 * types here
-	 */
+	//
 
 	// const struct libusb_pollfd ** LIBUSB_CALL libusb_get_pollfds(libusb_context *ctx);
 	libusb_pollfd.ByReference libusb_get_pollfds(libusb_context ctx);
@@ -366,9 +346,8 @@ public interface LibUsbNative extends Library {
 	void libusb_set_pollfd_notifiers(libusb_context ctx, libusb_pollfd_added_cb added_cb,
 		libusb_pollfd_removed_cb removed_cb, Pointer user_data);
 
-	/*
-	 * types here
-	 */
+	//
+
 	// typedef int libusb_hotplug_callback_handle;
 
 	// int LIBUSB_CALL libusb_hotplug_register_callback(libusb_context *ctx,

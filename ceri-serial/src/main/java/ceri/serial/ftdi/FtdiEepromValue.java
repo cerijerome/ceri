@@ -3,9 +3,10 @@ package ceri.serial.ftdi;
 import ceri.common.data.TypeTranscoder;
 
 /**
-	 List all handled EEPROM values.
-	   Append future new values only at the end to provide API/ABI stability*/
-	public enum FtdiEepromValue {
+ * List all handled EEPROM values. Append future new values only at the end to provide API/ABI
+ * stability
+ */
+public enum FtdiEepromValue {
 	VENDOR_ID(0),
 	PRODUCT_ID(1),
 	SELF_POWERED(2),

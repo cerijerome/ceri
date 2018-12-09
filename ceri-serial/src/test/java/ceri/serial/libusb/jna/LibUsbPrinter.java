@@ -1,4 +1,4 @@
-package ceri.serial.jna.libusb;
+package ceri.serial.libusb.jna;
 
 import java.io.PrintStream;
 /**
@@ -15,16 +15,18 @@ import ceri.common.collection.ImmutableByteArray;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.StringUtil;
-import ceri.serial.jna.libusb.LibUsb.libusb_config_descriptor;
-import ceri.serial.jna.libusb.LibUsb.libusb_context;
-import ceri.serial.jna.libusb.LibUsb.libusb_device;
-import ceri.serial.jna.libusb.LibUsb.libusb_device_descriptor;
-import ceri.serial.jna.libusb.LibUsb.libusb_device_handle;
-import ceri.serial.jna.libusb.LibUsb.libusb_endpoint_descriptor;
-import ceri.serial.jna.libusb.LibUsb.libusb_interface;
-import ceri.serial.jna.libusb.LibUsb.libusb_interface_descriptor;
-import ceri.serial.jna.libusb.LibUsb.libusb_log_level;
-import ceri.serial.jna.libusb.LibUsb.libusb_version;
+import ceri.serial.libusb.jna.LibUsb;
+import ceri.serial.libusb.jna.LibUsbException;
+import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_context;
+import ceri.serial.libusb.jna.LibUsb.libusb_device;
+import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
+import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_interface;
+import ceri.serial.libusb.jna.LibUsb.libusb_interface_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_log_level;
+import ceri.serial.libusb.jna.LibUsb.libusb_version;
 
 public class LibUsbPrinter {
 	private static final Logger logger = LogManager.getLogger();
@@ -87,9 +89,9 @@ public class LibUsbPrinter {
 	public void print() {
 		String pre = "";
 		try {
-			version(pre);
 			libusb_context ctx = LibUsb.libusb_init();
 			if (logLevel != null) LibUsb.libusb_set_debug(ctx, logLevel);
+			version(pre);
 			devices(pre, ctx);
 			LibUsb.libusb_exit(ctx);
 		} catch (Exception e) {
@@ -104,14 +106,14 @@ public class LibUsbPrinter {
 	private void version(String pre) {
 		out.printf("%s: [libusb_version]%n", pre);
 		libusb_version v = LibUsb.libusb_get_version();
-		out.printf("%s: describe=%04x-%04x-%04x-%04x%n", pre, v.major, v.minor, v.micro, v.nano);
+		out.printf("%s: version=%04x-%04x-%04x-%04x%n", pre, v.major, v.minor, v.micro, v.nano);
 		out.printf("%s: describe=%s%n", pre, v.describe);
 		out.printf("%s: rc=%s%n", pre, v.rc);
 		out.println();
 	}
 
 	private void devices(String pre0, libusb_context ctx) throws Exception {
-		libusb_device.ArrayRef list = LibUsb.libusb_get_device_list(ctx);
+		libusb_device.ByReference list = LibUsb.libusb_get_device_list(ctx);
 		libusb_device[] devices = list.typedArray();
 		out.printf("#devices=%d%n", devices.length);
 		for (int i = 0; i < devices.length; i++) {
@@ -124,7 +126,7 @@ public class LibUsbPrinter {
 
 			desc(pre, handle, desc);
 			other(pre, device);
-			if (skip(desc)) out.printf("%s: <Skipping device>", pre);
+			if (skip(desc)) out.printf("%s: <configuration skipped>", pre);
 			else configs(pre, device, handle, desc.bNumConfigurations);
 
 			LibUsb.libusb_close(handle);

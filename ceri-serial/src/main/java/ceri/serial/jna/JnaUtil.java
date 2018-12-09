@@ -1,6 +1,8 @@
 package ceri.serial.jna;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.Stream;
@@ -14,27 +16,43 @@ import ceri.common.util.BasicUtil;
 
 public class JnaUtil {
 	public static final int INVALID_FILE_DESCRIPTOR = -1;
+	public static final Charset DEFAULT_CHARSET = defaultCharset();
 
 	private JnaUtil() {}
 
+	/**
+	 * Checks function result, and throws exception if negative
+	 */
 	public static int verify(int result) throws IOException {
 		return verify(result, "call");
 	}
 
+	/**
+	 * Checks function result, and throws exception if negative
+	 */
 	public static int verify(int result, String name) throws IOException {
 		if (result >= 0) return result;
 		throw BasicUtil.exceptionf(IOException::new, "JNA %s failed: %d", name, result);
 	}
 
+	/**
+	 * Checks a file descriptor validity
+	 */
 	public static boolean isValidFileDescriptor(int fileDescriptor) {
 		return fileDescriptor != INVALID_FILE_DESCRIPTOR;
 	}
 
+	/**
+	 * Validates a file descriptor
+	 */
 	public static int validateFileDescriptor(int fileDescriptor) throws IOException {
 		if (isValidFileDescriptor(fileDescriptor)) return fileDescriptor;
 		throw new IOException("Invalid file descriptor: " + fileDescriptor);
 	}
 
+	/**
+	 * Load typed native library
+	 */
 	public static <T> T loadLibrary(String name, Class<T> cls) {
 		return BasicUtil.uncheckedCast(Native.loadLibrary(name, cls));
 	}
@@ -97,19 +115,53 @@ public class JnaUtil {
 	 * count field is unsigned (call JnaUtil.ubyte/ushort if needed).
 	 */
 	public static byte[] byteArray(Pointer p, int len) {
+		return byteArray(p, 0, len);
+	}
+
+	/**
+	 * Creates an array bytes from of given structure. If count is 0, returns empty array. Make sure
+	 * count field is unsigned (call JnaUtil.ubyte/ushort if needed).
+	 */
+	public static byte[] byteArray(Pointer p, int offset, int len) {
 		if (len == 0) return ArrayUtil.EMPTY_BYTE;
-		if (p != null) return p.getByteArray(0, len);
+		if (p != null) return p.getByteArray(offset, len);
 		throw new IllegalArgumentException("Null pointer but non-zero length: " + len);
 	}
 
+	/**
+	 * Extracts bytes from buffer.
+	 */
+	public static byte[] byteArray(ByteBuffer buffer, int len) {
+		return byteArray(buffer, 0, len);
+	}
+
+	/**
+	 * Extracts bytes from buffer.
+	 */
+	public static byte[] byteArray(ByteBuffer buffer, int position, int len) {
+		if (position == 0 && len == buffer.limit()) return buffer.array();
+		byte[] b = new byte[len];
+		buffer.position(position).get(b);
+		return b;
+	}
+
+	/**
+	 * Allocate native memory and copy array.
+	 */
 	public static Memory malloc(byte[] array) {
 		return malloc(array, 0);
 	}
 
+	/**
+	 * Allocate native memory and copy array.
+	 */
 	public static Memory malloc(byte[] array, int offset) {
 		return malloc(array, offset, array.length - offset);
 	}
 
+	/**
+	 * Allocate native memory and copy array.
+	 */
 	public static Memory malloc(byte[] array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
 		Memory m = new Memory(length);
@@ -117,17 +169,60 @@ public class JnaUtil {
 		return m;
 	}
 
+	/**
+	 * Decodes string from byte buffer.
+	 */
+	public static String string(ByteBuffer buffer, int len) {
+		return string(buffer, 0, len);
+	}
+
+	/**
+	 * Decodes string from byte buffer.
+	 */
+	public static String string(ByteBuffer buffer, int offset, int len) {
+		return string(DEFAULT_CHARSET, buffer, offset, len);
+	}
+
+	/**
+	 * Decodes string from byte buffer.
+	 */
+	public static String string(Charset charset, ByteBuffer buffer, int len) {
+		return string(charset, buffer, 0, len);
+	}
+
+	/**
+	 * Decodes string from byte buffer.
+	 */
+	public static String string(Charset charset, ByteBuffer buffer, int offset, int len) {
+		return charset.decode(buffer.limit(offset + len).position(offset)).toString();
+	}
+
+	/**
+	 * Convert byte to unsigned int value
+	 */
 	public static int ubyte(byte value) {
 		return value & 0xff;
 	}
 
+	/**
+	 * Convert short to unsigned int value
+	 */
 	public static int ushort(short value) {
 		return value & 0xffff;
 	}
 
+	/**
+	 * Verify int is not negative
+	 */
 	public static int uint(int value) {
 		if (value >= 0) return value;
 		throw new ArithmeticException("unsigned int overflow: 0x" + StringUtil.toHex(value));
+	}
+
+	private static Charset defaultCharset() {
+		String encoding = Native.getDefaultStringEncoding();
+		if (encoding == null || !Charset.isSupported(encoding)) return Charset.defaultCharset();
+		return Charset.forName(encoding);
 	}
 
 }

@@ -1,18 +1,13 @@
 package ceri.serial.ftdi;
 
-import static ceri.serial.ftdi.FlowControl.SIO_MODEM_CTRL;
-import static ceri.serial.ftdi.FlowControl.SIO_RESET;
-import static ceri.serial.ftdi.FlowControl.SIO_SET_BAUD_RATE;
-import static ceri.serial.ftdi.FlowControl.SIO_SET_DATA;
-import static ceri.serial.ftdi.FlowControl.SIO_SET_FLOW_CTRL;
 import ceri.common.data.TypeTranscoder;
 
 public enum RequestType {
-	SIO_RESET_REQUEST(SIO_RESET.value),
-	SIO_SET_BAUDRATE_REQUEST(SIO_SET_BAUD_RATE.value),
-	SIO_SET_DATA_REQUEST(SIO_SET_DATA.value),
-	SIO_SET_FLOW_CTRL_REQUEST(SIO_SET_FLOW_CTRL.value),
-	SIO_SET_MODEM_CTRL_REQUEST(SIO_MODEM_CTRL.value),
+	SIO_RESET_REQUEST(0x00),
+	SIO_SET_MODEM_CTRL_REQUEST(0x01),
+	SIO_SET_FLOW_CTRL_REQUEST(0x02),
+	SIO_SET_BAUDRATE_REQUEST(0x03),
+	SIO_SET_DATA_REQUEST(0x04),
 	SIO_POLL_MODEM_STATUS_REQUEST(0x05),
 	SIO_SET_EVENT_CHAR_REQUEST(0x06),
 	SIO_SET_ERROR_CHAR_REQUEST(0x07),

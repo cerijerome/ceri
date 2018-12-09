@@ -5,8 +5,9 @@ import static ceri.serial.ftdi.Ftdi.FTDI_DEVICE_OUT_REQTYPE;
 import static ceri.serial.ftdi.FtdiChipType.TYPE_AM;
 import static ceri.serial.ftdi.RequestType.SIO_SET_BAUDRATE_REQUEST;
 import ceri.common.collection.ImmutableByteArray;
-import ceri.serial.jna.libusb.LibUsb;
-import ceri.serial.jna.libusb.LibUsbException;
+import ceri.serial.ftdi.jna.LibFtdiException;
+import ceri.serial.libusb.jna.LibUsb;
+import ceri.serial.libusb.jna.LibUsbException;
 
 class FtdiBaudRate {
 	private static final int BITBANG_MULTIPLIER = 4;
@@ -22,18 +23,21 @@ class FtdiBaudRate {
 	private short value;
 	private short index;
 
-	public static void main(String[] args) throws FtdiException {
+	public static void main(String[] args) throws LibFtdiException {
 		int baudRate = 9600;
 		FtdiContext ftdi = new FtdiContext();
-		ftdi.bitbangMode = FtdiMpsseMode.BITMODE_BITBANG;
+		ftdi.bitbangMode = FtdiBitMode.BITMODE_BITBANG;
 
 		FtdiBaudRate baud = new FtdiBaudRate(ftdi);
 		baud.determineActualBaudRate(baudRate);
 		System.out.printf("actual=%d div=%d value=0x%04x index=0x%04x%n", baud.actualBaudRate,
 			baud.encodedDivisor, baud.value, baud.index);
+		System.out.printf("LibUsb.libusb_control_transfer(ctx, 0x%02x, 0x%02x, 0x%04x, 0x%04x, %d);",
+			FTDI_DEVICE_OUT_REQTYPE,
+			SIO_SET_BAUDRATE_REQUEST.value, baud.value, baud.index, ftdi.usbWriteTimeout);
 	}
 
-	public static void set(FtdiContext ftdi, int baudRate) throws FtdiException {
+	public static void set(FtdiContext ftdi, int baudRate) throws LibFtdiException {
 		FtdiBaudRate baud = new FtdiBaudRate(ftdi);
 		baud.determineActualBaudRate(baudRate);
 		baud.setBaudRate(baudRate);
@@ -43,23 +47,23 @@ class FtdiBaudRate {
 		this.ftdi = ftdi;
 	}
 
-	private void setBaudRate(int baudRate) throws FtdiException {
+	private void setBaudRate(int baudRate) throws LibFtdiException {
 		try {
-			LibUsb.libusb_control_transfer(ftdi.usbDev, FTDI_DEVICE_OUT_REQTYPE,
+			ftdi.usbDev.controlTransfer(FTDI_DEVICE_OUT_REQTYPE,
 				(byte) SIO_SET_BAUDRATE_REQUEST.value, value, index, ftdi.usbWriteTimeout);
 			ftdi.baudRate = baudRate;
 		} catch (LibUsbException e) {
-			throw new FtdiException(-2, "Failed to set baud rate: " + baudRate, e);
+			throw new LibFtdiException("Failed to set baud rate: " + baudRate, -2, e);
 		}
 	}
 
-	private void determineActualBaudRate(int baudRate) throws FtdiException {
+	private void determineActualBaudRate(int baudRate) throws LibFtdiException {
 		if (ftdi.bitbangEnabled) baudRate = baudRate * BITBANG_MULTIPLIER;
 		actualBaudRate = convertBaudRate(baudRate);
 		if (actualBaudRate <= 0)
-			throw new FtdiException(-1, "Invalid baud rate: " + actualBaudRate);
-		if (toleranceExceeded(baudRate, actualBaudRate)) throw new FtdiException(-1,
-			"Unsupported baud rate: " + baudRate + "/" + actualBaudRate);
+			throw new LibFtdiException("Invalid baud rate: " + actualBaudRate, -1);
+		if (toleranceExceeded(baudRate, actualBaudRate)) throw new LibFtdiException("Unsupported baud rate: " + baudRate + "/" + actualBaudRate,
+			-1);
 	}
 
 	private boolean toleranceExceeded(long baudRate, long actualBaudRate) {

@@ -24,6 +24,7 @@ import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.log.util.LogUtil;
+import ceri.serial.ftdi.jna.LibFtdiException;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.libusb.LibUsbContext;
 import ceri.serial.libusb.LibUsbDeviceHandle;
@@ -54,7 +55,7 @@ public class FtdiContext {
 	FtdiInterface iface; // contains interface, index, in_ep, out_ep fields
 
 	/** Bitbang mode. 1: (default) Normal bitbang mode, 2: FT2232C SPI bitbang mode */
-	public FtdiMpsseMode bitbangMode = FtdiMpsseMode.BITMODE_BITBANG;
+	public FtdiBitMode bitbangMode = FtdiBitMode.BITMODE_BITBANG;
 	/** Decoded eeprom structure */
 	FtdiEeprom eeprom;
 	/** String representation of last error */
@@ -68,11 +69,11 @@ public class FtdiContext {
 		return ftdi;
 	}
 
-	public void setInterface(FtdiInterface iface) throws FtdiException {
+	public void setInterface(FtdiInterface iface) throws LibFtdiException {
 		validateNotNull(iface);
 		if (usbDev == null) this.iface = iface;
 		else if (this.iface != iface)
-			throw new FtdiException(-3, "Interface can not be changed on an already open device");
+			throw new LibFtdiException("Interface can not be changed on an already open device", -3);
 	}
 
 	public void setUsbDev(LibUsbDeviceHandle handle) {
@@ -98,12 +99,12 @@ public class FtdiContext {
 		controlTransferOut(SIO_RESET_REQUEST, Ftdi.SIO_RESET_PURGE_TX, iface.index);
 	}
 
-	public void setLineProperty(FtdiBitsType bits, FtdiStopBitsType sbit, FtdiParityType parity)
+	public void setLineProperty(FtdiDataBits bits, FtdiStopBitsType sbit, FtdiParity parity)
 		throws LibUsbException {
 		setLineProperty(bits, sbit, parity, FtdiBreakType.BREAK_OFF);
 	}
 
-	public void setLineProperty(FtdiBitsType bits, FtdiStopBitsType stopBits, FtdiParityType parity,
+	public void setLineProperty(FtdiDataBits bits, FtdiStopBitsType stopBits, FtdiParity parity,
 		FtdiBreakType breakType) throws LibUsbException {
 		int value = breakType.value << 14 | stopBits.value << 11 | parity.value << 8 | bits.value;
 		if (usbDev != null) usbDev.controlTransfer(FTDI_DEVICE_OUT_REQTYPE,
@@ -180,11 +181,11 @@ public class FtdiContext {
 		readBufferChunkSize = chunkSize;
 	}
 
-	public void setBitMode(int bitmask, FtdiMpsseMode mode) throws LibUsbException {
+	public void setBitMode(int bitmask, FtdiBitMode mode) throws LibUsbException {
 		int value = mode.value << 8 | bitmask;
 		controlTransferOut(SIO_SET_BITMODE_REQUEST, value, iface.index);
 		bitbangMode = mode;
-		bitbangEnabled = (mode == FtdiMpsseMode.BITMODE_RESET);
+		bitbangEnabled = (mode == FtdiBitMode.BITMODE_RESET);
 	}
 
 	public void disableBitbang() throws LibUsbException {
@@ -212,7 +213,7 @@ public class FtdiContext {
 		return data[1] << 8 | data[0];
 	}
 
-	public void setFloCtrl(FlowControl flowCtrl) throws LibUsbException {
+	public void setFloCtrl(FtdiFlowControl flowCtrl) throws LibUsbException {
 		controlTransferOut(SIO_SET_FLOW_CTRL_REQUEST, 0, flowCtrl.value | iface.index);
 	}
 

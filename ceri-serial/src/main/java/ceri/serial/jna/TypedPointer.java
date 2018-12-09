@@ -9,11 +9,31 @@ import com.sun.jna.PointerType;
 /**
  * Used for typing pointers that get set in native lib.
  */
-public class TypedPointer extends PointerType {
-	
+public abstract class TypedPointer extends PointerType {
+
 	/**
-	 * A reference to a typed pointer. Can be nested multiple times.
-	 * Allows a count to be stored with the reference to generate arrays.
+	 * Convenience constructor for typed pointers
+	 */
+	public static <T extends TypedPointer> T from(Supplier<T> constructor, Pointer p) {
+		T t = constructor.get();
+		t.setPointer(p);
+		return t;
+	}
+
+	/**
+	 * Convenience constructor for typed pointer references
+	 */
+	public static <T extends ByReference<?>> T from(Supplier<T> constructor, Pointer p,
+		int count) {
+		T t = constructor.get();
+		t.setPointer(p);
+		t.setCount(count);
+		return t;
+	}
+
+	/**
+	 * A reference to a typed pointer. Can be nested multiple times. Allows a count to be stored
+	 * with the reference to generate arrays.
 	 */
 	public static class ByReference<T extends TypedPointer> extends TypedPointer {
 		private final Supplier<T> constructor;
@@ -33,15 +53,15 @@ public class TypedPointer extends PointerType {
 		public void setCount(int count) {
 			this.count = count;
 		}
-		
+
 		public int getCount() {
 			return count;
 		}
-		
+
 		public T[] typedArray() {
 			return typedArray(count);
 		}
-		
+
 		public T[] typedArray(int size) {
 			if (arrayConstructor == null)
 				throw new UnsupportedOperationException("Typed arrays are not supported");
@@ -57,7 +77,7 @@ public class TypedPointer extends PointerType {
 			t.setPointer(pointer);
 			return t;
 		}
-		
+
 		public T typedValue(int offset) {
 			return typedValue(getPointer().getPointer(offset));
 		}
@@ -67,8 +87,12 @@ public class TypedPointer extends PointerType {
 		}
 	}
 
-	public TypedPointer() {
+	protected TypedPointer() {
 		super();
+	}
+
+	protected TypedPointer(Pointer p) {
+		super(p);
 	}
 
 }
