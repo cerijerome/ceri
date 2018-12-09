@@ -11,12 +11,15 @@ import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.StreamUtil;
 
 /**
- * Helper to convert between object types and integer values.
+ * Helper to convert between object types (including enums) and integer values.
  */
 public abstract class TypeTranscoder<T> {
 	final ToIntFunction<T> valueFn;
 	final Map<Integer, T> lookup;
 
+	/**
+	 * Transcoder for types stored as single values.
+	 */
 	public static class Single<T> extends TypeTranscoder<T> {
 		Single(ToIntFunction<T> valueFn, Collection<T> ts) {
 			super(valueFn, ts);
@@ -40,6 +43,9 @@ public abstract class TypeTranscoder<T> {
 		}
 	}
 
+	/**
+	 * Transcoder for types stored as multiple values, such as flags.
+	 */
 	public static class Flag<T> extends TypeTranscoder<T> {
 		Flag(ToIntFunction<T> valueFn, Collection<T> ts) {
 			super(valueFn, ts);

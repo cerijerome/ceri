@@ -35,7 +35,7 @@ public class IntBitSet extends BitSet {
 		return of(value, Integer.SIZE);
 	}
 
-	private static IntBitSet of(int value, int bits) {
+	public static IntBitSet of(int value, int bits) {
 		IntBitSet bitSet = new IntBitSet();
 		for (int i = 0; i < bits; i++)
 			bitSet.set(i, ByteUtil.bit(value, i));

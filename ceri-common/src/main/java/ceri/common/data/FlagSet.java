@@ -11,6 +11,9 @@ import ceri.common.collection.ImmutableUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.HashCoder;
 
+/**
+ * Also see TypeTranscoder/FieldTranscoder
+ */
 public class FlagSet<T> {
 	private static final FlagSet<?> ZERO = new FlagSet<>(Collections.emptySet(), 0);
 	public final Set<T> flags;

@@ -135,7 +135,7 @@ public class ImmutableByteArray {
 	}
 
 	public IntStream stream() {
-		return ByteUtil.streamOf(array);
+		return ByteUtil.streamOf(array, offset, length);
 	}
 
 	public void forEach(ByteConsumer action) {

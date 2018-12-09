@@ -6,6 +6,7 @@ import static ceri.common.util.BasicUtil.shouldNotThrow;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -41,12 +42,41 @@ public class ByteUtil {
 	
 	public static String toHex(ImmutableByteArray array, String delimiter) {
 		if (array == null) return null;
-		return array.stream().mapToObj(b -> StringUtil.toHex((byte) b))
+		return toHex(array.stream(), delimiter);
+	}
+
+	public static String toHex(byte[] array) {
+		return toHex(array, " ");
+	}
+	
+	public static String toHex(byte[] array, String delimiter) {
+		if (array == null) return null;
+		return toHex(streamOf(array), delimiter);
+	}
+
+	private static String toHex(IntStream stream, String delimiter) {
+		return stream.mapToObj(b -> StringUtil.toHex((byte) b))
 			.collect(Collectors.joining(delimiter));
 	}
 
 	public static IntStream streamOf(byte... array) {
-		return IntStream.range(0, array.length).map(i -> array[i] & 0xff);
+		return streamOf(array, 0, array.length);
+	}
+
+	public static IntStream streamOf(byte[] array, int offset) {
+		return streamOf(array, offset, array.length - offset);
+	}
+
+	public static IntStream streamOf(byte[] array, int offset, int len) {
+		return IntStream.range(offset, offset + len).map(i -> array[i] & 0xff);
+	}
+
+	public static byte[] toByteArray(Collection<Integer> values) {
+		return toByteArray(values.stream());
+	}
+
+	public static byte[] toByteArray(Stream<Integer> stream) {
+		return toByteArray(stream.mapToInt(Integer::intValue));
 	}
 
 	public static byte[] toByteArray(IntStream stream) {
