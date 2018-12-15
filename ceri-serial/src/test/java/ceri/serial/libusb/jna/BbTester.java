@@ -1,14 +1,13 @@
 package ceri.serial.libusb.jna;
 
 import java.nio.ByteBuffer;
-import com.sun.jna.Native;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.data.ByteUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.test.BinaryPrinter;
 import ceri.serial.jna.JnaUtil;
 
-public class BbTest {
+public class BbTester {
 	private static final int PACKET_HEADER_SIZE = 2;
 	private static final int readBufferChunkSize = 40;
 	private static final ByteBuffer readBuffer = ByteBuffer.allocate(readBufferChunkSize);
@@ -67,22 +66,10 @@ public class BbTest {
 			b[i] = mod < PACKET_HEADER_SIZE ? (byte) 0xff : x;
 		}
 		readBuffer.put(b);
-		System.out.printf("%nbulkTransfer: %d wanted, %d actual, %d packets%n", len, b.length, packets);
+		System.out.printf("%nbulkTransfer: %d wanted, %d actual, %d packets%n", len, b.length,
+			packets);
 		DBG.print(b);
 		return b.length;
-	}
-
-	public static void main1(String[] args) {
-		ByteBuffer bb = ByteBuffer.allocate(10);
-		byte[] out = ByteUtil.bytes(0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa, 0x99, 0x88, 0x77, 0x66,
-			0x55, 0x44, 0x33, 0x22, 0x11);
-		print(bb);
-		flip(bb);
-		read(bb, 3);
-		compact(bb);
-		write(bb, out, 3);
-		flip(bb);
-		read(bb, 3);
 	}
 
 	private static void mark(ByteBuffer bb) {

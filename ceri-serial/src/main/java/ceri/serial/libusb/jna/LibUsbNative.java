@@ -5,6 +5,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
+import ceri.serial.jna.Time.timeval;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
@@ -12,14 +13,11 @@ import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
-import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event;
-import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_flag;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
-import ceri.serial.libusb.jna.LibUsb.timeval;
 
 interface LibUsbNative extends Library {
 
@@ -354,14 +352,12 @@ interface LibUsbNative extends Library {
 	// libusb_hotplug_event events, libusb_hotplug_flag flags, int vendor_id, int product_id,
 	// int dev_class, libusb_hotplug_callback_fn cb_fn, void *user_data,
 	// libusb_hotplug_callback_handle *handle);
-	int libusb_hotplug_register_callback(libusb_context ctx, libusb_hotplug_event events,
-		libusb_hotplug_flag flags, int vendor_id, int product_id, int dev_class,
-		libusb_hotplug_callback_fn cb_fn, Pointer user_data,
-		/* libusb_hotplug_callback_handle * */ IntByReference handle);
+	int libusb_hotplug_register_callback(libusb_context ctx, int events, int flags, int vendor_id,
+		int product_id, int dev_class, libusb_hotplug_callback_fn cb_fn, Pointer user_data,
+		IntByReference handle);
 
 	// void LIBUSB_CALL libusb_hotplug_deregister_callback(libusb_context *ctx,
 	// libusb_hotplug_callback_handle handle);
-	void libusb_hotplug_deregister_callback(libusb_context ctx,
-		/* libusb_hotplug_callback_handle */ int handle);
+	void libusb_hotplug_deregister_callback(libusb_context ctx, int handle);
 
 }

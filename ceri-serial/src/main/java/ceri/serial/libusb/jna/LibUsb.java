@@ -3,6 +3,11 @@ package ceri.serial.libusb.jna;
 import static ceri.common.data.ByteUtil.bytes;
 import static ceri.serial.jna.JnaUtil.ubyte;
 import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_STRING;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INVALID_PARAM;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPORTED;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
+import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK;
 import static com.sun.jna.Pointer.NULL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -12,7 +17,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Callback;
 import com.sun.jna.Memory;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
@@ -24,6 +28,7 @@ import ceri.common.data.TypeTranscoder;
 import ceri.serial.jna.JnaUtil;
 //import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.Struct;
+import ceri.serial.jna.Time.timeval;
 import ceri.serial.jna.TypedPointer;
 
 public class LibUsb {
@@ -1315,8 +1320,13 @@ public class LibUsb {
 		public static class ByValue extends libusb_transfer //
 			implements Structure.ByValue {}
 
-		public static class ByReference extends libusb_transfer //
-			implements Structure.ByReference {}
+		public static class ByReference extends libusb_transfer implements Structure.ByReference {
+			public ByReference() {}
+
+			public ByReference(Pointer p) {
+				super(p);
+			}
+		}
 
 		public libusb_device_handle dev_handle;
 		public byte flags; // libusb_transfer_flags
@@ -1558,7 +1568,7 @@ public class LibUsb {
 		libusb_transfer_cb_fn callback, Pointer user_data, int timeout) {
 		transfer.dev_handle = dev_handle;
 		transfer.endpoint = (byte) endpoint;
-		transfer.type().set(libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK);
+		transfer.type().set(LIBUSB_TRANSFER_TYPE_BULK);
 		transfer.timeout = timeout;
 		transfer.buffer = buffer;
 		transfer.length = length;
@@ -1784,47 +1794,6 @@ public class LibUsb {
 	 */
 
 	/**
-	 * Added from time.h
-	 */
-	public static class timeval extends Struct {
-		private static final List<String> FIELDS = List.of( //
-			"tv_sec", "tv_usec");
-
-		public static class ByValue extends libusb_pollfd //
-			implements Structure.ByValue {}
-
-		public static class ByReference extends libusb_pollfd //
-			implements Structure.ByReference {}
-
-		public NativeLong tv_sec;
-		public NativeLong tv_usec;
-
-		public timeval() {
-			this(0, 0);
-		}
-
-		public timeval(long sec, long usec) {
-			tv_sec = new NativeLong(sec);
-			tv_usec = new NativeLong(usec);
-		}
-
-		public timeval(Pointer p) {
-			super(p);
-		}
-
-		public double minus(timeval other) {
-			double sec = other == null ? 0.0 : other.tv_sec.doubleValue();
-			double usec = other == null ? 0.0 : other.tv_usec.doubleValue();
-			return (tv_sec.doubleValue() - sec) + 1e-6 * (tv_usec.doubleValue() - usec);
-		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
-	}
-
-	/**
 	 * File descriptor for polling
 	 */
 	public static class libusb_pollfd extends Struct {
@@ -1858,7 +1827,7 @@ public class LibUsb {
 	 * monitor for, see libusb_pollfd for a description @param user_data User data pointer specified
 	 * in libusb_set_pollfd_notifiers() call see libusb_set_pollfd_notifiers()
 	 */
-	// typedef void (LIBUSB_CALL *libusb_pollfd_removed_cb)(int fd, void *user_data);
+	// typedef void (LIBUSB_CALL *libusb_pollfd_added_cb)(int fd, short events, void *user_data);
 	public static interface libusb_pollfd_added_cb extends Callback {
 		public void invoke(int fd, short events, Pointer user_data);
 	}
@@ -1981,6 +1950,12 @@ public class LibUsb {
 	 */
 
 	public static class libusb_hotplug_callback_handle {
+		public static libusb_hotplug_callback_handle of(int value) {
+			libusb_hotplug_callback_handle handle = new libusb_hotplug_callback_handle();
+			handle.value = value;
+			return handle;
+		}
+
 		public int value;
 	}
 
@@ -2002,8 +1977,10 @@ public class LibUsb {
 		if (ctx != null) LIBUSB.libusb_set_debug(ctx, level.value);
 	}
 
-	public static libusb_version libusb_get_version() {
-		return LIBUSB.libusb_get_version();
+	public static libusb_version libusb_get_version() throws LibUsbException {
+		libusb_version version = LIBUSB.libusb_get_version();
+		if (version == null) throw error("get_version", LIBUSB_ERROR_NOT_SUPPORTED);
+		return version;
 	}
 
 	public static boolean libusb_has_capability(libusb_capability capability) {
@@ -2043,7 +2020,9 @@ public class LibUsb {
 
 	public static libusb_device libusb_ref_device(libusb_device dev) throws LibUsbException {
 		require(dev);
-		return LIBUSB.libusb_ref_device(dev);
+		libusb_device device = LIBUSB.libusb_ref_device(dev);
+		if (device == null) throw error("ref_device", LIBUSB_ERROR_NOT_FOUND);
+		return device;
 	}
 
 	public static void libusb_unref_device(libusb_device dev) {
@@ -2209,7 +2188,9 @@ public class LibUsb {
 
 	public static libusb_device libusb_get_parent(libusb_device dev) throws LibUsbException {
 		require(dev);
-		return LIBUSB.libusb_get_parent(dev);
+		libusb_device device = LIBUSB.libusb_get_parent(dev);
+		if (device == null) throw error("get_parent", LIBUSB_ERROR_NOT_FOUND);
+		return device;
 	}
 
 	public static byte libusb_get_device_address(libusb_device dev) throws LibUsbException {
@@ -2248,9 +2229,12 @@ public class LibUsb {
 		if (dev_handle != null) LIBUSB.libusb_close(dev_handle);
 	}
 
-	public static libusb_device libusb_get_device(libusb_device_handle dev_handle) {
+	public static libusb_device libusb_get_device(libusb_device_handle dev_handle)
+		throws LibUsbException {
 		if (dev_handle == null) return null;
-		return LIBUSB.libusb_get_device(dev_handle);
+		libusb_device device = LIBUSB.libusb_get_device(dev_handle);
+		if (device == null) throw error("get_device", LIBUSB_ERROR_NOT_FOUND);
+		return device;
 	}
 
 	public static void libusb_set_configuration(libusb_device_handle dev, int configuration)
@@ -2274,7 +2258,10 @@ public class LibUsb {
 	public static libusb_device_handle libusb_open_device_with_vid_pid(libusb_context ctx,
 		int vendor_id, int product_id) throws LibUsbException {
 		require(ctx);
-		return LIBUSB.libusb_open_device_with_vid_pid(ctx, (short) vendor_id, (short) product_id);
+		libusb_device_handle handle =
+			LIBUSB.libusb_open_device_with_vid_pid(ctx, (short) vendor_id, (short) product_id);
+		if (handle == null) throw error("open_device_with_vid_pid", LIBUSB_ERROR_NOT_FOUND);
+		return handle;
 	}
 
 	public static void libusb_set_interface_alt_setting(libusb_device_handle dev,
@@ -2346,8 +2333,10 @@ public class LibUsb {
 			"set_auto_detach_kernel_driver");
 	}
 
-	public static libusb_transfer libusb_alloc_transfer(int iso_packets) {
-		return LIBUSB.libusb_alloc_transfer(iso_packets);
+	public static libusb_transfer libusb_alloc_transfer(int iso_packets) throws LibUsbException {
+		libusb_transfer transfer = LIBUSB.libusb_alloc_transfer(iso_packets);
+		if (transfer == null) throw error("alloc_transfer", LIBUSB_ERROR_NO_MEM);
+		return transfer;
 	}
 
 	public static void libusb_submit_transfer(libusb_transfer transfer) throws LibUsbException {
@@ -2356,8 +2345,7 @@ public class LibUsb {
 	}
 
 	public static void libusb_cancel_transfer(libusb_transfer transfer) throws LibUsbException {
-		require(transfer);
-		verify(LIBUSB.libusb_cancel_transfer(transfer), "cancel_transfer");
+		if (transfer != null) verify(LIBUSB.libusb_cancel_transfer(transfer), "cancel_transfer");
 	}
 
 	public static void libusb_free_transfer(libusb_transfer transfer) {
@@ -2460,6 +2448,134 @@ public class LibUsb {
 		return JnaUtil.string(StandardCharsets.US_ASCII, buffer, size);
 	}
 
+	/* polling and timeouts */
+
+	public static void libusb_try_lock_events(libusb_context ctx) throws LibUsbException {
+		require(ctx);
+		verify(LIBUSB.libusb_try_lock_events(ctx), "try_lock_events");
+	}
+
+	public static void libusb_lock_events(libusb_context ctx) throws LibUsbException {
+		require(ctx);
+		LIBUSB.libusb_lock_events(ctx);
+	}
+
+	public static void libusb_unlock_events(libusb_context ctx) throws LibUsbException {
+		require(ctx);
+		LIBUSB.libusb_unlock_events(ctx);
+	}
+
+	public static boolean libusb_event_handling_ok(libusb_context ctx) throws LibUsbException {
+		require(ctx);
+		return verify(LIBUSB.libusb_event_handling_ok(ctx), "event_handling_ok") != 0;
+	}
+
+	public static boolean libusb_event_handler_active(libusb_context ctx) throws LibUsbException {
+		require(ctx);
+		return verify(LIBUSB.libusb_event_handler_active(ctx), "event_handler_active") != 0;
+	}
+
+	public static void libusb_lock_event_waiters(libusb_context ctx) throws LibUsbException {
+		require(ctx);
+		LIBUSB.libusb_lock_event_waiters(ctx);
+	}
+
+	public static void libusb_unlock_event_waiters(libusb_context ctx) throws LibUsbException {
+		require(ctx);
+		LIBUSB.libusb_unlock_event_waiters(ctx);
+	}
+
+	public static void libusb_wait_for_event(libusb_context ctx, timeval tv)
+		throws LibUsbException {
+		require(ctx);
+		if (tv == null) tv = new timeval(0, 0);
+		verify(LIBUSB.libusb_wait_for_event(ctx, tv), "wait_for_event");
+	}
+
+	public static void libusb_handle_events_timeout(libusb_context ctx, timeval tv)
+		throws LibUsbException {
+		require(ctx);
+		if (tv == null) tv = new timeval(0, 0);
+		verify(LIBUSB.libusb_handle_events_timeout(ctx, tv), "handle_events_timeout");
+	}
+
+	public static int libusb_handle_events_timeout_completed(libusb_context ctx, timeval tv)
+		throws LibUsbException {
+		require(ctx);
+		if (tv == null) tv = new timeval(0, 0);
+		IntByReference completed = new IntByReference();
+		verify(LIBUSB.libusb_handle_events_timeout_completed(ctx, tv, completed),
+			"handle_events_timeout_completed");
+		return completed.getValue();
+	}
+
+	public static void libusb_handle_events(libusb_context ctx) throws LibUsbException {
+		require(ctx);
+		verify(LIBUSB.libusb_handle_events(ctx), "handle_events");
+	}
+
+	public static int libusb_handle_events_completed(libusb_context ctx) throws LibUsbException {
+		require(ctx);
+		IntByReference completed = new IntByReference();
+		verify(LIBUSB.libusb_handle_events_completed(ctx, completed), "handle_events_completed");
+		return completed.getValue();
+	}
+
+	public static void libusb_handle_events_locked(libusb_context ctx, timeval tv)
+		throws LibUsbException {
+		require(ctx);
+		if (tv == null) tv = new timeval(0, 0);
+		verify(LIBUSB.libusb_handle_events_locked(ctx, tv), "handle_events_locked");
+	}
+
+	public static void libusb_pollfds_handle_timeouts(libusb_context ctx) throws LibUsbException {
+		require(ctx);
+		verify(LIBUSB.libusb_pollfds_handle_timeouts(ctx), "pollfds_handle_timeouts");
+	}
+
+	public static int libusb_get_next_timeout(libusb_context ctx, timeval tv)
+		throws LibUsbException {
+		require(ctx);
+		if (tv == null) tv = new timeval(0, 0);
+		return verify(LIBUSB.libusb_get_next_timeout(ctx, tv), "get_next_timeout");
+	}
+
+	public static libusb_pollfd.ByReference libusb_get_pollfds(libusb_context ctx)
+		throws LibUsbException {
+		require(ctx);
+		libusb_pollfd.ByReference ref = LIBUSB.libusb_get_pollfds(ctx);
+		if (ref == null) throw error("get_pollfds", LIBUSB_ERROR_NO_MEM);
+		return ref;
+	}
+
+	public static void libusb_free_pollfds(libusb_pollfd.ByReference pollfds) {
+		if (pollfds != null) LIBUSB.libusb_free_pollfds(pollfds);
+	}
+
+	public static void libusb_set_pollfd_notifiers(libusb_context ctx,
+		libusb_pollfd_added_cb added_cb, libusb_pollfd_removed_cb removed_cb, Pointer user_data)
+		throws LibUsbException {
+		require(ctx);
+		LIBUSB.libusb_set_pollfd_notifiers(ctx, added_cb, removed_cb, user_data);
+	}
+
+	public static libusb_hotplug_callback_handle libusb_hotplug_register_callback(
+		libusb_context ctx, libusb_hotplug_event events, libusb_hotplug_flag flags, int vendor_id,
+		int product_id, int dev_class, libusb_hotplug_callback_fn cb_fn, Pointer user_data)
+		throws LibUsbException {
+		require(ctx);
+		IntByReference handle = new IntByReference();
+		verify(LIBUSB.libusb_hotplug_register_callback(ctx, events.value, flags.value, vendor_id,
+			product_id, dev_class, cb_fn, user_data, handle), "hotplug_register_callback");
+		return libusb_hotplug_callback_handle.of(handle.getValue());
+	}
+
+	public static void libusb_hotplug_deregister_callback(libusb_context ctx,
+		libusb_hotplug_callback_handle handle) {
+		if (ctx != null && handle != null)
+			LIBUSB.libusb_hotplug_deregister_callback(ctx, handle.value);
+	}
+
 	private static void require(libusb_device dev) throws LibUsbException {
 		require(dev, "Device");
 	}
@@ -2478,11 +2594,15 @@ public class LibUsb {
 
 	private static void require(Object obj, String name) throws LibUsbException {
 		if (obj != null) return;
-		throw new LibUsbException(name + " unavailable", libusb_error.LIBUSB_ERROR_INVALID_PARAM);
+		throw new LibUsbException(name + " unavailable", LIBUSB_ERROR_INVALID_PARAM);
 	}
 
 	private static int verify(int result, String name) throws LibUsbException {
 		return LibUsbException.verify(result, "libusb_" + name);
+	}
+
+	private static LibUsbException error(String name, libusb_error error) {
+		return LibUsbException.byName("libusb_" + name, error);
 	}
 
 	private static LibUsbNative loadLibrary(String name) {

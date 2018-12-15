@@ -103,7 +103,7 @@ public class LibUsbPrinter {
 		return skips.stream().anyMatch(skip -> skip.test(desc));
 	}
 
-	private void version(String pre) {
+	private void version(String pre) throws LibUsbException {
 		out.printf("%s: [libusb_version]%n", pre);
 		libusb_version v = LibUsb.libusb_get_version();
 		out.printf("%s: version=%04x-%04x-%04x-%04x%n", pre, v.major, v.minor, v.micro, v.nano);

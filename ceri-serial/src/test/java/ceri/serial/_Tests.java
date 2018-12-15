@@ -3,10 +3,17 @@ package ceri.serial;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import ceri.common.test.TestUtil;
+import ceri.serial.jna.JnaUtilTest;
+import ceri.serial.jna.RefStoreBehavior;
 
+/**
+ * Generated test suite for ceri-serial
+ */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	//,
+	// jna
+	JnaUtilTest.class, //
+	RefStoreBehavior.class, //
 })
 public class _Tests {
 	public static void main(String... args) {

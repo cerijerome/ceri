@@ -24,7 +24,6 @@ import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.log.util.LogUtil;
-import ceri.serial.ftdi.jna.LibFtdiException;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.libusb.LibUsbContext;
 import ceri.serial.libusb.LibUsbDeviceHandle;
@@ -33,7 +32,6 @@ import ceri.serial.libusb.jna.LibUsbException;
 public class FtdiContext {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int READ_STATUS_BYTES = 2;
-
 
 	/* USB specific */
 	public LibUsbContext usbCtx = null;
@@ -69,11 +67,11 @@ public class FtdiContext {
 		return ftdi;
 	}
 
-	public void setInterface(FtdiInterface iface) throws LibFtdiException {
+	public void setInterface(FtdiInterface iface) throws LibUsbException {
 		validateNotNull(iface);
 		if (usbDev == null) this.iface = iface;
 		else if (this.iface != iface)
-			throw new LibFtdiException("Interface can not be changed on an already open device", -3);
+			throw new LibUsbException("Interface can not be changed on an already open device", -3);
 	}
 
 	public void setUsbDev(LibUsbDeviceHandle handle) {
@@ -111,18 +109,18 @@ public class FtdiContext {
 			RequestType.SIO_SET_DATA_REQUEST.value, value, iface.index, null, 0, usbWriteTimeout);
 	}
 
-	public int writeData(byte...data) throws LibUsbException {
+	public int writeData(byte... data) throws LibUsbException {
 		return writeData(data, 0, data.length);
 	}
-	
+
 	public int writeData(byte[] data, int offset) throws LibUsbException {
 		return writeData(data, offset, data.length - offset);
 	}
-	
+
 	public int writeData(byte[] data, int offset, int len) throws LibUsbException {
 		return writeData(ByteBuffer.wrap(data, offset, len));
 	}
-	
+
 	public int writeData(ByteBuffer buffer) throws LibUsbException {
 		int offset = 0;
 		while (buffer.hasRemaining()) {
@@ -135,20 +133,20 @@ public class FtdiContext {
 
 	public int readData() throws LibUsbException {
 		byte[] data = readData(1);
-		if (data.length == 0) return -1; 
+		if (data.length == 0) return -1;
 		return ubyte(data[0]);
 	}
-	
+
 	public byte[] readData(int size) throws LibUsbException {
 		byte[] buffer = new byte[size];
 		int n = readData(ByteBuffer.wrap(buffer), size);
 		return n == size ? buffer : Arrays.copyOf(buffer, n);
 	}
-	
+
 	public int readData(ByteBuffer buffer) throws LibUsbException {
 		return readData(buffer, buffer.remaining());
 	}
-	
+
 	public int readData(ByteBuffer buffer, int size) throws LibUsbException {
 		int remaining = size;
 		while (remaining > 0) {

@@ -15,7 +15,7 @@ import ceri.serial.libusb.jna.LibUsbException;
 public class LibUsbContext implements Closeable {
 	private final libusb_context ctx;
 
-	public static libusb_version version() {
+	public static libusb_version version() throws LibUsbException {
 		return LibUsb.libusb_get_version();
 	}
 

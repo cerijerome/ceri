@@ -17,22 +17,23 @@ import ceri.common.util.BasicUtil;
 public class JnaUtil {
 	public static final int INVALID_FILE_DESCRIPTOR = -1;
 	public static final Charset DEFAULT_CHARSET = defaultCharset();
+	private static final int MEMMOVE_OPTIMAL_MAX_SIZE = 8 * 1024;
 
 	private JnaUtil() {}
 
 	/**
 	 * Checks function result, and throws exception if negative
 	 */
-	public static int verify(int result) throws IOException {
+	public static int verify(int result) throws CException {
 		return verify(result, "call");
 	}
 
 	/**
 	 * Checks function result, and throws exception if negative
 	 */
-	public static int verify(int result, String name) throws IOException {
+	public static int verify(int result, String name) throws CException {
 		if (result >= 0) return result;
-		throw BasicUtil.exceptionf(IOException::new, "JNA %s failed: %d", name, result);
+		throw new CException(String.format("JNA %s failed: %d", name, result), result);
 	}
 
 	/**
@@ -148,7 +149,7 @@ public class JnaUtil {
 	/**
 	 * Allocate native memory and copy array.
 	 */
-	public static Memory malloc(byte[] array) {
+	public static Memory malloc(byte... array) {
 		return malloc(array, 0);
 	}
 
@@ -167,6 +168,94 @@ public class JnaUtil {
 		Memory m = new Memory(length);
 		m.write(0, array, offset, length);
 		return m;
+	}
+
+	/**
+	 * Copies byte array from pointer offset to pointer offset. Faster than memmove only
+	 * for large sizes (>8k depending on system).
+	 */
+	public static int memcpy(Pointer p, long toOffset, long fromOffset, int size) {
+		return memcpy(p, toOffset, p, fromOffset, size);
+	}
+	
+	/**
+	 * Copies byte array from pointer offset to pointer offset. Faster than memmove only
+	 * for large sizes (>8k depending on system).
+	 */
+	public static int memcpy(Pointer to, long toOffset, Pointer from, long fromOffset, int size) {
+		if (size < MEMMOVE_OPTIMAL_MAX_SIZE) return memmove(to, toOffset, from, fromOffset, size);
+		ByteBuffer toBuffer = to.getByteBuffer(toOffset, size);
+		ByteBuffer fromBuffer = from.getByteBuffer(fromOffset, size);
+		toBuffer.put(fromBuffer);
+		return size;
+	}
+	
+	/**
+	 * Copies byte array from pointer offset to pointer offset using a buffer (if needed).
+	 */
+	public static int memmove(Pointer p, long toOffset, long fromOffset, int size) {
+		if (toOffset >= fromOffset + size || toOffset + size <= fromOffset)
+			return memcpy(p, toOffset, fromOffset, size);
+		return memmove(p, toOffset, p, fromOffset, size);
+	}
+	
+	/**
+	 * Copies byte array from pointer offset to pointer offset using a buffer.
+	 */
+	public static int memmove(Pointer to, long toOffset, Pointer from, long fromOffset, int size) {
+		byte[] buffer = from.getByteArray(fromOffset, size);
+		to.write(toOffset, buffer, 0, buffer.length);
+		return buffer.length;
+	}
+	
+	/**
+	 * Decodes string bytes from pointer and length. Pointer.getString() does not 
+	 * allow length to be specified, and can be return inconsistent values.
+	 */
+	public static String string(Memory m) {
+		return string(DEFAULT_CHARSET, m);
+	}
+
+	/**
+	 * Decodes string bytes from pointer and length. Pointer.getString() does not 
+	 * allow length to be specified, and can be return inconsistent values.
+	 */
+	public static String string(Charset charset, Memory m) {
+		return string(charset, m, (int) m.size());
+	}
+
+	/**
+	 * Decodes string bytes from pointer and length. Pointer.getString() does not 
+	 * allow length to be specified, and can be return inconsistent values.
+	 */
+	public static String string(Pointer p, int len) {
+		return string(p, 0, len);
+	}
+
+	/**
+	 * Decodes string bytes from pointer and length. Pointer.getString() does not 
+	 * allow length to be specified, and can be return inconsistent values.
+	 */
+	public static String string(Charset charset, Pointer p, int len) {
+		return string(charset, p, 0, len);
+	}
+
+	/**
+	 * Decodes string bytes from pointer and length. Pointer.getString() does not 
+	 * allow length to be specified, and can be return inconsistent values.
+	 */
+	public static String string(Pointer p, long offset, int len) {
+		byte[] b = p.getByteArray(offset, len);
+		return new String(b, DEFAULT_CHARSET);
+	}
+
+	/**
+	 * Decodes string bytes from pointer and length. Pointer.getString() does not 
+	 * allow length to be specified, and can be return inconsistent values.
+	 */
+	public static String string(Charset charset, Pointer p, long offset, int len) {
+		byte[] b = p.getByteArray(offset, len);
+		return new String(b, charset);
 	}
 
 	/**

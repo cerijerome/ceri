@@ -9,9 +9,16 @@ public class LibUsbException extends CException {
 
 	public static int verify(int result, String name) throws LibUsbException {
 		if (result >= 0) return result;
-		libusb_error error = libusb_error.xcoder.decode(result);
-		throw new LibUsbException(String.format("%s failed: %d (%s)", name, result, error), error,
-			result);
+		throw byName(name, result);
+	}
+
+	public static LibUsbException byName(String name, libusb_error error) {
+		return new LibUsbException(message(name, error, error.value), error);
+	}
+
+	public static LibUsbException byName(String name, int code) {
+		libusb_error error = LibUsb.libusb_error.xcoder.decode(code);
+		return new LibUsbException(message(name, error, code), error, code);
 	}
 
 	public LibUsbException(String message, libusb_error error) {
@@ -19,12 +26,16 @@ public class LibUsbException extends CException {
 	}
 
 	public LibUsbException(String message, int code) {
-		this(message, null, code);
+		this(message, LibUsb.libusb_error.xcoder.decode(code), code);
 	}
 
 	public LibUsbException(String message, libusb_error error, int code) {
 		super(message, code);
 		this.error = error;
+	}
+
+	private static String message(String name, libusb_error error, int code) {
+		return String.format("%s failed: %d (%s)", name, code, error);
 	}
 
 }

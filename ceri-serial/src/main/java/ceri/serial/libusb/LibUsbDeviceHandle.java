@@ -48,7 +48,7 @@ public class LibUsbDeviceHandle implements Closeable {
 		return LibUsb.libusb_get_string_descriptor_ascii(handle, (byte) index);
 	}
 
-	public LibUsbDevice device() {
+	public LibUsbDevice device() throws LibUsbException {
 		libusb_device device = LibUsb.libusb_get_device(handle);
 		return new LibUsbDevice(ctx, device);
 	}
