@@ -188,7 +188,7 @@ public class BasicUtil {
 	 * Casts object to given type or returns null if not compatible.
 	 */
 	public static <T> T castOrNull(Class<T> cls, Object obj) {
-		if (!cls.isInstance(obj)) return null;
+		if (obj == null || !cls.isInstance(obj)) return null;
 		return cls.cast(obj);
 	}
 

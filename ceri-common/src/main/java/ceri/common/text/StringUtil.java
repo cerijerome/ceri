@@ -644,13 +644,12 @@ public class StringUtil {
 		StringBuilder b = new StringBuilder();
 		try (PrintStream out = asPrintStream(b)) {
 			consumer.accept(out);
-			out.flush();
 		}
 		return b.toString();
 	}
 
 	/**
-	 * Wrap a PrintStream around a string builder. PrintStream will not flush automatically.
+	 * Wrap a PrintStream around a string builder. PrintStream will flush automatically.
 	 */
 	public static PrintStream asPrintStream(final StringBuilder s) {
 		return new PrintStream(new OutputStream() {
@@ -663,7 +662,7 @@ public class StringUtil {
 			public void write(byte[] b, int off, int len) {
 				s.append(new String(b, off, len));
 			}
-		});
+		}, true);
 	}
 
 	/**

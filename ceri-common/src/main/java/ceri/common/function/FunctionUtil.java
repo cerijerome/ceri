@@ -24,6 +24,24 @@ public class FunctionUtil {
 	}
 
 	/**
+	 * Casts object to given type and applies function if compatible. Otherwise returns null.
+	 */
+	public static <E extends Exception, T, R> R castApply(Class<T> cls, Object obj,
+		ExceptionFunction<E, T, R> fn) throws E {
+		if (obj == null || fn == null || !cls.isInstance(obj)) return null;
+		return fn.apply(cls.cast(obj));
+	}
+
+	/**
+	 * Casts object to given type and applies consumer if compatible.
+	 */
+	public static <E extends Exception, T> void castAccept(Class<T> cls, Object obj,
+		ExceptionConsumer<E, T> consumer) throws E {
+		if (obj == null || consumer == null || !cls.isInstance(obj)) return;
+		consumer.accept(cls.cast(obj));
+	}
+
+	/**
 	 * Wraps a function that passes through null values.
 	 */
 	public static <T, R> Function<T, R> safe(Function<T, R> function) {
@@ -122,9 +140,9 @@ public class FunctionUtil {
 		return () -> fn.apply(t);
 	}
 
-	public static <E extends Exception, T, U> ExceptionConsumer<E, T> asConsumer(
-		ExceptionFunction<E, T, U> fn) {
+	public static <E extends Exception, T, U> ExceptionConsumer<E, T>
+		asConsumer(ExceptionFunction<E, T, U> fn) {
 		return t -> fn.apply(t);
 	}
-	
+
 }

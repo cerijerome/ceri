@@ -13,6 +13,20 @@ public class DsvParser {
 	private final List<String> immutableHeader = Collections.unmodifiableList(header);
 	private final List<String> immutableCurrent = Collections.unmodifiableList(current);
 
+	public static void main(String[] args) {
+		String s = "::::\"hello\":\"a:b:c\":";
+		split(s, ':').forEach(System.out::println);
+	}
+	
+	public static List<String> split(String s, DsvCodec codec) {
+		if (s == null) return List.of();
+		return of(codec).parseLine(s);
+	}
+	
+	public static List<String> split(String s, char separator) {
+		return split(s, DsvCodec.of(separator));
+	}
+	
 	public static DsvParser of(DsvCodec codec) {
 		return new DsvParser(codec);
 	}
