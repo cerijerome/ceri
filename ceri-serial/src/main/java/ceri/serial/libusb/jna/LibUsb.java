@@ -2598,11 +2598,13 @@ public class LibUsb {
 	}
 
 	private static int verify(int result, String name) throws LibUsbException {
-		return LibUsbException.verify(result, "libusb_" + name);
+		if (result < 0) throw LibUsbException.fullMessage(
+			"libusb_" + name + " failed", result);
+		return result;
 	}
 
 	private static LibUsbException error(String name, libusb_error error) {
-		return LibUsbException.byName("libusb_" + name, error);
+		return LibUsbException.fullMessage("libusb_" + name + " failed", error);
 	}
 
 	private static LibUsbNative loadLibrary(String name) {

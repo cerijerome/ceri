@@ -9,19 +9,6 @@ public class MemcpySpeedTester {
 	private static final int MB = 1024 * KB;
 
 	public static void main(String[] args) {
-		int i = 1;
-		while (true) {
-			System.out.print(i + " is ");
-			if (i-- > 0) {
-				System.out.println(">0");
-				continue;
-			}
-			System.out.println("not >0");
-			break;
-		}
-	}
-	
-	public static void main0(String[] args) {
 		compareTest(1 * MB, 8 * KB, 64);
 		compareTest(64 * MB, 64 * KB, KB);
 		compareTest(256 * MB, 8 * KB, 8 * KB);
@@ -64,7 +51,7 @@ public class MemcpySpeedTester {
 		long t0 = System.currentTimeMillis();
 		for (int i = 0; i < size - chunk; i += inc) {
 			m0.read(i + inc, buffer, 0, chunk);
-			m0.write(i, buffer, 0, buffer.length);			
+			m0.write(i, buffer, 0, buffer.length);
 		}
 		return System.currentTimeMillis() - t0;
 	}
