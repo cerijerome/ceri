@@ -1,6 +1,7 @@
 package ceri.serial.ftdi.jna;
 
 import static ceri.common.collection.ImmutableUtil.enumSet;
+import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_2232C;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_2232H;
@@ -17,6 +18,7 @@ import static ceri.serial.ftdi.jna.LibFtdi.ftdi_interface.INTERFACE_C;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_interface.INTERFACE_D;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_module_detach_mode.AUTO_DETACH_SIO_MODULE;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_BITBANG;
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_RESET;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_request_type.SIO_GET_LATENCY_TIMER_REQUEST;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_request_type.SIO_POLL_MODEM_STATUS_REQUEST;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_request_type.SIO_READ_PINS_REQUEST;
@@ -56,7 +58,7 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout_complet
 import static ceri.serial.libusb.jna.LibUsb.libusb_init;
 import static ceri.serial.libusb.jna.LibUsb.libusb_open;
 import static ceri.serial.libusb.jna.LibUsb.libusb_ref_device;
-import static ceri.serial.libusb.jna.LibUsb.libusb_request_type;
+import static ceri.serial.libusb.jna.LibUsb.libusb_request_type_value;
 import static ceri.serial.libusb.jna.LibUsb.libusb_set_configuration;
 import static ceri.serial.libusb.jna.LibUsb.libusb_submit_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_unref_device;
@@ -68,6 +70,7 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPOR
 import static ceri.serial.libusb.jna.LibUsb.libusb_request_recipient.LIBUSB_RECIPIENT_DEVICE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_request_type.LIBUSB_REQUEST_TYPE_VENDOR;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_CANCELLED;
+import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_device_callback;
 import static java.lang.String.format;
 import static java.util.regex.Pattern.compile;
 import java.nio.ByteBuffer;
@@ -102,20 +105,22 @@ import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_cb_fn;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 import ceri.serial.libusb.jna.LibUsbException;
+import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
+import ceri.serial.libusb.jna.LibUsbNotFoundException;
 
 /**
  * Implementation of libftdi.
  * 
- * TODO: testing, including async transfers; implement eeprom functionality
+ * TODO: extensive testing, including async transfers; implement eeprom functionality
  */
 public class LibFtdi {
 	private static final Logger logger = LogManager.getLogger();
 	private static final Pattern FIND_BY_DEVICE_NODE = compile("d:(\\d+)/(\\d+)");
 	private static final Pattern FIND_BY_VENDOR_INDEX = compile("i:(\\w+):(\\w+)(?::(\\d+))?");
 	private static final Pattern FIND_BY_VENDOR_SERIAL = compile("s:(\\w+):(\\w+):(\\w+)");
-	private static final byte FTDI_DEVICE_OUT_REQTYPE = libusb_request_type( //
+	private static final int FTDI_DEVICE_OUT_REQTYPE = libusb_request_type_value( //
 		LIBUSB_RECIPIENT_DEVICE, LIBUSB_REQUEST_TYPE_VENDOR, LIBUSB_ENDPOINT_OUT);
-	private static final byte FTDI_DEVICE_IN_REQTYPE = libusb_request_type( //
+	private static final int FTDI_DEVICE_IN_REQTYPE = libusb_request_type_value( //
 		LIBUSB_RECIPIENT_DEVICE, LIBUSB_REQUEST_TYPE_VENDOR, LIBUSB_ENDPOINT_IN);
 	private static final libusb_transfer_cb_fn ftdi_write_data_cb = LibFtdi::ftdi_write_data_cb;
 	private static final libusb_transfer_cb_fn ftdi_read_data_cb = LibFtdi::ftdi_read_data_cb;
@@ -370,8 +375,6 @@ public class LibFtdi {
 		public int baudrate;
 		public byte bitbang_enabled; // boolean
 		public Pointer readbuffer;
-		// public int readbuffer_offset; // not required
-		// public int readbuffer_remaining; // not required
 		public int readbuffer_chunksize;
 		public int writebuffer_chunksize;
 		public int max_packet_size;
@@ -381,8 +384,6 @@ public class LibFtdi {
 		public int out_ep;
 		public byte bitbang_mode; // ftdi_bit_mode
 		public ftdi_eeprom.ByReference eeprom;
-		// TODO: remove
-		public String error_str;
 		public int module_detach_mode; // ftdi_module_detach_mode
 
 		public ftdi_context() {}
@@ -485,7 +486,7 @@ public class LibFtdi {
 		}
 	}
 
-	static class ftdi_eeprom extends Structure {
+	public static class ftdi_eeprom extends Structure {
 		private static final List<String> FIELDS = List.of( //
 			"vendor_id", "product_id", "initialized_for_connected_device", "self_powered",
 			"remote_wakeup", "is_not_pnp", "suspend_dbus7", "in_is_isochronous",
@@ -640,7 +641,6 @@ public class LibFtdi {
 			ftdi.readbuffer = null;
 			ftdi.writebuffer_chunksize = 4096;
 			ftdi.max_packet_size = 0;
-			ftdi.error_str = null;
 			ftdi.module_detach_mode().set(AUTO_DETACH_SIO_MODULE);
 
 			ftdi.usb_ctx = libusb_init();
@@ -673,26 +673,26 @@ public class LibFtdi {
 		case INTERFACE_A:
 			ftdi.iface = 0;
 			ftdi.index().set(INTERFACE_A);
-			ftdi.in_ep = libusb_endpoint_address(2, LIBUSB_ENDPOINT_IN); // 0x02
-			ftdi.out_ep = libusb_endpoint_address(1, LIBUSB_ENDPOINT_OUT); // 0x81
+			ftdi.in_ep = libusb_endpoint_address(2, LIBUSB_ENDPOINT_OUT); // 0x02
+			ftdi.out_ep = libusb_endpoint_address(1, LIBUSB_ENDPOINT_IN); // 0x81
 			break;
 		case INTERFACE_B:
 			ftdi.iface = 1;
 			ftdi.index().set(INTERFACE_B);
-			ftdi.in_ep = libusb_endpoint_address(4, LIBUSB_ENDPOINT_IN); // 0x04
-			ftdi.out_ep = libusb_endpoint_address(3, LIBUSB_ENDPOINT_OUT); // 0x83
+			ftdi.in_ep = libusb_endpoint_address(4, LIBUSB_ENDPOINT_OUT); // 0x04
+			ftdi.out_ep = libusb_endpoint_address(3, LIBUSB_ENDPOINT_IN); // 0x83
 			break;
 		case INTERFACE_C:
 			ftdi.iface = 2;
 			ftdi.index().set(INTERFACE_C);
-			ftdi.in_ep = libusb_endpoint_address(6, LIBUSB_ENDPOINT_IN); // 0x06
-			ftdi.out_ep = libusb_endpoint_address(5, LIBUSB_ENDPOINT_OUT); // 0x85
+			ftdi.in_ep = libusb_endpoint_address(6, LIBUSB_ENDPOINT_OUT); // 0x06
+			ftdi.out_ep = libusb_endpoint_address(5, LIBUSB_ENDPOINT_IN); // 0x85
 			break;
 		case INTERFACE_D:
 			ftdi.iface = 3;
 			ftdi.index().set(INTERFACE_D);
-			ftdi.in_ep = libusb_endpoint_address(8, LIBUSB_ENDPOINT_IN); // 0x08
-			ftdi.out_ep = libusb_endpoint_address(7, LIBUSB_ENDPOINT_OUT); // 0x87
+			ftdi.in_ep = libusb_endpoint_address(8, LIBUSB_ENDPOINT_OUT); // 0x08
+			ftdi.out_ep = libusb_endpoint_address(7, LIBUSB_ENDPOINT_IN); // 0x87
 			break;
 		default:
 			throw new LibUsbException("Unknown interface: " + iface, LIBUSB_ERROR_INVALID_PARAM);
@@ -859,6 +859,19 @@ public class LibFtdi {
 	}
 
 	/**
+	 * Opens the first device matching the given criteria. Throws LibFtdiNotFoundException if not
+	 * found.
+	 */
+	public static void ftdi_usb_open_criteria(ftdi_context ftdi, libusb_device_criteria criteria)
+		throws LibUsbException {
+		requireCtx(ftdi);
+		if (!libusb_find_device_callback(ftdi.usb_ctx, criteria, dev -> {
+			ftdi_usb_open_dev(ftdi, dev);
+			return true;
+		})) throw new LibUsbNotFoundException("Device not found, " + criteria);
+	}
+
+	/**
 	 * Opens the first device with a given, vendor id, product id. Throws LibFtdiNotFoundException
 	 * if not found.
 	 */
@@ -903,9 +916,9 @@ public class LibFtdi {
 		} finally {
 			libusb_free_device_list(devs); // ,1 ?
 		}
-		throw new LibFtdiNotFoundException(String.format(
+		throw LibUsbNotFoundException.byFormat(
 			"Device not found: vendor=0x%04x product=0x%04x description=%s serial=%s index=%d",
-			vendor, product, description, serial, index));
+			vendor, product, description, serial, index);
 	}
 
 	static boolean matchesDesc(libusb_device_handle usb_dev, String expected, int desc_index)
@@ -932,8 +945,8 @@ public class LibFtdi {
 		} finally {
 			libusb_free_device_list(devs); // ,1 ?
 		}
-		throw new LibFtdiNotFoundException(
-			String.format("Device not found: bus_number=0x%02x address=0x%02x", bus, addr));
+		throw LibUsbNotFoundException.byFormat("Device not found: bus_number=0x%02x address=0x%02x",
+			bus, addr);
 	}
 
 	/**
@@ -1120,8 +1133,8 @@ public class LibFtdi {
 		controlTransferOut(ftdi, SIO_SET_DATA_REQUEST, value, ftdi.index);
 	}
 
-	public static int ftdi_write_data(ftdi_context ftdi, byte... data) throws LibUsbException {
-		return ftdi_write_data(ftdi, data, 0, data.length);
+	public static int ftdi_write_data(ftdi_context ftdi, int... data) throws LibUsbException {
+		return ftdi_write_data(ftdi, bytes(data), 0, data.length);
 	}
 
 	public static int ftdi_write_data(ftdi_context ftdi, byte[] data, int offset)
@@ -1135,15 +1148,22 @@ public class LibFtdi {
 	}
 
 	public static int ftdi_write_data(ftdi_context ftdi, ByteBuffer buffer) throws LibUsbException {
+		return ftdi_write_data(ftdi, buffer, buffer.remaining());
+	}
+
+	public static int ftdi_write_data(ftdi_context ftdi, ByteBuffer buffer, int len)
+		throws LibUsbException {
 		requireDev(ftdi);
-		int offset = 0;
-		while (buffer.hasRemaining()) {
-			int len = Math.min(ftdi.writebuffer_chunksize, buffer.remaining());
-			int n =
-				libusb_bulk_transfer(ftdi.usb_dev, ftdi.in_ep, buffer, len, ftdi.usb_write_timeout);
-			offset += n;
+		int remaining = len;
+		while (remaining > 0) {
+			int size = Math.min(remaining, ftdi.writebuffer_chunksize);
+			int n = libusb_bulk_transfer(ftdi.usb_dev, ftdi.in_ep, buffer, size,
+				ftdi.usb_write_timeout);
+			if (n <= 0) break;
+			buffer.position(buffer.position() + n);
+			remaining -= n;
 		}
-		return offset;
+		return len - remaining;
 	}
 
 	public static int ftdi_read_data(ftdi_context ftdi) throws LibUsbException {
@@ -1352,14 +1372,16 @@ public class LibFtdi {
 		requireDev(ftdi);
 		int value = mode.value << 8 | bitmask;
 		controlTransferOut(ftdi, SIO_SET_BITMODE_REQUEST, value, ftdi.index);
-		ftdi.bitbang_mode = (byte) mode.value;
-		ftdi.bitbang_enabled = (byte) (mode != ftdi_mpsse_mode.BITMODE_RESET ? 1 : 0);
+		ftdi.bitbang_mode().set(mode);
+		ftdi.bitbang_enabled().set(mode != BITMODE_RESET);
 	}
 
-	public static void ftdi_disableBitbang(ftdi_context ftdi) throws LibUsbException {
-		requireDev(ftdi);
-		controlTransferOut(ftdi, SIO_SET_BITMODE_REQUEST, 0, ftdi.index);
-		ftdi.bitbang_enabled = 1;
+	public static void ftdi_enable_bitbang(ftdi_context ftdi) throws LibUsbException {
+		ftdi_set_bitmode(ftdi, 0xff, BITMODE_BITBANG);
+	}
+
+	public static void ftdi_disable_bitbang(ftdi_context ftdi) throws LibUsbException {
+		ftdi_set_bitmode(ftdi, 0x00, BITMODE_RESET);
 	}
 
 	public static int ftdi_read_pins(ftdi_context ftdi) throws LibUsbException {
@@ -1427,10 +1449,6 @@ public class LibFtdi {
 		int val = errorch & 0xff;
 		if (enable) val |= 1 << 8;
 		controlTransferOut(ftdi, SIO_SET_ERROR_CHAR_REQUEST, val, ftdi.index);
-	}
-
-	public static String ftdi_get_error_string(ftdi_context ftdi) {
-		return ftdi == null ? null : ftdi.error_str;
 	}
 
 	private static boolean controlTransferOut(ftdi_context ftdi, ftdi_request_type request,

@@ -3,20 +3,20 @@ package ceri.serial;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import ceri.common.test.TestUtil;
-import ceri.serial.ftdi.jna.LibFtdiFinderTest;
 import ceri.serial.jna.JnaUtilTest;
 import ceri.serial.jna.RefStoreBehavior;
+import ceri.serial.libusb.jna.LibUsbFinderTest;
 
 /**
  * Generated test suite for ceri-serial
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	// ftdi.jna
-	LibFtdiFinderTest.class, //
 	// jna
 	JnaUtilTest.class, //
 	RefStoreBehavior.class, //
+	// libusb.jna
+	LibUsbFinderTest.class, //
 })
 public class _Tests {
 	public static void main(String... args) {

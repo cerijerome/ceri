@@ -16,6 +16,10 @@ public class BbTester {
 		BinaryPrinter.builder().showBinary(false).columns(2).build();
 
 	public static void main(String[] args) {
+		readDataTest();
+	}
+	
+	public static void readDataTest() {
 		byte[] b = new byte[140];
 		ByteBuffer buffer = ByteBuffer.wrap(b);
 		buffer.clear();
@@ -72,43 +76,43 @@ public class BbTester {
 		return b.length;
 	}
 
-	private static void mark(ByteBuffer bb) {
+	 static void mark(ByteBuffer bb) {
 		bb.mark();
 		System.out.println("mark()");
 		print(bb);
 	}
 
-	private static void reset(ByteBuffer bb) {
+	 static void reset(ByteBuffer bb) {
 		bb.reset();
 		System.out.println("reset()");
 		print(bb);
 	}
 
-	private static void flip(ByteBuffer bb) {
+	 static void flip(ByteBuffer bb) {
 		bb.flip();
 		System.out.println("flip()");
 		print(bb);
 	}
 
-	private static void rewind(ByteBuffer bb) {
+	 static void rewind(ByteBuffer bb) {
 		bb.rewind();
 		System.out.println("rewind()");
 		print(bb);
 	}
 
-	private static void clear(ByteBuffer bb) {
+	 static void clear(ByteBuffer bb) {
 		bb.clear();
 		System.out.println("clear()");
 		print(bb);
 	}
 
-	private static void compact(ByteBuffer bb) {
+	 static void compact(ByteBuffer bb) {
 		bb.compact();
 		System.out.println("compact()");
 		print(bb);
 	}
 
-	private static void write(ByteBuffer bb, byte[] b, int len) {
+	 static void write(ByteBuffer bb, byte[] b, int len) {
 		int n = len; // Math.min(len, bb.remaining());
 		bb.put(b, 0, n);
 		System.out.printf("write(%d) => (%d) [%s]%n", len, n,
@@ -116,7 +120,7 @@ public class BbTester {
 		print(bb);
 	}
 
-	private static void read(ByteBuffer bb, int len) {
+	 static void read(ByteBuffer bb, int len) {
 		int n = Math.min(len, bb.remaining());
 		byte[] b = new byte[n];
 		bb.get(b);
@@ -124,7 +128,7 @@ public class BbTester {
 		print(bb);
 	}
 
-	public static void main0(String[] args) throws Exception {
+	public static void bbSettingsTest() {
 		ByteBuffer bb = ByteBuffer.allocate(7);
 		print(bb);
 		int n = read0(bb, bb.capacity());

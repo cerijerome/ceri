@@ -68,9 +68,9 @@ public class Ftdi {
 	// public static final int SIO_SET_BAUD_RATE = 3; /* Set baud rate */
 	// public static final int SIO_SET_DATA = 4; /* Set the data characteristics of the port */
 
-	public static final byte FTDI_DEVICE_OUT_REQTYPE = LibUsb.libusb_request_type(
+	public static final int FTDI_DEVICE_OUT_REQTYPE = LibUsb.libusb_request_type_value(
 		LIBUSB_RECIPIENT_DEVICE, LIBUSB_REQUEST_TYPE_VENDOR, LIBUSB_ENDPOINT_OUT);
-	public static final byte FTDI_DEVICE_IN_REQTYPE = LibUsb.libusb_request_type(
+	public static final int FTDI_DEVICE_IN_REQTYPE = LibUsb.libusb_request_type_value(
 		LIBUSB_RECIPIENT_DEVICE, LIBUSB_REQUEST_TYPE_VENDOR, LIBUSB_ENDPOINT_IN);
 
 	/* Requests */

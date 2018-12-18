@@ -30,7 +30,11 @@ public class CException extends IOException {
 
 	public static int verify(int result, String name) throws CException {
 		if (result >= 0) return result;
-		throw new CException(String.format("%s failed: %d", name, result), result);
+		throw fullMessage(name + " failed", result);
+	}
+
+	public static CException fullMessage(String message, int code) {
+		return new CException(message + ": " + code, code);
 	}
 
 	public CException(int code) {

@@ -12,6 +12,7 @@ import static com.sun.jna.Pointer.NULL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,6 +26,7 @@ import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntAccessor;
 import ceri.common.data.MaskAccessor;
 import ceri.common.data.TypeTranscoder;
+import ceri.common.text.StringUtil;
 import ceri.serial.jna.JnaUtil;
 //import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.Struct;
@@ -268,9 +270,9 @@ public class LibUsb {
 		}
 	}
 
-	public static byte libusb_request_type(libusb_request_recipient recipient,
+	public static int libusb_request_type_value(libusb_request_recipient recipient,
 		libusb_request_type type, libusb_endpoint_direction endpoint_direction) {
-		return (byte) (recipient.value | type.value | endpoint_direction.value);
+		return (recipient.value | type.value | endpoint_direction.value) & 0xff;
 	}
 
 	public static final int LIBUSB_ISO_SYNC_TYPE_MASK = 0x0C;
@@ -380,8 +382,8 @@ public class LibUsb {
 		}
 	}
 
-	public static byte libusb_endpoint_address(int value, libusb_endpoint_direction direction) {
-		return (byte) (value | direction.value);
+	public static int libusb_endpoint_address(int value, libusb_endpoint_direction direction) {
+		return (value | direction.value) & 0xff;
 	}
 
 	/**
@@ -2009,7 +2011,7 @@ public class LibUsb {
 
 	public static void libusb_free_device_list(libusb_device.ByReference list) {
 		if (list == null) return;
-		libusb_free_device_list(list, list.getCount());
+		libusb_free_device_list(list, 1);
 	}
 
 	public static void libusb_free_device_list(libusb_device.ByReference list, int count) {
@@ -2025,8 +2027,28 @@ public class LibUsb {
 		return device;
 	}
 
+	public static void libusb_ref_devices(libusb_device...devs) 
+		throws LibUsbException {
+		require(devs, "Devices");
+		for (libusb_device dev : devs) libusb_ref_device(dev);
+	}
+
+	public static void libusb_ref_devices(Collection<libusb_device> devs) 
+		throws LibUsbException {
+		require(devs, "Devices");
+		for (libusb_device dev : devs) libusb_ref_device(dev);
+	}
+
 	public static void libusb_unref_device(libusb_device dev) {
 		if (dev != null) LIBUSB.libusb_unref_device(dev);
+	}
+
+	public static void libusb_unref_devices(libusb_device... devs) {
+		if (devs != null) for (libusb_device dev : devs) libusb_unref_device(dev);
+	}
+
+	public static void libusb_unref_devices(Collection<libusb_device> devs) {
+		if (devs != null) devs.forEach(LibUsb::libusb_unref_device);
 	}
 
 	public static int libusb_get_configuration(libusb_device_handle dev) throws LibUsbException {
@@ -2592,15 +2614,15 @@ public class LibUsb {
 		require(transfer, "Transfer");
 	}
 
-	private static void require(Object obj, String name) throws LibUsbException {
+	static void require(Object obj, String name) throws LibUsbException {
 		if (obj != null) return;
 		throw new LibUsbException(name + " unavailable", LIBUSB_ERROR_INVALID_PARAM);
 	}
 
-	private static int verify(int result, String name) throws LibUsbException {
-		if (result < 0) throw LibUsbException.fullMessage(
-			"libusb_" + name + " failed", result);
-		return result;
+	private static int verify(int result, String name, Object...objs) throws LibUsbException {
+		if (result >= 0) return result;
+		String message = StringUtil.toString("libusb_" + name + "(", ") failed", ", ", objs);
+		throw LibUsbException.fullMessage(message, result);
 	}
 
 	private static LibUsbException error(String name, libusb_error error) {

@@ -15,8 +15,8 @@ public enum FtdiInterface {
 		TypeTranscoder.single(t -> t.iface, FtdiInterface.class);
 	public final int iface;
 	public final int index;
-	public final byte inEp;
-	public final byte outEp;
+	public final int inEp;
+	public final int outEp;
 
 	private static class Address {
 		static int count = 1;
