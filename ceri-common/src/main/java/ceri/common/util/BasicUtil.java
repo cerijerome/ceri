@@ -123,7 +123,8 @@ public class BasicUtil {
 	 */
 	public static String copyFromClipBoard() {
 		try {
-			return (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+			return (String) Toolkit.getDefaultToolkit().getSystemClipboard()
+				.getData(DataFlavor.stringFlavor);
 		} catch (IOException | UnsupportedFlavorException e) {
 			throw new IllegalStateException(e);
 		}
