@@ -3,12 +3,11 @@ package ceri.serial.libusb.jna;
 import static ceri.common.data.ByteUtil.bytes;
 import static ceri.serial.jna.JnaUtil.ubyte;
 import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_STRING;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INVALID_PARAM;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPORTED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK;
-import static com.sun.jna.Pointer.NULL;
+import static ceri.serial.libusb.jna.LibUsbUtil.require;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -36,17 +35,42 @@ import ceri.serial.jna.TypedPointer;
 public class LibUsb {
 	private static final Logger logger = LogManager.getLogger();
 	private static LibUsbNative LIBUSB = loadLibrary("usb-1.0.0");
+	private static int DEFAULT_TIMEOUT = 1000;
+	private static int MAX_DESCRIPTOR_SIZE = 255;
+	private static final int MAX_PORT_NUMBERS = 7;
+	// Public constants
+	public static final int LIBUSB_ERROR_COUNT = 14;
+	public static final int LIBUSB_HOTPLUG_MATCH_ANY = -1;
+	// Descriptor sizes per descriptor type
+	public static final int LIBUSB_DT_DEVICE_SIZE = 18;
+	public static final int LIBUSB_DT_CONFIG_SIZE = 9;
+	public static final int LIBUSB_DT_INTERFACE_SIZE = 9;
+	public static final int LIBUSB_DT_ENDPOINT_SIZE = 7;
+	public static final int LIBUSB_DT_ENDPOINT_AUDIO_SIZE = 9;
+	public static final int LIBUSB_DT_HUB_NONVAR_SIZE = 7;
+	public static final int LIBUSB_DT_SS_ENDPOINT_COMPANION_SIZE = 6;
+	public static final int LIBUSB_DT_BOS_SIZE = 5;
+	public static final int LIBUSB_DT_DEVICE_CAPABILITY_SIZE = 3;
+	public static final int LIBUSB_CONTROL_SETUP_SIZE = new libusb_control_setup().size();
+	// BOS descriptor sizes
+	public static final int LIBUSB_BT_USB_2_0_EXTENSION_SIZE = 7;
+	public static final int LIBUSB_BT_SS_USB_DEVICE_CAPABILITY_SIZE = 10;
+	public static final int LIBUSB_BT_CONTAINER_ID_SIZE = 20;
+	public static final int LIBUSB_DT_BOS_MAX_SIZE =
+		LIBUSB_DT_BOS_SIZE + LIBUSB_BT_USB_2_0_EXTENSION_SIZE +
+			LIBUSB_BT_SS_USB_DEVICE_CAPABILITY_SIZE + LIBUSB_BT_CONTAINER_ID_SIZE;
+	// Field masks
+	public static final int LIBUSB_ENDPOINT_ADDRESS_MASK = 0x0f;
+	public static final int LIBUSB_ENDPOINT_DIR_MASK = 0x80;
+	public static final int LIBUSB_REQUEST_TYPE_MASK = 0x60;
+	public static final int LIBUSB_REQUEST_RECIPIENT_MASK = 0x1f;
+	public static final int LIBUSB_TRANSFER_TYPE_MASK = 0x03;
+	public static final int LIBUSB_BULK_MAX_STREAMS_MASK = 0x1f;
+	public static final int LIBUSB_ISO_MULT_MASK = 0x03;
+	public static final int LIBUSB_ISO_SYNC_TYPE_MASK = 0x0c;
+	public static final int LIBUSB_ISO_USAGE_TYPE_MASK = 0x30;
 
 	private LibUsb() {}
-
-	private static short libusb_cpu_to_le16(short x) {
-		if (ByteOrder.LITTLE_ENDIAN.equals(ByteOrder.nativeOrder())) return x;
-		return Short.reverseBytes(x);
-	}
-
-	private static short libusb_le16_to_cpu(short x) {
-		return libusb_cpu_to_le16(x);
-	}
 
 	/**
 	 * Device and/or Interface Class codes
@@ -118,27 +142,6 @@ public class LibUsb {
 		}
 	}
 
-	// Descriptor sizes per descriptor type
-	public static final int LIBUSB_DT_DEVICE_SIZE = 18;
-	public static final int LIBUSB_DT_CONFIG_SIZE = 9;
-	public static final int LIBUSB_DT_INTERFACE_SIZE = 9;
-	public static final int LIBUSB_DT_ENDPOINT_SIZE = 7;
-	public static final int LIBUSB_DT_ENDPOINT_AUDIO_SIZE = 9;
-	public static final int LIBUSB_DT_HUB_NONVAR_SIZE = 7;
-	public static final int LIBUSB_DT_SS_ENDPOINT_COMPANION_SIZE = 6;
-	public static final int LIBUSB_DT_BOS_SIZE = 5;
-	public static final int LIBUSB_DT_DEVICE_CAPABILITY_SIZE = 3;
-	// BOS descriptor sizes
-	public static final int LIBUSB_BT_USB_2_0_EXTENSION_SIZE = 7;
-	public static final int LIBUSB_BT_SS_USB_DEVICE_CAPABILITY_SIZE = 10;
-	public static final int LIBUSB_BT_CONTAINER_ID_SIZE = 20;
-	public static final int LIBUSB_DT_BOS_MAX_SIZE =
-		LIBUSB_DT_BOS_SIZE + LIBUSB_BT_USB_2_0_EXTENSION_SIZE +
-			LIBUSB_BT_SS_USB_DEVICE_CAPABILITY_SIZE + LIBUSB_BT_CONTAINER_ID_SIZE;
-	// Endpoint masks
-	public static final int LIBUSB_ENDPOINT_ADDRESS_MASK = 0x0f;
-	public static final int LIBUSB_ENDPOINT_DIR_MASK = 0x80;
-
 	/**
 	 * Endpoint direction. Values for bit 7 of the libusb_endpoint_descriptor.bEndpointAddress
 	 * "endpoint address" scheme.
@@ -160,8 +163,6 @@ public class LibUsb {
 			return String.format("%s(0x%02x)", name(), value);
 		}
 	}
-
-	public static final int LIBUSB_TRANSFER_TYPE_MASK = 0x03;
 
 	/**
 	 * Endpoint transfer type. Values for bits 0:1 of the libusb_endpoint_descriptor.bmAttributes
@@ -275,8 +276,6 @@ public class LibUsb {
 		return (recipient.value | type.value | endpoint_direction.value) & 0xff;
 	}
 
-	public static final int LIBUSB_ISO_SYNC_TYPE_MASK = 0x0C;
-
 	/**
 	 * Synchronization type for isochronous endpoints. Values for bits 2:3 of the
 	 * libusb_endpoint_descriptor.bmAttributes "bmAttributes" field in libusb_endpoint_descriptor.
@@ -300,8 +299,6 @@ public class LibUsb {
 			return String.format("%s(%d)", name(), value);
 		}
 	}
-
-	public static final int LIBUSB_ISO_USAGE_TYPE_MASK = 0x30;
 
 	/**
 	 * Usage type for isochronous endpoints. Values for bits 4:5 of the
@@ -382,10 +379,6 @@ public class LibUsb {
 		}
 	}
 
-	public static int libusb_endpoint_address(int value, libusb_endpoint_direction direction) {
-		return (value | direction.value) & 0xff;
-	}
-
 	/**
 	 * A structure representing the standard USB endpoint descriptor. This descriptor is documented
 	 * in section 9.6.6 of the USB 3.0 specification. All multiple-byte fields are represented in
@@ -433,27 +426,28 @@ public class LibUsb {
 		}
 
 		public IntAccessor bEndpointNumber() {
-			return MaskAccessor.of(bEndpointAddressAccessor.from(this), 0x0f);
+			return MaskAccessor.of(bEndpointAddressAccessor.from(this),
+				LIBUSB_ENDPOINT_ADDRESS_MASK);
 		}
 
 		public FieldTranscoder.Single<libusb_endpoint_direction> bEndpointDirection() {
-			return libusb_endpoint_direction.xcoder
-				.field(MaskAccessor.of(bEndpointAddressAccessor.from(this), 0x80));
+			return libusb_endpoint_direction.xcoder.field(
+				MaskAccessor.of(bEndpointAddressAccessor.from(this), LIBUSB_ENDPOINT_DIR_MASK));
 		}
 
 		public FieldTranscoder.Single<libusb_transfer_type> bmAttributesTransferType() {
-			return libusb_transfer_type.xcoder
-				.field(MaskAccessor.of(bmAttributesAccessor.from(this), 0x03));
+			return libusb_transfer_type.xcoder.field( //
+				MaskAccessor.of(bmAttributesAccessor.from(this), LIBUSB_TRANSFER_TYPE_MASK));
 		}
 
 		public FieldTranscoder.Single<libusb_iso_sync_type> bmAttributesIsoSyncType() {
-			return libusb_iso_sync_type.xcoder
-				.field(MaskAccessor.of(bmAttributesAccessor.from(this), 0x0c, 2));
+			return libusb_iso_sync_type.xcoder.field( //
+				MaskAccessor.of(bmAttributesAccessor.from(this), LIBUSB_ISO_SYNC_TYPE_MASK, 2));
 		}
 
 		public FieldTranscoder.Single<libusb_iso_usage_type> bmAttributesIsoUsageType() {
-			return libusb_iso_usage_type.xcoder
-				.field(MaskAccessor.of(bmAttributesAccessor.from(this), 0x30, 4));
+			return libusb_iso_usage_type.xcoder.field( //
+				MaskAccessor.of(bmAttributesAccessor.from(this), LIBUSB_ISO_USAGE_TYPE_MASK, 4));
 		}
 
 		public byte[] extra() {
@@ -652,11 +646,11 @@ public class LibUsb {
 		}
 
 		public IntAccessor bmAttributesBulkMaxStreams() {
-			return MaskAccessor.of(bmAttributesAccessor.from(this), 0x1f);
+			return MaskAccessor.of(bmAttributesAccessor.from(this), LIBUSB_BULK_MAX_STREAMS_MASK);
 		}
 
 		public IntAccessor bmAttributesIsoMult() {
-			return MaskAccessor.of(bmAttributesAccessor.from(this), 0x03);
+			return MaskAccessor.of(bmAttributesAccessor.from(this), LIBUSB_ISO_MULT_MASK);
 		}
 
 		@Override
@@ -948,18 +942,18 @@ public class LibUsb {
 		}
 
 		public FieldTranscoder.Single<libusb_request_recipient> bmRequestRecipient() {
-			return libusb_request_recipient.xcoder
-				.field(MaskAccessor.of(bmRequestTypeAccessor.from(this), 0x1f));
+			return libusb_request_recipient.xcoder.field(
+				MaskAccessor.of(bmRequestTypeAccessor.from(this), LIBUSB_REQUEST_RECIPIENT_MASK));
 		}
 
 		public FieldTranscoder.Single<libusb_request_type> bmRequestType() {
-			return libusb_request_type.xcoder
-				.field(MaskAccessor.of(bmRequestTypeAccessor.from(this), 0x60));
+			return libusb_request_type.xcoder.field( //
+				MaskAccessor.of(bmRequestTypeAccessor.from(this), LIBUSB_REQUEST_TYPE_MASK));
 		}
 
 		public FieldTranscoder.Single<libusb_endpoint_direction> bmRequestDirection() {
-			return libusb_endpoint_direction.xcoder
-				.field(MaskAccessor.of(bmRequestTypeAccessor.from(this), 0x80));
+			return libusb_endpoint_direction.xcoder.field( //
+				MaskAccessor.of(bmRequestTypeAccessor.from(this), LIBUSB_ENDPOINT_DIR_MASK));
 		}
 
 		public FieldTranscoder.Single<libusb_standard_request> bRequestStandard() {
@@ -971,8 +965,6 @@ public class LibUsb {
 			return FIELDS;
 		}
 	}
-
-	public static final int LIBUSB_CONTROL_SETUP_SIZE = new libusb_control_setup().size();
 
 	/* libusb */
 
@@ -1202,8 +1194,6 @@ public class LibUsb {
 		}
 	}
 
-	public static final int LIBUSB_ERROR_COUNT = 14;
-
 	/**
 	 * Transfer status codes
 	 */
@@ -1368,7 +1358,7 @@ public class LibUsb {
 		}
 
 		public libusb_iso_packet_descriptor[] iso_packet_desc() {
-			// TODO: initialize field instead?
+			// TODO: init field instead?
 			return iso_packet_desc(num_iso_packets);
 		}
 
@@ -1426,9 +1416,9 @@ public class LibUsb {
 		}
 	}
 
-	/*
-	 * Native calls here
-	 */
+	public static int libusb_endpoint_address(int value, libusb_endpoint_direction direction) {
+		return (value | direction.value) & 0xff;
+	}
 
 	/* async I/O */
 
@@ -1445,7 +1435,6 @@ public class LibUsb {
 	 * @return pointer to the first byte of the data section
 	 */
 	public static Pointer libusb_control_transfer_get_data(libusb_transfer transfer) {
-		// TODO: test
 		return transfer.buffer.share(LIBUSB_CONTROL_SETUP_SIZE);
 	}
 
@@ -1461,7 +1450,6 @@ public class LibUsb {
 	 * @return a casted pointer to the start of the transfer data buffer
 	 */
 	public static libusb_control_setup libusb_control_transfer_get_setup(libusb_transfer transfer) {
-		// TODO: test
 		return new libusb_control_setup(transfer.buffer);
 	}
 
@@ -1492,10 +1480,6 @@ public class LibUsb {
 		setup.wIndex = libusb_cpu_to_le16((short) wIndex);
 		setup.wLength = libusb_cpu_to_le16((short) wLength);
 	}
-
-	/*
-	 * Native calls here
-	 */
 
 	/**
 	 * Helper function to populate the required libusb_transfer fields for a control transfer.
@@ -1539,7 +1523,7 @@ public class LibUsb {
 		transfer.type().set(libusb_transfer_type.LIBUSB_TRANSFER_TYPE_CONTROL);
 		transfer.timeout = timeout;
 		transfer.buffer = buffer;
-		if (buffer != Pointer.NULL)
+		if (buffer != null)
 			transfer.length = LIBUSB_CONTROL_SETUP_SIZE + libusb_le16_to_cpu(setup.wLength);
 		transfer.user_data = user_data;
 		transfer.callback = callback;
@@ -1694,8 +1678,10 @@ public class LibUsb {
 	public static void libusb_set_iso_packet_lengths(libusb_transfer transfer, int length) {
 		// TODO: test
 		libusb_iso_packet_descriptor[] iso_packet_descs = transfer.iso_packet_desc();
-		for (int i = 0; i < iso_packet_descs.length; i++)
+		for (int i = 0; i < iso_packet_descs.length; i++) {
 			iso_packet_descs[i].length = length;
+			iso_packet_descs[i].write();
+		}
 	}
 
 	/**
@@ -1714,9 +1700,8 @@ public class LibUsb {
 	 */
 	public static Pointer libusb_get_iso_packet_buffer(libusb_transfer transfer, int packet) {
 		int offset = 0;
-		if (packet > Short.MAX_VALUE) return NULL;
-		if (packet >= transfer.num_iso_packets) return NULL;
-		// TODO: test
+		if (packet > Short.MAX_VALUE) return null;
+		if (packet >= transfer.num_iso_packets) return null;
 		libusb_iso_packet_descriptor[] iso_packet_descs = transfer.iso_packet_desc(packet);
 		for (int i = 0; i < packet; i++)
 			offset += iso_packet_descs[i].length;
@@ -1746,19 +1731,12 @@ public class LibUsb {
 	 */
 	public static Pointer libusb_get_iso_packet_buffer_simple(libusb_transfer transfer,
 		int packet) {
-		if (packet > Short.MAX_VALUE) return NULL;
-		if (packet >= transfer.num_iso_packets) return NULL;
+		if (packet > Short.MAX_VALUE) return null;
+		if (packet >= transfer.num_iso_packets) return null;
 		return transfer.buffer.share(transfer.iso_packet_desc.length * packet);
 	}
 
 	/* sync I/O */
-
-	/*
-	 * Native calls here
-	 */
-
-	private static int DEFAULT_TIMEOUT = 1000;
-	private static int MAX_DESCRIPTOR_SIZE = 255;
 
 	/**
 	 * Retrieve a descriptor from the default control pipe. This is a convenience function which
@@ -1785,15 +1763,7 @@ public class LibUsb {
 		return JnaUtil.string(StandardCharsets.UTF_16, buffer, size);
 	}
 
-	/*
-	 * Native calls here
-	 */
-
 	/* polling and timeouts */
-
-	/*
-	 * Native calls here
-	 */
 
 	/**
 	 * File descriptor for polling
@@ -1845,10 +1815,6 @@ public class LibUsb {
 	public static interface libusb_pollfd_removed_cb extends Callback {
 		public void invoke(int fd, Pointer user_data);
 	}
-
-	/*
-	 * Native calls here
-	 */
 
 	/**
 	 * Callback handle.
@@ -1909,8 +1875,6 @@ public class LibUsb {
 		}
 	}
 
-	public static final int LIBUSB_HOTPLUG_MATCH_ANY = -1;
-
 	/**
 	 * Hotplug callback function type. When requesting hotplug event notifications, you pass a
 	 * pointer to a callback function of this type.
@@ -1942,14 +1906,6 @@ public class LibUsb {
 	public static interface libusb_hotplug_callback_fn extends Callback {
 		public void invoke(libusb_context ctx, Pointer device, int event, Pointer user_data);
 	}
-
-	/*
-	 * Native calls here
-	 */
-
-	/*
-	 * Added types / typed calls here
-	 */
 
 	public static class libusb_hotplug_callback_handle {
 		public static libusb_hotplug_callback_handle of(int value) {
@@ -2027,16 +1983,16 @@ public class LibUsb {
 		return device;
 	}
 
-	public static void libusb_ref_devices(libusb_device...devs) 
-		throws LibUsbException {
+	public static void libusb_ref_devices(libusb_device... devs) throws LibUsbException {
 		require(devs, "Devices");
-		for (libusb_device dev : devs) libusb_ref_device(dev);
+		for (libusb_device dev : devs)
+			libusb_ref_device(dev);
 	}
 
-	public static void libusb_ref_devices(Collection<libusb_device> devs) 
-		throws LibUsbException {
+	public static void libusb_ref_devices(Collection<libusb_device> devs) throws LibUsbException {
 		require(devs, "Devices");
-		for (libusb_device dev : devs) libusb_ref_device(dev);
+		for (libusb_device dev : devs)
+			libusb_ref_device(dev);
 	}
 
 	public static void libusb_unref_device(libusb_device dev) {
@@ -2044,7 +2000,8 @@ public class LibUsb {
 	}
 
 	public static void libusb_unref_devices(libusb_device... devs) {
-		if (devs != null) for (libusb_device dev : devs) libusb_unref_device(dev);
+		if (devs != null) for (libusb_device dev : devs)
+			libusb_unref_device(dev);
 	}
 
 	public static void libusb_unref_devices(Collection<libusb_device> devs) {
@@ -2198,11 +2155,9 @@ public class LibUsb {
 		return LIBUSB.libusb_get_port_number(dev);
 	}
 
-	private static final int LIBUSB_MAX_PORT_NUMBERS = 7;
-
 	public static byte[] libusb_get_port_numbers(libusb_device dev) throws LibUsbException {
 		require(dev);
-		Memory memory = new Memory(LIBUSB_MAX_PORT_NUMBERS);
+		Memory memory = new Memory(MAX_PORT_NUMBERS);
 		int size = verify(LIBUSB.libusb_get_port_numbers(dev, memory, (int) memory.size()),
 			"get_port_numbers");
 		return memory.getByteArray(0, size);
@@ -2408,12 +2363,20 @@ public class LibUsb {
 	}
 
 	public static int libusb_control_transfer(libusb_device_handle dev_handle, int request_type,
+		int bRequest, int wValue, int wIndex, ByteBuffer data, int timeout) throws LibUsbException {
+		return libusb_control_transfer(dev_handle, request_type, bRequest, wValue, wIndex, data,
+			data.remaining(), timeout);
+	}
+
+	public static int libusb_control_transfer(libusb_device_handle dev_handle, int request_type,
 		int bRequest, int wValue, int wIndex, ByteBuffer data, int wLength, int timeout)
 		throws LibUsbException {
 		require(dev_handle);
-		return verify(LIBUSB.libusb_control_transfer(dev_handle, (byte) request_type, //
+		require(data, wLength);
+		int n = verify(LIBUSB.libusb_control_transfer(dev_handle, (byte) request_type, //
 			(byte) bRequest, (short) wValue, (short) wIndex, data, (short) wLength, timeout),
 			"control_transfer");
+		return updatePosition(data, n);
 	}
 
 	public static int libusb_bulk_transfer(libusb_device_handle dev_handle, int endpoint,
@@ -2430,12 +2393,18 @@ public class LibUsb {
 	}
 
 	public static int libusb_bulk_transfer(libusb_device_handle dev_handle, int endpoint,
+		ByteBuffer data, int timeout) throws LibUsbException {
+		return libusb_bulk_transfer(dev_handle, endpoint, data, data.remaining(), timeout);
+	}
+
+	public static int libusb_bulk_transfer(libusb_device_handle dev_handle, int endpoint,
 		ByteBuffer data, int length, int timeout) throws LibUsbException {
 		require(dev_handle);
+		require(data, length);
 		IntByReference actual_length = new IntByReference();
 		verify(LIBUSB.libusb_bulk_transfer(dev_handle, (byte) endpoint, data, length, actual_length,
 			timeout), "bulk_transfer");
-		return actual_length.getValue();
+		return updatePosition(data, actual_length.getValue());
 	}
 
 	public static int libusb_interrupt_transfer(libusb_device_handle dev_handle, int endpoint,
@@ -2452,12 +2421,18 @@ public class LibUsb {
 	}
 
 	public static int libusb_interrupt_transfer(libusb_device_handle dev_handle, int endpoint,
+		ByteBuffer data, int timeout) throws LibUsbException {
+		return libusb_interrupt_transfer(dev_handle, endpoint, data, data.remaining(), timeout);
+	}
+
+	public static int libusb_interrupt_transfer(libusb_device_handle dev_handle, int endpoint,
 		ByteBuffer data, int length, int timeout) throws LibUsbException {
 		require(dev_handle);
+		require(data, length);
 		IntByReference actual_length = new IntByReference();
 		verify(LIBUSB.libusb_interrupt_transfer(dev_handle, (byte) endpoint, data, length,
 			actual_length, timeout), "interrupt_transfer");
-		return actual_length.getValue();
+		return updatePosition(data, actual_length.getValue());
 	}
 
 	public static String libusb_get_string_descriptor_ascii(libusb_device_handle dev,
@@ -2598,28 +2573,12 @@ public class LibUsb {
 			LIBUSB.libusb_hotplug_deregister_callback(ctx, handle.value);
 	}
 
-	private static void require(libusb_device dev) throws LibUsbException {
-		require(dev, "Device");
+	private static int updatePosition(ByteBuffer buffer, int inc) {
+		if (buffer != null) buffer.position(Math.min(buffer.position() + inc, buffer.limit()));
+		return inc;
 	}
 
-	private static void require(libusb_context ctx) throws LibUsbException {
-		require(ctx, "Context");
-	}
-
-	private static void require(libusb_device_handle dev) throws LibUsbException {
-		require(dev, "Device handle");
-	}
-
-	private static void require(libusb_transfer transfer) throws LibUsbException {
-		require(transfer, "Transfer");
-	}
-
-	static void require(Object obj, String name) throws LibUsbException {
-		if (obj != null) return;
-		throw new LibUsbException(name + " unavailable", LIBUSB_ERROR_INVALID_PARAM);
-	}
-
-	private static int verify(int result, String name, Object...objs) throws LibUsbException {
+	private static int verify(int result, String name, Object... objs) throws LibUsbException {
 		if (result >= 0) return result;
 		String message = StringUtil.toString("libusb_" + name + "(", ") failed", ", ", objs);
 		throw LibUsbException.fullMessage(message, result);
@@ -2627,6 +2586,15 @@ public class LibUsb {
 
 	private static LibUsbException error(String name, libusb_error error) {
 		return LibUsbException.fullMessage("libusb_" + name + " failed", error);
+	}
+
+	private static short libusb_cpu_to_le16(short x) {
+		if (ByteOrder.LITTLE_ENDIAN.equals(ByteOrder.nativeOrder())) return x;
+		return Short.reverseBytes(x);
+	}
+
+	private static short libusb_le16_to_cpu(short x) {
+		return libusb_cpu_to_le16(x);
 	}
 
 	private static LibUsbNative loadLibrary(String name) {

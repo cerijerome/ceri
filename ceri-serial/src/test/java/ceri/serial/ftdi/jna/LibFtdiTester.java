@@ -26,13 +26,14 @@ public class LibFtdiTester {
 			ftdi_usb_open_criteria(ftdi, criteria);
 			ftdi_enable_bitbang(ftdi);
 			process(ftdi);
+			// ftdi_disable_bitbang(ftdi);
 		} finally {
 			ftdi_free(ftdi);
 		}
 	}
 
 	private static void process(ftdi_context ftdi) throws LibUsbException {
-		int delayMs = 500;
+		int delayMs = 200;
 		read(ftdi);
 		BasicUtil.delay(delayMs);
 		for (int i = 0; i < 16; i++) {

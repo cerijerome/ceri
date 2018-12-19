@@ -1,9 +1,7 @@
 package ceri.serial.ftdi.jna;
 
-import static ceri.serial.ftdi.jna.LibFtdi.READ_STATUS_BYTES;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_set_bitmode;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_purge_buffers;
-import static ceri.serial.ftdi.jna.LibFtdi.require;
 import static ceri.serial.jna.Time.gettimeofday;
 import static ceri.serial.libusb.jna.LibUsb.libusb_free_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout;
@@ -73,7 +71,7 @@ public class LibFtdiStream {
 			Pointer userdata) throws LibUsbException;
 	}
 
-	static class ftdi_stream_state extends Struct {
+	public static class ftdi_stream_state extends Struct {
 		private static final List<String> FIELDS = List.of( //
 			"callback", "userdata", "packetsize", "activity", "result", "progress");
 		private static final IntAccessor.Typed<ftdi_stream_state> resultAccessor =
@@ -136,9 +134,9 @@ public class LibFtdiStream {
 
 		try {
 			for (int i = 0;; i++) {
-				int position = (i * state.packetsize) + READ_STATUS_BYTES;
+				int position = (i * state.packetsize) + LibFtdiUtil.READ_STATUS_BYTES;
 				int len = Math.min(transfer.actual_length - position,
-					state.packetsize - READ_STATUS_BYTES);
+					state.packetsize - LibFtdiUtil.READ_STATUS_BYTES);
 				if (len <= 0) break;
 				state.progress.current.totalBytes += len;
 				state.callback.invoke(transfer.buffer.share(position), len, null, state.userdata);
@@ -170,7 +168,7 @@ public class LibFtdiStream {
 	 */
 	public static void ftdi_read_stream(ftdi_context ftdi, ftdi_stream_cb callback,
 		Pointer userdata, int packetsPerTransfer, int numTransfers) throws LibUsbException {
-		require(ftdi);
+		LibFtdiUtil.require(ftdi);
 		if (!ftdi.type().get().isSyncFifoType()) throw new LibUsbException( //
 			"Synchronous FIFO mode not supported: " + ftdi.type().get(),
 			libusb_error.LIBUSB_ERROR_NOT_SUPPORTED);

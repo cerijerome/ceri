@@ -13,6 +13,7 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_open;
 import static ceri.serial.libusb.jna.LibUsb.libusb_release_interface;
 import static ceri.serial.libusb.jna.LibUsb.libusb_unref_device;
 import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_device_ref;
+import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.util.BasicUtil;
@@ -44,7 +45,7 @@ public class LibUsbFtdiTester {
 
 	private static void process(libusb_device_handle handle) throws LibUsbException {
 		int interfaceNumber = 0;
-		int delayMs = 500;
+		int delayMs = 100;
 
 		boolean kernelDriverActive = libusb_kernel_driver_active(handle, interfaceNumber);
 		logger.info("kernel driver active: {}", kernelDriverActive);
@@ -60,8 +61,9 @@ public class LibUsbFtdiTester {
 		libusb_control_transfer(handle, 0x40, 0x0b, 0x01ff, 1, 500);
 		read(handle);
 		BasicUtil.delay(delayMs);
+		ByteBuffer b = ByteBuffer.wrap(bytes(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15));
 		for (int i = 0; i < 16; i++) {
-			write(handle, i);
+			write(handle, b, i);
 			BasicUtil.delay(delayMs);
 			read(handle);
 			BasicUtil.delay(delayMs);
@@ -78,14 +80,18 @@ public class LibUsbFtdiTester {
 	}
 
 	private static void read(libusb_device_handle handle) throws LibUsbException {
-		logger.info("Reading byte");
+		logger.info("Reading 1 byte");
 		byte[] b = libusb_control_transfer(handle, 0xc0, 0x0c, 0x0000, 1, 1, 500);
 		logger.info("Status: 0x{}", LogUtil.toHex(b[0]));
 	}
 
-	private static void write(libusb_device_handle handle, int value) throws LibUsbException {
-		logger.info("Writing: {}", value);
-		int n = libusb_bulk_transfer(handle, 0x02, bytes(value), 500);
+	private static void write(libusb_device_handle handle, ByteBuffer b, int i)
+		throws LibUsbException {
+		logger.info("Writing: {}", b.get(i));
+		b.position(i);
+		logger.info("Position before = {}", b.position());
+		int n = libusb_bulk_transfer(handle, 0x02, b, 1, 500);
+		logger.info("Position after = {}", b.position());
 		logger.info("Sent: {} bytes", n);
 	}
 

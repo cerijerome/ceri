@@ -15,7 +15,7 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_get_string_descriptor_ascii;
 import static ceri.serial.libusb.jna.LibUsb.libusb_open;
 import static ceri.serial.libusb.jna.LibUsb.libusb_ref_device;
 import static ceri.serial.libusb.jna.LibUsb.libusb_unref_devices;
-import static ceri.serial.libusb.jna.LibUsb.require;
+import static ceri.serial.libusb.jna.LibUsbUtil.require;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -193,8 +193,8 @@ public class LibUsbFinder {
 	 * match is found and the callback is made.
 	 */
 	public static boolean libusb_find_device_callback(libusb_device.ByReference devs,
-		libusb_device_criteria criteria, ExceptionPredicate<LibUsbException, libusb_device> callback)
-		throws LibUsbException {
+		libusb_device_criteria criteria,
+		ExceptionPredicate<LibUsbException, libusb_device> callback) throws LibUsbException {
 		require(devs, "Device list");
 		require(criteria, "Criteria");
 		require(callback, "Callback");
@@ -216,8 +216,8 @@ public class LibUsbFinder {
 	 * and the callback is made.
 	 */
 	public static boolean libusb_find_device_callback(libusb_context ctx,
-		libusb_device_criteria criteria, ExceptionPredicate<LibUsbException, libusb_device> callback)
-		throws LibUsbException {
+		libusb_device_criteria criteria,
+		ExceptionPredicate<LibUsbException, libusb_device> callback) throws LibUsbException {
 		require(ctx, "Context");
 		require(criteria, "Criteria");
 		require(callback, "Callback");
