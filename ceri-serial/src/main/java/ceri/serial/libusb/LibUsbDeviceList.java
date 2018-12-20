@@ -1,10 +1,10 @@
 package ceri.serial.libusb;
 
 import static ceri.common.collection.ImmutableUtil.convertAsList;
+import static ceri.serial.libusb.jna.LibUsb.libusb_free_device_list;
 import java.io.Closeable;
 import java.util.List;
 import java.util.function.Supplier;
-import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 
@@ -23,7 +23,7 @@ public class LibUsbDeviceList implements Closeable {
 
 	@Override
 	public void close() {
-		LibUsb.libusb_free_device_list(list);
+		libusb_free_device_list(list);
 		list = null;
 		devices.clear();
 	}

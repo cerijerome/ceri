@@ -40,6 +40,7 @@ import java.io.Closeable;
 import java.time.Duration;
 import java.util.Locale;
 import com.sun.jna.Pointer;
+import ceri.common.function.ExceptionPredicate;
 import ceri.serial.jna.Time;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_capability;
@@ -57,6 +58,8 @@ import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
 import ceri.serial.libusb.jna.LibUsbException;
+import ceri.serial.libusb.jna.LibUsbFinder;
+import ceri.serial.libusb.jna.LibUsbNotFoundException;
 import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
 
 public class LibUsbContext implements Closeable {
@@ -82,6 +85,14 @@ public class LibUsbContext implements Closeable {
 		return libusb_strerror(error);
 	}
 
+	public static libusb_device_criteria criteria(String criteria) {
+		return LibUsbFinder.libusb_find_criteria_string(criteria);
+	}
+	
+	public static libusb_device_criteria criteria() {
+		return LibUsbFinder.libusb_find_criteria();
+	}
+	
 	public static LibUsbContext init() throws LibUsbException {
 		return new LibUsbContext(libusb_init());
 	}
@@ -106,17 +117,47 @@ public class LibUsbContext implements Closeable {
 			return true;
 		});
 		if (handles[0] != null) return new LibUsbDeviceHandle(this::context, handles[0]);
-		return null;
+		throw new LibUsbNotFoundException("Device not found, " + criteria);
 	}
 
-	public LibUsbDeviceHandle openDeviceWithVidPid(int vendorId, int productId)
+	public LibUsbDeviceHandle openDevice(int vendorId, int productId)
 		throws LibUsbException {
 		libusb_device_handle handle =
 			libusb_open_device_with_vid_pid(context(), vendorId, productId);
-		if (handle == null) return null;
 		return new LibUsbDeviceHandle(this::context, handle);
 	}
 
+	/**
+	 * Find device based on criteria. The callback takes responsibility for closing the 
+	 * given device if it returns true, otherwise the device is automatically closed.
+	 */
+	public boolean findDevice(libusb_device_criteria criteria,
+		ExceptionPredicate<LibUsbException, LibUsbDevice> callback) throws LibUsbException {
+		if (callback == null) return false;
+		return LibUsbFinder.libusb_find_device_callback(context(), criteria, 
+			dev -> findDeviceCallback(dev, callback));
+	}
+	
+	@SuppressWarnings("resource")
+	private boolean findDeviceCallback(libusb_device dev,
+		ExceptionPredicate<LibUsbException, LibUsbDevice> callback) throws LibUsbException {
+		LibUsbDevice device = new LibUsbDevice(this::context, dev);
+		try {
+			boolean result = callback.test(device);
+			if (!result) device.close();
+			return result;
+		} catch (LibUsbException | RuntimeException e) {
+			device.close();
+			throw e;
+		}
+	}
+	
+	public LibUsbDevice findDeviceRef(libusb_device_criteria criteria) throws LibUsbException {
+		libusb_device device = LibUsbFinder.libusb_find_device_ref(context(), criteria);
+		if (device == null) return null;
+		return new LibUsbDevice(this::context, device, 1);
+	}
+	
 	public LibUsbDeviceList deviceList() throws LibUsbException {
 		libusb_device.ByReference list = libusb_get_device_list(context());
 		return new LibUsbDeviceList(this::context, list);

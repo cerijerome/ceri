@@ -19,7 +19,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.util.BasicUtil;
 import ceri.log.util.LogUtil;
-import ceri.serial.jna.JnaUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
@@ -60,7 +59,7 @@ public class LibUsbFtdiTester {
 		logger.info("setting 9600 baud");
 		libusb_control_transfer(handle, 0x40, 0x03, 0x4138, 0, 500);
 		logger.info("Bit-bang on");
-		//libusb_control_transfer(handle, 0x40, 0x0b, 0x01ff, 1, 500);
+		// libusb_control_transfer(handle, 0x40, 0x0b, 0x01ff, 1, 500);
 		libusb_control_transfer(handle, 0x40, 0x0b, 0x010f, 1, 500);
 		read(handle);
 		BasicUtil.delay(delayMs);

@@ -1,0 +1,21 @@
+
+MPSSE (Multi-Protocol Synchronous Serial Engine)
+
+Allows FT232H chip to speak many different protocols such as I2C, SPI, and more.
+When the chip is in MPSSE mode it changes the D0 to D3 pins to have special
+serial protocol functions:
+
+D0 - Clock signal output.  This line can be configured as a clock that runs
+     at speeds between ~450Hz to 30Mhz.
+D1 - Serial data output.  This is for outputting a serial signal, like the MOSI line
+     in a SPI connection.
+D2 - Serial data input.  This is for reading a serial signal, like the MISO line
+     in a SPI connection.
+D3 - Serial select signal.  This is a chip select or chip enable signal to tell
+     a connected device that the FT232H is ready to talk to it.
+
+In addition to the serial protocol pins above, the MPSSE mode allows you to control
+other pins as general purpose digital inputs or outputs.  These are great for controlling
+chip select, reset, or other lines on chips.  You can even use the GPIO to read switches,
+blink LEDs, and more!
+

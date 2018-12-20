@@ -14,10 +14,14 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_detach_kernel_driver;
 import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_address;
 import static ceri.serial.libusb.jna.LibUsb.libusb_fill_control_setup;
 import static ceri.serial.libusb.jna.LibUsb.libusb_free_streams;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_bos_descriptor;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_configuration;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_descriptor;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_device;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_string_descriptor;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_string_descriptor_ascii;
 import static ceri.serial.libusb.jna.LibUsb.libusb_interrupt_transfer;
+import static ceri.serial.libusb.jna.LibUsb.libusb_kernel_driver_active;
 import static ceri.serial.libusb.jna.LibUsb.libusb_release_interface;
 import static ceri.serial.libusb.jna.LibUsb.libusb_request_type_value;
 import static ceri.serial.libusb.jna.LibUsb.libusb_reset_device;
@@ -30,8 +34,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 import com.sun.jna.Pointer;
-import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
+import ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;
@@ -63,7 +67,7 @@ public class LibUsbDeviceHandle implements Closeable {
 	}
 
 	public boolean kernelDriverActive(int interfaceNumber) throws LibUsbException {
-		return LibUsb.libusb_kernel_driver_active(handle(), interfaceNumber);
+		return libusb_kernel_driver_active(handle(), interfaceNumber);
 	}
 
 	public void detachKernelDriver(int interfaceNumber) throws LibUsbException {
@@ -84,6 +88,15 @@ public class LibUsbDeviceHandle implements Closeable {
 
 	public void setConfiguration(int configuration) throws LibUsbException {
 		libusb_set_configuration(handle(), configuration);
+	}
+
+	public byte[] descriptor(libusb_descriptor_type descType, int descIndex)
+		throws LibUsbException {
+		return libusb_get_descriptor(handle(), descType, descIndex);
+	}
+
+	public String stringDescriptor(int descIndex, int langid) throws LibUsbException {
+		return libusb_get_string_descriptor(handle(), descIndex, langid);
 	}
 
 	public String stringDescriptorAscii(int index) throws LibUsbException {
@@ -108,7 +121,7 @@ public class LibUsbDeviceHandle implements Closeable {
 		libusb_set_interface_alt_setting(handle(), interfaceNumber, alternateSetting);
 	}
 
-	public void clearHalt(byte endpoint) throws LibUsbException {
+	public void clearHalt(int endpoint) throws LibUsbException {
 		libusb_clear_halt(handle(), endpoint);
 	}
 
@@ -154,14 +167,28 @@ public class LibUsbDeviceHandle implements Closeable {
 			(short) index, (short) length, timeout);
 	}
 
+	public int controlTransfer(int requestType, int bRequest, int wValue, int wIndex,
+		ByteBuffer data, int timeout) throws LibUsbException {
+		return libusb_control_transfer(handle(), requestType, bRequest, wValue, wIndex, data,
+			timeout);
+	}
+
 	public int controlTransfer(int requestType, int request, int value, int index,
 		ByteBuffer buffer, int length, int timeout) throws LibUsbException {
 		return libusb_control_transfer(handle(), (byte) requestType, (byte) request, (short) value,
 			(short) index, buffer, (short) length, timeout);
 	}
 
+	public byte[] bulkTransfer(int endpoint, int length, int timeout) throws LibUsbException {
+		return libusb_bulk_transfer(handle(), endpoint, length, timeout);
+	}
+
 	public int bulkTransfer(int endpoint, byte[] data, int timeout) throws LibUsbException {
 		return libusb_bulk_transfer(handle(), (byte) endpoint, data, timeout);
+	}
+
+	public int bulkTransfer(int endpoint, ByteBuffer data, int timeout) throws LibUsbException {
+		return libusb_bulk_transfer(handle(), endpoint, data, timeout);
 	}
 
 	public int bulkTransfer(int endpoint, ByteBuffer data, int length, int timeout)
@@ -177,9 +204,18 @@ public class LibUsbDeviceHandle implements Closeable {
 		return libusb_interrupt_transfer(handle(), (byte) endpoint, length, timeout);
 	}
 
+	public int interruptTransfer(int endpoint, ByteBuffer data, int timeout)
+		throws LibUsbException {
+		return libusb_interrupt_transfer(handle(), endpoint, data, timeout);
+	}
+
 	public int interruptTransfer(int endpoint, ByteBuffer data, int length, int timeout)
 		throws LibUsbException {
 		return libusb_interrupt_transfer(handle(), (byte) endpoint, data, length, timeout);
+	}
+
+	public LibUsbDescriptor.Bos bosDescriptor() throws LibUsbException {
+		return new LibUsbDescriptor.Bos(libusb_get_bos_descriptor(handle()));
 	}
 
 	@Override

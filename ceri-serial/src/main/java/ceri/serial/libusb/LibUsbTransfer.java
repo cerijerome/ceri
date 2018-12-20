@@ -1,14 +1,23 @@
 package ceri.serial.libusb;
 
 import static ceri.serial.libusb.jna.LibUsb.libusb_cancel_transfer;
+import static ceri.serial.libusb.jna.LibUsb.libusb_control_transfer_get_data;
+import static ceri.serial.libusb.jna.LibUsb.libusb_control_transfer_get_setup;
+import static ceri.serial.libusb.jna.LibUsb.libusb_fill_bulk_stream_transfer;
+import static ceri.serial.libusb.jna.LibUsb.libusb_fill_bulk_transfer;
+import static ceri.serial.libusb.jna.LibUsb.libusb_fill_control_transfer;
+import static ceri.serial.libusb.jna.LibUsb.libusb_fill_interrupt_transfer;
+import static ceri.serial.libusb.jna.LibUsb.libusb_fill_iso_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_free_transfer;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_iso_packet_buffer;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_iso_packet_buffer_simple;
+import static ceri.serial.libusb.jna.LibUsb.libusb_set_iso_packet_lengths;
 import static ceri.serial.libusb.jna.LibUsb.libusb_submit_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_get_stream_id;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_set_stream_id;
 import java.io.Closeable;
 import java.util.function.Supplier;
 import com.sun.jna.Pointer;
-import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_control_setup;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
@@ -32,7 +41,7 @@ public class LibUsbTransfer implements Closeable {
 		libusb_cancel_transfer(transfer());
 	}
 
-	public void setStreamId(int stream_id) throws LibUsbException {
+	public void streamId(int stream_id) throws LibUsbException {
 		libusb_transfer_set_stream_id(transfer(), stream_id);
 	}
 
@@ -40,54 +49,53 @@ public class LibUsbTransfer implements Closeable {
 		return libusb_transfer_get_stream_id(transfer());
 	}
 
-	public Pointer controlGetData() {
-		return LibUsb.libusb_control_transfer_get_data(transfer());
+	public Pointer controlData() {
+		return libusb_control_transfer_get_data(transfer());
 	}
 
-	public libusb_control_setup controlTransferGetSetup() {
-		return LibUsb.libusb_control_transfer_get_setup(transfer());
+	public libusb_control_setup controlSetup() {
+		return libusb_control_transfer_get_setup(transfer());
 	}
 
-	public void fillControlTransfer(Pointer buffer, libusb_transfer_cb_fn callback,
+	public void fillControl(Pointer buffer, libusb_transfer_cb_fn callback, Pointer userData,
+		int timeout) {
+		libusb_fill_control_transfer(transfer(), handle(), buffer, callback, userData, timeout);
+	}
+
+	public void fillBulk(int endpoint, Pointer buffer, int length, libusb_transfer_cb_fn callback,
 		Pointer userData, int timeout) {
-		LibUsb.libusb_fill_control_transfer(transfer(), handle(), buffer, callback, userData,
-			timeout);
-	}
-
-	public void fillBulkTransfer(int endpoint, Pointer buffer, int length,
-		libusb_transfer_cb_fn callback, Pointer userData, int timeout) {
-		LibUsb.libusb_fill_bulk_transfer(transfer(), handle(), endpoint, buffer, length, callback,
+		libusb_fill_bulk_transfer(transfer(), handle(), endpoint, buffer, length, callback,
 			userData, timeout);
 	}
 
-	public void fillBulkStreamTransfer(int endpoint, int streamId, Pointer buffer, int length,
+	public void fillBulkStream(int endpoint, int streamId, Pointer buffer, int length,
 		libusb_transfer_cb_fn callback, Pointer userData, int timeout) {
-		LibUsb.libusb_fill_bulk_stream_transfer(transfer(), handle(), endpoint, streamId, buffer,
-			length, callback, userData, timeout);
-	}
-
-	public void fillInterruptTransfer(int endpoint, Pointer buffer, int length,
-		libusb_transfer_cb_fn callback, Pointer userData, int timeout) {
-		LibUsb.libusb_fill_interrupt_transfer(transfer(), handle(), endpoint, buffer, length,
+		libusb_fill_bulk_stream_transfer(transfer(), handle(), endpoint, streamId, buffer, length,
 			callback, userData, timeout);
 	}
 
-	public void fillIsoTransfer(int endpoint, Pointer buffer, int length, int numIsoPackets,
+	public void fillInterrupt(int endpoint, Pointer buffer, int length,
 		libusb_transfer_cb_fn callback, Pointer userData, int timeout) {
-		LibUsb.libusb_fill_iso_transfer(transfer(), handle(), endpoint, buffer, length,
-			numIsoPackets, callback, userData, timeout);
+		libusb_fill_interrupt_transfer(transfer(), handle(), endpoint, buffer, length, callback,
+			userData, timeout);
 	}
 
-	public void setIsoPacketLengths(int length) {
-		LibUsb.libusb_set_iso_packet_lengths(transfer(), length);
+	public void fillIso(int endpoint, Pointer buffer, int length, int numIsoPackets,
+		libusb_transfer_cb_fn callback, Pointer userData, int timeout) {
+		libusb_fill_iso_transfer(transfer(), handle(), endpoint, buffer, length, numIsoPackets,
+			callback, userData, timeout);
+	}
+
+	public void isoPacketLengths(int length) {
+		libusb_set_iso_packet_lengths(transfer(), length);
 	}
 
 	public Pointer isoPacketBuffer(int packet) {
-		return LibUsb.libusb_get_iso_packet_buffer(transfer(), packet);
+		return libusb_get_iso_packet_buffer(transfer(), packet);
 	}
 
 	public Pointer isoPacketBufferSimple(int packet) {
-		return LibUsb.libusb_get_iso_packet_buffer_simple(transfer(), packet);
+		return libusb_get_iso_packet_buffer_simple(transfer(), packet);
 	}
 
 	@Override

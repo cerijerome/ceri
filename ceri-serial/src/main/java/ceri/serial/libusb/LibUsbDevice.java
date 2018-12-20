@@ -98,33 +98,33 @@ public class LibUsbDevice implements Closeable {
 		return libusb_get_max_iso_packet_size(device(), (byte) endpoint);
 	}
 
-	public LibUsbConfig activeConfigDescriptor() throws LibUsbException {
+	public LibUsbConfig activeConfig() throws LibUsbException {
 		libusb_config_descriptor config = libusb_get_active_config_descriptor(device());
-		return new LibUsbConfig(this, config);
+		return new LibUsbConfig(config);
 	}
 
 	/**
 	 * Gets first configuration.
 	 */
-	public LibUsbConfig configDescriptor() throws LibUsbException {
-		return configDescriptor(0);
+	public LibUsbConfig config() throws LibUsbException {
+		return config(0);
 	}
 
 	/**
 	 * Gets configuration on 0-based index.
 	 */
-	public LibUsbConfig configDescriptor(int index) throws LibUsbException {
+	public LibUsbConfig config(int index) throws LibUsbException {
 		libusb_config_descriptor config = libusb_get_config_descriptor(device(), (byte) index);
-		return new LibUsbConfig(this, config);
+		return new LibUsbConfig(config);
 	}
 
 	/**
 	 * Gets configuration from value in descriptor (usually 1-based index?)
 	 */
-	public LibUsbConfig configDescriptorByValue(int value) throws LibUsbException {
+	public LibUsbConfig configByValue(int value) throws LibUsbException {
 		libusb_config_descriptor config =
 			libusb_get_config_descriptor_by_value(device(), (byte) value);
-		return new LibUsbConfig(this, config);
+		return new LibUsbConfig(config);
 	}
 
 	@Override
