@@ -211,11 +211,11 @@ public class TextUtilTest {
 	}
 
 	@Test
-	public void testPascalToUpper() {
-		assertNull(TextUtil.pascalToUpper(null));
-		assertThat(TextUtil.pascalToUpper(""), is(""));
-		assertThat(TextUtil.pascalToUpper("_HelloThereABC_"), is("_HELLO_THERE_ABC_"));
-		assertThat(TextUtil.pascalToUpper("_Hello1There2ABC3_"), is("_HELLO1_THERE2_ABC3_"));
+	public void testPascalToUnderscore() {
+		assertNull(TextUtil.pascalToUnderscore(null));
+		assertThat(TextUtil.pascalToUnderscore(""), is(""));
+		assertThat(TextUtil.pascalToUnderscore("_HelloThereABC_"), is("_HELLO_THERE_ABC_"));
+		assertThat(TextUtil.pascalToUnderscore("_Hello1There2ABC3_"), is("_HELLO1_THERE2_ABC3_"));
 	}
 
 	@Test
@@ -227,27 +227,27 @@ public class TextUtilTest {
 	}
 
 	@Test
-	public void testUpperToPascal() {
-		assertNull(TextUtil.upperToPascal(null));
-		assertThat(TextUtil.upperToPascal(""), is(""));
-		assertThat(TextUtil.upperToPascal("_HELLO_THERE_ABC_"), is("_HelloThereAbc_"));
-		assertThat(TextUtil.upperToPascal("_HELLO1_THERE2_ABC3_"), is("_Hello1There2Abc3_"));
+	public void testUnderscoreToPascal() {
+		assertNull(TextUtil.underscoreToPascal(null));
+		assertThat(TextUtil.underscoreToPascal(""), is(""));
+		assertThat(TextUtil.underscoreToPascal("_HELLO_THERE_ABC_"), is("_HelloThereAbc_"));
+		assertThat(TextUtil.underscoreToPascal("_HELLO1_THERE2_ABC3_"), is("_Hello1There2Abc3_"));
 	}
 
 	@Test
-	public void testUpperToProperty() {
-		assertNull(TextUtil.upperToProperty(null));
-		assertThat(TextUtil.upperToProperty(""), is(""));
-		assertThat(TextUtil.upperToProperty("HELLO_THERE_ABC"), is("hello.there.abc"));
-		assertThat(TextUtil.upperToProperty("HELLO1_THERE2_ABC3"), is("hello1.there2.abc3"));
+	public void testUnderscoreToProperty() {
+		assertNull(TextUtil.underscoreToProperty(null));
+		assertThat(TextUtil.underscoreToProperty(""), is(""));
+		assertThat(TextUtil.underscoreToProperty("HELLO_THERE_ABC"), is("hello.there.abc"));
+		assertThat(TextUtil.underscoreToProperty("HELLO1_THERE2_ABC3"), is("hello1.there2.abc3"));
 	}
 
 	@Test
-	public void testPropertyToUpper() {
-		assertNull(TextUtil.propertyToUpper(null));
-		assertThat(TextUtil.propertyToUpper(""), is(""));
-		assertThat(TextUtil.propertyToUpper("hello.there.abc"), is("HELLO_THERE_ABC"));
-		assertThat(TextUtil.propertyToUpper("hello1.there2.abc3"), is("HELLO1_THERE2_ABC3"));
+	public void testPropertyToUnderscore() {
+		assertNull(TextUtil.propertyToUnderscore(null));
+		assertThat(TextUtil.propertyToUnderscore(""), is(""));
+		assertThat(TextUtil.propertyToUnderscore("hello.there.abc"), is("HELLO_THERE_ABC"));
+		assertThat(TextUtil.propertyToUnderscore("hello1.there2.abc3"), is("HELLO1_THERE2_ABC3"));
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -13,6 +14,7 @@ import ceri.common.collection.CollectionUtil;
 import ceri.common.factory.Factories;
 import ceri.common.factory.Factory;
 import ceri.common.factory.StringFactories;
+import ceri.common.util.BasicUtil;
 import ceri.common.util.PrimitiveUtil;
 
 public class RegexUtil {
@@ -42,6 +44,13 @@ public class RegexUtil {
 		return Pattern.compile(String.format(format, objs));
 	}
 
+	/**
+	 * Allows for-each loop over match results.
+	 */
+	public static Iterable<MatchResult> forEach(Pattern pattern, String s) {
+		return BasicUtil.forEach(pattern.matcher(s).results().iterator());
+	}
+	
 	/**
 	 * Splits a string by splitting before each instance of the pattern.
 	 */

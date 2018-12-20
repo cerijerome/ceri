@@ -42,10 +42,17 @@ public class FunctionUtil {
 	}
 
 	/**
-	 * Wraps a function that passes through null values.
+	 * Wraps a function, passing null values back to caller.
 	 */
 	public static <T, R> Function<T, R> safe(Function<T, R> function) {
-		return t -> t == null ? null : function.apply(t);
+		return t -> safeApply(t, function);
+	}
+
+	/**
+	 * Wraps a function, passing null values back to caller.
+	 */
+	public static <T, R> R safeApply(T t, Function<T, R> function) {
+		return t == null ? null : function.apply(t);
 	}
 
 	/**

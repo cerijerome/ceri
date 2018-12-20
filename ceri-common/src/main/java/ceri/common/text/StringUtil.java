@@ -74,6 +74,13 @@ public class StringUtil {
 
 	private StringUtil() {}
 
+	public static StringBuilder format(StringBuilder sb, String format, Object... objs) {
+		try (java.util.Formatter f = new java.util.Formatter(sb)) {
+			f.format(format, objs);
+			return sb;
+		}
+	}
+
 	public static DecimalFormat decimalFormat(int decimalPlaces) {
 		StringBuilder b = new StringBuilder("0");
 		if (decimalPlaces > 0) b.append(".");

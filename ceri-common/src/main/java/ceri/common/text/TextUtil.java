@@ -17,6 +17,7 @@ public class TextUtil {
 	private static final Pattern WORD_BOUNDARY_PATTERN = Pattern.compile("([^a-zA-Z])([a-z])");
 	private static final Pattern CASE_BOUNDARY_PATTERN = Pattern.compile("([a-z0-9])([A-Z])");
 	private static final Pattern UPPER_CASE_WORD_PATTERN = Pattern.compile("([A-Z])([A-Z0-9]*)");
+	private static final Pattern LETTER_PATTERN = Pattern.compile("(?i)([A-Z])");
 	private static final Pattern UNDERSCORE_WORD_SEPARATOR_PATTERN = Pattern
 		.compile("(?i)([a-z0-9])_([a-z])");
 	private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
@@ -124,10 +125,26 @@ public class TextUtil {
 	}
 
 	/**
+	 * Make the first letter upper case.
+	 */
+	public static String firstLetterToUpper(String str) {
+		if (str == null || str.isEmpty()) return str;
+		return LETTER_PATTERN.matcher(str).replaceFirst(m -> m.group(0).toUpperCase());
+	}
+
+	/**
+	 * Make the first letter lower case.
+	 */
+	public static String firstLetterToLower(String str) {
+		if (str == null || str.isEmpty()) return str;
+		return LETTER_PATTERN.matcher(str).replaceFirst(m -> m.group(0).toLowerCase());
+	}
+
+	/**
 	 * Changes Pascal case to underscore-separated upper case. Sequential capital letters are not
 	 * separated. e.g. _HelloThereABC_ => _HELLO_THERE_ABC_
 	 */
-	public static String pascalToUpper(String str) {
+	public static String pascalToUnderscore(String str) {
 		if (str == null || str.isEmpty()) return str;
 		return CASE_BOUNDARY_PATTERN.matcher(str).replaceAll("$1_$2").toUpperCase();
 	}
@@ -136,7 +153,7 @@ public class TextUtil {
 	 * Changes Pascal case to property name style. e.g. HelloThereABC => hello.there.abc
 	 */
 	public static String pascalToProperty(String str) {
-		return upperToProperty(pascalToUpper(str));
+		return underscoreToProperty(pascalToUnderscore(str));
 	}
 
 	/**
@@ -162,17 +179,26 @@ public class TextUtil {
 	 * Changes underscore-separated upper case to Pascal case. Only single underscores surrounded by
 	 * letters are removed. e.g. _HELLO_THERE_ABC_ => _HelloThereAbc_
 	 */
-	public static String upperToPascal(String str) {
+	public static String underscoreToPascal(String str) {
 		if (str == null || str.isEmpty()) return str;
 		return UNDERSCORE_WORD_SEPARATOR_PATTERN.matcher(upperToCapitalized(str))
 			.replaceAll("$1$2");
 	}
 
 	/**
+	 * Changes underscore-separated upper case to camel case. Only single underscores surrounded by
+	 * letters are removed. e.g. _HELLO_THERE_ABC_ => _helloThereAbc_
+	 */
+	public static String underscoreToCamel(String str) {
+		if (str == null || str.isEmpty()) return str;
+		return firstLetterToLower(underscoreToPascal(str));
+	}
+	
+	/**
 	 * Changes underscore-separated upper case to property name style. Only single underscores
 	 * surrounded by letters are converted. e.g. HELLO_THERE_ABC => hello.there.abc
 	 */
-	public static String upperToProperty(String str) {
+	public static String underscoreToProperty(String str) {
 		if (str == null || str.isEmpty()) return str;
 		return UNDERSCORE_WORD_SEPARATOR_PATTERN.matcher(str).replaceAll("$1.$2").toLowerCase();
 	}
@@ -181,7 +207,7 @@ public class TextUtil {
 	 * Changes underscore-separated upper case to property name style, e.g. hello.there.abc =>
 	 * HELLO_THERE_ABC
 	 */
-	public static String propertyToUpper(String str) {
+	public static String propertyToUnderscore(String str) {
 		if (str == null || str.isEmpty()) return str;
 		return DOT_PATTERN.matcher(str.toUpperCase()).replaceAll("_");
 	}
