@@ -1,26 +1,31 @@
 package ceri.serial.libusb;
 
+import static ceri.common.collection.ImmutableUtil.convertAsList;
 import java.io.Closeable;
 import java.util.List;
-import ceri.common.collection.ImmutableUtil;
+import java.util.function.Supplier;
 import ceri.serial.libusb.jna.LibUsb;
+import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 
 public class LibUsbDeviceList implements Closeable {
-	public final LibUsbContext ctx;
-	private final libusb_device.ByReference list;
-	public final List<LibUsbDevice> devices;
+	private libusb_device.ByReference list;
+	public List<LibUsbDevice> devices;
 
-	LibUsbDeviceList(LibUsbContext ctx, libusb_device.ByReference list) {
-		this.ctx = ctx;
+	LibUsbDeviceList(Supplier<libusb_context> contextSupplier, libusb_device.ByReference list) {
 		this.list = list;
-		this.devices =
-			ImmutableUtil.convertAsList(d -> new LibUsbDevice(ctx, d), list.typedArray());
+		this.devices = convertAsList(d -> new LibUsbDevice(contextSupplier, d), list.typedArray());
+	}
+
+	public List<LibUsbDevice> devices() {
+		return List.copyOf(devices);
 	}
 
 	@Override
 	public void close() {
 		LibUsb.libusb_free_device_list(list);
+		list = null;
+		devices.clear();
 	}
 
 }

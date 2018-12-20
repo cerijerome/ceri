@@ -1,6 +1,7 @@
 package ceri.serial.libusb.jna;
 
 import static ceri.common.data.ByteUtil.bytes;
+import static ceri.serial.jna.JnaUtil.ubyte;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bulk_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_claim_interface;
 import static ceri.serial.libusb.jna.LibUsb.libusb_close;
@@ -18,6 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.util.BasicUtil;
 import ceri.log.util.LogUtil;
+import ceri.serial.jna.JnaUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
@@ -45,7 +47,7 @@ public class LibUsbFtdiTester {
 
 	private static void process(libusb_device_handle handle) throws LibUsbException {
 		int interfaceNumber = 0;
-		int delayMs = 100;
+		int delayMs = 200;
 
 		boolean kernelDriverActive = libusb_kernel_driver_active(handle, interfaceNumber);
 		logger.info("kernel driver active: {}", kernelDriverActive);
@@ -58,7 +60,8 @@ public class LibUsbFtdiTester {
 		logger.info("setting 9600 baud");
 		libusb_control_transfer(handle, 0x40, 0x03, 0x4138, 0, 500);
 		logger.info("Bit-bang on");
-		libusb_control_transfer(handle, 0x40, 0x0b, 0x01ff, 1, 500);
+		//libusb_control_transfer(handle, 0x40, 0x0b, 0x01ff, 1, 500);
+		libusb_control_transfer(handle, 0x40, 0x0b, 0x010f, 1, 500);
 		read(handle);
 		BasicUtil.delay(delayMs);
 		ByteBuffer b = ByteBuffer.wrap(bytes(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15));
@@ -81,8 +84,8 @@ public class LibUsbFtdiTester {
 
 	private static void read(libusb_device_handle handle) throws LibUsbException {
 		logger.info("Reading 1 byte");
-		byte[] b = libusb_control_transfer(handle, 0xc0, 0x0c, 0x0000, 1, 1, 500);
-		logger.info("Status: 0x{}", LogUtil.toHex(b[0]));
+		int value = ubyte(libusb_control_transfer(handle, 0xc0, 0x0c, 0x0000, 1, 1, 500)[0]);
+		logger.info("Status: 0x{}", LogUtil.toHex(value));
 	}
 
 	private static void write(libusb_device_handle handle, ByteBuffer b, int i)

@@ -245,17 +245,16 @@ public class LibUsbFinder {
 
 	/**
 	 * Finds devices based on criteria, starting from criteria index up to the specified max number.
-	 * The devices should be unreferenced after use.
+	 * The devices should be unreferenced after use. Use max of 0 for unlimited devices.
 	 */
 	public static List<libusb_device> libusb_find_devices_ref(libusb_context ctx,
 		libusb_device_criteria criteria, int max) throws LibUsbException {
-		if (max <= 0) return List.of();
 		List<libusb_device> devs = new ArrayList<>();
 		try {
 			libusb_find_device_callback(ctx, criteria, dev -> {
 				libusb_ref_device(dev);
 				devs.add(dev);
-				return devs.size() >= max;
+				return max != 0 && devs.size() >= max;
 			});
 			return devs;
 		} catch (LibUsbException | RuntimeException e) {

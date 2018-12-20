@@ -35,8 +35,6 @@ import static ceri.serial.ftdi.jna.LibFtdiUtil.require;
 import static ceri.serial.ftdi.jna.LibFtdiUtil.requireCtx;
 import static ceri.serial.ftdi.jna.LibFtdiUtil.requireDev;
 import static ceri.serial.jna.CException.capture;
-import static ceri.serial.jna.JnaUtil.ubyte;
-import static ceri.serial.jna.JnaUtil.ushort;
 import static ceri.serial.libusb.jna.LibUsb.libusb_alloc_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bulk_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_cancel_transfer;
@@ -48,23 +46,18 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_address;
 import static ceri.serial.libusb.jna.LibUsb.libusb_exit;
 import static ceri.serial.libusb.jna.LibUsb.libusb_fill_bulk_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_free_config_descriptor;
-import static ceri.serial.libusb.jna.LibUsb.libusb_free_device_list;
 import static ceri.serial.libusb.jna.LibUsb.libusb_free_transfer;
-import static ceri.serial.libusb.jna.LibUsb.libusb_get_bus_number;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_config_descriptor;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_configuration;
-import static ceri.serial.libusb.jna.LibUsb.libusb_get_device_address;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_device_descriptor;
-import static ceri.serial.libusb.jna.LibUsb.libusb_get_device_list;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_string_descriptor_ascii;
 import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout_completed;
 import static ceri.serial.libusb.jna.LibUsb.libusb_init;
 import static ceri.serial.libusb.jna.LibUsb.libusb_open;
-import static ceri.serial.libusb.jna.LibUsb.libusb_ref_device;
 import static ceri.serial.libusb.jna.LibUsb.libusb_request_type_value;
 import static ceri.serial.libusb.jna.LibUsb.libusb_set_configuration;
 import static ceri.serial.libusb.jna.LibUsb.libusb_submit_transfer;
-import static ceri.serial.libusb.jna.LibUsb.libusb_unref_device;
+import static ceri.serial.libusb.jna.LibUsb.libusb_unref_devices;
 import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction.LIBUSB_ENDPOINT_IN;
 import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction.LIBUSB_ENDPOINT_OUT;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTED;
@@ -73,11 +66,12 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPOR
 import static ceri.serial.libusb.jna.LibUsb.libusb_request_recipient.LIBUSB_RECIPIENT_DEVICE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_request_type.LIBUSB_REQUEST_TYPE_VENDOR;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_CANCELLED;
+import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_criteria;
 import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_device_callback;
+import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_devices_ref;
 import static java.lang.String.format;
 import static java.util.regex.Pattern.compile;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -132,7 +126,9 @@ public class LibFtdi {
 	private static final int TIMEOUT_MS_DEF = 5000;
 	private static final int H_CLK = 120000000;
 	private static final int C_CLK = 48000000;
+	private static final int AM_CLK = 24000000;
 	private static final int FTDI_MAX_EEPROM_SIZE = 256;
+	private static final int BAUD_RATE = 9600;
 	// eeprom not yet supported
 	// private static final int MAX_POWER_MILLIAMP_PER_UNIT = 2;
 	// SIO_RESET_REQUEST values
@@ -618,16 +614,10 @@ public class LibFtdi {
 		}
 	}
 
-	public static class ftdi_device_list {
-		public ftdi_device_list next;
-		public libusb_device dev;
-	}
-
-	private static void ftdi_usb_close_internal(ftdi_context ftdi) {
-		if (ftdi == null) return;
-		libusb_close(ftdi.usb_dev);
-		ftdi.usb_dev = null;
-		if (ftdi.eeprom != null) ftdi.eeprom.initialized_for_connected_device = 0;
+	public static ftdi_context ftdi_new() throws LibUsbException {
+		ftdi_context ftdi = new ftdi_context();
+		ftdi_init(ftdi);
+		return ftdi;
 	}
 
 	public static void ftdi_init(ftdi_context ftdi) throws LibUsbException {
@@ -657,10 +647,20 @@ public class LibFtdi {
 		}
 	}
 
-	public static ftdi_context ftdi_new() throws LibUsbException {
-		ftdi_context ftdi = new ftdi_context();
-		ftdi_init(ftdi);
-		return ftdi;
+	public static void ftdi_free(ftdi_context ftdi) {
+		if (ftdi == null) return;
+		ftdi_usb_close_internal(ftdi);
+		ftdi.readbuffer = null;
+		ftdi.eeprom = null;
+		libusb_exit(ftdi.usb_ctx);
+		ftdi.usb_ctx = null;
+	}
+
+	private static void ftdi_usb_close_internal(ftdi_context ftdi) {
+		if (ftdi == null) return;
+		libusb_close(ftdi.usb_dev);
+		ftdi.usb_dev = null;
+		if (ftdi.eeprom != null) ftdi.eeprom.initialized_for_connected_device = 0;
 	}
 
 	public static void ftdi_set_interface(ftdi_context ftdi, ftdi_interface iface)
@@ -702,76 +702,33 @@ public class LibFtdi {
 		}
 	}
 
-	public static void ftdi_free(ftdi_context ftdi) {
-		if (ftdi == null) return;
-		ftdi_usb_close_internal(ftdi);
-		ftdi.readbuffer = null;
-		ftdi.eeprom = null;
-		libusb_exit(ftdi.usb_ctx);
-		ftdi.usb_ctx = null;
-	}
-
 	public static void ftdi_set_usb_dev(ftdi_context ftdi, libusb_device_handle usb) {
 		if (ftdi != null) ftdi.usb_dev = usb;
 	}
 
 	/**
-	 * Finds all ftdi devices with given VID:PID on the usb bus. Creates a new ftdi_device_list
-	 * which needs to be deallocated by ftdi_list_free() after use. With VID:PID 0:0, search for the
-	 * default devices with vendor id 0x403
+	 * Finds all ftdi devices with given VID:PID on the usb bus. Creates a new device list which
+	 * needs to be deallocated by ftdi_list_free() after use. With VID:PID 0:0, search for the
+	 * default devices with vendor id 0x403.
 	 */
 	public static List<libusb_device> ftdi_usb_find_all(ftdi_context ftdi, int vendor, int product)
 		throws LibUsbException {
-		List<libusb_device> devs = new ArrayList<>();
-
-		libusb_device.ByReference list = libusb_get_device_list(ftdi.usb_ctx);
-		try {
-			for (libusb_device dev : list.typedArray()) {
-				libusb_device_descriptor desc = libusb_get_device_descriptor(dev);
-				if (vendor != 0 && vendor != ushort(desc.idVendor)) continue;
-				if (product != 0 && product != ushort(desc.idProduct)) continue;
-				if (vendor == 0 && FTDI_VENDOR_ID != ushort(desc.idVendor)) continue;
-				// Originally only checks product for 0x6001, 0x6010, 0x6011, 0x6014, 0x6015
-				libusb_ref_device(dev);
-				devs.add(dev);
-			}
-			return devs;
-		} catch (LibUsbException | RuntimeException e) {
-			ftdi_list_free(devs);
-			throw e;
-		} finally {
-			libusb_free_device_list(list);
-		}
+		requireCtx(ftdi);
+		libusb_device_criteria criteria =
+			libusb_find_criteria().vendor(vendor == 0 ? FTDI_VENDOR_ID : vendor).product(product);
+		return libusb_find_devices_ref(ftdi.usb_ctx, criteria, 0);
 	}
 
 	public static void ftdi_list_free(List<libusb_device> devlist) {
-		for (libusb_device dev : devlist)
-			libusb_unref_device(dev);
+		libusb_unref_devices(devlist);
 	}
 
 	/**
-	 * Return device ID strings from the usb device. Use this function only in combination with
-	 * ftdi_usb_find_all() as it closes the internal "usb_dev" after use.
+	 * Return device ID strings from the usb device. This method opens and closes the device if not
+	 * already open.
 	 */
 	public static ftdi_string_descriptors ftdi_usb_get_strings(ftdi_context ftdi, libusb_device dev)
 		throws LibUsbException {
-		require(ftdi);
-		LibUsbUtil.require(dev);
-		if (ftdi.usb_dev == null) ftdi.usb_dev = libusb_open(dev);
-		try {
-			ftdi_string_descriptors descriptors = ftdi_usb_get_strings2(ftdi, dev);
-			return descriptors;
-		} finally {
-			ftdi_usb_close_internal(ftdi);
-		}
-	}
-
-	/**
-	 * Return device ID strings from the usb device. The old function ftdi_usb_get_strings() always
-	 * closes the device. This version only closes the device if it was opened by it.
-	 */
-	public static ftdi_string_descriptors ftdi_usb_get_strings2(ftdi_context ftdi,
-		libusb_device dev) throws LibUsbException {
 		require(ftdi);
 		LibUsbUtil.require(dev);
 
@@ -831,7 +788,7 @@ public class LibFtdi {
 			ftdi_usb_reset(ftdi);
 			ftdi.type().set(guessChipType(desc.bcdDevice, desc.iSerialNumber));
 			ftdi.max_packet_size = _ftdi_determine_max_packet_size(ftdi, dev);
-			ftdi_set_baudrate(ftdi, 9600);
+			ftdi_set_baudrate(ftdi, BAUD_RATE);
 		} catch (LibUsbException | RuntimeException e) {
 			ftdi_usb_close_internal(ftdi);
 			throw e;
@@ -898,37 +855,9 @@ public class LibFtdi {
 	 */
 	public static void ftdi_usb_open_desc_index(ftdi_context ftdi, int vendor, int product,
 		String description, String serial, int index) throws LibUsbException {
-		requireCtx(ftdi);
-		libusb_device.ByReference devs = libusb_get_device_list(ftdi.usb_ctx);
-		try {
-			for (libusb_device dev : devs.typedArray()) {
-				libusb_device_descriptor desc = libusb_get_device_descriptor(dev);
-				if (ushort(desc.idVendor) != vendor) continue;
-				if (ushort(desc.idProduct) != product) continue;
-				libusb_device_handle usb_dev = libusb_open(dev);
-				try {
-					if (!matchesDesc(usb_dev, description, desc.iProduct)) continue;
-					if (!matchesDesc(usb_dev, serial, desc.iSerialNumber)) continue;
-					if (index-- > 0) continue;
-				} finally {
-					libusb_close(usb_dev);
-				}
-				ftdi_usb_open_dev(ftdi, dev);
-				return;
-			}
-		} finally {
-			libusb_free_device_list(devs);
-		}
-		throw LibUsbNotFoundException.byFormat(
-			"Device not found: vendor=0x%04x product=0x%04x description=%s serial=%s index=%d",
-			vendor, product, description, serial, index);
-	}
-
-	private static boolean matchesDesc(libusb_device_handle usb_dev, String expected, int desc_index)
-		throws LibUsbException {
-		if (expected == null || expected.isEmpty()) return true;
-		String descriptor = libusb_get_string_descriptor_ascii(usb_dev, desc_index);
-		return expected.equals(descriptor);
+		libusb_device_criteria criteria = libusb_find_criteria().vendor(vendor).product(product)
+			.description(description).serial(serial).index(index);
+		ftdi_usb_open_criteria(ftdi, criteria);
 	}
 
 	/**
@@ -936,20 +865,8 @@ public class LibFtdi {
 	 */
 	public static void ftdi_usb_open_bus_addr(ftdi_context ftdi, int bus, int addr)
 		throws LibUsbException {
-		requireCtx(ftdi);
-		libusb_device.ByReference devs = libusb_get_device_list(ftdi.usb_ctx);
-		try {
-			for (libusb_device dev : devs.typedArray()) {
-				if (bus != ubyte(libusb_get_bus_number(dev))) continue;
-				if (addr != ubyte(libusb_get_device_address(dev))) continue;
-				ftdi_usb_open_dev(ftdi, dev);
-				return;
-			}
-		} finally {
-			libusb_free_device_list(devs);
-		}
-		throw LibUsbNotFoundException.byFormat("Device not found: bus_number=0x%02x address=0x%02x",
-			bus, addr);
+		libusb_device_criteria criteria = libusb_find_criteria().busNumber(bus).deviceAddress(addr);
+		ftdi_usb_open_criteria(ftdi, criteria);
 	}
 
 	/**
@@ -1018,7 +935,7 @@ public class LibFtdi {
 		byte[] frac_code = { 0, 3, 2, 4, 1, 5, 6, 7 };
 		byte[] am_adjust_up = { 0, 0, 0, 1, 0, 3, 2, 1 };
 		byte[] am_adjust_dn = { 0, 0, 0, 1, 0, 1, 2, 3 };
-		int divisor = 24000000 / baudrate;
+		int divisor = AM_CLK / baudrate;
 		divisor -= am_adjust_dn[divisor & 7];
 
 		int best_divisor = 0;
@@ -1035,7 +952,7 @@ public class LibFtdi {
 				try_divisor += am_adjust_up[try_divisor & 7];
 				if (try_divisor > 0x1FFF8) try_divisor = 0x1FFF8;
 			}
-			baud_estimate = (24000000 + (try_divisor / 2)) / try_divisor;
+			baud_estimate = (AM_CLK + (try_divisor / 2)) / try_divisor;
 			if (baud_estimate < baudrate) baud_diff = baudrate - baud_estimate;
 			else baud_diff = baud_estimate - baudrate;
 			if (i == 0 || baud_diff < best_baud_diff) {
@@ -1094,10 +1011,10 @@ public class LibFtdi {
 			best_baud = ftdi_to_clkbits(baudrate, C_CLK, 16, encoded_divisor);
 		else best_baud = ftdi_to_clkbits_AM(baudrate, encoded_divisor);
 
-		value[0] = (short) (encoded_divisor[0] & 0xFFFF);
+		value[0] = (short) (encoded_divisor[0] & 0xffff);
 		if (type != null && type.isHType()) {
 			index[0] = (short) (encoded_divisor[0] >> 8);
-			index[0] &= 0xFF00;
+			index[0] &= 0xff00;
 			index[0] |= ftdi.index;
 		} else index[0] = (short) (encoded_divisor[0] >> 16);
 		return best_baud;
@@ -1199,7 +1116,8 @@ public class LibFtdi {
 			if (readLen <= LibFtdiUtil.READ_STATUS_BYTES) break;
 			for (int i = 0;; i++) {
 				int position = (i * ftdi.max_packet_size) + LibFtdiUtil.READ_STATUS_BYTES;
-				int len = Math.min(readLen - position, ftdi.max_packet_size - LibFtdiUtil.READ_STATUS_BYTES);
+				int len = Math.min(readLen - position,
+					ftdi.max_packet_size - LibFtdiUtil.READ_STATUS_BYTES);
 				if (len <= 0) break;
 				buffer.put(readBuffer.limit(position + len).position(position));
 				remaining -= len;
@@ -1215,7 +1133,8 @@ public class LibFtdi {
 	private static int readLen(ftdi_context ftdi, int dataSize) {
 		int packets = dataSize / (ftdi.max_packet_size - LibFtdiUtil.READ_STATUS_BYTES);
 		int rem = dataSize % (ftdi.max_packet_size - LibFtdiUtil.READ_STATUS_BYTES);
-		int total = (packets * ftdi.max_packet_size) + (rem > 0 ? LibFtdiUtil.READ_STATUS_BYTES + rem : 0);
+		int total =
+			(packets * ftdi.max_packet_size) + (rem > 0 ? LibFtdiUtil.READ_STATUS_BYTES + rem : 0);
 		return Math.min(total, ftdi.readbuffer_chunksize);
 	}
 
@@ -1305,7 +1224,8 @@ public class LibFtdi {
 		for (int i = 0;; i++) {
 			int toOffset = i * (ftdi.max_packet_size - LibFtdiUtil.READ_STATUS_BYTES);
 			int fromOffset = (i * ftdi.max_packet_size) + LibFtdiUtil.READ_STATUS_BYTES;
-			int len = Math.min(dataLen - toOffset, ftdi.max_packet_size - LibFtdiUtil.READ_STATUS_BYTES);
+			int len =
+				Math.min(dataLen - toOffset, ftdi.max_packet_size - LibFtdiUtil.READ_STATUS_BYTES);
 			if (len <= 0) break;
 			System.arraycopy(buffer, fromOffset, buffer, toOffset, len);
 		}
@@ -1371,6 +1291,9 @@ public class LibFtdi {
 		ftdi.readbuffer_chunksize = chunkSize;
 	}
 
+	/**
+	 * Set pin bitmode. Bitmask specified lines 1 for output, 0 for input.
+	 */
 	public static void ftdi_set_bitmode(ftdi_context ftdi, int bitmask, ftdi_mpsse_mode mode)
 		throws LibUsbException {
 		requireDev(ftdi);

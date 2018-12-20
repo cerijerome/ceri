@@ -1,73 +1,240 @@
 package ceri.serial.libusb;
 
+import static ceri.serial.libusb.jna.LibUsb.libusb_error_name;
+import static ceri.serial.libusb.jna.LibUsb.libusb_event_handler_active;
+import static ceri.serial.libusb.jna.LibUsb.libusb_event_handling_ok;
+import static ceri.serial.libusb.jna.LibUsb.libusb_exit;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_container_id_descriptor;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_device_list;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_next_timeout;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_pollfds;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_ss_endpoint_companion_descriptor;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_ss_usb_device_capability_descriptor;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_usb_2_0_extension_descriptor;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_version;
+import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events;
+import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_completed;
+import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_locked;
+import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout;
+import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout_completed;
+import static ceri.serial.libusb.jna.LibUsb.libusb_has_capability;
+import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_deregister_callback;
+import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_register_callback;
+import static ceri.serial.libusb.jna.LibUsb.libusb_init;
+import static ceri.serial.libusb.jna.LibUsb.libusb_init_default;
+import static ceri.serial.libusb.jna.LibUsb.libusb_lock_event_waiters;
+import static ceri.serial.libusb.jna.LibUsb.libusb_lock_events;
+import static ceri.serial.libusb.jna.LibUsb.libusb_open;
+import static ceri.serial.libusb.jna.LibUsb.libusb_open_device_with_vid_pid;
+import static ceri.serial.libusb.jna.LibUsb.libusb_pollfds_handle_timeouts;
+import static ceri.serial.libusb.jna.LibUsb.libusb_set_debug;
+import static ceri.serial.libusb.jna.LibUsb.libusb_set_pollfd_notifiers;
+import static ceri.serial.libusb.jna.LibUsb.libusb_setlocale;
+import static ceri.serial.libusb.jna.LibUsb.libusb_strerror;
+import static ceri.serial.libusb.jna.LibUsb.libusb_try_lock_events;
+import static ceri.serial.libusb.jna.LibUsb.libusb_unlock_event_waiters;
+import static ceri.serial.libusb.jna.LibUsb.libusb_unlock_events;
+import static ceri.serial.libusb.jna.LibUsb.libusb_wait_for_event;
+import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_device_callback;
 import java.io.Closeable;
+import java.time.Duration;
 import java.util.Locale;
-import ceri.serial.libusb.jna.LibUsb;
+import com.sun.jna.Pointer;
+import ceri.serial.jna.Time;
+import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_capability;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
+import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
+import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
+import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_handle;
+import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event;
+import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_flag;
 import ceri.serial.libusb.jna.LibUsb.libusb_log_level;
+import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
+import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
 import ceri.serial.libusb.jna.LibUsbException;
+import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
 
 public class LibUsbContext implements Closeable {
-	private final libusb_context ctx;
+	private libusb_context context;
 
 	public static libusb_version version() throws LibUsbException {
-		return LibUsb.libusb_get_version();
+		return libusb_get_version();
 	}
 
 	public static boolean hasCapability(libusb_capability capability) {
-		return LibUsb.libusb_has_capability(capability);
+		return libusb_has_capability(capability);
 	}
 
 	public static void setLocale(Locale locale) throws LibUsbException {
-		LibUsb.libusb_setlocale(locale.toString());
+		libusb_setlocale(locale.toString());
 	}
 
 	public static String errorName(libusb_error error) {
-		return LibUsb.libusb_error_name(error);
+		return libusb_error_name(error);
 	}
 
 	public static String errorString(libusb_error error) {
-		return LibUsb.libusb_strerror(error);
+		return libusb_strerror(error);
 	}
 
 	public static LibUsbContext init() throws LibUsbException {
-		return new LibUsbContext(LibUsb.libusb_init());
+		return new LibUsbContext(libusb_init());
 	}
 
 	public static LibUsbContext initDefault() throws LibUsbException {
-		LibUsb.libusb_init_default();
+		libusb_init_default();
 		return new LibUsbContext(null);
 	}
 
-	private LibUsbContext(libusb_context ctx) {
-		this.ctx = ctx;
+	private LibUsbContext(libusb_context context) {
+		this.context = context;
 	}
 
 	public void setDebug(libusb_log_level level) {
-		LibUsb.libusb_set_debug(ctx, level);
+		libusb_set_debug(context(), level);
+	}
+
+	public LibUsbDeviceHandle openDevice(libusb_device_criteria criteria) throws LibUsbException {
+		libusb_device_handle[] handles = new libusb_device_handle[1];
+		libusb_find_device_callback(context(), criteria, dev -> {
+			handles[0] = libusb_open(dev);
+			return true;
+		});
+		if (handles[0] != null) return new LibUsbDeviceHandle(this::context, handles[0]);
+		return null;
 	}
 
 	public LibUsbDeviceHandle openDeviceWithVidPid(int vendorId, int productId)
 		throws LibUsbException {
 		libusb_device_handle handle =
-			LibUsb.libusb_open_device_with_vid_pid(ctx, (short) vendorId, (short) productId);
+			libusb_open_device_with_vid_pid(context(), vendorId, productId);
 		if (handle == null) return null;
-		return new LibUsbDeviceHandle(this, handle);
+		return new LibUsbDeviceHandle(this::context, handle);
 	}
 
 	public LibUsbDeviceList deviceList() throws LibUsbException {
-		libusb_device.ByReference list = LibUsb.libusb_get_device_list(ctx);
-		return new LibUsbDeviceList(this, list);
+		libusb_device.ByReference list = libusb_get_device_list(context());
+		return new LibUsbDeviceList(this::context, list);
+	}
+
+	public boolean eventHandlerActive() throws LibUsbException {
+		return libusb_event_handler_active(context());
+	}
+
+	public boolean eventHandlingOk() throws LibUsbException {
+		return libusb_event_handling_ok(context());
+	}
+
+	public Duration getNextTimeout() throws LibUsbException {
+		return Time.Util.duration(libusb_get_next_timeout(context()));
+	}
+
+	public void handleEvents() throws LibUsbException {
+		libusb_handle_events(context());
+	}
+
+	public int handleEventsCompleted() throws LibUsbException {
+		return libusb_handle_events_completed(context());
+	}
+
+	public void handleEventsLocked(Duration d) throws LibUsbException {
+		libusb_handle_events_locked(context(), Time.Util.timeval(d));
+	}
+
+	public void handleEventsTimeout(Duration d) throws LibUsbException {
+		libusb_handle_events_timeout(context(), Time.Util.timeval(d));
+	}
+
+	public int handleEventsTimeoutCompleted(Duration d) throws LibUsbException {
+		return libusb_handle_events_timeout_completed(context(), Time.Util.timeval(d));
+	}
+
+	public void lockEventWaiters() throws LibUsbException {
+		libusb_lock_event_waiters(context());
+	}
+
+	public void lockEvents() throws LibUsbException {
+		libusb_lock_events(context());
+	}
+
+	public void tryLockEvents() throws LibUsbException {
+		libusb_try_lock_events(context());
+	}
+
+	public void unlockEventWaiters() throws LibUsbException {
+		libusb_unlock_event_waiters(context());
+	}
+
+	public void unlockEvents() throws LibUsbException {
+		libusb_unlock_events(context());
+	}
+
+	public void waitForEvent(Duration d) throws LibUsbException {
+		libusb_wait_for_event(context(), Time.Util.timeval(d));
+	}
+
+	public LibUsbPollFds getPollfds() throws LibUsbException {
+		return new LibUsbPollFds(libusb_get_pollfds(context()));
+	}
+
+	public boolean pollfdsHandleTimeouts() throws LibUsbException {
+		return libusb_pollfds_handle_timeouts(context());
+	}
+
+	public void setPollfdNotifiers(libusb_pollfd_added_cb addedCallback,
+		libusb_pollfd_removed_cb removedCallback, Pointer userData) throws LibUsbException {
+		libusb_set_pollfd_notifiers(context(), addedCallback, removedCallback, userData);
+	}
+
+	public void hotplugDeregisterCallback(libusb_hotplug_callback_handle handle) {
+		libusb_hotplug_deregister_callback(context(), handle);
+	}
+
+	public libusb_hotplug_callback_handle hotplugRegisterCallback(libusb_hotplug_event events,
+		libusb_hotplug_flag flags, int vendorId, int productId, int devClass,
+		libusb_hotplug_callback_fn callback, Pointer userData) throws LibUsbException {
+		return libusb_hotplug_register_callback(context(), events, flags, vendorId, productId,
+			devClass, callback, userData);
+	}
+
+	public LibUsbDescriptor.SsEndpointCompanion getSsEndpointCompanionDescriptor(
+		libusb_endpoint_descriptor endpoint) throws LibUsbException {
+		return new LibUsbDescriptor.SsEndpointCompanion(
+			libusb_get_ss_endpoint_companion_descriptor(context(), endpoint));
+	}
+
+	public LibUsbDescriptor.SsUsbDeviceCapability getSsUsbDeviceCapabilityDescriptor(
+		libusb_bos_dev_capability_descriptor devCap) throws LibUsbException {
+		return new LibUsbDescriptor.SsUsbDeviceCapability(
+			libusb_get_ss_usb_device_capability_descriptor(context(), devCap));
+	}
+
+	public LibUsbDescriptor.Usb20Extension getUsb20ExtensionDescriptor(
+		libusb_bos_dev_capability_descriptor devCap) throws LibUsbException {
+		return new LibUsbDescriptor.Usb20Extension(
+			libusb_get_usb_2_0_extension_descriptor(context(), devCap));
+	}
+
+	public LibUsbDescriptor.ContainerId getContainerIdDescriptor(
+		libusb_bos_dev_capability_descriptor descriptor) throws LibUsbException {
+		return new LibUsbDescriptor.ContainerId(
+			libusb_get_container_id_descriptor(context(), descriptor));
 	}
 
 	@Override
 	public void close() {
-		LibUsb.libusb_exit(ctx);
+		libusb_exit(context);
+		context = null;
+	}
+
+	private libusb_context context() throws IllegalStateException {
+		if (context != null) return context;
+		throw new IllegalStateException("Context has been closed");
 	}
 
 }

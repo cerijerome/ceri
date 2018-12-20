@@ -68,6 +68,16 @@ public class JnaUtil {
 	}
 
 	/**
+	 * Creates a typed array of structures from reference pointer for a null-terminated array.
+	 */
+	public static <T extends Struct> T[] arrayByRef(Pointer p, 
+		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor) {
+		if (p == null) return arrayConstructor.apply(0);
+		Pointer[] refs = p.getPointerArray(0);
+		return Stream.of(refs).map(constructor).toArray(arrayConstructor);
+	}
+
+	/**
 	 * Creates a typed array of structures from reference pointer. If count is 0, returns empty
 	 * array. Make sure count field is unsigned (call JnaUtil.ubyte/ushort if needed).
 	 */

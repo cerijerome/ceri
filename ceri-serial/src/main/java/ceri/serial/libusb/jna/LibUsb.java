@@ -2525,16 +2525,17 @@ public class LibUsb {
 		verify(LIBUSB.libusb_handle_events_locked(ctx, tv), "handle_events_locked");
 	}
 
-	public static void libusb_pollfds_handle_timeouts(libusb_context ctx) throws LibUsbException {
+	public static boolean libusb_pollfds_handle_timeouts(libusb_context ctx) throws LibUsbException {
 		require(ctx);
-		verify(LIBUSB.libusb_pollfds_handle_timeouts(ctx), "pollfds_handle_timeouts");
+		return verify(LIBUSB.libusb_pollfds_handle_timeouts(ctx), "pollfds_handle_timeouts") != 0;
 	}
 
-	public static int libusb_get_next_timeout(libusb_context ctx, timeval tv)
+	public static timeval libusb_get_next_timeout(libusb_context ctx)
 		throws LibUsbException {
 		require(ctx);
-		if (tv == null) tv = new timeval(0, 0);
-		return verify(LIBUSB.libusb_get_next_timeout(ctx, tv), "get_next_timeout");
+		timeval tv = new timeval();
+		verify(LIBUSB.libusb_get_next_timeout(ctx, tv), "get_next_timeout");
+		return tv;
 	}
 
 	public static libusb_pollfd.ByReference libusb_get_pollfds(libusb_context ctx)

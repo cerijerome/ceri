@@ -1,6 +1,7 @@
 package ceri.serial.jna;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import com.sun.jna.NativeLong;
@@ -62,4 +63,19 @@ public class Time {
 		time.tv_usec.setValue(NANOSECONDS.toMillis(instant.getNano()));
 	}
 
+	public static class Util {
+		
+		public static timeval timeval(Duration d) {
+			if (d == null) return null;
+			return new timeval(d.getSeconds(), d.getNano() / 1000L);
+		}
+		
+		public static Duration duration(timeval tv) {
+			if (tv == null) return null;
+			return Duration.ofSeconds(tv.tv_sec.longValue(), tv.tv_usec.longValue() * 1000L);
+		}
+		
+		private Util() {}
+	}
+	
 }

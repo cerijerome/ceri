@@ -26,7 +26,6 @@ public class LibFtdiTester {
 			ftdi_usb_open_criteria(ftdi, criteria);
 			ftdi_enable_bitbang(ftdi);
 			process(ftdi);
-			// ftdi_disable_bitbang(ftdi);
 		} finally {
 			ftdi_free(ftdi);
 		}

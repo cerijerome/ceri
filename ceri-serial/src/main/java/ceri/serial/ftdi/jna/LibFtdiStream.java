@@ -2,6 +2,7 @@ package ceri.serial.ftdi.jna;
 
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_set_bitmode;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_purge_buffers;
+import static ceri.serial.ftdi.jna.LibFtdiUtil.requireDev;
 import static ceri.serial.jna.Time.gettimeofday;
 import static ceri.serial.libusb.jna.LibUsb.libusb_free_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout;
@@ -168,7 +169,7 @@ public class LibFtdiStream {
 	 */
 	public static void ftdi_read_stream(ftdi_context ftdi, ftdi_stream_cb callback,
 		Pointer userdata, int packetsPerTransfer, int numTransfers) throws LibUsbException {
-		LibFtdiUtil.require(ftdi);
+		requireDev(ftdi);
 		if (!ftdi.type().get().isSyncFifoType()) throw new LibUsbException( //
 			"Synchronous FIFO mode not supported: " + ftdi.type().get(),
 			libusb_error.LIBUSB_ERROR_NOT_SUPPORTED);

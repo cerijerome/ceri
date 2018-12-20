@@ -2,143 +2,195 @@ package ceri.serial.libusb;
 
 import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.data.ByteUtil.toByteArray;
+import static ceri.serial.libusb.jna.LibUsb.libusb_alloc_streams;
+import static ceri.serial.libusb.jna.LibUsb.libusb_alloc_transfer;
+import static ceri.serial.libusb.jna.LibUsb.libusb_attach_kernel_driver;
+import static ceri.serial.libusb.jna.LibUsb.libusb_bulk_transfer;
+import static ceri.serial.libusb.jna.LibUsb.libusb_claim_interface;
+import static ceri.serial.libusb.jna.LibUsb.libusb_clear_halt;
+import static ceri.serial.libusb.jna.LibUsb.libusb_close;
+import static ceri.serial.libusb.jna.LibUsb.libusb_control_transfer;
+import static ceri.serial.libusb.jna.LibUsb.libusb_detach_kernel_driver;
+import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_address;
+import static ceri.serial.libusb.jna.LibUsb.libusb_fill_control_setup;
+import static ceri.serial.libusb.jna.LibUsb.libusb_free_streams;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_configuration;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_device;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_string_descriptor_ascii;
+import static ceri.serial.libusb.jna.LibUsb.libusb_interrupt_transfer;
+import static ceri.serial.libusb.jna.LibUsb.libusb_release_interface;
+import static ceri.serial.libusb.jna.LibUsb.libusb_request_type_value;
+import static ceri.serial.libusb.jna.LibUsb.libusb_reset_device;
+import static ceri.serial.libusb.jna.LibUsb.libusb_set_auto_detach_kernel_driver;
+import static ceri.serial.libusb.jna.LibUsb.libusb_set_configuration;
+import static ceri.serial.libusb.jna.LibUsb.libusb_set_interface_alt_setting;
 import java.io.Closeable;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
+import com.sun.jna.Pointer;
 import ceri.serial.libusb.jna.LibUsb;
+import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
+import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;
+import ceri.serial.libusb.jna.LibUsb.libusb_request_recipient;
+import ceri.serial.libusb.jna.LibUsb.libusb_request_type;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class LibUsbDeviceHandle implements Closeable {
-	public final LibUsbContext ctx;
-	private final libusb_device_handle handle;
+	private final Supplier<libusb_context> contextSupplier;
+	private libusb_device_handle handle;
 
-	LibUsbDeviceHandle(LibUsbContext ctx, libusb_device_handle handle) {
-		this.ctx = ctx;
+	public static int requestTypeValue(libusb_request_recipient recipient, libusb_request_type type,
+		libusb_endpoint_direction endpointDirection) {
+		return libusb_request_type_value(recipient, type, endpointDirection);
+	}
+
+	public static int endpointAddress(int value, libusb_endpoint_direction direction) {
+		return libusb_endpoint_address(value, direction);
+	}
+
+	public static void fillControlSetup(Pointer buffer, int bmRequestType, int bRequest, int wValue,
+		int wIndex, int wLength) {
+		libusb_fill_control_setup(buffer, bmRequestType, bRequest, wValue, wIndex, wLength);
+	}
+
+	LibUsbDeviceHandle(Supplier<libusb_context> contextSupplier, libusb_device_handle handle) {
+		this.contextSupplier = contextSupplier;
 		this.handle = handle;
 	}
 
 	public boolean kernelDriverActive(int interfaceNumber) throws LibUsbException {
-		return LibUsb.libusb_kernel_driver_active(handle, interfaceNumber);
+		return LibUsb.libusb_kernel_driver_active(handle(), interfaceNumber);
 	}
 
 	public void detachKernelDriver(int interfaceNumber) throws LibUsbException {
-		LibUsb.libusb_detach_kernel_driver(handle, interfaceNumber);
+		libusb_detach_kernel_driver(handle(), interfaceNumber);
 	}
 
 	public void attachKernelDriver(int interfaceNumber) throws LibUsbException {
-		LibUsb.libusb_attach_kernel_driver(handle, interfaceNumber);
+		libusb_attach_kernel_driver(handle(), interfaceNumber);
 	}
 
 	public void setAutoDetachKernelDriver(boolean enable) throws LibUsbException {
-		LibUsb.libusb_set_auto_detach_kernel_driver(handle, enable);
+		libusb_set_auto_detach_kernel_driver(handle(), enable);
 	}
 
 	public int configuration() throws LibUsbException {
-		return LibUsb.libusb_get_configuration(handle);
+		return libusb_get_configuration(handle());
 	}
 
 	public void setConfiguration(int configuration) throws LibUsbException {
-		LibUsb.libusb_set_configuration(handle, configuration);
+		libusb_set_configuration(handle(), configuration);
 	}
 
 	public String stringDescriptorAscii(int index) throws LibUsbException {
-		return LibUsb.libusb_get_string_descriptor_ascii(handle, (byte) index);
+		return libusb_get_string_descriptor_ascii(handle(), (byte) index);
 	}
 
 	public LibUsbDevice device() throws LibUsbException {
-		libusb_device device = LibUsb.libusb_get_device(handle);
-		return new LibUsbDevice(ctx, device);
+		libusb_device device = libusb_get_device(handle());
+		return new LibUsbDevice(contextSupplier, device);
 	}
 
 	public void claimInterface(int interfaceNumber) throws LibUsbException {
-		LibUsb.libusb_claim_interface(handle, interfaceNumber);
+		libusb_claim_interface(handle(), interfaceNumber);
 	}
 
 	public void releaseInterface(int interfaceNumber) throws LibUsbException {
-		LibUsb.libusb_release_interface(handle, interfaceNumber);
+		libusb_release_interface(handle(), interfaceNumber);
 	}
 
 	public void setInterfaceAltSetting(int interfaceNumber, int alternateSetting)
 		throws LibUsbException {
-		LibUsb.libusb_set_interface_alt_setting(handle, interfaceNumber, alternateSetting);
+		libusb_set_interface_alt_setting(handle(), interfaceNumber, alternateSetting);
 	}
 
 	public void clearHalt(byte endpoint) throws LibUsbException {
-		LibUsb.libusb_clear_halt(handle, endpoint);
+		libusb_clear_halt(handle(), endpoint);
 	}
 
 	public void resetDevice() throws LibUsbException {
-		LibUsb.libusb_reset_device(handle);
+		libusb_reset_device(handle());
+	}
+
+	public LibUsbTransfer allocTransfer(int isoPackets) throws LibUsbException {
+		return new LibUsbTransfer(this::handle, libusb_alloc_transfer(isoPackets));
 	}
 
 	public int allocStreams(int streams, int... endPoints) throws LibUsbException {
-		return LibUsb.libusb_alloc_streams(handle, (byte) streams, bytes(endPoints));
+		return libusb_alloc_streams(handle(), (byte) streams, bytes(endPoints));
 	}
 
 	public int allocStreams(int streams, List<Integer> endPoints) throws LibUsbException {
-		return LibUsb.libusb_alloc_streams(handle, (byte) streams, toByteArray(endPoints));
+		return libusb_alloc_streams(handle(), (byte) streams, toByteArray(endPoints));
 	}
 
 	public void freeStreams(int... endPoints) throws LibUsbException {
-		LibUsb.libusb_free_streams(handle, bytes(endPoints));
+		libusb_free_streams(handle(), bytes(endPoints));
 	}
 
 	public void freeStreams(Collection<Integer> endPoints) throws LibUsbException {
-		LibUsb.libusb_free_streams(handle, toByteArray(endPoints));
+		libusb_free_streams(handle(), toByteArray(endPoints));
 	}
 
 	public int controlTransfer(int requestType, int request, int value, int index, int timeout)
 		throws LibUsbException {
-		return LibUsb.libusb_control_transfer(handle, (byte) requestType, (byte) request,
-			(short) value, (short) index, null, (short) 0, timeout);
+		return libusb_control_transfer(handle(), (byte) requestType, (byte) request, (short) value,
+			(short) index, null, (short) 0, timeout);
 	}
 
 	public int controlTransfer(int requestType, int request, int value, int index, byte[] data,
 		int timeout) throws LibUsbException {
-		return LibUsb.libusb_control_transfer(handle, (byte) requestType, (byte) request,
-			(short) value, (short) index, data, timeout);
+		return libusb_control_transfer(handle(), (byte) requestType, (byte) request, (short) value,
+			(short) index, data, timeout);
 	}
 
 	public byte[] controlTransfer(int requestType, int request, int value, int index, int length,
 		int timeout) throws LibUsbException {
-		return LibUsb.libusb_control_transfer(handle, (byte) requestType, (byte) request,
-			(short) value, (short) index, (short) length, timeout);
+		return libusb_control_transfer(handle(), (byte) requestType, (byte) request, (short) value,
+			(short) index, (short) length, timeout);
 	}
 
 	public int controlTransfer(int requestType, int request, int value, int index,
 		ByteBuffer buffer, int length, int timeout) throws LibUsbException {
-		return LibUsb.libusb_control_transfer(handle, (byte) requestType, (byte) request,
-			(short) value, (short) index, buffer, (short) length, timeout);
+		return libusb_control_transfer(handle(), (byte) requestType, (byte) request, (short) value,
+			(short) index, buffer, (short) length, timeout);
 	}
 
 	public int bulkTransfer(int endpoint, byte[] data, int timeout) throws LibUsbException {
-		return LibUsb.libusb_bulk_transfer(handle, (byte) endpoint, data, timeout);
+		return libusb_bulk_transfer(handle(), (byte) endpoint, data, timeout);
 	}
 
 	public int bulkTransfer(int endpoint, ByteBuffer data, int length, int timeout)
 		throws LibUsbException {
-		return LibUsb.libusb_bulk_transfer(handle, (byte) endpoint, data, length, timeout);
+		return libusb_bulk_transfer(handle(), (byte) endpoint, data, length, timeout);
 	}
 
 	public int interruptTransfer(int endpoint, byte[] data, int timeout) throws LibUsbException {
-		return LibUsb.libusb_interrupt_transfer(handle, (byte) endpoint, data, timeout);
+		return libusb_interrupt_transfer(handle(), (byte) endpoint, data, timeout);
 	}
 
 	public byte[] interruptTransfer(int endpoint, int length, int timeout) throws LibUsbException {
-		return LibUsb.libusb_interrupt_transfer(handle, (byte) endpoint, length, timeout);
+		return libusb_interrupt_transfer(handle(), (byte) endpoint, length, timeout);
 	}
 
 	public int interruptTransfer(int endpoint, ByteBuffer data, int length, int timeout)
 		throws LibUsbException {
-		return LibUsb.libusb_interrupt_transfer(handle, (byte) endpoint, data, length, timeout);
+		return libusb_interrupt_transfer(handle(), (byte) endpoint, data, length, timeout);
 	}
 
 	@Override
 	public void close() {
-		LibUsb.libusb_close(handle);
+		libusb_close(handle);
+		handle = null;
+	}
+
+	private libusb_device_handle handle() {
+		if (handle != null) return handle;
+		throw new IllegalStateException("Handle has been closed");
 	}
 
 }
