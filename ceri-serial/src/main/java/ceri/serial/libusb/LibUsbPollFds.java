@@ -14,7 +14,8 @@ public class LibUsbPollFds implements Closeable {
 	}
 
 	public List<libusb_pollfd> list() {
-		libusb_pollfd[] array =
+		if (ref == null) return List.of();
+		libusb_pollfd[] array = 
 			JnaUtil.arrayByRef(ref.getPointer(), libusb_pollfd::new, libusb_pollfd[]::new);
 		return List.of(array);
 	}

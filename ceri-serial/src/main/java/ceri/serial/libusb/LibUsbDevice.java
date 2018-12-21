@@ -134,9 +134,13 @@ public class LibUsbDevice implements Closeable {
 		device = null;
 	}
 
-	private libusb_device device() {
+	public libusb_device device() {
 		if (device != null) return device;
 		throw new IllegalStateException("Device has been closed");
 	}
 
+	public libusb_context context() {
+		return contextSupplier.get();
+	}
+	
 }

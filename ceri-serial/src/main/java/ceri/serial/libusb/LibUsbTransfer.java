@@ -104,12 +104,12 @@ public class LibUsbTransfer implements Closeable {
 		transfer = null;
 	}
 
-	private libusb_transfer transfer() {
+	public libusb_transfer transfer() {
 		if (transfer != null) return transfer;
 		throw new IllegalStateException("Transfer has been closed");
 	}
 
-	private libusb_device_handle handle() {
+	public libusb_device_handle handle() {
 		return handleSupplier.get();
 	}
 

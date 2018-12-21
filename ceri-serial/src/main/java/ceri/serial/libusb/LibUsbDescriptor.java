@@ -22,7 +22,8 @@ public class LibUsbDescriptor {
 		}
 
 		public libusb_ss_endpoint_companion_descriptor descriptor() {
-			return descriptor;
+			if (descriptor != null) return descriptor;
+			throw new IllegalStateException("Descriptor has been closed");
 		}
 
 		@Override
@@ -40,7 +41,8 @@ public class LibUsbDescriptor {
 		}
 
 		public libusb_bos_descriptor descriptor() {
-			return descriptor;
+			if (descriptor != null) return descriptor;
+			throw new IllegalStateException("Descriptor has been closed");
 		}
 
 		@Override
@@ -58,7 +60,8 @@ public class LibUsbDescriptor {
 		}
 
 		public libusb_usb_2_0_extension_descriptor descriptor() {
-			return descriptor;
+			if (descriptor != null) return descriptor;
+			throw new IllegalStateException("Descriptor has been closed");
 		}
 
 		@Override
@@ -76,7 +79,8 @@ public class LibUsbDescriptor {
 		}
 
 		public libusb_ss_usb_device_capability_descriptor descriptor() {
-			return descriptor;
+			if (descriptor != null) return descriptor;
+			throw new IllegalStateException("Descriptor has been closed");
 		}
 
 		@Override
@@ -94,7 +98,8 @@ public class LibUsbDescriptor {
 		}
 
 		public libusb_container_id_descriptor descriptor() {
-			return descriptor;
+			if (descriptor != null) return descriptor;
+			throw new IllegalStateException("Descriptor has been closed");
 		}
 
 		@Override

@@ -88,11 +88,19 @@ public class LibUsbContext implements Closeable {
 	public static libusb_device_criteria criteria(String criteria) {
 		return LibUsbFinder.libusb_find_criteria_string(criteria);
 	}
-	
+
 	public static libusb_device_criteria criteria() {
 		return LibUsbFinder.libusb_find_criteria();
 	}
-	
+
+	/**
+	 * Take ownership of the given context. This instance takes responsibility for freeing the
+	 * context on close.
+	 */
+	public static LibUsbContext from(libusb_context context) {
+		return new LibUsbContext(context);
+	}
+
 	public static LibUsbContext init() throws LibUsbException {
 		return new LibUsbContext(libusb_init());
 	}
@@ -120,24 +128,23 @@ public class LibUsbContext implements Closeable {
 		throw new LibUsbNotFoundException("Device not found, " + criteria);
 	}
 
-	public LibUsbDeviceHandle openDevice(int vendorId, int productId)
-		throws LibUsbException {
+	public LibUsbDeviceHandle openDevice(int vendorId, int productId) throws LibUsbException {
 		libusb_device_handle handle =
 			libusb_open_device_with_vid_pid(context(), vendorId, productId);
 		return new LibUsbDeviceHandle(this::context, handle);
 	}
 
 	/**
-	 * Find device based on criteria. The callback takes responsibility for closing the 
-	 * given device if it returns true, otherwise the device is automatically closed.
+	 * Find device based on criteria. The callback takes responsibility for closing the given device
+	 * if it returns true, otherwise the device is automatically closed.
 	 */
 	public boolean findDevice(libusb_device_criteria criteria,
 		ExceptionPredicate<LibUsbException, LibUsbDevice> callback) throws LibUsbException {
 		if (callback == null) return false;
-		return LibUsbFinder.libusb_find_device_callback(context(), criteria, 
+		return LibUsbFinder.libusb_find_device_callback(context(), criteria,
 			dev -> findDeviceCallback(dev, callback));
 	}
-	
+
 	@SuppressWarnings("resource")
 	private boolean findDeviceCallback(libusb_device dev,
 		ExceptionPredicate<LibUsbException, LibUsbDevice> callback) throws LibUsbException {
@@ -151,13 +158,13 @@ public class LibUsbContext implements Closeable {
 			throw e;
 		}
 	}
-	
+
 	public LibUsbDevice findDeviceRef(libusb_device_criteria criteria) throws LibUsbException {
 		libusb_device device = LibUsbFinder.libusb_find_device_ref(context(), criteria);
 		if (device == null) return null;
 		return new LibUsbDevice(this::context, device, 1);
 	}
-	
+
 	public LibUsbDeviceList deviceList() throws LibUsbException {
 		libusb_device.ByReference list = libusb_get_device_list(context());
 		return new LibUsbDeviceList(this::context, list);
@@ -273,7 +280,11 @@ public class LibUsbContext implements Closeable {
 		context = null;
 	}
 
-	private libusb_context context() throws IllegalStateException {
+	public LibUsbDevice wrap(libusb_device device, int refs) {
+		return new LibUsbDevice(this::context, device, refs);
+	}
+	
+	public libusb_context context() {
 		if (context != null) return context;
 		throw new IllegalStateException("Context has been closed");
 	}

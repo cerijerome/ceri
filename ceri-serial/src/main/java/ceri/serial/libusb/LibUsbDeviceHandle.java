@@ -224,9 +224,13 @@ public class LibUsbDeviceHandle implements Closeable {
 		handle = null;
 	}
 
-	private libusb_device_handle handle() {
+	public libusb_device_handle handle() {
 		if (handle != null) return handle;
 		throw new IllegalStateException("Handle has been closed");
 	}
 
+	public libusb_context context() {
+		return contextSupplier.get();
+	}
+	
 }

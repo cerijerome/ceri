@@ -713,9 +713,14 @@ public class LibFtdi {
 	 */
 	public static List<libusb_device> ftdi_usb_find_all(ftdi_context ftdi, int vendor, int product)
 		throws LibUsbException {
-		requireCtx(ftdi);
 		libusb_device_criteria criteria =
 			libusb_find_criteria().vendor(vendor == 0 ? FTDI_VENDOR_ID : vendor).product(product);
+		return ftdi_usb_find_all(ftdi, criteria);
+	}
+
+	public static List<libusb_device> ftdi_usb_find_all(ftdi_context ftdi,
+		libusb_device_criteria criteria) throws LibUsbException {
+		requireCtx(ftdi);
 		return libusb_find_devices_ref(ftdi.usb_ctx, criteria, 0);
 	}
 

@@ -17,7 +17,7 @@ public class LibUsbNotFoundException extends LibUsbException {
 	}
 
 	public LibUsbNotFoundException(String message) {
-		super(fullMessageText(message, ERROR), ERROR);
+		super(message, ERROR);
 	}
 
 }
