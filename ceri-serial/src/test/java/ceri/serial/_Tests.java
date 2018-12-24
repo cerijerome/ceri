@@ -4,7 +4,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import ceri.common.test.TestUtil;
 import ceri.serial.jna.JnaUtilTest;
-import ceri.serial.jna.RefStoreBehavior;
 import ceri.serial.libusb.jna.LibUsbFinderTest;
 
 /**
@@ -14,7 +13,7 @@ import ceri.serial.libusb.jna.LibUsbFinderTest;
 @Suite.SuiteClasses({
 	// jna
 	JnaUtilTest.class, //
-	RefStoreBehavior.class, //
+	//RefStoreOrigBehavior.class, //
 	// libusb.jna
 	LibUsbFinderTest.class, //
 })

@@ -38,6 +38,7 @@ public class LibUsb {
 	private static int DEFAULT_TIMEOUT = 1000;
 	private static int MAX_DESCRIPTOR_SIZE = 255;
 	private static final int MAX_PORT_NUMBERS = 7;
+	private static final timeval TV_ZERO = new timeval(0, 0); // do not modify!
 	// Public constants
 	public static final int LIBUSB_ERROR_COUNT = 14;
 	public static final int LIBUSB_HOTPLUG_MATCH_ANY = -1;
@@ -1828,6 +1829,13 @@ public class LibUsb {
 	 * For more information, see hotplug.
 	 */
 	// typedef int libusb_hotplug_callback_handle;
+	public static class libusb_hotplug_callback_handle {
+		libusb_hotplug_callback_handle(int value) {
+			this.value = value;
+		}
+
+		public final int value;
+	}
 
 	/**
 	 * Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102
@@ -1838,8 +1846,8 @@ public class LibUsb {
 		LIBUSB_HOTPLUG_NO_FLAGS(0),
 		LIBUSB_HOTPLUG_ENUMERATE(1 << 0);
 
-		public static final TypeTranscoder.Single<libusb_hotplug_flag> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_hotplug_flag.class);
+		public static final TypeTranscoder.Flag<libusb_hotplug_flag> xcoder =
+			TypeTranscoder.flag(t -> t.value, libusb_hotplug_flag.class);
 		public final int value;
 
 		private libusb_hotplug_flag(int value) {
@@ -1904,17 +1912,7 @@ public class LibUsb {
 	// typedef int (LIBUSB_CALL *libusb_hotplug_callback_fn)(libusb_context *ctx,
 	// libusb_device *device, libusb_hotplug_event event, void *user_data);
 	public static interface libusb_hotplug_callback_fn extends Callback {
-		public void invoke(libusb_context ctx, Pointer device, int event, Pointer user_data);
-	}
-
-	public static class libusb_hotplug_callback_handle {
-		public static libusb_hotplug_callback_handle of(int value) {
-			libusb_hotplug_callback_handle handle = new libusb_hotplug_callback_handle();
-			handle.value = value;
-			return handle;
-		}
-
-		public int value;
+		public int invoke(libusb_context ctx, Pointer device, int event, Pointer user_data);
 	}
 
 	public static libusb_context libusb_init() throws LibUsbException {
@@ -2485,21 +2483,21 @@ public class LibUsb {
 	public static void libusb_wait_for_event(libusb_context ctx, timeval tv)
 		throws LibUsbException {
 		require(ctx);
-		if (tv == null) tv = new timeval(0, 0);
+		if (tv == null) tv = TV_ZERO;
 		verify(LIBUSB.libusb_wait_for_event(ctx, tv), "wait_for_event");
 	}
 
 	public static void libusb_handle_events_timeout(libusb_context ctx, timeval tv)
 		throws LibUsbException {
 		require(ctx);
-		if (tv == null) tv = new timeval(0, 0);
+		if (tv == null) tv = TV_ZERO;
 		verify(LIBUSB.libusb_handle_events_timeout(ctx, tv), "handle_events_timeout");
 	}
 
 	public static int libusb_handle_events_timeout_completed(libusb_context ctx, timeval tv)
 		throws LibUsbException {
 		require(ctx);
-		if (tv == null) tv = new timeval(0, 0);
+		if (tv == null) tv = TV_ZERO;
 		IntByReference completed = new IntByReference();
 		verify(LIBUSB.libusb_handle_events_timeout_completed(ctx, tv, completed),
 			"handle_events_timeout_completed");
@@ -2521,17 +2519,17 @@ public class LibUsb {
 	public static void libusb_handle_events_locked(libusb_context ctx, timeval tv)
 		throws LibUsbException {
 		require(ctx);
-		if (tv == null) tv = new timeval(0, 0);
+		if (tv == null) tv = TV_ZERO;
 		verify(LIBUSB.libusb_handle_events_locked(ctx, tv), "handle_events_locked");
 	}
 
-	public static boolean libusb_pollfds_handle_timeouts(libusb_context ctx) throws LibUsbException {
+	public static boolean libusb_pollfds_handle_timeouts(libusb_context ctx)
+		throws LibUsbException {
 		require(ctx);
 		return verify(LIBUSB.libusb_pollfds_handle_timeouts(ctx), "pollfds_handle_timeouts") != 0;
 	}
 
-	public static timeval libusb_get_next_timeout(libusb_context ctx)
-		throws LibUsbException {
+	public static timeval libusb_get_next_timeout(libusb_context ctx) throws LibUsbException {
 		require(ctx);
 		timeval tv = new timeval();
 		verify(LIBUSB.libusb_get_next_timeout(ctx, tv), "get_next_timeout");
@@ -2558,14 +2556,15 @@ public class LibUsb {
 	}
 
 	public static libusb_hotplug_callback_handle libusb_hotplug_register_callback(
-		libusb_context ctx, libusb_hotplug_event events, libusb_hotplug_flag flags, int vendor_id,
-		int product_id, int dev_class, libusb_hotplug_callback_fn cb_fn, Pointer user_data)
-		throws LibUsbException {
+		libusb_context ctx, /* libusb_hotplug_event */ int events,
+		/* libusb_hotplug_flag */ int flags, int vendor_id, int product_id,
+		/* libusb_class_code|-1 */ int dev_class, libusb_hotplug_callback_fn cb_fn,
+		Pointer user_data) throws LibUsbException {
 		require(ctx);
 		IntByReference handle = new IntByReference();
-		verify(LIBUSB.libusb_hotplug_register_callback(ctx, events.value, flags.value, vendor_id,
-			product_id, dev_class, cb_fn, user_data, handle), "hotplug_register_callback");
-		return libusb_hotplug_callback_handle.of(handle.getValue());
+		verify(LIBUSB.libusb_hotplug_register_callback(ctx, events, flags, vendor_id, product_id,
+			dev_class, cb_fn, user_data, handle), "hotplug_register_callback");
+		return new libusb_hotplug_callback_handle(handle.getValue());
 	}
 
 	public static void libusb_hotplug_deregister_callback(libusb_context ctx,

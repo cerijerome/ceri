@@ -18,8 +18,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_locked;
 import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout;
 import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout_completed;
 import static ceri.serial.libusb.jna.LibUsb.libusb_has_capability;
-import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_deregister_callback;
-import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_register_callback;
 import static ceri.serial.libusb.jna.LibUsb.libusb_init;
 import static ceri.serial.libusb.jna.LibUsb.libusb_init_default;
 import static ceri.serial.libusb.jna.LibUsb.libusb_lock_event_waiters;
@@ -39,8 +37,11 @@ import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_device_callback;
 import java.io.Closeable;
 import java.time.Duration;
 import java.util.Locale;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.common.function.ExceptionPredicate;
+import ceri.log.util.LogUtil;
 import ceri.serial.jna.Time;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_capability;
@@ -49,20 +50,18 @@ import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
-import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
-import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_handle;
-import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event;
-import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_flag;
 import ceri.serial.libusb.jna.LibUsb.libusb_log_level;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder;
-import ceri.serial.libusb.jna.LibUsbNotFoundException;
 import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
+import ceri.serial.libusb.jna.LibUsbNotFoundException;
 
 public class LibUsbContext implements Closeable {
+	private static final Logger logger = LogManager.getLogger();
+	private final LibUsbHotplug hotplug;
 	private libusb_context context;
 
 	public static libusb_version version() throws LibUsbException {
@@ -112,6 +111,7 @@ public class LibUsbContext implements Closeable {
 
 	private LibUsbContext(libusb_context context) {
 		this.context = context;
+		hotplug = new LibUsbHotplug(this);
 	}
 
 	public void setDebug(libusb_log_level level) {
@@ -239,17 +239,10 @@ public class LibUsbContext implements Closeable {
 		libusb_set_pollfd_notifiers(context(), addedCallback, removedCallback, userData);
 	}
 
-	public void hotplugDeregisterCallback(libusb_hotplug_callback_handle handle) {
-		libusb_hotplug_deregister_callback(context(), handle);
+	public LibUsbHotplug hotplug() {
+		return hotplug;
 	}
-
-	public libusb_hotplug_callback_handle hotplugRegisterCallback(libusb_hotplug_event events,
-		libusb_hotplug_flag flags, int vendorId, int productId, int devClass,
-		libusb_hotplug_callback_fn callback, Pointer userData) throws LibUsbException {
-		return libusb_hotplug_register_callback(context(), events, flags, vendorId, productId,
-			devClass, callback, userData);
-	}
-
+	
 	public LibUsbDescriptor.SsEndpointCompanion getSsEndpointCompanionDescriptor(
 		libusb_endpoint_descriptor endpoint) throws LibUsbException {
 		return new LibUsbDescriptor.SsEndpointCompanion(
@@ -276,14 +269,18 @@ public class LibUsbContext implements Closeable {
 
 	@Override
 	public void close() {
-		libusb_exit(context);
+		LogUtil.close(logger, hotplug, () -> libusb_exit(context));
 		context = null;
+	}
+
+	public LibUsbDevice wrap(libusb_device device) {
+		return wrap(device, 0);
 	}
 
 	public LibUsbDevice wrap(libusb_device device, int refs) {
 		return new LibUsbDevice(this::context, device, refs);
 	}
-	
+
 	public libusb_context context() {
 		if (context != null) return context;
 		throw new IllegalStateException("Context has been closed");
