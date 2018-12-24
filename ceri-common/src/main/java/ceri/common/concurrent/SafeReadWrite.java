@@ -1,5 +1,6 @@
 package ceri.common.concurrent;
 
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import ceri.common.function.ExceptionRunnable;
@@ -18,6 +19,10 @@ public class SafeReadWrite {
 	
 	private SafeReadWrite(ReadWriteLock lock) {
 		this.lock = lock;
+	}
+	
+	public Lock conditionLock() {
+		return lock.writeLock();
 	}
 	
 	public <E extends Exception, T> T read(ExceptionSupplier<E, T> supplier) throws E {

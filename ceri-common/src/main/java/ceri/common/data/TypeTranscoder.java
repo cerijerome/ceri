@@ -25,6 +25,14 @@ public abstract class TypeTranscoder<T> {
 			super(valueFn, ts);
 		}
 
+		Single(ToIntFunction<T> valueFn, Map<Integer, T> lookup) {
+			super(valueFn, lookup);
+		}
+
+		public Flag<T> flag() {
+			return new Flag<>(valueFn, lookup);
+		}
+		
 		public FieldTranscoder.Single<T> field(IntAccessor accessor) {
 			return FieldTranscoder.single(accessor, this);
 		}
@@ -35,10 +43,12 @@ public abstract class TypeTranscoder<T> {
 		}
 
 		public boolean isValid(int value) {
+			if (value == 0) return true;
 			return decode(value) != null;
 		}
 
 		public T decode(int value) {
+			if (value == 0) return null;
 			return lookup.get(value);
 		}
 	}
@@ -51,16 +61,26 @@ public abstract class TypeTranscoder<T> {
 			super(valueFn, ts);
 		}
 
+		Flag(ToIntFunction<T> valueFn, Map<Integer, T> lookup) {
+			super(valueFn, lookup);
+		}
+
 		public FieldTranscoder.Flag<T> field(IntAccessor accessor) {
 			return FieldTranscoder.flag(accessor, this);
 		}
 
+		public Single<T> single() {
+			return new Single<>(valueFn, lookup);
+		}
+		
 		@SafeVarargs
 		public final int encode(T... ts) {
+			if (ts == null || ts.length == 0) return 0;
 			return encode(Arrays.asList(ts));
 		}
 
 		public final int encode(Collection<T> ts) {
+			if (ts == null || ts.isEmpty()) return 0;
 			return StreamUtil.bitwiseOr(ts.stream().mapToInt(valueFn));
 		}
 
@@ -121,8 +141,16 @@ public abstract class TypeTranscoder<T> {
 	}
 
 	TypeTranscoder(ToIntFunction<T> valueFn, Collection<T> ts) {
-		this.valueFn = valueFn;
-		lookup = ImmutableUtil.convertAsMap(t -> valueFn.applyAsInt(t), ts);
+		this(valueFn, ImmutableUtil.convertAsMap(t -> valueFn.applyAsInt(t), ts));
 	}
 
+	TypeTranscoder(ToIntFunction<T> valueFn, Map<Integer, T> lookup) {
+		this.valueFn = valueFn;
+		this.lookup = lookup;
+	}
+
+	public Collection<T> all() {
+		return lookup.values();
+	}
+	
 }

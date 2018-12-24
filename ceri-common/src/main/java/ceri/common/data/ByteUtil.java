@@ -39,7 +39,7 @@ public class ByteUtil {
 	public static String toHex(ImmutableByteArray array) {
 		return toHex(array, " ");
 	}
-	
+
 	public static String toHex(ImmutableByteArray array, String delimiter) {
 		if (array == null) return null;
 		return toHex(array.stream(), delimiter);
@@ -48,7 +48,7 @@ public class ByteUtil {
 	public static String toHex(byte[] array) {
 		return toHex(array, " ");
 	}
-	
+
 	public static String toHex(byte[] array, String delimiter) {
 		if (array == null) return null;
 		return toHex(streamOf(array), delimiter);
@@ -318,7 +318,7 @@ public class ByteUtil {
 	public static int byteValueAt(long value, int byteOffset) {
 		return byteAt(value, byteOffset) & 0xff;
 	}
-	
+
 	public static byte byteAt(long value, int byteOffset) {
 		if (byteOffset == 0) return (byte) value;
 		return (byte) shift(value, byteOffset);
