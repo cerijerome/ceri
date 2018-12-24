@@ -12,7 +12,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_ss_endpoint_companion_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_ss_usb_device_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_usb_2_0_extension_descriptor;
 
-public class LibUsbDescriptor {
+public class UsbDescriptor {
 
 	public static class SsEndpointCompanion implements Closeable {
 		private libusb_ss_endpoint_companion_descriptor descriptor;
@@ -109,6 +109,6 @@ public class LibUsbDescriptor {
 		}
 	}
 
-	private LibUsbDescriptor() {}
+	private UsbDescriptor() {}
 
 }

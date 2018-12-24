@@ -29,16 +29,16 @@ import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_speed;
 import ceri.serial.libusb.jna.LibUsbException;
 
-public class LibUsbDevice implements Closeable {
+public class UsbDevice implements Closeable {
 	private final Supplier<libusb_context> contextSupplier;
 	private libusb_device device;
 	private int refs;
 
-	LibUsbDevice(Supplier<libusb_context> contextSupplier, libusb_device device) {
+	UsbDevice(Supplier<libusb_context> contextSupplier, libusb_device device) {
 		this(contextSupplier, device, 0);
 	}
 
-	LibUsbDevice(Supplier<libusb_context> contextSupplier, libusb_device device, int refs) {
+	UsbDevice(Supplier<libusb_context> contextSupplier, libusb_device device, int refs) {
 		this.contextSupplier = contextSupplier;
 		this.device = device;
 		this.refs = refs;
@@ -55,14 +55,14 @@ public class LibUsbDevice implements Closeable {
 		refs--;
 	}
 
-	public LibUsbDevice parent() throws LibUsbException {
+	public UsbDevice parent() throws LibUsbException {
 		libusb_device parent = libusb_get_parent(device());
-		return new LibUsbDevice(contextSupplier, parent);
+		return new UsbDevice(contextSupplier, parent);
 	}
 
-	public LibUsbDeviceHandle open() throws LibUsbException {
+	public UsbDeviceHandle open() throws LibUsbException {
 		libusb_device_handle handle = libusb_open(device());
-		return new LibUsbDeviceHandle(contextSupplier, handle);
+		return new UsbDeviceHandle(contextSupplier, handle);
 	}
 
 	public libusb_device_descriptor descriptor() throws LibUsbException {
@@ -98,33 +98,33 @@ public class LibUsbDevice implements Closeable {
 		return libusb_get_max_iso_packet_size(device(), (byte) endpoint);
 	}
 
-	public LibUsbConfig activeConfig() throws LibUsbException {
+	public UsbConfig activeConfig() throws LibUsbException {
 		libusb_config_descriptor config = libusb_get_active_config_descriptor(device());
-		return new LibUsbConfig(config);
+		return new UsbConfig(config);
 	}
 
 	/**
 	 * Gets first configuration.
 	 */
-	public LibUsbConfig config() throws LibUsbException {
+	public UsbConfig config() throws LibUsbException {
 		return config(0);
 	}
 
 	/**
 	 * Gets configuration on 0-based index.
 	 */
-	public LibUsbConfig config(int index) throws LibUsbException {
+	public UsbConfig config(int index) throws LibUsbException {
 		libusb_config_descriptor config = libusb_get_config_descriptor(device(), (byte) index);
-		return new LibUsbConfig(config);
+		return new UsbConfig(config);
 	}
 
 	/**
 	 * Gets configuration from value in descriptor (usually 1-based index?)
 	 */
-	public LibUsbConfig configByValue(int value) throws LibUsbException {
+	public UsbConfig configByValue(int value) throws LibUsbException {
 		libusb_config_descriptor config =
 			libusb_get_config_descriptor_by_value(device(), (byte) value);
-		return new LibUsbConfig(config);
+		return new UsbConfig(config);
 	}
 
 	@Override

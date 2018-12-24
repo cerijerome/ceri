@@ -62,9 +62,9 @@ import ceri.serial.libusb.jna.LibUsbFinder;
 import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
 import ceri.serial.libusb.jna.LibUsbNotFoundException;
 
-public class LibUsbContext implements Closeable {
+public class Usb implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
-	private final LibUsbHotplug hotplug;
+	private final UsbHotplug hotplug;
 	private libusb_context context;
 	private Set<Object> pollfdCallbackRefs = ConcurrentHashMap.newKeySet();
 
@@ -108,42 +108,42 @@ public class LibUsbContext implements Closeable {
 	 * Take ownership of the given context. This instance takes responsibility for freeing the
 	 * context on close.
 	 */
-	public static LibUsbContext from(libusb_context context) {
-		return new LibUsbContext(context);
+	public static Usb from(libusb_context context) {
+		return new Usb(context);
 	}
 
-	public static LibUsbContext init() throws LibUsbException {
-		return new LibUsbContext(libusb_init());
+	public static Usb init() throws LibUsbException {
+		return new Usb(libusb_init());
 	}
 
-	public static LibUsbContext initDefault() throws LibUsbException {
+	public static Usb initDefault() throws LibUsbException {
 		libusb_init_default();
-		return new LibUsbContext(null);
+		return new Usb(null);
 	}
 
-	private LibUsbContext(libusb_context context) {
+	private Usb(libusb_context context) {
 		this.context = context;
-		hotplug = new LibUsbHotplug(this);
+		hotplug = new UsbHotplug(this);
 	}
 
 	public void debug(libusb_log_level level) {
 		libusb_set_debug(context(), level);
 	}
 
-	public LibUsbDeviceHandle openDevice(libusb_device_criteria criteria) throws LibUsbException {
+	public UsbDeviceHandle openDevice(libusb_device_criteria criteria) throws LibUsbException {
 		libusb_device_handle[] handles = new libusb_device_handle[1];
 		libusb_find_device_callback(context(), criteria, dev -> {
 			handles[0] = libusb_open(dev);
 			return true;
 		});
-		if (handles[0] != null) return new LibUsbDeviceHandle(this::context, handles[0]);
+		if (handles[0] != null) return new UsbDeviceHandle(this::context, handles[0]);
 		throw new LibUsbNotFoundException("Device not found, " + criteria);
 	}
 
-	public LibUsbDeviceHandle openDevice(int vendorId, int productId) throws LibUsbException {
+	public UsbDeviceHandle openDevice(int vendorId, int productId) throws LibUsbException {
 		libusb_device_handle handle =
 			libusb_open_device_with_vid_pid(context(), vendorId, productId);
-		return new LibUsbDeviceHandle(this::context, handle);
+		return new UsbDeviceHandle(this::context, handle);
 	}
 
 	/**
@@ -151,7 +151,7 @@ public class LibUsbContext implements Closeable {
 	 * if it returns true, otherwise the device is automatically closed.
 	 */
 	public boolean findDevice(libusb_device_criteria criteria,
-		ExceptionPredicate<LibUsbException, LibUsbDevice> callback) throws LibUsbException {
+		ExceptionPredicate<LibUsbException, UsbDevice> callback) throws LibUsbException {
 		if (callback == null) return false;
 		return LibUsbFinder.libusb_find_device_callback(context(), criteria,
 			dev -> findDeviceCallback(dev, callback));
@@ -159,8 +159,8 @@ public class LibUsbContext implements Closeable {
 
 	@SuppressWarnings("resource")
 	private boolean findDeviceCallback(libusb_device dev,
-		ExceptionPredicate<LibUsbException, LibUsbDevice> callback) throws LibUsbException {
-		LibUsbDevice device = new LibUsbDevice(this::context, dev);
+		ExceptionPredicate<LibUsbException, UsbDevice> callback) throws LibUsbException {
+		UsbDevice device = new UsbDevice(this::context, dev);
 		try {
 			boolean result = callback.test(device);
 			if (!result) device.close();
@@ -171,15 +171,15 @@ public class LibUsbContext implements Closeable {
 		}
 	}
 
-	public LibUsbDevice findDeviceRef(libusb_device_criteria criteria) throws LibUsbException {
+	public UsbDevice findDeviceRef(libusb_device_criteria criteria) throws LibUsbException {
 		libusb_device device = LibUsbFinder.libusb_find_device_ref(context(), criteria);
 		if (device == null) return null;
-		return new LibUsbDevice(this::context, device, 1);
+		return new UsbDevice(this::context, device, 1);
 	}
 
-	public LibUsbDeviceList deviceList() throws LibUsbException {
+	public UsbDeviceList deviceList() throws LibUsbException {
 		libusb_device.ByReference list = libusb_get_device_list(context());
-		return new LibUsbDeviceList(this::context, list);
+		return new UsbDeviceList(this::context, list);
 	}
 
 	public boolean eventHandlerActive() throws LibUsbException {
@@ -238,8 +238,8 @@ public class LibUsbContext implements Closeable {
 		libusb_wait_for_event(context(), Time.Util.timeval(d));
 	}
 
-	public LibUsbPollFds pollfds() throws LibUsbException {
-		return new LibUsbPollFds(libusb_get_pollfds(context()));
+	public UsbPollFds pollfds() throws LibUsbException {
+		return new UsbPollFds(libusb_get_pollfds(context()));
 	}
 
 	public boolean pollfdsHandleTimeouts() throws LibUsbException {
@@ -280,31 +280,31 @@ public class LibUsbContext implements Closeable {
 		}
 	}
 
-	public LibUsbHotplug hotplug() {
+	public UsbHotplug hotplug() {
 		return hotplug;
 	}
 
-	public LibUsbDescriptor.SsEndpointCompanion ssEndpointCompanionDescriptor(
-		libusb_endpoint_descriptor endpoint) throws LibUsbException {
-		return new LibUsbDescriptor.SsEndpointCompanion(
+	public UsbDescriptor.SsEndpointCompanion
+		ssEndpointCompanionDescriptor(libusb_endpoint_descriptor endpoint) throws LibUsbException {
+		return new UsbDescriptor.SsEndpointCompanion(
 			libusb_get_ss_endpoint_companion_descriptor(context(), endpoint));
 	}
 
-	public LibUsbDescriptor.SsUsbDeviceCapability ssUsbDeviceCapabilityDescriptor(
+	public UsbDescriptor.SsUsbDeviceCapability ssUsbDeviceCapabilityDescriptor(
 		libusb_bos_dev_capability_descriptor devCap) throws LibUsbException {
-		return new LibUsbDescriptor.SsUsbDeviceCapability(
+		return new UsbDescriptor.SsUsbDeviceCapability(
 			libusb_get_ss_usb_device_capability_descriptor(context(), devCap));
 	}
 
-	public LibUsbDescriptor.Usb20Extension usb20ExtensionDescriptor(
+	public UsbDescriptor.Usb20Extension usb20ExtensionDescriptor(
 		libusb_bos_dev_capability_descriptor devCap) throws LibUsbException {
-		return new LibUsbDescriptor.Usb20Extension(
+		return new UsbDescriptor.Usb20Extension(
 			libusb_get_usb_2_0_extension_descriptor(context(), devCap));
 	}
 
-	public LibUsbDescriptor.ContainerId containerIdDescriptor(
+	public UsbDescriptor.ContainerId containerIdDescriptor(
 		libusb_bos_dev_capability_descriptor descriptor) throws LibUsbException {
-		return new LibUsbDescriptor.ContainerId(
+		return new UsbDescriptor.ContainerId(
 			libusb_get_container_id_descriptor(context(), descriptor));
 	}
 
@@ -314,12 +314,12 @@ public class LibUsbContext implements Closeable {
 		context = null;
 	}
 
-	public LibUsbDevice wrap(libusb_device device) {
+	public UsbDevice wrap(libusb_device device) {
 		return wrap(device, 0);
 	}
 
-	public LibUsbDevice wrap(libusb_device device, int refs) {
-		return new LibUsbDevice(this::context, device, refs);
+	public UsbDevice wrap(libusb_device device, int refs) {
+		return new UsbDevice(this::context, device, refs);
 	}
 
 	public libusb_context context() {

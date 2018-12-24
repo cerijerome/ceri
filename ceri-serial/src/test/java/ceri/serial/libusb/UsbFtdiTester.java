@@ -10,20 +10,20 @@ import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
 
-public class LibUsbFtdiTester {
+public class UsbFtdiTester {
 	private static final Logger logger = LogManager.getLogger();
 
 	public static void main(String[] args) throws LibUsbException {
 		logger.info("Started");
-		try (LibUsbContext ctx = LibUsbContext.init()) {
-			libusb_device_criteria criteria = LibUsbContext.criteria().vendor(0x403);
-			try (LibUsbDeviceHandle handle = ctx.openDevice(criteria)) {
+		try (Usb ctx = Usb.init()) {
+			libusb_device_criteria criteria = Usb.criteria().vendor(0x403);
+			try (UsbDeviceHandle handle = ctx.openDevice(criteria)) {
 				process(handle);
 			}
 		}
 	}
 
-	private static void process(LibUsbDeviceHandle handle) throws LibUsbException {
+	private static void process(UsbDeviceHandle handle) throws LibUsbException {
 		int interfaceNumber = 0;
 		int delayMs = 200;
 
@@ -59,13 +59,13 @@ public class LibUsbFtdiTester {
 		logger.info("Done");
 	}
 
-	private static void read(LibUsbDeviceHandle handle) throws LibUsbException {
+	private static void read(UsbDeviceHandle handle) throws LibUsbException {
 		logger.info("Reading 1 byte");
 		int value = ubyte(handle.controlTransfer(0xc0, 0x0c, 0x0000, 1, 1, 500)[0]);
 		logger.info("Status: 0x{}", LogUtil.toHex(value));
 	}
 
-	private static void write(LibUsbDeviceHandle handle, ByteBuffer b, int i)
+	private static void write(UsbDeviceHandle handle, ByteBuffer b, int i)
 		throws LibUsbException {
 		logger.info("Writing: {}", b.get(i));
 		b.position(i);

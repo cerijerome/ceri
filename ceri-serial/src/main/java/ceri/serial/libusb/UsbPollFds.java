@@ -6,10 +6,10 @@ import java.util.List;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd;
 
-public class LibUsbPollFds implements Closeable {
+public class UsbPollFds implements Closeable {
 	private libusb_pollfd.ByReference ref;
 
-	LibUsbPollFds(libusb_pollfd.ByReference ref) {
+	UsbPollFds(libusb_pollfd.ByReference ref) {
 		this.ref = ref;
 	}
 

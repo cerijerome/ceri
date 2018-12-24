@@ -4,10 +4,10 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_free_config_descriptor;
 import java.io.Closeable;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 
-public class LibUsbConfig implements Closeable {
+public class UsbConfig implements Closeable {
 	private libusb_config_descriptor config;
 
-	LibUsbConfig(libusb_config_descriptor config) {
+	UsbConfig(libusb_config_descriptor config) {
 		this.config = config;
 	}
 

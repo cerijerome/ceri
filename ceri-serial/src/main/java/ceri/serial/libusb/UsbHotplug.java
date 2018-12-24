@@ -27,9 +27,9 @@ import ceri.serial.libusb.jna.LibUsbException;
 /**
  * Wraps hotplug methods, keeping track of callback references to avoid early removal by GC.
  */
-public class LibUsbHotplug implements Closeable {
+public class UsbHotplug implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
-	private final LibUsbContext context;
+	private final Usb context;
 	// Temporarily stores callbacks to make sure they are not removed by GC
 	// Assigns a generated id, and tracks id/handle per callback
 	private final Map<Integer, CallbackContext> callbackHandles = new ConcurrentHashMap<>();
@@ -40,7 +40,7 @@ public class LibUsbHotplug implements Closeable {
 	 * Return true if finished processing events.
 	 */
 	public static interface Callback<T> {
-		boolean event(LibUsbContext context, LibUsbDevice device, libusb_hotplug_event event,
+		boolean event(Usb context, UsbDevice device, libusb_hotplug_event event,
 			T userData) throws IOException;
 	}
 
@@ -119,10 +119,10 @@ public class LibUsbHotplug implements Closeable {
 	}
 
 	public static boolean hasCapability() {
-		return LibUsbContext.hasCapability(LIBUSB_CAP_HAS_HOTPLUG);
+		return Usb.hasCapability(LIBUSB_CAP_HAS_HOTPLUG);
 	}
 
-	LibUsbHotplug(LibUsbContext context) {
+	UsbHotplug(Usb context) {
 		this.context = context;
 	}
 
@@ -171,7 +171,7 @@ public class LibUsbHotplug implements Closeable {
 	private <T> int adaptCallback(Pointer dev, int evt, int callbackId, Callback<T> callback,
 		T userData) {
 		try {
-			LibUsbDevice device = context.wrap(TypedPointer.from(libusb_device::new, dev));
+			UsbDevice device = context.wrap(TypedPointer.from(libusb_device::new, dev));
 			libusb_hotplug_event event = libusb_hotplug_event.xcoder.decode(evt);
 			boolean result = callback.event(context, device, event, userData);
 			if (result) untrackCallbackById(callbackId);

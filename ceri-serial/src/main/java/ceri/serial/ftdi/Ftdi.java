@@ -58,8 +58,8 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_string_descriptors;
 import ceri.serial.ftdi.jna.LibFtdiStream.ftdi_progress_info;
 import ceri.serial.ftdi.jna.LibFtdiStream.ftdi_stream_cb;
-import ceri.serial.libusb.LibUsbContext;
-import ceri.serial.libusb.LibUsbDevice;
+import ceri.serial.libusb.Usb;
+import ceri.serial.libusb.UsbDevice;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsbException;
@@ -105,11 +105,11 @@ public class Ftdi implements Closeable {
 		return wrap(ftdi_usb_find_all(ftdi(), criteria));
 	}
 
-	public ftdi_string_descriptors usbStrings(LibUsbDevice dev) throws LibUsbException {
+	public ftdi_string_descriptors usbStrings(UsbDevice dev) throws LibUsbException {
 		return ftdi_usb_get_strings(ftdi(), dev.device());
 	}
 
-	public void open(LibUsbDevice dev) throws LibUsbException {
+	public void open(UsbDevice dev) throws LibUsbException {
 		if (ftdi().usb_ctx != dev.context())
 			throw new IllegalArgumentException("Device context does not match");
 		ftdi_usb_open_dev(ftdi(), dev.device());
@@ -288,17 +288,17 @@ public class Ftdi implements Closeable {
 		throw new IllegalStateException("Ftdi context has been closed");
 	}
 
-	private LibUsbContext context() {
+	private Usb context() {
 		libusb_context context = ftdi().usb_ctx;
-		if (context != null) return LibUsbContext.from(context);
+		if (context != null) return Usb.from(context);
 		throw new IllegalStateException("Context is not available");
 	}
 
 	@SuppressWarnings("resource")
 	private FtdiList wrap(List<libusb_device> devs) {
 		try {
-			LibUsbContext context = context();
-			List<LibUsbDevice> devices = toList(devs.stream().map(dev -> context.wrap(dev, 1)));
+			Usb context = context();
+			List<UsbDevice> devices = toList(devs.stream().map(dev -> context.wrap(dev, 1)));
 			return new FtdiList(devices);
 		} catch (RuntimeException e) {
 			ftdi_list_free(devs);

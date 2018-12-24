@@ -44,7 +44,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_request_recipient;
 import ceri.serial.libusb.jna.LibUsb.libusb_request_type;
 import ceri.serial.libusb.jna.LibUsbException;
 
-public class LibUsbDeviceHandle implements Closeable {
+public class UsbDeviceHandle implements Closeable {
 	private final Supplier<libusb_context> contextSupplier;
 	private libusb_device_handle handle;
 
@@ -63,10 +63,10 @@ public class LibUsbDeviceHandle implements Closeable {
 	}
 
 	public static boolean canDetachKernelDriver() {
-		return LibUsbContext.hasCapability(LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER);
+		return Usb.hasCapability(LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER);
 	}
 
-	LibUsbDeviceHandle(Supplier<libusb_context> contextSupplier, libusb_device_handle handle) {
+	UsbDeviceHandle(Supplier<libusb_context> contextSupplier, libusb_device_handle handle) {
 		this.contextSupplier = contextSupplier;
 		this.handle = handle;
 	}
@@ -108,9 +108,9 @@ public class LibUsbDeviceHandle implements Closeable {
 		return libusb_get_string_descriptor_ascii(handle(), (byte) index);
 	}
 
-	public LibUsbDevice device() throws LibUsbException {
+	public UsbDevice device() throws LibUsbException {
 		libusb_device device = libusb_get_device(handle());
-		return new LibUsbDevice(contextSupplier, device);
+		return new UsbDevice(contextSupplier, device);
 	}
 
 	public void claimInterface(int interfaceNumber) throws LibUsbException {
@@ -134,8 +134,8 @@ public class LibUsbDeviceHandle implements Closeable {
 		libusb_reset_device(handle());
 	}
 
-	public LibUsbTransfer allocTransfer(int isoPackets) throws LibUsbException {
-		return new LibUsbTransfer(this::handle, libusb_alloc_transfer(isoPackets));
+	public UsbTransfer allocTransfer(int isoPackets) throws LibUsbException {
+		return new UsbTransfer(this::handle, libusb_alloc_transfer(isoPackets));
 	}
 
 	public int allocStreams(int streams, int... endPoints) throws LibUsbException {
@@ -219,8 +219,8 @@ public class LibUsbDeviceHandle implements Closeable {
 		return libusb_interrupt_transfer(handle(), (byte) endpoint, data, length, timeout);
 	}
 
-	public LibUsbDescriptor.Bos bosDescriptor() throws LibUsbException {
-		return new LibUsbDescriptor.Bos(libusb_get_bos_descriptor(handle()));
+	public UsbDescriptor.Bos bosDescriptor() throws LibUsbException {
+		return new UsbDescriptor.Bos(libusb_get_bos_descriptor(handle()));
 	}
 
 	@Override

@@ -8,16 +8,16 @@ import java.util.function.Supplier;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 
-public class LibUsbDeviceList implements Closeable {
+public class UsbDeviceList implements Closeable {
 	private libusb_device.ByReference list;
-	public List<LibUsbDevice> devices;
+	public List<UsbDevice> devices;
 
-	LibUsbDeviceList(Supplier<libusb_context> contextSupplier, libusb_device.ByReference list) {
+	UsbDeviceList(Supplier<libusb_context> contextSupplier, libusb_device.ByReference list) {
 		this.list = list;
-		this.devices = convertAsList(d -> new LibUsbDevice(contextSupplier, d), list.typedArray());
+		this.devices = convertAsList(d -> new UsbDevice(contextSupplier, d), list.typedArray());
 	}
 
-	public List<LibUsbDevice> devices() {
+	public List<UsbDevice> devices() {
 		return List.copyOf(devices);
 	}
 

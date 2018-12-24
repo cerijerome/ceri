@@ -24,11 +24,11 @@ import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_cb_fn;
 import ceri.serial.libusb.jna.LibUsbException;
 
-public class LibUsbTransfer implements Closeable {
+public class UsbTransfer implements Closeable {
 	private final Supplier<libusb_device_handle> handleSupplier;
 	private libusb_transfer transfer;
 
-	LibUsbTransfer(Supplier<libusb_device_handle> handleSupplier, libusb_transfer transfer) {
+	UsbTransfer(Supplier<libusb_device_handle> handleSupplier, libusb_transfer transfer) {
 		this.handleSupplier = handleSupplier;
 		this.transfer = transfer;
 	}
