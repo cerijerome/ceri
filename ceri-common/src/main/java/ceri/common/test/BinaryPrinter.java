@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.ByteBuffer;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.StringUtil;
@@ -164,6 +165,22 @@ public class BinaryPrinter {
 	 */
 	public void print(ImmutableByteArray data, int offset, int length) {
 		print(data.copy(), offset, length);
+	}
+
+	/**
+	 * Print binary data.
+	 */
+	public void print(ByteBuffer buffer) {
+		print(buffer, buffer.remaining());
+	}
+
+	/**
+	 * Print binary data.
+	 */
+	public void print(ByteBuffer buffer, int length) {
+		byte[] b = new byte[length];
+		buffer.get(b);
+		print(b);
 	}
 
 	/**
