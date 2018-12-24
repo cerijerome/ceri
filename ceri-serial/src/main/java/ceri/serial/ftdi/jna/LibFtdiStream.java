@@ -68,7 +68,7 @@ public class LibFtdiStream {
 	// typedef int (FTDIStreamCallback)(uint8_t *buffer, int length, FTDIProgressInfo *progress,
 	// void *userdata);
 	public static interface ftdi_stream_cb extends Callback {
-		public void invoke(Pointer buffer, int length, ftdi_progress_info progress,
+		public int invoke(Pointer buffer, int length, ftdi_progress_info progress,
 			Pointer userdata) throws LibUsbException;
 	}
 
@@ -132,7 +132,6 @@ public class LibFtdiStream {
 			state.result().set(LIBUSB_ERROR_IO);
 			return;
 		}
-
 		try {
 			for (int i = 0;; i++) {
 				int position = (i * state.packetsize) + LibFtdiUtil.READ_STATUS_BYTES;

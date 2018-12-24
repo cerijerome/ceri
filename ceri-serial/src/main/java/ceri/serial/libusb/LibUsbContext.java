@@ -35,11 +35,13 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_unlock_events;
 import static ceri.serial.libusb.jna.LibUsb.libusb_wait_for_event;
 import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_device_callback;
 import java.io.Closeable;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.sun.jna.Pointer;
 import ceri.common.function.ExceptionPredicate;
 import ceri.log.util.LogUtil;
 import ceri.serial.jna.Time;
@@ -51,6 +53,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
 import ceri.serial.libusb.jna.LibUsb.libusb_log_level;
+import ceri.serial.libusb.jna.LibUsb.libusb_poll_event;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
@@ -63,6 +66,15 @@ public class LibUsbContext implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private final LibUsbHotplug hotplug;
 	private libusb_context context;
+	private Set<Object> pollfdCallbackRefs = ConcurrentHashMap.newKeySet();
+
+	public static interface PollfdAddedCallback<T> {
+		public void invoke(int fd, Set<libusb_poll_event> events, T userData) throws IOException;
+	}
+
+	public static interface PollfdRemovedCallback<T> {
+		public void invoke(int fd, T userData) throws IOException;
+	}
 
 	public static libusb_version version() throws LibUsbException {
 		return libusb_get_version();
@@ -114,7 +126,7 @@ public class LibUsbContext implements Closeable {
 		hotplug = new LibUsbHotplug(this);
 	}
 
-	public void setDebug(libusb_log_level level) {
+	public void debug(libusb_log_level level) {
 		libusb_set_debug(context(), level);
 	}
 
@@ -178,7 +190,7 @@ public class LibUsbContext implements Closeable {
 		return libusb_event_handling_ok(context());
 	}
 
-	public Duration getNextTimeout() throws LibUsbException {
+	public Duration nextTimeout() throws LibUsbException {
 		return Time.Util.duration(libusb_get_next_timeout(context()));
 	}
 
@@ -226,7 +238,7 @@ public class LibUsbContext implements Closeable {
 		libusb_wait_for_event(context(), Time.Util.timeval(d));
 	}
 
-	public LibUsbPollFds getPollfds() throws LibUsbException {
+	public LibUsbPollFds pollfds() throws LibUsbException {
 		return new LibUsbPollFds(libusb_get_pollfds(context()));
 	}
 
@@ -234,34 +246,63 @@ public class LibUsbContext implements Closeable {
 		return libusb_pollfds_handle_timeouts(context());
 	}
 
-	public void setPollfdNotifiers(libusb_pollfd_added_cb addedCallback,
-		libusb_pollfd_removed_cb removedCallback, Pointer userData) throws LibUsbException {
-		libusb_set_pollfd_notifiers(context(), addedCallback, removedCallback, userData);
+	public <T> void pollfdNotifiers(PollfdAddedCallback<T> addedCallback,
+		PollfdRemovedCallback<T> removedCallback, T userData) throws LibUsbException {
+		libusb_pollfd_added_cb jnaAddedCallback = addedCallback == null ? null :
+			(fd, events, user_data) -> pollfdAdded(fd, events, addedCallback, userData);
+		libusb_pollfd_removed_cb jnaRemovedCallback = removedCallback == null ? null :
+			(fd, user_data) -> pollfdRemoved(fd, removedCallback, userData);
+		libusb_set_pollfd_notifiers(context(), jnaAddedCallback, jnaRemovedCallback, null);
+		updatePollfdCallbackRefs(jnaAddedCallback, jnaRemovedCallback);
+	}
+
+	private void updatePollfdCallbackRefs(libusb_pollfd_added_cb addedCallback,
+		libusb_pollfd_removed_cb removedCallback) {
+		pollfdCallbackRefs.clear();
+		if (addedCallback != null) pollfdCallbackRefs.add(addedCallback);
+		if (removedCallback != null) pollfdCallbackRefs.add(removedCallback);
+	}
+
+	private <T> void pollfdAdded(int fd, short events, PollfdAddedCallback<T> callback,
+		T userData) {
+		try {
+			callback.invoke(fd, libusb_poll_event.xcoder.decode(events), userData);
+		} catch (IOException | RuntimeException e) {
+			logger.catching(e);
+		}
+	}
+
+	private <T> void pollfdRemoved(int fd, PollfdRemovedCallback<T> callback, T userData) {
+		try {
+			callback.invoke(fd, userData);
+		} catch (IOException | RuntimeException e) {
+			logger.catching(e);
+		}
 	}
 
 	public LibUsbHotplug hotplug() {
 		return hotplug;
 	}
-	
-	public LibUsbDescriptor.SsEndpointCompanion getSsEndpointCompanionDescriptor(
+
+	public LibUsbDescriptor.SsEndpointCompanion ssEndpointCompanionDescriptor(
 		libusb_endpoint_descriptor endpoint) throws LibUsbException {
 		return new LibUsbDescriptor.SsEndpointCompanion(
 			libusb_get_ss_endpoint_companion_descriptor(context(), endpoint));
 	}
 
-	public LibUsbDescriptor.SsUsbDeviceCapability getSsUsbDeviceCapabilityDescriptor(
+	public LibUsbDescriptor.SsUsbDeviceCapability ssUsbDeviceCapabilityDescriptor(
 		libusb_bos_dev_capability_descriptor devCap) throws LibUsbException {
 		return new LibUsbDescriptor.SsUsbDeviceCapability(
 			libusb_get_ss_usb_device_capability_descriptor(context(), devCap));
 	}
 
-	public LibUsbDescriptor.Usb20Extension getUsb20ExtensionDescriptor(
+	public LibUsbDescriptor.Usb20Extension usb20ExtensionDescriptor(
 		libusb_bos_dev_capability_descriptor devCap) throws LibUsbException {
 		return new LibUsbDescriptor.Usb20Extension(
 			libusb_get_usb_2_0_extension_descriptor(context(), devCap));
 	}
 
-	public LibUsbDescriptor.ContainerId getContainerIdDescriptor(
+	public LibUsbDescriptor.ContainerId containerIdDescriptor(
 		libusb_bos_dev_capability_descriptor descriptor) throws LibUsbException {
 		return new LibUsbDescriptor.ContainerId(
 			libusb_get_container_id_descriptor(context(), descriptor));
@@ -269,7 +310,7 @@ public class LibUsbContext implements Closeable {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, hotplug, () -> libusb_exit(context));
+		LogUtil.close(logger, hotplug, () -> libusb_exit(context), pollfdCallbackRefs::clear);
 		context = null;
 	}
 

@@ -37,9 +37,15 @@ import static ceri.serial.ftdi.jna.LibFtdi.ftdi_write_data;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_write_data_submit;
 import static ceri.serial.ftdi.jna.LibFtdiStream.ftdi_read_stream;
 import java.io.Closeable;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
@@ -50,6 +56,7 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_string_descriptors;
+import ceri.serial.ftdi.jna.LibFtdiStream.ftdi_progress_info;
 import ceri.serial.ftdi.jna.LibFtdiStream.ftdi_stream_cb;
 import ceri.serial.libusb.LibUsbContext;
 import ceri.serial.libusb.LibUsbDevice;
@@ -59,7 +66,20 @@ import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
 
 public class Ftdi implements Closeable {
+	private static final Logger logger = LogManager.getLogger();
 	private ftdi_context ftdi;
+	// Temporarily stores callbacks to make sure they are not removed by GC
+	// Assigns a generated id, and tracks per callback
+	private final Map<Integer, ftdi_stream_cb> streamCallbacks = new ConcurrentHashMap<>();
+	private AtomicInteger streamCallbackId = new AtomicInteger();
+
+	/**
+	 * Return true if finished reading from stream.
+	 */
+	public static interface StreamCallback<T> {
+		public boolean event(ByteBuffer buffer, int length, ftdi_progress_info progress, T userData)
+			throws IOException;
+	}
 
 	public static Ftdi create() throws LibUsbException {
 		return new Ftdi(ftdi_new());
@@ -181,12 +201,26 @@ public class Ftdi implements Closeable {
 		return new FtdiTransferControl(ftdi_read_data_submit(ftdi(), buf, size));
 	}
 
-	/**
-	 * TODO: abstract away JNA types
-	 */
-	public void readStream(ftdi_stream_cb callback, Pointer userdata, int packetsPerTransfer,
+	public <T> void readStream(StreamCallback<T> callback, T userData, int packetsPerTransfer,
 		int numTransfers) throws LibUsbException {
-		ftdi_read_stream(ftdi(), callback, userdata, packetsPerTransfer, numTransfers);
+		int callbackId = streamCallbackId.incrementAndGet();
+		ftdi_stream_cb jnaCallback = (buffer, length, progress, user_data) -> streamCallback(buffer,
+			length, progress, callbackId, callback, userData);
+		ftdi_read_stream(ftdi(), jnaCallback, null, packetsPerTransfer, numTransfers);
+		streamCallbacks.put(callbackId, jnaCallback);
+	}
+
+	private <T> int streamCallback(Pointer buffer, int length, ftdi_progress_info progress,
+		int callbackId, StreamCallback<T> callback, T userData) {
+		try {
+			ByteBuffer b = buffer.getByteBuffer(0, length);
+			boolean result = callback.event(b, length, progress, userData);
+			if (result) streamCallbacks.remove(callbackId);
+			return result ? 1 : 0;
+		} catch (IOException | RuntimeException e) {
+			logger.catching(e);
+			return 0;
+		}
 	}
 
 	public void readChunkSize(int chunkSize) {
@@ -244,6 +278,7 @@ public class Ftdi implements Closeable {
 
 	@Override
 	public void close() {
+		streamCallbacks.clear();
 		ftdi_free(ftdi);
 		ftdi = null;
 	}

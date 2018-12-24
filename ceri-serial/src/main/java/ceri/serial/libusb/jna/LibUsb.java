@@ -1767,11 +1767,29 @@ public class LibUsb {
 	/* polling and timeouts */
 
 	/**
+	 * Subset of poll_event
+	 */
+	public enum libusb_poll_event {
+		POLLIN(0x0001),
+		POLLOUT(0x0004);
+
+		public static final TypeTranscoder.Flag<libusb_poll_event> xcoder =
+			TypeTranscoder.flag(t -> t.value, libusb_poll_event.class);
+		public final int value;
+
+		private libusb_poll_event(int value) {
+			this.value = value;
+		}
+	}
+
+	/**
 	 * File descriptor for polling
 	 */
 	public static class libusb_pollfd extends Struct {
 		private static final List<String> FIELDS = List.of( //
 			"fd", "events");
+		private static final IntAccessor.Typed<libusb_pollfd> eventsAccessor =
+			IntAccessor.typedShort(t -> t.events, (t, s) -> t.events = s);
 
 		public static class ByValue extends libusb_pollfd //
 			implements Structure.ByValue {}
@@ -1786,6 +1804,10 @@ public class LibUsb {
 
 		public libusb_pollfd(Pointer p) {
 			super(p);
+		}
+
+		public FieldTranscoder.Flag<libusb_poll_event> events() {
+			return libusb_poll_event.xcoder.field(eventsAccessor.from(this));
 		}
 
 		@Override

@@ -28,6 +28,7 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_reset_device;
 import static ceri.serial.libusb.jna.LibUsb.libusb_set_auto_detach_kernel_driver;
 import static ceri.serial.libusb.jna.LibUsb.libusb_set_configuration;
 import static ceri.serial.libusb.jna.LibUsb.libusb_set_interface_alt_setting;
+import static ceri.serial.libusb.jna.LibUsb.libusb_capability.LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER;
 import java.io.Closeable;
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -59,6 +60,10 @@ public class LibUsbDeviceHandle implements Closeable {
 	public static void fillControlSetup(Pointer buffer, int bmRequestType, int bRequest, int wValue,
 		int wIndex, int wLength) {
 		libusb_fill_control_setup(buffer, bmRequestType, bRequest, wValue, wIndex, wLength);
+	}
+
+	public static boolean canDetachKernelDriver() {
+		return LibUsbContext.hasCapability(LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER);
 	}
 
 	LibUsbDeviceHandle(Supplier<libusb_context> contextSupplier, libusb_device_handle handle) {
@@ -232,5 +237,5 @@ public class LibUsbDeviceHandle implements Closeable {
 	public libusb_context context() {
 		return contextSupplier.get();
 	}
-	
+
 }
