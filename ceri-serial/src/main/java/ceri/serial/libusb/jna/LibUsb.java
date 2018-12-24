@@ -29,8 +29,8 @@ import ceri.common.text.StringUtil;
 import ceri.serial.jna.JnaUtil;
 //import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.Struct;
-import ceri.serial.jna.Time.timeval;
 import ceri.serial.jna.TypedPointer;
+import ceri.serial.jna.sys.Time.timeval;
 
 public class LibUsb {
 	private static final Logger logger = LogManager.getLogger();

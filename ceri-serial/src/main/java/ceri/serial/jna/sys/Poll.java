@@ -1,4 +1,4 @@
-package ceri.serial.jna;
+package ceri.serial.jna.sys;
 
 import java.util.List;
 import com.sun.jna.Pointer;
@@ -6,6 +6,7 @@ import com.sun.jna.Structure;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntAccessor;
 import ceri.common.data.TypeTranscoder;
+import ceri.serial.jna.Struct;
 
 public class Poll {
 

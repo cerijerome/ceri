@@ -13,7 +13,6 @@ import ceri.serial.libusb.jna.LibUsbFinderTest;
 @Suite.SuiteClasses({
 	// jna
 	JnaUtilTest.class, //
-	//RefStoreOrigBehavior.class, //
 	// libusb.jna
 	LibUsbFinderTest.class, //
 })

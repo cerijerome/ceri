@@ -1,4 +1,4 @@
-package ceri.serial.jna;
+package ceri.serial.jna.sys;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import java.time.Duration;
@@ -7,6 +7,7 @@ import java.util.List;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import ceri.serial.jna.Struct;
 
 public class Time {
 

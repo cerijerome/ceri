@@ -90,7 +90,7 @@ import ceri.common.text.RegexUtil;
 import ceri.common.util.PrimitiveUtil;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.Struct;
-import ceri.serial.jna.Time.timeval;
+import ceri.serial.jna.sys.Time.timeval;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
