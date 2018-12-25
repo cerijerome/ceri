@@ -70,6 +70,7 @@ public abstract class BaseProperties {
 	 * Constructor for properties with given prefix keys.
 	 */
 	protected BaseProperties(BaseProperties properties, String... prefix) {
+		if (properties == null) properties = from(new Properties());
 		this.prefix = PathFactory.dot.path(properties.prefix, prefix).value;
 		this.properties = properties.properties;
 	}

@@ -46,9 +46,13 @@ public class IntBitSet extends BitSet {
 		super(Integer.SIZE);
 	}
 
-	public int setBit(int bitIndex, boolean value) {
-		set(bitIndex, value);
-		return bitIndex + 1;
+	public int setBit(boolean value, int...bitIndexes) {
+		int nextIndex = 0;
+		for (int i : bitIndexes) {
+			set(i, value);
+			nextIndex = i + 1;
+		}
+		return nextIndex;
 	}
 
 	public int setBits(int bitIndex, int value, int bits) {
