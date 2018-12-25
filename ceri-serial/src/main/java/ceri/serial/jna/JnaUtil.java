@@ -299,14 +299,14 @@ public class JnaUtil {
 	/**
 	 * Convert byte to unsigned int value
 	 */
-	public static int ubyte(byte value) {
+	public static int ubyte(int value) {
 		return value & 0xff;
 	}
 
 	/**
 	 * Convert short to unsigned int value
 	 */
-	public static int ushort(short value) {
+	public static int ushort(int value) {
 		return value & 0xffff;
 	}
 

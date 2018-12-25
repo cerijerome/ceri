@@ -36,25 +36,24 @@ import static ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_reset;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_write_data;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_write_data_submit;
 import static ceri.serial.ftdi.jna.LibFtdiStream.ftdi_read_stream;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_flow_control;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_string_descriptors;
 import ceri.serial.ftdi.jna.LibFtdiStream.ftdi_progress_info;
 import ceri.serial.ftdi.jna.LibFtdiStream.ftdi_stream_cb;
@@ -62,11 +61,14 @@ import ceri.serial.libusb.Usb;
 import ceri.serial.libusb.UsbDevice;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
+import ceri.serial.libusb.jna.LibUsb.libusb_error;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
 
 public class Ftdi implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
+	private static final Set<libusb_error> FATAL_USB_ERRORS =
+		Set.of(LIBUSB_ERROR_NO_DEVICE, LIBUSB_ERROR_NOT_FOUND, LIBUSB_ERROR_NO_MEM);
 	private ftdi_context ftdi;
 	// Temporarily stores callbacks to make sure they are not removed by GC
 	// Assigns a generated id, and tracks per callback
@@ -79,6 +81,11 @@ public class Ftdi implements Closeable {
 	public static interface StreamCallback<T> {
 		public boolean event(ByteBuffer buffer, int length, ftdi_progress_info progress, T userData)
 			throws IOException;
+	}
+
+	public static boolean isFatal(LibUsbException e) {
+		if (e == null) return false;
+		return FATAL_USB_ERRORS.contains(e.error);
 	}
 
 	public static Ftdi create() throws LibUsbException {
@@ -147,17 +154,16 @@ public class Ftdi implements Closeable {
 		ftdi_set_baudrate(ftdi(), baudrate);
 	}
 
-	public void lineProperty(ftdi_data_bits_type bits, ftdi_stop_bits_type sbit,
-		ftdi_parity_type parity) throws LibUsbException {
-		ftdi_set_line_property(ftdi(), bits, sbit, parity);
-	}
-
-	public void lineProperty(ftdi_data_bits_type bits, ftdi_stop_bits_type stopBits,
-		ftdi_parity_type parity, ftdi_break_type breakType) throws LibUsbException {
-		ftdi_set_line_property(ftdi(), bits, stopBits, parity, breakType);
+	public void lineProperty(FtdiLineProperties properties) throws LibUsbException {
+		ftdi_set_line_property(ftdi(), properties.bits, properties.sbit, properties.parity,
+			properties.breakType);
 	}
 
 	public int write(int... data) throws LibUsbException {
+		return ftdi_write_data(ftdi(), data);
+	}
+
+	public int write(byte[] data) throws LibUsbException {
 		return ftdi_write_data(ftdi(), data);
 	}
 
@@ -227,8 +233,8 @@ public class Ftdi implements Closeable {
 		ftdi_read_data_set_chunk_size(ftdi(), chunkSize);
 	}
 
-	public void bitmode(int bitmask, ftdi_mpsse_mode mode) throws LibUsbException {
-		ftdi_set_bitmode(ftdi(), bitmask, mode);
+	public void bitmode(FtdiBitmode bitmode) throws LibUsbException {
+		ftdi_set_bitmode(ftdi(), bitmode.bitmask, bitmode.mode);
 	}
 
 	public void bitbang(boolean on) throws LibUsbException {

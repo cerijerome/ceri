@@ -626,16 +626,13 @@ public class LibFtdi {
 			ftdi.usb_dev = null;
 			ftdi.usb_read_timeout = TIMEOUT_MS_DEF;
 			ftdi.usb_write_timeout = TIMEOUT_MS_DEF;
-
 			ftdi.type().set(TYPE_BM);
 			ftdi.baudrate = -1;
 			ftdi.bitbang_enabled().set(false);
-
 			ftdi.readbuffer = null;
 			ftdi.writebuffer_chunksize = CHUNKSIZE_DEF;
 			ftdi.max_packet_size = 0;
 			ftdi.module_detach_mode().set(AUTO_DETACH_SIO_MODULE);
-
 			ftdi.usb_ctx = libusb_init();
 			ftdi_set_interface(ftdi, INTERFACE_ANY);
 			ftdi.bitbang_mode().set(BITMODE_BITBANG);
@@ -1062,6 +1059,11 @@ public class LibFtdi {
 		return ftdi_write_data(ftdi, bytes(data), 0, data.length);
 	}
 
+	public static int ftdi_write_data(ftdi_context ftdi, byte[] data)
+		throws LibUsbException {
+		return ftdi_write_data(ftdi, data, 0);
+	}
+
 	public static int ftdi_write_data(ftdi_context ftdi, byte[] data, int offset)
 		throws LibUsbException {
 		return ftdi_write_data(ftdi, data, offset, data.length - offset);
@@ -1302,7 +1304,7 @@ public class LibFtdi {
 	public static void ftdi_set_bitmode(ftdi_context ftdi, int bitmask, ftdi_mpsse_mode mode)
 		throws LibUsbException {
 		requireDev(ftdi);
-		int value = mode.value << 8 | bitmask;
+		int value = mode.value << 8 | (bitmask & 0xff);
 		controlTransferOut(ftdi, SIO_SET_BITMODE_REQUEST, value, ftdi.index);
 		ftdi.bitbang_mode().set(mode);
 		ftdi.bitbang_enabled().set(mode != BITMODE_RESET);
