@@ -1,8 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.validateMax;
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateNotNull;
+import static ceri.common.validation.ValidationUtil.*;
 import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.function.Consumer;
@@ -15,6 +13,7 @@ public class DataEncoder {
 	private final byte[] data;
 	private int start;
 	private int length;
+	private int mark = 0;
 	private int offset = 0;
 
 	public static interface EncodableField {
@@ -71,7 +70,7 @@ public class DataEncoder {
 	}
 
 	public DataEncoder skip(int count) {
-		offset(count);
+		incrementOffset(count);
 		return this;
 	}
 
@@ -81,6 +80,20 @@ public class DataEncoder {
 		return this;
 	}
 
+	public DataEncoder mark() {
+		mark = offset;
+		return this;
+	}
+	
+	public DataEncoder reset() {
+		return offset(mark);
+	}
+	
+	public DataEncoder offset(int offset) {
+		setOffset(offset);
+		return this;
+	}
+	
 	public int offset() {
 		return offset;
 	}
@@ -102,7 +115,7 @@ public class DataEncoder {
 	}
 
 	public BitSet bitSet(int length) {
-		return BitSet.valueOf(ByteBuffer.wrap(data, offset(length), length));
+		return BitSet.valueOf(ByteBuffer.wrap(data, incrementOffset(length), length));
 	}
 
 	public DataEncoder encodeByte(int value) {
@@ -150,15 +163,15 @@ public class DataEncoder {
 	}
 
 	private int position(int count) {
-		return start + offset(count);
+		return start + incrementOffset(count);
 	}
 
-	private int offset(int count) {
+	private int incrementOffset(int count) {
 		return setOffset(offset + count);
 	}
 
 	private int setOffset(int offset) {
-		validateMax(offset, length);
+		validateRange(offset, 0, length);
 		int old = this.offset;
 		this.offset = offset;
 		return old;
