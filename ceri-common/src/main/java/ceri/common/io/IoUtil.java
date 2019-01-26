@@ -118,7 +118,7 @@ public class IoUtil {
 	}
 
 	/**
-	 * Closes a closeable stream. Returns false if this resulted in an error.
+	 * Closes a closeable stream. Returns false if this resulted in an I/O error.
 	 */
 	public static boolean close(Closeable closeable) {
 		if (closeable == null) return false;
@@ -178,11 +178,11 @@ public class IoUtil {
 	 */
 	public static int waitForData(InputStream in, int count, long timeoutMs, long pollMs)
 		throws IOException {
-		long t = System.currentTimeMillis();
+		long t = System.currentTimeMillis() + timeoutMs;
 		while (true) {
 			int n = in.available();
 			if (n >= count) return n;
-			if (timeoutMs != 0 && (System.currentTimeMillis() - t > timeoutMs))
+			if (timeoutMs != 0 && (System.currentTimeMillis() > t))
 				throw new IoTimeoutException(
 					"Bytes not available within " + timeoutMs + "ms: " + n + "/" + count);
 			BasicUtil.delay(pollMs);
@@ -459,6 +459,14 @@ public class IoUtil {
 		}
 		return pos - offset;
 	}
+
+	/**
+	 * Reads until buffer is filled; calls readNBytes.
+	 */
+    public static int readBytes(InputStream in, byte[] b) throws IOException {
+    	if (in == null || b == null) return 0;
+    	return in.readNBytes(b, 0,  b.length);
+    }
 
 	/**
 	 * Lists resources from same package as class. Handles file resources and resources within a jar
