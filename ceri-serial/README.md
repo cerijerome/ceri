@@ -1,4 +1,6 @@
-# Serial Project
+# Serial Projects
+
+##Java Serial
 
 Provides a bridge for serial libs to Java Comms API.  
 Not fully supported so far, just enough for x10, dmx, audio, and video projects to work.  
@@ -13,11 +15,19 @@ For MacOSX:
 
 For Ubuntu:
 - (Need to install FTDI PL2303 driver?)
-- Need to change permissions on USB ports, e.g.:  
+- Need to change permissions on USB ports regularly, e.g.:  
   `sudo chmod a+rw /dev/ttyUSB*`  
   `sudo chmod a+rw /dev/usb`
 
-# RXTX (old)
+##LibUsb
+This is a JNA implementation of `libusb-1.0.x`, a user-level USB driver available for most platforms.
+Not all features are tested, so beware!
+
+##LibFtdi
+This is an implementation of `libftdi`, used to communicate with USB devices using FTDI chips. It is built on top of `LibUsb`.
+
+---
+## RXTX (old)
   
 For Ubuntu: (old)
 - `sudo apt-get install librxtx-java`

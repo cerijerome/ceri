@@ -22,10 +22,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.scream3r</groupId>
-			<artifactId>jssc</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.github.purejavacomm</groupId>
 			<artifactId>purejavacomm</artifactId>
 		</dependency>

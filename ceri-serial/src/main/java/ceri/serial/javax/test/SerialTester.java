@@ -11,6 +11,7 @@ import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.serial.javax.SelfHealingSerialConnector;
+import ceri.serial.javax.SerialConnector;
 
 /**
  * Class to test serial ports. Writes data received from the port in binary, and reads input from
@@ -21,7 +22,7 @@ public class SerialTester extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int INPUT_BYTES_MAX = 32 * 1024;
 	private static final int DELAY_MS = 500;
-	protected final SelfHealingSerialConnector connector;
+	protected final SerialConnector connector;
 	private final byte[] buffer = new byte[INPUT_BYTES_MAX];
 
 	public static void test(String commPort) throws IOException {
@@ -30,14 +31,14 @@ public class SerialTester extends LoopingExecutor {
 		}
 	}
 
-	public static void test(SelfHealingSerialConnector con) throws IOException {
+	public static void test(SerialConnector con) throws IOException {
 		try (SerialTester tester = new SerialTester(con)) {
 			while (true)
 				BasicUtil.delay(DELAY_MS);
 		}
 	}
 
-	public SerialTester(SelfHealingSerialConnector connector) throws IOException {
+	public SerialTester(SerialConnector connector) throws IOException {
 		this.connector = connector;
 		this.connector.connect();
 		start();

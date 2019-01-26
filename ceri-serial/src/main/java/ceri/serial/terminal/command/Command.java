@@ -4,7 +4,6 @@ import static ceri.common.validation.ValidationUtil.validateEqual;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.data.DataEncoder;
 import ceri.common.data.DataEncoder.Encodable;
-import ceri.common.text.ToStringHelper;
 
 public abstract class Command implements Encodable {
 	public final CommandType type;
@@ -30,11 +29,6 @@ public abstract class Command implements Encodable {
 	@Override
 	public int size() {
 		return CommandType.BYTES;
-	}
-
-	@Override
-	public String toString() {
-		return ToStringHelper.createByClass(this, type).toString();
 	}
 
 }

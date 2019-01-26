@@ -9,7 +9,7 @@ import ceri.common.data.DataEncoder;
 import ceri.common.data.DataUtil;
 
 public class Commands {
-	private static final int MIN_SIZE = GetStateCommand.INSTANCE.size();
+	private static final int MIN_SIZE = GetStatusCommand.INSTANCE.size();
 	private static final int MAX_SIZE = SetNotificationsCommand.SIZE;
 
 	private Commands() {}
@@ -23,10 +23,16 @@ public class Commands {
 		validateMin(decoder.remaining(), MIN_SIZE);
 		CommandType type = decodeType(decoder);
 		switch (type) {
-		case getState:
-			return GetStateCommand.INSTANCE;
+		case getStatus:
+			return GetStatusCommand.INSTANCE;
 		case setNotifications:
 			return SetNotificationsCommand.decodeBody(decoder);
+		case setDtr:
+			return SetDtrCommand.decodeBody(decoder);
+		case setRts:
+			return SetRtsCommand.decodeBody(decoder);
+		case setFlowControl:
+			return SetFlowControlCommand.decodeBody(decoder);
 		default:
 			throw new UnsupportedOperationException("Unable to decode packet: " + type);
 		}

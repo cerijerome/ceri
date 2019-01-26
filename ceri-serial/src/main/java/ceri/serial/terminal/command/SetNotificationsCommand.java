@@ -13,7 +13,7 @@ import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public class SetNotificationsCommand extends Command {
-	static final int SIZE = CommandType.BYTES + Integer.BYTES + Integer.BYTES;
+	static final int SIZE = CommandType.BYTES + NotificationType.BYTES + NotificationType.BYTES;
 	public final Set<NotificationType> on;
 	public final Set<NotificationType> off;
 
@@ -106,7 +106,7 @@ public class SetNotificationsCommand extends Command {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(on, off);
+		return HashCoder.hash(type, on, off);
 	}
 
 	@Override

@@ -22,7 +22,7 @@ import ceri.log.util.LogUtil;
  * replaced. USB-to-serial connector device names can change after disconnecting and reconnecting.
  * The CommPortSupplier interface can be used to provide handling logic in this case.
  */
-public class SelfHealingSerialConnector extends LoopingExecutor {
+public class SelfHealingSerialConnector extends LoopingExecutor implements SerialConnector {
 	private static final Logger logger = LogManager.getLogger();
 	private final CommPortSupplier commPortSupplier;
 	private final SerialPortParams params;
@@ -106,55 +106,56 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 		start();
 	}
 
-	public static enum State {
-		fixed,
-		broken;
-	}
-
 	/**
 	 * Manually notify the connector it is broken. Useful if the connector cannot determine it is
 	 * broken from IOExceptions alone.
 	 */
+	@Override
 	public void broken() {
 		setBroken();
 	}
 
+	@Override
 	public void connect() throws IOException {
 		initSerialPort();
 	}
 
+	@Override
 	public Listenable<State> listeners() {
 		return listeners;
 	}
 
+	@Override
 	public InputStream in() {
 		return in;
 	}
 
+	@Override
 	public OutputStream out() {
 		return out;
 	}
 
-	public void setDTR(boolean state) throws IOException {
+	@Override
+	public void setDtr(boolean state) throws IOException {
 		exec(port -> port.setDTR(state));
 	}
 
-	public void setRTS(boolean state) throws IOException {
+	@Override
+	public void setRts(boolean state) throws IOException {
 		exec(port -> port.setRTS(state));
 	}
 
+	@Override
 	public void setFlowControl(FlowControl flowControl) throws IOException {
 		exec(port -> port.setFlowControl(flowControl));
 	}
 
-	public void setBreakBit() throws IOException {
-		exec(SerialPort::setBreakBit);
+	@Override
+	public void setBreakBit(boolean on) throws IOException {
+		if (on) exec(SerialPort::setBreakBit);
+		else exec(SerialPort::clearBreakBit);
 	}
 
-	public void clearBreakBit() throws IOException {
-		exec(SerialPort::clearBreakBit);
-	}
-	
 	@SuppressWarnings("resource")
 	private void exec(ExceptionConsumer<IOException, SerialPort> consumer) throws IOException {
 		SerialPort serialPort = serialPort();
@@ -165,7 +166,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor {
 			throw e;
 		}
 	}
-	
+
 	private SerialPort serialPort() throws IOException {
 		SerialPort serialPort = this.serialPort;
 		if (serialPort == null) throw new IOException("Serial port not connected");
