@@ -160,6 +160,14 @@ public class IoUtil {
 	}
 
 	/**
+	 * Reads until buffer is filled; calls readNBytes.
+	 */
+    public static int readBytes(InputStream in, byte[] b) throws IOException {
+    	if (in == null || b == null) return 0;
+    	return in.readNBytes(b, 0,  b.length);
+    }
+
+	/**
 	 * Wait for given number of bytes to be available on input stream.
 	 */
 	public static int waitForData(InputStream in, int count) throws IOException {
@@ -459,14 +467,6 @@ public class IoUtil {
 		}
 		return pos - offset;
 	}
-
-	/**
-	 * Reads until buffer is filled; calls readNBytes.
-	 */
-    public static int readBytes(InputStream in, byte[] b) throws IOException {
-    	if (in == null || b == null) return 0;
-    	return in.readNBytes(b, 0,  b.length);
-    }
 
 	/**
 	 * Lists resources from same package as class. Handles file resources and resources within a jar

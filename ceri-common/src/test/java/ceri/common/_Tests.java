@@ -97,6 +97,7 @@ import ceri.common.io.FileIteratorBehavior;
 import ceri.common.io.FileTrackerBehavior;
 import ceri.common.io.FilenameIteratorBehavior;
 import ceri.common.io.InputStreamIteratorBehavior;
+import ceri.common.io.IoStreamUtilTest;
 import ceri.common.io.IoTimeoutExceptionBehavior;
 import ceri.common.io.IoUtilTest;
 import ceri.common.io.KeyCheckerBehavior;
@@ -150,6 +151,7 @@ import ceri.common.test.BinaryLogOutputStreamBehavior;
 import ceri.common.test.BinaryPrinterBehavior;
 import ceri.common.test.DebuggerBehavior;
 import ceri.common.test.RegexMatcherBehavior;
+import ceri.common.test.ResponseStreamBehavior;
 import ceri.common.test.TestPrinterBehavior;
 import ceri.common.test.TestRunAdapterBehavior;
 import ceri.common.test.TestRunPrinterBehavior;
@@ -303,6 +305,7 @@ import ceri.common.xml.XmlUtilTest;
 	FileTrackerBehavior.class, //
 	FilenameIteratorBehavior.class, //
 	InputStreamIteratorBehavior.class, //
+	IoStreamUtilTest.class, //
 	IoTimeoutExceptionBehavior.class, //
 	IoUtilTest.class, //
 	KeyCheckerBehavior.class, //
@@ -363,6 +366,7 @@ import ceri.common.xml.XmlUtilTest;
 	BinaryPrinterBehavior.class, //
 	DebuggerBehavior.class, //
 	RegexMatcherBehavior.class, //
+	ResponseStreamBehavior.class, //
 	TestPrinterBehavior.class, //
 	TestRunAdapterBehavior.class, //
 	TestRunPrinterBehavior.class, //

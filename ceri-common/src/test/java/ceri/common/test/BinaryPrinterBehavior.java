@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import org.junit.Test;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.BinaryPrinter;
@@ -34,6 +35,16 @@ public class BinaryPrinterBehavior {
 		}
 	}
 
+	@Test
+	public void shouldPrintByteBuffer() {
+		StringBuilder b = new StringBuilder();
+		BinaryPrinter bin = BinaryPrinter.builder().out(StringUtil.asPrintStream(b))
+			.showBinary(false).build();
+		ByteBuffer buffer = ByteBuffer.wrap(ByteUtil.toAscii("abc").copy());
+		bin.print(buffer);
+		assertThat(b.toString(), is("61 62 63                 abc     \n"));
+	}
+	
 	@Test
 	public void shouldPrintByteArray() {
 		StringBuilder b = new StringBuilder();

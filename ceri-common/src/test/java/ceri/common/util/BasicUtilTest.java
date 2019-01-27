@@ -84,11 +84,13 @@ public class BasicUtilTest {
 
 	@Test
 	public void testCopyToClipboard() throws IOException, UnsupportedFlavorException {
-		String s = "clipboard\ntest\n";
-		BasicUtil.copyToClipBoard(s);
+		String s0 = "clipboard\ntest\n";
+		BasicUtil.copyToClipBoard(s0);
 		Transferable trans = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
 		Object obj = trans.getTransferData(trans.getTransferDataFlavors()[0]);
-		assertThat(obj, is(s));
+		assertThat(obj, is(s0));
+		String s = BasicUtil.copyFromClipBoard();
+		assertThat(s, is(s0));
 	}
 
 	@Test

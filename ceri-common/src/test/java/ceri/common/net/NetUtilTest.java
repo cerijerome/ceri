@@ -2,6 +2,7 @@ package ceri.common.net;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -21,12 +22,40 @@ public class NetUtilTest {
 	}
 
 	@Test
-	public void testIsRegularAddress() throws IOException {
+	public void testIsRegularAddressForSpecialAddresses() throws IOException {
 		assertFalse(NetUtil.isRegularAddress(InetAddress.getByName("0.0.0.0")));
 		assertFalse(NetUtil.isRegularAddress(InetAddress.getByName("127.0.0.1")));
 		assertFalse(NetUtil.isRegularAddress(InetAddress.getByName("169.254.0.0")));
 		assertFalse(NetUtil.isRegularAddress(InetAddress.getByName("224.0.0.0")));
 		assertTrue(NetUtil.isRegularAddress(InetAddress.getByName("10.0.0.1")));
+	}
+
+	@Test
+	public void testIsRegularAddressForAnyLocal() {
+		when(address.isSiteLocalAddress()).thenReturn(true);
+		when(address.isAnyLocalAddress()).thenReturn(true);
+		assertFalse(NetUtil.isRegularAddress(address));
+	}
+
+	@Test
+	public void testIsRegularAddressForLinkLocal() {
+		when(address.isSiteLocalAddress()).thenReturn(true);
+		when(address.isLinkLocalAddress()).thenReturn(true);
+		assertFalse(NetUtil.isRegularAddress(address));
+	}
+
+	@Test
+	public void testIsRegularAddressForLoopback() {
+		when(address.isSiteLocalAddress()).thenReturn(true);
+		when(address.isLoopbackAddress()).thenReturn(true);
+		assertFalse(NetUtil.isRegularAddress(address));
+	}
+
+	@Test
+	public void testIsRegularAddressForMulticast() {
+		when(address.isSiteLocalAddress()).thenReturn(true);
+		when(address.isMulticastAddress()).thenReturn(true);
+		assertFalse(NetUtil.isRegularAddress(address));
 	}
 
 	@Test

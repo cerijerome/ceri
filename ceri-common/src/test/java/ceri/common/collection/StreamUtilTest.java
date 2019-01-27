@@ -44,6 +44,7 @@ public class StreamUtilTest {
 	public void testBitwiseOperators() {
 		assertThat(StreamUtil.bitwiseOr(IntStream.of(1, 2, 5)), is(7));
 		assertThat(StreamUtil.bitwiseAnd(IntStream.of(15, 7, 14)), is(6));
+		assertThat(StreamUtil.bitwiseXor(IntStream.of(1, 2, 5)), is(6));
 	}
 
 	@Test

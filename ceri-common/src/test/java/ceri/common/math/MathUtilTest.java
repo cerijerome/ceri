@@ -433,9 +433,11 @@ public class MathUtilTest {
 
 	@Test
 	public void testPercentage() {
+		assertThat(MathUtil.percentage(0.9), is(90.0));
 		assertThat(MathUtil.percentage(90, 90), is(100.0));
 		assertThat(MathUtil.percentage(Double.MAX_VALUE, Double.MAX_VALUE), is(100.0));
 		assertTrue(Double.isNaN(MathUtil.percentage(Long.MAX_VALUE, 0)));
+		assertThat(MathUtil.valueFromPercentage(50), is(0.5));
 		assertThat(MathUtil.valueFromPercentage(50, 90), is(45.0));
 		assertThat(MathUtil.valueFromPercentage(100, Double.MAX_VALUE), is(Double.MAX_VALUE));
 		assertThat(MathUtil.valueFromPercentage(Double.MAX_VALUE, 100), is(Double.MAX_VALUE));

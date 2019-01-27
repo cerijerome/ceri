@@ -64,6 +64,13 @@ public class BasePropertiesBehavior {
 	}
 
 	@Test
+	public void shouldCreateEmptyPropertiesFromNull() {
+		BaseProperties bp = new BaseProperties((BaseProperties) null, "m.n.0") {};
+		assertNull(bp.value("a.b.c"));
+		assertNull(bp.value(""));
+	}
+	
+	@Test
 	public void shouldCreateFromResourceBundle() {
 		ResourceBundle r = ResourceBundle.getBundle( //
 			"ceri.common.property.PropertyAccessor", Locale.ENGLISH);

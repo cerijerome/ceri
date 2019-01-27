@@ -35,6 +35,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.data.ByteUtil;
 import ceri.common.test.FileTestHelper;
 
 public class IoUtilTest {
@@ -195,6 +196,18 @@ public class IoUtilTest {
 			String s = IoUtil.readString(in);
 			assertThat(s, is("test"));
 		}
+	}
+
+	@Test
+	public void testReadBytes() throws IOException {
+		assertThat(IoUtil.readBytes(null, null), is(0));
+		try (InputStream in = new ByteArrayInputStream(ByteUtil.bytes(0, 1, 2, 3, 4))) {
+			assertThat(IoUtil.readBytes(in, null), is(0));
+			byte[] buffer = new byte[4];
+			IoUtil.readBytes(in, buffer);
+			assertArray(buffer, 0, 1, 2, 3);
+		}
+
 	}
 
 	@Test

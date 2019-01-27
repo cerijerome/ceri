@@ -7,6 +7,12 @@ import org.junit.Test;
 public class SafeReadWriteBehavior {
 
 	@Test
+	public void shouldProvideLockForConditions() {
+		SafeReadWrite safe = SafeReadWrite.create();
+		BooleanCondition.create(safe.conditionLock());
+	}
+
+	@Test
 	public void shouldUseReadLockToRead() {
 		SafeReadWrite safe = SafeReadWrite.create();
 		assertTrue(safe.read(() -> {
