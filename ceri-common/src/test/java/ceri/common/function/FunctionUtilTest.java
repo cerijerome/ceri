@@ -40,6 +40,36 @@ public class FunctionUtilTest {
 	}
 
 	@Test
+	public void testCastApply() {
+		Object obj = new int[] { -1 };
+		assertThat(FunctionUtil.castApply(int[].class, obj, x -> x[0] = 1), is(1));
+		assertArray((int[]) obj, 1);
+		assertNull(FunctionUtil.castApply((Class<int[]>) null, obj, x -> x[0] = 2));
+		assertArray((int[]) obj, 1);
+		assertNull(FunctionUtil.castApply(int[].class, null, x -> x[0] = 2));
+		assertArray((int[]) obj, 1);
+		assertNull(FunctionUtil.castApply(int[].class, obj, null));
+		assertArray((int[]) obj, 1);
+		assertNull(FunctionUtil.castApply(long[].class, obj, x -> x[0] = 2));
+		assertArray((int[]) obj, 1);
+	}
+
+	@Test
+	public void testCastAccept() {
+		Object obj = new int[] { -1 };
+		FunctionUtil.castAccept(int[].class, obj, x -> x[0] = 1);
+		assertArray((int[]) obj, 1);
+		FunctionUtil.castAccept((Class<int[]>) null, obj, x -> x[0] = 2);
+		assertArray((int[]) obj, 1);
+		FunctionUtil.castAccept(int[].class, null, x -> x[0] = 2);
+		assertArray((int[]) obj, 1);
+		FunctionUtil.castAccept(int[].class, obj, null);
+		assertArray((int[]) obj, 1);
+		FunctionUtil.castAccept(long[].class, obj, x -> x[0] = 2);
+		assertArray((int[]) obj, 1);
+	}
+
+	@Test
 	public void testConsumerAsRunnable() throws Exception {
 		String[] store = { "" };
 		ExceptionConsumer<?, String> consumer = s -> store[0] = s;

@@ -9,6 +9,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Test;
@@ -22,6 +25,14 @@ public class RegexUtilTest {
 	@Test
 	public void testPrivateConstructor() {
 		assertPrivateConstructor(RegexUtil.class);
+	}
+
+	@Test
+	public void testForEach() {
+		List<String> list = new ArrayList<>();
+		for (MatchResult result : RegexUtil.forEach(INT_PATTERN, "123abcA1B2C3"))
+			list.add(result.group());
+		assertIterable(list, "123", "1", "2", "3");
 	}
 
 	@Test

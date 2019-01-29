@@ -38,6 +38,13 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testFormat() {
+		StringBuilder b = new StringBuilder("abc");
+		StringUtil.format(b, "%.2f", 3.3333);
+		assertThat(b.toString(), is("abc3.33"));
+	}
+
+	@Test
 	public void testDecimalFormat() {
 		assertThat(StringUtil.decimalFormat(0).format(0.01), is("0"));
 		assertThat(StringUtil.decimalFormat(0).format(0.50001), is("1"));

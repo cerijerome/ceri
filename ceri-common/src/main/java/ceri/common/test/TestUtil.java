@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
@@ -547,10 +548,14 @@ public class TestUtil {
 	}
 
 	@SafeVarargs
-	public static <T> void assertStream(Stream<T> stream, T...ts) {
+	public static <T> void assertStream(Stream<T> stream, T... ts) {
 		assertArray(stream.toArray(), ts);
 	}
-	
+
+	public static void assertStream(IntStream stream, int... is) {
+		assertArray(stream.toArray(), is);
+	}
+
 	/**
 	 * Capture and return any thrown exception.
 	 */

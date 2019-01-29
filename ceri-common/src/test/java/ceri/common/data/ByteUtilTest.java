@@ -4,6 +4,7 @@ import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertStream;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
@@ -13,6 +14,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +41,11 @@ public class ByteUtilTest {
 	@Test
 	public void testToHex() {
 		ImmutableByteArray b = ImmutableByteArray.wrap(-1, 0, 127, 128);
+		assertNull(ByteUtil.toHex((ImmutableByteArray) null));
+		assertNull(ByteUtil.toHex((byte[]) null));
+		assertThat(ByteUtil.toHex(b), is("ff 00 7f 80"));
 		assertThat(ByteUtil.toHex(b, ":"), is("ff:00:7f:80"));
+		assertThat(ByteUtil.toHex(b.copy(), "-"), is("ff-00-7f-80"));
 	}
 
 	@Test
@@ -51,7 +57,14 @@ public class ByteUtilTest {
 	}
 
 	@Test
+	public void testStreamOf() {
+		byte[] b = ByteUtil.bytes(-1, 0, 1, 127, 128);
+		assertStream(ByteUtil.streamOf(b), 0xff, 0, 1, 0x7f, 0x80);
+	}
+
+	@Test
 	public void testToByteArray() {
+		assertArray(ByteUtil.toByteArray(List.of(-1, 0, 127, 128)), -1, 0, 127, 128);
 		assertArray(ByteUtil.toByteArray(IntStream.of(-1, 0, 127, 128)), -1, 0, 127, 128);
 	}
 

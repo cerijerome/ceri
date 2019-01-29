@@ -1,6 +1,7 @@
 package ceri.common.score;
 
 import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -15,6 +16,13 @@ public class ScorersTest {
 	@Test
 	public void testPrivateConstructor() {
 		assertPrivateConstructor(Scorers.class);
+	}
+
+	@Test
+	public void testResults() {
+		Scorer<String> len = Scorers.nonNull(String::length);
+		assertIterable(Scorers.results(len, "abc", "de", "f", ""), len.result("abc"),
+			len.result("de"), len.result("f"), len.result(""));
 	}
 
 	@Test
@@ -47,8 +55,8 @@ public class ScorersTest {
 	}
 
 	@Test
-	public void test() {
-		Scorer<String> len = Scorers.nonNull(s -> s.length());
+	public void testAverage() {
+		Scorer<String> len = Scorers.nonNull(String::length);
 		Scorer<String> firstChar = Scorers.nonNull(s -> s.isEmpty() ? 0.0 : s.charAt(0) - 'A');
 		Scorer<String> scorer = Scorers.average(len, firstChar);
 		assertThat(scorer.score(null), is(0.0));
@@ -60,7 +68,7 @@ public class ScorersTest {
 
 	@Test
 	public void testMultiply() {
-		Scorer<String> len = Scorers.nonNull(s -> s.length());
+		Scorer<String> len = Scorers.nonNull(String::length);
 		Scorer<String> firstChar = Scorers.nonNull(s -> s.isEmpty() ? 0.0 : s.charAt(0) - 'A');
 		Scorer<String> scorer = Scorers.multiply(len, firstChar);
 		assertThat(scorer.score(null), is(0.0));
@@ -72,7 +80,7 @@ public class ScorersTest {
 
 	@Test
 	public void testFilter() {
-		Scorer<String> len = Scorers.nonNull(s -> s.length());
+		Scorer<String> len = Scorers.nonNull(String::length);
 		Filter<String> filter = Scorers.filter(len, 2.0, 3.0);
 		assertThat(filter.filter("AAA"), is(true));
 		assertThat(filter.filter("B"), is(false));

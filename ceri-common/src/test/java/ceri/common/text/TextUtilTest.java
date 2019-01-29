@@ -211,6 +211,24 @@ public class TextUtilTest {
 	}
 
 	@Test
+	public void testFirstLetterToUpper() {
+		assertNull(TextUtil.firstLetterToUpper(null));
+		assertThat(TextUtil.firstLetterToUpper(""), is(""));
+		assertThat(TextUtil.firstLetterToUpper("abc"), is("Abc"));
+		assertThat(TextUtil.firstLetterToUpper("  abc"), is("  Abc"));
+		assertThat(TextUtil.firstLetterToUpper("_ABc"), is("_ABc"));
+	}
+
+	@Test
+	public void testFirstLetterToLower() {
+		assertNull(TextUtil.firstLetterToLower(null));
+		assertThat(TextUtil.firstLetterToLower(""), is(""));
+		assertThat(TextUtil.firstLetterToLower("ABC"), is("aBC"));
+		assertThat(TextUtil.firstLetterToLower("  ABC"), is("  aBC"));
+		assertThat(TextUtil.firstLetterToLower("_abC"), is("_abC"));
+	}
+
+	@Test
 	public void testPascalToUnderscore() {
 		assertNull(TextUtil.pascalToUnderscore(null));
 		assertThat(TextUtil.pascalToUnderscore(""), is(""));
@@ -232,6 +250,14 @@ public class TextUtilTest {
 		assertThat(TextUtil.underscoreToPascal(""), is(""));
 		assertThat(TextUtil.underscoreToPascal("_HELLO_THERE_ABC_"), is("_HelloThereAbc_"));
 		assertThat(TextUtil.underscoreToPascal("_HELLO1_THERE2_ABC3_"), is("_Hello1There2Abc3_"));
+	}
+
+	@Test
+	public void testUnderscoreToCamel() {
+		assertNull(TextUtil.underscoreToCamel(null));
+		assertThat(TextUtil.underscoreToCamel(""), is(""));
+		assertThat(TextUtil.underscoreToCamel("_HELLO_THERE_ABC_"), is("_helloThereAbc_"));
+		assertThat(TextUtil.underscoreToCamel("_HELLO1_THERE2_ABC3_"), is("_hello1There2Abc3_"));
 	}
 
 	@Test

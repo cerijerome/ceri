@@ -9,6 +9,9 @@ import ceri.common.function.ObjShortConsumer;
 import ceri.common.function.ToByteFunction;
 import ceri.common.function.ToShortFunction;
 
+/**
+ * Interface to get and set integer values within an object.
+ */
 public interface IntAccessor {
 	
 	void set(int value);

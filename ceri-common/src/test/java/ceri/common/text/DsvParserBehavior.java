@@ -31,6 +31,12 @@ public class DsvParserBehavior {
 	}
 
 	@Test
+	public void testSplit() {
+		assertIterable(DsvParser.split(null, '|'));
+		assertIterable(DsvParser.split("abc||de|f|", '|'), "abc", "", "de","f","");
+	}
+
+	@Test
 	public void shouldReadFieldsByName() {
 		assertTrue(parser.hasHeaderValue("field1"));
 		assertFalse(parser.hasHeaderValue("field4"));

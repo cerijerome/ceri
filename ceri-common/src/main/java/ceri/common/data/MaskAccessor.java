@@ -1,5 +1,8 @@
 package ceri.common.data;
 
+/**
+ * Sets/gets bit ranges within a given IntAccessor.
+ */
 public class MaskAccessor implements IntAccessor {
 	private final IntAccessor accessor;
 	private final int mask;

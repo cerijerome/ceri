@@ -32,14 +32,17 @@ import ceri.common.concurrent.RuntimeInterruptedExceptionBehavior;
 import ceri.common.concurrent.SafeReadWriteBehavior;
 import ceri.common.concurrent.ValueConditionBehavior;
 import ceri.common.data.BinaryStateBehavior;
+import ceri.common.data.BooleanAccessorBehavior;
 import ceri.common.data.ByteArrayDataInputBehavior;
 import ceri.common.data.ByteArrayDataOutputBehavior;
 import ceri.common.data.ByteTypeValueBehavior;
 import ceri.common.data.ByteUtilTest;
 import ceri.common.data.DataUtilTest;
 import ceri.common.data.DecodingExceptionBehavior;
+import ceri.common.data.IntAccessorBehavior;
 import ceri.common.data.IntBitSetBehavior;
 import ceri.common.data.IntTypeValueBehavior;
+import ceri.common.data.MaskAccessorBehavior;
 import ceri.common.data.ShortTypeValueBehavior;
 import ceri.common.data.UnexpectedValueExceptionBehavior;
 import ceri.common.data.UnsignedOctetTypeBehavior;
@@ -63,9 +66,16 @@ import ceri.common.filter.CollectionFiltersTest;
 import ceri.common.filter.EnumFiltersTest;
 import ceri.common.filter.FilterBehavior;
 import ceri.common.filter.FiltersTest;
+import ceri.common.function.BooleanConsumerBehavior;
 import ceri.common.function.ExceptionPredicateBehavior;
 import ceri.common.function.FunctionUtilTest;
 import ceri.common.function.FunctionWrapperBehavior;
+import ceri.common.function.ObjBooleanConsumerBehavior;
+import ceri.common.function.ObjByteConsumerBehavior;
+import ceri.common.function.ObjShortConsumerBehavior;
+import ceri.common.function.ToByteFunctionBehavior;
+import ceri.common.function.ToShortFunctionBehavior;
+import ceri.common.function.WrapperExceptionBehavior;
 import ceri.common.geo.LatLngBehavior;
 import ceri.common.geo.LatLngUtilTest;
 import ceri.common.geom.Circle2dBehavior;
@@ -135,6 +145,7 @@ import ceri.common.reflect.CreateExceptionBehavior;
 import ceri.common.reflect.ReflectUtilTest;
 import ceri.common.score.CollectionScorersTest;
 import ceri.common.score.ScoreLookupBehavior;
+import ceri.common.score.ScoreResultBehavior;
 import ceri.common.score.ScorersTest;
 import ceri.common.svg.EllipseBehavior;
 import ceri.common.svg.EllipticalArcBehavior;
@@ -231,14 +242,17 @@ import ceri.common.xml.XmlUtilTest;
 	ValueConditionBehavior.class, //
 	// data
 	BinaryStateBehavior.class, //
+	BooleanAccessorBehavior.class, //
 	ByteArrayDataInputBehavior.class, //
 	ByteArrayDataOutputBehavior.class, //
 	ByteTypeValueBehavior.class, //
 	ByteUtilTest.class, //
 	DataUtilTest.class, //
 	DecodingExceptionBehavior.class, //
+	IntAccessorBehavior.class, //
 	IntBitSetBehavior.class, //
 	IntTypeValueBehavior.class, //
+	MaskAccessorBehavior.class, //
 	ShortTypeValueBehavior.class, //
 	UnexpectedValueExceptionBehavior.class, //
 	UnsignedOctetTypeBehavior.class, //
@@ -268,9 +282,16 @@ import ceri.common.xml.XmlUtilTest;
 	FilterBehavior.class, //
 	FiltersTest.class, //
 	// function
+	BooleanConsumerBehavior.class, //
 	ExceptionPredicateBehavior.class, //
 	FunctionUtilTest.class, //
 	FunctionWrapperBehavior.class, //
+	ObjBooleanConsumerBehavior.class, //
+	ObjByteConsumerBehavior.class, //
+	ObjShortConsumerBehavior.class, //
+	ToByteFunctionBehavior.class, //
+	ToShortFunctionBehavior.class, //
+	WrapperExceptionBehavior.class, //
 	// geo
 	LatLngBehavior.class, //
 	LatLngUtilTest.class, //
@@ -348,6 +369,7 @@ import ceri.common.xml.XmlUtilTest;
 	// score
 	CollectionScorersTest.class, //
 	ScoreLookupBehavior.class, //
+	ScoreResultBehavior.class, //
 	ScorersTest.class, //
 	// svg
 	EllipseBehavior.class, //

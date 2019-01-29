@@ -125,7 +125,7 @@ public class TextUtil {
 	}
 
 	/**
-	 * Make the first letter upper case.
+	 * Make the first found letter upper case.
 	 */
 	public static String firstLetterToUpper(String str) {
 		if (str == null || str.isEmpty()) return str;
@@ -133,7 +133,7 @@ public class TextUtil {
 	}
 
 	/**
-	 * Make the first letter lower case.
+	 * Make the first found letter lower case.
 	 */
 	public static String firstLetterToLower(String str) {
 		if (str == null || str.isEmpty()) return str;

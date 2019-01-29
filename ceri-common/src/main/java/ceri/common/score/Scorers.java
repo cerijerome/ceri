@@ -34,8 +34,13 @@ public class Scorers {
 		Collections.sort(ts, comparator);
 	}
 
-	public static <T> List<ScoreResult<T>> results(Collection<? extends T> ts,
-		Scorer<? super T> scorer) {
+	@SafeVarargs
+	public static <T> List<ScoreResult<T>> results(Scorer<? super T> scorer, T... ts) {
+		return results(scorer, Arrays.asList(ts));
+	}
+
+	public static <T> List<ScoreResult<T>> results(Scorer<? super T> scorer,
+		Collection<? extends T> ts) {
 		return toList(ts.stream().map(t -> ScoreResult.<T>of(t, scorer.score(t))).sorted());
 	}
 

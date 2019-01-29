@@ -60,7 +60,7 @@ public class ByteUtil {
 	}
 
 	public static IntStream streamOf(byte... array) {
-		return streamOf(array, 0, array.length);
+		return streamOf(array, 0);
 	}
 
 	public static IntStream streamOf(byte[] array, int offset) {
