@@ -4,6 +4,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * Combines an integer field accessor with a type transcoder to allow callers to get/set
+ * types on a field that is a plain integer. Typically instantiated from TypeTranscoder.field. 
+ */
 public abstract class FieldTranscoder {
 	private final IntAccessor accessor;
 

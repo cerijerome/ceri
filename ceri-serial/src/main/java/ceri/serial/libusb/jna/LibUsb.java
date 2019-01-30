@@ -23,7 +23,7 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntAccessor;
-import ceri.common.data.MaskAccessor;
+import ceri.common.data.MaskTranscoder;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.text.StringUtil;
 import ceri.serial.jna.JnaUtil;
@@ -403,7 +403,8 @@ public class LibUsb {
 			implements Structure.ByReference {}
 
 		public byte bLength;
-		public byte bDescriptorType; // libusb_descriptor_type.LIBUSB_DT_ENDPOINT
+		// libusb_descriptor_type.LIBUSB_DT_ENDPOINT
+		public byte bDescriptorType;
 		// bits 0:3 endpoint number, 4:6 reserved, 7 direction (libusb_endpoint_direction)
 		public byte bEndpointAddress;
 		// bits 0:1 libusb_transfer_type, 2:3 libusb_iso_sync_type (iso only)
@@ -427,28 +428,27 @@ public class LibUsb {
 		}
 
 		public IntAccessor bEndpointNumber() {
-			return MaskAccessor.of(bEndpointAddressAccessor.from(this),
-				LIBUSB_ENDPOINT_ADDRESS_MASK);
+			return bEndpointAddressAccessor.from(this).mask(LIBUSB_ENDPOINT_ADDRESS_MASK);
 		}
 
 		public FieldTranscoder.Single<libusb_endpoint_direction> bEndpointDirection() {
-			return libusb_endpoint_direction.xcoder.field(
-				MaskAccessor.of(bEndpointAddressAccessor.from(this), LIBUSB_ENDPOINT_DIR_MASK));
+			return libusb_endpoint_direction.xcoder
+				.field(bEndpointAddressAccessor.from(this).mask(LIBUSB_ENDPOINT_DIR_MASK));
 		}
 
 		public FieldTranscoder.Single<libusb_transfer_type> bmAttributesTransferType() {
-			return libusb_transfer_type.xcoder.field( //
-				MaskAccessor.of(bmAttributesAccessor.from(this), LIBUSB_TRANSFER_TYPE_MASK));
+			return libusb_transfer_type.xcoder
+				.field(bmAttributesAccessor.from(this).mask(LIBUSB_TRANSFER_TYPE_MASK));
 		}
 
 		public FieldTranscoder.Single<libusb_iso_sync_type> bmAttributesIsoSyncType() {
-			return libusb_iso_sync_type.xcoder.field( //
-				MaskAccessor.of(bmAttributesAccessor.from(this), LIBUSB_ISO_SYNC_TYPE_MASK, 2));
+			return libusb_iso_sync_type.xcoder.field(bmAttributesAccessor.from(this)
+				.mask(MaskTranscoder.mask(LIBUSB_ISO_SYNC_TYPE_MASK, 2)));
 		}
 
 		public FieldTranscoder.Single<libusb_iso_usage_type> bmAttributesIsoUsageType() {
-			return libusb_iso_usage_type.xcoder.field( //
-				MaskAccessor.of(bmAttributesAccessor.from(this), LIBUSB_ISO_USAGE_TYPE_MASK, 4));
+			return libusb_iso_usage_type.xcoder.field(bmAttributesAccessor.from(this)
+				.mask(MaskTranscoder.mask(LIBUSB_ISO_USAGE_TYPE_MASK, 4)));
 		}
 
 		public byte[] extra() {
@@ -647,11 +647,11 @@ public class LibUsb {
 		}
 
 		public IntAccessor bmAttributesBulkMaxStreams() {
-			return MaskAccessor.of(bmAttributesAccessor.from(this), LIBUSB_BULK_MAX_STREAMS_MASK);
+			return bmAttributesAccessor.from(this).mask(LIBUSB_BULK_MAX_STREAMS_MASK);
 		}
 
 		public IntAccessor bmAttributesIsoMult() {
-			return MaskAccessor.of(bmAttributesAccessor.from(this), LIBUSB_ISO_MULT_MASK);
+			return bmAttributesAccessor.from(this).mask(LIBUSB_ISO_MULT_MASK);
 		}
 
 		@Override
@@ -943,18 +943,18 @@ public class LibUsb {
 		}
 
 		public FieldTranscoder.Single<libusb_request_recipient> bmRequestRecipient() {
-			return libusb_request_recipient.xcoder.field(
-				MaskAccessor.of(bmRequestTypeAccessor.from(this), LIBUSB_REQUEST_RECIPIENT_MASK));
+			return libusb_request_recipient.xcoder
+				.field(bmRequestTypeAccessor.from(this).mask(LIBUSB_REQUEST_RECIPIENT_MASK));
 		}
 
 		public FieldTranscoder.Single<libusb_request_type> bmRequestType() {
-			return libusb_request_type.xcoder.field( //
-				MaskAccessor.of(bmRequestTypeAccessor.from(this), LIBUSB_REQUEST_TYPE_MASK));
+			return libusb_request_type.xcoder
+				.field(bmRequestTypeAccessor.from(this).mask(LIBUSB_REQUEST_TYPE_MASK));
 		}
 
 		public FieldTranscoder.Single<libusb_endpoint_direction> bmRequestDirection() {
-			return libusb_endpoint_direction.xcoder.field( //
-				MaskAccessor.of(bmRequestTypeAccessor.from(this), LIBUSB_ENDPOINT_DIR_MASK));
+			return libusb_endpoint_direction.xcoder
+				.field(bmRequestTypeAccessor.from(this).mask(LIBUSB_ENDPOINT_DIR_MASK));
 		}
 
 		public FieldTranscoder.Single<libusb_standard_request> bRequestStandard() {

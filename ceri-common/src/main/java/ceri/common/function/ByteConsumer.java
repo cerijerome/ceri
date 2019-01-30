@@ -1,4 +1,4 @@
-package ceri.common.data;
+package ceri.common.function;
 
 public interface ByteConsumer {
 

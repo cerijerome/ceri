@@ -6,8 +6,8 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.IntStream;
-import ceri.common.data.ByteConsumer;
 import ceri.common.data.ByteUtil;
+import ceri.common.function.ByteConsumer;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
 

@@ -11,9 +11,10 @@ import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.StreamUtil;
 
 /**
- * Helper to convert between object types (including enums) and integer values.
+ * Helper to convert between object types and integer values. Useful for enums.
  */
 public abstract class TypeTranscoder<T> {
+	final MaskTranscoder mask;
 	final ToIntFunction<T> valueFn;
 	final Map<Integer, T> lookup;
 
@@ -21,25 +22,29 @@ public abstract class TypeTranscoder<T> {
 	 * Transcoder for types stored as single values.
 	 */
 	public static class Single<T> extends TypeTranscoder<T> {
-		Single(ToIntFunction<T> valueFn, Collection<T> ts) {
-			super(valueFn, ts);
+		Single(ToIntFunction<T> valueFn, Collection<T> ts, MaskTranscoder mask) {
+			super(valueFn, ts, mask);
 		}
 
-		Single(ToIntFunction<T> valueFn, Map<Integer, T> lookup) {
-			super(valueFn, lookup);
+		Single(ToIntFunction<T> valueFn, Map<Integer, T> lookup, MaskTranscoder mask) {
+			super(valueFn, lookup, mask);
 		}
 
 		public Flag<T> flag() {
-			return new Flag<>(valueFn, lookup);
+			return new Flag<>(valueFn, lookup, mask);
 		}
-		
+
 		public FieldTranscoder.Single<T> field(IntAccessor accessor) {
 			return FieldTranscoder.single(accessor, this);
 		}
 
+		public Single<T> mask(MaskTranscoder mask) {
+			return new Single<>(valueFn, lookup, mask);
+		}
+
 		public int encode(T t) {
 			if (t == null) return 0;
-			return valueFn.applyAsInt(t);
+			return mask.encodeInt(valueFn.applyAsInt(t));
 		}
 
 		public boolean isValid(int value) {
@@ -49,7 +54,7 @@ public abstract class TypeTranscoder<T> {
 
 		public T decode(int value) {
 			if (value == 0) return null;
-			return lookup.get(value);
+			return lookup.get(mask.decodeInt(value));
 		}
 	}
 
@@ -57,35 +62,40 @@ public abstract class TypeTranscoder<T> {
 	 * Transcoder for types stored as multiple values, such as flags.
 	 */
 	public static class Flag<T> extends TypeTranscoder<T> {
-		Flag(ToIntFunction<T> valueFn, Collection<T> ts) {
-			super(valueFn, ts);
+		Flag(ToIntFunction<T> valueFn, Collection<T> ts, MaskTranscoder mask) {
+			super(valueFn, ts, mask);
 		}
 
-		Flag(ToIntFunction<T> valueFn, Map<Integer, T> lookup) {
-			super(valueFn, lookup);
+		Flag(ToIntFunction<T> valueFn, Map<Integer, T> lookup, MaskTranscoder mask) {
+			super(valueFn, lookup, mask);
+		}
+
+		public Single<T> single() {
+			return new Single<>(valueFn, lookup, mask);
 		}
 
 		public FieldTranscoder.Flag<T> field(IntAccessor accessor) {
 			return FieldTranscoder.flag(accessor, this);
 		}
 
-		public Single<T> single() {
-			return new Single<>(valueFn, lookup);
+		public Flag<T> mask(MaskTranscoder mask) {
+			return new Flag<>(valueFn, lookup, mask);
 		}
-		
+
 		@SafeVarargs
 		public final int encode(T... ts) {
 			if (ts == null || ts.length == 0) return 0;
 			return encode(Arrays.asList(ts));
 		}
 
-		public final int encode(Collection<T> ts) {
+		public int encode(Collection<T> ts) {
 			if (ts == null || ts.isEmpty()) return 0;
-			return StreamUtil.bitwiseOr(ts.stream().mapToInt(valueFn));
+			return mask.encodeInt(StreamUtil.bitwiseOr(ts.stream().mapToInt(valueFn)));
 		}
 
 		public boolean isValid(int value) {
 			if (value == 0) return true;
+			value = mask.decodeInt(value);
 			for (int i : lookup.keySet()) {
 				int v = value ^ i;
 				if (v + i != value) continue;
@@ -97,6 +107,7 @@ public abstract class TypeTranscoder<T> {
 
 		public Set<T> decode(int value) {
 			if (value == 0) return Set.of();
+			value = mask.decodeInt(value);
 			Set<T> set = new LinkedHashSet<>();
 			for (Map.Entry<Integer, T> entry : lookup.entrySet()) {
 				int i = entry.getKey().intValue();
@@ -123,7 +134,7 @@ public abstract class TypeTranscoder<T> {
 	}
 
 	public static <T> TypeTranscoder.Flag<T> flag(ToIntFunction<T> valueFn, Collection<T> ts) {
-		return new Flag<>(valueFn, ts) {};
+		return new Flag<>(valueFn, ts, MaskTranscoder.NULL) {};
 	}
 
 	public static <T extends Enum<T>> TypeTranscoder.Single<T> single(ToIntFunction<T> valueFn,
@@ -137,20 +148,21 @@ public abstract class TypeTranscoder<T> {
 	}
 
 	public static <T> TypeTranscoder.Single<T> single(ToIntFunction<T> valueFn, Collection<T> ts) {
-		return new TypeTranscoder.Single<>(valueFn, ts) {};
+		return new TypeTranscoder.Single<>(valueFn, ts, MaskTranscoder.NULL) {};
 	}
 
-	TypeTranscoder(ToIntFunction<T> valueFn, Collection<T> ts) {
-		this(valueFn, ImmutableUtil.convertAsMap(t -> valueFn.applyAsInt(t), ts));
+	TypeTranscoder(ToIntFunction<T> valueFn, Collection<T> ts, MaskTranscoder mask) {
+		this(valueFn, ImmutableUtil.convertAsMap(t -> valueFn.applyAsInt(t), ts), mask);
 	}
 
-	TypeTranscoder(ToIntFunction<T> valueFn, Map<Integer, T> lookup) {
+	TypeTranscoder(ToIntFunction<T> valueFn, Map<Integer, T> lookup, MaskTranscoder mask) {
 		this.valueFn = valueFn;
 		this.lookup = lookup;
+		this.mask = mask;
 	}
 
 	public Collection<T> all() {
 		return lookup.values();
 	}
-	
+
 }

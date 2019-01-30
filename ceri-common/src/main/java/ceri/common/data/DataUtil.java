@@ -9,7 +9,6 @@ import static ceri.common.validation.ValidationUtil.validateNotNull;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
-import java.util.function.ToIntFunction;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.validation.ValidationUtil;
 
@@ -149,11 +148,6 @@ public class DataUtil {
 		if (expected.equals(data, offset)) return offset + expected.length;
 		throw exceptionf("Expected %s: %s", toHex(expected),
 			toHex(data.slice(offset, expected.length)));
-	}
-
-	public static <T extends Enum<T>> FlagSet<T> validate(Class<T> cls, ToIntFunction<T> bitFn,
-		int value) {
-		return validate(i -> FlagSet.from(i, bitFn, cls), value, null);
 	}
 
 	public static <T> T validate(IntFunction<T> fn, int value) {

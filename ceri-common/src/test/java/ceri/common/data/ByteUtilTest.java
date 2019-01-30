@@ -112,6 +112,10 @@ public class ByteUtilTest {
 		assertThat(ByteUtil.mask(0), is(0L));
 		assertThat(ByteUtil.mask(7), is(0x7fL));
 		assertThat(ByteUtil.mask(64), is(0xffffffff_ffffffffL));
+		assertThat(ByteUtil.mask(100), is(0xffffffff_ffffffffL));
+		assertThat(ByteUtil.mask(10, 0), is(0L));
+		assertThat(ByteUtil.mask(10, 7), is(0x1fc00L));
+		assertThat(ByteUtil.mask(10, 64), is(0xffffffff_fffffc00L));
 	}
 
 	@Test

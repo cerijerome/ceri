@@ -36,6 +36,31 @@ public class CollectionUtilTest {
 	}
 
 	@Test
+	public void testContainsAll() {
+		assertFalse(CollectionUtil.containsAll(null));
+		assertTrue(CollectionUtil.containsAll(List.of()));
+		assertFalse(CollectionUtil.containsAll(List.of(), (List<?>) null));
+		assertFalse(CollectionUtil.containsAll(List.of(1), List.<Integer>of()));
+		assertFalse(CollectionUtil.containsAll(List.of(), 1));
+		List<Integer> list = List.of(-1, 0, 1);
+		assertFalse(CollectionUtil.containsAll(list, -2, 2));
+		assertFalse(CollectionUtil.containsAll(list, -2, -1));
+		assertTrue(CollectionUtil.containsAll(list, -1, 0));
+	}
+
+	@Test
+	public void testContainsAny() {
+		assertFalse(CollectionUtil.containsAny(null));
+		assertFalse(CollectionUtil.containsAny(List.of()));
+		assertFalse(CollectionUtil.containsAny(List.of(), (List<?>) null));
+		assertFalse(CollectionUtil.containsAny(List.of(1), List.<Integer>of()));
+		assertFalse(CollectionUtil.containsAny(List.of(), 1));
+		List<Integer> list = List.of(-1, 0, 1);
+		assertFalse(CollectionUtil.containsAny(list, -2, 2));
+		assertTrue(CollectionUtil.containsAny(list, -2, -1));
+	}
+
+	@Test
 	public void testGetOrDefault() {
 		List<Integer> list = List.of(100, 10, 1000);
 		assertNull(CollectionUtil.getOrDefault(list, -1, null));

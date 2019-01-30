@@ -34,6 +34,23 @@ public class CollectionUtil {
 
 	private CollectionUtil() {}
 
+	@SafeVarargs
+	public static <T> boolean containsAll(Collection<T> collection, T... allOf) {
+		if (collection == null) return false;
+		return collection.containsAll(Arrays.asList(allOf));
+	}
+
+	@SafeVarargs
+	public static <T> boolean containsAny(Collection<T> collection, T... anyOf) {
+		return containsAny(collection, Arrays.asList(anyOf));
+	}
+
+	public static <T> boolean containsAny(Collection<T> collection, Collection<T> anyOf) {
+		if (collection == null || anyOf == null) return false;
+		if (collection.isEmpty() || anyOf.isEmpty()) return false;
+		return anyOf.stream().anyMatch(collection::contains);
+	}
+
 	/**
 	 * Gets element of a list or default value if the index does not exist.
 	 */
@@ -41,7 +58,7 @@ public class CollectionUtil {
 		if (list.isEmpty() || index < 0 || index >= list.size()) return def;
 		return list.get(index);
 	}
-	
+
 	/**
 	 * Copies an array of objects into an mutable LinkedHashSet.
 	 */
@@ -270,7 +287,7 @@ public class CollectionUtil {
 		Collections.reverse(ts);
 		return ts;
 	}
-	
+
 	/**
 	 * Allows an enumeration to be run in a for-each loop.
 	 */

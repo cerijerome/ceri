@@ -42,7 +42,7 @@ import ceri.common.data.DecodingExceptionBehavior;
 import ceri.common.data.IntAccessorBehavior;
 import ceri.common.data.IntBitSetBehavior;
 import ceri.common.data.IntTypeValueBehavior;
-import ceri.common.data.MaskAccessorBehavior;
+import ceri.common.data.MaskTranscoderBehavior;
 import ceri.common.data.ShortTypeValueBehavior;
 import ceri.common.data.UnexpectedValueExceptionBehavior;
 import ceri.common.data.UnsignedOctetTypeBehavior;
@@ -252,7 +252,7 @@ import ceri.common.xml.XmlUtilTest;
 	IntAccessorBehavior.class, //
 	IntBitSetBehavior.class, //
 	IntTypeValueBehavior.class, //
-	MaskAccessorBehavior.class, //
+	MaskTranscoderBehavior.class, //
 	ShortTypeValueBehavior.class, //
 	UnexpectedValueExceptionBehavior.class, //
 	UnsignedOctetTypeBehavior.class, //

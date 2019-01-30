@@ -151,8 +151,12 @@ public class ByteUtil {
 
 	public static long mask(int bitCount) {
 		if (bitCount == 0) return 0;
-		if (bitCount == Long.SIZE) return -1L;
+		if (bitCount >= Long.SIZE) return -1L;
 		return (1L << bitCount) - 1;
+	}
+
+	public static long mask(int startBit, int bitCount) {
+		return mask(bitCount) << startBit;
 	}
 
 	public static long maskOfBits(int... bits) {

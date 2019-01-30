@@ -13,32 +13,63 @@ import ceri.common.function.ToShortFunction;
  * Interface to get and set integer values within an object.
  */
 public interface IntAccessor {
-	
+
 	void set(int value);
+
 	int get();
+
+	default IntAccessor mask(int mask) {
+		return mask(MaskTranscoder.mask(mask));
+	}
+	
+	default IntAccessor mask(MaskTranscoder mask) {
+		IntSupplier getFn = () -> mask.decodeInt(get());
+		IntConsumer setFn = i -> set(mask.encodeInt(i, get()));
+		return of(getFn, setFn);
+	}
+	
+	static IntAccessor of(IntSupplier getFn) {
+		return of(getFn, null);
+	}
 
 	static IntAccessor of(IntSupplier getFn, IntConsumer setFn) {
 		return new IntAccessor() {
 			@Override
 			public void set(int value) {
+				if (setFn == null) throw new UnsupportedOperationException();
 				setFn.accept(value);
 			}
+
 			@Override
 			public int get() {
+				if (getFn == null) throw new UnsupportedOperationException();
 				return getFn.getAsInt();
 			}
 		};
+	}
+
+	static <T> IntAccessor.Typed<T> typed(ToIntFunction<T> getFn) {
+		return typed(getFn, null);
 	}
 
 	static <T> IntAccessor.Typed<T> typed(ToIntFunction<T> getFn, ObjIntConsumer<T> setFn) {
 		return new Typed<>(getFn, setFn);
 	}
 
+	static <T> IntAccessor.Typed<T> typedByte(ToByteFunction<T> getFn) {
+		return typedByte(getFn, null);
+	}
+
 	static <T> IntAccessor.Typed<T> typedByte(ToByteFunction<T> getFn, ObjByteConsumer<T> setFn) {
 		return new Typed<>(ToByteFunction.toUint(getFn), ObjByteConsumer.toInt(setFn));
 	}
 
-	static <T> IntAccessor.Typed<T> typedShort(ToShortFunction<T> getFn, ObjShortConsumer<T> setFn) {
+	static <T> IntAccessor.Typed<T> typedShort(ToShortFunction<T> getFn) {
+		return typedShort(getFn, null);
+	}
+
+	static <T> IntAccessor.Typed<T> typedShort(ToShortFunction<T> getFn,
+		ObjShortConsumer<T> setFn) {
 		return new Typed<>(ToShortFunction.toUint(getFn), ObjShortConsumer.toInt(setFn));
 	}
 
@@ -52,16 +83,28 @@ public interface IntAccessor {
 		}
 
 		public IntAccessor from(T t) {
-			return IntAccessor.of(() -> getFn.applyAsInt(t), i -> setFn.accept(t, i));
+			return IntAccessor.of(() -> get(t), i -> set(t, i));
+		}
+
+		public IntAccessor.Typed<T> mask(int mask) {
+			return mask(MaskTranscoder.mask(mask));
+		}
+		
+		public IntAccessor.Typed<T> mask(MaskTranscoder mask) {
+			ToIntFunction<T> getFn = t -> mask.decodeInt(get(t));
+			ObjIntConsumer<T> setFn = (t, i) -> set(t, mask.encodeInt(i, get(t)));
+			return typed(getFn, setFn);
 		}
 		
 		public int get(T value) {
+			if (getFn == null) throw new UnsupportedOperationException();
 			return getFn.applyAsInt(value);
 		}
-		
+
 		public void set(T t, int value) {
+			if (setFn == null) throw new UnsupportedOperationException();
 			setFn.accept(t, value);
-		}		
+		}
 	}
 
 }
