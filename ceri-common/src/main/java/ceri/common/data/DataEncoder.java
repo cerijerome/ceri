@@ -1,7 +1,8 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.*;
-import java.nio.ByteBuffer;
+import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateNotNull;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import java.util.BitSet;
 import java.util.function.Consumer;
 import ceri.common.collection.ArrayUtil;
@@ -84,16 +85,16 @@ public class DataEncoder {
 		mark = offset;
 		return this;
 	}
-	
+
 	public DataEncoder reset() {
 		return offset(mark);
 	}
-	
+
 	public DataEncoder offset(int offset) {
 		setOffset(offset);
 		return this;
 	}
-	
+
 	public int offset() {
 		return offset;
 	}
@@ -106,16 +107,20 @@ public class DataEncoder {
 		return length;
 	}
 
+	public ImmutableByteArray data() {
+		return ImmutableByteArray.wrap(data, start, length);
+	}
+
 	public ImmutableByteArray slice(int offset) {
 		return slice(offset, length - offset);
 	}
 
 	public ImmutableByteArray slice(int offset, int length) {
-		return ImmutableByteArray.wrap(data, start, this.length).slice(offset, length);
+		return data().slice(offset, length);
 	}
 
-	public BitSet bitSet(int length) {
-		return BitSet.valueOf(ByteBuffer.wrap(data, incrementOffset(length), length));
+	public DataEncoder encode(BitSet bitSet) {
+		return copy(ImmutableByteArray.wrap(bitSet.toByteArray()));
 	}
 
 	public DataEncoder encodeByte(int value) {

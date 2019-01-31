@@ -10,6 +10,20 @@ import ceri.common.collection.ImmutableByteArray;
 
 public class DataUtilTest {
 
+	static enum E {
+		a(1),
+		b(2),
+		c(3);
+
+		public static final TypeTranscoder.Single<E> xcoder =
+			TypeTranscoder.single(t -> t.value, E.class);
+		public final int value;
+
+		private E(int value) {
+			this.value = value;
+		}
+	}
+
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(DataUtil.class);
@@ -19,6 +33,24 @@ public class DataUtilTest {
 	public void testValidateAscii() {
 		ImmutableByteArray data = ByteUtil.toAscii("test");
 		DataUtil.validateAscii(s -> s.equals("test"), data);
+		assertThat(DataUtil.validateAscii("test", data), is(4));
+		assertThat(DataUtil.validateAscii("tes", data), is(3));
+		assertThat(DataUtil.validateAscii("st", data, 2), is(4));
+		assertException(() -> DataUtil.validateAscii("st\0", data, 2));
+		assertException(() -> DataUtil.validateAscii("s\0", data, 2));
+	}
+
+	@Test
+	public void testValidateByteArray() {
+		ImmutableByteArray d0 = ByteUtil.toAscii("test");
+		ImmutableByteArray d1 = ByteUtil.toAscii("test");
+		ImmutableByteArray d2 = ByteUtil.toAscii("\0test");
+		ImmutableByteArray d3 = ByteUtil.toAscii("\0tests");
+		ImmutableByteArray d4 = ByteUtil.toAscii("\0tesT");
+		assertThat(DataUtil.validate(d0, d1), is(4));
+		assertThat(DataUtil.validate(d0, d2, 1), is(5));
+		assertThat(DataUtil.validate(d0, d3, 1), is(5));
+		assertException(() -> DataUtil.validate(d0, d4, 1));
 	}
 
 	@Test
@@ -45,6 +77,30 @@ public class DataUtilTest {
 		DataUtil.validateByte(-1, 0xff);
 		DataUtil.validateByte(Byte.MIN_VALUE, Byte.MIN_VALUE, "test");
 		assertException(() -> DataUtil.validateByte(-1, -2));
+	}
+
+	@Test
+	public void testValidateFromIntFunction() {
+		DataUtil.validate(E.xcoder::decode, 1);
+		assertException(() -> DataUtil.validate(E.xcoder::decode, 4));
+		DataUtil.validate(E.xcoder::decode, E.b, 2);
+		assertException(() -> DataUtil.validate(E.xcoder::decode, E.c, 2));
+	}
+
+	@Test
+	public void testValidateByteRange() {
+		DataUtil.validateUnsignedByteRange(0);
+		DataUtil.validateUnsignedByteRange(0xff);
+		assertException(() -> DataUtil.validateUnsignedByteRange(0x100));
+		assertException(() -> DataUtil.validateUnsignedByteRange(-1));
+	}
+
+	@Test
+	public void testValidateShortRange() {
+		DataUtil.validateUnsignedShortRange(0);
+		DataUtil.validateUnsignedShortRange(0xffff);
+		assertException(() -> DataUtil.validateUnsignedShortRange(0x10000));
+		assertException(() -> DataUtil.validateUnsignedShortRange(-1));
 	}
 
 	@Test

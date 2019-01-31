@@ -121,7 +121,7 @@ public class DataUtil {
 	public static int validateAscii(String value, ImmutableByteArray data, int offset) {
 		ImmutableByteArray expected = ByteUtil.toAscii(value);
 		if (expected.equals(data, offset)) return offset + expected.length;
-		throw exceptionf("Expected %s: %s", escape(value),
+		throw exceptionf("Expected %s: %s", escape(value), 
 			escape(fromAscii(data, offset, expected.length)));
 	}
 
@@ -169,11 +169,11 @@ public class DataUtil {
 		validateEqual(actual, expected, name);
 	}
 
-	public static void validateByteRange(int value) {
+	public static void validateUnsignedByteRange(int value) {
 		validateRange(value, 0, ByteUtil.BYTE_MASK);
 	}
 
-	public static void validateShortRange(int value) {
+	public static void validateUnsignedShortRange(int value) {
 		validateRange(value, 0, ByteUtil.SHORT_MASK);
 	}
 

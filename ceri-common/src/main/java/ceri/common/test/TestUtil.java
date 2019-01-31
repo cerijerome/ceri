@@ -531,8 +531,15 @@ public class TestUtil {
 	}
 
 	private static <T> void assertIndex(T lhs, T rhs, int index) {
-		assertThat("Expected " + rhs + " but value at index " + index + " was " + lhs, lhs,
-			is(rhs));
+		assertThat(
+			"Expected " + toString(rhs) + " but value at index " + index + " was " + toString(lhs),
+			lhs, is(rhs));
+	}
+
+	private static <T> String toString(T t) {
+		if (t == null || !ReflectUtil.instanceOfAny(t, //
+			Byte.class, Short.class, Integer.class, Long.class)) return String.valueOf(t);
+		return String.format("%1$d (0x%1$02x)", t);
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject) {

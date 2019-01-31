@@ -44,7 +44,9 @@ public abstract class TypeTranscoder<T> {
 
 		public int encode(T t) {
 			if (t == null) return 0;
-			return mask.encodeInt(valueFn.applyAsInt(t));
+			int value = valueFn.applyAsInt(t);
+			if (!lookup.containsKey(value)) return 0;
+			return mask.encodeInt(value);
 		}
 
 		public boolean isValid(int value) {
@@ -90,31 +92,30 @@ public abstract class TypeTranscoder<T> {
 
 		public int encode(Collection<T> ts) {
 			if (ts == null || ts.isEmpty()) return 0;
-			return mask.encodeInt(StreamUtil.bitwiseOr(ts.stream().mapToInt(valueFn)));
+			return mask.encodeInt(
+				StreamUtil.bitwiseOr(ts.stream().mapToInt(valueFn).filter(lookup::containsKey)));
 		}
 
 		public boolean isValid(int value) {
-			if (value == 0) return true;
 			value = mask.decodeInt(value);
+			if (value == 0) return true;
 			for (int i : lookup.keySet()) {
-				int v = value ^ i;
-				if (v + i != value) continue;
-				value = v;
-				if (value == 0) return true;
+				if ((i & value) != i) continue;
+				value -= i;
+				if (value == 0) break;
 			}
 			return value == 0;
 		}
 
 		public Set<T> decode(int value) {
-			if (value == 0) return Set.of();
 			value = mask.decodeInt(value);
+			if (value == 0) return Set.of();
 			Set<T> set = new LinkedHashSet<>();
 			for (Map.Entry<Integer, T> entry : lookup.entrySet()) {
 				int i = entry.getKey().intValue();
 				T t = entry.getValue();
-				int v = value ^ i;
-				if (v + i != value) continue;
-				value = v;
+				if ((i & value) != i) continue;
+				value -= i;
 				set.add(t);
 				if (value == 0) break;
 			}

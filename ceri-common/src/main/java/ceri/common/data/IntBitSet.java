@@ -46,7 +46,7 @@ public class IntBitSet extends BitSet {
 		super(Integer.SIZE);
 	}
 
-	public int setBit(boolean value, int...bitIndexes) {
+	public int setBits(boolean value, int...bitIndexes) {
 		int nextIndex = 0;
 		for (int i : bitIndexes) {
 			set(i, value);
@@ -55,24 +55,18 @@ public class IntBitSet extends BitSet {
 		return nextIndex;
 	}
 
-	public int setBits(int bitIndex, int value, int bits) {
+	public int setValue(int bitIndex, int value, int bits) {
 		bits = Math.min(bits, size() - bitIndex);
-		int mask = 1;
-		for (int i = 0; i < bits; i++) {
-			set(bitIndex + i, (value & mask) != 0);
-			mask <<= 1;
-		}
+		for (int i = 0; i < bits; i++)
+			set(bitIndex + i, (1 << i & value) != 0);
 		return bitIndex + bits;
 	}
 
-	public int getBits(int bitIndex, int bits) {
+	public int getValue(int bitIndex, int bits) {
 		bits = Math.min(bits, size() - bitIndex);
-		int mask = 1;
 		int value = 0;
-		for (int i = 0; i < bits; i++) {
-			if (get(bitIndex + i)) value |= mask;
-			mask <<= 1;
-		}
+		for (int i = 0; i < bits; i++)
+			if (get(bitIndex + i)) value |= (1 << i);
 		return value;
 	}
 
@@ -84,6 +78,10 @@ public class IntBitSet extends BitSet {
 		return (byte) longValue();
 	}
 
+	public short shortValue() {
+		return (short) longValue();
+	}
+
 	public int value() {
 		return (int) longValue();
 	}
@@ -93,8 +91,7 @@ public class IntBitSet extends BitSet {
 	}
 
 	private long longValue() {
-		long[] array = toLongArray();
-		return array.length == 0 ? 0L : array[0];
+		return toLongArray()[0]; // Should never be zero length
 	}
 
 }
