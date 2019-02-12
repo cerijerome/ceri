@@ -2,7 +2,7 @@ package ceri.serial.usb;
 
 import java.io.IOException;
 import ceri.common.util.OsUtil;
-import ceri.serial.javax.SelfHealingSerialConnector.CommPortSupplier;
+import ceri.serial.javax.CommPortSupplier;
 import ceri.serial.usb.mac.MacUsbSerialUtil;
 
 public class UsbSerialUtil {

@@ -36,14 +36,6 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 	private final BooleanCondition sync = BooleanCondition.create();
 	private volatile SerialPort serialPort;
 
-	public static interface CommPortSupplier {
-		String get() throws IOException;
-
-		static CommPortSupplier fixed(String commPort) {
-			return () -> commPort;
-		}
-	}
-
 	public static class Builder {
 		final CommPortSupplier commPortSupplier;
 		SerialPortParams params = SerialPortParams.DEFAULT;
