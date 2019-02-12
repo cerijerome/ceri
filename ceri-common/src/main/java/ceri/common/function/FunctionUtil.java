@@ -49,7 +49,7 @@ public class FunctionUtil {
 	}
 
 	/**
-	 * Wraps a function, passing null values back to caller.
+	 * Passes only non-null values to function.
 	 */
 	public static <T, R> R safeApply(T t, Function<T, R> function) {
 		return t == null ? null : function.apply(t);

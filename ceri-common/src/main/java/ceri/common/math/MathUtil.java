@@ -13,6 +13,10 @@ public class MathUtil {
 
 	private MathUtil() {}
 
+	public static boolean approxEqual(double lhs, double rhs, double precision) {
+		return lhs == rhs || Math.abs(lhs - rhs) <= precision;
+	}
+
 	public static long safeToLong(double value) {
 		if (value >= Long.MIN_VALUE && value <= Long.MAX_VALUE) return (long) value;
 		throw new ArithmeticException("long overflow");
@@ -218,7 +222,7 @@ public class MathUtil {
 	public static double percentage(double value) {
 		return percentage(value, 1.0);
 	}
-	
+
 	/**
 	 * Returns the percentage for a value in a range. Returns NaN for a zero range.
 	 */
@@ -235,7 +239,7 @@ public class MathUtil {
 	public static double valueFromPercentage(double percentage) {
 		return valueFromPercentage(percentage, 1.0);
 	}
-	
+
 	/**
 	 * Returns the value for a percentage of a range.
 	 */

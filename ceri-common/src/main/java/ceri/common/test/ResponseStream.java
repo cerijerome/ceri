@@ -13,7 +13,8 @@ import java.util.function.Function;
 import ceri.common.io.IoStreamUtil;
 
 /**
- * Provides streams that respond to input data. Can be used to simulate hardware devices.
+ * Provides an output stream that responds to input data. Can be created to handle bytes or Strings.
+ * Can be used to simulate hardware devices.
  */
 public class ResponseStream {
 	private final InputStream externalIn;

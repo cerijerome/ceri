@@ -24,7 +24,7 @@ public class IoStreamUtil {
 		}
 
 		@Override
-		public abstract int read(byte[] b, int off, int len) throws IOException;
+		public abstract int read(byte[] b, int offset, int len) throws IOException;
 	}
 
 	/**
@@ -38,22 +38,22 @@ public class IoStreamUtil {
 		}
 
 		@Override
-		public abstract void write(byte[] b, int off, int len) throws IOException;
+		public abstract void write(byte[] b, int offset, int len) throws IOException;
 	}
 
 	public static interface ByteReader {
-		int read(byte[] b, int off, int len) throws IOException;
+		int read(byte[] b, int offset, int len) throws IOException;
 	}
 
 	public static interface ByteWriter {
-		void write(byte[] b, int off, int len) throws IOException;
+		void write(byte[] b, int offset, int len) throws IOException;
 	}
 
 	public static InputStream in(ByteReader reader) {
 		return new In() {
 			@Override
-			public int read(byte[] b, int off, int len) throws IOException {
-				return reader.read(b, off, len);
+			public int read(byte[] b, int offset, int len) throws IOException {
+				return reader.read(b, offset, len);
 			}
 		};
 	}
@@ -61,8 +61,8 @@ public class IoStreamUtil {
 	public static OutputStream out(ByteWriter writer) {
 		return new Out() {
 			@Override
-			public void write(byte[] b, int off, int len) throws IOException {
-				writer.write(b, off, len);
+			public void write(byte[] b, int offset, int len) throws IOException {
+				writer.write(b, offset, len);
 			}
 		};
 	}

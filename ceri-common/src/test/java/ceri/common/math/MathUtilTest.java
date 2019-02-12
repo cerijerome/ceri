@@ -37,6 +37,16 @@ public class MathUtilTest {
 	}
 
 	@Test
+	public void testApproxEqual() {
+		assertThat(MathUtil.approxEqual(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE),
+			is(true));
+		assertThat(MathUtil.approxEqual(0.001, 0.0001, 0.1), is(true));
+		assertThat(MathUtil.approxEqual(0.001, 0.0001, 0.0001), is(false));
+		assertThat(MathUtil.approxEqual(0.0011, 0.0012, 0.0001), is(true));
+		assertThat(MathUtil.approxEqual(0.0011, 0.0012, 0.00009), is(false));
+	}
+
+	@Test
 	public void testSafeToLong() {
 		double d0 = Long.MIN_VALUE;
 		double d1 = Long.MAX_VALUE;
