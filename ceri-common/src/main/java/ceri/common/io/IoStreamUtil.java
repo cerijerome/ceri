@@ -3,6 +3,7 @@ package ceri.common.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 
 /**
  * Utilities for extending input and output streams.
@@ -24,7 +25,14 @@ public class IoStreamUtil {
 		}
 
 		@Override
-		public abstract int read(byte[] b, int offset, int len) throws IOException;
+		public int read(byte[] b, int offset, int len) throws IOException {
+			Objects.requireNonNull(b);
+			Objects.checkFromIndexSize(offset, len, b.length);
+			if (len == 0) return 0;
+			return readInternal(b, offset, len);
+		}
+
+		protected abstract int readInternal(byte[] b, int offset, int len) throws IOException;
 	}
 
 	/**
@@ -38,7 +46,13 @@ public class IoStreamUtil {
 		}
 
 		@Override
-		public abstract void write(byte[] b, int offset, int len) throws IOException;
+		public void write(byte[] b, int offset, int len) throws IOException {
+			Objects.requireNonNull(b);
+			Objects.checkFromIndexSize(offset, len, b.length);
+			if (len != 0) writeInternal(b, offset, len);
+		}
+
+		protected abstract void writeInternal(byte[] b, int offset, int len) throws IOException;
 	}
 
 	public static interface ByteReader {
@@ -52,7 +66,7 @@ public class IoStreamUtil {
 	public static InputStream in(ByteReader reader) {
 		return new In() {
 			@Override
-			public int read(byte[] b, int offset, int len) throws IOException {
+			protected int readInternal(byte[] b, int offset, int len) throws IOException {
 				return reader.read(b, offset, len);
 			}
 		};
@@ -61,7 +75,7 @@ public class IoStreamUtil {
 	public static OutputStream out(ByteWriter writer) {
 		return new Out() {
 			@Override
-			public void write(byte[] b, int offset, int len) throws IOException {
+			public void writeInternal(byte[] b, int offset, int len) throws IOException {
 				writer.write(b, offset, len);
 			}
 		};

@@ -18,7 +18,7 @@ public class IoStreamUtilTest {
 			assertThat(in.read(), is(-1));
 		}
 	}
-	
+
 	@Test
 	public void testIn() throws IOException {
 		try (InputStream in = IoStreamUtil.in(reader(-3, -1, 1, 3))) {
@@ -26,6 +26,9 @@ public class IoStreamUtilTest {
 			byte[] buffer = new byte[5];
 			int count = in.read(buffer);
 			assertThat(count, is(4));
+			assertArray(buffer, -3, -1, 1, 3, 0);
+			count = in.read(new byte[1], 0, 0);
+			assertThat(count, is(0));
 			assertArray(buffer, -3, -1, 1, 3, 0);
 		}
 	}
@@ -36,28 +39,31 @@ public class IoStreamUtilTest {
 		try (OutputStream out = IoStreamUtil.out(writer(buffer))) {
 			out.write(-1);
 			assertArray(buffer, 0xff, 0, 0, 0, 0);
+			out.write(new byte[1], 0, 0);
+			assertArray(buffer, 0xff, 0, 0, 0, 0);
 		}
 	}
 
 	/**
 	 * Each read starts at the beginning of the array of bytes.
 	 */
-	private ByteReader reader(int...bytes) {
+	private ByteReader reader(int... bytes) {
 		return (buffer, offset, len) -> {
 			len = Math.min(len, bytes.length);
-			for (int i = 0; i < len; i++) buffer[offset + i] = (byte) bytes[i];
+			for (int i = 0; i < len; i++)
+				buffer[offset + i] = (byte) bytes[i];
 			return len;
 		};
 	}
-	
+
 	/**
 	 * Each write starts at the beginning of the buffer.
 	 */
 	private ByteWriter writer(byte[] buffer) {
 		return (b, offset, len) -> {
-			for (int i = 0; i < len; i++) buffer[i] = b[offset + i];
+			for (int i = 0; i < len; i++)
+				buffer[i] = b[offset + i];
 		};
 	}
-	
-	
+
 }
