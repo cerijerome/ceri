@@ -44,28 +44,32 @@ public class FunctionUtil {
 	/**
 	 * Wraps a function, passing null values back to caller.
 	 */
-	public static <T, R> Function<T, R> safe(Function<T, R> function) {
+	public static <E extends Exception, T, R> ExceptionFunction<E, T, R>
+		safe(ExceptionFunction<E, T, R> function) {
 		return t -> safeApply(t, function);
 	}
 
 	/**
 	 * Passes only non-null values to function.
 	 */
-	public static <T, R> R safeApply(T t, Function<T, R> function) {
+	public static <E extends Exception, T, R> R safeApply(T t, ExceptionFunction<E, T, R> function)
+		throws E {
 		return t == null ? null : function.apply(t);
 	}
 
 	/**
 	 * Passes only non-null values to consumer.
 	 */
-	public static <T> void safeAccept(T t, Consumer<T> consumer) {
+	public static <E extends Exception, T> void safeAccept(T t, ExceptionConsumer<E, T> consumer)
+		throws E {
 		if (t != null) consumer.accept(t);
 	}
 
 	/**
 	 * Passes only non-null values to consumer.
 	 */
-	public static <T> void safeAccept(T t, Predicate<T> predicate, Consumer<T> consumer) {
+	public static <E extends Exception, T> void safeAccept(T t, ExceptionPredicate<E, T> predicate,
+		ExceptionConsumer<E, T> consumer) throws E {
 		if (t != null && predicate.test(t)) consumer.accept(t);
 	}
 

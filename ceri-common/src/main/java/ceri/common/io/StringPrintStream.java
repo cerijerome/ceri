@@ -38,4 +38,7 @@ public class StringPrintStream extends PrintStream {
 		return baos.toString(charSet);
 	}
 
+	public void clear() {
+		baos.reset();
+	}
 }

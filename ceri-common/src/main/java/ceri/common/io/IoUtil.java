@@ -16,6 +16,7 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ import ceri.common.util.BasicUtil;
 public class IoUtil {
 	private static final NullOutputStream NULL_OUTPUT_STREAM = new NullOutputStream();
 	private static final Pattern FILE_SEPARATOR_REGEX = Pattern.compile("\\" + File.separatorChar);
-	private static final int MAX_CLEAR_BUFFER = 32 * 1024;
+	private static final int MAX_CLEAR_BUFFER = 8 * 1024;
 	private static final int MAX_UUID_ATTEMPTS = 10; // Shouldn't be needed
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 32;
 	private static final String CLASS_SUFFIX = ".class";
@@ -102,7 +103,7 @@ public class IoUtil {
 		throw new IllegalStateException(
 			"Unable to create random temp dir in " + MAX_UUID_ATTEMPTS + " attempts");
 	}
-	
+
 	private static File generateTempDir(File rootDir) {
 		String dirName = UUID.randomUUID().toString();
 		return new File(rootDir, dirName);
@@ -153,19 +154,39 @@ public class IoUtil {
 	 * Get a string from input stream in interruptible way.
 	 */
 	public static String readString(InputStream in) throws IOException {
+		return readString(in, Charset.defaultCharset());
+	}
+
+	/**
+	 * Get a string from input stream in interruptible way.
+	 */
+	public static String readString(InputStream in, Charset charset) throws IOException {
 		int n = waitForData(in, 1);
 		byte[] buffer = new byte[n];
 		n = in.read(buffer);
-		return new String(buffer, 0, n);
+		return new String(buffer, 0, n, charset);
+	}
+
+	/**
+	 * Reads all available bytes without blocking.
+	 */
+	public static ImmutableByteArray readAvailable(InputStream in) throws IOException {
+		if (in == null) return null;
+		int count = in.available();
+		if (count == 0) return ImmutableByteArray.EMPTY;
+		byte[] buffer = new byte[count];
+		count = in.read(buffer);
+		if (count <= 0) return ImmutableByteArray.EMPTY;
+		return ImmutableByteArray.wrap(buffer, 0, count);
 	}
 
 	/**
 	 * Reads until buffer is filled; calls readNBytes.
 	 */
-    public static int readBytes(InputStream in, byte[] b) throws IOException {
-    	if (in == null || b == null) return 0;
-    	return in.readNBytes(b, 0,  b.length);
-    }
+	public static int readBytes(InputStream in, byte[] b) throws IOException {
+		if (in == null || b == null) return 0;
+		return in.readNBytes(b, 0, b.length);
+	}
 
 	/**
 	 * Wait for given number of bytes to be available on input stream.
@@ -190,9 +211,8 @@ public class IoUtil {
 		while (true) {
 			int n = in.available();
 			if (n >= count) return n;
-			if (timeoutMs != 0 && (System.currentTimeMillis() > t))
-				throw new IoTimeoutException(
-					"Bytes not available within " + timeoutMs + "ms: " + n + "/" + count);
+			if (timeoutMs != 0 && (System.currentTimeMillis() > t)) throw new IoTimeoutException(
+				"Bytes not available within " + timeoutMs + "ms: " + n + "/" + count);
 			BasicUtil.delay(pollMs);
 			ConcurrentUtil.checkRuntimeInterrupted();
 		}
@@ -223,7 +243,7 @@ public class IoUtil {
 			throw new IOException(e);
 		}
 	}
-	
+
 	/**
 	 * Execute callable and convert non-io exception to io exception.
 	 */
@@ -238,7 +258,7 @@ public class IoUtil {
 			throw new IOException(e);
 		}
 	}
-	
+
 	/**
 	 * Convert file path to unix-style
 	 */
@@ -257,7 +277,7 @@ public class IoUtil {
 		if (separator == '/') return path;
 		return regex.matcher(path).replaceAll("/");
 	}
-	
+
 	/**
 	 * Returns the set of relative file paths under a given directory in Unix '/' format
 	 */

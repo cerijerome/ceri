@@ -13,6 +13,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.awt.event.KeyEvent;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
@@ -145,6 +146,16 @@ public class StringUtilTest {
 		assertThat(StringUtil.unEscape("\\x0\\u0\\u00\\u000"), is("\\x0\\u0\\u00\\u000"));
 		assertThat(StringUtil.unEscape("\\0777"), is("?7"));
 		assertThat(StringUtil.unEscape("\\\\\\\\\\\\"), is("\\\\\\"));
+	}
+	
+	@Test
+	public void testUnEscapeHexBytes() {
+		StringBuilder b = new StringBuilder();
+		for (int i = 0; i < 0x100; i++)	b.append(String.format("\\x%02x", i));
+		String s = StringUtil.unEscape(b.toString());
+		byte[] bytes = s.getBytes(StandardCharsets.ISO_8859_1);
+		for (int i = 0; i < bytes.length; i++)
+			assertThat(bytes[i], is((byte) i));
 	}
 
 	@Test

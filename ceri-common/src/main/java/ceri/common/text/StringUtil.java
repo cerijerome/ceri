@@ -74,6 +74,11 @@ public class StringUtil {
 
 	private StringUtil() {}
 
+	public static String reverse(String s) {
+		if (s == null || s.isEmpty()) return s;
+		return new StringBuilder(s).reverse().toString();
+	}
+	
 	public static StringBuilder format(StringBuilder sb, String format, Object... objs) {
 		try (java.util.Formatter f = new java.util.Formatter(sb)) {
 			f.format(format, objs);

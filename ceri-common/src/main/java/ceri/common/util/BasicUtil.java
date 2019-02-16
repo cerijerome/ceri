@@ -101,6 +101,21 @@ public class BasicUtil {
 	}
 
 	/**
+	 * Returns a value based on condition of null, true, false.
+	 */
+	public static <T> T conditional(Boolean condition, T trueValue, T falseValue) {
+		return conditional(condition, trueValue, falseValue, null);
+	}
+	
+	/**
+	 * Returns a value based on condition of null, true, false.
+	 */
+	public static <T> T conditional(Boolean condition, T trueValue, T falseValue, T nullValue) {
+		if (condition == null) return nullValue;
+		return condition.booleanValue() ? trueValue : falseValue;
+	}
+	
+	/**
 	 * Make a system beep sound
 	 */
 	public static void beep() {

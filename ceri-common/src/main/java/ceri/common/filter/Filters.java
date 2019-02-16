@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-import ceri.common.function.FunctionUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -25,10 +24,10 @@ public class Filters {
 	 * Transforms a filter of one type to another using an accessor.
 	 */
 	public static <T, R> Filter<T> transform(Filter<R> filter, Function<T, R> accessor) {
-		Function<T, R> safe = FunctionUtil.safe(accessor);
+		Function<T, R> safe = t -> t == null ? null : accessor.apply(t);
 		return t -> filter.filter(safe.apply(t));
 	}
-	
+
 	/**
 	 * Applies a filter to a collection, removing items that do not match.
 	 */
@@ -122,7 +121,7 @@ public class Filters {
 	 * Combines filters to return true if any filter matches.
 	 */
 	@SafeVarargs
-	//public static <T> Filter<T> any(final Filter<? super T>... filters) {
+	// public static <T> Filter<T> any(final Filter<? super T>... filters) {
 	public static <T> Filter<T> any(final Filter<T>... filters) {
 		return any(Arrays.asList(filters));
 	}
@@ -131,7 +130,7 @@ public class Filters {
 	 * Combines filters to return true only if all filters match.
 	 */
 	@SafeVarargs
-	//public static <T> Filter<T> all(final Filter<? super T>... filters) {
+	// public static <T> Filter<T> all(final Filter<? super T>... filters) {
 	public static <T> Filter<T> all(final Filter<T>... filters) {
 		return all(Arrays.asList(filters));
 	}
@@ -139,7 +138,7 @@ public class Filters {
 	/**
 	 * Combines filters to return true if any filter matches.
 	 */
-	//public static <T> Filter<T> any(final Collection<? extends Filter<? super T>> filters) {
+	// public static <T> Filter<T> any(final Collection<? extends Filter<? super T>> filters) {
 	public static <T> Filter<T> any(final Collection<? extends Filter<T>> filters) {
 		if (BasicUtil.isEmpty(filters)) return _true();
 		return nonNull(t -> {
@@ -152,7 +151,7 @@ public class Filters {
 	/**
 	 * Combines filters to return true only if all filters match.
 	 */
-	//public static <T> Filter<T> all(final Collection<? extends Filter<? super T>> filters) {
+	// public static <T> Filter<T> all(final Collection<? extends Filter<? super T>> filters) {
 	public static <T> Filter<T> all(final Collection<? extends Filter<T>> filters) {
 		if (BasicUtil.isEmpty(filters)) return _true();
 		return nonNull(t -> {

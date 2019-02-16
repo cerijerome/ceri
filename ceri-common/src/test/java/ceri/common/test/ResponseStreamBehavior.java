@@ -32,7 +32,7 @@ public class ResponseStreamBehavior {
 	}
 	
 	private byte[] ascii(String s) {
-		return s.getBytes(StandardCharsets.US_ASCII);
+		return s.getBytes(StandardCharsets.ISO_8859_1);
 	}
 	
 	private byte[] reverseBytes(byte[] b) {

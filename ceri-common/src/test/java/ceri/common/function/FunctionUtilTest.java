@@ -15,8 +15,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Stream;
 import org.junit.Test;
 
@@ -100,16 +98,16 @@ public class FunctionUtilTest {
 	}
 
 	@Test
-	public void testSafe() {
-		Function<String, String> fn = FunctionUtil.safe(s -> s.trim());
+	public void testSafe() throws IOException {
+		ExceptionFunction<IOException, String, String> fn = FunctionUtil.safe(s -> s.trim());
 		assertThat(fn.apply(" "), is(""));
 		assertNull(fn.apply(null));
 	}
 
 	@Test
-	public void testSafeAccept() {
+	public void testSafeAccept() throws IOException {
 		String[] store = { "" };
-		Consumer<String> consumer = s -> store[0] = s;
+		ExceptionConsumer<IOException, String> consumer = s -> store[0] = s;
 		FunctionUtil.safeAccept("test", consumer);
 		assertArray(store, "test");
 		FunctionUtil.safeAccept((String) null, consumer);

@@ -3,6 +3,7 @@ package ceri.common.collection;
 import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.IntStream;
@@ -256,6 +257,14 @@ public class ImmutableByteArray {
 		return true;
 	}
 
+	public String asString() {
+		return asString(Charset.defaultCharset());
+	}
+	
+	public String asString(Charset charset) {
+		return new String(array, offset, length, charset);
+	}
+	
 	@Override
 	public String toString() {
 		return ToStringHelper.createByClass(this, length).toString();

@@ -27,7 +27,7 @@ public class ResponseStream {
 	}
 
 	public static ResponseStream ascii(Function<String, String> responder) {
-		return string(responder, StandardCharsets.US_ASCII);
+		return string(responder, StandardCharsets.ISO_8859_1);
 	}
 
 	public static ResponseStream string(Function<String, String> responder, Charset charset) {

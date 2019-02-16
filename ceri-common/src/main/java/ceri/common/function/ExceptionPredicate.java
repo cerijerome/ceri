@@ -1,6 +1,7 @@
 package ceri.common.function;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * Function that can throw exceptions.
@@ -23,4 +24,19 @@ public interface ExceptionPredicate<E extends Exception, T> {
 		return t -> test(t) || other.test(t);
 	}
 
+	default Predicate<T> asPredicate() {
+		return t -> {
+			try {
+				return test(t);
+			} catch (RuntimeException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		};
+	}
+
+	static <T> ExceptionPredicate<RuntimeException, T> of(Predicate<T> predicate) {
+		return t -> predicate.test(t);
+	}
 }

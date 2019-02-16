@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.function.FunctionUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -36,15 +35,17 @@ public class Comparators {
 	private Comparators() {}
 
 	/**
-	 * Comparator based on position in a given collection. Items not in the list are placed at the end.
+	 * Comparator based on position in a given collection. Items not in the list are placed at the
+	 * end.
 	 */
 	@SafeVarargs
-	public static <T> Comparator<T> order(T...ts) {
+	public static <T> Comparator<T> order(T... ts) {
 		return order(Arrays.asList(ts));
 	}
-	
+
 	/**
-	 * Comparator based on position in a given collection. Items not in the list are placed at the end.
+	 * Comparator based on position in a given collection. Items not in the list are placed at the
+	 * end.
 	 */
 	public static <T> Comparator<T> order(Collection<T> ts) {
 		List<T> list = ImmutableUtil.copyAsList(ts);
@@ -55,13 +56,13 @@ public class Comparators {
 		int i = list.indexOf(t);
 		return i == -1 ? list.size() : i;
 	}
-	
+
 	/**
 	 * Transforms a comparator of one type to another using an accessor.
 	 */
 	public static <T, R> Comparator<T> transform(Comparator<? super R> comparator,
 		Function<T, R> accessor) {
-		Function<T, R> safe = FunctionUtil.safe(accessor);
+		Function<T, R> safe = t -> t == null ? null : accessor.apply(t);
 		return (lhs, rhs) -> comparator.compare(safe.apply(lhs), safe.apply(rhs));
 	}
 

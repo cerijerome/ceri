@@ -23,7 +23,7 @@ import ceri.common.util.HAlign;
 public class BinaryPrinter {
 	public static final BinaryPrinter DEFAULT = builder().build();
 	public static final BinaryPrinter ASCII =
-		builder().showBinary(false).bytesPerColumn(16).build();
+		builder().showBinary(false).bytesPerColumn(16).printableSpace(true).build();
 	private static final int ASCII_MIN = '!';
 	private static final int ASCII_MAX = '~';
 	private final PrintStream out;
@@ -33,6 +33,7 @@ public class BinaryPrinter {
 	private final boolean showBinary;
 	private final boolean showHex;
 	private final boolean showChar;
+	private final boolean printableSpace;
 
 	public static class Builder {
 		PrintStream out = System.out;
@@ -42,11 +43,17 @@ public class BinaryPrinter {
 		boolean showBinary = true;
 		boolean showHex = true;
 		boolean showChar = true;
+		boolean printableSpace = false;
 
 		Builder() {}
 
 		public Builder out(PrintStream out) {
 			this.out = out;
+			return this;
+		}
+
+		public Builder printableSpace(boolean printableSpace) {
+			this.printableSpace = printableSpace;
 			return this;
 		}
 
@@ -89,6 +96,13 @@ public class BinaryPrinter {
 		return new Builder();
 	}
 
+	public static Builder builder(BinaryPrinter printer) {
+		return new Builder().out(printer.out).bufferSize(printer.bufferSize)
+			.bytesPerColumn(printer.bytesPerColumn).columns(printer.columns)
+			.showBinary(printer.showBinary).showHex(printer.showHex).showChar(printer.showChar)
+			.printableSpace(printer.printableSpace);
+	}
+
 	BinaryPrinter(Builder builder) {
 		out = builder.out;
 		bufferSize = builder.bufferSize;
@@ -97,6 +111,7 @@ public class BinaryPrinter {
 		showBinary = builder.showBinary;
 		showHex = builder.showHex;
 		showChar = builder.showChar;
+		printableSpace = builder.printableSpace;
 	}
 
 	@Override
@@ -116,23 +131,23 @@ public class BinaryPrinter {
 	/**
 	 * Print string as unicode code points.
 	 */
-	public void print(String s) {
+	public BinaryPrinter print(String s) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		s.codePoints().forEach(cp -> ByteUtil.writeTo(out, ByteUtil.toBigEndian((short) cp)));
-		print(out.toByteArray());
+		return print(out.toByteArray());
 	}
 
 	/**
 	 * Print data from the given input stream.
 	 */
-	public void print(InputStream in) throws IOException {
-		print(in, 0);
+	public BinaryPrinter print(InputStream in) throws IOException {
+		return print(in, 0);
 	}
 
 	/**
 	 * Print data from the given input stream up to given number of bytes.
 	 */
-	public void print(InputStream in, long len) throws IOException {
+	public BinaryPrinter print(InputStream in, long len) throws IOException {
 		byte[] buffer = new byte[bufferSize];
 		long n = 0;
 		while (true) {
@@ -144,63 +159,64 @@ public class BinaryPrinter {
 			print(buffer, 0, count);
 			n += count;
 		}
+		return this;
 	}
 
 	/**
 	 * Print binary data.
 	 */
-	public void print(ImmutableByteArray data) {
-		print(data, 0);
+	public BinaryPrinter print(ImmutableByteArray data) {
+		return print(data, 0);
 	}
 
 	/**
 	 * Print binary data.
 	 */
-	public void print(ImmutableByteArray data, int offset) {
-		print(data, offset, data.length - offset);
+	public BinaryPrinter print(ImmutableByteArray data, int offset) {
+		return print(data, offset, data.length - offset);
 	}
 
 	/**
 	 * Print binary data.
 	 */
-	public void print(ImmutableByteArray data, int offset, int length) {
-		print(data.copy(), offset, length);
+	public BinaryPrinter print(ImmutableByteArray data, int offset, int length) {
+		return print(data.copy(), offset, length);
 	}
 
 	/**
 	 * Print binary data.
 	 */
-	public void print(ByteBuffer buffer) {
-		print(buffer, buffer.remaining());
+	public BinaryPrinter print(ByteBuffer buffer) {
+		return print(buffer, buffer.remaining());
 	}
 
 	/**
 	 * Print binary data.
 	 */
-	public void print(ByteBuffer buffer, int length) {
+	public BinaryPrinter print(ByteBuffer buffer, int length) {
 		byte[] b = new byte[length];
 		buffer.get(b);
-		print(b);
+		return print(b);
 	}
 
 	/**
 	 * Print binary data.
 	 */
-	public void print(byte[] bytes) {
-		print(bytes, 0);
+	public BinaryPrinter print(byte[] bytes) {
+		return print(bytes, 0);
 	}
 
 	/**
 	 * Print binary data.
 	 */
-	public void print(byte[] bytes, int offset) {
-		print(bytes, offset, bytes.length - offset);
+	public BinaryPrinter print(byte[] bytes, int offset) {
+		return print(bytes, offset, bytes.length - offset);
 	}
 
 	/**
 	 * Print binary data from given offset with given length.
 	 */
-	public void print(byte[] bytes, int offset, int length) {
+	public BinaryPrinter print(byte[] bytes, int offset, int length) {
 		StringBuilder binB = new StringBuilder();
 		StringBuilder hexB = new StringBuilder();
 		StringBuilder charB = new StringBuilder();
@@ -221,6 +237,12 @@ public class BinaryPrinter {
 			if (showChar) out.print(charB.toString());
 			out.println();
 		}
+		return this;
+	}
+
+	public BinaryPrinter flush() {
+		out.flush();
+		return this;
 	}
 
 	private void appendItemSpace(StringBuilder binB, StringBuilder hexB) {
@@ -234,8 +256,8 @@ public class BinaryPrinter {
 		s = Integer.toHexString(b).toUpperCase();
 		if (s.length() == 1) hexB.append('0');
 		hexB.append(s);
-		if (b >= ASCII_MIN && b <= ASCII_MAX) charB.append((char) b);
-		else charB.append('.');
+		boolean printable = (b >= ASCII_MIN && b <= ASCII_MAX) || (printableSpace && b == ' ');
+		charB.append(printable ? (char) b : '.');
 	}
 
 	private void resetBuffers(StringBuilder binB, StringBuilder hexB, StringBuilder charB) {

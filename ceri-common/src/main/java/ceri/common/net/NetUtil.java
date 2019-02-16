@@ -11,7 +11,10 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class NetUtil {
-
+	public static final String LOCALHOST = "localhost";
+	public static final String LOCALHOST_IPV4 = "127.0.0.1"; // one of 127.0.0.0/8
+	public static final String LOCALHOST_IPV6 = "::1"; // one of ::1/128
+	
 	private NetUtil() {}
 
 	public static InetAddress regularAddress() throws SocketException {

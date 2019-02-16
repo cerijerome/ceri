@@ -59,12 +59,25 @@ public class IoStreamUtil {
 		int read(byte[] b, int offset, int len) throws IOException;
 	}
 
+	public static interface AvailableSupplier {
+		int available() throws IOException;
+	}
+
 	public static interface ByteWriter {
 		void write(byte[] b, int offset, int len) throws IOException;
 	}
 
 	public static InputStream in(ByteReader reader) {
+		return in(reader, () -> 0);
+	}
+
+	public static InputStream in(ByteReader reader, AvailableSupplier available) {
 		return new In() {
+			@Override
+			public int available() throws IOException {
+				return available.available();
+			}
+
 			@Override
 			protected int readInternal(byte[] b, int offset, int len) throws IOException {
 				return reader.read(b, offset, len);
