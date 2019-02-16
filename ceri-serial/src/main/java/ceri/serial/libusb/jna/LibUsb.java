@@ -2462,7 +2462,7 @@ public class LibUsb {
 		ByteBuffer buffer = ByteBuffer.allocate(MAX_DESCRIPTOR_SIZE);
 		int size = verify(LIBUSB.libusb_get_string_descriptor_ascii(dev, (byte) desc_index, //
 			buffer, buffer.capacity()), "get_string_descriptor_ascii");
-		return JnaUtil.string(StandardCharsets.US_ASCII, buffer, size);
+		return JnaUtil.string(StandardCharsets.ISO_8859_1, buffer, size);
 	}
 
 	/* polling and timeouts */

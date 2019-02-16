@@ -3,7 +3,6 @@ package ceri.serial.javax;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.function.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BooleanCondition;
@@ -24,75 +23,19 @@ import ceri.log.util.LogUtil;
  */
 public class SelfHealingSerialConnector extends LoopingExecutor implements SerialConnector {
 	private static final Logger logger = LogManager.getLogger();
-	private final CommPortSupplier commPortSupplier;
-	private final SerialPortParams params;
-	private final int connectionTimeoutMs;
-	private final int fixRetryDelayMs;
-	private final int recoveryDelayMs;
-	private final Predicate<Exception> brokenPredicate;
+	private final SelfHealingSerialConfig config;
 	private final Listeners<State> listeners = new Listeners<>();
 	private final ReplaceableInputStream in = new ReplaceableInputStream();
 	private final ReplaceableOutputStream out = new ReplaceableOutputStream();
 	private final BooleanCondition sync = BooleanCondition.create();
 	private volatile SerialPort serialPort;
 
-	public static class Builder {
-		final CommPortSupplier commPortSupplier;
-		SerialPortParams params = SerialPortParams.DEFAULT;
-		int connectionTimeoutMs = 3000;
-		int fixRetryDelayMs = 2000;
-		int recoveryDelayMs = fixRetryDelayMs / 2;
-		Predicate<Exception> brokenPredicate = SerialPort::isBroken;
-
-		Builder(CommPortSupplier commPortSupplier) {
-			this.commPortSupplier = commPortSupplier;
-		}
-
-		public Builder params(SerialPortParams params) {
-			this.params = params;
-			return this;
-		}
-
-		public Builder connectionTimeoutMs(int connectionTimeoutMs) {
-			this.connectionTimeoutMs = connectionTimeoutMs;
-			return this;
-		}
-
-		public Builder fixRetryDelayMs(int fixRetryDelayMs) {
-			this.fixRetryDelayMs = fixRetryDelayMs;
-			return this;
-		}
-
-		public Builder recoveryDelayMs(int recoveryDelayMs) {
-			this.recoveryDelayMs = recoveryDelayMs;
-			return this;
-		}
-
-		public Builder brokenPredicate(Predicate<Exception> brokenPredicate) {
-			this.brokenPredicate = brokenPredicate;
-			return this;
-		}
-
-		public SelfHealingSerialConnector build() {
-			return new SelfHealingSerialConnector(this);
-		}
+	public static SelfHealingSerialConnector of(SelfHealingSerialConfig config) {
+		return new SelfHealingSerialConnector(config);
 	}
 
-	public static Builder builder(String commPort) {
-		return new Builder(CommPortSupplier.fixed(commPort));
-	}
-
-	public static Builder builder(CommPortSupplier commPortSupplier) {
-		return new Builder(commPortSupplier);
-	}
-
-	SelfHealingSerialConnector(Builder builder) {
-		commPortSupplier = builder.commPortSupplier;
-		params = builder.params;
-		connectionTimeoutMs = builder.connectionTimeoutMs;
-		fixRetryDelayMs = builder.fixRetryDelayMs;
-		recoveryDelayMs = builder.recoveryDelayMs;
-		brokenPredicate = builder.brokenPredicate;
+	SelfHealingSerialConnector(SelfHealingSerialConfig config) {
+		this.config = config;
 		in.listen(this::checkIfBroken);
 		out.listen(this::checkIfBroken);
 		start();
@@ -185,11 +128,11 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 				if (lastErrorMsg == null || !lastErrorMsg.equals(errorMsg))
 					logger.debug("Failed to fix connection, retrying: {}", errorMsg);
 				lastErrorMsg = errorMsg;
-				BasicUtil.delay(fixRetryDelayMs);
+				BasicUtil.delay(config.fixRetryDelayMs);
 			}
 		}
 		logger.info("Connection is now fixed");
-		BasicUtil.delay(recoveryDelayMs); // wait for streams to recover before clearing
+		BasicUtil.delay(config.recoveryDelayMs); // wait for streams to recover before clearing
 		sync.clear();
 		notifyListeners(State.fixed);
 	}
@@ -205,7 +148,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 	}
 
 	private void checkIfBroken(Exception e) {
-		if (!brokenPredicate.test(e)) return;
+		if (!config.brokenPredicate.test(e)) return;
 		if (sync.isSet()) return;
 		setBroken();
 	}
@@ -217,8 +160,8 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 
 	private void initSerialPort() throws IOException {
 		LogUtil.close(logger, serialPort);
-		String commPort = commPortSupplier.get();
-		serialPort = openSerialPort(commPort, connectionTimeoutMs);
+		String commPort = config.commPortSupplier.get();
+		serialPort = openSerialPort(commPort, config.connectionTimeoutMs);
 		in.setInputStream(serialPort.getInputStream());
 		out.setOutputStream(serialPort.getOutputStream());
 	}
@@ -227,7 +170,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 		SerialPort sp = null;
 		try {
 			sp = SerialPort.open(commPort, getClass().getSimpleName(), connectionTimeoutMs);
-			sp.setParams(params);
+			sp.setParams(config.params);
 			return sp;
 		} catch (RuntimeException | IOException e) {
 			LogUtil.close(logger, sp);

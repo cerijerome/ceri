@@ -8,13 +8,12 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.io.IoStreamUtil;
-import ceri.common.test.BinaryPrinter;
 import ceri.common.test.ResponseStream;
 import ceri.serial.javax.FlowControl;
 import ceri.serial.javax.SerialConnector;
 
 /**
- * A test serial connector using a response stream to output data based on input.
+ * A test serial connector using a response stream to output data based on input received.
  */
 public class ResponseSerialConnector implements SerialConnector {
 	private static final Logger logger = LogManager.getLogger();
@@ -31,10 +30,10 @@ public class ResponseSerialConnector implements SerialConnector {
 	public static ResponseSerialConnector of(ResponseStream stream) {
 		return new ResponseSerialConnector(stream);
 	}
-	
+
 	protected ResponseSerialConnector(ResponseStream stream) {
 		this.stream = stream;
-		in = IoStreamUtil.in(this::read);
+		in = IoStreamUtil.in(this::read, this::available);
 		out = IoStreamUtil.out(this::write);
 	}
 
@@ -71,26 +70,30 @@ public class ResponseSerialConnector implements SerialConnector {
 	}
 
 	@Override
-	public void setBreakBit(boolean on) {
+	public void setBreakBit(boolean on) throws IOException {
 		logger.debug("setBreakBit({})", on);
+		verifyUnbroken();
 		breakBit = on;
 	}
 
 	@Override
-	public void setDtr(boolean on) {
+	public void setDtr(boolean on) throws IOException {
 		logger.debug("setDtr({})", on);
+		verifyUnbroken();
 		dtr = on;
 	}
 
 	@Override
-	public void setFlowControl(FlowControl flowControl) {
+	public void setFlowControl(FlowControl flowControl) throws IOException {
 		logger.debug("setFlowControl({})", flowControl);
+		verifyUnbroken();
 		this.flowControl = flowControl;
 	}
 
 	@Override
-	public void setRts(boolean on) {
+	public void setRts(boolean on) throws IOException {
 		logger.debug("setRts({})", on);
+		verifyUnbroken();
 		rts = on;
 	}
 
@@ -113,25 +116,35 @@ public class ResponseSerialConnector implements SerialConnector {
 	public boolean isBroken() {
 		return broken;
 	}
-	
+
 	public void fixed() {
+		logger.debug("fixed()");
 		broken = false;
 		listeners.accept(State.fixed);
 	}
-	
+
+	private int available() throws IOException {
+		logger.debug("available()");
+		verifyUnbroken();
+		return stream.in().available();
+	}
+
 	private int read(byte[] b, int offset, int len) throws IOException {
-		logger.info("read([], {}, {})", offset, len);
-		if (isBroken()) throw new IOException("Failed to read");
+		logger.debug("read([], {}, {})", offset, len);
+		verifyUnbroken();
 		if (stream.in().available() == 0) return 0;
 		int count = stream.in().read(b, offset, len);
-		BinaryPrinter.ASCII.print(b, offset, count);
 		return count;
 	}
-	
+
 	private void write(byte[] b, int offset, int len) throws IOException {
-		logger.info("write([], {}, {})", offset, len);
-		if (isBroken()) throw new IOException("Failed to write");
+		logger.debug("write([], {}, {})", offset, len);
+		verifyUnbroken();
 		stream.out().write(b, offset, len);
-		BinaryPrinter.ASCII.print(b, offset, len);
 	}
+
+	private void verifyUnbroken() throws IOException {
+		if (isBroken()) throw new IOException("Connector is broken");
+	}
+
 }
