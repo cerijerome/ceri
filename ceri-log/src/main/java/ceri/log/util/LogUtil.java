@@ -18,8 +18,10 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
+import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
 import ceri.common.util.HAlign;
+import ceri.log.io.LogPrintStream;
 
 /**
  * Utility methods to assist with logging.
@@ -29,6 +31,18 @@ public class LogUtil {
 	private static final int TITLE_MAX_WIDTH = 76;
 
 	private LogUtil() {}
+
+	public static BinaryPrinter binaryLogger() {
+		return binaryLogger(BinaryPrinter.ASCII);
+	}
+
+	public static BinaryPrinter binaryLogger(BinaryPrinter printer) {
+		return binaryLogger(printer, LogPrintStream.of());
+	}
+
+	public static BinaryPrinter binaryLogger(BinaryPrinter printer, LogPrintStream stream) {
+		return BinaryPrinter.builder(printer).out(stream).build();
+	}
 
 	/**
 	 * Execute runnable and log any exception as an error.
