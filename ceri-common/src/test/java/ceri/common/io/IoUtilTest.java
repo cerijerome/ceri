@@ -8,6 +8,7 @@ import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -199,6 +200,20 @@ public class IoUtilTest {
 	}
 
 	@Test
+	public void testReadAvailable() throws IOException {
+		assertNull(IoUtil.readAvailable(null));
+		try (InputStream in = new ByteArrayInputStream(ByteUtil.bytes(0, 1, 2, 3, 4))) {
+			assertThat(IoUtil.readAvailable(in), is(ImmutableByteArray.wrap(0, 1, 2, 3, 4)));
+			assertThat(IoUtil.readAvailable(in), is(ImmutableByteArray.EMPTY));
+		}
+		try (InputStream in = Mockito.mock(InputStream.class)) {
+			when(in.available()).thenReturn(5);
+			when(in.read(any())).thenReturn(0);
+			assertThat(IoUtil.readAvailable(in), is(ImmutableByteArray.EMPTY));
+		}
+	}
+
+	@Test
 	public void testReadBytes() throws IOException {
 		assertThat(IoUtil.readBytes(null, null), is(0));
 		try (InputStream in = new ByteArrayInputStream(ByteUtil.bytes(0, 1, 2, 3, 4))) {
@@ -207,7 +222,6 @@ public class IoUtilTest {
 			IoUtil.readBytes(in, buffer);
 			assertArray(buffer, 0, 1, 2, 3);
 		}
-
 	}
 
 	@Test

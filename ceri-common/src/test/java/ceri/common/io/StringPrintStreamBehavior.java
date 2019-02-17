@@ -32,4 +32,14 @@ public class StringPrintStreamBehavior {
 		}
 	}
 
+	@Test
+	public void shouldClear() {
+		try (StringPrintStream out = new StringPrintStream(StandardCharsets.UTF_8)) {
+			String s = "\0\u0100\u0102\u0104";
+			out.print(s);
+			out.clear();
+			assertThat(out.toString(), is(""));
+		}
+	}
+
 }

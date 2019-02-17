@@ -31,6 +31,9 @@ public class ComparatorsTest {
 	@Test
 	public void testTransform() {
 		Comparator<String> c = Comparators.transform(Comparators.INTEGER, String::length);
+		assertThat(c.compare(null, null) > 0, is(false));
+		assertThat(c.compare("001", null) > 0, is(true));
+		assertThat(c.compare(null, "2") > 0, is(false));
 		assertThat(c.compare("001", "2") > 0, is(true));
 	}
 

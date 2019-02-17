@@ -22,6 +22,7 @@ public class FiltersTest {
 	@Test
 	public void testTransform() {
 		Filter<String> filter = Filters.transform(Filters.gt(3), String::length);
+		assertFalse(filter.filter(null));
 		assertTrue(filter.filter("test"));
 	}
 

@@ -101,6 +101,14 @@ public class BasicUtilTest {
 		assertThat(BasicUtil.defaultValue(1, 2), is(1));
 	}
 
+	@Test
+	public void testConditional() {
+		assertNull(BasicUtil.conditional(null, "a", "b"));
+		assertThat(BasicUtil.conditional(null, "a", "b", "c"), is("c"));
+		assertThat(BasicUtil.conditional(Boolean.TRUE, "a", "b", "c"), is("a"));
+		assertThat(BasicUtil.conditional(Boolean.FALSE, "a", "b", "c"), is("b"));
+	}
+
 	private static enum Enum {
 		a,
 		b,

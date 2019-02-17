@@ -20,6 +20,16 @@ public class IoStreamUtilTest {
 	}
 
 	@Test
+	public void testInAvailable() throws IOException {
+		try (InputStream in = IoStreamUtil.in(reader(-3, -1, 1, 3))) {
+			assertThat(in.available(), is(0));
+		}
+		try (InputStream in = IoStreamUtil.in(reader(-3, -1, 1, 3), () -> 4)) {
+			assertThat(in.available(), is(4));
+		}
+	}
+
+	@Test
 	public void testIn() throws IOException {
 		try (InputStream in = IoStreamUtil.in(reader(-3, -1, 1, 3))) {
 			assertThat(in.read(), is(0xfd));

@@ -71,7 +71,13 @@ import ceri.common.filter.EnumFiltersTest;
 import ceri.common.filter.FilterBehavior;
 import ceri.common.filter.FiltersTest;
 import ceri.common.function.BooleanConsumerBehavior;
+import ceri.common.function.ExceptionBiConsumerBehavior;
+import ceri.common.function.ExceptionBiFunctionBehavior;
+import ceri.common.function.ExceptionConsumerBehavior;
+import ceri.common.function.ExceptionFunctionBehavior;
 import ceri.common.function.ExceptionPredicateBehavior;
+import ceri.common.function.ExceptionRunnableBehavior;
+import ceri.common.function.ExceptionSupplierBehavior;
 import ceri.common.function.FunctionUtilTest;
 import ceri.common.function.FunctionWrapperBehavior;
 import ceri.common.function.ObjBooleanConsumerBehavior;
@@ -291,7 +297,13 @@ import ceri.common.xml.XmlUtilTest;
 	FiltersTest.class, //
 	// function
 	BooleanConsumerBehavior.class, //
+	ExceptionBiConsumerBehavior.class, //
+	ExceptionBiFunctionBehavior.class, //
+	ExceptionConsumerBehavior.class, //
+	ExceptionFunctionBehavior.class, //
 	ExceptionPredicateBehavior.class, //
+	ExceptionRunnableBehavior.class, //
+	ExceptionSupplierBehavior.class, //
 	FunctionUtilTest.class, //
 	FunctionWrapperBehavior.class, //
 	ObjBooleanConsumerBehavior.class, //

@@ -7,12 +7,23 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 import ceri.common.data.ByteUtil;
-import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
 
 public class BinaryPrinterBehavior {
+
+	@Test
+	public void shouldSpacesIfConfigured() {
+		StringBuilder b = new StringBuilder();
+		BinaryPrinter bin = BinaryPrinter.builder().printableSpace(true)
+			.out(StringUtil.asPrintStream(b)).showBinary(false).showHex(false).build();
+		bin.print("a b c".getBytes(StandardCharsets.US_ASCII));
+		bin = BinaryPrinter.builder(bin).printableSpace(false).build();
+		bin.print("a b c".getBytes(StandardCharsets.US_ASCII));
+		assertThat(b.toString(), is("a b c   \na.b.c   \n"));
+	}
 
 	@Test
 	public void shouldPrintToString() {
@@ -25,9 +36,8 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldAllowCustomBufferSize() throws IOException {
 		StringBuilder b = new StringBuilder();
-		BinaryPrinter bin =
-			BinaryPrinter.builder().out(StringUtil.asPrintStream(b)).bufferSize(1)
-				.bytesPerColumn(1).build();
+		BinaryPrinter bin = BinaryPrinter.builder().out(StringUtil.asPrintStream(b)).bufferSize(1)
+			.bytesPerColumn(1).build();
 		byte[] bytes = { 0, 0 };
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
 			bin.print(in, 1);
@@ -38,18 +48,18 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldPrintByteBuffer() {
 		StringBuilder b = new StringBuilder();
-		BinaryPrinter bin = BinaryPrinter.builder().out(StringUtil.asPrintStream(b))
-			.showBinary(false).build();
+		BinaryPrinter bin =
+			BinaryPrinter.builder().out(StringUtil.asPrintStream(b)).showBinary(false).build();
 		ByteBuffer buffer = ByteBuffer.wrap(ByteUtil.toAscii("abc").copy());
 		bin.print(buffer);
 		assertThat(b.toString(), is("61 62 63                 abc     \n"));
 	}
-	
+
 	@Test
 	public void shouldPrintByteArray() {
 		StringBuilder b = new StringBuilder();
-		BinaryPrinter bin = BinaryPrinter.builder().out(StringUtil.asPrintStream(b))
-			.showBinary(false).build();
+		BinaryPrinter bin =
+			BinaryPrinter.builder().out(StringUtil.asPrintStream(b)).showBinary(false).build();
 		bin.print(ByteUtil.toAscii("abc"));
 		assertThat(b.toString(), is("61 62 63                 abc     \n"));
 	}
@@ -57,8 +67,8 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldPrintCodePoints() {
 		StringBuilder b = new StringBuilder();
-		BinaryPrinter bin = BinaryPrinter.builder().out(StringUtil.asPrintStream(b))
-			.showBinary(false).build();
+		BinaryPrinter bin =
+			BinaryPrinter.builder().out(StringUtil.asPrintStream(b)).showBinary(false).build();
 		bin.print("abc");
 		assertThat(b.toString(), is("00 61 00 62 00 63        .a.b.c  \n"));
 	}
@@ -71,8 +81,8 @@ public class BinaryPrinterBehavior {
 		byte[] bytes = { 0, 0x7f, -0x80, -1, 1, 0, 0, -0x7f };
 		bin.print(bytes);
 		assertThat(b.toString(),
-			is("00000000 01111111 10000000 11111111 00000001 00000000 00000000 10000001  "
-				+ "00 7F 80 FF 01 00 00 81  \n"));
+			is("00000000 01111111 10000000 11111111 00000001 00000000 00000000 10000001  " +
+				"00 7F 80 FF 01 00 00 81  \n"));
 	}
 
 	@Test
@@ -84,20 +94,19 @@ public class BinaryPrinterBehavior {
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
 			bin.print(in);
 			assertThat(b.toString(),
-				is("00000000 01111111 10000000 11111111 00000001 00000000 00000000 10000001  "
-					+ "........\n"));
+				is("00000000 01111111 10000000 11111111 00000001 00000000 00000000 10000001  " +
+					"........\n"));
 		}
 	}
 
 	@Test
 	public void shouldPadColumns() throws IOException {
 		StringBuilder b = new StringBuilder();
-		BinaryPrinter bin =
-			BinaryPrinter.builder().out(StringUtil.asPrintStream(b)).showBinary(false)
-				.bytesPerColumn(3).columns(2).build();
+		BinaryPrinter bin = BinaryPrinter.builder().out(StringUtil.asPrintStream(b))
+			.showBinary(false).bytesPerColumn(3).columns(2).build();
 		byte[] bytes = { 'A', 'a', '~', '!' };
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
-			bin.print(in);
+			bin.print(in).flush();
 			assertThat(b.toString(), is("41 61 7E  21        Aa~ !  \n"));
 		}
 	}

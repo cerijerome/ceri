@@ -27,6 +27,13 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testReverse() {
+		assertNull(StringUtil.reverse(null));
+		assertThat(StringUtil.reverse(""), is(""));
+		assertThat(StringUtil.reverse("\u0000\u00ff\uffff"), is("\uffff\u00ff\u0000"));
+	}
+
+	@Test
 	public void testExtractBrackets() {
 		assertNull(StringUtil.extractBrackets(null, '<', '>'));
 		assertNull(StringUtil.extractBrackets("", '<', '>'));
@@ -147,11 +154,12 @@ public class StringUtilTest {
 		assertThat(StringUtil.unEscape("\\0777"), is("?7"));
 		assertThat(StringUtil.unEscape("\\\\\\\\\\\\"), is("\\\\\\"));
 	}
-	
+
 	@Test
 	public void testUnEscapeHexBytes() {
 		StringBuilder b = new StringBuilder();
-		for (int i = 0; i < 0x100; i++)	b.append(String.format("\\x%02x", i));
+		for (int i = 0; i < 0x100; i++)
+			b.append(String.format("\\x%02x", i));
 		String s = StringUtil.unEscape(b.toString());
 		byte[] bytes = s.getBytes(StandardCharsets.ISO_8859_1);
 		for (int i = 0; i < bytes.length; i++)

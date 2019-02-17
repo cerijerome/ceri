@@ -9,6 +9,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 
 public class ImmutableByteArrayBehavior {
@@ -181,6 +182,13 @@ public class ImmutableByteArrayBehavior {
 		assertArray(ba.copy(), b);
 		b[2] = 0;
 		assertThat(ba.at(2), is((byte) 1));
+	}
+
+	@Test
+	public void shouldConvertBytesToString() {
+		ImmutableByteArray ba = ImmutableByteArray.wrap(0x00, 0xff, 0x80, 0x7f, 'a', 'b', 'c');
+		assertThat(ba.asString(StandardCharsets.ISO_8859_1), is("\0\u00ff\u0080\u007fabc"));
+		assertThat(ba.asString(), is("\0\ufffd\ufffd\u007fabc"));
 	}
 
 	private byte[] bytes(int... is) {
