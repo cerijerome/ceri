@@ -13,10 +13,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
@@ -60,8 +60,8 @@ public class LogUtil {
 	 * exception occurs the already created instances will be closed.
 	 */
 	@SafeVarargs
-	public static <T, R extends Closeable> List<R> create(Logger logger, Function<T, R> constructor,
-		T... inputs) {
+	public static <E extends Exception, T, R extends Closeable> List<R> create(Logger logger,
+		ExceptionFunction<E, T, R> constructor, T... inputs) throws E {
 		return create(logger, constructor, Arrays.asList(inputs));
 	}
 
@@ -69,14 +69,14 @@ public class LogUtil {
 	 * Constructs a list of Closeable instances from each input object and the constructor. If any
 	 * exception occurs the already created instances will be closed.
 	 */
-	public static <T, R extends Closeable> List<R> create(Logger logger, Function<T, R> constructor,
-		Collection<T> inputs) {
+	public static <E extends Exception, T, R extends Closeable> List<R> create(Logger logger,
+		ExceptionFunction<E, T, R> constructor, Collection<T> inputs) throws E {
 		List<R> results = new ArrayList<>();
 		try {
 			for (T input : inputs)
 				results.add(constructor.apply(input));
 			return results;
-		} catch (RuntimeException e) {
+		} catch (Exception e) {
 			close(logger, results);
 			throw e;
 		}
