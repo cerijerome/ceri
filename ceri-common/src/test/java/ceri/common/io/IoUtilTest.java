@@ -23,7 +23,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.net.URL;
@@ -80,15 +79,6 @@ public class IoUtilTest {
 	@Test
 	public void testNullPrintStream() throws IOException {
 		try (PrintStream out = IoUtil.nullPrintStream()) {
-			out.write(-1);
-			out.write(new byte[1000]);
-			out.write(new byte[1000], 1, 999);
-		}
-	}
-
-	@Test
-	public void testNullOutputStream() throws IOException {
-		try (OutputStream out = IoUtil.nullOutputStream()) {
 			out.write(-1);
 			out.write(new byte[1000]);
 			out.write(new byte[1000], 1, 999);

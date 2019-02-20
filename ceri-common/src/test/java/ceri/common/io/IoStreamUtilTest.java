@@ -7,10 +7,33 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import org.junit.Test;
+import ceri.common.data.ByteUtil;
 import ceri.common.io.IoStreamUtil.ByteReader;
 import ceri.common.io.IoStreamUtil.ByteWriter;
 
 public class IoStreamUtilTest {
+
+	@Test
+	public void testNullOut() throws IOException {
+		try (OutputStream out = IoStreamUtil.nullOut()) {
+			out.write(-1);
+			out.write(new byte[1000]);
+			out.write(new byte[1000], 1, 999);
+		}
+	}
+
+	@Test
+	public void testNullIn() throws IOException {
+		try (InputStream in = IoStreamUtil.nullIn()) {
+			assertThat(in.read(), is(0));
+			byte[] b = ByteUtil.bytes(1, 2, 3);
+			assertThat(in.read(b), is(3));
+			assertArray(b, 1, 2, 3);
+			assertArray(in.readAllBytes());
+			assertThat(in.readNBytes(b, 0, 2), is(2));
+			assertArray(b, 1, 2, 3);
+		}
+	}
 
 	@Test
 	public void testInClosed() throws IOException {

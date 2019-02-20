@@ -35,7 +35,6 @@ import ceri.common.util.BasicUtil;
  * I/O utility functions.
  */
 public class IoUtil {
-	private static final NullOutputStream NULL_OUTPUT_STREAM = new NullOutputStream();
 	private static final Pattern FILE_SEPARATOR_REGEX = Pattern.compile("\\" + File.separatorChar);
 	private static final int MAX_CLEAR_BUFFER = 8 * 1024;
 	private static final int MAX_UUID_ATTEMPTS = 10; // Shouldn't be needed
@@ -63,17 +62,10 @@ public class IoUtil {
 	}
 
 	/**
-	 * Returns an output stream that swallows all output.
-	 */
-	public static OutputStream nullOutputStream() {
-		return NULL_OUTPUT_STREAM;
-	}
-
-	/**
 	 * Returns a print stream that swallows all output.
 	 */
 	public static PrintStream nullPrintStream() {
-		return new PrintStream(nullOutputStream());
+		return new PrintStream(IoStreamUtil.nullOut());
 	}
 
 	/**

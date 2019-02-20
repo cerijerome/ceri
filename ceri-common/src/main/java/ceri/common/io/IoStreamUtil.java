@@ -9,6 +9,8 @@ import java.util.Objects;
  * Utilities for extending input and output streams.
  */
 public class IoStreamUtil {
+	private static final NullOutputStream NULL_OUTPUT_STREAM = new NullOutputStream();
+	private static final InputStream NULL_INPUT_STREAM = new NullInputStream();
 
 	private IoStreamUtil() {}
 
@@ -65,6 +67,14 @@ public class IoStreamUtil {
 
 	public static interface ByteWriter {
 		void write(byte[] b, int offset, int len) throws IOException;
+	}
+
+	public static InputStream nullIn() {
+		return NULL_INPUT_STREAM;
+	}
+
+	public static OutputStream nullOut() {
+		return NULL_OUTPUT_STREAM;
 	}
 
 	public static InputStream in(ByteReader reader) {
