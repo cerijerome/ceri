@@ -26,6 +26,7 @@
 		<httpcomponents.version>4.5.6</httpcomponents.version>
 		<jetty.version>9.4.14.v20181114</jetty.version>
 		<servlet-api.version>4.0.1</servlet-api.version>
+        <grpc.version>1.17.1</grpc.version>
 		<!-- Repo-specific properties -->
 		<htmlunit.version>2.33</htmlunit.version>
 		<selenium.java.version>3.141.59</selenium.java.version>
@@ -158,6 +159,16 @@
 				<artifactId>twilio-java-sdk</artifactId>
 				<version>${twilio.sdk.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-protobuf</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-stub</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -184,6 +195,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		
 	</build>
 
 </project>
