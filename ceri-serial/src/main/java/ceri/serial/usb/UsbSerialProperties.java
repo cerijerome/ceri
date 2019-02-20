@@ -1,7 +1,7 @@
 package ceri.serial.usb;
 
 import ceri.common.property.BaseProperties;
-import ceri.serial.javax.CommPortSupplier;
+import ceri.serial.javax.util.CommPortSupplier;
 
 public class UsbSerialProperties extends BaseProperties {
 	private static final String LOCATION_ID_KEY = "location.id";

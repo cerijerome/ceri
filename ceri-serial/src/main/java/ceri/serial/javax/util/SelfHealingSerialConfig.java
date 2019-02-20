@@ -1,6 +1,8 @@
-package ceri.serial.javax;
+package ceri.serial.javax.util;
 
 import java.util.function.Predicate;
+import ceri.serial.javax.SerialPort;
+import ceri.serial.javax.SerialPortParams;
 
 public class SelfHealingSerialConfig {
 	final CommPortSupplier commPortSupplier;

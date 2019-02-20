@@ -6,7 +6,7 @@ import ceri.common.util.BasicUtil;
 public enum StopBits {
 	_1(1.0, purejavacomm.SerialPort.STOPBITS_1),
 	_1_5(1.5, purejavacomm.SerialPort.STOPBITS_1_5),
-	_2(.0, purejavacomm.SerialPort.STOPBITS_2);
+	_2(2.0, purejavacomm.SerialPort.STOPBITS_2);
 
 	private static final double PRECISION = 0.1;
 	public final int value;

@@ -1,4 +1,4 @@
-package ceri.serial.javax.test;
+package ceri.serial.javax.util;
 
 import java.io.IOException;
 import java.io.InputStream;

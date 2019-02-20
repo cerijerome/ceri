@@ -1,4 +1,4 @@
-package ceri.serial.javax.test;
+package ceri.serial.javax.util;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
 import static ceri.common.util.BasicUtil.conditional;
@@ -14,8 +14,6 @@ import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.serial.javax.FlowControl;
-import ceri.serial.javax.SelfHealingSerialConfig;
-import ceri.serial.javax.SelfHealingSerialConnector;
 import ceri.serial.javax.SerialConnector;
 import ceri.serial.javax.SerialConnector.State;
 

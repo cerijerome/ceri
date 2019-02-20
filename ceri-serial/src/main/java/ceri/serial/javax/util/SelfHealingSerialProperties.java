@@ -1,7 +1,8 @@
-package ceri.serial.javax;
+package ceri.serial.javax.util;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
 import ceri.common.property.BaseProperties;
+import ceri.serial.javax.SerialPortProperties;
 import ceri.serial.usb.UsbSerialProperties;
 
 public class SelfHealingSerialProperties extends BaseProperties {
@@ -11,10 +12,10 @@ public class SelfHealingSerialProperties extends BaseProperties {
 	private final UsbSerialProperties commPort;
 	private final SerialPortProperties params;
 
-	public SelfHealingSerialProperties(BaseProperties properties, String...groups) {
+	public SelfHealingSerialProperties(BaseProperties properties, String... groups) {
 		super(properties, groups);
-		commPort = new UsbSerialProperties(this, "");
-		params = new SerialPortProperties(this, "");
+		commPort = new UsbSerialProperties(this, "usb");
+		params = new SerialPortProperties(this, "port");
 	}
 
 	public SelfHealingSerialConfig config() {

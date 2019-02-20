@@ -1,4 +1,4 @@
-package ceri.serial.javax;
+package ceri.serial.javax.util;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +15,9 @@ import ceri.common.io.ReplaceableOutputStream;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
+import ceri.serial.javax.FlowControl;
+import ceri.serial.javax.SerialConnector;
+import ceri.serial.javax.SerialPort;
 
 /**
  * A self-healing serial connector. It will automatically reconnect if the cable is removed and
