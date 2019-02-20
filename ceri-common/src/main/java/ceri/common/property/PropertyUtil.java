@@ -50,6 +50,13 @@ public class PropertyUtil {
 	/**
 	 * Creates properties from given file.
 	 */
+	public static Properties load(String filename) throws IOException {
+		return load(new File(filename));
+	}
+	
+	/**
+	 * Creates properties from given file.
+	 */
 	public static Properties load(File file) throws IOException {
 		Properties properties = new Properties();
 		try (InputStream in = new FileInputStream(file)) {

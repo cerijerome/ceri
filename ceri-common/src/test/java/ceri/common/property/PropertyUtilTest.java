@@ -104,6 +104,14 @@ public class PropertyUtilTest {
 	}
 
 	@Test
+	public void testLoadFileFromName() throws IOException {
+		try (FileTestHelper helper = FileTestHelper.builder().file("a", "b=c").build()) {
+			Properties properties = PropertyUtil.load(helper.file("a").getPath());
+			assertThat(properties.getProperty("b"), is("c"));
+		}
+	}
+
+	@Test
 	public void testLoadLocators() throws IOException {
 		Locator abc = Locator.of(getClass(), "property-test-a-b-c");
 		Locator a = Locator.of(getClass(), "property-test-a");
