@@ -165,6 +165,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 		LogUtil.close(logger, serialPort);
 		String commPort = config.commPortSupplier.get();
 		serialPort = openSerialPort(commPort, config.connectionTimeoutMs);
+		logger.debug("Connected to {}", commPort);
 		in.setInputStream(serialPort.getInputStream());
 		out.setOutputStream(serialPort.getOutputStream());
 	}

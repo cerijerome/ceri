@@ -27,6 +27,10 @@ public class ResponseSerialConnector implements SerialConnector {
 	private FlowControl flowControl;
 	private boolean broken;
 
+	public static ResponseSerialConnector echo() {
+		return of(ResponseStream.echo());
+	}
+
 	public static ResponseSerialConnector of(ResponseStream stream) {
 		return new ResponseSerialConnector(stream);
 	}

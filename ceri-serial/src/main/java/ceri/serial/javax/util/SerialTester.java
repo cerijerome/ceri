@@ -35,7 +35,7 @@ public class SerialTester extends LoopingExecutor {
 	private static final int INPUT_BYTES_MAX = 32 * 1024;
 	protected static final int DELAY_MS_DEF = 500;
 	private final int delayMs;
-	private final SerialConnector connector;
+	protected final SerialConnector connector;
 	private final byte[] buffer = new byte[INPUT_BYTES_MAX];
 
 	public static void test(String commPort) throws IOException {
@@ -47,26 +47,30 @@ public class SerialTester extends LoopingExecutor {
 
 	public static void test(SerialConnector con) throws IOException {
 		try (SerialTester tester = SerialTester.of(con)) {
+			tester.connect();
 			tester.waitUntilStopped();
 		}
 	}
 
-	public static SerialTester of(SerialConnector connector) throws IOException {
+	public static SerialTester of(SerialConnector connector) {
 		return of(connector, DELAY_MS_DEF);
 	}
 
-	public static SerialTester of(SerialConnector connector, int delayMs) throws IOException {
+	public static SerialTester of(SerialConnector connector, int delayMs) {
 		return new SerialTester(connector, delayMs);
 	}
 
-	protected SerialTester(SerialConnector connector, int delayMs) throws IOException {
+	protected SerialTester(SerialConnector connector, int delayMs) {
 		this.connector = connector;
 		this.delayMs = delayMs;
-		this.connector.connect();
 		this.connector.listeners().listen(this::event);
-		start();
 	}
 
+	public void connect() throws IOException {
+		connector.connect();	
+		start();
+	}
+	
 	@Override
 	public void waitUntilStopped() {
 		try {
@@ -105,11 +109,15 @@ public class SerialTester extends LoopingExecutor {
 	 * Default implementation - get bytes from stdin.
 	 */
 	private String getInput() throws IOException {
-		System.out.print("> ");
+		System.out.print(prompt());
 		String s = IoUtil.readString(System.in).trim();
 		return StringUtil.unEscape(s);
 	}
 
+	protected String prompt() {
+		return "> ";
+	}
+	
 	/**
 	 * Read and display bytes from port.
 	 */
