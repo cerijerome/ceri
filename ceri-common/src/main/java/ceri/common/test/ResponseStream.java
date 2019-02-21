@@ -26,6 +26,10 @@ public class ResponseStream {
 		byte[] respond(byte[] buffer, int offset, int len);
 	}
 
+	public static ResponseStream echo() {
+		return of(Arrays::copyOfRange);
+	}
+	
 	public static ResponseStream ascii(Function<String, String> responder) {
 		return string(responder, StandardCharsets.ISO_8859_1);
 	}

@@ -31,7 +31,7 @@ public class RpcServer implements Closeable {
 
 	public void start() throws IOException {
 		server.start();
-		logger.info("Server started, listening on " + server.getPort());
+		logger.info("Listening on port {}", server.getPort());
 	}
 
 	@Override

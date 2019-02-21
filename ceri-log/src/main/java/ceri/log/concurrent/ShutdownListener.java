@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.log.util.LogUtil;
 
 /**
@@ -27,13 +28,18 @@ public class ShutdownListener implements Closeable {
 	private ShutdownListener(int port) throws IOException {
 		socket = SocketListener.create(port);
 		socket.listen(data -> stop());
+		logger.debug("Listening on port {}", port);
 	}
 
 	/**
 	 * Call this method to wait for shutdown.
 	 */
-	public void await() throws InterruptedException {
-		stop.await();
+	public void await() {
+		try {
+			stop.await();
+		} catch (InterruptedException e) {
+			throw new RuntimeInterruptedException(e);
+		}
 	}
 
 	public void stop() {
