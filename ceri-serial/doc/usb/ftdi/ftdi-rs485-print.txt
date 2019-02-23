@@ -1,0 +1,84 @@
+FTDI Rs485 Device USB settings
+
+0: [libusb_device #0]
+0: [libusb_device_descriptor]
+0: bLength=18
+0: bDescriptorType=LIBUSB_DT_DEVICE(0x01)
+0: bcdUSB=0x0200
+0: bDeviceClass=null
+0: bDeviceSubClass=0x00
+0: bDeviceProtocol=0x00
+0: bMaxPacketSize0=8
+0: idVendor=0x0403
+0: idProduct=0x6001
+0: bcdDevice=0x0600
+0: iManufacturer=1
+0:   ascii=FTDI
+0: iProduct=2
+0:   ascii=FT232R USB UART
+0: iSerialNumber=3
+0:   ascii=00000000
+0: bNumConfigurations=1
+0: bus_number()=0x14
+0: port_number()=0x01
+0: port_numbers()=0x01
+0: device_address()=0x13
+0: device_speed()=LIBUSB_SPEED_FULL(2)
+0: configuration()=0x0001
+0.0: [libusb_config_descriptor #0.0]
+0.0: bLength=9
+0.0: bDescriptorType=LIBUSB_DT_CONFIG(0x02)
+0.0: wTotalLength=32
+0.0: bNumInterfaces=1
+0.0: bConfigurationValue=0x01
+0.0: iConfiguration=0
+0.0:   ascii=null
+0.0: bmAttributes=0xa0
+0.0: MaxPower=45
+0.0: extra[]=[]
+0.0: #interfaces=1
+0.0.0: [libusb_interface #0.0.0]
+0.0.0: #altsettings=1
+0.0.0.0: [libusb_interface_descriptor #0.0.0.0]
+0.0.0.0: bLength=9
+0.0.0.0: bDescriptorType=LIBUSB_DT_INTERFACE(0x04)
+0.0.0.0: bInterfaceNumber=0
+0.0.0.0: bAlternateSetting=0
+0.0.0.0: bNumEndpoints=2
+0.0.0.0: bInterfaceClass=LIBUSB_CLASS_VENDOR_SPEC(0xff)
+0.0.0.0: bInterfaceSubClass=-1
+0.0.0.0: bInterfaceProtocol=-1
+0.0.0.0: iInterface=2
+0.0.0.0:   ascii=FT232R USB UART
+0.0.0.0: extra[]=[]
+0.0.0.0: #endpoints=2
+0.0.0.0.0: [libusb_endpoint_descriptor #0.0.0.0.0]
+0.0.0.0.0: bLength=7
+0.0.0.0.0: bDescriptorType=LIBUSB_DT_ENDPOINT(0x05)
+0.0.0.0.0: bEndpointAddress=0x81
+0.0.0.0.0:   Number=1
+0.0.0.0.0:   Direction=LIBUSB_ENDPOINT_IN(0x80)
+0.0.0.0.0: bmAttributes=0x02
+0.0.0.0.0:   TransferType=LIBUSB_TRANSFER_TYPE_BULK(2)
+0.0.0.0.0:   IsoSyncType=null
+0.0.0.0.0:   IsoUsageType=null
+0.0.0.0.0: wMaxPacketSize=64
+0.0.0.0.0: bInterval=0
+0.0.0.0.0: bRefresh=0
+0.0.0.0.0: bSynchAddress=0
+0.0.0.0.0: extra[]=[]
+0.0.0.0.1: [libusb_endpoint_descriptor #0.0.0.0.1]
+0.0.0.0.1: bLength=7
+0.0.0.0.1: bDescriptorType=LIBUSB_DT_ENDPOINT(0x05)
+0.0.0.0.1: bEndpointAddress=0x02
+0.0.0.0.1:   Number=2
+0.0.0.0.1:   Direction=null
+0.0.0.0.1: bmAttributes=0x02
+0.0.0.0.1:   TransferType=LIBUSB_TRANSFER_TYPE_BULK(2)
+0.0.0.0.1:   IsoSyncType=null
+0.0.0.0.1:   IsoUsageType=null
+0.0.0.0.1: wMaxPacketSize=64
+0.0.0.0.1: bInterval=0
+0.0.0.0.1: bRefresh=0
+0.0.0.0.1: bSynchAddress=0
+0.0.0.0.1: extra[]=[]

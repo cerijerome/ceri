@@ -1,6 +1,97 @@
+FTDI Notes
+==========
 
-MPSSE (Multi-Protocol Synchronous Serial Engine)
+Mac Driver Installation
+-----------------------
+Mac Drivers (mojave 10.14)
+- AppleUSBFTDI
+  - Available by default
+  - Files under /System/Library/Extensions/AppleUSBFTDI.kext
+  - See below how to disable
+  - Full name com.apple.driver.AppleUSBFTDI
+  - preferred solution over FTDI VCP driver
+  - devices show up as /dev/tty.usbserial-XXX, /dev/cu.usbserial-XXX
+- FTDI VCP driver
+  - dmg installer from ftdichip.com
+  - Files under /Library/Extensions/FTDIUSBSerialDriver.kext
+  - To remove: sudo rm -r /Library/Extensions/FTDIUSBSerialDriver.kext
+  - Full name com.FTDI.driver.FTDIUSBSerialDriver
+  - devices show up as /dev/tty.usbserial-XXX, /dev/cu.usbserial-XXX
+- FTDI D2XX driver
+  - For direct access (not used)
+- libusb (1.0.X)
+  - User-space driver
+  - brew install libusb
+  - Used For JNA ftdi support
+- libftdi
+  - Alternative to D2XX driver
+  - Uses libusb
+  
+Diagnostics:
+- ls /dev/tty.*
+- lsusb (brew install lsusb)
+- system_profiler SPUSBDataType (same as system report hardware usb)
+- Search /var/log/system.log
+- System Report / Hardware / USB (shows recognized USB devices)
+  - Show hierarchy of known busses, hubs, devices 
+- System Report / Software / Extensions (takes a while to load)
+  - Show drivers loaded
 
+Troubleshooting
+- Try diagnostics to see what is showing up
+- Make sure AppleUSBFTDI is enabled
+- Make sure FTDI VCP driver is disabled
+- Make sure cable is good
+- Try on powered hub (in case device needs more power)
+- Reset SMC (see below)
+
+Disable/Enable AppleUSBFTDI
+- Temporary:
+  - sudo kextunload -b com.apple.driver.AppleUSBFTDI
+  - undo: sudo kextload -b com.apple.driver.AppleUSBFTDI
+- Permanently disable AppleUSBFTDI
+  - Disable SIP (see below)
+  - cd /System/Library/Extensions
+  - sudo mv AppleUSBFTDI.kext AppleUSBFTDI.disabled
+  - Enable SIP (see below)
+- To enable, follow steps and rename back to original 
+
+Disable/enable System Integrity Protection
+- Allows changes to kernel
+- Recovery session boot:
+  - Reboot, hold cmd-R
+- Select menu / utilities / terminal
+- csrutil disable | csrutil enable
+- Reboot normally
+- Remember to re-enable after changes
+
+Reset System Management Controller (SMC)
+- Can reset USB device list
+- Shutdown
+- Hold shift+ctrl+option+power for 10 seconds
+- Power on
+
+
+libftdi and libusb
+------------------
+- LibUsb is a JNA wrapper of libusb
+- LibFtdi is a conversion of libftdi using LibUsb (and some JNA)
+- Used to communicate with Relay board FT245R
+
+
+Known Chips
+-----------
+- 4-port 5v Relay: FT245R USB FIFO
+  - Needs libftdi+libusb / D2XX driver
+  - Code control with LibFtdi + LibUsb + libusb driver
+  - Controlled in bitbang mode
+- USB-RS485 device: FT232RL USB UART
+  - Needs AppleUSBFTDI
+  - Code control with java serial port
+
+
+Multi-Protocol Synchronous Serial Engine (MPSSE)
+------------------------------------------------
 Allows FT232H chip to speak many different protocols such as I2C, SPI, and more.
 When the chip is in MPSSE mode it changes the D0 to D3 pins to have special
 serial protocol functions:
