@@ -26,9 +26,10 @@ Build Commands
 - Skip compiling tests:
   mvn install -Dmaven.test.skip=true
 
-Troubleshooting Commands
-------------------------
-- Add -X for debug info
+Troubleshooting
+---------------
+- When building, remember to also build parent pom
+- Add -X to mvn command for debug info
 - Show pom with all inherited settings:
   mvn help:effective-pom
 - Show dependency tree:
