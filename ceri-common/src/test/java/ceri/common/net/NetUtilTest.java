@@ -1,12 +1,15 @@
 package ceri.common.net;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.Arrays;
 import java.util.Objects;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +22,16 @@ public class NetUtilTest {
 	@Before
 	public void init() {
 		MockitoAnnotations.initMocks(this);
+	}
+
+	@Test
+	public void testIsLocalhost() {
+		for (String address : Arrays.asList("localhost", "Localhost", "127.0.0.1", "127.1",
+			"127.255.255.255", "::1", "0:0:0:0:0:0:0:1", "0000::0001", "00:01"))
+			assertThat(address, NetUtil.isLocalhost(address), is(true));
+		for (String address : Arrays.asList("local_host", "128.0.0.1", "127", "0.0.0.0", "::0",
+			"0:0:0:0:0:0:1:1", "0000::0000"))
+			assertThat(address, NetUtil.isLocalhost(address), is(false));
 	}
 
 	@Test

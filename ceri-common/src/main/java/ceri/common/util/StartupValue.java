@@ -51,7 +51,7 @@ public class StartupValue {
 		return PathFactory.dot.path(cls.getPackageName(), suffix).value;
 	}
 
-	private StartupValue(Integer argIndex, String sysPropertyName, String envVariableName) {
+	protected StartupValue(Integer argIndex, String sysPropertyName, String envVariableName) {
 		this.argIndex = argIndex;
 		this.sysPropertyName = sysPropertyName;
 		this.envVariableName = envVariableName;
@@ -81,16 +81,16 @@ public class StartupValue {
 		return value;
 	}
 
-	private String arg(String[] args) {
+	public String arg(String[] args) {
 		return argIndex == null ? null : arg(argIndex, args);
 	}
 
-	private String sysProperty() {
+	public String sysProperty() {
 		if (sysPropertyName == null || sysPropertyName.isEmpty()) return null;
 		return System.getProperty(sysPropertyName);
 	}
 
-	private String envVariable() {
+	public String envVariable() {
 		if (envVariableName == null || envVariableName.isEmpty()) return null;
 		return System.getenv(envVariableName);
 	}
