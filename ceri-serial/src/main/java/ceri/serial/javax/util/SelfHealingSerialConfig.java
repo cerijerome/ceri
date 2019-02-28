@@ -79,4 +79,8 @@ public class SelfHealingSerialConfig {
 		brokenPredicate = builder.brokenPredicate;
 	}
 
+	public boolean enabled() {
+		return commPortSupplier != null;
+	}
+	
 }

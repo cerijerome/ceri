@@ -37,9 +37,15 @@ public class TtyCom {
 	public static final int TIOCSETAF = _IOW('t', 22, SIZEOF_TERMIOS); /* drn out, fls in, set */
 	public static final int TIOCGETD = _IOR('t', 26, SizeOf.INT); /* get line discipline */
 	public static final int TIOCSETD = _IOW('t', 27, SizeOf.INT); /* set line discipline */
+	
+	public static void main(String[] args) {
+		System.out.printf("TIOCSBRK = 0x%x%n", TIOCSBRK);
+		System.out.printf("TIOCCBRK = 0x%x%n", TIOCCBRK);
+	}
+	
 	/* 127-124 compat */
-	public static final int TIOCSBRK = _IO('t', 123); /* set break bit */
-	public static final int TIOCCBRK = _IO('t', 122); /* clear break bit */
+	public static final int TIOCSBRK = 0x5427; //_IO('t', 123); /* set break bit */
+	public static final int TIOCCBRK = 0x5428; //_IO('t', 122); /* clear break bit */
 	public static final int TIOCSDTR = _IO('t', 121); /* set data terminal ready */
 	public static final int TIOCCDTR = _IO('t', 120); /* clear data terminal ready */
 	public static final int TIOCGPGRP = _IOR('t', 119, SizeOf.INT); /* get pgrp of tty */

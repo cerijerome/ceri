@@ -1,6 +1,14 @@
 FTDI Notes
 ==========
 
+Raspberry Pi/Linux Installation
+-------------------------
+- Linux kernel includes VCP support (no need to install)
+- Make sure raspi-config / Interfacing Options / Serial / all options disabled
+- Should show up as /dev/ttyUSB0 etc
+- Check /var/log/messages for troubleshooting
+
+
 Mac Driver Installation
 -----------------------
 Mac Drivers (mojave 10.14)
@@ -19,6 +27,7 @@ Mac Drivers (mojave 10.14)
   - devices show up as /dev/tty.usbserial-XXX, /dev/cu.usbserial-XXX
 - FTDI D2XX driver
   - For direct access (not used)
+  - D2XXHelper may be used to prevent Apple Driver taking over device
 - libusb (1.0.X)
   - User-space driver
   - brew install libusb

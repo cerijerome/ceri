@@ -37,7 +37,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 		return new SelfHealingSerialConnector(config);
 	}
 
-	SelfHealingSerialConnector(SelfHealingSerialConfig config) {
+	private SelfHealingSerialConnector(SelfHealingSerialConfig config) {
 		this.config = config;
 		in.listen(this::checkIfBroken);
 		out.listen(this::checkIfBroken);

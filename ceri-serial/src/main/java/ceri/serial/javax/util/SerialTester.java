@@ -18,17 +18,18 @@ import ceri.serial.javax.SerialConnector;
 import ceri.serial.javax.SerialConnector.State;
 
 /**
- * Class to test serial ports. Takes commands via System.in to call methods on the serial connector.
- * Logs data received from the port. Commands:
- * <ul>
- * <li><b>b[0|1]</b> - set break bit off/on</li>
- * <li><b>d[0|1]</b> - set DTR off/on</li>
- * <li><b>r[0|1]</b> - set RTS off/on</li>
- * <li><b>f[n|r0|r1|x0|x1]</b> - set flow control none, rts-cts in/out, xon-xoff in/out</li>
- * <li><b>o[literal-chars]</b> - write chars as bytes to output (e.g. \xff for byte 0xff)</li>
- * <li><b>z</b> - notify the connector it is broken</li>
- * <li><b>x</b> - exit</li>
- * </ul>
+ * Class to test serial ports. Takes commands via System.in and calls methods on the serial
+ * connector. Logs data received from the port. Commands:
+ * 
+ * <pre>
+ * b[0|1] = set break bit off/on
+ * d[0|1] = set DTR off/on
+ * r[0|1] = set RTS off/on
+ * f[n|r0|r1|x0|x1] = set flow control none, rts-cts in/out, xon-xoff in/out
+ * o[literal-chars] = write chars as bytes to output (e.g. \xff for byte 0xff)
+ * z = mark the connector as broken
+ * x = exit
+ * </pre>
  */
 public class SerialTester extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
@@ -67,10 +68,10 @@ public class SerialTester extends LoopingExecutor {
 	}
 
 	public void connect() throws IOException {
-		connector.connect();	
+		connector.connect();
 		start();
 	}
-	
+
 	@Override
 	public void waitUntilStopped() {
 		try {
@@ -89,8 +90,32 @@ public class SerialTester extends LoopingExecutor {
 		}
 	}
 
-	private void event(State state) {
+	protected void event(State state) {
 		logger.info("Event: {}", state);
+	}
+
+	protected String prompt() {
+		return "> ";
+	}
+
+	protected void logOutput(ImmutableByteArray dataToPort) {
+		System.out.println("OUT >>>");
+		BinaryPrinter.DEFAULT.print(dataToPort);
+	}
+
+	protected void logInput(ImmutableByteArray dataFromPort) {
+		System.out.println("IN <<<");
+		BinaryPrinter.DEFAULT.print(dataFromPort);
+	}
+
+	protected void processCmd(char cmd, String params) throws IOException {
+		if (cmd == 'x') throw new RuntimeInterruptedException("Exiting");
+		if (cmd == 'b') safeAccept(bool(params), connector::setBreakBit);
+		else if (cmd == 'd') safeAccept(bool(params), connector::setDtr);
+		else if (cmd == 'r') safeAccept(bool(params), connector::setRts);
+		else if (cmd == 'f') safeAccept(flowControlType(params), connector::setFlowControl);
+		else if (cmd == 'o') writeToPort(ByteUtil.toAscii(params));
+		else if (cmd == 'z') connector.broken();
 	}
 
 	@Override
@@ -114,10 +139,6 @@ public class SerialTester extends LoopingExecutor {
 		return StringUtil.unEscape(s);
 	}
 
-	protected String prompt() {
-		return "> ";
-	}
-	
 	/**
 	 * Read and display bytes from port.
 	 */
@@ -127,38 +148,26 @@ public class SerialTester extends LoopingExecutor {
 				int available = connector.in().available();
 				if (available <= 0) break;
 				int n = connector.in().read(buffer);
-				System.out.println("IN <<<");
-				if (n > 0) BinaryPrinter.DEFAULT.print(buffer, 0, n);
+				if (n > 0) logInput(ImmutableByteArray.wrap(buffer, 0, n));
 				if (n == available) break;
 			}
 		} catch (IOException e) {
 			logger.catching(e);
 		}
 	}
-	
+
 	/**
 	 * Display and write bytes to port.
 	 */
 	private void writeToPort(ImmutableByteArray dataToPort) throws IOException {
 		if (dataToPort.length == 0) return;
-		System.out.println("OUT >>>");
-		BinaryPrinter.DEFAULT.print(dataToPort.copy());
+		logOutput(dataToPort);
 		dataToPort.writeTo(connector.out());
 		connector.out().flush();
 	}
 
 	private void processCmd(String command) throws IOException {
 		if (!command.isEmpty()) processCmd(command.charAt(0), command.substring(1));
-	}
-
-	protected void processCmd(char cmd, String params) throws IOException {
-		if (cmd == 'x') throw new RuntimeInterruptedException("Exiting");
-		if (cmd == 'b') safeAccept(bool(params), connector::setBreakBit);
-		else if (cmd == 'd') safeAccept(bool(params), connector::setDtr);
-		else if (cmd == 'r') safeAccept(bool(params), connector::setRts);
-		else if (cmd == 'f') safeAccept(flowControlType(params), connector::setFlowControl);
-		else if (cmd == 'o') writeToPort(ByteUtil.toAscii(params));
-		else if (cmd == 'z') connector.broken();
 	}
 
 	private Boolean bool(String s) {

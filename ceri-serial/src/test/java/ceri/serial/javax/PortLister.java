@@ -1,4 +1,4 @@
-package ceri.serial.rxtx;
+package ceri.serial.javax;
 
 import java.util.Enumeration;
 import ceri.common.collection.CollectionUtil;
