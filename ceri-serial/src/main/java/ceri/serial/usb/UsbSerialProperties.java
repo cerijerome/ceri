@@ -15,7 +15,8 @@ public class UsbSerialProperties extends BaseProperties {
 		Integer locationId = locationId();
 		if (locationId != null) return UsbSerialUtil.deviceByLocationId(locationId);
 		String port = port();
-		return () -> port;
+		if (port != null) return () -> port;
+		return null;
 	}
 
 	private String port() {
