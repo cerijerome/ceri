@@ -15,6 +15,14 @@ public class ReflectUtil {
 	private ReflectUtil() {}
 
 	/**
+	 * Returns "@<hex-hashcode> for logging/identification purposes.
+	 */
+	public static String hashId(Object obj) {
+		if (obj == null) return null;
+		return String.format("@%x", obj.hashCode());
+	}
+
+	/**
 	 * Checks if the object is an instance of any of the given classes.
 	 */
 	@SafeVarargs

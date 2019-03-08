@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,6 +38,14 @@ public class RegexUtil {
 
 	private RegexUtil() {}
 
+	public static Predicate<String> finder(Pattern p) {
+		return s -> p.matcher(s).find();
+	}
+	
+	public static Predicate<String> matcher(Pattern p) {
+		return s -> p.matcher(s).matches();
+	}
+	
 	/**
 	 * Compiles a pattern from string format.
 	 */

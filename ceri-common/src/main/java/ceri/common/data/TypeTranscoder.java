@@ -11,7 +11,8 @@ import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.StreamUtil;
 
 /**
- * Helper to convert between object types and integer values. Useful for enums.
+ * Helper to convert between object types and integer values. Integers can map to a single instance
+ * (Single), or to a set of instances (Flag). Useful for converting between integers and enums.
  */
 public abstract class TypeTranscoder<T> {
 	final MaskTranscoder mask;
@@ -50,12 +51,12 @@ public abstract class TypeTranscoder<T> {
 		}
 
 		public boolean isValid(int value) {
-			if (value == 0) return true;
+			//if (value == 0) return true;
 			return decode(value) != null;
 		}
 
 		public T decode(int value) {
-			if (value == 0) return null;
+			//if (value == 0) return null;
 			return lookup.get(mask.decodeInt(value));
 		}
 	}

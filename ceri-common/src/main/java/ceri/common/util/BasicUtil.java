@@ -106,7 +106,7 @@ public class BasicUtil {
 	public static <T> T conditional(Boolean condition, T trueValue, T falseValue) {
 		return conditional(condition, trueValue, falseValue, null);
 	}
-	
+
 	/**
 	 * Returns a value based on condition of null, true, false.
 	 */
@@ -114,7 +114,7 @@ public class BasicUtil {
 		if (condition == null) return nullValue;
 		return condition.booleanValue() ? trueValue : falseValue;
 	}
-	
+
 	/**
 	 * Make a system beep sound
 	 */
@@ -184,6 +184,23 @@ public class BasicUtil {
 	 */
 	public static <T> Iterable<T> forEach(final Iterator<T> iterator) {
 		return () -> iterator;
+	}
+
+	public static boolean matchesThrowable(Throwable t, Class<?> cls) {
+		return matchesThrowable(t, cls, null);
+	}
+
+	public static boolean matchesThrowable(Throwable t, Predicate<String> msgTest) {
+		return matchesThrowable(t, null, msgTest);
+	}
+
+	public static boolean matchesThrowable(Throwable t, Class<?> cls, Predicate<String> msgTest) {
+		if (t == null) return false;
+		if (cls != null && !cls.isInstance(t)) return false;
+		if (msgTest == null) return true;
+		String msg = t.getMessage();
+		if (msg == null) return false;
+		return msgTest.test(msg);
 	}
 
 	/**

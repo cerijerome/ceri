@@ -127,6 +127,7 @@ import ceri.common.io.ReplaceableInputStreamBehavior;
 import ceri.common.io.ReplaceableOutputStreamBehavior;
 import ceri.common.io.ResourceListerBehavior;
 import ceri.common.io.RuntimeIoExceptionBehavior;
+import ceri.common.io.StateChangeBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
 import ceri.common.math.AlgebraUtilTest;
 import ceri.common.math.BoundBehavior;
@@ -357,6 +358,7 @@ import ceri.common.xml.XmlUtilTest;
 	ReplaceableOutputStreamBehavior.class, //
 	ResourceListerBehavior.class, //
 	RuntimeIoExceptionBehavior.class, //
+	StateChangeBehavior.class, //
 	StringPrintStreamBehavior.class, //
 	// math
 	AlgebraUtilTest.class, //

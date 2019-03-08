@@ -29,8 +29,8 @@ public class NetUtilTest {
 		for (String address : Arrays.asList("localhost", "Localhost", "127.0.0.1", "127.1",
 			"127.255.255.255", "::1", "0:0:0:0:0:0:0:1", "0000::0001", "00:01"))
 			assertThat(address, NetUtil.isLocalhost(address), is(true));
-		for (String address : Arrays.asList("local_host", "128.0.0.1", "127", "0.0.0.0", "::0",
-			"0:0:0:0:0:0:1:1", "0000::0000"))
+		for (String address : Arrays.asList(null, "", "local_host", "128.0.0.1", "127", "0.0.0.0",
+			"::0", "0:0:0:0:0:0:1:1", "0000::0000"))
 			assertThat(address, NetUtil.isLocalhost(address), is(false));
 	}
 

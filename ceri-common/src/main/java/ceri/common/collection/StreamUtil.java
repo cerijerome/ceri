@@ -35,25 +35,36 @@ public class StreamUtil {
 	private static final IntBinaryOperator intBitwiseAnd = (lhs, rhs) -> lhs & rhs;
 	private static final IntBinaryOperator intBitwiseOr = (lhs, rhs) -> lhs | rhs;
 	private static final IntBinaryOperator intBitwiseXor = (lhs, rhs) -> lhs ^ rhs;
-	
+
 	private StreamUtil() {}
+
+	public static String toString(Stream<CharSequence> stream, CharSequence delimiter) {
+		if (stream == null) return null;
+		return stream.collect(Collectors.joining(delimiter));
+	}
+
+	public static String toString(Stream<CharSequence> stream, CharSequence prefix,
+		CharSequence delimiter, CharSequence suffix) {
+		if (stream == null) return null;
+		return stream.collect(Collectors.joining(delimiter, prefix, suffix));
+	}
 
 	public static IntStream toInt(Stream<? extends Number> stream) {
 		return stream.mapToInt(Number::intValue);
 	}
-	
+
 	public static int bitwiseAnd(IntStream stream) {
 		return stream.reduce(intBitwiseAnd).orElse(0);
 	}
-	
+
 	public static int bitwiseOr(IntStream stream) {
 		return stream.reduce(0, intBitwiseOr);
 	}
-	
+
 	public static int bitwiseXor(IntStream stream) {
 		return stream.reduce(0, intBitwiseXor);
 	}
-	
+
 	/**
 	 * Filters objects of given type and casts the stream.
 	 */
@@ -277,7 +288,7 @@ public class StreamUtil {
 	public static <T extends Enum<T>> Stream<T> stream(Class<T> enumCls) {
 		return BasicUtil.enums(enumCls).stream();
 	}
-	
+
 	/**
 	 * Returns a stream for an Enumeration.
 	 */

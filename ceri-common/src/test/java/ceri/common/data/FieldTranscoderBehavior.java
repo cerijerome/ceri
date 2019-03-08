@@ -48,7 +48,7 @@ public class FieldTranscoderBehavior {
 
 	@Test
 	public void shouldValidateSingleFields() {
-		assertThat(single.isValid(), is(true));
+		assertThat(single.isValid(), is(false));
 		single.set(E.c);
 		assertThat(single.isValid(), is(true));
 		store[0] = 6;

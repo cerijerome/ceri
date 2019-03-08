@@ -56,7 +56,7 @@ public class TypeTranscoderBehavior {
 
 	@Test
 	public void shouldValidateValues() {
-		assertThat(single.isValid(0), is(true));
+		assertThat(single.isValid(0), is(false));
 		assertThat(single.isValid(-1), is(false));
 		assertThat(single.isValid(12), is(true));
 		assertThat(single.isValid(3), is(false));

@@ -24,6 +24,20 @@ public class FunctionUtil {
 	}
 
 	/**
+	 * Run and ignore any exceptions. Returns true if no exception occurred. Use judiciously, such
+	 * as when closing an object, to squash noisy exceptions.
+	 */
+	public static <E extends Exception> boolean executeSilently(ExceptionRunnable<E> runnable) {
+		try {
+			runnable.run();
+			return true;
+		} catch (Exception e) {
+			// ignore
+			return false;
+		}
+	}
+
+	/**
 	 * Casts object to given type and applies function if compatible. Otherwise returns null.
 	 */
 	public static <E extends Exception, T, R> R castApply(Class<T> cls, Object obj,
