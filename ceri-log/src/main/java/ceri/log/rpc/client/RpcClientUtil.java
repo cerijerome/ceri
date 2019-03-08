@@ -1,7 +1,7 @@
 package ceri.log.rpc.client;
 
 import static ceri.common.text.RegexUtil.finder;
-import static ceri.common.util.BasicUtil.matchesThrowable;
+import static ceri.common.util.BasicUtil.matches;
 import java.io.IOException;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -17,11 +17,11 @@ public class RpcClientUtil {
 	private RpcClientUtil() {}
 
 	public static boolean isHalfClosedCall(Throwable t) {
-		return matchesThrowable(t, IllegalStateException.class, finder(HALF_CLOSED_MSG_REGEX));
+		return matches(t, IllegalStateException.class, finder(HALF_CLOSED_MSG_REGEX));
 	}
 
 	public static boolean isChannelShutdown(Throwable t) {
-		return matchesThrowable(t, StatusRuntimeException.class, finder(SHUTDOWN_MSG_REGEX));
+		return matches(t, StatusRuntimeException.class, finder(SHUTDOWN_MSG_REGEX));
 	}
 
 	/**
