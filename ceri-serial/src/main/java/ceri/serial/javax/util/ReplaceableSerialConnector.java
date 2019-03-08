@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.function.ExceptionRunnable;
+import ceri.common.io.StateChange;
 import ceri.common.io.ReplaceableInputStream;
 import ceri.common.io.ReplaceableOutputStream;
 import ceri.serial.javax.FlowControl;
@@ -21,8 +22,8 @@ import ceri.serial.javax.SerialConnector;
 public class ReplaceableSerialConnector implements SerialConnector {
 	private static final Logger logger = LogManager.getLogger();
 	private final Listeners<Exception> errorListeners = new Listeners<>();
-	private final Listeners<State> listeners = new Listeners<>();
-	private final Consumer<State> listener = this::listen;
+	private final Listeners<StateChange> listeners = new Listeners<>();
+	private final Consumer<StateChange> listener = this::listen;
 	private final ReplaceableInputStream in = new ReplaceableInputStream();
 	private final ReplaceableOutputStream out = new ReplaceableOutputStream();
 	private volatile SerialConnector con = null;
@@ -36,7 +37,7 @@ public class ReplaceableSerialConnector implements SerialConnector {
 	}
 
 	@Override
-	public Listenable<State> listeners() {
+	public Listenable<StateChange> listeners() {
 		return listeners;
 	}
 
@@ -103,7 +104,7 @@ public class ReplaceableSerialConnector implements SerialConnector {
 		exec(() -> con().setRts(on));
 	}
 
-	private void listen(State state) {
+	private void listen(StateChange state) {
 		listeners.accept(state);
 	}
 

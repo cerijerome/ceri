@@ -13,6 +13,7 @@ import ceri.common.event.Listeners;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.FunctionUtil;
+import ceri.common.io.StateChange;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
@@ -39,7 +40,7 @@ public class SelfHealingFtdi extends LoopingExecutor {
 	private final int fixRetryDelayMs;
 	private final int recoveryDelayMs;
 	private final Predicate<Exception> brokenPredicate;
-	private final Listeners<State> listeners = new Listeners<>();
+	private final Listeners<StateChange> listeners = new Listeners<>();
 	private final BooleanCondition sync = BooleanCondition.create();
 	private volatile Ftdi ftdi;
 
@@ -118,11 +119,6 @@ public class SelfHealingFtdi extends LoopingExecutor {
 		start();
 	}
 
-	public static enum State {
-		fixed,
-		broken;
-	}
-
 	/**
 	 * Manually notify the device it is broken. Useful if the device cannot determine it is broken
 	 * from IOExceptions alone.
@@ -158,7 +154,7 @@ public class SelfHealingFtdi extends LoopingExecutor {
 		}
 	}
 
-	public Listenable<State> listeners() {
+	public Listenable<StateChange> listeners() {
 		return listeners;
 	}
 
@@ -347,10 +343,10 @@ public class SelfHealingFtdi extends LoopingExecutor {
 		logger.info("Ftdi is now fixed");
 		BasicUtil.delay(recoveryDelayMs); // wait for clients to recover before clearing
 		sync.clear();
-		notifyListeners(State.fixed);
+		notifyListeners(StateChange.fixed);
 	}
 
-	private void notifyListeners(State state) {
+	private void notifyListeners(StateChange state) {
 		try {
 			listeners.accept(state);
 		} catch (RuntimeInterruptedException e) {
@@ -368,7 +364,7 @@ public class SelfHealingFtdi extends LoopingExecutor {
 
 	private void setBroken() {
 		sync.signal();
-		notifyListeners(State.broken);
+		notifyListeners(StateChange.broken);
 	}
 
 	private void initFtdi() throws LibUsbException {

@@ -10,6 +10,7 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.io.StateChange;
 import ceri.common.io.ReplaceableInputStream;
 import ceri.common.io.ReplaceableOutputStream;
 import ceri.common.util.BasicUtil;
@@ -27,7 +28,7 @@ import ceri.serial.javax.SerialPort;
 public class SelfHealingSerialConnector extends LoopingExecutor implements SerialConnector {
 	private static final Logger logger = LogManager.getLogger();
 	private final SelfHealingSerialConfig config;
-	private final Listeners<State> listeners = new Listeners<>();
+	private final Listeners<StateChange> listeners = new Listeners<>();
 	private final ReplaceableInputStream in = new ReplaceableInputStream();
 	private final ReplaceableOutputStream out = new ReplaceableOutputStream();
 	private final BooleanCondition sync = BooleanCondition.create();
@@ -59,7 +60,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 	}
 
 	@Override
-	public Listenable<State> listeners() {
+	public Listenable<StateChange> listeners() {
 		return listeners;
 	}
 
@@ -137,10 +138,10 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 		logger.info("Connection is now fixed");
 		BasicUtil.delay(config.recoveryDelayMs); // wait for streams to recover before clearing
 		sync.clear();
-		notifyListeners(State.fixed);
+		notifyListeners(StateChange.fixed);
 	}
 
-	private void notifyListeners(State state) {
+	private void notifyListeners(StateChange state) {
 		try {
 			listeners.accept(state);
 		} catch (RuntimeInterruptedException e) {
@@ -158,7 +159,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 
 	private void setBroken() {
 		sync.signal();
-		notifyListeners(State.broken);
+		notifyListeners(StateChange.broken);
 	}
 
 	private void initSerialPort() throws IOException {

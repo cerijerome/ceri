@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
+import ceri.common.io.StateChange;
 import ceri.common.io.IoStreamUtil;
 import ceri.common.test.ResponseStream;
 import ceri.serial.javax.FlowControl;
@@ -17,7 +18,7 @@ import ceri.serial.javax.SerialConnector;
  */
 public class ResponseSerialConnector implements SerialConnector {
 	private static final Logger logger = LogManager.getLogger();
-	private final Listeners<State> listeners = new Listeners<>();
+	private final Listeners<StateChange> listeners = new Listeners<>();
 	private final ResponseStream stream;
 	private final InputStream in;
 	private final OutputStream out;
@@ -42,7 +43,7 @@ public class ResponseSerialConnector implements SerialConnector {
 	}
 
 	@Override
-	public Listenable<State> listeners() {
+	public Listenable<StateChange> listeners() {
 		return listeners;
 	}
 
@@ -50,7 +51,7 @@ public class ResponseSerialConnector implements SerialConnector {
 	public void broken() {
 		logger.debug("broken()");
 		broken = true;
-		listeners.accept(State.broken);
+		listeners.accept(StateChange.broken);
 	}
 
 	@Override
@@ -124,7 +125,7 @@ public class ResponseSerialConnector implements SerialConnector {
 	public void fixed() {
 		logger.debug("fixed()");
 		broken = false;
-		listeners.accept(State.fixed);
+		listeners.accept(StateChange.fixed);
 	}
 
 	private int available() throws IOException {

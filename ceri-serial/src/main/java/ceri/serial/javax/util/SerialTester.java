@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteUtil;
+import ceri.common.io.StateChange;
 import ceri.common.io.IoUtil;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
@@ -15,7 +16,6 @@ import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.serial.javax.FlowControl;
 import ceri.serial.javax.SerialConnector;
-import ceri.serial.javax.SerialConnector.State;
 
 /**
  * Class to test serial ports. Takes commands via System.in and calls methods on the serial
@@ -90,7 +90,7 @@ public class SerialTester extends LoopingExecutor {
 		}
 	}
 
-	protected void event(State state) {
+	protected void event(StateChange state) {
 		logger.info("Event: {}", state);
 	}
 

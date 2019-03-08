@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
+import ceri.common.io.StateChange;
 import ceri.common.io.IoStreamUtil;
 import ceri.serial.javax.FlowControl;
 import ceri.serial.javax.SerialConnector;
@@ -12,7 +13,7 @@ import ceri.serial.javax.SerialConnector;
  * A no-op serial connector.
  */
 public class NullSerialConnector implements SerialConnector {
-	private final Listeners<State> listeners = new Listeners<>();
+	private final Listeners<StateChange> listeners = new Listeners<>();
 	private final InputStream in;
 	private final OutputStream out;
 
@@ -26,7 +27,7 @@ public class NullSerialConnector implements SerialConnector {
 	}
 
 	@Override
-	public Listenable<State> listeners() {
+	public Listenable<StateChange> listeners() {
 		return listeners;
 	}
 

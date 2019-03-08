@@ -1,10 +1,14 @@
 package ceri.serial.javax.util;
 
 import java.util.function.Predicate;
+import ceri.common.text.ToStringHelper;
 import ceri.serial.javax.SerialPort;
 import ceri.serial.javax.SerialPortParams;
 
 public class SelfHealingSerialConfig {
+	public static final SelfHealingSerialConfig NULL = builder((CommPortSupplier) null).build();
+	static final Predicate<Exception> DEFAULT_PREDICATE =
+		namedPredicate(SerialPort::isBroken, "SerialPort::isBroken");
 	final CommPortSupplier commPortSupplier;
 	final SerialPortParams params;
 	final int connectionTimeoutMs;
@@ -45,7 +49,7 @@ public class SelfHealingSerialConfig {
 		int connectionTimeoutMs = 3000;
 		int fixRetryDelayMs = 2000;
 		int recoveryDelayMs = fixRetryDelayMs / 2;
-		Predicate<Exception> brokenPredicate = SerialPort::isBroken;
+		Predicate<Exception> brokenPredicate = DEFAULT_PREDICATE;
 
 		Builder(CommPortSupplier commPortSupplier) {
 			this.commPortSupplier = commPortSupplier;
@@ -73,6 +77,11 @@ public class SelfHealingSerialConfig {
 
 		public Builder brokenPredicate(Predicate<Exception> brokenPredicate) {
 			this.brokenPredicate = brokenPredicate;
+			return this;
+		}
+
+		public Builder brokenPredicate(Predicate<Exception> brokenPredicate, String name) {
+			this.brokenPredicate = namedPredicate(brokenPredicate, name);
 			return this;
 		}
 
@@ -106,6 +115,26 @@ public class SelfHealingSerialConfig {
 
 	public boolean enabled() {
 		return commPortSupplier != null;
+	}
+
+	@Override
+	public String toString() {
+		return ToStringHelper.createByClass(this, commPortSupplier, params, connectionTimeoutMs,
+			fixRetryDelayMs, recoveryDelayMs, brokenPredicate).toString();
+	}
+
+	static Predicate<Exception> namedPredicate(Predicate<Exception> predicate, String name) {
+		return new Predicate<>() {
+			@Override
+			public boolean test(Exception t) {
+				return predicate.test(t);
+			}
+
+			@Override
+			public String toString() {
+				return name;
+			}
+		};
 	}
 
 }

@@ -14,12 +14,15 @@ public class UsbSerialUtil {
 	 */
 	public static CommPortSupplier deviceByLocationId(int locationId) {
 		if (!OsUtil.IS_MAC) throw new UnsupportedOperationException("Only Mac is supported");
-		return () -> {
-			String device = MacUsbSerialUtil.devices().device(locationId);
-			if (device != null) return device;
-			throw new IOException("Device not available at location 0x" +
-				Integer.toHexString(locationId));
-		};
+		return CommPortSupplier.named(() -> device(locationId),
+			String.format("locationId:0x%x", locationId));
+	}
+
+	private static String device(int locationId) throws IOException {
+		String device = MacUsbSerialUtil.devices().device(locationId);
+		if (device != null) return device;
+		throw new IOException(
+			"Device not available at location 0x" + Integer.toHexString(locationId));
 	}
 
 }
