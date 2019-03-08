@@ -83,6 +83,17 @@ public class BasicUtilTest {
 	}
 
 	@Test
+	public void testMatchesThrowable() {
+		assertThat(BasicUtil.matches(null, Exception.class), is(false));
+		assertThat(BasicUtil.matches(new IOException(), Exception.class), is(true));
+		assertThat(BasicUtil.matches(new IOException(), RuntimeException.class), is(false));
+		assertThat(BasicUtil.matches(new IOException(), String::isEmpty), is(false));
+		assertThat(BasicUtil.matches(new Exception("test"), RuntimeException.class), is(false));
+		assertThat(BasicUtil.matches(new Exception("test"), s -> s.startsWith("t")), is(true));
+		assertThat(BasicUtil.matches(new Exception("Test"), s -> s.startsWith("t")), is(false));
+	}
+
+	@Test
 	public void testCopyToClipboard() throws IOException, UnsupportedFlavorException {
 		String s0 = "clipboard\ntest\n";
 		BasicUtil.copyToClipBoard(s0);

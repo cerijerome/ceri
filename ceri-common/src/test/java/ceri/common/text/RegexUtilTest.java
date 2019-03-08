@@ -28,6 +28,23 @@ public class RegexUtilTest {
 	}
 
 	@Test
+	public void testFinder() {
+		assertThat(RegexUtil.finder(INT_PATTERN).test(null), is(false));
+		assertThat(RegexUtil.finder(INT_PATTERN).test("abc123def456"), is(true));
+		assertThat(RegexUtil.finder(LSTRING_PATTERN).test("abc123def456"), is(true));
+		assertThat(RegexUtil.finder(USTRING_PATTERN).test("abc123def456"), is(false));
+	}
+
+	@Test
+	public void testMatcher() {
+		assertThat(RegexUtil.matcher(INT_PATTERN).test(null), is(false));
+		assertThat(RegexUtil.matcher(INT_PATTERN).test("123"), is(true));
+		assertThat(RegexUtil.matcher(INT_PATTERN).test("123def456"), is(false));
+		assertThat(RegexUtil.matcher(LSTRING_PATTERN).test("abc"), is(true));
+		assertThat(RegexUtil.matcher(USTRING_PATTERN).test("abc"), is(false));
+	}
+
+	@Test
 	public void testForEach() {
 		List<String> list = new ArrayList<>();
 		for (MatchResult result : RegexUtil.forEach(INT_PATTERN, "123abcA1B2C3"))

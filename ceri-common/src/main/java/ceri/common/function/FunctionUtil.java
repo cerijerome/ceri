@@ -27,7 +27,7 @@ public class FunctionUtil {
 	 * Run and ignore any exceptions. Returns true if no exception occurred. Use judiciously, such
 	 * as when closing an object, to squash noisy exceptions.
 	 */
-	public static <E extends Exception> boolean executeSilently(ExceptionRunnable<E> runnable) {
+	public static <E extends Exception> boolean execSilently(ExceptionRunnable<E> runnable) {
 		try {
 			runnable.run();
 			return true;

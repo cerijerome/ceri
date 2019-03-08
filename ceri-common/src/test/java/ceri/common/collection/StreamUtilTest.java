@@ -9,6 +9,7 @@ import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertStream;
 import static java.lang.Double.parseDouble;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,6 +52,14 @@ public class StreamUtilTest {
 	public void testCastAny() {
 		Stream<Number> stream = StreamUtil.castAny(Stream.of("1", 1, 0.1, null, 2), Number.class);
 		assertStream(stream, 1, 0.1, 2);
+	}
+
+	@Test
+	public void testToString() {
+		assertNull(StreamUtil.toString(null, "-"));
+		assertNull(StreamUtil.toString(null, "(", ":", ")"));
+		assertThat(StreamUtil.toString(Stream.of(1, null, 2), "-"), is("1-null-2"));
+		assertThat(StreamUtil.toString(Stream.of(1, null, 2), "(", "::", ")"), is("(1::null::2)"));
 	}
 
 	@Test

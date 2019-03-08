@@ -6,6 +6,7 @@ import static ceri.common.test.TestUtil.isClass;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.Date;
@@ -28,6 +29,17 @@ public class ReflectUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ReflectUtil.class);
+	}
+
+	@Test
+	public void testHashId() {
+		assertNull(ReflectUtil.hashId(null));
+		assertThat(ReflectUtil.hashId(new Object() {
+			@Override
+			public int hashCode() {
+				return 0xabcdef;
+			}
+		}), is("@abcdef"));
 	}
 
 	@Test(expected = CreateException.class)

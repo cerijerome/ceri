@@ -186,15 +186,15 @@ public class BasicUtil {
 		return () -> iterator;
 	}
 
-	public static boolean matchesThrowable(Throwable t, Class<?> cls) {
-		return matchesThrowable(t, cls, null);
+	public static boolean matches(Throwable t, Class<?> cls) {
+		return matches(t, cls, null);
 	}
 
-	public static boolean matchesThrowable(Throwable t, Predicate<String> msgTest) {
-		return matchesThrowable(t, null, msgTest);
+	public static boolean matches(Throwable t, Predicate<String> msgTest) {
+		return matches(t, null, msgTest);
 	}
 
-	public static boolean matchesThrowable(Throwable t, Class<?> cls, Predicate<String> msgTest) {
+	public static boolean matches(Throwable t, Class<?> cls, Predicate<String> msgTest) {
 		if (t == null) return false;
 		if (cls != null && !cls.isInstance(t)) return false;
 		if (msgTest == null) return true;

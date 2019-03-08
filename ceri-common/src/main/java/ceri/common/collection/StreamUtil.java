@@ -38,17 +38,6 @@ public class StreamUtil {
 
 	private StreamUtil() {}
 
-	public static String toString(Stream<CharSequence> stream, CharSequence delimiter) {
-		if (stream == null) return null;
-		return stream.collect(Collectors.joining(delimiter));
-	}
-
-	public static String toString(Stream<CharSequence> stream, CharSequence prefix,
-		CharSequence delimiter, CharSequence suffix) {
-		if (stream == null) return null;
-		return stream.collect(Collectors.joining(delimiter, prefix, suffix));
-	}
-
 	public static IntStream toInt(Stream<? extends Number> stream) {
 		return stream.mapToInt(Number::intValue);
 	}
@@ -78,6 +67,20 @@ public class StreamUtil {
 	public static String toString(IntStream codePointStream) {
 		return codePointStream.collect(StringBuilder::new, StringBuilder::appendCodePoint, //
 			StringBuilder::append).toString();
+	}
+
+	public static String toString(Stream<?> stream, CharSequence delimiter) {
+		return toString(stream, "", delimiter, "");
+	}
+
+	public static String toString(Stream<?> stream, CharSequence prefix,
+		CharSequence delimiter, CharSequence suffix) {
+		if (stream == null) return null;
+		int prefixLen = prefix.length();
+		return stream.collect(() -> new StringBuilder(prefix), (b, t) -> {
+			if (b.length() > prefixLen) b.append(delimiter);
+			b.append(t);
+		}, StringBuilder::append).append(suffix).toString();
 	}
 
 	/**

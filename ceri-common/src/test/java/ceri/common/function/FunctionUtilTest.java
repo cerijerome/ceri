@@ -38,6 +38,14 @@ public class FunctionUtilTest {
 	}
 
 	@Test
+	public void testExecSilently() {
+		assertThat(FunctionUtil.execSilently(() -> {}), is(true));
+		assertThat(FunctionUtil.execSilently(() -> {
+			throw new IOException();
+		}), is(false));
+	}
+
+	@Test
 	public void testCastApply() {
 		Object obj = new int[] { -1 };
 		assertThat(FunctionUtil.castApply(int[].class, obj, x -> x[0] = 1), is(1));
