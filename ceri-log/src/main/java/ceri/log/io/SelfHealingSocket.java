@@ -10,6 +10,7 @@ import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
+import ceri.common.io.StateChange;
 import ceri.common.io.ReplaceableInputStream;
 import ceri.common.io.ReplaceableOutputStream;
 import ceri.common.text.ToStringHelper;
@@ -33,7 +34,7 @@ public class SelfHealingSocket extends LoopingExecutor {
 	private final Boolean keepAlive;
 	private final int fixRetryDelayMs;
 	private final int recoveryDelayMs;
-	private final Listeners<State> listeners = new Listeners<>();
+	private final Listeners<StateChange> listeners = new Listeners<>();
 	private final ReplaceableInputStream in = new ReplaceableInputStream();
 	private final ReplaceableOutputStream out = new ReplaceableOutputStream();
 	private final BooleanCondition sync = BooleanCondition.create();
@@ -130,11 +131,6 @@ public class SelfHealingSocket extends LoopingExecutor {
 		start();
 	}
 
-	public static enum State {
-		fixed,
-		broken;
-	}
-
 	/**
 	 * Manually notify the connector it is broken. Useful if the socket cannot determine it is
 	 * broken from IOExceptions alone.
@@ -147,7 +143,7 @@ public class SelfHealingSocket extends LoopingExecutor {
 		initSocket();
 	}
 
-	public Listenable<State> listeners() {
+	public Listenable<StateChange> listeners() {
 		return listeners;
 	}
 
@@ -185,10 +181,10 @@ public class SelfHealingSocket extends LoopingExecutor {
 		logger.info("Connection is now fixed");
 		BasicUtil.delay(recoveryDelayMs); // wait for streams to recover before clearing
 		sync.clear();
-		notifyListeners(State.fixed);
+		notifyListeners(StateChange.fixed);
 	}
 
-	private void notifyListeners(State state) {
+	private void notifyListeners(StateChange state) {
 		try {
 			listeners.accept(state);
 		} catch (RuntimeInterruptedException e) {
@@ -206,7 +202,7 @@ public class SelfHealingSocket extends LoopingExecutor {
 
 	private void setBroken() {
 		sync.signal();
-		notifyListeners(State.broken);
+		notifyListeners(StateChange.broken);
 	}
 
 	private void initSocket() throws IOException {

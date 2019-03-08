@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -18,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionRunnable;
+import ceri.common.reflect.ReflectUtil;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
 import ceri.common.util.HAlign;
@@ -56,8 +58,8 @@ public class LogUtil {
 	}
 
 	/**
-	 * Constructs a list of Closeable instances from each input object and the constructor. If any
-	 * exception occurs the already created instances will be closed.
+	 * Constructs an immutable list of Closeable instances from each input object and the
+	 * constructor. If any exception occurs the already created instances will be closed.
 	 */
 	@SafeVarargs
 	public static <E extends Exception, T, R extends Closeable> List<R> create(Logger logger,
@@ -66,8 +68,8 @@ public class LogUtil {
 	}
 
 	/**
-	 * Constructs a list of Closeable instances from each input object and the constructor. If any
-	 * exception occurs the already created instances will be closed.
+	 * Constructs an immutable list of Closeable instances from each input object and the
+	 * constructor. If any exception occurs the already created instances will be closed.
 	 */
 	public static <E extends Exception, T, R extends Closeable> List<R> create(Logger logger,
 		ExceptionFunction<E, T, R> constructor, Collection<T> inputs) throws E {
@@ -75,7 +77,7 @@ public class LogUtil {
 		try {
 			for (T input : inputs)
 				results.add(constructor.apply(input));
-			return results;
+			return Collections.unmodifiableList(results);
 		} catch (Exception e) {
 			close(logger, results);
 			throw e;
@@ -205,6 +207,13 @@ public class LogUtil {
 				}
 			}
 		};
+	}
+
+	/**
+	 * Returns an object whose toString() returns the hex hash code.
+	 */
+	public static Object hashId(final Object obj) {
+		return toString(() -> ReflectUtil.hashId(obj));
 	}
 
 	/**

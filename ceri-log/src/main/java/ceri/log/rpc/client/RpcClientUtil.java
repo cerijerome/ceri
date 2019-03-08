@@ -1,26 +1,49 @@
-package ceri.log.rpc;
+package ceri.log.rpc.client;
 
+import static ceri.common.text.RegexUtil.finder;
+import static ceri.common.util.BasicUtil.matchesThrowable;
 import java.io.IOException;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
-import ceri.common.util.BasicUtil;
 import io.grpc.StatusRuntimeException;
 
 public class RpcClientUtil {
+	private static final Pattern HALF_CLOSED_MSG_REGEX =
+		Pattern.compile("(?i)call already half-closed");
 	private static final Pattern SHUTDOWN_MSG_REGEX = Pattern.compile("(?i)channel shutdown");
-	
+
 	private RpcClientUtil() {}
 
-	public static boolean isChannelShutdown(Throwable t) {
-		StatusRuntimeException ex = BasicUtil.castOrNull(StatusRuntimeException.class, t);
-		if (ex == null) return false;
-		String msg = ex.getMessage();
-		if (msg == null || msg.isEmpty()) return false;
-		return SHUTDOWN_MSG_REGEX.matcher(msg).find();
+	public static boolean isHalfClosedCall(Throwable t) {
+		return matchesThrowable(t, IllegalStateException.class, finder(HALF_CLOSED_MSG_REGEX));
 	}
-	
+
+	public static boolean isChannelShutdown(Throwable t) {
+		return matchesThrowable(t, StatusRuntimeException.class, finder(SHUTDOWN_MSG_REGEX));
+	}
+
+	/**
+	 * Only use to squash noisy errors, rather than for logic decisions, as exception types and
+	 * messages may change.
+	 */
+	public static boolean ignorable(Throwable t) {
+		return isHalfClosedCall(t) || isChannelShutdown(t);
+	}
+
+	/**
+	 * Executes runnable, squashing exceptions that can be ignored.
+	 */
+	public static <E extends Exception> void execute(ExceptionRunnable<E> runnable) throws E {
+		try {
+			runnable.run();
+		} catch (Exception e) {
+			if (ignorable(e)) return;
+			throw e;
+		}
+	}
+
 	/**
 	 * Converts StatusRuntimeException into an IOException.
 	 */

@@ -1,4 +1,4 @@
-package ceri.log.rpc;
+package ceri.log.rpc.service;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -12,21 +12,16 @@ import io.grpc.ServerBuilder;
 
 public class RpcServer implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
-	private static final int SHUTDOWN_TIMEOUT_MS_DEF = 5000;
-	private final int shutdownTimeoutMs;
+	private final RpcServerConfig config;
 	private final Server server;
 
-	public static RpcServer of(BindableService service, int port) {
-		return of(service, port, SHUTDOWN_TIMEOUT_MS_DEF);
+	public static RpcServer of(BindableService service, RpcServerConfig config) {
+		return new RpcServer(service, config);
 	}
 
-	public static RpcServer of(BindableService service, int port, int shutdownTimeoutMs) {
-		return new RpcServer(service, port, shutdownTimeoutMs);
-	}
-
-	private RpcServer(BindableService service, int port, int shutdownTimeoutMs) {
-		this.shutdownTimeoutMs = shutdownTimeoutMs;
-		server = ServerBuilder.forPort(port).addService(service).build();
+	private RpcServer(BindableService service, RpcServerConfig config) {
+		this.config = config;
+		server = ServerBuilder.forPort(config.port).addService(service).build();
 	}
 
 	public void start() throws IOException {
@@ -38,7 +33,7 @@ public class RpcServer implements Closeable {
 	public void close() {
 		server.shutdown();
 		try {
-			server.awaitTermination(shutdownTimeoutMs, TimeUnit.MILLISECONDS);
+			server.awaitTermination(config.shutdownTimeoutMs, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			if (logger != null) logger.catching(Level.INFO, e);
 		}

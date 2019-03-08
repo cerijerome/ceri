@@ -1,4 +1,4 @@
-package ceri.log.rpc;
+package ceri.log.rpc.client;
 
 import static ceri.common.net.NetUtil.LOCALHOST;
 import java.io.Closeable;
@@ -17,6 +17,10 @@ public class RpcChannel implements Closeable {
 	private static final int SHUTDOWN_TIMEOUT_MS_DEF = 5000;
 	private final int shutdownTimeoutMs;
 	public final ManagedChannel channel;
+
+	public static RpcChannel of(RpcChannelConfig config) {
+		return plaintext(config.host, config.port);
+	}
 
 	public static RpcChannel localhost(int port) {
 		return plaintext(LOCALHOST, port);

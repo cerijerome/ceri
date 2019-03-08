@@ -1,4 +1,4 @@
-package ceri.log.rpc;
+package ceri.log.rpc.service;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -12,6 +12,9 @@ public class RpcServiceUtil {
 	
 	private RpcServiceUtil() {}
 
+	/**
+	 * Responds to client with result of supplier call.
+	 */
 	public static <E extends Exception, T> void respond(StreamObserver<T> observer,
 		ExceptionSupplier<E, T> supplier) {
 		try {
@@ -19,12 +22,14 @@ public class RpcServiceUtil {
 			observer.onNext(t);
 			observer.onCompleted();
 		} catch (Exception e) {
-			// TODO: convert to status exception?
 			logger.catching(Level.WARN, e);
 			observer.onError(e);
 		}
 	}
 
+	/**
+	 * Executes runnable then responds to client with given value.
+	 */
 	public static <E extends Exception, T> void respond(StreamObserver<T> observer, T t,
 		ExceptionRunnable<E> runnable) {
 		try {
@@ -32,7 +37,6 @@ public class RpcServiceUtil {
 			observer.onNext(t);
 			observer.onCompleted();
 		} catch (Exception e) {
-			// TODO: convert to status exception?
 			logger.catching(Level.WARN, e);
 			observer.onError(e);
 		}
