@@ -81,15 +81,6 @@ public class SerialTester extends LoopingExecutor {
 		}
 	}
 
-	@Override
-	public void waitUntilStopped(long timeoutMs) {
-		try {
-			super.waitUntilStopped(timeoutMs);
-		} catch (InterruptedException e) {
-			throw new RuntimeInterruptedException(e);
-		}
-	}
-
 	protected void event(StateChange state) {
 		logger.info("Event: {}", state);
 	}
@@ -131,7 +122,7 @@ public class SerialTester extends LoopingExecutor {
 	}
 
 	/**
-	 * Default implementation - get bytes from stdin.
+	 * Get command from stdin.
 	 */
 	private String getInput() throws IOException {
 		System.out.print(prompt());
