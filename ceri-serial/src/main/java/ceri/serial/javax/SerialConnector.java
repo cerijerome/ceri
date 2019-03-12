@@ -12,20 +12,13 @@ import ceri.common.io.StateChange;
  * SelfHealingSerialConnector, which detects serial port errors and attempts to reconnect. Only
  * covers SerialPort features currently in use; other methods may be added later.
  */
-public interface SerialConnector extends Closeable {
+public interface SerialConnector extends Closeable, Listenable.Indirect<StateChange> {
 
 	/**
 	 * For condition-aware serial connectors, notify that it is broken. Useful if the connector
 	 * itself cannot determine it is broken.
 	 */
 	default void broken() {
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * For condition-aware serial connectors, used to listen for fixed and broken events.
-	 */
-	default Listenable<StateChange> listeners() {
 		throw new UnsupportedOperationException();
 	}
 

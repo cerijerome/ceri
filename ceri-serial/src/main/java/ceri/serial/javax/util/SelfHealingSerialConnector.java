@@ -10,9 +10,9 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.function.ExceptionConsumer;
-import ceri.common.io.StateChange;
 import ceri.common.io.ReplaceableInputStream;
 import ceri.common.io.ReplaceableOutputStream;
+import ceri.common.io.StateChange;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
@@ -40,8 +40,8 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 
 	private SelfHealingSerialConnector(SelfHealingSerialConfig config) {
 		this.config = config;
-		in.listen(this::checkIfBroken);
-		out.listen(this::checkIfBroken);
+		in.listeners().listen(this::checkIfBroken);
+		out.listeners().listen(this::checkIfBroken);
 		start();
 	}
 

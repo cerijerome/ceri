@@ -30,7 +30,7 @@ import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
  * A self-healing ftdi device. It will automatically reconnect if the cable is removed and
  * reinserted.
  */
-public class SelfHealingFtdi extends LoopingExecutor {
+public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indirect<StateChange> {
 	private static final Logger logger = LogManager.getLogger();
 	private final libusb_device_criteria find;
 	private final ftdi_interface iface;
@@ -154,6 +154,7 @@ public class SelfHealingFtdi extends LoopingExecutor {
 		}
 	}
 
+	@Override
 	public Listenable<StateChange> listeners() {
 		return listeners;
 	}

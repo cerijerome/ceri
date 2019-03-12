@@ -8,12 +8,14 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteUtil;
-import ceri.common.io.StateChange;
+import ceri.common.event.CloseableListener;
 import ceri.common.io.IoUtil;
+import ceri.common.io.StateChange;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
+import ceri.log.util.LogUtil;
 import ceri.serial.javax.FlowControl;
 import ceri.serial.javax.SerialConnector;
 
@@ -37,6 +39,7 @@ public class SerialTester extends LoopingExecutor {
 	protected static final int DELAY_MS_DEF = 500;
 	private final int delayMs;
 	protected final SerialConnector connector;
+	private final CloseableListener<StateChange> listener;
 	private final byte[] buffer = new byte[INPUT_BYTES_MAX];
 
 	public static void test(String commPort) throws IOException {
@@ -64,7 +67,7 @@ public class SerialTester extends LoopingExecutor {
 	protected SerialTester(SerialConnector connector, int delayMs) {
 		this.connector = connector;
 		this.delayMs = delayMs;
-		this.connector.listeners().listen(this::event);
+		listener = CloseableListener.of(connector, this::event);
 	}
 
 	public void connect() throws IOException {
@@ -79,6 +82,12 @@ public class SerialTester extends LoopingExecutor {
 		} catch (InterruptedException e) {
 			throw new RuntimeInterruptedException(e);
 		}
+	}
+
+	@Override
+	public void close() {
+		LogUtil.close(logger, listener);
+		super.close();
 	}
 
 	protected void event(StateChange state) {
