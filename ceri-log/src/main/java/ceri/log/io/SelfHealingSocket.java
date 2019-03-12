@@ -10,9 +10,9 @@ import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
-import ceri.common.io.StateChange;
 import ceri.common.io.ReplaceableInputStream;
 import ceri.common.io.ReplaceableOutputStream;
+import ceri.common.io.StateChange;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
@@ -126,8 +126,8 @@ public class SelfHealingSocket extends LoopingExecutor {
 		keepAlive = builder.keepAlive;
 		fixRetryDelayMs = builder.fixRetryDelayMs;
 		recoveryDelayMs = builder.recoveryDelayMs;
-		in.listen(e -> checkIfBroken(e));
-		out.listen(e -> checkIfBroken(e));
+		in.listeners().listen(e -> checkIfBroken(e));
+		out.listeners().listen(e -> checkIfBroken(e));
 		start();
 	}
 

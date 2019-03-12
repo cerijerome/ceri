@@ -33,7 +33,7 @@ public class ReplaceableInputStreamBehavior {
 		RuntimeException ex = new RuntimeException();
 		doThrow(ex).when(in).mark(anyInt());
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
-			rin.listen(listener);
+			rin.listeners().listen(listener);
 			rin.setInputStream(in);
 			assertException(() -> rin.mark(0));
 		}
@@ -45,7 +45,7 @@ public class ReplaceableInputStreamBehavior {
 		RuntimeException ex = new RuntimeException();
 		doThrow(ex).when(in).markSupported();
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
-			rin.listen(listener);
+			rin.listeners().listen(listener);
 			assertFalse(rin.markSupported());
 			rin.setInputStream(in);
 			assertException(() -> rin.markSupported());
@@ -60,10 +60,10 @@ public class ReplaceableInputStreamBehavior {
 		when(in.read()).thenThrow(e0, e1);
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
 			rin.setInputStream(in);
-			rin.listen(listener);
+			rin.listeners().listen(listener);
 			assertException(() -> rin.read());
 			assertException(() -> rin.read());
-			rin.unlisten(listener);
+			rin.listeners().unlisten(listener);
 		}
 		verify(listener).accept(e0);
 		verify(listener).accept(e1);

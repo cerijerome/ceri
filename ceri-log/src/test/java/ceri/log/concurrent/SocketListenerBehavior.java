@@ -45,7 +45,7 @@ public class SocketListenerBehavior {
 	@Test
 	public void shouldCaptureInput() throws IOException, InterruptedException {
 		try (SocketListener sl = SocketListener.create(PORT)) {
-			sl.listen(this::setLastData);
+			sl.listeners().listen(this::setLastData);
 			send("\0");
 			verifyLastData(new byte[] { 0 });
 			send("xxxxxxxxxxxxxxxxxxxx");
@@ -57,10 +57,10 @@ public class SocketListenerBehavior {
 	public void shouldAllowToListenAndUnlisten() throws IOException, InterruptedException {
 		Consumer<ImmutableByteArray> listener = this::setLastData;
 		try (SocketListener sl = SocketListener.create(PORT)) {
-			sl.listen(listener);
+			sl.listeners().listen(listener);
 			send("\0");
 			verifyLastData(new byte[] { 0 });
-			sl.unlisten(listener);
+			sl.listeners().unlisten(listener);
 			send("xxxxxxxxxxxxxxxxxxxx");
 		}
 		assertFalse(lastSync.isSet());
@@ -70,7 +70,7 @@ public class SocketListenerBehavior {
 	public void shouldBeAbleToCloseItself() throws IOException, InterruptedException {
 		BooleanCondition closeSync = BooleanCondition.create();
 		try (SocketListener sl = createWithCloseSync(closeSync)) {
-			sl.listen(data -> sl.close());
+			sl.listeners().listen(data -> sl.close());
 			send("\0");
 		}
 		assertTrue(closeSync.await(1000));

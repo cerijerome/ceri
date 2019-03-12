@@ -23,12 +23,12 @@ public class ReplaceableOutputStreamBehavior {
 			try (ReplaceableOutputStream rout = new ReplaceableOutputStream()) {
 				rout.setOutputStream(out);
 				Consumer<Exception> consumer = e -> list.add(e.getMessage());
-				rout.listen(consumer);
+				rout.listeners().listen(consumer);
 				doThrow(new IOException("1")).when(out).write(anyInt());
 				assertException(() -> rout.write(0));
 				doThrow(new IOException("2")).when(out).write(anyInt());
 				assertException(() -> rout.write(0xff));
-				rout.unlisten(consumer);
+				rout.listeners().unlisten(consumer);
 				assertIterable(list, "1", "2");
 			}
 		}

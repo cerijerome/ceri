@@ -8,4 +8,9 @@ public interface IntListenable {
 
 	boolean unlisten(IntConsumer listener);
 
+	static interface Indirect {
+		default IntListenable listeners() {
+			throw new UnsupportedOperationException();
+		}
+	}
 }

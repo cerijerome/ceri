@@ -2,7 +2,6 @@ package ceri.common.io;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.function.Consumer;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 
@@ -10,18 +9,13 @@ import ceri.common.event.Listeners;
  * A filter input stream that can be reset with a new input stream. Useful for mending broken
  * streams.
  */
-public class ReplaceableInputStream extends InputStream implements Listenable<Exception> {
+public class ReplaceableInputStream extends InputStream implements Listenable.Indirect<Exception> {
 	private final Listeners<Exception> listeners = new Listeners<>();
 	private volatile InputStream in = null;
 
 	@Override
-	public boolean listen(Consumer<? super Exception> listener) {
-		return listeners.listen(listener);
-	}
-
-	@Override
-	public boolean unlisten(Consumer<? super Exception> listener) {
-		return listeners.unlisten(listener);
+	public Listenable<Exception> listeners() {
+		return listeners;
 	}
 
 	public void setInputStream(InputStream in) {

@@ -6,15 +6,16 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.google.protobuf.Empty;
 import ceri.common.concurrent.SafeReadWrite;
+import ceri.common.event.CloseableListener;
 import ceri.common.event.Listenable;
 import ceri.log.rpc.util.RpcUtil;
+import ceri.log.util.LogUtil;
 import io.grpc.stub.StreamObserver;
 
 /**
@@ -31,11 +32,11 @@ import io.grpc.stub.StreamObserver;
  * This class receives local notifications, transforms to the rpc notify-type and uses the rpc
  * stream observers to notify remote clients.
  */
-public class RpcServiceNotifier<T, V> implements Closeable, Consumer<T> {
+public class RpcServiceNotifier<T, V> implements Closeable {
 	static final Logger logger = LogManager.getLogger();
 	private final SafeReadWrite safe = SafeReadWrite.create();
 	private final Set<StreamObserver<V>> observers = new LinkedHashSet<>();
-	private final Listenable<T> listenable;
+	private final CloseableListener<T> listener;
 	private final Function<T, V> transform;
 
 	public static <T, V> RpcServiceNotifier<T, V> of(Listenable<T> listenable,
@@ -44,9 +45,8 @@ public class RpcServiceNotifier<T, V> implements Closeable, Consumer<T> {
 	}
 
 	private RpcServiceNotifier(Listenable<T> listenable, Function<T, V> transform) {
-		this.listenable = listenable;
 		this.transform = transform;
-		listenable.listen(this);
+		listener = CloseableListener.of(listenable, this::notification);
 	}
 
 	public StreamObserver<Empty> listen(StreamObserver<V> response) {
@@ -55,16 +55,15 @@ public class RpcServiceNotifier<T, V> implements Closeable, Consumer<T> {
 	}
 
 	@Override
-	public void accept(T t) {
+	public void close() {
+		LogUtil.close(logger, listener);
+	}
+
+	private void notification(T t) {
 		logger.debug("Notification: {}", t);
 		V v = transform.apply(t);
 		List<StreamObserver<V>> observers = safe.read(() -> new ArrayList<>(this.observers));
 		observers.forEach(observer -> observer.onNext(v));
-	}
-
-	@Override
-	public void close() {
-		listenable.unlisten(this);
 	}
 
 	private void add(StreamObserver<V> response) {

@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.log.util.LogUtil;
 
@@ -30,7 +30,7 @@ public class SocketListener extends LoopingExecutor {
 	public static SocketListener create(int port, Runnable listenable, Predicate<String> tester)
 		throws IOException {
 		SocketListener socketListener = create(port);
-		socketListener.listen(data -> notifyIfMatch(data, tester, listenable));
+		socketListener.listeners().listen(data -> notifyIfMatch(data, tester, listenable));
 		return socketListener;
 	}
 
@@ -63,12 +63,8 @@ public class SocketListener extends LoopingExecutor {
 		super.close();
 	}
 
-	public boolean listen(Consumer<? super ImmutableByteArray> listener) {
-		return listeners.listen(listener);
-	}
-
-	public boolean unlisten(Consumer<? super ImmutableByteArray> listener) {
-		return listeners.unlisten(listener);
+	public Listenable<ImmutableByteArray> listeners() {
+		return listeners;
 	}
 
 	@Override

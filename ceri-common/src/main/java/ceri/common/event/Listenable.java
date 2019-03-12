@@ -8,4 +8,11 @@ public interface Listenable<T> {
 
 	boolean unlisten(Consumer<? super T> listener);
 
+	static interface Indirect<T> {
+		Listenable<T> listeners();
+
+		static <T> Indirect<T> from(Listenable<T> listenable) {
+			return () -> listenable;
+		}
+	}
 }

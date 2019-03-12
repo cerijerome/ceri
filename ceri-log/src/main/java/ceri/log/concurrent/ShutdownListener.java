@@ -27,7 +27,7 @@ public class ShutdownListener implements Closeable {
 
 	private ShutdownListener(int port) throws IOException {
 		socket = SocketListener.create(port);
-		socket.listen(data -> stop());
+		socket.listeners().listen(data -> stop());
 		logger.debug("Listening on port {}", port);
 	}
 
