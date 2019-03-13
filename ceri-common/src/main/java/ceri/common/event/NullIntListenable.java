@@ -2,6 +2,9 @@ package ceri.common.event;
 
 import java.util.function.IntConsumer;
 
+/**
+ * A no-op listenable type.
+ */
 public class NullIntListenable implements IntListenable, IntListenable.Indirect {
 	private static final NullIntListenable INSTANCE = new NullIntListenable();
 

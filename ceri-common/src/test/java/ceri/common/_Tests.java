@@ -58,9 +58,13 @@ import ceri.common.date.ImmutableDateBehavior;
 import ceri.common.date.ImmutableTimeZoneBehavior;
 import ceri.common.date.MultiDateParserBehavior;
 import ceri.common.email.EmailUtilTest;
+import ceri.common.event.CloseableIntListenerBehavior;
+import ceri.common.event.CloseableListenerBehavior;
 import ceri.common.event.EventTrackerBehavior;
 import ceri.common.event.IntListenersBehavior;
 import ceri.common.event.ListenersBehavior;
+import ceri.common.event.NullIntListenableBehavior;
+import ceri.common.event.NullListenableBehavior;
 import ceri.common.factory.DateFactoriesTest;
 import ceri.common.factory.FactoriesTest;
 import ceri.common.factory.FactoryExceptionBehavior;
@@ -283,9 +287,13 @@ import ceri.common.xml.XmlUtilTest;
 	// email
 	EmailUtilTest.class, //
 	// event
+	CloseableIntListenerBehavior.class, //
+	CloseableListenerBehavior.class, //
 	EventTrackerBehavior.class, //
 	IntListenersBehavior.class, //
 	ListenersBehavior.class, //
+	NullIntListenableBehavior.class, //
+	NullListenableBehavior.class, //
 	// factory
 	DateFactoriesTest.class, //
 	FactoriesTest.class, //

@@ -3,6 +3,9 @@ package ceri.common.event;
 import java.io.Closeable;
 import java.util.function.IntConsumer;
 
+/**
+ * Provides a Closeable wrapper for listeners, that unlistens when closed.
+ */
 public class CloseableIntListener implements Closeable {
 	private static final CloseableIntListener NULL = new CloseableIntListener(null, null);
 	private final IntListenable listenable;

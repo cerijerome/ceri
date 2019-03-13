@@ -4,6 +4,9 @@ import java.io.Closeable;
 import java.util.function.Consumer;
 import ceri.common.util.BasicUtil;
 
+/**
+ * Provides a Closeable wrapper for listeners, that unlistens when closed.
+ */
 public class CloseableListener<T> implements Closeable {
 	private static final CloseableListener<?> NULL = new CloseableListener<>(null, null);
 	private final Listenable<T> listenable;

@@ -15,9 +15,11 @@ public class IntListenersBehavior {
 		IntConsumer l0 = i -> count[0] += i;
 		IntConsumer l1 = i -> count[0] += (i * 100);
 		IntListeners ls = new IntListeners();
+		assertThat(ls.isEmpty(), is(true));
 		ls.listen(l0);
 		ls.listen(l0);
 		ls.listen(l1);
+		assertThat(ls.size(), is(3));
 		ls.accept(1);
 		assertThat(count[0], is(102));
 		ls.unlisten(l0);

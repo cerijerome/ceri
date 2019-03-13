@@ -3,6 +3,9 @@ package ceri.common.event;
 import java.util.function.Consumer;
 import ceri.common.util.BasicUtil;
 
+/**
+ * A no-op listenable type.
+ */
 public class NullListenable<T> implements Listenable<T>, Listenable.Indirect<T> {
 	private static final NullListenable<?> INSTANCE = new NullListenable<>();
 

@@ -15,6 +15,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
+import ceri.common.util.PrimitiveUtil;
 
 public class ByteUtil {
 	public static final int BITS_PER_NYBBLE = 4;
@@ -159,7 +160,13 @@ public class ByteUtil {
 		return mask(bitCount) << startBit;
 	}
 
+	public static long maskOfBits(Collection<Integer> bits) {
+		if (bits == null) return 0;
+		return maskOfBits(PrimitiveUtil.toIntArray(bits));
+	}
+
 	public static long maskOfBits(int... bits) {
+		if (bits == null) return 0;
 		long value = 0;
 		for (int bit : bits)
 			if (bit < Long.SIZE) value |= 1L << bit;

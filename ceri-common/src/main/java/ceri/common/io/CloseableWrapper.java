@@ -1,9 +1,13 @@
 package ceri.common.io;
 
+import java.io.Closeable;
 import java.io.IOException;
 import ceri.common.function.ExceptionConsumer;
 
-public class CloseableWrapper<T> implements java.io.Closeable {
+/**
+ * Provides a Closeable type for an object and a given method on that object. 
+ */
+public class CloseableWrapper<T> implements Closeable {
 	public final T subject;
 	private final ExceptionConsumer<IOException, T> closer;
 
