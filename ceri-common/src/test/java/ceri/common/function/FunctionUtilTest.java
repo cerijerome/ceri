@@ -15,6 +15,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.junit.Test;
 
@@ -158,6 +159,14 @@ public class FunctionUtilTest {
 		FunctionUtil.forEach(map, (k, v) -> {
 			if (k < 1) throw new IOException();
 		});
+	}
+
+	@Test
+	public void testNamedPredicate() {
+		Predicate<String> p = FunctionUtil.namedPredicate(s -> !s.isEmpty(), "test");
+		assertThat(p.test(""), is(false));
+		assertThat(p.test("abc"), is(true));
+		assertThat(p.toString(), is("test"));
 	}
 
 }

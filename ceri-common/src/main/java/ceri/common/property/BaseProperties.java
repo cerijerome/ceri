@@ -11,11 +11,14 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.DoubleFunction;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import ceri.common.function.BooleanFunction;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
@@ -146,6 +149,70 @@ public abstract class BaseProperties {
 	protected <T> T value(Class<T> cls, T def, Function<String, T> constructor,
 		String... keyParts) {
 		return parseValue(cls, def, value(keyParts), constructor, keyParts);
+	}
+
+	/**
+	 * Converts the boolean property from prefixed, dot-separated key. Returns null if no value
+	 * exists for the key.
+	 */
+	protected <T> T valueFromBoolean(BooleanFunction<T> constructor, String... keyParts) {
+		return valueFromBoolean(null, constructor, keyParts);
+	}
+
+	/**
+	 * Converts the boolean property from prefixed, dot-separated key. Returns null if no value
+	 * exists for the key.
+	 */
+	protected <T> T valueFromBoolean(T trueVal, T falseVal, String... keyParts) {
+		return valueFromBoolean(b -> b ? trueVal : falseVal, keyParts);
+	}
+
+	/**
+	 * Converts the boolean property from prefixed, dot-separated key. Returns default if no value
+	 * exists for the key.
+	 */
+	protected <T> T valueFromBoolean(T def, BooleanFunction<T> constructor, String... keyParts) {
+		return value(def, s -> constructor.apply(Boolean.parseBoolean(s)), keyParts);
+	}
+
+	/**
+	 * Converts the boolean property from prefixed, dot-separated key. Returns default if no value
+	 * exists for the key.
+	 */
+	protected <T> T valueFromBoolean(T def, T trueVal, T falseVal, String... keyParts) {
+		return valueFromBoolean(def, b -> b ? trueVal : falseVal, keyParts);
+	}
+
+	/**
+	 * Converts the integer property from prefixed, dot-separated key. Returns null if no value
+	 * exists for the key.
+	 */
+	protected <T> T valueFromInt(IntFunction<T> constructor, String... keyParts) {
+		return valueFromInt(null, constructor, keyParts);
+	}
+
+	/**
+	 * Converts the integer property from prefixed, dot-separated key. Returns default if no value
+	 * exists for the key.
+	 */
+	protected <T> T valueFromInt(T def, IntFunction<T> constructor, String... keyParts) {
+		return value(def, s -> constructor.apply(Integer.decode(s)), keyParts);
+	}
+
+	/**
+	 * Converts the double property from prefixed, dot-separated key. Returns null if no value
+	 * exists for the key.
+	 */
+	protected <T> T valueFromDouble(DoubleFunction<T> constructor, String... keyParts) {
+		return valueFromDouble(null, constructor, keyParts);
+	}
+
+	/**
+	 * Converts the double property from prefixed, dot-separated key. Returns default if no value
+	 * exists for the key.
+	 */
+	protected <T> T valueFromDouble(T def, DoubleFunction<T> constructor, String... keyParts) {
+		return value(def, s -> constructor.apply(Double.parseDouble(s)), keyParts);
 	}
 
 	/**

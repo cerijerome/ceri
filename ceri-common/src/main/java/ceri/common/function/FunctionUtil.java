@@ -170,4 +170,18 @@ public class FunctionUtil {
 		return t -> fn.apply(t);
 	}
 
+	public static <T> Predicate<T> namedPredicate(Predicate<T> predicate, String name) {
+		return new Predicate<>() {
+			@Override
+			public boolean test(T t) {
+				return predicate.test(t);
+			}
+
+			@Override
+			public String toString() {
+				return name;
+			}
+		};
+	}
+
 }

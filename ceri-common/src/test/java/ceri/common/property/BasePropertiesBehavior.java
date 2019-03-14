@@ -39,6 +39,8 @@ public class BasePropertiesBehavior {
 		properties.put("a.abc", "A,ABC");
 		properties.put("a.b.c", "3");
 		properties.put("a.b.c.d", "4");
+		properties.put("a.y", "true");
+		properties.put("a.n", "false");
 		properties.put("m.n.0.a", "mn0a");
 		properties.put("m.n.0.b", "mn0b");
 		properties.put("m.n.0.b.c", "mn0bc");
@@ -69,7 +71,7 @@ public class BasePropertiesBehavior {
 		assertNull(bp.value("a.b.c"));
 		assertNull(bp.value(""));
 	}
-	
+
 	@Test
 	public void shouldCreateFromResourceBundle() {
 		ResourceBundle r = ResourceBundle.getBundle( //
@@ -159,6 +161,20 @@ public class BasePropertiesBehavior {
 	}
 
 	@Test
+	public void shouldReadAndConvertValues() {
+		BaseProperties bp = new BaseProperties(properties) {};
+		assertThat(bp.valueFromBoolean(b -> b ? "Y" : "N", "a.y"), is("Y"));
+		assertThat(bp.valueFromBoolean(b -> b ? "Y" : "N", "a.n"), is("N"));
+		assertThat(bp.valueFromBoolean(1, 2, "a.y"), is(1));
+		assertThat(bp.valueFromBoolean(1, 2, "a.n"), is(2));
+		assertThat(bp.valueFromBoolean(0, 1, 2, "a.y"), is(1));
+		assertThat(bp.valueFromBoolean(0, 1, 2, "a.n"), is(2));
+		assertThat(bp.valueFromBoolean(0, 1, 2, "a.x"), is(0));
+		assertThat(bp.valueFromInt(Integer::toString, "a.b.c"), is("3"));
+		assertThat(bp.valueFromDouble(Double::toString, "a.b.c"), is("3.0"));
+	}
+
+	@Test
 	public void shouldHaveStringRepresentationOfProperties() {
 		Properties properties = new Properties();
 		properties.put("a", "A");
@@ -211,7 +227,7 @@ public class BasePropertiesBehavior {
 	public void shouldOnlyReadPrefixedProperties() {
 		BaseProperties bp = new BaseProperties(properties, "a") {};
 		assertThat(bp.key("b.c"), is("a.b.c"));
-		assertCollection(bp.keys(), "a.b.c.d", "a.b.c", "a.b", "a.abc", "a");
+		assertCollection(bp.keys(), "a.b.c.d", "a.b.c", "a.b", "a.abc", "a", "a.y", "a.n");
 		bp = new BaseProperties(properties) {};
 		assertThat(bp.key("a.b"), is("a.b"));
 		assertCollection(bp.keys(), properties.keySet());
