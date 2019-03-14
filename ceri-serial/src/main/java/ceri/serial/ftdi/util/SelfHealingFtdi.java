@@ -1,8 +1,7 @@
-package ceri.serial.ftdi;
+package ceri.serial.ftdi.util;
 
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
 import java.nio.ByteBuffer;
-import java.util.function.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
@@ -17,14 +16,15 @@ import ceri.common.io.StateChange;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
+import ceri.serial.ftdi.Ftdi;
 import ceri.serial.ftdi.Ftdi.StreamCallback;
+import ceri.serial.ftdi.FtdiBitmode;
+import ceri.serial.ftdi.FtdiLineParams;
+import ceri.serial.ftdi.FtdiTransferControl;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_flow_control;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_string_descriptors;
 import ceri.serial.libusb.UsbDevice;
 import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
 
 /**
  * A self-healing ftdi device. It will automatically reconnect if the cable is removed and
@@ -32,90 +32,17 @@ import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
  */
 public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indirect<StateChange> {
 	private static final Logger logger = LogManager.getLogger();
-	private final libusb_device_criteria find;
-	private final ftdi_interface iface;
-	private final Integer baud;
-	private final FtdiLineProperties line;
-	private final FtdiBitmode bitmode;
-	private final int fixRetryDelayMs;
-	private final int recoveryDelayMs;
-	private final Predicate<Exception> brokenPredicate;
+	private final SelfHealingFtdiConfig config;
 	private final Listeners<StateChange> listeners = new Listeners<>();
 	private final BooleanCondition sync = BooleanCondition.create();
 	private volatile Ftdi ftdi;
 
-	public static class Builder {
-		libusb_device_criteria find;
-		ftdi_interface iface;
-		Integer baud;
-		FtdiLineProperties line;
-		FtdiBitmode bitmode;
-		int fixRetryDelayMs = 2000;
-		int recoveryDelayMs = fixRetryDelayMs / 2;
-		Predicate<Exception> brokenPredicate = SelfHealingFtdi::isBroken;
-
-		Builder(libusb_device_criteria find) {
-			this.find = find;
-		}
-
-		public Builder iface(ftdi_interface iface) {
-			this.iface = iface;
-			return this;
-		}
-
-		public Builder baud(int baud) {
-			this.baud = baud;
-			return this;
-		}
-
-		public Builder line(FtdiLineProperties line) {
-			this.line = line;
-			return this;
-		}
-
-		public Builder bitmode(FtdiBitmode bitmode) {
-			this.bitmode = bitmode;
-			return this;
-		}
-
-		public Builder bitmode(ftdi_mpsse_mode mode) {
-			this.bitmode = FtdiBitmode.of(mode);
-			return this;
-		}
-
-		public Builder fixRetryDelayMs(int fixRetryDelayMs) {
-			this.fixRetryDelayMs = fixRetryDelayMs;
-			return this;
-		}
-
-		public Builder recoveryDelayMs(int recoveryDelayMs) {
-			this.recoveryDelayMs = recoveryDelayMs;
-			return this;
-		}
-
-		public Builder brokenPredicate(Predicate<Exception> brokenPredicate) {
-			this.brokenPredicate = brokenPredicate;
-			return this;
-		}
-
-		public SelfHealingFtdi build() {
-			return new SelfHealingFtdi(this);
-		}
+	public static SelfHealingFtdi of(SelfHealingFtdiConfig config) {
+		return new SelfHealingFtdi(config);
 	}
 
-	public static Builder builder(libusb_device_criteria find) {
-		return new Builder(find);
-	}
-
-	SelfHealingFtdi(Builder builder) {
-		find = builder.find;
-		iface = builder.iface;
-		baud = builder.baud;
-		line = builder.line;
-		bitmode = builder.bitmode;
-		fixRetryDelayMs = builder.fixRetryDelayMs;
-		recoveryDelayMs = builder.recoveryDelayMs;
-		brokenPredicate = builder.brokenPredicate;
+	private SelfHealingFtdi(SelfHealingFtdiConfig config) {
+		this.config = config;
 		start();
 	}
 
@@ -183,8 +110,8 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 		exec(ftdi -> ftdi.baudrate(baudrate));
 	}
 
-	public void lineProperty(FtdiLineProperties properties) throws LibUsbException {
-		exec(ftdi -> ftdi.lineProperty(properties));
+	public void lineParams(FtdiLineParams params) throws LibUsbException {
+		exec(ftdi -> ftdi.lineParams(params));
 	}
 
 	public int write(int... data) throws LibUsbException {
@@ -338,11 +265,11 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 				if (lastErrorMsg == null || !lastErrorMsg.equals(errorMsg))
 					logger.debug("Failed to fix ftdi, retrying: {}", errorMsg);
 				lastErrorMsg = errorMsg;
-				BasicUtil.delay(fixRetryDelayMs);
+				BasicUtil.delay(config.fixRetryDelayMs);
 			}
 		}
 		logger.info("Ftdi is now fixed");
-		BasicUtil.delay(recoveryDelayMs); // wait for clients to recover before clearing
+		BasicUtil.delay(config.recoveryDelayMs); // wait for clients to recover before clearing
 		sync.clear();
 		notifyListeners(StateChange.fixed);
 	}
@@ -358,7 +285,7 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 	}
 
 	private void checkIfBroken(Exception e) {
-		if (!brokenPredicate.test(e)) return;
+		if (!config.brokenPredicate.test(e)) return;
 		if (sync.isSet()) return;
 		setBroken();
 	}
@@ -377,11 +304,11 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 		Ftdi ftdi = null;
 		try {
 			ftdi = Ftdi.create();
-			if (iface != null) ftdi.setInterface(iface);
-			ftdi.open(find);
-			if (bitmode != null) ftdi.bitmode(bitmode);
-			if (baud != null) ftdi.baudrate(baud.intValue());
-			if (line != null) ftdi.lineProperty(line);
+			if (config.iface != null) ftdi.setInterface(config.iface);
+			ftdi.open(config.find);
+			if (config.bitmode != null) ftdi.bitmode(config.bitmode);
+			if (config.baud != null) ftdi.baudrate(config.baud.intValue());
+			if (config.line != null) ftdi.lineParams(config.line);
 			return ftdi;
 		} catch (RuntimeException | LibUsbException e) {
 			LogUtil.close(logger, ftdi);

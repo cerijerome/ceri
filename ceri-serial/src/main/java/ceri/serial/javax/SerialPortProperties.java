@@ -27,13 +27,11 @@ public class SerialPortProperties extends BaseProperties {
 	}
 
 	private DataBits dataBits() {
-		Integer i = intValue(DATA_BITS_KEY);
-		return i == null ? null : DataBits.from(i);
+		return valueFromInt(DataBits::from, DATA_BITS_KEY);
 	}
 
 	private StopBits stopBits() {
-		Double d = doubleValue(STOP_BITS_KEY);
-		return d == null ? null : StopBits.fromActual(d);
+		return valueFromDouble(StopBits::fromActual, STOP_BITS_KEY);
 	}
 
 	private Parity parity() {

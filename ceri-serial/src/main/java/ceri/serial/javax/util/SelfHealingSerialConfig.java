@@ -1,5 +1,6 @@
 package ceri.serial.javax.util;
 
+import static ceri.common.function.FunctionUtil.namedPredicate;
 import java.util.function.Predicate;
 import ceri.common.text.ToStringHelper;
 import ceri.serial.javax.SerialPort;
@@ -121,20 +122,6 @@ public class SelfHealingSerialConfig {
 	public String toString() {
 		return ToStringHelper.createByClass(this, commPortSupplier, params, connectionTimeoutMs,
 			fixRetryDelayMs, recoveryDelayMs, brokenPredicate).toString();
-	}
-
-	static Predicate<Exception> namedPredicate(Predicate<Exception> predicate, String name) {
-		return new Predicate<>() {
-			@Override
-			public boolean test(Exception t) {
-				return predicate.test(t);
-			}
-
-			@Override
-			public String toString() {
-				return name;
-			}
-		};
 	}
 
 }

@@ -1,22 +1,19 @@
 package ceri.serial.ftdi;
 
-import static ceri.serial.ftdi.jna.LibFtdi.FTDI_VENDOR_ID;
-import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_BITBANG;
-import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_criteria;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.util.BasicUtil;
 import ceri.log.util.LogUtil;
+import ceri.serial.ftdi.util.SelfHealingFtdi;
+import ceri.serial.ftdi.util.SelfHealingFtdiConfig;
 import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
 
 public class FtdiTester {
 	private static final Logger logger = LogManager.getLogger();
 
 	public static void main(String[] args) {
-		libusb_device_criteria criteria = libusb_find_criteria().vendor(FTDI_VENDOR_ID);
-		try (SelfHealingFtdi ftdi =
-			SelfHealingFtdi.builder(criteria).bitmode(BITMODE_BITBANG).baud(9600).build()) {
+		SelfHealingFtdiConfig config = SelfHealingFtdiConfig.of();
+		try (SelfHealingFtdi ftdi = SelfHealingFtdi.of(config)) {
 			ftdi.openQuietly();
 			while (true) {
 				try {

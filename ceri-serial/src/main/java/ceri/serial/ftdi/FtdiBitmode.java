@@ -1,5 +1,6 @@
 package ceri.serial.ftdi;
 
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_BITBANG;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_RESET;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
@@ -8,6 +9,7 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 
 public class FtdiBitmode {
 	public static final FtdiBitmode OFF = builder(BITMODE_RESET).build();
+	public static final FtdiBitmode BITBANG = builder(BITMODE_BITBANG).build();
 	public final ftdi_mpsse_mode mode;
 	public final int bitmask;
 
@@ -21,7 +23,7 @@ public class FtdiBitmode {
 	}
 
 	public static class Builder {
-		ftdi_mpsse_mode mode = BITMODE_RESET;
+		ftdi_mpsse_mode mode;
 		int bitmask = 0;
 
 		Builder(ftdi_mpsse_mode mode) {

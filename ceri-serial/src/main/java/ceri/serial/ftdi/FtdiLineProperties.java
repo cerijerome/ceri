@@ -1,83 +1,52 @@
 package ceri.serial.ftdi;
 
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import static ceri.common.function.FunctionUtil.safeAccept;
+import static ceri.common.math.MathUtil.approxEqual;
+import ceri.common.property.BaseProperties;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type;
 
-public class FtdiLineProperties {
-	public final ftdi_data_bits_type bits;
-	public final ftdi_stop_bits_type sbit;
-	public final ftdi_parity_type parity;
-	public final ftdi_break_type breakType;
+public class FtdiLineProperties extends BaseProperties {
+	private static final String DATA_BITS_KEY = "data.bits";
+	private static final String STOP_BITS_KEY = "stop.bits";
+	private static final String PARITY_KEY = "parity";
+	private static final String BREAK_KEY = "break";
+	private static final double PRECISION = 0.1;
 
-	public static class Builder {
-		ftdi_data_bits_type bits = ftdi_data_bits_type.BITS_8;
-		ftdi_stop_bits_type sbit = ftdi_stop_bits_type.STOP_BIT_1;
-		ftdi_parity_type parity = ftdi_parity_type.NONE;
-		ftdi_break_type breakType = ftdi_break_type.BREAK_OFF;
-
-		Builder() {}
-
-		public FtdiLineProperties.Builder bits(ftdi_data_bits_type bits) {
-			this.bits = bits;
-			return this;
-		}
-
-		public FtdiLineProperties.Builder sbit(ftdi_stop_bits_type sbit) {
-			this.sbit = sbit;
-			return this;
-		}
-
-		public FtdiLineProperties.Builder parity(ftdi_parity_type parity) {
-			this.parity = parity;
-			return this;
-		}
-
-		public FtdiLineProperties.Builder breakType(ftdi_break_type breakType) {
-			this.breakType = breakType;
-			return this;
-		}
-
-		public FtdiLineProperties build() {
-			return new FtdiLineProperties(this);
-		}
+	public FtdiLineProperties(BaseProperties properties, String group) {
+		super(properties, group);
 	}
 
-	public static FtdiLineProperties.Builder builder() {
-		return new Builder();
+	public FtdiLineParams params() {
+		FtdiLineParams.Builder b = FtdiLineParams.builder();
+		safeAccept(dataBits(), b::bits);
+		safeAccept(stopBits(), b::sbit);
+		safeAccept(parity(), b::parity);
+		safeAccept(breakType(), b::breakType);
+		return b.build();
 	}
 
-	FtdiLineProperties(FtdiLineProperties.Builder builder) {
-		bits = builder.bits;
-		sbit = builder.sbit;
-		parity = builder.parity;
-		breakType = builder.breakType;
-	}
-	
-	@Override
-	public int hashCode() {
-		return HashCoder.hash(bits, sbit, parity, breakType);
+	private ftdi_data_bits_type dataBits() {
+		return valueFromInt(ftdi_data_bits_type.xcoder::decode, DATA_BITS_KEY);
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof FtdiLineProperties)) return false;
-		FtdiLineProperties other = (FtdiLineProperties) obj;
-		if (!EqualsUtil.equals(bits, other.bits)) return false;
-		if (!EqualsUtil.equals(sbit, other.sbit)) return false;
-		if (!EqualsUtil.equals(parity, other.parity)) return false;
-		if (!EqualsUtil.equals(breakType, other.breakType)) return false;
-		return true;
+	private ftdi_stop_bits_type stopBits() {
+		Double d = doubleValue(STOP_BITS_KEY);
+		if (d == null) return null;
+		if (approxEqual(d, 1.0, PRECISION)) return ftdi_stop_bits_type.STOP_BIT_1;
+		if (approxEqual(d, 1.5, PRECISION)) return ftdi_stop_bits_type.STOP_BIT_15;
+		if (approxEqual(d, 2.0, PRECISION)) return ftdi_stop_bits_type.STOP_BIT_2;
+		throw new IllegalArgumentException("Invalid stop bits: " + d);
 	}
 
-	@Override
-	public String toString() {
-		return ToStringHelper.createByClass(this, bits, sbit, parity, breakType).toString();
+	private ftdi_parity_type parity() {
+		return value(s -> ftdi_parity_type.valueOf(s.toUpperCase()), PARITY_KEY);
 	}
-	
+
+	private ftdi_break_type breakType() {
+		return valueFromBoolean(ftdi_break_type.BREAK_ON, ftdi_break_type.BREAK_OFF, BREAK_KEY);
+	}
+
 }

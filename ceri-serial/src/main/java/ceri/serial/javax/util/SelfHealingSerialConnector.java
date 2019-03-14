@@ -122,6 +122,15 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 	protected void loop() throws InterruptedException {
 		sync.awaitPeek();
 		logger.info("Connection is broken - attempting to fix");
+		fixSerialPort();
+		logger.info("Connection is now fixed");
+		// wait for streams to recover before clearing
+		BasicUtil.delay(config.recoveryDelayMs);
+		sync.clear();
+		notifyListeners(StateChange.fixed);
+	}
+
+	private void fixSerialPort() {
 		String lastErrorMsg = null;
 		while (true) {
 			try {
@@ -135,10 +144,6 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 				BasicUtil.delay(config.fixRetryDelayMs);
 			}
 		}
-		logger.info("Connection is now fixed");
-		BasicUtil.delay(config.recoveryDelayMs); // wait for streams to recover before clearing
-		sync.clear();
-		notifyListeners(StateChange.fixed);
 	}
 
 	private void notifyListeners(StateChange state) {

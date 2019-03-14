@@ -154,7 +154,7 @@ public class Ftdi implements Closeable {
 		ftdi_set_baudrate(ftdi(), baudrate);
 	}
 
-	public void lineProperty(FtdiLineProperties properties) throws LibUsbException {
+	public void lineParams(FtdiLineParams properties) throws LibUsbException {
 		ftdi_set_line_property(ftdi(), properties.bits, properties.sbit, properties.parity,
 			properties.breakType);
 	}
