@@ -33,7 +33,7 @@ import ceri.serial.javax.SerialConnector;
  * x = exit
  * </pre>
  */
-public class SerialTester extends LoopingExecutor {
+public class SerialConnectorTester extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int INPUT_BYTES_MAX = 32 * 1024;
 	protected static final int DELAY_MS_DEF = 500;
@@ -41,6 +41,7 @@ public class SerialTester extends LoopingExecutor {
 	protected final SerialConnector connector;
 	private final CloseableListener<StateChange> listener;
 	private final byte[] buffer = new byte[INPUT_BYTES_MAX];
+	private boolean showHelp = true;
 
 	public static void test(String commPort) throws IOException {
 		SelfHealingSerialConfig config = SelfHealingSerialConfig.of(commPort);
@@ -50,21 +51,21 @@ public class SerialTester extends LoopingExecutor {
 	}
 
 	public static void test(SerialConnector con) throws IOException {
-		try (SerialTester tester = SerialTester.of(con)) {
+		try (SerialConnectorTester tester = SerialConnectorTester.of(con)) {
 			tester.connect();
 			tester.waitUntilStopped();
 		}
 	}
 
-	public static SerialTester of(SerialConnector connector) {
+	public static SerialConnectorTester of(SerialConnector connector) {
 		return of(connector, DELAY_MS_DEF);
 	}
 
-	public static SerialTester of(SerialConnector connector, int delayMs) {
-		return new SerialTester(connector, delayMs);
+	public static SerialConnectorTester of(SerialConnector connector, int delayMs) {
+		return new SerialConnectorTester(connector, delayMs);
 	}
 
-	protected SerialTester(SerialConnector connector, int delayMs) {
+	protected SerialConnectorTester(SerialConnector connector, int delayMs) {
 		this.connector = connector;
 		this.delayMs = delayMs;
 		listener = CloseableListener.of(connector, this::event);
@@ -110,7 +111,8 @@ public class SerialTester extends LoopingExecutor {
 
 	protected void processCmd(char cmd, String params) throws IOException {
 		if (cmd == 'x') throw new RuntimeInterruptedException("Exiting");
-		if (cmd == 'b') safeAccept(bool(params), connector::setBreakBit);
+		if (cmd == '?') showHelp = true;
+		else if (cmd == 'b') safeAccept(bool(params), connector::setBreakBit);
 		else if (cmd == 'd') safeAccept(bool(params), connector::setDtr);
 		else if (cmd == 'r') safeAccept(bool(params), connector::setRts);
 		else if (cmd == 'f') safeAccept(flowControlType(params), connector::setFlowControl);
@@ -134,6 +136,7 @@ public class SerialTester extends LoopingExecutor {
 	 * Get command from stdin.
 	 */
 	private String getInput() throws IOException {
+		if (showHelp) showHelp();
 		System.out.print(prompt());
 		String s = IoUtil.readString(System.in).trim();
 		return StringUtil.unEscape(s);
@@ -184,6 +187,23 @@ public class SerialTester extends LoopingExecutor {
 		if (c == 'r') return conditional(bool(p), FlowControl.rtsCtsOut, FlowControl.rtsCtsIn);
 		if (c == 'x') return conditional(bool(p), FlowControl.xonXoffOut, FlowControl.xonXoffIn);
 		return null;
+	}
+
+	private void showHelp() {
+		System.out.println("Commands:");
+		showHelpCommands();
+		showHelp = false;
+	}
+	
+	protected void showHelpCommands() {
+		System.out.println("  b[01] = set break bit off/on");
+		System.out.println("  d[01] = set DTR off/on");
+		System.out.println("  r[01] = set RTS off/on");
+		System.out.println("  f[nrx][01] = set flow control none, rts-cts in/out, xon-xoff in/out");
+		System.out.println("  o<literal-chars> = write char bytes to output (e.g. \\xff for 0xff)");
+		System.out.println("  z = mark the connector as broken");
+		System.out.println("  ? = show this message");
+		System.out.println("  x = exit");
 	}
 
 }

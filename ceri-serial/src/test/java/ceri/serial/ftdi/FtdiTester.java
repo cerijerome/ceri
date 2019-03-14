@@ -12,7 +12,7 @@ public class FtdiTester {
 	private static final Logger logger = LogManager.getLogger();
 
 	public static void main(String[] args) {
-		SelfHealingFtdiConfig config = SelfHealingFtdiConfig.of();
+		SelfHealingFtdiConfig config = SelfHealingFtdiConfig.DEFAULT;
 		try (SelfHealingFtdi ftdi = SelfHealingFtdi.of(config)) {
 			ftdi.openQuietly();
 			while (true) {

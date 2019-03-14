@@ -17,6 +17,8 @@ import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
  */
 public class SelfHealingFtdiConfig {
 	public static final SelfHealingFtdiConfig NULL = builder().build();
+	public static final SelfHealingFtdiConfig DEFAULT =
+		builder().find(LibFtdiUtil.finder()).build();
 	static final Predicate<Exception> DEFAULT_PREDICATE =
 		namedPredicate(SelfHealingFtdi::isBroken, "SelfHealingFtdi::isBroken");
 	final libusb_device_criteria find;
@@ -28,10 +30,10 @@ public class SelfHealingFtdiConfig {
 	final int recoveryDelayMs;
 	final Predicate<Exception> brokenPredicate;
 
-	public static SelfHealingFtdiConfig of() {
-		return builder().find(LibFtdiUtil.finder()).build();
+	public static SelfHealingFtdiConfig of(String finder) {
+		return builder().find(finder).build();
 	}
-
+	
 	public static class Builder {
 		libusb_device_criteria find = null;
 		ftdi_interface iface = ftdi_interface.INTERFACE_ANY;

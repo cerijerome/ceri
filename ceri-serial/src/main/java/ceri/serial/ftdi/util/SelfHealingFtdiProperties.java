@@ -10,7 +10,6 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 public class SelfHealingFtdiProperties extends BaseProperties {
 	private static final String USB_KEY = "usb";
 	private static final String PORT_KEY = "port";
-	private static final String FTDI_KEY = "ftdi";
 	private static final String INTERFACE_KEY = "interface";
 	private static final String BIT_KEY = "bit";
 	private static final String MODE_KEY = "mode";
@@ -31,7 +30,7 @@ public class SelfHealingFtdiProperties extends BaseProperties {
 		SelfHealingFtdiConfig.Builder b = SelfHealingFtdiConfig.builder().line(port.params());
 		safeAccept(usbPort(), b::find);
 		safeAccept(iface(), b::iface);
-		safeAccept(bitMode(), b::bitmode);
+		safeAccept(ftdiBitMode(), b::bitmode);
 		safeAccept(portBaudRate(), b::baud);
 		safeAccept(fixRetryDelayMs(), b::fixRetryDelayMs);
 		safeAccept(recoveryDelayMs(), b::recoveryDelayMs);
@@ -43,27 +42,27 @@ public class SelfHealingFtdiProperties extends BaseProperties {
 	}
 
 	private ftdi_interface iface() {
-		String name = value(FTDI_KEY, INTERFACE_KEY);
+		String name = value(INTERFACE_KEY);
 		if (name == null) return null;
-		return ftdi_interface.valueOf(INTERFACE_PREFIX + name);
+		return ftdi_interface.valueOf(INTERFACE_PREFIX + name.toUpperCase());
 	}
 
-	private FtdiBitmode bitMode() {
-		ftdi_mpsse_mode mode = ftdiBitMode();
+	private FtdiBitmode ftdiBitMode() {
+		ftdi_mpsse_mode mode = bitMode();
 		if (mode == null) return null;
 		FtdiBitmode.Builder b = FtdiBitmode.builder(mode);
-		safeAccept(ftdiBitMask(), b::bitmask);
+		safeAccept(bitMask(), b::bitmask);
 		return b.build();
 	}
 
-	private ftdi_mpsse_mode ftdiBitMode() {
-		String name = value(FTDI_KEY, BIT_KEY, MODE_KEY);
+	private ftdi_mpsse_mode bitMode() {
+		String name = value(BIT_KEY, MODE_KEY);
 		if (name == null) return null;
-		return ftdi_mpsse_mode.valueOf(BITMODE_PREFIX + name);
+		return ftdi_mpsse_mode.valueOf(BITMODE_PREFIX + name.toUpperCase());
 	}
 
-	private Integer ftdiBitMask() {
-		return intValue(FTDI_KEY, BIT_KEY, MASK_KEY);
+	private Integer bitMask() {
+		return intValue(BIT_KEY, MASK_KEY);
 	}
 
 	private Integer portBaudRate() {
