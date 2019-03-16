@@ -7,9 +7,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
-import ceri.common.io.StateChange;
 import ceri.common.io.IoStreamUtil;
+import ceri.common.io.StateChange;
 import ceri.common.test.ResponseStream;
+import ceri.common.text.ToStringHelper;
 import ceri.serial.javax.FlowControl;
 import ceri.serial.javax.SerialConnector;
 
@@ -36,10 +37,11 @@ public class ResponseSerialConnector implements SerialConnector {
 		return new ResponseSerialConnector(stream);
 	}
 
-	protected ResponseSerialConnector(ResponseStream stream) {
+	private ResponseSerialConnector(ResponseStream stream) {
 		this.stream = stream;
 		in = IoStreamUtil.in(this::read, this::available);
 		out = IoStreamUtil.out(this::write);
+		logger.debug("Created");
 	}
 
 	@Override
@@ -126,6 +128,11 @@ public class ResponseSerialConnector implements SerialConnector {
 		logger.debug("fixed()");
 		broken = false;
 		listeners.accept(StateChange.fixed);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringHelper.createByClass(this, stream).toString();
 	}
 
 	private int available() throws IOException {

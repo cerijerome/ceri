@@ -36,7 +36,7 @@ import ceri.serial.javax.SerialConnector;
 public class SerialConnectorTester extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int INPUT_BYTES_MAX = 32 * 1024;
-	protected static final int DELAY_MS_DEF = 500;
+	protected static final int DELAY_MS_DEF = 200;
 	private final int delayMs;
 	protected final SerialConnector connector;
 	private final CloseableListener<StateChange> listener;
