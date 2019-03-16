@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.function.Function;
 import ceri.common.io.IoStreamUtil;
+import ceri.common.text.ToStringHelper;
 
 /**
  * Provides an output stream that responds to input data. Can be created to handle bytes or Strings.
@@ -24,12 +25,26 @@ public class ResponseStream {
 
 	public static interface Responder {
 		byte[] respond(byte[] buffer, int offset, int len);
+
+		static Responder named(Responder responder, String name) {
+			return new Responder() {
+				@Override
+				public byte[] respond(byte[] buffer, int offset, int len) {
+					return responder.respond(buffer, offset, len);
+				}
+
+				@Override
+				public String toString() {
+					return name;
+				}
+			};
+		}
 	}
 
 	public static ResponseStream echo() {
-		return of(Arrays::copyOfRange);
+		return of(Responder.named(Arrays::copyOfRange, "echo"));
 	}
-	
+
 	public static ResponseStream ascii(Function<String, String> responder) {
 		return string(responder, StandardCharsets.ISO_8859_1);
 	}
@@ -63,6 +78,11 @@ public class ResponseStream {
 
 	public OutputStream out() {
 		return externalOut;
+	}
+
+	@Override
+	public String toString() {
+		return ToStringHelper.createByClass(this, responder).toString();
 	}
 
 	private void write(byte[] b, int offset, int len) throws IOException {
