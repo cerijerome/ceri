@@ -1,15 +1,17 @@
 package ceri.log.rpc.service;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
 public class RpcServiceUtil {
 	private static final Logger logger = LogManager.getLogger();
-	
+	private static final int MAX_MESSAGE_LEN = 128;
+
 	private RpcServiceUtil() {}
 
 	/**
@@ -22,8 +24,8 @@ public class RpcServiceUtil {
 			observer.onNext(t);
 			observer.onCompleted();
 		} catch (Exception e) {
-			logger.catching(Level.WARN, e);
-			observer.onError(e);
+			logger.catching(e);
+			observer.onError(statusException(e));
 		}
 	}
 
@@ -37,9 +39,16 @@ public class RpcServiceUtil {
 			observer.onNext(t);
 			observer.onCompleted();
 		} catch (Exception e) {
-			logger.catching(Level.WARN, e);
-			observer.onError(e);
+			logger.catching(e);
+			observer.onError(statusException(e));
 		}
+	}
+
+	public static StatusRuntimeException statusException(Exception e) {
+		if (e instanceof StatusRuntimeException) return (StatusRuntimeException) e;
+		String message = e.toString();
+		if (message.length() > MAX_MESSAGE_LEN) message = message.substring(0, MAX_MESSAGE_LEN);
+		return new StatusRuntimeException(Status.UNAVAILABLE.withDescription(message));
 	}
 
 }

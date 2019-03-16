@@ -62,11 +62,11 @@ public class RpcClientUtil {
 	 * Converts StatusRuntimeException into a new exception.
 	 */
 	public static <E extends Exception> void wrap(ExceptionRunnable<E> runnable,
-		Function<Exception, E> exceptionFn) throws E {
+		Function<String, E> exceptionFn) throws E {
 		try {
 			runnable.run();
 		} catch (StatusRuntimeException e) {
-			throw exceptionFn.apply(e);
+			throw exceptionFn.apply(e.getMessage());
 		}
 	}
 
@@ -74,11 +74,11 @@ public class RpcClientUtil {
 	 * Converts StatusRuntimeException into a new exception.
 	 */
 	public static <E extends Exception, T> T wrapReturn(ExceptionSupplier<E, T> supplier,
-		Function<Exception, E> exceptionFn) throws E {
+		Function<String, E> exceptionFn) throws E {
 		try {
 			return supplier.get();
 		} catch (StatusRuntimeException e) {
-			throw exceptionFn.apply(e);
+			throw exceptionFn.apply(e.getMessage());
 		}
 	}
 

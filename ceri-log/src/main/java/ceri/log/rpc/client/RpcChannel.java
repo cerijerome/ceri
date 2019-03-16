@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.text.ToStringHelper;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
@@ -41,6 +42,7 @@ public class RpcChannel implements Closeable {
 	private RpcChannel(ManagedChannel channel, int shutdownTimeoutMs) {
 		this.shutdownTimeoutMs = shutdownTimeoutMs;
 		this.channel = channel;
+		logger.info("Channel for " + channel.authority());
 	}
 
 	@Override
@@ -51,5 +53,11 @@ public class RpcChannel implements Closeable {
 		} catch (InterruptedException e) {
 			if (logger != null) logger.catching(Level.INFO, e);
 		}
+		logger.info("Stopped");
+	}
+	
+	@Override
+	public String toString() {
+		return ToStringHelper.createByClass(this, channel.authority()).toString();
 	}
 }

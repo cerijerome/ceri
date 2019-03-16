@@ -47,6 +47,7 @@ public class RpcServiceNotifier<T, V> implements Closeable {
 	private RpcServiceNotifier(Listenable<T> listenable, Function<T, V> transform) {
 		this.transform = transform;
 		listener = CloseableListener.of(listenable, this::notification);
+		logger.info("Started");
 	}
 
 	public StreamObserver<Empty> listen(StreamObserver<V> response) {
@@ -57,6 +58,7 @@ public class RpcServiceNotifier<T, V> implements Closeable {
 	@Override
 	public void close() {
 		LogUtil.close(logger, listener);
+		logger.info("Stopped");
 	}
 
 	private void notification(T t) {

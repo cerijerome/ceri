@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.text.ToStringHelper;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -37,6 +38,12 @@ public class RpcServer implements Closeable {
 		} catch (InterruptedException e) {
 			if (logger != null) logger.catching(Level.INFO, e);
 		}
+		logger.info("Stopped");
 	}
 
+	@Override
+	public String toString() {
+		return ToStringHelper.createByClass(this, server.getPort()).toString();
+	}
+	
 }
