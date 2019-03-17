@@ -1,20 +1,10 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertException;
-import static ceri.common.test.TestUtil.assertFile;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.matchesRegex;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -55,6 +45,11 @@ public class IoUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(IoUtil.class);
+	}
+
+	@Test
+	public void test() {
+		exerciseEnum(DeviceMode.class);
 	}
 
 	@Test

@@ -84,7 +84,6 @@ public class Timer {
 			return ToStringHelper
 				.createByClass(this, timer.periodMs, state, started, current, remaining).toString();
 		}
-
 	}
 
 	public static Timer of(long periodMs) {
