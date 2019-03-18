@@ -9,7 +9,7 @@ import org.junit.Test;
 public class Rectangle2dBehavior {
 
 	@Test
-	public void shouldNonBreachEqualsContract() {
+	public void shouldNotBreachEqualsContract() {
 		Rectangle2d r = Rectangle2d.of(0, 0, 20, 40);
 		Rectangle2d eq0 = Rectangle2d.of(Point2d.of(0, 0), Dimension2d.of(20, 40));
 		Rectangle2d ne0 = Rectangle2d.of(1, 0, 20, 40);

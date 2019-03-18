@@ -203,6 +203,7 @@ import ceri.common.tree.TreeNodeComparatorsTest;
 import ceri.common.tree.TreeUtilTest;
 import ceri.common.util.BasicUtilTest;
 import ceri.common.util.EqualsUtilTest;
+import ceri.common.util.ExceptionTrackerBehavior;
 import ceri.common.util.HashCoderBehavior;
 import ceri.common.util.HolderBehavior;
 import ceri.common.util.KeyValueBehavior;
@@ -447,6 +448,7 @@ import ceri.common.xml.XmlUtilTest;
 	// util
 	BasicUtilTest.class, //
 	EqualsUtilTest.class, //
+	ExceptionTrackerBehavior.class, //
 	HashCoderBehavior.class, //
 	HolderBehavior.class, //
 	KeyValueBehavior.class, //

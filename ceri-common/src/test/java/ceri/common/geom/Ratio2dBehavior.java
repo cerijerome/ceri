@@ -8,7 +8,7 @@ import ceri.common.geom.Ratio2d;
 public class Ratio2dBehavior {
 
 	@Test
-	public void shouldNonBreachEqualsContract() {
+	public void shouldNotBreachEqualsContract() {
 		Ratio2d r0 = Ratio2d.of(5, 10);
 		Ratio2d r1 = Ratio2d.of(5, 10);
 		Ratio2d r2 = Ratio2d.of(4.999, 10);

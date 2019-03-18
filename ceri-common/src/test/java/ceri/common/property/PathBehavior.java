@@ -15,7 +15,7 @@ import org.junit.Test;
 public class PathBehavior {
 
 	@Test
-	public void shouldObeyEqualsContract() {
+	public void shouldNotBreachEqualsContract() {
 		Path key = PathFactory.dot.path("a");
 		Path key1 = PathFactory.dot.path(key.value);
 		Path key2 = PathFactory.dot.path("a.");

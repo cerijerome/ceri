@@ -9,7 +9,7 @@ import org.junit.Test;
 public class ScoreLookupBehavior {
 
 	@Test
-	public void shouldNotBreakEqualsContract() {
+	public void shouldNotBreachEqualsContract() {
 		ScoreLookup<String> l0 = ScoreLookup.<String>builder().score(1, "A").score(3, "B").build();
 		ScoreLookup<String> l1 = ScoreLookup.<String>builder().score(1, "A").score(3, "B").build();
 		ScoreLookup<String> l2 = ScoreLookup.<String>builder().score(1, "A").score(2, "B").build();

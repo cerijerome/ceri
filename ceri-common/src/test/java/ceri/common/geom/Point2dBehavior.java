@@ -20,7 +20,7 @@ public class Point2dBehavior {
 	}
 
 	@Test
-	public void shouldNonBreachEqualsContract() {
+	public void shouldNotBreachEqualsContract() {
 		Point2d p0 = Point2d.of(5, 10);
 		Point2d p1 = Point2d.of(5, 10);
 		Point2d p2 = Point2d.of(4.999, 10);

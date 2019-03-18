@@ -13,7 +13,7 @@ import org.junit.Test;
 public class PathFactoryBehavior {
 
 	@Test
-	public void shouldObeyEqualsContract() {
+	public void shouldNotBreachEqualsContract() {
 		PathFactory factory = PathFactory.create(";");
 		PathFactory factory1 = PathFactory.create(";");
 		PathFactory factory2 = PathFactory.create(factory.separator);

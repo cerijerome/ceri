@@ -12,7 +12,7 @@ import ceri.common.geom.Ratio2d;
 public class Dimension2dBehavior {
 
 	@Test
-	public void shouldNonBreachEqualsContract() {
+	public void shouldNotBreachEqualsContract() {
 		Dimension2d d0 = Dimension2d.of(5, 10);
 		Dimension2d d1 = Dimension2d.of(5, 10);
 		Dimension2d d2 = Dimension2d.of(4.999, 10);
