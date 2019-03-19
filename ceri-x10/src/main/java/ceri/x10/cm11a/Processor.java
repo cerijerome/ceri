@@ -14,7 +14,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.io.IoTimeoutException;
 import ceri.common.io.PollingInputStream;
 import ceri.log.util.LogUtil;
 import ceri.x10.cm11a.protocol.Data;
@@ -79,9 +78,9 @@ public class Processor implements Closeable {
 		}
 	}
 
-	public static Builder
-		builder(Cm11aConnector connector, BlockingQueue<? extends BaseCommand<?>> inQueue,
-			Collection<? super BaseCommand<?>> outQueue) {
+	public static Builder builder(Cm11aConnector connector,
+		BlockingQueue<? extends BaseCommand<?>> inQueue,
+		Collection<? super BaseCommand<?>> outQueue) {
 		return new Builder(connector, inQueue, outQueue);
 	}
 
@@ -140,7 +139,7 @@ public class Processor implements Closeable {
 						outQueue.add(command);
 					}
 				}
-			} catch (IOException | IoTimeoutException e) {
+			} catch (IOException e) {
 				logger.catching(e);
 			}
 		}
@@ -219,9 +218,6 @@ public class Processor implements Closeable {
 				out.flush();
 				await(Protocol.READY.value, maxSendAttempts);
 				return;
-			} catch (IoTimeoutException e) {
-				Level level = attempts < maxSendAttempts ? Level.INFO : Level.ERROR;
-				logger.catching(level, e);
 			} catch (IOException e) {
 				Level level = attempts < maxSendAttempts ? Level.WARN : Level.ERROR;
 				logger.catching(level, e);
