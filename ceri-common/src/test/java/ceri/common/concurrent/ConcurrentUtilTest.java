@@ -25,7 +25,7 @@ public class ConcurrentUtilTest {
 
 	@Test
 	public void testExecuteAndWait() throws IOException {
-		BooleanCondition signal = BooleanCondition.create();
+		BooleanCondition signal = BooleanCondition.of();
 		ConcurrentUtil.executeAndWait(exec, signal::signal, IOException::new);
 		assertTrue(signal.isSet());
 		signal.clear();

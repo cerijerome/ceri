@@ -10,42 +10,64 @@ public class BooleanCondition {
 	private final Object value = new Object();
 	private final ValueCondition<Object> condition;
 
-	public static BooleanCondition create() {
-		return create(new ReentrantLock());
+	public static BooleanCondition of() {
+		return of(new ReentrantLock());
 	}
 
-	public static BooleanCondition create(Lock lock) {
-		return new BooleanCondition(ValueCondition.create(lock));
+	public static BooleanCondition of(Lock lock) {
+		return new BooleanCondition(ValueCondition.of(lock));
 	}
 
 	private BooleanCondition(ValueCondition<Object> condition) {
 		this.condition = condition;
 	}
 
+	/**
+	 * Clears the conditions without signaling waiting threads.
+	 */
 	public void clear() {
 		condition.clear();
 	}
 
+	/**
+	 * Signals waiting threads.
+	 */
 	public void signal() {
 		condition.signal(value);
 	}
 
+	/**
+	 * Waits indefinitely for a signal, and returns true if signaled. Clears the signal.
+	 */
 	public void await() throws InterruptedException {
 		condition.await();
 	}
 
+	/**
+	 * Waits for a signal or timer to expire, and returns true if signaled. Clears the signal.
+	 */
 	public boolean await(long timeoutMs) throws InterruptedException {
 		return isSet(condition.await(timeoutMs));
 	}
 
+	/**
+	 * Waits indefinitely for a signal, and returns true if signaled. Does not clear the signal.
+	 */
 	public boolean awaitPeek() throws InterruptedException {
 		return isSet(condition.awaitPeek());
 	}
 
+	/**
+	 * Waits for a signal or timer to expire, and returns true if signaled. Does not clear the
+	 * signal.
+	 */
 	public boolean awaitPeek(long timeoutMs) throws InterruptedException {
 		return isSet(condition.awaitPeek(timeoutMs));
 	}
 
+	/**
+	 * Returns true if signaled.
+	 */
 	public boolean isSet() {
 		return condition.value() != null;
 	}
@@ -53,5 +75,5 @@ public class BooleanCondition {
 	private boolean isSet(Object value) {
 		return value != null;
 	}
-	
+
 }

@@ -8,7 +8,7 @@ public class ValueConditionBehavior {
 
 	@Test
 	public void shouldPeekWithoutResettingValue() throws InterruptedException {
-		ValueCondition<Integer> count = ValueCondition.create(this::merge);
+		ValueCondition<Integer> count = ValueCondition.of(this::merge);
 		assertThat(count.awaitPeek(0), is((Integer) null));
 		assertThat(count.awaitPeek(1), is((Integer) null));
 		count.signal(1);
@@ -31,7 +31,7 @@ public class ValueConditionBehavior {
 
 	@Test
 	public void shouldSetAndClearValues() throws InterruptedException {
-		ValueCondition<Integer> flag = ValueCondition.create();
+		ValueCondition<Integer> flag = ValueCondition.of();
 		assertThat(flag.value(), is((Integer) null));
 		assertThat(flag.await(0), is((Integer) null));
 		assertThat(flag.await(1), is((Integer) null));

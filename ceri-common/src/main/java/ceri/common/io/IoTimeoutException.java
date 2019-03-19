@@ -1,6 +1,8 @@
 package ceri.common.io;
 
-public class IoTimeoutException extends RuntimeException {
+import java.io.IOException;
+
+public class IoTimeoutException extends IOException {
 	private static final long serialVersionUID = 4222882577886865396L;
 
 	public IoTimeoutException(String message) {

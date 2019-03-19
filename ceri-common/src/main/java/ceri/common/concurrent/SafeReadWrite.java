@@ -9,11 +9,11 @@ import ceri.common.function.ExceptionSupplier;
 public class SafeReadWrite {
 	public final ReadWriteLock lock;
 
-	public static SafeReadWrite create() {
-		return create(false);
+	public static SafeReadWrite of() {
+		return of(false);
 	}
 	
-	public static SafeReadWrite create(boolean fair) {
+	public static SafeReadWrite of(boolean fair) {
 		return new SafeReadWrite(new ReentrantReadWriteLock(fair));
 	}
 	

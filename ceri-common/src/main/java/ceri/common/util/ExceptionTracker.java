@@ -41,14 +41,34 @@ public class ExceptionTracker {
 
 	private ExceptionTracker() {}
 
+	/**
+	 * Returns true if exception is new, based on exact type and message.
+	 */
 	public boolean add(Throwable t) {
 		if (t == null) return false;
 		Key key = new Key(t.getClass(), t.getMessage());
 		return map.putIfAbsent(key, t) == null;
 	}
 
+	/**
+	 * Clear tracked exceptions.
+	 */
 	public void clear() {
 		map.clear();
 	}
 
+	/**
+	 * Returns true if no tracked exceptions.
+	 */
+	public boolean isEmpty() {
+		return map.isEmpty();
+	}
+
+	/**
+	 * Returns the number of tracked exceptions.
+	 */
+	public int size() {
+		return map.size();
+	}
+	
 }

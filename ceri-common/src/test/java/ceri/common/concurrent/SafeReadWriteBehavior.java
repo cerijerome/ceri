@@ -8,13 +8,13 @@ public class SafeReadWriteBehavior {
 
 	@Test
 	public void shouldProvideLockForConditions() {
-		SafeReadWrite safe = SafeReadWrite.create();
-		BooleanCondition.create(safe.conditionLock());
+		SafeReadWrite safe = SafeReadWrite.of();
+		BooleanCondition.of(safe.conditionLock());
 	}
 
 	@Test
 	public void shouldUseReadLockToRead() {
-		SafeReadWrite safe = SafeReadWrite.create();
+		SafeReadWrite safe = SafeReadWrite.of();
 		assertTrue(safe.read(() -> {
 			assertTrue(safe.lock.readLock().tryLock());
 			safe.lock.readLock().unlock();
@@ -25,7 +25,7 @@ public class SafeReadWriteBehavior {
 
 	@Test
 	public void shouldUseWriteLockToWrite() {
-		SafeReadWrite safe = SafeReadWrite.create();
+		SafeReadWrite safe = SafeReadWrite.of();
 		safe.write(() -> {
 			assertTrue(safe.lock.writeLock().tryLock());
 			safe.lock.writeLock().unlock();
@@ -34,7 +34,7 @@ public class SafeReadWriteBehavior {
 
 	@Test
 	public void shouldUseWriteLockToWriteWithReturn() {
-		SafeReadWrite safe = SafeReadWrite.create();
+		SafeReadWrite safe = SafeReadWrite.of();
 		assertTrue(safe.writeWithReturn(() -> {
 			assertTrue(safe.lock.writeLock().tryLock());
 			safe.lock.writeLock().unlock();

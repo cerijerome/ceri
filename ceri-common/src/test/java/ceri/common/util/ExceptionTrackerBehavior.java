@@ -48,6 +48,7 @@ public class ExceptionTrackerBehavior {
 		assertThat(tracker.add(e4), is(true));
 		assertThat(tracker.add(e5), is(true));
 		assertThat(tracker.add(e0), is(false));
+		assertThat(tracker.size(), is(5));
 	}
 
 	@Test
@@ -56,7 +57,9 @@ public class ExceptionTrackerBehavior {
 		assertThat(tracker.add(new IOException("test")), is(true));
 		assertThat(tracker.add(new IOException("test")), is(false));
 		tracker.clear();
+		assertThat(tracker.isEmpty(), is(true));
 		assertThat(tracker.add(new IOException("test")), is(true));
+		assertThat(tracker.isEmpty(), is(false));
 	}
 
 }

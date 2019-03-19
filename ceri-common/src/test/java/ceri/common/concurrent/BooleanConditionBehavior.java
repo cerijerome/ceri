@@ -8,7 +8,7 @@ public class BooleanConditionBehavior {
 
 	@Test
 	public void shouldPeekWithoutResettingValue() throws InterruptedException {
-		BooleanCondition flag = BooleanCondition.create();
+		BooleanCondition flag = BooleanCondition.of();
 		assertFalse(flag.awaitPeek(0));
 		assertFalse(flag.awaitPeek(1));
 		flag.signal();
@@ -19,7 +19,7 @@ public class BooleanConditionBehavior {
 
 	@Test
 	public void shouldSetAndClearValues() throws InterruptedException {
-		BooleanCondition flag = BooleanCondition.create();
+		BooleanCondition flag = BooleanCondition.of();
 		assertFalse(flag.isSet());
 		flag.signal();
 		assertTrue(flag.isSet());
