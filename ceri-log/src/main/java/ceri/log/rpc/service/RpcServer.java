@@ -32,7 +32,7 @@ public class RpcServer implements Closeable {
 
 	@Override
 	public void close() {
-		server.shutdown();
+		server.shutdownNow();
 		try {
 			server.awaitTermination(config.shutdownTimeoutMs, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {

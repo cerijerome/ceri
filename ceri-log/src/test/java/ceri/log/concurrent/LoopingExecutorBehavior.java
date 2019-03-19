@@ -14,12 +14,12 @@ public class LoopingExecutorBehavior {
 	@Before
 	public void init() {
 		count = 0;
-		condition = ValueCondition.create();
+		condition = ValueCondition.of();
 	}
 
 	@Test
 	public void shouldAllowCloseToBeInterrupted() {
-		BooleanCondition flag = BooleanCondition.create();
+		BooleanCondition flag = BooleanCondition.of();
 		try (LoopingExecutor loop = LoopingExecutor.start(null, 100000, () -> {
 			try {
 				Thread.sleep(100000);

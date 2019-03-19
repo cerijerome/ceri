@@ -1,6 +1,6 @@
 package ceri.log.rpc.client;
 
-import static ceri.log.rpc.client.RpcClientUtil.isChannelShutdown;
+import static ceri.log.rpc.client.RpcClientUtil.ignorable;
 import static ceri.log.rpc.util.RpcUtil.EMPTY;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -42,7 +42,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	private final Function<V, T> transform;
 	private final StreamObserver<V> callback;
 	private final Lock lock = new ReentrantLock();
-	private final BooleanCondition sync = BooleanCondition.create(lock);
+	private final BooleanCondition sync = BooleanCondition.of(lock);
 	private final Set<Consumer<? super T>> listeners = new LinkedHashSet<>();
 	private final RpcClientNotifierConfig config;
 	private boolean reset = false;
@@ -152,8 +152,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	private void onError(Throwable t) {
-		if (!isChannelShutdown(t))
-			logger.warn("Streaming error: {}", RpcUtil.cause(t).getMessage());
+		if (!ignorable(t)) logger.warn("Streaming error: {}", RpcUtil.cause(t).getMessage());
 		signalReset();
 	}
 

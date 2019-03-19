@@ -20,7 +20,7 @@ public abstract class LoopingExecutor implements Closeable {
 	private final int exitTimeoutMs;
 	private final String logName;
 	private final ExecutorService executor;
-	private final BooleanCondition stopped = BooleanCondition.create();
+	private final BooleanCondition stopped = BooleanCondition.of();
 
 	public static LoopingExecutor start(ExceptionRunnable<Exception> runnable) {
 		return start(null, EXIT_TIMEOUT_MS_DEF, runnable);

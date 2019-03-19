@@ -34,7 +34,7 @@ import io.grpc.stub.StreamObserver;
  */
 public class RpcServiceNotifier<T, V> implements Closeable {
 	static final Logger logger = LogManager.getLogger();
-	private final SafeReadWrite safe = SafeReadWrite.create();
+	private final SafeReadWrite safe = SafeReadWrite.of();
 	private final Set<StreamObserver<V>> observers = new LinkedHashSet<>();
 	private final CloseableListener<T> listener;
 	private final Function<T, V> transform;
@@ -47,7 +47,7 @@ public class RpcServiceNotifier<T, V> implements Closeable {
 	private RpcServiceNotifier(Listenable<T> listenable, Function<T, V> transform) {
 		this.transform = transform;
 		listener = CloseableListener.of(listenable, this::notification);
-		logger.info("Started");
+		logger.debug("Started");
 	}
 
 	public StreamObserver<Empty> listen(StreamObserver<V> response) {
@@ -58,7 +58,7 @@ public class RpcServiceNotifier<T, V> implements Closeable {
 	@Override
 	public void close() {
 		LogUtil.close(logger, listener);
-		logger.info("Stopped");
+		logger.debug("Stopped");
 	}
 
 	private void notification(T t) {
@@ -79,7 +79,7 @@ public class RpcServiceNotifier<T, V> implements Closeable {
 	}
 
 	private void error(StreamObserver<V> response, Throwable t) {
-		logger.catching(Level.WARN, t);
+		if (!RpcServiceUtil.ignorable(t)) logger.catching(Level.WARN, t);
 		remove(response);
 	}
 

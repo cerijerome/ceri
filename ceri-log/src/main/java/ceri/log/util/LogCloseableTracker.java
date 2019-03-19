@@ -30,7 +30,7 @@ public class LogCloseableTracker {
 	public List<Closeable> list() {
 		return Collections.unmodifiableList(reverse(new ArrayList<>(tracked)));
 	}
-	
+
 	public void close() {
 		LogUtil.close(logger, list());
 	}

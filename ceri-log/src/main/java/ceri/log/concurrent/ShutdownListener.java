@@ -14,7 +14,7 @@ import ceri.log.util.LogUtil;
 public class ShutdownListener implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	public static final int PORT_DEF = 9999;
-	private final BooleanCondition stop = BooleanCondition.create();
+	private final BooleanCondition stop = BooleanCondition.of();
 	private final SocketListener socket;
 
 	public static ShutdownListener create() throws IOException {

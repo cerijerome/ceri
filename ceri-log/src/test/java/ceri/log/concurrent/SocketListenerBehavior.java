@@ -14,12 +14,12 @@ import ceri.common.concurrent.BooleanCondition;
 public class SocketListenerBehavior {
 	private static final int PORT = 9999;
 	private static final int BUFFER_SIZE = 20;
-	private BooleanCondition lastSync = BooleanCondition.create();
+	private BooleanCondition lastSync = BooleanCondition.of();
 	private ImmutableByteArray lastData;
 
 	@Test
 	public void shouldOnlyNotifyOnSuccessfulTestInput() throws IOException, InterruptedException {
-		BooleanCondition sync = BooleanCondition.create();
+		BooleanCondition sync = BooleanCondition.of();
 		try (SocketListener sl =
 			SocketListener.create(PORT, () -> sync.signal(), s -> s.length() > 1)) {
 			send("\0");
@@ -33,7 +33,7 @@ public class SocketListenerBehavior {
 
 	@Test
 	public void shouldNotifyOnInput() throws IOException, InterruptedException {
-		BooleanCondition sync = BooleanCondition.create();
+		BooleanCondition sync = BooleanCondition.of();
 		try (SocketListener sl = SocketListener.create(PORT, () -> sync.signal())) {
 			send("\0");
 			assertTrue(sync.await(1000));
@@ -68,7 +68,7 @@ public class SocketListenerBehavior {
 
 	@Test
 	public void shouldBeAbleToCloseItself() throws IOException, InterruptedException {
-		BooleanCondition closeSync = BooleanCondition.create();
+		BooleanCondition closeSync = BooleanCondition.of();
 		try (SocketListener sl = createWithCloseSync(closeSync)) {
 			sl.listeners().listen(data -> sl.close());
 			send("\0");
