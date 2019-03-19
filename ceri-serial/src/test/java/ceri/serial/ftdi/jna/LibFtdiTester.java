@@ -32,7 +32,7 @@ public class LibFtdiTester {
 	}
 
 	private static void process(ftdi_context ftdi) throws LibUsbException {
-		int delayMs = 200;
+		int delayMs = 1000;
 		read(ftdi);
 		BasicUtil.delay(delayMs);
 		for (int i = 0; i < 16; i++) {

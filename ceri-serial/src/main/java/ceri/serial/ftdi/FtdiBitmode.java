@@ -9,7 +9,8 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 
 public class FtdiBitmode {
 	public static final FtdiBitmode OFF = builder(BITMODE_RESET).build();
-	public static final FtdiBitmode BITBANG = builder(BITMODE_BITBANG).build();
+	public static final FtdiBitmode BITBANG =
+		builder(BITMODE_BITBANG).allLines(LineDirection.out).build();
 	public final ftdi_mpsse_mode mode;
 	public final int bitmask;
 

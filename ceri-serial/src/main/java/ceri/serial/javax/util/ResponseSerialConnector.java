@@ -27,7 +27,8 @@ public class ResponseSerialConnector implements SerialConnector {
 	private boolean rts;
 	private boolean dtr;
 	private FlowControl flowControl;
-	private boolean broken;
+	private volatile boolean connected = false;
+	private volatile boolean broken;
 
 	public static ResponseSerialConnector echo() {
 		return of(ResponseStream.echo());
@@ -53,17 +54,21 @@ public class ResponseSerialConnector implements SerialConnector {
 	public void broken() {
 		logger.debug("broken()");
 		broken = true;
+		connected = false;
 		listeners.accept(StateChange.broken);
 	}
 
 	@Override
-	public void connect() {
+	public void connect() throws IOException {
 		logger.debug("connect()");
+		verifyUnbroken();
+		connected = true;
 	}
 
 	@Override
 	public void close() {
 		logger.debug("close()");
+		connected = false;
 	}
 
 	@Override
@@ -80,6 +85,7 @@ public class ResponseSerialConnector implements SerialConnector {
 	public void setBreakBit(boolean on) throws IOException {
 		logger.debug("setBreakBit({})", on);
 		verifyUnbroken();
+		verifyConnected();
 		breakBit = on;
 	}
 
@@ -87,6 +93,7 @@ public class ResponseSerialConnector implements SerialConnector {
 	public void setDtr(boolean on) throws IOException {
 		logger.debug("setDtr({})", on);
 		verifyUnbroken();
+		verifyConnected();
 		dtr = on;
 	}
 
@@ -94,6 +101,7 @@ public class ResponseSerialConnector implements SerialConnector {
 	public void setFlowControl(FlowControl flowControl) throws IOException {
 		logger.debug("setFlowControl({})", flowControl);
 		verifyUnbroken();
+		verifyConnected();
 		this.flowControl = flowControl;
 	}
 
@@ -101,6 +109,7 @@ public class ResponseSerialConnector implements SerialConnector {
 	public void setRts(boolean on) throws IOException {
 		logger.debug("setRts({})", on);
 		verifyUnbroken();
+		verifyConnected();
 		rts = on;
 	}
 
@@ -127,6 +136,7 @@ public class ResponseSerialConnector implements SerialConnector {
 	public void fixed() {
 		logger.debug("fixed()");
 		broken = false;
+		connected = true;
 		listeners.accept(StateChange.fixed);
 	}
 
@@ -138,12 +148,14 @@ public class ResponseSerialConnector implements SerialConnector {
 	private int available() throws IOException {
 		logger.debug("available()");
 		verifyUnbroken();
+		verifyConnected();
 		return stream.in().available();
 	}
 
 	private int read(byte[] b, int offset, int len) throws IOException {
 		logger.debug("read([], {}, {})", offset, len);
 		verifyUnbroken();
+		verifyConnected();
 		if (stream.in().available() == 0) return 0;
 		int count = stream.in().read(b, offset, len);
 		return count;
@@ -152,7 +164,12 @@ public class ResponseSerialConnector implements SerialConnector {
 	private void write(byte[] b, int offset, int len) throws IOException {
 		logger.debug("write([], {}, {})", offset, len);
 		verifyUnbroken();
+		verifyConnected();
 		stream.out().write(b, offset, len);
+	}
+
+	private void verifyConnected() throws IOException {
+		if (!connected) throw new IOException("Not connected");
 	}
 
 	private void verifyUnbroken() throws IOException {

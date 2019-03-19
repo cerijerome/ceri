@@ -46,13 +46,14 @@ public class SerialConnectorTester extends LoopingExecutor {
 	public static void test(String commPort) throws IOException {
 		SelfHealingSerialConfig config = SelfHealingSerialConfig.of(commPort);
 		try (SelfHealingSerialConnector con = SelfHealingSerialConnector.of(config)) {
+			con.connect();
 			test(con);
 		}
 	}
 
-	public static void test(SerialConnector con) throws IOException {
+	public static void test(SerialConnector con) {
+		// Make sure connector is connected first
 		try (SerialConnectorTester tester = SerialConnectorTester.of(con)) {
-			tester.connect();
 			tester.waitUntilStopped();
 		}
 	}
@@ -69,10 +70,6 @@ public class SerialConnectorTester extends LoopingExecutor {
 		this.connector = connector;
 		this.delayMs = delayMs;
 		listener = CloseableListener.of(connector, this::event);
-	}
-
-	public void connect() throws IOException {
-		connector.connect();
 		start();
 	}
 
@@ -194,7 +191,7 @@ public class SerialConnectorTester extends LoopingExecutor {
 		showHelpCommands();
 		showHelp = false;
 	}
-	
+
 	protected void showHelpCommands() {
 		System.out.println("  b[01] = set break bit off/on");
 		System.out.println("  d[01] = set DTR off/on");

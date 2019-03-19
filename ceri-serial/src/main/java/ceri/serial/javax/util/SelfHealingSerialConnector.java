@@ -15,6 +15,7 @@ import ceri.common.io.ReplaceableOutputStream;
 import ceri.common.io.StateChange;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.ExceptionTracker;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
 import ceri.serial.javax.FlowControl;
@@ -32,7 +33,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 	private final Listeners<StateChange> listeners = new Listeners<>();
 	private final ReplaceableInputStream in = new ReplaceableInputStream();
 	private final ReplaceableOutputStream out = new ReplaceableOutputStream();
-	private final BooleanCondition sync = BooleanCondition.create();
+	private final BooleanCondition sync = BooleanCondition.of();
 	private volatile SerialPort serialPort;
 
 	public static SelfHealingSerialConnector of(SelfHealingSerialConfig config) {
@@ -57,7 +58,12 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 
 	@Override
 	public void connect() throws IOException {
-		initSerialPort();
+		try {
+			initSerialPort();
+		} catch (IOException e) {
+			broken();
+			throw e;
+		}
 	}
 
 	@Override
@@ -123,7 +129,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 	public String toString() {
 		return ToStringHelper.createByClass(this, config).toString();
 	}
-	
+
 	@Override
 	protected void loop() throws InterruptedException {
 		sync.awaitPeek();
@@ -137,16 +143,13 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 	}
 
 	private void fixSerialPort() {
-		String lastErrorMsg = null;
+		ExceptionTracker tracker = ExceptionTracker.of();
 		while (true) {
 			try {
 				initSerialPort();
 				break;
 			} catch (IOException e) {
-				String errorMsg = e.getMessage();
-				if (lastErrorMsg == null || !lastErrorMsg.equals(errorMsg))
-					logger.debug("Failed to fix connection, retrying: {}", errorMsg);
-				lastErrorMsg = errorMsg;
+				if (tracker.add(e)) logger.error("Failed to fix connection, retrying:", e);
 				BasicUtil.delay(config.fixRetryDelayMs);
 			}
 		}

@@ -14,6 +14,7 @@ import ceri.common.function.ExceptionFunction;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.StateChange;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.ExceptionTracker;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.Ftdi;
@@ -34,7 +35,7 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 	private static final Logger logger = LogManager.getLogger();
 	private final SelfHealingFtdiConfig config;
 	private final Listeners<StateChange> listeners = new Listeners<>();
-	private final BooleanCondition sync = BooleanCondition.create();
+	private final BooleanCondition sync = BooleanCondition.of();
 	private volatile Ftdi ftdi;
 
 	public static SelfHealingFtdi of(SelfHealingFtdiConfig config) {
@@ -255,23 +256,24 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 	protected void loop() throws InterruptedException {
 		sync.awaitPeek();
 		logger.info("Ftdi is broken - attempting to fix");
-		String lastErrorMsg = null;
+		fixFtdi();
+		logger.info("Ftdi is now fixed");
+		BasicUtil.delay(config.recoveryDelayMs); // wait for clients to recover before clearing
+		sync.clear();
+		notifyListeners(StateChange.fixed);
+	}
+
+	private void fixFtdi() {
+		ExceptionTracker tracker = ExceptionTracker.of();
 		while (true) {
 			try {
 				initFtdi();
 				break;
 			} catch (LibUsbException e) {
-				String errorMsg = e.getMessage();
-				if (lastErrorMsg == null || !lastErrorMsg.equals(errorMsg))
-					logger.debug("Failed to fix ftdi, retrying: {}", errorMsg);
-				lastErrorMsg = errorMsg;
+				if (tracker.add(e)) logger.error("Failed to fix ftdi, retrying:", e);
 				BasicUtil.delay(config.fixRetryDelayMs);
 			}
 		}
-		logger.info("Ftdi is now fixed");
-		BasicUtil.delay(config.recoveryDelayMs); // wait for clients to recover before clearing
-		sync.clear();
-		notifyListeners(StateChange.fixed);
 	}
 
 	private void notifyListeners(StateChange state) {

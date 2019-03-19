@@ -7,7 +7,10 @@ import ceri.serial.javax.util.SerialConnectorTester;
 public class SerialTester {
 
 	public static void main(String[] args) throws IOException {
-		SerialConnectorTester.test(ResponseSerialConnector.echo());	
+		try (SerialConnector connector = ResponseSerialConnector.echo()) {
+			connector.connect();
+			SerialConnectorTester.test(connector);
+		}
 	}
 	
 }
