@@ -4,7 +4,7 @@ import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 
 public class ShutdownSync {
-	private final BooleanCondition sync = BooleanCondition.create();
+	private final BooleanCondition sync = BooleanCondition.of();
 
 	public void signal() {
 		sync.signal();

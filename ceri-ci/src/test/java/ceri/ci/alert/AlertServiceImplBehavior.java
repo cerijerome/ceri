@@ -28,7 +28,7 @@ public class AlertServiceImplBehavior {
 	@Before
 	public void init() {
 		alerters = mock(AlerterGroup.class);
-		sync = BooleanCondition.create();
+		sync = BooleanCondition.of();
 		service = new AlertServiceImpl(createAlerters(), 0, 1000, 100000);
 	}
 

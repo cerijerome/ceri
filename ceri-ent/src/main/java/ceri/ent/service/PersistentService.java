@@ -20,7 +20,7 @@ import ceri.common.filter.Filters;
 public class PersistentService<K extends Comparable<K>, V> implements Persistable {
 	private static final int UNLIMITED_COUNT = -1;
 	private final PersistentStore<Collection<V>> store;
-	private final SafeReadWrite safe = SafeReadWrite.create();
+	private final SafeReadWrite safe = SafeReadWrite.of();
 	private final Map<K, V> map = new TreeMap<>();
 	private final Factory<K, V> identifier;
 	private boolean modified = false;
