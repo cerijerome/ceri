@@ -14,6 +14,7 @@ import java.util.TreeSet;
 import java.util.function.DoubleFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.LongFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -200,6 +201,22 @@ public abstract class BaseProperties {
 	}
 
 	/**
+	 * Converts the long property from prefixed, dot-separated key. Returns null if no value exists
+	 * for the key.
+	 */
+	protected <T> T valueFromLong(LongFunction<T> constructor, String... keyParts) {
+		return valueFromLong(null, constructor, keyParts);
+	}
+
+	/**
+	 * Converts the long property from prefixed, dot-separated key. Returns default if no value
+	 * exists for the key.
+	 */
+	protected <T> T valueFromLong(T def, LongFunction<T> constructor, String... keyParts) {
+		return value(def, s -> constructor.apply(Long.decode(s)), keyParts);
+	}
+
+	/**
 	 * Converts the double property from prefixed, dot-separated key. Returns null if no value
 	 * exists for the key.
 	 */
@@ -244,6 +261,74 @@ public abstract class BaseProperties {
 		String... keyParts) {
 		return parseValues(def, value -> parseValue(cls, null, value, constructor, keyParts),
 			keyParts);
+	}
+
+	/**
+	 * Converts the boolean list property from prefixed, dot-separated key. Returns null if no value
+	 * exists for the key.
+	 */
+	protected <T> List<T> valuesFromBoolean(BooleanFunction<T> constructor, String... keyParts) {
+		return valuesFromBoolean(null, constructor, keyParts);
+	}
+
+	/**
+	 * Converts the boolean list property from prefixed, dot-separated key. Returns default if no
+	 * value exists for the key.
+	 */
+	protected <T> List<T> valuesFromBoolean(List<T> def, BooleanFunction<T> constructor,
+		String... keyParts) {
+		return values(def, s -> constructor.apply(Boolean.parseBoolean(s)), keyParts);
+	}
+
+	/**
+	 * Converts the integer list property from prefixed, dot-separated key. Returns null if no value
+	 * exists for the key.
+	 */
+	protected <T> List<T> valuesFromInt(IntFunction<T> constructor, String... keyParts) {
+		return valuesFromInt(null, constructor, keyParts);
+	}
+
+	/**
+	 * Converts the integer list property from prefixed, dot-separated key. Returns default if no
+	 * value exists for the key.
+	 */
+	protected <T> List<T> valuesFromInt(List<T> def, IntFunction<T> constructor,
+		String... keyParts) {
+		return values(def, s -> constructor.apply(Integer.decode(s)), keyParts);
+	}
+
+	/**
+	 * Converts the long list property from prefixed, dot-separated key. Returns null if no value
+	 * exists for the key.
+	 */
+	protected <T> List<T> valuesFromLong(LongFunction<T> constructor, String... keyParts) {
+		return valuesFromLong(null, constructor, keyParts);
+	}
+
+	/**
+	 * Converts the long list property from prefixed, dot-separated key. Returns default if no value
+	 * exists for the key.
+	 */
+	protected <T> List<T> valuesFromLong(List<T> def, LongFunction<T> constructor,
+		String... keyParts) {
+		return values(def, s -> constructor.apply(Long.decode(s)), keyParts);
+	}
+
+	/**
+	 * Converts the double list property from prefixed, dot-separated key. Returns null if no value
+	 * exists for the key.
+	 */
+	protected <T> List<T> valuesFromDouble(DoubleFunction<T> constructor, String... keyParts) {
+		return valuesFromDouble(null, constructor, keyParts);
+	}
+
+	/**
+	 * Converts the double list property from prefixed, dot-separated key. Returns default if no
+	 * value exists for the key.
+	 */
+	protected <T> List<T> valuesFromDouble(List<T> def, DoubleFunction<T> constructor,
+		String... keyParts) {
+		return values(def, s -> constructor.apply(Double.parseDouble(s)), keyParts);
 	}
 
 	/**
