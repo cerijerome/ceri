@@ -143,13 +143,13 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 	}
 
 	private void fixSerialPort() {
-		ExceptionTracker tracker = ExceptionTracker.of();
+		ExceptionTracker exceptions = ExceptionTracker.of();
 		while (true) {
 			try {
 				initSerialPort();
 				break;
 			} catch (IOException e) {
-				if (tracker.add(e)) logger.error("Failed to fix connection, retrying:", e);
+				if (exceptions.add(e)) logger.error("Failed to fix connection, retrying:", e);
 				BasicUtil.delay(config.fixRetryDelayMs);
 			}
 		}

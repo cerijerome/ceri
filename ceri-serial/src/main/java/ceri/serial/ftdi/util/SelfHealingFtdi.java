@@ -264,13 +264,13 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 	}
 
 	private void fixFtdi() {
-		ExceptionTracker tracker = ExceptionTracker.of();
+		ExceptionTracker exceptions = ExceptionTracker.of();
 		while (true) {
 			try {
 				initFtdi();
 				break;
 			} catch (LibUsbException e) {
-				if (tracker.add(e)) logger.error("Failed to fix ftdi, retrying:", e);
+				if (exceptions.add(e)) logger.error("Failed to fix ftdi, retrying:", e);
 				BasicUtil.delay(config.fixRetryDelayMs);
 			}
 		}
