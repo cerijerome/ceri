@@ -1,5 +1,6 @@
 package ceri.common.color;
 
+import static ceri.common.color.ColorUtil.CHANNEL_MAX;
 import static ceri.common.data.ByteUtil.byteValueAt;
 import static ceri.common.test.TestUtil.assertApprox;
 import static org.hamcrest.CoreMatchers.is;
@@ -11,7 +12,7 @@ public class ColorTestUtil {
 	private ColorTestUtil() {}
 
 	public static void assertColor(Color color, Color c) {
-		assertColor(color, c, 255);
+		assertColor(color, c, CHANNEL_MAX);
 	}
 
 	public static void assertColor(Color color, Color c, int alpha) {
@@ -27,13 +28,35 @@ public class ColorTestUtil {
 	}
 
 	public static void assertColor(Color color, int r, int g, int b) {
-		assertColor(color, r, g, b, 255);
+		assertColor(color, r, g, b, CHANNEL_MAX);
 	}
 
 	public static void assertColor(Color color, int r, int g, int b, int a) {
 		assertThat(color, is(new Color(r, g, b, a)));
 	}
 
+	public static void assertColorx(Colorx colorx, Colorx cx) {
+		assertColorx(colorx, cx, CHANNEL_MAX);
+	}
+
+	public static void assertColorx(Colorx colorx, Colorx cx, int alpha) {
+		assertColor(colorx.rgb, cx.rgb, alpha);
+		assertXComponent(colorx, cx.x());
+	}
+
+	public static void assertColorx(Colorx colorx, int r, int g, int b, int x) {
+		assertColorx(colorx, r, g, b, x, CHANNEL_MAX);
+	}
+	
+	public static void assertColorx(Colorx colorx, int r, int g, int b, int x, int a) {
+		assertColor(colorx.rgb, r, g, b, a);
+		assertXComponent(colorx, x);
+	}
+	
+	private static void assertXComponent(Colorx colorx, int x) {
+		assertThat("x-component", colorx.x(), is(x));
+	}
+	
 	public static void assertRgb(RgbColor color, double r, double g, double b) {
 		assertRgb(color, r, g, b, 1.0);
 	}

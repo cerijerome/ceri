@@ -3,6 +3,7 @@ package ceri.common.property;
 import static ceri.common.property.PropertyUtil.load;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -34,6 +35,10 @@ public class BasePropertiesBehavior {
 		properties.put("x", "X");
 		properties.put("y", "YyY,yy , y   ,");
 		properties.put("z", ",");
+		properties.put("z.b", "true, false, true");
+		properties.put("z.i", "0x12345678, -1, 255");
+		properties.put("z.l", "0x123456789abcdef0, -1, 255");
+		properties.put("z.d", "123.4, -0.1, 1e3");
 		properties.put("a", "A");
 		properties.put("a.b", "AB");
 		properties.put("a.abc", "A,ABC");
@@ -41,6 +46,7 @@ public class BasePropertiesBehavior {
 		properties.put("a.b.c.d", "4");
 		properties.put("a.y", "true");
 		properties.put("a.n", "false");
+		properties.put("a.l", "0xfedcba987654321");
 		properties.put("m.n.0.a", "mn0a");
 		properties.put("m.n.0.b", "mn0b");
 		properties.put("m.n.0.b.c", "mn0bc");
@@ -172,6 +178,17 @@ public class BasePropertiesBehavior {
 		assertThat(bp.valueFromBoolean(0, 1, 2, "a.x"), is(0));
 		assertThat(bp.valueFromInt(Integer::toString, "a.b.c"), is("3"));
 		assertThat(bp.valueFromDouble(Double::toString, "a.b.c"), is("3.0"));
+		assertThat(bp.valueFromLong(Long::toHexString, "a.l"), is("fedcba987654321"));
+	}
+
+	@Test
+	public void shouldReadAndConvertListValues() {
+		BaseProperties bp = new BaseProperties(properties) {};
+		assertIterable(bp.valuesFromBoolean(Boolean::toString, "z.b"), "true", "false", "true");
+		assertIterable(bp.valuesFromInt(Integer::toHexString, "z.i"), "12345678", "ffffffff", "ff");
+		assertIterable(bp.valuesFromLong(Long::toHexString, "z.l"), "123456789abcdef0",
+			"ffffffffffffffff", "ff");
+		assertIterable(bp.valuesFromDouble(Double::toString, "z.d"), "123.4", "-0.1", "1000.0");
 	}
 
 	@Test
@@ -227,7 +244,7 @@ public class BasePropertiesBehavior {
 	public void shouldOnlyReadPrefixedProperties() {
 		BaseProperties bp = new BaseProperties(properties, "a") {};
 		assertThat(bp.key("b.c"), is("a.b.c"));
-		assertCollection(bp.keys(), "a.b.c.d", "a.b.c", "a.b", "a.abc", "a", "a.y", "a.n");
+		assertCollection(bp.keys(), "a.b.c.d", "a.b.c", "a.b", "a.abc", "a", "a.y", "a.n", "a.l");
 		bp = new BaseProperties(properties) {};
 		assertThat(bp.key("a.b"), is("a.b"));
 		assertCollection(bp.keys(), properties.keySet());
