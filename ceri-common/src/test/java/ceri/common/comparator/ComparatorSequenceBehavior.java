@@ -25,14 +25,14 @@ public class ComparatorSequenceBehavior {
 	private static final Comparator<A> aIComparator = new Comparator<>() {
 		@Override
 		public int compare(A a1, A a2) {
-			return Comparators.INTEGER.compare(a1.i, a2.i);
+			return Comparators.INT.compare(a1.i, a2.i);
 		}
 	};
 
 	private static final Comparator<A> aJComparator = new Comparator<>() {
 		@Override
 		public int compare(A a1, A a2) {
-			return Comparators.INTEGER.compare(a1.j, a2.j);
+			return Comparators.INT.compare(a1.j, a2.j);
 		}
 	};
 

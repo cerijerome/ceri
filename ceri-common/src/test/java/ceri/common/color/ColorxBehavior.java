@@ -15,12 +15,13 @@ public class ColorxBehavior {
 	public void shouldNotBreachEqualsContract() {
 		Colorx c0 = Colorx.of(0x10, 0x20, 0x40, 0x80, 0xff);
 		Colorx c1 = Colorx.of(0x10, 0x20, 0x40, 0x80);
+		Colorx c2 = Colorx.of(0x10204080);
 		Colorx n0 = Colorx.of(0x11, 0x20, 0x40, 0x80, 0xff);
 		Colorx n1 = Colorx.of(0x10, 0x21, 0x40, 0x80, 0xff);
 		Colorx n2 = Colorx.of(0x10, 0x20, 0x41, 0x80, 0xff);
 		Colorx n3 = Colorx.of(0x10, 0x20, 0x40, 0x81, 0xff);
 		Colorx n4 = Colorx.of(0x10, 0x20, 0x40, 0x80, 0);
-		exerciseEquals(c0, c1);
+		exerciseEquals(c0, c1, c2);
 		assertAllNotEqual(c0, n0, n1, n2, n3, n4);
 	}
 
@@ -33,6 +34,11 @@ public class ColorxBehavior {
 		assertColorx(Colorx.from(Color.black, x), 0, 0, 0, 0, 0xff);
 		assertColorx(Colorx.from(x, x), 0, 0, 0, 0xff, 0xff);
 		assertColorx(Colorx.from(Color.magenta, Color.green), 0xff, 0, 0xff, 0, 0xff);
+	}
+
+	@Test
+	public void shouldConvertToRgbxInteger() {
+		assertThat(Colorx.of(255, 127, 63, 31).rgbx(), is(0xff7f3f1f));
 	}
 
 	@Test

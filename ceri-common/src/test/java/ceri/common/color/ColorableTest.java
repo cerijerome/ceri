@@ -10,13 +10,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import ceri.common.color.Colorable;
-import ceri.common.color.X11Color;
 
 public class ColorableTest {
-	@Mock Colorable c0;
-	@Mock Colorable c1;
-	@Mock Colorable c2;
+	@Mock
+	Colorable c0;
+	@Mock
+	Colorable c1;
+	@Mock
+	Colorable c2;
 
 	@Before
 	public void init() {

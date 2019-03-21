@@ -52,7 +52,7 @@ public class ColorUtil {
 		return (int) MathUtil.limit(Math.round(ratio * CHANNEL_MAX), 0, CHANNEL_MAX);
 	}
 
-	private static int divide(int channel, double ratio) {
+	static int divide(int channel, double ratio) {
 		if (ratio == 0.0) return CHANNEL_MAX;
 		return (int) (channel / ratio);
 	}

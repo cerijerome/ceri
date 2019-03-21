@@ -18,6 +18,24 @@ public class ComparatorsTest {
 	}
 
 	@Test
+	public void testUnsignedComparators() {
+		assertThat(Comparators.UINT.compare(0xffffffff, -1), is(0));
+		assertThat(Comparators.UINT.compare(0xffffffff, 0), is(1));
+		assertThat(Comparators.UINT.compare(0, 0xffffffff), is(-1));
+		assertThat(Comparators.UINT.compare(0xffffffff, -2), is(1));
+		assertThat(Comparators.UINT.compare(-2, 0xffffffff), is(-1));
+		assertThat(Comparators.UINT.compare(0x7fffffff, 0x80000000), is(-1));
+		assertThat(Comparators.UINT.compare(0x80000000, 0x7fffffff), is(1));
+		assertThat(Comparators.ULONG.compare(0xffffffffffffffffL, -1L), is(0));
+		assertThat(Comparators.ULONG.compare(0xffffffffffffffffL, 0L), is(1));
+		assertThat(Comparators.ULONG.compare(0L, 0xffffffffffffffffL), is(-1));
+		assertThat(Comparators.ULONG.compare(0xffffffffffffffffL, -2L), is(1));
+		assertThat(Comparators.ULONG.compare(-2L, 0xffffffffffffffffL), is(-1));
+		assertThat(Comparators.ULONG.compare(0x7fffffffffffffffL, 0x8000000000000000L), is(-1));
+		assertThat(Comparators.ULONG.compare(0x8000000000000000L, 0x7fffffffffffffffL), is(1));
+	}
+
+	@Test
 	public void testOrder() {
 		Comparator<Integer> c = Comparators.order(100, 10, 1000);
 		assertThat(c.compare(0, 0), is(0));
@@ -30,7 +48,7 @@ public class ComparatorsTest {
 
 	@Test
 	public void testTransform() {
-		Comparator<String> c = Comparators.transform(Comparators.INTEGER, String::length);
+		Comparator<String> c = Comparators.transform(Comparators.INT, String::length);
 		assertThat(c.compare(null, null) > 0, is(false));
 		assertThat(c.compare("001", null) > 0, is(true));
 		assertThat(c.compare(null, "2") > 0, is(false));
@@ -48,7 +66,7 @@ public class ComparatorsTest {
 
 	@Test
 	public void testGroupComparator() {
-		Comparator<Integer> comparator = Comparators.group(Comparators.INTEGER, 3, 4, 5);
+		Comparator<Integer> comparator = Comparators.group(Comparators.INT, 3, 4, 5);
 		assertThat(comparator.compare(1, 2), is(-1));
 		assertThat(comparator.compare(1, 6), is(-1));
 		assertThat(comparator.compare(6, 1), is(1));
@@ -62,13 +80,13 @@ public class ComparatorsTest {
 
 	@Test
 	public void testPrimitiveComparator() {
-		assertThat(Comparators.BOOLEAN.compare(null, null), is(0));
-		assertThat(Comparators.BOOLEAN.compare(null, true) < 0, is(true));
-		assertThat(Comparators.BOOLEAN.compare(null, false) < 0, is(true));
-		assertThat(Comparators.BOOLEAN.compare(true, null) > 0, is(true));
-		assertThat(Comparators.BOOLEAN.compare(false, null) > 0, is(true));
-		assertThat(Comparators.BOOLEAN.compare(false, true) < 0, is(true));
-		assertThat(Comparators.BOOLEAN.compare(true, false) > 0, is(true));
+		assertThat(Comparators.BOOL.compare(null, null), is(0));
+		assertThat(Comparators.BOOL.compare(null, true) < 0, is(true));
+		assertThat(Comparators.BOOL.compare(null, false) < 0, is(true));
+		assertThat(Comparators.BOOL.compare(true, null) > 0, is(true));
+		assertThat(Comparators.BOOL.compare(false, null) > 0, is(true));
+		assertThat(Comparators.BOOL.compare(false, true) < 0, is(true));
+		assertThat(Comparators.BOOL.compare(true, false) > 0, is(true));
 	}
 
 	@Test

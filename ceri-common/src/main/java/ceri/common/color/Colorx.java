@@ -2,6 +2,7 @@ package ceri.common.color;
 
 import static ceri.common.color.ColorUtil.CHANNEL_MAX;
 import java.awt.Color;
+import ceri.common.data.ByteUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
@@ -11,6 +12,8 @@ import ceri.common.util.HashCoder;
  * rgbw, rgbww.
  */
 public class Colorx {
+	public static final Colorx black = of(0, 0, 0, 0);
+	public static final Colorx full = of(CHANNEL_MAX, CHANNEL_MAX, CHANNEL_MAX, CHANNEL_MAX);
 	public final Color rgb;
 	private final int x;
 
@@ -21,10 +24,16 @@ public class Colorx {
 		return from(rgb.getRed(), rgb.getGreen(), rgb.getBlue(), rgb.getAlpha(), xColor);
 	}
 
+	/**
+	 * Creates Colorx by extracting given x-color component from rgb.
+	 */
 	public static Colorx from(int r, int g, int b, Color xColor) {
 		return from(r, g, b, CHANNEL_MAX, xColor);
 	}
 	
+	/**
+	 * Creates Colorx by extracting given x-color component from rgb.
+	 */
 	public static Colorx from(int r, int g, int b, int a, Color xColor) {
 		double xRatio = xRatio(r, g, b, xColor);
 		int r0 = r - (int) (xRatio * xColor.getRed());
@@ -34,6 +43,10 @@ public class Colorx {
 		return of(r0, g0, b0, x, a);
 	}
 
+	public static Colorx of(int rgbx) {
+		return of(new Color(ByteUtil.shift(rgbx, 1)), rgbx);
+	}
+	
 	public static Colorx of(int r, int g, int b, int x) {
 		return of(new Color(r, g, b), x);
 	}
@@ -48,7 +61,7 @@ public class Colorx {
 
 	private Colorx(Color rgb, int x) {
 		this.rgb = rgb;
-		this.x = x;
+		this.x = x & CHANNEL_MAX;
 	}
 
 	public int r() {
@@ -71,23 +84,16 @@ public class Colorx {
 		return rgb.getAlpha();
 	}
 	
-	private static double xRatio(int r, int g, int b, Color xColor) {
-		return MathUtil.min(1, xRatio(r, xColor.getRed()),
-			xRatio(g, xColor.getGreen()), xRatio(b, xColor.getBlue()));
+	public int rgbx() {
+		return ByteUtil.shift(rgb.getRGB(), -1) | x(); 
 	}
-
-	private static double xRatio(int value, int xValue) {
-		if (xValue == 0) return 1.0;
-		if (value == 0) return 0.0;
-		return (double) value / xValue;
-	}
-
+	
 	public Color normalizeFor(Color xColor) {
 		if (xColor == null) return rgb;
 		double xRatio = (double) x / CHANNEL_MAX;
-		int r = rgb.getRed() + (int) (xRatio * xColor.getRed());
-		int g = rgb.getGreen() + (int) (xRatio * xColor.getGreen());
-		int b = rgb.getBlue() + (int) (xRatio * xColor.getBlue());
+		int r = r() + (int) (xRatio * xColor.getRed());
+		int g = g() + (int) (xRatio * xColor.getGreen());
+		int b = b() + (int) (xRatio * xColor.getBlue());
 		return RgbColor.from(r, g, b).normalize().asColor();
 	}
 
@@ -108,8 +114,18 @@ public class Colorx {
 
 	@Override
 	public String toString() {
-		return String.format("Colorx(r=%d, g=%d, b=%d, x=%d, a=%d)", rgb.getRed(), rgb.getGreen(),
-			rgb.getBlue(), x, rgb.getAlpha());
+		return String.format("Colorx(r=%d, g=%d, b=%d, x=%d, a=%d)", r(), g(), b(), x(), a());
+	}
+
+	private static double xRatio(int r, int g, int b, Color xColor) {
+		return MathUtil.min(1, xRatio(r, xColor.getRed()),
+			xRatio(g, xColor.getGreen()), xRatio(b, xColor.getBlue()));
+	}
+
+	private static double xRatio(int value, int xValue) {
+		if (xValue == 0) return 1.0;
+		if (value == 0) return 0.0;
+		return (double) value / xValue;
 	}
 
 }

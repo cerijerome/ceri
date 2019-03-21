@@ -44,19 +44,29 @@ public class ColorTestUtil {
 		assertXComponent(colorx, cx.x());
 	}
 
+	public static void assertColorx(Colorx colorx, int rgbx) {
+		assertColorx(colorx, byteValueAt(rgbx, 3), byteValueAt(rgbx, 2), byteValueAt(rgbx, 1),
+			byteValueAt(rgbx, 0));
+	}
+
+	public static void assertColorx(Colorx colorx, int rgbx, int a) {
+		assertColorx(colorx, byteValueAt(rgbx, 3), byteValueAt(rgbx, 2), byteValueAt(rgbx, 1),
+			byteValueAt(rgbx, 0), a);
+	}
+
 	public static void assertColorx(Colorx colorx, int r, int g, int b, int x) {
 		assertColorx(colorx, r, g, b, x, CHANNEL_MAX);
 	}
-	
+
 	public static void assertColorx(Colorx colorx, int r, int g, int b, int x, int a) {
 		assertColor(colorx.rgb, r, g, b, a);
 		assertXComponent(colorx, x);
 	}
-	
+
 	private static void assertXComponent(Colorx colorx, int x) {
 		assertThat("x-component", colorx.x(), is(x));
 	}
-	
+
 	public static void assertRgb(RgbColor color, double r, double g, double b) {
 		assertRgb(color, r, g, b, 1.0);
 	}

@@ -9,15 +9,15 @@ import ceri.common.comparator.Comparators;
  */
 public class ColorComparators {
 	public static final Comparator<Color> BY_RGB = Comparators
-		.nonNull((lhs, rhs) -> Comparators.INTEGER.compare(lhs.getRGB(), rhs.getRGB()));
+		.nonNull((lhs, rhs) -> Comparators.INT.compare(lhs.getRGB(), rhs.getRGB()));
 	public static final Comparator<Color> BY_ALPHA = Comparators
-		.nonNull((lhs, rhs) -> Comparators.INTEGER.compare(lhs.getAlpha(), rhs.getAlpha()));
+		.nonNull((lhs, rhs) -> Comparators.INT.compare(lhs.getAlpha(), rhs.getAlpha()));
 	public static final Comparator<Color> BY_RED = Comparators
-		.nonNull((lhs, rhs) -> Comparators.INTEGER.compare(lhs.getRed(), rhs.getRed()));
+		.nonNull((lhs, rhs) -> Comparators.INT.compare(lhs.getRed(), rhs.getRed()));
 	public static final Comparator<Color> BY_GREEN = Comparators
-		.nonNull((lhs, rhs) -> Comparators.INTEGER.compare(lhs.getGreen(), rhs.getGreen()));
+		.nonNull((lhs, rhs) -> Comparators.INT.compare(lhs.getGreen(), rhs.getGreen()));
 	public static final Comparator<Color> BY_BLUE = Comparators
-		.nonNull((lhs, rhs) -> Comparators.INTEGER.compare(lhs.getBlue(), rhs.getBlue()));
+		.nonNull((lhs, rhs) -> Comparators.INT.compare(lhs.getBlue(), rhs.getBlue()));
 	public static final Comparator<Color> BY_HUE = Comparators
 		.nonNull((lhs, rhs) -> Comparators.FLOAT.compare(toHsb(lhs)[0], toHsb(rhs)[0]));
 	public static final Comparator<Color> BY_SATURATION = Comparators

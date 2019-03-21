@@ -20,10 +20,10 @@ public class Comparators {
 	public static final Comparator<Float> FLOAT = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Byte> BYTE = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Short> SHORT = BasicUtil.uncheckedCast(COMPARABLE);
-	public static final Comparator<Integer> INTEGER = BasicUtil.uncheckedCast(COMPARABLE);
+	public static final Comparator<Integer> INT = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Long> LONG = BasicUtil.uncheckedCast(COMPARABLE);
-	public static final Comparator<Boolean> BOOLEAN = BasicUtil.uncheckedCast(COMPARABLE);
-	public static final Comparator<Character> CHARACTER = BasicUtil.uncheckedCast(COMPARABLE);
+	public static final Comparator<Boolean> BOOL = BasicUtil.uncheckedCast(COMPARABLE);
+	public static final Comparator<Character> CHAR = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<String> STRING = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Date> DATE = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Locale> LOCALE = string();
@@ -31,6 +31,16 @@ public class Comparators {
 		nonNull((lhs, rhs) -> STRING.compare(String.valueOf(lhs), String.valueOf(rhs)));
 	private static final Comparator<?> NULL = ((lhs, rhs) -> 0);
 	private static final Comparator<?> NON_NULL = nonNull((lhs, rhs) -> 0);
+	public static final Comparator<Integer> UINT = nonNull((lhs, rhs) -> {
+		if (lhs < 0 && rhs >= 0) return 1;
+		if (lhs >= 0 && rhs < 0) return -1;
+		return INT.compare(lhs, rhs);
+	});
+	public static final Comparator<Long> ULONG = nonNull((lhs, rhs) -> {
+		if (lhs < 0 && rhs >= 0) return 1;
+		if (lhs >= 0 && rhs < 0) return -1;
+		return LONG.compare(lhs, rhs);
+	});
 
 	private Comparators() {}
 
@@ -49,7 +59,7 @@ public class Comparators {
 	 */
 	public static <T> Comparator<T> order(Collection<T> ts) {
 		List<T> list = ImmutableUtil.copyAsList(ts);
-		return transform(INTEGER, t -> indexOf(list, t));
+		return transform(INT, t -> indexOf(list, t));
 	}
 
 	private static <T> int indexOf(List<T> list, T t) {

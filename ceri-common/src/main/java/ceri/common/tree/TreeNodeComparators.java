@@ -9,7 +9,7 @@ import ceri.common.util.BasicUtil;
  */
 public class TreeNodeComparators {
 	private static final Comparator<TreeNode<?>> ID = Comparators
-		.nonNull((lhs, rhs) -> Comparators.INTEGER.compare(lhs.id, rhs.id));
+		.nonNull((lhs, rhs) -> Comparators.INT.compare(lhs.id, rhs.id));
 
 	private TreeNodeComparators() {}
 
