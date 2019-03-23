@@ -91,6 +91,7 @@ import ceri.common.function.FunctionWrapperBehavior;
 import ceri.common.function.ObjBooleanConsumerBehavior;
 import ceri.common.function.ObjByteConsumerBehavior;
 import ceri.common.function.ObjShortConsumerBehavior;
+import ceri.common.function.PredicateBuilderBehavior;
 import ceri.common.function.ToByteFunctionBehavior;
 import ceri.common.function.ToShortFunctionBehavior;
 import ceri.common.function.WrapperExceptionBehavior;
@@ -328,6 +329,7 @@ import ceri.common.xml.XmlUtilTest;
 	ObjBooleanConsumerBehavior.class, //
 	ObjByteConsumerBehavior.class, //
 	ObjShortConsumerBehavior.class, //
+	PredicateBuilderBehavior.class, //
 	ToByteFunctionBehavior.class, //
 	ToShortFunctionBehavior.class, //
 	WrapperExceptionBehavior.class, //

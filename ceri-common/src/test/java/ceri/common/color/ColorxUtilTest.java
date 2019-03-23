@@ -48,7 +48,7 @@ public class ColorxUtilTest {
 		assertColorx(ColorxUtil.color("0xfedcba98"), 0xfedcba98);
 		assertColorx(ColorxUtil.color("#fedcba98"), 0xfedcba98);
 		assertColorx(ColorxUtil.color("magenta"), Color.magenta, 0);
-		assertColorx(ColorxUtil.color("#432"), 0x00000432);
+		assertColorx(ColorxUtil.color("#432"), 0x44332200);
 		assertColorx(ColorxUtil.color("full"), 0xffffffff);
 	}
 
@@ -72,6 +72,28 @@ public class ColorxUtilTest {
 	public void testAlphaColor() {
 		assertColorx(ColorxUtil.alphaColor(Colorx.of(0x12345678), 0x9a), 0x12, 0x34, 0x56, 0x78,
 			0x9a);
+	}
+
+	@Test
+	public void testToStrings() {
+		assertIterable(ColorxUtil.toStrings(Colorx.full, Colorx.of(Color.pink, 0)), "full", "pink");
+	}
+
+	@Test
+	public void testToString() {
+		assertNull(ColorxUtil.toString(null));
+		assertThat(ColorxUtil.toString(Colorx.full), is("full"));
+		assertThat(ColorxUtil.toString(0xff, 0xff, 0, 0), is("yellow"));
+		assertThat(ColorxUtil.toString(0xff, 0xff, 0, 0xff), is("#ffff00ff"));
+	}
+
+	@Test
+	public void testToName() {
+		assertNull(ColorxUtil.toName(null));
+		assertNull(ColorxUtil.toName(0x12345678));
+		assertThat(ColorxUtil.toName(Colorx.full), is("full"));
+		assertThat(ColorxUtil.toName(Colorx.black), is("black"));
+		assertThat(ColorxUtil.toName(0xff, 0, 0xff, 0), is("magenta"));
 	}
 
 	@Test

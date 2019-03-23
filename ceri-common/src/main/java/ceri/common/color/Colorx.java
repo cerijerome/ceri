@@ -47,6 +47,10 @@ public class Colorx {
 		return of(new Color(ByteUtil.shift(rgbx, 1)), rgbx);
 	}
 	
+	public static Colorx of(int rgb, int x) {
+		return of(new Color(rgb), x);
+	}
+	
 	public static Colorx of(int r, int g, int b, int x) {
 		return of(new Color(r, g, b), x);
 	}

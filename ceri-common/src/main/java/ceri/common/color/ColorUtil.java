@@ -116,6 +116,14 @@ public class ColorUtil {
 		return awtColorNames.containsKey(rgb & RGB_MASK);
 	}
 
+	public static List<String> toStrings(Color...colors) {
+		return toStrings(Arrays.asList(colors));
+	}
+	
+	public static List<String> toStrings(Collection<Color> colors) {
+		return toList(colors.stream().map(ColorUtil::toString));
+	}
+	
 	public static String toString(Color color) {
 		if (color == null) return null;
 		return toString(color.getRGB());
@@ -302,7 +310,7 @@ public class ColorUtil {
 		return color.getRGB() & RGB_MASK;
 	}
 
-	public static int tripleHexToRgb(int tripleHex) {
+	static int tripleHexToRgb(int tripleHex) {
 		int r = (tripleHex & 0xf00) << BITS8;
 		int g = (tripleHex & 0xf0) << BITS4;
 		int b = tripleHex & 0xf;

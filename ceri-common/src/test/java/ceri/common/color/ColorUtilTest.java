@@ -223,6 +223,11 @@ public class ColorUtilTest {
 	}
 
 	@Test
+	public void testToStrings() {
+		assertIterable(ColorUtil.toStrings(Color.pink, Color.orange), "pink", "orange");
+	}
+
+	@Test
 	public void testToString() {
 		assertNull(ColorUtil.toString(null));
 		assertThat(ColorUtil.toString(Color.cyan), is("cyan"));

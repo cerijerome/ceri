@@ -6,6 +6,7 @@ import static ceri.common.color.ColorUtil.CHANNEL_MAX;
 import static ceri.common.color.ColorUtil.divide;
 import static ceri.common.color.ColorUtil.scaleChannel;
 import static ceri.common.color.ColorUtil.toRatio;
+import static ceri.common.color.ColorUtil.tripleHexToRgb;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import ceri.common.text.StringUtil;
 public class ColorxUtil {
 	private static final Pattern COLORX_REGEX = Pattern.compile("(?:0x|#)?([0-9a-fA-F]{1,8})");
 	private static final int HEX = 16;
+	private static final int TRIPLE_HEX_LEN = 3;
 	private static final int QUAD_HEX_LEN = 4;
 	private static final int BITS4 = 4;
 	private static final int BITS8 = 8;
@@ -85,6 +87,7 @@ public class ColorxUtil {
 		if (m == null) return rgbColor(name);
 		String hex = m.group(1);
 		int rgbx = (int) Long.parseLong(hex, HEX);
+		if (hex.length() == TRIPLE_HEX_LEN) return Colorx.of(tripleHexToRgb(rgbx), 0);
 		if (hex.length() == QUAD_HEX_LEN) rgbx = quadHexToRgbx(rgbx);
 		return Colorx.of(rgbx);
 	}
@@ -110,6 +113,45 @@ public class ColorxUtil {
 		return null;
 	}
 
+	public static List<String> toStrings(Colorx...colorxs) {
+		return toStrings(Arrays.asList(colorxs));
+	}
+	
+	public static List<String> toStrings(Collection<Colorx> colorxs) {
+		return toList(colorxs.stream().map(ColorxUtil::toString));
+	}
+
+	public static String toString(Colorx colorx) {
+		if (colorx == null) return null;
+		return toString(colorx.rgbx());
+	}
+
+	public static String toString(int r, int g, int b, int x) {
+		return toString(rgbx(r, g, b, x));
+	}
+
+	public static String toString(int rgbx) {
+		String name = toName(rgbx);
+		if (name != null) return name;
+		return toHex(rgbx);
+	}
+
+	public static String toName(Colorx colorx) {
+		if (colorx == null) return null;
+		return toName(colorx.rgbx());
+	}
+
+	public static String toName(int r, int g, int b, int x) {
+		return toName(rgbx(r, g, b, x));
+	}
+
+	public static String toName(int rgbx) {
+		String name = colorNames.get(rgbx);
+		if (name != null) return name;
+		if (ByteUtil.byteAt(rgbx, 0) != 0) return null;
+		return ColorUtil.toName(ByteUtil.shift(rgbx, 1));
+	}
+	
 	public static String toHex(Colorx colorx) {
 		if (colorx == null) return null;
 		return toHex(colorx.rgbx());
