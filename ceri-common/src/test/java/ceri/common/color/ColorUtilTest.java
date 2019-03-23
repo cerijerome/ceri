@@ -4,6 +4,7 @@ import static ceri.common.collection.StreamUtil.toList;
 import static ceri.common.color.ColorTestUtil.assertColor;
 import static ceri.common.color.ColorTestUtil.assertHsb;
 import static ceri.common.test.TestUtil.assertApprox;
+import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.exerciseEnum;
@@ -73,12 +74,16 @@ public class ColorUtilTest {
 
 	@Test
 	public void testScale() {
+		assertColor(ColorUtil.scale(null, Color.white, 0.5), Color.white);
+		assertColor(ColorUtil.scale(Color.white, null, 0.5), Color.white);
 		assertColor(ColorUtil.scale(Color.black, Color.gray, 2), Color.gray);
 		assertColor(ColorUtil.scale(0x102030, 0x405060, -2), 0x102030);
 	}
 
 	@Test
 	public void testScaleHsb() {
+		assertColor(ColorUtil.scaleHsb(null, Color.white, 0.5), Color.white);
+		assertColor(ColorUtil.scaleHsb(Color.white, null, 0.5), Color.white);
 		assertColor(ColorUtil.scaleHsb(Color.black, Color.white, 1.1), Color.white);
 		assertColor(ColorUtil.scaleHsb(Color.black, Color.white, -1), Color.black);
 		assertColor(ColorUtil.scaleHsb(Color.black, Color.white, 0.5), Color.gray);
@@ -139,6 +144,13 @@ public class ColorUtilTest {
 	public void testColors() {
 		assertIterable(ColorUtil.colors("black", "white", "cyan"), Color.black, Color.white,
 			Color.cyan);
+	}
+
+	@Test
+	public void testValidColor() {
+		assertException(() -> ColorUtil.validColor(null));
+		assertException(() -> ColorUtil.validColor("\0white"));
+		assertThat(ColorUtil.validColor("white"), is(Color.white));
 	}
 
 	@Test

@@ -1,17 +1,23 @@
 package ceri.common.color;
 
+import static ceri.common.collection.StreamUtil.first;
 import static ceri.common.collection.StreamUtil.toList;
 import static ceri.common.color.ColorUtil.CHANNEL_MAX;
 import static ceri.common.color.ColorUtil.divide;
 import static ceri.common.color.ColorUtil.scaleChannel;
 import static ceri.common.color.ColorUtil.toRatio;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -27,9 +33,17 @@ public class ColorxUtil {
 	private static final int BITS4 = 4;
 	private static final int BITS8 = 8;
 	private static final int BITS12 = 12;
+	private static final Map<Integer, String> colorNames = colorMap();
 
 	private ColorxUtil() {}
 
+	public static Colorx applyRgb(Colorx colorx, UnaryOperator<Color> rgbFn) {
+		if (rgbFn == null) return colorx;
+		Color rgb = rgbFn.apply(colorx.rgb);
+		if (colorx.rgb.equals(rgb)) return colorx;
+		return Colorx.of(rgb, colorx.x());
+	}
+	
 	public static Colorx max(Colorx colorx) {
 		return max(colorx.r(), colorx.g(), colorx.b(), colorx.x());
 	}
@@ -58,25 +72,54 @@ public class ColorxUtil {
 		return Colorx.of(colorx.r(), colorx.g(), colorx.b(), colorx.x(), alpha);
 	}
 
-	public static Colorx color(String s) {
-		Matcher m = RegexUtil.matched(COLORX_REGEX, s);
-		if (m == null) return null;
+	public static Colorx validColor(String name) {
+		Colorx colorx = color(name);
+		if (colorx != null) return colorx;
+		throw new IllegalArgumentException("Invalid colorx: " + name);
+	}
+	
+	public static Colorx color(String name) {
+		Colorx colorx = colorFromXName(name);
+		if (colorx != null) return colorx;
+		Matcher m = RegexUtil.matched(COLORX_REGEX, name);
+		if (m == null) return rgbColor(name);
 		String hex = m.group(1);
 		int rgbx = (int) Long.parseLong(hex, HEX);
 		if (hex.length() == QUAD_HEX_LEN) rgbx = quadHexToRgbx(rgbx);
 		return Colorx.of(rgbx);
 	}
 
-	public static String toString(Colorx colorx) {
+	private static Colorx rgbColor(String name) {
+		Color color = ColorUtil.color(name);
+		if (color != null) return Colorx.of(color, 0);
+		return null;
+	}
+
+	public static Colorx colorFromName(String name) {
+		Colorx colorx = colorFromXName(name);
+		if (colorx != null) return colorx;
+		Color color = ColorUtil.colorFromName(name);
+		if (color != null) return Colorx.of(color, 0);
+		return null;
+	}
+
+	private static Colorx colorFromXName(String name) {
+		Integer rgbx = first(colorNames.entrySet().stream().filter(e -> e.getValue().equals(name))
+			.map(Map.Entry::getKey));
+		if (rgbx != null) return Colorx.of(rgbx);
+		return null;
+	}
+
+	public static String toHex(Colorx colorx) {
 		if (colorx == null) return null;
-		return toString(colorx.rgbx());
+		return toHex(colorx.rgbx());
 	}
 
-	public static String toString(int r, int g, int b, int x) {
-		return toString(rgbx(r, g, b, x));
+	public static String toHex(int r, int g, int b, int x) {
+		return toHex(rgbx(r, g, b, x));
 	}
 
-	public static String toString(int rgbx) {
+	public static String toHex(int rgbx) {
 		return "#" + StringUtil.toHex(rgbx, 8);
 	}
 
@@ -153,4 +196,10 @@ public class ColorxUtil {
 		return Colorx.of(rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max));
 	}
 
+	private static Map<Integer, String> colorMap() {
+		Map<Integer, String> map = new HashMap<>();
+		map.put(Colorx.black.rgbx(), "black");
+		map.put(Colorx.full.rgbx(), "full");
+		return Collections.unmodifiableMap(map);
+	}
 }

@@ -63,6 +63,12 @@ public class StreamUtilTest {
 	}
 
 	@Test
+	public void testIsEmpty() {
+		assertThat(StreamUtil.isEmpty(Stream.of()), is(true));
+		assertThat(StreamUtil.isEmpty(Stream.of("test")), is(false));
+	}
+
+	@Test
 	public void testFindFirstNonNull() {
 		Stream<String> stream = Stream.of(null, null, "abc", "de", "f");
 		assertThat(StreamUtil.findFirstNonNull(stream, s -> s.length() < 3), is("de"));

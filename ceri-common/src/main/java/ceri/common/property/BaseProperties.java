@@ -668,6 +668,16 @@ public abstract class BaseProperties {
 	}
 
 	/**
+	 * Returns true if child key exists.
+	 */
+	protected boolean hasChild(String... keyParts) {
+		String key = key(keyParts);
+		if (properties.property(key) != null) return true;
+		String prefix = key + ".";
+		return properties.keys().stream().anyMatch(k -> k.startsWith(prefix));
+	}
+
+	/**
 	 * Returns all the descendants of the given key.
 	 */
 	protected List<String> descendants(String... keyParts) {

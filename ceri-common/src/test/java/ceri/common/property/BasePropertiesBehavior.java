@@ -104,6 +104,18 @@ public class BasePropertiesBehavior {
 	}
 
 	@Test
+	public void shouldCheckIfChildrenExist() {
+		BaseProperties bp = new BaseProperties(properties, "m.n") {};
+		assertThat(bp.hasChild("0"), is(true));
+		assertThat(bp.hasChild("0.b"), is(true));
+		assertThat(bp.hasChild("0.c"), is(false));
+		assertThat(bp.hasChild("0.b.c"), is(true));
+		assertThat(bp.hasChild("1"), is(true));
+		assertThat(bp.hasChild("2.a"), is(true));
+		assertThat(bp.hasChild("3"), is(false));
+	}
+
+	@Test
 	public void shouldReturnChildIds() {
 		BaseProperties bp = new BaseProperties(properties) {};
 		assertCollection(bp.childIds("m.n"), 0, 1, 2);

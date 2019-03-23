@@ -170,6 +170,14 @@ public class FunctionUtil {
 		return t -> fn.apply(t);
 	}
 
+	public static <T> Predicate<T> and(Predicate<T> lhs, Predicate<T> rhs) {
+		return lhs == null ? rhs : rhs == null ? lhs : lhs.and(rhs);
+	}
+
+	public static <T> Predicate<T> or(Predicate<T> lhs, Predicate<T> rhs) {
+		return lhs == null ? rhs : rhs == null ? lhs : lhs.or(rhs);
+	}
+
 	public static <T> Predicate<T> namedPredicate(Predicate<T> predicate, String name) {
 		return new Predicate<>() {
 			@Override

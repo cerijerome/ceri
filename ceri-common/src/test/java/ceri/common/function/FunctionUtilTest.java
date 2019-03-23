@@ -169,4 +169,34 @@ public class FunctionUtilTest {
 		assertThat(p.toString(), is("test"));
 	}
 
+	@Test
+	public void testPredicateAnd() {
+		Predicate<Integer> n = null;
+		Predicate<Integer> p0 = i -> i > -1;
+		Predicate<Integer> p1 = i -> i < 1;
+		assertNull(FunctionUtil.and(n, n));
+		assertThat(FunctionUtil.and(p0, null).test(-1), is(false));
+		assertThat(FunctionUtil.and(p0, null).test(1), is(true));
+		assertThat(FunctionUtil.and(null, p1).test(-1), is(true));
+		assertThat(FunctionUtil.and(null, p1).test(1), is(false));
+		assertThat(FunctionUtil.and(p0, p1).test(-1), is(false));
+		assertThat(FunctionUtil.and(p0, p1).test(0), is(true));
+		assertThat(FunctionUtil.and(p0, p1).test(1), is(false));
+	}
+
+	@Test
+	public void testPredicateOr() {
+		Predicate<Integer> n = null;
+		Predicate<Integer> p0 = i -> i > -1;
+		Predicate<Integer> p1 = i -> i < 1;
+		assertNull(FunctionUtil.or(n, n));
+		assertThat(FunctionUtil.or(p0, null).test(-1), is(false));
+		assertThat(FunctionUtil.or(p0, null).test(1), is(true));
+		assertThat(FunctionUtil.or(null, p1).test(-1), is(true));
+		assertThat(FunctionUtil.or(null, p1).test(1), is(false));
+		assertThat(FunctionUtil.or(p0, p1).test(-1), is(true));
+		assertThat(FunctionUtil.or(p0, p1).test(0), is(true));
+		assertThat(FunctionUtil.or(p0, p1).test(1), is(true));
+	}
+
 }

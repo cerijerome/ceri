@@ -44,6 +44,11 @@ public class ColorTestUtil {
 		assertXComponent(colorx, cx.x());
 	}
 
+	public static void assertColorx(Colorx colorx, Color color, int x) {
+		assertColor(colorx.rgb, color);
+		assertXComponent(colorx, x);
+	}
+	
 	public static void assertColorx(Colorx colorx, int rgbx) {
 		assertColorx(colorx, byteValueAt(rgbx, 3), byteValueAt(rgbx, 2), byteValueAt(rgbx, 1),
 			byteValueAt(rgbx, 0));

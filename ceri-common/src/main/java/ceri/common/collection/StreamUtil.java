@@ -105,6 +105,13 @@ public class StreamUtil {
 	}
 
 	/**
+	 * Returns true if the stream is empty.
+	 */
+	public static boolean isEmpty(Stream<?> stream) {
+		return !stream.findAny().isPresent();
+	}
+
+	/**
 	 * Returns the max entry in the stream, or null if empty.
 	 */
 	public static <T extends Comparable<T>> T max(Stream<T> stream) {

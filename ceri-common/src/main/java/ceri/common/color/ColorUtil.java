@@ -84,6 +84,12 @@ public class ColorUtil {
 		return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
 	}
 
+	public static Color validColor(String name) {
+		Color color = color(name);
+		if (color != null) return color;
+		throw new IllegalArgumentException("Invalid color: " + name);
+	}
+
 	public static Color color(String name) {
 		Color color = colorFromName(name);
 		if (color != null) return color;
@@ -96,7 +102,7 @@ public class ColorUtil {
 	}
 
 	public static Color awtColor(String name) {
-		Integer rgb = first(colorMap().entrySet().stream().filter(e -> e.getValue().equals(name))
+		Integer rgb = first(awtColorNames.entrySet().stream().filter(e -> e.getValue().equals(name))
 			.map(Map.Entry::getKey));
 		if (rgb == null) return null;
 		return new Color(rgb);
@@ -198,6 +204,8 @@ public class ColorUtil {
 	}
 
 	public static Color scaleHsb(Color min, Color max, double ratio) {
+		if (min == null) return max;
+		if (max == null) return min;
 		if (ratio <= 0.0) return min;
 		if (ratio >= 1.0) return max;
 		HsbColor hsbMin = HsbColor.from(min).normalize();
@@ -219,6 +227,8 @@ public class ColorUtil {
 	}
 
 	public static Color scale(Color min, Color max, double ratio) {
+		if (min == null) return max;
+		if (max == null) return min;
 		if (ratio <= 0.0) return min;
 		if (ratio >= 1.0) return max;
 		int r = scaleChannel(min.getRed(), max.getRed(), ratio);
