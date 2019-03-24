@@ -13,11 +13,11 @@ import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
 
 /**
- * Analyzes the builds for heroes and villains. Villains have broken the build, whereas heroes
- * have fixed a broken build.
+ * Analyzes the builds for heroes and villains. Villains have broken the build, whereas heroes have
+ * fixed a broken build.
  */
 public class AnalyzedActors {
-	public static AnalyzedActors EMPTY = new AnalyzedActors();
+	public static final AnalyzedActors EMPTY = new AnalyzedActors();
 	public final Collection<Actor> heroes;
 	public final Collection<Actor> villains;
 	private final int hashCode;
@@ -41,11 +41,11 @@ public class AnalyzedActors {
 	public Collection<Actor> getHeroes() {
 		return heroes;
 	}
-	
+
 	public Collection<Actor> getVillains() {
 		return villains;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return hashCode;
@@ -63,7 +63,7 @@ public class AnalyzedActors {
 	public String toString() {
 		return ToStringHelper.createByClass(this, heroes, villains).toString();
 	}
-	
+
 	private void analyze(Builds builds, Set<Actor> heroes, Set<Actor> villains) {
 		for (Build build : builds) {
 			for (Job job : build.jobs) {
