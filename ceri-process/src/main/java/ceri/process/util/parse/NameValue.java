@@ -6,7 +6,7 @@ import ceri.common.util.HashCoder;
 import ceri.common.util.PrimitiveUtil;
 
 public class NameValue implements Named {
-	public static NameValue NULL = new NameValue(null, null);
+	public static final NameValue NULL = new NameValue(null, null);
 	public final String name;
 	public final String value;
 
