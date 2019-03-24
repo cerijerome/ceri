@@ -13,10 +13,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import ceri.common.data.ByteUtil;
+import ceri.common.function.BinaryFunction;
 import ceri.common.math.MathUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
@@ -34,6 +38,134 @@ public class ColorUtil {
 	private static final Map<Integer, String> awtColorNames = colorMap();
 
 	private ColorUtil() {}
+
+	public static class Fn {
+
+		private Fn() {}
+
+		public static interface ChannelAdjuster {
+			int applyAsInt(int x, double ratio);
+
+			default ChannelAdjuster bias(Bias bias) {
+				return (x, ratio) -> applyAsInt(x, bias.bias(ratio));
+			}
+
+			static ChannelAdjuster none() {
+				return (x, ratio) -> x;
+			}
+		}
+
+		public static interface ChannelScaler {
+			int applyAsInt(int x0, int x1, double ratio);
+
+			static ChannelScaler of() {
+				return of(Biases.NONE);
+			}
+
+			static ChannelScaler of(Bias bias) {
+				return (x0, x1, ratio) -> scaleChannel(x0, x1, bias.bias(ratio));
+			}
+		}
+
+		public static UnaryOperator<Color> dim(double scale) {
+			return c -> ColorUtil.dim(c, scale);
+		}
+
+		public static BinaryFunction<Color, List<Color>> fade(int steps) {
+			return fade(steps, Biases.NONE);
+		}
+
+		public static BinaryFunction<Color, List<Color>> fade(int steps, Bias bias) {
+			return (c0, c1) -> ColorUtil.fade(c0, c1, steps, bias);
+		}
+
+		public static BinaryFunction<Color, List<Color>> fadeHsb(int steps) {
+			return fadeHsb(steps, Biases.NONE);
+		}
+
+		public static BinaryFunction<Color, List<Color>> fadeHsb(int steps, Bias bias) {
+			return (c0, c1) -> ColorUtil.fadeHsb(c0, c1, steps, bias);
+		}
+
+		public static Function<Color, List<Color>> rotateHue(int steps) {
+			return rotateHue(steps, Biases.NONE);
+		}
+
+		public static Function<Color, List<Color>> rotateHue(int steps, Bias bias) {
+			return c -> ColorUtil.rotateHue(c, steps, bias);
+		}
+
+		public static BinaryOperator<Color> scale(double ratio) {
+			return (c0, c1) -> ColorUtil.scale(c0, c1, ratio);
+		}
+
+		public static BinaryOperator<Color> scaleHsb(double ratio) {
+			return (c0, c1) -> ColorUtil.scaleHsb(c0, c1, ratio);
+		}
+
+		public static BinaryFunction<Color, List<Color>>
+			transform(BinaryFunction<Colorx, List<Colorx>> rgbxFn) {
+			return (c0, c1) -> applyRgbx(c0, c1, rgbxFn);
+		}
+
+		public static BinaryOperator<Color> transform(BinaryOperator<Colorx> rgbxFn) {
+			return (c0, c1) -> applyRgbx(c0, c1, rgbxFn);
+		}
+
+		public static UnaryOperator<Color> transform(UnaryOperator<Colorx> rgbxFn) {
+			return c -> applyRgbx(c, rgbxFn);
+		}
+
+		public static List<Color> applyRgbx(Color color, Function<Colorx, List<Colorx>> rgbxFn) {
+			if (color == null) return null;
+			if (rgbxFn == null) return Collections.emptyList();
+			List<Colorx> colorxs = rgbxFn.apply(Colorx.of(color, 0));
+			return toList(colorxs.stream().map(cx -> cx.rgb));
+		}
+
+		public static List<Color> applyRgbx(Color c0, Color c1,
+			BinaryFunction<Colorx, List<Colorx>> rgbxFn) {
+			if (c0 == null || c1 == null) return null;
+			if (rgbxFn == null) return Collections.emptyList();
+			List<Colorx> colorxs = rgbxFn.apply(Colorx.of(c0, 0), Colorx.of(c1, 0));
+			return toList(colorxs.stream().map(cx -> cx.rgb));
+		}
+
+		public static Color applyRgbx(Color c0, Color c1, BinaryOperator<Colorx> rgbxFn) {
+			if (c0 == null) return c1;
+			if (c1 == null || rgbxFn == null) return c0;
+			return rgbxFn.apply(Colorx.of(c0, 0), Colorx.of(c1, 0)).rgb;
+		}
+
+		public static Color applyRgbx(Color color, UnaryOperator<Colorx> rgbxFn) {
+			if (rgbxFn == null || color == null) return color;
+			return rgbxFn.apply(Colorx.of(color, 0)).rgb;
+		}
+
+		public static List<Color> apply(Color color, Function<Color, List<Color>> rgbFn) {
+			if (color == null) return null;
+			if (rgbFn == null) return Collections.emptyList();
+			return rgbFn.apply(color);
+		}
+
+		public static List<Color> apply(Color c0, Color c1,
+			BinaryFunction<Color, List<Color>> rgbFn) {
+			if (c0 == null || c1 == null) return null;
+			if (rgbFn == null) return Collections.emptyList();
+			return rgbFn.apply(c0, c1);
+		}
+
+		public static Color apply(Color c0, Color c1, BinaryOperator<Color> rgbFn) {
+			if (c0 == null) return c1;
+			if (c1 == null || rgbFn == null) return c0;
+			return rgbFn.apply(c0, c1);
+		}
+
+		public static Color apply(Color color, UnaryOperator<Color> rgbFn) {
+			if (rgbFn == null || color == null) return color;
+			return rgbFn.apply(color);
+		}
+	}
 
 	public static Color max(Color color) {
 		return max(color.getRed(), color.getGreen(), color.getBlue());
@@ -55,14 +187,6 @@ public class ColorUtil {
 	static int divide(int channel, double ratio) {
 		if (ratio == 0.0) return CHANNEL_MAX;
 		return (int) (channel / ratio);
-	}
-
-	public static Color colorFromName(String name) {
-		Color color = awtColor(name);
-		if (color != null) return color;
-		X11Color x11Color = X11Color.from(name);
-		if (x11Color != null) return x11Color.color;
-		return null;
 	}
 
 	public static List<Color> colors(int... rgbs) {
@@ -116,14 +240,22 @@ public class ColorUtil {
 		return awtColorNames.containsKey(rgb & RGB_MASK);
 	}
 
-	public static List<String> toStrings(Color...colors) {
+	public static Color colorFromName(String name) {
+		Color color = awtColor(name);
+		if (color != null) return color;
+		X11Color x11Color = X11Color.from(name);
+		if (x11Color != null) return x11Color.color;
+		return null;
+	}
+
+	public static List<String> toStrings(Color... colors) {
 		return toStrings(Arrays.asList(colors));
 	}
-	
+
 	public static List<String> toStrings(Collection<Color> colors) {
 		return toList(colors.stream().map(ColorUtil::toString));
 	}
-	
+
 	public static String toString(Color color) {
 		if (color == null) return null;
 		return toString(color.getRGB());

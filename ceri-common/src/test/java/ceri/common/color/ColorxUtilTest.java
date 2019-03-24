@@ -10,6 +10,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import java.awt.Color;
+import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 import org.junit.Test;
 
@@ -21,12 +22,19 @@ public class ColorxUtilTest {
 	}
 
 	@Test
-	public void testApplyRgb() {
-		Colorx colorx = Colorx.of(0x80402010);
-		assertColorx(ColorxUtil.applyRgb(colorx, null), colorx);
-		assertColorx(ColorxUtil.applyRgb(colorx, c -> ColorUtil.dim(c, 0.5)), 0x40201010);
-		assertColorx(ColorxUtil.applyRgb(colorx, c -> ColorUtil.dim(c, 1.0)), colorx);
+	public void testToRgbx() {
+		UnaryOperator<Color> rgbFn = c -> ColorUtil.dim(c, 0.5);
+		UnaryOperator<Colorx> rgbxFn = ColorxUtil.Fn.transform(rgbFn);
+		assertColorx(rgbxFn.apply(Colorx.full), 0x808080ff);
 	}
+
+//	@Test
+//	public void testApplyRgb() {
+//		Colorx colorx = Colorx.of(0x80402010);
+//		assertColorx(ColorxUtil.Fn.applyRgb(colorx, null), colorx);
+//		assertColorx(ColorxUtil.Fn.applyRgb(colorx, c -> ColorUtil.dim(c, 0.5)), 0x40201010);
+//		assertColorx(ColorxUtil.Fn.applyRgb(colorx, c -> ColorUtil.dim(c, 1.0)), colorx);
+//	}
 
 	@Test
 	public void testMax() {

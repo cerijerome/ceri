@@ -22,6 +22,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -38,6 +39,10 @@ public class StreamUtil {
 
 	private StreamUtil() {}
 
+	public static DoubleStream unitRange(int steps) {
+		return IntStream.range(0, steps).mapToDouble(i -> (double) i / (steps - 1));
+	}
+	
 	public static IntStream toInt(Stream<? extends Number> stream) {
 		return stream.mapToInt(Number::intValue);
 	}

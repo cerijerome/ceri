@@ -2,6 +2,8 @@ package ceri.common.math;
 
 import java.util.Arrays;
 import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 public class MathUtil {
 	public static final double PIx2 = Math.PI * 2; // common calculation
@@ -13,6 +15,32 @@ public class MathUtil {
 
 	private MathUtil() {}
 
+	public static double average(double...values) {
+		if (values.length == 0) return Double.NaN;
+		if (values.length == 1) return values[0];
+		return DoubleStream.of(values).average().orElse(Double.NaN);
+	}
+	
+	public static int averageInt(int...values) {
+		return (int) Math.round(average(values));
+	}
+	
+	public static double average(int...values) {
+		if (values.length == 0) return Double.NaN;
+		if (values.length == 1) return values[0];
+		return IntStream.of(values).average().orElse(Double.NaN);
+	}
+	
+	public static long averageLong(long...values) {
+		return Math.round(average(values));
+	}
+	
+	public static double average(long...values) {
+		if (values.length == 0) return Double.NaN;
+		if (values.length == 1) return values[0];
+		return LongStream.of(values).average().orElse(Double.NaN);
+	}
+	
 	public static boolean approxEqual(double lhs, double rhs, double precision) {
 		return lhs == rhs || Math.abs(lhs - rhs) <= precision;
 	}
