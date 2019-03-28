@@ -15,7 +15,7 @@ public class LogStartupValue {
 	private final String name;
 
 	public static LogStartupValue of(StartupValue value) {
-		return of(value, null);
+		return of(value, value.sysPropertyName);
 	}
 
 	public static LogStartupValue of(StartupValue value, String name) {
@@ -33,6 +33,11 @@ public class LogStartupValue {
 	}
 
 	public <E extends Exception, T> T apply(String[] args, ExceptionFunction<E, String, T> fn,
+		T def) throws E {
+		return applyFrom(args, fn, () -> def);
+	}
+
+	public <E extends Exception, T> T applyFrom(String[] args, ExceptionFunction<E, String, T> fn,
 		ExceptionSupplier<E, T> def) throws E {
 		String value = value(args);
 		if (value != null && fn != null) return fn.apply(value);
