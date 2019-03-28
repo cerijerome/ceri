@@ -48,13 +48,13 @@ public class StartupValueBehavior {
 	}
 
 	@Test
-	public void shouldApplyFunctionToValue() {
+	public void shouldApplyFunctionToValue() throws Exception {
 		StartupValue v = StartupValue.of(0, "a.b", "A_B");
 		String[] args = { "A", "B", "C" };
 		assertNull(v.apply(new String[] {}, null));
 		assertNull(v.apply(args, null));
 		assertThat(v.apply(args, s -> s.toLowerCase()), is("a"));
-		assertThat(v.apply(args, null, () -> "x"), is("x"));
+		assertThat(v.apply(args, null, "x"), is("x"));
 	}
 
 	@Test

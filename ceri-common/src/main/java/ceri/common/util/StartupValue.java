@@ -63,13 +63,18 @@ public class StartupValue {
 	}
 
 	public <E extends Exception, T> T apply(String[] args, ExceptionFunction<E, String, T> fn,
+		T def) throws E {
+		return applyFrom(args, fn, () -> def);
+	}
+
+	public <E extends Exception, T> T applyFrom(String[] args, ExceptionFunction<E, String, T> fn,
 		ExceptionSupplier<E, T> def) throws E {
 		String value = value(args);
 		if (value != null && fn != null) return fn.apply(value);
 		return def == null ? null : def.get();
 	}
 
-	public String value(String...args) {
+	public String value(String... args) {
 		return value(args, null);
 	}
 
