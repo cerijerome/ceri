@@ -1,4 +1,4 @@
-package ceri.serial.jna.sys;
+package ceri.serial.jna.clib;
 
 import java.util.List;
 import com.sun.jna.Pointer;

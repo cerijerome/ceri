@@ -56,7 +56,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_poll_event;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
-import ceri.serial.jna.sys.Time;
+import ceri.serial.jna.clib.Time;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder;
 import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;

@@ -30,7 +30,7 @@ import ceri.serial.jna.JnaUtil;
 //import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.Struct;
 import ceri.serial.jna.TypedPointer;
-import ceri.serial.jna.sys.Time.timeval;
+import ceri.serial.jna.clib.Time.timeval;
 
 public class LibUsb {
 	private static final Logger logger = LogManager.getLogger();

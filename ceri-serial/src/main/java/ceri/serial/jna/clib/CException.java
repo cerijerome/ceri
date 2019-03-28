@@ -1,4 +1,4 @@
-package ceri.serial.jna;
+package ceri.serial.jna.clib;
 
 import java.io.IOException;
 import java.util.function.IntConsumer;

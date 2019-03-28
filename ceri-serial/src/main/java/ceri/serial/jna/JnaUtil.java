@@ -1,10 +1,10 @@
 package ceri.serial.jna;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -13,6 +13,7 @@ import com.sun.jna.Structure;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
+import ceri.serial.jna.clib.CException;
 
 public class JnaUtil {
 	public static final int INVALID_FILE_DESCRIPTOR = -1;
@@ -32,8 +33,15 @@ public class JnaUtil {
 	 * Checks function result, and throws exception if negative
 	 */
 	public static int verify(int result, String name) throws CException {
+		return verify(result, () -> name);
+	}
+
+	/**
+	 * Checks function result, and throws exception if negative
+	 */
+	public static int verify(int result, Supplier<String> name) throws CException {
 		if (result >= 0) return result;
-		throw new CException(String.format("JNA %s failed: %d", name, result), result);
+		throw new CException(String.format("JNA %s failed: %d", name.get(), result), result);
 	}
 
 	/**
@@ -46,9 +54,9 @@ public class JnaUtil {
 	/**
 	 * Validates a file descriptor
 	 */
-	public static int validateFileDescriptor(int fileDescriptor) throws IOException {
+	public static int validateFileDescriptor(int fileDescriptor) throws CException {
 		if (isValidFileDescriptor(fileDescriptor)) return fileDescriptor;
-		throw new IOException("Invalid file descriptor: " + fileDescriptor);
+		throw new CException("Invalid file descriptor: %d", fileDescriptor);
 	}
 
 	/**

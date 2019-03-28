@@ -10,7 +10,7 @@ import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.util.BasicUtil;
 import ceri.serial.jna.JnaUtil;
-import ceri.serial.jna.TermiosUtil;
+import ceri.serial.jna.clib.TermiosUtil;
 import jtermios.Termios;
 import purejavacomm.PureJavaIllegalStateException;
 import purejavacomm.PureJavaSerialPort;

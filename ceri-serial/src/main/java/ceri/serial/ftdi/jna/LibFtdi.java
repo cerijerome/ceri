@@ -34,7 +34,7 @@ import static ceri.serial.ftdi.jna.LibFtdi.ftdi_request_type.SIO_SET_MODEM_CTRL_
 import static ceri.serial.ftdi.jna.LibFtdiUtil.require;
 import static ceri.serial.ftdi.jna.LibFtdiUtil.requireCtx;
 import static ceri.serial.ftdi.jna.LibFtdiUtil.requireDev;
-import static ceri.serial.jna.CException.capture;
+import static ceri.serial.jna.clib.CException.capture;
 import static ceri.serial.libusb.jna.LibUsb.libusb_alloc_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bulk_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_cancel_transfer;
@@ -90,7 +90,7 @@ import ceri.common.text.RegexUtil;
 import ceri.common.util.PrimitiveUtil;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.Struct;
-import ceri.serial.jna.sys.Time.timeval;
+import ceri.serial.jna.clib.Time.timeval;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;

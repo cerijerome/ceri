@@ -1,33 +1,41 @@
-package ceri.serial.jna.sys;
+package ceri.serial.jna.clib;
+
+import com.sun.jna.Platform;
 
 /**
- * From sys/ioccom.h
+ * From ioccom.h (Mac) and ioctl.h (Linux)
  * 
  * Macros for calculating constants.
  */
-public class IocCom {
+public class Ioctl {
+
+	static {
+		if (Platform.isMac()) {
+			IOC_VOID = 0x20000000; // why?
+		} else {
+			IOC_VOID = 0;
+		}
+	}
+
+	public static final int _IOC_SIZEBITS = 14;
 	private static final int IOCPARM_MASK = 0x1fff;
-	public static final int IOCPARM_MAX = IOCPARM_MASK + 1;
-	private static final int IOC_VOID = 0x20000000;
+	private static final int IOC_VOID;
 	private static final int IOC_OUT = 0x40000000;
 	private static final int IOC_IN = 0x80000000;
 	private static final int IOC_INOUT = IOC_IN | IOC_OUT;
-	public static final int IOC_DIRMASK = 0xe0000000;
 
-	private IocCom() {}
+	private Ioctl() {}
 
-	public static int IOCPARM_LEN(int x) {
-		return (x >> Short.SIZE) & IOCPARM_MASK;
-	}
-
-	public static int IOCBASECMD(int x) {
-		return x & ~(IOCPARM_MASK << Short.SIZE);
-	}
-
-	public static int IOCGROUP(int x) {
-		return (x >> Byte.SIZE) & 0xff;
-	}
-
+	/**
+	 * <pre>
+	 * |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx| value
+	 * |--------|--------|--------|--------|
+	 * |xxx00000|00000000|00000000|00000000| inOut (3/32)
+	 * |   xxxxx|xxxxxxxx|        |        | len (13)      |
+	 * |        |        |xxxxxxxx|        | group (8)
+	 * |        |        |        |xxxxxxxx| num (8)
+	 * </pre>
+	 */
 	public static int _IOC(int inOut, int group, int num, int len) {
 		return inOut | ((len & IOCPARM_MASK) << Short.SIZE) | (group << Byte.SIZE) | num;
 	}
