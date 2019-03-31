@@ -15,6 +15,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
@@ -23,17 +24,27 @@ import ceri.common.reflect.ReflectUtil;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
 import ceri.common.util.HAlign;
+import ceri.common.util.StartupValues;
 import ceri.log.io.LogPrintStream;
 
 /**
  * Utility methods to assist with logging.
  */
 public class LogUtil {
+	private static final Logger logger = LogManager.getLogger();
 	private static final int TIMEOUT_MS_DEF = 1000;
 	private static final int TITLE_MAX_WIDTH = 76;
 
 	private LogUtil() {}
 
+	public static StartupValues startupValues(String...args) {
+		return startupValues(null, args);
+	}
+	
+	public static StartupValues startupValues(Logger logger, String...args) {
+		return StartupValues.of(args).notifier(logger(logger)::info);
+	}
+	
 	public static BinaryPrinter binaryLogger() {
 		return binaryLogger(BinaryPrinter.ASCII);
 	}
@@ -224,6 +235,13 @@ public class LogUtil {
 	}
 
 	/**
+	 * Returns an object whose toString() returns the formatted string.
+	 */
+	public static Object toFormat(String format, Object...args) {
+		return toString(() -> String.format(format, args));
+	}
+	
+	/**
 	 * Returns an object with a compact toString(), replacing multiple whitespace with a single
 	 * space.
 	 */
@@ -244,4 +262,8 @@ public class LogUtil {
 			"================================================================================";
 	}
 
+	private static Logger logger(Logger logger) {
+		return logger != null ? logger : LogUtil.logger;
+	}
+	
 }
