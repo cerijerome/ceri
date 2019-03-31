@@ -2621,7 +2621,7 @@ public class LibUsb {
 
 	private static LibUsbNative loadLibrary(String name) {
 		logger.info("Loading {} started", name);
-		logger.info("Protected: {}", JnaUtil.setProtected());
+		//logger.info("Protected: {}", JnaUtil.setProtected()); // only use for debug
 		LibUsbNative lib = JnaUtil.loadLibrary(name, LibUsbNative.class);
 		logger.info("Loading {} complete", name);
 		return lib;

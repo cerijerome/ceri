@@ -24,8 +24,6 @@ public class Ioctl {
 	private static final int IOC_IN = 0x80000000;
 	private static final int IOC_INOUT = IOC_IN | IOC_OUT;
 
-	private Ioctl() {}
-
 	/**
 	 * <pre>
 	 * |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx| value
@@ -45,15 +43,17 @@ public class Ioctl {
 	}
 
 	public static int _IOR(int group, int num, int size) {
-		return _IOC(IOC_OUT, group, num, size); // sizeof(t)
+		return _IOC(IOC_IN, group, num, size); // sizeof(t)
 	}
 
 	public static int _IOW(int group, int num, int size) {
-		return _IOC(IOC_IN, group, num, size); // sizeof(t)
+		return _IOC(IOC_OUT, group, num, size); // sizeof(t)
 	}
 
 	public static int _IOWR(int group, int num, int size) {
 		return _IOC(IOC_INOUT, group, num, size); // sizeof(t)
 	}
+
+	private Ioctl() {}
 
 }

@@ -7,6 +7,7 @@ import com.sun.jna.Library;
  */
 public interface CLibNative extends Library {
 
-	int ioctl(int fd, int request, Object... args);
+	// extern int ioctl (int __fd, unsigned long int __request, ...) __THROW;
+	int ioctl(int fd, int request, Object... objs);
 
 }

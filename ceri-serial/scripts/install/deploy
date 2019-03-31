@@ -1,0 +1,79 @@
+#!/bin/bash
+#------------------------------------------------------------------------------
+# Deploys jar and dependencies to Raspberry Pi host
+#------------------------------------------------------------------------------
+set -e
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+showHelp() {
+    echo "Usage: $(basename "${BASH_SOURCE[0]}") [options] host"
+    echo "Options:"
+    echo "  -h, --help, -?            Show this message"
+    echo "  -v, --verbose             Verbose messaging"
+    echo "  -b, --build               Build main jar before deploying"
+    echo "  -B, --buildall            Build main jar and dependencies before deploying"
+    echo "  -c, --clean               Build clean"
+    echo "  -n, --nodeploy            Do not deploy"
+}
+
+while true; do
+    case "$1" in
+        -h | --help | -\? ) HELP=1; break;;
+        -v | --verbose ) VERBOSE=1; shift;;
+        -b | --build ) BUILD=1; shift;;
+        -B | --buildall ) BUILDALL=1; BUILD=1; shift;;
+        -c | --clean ) CLEAN=clean; shift;;
+        -n | --nodeploy ) NODEPLOY=1; shift;;
+        -- ) shift; break;;
+        -* ) UNKNOWN="$1"; break;;
+        * ) break ;;
+    esac
+done
+HOST="$1"
+
+PRJDIR=$DIR/../..
+PRJNAME="$(basename "$(cd "$PRJDIR" && pwd)")"
+GITDIR=$PRJDIR/../..
+TARGETDIR="$DIR/../../target"
+JAR="${PRJNAME}-1.0.0-SNAPSHOT.jar"
+
+[[ "$HELP" ]] && { showHelp; exit 0; }
+[[ "$UNKNOWN" ]] && { >&2 echo "Unknown option: $UNKNOWN"; showHelp; exit 1; }
+[[ "$NODEPLOY" || "$HOST" ]] || { >&2 echo "Please specify a client host"; exit 1; }
+
+installPrj() {
+    echo "Installing $1 $CLEAN"
+    cd $GITDIR/$1
+    mvn -q -DskipTests $CLEAN install
+}
+
+buildAll() {
+    installPrj ceri/ceri-pom
+    installPrj ceri/ceri-common
+    installPrj ceri/ceri-log
+    installPrj ceri/ceri-process
+}
+
+buildJar() {
+    echo "Building $JAR"
+    cd $PRJDIR
+    mvn -q -Dmaven.test.skip=true $CLEAN install package
+}
+
+deploy() {
+    ssh pi@$HOST "mkdir -p lib"
+    [[ "$BUILDALL" || ! "$BUILD" ]] && { 
+        echo "Copying dependencies to $HOST:lib/"
+        scp -q $TARGETDIR/dependency/* pi@$HOST:lib/
+    }
+    echo "Copying $JAR to $HOST"
+    scp -q $TARGETDIR/$JAR pi@$HOST:.
+}
+
+pushd . >/dev/null
+[[ "$BUILDALL" ]] && buildAll
+[[ "$BUILD" ]] && buildJar
+[[ "$NODEPLOY" ]] || deploy
+popd > /dev/null
+

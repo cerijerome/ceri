@@ -45,6 +45,14 @@ public class JnaUtil {
 	}
 
 	/**
+	 * Checks function result, and throws exception if negative
+	 */
+	public static int verifyf(int result, String format, Object...params) throws CException {
+		if (result >= 0) return result;
+		throw CException.fullMessage(String.format(format, params), result);
+	}
+
+	/**
 	 * Checks a file descriptor validity
 	 */
 	public static boolean isValidFileDescriptor(int fileDescriptor) {
@@ -56,7 +64,7 @@ public class JnaUtil {
 	 */
 	public static int validateFileDescriptor(int fileDescriptor) throws CException {
 		if (isValidFileDescriptor(fileDescriptor)) return fileDescriptor;
-		throw new CException("Invalid file descriptor: %d", fileDescriptor);
+		throw CException.fullMessage("Invalid file descriptor", fileDescriptor);
 	}
 
 	/**
@@ -68,7 +76,8 @@ public class JnaUtil {
 
 	/**
 	 * Debug setting to protect against invalid native memory access. Not supported on all
-	 * platforms. Returns whether successful.
+	 * platforms. Only use when debugging as this interferes with signal handlers on non-windows
+	 * systems. Returns whether successful.
 	 */
 	public static boolean setProtected() {
 		Native.setProtected(true);
@@ -78,8 +87,8 @@ public class JnaUtil {
 	/**
 	 * Creates a typed array of structures from reference pointer for a null-terminated array.
 	 */
-	public static <T extends Struct> T[] arrayByRef(Pointer p, 
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor) {
+	public static <T extends Struct> T[] arrayByRef(Pointer p, Function<Pointer, T> constructor,
+		IntFunction<T[]> arrayConstructor) {
 		if (p == null) return arrayConstructor.apply(0);
 		Pointer[] refs = p.getPointerArray(0);
 		return Stream.of(refs).map(constructor).toArray(arrayConstructor);
@@ -130,16 +139,16 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Creates an array bytes from of given structure. If count is 0, returns empty array. Make sure
-	 * count field is unsigned (call JnaUtil.ubyte/ushort if needed).
+	 * Creates an array of bytes from the given structure. If count is 0, returns empty array. Make
+	 * sure count field is unsigned (call JnaUtil.ubyte/ushort if needed).
 	 */
 	public static byte[] byteArray(Pointer p, int len) {
 		return byteArray(p, 0, len);
 	}
 
 	/**
-	 * Creates an array bytes from of given structure. If count is 0, returns empty array. Make sure
-	 * count field is unsigned (call JnaUtil.ubyte/ushort if needed).
+	 * Creates an array of bytes from the given structure. If count is 0, returns empty array. Make
+	 * sure count field is unsigned (call JnaUtil.ubyte/ushort if needed).
 	 */
 	public static byte[] byteArray(Pointer p, int offset, int len) {
 		if (len == 0) return ArrayUtil.EMPTY_BYTE;
@@ -162,6 +171,14 @@ public class JnaUtil {
 		byte[] b = new byte[len];
 		buffer.position(position).get(b);
 		return b;
+	}
+
+	/**
+	 * Convenience method to get a byte buffer for all the memory.
+	 */
+	public static ByteBuffer buffer(Memory memory) {
+		if (memory == null) return ByteBuffer.allocate(0);
+		return memory.getByteBuffer(0, memory.size());
 	}
 
 	/**
@@ -189,16 +206,16 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Copies byte array from pointer offset to pointer offset. Faster than memmove only
-	 * for large sizes (>8k depending on system).
+	 * Copies byte array from pointer offset to pointer offset. Faster than memmove only for large
+	 * sizes (>8k depending on system).
 	 */
 	public static int memcpy(Pointer p, long toOffset, long fromOffset, int size) {
 		return memcpy(p, toOffset, p, fromOffset, size);
 	}
-	
+
 	/**
-	 * Copies byte array from pointer offset to pointer offset. Faster than memmove only
-	 * for large sizes (>8k depending on system).
+	 * Copies byte array from pointer offset to pointer offset. Faster than memmove only for large
+	 * sizes (>8k depending on system).
 	 */
 	public static int memcpy(Pointer to, long toOffset, Pointer from, long fromOffset, int size) {
 		if (size < MEMMOVE_OPTIMAL_MAX_SIZE) return memmove(to, toOffset, from, fromOffset, size);
@@ -207,7 +224,7 @@ public class JnaUtil {
 		toBuffer.put(fromBuffer);
 		return size;
 	}
-	
+
 	/**
 	 * Copies byte array from pointer offset to pointer offset using a buffer (if needed).
 	 */
@@ -216,7 +233,7 @@ public class JnaUtil {
 			return memcpy(p, toOffset, fromOffset, size);
 		return memmove(p, toOffset, p, fromOffset, size);
 	}
-	
+
 	/**
 	 * Copies byte array from pointer offset to pointer offset using a buffer.
 	 */
@@ -225,42 +242,42 @@ public class JnaUtil {
 		to.write(toOffset, buffer, 0, buffer.length);
 		return buffer.length;
 	}
-	
+
 	/**
-	 * Decodes string bytes from pointer and length. Pointer.getString() does not 
-	 * allow length to be specified, and can be return inconsistent values.
+	 * Decodes string bytes from pointer and length. Pointer.getString() does not allow length to be
+	 * specified, and can be return inconsistent values.
 	 */
 	public static String string(Memory m) {
 		return string(DEFAULT_CHARSET, m);
 	}
 
 	/**
-	 * Decodes string bytes from pointer and length. Pointer.getString() does not 
-	 * allow length to be specified, and can be return inconsistent values.
+	 * Decodes string bytes from pointer and length. Pointer.getString() does not allow length to be
+	 * specified, and can be return inconsistent values.
 	 */
 	public static String string(Charset charset, Memory m) {
 		return string(charset, m, (int) m.size());
 	}
 
 	/**
-	 * Decodes string bytes from pointer and length. Pointer.getString() does not 
-	 * allow length to be specified, and can be return inconsistent values.
+	 * Decodes string bytes from pointer and length. Pointer.getString() does not allow length to be
+	 * specified, and can be return inconsistent values.
 	 */
 	public static String string(Pointer p, int len) {
 		return string(p, 0, len);
 	}
 
 	/**
-	 * Decodes string bytes from pointer and length. Pointer.getString() does not 
-	 * allow length to be specified, and can be return inconsistent values.
+	 * Decodes string bytes from pointer and length. Pointer.getString() does not allow length to be
+	 * specified, and can be return inconsistent values.
 	 */
 	public static String string(Charset charset, Pointer p, int len) {
 		return string(charset, p, 0, len);
 	}
 
 	/**
-	 * Decodes string bytes from pointer and length. Pointer.getString() does not 
-	 * allow length to be specified, and can be return inconsistent values.
+	 * Decodes string bytes from pointer and length. Pointer.getString() does not allow length to be
+	 * specified, and can be return inconsistent values.
 	 */
 	public static String string(Pointer p, long offset, int len) {
 		byte[] b = p.getByteArray(offset, len);
@@ -268,8 +285,8 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Decodes string bytes from pointer and length. Pointer.getString() does not 
-	 * allow length to be specified, and can be return inconsistent values.
+	 * Decodes string bytes from pointer and length. Pointer.getString() does not allow length to be
+	 * specified, and can be return inconsistent values.
 	 */
 	public static String string(Charset charset, Pointer p, long offset, int len) {
 		byte[] b = p.getByteArray(offset, len);

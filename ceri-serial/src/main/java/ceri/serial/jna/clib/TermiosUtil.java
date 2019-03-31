@@ -18,7 +18,12 @@ public class TermiosUtil {
 	}
 
 	public static int close(int fd) throws CException {
+		if (fd <= 0) return 0;
 		return verify(JTermios.close(fd), "close");
+	}
+
+	public static int ioctl(int fd, int cmd, int... values) throws CException {
+		return verify(JTermios.ioctl(fd, cmd, values), () -> String.format("ioctl:0x%08x", cmd));
 	}
 
 	public static void setIossSpeed(int fd, int baud) throws CException {
