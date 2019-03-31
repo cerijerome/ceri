@@ -217,7 +217,7 @@ import ceri.common.util.MultiPatternBehavior;
 import ceri.common.util.NameValueBehavior;
 import ceri.common.util.OsUtilTest;
 import ceri.common.util.PrimitiveUtilTest;
-import ceri.common.util.StartupValueBehavior;
+import ceri.common.util.StartupValuesBehavior;
 import ceri.common.util.TimerBehavior;
 import ceri.common.validation.ValidationUtilTest;
 import ceri.common.xml.RuntimeXPathExceptionBehavior;
@@ -467,7 +467,7 @@ import ceri.common.xml.XmlUtilTest;
 	NameValueBehavior.class, //
 	OsUtilTest.class, //
 	PrimitiveUtilTest.class, //
-	StartupValueBehavior.class, //
+	StartupValuesBehavior.class, //
 	TimerBehavior.class, //
 	// validation
 	ValidationUtilTest.class, //

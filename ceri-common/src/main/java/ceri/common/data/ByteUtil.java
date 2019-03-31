@@ -150,6 +150,14 @@ public class ByteUtil {
 		return bytes;
 	}
 
+	public static long apply(long value, long mask, boolean on) {
+		return on ? value | mask : value & (~mask); 
+	}
+	
+	public static int applyInt(int value, int mask, boolean on) {
+		return on ? value | mask : value & (~mask); 
+	}
+	
 	public static long mask(int bitCount) {
 		if (bitCount == 0) return 0;
 		if (bitCount >= Long.SIZE) return -1L;
