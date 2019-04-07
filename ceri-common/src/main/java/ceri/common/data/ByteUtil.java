@@ -158,6 +158,16 @@ public class ByteUtil {
 		return on ? value | mask : value & (~mask); 
 	}
 	
+	public static int maskInt(int bitCount) {
+		if (bitCount == 0) return 0;
+		if (bitCount >= Integer.SIZE) return -1;
+		return (1 << bitCount) - 1;
+	}
+
+	public static int maskInt(int startBit, int bitCount) {
+		return maskInt(bitCount) << startBit;
+	}
+
 	public static long mask(int bitCount) {
 		if (bitCount == 0) return 0;
 		if (bitCount >= Long.SIZE) return -1L;

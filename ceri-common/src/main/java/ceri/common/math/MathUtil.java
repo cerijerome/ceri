@@ -15,6 +15,10 @@ public class MathUtil {
 
 	private MathUtil() {}
 
+	public static int toInt(boolean b) {
+		return b ? 1 : 0;
+	}
+	
 	public static double average(double...values) {
 		if (values.length == 0) return Double.NaN;
 		if (values.length == 1) return values[0];
@@ -136,6 +140,20 @@ public class MathUtil {
 		return Math.round((Math.random() * (max - min)) + min);
 	}
 
+	/**
+	 * Divides two numbers, rounding up any remainder.
+	 */
+	public static long divideUp(long x, long y) {
+		return Math.addExact(x / y, x % y == 0 ? 0 : 1);
+	}
+	
+	/**
+	 * Divides two numbers, rounding up any remainder.
+	 */
+	public static int divideUp(int x, int y) {
+		return Math.addExact(x / y, x % y == 0 ? 0 : 1);
+	}
+	
 	/**
 	 * Rounds the division of two long values.
 	 */
