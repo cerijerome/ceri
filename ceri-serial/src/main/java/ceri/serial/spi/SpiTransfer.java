@@ -12,27 +12,29 @@ import com.sun.jna.Memory;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
 public class SpiTransfer {
+	private final SpiDevice device;
 	private final int sizeMax;
 	private final ByteBuffer out;
 	private final ByteBuffer in;
 	private final spi_ioc_transfer transfer;
 
-	public static SpiTransfer out(int size) {
-		return new SpiTransfer(new Memory(size), null, size);
+	public static SpiTransfer out(SpiDevice device, int size) {
+		return new SpiTransfer(device, new Memory(size), null, size);
 	}
 
-	public static SpiTransfer in(int size) {
-		return new SpiTransfer(null, new Memory(size), size);
+	public static SpiTransfer in(SpiDevice device, int size) {
+		return new SpiTransfer(device, null, new Memory(size), size);
 	}
 
-	public static SpiTransfer duplex(int size) {
-		return new SpiTransfer(new Memory(size), new Memory(size), size);
+	public static SpiTransfer duplex(SpiDevice device, int size) {
+		return new SpiTransfer(device, new Memory(size), new Memory(size), size);
 	}
 
-	private SpiTransfer(Memory outMem, Memory inMem, int size) {
+	private SpiTransfer(SpiDevice device, Memory outMem, Memory inMem, int size) {
+		this.device = device;
 		transfer = new spi_ioc_transfer();
-		transfer.tx_buf = nativeValue(outMem) & 0xffffffff_ffffffffL;
-		transfer.rx_buf = nativeValue(inMem) & 0xffffffff_ffffffffL;
+		transfer.tx_buf = nativeValue(outMem);
+		transfer.rx_buf = nativeValue(inMem);
 		transfer.len = size;
 		sizeMax = size;
 		out = buffer(outMem);
@@ -49,7 +51,7 @@ public class SpiTransfer {
 	public SpiTransfer write(byte[] data) {
 		if (out.capacity() == 0) return this;
 		out.clear().put(data);
-		return size(data.length);
+		return limit(data.length);
 	}
 
 	public ByteBuffer out() {
@@ -60,7 +62,7 @@ public class SpiTransfer {
 		return in;
 	}
 
-	public void transfer(SpiDevice device) throws IOException {
+	public void execute() throws IOException {
 		device.message(transfer);
 	}
 
@@ -72,7 +74,7 @@ public class SpiTransfer {
 		return transfer.len;
 	}
 
-	public SpiTransfer size(int size) {
+	public SpiTransfer limit(int size) {
 		validateRange(size, 0, sizeMax);
 		transfer.len = size;
 		return this;

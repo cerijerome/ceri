@@ -5,6 +5,8 @@ import static ceri.serial.jna.clib.Ioctl._IOC_SIZEBITS;
 import static ceri.serial.jna.clib.Ioctl._IOR;
 import static ceri.serial.jna.clib.Ioctl._IOW;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.ByteByReference;
@@ -15,6 +17,8 @@ import ceri.serial.jna.clib.SizeOf;
 import ceri.serial.jna.clib.TermiosUtil;
 
 public class SpiDev {
+	private static final Logger logger = LogManager.getLogger();
+	
 	/* mode flags */
 	public static final int SPI_CPHA = 0x01;
 	public static final int SPI_CPOL = 0x02;
@@ -107,6 +111,7 @@ public class SpiDev {
 
 	public static int open(int bus, int chip, int flags) throws CException {
 		String path = String.format(PATH_FORMAT, bus, chip);
+		logger.debug("Opening {}", path);
 		return TermiosUtil.open(path, flags);
 	}
 

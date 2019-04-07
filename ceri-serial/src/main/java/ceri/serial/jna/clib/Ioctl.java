@@ -18,7 +18,7 @@ public class Ioctl {
 	}
 
 	public static final int _IOC_SIZEBITS = 14;
-	private static final int IOCPARM_MASK = 0x1fff;
+	private static final int IOCPARM_MASK = 0x3fff;
 	private static final int IOC_VOID;
 	private static final int IOC_OUT = 0x40000000;
 	private static final int IOC_IN = 0x80000000;

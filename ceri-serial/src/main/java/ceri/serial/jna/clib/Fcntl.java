@@ -7,4 +7,16 @@ public class Fcntl {
 
 	private Fcntl() {}
 
+	public static boolean isWrite(int flags) {
+		return (flags & (O_WRONLY | O_RDWR)) != 0;
+	}
+	
+	public static boolean isRead(int flags) {
+		return (flags & O_WRONLY) == 0;
+	}
+	
+	public static boolean isReadWrite(int flags) {
+		return (flags & O_RDWR) != 0;
+	}
+	
 }

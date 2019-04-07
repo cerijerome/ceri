@@ -16,54 +16,46 @@ public class SpiTester {
 		int speed = v.next("speed").asInt(2400000);
 		int delay = v.next("delay").asInt(50);
 		int mode = v.next("mode").asInt(0);
+		int bus = v.next("bus").asInt(0);
 		int chip = v.next("chip").asInt(0);
 		int repeat = v.next("repeat").asInt(100);
 		int repeatDelay = v.next("repeatDelay").asInt(0);
+		Integer fill = v.next("fill").asInt();
 
-		try (SpiDevice dev = openDevice(chip, inOut)) {
+		try (SpiDevice dev = openDevice(bus, chip, inOut)) {
 			dev.mode(SpiMode.of(mode));
 			dev.maxSpeedHz(speed);
 			print(dev);
 
-			SpiTransfer xfer =
-				transfer(size, inOut).speedHz(speed).bitsPerWord(8).delayMicros(delay);
+			//SpiTransfer xfer = dev.transfer(size).speedHz(speed).delayMicros(delay);
+			SpiTransfer xfer = dev.transfer(size).delayMicros(delay);
 
 			System.out.print("Fill:");
+			long t0 = System.currentTimeMillis();
 			for (int i = 0xff; i >= 0x00; i--) {
 				System.out.printf(" %02x", i, xfer.size());
-				xfer.write(fill(xfer.size(), i));
+				int fillValue = fill != null ? fill : i;
+				xfer.write(fill(xfer.size(), fillValue));
 				for (int j = 0; j < repeat; j++) {
-					xfer.transfer(dev);
+					xfer.execute();
 					BasicUtil.delayMicros(repeatDelay);
 				}
 			}
-			System.out.println();
+			long t1 = System.currentTimeMillis();
+			System.out.printf("\nTime taken: %.2fs%n", (t1 - t0) / 1000.0);
 		}
 	}
 
-	private static SpiDevice openDevice(int chip, String inOut) throws IOException {
+	private static SpiDevice openDevice(int bus, int chip, String inOut) throws IOException {
 		switch (inOut) {
 		case "i":
 		case "in":
-			return SpiDevice.openIn(0, chip);
+			return SpiDevice.openIn(bus, chip);
 		case "o":
 		case "out":
-			return SpiDevice.openOut(0, chip);
+			return SpiDevice.openOut(bus, chip);
 		default:
-			return SpiDevice.openInOut(0, chip);
-		}
-	}
-
-	private static SpiTransfer transfer(int size, String inOut) {
-		switch (inOut) {
-		case "i":
-		case "in":
-			return SpiTransfer.in(size);
-		case "o":
-		case "out":
-			return SpiTransfer.out(size);
-		default:
-			return SpiTransfer.duplex(size);
+			return SpiDevice.openDuplex(bus, chip);
 		}
 	}
 
