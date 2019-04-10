@@ -8,6 +8,8 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 pushd "$DIR" > /dev/null
 
+rm -rf ../ceri-pom/.settings
+
 rm -rf ../ceri-common/.settings
 rm -rf ../ceri-log/.settings
 rm -rf ../ceri-ent/.settings
