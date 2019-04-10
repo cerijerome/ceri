@@ -20,7 +20,7 @@ public class MaskTranscoder {
 	}
 
 	public static MaskTranscoder bits(int startBit, int bitCount) {
-		return mask(ByteUtil.mask(startBit, bitCount), startBit);
+		return mask(ByteUtil.mask(startBit, bitCount));
 	}
 
 	public static MaskTranscoder bits(int bitCount) {
@@ -83,7 +83,7 @@ public class MaskTranscoder {
 	}
 
 	private static long getValue(long current, long mask, int shiftBits) {
-		return (current & mask) >> shiftBits;
+		return (current & mask) >>> shiftBits;
 	}
 
 	@Override
