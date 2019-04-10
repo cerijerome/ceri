@@ -43,9 +43,9 @@ public class PigpioSpiFlags {
 	private static final int MODE_MAX = 3;
 	private static final int WRITE_BEFORE_READ_MAX = 15;
 	private static final int WORD_SIZE_MAX = 32;
-	static final MaskTranscoder modeXcoder = MaskTranscoder.bits(0, 2);
-	static final MaskTranscoder writeBeforeReadXcoder = MaskTranscoder.bits(10, 4);
-	static final MaskTranscoder wordSizeXcoder = MaskTranscoder.bits(16, 6);
+	static final MaskTranscoder modeXcoder = MaskTranscoder.shiftBits(0, 2);
+	static final MaskTranscoder writeBeforeReadXcoder = MaskTranscoder.shiftBits(10, 4);
+	static final MaskTranscoder wordSizeXcoder = MaskTranscoder.shiftBits(16, 6);
 	public final int value;
 
 	public static enum Bit {
