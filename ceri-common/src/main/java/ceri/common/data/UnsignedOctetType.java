@@ -4,6 +4,7 @@ import java.util.function.LongFunction;
 import ceri.common.text.StringUtil;
 
 public enum UnsignedOctetType {
+	_general(0, Long::toHexString),
 	_long(8, StringUtil::toHex),
 	_int(4, l -> StringUtil.toHex((int) l)),
 	_short(2, l -> StringUtil.toHex((short) l)),

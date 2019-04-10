@@ -8,7 +8,7 @@ import ceri.common.util.HashCoder;
  */
 public class MaskTranscoder {
 	public static final MaskTranscoder NULL = mask(-1);
-	private final long mask;
+	private final long mask; // value mask; before shift for decoding
 	private final int shiftBits;
 
 	public static MaskTranscoder mask(long mask) {
@@ -20,7 +20,7 @@ public class MaskTranscoder {
 	}
 
 	public static MaskTranscoder bits(int startBit, int bitCount) {
-		return mask(ByteUtil.mask(startBit, bitCount));
+		return mask(ByteUtil.mask(startBit, bitCount), startBit);
 	}
 
 	public static MaskTranscoder bits(int bitCount) {
@@ -79,20 +79,11 @@ public class MaskTranscoder {
 	}
 
 	private static long setValue(long current, long mask, int shiftBits, long value) {
-		long m = ~mask;
-		long cm = current & m;
-		long vs = value << shiftBits;
-		long vsm = vs & mask;
-		long r = cm | vsm;
-		return r;
-		// return (current & ~mask) | (value << shiftBits & mask);
+		return (current & ~mask) | (value << shiftBits & mask);
 	}
 
 	private static long getValue(long current, long mask, int shiftBits) {
-		long cm = current & mask;
-		long r = cm >>> shiftBits;
-		return r;
-		// return (current & mask) >> shiftBits;
+		return (current & mask) >> shiftBits;
 	}
 
 	@Override
