@@ -38,6 +38,14 @@ public class RgbxColor implements ComponentColor<RgbxColor> {
 		return of(toRatio(red), toRatio(green), toRatio(blue), toRatio(x), toRatio(alpha));
 	}
 
+	public static Colorx toColorx(double red, double green, double blue, double x) {
+		return toColorx(red, green, blue, x, MAX_VALUE);
+	}
+
+	public static Colorx toColorx(double red, double green, double blue, double x, double alpha) {
+		return of(red, green, blue, x, alpha).asColorx();
+	}
+
 	public static RgbxColor of(double red, double green, double blue, double x) {
 		return of(red, green, blue, x, MAX_VALUE);
 	}
@@ -54,12 +62,8 @@ public class RgbxColor implements ComponentColor<RgbxColor> {
 		this.a = alpha;
 	}
 
-	public Colorx colorValue() {
+	public Colorx asColorx() {
 		return Colorx.of(fromRatio(r), fromRatio(g), fromRatio(b), fromRatio(x), fromRatio(a));
-	}
-
-	public int xValue() {
-		return fromRatio(x);
 	}
 
 	public RgbxColor dim(double ratio) {

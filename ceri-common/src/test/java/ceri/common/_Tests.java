@@ -23,6 +23,7 @@ import ceri.common.color.ColorxableTest;
 import ceri.common.color.CtColorBehavior;
 import ceri.common.color.HsbColorBehavior;
 import ceri.common.color.RgbColorBehavior;
+import ceri.common.color.RgbxColorBehavior;
 import ceri.common.color.X11ColorTest;
 import ceri.common.color.XybColorBehavior;
 import ceri.common.color.XyzColorBehavior;
@@ -253,6 +254,7 @@ import ceri.common.xml.XmlUtilTest;
 	CtColorBehavior.class, //
 	HsbColorBehavior.class, //
 	RgbColorBehavior.class, //
+	RgbxColorBehavior.class, //
 	X11ColorTest.class, //
 	XybColorBehavior.class, //
 	XyzColorBehavior.class, //

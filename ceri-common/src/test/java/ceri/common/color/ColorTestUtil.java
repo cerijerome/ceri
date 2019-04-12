@@ -83,6 +83,18 @@ public class ColorTestUtil {
 		assertApprox(color.a, a);
 	}
 
+	public static void assertRgbx(RgbxColor colorx, double r, double g, double b, double x) {
+		assertRgbx(colorx, r, g, b, x, 1.0);
+	}
+
+	public static void assertRgbx(RgbxColor colorx, double r, double g, double b, double x, double a) {
+		assertApprox(colorx.r, r);
+		assertApprox(colorx.g, g);
+		assertApprox(colorx.b, b);
+		assertApprox(colorx.x, x);
+		assertApprox(colorx.a, a);
+	}
+
 	public static void assertHsb(Color color, double h, double s, double b) {
 		assertHsb(color, h, s, b, 1.0);
 	}
