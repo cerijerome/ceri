@@ -3,6 +3,7 @@ package ceri.common.math;
 import static ceri.common.test.TestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertNaN;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertRange;
 import static java.lang.Math.PI;
@@ -34,6 +35,27 @@ public class MathUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(MathUtil.class);
+	}
+
+	@Test
+	public void testToInt() {
+		assertThat(MathUtil.toInt(true), is(1));
+		assertThat(MathUtil.toInt(false), is(0));
+	}
+
+	@Test
+	public void testAverage() {
+		assertNaN(MathUtil.average(new double[] {}));
+		assertNaN(MathUtil.average(new int[] {}));
+		assertNaN(MathUtil.average(new long[] {}));
+		assertThat(MathUtil.averageInt(), is(0));
+		assertThat(MathUtil.averageLong(), is(0L));
+		assertThat(MathUtil.average(1.0), is(1.0));
+		assertThat(MathUtil.average(1), is(1.0));
+		assertThat(MathUtil.average(1L), is(1.0));
+		assertThat(MathUtil.average(1.0, 2.0), is(1.5));
+		assertThat(MathUtil.average(1, 2), is(1.5));
+		assertThat(MathUtil.average(1L, 2L), is(1.5));
 	}
 
 	@Test
@@ -153,11 +175,34 @@ public class MathUtilTest {
 	}
 
 	@Test
+	public void testSignum() {
+		assertThat(MathUtil.signum(0, 0), is(0));
+		assertThat(MathUtil.signum(1, 0), is(0));
+		assertThat(MathUtil.signum(0, 1), is(0));
+		assertThat(MathUtil.signum(0L, 0L), is(0));
+		assertThat(MathUtil.signum(Long.MAX_VALUE, Long.MAX_VALUE), is(1));
+		assertThat(MathUtil.signum(Long.MIN_VALUE, Long.MIN_VALUE), is(1));
+		assertThat(MathUtil.signum(Long.MAX_VALUE, Long.MIN_VALUE), is(-1));
+		assertThat(MathUtil.signum(Long.MIN_VALUE, Long.MAX_VALUE), is(-1));
+	}
+
+	@Test
 	public void testAbsExact() {
 		assertThat(MathUtil.absExact(0), is(0));
 		assertThat(MathUtil.absExact(Integer.MAX_VALUE), is(Integer.MAX_VALUE));
 		assertThat(MathUtil.absExact(Integer.MIN_VALUE + 1), is(Integer.MAX_VALUE));
 		assertException(() -> MathUtil.absExact(Integer.MIN_VALUE));
+	}
+
+	@Test
+	public void testDivideUp() {
+		assertThat(MathUtil.divideUp(Long.MIN_VALUE, Long.MIN_VALUE), is(1L));
+		assertThat(MathUtil.divideUp(Long.MAX_VALUE, Long.MAX_VALUE), is(1L));
+		assertThat(MathUtil.divideUp(Long.MAX_VALUE, Long.MIN_VALUE), is(-1L));
+		assertThat(MathUtil.divideUp(Long.MIN_VALUE, Long.MAX_VALUE), is(-2L));
+		assertThat(MathUtil.divideUp(10, 3), is(4));
+		assertThat(MathUtil.divideUp(3, 10), is(1));
+		assertThat(MathUtil.divideUp(0, 10), is(0));
 	}
 
 	@Test

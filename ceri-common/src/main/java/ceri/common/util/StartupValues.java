@@ -26,10 +26,10 @@ public class StartupValues {
 	}
 
 	public static class Value {
-		private final String name;
-		private final Integer argIndex;
-		private final String sysProp;
-		private final String envVar;
+		public final String name;
+		public final Integer argIndex;
+		public final String sysProp;
+		public final String envVar;
 		private String[] args;
 		private Consumer<String> notifier;
 

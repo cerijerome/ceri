@@ -139,7 +139,7 @@ public class ColorxUtil {
 			List<Color> colors = rgbFn.apply(colorx.rgb);
 			List<Colorx> colorxs = new ArrayList<>();
 			for (int i = 0; i < colors.size(); i++) {
-				double d = (double) i / (colors.size() - 1);
+				double d = (double) (i + 1) / colors.size();
 				int x = xFn == null ? 0 : xFn.applyAsInt(colorx.x(), d);
 				colorxs.add(Colorx.of(colors.get(i), x));
 			}
@@ -163,7 +163,7 @@ public class ColorxUtil {
 			List<Color> colors = rgbFn.apply(cx0.rgb, cx1.rgb);
 			List<Colorx> colorxs = new ArrayList<>();
 			for (int i = 0; i < colors.size(); i++) {
-				double d = (double) i / (colors.size() - 1);
+				double d = (double) (i + 1) / colors.size();
 				int x = xFn == null ? 0 : xFn.applyAsInt(cx0.x(), cx1.x(), d);
 				colorxs.add(Colorx.of(colors.get(i), x));
 			}
@@ -373,8 +373,8 @@ public class ColorxUtil {
 		return colors;
 	}
 
-	public static Colorx scale(int rgbxMin, int rgbxMax, double ratio) {
-		return scale(Colorx.of(rgbxMin), Colorx.of(rgbxMax), ratio);
+	public static Colorx scaleHsbx(int rgbxMin, int rgbxMax, double ratio) {
+		return scaleHsbx(Colorx.of(rgbxMin), Colorx.of(rgbxMax), ratio);
 	}
 
 	public static Colorx scaleHsbx(Colorx min, Colorx max, double ratio) {
@@ -385,6 +385,10 @@ public class ColorxUtil {
 		Color rgb = ColorUtil.scaleHsb(min.rgb, max.rgb, ratio);
 		int x = scaleChannel(min.x(), max.x(), ratio);
 		return Colorx.of(rgb, x);
+	}
+
+	public static Colorx scale(int rgbxMin, int rgbxMax, double ratio) {
+		return scale(Colorx.of(rgbxMin), Colorx.of(rgbxMax), ratio);
 	}
 
 	public static Colorx scale(Colorx min, Colorx max, double ratio) {

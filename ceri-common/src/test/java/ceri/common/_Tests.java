@@ -181,6 +181,7 @@ import ceri.common.test.BinaryLogInputStreamBehavior;
 import ceri.common.test.BinaryLogOutputStreamBehavior;
 import ceri.common.test.BinaryPrinterBehavior;
 import ceri.common.test.DebuggerBehavior;
+import ceri.common.test.PulsePrinterBehavior;
 import ceri.common.test.RegexMatcherBehavior;
 import ceri.common.test.ResponseStreamBehavior;
 import ceri.common.test.TestPrinterBehavior;
@@ -429,6 +430,7 @@ import ceri.common.xml.XmlUtilTest;
 	BinaryLogOutputStreamBehavior.class, //
 	BinaryPrinterBehavior.class, //
 	DebuggerBehavior.class, //
+	PulsePrinterBehavior.class, //
 	RegexMatcherBehavior.class, //
 	ResponseStreamBehavior.class, //
 	TestPrinterBehavior.class, //

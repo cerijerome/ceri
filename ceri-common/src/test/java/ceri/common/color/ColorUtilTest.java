@@ -8,6 +8,12 @@ import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.exerciseEnum;
+import static java.awt.Color.black;
+import static java.awt.Color.cyan;
+import static java.awt.Color.green;
+import static java.awt.Color.red;
+import static java.awt.Color.white;
+import static java.awt.Color.yellow;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -16,8 +22,12 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.awt.Color;
 import java.util.List;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 import org.junit.Test;
+import ceri.common.function.BinaryFunction;
 
 public class ColorUtilTest {
 
@@ -29,6 +39,46 @@ public class ColorUtilTest {
 	@Test
 	public void codeCoverage() {
 		exerciseEnum(ColorPreset.class);
+	}
+
+	@Test
+	public void testFadeHsbFunction() {
+		assertIterable(ColorUtil.Fn.fadeHsb(2).apply(red, green), yellow, green);
+	}
+
+	@Test
+	public void testScaleHsbFunction() {
+		assertColor(ColorUtil.Fn.scaleHsb(0.5).apply(red, green), yellow);
+	}
+
+	@Test
+	public void testApplyUnaryFunction() {
+		assertColor(ColorUtil.Fn.apply(white, ColorUtil.Fn.dim(0.5)), 0x808080);
+		assertColor(ColorUtil.Fn.apply(white, (UnaryOperator<Color>) null), white);
+		assertNull(ColorUtil.Fn.apply(null, ColorUtil.Fn.dim(0.5)));
+	}
+
+	@Test
+	public void testApplyBinaryToListFunction() {
+		assertColors(ColorUtil.Fn.apply(white, black, ColorUtil.Fn.fade(2)), 0x808080, 0x000000);
+		assertNull(ColorUtil.Fn.apply(null, black, ColorUtil.Fn.fade(2)));
+		assertNull(ColorUtil.Fn.apply(white, null, ColorUtil.Fn.fade(2)));
+		assertColors(ColorUtil.Fn.apply(white, black, (BinaryFunction<Color, List<Color>>) null));
+	}
+
+	@Test
+	public void testApplyBinaryOperator() {
+		assertColor(ColorUtil.Fn.apply(white, black, ColorUtil.Fn.scale(0.5)), 0x808080);
+		assertColor(ColorUtil.Fn.apply(null, black, ColorUtil.Fn.scale(0.5)), black);
+		assertColor(ColorUtil.Fn.apply(white, null, ColorUtil.Fn.scale(0.5)), white);
+		assertColor(ColorUtil.Fn.apply(white, black, (BinaryOperator<Color>) null), white);
+	}
+
+	@Test
+	public void testApplyUnaryToListFunction() {
+		assertIterable(ColorUtil.Fn.apply(red, ColorUtil.Fn.rotateHue(2)), cyan, red);
+		assertNull(ColorUtil.Fn.apply(null, ColorUtil.Fn.rotateHue(2)));
+		assertIterable(ColorUtil.Fn.apply(red, (Function<Color, List<Color>>) null));
 	}
 
 	@Test

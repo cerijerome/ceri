@@ -109,6 +109,11 @@ public class MathUtil {
 		return absExact(Math.multiplyExact(lhs / gcd(lhs, rhs), rhs));
 	}
 
+	public static int signum(long x, long y) {
+		if (x == 0 || y == 0) return 0;
+		return (x > 0 == y > 0) ? 1 : -1;
+	}
+	
 	/**
 	 * Return absolute value. Throws ArithmeticException if overflow.
 	 */
@@ -141,14 +146,14 @@ public class MathUtil {
 	}
 
 	/**
-	 * Divides two numbers, rounding up any remainder.
+	 * Divides two numbers, rounding any remainder away from 0.
 	 */
 	public static long divideUp(long x, long y) {
-		return Math.addExact(x / y, x % y == 0 ? 0 : 1);
+		return Math.addExact(x / y, x % y == 0 ? 0 : signum(x, y));
 	}
 	
 	/**
-	 * Divides two numbers, rounding up any remainder.
+	 * Divides two numbers, rounding any remainder away from 0.
 	 */
 	public static int divideUp(int x, int y) {
 		return Math.addExact(x / y, x % y == 0 ? 0 : 1);

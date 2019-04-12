@@ -108,6 +108,28 @@ public class ByteUtilTest {
 	}
 
 	@Test
+	public void testApply() {
+		assertThat(ByteUtil.apply(0xffff0000_ffff0000L, 0xffff00_00ffff00L, false),
+			is(0xff000000_ff000000L));
+		assertThat(ByteUtil.apply(0xffff0000_ffff0000L, 0xffff00_00ffff00L, true),
+			is(0xffffff00_ffffff00L));
+	}
+
+	@Test
+	public void testApplyInt() {
+		assertThat(ByteUtil.applyInt(0xffff0000, 0x00ffff00, false), is(0xff000000));
+		assertThat(ByteUtil.applyInt(0xffff0000, 0x00ffff00, true), is(0xffffff00));
+	}
+
+	@Test
+	public void testMaskInt() {
+		assertThat(ByteUtil.maskInt(0), is(0));
+		assertThat(ByteUtil.maskInt(32), is(0xffffffff));
+		assertThat(ByteUtil.maskInt(11), is(0x7ff));
+		assertThat(ByteUtil.maskInt(5, 11), is(0xffe0));
+	}
+
+	@Test
 	public void testMask() {
 		assertThat(ByteUtil.mask(0), is(0L));
 		assertThat(ByteUtil.mask(7), is(0x7fL));

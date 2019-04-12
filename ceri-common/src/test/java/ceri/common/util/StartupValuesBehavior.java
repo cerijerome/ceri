@@ -1,11 +1,34 @@
 package ceri.common.util;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import java.util.Set;
 import org.junit.Test;
+import ceri.common.function.ExceptionFunction;
+import ceri.common.io.SystemIo;
+import ceri.common.text.StringUtil;
+import ceri.common.util.StartupValues.Value;
 
 public class StartupValuesBehavior {
+
+	@Test
+	public void shouldAllowNullNotifier() {
+		StartupValues v = StartupValues.of("a").notifier(null);
+		v.next("param").get();
+	}
+	
+	@Test
+	public void shouldNotifyStdOutWhenValueIsReads() {
+		StringBuilder b = new StringBuilder();
+		try (SystemIo sys = SystemIo.of()) {
+			sys.out(StringUtil.asPrintStream(b));
+			StartupValues v = StartupValues.sysOut("a");
+			v.next("param").get();
+			v.next().get(); // ignored
+			assertThat(b.toString(), is("param = a (from args[0])\n"));
+		}
+	}
 
 	@Test
 	public void shouldGetValuesFromArgumentArray() {
@@ -27,6 +50,48 @@ public class StartupValuesBehavior {
 		assertThat(v.value(sysProp, null).get(), is(System.getProperty(sysProp)));
 	}
 
+	@Test
+	public void shouldConvertNameFormat() {
+		StartupValues v = StartupValues.of().prefix(getClass());
+		Value value = v.value(null);
+		assertNull(value.sysProp);
+		assertNull(value.envVar);
+		value = v.value("");
+		assertNull(value.sysProp);
+		assertNull(value.envVar);
+		value = v.value("testName");
+		assertThat(value.sysProp, is("ceri.common.util.testName"));
+		assertThat(value.envVar, is("CERI_COMMON_UTIL_TESTNAME"));
+	}	
+
+	@Test
+	public void shouldConvertValueToType() {
+		StartupValues v = StartupValues.of(null, "true", "-1", "0xffffffffff", "1.1");
+		assertThat(v.value(1).asBool(), is(true));
+		assertThat(v.value(1).asBool(false), is(true));
+		assertThat(v.value(0).asBool(false), is(false));
+		assertThat(v.value(2).asInt(), is(-1));
+		assertThat(v.value(2).asInt(1), is(-1));
+		assertThat(v.value(0).asInt(1), is(1));
+		assertThat(v.value(3).asLong(), is(0xffffffffffL));
+		assertThat(v.value(3).asLong(-1L), is(0xffffffffffL));
+		assertThat(v.value(0).asLong(-1L), is(-1L));
+		assertThat(v.value(4).asDouble(), is(1.1));
+		assertThat(v.value(4).asDouble(-1.1), is(1.1));
+		assertThat(v.value(0).asDouble(-1.1), is(-1.1));
+	}
+
+	@Test
+	public void shouldApplyConverterFunctionToValue() {
+		StartupValues v = StartupValues.of("test");
+		assertThat(v.value(0).apply(String::length), is(4));
+		ExceptionFunction<RuntimeException, String, Integer> nullFn = null;
+		assertNull(v.value(0).apply(nullFn));
+		assertNull(v.value(1).apply(String::length));
+		assertThat(v.value(1).apply(String::length, 0), is(0));
+		assertNull(v.value(1).applyFrom(String::length, null));
+	}
+	
 	@Test
 	public void shouldGetEnvironmentVariables() {
 		StartupValues v = StartupValues.of();

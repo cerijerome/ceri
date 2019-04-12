@@ -36,6 +36,12 @@ public class StreamUtilTest {
 	}
 
 	@Test
+	public void testUnitRange() {
+		assertThat(StreamUtil.unitRange(5).toArray(),
+			is(new double[] { 0.0, 0.25, 0.5, 0.75, 1.0 }));
+	}
+
+	@Test
 	public void testToInt() {
 		assertThat(StreamUtil.toInt(List.of(1.2, 2.4, 3.6, 4.8).stream()).toArray(),
 			is(new int[] { 1, 2, 3, 4 }));
