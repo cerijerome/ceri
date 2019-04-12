@@ -27,6 +27,7 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 import org.junit.Test;
+import ceri.common.color.ColorUtil.Fn.ChannelAdjuster;
 import ceri.common.function.BinaryFunction;
 
 public class ColorUtilTest {
@@ -42,6 +43,14 @@ public class ColorUtilTest {
 	}
 
 	@Test
+	public void testChannelAdjuster() {
+		ChannelAdjuster adj = (x, r) -> (int) (x * r * r);
+		assertThat(adj.applyAsInt(100, 0.5), is(25));
+		adj = adj.bias(r -> r - 0.1);
+		assertThat(adj.applyAsInt(100, 0.5), is(16));
+	}
+
+	@Test
 	public void testFadeHsbFunction() {
 		assertIterable(ColorUtil.Fn.fadeHsb(2).apply(red, green), yellow, green);
 	}
@@ -49,6 +58,39 @@ public class ColorUtilTest {
 	@Test
 	public void testScaleHsbFunction() {
 		assertColor(ColorUtil.Fn.scaleHsb(0.5).apply(red, green), yellow);
+	}
+
+	@Test
+	public void testTransformRgbxUnaryToListFunction() {
+		assertIterable(ColorUtil.Fn.transform(ColorxUtil.Fn.rotateHuex(2)).apply(red), cyan, red);
+		assertNull(ColorUtil.Fn.transform(ColorxUtil.Fn.rotateHuex(2)).apply(null));
+		assertIterable(ColorUtil.Fn.transform((Function<Colorx, List<Colorx>>) null).apply(red));
+	}
+
+	@Test
+	public void testTransformRgbxBinaryToListFunction() {
+		assertColors(ColorUtil.Fn.transform(ColorxUtil.Fn.fade(2)) //
+			.apply(white, black), 0x808080, 0);
+		assertNull(ColorUtil.Fn.transform(ColorxUtil.Fn.fade(2)).apply(null, black));
+		assertNull(ColorUtil.Fn.transform(ColorxUtil.Fn.fade(2)).apply(white, null));
+		assertColors(ColorUtil.Fn.transform((BinaryFunction<Colorx, List<Colorx>>) null) //
+			.apply(white, black));
+	}
+
+	@Test
+	public void testTransformRgbxBinaryOperator() {
+		assertColor(ColorUtil.Fn.transform(ColorxUtil.Fn.scale(0.5)).apply(white, black), 0x808080);
+		assertColor(ColorUtil.Fn.transform(ColorxUtil.Fn.scale(0.5)).apply(null, black), black);
+		assertColor(ColorUtil.Fn.transform(ColorxUtil.Fn.scale(0.5)).apply(white, null), white);
+		assertColor(ColorUtil.Fn.transform((BinaryOperator<Colorx>) null) //
+			.apply(white, black), white);
+	}
+
+	@Test
+	public void testTransformRgbxUnaryOperator() {
+		assertColor(ColorUtil.Fn.transform(ColorxUtil.Fn.dim(0.5)).apply(white), 0x808080);
+		assertNull(ColorUtil.Fn.transform(ColorxUtil.Fn.dim(0.5)).apply(null));
+		assertColor(ColorUtil.Fn.transform((UnaryOperator<Colorx>) null).apply(white), white);
 	}
 
 	@Test

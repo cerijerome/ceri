@@ -103,6 +103,11 @@ public class ColorUtil {
 			return (c0, c1) -> ColorUtil.scaleHsb(c0, c1, ratio);
 		}
 
+		public static Function<Color, List<Color>>
+			transform(Function<Colorx, List<Colorx>> rgbxFn) {
+			return c -> applyRgbx(c, rgbxFn);
+		}
+
 		public static BinaryFunction<Color, List<Color>>
 			transform(BinaryFunction<Colorx, List<Colorx>> rgbxFn) {
 			return (c0, c1) -> applyRgbx(c0, c1, rgbxFn);
