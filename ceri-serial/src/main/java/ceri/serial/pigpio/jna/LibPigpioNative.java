@@ -3,8 +3,38 @@ package ceri.serial.pigpio.jna;
 import java.nio.ByteBuffer;
 import com.sun.jna.Library;
 
-public interface PigpioNative extends Library {
+public interface LibPigpioNative extends Library {
+	
+	/**
+	Initialises the library.
 
+	Returns the pigpio version number if OK, otherwise PI_INIT_FAILED.
+
+	gpioInitialise must be called before using the other library functions
+	with the following exceptions:
+
+	[*gpioCfg**]
+	[*gpioVersion*]
+	[*gpioHardwareRevision*]
+	*/
+	//int gpioInitialise(void);
+	int gpioInitialise();
+
+	/**
+	Terminates the library.
+
+	Returns nothing.
+
+	Call before program exit.
+
+	This function resets the used DMA channels, releases memory, and
+	terminates any running threads.
+
+	gpioTerminate();
+	*/
+	//void gpioTerminate(void);
+	void gpioTerminate();
+	
 	/**
 	 * This function returns a handle for the SPI device on the channel. Data will be transferred at
 	 * baud bits per second. The flags may be used to modify the default behaviour of 4-wire

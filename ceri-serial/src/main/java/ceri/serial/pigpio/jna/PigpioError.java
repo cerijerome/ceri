@@ -24,14 +24,14 @@ public enum PigpioError {
 	PI_BAD_CLK_MICROS(-19), // clock micros not 1, 2, 4, 5, 8, or 10
 	PI_BAD_BUF_MILLIS(-20), // buf millis not 100-10000
 	PI_BAD_DUTYRANGE(-21), // dutycycle range not 25-40000
-	PI_BAD_DUTY_RANGE(-21), // DEPRECATED (use PI_BAD_DUTYRANGE)
+	//PI_BAD_DUTY_RANGE(-21), // DEPRECATED (use PI_BAD_DUTYRANGE)
 	PI_BAD_SIGNUM(-22), // signum not 0-63
 	PI_BAD_PATHNAME(-23), // can't open pathname
 	PI_NO_HANDLE(-24), // no handle available
 	PI_BAD_HANDLE(-25), // unknown handle
 	PI_BAD_IF_FLAGS(-26), // ifFlags > 3
 	PI_BAD_CHANNEL(-27), // DMA channel not 0-14
-	PI_BAD_PRIM_CHANNEL(-27), // DMA primary channel not 0-14
+	//PI_BAD_PRIM_CHANNEL(-27), // DMA primary channel not 0-14
 	PI_BAD_SOCKET_PORT(-28), // socket port not 1024-32000
 	PI_BAD_FIFO_COMMAND(-29), // unrecognized fifo command
 	PI_BAD_SECO_CHANNEL(-30), // DMA secondary channel not 0-6
@@ -66,7 +66,7 @@ public enum PigpioError {
 	PI_SOCK_READ_FAILED(-59), // socket read failed
 	PI_SOCK_WRIT_FAILED(-60), // socket write failed
 	PI_TOO_MANY_PARAM(-61), // too many script parameters (> 10)
-	PI_NOT_HALTED(-62), // DEPRECATED
+	//PI_NOT_HALTED(-62), // DEPRECATED
 	PI_SCRIPT_NOT_READY(-62), // script initialising
 	PI_BAD_TAG(-63), // script has unresolved tag
 	PI_BAD_MICS_DELAY(-64), // bad MICS delay (too large)

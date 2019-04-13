@@ -6,9 +6,17 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.text.StringUtil;
 import ceri.serial.jna.JnaUtil;
 
-public class Pigpio {
+public class LibPigpio {
 	private static final Logger logger = LogManager.getLogger();
-	private static PigpioNative PIGPIO = loadLibrary("pigpio");
+	private static LibPigpioNative PIGPIO = loadLibrary("pigpio");
+
+	public static void gpioInitialise() throws PigpioException {
+		verify(PIGPIO.gpioInitialise(), "gpioInitialise");
+	}
+
+	public static void gpioTerminate() {
+		PIGPIO.gpioTerminate();
+	}
 
 	public static int spiOpen(int channel, int baud, int flags) throws PigpioException {
 		return verify(PIGPIO.spiOpen(channel, baud, flags), "spiOpen", channel, baud, flags);
@@ -37,9 +45,9 @@ public class Pigpio {
 		throw PigpioException.fullMessage(message, result);
 	}
 
-	private static PigpioNative loadLibrary(String name) {
+	private static LibPigpioNative loadLibrary(String name) {
 		logger.info("Loading {} started", name);
-		PigpioNative lib = JnaUtil.loadLibrary(name, PigpioNative.class);
+		LibPigpioNative lib = JnaUtil.loadLibrary(name, LibPigpioNative.class);
 		logger.info("Loading {} complete", name);
 		return lib;
 	}

@@ -70,6 +70,18 @@ public class PigpioSpiFlags {
 		}
 	}
 
+	public static PigpioSpiFlags of(int value) {
+		return new PigpioSpiFlags(value);
+	}
+
+	public static PigpioSpiFlags ofSpi0(int mode) {
+		return builder().mode(mode).build();
+	}
+
+	public static PigpioSpiFlags ofSpi1(int mode) {
+		return builder().mode(mode).flags(Bit.useAux).build();
+	}
+
 	public static class Builder {
 		int value;
 
@@ -115,18 +127,6 @@ public class PigpioSpiFlags {
 
 	public static Builder builder(int value) {
 		return new Builder(value);
-	}
-
-	public static PigpioSpiFlags of(int value) {
-		return new PigpioSpiFlags(value);
-	}
-
-	public static PigpioSpiFlags ofSpi0(int mode) {
-		return builder().mode(mode).build();
-	}
-
-	public static PigpioSpiFlags ofSpi1(int mode) {
-		return builder().mode(mode).flags(Bit.useAux).build();
 	}
 
 	PigpioSpiFlags(int value) {

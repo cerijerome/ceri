@@ -9,6 +9,7 @@ import com.sun.jna.Memory;
 public class PigpioSpiTransfer {
 	private final PigpioSpi spi;
 	private final int size;
+	private final int baudHz;
 	private final ByteBuffer out;
 	private final ByteBuffer in;
 
@@ -27,10 +28,19 @@ public class PigpioSpiTransfer {
 	private PigpioSpiTransfer(PigpioSpi spi, Memory outMem, Memory inMem, int size) {
 		this.spi = spi;
 		this.size = size;
+		this.baudHz = spi.baudHz;
 		out = outMem == null ? null : buffer(outMem);
 		in = inMem == null ? null : buffer(inMem);
 	}
 
+	public int baudHz() {
+		return baudHz;
+	}
+	
+	public int size() {
+		return size;
+	}
+	
 	public byte[] read() {
 		if (in == null) return EMPTY_BYTE;
 		byte[] buffer = new byte[size];
