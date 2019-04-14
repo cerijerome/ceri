@@ -6,32 +6,30 @@ import static ceri.serial.jna.JnaUtil.buffer;
 import static ceri.serial.jna.JnaUtil.ubyte;
 import static ceri.serial.jna.JnaUtil.ushort;
 import static com.sun.jna.Pointer.nativeValue;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import com.sun.jna.Memory;
+import ceri.serial.spi.Spi.Direction;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
 public class SpiTransfer {
-	private final SpiDevice device;
 	private final int sizeMax;
 	private final ByteBuffer out;
 	private final ByteBuffer in;
+	private final Direction direction;
 	private final spi_ioc_transfer transfer;
 
-	public static SpiTransfer out(SpiDevice device, int size) {
-		return new SpiTransfer(device, new Memory(size), null, size);
+	public static SpiTransfer of(Direction direction, int size) {
+		if (direction == Direction.out)
+			return new SpiTransfer(direction, new Memory(size), null, size);
+		if (direction == Direction.in)
+			return new SpiTransfer(direction, null, new Memory(size), size);
+		if (direction == Direction.duplex)
+			return new SpiTransfer(direction, new Memory(size), new Memory(size), size);
+		throw new IllegalArgumentException("Invalid direction: " + direction);
 	}
 
-	public static SpiTransfer in(SpiDevice device, int size) {
-		return new SpiTransfer(device, null, new Memory(size), size);
-	}
-
-	public static SpiTransfer duplex(SpiDevice device, int size) {
-		return new SpiTransfer(device, new Memory(size), new Memory(size), size);
-	}
-
-	private SpiTransfer(SpiDevice device, Memory outMem, Memory inMem, int size) {
-		this.device = device;
+	private SpiTransfer(Direction direction, Memory outMem, Memory inMem, int size) {
+		this.direction = direction;
 		transfer = new spi_ioc_transfer();
 		transfer.tx_buf = nativeValue(outMem);
 		transfer.rx_buf = nativeValue(inMem);
@@ -39,6 +37,10 @@ public class SpiTransfer {
 		sizeMax = size;
 		out = buffer(outMem);
 		in = buffer(inMem);
+	}
+
+	spi_ioc_transfer transfer() {
+		return transfer;
 	}
 
 	public byte[] read() {
@@ -62,8 +64,8 @@ public class SpiTransfer {
 		return in;
 	}
 
-	public void execute() throws IOException {
-		device.message(transfer);
+	public Direction direction() {
+		return direction;
 	}
 
 	public int sizeMax() {
