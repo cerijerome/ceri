@@ -128,19 +128,6 @@ public class SpiEmulator implements Spi {
 		return this;
 	}
 
-	public int speedHz(SpiTransfer xfer) {
-		int speedHz = xfer.speedHz();
-		if (speedHz == 0) speedHz = maxSpeedHz; // default depends on hardware
-		return speedHz;
-	}
-
-	public int bitsPerWord(SpiTransfer xfer) {
-		int bitsPerWord = xfer.bitsPerWord();
-		if (bitsPerWord == 0) bitsPerWord = this.bitsPerWord;
-		if (bitsPerWord == 0) bitsPerWord = Byte.SIZE;
-		return bitsPerWord;
-	}
-
 	private byte[] read(SpiTransfer xfer) {
 		byte[] buffer = new byte[xfer.size()];
 		xfer.out().position(0).limit(xfer.size()).get(buffer);
@@ -152,7 +139,7 @@ public class SpiEmulator implements Spi {
 		xfer.in().clear().put(data);
 	}
 
-	private long transferTimeMicros(SpiTransfer xfer) {
+	private long transferTimeMicros(SpiTransfer xfer) throws IOException {
 		int speedHz = speedHz(xfer);
 		if (speedHz == 0) return xfer.delayMicros();
 		return (xfer.size() * Byte.SIZE * TimeUnit.SECONDS.toMicros(1) / speedHz) +

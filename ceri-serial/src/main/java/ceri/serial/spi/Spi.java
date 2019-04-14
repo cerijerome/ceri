@@ -32,11 +32,20 @@ public interface Spi extends Closeable {
 
 	Spi maxSpeedHz(int maxSpeedHz) throws IOException;
 
-	default int actualMaxSpeedHz(int defaultMaxSpeedHz) throws IOException {
-		int maxSpeedHz = maxSpeedHz();
-		return maxSpeedHz == 0 ? defaultMaxSpeedHz : maxSpeedHz;
+	default int speedHz(SpiTransfer xfer) throws IOException {
+		int speedHz = xfer.speedHz();
+		if (speedHz == 0) speedHz = maxSpeedHz();
+		return speedHz;
 	}
 	
+	default int bitsPerWord(SpiTransfer xfer) throws IOException {
+		int bitsPerWord = xfer.bitsPerWord();
+		if (bitsPerWord == 0) bitsPerWord = bitsPerWord();
+		if (bitsPerWord == 0) bitsPerWord = Byte.SIZE;
+		return bitsPerWord;
+	}
+
+
 	Spi execute(SpiTransfer xfer) throws IOException;
 
 	default SpiTransfer transfer(int size) {

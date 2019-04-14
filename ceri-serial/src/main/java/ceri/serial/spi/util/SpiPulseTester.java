@@ -36,7 +36,8 @@ public class SpiPulseTester {
 			.cycle(PulseCycles.cycle(pulseType, pulseBits, pulseOffset, pulseT0, pulseT1))
 			.delayMicros(delayMicros).build();
 
-		try (Spi spi = SpiDevice.open(bus, chip, out).mode(mode).maxSpeedHz(speed)) {
+		try (Spi spi = SpiDevice.open(bus, chip, out)) {
+			spi.mode(mode).maxSpeedHz(speed);
 			try (SpiPulseTransmitter processor = SpiPulseTransmitter.of(spi, config)) {
 				processor.start();
 				BasicUtil.delay(1000);

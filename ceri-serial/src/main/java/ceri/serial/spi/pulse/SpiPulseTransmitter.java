@@ -25,7 +25,7 @@ public class SpiPulseTransmitter extends LoopingExecutor {
 	private byte[] data;
 
 	public static SpiPulseTransmitter of(Spi spi, SpiPulseConfig config) {
-		return of(spi, config);
+		return new SpiPulseTransmitter(spi, config);
 	}
 
 	private SpiPulseTransmitter(Spi spi, SpiPulseConfig config) {
@@ -34,9 +34,12 @@ public class SpiPulseTransmitter extends LoopingExecutor {
 		buffer = config.buffer();
 		xfer = spi.transfer(buffer.storageSize()).delayMicros(config.delayMicros);
 		data = new byte[buffer.dataSize()];
-		logger.info("{}", buffer.cycle.stats(xfer.speedHz()));
 	}
 
+	public PulseCycle cycle() {
+		return buffer.cycle;
+	}
+	
 	public int size() {
 		return buffer.dataSize();
 	}

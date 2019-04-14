@@ -25,6 +25,7 @@ public class SpiTester {
 		int repeat = v.next("repeat").asInt(1);
 		int repeatDelayMs = v.next("repeatDelayMs").asInt(0);
 
+		// try (Spi spi = SpiEmulator.echo(bus, chip, direction)) {
 		try (Spi spi = SpiDevice.open(bus, chip, direction)) {
 			spi.mode(SpiMode.of(mode));
 			spi.maxSpeedHz(speedHz);
