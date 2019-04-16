@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.IntStream;
+import ceri.common.data.ByteReceiver;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.ByteConsumer;
 import ceri.common.text.ToStringHelper;
@@ -173,8 +174,33 @@ public class ImmutableByteArray {
 
 	public int copyTo(int srcOffset, byte[] dest, int destOffset, int length) {
 		ArrayUtil.validateSlice(this.length, srcOffset, length);
+		ArrayUtil.validateSlice(dest.length, offset, length);
 		if (length == 0) return destOffset;
 		System.arraycopy(array, offset + srcOffset, dest, destOffset, length);
+		return destOffset + length;
+	}
+
+	public int writeTo(ByteReceiver dest) {
+		return writeTo(dest, 0);
+	}
+
+	public int writeTo(ByteReceiver dest, int destOffset) {
+		return writeTo(0, dest, destOffset, dest.length() - destOffset);
+	}
+
+	public int writeTo(ByteReceiver dest, int destOffset, int length) {
+		return writeTo(0, dest, destOffset, length);
+	}
+
+	public int writeTo(int srcOffset, ByteReceiver dest, int destOffset) {
+		return writeTo(srcOffset, dest, destOffset, length - srcOffset);
+	}
+
+	public int writeTo(int srcOffset, ByteReceiver dest, int destOffset, int length) {
+		ArrayUtil.validateSlice(this.length, srcOffset, length);
+		ArrayUtil.validateSlice(dest.length(), offset, length);
+		if (length == 0) return destOffset;
+		dest.set(destOffset, array, srcOffset, length);
 		return destOffset + length;
 	}
 

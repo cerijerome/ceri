@@ -14,6 +14,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Before;
@@ -85,9 +86,11 @@ public class ByteUtilTest {
 		ByteArrayOutputStream b = badByteArrayOutputStream;
 		ImmutableByteArray im = badImmutableByteArray;
 		doThrow(new IOException()).when(badByteArrayOutputStream).write(any());
-		doThrow(new IOException()).when(badImmutableByteArray).writeTo(any());
-		doThrow(new IOException()).when(badImmutableByteArray).writeTo(any(), anyInt());
-		doThrow(new IOException()).when(badImmutableByteArray).writeTo(any(), anyInt(), anyInt());
+		doThrow(new IOException()).when(badImmutableByteArray).writeTo(any(OutputStream.class));
+		doThrow(new IOException()).when(badImmutableByteArray).writeTo(any(OutputStream.class),
+			anyInt());
+		doThrow(new IOException()).when(badImmutableByteArray).writeTo(any(OutputStream.class),
+			anyInt(), anyInt());
 		assertException(() -> ByteUtil.writeTo(b, -1, 2));
 		assertException(() -> ByteUtil.writeTo(b, im));
 		assertException(() -> ByteUtil.writeTo(b, im, 1));
