@@ -39,7 +39,6 @@ public class SpiPulseTester {
 		try (Spi spi = SpiDevice.open(bus, chip, out)) {
 			spi.mode(mode).maxSpeedHz(speed);
 			try (SpiPulseTransmitter processor = SpiPulseTransmitter.of(spi, config)) {
-				processor.start();
 				BasicUtil.delay(1000);
 				runCycles(processor);
 			}
@@ -48,15 +47,15 @@ public class SpiPulseTester {
 
 	private static void runCycles(SpiPulseTransmitter spi) {
 		while (true) {
-			cycle(spi, () -> fill(spi.size(), 0xff, 0, 0));
-			cycle(spi, () -> fill(spi.size(), 0, 0xff, 0));
-			cycle(spi, () -> fill(spi.size(), 0, 0, 0xff));
-			cycle(spi, () -> fill(spi.size(), 0xff, 0xff, 0));
-			cycle(spi, () -> fill(spi.size(), 0, 0xff, 0xff));
-			cycle(spi, () -> fill(spi.size(), 0xff, 0, 0xff));
-			cycle(spi, () -> fill(spi.size(), 0xff));
-			cycle(spi, () -> fill(spi.size(), 0));
-			cycle(spi, () -> rnd(spi.size()));
+			cycle(spi, () -> fill(spi.length(), 0xff, 0, 0));
+			cycle(spi, () -> fill(spi.length(), 0, 0xff, 0));
+			cycle(spi, () -> fill(spi.length(), 0, 0, 0xff));
+			cycle(spi, () -> fill(spi.length(), 0xff, 0xff, 0));
+			cycle(spi, () -> fill(spi.length(), 0, 0xff, 0xff));
+			cycle(spi, () -> fill(spi.length(), 0xff, 0, 0xff));
+			cycle(spi, () -> fill(spi.length(), 0xff));
+			cycle(spi, () -> fill(spi.length(), 0));
+			cycle(spi, () -> rnd(spi.length()));
 		}
 	}
 
@@ -71,7 +70,7 @@ public class SpiPulseTester {
 			System.out.printf(" 0x%02x", data[i]);
 		System.out.println("...");
 		for (int i = 0; i < cycles; i++) {
-			spi.send(data);
+			spi.set(data);
 			BasicUtil.delay(200);
 		}
 		System.out.println("stopped");

@@ -1,11 +1,14 @@
 package ceri.serial.spi.pulse;
 
+import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.SafeReadWrite;
+import ceri.common.data.ByteReceiver;
+import ceri.common.data.ByteUtil;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.serial.spi.Spi;
@@ -14,7 +17,7 @@ import ceri.serial.spi.SpiTransfer;
 /**
  * Controls transmission of spi pulse data.
  */
-public class SpiPulseTransmitter extends LoopingExecutor {
+public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver {
 	private static final Logger logger = LogManager.getLogger();
 	private final SafeReadWrite safe = SafeReadWrite.of();
 	private final BooleanCondition sync = BooleanCondition.of(safe.conditionLock());
@@ -34,34 +37,25 @@ public class SpiPulseTransmitter extends LoopingExecutor {
 		buffer = config.buffer();
 		xfer = spi.transfer(buffer.storageSize()).delayMicros(config.delayMicros);
 		data = new byte[buffer.dataSize()];
+		start();
 	}
 
 	public PulseCycle cycle() {
 		return buffer.cycle;
 	}
 	
-	public int size() {
+	@Override
+	public int length() {
 		return buffer.dataSize();
 	}
 
 	@Override
-	public void start() {
-		super.start();
+	public void set(int pos, int b) {
+		set(pos, ByteUtil.bytes(b));
 	}
-
-	public void send(byte[] data) {
-		send(data, 0);
-	}
-
-	public void send(byte[] data, int offset) {
-		send(data, offset, data.length);
-	}
-
-	public void send(byte[] data, int offset, int len) {
-		send(0, data, offset, len);
-	}
-
-	public void send(int srcOffset, byte[] data, int offset, int len) {
+	
+	@Override
+	public void set(int srcOffset, byte[] data, int offset, int len) {
 		ArrayUtil.validateSlice(data.length, srcOffset, len);
 		ArrayUtil.validateSlice(this.data.length, offset, len);
 		safe.write(() -> {
@@ -70,6 +64,14 @@ public class SpiPulseTransmitter extends LoopingExecutor {
 		});
 	}
 
+	@Override
+	public void fill(int value, int pos, int length) {
+		ArrayUtil.validateSlice(length(), pos, length);
+		byte[] fill = new byte[length];
+		Arrays.fill(fill, (byte) value);
+		set(pos, fill);
+	}
+	
 	@Override
 	protected void loop() throws InterruptedException {
 		try {
