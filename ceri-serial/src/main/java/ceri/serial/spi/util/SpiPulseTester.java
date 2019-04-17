@@ -70,7 +70,7 @@ public class SpiPulseTester {
 			System.out.printf(" 0x%02x", data[i]);
 		System.out.println("...");
 		for (int i = 0; i < cycles; i++) {
-			spi.set(data);
+			spi.copyFrom(data);
 			BasicUtil.delay(200);
 		}
 		System.out.println("stopped");

@@ -200,7 +200,7 @@ public class ImmutableByteArray {
 		ArrayUtil.validateSlice(this.length, srcOffset, length);
 		ArrayUtil.validateSlice(dest.length(), offset, length);
 		if (length == 0) return destOffset;
-		dest.set(destOffset, array, srcOffset, length);
+		dest.copyFrom(destOffset, array, srcOffset, length);
 		return destOffset + length;
 	}
 

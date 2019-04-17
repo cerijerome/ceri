@@ -1,5 +1,6 @@
 package ceri.serial.spi.pulse;
 
+import static ceri.common.data.ByteUtil.bytes;
 import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,7 +9,6 @@ import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.SafeReadWrite;
 import ceri.common.data.ByteReceiver;
-import ceri.common.data.ByteUtil;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.serial.spi.Spi;
@@ -43,7 +43,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	public PulseCycle cycle() {
 		return buffer.cycle;
 	}
-	
+
 	@Override
 	public int length() {
 		return buffer.dataSize();
@@ -51,27 +51,28 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 
 	@Override
 	public void set(int pos, int b) {
-		set(pos, ByteUtil.bytes(b));
+		copyFrom(pos, bytes(b));
 	}
-	
+
 	@Override
-	public void set(int srcOffset, byte[] data, int offset, int len) {
+	public int copyFrom(int srcOffset, byte[] data, int offset, int len) {
 		ArrayUtil.validateSlice(data.length, srcOffset, len);
 		ArrayUtil.validateSlice(this.data.length, offset, len);
 		safe.write(() -> {
 			System.arraycopy(data, srcOffset, this.data, offset, len);
 			sync.signal();
 		});
+		return srcOffset + len;
 	}
 
 	@Override
-	public void fill(int value, int pos, int length) {
+	public int fill(int value, int pos, int length) {
 		ArrayUtil.validateSlice(length(), pos, length);
 		byte[] fill = new byte[length];
 		Arrays.fill(fill, (byte) value);
-		set(pos, fill);
+		return copyFrom(pos, fill);
 	}
-	
+
 	@Override
 	protected void loop() throws InterruptedException {
 		try {

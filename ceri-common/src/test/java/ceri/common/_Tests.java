@@ -31,6 +31,7 @@ import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
 import ceri.common.concurrent.AsyncRunnerBehavior;
+import ceri.common.concurrent.AtomicByteArrayBehavior;
 import ceri.common.concurrent.BooleanConditionBehavior;
 import ceri.common.concurrent.ConcurrentUtilTest;
 import ceri.common.concurrent.RuntimeInterruptedExceptionBehavior;
@@ -40,6 +41,8 @@ import ceri.common.data.BinaryStateBehavior;
 import ceri.common.data.BooleanAccessorBehavior;
 import ceri.common.data.ByteArrayDataInputBehavior;
 import ceri.common.data.ByteArrayDataOutputBehavior;
+import ceri.common.data.ByteProviderBehavior;
+import ceri.common.data.ByteReceiverBehavior;
 import ceri.common.data.ByteTypeValueBehavior;
 import ceri.common.data.ByteUtilTest;
 import ceri.common.data.DataDecoderBehavior;
@@ -264,6 +267,7 @@ import ceri.common.xml.XmlUtilTest;
 	EnumComparatorsTest.class, //
 	// concurrent
 	AsyncRunnerBehavior.class, //
+	AtomicByteArrayBehavior.class, //
 	BooleanConditionBehavior.class, //
 	ConcurrentUtilTest.class, //
 	RuntimeInterruptedExceptionBehavior.class, //
@@ -274,6 +278,8 @@ import ceri.common.xml.XmlUtilTest;
 	BooleanAccessorBehavior.class, //
 	ByteArrayDataInputBehavior.class, //
 	ByteArrayDataOutputBehavior.class, //
+	ByteProviderBehavior.class, //
+	ByteReceiverBehavior.class, //
 	ByteTypeValueBehavior.class, //
 	ByteUtilTest.class, //
 	DataDecoderBehavior.class, //

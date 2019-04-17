@@ -252,6 +252,13 @@ public class TestUtil {
 	}
 
 	/**
+	 * Convenience method to check byte value.
+	 */
+	public static void assertByte(byte value, int expected) {
+		assertThat(value, is((byte) expected));
+	}
+
+	/**
 	 * Checks a value is within given range, with detailed failure information if not.
 	 */
 	public static void assertRange(long value, long min, long max) {

@@ -50,6 +50,22 @@ public class ArrayUtil {
 	}
 
 	/**
+	 * Returns true if index is within array.
+	 */
+	public static boolean isValidIndex(int arrayLength, int index) {
+		return (index >= 0 && index < arrayLength);
+	}
+	
+	/**
+	 * Returns true if parameters are able to slice an array.
+	 */
+	public static boolean isValidSlice(int arrayLength, int offset, int length) {
+		if (offset < 0 || offset > arrayLength) return false;
+		if (length < 0 || offset + length > arrayLength) return false;
+		return true;
+	}
+
+	/**
 	 * Converts a collection to a new list by mapping elements from the original collection.
 	 */
 	@SafeVarargs

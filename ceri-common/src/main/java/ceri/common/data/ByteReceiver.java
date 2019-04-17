@@ -1,5 +1,7 @@
 package ceri.common.data;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import java.io.IOException;
 import java.io.InputStream;
 import ceri.common.collection.ArrayUtil;
@@ -10,8 +12,8 @@ import ceri.common.collection.ArrayUtil;
  * For bulk efficiency, consider overriding these methods:
  * 
  * <pre>
- * void set(int pos, byte[] data, int offset, int length)
- * void fill(int value, int pos, int length)
+ * int copy(int pos, byte[] data, int offset, int length)
+ * int fill(int value, int pos, int length)
  * int readFrom(InputStream in, int offset, int length) throws IOException
  * </pre>
  */
@@ -20,7 +22,7 @@ public interface ByteReceiver {
 	/**
 	 * Wraps a byte array as a byte receiver.
 	 */
-	static ByteReceiver of(byte[] array) {
+	static ByteReceiver wrap(byte[] array) {
 		return new ByteReceiver() {
 			@Override
 			public int length() {
@@ -33,14 +35,16 @@ public interface ByteReceiver {
 			}
 
 			@Override
-			public void set(int pos, byte[] data, int offset, int length) {
+			public int copyFrom(int pos, byte[] data, int offset, int length) {
 				System.arraycopy(data, offset, array, pos, length);
+				return pos + length;
 			}
 
 			@Override
 			public int readFrom(InputStream in, int offset, int length) throws IOException {
 				ArrayUtil.validateSlice(length(), offset, length);
-				return in.read(array, offset, length);
+				int n = in.read(array, offset, length);
+				return offset + max(n, 0);
 			}
 		};
 	}
@@ -56,111 +60,130 @@ public interface ByteReceiver {
 	void set(int pos, int b);
 
 	/**
-	 * Sets the byte at offset 0.
+	 * Copies the byte array to position 0. Length copied is the minimum of available source and
+	 * destination lengths. Returns the length copied.
 	 */
-	default void set(int b) {
-		set(0, b);
+	default int copyFrom(int... array) {
+		return copyFrom(ByteUtil.bytes(array));
 	}
 
 	/**
-	 * Sets the byte array at offset 0.
+	 * Copies the byte array to position 0. Length copied is the minimum of available source and
+	 * destination lengths. Returns the length copied.
 	 */
-	default void set(byte[] data) {
-		set(data, 0);
+	default int copyFrom(byte... array) {
+		return copyFrom(array, 0);
 	}
 
 	/**
-	 * Sets the byte array slice at offset 0.
+	 * Copies the byte array slice to position 0. Length copied is the minimum of available source
+	 * and destination lengths. Returns the length copied.
 	 */
-	default void set(byte[] data, int offset) {
-		set(data, offset, data.length - offset);
+	default int copyFrom(byte[] array, int offset) {
+		return copyFrom(array, offset, min(length(), array.length - offset));
 	}
 
 	/**
-	 * Sets the byte array slice at offset 0.
+	 * Copies the byte array slice to position 0. Returns the length.
 	 */
-	default void set(byte[] data, int offset, int length) {
-		set(0, data, offset, length);
+	default int copyFrom(byte[] array, int offset, int length) {
+		return copyFrom(0, array, offset, length);
 	}
 
 	/**
-	 * Sets the byte array at given position.
+	 * Copies the byte array to given position. Length copied is the minimum of available source and
+	 * destination lengths. Returns the array position after copying, pos + length.
 	 */
-	default void set(int pos, byte[] data) {
-		set(pos, data, 0);
+	default int copyFrom(int pos, byte[] array) {
+		return copyFrom(pos, array, 0);
 	}
 
 	/**
-	 * Sets the byte array slice at given position.
+	 * Copies the byte array slice to given position. Length copied is the minimum of available
+	 * source and destination lengths. Returns the array position after copying, pos + length.
 	 */
-	default void set(int pos, byte[] data, int offset) {
-		set(pos, data, offset, data.length - offset);
+	default int copyFrom(int pos, byte[] array, int offset) {
+		return copyFrom(pos, array, offset, min(length() - pos, array.length - offset));
 	}
 
 	/**
-	 * Sets the byte array slice at given position. Sets one byte at a time; in some cases
-	 * efficiency may be improved by overriding this method.
+	 * Copies the byte array slice to given position. Returns the array position after copying, pos
+	 * + length. Default implementation copies one byte at a time; in some cases efficiency may be
+	 * improved by overriding this method and using system array copy.
 	 */
-	default void set(int pos, byte[] data, int offset, int length) {
-		ArrayUtil.validateSlice(data.length, offset, length);
+	default int copyFrom(int pos, byte[] array, int offset, int length) {
+		ArrayUtil.validateSlice(array.length, offset, length);
 		ArrayUtil.validateSlice(length(), pos, length);
 		for (int i = 0; i < length; i++)
-			set(pos + i, data[offset + i]);
+			set(pos + i, array[offset + i]);
+		return pos + length;
 	}
 
 	/**
-	 * Fills bytes with given value.
+	 * Fills the array. Returns the number of bytes filled, length().
 	 */
-	default void fill(int value) {
-		fill(value, 0);
+	default int fill(int value) {
+		return fill(value, 0);
 	}
-	
+
 	/**
-	 * Fills bytes at the given position.
+	 * Fills bytes from the given position. Returns the array position after copying, length().
 	 */
-	default void fill(int value, int pos) {
-		fill(value, pos, length() - pos);
+	default int fill(int value, int pos) {
+		return fill(value, pos, length() - pos);
 	}
-	
+
 	/**
-	 * Fills bytes at the given position.
+	 * Fills bytes at the given position. Returns the array position after filling, pos + length.
 	 */
-	default void fill(int value, int pos, int length) {
+	default int fill(int value, int pos, int length) {
 		ArrayUtil.validateSlice(length(), pos, length);
 		for (int i = 0; i < length; i++)
 			set(pos + i, value);
+		return pos + length;
 	}
 
 	/**
-	 * Sets bytes at offset 0 by reading from the input stream.
+	 * Sets bytes at offset 0 by reading from the input stream. Attempts to fill the length of the
+	 * array. Returns the number of bytes read. Number of bytes read may be
+	 * less than requested; EOF will result in fewer or no bytes read rather than returning -1.
 	 */
-	default int readFrom(InputStream out) throws IOException {
-		return readFrom(out, 0);
+	default int readFrom(InputStream in) throws IOException {
+		return readFrom(in, 0);
 	}
 
 	/**
-	 * Sets bytes at offset by reading from the input stream.
+	 * Sets bytes at offset by reading from the input stream. Attempts to fill the remaining length
+	 * of the array. Returns the array position after reading, offset + length. Number of bytes read
+	 * may be less than requested; EOF will result in fewer or no bytes read rather than returning
+	 * -1.
 	 */
 	default int readFrom(InputStream in, int offset) throws IOException {
 		return readFrom(in, offset, length() - offset);
 	}
 
 	/**
-	 * Sets bytes at offset by reading from the input stream. Returns the number of bytes read.
-	 * Default implementation reads one byte at a time; in some cases efficiency may be improved by
-	 * overriding, or by using a buffer:
+	 * Sets bytes at offset by reading from the input stream. Returns the array position after
+	 * reading, offset + length. Number of bytes read may be less than requested; EOF will result in
+	 * fewer or no bytes read rather than returning -1. Default implementation reads one byte at a
+	 * time; in some cases efficiency may be improved by overriding, or by reading into a buffer and
+	 * calling set:
 	 * 
 	 * <pre>
 	 * byte[] buffer = new byte[length];
-	 * int n = in.read(buffer)
-	 * set(offset, buffer, 0, n);
+	 * int n = in.read(buffer);
+	 * if (n > 0) set(offset, buffer, 0, n);
 	 * </pre>
 	 */
 	default int readFrom(InputStream in, int offset, int length) throws IOException {
 		ArrayUtil.validateSlice(length(), offset, length);
-		for (int i = 0; i < length; i++)
-			set(offset + i, in.read());
-		return length;
+		int i = 0;
+		for (; i < length; i++) {
+			int val = in.read();
+			if (val == -1) break;
+			set(offset + i, val);
+		}
+		return offset + i;
 	}
 
 }
