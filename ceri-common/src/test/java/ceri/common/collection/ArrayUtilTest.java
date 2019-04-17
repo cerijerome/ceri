@@ -51,6 +51,26 @@ public class ArrayUtilTest {
 		ArrayUtil.validateIndex(array.length, 3);
 		assertException(() -> ArrayUtil.validateIndex(array.length, -1));
 		assertException(() -> ArrayUtil.validateIndex(array.length, 4));
+		assertThat(ArrayUtil.isValidIndex(array.length, 0), is(true));
+		assertThat(ArrayUtil.isValidIndex(array.length, 3), is(true));
+		assertThat(ArrayUtil.isValidIndex(array.length, -1), is(false));
+		assertThat(ArrayUtil.isValidIndex(array.length, 4), is(false));
+	}
+
+	@Test
+	public void testValidateSlice() {
+		int[] array = { 1, 2, 3, 4 };
+		ArrayUtil.validateSlice(array.length, 0, 4);
+		ArrayUtil.validateSlice(array.length, 1, 2);
+		assertException(() -> ArrayUtil.validateSlice(array.length, -1, 1));
+		assertException(() -> ArrayUtil.validateSlice(array.length, 5, 1));
+		assertException(() -> ArrayUtil.validateSlice(array.length, 2, 4));
+		assertThat(ArrayUtil.isValidSlice(array.length, 0, 4), is(true));
+		assertThat(ArrayUtil.isValidSlice(array.length, 1, 2), is(true));
+		assertThat(ArrayUtil.isValidSlice(array.length, -1, 1), is(false));
+		assertThat(ArrayUtil.isValidSlice(array.length, 5, 1), is(false));
+		assertThat(ArrayUtil.isValidSlice(array.length, 2, 4), is(false));
+		assertThat(ArrayUtil.isValidSlice(array.length, 2, -1), is(false));
 	}
 
 	@Test
