@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ByteProvider;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;

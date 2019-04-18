@@ -6,8 +6,8 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.Arrays;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.data.ByteProvider;
-import ceri.common.data.ByteReceiver;
+import ceri.common.collection.ByteProvider;
+import ceri.common.collection.ByteReceiver;
 
 /**
  * Fixed-size byte array with volatile values.

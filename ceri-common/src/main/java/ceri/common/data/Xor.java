@@ -1,6 +1,7 @@
 package ceri.common.data;
 
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ByteProvider;
 
 public class Xor {
 	private int value = 0;

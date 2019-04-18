@@ -6,6 +6,7 @@ import static ceri.common.validation.ValidationUtil.validateRange;
 import java.util.BitSet;
 import java.util.function.Consumer;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ByteProvider;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.text.Utf8Util;
 import ceri.common.util.BasicUtil;

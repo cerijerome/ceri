@@ -1,10 +1,10 @@
-package ceri.common.data;
+package ceri.common.collection;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import java.io.IOException;
 import java.io.InputStream;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteUtil;
 
 /**
  * Interface for receiving bytes into an array.

@@ -7,6 +7,7 @@ import static ceri.common.validation.ValidationUtil.validateMax;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.function.Function;
+import ceri.common.collection.ByteProvider;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.text.Utf8Util;
 

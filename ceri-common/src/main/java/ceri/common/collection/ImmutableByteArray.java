@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.stream.IntStream;
-import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
