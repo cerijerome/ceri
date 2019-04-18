@@ -46,7 +46,7 @@ public class DataDecoder {
 
 	public ImmutableByteArray slice(int length) {
 		ImmutableByteArray data = this.data.slice(offset, length);
-		incrementOffset(data.length);
+		incrementOffset(data.length());
 		return data;
 	}
 
@@ -80,15 +80,15 @@ public class DataDecoder {
 	}
 
 	public int remaining() {
-		return data.length - offset;
+		return total() - offset;
 	}
 
 	public int total() {
-		return data.length;
+		return data.length();
 	}
 
 	public int decodeByte() {
-		return data.at(incrementOffset(Byte.BYTES)) & ByteUtil.BYTE_MASK;
+		return data.get(incrementOffset(Byte.BYTES)) & ByteUtil.BYTE_MASK;
 	}
 
 	public int decodeShortMsb() {
@@ -117,42 +117,42 @@ public class DataDecoder {
 
 	public DataDecoder validateAscii(String value) {
 		ImmutableByteArray data = ByteUtil.toAscii(value);
-		if (this.data.equals(offset, data)) return skip(data.length);
-		String actual = ByteUtil.fromAscii(this.data, offset, data.length);
+		if (this.data.matches(offset, data)) return skip(data.length());
+		String actual = ByteUtil.fromAscii(this.data, offset, data.length());
 		throw exceptionf("Expected %s: %s", escape(value), escape(actual));
 	}
 
-	public DataDecoder validateAscii(ImmutableByteArray ascii) {
+	public DataDecoder validateAscii(ByteProvider ascii) {
 		return validateAscii(ascii, 0);
 	}
 
-	public DataDecoder validateAscii(ImmutableByteArray ascii, int offset) {
-		return validateAscii(ascii, offset, ascii.length - offset);
+	public DataDecoder validateAscii(ByteProvider ascii, int offset) {
+		return validateAscii(ascii, offset, ascii.length() - offset);
 	}
 
-	public DataDecoder validateAscii(ImmutableByteArray ascii, int offset, int length) {
-		if (data.equals(this.offset, ascii, offset, length)) return skip(length);
+	public DataDecoder validateAscii(ByteProvider ascii, int offset, int length) {
+		if (data.matches(this.offset, ascii, offset, length)) return skip(length);
 		String actual = ByteUtil.fromAscii(data, this.offset, length);
 		String expected = ByteUtil.fromAscii(ascii, offset, length);
 		throw exceptionf("Expected %s: %s", escape(expected), escape(actual));
 	}
 
-	public DataDecoder validate(ImmutableByteArray data) {
+	public DataDecoder validate(ByteProvider data) {
 		return validate(data, 0);
 	}
 
-	public DataDecoder validate(ImmutableByteArray data, int offset) {
-		return validate(data, offset, data.length - offset);
+	public DataDecoder validate(ByteProvider data, int offset) {
+		return validate(data, offset, data.length() - offset);
 	}
 
-	public DataDecoder validate(ImmutableByteArray data, int offset, int length) {
-		if (this.data.equals(this.offset, data, offset, length)) return skip(length);
-		throw exceptionf("Expected %s: %s", toHex(data.slice(offset, length)),
+	public DataDecoder validate(ByteProvider data, int offset, int length) {
+		if (this.data.matches(this.offset, data, offset, length)) return skip(length);
+		throw exceptionf("Expected %s: %s", toHex(data.copy(offset, length)),
 			toHex(this.data.slice(this.offset, length)));
 	}
 
 	private int incrementOffset(int count) {
-		validateMax(offset + count, data.length);
+		validateMax(offset + count, data.length());
 		int old = offset;
 		offset += count;
 		return old;

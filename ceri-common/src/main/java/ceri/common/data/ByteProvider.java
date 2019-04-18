@@ -17,11 +17,12 @@ import ceri.common.collection.ArrayUtil;
  * </pre>
  */
 public interface ByteProvider {
-
+	static ByteProvider EMPTY = wrap();
+	
 	static ByteProvider wrap(int... array) {
 		return wrap(ByteUtil.bytes(array));
 	}
-	
+
 	static ByteProvider wrap(byte... array) {
 		return new ByteProvider() {
 			@Override
@@ -43,10 +44,9 @@ public interface ByteProvider {
 			}
 
 			@Override
-			public int writeTo(OutputStream out, int offset, int length) throws IOException {
+			public void writeTo(OutputStream out, int offset, int length) throws IOException {
 				ArrayUtil.validateSlice(length(), offset, length);
 				out.write(array, offset, length);
-				return offset + length;
 			}
 		};
 	}
@@ -197,32 +197,30 @@ public interface ByteProvider {
 	/**
 	 * Writes this array from offset 0 to the output stream. Returns the length written.
 	 */
-	default int writeTo(OutputStream out) throws IOException {
-		return writeTo(out, 0);
+	default void writeTo(OutputStream out) throws IOException {
+		writeTo(out, 0);
 	}
 
 	/**
 	 * Writes this array from offset to the output stream. Returns the position after write,
 	 * length().
 	 */
-	default int writeTo(OutputStream out, int offset) throws IOException {
-		return writeTo(out, offset, length() - offset);
+	default void writeTo(OutputStream out, int offset) throws IOException {
+		writeTo(out, offset, length() - offset);
 	}
 
 	/**
-	 * Writes this array from offset to the output stream. Returns the position after write, offset
-	 * + length. Writes one byte at a time; in some cases efficiency may be improved by overriding,
-	 * or by using:
+	 * Writes this array from offset to the output stream. Writes one byte at a time; in some cases
+	 * efficiency may be improved by overriding, or by using:
 	 * 
 	 * <pre>
 	 * out.write(copy(offset, length))
 	 * </pre>
 	 */
-	default int writeTo(OutputStream out, int offset, int length) throws IOException {
+	default void writeTo(OutputStream out, int offset, int length) throws IOException {
 		ArrayUtil.validateSlice(length(), offset, length);
 		for (int i = 0; i < length; i++)
 			out.write(get(offset + i));
-		return offset + length;
 	}
 
 	/**
@@ -286,7 +284,6 @@ public interface ByteProvider {
 	 * Determines whether bytes from offset equal the byte array slice.
 	 */
 	default boolean matches(int srcOffset, byte[] array, int offset) {
-		if (length() - srcOffset != array.length - offset) return false;
 		return matches(srcOffset, array, offset, array.length - offset);
 	}
 
@@ -329,7 +326,6 @@ public interface ByteProvider {
 	 * Determines whether bytes from offset equal the byte provider array slice.
 	 */
 	default boolean matches(int srcOffset, ByteProvider provider, int offset) {
-		if (length() - srcOffset != provider.length() - offset) return false;
 		return matches(srcOffset, provider, offset, provider.length() - offset);
 	}
 

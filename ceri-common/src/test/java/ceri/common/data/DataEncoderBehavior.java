@@ -53,9 +53,17 @@ public class DataEncoderBehavior {
 	}
 
 	@Test
+	public void shouldEncodeFill() {
+		byte[] b = DataEncoder.of(4).fill(0xff, 3).data().copy();
+		assertArray(b, 0xff, 0xff, 0xff, 0);
+	}
+
+	@Test
 	public void shouldEncodeText() {
 		byte[] b = DataEncoder.of(8).encodeAscii("\0abc\n").encodeUtf8("\u2205").data().copy();
-		assertArray(b, 0x00, 'a', 'b', 'c', '\n', 0xe2, 0x88, 0x85);
+		assertArray(b, 0, 'a', 'b', 'c', '\n', 0xe2, 0x88, 0x85);
+		b = DataEncoder.of(6).encodeAscii("abc\n", 2).encodeUtf8("\u2205", 4).data().copy();
+		assertArray(b, 'a', 'b', 0xe2, 0x88, 0x85, 0);
 	}
 
 	@Test
@@ -81,7 +89,7 @@ public class DataEncoderBehavior {
 		return new Encodable() {
 			@Override
 			public int size() {
-				return b.length;
+				return b.length();
 			}
 
 			@Override

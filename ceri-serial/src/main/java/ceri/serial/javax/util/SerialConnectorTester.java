@@ -160,7 +160,7 @@ public class SerialConnectorTester extends LoopingExecutor {
 	 * Display and write bytes to port.
 	 */
 	private void writeToPort(ImmutableByteArray dataToPort) throws IOException {
-		if (dataToPort.length == 0) return;
+		if (dataToPort.length() == 0) return;
 		logOutput(dataToPort);
 		dataToPort.writeTo(connector.out());
 		connector.out().flush();

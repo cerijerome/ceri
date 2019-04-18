@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
-import ceri.common.collection.ImmutableByteArray;
+import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToStringHelper;
@@ -165,21 +165,21 @@ public class BinaryPrinter {
 	/**
 	 * Print binary data.
 	 */
-	public BinaryPrinter print(ImmutableByteArray data) {
+	public BinaryPrinter print(ByteProvider data) {
 		return print(data, 0);
 	}
 
 	/**
 	 * Print binary data.
 	 */
-	public BinaryPrinter print(ImmutableByteArray data, int offset) {
-		return print(data, offset, data.length - offset);
+	public BinaryPrinter print(ByteProvider data, int offset) {
+		return print(data, offset, data.length() - offset);
 	}
 
 	/**
 	 * Print binary data.
 	 */
-	public BinaryPrinter print(ImmutableByteArray data, int offset, int length) {
+	public BinaryPrinter print(ByteProvider data, int offset, int length) {
 		return print(data.copy(), offset, length);
 	}
 

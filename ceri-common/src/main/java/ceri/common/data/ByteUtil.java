@@ -37,11 +37,11 @@ public class ByteUtil {
 			Stream.of(HEX_SPLIT_REGEX.split(hex)).mapToInt(s -> Integer.parseInt(s, HEX_RADIX)));
 	}
 
-	public static String toHex(ImmutableByteArray array) {
+	public static String toHex(ByteProvider array) {
 		return toHex(array, " ");
 	}
 
-	public static String toHex(ImmutableByteArray array, String delimiter) {
+	public static String toHex(ByteProvider array, String delimiter) {
 		if (array == null) return null;
 		return toHex(array.stream(), delimiter);
 	}
@@ -98,15 +98,15 @@ public class ByteUtil {
 		out.write(bytes, offset, bytes.length - offset);
 	}
 
-	public static void writeTo(ByteArrayOutputStream out, ImmutableByteArray b) {
+	public static void writeTo(ByteArrayOutputStream out, ByteProvider b) {
 		shouldNotThrow(() -> b.writeTo(out));
 	}
 
-	public static void writeTo(ByteArrayOutputStream out, ImmutableByteArray b, int offset) {
+	public static void writeTo(ByteArrayOutputStream out, ByteProvider b, int offset) {
 		shouldNotThrow(() -> b.writeTo(out, offset));
 	}
 
-	public static void writeTo(ByteArrayOutputStream out, ImmutableByteArray b, int offset,
+	public static void writeTo(ByteArrayOutputStream out, ByteProvider b, int offset,
 		int length) {
 		shouldNotThrow(() -> b.writeTo(out, offset, length));
 	}
@@ -131,15 +131,15 @@ public class ByteUtil {
 		return new String(data, offset, length, StandardCharsets.ISO_8859_1);
 	}
 
-	public static String fromAscii(ImmutableByteArray data) {
+	public static String fromAscii(ByteProvider data) {
 		return fromAscii(data, 0);
 	}
 
-	public static String fromAscii(ImmutableByteArray data, int offset) {
-		return fromAscii(data, offset, data.length - offset);
+	public static String fromAscii(ByteProvider data, int offset) {
+		return fromAscii(data, offset, data.length() - offset);
 	}
 
-	public static String fromAscii(ImmutableByteArray data, int offset, int length) {
+	public static String fromAscii(ByteProvider data, int offset, int length) {
 		return fromAscii(data.copy(), offset, length);
 	}
 
@@ -268,20 +268,20 @@ public class ByteUtil {
 		return offset + length;
 	}
 
-	public static long fromBigEndian(ImmutableByteArray array) {
+	public static long fromBigEndian(ByteProvider array) {
 		return fromBigEndian(array, 0);
 	}
 
-	public static long fromBigEndian(ImmutableByteArray array, int offset) {
-		return fromBigEndian(array, offset, array.length - offset);
+	public static long fromBigEndian(ByteProvider array, int offset) {
+		return fromBigEndian(array, offset, array.length() - offset);
 	}
 
-	public static long fromBigEndian(ImmutableByteArray array, int offset, int length) {
-		ArrayUtil.validateSlice(array.length, offset, length);
+	public static long fromBigEndian(ByteProvider array, int offset, int length) {
+		ArrayUtil.validateSlice(array.length(), offset, length);
 		validateMax(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
-			value |= shiftByteLeft(array.at(offset + i), length - i - 1);
+			value |= shiftByteLeft(array.get(offset + i), length - i - 1);
 		return value;
 	}
 
@@ -306,20 +306,20 @@ public class ByteUtil {
 		return value;
 	}
 
-	public static long fromLittleEndian(ImmutableByteArray array) {
+	public static long fromLittleEndian(ByteProvider array) {
 		return fromLittleEndian(array, 0);
 	}
 
-	public static long fromLittleEndian(ImmutableByteArray array, int offset) {
-		return fromLittleEndian(array, offset, array.length - offset);
+	public static long fromLittleEndian(ByteProvider array, int offset) {
+		return fromLittleEndian(array, offset, array.length() - offset);
 	}
 
-	public static long fromLittleEndian(ImmutableByteArray array, int offset, int length) {
-		ArrayUtil.validateSlice(array.length, offset, length);
+	public static long fromLittleEndian(ByteProvider array, int offset, int length) {
+		ArrayUtil.validateSlice(array.length(), offset, length);
 		validateMax(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
-			value |= shiftByteLeft(array.at(offset + i), i);
+			value |= shiftByteLeft(array.get(offset + i), i);
 		return value;
 	}
 

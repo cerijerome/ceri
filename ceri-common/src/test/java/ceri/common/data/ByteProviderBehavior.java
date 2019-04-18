@@ -111,11 +111,11 @@ public class ByteProviderBehavior {
 	public void shouldDetermineMatchingByteArrays() {
 		ByteProvider b = provider(0, 0xff, 0x80, 0x7f);
 		assertThat(b.matches(0, 0xff, 0x80, 0x7f), is(true));
-		assertThat(b.matches(0, 0xff, 0x80), is(false));
+		assertThat(b.matches(0, 0xff, 0x80), is(true));
 		assertThat(b.matches(0, 0xff, 0x80, 0x7f, 0), is(false));
 
 		assertThat(b.matches(bytes(0x11, 0, 0xff, 0x80, 0x7f), 1), is(true));
-		assertThat(b.matches(bytes(0x11, 0, 0xff, 0x80), 1), is(false));
+		assertThat(b.matches(bytes(0x11, 0, 0xff, 0x80), 1), is(true));
 		assertThat(b.matches(bytes(0x11, 0, 0xff, 0x80, 0x7f, 0), 1), is(false));
 
 		assertThat(b.matches(bytes(0x11, 0, 0xff), 1, 2), is(true));
@@ -124,11 +124,11 @@ public class ByteProviderBehavior {
 		assertThat(b.matches(bytes(0x11, 0, 0xfe), 1, 2), is(false));
 
 		assertThat(b.matches(1, bytes(0xff, 0x80, 0x7f)), is(true));
-		assertThat(b.matches(1, bytes(0xff, 0x80)), is(false));
+		assertThat(b.matches(1, bytes(0xff, 0x80)), is(true));
 		assertThat(b.matches(1, bytes(0xff, 0x80, 0x7f, 0)), is(false));
 
 		assertThat(b.matches(1, bytes(0x11, 0xff, 0x80, 0x7f), 1), is(true));
-		assertThat(b.matches(1, bytes(0x11, 0xff, 0x80), 1), is(false));
+		assertThat(b.matches(1, bytes(0x11, 0xff, 0x80), 1), is(true));
 		assertThat(b.matches(1, bytes(0x11, 0xff, 0x80, 0x7f, 0), 1), is(false));
 
 		assertThat(b.matches(1, bytes(0x11, 0xff, 0x80), 1, 2), is(true));
@@ -145,11 +145,11 @@ public class ByteProviderBehavior {
 	public void shouldDetermineMatchingByteProviders() {
 		ByteProvider b = provider(0, 0xff, 0x80, 0x7f);
 		assertThat(b.matches(provider(0, 0xff, 0x80, 0x7f)), is(true));
-		assertThat(b.matches(provider(0, 0xff, 0x80)), is(false));
+		assertThat(b.matches(provider(0, 0xff, 0x80)), is(true));
 		assertThat(b.matches(provider(0, 0xff, 0x80, 0x7f, 0)), is(false));
 
 		assertThat(b.matches(provider(0x11, 0, 0xff, 0x80, 0x7f), 1), is(true));
-		assertThat(b.matches(provider(0x11, 0, 0xff, 0x80), 1), is(false));
+		assertThat(b.matches(provider(0x11, 0, 0xff, 0x80), 1), is(true));
 		assertThat(b.matches(provider(0x11, 0, 0xff, 0x80, 0x7f, 0), 1), is(false));
 
 		assertThat(b.matches(provider(0x11, 0, 0xff), 1, 2), is(true));
@@ -158,11 +158,11 @@ public class ByteProviderBehavior {
 		assertThat(b.matches(provider(0x11, 0, 0xfe), 1, 2), is(false));
 
 		assertThat(b.matches(1, provider(0xff, 0x80, 0x7f)), is(true));
-		assertThat(b.matches(1, provider(0xff, 0x80)), is(false));
+		assertThat(b.matches(1, provider(0xff, 0x80)), is(true));
 		assertThat(b.matches(1, provider(0xff, 0x80, 0x7f, 0)), is(false));
 
 		assertThat(b.matches(1, provider(0x11, 0xff, 0x80, 0x7f), 1), is(true));
-		assertThat(b.matches(1, provider(0x11, 0xff, 0x80), 1), is(false));
+		assertThat(b.matches(1, provider(0x11, 0xff, 0x80), 1), is(true));
 		assertThat(b.matches(1, provider(0x11, 0xff, 0x80, 0x7f, 0), 1), is(false));
 
 		assertThat(b.matches(1, provider(0x11, 0xff, 0x80), 1, 2), is(true));

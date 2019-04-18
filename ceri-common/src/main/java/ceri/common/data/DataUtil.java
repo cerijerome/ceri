@@ -37,23 +37,23 @@ public class DataUtil {
 		return ByteUtil.writeLittleEndian(value, data, offset, Short.BYTES);
 	}
 
-	public static int decodeByte(ImmutableByteArray data, int offset) {
-		return data.at(offset) & ByteUtil.BYTE_MASK;
+	public static int decodeByte(ByteProvider data, int offset) {
+		return data.get(offset) & ByteUtil.BYTE_MASK;
 	}
 
-	public static int decodeIntMsb(ImmutableByteArray data, int offset) {
+	public static int decodeIntMsb(ByteProvider data, int offset) {
 		return (int) ByteUtil.fromBigEndian(data, offset, Integer.BYTES);
 	}
 
-	public static int decodeIntLsb(ImmutableByteArray data, int offset) {
+	public static int decodeIntLsb(ByteProvider data, int offset) {
 		return (int) ByteUtil.fromLittleEndian(data, offset, Integer.BYTES);
 	}
 
-	public static int decodeShortMsb(ImmutableByteArray data, int offset) {
+	public static int decodeShortMsb(ByteProvider data, int offset) {
 		return (int) ByteUtil.fromBigEndian(data, offset, Short.BYTES);
 	}
 
-	public static int decodeShortLsb(ImmutableByteArray data, int offset) {
+	public static int decodeShortLsb(ByteProvider data, int offset) {
 		return (int) ByteUtil.fromLittleEndian(data, offset, Short.BYTES);
 	}
 
@@ -114,40 +114,40 @@ public class DataUtil {
 		throw UnexpectedValueException.forInt(value.value, name);
 	}
 
-	public static int validateAscii(String value, ImmutableByteArray data) {
+	public static int validateAscii(String value, ByteProvider data) {
 		return validateAscii(value, data, 0);
 	}
 
-	public static int validateAscii(String value, ImmutableByteArray data, int offset) {
+	public static int validateAscii(String value, ByteProvider data, int offset) {
 		ImmutableByteArray expected = ByteUtil.toAscii(value);
-		if (expected.equals(data, offset)) return offset + expected.length;
+		if (expected.matches(data, offset, expected.length())) return offset + expected.length();
 		throw exceptionf("Expected %s: %s", escape(value), 
-			escape(fromAscii(data, offset, expected.length)));
+			escape(fromAscii(data, offset, expected.length())));
 	}
 
-	public static void validateAscii(Predicate<String> predicate, ImmutableByteArray data) {
+	public static void validateAscii(Predicate<String> predicate, ByteProvider data) {
 		validateAscii(predicate, data, 0);
 	}
 
-	public static void validateAscii(Predicate<String> predicate, ImmutableByteArray data,
+	public static void validateAscii(Predicate<String> predicate, ByteProvider data,
 		int offset) {
-		validateAscii(predicate, data, offset, data.length - offset);
+		validateAscii(predicate, data, offset, data.length() - offset);
 	}
 
-	public static void validateAscii(Predicate<String> predicate, ImmutableByteArray data,
+	public static void validateAscii(Predicate<String> predicate, ByteProvider data,
 		int offset, int length) {
 		String actual = fromAscii(data, offset, length);
 		ValidationUtil.validate(predicate, actual);
 	}
 
-	public static int validate(ImmutableByteArray expected, ImmutableByteArray data) {
+	public static int validate(ByteProvider expected, ByteProvider data) {
 		return validate(expected, data, 0);
 	}
 
-	public static int validate(ImmutableByteArray expected, ImmutableByteArray data, int offset) {
-		if (expected.equals(data, offset)) return offset + expected.length;
+	public static int validate(ByteProvider expected, ByteProvider data, int offset) {
+		if (expected.matches(data, offset, expected.length())) return offset + expected.length();
 		throw exceptionf("Expected %s: %s", toHex(expected),
-			toHex(data.slice(offset, expected.length)));
+			toHex(data.copy(offset, expected.length())));
 	}
 
 	public static <T> T validate(IntFunction<T> fn, int value) {

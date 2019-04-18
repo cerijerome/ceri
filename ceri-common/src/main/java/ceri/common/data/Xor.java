@@ -1,7 +1,6 @@
 package ceri.common.data;
 
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ImmutableByteArray;
 
 public class Xor {
 	private int value = 0;
@@ -29,18 +28,18 @@ public class Xor {
 		return this;
 	}
 
-	public Xor add(ImmutableByteArray bytes) {
+	public Xor add(ByteProvider bytes) {
 		return add(bytes, 0);
 	}
 
-	public Xor add(ImmutableByteArray bytes, int offset) {
-		return add(bytes, offset, bytes.length - offset);
+	public Xor add(ByteProvider bytes, int offset) {
+		return add(bytes, offset, bytes.length() - offset);
 	}
 
-	public Xor add(ImmutableByteArray bytes, int offset, int length) {
-		ArrayUtil.validateSlice(bytes.length, offset, length);
+	public Xor add(ByteProvider bytes, int offset, int length) {
+		ArrayUtil.validateSlice(bytes.length(), offset, length);
 		for (int i = 0; i < length; i++)
-			xor(bytes.at(offset + i));
+			xor(bytes.get(offset + i));
 		return this;
 	}
 

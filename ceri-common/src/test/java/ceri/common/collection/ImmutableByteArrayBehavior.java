@@ -4,9 +4,7 @@ import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -43,14 +41,6 @@ public class ImmutableByteArrayBehavior {
 	}
 
 	@Test
-	public void shouldIterateEachByte() {
-		ImmutableByteArray ba = ImmutableByteArray.wrap(b);
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ba.forEach(b -> out.write(b));
-		assertArray(out.toByteArray(), b);
-	}
-
-	@Test
 	public void shouldWriteToOutput() throws IOException {
 		byte[] bytes = bytes(Byte.MIN_VALUE, -1, 1, Byte.MAX_VALUE, 0);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -59,30 +49,6 @@ public class ImmutableByteArrayBehavior {
 		assertThat(out.size(), is(0));
 		ba.writeTo(out);
 		assertArray(out.toByteArray(), bytes);
-	}
-
-	@Test
-	public void shouldEqualMatchingImmutableByteArrayWithOffset() {
-		byte[] bytes = bytes(Byte.MIN_VALUE, -1, 1, Byte.MAX_VALUE, 0);
-		ImmutableByteArray ba = ImmutableByteArray.wrap(bytes, 1, 3);
-		ImmutableByteArray ba2 = ImmutableByteArray.wrap(bytes, 0, 4);
-		ImmutableByteArray ba3 = ImmutableByteArray.wrap(bytes);
-		ImmutableByteArray ba4 = ImmutableByteArray.wrap(bytes(-1, 1, -1));
-		ImmutableByteArray ba5 = ImmutableByteArray.wrap(1, Byte.MAX_VALUE, 0);
-		assertTrue(ba.equals(ba2, 1));
-		assertTrue(ba.equals(ba3, 1, 3));
-		assertTrue(ba3.equals(1, ba2, 1));
-		assertFalse(ba2.equals(1, ba4, 0));
-		assertTrue(ba3.equals(2, ba5));
-	}
-
-	@Test
-	public void shouldEqualMatchingByteArray() {
-		ImmutableByteArray ba = ImmutableByteArray.wrap((byte) -1, (byte) 1, Byte.MAX_VALUE);
-		assertTrue(ba.equals(bytes(-1, 1, Byte.MAX_VALUE)));
-		assertTrue(ba.equals(bytes(Byte.MIN_VALUE, -1, 1, Byte.MAX_VALUE), 1));
-		assertTrue(ba.equals(bytes(Byte.MIN_VALUE, -1, 1, Byte.MAX_VALUE, 0), 1, 3));
-		assertFalse(ba.equals(bytes(-1, 1, 0)));
 	}
 
 	@Test
@@ -155,8 +121,8 @@ public class ImmutableByteArrayBehavior {
 		assertException(() -> ImmutableByteArray.wrap(b, 0, 6));
 		assertException(() -> ImmutableByteArray.wrap(b, 3, 3));
 		ImmutableByteArray ba = ImmutableByteArray.wrap(b);
-		assertException(() -> ba.at(-1));
-		assertException(() -> ba.at(5));
+		assertException(() -> ba.get(-1));
+		assertException(() -> ba.get(5));
 		assertException(() -> ba.copy(-1, 0));
 		assertException(() -> ba.copy(0, -1));
 		assertException(() -> ba.copy(5, 1));
@@ -181,7 +147,7 @@ public class ImmutableByteArrayBehavior {
 		ImmutableByteArray ba = ImmutableByteArray.copyOf(b);
 		assertArray(ba.copy(), b);
 		b[2] = 0;
-		assertThat(ba.at(2), is((byte) 1));
+		assertThat(ba.get(2), is((byte) 1));
 	}
 
 	@Test

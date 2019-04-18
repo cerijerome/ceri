@@ -6,7 +6,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.Arrays;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ImmutableByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
 
@@ -32,8 +31,16 @@ public class AtomicByteArray implements ByteProvider, ByteReceiver {
 		return wrap(Arrays.copyOfRange(array, offset, offset + length));
 	}
 
-	public static AtomicByteArray from(ImmutableByteArray array) {
-		return wrap(array.copy());
+	public static AtomicByteArray copyOf(ByteProvider array) {
+		return copyOf(array, 0);
+	}
+
+	public static AtomicByteArray copyOf(ByteProvider array, int offset) {
+		return copyOf(array, offset, array.length() - offset);
+	}
+
+	public static AtomicByteArray copyOf(ByteProvider array, int offset, int length) {
+		return wrap(array.copy(offset, length));
 	}
 
 	public static AtomicByteArray of(int size) {

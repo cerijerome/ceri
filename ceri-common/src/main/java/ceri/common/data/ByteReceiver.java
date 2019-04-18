@@ -18,11 +18,12 @@ import ceri.common.collection.ArrayUtil;
  * </pre>
  */
 public interface ByteReceiver {
-
+	static ByteReceiver EMPTY = wrap();
+	
 	/**
 	 * Wraps a byte array as a byte receiver.
 	 */
-	static ByteReceiver wrap(byte[] array) {
+	static ByteReceiver wrap(byte... array) {
 		return new ByteReceiver() {
 			@Override
 			public int length() {

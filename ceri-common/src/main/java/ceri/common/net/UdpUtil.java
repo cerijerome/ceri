@@ -6,14 +6,15 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.data.ByteProvider;
 
 public class UdpUtil {
 	public static final int MAX_PACKET_DATA = 65507; // = 65535 - 8(udp) - 20(ip)
 
 	private UdpUtil() {}
 
-	public static DatagramPacket toPacket(ImmutableByteArray data, InetAddress address, int port) {
-		return new DatagramPacket(data.copy(), data.length, address, port);
+	public static DatagramPacket toPacket(ByteProvider data, InetAddress address, int port) {
+		return new DatagramPacket(data.copy(), data.length(), address, port);
 	}
 
 	public static ImmutableByteArray fromPacket(DatagramPacket packet) {

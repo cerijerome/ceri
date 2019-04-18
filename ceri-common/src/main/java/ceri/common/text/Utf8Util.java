@@ -6,7 +6,7 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.PrimitiveIterator.OfInt;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ImmutableByteArray;
+import ceri.common.data.ByteProvider;
 
 /**
  * Utility for fine control over UTF8 manipulation.
@@ -65,22 +65,22 @@ public class Utf8Util {
 	/**
 	 * Returns the string as UTF8 bytes.
 	 */
-	public static String decode(ImmutableByteArray utf8Bytes) {
+	public static String decode(ByteProvider utf8Bytes) {
 		return decode(utf8Bytes, 0);
 	}
 
 	/**
 	 * Returns the string as UTF8 bytes.
 	 */
-	public static String decode(ImmutableByteArray utf8Bytes, int offset) {
-		return decode(utf8Bytes, offset, utf8Bytes.length - offset);
+	public static String decode(ByteProvider utf8Bytes, int offset) {
+		return decode(utf8Bytes, offset, utf8Bytes.length() - offset);
 	}
 
 	/**
 	 * Returns the string as UTF8 bytes.
 	 */
-	public static String decode(ImmutableByteArray utf8Bytes, int offset, int length) {
-		return new String(utf8Bytes.slice(offset, length).copy(), charset());
+	public static String decode(ByteProvider utf8Bytes, int offset, int length) {
+		return new String(utf8Bytes.copy(offset, length), charset());
 	}
 
 	/**

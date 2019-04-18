@@ -16,7 +16,7 @@ public class AtomicByteArrayBehavior {
 	@Test
 	public void shouldCreateFromImmutableByteArray() {
 		ImmutableByteArray b = ImmutableByteArray.wrap(1, 2, 3);
-		AtomicByteArray a = AtomicByteArray.from(b);
+		AtomicByteArray a = AtomicByteArray.copyOf(b);
 		a.set(1, 0);
 		assertArray(a.copy(), 1, 0, 3);
 		assertArray(b.copy(), 1, 2, 3);
