@@ -1,4 +1,4 @@
-package ceri.common.data;
+package ceri.common.collection;
 
 import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.test.TestUtil.assertArray;

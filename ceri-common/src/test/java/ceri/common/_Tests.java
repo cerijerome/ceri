@@ -4,6 +4,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import ceri.common.collection.ArrayIteratorBehavior;
 import ceri.common.collection.ArrayUtilTest;
+import ceri.common.collection.ByteProviderBehavior;
+import ceri.common.collection.ByteReceiverBehavior;
 import ceri.common.collection.CollectionUtilTest;
 import ceri.common.collection.DelegatingMapBehavior;
 import ceri.common.collection.FixedSizeCacheBehavior;
@@ -41,8 +43,6 @@ import ceri.common.data.BinaryStateBehavior;
 import ceri.common.data.BooleanAccessorBehavior;
 import ceri.common.data.ByteArrayDataInputBehavior;
 import ceri.common.data.ByteArrayDataOutputBehavior;
-import ceri.common.data.ByteProviderBehavior;
-import ceri.common.data.ByteReceiverBehavior;
 import ceri.common.data.ByteTypeValueBehavior;
 import ceri.common.data.ByteUtilTest;
 import ceri.common.data.DataDecoderBehavior;
@@ -237,6 +237,8 @@ import ceri.common.xml.XmlUtilTest;
 	// collection
 	ArrayIteratorBehavior.class, //
 	ArrayUtilTest.class, //
+	ByteProviderBehavior.class, //
+	ByteReceiverBehavior.class, //
 	CollectionUtilTest.class, //
 	DelegatingMapBehavior.class, //
 	FixedSizeCacheBehavior.class, //
@@ -278,8 +280,6 @@ import ceri.common.xml.XmlUtilTest;
 	BooleanAccessorBehavior.class, //
 	ByteArrayDataInputBehavior.class, //
 	ByteArrayDataOutputBehavior.class, //
-	ByteProviderBehavior.class, //
-	ByteReceiverBehavior.class, //
 	ByteTypeValueBehavior.class, //
 	ByteUtilTest.class, //
 	DataDecoderBehavior.class, //
