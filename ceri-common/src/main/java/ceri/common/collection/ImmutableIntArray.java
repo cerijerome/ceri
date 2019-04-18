@@ -13,7 +13,10 @@ import ceri.common.util.HashCoder;
  * modifications of the original array will modify the wrapped array. If slicing large arrays,
  * copying may be better for long-term objects, as the reference to the original array is no longer
  * held.
+ * 
+ * TODO: create IntProvider/IntReceiver and refactor this class.
  */
+
 public class ImmutableIntArray {
 	public static final ImmutableIntArray EMPTY = new ImmutableIntArray(ArrayUtil.EMPTY_INT, 0, 0);
 	private final int[] array;
