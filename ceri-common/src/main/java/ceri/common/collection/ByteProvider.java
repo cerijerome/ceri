@@ -9,7 +9,7 @@ import ceri.common.data.ByteUtil;
 /**
  * Interface that provides access to bytes in an array.
  * 
- * For bulk efficiency, consider overriding these methods:
+ * For bulk efficiency, consider overriding these methods that process one byte at a time:
  * 
  * <pre>
  * int copyTo(int srcOffset, ByteReceiver dest, int destOffset, int length)

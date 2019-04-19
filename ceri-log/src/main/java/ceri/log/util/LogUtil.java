@@ -37,14 +37,14 @@ public class LogUtil {
 
 	private LogUtil() {}
 
-	public static StartupValues startupValues(String...args) {
+	public static StartupValues startupValues(String... args) {
 		return startupValues(null, args);
 	}
-	
-	public static StartupValues startupValues(Logger logger, String...args) {
+
+	public static StartupValues startupValues(Logger logger, String... args) {
 		return StartupValues.of(args).notifier(logger(logger)::info);
 	}
-	
+
 	public static BinaryPrinter binaryLogger() {
 		return binaryLogger(BinaryPrinter.ASCII);
 	}
@@ -228,6 +228,14 @@ public class LogUtil {
 	}
 
 	/**
+	 * Returns an object whose toString() returns the hex hash code if toString has not been
+	 * overridden.
+	 */
+	public static Object toStringOrHash(final Object obj) {
+		return toString(() -> ReflectUtil.toStringOrHash(obj));
+	}
+
+	/**
 	 * Returns an object whose toString() returns the hex string of the given integer value.
 	 */
 	public static Object toHex(final int value) {
@@ -237,10 +245,10 @@ public class LogUtil {
 	/**
 	 * Returns an object whose toString() returns the formatted string.
 	 */
-	public static Object toFormat(String format, Object...args) {
+	public static Object toFormat(String format, Object... args) {
 		return toString(() -> String.format(format, args));
 	}
-	
+
 	/**
 	 * Returns an object with a compact toString(), replacing multiple whitespace with a single
 	 * space.
@@ -265,5 +273,5 @@ public class LogUtil {
 	private static Logger logger(Logger logger) {
 		return logger != null ? logger : LogUtil.logger;
 	}
-	
+
 }

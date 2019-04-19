@@ -32,6 +32,23 @@ public class ReflectUtilTest {
 	}
 
 	@Test
+	public void testToStringOrHashId() {
+		assertNull(ReflectUtil.toStringOrHash(null));
+		assertThat(ReflectUtil.toStringOrHash(new Object() {
+			@Override
+			public int hashCode() {
+				return 0xabcdef;
+			}
+		}), is("@abcdef"));
+		assertThat(ReflectUtil.toStringOrHash(new Object() {
+			@Override
+			public String toString() {
+				return "test";
+			}
+		}), is("test"));
+	}
+
+	@Test
 	public void testHashId() {
 		assertNull(ReflectUtil.hashId(null));
 		assertThat(ReflectUtil.hashId(new Object() {

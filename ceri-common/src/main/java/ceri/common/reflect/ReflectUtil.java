@@ -15,6 +15,19 @@ public class ReflectUtil {
 	private ReflectUtil() {}
 
 	/**
+	 * Returns toString() value, or hash code as '@&lt;hash&gt;' if toString has not been overridden.
+	 * Assumes non-overridden toString is of the form '...@&lt;hash&gt;'. Useful for displaying
+	 * shorter string identifiers of lambdas.
+	 */
+	public static String toStringOrHash(Object obj) {
+		if (obj == null) return null;
+		String s = obj.toString();
+		int i = s.lastIndexOf('@');
+		if (i == -1 || i == s.length() - 1) return s;
+		return s.substring(i);
+	}
+	
+	/**
 	 * Returns "@<hex-hashcode> for logging/identification purposes.
 	 */
 	public static String hashId(Object obj) {

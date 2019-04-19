@@ -8,12 +8,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Test;
-import ceri.common.collection.ByteReceiver;
 
 public class ByteReceiverBehavior {
 
 	@Test
-	public void shouldCopyBytesFromGivenArrays() {
+	public void shouldCopyBytesFromByteArrays() {
 		byte[] b = new byte[4];
 		ByteReceiver r = receiver(b);
 		assertThat(r.copyFrom(0xaa, 0xbb, 0xcc), is(3));
@@ -27,6 +26,29 @@ public class ByteReceiverBehavior {
 		clear(b);
 		assertThat(r.copyFrom(1, bytes(0xaa, 0xbb)), is(3));
 		assertArray(b, 0, 0xaa, 0xbb, 0);
+	}
+
+	@Test
+	public void shouldCopyBytesFromByteProviders() {
+		byte[] b = new byte[4];
+		ByteReceiver r = receiver(b);
+		assertThat(r.copyFrom(provider(0xaa, 0xbb, 0xcc)), is(3));
+		assertArray(b, 0xaa, 0xbb, 0xcc, 0);
+		clear(b);
+		assertThat(r.copyFrom(provider(0xaa, 0xbb, 0xcc), 1), is(2));
+		assertArray(b, 0xbb, 0xcc, 0, 0);
+		clear(b);
+		assertThat(r.copyFrom(provider(0xaa, 0xbb, 0xcc), 2, 1), is(1));
+		assertArray(b, 0xcc, 0, 0, 0);
+		clear(b);
+		assertThat(r.copyFrom(1, provider(0xaa, 0xbb)), is(3));
+		assertArray(b, 0, 0xaa, 0xbb, 0);
+		clear(b);
+		assertThat(r.copyFrom(1, provider(0xaa, 0xbb, 0xcc), 1), is(3));
+		assertArray(b, 0, 0xbb, 0xcc, 0);
+		clear(b);
+		assertThat(r.copyFrom(1, provider(0xaa, 0xbb, 0xcc), 1, 1), is(2));
+		assertArray(b, 0, 0xbb, 0, 0);
 	}
 
 	@Test
@@ -82,6 +104,21 @@ public class ByteReceiverBehavior {
 		ByteArrayInputStream in = new ByteArrayInputStream(bytes(0xff, 0x80));
 		assertThat(r.readFrom(in), is(2));
 		assertArray(b, 0xff, 0x80, 0, 0);
+	}
+
+	private ByteProvider provider(int... values) {
+		byte[] bytes = bytes(values);
+		return new ByteProvider() {
+			@Override
+			public int length() {
+				return bytes.length;
+			}
+
+			@Override
+			public byte get(int index) {
+				return bytes[index];
+			}
+		};
 	}
 
 	private ByteReceiver receiver(byte[] bytes) {

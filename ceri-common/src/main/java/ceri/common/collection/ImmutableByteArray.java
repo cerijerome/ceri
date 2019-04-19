@@ -75,17 +75,10 @@ public class ImmutableByteArray implements ByteProvider {
 	}
 
 	@Override
-	public byte[] copy(int offset, int length) {
-		ArrayUtil.validateSlice(length(), offset, length);
-		if (length == 0) return ArrayUtil.EMPTY_BYTE;
-		return Arrays.copyOfRange(array, this.offset + offset, this.offset + offset + length);
-	}
-
-	@Override
-	public int copyTo(int srcOffset, byte[] dest, int destOffset, int length) {
+	public int copyTo(int srcOffset, ByteReceiver dest, int destOffset, int length) {
 		ArrayUtil.validateSlice(length(), srcOffset, length);
-		ArrayUtil.validateSlice(dest.length, destOffset, length);
-		if (length > 0) System.arraycopy(array, this.offset + srcOffset, dest, destOffset, length);
+		ArrayUtil.validateSlice(dest.length(), destOffset, length);
+		dest.copyFrom(destOffset, array, this.offset + srcOffset, length);
 		return destOffset + length;
 	}
 
@@ -130,9 +123,9 @@ public class ImmutableByteArray implements ByteProvider {
 
 	public ImmutableByteArray resize(int offset, int length) {
 		if (length == 0) return ImmutableByteArray.EMPTY;
-		if (offset == 0 && length == this.length) return this;
+		if (offset == 0 && length == length()) return this;
 		byte[] buffer = new byte[length];
-		slice(offset, Math.min(this.length - offset, length)).copyTo(buffer);
+		slice(offset, Math.min(length() - offset, length)).copyTo(buffer);
 		return wrap(buffer);
 	}
 

@@ -9,17 +9,17 @@ import ceri.common.data.ByteUtil;
 /**
  * Interface for receiving bytes into an array.
  * 
- * For bulk efficiency, consider overriding these methods:
+ * For bulk efficiency, consider overriding these methods that process one byte at a time:
  * 
  * <pre>
- * int copy(int pos, byte[] data, int offset, int length)
+ * int copyFrom(int pos, byte[] data, int offset, int length)
  * int fill(int value, int pos, int length)
  * int readFrom(InputStream in, int offset, int length) throws IOException
  * </pre>
  */
 public interface ByteReceiver {
 	static ByteReceiver EMPTY = wrap();
-	
+
 	/**
 	 * Wraps a byte array as a byte receiver.
 	 */
@@ -121,6 +121,51 @@ public interface ByteReceiver {
 	}
 
 	/**
+	 * Copies the byte provider slice to position 0. Returns the length copied.
+	 */
+	default int copyFrom(ByteProvider array) {
+		return array.copyTo(this);
+	}
+	
+	/**
+	 * Copies the byte provider slice to position 0. Returns the length copied.
+	 */
+	default int copyFrom(ByteProvider array, int offset) {
+		return array.copyTo(offset, this);
+	}
+	
+	/**
+	 * Copies the byte provider slice to position 0. Returns the length copied.
+	 */
+	default int copyFrom(ByteProvider array, int offset, int length) {
+		return array.copyTo(offset, this, 0, length);
+	}
+	
+	/**
+	 * Copies the byte provider to given position. Returns the array position after copying,
+	 * pos + length.
+	 */
+	default int copyFrom(int pos, ByteProvider array) {
+		return array.copyTo(this, pos);
+	}
+
+	/**
+	 * Copies the byte provider slice to given position. Returns the array position after copying,
+	 * pos + length.
+	 */
+	default int copyFrom(int pos, ByteProvider array, int offset) {
+		return array.copyTo(offset, this, pos);
+	}
+
+	/**
+	 * Copies the byte provider slice to given position. Returns the array position after copying,
+	 * pos + length.
+	 */
+	default int copyFrom(int pos, ByteProvider array, int offset, int length) {
+		return array.copyTo(offset, this, pos, length);
+	}
+
+	/**
 	 * Fills the array. Returns the number of bytes filled, length().
 	 */
 	default int fill(int value) {
@@ -146,8 +191,8 @@ public interface ByteReceiver {
 
 	/**
 	 * Sets bytes at offset 0 by reading from the input stream. Attempts to fill the length of the
-	 * array. Returns the number of bytes read. Number of bytes read may be
-	 * less than requested; EOF will result in fewer or no bytes read rather than returning -1.
+	 * array. Returns the number of bytes read. Number of bytes read may be less than requested; EOF
+	 * will result in fewer or no bytes read rather than returning -1.
 	 */
 	default int readFrom(InputStream in) throws IOException {
 		return readFrom(in, 0);
