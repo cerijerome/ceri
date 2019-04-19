@@ -13,6 +13,7 @@ import ceri.common.data.ByteUtil;
  * 
  * <pre>
  * int copyFrom(int pos, byte[] data, int offset, int length)
+ * int copyFrom(int pos, ByteProvider array, int offset, int length)
  * int fill(int value, int pos, int length)
  * int readFrom(InputStream in, int offset, int length) throws IOException
  * </pre>
@@ -39,6 +40,11 @@ public interface ByteReceiver {
 			public int copyFrom(int pos, byte[] data, int offset, int length) {
 				System.arraycopy(data, offset, array, pos, length);
 				return pos + length;
+			}
+
+			@Override
+			public int copyFrom(int pos, ByteProvider data, int offset, int length) {
+				return data.copyTo(offset, array, pos, length);
 			}
 
 			@Override
@@ -124,29 +130,29 @@ public interface ByteReceiver {
 	 * Copies the byte provider slice to position 0. Returns the length copied.
 	 */
 	default int copyFrom(ByteProvider array) {
-		return array.copyTo(this);
+		return copyFrom(array, 0);
 	}
-	
+
 	/**
 	 * Copies the byte provider slice to position 0. Returns the length copied.
 	 */
 	default int copyFrom(ByteProvider array, int offset) {
-		return array.copyTo(offset, this);
+		return copyFrom(0, array, offset);
 	}
-	
+
 	/**
 	 * Copies the byte provider slice to position 0. Returns the length copied.
 	 */
 	default int copyFrom(ByteProvider array, int offset, int length) {
-		return array.copyTo(offset, this, 0, length);
+		return copyFrom(0, array, offset, length);
 	}
-	
+
 	/**
-	 * Copies the byte provider to given position. Returns the array position after copying,
-	 * pos + length.
+	 * Copies the byte provider to given position. Returns the array position after copying, pos +
+	 * length.
 	 */
 	default int copyFrom(int pos, ByteProvider array) {
-		return array.copyTo(this, pos);
+		return copyFrom(pos, array, 0);
 	}
 
 	/**
@@ -154,7 +160,7 @@ public interface ByteReceiver {
 	 * pos + length.
 	 */
 	default int copyFrom(int pos, ByteProvider array, int offset) {
-		return array.copyTo(offset, this, pos);
+		return copyFrom(pos, array, offset, min(length() - pos, array.length() - offset));
 	}
 
 	/**
@@ -212,14 +218,7 @@ public interface ByteReceiver {
 	 * Sets bytes at offset by reading from the input stream. Returns the array position after
 	 * reading, offset + length. Number of bytes read may be less than requested; EOF will result in
 	 * fewer or no bytes read rather than returning -1. Default implementation reads one byte at a
-	 * time; in some cases efficiency may be improved by overriding, or by reading into a buffer and
-	 * calling set:
-	 * 
-	 * <pre>
-	 * byte[] buffer = new byte[length];
-	 * int n = in.read(buffer);
-	 * if (n > 0) set(offset, buffer, 0, n);
-	 * </pre>
+	 * time; in some cases efficiency may be improved by overriding, or calling readBufferFrom.
 	 */
 	default int readFrom(InputStream in, int offset, int length) throws IOException {
 		ArrayUtil.validateSlice(length(), offset, length);
@@ -230,6 +229,38 @@ public interface ByteReceiver {
 			set(offset + i, val);
 		}
 		return offset + i;
+	}
+
+	/**
+	 * Sets bytes at offset 0 by reading a buffer from the input stream. Returns the number of bytes
+	 * read. Number of bytes read may be less than requested; EOF will result in fewer or no bytes
+	 * read rather than returning -1.
+	 */
+	default int readBufferFrom(InputStream in) throws IOException {
+		return readBufferFrom(in, 0);
+	}
+
+	/**
+	 * Sets bytes at offset by reading a buffer from the input stream. Returns the array position
+	 * after reading, offset + length. Number of bytes read may be less than requested; EOF will
+	 * result in fewer or no bytes read rather than returning -1.
+	 */
+	default int readBufferFrom(InputStream in, int offset) throws IOException {
+		return readBufferFrom(in, offset, length() - offset);
+	}
+
+	/**
+	 * Sets bytes at offset by reading a buffer from the input stream. Returns the array position
+	 * after reading, offset + length. Number of bytes read may be less than requested; EOF will
+	 * result in fewer or no bytes read rather than returning -1.
+	 */
+	default int readBufferFrom(InputStream in, int offset, int length) throws IOException {
+		ArrayUtil.validateSlice(length(), offset, length);
+		byte[] buffer = new byte[length];
+		int n = in.read(buffer);
+		if (n <= 0) return offset;
+		copyFrom(offset, buffer, 0, n);
+		return offset + n;
 	}
 
 }

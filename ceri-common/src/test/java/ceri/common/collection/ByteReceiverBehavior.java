@@ -83,12 +83,34 @@ public class ByteReceiverBehavior {
 	}
 
 	@Test
+	public void shouldSetBufferedBytesFromInputStream() throws IOException {
+		ByteArrayInputStream in = new ByteArrayInputStream(bytes(0xff, 1, 0x80, 0x7f, 0, 2));
+		byte[] b = new byte[4];
+		ByteReceiver r = receiver(b);
+		assertThat(r.readBufferFrom(in), is(4));
+		assertArray(b, 0xff, 1, 0x80, 0x7f);
+		in.reset();
+		clear(b);
+		assertThat(r.readBufferFrom(in, 3), is(4));
+		assertArray(b, 0, 0, 0, 0xff);
+		in.reset();
+		clear(b);
+		assertThat(r.readBufferFrom(in, 1, 2), is(3));
+		assertArray(b, 0, 0xff, 1, 0);
+	}
+
+	@Test
 	public void shouldShouldStopSettingBytesFromInputStreamEOF() throws IOException {
 		ByteArrayInputStream in = new ByteArrayInputStream(bytes(0xff, 0x80));
 		byte[] b = new byte[4];
 		ByteReceiver r = receiver(b);
 		assertThat(r.readFrom(in), is(2));
 		assertArray(b, 0xff, 0x80, 0, 0);
+		in.reset();
+		clear(b);
+		assertThat(r.readBufferFrom(in), is(2));
+		assertArray(b, 0xff, 0x80, 0, 0);
+		assertThat(r.readBufferFrom(in), is(0));
 	}
 
 	@Test
@@ -99,6 +121,9 @@ public class ByteReceiverBehavior {
 		assertArray(b, 0, 0xff, 0, 0);
 		clear(b);
 		assertThat(r.copyFrom(0xaa, 0xbb, 0xcc), is(3));
+		assertArray(b, 0xaa, 0xbb, 0xcc, 0);
+		clear(b);
+		assertThat(r.copyFrom(provider(0xaa, 0xbb, 0xcc)), is(3));
 		assertArray(b, 0xaa, 0xbb, 0xcc, 0);
 		clear(b);
 		ByteArrayInputStream in = new ByteArrayInputStream(bytes(0xff, 0x80));
