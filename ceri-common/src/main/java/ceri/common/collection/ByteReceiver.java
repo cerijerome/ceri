@@ -232,34 +232,19 @@ public interface ByteReceiver {
 	}
 
 	/**
-	 * Sets bytes at offset 0 by reading a buffer from the input stream. Returns the number of bytes
-	 * read. Number of bytes read may be less than requested; EOF will result in fewer or no bytes
-	 * read rather than returning -1.
+	 * Sets bytes at offset of receiver by reading a buffer from the input stream. Returns the array
+	 * position after reading, offset + length. Number of bytes read may be less than requested; EOF
+	 * will result in fewer or no bytes read rather than returning -1.
+	 * 
+	 * Implementing classes can call this from readFrom() if buffering is more efficient.
 	 */
-	default int readBufferFrom(InputStream in) throws IOException {
-		return readBufferFrom(in, 0);
-	}
-
-	/**
-	 * Sets bytes at offset by reading a buffer from the input stream. Returns the array position
-	 * after reading, offset + length. Number of bytes read may be less than requested; EOF will
-	 * result in fewer or no bytes read rather than returning -1.
-	 */
-	default int readBufferFrom(InputStream in, int offset) throws IOException {
-		return readBufferFrom(in, offset, length() - offset);
-	}
-
-	/**
-	 * Sets bytes at offset by reading a buffer from the input stream. Returns the array position
-	 * after reading, offset + length. Number of bytes read may be less than requested; EOF will
-	 * result in fewer or no bytes read rather than returning -1.
-	 */
-	default int readBufferFrom(InputStream in, int offset, int length) throws IOException {
-		ArrayUtil.validateSlice(length(), offset, length);
+	static int readBufferFrom(ByteReceiver rx, InputStream in, int offset, int length)
+		throws IOException {
+		ArrayUtil.validateSlice(rx.length(), offset, length);
 		byte[] buffer = new byte[length];
 		int n = in.read(buffer);
 		if (n <= 0) return offset;
-		copyFrom(offset, buffer, 0, n);
+		rx.copyFrom(offset, buffer, 0, n);
 		return offset + n;
 	}
 

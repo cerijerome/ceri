@@ -87,15 +87,7 @@ public class ByteReceiverBehavior {
 		ByteArrayInputStream in = new ByteArrayInputStream(bytes(0xff, 1, 0x80, 0x7f, 0, 2));
 		byte[] b = new byte[4];
 		ByteReceiver r = receiver(b);
-		assertThat(r.readBufferFrom(in), is(4));
-		assertArray(b, 0xff, 1, 0x80, 0x7f);
-		in.reset();
-		clear(b);
-		assertThat(r.readBufferFrom(in, 3), is(4));
-		assertArray(b, 0, 0, 0, 0xff);
-		in.reset();
-		clear(b);
-		assertThat(r.readBufferFrom(in, 1, 2), is(3));
+		assertThat(ByteReceiver.readBufferFrom(r, in, 1, 2), is(3));
 		assertArray(b, 0, 0xff, 1, 0);
 	}
 
@@ -108,9 +100,9 @@ public class ByteReceiverBehavior {
 		assertArray(b, 0xff, 0x80, 0, 0);
 		in.reset();
 		clear(b);
-		assertThat(r.readBufferFrom(in), is(2));
+		assertThat(ByteReceiver.readBufferFrom(r, in, 0, 3), is(2));
 		assertArray(b, 0xff, 0x80, 0, 0);
-		assertThat(r.readBufferFrom(in), is(0));
+		assertThat(ByteReceiver.readBufferFrom(r, in, 0, 3), is(0));
 	}
 
 	@Test
