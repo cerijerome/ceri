@@ -36,7 +36,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 		this.spi = spi;
 		buffer = config.buffer();
 		xfer = spi.transfer(buffer.storageSize()).delayMicros(config.delayMicros);
-		data = new byte[buffer.dataSize()];
+		data = new byte[buffer.length()];
 		start();
 	}
 
@@ -46,7 +46,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 
 	@Override
 	public int length() {
-		return buffer.dataSize();
+		return buffer.length();
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	protected void loop() throws InterruptedException {
 		try {
 			syncData();
-			buffer.writeTo(xfer.out());
+			buffer.writePulseTo(xfer.out());
 			spi.execute(xfer);
 		} catch (InterruptedException | RuntimeInterruptedException e) {
 			throw e;
@@ -90,7 +90,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	private void syncData() throws InterruptedException {
 		safe.write(() -> {
 			sync.await();
-			buffer.write(data);
+			buffer.copyFrom(data);
 		});
 	}
 

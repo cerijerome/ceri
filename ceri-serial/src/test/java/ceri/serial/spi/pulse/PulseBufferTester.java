@@ -59,8 +59,8 @@ public class PulseBufferTester {
 		printBuffer(b);
 		printPulse(b);
 		int val = 1;
-		for (int i = 0; i < b.dataSize(); i++) {
-			b.setByte(i, val);
+		for (int i = 0; i < b.length(); i++) {
+			b.set(i, val);
 			val <<= 1;
 		}
 		System.out.println("After changes:");

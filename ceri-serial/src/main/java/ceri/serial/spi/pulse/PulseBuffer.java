@@ -1,14 +1,14 @@
 package ceri.serial.spi.pulse;
 
 import java.nio.ByteBuffer;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ByteReceiver;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.data.ByteUtil;
 
 /**
  * Buffer mapping data bits to pulses shaped with storage bits.
  */
-public class PulseBuffer {
+public class PulseBuffer implements ByteReceiver {
 	public final PulseCycle cycle;
 	private final int dataSize;
 	private final byte[] buffer;
@@ -20,10 +20,17 @@ public class PulseBuffer {
 		initBuffer(dataSize);
 	}
 
-	public int dataSize() {
+	/**
+	 * Returns the data length.
+	 */
+	@Override
+	public int length() {
 		return dataSize;
 	}
 
+	/**
+	 * Returns the storage size to hold the data converted to pulses. 
+	 */
 	public int storageSize() {
 		return buffer.length;
 	}
@@ -35,27 +42,9 @@ public class PulseBuffer {
 		return cycle.pulseBits;
 	}
 
-	public void write(byte[] data) {
-		write(data, 0);
-	}
-
-	public void write(byte[] data, int offset) {
-		write(data, offset, data.length);
-	}
-
-	public void write(byte[] data, int offset, int len) {
-		write(0, data, offset, len);
-	}
-
-	public void write(int srcOffset, byte[] data, int offset, int len) {
-		ArrayUtil.validateSlice(data.length, srcOffset, len);
-		ArrayUtil.validateSlice(dataSize(), offset, len);
-		for (int i = 0; i < len; i++)
-			setByte(offset + i, data[srcOffset + i]);
-	}
-	
-	public void setByte(int offset, int value) {
-		int bit = offset * Byte.SIZE;
+	@Override
+	public void set(int pos, int value) {
+		int bit = pos * Byte.SIZE;
 		for (int i = 0; i < Byte.SIZE; i++)
 			setDataBit(bit + Byte.SIZE - i - 1, (value & (1 << i)) != 0);
 	}
@@ -72,7 +61,7 @@ public class PulseBuffer {
 		setStorageBits(pos + t0Bits, t1Bits - t0Bits, on);
 	}
 
-	public void writeTo(ByteBuffer out) {
+	public void writePulseTo(ByteBuffer out) {
 		if (out == null) return;
 		out.clear();
 		out.put(buffer);
