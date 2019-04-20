@@ -13,7 +13,7 @@ public abstract class PulseCycle {
 	public final int pulseOffsetBits;
 	public final int t0Bits;
 	public final int t1Bits;
-	public final int pulseBits; // bitRatio
+	public final int pulseBits; // bit ratio
 
 	public static enum Type {
 		nbit,
