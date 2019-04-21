@@ -1,10 +1,12 @@
 package ceri.serial.spi.pulse;
 
 import static ceri.common.data.ByteUtil.bytes;
-import java.util.Arrays;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.function.IntSupplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ByteProvider;
 import ceri.common.collection.ByteReceiver;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
@@ -25,6 +27,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	private final PulseBuffer buffer;
 	private final Spi spi;
 	private final SpiTransfer xfer;
+	private final ByteReceiver wrapper;
 	private byte[] data;
 
 	public static SpiPulseTransmitter of(Spi spi, SpiPulseConfig config) {
@@ -37,6 +40,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 		buffer = config.buffer();
 		xfer = spi.transfer(buffer.storageSize()).delayMicros(config.delayMicros);
 		data = new byte[buffer.length()];
+		wrapper = ByteReceiver.wrap(data);
 		start();
 	}
 
@@ -55,22 +59,23 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	}
 
 	@Override
-	public int copyFrom(int srcOffset, byte[] data, int offset, int len) {
-		ArrayUtil.validateSlice(data.length, srcOffset, len);
-		ArrayUtil.validateSlice(this.data.length, offset, len);
-		safe.write(() -> {
-			System.arraycopy(data, srcOffset, this.data, offset, len);
-			sync.signal();
-		});
-		return srcOffset + len;
+	public int copyFrom(int pos, byte[] array, int offset, int length) {
+		return signal(() -> wrapper.copyFrom(pos, array, offset, length));
+	}
+
+	@Override
+	public int copyFrom(int pos, ByteProvider provider, int offset, int length) {
+		return signal(() -> wrapper.copyFrom(pos, provider, offset, length));
 	}
 
 	@Override
 	public int fill(int value, int pos, int length) {
-		ArrayUtil.validateSlice(length(), pos, length);
-		byte[] fill = new byte[length];
-		Arrays.fill(fill, (byte) value);
-		return copyFrom(pos, fill);
+		return signal(() -> wrapper.fill(value, pos, length));
+	}
+
+	@Override
+	public int readFrom(InputStream in, int offset, int length) throws IOException {
+		return ByteReceiver.readBufferFrom(this, in, offset, length);
 	}
 
 	@Override
@@ -91,6 +96,14 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 		safe.write(() -> {
 			sync.await();
 			buffer.copyFrom(data);
+		});
+	}
+
+	private int signal(IntSupplier action) {
+		return safe.writeWithReturn(() -> {
+			int result = action.getAsInt();
+			sync.signal();
+			return result;
 		});
 	}
 
