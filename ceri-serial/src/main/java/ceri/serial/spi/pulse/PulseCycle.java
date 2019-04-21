@@ -79,6 +79,11 @@ public abstract class PulseCycle {
 		return dataBit % cycleDataBits;
 	}
 
+	@Override
+	public String toString() {
+		return "" + pulseBits + type();
+	}
+	
 	private int offset(int cycles) {
 		return cycles * cycleStorageBytes * Byte.SIZE;
 	}
