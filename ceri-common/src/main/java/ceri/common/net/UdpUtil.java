@@ -1,5 +1,6 @@
 package ceri.common.net;
 
+import static ceri.common.function.FunctionUtil.safeApply;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -12,6 +13,12 @@ public class UdpUtil {
 	public static final int MAX_PACKET_DATA = 65507; // = 65535 - 8(udp) - 20(ip)
 
 	private UdpUtil() {}
+
+	public static HostPort hostPort(DatagramSocket socket) {
+		if (socket == null) return null;
+		String host = safeApply(socket.getInetAddress(), InetAddress::getHostAddress);
+		return HostPort.of(host, socket.getPort());
+	}
 
 	public static DatagramPacket toPacket(ByteProvider data, InetAddress address, int port) {
 		return new DatagramPacket(data.copy(), data.length(), address, port);
