@@ -3,13 +3,13 @@
 /*--------------------------------------------------------------------------*/
 
 @font-face {
-  font-family: 'FontAwesome';
-  src: url('../font/FontAwesome/fontawesome4.ttf');
+  font-family: 'DidactGothic';
+  src: url('../font/DidactGothic/DidactGothic-Regular.ttf');
 }
 
 @font-face {
-  font-family: 'DidactGothic';
-  src: url('../font/DidactGothic/DidactGothic-Regular.ttf');
+  font-family: 'FontAwesome';
+  src: url('../font/FontAwesome/FontAwesome4.ttf');
 }
 
 @font-face {
@@ -32,6 +32,11 @@
 @font-face {
   font-family: 'Limelight';
   src: url('../font/Limelight/Limelight-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Linotte';
+  src: url('../font/Linotte/Linotte-SemiBold.ttf');
 }
 
 @font-face {
