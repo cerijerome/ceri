@@ -1,6 +1,39 @@
 /*--------------------------------------------------------------------------*/
 /* Web fonts */
 /*--------------------------------------------------------------------------*/
+
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('../font/FontAwesome/fontawesome4.ttf');
+}
+
+@font-face {
+  font-family: 'DidactGothic';
+  src: url('../font/DidactGothic/DidactGothic-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'FuturaLT';
+  src: url('../font/FuturaLT/FuturaLT.ttf');
+}
+
+@font-face {
+  font-family: 'FuturaLT';
+  font-style: italic;
+  src: url('../font/FuturaLT/FuturaLT-Oblique.ttf');
+}
+
+@font-face {
+  font-family: 'FuturaLT';
+  font-weight: bold;
+  src: url('../font/FuturaLT/FuturaLT-Heavy.ttf');
+}
+
+@font-face {
+  font-family: 'Limelight';
+  src: url('../font/Limelight/Limelight-Regular.ttf');
+}
+
 @font-face {
   font-family: 'Montserrat';
   src: url('../font/Montserrat/Montserrat-Regular.ttf');
@@ -16,6 +49,29 @@
   font-family: 'Montserrat';
   font-weight: bold;
   src: url('../font/Montserrat/Montserrat-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  font-weight: 600;
+  src: url('../font/Montserrat/Montserrat-SemiBold.ttf');
+}
+
+@font-face {
+  font-family: 'Muli';
+  src: url('../font/Muli/Muli-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Muli';
+  font-style: italic;
+  src: url('../font/Muli/Muli-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Muli';
+  font-weight: bold;
+  src: url('../font/Muli/Muli-Bold.ttf');
 }
 
 @font-face {
