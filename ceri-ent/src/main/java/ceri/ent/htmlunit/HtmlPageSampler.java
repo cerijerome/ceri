@@ -16,10 +16,14 @@ public class HtmlPageSampler {
 	 * Sample mode for saving/loading pages as xml (debugging)
 	 */
 	public static enum Mode {
-		off,  // always load from url
-		save, // always load from url, save to file 
-		load, // always load from file
-		auto  // if file exists, follow 'load', otherwise follow 'save'
+		/** Always load from url */
+		off,
+		/** Always load from url, and save to file */
+		save,
+		/** Always load from file */
+		load,
+		/** If file exists, follow 'load', otherwise follow 'save' */
+		auto
 	}
 
 	/**
