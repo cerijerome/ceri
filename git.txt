@@ -40,7 +40,7 @@ Use instead of password
 
 Set up a repo
 -------------
-Set up repo on github.com
+Set up repo on github.com (origin = repo alias)
 $ git init
 $ git remote add origin <https|ssh-repolink>
 $ git remote add origin https://username@github.com/username/repo.git
