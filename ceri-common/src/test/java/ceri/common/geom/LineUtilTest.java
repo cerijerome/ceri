@@ -1,11 +1,17 @@
 package ceri.common.geom;
 
 import static ceri.common.test.TestUtil.assertApprox;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 public class LineUtilTest {
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(LineUtil.class);
+	}
 
 	@Test
 	public void testDistanceOfZeroLengthLineToPoint() {
