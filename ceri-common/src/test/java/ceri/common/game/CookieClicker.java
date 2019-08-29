@@ -68,7 +68,7 @@ public class CookieClicker {
 		}
 	}
 
-	private CookieClicker(Builder builder) {
+	CookieClicker(Builder builder) {
 		screenSize = screenSize();
 		clickArea = rectangle(builder.clickArea);
 		gcReminderMs = builder.gcReminderMs;
