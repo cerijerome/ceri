@@ -1,12 +1,16 @@
 package ceri.common.math;
 
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 public class VectorUtilTest {
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(VectorUtil.class);
+	}
 
 	@Test
 	public void testCrossProduct2d() {

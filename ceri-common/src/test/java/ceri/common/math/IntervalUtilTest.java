@@ -1,6 +1,7 @@
 package ceri.common.math;
 
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -10,6 +11,11 @@ public class IntervalUtilTest {
 	private final Interval<Long> maxLong = Interval.inclusive(Long.MIN_VALUE, Long.MAX_VALUE);
 	private final Interval<Integer> maxInt =
 		Interval.inclusive(Integer.MIN_VALUE, Integer.MAX_VALUE);
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(IntervalUtil.class);
+	}
 
 	@Test
 	public void testLongMidPoint() {

@@ -1,6 +1,7 @@
 package ceri.common.math;
 
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
@@ -12,6 +13,11 @@ public class MatrixUtilTest {
 	private static final Matrix m2 = Matrix.of(new double[][] { { 1, -1 }, { -1, 1 } });
 	private static final Matrix m3 =
 		Matrix.of(new double[][] { { 1, 0, 0 }, { 1, 0, 0 }, { 1, 1, 0 } });
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(MatrixUtil.class);
+	}
 
 	@Test
 	public void testDeterminant() {
