@@ -1,6 +1,7 @@
 package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
@@ -12,6 +13,11 @@ import ceri.common.io.IoStreamUtil.ByteReader;
 import ceri.common.io.IoStreamUtil.ByteWriter;
 
 public class IoStreamUtilTest {
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(IoStreamUtil.class);
+	}
 
 	@Test
 	public void testNullOut() throws IOException {
@@ -94,8 +100,7 @@ public class IoStreamUtilTest {
 	 */
 	private ByteWriter writer(byte[] buffer) {
 		return (b, offset, len) -> {
-			for (int i = 0; i < len; i++)
-				buffer[i] = b[offset + i];
+			if (len >= 0) System.arraycopy(b, offset, buffer, 0, len);
 		};
 	}
 
