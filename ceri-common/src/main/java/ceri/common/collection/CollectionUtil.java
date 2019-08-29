@@ -37,6 +37,7 @@ public class CollectionUtil {
 	@SafeVarargs
 	public static <T> boolean containsAll(Collection<T> collection, T... allOf) {
 		if (collection == null) return false;
+		if (allOf == null) return false;
 		return collection.containsAll(Arrays.asList(allOf));
 	}
 
@@ -291,14 +292,14 @@ public class CollectionUtil {
 	/**
 	 * Allows an enumeration to be run in a for-each loop.
 	 */
-	public static final <T> Iterable<T> iterable(final Enumeration<? extends T> enumeration) {
+	public static <T> Iterable<T> iterable(final Enumeration<? extends T> enumeration) {
 		return BasicUtil.forEach(iterator(enumeration));
 	}
 
 	/**
 	 * Returns an iterator for an enumeration.
 	 */
-	public static final <T> Iterator<T> iterator(final Enumeration<? extends T> enumeration) {
+	public static <T> Iterator<T> iterator(final Enumeration<? extends T> enumeration) {
 		return new Iterator<>() {
 			@Override
 			public final boolean hasNext() {
