@@ -35,6 +35,7 @@ public class ColorUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ColorUtil.class);
+		assertPrivateConstructor(ColorUtil.Fn.class);
 	}
 
 	@Test

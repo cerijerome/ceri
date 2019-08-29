@@ -68,7 +68,7 @@ public class CookieClicker {
 		}
 	}
 
-	CookieClicker(Builder builder) {
+	private CookieClicker(Builder builder) {
 		screenSize = screenSize();
 		clickArea = rectangle(builder.clickArea);
 		gcReminderMs = builder.gcReminderMs;
@@ -128,7 +128,7 @@ public class CookieClicker {
 		return to;
 	}
 	
-	public static Dimension screenSize() {
+	private static Dimension screenSize() {
 		return MouseInfo.getPointerInfo().getDevice().getDefaultConfiguration().getBounds()
 			.getSize();
 	}

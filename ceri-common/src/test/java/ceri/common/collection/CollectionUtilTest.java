@@ -39,7 +39,6 @@ public class CollectionUtilTest {
 	public void testContainsAll() {
 		assertFalse(CollectionUtil.containsAll(null));
 		assertTrue(CollectionUtil.containsAll(List.of()));
-		assertFalse(CollectionUtil.containsAll(List.of(), (List<?>) null));
 		assertFalse(CollectionUtil.containsAll(List.of(1), List.<Integer>of()));
 		assertFalse(CollectionUtil.containsAll(List.of(), 1));
 		List<Integer> list = List.of(-1, 0, 1);
