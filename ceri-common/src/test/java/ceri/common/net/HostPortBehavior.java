@@ -8,7 +8,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Objects;
 import org.junit.Test;
 
 public class HostPortBehavior {
