@@ -2,8 +2,8 @@ package ceri.common.net;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static java.util.Objects.requireNonNull;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import java.net.InetAddress;
@@ -15,9 +15,9 @@ public class HostPortBehavior {
 	@Test
 	public void testParse() {
 		assertHostPort(HostPort.parse("localhost"), "localhost");
-		assertHostPort(requireNonNull(HostPort.parse("localhost:8080")), "localhost", 8080);
-		assertHostPort(requireNonNull(HostPort.parse("127.0.0.1")), "127.0.0.1");
-		assertHostPort(requireNonNull(HostPort.parse("127.0.0.1:8080")), "127.0.0.1", 8080);
+		assertHostPort(HostPort.parse("localhost:8080"), "localhost", 8080);
+		assertHostPort(HostPort.parse("127.0.0.1"), "127.0.0.1");
+		assertHostPort(HostPort.parse("127.0.0.1:8080"), "127.0.0.1", 8080);
 		assertNull(HostPort.parse(""));
 		assertNull(HostPort.parse(":"));
 		assertNull(HostPort.parse("localhost:"));
@@ -47,6 +47,11 @@ public class HostPortBehavior {
 	}
 
 	static void assertHostPort(HostPort hostPort, String host, Integer port) {
+		if (host == null) {
+			assertNull(hostPort);
+			return;
+		}
+		assertNotNull(hostPort);
 		assertThat(hostPort.host, is(host));
 		if (port == null) assertNull(hostPort.port);
 		else assertThat(hostPort.port, is(port));

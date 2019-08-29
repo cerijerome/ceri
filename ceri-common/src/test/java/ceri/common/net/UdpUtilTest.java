@@ -1,8 +1,10 @@
 package ceri.common.net;
 
-import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.*;
+import static java.util.Objects.requireNonNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -28,6 +30,22 @@ public class UdpUtilTest {
 	}
 
 	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(UdpUtil.class);
+	}
+
+	@Test
+	public void testHostPort() {
+		assertNull(UdpUtil.hostPort(null));
+		doReturn(null).when(socket).getInetAddress();
+		assertException(() -> UdpUtil.hostPort(socket));
+		doReturn(address).when(socket).getInetAddress();
+		doReturn(777).when(socket).getPort();
+		doReturn("test").when(address).getHostAddress();
+		HostPortBehavior.assertHostPort(UdpUtil.hostPort(socket), "test", 777);
+	}
+
+	@Test
 	public void testToPacket() {
 		DatagramPacket packet = UdpUtil.toPacket(ByteUtil.toAscii("test"), address, 0);
 		assertArray(packet.getData(), 't', 'e', 's', 't');
@@ -42,6 +60,7 @@ public class UdpUtilTest {
 	@Test
 	public void testReceive() throws IOException {
 		ImmutableByteArray data = UdpUtil.receive(socket, buffer);
+		requireNonNull(data);
 		assertArray(data.copy(), buffer);
 	}
 

@@ -1,5 +1,6 @@
 package ceri.common.net;
 
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -22,6 +23,11 @@ public class NetUtilTest {
 	@Before
 	public void init() {
 		MockitoAnnotations.initMocks(this);
+	}
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(NetUtil.class);
 	}
 
 	@Test
