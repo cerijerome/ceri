@@ -12,6 +12,13 @@ public class StartupValues {
 	private int index = 0;
 	private Consumer<String> notifier = s -> {};
 
+	/**
+	 * Lookup system property or environment var by name
+	 */
+	public static Value lookup(String name) {
+		return of().value(name);
+	}
+
 	public static StartupValues sysOut(String... args) {
 		return of(args).notifier(System.out::println);
 	}

@@ -1,7 +1,6 @@
 package ceri.process.util;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -15,15 +14,11 @@ public class ProcessUtil {
 	private ProcessUtil() {}
 
 	public static String stdOut(Process process) throws IOException {
-		try (InputStream stdOut = process.getInputStream()) {
-			return IoUtil.getContentString(stdOut, 0);
-		}
+		return IoUtil.readAvailableString(process.getInputStream());
 	}
 
 	public static String stdErr(Process process) throws IOException {
-		try (InputStream stdOut = process.getErrorStream()) {
-			return IoUtil.getContentString(stdOut, 0);
-		}
+		return IoUtil.readAvailableString(process.getErrorStream());
 	}
 
 	public static Object logToString(ProcessBuilder builder) {
@@ -32,6 +27,10 @@ public class ProcessUtil {
 
 	public static String toString(ProcessBuilder builder) {
 		return toString(builder.command());
+	}
+
+	public static String toString(Parameters params) {
+		return toString(params.list());
 	}
 
 	public static String toString(List<String> command) {

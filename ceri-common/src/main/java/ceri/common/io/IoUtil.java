@@ -1,20 +1,7 @@
 package ceri.common.io;
 
 import static ceri.common.util.BasicUtil.shouldNotThrow;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InterruptedIOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -162,6 +149,20 @@ public class IoUtil {
 	/**
 	 * Reads all available bytes without blocking.
 	 */
+	public static String readAvailableString(InputStream in) throws IOException {
+		return readAvailableString(in, Charset.defaultCharset());
+	}
+
+	/**
+	 * Reads all available bytes without blocking.
+	 */
+	public static String readAvailableString(InputStream in, Charset charset) throws IOException {
+		return readAvailable(in).asString(charset);
+	}
+
+	/**
+	 * Reads all available bytes without blocking.
+	 */
 	public static ImmutableByteArray readAvailable(InputStream in) throws IOException {
 		if (in == null) return null;
 		int count = in.available();
@@ -211,7 +212,8 @@ public class IoUtil {
 	}
 
 	/**
-	 * Checks if the current thread has been interrupted, and throws an InterruptedIOException. With
+	 * Checks if the current thread has been interrupted, and throws an InterruptedIOException.
+	 * With
 	 * blocking I/O, (i.e. anything that doesn't use the nio packages) a thread can be interrupted,
 	 * but the I/O will still proceed, and the InterruptedException is only thrown when a call to
 	 * Thread.sleep() or Object.wait() is made. This method or the BasicUtil.checkInterrupted()
@@ -227,9 +229,7 @@ public class IoUtil {
 	public static void execIo(ExceptionRunnable<Exception> runnable) throws IOException {
 		try {
 			runnable.run();
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (IOException e) {
+		} catch (RuntimeException | IOException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new IOException(e);
@@ -242,9 +242,7 @@ public class IoUtil {
 	public static <T> T callableIo(Callable<T> callable) throws IOException {
 		try {
 			return callable.call();
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (IOException e) {
+		} catch (RuntimeException | IOException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new IOException(e);
@@ -325,13 +323,13 @@ public class IoUtil {
 	public static String getRelativePath(File dir, File file) throws IOException {
 		dir = dir.getCanonicalFile();
 		String fileName = unixPath(file.getCanonicalPath());
-		String backPath = "";
+		StringBuilder backPath = new StringBuilder();
 		while (dir != null) {
 			String dirName = unixPath(dir);
 			if (!dirName.endsWith("/")) dirName += "/";
 			if (fileName.startsWith(dirName))
-				return backPath + fileName.substring(dirName.length());
-			backPath += "../";
+				return backPath.toString() + fileName.substring(dirName.length());
+			backPath.append("../");
 			dir = dir.getParentFile();
 		}
 		return fileName;
@@ -357,7 +355,7 @@ public class IoUtil {
 	public static void copyFile(File src, File dest) throws IOException {
 		FileTracker tracker = new FileTracker().file(dest); // creates parent dirs
 		try (InputStream in = new BufferedInputStream(new FileInputStream(src));
-			OutputStream out = new BufferedOutputStream(new FileOutputStream(dest));) {
+			OutputStream out = new BufferedOutputStream(new FileOutputStream(dest))) {
 			transferContent(in, out, 0);
 		} catch (RuntimeException | IOException e) {
 			tracker.delete();
@@ -481,7 +479,8 @@ public class IoUtil {
 	}
 
 	/**
-	 * Lists resources from same package as class. Handles file resources and resources within a jar
+	 * Lists resources from same package as class. Handles file resources and resources within a
+	 * jar
 	 * file.
 	 */
 	public static List<String> listResources(Class<?> cls) throws IOException {

@@ -10,19 +10,24 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public class Processor {
 	private static final Logger logger = LogManager.getLogger();
 	public static final Processor DEFAULT = builder().build();
+	public static final Processor LONG_RUNNING =
+		builder().noTimeout().captureStdOut(false).build();
 	public static final Processor IGNORE_EXIT_VALUE = Processor.builder().verifyExitValue(false)
 		.build();
-	private final int timeoutMs;
+	private final Integer timeoutMs;
+	private final boolean captureStdOut;
 	private final boolean verifyExitValue;
 	private final boolean verifyErr;
 
 	public static class Builder {
-		int timeoutMs = 5000;
+		Integer timeoutMs = 5000;
+		boolean captureStdOut = true;
 		boolean verifyExitValue = true;
 		boolean verifyErr = true;
 
@@ -30,6 +35,16 @@ public class Processor {
 
 		public Builder timeoutMs(int timeoutMs) {
 			this.timeoutMs = timeoutMs;
+			return this;
+		}
+
+		public Builder noTimeout() {
+			this.timeoutMs = null;
+			return this;
+		}
+
+		public Builder captureStdOut(boolean captureStdOut) {
+			this.captureStdOut = captureStdOut;
 			return this;
 		}
 
@@ -59,6 +74,7 @@ public class Processor {
 
 	Processor(Builder builder) {
 		timeoutMs = builder.timeoutMs;
+		captureStdOut = builder.captureStdOut;
 		verifyExitValue = builder.verifyExitValue;
 		verifyErr = builder.verifyErr;
 	}
@@ -80,7 +96,7 @@ public class Processor {
 		Process process = null;
 		try {
 			process = builder.start();
-			String stdOut = stdOut(process);
+			String stdOut = captureStdOut ? null : stdOut(process);
 			verifyTimeout(builder, process);
 			verifyErr(process);
 			verifyExitValue(process);
@@ -91,14 +107,15 @@ public class Processor {
 	}
 
 	private void verifyTimeout(ProcessBuilder builder, Process process) throws IOException {
-		if (timeoutMs == 0) return;
+		if (timeoutMs != null && timeoutMs == 0) return;
 		try {
-			if (process.waitFor(timeoutMs, TimeUnit.MILLISECONDS)) return;
+			if (timeoutMs == null) process.waitFor();
+			else if (!process.waitFor(timeoutMs, TimeUnit.MILLISECONDS))
+				throw new IOException("Failed to complete in " + timeoutMs + "ms: " +
+					ProcessUtil.toString(builder));
 		} catch (InterruptedException e) {
 			throw new RuntimeInterruptedException(e);
 		}
-		throw new IOException("Failed to complete in " + timeoutMs + "ms: " +
-			ProcessUtil.toString(builder));
 	}
 
 	private void verifyErr(Process process) throws IOException {
@@ -123,7 +140,7 @@ public class Processor {
 		if (this == obj) return true;
 		if (!(obj instanceof Processor)) return false;
 		Processor other = (Processor) obj;
-		if (timeoutMs != other.timeoutMs) return false;
+		if (!EqualsUtil.equals(timeoutMs, other.timeoutMs)) return false;
 		if (verifyExitValue != other.verifyExitValue) return false;
 		if (verifyErr != other.verifyErr) return false;
 		return true;

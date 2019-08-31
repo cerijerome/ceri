@@ -1,4 +1,4 @@
-package ceri.common.util;
+package ceri.common.function;
 
 public interface DoubleBiFunction<R> {
 
