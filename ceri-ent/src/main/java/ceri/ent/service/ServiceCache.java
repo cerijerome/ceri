@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
@@ -179,10 +178,8 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 	private Map<K, Entry<K, V>> toMap(Collection<Entry<K, V>> entries) {
 		if (entries == null) return Collections.emptyMap();
 		Map<K, Entry<K, V>> map = new HashMap<>();
-		for (Iterator<Entry<K, V>> i = entries.iterator(); i.hasNext();) {
-			Entry<K, V> entry = i.next();
+		for (Entry<K, V> entry : entries)
 			map.put(entry.key, entry);
-		}
 		return map;
 	}
 	

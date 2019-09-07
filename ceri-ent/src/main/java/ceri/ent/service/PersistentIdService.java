@@ -18,7 +18,7 @@ public class PersistentIdService<V> extends PersistentService<Long, V> {
 	@Override
 	protected void safeAdd(Map<Long, V> map) {
 		super.safeAdd(map);
-		for (Long id : map.keySet()) localId.taken(id.longValue());
+		for (Long id : map.keySet()) localId.taken(id);
 	}
 	
 }

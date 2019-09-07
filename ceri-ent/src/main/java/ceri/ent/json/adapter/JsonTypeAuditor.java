@@ -121,8 +121,7 @@ public class JsonTypeAuditor implements TypeAdapterFactory {
 			// return typeToken -> pattern.matcher(typeToken.getType().getTypeName()).matches();
 			return typeToken -> {
 				String name = typeToken.getRawType().getTypeName();
-				boolean result = pattern.matcher(name).matches();
-				return result;
+				return pattern.matcher(name).matches();
 			};
 		}
 
@@ -130,8 +129,7 @@ public class JsonTypeAuditor implements TypeAdapterFactory {
 			// return typeToken -> cls == typeToken.getType().getClass();
 			return typeToken -> {
 				Class<?> actual = typeToken.getRawType();
-				boolean result = cls == actual;
-				return result;
+				return cls == actual;
 			};
 		}
 
@@ -139,8 +137,7 @@ public class JsonTypeAuditor implements TypeAdapterFactory {
 			// return typeToken -> cls.isAssignableFrom(typeToken.getType().getClass());
 			return typeToken -> {
 				Class<?> actual = typeToken.getRawType();
-				boolean result = cls.isAssignableFrom(actual);
-				return result;
+				return cls.isAssignableFrom(actual);
 			};
 		}
 

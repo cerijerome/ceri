@@ -22,7 +22,7 @@ public class UriBuilder {
 	}
 	
 	public URI build() {
-		return wrap(() -> builder.build());
+		return wrap(builder::build);
 	}
 	
 	private static <T> T wrap(ExceptionSupplier<URISyntaxException, T> supplier) {

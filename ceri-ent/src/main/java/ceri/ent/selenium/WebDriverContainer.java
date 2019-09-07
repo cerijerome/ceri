@@ -3,6 +3,7 @@ package ceri.ent.selenium;
 import java.io.Closeable;
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -15,7 +16,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import ceri.common.math.MathUtil;
-import com.google.common.base.Function;
 
 /**
  * A container and support methods for selenium web drivers. Supports lifecycle management with
@@ -117,7 +117,7 @@ public class WebDriverContainer implements Closeable {
 	}
 
 	public void waitFor(BooleanSupplier test, int timeoutSec) {
-		Function<WebDriver, Boolean> fn = driver -> test.getAsBoolean(); 
+		Function<WebDriver, Boolean> fn = driver -> test.getAsBoolean();
 		waitFor(fn, timeoutSec);
 	}
 

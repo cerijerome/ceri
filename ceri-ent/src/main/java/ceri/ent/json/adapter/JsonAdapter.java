@@ -16,7 +16,7 @@ public class JsonAdapter<T> extends TypeAdapter<T> {
 	public final Read<T> read;
 	public final Write<T> write;
 
-	public static interface Read<T> {
+	public interface Read<T> {
 		static <T> Read<T> _null() {
 			return in -> null;
 		}
@@ -24,7 +24,7 @@ public class JsonAdapter<T> extends TypeAdapter<T> {
 		T read(JsonReader in) throws IOException;
 	}
 
-	public static interface Write<T> {
+	public interface Write<T> {
 		static <T> Write<T> _null() {
 			return (out, value) -> {};
 		}

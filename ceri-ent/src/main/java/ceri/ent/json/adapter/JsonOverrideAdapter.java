@@ -21,12 +21,12 @@ public class JsonOverrideAdapter<T> {
 	public final Write<T> write;
 	private final TypeAdapterFactory factory;
 
-	public static interface Read<T> {
-		T read(TypeAdapter<T> adapter, JsonReader in) throws IOException;
+	public interface Read<T> {
+		T read(TypeAdapter<T> adapter, JsonReader in);
 	}
 
-	public static interface Write<T> {
-		void write(TypeAdapter<T> adapter, JsonWriter out, T value) throws IOException;
+	public interface Write<T> {
+		void write(TypeAdapter<T> adapter, JsonWriter out, T value);
 	}
 
 	public static <T> JsonOverrideAdapter<T> read(Type type, Read<T> read) {

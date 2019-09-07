@@ -73,7 +73,6 @@ public class JettyServer implements Closeable {
 		return rootUrl + path;
 	}
 	
-	@SuppressWarnings("resource")
 	private String rootUrl() {
 		WebAppContext context = context();
 		ServerConnector connector = connector();

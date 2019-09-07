@@ -12,7 +12,7 @@ public class Fixer<K, V> {
 	public final Map<K, V> map;
 
 	public static class Builder<K, V> {
-		Map<K, V> map = new LinkedHashMap<>();
+		final Map<K, V> map = new LinkedHashMap<>();
 
 		Builder() {}
 

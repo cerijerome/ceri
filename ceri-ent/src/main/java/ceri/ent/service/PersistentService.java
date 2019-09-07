@@ -123,7 +123,7 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 	}
 
 	protected int size() {
-		return safe.read(() -> map.size());
+		return safe.read(map::size);
 	}
 	
 	private Map<K, V> toMap(Iterable<V> values) {

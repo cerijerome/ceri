@@ -62,7 +62,6 @@ public class JettyUtil {
 		setResourceBase(context, Arrays.asList(classes));
 	}
 
-	@SuppressWarnings("resource")
 	public static void setResourceBase(ContextHandler context, Collection<Class<?>> classes) {
 		Resource[] resources = classes.stream().map(JettyUtil::resource).toArray(Resource[]::new);
 		context.setBaseResource(new ResourceCollection(resources));

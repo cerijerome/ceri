@@ -4,7 +4,7 @@ package ceri.ent.service;
  * Simple id manager for local instances.
  */
 public class LocalId {
-	private long nextId = 0;
+	private long nextId;
 	
 	public LocalId() {
 		this(0);
