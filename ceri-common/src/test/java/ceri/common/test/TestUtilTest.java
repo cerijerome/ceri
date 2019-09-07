@@ -46,7 +46,7 @@ public class TestUtilTest {
 		}
 	}
 
-	static enum BadEnum {
+	enum BadEnum {
 		bad;
 
 		BadEnum() {
@@ -88,7 +88,7 @@ public class TestUtilTest {
 				}
 			}) {
 				sys.in(badIn);
-				assertException(() -> TestUtil.readString());
+				assertException(TestUtil::readString);
 			}
 		}
 	}
@@ -137,10 +137,14 @@ public class TestUtilTest {
 		TestUtil.assertPrivateConstructor(TestUtil.class);
 		try {
 			TestUtil.assertPrivateConstructor(TestUtilTest.class);
-		} catch (AssertionError e) {}
+		} catch (AssertionError e) {
+			// ignore
+		}
 		try {
 			TestUtil.assertPrivateConstructor(TestUtilTest.Uncreatable.class);
-		} catch (RuntimeException e) {}
+		} catch (RuntimeException e) {
+			// ignore
+		}
 	}
 
 	public static class ExecTest {

@@ -58,6 +58,11 @@ public class CookieClicker {
 			return this;
 		}
 
+		public Builder exitArea(int x, int y, int w, int h) {
+			exitArea = new Rectangle(x, y, w, h);
+			return this;
+		}
+
 		public Builder delayMs(int delayMs) {
 			this.delayMs = delayMs;
 			return this;

@@ -327,7 +327,7 @@ public class MathUtilTest {
 
 	@Test
 	public void testMean() {
-		assertException(() -> MathUtil.mean());
+		assertException(MathUtil::mean);
 		assertThat(MathUtil.mean(0), is(0.0));
 		assertThat(MathUtil.mean(-1, -2, 9), is(2.0));
 		assertThat(MathUtil.mean(Double.MAX_VALUE), is(Double.MAX_VALUE));
@@ -338,7 +338,7 @@ public class MathUtilTest {
 
 	@Test
 	public void testMedian() {
-		assertException(() -> MathUtil.median());
+		assertException(MathUtil::median);
 		assertThat(MathUtil.median(0), is(0.0));
 		assertThat(MathUtil.median(-1, -2, 9), is(-1.0));
 		assertThat(MathUtil.median(1, 2, 3, 4), is(2.5));

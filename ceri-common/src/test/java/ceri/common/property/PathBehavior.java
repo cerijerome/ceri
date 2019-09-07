@@ -3,6 +3,7 @@ package ceri.common.property;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.test.TestUtil.isSame;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
@@ -50,7 +51,7 @@ public class PathBehavior {
 	public void shouldAllowPrefixParts() {
 		Path key = PathFactory.dot.path("a.b", "c");
 		assertThat(key.value, is("a.b.c"));
-		assertTrue(PathFactory.dot.path("a", "b.c").equals(key));
+		assertEquals(PathFactory.dot.path("a", "b.c"), key);
 	}
 
 	@Test

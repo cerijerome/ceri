@@ -120,7 +120,7 @@ public class BasicUtilTest {
 		assertThat(BasicUtil.conditional(Boolean.FALSE, "a", "b", "c"), is("b"));
 	}
 
-	private static enum Enum {
+	private enum Enum {
 		a,
 		b,
 		c;
@@ -169,7 +169,7 @@ public class BasicUtilTest {
 	@Test
 	public void testCastOrNull() {
 		java.sql.Date sqlDate = new java.sql.Date(0);
-		assertThat(BasicUtil.castOrNull(Date.class, sqlDate), is((Date) sqlDate));
+		assertThat(BasicUtil.castOrNull(Date.class, sqlDate), is(sqlDate));
 		Date date = new Date(0);
 		assertThat(BasicUtil.castOrNull(java.sql.Date.class, date), nullValue());
 	}
@@ -190,9 +190,9 @@ public class BasicUtilTest {
 		IllegalStateException e1 = new IllegalStateException();
 		IllegalArgumentException e2 = new IllegalArgumentException();
 		IllegalStateException e = BasicUtil.initCause(e1, e2);
-		assertThat(e.getCause(), is((Throwable) e2));
+		assertThat(e.getCause(), is(e2));
 		BasicUtil.initCause(e1, null);
-		assertThat(e1.getCause(), is((Throwable) e2));
+		assertThat(e1.getCause(), is(e2));
 	}
 
 	@Test

@@ -67,7 +67,7 @@ public enum DataTestType {
 		return intLookup.get(value);
 	}
 
-	private DataTestType(int value) {
+	DataTestType(int value) {
 		this.byteValue = (byte) value;
 		this.shortValue = (short) value;
 		this.intValue = value;

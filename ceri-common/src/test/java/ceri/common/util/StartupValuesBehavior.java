@@ -17,7 +17,13 @@ public class StartupValuesBehavior {
 		StartupValues v = StartupValues.of("a").notifier(null);
 		v.next("param").get();
 	}
-	
+
+	@Test
+	public void shouldLookupValue() {
+		String sysProp = firstSysPropertyName();
+		assertThat(StartupValues.lookup(sysProp).get(), is(System.getProperty(sysProp)));
+	}
+
 	@Test
 	public void shouldNotifyStdOutWhenValueIsReads() {
 		StringBuilder b = new StringBuilder();

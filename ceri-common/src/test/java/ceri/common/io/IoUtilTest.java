@@ -1,10 +1,22 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertFile;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.exerciseEnum;
+import static ceri.common.test.TestUtil.matchesRegex;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -90,7 +102,7 @@ public class IoUtilTest {
 	public void testCheckIoInterrupted() throws InterruptedIOException {
 		IoUtil.checkIoInterrupted();
 		Thread.currentThread().interrupt();
-		assertException(InterruptedIOException.class, () -> IoUtil.checkIoInterrupted());
+		assertException(InterruptedIOException.class, IoUtil::checkIoInterrupted);
 	}
 
 	@Test
@@ -98,12 +110,11 @@ public class IoUtilTest {
 		final StringReader in = new StringReader("0123456789");
 		assertFalse(IoUtil.close(null));
 		assertTrue(IoUtil.close(in));
-		assertException(IOException.class, () -> in.read());
+		assertException(IOException.class, in::read);
 	}
 
 	@Test
 	public void testCloseException() {
-		@SuppressWarnings("resource")
 		Closeable closeable = () -> {
 			throw new IOException();
 		};
@@ -181,6 +192,15 @@ public class IoUtilTest {
 		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
 			String s = IoUtil.readString(in);
 			assertThat(s, is("test"));
+		}
+	}
+
+	@Test
+	public void testReadAvailableString() throws IOException {
+		assertNull(IoUtil.readAvailableString(null));
+		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
+			assertThat(IoUtil.readAvailableString(in), is("test"));
+			assertThat(IoUtil.readAvailableString(in), is(""));
 		}
 	}
 
@@ -379,18 +399,18 @@ public class IoUtilTest {
 	@Test
 	public void testTransferContent() throws IOException {
 		String s = "0123456789abcdefghijklmnopqrstuvwxyz\u1fff\2fff\3fff\4fff";
-		ByteArrayInputStream in = new ByteArrayInputStream(s.getBytes("UTF8"));
+		ByteArrayInputStream in = new ByteArrayInputStream(s.getBytes(UTF_8));
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		IoUtil.transferContent(in, out, 1);
-		assertThat(new String(out.toByteArray(), "UTF8"), is(s));
+		assertThat(new String(out.toByteArray(), UTF_8), is(s));
 		in.reset();
 		out.reset();
 		IoUtil.transferContent(in, out, 1000000);
-		assertThat(new String(out.toByteArray(), "UTF8"), is(s));
+		assertThat(new String(out.toByteArray(), UTF_8), is(s));
 		in.reset();
 		out.reset();
 		IoUtil.transferContent(in, out, 0);
-		assertThat(new String(out.toByteArray(), "UTF8"), is(s));
+		assertThat(new String(out.toByteArray(), UTF_8), is(s));
 		in.reset();
 		IoUtil.transferContent(in, null, 0);
 	}

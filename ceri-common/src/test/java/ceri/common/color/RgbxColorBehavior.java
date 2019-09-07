@@ -6,7 +6,7 @@ import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ public class RgbxColorBehavior {
 		RgbxColor c6 = RgbxColor.of(0.4, 0.8, 0.6, 0.5, 0.9);
 		exerciseEquals(c0, c1);
 		assertAllNotEqual(c0, c2, c3, c4, c5, c6);
-		assertFalse(c6.toString().equals(c0.toString()));
+		assertNotEquals(c6.toString(), c0.toString());
 	}
 
 	@Test

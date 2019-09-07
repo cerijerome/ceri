@@ -9,7 +9,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.data.ByteArrayDataInput;
 
 public class ByteArrayDataInputBehavior {
 	private static final byte[] data = { Byte.MAX_VALUE, 0, Byte.MIN_VALUE, -1, 1, Byte.MIN_VALUE,

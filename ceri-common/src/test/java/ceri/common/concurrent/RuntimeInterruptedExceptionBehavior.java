@@ -11,7 +11,7 @@ public class RuntimeInterruptedExceptionBehavior {
 	public void shouldHaveInterruptedExceptionAsCause() {
 		InterruptedException ex = new InterruptedException();
 		RuntimeInterruptedException e = new RuntimeInterruptedException(ex);
-		assertThat(e.getCause(), is((Throwable)ex));
+		assertThat(e.getCause(), is(ex));
 	}
 
 

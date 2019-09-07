@@ -10,9 +10,7 @@ public class CloseableWrapperBehavior {
 	@Test
 	public void shouldExecuteOnClose() throws IOException {
 		String[] ss = { "a" };
-		try (Closeable c = CloseableWrapper.of(ss, s -> {
-			s[0] = null;
-		})) {}
+		try (Closeable c = CloseableWrapper.of(ss, s -> s[0] = null)) {}
 		assertNull(ss[0]);
 	}
 

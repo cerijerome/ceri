@@ -3,6 +3,7 @@ package ceri.common.date;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import java.util.Calendar;
 import java.util.Date;
 import org.junit.Test;
 
@@ -58,7 +59,7 @@ public class ImmutableDateBehavior {
 	@SuppressWarnings("deprecation")
 	@Test(expected = UnsupportedOperationException.class)
 	public void shouldNotAllowSetMonth() {
-		new ImmutableDate(new Date(0)).setMonth(0);
+		new ImmutableDate(new Date(0)).setMonth(Calendar.JANUARY);
 	}
 
 	@SuppressWarnings("deprecation")

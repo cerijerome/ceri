@@ -106,15 +106,14 @@ public class ConcurrentUtilTest {
 	public void testCheckInterrupted() throws InterruptedException {
 		ConcurrentUtil.checkInterrupted();
 		Thread.currentThread().interrupt();
-		assertException(InterruptedException.class, () -> ConcurrentUtil.checkInterrupted());
+		assertException(InterruptedException.class, ConcurrentUtil::checkInterrupted);
 	}
 
 	@Test
 	public void testCheckRuntimeInterrupted() {
 		ConcurrentUtil.checkRuntimeInterrupted();
 		Thread.currentThread().interrupt();
-		assertException(RuntimeInterruptedException.class,
-			() -> ConcurrentUtil.checkRuntimeInterrupted());
+		assertException(RuntimeInterruptedException.class, ConcurrentUtil::checkRuntimeInterrupted);
 	}
 
 	@Test

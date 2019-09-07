@@ -1,8 +1,8 @@
 package ceri.common.function;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.io.IOException;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class WrapperExceptionBehavior {
 			}, "value", 3);
 			fail();
 		} catch (WrapperException e) {
-			assertTrue(e.getCause().getClass() == IOException.class);
+			assertSame(e.getCause().getClass(), IOException.class);
 		}
 	}
 

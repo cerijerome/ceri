@@ -48,7 +48,7 @@ public class ReplaceableInputStreamBehavior {
 			rin.listeners().listen(listener);
 			assertFalse(rin.markSupported());
 			rin.setInputStream(in);
-			assertException(() -> rin.markSupported());
+			assertException(rin::markSupported);
 		}
 		verify(listener).accept(ex);
 	}
@@ -61,8 +61,8 @@ public class ReplaceableInputStreamBehavior {
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
 			rin.setInputStream(in);
 			rin.listeners().listen(listener);
-			assertException(() -> rin.read());
-			assertException(() -> rin.read());
+			assertException(rin::read);
+			assertException(rin::read);
 			rin.listeners().unlisten(listener);
 		}
 		verify(listener).accept(e0);
@@ -72,11 +72,11 @@ public class ReplaceableInputStreamBehavior {
 	@Test
 	public void shouldFailWithAnInvalidStream() throws IOException {
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
-			assertException(() -> rin.read());
-			assertException(() -> rin.available());
+			assertException(rin::read);
+			assertException(rin::available);
 			assertException(() -> rin.skip(0));
 			rin.mark(4);
-			assertException(() -> rin.reset());
+			assertException(rin::reset);
 			byte[] buffer = new byte[100];
 			assertException(() -> rin.read(buffer));
 			assertException(() -> rin.read(buffer, 1, 99));

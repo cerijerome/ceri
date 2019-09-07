@@ -13,7 +13,7 @@ public class CreateExceptionBehavior {
 		assertThat(e.getMessage(), is("test"));
 		assertNull(e.getCause());
 		CreateException e2 = new CreateException(e);
-		assertThat(e2.getCause(), is((Throwable) e));
+		assertThat(e2.getCause(), is(e));
 		assertNull(e2.getMessage());
 	}
 

@@ -10,7 +10,7 @@ import ceri.common.collection.ImmutableByteArray;
 
 public class DataUtilTest {
 
-	static enum E {
+	enum E {
 		a(1),
 		b(2),
 		c(3);
@@ -19,7 +19,7 @@ public class DataUtilTest {
 			TypeTranscoder.single(t -> t.value, E.class);
 		public final int value;
 
-		private E(int value) {
+		E(int value) {
 			this.value = value;
 		}
 	}

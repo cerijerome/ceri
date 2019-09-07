@@ -34,7 +34,7 @@ public class ImmutableUtilTest {
 		assertPrivateConstructor(ImmutableUtil.class);
 	}
 
-	private static enum E {
+	private enum E {
 		A,
 		ABC,
 		BC;

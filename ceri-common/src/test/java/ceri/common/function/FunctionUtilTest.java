@@ -66,6 +66,7 @@ public class FunctionUtilTest {
 		Object obj = new int[] { -1 };
 		FunctionUtil.castAccept(int[].class, obj, x -> x[0] = 1);
 		assertArray((int[]) obj, 1);
+		//noinspection RedundantCast
 		FunctionUtil.castAccept((Class<int[]>) null, obj, x -> x[0] = 2);
 		assertArray((int[]) obj, 1);
 		FunctionUtil.castAccept(int[].class, null, x -> x[0] = 2);
@@ -108,7 +109,7 @@ public class FunctionUtilTest {
 
 	@Test
 	public void testSafe() throws IOException {
-		ExceptionFunction<IOException, String, String> fn = FunctionUtil.safe(s -> s.trim());
+		ExceptionFunction<IOException, String, String> fn = FunctionUtil.safe(String::trim);
 		assertThat(fn.apply(" "), is(""));
 		assertNull(fn.apply(null));
 	}
@@ -119,11 +120,11 @@ public class FunctionUtilTest {
 		ExceptionConsumer<IOException, String> consumer = s -> store[0] = s;
 		FunctionUtil.safeAccept("test", consumer);
 		assertArray(store, "test");
-		FunctionUtil.safeAccept((String) null, consumer);
+		FunctionUtil.safeAccept(null, consumer);
 		assertArray(store, "test");
 		FunctionUtil.safeAccept("abc", s -> s.length() <= 3, consumer);
 		assertArray(store, "abc");
-		FunctionUtil.safeAccept((String) null, s -> s.length() <= 3, consumer);
+		FunctionUtil.safeAccept(null, s -> s.length() <= 3, consumer);
 		assertArray(store, "abc");
 		FunctionUtil.safeAccept("abcd", s -> s.length() <= 3, consumer);
 		assertArray(store, "abc");

@@ -39,6 +39,7 @@ public class CollectionUtilTest {
 	public void testContainsAll() {
 		assertFalse(CollectionUtil.containsAll(null));
 		assertTrue(CollectionUtil.containsAll(List.of()));
+		//noinspection IterableUsedAsVararg
 		assertFalse(CollectionUtil.containsAll(List.of(1), List.<Integer>of()));
 		assertFalse(CollectionUtil.containsAll(List.of(), 1));
 		List<Integer> list = List.of(-1, 0, 1);
@@ -52,7 +53,7 @@ public class CollectionUtilTest {
 		assertFalse(CollectionUtil.containsAny(null));
 		assertFalse(CollectionUtil.containsAny(List.of()));
 		assertFalse(CollectionUtil.containsAny(List.of(), (List<?>) null));
-		assertFalse(CollectionUtil.containsAny(List.of(1), List.<Integer>of()));
+		assertFalse(CollectionUtil.containsAny(List.of(1), List.of()));
 		assertFalse(CollectionUtil.containsAny(List.of(), 1));
 		List<Integer> list = List.of(-1, 0, 1);
 		assertFalse(CollectionUtil.containsAny(list, -2, 2));
@@ -102,7 +103,7 @@ public class CollectionUtilTest {
 	@Test
 	public void testTransformValues() {
 		Map<Integer, String> map = MapPopulator.of(1, "1", 3, "333", 2, "22").map;
-		Map<Integer, Integer> imap = CollectionUtil.transformValues(s -> s.length(), map);
+		Map<Integer, Integer> imap = CollectionUtil.transformValues(String::length, map);
 		assertCollection(imap.keySet(), 1, 3, 2);
 		assertCollection(imap.values(), 1, 3, 2);
 		imap = CollectionUtil.transformValues((i, s) -> i + s.length(), map);
@@ -113,7 +114,7 @@ public class CollectionUtilTest {
 	@Test
 	public void testTransformKeys() {
 		Map<Double, String> map = MapPopulator.of(1.1, "1.10", 3.3, "3.3000", 2.2, "2.200").map;
-		Map<Integer, String> imap = CollectionUtil.transformKeys(d -> d.intValue(), map);
+		Map<Integer, String> imap = CollectionUtil.transformKeys(Double::intValue, map);
 		assertCollection(imap.keySet(), 1, 3, 2);
 		assertCollection(imap.values(), "1.10", "3.3000", "2.200");
 		imap = CollectionUtil.transformKeys((d, s) -> d.intValue() + s.length(), map);
@@ -125,7 +126,7 @@ public class CollectionUtilTest {
 	public void testTransform() {
 		Map<Double, String> map = MapPopulator.of(1.1, "1.10", 3.3, "3.3000", 2.2, "2.200").map;
 		Map<Integer, Integer> imap =
-			CollectionUtil.transform(d -> d.intValue(), s -> s.length(), map);
+			CollectionUtil.transform(Double::intValue, String::length, map);
 		assertCollection(imap.keySet(), 1, 3, 2);
 		assertCollection(imap.values(), 4, 6, 5);
 		imap = CollectionUtil.transform((d, s) -> s.length(), (d, s) -> d.intValue(), map);
@@ -136,9 +137,9 @@ public class CollectionUtilTest {
 	@Test
 	public void testToMap() {
 		List<String> list = List.of("A", "ABC", "AB");
-		Map<?, ?> map = CollectionUtil.toMap(s -> s.length(), list);
+		Map<?, ?> map = CollectionUtil.toMap(String::length, list);
 		assertThat(map, is(Map.of(1, "A", 3, "ABC", 2, "AB")));
-		map = CollectionUtil.toMap(s -> s.toLowerCase(), s -> s.length(), list);
+		map = CollectionUtil.toMap(String::toLowerCase, String::length, list);
 		assertThat(map, is(Map.of("a", 1, "abc", 3, "ab", 2)));
 	}
 
@@ -202,12 +203,12 @@ public class CollectionUtilTest {
 		assertThat(iterator.next(), is("B"));
 		assertThat(iterator.next(), is("A"));
 		assertFalse(iterator.hasNext());
-		assertException(NoSuchElementException.class, () -> iterator.next());
+		assertException(NoSuchElementException.class, iterator::next);
 	}
 
 	@Test
 	public void testAddAll() {
-		List<String> list = CollectionUtil.addAll(new ArrayList<String>(), "1", "2", "3");
+		List<String> list = CollectionUtil.addAll(new ArrayList<>(), "1", "2", "3");
 		assertThat(list, is(Arrays.asList("1", "2", "3")));
 		assertThat(CollectionUtil.addAll(list, list),
 			is(Arrays.asList("1", "2", "3", "1", "2", "3")));

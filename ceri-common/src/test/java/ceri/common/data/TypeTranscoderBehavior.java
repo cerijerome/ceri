@@ -13,14 +13,14 @@ public class TypeTranscoderBehavior {
 		TypeTranscoder.single(t -> t.value, E.class);
 	private static final TypeTranscoder.Flag<E> flag = TypeTranscoder.flag(t -> t.value, E.class);
 
-	static enum E {
+	enum E {
 		a(1),
 		b(2),
 		c(12);
 
 		public final int value;
 
-		private E(int value) {
+		E(int value) {
 			this.value = value;
 		}
 	}

@@ -6,21 +6,17 @@ import static org.junit.Assert.assertThat;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.test.BinaryLogOutputStream;
-import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
 
 public class BinaryLogOutputStreamBehavior {
 	private ByteArrayOutputStream bOut;
 	private StringBuilder s;
-	private BinaryPrinter printer;
 	private BinaryLogOutputStream out;
 
 	private void init(int bytesPerColumn) {
 		s = new StringBuilder();
-		printer =
-			BinaryPrinter.builder().bytesPerColumn(bytesPerColumn).out(StringUtil.asPrintStream(s))
-				.build();
+		BinaryPrinter printer = BinaryPrinter.builder().bytesPerColumn(bytesPerColumn) //
+			.out(StringUtil.asPrintStream(s)).build();
 		bOut = new ByteArrayOutputStream();
 		out = new BinaryLogOutputStream(printer, bOut);
 	}

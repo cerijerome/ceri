@@ -7,7 +7,7 @@ import org.junit.Test;
 
 public class EnumFiltersTest {
 
-	private static enum T {
+	private enum T {
 		a,
 		ab,
 		bc,

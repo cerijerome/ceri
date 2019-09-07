@@ -7,7 +7,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.data.ByteArrayDataOutput;
 
 public class ByteArrayDataOutputBehavior {
 	private byte[] outBytes;

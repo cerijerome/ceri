@@ -15,12 +15,11 @@ import org.mockito.Mockito;
 
 public class InputStreamIteratorBehavior {
 	private static final byte[] bytes = { Byte.MIN_VALUE, Byte.MAX_VALUE, 0, 1, -1 };
-	private InputStream in;
 	private InputStreamIterator i;
 
 	@Before
 	public void init() {
-		in = new ByteArrayInputStream(bytes);
+		InputStream in = new ByteArrayInputStream(bytes);
 		i = new InputStreamIterator(in);
 	}
 
@@ -46,7 +45,9 @@ public class InputStreamIteratorBehavior {
 		try {
 			i.next();
 			fail();
-		} catch (NoSuchElementException e) {}
+		} catch (NoSuchElementException e) {
+			// expected
+		}
 	}
 
 	@Test(expected = UnsupportedOperationException.class)

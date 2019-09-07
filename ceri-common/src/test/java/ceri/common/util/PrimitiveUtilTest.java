@@ -97,7 +97,7 @@ public class PrimitiveUtilTest {
 
 	@Test
 	public void testToArray() {
-		Collection<Number> collection = Arrays.<Number>asList(1, 16, 256, 4096, 65536);
+		Collection<Number> collection = Arrays.asList(1, 16, 256, 4096, 65536);
 		assertThat(PrimitiveUtil.toByteArray(collection), is(new byte[] { 1, 16, 0, 0, 0 }));
 		assertThat(PrimitiveUtil.toShortArray(collection), is(new short[] { 1, 16, 256, 4096, 0 }));
 		assertThat(PrimitiveUtil.toIntArray(collection), is(new int[] { 1, 16, 256, 4096, 65536 }));

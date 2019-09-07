@@ -13,7 +13,7 @@ public class TreeIteratorBehavior {
 	@Test
 	public void shouldNotAllowRemove() {
 		Iterator<TestNode> iterator = helper.node(11).tree().iterator();
-		assertException(() -> iterator.remove());
+		assertException(iterator::remove);
 	}
 
 	@Test

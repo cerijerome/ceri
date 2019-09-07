@@ -3,7 +3,6 @@ package ceri.common.geom;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.junit.Assert.assertNotEquals;
 import org.junit.Test;
-import ceri.common.geom.Ratio2d;
 
 public class Ratio2dBehavior {
 

@@ -41,7 +41,7 @@ public class ReplaceableOutputStreamBehavior {
 			byte[] buffer = new byte[100];
 			assertException(() -> rout.write(buffer));
 			assertException(() -> rout.write(buffer, 1, 98));
-			assertException(() -> rout.flush());
+			assertException(rout::flush);
 		}
 	}
 

@@ -76,7 +76,7 @@ public class HsbColorBehavior {
 		assertHsb(HsbColor.from(alphaColor(Color.black, 255)), 0.0, 0.0, 0.0, 1.0);
 		assertHsb(HsbColor.from(alphaColor(Color.white, 0)), 0.0, 0.0, 1.0, 0.0);
 		assertHsb(HsbColor.from(alphaColor(Color.white, 255)), 0.0, 0.0, 1.0, 1.0);
-		assertHsb(HsbColor.from(alphaColor(Color.yellow, 100)), 0.16667, 1.0, 1.0, 100 / 255);
+		assertHsb(HsbColor.from(alphaColor(Color.yellow, 100)), 0.16667, 1.0, 1.0, 100.0 / 255);
 	}
 
 	@Test

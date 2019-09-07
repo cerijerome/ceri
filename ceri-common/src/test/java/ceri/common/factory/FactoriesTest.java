@@ -13,11 +13,8 @@ import java.util.Set;
 import org.junit.Test;
 
 public class FactoriesTest {
-	static final Factory<Integer, String> testFactory = new Factory<>() {
-		@Override
-		public Integer create(String from) {
-			throw new UnsupportedOperationException();
-		}
+	static final Factory<Integer, String> testFactory = from -> {
+		throw new UnsupportedOperationException();
 	};
 
 	@Test
@@ -65,7 +62,7 @@ public class FactoriesTest {
 	public void testList() {
 		final Factory<List<Double>, Iterable<String>> f = Factories.list(StringFactories.TO_DOUBLE);
 		assertNull(f.create(null));
-		assertThat(f.create(Collections.<String>emptyList()), is(Collections.<Double>emptyList()));
+		assertThat(f.create(Collections.emptyList()), is(Collections.<Double>emptyList()));
 		assertThat(f.create(Arrays.asList("0.0", "1.0")), is(Arrays.asList(0.0, 1.0)));
 		assertException(NumberFormatException.class, () -> f.create(Collections.singleton("")));
 	}
@@ -74,9 +71,9 @@ public class FactoriesTest {
 	public void testSet() {
 		final Factory<Set<Long>, Iterable<String>> f = Factories.set(StringFactories.TO_LONG);
 		assertNull(f.create(null));
-		assertThat(f.create(Collections.<String>emptySet()), is(Collections.<Long>emptySet()));
+		assertThat(f.create(Collections.emptySet()), is(Collections.<Long>emptySet()));
 		assertThat(f.create(Arrays.asList("0", "1")),
-			is((Set<Long>) new HashSet<>(Arrays.asList(0L, 1L))));
+			is(new HashSet<>(Arrays.asList(0L, 1L))));
 		assertException(NumberFormatException.class, () -> f.create(Collections.singleton("")));
 	}
 

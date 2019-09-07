@@ -13,7 +13,7 @@ public class FactoryExceptionBehavior {
 		assertThat(e.getMessage(), is("test"));
 		assertNull(e.getCause());
 		FactoryException e2 = new FactoryException(e);
-		assertThat(e2.getCause(), is((Throwable) e));
+		assertThat(e2.getCause(), is(e));
 		assertNull(e2.getMessage());
 	}
 

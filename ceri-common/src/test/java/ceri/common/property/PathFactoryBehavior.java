@@ -78,7 +78,7 @@ public class PathFactoryBehavior {
 	@Test
 	public void shouldIgnoreBlankParts() {
 		assertThat(PathFactory.dash.path((Collection<String>) null).value, is(""));
-		assertThat(PathFactory.dot.path((String) null, "", "a", null, "b", "c", "", null).value,
+		assertThat(PathFactory.dot.path(null, "", "a", null, "b", "c", "", null).value,
 			is("a.b.c"));
 	}
 
@@ -98,7 +98,7 @@ public class PathFactoryBehavior {
 		assertThat(key, isSame(PathFactory.dot.emptyPath));
 		key = PathFactory.dot.path(PathFactory.dot.emptyPath.value, "", "");
 		assertThat(key, isSame(PathFactory.dot.emptyPath));
-		key = PathFactory.dot.path((String) null, (String[]) null);
+		key = PathFactory.dot.path(null, (String[]) null);
 		assertThat(key, isSame(PathFactory.dot.emptyPath));
 	}
 

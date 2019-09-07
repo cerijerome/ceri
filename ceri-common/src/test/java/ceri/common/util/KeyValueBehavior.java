@@ -2,7 +2,7 @@ package ceri.common.util;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
@@ -33,7 +33,7 @@ public class KeyValueBehavior {
 		KeyValue<String, String> kv4 = new KeyValue<>("key0", "value");
 		KeyValue<String, String> kv5 = new KeyValue<>("key", "value0");
 		KeyValue<String, String> kv6 = new KeyValue<>("key0", "value0");
-		assertFalse(kv.equals(null));
+		assertNotEquals(null, kv);
 		assertThat(kv, is(not("")));
 		assertThat(kv, is(not(kv1)));
 		assertThat(kv, is(not(kv2)));

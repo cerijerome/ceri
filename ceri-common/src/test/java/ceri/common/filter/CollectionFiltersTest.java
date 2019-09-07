@@ -38,7 +38,7 @@ public class CollectionFiltersTest {
 	@Test
 	public void testSize() {
 		Filter<Collection<Integer>> filter = CollectionFilters.size(Filters.eq(1));
-		assertFalse(filter.filter(Collections.<Integer>emptyList()));
+		assertFalse(filter.filter(Collections.emptyList()));
 		assertTrue(filter.filter(Collections.singleton(0)));
 		assertFalse(filter.filter(Arrays.asList(-1, 1)));
 		assertFalse(filter.filter(null));
@@ -57,7 +57,7 @@ public class CollectionFiltersTest {
 	@Test
 	public void testAll() {
 		Filter<Collection<Boolean>> filter = CollectionFilters.all(Filters.eq(true));
-		assertTrue(filter.filter(Collections.<Boolean>emptyList()));
+		assertTrue(filter.filter(Collections.emptyList()));
 		assertFalse(filter.filter(Arrays.asList(false)));
 		assertTrue(filter.filter(Arrays.asList(true)));
 		assertFalse(filter.filter(Arrays.asList(false, false)));
@@ -69,7 +69,7 @@ public class CollectionFiltersTest {
 	@Test
 	public void testAny() {
 		Filter<Collection<Boolean>> filter = CollectionFilters.any(Filters.eq(true));
-		assertFalse(filter.filter(Collections.<Boolean>emptyList()));
+		assertFalse(filter.filter(Collections.emptyList()));
 		assertFalse(filter.filter(Arrays.asList(false)));
 		assertTrue(filter.filter(Arrays.asList(true)));
 		assertFalse(filter.filter(Arrays.asList(false, false)));

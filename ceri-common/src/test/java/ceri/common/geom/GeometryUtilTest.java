@@ -7,10 +7,6 @@ import static java.lang.Double.NaN;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import ceri.common.geom.Dimension2d;
-import ceri.common.geom.GeometryUtil;
-import ceri.common.geom.Ratio2d;
-import ceri.common.geom.Rectangle2d;
 import ceri.common.math.MathUtil;
 
 public class GeometryUtilTest {

@@ -6,8 +6,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import ceri.common.geom.Dimension2d;
-import ceri.common.geom.Ratio2d;
 
 public class Dimension2dBehavior {
 

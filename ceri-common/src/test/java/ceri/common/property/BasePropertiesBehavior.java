@@ -23,7 +23,7 @@ import org.junit.Test;
 public class BasePropertiesBehavior {
 	private static Properties properties = new Properties();
 
-	private static enum E {
+	private enum E {
 		A,
 		AB,
 		ABC;
@@ -131,8 +131,8 @@ public class BasePropertiesBehavior {
 	@Test
 	public void shouldReadCommaSeparatedValues() {
 		BaseProperties bp = BaseProperties.from(properties);
-		assertCollection(bp.values(s -> s.length(), "y"), 3, 2, 1);
-		assertCollection(bp.values(Collections.singletonList(999), s -> s.length(), "xx"), 999);
+		assertCollection(bp.values(String::length, "y"), 3, 2, 1);
+		assertCollection(bp.values(Collections.singletonList(999), String::length, "xx"), 999);
 		assertCollection(bp.booleanValues("7.2.b"), true, false);
 		assertCollection(bp.byteValues("7.2.i"), (byte) 7, (byte) 2);
 		assertCollection(bp.charValues("7.2.i"), '7', '2');

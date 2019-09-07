@@ -29,7 +29,7 @@ public class ToStringHelperBehavior {
 	@Test
 	public void shouldShowDefaultFormattedDateValues() {
 		Date date = new Date(0);
-		String toString = ToStringHelper.create("Test", date, (Date) null).toString();
+		String toString = ToStringHelper.create("Test", date, null).toString();
 		Instant.ofEpochMilli(0);
 		LocalDateTime dt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.systemDefault());
 		assertThat(toString, is("Test(" + dt + ",null)"));

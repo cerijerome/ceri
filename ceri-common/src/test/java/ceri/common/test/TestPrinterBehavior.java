@@ -2,7 +2,7 @@ package ceri.common.test;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.Iterator;
@@ -26,8 +26,8 @@ public class TestPrinterBehavior {
 	public void shouldObeyEqualsContract() {
 		TestPrinter.Test test = new TestPrinter.Test("testClassName", "className", "description");
 		TestPrinter.Test test1 = new TestPrinter.Test("testClassName", "className", "description");
-		assertFalse(test.equals(null));
-		assertFalse(test.equals(""));
+		assertNotEquals(null, test);
+		assertNotEquals("", test);
 		assertThat(test, is(test));
 		assertThat(test, is(test1));
 		assertThat(test.hashCode(), is(test1.hashCode()));

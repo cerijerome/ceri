@@ -81,9 +81,7 @@ public class FileFiltersTest {
 
 	@Test
 	public void testReverseFilter() {
-		FileFilter filter = pathname -> {
-			return pathname.getPath().endsWith(File.separatorChar + "a");
-		};
+		FileFilter filter = pathname -> pathname.getPath().endsWith(File.separatorChar + "a");
 		List<File> list = IoUtil.getFiles(helper.root, filter);
 		assertCollection(list, helper.files("a", "a/a"));
 

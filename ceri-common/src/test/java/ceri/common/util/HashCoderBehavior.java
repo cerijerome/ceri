@@ -46,11 +46,12 @@ public class HashCoderBehavior {
 		assertThat(autoBoxHash, is(primitiveHash));
 	}
 
+	@SuppressWarnings("RedundantCast")
 	@Test
 	public void shouldIterateOverArray() {
 		int[] values = { 1, 2, 3 };
 		int primitiveHash = HashCoder.hash(1, 2, 3);
-		int arrayHash = HashCoder.create().add(values).hashCode();
+		int arrayHash = HashCoder.create().add((Object) values).hashCode();
 		assertThat(primitiveHash, is(arrayHash));
 	}
 

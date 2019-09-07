@@ -30,9 +30,9 @@ public class FilenameIteratorBehavior {
 	@Test
 	public void shouldFailOnRemove() {
 		FilenameIterator iterator = new FilenameIterator(helper.file("a"));
-		assertException(() -> iterator.remove());
+		assertException(iterator::remove);
 		iterator.next();
-		assertException(() -> iterator.remove());
+		assertException(iterator::remove);
 	}
 
 	@Test

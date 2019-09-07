@@ -7,6 +7,7 @@ import static ceri.common.test.TestUtil.isClass;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -84,7 +85,7 @@ public class ArrayUtilTest {
 		byte[] b1 = { 0, 1, 2, 3, 4 };
 		byte[] b2 = { 4, 3, 2, 1, 0 };
 		Object array = ArrayUtil.arrayCopy(b1, 1, b2, 1, 3);
-		assertTrue(array == b2);
+		assertSame(array, b2);
 		assertThat(b2, is(new byte[] { 4, 1, 2, 3, 0 }));
 	}
 
@@ -96,7 +97,7 @@ public class ArrayUtilTest {
 
 	@Test
 	public void testToList() {
-		List<Integer> list = ArrayUtil.toList(s -> s.length(), "A", "ABC", "BC");
+		List<Integer> list = ArrayUtil.toList(String::length, "A", "ABC", "BC");
 		assertIterable(list, 1, 3, 2);
 	}
 
@@ -112,7 +113,7 @@ public class ArrayUtilTest {
 	@Test
 	public void testComponentType() {
 		assertThat(ArrayUtil.componentType(Boolean[].class), equalTo(Boolean.class));
-		assertThat(ArrayUtil.<boolean[]>componentType(boolean[][].class), equalTo(boolean[].class));
+		assertThat(ArrayUtil.componentType(boolean[][].class), equalTo(boolean[].class));
 	}
 
 	@Test
@@ -166,11 +167,11 @@ public class ArrayUtilTest {
 		} catch (IllegalArgumentException e) {}
 	}
 
-	class A {}
+	static class A {}
 
-	class B extends A {}
+	static class B extends A {}
 
-	class C extends B {}
+	static class C extends B {}
 
 	@Test
 	public void testSuperclass() {

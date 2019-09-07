@@ -7,7 +7,7 @@ import java.util.Comparator;
 import org.junit.Test;
 
 public class EnumComparatorsTest {
-	private static enum TestEnum {
+	private enum TestEnum {
 		C, B, A
 	}
 	

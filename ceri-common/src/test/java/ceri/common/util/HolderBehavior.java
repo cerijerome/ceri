@@ -20,7 +20,7 @@ public class HolderBehavior {
 	public void shouldVerifyValue() {
 		Holder<Integer> holder = Holder.init();
 		assertNull(holder.get());
-		assertException(() -> holder.verify());
+		assertException(holder::verify);
 		holder.set(0);
 		assertThat(holder.get(), is(0));
 		holder.verify();

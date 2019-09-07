@@ -3,6 +3,7 @@ package ceri.common.filter;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
@@ -37,7 +38,7 @@ public class FiltersTest {
 
 	@Test
 	public void testTrue() {
-		assertTrue(Filters._true() == Filters._true()); // same instance
+		assertSame(Filters._true(), Filters._true()); // same instance
 		assertTrue(Filters._true().filter(null));
 		assertTrue(Filters._true().filter(false));
 		assertTrue(Filters._true().filter(true));
@@ -48,7 +49,7 @@ public class FiltersTest {
 
 	@Test
 	public void testFalse() {
-		assertTrue(Filters._false() == Filters._false()); // same instance
+		assertSame(Filters._false(), Filters._false()); // same instance
 		assertFalse(Filters._false().filter(null));
 		assertFalse(Filters._false().filter(false));
 		assertFalse(Filters._false().filter(true));

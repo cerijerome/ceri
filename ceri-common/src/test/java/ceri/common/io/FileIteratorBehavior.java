@@ -31,9 +31,9 @@ public class FileIteratorBehavior {
 	@Test
 	public void shouldFailOnRemove() {
 		FileIterator iterator = new FileIterator(helper.file("a"));
-		assertException(() -> iterator.remove());
+		assertException(iterator::remove);
 		iterator.next();
-		assertException(() -> iterator.remove());
+		assertException(iterator::remove);
 	}
 
 	@Test
@@ -46,7 +46,7 @@ public class FileIteratorBehavior {
 	public void shouldThrowExceptionIfNoMoreElements() {
 		final FileIterator iterator = new FileIterator(helper.file("a/a"));
 		iterator.next();
-		assertException(NoSuchElementException.class, () -> iterator.next());
+		assertException(NoSuchElementException.class, iterator::next);
 	}
 
 	@Test

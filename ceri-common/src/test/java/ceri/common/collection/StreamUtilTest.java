@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 import org.junit.Test;
 
 public class StreamUtilTest {
-	private static enum Abc {
+	private enum Abc {
 		A,
 		B,
 		C;
@@ -127,7 +127,7 @@ public class StreamUtilTest {
 	@Test
 	public void testStream() {
 		Map<String, Integer> map0 = MapPopulator.of("abc", 1, "DE", 1, "f", 0).map;
-		assertArray(StreamUtil.stream(map0, (s, i) -> s.charAt(i)).toArray(), 'b', 'E', 'f');
+		assertArray(StreamUtil.stream(map0, String::charAt).toArray(), 'b', 'E', 'f');
 		Map<Integer, String> map1 = MapPopulator.of(1, "1", 3, "3", 2, "2").map;
 		Object[] array =
 			StreamUtil.stream(map1, (i, s) -> parseDouble(s + "." + (i * i))).toArray();

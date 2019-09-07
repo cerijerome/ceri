@@ -32,7 +32,7 @@ public class ImmutableIntArrayBehavior {
 	public void shouldIterateEachInt() {
 		ImmutableIntArray ia = ImmutableIntArray.wrap(0, 1, 2, 10);
 		StringBuilder b = new StringBuilder();
-		ia.forEach(i -> b.append(i));
+		ia.forEach(b::append);
 		assertThat(b.toString(), is("01210"));
 	}
 

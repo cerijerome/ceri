@@ -21,7 +21,7 @@ public class CollectionScorersTest {
 	@Test
 	public void testSum() {
 		List<String> list = Arrays.asList("a", "bbbb", "cc", "dd");
-		Scorer<Collection<String>> scorer = CollectionScorers.sum(s -> s.length());
+		Scorer<Collection<String>> scorer = CollectionScorers.sum(String::length);
 		assertThat(scorer.score(list), is(9.0));
 		scorer = CollectionScorers.sum(null);
 		assertThat(scorer.score(list), is(0.0));
@@ -30,7 +30,7 @@ public class CollectionScorersTest {
 	@Test
 	public void testAverage() {
 		List<String> list = Arrays.asList("a", "bbbb", "cc", "dd");
-		Scorer<Collection<String>> scorer = CollectionScorers.average(s -> s.length());
+		Scorer<Collection<String>> scorer = CollectionScorers.average(String::length);
 		assertThat(scorer.score(list), is(2.25));
 		scorer = CollectionScorers.average(null);
 		assertThat(scorer.score(list), is(0.0));
@@ -39,7 +39,7 @@ public class CollectionScorersTest {
 	@Test
 	public void testMultiply() {
 		List<String> list = Arrays.asList("a", "bbbb", "cc", "dd");
-		Scorer<Collection<String>> scorer = CollectionScorers.multiply(s -> s.length());
+		Scorer<Collection<String>> scorer = CollectionScorers.multiply(String::length);
 		assertThat(scorer.score(list), is(16.0));
 		scorer = CollectionScorers.multiply(null);
 		assertThat(scorer.score(list), is(0.0));

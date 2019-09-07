@@ -9,7 +9,6 @@ import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static java.awt.Color.green;
 import static java.awt.Color.red;
-import static java.lang.Math.max;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -81,7 +80,7 @@ public class ColorxUtilTest {
 	public void testTransformRgbBinaryOperator() {
 		assertColorx(ColorxUtil.Fn.transform(ColorUtil.Fn.scale(0.5)) //
 			.apply(full, black), 0x80808080);
-		assertColorx(ColorxUtil.Fn.transform(ColorUtil.Fn.scale(0.5), (x, y) -> max(x, y))
+		assertColorx(ColorxUtil.Fn.transform(ColorUtil.Fn.scale(0.5), Math::max)
 			.apply(full, black), 0x808080ff);
 		assertColorx(ColorxUtil.Fn.transform(ColorUtil.Fn.scale(0.5)).apply(null, black), black);
 		assertColorx(ColorxUtil.Fn.transform(ColorUtil.Fn.scale(0.5)).apply(full, null), full);

@@ -9,7 +9,6 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ceri.common.collection.FixedSizeCache;
 
 public class FixedSizeCacheBehavior {
 	private static Map<Integer, String> map;

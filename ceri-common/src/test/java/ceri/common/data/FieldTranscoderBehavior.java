@@ -15,14 +15,14 @@ public class FieldTranscoderBehavior {
 	private final FieldTranscoder.Flag<E> flag =
 		TypeTranscoder.flag(t -> t.value, E.class).field(accessor);
 
-	static enum E {
+	enum E {
 		a(1),
 		b(2),
 		c(12);
 
 		public final int value;
 
-		private E(int value) {
+		E(int value) {
 			this.value = value;
 		}
 	}

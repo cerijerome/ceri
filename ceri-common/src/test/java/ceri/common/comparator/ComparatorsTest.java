@@ -4,7 +4,6 @@ import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.junit.Test;
@@ -60,7 +59,7 @@ public class ComparatorsTest {
 		Comparator<String> comparator =
 			Comparators.sequence(Comparators.nonNullComparator(), Comparators.STRING);
 		List<String> list = ArrayUtil.asList(null, "2", "1", null);
-		Collections.sort(list, comparator);
+		list.sort(comparator);
 		assertIterable(list, null, null, "1", "2");
 	}
 
@@ -129,7 +128,7 @@ public class ComparatorsTest {
 
 	@Test
 	public void testReverse() {
-		Comparator<Integer> comparator = Comparators.<Integer>comparable();
+		Comparator<Integer> comparator = Comparators.comparable();
 		Comparator<Integer> reverseComparator = Comparators.reverse(comparator);
 		assertThat(reverseComparator.compare(0, 0), is(-comparator.compare(0, 0)));
 		assertThat(reverseComparator.compare(0, 1), is(-comparator.compare(0, 1)));
