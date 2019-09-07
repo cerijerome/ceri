@@ -23,7 +23,7 @@ public class PulseCycles {
 		return null;
 	}
 
-	public static enum Std {
+	public enum Std {
 		_3(nbit, 3, 0, 1, 2),
 		_3_9(nbit9, 3, 0, 1, 2),
 		_4(nbit, 4, 0, 1, 2),
@@ -47,7 +47,7 @@ public class PulseCycles {
 
 		public final PulseCycle cycle;
 
-		private Std(Type type, int n, int offset, int t0Bits, int t1Bits) {
+		Std(Type type, int n, int offset, int t0Bits, int t1Bits) {
 			cycle = cycle(type, n, offset, t0Bits, t1Bits);
 		}
 	}

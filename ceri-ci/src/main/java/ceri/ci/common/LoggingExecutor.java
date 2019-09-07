@@ -23,7 +23,7 @@ public class LoggingExecutor implements Closeable {
 	private final String name;
 	private final ExecutorService service;
 	private final long shutdownTimeoutMs;
-	private Collection<Future<?>> futures = new ArrayList<>();
+	private final Collection<Future<?>> futures = new ArrayList<>();
 
 	public LoggingExecutor(ExecutorService service) {
 		this(service, SHUTDOWN_TIMEOUT_MS_DEF, ReflectUtil.previousCaller(1).cls);
@@ -47,7 +47,7 @@ public class LoggingExecutor implements Closeable {
 			logger.debug("Awaiting termination of {}", name);
 			boolean complete = service.awaitTermination(shutdownTimeoutMs, TimeUnit.MILLISECONDS);
 			if (!complete) logger.warn("{} did not shut down in {}ms", name, shutdownTimeoutMs);
-			else logger.debug("{} shut down successfully");
+			else logger.debug("{} shut down successfully", name);
 		} catch (InterruptedException e) {
 			logger.throwing(Level.DEBUG, e);
 			throw new RuntimeInterruptedException(e);

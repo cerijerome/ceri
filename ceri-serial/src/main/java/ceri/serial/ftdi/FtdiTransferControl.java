@@ -8,7 +8,7 @@ import ceri.serial.jna.clib.Time;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class FtdiTransferControl {
-	private ftdi_transfer_control control;
+	private final ftdi_transfer_control control;
 
 	FtdiTransferControl(ftdi_transfer_control control) {
 		this.control = control;

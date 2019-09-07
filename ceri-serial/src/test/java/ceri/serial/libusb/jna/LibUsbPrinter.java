@@ -1,9 +1,6 @@
 package ceri.serial.libusb.jna;
 
 import java.io.PrintStream;
-/**
- * Iterates over usb devices and prints configuration info.
- */
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -15,8 +12,6 @@ import ceri.common.collection.ImmutableByteArray;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.StringUtil;
-import ceri.serial.libusb.jna.LibUsb;
-import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
@@ -28,6 +23,9 @@ import ceri.serial.libusb.jna.LibUsb.libusb_interface_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_log_level;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
 
+/**
+ * Iterates over usb devices and prints configuration info.
+ */
 public class LibUsbPrinter {
 	private static final Logger logger = LogManager.getLogger();
 	private final List<Predicate<libusb_device_descriptor>> skips;
@@ -118,7 +116,7 @@ public class LibUsbPrinter {
 		out.printf("#devices=%d%n", devices.length);
 		for (int i = 0; i < devices.length; i++) {
 			String pre = pre0 + i;
-			out.printf("----------------------------------------%n", pre);
+			out.printf("%s:----------------------------------------%n", pre);
 			out.printf("%s: [libusb_device #%d]%n", pre, i);
 			libusb_device device = devices[i];
 			libusb_device_descriptor desc = LibUsb.libusb_get_device_descriptor(device);

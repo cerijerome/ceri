@@ -4,13 +4,10 @@ import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
 
 public class UnknownToken extends Token.Base {
-	public static final Token.Factory FACTORY = new Token.Factory() {
-		@Override
-		public Token create(String str, Index i) {
-			char ch = str.charAt(i.value());
-			i.inc();
-			return new UnknownToken(ch);
-		}
+	public static final Token.Factory FACTORY = (str, i) -> {
+		char ch = str.charAt(i.value());
+		i.inc();
+		return new UnknownToken(ch);
 	};
 	private final int hashCode;
 	public final char ch;

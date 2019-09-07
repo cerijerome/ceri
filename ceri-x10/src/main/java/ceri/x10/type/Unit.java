@@ -23,7 +23,7 @@ public enum Unit {
 
 	public final int index;
 
-	private Unit() {
+	Unit() {
 		index = Integer.parseInt(name().substring(1));
 	}
 

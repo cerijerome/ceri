@@ -35,10 +35,10 @@ public class SpiDev {
 	public static final int SPI_RX_QUAD = 0x800;
 
 	/* preset modes */
-	public static final int SPI_MODE_0 = (0 | 0);
-	public static final int SPI_MODE_1 = (0 | SPI_CPHA);
-	public static final int SPI_MODE_2 = (SPI_CPOL | 0);
-	public static final int SPI_MODE_3 = (SPI_CPOL | SPI_CPHA);
+	public static final int SPI_MODE_0 = 0;
+	public static final int SPI_MODE_1 = SPI_CPHA;
+	public static final int SPI_MODE_2 = SPI_CPOL;
+	public static final int SPI_MODE_3 = SPI_CPOL | SPI_CPHA;
 
 	public static class spi_ioc_transfer extends Structure {
 		private static final List<String> FIELDS = List.of("tx_buf", "rx_buf", "len", "speed_hz",
@@ -81,7 +81,7 @@ public class SpiDev {
 		return size < (1 << _IOC_SIZEBITS) ? size : 0;
 	}
 
-	private static final int SPI_IOC_MESSAGE(int n) {
+	private static int SPI_IOC_MESSAGE(int n) {
 		return _IOW(SPI_IOC_MAGIC, 0, SPI_MSGSIZE(n));
 	}
 

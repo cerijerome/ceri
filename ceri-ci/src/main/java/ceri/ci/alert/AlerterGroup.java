@@ -87,7 +87,7 @@ public class AlerterGroup implements Alerter, Closeable {
 		lock.lock();
 		try {
 			for (Alerter alerter : alerters)
-				executor.execute(() -> alerter.clear());
+				executor.execute(alerter::clear);
 			executor.awaitCompletion();
 		} finally {
 			lock.unlock();
@@ -103,7 +103,7 @@ public class AlerterGroup implements Alerter, Closeable {
 		lock.lock();
 		try {
 			for (Alerter alerter : alerters)
-				executor.execute(() -> alerter.remind());
+				executor.execute(alerter::remind);
 			executor.awaitCompletion();
 		} finally {
 			lock.unlock();

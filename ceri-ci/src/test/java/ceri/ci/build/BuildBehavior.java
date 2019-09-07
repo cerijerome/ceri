@@ -1,10 +1,11 @@
 package ceri.ci.build;
 
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
-import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertIterable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -98,16 +99,16 @@ public class BuildBehavior {
 	@Test
 	public void shouldConformToEqualsContract() {
 		Build build = new Build("test");
-		assertFalse(build.equals(null));
-		assertFalse(build.equals(new Build("Test")));
-		assertTrue(build.equals(new Build("test")));
-		assertTrue(build.equals(build));
+		assertNotEquals(null, build);
+		assertNotEquals(build, new Build("Test"));
+		assertEquals(build, new Build("test"));
+		assertEquals(build, build);
 		Event e0 = new Event(Event.Type.failure, 0L);
 		Event e1 = new Event(Event.Type.success, 1L);
 		build.job("j0").events(e0);
 		build.job("j1").events(e0, e1);
 		Build build2 = new Build(build);
-		assertTrue(build.equals(build2));
+		assertEquals(build, build2);
 		assertThat(build.hashCode(), is(build2.hashCode()));
 		assertThat(build.toString(), is(build2.toString()));
 	}

@@ -45,7 +45,7 @@ public class MacUsbSerialUtil {
 				String locationIdStr = LOCATION_ID_XPATH.evaluate(usb);
 				String device = DEVICE_XPATH.evaluate(usb);
 				if (device.isEmpty()) continue;
-				int locationId = Integer.valueOf(locationIdStr);
+				int locationId = Integer.parseInt(locationIdStr);
 				builder.device(locationId, device);
 			}
 			return builder.build();

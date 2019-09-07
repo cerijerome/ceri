@@ -1,5 +1,6 @@
 package ceri.x10.cm11a.protocol;
 
+import static java.util.Map.entry;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -30,83 +31,48 @@ public class Data {
 	public static final WriteData write = new WriteData();
 
 	static {
-		Map<House, Integer> map = new HashMap<>();
-		map.put(House.A, 0x06);
-		map.put(House.B, 0x0E);
-		map.put(House.C, 0x02);
-		map.put(House.D, 0x0A);
-		map.put(House.E, 0x01);
-		map.put(House.F, 0x09);
-		map.put(House.G, 0x05);
-		map.put(House.H, 0x0D);
-		map.put(House.I, 0x07);
-		map.put(House.J, 0x0F);
-		map.put(House.K, 0x03);
-		map.put(House.L, 0x0B);
-		map.put(House.M, 0x00);
-		map.put(House.N, 0x08);
-		map.put(House.O, 0x04);
-		map.put(House.P, 0x0C);
-		fromHouse = Collections.unmodifiableMap(map);
+		fromHouse = Map.ofEntries(entry(House.A, 0x06), entry(House.B, 0x0E), entry(House.C, 0x02),
+			entry(House.D, 0x0A), entry(House.E, 0x01), entry(House.F, 0x09), entry(House.G, 0x05),
+			entry(House.H, 0x0D), entry(House.I, 0x07), entry(House.J, 0x0F), entry(House.K, 0x03),
+			entry(House.L, 0x0B), entry(House.M, 0x00), entry(House.N, 0x08), entry(House.O, 0x04),
+			entry(House.P, 0x0C));
 		toHouse = Collections.unmodifiableMap(reverse(fromHouse));
 	}
 
 	static {
-		Map<Unit, Integer> map = new HashMap<>();
-		map.put(Unit._1, 0x06);
-		map.put(Unit._2, 0x0E);
-		map.put(Unit._3, 0x02);
-		map.put(Unit._4, 0x0A);
-		map.put(Unit._5, 0x01);
-		map.put(Unit._6, 0x09);
-		map.put(Unit._7, 0x05);
-		map.put(Unit._8, 0x0D);
-		map.put(Unit._9, 0x07);
-		map.put(Unit._10, 0x0F);
-		map.put(Unit._11, 0x03);
-		map.put(Unit._12, 0x0B);
-		map.put(Unit._13, 0x00);
-		map.put(Unit._14, 0x08);
-		map.put(Unit._15, 0x04);
-		map.put(Unit._16, 0x0C);
-		fromUnit = Collections.unmodifiableMap(map);
+		fromUnit = Map.ofEntries(entry(Unit._1, 0x06), entry(Unit._2, 0x0E), entry(Unit._3, 0x02),
+			entry(Unit._4, 0x0A), entry(Unit._5, 0x01), entry(Unit._6, 0x09), entry(Unit._7, 0x05),
+			entry(Unit._8, 0x0D), entry(Unit._9, 0x07), entry(Unit._10, 0x0F),
+			entry(Unit._11, 0x03), entry(Unit._12, 0x0B), entry(Unit._13, 0x00),
+			entry(Unit._14, 0x08), entry(Unit._15, 0x04), entry(Unit._16, 0x0C));
 		toUnit = Collections.unmodifiableMap(reverse(fromUnit));
 	}
 
 	static {
-		Map<FunctionType, Integer> map = new HashMap<>();
-		map.put(FunctionType.ALL_UNITS_OFF, 0x0);
-		map.put(FunctionType.ALL_LIGHTS_ON, 0x1);
-		map.put(FunctionType.ON, 0x2);
-		map.put(FunctionType.OFF, 0x3);
-		map.put(FunctionType.DIM, 0x4);
-		map.put(FunctionType.BRIGHT, 0x5);
-		map.put(FunctionType.ALL_LIGHTS_OFF, 0x6);
-		map.put(FunctionType.EXTENDED, 0x7);
-		map.put(FunctionType.HAIL_REQUEST, 0x8);
-		map.put(FunctionType.HAIL_ACKNOWLEDGE, 0x9);
-		map.put(FunctionType.PRESET_DIM_1, 0xA);
-		map.put(FunctionType.PRESET_DIM_2, 0xB);
-		map.put(FunctionType.EXTENDED_DATA_XFER, 0xC);
-		map.put(FunctionType.STATUS_ON, 0xD);
-		map.put(FunctionType.STATUS_OFF, 0xE);
-		map.put(FunctionType.STATUS_REQUEST, 0xF);
-		fromFunctionType = Collections.unmodifiableMap(map);
+		fromFunctionType = Map.ofEntries(entry(FunctionType.ALL_UNITS_OFF, 0x0),
+			entry(FunctionType.ALL_LIGHTS_ON, 0x1), entry(FunctionType.ON, 0x2),
+			entry(FunctionType.OFF, 0x3), entry(FunctionType.DIM, 0x4),
+			entry(FunctionType.BRIGHT, 0x5), entry(FunctionType.ALL_LIGHTS_OFF, 0x6),
+			entry(FunctionType.EXTENDED, 0x7), entry(FunctionType.HAIL_REQUEST, 0x8),
+			entry(FunctionType.HAIL_ACKNOWLEDGE, 0x9), entry(FunctionType.PRESET_DIM_1, 0xA),
+			entry(FunctionType.PRESET_DIM_2, 0xB), entry(FunctionType.EXTENDED_DATA_XFER, 0xC),
+			entry(FunctionType.STATUS_ON, 0xD), entry(FunctionType.STATUS_OFF, 0xE),
+			entry(FunctionType.STATUS_REQUEST, 0xF));
 		toFunctionType = Collections.unmodifiableMap(reverse(fromFunctionType));
 	}
 
 	private Data() {}
 
 	public static byte shortChecksum(int sh) {
-		return checksum((byte)(sh >>> 8), (byte)(sh & 0xff));
+		return checksum((byte) (sh >>> 8), (byte) (sh & 0xff));
 	}
-	
-	public static byte checksum(byte...bytes) {
+
+	public static byte checksum(byte... bytes) {
 		int sum = 0;
 		for (byte b : bytes) sum += b;
-		return (byte)(sum & 0xff);
+		return (byte) (sum & 0xff);
 	}
-	
+
 	public static House toHouse(int data) {
 		return toHouse.get(data & 0x0f);
 	}
@@ -145,7 +111,7 @@ public class Data {
 
 	/**
 	 * Creates a date from data received from a status response.
-	 * 
+	 *
 	 * <pre>
 	 * 	39 to 32	Current time (seconds)
 	 * 	31 to 24	Current time (minutes ranging from 0 to 119)
@@ -177,7 +143,7 @@ public class Data {
 	/**
 	 * Creates data from a date to send after a time poll request. Returns the offset in the data
 	 * array into which data was written.
-	 * 
+	 *
 	 * <pre>
 	 * 	39 to 32	Current time (seconds)
 	 * 	31 to 24	Current time (minutes ranging from 0 to 119)

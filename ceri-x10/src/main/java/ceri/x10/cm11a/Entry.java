@@ -19,7 +19,7 @@ public class Entry {
 	/**
 	 * Enum to identify the wrapped type.
 	 */
-	public static enum Type {
+	public enum Type {
 		address,
 		function,
 		dim,

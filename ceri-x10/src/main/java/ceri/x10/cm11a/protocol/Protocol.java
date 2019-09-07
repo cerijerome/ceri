@@ -14,7 +14,7 @@ public enum Protocol {
 
 	public final byte value;
 
-	private Protocol(int value) {
+	Protocol(int value) {
 		this.value = (byte) value;
 	}
 

@@ -13,7 +13,7 @@ public interface AudioListener {
 
 	void audioEnd();
 
-	static class Multi implements AudioListener {
+	class Multi implements AudioListener {
 		private final List<AudioListener> listeners;
 
 		public Multi(AudioListener... listeners) {

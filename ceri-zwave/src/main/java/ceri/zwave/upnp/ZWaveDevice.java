@@ -5,7 +5,7 @@ public class ZWaveDevice {
 	public static final String sid = "urn:micasaverde-com:serviceId:ZWaveDevice1";
 	public static final String sType = "urn:schemas-micasaverde-com:service:ZWaveDevice:1";
 
-	public static enum Variable implements ceri.zwave.command.Variable {
+	public enum Variable implements ceri.zwave.command.Variable {
 		PollSettings, // DEVICEDATA_Polling_Settings_CONST
 		PollCommands, // A comma-separated list of command classes/commands to poll.  X means the device won't respond to any poll
 		MultiChEndpoint, // DEVICEDATA_Multi_Channel_End_Point_CONST

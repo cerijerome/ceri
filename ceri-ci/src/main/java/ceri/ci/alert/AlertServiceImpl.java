@@ -42,7 +42,7 @@ public class AlertServiceImpl implements AlertService, Closeable {
 		this.alerterGroup = alerterGroup;
 		this.reminderMs = reminderMs;
 		executor = new LoggingExecutor(Executors.newFixedThreadPool(2), shutdownTimeoutMs, null);
-		executor.execute(() -> run());
+		executor.execute(this::run);
 		executor.execute(() -> purgeCycle(purgeDelayMs));
 	}
 

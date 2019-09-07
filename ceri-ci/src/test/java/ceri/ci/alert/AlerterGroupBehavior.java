@@ -12,14 +12,12 @@ import ceri.common.test.TestState;
 
 public class AlerterGroupBehavior {
 	TestState<Integer> state = new TestState<>();
-	private Alerter alerter0;
-	private Alerter alerter1;
 	private AlerterGroup alertGroup;
 
 	@Before
 	public void init() {
 		state = new TestState<>();
-		alerter0 = new TestAlerter() {
+		Alerter alerter0 = new TestAlerter() {
 			@Override
 			protected void common() {
 				state.set(1);
@@ -27,7 +25,7 @@ public class AlerterGroupBehavior {
 				state.set(3);
 			}
 		};
-		alerter1 = new TestAlerter() {
+		Alerter alerter1 = new TestAlerter() {
 			@Override
 			protected void common() {
 				state.waitFor(1);

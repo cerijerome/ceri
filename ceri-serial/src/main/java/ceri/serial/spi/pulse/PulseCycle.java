@@ -15,7 +15,7 @@ public abstract class PulseCycle {
 	public final int t1Bits;
 	public final int pulseBits; // bit ratio
 
-	public static enum Type {
+	public enum Type {
 		nbit,
 		nbit9,
 		nbit27;

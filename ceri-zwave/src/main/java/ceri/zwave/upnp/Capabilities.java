@@ -28,7 +28,7 @@ public class Capabilities {
 	public final Collection<CommandClass> commandClasses;
 	private final int hashCode;
 
-	public static enum Flag {
+	public enum Flag {
 		L, // Listens
 		R, // Routes
 		B, // Beams

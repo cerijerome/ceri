@@ -3,7 +3,7 @@ package ceri.x10.cm17a;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import org.junit.Before;
@@ -34,7 +34,7 @@ public class CommandsBehavior {
 		assertThat(key1, is(key2));
 		assertThat(key1, is(key1));
 		assertThat(key1.toString(), is(key1.toString()));
-		assertFalse(key1.equals(null));
+		assertNotEquals(null, key1);
 		assertThat(key1, not(new Object()));
 		assertThat(key1, not(key3));
 		assertThat(key1, not(key4));

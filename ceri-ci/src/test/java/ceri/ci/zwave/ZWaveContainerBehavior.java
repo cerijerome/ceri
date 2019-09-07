@@ -1,9 +1,9 @@
 package ceri.ci.zwave;
 
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.util.HashSet;
@@ -51,7 +51,7 @@ public class ZWaveContainerBehavior {
 		properties.put("zwave.group.devices", "7,33");
 		@SuppressWarnings({ "unused" })
 		ZWaveContainer container = new ZWaveContainer(baseProperties(), factory);
-		Set<Integer> devices = CollectionUtil.addAll(new HashSet<Integer>(), 7, 33);
+		Set<Integer> devices = CollectionUtil.addAll(new HashSet<>(), 7, 33);
 		verify(factory).createGroup(controller, devices);
 	}
 

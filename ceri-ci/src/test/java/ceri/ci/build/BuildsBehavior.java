@@ -4,7 +4,8 @@ import static ceri.ci.build.BuildTestUtil.assertBuildNames;
 import static ceri.ci.build.BuildTestUtil.assertEvents;
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -101,16 +102,16 @@ public class BuildsBehavior {
 	@Test
 	public void shouldConformToEqualsContract() {
 		Builds builds = new Builds();
-		assertFalse(builds.equals(null));
-		assertTrue(builds.equals(new Builds()));
-		assertTrue(builds.equals(builds));
+		assertNotEquals(null, builds);
+		assertEquals(builds, new Builds());
+		assertEquals(builds, builds);
 		Event e0 = new Event(Event.Type.failure, 0L);
 		Event e1 = new Event(Event.Type.success, 1L);
 		builds.build("b0").job("j0").events(e0);
 		builds.build("b0").job("j1").events();
 		builds.build("b1").job("j0").events(e0, e1);
 		Builds builds2 = new Builds(builds);
-		assertTrue(builds.equals(builds2));
+		assertEquals(builds, builds2);
 		assertThat(builds.hashCode(), is(builds2.hashCode()));
 		assertThat(builds.toString(), is(builds2.toString()));
 	}

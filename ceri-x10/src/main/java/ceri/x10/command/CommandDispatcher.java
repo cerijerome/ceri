@@ -25,7 +25,7 @@ public class CommandDispatcher implements Closeable {
 		this.queue = queue;
 		this.listener = listener;
 		this.pollTimeoutMs = pollTimeoutMs;
-		thread = new Thread(() -> CommandDispatcher.this.run());
+		thread = new Thread(CommandDispatcher.this::run);
 		thread.start();
 	}
 

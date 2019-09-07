@@ -1,7 +1,6 @@
 package ceri.ci.common;
 
 import ceri.ci.build.Builds;
-import ceri.ci.common.Alerter;
 
 public class TestAlerter implements Alerter {
 

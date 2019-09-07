@@ -29,7 +29,7 @@ public enum FunctionType {
 
 	public final FunctionGroup group;
 	
-	private FunctionType(FunctionGroup group) {
+	FunctionType(FunctionGroup group) {
 		this.group = group;
 	}
 	

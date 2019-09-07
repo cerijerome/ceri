@@ -5,12 +5,8 @@ import ceri.common.text.ToStringHelper;
 
 public class ExcludeToken extends Token.Base {
 	static final Pattern PATTERN = Pattern.compile("^\\-");
-	public static final Token.Factory FACTORY = new Token.Factory() {
-		@Override
-		public Token create(String str, Index i) {
-			return TokenUtil.matches(PATTERN, str, i) ? new ExcludeToken() : null;
-		}
-	};
+	public static final Token.Factory FACTORY =
+		(str, i) -> TokenUtil.matches(PATTERN, str, i) ? new ExcludeToken() : null;
 
 	public ExcludeToken() {
 		super(Type.Exclude);

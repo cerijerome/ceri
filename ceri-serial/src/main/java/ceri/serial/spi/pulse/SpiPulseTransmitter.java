@@ -28,7 +28,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	private final Spi spi;
 	private final SpiTransfer xfer;
 	private final ByteReceiver wrapper;
-	private byte[] data;
+	private final byte[] data;
 
 	public static SpiPulseTransmitter of(Spi spi, SpiPulseConfig config) {
 		return new SpiPulseTransmitter(spi, config);

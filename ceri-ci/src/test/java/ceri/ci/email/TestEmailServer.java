@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class TestEmailServer {
-	private List<List<Email>> responses = new ArrayList<>();
+	private final List<List<Email>> responses = new ArrayList<>();
 	private int response = 0;
 	
 	public void addResponse(Email...emails) {

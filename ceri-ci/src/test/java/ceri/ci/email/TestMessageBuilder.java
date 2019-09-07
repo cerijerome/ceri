@@ -13,7 +13,7 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 
 public class TestMessageBuilder {
-	private Collection<String> recipients = new LinkedHashSet<>();
+	private final Collection<String> recipients = new LinkedHashSet<>();
 	private String from;
 	private Date sentDate;
 	private String subject;

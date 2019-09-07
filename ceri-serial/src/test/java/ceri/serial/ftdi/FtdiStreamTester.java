@@ -35,7 +35,7 @@ public class FtdiStreamTester {
 
 	private static boolean stream(ByteBuffer buffer, int length, ftdi_progress_info progress,
 		String userData) {
-		logger.info("Stream: {} {} {} {}", userData, length, progress);
+		logger.info("Stream: {} {} {}", userData, length, progress);
 		printer.print(buffer, length);
 		return true;
 	}

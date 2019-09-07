@@ -8,13 +8,13 @@ public class HaGateway {
 	public final String sid = "urn:micasaverde-com:serviceId:HomeAutomationGateway1";
 	public final String sType = "urn:schemas-micasaverde-org:service:HomeAutomationGateway:1";
 
-	public static enum Variable implements ceri.zwave.command.Variable {
+	public enum Variable implements ceri.zwave.command.Variable {
 		ActiveScenes,
 		DataVersionUserData, // The current data version for user_data
 		DataVersionStatus; // The current data version for lu_status
 	}
 
-	public static enum Action implements ceri.zwave.command.Action {
+	public enum Action implements ceri.zwave.command.Action {
 		GetUserData,
 		ModifyUserData,
 		GetVariable,

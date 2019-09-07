@@ -44,6 +44,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.ExceptionPredicate;
 import ceri.log.util.LogUtil;
+import ceri.serial.jna.clib.Time;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_capability;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
@@ -56,7 +57,6 @@ import ceri.serial.libusb.jna.LibUsb.libusb_poll_event;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
-import ceri.serial.jna.clib.Time;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder;
 import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
@@ -66,14 +66,14 @@ public class Usb implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private final UsbHotplug hotplug;
 	private libusb_context context;
-	private Set<Object> pollfdCallbackRefs = ConcurrentHashMap.newKeySet();
+	private final Set<Object> pollfdCallbackRefs = ConcurrentHashMap.newKeySet();
 
-	public static interface PollfdAddedCallback<T> {
-		public void invoke(int fd, Set<libusb_poll_event> events, T userData) throws IOException;
+	public interface PollfdAddedCallback<T> {
+		void invoke(int fd, Set<libusb_poll_event> events, T userData) throws IOException;
 	}
 
-	public static interface PollfdRemovedCallback<T> {
-		public void invoke(int fd, T userData) throws IOException;
+	public interface PollfdRemovedCallback<T> {
+		void invoke(int fd, T userData) throws IOException;
 	}
 
 	public static libusb_version version() throws LibUsbException {
@@ -157,7 +157,6 @@ public class Usb implements Closeable {
 			dev -> findDeviceCallback(dev, callback));
 	}
 
-	@SuppressWarnings("resource")
 	private boolean findDeviceCallback(libusb_device dev,
 		ExceptionPredicate<LibUsbException, UsbDevice> callback) throws LibUsbException {
 		UsbDevice device = new UsbDevice(this::context, dev);

@@ -3,7 +3,6 @@ package ceri.ci.build;
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
 import static ceri.common.test.TestUtil.assertException;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
@@ -45,9 +44,9 @@ public class AnalyzedJobBehavior {
 	public void shouldObeyEqualsContract() {
 		AnalyzedJob analyzer = new AnalyzedJob(testBuild, new Build("test"));
 		AnalyzedJob analyzer2 = new AnalyzedJob(testBuild, new Build("test"));
-		assertTrue(analyzer.equals(analyzer));
-		assertFalse(analyzer.equals(null));
-		assertTrue(analyzer.equals(analyzer2));
+		assertEquals(analyzer, analyzer);
+		assertNotEquals(null, analyzer);
+		assertEquals(analyzer, analyzer2);
 		assertEquals(analyzer.hashCode(), analyzer2.hashCode());
 		assertEquals(analyzer.toString(), analyzer2.toString());
 		AnalyzedJob analyzer3 = new AnalyzedJob(new Build("test0"), new Build("test0"));

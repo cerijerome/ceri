@@ -104,9 +104,6 @@ public class InputBuffer {
 
 	/**
 	 * Creates a data buffer by reading from the given input stream.
-	 * 
-	 * @exception DataPollException
-	 *                if DATA_POLL is received during reading
 	 */
 	public static InputBuffer readFrom(DataInput in) throws IOException {
 		byte count = in.readByte();

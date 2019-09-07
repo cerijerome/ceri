@@ -42,13 +42,12 @@ public class SerialPort extends CommPort {
 		return open(cpi, owner, connectionTimeoutMs);
 	}
 
-	@SuppressWarnings("resource") // Incorrect - comm port is closed on error
 	private static SerialPort open(CommPortIdentifier cpi, String owner, int timeoutMs)
 		throws PortInUseException {
 		CommPort commPort = null;
 		try {
 			commPort = cpi.open(owner, timeoutMs);
-			return SerialPort.class.cast(commPort);
+			return (SerialPort) commPort;
 		} catch (PortInUseException | RuntimeException e) {
 			IoUtil.close(commPort);
 			throw e;

@@ -102,7 +102,6 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 		else exec(SerialPort::clearBreakBit);
 	}
 
-	@SuppressWarnings("resource")
 	private void exec(ExceptionConsumer<IOException, SerialPort> consumer) throws IOException {
 		SerialPort serialPort = serialPort();
 		try {

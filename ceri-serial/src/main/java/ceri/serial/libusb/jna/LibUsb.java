@@ -27,16 +27,17 @@ import ceri.common.data.MaskTranscoder;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.text.StringUtil;
 import ceri.serial.jna.JnaUtil;
-//import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.Struct;
 import ceri.serial.jna.TypedPointer;
 import ceri.serial.jna.clib.Time.timeval;
 
+//import ceri.serial.jna.JnaUtil;
+
 public class LibUsb {
 	private static final Logger logger = LogManager.getLogger();
-	private static LibUsbNative LIBUSB = loadLibrary("usb-1.0.0");
-	private static int DEFAULT_TIMEOUT = 1000;
-	private static int MAX_DESCRIPTOR_SIZE = 255;
+	private static final LibUsbNative LIBUSB = loadLibrary("usb-1.0.0");
+	private static final int DEFAULT_TIMEOUT = 1000;
+	private static final int MAX_DESCRIPTOR_SIZE = 255;
 	private static final int MAX_PORT_NUMBERS = 7;
 	private static final timeval TV_ZERO = new timeval(0, 0); // do not modify!
 	// Public constants
@@ -76,7 +77,7 @@ public class LibUsb {
 	/**
 	 * Device and/or Interface Class codes
 	 */
-	public static enum libusb_class_code {
+	public enum libusb_class_code {
 		LIBUSB_CLASS_PER_INTERFACE(0),
 		LIBUSB_CLASS_AUDIO(1),
 		LIBUSB_CLASS_COMM(2),
@@ -101,7 +102,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_class_code.class);
 		public final int value;
 
-		private libusb_class_code(int value) {
+		libusb_class_code(int value) {
 			this.value = value;
 		}
 
@@ -114,7 +115,7 @@ public class LibUsb {
 	/**
 	 * Descriptor types as defined by the USB specification.
 	 */
-	public static enum libusb_descriptor_type {
+	public enum libusb_descriptor_type {
 		LIBUSB_DT_DEVICE(0x01),
 		LIBUSB_DT_CONFIG(0x02),
 		LIBUSB_DT_STRING(0x03),
@@ -133,7 +134,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_descriptor_type.class);
 		public final int value;
 
-		private libusb_descriptor_type(int value) {
+		libusb_descriptor_type(int value) {
 			this.value = value;
 		}
 
@@ -147,7 +148,7 @@ public class LibUsb {
 	 * Endpoint direction. Values for bit 7 of the libusb_endpoint_descriptor.bEndpointAddress
 	 * "endpoint address" scheme.
 	 */
-	public static enum libusb_endpoint_direction {
+	public enum libusb_endpoint_direction {
 		LIBUSB_ENDPOINT_IN(0x80),
 		LIBUSB_ENDPOINT_OUT(0x00);
 
@@ -155,7 +156,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_endpoint_direction.class);
 		public final int value;
 
-		private libusb_endpoint_direction(int value) {
+		libusb_endpoint_direction(int value) {
 			this.value = value;
 		}
 
@@ -169,7 +170,7 @@ public class LibUsb {
 	 * Endpoint transfer type. Values for bits 0:1 of the libusb_endpoint_descriptor.bmAttributes
 	 * "endpoint attributes" field.
 	 */
-	public static enum libusb_transfer_type {
+	public enum libusb_transfer_type {
 		LIBUSB_TRANSFER_TYPE_CONTROL(0),
 		LIBUSB_TRANSFER_TYPE_ISOCHRONOUS(1),
 		LIBUSB_TRANSFER_TYPE_BULK(2),
@@ -180,7 +181,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_transfer_type.class);
 		public final int value;
 
-		private libusb_transfer_type(int value) {
+		libusb_transfer_type(int value) {
 			this.value = value;
 		}
 
@@ -193,7 +194,7 @@ public class LibUsb {
 	/**
 	 * Standard requests, as defined in table 9-5 of the USB 3.0 specifications
 	 */
-	public static enum libusb_standard_request {
+	public enum libusb_standard_request {
 		LIBUSB_REQUEST_GET_STATUS(0x00),
 		LIBUSB_REQUEST_CLEAR_FEATURE(0x01),
 		// 0x02 is reserved
@@ -214,7 +215,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_standard_request.class);
 		public final int value;
 
-		private libusb_standard_request(int value) {
+		libusb_standard_request(int value) {
 			this.value = value;
 		}
 
@@ -228,8 +229,8 @@ public class LibUsb {
 	 * Request type bits of the libusb_control_setup.bmRequestType "bmRequestType" field in control
 	 * transfers.
 	 */
-	public static enum libusb_request_type {
-		LIBUSB_REQUEST_TYPE_STANDARD(0x00 << 5),
+	public enum libusb_request_type {
+		LIBUSB_REQUEST_TYPE_STANDARD(0x00),
 		LIBUSB_REQUEST_TYPE_CLASS(0x01 << 5),
 		LIBUSB_REQUEST_TYPE_VENDOR(0x02 << 5),
 		LIBUSB_REQUEST_TYPE_RESERVED(0x03 << 5);
@@ -238,7 +239,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_request_type.class);
 		public final int value;
 
-		private libusb_request_type(int value) {
+		libusb_request_type(int value) {
 			this.value = value;
 		}
 
@@ -252,7 +253,7 @@ public class LibUsb {
 	 * Recipient bits of the libusb_control_setup.bmRequestType "bmRequestType" field in control
 	 * transfers. Values 4 through 31 are reserved.
 	 */
-	public static enum libusb_request_recipient {
+	public enum libusb_request_recipient {
 		LIBUSB_RECIPIENT_DEVICE(0x00),
 		LIBUSB_RECIPIENT_INTERFACE(0x01),
 		LIBUSB_RECIPIENT_ENDPOINT(0x02),
@@ -262,7 +263,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_request_recipient.class);
 		public final int value;
 
-		private libusb_request_recipient(int value) {
+		libusb_request_recipient(int value) {
 			this.value = value;
 		}
 
@@ -281,7 +282,7 @@ public class LibUsb {
 	 * Synchronization type for isochronous endpoints. Values for bits 2:3 of the
 	 * libusb_endpoint_descriptor.bmAttributes "bmAttributes" field in libusb_endpoint_descriptor.
 	 */
-	public static enum libusb_iso_sync_type {
+	public enum libusb_iso_sync_type {
 		LIBUSB_ISO_SYNC_TYPE_NONE(0),
 		LIBUSB_ISO_SYNC_TYPE_ASYNC(1),
 		LIBUSB_ISO_SYNC_TYPE_ADAPTIVE(2),
@@ -291,7 +292,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_iso_sync_type.class);
 		public final int value;
 
-		private libusb_iso_sync_type(int value) {
+		libusb_iso_sync_type(int value) {
 			this.value = value;
 		}
 
@@ -305,7 +306,7 @@ public class LibUsb {
 	 * Usage type for isochronous endpoints. Values for bits 4:5 of the
 	 * libusb_endpoint_descriptor.bmAttributes "bmAttributes" field in libusb_endpoint_descriptor.
 	 */
-	public static enum libusb_iso_usage_type {
+	public enum libusb_iso_usage_type {
 		LIBUSB_ISO_USAGE_TYPE_DATA(0),
 		LIBUSB_ISO_USAGE_TYPE_FEEDBACK(1),
 		LIBUSB_ISO_USAGE_TYPE_IMPLICIT(2);
@@ -314,7 +315,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_iso_usage_type.class);
 		public final int value;
 
-		private libusb_iso_usage_type(int value) {
+		libusb_iso_usage_type(int value) {
 			this.value = value;
 		}
 
@@ -1051,7 +1052,7 @@ public class LibUsb {
 	/**
 	 * Speed codes. Indicates the speed at which the device is operating.
 	 */
-	public static enum libusb_speed {
+	public enum libusb_speed {
 		LIBUSB_SPEED_UNKNOWN(0),
 		LIBUSB_SPEED_LOW(1),
 		LIBUSB_SPEED_FULL(2),
@@ -1062,7 +1063,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_speed.class);
 		public final int value;
 
-		private libusb_speed(int value) {
+		libusb_speed(int value) {
 			this.value = value;
 		}
 
@@ -1075,7 +1076,7 @@ public class LibUsb {
 	/**
 	 * Supported speeds (wSpeedSupported) bitfield. Indicates what speeds the device supports.
 	 */
-	public static enum libusb_supported_speed {
+	public enum libusb_supported_speed {
 		LIBUSB_LOW_SPEED_OPERATION(1),
 		LIBUSB_FULL_SPEED_OPERATION(2),
 		LIBUSB_HIGH_SPEED_OPERATION(4),
@@ -1085,7 +1086,7 @@ public class LibUsb {
 			TypeTranscoder.flag(t -> t.value, libusb_supported_speed.class);
 		public final int value;
 
-		private libusb_supported_speed(int value) {
+		libusb_supported_speed(int value) {
 			this.value = value;
 		}
 
@@ -1099,14 +1100,14 @@ public class LibUsb {
 	 * Masks for the bits of the libusb_usb_2_0_extension_descriptor.bmAttributes "bmAttributes"
 	 * field of the USB 2.0 Extension descriptor.
 	 */
-	public static enum libusb_usb_2_0_extension_attributes {
+	public enum libusb_usb_2_0_extension_attributes {
 		LIBUSB_BM_LPM_SUPPORT(2);
 
 		public static final TypeTranscoder.Flag<libusb_usb_2_0_extension_attributes> xcoder =
 			TypeTranscoder.flag(t -> t.value, libusb_usb_2_0_extension_attributes.class);
 		public final int value;
 
-		private libusb_usb_2_0_extension_attributes(int value) {
+		libusb_usb_2_0_extension_attributes(int value) {
 			this.value = value;
 		}
 
@@ -1120,14 +1121,14 @@ public class LibUsb {
 	 * Masks for the bits of the libusb_ss_usb_device_capability_descriptor.bmAttributes
 	 * "bmAttributes" field field of the SuperSpeed USB Device Capability descriptor.
 	 */
-	public static enum libusb_ss_usb_device_capability_attributes {
+	public enum libusb_ss_usb_device_capability_attributes {
 		LIBUSB_BM_LTM_SUPPORT(2);
 
 		public static final TypeTranscoder.Flag<libusb_ss_usb_device_capability_attributes> xcoder =
 			TypeTranscoder.flag(t -> t.value, libusb_ss_usb_device_capability_attributes.class);
 		public final int value;
 
-		private libusb_ss_usb_device_capability_attributes(int value) {
+		libusb_ss_usb_device_capability_attributes(int value) {
 			this.value = value;
 		}
 
@@ -1150,7 +1151,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_bos_type.class);
 		public final int value;
 
-		private libusb_bos_type(int value) {
+		libusb_bos_type(int value) {
 			this.value = value;
 		}
 
@@ -1165,7 +1166,7 @@ public class LibUsb {
 	 * can call libusb_error_name() to retrieve a string representation of an error code or
 	 * libusb_strerror() to get an end-user suitable description of an error code.
 	 */
-	public static enum libusb_error {
+	public enum libusb_error {
 		LIBUSB_SUCCESS(0),
 		LIBUSB_ERROR_IO(-1),
 		LIBUSB_ERROR_INVALID_PARAM(-2),
@@ -1185,7 +1186,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_error.class);
 		public final int value;
 
-		private libusb_error(int value) {
+		libusb_error(int value) {
 			this.value = value;
 		}
 
@@ -1198,7 +1199,7 @@ public class LibUsb {
 	/**
 	 * Transfer status codes
 	 */
-	public static enum libusb_transfer_status {
+	public enum libusb_transfer_status {
 		LIBUSB_TRANSFER_COMPLETED(0),
 		LIBUSB_TRANSFER_ERROR(1),
 		LIBUSB_TRANSFER_TIMED_OUT(2),
@@ -1211,7 +1212,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_transfer_status.class);
 		public final int value;
 
-		private libusb_transfer_status(int value) {
+		libusb_transfer_status(int value) {
 			this.value = value;
 		}
 
@@ -1224,8 +1225,8 @@ public class LibUsb {
 	/**
 	 * Transfer flag values
 	 */
-	public static enum libusb_transfer_flags {
-		LIBUSB_TRANSFER_SHORT_NOT_OK(1 << 0),
+	public enum libusb_transfer_flags {
+		LIBUSB_TRANSFER_SHORT_NOT_OK(1),
 		LIBUSB_TRANSFER_FREE_BUFFER(1 << 1),
 		LIBUSB_TRANSFER_FREE_TRANSFER(1 << 2),
 		LIBUSB_TRANSFER_ADD_ZERO_PACKET(1 << 3);
@@ -1234,7 +1235,7 @@ public class LibUsb {
 			TypeTranscoder.flag(t -> t.value, libusb_transfer_flags.class);
 		public final int value;
 
-		private libusb_transfer_flags(int value) {
+		libusb_transfer_flags(int value) {
 			this.value = value;
 		}
 
@@ -1279,18 +1280,18 @@ public class LibUsb {
 		}
 	}
 
-	/**
-	 * Asynchronous transfer callback function type. When submitting asynchronous transfers, you
-	 * pass a pointer to a callback function of this type via the libusb_transfer.callback
-	 * "callback" member of the libusb_transfer structure. libusb will call this function later,
-	 * when the transfer has completed or failed.
-	 * 
-	 * @param transfer
-	 *            The libusb_transfer struct the callback function is being notified about.
-	 */
 	// typedef void (LIBUSB_CALL *libusb_transfer_cb_fn)(struct libusb_transfer *transfer);
-	public static interface libusb_transfer_cb_fn extends Callback {
-		public void invoke(libusb_transfer transfer);
+	public interface libusb_transfer_cb_fn extends Callback {
+		/**
+		 * Asynchronous transfer callback function type. When submitting asynchronous transfers, you
+		 * pass a pointer to a callback function of this type via the libusb_transfer.callback
+		 * "callback" member of the libusb_transfer structure. libusb will call this function later,
+		 * when the transfer has completed or failed.
+		 *
+		 * @param transfer
+		 *            The libusb_transfer struct the callback function is being notified about.
+		 */
+		void invoke(libusb_transfer transfer);
 	}
 
 	/**
@@ -1373,7 +1374,7 @@ public class LibUsb {
 	 * Capabilities supported by an instance of libusb on the current running platform. Test if the
 	 * loaded library supports a given capability by calling libusb_has_capability().
 	 */
-	public static enum libusb_capability {
+	public enum libusb_capability {
 		LIBUSB_CAP_HAS_CAPABILITY(0x0000),
 		LIBUSB_CAP_HAS_HOTPLUG(0x0001),
 		LIBUSB_CAP_HAS_HID_ACCESS(0x0100),
@@ -1383,7 +1384,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_capability.class);
 		public final int value;
 
-		private libusb_capability(int value) {
+		libusb_capability(int value) {
 			this.value = value;
 		}
 
@@ -1396,7 +1397,7 @@ public class LibUsb {
 	/**
 	 * Log message levels.
 	 */
-	public static enum libusb_log_level {
+	public enum libusb_log_level {
 		LIBUSB_LOG_LEVEL_NONE(0),
 		LIBUSB_LOG_LEVEL_ERROR(1),
 		LIBUSB_LOG_LEVEL_WARNING(2),
@@ -1407,7 +1408,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_log_level.class);
 		public final int value;
 
-		private libusb_log_level(int value) {
+		libusb_log_level(int value) {
 			this.value = value;
 		}
 
@@ -1679,9 +1680,9 @@ public class LibUsb {
 	public static void libusb_set_iso_packet_lengths(libusb_transfer transfer, int length) {
 		// TODO: test
 		libusb_iso_packet_descriptor[] iso_packet_descs = transfer.iso_packet_desc();
-		for (int i = 0; i < iso_packet_descs.length; i++) {
-			iso_packet_descs[i].length = length;
-			iso_packet_descs[i].write();
+		for (libusb_iso_packet_descriptor iso_packet_desc : iso_packet_descs) {
+			iso_packet_desc.length = length;
+			iso_packet_desc.write();
 		}
 	}
 
@@ -1777,7 +1778,7 @@ public class LibUsb {
 			TypeTranscoder.flag(t -> t.value, libusb_poll_event.class);
 		public final int value;
 
-		private libusb_poll_event(int value) {
+		libusb_poll_event(int value) {
 			this.value = value;
 		}
 	}
@@ -1823,8 +1824,8 @@ public class LibUsb {
 	 * in libusb_set_pollfd_notifiers() call see libusb_set_pollfd_notifiers()
 	 */
 	// typedef void (LIBUSB_CALL *libusb_pollfd_added_cb)(int fd, short events, void *user_data);
-	public static interface libusb_pollfd_added_cb extends Callback {
-		public void invoke(int fd, short events, Pointer user_data);
+	public interface libusb_pollfd_added_cb extends Callback {
+		void invoke(int fd, short events, Pointer user_data);
 	}
 
 	/**
@@ -1835,8 +1836,8 @@ public class LibUsb {
 	 * libusb_set_pollfd_notifiers()
 	 */
 	// typedef void (LIBUSB_CALL *libusb_pollfd_removed_cb)(int fd, void *user_data);
-	public static interface libusb_pollfd_removed_cb extends Callback {
-		public void invoke(int fd, Pointer user_data);
+	public interface libusb_pollfd_removed_cb extends Callback {
+		void invoke(int fd, Pointer user_data);
 	}
 
 	/**
@@ -1844,7 +1845,7 @@ public class LibUsb {
 	 *
 	 * Callbacks handles are generated by libusb_hotplug_register_callback() and can be used to
 	 * deregister callbacks. Callback handles are unique per libusb_context and it is safe to call
-	 * libusb_hotplug_deregister_callback() on an already deregisted callback.
+	 * libusb_hotplug_deregister_callback() on an already deregistered callback.
 	 *
 	 * Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102
 	 *
@@ -1864,15 +1865,15 @@ public class LibUsb {
 	 * 
 	 * Flags for hotplug events
 	 */
-	public static enum libusb_hotplug_flag {
+	public enum libusb_hotplug_flag {
 		LIBUSB_HOTPLUG_NO_FLAGS(0),
-		LIBUSB_HOTPLUG_ENUMERATE(1 << 0);
+		LIBUSB_HOTPLUG_ENUMERATE(1);
 
 		public static final TypeTranscoder.Flag<libusb_hotplug_flag> xcoder =
 			TypeTranscoder.flag(t -> t.value, libusb_hotplug_flag.class);
 		public final int value;
 
-		private libusb_hotplug_flag(int value) {
+		libusb_hotplug_flag(int value) {
 			this.value = value;
 		}
 
@@ -1887,7 +1888,7 @@ public class LibUsb {
 	 * 
 	 * Hotplug events
 	 */
-	public static enum libusb_hotplug_event {
+	public enum libusb_hotplug_event {
 		LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED(0x01),
 		LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT(0x02);
 
@@ -1895,7 +1896,7 @@ public class LibUsb {
 			TypeTranscoder.single(t -> t.value, libusb_hotplug_event.class);
 		public final int value;
 
-		private libusb_hotplug_event(int value) {
+		libusb_hotplug_event(int value) {
 			this.value = value;
 		}
 
@@ -1905,36 +1906,36 @@ public class LibUsb {
 		}
 	}
 
-	/**
-	 * Hotplug callback function type. When requesting hotplug event notifications, you pass a
-	 * pointer to a callback function of this type.
-	 *
-	 * This callback may be called by an internal event thread and as such it is recommended the
-	 * callback do minimal processing before returning.
-	 *
-	 * libusb will call this function later, when a matching event had happened on a matching
-	 * device. See hotplug for more information.
-	 *
-	 * It is safe to call either libusb_hotplug_register_callback() or
-	 * libusb_hotplug_deregister_callback() from within a callback function.
-	 *
-	 * Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102
-	 *
-	 * @param ctx
-	 *            context of this notification
-	 * @param device
-	 *            libusb_device this event occurred on
-	 * @param event
-	 *            event that occurred
-	 * @param user_data
-	 *            user data provided when this callback was registered
-	 * @return bool whether this callback is finished processing events. returning 1 will cause this
-	 *         callback to be deregistered
-	 */
 	// typedef int (LIBUSB_CALL *libusb_hotplug_callback_fn)(libusb_context *ctx,
 	// libusb_device *device, libusb_hotplug_event event, void *user_data);
-	public static interface libusb_hotplug_callback_fn extends Callback {
-		public int invoke(libusb_context ctx, Pointer device, int event, Pointer user_data);
+	public interface libusb_hotplug_callback_fn extends Callback {
+		/**
+		 * Hotplug callback function type. When requesting hotplug event notifications, you pass a
+		 * pointer to a callback function of this type.
+		 *
+		 * This callback may be called by an internal event thread and as such it is recommended the
+		 * callback do minimal processing before returning.
+		 *
+		 * libusb will call this function later, when a matching event had happened on a matching
+		 * device. See hotplug for more information.
+		 *
+		 * It is safe to call either libusb_hotplug_register_callback() or
+		 * libusb_hotplug_deregister_callback() from within a callback function.
+		 *
+		 * Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102
+		 *
+		 * @param ctx
+		 *            context of this notification
+		 * @param device
+		 *            libusb_device this event occurred on
+		 * @param event
+		 *            event that occurred
+		 * @param user_data
+		 *            user data provided when this callback was registered
+		 * @return bool whether this callback is finished processing events. returning 1 will cause this
+		 *         callback to be deregistered
+		 */
+		int invoke(libusb_context ctx, Pointer device, int event, Pointer user_data);
 	}
 
 	public static libusb_context libusb_init() throws LibUsbException {

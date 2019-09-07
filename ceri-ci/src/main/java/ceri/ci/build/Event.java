@@ -16,7 +16,7 @@ public class Event implements Comparable<Event> {
 	public final Type type;
 	public final Collection<String> names;
 
-	public static enum Type {
+	public enum Type {
 		success,
 		failure;
 	}
@@ -26,7 +26,7 @@ public class Event implements Comparable<Event> {
 	}
 	
 	public Event(Type type, Long timeStamp, Collection<String> names) {
-		this.timeStamp = timeStamp == null ? System.currentTimeMillis() : timeStamp.longValue();
+		this.timeStamp = timeStamp == null ? System.currentTimeMillis() : timeStamp;
 		this.type = type;
 		this.names = ImmutableUtil.copyAsSet(names);
 	}

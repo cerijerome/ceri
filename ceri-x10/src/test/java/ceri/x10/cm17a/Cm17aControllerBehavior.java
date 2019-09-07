@@ -11,13 +11,12 @@ import ceri.x10.command.CommandFactory;
 import ceri.x10.command.CommandListener;
 
 public class Cm17aControllerBehavior {
-	private Cm17aConnector connector;
 	private CommandListener listener;
 	private Cm17aController controller;
 
 	@Before
 	public void init() throws IOException {
-		connector = mock(Cm17aConnector.class);
+		Cm17aConnector connector = mock(Cm17aConnector.class);
 		listener = mock(CommandListener.class);
 		controller = new Cm17aController(connector, listener);
 

@@ -5,7 +5,7 @@ public class InsteonNetwork {
 	public static final String sid = "urn:micasaverde-com:serviceId:InsteonNetwork1";
 	public static final String sType = "urn:schemas-micasaverde-org:service:InsteonNetwork:1";
 
-	public static enum Actions implements ceri.zwave.command.Action {
+	public enum Actions implements ceri.zwave.command.Action {
 		ResetNetwork,
 		RemoveNodes,
 		AddNodes,
@@ -13,7 +13,7 @@ public class InsteonNetwork {
 		SendData;
 	}
 
-	public static enum Variable implements ceri.zwave.command.Variable {
+	public enum Variable implements ceri.zwave.command.Variable {
 		ComPort, // DEVICEDATA_COM_Port_on_PC_CONST
 		LockComPort,
 		LastError,

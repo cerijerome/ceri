@@ -23,7 +23,7 @@ public enum House {
 
 	public final char value;
 
-	private House() {
+	House() {
 		value = name().charAt(0);
 	}
 

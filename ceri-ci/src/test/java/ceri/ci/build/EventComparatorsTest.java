@@ -23,7 +23,7 @@ public class EventComparatorsTest {
 	public void testSortByType() {
 		List<Event> events = new ArrayList<>();
 		Collections.addAll(events, e0, e1, e2, e3, e4);
-		Collections.sort(events, EventComparators.TYPE);
+		events.sort(EventComparators.TYPE);
 		assertIterable(events, e1, e3, e0, e2, e4);
 	}
 
@@ -31,7 +31,7 @@ public class EventComparatorsTest {
 	public void testSortByTimestamp() {
 		List<Event> events = new ArrayList<>();
 		Collections.addAll(events, e4, e0, e3, e2, e1);
-		Collections.sort(events, EventComparators.TIMESTAMP);
+		events.sort(EventComparators.TIMESTAMP);
 		assertIterable(events, e0, e1, e2, e3, e4);
 	}
 

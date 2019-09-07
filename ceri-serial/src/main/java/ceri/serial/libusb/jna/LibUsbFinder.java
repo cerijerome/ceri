@@ -145,7 +145,7 @@ public class LibUsbFinder {
 				if (description != null) out.printf(" description='%s'", description);
 				if (serial != null) out.printf(" serial='%s'", serial);
 				if (index > 0) out.printf(" index=%d", index);
-				if (b.length() == 0) out.printf(" index=0");
+				if (b.length() == 0) out.print(" index=0");
 			}
 			b.insert(0, "criteria:");
 			return b.toString();

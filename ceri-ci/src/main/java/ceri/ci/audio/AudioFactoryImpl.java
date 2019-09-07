@@ -3,12 +3,7 @@ package ceri.ci.audio;
 import java.io.IOException;
 
 public class AudioFactoryImpl implements AudioFactory {
-	private static final AudioPlayer player = new AudioPlayer() {
-		@Override
-		public void play(Audio audio) throws IOException {
-			audio.play();
-		}
-	};
+	private static final AudioPlayer player = Audio::play;
 	private final Class<?> resourceCls;
 
 	public AudioFactoryImpl(Class<?> resourceCls) {

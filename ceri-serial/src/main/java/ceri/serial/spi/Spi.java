@@ -4,7 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 public interface Spi extends Closeable {
-	static enum Direction {
+	enum Direction {
 		in,
 		out,
 		duplex;

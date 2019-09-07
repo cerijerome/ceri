@@ -11,7 +11,7 @@ public enum Parity {
 
 	public final int value;
 
-	private Parity(int value) {
+	Parity(int value) {
 		this.value = value;
 	}
 

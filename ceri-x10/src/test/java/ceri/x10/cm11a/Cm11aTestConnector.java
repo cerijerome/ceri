@@ -10,7 +10,6 @@ import java.io.PipedOutputStream;
 import ceri.common.io.PollingInputStream;
 
 public class Cm11aTestConnector implements Cm11aConnector {
-	private final InputStream is;
 	private final PipedInputStream in;
 	private final PipedOutputStream out;
 	public final DataOutputStream to;
@@ -18,7 +17,7 @@ public class Cm11aTestConnector implements Cm11aConnector {
 
 	public Cm11aTestConnector(int pollingMs, int timeoutMs) throws IOException {
 		out = new PipedOutputStream();
-		is = new PipedInputStream(out);
+		InputStream is = new PipedInputStream(out);
 		from = new DataInputStream(new PollingInputStream(is, pollingMs, timeoutMs));
 		in = new PipedInputStream();
 		to = new DataOutputStream(new PipedOutputStream(in));

@@ -105,7 +105,7 @@ public enum CommandClass {
 	private static final Map<Integer, CommandClass> map = Collections.unmodifiableMap(createMap());
 	public final int id;
 
-	private CommandClass(int id) {
+	CommandClass(int id) {
 		this.id = id;
 	}
 	

@@ -30,7 +30,7 @@ public enum DeviceCategory {
 	public static final int MAX_ID = SIREN.id;
 	public final int id;
 	
-	private DeviceCategory(int id) {
+	DeviceCategory(int id) {
 		this.id = id;
 	}
 	

@@ -54,7 +54,7 @@ public class PhoneAlerter implements Alerter {
 	PhoneAlerter(Builder builder) {
 		client = builder.client;
 		numbers = ImmutableUtil.copyAsMap(builder.numbers);
-		
+
 	}
 
 	/**
@@ -95,12 +95,8 @@ public class PhoneAlerter implements Alerter {
 
 	private String createMessage(String name, Map<String, Collection<String>> buildJobs) {
 		Collection<String> jobNames = jobNames(buildJobs);
-		StringBuilder b = new StringBuilder();
-		b.append("(").append(currentTimeStamp()).append(") ");
-		b.append("Hi ").append(name).append(", the build is broken. Please fix ");
-		b.append(jobNamesPhrase(jobNames));
-		b.append(". Thank you.");
-		return b.toString();
+		return "(" + currentTimeStamp() + ") Hi " + name + //
+			", the build is broken. Please fix" + " " + jobNamesPhrase(jobNames) + ". Thank you.";
 	}
 
 	private String jobNamesPhrase(Collection<String> jobNames) {
@@ -140,21 +136,14 @@ public class PhoneAlerter implements Alerter {
 
 	private void add(String name, String build, String job,
 		Map<String, Map<String, Collection<String>>> nameBuildJobs) {
-		Map<String, Collection<String>> buildJobs = nameBuildJobs.get(name);
-		if (buildJobs == null) {
-			buildJobs = new TreeMap<>();
-			nameBuildJobs.put(name, buildJobs);
-		}
-		Collection<String> jobs = buildJobs.get(build);
-		if (jobs == null) {
-			jobs = new TreeSet<>();
-			buildJobs.put(build, jobs);
-		}
+		Map<String, Collection<String>> buildJobs =
+			nameBuildJobs.computeIfAbsent(name, k -> new TreeMap<>());
+		Collection<String> jobs = buildJobs.computeIfAbsent(build, k -> new TreeSet<>());
 		jobs.add(job);
 	}
 
 	private String currentTimeStamp() {
 		return dateFormat.format(new Date());
 	}
-	
+
 }

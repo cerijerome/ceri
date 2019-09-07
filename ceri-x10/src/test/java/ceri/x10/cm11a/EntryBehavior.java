@@ -2,7 +2,7 @@ package ceri.x10.cm11a;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class EntryBehavior {
 		Entry ext = new Entry(new ExtFunction(House.G, (byte) 10, (byte) 10));
 		assertThat(dim1, is(dim1));
 		assertThat(dim1, is(dim2));
-		assertFalse(dim1.equals(null));
+		assertNotEquals(null, dim1);
 		assertThat(dim1, not(new Object()));
 		assertThat(dim1, not(dim3));
 		assertThat(dim1, not(dim4));

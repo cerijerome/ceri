@@ -8,13 +8,10 @@ import ceri.common.util.HashCoder;
 
 public class KeywordToken extends Token.Base {
 	static final Pattern PATTERN = Pattern.compile("^[^\"\\s\\*\\(\\)]+");
-	public static final Token.Factory FACTORY = new Token.Factory() {
-		@Override
-		public Token create(String str, Index i) {
-			Matcher m = TokenUtil.matcher(PATTERN, str, i);
-			if (m == null) return null;
-			return new KeywordToken(m.group());
-		}
+	public static final Token.Factory FACTORY = (str, i) -> {
+		Matcher m = TokenUtil.matcher(PATTERN, str, i);
+		if (m == null) return null;
+		return new KeywordToken(m.group());
 	};
 	private final int hashCode;
 	public final String value;

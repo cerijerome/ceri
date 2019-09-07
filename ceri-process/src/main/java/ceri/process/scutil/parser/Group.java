@@ -1,9 +1,7 @@
 package ceri.process.scutil.parser;
 
-import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -74,16 +72,17 @@ public class Group implements Named {
 	Group(Builder builder) {
 		name = builder.name;
 		type = builder.type;
-		values = unmodifiableList(builder.values.stream().map(s -> s.get()).collect(toList()));
-		Stream<Named> stream = values.stream().map(v -> Named.asNamed(v)).filter(Objects::nonNull);
+		values = builder.values.stream().map(Supplier::get).collect(
+			Collectors.toUnmodifiableList());
+		Stream<Named> stream = values.stream().map(Named::asNamed).filter(Objects::nonNull);
 		namedValues = unmodifiableMap(stream.collect(Collectors.toMap(Named::name, identity())));
 	}
 
 	public static Group as(Value value) {
 		if (value == null) return NULL;
-		Group group = BasicUtil.<Group>castOrNull(Group.class, value);
+		Group group = BasicUtil.castOrNull(Group.class, value);
 		if (group != null) return group;
-		Named named = BasicUtil.<Named>castOrNull(Named.class, value);
+		Named named = BasicUtil.castOrNull(Named.class, value);
 		if (named != null) return new Builder(named.name(), null).build();
 		return NULL;
 	}

@@ -1,9 +1,9 @@
 package ceri.serial.libusb;
 
 import static ceri.serial.libusb.jna.LibUsb.LIBUSB_HOTPLUG_MATCH_ANY;
+import static ceri.serial.libusb.jna.LibUsb.libusb_capability.LIBUSB_CAP_HAS_HOTPLUG;
 import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_deregister_callback;
 import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_register_callback;
-import static ceri.serial.libusb.jna.LibUsb.libusb_capability.LIBUSB_CAP_HAS_HOTPLUG;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,12 +34,12 @@ public class UsbHotplug implements Closeable {
 	// Assigns a generated id, and tracks id/handle per callback
 	private final Map<Integer, CallbackContext> callbackHandles = new ConcurrentHashMap<>();
 	private final Map<Integer, CallbackContext> callbackIds = new ConcurrentHashMap<>();
-	private AtomicInteger callbackId = new AtomicInteger();
+	private final AtomicInteger callbackId = new AtomicInteger();
 
 	/**
 	 * Return true if finished processing events.
 	 */
-	public static interface Callback<T> {
+	public interface Callback<T> {
 		boolean event(Usb context, UsbDevice device, libusb_hotplug_event event,
 			T userData) throws IOException;
 	}
@@ -63,7 +63,7 @@ public class UsbHotplug implements Closeable {
 	 * Encapsulation of callback registration options.
 	 */
 	public static class Registration<T> {
-		Callback<T> callback;
+		final Callback<T> callback;
 		T userData = null;
 		final Collection<libusb_hotplug_event> events = new LinkedHashSet<>();
 		final Collection<libusb_hotplug_flag> flags = new LinkedHashSet<>();
@@ -167,7 +167,6 @@ public class UsbHotplug implements Closeable {
 		callbackIds.clear();
 	}
 
-	@SuppressWarnings("resource")
 	private <T> int adaptCallback(Pointer dev, int evt, int callbackId, Callback<T> callback,
 		T userData) {
 		try {

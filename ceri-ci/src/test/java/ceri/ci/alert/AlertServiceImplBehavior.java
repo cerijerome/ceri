@@ -2,7 +2,7 @@ package ceri.ci.alert;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -115,21 +115,21 @@ public class AlertServiceImplBehavior {
 	public void shouldClearBuild() throws InterruptedException {
 		service.clear("b0", null);
 		sync.await();
-		verify(alerters).update((Builds) any());
+		verify(alerters).update(any());
 	}
 
 	@Test
 	public void shouldClearJob() throws InterruptedException {
 		service.clear("b0", "j0");
 		sync.await();
-		verify(alerters).update((Builds) any());
+		verify(alerters).update(any());
 	}
 
 	@Test
 	public void shouldBreak() throws InterruptedException {
 		service.process(new BuildEvent("build0", "job0", e0));
 		sync.await();
-		verify(alerters).update((Builds) any());
+		verify(alerters).update(any());
 	}
 
 	@Test

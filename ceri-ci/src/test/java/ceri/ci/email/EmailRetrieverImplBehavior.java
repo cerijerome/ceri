@@ -1,11 +1,13 @@
 package ceri.ci.email;
 
 import static ceri.ci.email.EmailTestUtil.messageBuilder;
-import static ceri.common.test.TestUtil.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static ceri.common.test.TestUtil.assertException;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -17,7 +19,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import ceri.ci.email.EmailRetriever.Matcher;
 
 public class EmailRetrieverImplBehavior {
 	@Mock Store store;
@@ -50,12 +51,8 @@ public class EmailRetrieverImplBehavior {
 		Message msg2 = mockMessage(11);
 		when(folder.search(any())).thenReturn(new Message[] { msg0, msg1, msg2 });
 		EmailRetriever retriever = create(presetBuilder());
-		List<Email> emails = retriever.retrieve(new Date(2), new Matcher() {
-			@Override
-			public boolean matches(Message message) throws MessagingException {
-				return message.getSentDate().getTime() < 10;
-			}
-		});
+		List<Email> emails = retriever.retrieve(new Date(2),
+			message -> message.getSentDate().getTime() < 10);
 		assertThat(emails.size(), is(1));
 		assertThat(emails.get(0).sentDateMs, is(5L));
 	}

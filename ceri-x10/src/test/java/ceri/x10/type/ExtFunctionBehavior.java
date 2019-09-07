@@ -2,7 +2,7 @@ package ceri.x10.type;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
@@ -17,8 +17,8 @@ public class ExtFunctionBehavior {
 		ExtFunction ext5 = new ExtFunction(House.I, (byte) -1, (byte) -1);
 		assertThat(ext1, is(ext1));
 		assertThat(ext1, is(ext2));
-		assertFalse(ext1.equals(null));
-		assertFalse(ext1.equals(new Object()));
+		assertNotEquals(null, ext1);
+		assertNotEquals(ext1, new Object());
 		assertThat(ext1, not(ext3));
 		assertThat(ext1, not(ext4));
 		assertThat(ext1, not(ext5));

@@ -1,9 +1,12 @@
 package ceri.ci.build;
 
-import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertIterable;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -75,7 +78,7 @@ public class JobBehavior {
 		Job job2 = new Job(job1);
 		assertThat(job1.name, is(job2.name));
 		assertIterable(job1.events, job2.events);
-		assertTrue(job1.events != job2.events);
+		assertNotSame(job1.events, job2.events);
 	}
 
 	@Test
@@ -83,13 +86,13 @@ public class JobBehavior {
 		Event e0 = new Event(Event.Type.failure, 0L);
 		Event e1 = new Event(Event.Type.success, 1L);
 		Job job = new Job("test");
-		assertFalse(job.equals(null));
-		assertFalse(job.equals(new Job("Test")));
-		assertTrue(job.equals(new Job("test")));
-		assertTrue(job.equals(job));
+		assertNotEquals(null, job);
+		assertNotEquals(job, new Job("Test"));
+		assertEquals(job, new Job("test"));
+		assertEquals(job, job);
 		job.events(e0, e1);
 		Job job2 = new Job(job);
-		assertTrue(job.equals(job2));
+		assertEquals(job, job2);
 		assertThat(job.hashCode(), is(job2.hashCode()));
 		assertThat(job.toString(), is(job2.toString()));
 	}

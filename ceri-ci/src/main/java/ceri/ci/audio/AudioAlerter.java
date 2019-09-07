@@ -20,7 +20,7 @@ public class AudioAlerter implements Alerter, Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private final AudioMessages messages;
 	private final AudioListener listener;
-	private BuildAnalyzer buildAnalyzer = new BuildAnalyzer();
+	private final BuildAnalyzer buildAnalyzer = new BuildAnalyzer();
 
 	public AudioAlerter(AudioMessages messages) {
 		this(messages, null);

@@ -27,8 +27,8 @@ public class AlertContainer implements Closeable {
 
 	public static class Builder {
 		public final BaseProperties properties;
-		Collection<EmailEventParser> parsers = new ArrayList<>();
-		Collection<Alerter> alerters = new ArrayList<>();
+		final Collection<EmailEventParser> parsers = new ArrayList<>();
+		final Collection<Alerter> alerters = new ArrayList<>();
 
 		Builder(BaseProperties properties) {
 			this.properties = properties;

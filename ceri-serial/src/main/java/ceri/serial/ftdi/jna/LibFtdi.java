@@ -43,6 +43,11 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_close;
 import static ceri.serial.libusb.jna.LibUsb.libusb_control_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_detach_kernel_driver;
 import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_address;
+import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction.LIBUSB_ENDPOINT_IN;
+import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction.LIBUSB_ENDPOINT_OUT;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTED;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INVALID_PARAM;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPORTED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_exit;
 import static ceri.serial.libusb.jna.LibUsb.libusb_fill_bulk_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_free_config_descriptor;
@@ -54,18 +59,13 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_get_string_descriptor_ascii;
 import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout_completed;
 import static ceri.serial.libusb.jna.LibUsb.libusb_init;
 import static ceri.serial.libusb.jna.LibUsb.libusb_open;
+import static ceri.serial.libusb.jna.LibUsb.libusb_request_recipient.LIBUSB_RECIPIENT_DEVICE;
+import static ceri.serial.libusb.jna.LibUsb.libusb_request_type.LIBUSB_REQUEST_TYPE_VENDOR;
 import static ceri.serial.libusb.jna.LibUsb.libusb_request_type_value;
 import static ceri.serial.libusb.jna.LibUsb.libusb_set_configuration;
 import static ceri.serial.libusb.jna.LibUsb.libusb_submit_transfer;
-import static ceri.serial.libusb.jna.LibUsb.libusb_unref_devices;
-import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction.LIBUSB_ENDPOINT_IN;
-import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction.LIBUSB_ENDPOINT_OUT;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTED;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INVALID_PARAM;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPORTED;
-import static ceri.serial.libusb.jna.LibUsb.libusb_request_recipient.LIBUSB_RECIPIENT_DEVICE;
-import static ceri.serial.libusb.jna.LibUsb.libusb_request_type.LIBUSB_REQUEST_TYPE_VENDOR;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_CANCELLED;
+import static ceri.serial.libusb.jna.LibUsb.libusb_unref_devices;
 import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_criteria;
 import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_device_callback;
 import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_devices_ref;
@@ -143,7 +143,7 @@ public class LibFtdi {
 
 	public static final int FTDI_VENDOR_ID = 0x403;
 
-	static enum ftdi_request_type {
+	enum ftdi_request_type {
 		SIO_RESET_REQUEST(0x00),
 		SIO_SET_MODEM_CTRL_REQUEST(0x01),
 		SIO_SET_FLOW_CTRL_REQUEST(0x02),
@@ -164,12 +164,12 @@ public class LibFtdi {
 			TypeTranscoder.single(t -> t.value, ftdi_request_type.class);
 		public final int value;
 
-		private ftdi_request_type(int value) {
+		ftdi_request_type(int value) {
 			this.value = value;
 		}
 	}
 
-	public static enum ftdi_chip_type {
+	public enum ftdi_chip_type {
 		TYPE_AM(0),
 		TYPE_BM(1),
 		TYPE_2232C(2),
@@ -186,7 +186,7 @@ public class LibFtdi {
 		public static final Set<ftdi_chip_type> SYNC_FIFO_TYPES = enumSet(TYPE_2232H, TYPE_232H);
 		public final int value;
 
-		private ftdi_chip_type(int value) {
+		ftdi_chip_type(int value) {
 			this.value = value;
 		}
 
@@ -202,7 +202,7 @@ public class LibFtdi {
 	/**
 	 * MPSSE bitbang modes
 	 */
-	public static enum ftdi_mpsse_mode {
+	public enum ftdi_mpsse_mode {
 		/** switch off bitbang mode, back to regular serial/FIFO */
 		BITMODE_RESET(0x00),
 		/** classical asynchronous bitbang mode, introduced with B-type chips */
@@ -228,12 +228,12 @@ public class LibFtdi {
 			TypeTranscoder.single(t -> t.value, ftdi_mpsse_mode.class);
 		public final int value;
 
-		private ftdi_mpsse_mode(int value) {
+		ftdi_mpsse_mode(int value) {
 			this.value = value;
 		}
 	}
 
-	public static enum ftdi_interface {
+	public enum ftdi_interface {
 		INTERFACE_ANY(0),
 		INTERFACE_A(1), // 0, 1, 0x02, 0x81
 		INTERFACE_B(2), // 1, 2, 0x04, 0x83
@@ -244,7 +244,7 @@ public class LibFtdi {
 			TypeTranscoder.single(t -> t.value, ftdi_interface.class);
 		public final int value;
 
-		private ftdi_interface(int value) {
+		ftdi_interface(int value) {
 			this.value = value;
 		}
 	}
@@ -258,13 +258,13 @@ public class LibFtdi {
 			TypeTranscoder.single(t -> t.value, ftdi_module_detach_mode.class);
 		public final int value;
 
-		private ftdi_module_detach_mode(int value) {
+		ftdi_module_detach_mode(int value) {
 			this.value = value;
 		}
 	}
 
 	/** Number of bits for ftdi_set_line_property() */
-	public static enum ftdi_data_bits_type {
+	public enum ftdi_data_bits_type {
 		BITS_7(7),
 		BITS_8(8);
 
@@ -272,7 +272,7 @@ public class LibFtdi {
 			TypeTranscoder.single(t -> t.value, ftdi_data_bits_type.class);
 		public final int value;
 
-		private ftdi_data_bits_type(int value) {
+		ftdi_data_bits_type(int value) {
 			this.value = value;
 		}
 	}
@@ -287,7 +287,7 @@ public class LibFtdi {
 			TypeTranscoder.single(t -> t.value, ftdi_stop_bits_type.class);
 		public final int value;
 
-		private ftdi_stop_bits_type(int value) {
+		ftdi_stop_bits_type(int value) {
 			this.value = value;
 		}
 	}
@@ -304,13 +304,13 @@ public class LibFtdi {
 			TypeTranscoder.single(t -> t.value, ftdi_parity_type.class);
 		public final int value;
 
-		private ftdi_parity_type(int value) {
+		ftdi_parity_type(int value) {
 			this.value = value;
 		}
 	}
 
 	/** Break type for ftdi_set_line_property() */
-	public static enum ftdi_break_type {
+	public enum ftdi_break_type {
 		BREAK_OFF(0),
 		BREAK_ON(1);
 
@@ -318,12 +318,12 @@ public class LibFtdi {
 			TypeTranscoder.single(t -> t.value, ftdi_break_type.class);
 		public final int value;
 
-		private ftdi_break_type(int value) {
+		ftdi_break_type(int value) {
 			this.value = value;
 		}
 	}
 
-	public static enum ftdi_flow_control {
+	public enum ftdi_flow_control {
 		SIO_DISABLE_FLOW_CTRL(0x0000),
 		SIO_RTS_CTS_HS(0x0100),
 		SIO_DTR_DSR_HS(0x0200),
@@ -333,7 +333,7 @@ public class LibFtdi {
 			TypeTranscoder.single(t -> t.value, ftdi_flow_control.class);
 		public final int value;
 
-		private ftdi_flow_control(int value) {
+		ftdi_flow_control(int value) {
 			this.value = value;
 		}
 	}

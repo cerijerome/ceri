@@ -157,8 +157,7 @@ public class ResponseSerialConnector implements SerialConnector {
 		verifyUnbroken();
 		verifyConnected();
 		if (stream.in().available() == 0) return 0;
-		int count = stream.in().read(b, offset, len);
-		return count;
+		return stream.in().read(b, offset, len);
 	}
 
 	private void write(byte[] b, int offset, int len) throws IOException {

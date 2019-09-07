@@ -11,7 +11,7 @@ public enum Signal {
     
     public final int number;
     
-    private Signal(int number) {
+    Signal(int number) {
     	this.number = number;
     }
     

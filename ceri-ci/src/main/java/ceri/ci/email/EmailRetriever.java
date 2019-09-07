@@ -16,7 +16,7 @@ public interface EmailRetriever {
 	/**
 	 * Interface for client-side filtering of email messages.
 	 */
-	public static interface Matcher {
+	interface Matcher {
 		/**
 		 * Returns true if the message is a match. Not recommended to check message content in this
 		 * method as this will end up pulling the content one by one from the email server. Envelope
@@ -30,6 +30,6 @@ public interface EmailRetriever {
 	 * Fetches a list of emails sent after a minimum date. Minimum date is a server-side filter, the
 	 * matcher filters on client side.
 	 */
-	public List<Email> retrieve(Date minDate, Matcher matcher) throws IOException;
+	List<Email> retrieve(Date minDate, Matcher matcher) throws IOException;
 
 }

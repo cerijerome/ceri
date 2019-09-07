@@ -37,7 +37,7 @@ public class Nmcli {
 		private static final String TIMEOUT_OPTION = "--timeout";
 		private final Processor processor;
 
-		public static enum Wait {
+		public enum Wait {
 			wait,
 			noWait
 		}
@@ -68,7 +68,7 @@ public class Nmcli {
 
 		public String up(String id, Wait wait, Integer timeoutSec) throws IOException {
 			Parameters params = Parameters.of(UP_COMMAND, ID_PARAM, id);
-			if (wait != null && wait == Wait.noWait) params.add(NO_WAIT_OPTION);
+			if (wait == Wait.noWait) params.add(NO_WAIT_OPTION);
 			if (timeoutSec != null) params.add(TIMEOUT_OPTION, String.valueOf(timeoutSec));
 			return exec(params);
 		}

@@ -8,13 +8,10 @@ import ceri.common.util.HashCoder;
 
 public class QuoteToken extends Token.Base {
 	static final Pattern PATTERN = Pattern.compile("^\"([^\"]*)\"");
-	public static final Token.Factory FACTORY = new Token.Factory() {
-		@Override
-		public Token create(String str, Index i) {
-			Matcher m = TokenUtil.matcher(PATTERN, str, i);
-			if (m == null) return null;
-			return new QuoteToken(m.group(1));
-		}
+	public static final Token.Factory FACTORY = (str, i) -> {
+		Matcher m = TokenUtil.matcher(PATTERN, str, i);
+		if (m == null) return null;
+		return new QuoteToken(m.group(1));
 	};
 	private final int hashCode;
 	public final String value;

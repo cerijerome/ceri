@@ -3,7 +3,7 @@ package ceri.zwave.upnp;
 public class SerialController1 {
 	public static final String sid = "urn:micasaverde-com:serviceId:SceneController1";
 
-	public static enum Variable implements ceri.zwave.command.Variable {
+	public enum Variable implements ceri.zwave.command.Variable {
 		sl_SceneActivated,
 		sl_SceneDeactivated,
 		Scenes,

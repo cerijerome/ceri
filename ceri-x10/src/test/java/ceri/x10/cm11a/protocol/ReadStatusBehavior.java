@@ -2,7 +2,7 @@ package ceri.x10.cm11a.protocol;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -39,8 +39,8 @@ public class ReadStatusBehavior {
 		ReadStatus status9 = new ReadStatus.Builder().onOff(1).build();
 		assertThat(status1, is(status1));
 		assertThat(status1, is(status2));
-		assertFalse(status1.equals(null));
-		assertFalse(status1.equals(new Object()));
+		assertNotEquals(null, status1);
+		assertNotEquals(status1, new Object());
 		assertThat(status1, not(status3));
 		assertThat(status1, not(status4));
 		assertThat(status1, not(status5));

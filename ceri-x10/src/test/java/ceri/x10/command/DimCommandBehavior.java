@@ -2,8 +2,7 @@ package ceri.x10.command;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import org.junit.Test;
@@ -15,14 +14,14 @@ public class DimCommandBehavior {
 
 	@Test
 	public void shouldOnlyAllowZeroToOneHundredPercentDim() {
-		assertNotNull(new DimCommand(House.P, Unit._8, FunctionType.DIM, 0));
-		assertNotNull(new DimCommand(House.P, Unit._8, FunctionType.BRIGHT, 100));
+		new DimCommand(House.P, Unit._8, FunctionType.DIM, 0);
+		new DimCommand(House.P, Unit._8, FunctionType.BRIGHT, 100);
 		try {
-			assertNotNull(new DimCommand(House.P, Unit._8, FunctionType.BRIGHT, -1));
+			new DimCommand(House.P, Unit._8, FunctionType.BRIGHT, -1);
 			fail();
 		} catch (IllegalArgumentException e) {}
 		try {
-			assertNotNull(new DimCommand(House.P, Unit._8, FunctionType.DIM, 101));
+			new DimCommand(House.P, Unit._8, FunctionType.DIM, 101);
 			fail();
 		} catch (IllegalArgumentException e) {}
 	}
@@ -38,8 +37,8 @@ public class DimCommandBehavior {
 		DimCommand dim6 = new DimCommand(House.O, Unit._7, FunctionType.DIM, 100);
 		assertThat(dim1, is(dim1));
 		assertThat(dim1, is(dim2));
-		assertFalse(dim1.equals(null));
-		assertFalse(dim1.equals(new Object()));
+		assertNotEquals(null, dim1);
+		assertNotEquals(dim1, new Object());
 		assertThat(dim1, not(dim3));
 		assertThat(dim1, not(dim4));
 		assertThat(dim1, not(dim5));

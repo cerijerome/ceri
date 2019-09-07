@@ -2,7 +2,6 @@ package ceri.serial.libusb.jna;
 
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
-import ceri.serial.libusb.jna.LibUsbException;
 
 /**
  * Specific exception for when a usb device is not found. The separate exception allows for

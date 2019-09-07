@@ -14,7 +14,7 @@ public class FtdiBitmode {
 	public final ftdi_mpsse_mode mode;
 	public final int bitmask;
 
-	public static enum LineDirection {
+	public enum LineDirection {
 		in,
 		out;
 	}
@@ -24,7 +24,7 @@ public class FtdiBitmode {
 	}
 
 	public static class Builder {
-		ftdi_mpsse_mode mode;
+		final ftdi_mpsse_mode mode;
 		int bitmask = 0;
 
 		Builder(ftdi_mpsse_mode mode) {

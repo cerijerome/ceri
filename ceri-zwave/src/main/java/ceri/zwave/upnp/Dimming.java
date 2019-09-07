@@ -8,11 +8,11 @@ public class Dimming {
 	public static final String sid = "urn:upnp-org:serviceId:Dimming1";
 	private final CommandFactory factory;
 
-	public static enum Action implements ceri.zwave.command.Action {
+	public enum Action implements ceri.zwave.command.Action {
 		SetLoadLevelTarget;
 	}
 
-	public static enum Variable implements ceri.zwave.command.Variable {
+	public enum Variable implements ceri.zwave.command.Variable {
 		LoadLevelStatus,
 		LoadLevelTarget;
 	}

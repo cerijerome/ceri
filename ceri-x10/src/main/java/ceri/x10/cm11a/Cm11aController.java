@@ -14,13 +14,12 @@ public class Cm11aController implements X10Controller {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int MAX_QUEUE_SIZE_DEF = 100;
 	private final BlockingQueue<BaseCommand<?>> inQueue;
-	private final BlockingQueue<BaseCommand<?>> outQueue;
 	private final Processor processor;
 	private final CommandDispatcher dispatcher;
 
 	public Cm11aController(Cm11aConnector connector, CommandListener listener) {
 		inQueue = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE_DEF);
-		outQueue = new LinkedBlockingQueue<>();
+		BlockingQueue<BaseCommand<?>> outQueue = new LinkedBlockingQueue<>();
 		processor = Processor.builder(connector, inQueue, outQueue).build();
 		dispatcher = new CommandDispatcher(outQueue, listener);
 	}

@@ -1,7 +1,7 @@
 package ceri.ci.audio;
 
 import static ceri.common.test.TestUtil.assertException;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -23,10 +23,10 @@ public class AudioMessageBehavior {
 	@Test
 	public void shouldFailIfInterrupted() throws Exception {
 		final AudioMessages audio = new AudioMessages(player, getClass(), "");
-		TestThread<Exception> thread = TestThread.create(() -> audio.playRandomAlarm());
+		TestThread<Exception> thread = TestThread.create(audio::playRandomAlarm);
 		thread.start();
 		thread.interrupt();
-		assertException(RuntimeInterruptedException.class, () -> thread.stop());
+		assertException(RuntimeInterruptedException.class, thread::stop);
 	}
 
 	@Test

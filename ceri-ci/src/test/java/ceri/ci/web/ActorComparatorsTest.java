@@ -24,7 +24,7 @@ public class ActorComparatorsTest {
 	public void testDefaultComparator() {
 		List<Actor> actors = new ArrayList<>();
 		Collections.addAll(actors, a4, a2, a1, a3, a0);
-		Collections.sort(actors, ActorComparators.DEFAULT);
+		actors.sort(ActorComparators.DEFAULT);
 		assertList(actors, Arrays.asList(a0, a1, a2, a3, a4));
 	}
 

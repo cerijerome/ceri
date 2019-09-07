@@ -3,7 +3,6 @@ package ceri.ci.email;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.mail.FetchProfile;
@@ -128,7 +127,7 @@ public class EmailRetrieverImpl implements EmailRetriever {
 		if (matcher == null) matcher = DEFAULT_MATCHER;
 		try {
 			List<Email> emails = fetchEmail(minDate, matcher);
-			Collections.sort(emails, EmailComparators.SENT_DATE);
+			emails.sort(EmailComparators.SENT_DATE);
 			return emails;
 		} catch (MessagingException e) {
 			throw new IOException(e);

@@ -95,7 +95,7 @@ public class Processor implements Closeable {
 		queuePollTimeoutMs = builder.queuePollTimeoutMs;
 		maxSendAttempts = builder.maxSendAttempts;
 		dispatcher = new EntryDispatcher(outQueue);
-		thread = new Thread(() -> Processor.this.run());
+		thread = new Thread(Processor.this::run);
 		thread.start();
 	}
 

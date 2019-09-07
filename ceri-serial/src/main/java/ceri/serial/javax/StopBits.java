@@ -12,7 +12,7 @@ public enum StopBits {
 	public final int value;
 	public final double actual;
 
-	private StopBits(double actual, int value) {
+	StopBits(double actual, int value) {
 		this.value = value;
 		this.actual = actual;
 	}

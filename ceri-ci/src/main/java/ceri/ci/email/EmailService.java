@@ -130,9 +130,9 @@ public class EmailService implements Closeable {
 		maxLookBackMs = builder.maxLookBackMs;
 		shutdownTimeoutMs = builder.shutdownTimeoutMs;
 		sentDateBufferMs = builder.sentDateBufferMs;
-		messageMatcher = (message) -> matches(message);
+		messageMatcher = this::matches;
 		executor = Executors.newSingleThreadScheduledExecutor();
-		executor.scheduleWithFixedDelay(() -> run(), 0, builder.pollMs, TimeUnit.MILLISECONDS);
+		executor.scheduleWithFixedDelay(this::run, 0, builder.pollMs, TimeUnit.MILLISECONDS);
 	}
 
 	/**

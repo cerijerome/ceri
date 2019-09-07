@@ -4,11 +4,11 @@ import static ceri.serial.ftdi.jna.LibFtdi.ftdi_set_bitmode;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_purge_buffers;
 import static ceri.serial.ftdi.jna.LibFtdiUtil.requireDev;
 import static ceri.serial.jna.clib.Time.gettimeofday;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTED;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
 import static ceri.serial.libusb.jna.LibUsb.libusb_free_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout;
 import static ceri.serial.libusb.jna.LibUsb.libusb_submit_transfer;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTED;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
@@ -67,9 +67,8 @@ public class LibFtdiStream {
 
 	// typedef int (FTDIStreamCallback)(uint8_t *buffer, int length, FTDIProgressInfo *progress,
 	// void *userdata);
-	public static interface ftdi_stream_cb extends Callback {
-		public int invoke(Pointer buffer, int length, ftdi_progress_info progress,
-			Pointer userdata) throws LibUsbException;
+	public interface ftdi_stream_cb extends Callback {
+		int invoke(Pointer buffer, int length, ftdi_progress_info progress, Pointer userdata) throws LibUsbException;
 	}
 
 	public static class ftdi_stream_state extends Struct {

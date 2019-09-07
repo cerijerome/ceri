@@ -13,17 +13,17 @@ public class ZWaveNetwork {
 	private static final String ALL_ON_DATA = "0-0x19-0xff-2-0x27-4";
 	private final CommandFactory factory;
 	
-	public static enum AllOnOff {
+	public enum AllOnOff {
 		none(0), off(1), on(2), both(255);
 		
 		public final int value;
 		
-		private AllOnOff(int value) {
+		AllOnOff(int value) {
 			this.value = value;
 		}
 	}
 	
-	public static enum Variable implements ceri.zwave.command.Variable {
+	public enum Variable implements ceri.zwave.command.Variable {
 		LastUpdate, // DEVICEDATA_LastUpdate_CONST
 		LastHeal, // DEVICEDATA_LastUpdate_CONST
 		LastRouteFailure, // DEVICEDATA_LastUpdate_CONST
@@ -56,7 +56,7 @@ public class ZWaveNetwork {
 		LimitNeighbors; // indicates when we figure manual routing, only consider Z-Wave's neighbors as valid options
 	}
 
-	public static enum Action implements ceri.zwave.command.Action {
+	public enum Action implements ceri.zwave.command.Action {
 		ResetNetwork,
 		ReconfigureAllNodes,
 		RemoveNodes,

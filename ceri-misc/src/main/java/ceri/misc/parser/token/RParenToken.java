@@ -5,12 +5,8 @@ import ceri.common.text.ToStringHelper;
 
 public class RParenToken extends Token.Base {
 	static final Pattern PATTERN = Pattern.compile("^\\s*\\)");
-	public static final Token.Factory FACTORY = new Token.Factory() {
-		@Override
-		public Token create(String str, Index i) {
-			return TokenUtil.matches(PATTERN, str, i) ? new RParenToken() : null;
-		}
-	};
+	public static final Token.Factory FACTORY =
+		(str, i) -> TokenUtil.matches(PATTERN, str, i) ? new RParenToken() : null;
 
 	public RParenToken() {
 		super(Type.RParen);

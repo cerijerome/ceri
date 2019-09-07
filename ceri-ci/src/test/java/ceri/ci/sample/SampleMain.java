@@ -54,10 +54,7 @@ import ceri.common.util.BasicUtil;
  * 
  */
 public class SampleMain implements Closeable {
-	private final ZWaveContainer zwave;
-	private final X10Container x10;
 	private final AudioContainer audio;
-	private final PhoneContainer phone;
 	private final AlertContainer master;
 
 	public static void main(String[] args) throws Exception {
@@ -78,12 +75,12 @@ public class SampleMain implements Closeable {
 	public SampleMain() throws IOException {
 		Properties properties = PropertyUtil.load(getClass());
 		AlertContainer.Builder builder = AlertContainer.builder(properties);
-		zwave = new ZWaveContainer(builder.properties);
-		x10 = new X10Container(builder.properties);
+		ZWaveContainer zwave = new ZWaveContainer(builder.properties);
+		X10Container x10 = new X10Container(builder.properties);
 		AudioListener audioListener =
 			zwave.group == null ? null : zwave.group.createAudioListener();
 		audio = new AudioContainer(builder.properties, getClass(), audioListener);
-		phone = new PhoneContainer(builder.properties);
+		PhoneContainer phone = new PhoneContainer(builder.properties);
 		builder.alerters(zwave.alerter, x10.alerter, audio.alerter, phone.alerter);
 		builder.parsers(new SampleEmailParser());
 		master = builder.build();

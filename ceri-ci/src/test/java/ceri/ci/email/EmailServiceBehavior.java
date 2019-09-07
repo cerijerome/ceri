@@ -4,7 +4,7 @@ import static ceri.common.test.TestUtil.assertCollection;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,7 +31,6 @@ public class EmailServiceBehavior {
 	@Mock private EmailEventParser parser0;
 	@Mock private EmailEventParser parser1;
 	@Mock private Message message;
-	private EmailRetriever retriever;
 	private BooleanCondition sync;
 	private TestEmailServer server;
 	private EmailService.Builder builder;
@@ -42,7 +41,7 @@ public class EmailServiceBehavior {
 		MockitoAnnotations.initMocks(this);
 		when(parser0.matches(any())).thenReturn(false);
 		when(parser1.matches(any())).thenReturn(true);
-		retriever = testRetriever();
+		EmailRetriever retriever = testRetriever();
 		builder =
 			EmailService.builder(retriever, processor).parsers(parser0, parser1).maxLookBackMs(
 				30000).pollMs(100000).sentDateBufferMs(5000).shutdownTimeoutMs(5000);

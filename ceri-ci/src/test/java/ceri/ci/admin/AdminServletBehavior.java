@@ -1,8 +1,8 @@
 package ceri.ci.admin;
 
 import static ceri.common.test.TestUtil.assertException;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.io.IOException;
@@ -26,7 +26,6 @@ public class AdminServletBehavior {
 	@Mock private ServletConfig config;
 	@Mock private AlertService service;
 	@Mock private PrintWriter writer;
-	private Builds builds;
 	private AdminServlet servlet;
 
 	@Before
@@ -36,8 +35,7 @@ public class AdminServletBehavior {
 		when(config.getServletContext()).thenReturn(context);
 		when(context.getAttribute("ceri.ci.alert.AlertService")).thenReturn(service);
 		when(request.getParameter("view")).thenReturn("");
-		builds = new Builds();
-		when(service.builds()).thenReturn(builds);
+		when(service.builds()).thenReturn(new Builds());
 		when(response.getWriter()).thenReturn(writer);
 	}
 

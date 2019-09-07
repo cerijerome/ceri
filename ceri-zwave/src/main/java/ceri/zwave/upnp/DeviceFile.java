@@ -34,7 +34,7 @@ public enum DeviceFile {
 	
 	public final String filename;
 	
-	private DeviceFile(String filename) {
+	DeviceFile(String filename) {
 		this.filename = filename;
 	}
 	

@@ -10,7 +10,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_device;
 
 public class UsbDeviceList implements Closeable {
 	private libusb_device.ByReference list;
-	public List<UsbDevice> devices;
+	public final List<UsbDevice> devices;
 
 	UsbDeviceList(Supplier<libusb_context> contextSupplier, libusb_device.ByReference list) {
 		this.list = list;

@@ -25,7 +25,7 @@ public class Email {
 	private final int hashCode;
 
 	public static class Builder {
-		Collection<String> recipients = new HashSet<>();
+		final Collection<String> recipients = new HashSet<>();
 		String from = null;
 		long sentDateMs = 0;
 		String subject = null;

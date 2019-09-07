@@ -10,7 +10,7 @@ public enum DataBits {
 
 	public final int value;
 
-	private DataBits(int value) {
+	DataBits(int value) {
 		this.value = value;
 	}
 

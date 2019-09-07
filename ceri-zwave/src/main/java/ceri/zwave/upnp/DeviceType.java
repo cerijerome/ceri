@@ -53,7 +53,7 @@ public enum DeviceType {
 	
 	public final String urn;
 	
-	private DeviceType(String urn) {
+	DeviceType(String urn) {
 		this.urn = urn;
 	}
 	

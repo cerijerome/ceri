@@ -5,7 +5,7 @@ public interface Token {
 	Type type();
 	String asString();
 
-	public static abstract class Base implements Token {
+	abstract class Base implements Token {
 		private final Type type;
 
 		protected Base(Type type) {
@@ -31,7 +31,7 @@ public interface Token {
 		}
 	}
 	
-	public static interface Factory {
+	interface Factory {
 		Token create(String str, Index i);
 	}
 	

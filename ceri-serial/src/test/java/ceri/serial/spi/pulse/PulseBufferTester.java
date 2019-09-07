@@ -83,15 +83,13 @@ public class PulseBufferTester {
 
 	private static void printPulse(byte[] data, int bits) {
 		PulsePrinter p = PulsePrinter.ofBits((72 / bits) * bits);
-		for (int i = 0; i < data.length; i++)
-			p.print(data[i]);
+		for (byte datum : data) p.print(datum);
 		p.newLine();
 	}
 
 	private static void printPulse9(byte[] data) {
 		PulsePrinter p = PulsePrinter.ofBits(9 * 8);
-		for (int i = 0; i < data.length; i++)
-			p.print(data[i]).print(false);
+		for (byte datum : data) p.print(datum).print(false);
 		p.newLine();
 	}
 

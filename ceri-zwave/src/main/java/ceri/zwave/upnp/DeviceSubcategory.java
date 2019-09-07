@@ -21,7 +21,7 @@ public enum DeviceSubcategory {
 	public final DeviceCategory category;
 	public final int id;
 	
-	private DeviceSubcategory(DeviceCategory category, int id) {
+	DeviceSubcategory(DeviceCategory category, int id) {
 		this.category = category;
 		this.id = id;
 	}

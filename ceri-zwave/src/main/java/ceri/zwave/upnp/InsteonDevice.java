@@ -5,7 +5,7 @@ public class InsteonDevice {
 	public static final String sid = "urn:micasaverde-com:serviceId:InsteonDevice1";
 	public static final String sType = "urn:schemas-micasaverde-com:service:InsteonDevice:1";
 
-	public static enum Variable implements ceri.zwave.command.Variable {
+	public enum Variable implements ceri.zwave.command.Variable {
 		PollSettings, // DEVICEDATA_Polling_Settings_CONST
 		MultiChEndpoint, // DEVICEDATA_Multi_Channel_End_Point_CONST
 		MultiChCapabilities, // DEVICEDATA_Multi_Channel_Capabilities_CONST

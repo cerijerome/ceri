@@ -32,7 +32,7 @@ public class Parser {
 		if (BasicUtil.isEmpty(expression)) return Filters._true();
 		final Expression exp = parse(expression);
 		if (exp == null) return Filters._true();
-		return (s -> exp.matches(s));
+		return (exp::matches);
 	}
 
 }

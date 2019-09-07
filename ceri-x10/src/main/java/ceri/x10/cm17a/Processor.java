@@ -96,7 +96,7 @@ public class Processor implements Closeable {
 		waitIntervalMs = builder.waitIntervalMs;
 		resetIntervalMs = builder.resetIntervalMs;
 		commandIntervalMs = builder.commandIntervalMs;
-		thread = new Thread(() -> Processor.this.run());
+		thread = new Thread(Processor.this::run);
 		thread.start();
 	}
 
@@ -227,7 +227,7 @@ public class Processor implements Closeable {
 	private void send(byte[] transmission) {
 		logger.debug("Sending: {}", transmission);
 		for (Boolean bit : BasicUtil.forEach(new BitIterator(high, transmission))) {
-			if (bit.booleanValue()) {
+			if (bit) {
 				connector.setDtr(false);
 				BasicUtil.delay(waitIntervalMs);
 				connector.setDtr(true);

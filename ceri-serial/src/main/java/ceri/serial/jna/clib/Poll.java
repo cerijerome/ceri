@@ -24,7 +24,7 @@ public class Poll {
 			TypeTranscoder.flag(t -> t.value, poll_event.class);
 		public final int value;
 
-		private poll_event(int value) {
+		poll_event(int value) {
 			this.value = value;
 		}
 	}

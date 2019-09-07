@@ -2,6 +2,7 @@ package ceri.serial.spi.util;
 
 import static ceri.log.util.LogUtil.startupValues;
 import java.io.IOException;
+import java.util.Arrays;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.StartupValues;
 import ceri.serial.spi.Spi;
@@ -55,8 +56,7 @@ public class SpiTester {
 
 	private static byte[] fill(int size, int value) {
 		byte[] buffer = new byte[size];
-		for (int i = 0; i < buffer.length; i++)
-			buffer[i] = (byte) value;
+		Arrays.fill(buffer, (byte) value);
 		return buffer;
 	}
 

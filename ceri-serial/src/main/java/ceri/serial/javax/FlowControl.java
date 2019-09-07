@@ -11,7 +11,7 @@ public enum FlowControl {
 
 	public final int value;
 	
-	private FlowControl(int value) {
+	FlowControl(int value) {
 		this.value = value;
 	}
 	

@@ -2,7 +2,7 @@ package ceri.x10.type;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
@@ -21,8 +21,8 @@ public class AddressBehavior {
 		Address addr4 = Address.fromString("B10");
 		assertThat(addr1, is(addr1));
 		assertThat(addr1, is(addr2));
-		assertFalse(addr1.equals(null));
-		assertFalse(addr1.equals(new Object()));
+		assertNotEquals(null, addr1);
+		assertNotEquals(addr1, new Object());
 		assertThat(addr1, not(addr3));
 		assertThat(addr1, not(addr4));
 		assertThat(addr1.toString(), is(addr2.toString()));

@@ -2,7 +2,8 @@ package ceri.ci.build;
 
 import static ceri.common.test.TestUtil.assertRange;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.Collections;
@@ -48,11 +49,11 @@ public class EventBehavior {
 	@Test
 	public void shouldConformToEqualsContract() {
 		Event event = Event.success("a", "b");
-		assertFalse(event.equals(null));
-		assertFalse(event.equals(Event.failure("a", "b")));
-		assertTrue(event.equals(event));
+		assertNotEquals(null, event);
+		assertNotEquals(event, Event.failure("a", "b"));
+		assertEquals(event, event);
 		Event event2 = new Event(event);
-		assertTrue(event.equals(event2));
+		assertEquals(event, event2);
 		assertThat(event.hashCode(), is(event2.hashCode()));
 		assertThat(event.toString(), is(event2.toString()));
 		assertThat(event.compareTo(event2), is(0));

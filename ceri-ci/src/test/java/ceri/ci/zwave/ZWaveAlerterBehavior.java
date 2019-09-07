@@ -58,7 +58,7 @@ public class ZWaveAlerterBehavior {
 		verify(controller).on(1);
 		verify(controller).on(3);
 		verifyNoMoreInteractions(controller);
-		alerter.alert(Collections.<String>emptySet());
+		alerter.alert(Collections.emptySet());
 		verify(controller).off(1);
 		verify(controller).off(3);
 		verifyNoMoreInteractions(controller);

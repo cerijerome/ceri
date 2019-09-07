@@ -92,19 +92,19 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 	}
 
 	public void reset() throws LibUsbException {
-		exec(ftdi -> ftdi.reset());
+		exec(Ftdi::reset);
 	}
 
 	public void purgeRxBuffer() throws LibUsbException {
-		exec(ftdi -> ftdi.purgeRxBuffer());
+		exec(Ftdi::purgeRxBuffer);
 	}
 
 	public void purgeTxBuffer() throws LibUsbException {
-		exec(ftdi -> ftdi.purgeTxBuffer());
+		exec(Ftdi::purgeTxBuffer);
 	}
 
 	public void purgeBuffers() throws LibUsbException {
-		exec(ftdi -> ftdi.purgeBuffers());
+		exec(Ftdi::purgeBuffers);
 	}
 
 	public void baudrate(int baudrate) throws LibUsbException {
@@ -140,7 +140,7 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 	}
 
 	public int read() throws LibUsbException {
-		return execReturn(ftdi -> ftdi.read());
+		return execReturn(Ftdi::read);
 	}
 
 	public byte[] read(int size) throws LibUsbException {
@@ -177,7 +177,7 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 	}
 
 	public int readPins() throws LibUsbException {
-		return execReturn(ftdi -> ftdi.readPins());
+		return execReturn(Ftdi::readPins);
 	}
 
 	public void latencyTimer(int latency) throws LibUsbException {
@@ -185,11 +185,11 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 	}
 
 	public int latencyTimer() throws LibUsbException {
-		return execReturn(ftdi -> ftdi.latencyTimer());
+		return execReturn(Ftdi::latencyTimer);
 	}
 
 	public int pollModemStatus() throws LibUsbException {
-		return execReturn(ftdi -> ftdi.pollModemStatus());
+		return execReturn(Ftdi::pollModemStatus);
 	}
 
 	public void flowCtrl(ftdi_flow_control flowCtrl) throws LibUsbException {
@@ -220,7 +220,6 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 		execReturn(FunctionUtil.asFunction(consumer));
 	}
 
-	@SuppressWarnings("resource")
 	private <T> T execReturn(ExceptionFunction<LibUsbException, Ftdi, T> fn)
 		throws LibUsbException {
 		Ftdi ftdi = ftdi();
@@ -309,7 +308,7 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 			if (config.iface != null) ftdi.setInterface(config.iface);
 			ftdi.open(config.find);
 			if (config.bitmode != null) ftdi.bitmode(config.bitmode);
-			if (config.baud != null) ftdi.baudrate(config.baud.intValue());
+			if (config.baud != null) ftdi.baudrate(config.baud);
 			if (config.line != null) ftdi.lineParams(config.line);
 			return ftdi;
 		} catch (RuntimeException | LibUsbException e) {
