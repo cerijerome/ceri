@@ -42,7 +42,7 @@ public class InputStreamIterator implements Iterator<Byte> {
 		try {
 			int value = in.read();
 			if (value == -1) eof = true;
-			else nextByte = Byte.valueOf((byte) value);
+			else nextByte = (byte) value;
 			return nextByte;
 		} catch (IOException e) {
 			throw new RuntimeIoException(e);

@@ -29,7 +29,7 @@ public class TestState<T> {
 	 * Sets state value in thread-safe manner.
 	 */
 	public synchronized T set(T value) {
-		T old = value;
+		T old = this.value;
 		this.value = value;
 		notifyAll();
 		return old;

@@ -72,6 +72,7 @@ public class MathUtil {
 	/**
 	 * Calculates the greatest common divisor of two numbers.
 	 */
+	@SuppressWarnings("RedundantCast")
 	public static int gcd(int lhs, int rhs) {
 		return Math.toIntExact(gcd((long) lhs, (long) rhs));
 	}
@@ -92,6 +93,7 @@ public class MathUtil {
 	/**
 	 * Calculates the lowest common multiple of two numbers.
 	 */
+	@SuppressWarnings("RedundantCast")
 	public static int lcm(int lhs, int rhs) {
 		return Math.toIntExact(lcm((long) lhs, (long) rhs));
 	}

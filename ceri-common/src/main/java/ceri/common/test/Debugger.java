@@ -81,7 +81,7 @@ public class Debugger {
 	}
 
 	private int indents(int indentOffset) {
-		StackTraceElement e[] = Thread.currentThread().getStackTrace();
+		StackTraceElement[] e = Thread.currentThread().getStackTrace();
 		int len = e.length - ++indentOffset; // don't count this method
 		if (len <= traceStartIndex) return 0;
 		return len - traceStartIndex;
@@ -101,7 +101,7 @@ public class Debugger {
 	private int getMethodCount(Caller caller) {
 		Integer i = methodCounts.get(caller);
 		if (i == null) return 0;
-		return i.intValue();
+		return i;
 	}
 
 }

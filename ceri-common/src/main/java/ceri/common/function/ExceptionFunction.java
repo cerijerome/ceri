@@ -21,6 +21,6 @@ public interface ExceptionFunction<E extends Exception, T, R> {
 	}
 
 	static <T, R> ExceptionFunction<RuntimeException, T, R> of(Function<T, R> fn) {
-		return t -> fn.apply(t);
+		return fn::apply;
 	}
 }

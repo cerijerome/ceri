@@ -16,7 +16,7 @@ public class FileIterator implements Iterator<File> {
 	public final File rootDir;
 	private final FileFilter filter;
 	private final Deque<Iterator<File>> iterators = new ArrayDeque<>(); // Iterator for each dir
-	private File next = null;
+	private File next;
 
 	public FileIterator(File rootDir) {
 		this(rootDir, null);

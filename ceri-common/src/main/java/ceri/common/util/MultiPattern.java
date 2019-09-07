@@ -12,7 +12,7 @@ public class MultiPattern {
 	private final List<Pattern> patterns;
 
 	public static class Builder {
-		List<Pattern> patterns = new ArrayList<>();
+		final List<Pattern> patterns = new ArrayList<>();
 
 		Builder() {}
 

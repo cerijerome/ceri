@@ -1,5 +1,6 @@
 package ceri.common.io;
 
+import java.io.File;
 import java.io.FileFilter;
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,9 +13,7 @@ public class FileFilters {
 	/**
 	 * A filter that rejects all.
 	 */
-	public static final FileFilter NULL = file -> {
-		return false;
-	};
+	public static final FileFilter NULL = file -> false;
 
 	/**
 	 * A filter that accepts all.
@@ -24,24 +23,18 @@ public class FileFilters {
 	/**
 	 * A filter that only accepts directories.
 	 */
-	public static final FileFilter DIR = file -> {
-		return file.isDirectory();
-	};
+	public static final FileFilter DIR = File::isDirectory;
 
 	/**
 	 * A filter that only accepts files.
 	 */
-	public static final FileFilter FILE = file -> {
-		return file.isFile();
-	};
+	public static final FileFilter FILE = File::isFile;
 
 	/**
 	 * Creates a filter that reverses the given filter.
 	 */
 	public static FileFilter reverse(FileFilter filter) {
-		return pathname -> {
-			return !filter.accept(pathname);
-		};
+		return pathname -> !filter.accept(pathname);
 	}
 
 	/**
@@ -71,18 +64,14 @@ public class FileFilters {
 	 * Creates a filter that only accepts files modified since the given time in ms.
 	 */
 	public static FileFilter byModifiedSince(long ms) {
-		return pathname -> {
-			return pathname.lastModified() > ms;
-		};
+		return pathname -> pathname.lastModified() > ms;
 	}
 
 	/**
 	 * Creates a filter that only accepts files up to the given length in bytes.
 	 */
 	public static FileFilter byMaxLength(long maxSize) {
-		return file -> {
-			return file.length() <= maxSize;
-		};
+		return file -> file.length() <= maxSize;
 	}
 
 	/**

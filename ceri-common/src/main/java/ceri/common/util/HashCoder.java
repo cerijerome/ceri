@@ -84,14 +84,14 @@ public class HashCoder {
 	 */
 	private HashCoder addObject(Object value) {
 		if (value == null) return addValue(0);
-		if (value instanceof Boolean) return add(((Boolean) value).booleanValue());
-		if (value instanceof Byte) return add(((Byte) value).byteValue());
-		if (value instanceof Character) return add(((Character) value).charValue());
-		if (value instanceof Short) return add(((Short) value).shortValue());
-		if (value instanceof Integer) return add(((Integer) value).intValue());
-		if (value instanceof Long) return add(((Long) value).longValue());
-		if (value instanceof Float) return add(((Float) value).floatValue());
-		if (value instanceof Double) return add(((Double) value).doubleValue());
+		if (value instanceof Boolean) return add((Boolean) value);
+		if (value instanceof Byte) return add((Byte) value);
+		if (value instanceof Character) return add((Character) value);
+		if (value instanceof Short) return add((Short) value);
+		if (value instanceof Integer) return add((Integer) value);
+		if (value instanceof Long) return add((Long) value);
+		if (value instanceof Float) return add((Float) value);
+		if (value instanceof Double) return add((Double) value);
 		if (value.getClass().isArray()) return addArray(value);
 		return addValue(value.hashCode());
 	}

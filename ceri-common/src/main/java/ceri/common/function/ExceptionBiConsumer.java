@@ -21,6 +21,6 @@ public interface ExceptionBiConsumer<E extends Exception, T, U> {
 	}
 
 	static <T, U> ExceptionBiConsumer<RuntimeException, T, U> of(BiConsumer<T, U> consumer) {
-		return (t, u) -> consumer.accept(t, u);
+		return consumer::accept;
 	}
 }

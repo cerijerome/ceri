@@ -11,7 +11,7 @@ public class Bound<T extends Comparable<T>> {
 	public final T value;
 	public final Type type;
 
-	public static enum Type {
+	public enum Type {
 		inclusive,
 		exclusive
 	}

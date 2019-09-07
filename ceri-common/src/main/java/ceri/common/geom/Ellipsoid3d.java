@@ -61,6 +61,7 @@ public class Ellipsoid3d {
 	 * Returns the volume between planes perpendicular to the y-axis at -b and y.
 	 */
 	public double volumeToY(double y) {
+		//noinspection SuspiciousNameCombination
 		return volumeToX(y, b, c, a);
 	}
 

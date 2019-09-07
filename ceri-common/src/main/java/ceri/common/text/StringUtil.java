@@ -192,7 +192,7 @@ public class StringUtil {
 		if (c == null) c = escaped(escapedChar, ESCAPED_HEX, HEX_RADIX);
 		if (c == null) c = escaped(escapedChar, ESCAPED_UTF16, HEX_RADIX);
 		if (c == null) return NULL;
-		return c.charValue();
+		return c;
 	}
 
 	private static Character escaped(String escapedChar, String prefix, int radix) {

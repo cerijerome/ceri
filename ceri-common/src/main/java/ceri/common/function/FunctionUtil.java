@@ -42,7 +42,7 @@ public class FunctionUtil {
 	 */
 	public static <E extends Exception, T, R> R castApply(Class<T> cls, Object obj,
 		ExceptionFunction<E, T, R> fn) throws E {
-		if (cls == null || obj == null || fn == null || !cls.isInstance(obj)) return null;
+		if (cls == null || fn == null || !cls.isInstance(obj)) return null;
 		return fn.apply(cls.cast(obj));
 	}
 
@@ -51,7 +51,7 @@ public class FunctionUtil {
 	 */
 	public static <E extends Exception, T> void castAccept(Class<T> cls, Object obj,
 		ExceptionConsumer<E, T> consumer) throws E {
-		if (cls == null || obj == null || consumer == null || !cls.isInstance(obj)) return;
+		if (cls == null || consumer == null || !cls.isInstance(obj)) return;
 		consumer.accept(cls.cast(obj));
 	}
 
@@ -167,7 +167,7 @@ public class FunctionUtil {
 
 	public static <E extends Exception, T, U> ExceptionConsumer<E, T>
 		asConsumer(ExceptionFunction<E, T, U> fn) {
-		return t -> fn.apply(t);
+		return fn::apply;
 	}
 
 	public static <T> Predicate<T> and(Predicate<T> lhs, Predicate<T> rhs) {

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import ceri.common.util.BasicUtil;
@@ -15,7 +16,7 @@ import ceri.common.util.BasicUtil;
 public class Filters {
 	private static final Filter<Object> TRUE = (t -> true);
 	private static final Filter<Object> FALSE = not(TRUE);
-	private static final Filter<Object> IS_NULL = (t -> t == null);
+	private static final Filter<Object> IS_NULL = (Objects::isNull);
 	public static final Filter<String> NOT_EMPTY = not(BasicUtil::isEmpty);
 
 	private Filters() {}

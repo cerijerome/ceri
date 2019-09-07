@@ -34,7 +34,7 @@ public class PropertyUtil {
 	 */
 	public static Properties merge(Collection<Properties> properties) {
 		Properties merged = new Properties();
-		properties.forEach(p -> merged.putAll(p));
+		properties.forEach(merged::putAll);
 		return merged;
 	}
 

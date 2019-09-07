@@ -31,7 +31,7 @@ public class AlgebraUtil {
 	 * where level = c, index = r.
 	 */
 	public static long pascal(long level, long index) {
-		if (level < 0 || index < 0 || index > level) return 0;
+		if (index < 0 || index > level) return 0;
 		return (long) (factorial(level, index) / factorial(index));
 	}
 

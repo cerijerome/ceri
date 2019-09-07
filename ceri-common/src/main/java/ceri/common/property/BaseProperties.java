@@ -345,7 +345,7 @@ public abstract class BaseProperties {
 	 * null if the key does not exist.
 	 */
 	protected List<String> stringValues(String... keyParts) {
-		return stringValues((List<String>) null, keyParts);
+		return stringValues(null, keyParts);
 	}
 
 	/**
@@ -656,7 +656,7 @@ public abstract class BaseProperties {
 	protected Set<Integer> childIds(String... keyParts) {
 		String key = PathFactory.dot.path(keyParts).value;
 		return childKeyStream(key, CHILD_ID_PATTERN).map(Integer::parseInt)
-			.collect(Collectors.toCollection(() -> new TreeSet<>()));
+			.collect(Collectors.toCollection(TreeSet::new));
 	}
 
 	/**

@@ -80,7 +80,7 @@ public abstract class TreeNode<T extends TreeNode<T>> implements Parent<T> {
 	}
 
 	public static abstract class Builder<T extends TreeNode<T>> {
-		Collection<Builder<T>> children = new LinkedHashSet<>();
+		final Collection<Builder<T>> children = new LinkedHashSet<>();
 		final int id;
 
 		public Builder(int id) {

@@ -14,13 +14,13 @@ public enum StateChange {
 		TypeTranscoder.single(t -> t.value, StateChange.class);
 	public final int value;
 
-	private StateChange(int value) {
+	StateChange(int value) {
 		this.value = value;
 	}
 
 	public static StateChange from(Boolean isFixed) {
 		if (isFixed == null) return none;
-		return isFixed.booleanValue() ? fixed : broken;
+		return isFixed ? fixed : broken;
 	}
 
 }

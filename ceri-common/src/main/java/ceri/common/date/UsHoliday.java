@@ -28,11 +28,11 @@ public enum UsHoliday {
 	public final Holiday day;
 	public final Holiday observed;
 
-	private UsHoliday(Holiday day) {
+	UsHoliday(Holiday day) {
 		this(day, false);
 	}
 	
-	private UsHoliday(Holiday day, boolean observed) {
+	UsHoliday(Holiday day, boolean observed) {
 		this.day = day;
 		this.observed = observed ? Holiday.observed(day) : day;
 	}

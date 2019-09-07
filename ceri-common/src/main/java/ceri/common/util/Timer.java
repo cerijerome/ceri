@@ -16,7 +16,7 @@ public class Timer {
 	private long lastStart = 0;
 	private long elapsed = 0;
 
-	public static enum State {
+	public enum State {
 		notStarted,
 		started,
 		paused,

@@ -151,11 +151,11 @@ public class Ellipse2d {
 		return ToStringHelper.createByClass(this, a, b).toString();
 	}
 
-	private static double integral(double x, double a, double b) {
+	private static double integral(double r, double a, double b) {
 		if (a == 0 || b == 0) return 0;
-		x = MathUtil.limit(x, -a, a);
-		double sqrt = Math.sqrt((a * a) - (x * x));
-		return (b * x * sqrt / a) + (b * a * Math.atan(x / sqrt));
+		r = MathUtil.limit(r, -a, a);
+		double sqrt = Math.sqrt((a * a) - (r * r));
+		return (b * r * sqrt / a) + (b * a * Math.atan(r / sqrt));
 	}
 
 }

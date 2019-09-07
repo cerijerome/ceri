@@ -112,7 +112,7 @@ public class BasicUtil {
 	 */
 	public static <T> T conditional(Boolean condition, T trueValue, T falseValue, T nullValue) {
 		if (condition == null) return nullValue;
-		return condition.booleanValue() ? trueValue : falseValue;
+		return condition ? trueValue : falseValue;
 	}
 
 	/**
@@ -215,7 +215,7 @@ public class BasicUtil {
 	 * Casts object to given type or returns null if not compatible.
 	 */
 	public static <T> T castOrNull(Class<T> cls, Object obj) {
-		if (obj == null || !cls.isInstance(obj)) return null;
+		if (!cls.isInstance(obj)) return null;
 		return cls.cast(obj);
 	}
 

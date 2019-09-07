@@ -1,6 +1,3 @@
-/**
- * Created on Dec 24, 2005
- */
 package ceri.common.util;
 
 import java.lang.reflect.Array;
@@ -27,7 +24,7 @@ public class PrimitiveUtil {
 		if (map == null) return def;
 		Boolean value = map.get(type);
 		if (value == null) return def;
-		return value.booleanValue();
+		return value;
 	}
 
 	public static <T> char lookupChar(Map<T, Character> map, T type) {
@@ -38,7 +35,7 @@ public class PrimitiveUtil {
 		if (map == null) return def;
 		Character value = map.get(type);
 		if (value == null) return def;
-		return value.charValue();
+		return value;
 	}
 
 	public static <T> byte lookupByte(Map<T, Byte> map, T type) {
@@ -49,7 +46,7 @@ public class PrimitiveUtil {
 		if (map == null) return def;
 		Byte value = map.get(type);
 		if (value == null) return def;
-		return value.byteValue();
+		return value;
 	}
 
 	public static <T> short lookupShort(Map<T, Short> map, T type) {
@@ -60,7 +57,7 @@ public class PrimitiveUtil {
 		if (map == null) return def;
 		Short value = map.get(type);
 		if (value == null) return def;
-		return value.shortValue();
+		return value;
 	}
 
 	public static <T> int lookupInt(Map<T, Integer> map, T type) {
@@ -71,18 +68,18 @@ public class PrimitiveUtil {
 		if (map == null) return def;
 		Integer value = map.get(type);
 		if (value == null) return def;
-		return value.intValue();
+		return value;
 	}
 
 	public static <T> long lookupLong(Map<T, Long> map, T type) {
-		return lookupLong(map, type, (long) 0);
+		return lookupLong(map, type, 0L);
 	}
 
 	public static <T> long lookupLong(Map<T, Long> map, T type, long def) {
 		if (map == null) return def;
 		Long value = map.get(type);
 		if (value == null) return def;
-		return value.longValue();
+		return value;
 	}
 
 	public static <T> float lookupFloat(Map<T, Float> map, T type) {
@@ -93,18 +90,18 @@ public class PrimitiveUtil {
 		if (map == null) return def;
 		Float value = map.get(type);
 		if (value == null) return def;
-		return value.floatValue();
+		return value;
 	}
 
 	public static <T> double lookupDouble(Map<T, Double> map, T type) {
-		return lookupDouble(map, type, (double) 0);
+		return lookupDouble(map, type, 0.0);
 	}
 
 	public static <T> double lookupDouble(Map<T, Double> map, T type, double def) {
 		if (map == null) return def;
 		Double value = map.get(type);
 		if (value == null) return def;
-		return value.doubleValue();
+		return value;
 	}
 
 	/**
@@ -179,7 +176,7 @@ public class PrimitiveUtil {
 	 */
 	public static Character valueOf(String value, Character def) {
 		if (BasicUtil.isEmpty(value)) return def;
-		return Character.valueOf(value.trim().charAt(0));
+		return value.trim().charAt(0);
 	}
 
 	/**

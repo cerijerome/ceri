@@ -11,20 +11,20 @@ public interface Holiday {
 
 	LocalDate date(int year);
 
-	public static Holiday nthDayInMonth(int n, DayOfWeek day, Month month) {
+	static Holiday nthDayInMonth(int n, DayOfWeek day, Month month) {
 		return year -> LocalDate.of(year, month, 1)
 			.with(TemporalAdjusters.dayOfWeekInMonth(n, day));
 	}
 
-	public static Holiday lastDayInMonth(DayOfWeek day, Month month) {
+	static Holiday lastDayInMonth(DayOfWeek day, Month month) {
 		return year -> LocalDate.of(year, month, 1).with(TemporalAdjusters.lastInMonth(day));
 	}
 
-	public static Holiday of(Month month, int day) {
+	static Holiday of(Month month, int day) {
 		return year -> LocalDate.of(year, month, day);
 	}
 
-	public static Holiday observed(Holiday holiday) {
+	static Holiday observed(Holiday holiday) {
 		return year -> {
 			LocalDate date = holiday.date(year);
 			DayOfWeek day = date.getDayOfWeek();

@@ -1,6 +1,7 @@
 package ceri.common.test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -59,8 +60,7 @@ public class TestUtil {
 			constructor.setAccessible(true);
 			constructor.newInstance();
 			constructor.setAccessible(false);
-		} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException
-			| InstantiationException e) {
+		} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | InstantiationException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -138,7 +138,7 @@ public class TestUtil {
 	}
 
 	private static <T> void exerciseEqual(T t0, T t1) {
-		assertTrue(t0.equals(t1));
+		assertEquals(t0, t1);
 		assertThat(t0.hashCode(), is(t1.hashCode()));
 		assertThat(t0.toString(), is(t1.toString()));
 	}
@@ -544,9 +544,10 @@ public class TestUtil {
 	}
 
 	private static <T> String toString(T t) {
-		if (t == null || !ReflectUtil.instanceOfAny(t, //
-			Byte.class, Short.class, Integer.class, Long.class)) return String.valueOf(t);
-		return String.format("%1$d (0x%1$02x)", t);
+		if (ReflectUtil.instanceOfAny(t, Byte.class, Short.class, Integer.class, Long.class))
+			//noinspection MalformedFormatString
+			return String.format("%1$d (0x%1$02x)", t);
+		return String.valueOf(t);
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject) {
@@ -645,7 +646,7 @@ public class TestUtil {
 		byte[] lhsBuffer = new byte[BUFFER_SIZE];
 		byte[] rhsBuffer = new byte[BUFFER_SIZE];
 		try (InputStream lhsIn = new BufferedInputStream(new FileInputStream(lhsFile));
-			InputStream rhsIn = new BufferedInputStream(new FileInputStream(rhsFile));) {
+			InputStream rhsIn = new BufferedInputStream(new FileInputStream(rhsFile))) {
 			int totalCount = 0;
 			while (true) {
 				int lhsCount = IoUtil.fillBuffer(lhsIn, lhsBuffer);
@@ -653,8 +654,8 @@ public class TestUtil {
 				if (lhsCount == 0 && rhsCount == 0) break;
 				assertThat(
 					"Expected read count " + (totalCount + rhsCount) + " for file " + lhsFile +
-						" but was " + (totalCount + lhsCount),
-					totalCount + lhsCount, is(totalCount + rhsCount));
+						" but was " + (totalCount + lhsCount), totalCount + lhsCount,
+					is(totalCount + rhsCount));
 				for (int i = 0; i < lhsCount; i++)
 					assertIndex(lhsBuffer[i], rhsBuffer[i], (totalCount + i));
 				totalCount += lhsCount;

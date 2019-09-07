@@ -12,7 +12,7 @@ public class BitIterator implements Iterator<Boolean> {
 	private int mask;
 	private Byte currentByte = null;
 
-	public static enum Start {
+	public enum Start {
 		high,
 		low
 	}
@@ -43,7 +43,7 @@ public class BitIterator implements Iterator<Boolean> {
 			currentByte = byteIterator.next();
 			mask = initialMask();
 		}
-		Boolean val = (currentByte.byteValue() & mask) == 0 ? Boolean.FALSE : Boolean.TRUE;
+		Boolean val = (currentByte & mask) == 0 ? Boolean.FALSE : Boolean.TRUE;
 		if (start == Start.high) {
 			mask >>>= 1;
 			if (mask < MIN_MASK) currentByte = null;

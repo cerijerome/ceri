@@ -6,7 +6,7 @@ public enum SweepFlag {
 
 	public final int value;
 
-	private SweepFlag(int value) {
+	SweepFlag(int value) {
 		this.value = value;
 	}
 

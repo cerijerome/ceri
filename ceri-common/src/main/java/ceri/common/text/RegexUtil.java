@@ -39,11 +39,11 @@ public class RegexUtil {
 	private RegexUtil() {}
 
 	public static Predicate<String> finder(Pattern p) {
-		return s -> s == null ? false : p.matcher(s).find();
+		return s -> s != null && p.matcher(s).find();
 	}
 	
 	public static Predicate<String> matcher(Pattern p) {
-		return s -> s == null ? false : p.matcher(s).matches();
+		return s -> s != null && p.matcher(s).matches();
 	}
 	
 	/**

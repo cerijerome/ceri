@@ -21,6 +21,6 @@ public interface ExceptionSupplier<E extends Exception, T> {
 	}
 
 	static <T> ExceptionSupplier<RuntimeException, T> of(Supplier<T> supplier) {
-		return () -> supplier.get();
+		return supplier::get;
 	}
 }

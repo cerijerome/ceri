@@ -51,7 +51,7 @@ public class XmlUtil {
 		}
 	}
 
-	static interface DocumentSupplier {
+	interface DocumentSupplier {
 		Document document() throws IOException, SAXException, ParserConfigurationException;
 	}
 

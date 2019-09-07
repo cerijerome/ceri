@@ -7,7 +7,7 @@ package ceri.common.factory;
 public interface Factory<T, F> {
 	T create(F from);
 
-	static abstract class Base<T, F> implements Factory<T, F> {
+	abstract class Base<T, F> implements Factory<T, F> {
 
 		@Override
 		public T create(F from) {

@@ -35,7 +35,7 @@ public class PathGroup implements Path<PathGroup> {
 	public PathGroup reverse() {
 		List<Path<?>> list = new ArrayList<>(paths);
 		Collections.reverse(list);
-		return of(StreamUtil.toList(list.stream().map(path -> path.reverse())));
+		return of(StreamUtil.toList(list.stream().map(Path::reverse)));
 	}
 
 	@Override

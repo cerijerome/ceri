@@ -19,6 +19,6 @@ public interface ExceptionRunnable<E extends Exception> {
 	}
 
 	static ExceptionRunnable<RuntimeException> of(Runnable runnable) {
-		return () -> runnable.run();
+		return runnable::run;
 	}
 }

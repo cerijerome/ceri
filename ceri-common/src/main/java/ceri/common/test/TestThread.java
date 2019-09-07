@@ -18,7 +18,7 @@ public abstract class TestThread<T extends Throwable> {
 	 * Creates the thread. Call start to execute.
 	 */
 	public TestThread() {
-		thread = new Thread(() -> TestThread.this.execute());
+		thread = new Thread(TestThread.this::execute);
 	}
 
 	/**

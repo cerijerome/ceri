@@ -61,9 +61,8 @@ public class BlockingBufferStream extends ByteBufferStream {
 	protected synchronized int read() {
 		if (eof()) return -1;
 		return ConcurrentUtil.executeGetInterruptible(() -> {
-			int read = -1;
 			waitToRead();
-			read = super.read();
+			int read = super.read();
 			notifyAll();
 			return read;
 		});
@@ -76,9 +75,8 @@ public class BlockingBufferStream extends ByteBufferStream {
 		if (len == 0) return 0;
 		if (eof()) return -1;
 		return ConcurrentUtil.executeGetInterruptible(() -> {
-			int read = -1;
 			waitToRead();
-			read = super.read(b, off, len);
+			int read = super.read(b, off, len);
 			notifyAll();
 			return read;
 		});

@@ -6,7 +6,7 @@ public enum LargeArcFlag {
 
 	public final int value;
 
-	private LargeArcFlag(int value) {
+	LargeArcFlag(int value) {
 		this.value = value;
 	}
 

@@ -21,7 +21,7 @@ public interface IntListenable {
 	 * Interface to indirectly add/remove notification listeners. Useful when classes use an
 	 * IntListeners instance.
 	 */
-	static interface Indirect {
+	interface Indirect {
 		IntListenable listeners();
 
 		/**

@@ -3,7 +3,6 @@ package ceri.common.score;
 import static ceri.common.collection.StreamUtil.toList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import ceri.common.comparator.Comparators;
@@ -31,7 +30,7 @@ public class Scorers {
 
 	public static <T> void sort(List<T> ts, Scorer<? super T> scorer) {
 		Comparator<? super T> comparator = comparator(scorer);
-		Collections.sort(ts, comparator);
+		ts.sort(comparator);
 	}
 
 	@SafeVarargs
@@ -87,7 +86,7 @@ public class Scorers {
 	 * A score that returns the double value of the number.
 	 */
 	public static <T extends Number> Scorer<T> value() {
-		return nonNull(t -> t.doubleValue());
+		return nonNull(Number::doubleValue);
 	}
 
 	/**

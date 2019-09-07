@@ -17,7 +17,7 @@ public enum CalendarField {
 	public final int calendarField;
 	public final int firstValue;
 
-	private CalendarField(int calendarField, int firstValue) {
+	CalendarField(int calendarField, int firstValue) {
 		this.calendarField = calendarField;
 		this.firstValue = firstValue;
 	}

@@ -57,15 +57,15 @@ public class IoStreamUtil {
 		protected abstract void writeInternal(byte[] b, int offset, int len) throws IOException;
 	}
 
-	public static interface ByteReader {
+	public interface ByteReader {
 		int read(byte[] b, int offset, int len) throws IOException;
 	}
 
-	public static interface AvailableSupplier {
+	public interface AvailableSupplier {
 		int available() throws IOException;
 	}
 
-	public static interface ByteWriter {
+	public interface ByteWriter {
 		void write(byte[] b, int offset, int len) throws IOException;
 	}
 

@@ -41,7 +41,7 @@ public class ScoreResult<T> implements Comparable<ScoreResult<T>> {
 
 	@Override
 	public String toString() {
-		return String.valueOf(ref) + "=" + score;
+		return ref + "=" + score;
 	}
 
 }

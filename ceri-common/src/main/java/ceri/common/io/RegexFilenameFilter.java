@@ -22,7 +22,7 @@ public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 	public static class Builder {
 		boolean absolutePath = false;
 		boolean unixPath = false;
-		List<Pattern> patterns = new ArrayList<>();
+		final List<Pattern> patterns = new ArrayList<>();
 
 		Builder() {}
 
@@ -53,8 +53,7 @@ public class RegexFilenameFilter implements FilenameFilter, FileFilter {
 		 * Add regex patterns to check.
 		 */
 		public Builder patternRegex(Collection<Pattern> patterns) {
-			for (Pattern pattern : patterns)
-				this.patterns.add(pattern);
+			this.patterns.addAll(patterns);
 			return this;
 		}
 

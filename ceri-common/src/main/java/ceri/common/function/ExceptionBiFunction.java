@@ -21,6 +21,6 @@ public interface ExceptionBiFunction<E extends Exception, T, U, R> {
 	}
 
 	static <T, U, R> ExceptionBiFunction<RuntimeException, T, U, R> of(BiFunction<T, U, R> fn) {
-		return (t, u) -> fn.apply(t, u);
+		return fn::apply;
 	}
 }

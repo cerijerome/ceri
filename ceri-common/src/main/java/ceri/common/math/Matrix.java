@@ -286,6 +286,7 @@ public class Matrix {
 		return true;
 	}
 
+	@SuppressWarnings("RedundantCast")
 	@Override
 	public String toString() {
 		return ToStringHelper.createByClass(this, String.format("%dx%d", rows, columns))

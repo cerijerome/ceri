@@ -21,7 +21,7 @@ public interface Listenable<T> {
 	 * Interface to indirectly add/remove notification listeners. Useful when classes use a
 	 * Listeners instance.
 	 */
-	static interface Indirect<T> {
+	interface Indirect<T> {
 		Listenable<T> listeners();
 
 		/**

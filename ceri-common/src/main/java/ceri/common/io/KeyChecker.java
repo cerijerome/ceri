@@ -63,7 +63,7 @@ public class KeyChecker implements Closeable {
 		checkFunction = builder.checkFunction;
 		in = builder.in;
 		executor = Executors.newSingleThreadScheduledExecutor();
-		executor.scheduleAtFixedRate(() -> checkForInput(), 0, builder.pollMs,
+		executor.scheduleAtFixedRate(this::checkForInput, 0, builder.pollMs,
 			TimeUnit.MILLISECONDS);
 	}
 

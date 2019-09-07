@@ -21,6 +21,6 @@ public interface ExceptionConsumer<E extends Exception, T> {
 	}
 
 	static <T> ExceptionConsumer<RuntimeException, T> of(Consumer<T> consumer) {
-		return t -> consumer.accept(t);
+		return consumer::accept;
 	}
 }

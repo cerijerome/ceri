@@ -15,7 +15,7 @@ public class ScoreLookup<T> implements Scorer<T> {
 	private final Map<T, Double> map;
 
 	public static class Builder<T> {
-		Map<T, Double> map = new HashMap<>();
+		final Map<T, Double> map = new HashMap<>();
 		boolean normalize = false;
 
 		Builder() {}
@@ -60,7 +60,7 @@ public class ScoreLookup<T> implements Scorer<T> {
 	private double sum(Collection<Double> values) {
 		double sum = 0;
 		for (Double f : values)
-			sum += f.doubleValue();
+			sum += f;
 		return sum;
 	}
 
@@ -68,7 +68,7 @@ public class ScoreLookup<T> implements Scorer<T> {
 	public double score(T t) {
 		Double value = map.get(t);
 		if (value == null) return 0.0;
-		return value.doubleValue();
+		return value;
 	}
 
 	@Override

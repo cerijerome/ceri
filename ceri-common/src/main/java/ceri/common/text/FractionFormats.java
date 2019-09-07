@@ -1,6 +1,7 @@
 package ceri.common.text;
 
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.validation.ValidationUtil.validate;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class FractionFormats {
 		return Formatter.format(fraction);
 	}
 
-	public static enum Glyph {
+	public enum Glyph {
 		oneQuarter(1, 4, '\u00BC'),
 		oneHalf(1, 2, '\u00BD'),
 		threeQuarters(3, 4, '\u00BE'),
@@ -47,7 +48,7 @@ public class FractionFormats {
 		public final double value;
 		public final char code;
 
-		private Glyph(int numerator, int denominator, char code) {
+		Glyph(int numerator, int denominator, char code) {
 			fraction = Fraction.of(numerator, denominator);
 			this.code = code;
 			value = (double) numerator / denominator;
@@ -76,7 +77,7 @@ public class FractionFormats {
 		}
 	}
 
-	public static enum Slash {
+	public enum Slash {
 		solidus('\u002f'),
 		fractionSlash('\u2044'),
 		divisionSlash('\u2215'),
@@ -84,7 +85,7 @@ public class FractionFormats {
 
 		public final char code;
 
-		private Slash(char code) {
+		Slash(char code) {
 			this.code = code;
 		}
 
@@ -189,7 +190,7 @@ public class FractionFormats {
 
 		private static String expandables() {
 			return StreamUtil
-				.toString(EXPANSIONS.keySet().stream().mapToInt(c -> (int) c.charValue()));
+				.toString(EXPANSIONS.keySet().stream().mapToInt(c -> (int) c));
 		}
 
 		private static Map<Character, String> expansions() {

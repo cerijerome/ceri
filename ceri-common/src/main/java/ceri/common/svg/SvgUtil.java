@@ -23,14 +23,13 @@ public class SvgUtil {
 		if (n == null) return "";
 		return NUMBER_FORMAT.format(n) + "%";
 	}
-	
+
 	public static Position combinedEnd(Path<?>... paths) {
 		return combinedEnd(Arrays.asList(paths));
 	}
 
 	public static Position combinedEnd(Collection<Path<?>> paths) {
-		return paths.stream().map(path -> path.end()).reduce(Position.RELATIVE_ZERO,
-			(result, end) -> result.combine(end));
+		return paths.stream().map(Path::end).reduce(Position.RELATIVE_ZERO, Position::combine);
 	}
 
 	public static String combinedPath(Path<?>... paths) {
@@ -38,7 +37,7 @@ public class SvgUtil {
 	}
 
 	public static String combinedPath(Collection<Path<?>> paths) {
-		return paths.stream().map(p -> p.path()).collect(Collectors.joining(" "));
+		return paths.stream().map(Path::path).collect(Collectors.joining(" "));
 	}
 
 }

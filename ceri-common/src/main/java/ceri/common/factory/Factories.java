@@ -29,12 +29,7 @@ public class Factories {
 		}
 	}
 
-	private static final Factory<Object, Object> ASSIGN = new Factory<>() {
-		@Override
-		public Object create(Object from) {
-			return from;
-		}
-	};
+	private static final Factory<Object, Object> ASSIGN = from -> from;
 
 	/**
 	 * A pass-through factory that returns the original object.
@@ -48,13 +43,7 @@ public class Factories {
 	 * that don't want to handle nulls.
 	 */
 	public static <T, F> Factory<T, F> nul(final Factory<T, F> factory) {
-		return new Factory<>() {
-			@Override
-			public T create(F from) {
-				if (from == null) return null;
-				return factory.create(from);
-			}
-		};
+		return from -> from == null ? null : factory.create(from);
 	}
 
 	/**

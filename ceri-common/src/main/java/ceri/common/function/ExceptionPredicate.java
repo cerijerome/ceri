@@ -37,6 +37,6 @@ public interface ExceptionPredicate<E extends Exception, T> {
 	}
 
 	static <T> ExceptionPredicate<RuntimeException, T> of(Predicate<T> predicate) {
-		return t -> predicate.test(t);
+		return predicate::test;
 	}
 }

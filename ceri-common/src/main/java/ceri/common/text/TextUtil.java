@@ -92,7 +92,7 @@ public class TextUtil {
 		StringBuilder sb = new StringBuilder();
 		int last = 0;
 		while (m.find()) {
-			sb.append(str.substring(last, m.start()));
+			sb.append(str, last, m.start());
 			sb.append(m.group(1));
 			sb.append(m.group(2).toUpperCase());
 			last = m.end();
@@ -166,7 +166,7 @@ public class TextUtil {
 		StringBuilder sb = new StringBuilder();
 		int last = 0;
 		while (m.find()) {
-			sb.append(str.substring(last, m.start()));
+			sb.append(str, last, m.start());
 			sb.append(m.group(1));
 			sb.append(m.group(2).toLowerCase());
 			last = m.end();

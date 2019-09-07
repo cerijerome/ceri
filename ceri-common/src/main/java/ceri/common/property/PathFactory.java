@@ -74,7 +74,7 @@ public class PathFactory {
 	}
 
 	public boolean canSplit(String value) {
-		return value.indexOf(separator) != -1;
+		return value.contains(separator);
 	}
 
 	public Path parentOf(String path) {
@@ -102,7 +102,7 @@ public class PathFactory {
 		if (path == null || path.isEmpty()) return "";
 		int i = path.lastIndexOf(separator);
 		if (i == -1) return path;
-		return path.substring(i + 1, path.length());
+		return path.substring(i + 1);
 	}
 
 	private Path pathFromParts(List<String> parts) {

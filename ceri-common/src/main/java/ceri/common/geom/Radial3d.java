@@ -22,15 +22,13 @@ public interface Radial3d {
 	default double constrainHeight(double h) {
 		if (h < 0) return 0;
 		double H = height();
-		if (h > H) return H;
-		return h;
+		return Math.min(h, H);
 	}
 
 	default double constrainVolume(double v) {
 		if (v < 0) return 0;
 		double V = volume();
-		if (v > V) return V;
-		return v;
+		return Math.min(v, V);
 	}
 
 }

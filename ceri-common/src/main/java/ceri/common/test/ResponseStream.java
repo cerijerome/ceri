@@ -23,7 +23,7 @@ public class ResponseStream {
 	private final PipedOutputStream internalOut;
 	private final Responder responder;
 
-	public static interface Responder {
+	public interface Responder {
 		byte[] respond(byte[] buffer, int offset, int len);
 
 		static Responder named(Responder responder, String name) {
