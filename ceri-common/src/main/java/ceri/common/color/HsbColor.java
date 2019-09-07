@@ -45,8 +45,8 @@ public class HsbColor implements ComponentColor<HsbColor> {
 		int i = 0;
 		double hue = hsb[i++];
 		double saturation = hsb[i++];
-		double brightness = hsb[i++];
-		double a = alpha / MAX_COLOR_VALUE;
+		double brightness = hsb[i];
+		double a = (double) alpha / MAX_COLOR_VALUE;
 		return new HsbColor(hue, saturation, brightness, a);
 	}
 

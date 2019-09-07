@@ -156,7 +156,7 @@ public enum X11Color {
 	private static final Map<Integer, X11Color> lookup = createLookup();
 	public final Color color;
 
-	private X11Color(int rgb) {
+	X11Color(int rgb) {
 		color = new Color(rgb);
 	}
 

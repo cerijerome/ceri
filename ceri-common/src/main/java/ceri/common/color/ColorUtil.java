@@ -2,12 +2,12 @@ package ceri.common.color;
 
 import static ceri.common.collection.StreamUtil.first;
 import static ceri.common.collection.StreamUtil.toList;
+import static java.util.Map.entry;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,7 +43,7 @@ public class ColorUtil {
 
 		private Fn() {}
 
-		public static interface ChannelAdjuster {
+		public interface ChannelAdjuster {
 			int applyAsInt(int x, double ratio);
 
 			default ChannelAdjuster bias(Bias bias) {
@@ -55,7 +55,7 @@ public class ColorUtil {
 			}
 		}
 
-		public static interface ChannelScaler {
+		public interface ChannelScaler {
 			int applyAsInt(int x0, int x1, double ratio);
 
 			static ChannelScaler of() {
@@ -103,13 +103,13 @@ public class ColorUtil {
 			return (c0, c1) -> ColorUtil.scaleHsb(c0, c1, ratio);
 		}
 
-		public static Function<Color, List<Color>>
-			transform(Function<Colorx, List<Colorx>> rgbxFn) {
+		public static Function<Color, List<Color>> transform(
+			Function<Colorx, List<Colorx>> rgbxFn) {
 			return c -> applyRgbx(c, rgbxFn);
 		}
 
-		public static BinaryFunction<Color, List<Color>>
-			transform(BinaryFunction<Colorx, List<Colorx>> rgbxFn) {
+		public static BinaryFunction<Color, List<Color>> transform(
+			BinaryFunction<Colorx, List<Colorx>> rgbxFn) {
 			return (c0, c1) -> applyRgbx(c0, c1, rgbxFn);
 		}
 
@@ -231,7 +231,8 @@ public class ColorUtil {
 	}
 
 	public static Color awtColor(String name) {
-		Integer rgb = first(awtColorNames.entrySet().stream().filter(e -> e.getValue().equals(name))
+		Integer rgb =
+			first(awtColorNames.entrySet().stream().filter(e -> e.getValue().equals(name))
 			.map(Map.Entry::getKey));
 		if (rgb == null) return null;
 		return new Color(rgb);
@@ -461,21 +462,20 @@ public class ColorUtil {
 	}
 
 	private static Map<Integer, String> colorMap() {
-		Map<Integer, String> map = new HashMap<>();
-		map.put(rgb(Color.black), "black");
-		map.put(rgb(Color.blue), "blue");
-		map.put(rgb(Color.cyan), "cyan");
-		map.put(rgb(Color.darkGray), "darkGray");
-		map.put(rgb(Color.gray), "gray");
-		map.put(rgb(Color.green), "green");
-		map.put(rgb(Color.lightGray), "lightGray");
-		map.put(rgb(Color.magenta), "magenta");
-		map.put(rgb(Color.orange), "orange");
-		map.put(rgb(Color.pink), "pink");
-		map.put(rgb(Color.red), "red");
-		map.put(rgb(Color.white), "white");
-		map.put(rgb(Color.yellow), "yellow");
-		return Collections.unmodifiableMap(map);
+		return Map.ofEntries( //
+			entry(rgb(Color.black), "black"), //
+			entry(rgb(Color.blue), "blue"), //
+			entry(rgb(Color.cyan), "cyan"), //
+			entry(rgb(Color.darkGray), "darkGray"), //
+			entry(rgb(Color.gray), "gray"), //
+			entry(rgb(Color.green), "green"), //
+			entry(rgb(Color.lightGray), "lightGray"), //
+			entry(rgb(Color.magenta), "magenta"), //
+			entry(rgb(Color.orange), "orange"), //
+			entry(rgb(Color.pink), "pink"), //
+			entry(rgb(Color.red), "red"), //
+			entry(rgb(Color.white), "white"), //
+			entry(rgb(Color.yellow), "yellow"));
 	}
 
 }

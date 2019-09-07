@@ -11,9 +11,9 @@ public enum UnsignedOctetType {
 	_byte(1, l -> StringUtil.toHex((byte) l));
 
 	public final int octets;
-	private LongFunction<String> formatter;
+	private final LongFunction<String> formatter;
 
-	private UnsignedOctetType(int octets, LongFunction<String> formatter) {
+	UnsignedOctetType(int octets, LongFunction<String> formatter) {
 		this.octets = octets;
 		this.formatter = formatter;
 	}

@@ -31,7 +31,7 @@ public interface Colorable {
 
 			@Override
 			public Color color() {
-				return colorables.stream().findFirst().map(c -> c.color()).orElse(null);
+				return colorables.stream().findFirst().map(Colorable::color).orElse(null);
 			}
 
 			@Override

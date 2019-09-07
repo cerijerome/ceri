@@ -26,7 +26,7 @@ public class ByteArrayDataOutput implements DataOutput {
 	}
 
 	@Override
-	public void write(byte b[], int off, int len) {
+	public void write(byte[] b, int off, int len) {
 		System.arraycopy(b, off, data, pos, len);
 		pos += len;
 	}
@@ -44,7 +44,7 @@ public class ByteArrayDataOutput implements DataOutput {
 	@Override
 	public void writeShort(int v) {
 		write((v >>> 8) & 0xFF);
-		write((v >>> 0) & 0xFF);
+		write(v & 0xFF);
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class ByteArrayDataOutput implements DataOutput {
 		for (int i = 0; i < len; i++) {
 			int v = s.charAt(i);
 			write((v >>> 8) & 0xFF);
-			write((v >>> 0) & 0xFF);
+			write(v & 0xFF);
 		}
 	}
 

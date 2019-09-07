@@ -15,7 +15,7 @@ import ceri.common.util.Timer;
  * Simple condition to signal and wait for a value change.
  */
 public class ValueCondition<T> {
-	private static BinaryOperator<Object> REPLACER = (latest, current) -> latest;
+	private static final BinaryOperator<Object> REPLACER = (latest, current) -> latest;
 	private final Lock lock;
 	private final Condition condition;
 	private final BinaryOperator<T> merger;
@@ -164,9 +164,7 @@ public class ValueCondition<T> {
 	}
 
 	private T awaitPeek(Timer timer, Predicate<T> predicate) throws InterruptedException {
-		return ConcurrentUtil.executeGet(lock, () -> {
-			return awaitValue(timer, predicate);
-		});
+		return ConcurrentUtil.executeGet(lock, () -> awaitValue(timer, predicate));
 	}
 
 	/**

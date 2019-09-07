@@ -1,6 +1,3 @@
-/**
- * Created on Feb 14, 2006
- */
 package ceri.common.comparator;
 
 import java.util.ArrayList;
@@ -38,7 +35,7 @@ public class ComparatorSequence<T> implements Comparator<T> {
 	}
 
 	ComparatorSequence(Collection<? extends Comparator<? super T>> comparators) {
-		this.comparators = Collections.unmodifiableList(new ArrayList<>(comparators));
+		this.comparators = List.copyOf(comparators);
 	}
 
 	public static <T> Builder<T> builder() {

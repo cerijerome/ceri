@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -459,9 +458,6 @@ public class ColorxUtil {
 	}
 
 	private static Map<Integer, String> colorMap() {
-		Map<Integer, String> map = new HashMap<>();
-		map.put(Colorx.black.rgbx(), "black");
-		map.put(Colorx.full.rgbx(), "full");
-		return Collections.unmodifiableMap(map);
+		return Map.of(Colorx.black.rgbx(), "black", Colorx.full.rgbx(), "full");
 	}
 }

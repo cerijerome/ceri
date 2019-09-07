@@ -264,7 +264,7 @@ public class StreamUtil {
 	 */
 	public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>>
 		entryCollector(BinaryOperator<V> mergeFn, Supplier<Map<K, V>> mapSupplier) {
-		return Collectors.toMap(e -> e.getKey(), e -> e.getValue(), mergeFn, mapSupplier);
+		return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, mergeFn, mapSupplier);
 	}
 
 	/**

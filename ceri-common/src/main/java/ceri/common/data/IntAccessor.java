@@ -73,7 +73,7 @@ public interface IntAccessor {
 		return new Typed<>(ToShortFunction.toUint(getFn), ObjShortConsumer.toInt(setFn));
 	}
 
-	static class Typed<T> {
+	class Typed<T> {
 		public final ToIntFunction<T> getFn;
 		public final ObjIntConsumer<T> setFn;
 

@@ -28,7 +28,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 		return new ArrayIterator<>(array) {
 			@Override
 			protected Boolean get(int i) {
-				return Boolean.valueOf(array[i]);
+				return array[i];
 			}
 		};
 	}
@@ -37,7 +37,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 		return new ArrayIterator<>(array) {
 			@Override
 			protected Byte get(int i) {
-				return Byte.valueOf(array[i]);
+				return array[i];
 			}
 		};
 	}
@@ -46,7 +46,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 		return new ArrayIterator<>(array) {
 			@Override
 			protected Character get(int i) {
-				return Character.valueOf(array[i]);
+				return array[i];
 			}
 		};
 	}
@@ -55,7 +55,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 		return new ArrayIterator<>(array) {
 			@Override
 			protected Short get(int i) {
-				return Short.valueOf(array[i]);
+				return array[i];
 			}
 		};
 	}
@@ -64,7 +64,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 		return new ArrayIterator<>(array) {
 			@Override
 			protected Integer get(int i) {
-				return Integer.valueOf(array[i]);
+				return array[i];
 			}
 		};
 	}
@@ -73,7 +73,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 		return new ArrayIterator<>(array) {
 			@Override
 			protected Long get(int i) {
-				return Long.valueOf(array[i]);
+				return array[i];
 			}
 		};
 	}
@@ -82,7 +82,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 		return new ArrayIterator<>(array) {
 			@Override
 			protected Float get(int i) {
-				return Float.valueOf(array[i]);
+				return array[i];
 			}
 		};
 	}
@@ -91,7 +91,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 		return new ArrayIterator<>(array) {
 			@Override
 			protected Double get(int i) {
-				return Double.valueOf(array[i]);
+				return array[i];
 			}
 		};
 	}
@@ -118,7 +118,7 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 	}
 
 	protected T get(int i) {
-		return BasicUtil.<T>uncheckedCast(Array.get(array, i));
+		return BasicUtil.uncheckedCast(Array.get(array, i));
 	}
 
 }

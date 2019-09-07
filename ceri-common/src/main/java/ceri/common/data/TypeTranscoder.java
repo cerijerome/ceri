@@ -113,7 +113,7 @@ public abstract class TypeTranscoder<T> {
 			if (value == 0) return Set.of();
 			Set<T> set = new LinkedHashSet<>();
 			for (Map.Entry<Integer, T> entry : lookup.entrySet()) {
-				int i = entry.getKey().intValue();
+				int i = entry.getKey();
 				T t = entry.getValue();
 				if ((i & value) != i) continue;
 				value -= i;
@@ -154,7 +154,7 @@ public abstract class TypeTranscoder<T> {
 	}
 
 	TypeTranscoder(ToIntFunction<T> valueFn, Collection<T> ts, MaskTranscoder mask) {
-		this(valueFn, ImmutableUtil.convertAsMap(t -> valueFn.applyAsInt(t), ts), mask);
+		this(valueFn, ImmutableUtil.convertAsMap(valueFn::applyAsInt, ts), mask);
 	}
 
 	TypeTranscoder(ToIntFunction<T> valueFn, Map<Integer, T> lookup, MaskTranscoder mask) {

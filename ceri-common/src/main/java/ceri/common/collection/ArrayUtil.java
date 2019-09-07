@@ -3,8 +3,6 @@ package ceri.common.collection;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -55,7 +53,7 @@ public class ArrayUtil {
 	public static boolean isValidIndex(int arrayLength, int index) {
 		return (index >= 0 && index < arrayLength);
 	}
-	
+
 	/**
 	 * Returns true if parameters are able to slice an array.
 	 */
@@ -107,7 +105,8 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Returns the array class of the type component superclass. Or the regular superclass if not an
+	 * Returns the array class of the type component superclass. Or the regular superclass if
+	 * not an
 	 * array type. For example:
 	 *
 	 * <pre>
@@ -229,7 +228,8 @@ public class ArrayUtil {
 	 * Copies values from one array to another. Less strict than System.arraycopy as it allows
 	 * copying from/to primitive arrays, but also not as efficient.
 	 */
-	public static Object arrayCopy(Object from, int fromIndex, Object to, int toIndex, int length) {
+	public static Object arrayCopy(Object from, int fromIndex, Object to, int toIndex,
+		int length) {
 		for (int i = 0; i < length; i++) {
 			Array.set(to, toIndex + i, Array.get(from, fromIndex + i));
 		}
@@ -241,7 +241,7 @@ public class ArrayUtil {
 	 */
 	@SafeVarargs
 	public static <T> List<T> asList(T... ts) {
-		return CollectionUtil.addAll(new ArrayList<T>(ts.length), ts);
+		return CollectionUtil.addAll(new ArrayList<>(ts.length), ts);
 	}
 
 	/**
@@ -275,16 +275,15 @@ public class ArrayUtil {
 	}
 
 	private static Map<Class<?>, Function<Object, String>> toStringMap() {
-		Map<Class<?>, Function<Object, String>> map = new HashMap<>();
-		map.put(boolean[].class, obj -> Arrays.toString((boolean[]) obj));
-		map.put(char[].class, obj -> Arrays.toString((char[]) obj));
-		map.put(byte[].class, obj -> Arrays.toString((byte[]) obj));
-		map.put(short[].class, obj -> Arrays.toString((short[]) obj));
-		map.put(int[].class, obj -> Arrays.toString((int[]) obj));
-		map.put(long[].class, obj -> Arrays.toString((long[]) obj));
-		map.put(float[].class, obj -> Arrays.toString((float[]) obj));
-		map.put(double[].class, obj -> Arrays.toString((double[]) obj));
-		return Collections.unmodifiableMap(map);
+		return Map.of( //
+			boolean[].class, obj -> Arrays.toString((boolean[]) obj), //
+			char[].class, obj -> Arrays.toString((char[]) obj), //
+			byte[].class, obj -> Arrays.toString((byte[]) obj), //
+			short[].class, obj -> Arrays.toString((short[]) obj), //
+			int[].class, obj -> Arrays.toString((int[]) obj), //
+			long[].class, obj -> Arrays.toString((long[]) obj), //
+			float[].class, obj -> Arrays.toString((float[]) obj), //
+			double[].class, obj -> Arrays.toString((double[]) obj));
 	}
 
 }

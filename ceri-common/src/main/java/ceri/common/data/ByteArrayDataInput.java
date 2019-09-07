@@ -16,12 +16,12 @@ public class ByteArrayDataInput implements DataInput {
 	}
 
 	@Override
-	public void readFully(byte b[]) {
+	public void readFully(byte[] b) {
 		readFully(b, 0, b.length);
 	}
 
 	@Override
-	public void readFully(byte b[], int off, int len) {
+	public void readFully(byte[] b, int off, int len) {
 		System.arraycopy(data, pos, b, off, len);
 		pos += len;
 	}
@@ -74,7 +74,7 @@ public class ByteArrayDataInput implements DataInput {
 		return (((long) data[pos++] << 56) + ((long) (data[pos++] & 0xff) << 48) +
 			((long) (data[pos++] & 0xff) << 40) + ((long) (data[pos++] & 0xff) << 32) +
 			((long) (data[pos++] & 0xff) << 24) + ((data[pos++] & 0xff) << 16) +
-			((data[pos++] & 0xff) << 8) + ((data[pos++] & 0xff) << 0));
+			((data[pos++] & 0xff) << 8) + (data[pos++] & 0xff));
 	}
 
 	@Override

@@ -77,6 +77,7 @@ public class DelegatingMap<K, V> implements Map<K, V> {
 		return map.entrySet();
 	}
 
+	@SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
 	@Override
 	public boolean equals(Object o) {
 		return map.equals(o);

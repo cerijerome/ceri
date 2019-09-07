@@ -100,7 +100,7 @@ public class ImmutableIntArray {
 	}
 
 	public IntStream stream() {
-		return IntStream.range(0, array.length).map(i -> array[i]);
+		return Arrays.stream(array, 0, array.length);
 	}
 
 	public void forEach(IntConsumer action) {

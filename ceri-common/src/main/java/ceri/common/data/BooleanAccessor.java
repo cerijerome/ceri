@@ -52,7 +52,7 @@ public interface BooleanAccessor {
 		return new Typed<>(t -> getFn.applyAsInt(t) != 0, (t, b) -> setFn.accept(t, b ? 1 : 0));
 	}
 
-	static class Typed<T> {
+	class Typed<T> {
 		public final ToBooleanFunction<T> getFn;
 		public final ObjBooleanConsumer<T> setFn;
 

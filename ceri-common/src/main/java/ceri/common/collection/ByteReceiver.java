@@ -19,7 +19,7 @@ import ceri.common.data.ByteUtil;
  * </pre>
  */
 public interface ByteReceiver {
-	static ByteReceiver EMPTY = wrap();
+	ByteReceiver EMPTY = wrap();
 
 	/**
 	 * Wraps a byte array as a byte receiver.

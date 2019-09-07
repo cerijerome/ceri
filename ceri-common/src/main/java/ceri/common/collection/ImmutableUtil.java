@@ -185,7 +185,7 @@ public class ImmutableUtil {
 	 */
 	public static <T> Set<T> collectAsSet(Stream<? extends T> stream) {
 		Collector<T, ?, Set<T>> collector = Collectors.toCollection(setSupplier());
-		return Collections.<T>unmodifiableSet(stream.collect(collector));
+		return Collections.unmodifiableSet(stream.collect(collector));
 	}
 
 	/**
@@ -193,7 +193,7 @@ public class ImmutableUtil {
 	 */
 	public static <T> SortedSet<T> collectAsSortedSet(Stream<? extends T> stream) {
 		Collector<T, ?, TreeSet<T>> collector = Collectors.toCollection(TreeSet::new);
-		return Collections.<T>unmodifiableSortedSet(stream.collect(collector));
+		return Collections.unmodifiableSortedSet(stream.collect(collector));
 	}
 
 	/**

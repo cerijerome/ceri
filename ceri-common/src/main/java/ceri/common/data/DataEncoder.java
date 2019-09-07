@@ -13,19 +13,19 @@ import ceri.common.util.BasicUtil;
 
 public class DataEncoder {
 	private final byte[] data;
-	private int start;
-	private int length;
+	private final int start;
+	private final int length;
 	private int mark = 0;
 	private int offset = 0;
 
-	public static interface EncodableField {
+	public interface EncodableField {
 		/**
 		 * Returns the offset after encoding.
 		 */
 		int encode(byte[] data, int offset);
 	}
 
-	public static interface Encodable {
+	public interface Encodable {
 		default int size() {
 			return 0;
 		}

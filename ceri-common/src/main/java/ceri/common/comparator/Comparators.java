@@ -15,7 +15,7 @@ import ceri.common.util.BasicUtil;
  */
 public class Comparators {
 	private static final Comparator<Comparable<Comparable<?>>> COMPARABLE =
-		nonNull((lhs, rhs) -> lhs.compareTo(rhs));
+		nonNull(Comparable::compareTo);
 	public static final Comparator<Double> DOUBLE = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Float> FLOAT = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Byte> BYTE = BasicUtil.uncheckedCast(COMPARABLE);
@@ -94,28 +94,28 @@ public class Comparators {
 	 * Comparator for comparable objects.
 	 */
 	public static <T extends Comparable<? super T>> Comparator<T> comparable() {
-		return BasicUtil.<Comparator<T>>uncheckedCast(COMPARABLE);
+		return BasicUtil.uncheckedCast(COMPARABLE);
 	}
 
 	/**
 	 * Comparator for string representations of objects.
 	 */
 	public static <T> Comparator<T> string() {
-		return BasicUtil.<Comparator<T>>uncheckedCast(STRING_VALUE);
+		return BasicUtil.uncheckedCast(STRING_VALUE);
 	}
 
 	/**
 	 * Null comparator treats everything as equal.
 	 */
 	public static <T> Comparator<T> nullComparator() {
-		return BasicUtil.<Comparator<T>>uncheckedCast(NULL);
+		return BasicUtil.uncheckedCast(NULL);
 	}
 
 	/**
 	 * Non-null comparator treats null as inferior, everything else equal.
 	 */
 	public static <T> Comparator<T> nonNullComparator() {
-		return BasicUtil.<Comparator<T>>uncheckedCast(NON_NULL);
+		return BasicUtil.uncheckedCast(NON_NULL);
 	}
 
 	/**

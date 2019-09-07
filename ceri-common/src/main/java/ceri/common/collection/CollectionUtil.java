@@ -345,36 +345,21 @@ public class CollectionUtil {
 	 * Returns a reverse iterable type useful in for-each loops.
 	 */
 	public static <T> Iterable<T> reverseIterableList(final List<T> list) {
-		return new Iterable<>() {
-			@Override
-			public Iterator<T> iterator() {
-				return reverseListIterator(list);
-			}
-		};
+		return () -> reverseListIterator(list);
 	}
 
 	/**
 	 * Returns a reverse iterable type useful in for-each loops.
 	 */
 	public static <T> Iterable<T> reverseIterableQueue(final Deque<T> deque) {
-		return new Iterable<>() {
-			@Override
-			public Iterator<T> iterator() {
-				return deque.descendingIterator();
-			}
-		};
+		return deque::descendingIterator;
 	}
 
 	/**
 	 * Returns a reverse iterable type useful in for-each loops.
 	 */
 	public static <T> Iterable<T> reverseIterableSet(final NavigableSet<T> navSet) {
-		return new Iterable<>() {
-			@Override
-			public Iterator<T> iterator() {
-				return navSet.descendingIterator();
-			}
-		};
+		return navSet::descendingIterator;
 	}
 
 	/**
@@ -420,9 +405,7 @@ public class CollectionUtil {
 			return list.get(list.size() - 1);
 		}
 		T last = null;
-		Iterator<T> i = iterable.iterator();
-		while (i.hasNext())
-			last = i.next();
+		for (T t : iterable) last = t;
 		return last;
 	}
 
@@ -448,9 +431,7 @@ public class CollectionUtil {
 	 * Removes items from the first collection that are not in the second.
 	 */
 	public static void intersect(Collection<?> lhs, Collection<?> rhs) {
-		for (Iterator<?> i = lhs.iterator(); i.hasNext();) {
-			if (!rhs.contains(i.next())) i.remove();
-		}
+		lhs.removeIf(o -> !rhs.contains(o));
 	}
 
 	/**

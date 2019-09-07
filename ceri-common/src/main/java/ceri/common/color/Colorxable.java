@@ -26,7 +26,7 @@ public interface Colorxable {
 
 			@Override
 			public Colorx colorx() {
-				return colorxables.stream().findFirst().map(c -> c.colorx()).orElse(null);
+				return colorxables.stream().findFirst().map(Colorxable::colorx).orElse(null);
 			}
 
 			@Override

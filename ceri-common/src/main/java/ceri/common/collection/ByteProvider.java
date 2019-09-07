@@ -17,7 +17,7 @@ import ceri.common.data.ByteUtil;
  * </pre>
  */
 public interface ByteProvider {
-	static ByteProvider EMPTY = wrap();
+	ByteProvider EMPTY = wrap();
 	
 	static ByteProvider wrap(int... array) {
 		return wrap(ByteUtil.bytes(array));

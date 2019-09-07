@@ -10,15 +10,15 @@ public enum ColorPreset {
 
 	public final Color color;
 	
-	private ColorPreset(int color) {
+	ColorPreset(int color) {
 		this(new Color(color));
 	}
-	
-	private ColorPreset(ColorPreset preset, double dim) {
+
+	ColorPreset(ColorPreset preset, double dim) {
 		this(ColorUtil.dim(preset.color, dim));
 	}
 	
-	private ColorPreset(Color color) {
+	ColorPreset(Color color) {
 		this.color = color;
 	}
 	

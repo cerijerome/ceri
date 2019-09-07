@@ -83,7 +83,7 @@ public class ByteUtil {
 
 	public static byte[] toByteArray(IntStream stream) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		stream.forEach(b -> out.write(b));
+		stream.forEach(out::write);
 		return out.toByteArray();
 	}
 
@@ -419,7 +419,7 @@ public class ByteUtil {
 	/**
 	 * Alignment for padding.
 	 */
-	public static enum Align {
+	public enum Align {
 		LEFT,
 		RIGHT
 	}
@@ -441,7 +441,7 @@ public class ByteUtil {
 	}
 
 	private static byte[] pad(byte[] array, int padByte, int length, Align align) {
-		if (length == 0 || array.length >= length) return array;
+		if (array.length >= length) return array;
 		byte[] bytes = new byte[length];
 		int count = length - array.length;
 		int fillOffset = align == Align.LEFT ? 0 : array.length;

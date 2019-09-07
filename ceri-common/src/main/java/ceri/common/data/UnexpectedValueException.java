@@ -71,7 +71,7 @@ public class UnexpectedValueException extends IllegalArgumentException {
 	}
 
 	private static String hex(int value) {
-		return Integer.toUnsignedString(value & 0xffffffff, 16);
+		return Integer.toUnsignedString(value, 16);
 	}
 
 }
