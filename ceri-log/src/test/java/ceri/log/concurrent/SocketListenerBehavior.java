@@ -21,7 +21,7 @@ public class SocketListenerBehavior {
 	public void shouldOnlyNotifyOnSuccessfulTestInput() throws IOException, InterruptedException {
 		BooleanCondition sync = BooleanCondition.of();
 		try (SocketListener sl =
-			SocketListener.create(PORT, () -> sync.signal(), s -> s.length() > 1)) {
+			SocketListener.create(PORT, sync::signal, s -> s.length() > 1)) {
 			send("\0");
 			send("xx");
 			assertTrue(sync.await(1000));
@@ -34,7 +34,7 @@ public class SocketListenerBehavior {
 	@Test
 	public void shouldNotifyOnInput() throws IOException, InterruptedException {
 		BooleanCondition sync = BooleanCondition.of();
-		try (SocketListener sl = SocketListener.create(PORT, () -> sync.signal())) {
+		try (SocketListener sl = SocketListener.create(PORT, sync::signal)) {
 			send("\0");
 			assertTrue(sync.await(1000));
 			send("xxxxxxxxxxxxxxxxxxxx");

@@ -14,7 +14,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.util.BasicUtil;
-import ceri.log.io.SelfHealingSocket;
 import ceri.log.util.LogUtil;
 
 public class SelfHealingSocketTester implements Closeable {
@@ -31,7 +30,7 @@ public class SelfHealingSocketTester implements Closeable {
 	}
 
 	private SelfHealingSocketTester(int port) {
-		execute(() -> inputs());
+		execute(this::inputs);
 		execute(() -> startServer(port));
 		execute(() -> startClient(port));
 	}

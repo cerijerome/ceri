@@ -126,8 +126,8 @@ public class SelfHealingSocket extends LoopingExecutor {
 		keepAlive = builder.keepAlive;
 		fixRetryDelayMs = builder.fixRetryDelayMs;
 		recoveryDelayMs = builder.recoveryDelayMs;
-		in.listeners().listen(e -> checkIfBroken(e));
-		out.listeners().listen(e -> checkIfBroken(e));
+		in.listeners().listen(this::checkIfBroken);
+		out.listeners().listen(this::checkIfBroken);
 		start();
 	}
 

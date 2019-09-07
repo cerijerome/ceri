@@ -1,6 +1,7 @@
 package ceri.log.rpc.service;
 
 import ceri.common.text.ToStringHelper;
+import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 import ceri.log.rpc.client.RpcChannelConfig;
 
@@ -56,7 +57,7 @@ public class RpcServerConfig {
 	 */
 	public boolean isLoop(RpcChannelConfig channel) {
 		if (!enabled() || channel == null || !channel.isLocalhost()) return false;
-		return channel.port == port;
+		return EqualsUtil.equals(channel.port, port);
 	}
 
 	@Override
@@ -69,7 +70,7 @@ public class RpcServerConfig {
 		if (this == obj) return true;
 		if (!(obj instanceof RpcServerConfig)) return false;
 		RpcServerConfig other = (RpcServerConfig) obj;
-		if (port != other.port) return false;
+		if (!EqualsUtil.equals(port, other.port)) return false;
 		if (shutdownTimeoutMs != other.shutdownTimeoutMs) return false;
 		return true;
 	}

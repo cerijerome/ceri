@@ -35,11 +35,11 @@ public class LogUtilTest {
 		Object obj = LogUtil.toString(() -> {
 			throw new RuntimeException();
 		});
-		assertException(() -> obj.toString());
+		assertException(obj::toString);
 		Object obj2 = LogUtil.toString(() -> {
 			throw new Exception();
 		});
-		assertException(() -> obj2.toString());
+		assertException(obj2::toString);
 	}
 
 	@Test

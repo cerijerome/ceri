@@ -63,7 +63,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 		start();
 	}
 
-	private static enum Action {
+	private enum Action {
 		none,
 		receive,
 		resetAndReceive,

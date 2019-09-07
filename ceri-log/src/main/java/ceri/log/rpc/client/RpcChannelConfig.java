@@ -68,7 +68,7 @@ public class RpcChannelConfig {
 		if (!(obj instanceof RpcChannelConfig)) return false;
 		RpcChannelConfig other = (RpcChannelConfig) obj;
 		if (!EqualsUtil.equals(host, other.host)) return false;
-		if (port != other.port) return false;
+		if (!EqualsUtil.equals(port, other.port)) return false;
 		return true;
 	}
 

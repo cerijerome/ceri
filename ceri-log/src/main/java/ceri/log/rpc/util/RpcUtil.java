@@ -145,7 +145,7 @@ public class RpcUtil {
 		Throwable t0 = t;
 		while (t0 != null && !(t0 instanceof StatusRuntimeException))
 			t0 = t0.getCause();
-		while (t0 != null && (t0 instanceof StatusRuntimeException))
+		while (t0 instanceof StatusRuntimeException)
 			t0 = t0.getCause();
 		return t0 == null ? t : t0;
 	}
