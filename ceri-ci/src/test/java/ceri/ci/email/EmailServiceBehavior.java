@@ -26,11 +26,16 @@ import ceri.common.concurrent.BooleanCondition;
 import ceri.common.util.BasicUtil;
 
 public class EmailServiceBehavior {
-	@Mock private BuildEventProcessor processor;
-	@Mock private EmailRetriever mockRetriever;
-	@Mock private EmailEventParser parser0;
-	@Mock private EmailEventParser parser1;
-	@Mock private Message message;
+	@Mock
+	private BuildEventProcessor processor;
+	@Mock
+	private EmailRetriever mockRetriever;
+	@Mock
+	private EmailEventParser parser0;
+	@Mock
+	private EmailEventParser parser1;
+	@Mock
+	private Message message;
 	private BooleanCondition sync;
 	private TestEmailServer server;
 	private EmailService.Builder builder;
@@ -42,9 +47,8 @@ public class EmailServiceBehavior {
 		when(parser0.matches(any())).thenReturn(false);
 		when(parser1.matches(any())).thenReturn(true);
 		EmailRetriever retriever = testRetriever();
-		builder =
-			EmailService.builder(retriever, processor).parsers(parser0, parser1).maxLookBackMs(
-				30000).pollMs(100000).sentDateBufferMs(5000).shutdownTimeoutMs(5000);
+		builder = EmailService.builder(retriever, processor).parsers(parser0, parser1)
+			.maxLookBackMs(30000).pollMs(100000).sentDateBufferMs(5000).shutdownTimeoutMs(5000);
 		sync = BooleanCondition.of();
 		testStartTime = System.currentTimeMillis();
 		server = new TestEmailServer();
@@ -104,7 +108,7 @@ public class EmailServiceBehavior {
 	}
 
 	@Test
-	public void shouldProcessParsedEmails() throws InterruptedException, IOException {
+	public void shouldProcessParsedEmails() throws InterruptedException {
 		server.addResponse(email(0), email(1));
 		builder.parsers(testParser());
 		try (EmailService service = builder.build()) {
@@ -148,8 +152,8 @@ public class EmailServiceBehavior {
 	}
 
 	BuildEvent buildEvent(long timeOffsetMs) {
-		return new BuildEvent("build", "job", new Event(Type.success, testStartTime + timeOffsetMs,
-			"name"));
+		return new BuildEvent("build", "job",
+			new Event(Type.success, testStartTime + timeOffsetMs, "name"));
 	}
 
 }

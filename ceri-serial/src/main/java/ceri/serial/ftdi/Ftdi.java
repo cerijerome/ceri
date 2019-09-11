@@ -72,7 +72,6 @@ public class Ftdi implements Closeable {
 	private ftdi_context ftdi;
 	// Temporarily stores callbacks to make sure they are not removed by GC
 	// Assigns a generated id, and tracks per callback
-	@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 	private final Map<Integer, ftdi_stream_cb> streamCallbacks = new ConcurrentHashMap<>();
 	private final AtomicInteger streamCallbackId = new AtomicInteger();
 

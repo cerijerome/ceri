@@ -24,42 +24,36 @@ public class ImmutableDate extends Date {
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public void setDate(int date) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public void setHours(int hours) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public void setMinutes(int minutes) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public void setMonth(int month) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public void setSeconds(int seconds) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	@Deprecated
-	@SuppressWarnings("deprecation")
 	public void setYear(int year) {
 		throw new UnsupportedOperationException();
 	}

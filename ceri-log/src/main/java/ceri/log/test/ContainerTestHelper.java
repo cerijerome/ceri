@@ -33,6 +33,7 @@ public class ContainerTestHelper implements Closeable {
 		return name + "." + id;
 	}
 
+	@SuppressWarnings("resource")
 	protected <T extends Closeable> T get(Object id, ExceptionSupplier<IOException, T> supplier)
 		throws IOException {
 		T t = BasicUtil.uncheckedCast(cache.get(id));

@@ -103,9 +103,8 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 	}
 
 	private void exec(ExceptionConsumer<IOException, SerialPort> consumer) throws IOException {
-		SerialPort serialPort = serialPort();
 		try {
-			consumer.accept(serialPort);
+			consumer.accept(serialPort());
 		} catch (RuntimeException | IOException e) {
 			checkIfBroken(e);
 			throw e;

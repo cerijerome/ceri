@@ -18,33 +18,33 @@ public class MathUtil {
 	public static int toInt(boolean b) {
 		return b ? 1 : 0;
 	}
-	
-	public static double average(double...values) {
+
+	public static double average(double... values) {
 		if (values.length == 0) return Double.NaN;
 		if (values.length == 1) return values[0];
 		return DoubleStream.of(values).average().orElse(Double.NaN);
 	}
-	
-	public static int averageInt(int...values) {
+
+	public static int averageInt(int... values) {
 		return (int) Math.round(average(values));
 	}
-	
-	public static double average(int...values) {
+
+	public static double average(int... values) {
 		if (values.length == 0) return Double.NaN;
 		if (values.length == 1) return values[0];
 		return IntStream.of(values).average().orElse(Double.NaN);
 	}
-	
-	public static long averageLong(long...values) {
+
+	public static long averageLong(long... values) {
 		return Math.round(average(values));
 	}
-	
-	public static double average(long...values) {
+
+	public static double average(long... values) {
 		if (values.length == 0) return Double.NaN;
 		if (values.length == 1) return values[0];
 		return LongStream.of(values).average().orElse(Double.NaN);
 	}
-	
+
 	public static boolean approxEqual(double lhs, double rhs, double precision) {
 		return lhs == rhs || Math.abs(lhs - rhs) <= precision;
 	}
@@ -72,7 +72,6 @@ public class MathUtil {
 	/**
 	 * Calculates the greatest common divisor of two numbers.
 	 */
-	@SuppressWarnings("RedundantCast")
 	public static int gcd(int lhs, int rhs) {
 		return Math.toIntExact(gcd((long) lhs, (long) rhs));
 	}
@@ -93,7 +92,6 @@ public class MathUtil {
 	/**
 	 * Calculates the lowest common multiple of two numbers.
 	 */
-	@SuppressWarnings("RedundantCast")
 	public static int lcm(int lhs, int rhs) {
 		return Math.toIntExact(lcm((long) lhs, (long) rhs));
 	}
@@ -115,7 +113,7 @@ public class MathUtil {
 		if (x == 0 || y == 0) return 0;
 		return (x > 0 == y > 0) ? 1 : -1;
 	}
-	
+
 	/**
 	 * Return absolute value. Throws ArithmeticException if overflow.
 	 */
@@ -153,14 +151,14 @@ public class MathUtil {
 	public static long divideUp(long x, long y) {
 		return Math.addExact(x / y, x % y == 0 ? 0 : signum(x, y));
 	}
-	
+
 	/**
 	 * Divides two numbers, rounding any remainder away from 0.
 	 */
 	public static int divideUp(int x, int y) {
 		return Math.addExact(x / y, x % y == 0 ? 0 : 1);
 	}
-	
+
 	/**
 	 * Rounds the division of two long values.
 	 */

@@ -115,6 +115,7 @@ public class IoUtilTest {
 
 	@Test
 	public void testCloseException() {
+		@SuppressWarnings("resource")
 		Closeable closeable = () -> {
 			throw new IOException();
 		};

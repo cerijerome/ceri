@@ -17,6 +17,7 @@ public class Cm11aTestConnector implements Cm11aConnector {
 
 	public Cm11aTestConnector(int pollingMs, int timeoutMs) throws IOException {
 		out = new PipedOutputStream();
+		@SuppressWarnings("resource")
 		InputStream is = new PipedInputStream(out);
 		from = new DataInputStream(new PollingInputStream(is, pollingMs, timeoutMs));
 		in = new PipedInputStream();

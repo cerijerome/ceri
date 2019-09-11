@@ -26,7 +26,7 @@ public class HashCoderBehavior {
 		int lHash = HashCoder.create().add(l).hashCode();
 		int fHash = HashCoder.create().add(f).hashCode();
 		int dHash = HashCoder.create().add(d).hashCode();
-		int nHash = HashCoder.create().add((Object)null).hashCode();
+		int nHash = HashCoder.create().add((Object) null).hashCode();
 		assertThat(blHash, not(cHash));
 		assertThat(cHash, not(bHash));
 		assertThat(bHash, not(sHash));
@@ -46,12 +46,11 @@ public class HashCoderBehavior {
 		assertThat(autoBoxHash, is(primitiveHash));
 	}
 
-	@SuppressWarnings("RedundantCast")
 	@Test
 	public void shouldIterateOverArray() {
 		int[] values = { 1, 2, 3 };
 		int primitiveHash = HashCoder.hash(1, 2, 3);
-		int arrayHash = HashCoder.create().add((Object) values).hashCode();
+		int arrayHash = HashCoder.create().add(values).hashCode();
 		assertThat(primitiveHash, is(arrayHash));
 	}
 

@@ -1,5 +1,6 @@
 package ceri.x10.command;
 
+import static ceri.common.util.BasicUtil.unused;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertNotEquals;
@@ -14,19 +15,18 @@ public class DimCommandBehavior {
 
 	@Test
 	public void shouldOnlyAllowZeroToOneHundredPercentDim() {
-		new DimCommand(House.P, Unit._8, FunctionType.DIM, 0);
-		new DimCommand(House.P, Unit._8, FunctionType.BRIGHT, 100);
+		unused(new DimCommand(House.P, Unit._8, FunctionType.DIM, 0));
+		unused(new DimCommand(House.P, Unit._8, FunctionType.BRIGHT, 100));
 		try {
-			new DimCommand(House.P, Unit._8, FunctionType.BRIGHT, -1);
+			unused(new DimCommand(House.P, Unit._8, FunctionType.BRIGHT, -1));
 			fail();
 		} catch (IllegalArgumentException e) {}
 		try {
-			new DimCommand(House.P, Unit._8, FunctionType.DIM, 101);
+			unused(new DimCommand(House.P, Unit._8, FunctionType.DIM, 101));
 			fail();
 		} catch (IllegalArgumentException e) {}
 	}
 
-	
 	@Test
 	public void shouldObeyEqualsContract() {
 		DimCommand dim1 = new DimCommand(House.P, Unit._8, FunctionType.DIM, 100);
@@ -45,6 +45,5 @@ public class DimCommandBehavior {
 		assertThat(dim1, not(dim6));
 		assertThat(dim1.hashCode(), is(dim2.hashCode()));
 	}
-
 
 }

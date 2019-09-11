@@ -5,13 +5,14 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.util.BasicUtil;
 
 public class FunctionBehavior {
 
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailToCreateWithUnsupportedFunctionType() {
-		new Function(House.A, FunctionType.DIM);
+		BasicUtil.unused(new Function(House.A, FunctionType.DIM));
 	}
 
 

@@ -1,8 +1,9 @@
 package ceri.common.test;
 
+import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.Iterator;
@@ -21,16 +22,15 @@ public class TestPrinterBehavior {
 		void myMethod() {}
 	}
 
-	@SuppressWarnings("unlikely-arg-type")
 	@Test
 	public void shouldObeyEqualsContract() {
 		TestPrinter.Test test = new TestPrinter.Test("testClassName", "className", "description");
 		TestPrinter.Test test1 = new TestPrinter.Test("testClassName", "className", "description");
-		assertNotEquals(null, test);
-		assertNotEquals("", test);
-		assertThat(test, is(test));
-		assertThat(test, is(test1));
-		assertThat(test.hashCode(), is(test1.hashCode()));
+		TestPrinter.Test test2 = new TestPrinter.Test("testClassName0", "className", "description");
+		TestPrinter.Test test3 = new TestPrinter.Test("testClassName", "className0", "description");
+		TestPrinter.Test test4 = new TestPrinter.Test("testClassName", "className", "description0");
+		exerciseEquals(test, test1);
+		assertAllNotEqual(test, test2, test3, test4);
 	}
 
 	@Test

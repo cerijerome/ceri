@@ -16,12 +16,13 @@ public class Cm17aControllerBehavior {
 
 	@Before
 	public void init() throws IOException {
+		@SuppressWarnings("resource")
 		Cm17aConnector connector = mock(Cm17aConnector.class);
 		listener = mock(CommandListener.class);
 		controller = new Cm17aController(connector, listener);
 
 	}
-	
+
 	@After
 	public void stop() {
 		controller.close();

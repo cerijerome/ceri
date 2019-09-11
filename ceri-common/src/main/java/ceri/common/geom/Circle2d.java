@@ -68,7 +68,6 @@ public class Circle2d {
 	/**
 	 * Calculates y >= 0 from given x.
 	 */
-	@SuppressWarnings("SuspiciousNameCombination")
 	public double yFromX(double x) {
 		return xFromY(x);
 	}
@@ -92,7 +91,6 @@ public class Circle2d {
 	/**
 	 * Area from y = -r to given y.
 	 */
-	@SuppressWarnings("SuspiciousNameCombination")
 	public double areaToY(double y) {
 		return areaToX(y);
 	}

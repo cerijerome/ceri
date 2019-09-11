@@ -1,8 +1,9 @@
 package ceri.common.reflect;
 
+import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
@@ -25,15 +26,8 @@ public class CallerBehavior {
 		Caller caller3 = new Caller(caller.fullCls, caller.line, "", caller.file);
 		Caller caller4 = new Caller(caller.fullCls, caller.line, caller.method, "");
 		Caller caller5 = new Caller("", caller.line, caller.method, caller.file);
-		assertNotEquals(null, caller);
-		assertEquals(caller, caller);
-		assertEquals(caller, caller1);
-		assertNotEquals(caller, caller2);
-		assertNotEquals(caller, caller3);
-		assertNotEquals(caller, caller4);
-		assertNotEquals(caller, caller5);
-		assertThat(caller.hashCode(), is(caller1.hashCode()));
-		assertThat(caller.toString(), is(caller1.toString()));
+		exerciseEquals(caller, caller1);
+		assertAllNotEqual(caller, caller2, caller3, caller4, caller5);
 	}
 
 }

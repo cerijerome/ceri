@@ -3,6 +3,7 @@ package ceri.common.net;
 import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -34,6 +35,7 @@ public class HostPortBehavior {
 		HostPort ne2 = HostPort.of("test");
 		exerciseEquals(obj, eq0, eq1);
 		assertAllNotEqual(obj, ne0, ne1, ne2);
+		assertThat(obj.toString(), is(not(ne2.toString())));
 	}
 
 	@Test

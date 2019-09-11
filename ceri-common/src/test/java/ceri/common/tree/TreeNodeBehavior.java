@@ -1,10 +1,10 @@
 package ceri.common.tree;
 
+import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.tree.TreeNodeTestHelper.builder;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import ceri.common.tree.TreeNodeTestHelper.TestNode;
@@ -37,20 +37,14 @@ public class TreeNodeBehavior {
 		assertThat(tree.get(1).isRoot(), is(false));
 	}
 
-	@SuppressWarnings("unlikely-arg-type")
 	@Test
 	public void shouldObeyEqualsContract() {
 		TestNode root = builder(0).child(builder(1)).build();
 		TestNode root1 = builder(0).child(builder(1)).build();
 		TestNode root2 = builder(0).child(builder(2)).build();
 		TestNode2 root3 = new TestNode2(null, new TestNode2.Builder(0));
-		assertNotEquals(null, root);
-		assertNotEquals("", root);
-		assertThat(root, is(root));
-		assertThat(root, is(root1));
-		assertThat(root, is(not(root2)));
-		assertThat(root, is(not(root3)));
-		assertThat(root.hashCode(), is(root1.hashCode()));
+		exerciseEquals(root, root1);
+		assertAllNotEqual(root, root2, root3);
 	}
 
 	@Test
@@ -70,9 +64,8 @@ public class TreeNodeBehavior {
 
 	@Test
 	public void shouldMatchBuilderChildStructure() {
-		final TestNode node =
-			TreeNodeTestHelper.builder(0).child(TreeNodeTestHelper.builder(1)).child(
-				TreeNodeTestHelper.builder(2)).child(TreeNodeTestHelper.builder(3)).build(null);
+		final TestNode node = TreeNodeTestHelper.builder(0).child(TreeNodeTestHelper.builder(1))
+			.child(TreeNodeTestHelper.builder(2)).child(TreeNodeTestHelper.builder(3)).build(null);
 		assertThat(node.children().size(), is(3));
 	}
 
@@ -80,7 +73,8 @@ public class TreeNodeBehavior {
 	public void shouldHaveImmutableTree() {
 		// Compiler won't let fields be changed, only able to test children
 		assertException(UnsupportedOperationException.class, () -> helper.root.children().clear());
-		assertException(UnsupportedOperationException.class, () -> helper.root.children().add(null));
+		assertException(UnsupportedOperationException.class,
+			() -> helper.root.children().add(null));
 	}
 
 }

@@ -222,9 +222,8 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 
 	private <T> T execReturn(ExceptionFunction<LibUsbException, Ftdi, T> fn)
 		throws LibUsbException {
-		Ftdi ftdi = ftdi();
 		try {
-			return fn.apply(ftdi);
+			return fn.apply(ftdi());
 		} catch (RuntimeException | LibUsbException e) {
 			checkIfBroken(e);
 			throw e;

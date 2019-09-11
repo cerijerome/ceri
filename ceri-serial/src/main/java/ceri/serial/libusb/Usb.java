@@ -157,6 +157,7 @@ public class Usb implements Closeable {
 			dev -> findDeviceCallback(dev, callback));
 	}
 
+	@SuppressWarnings("resource")
 	private boolean findDeviceCallback(libusb_device dev,
 		ExceptionPredicate<LibUsbException, UsbDevice> callback) throws LibUsbException {
 		UsbDevice device = new UsbDevice(this::context, dev);

@@ -39,9 +39,10 @@ public class CollectionUtilTest {
 	public void testContainsAll() {
 		assertFalse(CollectionUtil.containsAll(null));
 		assertTrue(CollectionUtil.containsAll(List.of()));
-		//noinspection IterableUsedAsVararg
 		assertFalse(CollectionUtil.containsAll(List.of(1), List.<Integer>of()));
 		assertFalse(CollectionUtil.containsAll(List.of(), 1));
+		Integer[] nullArray = null;
+		assertFalse(CollectionUtil.containsAll(List.of(), nullArray));
 		List<Integer> list = List.of(-1, 0, 1);
 		assertFalse(CollectionUtil.containsAll(list, -2, 2));
 		assertFalse(CollectionUtil.containsAll(list, -2, -1));
@@ -53,7 +54,8 @@ public class CollectionUtilTest {
 		assertFalse(CollectionUtil.containsAny(null));
 		assertFalse(CollectionUtil.containsAny(List.of()));
 		assertFalse(CollectionUtil.containsAny(List.of(), (List<?>) null));
-		assertFalse(CollectionUtil.containsAny(List.of(1), List.of()));
+		List<Integer> empty = List.of();
+		assertFalse(CollectionUtil.containsAny(List.of(1), empty));
 		assertFalse(CollectionUtil.containsAny(List.of(), 1));
 		List<Integer> list = List.of(-1, 0, 1);
 		assertFalse(CollectionUtil.containsAny(list, -2, 2));

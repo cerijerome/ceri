@@ -23,7 +23,9 @@ import ceri.common.util.BasicUtil;
  * account whenever a build event occurs. The email subject should be of the following form in order
  * to trigger an alert:
  * 
- * <pre>Sample: build-name job-name [fixed|broken]</pre>
+ * <pre>
+ * Sample: build-name job-name [fixed|broken]
+ * </pre>
  * 
  * The content of the email should contain a comma-separated list of committers to be listed in
  * alert event.
@@ -56,18 +58,19 @@ import ceri.common.util.BasicUtil;
 public class SampleMain implements Closeable {
 	private final AudioContainer audio;
 	private final AlertContainer master;
+	private final X10Container x10;
 
 	public static void main(String[] args) throws Exception {
 		// Creating fake events to demonstrate the alerts
 		try (SampleMain container = new SampleMain()) {
-			container.master.alert().process(
-				new BuildEvent("master", "commit", Event.failure("user1")));
+			container.master.alert()
+				.process(new BuildEvent("master", "commit", Event.failure("user1")));
 			BasicUtil.delay(15000);
-			container.master.alert().process(
-				new BuildEvent("master", "commit", Event.failure("user2")));
+			container.master.alert()
+				.process(new BuildEvent("master", "commit", Event.failure("user2")));
 			BasicUtil.delay(15000);
-			container.master.alert().process(
-				new BuildEvent("master", "commit", Event.success("user1", "user2")));
+			container.master.alert()
+				.process(new BuildEvent("master", "commit", Event.success("user1", "user2")));
 			BasicUtil.delay(15000);
 		}
 	}
@@ -76,7 +79,7 @@ public class SampleMain implements Closeable {
 		Properties properties = PropertyUtil.load(getClass());
 		AlertContainer.Builder builder = AlertContainer.builder(properties);
 		ZWaveContainer zwave = new ZWaveContainer(builder.properties);
-		X10Container x10 = new X10Container(builder.properties);
+		x10 = new X10Container(builder.properties);
 		AudioListener audioListener =
 			zwave.group == null ? null : zwave.group.createAudioListener();
 		audio = new AudioContainer(builder.properties, getClass(), audioListener);
@@ -88,8 +91,9 @@ public class SampleMain implements Closeable {
 
 	@Override
 	public void close() {
-		audio.close();
 		master.close();
+		audio.close();
+		x10.close();
 	}
 
 }

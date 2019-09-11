@@ -1,9 +1,9 @@
 package ceri.serial.libusb;
 
 import static ceri.serial.libusb.jna.LibUsb.LIBUSB_HOTPLUG_MATCH_ANY;
-import static ceri.serial.libusb.jna.LibUsb.libusb_capability.LIBUSB_CAP_HAS_HOTPLUG;
 import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_deregister_callback;
 import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_register_callback;
+import static ceri.serial.libusb.jna.LibUsb.libusb_capability.LIBUSB_CAP_HAS_HOTPLUG;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
@@ -40,8 +40,8 @@ public class UsbHotplug implements Closeable {
 	 * Return true if finished processing events.
 	 */
 	public interface Callback<T> {
-		boolean event(Usb context, UsbDevice device, libusb_hotplug_event event,
-			T userData) throws IOException;
+		boolean event(Usb context, UsbDevice device, libusb_hotplug_event event, T userData)
+			throws IOException;
 	}
 
 	/**
@@ -167,6 +167,7 @@ public class UsbHotplug implements Closeable {
 		callbackIds.clear();
 	}
 
+	@SuppressWarnings("resource")
 	private <T> int adaptCallback(Pointer dev, int evt, int callbackId, Callback<T> callback,
 		T userData) {
 		try {

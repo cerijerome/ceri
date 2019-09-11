@@ -20,13 +20,11 @@ public class ImmutableTimeZone extends TimeZone {
 		this.timeZone = timeZone;
 	}
 
-	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
 	public Object clone() {
 		return new ImmutableTimeZone(timeZone);
 	}
 
-	@SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
 	@Override
 	public boolean equals(Object obj) {
 		return timeZone.equals(obj);

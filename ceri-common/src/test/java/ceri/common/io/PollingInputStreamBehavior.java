@@ -25,6 +25,7 @@ public class PollingInputStreamBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldNotWaitIfClosed() throws Exception {
 		byte[] data = { Byte.MIN_VALUE, Byte.MAX_VALUE };
