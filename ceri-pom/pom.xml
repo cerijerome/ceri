@@ -17,7 +17,7 @@
 		<!-- Common properties -->
 		<ceri.version>${project.version}</ceri.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jdk.release>10</jdk.release>
+		<jdk.release>12</jdk.release>
 		<maven.compiler.version>3.8.0</maven.compiler.version>
 		<maven.surefire.version>3.0.0-M3</maven.surefire.version>
 		<junit.version>4.12</junit.version>
