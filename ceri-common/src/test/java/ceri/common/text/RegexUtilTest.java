@@ -11,6 +11,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +26,21 @@ public class RegexUtilTest {
 	@Test
 	public void testPrivateConstructor() {
 		assertPrivateConstructor(RegexUtil.class);
+	}
+
+	@Test
+	public void testReplaceAll() {
+		Pattern p = Pattern.compile("((?<!\\\\)\".*?(?<!\\\\)\"|\\s+)");
+		Function<MatchResult, String> fn = r -> r.group().charAt(0) == '\"' ? null : "";
+		assertThat(RegexUtil.replaceAll(p, "", fn), is(""));
+		assertThat(RegexUtil.replaceAll(p, "test", fn), is("test"));
+		assertThat(RegexUtil.replaceAll(p, "\"test\"", fn), is("\"test\""));
+		assertThat(RegexUtil.replaceAll(p, "t e s t", fn), is("test"));
+		assertThat(RegexUtil.replaceAll(p, "\"t e s t\"", fn), is("\"t e s t\""));
+		assertThat(RegexUtil.replaceAll(p, "\"t \\\"e s\\\" t\"", fn), is("\"t \\\"e s\\\" t\""));
+		String s = "{ \"_id\" : ObjectId(\"57506d62f57802807471dd42\")";
+		assertThat(RegexUtil.replaceAll(p, "{ \"_id\" : ObjectId(\"12345\")", fn), is(
+			"{\"_id\":ObjectId(\"12345\")"));
 	}
 
 	@Test

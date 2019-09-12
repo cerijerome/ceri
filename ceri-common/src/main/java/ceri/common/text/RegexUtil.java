@@ -3,8 +3,10 @@ package ceri.common.text;
 import static ceri.common.collection.StreamUtil.toList;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.MatchResult;
@@ -59,7 +61,29 @@ public class RegexUtil {
 	public static Iterable<MatchResult> forEach(Pattern pattern, String s) {
 		return BasicUtil.forEach(pattern.matcher(s).results().iterator());
 	}
-	
+
+	/**
+	 * Similar to Matcher.replaceAll, where the replacer function can return null to skip
+	 * replacement.
+	 */
+	public static String replaceAll(Pattern p, String s, Function<MatchResult, String> replacer) {
+		Matcher m = p.matcher(s);
+		StringBuilder b = new StringBuilder();
+		int lastStart = 0;
+		int lastEnd = 0;
+		while (m.find()) {
+			String replacement = replacer.apply(m);
+			if (replacement == null) lastEnd = m.end();
+			else {
+				//if (lastStart < lastEnd) b.append(s, lastStart, lastEnd);
+				m.appendReplacement(b, replacement);
+				lastStart = m.end();
+			}
+		}
+		if (lastStart == 0 && lastEnd == 0 && b.length() == 0) return s;
+		return b.append(s, lastStart, s.length()).toString();
+	}
+
 	/**
 	 * Splits a string by splitting before each instance of the pattern.
 	 */

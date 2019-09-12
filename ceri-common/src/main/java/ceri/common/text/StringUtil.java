@@ -600,11 +600,9 @@ public class StringUtil {
 		int left = leftCount(pads, align);
 		if (pads == 0) return str;
 		StringBuilder b = new StringBuilder(minLength);
-		for (int i = 0; i < left; i++)
-			b.append(pad);
+		b.append(pad.repeat(Math.max(0, left)));
 		b.append(str);
-		for (int i = 0; i < pads - left; i++)
-			b.append(pad);
+		b.append(pad.repeat(Math.max(0, pads - left)));
 		return b.toString();
 	}
 
