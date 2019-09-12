@@ -204,7 +204,7 @@ public class StringUtil {
 		if (s == null) return null;
 		if (n == 0 || s.isEmpty()) return "";
 		if (n == 1) return s;
-		return IntStream.range(0, n).mapToObj(i -> s).collect(Collectors.joining());
+		return s.repeat(n);
 	}
 
 	/**
@@ -599,11 +599,7 @@ public class StringUtil {
 		int pads = pads(pad.length(), minLength - str.length());
 		int left = leftCount(pads, align);
 		if (pads == 0) return str;
-		StringBuilder b = new StringBuilder(minLength);
-		b.append(pad.repeat(Math.max(0, left)));
-		b.append(str);
-		b.append(pad.repeat(Math.max(0, pads - left)));
-		return b.toString();
+		return pad.repeat(Math.max(0, left)) + str + pad.repeat(Math.max(0, pads - left));
 	}
 
 	private static int pads(int padLen, int len) {
