@@ -61,22 +61,22 @@ public class ReflectUtilTest {
 
 	@Test(expected = CreateException.class)
 	public void testCreateAbstractObject() throws CreateException {
-		ReflectUtil.createObject(Abstract.class);
+		ReflectUtil.create(Abstract.class);
 	}
 
 	@Test
 	public void testCreateErrorObject() {
-		assertException(() -> ReflectUtil.createObject(Error.class));
+		assertException(() -> ReflectUtil.create(Error.class));
 	}
 
 	@Test
 	public void testCreateObject() throws CreateException {
 		Class<?>[] argTypes = {};
 		Object[] args = {};
-		assertThat(ReflectUtil.createObject(String.class, argTypes, args), is(""));
+		assertThat(ReflectUtil.create(String.class, argTypes, args), is(""));
 		argTypes = new Class<?>[] { long.class };
 		args = new Object[] { 0 };
-		assertThat(ReflectUtil.createObject(Date.class, argTypes, args), is(new Date(0)));
+		assertThat(ReflectUtil.create(Date.class, argTypes, args), is(new Date(0)));
 	}
 
 	@Test
@@ -94,8 +94,8 @@ public class ReflectUtilTest {
 
 	@Test(expected = CreateException.class)
 	public void testCreateObjectDefault() throws CreateException {
-		assertThat(ReflectUtil.createObject(String.class), is(""));
-		ReflectUtil.createObject(Boolean.class);
+		assertThat(ReflectUtil.create(String.class), is(""));
+		ReflectUtil.create(Boolean.class);
 	}
 
 	@Test

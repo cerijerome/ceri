@@ -3,9 +3,12 @@
  */
 package ceri.common.reflect;
 
+import static ceri.common.collection.ArrayUtil.EMPTY_CLASS;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import ceri.common.text.StringUtil;
+import ceri.common.util.BasicUtil;
 
 /**
  * Utility methods related to reflection
@@ -15,9 +18,9 @@ public class ReflectUtil {
 	private ReflectUtil() {}
 
 	/**
-	 * Returns toString() value, or hash code as '@&lt;hash&gt;' if toString has not been overridden.
-	 * Assumes non-overridden toString is of the form '...@&lt;hash&gt;'. Useful for displaying
-	 * shorter string identifiers of lambdas.
+	 * Returns toString() value, or hash code as '@&lt;hash&gt;' if toString has not been
+	 * overridden. Assumes non-overridden toString is of the form '...@&lt;hash&gt;'. Useful for
+	 * displaying shorter string identifiers of lambdas.
 	 */
 	public static String toStringOrHash(Object obj) {
 		if (obj == null) return null;
@@ -26,7 +29,7 @@ public class ReflectUtil {
 		if (i == -1 || i == s.length() - 1) return s;
 		return s.substring(i);
 	}
-	
+
 	/**
 	 * Returns "@<hex-hashcode> for logging/identification purposes.
 	 */
@@ -83,36 +86,49 @@ public class ReflectUtil {
 	}
 
 	/**
+	 * Wraps class getConstructor with unchecked exception.
+	 */
+	public static <T> Constructor<T> constructor(Class<T> cls, Class<?>... argTypes)
+		throws CreateException {
+		try {
+			return cls.getConstructor(argTypes);
+		} catch (NoSuchMethodException e) {
+			StringBuilder b = new StringBuilder();
+			b.append("constructor ").append(cls.getSimpleName()).append('(');
+			StringUtil.append(b, ", ", Class::getSimpleName, argTypes).append(") not found");
+			throw new CreateException(b.toString(), e);
+		}
+	}
+
+	/**
 	 * Creates an object of given type, using default constructor
 	 */
-	public static <T> T createObject(Class<T> classType) throws CreateException {
-		return createObject(classType, new Class[] {}, new Object[] {});
+	public static <T> T create(Class<T> classType) throws CreateException {
+		return create(classType, EMPTY_CLASS);
 	}
 
 	/**
 	 * Creates an object of given type, using constructor that matches given argument types.
-	 *
-	 * @param classType
-	 *            new object type
-	 * @param argTypes
-	 *            constructor argument types
-	 * @param args
-	 *            constructor arguments
-	 * @return new instance of given object type
 	 */
-	public static <T> T createObject(Class<T> classType, Class<?>[] argTypes, Object[] args)
-		throws CreateException {
+	public static <T> T create(Class<T> cls, Class<?>[] argTypes, Object... args) {
+		return create(constructor(cls, argTypes), args);
+	}
+
+	public static <T> T create(Constructor<T> constructor, Object... args) {
+		Throwable t = null;
 		try {
-			Constructor<T> constructor = classType.getConstructor(argTypes);
 			return constructor.newInstance(args);
-		} catch (NoSuchMethodException e) {
-			throw new CreateException("Data type '" + classType +
-				"' does not have a constructor matching arguments " + Arrays.toString(argTypes), e);
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new CreateException("Unable to instantiate data type '" + classType + "'", e);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
+			t = e;
 		} catch (InvocationTargetException e) {
-			throw new CreateException("Unexpected data type", e);
+			t = BasicUtil.defaultValue(e.getCause(), e);
 		}
+		StringBuilder b = new StringBuilder();
+		b.append("new ").append(constructor.getDeclaringClass().getSimpleName()).append('(');
+		StringUtil.append(b, ", ", Class::getSimpleName, constructor.getParameterTypes());
+		b.append(") failed with args (");
+		StringUtil.append(b, ", ", args).append(')');
+		throw new CreateException(b.toString(), t);
 	}
 
 	private static StackTraceElement previousStackTraceElement(String callingMethodName,

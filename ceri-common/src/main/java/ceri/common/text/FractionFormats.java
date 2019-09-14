@@ -179,7 +179,7 @@ public class FractionFormats {
 		}
 
 		public static String expand(String s) {
-			return StringUtil.replaceAll(s, EXPAND_REGEX, m -> EXPANSIONS.get(m.group().charAt(0)));
+			return EXPAND_REGEX.matcher(s).replaceAll(m -> EXPANSIONS.get(m.group().charAt(0)));
 		}
 
 		private static String pattern() {

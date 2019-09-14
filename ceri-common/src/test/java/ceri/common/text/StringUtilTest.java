@@ -4,8 +4,7 @@ import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.exerciseSwitch;
-import static java.lang.Character.toUpperCase;
-import static java.lang.String.valueOf;
+import static ceri.common.text.StringUtil.repeat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -69,18 +68,12 @@ public class StringUtilTest {
 
 	@Test
 	public void testRepeat() {
-		assertNull(StringUtil.repeat(null, 0));
-		assertNull(StringUtil.repeat(null, 10));
-		assertThat(StringUtil.repeat("", 0), is(""));
-		assertThat(StringUtil.repeat("", 10), is(""));
-		assertThat(StringUtil.repeat("abc", 1), is("abc"));
-		assertThat(StringUtil.repeat("abc", 3), is("abcabcabc"));
-	}
-
-	@Test
-	public void testReplaceAllQuoted() {
-		assertThat(StringUtil.replaceAllQuoted("abc123de45f6", "\\d+", "N\\$"),
-			is("abcN\\$deN\\$fN\\$"));
+		assertNull(repeat(null, 0));
+		assertNull(repeat(null, 10));
+		assertThat(repeat("", 0), is(""));
+		assertThat(repeat("", 10), is(""));
+		assertThat(repeat("abc", 1), is("abc"));
+		assertThat(repeat("abc", 3), is("abcabcabc"));
 	}
 
 	@Test
@@ -147,7 +140,8 @@ public class StringUtilTest {
 		assertThat(StringUtil.unEscapeChar("\0\\\\"), is('\0'));
 		assertThat(StringUtil.unEscape("\\z\\\\\\\\\\\\z"), is("\\z\\\\\\z"));
 		assertThat(StringUtil.unEscape("\\\\\\b\\e\\f\\n\\r\\t"), is("\\\u0008\u001b\f\n\r\t"));
-		assertThat(StringUtil.unEscape("abc\\0\\00\\000\\077\\0377def"), is("abc\0\0\0?\u00ffdef"));
+		assertThat(StringUtil.unEscape("abc\\0\\00\\000\\077\\0377def"), is("abc\0\0\0?\u00ffdef"
+		));
 		assertThat(StringUtil.unEscape("ABC\\x00\\xffDEF"), is("ABC\0\u00ffDEF"));
 		assertThat(StringUtil.unEscape("xyz\\u0000\\u1234"), is("xyz\0\u1234"));
 		assertThat(StringUtil.unEscape("\\x0\\u0\\u00\\u000"), is("\\x0\\u0\\u00\\u000"));
@@ -171,13 +165,6 @@ public class StringUtilTest {
 		assertThat(StringUtil.escape("\\ \b \u001b \t \f \r \n \0 \1"),
 			is("\\ \\b \\e \\t \\f \\r \\n \\0 \\u0001"));
 		assertThat(StringUtil.escapeChar('\\'), is("\\\\"));
-	}
-
-	@Test
-	public void testReplaceAll() {
-		String s = "abcdefghijklmnopqrstuvwxyz";
-		s = StringUtil.replaceAll(s, "[aeiou]", m -> valueOf(toUpperCase(m.group().charAt(0))));
-		assertThat(s, is("AbcdEfghIjklmnOpqrstUvwxyz"));
 	}
 
 	@Test
@@ -254,15 +241,15 @@ public class StringUtilTest {
 	}
 
 	@Test
-	public void testToString() {
-		String toString = StringUtil.toString("{", "}", "|", "Test1", "Test2", "Test3");
-		assertThat(toString, is("{Test1|Test2|Test3}"));
-		toString = StringUtil.toString("{", "}", "|", "Test");
-		assertThat(toString, is("{Test}"));
-		toString = StringUtil.toString("{", "}", "|", Collections.singleton("Test"));
-		assertThat(toString, is("{Test}"));
-		toString = StringUtil.toString("|", Arrays.asList(1, 2, 3));
-		assertThat(toString, is("1|2|3"));
+	public void testJoin() {
+		assertThat(StringUtil.join("|", 1, 2, 3), is("1|2|3"));
+		assertThat(StringUtil.join("|", "{", "}", "Test1", "Test2", "Test3"),
+			is("{Test1|Test2|Test3}"));
+		assertThat(StringUtil.join("|", "{", "}", "Test"), is("{Test}"));
+		assertThat(StringUtil.join("|", "{", "}", Collections.singleton("Test")), is("{Test}"));
+		assertThat(StringUtil.join("|", Arrays.asList(1, 2, 3)), is("1|2|3"));
+		assertThat(StringUtil.join("|", i -> repeat("x", i), 1, 2, 3), is("x|xx|xxx"));
+		assertThat(StringUtil.join("|", "{", "}", i -> repeat("x", i), 1, 2, 3), is("{x|xx|xxx}"));
 	}
 
 	@Test
@@ -288,14 +275,28 @@ public class StringUtilTest {
 
 	@Test
 	public void testSafeSubstring() {
-		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", 0), is("\u3fff\u3ffe\u3ffd"));
-		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", 2), is("\u3ffd"));
-		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", 4), is(""));
-		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", -3, -1),
-			is("\u3fff\u3ffe\u3ffd"));
-		assertThat(StringUtil.safeSubstring("\u3fff\u3ffe\u3ffd", -4, 5), is("\u3fff\u3ffe\u3ffd"));
-		assertThat(StringUtil.safeSubstring(null, 0, 0), is(""));
+		String s = "\u3fff\u3ffe\u3ffd";
+		assertThat(StringUtil.safeSubstring(s, 0), is(s));
+		assertThat(StringUtil.safeSubstring(s, 2), is("\u3ffd"));
+		assertThat(StringUtil.safeSubstring(s, 4), is(""));
+		assertThat(StringUtil.safeSubstring(s, -3, -1), is(s));
+		assertThat(StringUtil.safeSubstring(s, -4, 5), is(s));
+		assertThat(StringUtil.safeSubstring((String) null, 0, 0), is(""));
 		assertThat(StringUtil.safeSubstring("abc", 0, 3), is("abc"));
+		StringBuilder b = new StringBuilder(s);
+		assertThat(StringUtil.safeSubstring(b, 0), is(s));
+		assertThat(StringUtil.safeSubstring(b, 2), is("\u3ffd"));
+		assertThat(StringUtil.safeSubstring(b, 4), is(""));
+		assertThat(StringUtil.safeSubstring(b, -3, -1), is(s));
+		assertThat(StringUtil.safeSubstring(b, -4, 5), is(s));
+		assertThat(StringUtil.safeSubstring((StringBuilder) null, 0, 0), is(""));
+		assertThat(StringUtil.safeSubstring(new StringBuilder("abc"), 0, 3), is("abc"));
+	}
+
+	@Test
+	public void testSubSequence() {
+		assertNull(StringUtil.subSequence(null, 0));
+		assertThat(StringUtil.subSequence(new StringBuilder("test"), 2), is("st"));
 	}
 
 	@Test

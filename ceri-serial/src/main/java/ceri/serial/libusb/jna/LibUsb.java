@@ -2603,7 +2603,8 @@ public class LibUsb {
 
 	private static int verify(int result, String name, Object... objs) throws LibUsbException {
 		if (result >= 0) return result;
-		String message = StringUtil.toString("libusb_" + name + "(", ") failed", ", ", objs);
+		StringBuilder b = new StringBuilder("libusb_").append(name).append("(");
+		String message = StringUtil.append(b, ", ", objs).append(") failed").toString();
 		throw LibUsbException.fullMessage(message, result);
 	}
 

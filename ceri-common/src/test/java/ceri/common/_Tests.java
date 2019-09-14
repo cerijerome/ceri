@@ -203,6 +203,7 @@ import ceri.common.text.FractionFormatsTest;
 import ceri.common.text.MarshallerBehavior;
 import ceri.common.text.RegexSequencerBehavior;
 import ceri.common.text.RegexUtilTest;
+import ceri.common.text.StringTypeBehavior;
 import ceri.common.text.StringUtilTest;
 import ceri.common.text.TextUtilTest;
 import ceri.common.text.ToStringHelperBehavior;
@@ -214,6 +215,7 @@ import ceri.common.tree.TreeNodeComparatorsTest;
 import ceri.common.tree.TreeUtilTest;
 import ceri.common.util.BasicUtilTest;
 import ceri.common.util.EqualsUtilTest;
+import ceri.common.util.ExceptionAdapterBehavior;
 import ceri.common.util.ExceptionTrackerBehavior;
 import ceri.common.util.HashCoderBehavior;
 import ceri.common.util.HolderBehavior;
@@ -457,6 +459,7 @@ import ceri.common.xml.XmlUtilTest;
 	MarshallerBehavior.class, //
 	RegexSequencerBehavior.class, //
 	RegexUtilTest.class, //
+	StringTypeBehavior.class, //
 	StringUtilTest.class, //
 	TextUtilTest.class, //
 	ToStringHelperBehavior.class, //
@@ -470,6 +473,7 @@ import ceri.common.xml.XmlUtilTest;
 	// util
 	BasicUtilTest.class, //
 	EqualsUtilTest.class, //
+	ExceptionAdapterBehavior.class, //
 	ExceptionTrackerBehavior.class, //
 	HashCoderBehavior.class, //
 	HolderBehavior.class, //

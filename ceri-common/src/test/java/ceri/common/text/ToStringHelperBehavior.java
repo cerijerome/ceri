@@ -92,7 +92,7 @@ public class ToStringHelperBehavior {
 	}
 
 	private static String lines(String... lines) {
-		return StringUtil.toString("", "", System.lineSeparator(), Arrays.asList(lines));
+		return String.join(System.lineSeparator(), lines);
 	}
 
 }

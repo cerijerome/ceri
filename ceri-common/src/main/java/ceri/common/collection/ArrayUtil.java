@@ -25,6 +25,7 @@ public class ArrayUtil {
 	public static final double[] EMPTY_DOUBLE = new double[0];
 	public static final String[] EMPTY_STRING = new String[0];
 	public static final Object[] EMPTY_OBJECT = new Object[0];
+	public static final Class<?>[] EMPTY_CLASS = new Class<?>[0];
 	private static final Map<Class<?>, Function<Object, String>> toStringMap = toStringMap();
 
 	private ArrayUtil() {}

@@ -5,6 +5,7 @@ import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertMap;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.text.StringUtil.reverse;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -21,26 +22,12 @@ public class RegexUtilTest {
 	private static final Pattern LSTRING_PATTERN = Pattern.compile("([a-z]+)");
 	private static final Pattern USTRING_PATTERN = Pattern.compile("([A-Z]+)");
 	private static final Pattern INT_PATTERN = Pattern.compile("(\\d+)");
-	private static final Pattern MULTI_PATTERN = Pattern.compile("(\\w+)\\W+(\\w+)\\W+([\\w\\.]+)");
+	private static final Pattern MULTI_PATTERN =
+		Pattern.compile("(\\w+)\\W+(\\w+)\\W+([\\w\\" + ".]+)");
 
 	@Test
 	public void testPrivateConstructor() {
 		assertPrivateConstructor(RegexUtil.class);
-	}
-
-	@Test
-	public void testReplaceAll() {
-		Pattern p = Pattern.compile("((?<!\\\\)\".*?(?<!\\\\)\"|\\s+)");
-		Function<MatchResult, String> fn = r -> r.group().charAt(0) == '\"' ? null : "";
-		assertThat(RegexUtil.replaceAll(p, "", fn), is(""));
-		assertThat(RegexUtil.replaceAll(p, "test", fn), is("test"));
-		assertThat(RegexUtil.replaceAll(p, "\"test\"", fn), is("\"test\""));
-		assertThat(RegexUtil.replaceAll(p, "t e s t", fn), is("test"));
-		assertThat(RegexUtil.replaceAll(p, "\"t e s t\"", fn), is("\"t e s t\""));
-		assertThat(RegexUtil.replaceAll(p, "\"t \\\"e s\\\" t\"", fn), is("\"t \\\"e s\\\" t\""));
-		String s = "{ \"_id\" : ObjectId(\"57506d62f57802807471dd42\")";
-		assertThat(RegexUtil.replaceAll(p, "{ \"_id\" : ObjectId(\"12345\")", fn), is(
-			"{\"_id\":ObjectId(\"12345\")"));
 	}
 
 	@Test
@@ -66,6 +53,32 @@ public class RegexUtilTest {
 		for (MatchResult result : RegexUtil.forEach(INT_PATTERN, "123abcA1B2C3"))
 			list.add(result.group());
 		assertIterable(list, "123", "1", "2", "3");
+	}
+
+	@Test
+	public void testReplaceAllQuoted() {
+		assertThat(RegexUtil.replaceAllQuoted("\\d+", "abc123de45f6", "N\\$"),
+			is("abcN\\$deN\\$fN\\$"));
+		assertThat(RegexUtil.replaceAllQuoted("[\\\\$]+", "abc$\\def\\$", m -> reverse(m.group())),
+			is("abc\\$def$\\"));
+	}
+
+	@Test
+	public void testReplaceAll() {
+		String s = "abcdefghijklmnopqrstuvwxyz";
+		s = RegexUtil.replaceAll("[aeiou]", s,
+			m -> String.valueOf(Character.toUpperCase(m.group().charAt(0))));
+		assertThat(s, is("AbcdEfghIjklmnOpqrstUvwxyz"));
+		Pattern p = Pattern.compile("((?<!\\\\)\".*?(?<!\\\\)\"|\\s+)");
+		Function<MatchResult, String> fn = r -> r.group().charAt(0) == '\"' ? null : "";
+		assertThat(RegexUtil.replaceAll(p, "", fn), is(""));
+		assertThat(RegexUtil.replaceAll(p, "test", fn), is("test"));
+		assertThat(RegexUtil.replaceAll(p, "\"test\"", fn), is("\"test\""));
+		assertThat(RegexUtil.replaceAll(p, "t e s t", fn), is("test"));
+		assertThat(RegexUtil.replaceAll(p, "\"t e s t\"", fn), is("\"t e s t\""));
+		assertThat(RegexUtil.replaceAll(p, "\"t \\\"e s\\\" t\"", fn), is("\"t \\\"e s\\\" t\""));
+		assertThat(RegexUtil.replaceAll(p, "{ \"_id\" : ObjectId(\"12345\")", fn),
+			is("{\"_id\":ObjectId(\"12345\")"));
 	}
 
 	@Test
@@ -212,8 +225,10 @@ public class RegexUtilTest {
 
 	@Test
 	public void testFindAll() {
-		assertCollection(RegexUtil.findAll(LSTRING_PATTERN, "abc123DEF456ghi789JKL"), "abc", "ghi");
-		assertCollection(RegexUtil.findAll(USTRING_PATTERN, "abc123DEF456ghi789JKL"), "DEF", "JKL");
+		assertCollection(RegexUtil.findAll(LSTRING_PATTERN, "abc123DEF456ghi789JKL"), "abc",
+			"ghi");
+		assertCollection(RegexUtil.findAll(USTRING_PATTERN, "abc123DEF456ghi789JKL"), "DEF",
+			"JKL");
 		assertCollection(RegexUtil.findAll(INT_PATTERN, "abc123DEF456ghi789JKL"), "123", "456",
 			"789");
 	}
@@ -222,7 +237,8 @@ public class RegexUtilTest {
 	public void testFindAllBooleans() {
 		assertCollection(RegexUtil.findAllBooleans(LSTRING_PATTERN, "abcDEFtrue123TRUE456True"),
 			false, true, false);
-		assertCollection(RegexUtil.findAllBooleans(LSTRING_PATTERN, "abc123DEF456ghi789JKL"), false,
+		assertCollection(RegexUtil.findAllBooleans(LSTRING_PATTERN, "abc123DEF456ghi789JKL"),
+			false,
 			false);
 	}
 
@@ -235,7 +251,8 @@ public class RegexUtilTest {
 
 	@Test
 	public void testFindAllShorts() {
-		assertCollection(RegexUtil.findAllShorts(INT_PATTERN, "abc123DEF456ghi789JKL"), (short) 123,
+		assertCollection(RegexUtil.findAllShorts(INT_PATTERN, "abc123DEF456ghi789JKL"),
+			(short) 123,
 			(short) 456, (short) 789);
 		assertException(() -> RegexUtil.findAllShorts(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}

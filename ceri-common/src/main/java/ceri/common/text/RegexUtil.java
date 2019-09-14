@@ -3,10 +3,8 @@ package ceri.common.text;
 import static ceri.common.collection.StreamUtil.toList;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.MatchResult;
@@ -43,11 +41,11 @@ public class RegexUtil {
 	public static Predicate<String> finder(Pattern p) {
 		return s -> s != null && p.matcher(s).find();
 	}
-	
+
 	public static Predicate<String> matcher(Pattern p) {
 		return s -> s != null && p.matcher(s).matches();
 	}
-	
+
 	/**
 	 * Compiles a pattern from string format.
 	 */
@@ -63,8 +61,49 @@ public class RegexUtil {
 	}
 
 	/**
-	 * Similar to Matcher.replaceAll, where the replacer function can return null to skip
-	 * replacement.
+	 * Replaces pattern matches with well behaved \ and $ in the replacement string.
+	 */
+	public static String replaceAllQuoted(String pattern, String s, String replacement) {
+		return replaceAllQuoted(Pattern.compile(pattern), s, replacement);
+	}
+
+	/**
+	 * Replaces pattern matches with well behaved \ and $ in the replacement string.
+	 */
+	public static String replaceAllQuoted(Pattern pattern, String s, String replacement) {
+		return pattern.matcher(s).replaceAll(quote(replacement));
+	}
+
+	/**
+	 * Replaces pattern matches with well behaved \ and $ in the replacement string.
+	 */
+	public static String replaceAllQuoted(String pattern, String s,
+		Function<MatchResult, String> replacer) {
+		return replaceAllQuoted(Pattern.compile(pattern), s, replacer);
+	}
+
+	/**
+	 * Replaces pattern matches with well behaved \ and $ in the replacement string.
+	 */
+	public static String replaceAllQuoted(Pattern pattern, String s,
+		Function<MatchResult, String> replacer) {
+		return replaceAll(pattern, s, m -> quote(replacer.apply(m)));
+	}
+
+	/**
+	 * Replace all instances of the pattern using the replacer function.
+	 */
+	public static String replaceAll(String pattern, String s,
+		Function<MatchResult, String> replacer) {
+		return replaceAll(Pattern.compile(pattern), s, replacer);
+	}
+
+	private static String quote(String s) {
+		return s == null ? null : Matcher.quoteReplacement(s);
+	}
+
+	/**
+	 * Same as Matcher.replaceAll, but the replacer function can return null to skip replacement.
 	 */
 	public static String replaceAll(Pattern p, String s, Function<MatchResult, String> replacer) {
 		Matcher m = p.matcher(s);
@@ -75,13 +114,12 @@ public class RegexUtil {
 			String replacement = replacer.apply(m);
 			if (replacement == null) lastEnd = m.end();
 			else {
-				//if (lastStart < lastEnd) b.append(s, lastStart, lastEnd);
 				m.appendReplacement(b, replacement);
 				lastStart = m.end();
 			}
 		}
 		if (lastStart == 0 && lastEnd == 0 && b.length() == 0) return s;
-		return b.append(s, lastStart, s.length()).toString();
+		return m.appendTail(b).toString();
 	}
 
 	/**
@@ -171,7 +209,8 @@ public class RegexUtil {
 	}
 
 	/**
-	 * Finds the first matching regex and returns the first group if it exists, otherwise the entire
+	 * Finds the first matching regex and returns the first group if it exists, otherwise the
+	 * entire
 	 * matched pattern.
 	 */
 	public static String find(Pattern regex, String s) {
@@ -328,8 +367,7 @@ public class RegexUtil {
 	public static List<String> findAll(Pattern regex, String s) {
 		List<String> values = new ArrayList<>();
 		Matcher m = regex.matcher(s);
-		while (m.find())
-			values.add(m.group(1));
+		while (m.find()) values.add(m.group(1));
 		return values;
 	}
 

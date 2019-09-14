@@ -1,5 +1,7 @@
 package ceri.common.text;
 
+import static ceri.common.text.RegexUtil.replaceAllQuoted;
+import static java.util.Arrays.asList;
 import java.awt.event.KeyEvent;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -12,9 +14,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Formatter;
 import java.util.List;
 import java.util.function.Function;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -51,8 +53,8 @@ public class StringUtil {
 	private static final String ESCAPED_OCTAL = "\\0";
 	private static final String ESCAPED_HEX = "\\x";
 	private static final String ESCAPED_UTF16 = "\\u";
-	private static final Pattern ESCAPE_REGEX =
-		Pattern.compile("\\\\\\\\|\\\\b|\\\\e|\\\\t|\\\\f|\\\\r|\\\\n|" +
+	private static final Pattern ESCAPE_REGEX = Pattern.compile(
+		"\\\\\\\\|\\\\b|\\\\e|\\\\t|\\\\f|\\\\r|\\\\n|" +
 			"\\\\0[0-3][0-7]{2}|\\\\0[0-7]{2}|\\\\0[0-7]|\\\\0|" +
 			"\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
 	private static final Charset UTF8 = StandardCharsets.UTF_8;
@@ -74,23 +76,30 @@ public class StringUtil {
 
 	private StringUtil() {}
 
+	/**
+	 * Reverses a string.
+	 */
 	public static String reverse(String s) {
 		if (s == null || s.isEmpty()) return s;
 		return new StringBuilder(s).reverse().toString();
 	}
-	
+
+	/**
+	 * Appends formatted text to string builder.
+	 */
 	public static StringBuilder format(StringBuilder sb, String format, Object... objs) {
-		try (java.util.Formatter f = new java.util.Formatter(sb)) {
+		try (Formatter f = new Formatter(sb)) {
 			f.format(format, objs);
 			return sb;
 		}
 	}
 
+	/**
+	 * Creates a decimal formatter with given number of decimal places.
+	 */
 	public static DecimalFormat decimalFormat(int decimalPlaces) {
 		StringBuilder b = new StringBuilder("0");
-		if (decimalPlaces > 0) b.append(".");
-		while (decimalPlaces-- > 0)
-			b.append("#");
+		if (decimalPlaces > 0) repeat(b.append("."), "#", decimalPlaces);
 		DecimalFormat format = new DecimalFormat(b.toString());
 		format.setRoundingMode(RoundingMode.HALF_UP);
 		return format;
@@ -99,7 +108,6 @@ public class StringUtil {
 	/**
 	 * Extracts the first substring with matching open and close brackets. Extraction includes
 	 * bracket chars.
-	 * 
 	 */
 	public static String extractBrackets(String s, char open, char close) {
 		if (s == null) return null;
@@ -137,24 +145,24 @@ public class StringUtil {
 	 */
 	static String escapeChar(char c) {
 		switch (c) {
-		case BACKSLASH:
-			return ESCAPED_BACKSLASH;
-		case BACKSPACE:
-			return ESCAPED_BACKSPACE;
-		case ESCAPE:
-			return ESCAPED_ESCAPE;
-		case FF:
-			return ESCAPED_FF;
-		case NL:
-			return ESCAPED_NL;
-		case CR:
-			return ESCAPED_CR;
-		case TAB:
-			return ESCAPED_TAB;
-		case NULL:
-			return ESCAPED_NULL;
-		default:
-			return ESCAPED_UTF16 + toHex(c, SHORT_HEX_DIGITS);
+			case BACKSLASH:
+				return ESCAPED_BACKSLASH;
+			case BACKSPACE:
+				return ESCAPED_BACKSPACE;
+			case ESCAPE:
+				return ESCAPED_ESCAPE;
+			case FF:
+				return ESCAPED_FF;
+			case NL:
+				return ESCAPED_NL;
+			case CR:
+				return ESCAPED_CR;
+			case TAB:
+				return ESCAPED_TAB;
+			case NULL:
+				return ESCAPED_NULL;
+			default:
+				return ESCAPED_UTF16 + toHex(c, SHORT_HEX_DIGITS);
 		}
 	}
 
@@ -162,7 +170,7 @@ public class StringUtil {
 	 * Encodes escaped characters within the given string.
 	 */
 	public static String unEscape(String s) {
-		return replaceAll(s, ESCAPE_REGEX, m -> String.valueOf(unEscapeChar(m.group())));
+		return replaceAllQuoted(ESCAPE_REGEX, s, m -> String.valueOf(unEscapeChar(m.group())));
 	}
 
 	/**
@@ -171,22 +179,22 @@ public class StringUtil {
 	static char unEscapeChar(String escapedChar) {
 		if (escapedChar == null) return NULL;
 		switch (escapedChar) {
-		case ESCAPED_BACKSLASH:
-			return BACKSLASH;
-		case ESCAPED_BACKSPACE:
-			return BACKSPACE;
-		case ESCAPED_ESCAPE:
-			return ESCAPE;
-		case ESCAPED_FF:
-			return FF;
-		case ESCAPED_NL:
-			return NL;
-		case ESCAPED_CR:
-			return CR;
-		case ESCAPED_TAB:
-			return TAB;
-		case ESCAPED_NULL:
-			return NULL;
+			case ESCAPED_BACKSLASH:
+				return BACKSLASH;
+			case ESCAPED_BACKSPACE:
+				return BACKSPACE;
+			case ESCAPED_ESCAPE:
+				return ESCAPE;
+			case ESCAPED_FF:
+				return FF;
+			case ESCAPED_NL:
+				return NL;
+			case ESCAPED_CR:
+				return CR;
+			case ESCAPED_TAB:
+				return TAB;
+			case ESCAPED_NULL:
+				return NULL;
 		}
 		Character c = escaped(escapedChar, ESCAPED_OCTAL, OCTAL_RADIX);
 		if (c == null) c = escaped(escapedChar, ESCAPED_HEX, HEX_RADIX);
@@ -200,41 +208,20 @@ public class StringUtil {
 		return (char) Integer.parseInt(escapedChar.substring(prefix.length()), radix);
 	}
 
+	/**
+	 * Returns string repeated n times.
+	 */
 	public static String repeat(String s, int n) {
 		if (s == null) return null;
-		if (n == 0 || s.isEmpty()) return "";
-		if (n == 1) return s;
 		return s.repeat(n);
 	}
 
 	/**
-	 * Calls String.replaceAll with well behaved \ and $ in the replacement string.
+	 * Adds string to builder n times.
 	 */
-	public static String replaceAllQuoted(String s, String pattern, String replacement) {
-		return s.replaceAll(pattern, Matcher.quoteReplacement(replacement));
-	}
-
-	/**
-	 * Replace all instances of the pattern using the replacer function.
-	 */
-	public static String replaceAll(String s, String pattern,
-		Function<MatchResult, String> replacer) {
-		return replaceAll(s, Pattern.compile(pattern), replacer);
-	}
-
-	/**
-	 * Replace all instances of the pattern using the replacer function.
-	 */
-	public static String replaceAll(String s, Pattern p, Function<MatchResult, String> replacer) {
-		StringBuffer output = new StringBuffer();
-		Matcher m = p.matcher(s);
-		while (m.find()) {
-			String replacement = replacer.apply(m);
-			m.appendReplacement(output, "");
-			output.append(replacement);
-		}
-		m.appendTail(output);
-		return output.toString();
+	public static StringBuilder repeat(StringBuilder b, CharSequence s, int n) {
+		if (s != null || s.length() > 0) while (n-- > 0) b.append(s);
+		return b;
 	}
 
 	/**
@@ -503,64 +490,110 @@ public class StringUtil {
 		return count;
 	}
 
-	/**
-	 * Creates a formatted string for iterable items: item1[separator]item2[separator]...
-	 */
-	public static String toString(String separator, Iterable<?> iterable) {
-		return toString("", "", separator, iterable);
+	public static StringBuilder append(StringBuilder b, CharSequence delimiter, Object... items) {
+		return append(b, delimiter, asList(items));
 	}
 
-	/**
-	 * Creates a formatted string for iterable items: [pre]item1[separator]item2[separator]...[post]
-	 */
-	public static String toString(String pre, String post, String separator, Iterable<?> iterable) {
-		StringBuilder b = new StringBuilder(pre);
-		boolean first = true;
-		for (Object obj : iterable) {
-			if (!first) b.append(separator);
-			b.append(obj);
-			first = false;
+	public static StringBuilder append(StringBuilder b, CharSequence delimiter,
+		Iterable<?> items) {
+		return append(b, delimiter, String::valueOf, items);
+	}
+
+	@SafeVarargs
+	public static <T> StringBuilder append(StringBuilder b, CharSequence delimiter,
+		Function<T, ? extends CharSequence> fn, T... items) {
+		return append(b, delimiter, fn, asList(items));
+	}
+
+	public static <T> StringBuilder append(StringBuilder b, CharSequence delimiter,
+		Function<T, ? extends CharSequence> fn, Iterable<T> items) {
+		int len = b.length();
+		for (T item : items) {
+			if (b.length() > len && delimiter.length() > 0) b.append(delimiter);
+			b.append(fn.apply(item));
 		}
-		return b.append(post).toString();
+		return b;
 	}
 
 	/**
-	 * Convenience method to prevent callers needing to cast to Object[].
+	 * Creates a formatted string for iterable items.
 	 */
-	public static String toString(String pre, String post, String separator, String... objects) {
-		return toString(pre, post, separator, (Object[]) objects);
+	public static String join(CharSequence delimiter, Object... iterable) {
+		return join(delimiter, String::valueOf, asList(iterable));
 	}
 
 	/**
-	 * Creates a formatted string for an array of items:
-	 * [pre]item1[separator]item2[separator]...[post]
+	 * Creates a formatted string for iterable items.
 	 */
-	public static String toString(String pre, String post, String separator, Object... objects) {
-		StringBuilder b = new StringBuilder(pre);
-		boolean first = true;
-		for (Object obj : objects) {
-			if (!first) b.append(separator);
-			b.append(obj);
-			first = false;
-		}
-		return b.append(post).toString();
+	public static String join(CharSequence delimiter, Iterable<?> iterable) {
+		return join(delimiter, String::valueOf, iterable);
 	}
 
-	public static String toLowerCase(String s) {
+	/**
+	 * Creates a formatted string for iterable items.
+	 */
+	@SafeVarargs
+	public static <T> String join(CharSequence delimiter, Function<T, ? extends CharSequence> fn,
+		T... iterable) {
+		return join(delimiter, fn, asList(iterable));
+	}
+
+	/**
+	 * Creates a formatted string for iterable items.
+	 */
+	public static <T> String join(CharSequence delimiter, Function<T, ? extends CharSequence> fn,
+		Iterable<T> iterable) {
+		return append(new StringBuilder(), delimiter, fn, iterable).toString();
+	}
+
+	/**
+	 * Creates a formatted string for iterable items.
+	 */
+	public static String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix,
+		Object... iterable) {
+		return join(delimiter, prefix, suffix, asList(iterable));
+	}
+
+	/**
+	 * Creates a formatted string for iterable items.
+	 */
+	public static String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix,
+		Iterable<?> iterable) {
+		return join(delimiter, prefix, suffix, String::valueOf, iterable);
+	}
+
+	/**
+	 * Creates a formatted string for iterable items.
+	 */
+	@SafeVarargs
+	public static <T> String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix,
+		Function<T, ? extends CharSequence> fn, T... iterable) {
+		return join(delimiter, prefix, suffix, fn, asList(iterable));
+	}
+
+	/**
+	 * Creates a formatted string for iterable items.
+	 */
+	public static <T> String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix,
+		Function<T, ? extends CharSequence> fn, Iterable<T> iterable) {
+		return append(new StringBuilder(prefix), delimiter, fn, iterable).append(suffix).toString();
+	}
+
+	public static String toLowerCase(CharSequence s) {
 		if (s == null) return null;
-		return s.toLowerCase();
+		return s.toString().toLowerCase();
 	}
 
-	public static String toUpperCase(String s) {
+	public static String toUpperCase(CharSequence s) {
 		if (s == null) return null;
-		return s.toUpperCase();
+		return s.toString().toUpperCase();
 	}
 
-	public static boolean startsWithIgnoreCase(String lhs, String rhs) {
+	public static boolean startsWithIgnoreCase(CharSequence lhs, CharSequence rhs) {
 		if (lhs == rhs) return true;
 		if (lhs == null || rhs == null) return false;
 		if (lhs.length() < rhs.length()) return false;
-		return lhs.substring(0, rhs.length()).equalsIgnoreCase(rhs);
+		return lhs.toString().substring(0, rhs.length()).equalsIgnoreCase(rhs.toString());
 	}
 
 	/**
@@ -578,28 +611,31 @@ public class StringUtil {
 	/**
 	 * Pads a string with leading spaces.
 	 */
-	public static String pad(String str, int minLength) {
+	public static String pad(CharSequence str, int minLength) {
 		return pad(str, minLength, " ", HAlign.right);
 	}
 
 	/**
 	 * Pads a string with leading or trailing characters.
 	 */
-	public static String pad(String str, int minLength, HAlign align) {
+	public static String pad(CharSequence str, int minLength, HAlign align) {
 		return pad(str, minLength, " ", align);
 	}
 
 	/**
 	 * Pads a string with leading or trailing characters.
 	 */
-	public static String pad(String str, int minLength, String pad, HAlign align) {
+	public static String pad(CharSequence str, int minLength, CharSequence pad, HAlign align) {
 		if (str == null) str = "";
 		if (pad == null) pad = "";
-		if (str.length() >= minLength) return str;
+		if (str.length() >= minLength) return str.toString();
 		int pads = pads(pad.length(), minLength - str.length());
 		int left = leftCount(pads, align);
-		if (pads == 0) return str;
-		return pad.repeat(Math.max(0, left)) + str + pad.repeat(Math.max(0, pads - left));
+		if (pads == 0) return str.toString();
+		StringBuilder b = new StringBuilder();
+		repeat(b, pad, Math.max(0, left)).append(str);
+		repeat(b, pad, Math.max(0, pads - left));
+		return b.toString();
 	}
 
 	private static int pads(int padLen, int len) {
@@ -621,7 +657,8 @@ public class StringUtil {
 	}
 
 	/**
-	 * Returns substring, or "" if null or index out of bounds. Use start < 0 for length relative to
+	 * Returns substring, or "" if null or index out of bounds. Use start < 0 for length
+	 * relative to
 	 * end.
 	 */
 	public static String safeSubstring(String s, int start) {
@@ -633,17 +670,48 @@ public class StringUtil {
 	 * start < 0 for length relative to end.
 	 */
 	public static String safeSubstring(String s, int start, int end) {
-		if (s == null) return "";
-		int len = s.length();
-		if (start >= len) return "";
-		if (end > len || end == -1) end = len;
-		if (start < 0) start = end + start;
-		if (start < 0) start = 0;
-		return s.substring(start, end);
+		return safeSubstring(s, StringType.Applicator.STRING, start, end);
 	}
 
 	/**
-	 * 
+	 * Returns substring, or "" if null or index out of bounds. Use start < 0 for length
+	 * relative to
+	 * the end.
+	 */
+	public static String safeSubstring(StringBuilder s, int start) {
+		return safeSubstring(s, start, -1);
+	}
+
+	/**
+	 * Returns substring, or "" if null or index out of bounds. Use end = -1 for no end limit. Use
+	 * start < 0 for length relative to end.
+	 */
+	public static String safeSubstring(StringBuilder s, int start, int end) {
+		return safeSubstring(s, StringType.Applicator.STRING_BUILDER, start, end);
+	}
+
+	/**
+	 * Returns substring, or "" if null or index out of bounds. Use end = -1 for no end limit. Use
+	 * start < 0 for length relative to end.
+	 */
+	private static <S extends CharSequence> String safeSubstring(S s,
+		StringType.Applicator<S> applicator, int start, int end) {
+		if (s == null || start >= s.length()) return "";
+		if (end > s.length() || end == -1) end = s.length();
+		if (start < 0) start = Math.max(0, end + start);
+		return applicator.substring(s, start, end);
+	}
+
+	/**
+	 * Extends CharSequence subSequence functionality to match substring.
+	 */
+	public static CharSequence subSequence(CharSequence s, int start) {
+		if (s == null) return null;
+		return s.subSequence(start, s.length());
+	}
+
+	/**
+	 * Captures the output of a print stream consumer.
 	 */
 	public static <E extends Exception> String print(ExceptionConsumer<E, PrintStream> consumer)
 		throws E {
@@ -674,10 +742,10 @@ public class StringUtil {
 	/**
 	 * Prefixes each line of the string with given prefix.
 	 */
-	public static String prefixLines(String prefix, String s) {
-		if (prefix.isEmpty()) return s;
-		return prefix +
-			NEWLINE_REGEX.matcher(s).replaceAll("$1" + Matcher.quoteReplacement(prefix));
+	public static String prefixLines(CharSequence prefix, CharSequence s) {
+		if (prefix.length() == 0) return s.toString();
+		String p = prefix.toString();
+		return p + NEWLINE_REGEX.matcher(s).replaceAll("$1" + Matcher.quoteReplacement(p));
 	}
 
 }
