@@ -89,6 +89,13 @@ public class StreamUtil {
 	}
 
 	/**
+	 * Make a stream compatible with a for-each loop.
+	 */
+	public static <T> Iterable<T> forEach(Stream<T> stream) {
+		return BasicUtil.forEach(stream.iterator());
+	}
+
+	/**
 	 * Returns the first matching non-null entry in the stream, or null if no match.
 	 */
 	public static <T> T findFirstNonNull(Stream<T> stream, Predicate<? super T> predicate) {
@@ -113,7 +120,7 @@ public class StreamUtil {
 	 * Returns true if the stream is empty.
 	 */
 	public static boolean isEmpty(Stream<?> stream) {
-		return !stream.findAny().isPresent();
+		return stream.findAny().isEmpty();
 	}
 
 	/**
@@ -142,15 +149,6 @@ public class StreamUtil {
 	 */
 	public static <T> T min(Stream<T> stream, Comparator<? super T> comparator) {
 		return stream.min(comparator).orElse(null);
-	}
-
-	/**
-	 * Convert a map to an object stream.
-	 */
-	public static <K, V, T> Stream<T> stream(Map<K, V> map,
-		BiFunction<? super K, ? super V, ? extends T> mapFn) {
-		Function<Map.Entry<K, V>, T> fn = (entry -> mapFn.apply(entry.getKey(), entry.getValue()));
-		return map.entrySet().stream().map(fn);
 	}
 
 	/**
@@ -288,6 +286,15 @@ public class StreamUtil {
 		return (first, second) -> {
 			throw new IllegalArgumentException("Duplicate keys: " + first + ", " + second);
 		};
+	}
+
+	/**
+	 * Convert a map to an object stream.
+	 */
+	public static <K, V, T> Stream<T> stream(Map<K, V> map,
+		BiFunction<? super K, ? super V, ? extends T> mapFn) {
+		Function<Map.Entry<K, V>, T> fn = (entry -> mapFn.apply(entry.getKey(), entry.getValue()));
+		return map.entrySet().stream().map(fn);
 	}
 
 	/**

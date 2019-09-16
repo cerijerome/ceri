@@ -3,10 +3,13 @@ package ceri.common.test;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import ceri.common.io.IoUtil;
 
 /**
@@ -30,12 +33,18 @@ public class FileTestHelper implements Closeable {
 		return new Builder(root);
 	}
 
+	/**
+	 * Use given directory as the root.
+	 */
+	public static Builder builder(Path path) {
+		return new Builder(path.toFile());
+	}
+
 	FileTestHelper(Builder builder) throws IOException {
 		if (builder.root == null) root = IoUtil.createTempDir(builder.parent);
 		else root = new File(builder.parent, builder.root);
-		for (String dir : builder.dirs) {
+		for (String dir : builder.dirs)
 			file(dir).mkdirs();
-		}
 		for (Map.Entry<String, String> entry : builder.files.entrySet()) {
 			File file = file(entry.getKey());
 			file.getParentFile().mkdirs();
@@ -51,24 +60,38 @@ public class FileTestHelper implements Closeable {
 	}
 
 	/**
+	 * Creates a path object relative to the temp dir.
+	 */
+	public Path path(String path) {
+		return file(path).toPath();
+	}
+
+	/**
 	 * Creates an array of file objects relative to the temp dir.
 	 */
 	public File[] files(String... paths) {
-		File[] files = new File[paths.length];
-		int i = 0;
-		for (String path : paths)
-			files[i++] = file(path);
-		return files;
+		return Stream.of(paths).map(this::file).toArray(File[]::new);
+	}
+
+	/**
+	 * Creates an array of path objects relative to the temp dir.
+	 */
+	public Path[] paths(String... paths) {
+		return Stream.of(paths).map(this::path).toArray(Path[]::new);
 	}
 
 	/**
 	 * Creates a list of file objects relative to the temp dir.
 	 */
 	public List<File> fileList(String... paths) {
-		List<File> list = new ArrayList<>();
-		for (String path : paths)
-			list.add(file(path));
-		return list;
+		return Stream.of(paths).map(this::file).collect(Collectors.toList());
+	}
+
+	/**
+	 * Creates a list of path objects relative to the temp dir.
+	 */
+	public List<Path> pathList(String... paths) {
+		return Stream.of(paths).map(this::path).collect(Collectors.toList());
 	}
 
 	@Override
