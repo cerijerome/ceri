@@ -38,6 +38,10 @@ public class HostPort {
 		return InetAddress.getByName(host);
 	}
 
+	public int port(int def) {
+		return port != null ? port : def;
+	}
+
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(host, port);

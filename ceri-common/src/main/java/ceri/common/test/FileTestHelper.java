@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.io.IoUtil;
@@ -60,10 +61,24 @@ public class FileTestHelper implements Closeable {
 	}
 
 	/**
+	 * Creates a file object relative to the temp dir.
+	 */
+	public File filef(String format, Objects...objs) {
+		return file(String.format(format, objs));
+	}
+
+	/**
 	 * Creates a path object relative to the temp dir.
 	 */
 	public Path path(String path) {
 		return file(path).toPath();
+	}
+
+	/**
+	 * Creates a path object relative to the temp dir.
+	 */
+	public Path pathf(String format, Object... objs) {
+		return path(String.format(format, objs));
 	}
 
 	/**
@@ -126,11 +141,25 @@ public class FileTestHelper implements Closeable {
 		}
 
 		/**
+		 * Add a directory.
+		 */
+		public Builder dirf(String format, Object... objs) {
+			return dir(String.format(format, objs));
+		}
+
+		/**
 		 * Add a file with given content.
 		 */
 		public Builder file(String file, String content) {
 			files.put(file, content);
 			return this;
+		}
+
+		/**
+		 * Add a file with given content.
+		 */
+		public Builder filef(String content, String format, Object... objs) {
+			return file(String.format(format, objs), content);
 		}
 
 		/**

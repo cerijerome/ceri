@@ -13,11 +13,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
+import java.util.function.IntFunction;
+import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
@@ -27,6 +30,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import ceri.common.comparator.Comparators;
+import ceri.common.function.ObjIntFunction;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -57,6 +61,34 @@ public class StreamUtil {
 
 	public static int bitwiseXor(IntStream stream) {
 		return stream.reduce(0, intBitwiseXor);
+	}
+
+	public static <T> Stream<Indexed<T>> range(int count, IntFunction<T> fn) {
+		return range(0, count, fn);
+	}
+
+	public static <T> Stream<Indexed<T>> range(int from, int to, IntFunction<T> fn) {
+		return IntStream.range(from, to).mapToObj(i -> Indexed.of(i, fn.apply(i)));
+	}
+
+	public static <T> Stream<Indexed<T>> indexed(List<T> values) {
+		return range(0, values.size(), values::get);
+	}
+
+	public static <T> Stream<Indexed<T>> indexed(T... array) {
+		return range(0, array.length, i -> array[i]);
+	}
+
+	public static <T, R> Stream<R> map(Stream<Indexed<T>> indexStream, ObjIntFunction<T, R> mapFn) {
+		return indexStream.map(i -> mapFn.apply(i.val, i.i));
+	}
+
+	public static <T, R> Stream<R> indexedMap(List<T> values, ObjIntFunction<T, R> mapFn) {
+		return map(indexed(values), mapFn);
+	}
+
+	public static <T> void indexedForEach(List<T> values, ObjIntConsumer<T> consumer) {
+		indexed(values).forEach(i -> consumer.accept(i.val, i.i));
 	}
 
 	/**
