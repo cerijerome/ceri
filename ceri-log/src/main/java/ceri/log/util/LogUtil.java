@@ -126,6 +126,20 @@ public class LogUtil {
 	}
 
 	/**
+	 * Convert multiple closeables to a single closeable.
+	 */
+	public static Closeable closeable(Logger logger, Closeable... closeables) {
+		return () -> close(logger, closeables);
+	}
+
+	/**
+	 * Convert multiple closeables to a single closeable.
+	 */
+	public static Closeable closeable(Logger logger, Iterable<? extends Closeable> closeables) {
+		return () -> close(logger, closeables);
+	}
+
+	/**
 	 * Shuts down a process, and waits for shutdown to complete, up to a default time in
 	 * milliseconds.
 	 */
@@ -208,7 +222,7 @@ public class LogUtil {
 	 * Closes a collection of closeables, and logs thrown exceptions as a warnings. Returns true
 	 * only if all closeables are successfully closed.
 	 */
-	public static boolean close(Logger logger, Collection<? extends Closeable> closeables) {
+	public static boolean close(Logger logger, Iterable<? extends Closeable> closeables) {
 		if (closeables == null) return false;
 		boolean closed = true;
 		for (Closeable closeable : closeables)
