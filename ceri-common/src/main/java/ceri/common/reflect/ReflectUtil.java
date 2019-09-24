@@ -86,6 +86,17 @@ public class ReflectUtil {
 	}
 
 	/**
+	 * Loads a class by name, throws {@link IllegalArgumentException} if not found.
+	 */
+	public static Class<?> forName(String className) {
+		try {
+			return Class.forName(className);
+		} catch (ClassNotFoundException e) {
+			throw new IllegalArgumentException("Class not found", e);
+		}
+	}
+
+	/**
 	 * Wraps class getConstructor with unchecked exception.
 	 */
 	public static <T> Constructor<T> constructor(Class<T> cls, Class<?>... argTypes)

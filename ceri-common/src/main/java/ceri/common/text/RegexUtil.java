@@ -15,6 +15,7 @@ import ceri.common.collection.CollectionUtil;
 import ceri.common.factory.Factories;
 import ceri.common.factory.Factory;
 import ceri.common.factory.StringFactories;
+import ceri.common.function.ObjIntFunction;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.PrimitiveUtil;
 
@@ -85,9 +86,29 @@ public class RegexUtil {
 	/**
 	 * Replaces pattern matches with well behaved \ and $ in the replacement string.
 	 */
+	public static String replaceAllQuoted(String pattern, String s,
+		ObjIntFunction<MatchResult, String> replacer) {
+		return replaceAllQuoted(Pattern.compile(pattern), s, replacer);
+	}
+
+	/**
+	 * Replaces pattern matches with well behaved \ and $ in the replacement string.
+	 */
 	public static String replaceAllQuoted(Pattern pattern, String s,
 		Function<MatchResult, String> replacer) {
 		return replaceAll(pattern, s, m -> quote(replacer.apply(m)));
+	}
+
+	/**
+	 * Replaces pattern matches with well behaved \ and $ in the replacement string.
+	 */
+	public static String replaceAllQuoted(Pattern pattern, String s,
+		ObjIntFunction<MatchResult, String> replacer) {
+		return replaceAll(pattern, s, (m, i) -> quote(replacer.apply(m, i)));
+	}
+
+	private static String quote(String s) {
+		return s == null ? null : Matcher.quoteReplacement(s);
 	}
 
 	/**
@@ -98,20 +119,33 @@ public class RegexUtil {
 		return replaceAll(Pattern.compile(pattern), s, replacer);
 	}
 
-	private static String quote(String s) {
-		return s == null ? null : Matcher.quoteReplacement(s);
+	/**
+	 * Replace all instances of the pattern using the replacer function with index.
+	 */
+	public static String replaceAll(String pattern, String s,
+		ObjIntFunction<MatchResult, String> replacer) {
+		return replaceAll(Pattern.compile(pattern), s, replacer);
 	}
 
 	/**
 	 * Same as Matcher.replaceAll, but the replacer function can return null to skip replacement.
 	 */
 	public static String replaceAll(Pattern p, String s, Function<MatchResult, String> replacer) {
+		return replaceAll(p, s, ObjIntFunction.wrap(replacer));
+	}
+
+	/**
+	 * Same as Matcher.replaceAll, but the replacer function can return null to skip replacement.
+	 * Match index is passed to the function.
+	 */
+	public static String replaceAll(Pattern p, String s, ObjIntFunction<MatchResult, String> replacer) {
 		Matcher m = p.matcher(s);
 		StringBuilder b = new StringBuilder();
 		int lastStart = 0;
 		int lastEnd = 0;
+		int i = 0;
 		while (m.find()) {
-			String replacement = replacer.apply(m);
+			String replacement = replacer.apply(m, i++);
 			if (replacement == null) lastEnd = m.end();
 			else {
 				m.appendReplacement(b, replacement);

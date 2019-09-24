@@ -1,7 +1,6 @@
 package ceri.log.util;
 
 import static ceri.common.collection.CollectionUtil.reverse;
-import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +13,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class LogCloseableTracker {
 	private static final Logger logger = LogManager.getLogger();
-	private final List<Closeable> tracked = new ArrayList<>();
+	private final List<AutoCloseable> tracked = new ArrayList<>();
 
 	public static LogCloseableTracker of() {
 		return new LogCloseableTracker();
@@ -22,12 +21,12 @@ public class LogCloseableTracker {
 
 	private LogCloseableTracker() {}
 
-	public <T extends Closeable> T add(T t) {
+	public <T extends AutoCloseable> T add(T t) {
 		tracked.add(t);
 		return t;
 	}
 
-	public List<Closeable> list() {
+	public List<AutoCloseable> list() {
 		return Collections.unmodifiableList(reverse(new ArrayList<>(tracked)));
 	}
 

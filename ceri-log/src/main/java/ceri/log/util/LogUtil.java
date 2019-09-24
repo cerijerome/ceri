@@ -1,7 +1,5 @@
 package ceri.log.util;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,20 +68,20 @@ public class LogUtil {
 	}
 
 	/**
-	 * Constructs an immutable list of Closeable instances from each input object and the
+	 * Constructs an immutable list of closeable instances from each input object and the
 	 * constructor. If any exception occurs the already created instances will be closed.
 	 */
 	@SafeVarargs
-	public static <E extends Exception, T, R extends Closeable> List<R> create(Logger logger,
+	public static <E extends Exception, T, R extends AutoCloseable> List<R> create(Logger logger,
 		ExceptionFunction<E, T, R> constructor, T... inputs) throws E {
 		return create(logger, constructor, Arrays.asList(inputs));
 	}
 
 	/**
-	 * Constructs an immutable list of Closeable instances from each input object and the
+	 * Constructs an immutable list of closeable instances from each input object and the
 	 * constructor. If any exception occurs the already created instances will be closed.
 	 */
-	public static <E extends Exception, T, R extends Closeable> List<R> create(Logger logger,
+	public static <E extends Exception, T, R extends AutoCloseable> List<R> create(Logger logger,
 		ExceptionFunction<E, T, R> constructor, Collection<T> inputs) throws E {
 		List<R> results = new ArrayList<>();
 		try {
@@ -97,20 +95,22 @@ public class LogUtil {
 	}
 
 	/**
-	 * Constructs an array of Closeable instances from each input object and the constructor. If any
+	 * Constructs an array of closeable instances from each input object and the constructor. If
+	 * any
 	 * exception occurs the already created instances will be closed.
 	 */
 	@SafeVarargs
-	public static <E extends Exception, T, R extends Closeable> R[] createArray(Logger logger,
+	public static <E extends Exception, T, R extends AutoCloseable> R[] createArray(Logger logger,
 		IntFunction<R[]> arrayFn, ExceptionFunction<E, T, R> constructor, T... inputs) throws E {
 		return createArray(logger, arrayFn, constructor, Arrays.asList(inputs));
 	}
 
 	/**
-	 * Constructs an array of Closeable instances from each input object and the constructor. If any
+	 * Constructs an array of closeable instances from each input object and the constructor. If
+	 * any
 	 * exception occurs the already created instances will be closed.
 	 */
-	public static <E extends Exception, T, R extends Closeable> R[] createArray(Logger logger,
+	public static <E extends Exception, T, R extends AutoCloseable> R[] createArray(Logger logger,
 		IntFunction<R[]> arrayFn, ExceptionFunction<E, T, R> constructor, Collection<T> inputs)
 		throws E {
 		R[] results = arrayFn.apply(inputs.size());
@@ -128,14 +128,15 @@ public class LogUtil {
 	/**
 	 * Convert multiple closeables to a single closeable.
 	 */
-	public static Closeable closeable(Logger logger, Closeable... closeables) {
+	public static AutoCloseable closeable(Logger logger, AutoCloseable... closeables) {
 		return () -> close(logger, closeables);
 	}
 
 	/**
 	 * Convert multiple closeables to a single closeable.
 	 */
-	public static Closeable closeable(Logger logger, Iterable<? extends Closeable> closeables) {
+	public static AutoCloseable closeable(Logger logger,
+		Iterable<? extends AutoCloseable> closeables) {
 		return () -> close(logger, closeables);
 	}
 
@@ -214,7 +215,7 @@ public class LogUtil {
 	 * Closes a collection of closeables, and logs thrown exceptions as a warnings. Returns true
 	 * only if all closeables are successfully closed.
 	 */
-	public static boolean close(Logger logger, Closeable... closeables) {
+	public static boolean close(Logger logger, AutoCloseable... closeables) {
 		return close(logger, Arrays.asList(closeables));
 	}
 
@@ -222,11 +223,11 @@ public class LogUtil {
 	 * Closes a collection of closeables, and logs thrown exceptions as a warnings. Returns true
 	 * only if all closeables are successfully closed.
 	 */
-	public static boolean close(Logger logger, Iterable<? extends Closeable> closeables) {
+	public static boolean close(Logger logger, Iterable<? extends AutoCloseable> closeables) {
 		if (closeables == null) return false;
 		boolean closed = true;
-		for (Closeable closeable : closeables)
-			if (!close(logger, closeable, Closeable::close)) closed = false;
+		for (AutoCloseable closeable : closeables)
+			if (!close(logger, closeable, AutoCloseable::close)) closed = false;
 		return closed;
 	}
 
@@ -234,19 +235,48 @@ public class LogUtil {
 	 * Closes a closeable, and logs a thrown exception as a warning.
 	 */
 	public static <T> boolean close(Logger logger, T subject,
-		ExceptionConsumer<IOException, T> closeFunction) {
+		ExceptionConsumer<? extends Exception, T> closeFunction) {
 		if (subject == null) return false;
 		try {
 			closeFunction.accept(subject);
 			return true;
-		} catch (IOException | RuntimeException e) {
+		} catch (Exception e) {
 			logger.catching(Level.WARN, e);
 			return false;
 		}
 	}
 
+	public static void fatalf(Logger logger, String format, Object... args) {
+		logf(logger, Level.FATAL, format, args);
+	}
+
+	public static void errorf(Logger logger, String format, Object... args) {
+		logf(logger, Level.ERROR, format, args);
+	}
+
+	public static void warnf(Logger logger, String format, Object... args) {
+		logf(logger, Level.WARN, format, args);
+	}
+
+	public static void infof(Logger logger, String format, Object... args) {
+		logf(logger, Level.INFO, format, args);
+	}
+
+	public static void debugf(Logger logger, String format, Object... args) {
+		logf(logger, Level.DEBUG, format, args);
+	}
+
+	public static void tracef(Logger logger, String format, Object... args) {
+		logf(logger, Level.TRACE, format, args);
+	}
+
+	public static void logf(Logger logger, Level level, String format, Object... args) {
+		logger.log(level, toFormat(format, args));
+	}
+
 	/**
-	 * Returns an object whose toString() executes the supplier method. Used for logging lazy string
+	 * Returns an object whose toString() executes the supplier method. Used for logging lazy
+	 * string
 	 * instantiations.
 	 */
 	public static Object toString(final Callable<String> stringSupplier) {

@@ -47,12 +47,13 @@ public class FunctionUtil {
 	}
 
 	/**
-	 * Casts object to given type and applies consumer if compatible.
+	 * Casts object to given type and applies consumer if compatible. Returns true if consumed.
 	 */
-	public static <E extends Exception, T> void castAccept(Class<T> cls, Object obj,
+	public static <E extends Exception, T> boolean castAccept(Class<T> cls, Object obj,
 		ExceptionConsumer<E, T> consumer) throws E {
-		if (cls == null || consumer == null || !cls.isInstance(obj)) return;
+		if (cls == null || consumer == null || !cls.isInstance(obj)) return false;
 		consumer.accept(cls.cast(obj));
+		return true;
 	}
 
 	/**
@@ -72,19 +73,23 @@ public class FunctionUtil {
 	}
 
 	/**
-	 * Passes only non-null values to consumer.
+	 * Passes only non-null values to consumer. Returns true if consumed.
 	 */
-	public static <E extends Exception, T> void safeAccept(T t, ExceptionConsumer<E, T> consumer)
+	public static <E extends Exception, T> boolean safeAccept(T t, ExceptionConsumer<E, T> consumer)
 		throws E {
-		if (t != null) consumer.accept(t);
+		if (t == null) return false;
+		consumer.accept(t);
+		return true;
 	}
 
 	/**
-	 * Passes only non-null values to consumer.
+	 * Passes only non-null values to consumer. Returns true if consumed.
 	 */
-	public static <E extends Exception, T> void safeAccept(T t, ExceptionPredicate<E, T> predicate,
+	public static <E extends Exception, T> boolean safeAccept(T t, ExceptionPredicate<E, T> predicate,
 		ExceptionConsumer<E, T> consumer) throws E {
-		if (t != null && predicate.test(t)) consumer.accept(t);
+		if (t == null || !predicate.test(t)) return false;
+		consumer.accept(t);
+		return true;
 	}
 
 	/**
