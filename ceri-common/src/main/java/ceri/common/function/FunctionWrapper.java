@@ -1,17 +1,33 @@
 package ceri.common.function;
 
+import static ceri.common.function.FunctionUtil.asBiFunction;
+import static ceri.common.function.FunctionUtil.asFunction;
+import static ceri.common.function.FunctionUtil.asIntFunction;
+import static ceri.common.function.FunctionUtil.asToIntFunction;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
+import java.util.function.IntSupplier;
+import java.util.function.IntUnaryOperator;
 import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
+import ceri.common.util.BasicUtil;
 
 /**
- * Wraps and unwraps functions that throw exceptions, for use in functional interfaces. Use handle
- * for the outer function to capture and re-throw exceptions, and wrap for inner functions to
- * collect exceptions. Intended for single-thread usage.
+ * "Exception Wormhole" or "Exception Re-Gifting" (anti-)pattern.
+ * <p/>
+ * Used internally by FunctionUtil to provide stream map, for-each, and other functionality, this
+ * class may not be needed on its own for most use cases.
+ * <p/>
+ * This helper adapts function types that throw checked exceptions, so that they can be used in code
+ * that requires standard function types. Wrap adapts the function so that checked exceptions are
+ * wrapped as runtime exceptions. Unwrap should be used to surround the executed code, as it
+ * captures the wrapped exception and throw the original typed checked exception. The same wrapper
+ * instance must be used to wrap then unwrap.
  */
 public class FunctionWrapper<E extends Exception> {
-	private final WrapperException.Agent<E> agent = WrapperException.agent();
 
 	public static <E extends Exception> FunctionWrapper<E> create() {
 		return new FunctionWrapper<>();
@@ -19,78 +35,156 @@ public class FunctionWrapper<E extends Exception> {
 
 	private FunctionWrapper() {}
 
-	public void handle(ExceptionRunnable<E> runnable) throws E {
-		handleIt(asFunction(runnable), null);
-	}
-
-	public <T> T handle(ExceptionSupplier<E, T> supplier) throws E {
-		return handleIt(asFunction(supplier), null);
-	}
-
-	public <T, R> R handle(ExceptionFunction<E, T, R> function, T t) throws E {
-		return handleIt(function, t);
-	}
-
-	public <T> void handle(ExceptionConsumer<E, T> consumer, T t) throws E {
-		handleIt(asFunction(consumer), t);
-	}
+	// Methods to adapt runnables/suppliers/consumers/functions to throw wrapped exceptions
 
 	public Runnable wrap(ExceptionRunnable<E> runnable) {
-		return () -> wrapIt(asFunction(runnable), null);
-	}
-
-	public <T, R> Function<T, R> wrap(ExceptionFunction<E, T, R> function) {
-		return t -> wrapIt(function, t);
-	}
-
-	public <T> Consumer<T> wrap(ExceptionConsumer<E, T> consumer) {
-		return t -> wrapIt(asFunction(consumer), t);
+		return () -> wrap(asFunction(runnable), null);
 	}
 
 	public <T> Supplier<T> wrap(ExceptionSupplier<E, T> supplier) {
-		return () -> wrapIt(asFunction(supplier), null);
+		return () -> wrap(asFunction(supplier), null);
 	}
 
-	public <T, U> BiConsumer<T, U> wrapBi(ExceptionBiConsumer<E, T, U> consumer) {
-		return (t, u) -> wrapIt(asBiFunction(consumer), t, u);
+	public IntSupplier wrap(ExceptionIntSupplier<E> supplier) {
+		return () -> wrapAsInt(asToIntFunction(supplier), null);
 	}
 
-	private <T> ExceptionFunction<E, T, Boolean> asFunction(ExceptionRunnable<E> runnable) {
-		return t -> {
-			runnable.run();
-			return Boolean.TRUE;
-		};
+	public <T> Consumer<T> wrap(ExceptionConsumer<E, T> consumer) {
+		return t -> wrap(asFunction(consumer), t);
 	}
 
-	private <T> ExceptionFunction<E, T, Boolean> asFunction(ExceptionConsumer<E, T> consumer) {
-		return t -> {
-			consumer.accept(t);
-			return Boolean.TRUE;
-		};
+	public IntConsumer wrap(ExceptionIntConsumer<E> consumer) {
+		return i -> wrap(asIntFunction(consumer), i);
 	}
 
-	private <T, U> ExceptionBiFunction<E, T, U, Boolean>
-		asBiFunction(ExceptionBiConsumer<E, T, U> consumer) {
-		return (t, u) -> {
-			consumer.accept(t, u);
-			return Boolean.TRUE;
-		};
+	public <T, U> BiConsumer<T, U> wrap(ExceptionBiConsumer<E, T, U> consumer) {
+		return (t, u) -> wrap(asBiFunction(consumer), t, u);
 	}
 
-	private <T> ExceptionFunction<E, ?, T> asFunction(ExceptionSupplier<E, T> supplier) {
-		return t -> supplier.get();
+	public <T, R> Function<T, R> wrap(ExceptionFunction<E, T, R> function) {
+		return t -> wrap(function, t);
 	}
 
-	private <T, R> R handleIt(ExceptionFunction<E, T, R> function, T t) throws E {
-		return agent.handle(function, t);
+	public <R> IntFunction<R> wrap(ExceptionIntFunction<E, R> function) {
+		return i -> wrap(function, i);
 	}
 
-	private <T, R> R wrapIt(ExceptionFunction<E, T, R> function, T t) {
-		return agent.wrap(function, t);
+	public <T> ToIntFunction<T> wrap(ExceptionToIntFunction<E, T> function) {
+		return t -> wrapAsInt(function, t);
 	}
 
-	private <T, U, R> R wrapIt(ExceptionBiFunction<E, T, U, R> function, T t, U u) {
-		return agent.wrap(function, t, u);
+	public IntUnaryOperator wrap(ExceptionIntUnaryOperator<E> function) {
+		return i -> wrapAsInt(function, i);
+	}
+
+	// Methods to apply a function and wrap exceptions
+
+	public <T, R> R wrap(ExceptionFunction<E, T, R> function, T t) {
+		return wrapGet(() -> function.apply(t));
+	}
+
+	public <R> R wrap(ExceptionIntFunction<E, R> function, int i) {
+		return wrapGet(() -> function.apply(i));
+	}
+
+	public <T> int wrapAsInt(ExceptionToIntFunction<E, T> function, T t) {
+		return wrapGetAsInt(() -> function.applyAsInt(t));
+	}
+
+	public int wrapAsInt(ExceptionIntUnaryOperator<E> function, int i) {
+		return wrapGetAsInt(() -> function.applyAsInt(i));
+	}
+
+	public <T, U, R> R wrap(ExceptionBiFunction<E, T, U, R> function, T t, U u) {
+		return wrapGet(() -> function.apply(t, u));
+	}
+
+	// Methods to execute runnables/suppliers/consumers/functions and throw unwrapped exceptions
+
+	public void unwrap(ExceptionRunnable<E> runnable) throws E {
+		unwrap(asFunction(runnable), null);
+	}
+
+	public <T> T unwrap(ExceptionSupplier<E, T> supplier) throws E {
+		return unwrap(asFunction(supplier), null);
+	}
+
+	public int unwrap(ExceptionIntSupplier<E> supplier) throws E {
+		return unwrapAsInt(asToIntFunction(supplier), null);
+	}
+
+	public <T> void unwrap(ExceptionConsumer<E, T> consumer, T t) throws E {
+		unwrap(asFunction(consumer), t);
+	}
+
+	public void unwrap(ExceptionIntConsumer<E> consumer, int i) throws E {
+		unwrap(asIntFunction(consumer), i);
+	}
+
+	public <T, U> void unwrap(ExceptionBiConsumer<E, T, U> consumer, T t, U u) throws E {
+		unwrap(asBiFunction(consumer), t, u);
+	}
+
+	public <T, R> R unwrap(ExceptionFunction<E, T, R> function, T t) throws E {
+		return unwrapGet(() -> function.apply(t));
+	}
+
+	public <R> R unwrap(ExceptionIntFunction<E, R> function, int i) throws E {
+		return unwrapGet(() -> function.apply(i));
+	}
+
+	public <T> int unwrapAsInt(ExceptionToIntFunction<E, T> function, T t) throws E {
+		return unwrapGetAsInt(() -> function.applyAsInt(t));
+	}
+
+	public int unwrapAsInt(ExceptionIntUnaryOperator<E> function, int i) throws E {
+		return unwrapGetAsInt(() -> function.applyAsInt(i));
+	}
+
+	public <T, U, R> R unwrap(ExceptionBiFunction<E, T, U, R> function, T t, U u) throws E {
+		return unwrapGet(() -> function.apply(t, u));
+	}
+
+	// Methods to wrap/unwrap exceptions
+
+	private int wrapGetAsInt(ExceptionIntSupplier<E> supplier) {
+		try {
+			return supplier.getAsInt();
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new WrapperException(this, BasicUtil.uncheckedCast(e));
+		}
+	}
+
+	private <R> R wrapGet(ExceptionSupplier<E, R> supplier) {
+		try {
+			return supplier.get();
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new WrapperException(this, BasicUtil.uncheckedCast(e));
+		}
+	}
+
+	private int unwrapGetAsInt(ExceptionIntSupplier<E> supplier) throws E {
+		try {
+			return supplier.getAsInt();
+		} catch (WrapperException e) {
+			if (this != e.wrapper)
+				throw new IllegalStateException("Mis-matched agent: " + e.wrapper);
+			throw BasicUtil.<E>uncheckedCast(e.getCause());
+		}
+	}
+
+	private <R> R unwrapGet(ExceptionSupplier<E, R> supplier) throws E {
+		try {
+			return supplier.get();
+		} catch (WrapperException e) {
+			if (this != e.wrapper)
+				throw new IllegalStateException("Mis-matched agent: " + e.wrapper);
+			throw BasicUtil.<E>uncheckedCast(e.getCause());
+		}
 	}
 
 }

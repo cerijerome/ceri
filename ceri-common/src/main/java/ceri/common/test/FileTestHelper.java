@@ -20,100 +20,6 @@ import ceri.common.io.IoUtil;
 public class FileTestHelper implements Closeable {
 	public final File root;
 
-	/**
-	 * Use current directory as the root.
-	 */
-	public static Builder builder() {
-		return new Builder(null);
-	}
-
-	/**
-	 * Use given directory as the root.
-	 */
-	public static Builder builder(File root) {
-		return new Builder(root);
-	}
-
-	/**
-	 * Use given directory as the root.
-	 */
-	public static Builder builder(Path path) {
-		return new Builder(path.toFile());
-	}
-
-	FileTestHelper(Builder builder) throws IOException {
-		if (builder.root == null) root = IoUtil.createTempDir(builder.parent);
-		else root = new File(builder.parent, builder.root);
-		for (String dir : builder.dirs)
-			file(dir).mkdirs();
-		for (Map.Entry<String, String> entry : builder.files.entrySet()) {
-			File file = file(entry.getKey());
-			file.getParentFile().mkdirs();
-			IoUtil.setContentString(file, entry.getValue());
-		}
-	}
-
-	/**
-	 * Creates a file object relative to the temp dir.
-	 */
-	public File file(String path) {
-		return new File(root, path);
-	}
-
-	/**
-	 * Creates a file object relative to the temp dir.
-	 */
-	public File filef(String format, Objects...objs) {
-		return file(String.format(format, objs));
-	}
-
-	/**
-	 * Creates a path object relative to the temp dir.
-	 */
-	public Path path(String path) {
-		return file(path).toPath();
-	}
-
-	/**
-	 * Creates a path object relative to the temp dir.
-	 */
-	public Path pathf(String format, Object... objs) {
-		return path(String.format(format, objs));
-	}
-
-	/**
-	 * Creates an array of file objects relative to the temp dir.
-	 */
-	public File[] files(String... paths) {
-		return Stream.of(paths).map(this::file).toArray(File[]::new);
-	}
-
-	/**
-	 * Creates an array of path objects relative to the temp dir.
-	 */
-	public Path[] paths(String... paths) {
-		return Stream.of(paths).map(this::path).toArray(Path[]::new);
-	}
-
-	/**
-	 * Creates a list of file objects relative to the temp dir.
-	 */
-	public List<File> fileList(String... paths) {
-		return Stream.of(paths).map(this::file).collect(Collectors.toList());
-	}
-
-	/**
-	 * Creates a list of path objects relative to the temp dir.
-	 */
-	public List<Path> pathList(String... paths) {
-		return Stream.of(paths).map(this::path).collect(Collectors.toList());
-	}
-
-	@Override
-	public void close() {
-		IoUtil.deleteAll(root);
-	}
-
 	public static class Builder {
 		final File parent;
 		String root;
@@ -168,6 +74,100 @@ public class FileTestHelper implements Closeable {
 		public FileTestHelper build() throws IOException {
 			return new FileTestHelper(this);
 		}
+	}
+
+	/**
+	 * Use current directory as the root.
+	 */
+	public static Builder builder() {
+		return new Builder(null);
+	}
+
+	/**
+	 * Use given directory as the root.
+	 */
+	public static Builder builder(File root) {
+		return new Builder(root);
+	}
+
+	/**
+	 * Use given directory as the root.
+	 */
+	public static Builder builder(Path path) {
+		return new Builder(path.toFile());
+	}
+
+	FileTestHelper(Builder builder) throws IOException {
+		if (builder.root == null) root = IoUtil.createTempDir(builder.parent);
+		else root = new File(builder.parent, builder.root);
+		for (String dir : builder.dirs)
+			file(dir).mkdirs();
+		for (Map.Entry<String, String> entry : builder.files.entrySet()) {
+			File file = file(entry.getKey());
+			file.getParentFile().mkdirs();
+			IoUtil.setContentString(file, entry.getValue());
+		}
+	}
+
+	/**
+	 * Creates a file object relative to the temp dir.
+	 */
+	public File file(String path) {
+		return new File(root, path);
+	}
+
+	/**
+	 * Creates a file object relative to the temp dir.
+	 */
+	public File filef(String format, Object... objs) {
+		return file(String.format(format, objs));
+	}
+
+	/**
+	 * Creates a path object relative to the temp dir.
+	 */
+	public Path path(String path) {
+		return file(path).toPath();
+	}
+
+	/**
+	 * Creates a path object relative to the temp dir.
+	 */
+	public Path pathf(String format, Object... objs) {
+		return path(String.format(format, objs));
+	}
+
+	/**
+	 * Creates an array of file objects relative to the temp dir.
+	 */
+	public File[] files(String... paths) {
+		return Stream.of(paths).map(this::file).toArray(File[]::new);
+	}
+
+	/**
+	 * Creates an array of path objects relative to the temp dir.
+	 */
+	public Path[] paths(String... paths) {
+		return Stream.of(paths).map(this::path).toArray(Path[]::new);
+	}
+
+	/**
+	 * Creates a list of file objects relative to the temp dir.
+	 */
+	public List<File> fileList(String... paths) {
+		return Stream.of(paths).map(this::file).collect(Collectors.toList());
+	}
+
+	/**
+	 * Creates a list of path objects relative to the temp dir.
+	 */
+	public List<Path> pathList(String... paths) {
+		return Stream.of(paths).map(this::path).collect(Collectors.toList());
+	}
+
+	@Override
+	public void close() {
+		IoUtil.deleteAll(root);
 	}
 
 }

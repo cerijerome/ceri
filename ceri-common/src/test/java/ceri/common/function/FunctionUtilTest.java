@@ -78,36 +78,6 @@ public class FunctionUtilTest {
 	}
 
 	@Test
-	public void testConsumerAsRunnable() throws Exception {
-		String[] store = { "" };
-		ExceptionConsumer<?, String> consumer = s -> store[0] = s;
-		FunctionUtil.asRunnable("test", consumer).run();
-		assertArray(store, "test");
-	}
-
-	@Test
-	public void testFunctionAsRunnable() throws Exception {
-		String[] store = { "" };
-		ExceptionFunction<?, String, Integer> function = s -> {
-			store[0] = "" + s.length();
-			return s.length();
-		};
-		FunctionUtil.asRunnable("abc", function).run();
-		assertArray(store, "3");
-	}
-
-	@Test
-	public void testFunctionAsConsumer() throws Exception {
-		String[] store = { "" };
-		ExceptionFunction<?, String, Integer> function = s -> {
-			store[0] = "" + s.length();
-			return s.length();
-		};
-		FunctionUtil.asConsumer(function).accept("abc");
-		assertArray(store, "3");
-	}
-
-	@Test
 	public void testSafe() throws IOException {
 		ExceptionFunction<IOException, String, String> fn = FunctionUtil.safe(String::trim);
 		assertThat(fn.apply(" "), is(""));
@@ -140,7 +110,7 @@ public class FunctionUtilTest {
 	@Test
 	public void testAsFunction() throws IOException {
 		assertThat(FunctionUtil.asFunction(consumer(2)).apply(1), is(Boolean.TRUE));
-		assertThat(FunctionUtil.asFunction(supplier(1, 2)).apply(1), is(1));
+		assertThat(FunctionUtil.asFunction(supplier(1, 2)).apply(null), is(1));
 		assertThat(FunctionUtil.asFunction(runnable(1, 2)).apply(1), is(Boolean.TRUE));
 	}
 

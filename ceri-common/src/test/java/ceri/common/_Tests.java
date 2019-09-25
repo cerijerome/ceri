@@ -12,6 +12,7 @@ import ceri.common.collection.FixedSizeCacheBehavior;
 import ceri.common.collection.ImmutableByteArrayBehavior;
 import ceri.common.collection.ImmutableIntArrayBehavior;
 import ceri.common.collection.ImmutableUtilTest;
+import ceri.common.collection.IndexedBehavior;
 import ceri.common.collection.MapPopulatorBehavior;
 import ceri.common.collection.StreamUtilTest;
 import ceri.common.color.BiasesTest;
@@ -98,7 +99,6 @@ import ceri.common.function.ObjShortConsumerBehavior;
 import ceri.common.function.PredicateBuilderBehavior;
 import ceri.common.function.ToByteFunctionBehavior;
 import ceri.common.function.ToShortFunctionBehavior;
-import ceri.common.function.WrapperExceptionBehavior;
 import ceri.common.geo.LatLngBehavior;
 import ceri.common.geo.LatLngUtilTest;
 import ceri.common.geom.Circle2dBehavior;
@@ -186,6 +186,7 @@ import ceri.common.test.BinaryLogInputStreamBehavior;
 import ceri.common.test.BinaryLogOutputStreamBehavior;
 import ceri.common.test.BinaryPrinterBehavior;
 import ceri.common.test.DebuggerBehavior;
+import ceri.common.test.FileTestHelperBehavior;
 import ceri.common.test.PulsePrinterBehavior;
 import ceri.common.test.RegexMatcherBehavior;
 import ceri.common.test.ResponseStreamBehavior;
@@ -248,6 +249,7 @@ import ceri.common.xml.XmlUtilTest;
 	ImmutableByteArrayBehavior.class, //
 	ImmutableIntArrayBehavior.class, //
 	ImmutableUtilTest.class, //
+	IndexedBehavior.class, //
 	MapPopulatorBehavior.class, //
 	StreamUtilTest.class, //
 	// color
@@ -344,7 +346,6 @@ import ceri.common.xml.XmlUtilTest;
 	PredicateBuilderBehavior.class, //
 	ToByteFunctionBehavior.class, //
 	ToShortFunctionBehavior.class, //
-	WrapperExceptionBehavior.class, //
 	// geo
 	LatLngBehavior.class, //
 	LatLngUtilTest.class, //
@@ -442,6 +443,7 @@ import ceri.common.xml.XmlUtilTest;
 	BinaryLogOutputStreamBehavior.class, //
 	BinaryPrinterBehavior.class, //
 	DebuggerBehavior.class, //
+	FileTestHelperBehavior.class, //
 	PulsePrinterBehavior.class, //
 	RegexMatcherBehavior.class, //
 	ResponseStreamBehavior.class, //

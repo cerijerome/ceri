@@ -32,6 +32,12 @@ public class ReflectUtilTest {
 	}
 
 	@Test
+	public void testForName() {
+		assertThat(ReflectUtil.forName("java.lang.String"), isClass(String.class));
+		assertException(() -> ReflectUtil.forName("___"));
+	}
+
+	@Test
 	public void testToStringOrHashId() {
 		assertNull(ReflectUtil.toStringOrHash(null));
 		assertThat(ReflectUtil.toStringOrHash(new Object() {

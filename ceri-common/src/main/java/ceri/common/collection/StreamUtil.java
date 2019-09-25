@@ -72,11 +72,12 @@ public class StreamUtil {
 	}
 
 	public static <T> Stream<Indexed<T>> indexed(List<T> values) {
-		return range(0, values.size(), values::get);
+		return range(values.size(), values::get);
 	}
 
+	@SafeVarargs
 	public static <T> Stream<Indexed<T>> indexed(T... array) {
-		return range(0, array.length, i -> array[i]);
+		return range(array.length, i -> array[i]);
 	}
 
 	public static <T, R> Stream<R> map(Stream<Indexed<T>> indexStream, ObjIntFunction<T, R> mapFn) {

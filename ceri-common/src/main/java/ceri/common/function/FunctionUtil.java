@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.EqualsUtil;
@@ -118,7 +119,7 @@ public class FunctionUtil {
 	public static <E extends Exception, T> void forEach(Iterable<T> iter,
 		ExceptionConsumer<E, ? super T> consumer) throws E {
 		FunctionWrapper<E> w = FunctionWrapper.create();
-		w.handle(() -> iter.forEach(w.wrap(consumer)));
+		w.unwrap(() -> iter.forEach(w.wrap(consumer)));
 	}
 
 	/**
@@ -127,7 +128,7 @@ public class FunctionUtil {
 	public static <E extends Exception, T> void forEach(Stream<T> stream,
 		ExceptionConsumer<E, ? super T> consumer) throws E {
 		FunctionWrapper<E> w = FunctionWrapper.create();
-		w.handle(() -> stream.forEach(w.wrap(consumer)));
+		w.unwrap(() -> stream.forEach(w.wrap(consumer)));
 	}
 
 	/**
@@ -136,43 +137,34 @@ public class FunctionUtil {
 	public static <E extends Exception, K, V> void forEach(Map<K, V> map,
 		ExceptionBiConsumer<E, ? super K, ? super V> consumer) throws E {
 		FunctionWrapper<E> w = FunctionWrapper.create();
-		w.handle(() -> map.forEach(w.wrapBi(consumer)));
+		w.unwrap(() -> map.forEach(w.wrap(consumer)));
 	}
 
-	public static <E extends Exception, T> ExceptionFunction<E, T, Boolean>
-		asFunction(ExceptionRunnable<E> runnable) {
-		return t -> {
-			runnable.run();
-			return Boolean.TRUE;
-		};
+	/**
+	 * Executes map, allowing exception of given type to be thrown.
+	 */
+	public static <E extends Exception, T, R> Stream<R> map(Stream<T> stream,
+		ExceptionFunction<E, ? super T, ? extends R> fn) throws E {
+		FunctionWrapper<E> w = FunctionWrapper.create();
+		return w.unwrap(() -> stream.map(w.wrap(fn)));
 	}
 
-	public static <E extends Exception, T> ExceptionFunction<E, T, Boolean>
-		asFunction(ExceptionConsumer<E, T> consumer) {
-		return t -> {
-			consumer.accept(t);
-			return Boolean.TRUE;
-		};
+	/**
+	 * Executes map, allowing exception of given type to be thrown.
+	 */
+	public static <E extends Exception> IntStream map(IntStream stream,
+		ExceptionIntUnaryOperator<E> fn) throws E {
+		FunctionWrapper<E> w = FunctionWrapper.create();
+		return w.unwrap(() -> stream.map(w.wrap(fn)));
 	}
 
-	public static <E extends Exception, T, U> ExceptionFunction<E, U, T>
-		asFunction(ExceptionSupplier<E, T> supplier) {
-		return t -> supplier.get();
-	}
-
-	public static <E extends Exception, T> ExceptionRunnable<E> asRunnable(T t,
-		ExceptionConsumer<E, T> consumer) {
-		return () -> consumer.accept(t);
-	}
-
-	public static <E extends Exception, T> ExceptionRunnable<E> asRunnable(T t,
-		ExceptionFunction<E, T, ?> fn) {
-		return () -> fn.apply(t);
-	}
-
-	public static <E extends Exception, T, U> ExceptionConsumer<E, T>
-		asConsumer(ExceptionFunction<E, T, U> fn) {
-		return fn::apply;
+	/**
+	 * Executes map, allowing exception of given type to be thrown.
+	 */
+	public static <E extends Exception, R> Stream<R> mapToObj(IntStream stream,
+		ExceptionIntFunction<E, ? extends R> fn) throws E {
+		FunctionWrapper<E> w = FunctionWrapper.create();
+		return w.unwrap(() -> stream.mapToObj(w.wrap(fn)));
 	}
 
 	public static <T> Predicate<T> and(Predicate<T> lhs, Predicate<T> rhs) {
@@ -194,6 +186,58 @@ public class FunctionUtil {
 			public String toString() {
 				return name;
 			}
+		};
+	}
+
+	/**
+	 * Converts a runnable to a function that returns true.
+	 */
+	public static <E extends Exception, T> ExceptionFunction<E, T, Boolean> asFunction(
+		ExceptionRunnable<E> runnable) {
+		return t -> {
+			runnable.run();
+			return Boolean.TRUE;
+		};
+	}
+
+	/**
+	 * Converts a supplier to a function that ignores input.
+	 */
+	public static <E extends Exception, T> ExceptionFunction<E, ?, T> asFunction(
+		ExceptionSupplier<E, T> supplier) {
+		return t -> supplier.get();
+	}
+
+	/**
+	 * Converts a supplier to a function that ignores input.
+	 */
+	public static <E extends Exception> ExceptionToIntFunction<E, ?> asToIntFunction(
+		ExceptionIntSupplier<E> supplier) {
+		return t -> supplier.getAsInt();
+	}
+
+
+	public static <E extends Exception, T> ExceptionFunction<E, T, Boolean> asFunction(
+		ExceptionConsumer<E, T> consumer) {
+		return t -> {
+			consumer.accept(t);
+			return Boolean.TRUE;
+		};
+	}
+
+	public static <E extends Exception> ExceptionIntFunction<E, Boolean> asIntFunction(
+		ExceptionIntConsumer<E> consumer) {
+		return i -> {
+			consumer.accept(i);
+			return Boolean.TRUE;
+		};
+	}
+
+	public static <E extends Exception, T, U> ExceptionBiFunction<E, T, U, Boolean> asBiFunction(
+		ExceptionBiConsumer<E, T, U> consumer) {
+		return (t, u) -> {
+			consumer.accept(t, u);
+			return Boolean.TRUE;
 		};
 	}
 

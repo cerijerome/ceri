@@ -82,6 +82,20 @@ public class RegexUtilTest {
 	}
 
 	@Test
+	public void testReplaceAllQuotedWithIndex() {
+		String s = "abcdef";
+		s = RegexUtil.replaceAllQuoted("[a-f]", s, (m, i) -> "$" + i);
+		assertThat(s, is("$0$1$2$3$4$5"));
+	}
+
+	@Test
+	public void testReplaceAllWithIndex() {
+		String s = "abcdef";
+		s = RegexUtil.replaceAll("[a-f]", s, (m, i) -> String.valueOf(i));
+		assertThat(s, is("012345"));
+	}
+
+	@Test
 	public void testSplitBefore() {
 		assertIterable(RegexUtil.splitBefore(INT_PATTERN, "123abcA1B2C3"), //
 			"123abcA", "1B", "2C", "3");

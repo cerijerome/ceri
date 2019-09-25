@@ -39,6 +39,12 @@ public class HostPortBehavior {
 	}
 
 	@Test
+	public void shouldProvidePortOrDefault() {
+		assertThat(HostPort.of("test", 777).port(888), is(777));
+		assertThat(HostPort.of("test").port(888), is(888));
+	}
+
+	@Test
 	public void shouldCreateInetAddress() throws UnknownHostException {
 		InetAddress addr = HostPort.of("0.0.0.0").asAddress();
 		assertThat(addr.getHostAddress(), is("0.0.0.0"));

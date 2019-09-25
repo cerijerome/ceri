@@ -11,6 +11,7 @@ import static java.lang.Double.parseDouble;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -18,10 +19,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
+import java.util.function.ObjIntConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;
+import ceri.common.function.ObjIntFunction;
 
 public class StreamUtilTest {
 	private enum Abc {
@@ -58,6 +61,46 @@ public class StreamUtilTest {
 	public void testCastAny() {
 		Stream<Number> stream = StreamUtil.castAny(Stream.of("1", 1, 0.1, null, 2), Number.class);
 		assertStream(stream, 1, 0.1, 2);
+	}
+
+	@Test
+	public void testRange() {
+		assertStream(StreamUtil.range(3, i -> (char) ('A' + i)), Indexed.of(0, 'A'),
+			Indexed.of(1, 'B'), Indexed.of(2, 'C'));
+		assertStream(StreamUtil.range(1, 3, i -> (char) ('A' + i)), Indexed.of(1, 'B'),
+			Indexed.of(2, 'C'));
+	}
+
+	@Test
+	public void testIndexed() {
+		assertStream(StreamUtil.indexed(List.of("A", "B", "C")), Indexed.of(0, "A"),
+			Indexed.of(1, "B"), Indexed.of(2, "C"));
+		assertStream(StreamUtil.indexed("A", "B", "C"), Indexed.of(0, "A"), Indexed.of(1, "B"),
+			Indexed.of(2, "C"));
+	}
+
+	@Test
+	public void testIndexedMap() {
+		assertStream(StreamUtil.map(StreamUtil.indexed("A", "B", "C"), (s, i) -> s + i), "A0",
+			"B1",
+			"C2");
+		assertStream(StreamUtil.indexedMap(List.of("A", "B", "C"), (s, i) -> s + i), "A0", "B1",
+			"C2");
+	}
+
+	@Test
+	public void testIndexedForEach() {
+		List<String> capture = new ArrayList<>();
+		StreamUtil.indexedForEach(List.of("a", "b", "c"), (s, i) -> capture.add(i + ":" + s));
+		assertIterable(capture, "0:a", "1:b", "2:c");
+	}
+
+	@Test
+	public void testForEach() {
+		String[] array = { "a", "b", "c" };
+		int i = 0;
+		for (String s : StreamUtil.forEach(Stream.of(array)))
+			assertThat(s, is(array[i++]));
 	}
 
 	@Test
