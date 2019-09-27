@@ -1,7 +1,7 @@
 package ceri.ci.build;
 
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -9,6 +9,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class BuildBehavior {
 	private static final Event e0 = new Event(Event.Type.failure, 0L);
@@ -84,7 +85,7 @@ public class BuildBehavior {
 	public void shouldNotAllowModificationOfJobsField() {
 		final Build build = new Build("build");
 		assertTrue(build.jobs.isEmpty());
-		assertException(() -> build.jobs.add(new Job("job")));
+		TestUtil.assertThrown(() -> build.jobs.add(new Job("job")));
 	}
 
 	@Test

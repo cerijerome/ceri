@@ -1,6 +1,6 @@
 package ceri.ci.admin;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
@@ -59,7 +59,7 @@ public class AdminServletBehavior {
 	@Test
 	public void shouldFailInitializationIfContextNotSet() {
 		when(context.getAttribute(any())).thenReturn(null);
-		assertException(ServletException.class, () -> servlet.init(config));
+		assertThrown(ServletException.class, () -> servlet.init(config));
 	}
 
 	@Test

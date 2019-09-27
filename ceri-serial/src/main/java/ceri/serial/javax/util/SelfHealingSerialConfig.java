@@ -1,6 +1,6 @@
 package ceri.serial.javax.util;
 
-import static ceri.common.function.FunctionUtil.namedPredicate;
+import static ceri.common.function.FunctionUtil.named;
 import java.util.function.Predicate;
 import ceri.common.text.ToStringHelper;
 import ceri.serial.javax.SerialPort;
@@ -9,7 +9,7 @@ import ceri.serial.javax.SerialPortParams;
 public class SelfHealingSerialConfig {
 	public static final SelfHealingSerialConfig NULL = builder((CommPortSupplier) null).build();
 	static final Predicate<Exception> DEFAULT_PREDICATE =
-		namedPredicate(SerialPort::isBroken, "SerialPort::isBroken");
+		named(SerialPort::isBroken, "SerialPort::isBroken");
 	final CommPortSupplier commPortSupplier;
 	final SerialPortParams params;
 	final int connectionTimeoutMs;
@@ -82,7 +82,7 @@ public class SelfHealingSerialConfig {
 		}
 
 		public Builder brokenPredicate(Predicate<Exception> brokenPredicate, String name) {
-			this.brokenPredicate = namedPredicate(brokenPredicate, name);
+			this.brokenPredicate = named(brokenPredicate, name);
 			return this;
 		}
 

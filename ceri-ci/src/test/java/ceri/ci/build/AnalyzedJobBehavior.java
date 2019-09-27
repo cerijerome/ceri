@@ -1,12 +1,13 @@
 package ceri.ci.build;
 
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class AnalyzedJobBehavior {
 	private static final Event b0 = new Event(Event.Type.failure, 0L);
@@ -37,7 +38,7 @@ public class AnalyzedJobBehavior {
 	public void shouldNotAllowBuildsWithDifferentNames() {
 		Build build0 = new Build("b0");
 		Build build1 = new Build("b1");
-		assertException(() -> new AnalyzedJob(build0, build1));
+		TestUtil.assertThrown(() -> new AnalyzedJob(build0, build1));
 	}
 
 	@Test

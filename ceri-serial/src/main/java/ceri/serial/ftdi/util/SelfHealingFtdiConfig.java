@@ -1,6 +1,6 @@
 package ceri.serial.ftdi.util;
 
-import static ceri.common.function.FunctionUtil.namedPredicate;
+import static ceri.common.function.FunctionUtil.named;
 import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_criteria_string;
 import java.util.function.Predicate;
 import ceri.common.text.ToStringHelper;
@@ -20,7 +20,7 @@ public class SelfHealingFtdiConfig {
 	public static final SelfHealingFtdiConfig DEFAULT =
 		builder().find(LibFtdiUtil.finder()).build();
 	static final Predicate<Exception> DEFAULT_PREDICATE =
-		namedPredicate(SelfHealingFtdi::isBroken, "SelfHealingFtdi::isBroken");
+		named(SelfHealingFtdi::isBroken, "SelfHealingFtdi::isBroken");
 	final libusb_device_criteria find;
 	final ftdi_interface iface;
 	final Integer baud;

@@ -1,7 +1,7 @@
 package ceri.ci.email;
 
 import static ceri.ci.email.EmailTestUtil.messageBuilder;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import ceri.common.test.TestUtil;
 
 public class EmailRetrieverImplBehavior {
 	@Mock Store store;
@@ -41,7 +42,7 @@ public class EmailRetrieverImplBehavior {
 	@Test
 	public void shouldFailIfNoMinimumDateForFetchingEmails() {
 		EmailRetriever retriever = create(presetBuilder());
-		assertException(() -> retriever.retrieve(null, null));
+		TestUtil.assertThrown(() -> retriever.retrieve(null, null));
 	}
 	
 	@Test

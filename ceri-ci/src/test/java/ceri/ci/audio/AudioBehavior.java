@@ -1,6 +1,6 @@
 package ceri.ci.audio;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertNotNull;
@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import ceri.common.io.IoUtil;
 import ceri.common.test.FileTestHelper;
+import ceri.common.test.TestUtil;
 
 public class AudioBehavior {
 	private static final File testFile = IoUtil.getResourceFile(AudioBehavior.class, "test.wav");
@@ -28,7 +29,7 @@ public class AudioBehavior {
 	@Test
 	public void shouldFailIfClipLimitsAreNotWithinDataRange() throws IOException {
 		Audio audio = Audio.create(testFile);
-		assertException(() -> audio.clip(11000, 11000));
+		TestUtil.assertThrown(() -> audio.clip(11000, 11000));
 		Audio audio2 = audio.clip(0, 16);
 		assertThat(audio, not(audio2));
 	}

@@ -1,6 +1,6 @@
 package ceri.ci.build;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -10,6 +10,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class JobBehavior {
 
@@ -27,7 +28,7 @@ public class JobBehavior {
 	public void shouldNotAllowModificationOfEventsField() {
 		final Job job = new Job("test");
 		assertTrue(job.events.isEmpty());
-		assertException(() -> job.events.add(Event.success()));
+		TestUtil.assertThrown(() -> job.events.add(Event.success()));
 	}
 
 	@Test
