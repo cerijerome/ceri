@@ -1,11 +1,12 @@
 package ceri.common.math;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class IntervalUtilTest {
 	private final Interval<Long> maxLong = Interval.inclusive(Long.MIN_VALUE, Long.MAX_VALUE);
@@ -30,7 +31,7 @@ public class IntervalUtilTest {
 		assertNull(IntervalUtil.longWidth(Interval.unbound()));
 		assertNull(IntervalUtil.longWidth(Interval.lower(Bound.exclusive(1L))));
 		assertThat(IntervalUtil.longWidth(Interval.inclusive(1L, 4L)), is(3L));
-		assertException(() -> IntervalUtil.longWidth(maxLong));
+		TestUtil.assertThrown(() -> IntervalUtil.longWidth(maxLong));
 	}
 
 	@Test
@@ -46,7 +47,7 @@ public class IntervalUtilTest {
 		assertNull(IntervalUtil.intWidth(Interval.unbound()));
 		assertNull(IntervalUtil.intWidth(Interval.lower(Bound.exclusive(1))));
 		assertThat(IntervalUtil.intWidth(Interval.inclusive(1, 4)), is(3));
-		assertException(() -> IntervalUtil.intWidth(maxInt));
+		TestUtil.assertThrown(() -> IntervalUtil.intWidth(maxInt));
 	}
 
 }

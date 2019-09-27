@@ -1,31 +1,26 @@
 package ceri.common.function;
 
-import static ceri.common.test.TestUtil.assertException;
-import java.io.IOException;
-import java.util.Objects;
+import static ceri.common.function.FunctionTestUtil.consumer;
+import static ceri.common.test.TestUtil.assertThrown;
 import java.util.function.Consumer;
 import org.junit.Test;
+import ceri.common.function.FunctionTestUtil.Std;
 
 public class ExceptionConsumerBehavior {
 
 	@Test
 	public void shouldConvertToConsumer() {
-		ExceptionConsumer<IOException, String> consumer = s -> {
-			Objects.requireNonNull(s);
-			if (s.isEmpty()) throw new IOException();
-		};
-		Consumer<String> c = consumer.asConsumer();
-		c.accept("A");
-		assertException(() -> c.accept(null));
-		assertException(() -> c.accept(""));
+		Consumer<Integer> c = consumer().asConsumer();
+		c.accept(2);
+		assertThrown(RuntimeException.class, () -> c.accept(1));
+		assertThrown(RuntimeException.class, () -> c.accept(0));
 	}
 
 	@Test
 	public void shouldConvertFromConsumer() {
-		Consumer<String> consumer = Objects::requireNonNull;
-		ExceptionConsumer<RuntimeException, String> c = ExceptionConsumer.of(consumer);
-		c.accept("A");
-		assertException(() -> c.accept(null));
+		ExceptionConsumer<RuntimeException, Integer> c = ExceptionConsumer.of(Std.consumer());
+		c.accept(1);
+		assertThrown(RuntimeException.class, () -> c.accept(0));
 	}
 
 }

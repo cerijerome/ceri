@@ -1,6 +1,6 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -28,8 +28,8 @@ public class InputStreamIteratorBehavior {
 		try (InputStream in = Mockito.mock(InputStream.class)) {
 			when(in.read()).thenThrow(new IOException());
 			i = new InputStreamIterator(in);
-			assertException(RuntimeException.class, () -> i.hasNext());
-			assertException(RuntimeException.class, () -> i.next());
+			assertThrown(RuntimeException.class, () -> i.hasNext());
+			assertThrown(RuntimeException.class, () -> i.next());
 		}
 	}
 

@@ -1,9 +1,10 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 import ceri.common.util.BasicUtil;
 
 public class AsyncRunnerBehavior {
@@ -17,8 +18,8 @@ public class AsyncRunnerBehavior {
 			runner2.interrupt();
 		}).start();
 		runner3.join(1000);
-		assertException(() -> runner2.join(-1));
-		assertException(() -> runner1.join(1000));
+		TestUtil.assertThrown(() -> runner2.join(-1));
+		TestUtil.assertThrown(() -> runner1.join(1000));
 	}
 
 	@Test
@@ -26,7 +27,7 @@ public class AsyncRunnerBehavior {
 		AsyncRunner<IOException> runner = AsyncRunner.create(IOException.class, () -> {
 			throw new FileNotFoundException();
 		}).start();
-		assertException(IOException.class, () -> runner.join(0));
+		assertThrown(IOException.class, () -> runner.join(0));
 	}
 
 	@Test
@@ -34,7 +35,7 @@ public class AsyncRunnerBehavior {
 		AsyncRunner<IOException> runner = AsyncRunner.create(IOException.class, () -> {
 			throw new IllegalStateException();
 		}).start();
-		assertException(IllegalStateException.class, () -> runner.join(0));
+		assertThrown(IllegalStateException.class, () -> runner.join(0));
 	}
 
 	@Test
@@ -49,7 +50,7 @@ public class AsyncRunnerBehavior {
 	public void shouldThrowExceptionIfInterrupted() {
 		AsyncRunner<RuntimeException> runner =
 			AsyncRunner.create(() -> Thread.sleep(1000000)).start().interrupt();
-		assertException(RuntimeException.class, () -> runner.join(0));
+		assertThrown(RuntimeException.class, () -> runner.join(0));
 	}
 
 }

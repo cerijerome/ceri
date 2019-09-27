@@ -1,10 +1,11 @@
 package ceri.common.util;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class HolderBehavior {
 
@@ -20,7 +21,7 @@ public class HolderBehavior {
 	public void shouldVerifyValue() {
 		Holder<Integer> holder = Holder.init();
 		assertNull(holder.get());
-		assertException(holder::verify);
+		TestUtil.assertThrown(holder::verify);
 		holder.set(0);
 		assertThat(holder.get(), is(0));
 		holder.verify();

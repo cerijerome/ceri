@@ -1,6 +1,6 @@
 package ceri.common.reflect;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.isClass;
 import static org.hamcrest.CoreMatchers.is;
@@ -11,6 +11,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.Date;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ReflectUtilTest {
 
@@ -34,7 +35,7 @@ public class ReflectUtilTest {
 	@Test
 	public void testForName() {
 		assertThat(ReflectUtil.forName("java.lang.String"), isClass(String.class));
-		assertException(() -> ReflectUtil.forName("___"));
+		TestUtil.assertThrown(() -> ReflectUtil.forName("___"));
 	}
 
 	@Test
@@ -72,7 +73,7 @@ public class ReflectUtilTest {
 
 	@Test
 	public void testCreateErrorObject() {
-		assertException(() -> ReflectUtil.create(Error.class));
+		TestUtil.assertThrown(() -> ReflectUtil.create(Error.class));
 	}
 
 	@Test

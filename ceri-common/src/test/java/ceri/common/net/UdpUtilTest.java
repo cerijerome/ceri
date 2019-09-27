@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.data.ByteUtil;
+import ceri.common.test.TestUtil;
 
 public class UdpUtilTest {
 	private @Mock DatagramSocket socket;
@@ -38,7 +39,7 @@ public class UdpUtilTest {
 	public void testHostPort() {
 		assertNull(UdpUtil.hostPort(null));
 		doReturn(null).when(socket).getInetAddress();
-		assertException(() -> UdpUtil.hostPort(socket));
+		TestUtil.assertThrown(() -> UdpUtil.hostPort(socket));
 		doReturn(address).when(socket).getInetAddress();
 		doReturn(777).when(socket).getPort();
 		doReturn("test").when(address).getHostAddress();

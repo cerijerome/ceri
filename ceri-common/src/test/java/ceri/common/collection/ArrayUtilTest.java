@@ -1,6 +1,6 @@
 package ceri.common.collection;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.isClass;
@@ -14,6 +14,7 @@ import static org.junit.Assert.fail;
 import java.util.Date;
 import java.util.List;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ArrayUtilTest {
 
@@ -50,8 +51,8 @@ public class ArrayUtilTest {
 		int[] array = { 1, 2, 3, 4 };
 		ArrayUtil.validateIndex(array.length, 0);
 		ArrayUtil.validateIndex(array.length, 3);
-		assertException(() -> ArrayUtil.validateIndex(array.length, -1));
-		assertException(() -> ArrayUtil.validateIndex(array.length, 4));
+		TestUtil.assertThrown(() -> ArrayUtil.validateIndex(array.length, -1));
+		TestUtil.assertThrown(() -> ArrayUtil.validateIndex(array.length, 4));
 		assertThat(ArrayUtil.isValidIndex(array.length, 0), is(true));
 		assertThat(ArrayUtil.isValidIndex(array.length, 3), is(true));
 		assertThat(ArrayUtil.isValidIndex(array.length, -1), is(false));
@@ -63,9 +64,9 @@ public class ArrayUtilTest {
 		int[] array = { 1, 2, 3, 4 };
 		ArrayUtil.validateSlice(array.length, 0, 4);
 		ArrayUtil.validateSlice(array.length, 1, 2);
-		assertException(() -> ArrayUtil.validateSlice(array.length, -1, 1));
-		assertException(() -> ArrayUtil.validateSlice(array.length, 5, 1));
-		assertException(() -> ArrayUtil.validateSlice(array.length, 2, 4));
+		TestUtil.assertThrown(() -> ArrayUtil.validateSlice(array.length, -1, 1));
+		TestUtil.assertThrown(() -> ArrayUtil.validateSlice(array.length, 5, 1));
+		TestUtil.assertThrown(() -> ArrayUtil.validateSlice(array.length, 2, 4));
 		assertThat(ArrayUtil.isValidSlice(array.length, 0, 4), is(true));
 		assertThat(ArrayUtil.isValidSlice(array.length, 1, 2), is(true));
 		assertThat(ArrayUtil.isValidSlice(array.length, -1, 1), is(false));

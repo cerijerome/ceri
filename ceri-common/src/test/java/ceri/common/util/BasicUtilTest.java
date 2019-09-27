@@ -1,6 +1,6 @@
 package ceri.common.util;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.exerciseEnum;
@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.test.TestUtil;
 
 public class BasicUtilTest {
 	@Mock
@@ -55,7 +56,7 @@ public class BasicUtilTest {
 		Callable<String> callable = () -> {
 			throw new IOException();
 		};
-		assertException(RuntimeException.class, () -> BasicUtil.shouldNotThrow(callable));
+		assertThrown(RuntimeException.class, () -> BasicUtil.shouldNotThrow(callable));
 	}
 
 	@Test
@@ -182,7 +183,7 @@ public class BasicUtilTest {
 		cls = BasicUtil.forceInit(ForceInitTestClass.class);
 		assertNotNull(cls);
 		assertThat(ForceInitTestClassHelper.count, is(1));
-		assertException(() -> BasicUtil.load("", this.getClass().getClassLoader()));
+		TestUtil.assertThrown(() -> BasicUtil.load("", this.getClass().getClassLoader()));
 	}
 
 	@Test

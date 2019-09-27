@@ -24,6 +24,10 @@ public interface ExceptionPredicate<E extends Exception, T> {
 		return t -> test(t) || other.test(t);
 	}
 
+	default ExceptionPredicate<E, T> name(String name) {
+		return name(this, name);
+	}
+
 	default Predicate<T> asPredicate() {
 		return t -> {
 			try {
@@ -38,5 +42,20 @@ public interface ExceptionPredicate<E extends Exception, T> {
 
 	static <T> ExceptionPredicate<RuntimeException, T> of(Predicate<T> predicate) {
 		return predicate::test;
+	}
+
+	static <E extends Exception, T> ExceptionPredicate<E, T> name(
+		ExceptionPredicate<E, T> predicate, String name) {
+		return new ExceptionPredicate<>() {
+			@Override
+			public boolean test(T t) throws E {
+				return predicate.test(t);
+			}
+
+			@Override
+			public String toString() {
+				return name;
+			}
+		};
 	}
 }

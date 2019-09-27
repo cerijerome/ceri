@@ -1,18 +1,19 @@
 package ceri.common.collection;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ArrayIteratorBehavior {
 
 	@Test
 	public void shouldThrowExceptionForNullArray() {
-		assertException(() -> ArrayIterator.createFrom((Object[]) null));
+		TestUtil.assertThrown(() -> ArrayIterator.createFrom((Object[]) null));
 	}
 
 	@Test

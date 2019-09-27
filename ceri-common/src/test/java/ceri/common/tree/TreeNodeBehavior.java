@@ -1,7 +1,7 @@
 package ceri.common.tree;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.tree.TreeNodeTestHelper.builder;
 import static org.hamcrest.CoreMatchers.is;
@@ -72,8 +72,8 @@ public class TreeNodeBehavior {
 	@Test
 	public void shouldHaveImmutableTree() {
 		// Compiler won't let fields be changed, only able to test children
-		assertException(UnsupportedOperationException.class, () -> helper.root.children().clear());
-		assertException(UnsupportedOperationException.class,
+		assertThrown(UnsupportedOperationException.class, () -> helper.root.children().clear());
+		assertThrown(UnsupportedOperationException.class,
 			() -> helper.root.children().add(null));
 	}
 

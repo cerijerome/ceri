@@ -1,11 +1,12 @@
 package ceri.common.geom;
 
 import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Shape3dUtilTest {
 
@@ -16,8 +17,8 @@ public class Shape3dUtilTest {
 
 	@Test
 	public void testTruncatedConcaveSemiSpheroidFromNegativeGradient() {
-		assertException(() -> Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(4, 4, 8, 1));
-		assertException(() -> Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(2, 4, 8, 0));
+		TestUtil.assertThrown(() -> Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(4, 4, 8, 1));
+		TestUtil.assertThrown(() -> Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(2, 4, 8, 0));
 		TruncatedRadial3d<ConcaveSpheroid3d> r =
 			Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(2, 4, 8, 1);
 		ConcaveSpheroid3d c = r.wrapped();
@@ -42,9 +43,9 @@ public class Shape3dUtilTest {
 		assertApprox(s.r, 2.236);
 		assertApprox(s.c, 2.236);
 		// Upper radius must be larger than lower radius
-		assertException(() -> Shape3dUtil.truncatedSpheroidFromGradient(2, 2, 1, 1000));
+		TestUtil.assertThrown(() -> Shape3dUtil.truncatedSpheroidFromGradient(2, 2, 1, 1000));
 		// Too much height for curvature
-		assertException(() -> Shape3dUtil.truncatedSpheroidFromGradient(0, 2, 1, 1));
+		TestUtil.assertThrown(() -> Shape3dUtil.truncatedSpheroidFromGradient(0, 2, 1, 1));
 		Shape3dUtil.truncatedSpheroidFromGradient(0, 2, 0.7, 1);
 	}
 
@@ -59,7 +60,7 @@ public class Shape3dUtilTest {
 		assertApprox(s.r, 1.342);
 		assertApprox(s.c, 1.200);
 		// Cannot fit into cone shape
-		assertException(() -> Shape3dUtil.truncatedSpheroidFromGradient(2, 1, 1, -1));
+		TestUtil.assertThrown(() -> Shape3dUtil.truncatedSpheroidFromGradient(2, 1, 1, -1));
 	}
 
 	@Test

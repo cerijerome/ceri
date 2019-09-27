@@ -1,7 +1,7 @@
 package ceri.common.property;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
@@ -10,6 +10,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import ceri.common.color.X11Color;
+import ceri.common.test.TestUtil;
 
 public class LocatorBehavior {
 
@@ -65,7 +66,7 @@ public class LocatorBehavior {
 		assertThat(Locator.of(Object.class, "test").filename(), is("test.properties"));
 		assertThat(Locator.builder(String.class).add(X11Color.aqua).build().filename(),
 			is("String-aqua.properties"));
-		assertException(() -> Locator.of(getClass(), ""));
+		TestUtil.assertThrown(() -> Locator.of(getClass(), ""));
 	}
 
 	@Test

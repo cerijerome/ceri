@@ -1,6 +1,6 @@
 package ceri.common.xml;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.resource;
 import static org.hamcrest.CoreMatchers.is;
@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+import ceri.common.test.TestUtil;
 
 public class XmlUtilTest {
 	private static final String xml = resource("test.xml");
@@ -25,7 +26,7 @@ public class XmlUtilTest {
 	public void testDocument() throws SAXException {
 		Document doc = XmlUtil.document(xml);
 		assertThat(doc.getChildNodes().getLength(), is(1));
-		assertException(() -> XmlUtil.document(null));
+		TestUtil.assertThrown(() -> XmlUtil.document(null));
 	}
 
 	@Test
@@ -36,10 +37,10 @@ public class XmlUtilTest {
 
 	@Test
 	public void testExecute() {
-		assertException(() -> XmlUtil.execute(() -> {
+		TestUtil.assertThrown(() -> XmlUtil.execute(() -> {
 			throw new ParserConfigurationException();
 		}));
-		assertException(() -> XmlUtil.execute(() -> {
+		TestUtil.assertThrown(() -> XmlUtil.execute(() -> {
 			throw new IOException();
 		}));
 	}

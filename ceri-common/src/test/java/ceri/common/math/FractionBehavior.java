@@ -1,13 +1,14 @@
 package ceri.common.math;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class FractionBehavior {
 
@@ -50,7 +51,7 @@ public class FractionBehavior {
 	public void shouldDivideFractions() {
 		assertFraction(Fraction.of(0, 1).divide(Fraction.of(1, 1)), 0, 1);
 		assertFraction(Fraction.of(1, 1).divide(Fraction.of(1, 1)), 1, 1);
-		assertException(() -> Fraction.of(0, 1).divide(Fraction.of(0, 1)));
+		TestUtil.assertThrown(() -> Fraction.of(0, 1).divide(Fraction.of(0, 1)));
 		assertFraction(Fraction.of(7, 3).divide(Fraction.of(2, 5)), 35, 6);
 	}
 
@@ -81,14 +82,14 @@ public class FractionBehavior {
 		assertFraction(Fraction.of(0, 1).negate(), 0, 1);
 		assertFraction(Fraction.of(10, 9).negate(), -10, 9);
 		assertFraction(Fraction.of(-9, 10).negate(), 9, 10);
-		assertException(() -> Fraction.of(Long.MIN_VALUE, 101).negate());
+		TestUtil.assertThrown(() -> Fraction.of(Long.MIN_VALUE, 101).negate());
 	}
 
 	@Test
 	public void shouldInvert() {
 		assertFraction(Fraction.of(-9, 7).invert(), -7, 9);
-		assertException(() -> Fraction.of(0, Long.MAX_VALUE).invert());
-		assertException(() -> Fraction.of(Long.MIN_VALUE, 1).invert());
+		TestUtil.assertThrown(() -> Fraction.of(0, Long.MAX_VALUE).invert());
+		TestUtil.assertThrown(() -> Fraction.of(Long.MIN_VALUE, 1).invert());
 	}
 
 	@Test
@@ -99,10 +100,10 @@ public class FractionBehavior {
 
 	@Test
 	public void shouldFailToCreateInvalidFraction() {
-		assertException(() -> Fraction.of(0, 0));
-		assertException(() -> Fraction.of(1, 0));
-		assertException(() -> Fraction.of(1, Long.MIN_VALUE));
-		assertException(() -> Fraction.of(Long.MIN_VALUE, -1));
+		TestUtil.assertThrown(() -> Fraction.of(0, 0));
+		TestUtil.assertThrown(() -> Fraction.of(1, 0));
+		TestUtil.assertThrown(() -> Fraction.of(1, Long.MIN_VALUE));
+		TestUtil.assertThrown(() -> Fraction.of(Long.MIN_VALUE, -1));
 	}
 
 	@Test

@@ -1,10 +1,11 @@
 package ceri.common.tree;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.util.Iterator;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 import ceri.common.tree.TreeNodeTestHelper.TestNode;
 
 public class TreeIteratorBehavior {
@@ -13,7 +14,7 @@ public class TreeIteratorBehavior {
 	@Test
 	public void shouldNotAllowRemove() {
 		Iterator<TestNode> iterator = helper.node(11).tree().iterator();
-		assertException(iterator::remove);
+		TestUtil.assertThrown(iterator::remove);
 	}
 
 	@Test

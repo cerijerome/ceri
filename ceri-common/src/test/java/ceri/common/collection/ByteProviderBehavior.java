@@ -3,7 +3,7 @@ package ceri.common.collection;
 import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertByte;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertStream;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ByteProviderBehavior {
 
@@ -19,7 +20,7 @@ public class ByteProviderBehavior {
 		ByteProvider b = provider(0, 0xff, 0x80, 0x7f);
 		assertByte(b.get(0), 0);
 		assertByte(b.get(3), 0x7f);
-		assertException(() -> b.get(4));
+		TestUtil.assertThrown(() -> b.get(4));
 	}
 
 	@Test

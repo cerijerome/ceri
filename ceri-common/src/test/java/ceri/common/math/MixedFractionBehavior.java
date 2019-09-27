@@ -2,13 +2,14 @@ package ceri.common.math;
 
 import static ceri.common.math.FractionBehavior.assertFraction;
 import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class MixedFractionBehavior {
 
@@ -81,7 +82,7 @@ public class MixedFractionBehavior {
 		assertMixedFraction(MixedFraction.of(0).divide(MixedFraction.of(1, 0, 1)), 0, 0, 1);
 		assertMixedFraction(MixedFraction.of(1).divide(MixedFraction.of(1, 1, 2)), 0, 2, 3);
 		assertMixedFraction(MixedFraction.of(3, 2, 3).divide(MixedFraction.of(1, 0, 1)), 3, 2, 3);
-		assertException(() -> MixedFraction.of(0).divide(MixedFraction.of(0, 0, 1)));
+		TestUtil.assertThrown(() -> MixedFraction.of(0).divide(MixedFraction.of(0, 0, 1)));
 		assertMixedFraction(MixedFraction.of(3, 2, 3).divide(MixedFraction.of(-1, -1, 4)), //
 			-2, -14, 15);
 	}
@@ -119,11 +120,11 @@ public class MixedFractionBehavior {
 
 	@Test
 	public void shouldFailToCreateInvalidFraction() {
-		assertException(() -> MixedFraction.of(0, 0, 0));
-		assertException(() -> MixedFraction.of(1, 1, 0));
-		assertException(() -> MixedFraction.of(0, -1, Long.MIN_VALUE));
-		assertException(() -> MixedFraction.of(0, 1, Long.MIN_VALUE));
-		assertException(() -> MixedFraction.of(Long.MIN_VALUE, -1, 1));
+		TestUtil.assertThrown(() -> MixedFraction.of(0, 0, 0));
+		TestUtil.assertThrown(() -> MixedFraction.of(1, 1, 0));
+		TestUtil.assertThrown(() -> MixedFraction.of(0, -1, Long.MIN_VALUE));
+		TestUtil.assertThrown(() -> MixedFraction.of(0, 1, Long.MIN_VALUE));
+		TestUtil.assertThrown(() -> MixedFraction.of(Long.MIN_VALUE, -1, 1));
 	}
 
 	@Test

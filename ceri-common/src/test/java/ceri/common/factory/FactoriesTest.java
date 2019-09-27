@@ -1,6 +1,6 @@
 package ceri.common.factory;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
@@ -35,7 +35,7 @@ public class FactoriesTest {
 		assertNull(Factories.nul(null).create(null));
 		assertNull(Factories.nul(testFactory).create(null));
 		assertThat(Factories.nul(StringFactories.TO_INTEGER).create("-1"), is(-1));
-		assertException(UnsupportedOperationException.class, () -> testFactory.create(""));
+		assertThrown(UnsupportedOperationException.class, () -> testFactory.create(""));
 	}
 
 	@Test
@@ -44,8 +44,8 @@ public class FactoriesTest {
 		final Factory<Integer, String> badFactory = from -> {
 			throw new FactoryException("");
 		};
-		assertException(FactoryException.class, () -> Factories.create(badFactory, "1"));
-		assertException(FactoryException.class, () -> Factories.create(testFactory, ""));
+		assertThrown(FactoryException.class, () -> Factories.create(badFactory, "1"));
+		assertThrown(FactoryException.class, () -> Factories.create(testFactory, ""));
 	}
 
 	@Test
@@ -55,7 +55,7 @@ public class FactoriesTest {
 		assertNull(f.create(null));
 		assertThat(f.create(new String[0]), is(new Integer[0]));
 		assertThat(f.create(new String[] { "1", "2" }), is(new Integer[] { 1, 2 }));
-		assertException(NumberFormatException.class, () -> f.create(new String[] { "" }));
+		assertThrown(NumberFormatException.class, () -> f.create(new String[] { "" }));
 	}
 
 	@Test
@@ -64,7 +64,7 @@ public class FactoriesTest {
 		assertNull(f.create(null));
 		assertThat(f.create(Collections.emptyList()), is(Collections.<Double>emptyList()));
 		assertThat(f.create(Arrays.asList("0.0", "1.0")), is(Arrays.asList(0.0, 1.0)));
-		assertException(NumberFormatException.class, () -> f.create(Collections.singleton("")));
+		assertThrown(NumberFormatException.class, () -> f.create(Collections.singleton("")));
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class FactoriesTest {
 		assertThat(f.create(Collections.emptySet()), is(Collections.<Long>emptySet()));
 		assertThat(f.create(Arrays.asList("0", "1")),
 			is(new HashSet<>(Arrays.asList(0L, 1L))));
-		assertException(NumberFormatException.class, () -> f.create(Collections.singleton("")));
+		assertThrown(NumberFormatException.class, () -> f.create(Collections.singleton("")));
 	}
 
 }

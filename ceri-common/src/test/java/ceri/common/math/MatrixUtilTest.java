@@ -1,10 +1,11 @@
 package ceri.common.math;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class MatrixUtilTest {
 	private static final Matrix m0 = Matrix.of(new double[][] { { 1, -1 }, { -2, 0 } });
@@ -37,14 +38,14 @@ public class MatrixUtilTest {
 			is(Matrix.of(new double[][] { { 0, -0.5 }, { -1, -0.5 } })));
 		assertThat(MatrixUtil.invert(m1),
 			is(Matrix.of(new double[][] { { -1, -1, -1 }, { -2, -1, -1 }, { -2, -1, -2 } })));
-		assertException(() -> MatrixUtil.invert(m2));
-		assertException(() -> MatrixUtil.invert(m3));
+		TestUtil.assertThrown(() -> MatrixUtil.invert(m2));
+		TestUtil.assertThrown(() -> MatrixUtil.invert(m3));
 	}
 
 	@Test
 	public void testVerifySquare() {
 		MatrixUtil.verifySquare(m0, 2);
-		assertException(() -> MatrixUtil.verifySquare(m0, 1));
+		TestUtil.assertThrown(() -> MatrixUtil.verifySquare(m0, 1));
 	}
 
 	@Test
@@ -53,18 +54,18 @@ public class MatrixUtilTest {
 		MatrixUtil.verifyVector(Matrix.singleton(3), 1);
 		MatrixUtil.verifyVector(Matrix.rowVector(1, 2), 2);
 		MatrixUtil.verifyVector(Matrix.columnVector(1, 2), 2);
-		assertException(() -> MatrixUtil.verifyVector(Matrix.EMPTY, 1));
-		assertException(() -> MatrixUtil.verifyVector(Matrix.singleton(3), 0));
-		assertException(() -> MatrixUtil.verifyVector(Matrix.rowVector(1, 2), 3));
-		assertException(() -> MatrixUtil.verifyVector(Matrix.columnVector(1, 2), 3));
-		assertException(() -> MatrixUtil.verifyVector(m0, 2));
+		TestUtil.assertThrown(() -> MatrixUtil.verifyVector(Matrix.EMPTY, 1));
+		TestUtil.assertThrown(() -> MatrixUtil.verifyVector(Matrix.singleton(3), 0));
+		TestUtil.assertThrown(() -> MatrixUtil.verifyVector(Matrix.rowVector(1, 2), 3));
+		TestUtil.assertThrown(() -> MatrixUtil.verifyVector(Matrix.columnVector(1, 2), 3));
+		TestUtil.assertThrown(() -> MatrixUtil.verifyVector(m0, 2));
 	}
 
 	@Test
 	public void testVerifySize() {
 		MatrixUtil.verifySize(m0, 2, 2);
-		assertException(() -> MatrixUtil.verifySize(m0, 1, 2));
-		assertException(() -> MatrixUtil.verifySize(m0, 2, 1));
+		TestUtil.assertThrown(() -> MatrixUtil.verifySize(m0, 1, 2));
+		TestUtil.assertThrown(() -> MatrixUtil.verifySize(m0, 2, 1));
 	}
 
 }

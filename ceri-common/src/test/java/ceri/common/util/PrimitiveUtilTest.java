@@ -1,7 +1,7 @@
 package ceri.common.util;
 
 import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertSame;
@@ -74,16 +74,16 @@ public class PrimitiveUtilTest {
 	@Test
 	public void testGetPrimitiveClass() {
 		assertSame(double.class, PrimitiveUtil.getPrimitiveClass(Double.class));
-		assertException(IllegalArgumentException.class,
+		assertThrown(IllegalArgumentException.class,
 			() -> PrimitiveUtil.getPrimitiveClass(Boolean.TYPE));
-		assertException(IllegalArgumentException.class,
+		assertThrown(IllegalArgumentException.class,
 			() -> PrimitiveUtil.getPrimitiveClass(String.class));
 	}
 
 	@Test
 	public void testGetObjectClass() {
 		assertSame(Double.class, PrimitiveUtil.getObjectClass(double.class));
-		assertException(IllegalArgumentException.class,
+		assertThrown(IllegalArgumentException.class,
 			() -> PrimitiveUtil.getObjectClass(Boolean.class));
 	}
 

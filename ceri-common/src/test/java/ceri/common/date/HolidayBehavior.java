@@ -1,6 +1,6 @@
 package ceri.common.date;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -8,6 +8,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class HolidayBehavior {
 
@@ -24,7 +25,7 @@ public class HolidayBehavior {
 	@Test
 	public void shouldEncapsulateFixedDay() {
 		assertThat(Holiday.of(Month.FEBRUARY, 28).date(2018), is(LocalDate.of(2018, 2, 28)));
-		assertException(() -> Holiday.of(Month.FEBRUARY, 29).date(2018));
+		TestUtil.assertThrown(() -> Holiday.of(Month.FEBRUARY, 29).date(2018));
 	}
 
 	@Test

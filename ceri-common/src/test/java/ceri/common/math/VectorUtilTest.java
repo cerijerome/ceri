@@ -4,6 +4,7 @@ import static ceri.common.test.TestUtil.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class VectorUtilTest {
 
@@ -18,8 +19,8 @@ public class VectorUtilTest {
 		Vector v1 = Vector.of(-1, 3);
 		Vector v2 = Vector.of(1);
 		assertApprox(VectorUtil.crossProduct2d(v0, v1), 5);
-		assertException(() -> VectorUtil.crossProduct2d(v0, v2));
-		assertException(() -> VectorUtil.crossProduct2d(v2, v0));
+		TestUtil.assertThrown(() -> VectorUtil.crossProduct2d(v0, v2));
+		TestUtil.assertThrown(() -> VectorUtil.crossProduct2d(v2, v0));
 	}
 
 	@Test
@@ -29,9 +30,9 @@ public class VectorUtilTest {
 		Vector v2 = Vector.of(0, 1);
 		Vector v3 = Vector.of(0, 1, 2, 3, 4, 5, 6);
 		assertThat(VectorUtil.crossProduct(v0, v1), is(Vector.of(2, -3, 2)));
-		assertException(() -> VectorUtil.crossProduct(v0, v2));
-		assertException(() -> VectorUtil.crossProduct(v2, v2));
-		assertException(() -> VectorUtil.crossProduct(v3, v3));
+		TestUtil.assertThrown(() -> VectorUtil.crossProduct(v0, v2));
+		TestUtil.assertThrown(() -> VectorUtil.crossProduct(v2, v2));
+		TestUtil.assertThrown(() -> VectorUtil.crossProduct(v3, v3));
 	}
 
 	@Test

@@ -2,7 +2,7 @@ package ceri.common.collection;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertList;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
@@ -19,12 +19,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
-import java.util.function.ObjIntConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;
-import ceri.common.function.ObjIntFunction;
+import ceri.common.test.TestUtil;
 
 public class StreamUtilTest {
 	private enum Abc {
@@ -65,18 +64,18 @@ public class StreamUtilTest {
 
 	@Test
 	public void testRange() {
-		assertStream(StreamUtil.range(3, i -> (char) ('A' + i)), Indexed.of(0, 'A'),
-			Indexed.of(1, 'B'), Indexed.of(2, 'C'));
-		assertStream(StreamUtil.range(1, 3, i -> (char) ('A' + i)), Indexed.of(1, 'B'),
-			Indexed.of(2, 'C'));
+		assertStream(StreamUtil.range(3, i -> (char) ('A' + i)), Indexed.of('A', 0),
+			Indexed.of('B', 1), Indexed.of('C', 2));
+		assertStream(StreamUtil.range(1, 3, i -> (char) ('A' + i)), Indexed.of('B', 1),
+			Indexed.of('C', 2));
 	}
 
 	@Test
 	public void testIndexed() {
-		assertStream(StreamUtil.indexed(List.of("A", "B", "C")), Indexed.of(0, "A"),
-			Indexed.of(1, "B"), Indexed.of(2, "C"));
-		assertStream(StreamUtil.indexed("A", "B", "C"), Indexed.of(0, "A"), Indexed.of(1, "B"),
-			Indexed.of(2, "C"));
+		assertStream(StreamUtil.indexed(List.of("A", "B", "C")), Indexed.of("A", 0),
+			Indexed.of("B", 1), Indexed.of("C", 2));
+		assertStream(StreamUtil.indexed("A", "B", "C"), Indexed.of("A", 0), Indexed.of("B", 1),
+			Indexed.of("C", 2));
 	}
 
 	@Test
@@ -133,7 +132,7 @@ public class StreamUtilTest {
 	public void testMaxAndMin() {
 		assertThat(StreamUtil.min(Stream.of("abc", "", "ABC")), is(""));
 		assertThat(StreamUtil.max(Stream.of("abc", "", "ABC")), is("abc"));
-		assertException(() -> StreamUtil.min(Stream.of("abc", null, "ABC")));
+		TestUtil.assertThrown(() -> StreamUtil.min(Stream.of("abc", null, "ABC")));
 		assertThat(StreamUtil.max(Stream.of("abc", null, "ABC")), is("abc"));
 	}
 
@@ -214,7 +213,7 @@ public class StreamUtilTest {
 	@Test
 	public void testMergeError() {
 		Stream<String> stream = Stream.of("1", "2", "3", "1");
-		assertException(() -> stream.collect(
+		TestUtil.assertThrown(() -> stream.collect(
 			Collectors.toMap(Integer::parseInt, Function.identity(), StreamUtil.mergeError())));
 	}
 

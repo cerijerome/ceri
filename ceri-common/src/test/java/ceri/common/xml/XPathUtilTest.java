@@ -1,6 +1,6 @@
 package ceri.common.xml;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
@@ -32,7 +32,7 @@ public class XPathUtilTest {
 
 	@Test
 	public void testCompilingABadExpressionThrowsRuntimeException() {
-		assertException(RuntimeException.class, () -> XPathUtil.compile("-"));
+		assertThrown(RuntimeException.class, () -> XPathUtil.compile("-"));
 	}
 
 	@Test

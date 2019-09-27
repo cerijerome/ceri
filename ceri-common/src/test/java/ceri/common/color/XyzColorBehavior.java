@@ -3,11 +3,12 @@ package ceri.common.color;
 import static ceri.common.color.ColorTestUtil.assertXyb;
 import static ceri.common.color.ColorTestUtil.assertXyz;
 import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class XyzColorBehavior {
 
@@ -53,7 +54,7 @@ public class XyzColorBehavior {
 	@Test
 	public void shouldVerifyValues() {
 		XyzColor.of(0.5, 0.6, 0.3, 0.2).verify();
-		assertException(() -> XyzColor.of(1.333, 1, -1.333, 0.2).verify());
+		TestUtil.assertThrown(() -> XyzColor.of(1.333, 1, -1.333, 0.2).verify());
 	}
 
 }

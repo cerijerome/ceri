@@ -1,33 +1,29 @@
 package ceri.common.function;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.function.FunctionTestUtil.biFunction;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import java.io.IOException;
 import java.util.function.BiFunction;
 import org.junit.Test;
+import ceri.common.function.FunctionTestUtil.Std;
 
 public class ExceptionBiFunctionBehavior {
 
 	@Test
 	public void shouldConvertToFunction() {
-		ExceptionBiFunction<IOException, String, Integer, Integer> function = (s, i) -> {
-			if (s.length() == i) throw new IOException();
-			return s.length();
-		};
-		BiFunction<String, Integer, Integer> f = function.asBiFunction();
-		assertThat(f.apply("A", 0), is(1));
-		assertException(() -> f.apply(null, 0));
-		assertException(() -> f.apply("A", 1));
+		BiFunction<Integer, Integer, Integer> f = biFunction().asBiFunction();
+		assertThat(f.apply(2, 3), is(5));
+		assertThrown(RuntimeException.class, () -> f.apply(1, 2));
+		assertThrown(RuntimeException.class, () -> f.apply(2, 0));
 	}
 
 	@Test
 	public void shouldConvertFromFunction() {
-		BiFunction<String, Integer, Integer> function = (s, i) -> s.length() - i;
-		ExceptionBiFunction<RuntimeException, String, Integer, Integer> f =
-			ExceptionBiFunction.of(function);
-		assertThat(f.apply("A", 1), is(0));
-		assertException(() -> f.apply(null, 0));
+		ExceptionBiFunction<RuntimeException, Integer, Integer, Integer> f =
+			ExceptionBiFunction.of(Std.biFunction());
+		f.apply(1, 2);
+		assertThrown(RuntimeException.class, () -> f.apply(0, 2));
 	}
 
 }

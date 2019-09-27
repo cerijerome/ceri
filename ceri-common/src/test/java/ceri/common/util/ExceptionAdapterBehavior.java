@@ -1,12 +1,13 @@
 package ceri.common.util;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ExceptionAdapterBehavior {
 
@@ -34,7 +35,7 @@ public class ExceptionAdapterBehavior {
 
 	@Test
 	public void shouldCreateAdapterFunctionFromClass() {
-		assertException(() -> ExceptionAdapter.of(FileNotFoundException.class)); // no matching
+		TestUtil.assertThrown(() -> ExceptionAdapter.of(FileNotFoundException.class)); // no matching
 		// con.
 		ExceptionAdapter<IOException> ad = ExceptionAdapter.of(IOException.class);
 		Throwable t = new FileNotFoundException("test");

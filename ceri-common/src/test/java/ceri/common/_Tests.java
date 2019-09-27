@@ -15,6 +15,8 @@ import ceri.common.collection.ImmutableUtilTest;
 import ceri.common.collection.IndexedBehavior;
 import ceri.common.collection.MapPopulatorBehavior;
 import ceri.common.collection.StreamUtilTest;
+import ceri.common.collection.WrappedIntStreamBehavior;
+import ceri.common.collection.WrappedStreamBehavior;
 import ceri.common.color.BiasesTest;
 import ceri.common.color.ColorComparatorsTest;
 import ceri.common.color.ColorUtilTest;
@@ -88,15 +90,23 @@ import ceri.common.function.ExceptionBiConsumerBehavior;
 import ceri.common.function.ExceptionBiFunctionBehavior;
 import ceri.common.function.ExceptionConsumerBehavior;
 import ceri.common.function.ExceptionFunctionBehavior;
+import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.function.ExceptionIntConsumerBehavior;
+import ceri.common.function.ExceptionIntFunctionBehavior;
+import ceri.common.function.ExceptionIntPredicate;
+import ceri.common.function.ExceptionIntPredicateBehavior;
+import ceri.common.function.ExceptionIntSupplierBehavior;
+import ceri.common.function.ExceptionIntUnaryOperatorBehavior;
 import ceri.common.function.ExceptionPredicateBehavior;
 import ceri.common.function.ExceptionRunnableBehavior;
 import ceri.common.function.ExceptionSupplierBehavior;
+import ceri.common.function.ExceptionToIntFunctionBehavior;
 import ceri.common.function.FunctionUtilTest;
 import ceri.common.function.FunctionWrapperBehavior;
+import ceri.common.function.NamedPredicateBuilderBehavior;
 import ceri.common.function.ObjBooleanConsumerBehavior;
 import ceri.common.function.ObjByteConsumerBehavior;
 import ceri.common.function.ObjShortConsumerBehavior;
-import ceri.common.function.PredicateBuilderBehavior;
 import ceri.common.function.ToByteFunctionBehavior;
 import ceri.common.function.ToShortFunctionBehavior;
 import ceri.common.geo.LatLngBehavior;
@@ -252,6 +262,8 @@ import ceri.common.xml.XmlUtilTest;
 	IndexedBehavior.class, //
 	MapPopulatorBehavior.class, //
 	StreamUtilTest.class, //
+	WrappedIntStreamBehavior.class, //
+	WrappedStreamBehavior.class, //
 	// color
 	BiasesTest.class, //
 	ColorComparatorsTest.class, //
@@ -335,15 +347,21 @@ import ceri.common.xml.XmlUtilTest;
 	ExceptionBiFunctionBehavior.class, //
 	ExceptionConsumerBehavior.class, //
 	ExceptionFunctionBehavior.class, //
+	ExceptionIntConsumerBehavior.class, //
+	ExceptionIntFunctionBehavior.class, //
+	ExceptionIntPredicateBehavior.class, //
+	ExceptionIntSupplierBehavior.class, //
+	ExceptionIntUnaryOperatorBehavior.class, //
 	ExceptionPredicateBehavior.class, //
 	ExceptionRunnableBehavior.class, //
 	ExceptionSupplierBehavior.class, //
+	ExceptionToIntFunctionBehavior.class, //
 	FunctionUtilTest.class, //
 	FunctionWrapperBehavior.class, //
 	ObjBooleanConsumerBehavior.class, //
 	ObjByteConsumerBehavior.class, //
 	ObjShortConsumerBehavior.class, //
-	PredicateBuilderBehavior.class, //
+	NamedPredicateBuilderBehavior.class, //
 	ToByteFunctionBehavior.class, //
 	ToShortFunctionBehavior.class, //
 	// geo

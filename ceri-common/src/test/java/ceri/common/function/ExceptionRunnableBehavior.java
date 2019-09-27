@@ -1,36 +1,23 @@
 package ceri.common.function;
 
-import static ceri.common.test.TestUtil.assertException;
-import java.io.IOException;
+import static ceri.common.function.FunctionTestUtil.runnable;
+import static ceri.common.test.TestUtil.assertThrown;
 import org.junit.Test;
+import ceri.common.function.FunctionTestUtil.Std;
 
 public class ExceptionRunnableBehavior {
 
 	@Test
 	public void shouldConvertToRunnable() {
-		int[] i = { 1 };
-		ExceptionRunnable<IOException> runnable = () -> {
-			if (i[0] < 0) throw new IOException();
-			if (i[0] == 0) throw new RuntimeException();
-		};
-		Runnable r = runnable.asRunnable();
-		r.run();
-		i[0] = 0;
-		assertException(r::run);
-		i[0] = -1;
-		assertException(r::run);
+		runnable(2).asRunnable().run();
+		assertThrown(RuntimeException.class, () -> runnable(1).asRunnable().run());
+		assertThrown(RuntimeException.class, () -> runnable(0).asRunnable().run());
 	}
 
 	@Test
 	public void shouldConvertFromRunnable() {
-		int[] i = { 1 };
-		Runnable runnable = () -> {
-			if (i[0] == 0) throw new RuntimeException();
-		};
-		ExceptionRunnable<RuntimeException> r = ExceptionRunnable.of(runnable);
-		r.run();
-		i[0] = 0;
-		assertException(r::run);
+		ExceptionRunnable.of(Std.runnable(1)).run();
+		assertThrown(RuntimeException.class, () -> ExceptionRunnable.of(Std.runnable(0)).run());
 	}
 
 }

@@ -2,13 +2,14 @@ package ceri.common.math;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class MatrixBehavior {
 
@@ -89,16 +90,16 @@ public class MatrixBehavior {
 	@Test
 	public void shouldAddMatrices() {
 		Matrix m = Matrix.identity(2);
-		assertException(() -> m.add(Matrix.rowVector(1, 2)));
-		assertException(() -> m.add(Matrix.columnVector(1, 2)));
+		TestUtil.assertThrown(() -> m.add(Matrix.rowVector(1, 2)));
+		TestUtil.assertThrown(() -> m.add(Matrix.columnVector(1, 2)));
 		assertThat(m.add(m), is(Matrix.of(new double[][] { { 2, 0 }, { 0, 2 } })));
 	}
 
 	@Test
 	public void shouldMultiplyMatrices() {
 		Matrix m = Matrix.of(new double[][] { { 1, 2, 3 }, { -3, -1, -2 } });
-		assertException(() -> m.multiply(Matrix.rowVector(1, 2, 3)));
-		assertException(() -> m.multiply(Matrix.columnVector(1, 2)));
+		TestUtil.assertThrown(() -> m.multiply(Matrix.rowVector(1, 2, 3)));
+		TestUtil.assertThrown(() -> m.multiply(Matrix.columnVector(1, 2)));
 		assertThat(m.multiply(Matrix.columnVector(1, -1, 0)),
 			is(Matrix.of(new double[][] { { -1 }, { -2 } })));
 	}

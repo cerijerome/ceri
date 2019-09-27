@@ -1,6 +1,6 @@
 package ceri.common.property;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.test.TestUtil.isSame;
@@ -9,6 +9,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import java.util.Collection;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class PathFactoryBehavior {
 
@@ -56,8 +57,8 @@ public class PathFactoryBehavior {
 
 	@Test
 	public void shouldNotCreateBlankFactory() {
-		assertException(() -> PathFactory.create(null));
-		assertException(() -> PathFactory.create(""));
+		TestUtil.assertThrown(() -> PathFactory.create(null));
+		TestUtil.assertThrown(() -> PathFactory.create(""));
 	}
 
 	@Test

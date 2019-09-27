@@ -1,12 +1,13 @@
 package ceri.common.geom;
 
 import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Cone3dBehavior {
 	private final Cone3d c0 = Cone3d.create(2, 8);
@@ -21,8 +22,8 @@ public class Cone3dBehavior {
 
 	@Test
 	public void shouldOnlyAllowPositiveAxes() {
-		assertException(() -> Cone3d.create(-0.1, 2));
-		assertException(() -> Cone3d.create(4, -0.1));
+		TestUtil.assertThrown(() -> Cone3d.create(-0.1, 2));
+		TestUtil.assertThrown(() -> Cone3d.create(4, -0.1));
 	}
 
 	@Test

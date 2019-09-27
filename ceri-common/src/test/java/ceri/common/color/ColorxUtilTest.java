@@ -4,7 +4,7 @@ import static ceri.common.collection.StreamUtil.toList;
 import static ceri.common.color.ColorTestUtil.assertColorx;
 import static ceri.common.color.Colorx.black;
 import static ceri.common.color.Colorx.full;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static java.awt.Color.green;
@@ -23,6 +23,7 @@ import org.junit.Test;
 import ceri.common.color.ColorUtil.Fn.ChannelAdjuster;
 import ceri.common.color.ColorUtil.Fn.ChannelScaler;
 import ceri.common.function.BinaryFunction;
+import ceri.common.test.TestUtil;
 
 public class ColorxUtilTest {
 
@@ -138,8 +139,8 @@ public class ColorxUtilTest {
 
 	@Test
 	public void testValidColor() {
-		assertException(() -> ColorxUtil.validColor(null));
-		assertException(() -> ColorxUtil.validColor("\0black"));
+		TestUtil.assertThrown(() -> ColorxUtil.validColor(null));
+		TestUtil.assertThrown(() -> ColorxUtil.validColor("\0black"));
 		assertColorx(ColorxUtil.validColor("black"), black);
 	}
 

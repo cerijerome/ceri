@@ -1,6 +1,6 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -9,6 +9,7 @@ import java.nio.BufferUnderflowException;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ByteBufferStreamBehavior {
 	private byte[] buffer;
@@ -24,10 +25,10 @@ public class ByteBufferStreamBehavior {
 	public void shouldFailForInvalidReadParameters() {
 		byte[] b = { 0 };
 		try (ByteBufferStream bbs = new ByteBufferStream(1)) {
-			assertException(() -> bbs.read(null, 0, 0));
-			assertException(() -> bbs.read(b, -1, 0));
-			assertException(() -> bbs.read(b, 0, -1));
-			assertException(() -> bbs.read(b, 0, 2));
+			TestUtil.assertThrown(() -> bbs.read(null, 0, 0));
+			TestUtil.assertThrown(() -> bbs.read(b, -1, 0));
+			TestUtil.assertThrown(() -> bbs.read(b, 0, -1));
+			TestUtil.assertThrown(() -> bbs.read(b, 0, 2));
 			assertThat(bbs.read(new byte[0], 0, 0), is(0));
 		}
 	}
@@ -36,8 +37,8 @@ public class ByteBufferStreamBehavior {
 	public void shouldFailToWriteIfClosed() {
 		try (ByteBufferStream bbs = new ByteBufferStream(1)) {
 			bbs.close();
-			assertException(() -> bbs.write(0));
-			assertException(() -> bbs.write(new byte[1], 0, 1));
+			TestUtil.assertThrown(() -> bbs.write(0));
+			TestUtil.assertThrown(() -> bbs.write(new byte[1], 0, 1));
 			assertThat(bbs.read(), is(-1));
 		}
 	}

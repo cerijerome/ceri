@@ -1,18 +1,19 @@
 package ceri.common.reflect;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class CallerBehavior {
 
 	@Test
 	public void shouldSupportNull() {
-		assertException(Caller.NULL::cls);
+		TestUtil.assertThrown(Caller.NULL::cls);
 	}
 
 	@Test

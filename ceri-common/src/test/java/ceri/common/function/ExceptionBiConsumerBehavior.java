@@ -1,30 +1,34 @@
 package ceri.common.function;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.function.FunctionTestUtil.biConsumer;
+import static ceri.common.function.FunctionTestUtil.predicate;
+import static ceri.common.test.TestUtil.assertThrown;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import org.junit.Test;
+import ceri.common.function.FunctionTestUtil.Std;
+import ceri.common.test.TestUtil;
 
 public class ExceptionBiConsumerBehavior {
 
 	@Test
 	public void shouldConvertToConsumer() {
-		ExceptionBiConsumer<IOException, String, Integer> consumer = (s, i) -> {
-			if (s.length() == i) throw new IOException();
-		};
-		BiConsumer<String, Integer> c = consumer.asBiConsumer();
-		c.accept("A", 0);
-		assertException(() -> c.accept(null, 0));
-		assertException(() -> c.accept("A", 1));
+		BiConsumer<Integer, Integer> c = biConsumer().asBiConsumer();
+		c.accept(2, 3);
+		assertThrown(RuntimeException.class, () -> c.accept(1, 2));
+		assertThrown(RuntimeException.class, () -> c.accept(0, 2));
 	}
 
 	@Test
 	public void shouldConvertFromConsumer() {
-		BiConsumer<String, Integer> consumer = (s, i) -> Objects.requireNonNull(s);
-		ExceptionBiConsumer<RuntimeException, String, Integer> c = ExceptionBiConsumer.of(consumer);
-		c.accept("A", 1);
-		assertException(() -> c.accept(null, 1));
+		ExceptionBiConsumer<RuntimeException, Integer, Integer> c =
+			ExceptionBiConsumer.of(Std.biConsumer());
+		c.accept(1, 2);
+		assertThrown(RuntimeException.class, () -> c.accept(0, 2));
 	}
 
 }

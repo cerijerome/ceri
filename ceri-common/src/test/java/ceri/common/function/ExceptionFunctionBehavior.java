@@ -1,32 +1,29 @@
 package ceri.common.function;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.function.FunctionTestUtil.function;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import java.io.IOException;
 import java.util.function.Function;
 import org.junit.Test;
+import ceri.common.function.FunctionTestUtil.Std;
 
 public class ExceptionFunctionBehavior {
 
 	@Test
 	public void shouldConvertToFunction() {
-		ExceptionFunction<IOException, String, Integer> function = s -> {
-			if (s.isEmpty()) throw new IOException();
-			return s.length();
-		};
-		Function<String, Integer> f = function.asFunction();
-		assertThat(f.apply("A"), is(1));
-		assertException(() -> f.apply(null));
-		assertException(() -> f.apply(""));
+		Function<Integer, Integer> f = function().asFunction();
+		assertThat(f.apply(2), is(2));
+		assertThrown(RuntimeException.class, () -> f.apply(1));
+		assertThrown(RuntimeException.class, () -> f.apply(0));
 	}
 
 	@Test
 	public void shouldConvertFromFunction() {
-		Function<String, Integer> function = String::length;
-		ExceptionFunction<RuntimeException, String, Integer> f = ExceptionFunction.of(function);
-		assertThat(f.apply("A"), is(1));
-		assertException(() -> f.apply(null));
+		ExceptionFunction<RuntimeException, Integer, Integer> f =
+			ExceptionFunction.of(Std.function());
+		f.apply(1);
+		assertThrown(RuntimeException.class, () -> f.apply(0));
 	}
 
 }

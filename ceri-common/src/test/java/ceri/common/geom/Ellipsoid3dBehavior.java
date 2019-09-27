@@ -1,12 +1,13 @@
 package ceri.common.geom;
 
 import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Ellipsoid3dBehavior {
 	private final Ellipsoid3d e0 = Ellipsoid3d.create(4, 2, 1);
@@ -22,9 +23,9 @@ public class Ellipsoid3dBehavior {
 
 	@Test
 	public void shouldAllowOnlyNonNegativeAxes() {
-		assertException(() -> Ellipsoid3d.create(-0.1, 2, 1));
-		assertException(() -> Ellipsoid3d.create(4, -0.1, 1));
-		assertException(() -> Ellipsoid3d.create(4, 2, -0.1));
+		TestUtil.assertThrown(() -> Ellipsoid3d.create(-0.1, 2, 1));
+		TestUtil.assertThrown(() -> Ellipsoid3d.create(4, -0.1, 1));
+		TestUtil.assertThrown(() -> Ellipsoid3d.create(4, 2, -0.1));
 	}
 
 	@Test

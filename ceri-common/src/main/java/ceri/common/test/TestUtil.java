@@ -3,6 +3,7 @@ package ceri.common.test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.io.BufferedInputStream;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -34,6 +36,7 @@ import org.junit.runner.JUnitCore;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.FunctionUtil;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
@@ -45,6 +48,7 @@ public class TestUtil {
 	private static final int SMALL_BUFFER_SIZE = 1024;
 	private static final int BUFFER_SIZE = 1024 * 32;
 	public static final int APPROX_PRECISION_DEF = 3;
+	private static final String LAMBDA_NAME = "[lambda]";
 	private static final Random RND = new Random();
 
 	private TestUtil() {}
@@ -574,52 +578,108 @@ public class TestUtil {
 	/**
 	 * Capture and return any thrown exception.
 	 */
-	public static Exception exception(ExceptionRunnable<?> runnable) {
+	public static Throwable thrown(ExceptionRunnable<?> runnable) {
 		try {
 			runnable.run();
 			return null;
-		} catch (Exception e) {
-			return e;
+		} catch (Throwable t) {
+			return t;
 		}
 	}
 
 	/**
-	 * Use this for more flexibility than adding @Test(expected=...)
+	 * Verifies throwable super class.
 	 */
-	public static void assertException(ExceptionRunnable<Exception> runnable) {
-		assertException(Exception.class, runnable);
+	public static void assertThrowable(Throwable t, Class<? extends Throwable> superCls) {
+		assertThrowable(t, superCls, (Predicate<String>) null);
+	}
+
+	/**
+	 * Verifies throwable message.
+	 */
+	public static void assertThrowable(Throwable t, String message) {
+		assertThrowable(t, null, message);
+	}
+
+	/**
+	 * Verifies throwable message.
+	 */
+	public static void assertThrowable(Throwable t, Predicate<String> messageTest) {
+		assertThrowable(t, null, messageTest);
+	}
+
+	/**
+	 * Verifies throwable super class and message.
+	 */
+	public static void assertThrowable(Throwable t, Class<? extends Throwable> superCls,
+		String msg) {
+		assertThrowable(t, superCls, equalsPredicate(msg));
+	}
+
+	/**
+	 * Verifies throwable super class and message.
+	 */
+	public static void assertThrowable(Throwable t, Class<? extends Throwable> superCls,
+		Predicate<String> messageTest) {
+		if (t == null && superCls == null && messageTest == null) return;
+		assertNotNull("Throwable is null", t);
+		if (superCls != null && !superCls.isAssignableFrom(t.getClass())) throw new AssertionError(
+			"Expected " + superCls.getName() + ": " + t.getClass().getName());
+		if (messageTest == null) return;
+		assertTrue(String.format("Unmatched message %s: %s", lambdaName(messageTest), //
+			t.getMessage()), messageTest.test(t.getMessage()));
 	}
 
 	/**
 	 * Use this for more flexibility than adding @Test(expected=...)
 	 */
-	public static void assertException(Class<? extends Exception> exceptionCls,
+	public static void assertThrown(ExceptionRunnable<Exception> runnable) {
+		assertThrown(Exception.class, runnable);
+	}
+
+	/**
+	 * Use this for more flexibility than adding @Test(expected=...)
+	 */
+	public static void assertThrown(Class<? extends Throwable> exceptionCls,
 		ExceptionRunnable<?> runnable) {
-		assertException(exceptionCls, null, runnable);
+		assertThrown(exceptionCls, (Predicate<String>) null, runnable);
 	}
 
 	/**
 	 * Use this for more flexibility than adding @Test(expected=...)
 	 */
-	public static void assertException(String message, ExceptionRunnable<Exception> runnable) {
-		assertException(Exception.class, message, runnable);
+	public static void assertThrown(String message, ExceptionRunnable<Exception> runnable) {
+		assertThrown(Exception.class, message, runnable);
+	}
+
+	/**
+	 * Use this for more flexibility than adding @Test(expected=...)
+	 */
+	public static void assertThrown(Predicate<String> messageTest,
+		ExceptionRunnable<Exception> runnable) {
+		assertThrown(Exception.class, messageTest, runnable);
 	}
 
 	/**
 	 * Tests if an exception is thrown with given message.
 	 */
-	public static void assertException(Class<? extends Exception> exceptionCls, String message,
+	public static void assertThrown(Class<? extends Throwable> superCls, String message,
+		ExceptionRunnable<?> runnable) {
+		assertThrown(superCls, equalsPredicate(message), runnable);
+	}
+
+	/**
+	 * Tests if an exception is thrown with given message.
+	 */
+	public static void assertThrown(Class<? extends Throwable> superCls, Predicate<String> msgTest,
 		ExceptionRunnable<?> runnable) {
 		try {
 			runnable.run();
-		} catch (Throwable e) {
-			if (!exceptionCls.isAssignableFrom(e.getClass())) throw new AssertionError(
-				"Should throw " + exceptionCls.getSimpleName() + " but threw " + e);
-			if (message != null) assertThat("Exception message", e.getMessage(), is(message));
+		} catch (Throwable t) {
+			assertThrowable(t, superCls, msgTest);
 			return;
 		}
-		throw new AssertionError(
-			"Should throw " + exceptionCls.getSimpleName() + " but nothing thrown");
+		throw new AssertionError("Nothing thrown, expected: " + superCls.getName());
 	}
 
 	/**
@@ -737,6 +797,14 @@ public class TestUtil {
 	}
 
 	/**
+	 * Returns "[lambda]" if anonymous lambda, otherwise toString.
+	 */
+	public static String lambdaName(Object lambda) {
+		if (FunctionUtil.isAnonymousLambda(lambda)) return LAMBDA_NAME;
+		return String.valueOf(lambda);
+	}
+
+	/**
 	 * Create a random string of given size.
 	 */
 	public static String randomString(long size) {
@@ -779,6 +847,10 @@ public class TestUtil {
 			// if (b.charAt(i) < ' ') b.setCharAt(i, readableChar);
 		}
 		return b.toString();
+	}
+
+	private static Predicate<String> equalsPredicate(String s) {
+		return FunctionUtil.named(Predicate.isEqual(s), "\"" + s + "\"");
 	}
 
 }

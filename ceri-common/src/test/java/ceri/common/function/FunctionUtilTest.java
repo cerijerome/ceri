@@ -1,13 +1,15 @@
 package ceri.common.function;
 
-import static ceri.common.function.FunctionTestUtil.assertIoEx;
-import static ceri.common.function.FunctionTestUtil.assertRtEx;
+import static ceri.common.function.FunctionTestUtil.biConsumer;
 import static ceri.common.function.FunctionTestUtil.consumer;
+import static ceri.common.function.FunctionTestUtil.intConsumer;
+import static ceri.common.function.FunctionTestUtil.intSupplier;
 import static ceri.common.function.FunctionTestUtil.runnable;
 import static ceri.common.function.FunctionTestUtil.supplier;
 import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -15,9 +17,13 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.IntPredicate;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;
+import ceri.common.test.Capturer;
+import ceri.common.test.TestUtil;
 
 public class FunctionUtilTest {
 
@@ -104,39 +110,73 @@ public class FunctionUtilTest {
 	public void testRecurse() {
 		assertThat(FunctionUtil.recurse("test", s -> s.replaceFirst("[a-z]", "X")), is("XXXX"));
 		assertThat(FunctionUtil.recurse("hello", s -> s.substring(1), 3), is("lo"));
-		assertException(() -> FunctionUtil.recurse("hello", s -> s.substring(1)));
+		TestUtil.assertThrown(() -> FunctionUtil.recurse("hello", s -> s.substring(1)));
 	}
 
 	@Test
 	public void testAsFunction() throws IOException {
-		assertThat(FunctionUtil.asFunction(consumer(2)).apply(1), is(Boolean.TRUE));
-		assertThat(FunctionUtil.asFunction(supplier(1, 2)).apply(null), is(1));
-		assertThat(FunctionUtil.asFunction(runnable(1, 2)).apply(1), is(Boolean.TRUE));
+		assertThat(FunctionUtil.asFunction(consumer()).apply(2), is(Boolean.TRUE));
+		assertThat(FunctionUtil.asFunction(supplier(2)).apply(null), is(2));
+		assertThat(FunctionUtil.asFunction(runnable(2)).apply(null), is(Boolean.TRUE));
+		assertThat(FunctionUtil.asFunction(runnable(2)).apply("x"), is(Boolean.TRUE));
+		assertThat(FunctionUtil.asToIntFunction(intSupplier(2)).applyAsInt(null), is(2));
+		assertThat(FunctionUtil.asToIntFunction(intSupplier(2)).applyAsInt("x"), is(2));
+		assertThat(FunctionUtil.asBiFunction(biConsumer()).apply(2, 3), is(Boolean.TRUE));
 	}
 
 	@Test
-	public void testForEach() throws IOException {
-		assertIoEx("2", () -> FunctionUtil.forEach(Stream.of(1, 2, 3), consumer(2)));
-		assertRtEx("0", () -> FunctionUtil.forEach(Stream.of(1, 0, 3), consumer(2)));
-		FunctionUtil.forEach(Stream.of(1, 2, 3), consumer(4));
-		assertIoEx("2", () -> FunctionUtil.forEach(Arrays.asList(1, 2, 3), consumer(2)));
-		assertRtEx("0", () -> FunctionUtil.forEach(Arrays.asList(1, 0, 3), consumer(2)));
-		FunctionUtil.forEach(Arrays.asList(1, 2, 3), consumer(4));
+	public void testForEachIterable() throws IOException {
+		Capturer.Int capturer = Capturer.ofInt();
+		assertThrown(IOException.class,
+			() -> FunctionUtil.forEach(Arrays.asList(1, 2, 3), consumer()));
+		assertThrown(RuntimeException.class,
+			() -> FunctionUtil.forEach(Arrays.asList(0, 1, 2), consumer()));
+		FunctionUtil.forEach(Arrays.asList(1, 2, 3), capturer.reset().toEx(IOException.class));
+		capturer.verify(1, 2, 3);
 	}
 
 	@Test
-	public void testForEachMapEntry() throws IOException {
-		Map<Integer, String> map = Map.of(1, "1", 2, "2", 3, "3");
-		FunctionUtil.forEach(map, (k, v) -> {
-			if (k < 1) throw new IOException();
-		});
+	public void testForEachStream() throws IOException {
+		Capturer.Int capturer = Capturer.ofInt();
+		FunctionUtil.forEach(Stream.of(1, 2, 3), capturer.reset().toEx(IOException.class));
+		capturer.verify(1, 2, 3);
+		FunctionUtil.forEach(IntStream.of(1, 2, 3), capturer.reset().toExInt(IOException.class));
+		capturer.verify(1, 2, 3);
+		assertThrown(IOException.class, () -> FunctionUtil.forEach(Stream.of(1, 2, 3),
+			consumer()));
+		assertThrown(IOException.class,
+			() -> FunctionUtil.forEach(IntStream.of(1, 2, 3), intConsumer()));
+		assertThrown(RuntimeException.class,
+			() -> FunctionUtil.forEach(Stream.of(2, 0, 3), consumer()));
+		assertThrown(RuntimeException.class,
+			() -> FunctionUtil.forEach(IntStream.of(2, 0, 3), intConsumer()));
+	}
+
+	@Test
+	public void testForEachMap() throws IOException {
+		Capturer.Bi<Integer, Integer> capturer = Capturer.ofBi();
+		FunctionUtil.forEach(Map.of(1, 2, 3, 4), capturer.reset().toEx(IOException.class));
+		assertCollection(capturer.first.values, 1, 3);
+		assertCollection(capturer.second.values, 2, 4);
+		assertThrown(IOException.class,
+			() -> FunctionUtil.forEach(Map.of(1, 2, 3, 4), biConsumer()));
+		assertThrown(RuntimeException.class,
+			() -> FunctionUtil.forEach(Map.of(3, 2, 0, 4), biConsumer()));
 	}
 
 	@Test
 	public void testNamedPredicate() {
-		Predicate<String> p = FunctionUtil.namedPredicate(s -> !s.isEmpty(), "test");
+		Predicate<String> p = FunctionUtil.named(s -> !s.isEmpty(), "test");
 		assertThat(p.test(""), is(false));
 		assertThat(p.test("abc"), is(true));
+		assertThat(p.toString(), is("test"));
+	}
+
+	@Test
+	public void testNamedIntPredicate() {
+		IntPredicate p = FunctionUtil.namedInt(i -> i > 0, "test");
+		assertThat(p.test(0), is(false));
+		assertThat(p.test(1), is(true));
 		assertThat(p.toString(), is("test"));
 	}
 

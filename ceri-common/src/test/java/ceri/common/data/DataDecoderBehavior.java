@@ -1,11 +1,12 @@
 package ceri.common.data;
 
 import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.test.TestUtil;
 import ceri.common.text.Utf8Util;
 
 public class DataDecoderBehavior {
@@ -43,9 +44,9 @@ public class DataDecoderBehavior {
 		ImmutableByteArray b1 = ByteUtil.toAscii("abC");
 		DataDecoder dec = DataDecoder.of(b0, 0).mark();
 		dec.validateAscii("abc").reset();
-		assertException(() -> dec.validateAscii("abC"));
+		TestUtil.assertThrown(() -> dec.validateAscii("abC"));
 		dec.reset().validateAscii(b0).reset();
-		assertException(() -> dec.validateAscii(b1));
+		TestUtil.assertThrown(() -> dec.validateAscii(b1));
 	}
 
 	@Test
@@ -57,7 +58,7 @@ public class DataDecoderBehavior {
 		DataDecoder dec = DataDecoder.of(b0, 1, 4);
 		dec.skip(1).validate(b2);
 		dec.rewind(4).validate(b1, 0, 3).rewind(2);
-		assertException(() -> dec.validate(b3));
+		TestUtil.assertThrown(() -> dec.validate(b3));
 	}
 
 	@Test

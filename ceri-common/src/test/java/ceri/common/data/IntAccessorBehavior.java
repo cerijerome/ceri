@@ -1,9 +1,10 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class IntAccessorBehavior {
 
@@ -22,14 +23,14 @@ public class IntAccessorBehavior {
 
 	@Test
 	public void shouldFailForNullAccessors() {
-		assertException(() -> IntAccessor.of(null).get());
-		assertException(() -> IntAccessor.of(null, null).set(0));
+		TestUtil.assertThrown(() -> IntAccessor.of(null).get());
+		TestUtil.assertThrown(() -> IntAccessor.of(null, null).set(0));
 	}
 
 	@Test
 	public void shouldFailForNullTypedAccessors() {
-		assertException(() -> IntAccessor.typed(null).get(""));
-		assertException(() -> IntAccessor.typed(null, null).set("", 0));
+		TestUtil.assertThrown(() -> IntAccessor.typed(null).get(""));
+		TestUtil.assertThrown(() -> IntAccessor.typed(null, null).set("", 0));
 	}
 
 	@Test

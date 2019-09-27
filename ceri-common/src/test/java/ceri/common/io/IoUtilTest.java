@@ -2,7 +2,7 @@ package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertFile;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.exerciseEnum;
@@ -39,6 +39,7 @@ import org.mockito.Mockito;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.FileTestHelper;
+import ceri.common.test.TestUtil;
 
 public class IoUtilTest {
 	private static FileTestHelper helper = null;
@@ -102,7 +103,7 @@ public class IoUtilTest {
 	public void testCheckIoInterrupted() throws InterruptedIOException {
 		IoUtil.checkIoInterrupted();
 		Thread.currentThread().interrupt();
-		assertException(InterruptedIOException.class, IoUtil::checkIoInterrupted);
+		assertThrown(InterruptedIOException.class, IoUtil::checkIoInterrupted);
 	}
 
 	@Test
@@ -110,7 +111,7 @@ public class IoUtilTest {
 		final StringReader in = new StringReader("0123456789");
 		assertFalse(IoUtil.close(null));
 		assertTrue(IoUtil.close(in));
-		assertException(IOException.class, in::read);
+		assertThrown(IOException.class, in::read);
 	}
 
 	@Test
@@ -129,7 +130,7 @@ public class IoUtilTest {
 		assertFile(helper.file("a/a/a.txt"), toFile);
 		IoUtil.deleteAll(helper.file("x"));
 		File badFile = mock(File.class);
-		assertException(RuntimeException.class,
+		assertThrown(RuntimeException.class,
 			() -> IoUtil.copyFile(helper.file("a/a/a.txt"), badFile));
 	}
 
@@ -140,9 +141,9 @@ public class IoUtilTest {
 		assertTrue(tempDir.isDirectory());
 		tempDir.delete();
 		// Should fail - generating same dir each iteration
-		assertException(() -> IoUtil.createTempDir(helper.root, file -> helper.file("a")));
+		TestUtil.assertThrown(() -> IoUtil.createTempDir(helper.root, file -> helper.file("a")));
 		// Should fail - parent path is an existing file
-		assertException(() -> IoUtil.createTempDir(helper.root, file -> helper.file("c.txt/c")));
+		TestUtil.assertThrown(() -> IoUtil.createTempDir(helper.root, file -> helper.file("c.txt/c")));
 	}
 
 	@Test
@@ -233,7 +234,7 @@ public class IoUtilTest {
 	@Test
 	public void testWaitForData() throws IOException {
 		try (InputStream in = Mockito.mock(InputStream.class)) {
-			assertException(IoTimeoutException.class, () -> IoUtil.waitForData(in, 1, 1, 1));
+			assertThrown(IoTimeoutException.class, () -> IoUtil.waitForData(in, 1, 1, 1));
 			when(in.available()).thenReturn(0).thenReturn(2);
 			assertThat(IoUtil.waitForData(in, 1, 0, 1), is(2));
 		}
@@ -242,11 +243,11 @@ public class IoUtilTest {
 	@Test
 	public void testExecIo() throws IOException {
 		IoUtil.execIo(() -> {});
-		assertException(RuntimeException.class, () -> IoUtil.execIo(() -> Integer.valueOf(null)));
-		assertException(IOException.class, () -> IoUtil.execIo(() -> {
+		assertThrown(RuntimeException.class, () -> IoUtil.execIo(() -> Integer.valueOf(null)));
+		assertThrown(IOException.class, () -> IoUtil.execIo(() -> {
 			throw new Exception();
 		}));
-		assertException(IOException.class, () -> IoUtil.execIo(() -> {
+		assertThrown(IOException.class, () -> IoUtil.execIo(() -> {
 			throw new IOException();
 		}));
 	}
@@ -254,12 +255,12 @@ public class IoUtilTest {
 	@Test
 	public void testCallableIo() throws IOException {
 		IoUtil.callableIo(() -> "a");
-		assertException(RuntimeException.class,
+		assertThrown(RuntimeException.class,
 			() -> IoUtil.callableIo(() -> Integer.valueOf(null)));
-		assertException(IOException.class, () -> IoUtil.callableIo(() -> {
+		assertThrown(IOException.class, () -> IoUtil.callableIo(() -> {
 			throw new Exception();
 		}));
-		assertException(IOException.class, () -> IoUtil.callableIo(() -> {
+		assertThrown(IOException.class, () -> IoUtil.callableIo(() -> {
 			throw new IOException();
 		}));
 	}
@@ -342,7 +343,7 @@ public class IoUtilTest {
 	public void testGetResourceFile() {
 		File f = IoUtil.getResourceFile(getClass(), getClass().getSimpleName() + ".properties");
 		assertTrue(f.exists());
-		assertException(() -> IoUtil.getResourceFile(getClass(), "missing"));
+		TestUtil.assertThrown(() -> IoUtil.getResourceFile(getClass(), "missing"));
 	}
 
 	@Test
@@ -363,9 +364,9 @@ public class IoUtilTest {
 		assertThat(s, is("a=b"));
 		s = IoUtil.getClassResourceAsString(getClass(), "properties");
 		assertThat(s, is("a=b"));
-		assertException(MissingResourceException.class,
+		assertThrown(MissingResourceException.class,
 			() -> IoUtil.getResource(getClass(), "test"));
-		assertException(() -> IoUtil.getResource(getClass(), null));
+		TestUtil.assertThrown(() -> IoUtil.getResource(getClass(), null));
 	}
 
 	@Test
@@ -421,8 +422,8 @@ public class IoUtilTest {
 		final byte[] inBuffer = new byte[200];
 		final byte[] outBuffer = new byte[256];
 		final ByteArrayInputStream in = new ByteArrayInputStream(inBuffer);
-		assertException(() -> IoUtil.fillBuffer(in, outBuffer, 255, 2));
-		assertException(() -> IoUtil.fillBuffer(in, outBuffer, -1, 2));
+		TestUtil.assertThrown(() -> IoUtil.fillBuffer(in, outBuffer, 255, 2));
+		TestUtil.assertThrown(() -> IoUtil.fillBuffer(in, outBuffer, -1, 2));
 	}
 
 	@Test

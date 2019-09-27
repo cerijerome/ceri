@@ -1,7 +1,7 @@
 package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.junit.Assert.assertFalse;
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +12,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.test.FileTestHelper;
+import ceri.common.test.TestUtil;
 
 public class FileIteratorBehavior {
 	private static FileTestHelper helper = null;
@@ -31,9 +32,9 @@ public class FileIteratorBehavior {
 	@Test
 	public void shouldFailOnRemove() {
 		FileIterator iterator = new FileIterator(helper.file("a"));
-		assertException(iterator::remove);
+		TestUtil.assertThrown(iterator::remove);
 		iterator.next();
-		assertException(iterator::remove);
+		TestUtil.assertThrown(iterator::remove);
 	}
 
 	@Test
@@ -46,7 +47,7 @@ public class FileIteratorBehavior {
 	public void shouldThrowExceptionIfNoMoreElements() {
 		final FileIterator iterator = new FileIterator(helper.file("a/a"));
 		iterator.next();
-		assertException(NoSuchElementException.class, iterator::next);
+		assertThrown(NoSuchElementException.class, iterator::next);
 	}
 
 	@Test

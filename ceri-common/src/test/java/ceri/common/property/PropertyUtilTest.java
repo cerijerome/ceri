@@ -2,7 +2,7 @@ package ceri.common.property;
 
 import static ceri.common.collection.StreamUtil.toList;
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -20,6 +20,7 @@ import java.util.Properties;
 import org.junit.Test;
 import org.mockito.Mockito;
 import ceri.common.test.FileTestHelper;
+import ceri.common.test.TestUtil;
 
 public class PropertyUtilTest {
 
@@ -50,7 +51,7 @@ public class PropertyUtilTest {
 			Properties properties = Mockito.mock(Properties.class);
 			doThrow(new IOException()).when(properties).store((OutputStream) any(), anyString());
 			File file = helper.file("test.properties");
-			assertException(() -> PropertyUtil.store(properties, file));
+			TestUtil.assertThrown(() -> PropertyUtil.store(properties, file));
 			PropertyUtil.store(new Properties(), file);
 		}
 	}
@@ -61,8 +62,8 @@ public class PropertyUtilTest {
 			Properties properties = Mockito.mock(Properties.class);
 			doThrow(new IOException()).when(properties).load((InputStream) any());
 			File file = helper.file("test.properties");
-			assertException(() -> PropertyUtil.load(file));
-			assertException(() -> PropertyUtil.load(getClass(), "test.properties"));
+			TestUtil.assertThrown(() -> PropertyUtil.load(file));
+			TestUtil.assertThrown(() -> PropertyUtil.load(getClass(), "test.properties"));
 		}
 	}
 

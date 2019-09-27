@@ -2,7 +2,7 @@ package ceri.common.property;
 
 import static ceri.common.property.PropertyUtil.load;
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.is;
@@ -19,6 +19,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class BasePropertiesBehavior {
 	private static Properties properties = new Properties();
@@ -149,7 +150,7 @@ public class BasePropertiesBehavior {
 		assertThat(bp.enumValue(E.class, "a.b"), is(E.AB));
 		assertThat(bp.enumValue(E.class, E.A, "a.b"), is(E.AB));
 		assertThat(bp.enumValue(E.class, E.A, "xx"), is(E.A));
-		assertException(() -> bp.enumValue(E.class, "a.b.c"));
+		TestUtil.assertThrown(() -> bp.enumValue(E.class, "a.b.c"));
 		assertCollection(bp.enumValues(E.class, "a", "abc"), E.A, E.ABC);
 	}
 

@@ -1,8 +1,12 @@
 package ceri.common.function;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.function.IntPredicate;
+import java.util.function.IntUnaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -13,6 +17,7 @@ public class FunctionUtil {
 	private static final int MAX_RECURSIONS_DEF = 20;
 	private static final Predicate<Object> TRUE_PREDICATE = t -> true;
 	private static final Consumer<Object> NULL_CONSUMER = t -> {};
+	private static final String ANON_LAMBDA_LABEL = "$$Lambda$";
 
 	private FunctionUtil() {}
 
@@ -134,37 +139,19 @@ public class FunctionUtil {
 	/**
 	 * Executes for-each, allowing exception of given type to be thrown.
 	 */
+	public static <E extends Exception> void forEach(IntStream stream,
+		ExceptionIntConsumer<E> consumer) throws E {
+		FunctionWrapper<E> w = FunctionWrapper.create();
+		w.unwrap(() -> stream.forEach(w.wrap(consumer)));
+	}
+
+	/**
+	 * Executes for-each, allowing exception of given type to be thrown.
+	 */
 	public static <E extends Exception, K, V> void forEach(Map<K, V> map,
 		ExceptionBiConsumer<E, ? super K, ? super V> consumer) throws E {
 		FunctionWrapper<E> w = FunctionWrapper.create();
 		w.unwrap(() -> map.forEach(w.wrap(consumer)));
-	}
-
-	/**
-	 * Executes map, allowing exception of given type to be thrown.
-	 */
-	public static <E extends Exception, T, R> Stream<R> map(Stream<T> stream,
-		ExceptionFunction<E, ? super T, ? extends R> fn) throws E {
-		FunctionWrapper<E> w = FunctionWrapper.create();
-		return w.unwrap(() -> stream.map(w.wrap(fn)));
-	}
-
-	/**
-	 * Executes map, allowing exception of given type to be thrown.
-	 */
-	public static <E extends Exception> IntStream map(IntStream stream,
-		ExceptionIntUnaryOperator<E> fn) throws E {
-		FunctionWrapper<E> w = FunctionWrapper.create();
-		return w.unwrap(() -> stream.map(w.wrap(fn)));
-	}
-
-	/**
-	 * Executes map, allowing exception of given type to be thrown.
-	 */
-	public static <E extends Exception, R> Stream<R> mapToObj(IntStream stream,
-		ExceptionIntFunction<E, ? extends R> fn) throws E {
-		FunctionWrapper<E> w = FunctionWrapper.create();
-		return w.unwrap(() -> stream.mapToObj(w.wrap(fn)));
 	}
 
 	public static <T> Predicate<T> and(Predicate<T> lhs, Predicate<T> rhs) {
@@ -175,11 +162,31 @@ public class FunctionUtil {
 		return lhs == null ? rhs : rhs == null ? lhs : lhs.or(rhs);
 	}
 
-	public static <T> Predicate<T> namedPredicate(Predicate<T> predicate, String name) {
+	public static boolean isAnonymousLambda(Object obj) {
+		if (obj == null) return false;
+		String s = obj.toString();
+		return s != null && s.contains(ANON_LAMBDA_LABEL);
+	}
+
+	public static <T> Predicate<T> named(Predicate<T> predicate, String name) {
 		return new Predicate<>() {
 			@Override
 			public boolean test(T t) {
 				return predicate.test(t);
+			}
+
+			@Override
+			public String toString() {
+				return name;
+			}
+		};
+	}
+
+	public static IntPredicate namedInt(IntPredicate predicate, String name) {
+		return new IntPredicate() {
+			@Override
+			public boolean test(int value) {
+				return predicate.test(value);
 			}
 
 			@Override
@@ -211,7 +218,7 @@ public class FunctionUtil {
 	/**
 	 * Converts a supplier to a function that ignores input.
 	 */
-	public static <E extends Exception> ExceptionToIntFunction<E, ?> asToIntFunction(
+	public static <E extends Exception, T> ExceptionToIntFunction<E, T> asToIntFunction(
 		ExceptionIntSupplier<E> supplier) {
 		return t -> supplier.getAsInt();
 	}

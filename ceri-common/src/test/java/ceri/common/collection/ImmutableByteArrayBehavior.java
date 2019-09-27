@@ -1,7 +1,7 @@
 package ceri.common.collection;
 
 import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ImmutableByteArrayBehavior {
 	// Don't overwrite!
@@ -114,31 +115,31 @@ public class ImmutableByteArrayBehavior {
 
 	@Test
 	public void shouldOnlyAllowOffsetsAndLengthsWithinRange() {
-		assertException(() -> ImmutableByteArray.wrap(b, -1, 0));
-		assertException(() -> ImmutableByteArray.wrap(b, 0, -1));
-		assertException(() -> ImmutableByteArray.wrap(b, 6, 0));
-		assertException(() -> ImmutableByteArray.wrap(b, 5, 1));
-		assertException(() -> ImmutableByteArray.wrap(b, 0, 6));
-		assertException(() -> ImmutableByteArray.wrap(b, 3, 3));
+		TestUtil.assertThrown(() -> ImmutableByteArray.wrap(b, -1, 0));
+		TestUtil.assertThrown(() -> ImmutableByteArray.wrap(b, 0, -1));
+		TestUtil.assertThrown(() -> ImmutableByteArray.wrap(b, 6, 0));
+		TestUtil.assertThrown(() -> ImmutableByteArray.wrap(b, 5, 1));
+		TestUtil.assertThrown(() -> ImmutableByteArray.wrap(b, 0, 6));
+		TestUtil.assertThrown(() -> ImmutableByteArray.wrap(b, 3, 3));
 		ImmutableByteArray ba = ImmutableByteArray.wrap(b);
-		assertException(() -> ba.get(-1));
-		assertException(() -> ba.get(5));
-		assertException(() -> ba.copy(-1, 0));
-		assertException(() -> ba.copy(0, -1));
-		assertException(() -> ba.copy(5, 1));
-		assertException(() -> ba.copy(0, 6));
-		assertException(() -> ba.copy(3, 3));
+		TestUtil.assertThrown(() -> ba.get(-1));
+		TestUtil.assertThrown(() -> ba.get(5));
+		TestUtil.assertThrown(() -> ba.copy(-1, 0));
+		TestUtil.assertThrown(() -> ba.copy(0, -1));
+		TestUtil.assertThrown(() -> ba.copy(5, 1));
+		TestUtil.assertThrown(() -> ba.copy(0, 6));
+		TestUtil.assertThrown(() -> ba.copy(3, 3));
 		byte[] b2 = new byte[10];
-		assertException(() -> ba.copyTo(-1, b2, 0, 0));
-		assertException(() -> ba.copyTo(0, b2, 0, -1));
-		assertException(() -> ba.copyTo(5, b2, 0, 1));
-		assertException(() -> ba.copyTo(0, b2, 0, 6));
-		assertException(() -> ba.copyTo(3, b2, 0, 3));
-		assertException(() -> ba.slice(-1, 0));
-		assertException(() -> ba.slice(0, -1));
-		assertException(() -> ba.slice(5, 1));
-		assertException(() -> ba.slice(0, 6));
-		assertException(() -> ba.slice(3, 3));
+		TestUtil.assertThrown(() -> ba.copyTo(-1, b2, 0, 0));
+		TestUtil.assertThrown(() -> ba.copyTo(0, b2, 0, -1));
+		TestUtil.assertThrown(() -> ba.copyTo(5, b2, 0, 1));
+		TestUtil.assertThrown(() -> ba.copyTo(0, b2, 0, 6));
+		TestUtil.assertThrown(() -> ba.copyTo(3, b2, 0, 3));
+		TestUtil.assertThrown(() -> ba.slice(-1, 0));
+		TestUtil.assertThrown(() -> ba.slice(0, -1));
+		TestUtil.assertThrown(() -> ba.slice(5, 1));
+		TestUtil.assertThrown(() -> ba.slice(0, 6));
+		TestUtil.assertThrown(() -> ba.slice(3, 3));
 	}
 
 	@Test

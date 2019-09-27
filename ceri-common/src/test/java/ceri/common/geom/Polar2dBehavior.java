@@ -4,13 +4,14 @@ import static ceri.common.geom.Point2d.X_UNIT;
 import static ceri.common.geom.Point2d.Y_UNIT;
 import static ceri.common.math.MathUtil.PI_BY_2;
 import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Math.PI;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Polar2dBehavior {
 	private final Polar2d p0 = Polar2d.of(2, PI / 3);
@@ -40,7 +41,7 @@ public class Polar2dBehavior {
 
 	@Test
 	public void shouldOnlyAllowPositiveRadius() {
-		assertException(() -> Cone3d.create(-0.1, 2));
+		TestUtil.assertThrown(() -> Cone3d.create(-0.1, 2));
 		assertThat(Polar2d.from(Point2d.ZERO), is(Polar2d.ZERO));
 	}
 

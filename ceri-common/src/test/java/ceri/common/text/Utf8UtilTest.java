@@ -2,7 +2,7 @@ package ceri.common.text;
 
 import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -13,6 +13,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import org.junit.Test;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.test.TestUtil;
 
 public class Utf8UtilTest {
 	private static final int _1B = 'A';
@@ -39,7 +40,7 @@ public class Utf8UtilTest {
 	@Test
 	public void testCeilingStart() {
 		byte[] b = Utf8Util.encode(COMBO);
-		assertException(() -> Utf8Util.ceilingStart(b, -1));
+		TestUtil.assertThrown(() -> Utf8Util.ceilingStart(b, -1));
 		assertThat(Utf8Util.ceilingStart(b, 0), is(0));
 		assertThat(Utf8Util.ceilingStart(b, 1), is(1));
 		assertThat(Utf8Util.ceilingStart(b, 2), is(2));
@@ -51,15 +52,15 @@ public class Utf8UtilTest {
 		assertThat(Utf8Util.ceilingStart(b, 8), is(-1));
 		assertThat(Utf8Util.ceilingStart(b, 9), is(-1));
 		assertThat(Utf8Util.ceilingStart(b, 10), is(-1));
-		assertException(() -> Utf8Util.ceilingStart(b, 11));
-		assertException(() -> Utf8Util.ceilingStart(b, Integer.MIN_VALUE));
-		assertException(() -> Utf8Util.ceilingStart(b, Integer.MAX_VALUE));
+		TestUtil.assertThrown(() -> Utf8Util.ceilingStart(b, 11));
+		TestUtil.assertThrown(() -> Utf8Util.ceilingStart(b, Integer.MIN_VALUE));
+		TestUtil.assertThrown(() -> Utf8Util.ceilingStart(b, Integer.MAX_VALUE));
 	}
 
 	@Test
 	public void testHigherStart() {
 		byte[] b = Utf8Util.encode(COMBO);
-		assertException(() -> Utf8Util.higherStart(b, -1));
+		TestUtil.assertThrown(() -> Utf8Util.higherStart(b, -1));
 		assertThat(Utf8Util.higherStart(b, 0), is(1));
 		assertThat(Utf8Util.higherStart(b, 1), is(2));
 		assertThat(Utf8Util.higherStart(b, 2), is(4));
@@ -71,15 +72,15 @@ public class Utf8UtilTest {
 		assertThat(Utf8Util.higherStart(b, 8), is(-1));
 		assertThat(Utf8Util.higherStart(b, 9), is(-1));
 		assertThat(Utf8Util.higherStart(b, 10), is(-1));
-		assertException(() -> Utf8Util.higherStart(b, 11));
-		assertException(() -> Utf8Util.higherStart(b, Integer.MIN_VALUE));
-		assertException(() -> Utf8Util.higherStart(b, Integer.MAX_VALUE));
+		TestUtil.assertThrown(() -> Utf8Util.higherStart(b, 11));
+		TestUtil.assertThrown(() -> Utf8Util.higherStart(b, Integer.MIN_VALUE));
+		TestUtil.assertThrown(() -> Utf8Util.higherStart(b, Integer.MAX_VALUE));
 	}
 
 	@Test
 	public void testFloorStart() {
 		byte[] b = Utf8Util.encode(COMBO);
-		assertException(() -> Utf8Util.floorStart(b, -1));
+		TestUtil.assertThrown(() -> Utf8Util.floorStart(b, -1));
 		assertThat(Utf8Util.floorStart(b, 0), is(0));
 		assertThat(Utf8Util.floorStart(b, 1), is(1));
 		assertThat(Utf8Util.floorStart(b, 2), is(2));
@@ -91,9 +92,9 @@ public class Utf8UtilTest {
 		assertThat(Utf8Util.floorStart(b, 8), is(7));
 		assertThat(Utf8Util.floorStart(b, 9), is(7));
 		assertThat(Utf8Util.floorStart(b, 10), is(7));
-		assertException(() -> Utf8Util.floorStart(b, 11));
-		assertException(() -> Utf8Util.floorStart(b, Integer.MIN_VALUE));
-		assertException(() -> Utf8Util.floorStart(b, Integer.MAX_VALUE));
+		TestUtil.assertThrown(() -> Utf8Util.floorStart(b, 11));
+		TestUtil.assertThrown(() -> Utf8Util.floorStart(b, Integer.MIN_VALUE));
+		TestUtil.assertThrown(() -> Utf8Util.floorStart(b, Integer.MAX_VALUE));
 		byte[] b2 = new byte[] { (byte) 0x90, (byte) 0x80, 'A', (byte) 0xc2, (byte) 0xa9 };
 		assertThat(Utf8Util.floorStart(b2, 0), is(-1));
 		assertThat(Utf8Util.floorStart(b2, 1), is(-1));
@@ -105,7 +106,7 @@ public class Utf8UtilTest {
 	@Test
 	public void testLowerStart() {
 		byte[] b = Utf8Util.encode(COMBO);
-		assertException(() -> Utf8Util.lowerStart(b, -1));
+		TestUtil.assertThrown(() -> Utf8Util.lowerStart(b, -1));
 		assertThat(Utf8Util.lowerStart(b, 0), is(-1));
 		assertThat(Utf8Util.lowerStart(b, 1), is(0));
 		assertThat(Utf8Util.lowerStart(b, 2), is(1));
@@ -117,9 +118,9 @@ public class Utf8UtilTest {
 		assertThat(Utf8Util.lowerStart(b, 8), is(7));
 		assertThat(Utf8Util.lowerStart(b, 9), is(7));
 		assertThat(Utf8Util.lowerStart(b, 10), is(7));
-		assertException(() -> Utf8Util.lowerStart(b, 11));
-		assertException(() -> Utf8Util.lowerStart(b, Integer.MIN_VALUE));
-		assertException(() -> Utf8Util.lowerStart(b, Integer.MAX_VALUE));
+		TestUtil.assertThrown(() -> Utf8Util.lowerStart(b, 11));
+		TestUtil.assertThrown(() -> Utf8Util.lowerStart(b, Integer.MIN_VALUE));
+		TestUtil.assertThrown(() -> Utf8Util.lowerStart(b, Integer.MAX_VALUE));
 		byte[] b2 = new byte[] { (byte) 0x90, (byte) 0x80, 'A', (byte) 0xc2, (byte) 0xa9 };
 		assertThat(Utf8Util.lowerStart(b2, 0), is(-1));
 		assertThat(Utf8Util.lowerStart(b2, 1), is(-1));

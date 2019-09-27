@@ -4,7 +4,7 @@ import static ceri.common.collection.StreamUtil.toList;
 import static ceri.common.color.ColorTestUtil.assertColor;
 import static ceri.common.color.ColorTestUtil.assertHsb;
 import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.exerciseEnum;
@@ -29,6 +29,7 @@ import java.util.stream.IntStream;
 import org.junit.Test;
 import ceri.common.color.ColorUtil.Fn.ChannelAdjuster;
 import ceri.common.function.BinaryFunction;
+import ceri.common.test.TestUtil;
 
 public class ColorUtilTest {
 
@@ -241,8 +242,8 @@ public class ColorUtilTest {
 
 	@Test
 	public void testValidColor() {
-		assertException(() -> ColorUtil.validColor(null));
-		assertException(() -> ColorUtil.validColor("\0white"));
+		TestUtil.assertThrown(() -> ColorUtil.validColor(null));
+		TestUtil.assertThrown(() -> ColorUtil.validColor("\0white"));
 		assertThat(ColorUtil.validColor("white"), is(Color.white));
 	}
 

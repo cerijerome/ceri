@@ -118,10 +118,18 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testEqualsIgnoreCase() {
+		assertTrue(StringUtil.equalsIgnoreCase(null, null));
+		assertFalse(StringUtil.equalsIgnoreCase(null, "abc"));
+		assertFalse(StringUtil.equalsIgnoreCase(new StringBuilder(), null));
+		assertTrue(StringUtil.equalsIgnoreCase(new StringBuilder("AbC"), "abc"));
+	}
+
+	@Test
 	public void testStartsWithIgnoreCase() {
-		assertTrue(StringUtil.startsWithIgnoreCase(null, null));
-		assertFalse(StringUtil.startsWithIgnoreCase(null, ""));
-		assertFalse(StringUtil.startsWithIgnoreCase(null, "abCDeF"));
+		assertFalse(StringUtil.startsWithIgnoreCase((String) null, null));
+		assertFalse(StringUtil.startsWithIgnoreCase((String) null, ""));
+		assertFalse(StringUtil.startsWithIgnoreCase((String) null, "abCDeF"));
 		assertFalse(StringUtil.startsWithIgnoreCase("", null));
 		assertTrue(StringUtil.startsWithIgnoreCase("", ""));
 		assertFalse(StringUtil.startsWithIgnoreCase("", "abCDeF"));
@@ -130,6 +138,8 @@ public class StringUtilTest {
 		assertFalse(StringUtil.startsWithIgnoreCase("abcd", "abCDeF"));
 		assertTrue(StringUtil.startsWithIgnoreCase("abcdef", "abCDeF"));
 		assertTrue(StringUtil.startsWithIgnoreCase("ABCdefGHI", "abCDeF"));
+		assertTrue(StringUtil.startsWithIgnoreCase(new StringBuilder("ABCdefGHI"), "abCDeF"));
+		assertTrue(StringUtil.startsWithIgnoreCase(new StringBuilder("ABCdefGHI"), 3, "DeF"));
 	}
 
 	@Test
@@ -281,7 +291,7 @@ public class StringUtilTest {
 		assertThat(StringUtil.safeSubstring(s, 4), is(""));
 		assertThat(StringUtil.safeSubstring(s, -3, -1), is(s));
 		assertThat(StringUtil.safeSubstring(s, -4, 5), is(s));
-		assertThat(StringUtil.safeSubstring((String) null, 0, 0), is(""));
+		assertThat(StringUtil.safeSubstring(null, 0, 0), is(""));
 		assertThat(StringUtil.safeSubstring("abc", 0, 3), is("abc"));
 		StringBuilder b = new StringBuilder(s);
 		assertThat(StringUtil.safeSubstring(b, 0), is(s));
@@ -289,8 +299,14 @@ public class StringUtilTest {
 		assertThat(StringUtil.safeSubstring(b, 4), is(""));
 		assertThat(StringUtil.safeSubstring(b, -3, -1), is(s));
 		assertThat(StringUtil.safeSubstring(b, -4, 5), is(s));
-		assertThat(StringUtil.safeSubstring((StringBuilder) null, 0, 0), is(""));
+		assertThat(StringUtil.safeSubstring(null, 0, 0), is(""));
 		assertThat(StringUtil.safeSubstring(new StringBuilder("abc"), 0, 3), is("abc"));
+	}
+
+	@Test
+	public void testSubstring() {
+		assertNull(StringUtil.substring(null, 0));
+		assertThat(StringUtil.substring(new StringBuilder("test"), 2), is("st"));
 	}
 
 	@Test

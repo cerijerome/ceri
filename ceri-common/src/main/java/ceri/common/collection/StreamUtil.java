@@ -13,7 +13,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
@@ -68,7 +67,7 @@ public class StreamUtil {
 	}
 
 	public static <T> Stream<Indexed<T>> range(int from, int to, IntFunction<T> fn) {
-		return IntStream.range(from, to).mapToObj(i -> Indexed.of(i, fn.apply(i)));
+		return IntStream.range(from, to).mapToObj(i -> Indexed.of(fn.apply(i), i));
 	}
 
 	public static <T> Stream<Indexed<T>> indexed(List<T> values) {

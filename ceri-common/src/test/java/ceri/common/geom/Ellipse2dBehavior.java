@@ -2,13 +2,14 @@ package ceri.common.geom;
 
 import static ceri.common.geom.GeometryTestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Ellipse2dBehavior {
 	private final Ellipse2d e0 = Ellipse2d.create(4, 2);
@@ -23,8 +24,8 @@ public class Ellipse2dBehavior {
 
 	@Test
 	public void shouldOnlyAllowPositiveAxes() {
-		assertException(() -> Ellipse2d.create(-0.1, 4));
-		assertException(() -> Ellipse2d.create(1, -0.1));
+		TestUtil.assertThrown(() -> Ellipse2d.create(-0.1, 4));
+		TestUtil.assertThrown(() -> Ellipse2d.create(1, -0.1));
 	}
 
 	@Test

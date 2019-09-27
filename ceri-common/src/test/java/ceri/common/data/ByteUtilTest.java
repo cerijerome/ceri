@@ -2,7 +2,7 @@ package ceri.common.data;
 
 import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertStream;
 import static ceri.common.test.TestUtil.exerciseEnum;
@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.test.TestUtil;
 
 public class ByteUtilTest {
 	@Mock
@@ -91,10 +92,10 @@ public class ByteUtilTest {
 			anyInt());
 		doThrow(new IOException()).when(badImmutableByteArray).writeTo(any(OutputStream.class),
 			anyInt(), anyInt());
-		assertException(() -> ByteUtil.writeTo(b, -1, 2));
-		assertException(() -> ByteUtil.writeTo(b, im));
-		assertException(() -> ByteUtil.writeTo(b, im, 1));
-		assertException(() -> ByteUtil.writeTo(b, im, 0, 2));
+		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, -1, 2));
+		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, im));
+		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, im, 1));
+		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, im, 0, 2));
 	}
 
 	@Test
@@ -289,7 +290,7 @@ public class ByteUtilTest {
 		byte[] b = bytes(-1, 1, 0, 127, 128);
 		ByteUtil.fill(b, 0x8f, 2, 2);
 		assertArray(b, -1, 1, 0x8f, 0x8f, 128);
-		assertException(() -> ByteUtil.fill(b, 0x8f, 2, 4));
+		TestUtil.assertThrown(() -> ByteUtil.fill(b, 0x8f, 2, 4));
 	}
 
 	@Test

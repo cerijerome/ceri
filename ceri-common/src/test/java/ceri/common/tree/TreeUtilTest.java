@@ -1,10 +1,11 @@
 package ceri.common.tree;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class TreeUtilTest {
 	private final TreeNodeTestHelper helper = new TreeNodeTestHelper();
@@ -16,13 +17,13 @@ public class TreeUtilTest {
 
 	@Test
 	public void testIterable() {
-		assertException(() -> TreeUtil.iterable(null));
+		TestUtil.assertThrown(() -> TreeUtil.iterable(null));
 	}
 
 	@Test
 	public void testIsChild() {
-		assertException(() -> TreeUtil.isChild(null, null));
-		assertException(() -> TreeUtil.isChild(helper.root, null));
+		TestUtil.assertThrown(() -> TreeUtil.isChild(null, null));
+		TestUtil.assertThrown(() -> TreeUtil.isChild(helper.root, null));
 	}
 
 	@Test(expected = NullPointerException.class)

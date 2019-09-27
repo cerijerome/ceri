@@ -2,7 +2,7 @@ package ceri.common.math;
 
 import static ceri.common.test.TestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertNaN;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertRange;
@@ -17,6 +17,7 @@ import java.util.Set;
 import org.junit.Test;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.test.TestTimer;
+import ceri.common.test.TestUtil;
 
 public class MathUtilTest {
 
@@ -74,10 +75,10 @@ public class MathUtilTest {
 		double d1 = Long.MAX_VALUE;
 		assertThat(MathUtil.safeToLong(d0), is(Long.MIN_VALUE));
 		assertThat(MathUtil.safeToLong(d1), is(Long.MAX_VALUE));
-		assertException(() -> MathUtil.safeToLong(Double.NaN));
-		assertException(() -> MathUtil.safeToLong(Double.POSITIVE_INFINITY));
-		assertException(() -> MathUtil.safeToLong(Double.NEGATIVE_INFINITY));
-		assertException(() -> MathUtil.safeToLong(Double.MAX_VALUE));
+		TestUtil.assertThrown(() -> MathUtil.safeToLong(Double.NaN));
+		TestUtil.assertThrown(() -> MathUtil.safeToLong(Double.POSITIVE_INFINITY));
+		TestUtil.assertThrown(() -> MathUtil.safeToLong(Double.NEGATIVE_INFINITY));
+		TestUtil.assertThrown(() -> MathUtil.safeToLong(Double.MAX_VALUE));
 	}
 
 	@Test
@@ -86,10 +87,10 @@ public class MathUtilTest {
 		double d1 = Integer.MAX_VALUE;
 		assertThat(MathUtil.safeToInt(d0), is(Integer.MIN_VALUE));
 		assertThat(MathUtil.safeToInt(d1), is(Integer.MAX_VALUE));
-		assertException(() -> MathUtil.safeToInt(Double.NaN));
-		assertException(() -> MathUtil.safeToInt(Double.POSITIVE_INFINITY));
-		assertException(() -> MathUtil.safeToInt(Double.NEGATIVE_INFINITY));
-		assertException(() -> MathUtil.safeToInt(Double.MAX_VALUE));
+		TestUtil.assertThrown(() -> MathUtil.safeToInt(Double.NaN));
+		TestUtil.assertThrown(() -> MathUtil.safeToInt(Double.POSITIVE_INFINITY));
+		TestUtil.assertThrown(() -> MathUtil.safeToInt(Double.NEGATIVE_INFINITY));
+		TestUtil.assertThrown(() -> MathUtil.safeToInt(Double.MAX_VALUE));
 	}
 
 	@Test
@@ -98,8 +99,8 @@ public class MathUtilTest {
 		long l1 = Short.MAX_VALUE;
 		assertThat(MathUtil.toShortExact(l0), is(Short.MIN_VALUE));
 		assertThat(MathUtil.toShortExact(l1), is(Short.MAX_VALUE));
-		assertException(() -> MathUtil.toShortExact(Short.MIN_VALUE - 1));
-		assertException(() -> MathUtil.toShortExact(Short.MAX_VALUE + 1));
+		TestUtil.assertThrown(() -> MathUtil.toShortExact(Short.MIN_VALUE - 1));
+		TestUtil.assertThrown(() -> MathUtil.toShortExact(Short.MAX_VALUE + 1));
 	}
 
 	@Test
@@ -108,8 +109,8 @@ public class MathUtilTest {
 		long l1 = Byte.MAX_VALUE;
 		assertThat(MathUtil.toByteExact(l0), is(Byte.MIN_VALUE));
 		assertThat(MathUtil.toByteExact(l1), is(Byte.MAX_VALUE));
-		assertException(() -> MathUtil.toByteExact(Byte.MIN_VALUE - 1));
-		assertException(() -> MathUtil.toByteExact(Byte.MAX_VALUE + 1));
+		TestUtil.assertThrown(() -> MathUtil.toByteExact(Byte.MIN_VALUE - 1));
+		TestUtil.assertThrown(() -> MathUtil.toByteExact(Byte.MAX_VALUE + 1));
 	}
 
 	@Test
@@ -125,18 +126,18 @@ public class MathUtilTest {
 		assertThat(MathUtil.gcd(-99999, 22222), is(11111));
 		assertThat(MathUtil.gcd(99999, -22222), is(11111));
 		assertThat(MathUtil.gcd(-99999, -22222), is(11111));
-		assertException(() -> MathUtil.gcd(Integer.MIN_VALUE, 0));
+		TestUtil.assertThrown(() -> MathUtil.gcd(Integer.MIN_VALUE, 0));
 		assertThat(MathUtil.gcd(Integer.MIN_VALUE, 1), is(1));
 		assertThat(MathUtil.gcd(Integer.MAX_VALUE, 0), is(Integer.MAX_VALUE));
 		assertThat(MathUtil.gcd(Integer.MAX_VALUE, 1), is(1));
-		assertException(() -> MathUtil.gcd(Integer.MIN_VALUE, Integer.MIN_VALUE));
+		TestUtil.assertThrown(() -> MathUtil.gcd(Integer.MIN_VALUE, Integer.MIN_VALUE));
 		assertThat(MathUtil.gcd(Integer.MAX_VALUE, Integer.MAX_VALUE), is(Integer.MAX_VALUE));
 		assertThat(MathUtil.gcd(Integer.MIN_VALUE, Integer.MAX_VALUE), is(1));
-		assertException(() -> MathUtil.gcd(Long.MIN_VALUE, 0));
+		TestUtil.assertThrown(() -> MathUtil.gcd(Long.MIN_VALUE, 0));
 		assertThat(MathUtil.gcd(Long.MIN_VALUE, 1), is(1L));
 		assertThat(MathUtil.gcd(Long.MAX_VALUE, 0), is(Long.MAX_VALUE));
 		assertThat(MathUtil.gcd(Long.MAX_VALUE, 1), is(1L));
-		assertException(() -> MathUtil.gcd(Long.MIN_VALUE, Long.MIN_VALUE));
+		TestUtil.assertThrown(() -> MathUtil.gcd(Long.MIN_VALUE, Long.MIN_VALUE));
 		assertThat(MathUtil.gcd(Long.MAX_VALUE, Long.MAX_VALUE), is(Long.MAX_VALUE));
 		assertThat(MathUtil.gcd(Long.MIN_VALUE, Long.MAX_VALUE), is(1L));
 	}
@@ -159,19 +160,19 @@ public class MathUtilTest {
 		assertThat(MathUtil.lcm(99999, -22222), is(199998));
 		assertThat(MathUtil.lcm(-99999, -22222), is(199998));
 		assertThat(MathUtil.lcm(Integer.MIN_VALUE, 0), is(0));
-		assertException(() -> MathUtil.lcm(Integer.MIN_VALUE, 1));
+		TestUtil.assertThrown(() -> MathUtil.lcm(Integer.MIN_VALUE, 1));
 		assertThat(MathUtil.lcm(Integer.MAX_VALUE, 0), is(0));
 		assertThat(MathUtil.lcm(Integer.MAX_VALUE, 1), is(Integer.MAX_VALUE));
-		assertException(() -> MathUtil.lcm(Integer.MIN_VALUE, Integer.MIN_VALUE));
+		TestUtil.assertThrown(() -> MathUtil.lcm(Integer.MIN_VALUE, Integer.MIN_VALUE));
 		assertThat(MathUtil.lcm(Integer.MAX_VALUE, Integer.MAX_VALUE), is(Integer.MAX_VALUE));
-		assertException(() -> MathUtil.lcm(Integer.MIN_VALUE, Integer.MAX_VALUE));
+		TestUtil.assertThrown(() -> MathUtil.lcm(Integer.MIN_VALUE, Integer.MAX_VALUE));
 		assertThat(MathUtil.lcm(Long.MIN_VALUE, 0), is(0L));
-		assertException(() -> MathUtil.lcm(Long.MIN_VALUE, 1L));
+		TestUtil.assertThrown(() -> MathUtil.lcm(Long.MIN_VALUE, 1L));
 		assertThat(MathUtil.lcm(Long.MAX_VALUE, 0), is(0L));
 		assertThat(MathUtil.lcm(Long.MAX_VALUE, 1), is(Long.MAX_VALUE));
-		assertException(() -> MathUtil.lcm(Long.MIN_VALUE, Long.MIN_VALUE));
+		TestUtil.assertThrown(() -> MathUtil.lcm(Long.MIN_VALUE, Long.MIN_VALUE));
 		assertThat(MathUtil.lcm(Long.MAX_VALUE, Long.MAX_VALUE), is(Long.MAX_VALUE));
-		assertException(() -> MathUtil.lcm(Long.MIN_VALUE, Long.MAX_VALUE));
+		TestUtil.assertThrown(() -> MathUtil.lcm(Long.MIN_VALUE, Long.MAX_VALUE));
 	}
 
 	@Test
@@ -191,7 +192,7 @@ public class MathUtilTest {
 		assertThat(MathUtil.absExact(0), is(0));
 		assertThat(MathUtil.absExact(Integer.MAX_VALUE), is(Integer.MAX_VALUE));
 		assertThat(MathUtil.absExact(Integer.MIN_VALUE + 1), is(Integer.MAX_VALUE));
-		assertException(() -> MathUtil.absExact(Integer.MIN_VALUE));
+		TestUtil.assertThrown(() -> MathUtil.absExact(Integer.MIN_VALUE));
 	}
 
 	@Test
@@ -217,8 +218,8 @@ public class MathUtilTest {
 		double d1 = Integer.MAX_VALUE;
 		assertThat(MathUtil.intRoundExact(d0), is(Integer.MIN_VALUE));
 		assertThat(MathUtil.intRoundExact(d1), is(Integer.MAX_VALUE));
-		assertException(() -> MathUtil.intRoundExact(d0 - 1));
-		assertException(() -> MathUtil.intRoundExact(d1 + 1));
+		TestUtil.assertThrown(() -> MathUtil.intRoundExact(d0 - 1));
+		TestUtil.assertThrown(() -> MathUtil.intRoundExact(d1 + 1));
 	}
 
 	@Test
@@ -290,11 +291,11 @@ public class MathUtilTest {
 		assertThat(MathUtil.simpleRound(777.7777, 3), is(777.778));
 		assertThat(MathUtil.simpleRound(-777.7777, 3), is(-777.778));
 		assertTrue(Double.isNaN(MathUtil.simpleRound(Double.NaN, 0)));
-		assertException(() -> MathUtil.simpleRound(777.7777, 11));
-		assertException(() -> MathUtil.simpleRound(1000000000.1, 1));
-		assertException(() -> MathUtil.simpleRound(-1000000000.1, 1));
-		assertException(() -> MathUtil.simpleRound(Double.POSITIVE_INFINITY, 1));
-		assertException(() -> MathUtil.simpleRound(Double.NEGATIVE_INFINITY, 1));
+		TestUtil.assertThrown(() -> MathUtil.simpleRound(777.7777, 11));
+		TestUtil.assertThrown(() -> MathUtil.simpleRound(1000000000.1, 1));
+		TestUtil.assertThrown(() -> MathUtil.simpleRound(-1000000000.1, 1));
+		TestUtil.assertThrown(() -> MathUtil.simpleRound(Double.POSITIVE_INFINITY, 1));
+		TestUtil.assertThrown(() -> MathUtil.simpleRound(Double.NEGATIVE_INFINITY, 1));
 	}
 
 	@Test
@@ -327,7 +328,7 @@ public class MathUtilTest {
 
 	@Test
 	public void testMean() {
-		assertException(MathUtil::mean);
+		TestUtil.assertThrown(MathUtil::mean);
 		assertThat(MathUtil.mean(0), is(0.0));
 		assertThat(MathUtil.mean(-1, -2, 9), is(2.0));
 		assertThat(MathUtil.mean(Double.MAX_VALUE), is(Double.MAX_VALUE));
@@ -338,7 +339,7 @@ public class MathUtilTest {
 
 	@Test
 	public void testMedian() {
-		assertException(MathUtil::median);
+		TestUtil.assertThrown(MathUtil::median);
 		assertThat(MathUtil.median(0), is(0.0));
 		assertThat(MathUtil.median(-1, -2, 9), is(-1.0));
 		assertThat(MathUtil.median(1, 2, 3, 4), is(2.5));

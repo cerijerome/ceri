@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -8,14 +8,15 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Point2dBehavior {
 
 	@Test
 	public void shouldNotAllowNaN() {
 		assertTrue(Point2d.NULL.isNull());
-		assertException(() -> Point2d.of(Double.NaN, 0));
-		assertException(() -> Point2d.of(0, Double.NaN));
+		TestUtil.assertThrown(() -> Point2d.of(Double.NaN, 0));
+		TestUtil.assertThrown(() -> Point2d.of(0, Double.NaN));
 		assertFalse(Point2d.X_UNIT.isNull());
 	}
 

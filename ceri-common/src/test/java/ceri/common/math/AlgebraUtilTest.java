@@ -1,12 +1,13 @@
 package ceri.common.math;
 
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class AlgebraUtilTest {
 
@@ -44,8 +45,8 @@ public class AlgebraUtilTest {
 	public void testFactorial() {
 		assertThat(AlgebraUtil.factorial(0), is(1.0));
 		assertEquals(9.33262e157, AlgebraUtil.factorial(100), 0.00001e157);
-		assertException(() -> AlgebraUtil.factorial(-1));
-		assertException(() -> AlgebraUtil.longFactorial(21));
+		TestUtil.assertThrown(() -> AlgebraUtil.factorial(-1));
+		TestUtil.assertThrown(() -> AlgebraUtil.longFactorial(21));
 		assertThat(AlgebraUtil.longFactorial(20), is(2432902008176640000L));
 	}
 

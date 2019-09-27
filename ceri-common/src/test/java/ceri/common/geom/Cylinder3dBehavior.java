@@ -1,12 +1,13 @@
 package ceri.common.geom;
 
 import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Cylinder3dBehavior {
 	private final Cylinder3d c0 = Cylinder3d.create(2, 8);
@@ -21,8 +22,8 @@ public class Cylinder3dBehavior {
 
 	@Test
 	public void shouldOnlyAllowPositiveAxes() {
-		assertException(() -> Cylinder3d.create(-0.1, 2));
-		assertException(() -> Cylinder3d.create(4, -0.1));
+		TestUtil.assertThrown(() -> Cylinder3d.create(-0.1, 2));
+		TestUtil.assertThrown(() -> Cylinder3d.create(4, -0.1));
 	}
 
 	@Test

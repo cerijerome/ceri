@@ -2,19 +2,20 @@ package ceri.common.test;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertDir;
-import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertFile;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertMap;
 import static ceri.common.test.TestUtil.assertNaN;
 import static ceri.common.test.TestUtil.assertRange;
-import static ceri.common.test.TestUtil.exception;
+import static ceri.common.test.TestUtil.assertThrowable;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.init;
 import static ceri.common.test.TestUtil.isList;
 import static ceri.common.test.TestUtil.isObject;
 import static ceri.common.test.TestUtil.matchesRegex;
 import static ceri.common.test.TestUtil.resource;
 import static ceri.common.test.TestUtil.testMap;
+import static ceri.common.test.TestUtil.thrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertNull;
@@ -22,6 +23,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.function.ExceptionRunnable;
@@ -57,7 +60,7 @@ public class TestUtilTest {
 	@Test
 	public void testExerciseEnums() {
 		TestUtil.exerciseEnum(HAlign.class);
-		assertException(() -> TestUtil.exerciseEnum(BadEnum.class));
+		TestUtil.assertThrown(() -> TestUtil.exerciseEnum(BadEnum.class));
 	}
 
 	@Test
@@ -88,7 +91,7 @@ public class TestUtilTest {
 				}
 			}) {
 				sys.in(badIn);
-				assertException(TestUtil::readString);
+				TestUtil.assertThrown(TestUtil::readString);
 			}
 		}
 	}
@@ -120,15 +123,15 @@ public class TestUtilTest {
 
 	@Test
 	public void testAssertFile() throws IOException {
-		try (FileTestHelper helper =
-			FileTestHelper.builder().dir("a").dir("b").file("c", "").file("d", "D").build()) {
+		try (FileTestHelper helper = FileTestHelper.builder().dir("a").dir("b").file("c", "")
+			.file("d", "D").build()) {
 			assertAssertion(() -> assertFile(helper.file("a"), helper.file("c")));
 			assertAssertion(() -> assertFile(helper.file("c"), helper.file("a")));
 			assertFile(helper.file("c"), helper.file("c"));
 			assertAssertion(() -> assertFile(helper.file("c"), helper.file("d")));
 			assertAssertion(() -> assertFile(helper.file("d"), helper.file("c")));
 			assertFile(helper.file("d"), helper.file("d"));
-			assertException(() -> assertFile(helper.file("e"), helper.file("e")));
+			TestUtil.assertThrown(() -> assertFile(helper.file("e"), helper.file("e")));
 		}
 	}
 
@@ -168,12 +171,11 @@ public class TestUtilTest {
 
 	@Test
 	public void testException() {
-		Exception e = exception(() -> {
+		Throwable t = thrown(() -> {
 			throw new IOException("test");
 		});
-		assertTrue(e instanceof IOException);
-		assertThat(e.getMessage(), is("test"));
-		assertNull(exception(() -> {}));
+		assertThrowable(t, IOException.class, "test");
+		assertNull(thrown(() -> {}));
 	}
 
 	@Test
@@ -183,7 +185,7 @@ public class TestUtilTest {
 			if (throwIt) throw new IOException();
 			return "test";
 		}), is("test"));
-		assertException(RuntimeException.class, () -> init(() -> {
+		assertThrown(RuntimeException.class, () -> init(() -> {
 			throw new IOException();
 		}));
 	}
@@ -200,7 +202,7 @@ public class TestUtilTest {
 	@Test
 	public void testResource() {
 		assertThat(resource("resource.txt"), is("test"));
-		assertException(RuntimeException.class, () -> resource("not-found.txt"));
+		assertThrown(RuntimeException.class, () -> resource("not-found.txt"));
 	}
 
 	@Test
@@ -212,22 +214,34 @@ public class TestUtilTest {
 	}
 
 	@Test
-	public void testAssertException() {
-		assertAssertion(() -> TestUtil.assertException(() -> {}));
-		assertAssertion(() -> TestUtil.assertException(IllegalArgumentException.class, () -> {
+	public void testAssertThrowable() {
+		IOException e = new FileNotFoundException("test");
+		assertThrowable(e, IOException.class);
+		assertThrowable(e, FileNotFoundException.class);
+		assertThrowable(e, "test");
+		assertThrowable(e, m -> m.startsWith("test"));
+	}
+
+	@Test
+	public void testAssertThrown() {
+		assertAssertion(() -> TestUtil.assertThrown(() -> {}));
+		assertAssertion(() -> TestUtil.assertThrown(IllegalArgumentException.class, () -> {
 			throw new RuntimeException();
 		}));
-		TestUtil.assertException(IllegalArgumentException.class, () -> {
+		TestUtil.assertThrown(IllegalArgumentException.class, () -> {
 			throw new IllegalArgumentException();
 		});
-		assertAssertion(() -> TestUtil.assertException(IllegalArgumentException.class, () -> {
+		assertAssertion(() -> TestUtil.assertThrown(IllegalArgumentException.class, () -> {
 			throw new RuntimeException();
 		}));
-		TestUtil.assertException("test", () -> {
+		TestUtil.assertThrown("test", () -> {
 			throw new IOException("test");
 		});
-		assertAssertion(() -> TestUtil.assertException("test", () -> {
-			throw new IOException("tests");
+		TestUtil.assertThrown(m -> m.startsWith("test"), () -> {
+			throw new IOException("test");
+		});
+		assertAssertion(() -> TestUtil.assertThrown(IOException.class, "test", () -> {
+			throw new IOException("test");
 		}));
 	}
 
@@ -277,7 +291,7 @@ public class TestUtilTest {
 	public void testToReadableString() {
 		byte[] bytes = { 0, 'a', '.', Byte.MAX_VALUE, Byte.MIN_VALUE, '~', '!', -1 };
 		assertThat(TestUtil.toReadableString(bytes), is("?a.??~!?"));
-		assertException(IllegalArgumentException.class,
+		assertThrown(IllegalArgumentException.class,
 			() -> TestUtil.toReadableString(bytes, 3, 2, "test", '?'));
 		assertThat(TestUtil.toReadableString(new byte[0], 0, 0, null, '.'), is(""));
 		assertThat(TestUtil.toReadableString(new byte[0], 0, 0, "", '.'), is(""));
@@ -304,6 +318,12 @@ public class TestUtilTest {
 		assertThat(Integer.valueOf(1), isObject(1));
 		assertThat(1, isObject(Integer.valueOf(1)));
 		assertThat(Integer.valueOf(1), not(isObject(1L)));
+	}
+
+	@Test
+	public void testLambdaName() {
+		Function<?, ?> fn = i -> i;
+		assertThat(TestUtil.lambdaName(fn), is("[lambda]"));
 	}
 
 	@Test

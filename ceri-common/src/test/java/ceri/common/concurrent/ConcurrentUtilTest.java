@@ -1,29 +1,24 @@
 package ceri.common.concurrent;
 
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionRunnable;
+import ceri.common.test.TestUtil;
 import ceri.common.util.BasicUtil;
 
 public class ConcurrentUtilTest {
@@ -52,17 +47,17 @@ public class ConcurrentUtilTest {
 
 	@Test
 	public void testExecuteAndWaitThrowExceptionsOfGivenType() {
-		assertException(IOException.class, () -> ConcurrentUtil.executeAndWait(exec, () -> {
+		assertThrown(IOException.class, () -> ConcurrentUtil.executeAndWait(exec, () -> {
 			throw new ParseException("hello", 0);
 		}, IOException::new));
-		assertException(IOException.class, () -> ConcurrentUtil.executeAndWait(exec, () -> {
+		assertThrown(IOException.class, () -> ConcurrentUtil.executeAndWait(exec, () -> {
 			throw new ParseException("hello", 0);
 		}, IOException::new, 10000));
 	}
 
 	@Test
 	public void testExecuteAndWaitTimeoutException() {
-		assertException(IOException.class, () -> ConcurrentUtil.executeAndWait(exec, //
+		assertThrown(IOException.class, () -> ConcurrentUtil.executeAndWait(exec, //
 			() -> Thread.sleep(1000), IOException::new, 1));
 	}
 
@@ -78,8 +73,8 @@ public class ConcurrentUtilTest {
 			runner2.interrupt();
 		}).start();
 		runner3.join(10000);
-		assertException(() -> runner2.join(10000));
-		assertException(() -> runner1.join(10000));
+		TestUtil.assertThrown(() -> runner2.join(10000));
+		TestUtil.assertThrown(() -> runner1.join(10000));
 	}
 
 	@Test
@@ -94,7 +89,7 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testExecuteRunnableUnlocksOnException() throws InterruptedException {
 		Lock lock = new ReentrantLock();
-		assertException(() -> ConcurrentUtil.execute(lock, () -> {
+		TestUtil.assertThrown(() -> ConcurrentUtil.execute(lock, () -> {
 			throw new RuntimeInterruptedException("test");
 		}));
 		assertTrue(lock.tryLock(1, TimeUnit.MILLISECONDS));
@@ -112,7 +107,7 @@ public class ConcurrentUtilTest {
 	public void testExecuteSupplierUnlocksOnException() throws InterruptedException {
 		Lock lock = new ReentrantLock();
 		boolean throwEx = true;
-		assertException(() -> ConcurrentUtil.executeGet(lock, () -> {
+		TestUtil.assertThrown(() -> ConcurrentUtil.executeGet(lock, () -> {
 			if (throwEx) throw new RuntimeInterruptedException("test");
 			return "test";
 		}));
@@ -123,21 +118,21 @@ public class ConcurrentUtilTest {
 	public void testCheckInterrupted() throws InterruptedException {
 		ConcurrentUtil.checkInterrupted();
 		Thread.currentThread().interrupt();
-		assertException(InterruptedException.class, ConcurrentUtil::checkInterrupted);
+		assertThrown(InterruptedException.class, ConcurrentUtil::checkInterrupted);
 	}
 
 	@Test
 	public void testCheckRuntimeInterrupted() {
 		ConcurrentUtil.checkRuntimeInterrupted();
 		Thread.currentThread().interrupt();
-		assertException(RuntimeInterruptedException.class,
+		assertThrown(RuntimeInterruptedException.class,
 			ConcurrentUtil::checkRuntimeInterrupted);
 	}
 
 	@Test
 	public void testExecuteInterruptible() {
 		ConcurrentUtil.executeInterruptible(() -> {});
-		assertException(RuntimeInterruptedException.class,
+		assertThrown(RuntimeInterruptedException.class,
 			() -> ConcurrentUtil.executeInterruptible(() -> {
 				throw new InterruptedException();
 			}));
@@ -146,7 +141,7 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testExecuteGetInterruptible() {
 		assertThat(ConcurrentUtil.executeGetInterruptible(() -> "x"), is("x"));
-		assertException(RuntimeInterruptedException.class,
+		assertThrown(RuntimeInterruptedException.class,
 			() -> ConcurrentUtil.executeGetInterruptible(() -> {
 				throw new InterruptedException();
 			}));
@@ -164,7 +159,7 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testInvokeWithException() {
 		Set<String> msgs = new HashSet<>();
-		assertException(IOException.class,
+		assertThrown(IOException.class,
 			() -> ConcurrentUtil.invoke(exec, IOException::new, () -> msgs.add("1"), () -> {
 				throw new Exception("test");
 			}));
@@ -174,7 +169,7 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testInvokeWithTimeout() throws Exception {
 		Set<String> msgs = new HashSet<>();
-		assertException(CancellationException.class,
+		assertThrown(CancellationException.class,
 			() -> ConcurrentUtil.invoke(exec, IOException::new, 1, () -> {
 				Thread.sleep(10000);
 				msgs.add("1");

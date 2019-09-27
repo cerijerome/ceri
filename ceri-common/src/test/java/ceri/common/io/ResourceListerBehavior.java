@@ -1,11 +1,12 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.net.URL;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ResourceListerBehavior {
 
@@ -36,7 +37,7 @@ public class ResourceListerBehavior {
 	@Test
 	public void shouldFailOnUnsupportedProtocol() throws IOException {
 		URL url = new URL("http://test");
-		assertException(() -> ResourceLister.list(url, "", null));
+		TestUtil.assertThrown(() -> ResourceLister.list(url, "", null));
 	}
 
 	// @Test

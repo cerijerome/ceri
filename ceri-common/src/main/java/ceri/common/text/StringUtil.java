@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.util.BasicUtil;
@@ -589,11 +590,101 @@ public class StringUtil {
 		return s.toString().toUpperCase();
 	}
 
-	public static boolean startsWithIgnoreCase(CharSequence lhs, CharSequence rhs) {
-		if (lhs == rhs) return true;
-		if (lhs == null || rhs == null) return false;
-		if (lhs.length() < rhs.length()) return false;
-		return lhs.toString().substring(0, rhs.length()).equalsIgnoreCase(rhs.toString());
+	/**
+	 * Extends CharSequence subSequence functionality to match substring.
+	 */
+	public static CharSequence subSequence(CharSequence s, int start) {
+		if (s == null) return null;
+		return s.subSequence(start, s.length());
+	}
+
+	/**
+	 * Functionality of String applied expanded to CharSequences.
+	 */
+	public static String substring(CharSequence s, int start) {
+		if (s == null) return null;
+		return substring(s, start, s.length());
+	}
+
+	/**
+	 * Functionality of String applied expanded to CharSequences.
+	 */
+	public static String substring(CharSequence s, int start, int end) {
+		if (s == null) return null;
+		return s.subSequence(start, end).toString();
+	}
+
+	/**
+	 * Functionality of String applied expanded to StringBuilder.
+	 */
+	public static boolean startsWith(StringBuilder b, String s) {
+		return startsWith(b, 0, s);
+	}
+
+	/**
+	 * Functionality of String applied to StringBuilder.
+	 */
+	public static boolean startsWith(StringBuilder b, int offset, String s) {
+		if (s == null) return false;
+		return regionMatches(b, offset, s, 0, s.length());
+	}
+
+	/**
+	 * Functionality of String applied to StringBuilder.
+	 */
+	public static boolean startsWithIgnoreCase(String s0, String s1) {
+		return startsWithIgnoreCase(s0, 0, s1);
+	}
+
+	/**
+	 * Functionality of String applied to StringBuilder.
+	 */
+	public static boolean startsWithIgnoreCase(String s0, int offset, String s1) {
+		if (s0 == null || s1 == null) return false;
+		return s0.regionMatches(true, offset, s1, 0, s1.length());
+	}
+
+	/**
+	 * Functionality of String applied to StringBuilder.
+	 */
+	public static boolean startsWithIgnoreCase(StringBuilder b, String s) {
+		return startsWithIgnoreCase(b, 0, s);
+	}
+
+	/**
+	 * Functionality of String applied to StringBuilder.
+	 */
+	public static boolean startsWithIgnoreCase(StringBuilder b, int offset, String s) {
+		if (s == null) return false;
+		return regionMatches(b, true, offset, s, 0, s.length());
+	}
+
+	/**
+	 * Functionality of String applied to StringBuilder.
+	 */
+	public static boolean equalsIgnoreCase(StringBuilder b, String s) {
+		if (b == null) return s == null;
+		if (s == null) return false;
+		return regionMatches(b, true, 0, s, 0, s.length());
+	}
+
+	/**
+	 * Functionality of String applied to StringBuilder.
+	 */
+	public static boolean regionMatches(StringBuilder b, int offset, String s,
+		int sOffset, int len) {
+		return regionMatches(b, false, offset, s, sOffset, len);
+	}
+
+	/**
+	 * Functionality of String applied to StringBuilder.
+	 */
+	public static boolean regionMatches(StringBuilder b, boolean ignoreCase, int offset,
+		String s, int sOffset, int len) {
+		if (b == null || s == null) return false;
+		if (!ArrayUtil.isValidSlice(b.length(), offset, len)) return false;
+		if (!ArrayUtil.isValidSlice(s.length(), sOffset, len)) return false;
+		return b.substring(offset, offset + len).regionMatches(ignoreCase, 0, s, sOffset, len);
 	}
 
 	/**
@@ -659,26 +750,9 @@ public class StringUtil {
 	/**
 	 * Returns substring, or "" if null or index out of bounds. Use start < 0 for length
 	 * relative to
-	 * end.
-	 */
-	public static String safeSubstring(String s, int start) {
-		return safeSubstring(s, start, -1);
-	}
-
-	/**
-	 * Returns substring, or "" if null or index out of bounds. Use end = -1 for no end limit. Use
-	 * start < 0 for length relative to end.
-	 */
-	public static String safeSubstring(String s, int start, int end) {
-		return safeSubstring(s, StringType.Applicator.STRING, start, end);
-	}
-
-	/**
-	 * Returns substring, or "" if null or index out of bounds. Use start < 0 for length
-	 * relative to
 	 * the end.
 	 */
-	public static String safeSubstring(StringBuilder s, int start) {
+	public static String safeSubstring(CharSequence s, int start) {
 		return safeSubstring(s, start, -1);
 	}
 
@@ -686,28 +760,11 @@ public class StringUtil {
 	 * Returns substring, or "" if null or index out of bounds. Use end = -1 for no end limit. Use
 	 * start < 0 for length relative to end.
 	 */
-	public static String safeSubstring(StringBuilder s, int start, int end) {
-		return safeSubstring(s, StringType.Applicator.STRING_BUILDER, start, end);
-	}
-
-	/**
-	 * Returns substring, or "" if null or index out of bounds. Use end = -1 for no end limit. Use
-	 * start < 0 for length relative to end.
-	 */
-	private static <S extends CharSequence> String safeSubstring(S s,
-		StringType.Applicator<S> applicator, int start, int end) {
+	public static String safeSubstring(CharSequence s, int start, int end) {
 		if (s == null || start >= s.length()) return "";
 		if (end > s.length() || end == -1) end = s.length();
 		if (start < 0) start = Math.max(0, end + start);
-		return applicator.substring(s, start, end);
-	}
-
-	/**
-	 * Extends CharSequence subSequence functionality to match substring.
-	 */
-	public static CharSequence subSequence(CharSequence s, int start) {
-		if (s == null) return null;
-		return s.subSequence(start, s.length());
+		return substring(s, start, end);
 	}
 
 	/**

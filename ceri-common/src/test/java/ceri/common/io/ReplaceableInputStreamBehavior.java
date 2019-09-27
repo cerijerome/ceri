@@ -1,7 +1,7 @@
 package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import ceri.common.test.TestUtil;
 
 public class ReplaceableInputStreamBehavior {
 	private @Mock Consumer<Exception> listener;
@@ -35,7 +36,7 @@ public class ReplaceableInputStreamBehavior {
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
 			rin.listeners().listen(listener);
 			rin.setInputStream(in);
-			assertException(() -> rin.mark(0));
+			TestUtil.assertThrown(() -> rin.mark(0));
 		}
 		verify(listener).accept(ex);
 	}
@@ -48,7 +49,7 @@ public class ReplaceableInputStreamBehavior {
 			rin.listeners().listen(listener);
 			assertFalse(rin.markSupported());
 			rin.setInputStream(in);
-			assertException(rin::markSupported);
+			TestUtil.assertThrown(rin::markSupported);
 		}
 		verify(listener).accept(ex);
 	}
@@ -61,8 +62,8 @@ public class ReplaceableInputStreamBehavior {
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
 			rin.setInputStream(in);
 			rin.listeners().listen(listener);
-			assertException(rin::read);
-			assertException(rin::read);
+			TestUtil.assertThrown(rin::read);
+			TestUtil.assertThrown(rin::read);
 			rin.listeners().unlisten(listener);
 		}
 		verify(listener).accept(e0);
@@ -72,14 +73,14 @@ public class ReplaceableInputStreamBehavior {
 	@Test
 	public void shouldFailWithAnInvalidStream() throws IOException {
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
-			assertException(rin::read);
-			assertException(rin::available);
-			assertException(() -> rin.skip(0));
+			TestUtil.assertThrown(rin::read);
+			TestUtil.assertThrown(rin::available);
+			TestUtil.assertThrown(() -> rin.skip(0));
 			rin.mark(4);
-			assertException(rin::reset);
+			TestUtil.assertThrown(rin::reset);
 			byte[] buffer = new byte[100];
-			assertException(() -> rin.read(buffer));
-			assertException(() -> rin.read(buffer, 1, 99));
+			TestUtil.assertThrown(() -> rin.read(buffer));
+			TestUtil.assertThrown(() -> rin.read(buffer, 1, 99));
 		}
 	}
 

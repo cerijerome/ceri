@@ -1,7 +1,7 @@
 package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertArrayObject;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import ceri.common.test.TestState;
 import ceri.common.test.TestThread;
+import ceri.common.test.TestUtil;
 
 public class BlockingBufferStreamBehavior {
 	byte[] buffer;
@@ -34,10 +35,10 @@ public class BlockingBufferStreamBehavior {
 	public void shouldFailForInvalidReadParameters() {
 		byte[] b = { 0 };
 		try (BlockingBufferStream bbs = new BlockingBufferStream()) {
-			assertException(() -> bbs.read(null, 0, 0));
-			assertException(() -> bbs.read(b, -1, 0));
-			assertException(() -> bbs.read(b, 0, -1));
-			assertException(() -> bbs.read(b, 0, 2));
+			TestUtil.assertThrown(() -> bbs.read(null, 0, 0));
+			TestUtil.assertThrown(() -> bbs.read(b, -1, 0));
+			TestUtil.assertThrown(() -> bbs.read(b, 0, -1));
+			TestUtil.assertThrown(() -> bbs.read(b, 0, 2));
 			assertThat(bbs.read(new byte[0], 0, 0), is(0));
 		}
 	}
@@ -46,10 +47,10 @@ public class BlockingBufferStreamBehavior {
 	public void shouldFailForInvalidWriteParameters() {
 		byte[] b = { 0 };
 		try (BlockingBufferStream bbs = new BlockingBufferStream()) {
-			assertException(() -> bbs.write(null, 0, 0));
-			assertException(() -> bbs.write(b, -1, 0));
-			assertException(() -> bbs.write(b, 0, -1));
-			assertException(() -> bbs.write(b, 0, 2));
+			TestUtil.assertThrown(() -> bbs.write(null, 0, 0));
+			TestUtil.assertThrown(() -> bbs.write(b, -1, 0));
+			TestUtil.assertThrown(() -> bbs.write(b, 0, -1));
+			TestUtil.assertThrown(() -> bbs.write(b, 0, 2));
 			bbs.write(new byte[0], 0, 0);
 		}
 	}

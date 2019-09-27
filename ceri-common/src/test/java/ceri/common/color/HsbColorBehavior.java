@@ -5,7 +5,7 @@ import static ceri.common.color.ColorTestUtil.assertHsb;
 import static ceri.common.color.ColorTestUtil.assertRgb;
 import static ceri.common.color.ColorUtil.alphaColor;
 import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -13,6 +13,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.awt.Color;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class HsbColorBehavior {
 
@@ -156,10 +157,10 @@ public class HsbColorBehavior {
 	@Test
 	public void shouldVerifyValues() {
 		HsbColor.of(0.5, 0.6, 0.3, 0.2).verify();
-		assertException(() -> HsbColor.of(1.1, 0.6, 0.3, 0.2).verify());
-		assertException(() -> HsbColor.of(0.5, 1.1, 0.3, 0.2).verify());
-		assertException(() -> HsbColor.of(0.5, 0.6, -0.1, 0.2).verify());
-		assertException(() -> HsbColor.of(0.5, 0.6, 0.3, 5.0).verify());
+		TestUtil.assertThrown(() -> HsbColor.of(1.1, 0.6, 0.3, 0.2).verify());
+		TestUtil.assertThrown(() -> HsbColor.of(0.5, 1.1, 0.3, 0.2).verify());
+		TestUtil.assertThrown(() -> HsbColor.of(0.5, 0.6, -0.1, 0.2).verify());
+		TestUtil.assertThrown(() -> HsbColor.of(0.5, 0.6, 0.3, 5.0).verify());
 	}
 
 }

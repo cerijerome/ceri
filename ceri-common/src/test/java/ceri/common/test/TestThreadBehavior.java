@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
@@ -35,15 +35,14 @@ public class TestThreadBehavior {
 	@Test
 	public void shouldNotAllowMultipleStarts() {
 		thread.start();
-		assertException(() -> thread.start());
+		TestUtil.assertThrown(() -> thread.start());
 	}
 
 	@Test
 	public void shouldCaptureException() throws IOException {
-		IOException e = new IOException();
-		doThrow(e).when(runnable).run();
+		doThrow(new IOException()).when(runnable).run();
 		thread.start();
-		assertException(IOException.class, () -> thread.stop(1));
+		assertThrown(IOException.class, () -> thread.stop(1));
 		verify(runnable, timeout(1000).atLeastOnce()).run();
 	}
 
@@ -54,7 +53,7 @@ public class TestThreadBehavior {
 			return null;
 		}).when(runnable).run();
 		thread.start();
-		assertException(() -> thread.stop(1));
+		TestUtil.assertThrown(() -> thread.stop(1));
 		verify(runnable, timeout(1000).atLeastOnce()).run();
 	}
 
@@ -67,7 +66,7 @@ public class TestThreadBehavior {
 
 	@Test
 	public void shouldFailJoinIfNotStarted() {
-		assertException(() -> thread.join(1));
+		TestUtil.assertThrown(() -> thread.join(1));
 	}
 
 	@Test
@@ -77,7 +76,7 @@ public class TestThreadBehavior {
 			return null;
 		}).when(runnable).run();
 		thread.start();
-		assertException(() -> thread.join(1));
+		TestUtil.assertThrown(() -> thread.join(1));
 	}
 
 }

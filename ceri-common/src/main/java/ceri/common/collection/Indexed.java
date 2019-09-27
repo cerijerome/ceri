@@ -9,16 +9,16 @@ import ceri.common.util.HashCoder;
  * Useful for streaming an object and its index, to replace a for loop.
  */
 public class Indexed<T> {
-	public final int i;
 	public final T val;
+	public final int i;
 
-	public static <T> Indexed<T> of(int i, T val) {
-		return new Indexed<>(i, val);
+	public static <T> Indexed<T> of(T val, int i) {
+		return new Indexed<>(val, i);
 	}
 
-	private Indexed(int i, T val) {
-		this.i = i;
+	private Indexed(T val, int i) {
 		this.val = val;
+		this.i = i;
 	}
 
 	public void consume(ObjIntConsumer<T> consumer) {
@@ -31,7 +31,7 @@ public class Indexed<T> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(i, val);
+		return HashCoder.hash(val, i);
 	}
 
 	@Override
@@ -46,6 +46,6 @@ public class Indexed<T> {
 
 	@Override
 	public String toString() {
-		return i + ":" + val;
+		return val + ":" + i;
 	}
 }

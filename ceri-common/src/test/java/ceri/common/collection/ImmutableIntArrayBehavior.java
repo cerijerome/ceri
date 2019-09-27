@@ -1,13 +1,14 @@
 package ceri.common.collection;
 
 import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ImmutableIntArrayBehavior {
 	// Don't overwrite!
@@ -121,31 +122,31 @@ public class ImmutableIntArrayBehavior {
 
 	@Test
 	public void shouldOnlyAllowOffsetsAndLengthsWithinRange() {
-		assertException(() -> ImmutableIntArray.wrap(ints, -1, 0));
-		assertException(() -> ImmutableIntArray.wrap(ints, 0, -1));
-		assertException(() -> ImmutableIntArray.wrap(ints, 6, 0));
-		assertException(() -> ImmutableIntArray.wrap(ints, 5, 1));
-		assertException(() -> ImmutableIntArray.wrap(ints, 0, 6));
-		assertException(() -> ImmutableIntArray.wrap(ints, 3, 3));
+		TestUtil.assertThrown(() -> ImmutableIntArray.wrap(ints, -1, 0));
+		TestUtil.assertThrown(() -> ImmutableIntArray.wrap(ints, 0, -1));
+		TestUtil.assertThrown(() -> ImmutableIntArray.wrap(ints, 6, 0));
+		TestUtil.assertThrown(() -> ImmutableIntArray.wrap(ints, 5, 1));
+		TestUtil.assertThrown(() -> ImmutableIntArray.wrap(ints, 0, 6));
+		TestUtil.assertThrown(() -> ImmutableIntArray.wrap(ints, 3, 3));
 		ImmutableIntArray ia = ImmutableIntArray.wrap(ints);
-		assertException(() -> ia.at(-1));
-		assertException(() -> ia.at(5));
-		assertException(() -> ia.copy(-1, 0));
-		assertException(() -> ia.copy(0, -1));
-		assertException(() -> ia.copy(5, 1));
-		assertException(() -> ia.copy(0, 6));
-		assertException(() -> ia.copy(3, 3));
+		TestUtil.assertThrown(() -> ia.at(-1));
+		TestUtil.assertThrown(() -> ia.at(5));
+		TestUtil.assertThrown(() -> ia.copy(-1, 0));
+		TestUtil.assertThrown(() -> ia.copy(0, -1));
+		TestUtil.assertThrown(() -> ia.copy(5, 1));
+		TestUtil.assertThrown(() -> ia.copy(0, 6));
+		TestUtil.assertThrown(() -> ia.copy(3, 3));
 		int[] b2 = new int[10];
-		assertException(() -> ia.copyTo(-1, b2, 0, 0));
-		assertException(() -> ia.copyTo(0, b2, 0, -1));
-		assertException(() -> ia.copyTo(5, b2, 0, 1));
-		assertException(() -> ia.copyTo(0, b2, 0, 6));
-		assertException(() -> ia.copyTo(3, b2, 0, 3));
-		assertException(() -> ia.slice(-1, 0));
-		assertException(() -> ia.slice(0, -1));
-		assertException(() -> ia.slice(5, 1));
-		assertException(() -> ia.slice(0, 6));
-		assertException(() -> ia.slice(3, 3));
+		TestUtil.assertThrown(() -> ia.copyTo(-1, b2, 0, 0));
+		TestUtil.assertThrown(() -> ia.copyTo(0, b2, 0, -1));
+		TestUtil.assertThrown(() -> ia.copyTo(5, b2, 0, 1));
+		TestUtil.assertThrown(() -> ia.copyTo(0, b2, 0, 6));
+		TestUtil.assertThrown(() -> ia.copyTo(3, b2, 0, 3));
+		TestUtil.assertThrown(() -> ia.slice(-1, 0));
+		TestUtil.assertThrown(() -> ia.slice(0, -1));
+		TestUtil.assertThrown(() -> ia.slice(5, 1));
+		TestUtil.assertThrown(() -> ia.slice(0, 6));
+		TestUtil.assertThrown(() -> ia.slice(3, 3));
 	}
 
 	@Test

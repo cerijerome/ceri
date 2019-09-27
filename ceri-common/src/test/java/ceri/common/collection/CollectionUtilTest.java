@@ -1,7 +1,7 @@
 package ceri.common.collection;
 
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
@@ -27,6 +27,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class CollectionUtilTest {
 
@@ -173,12 +174,12 @@ public class CollectionUtilTest {
 		for (Object obj : iterable)
 			set.add((String) obj);
 		assertCollection(set, "A", "B", "C");
-		assertException(() -> iterable.iterator().remove());
+		TestUtil.assertThrown(() -> iterable.iterator().remove());
 	}
 
 	@Test
 	public void testToArray() {
-		assertException(() -> CollectionUtil.toArray(Collections.emptyList(), Integer.TYPE));
+		TestUtil.assertThrown(() -> CollectionUtil.toArray(Collections.emptyList(), Integer.TYPE));
 		Number[] numbers = CollectionUtil.toArray(Arrays.asList(1, 2, 3), Number.class);
 		assertCollection(numbers, 1, 2, 3);
 	}
@@ -205,7 +206,7 @@ public class CollectionUtilTest {
 		assertThat(iterator.next(), is("B"));
 		assertThat(iterator.next(), is("A"));
 		assertFalse(iterator.hasNext());
-		assertException(NoSuchElementException.class, iterator::next);
+		assertThrown(NoSuchElementException.class, iterator::next);
 	}
 
 	@Test

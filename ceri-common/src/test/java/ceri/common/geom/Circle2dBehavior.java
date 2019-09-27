@@ -2,12 +2,13 @@ package ceri.common.geom;
 
 import static ceri.common.geom.GeometryTestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Circle2dBehavior {
 	private final Circle2d c0 = Circle2d.of(4);
@@ -21,7 +22,7 @@ public class Circle2dBehavior {
 
 	@Test
 	public void shouldOnlyAllowPositiveRadius() {
-		assertException(() -> Circle2d.of(-0.1));
+		TestUtil.assertThrown(() -> Circle2d.of(-0.1));
 	}
 
 	@Test

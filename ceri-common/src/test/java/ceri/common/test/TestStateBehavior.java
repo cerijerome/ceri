@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertException;
+import static ceri.common.test.TestUtil.assertThrown;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
@@ -30,7 +30,7 @@ public class TestStateBehavior {
 	public void shouldThrowExceptionWhenInterrupted() {
 		start(() -> state.waitFor("x", 0));
 		thread.interrupt();
-		assertException(() -> thread.join());
+		TestUtil.assertThrown(() -> thread.join());
 	}
 
 	@Test
