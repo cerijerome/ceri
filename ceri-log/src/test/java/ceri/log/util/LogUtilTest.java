@@ -1,12 +1,12 @@
 package ceri.log.util;
 
-import static ceri.common.test.TestUtil.assertException;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 import ceri.common.text.ToStringHelper;
 
 public class LogUtilTest {
@@ -35,11 +35,11 @@ public class LogUtilTest {
 		Object obj = LogUtil.toString(() -> {
 			throw new RuntimeException();
 		});
-		assertException(obj::toString);
+		TestUtil.assertThrown(obj::toString);
 		Object obj2 = LogUtil.toString(() -> {
 			throw new Exception();
 		});
-		assertException(obj2::toString);
+		TestUtil.assertThrown(obj2::toString);
 	}
 
 	@Test
@@ -48,7 +48,8 @@ public class LogUtilTest {
 		assertTrue("Test class broken", test.toString().matches("(?s).*[\\r\\n\\t].*"));
 		assertTrue("Test class broken", test.toString().matches("(?s).*\\s{2,}.*"));
 		Object obj = LogUtil.compact(test);
-		assertFalse("Contains non-space whitespace", obj.toString().matches("(?s).*[\\r\\n\\t].*"));
+		assertFalse("Contains non-space whitespace", obj.toString().matches("(?s).*[\\r\\n\\t]" +
+			".*"));
 		assertFalse("Contains a whitespace sequence", obj.toString().matches("(?s).*\\s{2,}.*"));
 	}
 
