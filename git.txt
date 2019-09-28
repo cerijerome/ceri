@@ -65,6 +65,11 @@ $ git commit --amend => amend previous commit
 $ git reset HEAD <file> => un-stage file
 $ git checkout -- <file> => overwrite working file
 
+Merge
+----
+$ git mergetool (after pull with conflicts, uses default tool)
+$ git reset --merge (for messed-up merge)
+
 Branches
 --------
 Git stores snapshots not deltas
