@@ -3,7 +3,6 @@ package ceri.common.color;
 import static ceri.common.color.ColorTestUtil.assertColorx;
 import static ceri.common.color.ColorTestUtil.assertRgbx;
 import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;

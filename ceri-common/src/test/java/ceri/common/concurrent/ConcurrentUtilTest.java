@@ -1,8 +1,8 @@
 package ceri.common.concurrent;
 
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -167,7 +167,7 @@ public class ConcurrentUtilTest {
 	}
 
 	@Test
-	public void testInvokeWithTimeout() throws Exception {
+	public void testInvokeWithTimeout() {
 		Set<String> msgs = new HashSet<>();
 		assertThrown(CancellationException.class,
 			() -> ConcurrentUtil.invoke(exec, IOException::new, 1, () -> {

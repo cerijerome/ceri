@@ -1,7 +1,6 @@
 package ceri.common.function;
 
 import java.util.function.IntSupplier;
-import java.util.function.Supplier;
 
 /**
  * Supplier that can throw exceptions.

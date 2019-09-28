@@ -1,6 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

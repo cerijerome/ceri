@@ -2,7 +2,6 @@ package ceri.common.collection;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertList;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;

@@ -4,7 +4,6 @@ import static ceri.common.collection.StreamUtil.toList;
 import static ceri.common.color.ColorTestUtil.assertColorx;
 import static ceri.common.color.Colorx.black;
 import static ceri.common.color.Colorx.full;
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static java.awt.Color.green;

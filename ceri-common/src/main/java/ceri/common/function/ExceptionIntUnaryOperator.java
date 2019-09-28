@@ -29,7 +29,7 @@ public interface ExceptionIntUnaryOperator<E extends Exception> {
 		};
 	}
 
-	static <T, R> ExceptionIntUnaryOperator<RuntimeException> of(IntUnaryOperator fn) {
+	static ExceptionIntUnaryOperator<RuntimeException> of(IntUnaryOperator fn) {
 		return fn::applyAsInt;
 	}
 }

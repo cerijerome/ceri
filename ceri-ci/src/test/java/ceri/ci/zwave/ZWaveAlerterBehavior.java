@@ -1,6 +1,5 @@
 package ceri.ci.zwave;
 
-import static ceri.common.test.TestUtil.assertThrown;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;

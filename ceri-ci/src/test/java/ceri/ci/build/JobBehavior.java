@@ -1,6 +1,5 @@
 package ceri.ci.build;
 
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;

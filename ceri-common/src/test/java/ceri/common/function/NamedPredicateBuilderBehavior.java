@@ -30,6 +30,10 @@ public class NamedPredicateBuilderBehavior {
 		assertThat(p.test(1), is(true));
 		assertThat(p.test(2), is(false));
 		assertThat(p.test(3), is(true));
+		assertNull(NamedPredicateBuilder.of().buildEx());
+		assertNull(NamedPredicateBuilder.of().negate().buildEx());
+		assertThat(NamedPredicateBuilder.of().negate().or(i -> true, ">1").build().toString(),
+			is("(>1)"));
 	}
 
 }

@@ -2,7 +2,6 @@ package ceri.common.math;
 
 import static ceri.common.test.TestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertNaN;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertRange;

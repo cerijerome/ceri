@@ -11,6 +11,7 @@ import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -178,6 +179,21 @@ public class FunctionUtilTest {
 		assertThat(p.test(0), is(false));
 		assertThat(p.test(1), is(true));
 		assertThat(p.toString(), is("test"));
+	}
+
+	@Test
+	public void testAnonymousLambda() {
+		assertFalse(FunctionUtil.isAnonymousLambda(null));
+		assertFalse(FunctionUtil.isAnonymousLambda(new Object() {
+			@Override
+			public String toString() {
+				return null;
+			}
+		}));
+		assertFalse(FunctionUtil.isAnonymousLambda(new Object()));
+		IntPredicate p = i -> true;
+		assertFalse(FunctionUtil.isAnonymousLambda(FunctionUtil.namedInt(p, "test")));
+		assertTrue(FunctionUtil.isAnonymousLambda(p));
 	}
 
 	@Test

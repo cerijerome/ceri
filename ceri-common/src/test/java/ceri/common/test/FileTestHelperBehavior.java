@@ -5,9 +5,6 @@ import static ceri.common.test.TestUtil.assertIterable;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
-import java.nio.file.Path;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.io.IoUtil;
 

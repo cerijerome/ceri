@@ -5,7 +5,6 @@ import static ceri.common.color.ColorTestUtil.assertHsb;
 import static ceri.common.color.ColorTestUtil.assertRgb;
 import static ceri.common.color.ColorUtil.alphaColor;
 import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;

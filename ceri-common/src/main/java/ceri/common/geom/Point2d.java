@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.validation.ValidationUtil.validate;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 

@@ -67,6 +67,15 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testAppend() {
+		assertThat(
+			StringUtil.append(new StringBuilder(), "", String::valueOf, "", "a", "").toString(),
+			is("a"));
+		assertThat(StringUtil.append(new StringBuilder(), ":", String::valueOf, 1, 2, 3).toString(),
+			is("1:2:3"));
+	}
+
+	@Test
 	public void testRepeat() {
 		assertNull(repeat(null, 0));
 		assertNull(repeat(null, 10));
@@ -74,6 +83,10 @@ public class StringUtilTest {
 		assertThat(repeat("", 10), is(""));
 		assertThat(repeat("abc", 1), is("abc"));
 		assertThat(repeat("abc", 3), is("abcabcabc"));
+		assertNull(repeat(null, "abd", 10));
+		assertThat(repeat(new StringBuilder("x"), "", 10).toString(), is("x"));
+		assertThat(repeat(new StringBuilder("x"), "abd", 0).toString(), is("x"));
+		assertThat(repeat(new StringBuilder("x"), null, 10).toString(), is("x"));
 	}
 
 	@Test
@@ -126,6 +139,13 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testStartsWith() {
+		assertFalse(StringUtil.startsWith(new StringBuilder("x"), 0, null));
+		assertTrue(StringUtil.startsWith(new StringBuilder("abc"), 1, ""));
+		assertFalse(StringUtil.startsWith(new StringBuilder("abc"), 4, ""));
+	}
+
+	@Test
 	public void testStartsWithIgnoreCase() {
 		assertFalse(StringUtil.startsWithIgnoreCase((String) null, null));
 		assertFalse(StringUtil.startsWithIgnoreCase((String) null, ""));
@@ -138,8 +158,19 @@ public class StringUtilTest {
 		assertFalse(StringUtil.startsWithIgnoreCase("abcd", "abCDeF"));
 		assertTrue(StringUtil.startsWithIgnoreCase("abcdef", "abCDeF"));
 		assertTrue(StringUtil.startsWithIgnoreCase("ABCdefGHI", "abCDeF"));
+		assertFalse(StringUtil.startsWithIgnoreCase(new StringBuilder("ABCdefGHI"), null));
 		assertTrue(StringUtil.startsWithIgnoreCase(new StringBuilder("ABCdefGHI"), "abCDeF"));
 		assertTrue(StringUtil.startsWithIgnoreCase(new StringBuilder("ABCdefGHI"), 3, "DeF"));
+	}
+
+	@Test
+	public void testRegionMatches() {
+		assertFalse(StringUtil.regionMatches(null, false, 0, null, 0, 0));
+		assertFalse(StringUtil.regionMatches(new StringBuilder(), false, 0, null, 0, 0));
+		assertFalse(StringUtil.regionMatches(new StringBuilder("x"), false, 2, "", 0, 0));
+		assertFalse(StringUtil.regionMatches(new StringBuilder("xx"), false, 0, "x", 0, 2));
+		assertTrue(StringUtil.regionMatches(new StringBuilder("abcdef"), true, 1, "xBcD", 1, 3));
+		assertFalse(StringUtil.regionMatches(new StringBuilder("abcdef"), false, 1, "xBcD", 1, 3));
 	}
 
 	@Test
@@ -150,8 +181,7 @@ public class StringUtilTest {
 		assertThat(StringUtil.unEscapeChar("\0\\\\"), is('\0'));
 		assertThat(StringUtil.unEscape("\\z\\\\\\\\\\\\z"), is("\\z\\\\\\z"));
 		assertThat(StringUtil.unEscape("\\\\\\b\\e\\f\\n\\r\\t"), is("\\\u0008\u001b\f\n\r\t"));
-		assertThat(StringUtil.unEscape("abc\\0\\00\\000\\077\\0377def"), is("abc\0\0\0?\u00ffdef"
-		));
+		assertThat(StringUtil.unEscape("abc\\0\\00\\000\\077\\0377def"), is("abc\0\0\0?\u00ffdef"));
 		assertThat(StringUtil.unEscape("ABC\\x00\\xffDEF"), is("ABC\0\u00ffDEF"));
 		assertThat(StringUtil.unEscape("xyz\\u0000\\u1234"), is("xyz\0\u1234"));
 		assertThat(StringUtil.unEscape("\\x0\\u0\\u00\\u000"), is("\\x0\\u0\\u00\\u000"));
@@ -306,6 +336,7 @@ public class StringUtilTest {
 	@Test
 	public void testSubstring() {
 		assertNull(StringUtil.substring(null, 0));
+		assertNull(StringUtil.substring(null, 1, 3));
 		assertThat(StringUtil.substring(new StringBuilder("test"), 2), is("st"));
 	}
 

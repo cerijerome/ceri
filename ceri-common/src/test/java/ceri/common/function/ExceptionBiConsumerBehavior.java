@@ -1,17 +1,10 @@
 package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.biConsumer;
-import static ceri.common.function.FunctionTestUtil.predicate;
 import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import java.io.IOException;
-import java.util.Objects;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil.Std;
-import ceri.common.test.TestUtil;
 
 public class ExceptionBiConsumerBehavior {
 

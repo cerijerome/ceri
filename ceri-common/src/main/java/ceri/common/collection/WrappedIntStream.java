@@ -1,6 +1,5 @@
 package ceri.common.collection;
 
-import java.io.IOException;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -62,7 +61,7 @@ public class WrappedIntStream<E extends Exception> {
 	}
 
 	public <R> R terminateAs(ExceptionFunction<E, IntStream, R> fn) throws E {
-		return w.unwrap(() -> fn.apply(stream));
+		return w.unwrapSupplier(() -> fn.apply(stream));
 	}
 
 	public void terminate(ExceptionConsumer<E, IntStream> fn) throws E {

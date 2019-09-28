@@ -45,6 +45,7 @@ public class ExceptionIntPredicateBehavior {
 		ExceptionIntPredicate<IOException> p = p0.negate();
 		assertThat(p0.test(2), is(true));
 		assertThat(p.test(2), is(false));
+		assertThat(p.test(-1), is(true));
 		assertThrown(IOException.class, () -> p.test(1));
 		assertThrown(RuntimeException.class, () -> p.test(0));
 	}

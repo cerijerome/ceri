@@ -2,9 +2,9 @@ package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertFile;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static ceri.common.test.TestUtil.matchesRegex;
 import static java.nio.charset.StandardCharsets.UTF_8;

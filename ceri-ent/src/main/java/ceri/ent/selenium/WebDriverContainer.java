@@ -14,8 +14,8 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import ceri.common.math.MathUtil;
 import com.google.common.base.Function;
+import ceri.common.math.MathUtil;
 
 /**
  * A container and support methods for selenium web drivers. Supports lifecycle management with

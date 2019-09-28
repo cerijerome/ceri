@@ -2,7 +2,6 @@ package ceri.common.data;
 
 import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertStream;
 import static ceri.common.test.TestUtil.exerciseEnum;

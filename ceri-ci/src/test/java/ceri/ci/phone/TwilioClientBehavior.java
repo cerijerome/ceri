@@ -1,6 +1,5 @@
 package ceri.ci.phone;
 
-import static ceri.common.test.TestUtil.assertThrown;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

@@ -2,7 +2,6 @@ package ceri.common.geom;
 
 import static ceri.common.geom.GeometryTestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;

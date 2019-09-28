@@ -1,7 +1,6 @@
 package ceri.ci.email;
 
 import static ceri.ci.email.EmailTestUtil.messageBuilder;
-import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;

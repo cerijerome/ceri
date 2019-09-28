@@ -10,6 +10,7 @@ import java.util.function.IntConsumer;
 import ceri.common.function.ExceptionBiConsumer;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.util.BasicUtil;
 import ceri.common.util.PrimitiveUtil;
 
 public class Capturer<T> implements Consumer<T> {
@@ -33,6 +34,7 @@ public class Capturer<T> implements Consumer<T> {
 	}
 
 	public <E extends Exception> ExceptionConsumer<E, T> toEx(Class<E> cls) {
+		BasicUtil.unused(cls); // for typing only
 		return toEx();
 	}
 
@@ -61,6 +63,7 @@ public class Capturer<T> implements Consumer<T> {
 		}
 
 		public <E extends Exception> ExceptionIntConsumer<E> toExInt(Class<E> cls) {
+			BasicUtil.unused(cls); // for typing only
 			return toExInt();
 		}
 
@@ -68,6 +71,7 @@ public class Capturer<T> implements Consumer<T> {
 			return this::accept;
 		}
 
+		@Override
 		public Capturer.Int reset() {
 			values.clear();
 			return this;
@@ -88,6 +92,7 @@ public class Capturer<T> implements Consumer<T> {
 		}
 
 		public <E extends Exception> ExceptionBiConsumer<E, T, U> toEx(Class<E> cls) {
+			BasicUtil.unused(cls); // for typing only
 			return toEx();
 		}
 

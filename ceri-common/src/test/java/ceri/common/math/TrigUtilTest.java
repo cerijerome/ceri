@@ -3,7 +3,6 @@ package ceri.common.math;
 import static ceri.common.math.MathUtil.PI_BY_2;
 import static ceri.common.math.MathUtil.PIx2;
 import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertNaN;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static java.lang.Math.PI;

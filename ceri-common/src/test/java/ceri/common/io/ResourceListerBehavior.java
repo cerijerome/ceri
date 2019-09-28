@@ -1,6 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertThrown;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import java.io.IOException;

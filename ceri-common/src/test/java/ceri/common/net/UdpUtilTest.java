@@ -1,6 +1,7 @@
 package ceri.common.net;
 
-import static ceri.common.test.TestUtil.*;
+import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static java.util.Objects.requireNonNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;

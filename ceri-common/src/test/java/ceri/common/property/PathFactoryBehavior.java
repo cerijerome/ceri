@@ -1,6 +1,5 @@
 package ceri.common.property;
 
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.test.TestUtil.isSame;

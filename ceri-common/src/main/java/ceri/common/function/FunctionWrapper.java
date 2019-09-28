@@ -117,54 +117,54 @@ public class FunctionWrapper<E extends Exception> {
 	// Methods to execute runnables/suppliers/consumers/functions and throw unwrapped exceptions
 
 	public void unwrap(ExceptionRunnable<E> runnable) throws E {
-		unwrap(asFunction(runnable), null);
+		unwrapFunction(asFunction(runnable), null);
 	}
 
-	public <T> T unwrap(ExceptionSupplier<E, T> supplier) throws E {
-		return unwrap(asFunction(supplier), null);
+	public <T> T unwrapSupplier(ExceptionSupplier<E, T> supplier) throws E {
+		return unwrapFunction(asFunction(supplier), null);
 	}
 
-	public int unwrap(ExceptionIntSupplier<E> supplier) throws E {
-		return unwrap(asToIntFunction(supplier), null);
+	public int unwrapIntSupplier(ExceptionIntSupplier<E> supplier) throws E {
+		return unwrapToIntFunction(asToIntFunction(supplier), null);
 	}
 
-	public <T> void unwrap(ExceptionConsumer<E, T> consumer, T t) throws E {
-		unwrap(asFunction(consumer), t);
+	public <T> void unwrapConsumer(ExceptionConsumer<E, T> consumer, T t) throws E {
+		unwrapFunction(asFunction(consumer), t);
 	}
 
-	public void unwrap(ExceptionIntConsumer<E> consumer, int i) throws E {
-		unwrap(asIntFunction(consumer), i);
+	public void unwrapIntConsumer(ExceptionIntConsumer<E> consumer, int i) throws E {
+		unwrapIntFunction(asIntFunction(consumer), i);
 	}
 
-	public <T, U> void unwrap(ExceptionBiConsumer<E, T, U> consumer, T t, U u) throws E {
-		unwrap(asBiFunction(consumer), t, u);
+	public <T, U> void unwrapBiConsumer(ExceptionBiConsumer<E, T, U> consumer, T t, U u) throws E {
+		unwrapBiFunction(asBiFunction(consumer), t, u);
 	}
 
-	public <T, R> R unwrap(ExceptionFunction<E, T, R> function, T t) throws E {
+	public <T, R> R unwrapFunction(ExceptionFunction<E, T, R> function, T t) throws E {
 		return unwrapGet(() -> function.apply(t));
 	}
 
-	public <R> R unwrap(ExceptionIntFunction<E, R> function, int i) throws E {
+	public <R> R unwrapIntFunction(ExceptionIntFunction<E, R> function, int i) throws E {
 		return unwrapGet(() -> function.apply(i));
 	}
 
-	public <T> int unwrap(ExceptionToIntFunction<E, T> function, T t) throws E {
+	public <T> int unwrapToIntFunction(ExceptionToIntFunction<E, T> function, T t) throws E {
 		return unwrapGet(() -> function.applyAsInt(t));
 	}
 
-	public int unwrap(ExceptionIntUnaryOperator<E> function, int i) throws E {
+	public int unwrapIntUnaryOperator(ExceptionIntUnaryOperator<E> function, int i) throws E {
 		return unwrapGet(() -> function.applyAsInt(i));
 	}
 
-	public <T, U, R> R unwrap(ExceptionBiFunction<E, T, U, R> function, T t, U u) throws E {
+	public <T, U, R> R unwrapBiFunction(ExceptionBiFunction<E, T, U, R> function, T t, U u) throws E {
 		return unwrapGet(() -> function.apply(t, u));
 	}
 
-	public <T> boolean unwrap(ExceptionPredicate<E, T> predicate, T t) throws E {
+	public <T> boolean unwrapPredicate(ExceptionPredicate<E, T> predicate, T t) throws E {
 		return unwrapGet(() -> predicate.test(t));
 	}
 
-	public boolean unwrap(ExceptionIntPredicate<E> predicate, int i) throws E {
+	public boolean unwrapIntPredicate(ExceptionIntPredicate<E> predicate, int i) throws E {
 		return unwrapGet(() -> predicate.test(i));
 	}
 

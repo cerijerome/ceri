@@ -1,7 +1,6 @@
 package ceri.common.text;
 
 import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertMap;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
@@ -58,6 +57,8 @@ public class RegexUtilTest {
 
 	@Test
 	public void testReplaceAllQuoted() {
+		assertThat(RegexUtil.replaceAllQuoted("\\d+", "abc123de45f6", m -> null),
+			is("abc123de45f6"));
 		assertThat(RegexUtil.replaceAllQuoted("\\d+", "abc123de45f6", "N\\$"),
 			is("abcN\\$deN\\$fN\\$"));
 		assertThat(RegexUtil.replaceAllQuoted("[\\\\$]+", "abc$\\def\\$", m -> reverse(m.group())),
@@ -80,6 +81,9 @@ public class RegexUtilTest {
 		assertThat(RegexUtil.replaceAll(p, "\"t \\\"e s\\\" t\"", fn), is("\"t \\\"e s\\\" t\""));
 		assertThat(RegexUtil.replaceAll(p, "{ \"_id\" : ObjectId(\"12345\")", fn),
 			is("{\"_id\":ObjectId(\"12345\")"));
+		assertThat(RegexUtil.replaceAll("abc", "ab", (m, i) -> ""), is("ab"));
+		assertThat(RegexUtil.replaceAll("^", "ab", (m, i) -> "x"), is("xab"));
+		assertThat(RegexUtil.replaceAll("ab", "ab", (m, i) -> ""), is(""));
 	}
 
 	@Test

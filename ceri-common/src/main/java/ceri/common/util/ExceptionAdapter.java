@@ -29,6 +29,7 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 		this.fn = fn;
 	}
 
+	@Override
 	public E apply(Throwable t) {
 		if (cls.isInstance(t)) return cls.cast(t);
 		return fn.apply(t);

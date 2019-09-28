@@ -221,7 +221,7 @@ public class StringUtil {
 	 * Adds string to builder n times.
 	 */
 	public static StringBuilder repeat(StringBuilder b, CharSequence s, int n) {
-		if (s != null || s.length() > 0) while (n-- > 0) b.append(s);
+		if (b != null && s != null && s.length() > 0) while (n-- > 0) b.append(s);
 		return b;
 	}
 

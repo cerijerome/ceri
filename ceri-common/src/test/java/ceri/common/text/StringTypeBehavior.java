@@ -110,6 +110,13 @@ public class StringTypeBehavior {
 	}
 
 	@Test
+	public void shouldDetermineIfUnfoundIndex() {
+		assertThat(s.indexOf("bd"), is(-1));
+		assertThat(sb.indexOf("bd"), is(-1));
+		assertThat(cs.indexOf("bd"), is(-1));
+	}
+
+	@Test
 	public void shouldDetermineLength() {
 		assertThat(s.length(), is(6));
 		assertThat(sb.length(), is(6));
@@ -121,6 +128,7 @@ public class StringTypeBehavior {
 		assertFalse(s.isEmpty());
 		assertFalse(sb.isEmpty());
 		assertFalse(cs.isEmpty());
+		assertTrue(StringType.of("").isEmpty());
 	}
 
 	@Test

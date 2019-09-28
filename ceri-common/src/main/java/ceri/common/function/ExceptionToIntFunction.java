@@ -1,6 +1,5 @@
 package ceri.common.function;
 
-import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
 /**

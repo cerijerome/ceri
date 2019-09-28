@@ -1,16 +1,12 @@
 package ceri.common.collection;
 
-import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertThrown;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.test.Capturer;
 import ceri.common.test.TestUtil;
-import ceri.common.util.PrimitiveUtil;
 
 public class WrappedStreamTestUtil {
 

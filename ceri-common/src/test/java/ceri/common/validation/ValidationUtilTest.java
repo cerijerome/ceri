@@ -1,6 +1,5 @@
 package ceri.common.validation;
 
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import org.junit.Test;
 import ceri.common.test.TestUtil;

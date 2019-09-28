@@ -1,12 +1,9 @@
 package ceri.common.function;
 
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
-import java.util.function.IntUnaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -91,8 +88,8 @@ public class FunctionUtil {
 	/**
 	 * Passes only non-null values to consumer. Returns true if consumed.
 	 */
-	public static <E extends Exception, T> boolean safeAccept(T t, ExceptionPredicate<E, T> predicate,
-		ExceptionConsumer<E, T> consumer) throws E {
+	public static <E extends Exception, T> boolean safeAccept(T t,
+		ExceptionPredicate<E, T> predicate, ExceptionConsumer<E, T> consumer) throws E {
 		if (t == null || !predicate.test(t)) return false;
 		consumer.accept(t);
 		return true;
@@ -199,8 +196,8 @@ public class FunctionUtil {
 	/**
 	 * Converts a runnable to a function that returns true.
 	 */
-	public static <E extends Exception, T> ExceptionFunction<E, T, Boolean> asFunction(
-		ExceptionRunnable<E> runnable) {
+	public static <E extends Exception, T> ExceptionFunction<E, T, Boolean>
+		asFunction(ExceptionRunnable<E> runnable) {
 		return t -> {
 			runnable.run();
 			return Boolean.TRUE;
@@ -210,38 +207,37 @@ public class FunctionUtil {
 	/**
 	 * Converts a supplier to a function that ignores input.
 	 */
-	public static <E extends Exception, T> ExceptionFunction<E, ?, T> asFunction(
-		ExceptionSupplier<E, T> supplier) {
+	public static <E extends Exception, T> ExceptionFunction<E, ?, T>
+		asFunction(ExceptionSupplier<E, T> supplier) {
 		return t -> supplier.get();
 	}
 
 	/**
 	 * Converts a supplier to a function that ignores input.
 	 */
-	public static <E extends Exception, T> ExceptionToIntFunction<E, T> asToIntFunction(
-		ExceptionIntSupplier<E> supplier) {
+	public static <E extends Exception, T> ExceptionToIntFunction<E, T>
+		asToIntFunction(ExceptionIntSupplier<E> supplier) {
 		return t -> supplier.getAsInt();
 	}
 
-
-	public static <E extends Exception, T> ExceptionFunction<E, T, Boolean> asFunction(
-		ExceptionConsumer<E, T> consumer) {
+	public static <E extends Exception, T> ExceptionFunction<E, T, Boolean>
+		asFunction(ExceptionConsumer<E, T> consumer) {
 		return t -> {
 			consumer.accept(t);
 			return Boolean.TRUE;
 		};
 	}
 
-	public static <E extends Exception> ExceptionIntFunction<E, Boolean> asIntFunction(
-		ExceptionIntConsumer<E> consumer) {
+	public static <E extends Exception> ExceptionIntFunction<E, Boolean>
+		asIntFunction(ExceptionIntConsumer<E> consumer) {
 		return i -> {
 			consumer.accept(i);
 			return Boolean.TRUE;
 		};
 	}
 
-	public static <E extends Exception, T, U> ExceptionBiFunction<E, T, U, Boolean> asBiFunction(
-		ExceptionBiConsumer<E, T, U> consumer) {
+	public static <E extends Exception, T, U> ExceptionBiFunction<E, T, U, Boolean>
+		asBiFunction(ExceptionBiConsumer<E, T, U> consumer) {
 		return (t, u) -> {
 			consumer.accept(t, u);
 			return Boolean.TRUE;

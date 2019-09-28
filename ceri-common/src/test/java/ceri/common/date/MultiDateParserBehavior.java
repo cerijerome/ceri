@@ -1,6 +1,5 @@
 package ceri.common.date;
 
-import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.text.ParseException;

@@ -1,6 +1,5 @@
 package ceri.ci.x10;
 
-import static ceri.common.test.TestUtil.assertThrown;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

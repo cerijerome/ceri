@@ -49,7 +49,7 @@ public class WrappedStreamBehavior {
 	}
 
 	@Test
-	public void shouldThrowTypedExceptionFromForEach() throws IOException {
+	public void shouldThrowTypedExceptionFromForEach() {
 		assertCapture(wrap(4, 3, 2)::forEach, 4, 3, 2);
 		assertThrown(IOException.class, () -> wrap(2, 1, 0).forEach(consumer()));
 		assertThrown(RuntimeException.class, () -> wrap(3, 2, 0).forEach(consumer()));

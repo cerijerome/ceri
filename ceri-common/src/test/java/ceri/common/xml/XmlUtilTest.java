@@ -1,6 +1,5 @@
 package ceri.common.xml;
 
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.resource;
 import static org.hamcrest.CoreMatchers.is;

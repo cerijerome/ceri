@@ -9,9 +9,9 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.function.ExceptionRunnable;
-import ceri.common.io.StateChange;
 import ceri.common.io.ReplaceableInputStream;
 import ceri.common.io.ReplaceableOutputStream;
+import ceri.common.io.StateChange;
 import ceri.serial.javax.FlowControl;
 import ceri.serial.javax.SerialConnector;
 

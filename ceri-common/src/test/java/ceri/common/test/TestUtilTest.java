@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.function.ExceptionRunnable;
@@ -124,14 +125,15 @@ public class TestUtilTest {
 	@Test
 	public void testAssertFile() throws IOException {
 		try (FileTestHelper helper = FileTestHelper.builder().dir("a").dir("b").file("c", "")
-			.file("d", "D").build()) {
+			.file("d", "D").file("e", "E").build()) {
 			assertAssertion(() -> assertFile(helper.file("a"), helper.file("c")));
 			assertAssertion(() -> assertFile(helper.file("c"), helper.file("a")));
 			assertFile(helper.file("c"), helper.file("c"));
 			assertAssertion(() -> assertFile(helper.file("c"), helper.file("d")));
 			assertAssertion(() -> assertFile(helper.file("d"), helper.file("c")));
+			assertAssertion(() -> assertFile(helper.file("d"), helper.file("e")));
 			assertFile(helper.file("d"), helper.file("d"));
-			TestUtil.assertThrown(() -> assertFile(helper.file("e"), helper.file("e")));
+			assertAssertion(() -> assertFile(helper.file("d"), helper.file("e")));
 		}
 	}
 
@@ -220,6 +222,7 @@ public class TestUtilTest {
 		assertThrowable(e, FileNotFoundException.class);
 		assertThrowable(e, "test");
 		assertThrowable(e, m -> m.startsWith("test"));
+		assertThrowable(null, null, (Predicate<String>) null);
 	}
 
 	@Test

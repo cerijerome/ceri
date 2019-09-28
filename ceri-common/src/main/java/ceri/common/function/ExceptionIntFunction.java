@@ -20,7 +20,7 @@ public interface ExceptionIntFunction<E extends Exception, R> {
 		};
 	}
 
-	static <T, R> ExceptionIntFunction<RuntimeException, R> of(IntFunction<R> fn) {
+	static <R> ExceptionIntFunction<RuntimeException, R> of(IntFunction<R> fn) {
 		return fn::apply;
 	}
 }

@@ -8,6 +8,7 @@ import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.ExceptionToIntFunction;
 import ceri.common.function.FunctionWrapper;
+import ceri.common.util.BasicUtil;
 
 /**
  * Wrapped stream that allows and throws checked exceptions.
@@ -22,6 +23,7 @@ public class WrappedStream<E extends Exception, T> {
 	}
 
 	public static <E extends Exception, T> WrappedStream<E, T> of(Class<E> cls, Stream<T> stream) {
+		BasicUtil.unused(cls); // for typing
 		return of(stream);
 	}
 
@@ -64,7 +66,7 @@ public class WrappedStream<E extends Exception, T> {
 	}
 
 	public <R> R terminateAs(ExceptionFunction<E, Stream<T>, R> fn) throws E {
-		return w.unwrap(() -> fn.apply(stream));
+		return w.unwrapSupplier(() -> fn.apply(stream));
 	}
 
 	public void terminate(ExceptionConsumer<E, Stream<T>> fn) throws E {

@@ -3,7 +3,6 @@ package ceri.common.collection;
 import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertByte;
-import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertStream;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
