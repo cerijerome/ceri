@@ -614,6 +614,26 @@ public class PrimitiveUtil {
 		return result;
 	}
 
+	public static int[] intRange(int count) {
+		return intRange(0, count);
+	}
+	
+	public static int[] intRange(int start, int end) {
+		int[] range = new int[end - start];
+		for (int i = 0; i < range.length; i++) range[i] = start + i;
+		return range;
+	}
+	
+	public static long[] longRange(long count) {
+		return longRange(0, count);
+	}
+	
+	public static long[] longRange(long start, long end) {
+		long[] range = new long[Math.toIntExact(end - start)];
+		for (int i = 0; i < range.length; i++) range[i] = start + i;
+		return range;
+	}
+	
 	/**
 	 * Returns true if fromCls can be autoboxed to toCls.
 	 */

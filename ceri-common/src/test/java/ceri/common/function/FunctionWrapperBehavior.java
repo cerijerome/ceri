@@ -38,10 +38,10 @@ public class FunctionWrapperBehavior {
 	public void shouldUnwrapExceptionWithForEach() throws IOException {
 		ExceptionConsumer<IOException, Integer> consumer = consumer();
 		w.unwrap(() -> List.of(2, 3, 4).forEach(w.wrap(consumer)));
-		assertThrown(IOException.class, () -> //
-		w.unwrap(() -> List.of(3, 2, 1).forEach(w.wrap(consumer))));
-		assertThrown(RuntimeException.class, () -> //
-		w.unwrap(() -> List.of(0).forEach(w.wrap(consumer))));
+		assertThrown(IOException.class,
+			() -> w.unwrap(() -> List.of(3, 2, 1).forEach(w.wrap(consumer))));
+		assertThrown(RuntimeException.class,
+			() -> w.unwrap(() -> List.of(0).forEach(w.wrap(consumer))));
 	}
 
 	@Test

@@ -49,6 +49,16 @@ public class ArrayUtil {
 	}
 
 	/**
+	 * Performs a validation on parameters to slice an array by range.
+	 */
+	public static void validateRange(int arrayLength, int start, int end) {
+		if (start < 0 || start > arrayLength)
+			throw new IndexOutOfBoundsException("Start must be 0-" + arrayLength + ": " + start);
+		if (end < start || end > arrayLength) throw new IndexOutOfBoundsException(
+			"End must be " + start + "-" + arrayLength + ": " + end);
+	}
+
+	/**
 	 * Returns true if index is within array.
 	 */
 	public static boolean isValidIndex(int arrayLength, int index) {
@@ -61,6 +71,15 @@ public class ArrayUtil {
 	public static boolean isValidSlice(int arrayLength, int offset, int length) {
 		if (offset < 0 || offset > arrayLength) return false;
 		if (length < 0 || offset + length > arrayLength) return false;
+		return true;
+	}
+
+	/**
+	 * Returns true if parameters are able to slice an array by range.
+	 */
+	public static boolean isValidRange(int arrayLength, int start, int end) {
+		if (start < 0 || start > arrayLength) return false;
+		if (end < start || end > arrayLength) return false;
 		return true;
 	}
 

@@ -1,6 +1,9 @@
 package ceri.common.collection;
 
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.ObjIntConsumer;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.function.ExceptionConsumer;
@@ -48,8 +51,17 @@ public class WrappedIntStream<E extends Exception> {
 		return new WrappedIntStream<>(w, stream.filter(w.wrap(predicate)));
 	}
 
+	public WrappedStream<E, Integer> boxed() {
+		return new WrappedStream<>(w, stream.boxed());
+	}
+
 	public void forEach(ExceptionIntConsumer<E> fn) throws E {
 		w.unwrap(() -> stream.forEach(w.wrap(fn)));
+	}
+
+	public <R> R collect(Supplier<R> supplier, ObjIntConsumer<R> accumulator,
+		BiConsumer<R, R> combiner) throws E {
+		return w.unwrapSupplier(() -> stream.collect(supplier, accumulator, combiner));
 	}
 
 	public WrappedIntStream<E> apply(Function<IntStream, IntStream> fn) {
