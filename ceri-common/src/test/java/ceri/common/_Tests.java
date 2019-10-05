@@ -180,6 +180,7 @@ import ceri.common.score.CollectionScorersTest;
 import ceri.common.score.ScoreLookupBehavior;
 import ceri.common.score.ScoreResultBehavior;
 import ceri.common.score.ScorersTest;
+import ceri.common.sql.SqlFormatterBehavior;
 import ceri.common.svg.EllipseBehavior;
 import ceri.common.svg.EllipticalArcBehavior;
 import ceri.common.svg.GroundedPathBehavior;
@@ -356,10 +357,10 @@ import ceri.common.xml.XmlUtilTest;
 	ExceptionToIntFunctionBehavior.class, //
 	FunctionUtilTest.class, //
 	FunctionWrapperBehavior.class, //
+	NamedPredicateBuilderBehavior.class, //
 	ObjBooleanConsumerBehavior.class, //
 	ObjByteConsumerBehavior.class, //
 	ObjShortConsumerBehavior.class, //
-	NamedPredicateBuilderBehavior.class, //
 	ToByteFunctionBehavior.class, //
 	ToShortFunctionBehavior.class, //
 	// geo
@@ -443,6 +444,8 @@ import ceri.common.xml.XmlUtilTest;
 	ScoreLookupBehavior.class, //
 	ScoreResultBehavior.class, //
 	ScorersTest.class, //
+	// sql
+	SqlFormatterBehavior.class, //
 	// svg
 	EllipseBehavior.class, //
 	EllipticalArcBehavior.class, //

@@ -42,7 +42,7 @@ public class TestThreadBehavior {
 	public void shouldCaptureException() throws IOException {
 		doThrow(new IOException()).when(runnable).run();
 		thread.start();
-		assertThrown(IOException.class, () -> thread.stop(1));
+		assertThrown(() -> thread.stop(1));
 		verify(runnable, timeout(1000).atLeastOnce()).run();
 	}
 
