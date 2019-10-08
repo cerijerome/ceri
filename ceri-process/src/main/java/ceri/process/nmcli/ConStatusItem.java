@@ -6,7 +6,7 @@ import ceri.common.collection.CollectionUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
-import ceri.process.util.parse.Columns;
+import ceri.log.process.parse.Columns;
 
 /**
  * One line from nmcli con status

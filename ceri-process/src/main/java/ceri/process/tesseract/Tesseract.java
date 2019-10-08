@@ -2,8 +2,8 @@ package ceri.process.tesseract;
 
 import java.io.File;
 import java.io.IOException;
-import ceri.process.util.Parameters;
-import ceri.process.util.Processor;
+import ceri.log.process.Parameters;
+import ceri.log.process.Processor;
 
 public class Tesseract {
 	// Make sure tesseract is on env path.

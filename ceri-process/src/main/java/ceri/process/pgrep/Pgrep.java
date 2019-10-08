@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.Predicate;
 import ceri.common.text.StringUtil;
-import ceri.process.util.Output;
-import ceri.process.util.Parameters;
-import ceri.process.util.Processor;
+import ceri.log.process.Output;
+import ceri.log.process.Parameters;
+import ceri.log.process.Processor;
 
 public class Pgrep {
 	private static final String PGREP = "pgrep";

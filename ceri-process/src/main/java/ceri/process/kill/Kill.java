@@ -2,8 +2,8 @@ package ceri.process.kill;
 
 import java.io.IOException;
 import java.util.stream.IntStream;
-import ceri.process.util.Parameters;
-import ceri.process.util.Processor;
+import ceri.log.process.Parameters;
+import ceri.log.process.Processor;
 
 public class Kill {
 	private static final String KILL = "kill";

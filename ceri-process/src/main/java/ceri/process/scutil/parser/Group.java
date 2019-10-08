@@ -14,10 +14,10 @@ import ceri.common.text.ToStringHelper;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
-import ceri.process.util.parse.Line;
-import ceri.process.util.parse.NameValue;
-import ceri.process.util.parse.Named;
-import ceri.process.util.parse.Value;
+import ceri.log.process.parse.Line;
+import ceri.log.process.parse.NameValue;
+import ceri.log.process.parse.Named;
+import ceri.log.process.parse.Value;
 
 public class Group implements Named {
 	public static final Group NULL = new Builder(null, null).build();

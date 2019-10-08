@@ -1,8 +1,8 @@
 package ceri.process.kill;
 
 import java.io.IOException;
-import ceri.process.util.Parameters;
-import ceri.process.util.Processor;
+import ceri.log.process.Parameters;
+import ceri.log.process.Processor;
 
 public class Pkill {
 	private static final String PKILL = "pkill";
