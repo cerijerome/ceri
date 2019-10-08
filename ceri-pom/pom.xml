@@ -35,6 +35,7 @@
 		<purejavacomm.version>1.0.2.RELEASE</purejavacomm.version>
 		<mail-api.version>1.6.2</mail-api.version>
 		<twilio.sdk.version>6.3.0</twilio.sdk.version>
+		<mongo.driver.version>3.11.0</mongo.driver.version>
 	</properties>
 
 	<!-- Dependencies included in all children -->
@@ -169,6 +170,11 @@
                 <artifactId>grpc-stub</artifactId>
                 <version>${grpc.version}</version>
             </dependency>
+			<dependency>
+				<groupId>org.mongodb</groupId>
+				<artifactId>mongodb-driver-sync</artifactId>
+				<version>${mongo.driver.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
