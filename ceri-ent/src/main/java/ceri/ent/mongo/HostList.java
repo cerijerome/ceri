@@ -6,11 +6,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.net.HostPort;
+import ceri.common.net.NetUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public class HostList {
+	public static final HostList LOCALHOST = from(NetUtil.LOCALHOST);
 	public final List<HostPort> hosts;
 
 	public static HostList from(String... hosts) {

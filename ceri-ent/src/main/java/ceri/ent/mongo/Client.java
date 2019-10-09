@@ -5,43 +5,51 @@ import java.io.Closeable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import ceri.common.net.HostPort;
-import ceri.common.net.NetUtil;
 import ceri.log.util.LogUtil;
 
-public class ClientResource implements Closeable {
+public class Client implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final String TEST_DB = "test";
 	private static final String ADMIN_DB = "admin";
-	public final MongoClient client;
+	public final MongoClient mongo;
 
-	public static ClientResource hosts(HostPort... hosts) {
+	public static Client hosts(HostPort... hosts) {
 		return hosts(HostList.of(hosts));
 	}
 
-	public static ClientResource hosts(HostList hosts) {
+	public static Client hosts(HostList hosts) {
 		return of(MongoUtil.connection(hosts));
 	}
 
-	public static ClientResource of(String connection) {
+	public static Client of(ClientSettings settings) {
+		return of(settings.toMongo());
+	}
+
+	public static Client of(MongoClientSettings settings) {
+		logger.info("Connecting to {}", settings.getClusterSettings().getHosts());
+		return wrap(MongoClients.create(settings));
+	}
+
+	public static Client of(String connection) {
 		logger.info("Connecting to {}", connection);
 		return wrap(MongoClients.create(connection));
 	}
 
-	public static ClientResource of() {
-		logger.info("Connecting to {}:{}", MongoUtil.MONGODB_PROTOCOL, NetUtil.LOCALHOST);
-		return wrap(MongoClients.create());
+	public static Client of() {
+		return of(MongoUtil.LOCALHOST);
 	}
 
-	public static ClientResource wrap(MongoClient client) {
-		return new ClientResource(client);
+	public static Client wrap(MongoClient client) {
+		return new Client(client);
 	}
 
-	private ClientResource(MongoClient client) {
-		this.client = client;
+	private Client(MongoClient client) {
+		this.mongo = client;
 	}
 
 	public MongoDatabase db() {
@@ -53,7 +61,7 @@ public class ClientResource implements Closeable {
 	}
 
 	public MongoDatabase db(String name) {
-		return client.getDatabase(name);
+		return mongo.getDatabase(name);
 	}
 
 	public Document runCommand(String command, String value) {
@@ -70,6 +78,6 @@ public class ClientResource implements Closeable {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, client, MongoClient::close);
+		LogUtil.close(logger, mongo, MongoClient::close);
 	}
 }

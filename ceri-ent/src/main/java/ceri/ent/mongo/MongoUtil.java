@@ -21,20 +21,26 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.changestream.ChangeStreamDocument;
+import ceri.common.net.NetUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
 public class MongoUtil {
 	public static final String MONGODB_PROTOCOL = "mongodb://";
+	public static final String LOCALHOST = MONGODB_PROTOCOL + NetUtil.LOCALHOST;
 	public static final int PORT = 27017;
 	public static final String ID = "_id";
 	public static final String SET_OPERATOR = "$set";
-	private static final Pattern QUOTED_OR_WHITESPACE = Pattern.compile(
-		"((?<!\\\\)\".*?(?<!\\\\)\"|\\s+)");
+	private static final Pattern QUOTED_OR_WHITESPACE =
+		Pattern.compile("((?<!\\\\)\".*?(?<!\\\\)\"|\\s+)");
 	private static final JsonWriterSettings PRETTY =
 		JsonWriterSettings.builder().indent(true).build();
 
 	private MongoUtil() {}
+
+	public static String localhost(int port) {
+		return LOCALHOST + ":" + port;
+	}
 
 	public static String connection(String... hostPorts) {
 		return connection(Arrays.asList(hostPorts));
@@ -72,12 +78,12 @@ public class MongoUtil {
 
 	public static String compact(String json) {
 		if (json == null) return null;
-		return RegexUtil.replaceAll(QUOTED_OR_WHITESPACE, json, result ->
-			json.charAt(result.start()) == '\"' ? null : ""); // skip quoted matches
+		return RegexUtil.replaceAll(QUOTED_OR_WHITESPACE, json,
+			result -> json.charAt(result.start()) == '\"' ? null : ""); // skip quoted matches
 	}
 
-	public static <T extends Document> Consumer<ChangeStreamDocument<T>> forChangeStream(
-		Consumer<T> consumer) {
+	public static <T extends Document> Consumer<ChangeStreamDocument<T>>
+		forChangeStream(Consumer<T> consumer) {
 		return c -> consumer.accept(c.getFullDocument());
 	}
 
@@ -171,4 +177,3 @@ public class MongoUtil {
 	}
 
 }
-

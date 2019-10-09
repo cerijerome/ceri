@@ -11,17 +11,21 @@ import ceri.log.process.Parameters;
 
 public class Mongod extends ProcessRunner {
 	private static final String MONGOD = "mongod";
-	private static final String DBPATH_OPTION = "--dbpath";
+	private static final String DB_PATH_OPTION = "--dbpath";
 	private static final String PORT_OPTION = "--port";
 	private static final String REPL_SET_OPTION = "--replSet";
-	private static final String CONFIG_SERVER = "--configsvr";
-	private static final String SHARD_SERVER = "--shardsvr";
+	private static final String CONFIG_SERVER_OPTION = "--configsvr";
+	private static final String SHARD_SERVER_OPTION = "--shardsvr";
+	private static final String LOG_PATH_OPTION = "--logpath";
+	private static final String LOG_APPEND_OPTION = "--logappend";
 	public final String mongodPath;
 	public final Path dbPath;
 	public final boolean configServer;
 	public final boolean shardServer;
 	public final String replSet;
 	public final HostPort hostPort;
+	public final Path logPath;
+	public final boolean logAppend;
 
 	public static class Group extends ProcessGroup {
 		public final List<Mongod> mongods;
@@ -63,6 +67,8 @@ public class Mongod extends ProcessRunner {
 		String replSet = null;
 		boolean configServer = false;
 		boolean shardServer = false;
+		Path logPath = null;
+		boolean logAppend = false;
 
 		Builder() {}
 
@@ -104,13 +110,29 @@ public class Mongod extends ProcessRunner {
 			return this;
 		}
 
+		public Builder logPath(String logPath) {
+			return logPath(Path.of(logPath));
+		}
+
+		public Builder logPath(Path logPath) {
+			this.logPath = logPath;
+			return this;
+		}
+
+		public Builder logAppend(boolean logAppend) {
+			this.logAppend = logAppend;
+			return this;
+		}
+
 		public Parameters params() {
 			Parameters params = Parameters.of(mongodPath);
-			if (dbPath != null) params.add(DBPATH_OPTION, dbPath.toString());
+			if (dbPath != null) params.add(DB_PATH_OPTION, dbPath.toString());
 			if (port != null) params.add(PORT_OPTION).add(port);
 			if (replSet != null) params.add(REPL_SET_OPTION).add(replSet);
-			if (configServer) params.add(CONFIG_SERVER);
-			if (shardServer) params.add(SHARD_SERVER);
+			if (configServer) params.add(CONFIG_SERVER_OPTION);
+			if (shardServer) params.add(SHARD_SERVER_OPTION);
+			if (logPath != null) params.add(LOG_PATH_OPTION, logPath.toString());
+			if (logAppend) params.add(LOG_APPEND_OPTION);
 			return params;
 		}
 
@@ -131,6 +153,8 @@ public class Mongod extends ProcessRunner {
 		replSet = builder.replSet;
 		configServer = builder.configServer;
 		shardServer = builder.shardServer;
+		logPath = builder.logPath;
+		logAppend = builder.logAppend;
 	}
 
 	public int port() {

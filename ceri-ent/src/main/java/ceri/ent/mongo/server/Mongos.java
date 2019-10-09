@@ -12,9 +12,13 @@ public class Mongos extends ProcessRunner {
 	private static final String MONGOS = "mongos";
 	private static final String PORT_OPTION = "--port";
 	private static final String CONFIGDB_OPTION = "--configdb";
+	private static final String LOG_PATH_OPTION = "--logpath";
+	private static final String LOG_APPEND_OPTION = "--logappend";
 	public final String mongosPath;
 	public final HostGroup configDb;
 	public final HostPort hostPort;
+	public final Path logPath;
+	public final boolean logAppend;
 
 	public static Mongos start(HostGroup configDb) throws IOException {
 		return builder().configDb(configDb).start();
@@ -24,6 +28,8 @@ public class Mongos extends ProcessRunner {
 		String mongosPath = MONGOS;
 		Integer port = null;
 		HostGroup configDb = null;
+		Path logPath = null;
+		boolean logAppend = false;
 
 		Builder() {}
 
@@ -46,10 +52,26 @@ public class Mongos extends ProcessRunner {
 			return this;
 		}
 
+		public Builder logPath(String logPath) {
+			return logPath(Path.of(logPath));
+		}
+
+		public Builder logPath(Path logPath) {
+			this.logPath = logPath;
+			return this;
+		}
+
+		public Builder logAppend(boolean logAppend) {
+			this.logAppend = logAppend;
+			return this;
+		}
+
 		public Parameters params() {
 			Parameters params = Parameters.of(mongosPath);
 			if (port != null) params.add(PORT_OPTION).add(port);
 			if (configDb != null) params.add(CONFIGDB_OPTION).add(configDb.toString());
+			if (logPath != null) params.add(LOG_PATH_OPTION, logPath.toString());
+			if (logAppend) params.add(LOG_APPEND_OPTION);
 			return params;
 		}
 
@@ -67,6 +89,8 @@ public class Mongos extends ProcessRunner {
 		hostPort = HostPort.of(LOCALHOST, builder.port);
 		mongosPath = builder.mongosPath;
 		configDb = builder.configDb;
+		logPath = builder.logPath;
+		logAppend = builder.logAppend;
 	}
 
 	public int port() {
