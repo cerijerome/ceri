@@ -40,6 +40,13 @@ public class FileTestHelper implements Closeable {
 		/**
 		 * Add a directory.
 		 */
+		public Builder dir(Path dir) {
+			return dir(dir.toString());
+		}
+
+		/**
+		 * Add a directory.
+		 */
 		public Builder dir(String dir) {
 			dirs.add(dir);
 			return this;
@@ -50,6 +57,13 @@ public class FileTestHelper implements Closeable {
 		 */
 		public Builder dirf(String format, Object... objs) {
 			return dir(String.format(format, objs));
+		}
+
+		/**
+		 * Add a file with given content.
+		 */
+		public Builder file(Path path, String content) {
+			return file(path.toString(), content);
 		}
 
 		/**

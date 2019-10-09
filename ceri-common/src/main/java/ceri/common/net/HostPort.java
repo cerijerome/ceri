@@ -10,6 +10,7 @@ import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public class HostPort {
+	public static HostPort LOCALHOST = new HostPort(NetUtil.LOCALHOST, null);
 	private static final Pattern HOST_REGEX = Pattern.compile("([^:]+)(?::(\\d+))?");
 	public final String host;
 	public final Integer port;

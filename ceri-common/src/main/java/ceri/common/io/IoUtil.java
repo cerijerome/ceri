@@ -71,8 +71,43 @@ public class IoUtil {
 	/**
 	 * Returns the system tmp directory.
 	 */
-	public static File systemTempDir() {
-		return new File(System.getProperty("java.io.tmpdir"));
+	public static Path systemTempDir() {
+		String property = System.getProperty("java.io.tmpdir");
+		return property == null ? null : Path.of(property);
+	}
+
+	/**
+	 * Returns the user home path extended with given paths, based on system property 'user.home'.
+	 * Returns null if property does not exist.
+	 */
+	public static Path userHome(String... paths) {
+		return systemPropertyPath("user.home", paths);
+	}
+
+	/**
+	 * Returns the path extending from a given system property path.
+	 * Returns null if the system property does not exist.
+	 */
+	public static Path systemPropertyPath(String name, String... paths) {
+		String property = System.getProperty(name);
+		return property == null ? null : Path.of(property, paths);
+	}
+
+	/**
+	 * Returns the path extending from a given environment variable.
+	 * Returns null if the variable does not exist.
+	 */
+	public static Path environmentPath(String name, String... paths) {
+		String property = System.getenv(name);
+		return property == null ? null : Path.of(property, paths);
+	}
+
+	/**
+	 * Extends a path. Returns null if path is null.
+	 */
+	public static Path extend(Path path, String... paths) {
+		if (paths.length == 0) return path;
+		return path == null ? null : Path.of(path.toString(), paths);
 	}
 
 	/**

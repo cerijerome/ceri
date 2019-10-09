@@ -1,5 +1,6 @@
 package ceri.common.util;
 
+import java.nio.file.Path;
 import java.util.function.Consumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionSupplier;
@@ -13,10 +14,17 @@ public class StartupValues {
 	private Consumer<String> notifier = s -> {};
 
 	/**
-	 * Lookup system property or environment var by name
+	 * Lookup system property or environment variable by name
 	 */
 	public static Value lookup(String name) {
 		return of().value(name);
+	}
+
+	/**
+	 * Lookup system property or environment variable by name
+	 */
+	public static Value lookup(String sysProp, String envVar) {
+		return of().value(sysProp, envVar);
 	}
 
 	public static StartupValues sysOut(String... args) {
@@ -107,6 +115,19 @@ public class StartupValues {
 		public <E extends Exception> Double asDoubleFrom(ExceptionSupplier<E, Double> defSupplier)
 			throws E {
 			return applyFrom(Double::parseDouble, defSupplier);
+		}
+
+		public Path asPath() {
+			return asPath(null);
+		}
+
+		public Path asPath(Path def) {
+			return asPathFrom(() -> def);
+		}
+
+		public <E extends Exception> Path asPathFrom(ExceptionSupplier<E, Path> defSupplier)
+			throws E {
+			return applyFrom(Path::of, defSupplier);
 		}
 
 		public <E extends Exception, T> T apply(ExceptionFunction<E, String, T> fn) throws E {
