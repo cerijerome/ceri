@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Formatter;
@@ -210,11 +211,29 @@ public class StringUtil {
 	}
 
 	/**
+	 * Returns char repeated n times.
+	 */
+	public static String repeat(char c, int n) {
+		if (n == 0) return "";
+		char[] cs = new char[n];
+		Arrays.fill(cs, c);
+		return new String(cs);
+	}
+
+	/**
 	 * Returns string repeated n times.
 	 */
 	public static String repeat(String s, int n) {
 		if (s == null) return null;
 		return s.repeat(n);
+	}
+
+	/**
+	 * Adds string to builder n times.
+	 */
+	public static StringBuilder repeat(StringBuilder b, char c, int n) {
+		if (b != null) while (n-- > 0) b.append(c);
+		return b;
 	}
 
 	/**
