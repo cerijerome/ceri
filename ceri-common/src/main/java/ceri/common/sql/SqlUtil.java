@@ -1,16 +1,16 @@
 package ceri.common.sql;
 
+import static java.util.stream.Collectors.toList;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
+import ceri.common.collection.WrappedStream;
 
 public class SqlUtil {
 	private static final int TABLE_NAME_INDEX = 3;
 	private static final String TABLE_TYPE = "TABLE";
-
 
 	private SqlUtil() {}
 
@@ -25,16 +25,21 @@ public class SqlUtil {
 	public static List<String> tableNames(Connection con) throws SQLException {
 		return tableNames(con, null, null, null, TABLE_TYPE);
 	}
-	
+
 	public static List<String> tableNames(Connection con, String catalog, String schemaPattern,
 		String namePattern, String... types) throws SQLException {
-		List<String> tables = new ArrayList<>();
-		try (ResultSet rs = con.getMetaData().getTables(
-			catalog, schemaPattern, namePattern, types)) {
-			while (rs.next())
-				tables.add(rs.getString(TABLE_NAME_INDEX));
+		try (ResultSet rs =
+			con.getMetaData().getTables(catalog, schemaPattern, namePattern, types)) {
+			return stream(rs).map(r -> r.getString(TABLE_NAME_INDEX)).collect(toList());
 		}
-		return tables;
+	}
+
+	public static WrappedStream<SQLException, ResultSet> stream(ResultSet rs) {
+		return WrappedStream.stream(action -> {
+			if (!rs.next()) return false;
+			action.accept(rs);
+			return true;
+		});
 	}
 
 }

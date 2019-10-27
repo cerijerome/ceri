@@ -1,11 +1,15 @@
 package ceri.common.collection;
 
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionPredicate;
@@ -19,6 +23,32 @@ import ceri.common.util.BasicUtil;
 public class WrappedStream<E extends Exception, T> {
 	private final FunctionWrapper<E> w;
 	private final Stream<T> stream;
+
+	/**
+	 * Construct a stream from spliterator tryAdvance function.
+	 */
+	public static <E extends Exception, T> WrappedStream<E, T>
+		stream(ExceptionFunction<E, Consumer<? super T>, Boolean> tryAdvanceFn) {
+		return stream(Long.MAX_VALUE, 0, false, tryAdvanceFn);
+	}
+
+	/**
+	 * Construct a stream from spliterator tryAdvance function.
+	 */
+	public static <E extends Exception, T> WrappedStream<E, T> stream(long estSize,
+		int characteristics, boolean parallel,
+		ExceptionFunction<E, Consumer<? super T>, Boolean> tryAdvanceFn) {
+		FunctionWrapper<E> wrapper = FunctionWrapper.create();
+		Function<Consumer<? super T>, Boolean> wrappedFn = wrapper.wrap(tryAdvanceFn);
+		Spliterator<T> spliterator =
+			new Spliterators.AbstractSpliterator<>(estSize, characteristics) {
+				@Override
+				public boolean tryAdvance(Consumer<? super T> action) {
+					return wrappedFn.apply(action);
+				}
+			};
+		return WrappedStream.of(wrapper, StreamSupport.stream(spliterator, parallel));
+	}
 
 	@SafeVarargs
 	public static <E extends Exception, T> WrappedStream<E, T> of(Class<E> cls, T... values) {
@@ -36,7 +66,12 @@ public class WrappedStream<E extends Exception, T> {
 	}
 
 	public static <E extends Exception, T> WrappedStream<E, T> of(Stream<T> stream) {
-		return new WrappedStream<>(FunctionWrapper.create(), stream);
+		return of(FunctionWrapper.create(), stream);
+	}
+
+	private static <E extends Exception, T> WrappedStream<E, T> of(FunctionWrapper<E> w,
+		Stream<T> stream) {
+		return new WrappedStream<>(w, stream);
 	}
 
 	WrappedStream(FunctionWrapper<E> w, Stream<T> stream) {
