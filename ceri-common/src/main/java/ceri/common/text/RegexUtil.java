@@ -55,6 +55,13 @@ public class RegexUtil {
 	}
 
 	/**
+	 * Creates a pattern to search for text, ignoring case
+	 */
+	public static Pattern ignoreCase(String text) {
+		return compile("(?i)\\Q%s\\E", text);
+	}
+	
+	/**
 	 * Allows for-each loop over match results.
 	 */
 	public static Iterable<MatchResult> forEach(Pattern pattern, String s) {

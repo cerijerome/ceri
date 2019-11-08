@@ -271,6 +271,20 @@ public class BasicUtil {
 		return str == null || str.length() == 0 || str.trim().length() == 0;
 	}
 
+	/**
+	 * Execute runnable and convert non-runtime exceptions to runtime.
+	 */
+	public static void runtimeRun(ExceptionRunnable<?> runnable) {
+		ExceptionAdapter.RUNTIME.run(runnable);
+	}
+
+	/**
+	 * Execute callable and convert non-runtime exceptions to runtime.
+	 */
+	public static <T> T runtimeCall(Callable<T> callable) {
+		return ExceptionAdapter.RUNTIME.call(callable);
+	}
+
 	public static void shouldNotThrow(ExceptionRunnable<Exception> runnable) {
 		try {
 			runnable.run();

@@ -125,8 +125,7 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Returns the array class of the type component superclass. Or the regular superclass if
-	 * not an
+	 * Returns the array class of the type component superclass. Or the regular superclass if not an
 	 * array type. For example:
 	 *
 	 * <pre>
@@ -179,6 +178,142 @@ public class ArrayUtil {
 			Array.set(array, i, Array.get(array, length - 1 - i));
 			Array.set(array, length - 1 - i, tmp);
 		}
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 */
+	public static <T> boolean equals(T[] lhs, int lhsStart, T[] rhs, int rhsStart) {
+		return equals(lhs, lhsStart, rhs, rhsStart,
+			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 */
+	public static boolean equals(boolean[] lhs, int lhsStart, boolean[] rhs, int rhsStart) {
+		return equals(lhs, lhsStart, rhs, rhsStart,
+			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 */
+	public static boolean equals(byte[] lhs, int lhsStart, byte[] rhs, int rhsStart) {
+		return equals(lhs, lhsStart, rhs, rhsStart,
+			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 */
+	public static boolean equals(char[] lhs, int lhsStart, char[] rhs, int rhsStart) {
+		return equals(lhs, lhsStart, rhs, rhsStart,
+			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 */
+	public static boolean equals(short[] lhs, int lhsStart, short[] rhs, int rhsStart) {
+		return equals(lhs, lhsStart, rhs, rhsStart,
+			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 */
+	public static boolean equals(int[] lhs, int lhsStart, int[] rhs, int rhsStart) {
+		return equals(lhs, lhsStart, rhs, rhsStart,
+			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 */
+	public static boolean equals(long[] lhs, int lhsStart, long[] rhs, int rhsStart) {
+		return equals(lhs, lhsStart, rhs, rhsStart,
+			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 */
+	public static boolean equals(float[] lhs, int lhsStart, float[] rhs, int rhsStart) {
+		return equals(lhs, lhsStart, rhs, rhsStart,
+			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 */
+	public static boolean equals(double[] lhs, int lhsStart, double[] rhs, int rhsStart) {
+		return equals(lhs, lhsStart, rhs, rhsStart,
+			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and length
+	 */
+	public static <T> boolean equals(T[] lhs, int lhsStart, T[] rhs, int rhsStart, int len) {
+		return Arrays.equals(lhs, lhsStart, lhsStart + len, rhs, rhsStart, rhsStart + len);
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and length
+	 */
+	public static boolean equals(boolean[] lhs, int lhsStart, boolean[] rhs, int rhsStart,
+		int len) {
+		return Arrays.equals(lhs, lhsStart, lhsStart + len, rhs, rhsStart, rhsStart + len);
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and length
+	 */
+	public static boolean equals(byte[] lhs, int lhsStart, byte[] rhs, int rhsStart, int len) {
+		return Arrays.equals(lhs, lhsStart, lhsStart + len, rhs, rhsStart, rhsStart + len);
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and length
+	 */
+	public static boolean equals(char[] lhs, int lhsStart, char[] rhs, int rhsStart, int len) {
+		return Arrays.equals(lhs, lhsStart, lhsStart + len, rhs, rhsStart, rhsStart + len);
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and length
+	 */
+	public static boolean equals(short[] lhs, int lhsStart, short[] rhs, int rhsStart, int len) {
+		return Arrays.equals(lhs, lhsStart, lhsStart + len, rhs, rhsStart, rhsStart + len);
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and length
+	 */
+	public static boolean equals(int[] lhs, int lhsStart, int[] rhs, int rhsStart, int len) {
+		return Arrays.equals(lhs, lhsStart, lhsStart + len, rhs, rhsStart, rhsStart + len);
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and length
+	 */
+	public static boolean equals(long[] lhs, int lhsStart, long[] rhs, int rhsStart, int len) {
+		return Arrays.equals(lhs, lhsStart, lhsStart + len, rhs, rhsStart, rhsStart + len);
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and length
+	 */
+	public static boolean equals(float[] lhs, int lhsStart, float[] rhs, int rhsStart, int len) {
+		return Arrays.equals(lhs, lhsStart, lhsStart + len, rhs, rhsStart, rhsStart + len);
+	}
+
+	/**
+	 * Checks if arrays are equals, using offsets and length
+	 */
+	public static boolean equals(double[] lhs, int lhsStart, double[] rhs, int rhsStart, int len) {
+		return Arrays.equals(lhs, lhsStart, lhsStart + len, rhs, rhsStart, rhsStart + len);
 	}
 
 	/**
@@ -248,8 +383,7 @@ public class ArrayUtil {
 	 * Copies values from one array to another. Less strict than System.arraycopy as it allows
 	 * copying from/to primitive arrays, but also not as efficient.
 	 */
-	public static Object arrayCopy(Object from, int fromIndex, Object to, int toIndex,
-		int length) {
+	public static Object arrayCopy(Object from, int fromIndex, Object to, int toIndex, int length) {
 		for (int i = 0; i < length; i++) {
 			Array.set(to, toIndex + i, Array.get(from, fromIndex + i));
 		}

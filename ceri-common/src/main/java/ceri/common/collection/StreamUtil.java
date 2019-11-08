@@ -91,6 +91,10 @@ public class StreamUtil {
 		indexed(values).forEach(i -> consumer.accept(i.val, i.i));
 	}
 
+	public static <E extends Exception, T> WrappedStream<E, T> wrap(Stream<T> stream) {
+		return WrappedStream.of(stream);
+	}
+	
 	/**
 	 * Filters objects of given type and casts the stream.
 	 */

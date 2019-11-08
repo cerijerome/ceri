@@ -1,7 +1,9 @@
 package ceri.common.util;
 
 import java.lang.reflect.Constructor;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
+import ceri.common.function.ExceptionRunnable;
 import ceri.common.reflect.ReflectUtil;
 
 /**
@@ -34,4 +36,25 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 		if (cls.isInstance(t)) return cls.cast(t);
 		return fn.apply(t);
 	}
+	
+	public void run(ExceptionRunnable<?> runnable) throws E {
+		try {
+			runnable.run();	
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw apply(e);
+		}
+	}
+	
+	public <T> T call(Callable<T> callable) throws E {
+		try {
+			return callable.call();	
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw apply(e);
+		}
+	}
+	
 }
