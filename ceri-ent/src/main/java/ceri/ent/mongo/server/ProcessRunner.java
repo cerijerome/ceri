@@ -6,8 +6,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.log.process.Parameters;
-import ceri.log.process.ProcessUtil;
+import ceri.common.process.Parameters;
+import ceri.common.process.ProcessUtil;
 import ceri.log.util.LogUtil;
 
 public class ProcessRunner implements Closeable {
@@ -17,7 +17,7 @@ public class ProcessRunner implements Closeable {
 	private final long startTimeMs;
 
 	protected ProcessRunner(Parameters params) throws IOException {
-		logger.info("Starting process: {}", ProcessUtil.toString(params));
+		logger.info("Starting process: {}", params);
 		process = new ProcessBuilder(params.list()).start();
 		startTimeMs = System.currentTimeMillis();
 	}

@@ -6,8 +6,8 @@ import java.nio.file.Path;
 import java.util.List;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.net.HostPort;
+import ceri.common.process.Parameters;
 import ceri.ent.mongo.MongoUtil;
-import ceri.log.process.Parameters;
 
 public class Mongod extends ProcessRunner {
 	private static final String MONGOD = "mongod";

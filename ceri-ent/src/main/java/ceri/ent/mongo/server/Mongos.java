@@ -4,9 +4,9 @@ import static ceri.common.net.NetUtil.LOCALHOST;
 import java.io.IOException;
 import java.nio.file.Path;
 import ceri.common.net.HostPort;
+import ceri.common.process.Parameters;
 import ceri.ent.mongo.HostGroup;
 import ceri.ent.mongo.MongoUtil;
-import ceri.log.process.Parameters;
 
 public class Mongos extends ProcessRunner {
 	private static final String MONGOS = "mongos";
