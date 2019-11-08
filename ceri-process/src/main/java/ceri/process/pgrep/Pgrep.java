@@ -3,10 +3,10 @@ package ceri.process.pgrep;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.Predicate;
+import ceri.common.process.Output;
+import ceri.common.process.Parameters;
+import ceri.common.process.Processor;
 import ceri.common.text.StringUtil;
-import ceri.log.process.Output;
-import ceri.log.process.Parameters;
-import ceri.log.process.Processor;
 
 public class Pgrep {
 	private static final String PGREP = "pgrep";
@@ -32,7 +32,7 @@ public class Pgrep {
 		full = enabled;
 		return this;
 	}
-	
+
 	public Output<int[]> pgrep(String pattern) throws IOException {
 		Parameters params = new Parameters();
 		if (full) params.add(FULL_OPTION);
@@ -43,5 +43,5 @@ public class Pgrep {
 	private String exec(Parameters params) throws IOException {
 		return processor.exec(Parameters.of(PGREP).add(params));
 	}
-	
+
 }

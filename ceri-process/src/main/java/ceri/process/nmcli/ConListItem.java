@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.date.ImmutableDate;
+import ceri.common.process.Columns;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
-import ceri.log.process.parse.Columns;
 
 /**
  * One line from nmcli con list

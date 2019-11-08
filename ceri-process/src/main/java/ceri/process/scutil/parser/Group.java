@@ -9,15 +9,15 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import ceri.common.process.Line;
+import ceri.common.process.NameValue;
+import ceri.common.process.Value;
+import ceri.common.process.Value.Named;
 import ceri.common.property.PathFactory;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
-import ceri.log.process.parse.Line;
-import ceri.log.process.parse.NameValue;
-import ceri.log.process.parse.Named;
-import ceri.log.process.parse.Value;
 
 public class Group implements Named {
 	public static final Group NULL = new Builder(null, null).build();
@@ -31,7 +31,7 @@ public class Group implements Named {
 		new Parser(groupParser).parse(output);
 		return groupParser.build();
 	}
-	
+
 	public static class Builder {
 		final String name;
 		final String type;
@@ -72,9 +72,9 @@ public class Group implements Named {
 	Group(Builder builder) {
 		name = builder.name;
 		type = builder.type;
-		values = builder.values.stream().map(Supplier::get).collect(
-			Collectors.toUnmodifiableList());
-		Stream<Named> stream = values.stream().map(Named::asNamed).filter(Objects::nonNull);
+		values =
+			builder.values.stream().map(Supplier::get).collect(Collectors.toUnmodifiableList());
+		Stream<Named> stream = values.stream().map(Value::asNamed).filter(Objects::nonNull);
 		namedValues = unmodifiableMap(stream.collect(Collectors.toMap(Named::name, identity())));
 	}
 
@@ -86,7 +86,7 @@ public class Group implements Named {
 		if (named != null) return new Builder(named.name(), null).build();
 		return NULL;
 	}
-	
+
 	@Override
 	public String name() {
 		return name;
@@ -97,7 +97,7 @@ public class Group implements Named {
 	}
 
 	public NameValue nameValue(String path) {
-		return NameValue.as(valueByPath(path));
+		return NameValue.from(valueByPath(path));
 	}
 
 	public Group group(String path) {

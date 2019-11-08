@@ -2,9 +2,9 @@ package ceri.process.scutil;
 
 import java.io.IOException;
 import java.util.List;
-import ceri.log.process.Output;
-import ceri.log.process.Parameters;
-import ceri.log.process.Processor;
+import ceri.common.process.Output;
+import ceri.common.process.Parameters;
+import ceri.common.process.Processor;
 
 public class Scutil {
 	private static final String SCUTIL = "scutil";

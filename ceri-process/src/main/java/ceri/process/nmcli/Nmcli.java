@@ -3,10 +3,10 @@ package ceri.process.nmcli;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import ceri.log.process.Output;
-import ceri.log.process.Parameters;
-import ceri.log.process.Processor;
-import ceri.log.process.parse.ParseUtil;
+import ceri.common.process.Output;
+import ceri.common.process.Parameters;
+import ceri.common.process.ParseUtil;
+import ceri.common.process.Processor;
 
 public class Nmcli {
 	private static final String NMCLI = "nmcli";

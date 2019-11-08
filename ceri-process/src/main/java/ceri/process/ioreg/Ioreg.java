@@ -1,8 +1,8 @@
 package ceri.process.ioreg;
 
 import java.io.IOException;
-import ceri.log.process.Parameters;
-import ceri.log.process.Processor;
+import ceri.common.process.Parameters;
+import ceri.common.process.Processor;
 
 public class Ioreg {
 	private static final String IOREG = "ioreg";

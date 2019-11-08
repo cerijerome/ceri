@@ -3,10 +3,10 @@ package ceri.process.nmcli;
 import java.util.List;
 import java.util.Map;
 import ceri.common.collection.CollectionUtil;
+import ceri.common.process.Columns;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
-import ceri.log.process.parse.Columns;
 
 /**
  * One line from nmcli con status
@@ -36,8 +36,8 @@ public class ConStatusItem {
 	}
 
 	private static ConStatusItem fromNameValues(Map<String, String> map) {
-		return builder().name(map.get(NAME_COLUMN)).uuid(map.get(UUID_COLUMN)).devices(
-			map.get(DEVICES_COLUMN)).def(map.get(DEFAULT_COLUMN)).vpn(map.get(VPN_COLUMN))
+		return builder().name(map.get(NAME_COLUMN)).uuid(map.get(UUID_COLUMN))
+			.devices(map.get(DEVICES_COLUMN)).def(map.get(DEFAULT_COLUMN)).vpn(map.get(VPN_COLUMN))
 			.masterPath(map.get(MASTER_PATH_COLUMN)).build();
 	}
 
