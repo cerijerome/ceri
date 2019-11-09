@@ -18,7 +18,6 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.MissingResourceException;
@@ -85,8 +84,8 @@ public class IoUtil {
 	}
 
 	/**
-	 * Returns the path extending from a given system property path.
-	 * Returns null if the system property does not exist.
+	 * Returns the path extending from a given system property path. Returns null if the system
+	 * property does not exist.
 	 */
 	public static Path systemPropertyPath(String name, String... paths) {
 		String property = System.getProperty(name);
@@ -94,8 +93,8 @@ public class IoUtil {
 	}
 
 	/**
-	 * Returns the path extending from a given environment variable.
-	 * Returns null if the variable does not exist.
+	 * Returns the path extending from a given environment variable. Returns null if the variable
+	 * does not exist.
 	 */
 	public static Path environmentPath(String name, String... paths) {
 		String property = System.getenv(name);
@@ -110,6 +109,15 @@ public class IoUtil {
 		return path == null ? null : Path.of(path.toString(), paths);
 	}
 
+	/**
+	 * Returns the last segment of the path as a string, or null if empty.
+	 */
+	public static String filename(Path path) {
+		if (path == null) return null;
+		Path filename = path.getFileName();
+		return filename == null ? null : filename.toString();
+	}
+	
 	/**
 	 * Create a temp dir with random name under given dir. Use null for current dir.
 	 */
@@ -261,8 +269,7 @@ public class IoUtil {
 	}
 
 	/**
-	 * Checks if the current thread has been interrupted, and throws an InterruptedIOException.
-	 * With
+	 * Checks if the current thread has been interrupted, and throws an InterruptedIOException. With
 	 * blocking I/O, (i.e. anything that doesn't use the nio packages) a thread can be interrupted,
 	 * but the I/O will still proceed, and the InterruptedException is only thrown when a call to
 	 * Thread.sleep() or Object.wait() is made. This method or the BasicUtil.checkInterrupted()
@@ -528,8 +535,7 @@ public class IoUtil {
 	}
 
 	/**
-	 * Lists resources from same package as class. Handles file resources and resources within a
-	 * jar
+	 * Lists resources from same package as class. Handles file resources and resources within a jar
 	 * file.
 	 */
 	public static List<String> listResources(Class<?> cls) throws IOException {
@@ -549,7 +555,7 @@ public class IoUtil {
 	 * Gets a path representing a resource. Will fail if the class is in a jar file.
 	 */
 	public static Path getResourcePath(Class<?> cls, String resourceName) {
-		return Paths.get(getResourceFile(cls, resourceName).toURI());
+		return Path.of(getResourceFile(cls, resourceName).toURI());
 	}
 
 	/**

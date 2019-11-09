@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 import org.junit.Test;
@@ -74,8 +73,8 @@ public class PropertyUtilTest {
 			properties.put("a.b.c", "abc");
 			File file = helper.file("test.properties");
 			PropertyUtil.store(properties, file);
-			List<String> lines =
-				toList(Files.lines(Paths.get(file.toURI())).filter(line -> !line.startsWith("#")));
+			List<String> lines = toList(Files.lines(java.nio.file.Path.of(file.toURI()))
+				.filter(line -> !line.startsWith("#")));
 			assertCollection(lines, "a.b.c=abc", "a.b=ab");
 		}
 	}

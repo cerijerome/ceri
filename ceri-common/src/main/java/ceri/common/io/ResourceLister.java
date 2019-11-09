@@ -8,7 +8,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -70,12 +69,12 @@ public class ResourceLister {
 	}
 
 	private static Path filePath(URL url) throws IOException {
-		return IoUtil.callableIo(() -> Paths.get(url.toURI()));
+		return IoUtil.callableIo(() -> Path.of(url.toURI()));
 	}
 
 	private static Path jrtPath(URL url) {
 		String s = JRT_PREFIX + url.getPath(); // missing modules prefix - why?
-		return Paths.get(URI.create(s));
+		return Path.of(URI.create(s));
 	}
 
 	private static List<String> jarNames(URL url, String subDir, Pattern pattern)

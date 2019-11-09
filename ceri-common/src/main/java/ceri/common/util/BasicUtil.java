@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.ExceptionRunnable;
 
@@ -25,6 +26,8 @@ import ceri.common.function.ExceptionRunnable;
  * Basic utility methods.
  */
 public class BasicUtil {
+	private static final Pattern PACKAGE_REGEX =
+		Pattern.compile("(?<![\\w$])([a-z$])[a-z0-9_$]+\\.");
 	private static final int MICROS_IN_MILLIS = (int) TimeUnit.MILLISECONDS.toMicros(1);
 	private static final int NANOS_IN_MICROS = (int) TimeUnit.MICROSECONDS.toNanos(1);
 	private final static Map<Class<?>, Object> loadedClasses = new WeakHashMap<>();
@@ -60,12 +63,41 @@ public class BasicUtil {
 	}
 
 	/**
+	 * Gets the throwable message, or class name if no message.
+	 */
+	public static String message(Throwable t) {
+		if (t == null) return null;
+		return defaultValue(t.getMessage(), t.getClass().getSimpleName());
+	}
+
+	/**
 	 * Gets the stack trace as a string.
 	 */
 	public static String stackTrace(Throwable t) {
+		if (t == null) return null;
 		StringWriter w = new StringWriter();
 		t.printStackTrace(new PrintWriter(w));
 		return w.toString();
+	}
+
+	/**
+	 * Limits the stack trace elements of a throwable. Returns true if truncated.
+	 */
+	public static boolean limitStackTrace(Throwable t, int max) {
+		if (t == null) return false;
+		StackTraceElement[] elements = t.getStackTrace();
+		if (elements.length <= max) return false;
+		elements = Arrays.copyOf(elements, max);
+		t.setStackTrace(elements);
+		return true;
+	}
+
+	/**
+	 * Abbreviates package names, e.g. abc.def.MyClass -> a.d.MyClass
+	 */
+	public static String abbreviatePackages(String stackTrace) {
+		if (stackTrace == null) return null;
+		return PACKAGE_REGEX.matcher(stackTrace).replaceAll(m -> "$1.");
 	}
 
 	/**
@@ -268,7 +300,7 @@ public class BasicUtil {
 	 * Checks if the given string is null or empty or contains only whitespace.
 	 */
 	public static boolean isEmpty(String str) {
-		return str == null || str.length() == 0 || str.trim().length() == 0;
+		return str == null || str.isBlank();
 	}
 
 	/**
