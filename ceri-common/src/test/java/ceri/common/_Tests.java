@@ -228,6 +228,7 @@ import ceri.common.util.BasicUtilTest;
 import ceri.common.util.EqualsUtilTest;
 import ceri.common.util.ExceptionAdapterBehavior;
 import ceri.common.util.ExceptionTrackerBehavior;
+import ceri.common.util.ExceptionUtilTest;
 import ceri.common.util.HashCoderBehavior;
 import ceri.common.util.HolderBehavior;
 import ceri.common.util.KeyValueBehavior;
@@ -498,6 +499,7 @@ import ceri.common.xml.XmlUtilTest;
 	EqualsUtilTest.class, //
 	ExceptionAdapterBehavior.class, //
 	ExceptionTrackerBehavior.class, //
+	ExceptionUtilTest.class, //
 	HashCoderBehavior.class, //
 	HolderBehavior.class, //
 	KeyValueBehavior.class, //
