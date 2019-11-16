@@ -55,8 +55,8 @@ public class StringUtil {
 	private static final String ESCAPED_OCTAL = "\\0";
 	private static final String ESCAPED_HEX = "\\x";
 	private static final String ESCAPED_UTF16 = "\\u";
-	private static final Pattern ESCAPE_REGEX = Pattern.compile(
-		"\\\\\\\\|\\\\b|\\\\e|\\\\t|\\\\f|\\\\r|\\\\n|" +
+	private static final Pattern ESCAPE_REGEX =
+		Pattern.compile("\\\\\\\\|\\\\b|\\\\e|\\\\t|\\\\f|\\\\r|\\\\n|" +
 			"\\\\0[0-3][0-7]{2}|\\\\0[0-7]{2}|\\\\0[0-7]|\\\\0|" +
 			"\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
 	private static final Charset UTF8 = StandardCharsets.UTF_8;
@@ -147,24 +147,24 @@ public class StringUtil {
 	 */
 	static String escapeChar(char c) {
 		switch (c) {
-			case BACKSLASH:
-				return ESCAPED_BACKSLASH;
-			case BACKSPACE:
-				return ESCAPED_BACKSPACE;
-			case ESCAPE:
-				return ESCAPED_ESCAPE;
-			case FF:
-				return ESCAPED_FF;
-			case NL:
-				return ESCAPED_NL;
-			case CR:
-				return ESCAPED_CR;
-			case TAB:
-				return ESCAPED_TAB;
-			case NULL:
-				return ESCAPED_NULL;
-			default:
-				return ESCAPED_UTF16 + toHex(c, SHORT_HEX_DIGITS);
+		case BACKSLASH:
+			return ESCAPED_BACKSLASH;
+		case BACKSPACE:
+			return ESCAPED_BACKSPACE;
+		case ESCAPE:
+			return ESCAPED_ESCAPE;
+		case FF:
+			return ESCAPED_FF;
+		case NL:
+			return ESCAPED_NL;
+		case CR:
+			return ESCAPED_CR;
+		case TAB:
+			return ESCAPED_TAB;
+		case NULL:
+			return ESCAPED_NULL;
+		default:
+			return ESCAPED_UTF16 + toHex(c, SHORT_HEX_DIGITS);
 		}
 	}
 
@@ -181,22 +181,22 @@ public class StringUtil {
 	static char unEscapeChar(String escapedChar) {
 		if (escapedChar == null) return NULL;
 		switch (escapedChar) {
-			case ESCAPED_BACKSLASH:
-				return BACKSLASH;
-			case ESCAPED_BACKSPACE:
-				return BACKSPACE;
-			case ESCAPED_ESCAPE:
-				return ESCAPE;
-			case ESCAPED_FF:
-				return FF;
-			case ESCAPED_NL:
-				return NL;
-			case ESCAPED_CR:
-				return CR;
-			case ESCAPED_TAB:
-				return TAB;
-			case ESCAPED_NULL:
-				return NULL;
+		case ESCAPED_BACKSLASH:
+			return BACKSLASH;
+		case ESCAPED_BACKSPACE:
+			return BACKSPACE;
+		case ESCAPED_ESCAPE:
+			return ESCAPE;
+		case ESCAPED_FF:
+			return FF;
+		case ESCAPED_NL:
+			return NL;
+		case ESCAPED_CR:
+			return CR;
+		case ESCAPED_TAB:
+			return TAB;
+		case ESCAPED_NULL:
+			return NULL;
 		}
 		Character c = escaped(escapedChar, ESCAPED_OCTAL, OCTAL_RADIX);
 		if (c == null) c = escaped(escapedChar, ESCAPED_HEX, HEX_RADIX);
@@ -232,7 +232,8 @@ public class StringUtil {
 	 * Adds string to builder n times.
 	 */
 	public static StringBuilder repeat(StringBuilder b, char c, int n) {
-		if (b != null) while (n-- > 0) b.append(c);
+		if (b != null) while (n-- > 0)
+			b.append(c);
 		return b;
 	}
 
@@ -240,7 +241,8 @@ public class StringUtil {
 	 * Adds string to builder n times.
 	 */
 	public static StringBuilder repeat(StringBuilder b, CharSequence s, int n) {
-		if (b != null && s != null && s.length() > 0) while (n-- > 0) b.append(s);
+		if (b != null && s != null && s.length() > 0) while (n-- > 0)
+			b.append(s);
 		return b;
 	}
 
@@ -514,8 +516,7 @@ public class StringUtil {
 		return append(b, delimiter, asList(items));
 	}
 
-	public static StringBuilder append(StringBuilder b, CharSequence delimiter,
-		Iterable<?> items) {
+	public static StringBuilder append(StringBuilder b, CharSequence delimiter, Iterable<?> items) {
 		return append(b, delimiter, String::valueOf, items);
 	}
 
@@ -690,16 +691,16 @@ public class StringUtil {
 	/**
 	 * Functionality of String applied to StringBuilder.
 	 */
-	public static boolean regionMatches(StringBuilder b, int offset, String s,
-		int sOffset, int len) {
+	public static boolean regionMatches(StringBuilder b, int offset, String s, int sOffset,
+		int len) {
 		return regionMatches(b, false, offset, s, sOffset, len);
 	}
 
 	/**
 	 * Functionality of String applied to StringBuilder.
 	 */
-	public static boolean regionMatches(StringBuilder b, boolean ignoreCase, int offset,
-		String s, int sOffset, int len) {
+	public static boolean regionMatches(StringBuilder b, boolean ignoreCase, int offset, String s,
+		int sOffset, int len) {
 		if (b == null || s == null) return false;
 		if (!ArrayUtil.isValidSlice(b.length(), offset, len)) return false;
 		if (!ArrayUtil.isValidSlice(s.length(), sOffset, len)) return false;
@@ -767,8 +768,7 @@ public class StringUtil {
 	}
 
 	/**
-	 * Returns substring, or "" if null or index out of bounds. Use start < 0 for length
-	 * relative to
+	 * Returns substring, or "" if null or index out of bounds. Use start < 0 for length relative to
 	 * the end.
 	 */
 	public static String safeSubstring(CharSequence s, int start) {

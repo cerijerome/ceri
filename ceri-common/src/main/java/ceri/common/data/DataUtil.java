@@ -3,7 +3,6 @@ package ceri.common.data;
 import static ceri.common.data.ByteUtil.fromAscii;
 import static ceri.common.data.ByteUtil.toHex;
 import static ceri.common.text.StringUtil.escape;
-import static ceri.common.util.BasicUtil.exceptionf;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import static ceri.common.validation.ValidationUtil.validateRange;
@@ -11,6 +10,7 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import ceri.common.collection.ByteProvider;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.util.ExceptionUtil;
 import ceri.common.validation.ValidationUtil;
 
 public class DataUtil {
@@ -122,7 +122,7 @@ public class DataUtil {
 	public static int validateAscii(String value, ByteProvider data, int offset) {
 		ImmutableByteArray expected = ByteUtil.toAscii(value);
 		if (expected.matches(data, offset, expected.length())) return offset + expected.length();
-		throw exceptionf("Expected %s: %s", escape(value), 
+		throw ExceptionUtil.exceptionf("Expected %s: %s", escape(value), 
 			escape(fromAscii(data, offset, expected.length())));
 	}
 
@@ -147,7 +147,7 @@ public class DataUtil {
 
 	public static int validate(ByteProvider expected, ByteProvider data, int offset) {
 		if (expected.matches(data, offset, expected.length())) return offset + expected.length();
-		throw exceptionf("Expected %s: %s", toHex(expected),
+		throw ExceptionUtil.exceptionf("Expected %s: %s", toHex(expected),
 			toHex(data.copy(offset, expected.length())));
 	}
 

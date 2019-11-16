@@ -71,7 +71,7 @@ public class DelayExecutor implements Executor {
 				int statusCode = httpResponse.getStatusLine().getStatusCode();
 				if (statusCode != HttpStatus.SC_OK) throw new IOException(
 					"Unexpected http response: " + statusCode);
-				return IoUtil.getContentString(httpResponse.getEntity().getContent(), 0);
+				return IoUtil.readString(httpResponse.getEntity().getContent());
 			} catch (IOException e) {
 				logger.catching(Level.WARN, e);
 				ex = e;

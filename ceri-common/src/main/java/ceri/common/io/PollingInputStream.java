@@ -56,7 +56,7 @@ public class PollingInputStream extends FilterInputStream {
 
 	private void waitForData(int count) throws IOException {
 		if (closed) return;
-		IoUtil.waitForData(in, count, timeoutMs, pollingMs);
+		IoUtil.pollForData(in, count, timeoutMs, pollingMs);
 	}
 
 }

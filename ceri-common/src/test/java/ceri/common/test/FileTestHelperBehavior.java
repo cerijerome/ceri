@@ -23,7 +23,7 @@ public class FileTestHelperBehavior {
 	public void shouldCreateFiles() throws IOException {
 		try (FileTestHelper files = FileTestHelper.builder().dirf("%s/%s", "a", "b")
 			.filef("abc", "%s/%s", "a", "test.txt").build()) {
-			assertThat(IoUtil.getContentString(files.file("a/test.txt")), is("abc"));
+			assertThat(IoUtil.readString(files.file("a/test.txt")), is("abc"));
 		}
 	}
 

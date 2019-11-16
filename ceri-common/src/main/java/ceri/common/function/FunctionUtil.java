@@ -1,10 +1,12 @@
 package ceri.common.function;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.util.BasicUtil;
@@ -41,6 +43,16 @@ public class FunctionUtil {
 	}
 
 	/**
+	 * If value is null, return first non-null supplied value. 
+	 */
+	@SafeVarargs
+	public static <T> T first(T t, Supplier<T>... suppliers) {
+		if (t != null) return t;
+		return Stream.of(suppliers).map(Supplier::get).filter(Objects::nonNull).findFirst()
+			.orElse(null);
+	}
+
+	/**
 	 * Casts object to given type and applies function if compatible. Otherwise returns null.
 	 */
 	public static <E extends Exception, T, R> R castApply(Class<T> cls, Object obj,
@@ -72,7 +84,23 @@ public class FunctionUtil {
 	 */
 	public static <E extends Exception, T, R> R safeApply(T t, ExceptionFunction<E, T, R> function)
 		throws E {
-		return t == null ? null : function.apply(t);
+		return safeApply(t, function, null);
+	}
+
+	/**
+	 * Passes only non-null values to function.
+	 */
+	public static <E extends Exception, T, R> R safeApply(T t, ExceptionFunction<E, T, R> function,
+		R def) throws E {
+		return t == null ? def : function.apply(t);
+	}
+
+	/**
+	 * Passes only non-null values to function.
+	 */
+	public static <E extends Exception, T, R> R safeApplyGet(T t,
+		ExceptionFunction<E, T, R> function, ExceptionSupplier<E, R> supplier) throws E {
+		return t == null ? supplier.get() : function.apply(t);
 	}
 
 	/**

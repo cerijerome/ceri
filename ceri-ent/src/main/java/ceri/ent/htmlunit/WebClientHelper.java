@@ -99,7 +99,7 @@ public class WebClientHelper implements Closeable {
 	}
 
 	public HtmlPage getPage(String url, File file) throws IOException {
-		String content = IoUtil.getContentString(file);
+		String content = IoUtil.readString(file);
 		StringWebResponse response = new StringWebResponse(content, new URL(url));
 		return HTMLParser.parseHtml(response, new TopLevelWindow("", webClient) {
 			private static final long serialVersionUID = 0L;

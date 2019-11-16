@@ -25,6 +25,18 @@ Build Commands
   mvn install -DskipTests
 - Skip compiling tests:
   mvn install -Dmaven.test.skip=true
+- Skip attaching source:
+  mvn install -Dmaven.source.skip=true
+
+Concepts
+--------
+- lifecycle phase (default): validate, compile, test, package, verify, install, deploy
+- each plugin has its own goals; attach to phase under executions section
+- classifier = name extension, such as 'sources' => xxx-sources.jar
+- dependencyManagement defines dependency settings, shared in current and child poms
+- dependency then only needs groupId+artifactId (can override settings) 
+- pluginManagement defines plugin settings, shared in current and child poms
+- plugin then only needs groupId+artifactId (can override settings) 
 
 Troubleshooting
 ---------------

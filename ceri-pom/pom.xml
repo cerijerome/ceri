@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -19,6 +20,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.release>12</jdk.release>
 		<maven.compiler.version>3.8.1</maven.compiler.version>
+		<maven.source.version>3.2.0</maven.source.version>
 		<maven.surefire.version>3.0.0-M3</maven.surefire.version>
 		<junit.version>4.12</junit.version>
 		<mockito.version>2.28.2</mockito.version>
@@ -26,11 +28,11 @@
 		<httpcomponents.version>4.5.10</httpcomponents.version>
 		<jetty.version>9.4.22.v20191022</jetty.version>
 		<servlet-api.version>4.0.1</servlet-api.version>
-        <grpc.version>1.24.1</grpc.version>
+		<grpc.version>1.24.1</grpc.version>
 		<!-- Repo-specific properties -->
 		<htmlunit.version>2.36.0</htmlunit.version>
 		<selenium.java.version>3.141.59</selenium.java.version>
-		<jackson.version>2.10.0</jackson.version>
+		<jackson.version>2.10.1</jackson.version>
 		<gson.version>2.8.6</gson.version>
 		<purejavacomm.version>1.0.2.RELEASE</purejavacomm.version>
 		<mail-api.version>1.6.2</mail-api.version>
@@ -160,16 +162,16 @@
 				<artifactId>twilio-java-sdk</artifactId>
 				<version>${twilio.sdk.version}</version>
 			</dependency>
-            <dependency>
-                <groupId>io.grpc</groupId>
-                <artifactId>grpc-protobuf</artifactId>
-                <version>${grpc.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.grpc</groupId>
-                <artifactId>grpc-stub</artifactId>
-                <version>${grpc.version}</version>
-            </dependency>
+			<dependency>
+				<groupId>io.grpc</groupId>
+				<artifactId>grpc-protobuf</artifactId>
+				<version>${grpc.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.grpc</groupId>
+				<artifactId>grpc-stub</artifactId>
+				<version>${grpc.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.mongodb</groupId>
 				<artifactId>mongodb-driver-sync</artifactId>
@@ -178,30 +180,61 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<!-- Plugins included in all children -->
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven.compiler.version}</version>
-				<configuration>
-					<release>${jdk.release}</release>
-				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven.surefire.version}</version>
-				<configuration>
-					<includes>
-						<include>**/*Test.java</include>
-						<include>**/*Behavior.java</include>
-					</includes>
-					<!-- skipTests>true</skipTests -->
-				</configuration>
 			</plugin>
 		</plugins>
-		
+
+		<!-- Plugin configuration optionally included by children -->
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${maven.compiler.version}</version>
+					<configuration>
+						<release>${jdk.release}</release>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>${maven.source.version}</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${maven.surefire.version}</version>
+					<configuration>
+						<includes>
+							<include>**/*Test.java</include>
+							<include>**/*Behavior.java</include>
+						</includes>
+						<!-- skipTests>true</skipTests -->
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 
 </project>

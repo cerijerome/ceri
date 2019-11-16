@@ -16,7 +16,6 @@ import ceri.common.text.TextUtil;
  * with JUnitCore running a suite of test classes. Used by TestUtil.exec
  */
 public class TestPrinter extends RunListener {
-	private static final Pattern CLASS_NAME_PATTERN = Pattern.compile("^(.*?)(?:Test|Behavior)$");
 	private static final Pattern BEHAVIOR_METHOD_PATTERN = Pattern.compile("^(should.*)$");
 	private static final Pattern TEST_METHOD_PATTERN = Pattern.compile("^test(.*)$");
 	private final Collection<Test> tests = new TreeSet<>();
@@ -98,9 +97,7 @@ public class TestPrinter extends RunListener {
 	private void capture(Description description) {
 		String testClassName = description.getClassName();
 		String simpleName = description.getTestClass().getSimpleName();
-		Matcher m = CLASS_NAME_PATTERN.matcher(description.getTestClass().getSimpleName());
-		String className = m.find() ? m.group(1) : simpleName;
-
+		String className = TestStyle.target(simpleName);
 		String methodName = description.getMethodName();
 		captureTest(testClassName, className, methodName);
 

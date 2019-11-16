@@ -1,12 +1,12 @@
 package ceri.log.rpc.service;
 
 import static ceri.common.text.RegexUtil.finder;
-import static ceri.common.util.BasicUtil.matches;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
+import ceri.common.util.ExceptionUtil;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -20,7 +20,7 @@ public class RpcServiceUtil {
 	private RpcServiceUtil() {}
 
 	public static boolean isCancelledBeforeHalfClose(Throwable t) {
-		return matches(t, StatusRuntimeException.class,
+		return ExceptionUtil.matches(t, StatusRuntimeException.class,
 			finder(CANCELLED_BEFORE_HALF_CLOSE_MSG_REGEX));
 	}
 

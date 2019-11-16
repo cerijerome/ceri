@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
@@ -16,7 +17,7 @@ import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestUtil;
 
 public class AudioBehavior {
-	private static final File testFile = IoUtil.getResourceFile(AudioBehavior.class, "test.wav");
+	private static final File testFile = IoUtil.resourceFile(AudioBehavior.class, "test.wav");
 
 	@Test
 	public void shouldClipToANewAudioObject() throws IOException {
@@ -44,7 +45,7 @@ public class AudioBehavior {
 
 	@Test
 	public void shouldNotThrowConstructorExceptionsForValidData() throws IOException {
-		byte[] data = IoUtil.getContent(testFile);
+		byte[] data = Files.readAllBytes(testFile.toPath());
 		Audio audio = Audio.create(testFile);
 		assertNotNull(audio);
 		audio = Audio.create(data);

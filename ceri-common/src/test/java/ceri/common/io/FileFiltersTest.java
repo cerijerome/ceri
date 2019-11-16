@@ -51,7 +51,7 @@ public class FileFiltersTest {
 	public void testNullFilter() {
 		File[] files = helper.root.listFiles(FileFilters.NULL);
 		assertThat(files.length, is(0));
-		List<File> list = IoUtil.getFiles(helper.root, FileFilters.NULL);
+		List<File> list = IoUtil.files(helper.root, FileFilters.NULL);
 		assertTrue(list.isEmpty());
 	}
 
@@ -59,7 +59,7 @@ public class FileFiltersTest {
 	public void testAllFilter() {
 		File[] files = helper.root.listFiles(FileFilters.ALL);
 		assertCollection(files, helper.files("a", "b", "c.txt"));
-		List<File> list = IoUtil.getFiles(helper.root, FileFilters.ALL);
+		List<File> list = IoUtil.files(helper.root, FileFilters.ALL);
 		assertCollection(list, helper.files("a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt"));
 	}
 
@@ -67,7 +67,7 @@ public class FileFiltersTest {
 	public void testDirFilter() {
 		File[] files = helper.root.listFiles(FileFilters.DIR);
 		assertCollection(files, helper.files("a", "b"));
-		List<File> list = IoUtil.getFiles(helper.root, FileFilters.DIR);
+		List<File> list = IoUtil.files(helper.root, FileFilters.DIR);
 		assertCollection(list, helper.files("a", "a/a", "b"));
 	}
 
@@ -75,18 +75,18 @@ public class FileFiltersTest {
 	public void testFileFilter() {
 		File[] files = helper.root.listFiles(FileFilters.FILE);
 		assertCollection(files, helper.files("c.txt"));
-		List<File> list = IoUtil.getFiles(helper.root, FileFilters.FILE);
+		List<File> list = IoUtil.files(helper.root, FileFilters.FILE);
 		assertCollection(list, helper.files("a/a/a.txt", "b/b.txt", "c.txt"));
 	}
 
 	@Test
 	public void testReverseFilter() {
 		FileFilter filter = pathname -> pathname.getPath().endsWith(File.separatorChar + "a");
-		List<File> list = IoUtil.getFiles(helper.root, filter);
+		List<File> list = IoUtil.files(helper.root, filter);
 		assertCollection(list, helper.files("a", "a/a"));
 
 		filter = FileFilters.reverse(filter);
-		list = IoUtil.getFiles(helper.root, filter);
+		list = IoUtil.files(helper.root, filter);
 		assertCollection(list, helper.files("a/a/a.txt", "b", "b/b.txt", "c.txt"));
 	}
 
@@ -100,7 +100,7 @@ public class FileFiltersTest {
 
 	@Test
 	public void testMaxLength() {
-		List<File> files = IoUtil.getFiles(helper.root, FileFilters.byMaxLength(2));
+		List<File> files = IoUtil.files(helper.root, FileFilters.byMaxLength(2));
 		assertCollection(files, helper.fileList("a/a/a.txt", "b/b.txt"));
 	}
 
@@ -108,14 +108,14 @@ public class FileFiltersTest {
 	public void testOr() {
 		FileFilter filter =
 			FileFilters.or(RegexFilenameFilter.create("a"), RegexFilenameFilter.create("c.*"));
-		List<File> files = IoUtil.getFiles(helper.root, filter);
+		List<File> files = IoUtil.files(helper.root, filter);
 		assertThat(files, is(helper.fileList("a", "a/a", "c.txt")));
 	}
 
 	@Test
 	public void testAnd() {
 		FileFilter filter = FileFilters.and(FileFilters.FILE, RegexFilenameFilter.create("[ac].*"));
-		List<File> files = IoUtil.getFiles(helper.root, filter);
+		List<File> files = IoUtil.files(helper.root, filter);
 		assertThat(files, is(helper.fileList("a/a/a.txt", "c.txt")));
 	}
 

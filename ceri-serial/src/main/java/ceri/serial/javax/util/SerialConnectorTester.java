@@ -135,7 +135,7 @@ public class SerialConnectorTester extends LoopingExecutor {
 	private String getInput() throws IOException {
 		if (showHelp) showHelp();
 		System.out.print(prompt());
-		String s = IoUtil.readString(System.in).trim();
+		String s = IoUtil.pollString(System.in).trim();
 		return StringUtil.unEscape(s);
 	}
 

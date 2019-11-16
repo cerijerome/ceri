@@ -27,7 +27,7 @@ public class JsonFileStore<T> implements PersistentStore<T> {
 	public T load() throws IOException {
 		try {
 			logger.info("Loading from {}", file);
-			String json = IoUtil.getContentString(file);
+			String json = IoUtil.readString(file);
 			return coder.fromJson(json);
 		} catch (FileNotFoundException e) {
 			return null;
@@ -40,7 +40,7 @@ public class JsonFileStore<T> implements PersistentStore<T> {
 	public void save(T t) throws IOException {
 		logger.info("Saving to {}", file);
 		String json = coder.toJson(t);
-		IoUtil.setContentString(file, json);
+		IoUtil.writeString(file, json);
 	}
 
 }

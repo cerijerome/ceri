@@ -2,7 +2,6 @@ package ceri.common.data;
 
 import static ceri.common.data.ByteUtil.toHex;
 import static ceri.common.text.StringUtil.escape;
-import static ceri.common.util.BasicUtil.exceptionf;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
@@ -10,6 +9,7 @@ import java.util.function.Function;
 import ceri.common.collection.ByteProvider;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.text.Utf8Util;
+import ceri.common.util.ExceptionUtil;
 
 public class DataDecoder {
 	private final ImmutableByteArray data;
@@ -120,7 +120,7 @@ public class DataDecoder {
 		ImmutableByteArray data = ByteUtil.toAscii(value);
 		if (this.data.matches(offset, data)) return skip(data.length());
 		String actual = ByteUtil.fromAscii(this.data, offset, data.length());
-		throw exceptionf("Expected %s: %s", escape(value), escape(actual));
+		throw ExceptionUtil.exceptionf("Expected %s: %s", escape(value), escape(actual));
 	}
 
 	public DataDecoder validateAscii(ByteProvider ascii) {
@@ -135,7 +135,7 @@ public class DataDecoder {
 		if (data.matches(this.offset, ascii, offset, length)) return skip(length);
 		String actual = ByteUtil.fromAscii(data, this.offset, length);
 		String expected = ByteUtil.fromAscii(ascii, offset, length);
-		throw exceptionf("Expected %s: %s", escape(expected), escape(actual));
+		throw ExceptionUtil.exceptionf("Expected %s: %s", escape(expected), escape(actual));
 	}
 
 	public DataDecoder validate(ByteProvider data) {
@@ -148,7 +148,7 @@ public class DataDecoder {
 
 	public DataDecoder validate(ByteProvider data, int offset, int length) {
 		if (this.data.matches(this.offset, data, offset, length)) return skip(length);
-		throw exceptionf("Expected %s: %s", toHex(data.copy(offset, length)),
+		throw ExceptionUtil.exceptionf("Expected %s: %s", toHex(data.copy(offset, length)),
 			toHex(this.data.slice(this.offset, length)));
 	}
 

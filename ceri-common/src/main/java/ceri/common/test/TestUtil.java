@@ -6,9 +6,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -17,6 +15,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,7 +46,6 @@ import ceri.common.util.PrimitiveUtil;
 
 public class TestUtil {
 	private static final int SMALL_BUFFER_SIZE = 1024;
-	private static final int BUFFER_SIZE = 1024 * 32;
 	public static final int APPROX_PRECISION_DEF = 3;
 	private static final String LAMBDA_NAME = "[lambda]";
 	private static final Random RND = new Random();
@@ -64,7 +63,8 @@ public class TestUtil {
 			constructor.setAccessible(true);
 			constructor.newInstance();
 			constructor.setAccessible(false);
-		} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | InstantiationException e) {
+		} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException
+			| InstantiationException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -92,7 +92,7 @@ public class TestUtil {
 	 */
 	public static String resource(String name) {
 		Class<?> cls = ReflectUtil.previousCaller(1).cls();
-		return init(() -> IoUtil.getResourceString(cls, name));
+		return init(() -> IoUtil.resourceString(cls, name));
 	}
 
 	/**
@@ -549,7 +549,7 @@ public class TestUtil {
 
 	private static <T> String toString(T t) {
 		if (ReflectUtil.instanceOfAny(t, Byte.class, Short.class, Integer.class, Long.class))
-			//noinspection MalformedFormatString
+			// noinspection MalformedFormatString
 			return String.format("%1$d (0x%1$02x)", t);
 		return String.valueOf(t);
 	}
@@ -686,41 +686,55 @@ public class TestUtil {
 	 * Checks contents of two directories are equal, with specific failure information if not.
 	 */
 	public static void assertDir(File lhsDir, File rhsDir) throws IOException {
-		List<String> lhsFilenames = IoUtil.getFilenames(lhsDir);
-		List<String> rhsFilenames = IoUtil.getFilenames(rhsDir);
+		List<String> lhsFilenames = IoUtil.filenames(lhsDir);
+		List<String> rhsFilenames = IoUtil.filenames(rhsDir);
 		assertList(lhsFilenames, rhsFilenames);
 		for (String filename : lhsFilenames) {
 			File lhsFile = new File(lhsDir, filename);
 			File rhsFile = new File(rhsDir, filename);
-			assertFile(lhsFile, rhsFile);
+			assertEquals(lhsFile + " is directory", rhsFile.isDirectory(), lhsFile.isDirectory());
+			if (!rhsFile.isDirectory()) assertFile(lhsFile, rhsFile);
 		}
+	}
+
+	/**
+	 * Checks the string matches regex.
+	 */
+	public static void assertRegex(String actual, String pattern) {
+		assertThat(actual, matchesRegex(pattern));
+	}
+	
+	/**
+	 * Checks the string matches regex.
+	 */
+	public static void assertRegex(String actual, Pattern pattern) {
+		assertThat(actual, matchesRegex(pattern));
+	}
+	
+	/**
+	 * Checks the paths are the same.
+	 */
+	public static void assertPath(Path actual, String expected) {
+		assertThat(actual, is(Path.of(expected)));
+	}
+	
+	/**
+	 * Checks contents of two files are equal, with specific failure information if not.
+	 */
+	public static void assertFile(Path actual, Path expected) throws IOException {
+		assertEquals("File size", Files.size(expected), Files.size(actual));
+		byte[] expectedData = Files.readAllBytes(expected);
+		byte[] actualData = Files.readAllBytes(actual);
+		assertEquals("Bytes read", expectedData.length, actualData.length);
+		for (int i = 0; i < expectedData.length; i++)
+			assertEquals("Byte at index " + i, expectedData[i], actualData[i]);
 	}
 
 	/**
 	 * Checks contents of two files are equal, with specific failure information if not.
 	 */
 	public static void assertFile(File lhsFile, File rhsFile) throws IOException {
-		if (lhsFile.isDirectory() && rhsFile.isDirectory()) return;
-		assertThat("Expected file size " + rhsFile.length() + " for " + lhsFile + " but was " +
-			lhsFile.length(), lhsFile.length(), is(rhsFile.length()));
-		byte[] lhsBuffer = new byte[BUFFER_SIZE];
-		byte[] rhsBuffer = new byte[BUFFER_SIZE];
-		try (InputStream lhsIn = new BufferedInputStream(new FileInputStream(lhsFile));
-			InputStream rhsIn = new BufferedInputStream(new FileInputStream(rhsFile))) {
-			int totalCount = 0;
-			while (true) {
-				int lhsCount = IoUtil.fillBuffer(lhsIn, lhsBuffer);
-				int rhsCount = IoUtil.fillBuffer(rhsIn, rhsBuffer);
-				if (lhsCount == 0 && rhsCount == 0) break;
-				assertThat(
-					"Expected read count " + (totalCount + rhsCount) + " for file " + lhsFile +
-						" but was " + (totalCount + lhsCount), totalCount + lhsCount,
-					is(totalCount + rhsCount));
-				for (int i = 0; i < lhsCount; i++)
-					assertIndex(lhsBuffer[i], rhsBuffer[i], (totalCount + i));
-				totalCount += lhsCount;
-			}
-		}
+		assertFile(lhsFile.toPath(), rhsFile.toPath());
 	}
 
 	/**

@@ -2,7 +2,6 @@ package ceri.common.data;
 
 import static ceri.common.text.StringUtil.BYTE_HEX_DIGITS;
 import static ceri.common.text.StringUtil.HEX_RADIX;
-import static ceri.common.util.BasicUtil.shouldNotThrow;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +15,7 @@ import ceri.common.collection.ByteProvider;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
+import ceri.common.util.ExceptionUtil;
 import ceri.common.util.PrimitiveUtil;
 
 public class ByteUtil {
@@ -92,7 +92,7 @@ public class ByteUtil {
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, byte... bytes) {
-		shouldNotThrow(() -> out.write(bytes));
+		ExceptionUtil.shouldNotThrow(() -> out.write(bytes));
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, byte[] bytes, int offset) {
@@ -100,16 +100,16 @@ public class ByteUtil {
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, ByteProvider b) {
-		shouldNotThrow(() -> b.writeTo(out));
+		ExceptionUtil.shouldNotThrow(() -> b.writeTo(out));
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, ByteProvider b, int offset) {
-		shouldNotThrow(() -> b.writeTo(out, offset));
+		ExceptionUtil.shouldNotThrow(() -> b.writeTo(out, offset));
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, ByteProvider b, int offset,
 		int length) {
-		shouldNotThrow(() -> b.writeTo(out, offset, length));
+		ExceptionUtil.shouldNotThrow(() -> b.writeTo(out, offset, length));
 	}
 
 	public static ImmutableByteArray toAscii(String s) {

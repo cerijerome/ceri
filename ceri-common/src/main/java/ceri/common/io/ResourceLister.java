@@ -57,7 +57,7 @@ public class ResourceLister {
 	}
 
 	public List<String> list() throws IOException {
-		return list(IoUtil.getClassUrl(cls), subDir, pattern);
+		return list(IoUtil.classUrl(cls), subDir, pattern);
 	}
 
 	static List<String> list(URL url, String subDir, Pattern pattern) throws IOException {
@@ -69,7 +69,7 @@ public class ResourceLister {
 	}
 
 	private static Path filePath(URL url) throws IOException {
-		return IoUtil.callableIo(() -> Path.of(url.toURI()));
+		return IoUtil.IO_ADAPTER.call(() -> Path.of(url.toURI()));
 	}
 
 	private static Path jrtPath(URL url) {

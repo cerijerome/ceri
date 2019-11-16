@@ -51,7 +51,7 @@ public class ResourceMap {
 	public Resource resource(String key) throws IOException {
 		String name = verify(key);
 		if (name == null) return null;
-		byte[] data = IoUtil.getResource(cls, subDir + name);
+		byte[] data = IoUtil.resource(cls, subDir + name);
 		return new Resource(key, data);
 	}
 
@@ -94,7 +94,7 @@ public class ResourceMap {
 	private Map<String, String> map(Class<?> cls, String subDir, Collection<String> fileExtensions)
 		throws IOException {
 		try {
-			URL url = IoUtil.getClassUrl(cls);
+			URL url = IoUtil.classUrl(cls);
 			if (url == null) return Collections.emptyMap();
 			if (FILE.equals(url.getProtocol())) return fileMap(url, subDir, fileExtensions);
 			if (JAR.equals(url.getProtocol())) return jarMap(url, subDir, fileExtensions);

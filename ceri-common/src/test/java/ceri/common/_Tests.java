@@ -203,6 +203,7 @@ import ceri.common.test.TestPrinterBehavior;
 import ceri.common.test.TestRunAdapterBehavior;
 import ceri.common.test.TestRunPrinterBehavior;
 import ceri.common.test.TestStateBehavior;
+import ceri.common.test.TestStyleBehavior;
 import ceri.common.test.TestThreadBehavior;
 import ceri.common.test.TestTimerBehavior;
 import ceri.common.test.TestUtil;
@@ -470,6 +471,7 @@ import ceri.common.xml.XmlUtilTest;
 	TestRunAdapterBehavior.class, //
 	TestRunPrinterBehavior.class, //
 	TestStateBehavior.class, //
+	TestStyleBehavior.class, //
 	TestThreadBehavior.class, //
 	TestTimerBehavior.class, //
 	TestUtilTest.class, //

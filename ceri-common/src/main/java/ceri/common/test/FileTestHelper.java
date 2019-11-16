@@ -118,7 +118,7 @@ public class FileTestHelper implements Closeable {
 		for (Map.Entry<String, String> entry : builder.files.entrySet()) {
 			File file = file(entry.getKey());
 			file.getParentFile().mkdirs();
-			IoUtil.setContentString(file, entry.getValue());
+			IoUtil.writeString(file, entry.getValue());
 		}
 	}
 

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.function.BooleanFunction;
 import ceri.common.text.StringUtil;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.ExceptionUtil;
 
 /**
  * Abstract class for accessing properties with a common key prefix. Useful when sharing one
@@ -709,7 +709,7 @@ public abstract class BaseProperties {
 			return value == null ? def : constructor.apply(value);
 		} catch (RuntimeException e) {
 			String typeName = cls == null ? "format" : cls.getSimpleName();
-			throw BasicUtil.initCause(new NumberFormatException(
+			throw ExceptionUtil.initCause(new NumberFormatException(
 				"Invalid " + typeName + " for " + key(keyParts) + ": " + value), e);
 		}
 	}

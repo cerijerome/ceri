@@ -54,7 +54,7 @@ public class HtmlPageSampler {
 
 	private static HtmlPage savePageFile(HtmlPage page, File file) throws IOException {
 		logger.info("Saving page to file: {}", file);
-		IoUtil.setContentString(file, page.asXml());
+		IoUtil.writeString(file, page.asXml());
 		return page;
 	}
 

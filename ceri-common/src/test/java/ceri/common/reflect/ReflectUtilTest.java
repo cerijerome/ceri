@@ -105,6 +105,27 @@ public class ReflectUtilTest {
 	}
 
 	@Test
+	public void testCurrentStackTraceElement() {
+		StackTraceElement element = ReflectUtil.currentStackTraceElement();
+		assertThat(element.getMethodName(), is("testCurrentStackTraceElement"));
+		assertThat(element.getClassName(), is(ReflectUtilTest.class.getName()));
+	}
+
+	@Test
+	public void testPreviousStackTraceElement() {
+		StackTraceElement element = getPreviousStackTraceElement(0);
+		assertThat(element.getMethodName(), is("getPreviousStackTraceElement"));
+		assertThat(element.getClassName(), is(ReflectUtilTest.class.getName()));
+		element = getPreviousStackTraceElement(1);
+		assertThat(element.getMethodName(), is("testPreviousStackTraceElement"));
+		assertThat(element.getClassName(), is(ReflectUtilTest.class.getName()));
+	}
+
+	private StackTraceElement getPreviousStackTraceElement(int countBack) {
+		return ReflectUtil.previousStackTraceElement(countBack);
+	}
+
+	@Test
 	public void testCurrentCaller() {
 		Caller caller = ReflectUtil.currentCaller();
 		Class<?> cls = getClass();
@@ -116,6 +137,24 @@ public class ReflectUtilTest {
 		assertThat(caller, not(caller2));
 		assertThat(new Caller(caller2.fullCls, caller.line, caller2.method, caller2.file),
 			is(caller));
+	}
+
+	@Test
+	public void testCurrentClassLine() {
+		TestUtil.assertRegex(ReflectUtil.currentClassLine(),
+			"\\Q" + ReflectUtilTest.class.getName() + "\\E:\\d+");
+	}
+
+	@Test
+	public void testPreviousClassLine() {
+		TestUtil.assertRegex(getPreviousClassLine(0),
+			"\\Q" + ReflectUtilTest.class.getName() + "\\E:\\d+");
+		TestUtil.assertRegex(getPreviousClassLine(1),
+			"\\Q" + ReflectUtilTest.class.getName() + "\\E:\\d+");
+	}
+
+	private String getPreviousClassLine(int countBack) {
+		return ReflectUtil.previousClassLine(countBack);
 	}
 
 	@Test

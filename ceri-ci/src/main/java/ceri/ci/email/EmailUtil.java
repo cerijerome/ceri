@@ -70,7 +70,7 @@ public class EmailUtil {
 			BodyPart bp = mp.getBodyPart(0);
 			content = bp.getContent();
 		} else if (content instanceof InputStream) {
-			content = IoUtil.getContentString((InputStream) content, 0);
+			content = IoUtil.readString((InputStream) content);
 		}
 		return String.valueOf(content);
 	}

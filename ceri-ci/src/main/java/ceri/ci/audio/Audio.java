@@ -4,13 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import ceri.common.io.IoUtil;
 
 public class Audio {
 	public static final float NORMAL_PITCH = 1.0f;
@@ -29,13 +29,13 @@ public class Audio {
 	}
 
 	public static Audio create(File file) throws IOException {
-		return create(IoUtil.getContent(file));
+		return create(Files.readAllBytes(file.toPath()));
 	}
 
 	private static Audio create(InputStream is) throws IOException {
 		try (AudioInputStream in = AudioSystem.getAudioInputStream(is)) {
 			AudioFormat format = in.getFormat();
-			byte[] data = IoUtil.getContent(in, 0);
+			byte[] data = in.readAllBytes();
 			return new Audio(format, data);
 		} catch (UnsupportedAudioFileException e) {
 			throw new IOException(e);

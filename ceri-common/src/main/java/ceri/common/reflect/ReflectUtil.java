@@ -57,6 +57,20 @@ public class ReflectUtil {
 	}
 
 	/**
+	 * Gets the caller's stack trace element.
+	 */
+	public static StackTraceElement currentStackTraceElement() {
+		return previousStackTraceElement(1);
+	}
+
+	/**
+	 * Gets a previous stack trace element.
+	 */
+	public static StackTraceElement previousStackTraceElement(int countBack) {
+		return previousStackTraceElement("previousStackTraceElement", countBack + 1);
+	}
+
+	/**
 	 * Gets the info on the caller of this method by looking at the stack trace.
 	 */
 	public static Caller currentCaller() {
@@ -67,7 +81,7 @@ public class ReflectUtil {
 	 * Gets the info of a previous caller of this method by looking at the stack trace.
 	 */
 	public static Caller previousCaller(int countBack) {
-		StackTraceElement s = previousStackTraceElement("previousCaller", countBack);
+		StackTraceElement s = previousStackTraceElement(countBack + 1);
 		return Caller.fromStackTraceElement(s);
 	}
 
@@ -82,7 +96,19 @@ public class ReflectUtil {
 	 * Gets the current method name by looking at the previous method on the stack trace.
 	 */
 	public static String previousMethodName(int countBack) {
-		return previousCaller(countBack + 1).method;
+		return previousStackTraceElement(countBack + 1).getMethodName();
+	}
+
+	/**
+	 * Gets the current class and line number of the caller.
+	 */
+	public static String currentClassLine() {
+		return previousClassLine(1);
+	}
+
+	public static String previousClassLine(int countBack) {
+		StackTraceElement element = ReflectUtil.previousStackTraceElement(countBack + 1);
+		return element.getClassName() + ":" + element.getLineNumber();
 	}
 
 	/**

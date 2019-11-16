@@ -2,7 +2,7 @@ package ceri.common.validation;
 
 import static java.lang.Long.compareUnsigned;
 import java.util.function.Predicate;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.ExceptionUtil;
 
 public class ValidationUtil {
 	private static final String VALUE = "Value";
@@ -26,7 +26,7 @@ public class ValidationUtil {
 	}
 
 	public static void validate(boolean expr, String format, Object... args) {
-		if (!expr) throw BasicUtil.exceptionf(format, args);
+		if (!expr) throw ExceptionUtil.exceptionf(format, args);
 	}
 
 	public static void validateNotNull(Object value) {
@@ -42,7 +42,7 @@ public class ValidationUtil {
 	}
 
 	public static void validateNull(Object value, String name) {
-		if (value != null) throw BasicUtil.exceptionf("%s must be null: %s", name, value);
+		if (value != null) throw ExceptionUtil.exceptionf("%s must be null: %s", name, value);
 	}
 
 	public static void validateEqual(Object value, Object expected) {
@@ -52,7 +52,7 @@ public class ValidationUtil {
 	public static void validateEqual(Object value, Object expected, String name) {
 		if (value == expected) return;
 		if (value != null && value.equals(expected)) return;
-		throw BasicUtil.exceptionf("%s must be %s: %s", name, expected, value);
+		throw ExceptionUtil.exceptionf("%s must be %s: %s", name, expected, value);
 	}
 
 	public static void validateEqual(long value, long expected) {

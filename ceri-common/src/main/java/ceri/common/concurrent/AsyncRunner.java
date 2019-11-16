@@ -1,7 +1,7 @@
 package ceri.common.concurrent;
 
 import ceri.common.function.ExceptionRunnable;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.ExceptionUtil;
 
 /**
  * Simple class for running a separate thread, capturing errors, and surfacing them on the main
@@ -56,8 +56,8 @@ public abstract class AsyncRunner<T extends Exception> {
 			thread.interrupt(); // does nothing if thread is complete
 		}
 		if (error != null) {
-			BasicUtil.throwIfType(errorClass, error);
-			BasicUtil.throwIfType(RuntimeException.class, error);
+			ExceptionUtil.throwIfType(errorClass, error);
+			ExceptionUtil.throwIfType(RuntimeException.class, error);
 			throw new RuntimeException(error);
 		}
 	}

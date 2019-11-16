@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.util.BasicUtil.shouldNotThrow;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,6 +11,7 @@ import java.util.Arrays;
 import java.util.function.Function;
 import ceri.common.io.IoStreamUtil;
 import ceri.common.text.ToStringHelper;
+import ceri.common.util.ExceptionUtil;
 
 /**
  * Provides an output stream that responds to input data. Can be created to handle bytes or Strings.
@@ -91,7 +91,7 @@ public class ResponseStream {
 	}
 
 	private PipedInputStream pipedIn(PipedOutputStream out) {
-		return shouldNotThrow(() -> new PipedInputStream(out));
+		return ExceptionUtil.shouldNotThrow(() -> new PipedInputStream(out));
 	}
 
 }

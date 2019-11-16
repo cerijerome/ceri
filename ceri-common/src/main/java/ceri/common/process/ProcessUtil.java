@@ -13,11 +13,11 @@ public class ProcessUtil {
 	private ProcessUtil() {}
 
 	public static String stdOut(Process process) throws IOException {
-		return IoUtil.readAvailableString(process.getInputStream());
+		return IoUtil.availableString(process.getInputStream());
 	}
 
 	public static String stdErr(Process process) throws IOException {
-		return IoUtil.readAvailableString(process.getErrorStream());
+		return IoUtil.availableString(process.getErrorStream());
 	}
 
 	public static String toString(ProcessBuilder builder) {

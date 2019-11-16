@@ -13,6 +13,9 @@ import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.PrimitiveUtil;
 
+/**
+ * Simple consumer to collect values during testing, then verify.
+ */
 public class Capturer<T> implements Consumer<T> {
 	public final List<T> values = new ArrayList<>();
 

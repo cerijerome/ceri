@@ -99,7 +99,7 @@ public class DsvParserBehavior {
 	}
 
 	private Iterator<String> lines(String resource) throws IOException {
-		Path path = IoUtil.getResourcePath(getClass(), resource);
+		Path path = IoUtil.resourcePath(getClass(), resource);
 		return StreamUtil.toList(Files.lines(path)).iterator();
 	}
 

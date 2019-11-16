@@ -1,14 +1,7 @@
 package ceri.common.io;
 
-import static ceri.common.util.BasicUtil.shouldNotThrow;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,47 +10,40 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.function.ExceptionRunnable;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.ExceptionAdapter;
+import ceri.common.util.ExceptionUtil;
 
 /**
  * I/O utility functions.
  */
 public class IoUtil {
 	private static final Pattern FILE_SEPARATOR_REGEX = Pattern.compile("\\" + File.separatorChar);
-	private static final int MAX_CLEAR_BUFFER = 8 * 1024;
 	private static final int MAX_UUID_ATTEMPTS = 10; // Shouldn't be needed
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 32;
 	private static final String CLASS_SUFFIX = ".class";
-	private static final int READ_POLL_MS = 100;
+	private static final int READ_POLL_MS = 50;
+	public static final ExceptionAdapter<IOException> IO_ADAPTER =
+		ExceptionAdapter.of(IOException.class, IOException::new);
 
 	private IoUtil() {}
 
 	/**
 	 * Clears available bytes from an input stream and returns the total number of bytes cleared.
 	 */
-	public static int clear(InputStream in) throws IOException {
-		int count = 0;
-		byte[] buffer = null;
-		while (true) {
-			int n = Math.min(in.available(), MAX_CLEAR_BUFFER);
-			if (n <= 0) break;
-			if (buffer == null) buffer = new byte[n];
-			int i = in.read(buffer);
-			if (i <= 0) break;
-			count += i;
-		}
-		return count;
+	public static long clear(InputStream in) throws IOException {
+		return in.skip(in.available());
 	}
 
 	/**
@@ -117,7 +103,7 @@ public class IoUtil {
 		Path filename = path.getFileName();
 		return filename == null ? null : filename.toString();
 	}
-	
+
 	/**
 	 * Create a temp dir with random name under given dir. Use null for current dir.
 	 */
@@ -154,14 +140,14 @@ public class IoUtil {
 	}
 
 	/**
-	 * Closes a closeable stream. Returns false if this resulted in an I/O error.
+	 * Closes a closeable stream. Returns false if this resulted in an error.
 	 */
-	public static boolean close(Closeable closeable) {
+	public static boolean close(AutoCloseable closeable) {
 		if (closeable == null) return false;
 		try {
 			closeable.close();
 			return true;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			return false;
 		}
 	}
@@ -169,14 +155,14 @@ public class IoUtil {
 	/**
 	 * Get a char from stdin, return 0 if no key pressed
 	 */
-	public static char getChar() {
-		return getChar(System.in);
+	public static char availableChar() {
+		return availableChar(System.in);
 	}
 
 	/**
 	 * Get a char from input stream, return 0 if nothing available
 	 */
-	public static char getChar(InputStream in) {
+	public static char availableChar(InputStream in) {
 		try {
 			if (in.available() > 0) return (char) in.read();
 		} catch (IOException e) {
@@ -186,41 +172,45 @@ public class IoUtil {
 	}
 
 	/**
-	 * Get a string from input stream in interruptible way.
+	 * Poll until string data is available from input stream.
 	 */
-	public static String readString(InputStream in) throws IOException {
-		return readString(in, Charset.defaultCharset());
+	public static String pollString(InputStream in) throws IOException {
+		return pollString(in, Charset.defaultCharset());
 	}
 
 	/**
-	 * Get a string from input stream in interruptible way.
+	 * Poll until string data is available from input stream.
 	 */
-	public static String readString(InputStream in, Charset charset) throws IOException {
-		int n = waitForData(in, 1);
-		byte[] buffer = new byte[n];
-		n = in.read(buffer);
-		return new String(buffer, 0, n, charset);
+	public static String pollString(InputStream in, Charset charset) throws IOException {
+		return new String(pollBytes(in), charset);
+	}
+
+	/**
+	 * Poll until string data is available from input stream.
+	 */
+	public static byte[] pollBytes(InputStream in) throws IOException {
+		return in.readNBytes(pollForData(in, 1));
 	}
 
 	/**
 	 * Reads all available bytes without blocking.
 	 */
-	public static String readAvailableString(InputStream in) throws IOException {
-		return readAvailableString(in, Charset.defaultCharset());
+	public static String availableString(InputStream in) throws IOException {
+		return availableString(in, Charset.defaultCharset());
 	}
 
 	/**
 	 * Reads all available bytes without blocking.
 	 */
-	public static String readAvailableString(InputStream in, Charset charset) throws IOException {
+	public static String availableString(InputStream in, Charset charset) throws IOException {
 		if (in == null) return null;
-		return readAvailable(in).asString(charset);
+		return availableBytes(in).asString(charset);
 	}
 
 	/**
 	 * Reads all available bytes without blocking.
 	 */
-	public static ImmutableByteArray readAvailable(InputStream in) throws IOException {
+	public static ImmutableByteArray availableBytes(InputStream in) throws IOException {
 		if (in == null) return null;
 		int count = in.available();
 		if (count == 0) return ImmutableByteArray.EMPTY;
@@ -241,21 +231,21 @@ public class IoUtil {
 	/**
 	 * Wait for given number of bytes to be available on input stream.
 	 */
-	public static int waitForData(InputStream in, int count) throws IOException {
-		return waitForData(in, count, 0);
+	public static int pollForData(InputStream in, int count) throws IOException {
+		return pollForData(in, count, 0);
 	}
 
 	/**
-	 * Wait for given number of bytes to be available on input stream.
+	 * Wait for given number of bytes to be available on input stream by polling.
 	 */
-	public static int waitForData(InputStream in, int count, long timeoutMs) throws IOException {
-		return waitForData(in, count, timeoutMs, READ_POLL_MS);
+	public static int pollForData(InputStream in, int count, long timeoutMs) throws IOException {
+		return pollForData(in, count, timeoutMs, READ_POLL_MS);
 	}
 
 	/**
-	 * Wait for given number of bytes to be available on input stream.
+	 * Wait for given number of bytes to be available on input stream by polling.
 	 */
-	public static int waitForData(InputStream in, int count, long timeoutMs, long pollMs)
+	public static int pollForData(InputStream in, int count, long timeoutMs, long pollMs)
 		throws IOException {
 		long t = System.currentTimeMillis() + timeoutMs;
 		while (true) {
@@ -280,36 +270,17 @@ public class IoUtil {
 	}
 
 	/**
-	 * Execute runnable and convert non-io exception to io exception.
+	 * Convert file path to unix-style
 	 */
-	public static void execIo(ExceptionRunnable<Exception> runnable) throws IOException {
-		try {
-			runnable.run();
-		} catch (RuntimeException | IOException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new IOException(e);
-		}
-	}
-
-	/**
-	 * Execute callable and convert non-io exception to io exception.
-	 */
-	public static <T> T callableIo(Callable<T> callable) throws IOException {
-		try {
-			return callable.call();
-		} catch (RuntimeException | IOException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new IOException(e);
-		}
+	public static String unixPath(File file) {
+		return unixPath(file.getPath());
 	}
 
 	/**
 	 * Convert file path to unix-style
 	 */
-	public static String unixPath(File file) {
-		return unixPath(file.getPath());
+	public static String unixPath(Path file) {
+		return unixPath(file.toString());
 	}
 
 	/**
@@ -327,15 +298,15 @@ public class IoUtil {
 	/**
 	 * Returns the set of relative file paths under a given directory in Unix '/' format
 	 */
-	public static List<String> getFilenames(File dir) {
-		return getFilenames(dir, null);
+	public static List<String> filenames(File dir) {
+		return filenames(dir, null);
 	}
 
 	/**
 	 * Returns the set of relative file paths under a given directory in Unix '/' format. A null
 	 * filter matches all files.
 	 */
-	public static List<String> getFilenames(File dir, FilenameFilter filter) {
+	public static List<String> filenames(File dir, FilenameFilter filter) {
 		List<String> list = new ArrayList<>();
 		addFilenames(list, dir, null, filter);
 		return list;
@@ -344,14 +315,14 @@ public class IoUtil {
 	/**
 	 * Returns the set of file paths under a given directory.
 	 */
-	public static List<File> getFiles(File dir) {
-		return getFiles(dir, null);
+	public static List<File> files(File dir) {
+		return files(dir, null);
 	}
 
 	/**
 	 * Returns the set of file paths under a given directory. A null filter matches all files.
 	 */
-	public static List<File> getFiles(File dir, FileFilter filter) {
+	public static List<File> files(File dir, FileFilter filter) {
 		List<File> list = new ArrayList<>();
 		addFiles(list, dir, filter);
 		return list;
@@ -376,7 +347,7 @@ public class IoUtil {
 	 * Returns the file path relative to a given dir in '/' format. Or the returns the file if not
 	 * relative.
 	 */
-	public static String getRelativePath(File dir, File file) throws IOException {
+	public static String relativePath(File dir, File file) throws IOException {
 		dir = dir.getCanonicalFile();
 		String fileName = unixPath(file.getCanonicalPath());
 		StringBuilder backPath = new StringBuilder();
@@ -410,9 +381,8 @@ public class IoUtil {
 	 */
 	public static void copyFile(File src, File dest) throws IOException {
 		FileTracker tracker = new FileTracker().file(dest); // creates parent dirs
-		try (InputStream in = new BufferedInputStream(new FileInputStream(src));
-			OutputStream out = new BufferedOutputStream(new FileOutputStream(dest))) {
-			transferContent(in, out, 0);
+		try {
+			Files.copy(src.toPath(), dest.toPath());
 		} catch (RuntimeException | IOException e) {
 			tracker.delete();
 			throw e;
@@ -422,63 +392,51 @@ public class IoUtil {
 	/**
 	 * Gets content from a file as a byte array.
 	 */
-	public static byte[] getContent(File file) throws IOException {
-		try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
-			return getContent(in, 0);
-		}
+	public static byte[] readBytes(File file) throws IOException {
+		return Files.readAllBytes(file.toPath());
 	}
 
-	public static String getContentString(String filename) throws IOException {
-		return getContentString(new File(filename));
+	public static String readString(String filename) throws IOException {
+		return Files.readString(Path.of(filename));
 	}
 
-	public static String getContentString(File file) throws IOException {
-		byte[] bytes = getContent(file);
-		return new String(bytes).intern();
+	public static String readString(File file) throws IOException {
+		return Files.readString(file.toPath());
 	}
 
 	/**
 	 * Gets content from input stream as a string. Use 0 for default buffer size.
 	 */
-	public static String getContentString(InputStream in, int bufferSize) throws IOException {
-		byte[] bytes = getContent(in, bufferSize);
-		return new String(bytes).intern();
+	public static String readString(InputStream in) throws IOException {
+		return new String(in.readAllBytes());
 	}
 
 	/**
-	 * Gets content from an input stream as byte array. Use 0 for default buffer size.
+	 * Gets content from input stream as a string. Use 0 for default buffer size.
 	 */
-	public static byte[] getContent(InputStream in, int bufferSize) throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		transferContent(in, out, bufferSize);
-		close(out);
-		return out.toByteArray();
+	public static String readString(InputStream in, Charset charset) throws IOException {
+		return new String(in.readAllBytes(), charset);
 	}
 
 	/**
 	 * Writes bytes from input stream to a file.
 	 */
-	public static void setContent(File file, InputStream in) throws IOException {
-		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
-			transferContent(in, out, 0);
-		}
+	public static long copy(InputStream in, File file) throws IOException {
+		return Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 	}
 
 	/**
 	 * Writes byte array content to a file.
 	 */
-	public static void setContent(File file, byte[] content) throws IOException {
-		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
-			out.write(content);
-			out.flush();
-		}
+	public static void write(File file, byte[] content) throws IOException {
+		Files.write(file.toPath(), content);
 	}
 
 	/**
 	 * Writes byte array content to a file.
 	 */
-	public static void setContent(File file, ImmutableByteArray data) throws IOException {
-		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
+	public static void write(File file, ImmutableByteArray data) throws IOException {
+		try (OutputStream out = Files.newOutputStream(file.toPath())) {
 			data.writeTo(out);
 			out.flush();
 		}
@@ -487,51 +445,27 @@ public class IoUtil {
 	/**
 	 * Writes a string to a file using default encoding.
 	 */
-	public static void setContentString(File file, String content) throws IOException {
-		setContent(file, content.getBytes());
+	public static void writeString(File file, String content) throws IOException {
+		Files.writeString(file.toPath(), content);
 	}
 
 	/**
 	 * Transfers content from an input stream to an output stream, using the specified buffer size,
 	 * or 0 for default buffer size.
 	 */
-	public static void transferContent(InputStream in, OutputStream out, int bufferSize)
+	public static long transferBytes(InputStream in, OutputStream out, int bufferSize)
 		throws IOException {
 		if (bufferSize == 0) bufferSize = DEFAULT_BUFFER_SIZE;
 		byte[] buffer = new byte[bufferSize];
+		long count = 0;
 		while (true) {
-			int count = in.read(buffer);
-			if (count == -1) break;
-			if (out != null) out.write(buffer, 0, count);
+			int n = in.read(buffer);
+			if (n == -1) break;
+			if (out != null) out.write(buffer, 0, n);
+			count += n;
 		}
 		if (out != null) out.flush();
-	}
-
-	/**
-	 * Attempts to fill given buffer by reading from the input stream. Returns the last position
-	 * filled in the buffer. Returns less than given length if end of stream is reached.
-	 */
-	public static int fillBuffer(InputStream in, byte[] buffer) throws IOException {
-		return fillBuffer(in, buffer, 0, buffer.length);
-	}
-
-	/**
-	 * Attempts to fill given buffer by reading from the input stream until full. Returns the total
-	 * number of bytes read. Returns less than given length if end of stream is reached.
-	 */
-	public static int fillBuffer(InputStream in, byte[] buffer, int offset, int len)
-		throws IOException {
-		if (offset < 0) throw new IllegalArgumentException("Offset must be >= 0: " + offset);
-		if (offset + len > buffer.length)
-			throw new IllegalArgumentException("Offset plus length must not exceed buffer size (" +
-				buffer.length + "): " + offset + " + " + len);
-		int pos = offset;
-		while (pos < offset + len) {
-			int count = in.read(buffer, pos, offset + len - pos);
-			if (count == -1) break;
-			pos += count;
-		}
-		return pos - offset;
+		return count;
 	}
 
 	/**
@@ -554,56 +488,56 @@ public class IoUtil {
 	/**
 	 * Gets a path representing a resource. Will fail if the class is in a jar file.
 	 */
-	public static Path getResourcePath(Class<?> cls, String resourceName) {
-		return Path.of(getResourceFile(cls, resourceName).toURI());
+	public static Path resourcePath(Class<?> cls, String resourceName) {
+		return Path.of(resourceFile(cls, resourceName).toURI());
 	}
 
 	/**
 	 * Gets a file representing a resource. Will fail if the class is in a jar file.
 	 */
-	public static File getResourceFile(Class<?> cls, String resourceName) {
+	public static File resourceFile(Class<?> cls, String resourceName) {
 		URL url = cls.getResource(resourceName);
-		if (url != null) return shouldNotThrow(() -> new File(url.toURI()));
+		if (url != null) return ExceptionUtil.shouldNotThrow(() -> new File(url.toURI()));
 		throw new NullPointerException("Resource not found for " + cls + ": " + resourceName);
 	}
 
 	/**
 	 * Gets resource as a string from same package as class, with given filename.
 	 */
-	public static String getResourceString(Class<?> cls, String resourceName) throws IOException {
-		return new String(getResource(cls, resourceName)).intern();
+	public static String resourceString(Class<?> cls, String resourceName) throws IOException {
+		return new String(resource(cls, resourceName)).intern();
 	}
 
 	/**
 	 * Gets resource from same package as class, with given filename.
 	 */
-	public static byte[] getResource(Class<?> cls, String resourceName) throws IOException {
+	public static byte[] resource(Class<?> cls, String resourceName) throws IOException {
 		try (InputStream in = cls.getResourceAsStream(resourceName)) {
 			if (in == null) throw new MissingResourceException(
 				"Missing resource for class " + cls.getName() + ": " + resourceName, cls.getName(),
 				resourceName);
-			return IoUtil.getContent(in, 0);
+			return in.readAllBytes();
 		}
 	}
 
 	/**
 	 * Gets resource from same package as class, with same name as the class and given suffix.
 	 */
-	public static String getClassResourceAsString(Class<?> cls, String suffix) throws IOException {
-		return new String(getClassResource(cls, suffix)).intern();
+	public static String classResourceAsString(Class<?> cls, String suffix) throws IOException {
+		return new String(classResource(cls, suffix)).intern();
 	}
 
 	/**
 	 * Gets resource from same package as class, with same name as the class and given suffix.
 	 */
-	public static byte[] getClassResource(Class<?> cls, String suffix) throws IOException {
-		return getResource(cls, cls.getSimpleName() + "." + suffix);
+	public static byte[] classResource(Class<?> cls, String suffix) throws IOException {
+		return resource(cls, cls.getSimpleName() + "." + suffix);
 	}
 
 	/**
 	 * Returns the root url path for class resources.
 	 */
-	public static String getResourcePath(Class<?> cls) {
+	public static String resourcePath(Class<?> cls) {
 		String name = cls.getSimpleName() + CLASS_SUFFIX;
 		URL url = cls.getResource(name);
 		String urlStr = url.toString();
@@ -613,7 +547,7 @@ public class IoUtil {
 	/**
 	 * Returns the url path for class.
 	 */
-	public static URL getClassUrl(Class<?> cls) {
+	public static URL classUrl(Class<?> cls) {
 		String name = cls.getSimpleName() + CLASS_SUFFIX;
 		return cls.getResource(name);
 	}

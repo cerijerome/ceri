@@ -28,7 +28,6 @@ import java.io.InterruptedIOException;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.regex.Pattern;
@@ -74,13 +73,13 @@ public class IoUtilTest {
 		try (InputStream in = Mockito.mock(InputStream.class)) {
 			when(in.available()).thenReturn(1);
 			when(in.read(any())).thenReturn(0);
-			assertThat(IoUtil.clear(in), is(0));
+			assertThat(IoUtil.clear(in), is(0L));
 		}
 	}
 
 	private void assertClearBuffer(byte[] buffer) throws IOException {
 		InputStream in = new ByteArrayInputStream(buffer);
-		assertThat(IoUtil.clear(in), is(buffer.length));
+		assertThat(IoUtil.clear(in), is((long) buffer.length));
 		assertThat(in.available(), is(0));
 	}
 
@@ -94,8 +93,8 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testGetClassUrl() {
-		URL url = IoUtil.getClassUrl(String.class);
+	public void testClassUrl() {
+		URL url = IoUtil.classUrl(String.class);
 		assertTrue(url.getPath().endsWith("/java/lang/String.class"));
 	}
 
@@ -143,7 +142,8 @@ public class IoUtilTest {
 		// Should fail - generating same dir each iteration
 		TestUtil.assertThrown(() -> IoUtil.createTempDir(helper.root, file -> helper.file("a")));
 		// Should fail - parent path is an existing file
-		TestUtil.assertThrown(() -> IoUtil.createTempDir(helper.root, file -> helper.file("c.txt/c")));
+		TestUtil
+			.assertThrown(() -> IoUtil.createTempDir(helper.root, file -> helper.file("c.txt/c")));
 	}
 
 	@Test
@@ -173,50 +173,50 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testGetChar() throws IOException {
+	public void testAvailableChar() throws IOException {
 		try (SystemIo sys = SystemIo.of()) {
 			sys.in(new ByteArrayInputStream("test".getBytes()));
-			assertThat(IoUtil.getChar(), is('t'));
-			assertThat(IoUtil.getChar(), is('e'));
-			assertThat(IoUtil.getChar(), is('s'));
-			assertThat(IoUtil.getChar(), is('t'));
+			assertThat(IoUtil.availableChar(), is('t'));
+			assertThat(IoUtil.availableChar(), is('e'));
+			assertThat(IoUtil.availableChar(), is('s'));
+			assertThat(IoUtil.availableChar(), is('t'));
 			sys.in().close();
-			assertThat(IoUtil.getChar(), is('\0'));
+			assertThat(IoUtil.availableChar(), is('\0'));
 		}
 		try (InputStream in = Mockito.mock(InputStream.class)) {
 			doThrow(new IOException()).when(in).available();
-			assertThat(IoUtil.getChar(in), is('\0'));
+			assertThat(IoUtil.availableChar(in), is('\0'));
 		}
 	}
 
 	@Test
-	public void testReadString() throws IOException {
+	public void testPollString() throws IOException {
 		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
-			String s = IoUtil.readString(in);
+			String s = IoUtil.pollString(in);
 			assertThat(s, is("test"));
 		}
 	}
 
 	@Test
-	public void testReadAvailableString() throws IOException {
-		assertNull(IoUtil.readAvailableString(null));
+	public void testAvailableString() throws IOException {
+		assertNull(IoUtil.availableString(null));
 		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
-			assertThat(IoUtil.readAvailableString(in), is("test"));
-			assertThat(IoUtil.readAvailableString(in), is(""));
+			assertThat(IoUtil.availableString(in), is("test"));
+			assertThat(IoUtil.availableString(in), is(""));
 		}
 	}
 
 	@Test
-	public void testReadAvailable() throws IOException {
-		assertNull(IoUtil.readAvailable(null));
+	public void testAvailableBytes() throws IOException {
+		assertNull(IoUtil.availableBytes(null));
 		try (InputStream in = new ByteArrayInputStream(ByteUtil.bytes(0, 1, 2, 3, 4))) {
-			assertThat(IoUtil.readAvailable(in), is(ImmutableByteArray.wrap(0, 1, 2, 3, 4)));
-			assertThat(IoUtil.readAvailable(in), is(ImmutableByteArray.EMPTY));
+			assertThat(IoUtil.availableBytes(in), is(ImmutableByteArray.wrap(0, 1, 2, 3, 4)));
+			assertThat(IoUtil.availableBytes(in), is(ImmutableByteArray.EMPTY));
 		}
 		try (InputStream in = Mockito.mock(InputStream.class)) {
 			when(in.available()).thenReturn(5);
 			when(in.read(any())).thenReturn(0);
-			assertThat(IoUtil.readAvailable(in), is(ImmutableByteArray.EMPTY));
+			assertThat(IoUtil.availableBytes(in), is(ImmutableByteArray.EMPTY));
 		}
 	}
 
@@ -232,35 +232,36 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testWaitForData() throws IOException {
+	public void testPollForData() throws IOException {
 		try (InputStream in = Mockito.mock(InputStream.class)) {
-			assertThrown(IoTimeoutException.class, () -> IoUtil.waitForData(in, 1, 1, 1));
+			assertThrown(IoTimeoutException.class, () -> IoUtil.pollForData(in, 1, 1, 1));
 			when(in.available()).thenReturn(0).thenReturn(2);
-			assertThat(IoUtil.waitForData(in, 1, 0, 1), is(2));
+			assertThat(IoUtil.pollForData(in, 1, 0, 1), is(2));
 		}
 	}
 
 	@Test
 	public void testExecIo() throws IOException {
-		IoUtil.execIo(() -> {});
-		assertThrown(RuntimeException.class, () -> IoUtil.execIo(() -> Integer.valueOf(null)));
-		assertThrown(IOException.class, () -> IoUtil.execIo(() -> {
+		IoUtil.IO_ADAPTER.run(() -> {});
+		assertThrown(RuntimeException.class,
+			() -> IoUtil.IO_ADAPTER.run(() -> Integer.valueOf(null)));
+		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.run(() -> {
 			throw new Exception();
 		}));
-		assertThrown(IOException.class, () -> IoUtil.execIo(() -> {
+		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.run(() -> {
 			throw new IOException();
 		}));
 	}
 
 	@Test
 	public void testCallableIo() throws IOException {
-		IoUtil.callableIo(() -> "a");
+		IoUtil.IO_ADAPTER.call(() -> "a");
 		assertThrown(RuntimeException.class,
-			() -> IoUtil.callableIo(() -> Integer.valueOf(null)));
-		assertThrown(IOException.class, () -> IoUtil.callableIo(() -> {
+			() -> IoUtil.IO_ADAPTER.call(() -> Integer.valueOf(null)));
+		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.call(() -> {
 			throw new Exception();
 		}));
-		assertThrown(IOException.class, () -> IoUtil.callableIo(() -> {
+		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.call(() -> {
 			throw new IOException();
 		}));
 	}
@@ -272,47 +273,44 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testGetContent() throws IOException {
-		assertThat(IoUtil.getContent(helper.file("a/a/a.txt")), is(new byte[] { 'a', 'a', 'a' }));
+	public void testReadString() throws IOException {
+		assertThat(IoUtil.readBytes(helper.file("a/a/a.txt")), is(new byte[] { 'a', 'a', 'a' }));
+		assertThat(IoUtil.readString(helper.file("a/a/a.txt")), is("aaa"));
+		assertThat(IoUtil.readString(helper.file("a/a/a.txt").getAbsolutePath()), is("aaa"));
 		try (InputStream in = new FileInputStream(helper.file("b/b.txt"))) {
-			assertThat(IoUtil.getContent(in, 0), is(new byte[] { 'b', 'b', 'b' }));
-		}
-		assertThat(IoUtil.getContentString(helper.file("a/a/a.txt")), is("aaa"));
-		assertThat(IoUtil.getContentString(helper.file("a/a/a.txt").getAbsolutePath()), is("aaa"));
-		try (InputStream in = new FileInputStream(helper.file("b/b.txt"))) {
-			assertThat(IoUtil.getContentString(in, 0), is("bbb"));
+			assertThat(IoUtil.readString(in), is("bbb"));
 		}
 	}
 
 	@Test
-	public void testGetFilenames() {
-		List<String> filenames = IoUtil.getFilenames(helper.root);
+	public void testFilenames() {
+		List<String> filenames = IoUtil.filenames(helper.root);
 		assertCollection(filenames, "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt");
-		filenames = IoUtil.getFilenames(helper.root, RegexFilenameFilter.create(".*\\.txt"));
+		filenames = IoUtil.filenames(helper.root, RegexFilenameFilter.create(".*\\.txt"));
 		assertCollection(filenames, "a/a/a.txt", "b/b.txt", "c.txt");
-		assertCollection(IoUtil.getFilenames(new File("")));
+		assertCollection(IoUtil.filenames(new File("")));
 	}
 
 	@Test
-	public void testGetFiles() {
-		List<File> files = IoUtil.getFiles(helper.root);
+	public void testFiles() {
+		List<File> files = IoUtil.files(helper.root);
 		assertCollection(files, helper.fileList("a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt"));
-		files = IoUtil.getFiles(helper.root, RegexFilenameFilter.create(".*[^\\.txt]"));
+		files = IoUtil.files(helper.root, RegexFilenameFilter.create(".*[^\\.txt]"));
 		assertCollection(files, helper.fileList("a", "a/a", "b"));
-		assertCollection(IoUtil.getFiles(new File("")));
+		assertCollection(IoUtil.files(new File("")));
 	}
 
 	@Test
-	public void testGetRelativePath() throws IOException {
-		String relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/d/e/f"));
+	public void testRelativePath() throws IOException {
+		String relative = IoUtil.relativePath(new File("/a/b/c"), new File("/d/e/f"));
 		assertThat(IoUtil.unixPath(relative), is("../../../d/e/f"));
-		relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/a/b/c/d/e"));
+		relative = IoUtil.relativePath(new File("/a/b/c"), new File("/a/b/c/d/e"));
 		assertThat(IoUtil.unixPath(relative), is("d/e"));
-		relative = IoUtil.getRelativePath(new File("/a/b/c"), new File("/a/x/y"));
+		relative = IoUtil.relativePath(new File("/a/b/c"), new File("/a/x/y"));
 		assertThat(IoUtil.unixPath(relative), is("../../x/y"));
 		File dir = mock(File.class);
 		when(dir.getCanonicalFile()).thenReturn(null);
-		relative = IoUtil.getRelativePath(dir, new File("/a/b/c"));
+		relative = IoUtil.relativePath(dir, new File("/a/b/c"));
 		assertThat(IoUtil.unixPath(relative), is("/a/b/c"));
 	}
 
@@ -340,33 +338,32 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testGetResourceFile() {
-		File f = IoUtil.getResourceFile(getClass(), getClass().getSimpleName() + ".properties");
+	public void testResourceFile() {
+		File f = IoUtil.resourceFile(getClass(), getClass().getSimpleName() + ".properties");
 		assertTrue(f.exists());
-		TestUtil.assertThrown(() -> IoUtil.getResourceFile(getClass(), "missing"));
+		TestUtil.assertThrown(() -> IoUtil.resourceFile(getClass(), "missing"));
 	}
 
 	@Test
-	public void testGetResourcePath() {
-		String path = IoUtil.getResourcePath(getClass());
+	public void testResourcePath() {
+		String path = IoUtil.resourcePath(getClass());
 		assertThat(path, matchesRegex("file:.*" + getClass().getPackage().getName() + "/"));
-		path = IoUtil.getResourcePath(String.class);
+		path = IoUtil.resourcePath(String.class);
 		assertThat(path, matchesRegex("jrt:.*" + String.class.getPackage().getName() + "/"));
 	}
 
 	@Test
-	public void testGetResource() throws IOException {
-		byte[] bytes = IoUtil.getResource(getClass(), getClass().getSimpleName() + ".properties");
+	public void testResource() throws IOException {
+		byte[] bytes = IoUtil.resource(getClass(), getClass().getSimpleName() + ".properties");
 		assertThat(bytes, is(new byte[] { 'a', '=', 'b' }));
-		bytes = IoUtil.getClassResource(getClass(), "properties");
+		bytes = IoUtil.classResource(getClass(), "properties");
 		assertThat(bytes, is(new byte[] { 'a', '=', 'b' }));
-		String s = IoUtil.getResourceString(getClass(), getClass().getSimpleName() + ".properties");
+		String s = IoUtil.resourceString(getClass(), getClass().getSimpleName() + ".properties");
 		assertThat(s, is("a=b"));
-		s = IoUtil.getClassResourceAsString(getClass(), "properties");
+		s = IoUtil.classResourceAsString(getClass(), "properties");
 		assertThat(s, is("a=b"));
-		assertThrown(MissingResourceException.class,
-			() -> IoUtil.getResource(getClass(), "test"));
-		TestUtil.assertThrown(() -> IoUtil.getResource(getClass(), null));
+		assertThrown(MissingResourceException.class, () -> IoUtil.resource(getClass(), "test"));
+		TestUtil.assertThrown(() -> IoUtil.resource(getClass(), null));
 	}
 
 	@Test
@@ -385,16 +382,16 @@ public class IoUtilTest {
 	public void testSetContent() throws IOException {
 		File file = helper.file("x/x/x.txt");
 		file.getParentFile().mkdirs();
-		IoUtil.setContent(file, "abc".getBytes());
-		assertThat(IoUtil.getContentString(file), is("abc"));
-		IoUtil.setContent(file, ImmutableByteArray.wrap("abc".getBytes()));
-		assertThat(IoUtil.getContentString(file), is("abc"));
-		IoUtil.setContentString(file, "xyz");
-		assertThat(IoUtil.getContentString(file), is("xyz"));
+		IoUtil.write(file, "abc".getBytes());
+		assertThat(IoUtil.readString(file), is("abc"));
+		IoUtil.write(file, ImmutableByteArray.wrap("abc".getBytes()));
+		assertThat(IoUtil.readString(file), is("abc"));
+		IoUtil.writeString(file, "xyz");
+		assertThat(IoUtil.readString(file), is("xyz"));
 		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
-			IoUtil.setContent(file, in);
+			IoUtil.copy(in, file);
 		}
-		assertThat(IoUtil.getContentString(file), is("test"));
+		assertThat(IoUtil.readString(file), is("test"));
 		IoUtil.deleteAll(helper.file("x"));
 	}
 
@@ -403,48 +400,18 @@ public class IoUtilTest {
 		String s = "0123456789abcdefghijklmnopqrstuvwxyz\u1fff\2fff\3fff\4fff";
 		ByteArrayInputStream in = new ByteArrayInputStream(s.getBytes(UTF_8));
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		IoUtil.transferContent(in, out, 1);
+		IoUtil.transferBytes(in, out, 1);
 		assertThat(new String(out.toByteArray(), UTF_8), is(s));
 		in.reset();
 		out.reset();
-		IoUtil.transferContent(in, out, 1000000);
+		IoUtil.transferBytes(in, out, 1000000);
 		assertThat(new String(out.toByteArray(), UTF_8), is(s));
 		in.reset();
 		out.reset();
-		IoUtil.transferContent(in, out, 0);
+		IoUtil.transferBytes(in, out, 0);
 		assertThat(new String(out.toByteArray(), UTF_8), is(s));
 		in.reset();
-		IoUtil.transferContent(in, null, 0);
-	}
-
-	@Test
-	public void testFillBufferExceptions() {
-		final byte[] inBuffer = new byte[200];
-		final byte[] outBuffer = new byte[256];
-		final ByteArrayInputStream in = new ByteArrayInputStream(inBuffer);
-		TestUtil.assertThrown(() -> IoUtil.fillBuffer(in, outBuffer, 255, 2));
-		TestUtil.assertThrown(() -> IoUtil.fillBuffer(in, outBuffer, -1, 2));
-	}
-
-	@Test
-	public void testFillBuffer() throws IOException {
-		byte[] inBuffer = new byte[200];
-		byte[] outBuffer = new byte[256];
-		for (int i = 0; i < inBuffer.length; i++)
-			inBuffer[i] = (byte) i;
-		ByteArrayInputStream in = new ByteArrayInputStream(inBuffer);
-		int count = IoUtil.fillBuffer(in, outBuffer);
-		assertThat(count, is(200));
-		assertArray(Arrays.copyOf(outBuffer, 200), inBuffer);
-		in.reset();
-		outBuffer = new byte[256];
-		count = IoUtil.fillBuffer(in, outBuffer, 0, 150);
-		assertThat(count, is(150));
-		count = IoUtil.fillBuffer(in, outBuffer, 150, 100);
-		assertThat(count, is(50));
-		count = IoUtil.fillBuffer(in, outBuffer, 200, 50);
-		assertThat(count, is(0));
-		assertArray(Arrays.copyOf(outBuffer, 200), inBuffer);
+		IoUtil.transferBytes(in, null, 0);
 	}
 
 }

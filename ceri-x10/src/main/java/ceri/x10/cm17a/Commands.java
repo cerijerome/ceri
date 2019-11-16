@@ -102,7 +102,7 @@ public class Commands {
 	 */
 	private Map<Key, Short> loadCommands() throws IOException {
 		Map<Key, Short> commandTable = new HashMap<>();
-		String s = IoUtil.getClassResourceAsString(getClass(), FILE_SUFFIX);
+		String s = IoUtil.classResourceAsString(getClass(), FILE_SUFFIX);
 		try (BufferedReader in = new BufferedReader(new StringReader(s))) {
 			String nextLine;
 			while ((nextLine = in.readLine()) != null) {
