@@ -87,6 +87,14 @@ public class StringUtil {
 	}
 
 	/**
+	 * Optimized String.format.
+	 */
+	public static String format(String format, Object... objs) {
+		if (objs.length == 0) return format;
+		return String.format(format, objs);
+	}
+
+	/**
 	 * Appends formatted text to string builder.
 	 */
 	public static StringBuilder format(StringBuilder sb, String format, Object... objs) {

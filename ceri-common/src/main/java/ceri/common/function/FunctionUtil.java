@@ -29,6 +29,36 @@ public class FunctionUtil {
 	}
 
 	/**
+	 * Run and ignore declared checked exception. Returns value if no exception occurred,
+	 * null if checked exception occurs. Will not block runtime exceptions.
+	 */
+	public static <E extends Exception, T> T getQuietly(ExceptionSupplier<E, T> supplier) {
+		try {
+			return supplier.get();
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Run and ignore declared checked exception. Returns true if no exception occurred,
+	 * false if checked exception occurs. Will not block runtime exceptions.
+	 */
+	public static <E extends Exception> boolean execQuietly(ExceptionRunnable<E> runnable) {
+		try {
+			runnable.run();
+			return true;
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			// ignore
+			return false;
+		}
+	}
+
+	/**
 	 * Run and ignore any exceptions. Returns true if no exception occurred. Use judiciously, such
 	 * as when closing an object, to squash noisy exceptions.
 	 */
@@ -43,7 +73,19 @@ public class FunctionUtil {
 	}
 
 	/**
-	 * If value is null, return first non-null supplied value. 
+	 * Call and ignore any exceptions. Returns value if no exception occurred. Use judiciously, such
+	 * as when closing an object, to squash noisy exceptions.
+	 */
+	public static <T> T callSilently(ExceptionSupplier<?, T> supplier) {
+		try {
+			return supplier.get();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	/**
+	 * If value is null, return first non-null supplied value.
 	 */
 	@SafeVarargs
 	public static <T> T first(T t, Supplier<T>... suppliers) {

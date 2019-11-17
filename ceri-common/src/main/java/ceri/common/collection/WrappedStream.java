@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import java.util.Collection;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.BiConsumer;
@@ -48,6 +49,25 @@ public class WrappedStream<E extends Exception, T> {
 				}
 			};
 		return WrappedStream.of(wrapper, StreamSupport.stream(spliterator, parallel));
+	}
+
+	public static <E extends Exception, T, R> WrappedStream<E, R> mapped(Stream<T> stream,
+		ExceptionFunction<E, T, R> fn) {
+		return WrappedStream.<E, T>of(stream).map(fn);
+	}
+
+	public static <E extends Exception, T, R> WrappedStream<E, R> stream(Collection<T> collection,
+		ExceptionFunction<E, T, R> fn) {
+		return mapped(collection.stream(), fn);
+	}
+
+	public static <E extends Exception, T> WrappedStream<E, T> stream(Class<E> cls,
+		Collection<T> collection) {
+		return stream(cls, collection);
+	}
+
+	public static <E extends Exception, T> WrappedStream<E, T> stream(Collection<T> collection) {
+		return of(collection.stream());
 	}
 
 	@SafeVarargs

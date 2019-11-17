@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.date.DateUtil;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.ExceptionUtil;
 
@@ -41,6 +42,9 @@ import ceri.common.util.ExceptionUtil;
  *  4 = class:line stack trace
  *  5 = message
  * </pre>
+ * 
+ * Log methods always return null. This allows for callers to simplify multi-stage evaluations
+ * where a failed evaluation results in null, and requires a message to be logged.
  */
 public class Logger {
 	private static final int STACK_OFFSET = 3;
@@ -162,41 +166,42 @@ public class Logger {
 		flags = ImmutableUtil.copyAsSet(builder.flags);
 	}
 
-	public void trace(String format, Object... args) {
-		log(TRACE, null, format, args);
+	public <T> T trace(String format, Object... args) {
+		return log(TRACE, null, format, args);
 	}
 
-	public void debug(String format, Object... args) {
-		log(DEBUG, null, format, args);
+	public <T> T debug(String format, Object... args) {
+		return log(DEBUG, null, format, args);
 	}
 
-	public void info(String format, Object... args) {
-		log(INFO, null, format, args);
+	public <T> T info(String format, Object... args) {
+		return log(INFO, null, format, args);
 	}
 
-	public void warn(String format, Object... args) {
-		log(WARN, null, format, args);
+	public <T> T warn(String format, Object... args) {
+		return log(WARN, null, format, args);
 	}
 
-	public void error(String format, Object... args) {
-		log(ERROR, null, format, args);
+	public <T> T error(String format, Object... args) {
+		return log(ERROR, null, format, args);
 	}
 
-	public void catching(Throwable t) {
-		log(ERROR, t, null);
+	public <T> T catching(Throwable t) {
+		return log(ERROR, t, null);
 	}
 
-	public void log(Level level, Throwable t) {
-		log(level, t, null);
+	public <T> T log(Level level, Throwable t) {
+		return log(level, t, null);
 	}
 
-	private void log(Level level, Throwable t, String format, Object... args) {
-		if (!minLevel.valid(level)) return;
+	private <T> T log(Level level, Throwable t, String format, Object... args) {
+		if (!minLevel.valid(level)) return null;
 		BiConsumer<Level, String> consumer = consumer(level);
-		if (consumer == null) return;
+		if (consumer == null) return null;
 		String message = String.format(this.format, date(), thread(), level, classLine(),
 			format(t, format, args));
 		consumer.accept(level, message);
+		return null;
 	}
 
 	private BiConsumer<Level, String> consumer(Level level) {
@@ -220,9 +225,8 @@ public class Logger {
 	}
 
 	private String format(Throwable t, String format, Object... args) {
-		if (t != null) return ExceptionUtil.stackTrace(t).trim();
-		if (args.length == 0) return format;
-		return String.format(format, args);
+		if (t != null) return StringUtil.trim(ExceptionUtil.stackTrace(t));
+		return StringUtil.format(format, args);
 	}
 
 	private boolean flag(FormatFlag flag) {
