@@ -150,6 +150,7 @@ import ceri.common.io.ResourceListerBehavior;
 import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StateChangeBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
+import ceri.common.log.LevelBehavior;
 import ceri.common.math.AlgebraUtilTest;
 import ceri.common.math.BoundBehavior;
 import ceri.common.math.FractionBehavior;
@@ -411,6 +412,8 @@ import ceri.common.xml.XmlUtilTest;
 	RuntimeIoExceptionBehavior.class, //
 	StateChangeBehavior.class, //
 	StringPrintStreamBehavior.class, //
+	// log
+	LevelBehavior.class, //
 	// math
 	AlgebraUtilTest.class, //
 	BoundBehavior.class, //

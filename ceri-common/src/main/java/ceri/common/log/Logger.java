@@ -8,7 +8,6 @@ import static ceri.common.log.Level.WARN;
 import static ceri.common.log.Logger.FormatFlag.abbreviatePackage;
 import static ceri.common.log.Logger.FormatFlag.noDate;
 import static ceri.common.log.Logger.FormatFlag.noStackTrace;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -60,13 +59,6 @@ public class Logger {
 	private final Level errLevel;
 	private final String format;
 	private final Set<FormatFlag> flags;
-
-	public static void main(String[] args) {
-		Logger logger = Logger.logger();
-		logger.error("This is an error: %d", 100);
-		logger.info("Info message");
-		logger.catching(new IOException("Hello"));
-	}
 
 	/**
 	 * Flags to optimize message creation.

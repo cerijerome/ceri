@@ -16,7 +16,9 @@ public enum Level {
 	}
 	
 	public boolean valid(Level level) {
-		return this != NONE && level != NONE && level != null && level.value >= value;
+		if (this == NONE || level == NONE) return false;
+		if (this == ALL || level == ALL) return true;
+		return level != null && level.value >= value;
 	}
 	
 }

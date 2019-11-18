@@ -1,6 +1,7 @@
 package ceri.common.test;
 
 import static ceri.common.collection.ImmutableUtil.enumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,10 +12,12 @@ import ceri.common.text.RegexUtil;
  * test forms for class name, files and paths.
  */
 public enum TestStyle {
-	none(""),
-	test("Test"),
-	behavior("Behavior");
+	none("", ""),
+	test("Test", "test"),
+	behavior("Behavior", "should");
 
+	// List of main class suffixes that are most likely to use test style
+	private static final List<String> testGuessSuffixes = List.of("Util");
 	private static final Pattern REGEX =
 		RegexUtil.compile("^(.*?)(%s|%s|)(\\.java|\\.class|)$", test.suffix, behavior.suffix);
 	private static final Map<String, TestStyle> lookup = enumMap(t -> t.suffix, TestStyle.class);
@@ -22,7 +25,17 @@ public enum TestStyle {
 	private static final int STYLE_INDEX = 2;
 	private static final int FILE_TYPE_INDEX = 3;
 	public final String suffix;
+	public final String methodPrefix;
 
+	public static TestStyle guessFrom(String name) {
+		Matcher m = RegexUtil.matched(REGEX, name);
+		if (m == null) return none;
+		TestStyle style = fromSuffix(m.group(STYLE_INDEX));
+		if (!style.isNone()) return style;
+		String target = m.group(TARGET_INDEX);
+		return testGuessSuffixes.stream().anyMatch(s -> target.endsWith(s)) ? test : behavior;
+	}
+	
 	/**
 	 * Returns the test target. Simple/full class names, filenames, and paths are permitted. Returns
 	 * given string if it does not match a test style.
@@ -56,8 +69,9 @@ public enum TestStyle {
 		return lookup.getOrDefault(suffix, none);
 	}
 
-	private TestStyle(String suffix) {
+	private TestStyle(String suffix, String methodPrefix) {
 		this.suffix = suffix;
+		this.methodPrefix = methodPrefix;
 	}
 
 	/**

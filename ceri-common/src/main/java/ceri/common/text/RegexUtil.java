@@ -235,8 +235,8 @@ public class RegexUtil {
 	 * Returns the groups of the given matcher as a list.
 	 */
 	public static List<String> groups(Pattern regex, String s) {
-		Matcher m = regex.matcher(s);
-		if (!m.find()) return Collections.emptyList();
+		Matcher m = found(regex, s);
+		if (m == null) return Collections.emptyList();
 		return groups(m);
 	}
 
