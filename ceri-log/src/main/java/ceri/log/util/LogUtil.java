@@ -22,7 +22,7 @@ import ceri.common.function.ExceptionRunnable;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
-import ceri.common.util.HAlign;
+import ceri.common.util.Align;
 import ceri.common.util.StartupValues;
 import ceri.log.io.LogPrintStream;
 
@@ -95,8 +95,7 @@ public class LogUtil {
 	}
 
 	/**
-	 * Constructs an array of closeable instances from each input object and the constructor. If
-	 * any
+	 * Constructs an array of closeable instances from each input object and the constructor. If any
 	 * exception occurs the already created instances will be closed.
 	 */
 	@SafeVarargs
@@ -106,8 +105,7 @@ public class LogUtil {
 	}
 
 	/**
-	 * Constructs an array of closeable instances from each input object and the constructor. If
-	 * any
+	 * Constructs an array of closeable instances from each input object and the constructor. If any
 	 * exception occurs the already created instances will be closed.
 	 */
 	public static <E extends Exception, T, R extends AutoCloseable> R[] createArray(Logger logger,
@@ -275,8 +273,7 @@ public class LogUtil {
 	}
 
 	/**
-	 * Returns an object whose toString() executes the supplier method. Used for logging lazy
-	 * string
+	 * Returns an object whose toString() executes the supplier method. Used for logging lazy string
 	 * instantiations.
 	 */
 	public static Object toString(final Callable<String> stringSupplier) {
@@ -339,7 +336,7 @@ public class LogUtil {
 		return "\n" +
 			"================================================================================\n" +
 			"|                                                                              |\n" +
-			"| " + StringUtil.pad(title, TITLE_MAX_WIDTH, HAlign.center) + " |\n" +
+			"| " + StringUtil.pad(title, TITLE_MAX_WIDTH, Align.H.center) + " |\n" +
 			"|                                                                              |\n" +
 			"================================================================================";
 	}
