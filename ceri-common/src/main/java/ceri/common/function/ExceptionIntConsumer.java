@@ -1,5 +1,6 @@
 package ceri.common.function;
 
+import static ceri.common.util.ExceptionAdapter.RUNTIME;
 import java.util.Objects;
 import java.util.function.IntConsumer;
 
@@ -15,15 +16,7 @@ public interface ExceptionIntConsumer<E extends Exception> {
 	}
 
 	default IntConsumer asIntConsumer() {
-		return t -> {
-			try {
-				accept(t);
-			} catch (RuntimeException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		};
+		return t -> RUNTIME.run(() -> accept(t));
 	}
 
 	static ExceptionIntConsumer<RuntimeException> of(IntConsumer consumer) {

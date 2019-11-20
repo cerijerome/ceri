@@ -8,6 +8,7 @@ import static ceri.common.log.Level.WARN;
 import static ceri.common.log.Logger.FormatFlag.abbreviatePackage;
 import static ceri.common.log.Logger.FormatFlag.noDate;
 import static ceri.common.log.Logger.FormatFlag.noStackTrace;
+import static ceri.common.log.Logger.FormatFlag.noThread;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,18 +54,20 @@ public class Logger {
 	public static final Consumer<String> STDERR = System.err::println;
 	private static final Map<Object, Logger> loggers = new HashMap<>();
 	private static final Logger DEFAULT = new Builder(null).build();
-	private final BiConsumer<Level, String> err;
-	private final BiConsumer<Level, String> out;
-	private final Level minLevel;
-	private final Level errLevel;
-	private final String format;
-	private final Set<FormatFlag> flags;
+	public final BiConsumer<Level, String> err;
+	public final BiConsumer<Level, String> out;
+	public final Level minLevel;
+	public final Level errLevel;
+	public final String format;
+	public final int threadMax;
+	public final Set<FormatFlag> flags;
 
 	/**
 	 * Flags to optimize message creation.
 	 */
 	public static enum FormatFlag {
 		noDate, // don't evaluate date
+		noThread, // don't evaluate thread
 		noStackTrace, // don't evaluate stack trace
 		abbreviatePackage; // abbreviate class:line package name
 	}
@@ -76,12 +79,17 @@ public class Logger {
 		Level minLevel = Level.INFO;
 		Level errLevel = Level.ERROR;
 		String format = FORMAT;
+		int threadMax = -1;
 		final Collection<FormatFlag> flags = new LinkedHashSet<>();
 
 		Builder(Object key) {
 			this.key = key;
 		}
 
+		public Builder stdErr() {
+			return err(STDERR);
+		}
+		
 		public Builder err(Consumer<String> err) {
 			return err(bi(err));
 		}
@@ -120,6 +128,11 @@ public class Logger {
 			return this;
 		}
 
+		public Builder threadMax(int threadMax) {
+			this.threadMax = threadMax;
+			return this;
+		}
+
 		public Builder flags(FormatFlag... flags) {
 			return flags(Arrays.asList(flags));
 		}
@@ -155,6 +168,7 @@ public class Logger {
 		minLevel = builder.minLevel;
 		errLevel = builder.errLevel;
 		format = builder.format;
+		threadMax = builder.threadMax;
 		flags = ImmutableUtil.copyAsSet(builder.flags);
 	}
 
@@ -188,12 +202,18 @@ public class Logger {
 
 	private <T> T log(Level level, Throwable t, String format, Object... args) {
 		if (!minLevel.valid(level)) return null;
-		BiConsumer<Level, String> consumer = consumer(level);
-		if (consumer == null) return null;
-		String message = String.format(this.format, date(), thread(), level, classLine(),
-			format(t, format, args));
-		consumer.accept(level, message);
+		apply(level, formatMessage(t, format, args), consumer(level));
 		return null;
+	}
+
+	private void apply(Level level, String message, BiConsumer<Level, String> consumer) {
+		if (consumer == null) return;
+		String line = formatLine(format, level, message);
+		consumer.accept(level, line);
+	}
+
+	private String formatLine(String format, Level level, String message) {
+		return String.format(format, date(), thread(), level, classLine(), message);
 	}
 
 	private BiConsumer<Level, String> consumer(Level level) {
@@ -206,7 +226,10 @@ public class Logger {
 	}
 
 	private String thread() {
-		return Thread.currentThread().getName();
+		if (flag(noThread) || threadMax == 0) return "";
+		String s = Thread.currentThread().getName();
+		if (threadMax > 0 && s.length() > threadMax) s = s.substring(0, threadMax);
+		return s;
 	}
 
 	private String classLine() {
@@ -216,7 +239,7 @@ public class Logger {
 		return classLine;
 	}
 
-	private String format(Throwable t, String format, Object... args) {
+	private String formatMessage(Throwable t, String format, Object... args) {
 		if (t != null) return StringUtil.trim(ExceptionUtil.stackTrace(t));
 		return StringUtil.format(format, args);
 	}

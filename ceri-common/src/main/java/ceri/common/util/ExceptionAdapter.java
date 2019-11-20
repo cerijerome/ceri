@@ -1,9 +1,11 @@
 package ceri.common.util;
 
 import java.lang.reflect.Constructor;
-import java.util.concurrent.Callable;
 import java.util.function.Function;
+import ceri.common.function.ExceptionBooleanSupplier;
+import ceri.common.function.ExceptionIntSupplier;
 import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.ExceptionSupplier;
 import ceri.common.reflect.ReflectUtil;
 
 /**
@@ -36,25 +38,45 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 		if (cls.isInstance(t)) return cls.cast(t);
 		return fn.apply(t);
 	}
-	
+
 	public void run(ExceptionRunnable<?> runnable) throws E {
 		try {
-			runnable.run();	
+			runnable.run();
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
 			throw apply(e);
 		}
 	}
-	
-	public <T> T call(Callable<T> callable) throws E {
+
+	public <T> T get(ExceptionSupplier<?, T> supplier) throws E {
 		try {
-			return callable.call();	
+			return supplier.get();
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
 			throw apply(e);
 		}
 	}
-	
+
+	public int getInt(ExceptionIntSupplier<?> supplier) throws E {
+		try {
+			return supplier.getAsInt();
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw apply(e);
+		}
+	}
+
+	public boolean getBoolean(ExceptionBooleanSupplier<?> supplier) throws E {
+		try {
+			return supplier.getAsBoolean();
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw apply(e);
+		}
+	}
+
 }

@@ -40,7 +40,7 @@ import org.junit.Test;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.SystemIo;
 import ceri.common.text.StringUtil;
-import ceri.common.util.HAlign;
+import ceri.common.util.Align;
 
 public class TestUtilTest {
 
@@ -60,7 +60,7 @@ public class TestUtilTest {
 
 	@Test
 	public void testExerciseEnums() {
-		TestUtil.exerciseEnum(HAlign.class);
+		TestUtil.exerciseEnum(Align.H.class);
 		TestUtil.assertThrown(() -> TestUtil.exerciseEnum(BadEnum.class));
 	}
 

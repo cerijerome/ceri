@@ -26,8 +26,8 @@ import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.util.Align;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.HAlign;
 import ceri.common.util.PrimitiveUtil;
 
 /**
@@ -398,7 +398,7 @@ public class StringUtil {
 	 */
 	public static String toUnsigned(long l, int radix, int digits) {
 		String s = Long.toUnsignedString(l, radix);
-		s = pad(s, digits, "0", HAlign.right);
+		s = pad(s, digits, "0", Align.H.right);
 		int len = s.length();
 		return s.substring(len - digits, len);
 	}
@@ -721,30 +721,30 @@ public class StringUtil {
 	public static String pad(long value, int minLength) {
 		if (value == Long.MIN_VALUE) {
 			String str = String.valueOf(value).substring(1);
-			return "-" + pad(str, minLength - 1, "0", HAlign.right);
+			return "-" + pad(str, minLength - 1, "0", Align.H.right);
 		}
 		if (value < 0) return "-" + pad(-value, minLength - 1);
-		return pad(String.valueOf(value), minLength, "0", HAlign.right);
+		return pad(String.valueOf(value), minLength, "0", Align.H.right);
 	}
 
 	/**
 	 * Pads a string with leading spaces.
 	 */
 	public static String pad(CharSequence str, int minLength) {
-		return pad(str, minLength, " ", HAlign.right);
+		return pad(str, minLength, " ", Align.H.right);
 	}
 
 	/**
 	 * Pads a string with leading or trailing characters.
 	 */
-	public static String pad(CharSequence str, int minLength, HAlign align) {
+	public static String pad(CharSequence str, int minLength, Align.H align) {
 		return pad(str, minLength, " ", align);
 	}
 
 	/**
 	 * Pads a string with leading or trailing characters.
 	 */
-	public static String pad(CharSequence str, int minLength, CharSequence pad, HAlign align) {
+	public static String pad(CharSequence str, int minLength, CharSequence pad, Align.H align) {
 		if (str == null) str = "";
 		if (pad == null) pad = "";
 		if (str.length() >= minLength) return str.toString();
@@ -761,9 +761,9 @@ public class StringUtil {
 		return padLen > 0 ? len / padLen : 0;
 	}
 
-	private static int leftCount(int count, HAlign align) {
-		if (align == HAlign.right) return count;
-		if (align == HAlign.center) return count / 2;
+	private static int leftCount(int count, Align.H align) {
+		if (align == Align.H.right) return count;
+		if (align == Align.H.center) return count / 2;
 		return 0;
 	}
 

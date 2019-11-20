@@ -1,5 +1,7 @@
 package ceri.common.function;
 
+import static ceri.common.util.ExceptionAdapter.RUNTIME;
+
 /**
  * Runnable that can throw exceptions.
  */
@@ -7,15 +9,7 @@ public interface ExceptionRunnable<E extends Exception> {
 	void run() throws E;
 
 	default Runnable asRunnable() {
-		return () -> {
-			try {
-				run();
-			} catch (RuntimeException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		};
+		return () -> RUNTIME.run(this);
 	}
 
 	static ExceptionRunnable<RuntimeException> of(Runnable runnable) {

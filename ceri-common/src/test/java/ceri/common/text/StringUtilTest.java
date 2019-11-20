@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
-import ceri.common.util.HAlign;
+import ceri.common.util.Align;
 
 public class StringUtilTest {
 
@@ -306,11 +306,11 @@ public class StringUtilTest {
 	public void testPaddingString() {
 		assertThat(StringUtil.pad("", 0), is(""));
 		assertThat(StringUtil.pad("\uffff", 2), is(" \uffff"));
-		assertThat(StringUtil.pad("\u1fffhello\u2fff", 10, "\u3fff", HAlign.left),
+		assertThat(StringUtil.pad("\u1fffhello\u2fff", 10, "\u3fff", Align.H.left),
 			is("\u1fffhello\u2fff\u3fff\u3fff\u3fff"));
-		assertThat(StringUtil.pad(null, 5, "aa", HAlign.left), is("aaaa"));
-		assertThat(StringUtil.pad("aaa", 5, null, HAlign.left), is("aaa"));
-		assertThat(StringUtil.pad("aaa", 5, HAlign.center), is(" aaa "));
+		assertThat(StringUtil.pad(null, 5, "aa", Align.H.left), is("aaaa"));
+		assertThat(StringUtil.pad("aaa", 5, null, Align.H.left), is("aaa"));
+		assertThat(StringUtil.pad("aaa", 5, Align.H.center), is(" aaa "));
 	}
 
 	@Test

@@ -1,5 +1,6 @@
 package ceri.common.function;
 
+import static ceri.common.util.ExceptionAdapter.RUNTIME;
 import java.util.function.IntSupplier;
 
 /**
@@ -9,15 +10,7 @@ public interface ExceptionIntSupplier<E extends Exception> {
 	int getAsInt() throws E;
 
 	default IntSupplier asIntSupplier() {
-		return () -> {
-			try {
-				return getAsInt();
-			} catch (RuntimeException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		};
+		return () -> RUNTIME.getInt(this);
 	}
 
 	static ExceptionIntSupplier<RuntimeException> of(IntSupplier supplier) {

@@ -1,5 +1,6 @@
 package ceri.common.function;
 
+import static ceri.common.util.ExceptionAdapter.RUNTIME;
 import java.util.Objects;
 import java.util.function.IntUnaryOperator;
 
@@ -18,15 +19,7 @@ public interface ExceptionIntUnaryOperator<E extends Exception> {
 	}
 
 	default IntUnaryOperator asIntUnaryOperator() {
-		return value -> {
-			try {
-				return applyAsInt(value);
-			} catch (RuntimeException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		};
+		return i -> RUNTIME.getInt(() -> applyAsInt(i));
 	}
 
 	static ExceptionIntUnaryOperator<RuntimeException> of(IntUnaryOperator fn) {

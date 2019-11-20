@@ -1,5 +1,6 @@
 package ceri.common.function;
 
+import static ceri.common.util.ExceptionAdapter.RUNTIME;
 import java.util.function.ToIntFunction;
 
 /**
@@ -9,15 +10,7 @@ public interface ExceptionToIntFunction<E extends Exception, T> {
 	int applyAsInt(T value)throws E;
 
 	default ToIntFunction<T> asToIntFunction() {
-		return t -> {
-			try {
-				return applyAsInt(t);
-			} catch (RuntimeException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		};
+		return t -> RUNTIME.getInt(() -> applyAsInt(t));
 	}
 
 	static <T> ExceptionToIntFunction<RuntimeException, T> of(ToIntFunction<T> fn) {

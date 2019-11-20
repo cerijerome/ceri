@@ -12,12 +12,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.ExceptionSupplier;
 
 /**
  * Basic utility methods.
@@ -97,8 +97,8 @@ public class BasicUtil {
 	 * Copy string from the clipboard
 	 */
 	public static String copyFromClipBoard() {
-		return (String) ExceptionUtil.shouldNotThrow(() -> Toolkit.getDefaultToolkit().getSystemClipboard()
-			.getData(DataFlavor.stringFlavor));
+		return (String) ExceptionUtil.shouldNotThrow(() -> Toolkit.getDefaultToolkit()
+			.getSystemClipboard().getData(DataFlavor.stringFlavor));
 	}
 
 	/**
@@ -218,8 +218,8 @@ public class BasicUtil {
 	/**
 	 * Execute callable and convert non-runtime exceptions to runtime.
 	 */
-	public static <T> T runtimeCall(Callable<T> callable) {
-		return ExceptionAdapter.RUNTIME.call(callable);
+	public static <T> T runtimeCall(ExceptionSupplier<?, T> callable) {
+		return ExceptionAdapter.RUNTIME.get(callable);
 	}
 
 	/**

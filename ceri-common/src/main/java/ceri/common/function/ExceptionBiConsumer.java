@@ -1,5 +1,6 @@
 package ceri.common.function;
 
+import static ceri.common.util.ExceptionAdapter.RUNTIME;
 import java.util.function.BiConsumer;
 
 /**
@@ -9,15 +10,7 @@ public interface ExceptionBiConsumer<E extends Exception, T, U> {
 	void accept(T t, U u) throws E;
 
 	default BiConsumer<T, U> asBiConsumer() {
-		return (t, u) -> {
-			try {
-				accept(t, u);
-			} catch (RuntimeException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		};
+		return (t, u) -> RUNTIME.run(() -> accept(t, u));
 	}
 
 	static <T, U> ExceptionBiConsumer<RuntimeException, T, U> of(BiConsumer<T, U> consumer) {

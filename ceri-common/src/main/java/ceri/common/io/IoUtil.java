@@ -96,12 +96,35 @@ public class IoUtil {
 	}
 
 	/**
+	 * Checks if path is the root "/".
+	 */
+	public static boolean isRoot(Path path) {
+		return path != null && path.getNameCount() == 0;
+	}
+
+	public static Path subpath(Path path, int index) {
+		if (path == null) return null;
+		return path.subpath(index, path.getNameCount());
+	}
+	
+	/**
 	 * Returns the last segment of the path as a string, or null if empty.
 	 */
 	public static String filename(Path path) {
 		if (path == null) return null;
 		Path filename = path.getFileName();
 		return filename == null ? null : filename.toString();
+	}
+
+	/**
+	 * Returns the file extension, or null if empty. Does not check if path is a file or if it
+	 * exists.
+	 */
+	public static String extension(Path path) {
+		String filename = filename(path);
+		if (filename == null) return null;
+		int i = filename.lastIndexOf('.');
+		return i == -1 ? "" : filename.substring(i + 1);
 	}
 
 	/**

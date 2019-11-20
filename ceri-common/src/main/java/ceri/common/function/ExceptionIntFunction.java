@@ -1,5 +1,6 @@
 package ceri.common.function;
 
+import static ceri.common.util.ExceptionAdapter.RUNTIME;
 import java.util.function.IntFunction;
 
 /**
@@ -9,15 +10,7 @@ public interface ExceptionIntFunction<E extends Exception, R> {
 	R apply(int value) throws E;
 
 	default IntFunction<R> asIntFunction() {
-		return value -> {
-			try {
-				return apply(value);
-			} catch (RuntimeException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		};
+		return i -> RUNTIME.get(() -> apply(i));
 	}
 
 	static <R> ExceptionIntFunction<RuntimeException, R> of(IntFunction<R> fn) {

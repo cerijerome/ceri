@@ -255,13 +255,13 @@ public class IoUtilTest {
 
 	@Test
 	public void testCallableIo() throws IOException {
-		IoUtil.IO_ADAPTER.call(() -> "a");
+		IoUtil.IO_ADAPTER.get(() -> "a");
 		assertThrown(RuntimeException.class,
-			() -> IoUtil.IO_ADAPTER.call(() -> Integer.valueOf(null)));
-		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.call(() -> {
+			() -> IoUtil.IO_ADAPTER.get(() -> Integer.valueOf(null)));
+		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.get(() -> {
 			throw new Exception();
 		}));
-		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.call(() -> {
+		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.get(() -> {
 			throw new IOException();
 		}));
 	}

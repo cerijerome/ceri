@@ -1,5 +1,6 @@
 package ceri.common.function;
 
+import static ceri.common.util.ExceptionAdapter.RUNTIME;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -29,23 +30,15 @@ public interface ExceptionPredicate<E extends Exception, T> {
 	}
 
 	default Predicate<T> asPredicate() {
-		return t -> {
-			try {
-				return test(t);
-			} catch (RuntimeException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		};
+		return (t) -> RUNTIME.get(() -> test(t));
 	}
 
 	static <T> ExceptionPredicate<RuntimeException, T> of(Predicate<T> predicate) {
 		return predicate::test;
 	}
 
-	static <E extends Exception, T> ExceptionPredicate<E, T> name(
-		ExceptionPredicate<E, T> predicate, String name) {
+	static <E extends Exception, T> ExceptionPredicate<E, T>
+		name(ExceptionPredicate<E, T> predicate, String name) {
 		return new ExceptionPredicate<>() {
 			@Override
 			public boolean test(T t) throws E {

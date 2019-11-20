@@ -69,7 +69,7 @@ public class ResourceLister {
 	}
 
 	private static Path filePath(URL url) throws IOException {
-		return IoUtil.IO_ADAPTER.call(() -> Path.of(url.toURI()));
+		return IoUtil.IO_ADAPTER.get(() -> Path.of(url.toURI()));
 	}
 
 	private static Path jrtPath(URL url) {

@@ -1,5 +1,6 @@
 package ceri.common.function;
 
+import static ceri.common.util.ExceptionAdapter.RUNTIME;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
@@ -10,25 +11,17 @@ public interface ExceptionSupplier<E extends Exception, T> {
 	T get() throws E;
 
 	default Supplier<T> asSupplier() {
-		return () -> {
-			try {
-				return get();
-			} catch (RuntimeException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		};
+		return () -> RUNTIME.get(this);
 	}
 
 	default Callable<T> asCallable() {
 		return () -> get();
 	}
-	
+
 	static <T> ExceptionSupplier<Exception, T> of(Callable<T> supplier) {
 		return supplier::call;
 	}
-	
+
 	static <T> ExceptionSupplier<RuntimeException, T> of(Supplier<T> supplier) {
 		return supplier::get;
 	}

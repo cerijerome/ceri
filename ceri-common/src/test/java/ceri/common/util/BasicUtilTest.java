@@ -50,17 +50,17 @@ public class BasicUtilTest {
 
 	@Test
 	public void testFind() {
-		assertThat(BasicUtil.find(HAlign.class, t -> t != HAlign.left), is(HAlign.center));
-		assertThat(BasicUtil.find(HAlign.class, t -> t.name().endsWith("t")), is(HAlign.left));
-		assertNull(BasicUtil.find(HAlign.class, t -> t.name().endsWith("x")));
+		assertThat(BasicUtil.find(Align.H.class, t -> t != Align.H.left), is(Align.H.center));
+		assertThat(BasicUtil.find(Align.H.class, t -> t.name().endsWith("t")), is(Align.H.left));
+		assertNull(BasicUtil.find(Align.H.class, t -> t.name().endsWith("x")));
 	}
 
 	@Test
 	public void testEnums() {
-		assertIterable(BasicUtil.enums(HAlign.class), HAlign.left, HAlign.center, HAlign.right);
-		assertIterable(BasicUtil.enums(VAlign.class), VAlign.top, VAlign.middle, VAlign.bottom);
-		exerciseEnum(HAlign.class);
-		exerciseEnum(VAlign.class);
+		assertIterable(BasicUtil.enums(Align.H.class), Align.H.left, Align.H.center, Align.H.right);
+		assertIterable(BasicUtil.enums(Align.V.class), Align.V.top, Align.V.middle, Align.V.bottom);
+		exerciseEnum(Align.H.class);
+		exerciseEnum(Align.V.class);
 	}
 
 	@Test

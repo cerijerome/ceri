@@ -9,7 +9,7 @@ import ceri.common.collection.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToStringHelper;
-import ceri.common.util.HAlign;
+import ceri.common.util.Align;
 
 /**
  * Pretty-prints data in binary, hex and/or char format. e.g.
@@ -251,7 +251,7 @@ public class BinaryPrinter {
 	}
 
 	private void appendByte(StringBuilder binB, StringBuilder hexB, StringBuilder charB, int b) {
-		String s = StringUtil.pad(Integer.toBinaryString(b), Byte.SIZE, "0", HAlign.right);
+		String s = StringUtil.pad(Integer.toBinaryString(b), Byte.SIZE, "0", Align.H.right);
 		binB.append(s);
 		s = Integer.toHexString(b).toUpperCase();
 		if (s.length() == 1) hexB.append('0');
