@@ -1,11 +1,15 @@
 package ceri.common.io;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertExists;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import ceri.common.test.Capturer;
 import ceri.common.test.FileTestHelper;
 
 public class FileTrackerBehavior {
@@ -13,56 +17,66 @@ public class FileTrackerBehavior {
 
 	@BeforeClass
 	public static void createTempFiles() throws IOException {
-		helper =
-			FileTestHelper.builder().file("a/a/a.txt", "aaa").file("b/b.txt", "bbb").file("c.txt",
-				"ccc").build();
+		helper = FileTestHelper.builder().file("a/a/a.txt", "aaa").file("b/b.txt", "bbb")
+			.file("c.txt", "ccc").build();
 	}
 
 	@AfterClass
 	public static void deleteTempFiles() {
 		helper.close();
 	}
-	
+
 	@Test
-	public void shouldCreateDirectories() {
+	public void shouldCreateDirectories() throws IOException {
 		FileTracker tracker = new FileTracker();
-		assertFalse(helper.file("x").exists());
-		tracker.dir(helper.file("x/x/x"));
-		assertTrue(helper.file("x/x/x").exists());
-		tracker.dir(helper.file("x/y/z"));
-		assertTrue(helper.file("x/y/z").exists());
-		IoUtil.deleteAll(helper.file("x"));
+		assertExists(helper.path("x"), false);
+		tracker.dir(helper.path("x/x/x"));
+		assertExists(helper.path("x/x/x"), true);
+		tracker.dir(helper.path("x/y/z"));
+		assertExists(helper.path("x/y/z"), true);
+		IoUtil.deleteAll(helper.path("x"));
 	}
 
 	@Test
-	public void shouldCreateFilePathButNotFile() {
+	public void shouldCreateFilePathButNotFile() throws IOException {
 		FileTracker tracker = new FileTracker();
-		assertFalse(helper.file("x").exists());
-		tracker.file(helper.file("x/x/x.txt"));
-		assertTrue(helper.file("x/x").exists());
-		assertFalse(helper.file("x/x/x.txt").exists());
-		tracker.file(helper.file("x/y/z.txt"));
-		assertTrue(helper.file("x/y").exists());
-		assertFalse(helper.file("x/y/z.txt").exists());
-		IoUtil.deleteAll(helper.file("x"));
+		assertExists(helper.path("x"), false);
+		tracker.file(helper.path("x/x/x.txt"));
+		assertExists(helper.path("x/x"), true);
+		assertExists(helper.path("x/x/x.txt"), false);
+		tracker.file(helper.path("x/y/z.txt"));
+		assertExists(helper.path("x/y"), true);
+		assertExists(helper.path("x/y/z.txt"), false);
+		IoUtil.deleteAll(helper.path("x"));
 	}
-	
+
 	@Test
-	public void shouldDeleteCreatedDirsOnly() {
+	public void shouldDeleteCreatedDirsOnly() throws IOException {
 		FileTracker tracker = new FileTracker();
-		tracker.dir(helper.file("a/x/y/z"));
-		assertTrue(helper.file("a/x/y/z").exists());
-		tracker.dir(helper.file("x/y/z"));
-		assertTrue(helper.file("x/y/z").exists());
-		assertTrue(helper.file("a/a/a.txt").exists());
-		tracker.dir(helper.file("a/a"));
-		assertTrue(helper.file("b/b.txt").exists());
-		tracker.file(helper.file("b/b.txt"));
+		tracker.dir(helper.path("a/x/y/z"));
+		assertExists(helper.path("a/x/y/z"), true);
+		tracker.dir(helper.path("x/y/z"));
+		assertExists(helper.path("x/y/z"), true);
+		assertExists(helper.path("a/a/a.txt"), true);
+		tracker.dir(helper.path("a/a"));
+		assertExists(helper.path("b/b.txt"), true);
+		tracker.file(helper.path("b/b.txt"));
 		tracker.delete();
-		assertFalse(helper.file("a/x").exists());
-		assertFalse(helper.file("x").exists());
-		assertTrue(helper.file("a/a/a.txt").exists());
-		assertTrue(helper.file("b/b.txt").exists());
+		assertExists(helper.path("a/x"), false);
+		assertExists(helper.path("x"), false);
+		assertExists(helper.path("a/a/a.txt"), true);
+		assertExists(helper.path("b/b.txt"), true);
+	}
+
+	@Test
+	public void shouldNotifyDeletinFailures() throws IOException {
+		FileTracker tracker = new FileTracker();
+		tracker.dir(helper.path("z/z"));
+		Files.delete(helper.path("z/z"));
+		Capturer.Bi<IOException, Path> capturer = Capturer.ofBi();
+		tracker.delete(capturer::accept);
+		assertThat(capturer.first.values.size(), is(1));
+		assertThat(capturer.second.values.size(), is(1));
 	}
 
 }

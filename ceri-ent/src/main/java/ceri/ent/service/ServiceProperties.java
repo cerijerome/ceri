@@ -1,6 +1,6 @@
 package ceri.ent.service;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import ceri.common.property.BaseProperties;
@@ -19,21 +19,21 @@ public class ServiceProperties extends BaseProperties {
 	private static final String NULLS_KEY = "nulls";
 	private static final String ALWAYS_SAVE_KEY = "always.save";
 	private static final String FILE_KEY = "file";
-	
-	public ServiceProperties(Properties properties, String...groups) {
+
+	public ServiceProperties(Properties properties, String... groups) {
 		this(BaseProperties.from(properties), groups);
 	}
 
-	public ServiceProperties(BaseProperties properties, String...groups) {
+	public ServiceProperties(BaseProperties properties, String... groups) {
 		super(properties, groups);
 	}
 
-	public File cacheFile() {
+	public Path cacheFile() {
 		String fileName = value(CACHE_KEY, FILE_KEY);
 		if (fileName == null) return null;
-		return new File(fileName);
+		return Path.of(fileName);
 	}
-	
+
 	public Long cacheDurationMs() {
 		Long hours = cacheDurationHours();
 		if (hours != null) return TimeUnit.HOURS.toMillis(hours);
@@ -41,7 +41,7 @@ public class ServiceProperties extends BaseProperties {
 		if (days != null) return TimeUnit.DAYS.toMillis(days);
 		return null;
 	}
-	
+
 	public Long cacheRandomizeMs() {
 		Long hours = cacheRandomizeHours();
 		if (hours != null) return TimeUnit.HOURS.toMillis(hours);
@@ -49,7 +49,7 @@ public class ServiceProperties extends BaseProperties {
 		if (days != null) return TimeUnit.DAYS.toMillis(days);
 		return null;
 	}
-	
+
 	private Long cacheDurationDays() {
 		return longValue(CACHE_KEY, DURATION_KEY, DAYS_KEY);
 	}
@@ -77,9 +77,9 @@ public class ServiceProperties extends BaseProperties {
 	public Boolean cacheNulls() {
 		return booleanValue(CACHE_KEY, NULLS_KEY);
 	}
-	
+
 	public Boolean alwaysSave() {
 		return booleanValue(ALWAYS_SAVE_KEY);
 	}
-	
+
 }

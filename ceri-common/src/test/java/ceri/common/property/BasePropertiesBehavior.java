@@ -3,12 +3,12 @@ package ceri.common.property;
 import static ceri.common.property.PropertyUtil.load;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.TestUtil.assertPath;
 import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -174,8 +174,8 @@ public class BasePropertiesBehavior {
 		assertThat(bp.floatValue(1.0f, "a.b.c"), is(3.0f));
 		assertThat(bp.doubleValue("a.b.c"), is(3.0));
 		assertThat(bp.doubleValue(1.0, "a.b.c"), is(3.0));
-		assertThat(bp.fileValue("m.n.0.b.c.d"), is(new File("mn0bcd")));
-		assertThat(bp.fileValue(new File("a"), "m.n.0.b.c.d"), is(new File("mn0bcd")));
+		assertPath(bp.pathValue("m.n.0.b.c.d"), "mn0bcd");
+		assertPath(bp.pathValue(java.nio.file.Path.of("a"), "m.n.0.b.c.d"), "mn0bcd");
 	}
 
 	@Test
@@ -281,7 +281,7 @@ public class BasePropertiesBehavior {
 		assertThat(bp.longValue(Long.MIN_VALUE, "xx"), is(Long.MIN_VALUE));
 		assertThat(bp.floatValue(Float.MIN_VALUE, "xx"), is(Float.MIN_VALUE));
 		assertThat(bp.doubleValue(Double.MIN_VALUE, "xx"), is(Double.MIN_VALUE));
-		assertThat(bp.fileValue(new File("a"), "xx"), is(new File("a")));
+		assertPath(bp.pathValue(java.nio.file.Path.of("a"), "xx"), "a");
 	}
 
 	@Test

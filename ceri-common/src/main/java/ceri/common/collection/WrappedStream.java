@@ -21,7 +21,7 @@ import ceri.common.util.BasicUtil;
 /**
  * Wrapped stream that allows and throws checked exceptions.
  */
-public class WrappedStream<E extends Exception, T> {
+public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 	private final FunctionWrapper<E> w;
 	private final Stream<T> stream;
 
@@ -99,6 +99,11 @@ public class WrappedStream<E extends Exception, T> {
 		this.stream = stream;
 	}
 
+	@Override
+	public void close() {
+		stream.close();
+	}
+	
 	public <R> WrappedStream<E, R> map(ExceptionFunction<E, T, R> mapFn) {
 		return new WrappedStream<>(w, stream.map(w.wrap(mapFn)));
 	}

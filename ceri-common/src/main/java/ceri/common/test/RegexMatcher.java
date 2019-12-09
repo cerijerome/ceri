@@ -11,10 +11,6 @@ public class RegexMatcher<T> extends BaseMatcher<T> {
 		this.pattern = pattern;
 	}
 
-	public RegexMatcher(String regex) {
-		this(Pattern.compile(regex));
-	}
-
 	@Override
 	public void describeTo(Description description) {
 		description.appendText("matches regex \"" + pattern.pattern() + "\"");

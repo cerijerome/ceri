@@ -32,6 +32,16 @@ public class ReflectUtilTest {
 	}
 
 	@Test
+	public void testPackageLevels() {
+		assertThat(ReflectUtil.packageLevels((Class<?>) null), is(0));
+		assertThat(ReflectUtil.packageLevels(getClass()), is(3));
+		assertThat(ReflectUtil.packageLevels((String) null), is(0));
+		assertThat(ReflectUtil.packageLevels(""), is(0));
+		assertThat(ReflectUtil.packageLevels("a"), is(1));
+		assertThat(ReflectUtil.packageLevels("a.b.c.d"), is(4));
+	}
+
+	@Test
 	public void testForName() {
 		assertThat(ReflectUtil.forName("java.lang.String"), isClass(String.class));
 		TestUtil.assertThrown(() -> ReflectUtil.forName("___"));
@@ -52,6 +62,12 @@ public class ReflectUtilTest {
 				return "test";
 			}
 		}), is("test"));
+		assertThat(ReflectUtil.toStringOrHash(new Object() {
+			@Override
+			public String toString() {
+				return "test@";
+			}
+		}), is("test@"));
 	}
 
 	@Test

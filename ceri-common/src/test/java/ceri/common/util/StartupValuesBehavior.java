@@ -1,9 +1,10 @@
 package ceri.common.util;
 
+import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
+import static ceri.common.test.TestUtil.firstSystemPropertyName;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import java.util.Set;
 import org.junit.Test;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.io.SystemIo;
@@ -20,7 +21,7 @@ public class StartupValuesBehavior {
 
 	@Test
 	public void shouldLookupValue() {
-		String sysProp = firstSysPropertyName();
+		String sysProp = firstSystemPropertyName();
 		assertThat(StartupValues.lookup(sysProp).get(), is(System.getProperty(sysProp)));
 	}
 
@@ -52,7 +53,7 @@ public class StartupValuesBehavior {
 	@Test
 	public void shouldGetSystemProperties() {
 		StartupValues v = StartupValues.of();
-		String sysProp = firstSysPropertyName();
+		String sysProp = firstSystemPropertyName();
 		assertThat(v.value(sysProp, null).get(), is(System.getProperty(sysProp)));
 	}
 
@@ -68,7 +69,7 @@ public class StartupValuesBehavior {
 		value = v.value("testName");
 		assertThat(value.sysProp, is("ceri.common.util.testName"));
 		assertThat(value.envVar, is("CERI_COMMON_UTIL_TESTNAME"));
-	}	
+	}
 
 	@Test
 	public void shouldConvertValueToType() {
@@ -97,25 +98,13 @@ public class StartupValuesBehavior {
 		assertThat(v.value(1).apply(String::length, 0), is(0));
 		assertNull(v.value(1).applyFrom(String::length, null));
 	}
-	
+
 	@Test
 	public void shouldGetEnvironmentVariables() {
 		StartupValues v = StartupValues.of();
-		String envVar = firstEnvVariableName();
+		String envVar = firstEnvironmentVariableName();
 		assertThat(v.value(0, null, envVar).get(), is(System.getenv().get(envVar)));
 		assertThat(v.value("", "").get("x"), is("x"));
-	}
-
-	private String firstSysPropertyName() {
-		Set<Object> keys = System.getProperties().keySet();
-		if (keys.isEmpty()) return "none";
-		return String.valueOf(keys.iterator().next());
-	}
-
-	private String firstEnvVariableName() {
-		Set<String> keys = System.getenv().keySet();
-		if (keys.isEmpty()) return "none";
-		return keys.iterator().next();
 	}
 
 }

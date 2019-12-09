@@ -1,7 +1,6 @@
 package ceri.common.property;
 
 import static ceri.common.collection.StreamUtil.toList;
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -638,16 +637,16 @@ public abstract class BaseProperties {
 	 * Retrieves the File property from prefixed, dot-separated key. Returns null if no value exists
 	 * for the key.
 	 */
-	protected File fileValue(String... keyParts) {
-		return fileValue(null, keyParts);
+	protected java.nio.file.Path pathValue(String... keyParts) {
+		return pathValue(null, keyParts);
 	}
 
 	/**
 	 * Retrieves the File property from prefixed, dot-separated key. Returns default value if no
 	 * value exists for the key.
 	 */
-	protected File fileValue(File def, String... keyParts) {
-		return value(def, File::new, keyParts);
+	protected java.nio.file.Path pathValue(java.nio.file.Path def, String... keyParts) {
+		return value(def, java.nio.file.Path::of, keyParts);
 	}
 
 	/**

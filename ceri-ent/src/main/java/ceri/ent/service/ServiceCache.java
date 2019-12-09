@@ -1,8 +1,8 @@
 package ceri.ent.service;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -103,7 +103,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 			return this;
 		}
 
-		public Builder<K, V> store(JsonCoder<Collection<Entry<K, V>>> coder, File file) {
+		public Builder<K, V> store(JsonCoder<Collection<Entry<K, V>>> coder, Path file) {
 			return store(JsonFileStore.create(coder, file));
 		}
 

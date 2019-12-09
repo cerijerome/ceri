@@ -15,6 +15,8 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 	public static ExceptionAdapter<Exception> NULL = of(Exception.class, Exception::new);
 	public static ExceptionAdapter<RuntimeException> RUNTIME =
 		of(RuntimeException.class, RuntimeException::new);
+	public static ExceptionAdapter<IllegalArgumentException> ILLEGAL_ARGUMENT =
+		of(IllegalArgumentException.class, IllegalArgumentException::new);
 	private final Class<E> cls;
 	private final Function<Throwable, E> fn;
 

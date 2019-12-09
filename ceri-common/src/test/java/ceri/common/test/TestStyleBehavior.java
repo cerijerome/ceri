@@ -13,6 +13,18 @@ import org.junit.Test;
 public class TestStyleBehavior {
 
 	@Test
+	public void shouldGuessStyleFromTargetOrTestClass() {
+		assertThat(TestStyle.guessFrom((Class<?>) null), is(none));
+		assertThat(TestStyle.guessFrom(TestUtil.class), is(test));
+		assertThat(TestStyle.guessFrom(TestStyle.class), is(behavior));
+		assertThat(TestStyle.guessFrom(TestStyleBehavior.class), is(behavior));
+		assertThat(TestStyle.guessFrom((String) null), is(none));
+		assertThat(TestStyle.guessFrom(""), is(none));
+		assertThat(TestStyle.guessFrom("Util"), is(test));
+		assertThat(TestStyle.guessFrom("Helper"), is(behavior));
+	}
+
+	@Test
 	public void shouldConvertToTest() {
 		assertNull(test.test(null));
 		assertThat(test.test(""), is("Test"));

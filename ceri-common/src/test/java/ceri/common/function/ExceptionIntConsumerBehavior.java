@@ -28,7 +28,7 @@ public class ExceptionIntConsumerBehavior {
 	@Test
 	public void shouldSequenceOperators() throws IOException {
 		Capturer.Int capturer = Capturer.ofInt();
-		ExceptionIntConsumer<IOException> f = intConsumer().andThen(capturer.toExInt());
+		ExceptionIntConsumer<IOException> f = intConsumer().andThen(capturer::accept);
 		f.accept(2);
 		capturer.verify(2);
 		assertThrown(IOException.class, () -> f.accept(1));

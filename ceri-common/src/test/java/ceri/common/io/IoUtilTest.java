@@ -3,11 +3,13 @@ package ceri.common.io;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertFile;
+import static ceri.common.test.TestUtil.assertHelperPaths;
+import static ceri.common.test.TestUtil.assertPath;
+import static ceri.common.test.TestUtil.assertPaths;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEnum;
-import static ceri.common.test.TestUtil.matchesRegex;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
+import static ceri.common.test.TestUtil.inputStream;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -18,39 +20,41 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
-import java.util.MissingResourceException;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.stubbing.answers.ThrowsException;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.collection.WrappedStream;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.TestUtil;
 
 public class IoUtilTest {
 	private static FileTestHelper helper = null;
 
 	@BeforeClass
-	public static void createTempFiles() throws IOException {
-		helper = FileTestHelper.builder(IoUtil.systemTempDir()) //
-			.file("a/a/a.txt", "aaa").file("b/b.txt", "bbb").file("c.txt", "ccc").build();
+	public static void createFiles() throws IOException {
+		helper = FileTestHelper.builder(IoUtil.systemTempDir()).file("a/a/a.txt", "aaa")
+			.file("b/b.txt", "bbb").file("c.txt", "ccc").dir("d").build();
 	}
 
 	@AfterClass
-	public static void deleteTempFiles() {
+	public static void deleteFiles() {
 		helper.close();
 	}
 
@@ -60,8 +64,29 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void test() {
-		exerciseEnum(DeviceMode.class);
+	public void testExecIo() throws IOException {
+		IoUtil.IO_ADAPTER.run(() -> {});
+		assertThrown(RuntimeException.class,
+			() -> IoUtil.IO_ADAPTER.run(() -> Integer.valueOf(null)));
+		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.run(() -> {
+			throw new Exception();
+		}));
+		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.run(() -> {
+			throw new IOException();
+		}));
+	}
+
+	@Test
+	public void testCallableIo() throws IOException {
+		IoUtil.IO_ADAPTER.get(() -> "a");
+		assertThrown(RuntimeException.class,
+			() -> IoUtil.IO_ADAPTER.get(() -> Integer.valueOf(null)));
+		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.get(() -> {
+			throw new Exception();
+		}));
+		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.get(() -> {
+			throw new IOException();
+		}));
 	}
 
 	@Test
@@ -93,16 +118,185 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testClassUrl() {
-		URL url = IoUtil.classUrl(String.class);
-		assertTrue(url.getPath().endsWith("/java/lang/String.class"));
+	public void testSystemTempDir() {
+		assertPath(IoUtil.systemTempDir(), System.getProperty("java.io.tmpdir"));
 	}
 
 	@Test
-	public void testCheckIoInterrupted() throws InterruptedIOException {
-		IoUtil.checkIoInterrupted();
-		Thread.currentThread().interrupt();
-		assertThrown(InterruptedIOException.class, IoUtil::checkIoInterrupted);
+	public void testUserHome() {
+		assertPath(IoUtil.userHome(), System.getProperty("user.home"));
+		assertPath(IoUtil.userHome("test"),
+			System.getProperty("user.home") + File.separator + "test");
+	}
+
+	@Test
+	public void testSystemPropertyPath() {
+		assertNull(IoUtil.systemPropertyPath("?"));
+	}
+
+	@Test
+	public void testEnvironmentPath() {
+		assertNull(IoUtil.environmentPath("?"));
+		String name = firstEnvironmentVariableName();
+		assertPath(IoUtil.environmentPath(name), System.getenv(name));
+	}
+
+	@Test
+	public void testExtend() throws IOException {
+		try (ResourcePath rp = ResourcePath.of(String.class)) {
+			assertNull(IoUtil.extend(null, "test"));
+			assertPath(IoUtil.extend(rp.path()), rp.path().toString());
+			assertPath(IoUtil.extend(rp.path(), "ref", "Finalizer.class"),
+				rp.path() + "/ref/Finalizer.class");
+		}
+	}
+
+	@Test
+	public void testRoot() {
+		assertNull(IoUtil.root(null));
+		assertPath(IoUtil.root(FileSystems.getDefault()), "/");
+		@SuppressWarnings("resource")
+		FileSystem mockFs = Mockito.mock(FileSystem.class);
+		when(mockFs.getRootDirectories()).thenReturn(List.of());
+		assertNull(IoUtil.root(mockFs));
+	}
+
+	@Test
+	public void testIsRoot() {
+		assertFalse(IoUtil.isRoot(null));
+		assertFalse(IoUtil.isRoot(Path.of("")));
+		assertFalse(IoUtil.isRoot(Path.of("test")));
+		assertFalse(IoUtil.isRoot(Path.of("/test")));
+		assertTrue(IoUtil.isRoot(Path.of("/")));
+	}
+
+	@Test
+	public void testChangeName() {
+		assertNull(IoUtil.changeName(null, "test"));
+		assertPath(IoUtil.changeName(Path.of(""), ""), "");
+		assertPath(IoUtil.changeName(Path.of(""), "hello"), "hello");
+		assertPath(IoUtil.changeName(Path.of("test"), "hello"), "hello");
+		assertPath(IoUtil.changeName(Path.of("test/"), "hello"), "hello"); // path = "test"
+		assertPath(IoUtil.changeName(Path.of("/"), "hello"), "/hello");
+		assertPath(IoUtil.changeName(Path.of("/test"), "hello"), "/hello");
+		assertPath(IoUtil.changeName(Path.of("/test/test"), "hello"), "/test/hello");
+	}
+
+	@Test
+	public void testName() {
+		assertNull(IoUtil.name(null, 0));
+		assertNull(IoUtil.name(Path.of("/a/b/c/d"), -1));
+		assertNull(IoUtil.name(Path.of("/a/b/c/d"), 4));
+		assertThat(IoUtil.name(Path.of("/a/b/c/d"), 0), is("a"));
+		assertThat(IoUtil.name(Path.of("/a/b/c/d"), 3), is("d"));
+		assertNull(IoUtil.name(Path.of("/"), 0));
+		assertThat(IoUtil.name(Path.of(""), 0), is(""));
+	}
+
+	@Test
+	public void testSubpath() {
+		assertNull(IoUtil.subpath(null, 0));
+		assertPath(IoUtil.subpath(Path.of("/"), 0), "");
+		assertPath(IoUtil.subpath(Path.of(""), 0), "");
+		assertThrown(() -> IoUtil.subpath(Path.of(""), 1));
+		assertPath(IoUtil.subpath(Path.of("/a/b/c"), 0), "a/b/c");
+		assertPath(IoUtil.subpath(Path.of("/a/b/c"), 2), "c");
+		assertPath(IoUtil.subpath(Path.of("/a/b/c"), 3), "");
+		assertThrown(() -> IoUtil.subpath(Path.of("/a/b/c"), 4));
+
+		assertNull(IoUtil.subpath(null, 0, 0));
+		assertPath(IoUtil.subpath(Path.of("a"), 0, 1), "a");
+		assertPath(IoUtil.subpath(Path.of("/a/b/c/d"), 1, 3), "b/c");
+		assertPath(IoUtil.subpath(Path.of("/a/b/c"), 0, 0), "");
+		assertPath(IoUtil.subpath(Path.of("a/b/c"), 0, 0), "");
+	}
+
+	@Test
+	public void testShorten() {
+		assertNull(IoUtil.shorten(null, 0));
+		assertPath(IoUtil.shorten(Path.of("a"), 0), "a");
+		assertPath(IoUtil.shorten(Path.of("/"), 0), "/");
+		assertThrown(() -> IoUtil.shorten(Path.of("/"), 1));
+		assertPath(IoUtil.shorten(Path.of("/a/b/c"), 0), "/a/b/c");
+		assertPath(IoUtil.shorten(Path.of("/a/b/c"), 2), "/a");
+		assertPath(IoUtil.shorten(Path.of("/a/b/c"), 3), "/");
+		assertPath(IoUtil.shorten(Path.of("a/b/c"), 0), "a/b/c");
+		assertPath(IoUtil.shorten(Path.of("a/b/c"), 2), "a");
+		assertPath(IoUtil.shorten(Path.of("a/b/c"), 3), "");
+	}
+
+	@Test
+	public void testFilename() {
+		assertNull(IoUtil.fileName(null));
+		assertThat(IoUtil.fileName(Path.of("/")), is(""));
+		assertThat(IoUtil.fileName(Path.of("")), is(""));
+		assertThat(IoUtil.fileName(Path.of("/a")), is("a"));
+		assertThat(IoUtil.fileName(Path.of("/a/b")), is("b"));
+		assertThat(IoUtil.fileName(Path.of("a")), is("a"));
+		assertThat(IoUtil.fileName(Path.of("a/b")), is("b"));
+	}
+
+	@Test
+	public void testExtension() {
+		assertNull(IoUtil.extension(null));
+		assertThat(IoUtil.extension(Path.of("/")), is(""));
+		assertThat(IoUtil.extension(Path.of("")), is(""));
+		assertThat(IoUtil.extension(Path.of(".file")), is(""));
+		assertThat(IoUtil.extension(Path.of("/a")), is(""));
+		assertThat(IoUtil.extension(Path.of("/a.txt")), is("txt"));
+		assertThat(IoUtil.extension(Path.of("a.b.c")), is("c"));
+	}
+
+	@Test
+	public void testCreateTempDir() throws IOException {
+		Path tempDir = IoUtil.createTempDir(helper.root);
+		assertTrue(Files.exists(tempDir));
+		assertTrue(Files.isDirectory(tempDir));
+		Files.delete(tempDir);
+		try {
+			tempDir = IoUtil.createTempDir(null);
+			assertNull(tempDir.getParent());
+		} finally {
+			Files.delete(tempDir);
+		}
+	}
+
+	@Test
+	public void testDeleteAll() throws IOException {
+		try (FileTestHelper deleteHelper = FileTestHelper.builder(helper.root).file("x/x/x.txt", "")
+			.dir("y/y").file("z.txt", "").build()) {
+			assertFalse(IoUtil.deleteAll(null));
+			assertFalse(IoUtil.deleteAll(Path.of("XXX/XXX/XXX/XXX")));
+			assertThrown(() -> IoUtil.deleteAll(Path.of("/XXX/XXX/XXX")));
+			assertFalse(IoUtil.deleteAll(deleteHelper.path("z.txt")));
+			assertTrue(Files.exists(deleteHelper.path("x/x/x.txt")));
+			assertTrue(Files.exists(deleteHelper.path("y/y")));
+			assertTrue(Files.exists(deleteHelper.path("z.txt")));
+			IoUtil.deleteAll(deleteHelper.root);
+			assertFalse(Files.exists(deleteHelper.root));
+		}
+	}
+
+	@Test
+	public void testDeleteEmptyDirs() throws IOException {
+		try (FileTestHelper deleteHelper =
+			FileTestHelper.builder(helper.root).dir("x/x/x").file("y/y.txt", "").dir("z").build()) {
+			assertTrue(Files.exists(deleteHelper.path("x/x/x")));
+			assertTrue(Files.exists(deleteHelper.path("y/y.txt")));
+			assertTrue(Files.exists(deleteHelper.path("z")));
+			IoUtil.deleteEmptyDirs(deleteHelper.root);
+			assertFalse(Files.exists(deleteHelper.path("x/x/x")));
+			assertTrue(Files.exists(deleteHelper.path("y/y.txt")));
+			assertFalse(Files.exists(deleteHelper.path("z")));
+		}
+	}
+
+	@Test
+	public void testIsEmptyDir() throws IOException {
+		assertFalse(IoUtil.isEmptyDir(null));
+		assertFalse(IoUtil.isEmptyDir(helper.path("a")));
+		assertFalse(IoUtil.isEmptyDir(helper.path("a/a/a.txt")));
+		assertTrue(IoUtil.isEmptyDir(helper.path("d")));
 	}
 
 	@Test
@@ -123,52 +317,10 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testCopyFile() throws IOException {
-		File toFile = helper.file("x/x/x.txt");
-		IoUtil.copyFile(helper.file("a/a/a.txt"), toFile);
-		assertFile(helper.file("a/a/a.txt"), toFile);
-		IoUtil.deleteAll(helper.file("x"));
-		File badFile = mock(File.class);
-		assertThrown(RuntimeException.class,
-			() -> IoUtil.copyFile(helper.file("a/a/a.txt"), badFile));
-	}
-
-	@Test
-	public void testCreateTempDir() {
-		File tempDir = IoUtil.createTempDir(helper.root);
-		assertTrue(tempDir.exists());
-		assertTrue(tempDir.isDirectory());
-		tempDir.delete();
-		// Should fail - generating same dir each iteration
-		TestUtil.assertThrown(() -> IoUtil.createTempDir(helper.root, file -> helper.file("a")));
-		// Should fail - parent path is an existing file
-		TestUtil
-			.assertThrown(() -> IoUtil.createTempDir(helper.root, file -> helper.file("c.txt/c")));
-	}
-
-	@Test
-	public void testDeleteAll() throws IOException {
-		try (FileTestHelper deleteHelper = FileTestHelper.builder(helper.root).file("x/x/x.txt", "")
-			.dir("y/y").file("z.txt", "").build()) {
-			assertTrue(deleteHelper.file("x/x/x.txt").exists());
-			assertTrue(deleteHelper.file("y/y").exists());
-			assertTrue(deleteHelper.file("z.txt").exists());
-			IoUtil.deleteAll(deleteHelper.root);
-			assertFalse(deleteHelper.root.exists());
-		}
-	}
-
-	@Test
-	public void testDeleteEmptyDirs() throws IOException {
-		try (FileTestHelper deleteHelper =
-			FileTestHelper.builder(helper.root).dir("x/x/x").file("y/y.txt", "").dir("z").build()) {
-			assertTrue(deleteHelper.file("x/x/x").exists());
-			assertTrue(deleteHelper.file("y/y.txt").exists());
-			assertTrue(deleteHelper.file("z").exists());
-			IoUtil.deleteEmptyDirs(deleteHelper.root);
-			assertFalse(deleteHelper.file("x/x/x").exists());
-			assertTrue(deleteHelper.file("y/y.txt").exists());
-			assertFalse(deleteHelper.file("z").exists());
+	public void testPollString() throws IOException {
+		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
+			String s = IoUtil.pollString(in);
+			assertThat(s, is("test"));
 		}
 	}
 
@@ -186,14 +338,6 @@ public class IoUtilTest {
 		try (InputStream in = Mockito.mock(InputStream.class)) {
 			doThrow(new IOException()).when(in).available();
 			assertThat(IoUtil.availableChar(in), is('\0'));
-		}
-	}
-
-	@Test
-	public void testPollString() throws IOException {
-		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
-			String s = IoUtil.pollString(in);
-			assertThat(s, is("test"));
 		}
 	}
 
@@ -241,177 +385,205 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testExecIo() throws IOException {
-		IoUtil.IO_ADAPTER.run(() -> {});
-		assertThrown(RuntimeException.class,
-			() -> IoUtil.IO_ADAPTER.run(() -> Integer.valueOf(null)));
-		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.run(() -> {
-			throw new Exception();
-		}));
-		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.run(() -> {
-			throw new IOException();
-		}));
+	public void testCheckIoInterrupted() throws InterruptedIOException {
+		IoUtil.checkIoInterrupted();
+		Thread.currentThread().interrupt();
+		assertThrown(InterruptedIOException.class, IoUtil::checkIoInterrupted);
 	}
 
 	@Test
-	public void testCallableIo() throws IOException {
-		IoUtil.IO_ADAPTER.get(() -> "a");
-		assertThrown(RuntimeException.class,
-			() -> IoUtil.IO_ADAPTER.get(() -> Integer.valueOf(null)));
-		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.get(() -> {
-			throw new Exception();
-		}));
-		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.get(() -> {
-			throw new IOException();
-		}));
+	public void testPathToUnix() {
+		assertThat(IoUtil.pathToUnix(Path.of("a", "b", "c")), is("a/b/c"));
+		assertThat(IoUtil.pathToUnix(Path.of("")), is(""));
 	}
 
 	@Test
-	public void testUnixPath() {
-		assertThat(IoUtil.unixPath(new File("a/b/c")), is("a/b/c"));
-		assertThat(IoUtil.unixPath("a\\b\\c", '\\', Pattern.compile("\\\\")), is("a/b/c"));
+	public void testUnixToPath() {
+		String path = "a" + File.separatorChar + "b" + File.separatorChar + "c";
+		assertPath(IoUtil.unixToPath("a/b/c"), path);
+	}
+
+	@Test
+	public void testConvertPath() {
+		assertThat(IoUtil.convertPath("a\\b\\c", '\\', '/'), is("a/b/c"));
+	}
+
+	@Test
+	public void testWalkRelative() throws IOException {
+		assertStreamPaths(IoUtil.walkRelative(helper.root), //
+			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt", "d");
+		assertStreamPaths(IoUtil.walkRelative(helper.root, "glob:**/{a,b}"), "a", "a/a", "b");
+		assertStreamPaths(IoUtil.walkRelative(helper.root, (String) null), //
+			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt", "d");
+	}
+
+	@Test
+	public void testWalk() throws IOException {
+		assertStreamHelperPaths(IoUtil.walk(helper.root), //
+			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt", "d");
+		assertStreamHelperPaths(IoUtil.walk(helper.root, "glob:**/{a,b}"), "a", "a/a", "b");
+		assertStreamHelperPaths(IoUtil.walk(helper.root, (String) null), //
+			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt", "d");
+	}
+
+	@Test
+	public void testPathsRelative() throws IOException {
+		assertPaths(IoUtil.pathsRelative(helper.root), //
+			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt", "d");
+		assertPaths(IoUtil.pathsRelative(helper.root, "glob:**/{a,b}"), "a", "a/a", "b");
+		assertPaths(IoUtil.pathsRelative(helper.root, (String) null), //
+			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt", "d");
+	}
+
+	@Test
+	public void testPaths() throws IOException {
+		assertHelperPaths(IoUtil.paths(helper.root), helper, //
+			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt", "d");
+		assertHelperPaths(IoUtil.paths(helper.root, "glob:**/{a,b}"), helper, "a", "a/a", "b");
+		assertHelperPaths(IoUtil.paths(helper.root, (String) null), helper, //
+			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt", "d");
+	}
+
+	@Test
+	public void testPathsCollect() throws IOException {
+		assertCollection(IoUtil.pathsCollect(helper.root, //
+			path -> helper.root.equals(path) ? null : path.getFileName().toString().charAt(0)), //
+			'a', 'a', 'a', 'b', 'b', 'c', 'd');
+	}
+
+	@Test
+	public void testListNames() throws IOException {
+		assertCollection(IoUtil.listNames(helper.root), "a", "b", "c.txt", "d");
+		assertCollection(IoUtil.listNames(helper.path("a")), "a");
+		assertCollection(IoUtil.listNames(helper.path("a/a")), "a.txt");
+		assertCollection(IoUtil.listNames(helper.path("d")));
+		assertCollection(IoUtil.listNames(helper.root, //
+			path -> path.getFileName().toString().length() == 1), "a", "b", "d");
+		assertCollection(IoUtil.listNames(helper.root, "regex:a|.*\\.txt"), "a", "c.txt");
+		assertCollection(IoUtil.listNames(helper.root, (String) null), "a", "b", "c.txt", "d");
+	}
+
+	@Test
+	public void testList() throws IOException {
+		assertHelperPaths(IoUtil.list(helper.root), helper, "a", "b", "c.txt", "d");
+		assertHelperPaths(IoUtil.list(helper.path("a")), helper, "a/a");
+		assertHelperPaths(IoUtil.list(helper.path("a/a")), helper, "a/a/a.txt");
+		assertHelperPaths(IoUtil.list(helper.path("d")), helper);
+		assertHelperPaths(IoUtil.list(helper.root, //
+			path -> path.getFileName().toString().length() == 1), helper, "a", "b", "d");
+		assertHelperPaths(IoUtil.list(helper.root, "glob:?"), helper, "a", "b", "d");
+		assertHelperPaths(IoUtil.list(helper.root, (String) null), helper, "a", "b", "c.txt", "d");
+	}
+
+	@Test
+	public void testListCollect() throws IOException {
+		assertCollection(IoUtil.listCollect(Files.newDirectoryStream(helper.root),
+			path -> path.getFileName().toString().charAt(0)), 'a', 'b', 'c', 'd');
+	}
+
+	@Test
+	public void testDirStreamForEach() {
+		assertThrown(() -> IoUtil.dirStreamForEach(Files.newDirectoryStream(helper.root), path -> {
+			throw new IOException();
+		}));
 	}
 
 	@Test
 	public void testReadString() throws IOException {
-		assertThat(IoUtil.readBytes(helper.file("a/a/a.txt")), is(new byte[] { 'a', 'a', 'a' }));
-		assertThat(IoUtil.readString(helper.file("a/a/a.txt")), is("aaa"));
-		assertThat(IoUtil.readString(helper.file("a/a/a.txt").getAbsolutePath()), is("aaa"));
-		try (InputStream in = new FileInputStream(helper.file("b/b.txt"))) {
-			assertThat(IoUtil.readString(in), is("bbb"));
+		@SuppressWarnings("resource")
+		InputStream in = inputStream('a', 'b', 'c', 0);
+		assertThat(IoUtil.readString(in), is("abc\0"));
+	}
+
+	@Test
+	public void testCopyFile() throws IOException {
+		try {
+			Path fromFile = helper.path("a/a/a.txt");
+			Path toFile = helper.path("x/x/x.txt");
+			IoUtil.copyFile(fromFile, toFile);
+			assertFile(fromFile, toFile);
+
+			Path badFile = mock(Path.class);
+			Path toFile2 = helper.path("x/y/z.txt");
+			assertThrown(() -> IoUtil.copyFile(badFile, toFile2));
+			assertFalse(Files.exists(helper.path("x/y")));
+		} finally {
+			IoUtil.deleteAll(helper.path("x"));
 		}
 	}
 
 	@Test
-	public void testFilenames() {
-		List<String> filenames = IoUtil.filenames(helper.root);
-		assertCollection(filenames, "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt");
-		filenames = IoUtil.filenames(helper.root, RegexFilenameFilter.create(".*\\.txt"));
-		assertCollection(filenames, "a/a/a.txt", "b/b.txt", "c.txt");
-		assertCollection(IoUtil.filenames(new File("")));
+	public void testCopy() throws IOException {
+		try {
+			Path fromFile = helper.path("a/a/a.txt");
+			Path toFile = helper.path("x/x/x.txt");
+			try (InputStream in = Files.newInputStream(fromFile)) {
+				long n = IoUtil.copy(in, toFile);
+				assertThat(n, is(3L));
+				assertFile(fromFile, toFile);
+			}
+			@SuppressWarnings("resource")
+			InputStream badIn = inputStream(0, 1, 2, -2, -2);
+			Path toFile2 = helper.path("x/y/z.txt");
+			assertThrown(() -> IoUtil.copy(badIn, toFile2));
+			assertFalse(Files.exists(helper.path("x/y")));
+		} finally {
+			IoUtil.deleteAll(helper.path("x"));
+		}
 	}
 
 	@Test
-	public void testFiles() {
-		List<File> files = IoUtil.files(helper.root);
-		assertCollection(files, helper.fileList("a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt"));
-		files = IoUtil.files(helper.root, RegexFilenameFilter.create(".*[^\\.txt]"));
-		assertCollection(files, helper.fileList("a", "a/a", "b"));
-		assertCollection(IoUtil.files(new File("")));
+	public void testWrite() throws IOException {
+		try {
+			ImmutableByteArray ba = ImmutableByteArray.wrap('a', 'b', 'c');
+			Path toFile = helper.path("x/x/x.txt");
+			IoUtil.write(toFile, ba);
+			assertFile(toFile, 'a', 'b', 'c');
+
+			var badArray = mock(ImmutableByteArray.class, new ThrowsException(new IOException()));
+			Path toFile2 = helper.path("x/y/z.txt");
+			assertThrown(() -> IoUtil.write(toFile2, badArray));
+			assertFalse(Files.exists(helper.path("x/y")));
+		} finally {
+			IoUtil.deleteAll(helper.path("x"));
+		}
 	}
 
 	@Test
-	public void testRelativePath() throws IOException {
-		String relative = IoUtil.relativePath(new File("/a/b/c"), new File("/d/e/f"));
-		assertThat(IoUtil.unixPath(relative), is("../../../d/e/f"));
-		relative = IoUtil.relativePath(new File("/a/b/c"), new File("/a/b/c/d/e"));
-		assertThat(IoUtil.unixPath(relative), is("d/e"));
-		relative = IoUtil.relativePath(new File("/a/b/c"), new File("/a/x/y"));
-		assertThat(IoUtil.unixPath(relative), is("../../x/y"));
-		File dir = mock(File.class);
-		when(dir.getCanonicalFile()).thenReturn(null);
-		relative = IoUtil.relativePath(dir, new File("/a/b/c"));
-		assertThat(IoUtil.unixPath(relative), is("/a/b/c"));
-	}
-
-	@Test
-	public void testListResourcesFromFile() throws Exception {
-		List<String> resources = IoUtil.listResources(getClass(), "res/test", null);
-		assertCollection(resources, "A.txt", "BB.txt", "CCC.txt");
-	}
-
-	@Test
-	public void testListResourcesFromModule() throws Exception {
-		List<String> resources = IoUtil.listResources(String.class);
-		assertTrue(resources.contains("String.class"));
-		assertTrue(resources.contains("Object.class"));
-		resources = IoUtil.listResources(String.class, "ref", Pattern.compile("Cleaner\\..*"));
-		assertCollection(resources, "Cleaner.class");
-	}
-
-	@Test
-	public void testListResourcesFromJar() throws Exception {
-		List<String> resources = ResourceLister.of(Test.class).list();
-		assertTrue(resources.contains("Test.class"));
-		resources = ResourceLister.of(Test.class, "runner", "Run.*").list();
-		assertCollection(resources, "Runner.class", "RunWith.class");
-	}
-
-	@Test
-	public void testResourceFile() {
-		File f = IoUtil.resourceFile(getClass(), getClass().getSimpleName() + ".properties");
-		assertTrue(f.exists());
-		TestUtil.assertThrown(() -> IoUtil.resourceFile(getClass(), "missing"));
-	}
-
-	@Test
-	public void testResourcePath() {
-		String path = IoUtil.resourcePath(getClass());
-		assertThat(path, matchesRegex("file:.*" + getClass().getPackage().getName() + "/"));
-		path = IoUtil.resourcePath(String.class);
-		assertThat(path, matchesRegex("jrt:.*" + String.class.getPackage().getName() + "/"));
+	public void testClassUrl() {
+		assertNull(IoUtil.classUrl(null));
+		URL url = IoUtil.classUrl(String.class);
+		assertTrue(url.getPath().endsWith("/java/lang/String.class"));
+		url = IoUtil.classUrl(Test.class);
+		assertTrue(url.getPath().endsWith("/org/junit/Test.class"));
+		url = IoUtil.classUrl(IoUtil.class);
+		assertTrue(url.getPath().endsWith("/ceri/common/io/IoUtil.class"));
 	}
 
 	@Test
 	public void testResource() throws IOException {
-		byte[] bytes = IoUtil.resource(getClass(), getClass().getSimpleName() + ".properties");
-		assertThat(bytes, is(new byte[] { 'a', '=', 'b' }));
-		bytes = IoUtil.classResource(getClass(), "properties");
-		assertThat(bytes, is(new byte[] { 'a', '=', 'b' }));
+		byte[] content = IoUtil.resource(getClass(), getClass().getSimpleName() + ".properties");
+		assertArray(content, 'a', '=', 'b');
+		content = IoUtil.resource(String.class, "String.class"); // module
+		assertTrue(content.length > 0);
+		content = IoUtil.resource(Test.class, "Test.class"); // jar
+		assertTrue(content.length > 0);
+	}
+
+	@Test
+	public void testResourceString() throws IOException {
 		String s = IoUtil.resourceString(getClass(), getClass().getSimpleName() + ".properties");
 		assertThat(s, is("a=b"));
-		s = IoUtil.classResourceAsString(getClass(), "properties");
-		assertThat(s, is("a=b"));
-		assertThrown(MissingResourceException.class, () -> IoUtil.resource(getClass(), "test"));
-		TestUtil.assertThrown(() -> IoUtil.resource(getClass(), null));
 	}
 
-	@Test
-	public void testJoinPaths() {
-		assertThat(IoUtil.joinPaths(null, null), is(""));
-		assertThat(IoUtil.joinPaths("", null), is(""));
-		assertThat(IoUtil.joinPaths(null, ""), is(""));
-		assertThat(IoUtil.joinPaths("", ""), is(""));
-		assertThat(IoUtil.joinPaths("/a/b/c/", "/d/e/"), is("/a/b/c/d/e/"));
-		assertThat(IoUtil.joinPaths("/a/b/c", "d/e"), is("/a/b/c/d/e"));
-		assertThat(IoUtil.joinPaths("/a/b/c/", ""), is("/a/b/c/"));
-		assertThat(IoUtil.joinPaths("", "/a/b/c/"), is("/a/b/c/"));
+	private void assertStreamHelperPaths(WrappedStream<IOException, Path> actual, String... paths)
+		throws IOException {
+		assertHelperPaths(actual.collect(Collectors.toList()), helper, paths);
 	}
 
-	@Test
-	public void testSetContent() throws IOException {
-		File file = helper.file("x/x/x.txt");
-		file.getParentFile().mkdirs();
-		IoUtil.write(file, "abc".getBytes());
-		assertThat(IoUtil.readString(file), is("abc"));
-		IoUtil.write(file, ImmutableByteArray.wrap("abc".getBytes()));
-		assertThat(IoUtil.readString(file), is("abc"));
-		IoUtil.writeString(file, "xyz");
-		assertThat(IoUtil.readString(file), is("xyz"));
-		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
-			IoUtil.copy(in, file);
-		}
-		assertThat(IoUtil.readString(file), is("test"));
-		IoUtil.deleteAll(helper.file("x"));
-	}
-
-	@Test
-	public void testTransferContent() throws IOException {
-		String s = "0123456789abcdefghijklmnopqrstuvwxyz\u1fff\2fff\3fff\4fff";
-		ByteArrayInputStream in = new ByteArrayInputStream(s.getBytes(UTF_8));
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		IoUtil.transferBytes(in, out, 1);
-		assertThat(new String(out.toByteArray(), UTF_8), is(s));
-		in.reset();
-		out.reset();
-		IoUtil.transferBytes(in, out, 1000000);
-		assertThat(new String(out.toByteArray(), UTF_8), is(s));
-		in.reset();
-		out.reset();
-		IoUtil.transferBytes(in, out, 0);
-		assertThat(new String(out.toByteArray(), UTF_8), is(s));
-		in.reset();
-		IoUtil.transferBytes(in, null, 0);
+	private void assertStreamPaths(WrappedStream<IOException, Path> actual, String... paths)
+		throws IOException {
+		assertPaths(actual.collect(Collectors.toList()), paths);
 	}
 
 }

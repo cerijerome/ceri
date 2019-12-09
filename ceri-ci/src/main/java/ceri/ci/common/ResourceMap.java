@@ -1,24 +1,21 @@
 package ceri.ci.common;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.JarURLConnection;
-import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.CollectionUtil;
 import ceri.common.io.IoUtil;
+import ceri.common.io.ResourcePath;
 
 /**
  * Resource lookup service from a directory relative to the given class. Handles file resources and
@@ -27,9 +24,6 @@ import ceri.common.io.IoUtil;
  */
 public class ResourceMap {
 	private static final Logger logger = LogManager.getLogger();
-	private static final String FILE = "file";
-	private static final String JAR = "jar";
-	private static final String JAR_SEPARATOR = "!/";
 	private static final Pattern NAME_REGEX = Pattern.compile("([^/]+)\\.([^/]+)$");
 	private final Map<String, String> map;
 	private final Class<?> cls;
@@ -42,7 +36,6 @@ public class ResourceMap {
 	public ResourceMap(Class<?> cls, String subDir, Collection<String> fileExtensions)
 		throws IOException {
 		if (subDir == null || subDir.length() == 0) subDir = "";
-		else if (!subDir.endsWith("/")) subDir += "/";
 		map = Collections.unmodifiableMap(map(cls, subDir, fileExtensions));
 		this.cls = cls;
 		this.subDir = subDir;
@@ -51,7 +44,7 @@ public class ResourceMap {
 	public Resource resource(String key) throws IOException {
 		String name = verify(key);
 		if (name == null) return null;
-		byte[] data = IoUtil.resource(cls, subDir + name);
+		byte[] data = IoUtil.resource(cls, subDir, name);
 		return new Resource(key, data);
 	}
 
@@ -93,55 +86,21 @@ public class ResourceMap {
 
 	private Map<String, String> map(Class<?> cls, String subDir, Collection<String> fileExtensions)
 		throws IOException {
-		try {
-			URL url = IoUtil.classUrl(cls);
-			if (url == null) return Collections.emptyMap();
-			if (FILE.equals(url.getProtocol())) return fileMap(url, subDir, fileExtensions);
-			if (JAR.equals(url.getProtocol())) return jarMap(url, subDir, fileExtensions);
-			throw new IllegalArgumentException("Unsupported URL type: " + url);
-		} catch (URISyntaxException e) {
-			throw new IOException(e);
+		try (ResourcePath rp = ResourcePath.of(cls, subDir)) {
+			if (rp == null) return Collections.emptyMap();
+			return map(rp.path(), fileExtensions);
 		}
 	}
 
-	private Map<String, String> jarMap(URL url, String subDir, Collection<String> fileExtensions)
+	private Map<String, String> map(Path dir, Collection<String> fileExtensions)
 		throws IOException {
 		Map<String, String> map = new TreeMap<>();
-		String prefix = jarPrefix(url.toString(), subDir);
-		int prefixLen = prefix.length();
-		JarURLConnection connection = (JarURLConnection) url.openConnection();
-		try (JarFile jar = connection.getJarFile()) {
-			for (JarEntry entry : CollectionUtil.iterable(jar.entries())) {
-				String name = entry.getName();
-				if (name == null || !name.startsWith(prefix)) continue;
-				name = name.substring(prefixLen);
-				if (name.isEmpty() || name.contains("/")) continue;
-				addMatchingEntry(map, name, fileExtensions);
-			}
+		if (Files.exists(dir)) for (Path file : IoUtil.list(dir)) {
+			if (Files.isDirectory(file)) continue;
+			addMatchingEntry(map, IoUtil.fileName(file), fileExtensions);
 		}
-		return map;
-	}
-
-	private String jarPrefix(String urlStr, String subDir) {
-		int start = urlStr.indexOf(JAR_SEPARATOR);
-		if (start < 0) start = 0;
-		else start += JAR_SEPARATOR.length();
-		int end = urlStr.lastIndexOf("/");
-		if (end < start) end = start;
-		else end++;
-		return urlStr.substring(start, end) + subDir;
-	}
-
-	private Map<String, String> fileMap(URL url, String subDir, Collection<String> fileExtensions)
-		throws URISyntaxException {
-		File dir = new File(new File(url.toURI()).getParentFile(), subDir);
-		Map<String, String> map = new TreeMap<>();
-		if (dir.exists()) for (File file : dir.listFiles()) {
-			if (file.isDirectory()) continue;
-			addMatchingEntry(map, file.getName(), fileExtensions);
-		}
-		else logger.warn("Directory does not exist, using empty resource map: " +
-			dir.getAbsolutePath());
+		else logger
+			.warn("Directory does not exist, using empty resource map: " + dir.toAbsolutePath());
 		return map;
 	}
 

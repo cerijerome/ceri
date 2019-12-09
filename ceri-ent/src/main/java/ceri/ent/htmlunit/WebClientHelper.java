@@ -1,9 +1,10 @@
 package ceri.ent.htmlunit;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.logging.Level;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.SilentCssErrorHandler;
@@ -12,7 +13,6 @@ import com.gargoylesoftware.htmlunit.TopLevelWindow;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import ceri.common.io.IoUtil;
 import ceri.ent.web.SampleHeader;
 
 public class WebClientHelper implements Closeable {
@@ -21,7 +21,7 @@ public class WebClientHelper implements Closeable {
 	protected final WebClient webClient;
 
 	public static void disableGargoyleLog() {
-		 // Static initialization doesn't always work, now called from constructor
+		// Static initialization doesn't always work, now called from constructor
 		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 	}
 
@@ -80,11 +80,11 @@ public class WebClientHelper implements Closeable {
 	public int waitForJs() {
 		return waitForJs(DEFAULT_JS_TIMEOUT_MS);
 	}
-	
+
 	public int waitForJs(int timeoutMs) {
 		return webClient.waitForBackgroundJavaScript(timeoutMs);
 	}
-	
+
 	public String getContent(String url) throws IOException {
 		return getPage(url).getWebResponse().getContentAsString();
 	}
@@ -93,13 +93,12 @@ public class WebClientHelper implements Closeable {
 		return webClient.getPage(url);
 	}
 
-	public HtmlPage getPage(File file) throws IOException {
-		String url = "file:///" + IoUtil.unixPath(file.getAbsolutePath());
-		return getPage(url, file);
+	public HtmlPage getPage(Path file) throws IOException {
+		return getPage(file.toUri().toString(), file);
 	}
 
-	public HtmlPage getPage(String url, File file) throws IOException {
-		String content = IoUtil.readString(file);
+	public HtmlPage getPage(String url, Path file) throws IOException {
+		String content = Files.readString(file);
 		StringWebResponse response = new StringWebResponse(content, new URL(url));
 		return HTMLParser.parseHtml(response, new TopLevelWindow("", webClient) {
 			private static final long serialVersionUID = 0L;
@@ -119,7 +118,7 @@ public class WebClientHelper implements Closeable {
 		}
 	}
 
-	public static HtmlPage page(File file) throws IOException {
+	public static HtmlPage page(Path file) throws IOException {
 		try (WebClientHelper downloader = WebClientHelper.create()) {
 			return downloader.getPage(file);
 		}

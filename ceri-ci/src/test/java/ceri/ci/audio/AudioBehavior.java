@@ -4,20 +4,34 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import ceri.common.io.IoUtil;
+import ceri.common.io.ResourcePath;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestUtil;
 
 public class AudioBehavior {
-	private static final File testFile = IoUtil.resourceFile(AudioBehavior.class, "test.wav");
+	private static ResourcePath resourcePath;
+	private static Path testFile;
+
+	@BeforeClass
+	public static void initClass() throws IOException {
+		resourcePath = ResourcePath.of(AudioBehavior.class, "test.wav");
+		testFile = resourcePath.path();
+	}
+
+	@AfterClass
+	public static void closeClass() throws IOException {
+		resourcePath.close();
+	}
 
 	@Test
 	public void shouldClipToANewAudioObject() throws IOException {
@@ -45,7 +59,7 @@ public class AudioBehavior {
 
 	@Test
 	public void shouldNotThrowConstructorExceptionsForValidData() throws IOException {
-		byte[] data = Files.readAllBytes(testFile.toPath());
+		byte[] data = Files.readAllBytes(testFile);
 		Audio audio = Audio.create(testFile);
 		assertNotNull(audio);
 		audio = Audio.create(data);
@@ -56,7 +70,7 @@ public class AudioBehavior {
 	public void shouldFailForInvalidData() throws IOException {
 		try (FileTestHelper helper =
 			FileTestHelper.builder().file("bad.wav", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx").build()) {
-			Audio.create(helper.file("bad.wav"));
+			Audio.create(helper.path("bad.wav"));
 		}
 	}
 

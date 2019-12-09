@@ -1,8 +1,8 @@
 package ceri.common.io;
 
+import static ceri.common.function.FunctionUtil.safeAccept;
+import static ceri.common.util.BasicUtil.defaultValue;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -10,32 +10,44 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.MissingResourceException;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.regex.Pattern;
+import java.util.Objects;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.collection.WrappedStream;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionFunction;
+import ceri.common.function.ExceptionPredicate;
+import ceri.common.function.FunctionUtil;
+import ceri.common.function.FunctionWrapper;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.ExceptionAdapter;
-import ceri.common.util.ExceptionUtil;
 
 /**
  * I/O utility functions.
  */
 public class IoUtil {
-	private static final Pattern FILE_SEPARATOR_REGEX = Pattern.compile("\\" + File.separatorChar);
-	private static final int MAX_UUID_ATTEMPTS = 10; // Shouldn't be needed
-	private static final int DEFAULT_BUFFER_SIZE = 1024 * 32;
+	private static final String TMP_DIR_PROPERTY = "java.io.tmpdir";
+	private static final String USER_HOME_PROPERTY = "user.home";
 	private static final String CLASS_SUFFIX = ".class";
 	private static final int READ_POLL_MS = 50;
+	private static final int MIN_ABSOLUTE_DIRS = 3;
+	private static final FileVisitor<Path> DELETING_VISITOR =
+		FileVisitUtil.visitor(null, FileVisitUtil.deletion(), FileVisitUtil.deletion());
 	public static final ExceptionAdapter<IOException> IO_ADAPTER =
 		ExceptionAdapter.of(IOException.class, IOException::new);
+	private static final FunctionWrapper<IOException> WRAPPER = FunctionWrapper.create();
+	private static final ExceptionPredicate<IOException, Path> NULL_FILTER = path -> true;
 
 	private IoUtil() {}
 
@@ -57,8 +69,8 @@ public class IoUtil {
 	 * Returns the system tmp directory.
 	 */
 	public static Path systemTempDir() {
-		String property = System.getProperty("java.io.tmpdir");
-		return property == null ? null : Path.of(property);
+		String property = System.getProperty(TMP_DIR_PROPERTY);
+		return FunctionUtil.safeApply(property, Path::of);
 	}
 
 	/**
@@ -66,7 +78,7 @@ public class IoUtil {
 	 * Returns null if property does not exist.
 	 */
 	public static Path userHome(String... paths) {
-		return systemPropertyPath("user.home", paths);
+		return systemPropertyPath(USER_HOME_PROPERTY, paths);
 	}
 
 	/**
@@ -91,75 +103,145 @@ public class IoUtil {
 	 * Extends a path. Returns null if path is null.
 	 */
 	public static Path extend(Path path, String... paths) {
-		if (paths.length == 0) return path;
-		return path == null ? null : Path.of(path.toString(), paths);
+		if (path == null || paths.length == 0) return path;
+		return path.getFileSystem().getPath(path.toString(), paths);
 	}
 
 	/**
-	 * Checks if path is the root "/".
+	 * Return the first root path of the given file system.
+	 */
+	public static Path root(FileSystem fs) {
+		if (fs == null) return null;
+		Iterator<Path> i = fs.getRootDirectories().iterator();
+		return i.hasNext() ? i.next() : null;
+	}
+
+	/**
+	 * Checks if a path is root.
 	 */
 	public static boolean isRoot(Path path) {
-		return path != null && path.getNameCount() == 0;
+		return path != null && path.isAbsolute() && path.equals(path.getRoot());
 	}
 
+	/**
+	 * Replaces the last part of the path.
+	 */
+	public static Path changeName(Path path, String fileName) {
+		if (path == null) return null;
+		Path parent = path.getParent();
+		if (parent != null) return parent.resolve(fileName);
+		if (path.isAbsolute()) return path.resolve(fileName);
+		return path.getFileSystem().getPath(fileName);
+	}
+
+	/**
+	 * Retrieves the path section name at given index if it exists, otherwise null.
+	 */
+	public static String name(Path path, int index) {
+		if (path == null || index < 0 || index >= path.getNameCount()) return null;
+		return path.getName(index).toString();
+	}
+
+	/**
+	 * Retrieves the path from given index.
+	 */
 	public static Path subpath(Path path, int index) {
 		if (path == null) return null;
-		return path.subpath(index, path.getNameCount());
-	}
-	
-	/**
-	 * Returns the last segment of the path as a string, or null if empty.
-	 */
-	public static String filename(Path path) {
-		if (path == null) return null;
-		Path filename = path.getFileName();
-		return filename == null ? null : filename.toString();
+		return subpath(path, index, path.getNameCount());
 	}
 
 	/**
-	 * Returns the file extension, or null if empty. Does not check if path is a file or if it
-	 * exists.
+	 * Retrieves the path from given index.
+	 */
+	public static Path subpath(Path path, int start, int end) {
+		if (path == null) return null;
+		int count = path.getNameCount();
+		if (count == 1 && path.getName(0).toString().isEmpty()) count = 0;
+		if (start == end && start <= count) return path.getFileSystem().getPath("");
+		return path.subpath(start, end);
+	}
+
+	/**
+	 * Shortens the end of a path by given number of levels.
+	 */
+	public static Path shorten(Path path, int levels) {
+		if (path == null || levels == 0) return path;
+		int nameCount = path.getNameCount();
+		boolean absolute = path.isAbsolute();
+		if (nameCount == levels) return absolute ? path.getRoot() : newPath(path, "");
+		if (!path.isAbsolute()) return subpath(path, 0, nameCount - levels);
+		return path.getRoot().resolve(subpath(path, 0, nameCount - levels));
+	}
+
+	/**
+	 * Creates a new path using the FileSystem of the given path.
+	 */
+	public static Path newPath(Path ref, String first, String... more) {
+		return ref.getFileSystem().getPath(first, more);
+	}
+
+	/**
+	 * Returns the last segment of the path as a string, or blank if empty. Returns null for a null
+	 * path.
+	 */
+	public static String fileName(Path path) {
+		if (path == null) return null;
+		Path fileName = path.getFileName();
+		return fileName == null ? "" : fileName.toString();
+	}
+
+	/**
+	 * Returns the file extension, empty string if none, or null for null path. Does not check if
+	 * path is a file or if it exists. Returns empty string for ile names starting with a dot, and
+	 * no extension.
 	 */
 	public static String extension(Path path) {
-		String filename = filename(path);
-		if (filename == null) return null;
-		int i = filename.lastIndexOf('.');
-		return i == -1 ? "" : filename.substring(i + 1);
+		String fileName = fileName(path);
+		if (fileName == null) return null;
+		int i = fileName.lastIndexOf('.');
+		return i <= 0 ? "" : fileName.substring(i + 1);
 	}
 
 	/**
 	 * Create a temp dir with random name under given dir. Use null for current dir.
 	 */
-	public static File createTempDir(File rootDir) {
-		return createTempDir(rootDir, IoUtil::generateTempDir);
-	}
-
-	static File createTempDir(File rootDir, Function<File, File> generator) {
-		FileTracker tracker = new FileTracker();
-		for (int i = MAX_UUID_ATTEMPTS; i > 0; i--) {
-			File tempDir = generator.apply(rootDir);
-			if (tempDir.exists()) continue;
-			tracker.dir(tempDir); // create dir path
-			if (tempDir.exists()) return tempDir;
-			// unable to create full path, delete any created parent dirs
-			tracker.delete();
-		}
-		throw new IllegalStateException(
-			"Unable to create random temp dir in " + MAX_UUID_ATTEMPTS + " attempts");
-	}
-
-	private static File generateTempDir(File rootDir) {
-		String dirName = UUID.randomUUID().toString();
-		return new File(rootDir, dirName);
+	public static Path createTempDir(Path rootDir) throws IOException {
+		if (rootDir == null) rootDir = Path.of("");
+		return Files.createTempDirectory(rootDir, null);
 	}
 
 	/**
-	 * Delete all files under the directory, and the directory itself. Be careful!
+	 * Delete all files under the directory, and the directory itself. Be careful! Returns true if
+	 * the directory existed and was deleted.
 	 */
-	public static void deleteAll(File root) {
-		if (root.isDirectory()) for (File file : root.listFiles())
-			deleteAll(file);
-		root.delete();
+	public static boolean deleteAll(Path path) throws IOException {
+		if (path == null) return false;
+		if (path.getRoot() != null && path.getNameCount() <= MIN_ABSOLUTE_DIRS)
+			throw new IOException("Unsafe delete not permitted: " + path);
+		if (!Files.isDirectory(path)) return false;
+		Files.walkFileTree(path, DELETING_VISITOR);
+		return true;
+	}
+
+	/**
+	 * Deletes all empty directories under this directory.
+	 */
+	public static void deleteEmptyDirs(Path dir) throws IOException {
+		FileVisitor<Path> visitor = FileVisitUtil.visitor(null, (path, ex) -> {
+			if (isEmptyDir(path)) Files.delete(path);
+			return FileVisitUtil.result(true);
+		}, null);
+		Files.walkFileTree(dir, visitor);
+	}
+
+	/**
+	 * Checks if a directory is empty.
+	 */
+	public static boolean isEmptyDir(Path dir) throws IOException {
+		if (dir == null || !Files.isDirectory(dir)) return false;
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+			return !stream.iterator().hasNext();
+		}
 	}
 
 	/**
@@ -173,25 +255,6 @@ public class IoUtil {
 		} catch (Exception e) {
 			return false;
 		}
-	}
-
-	/**
-	 * Get a char from stdin, return 0 if no key pressed
-	 */
-	public static char availableChar() {
-		return availableChar(System.in);
-	}
-
-	/**
-	 * Get a char from input stream, return 0 if nothing available
-	 */
-	public static char availableChar(InputStream in) {
-		try {
-			if (in.available() > 0) return (char) in.read();
-		} catch (IOException e) {
-			//
-		}
-		return (char) 0;
 	}
 
 	/**
@@ -213,6 +276,25 @@ public class IoUtil {
 	 */
 	public static byte[] pollBytes(InputStream in) throws IOException {
 		return in.readNBytes(pollForData(in, 1));
+	}
+
+	/**
+	 * Get a char from stdin, return 0 if no key pressed
+	 */
+	public static char availableChar() {
+		return availableChar(System.in);
+	}
+
+	/**
+	 * Get a char from input stream, return 0 if nothing available
+	 */
+	public static char availableChar(InputStream in) {
+		try {
+			if (in.available() > 0) return (char) in.read();
+		} catch (IOException e) {
+			//
+		}
+		return (char) 0;
 	}
 
 	/**
@@ -293,145 +375,247 @@ public class IoUtil {
 	}
 
 	/**
-	 * Convert file path to unix-style
+	 * Convert file path to unix format.
 	 */
-	public static String unixPath(File file) {
-		return unixPath(file.getPath());
+	public static String pathToUnix(Path path) {
+		return pathToUnix(path.toString());
 	}
 
 	/**
-	 * Convert file path to unix-style
+	 * Convert file path to unix format.
 	 */
-	public static String unixPath(Path file) {
-		return unixPath(file.toString());
+	public static String pathToUnix(String path) {
+		return convertPath(path, File.separatorChar, '/');
 	}
 
 	/**
-	 * Convert file path to unix-style
+	 * Convert unix format path to file path.
 	 */
-	public static String unixPath(String path) {
-		return unixPath(path, File.separatorChar, FILE_SEPARATOR_REGEX);
-	}
-
-	static String unixPath(String path, char separator, Pattern regex) {
-		if (separator == '/') return path;
-		return regex.matcher(path).replaceAll("/");
+	public static Path unixToPath(String unix) {
+		return Path.of(unixToPathName(unix));
 	}
 
 	/**
-	 * Returns the set of relative file paths under a given directory in Unix '/' format
+	 * Convert unix format path to file path.
 	 */
-	public static List<String> filenames(File dir) {
-		return filenames(dir, null);
+	public static String unixToPathName(String unix) {
+		return convertPath(unix, '/', File.separatorChar);
 	}
 
 	/**
-	 * Returns the set of relative file paths under a given directory in Unix '/' format. A null
-	 * filter matches all files.
+	 * Convert path containing separators to use another separator.
 	 */
-	public static List<String> filenames(File dir, FilenameFilter filter) {
-		List<String> list = new ArrayList<>();
-		addFilenames(list, dir, null, filter);
+	public static String convertPath(String path, char currentSeparator, char newSeparator) {
+		return path.replace(currentSeparator, newSeparator); // does nothing for same separators
+	}
+
+	/**
+	 * Streams relative paths recursively under a given directory. Must be used in context of
+	 * try-with-resources.
+	 */
+	public static WrappedStream<IOException, Path> walkRelative(Path dir) throws IOException {
+		return walkRelative(dir, NULL_FILTER);
+	}
+
+	/**
+	 * Streams relative filtered paths recursively under a given directory. A null filter matches
+	 * all paths. Must be used in context of try-with-resources.
+	 */
+	public static WrappedStream<IOException, Path> walkRelative(Path dir,
+		ExceptionPredicate<IOException, Path> filter) throws IOException {
+		int levels = dir.getNameCount();
+		return walk(dir, filter).map(path -> subpath(path, levels));
+	}
+
+	/**
+	 * Streams relative filtered paths recursively under a given directory. A null filter matches
+	 * all paths. Must be used in context of try-with-resources.
+	 */
+	public static WrappedStream<IOException, Path> walkRelative(Path dir, String syntaxPattern)
+		throws IOException {
+		ExceptionPredicate<IOException, Path> filter =
+			syntaxPattern == null ? null : PathPattern.of(syntaxPattern).matcher(dir)::test;
+		return walkRelative(dir, filter);
+	}
+
+	/**
+	 * Streams paths recursively under a given directory. Must be used in context of
+	 * try-with-resources.
+	 */
+	public static WrappedStream<IOException, Path> walk(Path dir) throws IOException {
+		return walk(dir, NULL_FILTER);
+	}
+
+	/**
+	 * Streams filtered paths recursively under a given directory. A null filter matches all paths.
+	 * Must be used in context of try-with-resources.
+	 */
+	public static WrappedStream<IOException, Path> walk(Path dir,
+		ExceptionPredicate<IOException, Path> filter) throws IOException {
+		return WrappedStream.<IOException, Path>of(Files.walk(dir))
+			.filter(defaultValue(filter, NULL_FILTER));
+	}
+
+	/**
+	 * Streams paths recursively under a given directory. A null pattern matches all paths. The
+	 * pattern is applied against the full path. Must be used in context of try-with-resources.
+	 */
+	public static WrappedStream<IOException, Path> walk(Path dir, String syntaxPattern)
+		throws IOException {
+		ExceptionPredicate<IOException, Path> filter =
+			syntaxPattern == null ? null : PathPattern.of(syntaxPattern).matcher(dir)::test;
+		return walk(dir, filter);
+	}
+
+	/**
+	 * Lists relative paths recursively under a given directory.
+	 */
+	public static List<Path> pathsRelative(Path dir) throws IOException {
+		return pathsRelative(dir, NULL_FILTER);
+	}
+
+	/**
+	 * Lists relative filtered paths recursively under a given directory. A null filter matches all
+	 * paths.
+	 */
+	public static List<Path> pathsRelative(Path dir, ExceptionPredicate<IOException, Path> filter)
+		throws IOException {
+		ExceptionPredicate<IOException, Path> test = defaultValue(filter, NULL_FILTER);
+		int levels = dir.getNameCount();
+		return pathsCollect(dir, path -> test.test(path) ? subpath(path, levels) : null);
+	}
+
+	/**
+	 * Lists relative filtered paths recursively under a given directory. A null pattern matches all
+	 * paths. The pattern is applied against the full path.
+	 */
+	public static List<Path> pathsRelative(Path dir, String syntaxPattern) throws IOException {
+		ExceptionPredicate<IOException, Path> filter =
+			syntaxPattern == null ? null : PathPattern.of(syntaxPattern).matcher(dir)::test;
+		return pathsRelative(dir, filter);
+	}
+
+	/**
+	 * Lists paths recursively under a given directory.
+	 */
+	public static List<Path> paths(Path dir) throws IOException {
+		return paths(dir, NULL_FILTER);
+	}
+
+	/**
+	 * Lists filtered paths recursively under a given directory. A null filter matches all paths.
+	 */
+	public static List<Path> paths(Path dir, ExceptionPredicate<IOException, Path> filter)
+		throws IOException {
+		ExceptionPredicate<IOException, Path> test = defaultValue(filter, NULL_FILTER);
+		return pathsCollect(dir, path -> test.test(path) ? path : null);
+	}
+
+	/**
+	 * Lists filtered paths recursively under a given directory. A null pattern matches all paths.
+	 * The pattern is applied against the full path.
+	 */
+	public static List<Path> paths(Path dir, String syntaxPattern) throws IOException {
+		ExceptionPredicate<IOException, Path> filter =
+			syntaxPattern == null ? null : PathPattern.of(syntaxPattern).matcher(dir)::test;
+		return paths(dir, filter);
+	}
+
+	/**
+	 * Recursively collects mapped paths under a given directory. The mapping function excludes
+	 * entries by returning null.
+	 */
+	public static <T> List<T> pathsCollect(Path dir, ExceptionFunction<IOException, Path, T> mapper)
+		throws IOException {
+		Objects.requireNonNull(dir);
+		Objects.requireNonNull(mapper);
+		List<T> list = new ArrayList<>();
+		var visitFn = FileVisitUtil.<Path, BasicFileAttributes>adaptConsumer(
+			path -> safeAccept(mapper.apply(path), list::add));
+		Files.walkFileTree(dir, FileVisitUtil.visitor(visitFn, null, visitFn));
 		return list;
 	}
 
 	/**
-	 * Returns the set of file paths under a given directory.
+	 * Lists path names under a directory (no recursion).
 	 */
-	public static List<File> files(File dir) {
-		return files(dir, null);
+	public static List<String> listNames(Path dir) throws IOException {
+		return listNames(dir, NULL_FILTER);
 	}
 
 	/**
-	 * Returns the set of file paths under a given directory. A null filter matches all files.
+	 * Lists filtered path names under a directory (no recursion).
 	 */
-	public static List<File> files(File dir, FileFilter filter) {
-		List<File> list = new ArrayList<>();
-		addFiles(list, dir, filter);
+	public static List<String> listNames(Path dir, ExceptionPredicate<IOException, Path> filter)
+		throws IOException {
+		ExceptionPredicate<IOException, Path> test = defaultValue(filter, NULL_FILTER);
+		return listCollect(Files.newDirectoryStream(dir, test::test), IoUtil::fileName);
+	}
+
+	/**
+	 * Lists filtered path names under a directory (no recursion). A null pattern matches all paths.
+	 * The pattern is applied against the file name path, not the full path.
+	 */
+	public static List<String> listNames(Path dir, String syntaxPattern) throws IOException {
+		ExceptionPredicate<IOException, Path> filter = syntaxPattern == null ? null :
+			PathFilters.byFileNamePath(PathPattern.of(syntaxPattern).matcher(dir)::test);
+		return listNames(dir, filter);
+	}
+
+	/**
+	 * Lists paths under a directory (no recursion).
+	 */
+	public static List<Path> list(Path dir) throws IOException {
+		return list(dir, NULL_FILTER);
+	}
+
+	/**
+	 * Lists filtered paths under a directory (no recursion). A null filter matches all paths.
+	 */
+	public static List<Path> list(Path dir, ExceptionPredicate<IOException, Path> filter)
+		throws IOException {
+		ExceptionPredicate<IOException, Path> test = defaultValue(filter, NULL_FILTER);
+		return listCollect(Files.newDirectoryStream(dir, test::test), path -> path);
+	}
+
+	/**
+	 * Lists filtered paths under a directory (no recursion). A null pattern matches all paths. The
+	 * pattern is applied against the file name path, not the full path.
+	 */
+	public static List<Path> list(Path dir, String syntaxPattern) throws IOException {
+		ExceptionPredicate<IOException, Path> filter = syntaxPattern == null ? null :
+			PathFilters.byFileNamePath(PathPattern.of(syntaxPattern).matcher(dir)::test);
+		return list(dir, filter);
+	}
+
+	/**
+	 * Collects mapped paths from a directory stream, then closes the stream. The mapping function
+	 * excludes entries by returning null.
+	 */
+	public static <T> List<T> listCollect(DirectoryStream<Path> stream,
+		ExceptionFunction<IOException, Path, T> mapper) throws IOException {
+		Objects.requireNonNull(stream);
+		Objects.requireNonNull(mapper);
+		List<T> list = new ArrayList<>();
+		dirStreamForEach(stream, path -> FunctionUtil.safeApply(mapper.apply(path), list::add));
 		return list;
 	}
 
 	/**
-	 * Joins two '/' based paths together, making sure only one '/' is between the two paths.
+	 * Applies a function to each path in a directory stream, then closes the stream.
 	 */
-	public static String joinPaths(String path1, String path2) {
-		if (path1 == null) path1 = "";
-		if (path2 == null) path2 = "";
-		if (path1.isEmpty()) return path2;
-		if (path2.isEmpty()) return path1;
-		StringBuilder path = new StringBuilder(path1);
-		if (path.charAt(path.length() - 1) == '/') path.setLength(path.length() - 1);
-		if (path2.charAt(0) != '/') path.append('/');
-		path.append(path2);
-		return path.toString();
-	}
-
-	/**
-	 * Returns the file path relative to a given dir in '/' format. Or the returns the file if not
-	 * relative.
-	 */
-	public static String relativePath(File dir, File file) throws IOException {
-		dir = dir.getCanonicalFile();
-		String fileName = unixPath(file.getCanonicalPath());
-		StringBuilder backPath = new StringBuilder();
-		while (dir != null) {
-			String dirName = unixPath(dir);
-			if (!dirName.endsWith("/")) dirName += "/";
-			if (fileName.startsWith(dirName))
-				return backPath.toString() + fileName.substring(dirName.length());
-			backPath.append("../");
-			dir = dir.getParentFile();
+	public static void dirStreamForEach(DirectoryStream<Path> stream,
+		ExceptionConsumer<IOException, Path> consumer) throws IOException {
+		try (stream) {
+			WRAPPER.unwrap(() -> stream.forEach(WRAPPER.wrap(consumer::accept)));
 		}
-		return fileName;
-	}
-
-	/**
-	 * Deletes all empty directories under this directory.
-	 */
-	public static void deleteEmptyDirs(File dir) {
-		File[] files = dir.listFiles();
-		for (File file : files) {
-			if (file.isDirectory()) {
-				deleteEmptyDirs(file);
-				file.delete(); // Only deletes if empty
-			}
-		}
-	}
-
-	/**
-	 * Copies file contents from one file to another, creating the destination directories if
-	 * necessary.
-	 */
-	public static void copyFile(File src, File dest) throws IOException {
-		FileTracker tracker = new FileTracker().file(dest); // creates parent dirs
-		try {
-			Files.copy(src.toPath(), dest.toPath());
-		} catch (RuntimeException | IOException e) {
-			tracker.delete();
-			throw e;
-		}
-	}
-
-	/**
-	 * Gets content from a file as a byte array.
-	 */
-	public static byte[] readBytes(File file) throws IOException {
-		return Files.readAllBytes(file.toPath());
-	}
-
-	public static String readString(String filename) throws IOException {
-		return Files.readString(Path.of(filename));
-	}
-
-	public static String readString(File file) throws IOException {
-		return Files.readString(file.toPath());
 	}
 
 	/**
 	 * Gets content from input stream as a string. Use 0 for default buffer size.
 	 */
 	public static String readString(InputStream in) throws IOException {
-		return new String(in.readAllBytes());
+		return readString(in, StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -442,163 +626,85 @@ public class IoUtil {
 	}
 
 	/**
-	 * Writes bytes from input stream to a file.
+	 * Copies file contents from one file to another, creating the destination directories if
+	 * necessary. Returns the destination path. Removes created directories on failure.
 	 */
-	public static long copy(InputStream in, File file) throws IOException {
-		return Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-	}
-
-	/**
-	 * Writes byte array content to a file.
-	 */
-	public static void write(File file, byte[] content) throws IOException {
-		Files.write(file.toPath(), content);
-	}
-
-	/**
-	 * Writes byte array content to a file.
-	 */
-	public static void write(File file, ImmutableByteArray data) throws IOException {
-		try (OutputStream out = Files.newOutputStream(file.toPath())) {
-			data.writeTo(out);
-			out.flush();
+	public static Path copyFile(Path src, Path dest) throws IOException {
+		FileTracker tracker = new FileTracker();
+		try {
+			tracker.file(dest); // creates parent dirs
+			return Files.copy(src, dest);
+		} catch (RuntimeException | IOException e) {
+			tracker.delete();
+			throw e;
 		}
 	}
 
 	/**
-	 * Writes a string to a file using default encoding.
+	 * Writes bytes from input stream to a file, creating the destination directories if necessary.
+	 * Returns the number of bytes written. Removes created directories on failure.
 	 */
-	public static void writeString(File file, String content) throws IOException {
-		Files.writeString(file.toPath(), content);
-	}
-
-	/**
-	 * Transfers content from an input stream to an output stream, using the specified buffer size,
-	 * or 0 for default buffer size.
-	 */
-	public static long transferBytes(InputStream in, OutputStream out, int bufferSize)
-		throws IOException {
-		if (bufferSize == 0) bufferSize = DEFAULT_BUFFER_SIZE;
-		byte[] buffer = new byte[bufferSize];
-		long count = 0;
-		while (true) {
-			int n = in.read(buffer);
-			if (n == -1) break;
-			if (out != null) out.write(buffer, 0, n);
-			count += n;
-		}
-		if (out != null) out.flush();
-		return count;
-	}
-
-	/**
-	 * Lists resources from same package as class. Handles file resources and resources within a jar
-	 * file.
-	 */
-	public static List<String> listResources(Class<?> cls) throws IOException {
-		return ResourceLister.of(cls).list();
-	}
-
-	/**
-	 * Lists resources from same package as class, under given sub-directory, matching given regex
-	 * pattern. Handles file resources and resources within a jar file.
-	 */
-	public static List<String> listResources(Class<?> cls, String subDir, Pattern pattern)
-		throws IOException {
-		return ResourceLister.of(cls, subDir, pattern).list();
-	}
-
-	/**
-	 * Gets a path representing a resource. Will fail if the class is in a jar file.
-	 */
-	public static Path resourcePath(Class<?> cls, String resourceName) {
-		return Path.of(resourceFile(cls, resourceName).toURI());
-	}
-
-	/**
-	 * Gets a file representing a resource. Will fail if the class is in a jar file.
-	 */
-	public static File resourceFile(Class<?> cls, String resourceName) {
-		URL url = cls.getResource(resourceName);
-		if (url != null) return ExceptionUtil.shouldNotThrow(() -> new File(url.toURI()));
-		throw new NullPointerException("Resource not found for " + cls + ": " + resourceName);
-	}
-
-	/**
-	 * Gets resource as a string from same package as class, with given filename.
-	 */
-	public static String resourceString(Class<?> cls, String resourceName) throws IOException {
-		return new String(resource(cls, resourceName)).intern();
-	}
-
-	/**
-	 * Gets resource from same package as class, with given filename.
-	 */
-	public static byte[] resource(Class<?> cls, String resourceName) throws IOException {
-		try (InputStream in = cls.getResourceAsStream(resourceName)) {
-			if (in == null) throw new MissingResourceException(
-				"Missing resource for class " + cls.getName() + ": " + resourceName, cls.getName(),
-				resourceName);
-			return in.readAllBytes();
+	public static long copy(InputStream in, Path file) throws IOException {
+		FileTracker tracker = new FileTracker();
+		try {
+			tracker.file(file); // creates parent dirs
+			return Files.copy(in, file, StandardCopyOption.REPLACE_EXISTING);
+		} catch (RuntimeException | IOException e) {
+			tracker.delete();
+			throw e;
 		}
 	}
 
 	/**
-	 * Gets resource from same package as class, with same name as the class and given suffix.
+	 * Writes byte array content to a file, creating the destination directories if necessary.
+	 * Returns the number of bytes written. Removes created directories on failure.
 	 */
-	public static String classResourceAsString(Class<?> cls, String suffix) throws IOException {
-		return new String(classResource(cls, suffix)).intern();
-	}
-
-	/**
-	 * Gets resource from same package as class, with same name as the class and given suffix.
-	 */
-	public static byte[] classResource(Class<?> cls, String suffix) throws IOException {
-		return resource(cls, cls.getSimpleName() + "." + suffix);
-	}
-
-	/**
-	 * Returns the root url path for class resources.
-	 */
-	public static String resourcePath(Class<?> cls) {
-		String name = cls.getSimpleName() + CLASS_SUFFIX;
-		URL url = cls.getResource(name);
-		String urlStr = url.toString();
-		return urlStr.substring(0, urlStr.length() - name.length());
+	public static int write(Path file, ImmutableByteArray data) throws IOException {
+		FileTracker tracker = new FileTracker();
+		try {
+			tracker.file(file); // creates parent dirs
+			try (OutputStream out = Files.newOutputStream(file)) {
+				data.writeTo(out);
+				out.flush();
+			}
+			return data.length();
+		} catch (RuntimeException | IOException e) {
+			tracker.delete();
+			throw e;
+		}
 	}
 
 	/**
 	 * Returns the url path for class.
 	 */
 	public static URL classUrl(Class<?> cls) {
-		String name = cls.getSimpleName() + CLASS_SUFFIX;
-		return cls.getResource(name);
+		if (cls == null) return null;
+		return cls.getResource(cls.getSimpleName() + CLASS_SUFFIX);
 	}
 
 	/**
-	 * Scans directory for files and adds to the given set.
+	 * Reads content from a resource with paths applied relative to class directory.
 	 */
-	private static void addFilenames(List<String> list, File rootDir, String root,
-		FilenameFilter filter) {
-		String[] files = rootDir.list();
-		if (files == null) return;
-		for (String file : files) {
-			String path = root == null ? file : root + "/" + file;
-			if (filter == null || filter.accept(rootDir, path)) list.add(path);
-			File f = new File(rootDir, file);
-			if (f.isDirectory()) addFilenames(list, f, path, filter);
+	public static byte[] resource(Class<?> cls, String... paths) throws IOException {
+		try (ResourcePath rp = ResourcePath.of(cls, paths)) {
+			return rp.readBytes();
 		}
 	}
 
 	/**
-	 * Scans directory for files and adds to the given set.
+	 * Reads content from a resource with paths applied relative to class directory.
 	 */
-	private static void addFiles(List<File> list, File root, FileFilter filter) {
-		File[] files = root.listFiles();
-		if (files == null) return;
-		for (File file : files) {
-			if (filter == null || filter.accept(file)) list.add(file);
-			if (file.isDirectory()) addFiles(list, file, filter);
+	public static String resourceString(Class<?> cls, String... paths) throws IOException {
+		return resourceString(cls, StandardCharsets.UTF_8, paths);
+	}
+
+	/**
+	 * Reads content from a resource with paths applied relative to class directory.
+	 */
+	public static String resourceString(Class<?> cls, Charset charset, String... paths)
+		throws IOException {
+		try (ResourcePath rp = ResourcePath.of(cls, paths)) {
+			return rp.readString(charset);
 		}
 	}
 

@@ -28,7 +28,7 @@ public class Counter {
 		return (int) count; // no overflow check
 	}
 
-	public long reset(long value) {
+	public long set(long value) {
 		long old = count;
 		count = value;
 		return old;

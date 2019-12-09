@@ -111,7 +111,7 @@ public class FiltersTest {
 
 	@Test
 	public void testAny() {
-		assertTrue(Filters.any().filter(false));
+		assertFalse(Filters.any().filter(false));
 		Filter<Double> filter1 = Filters.eq(1.0);
 		Filter<Double> filter2 = Filters.eq(null);
 		Collection<Filter<Double>> filters = Arrays.asList(filter1, filter2);

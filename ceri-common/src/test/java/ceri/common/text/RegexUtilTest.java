@@ -6,6 +6,7 @@ import static ceri.common.test.TestUtil.assertMap;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.text.StringUtil.reverse;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -33,7 +34,7 @@ public class RegexUtilTest {
 	@Test
 	public void testFinder() {
 		assertThat(RegexUtil.finder(INT_PATTERN).test(null), is(false));
-		assertThat(RegexUtil.finder(INT_PATTERN).test("abc123def456"), is(true));
+		assertThat(RegexUtil.finder("(\\d+)").test("abc123def456"), is(true));
 		assertThat(RegexUtil.finder(LSTRING_PATTERN).test("abc123def456"), is(true));
 		assertThat(RegexUtil.finder(USTRING_PATTERN).test("abc123def456"), is(false));
 	}
@@ -42,9 +43,16 @@ public class RegexUtilTest {
 	public void testMatcher() {
 		assertThat(RegexUtil.matcher(INT_PATTERN).test(null), is(false));
 		assertThat(RegexUtil.matcher(INT_PATTERN).test("123"), is(true));
-		assertThat(RegexUtil.matcher(INT_PATTERN).test("123def456"), is(false));
+		assertThat(RegexUtil.matcher("(\\d+)").test("123def456"), is(false));
 		assertThat(RegexUtil.matcher(LSTRING_PATTERN).test("abc"), is(true));
 		assertThat(RegexUtil.matcher(USTRING_PATTERN).test("abc"), is(false));
+	}
+
+	@Test
+	public void testIgnoreCase() {
+		Pattern ignoreCase = RegexUtil.ignoreCase("t.e.s.t");
+		assertNotNull(RegexUtil.matched(ignoreCase, "T.e.s.T"));
+		assertNull(RegexUtil.matched(ignoreCase, "T e s T"));
 	}
 
 	@Test

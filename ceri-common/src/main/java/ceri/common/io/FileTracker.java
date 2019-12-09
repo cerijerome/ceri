@@ -1,25 +1,28 @@
 package ceri.common.io;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 
 /**
  * Used for creating dirs and files, and keeping track of which ones were created. Useful if an
  * atomic file-based operation fails and need to undo.
  */
 public class FileTracker {
-	private final Deque<File> createdFiles = new ArrayDeque<>();
+	private final Deque<Path> createdFiles = new ArrayDeque<>();
 
 	public FileTracker() {}
 
 	/**
 	 * Adds a file to track, and creates parent dirs.
 	 */
-	public FileTracker file(File file) {
-		if (file.exists()) return this;
-		dir(file.getParentFile());
+	public FileTracker file(Path file) throws IOException {
+		if (Files.exists(file)) return this;
+		dir(file.getParent());
 		add(file);
 		return this;
 	}
@@ -27,26 +30,41 @@ public class FileTracker {
 	/**
 	 * Creates and tracks dir path.
 	 */
-	public FileTracker dir(File dir) {
-		if (dir == null || dir.exists()) return this;
-		dir(dir.getParentFile());
-		dir.mkdir();
+	public FileTracker dir(Path dir) throws IOException {
+		if (dir == null || Files.exists(dir)) return this;
+		dir(dir.getParent());
+		Files.createDirectory(dir);
 		add(dir);
 		return this;
 	}
 
 	/**
 	 * Delete all tracked files and dirs.
+	 * Returns true only if all tracked paths are deleted.
 	 */
-	public void delete() {
-		for (Iterator<File> i = createdFiles.iterator(); i.hasNext();) {
-			File file = i.next();
-			file.delete();
+	public boolean delete() {
+		return delete(null);
+	}
+	/**
+	 * Delete all tracked files and dirs. Caller can receive errors via onError callback.
+	 * Returns true only if all tracked paths are deleted.
+	 */
+	public boolean delete(BiConsumer<IOException, Path> onError) {
+		boolean success = true;
+		for (Iterator<Path> i = createdFiles.iterator(); i.hasNext();) {
+			Path file = i.next();
+			try {
+				Files.delete(file);
+			} catch (IOException e) {
+				success = false;
+				if (onError != null) onError.accept(e, file);
+			}
 			i.remove();
 		}
+		return success;
 	}
 
-	private void add(File file) {
+	private void add(Path file) {
 		createdFiles.addFirst(file);
 	}
 }

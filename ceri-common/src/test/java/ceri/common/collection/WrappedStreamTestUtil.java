@@ -28,7 +28,7 @@ public class WrappedStreamTestUtil {
 		ExceptionConsumer<E, ExceptionConsumer<E, T>> fn, T... values) {
 		Capturer<T> capture = Capturer.of();
 		try {
-			fn.accept(capture.toEx());
+			fn.accept(capture::accept);
 		} catch (Exception e) {
 			throw new AssertionError(e);
 		}
@@ -39,7 +39,7 @@ public class WrappedStreamTestUtil {
 		ExceptionConsumer<E, ExceptionIntConsumer<E>> fn, int... values) {
 		Capturer.Int capture = Capturer.ofInt();
 		try {
-			fn.accept(capture.toExInt());
+			fn.accept(capture::accept);
 		} catch (Exception e) {
 			throw new AssertionError(e);
 		}

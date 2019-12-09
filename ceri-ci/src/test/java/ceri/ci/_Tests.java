@@ -54,68 +54,71 @@ import ceri.ci.zwave.ZWaveGroupBehavior;
 import ceri.ci.zwave.ZWavePropertiesBehavior;
 import ceri.common.test.TestUtil;
 
+/**
+ * Generated test suite for ceri-ci
+ */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	// admin
-	AdminServletBehavior.class,
-	CommandFactoryBehavior.class,
-	ParamsBehavior.class,
-	ResponseBehavior.class,
-	SerializerBehavior.class,
+	AdminServletBehavior.class, //
+	CommandFactoryBehavior.class, //
+	ParamsBehavior.class, //
+	ResponseBehavior.class, //
+	SerializerBehavior.class, //
 	// alert
-	AlertContainerBehavior.class,
-	AlerterGroupBehavior.class,
-	AlertServiceImplBehavior.class,
-	AlertServiceContainerBehavior.class,
-	AlertPropertiesBehavior.class,
-	NodeBehavior.class,
+	AlertContainerBehavior.class, //
+	AlertPropertiesBehavior.class, //
+	AlertServiceContainerBehavior.class, //
+	AlertServiceImplBehavior.class, //
+	AlerterGroupBehavior.class, //
+	NodeBehavior.class, //
 	// audio
-	AudioAlerterBehavior.class,
-	AudioBehavior.class,
-	AudioContainerBehavior.class,
-	AudioListenerBehavior.class,
-	AudioMessageBehavior.class,
-	AudioPropertiesBehavior.class,
+	AudioAlerterBehavior.class, //
+	AudioBehavior.class, //
+	AudioContainerBehavior.class, //
+	AudioListenerBehavior.class, //
+	AudioMessageBehavior.class, //
+	AudioPropertiesBehavior.class, //
 	// build
-	AnalyzedJobBehavior.class,
-	BuildAnalyzerBehavior.class,
-	BuildBehavior.class,
-	BuildEventBehavior.class,
-	BuildsBehavior.class,
-	BuildUtilTest.class,
-	EventBehavior.class,
-	EventComparatorsTest.class,
-	JobBehavior.class,
+	AnalyzedJobBehavior.class, //
+	BuildAnalyzerBehavior.class, //
+	BuildBehavior.class, //
+	BuildEventBehavior.class, //
+	BuildUtilTest.class, //
+	BuildsBehavior.class, //
+	EventBehavior.class, //
+	EventComparatorsTest.class, //
+	JobBehavior.class, //
 	// common
-	ResourceMapBehavior.class,
+	ResourceMapBehavior.class, //
 	// email
-	EmailBehavior.class,
-	EmailContainerBehavior.class,
-	EmailPropertiesBehavior.class,
-	EmailRetrieverImplBehavior.class,
-	EmailServiceBehavior.class,
-	EmailUtilTest.class,
+	EmailBehavior.class, //
+	EmailContainerBehavior.class, //
+	EmailPropertiesBehavior.class, //
+	EmailRetrieverImplBehavior.class, //
+	EmailServiceBehavior.class, //
+	EmailUtilTest.class, //
 	// phone
-	PhoneAlerterBehavior.class,
-	PhoneContainerBehavior.class,
-	PhonePropertiesBehavior.class,
-	TwilioClientBehavior.class,
+	PhoneAlerterBehavior.class, //
+	PhoneContainerBehavior.class, //
+	PhonePropertiesBehavior.class, //
+	TwilioClientBehavior.class, //
 	// web
-	ActorBehavior.class,
-	ActorComparatorsTest.class,
-	AnalyzedActorsBehavior.class,
-	WebAlerterBehavior.class,
-	WebAlerterPropertiesBehavior.class,
-	WebContainerBehavior.class,
+	ActorBehavior.class, //
+	ActorComparatorsTest.class, //
+	AnalyzedActorsBehavior.class, //
+	WebAlerterBehavior.class, //
+	WebAlerterPropertiesBehavior.class, //
+	WebContainerBehavior.class, //
 	// x10
-	X10AlerterBehavior.class,
-	X10ContainerBehavior.class,
-	X10PropertiesBehavior.class,
+	X10AlerterBehavior.class, //
+	X10ContainerBehavior.class, //
+	X10PropertiesBehavior.class, //
 	// zwave
-	ZWaveAlerterBehavior.class,
-	ZWaveContainerBehavior.class,
-	ZWaveGroupBehavior.class,
-	ZWavePropertiesBehavior.class,
+	ZWaveAlerterBehavior.class, //
+	ZWaveContainerBehavior.class, //
+	ZWaveGroupBehavior.class, //
+	ZWavePropertiesBehavior.class, //
 })
 public class _Tests {
 	public static void main(String... args) {

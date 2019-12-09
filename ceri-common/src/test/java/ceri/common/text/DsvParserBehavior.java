@@ -8,12 +8,12 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.collection.StreamUtil;
-import ceri.common.io.IoUtil;
+import ceri.common.io.ResourcePath;
 
 public class DsvParserBehavior {
 	private DsvParser parser;
@@ -33,7 +33,7 @@ public class DsvParserBehavior {
 	@Test
 	public void testSplit() {
 		assertIterable(DsvParser.split(null, '|'));
-		assertIterable(DsvParser.split("abc||de|f|", '|'), "abc", "", "de","f","");
+		assertIterable(DsvParser.split("abc||de|f|", '|'), "abc", "", "de", "f", "");
 	}
 
 	@Test
@@ -99,8 +99,11 @@ public class DsvParserBehavior {
 	}
 
 	private Iterator<String> lines(String resource) throws IOException {
-		Path path = IoUtil.resourcePath(getClass(), resource);
-		return StreamUtil.toList(Files.lines(path)).iterator();
+		try (ResourcePath rp = ResourcePath.of(getClass(), resource)) {
+			try (Stream<String> stream = Files.lines(rp.path())) {
+				return stream.collect(Collectors.toList()).iterator();
+			}
+		}
 	}
 
 }

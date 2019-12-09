@@ -8,10 +8,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Properties;
@@ -47,8 +46,8 @@ public class PropertyUtilTest {
 	public void testStoreWithFailingIO() throws IOException {
 		try (FileTestHelper helper = FileTestHelper.builder().build()) {
 			Properties properties = Mockito.mock(Properties.class);
-			doThrow(new IOException()).when(properties).store((OutputStream) any(), anyString());
-			File file = helper.file("test.properties");
+			doThrow(new IOException()).when(properties).store((Writer) any(), anyString());
+			java.nio.file.Path file = helper.path("test.properties");
 			TestUtil.assertThrown(() -> PropertyUtil.store(properties, file));
 			PropertyUtil.store(new Properties(), file);
 		}
@@ -59,7 +58,7 @@ public class PropertyUtilTest {
 		try (FileTestHelper helper = FileTestHelper.builder().build()) {
 			Properties properties = Mockito.mock(Properties.class);
 			doThrow(new IOException()).when(properties).load((InputStream) any());
-			File file = helper.file("test.properties");
+			java.nio.file.Path file = helper.path("test.properties");
 			TestUtil.assertThrown(() -> PropertyUtil.load(file));
 			TestUtil.assertThrown(() -> PropertyUtil.load(getClass(), "test.properties"));
 		}
@@ -71,10 +70,9 @@ public class PropertyUtilTest {
 			Properties properties = new Properties();
 			properties.put("a.b", "ab");
 			properties.put("a.b.c", "abc");
-			File file = helper.file("test.properties");
+			java.nio.file.Path file = helper.path("test.properties");
 			PropertyUtil.store(properties, file);
-			List<String> lines = toList(Files.lines(java.nio.file.Path.of(file.toURI()))
-				.filter(line -> !line.startsWith("#")));
+			List<String> lines = toList(Files.lines(file).filter(line -> !line.startsWith("#")));
 			assertCollection(lines, "a.b.c=abc", "a.b=ab");
 		}
 	}
@@ -97,7 +95,7 @@ public class PropertyUtilTest {
 	@Test
 	public void testLoadFile() throws IOException {
 		try (FileTestHelper helper = FileTestHelper.builder().file("a", "b=c").build()) {
-			Properties properties = PropertyUtil.load(helper.file("a"));
+			Properties properties = PropertyUtil.load(helper.path("a"));
 			assertThat(properties.getProperty("b"), is("c"));
 		}
 	}
@@ -105,7 +103,7 @@ public class PropertyUtilTest {
 	@Test
 	public void testLoadFileFromName() throws IOException {
 		try (FileTestHelper helper = FileTestHelper.builder().file("a", "b=c").build()) {
-			Properties properties = PropertyUtil.load(helper.file("a").getPath());
+			Properties properties = PropertyUtil.load(helper.path("a").toString());
 			assertThat(properties.getProperty("b"), is("c"));
 		}
 	}

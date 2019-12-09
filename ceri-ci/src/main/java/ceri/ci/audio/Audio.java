@@ -1,10 +1,10 @@
 package ceri.ci.audio;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -28,8 +28,8 @@ public class Audio {
 		}
 	}
 
-	public static Audio create(File file) throws IOException {
-		return create(Files.readAllBytes(file.toPath()));
+	public static Audio create(Path file) throws IOException {
+		return create(Files.readAllBytes(file));
 	}
 
 	private static Audio create(InputStream is) throws IOException {
@@ -44,17 +44,16 @@ public class Audio {
 
 	public Audio changePitch(float pitch) {
 		if (pitch == NORMAL_PITCH) return this;
-		AudioFormat newFormat =
-			new AudioFormat(format.getEncoding(), format.getSampleRate() * pitch, format
-				.getSampleSizeInBits(), format.getChannels(), format.getFrameSize(), format
-				.getFrameRate(), format.isBigEndian());
+		AudioFormat newFormat = new AudioFormat(format.getEncoding(),
+			format.getSampleRate() * pitch, format.getSampleSizeInBits(), format.getChannels(),
+			format.getFrameSize(), format.getFrameRate(), format.isBigEndian());
 		return new Audio(newFormat, data);
 	}
 
 	public Audio clip(int startOffset, int endOffset) {
 		int len = data.length - startOffset - endOffset;
-		if (len < 0) throw new IllegalArgumentException("Offsets cannot be larger than data size " +
-			data.length);
+		if (len < 0) throw new IllegalArgumentException(
+			"Offsets cannot be larger than data size " + data.length);
 		byte[] data = new byte[len];
 		System.arraycopy(this.data, startOffset, data, 0, data.length);
 		return new Audio(format, data);

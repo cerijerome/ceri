@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.util.BasicUtil;
@@ -29,8 +30,8 @@ public class FunctionUtil {
 	}
 
 	/**
-	 * Run and ignore declared checked exception. Returns value if no exception occurred,
-	 * null if checked exception occurs. Will not block runtime exceptions.
+	 * Run and ignore declared checked exception. Returns value if no exception occurred, null if
+	 * checked exception occurs. Will not block runtime exceptions.
 	 */
 	public static <E extends Exception, T> T getQuietly(ExceptionSupplier<E, T> supplier) {
 		try {
@@ -43,8 +44,8 @@ public class FunctionUtil {
 	}
 
 	/**
-	 * Run and ignore declared checked exception. Returns true if no exception occurred,
-	 * false if checked exception occurs. Will not block runtime exceptions.
+	 * Run and ignore declared checked exception. Returns true if no exception occurred, false if
+	 * checked exception occurs. Will not block runtime exceptions.
 	 */
 	public static <E extends Exception> boolean execQuietly(ExceptionRunnable<E> runnable) {
 		try {
@@ -227,6 +228,16 @@ public class FunctionUtil {
 
 	public static <T> Predicate<T> or(Predicate<T> lhs, Predicate<T> rhs) {
 		return lhs == null ? rhs : rhs == null ? lhs : lhs.or(rhs);
+	}
+
+	public static <T, U> Predicate<T> testing(Function<? super T, ? extends U> extractor,
+		Predicate<? super U> predicate) {
+		return t -> predicate.test(extractor.apply(t));
+	}
+
+	public static <T> Predicate<T> testingInt(ToIntFunction<? super T> extractor,
+		IntPredicate predicate) {
+		return t -> predicate.test(extractor.applyAsInt(t));
 	}
 
 	public static boolean isAnonymousLambda(Object obj) {

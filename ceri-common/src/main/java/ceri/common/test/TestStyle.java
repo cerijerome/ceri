@@ -27,12 +27,21 @@ public enum TestStyle {
 	public final String suffix;
 	public final String methodPrefix;
 
+	/**
+	 * Guess from class - can be target or test class.
+	 */
+	public static TestStyle guessFrom(Class<?> cls) {
+		if (cls == null) return none;
+		return guessFrom(cls.getSimpleName());
+	}
+	
 	public static TestStyle guessFrom(String name) {
 		Matcher m = RegexUtil.matched(REGEX, name);
 		if (m == null) return none;
 		TestStyle style = fromSuffix(m.group(STYLE_INDEX));
 		if (!style.isNone()) return style;
 		String target = m.group(TARGET_INDEX);
+		if (target.isEmpty()) return none;
 		return testGuessSuffixes.stream().anyMatch(s -> target.endsWith(s)) ? test : behavior;
 	}
 	

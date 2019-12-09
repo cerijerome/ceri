@@ -1,9 +1,9 @@
 package ceri.ent.selenium;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,6 +15,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import com.google.common.base.Function;
+import ceri.common.function.ExceptionSupplier;
 import ceri.common.math.MathUtil;
 
 /**
@@ -25,28 +26,31 @@ public class WebDriverContainer implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int TIMEOUT_MS_DEF = 5000;
 	private static final String BLANK_URL = "about:blank";
-	private final Supplier<WebDriver> constructor;
+	private final ExceptionSupplier<IOException, WebDriver> constructor;
 	private final int timeoutSec;
 	private final boolean canReset;
 	private volatile WebDriver driver;
 
-	public static WebDriverContainer simple(WebDriver driver) {
+	public static WebDriverContainer simple(WebDriver driver) throws IOException {
 		return simple(driver, TIMEOUT_MS_DEF);
 	}
 
-	public static WebDriverContainer simple(WebDriver driver, long timeoutMs) {
+	public static WebDriverContainer simple(WebDriver driver, long timeoutMs) throws IOException {
 		return new WebDriverContainer(() -> driver, timeoutMs, false);
 	}
 
-	public WebDriverContainer(Supplier<WebDriver> constructor) {
+	public WebDriverContainer(ExceptionSupplier<IOException, WebDriver> constructor)
+		throws IOException {
 		this(constructor, TIMEOUT_MS_DEF);
 	}
 
-	public WebDriverContainer(Supplier<WebDriver> constructor, long timeoutMs) {
+	public WebDriverContainer(ExceptionSupplier<IOException, WebDriver> constructor, long timeoutMs)
+		throws IOException {
 		this(constructor, timeoutMs, true);
 	}
 
-	private WebDriverContainer(Supplier<WebDriver> constructor, long timeoutMs, boolean canReset) {
+	private WebDriverContainer(ExceptionSupplier<IOException, WebDriver> constructor,
+		long timeoutMs, boolean canReset) throws IOException {
 		logger.info("{} started", getClass().getSimpleName());
 		this.constructor = constructor;
 		this.timeoutSec = (int) MathUtil.roundDiv(timeoutMs, 1000);
@@ -54,7 +58,7 @@ public class WebDriverContainer implements Closeable {
 		driver = create(constructor);
 	}
 
-	public void reset() {
+	public void reset() throws IOException {
 		if (!canReset) throw new UnsupportedOperationException();
 		logger.info("Resetting web driver");
 		driver = create(constructor);
@@ -157,7 +161,8 @@ public class WebDriverContainer implements Closeable {
 		return driver().getPageSource();
 	}
 
-	private WebDriver create(Supplier<WebDriver> constructor) {
+	private WebDriver create(ExceptionSupplier<IOException, WebDriver> constructor)
+		throws IOException {
 		return constructor.get();
 	}
 

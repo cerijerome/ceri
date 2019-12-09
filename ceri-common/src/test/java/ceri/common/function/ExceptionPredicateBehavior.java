@@ -69,4 +69,20 @@ public class ExceptionPredicateBehavior {
 		assertThrown(RuntimeException.class, () -> p.test(0));
 	}
 
+	@Test
+	public void shouldAdaptPredicate() throws IOException {
+		ExceptionPredicate<IOException, String> p =
+			ExceptionPredicate.testing(String::length, i -> i > 0);
+		assertFalse(p.test(""));
+		assertTrue(p.test("x"));
+	}
+
+	@Test
+	public void shouldAdaptIntPredicate() throws IOException {
+		ExceptionPredicate<IOException, String> p =
+			ExceptionPredicate.testingInt(String::length, i -> i > 0);
+		assertFalse(p.test(""));
+		assertTrue(p.test("x"));
+	}
+
 }

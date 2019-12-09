@@ -87,6 +87,11 @@ public class StringUtilTest {
 		assertThat(repeat(new StringBuilder("x"), "", 10).toString(), is("x"));
 		assertThat(repeat(new StringBuilder("x"), "abd", 0).toString(), is("x"));
 		assertThat(repeat(new StringBuilder("x"), null, 10).toString(), is("x"));
+		assertThat(repeat('x', 0), is(""));
+		assertThat(repeat('x', 5), is("xxxxx"));
+		assertNull(repeat(null, 'y', 3));
+		assertThat(repeat(new StringBuilder("x"), 'y', 0).toString(), is("x"));
+		assertThat(repeat(new StringBuilder("x"), 'y', 2).toString(), is("xyy"));
 	}
 
 	@Test

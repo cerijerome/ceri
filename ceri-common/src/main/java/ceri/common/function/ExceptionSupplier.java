@@ -15,14 +15,15 @@ public interface ExceptionSupplier<E extends Exception, T> {
 	}
 
 	default Callable<T> asCallable() {
-		return () -> get();
-	}
-
-	static <T> ExceptionSupplier<Exception, T> of(Callable<T> supplier) {
-		return supplier::call;
+		return this::get;
 	}
 
 	static <T> ExceptionSupplier<RuntimeException, T> of(Supplier<T> supplier) {
 		return supplier::get;
 	}
+	
+	static <T> ExceptionSupplier<Exception, T> of(Callable<T> supplier) {
+		return supplier::call;
+	}
+
 }

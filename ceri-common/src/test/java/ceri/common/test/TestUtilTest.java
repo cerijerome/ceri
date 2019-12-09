@@ -1,15 +1,19 @@
 package ceri.common.test;
 
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertDir;
+import static ceri.common.test.TestUtil.assertExists;
 import static ceri.common.test.TestUtil.assertFile;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertMap;
 import static ceri.common.test.TestUtil.assertNaN;
 import static ceri.common.test.TestUtil.assertRange;
+import static ceri.common.test.TestUtil.assertRegex;
 import static ceri.common.test.TestUtil.assertThrowable;
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.init;
+import static ceri.common.test.TestUtil.isArray;
 import static ceri.common.test.TestUtil.isList;
 import static ceri.common.test.TestUtil.isObject;
 import static ceri.common.test.TestUtil.matchesRegex;
@@ -18,6 +22,7 @@ import static ceri.common.test.TestUtil.testMap;
 import static ceri.common.test.TestUtil.thrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -26,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -98,9 +104,33 @@ public class TestUtilTest {
 	}
 
 	@Test
+	public void testIsArray() {
+		Integer[] array = { 1, 2, 3 };
+		assertThat(array, isArray(1, 2, 3));
+	}
+
+	@Test
 	public void testIsList() {
 		List<Integer> list = Arrays.asList(1, 2, 3);
 		assertThat(list, isList(1, 2, 3));
+	}
+
+	@Test
+	public void testAssertRegex() {
+		assertRegex("test", "%1$s..%1$s", "t");
+		assertAssertion(() -> assertRegex("test", "%1$s..%1$s", "T"));
+	}
+
+	@Test
+	public void testAssertExists() throws IOException {
+		try (FileTestHelper helper = FileTestHelper.builder().root("a").file("b", "bbb").build()) {
+			assertExists(helper.root, true);
+			assertExists(helper.path("b"), true);
+			assertExists(helper.path("c"), false);
+			assertDir(helper.root, true);
+			assertDir(helper.path("b"), false);
+			assertDir(helper.path("c"), false);
+		}
 	}
 
 	@Test
@@ -113,11 +143,11 @@ public class TestUtilTest {
 			.dir("a/4/d0").file("a/4/f0", "xxxxxx").file("a/4/f1", "x") //
 			.dir("a/5/d1").file("a/5/f0", "xxxxxx").file("a/5/f1", "") //
 			.build()) {
-			assertDir(helper.file("a/0"), helper.file("a/1"));
-			assertAssertion(() -> assertDir(helper.file("a/0"), helper.file("a/2")));
-			assertAssertion(() -> assertDir(helper.file("a/0"), helper.file("a/3")));
-			assertAssertion(() -> assertDir(helper.file("a/0"), helper.file("a/4")));
-			assertAssertion(() -> assertDir(helper.file("a/0"), helper.file("a/5")));
+			assertDir(helper.path("a/0"), helper.path("a/1"));
+			assertAssertion(() -> assertDir(helper.path("a/0"), helper.path("a/2")));
+			assertAssertion(() -> assertDir(helper.path("a/0"), helper.path("a/3")));
+			assertAssertion(() -> assertDir(helper.path("a/0"), helper.path("a/4")));
+			assertAssertion(() -> assertDir(helper.path("a/0"), helper.path("a/5")));
 		}
 
 	}
@@ -126,27 +156,39 @@ public class TestUtilTest {
 	public void testAssertFile() throws IOException {
 		try (FileTestHelper helper = FileTestHelper.builder().dir("a").dir("b").file("c", "")
 			.file("d", "D").file("e", "E").build()) {
-			assertAssertion(() -> assertFile(helper.file("a"), helper.file("c")));
-			assertAssertion(() -> assertFile(helper.file("c"), helper.file("a")));
-			assertFile(helper.file("c"), helper.file("c"));
-			assertAssertion(() -> assertFile(helper.file("c"), helper.file("d")));
-			assertAssertion(() -> assertFile(helper.file("d"), helper.file("c")));
-			assertAssertion(() -> assertFile(helper.file("d"), helper.file("e")));
-			assertFile(helper.file("d"), helper.file("d"));
-			assertAssertion(() -> assertFile(helper.file("d"), helper.file("e")));
+			assertAssertion(() -> assertFile(helper.path("a"), helper.path("c")));
+			assertAssertion(() -> assertFile(helper.path("c"), helper.path("a")));
+			assertFile(helper.path("c"), helper.path("c"));
+			assertAssertion(() -> assertFile(helper.path("c"), helper.path("d")));
+			assertAssertion(() -> assertFile(helper.path("d"), helper.path("c")));
+			assertAssertion(() -> assertFile(helper.path("d"), helper.path("e")));
+			assertFile(helper.path("d"), helper.path("d"));
+			assertAssertion(() -> assertFile(helper.path("d"), helper.path("e")));
+		}
+	}
+
+	@Test
+	public void testAssertFileBytes() throws IOException {
+		try (FileTestHelper helper = FileTestHelper.builder().file("test", "abc").build()) {
+			assertFile(helper.path("test"), "abc".getBytes());
+			assertAssertion(() -> assertFile(helper.path("test"), "abd".getBytes()));
 		}
 	}
 
 	@Test
 	public void testAssertPrivateConstructor() {
 		TestUtil.assertPrivateConstructor(TestUtil.class);
+		boolean fail = false;
 		try {
 			TestUtil.assertPrivateConstructor(TestUtilTest.class);
+			fail = true;
 		} catch (AssertionError e) {
 			// ignore
 		}
+		if (fail) fail("Assertion not asserted");
 		try {
 			TestUtil.assertPrivateConstructor(TestUtilTest.Uncreatable.class);
+			fail();
 		} catch (RuntimeException e) {
 			// ignore
 		}
@@ -169,6 +211,16 @@ public class TestUtilTest {
 			assertTrue(b.toString().contains("Exec should do this"));
 			assertTrue(b.toString().contains("Exec test that"));
 		}
+	}
+
+	@Test
+	public void testFirstSystemProperty() {
+		assertNotNull(TestUtil.firstSystemProperty());
+	}
+
+	@Test
+	public void testFirstEnvironmentVariable() {
+		assertNotNull(TestUtil.firstEnvironmentVariable());
 	}
 
 	@Test
@@ -218,6 +270,11 @@ public class TestUtilTest {
 	@Test
 	public void testAssertThrowable() {
 		IOException e = new FileNotFoundException("test");
+		Class<? extends Throwable> nullCls = null;
+		Predicate<String> nullPredicate = null;
+		assertAssertion(() -> assertThrowable(null, nullCls, nullPredicate));
+		assertAssertion(() -> assertThrowable(null, IOException.class, nullPredicate));
+		assertAssertion(() -> assertThrowable(null, nullCls, s -> true));
 		assertThrowable(e, IOException.class);
 		assertThrowable(e, FileNotFoundException.class);
 		assertThrowable(e, "test");
@@ -330,25 +387,16 @@ public class TestUtilTest {
 	}
 
 	@Test
-	public void testToUnixFromFile() throws IOException {
-		try (FileTestHelper helper = FileTestHelper.builder().dir("c").file("b/b.txt", "bb")
-			.file("a/b/c.txt", "ccc").build()) {
-			List<String> unixPaths = TestUtil.toUnixFromFile(helper.fileList("c", "a/b/c.txt"));
-			assertTrue(unixPaths.get(0).endsWith("/c"));
-			assertTrue(unixPaths.get(1).endsWith("/a/b/c.txt"));
-		}
+	public void testPathsToUnix() {
+		List<Path> paths = List.of(Path.of("a", "b", "c.txt"), Path.of("a", "a.txt"));
+		assertCollection(TestUtil.pathsToUnix(paths), "a/b/c.txt", "a/a.txt");
 	}
 
 	@Test
-	public void testToUnixFromPath() throws IOException {
-		try (FileTestHelper helper = FileTestHelper.builder().dir("c").file("b/b.txt", "bb")
-			.file("a/b/c.txt", "ccc").build()) {
-			List<String> paths =
-				Arrays.asList(helper.file("c").getPath(), helper.file("a/b/c.txt").getPath());
-			List<String> unixPaths = TestUtil.toUnixFromPath(paths);
-			assertTrue(unixPaths.get(0).endsWith("/c"));
-			assertTrue(unixPaths.get(1).endsWith("/a/b/c.txt"));
-		}
+	public void testToUnixFromPath() {
+		List<String> paths =
+			List.of(Path.of("a", "b", "c.txt").toString(), Path.of("a", "a.txt").toString());
+		assertCollection(TestUtil.pathNamesToUnix(paths), "a/b/c.txt", "a/a.txt");
 	}
 
 	@Test

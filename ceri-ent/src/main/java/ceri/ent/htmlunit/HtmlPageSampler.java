@@ -1,13 +1,13 @@
 package ceri.ent.htmlunit;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import ceri.common.function.ExceptionSupplier;
-import ceri.common.io.IoUtil;
 
 public class HtmlPageSampler {
 	private static final Logger logger = LogManager.getLogger();
@@ -30,7 +30,7 @@ public class HtmlPageSampler {
 	 * Load a page depending on sample mode.
 	 */
 	public static HtmlPage loadPage(Mode mode,
-		ExceptionSupplier<IOException, HtmlPage> pageSupplier, File file) throws IOException {
+		ExceptionSupplier<IOException, HtmlPage> pageSupplier, Path file) throws IOException {
 		return loadPage(mode, pageSupplier, () -> file);
 	}
 
@@ -38,23 +38,23 @@ public class HtmlPageSampler {
 	 * Load a page depending on sample mode.
 	 */
 	public static HtmlPage loadPage(Mode mode,
-		ExceptionSupplier<IOException, HtmlPage> pageSupplier, Supplier<File> fileSupplier)
+		ExceptionSupplier<IOException, HtmlPage> pageSupplier, Supplier<Path> fileSupplier)
 		throws IOException {
 		if (mode == null || mode == Mode.off) return pageSupplier.get();
-		File f = fileSupplier.get();
-		if (mode == Mode.auto) mode = f.exists() ? Mode.load : Mode.save; 
+		Path f = fileSupplier.get();
+		if (mode == Mode.auto) mode = Files.exists(f) ? Mode.load : Mode.save;
 		if (mode == Mode.load) return loadPageFile(f);
 		return savePageFile(pageSupplier.get(), f);
 	}
 
-	private static HtmlPage loadPageFile(File file) throws IOException {
+	private static HtmlPage loadPageFile(Path file) throws IOException {
 		logger.info("Loading page from file: {}", file);
 		return WebClientHelper.page(file);
 	}
 
-	private static HtmlPage savePageFile(HtmlPage page, File file) throws IOException {
+	private static HtmlPage savePageFile(HtmlPage page, Path file) throws IOException {
 		logger.info("Saving page to file: {}", file);
-		IoUtil.writeString(file, page.asXml());
+		Files.writeString(file, page.asXml());
 		return page;
 	}
 

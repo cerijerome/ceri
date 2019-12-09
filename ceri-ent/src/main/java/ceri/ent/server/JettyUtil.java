@@ -3,8 +3,8 @@ package ceri.ent.server;
 import static org.eclipse.jetty.annotations.AnnotationConfiguration.CONTAINER_INITIALIZERS;
 import static org.eclipse.jetty.servlet.DefaultServlet.CONTEXT_INIT;
 import static org.eclipse.jetty.webapp.WebInfConfiguration.CONTAINER_JAR_PATTERN;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -93,7 +93,7 @@ public class JettyUtil {
 	}
 
 	public static void initForJsp(WebAppContext context) {
-		initForJsp(context, (File) null);
+		initForJsp(context, (Path) null);
 	}
 
 	public static void initForJsp(WebAppContext context, Class<?> jspTmpDirClass) {
@@ -102,14 +102,14 @@ public class JettyUtil {
 	}
 
 	public static void initForJsp(WebAppContext context, String jspTmpDir) {
-		initForJsp(context, new File(jspTmpDir));
+		initForJsp(context, Path.of(jspTmpDir));
 	}
 
-	public static void initForJsp(WebAppContext context, File jspTmpDir) {
+	public static void initForJsp(WebAppContext context, Path jspTmpDir) {
 		context.setAttribute(CONTAINER_JAR_PATTERN, TAGLIBS_JAR_PATTERN);
 		context.setAttribute(CONTAINER_INITIALIZERS, JSP_INITIALIZERS);
 		context.addBean(new ServletContainerInitializersStarter(context), true);
-		if (jspTmpDir != null) context.setTempDirectory(jspTmpDir);
+		if (jspTmpDir != null) context.setTempDirectory(jspTmpDir.toFile());
 	}
 
 	private static List<ContainerInitializer> jspInitializers() {

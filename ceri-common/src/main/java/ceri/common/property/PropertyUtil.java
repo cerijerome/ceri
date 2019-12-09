@@ -1,13 +1,11 @@
 package ceri.common.property;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -41,8 +39,8 @@ public class PropertyUtil {
 	/**
 	 * Stores properties in given file.
 	 */
-	public static void store(Properties properties, File file) throws IOException {
-		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
+	public static void store(Properties properties, java.nio.file.Path file) throws IOException {
+		try (Writer out = Files.newBufferedWriter(file)) {
 			properties.store(out, "Saving state");
 		}
 	}
@@ -51,15 +49,15 @@ public class PropertyUtil {
 	 * Creates properties from given file.
 	 */
 	public static Properties load(String filename) throws IOException {
-		return load(new File(filename));
+		return load(java.nio.file.Path.of(filename));
 	}
-	
+
 	/**
 	 * Creates properties from given file.
 	 */
-	public static Properties load(File file) throws IOException {
+	public static Properties load(java.nio.file.Path file) throws IOException {
 		Properties properties = new Properties();
-		try (InputStream in = new FileInputStream(file)) {
+		try (Reader in = Files.newBufferedReader(file)) {
 			properties.load(in);
 			return properties;
 		}

@@ -7,10 +7,6 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
-import ceri.common.function.ExceptionBiConsumer;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.PrimitiveUtil;
 
 /**
@@ -36,15 +32,6 @@ public class Capturer<T> implements Consumer<T> {
 		values.add(t);
 	}
 
-	public <E extends Exception> ExceptionConsumer<E, T> toEx(Class<E> cls) {
-		BasicUtil.unused(cls); // for typing only
-		return toEx();
-	}
-
-	public <E extends Exception> ExceptionConsumer<E, T> toEx() {
-		return this::accept;
-	}
-
 	public Capturer<T> reset() {
 		values.clear();
 		return this;
@@ -65,15 +52,6 @@ public class Capturer<T> implements Consumer<T> {
 			accept(Integer.valueOf(value));
 		}
 
-		public <E extends Exception> ExceptionIntConsumer<E> toExInt(Class<E> cls) {
-			BasicUtil.unused(cls); // for typing only
-			return toExInt();
-		}
-
-		public <E extends Exception> ExceptionIntConsumer<E> toExInt() {
-			return this::accept;
-		}
-
 		@Override
 		public Capturer.Int reset() {
 			values.clear();
@@ -92,15 +70,6 @@ public class Capturer<T> implements Consumer<T> {
 		Bi(Capturer<T> first, Capturer<U> second) {
 			this.first = first;
 			this.second = second;
-		}
-
-		public <E extends Exception> ExceptionBiConsumer<E, T, U> toEx(Class<E> cls) {
-			BasicUtil.unused(cls); // for typing only
-			return toEx();
-		}
-
-		public <E extends Exception> ExceptionBiConsumer<E, T, U> toEx() {
-			return this::accept;
 		}
 
 		public Capturer.Bi<T, U> reset() {

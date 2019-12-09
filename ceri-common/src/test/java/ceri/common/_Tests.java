@@ -88,6 +88,8 @@ import ceri.common.filter.FiltersTest;
 import ceri.common.function.BooleanConsumerBehavior;
 import ceri.common.function.ExceptionBiConsumerBehavior;
 import ceri.common.function.ExceptionBiFunctionBehavior;
+import ceri.common.function.ExceptionBiPredicateBehavior;
+import ceri.common.function.ExceptionBooleanSupplierBehavior;
 import ceri.common.function.ExceptionConsumerBehavior;
 import ceri.common.function.ExceptionFunctionBehavior;
 import ceri.common.function.ExceptionIntConsumerBehavior;
@@ -133,20 +135,20 @@ import ceri.common.io.BitIteratorBehavior;
 import ceri.common.io.BlockingBufferStreamBehavior;
 import ceri.common.io.ByteBufferStreamBehavior;
 import ceri.common.io.CloseableWrapperBehavior;
-import ceri.common.io.FileFiltersTest;
-import ceri.common.io.FileIteratorBehavior;
+import ceri.common.io.DeviceModeBehavior;
 import ceri.common.io.FileTrackerBehavior;
-import ceri.common.io.FilenameIteratorBehavior;
+import ceri.common.io.FileVisitUtilTest;
 import ceri.common.io.InputStreamIteratorBehavior;
 import ceri.common.io.IoStreamUtilTest;
 import ceri.common.io.IoTimeoutExceptionBehavior;
 import ceri.common.io.IoUtilTest;
 import ceri.common.io.KeyCheckerBehavior;
+import ceri.common.io.PathFiltersTest;
+import ceri.common.io.PathPatternBehavior;
 import ceri.common.io.PollingInputStreamBehavior;
-import ceri.common.io.RegexFilenameFilterBehavior;
 import ceri.common.io.ReplaceableInputStreamBehavior;
 import ceri.common.io.ReplaceableOutputStreamBehavior;
-import ceri.common.io.ResourceListerBehavior;
+import ceri.common.io.ResourcePathBehavior;
 import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StateChangeBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
@@ -200,6 +202,7 @@ import ceri.common.test.FileTestHelperBehavior;
 import ceri.common.test.PulsePrinterBehavior;
 import ceri.common.test.RegexMatcherBehavior;
 import ceri.common.test.ResponseStreamBehavior;
+import ceri.common.test.TestInputStreamBehavior;
 import ceri.common.test.TestPrinterBehavior;
 import ceri.common.test.TestRunAdapterBehavior;
 import ceri.common.test.TestRunPrinterBehavior;
@@ -347,6 +350,8 @@ import ceri.common.xml.XmlUtilTest;
 	BooleanConsumerBehavior.class, //
 	ExceptionBiConsumerBehavior.class, //
 	ExceptionBiFunctionBehavior.class, //
+	ExceptionBiPredicateBehavior.class, //
+	ExceptionBooleanSupplierBehavior.class, //
 	ExceptionConsumerBehavior.class, //
 	ExceptionFunctionBehavior.class, //
 	ExceptionIntConsumerBehavior.class, //
@@ -395,20 +400,20 @@ import ceri.common.xml.XmlUtilTest;
 	BlockingBufferStreamBehavior.class, //
 	ByteBufferStreamBehavior.class, //
 	CloseableWrapperBehavior.class, //
-	FileFiltersTest.class, //
-	FileIteratorBehavior.class, //
+	DeviceModeBehavior.class, //
 	FileTrackerBehavior.class, //
-	FilenameIteratorBehavior.class, //
+	FileVisitUtilTest.class, //
 	InputStreamIteratorBehavior.class, //
 	IoStreamUtilTest.class, //
 	IoTimeoutExceptionBehavior.class, //
 	IoUtilTest.class, //
 	KeyCheckerBehavior.class, //
+	PathFiltersTest.class, //
+	PathPatternBehavior.class, //
 	PollingInputStreamBehavior.class, //
-	RegexFilenameFilterBehavior.class, //
 	ReplaceableInputStreamBehavior.class, //
 	ReplaceableOutputStreamBehavior.class, //
-	ResourceListerBehavior.class, //
+	ResourcePathBehavior.class, //
 	RuntimeIoExceptionBehavior.class, //
 	StateChangeBehavior.class, //
 	StringPrintStreamBehavior.class, //
@@ -471,6 +476,7 @@ import ceri.common.xml.XmlUtilTest;
 	PulsePrinterBehavior.class, //
 	RegexMatcherBehavior.class, //
 	ResponseStreamBehavior.class, //
+	TestInputStreamBehavior.class, //
 	TestPrinterBehavior.class, //
 	TestRunAdapterBehavior.class, //
 	TestRunPrinterBehavior.class, //

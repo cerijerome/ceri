@@ -141,7 +141,7 @@ public class Filters {
 	 */
 	// public static <T> Filter<T> any(final Collection<? extends Filter<? super T>> filters) {
 	public static <T> Filter<T> any(final Collection<? extends Filter<T>> filters) {
-		if (BasicUtil.isEmpty(filters)) return _true();
+		if (BasicUtil.isEmpty(filters)) return _false();
 		return nonNull(t -> {
 			for (Filter<? super T> filter : filters)
 				if (filter.filter(t)) return true;

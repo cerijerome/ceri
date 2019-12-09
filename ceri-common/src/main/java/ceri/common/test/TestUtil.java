@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -15,6 +14,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -24,15 +24,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsSame;
 import org.junit.runner.JUnitCore;
+import ceri.common.collection.ByteProvider;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
@@ -40,6 +43,7 @@ import ceri.common.function.FunctionUtil;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.PrimitiveUtil;
@@ -85,6 +89,24 @@ public class TestUtil {
 		core.addListener(tp);
 		core.run(classes);
 		tp.print(out);
+	}
+
+	public static String firstSystemPropertyName() {
+		Set<Object> keys = System.getProperties().keySet();
+		return BasicUtil.conditional(keys.isEmpty(), "", String.valueOf(keys.iterator().next()));
+	}
+
+	public static String firstSystemProperty() {
+		return System.getProperty(firstSystemPropertyName());
+	}
+
+	public static String firstEnvironmentVariableName() {
+		Set<String> keys = System.getenv().keySet();
+		return BasicUtil.conditional(keys.isEmpty(), "", keys.iterator().next());
+	}
+
+	public static String firstEnvironmentVariable() {
+		return System.getenv(firstEnvironmentVariableName());
 	}
 
 	/**
@@ -504,6 +526,7 @@ public class TestUtil {
 		}
 		for (T t : rhs)
 			assertTrue("Missing element: " + t, lhs.contains(t));
+		assertEquals("Collection size", rhs.size(), lhs.size());
 	}
 
 	/**
@@ -549,7 +572,6 @@ public class TestUtil {
 
 	private static <T> String toString(T t) {
 		if (ReflectUtil.instanceOfAny(t, Byte.class, Short.class, Integer.class, Long.class))
-			// noinspection MalformedFormatString
 			return String.format("%1$d (0x%1$02x)", t);
 		return String.valueOf(t);
 	}
@@ -683,65 +705,119 @@ public class TestUtil {
 	}
 
 	/**
-	 * Checks contents of two directories are equal, with specific failure information if not.
-	 */
-	public static void assertDir(File lhsDir, File rhsDir) throws IOException {
-		List<String> lhsFilenames = IoUtil.filenames(lhsDir);
-		List<String> rhsFilenames = IoUtil.filenames(rhsDir);
-		assertList(lhsFilenames, rhsFilenames);
-		for (String filename : lhsFilenames) {
-			File lhsFile = new File(lhsDir, filename);
-			File rhsFile = new File(rhsDir, filename);
-			assertEquals(lhsFile + " is directory", rhsFile.isDirectory(), lhsFile.isDirectory());
-			if (!rhsFile.isDirectory()) assertFile(lhsFile, rhsFile);
-		}
-	}
-
-	/**
 	 * Checks the string matches regex.
 	 */
-	public static void assertRegex(String actual, String pattern) {
-		assertThat(actual, matchesRegex(pattern));
+	public static void assertRegex(String actual, String pattern, Object... objs) {
+		assertRegex(actual, RegexUtil.compile(pattern, objs));
 	}
-	
+
 	/**
 	 * Checks the string matches regex.
 	 */
 	public static void assertRegex(String actual, Pattern pattern) {
 		assertThat(actual, matchesRegex(pattern));
 	}
-	
+
 	/**
-	 * Checks the paths are the same.
+	 * Check if file exists.
 	 */
-	public static void assertPath(Path actual, String expected) {
-		assertThat(actual, is(Path.of(expected)));
+	public static void assertExists(Path path, boolean exists) {
+		assertThat("Path exists: " + path, Files.exists(path), is(exists));
 	}
 	
 	/**
-	 * Checks contents of two files are equal, with specific failure information if not.
+	 * Check if file exists.
 	 */
-	public static void assertFile(Path actual, Path expected) throws IOException {
-		assertEquals("File size", Files.size(expected), Files.size(actual));
-		byte[] expectedData = Files.readAllBytes(expected);
-		byte[] actualData = Files.readAllBytes(actual);
-		assertEquals("Bytes read", expectedData.length, actualData.length);
-		for (int i = 0; i < expectedData.length; i++)
-			assertEquals("Byte at index " + i, expectedData[i], actualData[i]);
+	public static void assertDir(Path path, boolean isDir) {
+		assertThat("Path is a directory: " + path, Files.isDirectory(path), is(isDir));
+	}
+	
+	/**
+	 * Checks contents of two directories are equal, with specific failure information if not.
+	 */
+	public static void assertDir(Path lhsDir, Path rhsDir) throws IOException {
+		List<Path> lhsPathsRelative = IoUtil.pathsRelative(lhsDir);
+		List<Path> rhsPathsRelative = IoUtil.pathsRelative(rhsDir);
+		assertCollection(lhsPathsRelative, rhsPathsRelative);
+		for (Path path : lhsPathsRelative) {
+			Path lhsFile = lhsDir.resolve(path);
+			Path rhsFile = rhsDir.resolve(path);
+			boolean lhsIsDir = Files.isDirectory(lhsFile);
+			boolean rhsIsDir = Files.isDirectory(rhsFile);
+			assertThat(lhsFile + " is directory", lhsIsDir, is(rhsIsDir));
+			if (!rhsIsDir) assertFile(lhsFile, rhsFile);
+		}
 	}
 
 	/**
 	 * Checks contents of two files are equal, with specific failure information if not.
 	 */
-	public static void assertFile(File lhsFile, File rhsFile) throws IOException {
-		assertFile(lhsFile.toPath(), rhsFile.toPath());
+	public static void assertFile(Path actual, Path expected) throws IOException {
+		assertThat("File size", Files.size(actual), is(Files.size(expected)));
+		long pos = Files.mismatch(actual, expected);
+		if (pos >= 0) throw new AssertionError("Byte mismatch at index " + pos);
+	}
+
+	/**
+	 * Checks contents of the files matches bytes, with specific failure information if not.
+	 */
+	public static void assertFile(Path actual, int... bytes) throws IOException {
+		assertFile(actual, ByteProvider.wrap(bytes));
+	}
+
+	/**
+	 * Checks contents of the files matches bytes, with specific failure information if not.
+	 */
+	public static void assertFile(Path actual, byte[] bytes) throws IOException {
+		assertFile(actual, ByteProvider.wrap(bytes));
+	}
+
+	/**
+	 * Checks contents of the files matches bytes, with specific failure information if not.
+	 */
+	public static void assertFile(Path actual, ByteProvider byteProvider) throws IOException {
+		assertThat("File size", Files.size(actual), is((long) byteProvider.length()));
+		byte[] actualBytes = Files.readAllBytes(actual);
+		for (int i = 0; i < actualBytes.length; i++)
+			if (actualBytes[i] != byteProvider.get(i))
+				throw new AssertionError("Byte mismatch at index " + i);
+	}
+
+	/**
+	 * Checks the paths are the same.
+	 */
+	public static void assertPath(Path actual, String expected, String... more) {
+		assertThat(actual, is(actual.getFileSystem().getPath(expected, more)));
+	}
+
+	/**
+	 * Assert a collection of paths, using the first path's file system.
+	 */
+	public static void assertPaths(Collection<Path> actual, String... paths) {
+		if (actual.isEmpty()) {
+			assertEquals("Path count", 0, paths.length);
+			return;
+		}
+		@SuppressWarnings("resource")
+		FileSystem fs = actual.iterator().next().getFileSystem();
+		List<Path> expected = Stream.of(paths).map(fs::getPath).collect(Collectors.toList());
+		assertCollection(actual, expected);
+	}
+
+	/**
+	 * Assert paths relative to file helper.
+	 */
+	public static void assertHelperPaths(Collection<Path> actual, FileTestHelper helper,
+		String... paths) {
+		List<Path> expected = Stream.of(paths).map(helper::path).collect(Collectors.toList());
+		assertCollection(actual, expected);
 	}
 
 	/**
 	 * Convenience method for creating a regex matcher.
 	 */
-	public static <T> Matcher<T> matchesRegex(String regex) {
-		return new RegexMatcher<>(regex);
+	public static <T> Matcher<T> matchesRegex(String format, Object... objs) {
+		return matchesRegex(RegexUtil.compile(format, objs));
 	}
 
 	/**
@@ -793,21 +869,25 @@ public class TestUtil {
 	/**
 	 * Convert collection of files to list of unix-format paths
 	 */
-	public static List<String> toUnixFromFile(Collection<File> files) {
-		List<String> unixPaths = new ArrayList<>();
-		for (File file : files)
-			unixPaths.add(IoUtil.unixPath(file));
-		return unixPaths;
+	public static List<String> pathsToUnix(Collection<Path> paths) {
+		return paths.stream().map(IoUtil::pathToUnix).collect(Collectors.toList());
 	}
 
 	/**
 	 * Convert collection of files to list of unix-format paths
 	 */
-	public static List<String> toUnixFromPath(Collection<String> paths) {
-		List<String> unixPaths = new ArrayList<>();
-		for (String path : paths)
-			unixPaths.add(IoUtil.unixPath(path));
-		return unixPaths;
+	public static List<String> pathNamesToUnix(Collection<String> pathNames) {
+		return pathNames.stream().map(IoUtil::pathToUnix).collect(Collectors.toList());
+	}
+
+	/**
+	 * Creates an input stream based based on given data. Use a value of -1 for an early EOF, -2 to
+	 * throw an IOException, -3 to throw a RuntimeException, otherwise (byte & 0xff). Buffered reads
+	 * will often squash an IOException when it is not the first byte read. To be sure of a thrown
+	 * exception, use -2, -2.
+	 */
+	public static InputStream inputStream(int... bytes) {
+		return TestInputStream.of(bytes);
 	}
 
 	/**

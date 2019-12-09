@@ -46,11 +46,47 @@ public class FunctionUtilTest {
 	}
 
 	@Test
+	public void testGetQuietly() {
+		assertThat(FunctionUtil.getQuietly(() -> "test"), is("test"));
+		assertNull(FunctionUtil.getQuietly(() -> {
+			throw new IOException();
+		}));
+		assertThrown(() -> FunctionUtil.getQuietly(() -> {
+			throw new RuntimeException();
+		}));
+	}
+
+	@Test
+	public void testExecQuietly() {
+		assertThat(FunctionUtil.execQuietly(() -> {}), is(true));
+		assertThat(FunctionUtil.execQuietly(() -> {
+			throw new IOException();
+		}), is(false));
+		assertThrown(() -> FunctionUtil.execQuietly(() -> {
+			throw new RuntimeException();
+		}));
+	}
+
+	@Test
 	public void testExecSilently() {
 		assertThat(FunctionUtil.execSilently(() -> {}), is(true));
 		assertThat(FunctionUtil.execSilently(() -> {
 			throw new IOException();
 		}), is(false));
+	}
+
+	@Test
+	public void testCallSilently() {
+		assertThat(FunctionUtil.callSilently(() -> "test"), is("test"));
+		assertNull(FunctionUtil.callSilently(() -> {
+			throw new IOException();
+		}));
+	}
+
+	@Test
+	public void testFirst() {
+		assertThat(FunctionUtil.first(null, () -> null, () -> "a", () -> "b"), is("a"));
+		assertThat(FunctionUtil.first("test", () -> null, () -> "a", () -> "b"), is("test"));
 	}
 
 	@Test
@@ -73,7 +109,7 @@ public class FunctionUtilTest {
 		Object obj = new int[] { -1 };
 		FunctionUtil.castAccept(int[].class, obj, x -> x[0] = 1);
 		assertArray((int[]) obj, 1);
-		//noinspection RedundantCast
+		// noinspection RedundantCast
 		FunctionUtil.castAccept((Class<int[]>) null, obj, x -> x[0] = 2);
 		assertArray((int[]) obj, 1);
 		FunctionUtil.castAccept(int[].class, null, x -> x[0] = 2);
@@ -108,6 +144,16 @@ public class FunctionUtilTest {
 	}
 
 	@Test
+	public void testSafeApply() {
+		assertNull(FunctionUtil.safeApply(null, String::length));
+		assertThat(FunctionUtil.safeApply("test", String::length), is(4));
+		assertThat(FunctionUtil.safeApply(null, String::length, 3), is(3));
+		assertThat(FunctionUtil.safeApply("test", String::length, 3), is(4));
+		assertThat(FunctionUtil.safeApplyGet(null, String::length, () -> 2), is(2));
+		assertThat(FunctionUtil.safeApplyGet("test", String::length, () -> 2), is(4));
+	}
+
+	@Test
 	public void testRecurse() {
 		assertThat(FunctionUtil.recurse("test", s -> s.replaceFirst("[a-z]", "X")), is("XXXX"));
 		assertThat(FunctionUtil.recurse("hello", s -> s.substring(1), 3), is("lo"));
@@ -126,25 +172,24 @@ public class FunctionUtilTest {
 	}
 
 	@Test
-	public void testForEachIterable() throws IOException {
+	public void testForEachIterable() {
 		Capturer.Int capturer = Capturer.ofInt();
 		assertThrown(IOException.class,
 			() -> FunctionUtil.forEach(Arrays.asList(1, 2, 3), consumer()));
 		assertThrown(RuntimeException.class,
 			() -> FunctionUtil.forEach(Arrays.asList(0, 1, 2), consumer()));
-		FunctionUtil.forEach(Arrays.asList(1, 2, 3), capturer.reset().toEx(IOException.class));
+		FunctionUtil.forEach(Arrays.asList(1, 2, 3), capturer.reset()::accept);
 		capturer.verify(1, 2, 3);
 	}
 
 	@Test
-	public void testForEachStream() throws IOException {
+	public void testForEachStream() {
 		Capturer.Int capturer = Capturer.ofInt();
-		FunctionUtil.forEach(Stream.of(1, 2, 3), capturer.reset().toEx(IOException.class));
+		FunctionUtil.forEach(Stream.of(1, 2, 3), capturer.reset()::accept);
 		capturer.verify(1, 2, 3);
-		FunctionUtil.forEach(IntStream.of(1, 2, 3), capturer.reset().toExInt(IOException.class));
+		FunctionUtil.forEach(IntStream.of(1, 2, 3), capturer.reset()::accept);
 		capturer.verify(1, 2, 3);
-		assertThrown(IOException.class, () -> FunctionUtil.forEach(Stream.of(1, 2, 3),
-			consumer()));
+		assertThrown(IOException.class, () -> FunctionUtil.forEach(Stream.of(1, 2, 3), consumer()));
 		assertThrown(IOException.class,
 			() -> FunctionUtil.forEach(IntStream.of(1, 2, 3), intConsumer()));
 		assertThrown(RuntimeException.class,
@@ -154,9 +199,9 @@ public class FunctionUtilTest {
 	}
 
 	@Test
-	public void testForEachMap() throws IOException {
+	public void testForEachMap() {
 		Capturer.Bi<Integer, Integer> capturer = Capturer.ofBi();
-		FunctionUtil.forEach(Map.of(1, 2, 3, 4), capturer.reset().toEx(IOException.class));
+		FunctionUtil.forEach(Map.of(1, 2, 3, 4), capturer.reset()::accept);
 		assertCollection(capturer.first.values, 1, 3);
 		assertCollection(capturer.second.values, 2, 4);
 		assertThrown(IOException.class,
@@ -224,6 +269,22 @@ public class FunctionUtilTest {
 		assertThat(FunctionUtil.or(p0, p1).test(-1), is(true));
 		assertThat(FunctionUtil.or(p0, p1).test(0), is(true));
 		assertThat(FunctionUtil.or(p0, p1).test(1), is(true));
+	}
+
+	@Test
+	public void testTesting() {
+		Predicate<Integer> p0 = i -> i > 0;
+		Predicate<String> p = FunctionUtil.testing(String::length, p0);
+		assertThat(p.test(""), is(false));
+		assertThat(p.test("x"), is(true));
+	}
+
+	@Test
+	public void testTestingInt() {
+		IntPredicate p0 = i -> i > 0;
+		Predicate<String> p = FunctionUtil.testingInt(String::length, p0);
+		assertThat(p.test(""), is(false));
+		assertThat(p.test("x"), is(true));
 	}
 
 }

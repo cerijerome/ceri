@@ -39,8 +39,16 @@ public class RegexUtil {
 
 	private RegexUtil() {}
 
+	public static Predicate<String> finder(String format, Object... objs) {
+		return finder(compile(format, objs));
+	}
+	
 	public static Predicate<String> finder(Pattern p) {
 		return s -> s != null && p.matcher(s).find();
+	}
+
+	public static Predicate<String> matcher(String format, Object... objs) {
+		return matcher(compile(format, objs));
 	}
 
 	public static Predicate<String> matcher(Pattern p) {
@@ -51,7 +59,7 @@ public class RegexUtil {
 	 * Compiles a pattern from string format.
 	 */
 	public static Pattern compile(String format, Object... objs) {
-		return Pattern.compile(String.format(format, objs));
+		return Pattern.compile(StringUtil.format(format, objs));
 	}
 
 	/**

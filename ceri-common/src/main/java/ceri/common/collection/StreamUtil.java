@@ -29,6 +29,10 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import ceri.common.comparator.Comparators;
+import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionFunction;
+import ceri.common.function.ExceptionToIntFunction;
+import ceri.common.function.FunctionUtil;
 import ceri.common.function.ObjIntFunction;
 import ceri.common.util.BasicUtil;
 
@@ -42,6 +46,34 @@ public class StreamUtil {
 
 	private StreamUtil() {}
 
+	public static <E extends Exception, T, R> R closeableApply(
+		Stream<T> stream, ExceptionFunction<E, Stream<T>, R> fn) throws E {
+		try (stream) {
+			return fn.apply(stream);
+		}
+	}
+	
+	public static <E extends Exception, T> int closeableApplyAsInt(
+		Stream<T> stream, ExceptionToIntFunction<E, Stream<T>> fn) throws E {
+		try (stream) {
+			return fn.applyAsInt(stream);
+		}
+	}
+	
+	public static <E extends Exception, T> void closeableAccept(
+		Stream<T> stream, ExceptionConsumer<E, Stream<T>> consumer) throws E {
+		try (stream) {
+			consumer.accept(stream);
+		}
+	}
+	
+	public static <E extends Exception, T> void closeableForEach(
+		Stream<T> stream, ExceptionConsumer<E, T> consumer) throws E {
+		try (stream) {
+			FunctionUtil.forEach(stream, consumer);
+		}
+	}
+	
 	public static DoubleStream unitRange(int steps) {
 		return IntStream.range(0, steps).mapToDouble(i -> (double) i / (steps - 1));
 	}

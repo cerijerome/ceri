@@ -15,10 +15,6 @@ public class DateUtil {
 		
 	private DateUtil() {}
 
-	public static LocalDateTime localDateTime(long millis) {
-		return dateTime(millis, ZoneId.systemDefault());
-	}
-	
 	public static LocalDateTime utcDateTime(long millis) {
 		return dateTime(millis, ZoneOffset.UTC);
 	}

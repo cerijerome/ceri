@@ -18,6 +18,22 @@ public class ReflectUtil {
 	private ReflectUtil() {}
 
 	/**
+	 * Return the number of levels in the package of the given class.
+	 */
+	public static int packageLevels(Class<?> cls) {
+		if (cls == null) return 0;
+		return packageLevels(cls.getPackageName());
+	}
+
+	/**
+	 * Return the number of levels in the given package name.
+	 */
+	public static int packageLevels(String packageName) {
+		if (packageName == null || packageName.isEmpty()) return 0;
+		return (int) packageName.chars().filter(ch -> ch == '.').count() + 1;
+	}
+
+	/**
 	 * Returns toString() value, or hash code as '@&lt;hash&gt;' if toString has not been
 	 * overridden. Assumes non-overridden toString is of the form '...@&lt;hash&gt;'. Useful for
 	 * displaying shorter string identifiers of lambdas.

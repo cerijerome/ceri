@@ -1,12 +1,11 @@
 package ceri.x10.cm17a;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import ceri.common.io.IoUtil;
+import ceri.common.io.ResourcePath;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 import ceri.x10.command.UnitCommand;
@@ -102,28 +101,26 @@ public class Commands {
 	 */
 	private Map<Key, Short> loadCommands() throws IOException {
 		Map<Key, Short> commandTable = new HashMap<>();
-		String s = IoUtil.classResourceAsString(getClass(), FILE_SUFFIX);
-		try (BufferedReader in = new BufferedReader(new StringReader(s))) {
-			String nextLine;
-			while ((nextLine = in.readLine()) != null) {
-				String unit = nextLine.substring(0, 4).trim();
-				String command = nextLine.substring(4, 16).trim();
-				String code = nextLine.substring(16).trim();
+		try (ResourcePath path = ResourcePath.ofSuffix(getClass(), FILE_SUFFIX)) {
+			for (String line : Files.readAllLines(path.path())) {
+				String unit = line.substring(0, 4).trim();
+				String command = line.substring(4, 16).trim();
+				String code = line.substring(16).trim();
 				commandTable.put(key(unit, command), code(code));
 			}
 		}
 		return commandTable;
 	}
-	
+
 	private Key key(String unit, String command) {
 		FunctionType type = FunctionType.valueOf(command);
 		if (unit.length() == 1) return new Key(House.fromChar(unit.charAt(0)), null, type);
 		Address address = Address.fromString(unit);
 		return new Key(address.house, address.unit, type);
 	}
-	
+
 	private Short code(String code) {
 		return Integer.valueOf(code, BINARY).shortValue();
 	}
-	
+
 }

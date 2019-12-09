@@ -51,4 +51,15 @@ public interface ExceptionPredicate<E extends Exception, T> {
 			}
 		};
 	}
+
+	static <E extends Exception, T, U> ExceptionPredicate<E, T> testing(
+		ExceptionFunction<E, ? super T, ? extends U> extractor,
+		ExceptionPredicate<E, ? super U> predicate) {
+		return t -> predicate.test(extractor.apply(t));
+	}
+
+	static <E extends Exception, T> ExceptionPredicate<E, T> testingInt(
+		ExceptionToIntFunction<E, ? super T> extractor, ExceptionIntPredicate<E> predicate) {
+		return t -> predicate.test(extractor.applyAsInt(t));
+	}
 }
