@@ -2,10 +2,12 @@ package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertHelperPaths;
 import static ceri.common.test.TestUtil.assertThrown;
+import static java.nio.file.FileVisitResult.CONTINUE;
+import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
+import static java.nio.file.FileVisitResult.TERMINATE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,8 +35,7 @@ public class FileVisitUtilTest {
 	public void testIgnoreOnFail() throws IOException {
 		FileVisitor<Path> visitor =
 			FileVisitUtil.visitor(null, null, null, FileVisitUtil.ignoreOnFail());
-		assertThat(visitor.visitFileFailed(Path.of(""), new IOException()),
-			is(FileVisitResult.CONTINUE));
+		assertThat(visitor.visitFileFailed(Path.of(""), new IOException()), is(CONTINUE));
 	}
 
 	@Test
@@ -47,13 +48,15 @@ public class FileVisitUtilTest {
 	@Test
 	public void testAdapters() throws IOException {
 		FileVisitor<Path> visitor = FileVisitUtil.visitor( //
-			FileVisitUtil.adaptBiPredicate((dir, attr) -> dir != null), null, //
-			FileVisitUtil.adapt(file -> file != null ? //
-				FileVisitResult.CONTINUE : FileVisitResult.TERMINATE));
-		assertThat(visitor.preVisitDirectory(null, null), is(FileVisitResult.SKIP_SUBTREE));
-		assertThat(visitor.preVisitDirectory(Path.of(""), null), is(FileVisitResult.CONTINUE));
-		assertThat(visitor.visitFile(null, null), is(FileVisitResult.TERMINATE));
-		assertThat(visitor.visitFile(Path.of(""), null), is(FileVisitResult.CONTINUE));
+			FileVisitUtil.adaptBiPredicate((dir, attr) -> dir != null),
+			FileVisitUtil.adaptPredicate(dir -> dir != null),
+			FileVisitUtil.adapt(file -> file != null ? CONTINUE : TERMINATE));
+		assertThat(visitor.preVisitDirectory(null, null), is(SKIP_SUBTREE));
+		assertThat(visitor.preVisitDirectory(Path.of(""), null), is(CONTINUE));
+		assertThat(visitor.postVisitDirectory(null, null), is(SKIP_SUBTREE));
+		assertThat(visitor.postVisitDirectory(Path.of(""), null), is(CONTINUE));
+		assertThat(visitor.visitFile(null, null), is(TERMINATE));
+		assertThat(visitor.visitFile(Path.of(""), null), is(CONTINUE));
 	}
 
 	@Test
@@ -114,8 +117,8 @@ public class FileVisitUtilTest {
 		Capturer<Path> preDirCap = Capturer.of();
 		Capturer<Path> fileCap = Capturer.of();
 		FileVisitor<Path> visitor = FileVisitUtil.visitor( //
-			FileVisitUtil.adaptConsumer(preDirCap::accept),
-			(dir, e) -> FileVisitResult.TERMINATE,
+			FileVisitUtil.adaptConsumer(preDirCap::accept), //
+			(dir, e) -> TERMINATE, //
 			FileVisitUtil.adaptConsumer(fileCap::accept));
 		Files.walkFileTree(helper.root, visitor);
 		assertHelperPaths(preDirCap.values, helper, "", "a", "a/a");

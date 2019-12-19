@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.regex.Pattern;
 import ceri.common.text.RegexUtil;
+import ceri.common.text.StringUtil;
 
 public class SqlStatement implements AutoCloseable {
 	private static final Pattern Q_REGEX = Pattern.compile("\\?");
@@ -29,13 +30,13 @@ public class SqlStatement implements AutoCloseable {
 
 	public static SqlStatement track(SqlFormatter formatter, Connection con, String sqlFormat,
 		Object... args) throws SQLException {
-		String sql = args.length == 0 ? sqlFormat : String.format(sqlFormat, args);
+		String sql = StringUtil.format(sqlFormat, args);
 		return new SqlStatement(con.prepareStatement(sql), sql, formatter);
 	}
 
 	public static SqlStatement of(Connection con, String sqlFormat, Object... args)
 		throws SQLException {
-		String sql = args.length == 0 ? sqlFormat : String.format(sqlFormat, args);
+		String sql = StringUtil.format(sqlFormat, args);
 		return new SqlStatement(con.prepareStatement(sql), sql, null);
 	}
 

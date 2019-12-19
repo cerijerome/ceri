@@ -14,6 +14,7 @@ import ceri.common.collection.ImmutableIntArrayBehavior;
 import ceri.common.collection.ImmutableUtilTest;
 import ceri.common.collection.IndexedBehavior;
 import ceri.common.collection.MapPopulatorBehavior;
+import ceri.common.collection.NodeBehavior;
 import ceri.common.collection.StreamUtilTest;
 import ceri.common.collection.WrappedIntStreamBehavior;
 import ceri.common.collection.WrappedStreamBehavior;
@@ -191,6 +192,8 @@ import ceri.common.score.ScoreLookupBehavior;
 import ceri.common.score.ScoreResultBehavior;
 import ceri.common.score.ScorersTest;
 import ceri.common.sql.SqlFormatterBehavior;
+import ceri.common.sql.SqlStatementBehavior;
+import ceri.common.sql.SqlUtilTest;
 import ceri.common.svg.EllipseBehavior;
 import ceri.common.svg.EllipticalArcBehavior;
 import ceri.common.svg.GroundedPathBehavior;
@@ -275,6 +278,7 @@ import ceri.common.xml.XmlUtilTest;
 	ImmutableUtilTest.class, //
 	IndexedBehavior.class, //
 	MapPopulatorBehavior.class, //
+	NodeBehavior.class, //
 	StreamUtilTest.class, //
 	WrappedIntStreamBehavior.class, //
 	WrappedStreamBehavior.class, //
@@ -473,6 +477,8 @@ import ceri.common.xml.XmlUtilTest;
 	ScorersTest.class, //
 	// sql
 	SqlFormatterBehavior.class, //
+	SqlStatementBehavior.class, //
+	SqlUtilTest.class, //
 	// svg
 	EllipseBehavior.class, //
 	EllipticalArcBehavior.class, //

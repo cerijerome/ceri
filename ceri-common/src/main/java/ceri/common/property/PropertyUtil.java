@@ -113,12 +113,8 @@ public class PropertyUtil {
 	 */
 	public static Properties load(Collection<Locator> locators) throws IOException {
 		Properties properties = new Properties();
-		for (Locator locator : locators) {
-			try (InputStream in = locator.cls.getResourceAsStream(locator.filename())) {
-				if (in == null) continue;
-				properties.load(in);
-			}
-		}
+		for (Locator locator : locators)
+			load(properties, locator);
 		return properties;
 	}
 
@@ -129,4 +125,10 @@ public class PropertyUtil {
 		return properties.getProperty(key.value);
 	}
 
+	private static void load(Properties properties, Locator locator) throws IOException {
+		try (InputStream in = locator.cls.getResourceAsStream(locator.filename())) {
+			if (in == null) return;
+			properties.load(in);
+		}
+	}
 }

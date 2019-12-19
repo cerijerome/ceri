@@ -2,6 +2,7 @@ package ceri.common.collection;
 
 import static ceri.common.collection.ImmutableUtil.collectAsList;
 import static ceri.common.collection.ImmutableUtil.convertAsMap;
+import static ceri.common.util.BasicUtil.defaultValue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.property.PathFactory;
@@ -108,7 +110,7 @@ public class Node<T> {
 	 * Lists all named child paths recursively.
 	 */
 	public List<String> namedPaths() {
-		return namedChildPathStream().collect(Collectors.toList());
+		return namedChildPathStream().distinct().collect(Collectors.toList());
 	}
 
 	public Set<String> childNames() {
@@ -127,7 +129,7 @@ public class Node<T> {
 		return index >= 0 && index < children.size();
 	}
 
-	public Node<?> child(String...names) {
+	public Node<?> child(String... names) {
 		return child(Arrays.asList(names), 0);
 	}
 
@@ -152,35 +154,35 @@ public class Node<T> {
 	}
 
 	public Boolean asBoolean() {
-		return PrimitiveUtil.booleanValue(asString());
+		return convert(Boolean.class, PrimitiveUtil::booleanValue);
 	}
 
 	public boolean asBoolean(boolean def) {
-		return PrimitiveUtil.valueOf(asString(), def);
+		return defaultValue(asBoolean(), def);
 	}
 
 	public Integer asInt() {
-		return PrimitiveUtil.intValue(asString());
+		return convert(Integer.class, PrimitiveUtil::intValue);
 	}
 
 	public int asInt(int def) {
-		return PrimitiveUtil.valueOf(asString(), def);
+		return defaultValue(asInt(), def);
 	}
 
 	public Long asLong() {
-		return PrimitiveUtil.longValue(asString());
+		return convert(Long.class, PrimitiveUtil::longValue);
 	}
 
-	public long asLong(long def) {
-		return PrimitiveUtil.valueOf(asString(), def);
+	public Long asLong(long def) {
+		return defaultValue(asLong(), def);
 	}
 
 	public Double asDouble() {
-		return PrimitiveUtil.doubleValue(asString());
+		return convert(Double.class, PrimitiveUtil::doubleValue);
 	}
 
 	public double asDouble(double def) {
-		return PrimitiveUtil.valueOf(asString(), def);
+		return defaultValue(asDouble(), def);
 	}
 
 	public String asString() {
@@ -212,8 +214,12 @@ public class Node<T> {
 		return ToStringHelper.createByClass(this, name, value).childrens(children).toString();
 	}
 
+	private <U> U convert(Class<U> cls, Function<String, U> fn) {
+		U u = asType(cls);
+		return u != null ? u : fn.apply(asString());
+	}
+
 	private Stream<String> namedPathStream() {
-		if (!isNamed()) return Stream.empty();
 		return StreamUtil.prepend(
 			namedChildPathStream().map(p -> PathFactory.dot.path(name, ".", p).value), name);
 	}

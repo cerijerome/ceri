@@ -5,7 +5,9 @@ import static ceri.common.sql.SqlType.sqlNumeric;
 import static ceri.common.sql.SqlType.sqlVarChar;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import java.sql.Types;
 import org.junit.Test;
+import ceri.common.text.StringUtil;
 
 public class SqlFormatterBehavior {
 	private final SqlFormatter formatter = new SqlFormatter() {
@@ -20,6 +22,14 @@ public class SqlFormatterBehavior {
 		}
 	};
 
+	@Test
+	public void shouldIgnoreTypeByDefault() {
+		SqlFormatter f = obj -> StringUtil.reverse(String.valueOf(obj));
+		assertThat(f.format(null), is("llun"));
+		assertThat(f.format(123), is("321"));
+		assertThat(f.format(123, Types.DATE), is("321"));
+	}
+	
 	@Test
 	public void shouldFormatByClass() {
 		assertThat(formatter.format(null), is("null"));
