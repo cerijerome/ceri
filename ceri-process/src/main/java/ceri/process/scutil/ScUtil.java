@@ -6,15 +6,22 @@ import ceri.common.process.Output;
 import ceri.common.process.Parameters;
 import ceri.common.process.Processor;
 
-public class Scutil {
+/**
+ * Mac command scutil.
+ */
+public class ScUtil {
 	private static final String SCUTIL = "scutil";
 	public final Nc nc;
 
-	public Scutil() {
-		this(Processor.DEFAULT);
+	public static ScUtil of() {
+		return of(Processor.DEFAULT);
+	}
+	
+	public static ScUtil of(Processor processor) {
+		return new ScUtil(processor);
 	}
 
-	public Scutil(Processor processor) {
+	private ScUtil(Processor processor) {
 		nc = new Nc(processor);
 	}
 
@@ -36,19 +43,19 @@ public class Scutil {
 		}
 
 		public Output<List<NcListItem>> list() throws IOException {
-			return new Output<>(exec(Parameters.of(LIST)), NcListItem::fromList);
+			return Output.of(exec(Parameters.of(LIST)), NcListItem::fromList);
 		}
 
 		public Output<NcStatus> status(String service) throws IOException {
-			return new Output<>(exec(Parameters.of(STATUS_COMMAND, service)), NcStatus::from);
+			return Output.of(exec(Parameters.of(STATUS_COMMAND, service)), NcStatus::from);
 		}
 
 		public Output<NcShow> show(String service) throws IOException {
-			return new Output<>(exec(Parameters.of(SHOW_COMMAND, service)), NcShow::from);
+			return Output.of(exec(Parameters.of(SHOW_COMMAND, service)), NcShow::from);
 		}
 
 		public Output<NcStatistics> statistics(String service) throws IOException {
-			return new Output<>(exec(Parameters.of(STATISTICS_COMMAND, service)),
+			return Output.of(exec(Parameters.of(STATISTICS_COMMAND, service)),
 				NcStatistics::from);
 		}
 
@@ -66,7 +73,7 @@ public class Scutil {
 		}
 
 		private String exec(Parameters params) throws IOException {
-			return processor.exec(Parameters.of(SCUTIL, OPTION).add(params));
+			return processor.exec(Parameters.of(SCUTIL, OPTION).addAll(params));
 		}
 
 	}

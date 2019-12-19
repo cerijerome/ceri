@@ -2,74 +2,77 @@ package ceri.process.nmcli;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import ceri.common.process.Output;
 import ceri.common.process.Parameters;
-import ceri.common.process.ParseUtil;
 import ceri.common.process.Processor;
 
 public class Nmcli {
 	private static final String NMCLI = "nmcli";
 	public final Con con;
 
-	public static void main(String[] args) throws Exception {
-		System.out.println(new Nmcli().con.list());
-		System.out.println(new Nmcli().con.status());
+	public static Nmcli of() {
+		return of(Processor.DEFAULT);
 	}
 
-	public Nmcli() {
-		this(Processor.DEFAULT);
+	public static Nmcli of(Processor processor) {
+		return new Nmcli(processor);
 	}
 
-	public Nmcli(Processor processor) {
+	private Nmcli(Processor processor) {
 		con = new Con(processor);
 	}
 
 	public static class Con {
-		private static final String NAME_VALUE_SPLIT = ":\\s+";
 		private static final String OBJECT = "con";
-		private static final String LIST_COMMAND = "list";
-		private static final String STATUS_COMMAND = "status";
+		private static final String SHOW_COMMAND = "show";
 		private static final String UP_COMMAND = "up";
 		private static final String DOWN_COMMAND = "down";
 		private static final String ID_PARAM = "id";
-		private static final String NO_WAIT_OPTION = "--nowait";
-		private static final String TIMEOUT_OPTION = "--timeout";
+		private static final String WAIT_OPTION = "--wait";
 		private final Processor processor;
-
-		public enum Wait {
-			wait,
-			noWait
-		}
 
 		Con(Processor processor) {
 			this.processor = processor;
 		}
 
-		public Output<List<ConListItem>> list() throws IOException {
-			return new Output<>(exec(Parameters.of(LIST_COMMAND)), ConListItem::fromOutput);
+		/**
+		 * Call <b>nmcli show</b> without id. Example output:
+		 * 
+		 * <pre>
+		 * NAME  UUID                                  TYPE      DEVICE
+		 * eth1  01fa0bf4-b6bd-484f-a9a3-2b10ff701dcd  ethernet  eth1
+		 * eth0  2e9f0cdd-ea2f-4b63-b146-3b9a897c9e45  ethernet  eth0
+		 * eth2  186053d4-9369-4a4e-87b8-d1f9a419f985  ethernet  eth2
+		 * </pre>
+		 */
+		public Output<List<ConShowItem>> show() throws IOException {
+			return Output.of(exec(Parameters.of(SHOW_COMMAND)), ConShowItem::fromOutput);
 		}
 
-		public Output<Map<String, String>> list(String id) throws IOException {
-			return new Output<>(exec(Parameters.of(LIST_COMMAND, ID_PARAM, id)), this::nameValues);
-		}
-
-		public Output<List<ConStatusItem>> status() throws IOException {
-			return new Output<>(exec(Parameters.of(STATUS_COMMAND)), ConStatusItem::fromOutput);
-		}
-
-		public Output<Map<String, String>> status(String id) throws IOException {
-			return new Output<>(exec(Parameters.of(STATUS_COMMAND, ID_PARAM, id)), this::nameValues);
+		/**
+		 * Call <b>nmcli show id [id]</b>. Example output:
+		 * 
+		 * <pre>
+		 * connection.id:                          eth2
+		 * connection.uuid:                        186053d4-9369-4a4e-87b8-d1f9a419f985
+		 * connection.stable-id:                   --
+		 * connection.type:                        802-3-ethernet
+		 * connection.interface-name:              eth2
+		 * connection.autoconnect:                 yes
+		 * </pre>
+		 */
+		public Output<ConShowIdResult> show(String id) throws IOException {
+			return Output.of(exec(Parameters.of(SHOW_COMMAND, ID_PARAM, id)),
+				ConShowIdResult::fromOutput);
 		}
 
 		public String up(String id) throws IOException {
-			return up(id, null, null);
+			return up(id, null);
 		}
 
-		public String up(String id, Wait wait, Integer timeoutSec) throws IOException {
+		public String up(String id, Integer waitSec) throws IOException {
 			Parameters params = Parameters.of(UP_COMMAND, ID_PARAM, id);
-			if (wait == Wait.noWait) params.add(NO_WAIT_OPTION);
-			if (timeoutSec != null) params.add(TIMEOUT_OPTION, String.valueOf(timeoutSec));
+			if (waitSec != null) params.add(WAIT_OPTION, String.valueOf(waitSec));
 			return exec(params);
 		}
 
@@ -78,11 +81,7 @@ public class Nmcli {
 		}
 
 		private String exec(Parameters params) throws IOException {
-			return processor.exec(Parameters.of(NMCLI, OBJECT).add(params));
-		}
-
-		private Map<String, String> nameValues(String output) {
-			return ParseUtil.toMap(ParseUtil.parseNameValues(NAME_VALUE_SPLIT, output));
+			return processor.exec(Parameters.of(NMCLI, OBJECT).addAll(params));
 		}
 
 	}

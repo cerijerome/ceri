@@ -1,0 +1,3 @@
+Available network connection services in the current set (*=enabled):
+  (Disconnected)   XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX PPP --> FT245R USB FIFO "FT245R USB FIFO"                [PPP:Modem]
+* (Connecting)     00000000-0000-0000-0000-000000000000 I2C --> FT232R USB UART "FT232R USB UART"                [I2C:Device]

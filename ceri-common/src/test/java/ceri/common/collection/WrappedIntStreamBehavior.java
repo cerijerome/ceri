@@ -7,12 +7,16 @@ import static ceri.common.function.FunctionTestUtil.intConsumer;
 import static ceri.common.function.FunctionTestUtil.intFunction;
 import static ceri.common.function.FunctionTestUtil.intPredicate;
 import static ceri.common.function.FunctionTestUtil.intUnaryOperator;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Test;
+import ceri.common.function.FunctionTestUtil;
 import ceri.common.test.Capturer;
 
 public class WrappedIntStreamBehavior {
@@ -49,6 +53,11 @@ public class WrappedIntStreamBehavior {
 	}
 
 	@Test
+	public void shouldBoxInts() throws IOException {
+		assertStream(wrap(4, -1, 2).boxed(), 4, -1, 2);
+	}
+
+	@Test
 	public void shouldThrowTypedExceptionFromForEach() {
 		assertCapture(wrap(4, 3, 2)::forEach, 4, 3, 2);
 		assertThrown(IOException.class, () -> wrap(2, 1, 0).forEach(intConsumer()));
@@ -57,6 +66,21 @@ public class WrappedIntStreamBehavior {
 			() -> wrap(2, 1, 0).map(intUnaryOperator()).forEach(x -> {}));
 		assertThrown(RuntimeException.class,
 			() -> wrap(3, 2, 0).map(intUnaryOperator()).forEach(x -> {}));
+	}
+
+	@Test
+	public void shouldThrowTypedExceptionFromCollect() throws IOException {
+		assertIterable(wrap(4, 3, 2).collect(ArrayList::new, List::add, List::addAll), 4, 3, 2);
+		try (WrappedIntStream<IOException> stream =
+			wrap(4, 3, 1).map(FunctionTestUtil.intUnaryOperator())) {
+			assertThrown(IOException.class,
+				() -> stream.collect(ArrayList::new, List::add, List::addAll));
+		}
+		try (WrappedIntStream<IOException> stream =
+			wrap(4, 3, 0).map(FunctionTestUtil.intUnaryOperator())) {
+			assertThrown(RuntimeException.class,
+				() -> stream.collect(ArrayList::new, List::add, List::addAll));
+		}
 	}
 
 	@Test

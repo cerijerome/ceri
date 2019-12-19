@@ -9,29 +9,33 @@ public class Kill {
 	private static final String KILL = "kill";
 	private final Processor processor;
 	private Signal signal = null;
-	
-	public Kill() {
-		this(Processor.DEFAULT);
+
+	public static Kill of() {
+		return of(Processor.DEFAULT);
 	}
-	
-	public Kill(Processor processor) {
+
+	public static Kill of(Processor processor) {
+		return new Kill(processor);
+	}
+
+	private Kill(Processor processor) {
 		this.processor = processor;
 	}
-	
+
 	public Kill signal(Signal signal) {
 		this.signal = signal;
 		return this;
 	}
-	
-	public String kill(int...pids) throws IOException {
-		Parameters params = new Parameters();
+
+	public String kill(int... pids) throws IOException {
+		Parameters params = Parameters.of();
 		if (signal != null) params.add("-" + signal.number);
-		IntStream.of(pids).forEach(pid -> params.add(String.valueOf(pid)));
+		IntStream.of(pids).forEach(params::add);
 		return exec(params);
 	}
-	
+
 	private String exec(Parameters params) throws IOException {
 		return processor.exec(Parameters.of(KILL).add(params));
 	}
-	
+
 }

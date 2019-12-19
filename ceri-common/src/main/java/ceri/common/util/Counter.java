@@ -1,7 +1,5 @@
 package ceri.common.util;
 
-import ceri.common.text.ToStringHelper;
-
 /**
  * Simple counter.
  */
@@ -25,7 +23,7 @@ public class Counter {
 	}
 
 	public int intCount() {
-		return (int) count; // no overflow check
+		return Math.toIntExact(count);
 	}
 
 	public long set(long value) {
@@ -48,26 +46,13 @@ public class Counter {
 	}
 
 	public int intInc(long value) {
-		return (int) inc(value);
-	}
-
-	@Override
-	public int hashCode() {
-		return HashCoder.hash(count);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof Counter)) return false;
-		Counter other = (Counter) obj;
-		if (count != other.count) return false;
-		return true;
+		inc(value);
+		return intCount();
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, count).toString();
+		return String.valueOf(count);
 	}
 
 }

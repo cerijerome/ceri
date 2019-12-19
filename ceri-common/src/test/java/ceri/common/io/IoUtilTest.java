@@ -39,9 +39,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.stubbing.answers.ThrowsException;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.collection.WrappedStream;
-import ceri.common.data.ByteUtil;
 import ceri.common.test.FileTestHelper;
 
 public class IoUtilTest {
@@ -353,7 +353,7 @@ public class IoUtilTest {
 	@Test
 	public void testAvailableBytes() throws IOException {
 		assertNull(IoUtil.availableBytes(null));
-		try (InputStream in = new ByteArrayInputStream(ByteUtil.bytes(0, 1, 2, 3, 4))) {
+		try (InputStream in = new ByteArrayInputStream(ArrayUtil.bytes(0, 1, 2, 3, 4))) {
 			assertThat(IoUtil.availableBytes(in), is(ImmutableByteArray.wrap(0, 1, 2, 3, 4)));
 			assertThat(IoUtil.availableBytes(in), is(ImmutableByteArray.EMPTY));
 		}
@@ -367,7 +367,7 @@ public class IoUtilTest {
 	@Test
 	public void testReadBytes() throws IOException {
 		assertThat(IoUtil.readBytes(null, null), is(0));
-		try (InputStream in = new ByteArrayInputStream(ByteUtil.bytes(0, 1, 2, 3, 4))) {
+		try (InputStream in = new ByteArrayInputStream(ArrayUtil.bytes(0, 1, 2, 3, 4))) {
 			assertThat(IoUtil.readBytes(in, null), is(0));
 			byte[] buffer = new byte[4];
 			IoUtil.readBytes(in, buffer);

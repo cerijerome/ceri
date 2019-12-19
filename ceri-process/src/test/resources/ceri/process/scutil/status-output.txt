@@ -1,0 +1,9 @@
+Connected
+Extended Status <dictionary> {
+  PPP : <dictionary> {
+    DeviceLastCause : 99
+    LastCause : 90
+    Status : 1
+  }
+  Status : 0
+}

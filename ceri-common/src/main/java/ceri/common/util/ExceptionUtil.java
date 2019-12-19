@@ -7,10 +7,19 @@ import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import ceri.common.function.ExceptionRunnable;
+import ceri.common.text.StringUtil;
 
 public class ExceptionUtil {
 
 	private ExceptionUtil() {}
+
+	/**
+	 * Call to generate an IllegalStateException. Use for lambdas that shouldn't be called.
+	 */
+	public static void doNotCall(Object...args) {
+		BasicUtil.unused(args);
+		throw new IllegalStateException();
+	}	
 
 	/**
 	 * Creates an exception with formatted message.
@@ -40,7 +49,7 @@ public class ExceptionUtil {
 	 */
 	public static <E extends Exception> E exceptionf(Function<String, E> fn, Throwable cause,
 		String format, Object... args) {
-		String message = String.format(format, args);
+		String message = StringUtil.format(format, args);
 		return ExceptionUtil.initCause(fn.apply(message), cause);
 	}
 

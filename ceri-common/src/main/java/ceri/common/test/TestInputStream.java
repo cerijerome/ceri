@@ -2,6 +2,7 @@ package ceri.common.test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import ceri.common.data.ByteUtil;
 import ceri.common.function.ExceptionIntSupplier;
 import ceri.common.function.ExceptionRunnable;
 
@@ -47,6 +48,10 @@ public class TestInputStream extends InputStream {
 		return builder().data(bytes).build();
 	}
 
+	public static TestInputStream of(byte[] bytes) {
+		return builder().data(bytes).build();
+	}
+
 	public static class Builder {
 		ExceptionIntSupplier<IOException> readSupplier = () -> 0;
 		ExceptionIntSupplier<IOException> availableSupplier = () -> AVAILABLE_DEF;
@@ -57,6 +62,10 @@ public class TestInputStream extends InputStream {
 		public Builder data(int... values) {
 			Data data = new Data(values);
 			return read(data::read).available(data::available);
+		}
+
+		public Builder data(byte[] values) {
+			return data(ByteUtil.streamOf(values).toArray());
 		}
 
 		public Builder read(ExceptionIntSupplier<IOException> readSupplier) {

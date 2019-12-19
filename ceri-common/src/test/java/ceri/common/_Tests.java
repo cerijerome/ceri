@@ -153,6 +153,7 @@ import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StateChangeBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
 import ceri.common.log.LevelBehavior;
+import ceri.common.log.LoggerBehavior;
 import ceri.common.math.AlgebraUtilTest;
 import ceri.common.math.BoundBehavior;
 import ceri.common.math.FractionBehavior;
@@ -170,6 +171,12 @@ import ceri.common.math.VectorUtilTest;
 import ceri.common.net.HostPortBehavior;
 import ceri.common.net.NetUtilTest;
 import ceri.common.net.UdpUtilTest;
+import ceri.common.process.ColumnsBehavior;
+import ceri.common.process.OutputBehavior;
+import ceri.common.process.ParametersBehavior;
+import ceri.common.process.ProcessCommandBehavior;
+import ceri.common.process.ProcessUtilTest;
+import ceri.common.process.ProcessorBehavior;
 import ceri.common.property.BasePropertiesBehavior;
 import ceri.common.property.LocatorBehavior;
 import ceri.common.property.PathBehavior;
@@ -218,6 +225,7 @@ import ceri.common.text.FractionFormatsTest;
 import ceri.common.text.MarshallerBehavior;
 import ceri.common.text.RegexSequencerBehavior;
 import ceri.common.text.RegexUtilTest;
+import ceri.common.text.SplitterBehavior;
 import ceri.common.text.StringTypeBehavior;
 import ceri.common.text.StringUtilTest;
 import ceri.common.text.TextUtilTest;
@@ -229,6 +237,7 @@ import ceri.common.tree.TreeNodeBehavior;
 import ceri.common.tree.TreeNodeComparatorsTest;
 import ceri.common.tree.TreeUtilTest;
 import ceri.common.util.BasicUtilTest;
+import ceri.common.util.CounterBehavior;
 import ceri.common.util.EqualsUtilTest;
 import ceri.common.util.ExceptionAdapterBehavior;
 import ceri.common.util.ExceptionTrackerBehavior;
@@ -419,6 +428,7 @@ import ceri.common.xml.XmlUtilTest;
 	StringPrintStreamBehavior.class, //
 	// log
 	LevelBehavior.class, //
+	LoggerBehavior.class, //
 	// math
 	AlgebraUtilTest.class, //
 	BoundBehavior.class, //
@@ -438,6 +448,13 @@ import ceri.common.xml.XmlUtilTest;
 	HostPortBehavior.class, //
 	NetUtilTest.class, //
 	UdpUtilTest.class, //
+	// process
+	ColumnsBehavior.class, //
+	OutputBehavior.class, //
+	ParametersBehavior.class, //
+	ProcessCommandBehavior.class, //
+	ProcessUtilTest.class, //
+	ProcessorBehavior.class, //
 	// property
 	BasePropertiesBehavior.class, //
 	LocatorBehavior.class, //
@@ -492,6 +509,7 @@ import ceri.common.xml.XmlUtilTest;
 	MarshallerBehavior.class, //
 	RegexSequencerBehavior.class, //
 	RegexUtilTest.class, //
+	SplitterBehavior.class, //
 	StringTypeBehavior.class, //
 	StringUtilTest.class, //
 	TextUtilTest.class, //
@@ -505,6 +523,7 @@ import ceri.common.xml.XmlUtilTest;
 	TreeUtilTest.class, //
 	// util
 	BasicUtilTest.class, //
+	CounterBehavior.class, //
 	EqualsUtilTest.class, //
 	ExceptionAdapterBehavior.class, //
 	ExceptionTrackerBehavior.class, //

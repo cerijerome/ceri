@@ -1,8 +1,11 @@
 package ceri.process.scutil;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import ceri.common.text.ToStringHelper;
+import static ceri.common.function.FunctionUtil.safeAccept;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Node;
+import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 /**
@@ -22,77 +25,34 @@ import ceri.common.util.HashCoder;
  * </pre>
  */
 public class NcStatistics {
-	private static final Pattern FIELD_REGEX = Pattern.compile("(\\w+)\\s*:\\s*(\\d+)");
-	public final int bytesIn;
-	public final int bytesOut;
-	public final int errorsIn;
-	public final int errorsOut;
-	public final int packetsIn;
-	public final int packetsOut;
+	public static final NcStatistics NULL = builder().build();
+	private static final String BYTES_IN = "BytesIn";
+	private static final String BYTES_OUT = "BytesOut";
+	private static final String ERRORS_IN = "ErrorsIn";
+	private static final String ERRORS_OUT = "ErrorsOut";
+	private static final String PACKETS_IN = "PacketsIn";
+	private static final String PACKETS_OUT = "PacketsOut";
+	private final Map<String, Integer> values;
 
 	public static NcStatistics from(String output) {
-		Matcher m = FIELD_REGEX.matcher(output);
 		Builder b = builder();
-		while (m.find())
-			setValue(b, m.group(1), Integer.parseInt(m.group(2)));
+		Node<?> node = Parser.parse(output).child(0, 0);
+		node.namedChildren().forEach((name, n) -> safeAccept(n.asInt(), i -> b.add(name, i)));
 		return b.build();
 	}
 
-	private static Builder setValue(Builder b, String name, int value) {
-		switch (name) {
-		case "BytesIn":
-			return b.bytesIn(value);
-		case "BytesOut":
-			return b.bytesOut(value);
-		case "ErrorsIn":
-			return b.errorsIn(value);
-		case "ErrorsOut":
-			return b.errorsOut(value);
-		case "PacketsIn":
-			return b.packetsIn(value);
-		case "PacketsOut":
-			return b.packetsOut(value);
-		}
-		return b;
-	}
-
 	public static class Builder {
-		int bytesIn;
-		int bytesOut;
-		int errorsIn;
-		int errorsOut;
-		int packetsIn;
-		int packetsOut;
+		final Map<String, Integer> values = new LinkedHashMap<>();
 
 		Builder() {}
 
-		public Builder bytesIn(int bytesIn) {
-			this.bytesIn = bytesIn;
+		public Builder add(String key, Integer value) {
+			values.put(key, value);
 			return this;
 		}
 
-		public Builder bytesOut(int bytesOut) {
-			this.bytesOut = bytesOut;
-			return this;
-		}
-
-		public Builder errorsIn(int errorsIn) {
-			this.errorsIn = errorsIn;
-			return this;
-		}
-
-		public Builder errorsOut(int errorsOut) {
-			this.errorsOut = errorsOut;
-			return this;
-		}
-
-		public Builder packetsIn(int packetsIn) {
-			this.packetsIn = packetsIn;
-			return this;
-		}
-
-		public Builder packetsOut(int packetsOut) {
-			this.packetsOut = packetsOut;
+		public Builder add(Map<String, Integer> values) {
+			this.values.putAll(values);
 			return this;
 		}
 
@@ -106,27 +66,52 @@ public class NcStatistics {
 	}
 
 	NcStatistics(Builder builder) {
-		bytesIn = builder.bytesIn;
-		bytesOut = builder.bytesOut;
-		errorsIn = builder.errorsIn;
-		errorsOut = builder.errorsOut;
-		packetsIn = builder.packetsIn;
-		packetsOut = builder.packetsOut;
+		values = ImmutableUtil.copyAsMap(builder.values);
+	}
+
+	public int value(String name, int def) {
+		return values.getOrDefault(name, def);
+	}
+
+	public int bytesIn() {
+		return value(BYTES_IN, 0);
+	}
+
+	public int bytesOut() {
+		return value(BYTES_OUT, 0);
+	}
+
+	public int errorsIn() {
+		return value(ERRORS_IN, 0);
+	}
+
+	public int errorsOut() {
+		return value(ERRORS_OUT, 0);
+	}
+
+	public int packetsIn() {
+		return value(PACKETS_IN, 0);
+	}
+
+	public int packetsOut() {
+		return value(PACKETS_OUT, 0);
 	}
 
 	public double packetErrorRateIn() {
+		int packetsIn = packetsIn();
 		if (packetsIn == 0) return 0.0;
-		return (double) errorsIn / packetsIn;
+		return (double) errorsIn() / packetsIn;
 	}
 
 	public double packetErrorRateOut() {
+		int packetsOut = packetsOut();
 		if (packetsOut == 0) return 0.0;
-		return (double) errorsOut / packetsOut;
+		return (double) errorsOut() / packetsOut;
 	}
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(bytesIn, bytesOut, errorsIn, errorsOut, packetsIn, packetsOut);
+		return HashCoder.hash(values);
 	}
 
 	@Override
@@ -134,19 +119,13 @@ public class NcStatistics {
 		if (this == obj) return true;
 		if (!(obj instanceof NcStatistics)) return false;
 		NcStatistics other = (NcStatistics) obj;
-		if (bytesIn != other.bytesIn) return false;
-		if (bytesOut != other.bytesOut) return false;
-		if (errorsIn != other.errorsIn) return false;
-		if (errorsOut != other.errorsOut) return false;
-		if (packetsIn != other.packetsIn) return false;
-		if (packetsOut != other.packetsOut) return false;
+		if (!EqualsUtil.equals(values, other.values)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, bytesIn, bytesOut, errorsIn, errorsOut,
-			packetsIn, packetsOut).toString();
+		return String.valueOf(values);
 	}
 
 }

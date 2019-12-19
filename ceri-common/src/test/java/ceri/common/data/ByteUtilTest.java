@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertStream;
@@ -20,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.test.TestUtil;
 
@@ -59,7 +59,7 @@ public class ByteUtilTest {
 
 	@Test
 	public void testStreamOf() {
-		byte[] b = ByteUtil.bytes(-1, 0, 1, 127, 128);
+		byte[] b = ArrayUtil.bytes(-1, 0, 1, 127, 128);
 		assertStream(ByteUtil.streamOf(b), 0xff, 0, 1, 0x7f, 0x80);
 	}
 
@@ -214,7 +214,7 @@ public class ByteUtilTest {
 		assertThat(ByteUtil.fromBigEndian(ImmutableByteArray.wrap( //
 			0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89)), is(0xabcd_ef01_2345_6789L));
 		assertThat(ByteUtil.fromBigEndian( //
-			bytes(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3), is(0xcdef01L));
+			ArrayUtil.bytes(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3), is(0xcdef01L));
 	}
 
 	@Test
@@ -224,7 +224,7 @@ public class ByteUtilTest {
 		assertThat(ByteUtil.fromLittleEndian(ImmutableByteArray.wrap( //
 			0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89)), is(0x8967_4523_01ef_cdabL));
 		assertThat(ByteUtil.fromLittleEndian( //
-			bytes(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3), is(0x01efcdL));
+			ArrayUtil.bytes(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3), is(0x01efcdL));
 	}
 
 	@Test
@@ -286,7 +286,7 @@ public class ByteUtilTest {
 
 	@Test
 	public void testFill() {
-		byte[] b = bytes(-1, 1, 0, 127, 128);
+		byte[] b = ArrayUtil.bytes(-1, 1, 0, 127, 128);
 		ByteUtil.fill(b, 0x8f, 2, 2);
 		assertArray(b, -1, 1, 0x8f, 0x8f, 128);
 		TestUtil.assertThrown(() -> ByteUtil.fill(b, 0x8f, 2, 4));
@@ -295,7 +295,7 @@ public class ByteUtilTest {
 	@Test
 	public void testPad() {
 		exerciseEnum(ByteUtil.Align.class);
-		byte[] b = bytes(-1, 1, 0, 127, 128);
+		byte[] b = ArrayUtil.bytes(-1, 1, 0, 127, 128);
 		assertArray(ByteUtil.padL(b, 0), -1, 1, 0, 127, 128);
 		assertArray(ByteUtil.padL(b, 4), -1, 1, 0, 127, 128);
 		assertArray(ByteUtil.padL(b, 5), -1, 1, 0, 127, 128);

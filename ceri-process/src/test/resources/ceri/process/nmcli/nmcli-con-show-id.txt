@@ -1,0 +1,8 @@
+connection.id:                          eth2
+connection.uuid:                        186053d4-9369-4a4e-87b8-d1f9a419f985
+connection.stable-id:                   --
+connection.type:                        802-3-ethernet
+connection.interface-name:              eth2
+connection.autoconnect:                 yes
+GENERAL.STATE:                          activated
+GENERAL.VPN:                            yes

@@ -1,5 +1,13 @@
 package ceri.common.test;
 
+import static ceri.common.collection.ArrayUtil.booleans;
+import static ceri.common.collection.ArrayUtil.bytes;
+import static ceri.common.collection.ArrayUtil.chars;
+import static ceri.common.collection.ArrayUtil.doubles;
+import static ceri.common.collection.ArrayUtil.floats;
+import static ceri.common.collection.ArrayUtil.ints;
+import static ceri.common.collection.ArrayUtil.longs;
+import static ceri.common.collection.ArrayUtil.shorts;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertDir;
@@ -12,6 +20,7 @@ import static ceri.common.test.TestUtil.assertRange;
 import static ceri.common.test.TestUtil.assertRegex;
 import static ceri.common.test.TestUtil.assertThrowable;
 import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.assertValue;
 import static ceri.common.test.TestUtil.init;
 import static ceri.common.test.TestUtil.isArray;
 import static ceri.common.test.TestUtil.isList;
@@ -32,7 +41,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +51,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.junit.Test;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.SystemIo;
 import ceri.common.text.StringUtil;
@@ -76,7 +85,7 @@ public class TestUtilTest {
 		TestUtil.assertApprox(0.000995, 0.00099499, 4);
 		assertAssertion(() -> TestUtil.assertApprox(0.000995, 0.00099499, 5));
 		double[] dd = { 1.0015, -0.00501, 0 };
-		assertAssertion(() -> TestUtil.assertApprox(dd, 1.0015, -0.00502, 0));
+		TestUtil.assertApprox(dd, 1.0015, -0.00502, 0);
 	}
 
 	@Test
@@ -178,20 +187,8 @@ public class TestUtilTest {
 	@Test
 	public void testAssertPrivateConstructor() {
 		TestUtil.assertPrivateConstructor(TestUtil.class);
-		boolean fail = false;
-		try {
-			TestUtil.assertPrivateConstructor(TestUtilTest.class);
-			fail = true;
-		} catch (AssertionError e) {
-			// ignore
-		}
-		if (fail) fail("Assertion not asserted");
-		try {
-			TestUtil.assertPrivateConstructor(TestUtilTest.Uncreatable.class);
-			fail();
-		} catch (RuntimeException e) {
-			// ignore
-		}
+		assertAssertion(() -> TestUtil.assertPrivateConstructor(TestUtilTest.class));
+		assertAssertion(() -> TestUtil.assertPrivateConstructor(TestUtilTest.Uncreatable.class));
 	}
 
 	public static class ExecTest {
@@ -245,6 +242,16 @@ public class TestUtilTest {
 	}
 
 	@Test
+	public void testAssertList() {
+		TestUtil.assertList(List.of(1), 0, List.of(1), 0, 1);
+		assertAssertion(() -> TestUtil.assertList(List.of(), 0, List.of(), 0, 1));
+		assertAssertion(() -> TestUtil.assertList(List.of(), 0, List.of(1), 0, 1));
+		assertAssertion(() -> TestUtil.assertList(List.of(1), 0, List.of(), 0, 1));
+		assertAssertion(() -> TestUtil.assertList(List.of(1), 0, List.of(2), 0, 1));
+		assertAssertion(() -> TestUtil.assertList(List.of(""), 0, List.of(" "), 0, 1));
+	}
+
+	@Test
 	public void testTestMap() {
 		Map<Integer, String> map = testMap(1, "1", 2, "2", 3);
 		assertThat(map.size(), is(3));
@@ -272,14 +279,16 @@ public class TestUtilTest {
 		IOException e = new FileNotFoundException("test");
 		Class<? extends Throwable> nullCls = null;
 		Predicate<String> nullPredicate = null;
-		assertAssertion(() -> assertThrowable(null, nullCls, nullPredicate));
+		assertThrowable(null, nullCls, nullPredicate);
 		assertAssertion(() -> assertThrowable(null, IOException.class, nullPredicate));
 		assertAssertion(() -> assertThrowable(null, nullCls, s -> true));
 		assertThrowable(e, IOException.class);
 		assertThrowable(e, FileNotFoundException.class);
 		assertThrowable(e, "test");
 		assertThrowable(e, m -> m.startsWith("test"));
+		assertAssertion(() -> assertThrowable(e, m -> m.startsWith("Test")));
 		assertThrowable(null, null, (Predicate<String>) null);
+
 	}
 
 	@Test
@@ -300,9 +309,15 @@ public class TestUtilTest {
 		TestUtil.assertThrown(m -> m.startsWith("test"), () -> {
 			throw new IOException("test");
 		});
-		assertAssertion(() -> TestUtil.assertThrown(IOException.class, "test", () -> {
+		TestUtil.assertThrown(IOException.class, "test", () -> {
 			throw new IOException("test");
-		}));
+		});
+	}
+
+	@Test
+	public void testAssertValue() {
+		assertValue("", String::isEmpty);
+		assertAssertion(() -> assertValue("test", String::isEmpty));
 	}
 
 	@Test
@@ -324,20 +339,27 @@ public class TestUtilTest {
 
 	@Test
 	public void testAssertCollection() {
-		List<Integer> list = new ArrayList<>();
-		Collections.addAll(list, 5, 1, 4, 2, 3);
+		List<Integer> list = ArrayUtil.intList(5, 1, 4, 2, 3);
 		TestUtil.assertCollection(list, 1, 2, 3, 4, 5);
 		assertAssertion(() -> TestUtil.assertCollection(list, 1, 2, 4, 5));
-		assertAssertion(() -> TestUtil.assertCollection(list, 1, 2, 3, 4, 5, 6));
-		assertAssertion(
-			() -> TestUtil.assertCollection(new boolean[] { true, false }, true, false));
-		assertAssertion(() -> TestUtil.assertCollection(new byte[] { -1, 1 }, -1, 1));
-		assertAssertion(() -> TestUtil.assertCollection(new char[] { 'a', 'b' }, 'a', 'b'));
-		assertAssertion(
-			() -> TestUtil.assertCollection(new short[] { -1, 1 }, (short) -1, (short) 1));
-		assertAssertion(() -> TestUtil.assertCollection(new int[] { -1, 1 }, -1, 1));
-		assertAssertion(() -> TestUtil.assertCollection(new long[] { -1, 1 }, -1, 1));
-		assertAssertion(() -> TestUtil.assertCollection(new float[] { -1, 1 }, -1, 1));
+		TestUtil.assertCollection(booleans(true, false), false, true);
+		assertAssertion(() -> TestUtil.assertCollection(booleans(true, false), false, false));
+		TestUtil.assertCollection(chars('a', 'b'), 'b', 'a');
+		assertAssertion(() -> TestUtil.assertCollection(chars('a', 'b'), 'b', 'b'));
+		TestUtil.assertCollection(chars('a', 'b'), 0x62, 0x61);
+		assertAssertion(() -> TestUtil.assertCollection(chars('a', 'b'), 0x62, 0x62));
+		TestUtil.assertCollection(bytes(-1, 1), 1, -1);
+		assertAssertion(() -> TestUtil.assertCollection(bytes(-1, 1), 1, 1));
+		TestUtil.assertCollection(shorts(-1, 1), 1, -1);
+		assertAssertion(() -> TestUtil.assertCollection(shorts(-1, 1), 1, 1));
+		TestUtil.assertCollection(ints(-1, 1), 1, -1);
+		assertAssertion(() -> TestUtil.assertCollection(ints(-1, 1), 1, 1));
+		TestUtil.assertCollection(longs(-1, 1), 1, -1);
+		assertAssertion(() -> TestUtil.assertCollection(longs(-1, 1), 1, 1));
+		TestUtil.assertCollection(floats(-1.0, 1.0), 1.0, -1.0);
+		assertAssertion(() -> TestUtil.assertCollection(floats(-1.0, 1.0), 1.0, 1.0));
+		TestUtil.assertCollection(doubles(-1, 1), 1, -1);
+		assertAssertion(() -> TestUtil.assertCollection(doubles(-1, 1), 1, 1));
 	}
 
 	@Test
@@ -345,6 +367,10 @@ public class TestUtilTest {
 		assertMap(Map.of());
 		assertMap(Map.of(1, "A"), 1, "A");
 		assertMap(Map.of(1, "A", 2, "B"), 1, "A", 2, "B");
+		assertMap(Map.of(1, "A", 2, "B", 3, "C"), 1, "A", 2, "B", 3, "C");
+		assertMap(Map.of(1, "A", 2, "B", 3, "C", 4, "D"), 1, "A", 2, "B", 3, "C", 4, "D");
+		assertMap(Map.of(1, "A", 2, "B", 3, "C", 4, "D", 5, "E"), 1, "A", 2, "B", 3, "C", 4, "D", 5,
+			"E");
 	}
 
 	@Test
@@ -384,6 +410,7 @@ public class TestUtilTest {
 	public void testLambdaName() {
 		Function<?, ?> fn = i -> i;
 		assertThat(TestUtil.lambdaName(fn), is("[lambda]"));
+		assertThat(TestUtil.lambdaName(this), is(not("[lambda]")));
 	}
 
 	@Test
@@ -410,12 +437,13 @@ public class TestUtilTest {
 	private void assertAssertion(ExceptionRunnable<Exception> runnable) {
 		try {
 			runnable.run();
-			fail();
 		} catch (Exception e) {
 			fail();
 		} catch (AssertionError e) {
 			// Success
+			return;
 		}
+		fail();
 	}
 
 }

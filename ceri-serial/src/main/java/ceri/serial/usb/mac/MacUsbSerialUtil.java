@@ -38,7 +38,7 @@ public class MacUsbSerialUtil {
 	 * five are 0, or assigned to hub ports.
 	 */
 	public static UsbSerialDevices devices(String name) throws IOException {
-		String ioregXml = new Ioreg().exec(IOREG_OPTIONS, IOREG_NAME_OPTION, name);
+		String ioregXml = Ioreg.of().exec(IOREG_OPTIONS, IOREG_NAME_OPTION, name);
 		try {
 			UsbSerialDevices.Builder builder = UsbSerialDevices.builder();
 			for (Node usb : XPathUtil.nodeList(USB_XPATH, XmlUtil.unvalidatedDocument(ioregXml))) {

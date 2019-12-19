@@ -40,6 +40,7 @@ public class LevelBehavior {
 
 	@Test
 	public void shouldValidateLevelByComparison() {
+		assertThat(Level.TRACE.valid(null), is(false));
 		assertThat(Level.TRACE.valid(Level.TRACE), is(true));
 		assertThat(Level.TRACE.valid(Level.DEBUG), is(true));
 		assertThat(Level.TRACE.valid(Level.INFO), is(true));

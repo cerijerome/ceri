@@ -3,19 +3,23 @@ package ceri.process.scutil;
 import java.util.regex.Pattern;
 
 public enum NcServiceState {
-	unknown, noService, disconnected, connecting, connected;
+	unknown(null),
+	connecting("Connecting"),
+	connected("Connected"),
+	disconnected("Disconnected"),
+	noService("No service");
 
-	private static final Pattern CONNECTED_REGEX = Pattern.compile("Connected");
-	private static final Pattern CONNECTING_REGEX = Pattern.compile("Connecting");
-	private static final Pattern DISCONNECTED_REGEX = Pattern.compile("Disconnected");
-	private static final Pattern NO_SERVICE_REGEX = Pattern.compile("No service");
+	private final Pattern regex;
+	
+	private NcServiceState(String regex) {
+		this.regex = regex == null ? null : Pattern.compile(regex);
+	}
 	
 	public static NcServiceState from(String state) {
-		if (state == null) return null;
-		if (CONNECTING_REGEX.matcher(state).find()) return NcServiceState.connecting;
-		if (CONNECTED_REGEX.matcher(state).find()) return NcServiceState.connected;
-		if (DISCONNECTED_REGEX.matcher(state).find()) return NcServiceState.disconnected;
-		if (NO_SERVICE_REGEX.matcher(state).find()) return NcServiceState.noService;
+		if (state != null) for (NcServiceState en : NcServiceState.values()) {
+			if (en.regex == null) continue;
+			if (en.regex.matcher(state).find()) return en;
+		}
 		return NcServiceState.unknown;
 	}
 

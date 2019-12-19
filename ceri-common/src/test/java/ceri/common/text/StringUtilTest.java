@@ -101,6 +101,54 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testSpacesToTabs() {
+		assertNull(StringUtil.spacesToTabs(null, 1));
+		assertThat(StringUtil.spacesToTabs("    ", 0), is("    "));
+		assertThat(StringUtil.spacesToTabs("", 4), is(""));
+		assertThat(StringUtil.spacesToTabs("a", 4), is("a"));
+		assertThat(StringUtil.spacesToTabs("ab", 4), is("ab"));
+		assertThat(StringUtil.spacesToTabs("abc", 4), is("abc"));
+		assertThat(StringUtil.spacesToTabs("abcd", 4), is("abcd"));
+		assertThat(StringUtil.spacesToTabs("a ", 4), is("a "));
+		assertThat(StringUtil.spacesToTabs("ab ", 4), is("ab "));
+		assertThat(StringUtil.spacesToTabs("abc ", 4), is("abc\t"));
+		assertThat(StringUtil.spacesToTabs("abcd ", 4), is("abcd "));
+		assertThat(StringUtil.spacesToTabs("a  ", 4), is("a  "));
+		assertThat(StringUtil.spacesToTabs("ab  ", 4), is("ab\t"));
+		assertThat(StringUtil.spacesToTabs("abc  ", 4), is("abc\t "));
+		assertThat(StringUtil.spacesToTabs("abcd  ", 4), is("abcd  "));
+		assertThat(StringUtil.spacesToTabs("a   ", 2), is("a\t\t"));
+		assertThat(StringUtil.spacesToTabs("ab   ", 2), is("ab\t "));
+		assertThat(StringUtil.spacesToTabs("abc   ", 2), is("abc\t\t"));
+		assertThat(StringUtil.spacesToTabs("abcd   ", 2), is("abcd\t "));
+		assertThat(StringUtil.spacesToTabs("       ab c   e ", 4), is("\t   ab c\t  e\t"));
+		assertThat(StringUtil.spacesToTabs("abcde   fgh      i", 4), is("abcde\tfgh\t\t i"));
+		assertThat(StringUtil.spacesToTabs("a\t b \t c", 4), is("a\t b\t c"));
+	}
+	
+	@Test
+	public void testTabsToSpaces() {
+		assertNull(StringUtil.tabsToSpaces(null, 1));
+		assertThat(StringUtil.tabsToSpaces("    ", 0), is("    "));
+		assertThat(StringUtil.tabsToSpaces("", 4), is(""));
+		assertThat(StringUtil.tabsToSpaces("a", 4), is("a"));
+		assertThat(StringUtil.tabsToSpaces("ab", 4), is("ab"));
+		assertThat(StringUtil.tabsToSpaces("abc", 4), is("abc"));
+		assertThat(StringUtil.tabsToSpaces("abcd", 4), is("abcd"));
+		assertThat(StringUtil.tabsToSpaces("\t", 4), is("    "));
+		assertThat(StringUtil.tabsToSpaces("a\t", 4), is("a   "));
+		assertThat(StringUtil.tabsToSpaces("ab\t", 4), is("ab  "));
+		assertThat(StringUtil.tabsToSpaces("abc\t", 4), is("abc "));
+		assertThat(StringUtil.tabsToSpaces("abcd\t", 4), is("abcd    "));
+		assertThat(StringUtil.tabsToSpaces("\t\t", 2), is("    "));
+		assertThat(StringUtil.tabsToSpaces("\t \t", 2), is("    "));
+		assertThat(StringUtil.tabsToSpaces(" \t \t", 2), is("    "));
+		assertThat(StringUtil.tabsToSpaces("\t\t ", 2), is("     "));
+		assertThat(StringUtil.tabsToSpaces("abc\t\tdef  \tg", 4), is("abc     def     g"));
+		assertThat(StringUtil.tabsToSpaces("abcde\tfgh\t\ti", 4), is("abcde   fgh     i"));
+	}
+	
+	@Test
 	public void testCompact() {
 		assertNull(StringUtil.compact(null));
 		assertThat(StringUtil.compact(""), is(""));
@@ -266,7 +314,7 @@ public class StringUtilTest {
 	public void testCommaSplit() {
 		assertCollection(StringUtil.commaSplit(null));
 		assertCollection(StringUtil.commaSplit(""));
-		assertCollection(StringUtil.commaSplit(" "));
+		assertCollection(StringUtil.commaSplit(" "), "");
 		assertCollection(StringUtil.commaSplit("a"), "a");
 		assertCollection(StringUtil.commaSplit(" a "), "a");
 		assertCollection(StringUtil.commaSplit(",,a"), "", "", "a");
@@ -382,6 +430,14 @@ public class StringUtilTest {
 		assertThat(StringUtil.count("", "ab"), is(0));
 	}
 
+	@Test
+	public void testLines() {
+		assertIterable(StringUtil.lines(""));
+		assertIterable(StringUtil.lines(" "), " ");
+		assertIterable(StringUtil.lines("\n"));
+		assertIterable(StringUtil.lines(" \n\t"), " ", "\t");
+	}
+	
 	@Test
 	public void testPrefixLines() {
 		assertThat(StringUtil.prefixLines("xxx", "abc"), is("xxxabc"));

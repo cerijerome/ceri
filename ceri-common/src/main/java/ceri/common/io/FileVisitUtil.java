@@ -49,7 +49,7 @@ public class FileVisitUtil {
 	 * Returns result type on whether filter passes or not.
 	 */
 	public static FileVisitResult result(boolean filter) {
-		return filter ? FileVisitResult.CONTINUE : FileVisitResult.TERMINATE;
+		return filter ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
 	}
 
 	/**

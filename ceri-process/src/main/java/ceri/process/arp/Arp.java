@@ -10,16 +10,20 @@ public class Arp {
 	private static final String ARP = "arp";
 	private final Processor processor;
 
-	public Arp() {
-		this(Processor.DEFAULT);
+	public static Arp of() {
+		return of(Processor.DEFAULT);
 	}
 
-	public Arp(Processor processor) {
+	public static Arp of(Processor processor) {
+		return new Arp(processor);
+	}
+
+	private Arp(Processor processor) {
 		this.processor = processor;
 	}
 
 	public Output<List<ArpEntry>> all() throws IOException {
-		return new Output<>(exec(Parameters.of("-a")), ArpEntry::fromOuput);
+		return Output.of(exec(Parameters.of("-a")), ArpEntry::fromOuput);
 	}
 
 	private String exec(Parameters params) throws IOException {

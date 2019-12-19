@@ -1,5 +1,7 @@
 package ceri.common.util;
 
+import java.lang.reflect.Array;
+import ceri.common.collection.ArrayUtil;
 
 public class EqualsUtil {
 
@@ -20,7 +22,7 @@ public class EqualsUtil {
 	}
 
 	/**
-	 * Checks if objects are equal. For arrays, use Arrays.equals methods instead.
+	 * Checks if objects are equal, including deep arrays.
 	 */
 	public static boolean equals(Object o1, Object o2) {
 		if (o1 == o2) return true;
@@ -29,6 +31,8 @@ public class EqualsUtil {
 			((Float) o2).floatValue());
 		if (o1 instanceof Double && o2 instanceof Double) return equals(
 			((Double) o1).doubleValue(), ((Double) o2).doubleValue());
+		if (ArrayUtil.isArray(o1) && ArrayUtil.isArray(o2))
+			return arraysEqual(o1, o2);
 		return o1.equals(o2);
 	}
 
@@ -41,5 +45,15 @@ public class EqualsUtil {
 		if (lhs == null || rhs == null) return false;
 		return String.valueOf(lhs).equals(String.valueOf(rhs));
 	}
+
+    private static boolean arraysEqual(Object lhs, Object rhs) {
+    	int lhsLen = Array.getLength(lhs);
+    	int rhsLen = Array.getLength(rhs);
+    	if (lhsLen != rhsLen) return false;
+        for (int i = 0; i < lhsLen; i++)
+        	if (!equals(Array.get(lhs, i), Array.get(rhs, i))) 
+                return false;
+        return true;
+    }
 
 }

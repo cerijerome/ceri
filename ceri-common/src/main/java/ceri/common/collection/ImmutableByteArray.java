@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.stream.IntStream;
+import ceri.common.data.ByteProvider;
+import ceri.common.data.ByteReceiver;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
@@ -41,7 +43,7 @@ public class ImmutableByteArray implements ByteProvider {
 	}
 
 	public static ImmutableByteArray wrap(int... array) {
-		return wrap(ByteUtil.bytes(array));
+		return wrap(ArrayUtil.bytes(array));
 	}
 
 	public static ImmutableByteArray wrap(byte... array) {

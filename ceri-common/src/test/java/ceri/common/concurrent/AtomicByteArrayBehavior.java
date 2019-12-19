@@ -1,8 +1,8 @@
 package ceri.common.concurrent;
 
-import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.test.TestUtil.assertArray;
 import org.junit.Test;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableByteArray;
 
 public class AtomicByteArrayBehavior {
@@ -24,8 +24,8 @@ public class AtomicByteArrayBehavior {
 
 	@Test
 	public void shouldCreateACopyFromByteArray() {
-		byte[] b = bytes(0xff, 0x80, 0x7f);
-		AtomicByteArray a = AtomicByteArray.copyOf(bytes(0xff, 0x80, 0x7f));
+		byte[] b = ArrayUtil.bytes(0xff, 0x80, 0x7f);
+		AtomicByteArray a = AtomicByteArray.copyOf(ArrayUtil.bytes(0xff, 0x80, 0x7f));
 		a.set(2, 0);
 		assertArray(b, 0xff, 0x80, 0x7f);
 		assertArray(a.copy(), 0xff, 0x80, 0);
@@ -33,7 +33,7 @@ public class AtomicByteArrayBehavior {
 
 	@Test
 	public void shouldCreateByWrappingBytes() {
-		byte[] b = bytes(0xff, 0x80, 0x7f);
+		byte[] b = ArrayUtil.bytes(0xff, 0x80, 0x7f);
 		AtomicByteArray a = AtomicByteArray.wrap(b);
 		a.set(2, 0);
 		assertArray(b, 0xff, 0x80, 0);

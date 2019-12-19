@@ -8,7 +8,6 @@ import static ceri.common.validation.ValidationUtil.validateNotNull;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
-import ceri.common.collection.ByteProvider;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.util.ExceptionUtil;
 import ceri.common.validation.ValidationUtil;

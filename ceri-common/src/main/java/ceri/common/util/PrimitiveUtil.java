@@ -1,10 +1,6 @@
 package ceri.common.util;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -381,260 +377,6 @@ public class PrimitiveUtil {
 	}
 
 	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static boolean[] convertBooleanArray(Boolean[] array) {
-		return copyArray(array, new boolean[array.length]);
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Boolean[] convertBooleanArray(boolean... array) {
-		return copyArray(array, new Boolean[array.length]);
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static byte[] convertByteArray(Byte[] array) {
-		return copyArray(array, new byte[array.length]);
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Byte[] convertByteArray(byte... array) {
-		return copyArray(array, new Byte[array.length]);
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static char[] convertCharArray(Character[] array) {
-		return copyArray(array, new char[array.length]);
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Character[] convertCharArray(char... array) {
-		return copyArray(array, new Character[array.length]);
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static short[] convertShortArray(Short[] array) {
-		return copyArray(array, new short[array.length]);
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Short[] convertShortArray(short... array) {
-		return copyArray(array, new Short[array.length]);
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static int[] convertIntArray(Integer[] array) {
-		return copyArray(array, new int[array.length]);
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Integer[] convertIntArray(int... array) {
-		return copyArray(array, new Integer[array.length]);
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static long[] convertLongArray(Long[] array) {
-		return copyArray(array, new long[array.length]);
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Long[] convertLongArray(long... array) {
-		return copyArray(array, new Long[array.length]);
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static float[] convertFloatArray(Float[] array) {
-		return copyArray(array, new float[array.length]);
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Float[] convertFloatArray(float... array) {
-		return copyArray(array, new Float[array.length]);
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static double[] convertDoubleArray(Double[] array) {
-		return copyArray(array, new double[array.length]);
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Double[] convertDoubleArray(double... array) {
-		return copyArray(array, new Double[array.length]);
-	}
-
-	/**
-	 * Converts a primitive array to a list.
-	 */
-	public static List<Boolean> asList(boolean... array) {
-		return Arrays.asList(convertBooleanArray(array));
-	}
-
-	/**
-	 * Converts a primitive array to a list.
-	 */
-	public static List<Byte> asList(byte... array) {
-		return Arrays.asList(convertByteArray(array));
-	}
-
-	/**
-	 * Converts a primitive array to a list.
-	 */
-	public static List<Character> asList(char... array) {
-		return Arrays.asList(convertCharArray(array));
-	}
-
-	/**
-	 * Converts a primitive array to a list.
-	 */
-	public static List<Double> asList(double... array) {
-		return Arrays.asList(convertDoubleArray(array));
-	}
-
-	/**
-	 * Converts a primitive array to a list.
-	 */
-	public static List<Float> asList(float... array) {
-		return Arrays.asList(convertFloatArray(array));
-	}
-
-	/**
-	 * Converts a primitive array to a list.
-	 */
-	public static List<Integer> asList(int... array) {
-		return Arrays.asList(convertIntArray(array));
-	}
-
-	/**
-	 * Converts a primitive array to a list.
-	 */
-	public static List<Long> asList(long... array) {
-		return Arrays.asList(convertLongArray(array));
-	}
-
-	/**
-	 * Converts a primitive array to a list.
-	 */
-	public static List<Short> asList(short... array) {
-		return Arrays.asList(convertShortArray(array));
-	}
-
-	/**
-	 * Converts a number collection to a primitive array.
-	 */
-	public static byte[] toByteArray(Collection<? extends Number> collection) {
-		byte[] result = new byte[collection.size()];
-		int i = 0;
-		for (Number number : collection)
-			result[i++] = number.byteValue();
-		return result;
-	}
-
-	/**
-	 * Converts a number collection to a primitive array.
-	 */
-	public static short[] toShortArray(Collection<? extends Number> collection) {
-		short[] result = new short[collection.size()];
-		int i = 0;
-		for (Number number : collection)
-			result[i++] = number.shortValue();
-		return result;
-	}
-
-	/**
-	 * Converts a number collection to a primitive array.
-	 */
-	public static int[] toIntArray(Collection<? extends Number> collection) {
-		int[] result = new int[collection.size()];
-		int i = 0;
-		for (Number number : collection)
-			result[i++] = number.intValue();
-		return result;
-	}
-
-	/**
-	 * Converts a number collection to a primitive array.
-	 */
-	public static long[] toLongArray(Collection<? extends Number> collection) {
-		long[] result = new long[collection.size()];
-		int i = 0;
-		for (Number number : collection)
-			result[i++] = number.longValue();
-		return result;
-	}
-
-	/**
-	 * Converts a number collection to a primitive array.
-	 */
-	public static float[] toFloatArray(Collection<? extends Number> collection) {
-		float[] result = new float[collection.size()];
-		int i = 0;
-		for (Number number : collection)
-			result[i++] = number.floatValue();
-		return result;
-	}
-
-	/**
-	 * Converts a number collection to a primitive array.
-	 */
-	public static double[] toDoubleArray(Collection<? extends Number> collection) {
-		double[] result = new double[collection.size()];
-		int i = 0;
-		for (Number number : collection)
-			result[i++] = number.doubleValue();
-		return result;
-	}
-
-	public static int[] intRange(int count) {
-		return intRange(0, count);
-	}
-	
-	public static int[] intRange(int start, int end) {
-		int[] range = new int[end - start];
-		for (int i = 0; i < range.length; i++) range[i] = start + i;
-		return range;
-	}
-	
-	public static long[] longRange(long count) {
-		return longRange(0, count);
-	}
-	
-	public static long[] longRange(long start, long end) {
-		long[] range = new long[Math.toIntExact(end - start)];
-		for (int i = 0; i < range.length; i++) range[i] = start + i;
-		return range;
-	}
-	
-	/**
 	 * Returns true if fromCls can be autoboxed to toCls.
 	 */
 	public static boolean isAutoBoxAssignable(Class<?> fromCls, Class<?> toCls) {
@@ -647,7 +389,7 @@ public class PrimitiveUtil {
 	 * Returns the corresponding primitive class for an object class. If the specified class is not
 	 * an object class, exception is thrown.
 	 */
-	public static Class<?> getPrimitiveClass(Class<?> objectCls) {
+	public static Class<?> primitiveClass(Class<?> objectCls) {
 		if (objectCls.isPrimitive())
 			throw new IllegalArgumentException("Class is already primitive type: " + objectCls);
 		Class<?> primitiveCls = classMap.get(objectCls);
@@ -660,17 +402,10 @@ public class PrimitiveUtil {
 	 * Returns the corresponding object class for a primitive class. If the specified class is not
 	 * primitive, exception is thrown.
 	 */
-	public static Class<?> getObjectClass(Class<?> primitiveCls) {
+	public static Class<?> boxedClass(Class<?> primitiveCls) {
 		if (!primitiveCls.isPrimitive())
 			throw new IllegalArgumentException("Class is not primitive type: " + primitiveCls);
 		return classMap.get(primitiveCls);
-	}
-
-	private static <T> T copyArray(Object from, T to) {
-		int length = Array.getLength(from);
-		for (int i = 0; i < length; i++)
-			Array.set(to, i, Array.get(from, i));
-		return to;
 	}
 
 	private static Map<Class<?>, Class<?>> createMap() {

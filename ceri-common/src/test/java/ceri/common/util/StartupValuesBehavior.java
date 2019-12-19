@@ -1,10 +1,12 @@
 package ceri.common.util;
 
+import static ceri.common.test.TestUtil.assertPath;
 import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
 import static ceri.common.test.TestUtil.firstSystemPropertyName;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import java.nio.file.Path;
 import org.junit.Test;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.io.SystemIo;
@@ -22,7 +24,9 @@ public class StartupValuesBehavior {
 	@Test
 	public void shouldLookupValue() {
 		String sysProp = firstSystemPropertyName();
+		String envVar = firstEnvironmentVariableName();
 		assertThat(StartupValues.lookup(sysProp).get(), is(System.getProperty(sysProp)));
+		assertThat(StartupValues.lookup(null, envVar).get(), is(System.getenv(envVar)));
 	}
 
 	@Test
@@ -86,6 +90,9 @@ public class StartupValuesBehavior {
 		assertThat(v.value(4).asDouble(), is(1.1));
 		assertThat(v.value(4).asDouble(-1.1), is(1.1));
 		assertThat(v.value(0).asDouble(-1.1), is(-1.1));
+		assertPath(v.value(1).asPath(), "true");
+		assertPath(v.value(1).asPath(Path.of("abc")), "true");
+		assertPath(v.value(0).asPath(Path.of("abc")), "abc");
 	}
 
 	@Test

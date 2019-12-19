@@ -20,11 +20,15 @@ public class Pgrep {
 		return Arrays.stream(pidStrs).filter(filter.negate()).mapToInt(Integer::parseInt).toArray();
 	}
 
-	public Pgrep() {
-		this(Processor.DEFAULT);
+	public static Pgrep of() {
+		return of(Processor.DEFAULT);
 	}
 
-	public Pgrep(Processor processor) {
+	public static Pgrep of(Processor processor) {
+		return new Pgrep(processor);
+	}
+
+	private Pgrep(Processor processor) {
 		this.processor = processor;
 	}
 
@@ -34,10 +38,10 @@ public class Pgrep {
 	}
 
 	public Output<int[]> pgrep(String pattern) throws IOException {
-		Parameters params = new Parameters();
+		Parameters params = Parameters.of();
 		if (full) params.add(FULL_OPTION);
 		params.add(pattern);
-		return new Output<>(exec(params), Pgrep::pids);
+		return Output.of(exec(params), Pgrep::pids);
 	}
 
 	private String exec(Parameters params) throws IOException {

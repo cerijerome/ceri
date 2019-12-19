@@ -1,6 +1,5 @@
 package ceri.common.collection;
 
-import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertByte;
 import static ceri.common.test.TestUtil.assertStream;
@@ -10,6 +9,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Test;
+import ceri.common.data.ByteProvider;
+import ceri.common.data.ByteReceiver;
 import ceri.common.test.TestUtil;
 
 public class ByteProviderBehavior {
@@ -114,31 +115,31 @@ public class ByteProviderBehavior {
 		assertThat(b.matches(0, 0xff, 0x80), is(true));
 		assertThat(b.matches(0, 0xff, 0x80, 0x7f, 0), is(false));
 
-		assertThat(b.matches(bytes(0x11, 0, 0xff, 0x80, 0x7f), 1), is(true));
-		assertThat(b.matches(bytes(0x11, 0, 0xff, 0x80), 1), is(true));
-		assertThat(b.matches(bytes(0x11, 0, 0xff, 0x80, 0x7f, 0), 1), is(false));
+		assertThat(b.matches(ArrayUtil.bytes(0x11, 0, 0xff, 0x80, 0x7f), 1), is(true));
+		assertThat(b.matches(ArrayUtil.bytes(0x11, 0, 0xff, 0x80), 1), is(true));
+		assertThat(b.matches(ArrayUtil.bytes(0x11, 0, 0xff, 0x80, 0x7f, 0), 1), is(false));
 
-		assertThat(b.matches(bytes(0x11, 0, 0xff), 1, 2), is(true));
-		assertThat(b.matches(bytes(0x11, 0, 0xff, 0), 1, 2), is(true));
-		assertThat(b.matches(bytes(0x11, 0), 1, 2), is(false));
-		assertThat(b.matches(bytes(0x11, 0, 0xfe), 1, 2), is(false));
+		assertThat(b.matches(ArrayUtil.bytes(0x11, 0, 0xff), 1, 2), is(true));
+		assertThat(b.matches(ArrayUtil.bytes(0x11, 0, 0xff, 0), 1, 2), is(true));
+		assertThat(b.matches(ArrayUtil.bytes(0x11, 0), 1, 2), is(false));
+		assertThat(b.matches(ArrayUtil.bytes(0x11, 0, 0xfe), 1, 2), is(false));
 
-		assertThat(b.matches(1, bytes(0xff, 0x80, 0x7f)), is(true));
-		assertThat(b.matches(1, bytes(0xff, 0x80)), is(true));
-		assertThat(b.matches(1, bytes(0xff, 0x80, 0x7f, 0)), is(false));
+		assertThat(b.matches(1, ArrayUtil.bytes(0xff, 0x80, 0x7f)), is(true));
+		assertThat(b.matches(1, ArrayUtil.bytes(0xff, 0x80)), is(true));
+		assertThat(b.matches(1, ArrayUtil.bytes(0xff, 0x80, 0x7f, 0)), is(false));
 
-		assertThat(b.matches(1, bytes(0x11, 0xff, 0x80, 0x7f), 1), is(true));
-		assertThat(b.matches(1, bytes(0x11, 0xff, 0x80), 1), is(true));
-		assertThat(b.matches(1, bytes(0x11, 0xff, 0x80, 0x7f, 0), 1), is(false));
+		assertThat(b.matches(1, ArrayUtil.bytes(0x11, 0xff, 0x80, 0x7f), 1), is(true));
+		assertThat(b.matches(1, ArrayUtil.bytes(0x11, 0xff, 0x80), 1), is(true));
+		assertThat(b.matches(1, ArrayUtil.bytes(0x11, 0xff, 0x80, 0x7f, 0), 1), is(false));
 
-		assertThat(b.matches(1, bytes(0x11, 0xff, 0x80), 1, 2), is(true));
-		assertThat(b.matches(1, bytes(0x11, 0xff, 0x80, 0), 1, 2), is(true));
-		assertThat(b.matches(1, bytes(0x11, 0xff), 1, 2), is(false));
-		assertThat(b.matches(1, bytes(0x11, 0xff, 0x81), 1, 2), is(false));
+		assertThat(b.matches(1, ArrayUtil.bytes(0x11, 0xff, 0x80), 1, 2), is(true));
+		assertThat(b.matches(1, ArrayUtil.bytes(0x11, 0xff, 0x80, 0), 1, 2), is(true));
+		assertThat(b.matches(1, ArrayUtil.bytes(0x11, 0xff), 1, 2), is(false));
+		assertThat(b.matches(1, ArrayUtil.bytes(0x11, 0xff, 0x81), 1, 2), is(false));
 
-		assertThat(b.matches(0, bytes(0), 0, 0), is(true));
-		assertThat(b.matches(5, bytes(0), 0, 0), is(false));
-		assertThat(b.matches(0, bytes(0), 2, 0), is(false));
+		assertThat(b.matches(0, ArrayUtil.bytes(0), 0, 0), is(true));
+		assertThat(b.matches(5, ArrayUtil.bytes(0), 0, 0), is(false));
+		assertThat(b.matches(0, ArrayUtil.bytes(0), 2, 0), is(false));
 	}
 
 	@Test
@@ -183,16 +184,16 @@ public class ByteProviderBehavior {
 		assertThat(b.indexOf(0x80, 0x7f, 0), is(-1));
 		assertThat(b.indexOf(0, 0xff, 0x80, 0x7f, 0), is(-1));
 
-		assertThat(b.indexOf(bytes(0xff, 0xff, 0x80, 0x7f), 1), is(1));
-		assertThat(b.indexOf(bytes(0xff, 0x80, 0x7f), 1), is(2));
-		assertThat(b.indexOf(bytes(0xff, 0xff, 0x80, 0x7f, 0), 1), is(-1));
+		assertThat(b.indexOf(ArrayUtil.bytes(0xff, 0xff, 0x80, 0x7f), 1), is(1));
+		assertThat(b.indexOf(ArrayUtil.bytes(0xff, 0x80, 0x7f), 1), is(2));
+		assertThat(b.indexOf(ArrayUtil.bytes(0xff, 0xff, 0x80, 0x7f, 0), 1), is(-1));
 
-		assertThat(b.indexOf(bytes(0xff, 0xff, 0x80, 0), 1, 2), is(1));
-		assertThat(b.indexOf(bytes(0xff, 0xff, 0x80, 0), 1, 3), is(-1));
-		assertThat(b.indexOf(bytes(0xff, 0xff, 0x80, 0), 1, 4), is(-1));
+		assertThat(b.indexOf(ArrayUtil.bytes(0xff, 0xff, 0x80, 0), 1, 2), is(1));
+		assertThat(b.indexOf(ArrayUtil.bytes(0xff, 0xff, 0x80, 0), 1, 3), is(-1));
+		assertThat(b.indexOf(ArrayUtil.bytes(0xff, 0xff, 0x80, 0), 1, 4), is(-1));
 
-		assertThat(b.indexOf(1, bytes(0xff, 0x80)), is(1));
-		assertThat(b.indexOf(2, bytes(0xff, 0x80)), is(-1));
+		assertThat(b.indexOf(1, ArrayUtil.bytes(0xff, 0x80)), is(1));
+		assertThat(b.indexOf(2, ArrayUtil.bytes(0xff, 0x80)), is(-1));
 	}
 
 	@Test
@@ -216,7 +217,7 @@ public class ByteProviderBehavior {
 	}
 
 	private ByteProvider provider(int... values) {
-		byte[] bytes = bytes(values);
+		byte[] bytes = ArrayUtil.bytes(values);
 		return new ByteProvider() {
 			@Override
 			public int length() {

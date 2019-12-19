@@ -1,7 +1,10 @@
 package ceri.common.collection;
 
+import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.isClass;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -9,7 +12,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.junit.Test;
@@ -40,9 +44,9 @@ public class ArrayUtilTest {
 	@Test
 	public void testEmptyArrays() {
 		assertThat(ArrayUtil.EMPTY_BOOLEAN, is(new boolean[0]));
-		assertThat(ArrayUtil.emptyArray(String.class), is(new String[0]));
-		assertThat(ArrayUtil.emptyArray(Object.class), is(new Object[0]));
-		assertThat(ArrayUtil.emptyArray(Date.class), is(ArrayUtil.emptyArray(Date.class)));
+		assertThat(ArrayUtil.empty(String.class), is(new String[0]));
+		assertThat(ArrayUtil.empty(Object.class), is(new Object[0]));
+		assertThat(ArrayUtil.empty(Date.class), is(ArrayUtil.empty(Date.class)));
 	}
 
 	@Test
@@ -75,6 +79,23 @@ public class ArrayUtilTest {
 	}
 
 	@Test
+	public void testValidateRange() {
+		int[] array = { 1, 2, 3, 4 };
+		ArrayUtil.validateRange(array.length, 0, 4);
+		ArrayUtil.validateRange(array.length, 1, 3);
+		TestUtil.assertThrown(() -> ArrayUtil.validateRange(array.length, -1, 0));
+		TestUtil.assertThrown(() -> ArrayUtil.validateRange(array.length, 5, 6));
+		TestUtil.assertThrown(() -> ArrayUtil.validateRange(array.length, 2, 1));
+		TestUtil.assertThrown(() -> ArrayUtil.validateRange(array.length, 2, 5));
+		assertThat(ArrayUtil.isValidRange(array.length, 0, 4), is(true));
+		assertThat(ArrayUtil.isValidRange(array.length, 1, 3), is(true));
+		assertThat(ArrayUtil.isValidRange(array.length, -1, 0), is(false));
+		assertThat(ArrayUtil.isValidRange(array.length, 5, 8), is(false));
+		assertThat(ArrayUtil.isValidRange(array.length, 2, 6), is(false));
+		assertThat(ArrayUtil.isValidRange(array.length, 2, 1), is(false));
+	}
+
+	@Test
 	public void testAddAll() {
 		Number[] array = { 0, 1 };
 		assertThat(ArrayUtil.addAll(array, 2, 3), is(new Number[] { 0, 1, 2, 3 }));
@@ -102,15 +123,6 @@ public class ArrayUtilTest {
 	}
 
 	@Test
-	public void testAsList() {
-		List<Integer> list = ArrayUtil.asList(1, 2, 3);
-		list.add(4);
-		list.add(5);
-		assertIterable(list, 1, 2, 3, 4, 5);
-		assertIterable(ArrayUtil.asList("a", new String[] { "b", "c" }), "a", "b", "c");
-	}
-
-	@Test
 	public void testComponentType() {
 		assertThat(ArrayUtil.componentType(Boolean[].class), equalTo(Boolean.class));
 		assertThat(ArrayUtil.componentType(boolean[][].class), equalTo(boolean[].class));
@@ -132,39 +144,169 @@ public class ArrayUtilTest {
 	}
 
 	@Test
+	public void testBooleans() {
+		assertArray(ArrayUtil.booleans(1, 0, -1), true, false, true);
+	}
+
+	@Test
+	public void testConvertArrays() {
+		boolean[] b = { true, false };
+		Boolean[] B = { true, false };
+		assertArray(ArrayUtil.convertBooleans(b), B);
+		assertArray(ArrayUtil.convertBooleans(B), b);
+		char[] c = { '\0', 'a' };
+		Character[] C = { '\0', 'a' };
+		assertArray(ArrayUtil.convertChars(c), C);
+		assertArray(ArrayUtil.convertChars(C), c);
+		byte[] bt = { -128, 127 };
+		Byte[] Bt = { -128, 127 };
+		assertArray(ArrayUtil.convertBytes(bt), Bt);
+		assertArray(ArrayUtil.convertBytes(Bt), bt);
+		short[] s = { Short.MAX_VALUE, Short.MIN_VALUE };
+		Short[] S = { Short.MAX_VALUE, Short.MIN_VALUE };
+		assertArray(ArrayUtil.convertShorts(s), S);
+		assertArray(ArrayUtil.convertShorts(S), s);
+		int[] i = { Integer.MAX_VALUE, Integer.MIN_VALUE };
+		Integer[] I = { Integer.MAX_VALUE, Integer.MIN_VALUE };
+		assertArray(ArrayUtil.convertInts(i), I);
+		assertArray(ArrayUtil.convertInts(I), i);
+		long[] l = { Long.MAX_VALUE, Long.MIN_VALUE };
+		Long[] L = { Long.MAX_VALUE, Long.MIN_VALUE };
+		assertArray(ArrayUtil.convertLongs(l), L);
+		assertArray(ArrayUtil.convertLongs(L), l);
+		double[] d = { Double.MAX_VALUE, Double.MIN_VALUE };
+		Double[] D = { Double.MAX_VALUE, Double.MIN_VALUE };
+		assertArray(ArrayUtil.convertDoubles(d), D);
+		assertArray(ArrayUtil.convertDoubles(D), d);
+		float[] f = { Float.MAX_VALUE, Float.MIN_VALUE };
+		Float[] F = { Float.MAX_VALUE, Float.MIN_VALUE };
+		assertArray(ArrayUtil.convertFloats(f), F);
+		assertArray(ArrayUtil.convertFloats(F), f);
+	}
+
+	@Test
 	public void testIsArray() {
-		boolean[] array = {};
-		assertTrue(ArrayUtil.isArray(array));
-		array = null;
-		assertFalse(ArrayUtil.isArray(array));
+		assertTrue(ArrayUtil.isArray(new boolean[] {}));
+		assertFalse(ArrayUtil.isArray((boolean[]) null));
 	}
 
 	@Test
 	public void testLast() {
-		assertThat(ArrayUtil.last(new boolean[] { false }), is(false));
-		assertThat(ArrayUtil.last(new String[] { "0", "1" }), is("1"));
-		assertThat(ArrayUtil.last(new char[] { '\n' }), is('\n'));
-		assertThat(ArrayUtil.last(new byte[] { Byte.MIN_VALUE }), is(Byte.MIN_VALUE));
-		assertThat(ArrayUtil.last(new short[] { Short.MAX_VALUE }), is(Short.MAX_VALUE));
-		assertThat(ArrayUtil.last(new int[] { 0 }), is(0));
-		assertThat(ArrayUtil.last(new long[] { Long.MAX_VALUE }), is(Long.MAX_VALUE));
-		assertThat(ArrayUtil.last(new float[] { Float.MAX_VALUE }), is(Float.MAX_VALUE));
-		assertThat(ArrayUtil.last(new double[] { Double.MAX_VALUE }), is(Double.MAX_VALUE));
-		try {
-			ArrayUtil.last(new double[] {});
-			fail();
-		} catch (ArrayIndexOutOfBoundsException e) {}
+		assertThat(ArrayUtil.last(ArrayUtil.array("0", "1")), is("1"));
+		assertThat(ArrayUtil.last(ArrayUtil.booleans(true, false)), is(false));
+		assertThat(ArrayUtil.last(ArrayUtil.chars('\0', '\n')), is('\n'));
+		assertThat(ArrayUtil.last(ArrayUtil.bytes(Byte.MAX_VALUE, Byte.MIN_VALUE)),
+			is(Byte.MIN_VALUE));
+		assertThat(ArrayUtil.last(ArrayUtil.shorts(Short.MIN_VALUE, Short.MAX_VALUE)),
+			is(Short.MAX_VALUE));
+		assertThat(ArrayUtil.last(ArrayUtil.ints(Integer.MIN_VALUE, Integer.MAX_VALUE)),
+			is(Integer.MAX_VALUE));
+		assertThat(ArrayUtil.last(ArrayUtil.longs(Long.MIN_VALUE, Long.MAX_VALUE)),
+			is(Long.MAX_VALUE));
+		assertThat(ArrayUtil.last(ArrayUtil.floats(Float.MIN_VALUE, Float.MAX_VALUE)),
+			is(Float.MAX_VALUE));
+		assertThat(ArrayUtil.last(ArrayUtil.doubles(Double.MIN_VALUE, Double.MAX_VALUE)),
+			is(Double.MAX_VALUE));
+		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_BOOLEAN));
+		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_CHAR));
+		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_BYTE));
+		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_SHORT));
+		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_INT));
+		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_LONG));
+		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_FLOAT));
+		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_DOUBLE));
 	}
 
 	@Test
 	public void testReverse() {
-		String[] array = { "0", "1", "2" };
-		ArrayUtil.reverse(array);
-		assertThat(array, is(new String[] { "2", "1", "0" }));
-		try {
-			ArrayUtil.reverse(new Object());
-			fail();
-		} catch (IllegalArgumentException e) {}
+		assertArray(ArrayUtil.reverseArray(ArrayUtil.booleans(true, false, false)), false, false,
+			true);
+		assertThrown(() -> ArrayUtil.reverseArray(new Object()));
+		assertArray(ArrayUtil.reverse(ArrayUtil.array("0", "1", "2")), "2", "1", "0");
+		assertArray(ArrayUtil.reverseBooleans(true, false, false), false, false, true);
+		assertArray(ArrayUtil.reverseChars('\n', '\0', '\\'), '\\', '\0', '\n');
+		assertArray(ArrayUtil.reverseBytes(Byte.MAX_VALUE, (byte) 0, Byte.MIN_VALUE),
+			Byte.MIN_VALUE, 0, Byte.MAX_VALUE);
+		assertArray(ArrayUtil.reverseShorts(Short.MAX_VALUE, (short) 0, Short.MIN_VALUE),
+			Short.MIN_VALUE, 0, Short.MAX_VALUE);
+		assertArray(ArrayUtil.reverseInts(Integer.MAX_VALUE, 0, Integer.MIN_VALUE),
+			Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
+		assertArray(ArrayUtil.reverseLongs(Long.MAX_VALUE, 0, Long.MIN_VALUE), Long.MIN_VALUE, 0,
+			Long.MAX_VALUE);
+		assertArray(ArrayUtil.reverseFloats(Float.MAX_VALUE, 0, Float.MIN_VALUE), Float.MIN_VALUE,
+			0, Float.MAX_VALUE);
+		assertArray(ArrayUtil.reverseDoubles(Double.MAX_VALUE, 0, Double.MIN_VALUE),
+			Double.MIN_VALUE, 0, Double.MAX_VALUE);
+	}
+
+	@Test
+	public void testEquals() {
+		assertTrue(ArrayUtil.equals(ArrayUtil.array("1", "0"), 0, //
+			ArrayUtil.array("-1", "1", "0"), 1));
+		assertTrue(ArrayUtil.equals(ArrayUtil.booleans(true, false), 0,
+			ArrayUtil.booleans(false, true, false), 1));
+		assertTrue(ArrayUtil.equals(ArrayUtil.chars('\n', '\0'), 0, //
+			ArrayUtil.chars('x', '\n', '\0'), 1));
+		assertTrue(ArrayUtil.equals(ArrayUtil.bytes(Byte.MAX_VALUE, Byte.MIN_VALUE), 0,
+			ArrayUtil.bytes(0, Byte.MAX_VALUE, Byte.MIN_VALUE), 1));
+		assertTrue(ArrayUtil.equals(ArrayUtil.shorts(Short.MAX_VALUE, Short.MIN_VALUE), 0,
+			ArrayUtil.shorts(0, Short.MAX_VALUE, Short.MIN_VALUE), 1));
+		assertTrue(ArrayUtil.equals(ArrayUtil.ints(Integer.MAX_VALUE, Integer.MIN_VALUE), 0,
+			ArrayUtil.ints(0, Integer.MAX_VALUE, Integer.MIN_VALUE), 1));
+		assertTrue(ArrayUtil.equals(ArrayUtil.longs(Long.MAX_VALUE, Long.MIN_VALUE), 0,
+			ArrayUtil.longs(0, Long.MAX_VALUE, Long.MIN_VALUE), 1));
+		assertTrue(ArrayUtil.equals(ArrayUtil.floats(Float.MAX_VALUE, Float.MIN_VALUE), 0,
+			ArrayUtil.floats(0, Float.MAX_VALUE, Float.MIN_VALUE), 1));
+		assertTrue(ArrayUtil.equals(ArrayUtil.doubles(Double.MAX_VALUE, Double.MIN_VALUE), 0,
+			ArrayUtil.doubles(0, Double.MAX_VALUE, Double.MIN_VALUE), 1));
+	}
+
+	@Test
+	public void testRange() {
+		assertArray(ArrayUtil.intRange(0));
+		assertArray(ArrayUtil.intRange(3), 0, 1, 2);
+		assertArray(ArrayUtil.intRange(3, 7), 3, 4, 5, 6);
+		assertArray(ArrayUtil.longRange(0));
+		assertArray(ArrayUtil.longRange(3), 0, 1, 2);
+		assertArray(ArrayUtil.longRange(3, 7), 3, 4, 5, 6);
+	}
+
+	@Test
+	public void testToArray() {
+		Collection<Number> collection = Arrays.asList(1, 16, 256, 4096, 65536);
+		assertArray(ArrayUtil.bytes(collection), 1, 16, 0, 0, 0);
+		assertArray(ArrayUtil.shorts(collection), 1, 16, 256, 4096, 0);
+		assertArray(ArrayUtil.ints(collection), 1, 16, 256, 4096, 65536);
+		assertArray(ArrayUtil.longs(collection), 1, 16, 256, 4096, 65536);
+		assertArray(ArrayUtil.floats(collection), 1, 16, 256, 4096, 65536);
+		assertArray(ArrayUtil.doubles(collection), 1, 16, 256, 4096, 65536);
+	}
+
+	@Test
+	public void testAsList() {
+		assertCollection(ArrayUtil.asList(1, 2, 3), 1, 2, 3);
+		assertCollection(ArrayUtil.asList(0, ArrayUtil.convertInts(1, 2, 3)), 0, 1, 2, 3);
+		assertCollection(ArrayUtil.asList(ArrayUtil.convertInts(1, 2, 3), 4, 5), 1, 2, 3, 4, 5);
+	}
+
+	@Test
+	public void testPrimitiveList() {
+		assertCollection(ArrayUtil.booleanList(Boolean.TRUE, Boolean.FALSE), Boolean.TRUE,
+			Boolean.FALSE);
+		assertCollection(ArrayUtil.booleanList(Boolean.TRUE, Boolean.FALSE), Boolean.TRUE,
+			Boolean.FALSE);
+		assertCollection(ArrayUtil.byteList(Byte.MAX_VALUE, Byte.MIN_VALUE), Byte.MAX_VALUE,
+			Byte.MIN_VALUE);
+		assertCollection(ArrayUtil.shortList(Short.MAX_VALUE, Short.MIN_VALUE), Short.MAX_VALUE,
+			Short.MIN_VALUE);
+		assertCollection(ArrayUtil.intList(Integer.MAX_VALUE, Integer.MIN_VALUE), Integer.MAX_VALUE,
+			Integer.MIN_VALUE);
+		assertCollection(ArrayUtil.longList(Long.MAX_VALUE, Long.MIN_VALUE), Long.MAX_VALUE,
+			Long.MIN_VALUE);
+		assertCollection(ArrayUtil.floatList(Float.MAX_VALUE, Float.MIN_VALUE), Float.MAX_VALUE,
+			Float.MIN_VALUE);
+		assertCollection(ArrayUtil.doubleList(Double.MAX_VALUE, Double.MIN_VALUE), Double.MAX_VALUE,
+			Double.MIN_VALUE);
 	}
 
 	static class A {}

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
-import ceri.common.util.PrimitiveUtil;
+import ceri.common.collection.ArrayUtil;
 
 /**
  * Simple consumer to collect values during testing, then verify.
@@ -59,7 +59,7 @@ public class Capturer<T> implements Consumer<T> {
 		}
 
 		public final void verifyInt(int... values) {
-			verify(PrimitiveUtil.asList(values));
+			verify(ArrayUtil.intList(values));
 		}
 	}
 

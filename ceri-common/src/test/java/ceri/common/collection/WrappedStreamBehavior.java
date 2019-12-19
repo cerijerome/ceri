@@ -7,12 +7,22 @@ import static ceri.common.function.FunctionTestUtil.consumer;
 import static ceri.common.function.FunctionTestUtil.function;
 import static ceri.common.function.FunctionTestUtil.predicate;
 import static ceri.common.function.FunctionTestUtil.toIntFunction;
+import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;
+import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionPredicate;
+import ceri.common.function.FunctionTestUtil;
 import ceri.common.test.Capturer;
 
 public class WrappedStreamBehavior {
@@ -21,6 +31,32 @@ public class WrappedStreamBehavior {
 	// Function type generators:
 	// 0 => throws RuntimeException
 	// 1 => throws IOException
+
+	@Test
+	public void shouldStreamAsSpliterator() throws IOException {
+		assertStream(WrappedStream.stream(tryAdvanceFn(4, 3, 2)), 4, 3, 2);
+		assertTerminalThrow(IOException.class, WrappedStream.stream(tryAdvanceFn(4, 3, 1)));
+		assertTerminalThrow(RuntimeException.class, WrappedStream.stream(tryAdvanceFn(4, 3, 0)));
+	}
+	
+	private static ExceptionPredicate<IOException, Consumer<? super Integer>> 
+	tryAdvanceFn(int...is) {
+		Iterator<Integer> i = IntStream.of(is).iterator();
+		ExceptionConsumer<IOException, Integer> consumer = FunctionTestUtil.consumer();
+		return c -> {
+			if (!i.hasNext()) return false;
+			int n = i.next();
+			consumer.accept(n);
+			c.accept(n);
+			return true;
+		};
+	}
+	
+	@Test
+	public void shouldStreamCollections() throws IOException {
+		assertStream(WrappedStream.stream(List.of(4, 3, 2)), 4, 3, 2);
+		assertStream(WrappedStream.stream(List.of(4, 3, 2), FunctionTestUtil.function()), 4, 3, 2);
+	}
 
 	@Test
 	public void shouldWrapValues() throws IOException {
@@ -58,6 +94,30 @@ public class WrappedStreamBehavior {
 	}
 
 	@Test
+	public void shouldThrowTypedExceptionFromCollect() throws IOException {
+		assertIterable(wrap(4, 3, 2).collect(Collectors.toList()), 4, 3, 2);
+		assertIterable(wrap(4, 3, 2).collect(ArrayList::new, List::add, List::addAll), 4, 3, 2);
+		try (WrappedStream<IOException, Integer> stream =
+			wrap(4, 3, 1).map(FunctionTestUtil.function())) {
+			assertThrown(IOException.class,
+				() -> stream.collect(ArrayList::new, List::add, List::addAll));
+		}
+		try (WrappedStream<IOException, Integer> stream =
+			wrap(4, 3, 1).map(FunctionTestUtil.function())) {
+			assertThrown(IOException.class, () -> stream.collect(Collectors.toList()));
+		}
+		try (WrappedStream<IOException, Integer> stream =
+			wrap(4, 3, 0).map(FunctionTestUtil.function())) {
+			assertThrown(RuntimeException.class,
+				() -> stream.collect(ArrayList::new, List::add, List::addAll));
+		}
+		try (WrappedStream<IOException, Integer> stream = wrap(4, 3, 0) //
+			.map(FunctionTestUtil.function())) {
+			assertThrown(RuntimeException.class, () -> stream.collect(Collectors.toList()));
+		}
+	}
+
+	@Test
 	public void shouldApplyStreamMethods() throws IOException {
 		assertStream(wrap(4, 3, 2).apply(s -> s.limit(1)), 4);
 		assertStream(wrap(4, 3, 2).applyInt(s -> s.mapToInt(i -> i - 1)), 3, 2, 1);
@@ -71,7 +131,7 @@ public class WrappedStreamBehavior {
 	}
 
 	private WrappedStream<IOException, Integer> wrap(Integer... values) {
-		return WrappedStream.of(IOException.class, values);
+		return WrappedStream.of(values);
 	}
 
 }

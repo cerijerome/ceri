@@ -110,7 +110,7 @@ public class FunctionWrapper<E extends Exception> {
 		return wrapGet(() -> predicate.test(t));
 	}
 
-	public boolean wrap(ExceptionIntPredicate<E> predicate, int i) {
+	public boolean wrap(ExceptionIntPredicate<? extends E> predicate, int i) {
 		return wrapGet(() -> predicate.test(i));
 	}
 
@@ -170,7 +170,7 @@ public class FunctionWrapper<E extends Exception> {
 
 	// Methods to wrap/unwrap exceptions
 
-	private <R> R wrapGet(ExceptionSupplier<E, R> supplier) {
+	private <R> R wrapGet(ExceptionSupplier<? extends E, R> supplier) {
 		try {
 			return supplier.get();
 		} catch (RuntimeException e) {
@@ -180,7 +180,7 @@ public class FunctionWrapper<E extends Exception> {
 		}
 	}
 
-	private <R> R unwrapGet(ExceptionSupplier<E, R> supplier) throws E {
+	private <R> R unwrapGet(ExceptionSupplier<? extends E, R> supplier) throws E {
 		try {
 			return supplier.get();
 		} catch (WrapperException e) {

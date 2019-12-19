@@ -11,12 +11,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ByteProvider;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.ExceptionUtil;
-import ceri.common.util.PrimitiveUtil;
 
 public class ByteUtil {
 	public static final int BITS_PER_NYBBLE = 4;
@@ -88,7 +86,7 @@ public class ByteUtil {
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, int... bytes) {
-		writeTo(out, bytes(bytes));
+		writeTo(out, ArrayUtil.bytes(bytes));
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, byte... bytes) {
@@ -107,8 +105,7 @@ public class ByteUtil {
 		ExceptionUtil.shouldNotThrow(() -> b.writeTo(out, offset));
 	}
 
-	public static void writeTo(ByteArrayOutputStream out, ByteProvider b, int offset,
-		int length) {
+	public static void writeTo(ByteArrayOutputStream out, ByteProvider b, int offset, int length) {
 		ExceptionUtil.shouldNotThrow(() -> b.writeTo(out, offset, length));
 	}
 
@@ -117,7 +114,7 @@ public class ByteUtil {
 	}
 
 	public static String fromAscii(int... data) {
-		return fromAscii(bytes(data));
+		return fromAscii(ArrayUtil.bytes(data));
 	}
 
 	public static String fromAscii(byte... data) {
@@ -144,21 +141,14 @@ public class ByteUtil {
 		return fromAscii(data.copy(), offset, length);
 	}
 
-	public static byte[] bytes(int... values) {
-		byte[] bytes = new byte[values.length];
-		for (int i = 0; i < bytes.length; i++)
-			bytes[i] = (byte) values[i];
-		return bytes;
+	public static long apply(long value, long mask, boolean on) {
+		return on ? value | mask : value & (~mask);
 	}
 
-	public static long apply(long value, long mask, boolean on) {
-		return on ? value | mask : value & (~mask); 
-	}
-	
 	public static int applyInt(int value, int mask, boolean on) {
-		return on ? value | mask : value & (~mask); 
+		return on ? value | mask : value & (~mask);
 	}
-	
+
 	public static int maskInt(int bitCount) {
 		if (bitCount == 0) return 0;
 		if (bitCount >= Integer.SIZE) return -1;
@@ -181,7 +171,7 @@ public class ByteUtil {
 
 	public static long maskOfBits(Collection<Integer> bits) {
 		if (bits == null) return 0;
-		return maskOfBits(PrimitiveUtil.toIntArray(bits));
+		return maskOfBits(ArrayUtil.ints(bits));
 	}
 
 	public static long maskOfBits(int... bits) {
@@ -287,7 +277,7 @@ public class ByteUtil {
 	}
 
 	public static long fromBigEndian(int... array) {
-		return fromBigEndian(bytes(array));
+		return fromBigEndian(ArrayUtil.bytes(array));
 	}
 
 	public static long fromBigEndian(byte... array) {
@@ -325,7 +315,7 @@ public class ByteUtil {
 	}
 
 	public static long fromLittleEndian(int... array) {
-		return fromLittleEndian(bytes(array));
+		return fromLittleEndian(ArrayUtil.bytes(array));
 	}
 
 	public static long fromLittleEndian(byte... array) {

@@ -8,11 +8,15 @@ public class Ioreg {
 	private static final String IOREG = "ioreg";
 	private final Processor processor;
 
-	public Ioreg() {
-		this(Processor.DEFAULT);
+	public static Ioreg of() {
+		return of(Processor.DEFAULT);
 	}
 
-	public Ioreg(Processor processor) {
+	public static Ioreg of(Processor processor) {
+		return new Ioreg(processor);
+	}
+
+	private Ioreg(Processor processor) {
 		this.processor = processor;
 	}
 

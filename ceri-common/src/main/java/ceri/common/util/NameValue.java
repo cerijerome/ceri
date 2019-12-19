@@ -1,8 +1,12 @@
 package ceri.common.util;
 
-public class NameValue<V> extends KeyValue<String, V> {
+public class NameValue<T> extends KeyValue<String, T> {
 
-	public NameValue(String name, V value) {
+	public static <T> NameValue<T> of(String name, T value) {
+		return new NameValue<>(name, value);
+	}
+
+	protected NameValue(String name, T value) {
 		super(name, value);
 	}
 

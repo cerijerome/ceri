@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
-import ceri.common.collection.ByteProvider;
+import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToStringHelper;

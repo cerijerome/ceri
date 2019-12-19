@@ -35,9 +35,12 @@ import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsSame;
 import org.junit.runner.JUnitCore;
-import ceri.common.collection.ByteProvider;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.data.ByteProvider;
+import ceri.common.data.ByteUtil;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.IoUtil;
@@ -45,8 +48,9 @@ import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Utf8Util;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.PrimitiveUtil;
+import ceri.common.util.EqualsUtil;
 
 public class TestUtil {
 	private static final int SMALL_BUFFER_SIZE = 1024;
@@ -69,7 +73,7 @@ public class TestUtil {
 			constructor.setAccessible(false);
 		} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException
 			| InstantiationException e) {
-			throw new RuntimeException(e);
+			throw new AssertionError(e);
 		}
 	}
 
@@ -89,6 +93,10 @@ public class TestUtil {
 		core.addListener(tp);
 		core.run(classes);
 		tp.print(out);
+	}
+
+	public static AssertionError failure(String format, Object... args) {
+		return new AssertionError(String.format(format, args));
 	}
 
 	public static String firstSystemPropertyName() {
@@ -214,6 +222,14 @@ public class TestUtil {
 	}
 
 	/**
+	 * Checks a value, with failure message.
+	 */
+	public static <E extends Exception, T> void assertValue(T t, ExceptionPredicate<E, T> test)
+		throws E {
+		if (!test.test(t)) throw failure("No match: %s", String.valueOf(t).trim());
+	}
+
+	/**
 	 * Checks a double value is NaN.
 	 */
 	public static void assertNaN(double value) {
@@ -309,11 +325,14 @@ public class TestUtil {
 		int len) {
 		assertIsArray(lhs);
 		assertIsArray(rhs);
-		assertMinSize(Array.getLength(lhs), lhsOffset + len);
+		int lhsLen = Array.getLength(lhs);
+		int rhsLen = Array.getLength(rhs);
 		for (int i = 0; i < len; i++) {
-			Object lhsVal = Array.get(lhs, lhsOffset + i);
-			Object rhsVal = Array.get(rhs, rhsOffset + i);
-			assertIndex(lhsVal, rhsVal, lhsOffset + i);
+			boolean hasLhs = lhsOffset + i < lhsLen;
+			Object lhsVal = hasLhs ? Array.get(lhs, lhsOffset + i) : null;
+			boolean hasRhs = rhsOffset + i < rhsLen;
+			Object rhsVal = hasRhs ? Array.get(rhs, rhsOffset + i) : null;
+			assertIndex(lhsOffset + i, lhsVal, hasLhs, rhsVal, hasRhs);
 		}
 	}
 
@@ -405,8 +424,8 @@ public class TestUtil {
 	 * Checks two lists are equal, with specific failure information if not.
 	 */
 	public static <T> void assertList(List<? extends T> lhs, List<? extends T> rhs) {
-		assertSize("List size", lhs.size(), rhs.size());
 		assertList(lhs, 0, rhs, 0, lhs.size());
+		assertSize("List size", lhs.size(), rhs.size());
 	}
 
 	/**
@@ -414,12 +433,33 @@ public class TestUtil {
 	 */
 	public static <T> void assertList(List<? extends T> lhs, int lhsOffset, List<? extends T> rhs,
 		int rhsOffset, int len) {
-		assertMinSize(lhs.size(), lhsOffset + len);
+		int lhsLen = lhs.size();
+		int rhsLen = rhs.size();
 		for (int i = 0; i < len; i++) {
-			T lhsVal = lhs.get(lhsOffset + i);
-			T rhsVal = rhs.get(rhsOffset + i);
-			assertIndex(lhsVal, rhsVal, lhsOffset + i);
+			boolean hasLhs = lhsOffset + i < lhsLen;
+			T lhsVal = hasLhs ? lhs.get(lhsOffset + i) : null;
+			boolean hasRhs = rhsOffset + i < rhsLen;
+			T rhsVal = hasRhs ? rhs.get(rhsOffset + i) : null;
+			assertIndex(lhsOffset + i, lhsVal, hasLhs, rhsVal, hasRhs);
 		}
+	}
+
+	private static <T> void assertIndex(int i, T lhs, boolean hasLhs, T rhs, boolean hasRhs) {
+		if (!hasLhs && !hasRhs) throw failure("Nothing at index %d", i);
+		if (!hasLhs) throw failure("Nothing at index %d, expected %s", i, toString(rhs));
+		if (!hasRhs) throw failure("Unexpected item at index %d: %s", i, toString(lhs));
+		if (!EqualsUtil.equals(lhs, rhs)) throw failExpected(lhs, rhs, "Index %d", i);
+	}
+
+	private static <T> AssertionError failExpected(T actual, T expected, String format, Object... args) {
+		String msg = StringUtil.format(format, args) + '\n';
+		return failure("%sExpected: %s\n  actual: %s", msg, toString(expected), toString(actual));
+	}
+
+	private static <T> String toString(T t) {
+		if (ReflectUtil.instanceOfAny(t, Byte.class, Short.class, Integer.class, Long.class))
+			return String.format("%1$d (0x%1$02x)", t);
+		return String.valueOf(t);
 	}
 
 	/**
@@ -436,7 +476,7 @@ public class TestUtil {
 	 * if not.
 	 */
 	public static void assertCollection(boolean[] lhs, boolean... expected) {
-		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+		assertCollection(ArrayUtil.booleanList(lhs), ArrayUtil.booleanList(expected));
 	}
 
 	/**
@@ -444,7 +484,7 @@ public class TestUtil {
 	 * if not.
 	 */
 	public static void assertCollection(byte[] lhs, byte... expected) {
-		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+		assertCollection(ArrayUtil.byteList(lhs), ArrayUtil.byteList(expected));
 	}
 
 	/**
@@ -452,10 +492,7 @@ public class TestUtil {
 	 * if not.
 	 */
 	public static void assertCollection(byte[] lhs, int... values) {
-		byte[] expected = new byte[values.length];
-		for (int i = 0; i < values.length; i++)
-			expected[i] = (byte) values[i];
-		assertCollection(lhs, expected);
+		assertCollection(lhs, ArrayUtil.bytes(values));
 	}
 
 	/**
@@ -463,7 +500,15 @@ public class TestUtil {
 	 * if not.
 	 */
 	public static void assertCollection(char[] lhs, char... expected) {
-		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+		assertCollection(ArrayUtil.charList(lhs), ArrayUtil.charList(expected));
+	}
+
+	/**
+	 * Checks array contains exactly given elements in any order, with specific failure information
+	 * if not.
+	 */
+	public static void assertCollection(char[] lhs, int... expected) {
+		assertCollection(lhs, ArrayUtil.chars(expected));
 	}
 
 	/**
@@ -471,7 +516,15 @@ public class TestUtil {
 	 * if not.
 	 */
 	public static void assertCollection(short[] lhs, short... expected) {
-		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+		assertCollection(ArrayUtil.shortList(lhs), ArrayUtil.shortList(expected));
+	}
+
+	/**
+	 * Checks array contains exactly given elements in any order, with specific failure information
+	 * if not.
+	 */
+	public static void assertCollection(short[] lhs, int... expected) {
+		assertCollection(lhs, ArrayUtil.shorts(expected));
 	}
 
 	/**
@@ -479,7 +532,7 @@ public class TestUtil {
 	 * if not.
 	 */
 	public static void assertCollection(int[] lhs, int... expected) {
-		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+		assertCollection(ArrayUtil.intList(lhs), ArrayUtil.intList(expected));
 	}
 
 	/**
@@ -487,7 +540,7 @@ public class TestUtil {
 	 * if not.
 	 */
 	public static void assertCollection(long[] lhs, long... expected) {
-		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+		assertCollection(ArrayUtil.longList(lhs), ArrayUtil.longList(expected));
 	}
 
 	/**
@@ -495,7 +548,15 @@ public class TestUtil {
 	 * if not.
 	 */
 	public static void assertCollection(float[] lhs, float... expected) {
-		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+		assertCollection(ArrayUtil.floatList(lhs), ArrayUtil.floatList(expected));
+	}
+
+	/**
+	 * Checks array contains exactly given elements in any order, with specific failure information
+	 * if not.
+	 */
+	public static void assertCollection(float[] lhs, double... expected) {
+		assertCollection(lhs, ArrayUtil.floats(expected));
 	}
 
 	/**
@@ -503,7 +564,7 @@ public class TestUtil {
 	 * if not.
 	 */
 	public static void assertCollection(double[] lhs, double... expected) {
-		assertCollection(PrimitiveUtil.asList(lhs), PrimitiveUtil.asList(expected));
+		assertCollection(ArrayUtil.doubleList(lhs), ArrayUtil.doubleList(expected));
 	}
 
 	/**
@@ -555,25 +616,8 @@ public class TestUtil {
 		assertThat(message, lhsSize, is(rhsSize));
 	}
 
-	private static void assertMinSize(long lhsSize, long minSize) {
-		assertTrue("Expected size to be at least " + minSize + " but was " + lhsSize,
-			lhsSize >= minSize);
-	}
-
 	private static void assertIsArray(Object array) {
 		assertTrue("Expected an array but was " + array.getClass(), array.getClass().isArray());
-	}
-
-	private static <T> void assertIndex(T lhs, T rhs, int index) {
-		assertThat(
-			"Expected " + toString(rhs) + " but value at index " + index + " was " + toString(lhs),
-			lhs, is(rhs));
-	}
-
-	private static <T> String toString(T t) {
-		if (ReflectUtil.instanceOfAny(t, Byte.class, Short.class, Integer.class, Long.class))
-			return String.format("%1$d (0x%1$02x)", t);
-		return String.valueOf(t);
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject) {
@@ -586,6 +630,20 @@ public class TestUtil {
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1) {
 		assertThat(subject, is(ImmutableUtil.asMap(k0, v0, k1, v1)));
+	}
+
+	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2) {
+		assertThat(subject, is(ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2)));
+	}
+
+	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2, K k3,
+		V v3) {
+		assertThat(subject, is(ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2, k3, v3)));
+	}
+
+	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2, K k3,
+		V v3, K k4, V v4) {
+		assertThat(subject, is(ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2, k3, v3, k4, v4)));
 	}
 
 	@SafeVarargs
@@ -645,11 +703,11 @@ public class TestUtil {
 		Predicate<String> messageTest) {
 		if (t == null && superCls == null && messageTest == null) return;
 		assertNotNull("Throwable is null", t);
-		if (superCls != null && !superCls.isAssignableFrom(t.getClass())) throw new AssertionError(
-			"Expected " + superCls.getName() + ": " + t.getClass().getName());
+		if (superCls != null && !superCls.isAssignableFrom(t.getClass()))
+			throw failure("Expected %s: %s", superCls.getName(), t.getClass().getName());
 		if (messageTest == null) return;
-		assertTrue(String.format("Unmatched message %s: %s", lambdaName(messageTest), //
-			t.getMessage()), messageTest.test(t.getMessage()));
+		if (!messageTest.test(t.getMessage()))
+			throw failure("Unmatched message %s: %s", lambdaName(messageTest), t.getMessage());
 	}
 
 	/**
@@ -701,7 +759,7 @@ public class TestUtil {
 			assertThrowable(t, superCls, msgTest);
 			return;
 		}
-		throw new AssertionError("Nothing thrown, expected: " + superCls.getName());
+		throw failure("Nothing thrown, expected: %s", superCls.getName());
 	}
 
 	/**
@@ -724,14 +782,14 @@ public class TestUtil {
 	public static void assertExists(Path path, boolean exists) {
 		assertThat("Path exists: " + path, Files.exists(path), is(exists));
 	}
-	
+
 	/**
 	 * Check if file exists.
 	 */
 	public static void assertDir(Path path, boolean isDir) {
 		assertThat("Path is a directory: " + path, Files.isDirectory(path), is(isDir));
 	}
-	
+
 	/**
 	 * Checks contents of two directories are equal, with specific failure information if not.
 	 */
@@ -755,7 +813,7 @@ public class TestUtil {
 	public static void assertFile(Path actual, Path expected) throws IOException {
 		assertThat("File size", Files.size(actual), is(Files.size(expected)));
 		long pos = Files.mismatch(actual, expected);
-		if (pos >= 0) throw new AssertionError("Byte mismatch at index " + pos);
+		if (pos >= 0) throw failure("Byte mismatch at index %d", pos);
 	}
 
 	/**
@@ -779,8 +837,7 @@ public class TestUtil {
 		assertThat("File size", Files.size(actual), is((long) byteProvider.length()));
 		byte[] actualBytes = Files.readAllBytes(actual);
 		for (int i = 0; i < actualBytes.length; i++)
-			if (actualBytes[i] != byteProvider.get(i))
-				throw new AssertionError("Byte mismatch at index " + i);
+			if (actualBytes[i] != byteProvider.get(i)) throw failure("Byte mismatch at index %d", i);
 	}
 
 	/**
@@ -888,6 +945,20 @@ public class TestUtil {
 	 */
 	public static InputStream inputStream(int... bytes) {
 		return TestInputStream.of(bytes);
+	}
+
+	/**
+	 * Creates an input stream based on given data.
+	 */
+	public static InputStream inputStream(byte[] bytes) {
+		return inputStream(ByteUtil.streamOf(bytes).toArray());
+	}
+
+	/**
+	 * Creates an input stream based on UTF8 text bytes.
+	 */
+	public static InputStream inputStream(String text) {
+		return inputStream(Utf8Util.encode(text));
 	}
 
 	/**

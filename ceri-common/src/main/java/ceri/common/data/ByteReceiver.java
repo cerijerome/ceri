@@ -1,10 +1,10 @@
-package ceri.common.collection;
+package ceri.common.data;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import java.io.IOException;
 import java.io.InputStream;
-import ceri.common.data.ByteUtil;
+import ceri.common.collection.ArrayUtil;
 
 /**
  * Interface for receiving bytes into an array.
@@ -71,7 +71,7 @@ public interface ByteReceiver {
 	 * destination lengths. Returns the length copied.
 	 */
 	default int copyFrom(int... array) {
-		return copyFrom(ByteUtil.bytes(array));
+		return copyFrom(ArrayUtil.bytes(array));
 	}
 
 	/**

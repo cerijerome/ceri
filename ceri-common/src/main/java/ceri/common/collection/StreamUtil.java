@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
@@ -46,38 +47,38 @@ public class StreamUtil {
 
 	private StreamUtil() {}
 
-	public static <E extends Exception, T, R> R closeableApply(
-		Stream<T> stream, ExceptionFunction<E, Stream<T>, R> fn) throws E {
+	public static <E extends Exception, T, R> R closeableApply(Stream<T> stream,
+		ExceptionFunction<E, Stream<T>, R> fn) throws E {
 		try (stream) {
 			return fn.apply(stream);
 		}
 	}
-	
-	public static <E extends Exception, T> int closeableApplyAsInt(
-		Stream<T> stream, ExceptionToIntFunction<E, Stream<T>> fn) throws E {
+
+	public static <E extends Exception, T> int closeableApplyAsInt(Stream<T> stream,
+		ExceptionToIntFunction<E, Stream<T>> fn) throws E {
 		try (stream) {
 			return fn.applyAsInt(stream);
 		}
 	}
-	
-	public static <E extends Exception, T> void closeableAccept(
-		Stream<T> stream, ExceptionConsumer<E, Stream<T>> consumer) throws E {
+
+	public static <E extends Exception, T> void closeableAccept(Stream<T> stream,
+		ExceptionConsumer<E, Stream<T>> consumer) throws E {
 		try (stream) {
 			consumer.accept(stream);
 		}
 	}
-	
-	public static <E extends Exception, T> void closeableForEach(
-		Stream<T> stream, ExceptionConsumer<E, T> consumer) throws E {
+
+	public static <E extends Exception, T> void closeableForEach(Stream<T> stream,
+		ExceptionConsumer<E, T> consumer) throws E {
 		try (stream) {
 			FunctionUtil.forEach(stream, consumer);
 		}
 	}
-	
+
 	public static DoubleStream unitRange(int steps) {
 		return IntStream.range(0, steps).mapToDouble(i -> (double) i / (steps - 1));
 	}
-	
+
 	public static IntStream toInt(Stream<? extends Number> stream) {
 		return stream.mapToInt(Number::intValue);
 	}
@@ -126,7 +127,7 @@ public class StreamUtil {
 	public static <E extends Exception, T> WrappedStream<E, T> wrap(Stream<T> stream) {
 		return WrappedStream.of(stream);
 	}
-	
+
 	/**
 	 * Filters objects of given type and casts the stream.
 	 */
@@ -146,8 +147,8 @@ public class StreamUtil {
 		return toString(stream, "", delimiter, "");
 	}
 
-	public static String toString(Stream<?> stream, CharSequence prefix,
-		CharSequence delimiter, CharSequence suffix) {
+	public static String toString(Stream<?> stream, CharSequence prefix, CharSequence delimiter,
+		CharSequence suffix) {
 		if (stream == null) return null;
 		int prefixLen = prefix.length();
 		return stream.collect(() -> new StringBuilder(prefix), (b, t) -> {
@@ -157,10 +158,36 @@ public class StreamUtil {
 	}
 
 	/**
+	 * Append items to a stream.
+	 */
+	@SafeVarargs
+	public static <T> Stream<T> append(Stream<T> stream, T... ts) {
+		return Stream.concat(stream, Stream.of(ts));
+	}
+
+	/**
+	 * Prepend items to a stream.
+	 */
+	@SafeVarargs
+	public static <T> Stream<T> prepend(Stream<T> stream, T... ts) {
+		return Stream.concat(Stream.of(ts), stream);
+	}
+
+	/**
 	 * Make a stream compatible with a for-each loop.
 	 */
 	public static <T> Iterable<T> forEach(Stream<T> stream) {
 		return BasicUtil.forEach(stream.iterator());
+	}
+
+	/**
+	 * Makes a stream sequential then applies simple collection.
+	 */
+	public static <T, R> R collect(Stream<T> stream, Supplier<R> supplier,
+		BiConsumer<R, ? super T> accumulator) {
+		return stream.sequential().collect(supplier, accumulator, (r1, r2) -> {
+			throw new IllegalStateException();
+		});
 	}
 
 	/**

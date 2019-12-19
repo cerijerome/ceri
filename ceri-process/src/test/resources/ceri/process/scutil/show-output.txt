@@ -1,0 +1,9 @@
+* (Connecting)     00000000-0000-0000-0000-000000000000 I2C --> FT232R USB UART "FT232R USB UART"                [I2C:Device]
+Extended Status <dictionary> {
+  PPP : <dictionary> {
+    DeviceLastCause : 99
+    LastCause : 90
+    Status : 1
+  }
+  Status : 0
+}

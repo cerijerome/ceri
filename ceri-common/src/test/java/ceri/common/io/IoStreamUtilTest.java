@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import org.junit.Test;
-import ceri.common.data.ByteUtil;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.io.IoStreamUtil.ByteReader;
 import ceri.common.io.IoStreamUtil.ByteWriter;
 
@@ -32,7 +32,7 @@ public class IoStreamUtilTest {
 	public void testNullIn() throws IOException {
 		try (InputStream in = IoStreamUtil.nullIn()) {
 			assertThat(in.read(), is(0));
-			byte[] b = ByteUtil.bytes(1, 2, 3);
+			byte[] b = ArrayUtil.bytes(1, 2, 3);
 			assertThat(in.read(b), is(3));
 			assertArray(b, 1, 2, 3);
 			assertArray(in.readAllBytes());

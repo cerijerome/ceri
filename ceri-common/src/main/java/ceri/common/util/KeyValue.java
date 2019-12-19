@@ -9,7 +9,11 @@ public class KeyValue<K, V> {
 	public final K key;
 	public final V value;
 
-	public KeyValue(K key, V value) {
+	public static <K, V> KeyValue<K, V> of(K key, V value) {
+		return new KeyValue<>(key, value);
+	}
+
+	protected KeyValue(K key, V value) {
 		this.key = key;
 		this.value = value;
 	}

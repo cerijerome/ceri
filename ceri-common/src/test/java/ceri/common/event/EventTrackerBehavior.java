@@ -4,9 +4,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.util.function.Supplier;
 import org.junit.Test;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.event.EventTracker.State;
 import ceri.common.test.TestUtil;
-import ceri.common.util.PrimitiveUtil;
 
 public class EventTrackerBehavior {
 
@@ -14,7 +14,7 @@ public class EventTrackerBehavior {
 	public void codeCoverage() {
 		TestUtil.exerciseEnum(EventTracker.State.class);
 	}
-	
+
 	@Test
 	public void shouldClearEvents() {
 		EventTracker tracker = new EventTracker(2, 100000);
@@ -28,7 +28,7 @@ public class EventTrackerBehavior {
 		assertThat(tracker.addEvent(), is(State.ok));
 		assertThat(tracker.events(), is(2));
 	}
-	
+
 	@Test
 	public void shouldCheckTheNumberOfEventsWithinTheWindow() {
 		EventTracker tracker = new EventTracker(5, 10);
@@ -56,11 +56,12 @@ public class EventTrackerBehavior {
 	}
 
 	private EventTracker tracker(int maxEvents, Long windowMs, int... timeStamps) {
-		Supplier<Integer> supplier = PrimitiveUtil.asList(timeStamps).iterator()::next;
+		Supplier<Integer> supplier = ArrayUtil.intList(timeStamps).iterator()::next;
 		return tracker(maxEvents, windowMs, supplier);
 	}
 
-	private EventTracker tracker(int maxEvents, long windowMs, Supplier<? extends Number> supplier) {
+	private EventTracker tracker(int maxEvents, long windowMs,
+		Supplier<? extends Number> supplier) {
 		return new EventTracker(maxEvents, windowMs) {
 			@Override
 			long currentTimeMs() {

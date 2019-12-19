@@ -1,6 +1,5 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.data.ByteUtil.bytes;
 import static ceri.serial.jna.JnaUtil.ubyte;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bulk_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_claim_interface;
@@ -17,6 +16,7 @@ import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_device_ref;
 import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.util.BasicUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
@@ -63,7 +63,8 @@ public class LibUsbFtdiTester {
 		libusb_control_transfer(handle, 0x40, 0x0b, 0x010f, 1, 500);
 		read(handle);
 		BasicUtil.delay(delayMs);
-		ByteBuffer b = ByteBuffer.wrap(bytes(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15));
+		ByteBuffer b =
+			ByteBuffer.wrap(ArrayUtil.bytes(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15));
 		for (int i = 0; i < 16; i++) {
 			write(handle, b, i);
 			BasicUtil.delay(delayMs);

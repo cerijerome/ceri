@@ -1,7 +1,6 @@
 package ceri.common.data;
 
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ByteProvider;
 
 public class Xor {
 	private int value = 0;
@@ -11,7 +10,7 @@ public class Xor {
 	}
 
 	public Xor add(int... values) {
-		return add(ByteUtil.bytes(values));
+		return add(ArrayUtil.bytes(values));
 	}
 
 	public Xor add(byte... bytes) {

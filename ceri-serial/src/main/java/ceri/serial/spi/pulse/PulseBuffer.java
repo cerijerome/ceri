@@ -1,8 +1,8 @@
 package ceri.serial.spi.pulse;
 
 import java.nio.ByteBuffer;
-import ceri.common.collection.ByteReceiver;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.data.ByteReceiver;
 import ceri.common.data.ByteUtil;
 
 /**

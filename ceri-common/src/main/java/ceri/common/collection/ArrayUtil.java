@@ -3,6 +3,7 @@ package ceri.common.collection;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -94,7 +95,7 @@ public class ArrayUtil {
 	/**
 	 * Returns an immutable zero-size array for the given component type.
 	 */
-	public static <T> T[] emptyArray(Class<T> cls) {
+	public static <T> T[] empty(Class<T> cls) {
 		if (cls == String.class) return BasicUtil.uncheckedCast(EMPTY_STRING);
 		if (cls == Object.class) return BasicUtil.uncheckedCast(EMPTY_OBJECT);
 		return create(cls, 0);
@@ -111,7 +112,7 @@ public class ArrayUtil {
 	 * Returns the compile-time array type component class.
 	 */
 	public static <T> Class<T[]> arrayType(Class<T> cls) {
-		return BasicUtil.uncheckedCast(emptyArray(cls).getClass());
+		return BasicUtil.uncheckedCast(empty(cls).getClass());
 	}
 
 	/**
@@ -144,7 +145,7 @@ public class ArrayUtil {
 		if (componentCls.isArray()) componentSuperCls = superclass(componentCls);
 		else componentSuperCls = componentCls.getSuperclass();
 		if (componentSuperCls == null) return Object.class;
-		return emptyArray(componentSuperCls).getClass();
+		return empty(componentSuperCls).getClass();
 	}
 
 	/**
@@ -162,15 +163,458 @@ public class ArrayUtil {
 	 */
 	@SafeVarargs
 	public static <T> boolean containsAll(T[] array, T... ts) {
-		List<T> arrayList = Arrays.asList(array);
+		List<T> arrayList = asList(array);
 		List<T> tList = Arrays.asList(ts);
 		return arrayList.containsAll(tList);
 	}
 
 	/**
+	 * Creates a non fixed-size list of the given array. Use Arrays.asList() for fixed-size list.
+	 */
+	@SafeVarargs
+	public static <T> List<T> asList(T... ts) {
+		return CollectionUtil.addAll(new ArrayList<>(ts.length), ts);
+	}
+
+	/**
+	 * Creates a non fixed-size list joining the given elements.
+	 */
+	public static <T> List<T> asList(T t, T[] ts) {
+		List<T> list = CollectionUtil.addAll(new ArrayList<>(1 + ts.length), t);
+		return CollectionUtil.addAll(list, ts);
+	}
+
+	/**
+	 * Creates a non fixed-size list joining the given elements.
+	 */
+	@SafeVarargs
+	public static <T> List<T> asList(T[] ts0, T... ts) {
+		List<T> list = CollectionUtil.addAll(new ArrayList<>(ts0.length + ts.length), ts0);
+		return CollectionUtil.addAll(list, ts);
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Boolean> booleanList(boolean... array) {
+		return asList(convertBooleans(array));
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Character> charList(char... array) {
+		return asList(convertChars(array));
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Byte> byteList(byte... array) {
+		return asList(convertBytes(array));
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Short> shortList(short... array) {
+		return asList(convertShorts(array));
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Integer> intList(int... array) {
+		return asList(convertInts(array));
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Long> longList(long... array) {
+		return asList(convertLongs(array));
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Float> floatList(float... array) {
+		return asList(convertFloats(array));
+	}
+
+	/**
+	 * Converts a primitive array to a list.
+	 */
+	public static List<Double> doubleList(double... array) {
+		return asList(convertDoubles(array));
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	@SafeVarargs
+	public static <T> T[] array(T... ts) {
+		return ts;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static boolean[] booleans(boolean... ts) {
+		return ts;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static boolean[] booleans(int... ts) {
+		var array = new boolean[ts.length];
+		for (int i = 0; i < ts.length; i++)
+			array[i] = ts[i] != 0;
+		return array;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static byte[] bytes(byte... ts) {
+		return ts;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static byte[] bytes(int... ts) {
+		var array = new byte[ts.length];
+		for (int i = 0; i < ts.length; i++)
+			array[i] = (byte) ts[i];
+		return array;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static char[] chars(char... ts) {
+		return ts;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static char[] chars(int... ts) {
+		var array = new char[ts.length];
+		for (int i = 0; i < ts.length; i++)
+			array[i] = (char) ts[i];
+		return array;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static short[] shorts(short... ts) {
+		return ts;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static short[] shorts(int... ts) {
+		var array = new short[ts.length];
+		for (int i = 0; i < ts.length; i++)
+			array[i] = (short) ts[i];
+		return array;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static int[] ints(int... ts) {
+		return ts;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static long[] longs(long... ts) {
+		return ts;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static float[] floats(float... ts) {
+		return ts;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static float[] floats(double... ts) {
+		var array = new float[ts.length];
+		for (int i = 0; i < ts.length; i++)
+			array[i] = (float) ts[i];
+		return array;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static double[] doubles(double... ts) {
+		return ts;
+	}
+
+	/**
+	 * Converts a number collection to a primitive array.
+	 */
+	public static byte[] bytes(Collection<? extends Number> collection) {
+		byte[] result = new byte[collection.size()];
+		int i = 0;
+		for (Number number : collection)
+			result[i++] = number.byteValue();
+		return result;
+	}
+
+	/**
+	 * Converts a number collection to a primitive array.
+	 */
+	public static short[] shorts(Collection<? extends Number> collection) {
+		short[] result = new short[collection.size()];
+		int i = 0;
+		for (Number number : collection)
+			result[i++] = number.shortValue();
+		return result;
+	}
+
+	/**
+	 * Converts a number collection to a primitive array.
+	 */
+	public static int[] ints(Collection<? extends Number> collection) {
+		int[] result = new int[collection.size()];
+		int i = 0;
+		for (Number number : collection)
+			result[i++] = number.intValue();
+		return result;
+	}
+
+	/**
+	 * Converts a number collection to a primitive array.
+	 */
+	public static long[] longs(Collection<? extends Number> collection) {
+		long[] result = new long[collection.size()];
+		int i = 0;
+		for (Number number : collection)
+			result[i++] = number.longValue();
+		return result;
+	}
+
+	/**
+	 * Converts a number collection to a primitive array.
+	 */
+	public static float[] floats(Collection<? extends Number> collection) {
+		float[] result = new float[collection.size()];
+		int i = 0;
+		for (Number number : collection)
+			result[i++] = number.floatValue();
+		return result;
+	}
+
+	/**
+	 * Converts a number collection to a primitive array.
+	 */
+	public static double[] doubles(Collection<? extends Number> collection) {
+		double[] result = new double[collection.size()];
+		int i = 0;
+		for (Number number : collection)
+			result[i++] = number.doubleValue();
+		return result;
+	}
+
+	public static int[] intRange(int count) {
+		return intRange(0, count);
+	}
+
+	public static int[] intRange(int start, int end) {
+		int[] range = new int[end - start];
+		for (int i = 0; i < range.length; i++)
+			range[i] = start + i;
+		return range;
+	}
+
+	public static long[] longRange(long count) {
+		return longRange(0, count);
+	}
+
+	public static long[] longRange(long start, long end) {
+		long[] range = new long[Math.toIntExact(end - start)];
+		for (int i = 0; i < range.length; i++)
+			range[i] = start + i;
+		return range;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static boolean[] convertBooleans(Boolean[] array) {
+		var ts = new boolean[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Boolean[] convertBooleans(boolean... array) {
+		var ts = new Boolean[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static byte[] convertBytes(Byte[] array) {
+		var ts = new byte[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Byte[] convertBytes(byte... array) {
+		var ts = new Byte[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static char[] convertChars(Character[] array) {
+		var ts = new char[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Character[] convertChars(char... array) {
+		var ts = new Character[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static short[] convertShorts(Short[] array) {
+		var ts = new short[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Short[] convertShorts(short... array) {
+		var ts = new Short[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static int[] convertInts(Integer[] array) {
+		var ts = new int[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Integer[] convertInts(int... array) {
+		var ts = new Integer[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static long[] convertLongs(Long[] array) {
+		var ts = new long[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Long[] convertLongs(long... array) {
+		var ts = new Long[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static float[] convertFloats(Float[] array) {
+		var ts = new float[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Float[] convertFloats(float... array) {
+		var ts = new Float[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static double[] convertDoubles(Double[] array) {
+		var ts = new double[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Double[] convertDoubles(double... array) {
+		var ts = new Double[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
 	 * Reverses the array.
 	 */
-	public static void reverse(Object array) {
+	public static <T> T reverseArray(T array) {
 		if (!isArray(array)) throw new IllegalArgumentException("Object is not an array: " + array);
 		int length = Array.getLength(array);
 		for (int i = 0; i < length / 2; i++) {
@@ -178,6 +622,116 @@ public class ArrayUtil {
 			Array.set(array, i, Array.get(array, length - 1 - i));
 			Array.set(array, length - 1 - i, tmp);
 		}
+		return array;
+	}
+
+	/**
+	 * Reverses the array.
+	 */
+	@SafeVarargs
+	public static <T> T[] reverse(T... ts) {
+		for (int i = 0; i < ts.length / 2; i++) {
+			var tmp = ts[i];
+			ts[i] = ts[ts.length - 1 - i];
+			ts[ts.length - 1 - i] = tmp;
+		}
+		return ts;
+	}
+
+	/**
+	 * Reverses the array.
+	 */
+	public static boolean[] reverseBooleans(boolean... ts) {
+		for (int i = 0; i < ts.length / 2; i++) {
+			var tmp = ts[i];
+			ts[i] = ts[ts.length - 1 - i];
+			ts[ts.length - 1 - i] = tmp;
+		}
+		return ts;
+	}
+
+	/**
+	 * Reverses the array.
+	 */
+	public static char[] reverseChars(char... ts) {
+		for (int i = 0; i < ts.length / 2; i++) {
+			var tmp = ts[i];
+			ts[i] = ts[ts.length - 1 - i];
+			ts[ts.length - 1 - i] = tmp;
+		}
+		return ts;
+	}
+
+	/**
+	 * Reverses the array.
+	 */
+	public static byte[] reverseBytes(byte... ts) {
+		for (int i = 0; i < ts.length / 2; i++) {
+			var tmp = ts[i];
+			ts[i] = ts[ts.length - 1 - i];
+			ts[ts.length - 1 - i] = tmp;
+		}
+		return ts;
+	}
+
+	/**
+	 * Reverses the array.
+	 */
+	public static short[] reverseShorts(short... ts) {
+		for (int i = 0; i < ts.length / 2; i++) {
+			var tmp = ts[i];
+			ts[i] = ts[ts.length - 1 - i];
+			ts[ts.length - 1 - i] = tmp;
+		}
+		return ts;
+	}
+
+	/**
+	 * Reverses the array.
+	 */
+	public static int[] reverseInts(int... ts) {
+		for (int i = 0; i < ts.length / 2; i++) {
+			var tmp = ts[i];
+			ts[i] = ts[ts.length - 1 - i];
+			ts[ts.length - 1 - i] = tmp;
+		}
+		return ts;
+	}
+
+	/**
+	 * Reverses the array.
+	 */
+	public static long[] reverseLongs(long... ts) {
+		for (int i = 0; i < ts.length / 2; i++) {
+			var tmp = ts[i];
+			ts[i] = ts[ts.length - 1 - i];
+			ts[ts.length - 1 - i] = tmp;
+		}
+		return ts;
+	}
+
+	/**
+	 * Reverses the array.
+	 */
+	public static float[] reverseFloats(float... ts) {
+		for (int i = 0; i < ts.length / 2; i++) {
+			var tmp = ts[i];
+			ts[i] = ts[ts.length - 1 - i];
+			ts[ts.length - 1 - i] = tmp;
+		}
+		return ts;
+	}
+
+	/**
+	 * Reverses the array.
+	 */
+	public static double[] reverseDoubles(double... ts) {
+		for (int i = 0; i < ts.length / 2; i++) {
+			var tmp = ts[i];
+			ts[i] = ts[ts.length - 1 - i];
+			ts[ts.length - 1 - i] = tmp;
+		}
+		return ts;
 	}
 
 	/**
@@ -270,14 +824,14 @@ public class ArrayUtil {
 	/**
 	 * Checks if arrays are equals, using offsets and length
 	 */
-	public static boolean equals(byte[] lhs, int lhsStart, byte[] rhs, int rhsStart, int len) {
+	public static boolean equals(char[] lhs, int lhsStart, char[] rhs, int rhsStart, int len) {
 		return Arrays.equals(lhs, lhsStart, lhsStart + len, rhs, rhsStart, rhsStart + len);
 	}
 
 	/**
 	 * Checks if arrays are equals, using offsets and length
 	 */
-	public static boolean equals(char[] lhs, int lhsStart, char[] rhs, int rhsStart, int len) {
+	public static boolean equals(byte[] lhs, int lhsStart, byte[] rhs, int rhsStart, int len) {
 		return Arrays.equals(lhs, lhsStart, lhsStart + len, rhs, rhsStart, rhsStart + len);
 	}
 
@@ -388,23 +942,6 @@ public class ArrayUtil {
 			Array.set(to, toIndex + i, Array.get(from, fromIndex + i));
 		}
 		return to;
-	}
-
-	/**
-	 * Creates a non fixed-size list of the given array. Use Arrays.asList() for fixed-size list.
-	 */
-	@SafeVarargs
-	public static <T> List<T> asList(T... ts) {
-		return CollectionUtil.addAll(new ArrayList<>(ts.length), ts);
-	}
-
-	/**
-	 * Creates a non fixed-size list joining the given element and array.
-	 */
-	public static <T> List<T> asList(T t, T[] ts) {
-		List<T> list = new ArrayList<>();
-		list.add(t);
-		return CollectionUtil.addAll(list, ts);
 	}
 
 	/**

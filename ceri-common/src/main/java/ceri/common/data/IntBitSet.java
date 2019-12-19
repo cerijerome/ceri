@@ -3,14 +3,14 @@ package ceri.common.data;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Set;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.StreamUtil;
-import ceri.common.util.PrimitiveUtil;
 
 public class IntBitSet extends BitSet {
 	private static final long serialVersionUID = -4005476760615651068L;
 
 	public static IntBitSet from(int... bits) {
-		return from(PrimitiveUtil.asList(bits));
+		return from(ArrayUtil.intList(bits));
 	}
 
 	public static IntBitSet from(Collection<Integer> bits) {
@@ -46,7 +46,7 @@ public class IntBitSet extends BitSet {
 		super(Integer.SIZE);
 	}
 
-	public int setBits(boolean value, int...bitIndexes) {
+	public int setBits(boolean value, int... bitIndexes) {
 		int nextIndex = 0;
 		for (int i : bitIndexes) {
 			set(i, value);

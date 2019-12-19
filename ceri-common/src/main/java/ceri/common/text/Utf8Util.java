@@ -6,7 +6,7 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.PrimitiveIterator.OfInt;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ByteProvider;
+import ceri.common.data.ByteProvider;
 
 /**
  * Utility for fine control over UTF8 manipulation.

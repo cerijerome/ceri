@@ -6,6 +6,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.util.BitSet;
 import org.junit.Test;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.data.DataEncoder.Encodable;
 import ceri.common.data.DataEncoder.EncodableField;
@@ -68,7 +69,7 @@ public class DataEncoderBehavior {
 
 	@Test
 	public void shouldEncodeBitSets() {
-		BitSet bs = BitSet.valueOf(ByteUtil.bytes(0x00, 0x0f, 0xff, 0xf0));
+		BitSet bs = BitSet.valueOf(ArrayUtil.bytes(0x00, 0x0f, 0xff, 0xf0));
 		byte[] b = DataEncoder.of(4).encode(bs).data().copy();
 		assertArray(b, 0x00, 0x0f, 0xff, 0xf0);
 	}

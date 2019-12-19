@@ -1,10 +1,10 @@
-package ceri.common.collection;
+package ceri.common.data;
 
 import static java.lang.Math.min;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.stream.IntStream;
-import ceri.common.data.ByteUtil;
+import ceri.common.collection.ArrayUtil;
 
 /**
  * Interface that provides access to bytes in an array.
@@ -20,7 +20,7 @@ public interface ByteProvider {
 	ByteProvider EMPTY = wrap();
 	
 	static ByteProvider wrap(int... array) {
-		return wrap(ByteUtil.bytes(array));
+		return wrap(ArrayUtil.bytes(array));
 	}
 
 	static ByteProvider wrap(byte... array) {
@@ -249,7 +249,7 @@ public interface ByteProvider {
 	 * Determines whether bytes equal the byte array.
 	 */
 	default boolean matches(int... array) {
-		return matches(ByteUtil.bytes(array));
+		return matches(ArrayUtil.bytes(array));
 	}
 
 	/**
@@ -344,7 +344,7 @@ public interface ByteProvider {
 	 * Returns the first index that matches byte array. Returns -1 if not match.
 	 */
 	default int indexOf(int... array) {
-		return indexOf(ByteUtil.bytes(array));
+		return indexOf(ArrayUtil.bytes(array));
 	}
 
 	/**

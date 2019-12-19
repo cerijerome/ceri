@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
+import ceri.common.text.Utf8Util;
 
 public class TestInputStreamBehavior {
 
@@ -36,6 +37,14 @@ public class TestInputStreamBehavior {
 		}
 	}
 
+	@Test
+	public void shouldCreateFromByteArray() throws IOException {
+		byte[] b = Utf8Util.encode("abc");
+		try (InputStream in = TestInputStream.of(b)) {
+			assertThat(Utf8Util.decode(in.readAllBytes()), is("abc"));
+		}
+	}
+	
 	@Test
 	public void shouldProvideAvailableByteCount() throws IOException {
 		try (InputStream in = TestInputStream.of(1, 2, 3, -1, 0, 0)) {

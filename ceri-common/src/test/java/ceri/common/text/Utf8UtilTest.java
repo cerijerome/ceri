@@ -1,6 +1,5 @@
 package ceri.common.text;
 
-import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
@@ -11,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import org.junit.Test;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.test.TestUtil;
 
@@ -201,10 +201,12 @@ public class Utf8UtilTest {
 
 	@Test
 	public void testDecodeBytes() {
-		assertThat(Utf8Util.decode(bytes('A')), is(StringUtil.toString(_1B)));
-		assertThat(Utf8Util.decode(bytes(0xc2, 0xa9)), is(StringUtil.toString(_2B)));
-		assertThat(Utf8Util.decode(bytes(0xe2, 0x84, 0x83)), is(StringUtil.toString(_3B)));
-		assertThat(Utf8Util.decode(bytes(0xf0, 0x9d, 0x90, 0x80)), is(StringUtil.toString(_4B)));
+		assertThat(Utf8Util.decode(ArrayUtil.bytes('A')), is(StringUtil.toString(_1B)));
+		assertThat(Utf8Util.decode(ArrayUtil.bytes(0xc2, 0xa9)), is(StringUtil.toString(_2B)));
+		assertThat(Utf8Util.decode(ArrayUtil.bytes(0xe2, 0x84, 0x83)),
+			is(StringUtil.toString(_3B)));
+		assertThat(Utf8Util.decode(ArrayUtil.bytes(0xf0, 0x9d, 0x90, 0x80)),
+			is(StringUtil.toString(_4B)));
 	}
 
 	@Test

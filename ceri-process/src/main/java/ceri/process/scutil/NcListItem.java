@@ -1,9 +1,12 @@
 package ceri.process.scutil;
 
-import java.util.ArrayList;
+import static ceri.common.collection.StreamUtil.toList;
+import static ceri.common.text.StringUtil.lines;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.text.RegexUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
@@ -27,31 +30,21 @@ public class NcListItem {
 	public final String type;
 
 	public static List<NcListItem> fromList(String output) {
-		List<NcListItem> items = new ArrayList<>();
-		Matcher m = DECODE_REGEX.matcher(output);
-		while (m.find())
-			items.add(from(m));
-		return items;
+		return toList(lines(output).stream().map(NcListItem::from).filter(Objects::nonNull));
 	}
 
 	public static NcListItem from(String line) {
-		Matcher m = DECODE_REGEX.matcher(line);
-		if (!m.find()) return null;
-		return from(m);
-	}
-
-	private static NcListItem from(Matcher m) {
-		NcListItem.Builder b = NcListItem.builder();
+		Matcher m = RegexUtil.found(DECODE_REGEX, line);
+		if (m == null) return null;
 		int i = 1;
-		b.enabled(NcListItem.ENABLED.equals(m.group(i++))).state(m.group(i++)).passwordHash(
-			m.group(i++)).protocol(m.group(i++)).device(m.group(i++)).name(m.group(i++)).type(
-			m.group(i++));
-		return b.build();
+		return NcListItem.builder().enabled(NcListItem.ENABLED.equals(m.group(i++)))
+			.state(m.group(i++)).passwordHash(m.group(i++)).protocol(m.group(i++))
+			.device(m.group(i++)).name(m.group(i++)).type(m.group(i++)).build();
 	}
 
 	public static class Builder {
-		boolean enabled;
-		String state;
+		boolean enabled = false;
+		NcServiceState state = NcServiceState.unknown;
 		String passwordHash;
 		String protocol;
 		String device;
@@ -66,6 +59,10 @@ public class NcListItem {
 		}
 
 		public Builder state(String state) {
+			return state(NcServiceState.from(state));
+		}
+
+		public Builder state(NcServiceState state) {
 			this.state = state;
 			return this;
 		}
@@ -106,7 +103,7 @@ public class NcListItem {
 
 	NcListItem(Builder builder) {
 		enabled = builder.enabled;
-		state = NcServiceState.from(builder.state);
+		state = builder.state;
 		passwordHash = builder.passwordHash;
 		protocol = builder.protocol;
 		device = builder.device;
@@ -136,7 +133,7 @@ public class NcListItem {
 
 	@Override
 	public String toString() {
-		if (state == NcServiceState.noService) return "No service";
+		if (state == NcServiceState.noService) return state.toString();
 		return String.format("%s %-16s %s %s --> %-10s %-32s [%s:%s]", enabled ? ENABLED : " ",
 			"(" + state + ")", passwordHash, protocol, device, "\"" + name + "\"", protocol, type);
 	}

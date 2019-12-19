@@ -4,10 +4,10 @@ import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
 
 public class ComparatorsTest {
 
@@ -58,7 +58,7 @@ public class ComparatorsTest {
 	public void testSequence() {
 		Comparator<String> comparator =
 			Comparators.sequence(Comparators.nonNullComparator(), Comparators.STRING);
-		List<String> list = ArrayUtil.asList(null, "2", "1", null);
+		List<String> list = Arrays.asList(null, "2", "1", null);
 		list.sort(comparator);
 		assertIterable(list, null, null, "1", "2");
 	}

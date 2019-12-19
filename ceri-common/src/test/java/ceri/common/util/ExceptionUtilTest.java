@@ -1,11 +1,9 @@
 package ceri.common.util;
 
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import org.junit.Test;
@@ -18,6 +16,11 @@ public class ExceptionUtilTest {
 		assertPrivateConstructor(ExceptionUtil.class);
 	}
 
+	@Test
+	public void testDoNotCall() {
+		assertThrown(() -> ExceptionUtil.doNotCall(1, "2"));
+	}
+	
 	@Test
 	public void testShouldNotThrow() {
 		Callable<String> callable = () -> {
@@ -57,7 +60,15 @@ public class ExceptionUtilTest {
 	}
 
 	@Test
+	public void testMessage() {
+		assertNull(ExceptionUtil.message(null));
+		assertThat(ExceptionUtil.message(new IOException()), is("IOException"));
+		assertThat(ExceptionUtil.message(new Exception("test")), is("test"));
+	}
+	
+	@Test
 	public void testStackTrace() {
+		assertNull(ExceptionUtil.stackTrace(null));
 		String stackTrace = ExceptionUtil.stackTrace(new Exception());
 		String[] lines = stackTrace.split("[\\r\\n]+");
 		assertThat(lines[0], is("java.lang.Exception"));
@@ -68,4 +79,27 @@ public class ExceptionUtilTest {
 		assertTrue(lines[1].trim().startsWith(s));
 	}
 
+	@Test
+	public void testFirstStackElement() {
+		assertNull(ExceptionUtil.firstStackElement(null));
+		StackTraceElement el = ExceptionUtil.firstStackElement(new IOException());
+		assertThat(el.getMethodName(), is(ReflectUtil.currentMethodName()));
+		
+		Exception e = mock(Exception.class);
+		assertNull(ExceptionUtil.firstStackElement(e));
+		when(e.getStackTrace()).thenReturn(new StackTraceElement[0]);
+		assertNull(ExceptionUtil.firstStackElement(e));
+	}
+	
+	@Test
+	public void testLimitStackTrace() {
+		assertThat(ExceptionUtil.limitStackTrace(null, 0), is(false));
+		Exception e = new Exception();
+		int count = e.getStackTrace().length;
+		assertThat(ExceptionUtil.limitStackTrace(e, count + 1), is(false));
+		assertThat(ExceptionUtil.limitStackTrace(e, count), is(false));
+		assertThat(ExceptionUtil.limitStackTrace(e, count - 1), is(true));
+		assertThat(e.getStackTrace().length, is(count - 1));
+	}
+	
 }

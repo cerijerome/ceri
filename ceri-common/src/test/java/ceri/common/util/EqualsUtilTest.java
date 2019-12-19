@@ -40,6 +40,18 @@ public class EqualsUtilTest {
 	}
 
 	@Test
+	public void testArrayEquals() {
+		float[][] fa0 = { { 0.1f, 0.2f, 0.3f }, { 0.4f, 0.5f }, { 0.6f }};
+		float[][] fa1 = { { 0.1f, 0.2f, 0.3f }, { 0.4f, 0.5f }, { 0.6f }};
+		float[][] fa2 = { { 0.1f, 0.2f, 0.3f }, { 0.4f, 0.5f }, { 0.7f }};
+		float[][] fa3 = { { 0.1f, 0.2f, 0.3f }, { 0.4f, 0.5f }, { 0.6f }, {}};
+		assertFalse(fa0.equals(fa1));
+		assertTrue(EqualsUtil.equals(fa0, fa1));
+		assertFalse(EqualsUtil.equals(fa0, fa2));
+		assertFalse(EqualsUtil.equals(fa0, fa3));
+	}
+	
+	@Test
 	public void testObjectEquals() {
 		assertTrue(EqualsUtil.equals(null, null));
 		assertFalse(EqualsUtil.equals("", null));

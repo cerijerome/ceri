@@ -1,16 +1,16 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.data.ByteUtil.bytes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.IntSupplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.ByteProvider;
-import ceri.common.collection.ByteReceiver;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.SafeReadWrite;
+import ceri.common.data.ByteProvider;
+import ceri.common.data.ByteReceiver;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.serial.spi.Spi;
@@ -55,7 +55,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 
 	@Override
 	public void set(int pos, int b) {
-		copyFrom(pos, bytes(b));
+		copyFrom(pos, ArrayUtil.bytes(b));
 	}
 
 	@Override

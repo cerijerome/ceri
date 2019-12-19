@@ -153,8 +153,7 @@ public class ToStringHelper {
 			String childStr = StringUtil.prefixLines(childIndent, childStringValue(child));
 			b.append(childStr).append(System.lineSeparator());
 		}
-		b.append('}');
-		return b.toString();
+		return b.append('}').toString();
 	}
 
 	private String childStringValue(Object obj) {

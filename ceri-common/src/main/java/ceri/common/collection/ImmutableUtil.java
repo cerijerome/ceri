@@ -243,14 +243,16 @@ public class ImmutableUtil {
 	}
 
 	/**
-	 * Creates an immutable map.
+	 * Creates an immutable map. Unlike Map.of, keys and values may be null, and keys are not
+	 * checked for duplicates.
 	 */
 	public static <K, V> Map<K, V> asMap(K key, V value) {
 		return asMap(mapSupplier(), key, value);
 	}
 
 	/**
-	 * Creates an immutable map.
+	 * Creates an immutable map. Unlike Map.of, keys and values may be null, and keys are not
+	 * checked for duplicates.
 	 */
 	public static <K, V> Map<K, V> asMap(Supplier<Map<K, V>> supplier, K key, V value) {
 		Map<K, V> map = supplier.get();
@@ -259,19 +261,88 @@ public class ImmutableUtil {
 	}
 
 	/**
-	 * Creates an immutable map.
+	 * Creates an immutable map. Unlike Map.of, keys and values may be null, and keys are not
+	 * checked for duplicates.
 	 */
 	public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1) {
 		return asMap(mapSupplier(), k0, v0, k1, v1);
 	}
 
 	/**
-	 * Creates an immutable map.
+	 * Creates an immutable map. Unlike Map.of, keys and values may be null, and keys are not
+	 * checked for duplicates.
 	 */
 	public static <K, V> Map<K, V> asMap(Supplier<Map<K, V>> supplier, K k0, V v0, K k1, V v1) {
 		Map<K, V> map = supplier.get();
 		map.put(k0, v0);
 		map.put(k1, v1);
+		return Collections.unmodifiableMap(map);
+	}
+
+	/**
+	 * Creates an immutable map. Unlike Map.of, keys and values may be null, and keys are not
+	 * checked for duplicates.
+	 */
+	public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1, K k2, V v2) {
+		return asMap(mapSupplier(), k0, v0, k1, v1, k2, v2);
+	}
+
+	/**
+	 * Creates an immutable map. Unlike Map.of, keys and values may be null, and keys are not
+	 * checked for duplicates.
+	 */
+	public static <K, V> Map<K, V> asMap(Supplier<Map<K, V>> supplier, K k0, V v0, K k1, V v1, K k2,
+		V v2) {
+		Map<K, V> map = supplier.get();
+		map.put(k0, v0);
+		map.put(k1, v1);
+		map.put(k2, v2);
+		return Collections.unmodifiableMap(map);
+	}
+
+	/**
+	 * Creates an immutable map. Unlike Map.of, keys and values may be null, and keys are not
+	 * checked for duplicates.
+	 */
+	public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1, K k2, V v2, K k3, V v3) {
+		return asMap(mapSupplier(), k0, v0, k1, v1, k2, v2, k3, v3);
+	}
+
+	/**
+	 * Creates an immutable map. Unlike Map.of, keys and values may be null, and keys are not
+	 * checked for duplicates.
+	 */
+	public static <K, V> Map<K, V> asMap(Supplier<Map<K, V>> supplier, K k0, V v0, K k1, V v1, K k2,
+		V v2, K k3, V v3) {
+		Map<K, V> map = supplier.get();
+		map.put(k0, v0);
+		map.put(k1, v1);
+		map.put(k2, v2);
+		map.put(k3, v3);
+		return Collections.unmodifiableMap(map);
+	}
+
+	/**
+	 * Creates an immutable map. Unlike Map.of, keys and values may be null, and keys are not
+	 * checked for duplicates.
+	 */
+	public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1, K k2, V v2, K k3, V v3, K k4,
+		V v4) {
+		return asMap(mapSupplier(), k0, v0, k1, v1, k2, v2, k3, v3, k4, v4);
+	}
+
+	/**
+	 * Creates an immutable map. Unlike Map.of, keys and values may be null, and keys are not
+	 * checked for duplicates.
+	 */
+	public static <K, V> Map<K, V> asMap(Supplier<Map<K, V>> supplier, K k0, V v0, K k1, V v1, K k2,
+		V v2, K k3, V v3, K k4, V v4) {
+		Map<K, V> map = supplier.get();
+		map.put(k0, v0);
+		map.put(k1, v1);
+		map.put(k2, v2);
+		map.put(k3, v3);
+		map.put(k4, v4);
 		return Collections.unmodifiableMap(map);
 	}
 

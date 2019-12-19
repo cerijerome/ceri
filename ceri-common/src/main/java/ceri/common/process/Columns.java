@@ -1,85 +1,68 @@
 package ceri.common.process;
 
-import static ceri.common.collection.CollectionUtil.toList;
+import static ceri.common.collection.StreamUtil.collect;
 import static ceri.common.collection.StreamUtil.toList;
+import static ceri.common.text.Splitter.Extractor.bySpaces;
+import static java.util.function.Predicate.not;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-import ceri.common.collection.CollectionUtil;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.collection.StreamUtil;
-import ceri.common.text.RegexUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.Splitter;
+import ceri.common.text.Splitter.Extraction;
+import ceri.common.text.Splitter.Extractor;
 
 public class Columns {
-	private static final Pattern HEADER_SPLIT_REGEX = Pattern.compile("(\\S+\\s+)");
-	private static final String REGEX_ALL = ".*";
-	private final List<String> names;
-	private final List<Pattern> patterns;
+	public final List<String> names;
+	public final List<Extractor> extractors;
 
-	public static List<Map<String, String>> parseOutputWithHeader(String output) {
-		List<String> lines = ParseUtil.lines(output);
-		if (lines.size() <= 1) return Collections.emptyList();
-		Columns columns = Columns.fromHeader(lines.get(0));
-		return CollectionUtil.toList(columns::parse, lines.subList(1, lines.size()));
+	/**
+	 * Creates an instance that uses fixed-width extractors based on header width. Header names
+	 * should not have spaces.
+	 */
+	public static Columns fromFixedWidthHeader(String header) {
+		return collect(Splitter.of(header).extractToCompletion(bySpaces()).stream()
+			.filter(not(Extraction::isNull)), Columns::builder, (b, ex) -> b.add(ex)).build();
 	}
 
-	public static Columns fromHeader(String header) {
-		List<String> columns = RegexUtil.findAll(HEADER_SPLIT_REGEX, header);
-		int count = columns.size();
-		Builder b = builder();
-		int i = 0;
-		for (String column : columns) {
-			int width = ++i < count ? column.length() : 0;
-			b.add(column.trim(), width);
-		}
-		return b.build();
-	}
-
-	public static Columns fromHeader(String header, int... widths) {
-		List<String> patterns = toList(IntStream.of(widths).mapToObj(Columns::pattern));
-		return fromHeader(header, patterns);
-	}
-
-	static String pattern(int width) {
-		if (width == 0) return REGEX_ALL;
-		return ".{" + width + "}";
-	}
-
-	public static Columns fromHeader(String header, Collection<String> patterns) {
-		return fromHeaderPatterns(header, toList(Pattern::compile, patterns));
-	}
-
-	public static Columns fromHeaderPatterns(String header, Collection<Pattern> patterns) {
-		List<String> names = ParseUtil.parseValues(header, patterns);
-		return new Columns(names, patterns);
+	/**
+	 * Creates an instance that uses the same extractor for all columns, including headers.
+	 */
+	public static Columns fromHeader(String header, Extractor extractor) {
+		return collect(Splitter.of(header).extractToCompletion(extractor).stream().filter(
+			not(Extraction::isNull)), Columns::builder, (b, ex) -> b.add(ex.text, extractor))
+				.build();
 	}
 
 	public static class Builder {
 		final Collection<String> names = new ArrayList<>();
-		final Collection<Pattern> patterns = new ArrayList<>();
+		final Collection<Extractor> extractors = new ArrayList<>();
 
 		Builder() {}
 
+		public Builder add(int... widths) {
+			IntStream.of(widths).mapToObj(Extractor::byWidth).forEach(this::add);
+			return this;
+		}
+
 		public Builder add(String name, int width) {
-			return add(name, pattern(width));
+			return add(name, Extractor.byWidth(width));
 		}
 
-		public Builder add(String name, String pattern) {
-			return add(name, Pattern.compile(pattern));
+		public Builder add(Extraction extraction) {
+			return add(extraction.text, extraction.size);
 		}
 
-		public Builder add(String name, Pattern pattern) {
-			if (names.contains(name)) throw new IllegalArgumentException("Name already added: " +
-				name);
+		public Builder add(Extractor extractor) {
+			return add(String.valueOf(names.size()), extractor);
+		}
+
+		public Builder add(String name, Extractor extractor) {
 			names.add(name);
-			patterns.add(pattern);
+			extractors.add(extractor);
 			return this;
 		}
 
@@ -93,42 +76,26 @@ public class Columns {
 	}
 
 	Columns(Builder builder) {
-		this(builder.names, builder.patterns);
+		names = ImmutableUtil.copyAsList(builder.names);
+		extractors = ImmutableUtil.copyAsList(builder.extractors);
 	}
 
-	private Columns(Collection<String> names, Collection<Pattern> patterns) {
-		this.names = ImmutableUtil.copyAsList(names);
-		this.patterns = ImmutableUtil.copyAsList(patterns);
+	/**
+	 * Extract values from a line.
+	 */
+	public List<String> parse(String line) {
+		return toList(Splitter.of(line).extractAll(extractors).stream().map(ex -> ex.text));
 	}
 
-	public int indexOf(String name) {
-		return names.indexOf(name);
-	}
-
-	public Map<String, String> parse(String line) {
-		List<String> values = ParseUtil.parseValues(line, patterns);
-		int max = Math.min(values.size(), names.size());
-		return StreamUtil.toMap(IntStream.range(0, max).boxed(), names::get, values::get);
-	}
-
-	@Override
-	public int hashCode() {
-		return HashCoder.hash(names, patterns);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof Columns)) return false;
-		Columns other = (Columns) obj;
-		if (!EqualsUtil.equals(names, other.names)) return false;
-		if (!EqualsUtil.equals(patterns, other.patterns)) return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return ToStringHelper.createByClass(this, names, patterns).toString();
+	/**
+	 * Extract values from a line, and apply header names.
+	 */
+	public Map<String, String> parseAsMap(String line) {
+		Map<String, String> map = new LinkedHashMap<>();
+		int i = 0;
+		for (String value : parse(line))
+			map.put(names.get(i++), value); // cannot exceed number of names
+		return map;
 	}
 
 }

@@ -1,6 +1,5 @@
 package ceri.common.collection;
 
-import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.test.TestUtil.assertArray;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -8,6 +7,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Test;
+import ceri.common.data.ByteProvider;
+import ceri.common.data.ByteReceiver;
 
 public class ByteReceiverBehavior {
 
@@ -18,13 +19,13 @@ public class ByteReceiverBehavior {
 		assertThat(r.copyFrom(0xaa, 0xbb, 0xcc), is(3));
 		assertArray(b, 0xaa, 0xbb, 0xcc, 0);
 		clear(b);
-		assertThat(r.copyFrom(bytes(0xaa, 0xbb, 0xcc), 1), is(2));
+		assertThat(r.copyFrom(ArrayUtil.bytes(0xaa, 0xbb, 0xcc), 1), is(2));
 		assertArray(b, 0xbb, 0xcc, 0, 0);
 		clear(b);
-		assertThat(r.copyFrom(bytes(0xaa, 0xbb, 0xcc), 2, 1), is(1));
+		assertThat(r.copyFrom(ArrayUtil.bytes(0xaa, 0xbb, 0xcc), 2, 1), is(1));
 		assertArray(b, 0xcc, 0, 0, 0);
 		clear(b);
-		assertThat(r.copyFrom(1, bytes(0xaa, 0xbb)), is(3));
+		assertThat(r.copyFrom(1, ArrayUtil.bytes(0xaa, 0xbb)), is(3));
 		assertArray(b, 0, 0xaa, 0xbb, 0);
 	}
 
@@ -67,7 +68,8 @@ public class ByteReceiverBehavior {
 
 	@Test
 	public void shouldSetBytesFromInputStream() throws IOException {
-		ByteArrayInputStream in = new ByteArrayInputStream(bytes(0xff, 1, 0x80, 0x7f, 0, 2));
+		ByteArrayInputStream in =
+			new ByteArrayInputStream(ArrayUtil.bytes(0xff, 1, 0x80, 0x7f, 0, 2));
 		byte[] b = new byte[4];
 		ByteReceiver r = receiver(b);
 		assertThat(r.readFrom(in), is(4));
@@ -84,7 +86,8 @@ public class ByteReceiverBehavior {
 
 	@Test
 	public void shouldSetBufferedBytesFromInputStream() throws IOException {
-		ByteArrayInputStream in = new ByteArrayInputStream(bytes(0xff, 1, 0x80, 0x7f, 0, 2));
+		ByteArrayInputStream in =
+			new ByteArrayInputStream(ArrayUtil.bytes(0xff, 1, 0x80, 0x7f, 0, 2));
 		byte[] b = new byte[4];
 		ByteReceiver r = receiver(b);
 		assertThat(ByteReceiver.readBufferFrom(r, in, 1, 2), is(3));
@@ -93,7 +96,7 @@ public class ByteReceiverBehavior {
 
 	@Test
 	public void shouldShouldStopSettingBytesFromInputStreamEOF() throws IOException {
-		ByteArrayInputStream in = new ByteArrayInputStream(bytes(0xff, 0x80));
+		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes(0xff, 0x80));
 		byte[] b = new byte[4];
 		ByteReceiver r = receiver(b);
 		assertThat(r.readFrom(in), is(2));
@@ -118,13 +121,13 @@ public class ByteReceiverBehavior {
 		assertThat(r.copyFrom(provider(0xaa, 0xbb, 0xcc)), is(3));
 		assertArray(b, 0xaa, 0xbb, 0xcc, 0);
 		clear(b);
-		ByteArrayInputStream in = new ByteArrayInputStream(bytes(0xff, 0x80));
+		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes(0xff, 0x80));
 		assertThat(r.readFrom(in), is(2));
 		assertArray(b, 0xff, 0x80, 0, 0);
 	}
 
 	private ByteProvider provider(int... values) {
-		byte[] bytes = bytes(values);
+		byte[] bytes = ArrayUtil.bytes(values);
 		return new ByteProvider() {
 			@Override
 			public int length() {

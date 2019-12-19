@@ -1,5 +1,6 @@
 package ceri.common.log;
 
+import static ceri.common.log.Level.ALL;
 import static ceri.common.log.Level.DEBUG;
 import static ceri.common.log.Level.ERROR;
 import static ceri.common.log.Level.INFO;
@@ -12,11 +13,11 @@ import static ceri.common.log.Logger.FormatFlag.noThread;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import ceri.common.collection.ImmutableUtil;
@@ -43,16 +44,16 @@ import ceri.common.util.ExceptionUtil;
  *  5 = message
  * </pre>
  * 
- * Log methods always return null. This allows for callers to simplify multi-stage evaluations
- * where a failed evaluation results in null, and requires a message to be logged.
+ * Log methods always return null. This allows for callers to simplify multi-stage evaluations where
+ * a failed evaluation results in null, and requires a message to be logged.
  */
 public class Logger {
-	private static final int STACK_OFFSET = 3;
+	private static final int STACK_OFFSET = 5;
 	private static final LocalDateTime NULL_DATE = DateUtil.UTC_EPOCH;
 	public static final String FORMAT = "%1$tF %1$tT.%1$tL [%2$s] %3$-5s %4$s - %5$s";
-	public static final Consumer<String> STDOUT = System.out::println;
-	public static final Consumer<String> STDERR = System.err::println;
-	private static final Map<Object, Logger> loggers = new HashMap<>();
+	public static final Consumer<String> STDOUT = s -> System.out.println(s); // allow for stdio
+	public static final Consumer<String> STDERR = s -> System.err.println(s); // replacement
+	private static final Map<Object, Logger> loggers = new ConcurrentHashMap<>();
 	private static final Logger DEFAULT = new Builder(null).build();
 	public final BiConsumer<Level, String> err;
 	public final BiConsumer<Level, String> out;
@@ -74,7 +75,7 @@ public class Logger {
 
 	public static class Builder {
 		Object key;
-		BiConsumer<Level, String> err = null;
+		BiConsumer<Level, String> err = bi(STDERR);
 		BiConsumer<Level, String> out = bi(STDOUT);
 		Level minLevel = Level.INFO;
 		Level errLevel = Level.ERROR;
@@ -86,10 +87,6 @@ public class Logger {
 			this.key = key;
 		}
 
-		public Builder stdErr() {
-			return err(STDERR);
-		}
-		
 		public Builder err(Consumer<String> err) {
 			return err(bi(err));
 		}
@@ -154,12 +151,25 @@ public class Logger {
 		return new Builder(key);
 	}
 
+	/**
+	 * Returns the default logger.
+	 */
 	public static Logger logger() {
 		return DEFAULT;
 	}
 
+	/**
+	 * Returns the logger with given key, or the default logger if the logger does not exist.
+	 */
 	public static Logger logger(Object key) {
 		return loggers.getOrDefault(key, DEFAULT);
+	}
+
+	/**
+	 * Removes a registered logger by its key. Returns false if no logger found.
+	 */
+	public static boolean removeLogger(Object key) {
+		return loggers.remove(key) != null;
 	}
 
 	Logger(Builder builder) {
@@ -192,6 +202,10 @@ public class Logger {
 		return log(ERROR, null, format, args);
 	}
 
+	public <T> T log(Level level, String format, Object... args) {
+		return log(level, null, format, args);
+	}
+
 	public <T> T catching(Throwable t) {
 		return log(ERROR, t, null);
 	}
@@ -217,6 +231,7 @@ public class Logger {
 	}
 
 	private BiConsumer<Level, String> consumer(Level level) {
+		if (level == ALL) return out;
 		return errLevel.valid(level) ? err : out;
 	}
 
@@ -249,7 +264,7 @@ public class Logger {
 	}
 
 	private static BiConsumer<Level, String> bi(Consumer<String> consumer) {
-		return (l, s) -> consumer.accept(s);
+		return consumer == null ? null : (l, s) -> consumer.accept(s);
 	}
 
 }

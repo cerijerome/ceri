@@ -2,6 +2,7 @@ package ceri.common.util;
 
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -36,13 +37,22 @@ public class BasicUtilTest {
 	}
 
 	@Test
+	public void testAbbreviatePackages() {
+		assertNull(BasicUtil.abbreviatePackages(null));
+		assertThat(BasicUtil.abbreviatePackages(""), is(""));
+		assertThat(BasicUtil.abbreviatePackages("ceri.common.util.BasicUtil"),
+			is("c.c.u.BasicUtil"));
+		assertThat(BasicUtil.abbreviatePackages("Name.abc.def.Xyz"), is("Name.a.d.Xyz"));
+	}
+
+	@Test
 	public void testBeep() {
 		// Make sure no error thrown
 		BasicUtil.beep();
 	}
 
 	@Test
-	public void shouldReturnElapsedTimeInMicros() {
+	public void testMicroTime() {
 		long t0 = BasicUtil.microTime();
 		long t1 = BasicUtil.microTime();
 		assertTrue(t1 >= t0);
@@ -155,6 +165,7 @@ public class BasicUtilTest {
 		TestUtil.assertThrown(() -> BasicUtil.load("", this.getClass().getClassLoader()));
 	}
 
+	@Test
 	public void testIsEmpty() {
 		assertTrue(BasicUtil.isEmpty((String) null));
 		assertTrue(BasicUtil.isEmpty((String[]) null));
@@ -169,6 +180,18 @@ public class BasicUtilTest {
 		assertFalse(BasicUtil.isEmpty(collection));
 		assertTrue(BasicUtil.isEmpty(new Object[] {}));
 		assertFalse(BasicUtil.isEmpty(new Object[] { null }));
+	}
+
+	@Test
+	public void testRuntimeRun() {
+		BasicUtil.runtimeRun(() -> {});
+		assertThrown(RuntimeException.class, () -> BasicUtil.runtimeRun(() -> {
+			throw new IOException();
+		}));
+		BasicUtil.runtimeCall(() -> "test");
+		assertThrown(RuntimeException.class, () -> BasicUtil.runtimeCall(() -> {
+			throw new IOException();
+		}));
 	}
 
 }

@@ -1,6 +1,5 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.data.ByteUtil.bytes;
 import static ceri.serial.jna.JnaUtil.ubyte;
 import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_STRING;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
@@ -21,6 +20,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntAccessor;
 import ceri.common.data.MaskTranscoder;
@@ -1932,8 +1932,8 @@ public class LibUsb {
 		 *            event that occurred
 		 * @param user_data
 		 *            user data provided when this callback was registered
-		 * @return bool whether this callback is finished processing events. returning 1 will cause this
-		 *         callback to be deregistered
+		 * @return bool whether this callback is finished processing events. returning 1 will cause
+		 *         this callback to be deregistered
 		 */
 		int invoke(libusb_context ctx, Pointer device, int event, Pointer user_data);
 	}
@@ -2282,7 +2282,7 @@ public class LibUsb {
 
 	public static int libusb_alloc_streams(libusb_device_handle dev, int num_streams,
 		int... endpoints) throws LibUsbException {
-		return libusb_alloc_streams(dev, num_streams, bytes(endpoints));
+		return libusb_alloc_streams(dev, num_streams, ArrayUtil.bytes(endpoints));
 	}
 
 	public static int libusb_alloc_streams(libusb_device_handle dev, int num_streams,
@@ -2295,7 +2295,7 @@ public class LibUsb {
 
 	public static void libusb_free_streams(libusb_device_handle dev, int... endpoints)
 		throws LibUsbException {
-		libusb_free_streams(dev, bytes(endpoints));
+		libusb_free_streams(dev, ArrayUtil.bytes(endpoints));
 	}
 
 	public static void libusb_free_streams(libusb_device_handle dev, byte[] endpoints)
@@ -2623,7 +2623,7 @@ public class LibUsb {
 
 	private static LibUsbNative loadLibrary(String name) {
 		logger.info("Loading {} started", name);
-		//logger.info("Protected: {}", JnaUtil.setProtected()); // only use for debug
+		// logger.info("Protected: {}", JnaUtil.setProtected()); // only use for debug
 		LibUsbNative lib = JnaUtil.loadLibrary(name, LibUsbNative.class);
 		logger.info("Loading {} complete", name);
 		return lib;

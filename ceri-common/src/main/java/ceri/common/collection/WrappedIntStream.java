@@ -14,7 +14,7 @@ import ceri.common.function.ExceptionIntPredicate;
 import ceri.common.function.ExceptionIntUnaryOperator;
 import ceri.common.function.FunctionWrapper;
 
-public class WrappedIntStream<E extends Exception> {
+public class WrappedIntStream<E extends Exception> implements AutoCloseable {
 	private final FunctionWrapper<E> w;
 	private final IntStream stream;
 
@@ -37,6 +37,11 @@ public class WrappedIntStream<E extends Exception> {
 	WrappedIntStream(FunctionWrapper<E> w, IntStream stream) {
 		this.w = w;
 		this.stream = stream;
+	}
+
+	@Override
+	public void close() {
+		stream.close();
 	}
 
 	public WrappedIntStream<E> map(ExceptionIntUnaryOperator<E> mapFn) {

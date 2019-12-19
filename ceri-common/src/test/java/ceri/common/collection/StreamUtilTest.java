@@ -6,10 +6,17 @@ import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertList;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertStream;
+import static ceri.common.test.TestUtil.assertThrown;
 import static java.lang.Double.parseDouble;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,12 +24,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import ceri.common.test.TestUtil;
+import ceri.common.util.BasicUtil;
 
 public class StreamUtilTest {
 	private enum Abc {
@@ -34,6 +44,57 @@ public class StreamUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(StreamUtil.class);
+	}
+
+	@Test
+	public void testCloseableApply() {
+		Stream<String> stream1 = mockStream();
+		StreamUtil.closeableApply(stream1, s -> s);
+		verify(stream1).close();
+
+		Stream<String> stream2 = mockStream();
+		assertThrown(() -> StreamUtil.closeableApply(stream2, s -> {
+			throw new IOException();
+		}));
+		verify(stream2).close();
+	}
+
+	@Test
+	public void testCloseableApplyInt() {
+		Stream<String> stream1 = mockStream();
+		StreamUtil.closeableApplyAsInt(stream1, s -> 0);
+		verify(stream1).close();
+
+		Stream<String> stream2 = mockStream();
+		assertThrown(() -> StreamUtil.closeableApplyAsInt(stream2, s -> {
+			throw new IOException();
+		}));
+		verify(stream2).close();
+	}
+
+	@Test
+	public void testCloseableAccept() {
+		Stream<String> stream1 = mockStream();
+		StreamUtil.closeableAccept(stream1, s -> {});
+		verify(stream1).close();
+
+		Stream<String> stream2 = mockStream();
+		assertThrown(() -> StreamUtil.closeableAccept(stream2, s -> {
+			throw new IOException();
+		}));
+		verify(stream2).close();
+	}
+
+	@Test
+	public void testCloseableForEach() {
+		Stream<String> stream1 = mockStream();
+		StreamUtil.closeableForEach(stream1, s -> {});
+		verify(stream1).close();
+
+		Stream<String> stream2 = mockStream();
+		doThrow(RuntimeException.class).when(stream2).forEach(any());
+		assertThrown(() -> StreamUtil.closeableForEach(stream2, s -> {}));
+		verify(stream2).close();
 	}
 
 	@Test
@@ -79,8 +140,7 @@ public class StreamUtilTest {
 
 	@Test
 	public void testIndexedMap() {
-		assertStream(StreamUtil.map(StreamUtil.indexed("A", "B", "C"), (s, i) -> s + i), "A0",
-			"B1",
+		assertStream(StreamUtil.map(StreamUtil.indexed("A", "B", "C"), (s, i) -> s + i), "A0", "B1",
 			"C2");
 		assertStream(StreamUtil.indexedMap(List.of("A", "B", "C"), (s, i) -> s + i), "A0", "B1",
 			"C2");
@@ -102,11 +162,49 @@ public class StreamUtilTest {
 	}
 
 	@Test
+	public void testCollect() {
+		assertList(StreamUtil.collect(Stream.of(1, 2, 3), ArrayList::new, List::add),
+			List.of(1, 2, 3));
+		Stream<Integer> stream = BasicUtil.uncheckedCast(mock(Stream.class));
+		when(stream.sequential()).thenReturn(stream);
+		when(stream.collect(any(), any(), any())).thenReturn(new ArrayList<>());
+		assertIterable(StreamUtil.collect(stream, ArrayList::new, List::add));
+		ArgumentCaptor<BiConsumer<List<Integer>, List<Integer>>> captor =
+			BasicUtil.uncheckedCast(ArgumentCaptor.forClass(BiConsumer.class));
+		verify(stream).collect(any(), any(), captor.capture());
+		assertThrown(() -> captor.getValue().accept(null, null));
+	}
+
+	@Test
+	public void testWrap() {
+		try (WrappedStream<IOException, String> w = StreamUtil.wrap(Stream.of("", "a", "x"))) {
+			assertThrown(IOException.class, () -> w.mapToInt(s -> {
+				if ("x".equals(s)) throw new IOException();
+				return s.length();
+			}).forEach(x -> {}));
+		}
+	}
+
+	@Test
 	public void testToString() {
 		assertNull(StreamUtil.toString(null, "-"));
 		assertNull(StreamUtil.toString(null, "(", ":", ")"));
 		assertThat(StreamUtil.toString(Stream.of(1, null, 2), "-"), is("1-null-2"));
 		assertThat(StreamUtil.toString(Stream.of(1, null, 2), "(", "::", ")"), is("(1::null::2)"));
+	}
+
+	@Test
+	public void testAppend() {
+		assertStream(StreamUtil.append(Stream.of(), 1, 2), 1, 2);
+		assertStream(StreamUtil.append(Stream.of(1, 2, 3)), 1, 2, 3);
+		assertStream(StreamUtil.append(Stream.of(1, 2, 3), 4, 5), 1, 2, 3, 4, 5);
+	}
+
+	@Test
+	public void testPrepend() {
+		assertStream(StreamUtil.prepend(Stream.of(), 1, 2), 1, 2);
+		assertStream(StreamUtil.prepend(Stream.of(1, 2, 3)), 1, 2, 3);
+		assertStream(StreamUtil.prepend(Stream.of(1, 2, 3), 4, 5), 4, 5, 1, 2, 3);
 	}
 
 	@Test
@@ -243,6 +341,10 @@ public class StreamUtilTest {
 		assertThat(map.get(2), is("2"));
 		assertThat(map.get(3), is("3"));
 		assertThat(map.get(4), is("4"));
+	}
+
+	private <T> Stream<T> mockStream() {
+		return BasicUtil.uncheckedCast(mock(Stream.class));
 	}
 
 }

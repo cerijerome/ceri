@@ -27,8 +27,6 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.util.Align;
-import ceri.common.util.BasicUtil;
-import ceri.common.util.PrimitiveUtil;
 
 /**
  * String-based utilities. See also TextUtil for more word-based formatting utilities.
@@ -258,7 +256,7 @@ public class StringUtil {
 	 * Splits a string at given indexes.
 	 */
 	public static List<String> split(String s, Collection<Integer> indexes) {
-		return split(s, PrimitiveUtil.toIntArray(indexes));
+		return split(s, ArrayUtil.ints(indexes));
 	}
 
 	/**
@@ -437,9 +435,58 @@ public class StringUtil {
 	 * Splits a string by pattern and trims each entry. Trailing empty strings are dropped as with
 	 * the regular split method.
 	 */
-	public static List<String> split(String s, Pattern pattern) {
-		if (BasicUtil.isEmpty(s)) return Collections.emptyList();
+	public static List<String> split(CharSequence s, Pattern pattern) {
+		if (s == null || s.length() == 0) return Collections.emptyList();
 		return StreamUtil.toList(Stream.of(pattern.split(s)).map(String::trim));
+	}
+
+	/**
+	 * Replace tabs with spaces, keeping column alignment.
+	 */
+	public static String spacesToTabs(String s, int tabSize) {
+		if (tabSize <= 0 || s == null || s.isEmpty()) return s;
+		s = tabsToSpaces(s, tabSize); // replace any tabs first
+		int pos = 0;
+		StringBuilder b = null;
+		for (int i = tabSize; i <= s.length(); i += tabSize) {
+			int j = i;
+			while (j > i - tabSize && s.charAt(j - 1) == ' ')
+				j--;
+			if (j == i) continue;
+			if (b == null) b = new StringBuilder();
+			while (pos < j)
+				b.append(s.charAt(pos++));
+			b.append(TAB);
+			pos = i;
+		}
+		if (b != null) while (pos < s.length())
+			b.append(s.charAt(pos++));
+		return b == null ? s : b.toString();
+	}
+
+	/**
+	 * Replace tabs with spaces, keeping column alignment.
+	 */
+	public static String tabsToSpaces(String s, int tabSize) {
+		if (tabSize <= 0 || s == null || s.isEmpty()) return s;
+		int pos = 0;
+		StringBuilder b = null;
+		while (pos < s.length()) {
+			int i = s.indexOf(TAB, pos);
+			if (i < 0) break;
+			if (b == null) b = new StringBuilder();
+			while (pos < i)
+				b.append(s.charAt(pos++));
+			repeat(b, ' ', tabSpaces(b.length(), tabSize));
+			pos++;
+		}
+		if (b != null) while (pos < s.length())
+			b.append(s.charAt(pos++));
+		return b == null ? s : b.toString();
+	}
+
+	private static int tabSpaces(int pos, int tabSize) {
+		return ((pos + tabSize) / tabSize) * tabSize - pos;
 	}
 
 	/**
@@ -824,12 +871,20 @@ public class StringUtil {
 	}
 
 	/**
+	 * Splits a string into lines without trimming.
+	 */
+	public static List<String> lines(CharSequence s) {
+		if (s.length() == 0) return List.of();
+		return Arrays.asList(NEWLINE_REGEX.split(s));
+	}
+
+	/**
 	 * Prefixes each line of the string with given prefix.
 	 */
 	public static String prefixLines(CharSequence prefix, CharSequence s) {
 		if (prefix.length() == 0) return s.toString();
-		String p = prefix.toString();
-		return p + NEWLINE_REGEX.matcher(s).replaceAll("$1" + Matcher.quoteReplacement(p));
+		return prefix + NEWLINE_REGEX.matcher(s) //
+			.replaceAll("$1" + Matcher.quoteReplacement(prefix.toString()));
 	}
 
 }

@@ -1,7 +1,6 @@
 package ceri.serial.ftdi.jna;
 
 import static ceri.common.collection.ImmutableUtil.enumSet;
-import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_2232C;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_2232H;
@@ -82,6 +81,7 @@ import org.apache.logging.log4j.Logger;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.data.BooleanAccessor;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntAccessor;
@@ -1056,11 +1056,10 @@ public class LibFtdi {
 	}
 
 	public static int ftdi_write_data(ftdi_context ftdi, int... data) throws LibUsbException {
-		return ftdi_write_data(ftdi, bytes(data), 0, data.length);
+		return ftdi_write_data(ftdi, ArrayUtil.bytes(data), 0, data.length);
 	}
 
-	public static int ftdi_write_data(ftdi_context ftdi, byte[] data)
-		throws LibUsbException {
+	public static int ftdi_write_data(ftdi_context ftdi, byte[] data) throws LibUsbException {
 		return ftdi_write_data(ftdi, data, 0);
 	}
 

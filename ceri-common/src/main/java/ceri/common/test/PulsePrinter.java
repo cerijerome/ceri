@@ -1,7 +1,7 @@
 package ceri.common.test;
 
 import java.io.PrintStream;
-import ceri.common.data.ByteUtil;
+import ceri.common.collection.ArrayUtil;
 
 /**
  * Visualizes binary signal streams.
@@ -94,7 +94,7 @@ public class PulsePrinter {
 	}
 
 	public PulsePrinter print(int... bytes) {
-		return print(ByteUtil.bytes(bytes));
+		return print(ArrayUtil.bytes(bytes));
 	}
 
 	public PulsePrinter print(byte... bytes) {

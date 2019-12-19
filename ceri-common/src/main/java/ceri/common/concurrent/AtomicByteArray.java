@@ -1,13 +1,12 @@
 package ceri.common.concurrent;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
-import static ceri.common.data.ByteUtil.bytes;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.Arrays;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ByteProvider;
-import ceri.common.collection.ByteReceiver;
+import ceri.common.data.ByteProvider;
+import ceri.common.data.ByteReceiver;
 
 /**
  * Fixed-size byte array with volatile values.
@@ -48,7 +47,7 @@ public class AtomicByteArray implements ByteProvider, ByteReceiver {
 	}
 
 	public static AtomicByteArray wrap(int... array) {
-		return wrap(bytes(array));
+		return wrap(ArrayUtil.bytes(array));
 	}
 
 	public static AtomicByteArray wrap(byte... array) {

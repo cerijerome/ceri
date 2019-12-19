@@ -1,6 +1,5 @@
 package ceri.serial.libusb;
 
-import static ceri.common.data.ByteUtil.bytes;
 import static ceri.common.data.ByteUtil.toByteArray;
 import static ceri.serial.libusb.jna.LibUsb.libusb_alloc_streams;
 import static ceri.serial.libusb.jna.LibUsb.libusb_alloc_transfer;
@@ -35,6 +34,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 import com.sun.jna.Pointer;
+import ceri.common.collection.ArrayUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
@@ -139,7 +139,7 @@ public class UsbDeviceHandle implements Closeable {
 	}
 
 	public int allocStreams(int streams, int... endPoints) throws LibUsbException {
-		return libusb_alloc_streams(handle(), (byte) streams, bytes(endPoints));
+		return libusb_alloc_streams(handle(), (byte) streams, ArrayUtil.bytes(endPoints));
 	}
 
 	public int allocStreams(int streams, List<Integer> endPoints) throws LibUsbException {
@@ -147,7 +147,7 @@ public class UsbDeviceHandle implements Closeable {
 	}
 
 	public void freeStreams(int... endPoints) throws LibUsbException {
-		libusb_free_streams(handle(), bytes(endPoints));
+		libusb_free_streams(handle(), ArrayUtil.bytes(endPoints));
 	}
 
 	public void freeStreams(Collection<Integer> endPoints) throws LibUsbException {

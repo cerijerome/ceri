@@ -50,7 +50,7 @@ public class FileVisitUtilTest {
 			FileVisitUtil.adaptBiPredicate((dir, attr) -> dir != null), null, //
 			FileVisitUtil.adapt(file -> file != null ? //
 				FileVisitResult.CONTINUE : FileVisitResult.TERMINATE));
-		assertThat(visitor.preVisitDirectory(null, null), is(FileVisitResult.TERMINATE));
+		assertThat(visitor.preVisitDirectory(null, null), is(FileVisitResult.SKIP_SUBTREE));
 		assertThat(visitor.preVisitDirectory(Path.of(""), null), is(FileVisitResult.CONTINUE));
 		assertThat(visitor.visitFile(null, null), is(FileVisitResult.TERMINATE));
 		assertThat(visitor.visitFile(Path.of(""), null), is(FileVisitResult.CONTINUE));
@@ -115,7 +115,7 @@ public class FileVisitUtilTest {
 		Capturer<Path> fileCap = Capturer.of();
 		FileVisitor<Path> visitor = FileVisitUtil.visitor( //
 			FileVisitUtil.adaptConsumer(preDirCap::accept),
-			FileVisitUtil.adaptPredicate(dir -> false),
+			(dir, e) -> FileVisitResult.TERMINATE,
 			FileVisitUtil.adaptConsumer(fileCap::accept));
 		Files.walkFileTree(helper.root, visitor);
 		assertHelperPaths(preDirCap.values, helper, "", "a", "a/a");

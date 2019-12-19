@@ -3,7 +3,6 @@ package ceri.common.process;
 import static ceri.common.process.ProcessUtil.stdErr;
 import static ceri.common.process.ProcessUtil.stdOut;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.text.ToStringHelper;
@@ -29,26 +28,41 @@ public class Processor {
 
 		Builder() {}
 
+		/**
+		 * Specify process timeout.
+		 */
 		public Builder timeoutMs(int timeoutMs) {
 			this.timeoutMs = timeoutMs;
 			return this;
 		}
 
+		/**
+		 * Specify no process timeout.
+		 */
 		public Builder noTimeout() {
 			this.timeoutMs = null;
 			return this;
 		}
 
+		/**
+		 * Captures and returns stdout.
+		 */
 		public Builder captureStdOut(boolean captureStdOut) {
 			this.captureStdOut = captureStdOut;
 			return this;
 		}
 
+		/**
+		 * Checks for non-zero exit code.
+		 */
 		public Builder verifyExitValue(boolean verifyExitValue) {
 			this.verifyExitValue = verifyExitValue;
 			return this;
 		}
 
+		/**
+		 * Checks for no output to stderr.
+		 */
 		public Builder verifyErr(boolean verifyErr) {
 			this.verifyErr = verifyErr;
 			return this;
@@ -76,11 +90,7 @@ public class Processor {
 	}
 
 	public String exec(String... parameters) throws IOException {
-		return exec(Parameters.of(parameters));
-	}
-
-	public String exec(Collection<String> parameters) throws IOException {
-		return exec(Parameters.of(parameters));
+		return exec(Parameters.ofAll(parameters));
 	}
 
 	public String exec(Parameters parameters) throws IOException {
@@ -88,25 +98,34 @@ public class Processor {
 	}
 
 	public String exec(ProcessBuilder builder) throws IOException {
+		return exec(ProcessCommand.of(builder));
+	}
+
+	public String exec(ProcessCommand command) throws IOException {
+		if (command.command().isEmpty()) return null;
 		Process process = null;
 		try {
-			process = builder.start();
-			verifyTimeout(builder, process);
-			String stdOut = captureStdOut ? stdOut(process) : null;
-			verifyErr(process);
-			verifyExitValue(process);
-			return stdOut;
+			process = command.start();
+			return exec(process, command);
 		} finally {
 			if (process != null) process.destroyForcibly();
 		}
 	}
 
-	private void verifyTimeout(ProcessBuilder builder, Process process) throws IOException {
+	private String exec(Process process, ProcessCommand command) throws IOException {
+		verifyTimeout(process, command);
+		String stdOut = captureStdOut ? stdOut(process) : null;
+		verifyErr(process);
+		verifyExitValue(process);
+		return stdOut;
+	}
+
+	private void verifyTimeout(Process process, ProcessCommand command) throws IOException {
 		if (timeoutMs != null && timeoutMs == 0) return;
 		try {
 			if (timeoutMs == null) process.waitFor();
 			else if (!process.waitFor(timeoutMs, TimeUnit.MILLISECONDS)) throw new IOException(
-				"Failed to complete in " + timeoutMs + "ms: " + ProcessUtil.toString(builder));
+				"Failed to complete in " + timeoutMs + "ms: " + command.asString());
 		} catch (InterruptedException e) {
 			throw new RuntimeInterruptedException(e);
 		}
@@ -126,7 +145,7 @@ public class Processor {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(timeoutMs, verifyExitValue, verifyErr);
+		return HashCoder.hash(timeoutMs, captureStdOut, verifyExitValue, verifyErr);
 	}
 
 	@Override
@@ -135,6 +154,7 @@ public class Processor {
 		if (!(obj instanceof Processor)) return false;
 		Processor other = (Processor) obj;
 		if (!EqualsUtil.equals(timeoutMs, other.timeoutMs)) return false;
+		if (captureStdOut != other.captureStdOut) return false;
 		if (verifyExitValue != other.verifyExitValue) return false;
 		if (verifyErr != other.verifyErr) return false;
 		return true;
@@ -142,7 +162,8 @@ public class Processor {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, timeoutMs, verifyExitValue, verifyErr).toString();
+		return ToStringHelper
+			.createByClass(this, timeoutMs, captureStdOut, verifyExitValue, verifyErr).toString();
 	}
 
 }

@@ -1,0 +1,9 @@
+<dictionary> {
+	PPP : <dictionary> {
+		BytesIn : 20337
+		BytesOut : 16517
+		ErrorsIn : 10
+		PacketsIn : 77
+		PacketsOut : 118
+	}
+}
