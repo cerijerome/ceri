@@ -1,6 +1,7 @@
 package ceri.ci.alert;
 
 import ceri.common.util.PrimitiveUtil;
+import ceri.common.util.SystemVars;
 
 /**
  * Used to distinguish configuration between multiple instances of the alert system.
@@ -17,7 +18,7 @@ public class Node {
 	}
 	
 	public static Node createFromEnv() {
-		String value = System.getProperty(NODE);
+		String value = SystemVars.sys(NODE);
 		return new Node(PrimitiveUtil.valueOf(value, 0));
 	}
 	
