@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Test;
 import org.mockito.Mockito;
+import ceri.common.collection.ArrayUtil;
 
 public class FileTestHelperBehavior {
 
@@ -39,10 +40,18 @@ public class FileTestHelperBehavior {
 	}
 
 	@Test
-	public void shouldCreateFiles() throws IOException {
+	public void shouldCreateTextFiles() throws IOException {
 		try (FileTestHelper files = FileTestHelper.builder().dirf("%s/%s", "a", "b")
 			.filef("abc", "%s/%s", "a", "test.txt").build()) {
 			assertThat(Files.readString(files.path("a/test.txt")), is("abc"));
+		}
+	}
+
+	@Test
+	public void shouldCreateBinaryFiles() throws IOException {
+		try (FileTestHelper files = FileTestHelper.builder()
+			.filef(ArrayUtil.bytes(1, 2, 3, 4, 5), "a/%s", "data").build()) {
+			assertArray(Files.readAllBytes(files.path("a/data")), 1, 2, 3, 4, 5);
 		}
 	}
 

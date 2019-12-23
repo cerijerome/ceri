@@ -35,6 +35,9 @@ public enum TestStyle {
 		return guessFrom(cls.getSimpleName());
 	}
 	
+	/**
+	 * Guess from class - can be target or test class.
+	 */
 	public static TestStyle guessFrom(String name) {
 		Matcher m = RegexUtil.matched(REGEX, name);
 		if (m == null) return none;

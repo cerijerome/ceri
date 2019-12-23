@@ -254,6 +254,7 @@ import ceri.common.util.NameValueBehavior;
 import ceri.common.util.OsUtilTest;
 import ceri.common.util.PrimitiveUtilTest;
 import ceri.common.util.StartupValuesBehavior;
+import ceri.common.util.SystemVarsTest;
 import ceri.common.util.TimerBehavior;
 import ceri.common.validation.ValidationUtilTest;
 import ceri.common.xml.RuntimeXPathExceptionBehavior;
@@ -543,6 +544,7 @@ import ceri.common.xml.XmlUtilTest;
 	OsUtilTest.class, //
 	PrimitiveUtilTest.class, //
 	StartupValuesBehavior.class, //
+	SystemVarsTest.class, //
 	TimerBehavior.class, //
 	// validation
 	ValidationUtilTest.class, //

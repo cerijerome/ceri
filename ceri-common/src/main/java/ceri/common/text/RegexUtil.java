@@ -17,6 +17,7 @@ import ceri.common.factory.Factory;
 import ceri.common.factory.StringFactories;
 import ceri.common.function.ObjIntFunction;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.HashCoder;
 import ceri.common.util.PrimitiveUtil;
 
 public class RegexUtil {
@@ -39,10 +40,22 @@ public class RegexUtil {
 
 	private RegexUtil() {}
 
+	public static int hashCode(Pattern pattern) {
+		if (pattern == null) return HashCoder.hash((Object) null);
+		return HashCoder.hash(pattern.pattern(), pattern.flags());
+	}
+
+	public static boolean equals(Pattern lhs, Pattern rhs) {
+		if (lhs == rhs) return true;
+		if (lhs == null || rhs == null) return false;
+		if (!lhs.pattern().equals(rhs.pattern())) return false;
+		return lhs.flags() == rhs.flags();
+	}
+
 	public static Predicate<String> finder(String format, Object... objs) {
 		return finder(compile(format, objs));
 	}
-	
+
 	public static Predicate<String> finder(Pattern p) {
 		return s -> s != null && p.matcher(s).find();
 	}
@@ -68,7 +81,7 @@ public class RegexUtil {
 	public static Pattern ignoreCase(String text) {
 		return compile("(?i)\\Q%s\\E", text);
 	}
-	
+
 	/**
 	 * Allows for-each loop over match results.
 	 */
@@ -153,7 +166,8 @@ public class RegexUtil {
 	 * Same as Matcher.replaceAll, but the replacer function can return null to skip replacement.
 	 * Match index is passed to the function.
 	 */
-	public static String replaceAll(Pattern p, String s, ObjIntFunction<MatchResult, String> replacer) {
+	public static String replaceAll(Pattern p, String s,
+		ObjIntFunction<MatchResult, String> replacer) {
 		Matcher m = p.matcher(s);
 		StringBuilder b = new StringBuilder();
 		int lastStart = 0;
@@ -258,8 +272,7 @@ public class RegexUtil {
 	}
 
 	/**
-	 * Finds the first matching regex and returns the first group if it exists, otherwise the
-	 * entire
+	 * Finds the first matching regex and returns the first group if it exists, otherwise the entire
 	 * matched pattern.
 	 */
 	public static String find(Pattern regex, String s) {
@@ -416,7 +429,8 @@ public class RegexUtil {
 	public static List<String> findAll(Pattern regex, String s) {
 		List<String> values = new ArrayList<>();
 		Matcher m = regex.matcher(s);
-		while (m.find()) values.add(m.group(1));
+		while (m.find())
+			values.add(m.group(1));
 		return values;
 	}
 

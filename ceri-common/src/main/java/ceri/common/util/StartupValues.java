@@ -169,13 +169,13 @@ public class StartupValues {
 
 		private String sysProp() {
 			if (sysProp == null || sysProp.isEmpty()) return null;
-			String s = System.getProperty(sysProp);
+			String s = SystemVars.sys(sysProp);
 			return notify(s, "%s = %s (from system '%s')", name(), s, sysProp);
 		}
 
 		private String envVar() {
 			if (envVar == null || envVar.isEmpty()) return null;
-			String s = System.getenv(envVar);
+			String s = SystemVars.env(envVar);
 			return notify(s, "%s = %s (from env '%s')", name(), s, envVar);
 		}
 

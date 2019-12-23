@@ -2,6 +2,7 @@ package ceri.common.test;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class FileTestHelper implements Closeable {
 		final Path parent;
 		Path root = null; // relative path
 		final List<Path> dirs = new ArrayList<>();
-		final Map<Path, String> files = new LinkedHashMap<>();
+		final Map<Path, byte[]> files = new LinkedHashMap<>();
 
 		Builder(Path parent) {
 			this.parent = parent;
@@ -39,10 +40,10 @@ public class FileTestHelper implements Closeable {
 		}
 
 		/**
-		 * Specify the relative name of the root dir from unix format.
+		 * Specify the relative name of the root dir.
 		 */
 		public Builder root(String root) {
-			return root(IoUtil.unixToPath(root));
+			return root(Path.of(root));
 		}
 
 		/**
@@ -57,7 +58,7 @@ public class FileTestHelper implements Closeable {
 		 * Add a relative directory from unix format.
 		 */
 		public Builder dir(String dir) {
-			return dir(IoUtil.unixToPath(dir));
+			return dir(Path.of(dir));
 		}
 
 		/**
@@ -71,21 +72,42 @@ public class FileTestHelper implements Closeable {
 		 * Add a relative file with given content.
 		 */
 		public Builder file(Path file, String content) {
+			return file(file, content.getBytes(StandardCharsets.UTF_8));
+		}
+
+		/**
+		 * Add a relative file with given content.
+		 */
+		public Builder file(Path file, byte[] content) {
 			files.put(verify(file), content);
 			return this;
 		}
 
 		/**
-		 * Add a relative file from unix format with given content.
+		 * Add a relative file with given content.
 		 */
 		public Builder file(String file, String content) {
-			return file(IoUtil.unixToPath(file), content);
+			return file(Path.of(file), content);
 		}
 
 		/**
-		 * Add a relative file from unix format with given content.
+		 * Add a relative file with given content.
+		 */
+		public Builder file(String file, byte[] content) {
+			return file(Path.of(file), content);
+		}
+
+		/**
+		 * Add a relative file with given content.
 		 */
 		public Builder filef(String content, String format, Object... objs) {
+			return file(String.format(format, objs), content);
+		}
+
+		/**
+		 * Add a relative file with given content.
+		 */
+		public Builder filef(byte[] content, String format, Object... objs) {
 			return file(String.format(format, objs), content);
 		}
 
@@ -100,8 +122,8 @@ public class FileTestHelper implements Closeable {
 			if (path.isAbsolute())
 				throw new IllegalArgumentException("Path must be relative: " + path);
 			path = path.normalize();
-			if ("..".equals(IoUtil.name(path, 0))) throw new IllegalArgumentException(
-				"Path cannot go above parent: " + path);
+			if ("..".equals(IoUtil.name(path, 0)))
+				throw new IllegalArgumentException("Path cannot go above parent: " + path);
 			return path;
 		}
 	}
@@ -124,20 +146,15 @@ public class FileTestHelper implements Closeable {
 	 * Use given directory in unix format as the root.
 	 */
 	public static Builder builder(String path) {
-		return builder(IoUtil.unixToPath(path));
+		return builder(Path.of(path));
 	}
 
 	FileTestHelper(Builder builder) throws IOException {
 		try {
 			if (builder.root == null) root = IoUtil.createTempDir(builder.parent);
 			else root = builder.parent.resolve(builder.root);
-			for (Path dir : builder.dirs)
-				Files.createDirectories(root.resolve(dir));
-			for (Map.Entry<Path, String> entry : builder.files.entrySet()) {
-				Path file = root.resolve(entry.getKey());
-				Files.createDirectories(file.getParent());
-				Files.writeString(file, entry.getValue());
-			}
+			createDirs(builder.dirs);
+			createFiles(builder.files);
 		} catch (RuntimeException | IOException e) {
 			close();
 			throw e;
@@ -148,7 +165,7 @@ public class FileTestHelper implements Closeable {
 	 * Creates a path relative to the root dir from unix format.
 	 */
 	public Path path(String path) {
-		return root.resolve(IoUtil.unixToPathName(path));
+		return root.resolve(path);
 	}
 
 	/**
@@ -175,6 +192,19 @@ public class FileTestHelper implements Closeable {
 	@Override
 	public void close() {
 		ExceptionAdapter.RUNTIME.run(() -> IoUtil.deleteAll(root));
+	}
+
+	private void createDirs(List<Path> dirs) throws IOException {
+		for (Path dir : dirs)
+			Files.createDirectories(root.resolve(dir));	
+	}
+	
+	private void createFiles(Map<Path, byte[]> files) throws IOException {
+		for (Map.Entry<Path, byte[]> entry : files.entrySet()) {
+			Path file = root.resolve(entry.getKey());
+			Files.createDirectories(file.getParent());
+			Files.write(file, entry.getValue());
+		}
 	}
 
 }

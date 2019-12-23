@@ -25,8 +25,8 @@ public class StartupValuesBehavior {
 	public void shouldLookupValue() {
 		String sysProp = firstSystemPropertyName();
 		String envVar = firstEnvironmentVariableName();
-		assertThat(StartupValues.lookup(sysProp).get(), is(System.getProperty(sysProp)));
-		assertThat(StartupValues.lookup(null, envVar).get(), is(System.getenv(envVar)));
+		assertThat(StartupValues.lookup(sysProp).get(), is(SystemVars.sys(sysProp)));
+		assertThat(StartupValues.lookup(null, envVar).get(), is(SystemVars.env(envVar)));
 	}
 
 	@Test
@@ -58,7 +58,7 @@ public class StartupValuesBehavior {
 	public void shouldGetSystemProperties() {
 		StartupValues v = StartupValues.of();
 		String sysProp = firstSystemPropertyName();
-		assertThat(v.value(sysProp, null).get(), is(System.getProperty(sysProp)));
+		assertThat(v.value(sysProp, null).get(), is(SystemVars.sys(sysProp)));
 	}
 
 	@Test
@@ -110,7 +110,7 @@ public class StartupValuesBehavior {
 	public void shouldGetEnvironmentVariables() {
 		StartupValues v = StartupValues.of();
 		String envVar = firstEnvironmentVariableName();
-		assertThat(v.value(0, null, envVar).get(), is(System.getenv().get(envVar)));
+		assertThat(v.value(0, null, envVar).get(), is(SystemVars.env(envVar)));
 		assertThat(v.value("", "").get("x"), is("x"));
 	}
 

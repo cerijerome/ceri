@@ -451,7 +451,8 @@ public class TestUtil {
 		if (!EqualsUtil.equals(lhs, rhs)) throw failExpected(lhs, rhs, "Index %d", i);
 	}
 
-	private static <T> AssertionError failExpected(T actual, T expected, String format, Object... args) {
+	private static <T> AssertionError failExpected(T actual, T expected, String format,
+		Object... args) {
 		String msg = StringUtil.format(format, args) + '\n';
 		return failure("%sExpected: %s\n  actual: %s", msg, toString(expected), toString(actual));
 	}
@@ -837,18 +838,20 @@ public class TestUtil {
 		assertThat("File size", Files.size(actual), is((long) byteProvider.length()));
 		byte[] actualBytes = Files.readAllBytes(actual);
 		for (int i = 0; i < actualBytes.length; i++)
-			if (actualBytes[i] != byteProvider.get(i)) throw failure("Byte mismatch at index %d", i);
+			if (actualBytes[i] != byteProvider.get(i))
+				throw failure("Byte mismatch at index %d", i);
 	}
 
 	/**
 	 * Checks the paths are the same.
 	 */
 	public static void assertPath(Path actual, String expected, String... more) {
-		assertThat(actual, is(actual.getFileSystem().getPath(expected, more)));
+		Path expectedPath = actual.getFileSystem().getPath(expected, more);
+		assertThat(actual, is(expectedPath));
 	}
 
 	/**
-	 * Assert a collection of paths, using the first path's file system.
+	 * Assert a collection of paths in unspecific order, using the first path's file system.
 	 */
 	public static void assertPaths(Collection<Path> actual, String... paths) {
 		if (actual.isEmpty()) {

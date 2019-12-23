@@ -43,6 +43,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.collection.WrappedStream;
 import ceri.common.test.FileTestHelper;
+import ceri.common.util.SystemVars;
 
 public class IoUtilTest {
 	private static FileTestHelper helper = null;
@@ -90,6 +91,22 @@ public class IoUtilTest {
 	}
 
 	@Test
+	public void testRuntimeIo() {
+		IoUtil.RUNTIME_IO_ADAPTER.get(() -> "a");
+		assertThrown(RuntimeException.class,
+			() -> IoUtil.RUNTIME_IO_ADAPTER.get(() -> Integer.valueOf(null)));
+		assertThrown(RuntimeIoException.class, () -> IoUtil.RUNTIME_IO_ADAPTER.get(() -> {
+			throw new Exception();
+		}));
+		assertThrown(RuntimeIoException.class, () -> IoUtil.RUNTIME_IO_ADAPTER.get(() -> {
+			throw new IOException();
+		}));
+		assertThrown(RuntimeIoException.class, () -> IoUtil.RUNTIME_IO_ADAPTER.get(() -> {
+			throw new RuntimeIoException("");
+		}));
+	}
+
+	@Test
 	public void testClear() throws IOException {
 		assertClearBuffer(new byte[0]);
 		assertClearBuffer(new byte[100]);
@@ -119,14 +136,13 @@ public class IoUtilTest {
 
 	@Test
 	public void testSystemTempDir() {
-		assertPath(IoUtil.systemTempDir(), System.getProperty("java.io.tmpdir"));
+		assertPath(IoUtil.systemTempDir(), SystemVars.sys("java.io.tmpdir"));
 	}
 
 	@Test
 	public void testUserHome() {
-		assertPath(IoUtil.userHome(), System.getProperty("user.home"));
-		assertPath(IoUtil.userHome("test"),
-			System.getProperty("user.home") + File.separator + "test");
+		assertPath(IoUtil.userHome(), SystemVars.sys("user.home"));
+		assertPath(IoUtil.userHome("test"), SystemVars.sys("user.home") + "/test");
 	}
 
 	@Test
@@ -138,7 +154,7 @@ public class IoUtilTest {
 	public void testEnvironmentPath() {
 		assertNull(IoUtil.environmentPath("?"));
 		String name = firstEnvironmentVariableName();
-		assertPath(IoUtil.environmentPath(name), System.getenv(name));
+		assertPath(IoUtil.environmentPath(name), SystemVars.env(name));
 	}
 
 	@Test
@@ -234,6 +250,17 @@ public class IoUtilTest {
 		assertThat(IoUtil.fileName(Path.of("/a/b")), is("b"));
 		assertThat(IoUtil.fileName(Path.of("a")), is("a"));
 		assertThat(IoUtil.fileName(Path.of("a/b")), is("b"));
+	}
+
+	@Test
+	public void testFileNameWithoutExt() {
+		assertNull(IoUtil.fileNameWithoutExt(null));
+		assertThat(IoUtil.fileNameWithoutExt(Path.of("/")), is(""));
+		assertThat(IoUtil.fileNameWithoutExt(Path.of("")), is(""));
+		assertThat(IoUtil.fileNameWithoutExt(Path.of(".file")), is(".file"));
+		assertThat(IoUtil.fileNameWithoutExt(Path.of("/a")), is("a"));
+		assertThat(IoUtil.fileNameWithoutExt(Path.of("/a.txt")), is("a"));
+		assertThat(IoUtil.fileNameWithoutExt(Path.of("a.b.c")), is("a.b"));
 	}
 
 	@Test
@@ -400,7 +427,7 @@ public class IoUtilTest {
 	@Test
 	public void testUnixToPath() {
 		String path = "a" + File.separatorChar + "b" + File.separatorChar + "c";
-		assertPath(IoUtil.unixToPath("a/b/c"), path);
+		assertThat(IoUtil.unixToPath("a/b/c"), is(path));
 	}
 
 	@Test

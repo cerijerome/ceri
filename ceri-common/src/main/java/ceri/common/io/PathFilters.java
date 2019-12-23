@@ -61,8 +61,8 @@ public class PathFilters {
 	}
 
 	/**
-	 * A filter that applies the string filter to partial path at given index.
-	 * Returns false if index 
+	 * A filter that applies the string filter to partial path at given index. Returns false if
+	 * index
 	 */
 	public static Predicate<Path> byIndex(int index, Predicate<String> test) {
 		return path -> {

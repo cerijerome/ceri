@@ -14,7 +14,7 @@ public class OsUtilTest {
 
 	@Test
 	public void testOsArch() {
-		String arch = System.getProperty("os.arch");
+		String arch = SystemVars.sys("os.arch");
 		boolean isX86 = arch.startsWith("x86");
 		boolean is64Bit = arch.endsWith("64");
 		assertThat(OsUtil.IS_X86, is(isX86));
@@ -23,14 +23,14 @@ public class OsUtilTest {
 
 	@Test
 	public void testOsName() {
-		String name = System.getProperty("os.name");
+		String name = SystemVars.sys("os.name");
 		boolean isMac = name.startsWith("Mac");
 		assertThat(OsUtil.IS_MAC, is(isMac));
 	}
 
 	@Test
 	public void testAws() {
-		String name = System.getProperty("AWS_PATH");
+		String name = SystemVars.sys("AWS_PATH");
 		boolean isAws = name != null && !name.isEmpty();
 		assertThat(OsUtil.IS_AWS, is(isAws));
 	}

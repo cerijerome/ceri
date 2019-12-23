@@ -32,6 +32,7 @@ import ceri.common.function.FunctionUtil;
 import ceri.common.function.FunctionWrapper;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.ExceptionAdapter;
+import ceri.common.util.SystemVars;
 
 /**
  * I/O utility functions.
@@ -46,6 +47,8 @@ public class IoUtil {
 		FileVisitUtil.visitor(null, FileVisitUtil.deletion(), FileVisitUtil.deletion());
 	public static final ExceptionAdapter<IOException> IO_ADAPTER =
 		ExceptionAdapter.of(IOException.class, IOException::new);
+	public static final ExceptionAdapter<RuntimeIoException> RUNTIME_IO_ADAPTER =
+		ExceptionAdapter.of(RuntimeIoException.class, RuntimeIoException::new);
 	private static final FunctionWrapper<IOException> WRAPPER = FunctionWrapper.create();
 	private static final ExceptionPredicate<IOException, Path> NULL_FILTER = path -> true;
 
@@ -69,7 +72,7 @@ public class IoUtil {
 	 * Returns the system tmp directory.
 	 */
 	public static Path systemTempDir() {
-		String property = System.getProperty(TMP_DIR_PROPERTY);
+		String property = SystemVars.sys(TMP_DIR_PROPERTY);
 		return FunctionUtil.safeApply(property, Path::of);
 	}
 
@@ -86,7 +89,7 @@ public class IoUtil {
 	 * property does not exist.
 	 */
 	public static Path systemPropertyPath(String name, String... paths) {
-		String property = System.getProperty(name);
+		String property = SystemVars.sys(name);
 		return property == null ? null : Path.of(property, paths);
 	}
 
@@ -95,7 +98,7 @@ public class IoUtil {
 	 * does not exist.
 	 */
 	public static Path environmentPath(String name, String... paths) {
-		String property = System.getenv(name);
+		String property = SystemVars.env(name);
 		return property == null ? null : Path.of(property, paths);
 	}
 
@@ -191,8 +194,20 @@ public class IoUtil {
 	}
 
 	/**
+	 * Returns the file name without extension, full name if none, or null for null path. Does not
+	 * check if path is a file or if it exists. Returns full name for file names starting with a
+	 * dot, and no extension.
+	 */
+	public static String fileNameWithoutExt(Path path) {
+		String fileName = fileName(path);
+		if (fileName == null) return null;
+		int i = fileName.lastIndexOf('.');
+		return i <= 0 ? fileName : fileName.substring(0, i);
+	}
+
+	/**
 	 * Returns the file extension, empty string if none, or null for null path. Does not check if
-	 * path is a file or if it exists. Returns empty string for ile names starting with a dot, and
+	 * path is a file or if it exists. Returns empty string for file names starting with a dot, and
 	 * no extension.
 	 */
 	public static String extension(Path path) {
@@ -391,14 +406,7 @@ public class IoUtil {
 	/**
 	 * Convert unix format path to file path.
 	 */
-	public static Path unixToPath(String unix) {
-		return Path.of(unixToPathName(unix));
-	}
-
-	/**
-	 * Convert unix format path to file path.
-	 */
-	public static String unixToPathName(String unix) {
+	public static String unixToPath(String unix) {
 		return convertPath(unix, '/', File.separatorChar);
 	}
 

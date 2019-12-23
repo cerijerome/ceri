@@ -32,6 +32,30 @@ public class RegexUtilTest {
 	}
 
 	@Test
+	public void testHashCode() {
+		Pattern p0 = Pattern.compile("(?m).*");
+		Pattern p1 = Pattern.compile("(?m).+");
+		Pattern p2 = Pattern.compile("(?m).*", 1);
+		assertThat(RegexUtil.hashCode(null), is(RegexUtil.hashCode(null)));
+		assertThat(RegexUtil.hashCode(p0), is(RegexUtil.hashCode(p0)));
+		assertThat(RegexUtil.hashCode(p1), is(RegexUtil.hashCode(p1)));
+		assertThat(RegexUtil.hashCode(p2), is(RegexUtil.hashCode(p2)));
+	}
+	
+	@Test
+	public void testEquals() {
+		Pattern p = Pattern.compile("test.*");
+		assertThat(RegexUtil.equals(null, null), is(true));
+		assertThat(RegexUtil.equals(p, null), is(false));
+		assertThat(RegexUtil.equals(null, p), is(false));
+		assertThat(RegexUtil.equals(p, p), is(true));
+		assertThat(RegexUtil.equals(p, Pattern.compile("test.*")), is(true));
+		assertThat(RegexUtil.equals(p, Pattern.compile("test.+")), is(false));
+		assertThat(RegexUtil.equals(Pattern.compile(".*", 1), Pattern.compile(".*", 1)), is(true));
+		assertThat(RegexUtil.equals(Pattern.compile(".*", 1), Pattern.compile(".*", 2)), is(false));
+	}
+
+	@Test
 	public void testFinder() {
 		assertThat(RegexUtil.finder(INT_PATTERN).test(null), is(false));
 		assertThat(RegexUtil.finder("(\\d+)").test("abc123def456"), is(true));
@@ -252,10 +276,8 @@ public class RegexUtilTest {
 
 	@Test
 	public void testFindAll() {
-		assertCollection(RegexUtil.findAll(LSTRING_PATTERN, "abc123DEF456ghi789JKL"), "abc",
-			"ghi");
-		assertCollection(RegexUtil.findAll(USTRING_PATTERN, "abc123DEF456ghi789JKL"), "DEF",
-			"JKL");
+		assertCollection(RegexUtil.findAll(LSTRING_PATTERN, "abc123DEF456ghi789JKL"), "abc", "ghi");
+		assertCollection(RegexUtil.findAll(USTRING_PATTERN, "abc123DEF456ghi789JKL"), "DEF", "JKL");
 		assertCollection(RegexUtil.findAll(INT_PATTERN, "abc123DEF456ghi789JKL"), "123", "456",
 			"789");
 	}
@@ -264,8 +286,7 @@ public class RegexUtilTest {
 	public void testFindAllBooleans() {
 		assertCollection(RegexUtil.findAllBooleans(LSTRING_PATTERN, "abcDEFtrue123TRUE456True"),
 			false, true, false);
-		assertCollection(RegexUtil.findAllBooleans(LSTRING_PATTERN, "abc123DEF456ghi789JKL"),
-			false,
+		assertCollection(RegexUtil.findAllBooleans(LSTRING_PATTERN, "abc123DEF456ghi789JKL"), false,
 			false);
 	}
 
@@ -273,36 +294,40 @@ public class RegexUtilTest {
 	public void testFindAllBytes() {
 		assertCollection(RegexUtil.findAllBytes(INT_PATTERN, "abc123DEF127ghi0000JKL"), (byte) 123,
 			(byte) 127, (byte) 0);
-		TestUtil.assertThrown(() -> RegexUtil.findAllBytes(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		TestUtil
+			.assertThrown(() -> RegexUtil.findAllBytes(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindAllShorts() {
-		assertCollection(RegexUtil.findAllShorts(INT_PATTERN, "abc123DEF456ghi789JKL"),
-			(short) 123,
+		assertCollection(RegexUtil.findAllShorts(INT_PATTERN, "abc123DEF456ghi789JKL"), (short) 123,
 			(short) 456, (short) 789);
-		TestUtil.assertThrown(() -> RegexUtil.findAllShorts(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		TestUtil
+			.assertThrown(() -> RegexUtil.findAllShorts(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindAllInts() {
 		assertCollection(RegexUtil.findAllInts(INT_PATTERN, "abc123DEF456ghi789JKL"), 123, 456,
 			789);
-		TestUtil.assertThrown(() -> RegexUtil.findAllInts(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		TestUtil
+			.assertThrown(() -> RegexUtil.findAllInts(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindAllLongs() {
 		assertCollection(RegexUtil.findAllLongs(INT_PATTERN, "abc123DEF456ghi789JKL"), 123L, 456L,
 			789L);
-		TestUtil.assertThrown(() -> RegexUtil.findAllLongs(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		TestUtil
+			.assertThrown(() -> RegexUtil.findAllLongs(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindAllFloats() {
 		assertCollection(RegexUtil.findAllFloats(INT_PATTERN, "abc123DEF456ghi789JKL"), 123f, 456f,
 			789f);
-		TestUtil.assertThrown(() -> RegexUtil.findAllFloats(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		TestUtil
+			.assertThrown(() -> RegexUtil.findAllFloats(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
