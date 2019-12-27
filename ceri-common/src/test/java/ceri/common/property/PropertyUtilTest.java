@@ -108,6 +108,11 @@ public class PropertyUtilTest {
 		}
 	}
 
+//	@Test
+//	public void testLoadLocators() throws IOException {
+//		InputStream badIn = TestUtil.inputStream(-2, -2);
+//	}
+	
 	@Test
 	public void testLoadLocators() throws IOException {
 		Locator abc = Locator.of(getClass(), "property-test-a-b-c");

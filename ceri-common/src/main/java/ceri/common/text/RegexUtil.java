@@ -99,13 +99,6 @@ public class RegexUtil {
 	/**
 	 * Replaces pattern matches with well behaved \ and $ in the replacement string.
 	 */
-	public static String replaceAllQuoted(Pattern pattern, String s, String replacement) {
-		return pattern.matcher(s).replaceAll(quote(replacement));
-	}
-
-	/**
-	 * Replaces pattern matches with well behaved \ and $ in the replacement string.
-	 */
 	public static String replaceAllQuoted(String pattern, String s,
 		Function<MatchResult, String> replacer) {
 		return replaceAllQuoted(Pattern.compile(pattern), s, replacer);
@@ -122,9 +115,16 @@ public class RegexUtil {
 	/**
 	 * Replaces pattern matches with well behaved \ and $ in the replacement string.
 	 */
+	public static String replaceAllQuoted(Pattern pattern, String s, String replacement) {
+		return replaceAllQuoted(pattern, s, (m, i) -> replacement);
+	}
+
+	/**
+	 * Replaces pattern matches with well behaved \ and $ in the replacement string.
+	 */
 	public static String replaceAllQuoted(Pattern pattern, String s,
 		Function<MatchResult, String> replacer) {
-		return replaceAll(pattern, s, m -> quote(replacer.apply(m)));
+		return replaceAll(pattern, s, (m, i) -> quote(replacer.apply(m)));
 	}
 
 	/**
@@ -159,7 +159,7 @@ public class RegexUtil {
 	 * Same as Matcher.replaceAll, but the replacer function can return null to skip replacement.
 	 */
 	public static String replaceAll(Pattern p, String s, Function<MatchResult, String> replacer) {
-		return replaceAll(p, s, ObjIntFunction.wrap(replacer));
+		return replaceAll(p, s, (m, i) -> replacer.apply(m));
 	}
 
 	/**
@@ -170,19 +170,82 @@ public class RegexUtil {
 		ObjIntFunction<MatchResult, String> replacer) {
 		Matcher m = p.matcher(s);
 		StringBuilder b = new StringBuilder();
-		int lastStart = 0;
-		int lastEnd = 0;
+		int start = 0; // start position of next append
 		int i = 0;
 		while (m.find()) {
 			String replacement = replacer.apply(m, i++);
-			if (replacement == null) lastEnd = m.end();
+			if (replacement == null) continue;
+			// Append from last append to m.start, then append replacement
+			m.appendReplacement(b, replacement); // handles special \ and $
+			start = m.end();
+		}
+		if (start == 0 && b.length() == 0) return s;
+		return m.appendTail(b).toString(); // handles special \ and $
+	}
+
+	/**
+	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement. 
+	 */
+	public static String replaceExcept(String pattern, String s, String replacement) {
+		return replaceExcept(Pattern.compile(pattern), s, replacement);
+	}
+	
+	/**
+	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement. 
+	 */
+	public static String replaceExcept(String pattern, String s, Function<String, String> replacer) {
+		return replaceExcept(Pattern.compile(pattern), s, replacer);
+	}
+	
+	/**
+	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement. 
+	 * Replacement index is passed to the function.
+	 */
+	public static String replaceExcept(String pattern, String s,
+		ObjIntFunction<String, String> replacer) {
+		return replaceExcept(Pattern.compile(pattern), s, replacer);
+	}
+	
+	/**
+	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement. 
+	 */
+	public static String replaceExcept(Pattern p, String s, String replacement) {
+		return replaceExcept(p, s, (t, i) -> replacement);
+	}
+	
+	/**
+	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement. 
+	 */
+	public static String replaceExcept(Pattern p, String s, Function<String, String> replacer) {
+		return replaceExcept(p, s, (t, i) -> replacer.apply(t));
+	}
+	
+	/**
+	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement. 
+	 * Replacement index is passed to the function.
+	 */
+	public static String replaceExcept(Pattern p, String s,
+		ObjIntFunction<String, String> replacer) {
+		Matcher m = p.matcher(s);
+		StringBuilder b = new StringBuilder();
+		int start = 0; // start position of next append
+		int end = 0; // end position to next append
+		int i = 0;
+		while (end < s.length()) {
+			boolean found = m.find(); // If not found, match end of string
+			int mStart = found ? m.start() : s.length();
+			int mEnd = found ? m.end() : mStart;
+			String except = s.substring(end, mStart);
+			String replacement = except.isEmpty() ? null : replacer.apply(except, i++);
+			if (replacement == null) end = mEnd;
 			else {
-				m.appendReplacement(b, replacement);
-				lastStart = m.end();
+				b.append(s.substring(start, end)).append(replacement);
+				start = mStart;
+				end = mEnd;
 			}
 		}
-		if (lastStart == 0 && lastEnd == 0 && b.length() == 0) return s;
-		return m.appendTail(b).toString();
+		if (start == 0 && b.length() == 0) return s;
+		return b.append(s.substring(start, end)).toString();
 	}
 
 	/**

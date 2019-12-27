@@ -2,6 +2,7 @@ package ceri.common.property;
 
 import static ceri.common.validation.ValidationUtil.validate;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -123,6 +124,10 @@ public class Locator {
 		return name.value + "." + extension;
 	}
 
+	public InputStream resourceAsStream() {
+		return cls.getResourceAsStream(filename());
+	}
+	
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(cls, name, extension);

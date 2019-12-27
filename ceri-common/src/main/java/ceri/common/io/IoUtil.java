@@ -2,15 +2,17 @@ package ceri.common.io;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
 import static ceri.common.util.BasicUtil.defaultValue;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileVisitor;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 import ceri.common.collection.ImmutableByteArray;
 import ceri.common.collection.WrappedStream;
 import ceri.common.concurrent.ConcurrentUtil;
@@ -623,7 +626,7 @@ public class IoUtil {
 	 * Gets content from input stream as a string. Use 0 for default buffer size.
 	 */
 	public static String readString(InputStream in) throws IOException {
-		return readString(in, StandardCharsets.UTF_8);
+		return readString(in, UTF_8);
 	}
 
 	/**
@@ -631,6 +634,20 @@ public class IoUtil {
 	 */
 	public static String readString(InputStream in, Charset charset) throws IOException {
 		return new String(in.readAllBytes(), charset);
+	}
+
+	/**
+	 * Returns a stream of lines lazily read from input stream.
+	 */
+	public static Stream<String> lines(InputStream in) {
+		return lines(in, UTF_8);
+	}
+
+	/**
+	 * Returns a stream of lines lazily read from input stream.
+	 */
+	public static Stream<String> lines(InputStream in, Charset charset) {
+		return new BufferedReader(new InputStreamReader(in, charset)).lines();
 	}
 
 	/**
@@ -703,7 +720,7 @@ public class IoUtil {
 	 * Reads content from a resource with paths applied relative to class directory.
 	 */
 	public static String resourceString(Class<?> cls, String... paths) throws IOException {
-		return resourceString(cls, StandardCharsets.UTF_8, paths);
+		return resourceString(cls, UTF_8, paths);
 	}
 
 	/**

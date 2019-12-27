@@ -126,7 +126,7 @@ public class PropertyUtil {
 	}
 
 	private static void load(Properties properties, Locator locator) throws IOException {
-		try (InputStream in = locator.cls.getResourceAsStream(locator.filename())) {
+		try (InputStream in = locator.resourceAsStream()) {
 			if (in == null) return;
 			properties.load(in);
 		}
