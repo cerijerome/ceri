@@ -35,11 +35,7 @@ public class SqlUtil {
 	}
 
 	public static WrappedStream<SQLException, ResultSet> stream(ResultSet rs) {
-		return WrappedStream.stream(action -> {
-			if (!rs.next()) return false;
-			action.accept(rs);
-			return true;
-		});
+		return WrappedStream.stream(rs::next, () -> rs);
 	}
 
 }

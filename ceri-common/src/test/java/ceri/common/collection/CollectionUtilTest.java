@@ -27,6 +27,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.Test;
+import ceri.common.test.Capturer;
 import ceri.common.test.TestUtil;
 
 public class CollectionUtilTest {
@@ -177,6 +178,26 @@ public class CollectionUtilTest {
 		TestUtil.assertThrown(() -> iterable.iterator().remove());
 	}
 
+	@Test
+	public void testSpliteratorTryAdvance() {
+		Capturer<Object> capturer = Capturer.of();
+		CollectionUtil.spliterator(null, 1, 0).tryAdvance(capturer);
+		capturer.verify();
+	}
+	
+	@Test
+	public void testSpliteratorNext() {
+		Capturer<Object> capturer = Capturer.of();
+		CollectionUtil.spliterator(null, null, 1, 0).tryAdvance(capturer);
+		capturer.verify();
+		CollectionUtil.spliterator(() -> false, null, 1, 0).tryAdvance(capturer);
+		capturer.verify();
+		CollectionUtil.spliterator(() -> true, null, 1, 0).tryAdvance(capturer);
+		capturer.verify();
+		CollectionUtil.spliterator(() -> true, () -> "test", 1, 0).tryAdvance(capturer);
+		capturer.verify("test");
+	}
+	
 	@Test
 	public void testToArray() {
 		TestUtil.assertThrown(() -> CollectionUtil.toArray(Collections.emptyList(), Integer.TYPE));

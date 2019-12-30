@@ -73,6 +73,12 @@ public class RegexUtilTest {
 	}
 
 	@Test
+	public void testCompileOr() {
+		Pattern p = RegexUtil.compileOr(INT_PATTERN, LSTRING_PATTERN);
+		assertThat(p.pattern().toString(), is("((\\d+)|([a-z]+))"));
+	}
+	
+	@Test
 	public void testIgnoreCase() {
 		Pattern ignoreCase = RegexUtil.ignoreCase("t.e.s.t");
 		assertNotNull(RegexUtil.matched(ignoreCase, "T.e.s.T"));

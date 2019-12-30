@@ -226,6 +226,8 @@ import ceri.common.text.DsvCodecBehavior;
 import ceri.common.text.DsvParserBehavior;
 import ceri.common.text.FractionFormatsTest;
 import ceri.common.text.MarshallerBehavior;
+import ceri.common.text.NonMatchResultBehavior;
+import ceri.common.text.NonMatcherBehavior;
 import ceri.common.text.RegexSequencerBehavior;
 import ceri.common.text.RegexUtilTest;
 import ceri.common.text.SplitterBehavior;
@@ -256,6 +258,7 @@ import ceri.common.util.PrimitiveUtilTest;
 import ceri.common.util.StartupValuesBehavior;
 import ceri.common.util.SystemVarsTest;
 import ceri.common.util.TimerBehavior;
+import ceri.common.util.ValueCacheBehavior;
 import ceri.common.validation.ValidationUtilTest;
 import ceri.common.xml.RuntimeXPathExceptionBehavior;
 import ceri.common.xml.XPathUtilTest;
@@ -514,6 +517,8 @@ import ceri.common.xml.XmlUtilTest;
 	DsvParserBehavior.class, //
 	FractionFormatsTest.class, //
 	MarshallerBehavior.class, //
+	NonMatchResultBehavior.class, //
+	NonMatcherBehavior.class, //
 	RegexSequencerBehavior.class, //
 	RegexUtilTest.class, //
 	SplitterBehavior.class, //
@@ -546,6 +551,7 @@ import ceri.common.xml.XmlUtilTest;
 	StartupValuesBehavior.class, //
 	SystemVarsTest.class, //
 	TimerBehavior.class, //
+	ValueCacheBehavior.class, //
 	// validation
 	ValidationUtilTest.class, //
 	// xml

@@ -10,7 +10,9 @@ import java.util.function.Predicate;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.factory.Factories;
 import ceri.common.factory.Factory;
@@ -73,6 +75,14 @@ public class RegexUtil {
 	 */
 	public static Pattern compile(String format, Object... objs) {
 		return Pattern.compile(StringUtil.format(format, objs));
+	}
+
+	/**
+	 * Compiles a pattern with a group OR of string values of given objects.
+	 */
+	public static Pattern compileOr(Object... objs) {
+		return Pattern.compile(
+			Stream.of(objs).map(String::valueOf).collect(Collectors.joining("|", "(", ")")));
 	}
 
 	/**
@@ -184,44 +194,45 @@ public class RegexUtil {
 	}
 
 	/**
-	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement. 
+	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement.
 	 */
 	public static String replaceExcept(String pattern, String s, String replacement) {
 		return replaceExcept(Pattern.compile(pattern), s, replacement);
 	}
-	
+
 	/**
-	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement. 
+	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement.
 	 */
-	public static String replaceExcept(String pattern, String s, Function<String, String> replacer) {
+	public static String replaceExcept(String pattern, String s,
+		Function<String, String> replacer) {
 		return replaceExcept(Pattern.compile(pattern), s, replacer);
 	}
-	
+
 	/**
-	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement. 
+	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement.
 	 * Replacement index is passed to the function.
 	 */
 	public static String replaceExcept(String pattern, String s,
 		ObjIntFunction<String, String> replacer) {
 		return replaceExcept(Pattern.compile(pattern), s, replacer);
 	}
-	
+
 	/**
-	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement. 
+	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement.
 	 */
 	public static String replaceExcept(Pattern p, String s, String replacement) {
 		return replaceExcept(p, s, (t, i) -> replacement);
 	}
-	
+
 	/**
-	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement. 
+	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement.
 	 */
 	public static String replaceExcept(Pattern p, String s, Function<String, String> replacer) {
 		return replaceExcept(p, s, (t, i) -> replacer.apply(t));
 	}
-	
+
 	/**
-	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement. 
+	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement.
 	 * Replacement index is passed to the function.
 	 */
 	public static String replaceExcept(Pattern p, String s,

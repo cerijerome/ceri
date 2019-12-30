@@ -12,10 +12,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
@@ -393,6 +393,34 @@ public class StreamUtil {
 	}
 
 	/**
+	 * Construct an ordered stream from hasNext and next functions.
+	 */
+	public static <T> Stream<T> stream(BooleanSupplier hasNextFn, Supplier<T> nextFn) {
+		return stream(action -> {
+			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
+			if (nextFn != null) action.accept(nextFn.get());
+			return true;
+		});
+	}
+
+	/**
+	 * Construct an ordered stream from a try-advance method. The method returns false if no more
+	 * values, otherwise it passes the next value to the action, and returns true.
+	 */
+	public static <T> Stream<T> stream(Predicate<Consumer<? super T>> tryAdvanceFn) {
+		Spliterator<T> spliterator =
+			CollectionUtil.spliterator(tryAdvanceFn, Long.MAX_VALUE, Spliterator.ORDERED);
+		return StreamSupport.stream(spliterator, false);
+	}
+
+	/**
+	 * Returns a stream for an Enumeration.
+	 */
+	public static <T> Stream<T> stream(Enumeration<T> e) {
+		return stream(e::hasMoreElements, e::nextElement);
+	}
+
+	/**
 	 * Stream subarray. The case missing from Arrays.stream
 	 */
 	public static <T> Stream<T> stream(T[] array, int offset) {
@@ -404,35 +432,6 @@ public class StreamUtil {
 	 */
 	public static <T extends Enum<T>> Stream<T> stream(Class<T> enumCls) {
 		return BasicUtil.enums(enumCls).stream();
-	}
-
-	/**
-	 * Returns a stream for an Enumeration.
-	 */
-	public static <T> Stream<T> stream(Enumeration<T> e) {
-		return StreamSupport.stream(new EnumerationSpliterator<>(e), false);
-	}
-
-	private static class EnumerationSpliterator<T> extends Spliterators.AbstractSpliterator<T> {
-		private final Enumeration<T> e;
-
-		public EnumerationSpliterator(Enumeration<T> e) {
-			super(Long.MAX_VALUE, Spliterator.ORDERED);
-			this.e = e;
-		}
-
-		@Override
-		public boolean tryAdvance(Consumer<? super T> action) {
-			if (!e.hasMoreElements()) return false;
-			action.accept(e.nextElement());
-			return true;
-		}
-
-		@Override
-		public void forEachRemaining(Consumer<? super T> action) {
-			while (e.hasMoreElements())
-				action.accept(e.nextElement());
-		}
 	}
 
 }

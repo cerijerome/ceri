@@ -1,8 +1,8 @@
 package ceri.common.collection;
 
+import static ceri.common.collection.CollectionUtil.spliterator;
 import java.util.Collection;
 import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -11,9 +11,11 @@ import java.util.stream.Collector;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import ceri.common.function.ExceptionBooleanSupplier;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionPredicate;
+import ceri.common.function.ExceptionSupplier;
 import ceri.common.function.ExceptionToIntFunction;
 import ceri.common.function.FunctionWrapper;
 
@@ -25,29 +27,26 @@ public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 	private final Stream<T> stream;
 
 	/**
-	 * Construct a stream from spliterator tryAdvance function.
+	 * Construct a stream from hasNext and next functions.
 	 */
-	public static <E extends Exception, T> WrappedStream<E, T>
-		stream(ExceptionPredicate<E, Consumer<? super T>> tryAdvanceFn) {
-		return stream(Long.MAX_VALUE, 0, false, tryAdvanceFn);
+	public static <E extends Exception, T> WrappedStream<E, T> stream(
+		ExceptionBooleanSupplier<E> hasNextFn, ExceptionSupplier<E, T> nextFn) {
+		return stream(action -> {
+			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
+			if (nextFn != null) action.accept(nextFn.get());
+			return true;
+		});
 	}
-
+	
 	/**
 	 * Construct a stream from spliterator tryAdvance function.
 	 */
-	public static <E extends Exception, T> WrappedStream<E, T> stream(long estSize,
-		int characteristics, boolean parallel,
+	public static <E extends Exception, T> WrappedStream<E, T> stream(
 		ExceptionPredicate<E, Consumer<? super T>> tryAdvanceFn) {
 		FunctionWrapper<E> wrapper = FunctionWrapper.create();
 		Predicate<Consumer<? super T>> wrappedFn = wrapper.wrap(tryAdvanceFn);
-		Spliterator<T> spliterator =
-			new Spliterators.AbstractSpliterator<>(estSize, characteristics) {
-				@Override
-				public boolean tryAdvance(Consumer<? super T> action) {
-					return wrappedFn.test(action);
-				}
-			};
-		return WrappedStream.of(wrapper, StreamSupport.stream(spliterator, parallel));
+		Spliterator<T> spliterator = spliterator(wrappedFn, Long.MAX_VALUE, Spliterator.ORDERED);
+		return WrappedStream.of(wrapper, StreamSupport.stream(spliterator, false));
 	}
 
 	public static <E extends Exception, T, R> WrappedStream<E, R> mapped(Stream<T> stream,

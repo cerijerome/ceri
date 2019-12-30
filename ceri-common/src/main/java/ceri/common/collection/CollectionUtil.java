@@ -17,8 +17,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiFunction;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import ceri.common.comparator.Comparators;
@@ -290,6 +295,35 @@ public class CollectionUtil {
 	}
 
 	/**
+	 * Construct a spliterator from a try-advance method. The method returns false if no more
+	 * values, otherwise it passes the next value to the action, and returns true. Pass
+	 * Long.MAX_VALUE for estimated size if unknown. Pass 0 for characteristics if none apply.
+	 */
+	public static <T> Spliterator<T> spliterator(Predicate<Consumer<? super T>> tryAdvanceFn,
+		long estimatedSize, int characteristics) {
+		return new Spliterators.AbstractSpliterator<>(estimatedSize, characteristics) {
+			@Override
+			public boolean tryAdvance(Consumer<? super T> action) {
+				if (tryAdvanceFn == null) return false;
+				return tryAdvanceFn.test(action);
+			}
+		};
+	}
+
+	/**
+	 * Construct a spliterator from hasNext and next functions. Pass Long.MAX_VALUE for estimated
+	 * size if unknown. Pass 0 for characteristics if none apply.
+	 */
+	public static <T> Spliterator<T> spliterator(BooleanSupplier hasNextFn, Supplier<T> nextFn,
+		long estimatedSize, int characteristics) {
+		return spliterator(action -> {
+			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
+			if (nextFn != null) action.accept(nextFn.get());
+			return true;
+		}, estimatedSize, characteristics);
+	}
+
+	/**
 	 * Allows an enumeration to be run in a for-each loop.
 	 */
 	public static <T> Iterable<T> iterable(final Enumeration<? extends T> enumeration) {
@@ -405,7 +439,8 @@ public class CollectionUtil {
 			return list.get(list.size() - 1);
 		}
 		T last = null;
-		for (T t : iterable) last = t;
+		for (T t : iterable)
+			last = t;
 		return last;
 	}
 
