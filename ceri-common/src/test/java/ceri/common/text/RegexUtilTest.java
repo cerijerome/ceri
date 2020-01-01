@@ -77,7 +77,7 @@ public class RegexUtilTest {
 		Pattern p = RegexUtil.compileOr(INT_PATTERN, LSTRING_PATTERN);
 		assertThat(p.pattern().toString(), is("((\\d+)|([a-z]+))"));
 	}
-	
+
 	@Test
 	public void testIgnoreCase() {
 		Pattern ignoreCase = RegexUtil.ignoreCase("t.e.s.t");
@@ -95,25 +95,25 @@ public class RegexUtilTest {
 
 	@Test
 	public void testReplaceAllQuoted() {
-		assertThat(RegexUtil.replaceAllQuoted("\\d+", "abc123de45f6", m -> null),
+		assertThat(RegexUtil.replaceAllQuoted(Pattern.compile("\\d+"), "abc123de45f6", m -> null),
 			is("abc123de45f6"));
-		assertThat(RegexUtil.replaceAllQuoted("\\d+", "abc123de45f6", "N\\$"),
+		assertThat(RegexUtil.replaceAllQuoted(Pattern.compile("\\d+"), "abc123de45f6", "N\\$"),
 			is("abcN\\$deN\\$fN\\$"));
-		assertThat(RegexUtil.replaceAllQuoted("[\\\\$]+", "abc$\\def\\$", m -> reverse(m.group())),
-			is("abc\\$def$\\"));
+		assertThat(RegexUtil.replaceAllQuoted(Pattern.compile("[\\\\$]+"), "abc$\\def\\$",
+			m -> reverse(m.group())), is("abc\\$def$\\"));
 	}
 
 	@Test
 	public void testReplaceAllQuotedWithIndex() {
 		String s = "abcdef";
-		s = RegexUtil.replaceAllQuoted("[a-f]", s, (m, i) -> "$" + i);
+		s = RegexUtil.replaceAllQuoted(Pattern.compile("[a-f]"), s, (m, i) -> "$" + i);
 		assertThat(s, is("$0$1$2$3$4$5"));
 	}
 
 	@Test
 	public void testReplaceAll() {
 		String s = "abcdefghijklmnopqrstuvwxyz";
-		s = RegexUtil.replaceAll("[aeiou]", s, m -> m.group().toUpperCase());
+		s = RegexUtil.replaceAll(Pattern.compile("[aeiou]"), s, m -> m.group().toUpperCase());
 		assertThat(s, is("AbcdEfghIjklmnOpqrstUvwxyz"));
 		Pattern p = Pattern.compile("((?<!\\\\)\".*?(?<!\\\\)\"|\\s+)");
 		Function<MatchResult, String> fn = r -> r.group().charAt(0) == '\"' ? null : "";
@@ -125,42 +125,45 @@ public class RegexUtilTest {
 		assertThat(RegexUtil.replaceAll(p, "\"t \\\"e s\\\" t\"", fn), is("\"t \\\"e s\\\" t\""));
 		assertThat(RegexUtil.replaceAll(p, "{ \"_id\" : ObjectId(\"12345\")", fn),
 			is("{\"_id\":ObjectId(\"12345\")"));
-		assertThat(RegexUtil.replaceAll("abc", "ab", (m, i) -> ""), is("ab"));
-		assertThat(RegexUtil.replaceAll("^", "ab", (m, i) -> "x"), is("xab"));
-		assertThat(RegexUtil.replaceAll("ab", "ab", (m, i) -> ""), is(""));
+		assertThat(RegexUtil.replaceAll(Pattern.compile("abc"), "ab", (m, i) -> ""), is("ab"));
+		assertThat(RegexUtil.replaceAll(Pattern.compile("^"), "ab", (m, i) -> "x"), is("xab"));
+		assertThat(RegexUtil.replaceAll(Pattern.compile("ab"), "ab", (m, i) -> ""), is(""));
 	}
 
 	@Test
 	public void testReplaceAllOptimization() {
 		String s = "a1b2c3d";
-		assertTrue(RegexUtil.replaceAll("x", s, (m, i) -> "X") == s);
-		assertTrue(RegexUtil.replaceAll("\\d", s, (m, i) -> null) == s);
+		assertTrue(RegexUtil.replaceAll(Pattern.compile("x"), s, (m, i) -> "X") == s);
+		assertTrue(RegexUtil.replaceAll(Pattern.compile("\\d"), s, (m, i) -> null) == s);
 	}
 
 	@Test
 	public void testReplaceAllWithIndex() {
-		assertThat(RegexUtil.replaceAll("[a-f]", "abcdefg", (m, i) -> String.valueOf(i)),
+		assertThat(
+			RegexUtil.replaceAll(Pattern.compile("[a-f]"), "abcdefg", (m, i) -> String.valueOf(i)),
 			is("012345g"));
 	}
 
 	@Test
 	public void testReplaceExcept() {
-		assertThat(RegexUtil.replaceExcept("", "", ""), is(""));
-		assertThat(RegexUtil.replaceExcept("[a-c]", "AaBbCcDd", "x"), is("xaxbxcx"));
-		assertThat(RegexUtil.replaceExcept("[a-c]", "abc", "x"), is("abc"));
-		assertThat(RegexUtil.replaceExcept("[a-c]", "def", "x"), is("x"));
-		assertThat(RegexUtil.replaceExcept("[a-c]", "def", ""), is(""));
-		assertThat(RegexUtil.replaceExcept("[a-c]", "def", (String) null), is("def"));
-		assertThat(RegexUtil.replaceExcept("^", "abc", "x"), is("x"));
-		assertThat(RegexUtil.replaceExcept("$", "abc", "x"), is("x"));
-		assertThat(RegexUtil.replaceExcept("[a-c]+", "abcdefbca", s -> s.toUpperCase()),
-			is("abcDEFbca"));
+		assertThat(RegexUtil.replaceExcept(Pattern.compile(""), "", ""), is(""));
+		assertThat(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "AaBbCcDd", "x"),
+			is("xaxbxcx"));
+		assertThat(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "abc", "x"), is("abc"));
+		assertThat(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "def", "x"), is("x"));
+		assertThat(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "def", ""), is(""));
+		assertThat(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "def", (String) null),
+			is("def"));
+		assertThat(RegexUtil.replaceExcept(Pattern.compile("^"), "abc", "x"), is("x"));
+		assertThat(RegexUtil.replaceExcept(Pattern.compile("$"), "abc", "x"), is("x"));
+		assertThat(RegexUtil.replaceExcept(Pattern.compile("[a-c]+"), "abcdefbca",
+			m -> m.group().toUpperCase()), is("abcDEFbca"));
 	}
 
 	@Test
 	public void testReplaceExceptWithIndex() {
-		assertThat(RegexUtil.replaceExcept("[a-c]", "AaBbCcDd", (m, i) -> String.valueOf(i)),
-			is("0a1b2c3"));
+		assertThat(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "AaBbCcDd",
+			(m, i) -> String.valueOf(i)), is("0a1b2c3"));
 	}
 
 	@Test
