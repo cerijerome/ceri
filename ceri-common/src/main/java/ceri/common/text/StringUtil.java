@@ -34,14 +34,14 @@ import ceri.common.util.Align;
 public class StringUtil {
 	private static final String INTEGRAL_FLOAT = ".0";
 	private static final char UNPRINTABLE_CHAR = '.';
-	private static final char BACKSLASH = '\\';
-	private static final char BACKSPACE = '\b';
-	private static final char ESCAPE = '\u001b';
-	private static final char TAB = '\t';
-	private static final char FF = '\f';
-	private static final char CR = '\r';
-	private static final char NL = '\n';
-	private static final char NULL = '\0';
+	public static final char BACKSLASH = '\\';
+	public static final char BACKSPACE = '\b';
+	public static final char ESC = '\u001b';
+	public static final char TAB = '\t';
+	public static final char FF = '\f';
+	public static final char CR = '\r';
+	public static final char NL = '\n';
+	public static final char NULL = '\0';
 	private static final String ESCAPED_NULL = "\\0";
 	private static final String ESCAPED_BACKSLASH = "\\\\";
 	private static final String ESCAPED_BACKSPACE = "\\b";
@@ -142,6 +142,13 @@ public class StringUtil {
 	}
 
 	/**
+	 * Creates a string from vararg chars.
+	 */
+	public static String toString(char... chars) {
+		return String.valueOf(chars);
+	}
+
+	/**
 	 * Escapes non-visible characters within the given string.
 	 */
 	public static String escape(String s) {
@@ -157,7 +164,7 @@ public class StringUtil {
 			return ESCAPED_BACKSLASH;
 		case BACKSPACE:
 			return ESCAPED_BACKSPACE;
-		case ESCAPE:
+		case ESC:
 			return ESCAPED_ESCAPE;
 		case FF:
 			return ESCAPED_FF;
@@ -192,7 +199,7 @@ public class StringUtil {
 		case ESCAPED_BACKSPACE:
 			return BACKSPACE;
 		case ESCAPED_ESCAPE:
-			return ESCAPE;
+			return ESC;
 		case ESCAPED_FF:
 			return FF;
 		case ESCAPED_NL:

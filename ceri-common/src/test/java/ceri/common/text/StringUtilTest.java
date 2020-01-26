@@ -62,8 +62,14 @@ public class StringUtilTest {
 
 	@Test
 	public void testToStringFromCodePoints() {
-		assertThat(StringUtil.toString(new int[] {}), is(""));
+		assertThat(StringUtil.toString(new int[0]), is(""));
 		assertThat(StringUtil.toString(1, 2, 3), is("\u0001\u0002\u0003"));
+	}
+
+	@Test
+	public void testToStringFromChars() {
+		assertThat(StringUtil.toString(new char[0]), is(""));
+		assertThat(StringUtil.toString('a', '\0', 'b'), is("a\0b"));
 	}
 
 	@Test

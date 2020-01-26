@@ -222,6 +222,7 @@ import ceri.common.test.TestThreadBehavior;
 import ceri.common.test.TestTimerBehavior;
 import ceri.common.test.TestUtil;
 import ceri.common.test.TestUtilTest;
+import ceri.common.text.AnsiEscapeBehavior;
 import ceri.common.text.DsvCodecBehavior;
 import ceri.common.text.DsvParserBehavior;
 import ceri.common.text.FractionFormatsTest;
@@ -513,6 +514,7 @@ import ceri.common.xml.XmlUtilTest;
 	TestTimerBehavior.class, //
 	TestUtilTest.class, //
 	// text
+	AnsiEscapeBehavior.class, //
 	DsvCodecBehavior.class, //
 	DsvParserBehavior.class, //
 	FractionFormatsTest.class, //
