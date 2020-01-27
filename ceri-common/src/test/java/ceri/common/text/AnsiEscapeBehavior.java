@@ -2,7 +2,7 @@ package ceri.common.text;
 
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.blue;
+import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.*;
 import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.cyan;
 import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.magenta;
 import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.yellow;
@@ -313,6 +313,12 @@ public class AnsiEscapeBehavior {
 		assertThrown(() -> AnsiEscape.csi.sgr().ideogram(6));
 		assertThat(AnsiEscape.csi.sgr().ideogram(0).toString(), is("\u001b[65m"));
 		assertThat(AnsiEscape.csi.sgr().ideogram(5).toString(), is("\u001b[64m"));
+	}
+
+	@Test
+	public void shouldCombineSgrCodes() {
+		assertThat(AnsiEscape.csi.sgr().reset().blink(1).underline(1).fgColor8(1, 2, 3)
+			.reverse(true).toString(), is("\u001b[;5;4;38;5;67;7m"));
 	}
 
 }
