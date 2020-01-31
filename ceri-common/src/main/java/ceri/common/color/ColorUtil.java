@@ -31,6 +31,10 @@ public class ColorUtil {
 	private static final int TRIPLE_HEX_LEN = 3;
 	private static final int BITS4 = 4;
 	private static final int BITS8 = 8;
+	private static final int A_BYTE = 3;
+	private static final int R_BYTE = 2;
+	private static final int G_BYTE = 1;
+	private static final int B_BYTE = 0;
 	// private static final int HSB_DECIMALS = 5;
 	private static final int RGB_MASK = 0xffffff;
 	private static final double HALF = 0.5;
@@ -103,13 +107,13 @@ public class ColorUtil {
 			return (c0, c1) -> ColorUtil.scaleHsb(c0, c1, ratio);
 		}
 
-		public static Function<Color, List<Color>> transform(
-			Function<Colorx, List<Colorx>> rgbxFn) {
+		public static Function<Color, List<Color>>
+			transform(Function<Colorx, List<Colorx>> rgbxFn) {
 			return c -> applyRgbx(c, rgbxFn);
 		}
 
-		public static BinaryFunction<Color, List<Color>> transform(
-			BinaryFunction<Colorx, List<Colorx>> rgbxFn) {
+		public static BinaryFunction<Color, List<Color>>
+			transform(BinaryFunction<Colorx, List<Colorx>> rgbxFn) {
 			return (c0, c1) -> applyRgbx(c0, c1, rgbxFn);
 		}
 
@@ -231,8 +235,7 @@ public class ColorUtil {
 	}
 
 	public static Color awtColor(String name) {
-		Integer rgb =
-			first(awtColorNames.entrySet().stream().filter(e -> e.getValue().equals(name))
+		Integer rgb = first(awtColorNames.entrySet().stream().filter(e -> e.getValue().equals(name))
 			.map(Map.Entry::getKey));
 		if (rgb == null) return null;
 		return new Color(rgb);
@@ -268,7 +271,7 @@ public class ColorUtil {
 	}
 
 	public static String toString(int r, int g, int b) {
-		return toString(rgb(r, g, b));
+		return toString(rgba(r, g, b, 0));
 	}
 
 	public static String toString(int rgb) {
@@ -283,7 +286,7 @@ public class ColorUtil {
 	}
 
 	public static String toName(int r, int g, int b) {
-		return toName(rgb(r, g, b));
+		return toName(rgba(r, g, b, 0));
 	}
 
 	public static String toName(int rgb) {
@@ -300,19 +303,19 @@ public class ColorUtil {
 	}
 
 	public static String toHex(int r, int g, int b) {
-		return toHex(rgb(r, g, b));
+		return toHex(rgba(r, g, b, 0));
 	}
 
 	public static String toHex(int rgb) {
 		return "#" + StringUtil.toHex(rgb & RGB_MASK, 6);
 	}
 
-	public static List<Color> fade(int rgbMin, int rgbMax, int steps) {
-		return fade(rgbMin, rgbMax, steps, Biases.NONE);
+	public static List<Color> fade(int rgbaMin, int rgbaMax, int steps) {
+		return fade(rgbaMin, rgbaMax, steps, Biases.NONE);
 	}
 
-	public static List<Color> fade(int rgbMin, int rgbMax, int steps, Bias bias) {
-		return fade(new Color(rgbMin), new Color(rgbMax), steps, bias);
+	public static List<Color> fade(int rgbaMin, int rgbaMax, int steps, Bias bias) {
+		return fade(new Color(rgbaMin), new Color(rgbaMax), steps, bias);
 	}
 
 	public static List<Color> fade(Color min, Color max, int steps) {
@@ -345,8 +348,12 @@ public class ColorUtil {
 		return colors;
 	}
 
-	public static Color scale(int rgbMin, int rgbMax, double ratio) {
-		return scale(new Color(rgbMin), new Color(rgbMax), ratio);
+	public static int scaleRgba(int rgbaMin, int rgbaMax, double ratio) {
+		int a = scaleChannel(a(rgbaMin), a(rgbaMax), ratio);
+		int r = scaleChannel(r(rgbaMin), r(rgbaMax), ratio);
+		int g = scaleChannel(g(rgbaMin), g(rgbaMax), ratio);
+		int b = scaleChannel(b(rgbaMin), b(rgbaMax), ratio);
+		return rgba(r, g, b, a);
 	}
 
 	public static Color scaleHsb(Color min, Color max, double ratio) {
@@ -439,13 +446,39 @@ public class ColorUtil {
 		return scale(Color.black, color, scale);
 	}
 
-	public static int rgb(int r, int g, int b) {
-		return (int) (ByteUtil.shiftByteLeft(r, 2) | ByteUtil.shiftByteLeft(g, 1) |
-			b & CHANNEL_MAX);
+	public static int rgba(int r, int g, int b, int a) {
+		return (int) (ByteUtil.shiftByteLeft(a, A_BYTE) | ByteUtil.shiftByteLeft(r, R_BYTE) |
+			ByteUtil.shiftByteLeft(g, G_BYTE) | ByteUtil.shiftByteLeft(b, B_BYTE));
 	}
 
+	/**
+	 * Returns rgb components, removing alpha.
+	 */
 	public static int rgb(Color color) {
-		return color.getRGB() & RGB_MASK;
+		return rgb(color.getRGB());
+	}
+
+	public static int a(int rgba) {
+		return ByteUtil.byteValueAt(rgba, A_BYTE);
+	}
+
+	public static int r(int rgba) {
+		return ByteUtil.byteValueAt(rgba, R_BYTE);
+	}
+
+	public static int g(int rgba) {
+		return ByteUtil.byteValueAt(rgba, G_BYTE);
+	}
+
+	public static int b(int rgba) {
+		return ByteUtil.byteValueAt(rgba, B_BYTE);
+	}
+
+	/**
+	 * Returns rgb components, removing alpha.
+	 */
+	public static int rgb(int rgba) {
+		return rgba & RGB_MASK;
 	}
 
 	static int tripleHexToRgb(int tripleHex) {

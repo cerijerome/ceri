@@ -170,7 +170,7 @@ public class ColorUtilTest {
 		assertColor(ColorUtil.scale(null, Color.white, 0.5), Color.white);
 		assertColor(ColorUtil.scale(Color.white, null, 0.5), Color.white);
 		assertColor(ColorUtil.scale(Color.black, Color.gray, 2), Color.gray);
-		assertColor(ColorUtil.scale(0x102030, 0x405060, -2), 0x102030);
+		assertThat(ColorUtil.scaleRgba(0x102030, 0x405060, -2), is(0x102030));
 	}
 
 	@Test
@@ -355,14 +355,18 @@ public class ColorUtilTest {
 	}
 
 	@Test
+	public void testRgba() {
+		assertThat(ColorUtil.rgba(0, 0, 0, 0), is(0));
+		assertThat(ColorUtil.rgba(1, 127, 128, 0), is(0x00017f80));
+		assertThat(ColorUtil.rgba(255, 255, 255, 255), is(0xffffffff));
+		assertThat(ColorUtil.rgba(-1, 257, -128, -2), is(0xfeff0180));
+	}
+
+	@Test
 	public void testRgb() {
-		assertThat(ColorUtil.rgb(0, 0, 0), is(0x000000));
-		assertThat(ColorUtil.rgb(1, 127, 128), is(0x017f80));
-		assertThat(ColorUtil.rgb(255, 255, 255), is(0xffffff));
 		assertThat(ColorUtil.rgb(new Color(55, 111, 222)), is(0x376fde));
 		assertThat(ColorUtil.rgb(Color.pink), is(0xffafaf));
 		assertThat(ColorUtil.rgb(Color.white), is(0xffffff));
-		assertThat(ColorUtil.rgb(-1, 257, -128), is(0xff0180));
 	}
 
 	private void assertColors(Iterable<Color> colors, int... colorValues) {

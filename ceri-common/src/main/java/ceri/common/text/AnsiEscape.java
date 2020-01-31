@@ -1,25 +1,28 @@
 package ceri.common.text;
 
+import static ceri.common.color.ColorUtil.CHANNEL_MAX;
 import static ceri.common.text.StringUtil.ESC;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateRange;
+import java.awt.Color;
+import ceri.common.color.ColorUtil;
 
 /**
  * ANSI-escape codes for terminal operations and formatting.
  * https://en.wikipedia.org/wiki/ANSI_escape_code
  */
 public class AnsiEscape {
-	public static final C1 singleShift2 = new BaseC1(0x8e, 'N');
-	public static final C1 singleShift3 = new BaseC1(0x8f, 'O');
-	public static final C1 deviceControl = new BaseC1(0x90, 'P');
-	public static final C1 start = new BaseC1(0x98, 'X');
+	public static final C1 singleShift2 = new BaseC1('N');
+	public static final C1 singleShift3 = new BaseC1('O');
+	public static final C1 deviceControl = new BaseC1('P');
+	public static final C1 start = new BaseC1('X');
 	public static final Csi csi = new Csi();
-	public static final C1 terminator = new BaseC1(0x9c, '\\');
-	public static final C1 osCommand = new BaseC1(0x9d, ']');
-	public static final C1 privacyMessage = new BaseC1(0x9e, '^');
-	public static final C1 appCommand = new BaseC1(0x9f, '_');
+	public static final C1 terminator = new BaseC1('\\');
+	public static final C1 osCommand = new BaseC1(']');
+	public static final C1 privacyMessage = new BaseC1('^');
+	public static final C1 appCommand = new BaseC1('_');
 	public static final String reset = Escaper.escape('c');
-	
+
 	public interface C1 {
 		byte c1();
 	}
@@ -28,8 +31,8 @@ public class AnsiEscape {
 		private final byte c1;
 		private final String escape;
 
-		private BaseC1(int c1, char prefix) {
-			this.c1 = (byte) c1;
+		private BaseC1(char prefix) {
+			this.c1 = (byte) (prefix + 0x40);
 			this.escape = Escaper.escape(prefix);
 		}
 
@@ -49,7 +52,7 @@ public class AnsiEscape {
 		public static String deviceStatus = escape('n', 0, 6);
 
 		private Csi() {
-			super(0x9b, PREFIX);
+			super(PREFIX);
 		}
 
 		public String cursorUp(int n) {
@@ -141,7 +144,7 @@ public class AnsiEscape {
 		}
 
 		public static class Sgr extends Escaper {
-				
+
 			public static enum BasicColor {
 				black(0),
 				red(1),
@@ -248,6 +251,21 @@ public class AnsiEscape {
 			}
 
 			/**
+			 * Set 8-bit color approximation, each component 0-5.
+			 */
+			public Sgr fgColor8(Color color) {
+				return fgColor8(color.getRGB());
+			}
+
+			/**
+			 * Set 8-bit color approximation, each component 0-5.
+			 */
+			public Sgr fgColor8(int rgb) {
+				return fgColor8(to8Bit(ColorUtil.r(rgb)), to8Bit(ColorUtil.g(rgb)),
+					to8Bit(ColorUtil.b(rgb)));
+			}
+
+			/**
 			 * Set 8-bit color, each component 0-5.
 			 */
 			public Sgr fgColor8(int r, int g, int b) {
@@ -260,10 +278,24 @@ public class AnsiEscape {
 			/**
 			 * Set 24-bit color, each component 0-255.
 			 */
+			public Sgr fgColor24(Color color) {
+				return fgColor24(color.getRGB());
+			}
+
+			/**
+			 * Set 24-bit color, each component 0-255.
+			 */
+			public Sgr fgColor24(int rgb) {
+				return fgColor24(ColorUtil.r(rgb), ColorUtil.g(rgb), ColorUtil.b(rgb));
+			}
+
+			/**
+			 * Set 24-bit color, each component 0-255.
+			 */
 			public Sgr fgColor24(int r, int g, int b) {
-				validateRange(r, 0, 255);
-				validateRange(g, 0, 255);
-				validateRange(b, 0, 255);
+				validateRange(r, 0, CHANNEL_MAX);
+				validateRange(g, 0, CHANNEL_MAX);
+				validateRange(b, 0, CHANNEL_MAX);
 				return add(38, 2, r, g, b);
 			}
 
@@ -288,6 +320,21 @@ public class AnsiEscape {
 			}
 
 			/**
+			 * Set 8-bit color approximation, each component 0-5.
+			 */
+			public Sgr bgColor8(Color color) {
+				return bgColor8(color.getRGB());
+			}
+
+			/**
+			 * Set 8-bit color approximation, each component 0-5.
+			 */
+			public Sgr bgColor8(int rgb) {
+				return bgColor8(to8Bit(ColorUtil.r(rgb)), to8Bit(ColorUtil.g(rgb)),
+					to8Bit(ColorUtil.b(rgb)));
+			}
+
+			/**
 			 * Set 8-bit color, each component 0-5.
 			 */
 			public Sgr bgColor8(int r, int g, int b) {
@@ -300,10 +347,24 @@ public class AnsiEscape {
 			/**
 			 * Set 24-bit color, each component 0-255.
 			 */
+			public Sgr bgColor24(Color color) {
+				return bgColor24(color.getRGB());
+			}
+
+			/**
+			 * Set 24-bit color, each component 0-255.
+			 */
+			public Sgr bgColor24(int rgb) {
+				return bgColor24(ColorUtil.r(rgb), ColorUtil.g(rgb), ColorUtil.b(rgb));
+			}
+
+			/**
+			 * Set 24-bit color, each component 0-255.
+			 */
 			public Sgr bgColor24(int r, int g, int b) {
-				validateRange(r, 0, 255);
-				validateRange(g, 0, 255);
-				validateRange(b, 0, 255);
+				validateRange(r, 0, CHANNEL_MAX);
+				validateRange(g, 0, CHANNEL_MAX);
+				validateRange(b, 0, CHANNEL_MAX);
 				return add(48, 2, r, g, b);
 			}
 
@@ -333,6 +394,10 @@ public class AnsiEscape {
 			private Sgr add(int... codes) {
 				super.add(codes);
 				return this;
+			}
+
+			private static int to8Bit(int c) {
+				return (c * 6) >>> Byte.SIZE;
 			}
 		}
 	}

@@ -3,6 +3,7 @@ package ceri.common.collection;
 import static ceri.common.collection.CollectionUtil.addAll;
 import static ceri.common.collection.CollectionUtil.listSupplier;
 import static ceri.common.collection.CollectionUtil.mapSupplier;
+import static ceri.common.collection.CollectionUtil.navigableMapSupplier;
 import static ceri.common.collection.CollectionUtil.setSupplier;
 import static java.util.function.Function.identity;
 import java.util.ArrayList;
@@ -14,8 +15,9 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -79,19 +81,19 @@ public class ImmutableUtil {
 	/**
 	 * Copies a collection of objects into an immutable TreeSet.
 	 */
-	public static <T> SortedSet<T> copyAsSortedSet(Collection<? extends T> set) {
-		return copyAsSortedSet(set, TreeSet::new);
+	public static <T> NavigableSet<T> copyAsNavigableSet(Collection<? extends T> set) {
+		return copyAsNavigableSet(set, TreeSet::new);
 	}
 
 	/**
-	 * Copies a collection of objects into an immutable SortedSet.
+	 * Copies a collection of objects into an immutable NavigableSet.
 	 */
-	public static <T> SortedSet<T> copyAsSortedSet(Collection<? extends T> set,
-		Supplier<SortedSet<T>> supplier) {
-		if (set.isEmpty()) return Collections.emptySortedSet();
-		SortedSet<T> copy = supplier.get();
+	public static <T> NavigableSet<T> copyAsNavigableSet(Collection<? extends T> set,
+		Supplier<NavigableSet<T>> supplier) {
+		if (set.isEmpty()) return Collections.emptyNavigableSet();
+		NavigableSet<T> copy = supplier.get();
 		copy.addAll(set);
-		return Collections.unmodifiableSortedSet(copy);
+		return Collections.unmodifiableNavigableSet(copy);
 	}
 
 	/**
@@ -110,6 +112,24 @@ public class ImmutableUtil {
 		Map<K, V> copy = supplier.get();
 		copy.putAll(map);
 		return Collections.unmodifiableMap(copy);
+	}
+
+	/**
+	 * Copies a map of objects into an immutable Map.
+	 */
+	public static <K, V> NavigableMap<K, V> copyAsNavigableMap(Map<? extends K, ? extends V> map) {
+		return copyAsNavigableMap(map, navigableMapSupplier());
+	}
+
+	/**
+	 * Copies a map of objects into an immutable Map.
+	 */
+	public static <K, V> NavigableMap<K, V> copyAsNavigableMap(Map<? extends K, ? extends V> map,
+		Supplier<NavigableMap<K, V>> supplier) {
+		if (map.isEmpty()) return Collections.emptyNavigableMap();
+		NavigableMap<K, V> copy = supplier.get();
+		copy.putAll(map);
+		return Collections.unmodifiableNavigableMap(copy);
 	}
 
 	/**
@@ -189,11 +209,11 @@ public class ImmutableUtil {
 	}
 
 	/**
-	 * Copies a stream of objects into an immutable LinkedHashSet.
+	 * Copies a stream of objects into an immutable NavigableSet.
 	 */
-	public static <T> SortedSet<T> collectAsSortedSet(Stream<? extends T> stream) {
+	public static <T> NavigableSet<T> collectAsNavigableSet(Stream<? extends T> stream) {
 		Collector<T, ?, TreeSet<T>> collector = Collectors.toCollection(TreeSet::new);
-		return Collections.unmodifiableSortedSet(stream.collect(collector));
+		return Collections.unmodifiableNavigableSet(stream.collect(collector));
 	}
 
 	/**
@@ -372,22 +392,22 @@ public class ImmutableUtil {
 	}
 
 	@SafeVarargs
-	public static <F, T> SortedSet<T> convertAsSortedSet(Function<? super F, ? extends T> fn,
+	public static <F, T> NavigableSet<T> convertAsNavigableSet(Function<? super F, ? extends T> fn,
 		F... fs) {
-		return convertAsSortedSet(fn, Arrays.asList(fs));
+		return convertAsNavigableSet(fn, Arrays.asList(fs));
 	}
 
-	public static <F, T> SortedSet<T> convertAsSortedSet(Function<? super F, ? extends T> fn,
+	public static <F, T> NavigableSet<T> convertAsNavigableSet(Function<? super F, ? extends T> fn,
 		Iterable<F> fs) {
-		return convertAsSortedSet(fn, fs, TreeSet::new);
+		return convertAsNavigableSet(fn, fs, CollectionUtil.navigableSetSupplier());
 	}
 
-	public static <F, T> SortedSet<T> convertAsSortedSet(Function<? super F, ? extends T> fn,
-		Iterable<F> fs, Supplier<SortedSet<T>> supplier) {
-		SortedSet<T> ts = supplier.get();
+	public static <F, T> NavigableSet<T> convertAsNavigableSet(Function<? super F, ? extends T> fn,
+		Iterable<F> fs, Supplier<? extends NavigableSet<T>> supplier) {
+		NavigableSet<T> ts = supplier.get();
 		for (F f : fs)
 			ts.add(fn.apply(f));
-		return Collections.unmodifiableSortedSet(ts);
+		return Collections.unmodifiableNavigableSet(ts);
 	}
 
 	@SafeVarargs

@@ -21,8 +21,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.Set;
-import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.stream.Stream;
 import org.junit.Test;
 import ceri.common.util.BasicUtil;
@@ -107,6 +109,13 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
+	public void testEmptyCopyAsNavigableMap() {
+		Map<?, ?> map = ImmutableUtil.copyAsNavigableMap(new HashMap<>());
+		assertTrue(map.isEmpty());
+		assertImmutableMap(map);
+	}
+
+	@Test
 	public void testIterableShouldIterateItems() {
 		List<String> list = new ArrayList<>();
 		Collections.addAll(list, "A", "B", "C");
@@ -175,11 +184,11 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
-	public void testCopyAsSortedSet() {
-		assertIterable(ImmutableUtil.copyAsSortedSet(asSet()));
+	public void testCopyAsNavigableSet() {
+		assertIterable(ImmutableUtil.copyAsNavigableSet(asSet()));
 		Set<Integer> srcSet = new HashSet<>();
 		Collections.addAll(srcSet, 2, 3, 1, 5, 4);
-		final SortedSet<Integer> set = ImmutableUtil.copyAsSortedSet(srcSet);
+		final NavigableSet<Integer> set = ImmutableUtil.copyAsNavigableSet(srcSet);
 		srcSet.remove(0);
 		assertIterable(set, 1, 2, 3, 4, 5);
 		assertImmutableCollection(set);
@@ -212,6 +221,22 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
+	public void testCopyAsNavigableMap() {
+		Map<Integer, String> srcMap = new HashMap<>();
+		srcMap.put(2, "2");
+		srcMap.put(5, "5");
+		srcMap.put(3, "3");
+		srcMap.put(1, "1");
+		srcMap.put(4, "4");
+		Map<Integer, String> copy = new TreeMap<>(srcMap);
+		final NavigableMap<Integer, String> map = ImmutableUtil.copyAsNavigableMap(srcMap);
+		srcMap.remove(1);
+		assertThat(map, is(copy));
+		assertIterable(map.keySet(), 1, 2, 3, 4, 5);
+		assertImmutableMap(map);
+	}
+
+	@Test
 	public void testCollectAsList() {
 		List<String> list = ImmutableUtil.collectAsList(Stream.of("1", "2", "3", "4", "5"));
 		assertThat(list, is(Arrays.asList("1", "2", "3", "4", "5")));
@@ -226,9 +251,9 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
-	public void testCollectAsSortedSet() {
-		SortedSet<String> set =
-			ImmutableUtil.collectAsSortedSet(Stream.of("4", "1", "3", "5", "2"));
+	public void testCollectAsNavigableSet() {
+		NavigableSet<String> set =
+			ImmutableUtil.collectAsNavigableSet(Stream.of("4", "1", "3", "5", "2"));
 		assertThat(set, is(asSet("1", "2", "3", "4", "5")));
 		assertImmutableCollection(set);
 	}
@@ -249,9 +274,9 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
-	public void testConvertAsSortedSet() {
-		SortedSet<Integer> set =
-			ImmutableUtil.convertAsSortedSet(Integer::parseInt, "5", "4", "1", "3", "2");
+	public void testConvertAsNavigableSet() {
+		NavigableSet<Integer> set =
+			ImmutableUtil.convertAsNavigableSet(Integer::parseInt, "5", "4", "1", "3", "2");
 		assertIterable(set, 1, 2, 3, 4, 5);
 		assertImmutableCollection(set);
 	}

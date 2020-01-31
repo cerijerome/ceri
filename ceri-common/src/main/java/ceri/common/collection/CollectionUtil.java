@@ -15,10 +15,13 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -34,7 +37,9 @@ import ceri.common.util.BasicUtil;
  */
 public class CollectionUtil {
 	private static final Supplier<Map<?, ?>> mapSupplier = LinkedHashMap::new;
+	private static final Supplier<NavigableMap<?, ?>> navigableMapSupplier = TreeMap::new;
 	private static final Supplier<Set<?>> setSupplier = LinkedHashSet::new;
+	private static final Supplier<NavigableSet<?>> navigableSetSupplier = TreeSet::new;
 	private static final Supplier<List<?>> listSupplier = ArrayList::new;
 
 	private CollectionUtil() {}
@@ -507,8 +512,16 @@ public class CollectionUtil {
 		return BasicUtil.uncheckedCast(mapSupplier);
 	}
 
+	public static <K, V> Supplier<NavigableMap<K, V>> navigableMapSupplier() {
+		return BasicUtil.uncheckedCast(navigableMapSupplier);
+	}
+
 	public static <T> Supplier<Set<T>> setSupplier() {
 		return BasicUtil.uncheckedCast(setSupplier);
+	}
+
+	public static <T> Supplier<NavigableSet<T>> navigableSetSupplier() {
+		return BasicUtil.uncheckedCast(navigableSetSupplier);
 	}
 
 	public static <T> Supplier<List<T>> listSupplier() {

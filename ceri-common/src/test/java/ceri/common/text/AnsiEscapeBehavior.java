@@ -8,6 +8,7 @@ import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.magenta;
 import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.yellow;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import java.awt.Color;
 import org.junit.Test;
 
 public class AnsiEscapeBehavior {
@@ -240,6 +241,7 @@ public class AnsiEscapeBehavior {
 		assertThrown(() -> AnsiEscape.csi.sgr().fgColor8(0, 6, 0));
 		assertThrown(() -> AnsiEscape.csi.sgr().fgColor8(0, 0, 6));
 		assertThat(AnsiEscape.csi.sgr().fgColor8(2, 3, 4).toString(), is("\u001b[38;5;110m"));
+		assertThat(AnsiEscape.csi.sgr().fgColor8(Color.cyan).toString(), is("\u001b[38;5;51m"));
 	}
 
 	@Test
@@ -252,6 +254,8 @@ public class AnsiEscapeBehavior {
 		assertThrown(() -> AnsiEscape.csi.sgr().fgColor24(0, 0, 256));
 		assertThat(AnsiEscape.csi.sgr().fgColor24(55, 66, 77).toString(),
 			is("\u001b[38;2;55;66;77m"));
+		assertThat(AnsiEscape.csi.sgr().fgColor24(Color.cyan).toString(),
+			is("\u001b[38;2;;255;255m"));
 	}
 
 	@Test
@@ -278,6 +282,7 @@ public class AnsiEscapeBehavior {
 		assertThrown(() -> AnsiEscape.csi.sgr().bgColor8(0, 6, 0));
 		assertThrown(() -> AnsiEscape.csi.sgr().bgColor8(0, 0, 6));
 		assertThat(AnsiEscape.csi.sgr().bgColor8(2, 3, 4).toString(), is("\u001b[48;5;110m"));
+		assertThat(AnsiEscape.csi.sgr().bgColor8(Color.cyan).toString(), is("\u001b[48;5;51m"));
 	}
 
 	@Test
@@ -290,6 +295,8 @@ public class AnsiEscapeBehavior {
 		assertThrown(() -> AnsiEscape.csi.sgr().bgColor24(0, 0, 256));
 		assertThat(AnsiEscape.csi.sgr().bgColor24(55, 66, 77).toString(),
 			is("\u001b[48;2;55;66;77m"));
+		assertThat(AnsiEscape.csi.sgr().bgColor24(Color.cyan).toString(),
+			is("\u001b[48;2;;255;255m"));
 	}
 
 	@Test
