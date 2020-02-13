@@ -4,6 +4,9 @@ import ceri.common.text.StringUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
+/**
+ * Used to hold values that may or may not have an enum value.
+ */
 public class ByteTypeValue<T extends Enum<T>> {
 	public final T type;
 	public final byte value;

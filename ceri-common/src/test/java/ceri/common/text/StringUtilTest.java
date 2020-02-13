@@ -159,10 +159,16 @@ public class StringUtilTest {
 		assertNull(StringUtil.compact(null));
 		assertThat(StringUtil.compact(""), is(""));
 		assertThat(StringUtil.compact("  \t\rt\r   \ne s\tt"), is("t e s t"));
+	}
+
+	@Test
+	public void testCompactFloatingPoint() {
 		assertThat(StringUtil.compact(0.15f), is("0.15"));
 		assertThat(StringUtil.compact(100.0f), is("100"));
 		assertThat(StringUtil.compact(1.2), is("1.2"));
 		assertThat(StringUtil.compact(11.0), is("11"));
+		assertThat(StringUtil.compact(0.1555555555, 3), is("0.156"));
+		assertThat(StringUtil.compact(0.9999, 3), is("1"));
 	}
 
 	@Test

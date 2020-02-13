@@ -30,8 +30,8 @@ public enum SqlType {
 	sqlTime(Types.TIME, Time.class),
 	sqlTimestamp(Types.TIMESTAMP, Timestamp.class);
 
-	private static final TypeTranscoder.Single<SqlType> xcoder =
-		TypeTranscoder.single(t -> t.value, SqlType.class);
+	private static final TypeTranscoder<SqlType> xcoder =
+		TypeTranscoder.of(t -> t.value, SqlType.class);
 	public final int value;
 	public final List<Class<?>> classes;
 

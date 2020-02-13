@@ -10,10 +10,8 @@ import org.junit.Test;
 public class FieldTranscoderBehavior {
 	private final int[] store = { 0 };
 	private final IntAccessor accessor = IntAccessor.of(() -> store[0], i -> store[0] = i);
-	private final FieldTranscoder.Single<E> single =
-		TypeTranscoder.single(t -> t.value, E.class).field(accessor);
-	private final FieldTranscoder.Flag<E> flag =
-		TypeTranscoder.flag(t -> t.value, E.class).field(accessor);
+	private final FieldTranscoder<E> field =
+		TypeTranscoder.of(t -> t.value, E.class).field(accessor);
 
 	enum E {
 		a(1),
@@ -33,35 +31,34 @@ public class FieldTranscoderBehavior {
 	}
 
 	@Test
-	public void shouldDecodeSingleValues() {
-		assertNull(single.get());
+	public void shouldAddValues() {
+		field.add(E.a, E.b);
+		assertCollection(field.getAll(), E.a, E.b);
+		field.add(E.a, E.c);
+		assertCollection(field.getAll(), E.a, E.b, E.c);
+	}
+	
+	@Test
+	public void shouldDecodeValues() {
+		assertNull(field.get());
+		assertCollection(field.getAll());
 		store[0] = E.c.value;
-		assertThat(single.get(), is(E.c));
-	}
-
-	@Test
-	public void shouldDecodeFlagValues() {
-		assertCollection(flag.get());
+		assertThat(field.get(), is(E.c));
 		store[0] = E.a.value + E.c.value;
-		assertCollection(flag.get(), E.a, E.c);
+		assertCollection(field.getAll(), E.a, E.c);
 	}
 
 	@Test
-	public void shouldValidateSingleFields() {
-		assertThat(single.isValid(), is(false));
-		single.set(E.c);
-		assertThat(single.isValid(), is(true));
+	public void shouldValidateFields() {
+		assertThat(field.isValid(), is(true));
+		field.set(E.c);
+		assertThat(field.isValid(), is(true));
 		store[0] = 6;
-		assertThat(single.isValid(), is(false));
-	}
-
-	@Test
-	public void shouldValidateFlagFields() {
-		assertThat(flag.isValid(), is(true));
-		flag.set(E.a, E.c);
-		assertThat(flag.isValid(), is(true));
+		assertThat(field.isValid(), is(false));
+		field.set(E.a, E.c);
+		assertThat(field.isValid(), is(true));
 		store[0] = 6;
-		assertThat(flag.isValid(), is(false));
+		assertThat(field.isValid(), is(false));
 	}
 
 }

@@ -10,8 +10,8 @@ public enum StateChange {
 	fixed(1),
 	broken(2);
 
-	public static final TypeTranscoder.Single<StateChange> xcoder =
-		TypeTranscoder.single(t -> t.value, StateChange.class);
+	public static final TypeTranscoder<StateChange> xcoder =
+		TypeTranscoder.of(t -> t.value, StateChange.class);
 	public final int value;
 
 	StateChange(int value) {

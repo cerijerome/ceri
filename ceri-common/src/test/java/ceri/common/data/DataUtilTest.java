@@ -15,8 +15,8 @@ public class DataUtilTest {
 		b(2),
 		c(3);
 
-		public static final TypeTranscoder.Single<E> xcoder =
-			TypeTranscoder.single(t -> t.value, E.class);
+		public static final TypeTranscoder<E> xcoder =
+			TypeTranscoder.of(t -> t.value, E.class);
 		public final int value;
 
 		E(int value) {

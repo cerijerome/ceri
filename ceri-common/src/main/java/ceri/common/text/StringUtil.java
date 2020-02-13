@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.math.MathUtil;
 import ceri.common.util.Align;
 
 /**
@@ -297,6 +298,13 @@ public class StringUtil {
 		String s = Double.toString(d);
 		if (s.endsWith(INTEGRAL_FLOAT)) s = s.substring(0, s.length() - INTEGRAL_FLOAT.length());
 		return s;
+	}
+
+	/**
+	 * Compact floating point representation - trailing .0 is removed if present.
+	 */
+	public static String compact(double d, int precision) {
+		return compact(MathUtil.simpleRound(d, precision));
 	}
 
 	/**

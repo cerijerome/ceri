@@ -8,72 +8,52 @@ import java.util.Set;
  * Combines an integer field accessor with a type transcoder to allow callers to get/set
  * types on a field that is a plain integer. Typically instantiated from TypeTranscoder.field. 
  */
-public abstract class FieldTranscoder {
+public class FieldTranscoder<T> {
 	private final IntAccessor accessor;
+	private final TypeTranscoder<T> xcoder;
 
-	public static class Single<T> extends FieldTranscoder {
-		private final TypeTranscoder.Single<T> xcoder;
-
-		Single(IntAccessor accessor, TypeTranscoder.Single<T> xcoder) {
-			super(accessor);
-			this.xcoder = xcoder;
-		}
-
-		public void set(T t) {
-			accessor().set(xcoder.encode(t));
-		}
-
-		public T get() {
-			return xcoder.decode(accessor().get());
-		}
-
-		public boolean isValid() {
-			return xcoder.isValid(accessor().get());
-		}
+	public static <T> FieldTranscoder<T> of(IntAccessor accessor,
+		TypeTranscoder<T> xcoder) {
+		return new FieldTranscoder<>(accessor, xcoder);
 	}
 
-	public static class Flag<T> extends FieldTranscoder {
-		private final TypeTranscoder.Flag<T> xcoder;
-
-		Flag(IntAccessor accessor, TypeTranscoder.Flag<T> xcoder) {
-			super(accessor);
-			this.xcoder = xcoder;
-		}
-
-		@SafeVarargs
-		public final void set(T... ts) {
-			set(Arrays.asList(ts));
-		}
-
-		public void set(Collection<T> ts) {
-			accessor().set(xcoder.encode(ts));
-		}
-
-		public Set<T> get() {
-			return xcoder.decode(accessor().get());
-		}
-
-		public boolean isValid() {
-			return xcoder.isValid(accessor().get());
-		}
-	}
-
-	public static <T> FieldTranscoder.Single<T> single(IntAccessor accessor,
-		TypeTranscoder.Single<T> xcoder) {
-		return new FieldTranscoder.Single<>(accessor, xcoder);
-	}
-
-	public static <T> FieldTranscoder.Flag<T> flag(IntAccessor accessor,
-		TypeTranscoder.Flag<T> xcoder) {
-		return new FieldTranscoder.Flag<>(accessor, xcoder);
-	}
-
-	FieldTranscoder(IntAccessor accessor) {
+	FieldTranscoder(IntAccessor accessor, TypeTranscoder<T> xcoder) {
 		this.accessor = accessor;
+		this.xcoder = xcoder;
 	}
 
 	public IntAccessor accessor() {
 		return accessor;
+	}
+
+	@SafeVarargs
+	public final void add(T... ts) {
+		add(Arrays.asList(ts));
+	}
+
+	public void add(Collection<T> ts) {
+		accessor().set(accessor.get() | xcoder.encode(ts));
+	}
+
+	@SafeVarargs
+	public final void set(T... ts) {
+		set(Arrays.asList(ts));
+	}
+
+	public void set(Collection<T> ts) {
+		accessor().set(xcoder.encode(ts));
+	}
+
+	public T get() {
+		return xcoder.decode(accessor().get());
+	}
+
+	public Set<T> getAll() {
+		return xcoder.decodeAll(accessor().get());
+	}
+
+	public boolean isValid() {
+		return xcoder.isValid(accessor().get());
 	}
 
 }
