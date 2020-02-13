@@ -45,7 +45,7 @@ JAR="${PRJNAME}-1.0.0-SNAPSHOT.jar"
 installPrj() {
     echo "Installing $1 $CLEAN"
     cd $GITDIR/$1
-    mvn -q -DskipTests $CLEAN install
+    mvn -q -Dmaven.test.skip=true $CLEAN install
 }
 
 buildAll() {
@@ -77,3 +77,4 @@ pushd . >/dev/null
 [[ "$NODEPLOY" ]] || deploy
 popd > /dev/null
 
+echo "Run on remote: sudo java -cp ./$JAR:lib/* <main-class-fqn> <params>"

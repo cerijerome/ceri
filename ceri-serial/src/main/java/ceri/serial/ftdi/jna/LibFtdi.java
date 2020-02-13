@@ -160,8 +160,8 @@ public class LibFtdi {
 		SIO_WRITE_EEPROM_REQUEST(0x91),
 		SIO_ERASE_EEPROM_REQUEST(0x92);
 
-		public static final TypeTranscoder.Single<ftdi_request_type> xcoder =
-			TypeTranscoder.single(t -> t.value, ftdi_request_type.class);
+		public static final TypeTranscoder<ftdi_request_type> xcoder =
+			TypeTranscoder.of(t -> t.value, ftdi_request_type.class);
 		public final int value;
 
 		ftdi_request_type(int value) {
@@ -179,8 +179,8 @@ public class LibFtdi {
 		TYPE_232H(6),
 		TYPE_230X(7);
 
-		public static final TypeTranscoder.Single<ftdi_chip_type> xcoder =
-			TypeTranscoder.single(t -> t.value, ftdi_chip_type.class);
+		public static final TypeTranscoder<ftdi_chip_type> xcoder =
+			TypeTranscoder.of(t -> t.value, ftdi_chip_type.class);
 		public static final Set<ftdi_chip_type> H_TYPES =
 			enumSet(TYPE_2232H, TYPE_4232H, TYPE_232H);
 		public static final Set<ftdi_chip_type> SYNC_FIFO_TYPES = enumSet(TYPE_2232H, TYPE_232H);
@@ -224,8 +224,8 @@ public class LibFtdi {
 		/** FT1284 mode, available on 232H chips */
 		BITMODE_FT1284(0x80);
 
-		public static final TypeTranscoder.Single<ftdi_mpsse_mode> xcoder =
-			TypeTranscoder.single(t -> t.value, ftdi_mpsse_mode.class);
+		public static final TypeTranscoder<ftdi_mpsse_mode> xcoder =
+			TypeTranscoder.of(t -> t.value, ftdi_mpsse_mode.class);
 		public final int value;
 
 		ftdi_mpsse_mode(int value) {
@@ -240,8 +240,8 @@ public class LibFtdi {
 		INTERFACE_C(3), // 2, 3, 0x06, 0x85
 		INTERFACE_D(4); // 3, 4, 0x08, 0x87
 
-		public static final TypeTranscoder.Single<ftdi_interface> xcoder =
-			TypeTranscoder.single(t -> t.value, ftdi_interface.class);
+		public static final TypeTranscoder<ftdi_interface> xcoder =
+			TypeTranscoder.of(t -> t.value, ftdi_interface.class);
 		public final int value;
 
 		ftdi_interface(int value) {
@@ -254,8 +254,8 @@ public class LibFtdi {
 		DONT_DETACH_SIO_MODULE(1),
 		AUTO_DETACH_REATACH_SIO_MODULE(2);
 
-		public static final TypeTranscoder.Single<ftdi_module_detach_mode> xcoder =
-			TypeTranscoder.single(t -> t.value, ftdi_module_detach_mode.class);
+		public static final TypeTranscoder<ftdi_module_detach_mode> xcoder =
+			TypeTranscoder.of(t -> t.value, ftdi_module_detach_mode.class);
 		public final int value;
 
 		ftdi_module_detach_mode(int value) {
@@ -268,8 +268,8 @@ public class LibFtdi {
 		BITS_7(7),
 		BITS_8(8);
 
-		public static final TypeTranscoder.Single<ftdi_data_bits_type> xcoder =
-			TypeTranscoder.single(t -> t.value, ftdi_data_bits_type.class);
+		public static final TypeTranscoder<ftdi_data_bits_type> xcoder =
+			TypeTranscoder.of(t -> t.value, ftdi_data_bits_type.class);
 		public final int value;
 
 		ftdi_data_bits_type(int value) {
@@ -283,8 +283,8 @@ public class LibFtdi {
 		STOP_BIT_15(1),
 		STOP_BIT_2(2);
 
-		public static final TypeTranscoder.Single<ftdi_stop_bits_type> xcoder =
-			TypeTranscoder.single(t -> t.value, ftdi_stop_bits_type.class);
+		public static final TypeTranscoder<ftdi_stop_bits_type> xcoder =
+			TypeTranscoder.of(t -> t.value, ftdi_stop_bits_type.class);
 		public final int value;
 
 		ftdi_stop_bits_type(int value) {
@@ -300,8 +300,8 @@ public class LibFtdi {
 		MARK(3),
 		SPACE(4);
 
-		public static final TypeTranscoder.Single<ftdi_parity_type> xcoder =
-			TypeTranscoder.single(t -> t.value, ftdi_parity_type.class);
+		public static final TypeTranscoder<ftdi_parity_type> xcoder =
+			TypeTranscoder.of(t -> t.value, ftdi_parity_type.class);
 		public final int value;
 
 		ftdi_parity_type(int value) {
@@ -314,8 +314,8 @@ public class LibFtdi {
 		BREAK_OFF(0),
 		BREAK_ON(1);
 
-		public static final TypeTranscoder.Single<ftdi_break_type> xcoder =
-			TypeTranscoder.single(t -> t.value, ftdi_break_type.class);
+		public static final TypeTranscoder<ftdi_break_type> xcoder =
+			TypeTranscoder.of(t -> t.value, ftdi_break_type.class);
 		public final int value;
 
 		ftdi_break_type(int value) {
@@ -329,8 +329,8 @@ public class LibFtdi {
 		SIO_DTR_DSR_HS(0x0200),
 		SIO_XON_XOFF_HS(0x0400);
 
-		public static final TypeTranscoder.Single<ftdi_flow_control> xcoder =
-			TypeTranscoder.single(t -> t.value, ftdi_flow_control.class);
+		public static final TypeTranscoder<ftdi_flow_control> xcoder =
+			TypeTranscoder.of(t -> t.value, ftdi_flow_control.class);
 		public final int value;
 
 		ftdi_flow_control(int value) {
@@ -391,7 +391,7 @@ public class LibFtdi {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<ftdi_chip_type> type() {
+		public FieldTranscoder<ftdi_chip_type> type() {
 			return ftdi_chip_type.xcoder.field(type_accessor.from(this));
 		}
 
@@ -399,15 +399,15 @@ public class LibFtdi {
 			return bitbang_enabled_accessor.from(this);
 		}
 
-		public FieldTranscoder.Single<ftdi_interface> index() {
+		public FieldTranscoder<ftdi_interface> index() {
 			return ftdi_interface.xcoder.field(index_accessor.from(this));
 		}
 
-		public FieldTranscoder.Single<ftdi_mpsse_mode> bitbang_mode() {
+		public FieldTranscoder<ftdi_mpsse_mode> bitbang_mode() {
 			return ftdi_mpsse_mode.xcoder.field(bitbang_mode_accessor.from(this));
 		}
 
-		public FieldTranscoder.Single<ftdi_module_detach_mode> module_detach_mode() {
+		public FieldTranscoder<ftdi_module_detach_mode> module_detach_mode() {
 			return ftdi_module_detach_mode.xcoder.field(module_detach_mode_accessor.from(this));
 		}
 
@@ -443,7 +443,7 @@ public class LibFtdi {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<libusb_transfer_status> completed() {
+		public FieldTranscoder<libusb_transfer_status> completed() {
 			return libusb_transfer_status.xcoder.field(completed_accessor.from(this));
 		}
 

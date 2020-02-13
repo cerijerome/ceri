@@ -6,30 +6,38 @@ import static ceri.serial.jna.JnaUtil.buffer;
 import static ceri.serial.jna.JnaUtil.ubyte;
 import static ceri.serial.jna.JnaUtil.ushort;
 import static com.sun.jna.Pointer.nativeValue;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import com.sun.jna.Memory;
 import ceri.serial.spi.Spi.Direction;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
+/**
+ * Wrapper for the spi_ioc_transfer data structure. Order of operations:
+ * <ol>
+ * <li>Create with constructor or Spi.transfer() to use the direction</li>
+ * <li></li>
+ * <li></li>
+ * </ol>
+ * 
+ */
 public class SpiTransfer {
+	private final Spi spi;
 	private final int sizeMax;
 	private final ByteBuffer out;
 	private final ByteBuffer in;
 	private final Direction direction;
 	private final spi_ioc_transfer transfer;
 
-	public static SpiTransfer of(Direction direction, int size) {
-		if (direction == Direction.out)
-			return new SpiTransfer(direction, new Memory(size), null, size);
-		if (direction == Direction.in)
-			return new SpiTransfer(direction, null, new Memory(size), size);
-		if (direction == Direction.duplex)
-			return new SpiTransfer(direction, new Memory(size), new Memory(size), size);
-		throw new IllegalArgumentException("Invalid direction: " + direction);
+	static SpiTransfer of(Spi spi, int size) {
+		Memory outMem = spi.direction() == Direction.in ? null : new Memory(size);
+		Memory inMem = spi.direction() == Direction.out ? null : new Memory(size);
+		return new SpiTransfer(spi, outMem, inMem, size);
 	}
 
-	private SpiTransfer(Direction direction, Memory outMem, Memory inMem, int size) {
-		this.direction = direction;
+	private SpiTransfer(Spi spi, Memory outMem, Memory inMem, int size) {
+		this.spi = spi;
+		direction = spi.direction();
 		transfer = new spi_ioc_transfer();
 		transfer.tx_buf = nativeValue(outMem);
 		transfer.rx_buf = nativeValue(inMem);
@@ -50,6 +58,11 @@ public class SpiTransfer {
 		return buffer;
 	}
 
+	public SpiTransfer execute() throws IOException {
+		spi.execute(this);
+		return this;
+	}
+	
 	public SpiTransfer write(byte[] data) {
 		if (out.capacity() == 0) return this;
 		out.clear().put(data);

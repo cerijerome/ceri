@@ -149,7 +149,7 @@ public class UsbHotplug implements Closeable {
 		libusb_hotplug_callback_fn jnaCallback =
 			(ctx, dev, evt, user_data) -> adaptCallback(dev, evt, callbackId, callback, userData);
 		libusb_hotplug_callback_handle handle = libusb_hotplug_register_callback(context.context(),
-			libusb_hotplug_event.xcoder.flag().encode(events),
+			libusb_hotplug_event.xcoder.encode(events),
 			libusb_hotplug_flag.xcoder.encode(flags), valueOrAny(vendorId), valueOrAny(productId),
 			valueOrAny(devClass), jnaCallback, null);
 		trackCallback(handle.value, callbackId, jnaCallback);

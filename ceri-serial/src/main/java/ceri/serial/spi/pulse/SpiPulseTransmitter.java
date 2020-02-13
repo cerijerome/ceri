@@ -25,7 +25,6 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	private final BooleanCondition sync = BooleanCondition.of(safe.conditionLock());
 	private final SpiPulseConfig config;
 	private final PulseBuffer buffer;
-	private final Spi spi;
 	private final SpiTransfer xfer;
 	private final ByteReceiver wrapper;
 	private final byte[] data;
@@ -36,7 +35,6 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 
 	private SpiPulseTransmitter(Spi spi, SpiPulseConfig config) {
 		this.config = config;
-		this.spi = spi;
 		buffer = config.buffer();
 		xfer = spi.transfer(buffer.storageSize()).delayMicros(config.delayMicros);
 		data = new byte[buffer.length()];
@@ -83,7 +81,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 		try {
 			syncData();
 			buffer.writePulseTo(xfer.out());
-			spi.execute(xfer);
+			xfer.execute();
 		} catch (InterruptedException | RuntimeInterruptedException e) {
 			throw e;
 		} catch (Exception e) {

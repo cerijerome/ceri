@@ -38,7 +38,7 @@ public class SpiTester {
 			xfer.write(fill(xfer.size(), fill));
 			long t0 = System.currentTimeMillis();
 			for (int i = 0; i < repeat; i++) {
-				spi.execute(xfer);
+				xfer.execute();
 				BasicUtil.delay(repeatDelayMs);
 			}
 			long t1 = System.currentTimeMillis();

@@ -98,8 +98,8 @@ public class LibUsb {
 		LIBUSB_CLASS_APPLICATION(0xfe),
 		LIBUSB_CLASS_VENDOR_SPEC(0xff);
 
-		public static final TypeTranscoder.Single<libusb_class_code> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_class_code.class);
+		public static final TypeTranscoder<libusb_class_code> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_class_code.class);
 		public final int value;
 
 		libusb_class_code(int value) {
@@ -130,8 +130,8 @@ public class LibUsb {
 		LIBUSB_DT_SUPERSPEED_HUB(0x2a),
 		LIBUSB_DT_SS_ENDPOINT_COMPANION(0x30);
 
-		public static final TypeTranscoder.Single<libusb_descriptor_type> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_descriptor_type.class);
+		public static final TypeTranscoder<libusb_descriptor_type> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_descriptor_type.class);
 		public final int value;
 
 		libusb_descriptor_type(int value) {
@@ -152,8 +152,8 @@ public class LibUsb {
 		LIBUSB_ENDPOINT_IN(0x80),
 		LIBUSB_ENDPOINT_OUT(0x00);
 
-		public static final TypeTranscoder.Single<libusb_endpoint_direction> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_endpoint_direction.class);
+		public static final TypeTranscoder<libusb_endpoint_direction> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_endpoint_direction.class);
 		public final int value;
 
 		libusb_endpoint_direction(int value) {
@@ -177,8 +177,8 @@ public class LibUsb {
 		LIBUSB_TRANSFER_TYPE_INTERRUPT(3),
 		LIBUSB_TRANSFER_TYPE_BULK_STREAM(4);
 
-		public static final TypeTranscoder.Single<libusb_transfer_type> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_transfer_type.class);
+		public static final TypeTranscoder<libusb_transfer_type> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_transfer_type.class);
 		public final int value;
 
 		libusb_transfer_type(int value) {
@@ -211,8 +211,8 @@ public class LibUsb {
 		LIBUSB_REQUEST_SET_SEL(0x30),
 		LIBUSB_SET_ISOCH_DELAY(0x31);
 
-		public static final TypeTranscoder.Single<libusb_standard_request> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_standard_request.class);
+		public static final TypeTranscoder<libusb_standard_request> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_standard_request.class);
 		public final int value;
 
 		libusb_standard_request(int value) {
@@ -235,8 +235,8 @@ public class LibUsb {
 		LIBUSB_REQUEST_TYPE_VENDOR(0x02 << 5),
 		LIBUSB_REQUEST_TYPE_RESERVED(0x03 << 5);
 
-		public static final TypeTranscoder.Single<libusb_request_type> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_request_type.class);
+		public static final TypeTranscoder<libusb_request_type> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_request_type.class);
 		public final int value;
 
 		libusb_request_type(int value) {
@@ -259,8 +259,8 @@ public class LibUsb {
 		LIBUSB_RECIPIENT_ENDPOINT(0x02),
 		LIBUSB_RECIPIENT_OTHER(0x03);
 
-		public static final TypeTranscoder.Single<libusb_request_recipient> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_request_recipient.class);
+		public static final TypeTranscoder<libusb_request_recipient> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_request_recipient.class);
 		public final int value;
 
 		libusb_request_recipient(int value) {
@@ -288,8 +288,8 @@ public class LibUsb {
 		LIBUSB_ISO_SYNC_TYPE_ADAPTIVE(2),
 		LIBUSB_ISO_SYNC_TYPE_SYNC(3);
 
-		public static final TypeTranscoder.Single<libusb_iso_sync_type> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_iso_sync_type.class);
+		public static final TypeTranscoder<libusb_iso_sync_type> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_iso_sync_type.class);
 		public final int value;
 
 		libusb_iso_sync_type(int value) {
@@ -311,8 +311,8 @@ public class LibUsb {
 		LIBUSB_ISO_USAGE_TYPE_FEEDBACK(1),
 		LIBUSB_ISO_USAGE_TYPE_IMPLICIT(2);
 
-		public static final TypeTranscoder.Single<libusb_iso_usage_type> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_iso_usage_type.class);
+		public static final TypeTranscoder<libusb_iso_usage_type> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_iso_usage_type.class);
 		public final int value;
 
 		libusb_iso_usage_type(int value) {
@@ -367,11 +367,11 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<libusb_descriptor_type> bDescriptorType() {
+		public FieldTranscoder<libusb_descriptor_type> bDescriptorType() {
 			return libusb_descriptor_type.xcoder.field(bDescriptorTypeAccessor.from(this));
 		}
 
-		public FieldTranscoder.Single<libusb_class_code> bDeviceClass() {
+		public FieldTranscoder<libusb_class_code> bDeviceClass() {
 			return libusb_class_code.xcoder.field(bDeviceClassAccessor.from(this));
 		}
 
@@ -424,7 +424,7 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<libusb_descriptor_type> bDescriptorType() {
+		public FieldTranscoder<libusb_descriptor_type> bDescriptorType() {
 			return libusb_descriptor_type.xcoder.field(bDescriptorTypeAccessor.from(this));
 		}
 
@@ -432,22 +432,22 @@ public class LibUsb {
 			return bEndpointAddressAccessor.from(this).mask(LIBUSB_ENDPOINT_ADDRESS_MASK);
 		}
 
-		public FieldTranscoder.Single<libusb_endpoint_direction> bEndpointDirection() {
+		public FieldTranscoder<libusb_endpoint_direction> bEndpointDirection() {
 			return libusb_endpoint_direction.xcoder
 				.field(bEndpointAddressAccessor.from(this).mask(LIBUSB_ENDPOINT_DIR_MASK));
 		}
 
-		public FieldTranscoder.Single<libusb_transfer_type> bmAttributesTransferType() {
+		public FieldTranscoder<libusb_transfer_type> bmAttributesTransferType() {
 			return libusb_transfer_type.xcoder
 				.field(bmAttributesAccessor.from(this).mask(LIBUSB_TRANSFER_TYPE_MASK));
 		}
 
-		public FieldTranscoder.Single<libusb_iso_sync_type> bmAttributesIsoSyncType() {
+		public FieldTranscoder<libusb_iso_sync_type> bmAttributesIsoSyncType() {
 			return libusb_iso_sync_type.xcoder.field(bmAttributesAccessor.from(this)
 				.mask(MaskTranscoder.mask(LIBUSB_ISO_SYNC_TYPE_MASK, 2)));
 		}
 
-		public FieldTranscoder.Single<libusb_iso_usage_type> bmAttributesIsoUsageType() {
+		public FieldTranscoder<libusb_iso_usage_type> bmAttributesIsoUsageType() {
 			return libusb_iso_usage_type.xcoder.field(bmAttributesAccessor.from(this)
 				.mask(MaskTranscoder.mask(LIBUSB_ISO_USAGE_TYPE_MASK, 4)));
 		}
@@ -502,11 +502,11 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<libusb_descriptor_type> bDescriptorType() {
+		public FieldTranscoder<libusb_descriptor_type> bDescriptorType() {
 			return libusb_descriptor_type.xcoder.field(bDescriptorTypeAccessor.from(this));
 		}
 
-		public FieldTranscoder.Single<libusb_class_code> bInterfaceClass() {
+		public FieldTranscoder<libusb_class_code> bInterfaceClass() {
 			return libusb_class_code.xcoder.field(bInterfaceClassAccessor.from(this));
 		}
 
@@ -592,7 +592,7 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<libusb_descriptor_type> bDescriptorType() {
+		public FieldTranscoder<libusb_descriptor_type> bDescriptorType() {
 			return libusb_descriptor_type.xcoder.field(bDescriptorTypeAccessor.from(this));
 		}
 
@@ -643,7 +643,7 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<libusb_descriptor_type> bDescriptorType() {
+		public FieldTranscoder<libusb_descriptor_type> bDescriptorType() {
 			return libusb_descriptor_type.xcoder.field(bDescriptorTypeAccessor.from(this));
 		}
 
@@ -689,7 +689,7 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<libusb_descriptor_type> bDescriptorType() {
+		public FieldTranscoder<libusb_descriptor_type> bDescriptorType() {
 			return libusb_descriptor_type.xcoder.field(bDescriptorTypeAccessor.from(this));
 		}
 
@@ -733,7 +733,7 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<libusb_descriptor_type> bDescriptorType() {
+		public FieldTranscoder<libusb_descriptor_type> bDescriptorType() {
 			return libusb_descriptor_type.xcoder.field(bDescriptorTypeAccessor.from(this));
 		}
 
@@ -783,15 +783,15 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<libusb_descriptor_type> bDescriptorType() {
+		public FieldTranscoder<libusb_descriptor_type> bDescriptorType() {
 			return libusb_descriptor_type.xcoder.field(bDescriptorTypeAccessor.from(this));
 		}
 
-		public FieldTranscoder.Single<libusb_bos_type> bDevCapabilityType() {
+		public FieldTranscoder<libusb_bos_type> bDevCapabilityType() {
 			return libusb_bos_type.xcoder.field(bDevCapabilityTypeAccessor.from(this));
 		}
 
-		public FieldTranscoder.Flag<libusb_usb_2_0_extension_attributes> bmAttributes() {
+		public FieldTranscoder<libusb_usb_2_0_extension_attributes> bmAttributes() {
 			return libusb_usb_2_0_extension_attributes.xcoder
 				.field(bmAttributesTypeAccessor.from(this));
 		}
@@ -841,20 +841,20 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<libusb_descriptor_type> bDescriptorType() {
+		public FieldTranscoder<libusb_descriptor_type> bDescriptorType() {
 			return libusb_descriptor_type.xcoder.field(bDescriptorTypeAccessor.from(this));
 		}
 
-		public FieldTranscoder.Single<libusb_bos_type> bDevCapabilityType() {
+		public FieldTranscoder<libusb_bos_type> bDevCapabilityType() {
 			return libusb_bos_type.xcoder.field(bDevCapabilityTypeAccessor.from(this));
 		}
 
-		public FieldTranscoder.Flag<libusb_ss_usb_device_capability_attributes> bmAttributes() {
+		public FieldTranscoder<libusb_ss_usb_device_capability_attributes> bmAttributes() {
 			return libusb_ss_usb_device_capability_attributes.xcoder
 				.field(bmAttributesTypeAccessor.from(this));
 		}
 
-		public FieldTranscoder.Flag<libusb_supported_speed> wSpeedSupported() {
+		public FieldTranscoder<libusb_supported_speed> wSpeedSupported() {
 			return libusb_supported_speed.xcoder.field(wSpeedSupportedAccessor.from(this));
 		}
 
@@ -895,11 +895,11 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<libusb_descriptor_type> bDescriptorType() {
+		public FieldTranscoder<libusb_descriptor_type> bDescriptorType() {
 			return libusb_descriptor_type.xcoder.field(bDescriptorTypeAccessor.from(this));
 		}
 
-		public FieldTranscoder.Single<libusb_bos_type> bDevCapabilityType() {
+		public FieldTranscoder<libusb_bos_type> bDevCapabilityType() {
 			return libusb_bos_type.xcoder.field(bDevCapabilityTypeAccessor.from(this));
 		}
 
@@ -943,22 +943,22 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<libusb_request_recipient> bmRequestRecipient() {
+		public FieldTranscoder<libusb_request_recipient> bmRequestRecipient() {
 			return libusb_request_recipient.xcoder
 				.field(bmRequestTypeAccessor.from(this).mask(LIBUSB_REQUEST_RECIPIENT_MASK));
 		}
 
-		public FieldTranscoder.Single<libusb_request_type> bmRequestType() {
+		public FieldTranscoder<libusb_request_type> bmRequestType() {
 			return libusb_request_type.xcoder
 				.field(bmRequestTypeAccessor.from(this).mask(LIBUSB_REQUEST_TYPE_MASK));
 		}
 
-		public FieldTranscoder.Single<libusb_endpoint_direction> bmRequestDirection() {
+		public FieldTranscoder<libusb_endpoint_direction> bmRequestDirection() {
 			return libusb_endpoint_direction.xcoder
 				.field(bmRequestTypeAccessor.from(this).mask(LIBUSB_ENDPOINT_DIR_MASK));
 		}
 
-		public FieldTranscoder.Single<libusb_standard_request> bRequestStandard() {
+		public FieldTranscoder<libusb_standard_request> bRequestStandard() {
 			return libusb_standard_request.xcoder.field(bRequestAccessor.from(this));
 		}
 
@@ -1059,8 +1059,8 @@ public class LibUsb {
 		LIBUSB_SPEED_HIGH(3),
 		LIBUSB_SPEED_SUPER(4);
 
-		public static final TypeTranscoder.Single<libusb_speed> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_speed.class);
+		public static final TypeTranscoder<libusb_speed> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_speed.class);
 		public final int value;
 
 		libusb_speed(int value) {
@@ -1082,8 +1082,8 @@ public class LibUsb {
 		LIBUSB_HIGH_SPEED_OPERATION(4),
 		LIBUSB_SUPER_SPEED_OPERATION(8);
 
-		public static final TypeTranscoder.Flag<libusb_supported_speed> xcoder =
-			TypeTranscoder.flag(t -> t.value, libusb_supported_speed.class);
+		public static final TypeTranscoder<libusb_supported_speed> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_supported_speed.class);
 		public final int value;
 
 		libusb_supported_speed(int value) {
@@ -1103,8 +1103,8 @@ public class LibUsb {
 	public enum libusb_usb_2_0_extension_attributes {
 		LIBUSB_BM_LPM_SUPPORT(2);
 
-		public static final TypeTranscoder.Flag<libusb_usb_2_0_extension_attributes> xcoder =
-			TypeTranscoder.flag(t -> t.value, libusb_usb_2_0_extension_attributes.class);
+		public static final TypeTranscoder<libusb_usb_2_0_extension_attributes> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_usb_2_0_extension_attributes.class);
 		public final int value;
 
 		libusb_usb_2_0_extension_attributes(int value) {
@@ -1124,8 +1124,8 @@ public class LibUsb {
 	public enum libusb_ss_usb_device_capability_attributes {
 		LIBUSB_BM_LTM_SUPPORT(2);
 
-		public static final TypeTranscoder.Flag<libusb_ss_usb_device_capability_attributes> xcoder =
-			TypeTranscoder.flag(t -> t.value, libusb_ss_usb_device_capability_attributes.class);
+		public static final TypeTranscoder<libusb_ss_usb_device_capability_attributes> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_ss_usb_device_capability_attributes.class);
 		public final int value;
 
 		libusb_ss_usb_device_capability_attributes(int value) {
@@ -1147,8 +1147,8 @@ public class LibUsb {
 		LIBUSB_BT_SS_USB_DEVICE_CAPABILITY(3),
 		LIBUSB_BT_CONTAINER_ID(4);
 
-		public static final TypeTranscoder.Single<libusb_bos_type> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_bos_type.class);
+		public static final TypeTranscoder<libusb_bos_type> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_bos_type.class);
 		public final int value;
 
 		libusb_bos_type(int value) {
@@ -1182,8 +1182,8 @@ public class LibUsb {
 		LIBUSB_ERROR_NOT_SUPPORTED(-12),
 		LIBUSB_ERROR_OTHER(-99);
 
-		public static final TypeTranscoder.Single<libusb_error> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_error.class);
+		public static final TypeTranscoder<libusb_error> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_error.class);
 		public final int value;
 
 		libusb_error(int value) {
@@ -1208,8 +1208,8 @@ public class LibUsb {
 		LIBUSB_TRANSFER_NO_DEVICE(5),
 		LIBUSB_TRANSFER_OVERFLOW(6);
 
-		public static final TypeTranscoder.Single<libusb_transfer_status> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_transfer_status.class);
+		public static final TypeTranscoder<libusb_transfer_status> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_transfer_status.class);
 		public final int value;
 
 		libusb_transfer_status(int value) {
@@ -1231,8 +1231,8 @@ public class LibUsb {
 		LIBUSB_TRANSFER_FREE_TRANSFER(1 << 2),
 		LIBUSB_TRANSFER_ADD_ZERO_PACKET(1 << 3);
 
-		public static final TypeTranscoder.Flag<libusb_transfer_flags> xcoder =
-			TypeTranscoder.flag(t -> t.value, libusb_transfer_flags.class);
+		public static final TypeTranscoder<libusb_transfer_flags> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_transfer_flags.class);
 		public final int value;
 
 		libusb_transfer_flags(int value) {
@@ -1270,7 +1270,7 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<libusb_transfer_status> status() {
+		public FieldTranscoder<libusb_transfer_status> status() {
 			return libusb_transfer_status.xcoder.field(statusAccessor.from(this));
 		}
 
@@ -1342,15 +1342,15 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder.Flag<libusb_transfer_flags> flags() {
+		public FieldTranscoder<libusb_transfer_flags> flags() {
 			return libusb_transfer_flags.xcoder.field(flagsAccessor.from(this));
 		}
 
-		public FieldTranscoder.Single<libusb_transfer_type> type() {
+		public FieldTranscoder<libusb_transfer_type> type() {
 			return libusb_transfer_type.xcoder.field(typeAccessor.from(this));
 		}
 
-		public FieldTranscoder.Single<libusb_transfer_status> status() {
+		public FieldTranscoder<libusb_transfer_status> status() {
 			return libusb_transfer_status.xcoder.field(statusAccessor.from(this));
 		}
 
@@ -1380,8 +1380,8 @@ public class LibUsb {
 		LIBUSB_CAP_HAS_HID_ACCESS(0x0100),
 		LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER(0x0101);
 
-		public static final TypeTranscoder.Single<libusb_capability> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_capability.class);
+		public static final TypeTranscoder<libusb_capability> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_capability.class);
 		public final int value;
 
 		libusb_capability(int value) {
@@ -1404,8 +1404,8 @@ public class LibUsb {
 		LIBUSB_LOG_LEVEL_INFO(3),
 		LIBUSB_LOG_LEVEL_DEBUG(4);
 
-		public static final TypeTranscoder.Single<libusb_log_level> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_log_level.class);
+		public static final TypeTranscoder<libusb_log_level> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_log_level.class);
 		public final int value;
 
 		libusb_log_level(int value) {
@@ -1774,8 +1774,8 @@ public class LibUsb {
 		POLLIN(0x0001),
 		POLLOUT(0x0004);
 
-		public static final TypeTranscoder.Flag<libusb_poll_event> xcoder =
-			TypeTranscoder.flag(t -> t.value, libusb_poll_event.class);
+		public static final TypeTranscoder<libusb_poll_event> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_poll_event.class);
 		public final int value;
 
 		libusb_poll_event(int value) {
@@ -1807,7 +1807,7 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder.Flag<libusb_poll_event> events() {
+		public FieldTranscoder<libusb_poll_event> events() {
 			return libusb_poll_event.xcoder.field(eventsAccessor.from(this));
 		}
 
@@ -1869,8 +1869,8 @@ public class LibUsb {
 		LIBUSB_HOTPLUG_NO_FLAGS(0),
 		LIBUSB_HOTPLUG_ENUMERATE(1);
 
-		public static final TypeTranscoder.Flag<libusb_hotplug_flag> xcoder =
-			TypeTranscoder.flag(t -> t.value, libusb_hotplug_flag.class);
+		public static final TypeTranscoder<libusb_hotplug_flag> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_hotplug_flag.class);
 		public final int value;
 
 		libusb_hotplug_flag(int value) {
@@ -1892,8 +1892,8 @@ public class LibUsb {
 		LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED(0x01),
 		LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT(0x02);
 
-		public static final TypeTranscoder.Single<libusb_hotplug_event> xcoder =
-			TypeTranscoder.single(t -> t.value, libusb_hotplug_event.class);
+		public static final TypeTranscoder<libusb_hotplug_event> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_hotplug_event.class);
 		public final int value;
 
 		libusb_hotplug_event(int value) {

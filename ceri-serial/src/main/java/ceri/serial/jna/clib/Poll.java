@@ -20,8 +20,8 @@ public class Poll {
 		POLLHUP(0x0010),
 		POLLNVAL(0x0020);
 
-		public static final TypeTranscoder.Flag<poll_event> xcoder =
-			TypeTranscoder.flag(t -> t.value, poll_event.class);
+		public static final TypeTranscoder<poll_event> xcoder =
+			TypeTranscoder.of(t -> t.value, poll_event.class);
 		public final int value;
 
 		poll_event(int value) {
@@ -55,11 +55,11 @@ public class Poll {
 			super(p);
 		}
 
-		public FieldTranscoder.Flag<poll_event> events() {
+		public FieldTranscoder<poll_event> events() {
 			return poll_event.xcoder.field(eventsAccessor.from(this));
 		}
 
-		public FieldTranscoder.Flag<poll_event> revents() {
+		public FieldTranscoder<poll_event> revents() {
 			return poll_event.xcoder.field(reventsAccessor.from(this));
 		}
 

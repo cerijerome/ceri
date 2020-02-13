@@ -49,7 +49,7 @@ public class JnaUtil {
 	 */
 	public static int verifyf(int result, String format, Object...params) throws CException {
 		if (result >= 0) return result;
-		throw CException.fullMessage(String.format(format, params), result);
+		throw CException.fullMessage(StringUtil.format(format, params), result);
 	}
 
 	/**

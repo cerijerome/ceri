@@ -266,7 +266,7 @@ public class Usb implements Closeable {
 	private <T> void pollfdAdded(int fd, short events, PollfdAddedCallback<T> callback,
 		T userData) {
 		try {
-			callback.invoke(fd, libusb_poll_event.xcoder.decode(events), userData);
+			callback.invoke(fd, libusb_poll_event.xcoder.decodeAll(events), userData);
 		} catch (IOException | RuntimeException e) {
 			logger.catching(e);
 		}

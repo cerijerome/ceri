@@ -37,7 +37,7 @@ public interface Spi extends Closeable {
 		if (speedHz == 0) speedHz = maxSpeedHz();
 		return speedHz;
 	}
-	
+
 	default int bitsPerWord(SpiTransfer xfer) throws IOException {
 		int bitsPerWord = xfer.bitsPerWord();
 		if (bitsPerWord == 0) bitsPerWord = bitsPerWord();
@@ -45,11 +45,10 @@ public interface Spi extends Closeable {
 		return bitsPerWord;
 	}
 
-
 	Spi execute(SpiTransfer xfer) throws IOException;
 
 	default SpiTransfer transfer(int size) {
-		return SpiTransfer.of(direction(), size);
+		return SpiTransfer.of(this, size);
 	}
 
 }

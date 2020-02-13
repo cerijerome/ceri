@@ -107,7 +107,7 @@ public class LibFtdiStream {
 			super(p);
 		}
 
-		public FieldTranscoder.Single<libusb_error> result() {
+		public FieldTranscoder<libusb_error> result() {
 			return libusb_error.xcoder.field(resultAccessor.from(this));
 		}
 
