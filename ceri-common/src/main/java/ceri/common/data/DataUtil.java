@@ -84,34 +84,31 @@ public class DataUtil {
 		throw UnexpectedValueException.forInt(expected, actual, name);
 	}
 
-	public static void validate(ByteTypeValue<?> value) {
-		validate(value, null);
-	}
-
-	public static void validate(ByteTypeValue<?> value, String name) {
-		validateNotNull(value);
-		if (value.type != null) return;
-		throw UnexpectedValueException.forByte(value.value, name);
-	}
-
-	public static void validate(ShortTypeValue<?> value) {
-		validate(value, null);
-	}
-
-	public static void validate(ShortTypeValue<?> value, String name) {
-		validateNotNull(value);
-		if (value.type != null) return;
-		throw UnexpectedValueException.forShort(value.value, name);
-	}
-
+	/**
+	 * Validates value to make sure type is set.
+	 */
 	public static void validate(IntTypeValue<?> value) {
-		validate(value, null);
+		validate(value, (String) null);
 	}
 
+	/**
+	 * Validates value to make sure type is set.
+	 */
 	public static void validate(IntTypeValue<?> value, String name) {
+		validate(value, null, name);
+	}
+
+	/**
+	 * Validates value to make sure type is set and not equals to the invalid value.
+	 */
+	public static <T> void validate(IntTypeValue<T> value, T invalid) {
+		validate(value, invalid, null);
+	}
+
+	public static <T> void validate(IntTypeValue<T> value, T invalid, String name) {
 		validateNotNull(value);
-		if (value.type != null) return;
-		throw UnexpectedValueException.forInt(value.value, name);
+		if (value.hasType() && (invalid == null || !invalid.equals(value.type()))) return;
+		throw UnexpectedValueException.forInt(value.value(), name);
 	}
 
 	public static int validateAscii(String value, ByteProvider data) {

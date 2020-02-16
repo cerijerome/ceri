@@ -12,15 +12,14 @@ import ceri.common.collection.StreamUtil;
 
 /**
  * Helper to convert between object types and integer values. Integers can map to a single instance
- * (Single), or to a set of instances (Flag). Useful for converting between integers and enums.
+ * or to a set of instances. Useful for converting between integers and enums.
  */
 public class TypeTranscoder<T> {
 	final MaskTranscoder mask;
 	final ToIntFunction<T> valueFn;
 	final Map<Integer, T> lookup;
 
-	public static <T extends Enum<T>> TypeTranscoder<T> of(ToIntFunction<T> valueFn,
-		Class<T> cls) {
+	public static <T extends Enum<T>> TypeTranscoder<T> of(ToIntFunction<T> valueFn, Class<T> cls) {
 		return of(valueFn, EnumSet.allOf(cls));
 	}
 
@@ -43,7 +42,8 @@ public class TypeTranscoder<T> {
 		return of(valueFn, mask, Arrays.asList(ts));
 	}
 
-	public static <T> TypeTranscoder<T> of(ToIntFunction<T> valueFn, MaskTranscoder mask, Collection<T> ts) {
+	public static <T> TypeTranscoder<T> of(ToIntFunction<T> valueFn, MaskTranscoder mask,
+		Collection<T> ts) {
 		return new TypeTranscoder<>(valueFn, mask, ts);
 	}
 
@@ -68,13 +68,13 @@ public class TypeTranscoder<T> {
 	@SafeVarargs
 	public final int encode(T... ts) {
 		if (ts == null || ts.length == 0) return 0;
+		if (ts.length == 1) return mask.encodeInt(encodeType(ts[0]));
 		return encode(Arrays.asList(ts));
 	}
 
 	public int encode(Collection<T> ts) {
 		if (ts == null || ts.isEmpty()) return 0;
-		return mask.encodeInt(
-			StreamUtil.bitwiseOr(ts.stream().mapToInt(valueFn).filter(lookup::containsKey)));
+		return mask.encodeInt(StreamUtil.bitwiseOr(ts.stream().mapToInt(this::encodeType)));
 	}
 
 	public boolean isValid(int value) {
@@ -92,7 +92,7 @@ public class TypeTranscoder<T> {
 	public T decode(int value) {
 		return lookup.get(mask.decodeInt(value));
 	}
-	
+
 	public Set<T> decodeAll(int value) {
 		value = mask.decodeInt(value);
 		Set<T> set = new LinkedHashSet<>();
@@ -106,5 +106,10 @@ public class TypeTranscoder<T> {
 		}
 		return set;
 	}
-	
+
+	private int encodeType(T t) {
+		int value = valueFn.applyAsInt(t);
+		return lookup.containsKey(value) ? value : 0;
+	}
+
 }

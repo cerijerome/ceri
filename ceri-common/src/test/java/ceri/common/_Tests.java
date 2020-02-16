@@ -47,7 +47,6 @@ import ceri.common.data.BinaryStateBehavior;
 import ceri.common.data.BooleanAccessorBehavior;
 import ceri.common.data.ByteArrayDataInputBehavior;
 import ceri.common.data.ByteArrayDataOutputBehavior;
-import ceri.common.data.ByteTypeValueBehavior;
 import ceri.common.data.ByteUtilTest;
 import ceri.common.data.DataDecoderBehavior;
 import ceri.common.data.DataEncoderBehavior;
@@ -58,7 +57,6 @@ import ceri.common.data.IntAccessorBehavior;
 import ceri.common.data.IntBitSetBehavior;
 import ceri.common.data.IntTypeValueBehavior;
 import ceri.common.data.MaskTranscoderBehavior;
-import ceri.common.data.ShortTypeValueBehavior;
 import ceri.common.data.TypeTranscoderBehavior;
 import ceri.common.data.UnexpectedValueExceptionBehavior;
 import ceri.common.data.UnsignedOctetTypeBehavior;
@@ -320,7 +318,6 @@ import ceri.common.xml.XmlUtilTest;
 	BooleanAccessorBehavior.class, //
 	ByteArrayDataInputBehavior.class, //
 	ByteArrayDataOutputBehavior.class, //
-	ByteTypeValueBehavior.class, //
 	ByteUtilTest.class, //
 	DataDecoderBehavior.class, //
 	DataEncoderBehavior.class, //
@@ -331,7 +328,6 @@ import ceri.common.xml.XmlUtilTest;
 	IntBitSetBehavior.class, //
 	IntTypeValueBehavior.class, //
 	MaskTranscoderBehavior.class, //
-	ShortTypeValueBehavior.class, //
 	TypeTranscoderBehavior.class, //
 	UnexpectedValueExceptionBehavior.class, //
 	UnsignedOctetTypeBehavior.class, //

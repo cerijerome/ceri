@@ -15,8 +15,7 @@ public class DataUtilTest {
 		b(2),
 		c(3);
 
-		public static final TypeTranscoder<E> xcoder =
-			TypeTranscoder.of(t -> t.value, E.class);
+		public static final TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, E.class);
 		public final int value;
 
 		E(int value) {
@@ -55,15 +54,11 @@ public class DataUtilTest {
 
 	@Test
 	public void testValidateType() {
-		DataUtil.validate(DataTestType.intValue(255));
-		TestUtil.assertThrown(() -> DataUtil.validate(DataTestType.intValue(0), "test"));
-		TestUtil.assertThrown(() -> DataUtil.validate(DataTestType.intValue(101)));
-		DataUtil.validate(DataTestType.shortValue(255));
-		TestUtil.assertThrown(() -> DataUtil.validate(DataTestType.shortValue(0), "test"));
-		TestUtil.assertThrown(() -> DataUtil.validate(DataTestType.shortValue(101)));
-		DataUtil.validate(DataTestType.byteValue(255));
-		TestUtil.assertThrown(() -> DataUtil.validate(DataTestType.byteValue(0), "test"));
-		TestUtil.assertThrown(() -> DataUtil.validate(DataTestType.byteValue(101)));
+		DataUtil.validate(IntTypeValue.of(0, E.a, null));
+		DataUtil.validate(IntTypeValue.of(0, E.b, null), E.a);
+		TestUtil.assertThrown(() -> DataUtil.validate(IntTypeValue.of(0, null, null)));
+		TestUtil.assertThrown(() -> DataUtil.validate(IntTypeValue.of(0, null, "test")));
+		TestUtil.assertThrown(() -> DataUtil.validate(IntTypeValue.of(0, E.a, null), E.a, "E"));
 	}
 
 	@Test
