@@ -1,4 +1,4 @@
-package ceri.serial.jna.clib;
+package ceri.serial.clib.jna;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import java.time.Duration;

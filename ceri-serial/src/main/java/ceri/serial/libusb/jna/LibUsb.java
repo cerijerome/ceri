@@ -26,10 +26,10 @@ import ceri.common.data.IntAccessor;
 import ceri.common.data.MaskTranscoder;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.text.StringUtil;
+import ceri.serial.clib.jna.Time.timeval;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.Struct;
 import ceri.serial.jna.TypedPointer;
-import ceri.serial.jna.clib.Time.timeval;
 
 //import ceri.serial.jna.JnaUtil;
 
@@ -336,9 +336,9 @@ public class LibUsb {
 			"bDeviceProtocol", "bMaxPacketSize0", "idVendor", "idProduct", "bcdDevice",
 			"iManufacturer", "iProduct", "iSerialNumber", "bNumConfigurations");
 		private static final IntAccessor.Typed<libusb_device_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
+			IntAccessor.typedUbyte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 		private static final IntAccessor.Typed<libusb_device_descriptor> bDeviceClassAccessor =
-			IntAccessor.typedByte(t -> t.bDeviceClass, (t, b) -> t.bDeviceClass = b);
+			IntAccessor.typedUbyte(t -> t.bDeviceClass, (t, b) -> t.bDeviceClass = b);
 
 		public static class ByValue extends libusb_device_descriptor //
 			implements Structure.ByValue {}
@@ -391,11 +391,11 @@ public class LibUsb {
 			"bLength", "bDescriptorType", "bEndpointAddress", "bmAttributes", "wMaxPacketSize",
 			"bInterval", "bRefresh", "bSynchAddress", "extra", "extra_length");
 		private static final IntAccessor.Typed<libusb_endpoint_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
+			IntAccessor.typedUbyte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 		private static final IntAccessor.Typed<libusb_endpoint_descriptor> bEndpointAddressAccessor =
-			IntAccessor.typedByte(t -> t.bEndpointAddress, (t, b) -> t.bEndpointAddress = b);
+			IntAccessor.typedUbyte(t -> t.bEndpointAddress, (t, b) -> t.bEndpointAddress = b);
 		private static final IntAccessor.Typed<libusb_endpoint_descriptor> bmAttributesAccessor =
-			IntAccessor.typedByte(t -> t.bmAttributes, (t, b) -> t.bmAttributes = b);
+			IntAccessor.typedUbyte(t -> t.bmAttributes, (t, b) -> t.bmAttributes = b);
 
 		public static class ByValue extends libusb_endpoint_descriptor //
 			implements Structure.ByValue {}
@@ -473,9 +473,9 @@ public class LibUsb {
 			"bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "iInterface", "endpoint",
 			"extra", "extra_length");
 		private static final IntAccessor.Typed<libusb_interface_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
+			IntAccessor.typedUbyte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 		private static final IntAccessor.Typed<libusb_interface_descriptor> bInterfaceClassAccessor =
-			IntAccessor.typedByte(t -> t.bInterfaceClass, (t, b) -> t.bInterfaceClass = b);
+			IntAccessor.typedUbyte(t -> t.bInterfaceClass, (t, b) -> t.bInterfaceClass = b);
 
 		public static class ByValue extends libusb_interface_descriptor //
 			implements Structure.ByValue {}
@@ -511,7 +511,7 @@ public class LibUsb {
 		}
 
 		public libusb_endpoint_descriptor[] endpoints() {
-			return JnaUtil.array(endpoint, ubyte(bNumEndpoints), libusb_endpoint_descriptor[]::new);
+			return array(ubyte(bNumEndpoints), endpoint, libusb_endpoint_descriptor[]::new);
 		}
 
 		public byte[] extra() {
@@ -547,7 +547,7 @@ public class LibUsb {
 		}
 
 		public libusb_interface_descriptor[] altsettings() {
-			return JnaUtil.array(altsetting, num_altsetting, libusb_interface_descriptor[]::new);
+			return array(num_altsetting, altsetting, libusb_interface_descriptor[]::new);
 		}
 
 		@Override
@@ -566,7 +566,7 @@ public class LibUsb {
 			"bLength", "bDescriptorType", "wTotalLength", "bNumInterfaces", "bConfigurationValue",
 			"iConfiguration", "bmAttributes", "MaxPower", "interfaces", "extra", "extra_length");
 		private static final IntAccessor.Typed<libusb_config_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
+			IntAccessor.typedUbyte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 
 		public static class ByValue extends libusb_config_descriptor //
 			implements Structure.ByValue {}
@@ -597,7 +597,7 @@ public class LibUsb {
 		}
 
 		public libusb_interface[] interfaces() {
-			return JnaUtil.array(interfaces, ubyte(bNumInterfaces), libusb_interface[]::new);
+			return array(ubyte(bNumInterfaces), interfaces, libusb_interface[]::new);
 		}
 
 		public byte[] extra() {
@@ -619,9 +619,9 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of( //
 			"bLength", "bDescriptorType", "bMaxBurst", "bmAttributes", "wBytesPerInterval");
 		private static final IntAccessor.Typed<libusb_ss_endpoint_companion_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
+			IntAccessor.typedUbyte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 		private static final IntAccessor.Typed<libusb_ss_endpoint_companion_descriptor> bmAttributesAccessor =
-			IntAccessor.typedByte(t -> t.bmAttributes, (t, b) -> t.bmAttributes = b);
+			IntAccessor.typedUbyte(t -> t.bmAttributes, (t, b) -> t.bmAttributes = b);
 
 		public static class ByValue extends libusb_ss_endpoint_companion_descriptor //
 			implements Structure.ByValue {}
@@ -670,7 +670,7 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of( //
 			"bLength", "bDescriptorType", "bDevCapabilityType", "dev_capability_data");
 		private static final IntAccessor.Typed<libusb_bos_dev_capability_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
+			IntAccessor.typedUbyte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 
 		public static class ByValue extends libusb_bos_dev_capability_descriptor //
 			implements Structure.ByValue {}
@@ -713,7 +713,7 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of( //
 			"bLength", "bDescriptorType", "wTotalLength", "bNumDeviceCaps", "dev_capability");
 		private static final IntAccessor.Typed<libusb_bos_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
+			IntAccessor.typedUbyte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 
 		public static class ByValue extends libusb_bos_descriptor //
 			implements Structure.ByValue {}
@@ -760,9 +760,9 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of( //
 			"bLength", "bDescriptorType", "bDevCapabilityType", "bmAttributes");
 		private static final IntAccessor.Typed<libusb_usb_2_0_extension_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
+			IntAccessor.typedUbyte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 		private static final IntAccessor.Typed<libusb_usb_2_0_extension_descriptor> bDevCapabilityTypeAccessor =
-			IntAccessor.typedByte(t -> t.bDevCapabilityType, (t, b) -> t.bDevCapabilityType = b);
+			IntAccessor.typedUbyte(t -> t.bDevCapabilityType, (t, b) -> t.bDevCapabilityType = b);
 		private static final IntAccessor.Typed<libusb_usb_2_0_extension_descriptor> bmAttributesTypeAccessor =
 			IntAccessor.typed(t -> t.bmAttributes, (t, i) -> t.bmAttributes = i);
 
@@ -812,13 +812,13 @@ public class LibUsb {
 			"bLength", "bDescriptorType", "bDevCapabilityType", "bmAttributes", "wSpeedSupported",
 			"bFunctionalitySupport", "bU1DevExitLat", "bU2DevExitLat");
 		private static final IntAccessor.Typed<libusb_ss_usb_device_capability_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
+			IntAccessor.typedUbyte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 		private static final IntAccessor.Typed<libusb_ss_usb_device_capability_descriptor> bDevCapabilityTypeAccessor =
-			IntAccessor.typedByte(t -> t.bDevCapabilityType, (t, b) -> t.bDevCapabilityType = b);
+			IntAccessor.typedUbyte(t -> t.bDevCapabilityType, (t, b) -> t.bDevCapabilityType = b);
 		private static final IntAccessor.Typed<libusb_ss_usb_device_capability_descriptor> bmAttributesTypeAccessor =
-			IntAccessor.typedByte(t -> t.bmAttributes, (t, b) -> t.bmAttributes = b);
+			IntAccessor.typedUbyte(t -> t.bmAttributes, (t, b) -> t.bmAttributes = b);
 		private static final IntAccessor.Typed<libusb_ss_usb_device_capability_descriptor> wSpeedSupportedAccessor =
-			IntAccessor.typedShort(t -> t.wSpeedSupported, (t, s) -> t.wSpeedSupported = s);
+			IntAccessor.typedUshort(t -> t.wSpeedSupported, (t, s) -> t.wSpeedSupported = s);
 
 		public static class ByValue extends libusb_ss_usb_device_capability_descriptor //
 			implements Structure.ByValue {}
@@ -873,9 +873,9 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of( //
 			"bLength", "bDescriptorType", "bDevCapabilityType", "bReserved", "ContainerID");
 		private static final IntAccessor.Typed<libusb_container_id_descriptor> bDescriptorTypeAccessor =
-			IntAccessor.typedByte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
+			IntAccessor.typedUbyte(t -> t.bDescriptorType, (t, b) -> t.bDescriptorType = b);
 		private static final IntAccessor.Typed<libusb_container_id_descriptor> bDevCapabilityTypeAccessor =
-			IntAccessor.typedByte(t -> t.bDevCapabilityType, (t, b) -> t.bDevCapabilityType = b);
+			IntAccessor.typedUbyte(t -> t.bDevCapabilityType, (t, b) -> t.bDevCapabilityType = b);
 
 		public static class ByValue extends libusb_container_id_descriptor //
 			implements Structure.ByValue {}
@@ -916,9 +916,9 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of( //
 			"bmRequestType", "bRequest", "wValue", "wIndex", "wLength");
 		private static final IntAccessor.Typed<libusb_control_setup> bmRequestTypeAccessor =
-			IntAccessor.typedByte(t -> t.bmRequestType, (t, b) -> t.bmRequestType = b);
+			IntAccessor.typedUbyte(t -> t.bmRequestType, (t, b) -> t.bmRequestType = b);
 		private static final IntAccessor.Typed<libusb_control_setup> bRequestAccessor =
-			IntAccessor.typedByte(t -> t.bRequest, (t, b) -> t.bRequest = b);
+			IntAccessor.typedUbyte(t -> t.bRequest, (t, b) -> t.bRequest = b);
 
 		public static class ByValue extends libusb_control_setup //
 			implements Structure.ByValue {}
@@ -1007,28 +1007,23 @@ public class LibUsb {
 	 * your program to use two libraries (or dynamically load two modules) which both independently
 	 * use libusb. This will prevent interference between the individual libusb users - for example
 	 * libusb_set_debug() will not affect the other user of the library, and libusb_exit() will not
-	 * destroy resources that the other user is still using.
-	 *
-	 * Sessions are created by libusb_init() and destroyed through libusb_exit(). If your
-	 * application is guaranteed to only ever include a single libusb user (i.e. you), you do not
-	 * have to worry about contexts: pass NULL in every function call where a context is required.
-	 * The default context will be used.
+	 * destroy resources that the other user is still using. Sessions are created by libusb_init()
+	 * and destroyed through libusb_exit(). If your application is guaranteed to only ever include a
+	 * single libusb user (i.e. you), you do not have to worry about contexts: pass NULL in every
+	 * function call where a context is required. The default context will be used.
 	 */
-	// typedef struct libusb_context libusb_context;
+		// typedef struct libusb_context libusb_context;
 	public static class libusb_context extends TypedPointer {}
 
 	/**
 	 * Structure representing a USB device detected on the system. This is an opaque type for which
 	 * you are only ever provided with a pointer, usually originating from libusb_get_device_list().
-	 *
 	 * Certain operations can be performed on a device, but in order to do any I/O you will have to
-	 * first obtain a device handle using libusb_open().
-	 *
-	 * Devices are reference counted with libusb_ref_device() and libusb_unref_device(), and are
-	 * freed when the reference count reaches 0. New devices presented by libusb_get_device_list()
-	 * have a reference count of 1, and libusb_free_device_list() can optionally decrease the
-	 * reference count on all devices in the list. libusb_open() adds another reference which is
-	 * later destroyed by libusb_close().
+	 * first obtain a device handle using libusb_open(). Devices are reference counted with
+	 * libusb_ref_device() and libusb_unref_device(), and are freed when the reference count reaches
+	 * 0. New devices presented by libusb_get_device_list() have a reference count of 1, and
+	 * libusb_free_device_list() can optionally decrease the reference count on all devices in the
+	 * list. libusb_open() adds another reference which is later destroyed by libusb_close().
 	 */
 	// typedef struct libusb_device libusb_device;
 	public static class libusb_device extends TypedPointer {
@@ -1041,12 +1036,11 @@ public class LibUsb {
 
 	/**
 	 * Structure representing a handle on a USB device. This is an opaque type for which you are
-	 * only ever provided with a pointer, usually originating from libusb_open().
-	 *
-	 * A device handle is used to perform I/O and other operations. When finished with a device
-	 * handle, you should call libusb_close().
+	 * only ever provided with a pointer, usually originating from libusb_open(). A device handle is
+	 * used to perform I/O and other operations. When finished with a device handle, you should call
+	 * libusb_close().
 	 */
-	// typedef struct libusb_device_handle libusb_device_handle;
+		// typedef struct libusb_device_handle libusb_device_handle;
 	public static class libusb_device_handle extends TypedPointer {}
 
 	/**
@@ -1288,8 +1282,7 @@ public class LibUsb {
 		 * "callback" member of the libusb_transfer structure. libusb will call this function later,
 		 * when the transfer has completed or failed.
 		 *
-		 * @param transfer
-		 *            The libusb_transfer struct the callback function is being notified about.
+		 * @param transfer The libusb_transfer struct the callback function is being notified about.
 		 */
 		void invoke(libusb_transfer transfer);
 	}
@@ -1305,9 +1298,9 @@ public class LibUsb {
 			"actual_length", "callback", "user_data", "buffer", "num_iso_packets",
 			"iso_packet_desc");
 		private static final IntAccessor.Typed<libusb_transfer> flagsAccessor =
-			IntAccessor.typedByte(t -> t.flags, (t, b) -> t.flags = b);
+			IntAccessor.typedUbyte(t -> t.flags, (t, b) -> t.flags = b);
 		private static final IntAccessor.Typed<libusb_transfer> typeAccessor =
-			IntAccessor.typedByte(t -> t.type, (t, b) -> t.type = b);
+			IntAccessor.typedUbyte(t -> t.type, (t, b) -> t.type = b);
 		private static final IntAccessor.Typed<libusb_transfer> statusAccessor =
 			IntAccessor.typed(t -> t.status, (t, i) -> t.status = i);
 
@@ -1427,13 +1420,10 @@ public class LibUsb {
 	/**
 	 * Get the data section of a control transfer. This convenience function is here to remind you
 	 * that the data does not start until 8 bytes into the actual buffer, as the setup packet comes
-	 * first.
+	 * first. Calling this function only makes sense from a transfer callback function, or
+	 * situations where you have already allocated a suitably sized buffer at transfer.buffer.
 	 *
-	 * Calling this function only makes sense from a transfer callback function, or situations where
-	 * you have already allocated a suitably sized buffer at transfer.buffer.
-	 *
-	 * @param transfer
-	 *            a transfer
+	 * @param transfer a transfer
 	 * @return pointer to the first byte of the data section
 	 */
 	public static Pointer libusb_control_transfer_get_data(libusb_transfer transfer) {
@@ -1443,12 +1433,10 @@ public class LibUsb {
 	/**
 	 * Get the control setup packet of a control transfer. This convenience function is here to
 	 * remind you that the control setup occupies the first 8 bytes of the transfer data buffer.
-	 *
 	 * Calling this function only makes sense from a transfer callback function, or situations where
 	 * you have already allocated a suitably sized buffer at transfer.buffer.
 	 *
-	 * @param transfer
-	 *            a transfer
+	 * @param transfer a transfer
 	 * @return a casted pointer to the start of the transfer data buffer
 	 */
 	public static libusb_control_setup libusb_control_transfer_get_setup(libusb_transfer transfer) {
@@ -1459,19 +1447,13 @@ public class LibUsb {
 	 * Helper function to populate the setup packet (first 8 bytes of the data buffer) for a control
 	 * transfer. The wIndex, wValue and wLength values should be given in host-endian byte order.
 	 *
-	 * @param buffer
-	 *            buffer to output the setup packet into This pointer must be aligned to at least 2
-	 *            bytes boundary.
-	 * @param bmRequestType
-	 *            see libusb_control_setup.bmRequestType
-	 * @param bRequest
-	 *            see libusb_control_setup.bRequest
-	 * @param wValue
-	 *            see libusb_control_setup.wValue
-	 * @param wIndex
-	 *            see libusb_control_setup.wIndex
-	 * @param wLength
-	 *            see libusb_control_setup.wLength
+	 * @param buffer buffer to output the setup packet into This pointer must be aligned to at least
+	 *        2 bytes boundary.
+	 * @param bmRequestType see libusb_control_setup.bmRequestType
+	 * @param bRequest see libusb_control_setup.bRequest
+	 * @param wValue see libusb_control_setup.wValue
+	 * @param wIndex see libusb_control_setup.wIndex
+	 * @param wLength see libusb_control_setup.wLength
 	 */
 	public static void libusb_fill_control_setup(Pointer buffer, int bmRequestType, int bRequest,
 		int wValue, int wIndex, int wLength) {
@@ -1484,9 +1466,8 @@ public class LibUsb {
 	}
 
 	/**
-	 * Helper function to populate the required libusb_transfer fields for a control transfer.
-	 *
-	 * If you pass a transfer buffer to this function, the first 8 bytes will be interpreted as a
+	 * Helper function to populate the required libusb_transfer fields for a control transfer. If
+	 * you pass a transfer buffer to this function, the first 8 bytes will be interpreted as a
 	 * control setup packet, and the wLength field will be used to automatically populate
 	 * libusb_transfer.length. Therefore the recommended approach is:
 	 * <ul>
@@ -1501,20 +1482,14 @@ public class LibUsb {
 	 * attempt to populate the length field. Remember that you must then populate the buffer and
 	 * length fields later.
 	 *
-	 * @param transfer
-	 *            the transfer to populate
-	 * @param dev_handle
-	 *            handle of the device that will handle the transfer
-	 * @param buffer
-	 *            data buffer. If provided, this function will interpret the first 8 bytes as a
-	 *            setup packet and infer the transfer length from that. This pointer must be aligned
-	 *            to at least 2 bytes boundary.
-	 * @param callback
-	 *            callback function to be invoked on transfer completion
-	 * @param user_data
-	 *            user data to pass to callback function
-	 * @param timeout
-	 *            timeout for the transfer in milliseconds
+	 * @param transfer the transfer to populate
+	 * @param dev_handle handle of the device that will handle the transfer
+	 * @param buffer data buffer. If provided, this function will interpret the first 8 bytes as a
+	 *        setup packet and infer the transfer length from that. This pointer must be aligned to
+	 *        at least 2 bytes boundary.
+	 * @param callback callback function to be invoked on transfer completion
+	 * @param user_data user data to pass to callback function
+	 * @param timeout timeout for the transfer in milliseconds
 	 */
 	public static void libusb_fill_control_transfer(libusb_transfer transfer,
 		libusb_device_handle dev_handle, Pointer buffer, libusb_transfer_cb_fn callback,
@@ -1534,22 +1509,14 @@ public class LibUsb {
 	/**
 	 * Helper function to populate the required libusb_transfer fields for a bulk transfer.
 	 *
-	 * @param transfer
-	 *            the transfer to populate
-	 * @param dev_handle
-	 *            handle of the device that will handle the transfer
-	 * @param endpoint
-	 *            address of the endpoint where this transfer will be sent
-	 * @param buffer
-	 *            data buffer
-	 * @param length
-	 *            length of data buffer
-	 * @param callback
-	 *            callback function to be invoked on transfer completion
-	 * @param user_data
-	 *            user data to pass to callback function
-	 * @param timeout
-	 *            timeout for the transfer in milliseconds
+	 * @param transfer the transfer to populate
+	 * @param dev_handle handle of the device that will handle the transfer
+	 * @param endpoint address of the endpoint where this transfer will be sent
+	 * @param buffer data buffer
+	 * @param length length of data buffer
+	 * @param callback callback function to be invoked on transfer completion
+	 * @param user_data user data to pass to callback function
+	 * @param timeout timeout for the transfer in milliseconds
 	 */
 	public static void libusb_fill_bulk_transfer(libusb_transfer transfer,
 		libusb_device_handle dev_handle, int endpoint, Pointer buffer, int length,
@@ -1566,28 +1533,17 @@ public class LibUsb {
 
 	/**
 	 * Helper function to populate the required libusb_transfer fields for a bulk transfer using
-	 * bulk streams.
+	 * bulk streams. Since version 1.0.19, LIBUSB_API_VERSION >= 0x01000103
 	 *
-	 * Since version 1.0.19, LIBUSB_API_VERSION >= 0x01000103
-	 *
-	 * @param transfer
-	 *            the transfer to populate
-	 * @param dev_handle
-	 *            handle of the device that will handle the transfer
-	 * @param endpoint
-	 *            address of the endpoint where this transfer will be sent
-	 * @param stream_id
-	 *            bulk stream id for this transfer
-	 * @param buffer
-	 *            data buffer
-	 * @param length
-	 *            length of data buffer
-	 * @param callback
-	 *            callback function to be invoked on transfer completion
-	 * @param user_data
-	 *            user data to pass to callback function
-	 * @param timeout
-	 *            timeout for the transfer in milliseconds
+	 * @param transfer the transfer to populate
+	 * @param dev_handle handle of the device that will handle the transfer
+	 * @param endpoint address of the endpoint where this transfer will be sent
+	 * @param stream_id bulk stream id for this transfer
+	 * @param buffer data buffer
+	 * @param length length of data buffer
+	 * @param callback callback function to be invoked on transfer completion
+	 * @param user_data user data to pass to callback function
+	 * @param timeout timeout for the transfer in milliseconds
 	 */
 	public static void libusb_fill_bulk_stream_transfer(libusb_transfer transfer,
 		libusb_device_handle dev_handle, int endpoint, int stream_id, Pointer buffer, int length,
@@ -1601,22 +1557,14 @@ public class LibUsb {
 	/**
 	 * Helper function to populate the required libusb_transfer fields for an interrupt transfer.
 	 *
-	 * @param transfer
-	 *            the transfer to populate
-	 * @param dev_handle
-	 *            handle of the device that will handle the transfer
-	 * @param endpoint
-	 *            address of the endpoint where this transfer will be sent
-	 * @param buffer
-	 *            data buffer
-	 * @param length
-	 *            length of data buffer
-	 * @param callback
-	 *            callback function to be invoked on transfer completion
-	 * @param user_data
-	 *            user data to pass to callback function
-	 * @param timeout
-	 *            timeout for the transfer in milliseconds
+	 * @param transfer the transfer to populate
+	 * @param dev_handle handle of the device that will handle the transfer
+	 * @param endpoint address of the endpoint where this transfer will be sent
+	 * @param buffer data buffer
+	 * @param length length of data buffer
+	 * @param callback callback function to be invoked on transfer completion
+	 * @param user_data user data to pass to callback function
+	 * @param timeout timeout for the transfer in milliseconds
 	 */
 	public static void libusb_fill_interrupt_transfer(libusb_transfer transfer,
 		libusb_device_handle dev_handle, int endpoint, Pointer buffer, int length,
@@ -1634,24 +1582,15 @@ public class LibUsb {
 	/**
 	 * Helper function to populate the required libusb_transfer fields for an isochronous transfer.
 	 *
-	 * @param transfer
-	 *            the transfer to populate
-	 * @param dev_handle
-	 *            handle of the device that will handle the transfer
-	 * @param endpoint
-	 *            address of the endpoint where this transfer will be sent
-	 * @param buffer
-	 *            data buffer
-	 * @param length
-	 *            length of data buffer
-	 * @param num_iso_packets
-	 *            the number of isochronous packets
-	 * @param callback
-	 *            callback function to be invoked on transfer completion
-	 * @param user_data
-	 *            user data to pass to callback function
-	 * @param timeout
-	 *            timeout for the transfer in milliseconds
+	 * @param transfer the transfer to populate
+	 * @param dev_handle handle of the device that will handle the transfer
+	 * @param endpoint address of the endpoint where this transfer will be sent
+	 * @param buffer data buffer
+	 * @param length length of data buffer
+	 * @param num_iso_packets the number of isochronous packets
+	 * @param callback callback function to be invoked on transfer completion
+	 * @param user_data user data to pass to callback function
+	 * @param timeout timeout for the transfer in milliseconds
 	 */
 	public static void libusb_fill_iso_transfer(libusb_transfer transfer,
 		libusb_device_handle dev_handle, int endpoint, Pointer buffer, int length,
@@ -1671,11 +1610,9 @@ public class LibUsb {
 	 * Convenience function to set the length of all packets in an isochronous transfer, based on
 	 * the num_iso_packets field in the transfer structure.
 	 *
-	 * @param transfer
-	 *            a transfer
-	 * @param length
-	 *            the length to set in each isochronous packet descriptor
-	 *            libusb_get_max_packet_size()
+	 * @param transfer a transfer
+	 * @param length the length to set in each isochronous packet descriptor
+	 *        libusb_get_max_packet_size()
 	 */
 	public static void libusb_set_iso_packet_lengths(libusb_transfer transfer, int length) {
 		// TODO: test
@@ -1693,10 +1630,8 @@ public class LibUsb {
 	 * assign equal lengths to each packet in the transfer, and hence the above method is
 	 * sub-optimal. You may wish to use libusb_get_iso_packet_buffer_simple() instead.
 	 *
-	 * @param transfer
-	 *            a transfer
-	 * @param packet
-	 *            the packet to return the address of
+	 * @param transfer a transfer
+	 * @param packet the packet to return the address of
 	 * @return the base address of the packet buffer inside the transfer buffer, or NULL if the
 	 *         packet does not exist. See libusb_get_iso_packet_buffer_simple()
 	 */
@@ -1724,10 +1659,8 @@ public class LibUsb {
 	 * Do not use this function on transfers other than those that have identical packet lengths for
 	 * each packet.
 	 *
-	 * @param transfer
-	 *            a transfer
-	 * @param packet
-	 *            the packet to return the address of
+	 * @param transfer a transfer
+	 * @param packet the packet to return the address of
 	 * @return the base address of the packet buffer inside the transfer buffer, or NULL if the
 	 *         packet does not exist. See libusb_get_iso_packet_buffer()
 	 */
@@ -1790,7 +1723,7 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of( //
 			"fd", "events");
 		private static final IntAccessor.Typed<libusb_pollfd> eventsAccessor =
-			IntAccessor.typedShort(t -> t.events, (t, s) -> t.events = s);
+			IntAccessor.typedUshort(t -> t.events, (t, s) -> t.events = s);
 
 		public static class ByValue extends libusb_pollfd //
 			implements Structure.ByValue {}
@@ -1841,15 +1774,10 @@ public class LibUsb {
 	}
 
 	/**
-	 * Callback handle.
-	 *
-	 * Callbacks handles are generated by libusb_hotplug_register_callback() and can be used to
-	 * deregister callbacks. Callback handles are unique per libusb_context and it is safe to call
-	 * libusb_hotplug_deregister_callback() on an already deregistered callback.
-	 *
-	 * Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102
-	 *
-	 * For more information, see hotplug.
+	 * Callback handle. Callbacks handles are generated by libusb_hotplug_register_callback() and
+	 * can be used to deregister callbacks. Callback handles are unique per libusb_context and it is
+	 * safe to call libusb_hotplug_deregister_callback() on an already deregistered callback. Since
+	 * version 1.0.16, LIBUSB_API_VERSION >= 0x01000102 For more information, see hotplug.
 	 */
 	// typedef int libusb_hotplug_callback_handle;
 	public static class libusb_hotplug_callback_handle {
@@ -1861,9 +1789,7 @@ public class LibUsb {
 	}
 
 	/**
-	 * Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102
-	 * 
-	 * Flags for hotplug events
+	 * Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102 Flags for hotplug events
 	 */
 	public enum libusb_hotplug_flag {
 		LIBUSB_HOTPLUG_NO_FLAGS(0),
@@ -1884,9 +1810,7 @@ public class LibUsb {
 	}
 
 	/**
-	 * Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102
-	 * 
-	 * Hotplug events
+	 * Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102 Hotplug events
 	 */
 	public enum libusb_hotplug_event {
 		LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED(0x01),
@@ -1911,27 +1835,17 @@ public class LibUsb {
 	public interface libusb_hotplug_callback_fn extends Callback {
 		/**
 		 * Hotplug callback function type. When requesting hotplug event notifications, you pass a
-		 * pointer to a callback function of this type.
+		 * pointer to a callback function of this type. This callback may be called by an internal
+		 * event thread and as such it is recommended the callback do minimal processing before
+		 * returning. libusb will call this function later, when a matching event had happened on a
+		 * matching device. See hotplug for more information. It is safe to call either
+		 * libusb_hotplug_register_callback() or libusb_hotplug_deregister_callback() from within a
+		 * callback function. Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102
 		 *
-		 * This callback may be called by an internal event thread and as such it is recommended the
-		 * callback do minimal processing before returning.
-		 *
-		 * libusb will call this function later, when a matching event had happened on a matching
-		 * device. See hotplug for more information.
-		 *
-		 * It is safe to call either libusb_hotplug_register_callback() or
-		 * libusb_hotplug_deregister_callback() from within a callback function.
-		 *
-		 * Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102
-		 *
-		 * @param ctx
-		 *            context of this notification
-		 * @param device
-		 *            libusb_device this event occurred on
-		 * @param event
-		 *            event that occurred
-		 * @param user_data
-		 *            user data provided when this callback was registered
+		 * @param ctx context of this notification
+		 * @param device libusb_device this event occurred on
+		 * @param event event that occurred
+		 * @param user_data user data provided when this callback was registered
 		 * @return bool whether this callback is finished processing events. returning 1 will cause
 		 *         this callback to be deregistered
 		 */
@@ -2622,7 +2536,7 @@ public class LibUsb {
 	}
 
 	private static LibUsbNative loadLibrary(String name) {
-		logger.info("Loading {} started", name);
+		logger.debug("Loading {} started", name);
 		// logger.info("Protected: {}", JnaUtil.setProtected()); // only use for debug
 		LibUsbNative lib = JnaUtil.loadLibrary(name, LibUsbNative.class);
 		logger.info("Loading {} complete", name);

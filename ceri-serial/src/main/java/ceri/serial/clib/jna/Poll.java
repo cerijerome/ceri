@@ -1,4 +1,4 @@
-package ceri.serial.jna.clib;
+package ceri.serial.clib.jna;
 
 import java.util.List;
 import com.sun.jna.Pointer;
@@ -35,9 +35,9 @@ public class Poll {
 	public static class pollfd extends Struct {
 		private static final List<String> FIELDS = List.of("fd", "events");
 		private static final IntAccessor.Typed<pollfd> eventsAccessor =
-			IntAccessor.typedShort(t -> t.events, (t, s) -> t.events = s);
+			IntAccessor.typedUshort(t -> t.events, (t, s) -> t.events = s);
 		private static final IntAccessor.Typed<pollfd> reventsAccessor =
-			IntAccessor.typedShort(t -> t.revents, (t, s) -> t.revents = s);
+			IntAccessor.typedUshort(t -> t.revents, (t, s) -> t.revents = s);
 
 		public static class ByValue extends pollfd //
 			implements Structure.ByValue {}

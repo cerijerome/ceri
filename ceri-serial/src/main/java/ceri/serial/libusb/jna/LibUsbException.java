@@ -1,6 +1,6 @@
 package ceri.serial.libusb.jna;
 
-import ceri.serial.jna.clib.CException;
+import ceri.serial.clib.jna.CException;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
 
 /**

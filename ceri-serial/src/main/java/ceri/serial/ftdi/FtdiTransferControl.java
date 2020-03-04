@@ -3,8 +3,8 @@ package ceri.serial.ftdi;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_transfer_data_cancel;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_transfer_data_done;
 import java.time.Duration;
+import ceri.serial.clib.jna.Time;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_transfer_control;
-import ceri.serial.jna.clib.Time;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class FtdiTransferControl {

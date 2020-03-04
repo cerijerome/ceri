@@ -1,9 +1,9 @@
 package ceri.serial.ftdi.jna;
 
+import static ceri.serial.clib.jna.Time.gettimeofday;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_set_bitmode;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_purge_buffers;
 import static ceri.serial.ftdi.jna.LibFtdiUtil.requireDev;
-import static ceri.serial.jna.clib.Time.gettimeofday;
 import static ceri.serial.libusb.jna.LibUsb.libusb_free_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout;
 import static ceri.serial.libusb.jna.LibUsb.libusb_submit_transfer;
@@ -19,11 +19,11 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntAccessor;
+import ceri.serial.clib.jna.Time.timeval;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 import ceri.serial.ftdi.jna.LibFtdi.size_and_time;
 import ceri.serial.jna.Struct;
-import ceri.serial.jna.clib.Time.timeval;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;

@@ -1,9 +1,9 @@
 package ceri.serial.spi.jna;
 
+import static ceri.serial.clib.jna.Ioctl._IOC_SIZEBITS;
+import static ceri.serial.clib.jna.Ioctl._IOR;
+import static ceri.serial.clib.jna.Ioctl._IOW;
 import static ceri.serial.jna.JnaUtil.ubyte;
-import static ceri.serial.jna.clib.Ioctl._IOC_SIZEBITS;
-import static ceri.serial.jna.clib.Ioctl._IOR;
-import static ceri.serial.jna.clib.Ioctl._IOW;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,10 +11,9 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
-import ceri.serial.jna.clib.CException;
-import ceri.serial.jna.clib.CLib;
-import ceri.serial.jna.clib.SizeOf;
-import ceri.serial.jna.clib.TermiosUtil;
+import ceri.serial.clib.jna.CException;
+import ceri.serial.clib.jna.CLib;
+import ceri.serial.clib.jna.SizeOf;
 
 public class SpiDev {
 	private static final Logger logger = LogManager.getLogger();
@@ -112,7 +111,7 @@ public class SpiDev {
 	public static int open(int bus, int chip, int flags) throws CException {
 		String path = String.format(PATH_FORMAT, bus, chip);
 		logger.debug("Opening {}", path);
-		return TermiosUtil.open(path, flags);
+		return CLib.open(path, flags);
 	}
 
 	public static void message(int fd, spi_ioc_transfer transfer) throws CException {

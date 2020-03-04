@@ -1,7 +1,7 @@
-package ceri.serial.jna.clib;
+package ceri.serial.clib.jna;
 
-import static ceri.serial.jna.clib.Ioctl._IO;
-import static ceri.serial.jna.clib.Ioctl._IOW;
+import static ceri.serial.clib.jna.Ioctl._IO;
+import static ceri.serial.clib.jna.Ioctl._IOW;
 import com.sun.jna.Platform;
 
 /**

@@ -4,15 +4,19 @@ import java.util.stream.IntStream;
 import com.sun.jna.Memory;
 import ceri.common.data.ByteUtil;
 
+/**
+ * Tests the speed of copying chunks back by a number of bytes within a block of allocated
+ * memory. On Mac, results show read/write byte[] is best for small chunks, otherwise memcpy.
+ */
 public class MemcpySpeedTester {
 	private static final int KB = 1024;
 	private static final int MB = 1024 * KB;
 
 	public static void main(String[] args) {
-		compareTest(1 * MB, 8 * KB, 64);
-		compareTest(64 * MB, 64 * KB, KB);
-		compareTest(256 * MB, 8 * KB, 8 * KB);
-		compareTest(32 * MB, 64 * KB, 64);
+		compareTest(1 * MB, 8 * KB, 64); // 110/188/[24] ms
+		compareTest(64 * MB, 64 * KB, KB); // [405]/1158/466 ms
+		compareTest(256 * MB, 8 * KB, 8 * KB); // [127]/174/134 ms
+		compareTest(32 * MB, 64 * KB, 64); // [3052]/8190/3266 ms
 	}
 
 	private static void compareTest(int size, int chunk, int inc) {
@@ -31,7 +35,7 @@ public class MemcpySpeedTester {
 		Memory m0 = JnaUtil.malloc(b);
 		long t0 = System.currentTimeMillis();
 		for (int i = 0; i < size - chunk; i += inc)
-			JnaUtil.memcpy(m0, i, i + inc, chunk);
+			JnaUtil.memcpy(m0, i, i + inc, chunk); // memcpy each chunk back by inc bytes
 		return System.currentTimeMillis() - t0;
 	}
 
@@ -40,7 +44,7 @@ public class MemcpySpeedTester {
 		Memory m0 = JnaUtil.malloc(b);
 		long t0 = System.currentTimeMillis();
 		for (int i = 0; i < size - chunk; i += inc)
-			JnaUtil.memmove(m0, i, i + inc, chunk);
+			JnaUtil.memmove(m0, i, i + inc, chunk); // memmove each chunk forward by inc bytes
 		return System.currentTimeMillis() - t0;
 	}
 
@@ -50,8 +54,8 @@ public class MemcpySpeedTester {
 		byte[] buffer = new byte[chunk];
 		long t0 = System.currentTimeMillis();
 		for (int i = 0; i < size - chunk; i += inc) {
-			m0.read(i + inc, buffer, 0, chunk);
-			m0.write(i, buffer, 0, buffer.length);
+			m0.read(i + inc, buffer, 0, chunk); // read each chunk into byte[]
+			m0.write(i, buffer, 0, buffer.length); // write byte[] forward by inc bytes
 		}
 		return System.currentTimeMillis() - t0;
 	}

@@ -2,18 +2,17 @@ package ceri.serial.jna;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.function.Function;
-import java.util.function.IntFunction;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
-import com.sun.jna.Structure;
+import com.sun.jna.ptr.ByteByReference;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.ShortByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
-import ceri.serial.jna.clib.CException;
+import ceri.serial.clib.jna.CException;
 
 public class JnaUtil {
 	public static final int INVALID_FILE_DESCRIPTOR = -1;
@@ -47,7 +46,7 @@ public class JnaUtil {
 	/**
 	 * Checks function result, and throws exception if negative
 	 */
-	public static int verifyf(int result, String format, Object...params) throws CException {
+	public static int verifyf(int result, String format, Object... params) throws CException {
 		if (result >= 0) return result;
 		throw CException.fullMessage(StringUtil.format(format, params), result);
 	}
@@ -84,58 +83,24 @@ public class JnaUtil {
 		return Native.isProtected();
 	}
 
-	/**
-	 * Creates a typed array of structures from reference pointer for a null-terminated array.
-	 */
-	public static <T extends Struct> T[] arrayByRef(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayConstructor) {
-		if (p == null) return arrayConstructor.apply(0);
-		Pointer[] refs = p.getPointerArray(0);
-		return Stream.of(refs).map(constructor).toArray(arrayConstructor);
+	public static ByteByReference byteRef(int value) {
+		return new ByteByReference((byte) value);
 	}
 
-	/**
-	 * Creates a typed array of structures from reference pointer. If count is 0, returns empty
-	 * array. Make sure count field is unsigned (call JnaUtil.ubyte/ushort if needed).
-	 */
-	public static <T extends Struct> T[] arrayByRef(Pointer p, int count,
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor) {
-		if (count == 0) return arrayConstructor.apply(0);
-		if (p == null)
-			throw new IllegalArgumentException("Null pointer but non-zero count: " + count);
-		Pointer[] refs = p.getPointerArray(0, count);
-		return Stream.of(refs).map(constructor).toArray(arrayConstructor);
+	public static ShortByReference shortRef(int value) {
+		return new ShortByReference((short) value);
 	}
 
+	public static int size(Memory m) {
+		return Math.toIntExact(m.size());
+	}
+	
 	/**
-	 * Creates a typed array of structures from pointer. If count is 0, returns empty array. Make
+	 * Creates an array of bytes from the given structure. If count is 0, returns empty array. Make
 	 * sure count field is unsigned (call JnaUtil.ubyte/ushort if needed).
 	 */
-	public static <T extends Struct> T[] array(Pointer p, int count,
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor) {
-		if (count == 0) return arrayConstructor.apply(0);
-		if (p != null) return array(constructor.apply(p), count, arrayConstructor);
-		throw new IllegalArgumentException("Null pointer but non-zero count: " + count);
-	}
-
-	/**
-	 * Creates a typed array of given structure. If count is 0, returns empty array. Make sure count
-	 * field is unsigned (call JnaUtil.ubyte/ushort if needed).
-	 */
-	public static <T extends Struct> T[] array(Struct p, int count,
-		IntFunction<T[]> arrayConstructor) {
-		if (count == 0) return arrayConstructor.apply(0);
-		return BasicUtil.uncheckedCast(array(p, count));
-	}
-
-	/**
-	 * Creates an array of given structure. If count is 0, returns null rather than empty array.
-	 * Make sure count field is unsigned (call JnaUtil.ubyte/ushort if needed).
-	 */
-	public static Structure[] array(Struct p, int count) {
-		if (p != null) return p.toArray(count);
-		if (count == 0) return null;
-		throw new IllegalArgumentException("Null pointer but non-zero count: " + count);
+	public static byte[] byteArray(Memory m) {
+		return byteArray(m, 0, size(m));
 	}
 
 	/**
@@ -179,6 +144,18 @@ public class JnaUtil {
 	public static ByteBuffer buffer(Memory memory) {
 		if (memory == null) return ByteBuffer.allocate(0);
 		return memory.getByteBuffer(0, memory.size());
+	}
+
+	/**
+	 * Allocate a contiguous array, returning the pointers.
+	 */
+	public static Pointer[] mallocArray(int size, int count) {
+		if (count == 0) return new Pointer[0];
+		Memory m = new Memory(size * count);
+		Pointer[] ps = new Pointer[count];
+		for (int i = 0; i < count; i++)
+			ps[i] = m.getPointer(size * i);
+		return ps;
 	}
 
 	/**
@@ -321,6 +298,27 @@ public class JnaUtil {
 		return charset.decode(buffer.limit(offset + len).position(offset)).toString();
 	}
 
+	/**
+	 * Convert byte to unsigned int value
+	 */
+	public static int ubyte(ByteByReference ref) {
+		return ubyte(ref.getValue());
+	}
+
+	/**
+	 * Convert short to unsigned int value
+	 */
+	public static int ushort(ShortByReference ref) {
+		return ushort(ref.getValue());
+	}
+
+	/**
+	 * Verify int is not negative
+	 */
+	public static int uint(IntByReference ref) {
+		return uint(ref.getValue());
+	}
+	
 	/**
 	 * Convert byte to unsigned int value
 	 */

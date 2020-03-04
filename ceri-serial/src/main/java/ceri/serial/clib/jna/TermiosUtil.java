@@ -1,14 +1,17 @@
-package ceri.serial.jna.clib;
+package ceri.serial.clib.jna;
 
+import static ceri.serial.clib.jna.Ioctls.IOSSIOSPEED;
+import static ceri.serial.clib.jna.Ioctls.TIOCCBRK;
+import static ceri.serial.clib.jna.Ioctls.TIOCSBRK;
 import static ceri.serial.jna.JnaUtil.validateFileDescriptor;
 import static ceri.serial.jna.JnaUtil.verify;
-import static ceri.serial.jna.clib.Ioctls.IOSSIOSPEED;
-import static ceri.serial.jna.clib.Ioctls.TIOCCBRK;
-import static ceri.serial.jna.clib.Ioctls.TIOCSBRK;
 import static jtermios.JTermios.TCSANOW;
 import jtermios.JTermios;
 import jtermios.Termios;
 
+/**
+ * Utility functions using tpurejavacomm JTermios.
+ */
 public class TermiosUtil {
 
 	private TermiosUtil() {}

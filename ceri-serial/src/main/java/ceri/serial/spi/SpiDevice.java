@@ -1,8 +1,8 @@
 package ceri.serial.spi;
 
-import static ceri.serial.jna.clib.Fcntl.O_RDONLY;
-import static ceri.serial.jna.clib.Fcntl.O_RDWR;
-import static ceri.serial.jna.clib.Fcntl.O_WRONLY;
+import static ceri.serial.clib.OpenFlag.O_RDONLY;
+import static ceri.serial.clib.OpenFlag.O_RDWR;
+import static ceri.serial.clib.OpenFlag.O_WRONLY;
 import static ceri.serial.spi.Spi.Direction.duplex;
 import static ceri.serial.spi.Spi.Direction.in;
 import static ceri.serial.spi.Spi.Direction.out;
@@ -10,7 +10,8 @@ import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.log.util.LogUtil;
-import ceri.serial.jna.clib.TermiosUtil;
+import ceri.serial.clib.OpenFlag;
+import ceri.serial.clib.jna.CLib;
 import ceri.serial.spi.jna.SpiDev;
 
 public class SpiDevice implements Spi {
@@ -21,11 +22,11 @@ public class SpiDevice implements Spi {
 	private final int fd;
 
 	public static SpiDevice open(int bus, int chip, Direction direction) throws IOException {
-		int fd = SpiDev.open(bus, chip, flags(direction));
+		int fd = SpiDev.open(bus, chip, openFlag(direction).value);
 		return new SpiDevice(fd, bus, chip, direction);
 	}
 
-	private static int flags(Direction direction) {
+	private static OpenFlag openFlag(Direction direction) {
 		if (direction == out) return O_WRONLY;
 		if (direction == in) return O_RDONLY;
 		if (direction == duplex) return O_RDWR;
@@ -108,7 +109,7 @@ public class SpiDevice implements Spi {
 	@Override
 	public void close() {
 		logger.trace("close()");
-		LogUtil.execute(logger, () -> TermiosUtil.close(fd));
+		LogUtil.execute(logger, () -> CLib.close(fd));
 	}
 
 }

@@ -35,6 +35,7 @@ public class LibUsbPrinter {
 	public static void main(String[] args) {
 		// Skips devices that cause seg fault
 		builder().skip(0x05ac, 0x8007).skip(0x05ac, 0x8006).build().print();
+		//builder().build().print();
 	}
 
 	public static class Builder {
