@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import ceri.common.util.BasicUtil;
 
 /**
  * Utility methods for creating immutable objects.
@@ -495,6 +496,15 @@ public class ImmutableUtil {
 	@SafeVarargs
 	public static <T extends Enum<T>> Set<T> enumSet(T first, T... rest) {
 		return Collections.unmodifiableSet(EnumSet.of(first, rest));
+	}
+
+	public static <T extends Enum<T>> Set<T> enumRange(T first, T last) {
+		if (first == null && last == null) return Set.of();
+		Class<T> cls = BasicUtil.uncheckedCast(BasicUtil.defaultValue(first, last).getClass());
+		T[] ts = cls.getEnumConstants();
+		int start = first == null ? 0 : first.ordinal();
+		int end = last == null ? ts.length : last.ordinal() + 1;
+		return Set.of(Arrays.copyOfRange(ts, start, end));
 	}
 
 }

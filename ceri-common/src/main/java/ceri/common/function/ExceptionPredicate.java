@@ -34,11 +34,13 @@ public interface ExceptionPredicate<E extends Exception, T> {
 	}
 
 	static <T> ExceptionPredicate<RuntimeException, T> of(Predicate<T> predicate) {
+		Objects.requireNonNull(predicate);
 		return predicate::test;
 	}
 
 	static <E extends Exception, T> ExceptionPredicate<E, T>
 		name(ExceptionPredicate<E, T> predicate, String name) {
+		Objects.requireNonNull(predicate);
 		return new ExceptionPredicate<>() {
 			@Override
 			public boolean test(T t) throws E {
@@ -55,11 +57,15 @@ public interface ExceptionPredicate<E extends Exception, T> {
 	static <E extends Exception, T, U> ExceptionPredicate<E, T> testing(
 		ExceptionFunction<E, ? super T, ? extends U> extractor,
 		ExceptionPredicate<E, ? super U> predicate) {
+		Objects.requireNonNull(extractor);
+		Objects.requireNonNull(predicate);
 		return t -> predicate.test(extractor.apply(t));
 	}
 
 	static <E extends Exception, T> ExceptionPredicate<E, T> testingInt(
 		ExceptionToIntFunction<E, ? super T> extractor, ExceptionIntPredicate<E> predicate) {
+		Objects.requireNonNull(extractor);
+		Objects.requireNonNull(predicate);
 		return t -> predicate.test(extractor.applyAsInt(t));
 	}
 }

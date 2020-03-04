@@ -1,6 +1,7 @@
 package ceri.common.function;
 
 import static ceri.common.util.ExceptionAdapter.RUNTIME;
+import java.util.Objects;
 import java.util.function.IntSupplier;
 
 /**
@@ -14,6 +15,7 @@ public interface ExceptionIntSupplier<E extends Exception> {
 	}
 
 	static ExceptionIntSupplier<RuntimeException> of(IntSupplier supplier) {
+		Objects.requireNonNull(supplier);
 		return supplier::getAsInt;
 	}
 }

@@ -34,11 +34,13 @@ public interface ExceptionIntPredicate<E extends Exception> {
 	}
 
 	static ExceptionIntPredicate<RuntimeException> of(IntPredicate predicate) {
+		Objects.requireNonNull(predicate);
 		return predicate::test;
 	}
 
 	static <E extends Exception> ExceptionIntPredicate<E> name(ExceptionIntPredicate<E> predicate,
 		String name) {
+		Objects.requireNonNull(predicate);
 		return new ExceptionIntPredicate<>() {
 			@Override
 			public boolean test(int i) throws E {

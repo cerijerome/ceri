@@ -1,6 +1,7 @@
 package ceri.common.function;
 
 import java.util.Objects;
+import java.util.function.IntConsumer;
 
 public interface BooleanConsumer {
 
@@ -13,4 +14,10 @@ public interface BooleanConsumer {
 			after.accept(t);
 		};
 	}
+
+	static IntConsumer toInt(BooleanConsumer con) {
+		Objects.requireNonNull(con);
+		return i -> con.accept(i != 0);
+	}
+
 }

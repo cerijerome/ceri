@@ -1,6 +1,7 @@
 package ceri.common.function;
 
 import static ceri.common.util.ExceptionAdapter.RUNTIME;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
@@ -19,10 +20,12 @@ public interface ExceptionSupplier<E extends Exception, T> {
 	}
 
 	static <T> ExceptionSupplier<RuntimeException, T> of(Supplier<T> supplier) {
+		Objects.requireNonNull(supplier);
 		return supplier::get;
 	}
-	
+
 	static <T> ExceptionSupplier<Exception, T> of(Callable<T> supplier) {
+		Objects.requireNonNull(supplier);
 		return supplier::call;
 	}
 

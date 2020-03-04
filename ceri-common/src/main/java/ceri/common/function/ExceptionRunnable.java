@@ -1,6 +1,7 @@
 package ceri.common.function;
 
 import static ceri.common.util.ExceptionAdapter.RUNTIME;
+import java.util.Objects;
 
 /**
  * Runnable that can throw exceptions.
@@ -13,6 +14,7 @@ public interface ExceptionRunnable<E extends Exception> {
 	}
 
 	static ExceptionRunnable<RuntimeException> of(Runnable runnable) {
+		Objects.requireNonNull(runnable);
 		return runnable::run;
 	}
 }

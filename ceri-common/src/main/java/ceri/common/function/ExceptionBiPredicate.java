@@ -31,11 +31,13 @@ public interface ExceptionBiPredicate<E extends Exception, T, U> {
 	}
 
 	static <T, U> ExceptionBiPredicate<RuntimeException, T, U> of(BiPredicate<T, U> predicate) {
+		Objects.requireNonNull(predicate);
 		return predicate::test;
 	}
 
 	static <E extends Exception, T, U> ExceptionBiPredicate<E, T, U>
 		name(ExceptionBiPredicate<E, T, U> predicate, String name) {
+		Objects.requireNonNull(predicate);
 		return new ExceptionBiPredicate<>() {
 			@Override
 			public boolean test(T t, U u) throws E {

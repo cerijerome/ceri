@@ -3,6 +3,7 @@ package ceri.common.data;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+import ceri.common.data.TypeTranscoder.Remainder;
 
 /**
  * Combines an integer field accessor with a type transcoder to allow callers to get/set
@@ -27,21 +28,38 @@ public class FieldTranscoder<T> {
 	}
 
 	@SafeVarargs
-	public final void add(T... ts) {
-		add(Arrays.asList(ts));
+	public final FieldTranscoder<T> remove(T...ts) {
+		return remove(Arrays.asList(ts));
 	}
-
-	public void add(Collection<T> ts) {
-		accessor().set(accessor.get() | xcoder.encode(ts));
+	
+	public FieldTranscoder<T> remove(Collection<T> ts) {
+		accessor().remove(xcoder.encode(ts));
+		return this;
 	}
 
 	@SafeVarargs
-	public final void set(T... ts) {
-		set(Arrays.asList(ts));
+	public final FieldTranscoder<T> add(T... ts) {
+		return add(Arrays.asList(ts));
 	}
 
-	public void set(Collection<T> ts) {
+	public FieldTranscoder<T> add(Collection<T> ts) {
+		accessor().add(xcoder.encode(ts));
+		return this;
+	}
+
+	@SafeVarargs
+	public final FieldTranscoder<T> set(T... ts) {
+		return set(Arrays.asList(ts));
+	}
+
+	public FieldTranscoder<T> set(Collection<T> ts) {
 		accessor().set(xcoder.encode(ts));
+		return this;
+	}
+
+	public FieldTranscoder<T> set(Remainder<T> rem) {
+		accessor().set(xcoder.encode(rem));
+		return this;
 	}
 
 	public T get() {
@@ -50,6 +68,10 @@ public class FieldTranscoder<T> {
 
 	public Set<T> getAll() {
 		return xcoder.decodeAll(accessor().get());
+	}
+
+	public Remainder<T> getWithRemainder() {
+		return xcoder.decodeWithRemainder(accessor().get());
 	}
 
 	public boolean isValid() {

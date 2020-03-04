@@ -12,7 +12,10 @@ public interface ExceptionIntConsumer<E extends Exception> {
 
 	default ExceptionIntConsumer<E> andThen(ExceptionIntConsumer<? extends E> after) {
 		Objects.requireNonNull(after);
-		return (int t) -> { accept(t); after.accept(t); };
+		return (int t) -> {
+			accept(t);
+			after.accept(t);
+		};
 	}
 
 	default IntConsumer asIntConsumer() {
@@ -20,6 +23,7 @@ public interface ExceptionIntConsumer<E extends Exception> {
 	}
 
 	static ExceptionIntConsumer<RuntimeException> of(IntConsumer consumer) {
+		Objects.requireNonNull(consumer);
 		return consumer::accept;
 	}
 }

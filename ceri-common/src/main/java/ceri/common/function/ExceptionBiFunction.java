@@ -1,6 +1,7 @@
 package ceri.common.function;
 
 import static ceri.common.util.ExceptionAdapter.RUNTIME;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 /**
@@ -14,6 +15,7 @@ public interface ExceptionBiFunction<E extends Exception, T, U, R> {
 	}
 
 	static <T, U, R> ExceptionBiFunction<RuntimeException, T, U, R> of(BiFunction<T, U, R> fn) {
+		Objects.requireNonNull(fn);
 		return fn::apply;
 	}
 }

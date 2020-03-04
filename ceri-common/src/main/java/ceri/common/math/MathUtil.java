@@ -12,6 +12,9 @@ public class MathUtil {
 	private static final int BASE10 = 10;
 	private static final int MAX_ROUND_PLACES = 10;
 	private static final double MAX_ROUND = 1000000000.0;
+	private static final int MAX_UBYTE = 0xff;
+	private static final int MAX_USHORT = 0xffff;
+	private static final long MAX_UINT = 0xffffffffL;
 
 	private MathUtil() {}
 
@@ -49,24 +52,81 @@ public class MathUtil {
 		return lhs == rhs || Math.abs(lhs - rhs) <= precision;
 	}
 
-	public static long safeToLong(double value) {
-		if (value >= Long.MIN_VALUE && value <= Long.MAX_VALUE) return (long) value;
-		throw new ArithmeticException("long overflow");
-	}
-
+	/**
+	 * Casts a double to an int. Throws an exception if outside the limits of int.
+	 */
 	public static int safeToInt(double value) {
 		if (value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE) return (int) value;
 		throw new ArithmeticException("int overflow");
 	}
 
+	/**
+	 * Casts a double to a long. Throws an exception if outside the limits of long.
+	 */
+	public static long safeToLong(double value) {
+		if (value >= Long.MIN_VALUE && value <= Long.MAX_VALUE) return (long) value;
+		throw new ArithmeticException("long overflow");
+	}
+
+	/**
+	 * Casts a long to a byte. Throws an exception if outside the limits of byte.
+	 */
+	public static byte toByteExact(long value) {
+		if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE) return (byte) value;
+		throw new ArithmeticException("byte overflow");
+	}
+
+	/**
+	 * Casts a long to unsigned byte. Throws an exception if outside the limits of unsigned byte.
+	 */
+	public static byte toUbyteExact(long value) {
+		if (value >= 0 && value <= MAX_UBYTE) return (byte) value;
+		throw new ArithmeticException("byte overflow");
+	}
+
+	/**
+	 * Casts a long to a byte. Throws an exception if outside the limits of byte.
+	 */
 	public static short toShortExact(long value) {
 		if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) return (short) value;
 		throw new ArithmeticException("short overflow");
 	}
 
-	public static byte toByteExact(long value) {
-		if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE) return (byte) value;
+	/**
+	 * Casts a long to unsigned short. Throws an exception if outside the limits of unsigned short.
+	 */
+	public static short toUshortExact(long value) {
+		if (value >= 0 && value <= MAX_USHORT) return (short) value;
 		throw new ArithmeticException("byte overflow");
+	}
+
+	/**
+	 * Casts a long to unsigned int. Throws an exception if outside the limits of unsigned int.
+	 */
+	public static int toUintExact(long value) {
+		if (value >= 0 && value <= MAX_UINT) return (byte) value;
+		throw new ArithmeticException("byte overflow");
+	}
+
+	/**
+	 * Returns the short value of an unsigned byte.
+	 */
+	public static short ubyte(byte i) {
+		return (short) (i & MAX_UBYTE);
+	}
+
+	/**
+	 * Returns the int value of an unsigned short.
+	 */
+	public static int ushort(short i) {
+		return i & MAX_USHORT;
+	}
+
+	/**
+	 * Returns the long value of an unsigned int.
+	 */
+	public static long uint(int i) {
+		return i & MAX_UINT;
 	}
 
 	/**
@@ -583,27 +643,6 @@ public class MathUtil {
 		for (double val : array)
 			if (max < val) max = val;
 		return max;
-	}
-
-	/**
-	 * Returns the short value of an unsigned byte.
-	 */
-	public static short unsignedByte(byte b) {
-		return (short) ((0x100 + b) & 0xff);
-	}
-
-	/**
-	 * Returns the int value of an unsigned short.
-	 */
-	public static int unsignedShort(short b) {
-		return (0x10000 + b) & 0xffff;
-	}
-
-	/**
-	 * Returns the long value of an unsigned int.
-	 */
-	public static long unsignedInt(int i) {
-		return (0x100000000L + i) & 0xffffffffL;
 	}
 
 }

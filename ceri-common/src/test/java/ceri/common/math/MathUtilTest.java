@@ -500,9 +500,9 @@ public class MathUtilTest {
 
 	@Test
 	public void testUnsigned() {
-		assertThat(MathUtil.unsignedByte((byte) 0xff), is((short) 0xff));
-		assertThat(MathUtil.unsignedShort((short) 0xffff), is(0xffff));
-		assertThat(MathUtil.unsignedInt(0xffffffff), is(0xffffffffL));
+		assertThat(MathUtil.ubyte((byte) 0xff), is((short) 0xff));
+		assertThat(MathUtil.ushort((short) 0xffff), is(0xffff));
+		assertThat(MathUtil.uint(0xffffffff), is(0xffffffffL));
 	}
 
 }

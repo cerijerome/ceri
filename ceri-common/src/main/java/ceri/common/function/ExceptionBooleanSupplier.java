@@ -1,6 +1,7 @@
 package ceri.common.function;
 
 import static ceri.common.util.ExceptionAdapter.RUNTIME;
+import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
 /**
@@ -14,6 +15,7 @@ public interface ExceptionBooleanSupplier<E extends Exception> {
 	}
 
 	static ExceptionBooleanSupplier<RuntimeException> of(BooleanSupplier supplier) {
+		Objects.requireNonNull(supplier);
 		return supplier::getAsBoolean;
 	}
 }

@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.function.ToIntFunction;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.StreamUtil;
+import ceri.common.util.EqualsUtil;
+import ceri.common.util.HashCoder;
 
 /**
  * Helper to convert between object types and integer values. Integers can map to a single instance
@@ -18,6 +20,36 @@ public class TypeTranscoder<T> {
 	final MaskTranscoder mask;
 	final ToIntFunction<T> valueFn;
 	final Map<Integer, T> lookup;
+
+	public static class Remainder<T> {
+		public final Set<T> types;
+		public final int remainder;
+
+		private Remainder(Set<T> types, int remainder) {
+			this.types = types;
+			this.remainder = remainder;
+		}
+
+		@Override
+		public int hashCode() {
+			return HashCoder.hash(types, remainder);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) return true;
+			if (!(obj instanceof Remainder)) return false;
+			Remainder<?> other = (Remainder<?>) obj;
+			if (!EqualsUtil.equals(types, other.types)) return false;
+			if (remainder != other.remainder) return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return types + "+" + remainder;
+		}
+	}
 
 	public static <T extends Enum<T>> TypeTranscoder<T> of(ToIntFunction<T> valueFn, Class<T> cls) {
 		return of(valueFn, EnumSet.allOf(cls));
@@ -73,8 +105,47 @@ public class TypeTranscoder<T> {
 	}
 
 	public int encode(Collection<T> ts) {
-		if (ts == null || ts.isEmpty()) return 0;
-		return mask.encodeInt(StreamUtil.bitwiseOr(ts.stream().mapToInt(this::encodeType)));
+		return mask.encodeInt(encodeTypes(ts));
+	}
+
+	public int encode(Remainder<T> rem) {
+		if (rem == null) return 0;
+		return mask.encodeInt(encodeTypes(rem.types) | rem.remainder);
+	}
+
+	/**
+	 * Simple bitwise check if value contains the types. May not match decodeAll if type values
+	 * overlap.
+	 */
+	@SafeVarargs
+	public final boolean hasAnyOf(int value, T... ts) {
+		return hasAnyOf(value, Arrays.asList(ts));
+	}
+
+	/**
+	 * Simple bitwise check if value contains the types. May not match decodeAll if type values
+	 * overlap.
+	 */
+	public boolean hasAnyOf(int value, Collection<T> ts) {
+		return ts.stream().mapToInt(valueFn).filter(v -> (value & v) == v).findAny().isPresent();
+	}
+
+	/**
+	 * Simple bitwise check if value contains the types. May not match decodeAll if type values
+	 * overlap.
+	 */
+	@SafeVarargs
+	public final boolean hasAllOf(int value, T... ts) {
+		return hasAllOf(value, Arrays.asList(ts));
+	}
+
+	/**
+	 * Simple bitwise check if value contains the types. May not match decodeAll if type values
+	 * overlap.
+	 */
+	public boolean hasAllOf(int value, Collection<T> ts) {
+		int mask = StreamUtil.bitwiseOr(ts.stream().mapToInt(valueFn));
+		return (value & mask) == mask;
 	}
 
 	public boolean isValid(int value) {
@@ -94,6 +165,15 @@ public class TypeTranscoder<T> {
 	}
 
 	public Set<T> decodeAll(int value) {
+		return decodeAllWithRemainder(value).types;
+	}
+
+	public Remainder<T> decodeWithRemainder(int value) {
+		Remainder<T> rem = decodeAllWithRemainder(value);
+		return new Remainder<>(ImmutableUtil.copyAsSet(rem.types), rem.remainder);
+	}
+
+	private Remainder<T> decodeAllWithRemainder(int value) {
 		value = mask.decodeInt(value);
 		Set<T> set = new LinkedHashSet<>();
 		for (Map.Entry<Integer, T> entry : lookup.entrySet()) {
@@ -104,7 +184,12 @@ public class TypeTranscoder<T> {
 			set.add(t);
 			if (value == 0) break;
 		}
-		return set;
+		return new Remainder<>(set, value);
+	}
+
+	private int encodeTypes(Collection<T> ts) {
+		if (ts == null || ts.isEmpty()) return 0;
+		return StreamUtil.bitwiseOr(ts.stream().mapToInt(this::encodeType));
 	}
 
 	private int encodeType(T t) {

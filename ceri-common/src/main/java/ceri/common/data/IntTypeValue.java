@@ -10,7 +10,7 @@ import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 /**
- * Used to hold values that may have an type value, such as an enum. If no type maps to the value,
+ * Used to hold values that may have a type value, such as an enum. If no type maps to the value,
  * then a name can be used, such as "unknown". A sub-value is also available for types that map to a
  * range of values.
  */

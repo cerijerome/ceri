@@ -23,6 +23,7 @@ public interface ExceptionIntUnaryOperator<E extends Exception> {
 	}
 
 	static ExceptionIntUnaryOperator<RuntimeException> of(IntUnaryOperator fn) {
+		Objects.requireNonNull(fn);
 		return fn::applyAsInt;
 	}
 }

@@ -1,6 +1,7 @@
 package ceri.common.function;
 
 import static ceri.common.util.ExceptionAdapter.RUNTIME;
+import java.util.Objects;
 import java.util.function.IntFunction;
 
 /**
@@ -14,6 +15,7 @@ public interface ExceptionIntFunction<E extends Exception, R> {
 	}
 
 	static <R> ExceptionIntFunction<RuntimeException, R> of(IntFunction<R> fn) {
+		Objects.requireNonNull(fn);
 		return fn::apply;
 	}
 }
