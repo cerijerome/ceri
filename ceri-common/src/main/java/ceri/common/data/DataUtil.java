@@ -37,6 +37,47 @@ public class DataUtil {
 		return ByteUtil.writeLittleEndian(value, data, offset, Short.BYTES);
 	}
 
+	public static int encodeByte(int value, ByteReceiver data, int offset) {
+		data.set(offset++, value);
+		return offset;
+	}
+
+	public static int encodeIntMsb(int value, ByteReceiver data, int offset) {
+		return ByteUtil.writeBigEndian(value, data, offset, Integer.BYTES);
+	}
+
+	public static int encodeIntLsb(int value, ByteReceiver data, int offset) {
+		return ByteUtil.writeLittleEndian(value, data, offset, Integer.BYTES);
+	}
+
+	public static int encodeShortMsb(int value, ByteReceiver data, int offset) {
+		return ByteUtil.writeBigEndian(value, data, offset, Short.BYTES);
+	}
+
+	public static int encodeShortLsb(int value, ByteReceiver data, int offset) {
+		return ByteUtil.writeLittleEndian(value, data, offset, Short.BYTES);
+	}
+
+	public static int decodeByte(byte[] data, int offset) {
+		return data[offset] & ByteUtil.BYTE_MASK;
+	}
+
+	public static int decodeIntMsb(byte[] data, int offset) {
+		return (int) ByteUtil.fromBigEndian(data, offset, Integer.BYTES);
+	}
+
+	public static int decodeIntLsb(byte[] data, int offset) {
+		return (int) ByteUtil.fromLittleEndian(data, offset, Integer.BYTES);
+	}
+
+	public static int decodeShortMsb(byte[] data, int offset) {
+		return (int) ByteUtil.fromBigEndian(data, offset, Short.BYTES);
+	}
+
+	public static int decodeShortLsb(byte[] data, int offset) {
+		return (int) ByteUtil.fromLittleEndian(data, offset, Short.BYTES);
+	}
+
 	public static int decodeByte(ByteProvider data, int offset) {
 		return data.get(offset) & ByteUtil.BYTE_MASK;
 	}
@@ -143,8 +184,8 @@ public class DataUtil {
 
 	public static int validate(ByteProvider expected, ByteProvider data, int offset) {
 		if (expected.matches(data, offset, expected.length())) return offset + expected.length();
-		throw ExceptionUtil.exceptionf("Expected %s: %s", toHex(expected),
-			toHex(data.copy(offset, expected.length())));
+		throw ExceptionUtil.exceptionf("Expected %s: %s", toHex(expected, " "),
+			toHex(data, offset, expected.length(), " "));
 	}
 
 	public static <T> T validate(IntFunction<T> fn, int value) {

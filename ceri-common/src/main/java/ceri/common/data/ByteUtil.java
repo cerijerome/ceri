@@ -1,18 +1,16 @@
 package ceri.common.data;
 
-import static ceri.common.text.StringUtil.BYTE_HEX_DIGITS;
 import static ceri.common.text.StringUtil.HEX_RADIX;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import java.io.ByteArrayOutputStream;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableByteArray;
-import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.ExceptionUtil;
 
@@ -23,35 +21,114 @@ public class ByteUtil {
 	public static final int SHORT_MASK = 0xffff;
 	public static final long INT_MASK = 0xffff_ffff;
 	public static final long LONG_MASK = 0xffff_ffff_ffff_ffffL;
-	private static final Pattern HEX_SPLIT_REGEX =
-		RegexUtil.compile("(?<=\\G.{%d})", BYTE_HEX_DIGITS);
 
 	private ByteUtil() {}
 
+	/**
+	 * Writes hex bytes to receiver. Remove any delimiters before calling this.
+	 */
+	public static int fromHex(String hex, ByteReceiver data) {
+		return fromHex(hex, data, 0);
+	}
+
+	/**
+	 * Writes hex bytes to receiver. Remove any delimiters before calling this.
+	 */
+	public static int fromHex(String hex, ByteReceiver data, int offset) {
+		return fromHex(hex, data, offset, data.length() - offset);
+	}
+
+	/**
+	 * Writes hex bytes to receiver. Remove any delimiters before calling this.
+	 */
+	public static int fromHex(String hex, ByteReceiver data, int offset, int len) {
+		if (hex == null || len == 0) return offset + len;
+		byte[] bytes = new BigInteger(hex, HEX_RADIX).toByteArray();
+		offset = data.fill(0, offset, Math.max(0, len - bytes.length));
+		int pos = Math.max(0, bytes.length - len);
+		return data.copyFrom(offset, bytes, pos, bytes.length - pos);
+	}
+
+	/**
+	 * Writes hex bytes to array. Bytes are right-aligned or left-truncated as needed to fit the
+	 * length. Remove any delimiters before calling this.
+	 */
+	public static int fromHex(String hex, byte[] data) {
+		return fromHex(hex, data, 0);
+	}
+
+	/**
+	 * Writes hex bytes to array. Bytes are right-aligned or left-truncated as needed to fit the
+	 * length. Remove any delimiters before calling this.
+	 */
+	public static int fromHex(String hex, byte[] data, int offset) {
+		return fromHex(hex, data, offset, data.length - offset);
+	}
+
+	/**
+	 * Writes hex bytes to array. Bytes are right-aligned or left-truncated as needed to fit the
+	 * length. Remove any delimiters before calling this.
+	 */
+	public static int fromHex(String hex, byte[] data, int offset, int len) {
+		return fromHex(hex, ByteReceiver.wrap(data), offset, len);
+	}
+
+	public static void main(String[] args) {
+		String s = "abcde";
+		System.out.println(toHex(fromHex(s), ":"));
+		System.out.println(toHex(fromHex(s, 4), ":"));
+		System.out.println(toHex(fromHex(s, 2), ":"));
+	}
+
+	/**
+	 * Converts hex string to a fixed-length byte array. Bytes are right-aligned or left-truncated
+	 * as needed to fit the specified length. Remove any delimiters before calling this.
+	 */
+	public static ImmutableByteArray fromHex(String hex, int len) {
+		if (hex == null) return null;
+		if (len == 0) return ImmutableByteArray.EMPTY;
+		ImmutableByteArray bytes = fromHex(hex);
+		if (bytes.length() == len) return bytes;
+		if (bytes.length() > len) return bytes.slice(bytes.length() - len);
+		return bytes.resize(-len); // right-justify on resize
+	}
+
+	/**
+	 * Converts hex string to its minimal byte array. Remove any delimiters before calling this.
+	 */
 	public static ImmutableByteArray fromHex(String hex) {
 		if (hex == null) return null;
 		if (hex.isEmpty()) return ImmutableByteArray.EMPTY;
-		if (hex.length() % BYTE_HEX_DIGITS != 0) hex += "0"; // pad the end
-		return ImmutableByteArray.wrap(
-			Stream.of(HEX_SPLIT_REGEX.split(hex)).mapToInt(s -> Integer.parseInt(s, HEX_RADIX)));
-	}
-
-	public static String toHex(ByteProvider array) {
-		return toHex(array, " ");
+		byte[] array = new BigInteger(hex, HEX_RADIX).toByteArray(); // may have extra leading byte
+		return ImmutableByteArray.wrap(array, array[0] == 0 ? 1 : 0); // remove leading byte
 	}
 
 	public static String toHex(ByteProvider array, String delimiter) {
-		if (array == null) return null;
-		return toHex(array.stream(), delimiter);
+		return toHex(array, 0, delimiter);
 	}
 
-	public static String toHex(byte[] array) {
-		return toHex(array, " ");
+	public static String toHex(ByteProvider array, int offset, String delimiter) {
+		if (array == null) return null;
+		return toHex(array, offset, array.length() - offset, delimiter);
+	}
+
+	public static String toHex(ByteProvider array, int offset, int len, String delimiter) {
+		if (array == null) return null;
+		return toHex(array.stream(offset, len), delimiter);
 	}
 
 	public static String toHex(byte[] array, String delimiter) {
+		return toHex(array, 0, delimiter);
+	}
+
+	public static String toHex(byte[] array, int offset, String delimiter) {
 		if (array == null) return null;
-		return toHex(streamOf(array), delimiter);
+		return toHex(array, offset, array.length - offset, delimiter);
+	}
+
+	public static String toHex(byte[] array, int offset, int len, String delimiter) {
+		if (array == null) return null;
+		return toHex(streamOf(array, offset, len), delimiter);
 	}
 
 	private static String toHex(IntStream stream, String delimiter) {
@@ -111,6 +188,14 @@ public class ByteUtil {
 
 	public static ImmutableByteArray toAscii(String s) {
 		return ImmutableByteArray.wrap(s.getBytes(StandardCharsets.ISO_8859_1));
+	}
+
+	public static int toAscii(String s, ByteReceiver data) {
+		return toAscii(s, data, 0);
+	}
+
+	public static int toAscii(String s, ByteReceiver data, int offset) {
+		return data.copyFrom(offset, s.getBytes(StandardCharsets.ISO_8859_1));
 	}
 
 	public static String fromAscii(int... data) {
@@ -236,10 +321,22 @@ public class ByteUtil {
 	}
 
 	public static int writeBigEndian(long value, byte[] data, int offset, int length) {
-		ArrayUtil.validateSlice(data.length, offset, length);
+		return writeBigEndian(value, ByteReceiver.wrap(data), offset, length);
+	}
+
+	public static int writeBigEndian(long value, ByteReceiver data) {
+		return writeBigEndian(value, data, 0);
+	}
+
+	public static int writeBigEndian(long value, ByteReceiver data, int offset) {
+		return writeBigEndian(value, data, offset, data.length() - offset);
+	}
+
+	public static int writeBigEndian(long value, ByteReceiver data, int offset, int length) {
+		ArrayUtil.validateSlice(data.length(), offset, length);
 		validateMax(length, Long.BYTES);
 		for (int i = 0; i < length; i++)
-			data[offset + i] = byteAt(value, length - i - 1);
+			data.set(offset + i, byteAt(value, length - i - 1));
 		return offset + length;
 	}
 
@@ -252,10 +349,22 @@ public class ByteUtil {
 	}
 
 	public static int writeLittleEndian(long value, byte[] data, int offset, int length) {
-		ArrayUtil.validateSlice(data.length, offset, length);
+		return writeLittleEndian(value, ByteReceiver.wrap(data), offset, length);
+	}
+
+	public static int writeLittleEndian(long value, ByteReceiver data) {
+		return writeLittleEndian(value, data, 0);
+	}
+
+	public static int writeLittleEndian(long value, ByteReceiver data, int offset) {
+		return writeLittleEndian(value, data, offset, data.length() - offset);
+	}
+
+	public static int writeLittleEndian(long value, ByteReceiver data, int offset, int length) {
+		ArrayUtil.validateSlice(data.length(), offset, length);
 		validateMax(length, Long.BYTES);
 		for (int i = 0; i < length; i++)
-			data[offset + i] = byteAt(value, i);
+			data.set(offset + i, byteAt(value, i));
 		return offset + length;
 	}
 

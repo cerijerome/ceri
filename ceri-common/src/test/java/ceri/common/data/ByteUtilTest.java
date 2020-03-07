@@ -42,16 +42,16 @@ public class ByteUtilTest {
 	@Test
 	public void testToHex() {
 		ImmutableByteArray b = ImmutableByteArray.wrap(-1, 0, 127, 128);
-		assertNull(ByteUtil.toHex((ImmutableByteArray) null));
-		assertNull(ByteUtil.toHex((byte[]) null));
-		assertThat(ByteUtil.toHex(b), is("ff 00 7f 80"));
+		assertNull(ByteUtil.toHex((ImmutableByteArray) null, ""));
+		assertNull(ByteUtil.toHex((byte[]) null, ""));
+		assertThat(ByteUtil.toHex(b, ""), is("ff007f80"));
 		assertThat(ByteUtil.toHex(b, ":"), is("ff:00:7f:80"));
 		assertThat(ByteUtil.toHex(b.copy(), "-"), is("ff-00-7f-80"));
 	}
 
 	@Test
 	public void testFromHex() {
-		assertArray(ByteUtil.fromHex("abcde").copy(), 0xab, 0xcd, 0xe0);
+		assertArray(ByteUtil.fromHex("abcde").copy(), 0x0a, 0xbc, 0xde);
 		assertArray(ByteUtil.fromHex("abcdef").copy(), 0xab, 0xcd, 0xef);
 		assertNull(ByteUtil.fromHex(null));
 		assertArray(ByteUtil.fromHex("").copy());

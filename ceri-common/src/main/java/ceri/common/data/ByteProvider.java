@@ -23,30 +23,47 @@ public interface ByteProvider {
 		return wrap(ArrayUtil.bytes(array));
 	}
 
+	/**
+	 * Wraps a byte array as a byte provider.
+	 */
 	static ByteProvider wrap(byte... array) {
+		return wrap(array, 0);
+	}
+	
+	/**
+	 * Wraps a byte array as a byte provider.
+	 */
+	static ByteProvider wrap(byte[] array, int off) {
+		return wrap(array, off, array.length - off);
+	}
+	
+	/**
+	 * Wraps a byte array as a byte provider.		 */
+	static ByteProvider wrap(byte[] array, int off, int len) {
+		ArrayUtil.validateSlice(array.length, off, len);
 		return new ByteProvider() {
 			@Override
 			public int length() {
-				return array.length;
+				return len;
 			}
 
 			@Override
 			public byte get(int index) {
-				return array[index];
+				return array[index + off];
 			}
 
 			@Override
-			public int copyTo(int srcOffset, ByteReceiver dest, int destOffset, int length) {
-				ArrayUtil.validateSlice(length(), srcOffset, length);
-				ArrayUtil.validateSlice(dest.length(), destOffset, length);
-				dest.copyFrom(destOffset, array, srcOffset, length);
-				return destOffset + length;
+			public int copyTo(int pos, ByteReceiver dest, int offset, int length) {
+				ArrayUtil.validateSlice(length(), pos + off, length);
+				ArrayUtil.validateSlice(dest.length(), offset, length);
+				dest.copyFrom(offset, array, pos + off, length);
+				return offset + length;
 			}
 
 			@Override
-			public void writeTo(OutputStream out, int offset, int length) throws IOException {
-				ArrayUtil.validateSlice(length(), offset, length);
-				out.write(array, offset, length);
+			public void writeTo(OutputStream out, int pos, int length) throws IOException {
+				ArrayUtil.validateSlice(length(), pos + off, length);
+				out.write(array, pos + off, length);
 			}
 		};
 	}

@@ -7,9 +7,8 @@ import java.io.InputStream;
 import ceri.common.collection.ArrayUtil;
 
 /**
- * Interface for receiving bytes into an array.
- * 
- * For bulk efficiency, consider overriding these methods that process one byte at a time:
+ * Interface for receiving bytes into an array. For bulk efficiency, consider overriding these
+ * methods that process one byte at a time:
  * 
  * <pre>
  * int copyFrom(int pos, byte[] data, int offset, int length)
@@ -19,39 +18,54 @@ import ceri.common.collection.ArrayUtil;
  * </pre>
  */
 public interface ByteReceiver {
-	ByteReceiver EMPTY = wrap();
+	ByteReceiver EMPTY = wrap(ArrayUtil.EMPTY_BYTE);
+	
+	/**
+	 * Wraps a byte array as a byte receiver.
+	 */
+	static ByteReceiver wrap(byte[] array) {
+		return wrap(array, 0);
+	}
 
 	/**
 	 * Wraps a byte array as a byte receiver.
 	 */
-	static ByteReceiver wrap(byte... array) {
+	static ByteReceiver wrap(byte[] array, int off) {
+		return wrap(array, off, array.length - off);
+	}
+
+	/**
+	 * Wraps a byte array as a byte receiver.
+	 */
+	static ByteReceiver wrap(byte[] array, int off, int len) {
+		ArrayUtil.validateSlice(array.length, off, len);
 		return new ByteReceiver() {
 			@Override
 			public int length() {
-				return array.length;
+				return len;
 			}
 
 			@Override
 			public void set(int pos, int b) {
-				array[pos] = (byte) b;
+				array[off + pos] = (byte) b;
 			}
 
 			@Override
 			public int copyFrom(int pos, byte[] data, int offset, int length) {
-				System.arraycopy(data, offset, array, pos, length);
+				System.arraycopy(data, offset, array, pos + off, length);
 				return pos + length;
 			}
 
 			@Override
 			public int copyFrom(int pos, ByteProvider data, int offset, int length) {
-				return data.copyTo(offset, array, pos, length);
+				return data.copyTo(offset, array, pos + off, length);
 			}
 
 			@Override
-			public int readFrom(InputStream in, int offset, int length) throws IOException {
-				ArrayUtil.validateSlice(length(), offset, length);
-				int n = in.read(array, offset, length);
-				return offset + max(n, 0);
+			public int readFrom(InputStream in, int pos, int length) throws IOException {
+				ArrayUtil.validateSlice(length(), pos + off, length);
+				int n = in.read(array, pos + off, length);
+				return pos + max(n, 0);
 			}
 		};
 	}
@@ -210,8 +224,8 @@ public interface ByteReceiver {
 	 * may be less than requested; EOF will result in fewer or no bytes read rather than returning
 	 * -1.
 	 */
-	default int readFrom(InputStream in, int offset) throws IOException {
-		return readFrom(in, offset, length() - offset);
+	default int readFrom(InputStream in, int pos) throws IOException {
+		return readFrom(in, pos, length() - pos);
 	}
 
 	/**
@@ -220,32 +234,31 @@ public interface ByteReceiver {
 	 * fewer or no bytes read rather than returning -1. Default implementation reads one byte at a
 	 * time; in some cases efficiency may be improved by overriding, or calling readBufferFrom.
 	 */
-	default int readFrom(InputStream in, int offset, int length) throws IOException {
-		ArrayUtil.validateSlice(length(), offset, length);
+	default int readFrom(InputStream in, int pos, int length) throws IOException {
+		ArrayUtil.validateSlice(length(), pos, length);
 		int i = 0;
 		for (; i < length; i++) {
 			int val = in.read();
 			if (val == -1) break;
-			set(offset + i, val);
+			set(pos + i, val);
 		}
-		return offset + i;
+		return pos + i;
 	}
 
 	/**
 	 * Sets bytes at offset of receiver by reading a buffer from the input stream. Returns the array
 	 * position after reading, offset + length. Number of bytes read may be less than requested; EOF
-	 * will result in fewer or no bytes read rather than returning -1.
-	 * 
-	 * Implementing classes can call this from readFrom() if buffering is more efficient.
+	 * will result in fewer or no bytes read rather than returning -1. Implementing classes can call
+	 * this from readFrom() if buffering is more efficient.
 	 */
-	static int readBufferFrom(ByteReceiver rx, InputStream in, int offset, int length)
+	static int readBufferFrom(ByteReceiver rx, InputStream in, int pos, int length)
 		throws IOException {
-		ArrayUtil.validateSlice(rx.length(), offset, length);
+		ArrayUtil.validateSlice(rx.length(), pos, length);
 		byte[] buffer = new byte[length];
 		int n = in.read(buffer);
-		if (n <= 0) return offset;
-		rx.copyFrom(offset, buffer, 0, n);
-		return offset + n;
+		if (n <= 0) return pos;
+		rx.copyFrom(pos, buffer, 0, n);
+		return pos + n;
 	}
 
 }

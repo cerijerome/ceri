@@ -147,8 +147,8 @@ public class DataDecoder {
 
 	public DataDecoder validate(ByteProvider data, int offset, int length) {
 		if (this.data.matches(this.offset, data, offset, length)) return skip(length);
-		throw ExceptionUtil.exceptionf("Expected %s: %s", toHex(data.copy(offset, length)),
-			toHex(this.data.slice(this.offset, length)));
+		throw ExceptionUtil.exceptionf("Expected %s: %s", toHex(data, offset, length, " "),
+			toHex(this.data, this.offset, length, " "));
 	}
 
 	private int incrementOffset(int count) {

@@ -123,11 +123,18 @@ public class ImmutableByteArray implements ByteProvider {
 		return resize(0, length);
 	}
 
+	/**
+	 * Resizes the underlying array, copying data from offset. Use a negative length to 
+	 * right-justify the copying.
+	 */
 	public ImmutableByteArray resize(int offset, int length) {
 		if (length == 0) return ImmutableByteArray.EMPTY;
-		if (offset == 0 && length == length()) return this;
-		byte[] buffer = new byte[length];
-		slice(offset, Math.min(length() - offset, length)).copyTo(buffer);
+		int n = Math.abs(length);
+		if (ArrayUtil.isValidSlice(length(), offset, n)) return slice(offset, n);
+		byte[] buffer = new byte[n];
+		int copyLen = Math.min(length() - offset, n);
+		int pos = length >= 0 ? 0 : n - copyLen;
+		slice(offset, copyLen).copyTo(buffer, pos);
 		return wrap(buffer);
 	}
 
