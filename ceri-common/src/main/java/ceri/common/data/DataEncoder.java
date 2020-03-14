@@ -10,6 +10,15 @@ import ceri.common.collection.ImmutableByteArray;
 import ceri.common.text.Utf8Util;
 import ceri.common.util.BasicUtil;
 
+/**
+ * <pre>
+ * TODO:
+ *   - make into interface
+ *   - extract navigable interface (mark, offset, rewind, reset, remaining)
+ *   - JNA ByteWriter extends interface, (-> JnaDataEncoder?)
+ *   - Crc implements interface (not navigable)
+ * </pre>
+ */
 public class DataEncoder {
 	private final byte[] data;
 	private final int start;
@@ -129,10 +138,11 @@ public class DataEncoder {
 	}
 
 	public DataEncoder fill(int value, int count) {
-		for (int i = 0; i < count; i++) encodeByte(value);
+		for (int i = 0; i < count; i++)
+			encodeByte(value);
 		return this;
 	}
-	
+
 	public DataEncoder encodeShortMsb(int value) {
 		ByteUtil.writeBigEndian(value, data, position(Short.BYTES), Short.BYTES);
 		return this;
@@ -154,7 +164,7 @@ public class DataEncoder {
 	}
 
 	public DataEncoder encodeAscii(String value, int length) {
-		return copyWithPadding(ByteUtil.toAscii(value), 0, length);		
+		return copyWithPadding(ByteUtil.toAscii(value), 0, length);
 	}
 
 	public DataEncoder encodeAscii(String value) {
@@ -162,9 +172,9 @@ public class DataEncoder {
 	}
 
 	public DataEncoder encodeUtf8(String value, int length) {
-		return copyWithPadding(Utf8Util.encode(value), 0, length);		
+		return copyWithPadding(Utf8Util.encode(value), 0, length);
 	}
-	
+
 	public DataEncoder encodeUtf8(String value) {
 		setOffset(Utf8Util.encodeTo(value, data, offset));
 		return this;
@@ -191,13 +201,12 @@ public class DataEncoder {
 	private DataEncoder copyWithPadding(byte[] data, int offset, int length) {
 		return copyWithPadding(ByteProvider.wrap(data), offset, length);
 	}
-	
+
 	private DataEncoder copyWithPadding(ByteProvider data, int offset, int length) {
 		int len = Math.min(length, data.length() - offset);
 		copy(data, offset, len);
 		return skip(length - len);
 	}
-
 
 	private int position(int count) {
 		return start + incrementOffset(count);

@@ -73,13 +73,6 @@ public class ByteUtil {
 		return fromHex(hex, ByteReceiver.wrap(data), offset, len);
 	}
 
-	public static void main(String[] args) {
-		String s = "abcde";
-		System.out.println(toHex(fromHex(s), ":"));
-		System.out.println(toHex(fromHex(s, 4), ":"));
-		System.out.println(toHex(fromHex(s, 2), ":"));
-	}
-
 	/**
 	 * Converts hex string to a fixed-length byte array. Bytes are right-aligned or left-truncated
 	 * as needed to fit the specified length. Remove any delimiters before calling this.
@@ -502,17 +495,26 @@ public class ByteUtil {
 	}
 
 	public static byte reverse(byte value) {
-		return (byte) (Integer.reverse(value) >>> (Integer.SIZE - Byte.SIZE));
+		return (byte) reverse(value, Byte.SIZE);
 	}
 
 	public static short reverse(short value) {
-		return (short) (Integer.reverse(value) >>> (Integer.SIZE - Short.SIZE));
+		return (short) reverse(value, Short.SIZE);
 	}
 
-	public static void fill(byte[] array, int fill, int offset, int length) {
+	public static int reverseInt(int value, int bits) {
+		return Integer.reverse(value) >>> (Integer.SIZE - bits);
+	}
+
+	public static long reverse(long value, int bits) {
+		return Long.reverse(value) >>> (Long.SIZE - bits);
+	}
+
+	public static int fill(byte[] array, int fill, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
 		for (int i = 0; i < length; i++)
 			array[offset + i] = (byte) fill;
+		return offset + length;
 	}
 
 	/**

@@ -29,21 +29,21 @@ public class FieldTranscoder<T> {
 
 	@SafeVarargs
 	public final FieldTranscoder<T> remove(T...ts) {
-		return remove(Arrays.asList(ts));
+		return ts.length == 0 ? this : remove(Arrays.asList(ts));
 	}
 	
 	public FieldTranscoder<T> remove(Collection<T> ts) {
-		accessor().remove(xcoder.encode(ts));
+		if (!ts.isEmpty()) accessor().remove(xcoder.encode(ts));
 		return this;
 	}
 
 	@SafeVarargs
 	public final FieldTranscoder<T> add(T... ts) {
-		return add(Arrays.asList(ts));
+		return ts.length == 0 ? this : add(Arrays.asList(ts));
 	}
 
 	public FieldTranscoder<T> add(Collection<T> ts) {
-		accessor().add(xcoder.encode(ts));
+		if (!ts.isEmpty()) accessor().add(xcoder.encode(ts));
 		return this;
 	}
 

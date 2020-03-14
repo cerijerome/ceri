@@ -111,14 +111,14 @@ public class MathUtil {
 	/**
 	 * Returns the short value of an unsigned byte.
 	 */
-	public static short ubyte(byte i) {
+	public static short ubyte(int i) {
 		return (short) (i & MAX_UBYTE);
 	}
 
 	/**
 	 * Returns the int value of an unsigned short.
 	 */
-	public static int ushort(short i) {
+	public static int ushort(int i) {
 		return i & MAX_USHORT;
 	}
 

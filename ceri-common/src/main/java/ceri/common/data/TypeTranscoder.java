@@ -30,6 +30,14 @@ public class TypeTranscoder<T> {
 			this.remainder = remainder;
 		}
 
+		public boolean isEmpty() {
+			return types.isEmpty() && isExact();
+		}
+		
+		public boolean isExact() {
+			return remainder == 0;
+		}
+		
 		@Override
 		public int hashCode() {
 			return HashCoder.hash(types, remainder);
