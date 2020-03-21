@@ -1,6 +1,6 @@
 package ceri.common.validation;
 
-import static ceri.common.data.UnsignedOctetType._long;
+import static ceri.common.data.UnsignedOctetType._general;
 import ceri.common.data.UnsignedOctetType;
 
 public class InvalidUnsignedRangeException extends IllegalArgumentException {
@@ -16,7 +16,7 @@ public class InvalidUnsignedRangeException extends IllegalArgumentException {
 	}
 
 	public static InvalidUnsignedRangeException equal(long value, long expected, String name) {
-		return new InvalidUnsignedRangeException(_long, value, expected, expected, name);
+		return new InvalidUnsignedRangeException(_general, value, expected, expected, name);
 	}
 
 	public static InvalidUnsignedRangeException min(long value, long min) {
@@ -24,7 +24,7 @@ public class InvalidUnsignedRangeException extends IllegalArgumentException {
 	}
 
 	public static InvalidUnsignedRangeException min(long value, long min, String name) {
-		return new InvalidUnsignedRangeException(_long, value, min, null, name);
+		return new InvalidUnsignedRangeException(_general, value, min, null, name);
 	}
 
 	public static InvalidUnsignedRangeException max(long value, long max) {
@@ -32,7 +32,7 @@ public class InvalidUnsignedRangeException extends IllegalArgumentException {
 	}
 
 	public static InvalidUnsignedRangeException max(long value, long max, String name) {
-		return new InvalidUnsignedRangeException(_long, value, null, max, name);
+		return new InvalidUnsignedRangeException(_general, value, null, max, name);
 	}
 
 	public static InvalidUnsignedRangeException range(long value, long min, long max) {
@@ -40,7 +40,25 @@ public class InvalidUnsignedRangeException extends IllegalArgumentException {
 	}
 
 	public static InvalidUnsignedRangeException range(long value, long min, long max, String name) {
-		return new InvalidUnsignedRangeException(_long, value, min, max, name);
+		return new InvalidUnsignedRangeException(_general, value, min, max, name);
+	}
+
+	public static InvalidUnsignedRangeException of(long value, Long min, Long max) {
+		return of(value, min, max, null);
+	}
+
+	public static InvalidUnsignedRangeException of(long value, Long min, Long max, String name) {
+		return of(_general, value, min, max, name);
+	}
+
+	public static InvalidUnsignedRangeException of(UnsignedOctetType type, long value, Long min,
+		Long max) {
+		return of(type, value, min, max, null);
+	}
+
+	public static InvalidUnsignedRangeException of(UnsignedOctetType type, long value, Long min,
+		Long max, String name) {
+		return new InvalidUnsignedRangeException(type, value, min, max, name);
 	}
 
 	private InvalidUnsignedRangeException(UnsignedOctetType type, long value, Long min, Long max,

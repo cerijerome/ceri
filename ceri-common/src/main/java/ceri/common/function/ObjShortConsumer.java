@@ -23,11 +23,11 @@ public interface ObjShortConsumer<T> {
 
 	static <T> ObjIntConsumer<T> toIntExact(ObjShortConsumer<T> consumer) {
 		Objects.requireNonNull(consumer);
-		return (t, i) -> consumer.accept(t, MathUtil.toShortExact(i));
+		return (t, i) -> consumer.accept(t, MathUtil.ushortExact(i));
 	}
 
 	static <T> ObjIntConsumer<T> toUintExact(ObjShortConsumer<T> consumer) {
 		Objects.requireNonNull(consumer);
-		return (t, i) -> consumer.accept(t, MathUtil.toUshortExact(i));
+		return (t, i) -> consumer.accept(t, MathUtil.ushortExact(i));
 	}
 }

@@ -1,7 +1,7 @@
 package ceri.common.text;
 
-import static ceri.common.validation.ValidationUtil.validate;
 import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validatef;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -174,7 +174,7 @@ public class FractionFormats {
 			if (!PATTERN.matcher(s).matches()) return null;
 			String expanded = expand(s);
 			Matcher m = EXPANDED_REGEX.matcher(expanded);
-			validate(m.matches(), "Expansion failed: %s", expanded);
+			validatef(m.matches(), "Expansion failed: %s", expanded);
 			return Fraction.of(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
 		}
 
@@ -189,8 +189,7 @@ public class FractionFormats {
 		}
 
 		private static String expandables() {
-			return StreamUtil
-				.toString(EXPANSIONS.keySet().stream().mapToInt(c -> (int) c));
+			return StreamUtil.toString(EXPANSIONS.keySet().stream().mapToInt(c -> (int) c));
 		}
 
 		private static Map<Character, String> expansions() {

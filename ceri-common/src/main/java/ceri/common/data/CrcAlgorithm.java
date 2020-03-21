@@ -1,17 +1,25 @@
 package ceri.common.data;
 
+import static ceri.common.collection.ImmutableUtil.enumsMap;
 import static ceri.common.data.ByteUtil.BYTE_MASK;
 import static ceri.common.data.ByteUtil.INT_MASK;
 import static ceri.common.data.ByteUtil.maskOfBits;
 import static ceri.common.data.ByteUtil.shiftBits;
 import static ceri.common.math.MathUtil.ubyte;
-import ceri.common.data.Crc.EntryAccessor;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import ceri.common.collection.ImmutableByteArray;
 import ceri.common.util.HashCoder;
 
 /**
- * Encapsulates the algorithm used to generate CRC values.
+ * Encapsulates the algorithm used to generate CRC values. Generates an entry cache on creation.
+ * 
  * <pre>
- * poly = powers as bits excluding highest
+ * See http://ross.net/crc/download/crc_v3.txt
+ * poly = powers as bits (excluding highest bit)
  * init = initial value
  * refin = true?: reverse bits of each input byte
  * refout = true: reverse bits of result
@@ -20,6 +28,9 @@ import ceri.common.util.HashCoder;
  * </pre>
  */
 public class CrcAlgorithm {
+	private static final int CACHE_SIZE = 1 << Byte.SIZE;
+	public static final ImmutableByteArray checkBytes =
+		ImmutableByteArray.wrap("123456789".getBytes(StandardCharsets.ISO_8859_1));
 	public final int width;
 	public final long poly;
 	public final long init;
@@ -33,6 +44,76 @@ public class CrcAlgorithm {
 	private final int shift2;
 	private final EntryAccessor cache;
 
+	public static enum Std {
+		none(() -> of(0, 0)),
+		crc8Smbus(() -> of(8, 0x7), //
+			"CRC-8/SMBUS", "CRC-8"),
+		crc16Ibm3740(() -> of(16, 0x1021, -1), //
+			"CRC-16/IBM-3740", "CRC-16/AUTOSAR", "CRC-16/CCITT-FALSE"),
+		crc16Kermit(() -> of(16, 0x1021, 0, true), //
+			"CRC-16/CCITT", "CRC-16/CCITT-TRUE", "CRC-16/V-41-LSB", "CRC-CCITT", "KERMIT"),
+		crc16Xmodem(() -> of(16, 0x1021), //
+			"CRC-16/XMODEM", "CRC-16/ACORN", "CRC-16/LTE", "CRC-16/V-41-MSB", "XMODEM", "ZMODEM"),
+		crc24Ble(() -> of(24, 0x00065b, 0x555555, true), //
+			"CRC-24/BLE"),
+		crc32Bzip2(() -> of(32, 0x04c11db7, -1, false, false, -1), //
+			"CRC-32/BZIP2", "CRC-32/AAL5", "CRC-32/DECT-B", "B-CRC-32"),
+		crc32Cksum(() -> of(32, 0x04c11db7, 0, false, false, -1), //
+			"CRC-32/CKSUM", "CKSUM", "CRC-32/POSIX"),
+		crc32IsoHdlc(() -> of(32, 0x04c11db7, -1, true, true, -1), //
+			"CRC-32/ISO-HDLC", "CRC-32", "CRC-32/ADCCP", "CRC-32/V-42", "CRC-32/XZ", "PKZIP"),
+		crc32Mpeg2(() -> of(32, 0x04c11db7, -1), //
+			"CRC-32/MPEG-2"),
+		crc64GoIso(() -> of(64, 0x1b, -1L, true, true, -1L), //
+			"CRC-64/GO-ISO"),
+		crc64Xz(() -> of(64, 0x42f0e1eba9ea3693L, -1L, true, true, -1L), //
+			"CRC-64/XZ");
+
+		private static final Map<Std, CrcAlgorithm> cache = new ConcurrentHashMap<>();
+		private static final Map<String, Std> nameLookup = enumsMap(t -> t.names, Std.class);
+		private final Supplier<CrcAlgorithm> supplier;
+		public final Set<String> names;
+
+		public static Std from(String name) {
+			return nameLookup.get(name.toUpperCase());
+		}
+
+		private Std(Supplier<CrcAlgorithm> supplier, String... names) {
+			this.supplier = supplier;
+			this.names = Set.of(names);
+		}
+
+		public long check() {
+			return algorithm().check();
+		}
+
+		public Crc start() {
+			return algorithm().start();
+		}
+
+		public CrcAlgorithm algorithm() {
+			return cache.computeIfAbsent(this, k -> supplier.get());
+		}
+	}
+
+	private static interface EntryAccessor {
+		long entry(int i);
+	}
+
+	/**
+	 * Create an algorithm specifying width and poly. init is 0, refIn/Out are false, xorOut is 0.
+	 */
+	public static CrcAlgorithm of(int width, long poly) {
+		return of(width, poly, 0);
+	}
+
+	/**
+	 * Create an algorithm specifying width, poly, and init. refIn/Out are false, xorOut is 0.
+	 */
+	public static CrcAlgorithm of(int width, long poly, long init) {
+		return of(width, poly, init, false);
+	}
+
 	/**
 	 * Create an algorithm specifying width, poly, init, and both refIn/Out. xorOut is 0.
 	 */
@@ -45,7 +126,7 @@ public class CrcAlgorithm {
 	 */
 	public static CrcAlgorithm of(int width, long poly, long init, boolean refIn, boolean refOut,
 		long xorOut) {
-		return builder(width).poly(poly).init(init).ref(refIn, refOut).xorOut(xorOut).config();
+		return builder(width).poly(poly).init(init).ref(refIn, refOut).xorOut(xorOut).build();
 	}
 
 	public static class Builder {
@@ -87,7 +168,7 @@ public class CrcAlgorithm {
 			return this;
 		}
 
-		public CrcAlgorithm config() {
+		public CrcAlgorithm build() {
 			return new CrcAlgorithm(this);
 		}
 	}
@@ -100,26 +181,29 @@ public class CrcAlgorithm {
 		width = builder.width;
 		refIn = builder.refIn;
 		refOut = builder.refOut;
-		mask = ByteUtil.maskInt(width);
+		mask = ByteUtil.mask(width);
 		poly = (builder.powers != null ? maskOfBits(builder.powers) : builder.poly) & mask;
 		xorOut = builder.xorOut & mask;
 		init = reverse(refOut, builder.init);
-		lastBit = 1 << (width - 1);
+		lastBit = 1L << (width - 1);
 		shift0 = refIn ? 0 : -Math.max(0, width - Byte.SIZE);
 		shift1 = refOut ? 0 : Math.max(0, width - Byte.SIZE);
 		shift2 = refOut ? Byte.SIZE : -Byte.SIZE;
 		cache = cache();
 	}
 
+	/**
+	 * Returns the number of bytes needed to store the CRC.
+	 */
 	public int bytes() {
 		return (width + Byte.SIZE - 1) / Byte.SIZE;
 	}
-	
+
 	/**
-	 * Returns the check value, processing ascii chars 123456789. 
+	 * Returns the check value, processing ascii chars 123456789.
 	 */
 	public long check() {
-		return start().add(Crc.checkBytes).crc();
+		return start().add(checkBytes).crc();
 	}
 
 	/**
@@ -130,17 +214,24 @@ public class CrcAlgorithm {
 	}
 
 	/**
+	 * Used by Crc object to mask values.
+	 */
+	long mask(long value) {
+		return value & mask;
+	}
+	
+	/**
 	 * Used by Crc object to complete the CRC value.
 	 */
 	long complete(long crc) {
-		return (crc ^ xorOut) & mask;
+		return mask(crc ^ xorOut);
 	}
 
 	/**
 	 * Used by Crc object to process one byte.
 	 */
 	long apply(long crc, byte val) {
-		return (entry(shiftBits(crc, shift1) ^ val) ^ shiftBits(crc, shift2)) & mask;
+		return mask(entry(shiftBits(crc, shift1) ^ val) ^ shiftBits(crc, shift2));
 	}
 
 	@Override
@@ -183,21 +274,21 @@ public class CrcAlgorithm {
 	}
 
 	private EntryAccessor byteCache() {
-		byte[] entries = new byte[Crc.CACHE_SIZE];
+		byte[] entries = new byte[CACHE_SIZE];
 		for (int i = 0; i < entries.length; i++)
 			entries[i] = (byte) createEntry(i);
 		return i -> entries[ubyte(i)] & BYTE_MASK;
 	}
 
 	private EntryAccessor intCache() {
-		int[] entries = new int[Crc.CACHE_SIZE];
+		int[] entries = new int[CACHE_SIZE];
 		for (int i = 0; i < entries.length; i++)
 			entries[i] = (int) createEntry(i);
 		return i -> entries[ubyte(i)] & INT_MASK;
 	}
 
 	private EntryAccessor longCache() {
-		long[] entries = new long[Crc.CACHE_SIZE];
+		long[] entries = new long[CACHE_SIZE];
 		for (int i = 0; i < entries.length; i++)
 			entries[i] = createEntry(i);
 		return i -> entries[ubyte(i)];
@@ -211,10 +302,11 @@ public class CrcAlgorithm {
 		r = shiftBits(reverse(refIn, r), shift0);
 		for (int i = 0; i < Byte.SIZE; i++)
 			r = (r & lastBit) != 0 ? r = (r << 1) ^ poly : r << 1;
-		return reverse(refOut, r) & mask;
+		return mask(reverse(refOut, r));
 	}
 
 	private long reverse(boolean reverse, long value) {
 		return reverse ? ByteUtil.reverse(value, width) : value;
 	}
+
 }

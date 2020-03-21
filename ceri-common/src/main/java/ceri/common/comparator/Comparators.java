@@ -26,21 +26,15 @@ public class Comparators {
 	public static final Comparator<Character> CHAR = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<String> STRING = BasicUtil.uncheckedCast(COMPARABLE);
 	public static final Comparator<Date> DATE = BasicUtil.uncheckedCast(COMPARABLE);
+	public static final Comparator<Byte> UBYTE = nonNull(Byte::compareUnsigned);
+	public static final Comparator<Short> USHORT = nonNull(Short::compareUnsigned);
+	public static final Comparator<Integer> UINT = nonNull(Integer::compareUnsigned);
+	public static final Comparator<Long> ULONG = nonNull(Long::compareUnsigned);
 	public static final Comparator<Locale> LOCALE = string();
 	private static final Comparator<?> STRING_VALUE =
 		nonNull((lhs, rhs) -> STRING.compare(String.valueOf(lhs), String.valueOf(rhs)));
 	private static final Comparator<?> NULL = ((lhs, rhs) -> 0);
 	private static final Comparator<?> NON_NULL = nonNull((lhs, rhs) -> 0);
-	public static final Comparator<Integer> UINT = nonNull((lhs, rhs) -> {
-		if (lhs < 0 && rhs >= 0) return 1;
-		if (lhs >= 0 && rhs < 0) return -1;
-		return INT.compare(lhs, rhs);
-	});
-	public static final Comparator<Long> ULONG = nonNull((lhs, rhs) -> {
-		if (lhs < 0 && rhs >= 0) return 1;
-		if (lhs >= 0 && rhs < 0) return -1;
-		return LONG.compare(lhs, rhs);
-	});
 
 	private Comparators() {}
 

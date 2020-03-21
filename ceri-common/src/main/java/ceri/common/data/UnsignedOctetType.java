@@ -10,6 +10,10 @@ public enum UnsignedOctetType {
 	_short(2, l -> StringUtil.toHex((short) l)),
 	_byte(1, l -> StringUtil.toHex((byte) l));
 
+	public static void main(String[] args) {
+		System.out.println(Long.toHexString(-1));
+	}
+	
 	public final int octets;
 	private final LongFunction<String> formatter;
 

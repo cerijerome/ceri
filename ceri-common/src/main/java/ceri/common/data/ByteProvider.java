@@ -1,72 +1,38 @@
 package ceri.common.data;
 
+import static ceri.common.data.ByteUtil.BIG_ENDIAN;
 import static java.lang.Math.min;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ImmutableByteArray;
+import ceri.common.math.MathUtil;
 
 /**
- * Interface that provides access to bytes in an array.
- * 
- * For bulk efficiency, consider overriding these methods that process one byte at a time:
+ * Interface that provides positional access to bytes. For bulk efficiency, consider overriding the
+ * following methods that process one byte at a time, make a sub-array copy, or defer to
+ * ByteProvider/ByteReceiver instead of byte arrays.
  * 
  * <pre>
- * int copyTo(int srcOffset, ByteReceiver dest, int destOffset, int length)
- * int writeTo(OutputStream out, int offset, int length) throws IOException
+ * long getEndian(int index, int size, boolean msb); [copy]
+ * String getString(int index, int length, Charset charset); [copy]
+ * ByteProvider slice(int offset, int length); [copy]
+ * int copyTo(int srcOffset, byte[] dest, int destOffset, int length); [1-byte]
+ * int copyTo(int srcOffset, ByteReceiver dest, int destOffset, int length); [1-byte]
+ * int writeTo(int offset, OutputStream out, int length) throws IOException; [1-byte]
+ * boolean matches(int srcOffset, byte[] array, int offset, int length); [1-byte]
+ * boolean matches(int srcOffset, ByteProvider provider, int offset, int length); [1-byte]
+ * int indexOf(int srcOffset, byte[] array, int offset, int length); [1-byte]
+ * int indexOf(int srcOffset, ByteProvider provider, int offset, int length); [1-byte]
  * </pre>
+ * 
+ * @see ceri.common.collection.ImmutableByteArray
+ * @see ceri.common.concurrent.AtomicByteArray
  */
 public interface ByteProvider {
-	ByteProvider EMPTY = wrap();
-	
-	static ByteProvider wrap(int... array) {
-		return wrap(ArrayUtil.bytes(array));
-	}
-
-	/**
-	 * Wraps a byte array as a byte provider.
-	 */
-	static ByteProvider wrap(byte... array) {
-		return wrap(array, 0);
-	}
-	
-	/**
-	 * Wraps a byte array as a byte provider.
-	 */
-	static ByteProvider wrap(byte[] array, int off) {
-		return wrap(array, off, array.length - off);
-	}
-	
-	/**
-	 * Wraps a byte array as a byte provider.		 */
-	static ByteProvider wrap(byte[] array, int off, int len) {
-		ArrayUtil.validateSlice(array.length, off, len);
-		return new ByteProvider() {
-			@Override
-			public int length() {
-				return len;
-			}
-
-			@Override
-			public byte get(int index) {
-				return array[index + off];
-			}
-
-			@Override
-			public int copyTo(int pos, ByteReceiver dest, int offset, int length) {
-				ArrayUtil.validateSlice(length(), pos + off, length);
-				ArrayUtil.validateSlice(dest.length(), offset, length);
-				dest.copyFrom(offset, array, pos + off, length);
-				return offset + length;
-			}
-
-			@Override
-			public void writeTo(OutputStream out, int pos, int length) throws IOException {
-				ArrayUtil.validateSlice(length(), pos + off, length);
-				out.write(array, pos + off, length);
-			}
-		};
-	}
 
 	/**
 	 * Length of the array.
@@ -76,7 +42,261 @@ public interface ByteProvider {
 	/**
 	 * Returns the byte at given index.
 	 */
-	byte get(int index);
+	byte getByte(int index);
+
+	/**
+	 * Returns the unsigned byte value at given index.
+	 */
+	default short getUbyte(int index) {
+		return MathUtil.ubyte(getByte(index));
+	}
+
+	/**
+	 * Returns true if byte is non-zero at given index.
+	 */
+	default boolean getBool(int index) {
+		return getByte(index) != 0;
+	}
+
+	/**
+	 * Returns the value from native-order bytes at given index.
+	 */
+	default short getShort(int index) {
+		return (short) getEndian(index, Short.BYTES, BIG_ENDIAN);
+	}
+
+	/**
+	 * Returns the value from big-endian bytes at given index.
+	 */
+	default short getShortMsb(int index) {
+		return (short) getEndian(index, Short.BYTES, true);
+	}
+
+	/**
+	 * Returns the value from little-endian bytes at given index.
+	 */
+	default short getShortLsb(int index) {
+		return (short) getEndian(index, Short.BYTES, false);
+	}
+
+	/**
+	 * Returns the unsigned value from native-order bytes at given index.
+	 */
+	default int getUshort(int index) {
+		return MathUtil.ushort(getShort(index));
+	}
+
+	/**
+	 * Returns the unsigned value from big-endian bytes at given index.
+	 */
+	default int getUshortMsb(int index) {
+		return MathUtil.ushort(getShortMsb(index));
+	}
+
+	/**
+	 * Returns the unsigned value from little-endian bytes at given index.
+	 */
+	default int getUshortLsb(int index) {
+		return MathUtil.ushort(getShortLsb(index));
+	}
+
+	/**
+	 * Returns the value from native-order bytes at given index.
+	 */
+	default int getInt(int index) {
+		return (int) getEndian(index, Integer.BYTES, BIG_ENDIAN);
+	}
+
+	/**
+	 * Returns the value from big-endian bytes at given index.
+	 */
+	default int getIntMsb(int index) {
+		return (int) getEndian(index, Integer.BYTES, true);
+	}
+
+	/**
+	 * Returns the value from little-endian bytes at given index.
+	 */
+	default int getIntLsb(int index) {
+		return (int) getEndian(index, Integer.BYTES, false);
+	}
+
+	/**
+	 * Returns the unsigned value from native-order bytes at given index.
+	 */
+	default long getUint(int index) {
+		return MathUtil.uint(getInt(index));
+	}
+
+	/**
+	 * Returns the unsigned value from big-endian bytes at given index.
+	 */
+	default long getUintMsb(int index) {
+		return MathUtil.uint(getIntMsb(index));
+	}
+
+	/**
+	 * Returns the unsigned value from little-endian bytes at given index.
+	 */
+	default long getUintLsb(int index) {
+		return MathUtil.uint(getIntLsb(index));
+	}
+
+	/**
+	 * Returns the value from native-order bytes at given index.
+	 */
+	default long getLong(int index) {
+		return getEndian(index, Long.BYTES, BIG_ENDIAN);
+	}
+
+	/**
+	 * Returns the value from big-endian bytes at given index.
+	 */
+	default long getLongMsb(int index) {
+		return getEndian(index, Long.BYTES, true);
+	}
+
+	/**
+	 * Returns the value from little-endian bytes at given index.
+	 */
+	default long getLongLsb(int index) {
+		return getEndian(index, Long.BYTES, false);
+	}
+
+	/**
+	 * Returns the value from endian bytes at given index.
+	 */
+	default long getEndian(int index, int size, boolean msb) {
+		byte[] copy = copy(index, size);
+		return msb ? ByteUtil.fromMsb(copy) : ByteUtil.fromLsb(copy);
+	}
+
+	/**
+	 * Returns the value from native-order bytes at given index.
+	 */
+	default float getFloat(int index) {
+		return Float.intBitsToFloat(getInt(index));
+	}
+
+	/**
+	 * Returns the value from big-endian bytes at given index.
+	 */
+	default float getFloatMsb(int index) {
+		return Float.intBitsToFloat(getIntMsb(index));
+	}
+
+	/**
+	 * Returns the value from little-endian bytes at given index.
+	 */
+	default float getFloatLsb(int index) {
+		return Float.intBitsToFloat(getIntLsb(index));
+	}
+
+	/**
+	 * Returns the value from native-order bytes at given index.
+	 */
+	default double getDouble(int index) {
+		return Double.longBitsToDouble(getLong(index));
+	}
+
+	/**
+	 * Returns the value from big-endian bytes at given index.
+	 */
+	default double getDoubleMsb(int index) {
+		return Double.longBitsToDouble(getLongMsb(index));
+	}
+
+	/**
+	 * Returns the value from little-endian bytes at given index.
+	 */
+	default double getDoubleLsb(int index) {
+		return Double.longBitsToDouble(getLongLsb(index));
+	}
+
+	/**
+	 * Returns the string from ISO-Latin-1 bytes.
+	 */
+	default String getAscii() {
+		return getAscii(0);
+	}
+
+	/**
+	 * Returns the string from ISO-Latin-1 bytes.
+	 */
+	default String getAscii(int index) {
+		return getAscii(index, length() - index);
+	}
+
+	/**
+	 * Returns the string from ISO-Latin-1 bytes.
+	 */
+	default String getAscii(int index, int length) {
+		return getString(index, length, StandardCharsets.ISO_8859_1);
+	}
+
+	/**
+	 * Returns the string from UTF-8 bytes.
+	 */
+	default String getUtf8() {
+		return getUtf8(0);
+	}
+
+	/**
+	 * Returns the string from UTF-8 bytes.
+	 */
+	default String getUtf8(int index) {
+		return getUtf8(index, length() - index);
+	}
+
+	/**
+	 * Returns the string from UTF-8 bytes.
+	 */
+	default String getUtf8(int index, int length) {
+		return getString(index, length, StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * Returns the string from default character-set encoded bytes.
+	 */
+	default String getString() {
+		return getString(0);
+	}
+
+	/**
+	 * Returns the string from default character-set encoded bytes.
+	 */
+	default String getString(int index) {
+		return getString(index, length() - index);
+	}
+
+	/**
+	 * Returns the string from default character-set encoded bytes.
+	 */
+	default String getString(int index, int length) {
+		return getString(index, length, Charset.defaultCharset());
+	}
+
+	/**
+	 * Returns the string from character-set encoded bytes.
+	 */
+	default String getString(Charset charset) {
+		return getString(0, charset);
+	}
+
+	/**
+	 * Returns the string from character-set encoded bytes.
+	 */
+	default String getString(int index, Charset charset) {
+		return getString(index, length() - index, charset);
+	}
+
+	/**
+	 * Returns the string from character-set encoded bytes.
+	 */
+	default String getString(int index, int length, Charset charset) {
+		byte[] copy = copy(index, length);
+		return new String(copy, charset);
+	}
 
 	/**
 	 * Returns a copy of the array.
@@ -101,6 +321,24 @@ public interface ByteProvider {
 		byte[] copy = new byte[length];
 		copyTo(offset, copy, 0, length);
 		return copy;
+	}
+
+	/**
+	 * Create a new view of the array.
+	 */
+	default ByteProvider slice(int offset) {
+		return slice(offset, length() - offset);
+	}
+
+	/**
+	 * Create a new view of the array. Use a negative length to right-justify the view.
+	 */
+	default ByteProvider slice(int offset, int length) {
+		if (length == 0) return ImmutableByteArray.EMPTY;
+		if (length < 0) return slice(offset + length, -length);
+		ArrayUtil.validateSlice(length(), offset, length);
+		if (offset == 0 && length == length()) return this;
+		return ImmutableByteArray.wrap(copy(offset, length));
 	}
 
 	/**
@@ -151,7 +389,10 @@ public interface ByteProvider {
 	 * after copying, destOffset + length.
 	 */
 	default int copyTo(int srcOffset, byte[] dest, int destOffset, int length) {
-		copyTo(srcOffset, ByteReceiver.wrap(dest), destOffset, length);
+		ArrayUtil.validateSlice(length(), srcOffset, length);
+		ArrayUtil.validateSlice(dest.length, destOffset, length);
+		for (int i = 0; i < length; i++)
+			dest[destOffset + i] = getByte(srcOffset + i);
 		return destOffset + length;
 	}
 
@@ -207,59 +448,68 @@ public interface ByteProvider {
 		ArrayUtil.validateSlice(length(), srcOffset, length);
 		ArrayUtil.validateSlice(dest.length(), destOffset, length);
 		for (int i = 0; i < length; i++)
-			dest.set(destOffset + i, get(srcOffset + i));
+			dest.set(destOffset + i, getByte(srcOffset + i));
 		return destOffset + length;
 	}
 
 	/**
 	 * Writes this array from offset 0 to the output stream. Returns the length written.
 	 */
-	default void writeTo(OutputStream out) throws IOException {
-		writeTo(out, 0);
+	default int writeTo(OutputStream out) throws IOException {
+		return writeTo(out, length());
+	}
+
+	/**
+	 * Writes this array from offset 0 to the output stream. Returns the length written.
+	 */
+	default int writeTo(OutputStream out, int length) throws IOException {
+		return writeTo(0, out, length);
 	}
 
 	/**
 	 * Writes this array from offset to the output stream. Returns the position after write,
 	 * length().
 	 */
-	default void writeTo(OutputStream out, int offset) throws IOException {
-		writeTo(out, offset, length() - offset);
+	default int writeTo(int offset, OutputStream out) throws IOException {
+		return writeTo(offset, out, length() - offset);
 	}
 
 	/**
-	 * Writes this array from offset to the output stream. Writes one byte at a time; in some cases
-	 * efficiency may be improved by overriding, or by using:
+	 * Writes this array from offset to the output stream, and returns the offset after writing.
+	 * Default implementation writes one byte at a time; in some cases efficiency may be improved by
+	 * overriding, or by using:
 	 * 
 	 * <pre>
 	 * out.write(copy(offset, length))
 	 * </pre>
 	 */
-	default void writeTo(OutputStream out, int offset, int length) throws IOException {
+	default int writeTo(int offset, OutputStream out, int length) throws IOException {
 		ArrayUtil.validateSlice(length(), offset, length);
 		for (int i = 0; i < length; i++)
-			out.write(get(offset + i));
+			out.write(getByte(offset + i));
+		return offset + length;
 	}
 
 	/**
-	 * Provides the bytes as a stream.
+	 * Provides unsigned bytes as a stream.
 	 */
-	default IntStream stream() {
-		return stream(0);
+	default IntStream ustream() {
+		return ustream(0);
 	}
 
 	/**
-	 * Provides the bytes as a stream, starting at offset.
+	 * Provides unsigned bytes as a stream, starting at offset.
 	 */
-	default IntStream stream(int offset) {
-		return stream(offset, length() - offset);
+	default IntStream ustream(int offset) {
+		return ustream(offset, length() - offset);
 	}
 
 	/**
-	 * Provides the bytes as a stream, starting at offset, for given length.
+	 * Provides unsigned bytes as a stream, starting at offset, for given length.
 	 */
-	default IntStream stream(int offset, int length) {
+	default IntStream ustream(int offset, int length) {
 		ArrayUtil.validateSlice(length(), offset, length);
-		return IntStream.range(offset, offset + length).map(i -> get(i) & 0xff);
+		return IntStream.range(offset, offset + length).map(i -> getUbyte(i));
 	}
 
 	/**
@@ -308,7 +558,7 @@ public interface ByteProvider {
 	 * Determines whether bytes from offset equal the byte array slice.
 	 */
 	default boolean matches(int srcOffset, byte[] array, int offset, int length) {
-		return matches(srcOffset, wrap(array), offset, length);
+		return matches(srcOffset, ImmutableByteArray.wrap(array), offset, length);
 	}
 
 	/**
@@ -353,7 +603,7 @@ public interface ByteProvider {
 		if (!ArrayUtil.isValidSlice(length(), srcOffset, length)) return false;
 		if (!ArrayUtil.isValidSlice(provider.length(), offset, length)) return false;
 		for (int i = 0; i < length; i++)
-			if (get(srcOffset + i) != provider.get(offset + i)) return false;
+			if (getByte(srcOffset + i) != provider.getByte(offset + i)) return false;
 		return true;
 	}
 
@@ -403,7 +653,7 @@ public interface ByteProvider {
 	 * Returns the first index from offset that matches byte array slice. Returns -1 if not match.
 	 */
 	default int indexOf(int srcOffset, byte[] array, int offset, int length) {
-		return indexOf(srcOffset, wrap(array), offset, length);
+		return indexOf(srcOffset, ImmutableByteArray.wrap(array), offset, length);
 	}
 
 	/**

@@ -39,7 +39,7 @@ public class Xor {
 	public Xor add(ByteProvider bytes, int offset, int length) {
 		ArrayUtil.validateSlice(bytes.length(), offset, length);
 		for (int i = 0; i < length; i++)
-			xor(bytes.get(offset + i));
+			xor(bytes.getByte(offset + i));
 		return this;
 	}
 

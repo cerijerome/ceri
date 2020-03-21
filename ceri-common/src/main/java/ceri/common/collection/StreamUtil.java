@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -431,7 +432,16 @@ public class StreamUtil {
 	 * Returns a stream for all enum values.
 	 */
 	public static <T extends Enum<T>> Stream<T> stream(Class<T> enumCls) {
-		return BasicUtil.enums(enumCls).stream();
+		return Stream.of(enumCls.getEnumConstants());
+	}
+
+	/**
+	 * Split a stream into map entries, with split value as key, original value as value. Useful for
+	 * creating maps of types that have collection fields.
+	 */
+	public static <T, K> Stream<Map.Entry<K, T>> flatInvert(Stream<T> stream,
+		Function<T, Collection<K>> fn) {
+		return stream.flatMap(t -> fn.apply(t).stream().map(k -> new SimpleEntry<>(k, t)));
 	}
 
 }

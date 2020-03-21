@@ -23,7 +23,7 @@ public interface ByteConsumer {
 
 	static IntConsumer toIntExact(ByteConsumer consumer) {
 		Objects.requireNonNull(consumer);
-		return i -> consumer.accept(MathUtil.toByteExact(i));
+		return i -> consumer.accept(MathUtil.byteExact(i));
 	}
 
 }

@@ -71,7 +71,7 @@ public class MathUtil {
 	/**
 	 * Casts a long to a byte. Throws an exception if outside the limits of byte.
 	 */
-	public static byte toByteExact(long value) {
+	public static byte byteExact(long value) {
 		if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE) return (byte) value;
 		throw new ArithmeticException("byte overflow");
 	}
@@ -79,7 +79,7 @@ public class MathUtil {
 	/**
 	 * Casts a long to unsigned byte. Throws an exception if outside the limits of unsigned byte.
 	 */
-	public static byte toUbyteExact(long value) {
+	public static byte ubyteExact(long value) {
 		if (value >= 0 && value <= MAX_UBYTE) return (byte) value;
 		throw new ArithmeticException("byte overflow");
 	}
@@ -87,7 +87,7 @@ public class MathUtil {
 	/**
 	 * Casts a long to a byte. Throws an exception if outside the limits of byte.
 	 */
-	public static short toShortExact(long value) {
+	public static short shortExact(long value) {
 		if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) return (short) value;
 		throw new ArithmeticException("short overflow");
 	}
@@ -95,7 +95,7 @@ public class MathUtil {
 	/**
 	 * Casts a long to unsigned short. Throws an exception if outside the limits of unsigned short.
 	 */
-	public static short toUshortExact(long value) {
+	public static short ushortExact(long value) {
 		if (value >= 0 && value <= MAX_USHORT) return (short) value;
 		throw new ArithmeticException("byte overflow");
 	}
@@ -103,7 +103,7 @@ public class MathUtil {
 	/**
 	 * Casts a long to unsigned int. Throws an exception if outside the limits of unsigned int.
 	 */
-	public static int toUintExact(long value) {
+	public static int uintExact(long value) {
 		if (value >= 0 && value <= MAX_UINT) return (byte) value;
 		throw new ArithmeticException("byte overflow");
 	}
@@ -111,21 +111,21 @@ public class MathUtil {
 	/**
 	 * Returns the short value of an unsigned byte.
 	 */
-	public static short ubyte(int i) {
+	public static short ubyte(long i) {
 		return (short) (i & MAX_UBYTE);
 	}
 
 	/**
 	 * Returns the int value of an unsigned short.
 	 */
-	public static int ushort(int i) {
-		return i & MAX_USHORT;
+	public static int ushort(long i) {
+		return (int) (i & MAX_USHORT);
 	}
 
 	/**
 	 * Returns the long value of an unsigned int.
 	 */
-	public static long uint(int i) {
+	public static long uint(long i) {
 		return i & MAX_UINT;
 	}
 
@@ -330,14 +330,14 @@ public class MathUtil {
 	/**
 	 * Returns the percentage for a value 0..1. Returns NaN for a zero range.
 	 */
-	public static double percentage(double value) {
-		return percentage(value, 1.0);
+	public static double toPercentage(double value) {
+		return toPercentage(value, 1.0);
 	}
 
 	/**
 	 * Returns the percentage for a value in a range. Returns NaN for a zero range.
 	 */
-	public static double percentage(double value, double range) {
+	public static double toPercentage(double value, double range) {
 		if (range == 0) return Double.NaN;
 		// Optimization for large range values
 		if (range > 100) return (value / range) * 100;
@@ -347,14 +347,14 @@ public class MathUtil {
 	/**
 	 * Returns the value for a percentage of a 0..1.
 	 */
-	public static double valueFromPercentage(double percentage) {
-		return valueFromPercentage(percentage, 1.0);
+	public static double fromPercentage(double percentage) {
+		return fromPercentage(percentage, 1.0);
 	}
 
 	/**
 	 * Returns the value for a percentage of a range.
 	 */
-	public static double valueFromPercentage(double percentage, double range) {
+	public static double fromPercentage(double percentage, double range) {
 		// Optimization for large range values
 		if (range > 100) return percentage * (range / 100);
 		// Optimization for large percentage values

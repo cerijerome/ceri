@@ -48,6 +48,8 @@ import ceri.common.data.BooleanAccessorBehavior;
 import ceri.common.data.ByteArrayDataInputBehavior;
 import ceri.common.data.ByteArrayDataOutputBehavior;
 import ceri.common.data.ByteUtilTest;
+import ceri.common.data.CrcAlgorithmBehavior;
+import ceri.common.data.CrcBehavior;
 import ceri.common.data.DataDecoderBehavior;
 import ceri.common.data.DataEncoderBehavior;
 import ceri.common.data.DataUtilTest;
@@ -319,6 +321,8 @@ import ceri.common.xml.XmlUtilTest;
 	ByteArrayDataInputBehavior.class, //
 	ByteArrayDataOutputBehavior.class, //
 	ByteUtilTest.class, //
+	CrcAlgorithmBehavior.class, //
+	CrcBehavior.class, //
 	DataDecoderBehavior.class, //
 	DataEncoderBehavior.class, //
 	DataUtilTest.class, //

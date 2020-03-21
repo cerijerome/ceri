@@ -202,7 +202,7 @@ public class ImmutableUtil {
 	}
 
 	/**
-	 * Copies a stream of objects into an immutable LinkedHashSet.
+	 * Collects a stream of objects into an immutable LinkedHashSet.
 	 */
 	public static <T> Set<T> collectAsSet(Stream<? extends T> stream) {
 		Collector<T, ?, Set<T>> collector = Collectors.toCollection(setSupplier());
@@ -210,7 +210,7 @@ public class ImmutableUtil {
 	}
 
 	/**
-	 * Copies a stream of objects into an immutable NavigableSet.
+	 * Collects a stream of objects into an immutable NavigableSet.
 	 */
 	public static <T> NavigableSet<T> collectAsNavigableSet(Stream<? extends T> stream) {
 		Collector<T, ?, TreeSet<T>> collector = Collectors.toCollection(TreeSet::new);
@@ -218,11 +218,18 @@ public class ImmutableUtil {
 	}
 
 	/**
-	 * Copies a stream of objects into an immutable ArrayList.
+	 * Collects a stream of objects into an immutable ArrayList.
 	 */
 	public static <T> List<T> collectAsList(Stream<? extends T> stream) {
 		Collector<T, ?, List<T>> collector = Collectors.toList();
 		return Collections.unmodifiableList(stream.collect(collector));
+	}
+
+	/**
+	 * Collects a stream of objects into an immutable LinkedHashMap.
+	 */
+	public static <K, V> Map<K, V> collectAsMap(Stream<Map.Entry<K, V>> stream) {
+		return Collections.unmodifiableMap(StreamUtil.toEntryMap(stream));
 	}
 
 	/**
@@ -487,6 +494,11 @@ public class ImmutableUtil {
 
 	public static <K, T extends Enum<T>> Map<K, T> enumMap(Function<T, K> fn, Class<T> cls) {
 		return convertAsMap(fn, EnumSet.allOf(cls));
+	}
+
+	public static <K, T extends Enum<T>> Map<K, T> enumsMap(Function<T, Collection<K>> fn,
+		Class<T> cls) {
+		return collectAsMap(StreamUtil.flatInvert(StreamUtil.stream(cls), fn));
 	}
 
 	public static <T extends Enum<T>> Set<T> enumSet(T one) {

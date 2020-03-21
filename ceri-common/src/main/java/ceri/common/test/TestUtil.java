@@ -36,6 +36,7 @@ import org.hamcrest.core.Is;
 import org.hamcrest.core.IsSame;
 import org.junit.runner.JUnitCore;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ImmutableByteArray;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
@@ -821,14 +822,14 @@ public class TestUtil {
 	 * Checks contents of the files matches bytes, with specific failure information if not.
 	 */
 	public static void assertFile(Path actual, int... bytes) throws IOException {
-		assertFile(actual, ByteProvider.wrap(bytes));
+		assertFile(actual, ImmutableByteArray.wrap(bytes));
 	}
 
 	/**
 	 * Checks contents of the files matches bytes, with specific failure information if not.
 	 */
 	public static void assertFile(Path actual, byte[] bytes) throws IOException {
-		assertFile(actual, ByteProvider.wrap(bytes));
+		assertFile(actual, ImmutableByteArray.wrap(bytes));
 	}
 
 	/**
@@ -838,7 +839,7 @@ public class TestUtil {
 		assertThat("File size", Files.size(actual), is((long) byteProvider.length()));
 		byte[] actualBytes = Files.readAllBytes(actual);
 		for (int i = 0; i < actualBytes.length; i++)
-			if (actualBytes[i] != byteProvider.get(i))
+			if (actualBytes[i] != byteProvider.getByte(i))
 				throw failure("Byte mismatch at index %d", i);
 	}
 

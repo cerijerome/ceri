@@ -1,8 +1,8 @@
 package ceri.common.math;
 
-import static ceri.common.validation.ValidationUtil.validate;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
+import static ceri.common.validation.ValidationUtil.validatef;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -235,7 +235,7 @@ public class Matrix {
 	}
 
 	public Matrix add(Matrix m) {
-		validate(rows == m.rows && columns == m.columns, "Matrix must be %dx%d: %dx%d", rows,
+		validatef(rows == m.rows && columns == m.columns, "Matrix must be %dx%d: %dx%d", rows,
 			columns, m.rows, m.columns);
 		Builder b = builder(rows, m.columns);
 		for (int row = 0; row < rows; row++)
@@ -253,7 +253,7 @@ public class Matrix {
 	}
 
 	public Matrix multiply(Matrix m) {
-		validate(columns == m.rows, "Matrix must have %d rows: %d", columns, m.rows);
+		validatef(columns == m.rows, "Matrix must have %d rows: %d", columns, m.rows);
 		Builder b = builder(rows, m.columns);
 		for (int row = 0; row < rows; row++)
 			for (int column = 0; column < m.columns; column++)

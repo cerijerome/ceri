@@ -133,7 +133,7 @@ public class BinaryPrinter {
 	 */
 	public BinaryPrinter print(String s) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		s.codePoints().forEach(cp -> ByteUtil.writeTo(out, ByteUtil.toBigEndian((short) cp)));
+		s.codePoints().forEach(cp -> ByteUtil.writeTo(out, ByteUtil.toMsb((short) cp)));
 		return print(out.toByteArray());
 	}
 

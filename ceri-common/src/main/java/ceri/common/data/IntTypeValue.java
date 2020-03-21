@@ -1,11 +1,13 @@
 package ceri.common.data;
 
-import static ceri.common.text.StringUtil.BYTE_HEX_DIGITS;
-import static ceri.common.text.StringUtil.INT_HEX_DIGITS;
-import static ceri.common.text.StringUtil.SHORT_HEX_DIGITS;
 import static ceri.common.util.BasicUtil.defaultValue;
+import static ceri.common.validation.DisplayLong.dec;
+import static ceri.common.validation.DisplayLong.hex;
+import static ceri.common.validation.DisplayLong.hex2;
+import static ceri.common.validation.DisplayLong.hex4;
+import static ceri.common.validation.ValidationUtil.validateNotEqual;
+import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.function.IntFunction;
-import ceri.common.text.StringUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
@@ -19,78 +21,109 @@ public class IntTypeValue<T> {
 	private final int value;
 	private final Integer subValue;
 	private final String name;
-	private transient final IntFunction<String> valueFormatter;
+	private transient final IntFunction<String> formatter;
 
 	/**
-	 * Formatting for the integer value on toString(). Useful to match up with type definition.
+	 * Create decimal type.
 	 */
-	public static enum Format implements IntFunction<String> {
-		decimal(String::valueOf),
-		hex(i -> "0x" + Integer.toHexString(i)),
-		hexByte(hex(BYTE_HEX_DIGITS)),
-		hexShort(hex(SHORT_HEX_DIGITS)),
-		hexInt(hex(INT_HEX_DIGITS));
-
-		private final IntFunction<String> formatter;
-
-		public static IntFunction<String> hex(int digits) {
-			return i -> "0x" + StringUtil.toHex(i, digits);
-		}
-
-		private Format(IntFunction<String> formatter) {
-			this.formatter = formatter;
-		}
-
-		@Override
-		public String apply(int value) {
-			return formatter.apply(value);
-		}
-	}
-
 	public static <T> IntTypeValue<T> of(int value, T type, String name) {
-		return of(value, type, name, null, Format.decimal);
+		return of(value, type, name, null, dec::format);
 	}
 
+	/**
+	 * Create decimal type with sub-value.
+	 */
 	public static <T> IntTypeValue<T> of(int value, T type, String name, int subValue) {
-		return of(value, type, name, subValue, Format.decimal);
+		return of(value, type, name, subValue, dec::format);
 	}
 
-	public static <T> IntTypeValue<T> ofByte(int value, T type, String name) {
-		return of((byte) value, type, name, null, Format.hexByte);
+	/**
+	 * Create unsigned byte type.
+	 */
+	public static <T> IntTypeValue<T> ofUbyte(int value, T type, String name) {
+		return of((byte) value, type, name, null, hex2::format);
 	}
 
-	public static <T> IntTypeValue<T> ofByte(int value, T type, String name, int subValue) {
-		return of((byte) value, type, name, subValue, Format.hexByte);
+	/**
+	 * Create unsigned byte type with sub-value.
+	 */
+	public static <T> IntTypeValue<T> ofUbyte(int value, T type, String name, int subValue) {
+		return of((byte) value, type, name, subValue, hex2::format);
 	}
 
-	public static <T> IntTypeValue<T> ofShort(int value, T type, String name) {
-		return of((short) value, type, name, null, Format.hexShort);
+	/**
+	 * Create unsigned short type.
+	 */
+	public static <T> IntTypeValue<T> ofUshort(int value, T type, String name) {
+		return of((short) value, type, name, null, hex4::format);
 	}
 
-	public static <T> IntTypeValue<T> ofShort(int value, T type, String name, int subValue) {
-		return of((short) value, type, name, subValue, Format.hexShort);
+	/**
+	 * Create unsigned short type with sub-value.
+	 */
+	public static <T> IntTypeValue<T> ofUshort(int value, T type, String name, int subValue) {
+		return of((short) value, type, name, subValue, hex4::format);
 	}
 
-	public static <T> IntTypeValue<T> ofInt(int value, T type, String name) {
-		return of(value, type, name, null, Format.hexInt);
+	/**
+	 * Create unsigned int type.
+	 */
+	public static <T> IntTypeValue<T> ofUint(int value, T type, String name) {
+		return of(value, type, name, null, hex::format);
 	}
 
-	public static <T> IntTypeValue<T> ofInt(int value, T type, String name, int subValue) {
-		return of(value, type, name, subValue, Format.hexInt);
+	/**
+	 * Create unsigned int type with sub-value.
+	 */
+	public static <T> IntTypeValue<T> ofUint(int value, T type, String name, int subValue) {
+		return of(value, type, name, subValue, hex::format);
 	}
 
+	/**
+	 * Create type with optional sub-value and custom formatter.
+	 */
 	public static <T> IntTypeValue<T> of(int value, T type, String name, Integer subValue,
-		IntFunction<String> valueFormatter) {
-		return new IntTypeValue<>(value, type, name, subValue, valueFormatter);
+		IntFunction<String> formatter) {
+		return new IntTypeValue<>(value, type, name, subValue, formatter);
 	}
 
-	protected IntTypeValue(int value, T type, String name, Integer subValue,
-		IntFunction<String> valueFormatter) {
+	/**
+	 * Validates value to make sure type is set.
+	 */
+	public static void validate(IntTypeValue<?> value) {
+		validate(value, (String) null);
+	}
+
+	/**
+	 * Validates value to make sure type is set.
+	 */
+	public static void validate(IntTypeValue<?> value, String name) {
+		validateExcept(value, null, name);
+	}
+
+	/**
+	 * Validates value to make sure type is set and not equals to the invalid value.
+	 */
+	public static <T> void validateExcept(IntTypeValue<T> value, T invalid) {
+		validateExcept(value, invalid, null);
+	}
+
+	/**
+	 * Validates value to make sure type is set and not equals to the invalid value.
+	 */
+	public static <T> void validateExcept(IntTypeValue<T> value, T invalid, String name) {
+		validateNotNull(value, name);
+		validateNotNull(value.type(), name);
+		if (invalid != null) validateNotEqual(value.type(), invalid, name);
+	}
+
+	private IntTypeValue(int value, T type, String name, Integer subValue,
+		IntFunction<String> formatter) {
 		this.type = type;
 		this.value = value;
 		this.subValue = subValue;
 		this.name = type != null ? null : name; // ignore if has type
-		this.valueFormatter = defaultValue(valueFormatter, Format.decimal);
+		this.formatter = defaultValue(formatter, dec::format);
 	}
 
 	public T type() {
@@ -146,14 +179,14 @@ public class IntTypeValue<T> {
 	public String compact() {
 		if (!hasType()) return toString();
 		if (!hasSubValue()) return type().toString();
-		return String.format("%s(%s)", type, valueFormatter.apply(subValue));
+		return String.format("%s(%s)", type, formatter.apply(subValue));
 	}
 
 	@Override
 	public String toString() {
-		if (subValue == null) return String.format("%s(%s)", name(), valueFormatter.apply(value));
-		return String.format("%s(%s:%s)", name(), valueFormatter.apply(value),
-			valueFormatter.apply(subValue));
+		if (subValue == null) return String.format("%s(%s)", name(), formatter.apply(value));
+		return String.format("%s(%s:%s)", name(), formatter.apply(value),
+			formatter.apply(subValue));
 	}
 
 }

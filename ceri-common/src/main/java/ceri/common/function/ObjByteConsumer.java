@@ -23,12 +23,12 @@ public interface ObjByteConsumer<T> {
 
 	static <T> ObjIntConsumer<T> toIntExact(ObjByteConsumer<T> consumer) {
 		Objects.requireNonNull(consumer);
-		return (t, i) -> consumer.accept(t, MathUtil.toByteExact(i));
+		return (t, i) -> consumer.accept(t, MathUtil.byteExact(i));
 	}
 
 	static <T> ObjIntConsumer<T> toUintExact(ObjByteConsumer<T> consumer) {
 		Objects.requireNonNull(consumer);
-		return (t, i) -> consumer.accept(t, MathUtil.toUbyteExact(i));
+		return (t, i) -> consumer.accept(t, MathUtil.ubyteExact(i));
 	}
 
 }

@@ -459,19 +459,19 @@ public class ColorUtil {
 	}
 
 	public static int a(int rgba) {
-		return ByteUtil.byteValueAt(rgba, A_BYTE);
+		return ByteUtil.ubyteAt(rgba, A_BYTE);
 	}
 
 	public static int r(int rgba) {
-		return ByteUtil.byteValueAt(rgba, R_BYTE);
+		return ByteUtil.ubyteAt(rgba, R_BYTE);
 	}
 
 	public static int g(int rgba) {
-		return ByteUtil.byteValueAt(rgba, G_BYTE);
+		return ByteUtil.ubyteAt(rgba, G_BYTE);
 	}
 
 	public static int b(int rgba) {
-		return ByteUtil.byteValueAt(rgba, B_BYTE);
+		return ByteUtil.ubyteAt(rgba, B_BYTE);
 	}
 
 	/**

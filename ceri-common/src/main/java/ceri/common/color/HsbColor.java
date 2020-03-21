@@ -1,7 +1,6 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.toRatio;
-import static ceri.common.data.ByteUtil.byteValueAt;
+import static ceri.common.color.ColorUtil.*;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import java.awt.Color;
 import ceri.common.data.ByteUtil;
@@ -33,7 +32,7 @@ public class HsbColor implements ComponentColor<HsbColor> {
 	}
 
 	public static HsbColor from(int rgb) {
-		return from(byteValueAt(rgb, 2), byteValueAt(rgb, 1), byteValueAt(rgb, 0));
+		return from(r(rgb), g(rgb), b(rgb));
 	}
 
 	public static HsbColor from(int red, int green, int blue) {

@@ -60,10 +60,12 @@ public class AtomicByteArray implements ByteProvider, ByteReceiver {
 		this.length = length;
 	}
 
+	@Override
 	public AtomicByteArray slice(int offset) {
 		return slice(offset, length() - offset);
 	}
 
+	@Override
 	public AtomicByteArray slice(int offset, int length) {
 		ArrayUtil.validateSlice(length(), offset, length);
 		return new AtomicByteArray(array, this.offset + offset, length);
@@ -75,7 +77,7 @@ public class AtomicByteArray implements ByteProvider, ByteReceiver {
 	}
 
 	@Override
-	public byte get(int index) {
+	public byte getByte(int index) {
 		return (byte) handle.getVolatile(array, offset + index);
 	}
 

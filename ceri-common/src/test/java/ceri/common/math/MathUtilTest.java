@@ -96,20 +96,20 @@ public class MathUtilTest {
 	public void testToShortExact() {
 		long l0 = Short.MIN_VALUE;
 		long l1 = Short.MAX_VALUE;
-		assertThat(MathUtil.toShortExact(l0), is(Short.MIN_VALUE));
-		assertThat(MathUtil.toShortExact(l1), is(Short.MAX_VALUE));
-		TestUtil.assertThrown(() -> MathUtil.toShortExact(Short.MIN_VALUE - 1));
-		TestUtil.assertThrown(() -> MathUtil.toShortExact(Short.MAX_VALUE + 1));
+		assertThat(MathUtil.ushortExact(l0), is(Short.MIN_VALUE));
+		assertThat(MathUtil.ushortExact(l1), is(Short.MAX_VALUE));
+		TestUtil.assertThrown(() -> MathUtil.ushortExact(Short.MIN_VALUE - 1));
+		TestUtil.assertThrown(() -> MathUtil.ushortExact(Short.MAX_VALUE + 1));
 	}
 
 	@Test
 	public void testToByteExact() {
 		long l0 = Byte.MIN_VALUE;
 		long l1 = Byte.MAX_VALUE;
-		assertThat(MathUtil.toByteExact(l0), is(Byte.MIN_VALUE));
-		assertThat(MathUtil.toByteExact(l1), is(Byte.MAX_VALUE));
-		TestUtil.assertThrown(() -> MathUtil.toByteExact(Byte.MIN_VALUE - 1));
-		TestUtil.assertThrown(() -> MathUtil.toByteExact(Byte.MAX_VALUE + 1));
+		assertThat(MathUtil.byteExact(l0), is(Byte.MIN_VALUE));
+		assertThat(MathUtil.byteExact(l1), is(Byte.MAX_VALUE));
+		TestUtil.assertThrown(() -> MathUtil.byteExact(Byte.MIN_VALUE - 1));
+		TestUtil.assertThrown(() -> MathUtil.byteExact(Byte.MAX_VALUE + 1));
 	}
 
 	@Test
@@ -488,14 +488,14 @@ public class MathUtilTest {
 
 	@Test
 	public void testPercentage() {
-		assertThat(MathUtil.percentage(0.9), is(90.0));
-		assertThat(MathUtil.percentage(90, 90), is(100.0));
-		assertThat(MathUtil.percentage(Double.MAX_VALUE, Double.MAX_VALUE), is(100.0));
-		assertTrue(Double.isNaN(MathUtil.percentage(Long.MAX_VALUE, 0)));
-		assertThat(MathUtil.valueFromPercentage(50), is(0.5));
-		assertThat(MathUtil.valueFromPercentage(50, 90), is(45.0));
-		assertThat(MathUtil.valueFromPercentage(100, Double.MAX_VALUE), is(Double.MAX_VALUE));
-		assertThat(MathUtil.valueFromPercentage(Double.MAX_VALUE, 100), is(Double.MAX_VALUE));
+		assertThat(MathUtil.toPercentage(0.9), is(90.0));
+		assertThat(MathUtil.toPercentage(90, 90), is(100.0));
+		assertThat(MathUtil.toPercentage(Double.MAX_VALUE, Double.MAX_VALUE), is(100.0));
+		assertTrue(Double.isNaN(MathUtil.toPercentage(Long.MAX_VALUE, 0)));
+		assertThat(MathUtil.fromPercentage(50), is(0.5));
+		assertThat(MathUtil.fromPercentage(50, 90), is(45.0));
+		assertThat(MathUtil.fromPercentage(100, Double.MAX_VALUE), is(Double.MAX_VALUE));
+		assertThat(MathUtil.fromPercentage(Double.MAX_VALUE, 100), is(Double.MAX_VALUE));
 	}
 
 	@Test

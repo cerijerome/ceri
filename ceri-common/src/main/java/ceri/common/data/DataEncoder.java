@@ -14,9 +14,46 @@ import ceri.common.util.BasicUtil;
  * <pre>
  * TODO:
  *   - make into interface
- *   - extract navigable interface (mark, offset, rewind, reset, remaining)
+ *   - extract navigable interface? (mark, offset, rewind, reset, remaining)
  *   - JNA ByteWriter extends interface, (-> JnaDataEncoder?)
  *   - Crc implements interface (not navigable)
+ *   
+ * Summary:
+ * 
+ * DataInput (jdk)
+ * - Interface for reading types from bytes, implemented in DataInputStream
+ * - skip
+ * - readBool/Byte/Char/Short/Int/Long/Float/Double/Ubyte/Ushort
+ * - readLine/UTF
+ * - readFully
+ * 
+ * DataOutput (jdk)
+ * - Interface for writing types as bytes, implemented in DataOutputStream
+ * - writeBool/Byte/Char/Short/Int/Long/Float/Double
+ * - write(byte[], ...)
+ * - writeUTF/Chars/Bytes
+ * - write(int)
+ * 
+ * DataEncoder (ceri.common.data)
+ * - Wraps byte[], used to write data for h/w control (stream-like, with navigation)
+ * - mark, offset, skip, rewind, reset, remaining, total
+ * - data, slice
+ * - copy, fill
+ * - encodeBits/Byte/ShortLsb/ShortMsb/IntLsb/IntMsb/Ascii/Utf8
+ * 
+ * ByteReceiver (ceri.common.data)
+ * - For writing bytes to a position (random-access)
+ * - set, fill, length
+ * - copyFrom([to-offset, ]byte[]/ByteProvider, ...)
+ * - readFrom(InputStream)
+ * - static readBufferFrom (buffered readFrom)
+ * 
+ * ByteWriter (ceri.serial.jna)
+ * - Used for writing to JNA file/memory (stream-like)
+ * - write(byte[]...)
+ * - writeByte/Short/Int/NativeLong/Long
+ * - writeFrom(Memory...)
+ * 
  * </pre>
  */
 public class DataEncoder {
@@ -144,22 +181,22 @@ public class DataEncoder {
 	}
 
 	public DataEncoder encodeShortMsb(int value) {
-		ByteUtil.writeBigEndian(value, data, position(Short.BYTES), Short.BYTES);
+		ByteUtil.writeMsb(value, data, position(Short.BYTES), Short.BYTES);
 		return this;
 	}
 
 	public DataEncoder encodeShortLsb(int value) {
-		ByteUtil.writeLittleEndian(value, data, position(Short.BYTES), Short.BYTES);
+		ByteUtil.writeLsb(value, data, position(Short.BYTES), Short.BYTES);
 		return this;
 	}
 
 	public DataEncoder encodeIntMsb(int value) {
-		ByteUtil.writeBigEndian(value, data, position(Integer.BYTES), Integer.BYTES);
+		ByteUtil.writeMsb(value, data, position(Integer.BYTES), Integer.BYTES);
 		return this;
 	}
 
 	public DataEncoder encodeIntLsb(int value) {
-		ByteUtil.writeLittleEndian(value, data, position(Integer.BYTES), Integer.BYTES);
+		ByteUtil.writeLsb(value, data, position(Integer.BYTES), Integer.BYTES);
 		return this;
 	}
 
@@ -198,8 +235,23 @@ public class DataEncoder {
 		return this;
 	}
 
+	public DataEncoder copy(byte[] data) {
+		return copy(data, 0);
+	}
+
+	public DataEncoder copy(byte[] data, int offset) {
+		return copy(data, offset, data.length - offset);
+	}
+
+	public DataEncoder copy(byte[] data, int offset, int length) {
+		ArrayUtil.validateSlice(this.length, this.offset, length);
+		ArrayUtil.validateSlice(data.length, offset, length);
+		System.arraycopy(data, offset, this.data, position(length), length);
+		return this;
+	}
+
 	private DataEncoder copyWithPadding(byte[] data, int offset, int length) {
-		return copyWithPadding(ByteProvider.wrap(data), offset, length);
+		return copyWithPadding(ImmutableByteArray.wrap(data), offset, length);
 	}
 
 	private DataEncoder copyWithPadding(ByteProvider data, int offset, int length) {

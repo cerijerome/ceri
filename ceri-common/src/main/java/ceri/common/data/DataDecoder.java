@@ -10,7 +10,7 @@ import ceri.common.collection.ImmutableByteArray;
 import ceri.common.text.Utf8Util;
 import ceri.common.util.ExceptionUtil;
 
-public class DataDecoder {
+class DataDecoder {
 	private final ImmutableByteArray data;
 	private int mark = 0;
 	private int offset = 0;
@@ -88,24 +88,24 @@ public class DataDecoder {
 	}
 
 	public int decodeByte() {
-		return data.get(incrementOffset(Byte.BYTES)) & ByteUtil.BYTE_MASK;
+		return data.getByte(incrementOffset(Byte.BYTES)) & ByteUtil.BYTE_MASK;
 	}
 
-	public int decodeShortMsb() {
-		return (int) ByteUtil.fromBigEndian(data, incrementOffset(Short.BYTES), Short.BYTES);
-	}
-
-	public int decodeShortLsb() {
-		return (int) ByteUtil.fromLittleEndian(data, incrementOffset(Short.BYTES), Short.BYTES);
-	}
-
-	public int decodeIntMsb() {
-		return (int) ByteUtil.fromBigEndian(data, incrementOffset(Integer.BYTES), Integer.BYTES);
-	}
-
-	public int decodeIntLsb() {
-		return (int) ByteUtil.fromLittleEndian(data, incrementOffset(Integer.BYTES), Integer.BYTES);
-	}
+//	public int decodeShortMsb() {
+//		return (int) ByteUtil.fromBigEndian(data, incrementOffset(Short.BYTES), Short.BYTES);
+//	}
+//
+//	public int decodeShortLsb() {
+//		return (int) ByteUtil.fromLittleEndian(data, incrementOffset(Short.BYTES), Short.BYTES);
+//	}
+//
+//	public int decodeIntMsb() {
+//		return (int) ByteUtil.fromBigEndian(data, incrementOffset(Integer.BYTES), Integer.BYTES);
+//	}
+//
+//	public int decodeIntLsb() {
+//		return (int) ByteUtil.fromLittleEndian(data, incrementOffset(Integer.BYTES), Integer.BYTES);
+//	}
 
 	public String decodeAscii(int length) {
 		return ByteUtil.fromAscii(data, incrementOffset(length), length);

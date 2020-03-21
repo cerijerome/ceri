@@ -1,6 +1,7 @@
 package ceri.common.math;
 
 import static ceri.common.validation.ValidationUtil.validate;
+import static ceri.common.validation.ValidationUtil.validatef;
 import java.util.stream.IntStream;
 import ceri.common.util.ExceptionUtil;
 
@@ -58,7 +59,7 @@ public class MatrixUtil {
 	}
 
 	public static void verifySquare(Matrix m) {
-		validate(m.isSquare(), "Matrix must be square: %dx%d", m.rows, m.columns);
+		validatef(m.isSquare(), "Matrix must be square: %dx%d", m.rows, m.columns);
 	}
 
 	public static void verifySquare(Matrix m, int size) {
@@ -66,7 +67,7 @@ public class MatrixUtil {
 	}
 
 	public static void verifyVector(Matrix m) {
-		validate(m.isVector(), "Matrix must be 1xN or Nx1: %dx%d", m.rows, m.columns);
+		validatef(m.isVector(), "Matrix must be 1xN or Nx1: %dx%d", m.rows, m.columns);
 	}
 
 	public static void verifyVector(Matrix m, int size) {
@@ -78,7 +79,7 @@ public class MatrixUtil {
 	}
 
 	public static void verifySize(Matrix m, int rows, int columns) {
-		validate(m.rows == rows && m.columns == columns, "Matrix must be %dx%d: %dx%d", rows,
+		validatef(m.rows == rows && m.columns == columns, "Matrix must be %dx%d: %dx%d", rows,
 			columns, m.rows, m.columns);
 	}
 

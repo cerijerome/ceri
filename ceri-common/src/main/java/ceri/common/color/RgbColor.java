@@ -1,8 +1,9 @@
 package ceri.common.color;
 
 import static ceri.common.color.ColorUtil.fromRatio;
+import static ceri.common.color.ColorUtil.g;
+import static ceri.common.color.ColorUtil.r;
 import static ceri.common.color.ColorUtil.toRatio;
-import static ceri.common.data.ByteUtil.byteValueAt;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import java.awt.Color;
 import ceri.common.math.MathUtil;
@@ -27,7 +28,7 @@ public class RgbColor implements ComponentColor<RgbColor> {
 	}
 
 	public static RgbColor from(int rgb) {
-		return from(byteValueAt(rgb, 2), byteValueAt(rgb, 1), byteValueAt(rgb, 0));
+		return from(r(rgb), g(rgb), g(rgb));
 	}
 
 	public static RgbColor from(int red, int green, int blue) {

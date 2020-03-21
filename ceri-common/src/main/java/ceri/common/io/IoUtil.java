@@ -327,7 +327,7 @@ public class IoUtil {
 	 */
 	public static String availableString(InputStream in, Charset charset) throws IOException {
 		if (in == null) return null;
-		return availableBytes(in).asString(charset);
+		return availableBytes(in).getString(charset);
 	}
 
 	/**

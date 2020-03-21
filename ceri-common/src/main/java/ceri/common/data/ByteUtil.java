@@ -4,6 +4,7 @@ import static ceri.common.text.StringUtil.HEX_RADIX;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableByteArray;
+import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.ExceptionUtil;
 
@@ -21,6 +23,7 @@ public class ByteUtil {
 	public static final int SHORT_MASK = 0xffff;
 	public static final long INT_MASK = 0xffff_ffff;
 	public static final long LONG_MASK = 0xffff_ffff_ffff_ffffL;
+	public static final boolean BIG_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN;
 
 	private ByteUtil() {}
 
@@ -107,7 +110,7 @@ public class ByteUtil {
 
 	public static String toHex(ByteProvider array, int offset, int len, String delimiter) {
 		if (array == null) return null;
-		return toHex(array.stream(offset, len), delimiter);
+		return toHex(array.ustream(offset, len), delimiter);
 	}
 
 	public static String toHex(byte[] array, String delimiter) {
@@ -141,15 +144,15 @@ public class ByteUtil {
 		return IntStream.range(offset, offset + len).map(i -> array[i] & 0xff);
 	}
 
-	public static byte[] toByteArray(Collection<Integer> values) {
-		return toByteArray(values.stream());
+	public static byte[] toBytes(Collection<Integer> values) {
+		return toBytes(values.stream());
 	}
 
-	public static byte[] toByteArray(Stream<Integer> stream) {
-		return toByteArray(stream.mapToInt(Integer::intValue));
+	public static byte[] toBytes(Stream<Integer> stream) {
+		return toBytes(stream.mapToInt(Integer::intValue));
 	}
 
-	public static byte[] toByteArray(IntStream stream) {
+	public static byte[] toBytes(IntStream stream) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		stream.forEach(out::write);
 		return out.toByteArray();
@@ -176,7 +179,7 @@ public class ByteUtil {
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, ByteProvider b, int offset, int length) {
-		ExceptionUtil.shouldNotThrow(() -> b.writeTo(out, offset, length));
+		ExceptionUtil.shouldNotThrow(() -> b.writeTo(offset, out, length));
 	}
 
 	public static ImmutableByteArray toAscii(String s) {
@@ -269,63 +272,63 @@ public class ByteUtil {
 		return (value & (1L << bit)) != 0;
 	}
 
-	public static byte[] toBigEndian(short value) {
-		return toBigEndian(value, Short.BYTES);
+	public static byte[] toMsb(short value) {
+		return toMsb(value, Short.BYTES);
 	}
 
-	public static byte[] toBigEndian(int value) {
-		return toBigEndian(value, Integer.BYTES);
+	public static byte[] toMsb(int value) {
+		return toMsb(value, Integer.BYTES);
 	}
 
-	public static byte[] toBigEndian(long value) {
-		return toBigEndian(value, Long.BYTES);
+	public static byte[] toMsb(long value) {
+		return toMsb(value, Long.BYTES);
 	}
 
-	public static byte[] toBigEndian(long value, int length) {
+	public static byte[] toMsb(long value, int length) {
 		byte[] data = new byte[length];
-		writeBigEndian(value, data, 0, length);
+		writeMsb(value, data, 0, length);
 		return data;
 	}
 
-	public static byte[] toLittleEndian(short value) {
-		return toLittleEndian(value, Short.BYTES);
+	public static byte[] toLsb(short value) {
+		return toLsb(value, Short.BYTES);
 	}
 
-	public static byte[] toLittleEndian(int value) {
-		return toLittleEndian(value, Integer.BYTES);
+	public static byte[] toLsb(int value) {
+		return toLsb(value, Integer.BYTES);
 	}
 
-	public static byte[] toLittleEndian(long value) {
-		return toLittleEndian(value, Long.BYTES);
+	public static byte[] toLsb(long value) {
+		return toLsb(value, Long.BYTES);
 	}
 
-	public static byte[] toLittleEndian(long value, int length) {
+	public static byte[] toLsb(long value, int length) {
 		byte[] data = new byte[length];
-		writeLittleEndian(value, data, 0, length);
+		writeLsb(value, data, 0, length);
 		return data;
 	}
 
-	public static int writeBigEndian(long value, byte[] data) {
-		return writeBigEndian(value, data, 0);
+	public static int writeMsb(long value, byte[] data) {
+		return writeMsb(value, data, 0);
 	}
 
-	public static int writeBigEndian(long value, byte[] data, int offset) {
-		return writeBigEndian(value, data, offset, data.length - offset);
+	public static int writeMsb(long value, byte[] data, int offset) {
+		return writeMsb(value, data, offset, data.length - offset);
 	}
 
-	public static int writeBigEndian(long value, byte[] data, int offset, int length) {
-		return writeBigEndian(value, ByteReceiver.wrap(data), offset, length);
+	public static int writeMsb(long value, byte[] data, int offset, int length) {
+		return writeMsb(value, ByteReceiver.wrap(data), offset, length);
 	}
 
-	public static int writeBigEndian(long value, ByteReceiver data) {
-		return writeBigEndian(value, data, 0);
+	public static int writeMsb(long value, ByteReceiver data) {
+		return writeMsb(value, data, 0);
 	}
 
-	public static int writeBigEndian(long value, ByteReceiver data, int offset) {
-		return writeBigEndian(value, data, offset, data.length() - offset);
+	public static int writeMsb(long value, ByteReceiver data, int offset) {
+		return writeMsb(value, data, offset, data.length() - offset);
 	}
 
-	public static int writeBigEndian(long value, ByteReceiver data, int offset, int length) {
+	public static int writeMsb(long value, ByteReceiver data, int offset, int length) {
 		ArrayUtil.validateSlice(data.length(), offset, length);
 		validateMax(length, Long.BYTES);
 		for (int i = 0; i < length; i++)
@@ -333,27 +336,27 @@ public class ByteUtil {
 		return offset + length;
 	}
 
-	public static int writeLittleEndian(long value, byte[] data) {
-		return writeLittleEndian(value, data, 0);
+	public static int writeLsb(long value, byte[] data) {
+		return writeLsb(value, data, 0);
 	}
 
-	public static int writeLittleEndian(long value, byte[] data, int offset) {
-		return writeLittleEndian(value, data, offset, data.length - offset);
+	public static int writeLsb(long value, byte[] data, int offset) {
+		return writeLsb(value, data, offset, data.length - offset);
 	}
 
-	public static int writeLittleEndian(long value, byte[] data, int offset, int length) {
-		return writeLittleEndian(value, ByteReceiver.wrap(data), offset, length);
+	public static int writeLsb(long value, byte[] data, int offset, int length) {
+		return writeLsb(value, ByteReceiver.wrap(data), offset, length);
 	}
 
-	public static int writeLittleEndian(long value, ByteReceiver data) {
-		return writeLittleEndian(value, data, 0);
+	public static int writeLsb(long value, ByteReceiver data) {
+		return writeLsb(value, data, 0);
 	}
 
-	public static int writeLittleEndian(long value, ByteReceiver data, int offset) {
-		return writeLittleEndian(value, data, offset, data.length() - offset);
+	public static int writeLsb(long value, ByteReceiver data, int offset) {
+		return writeLsb(value, data, offset, data.length() - offset);
 	}
 
-	public static int writeLittleEndian(long value, ByteReceiver data, int offset, int length) {
+	public static int writeLsb(long value, ByteReceiver data, int offset, int length) {
 		ArrayUtil.validateSlice(data.length(), offset, length);
 		validateMax(length, Long.BYTES);
 		for (int i = 0; i < length; i++)
@@ -361,36 +364,36 @@ public class ByteUtil {
 		return offset + length;
 	}
 
-	public static long fromBigEndian(ByteProvider array) {
-		return fromBigEndian(array, 0);
+	public static long fromMsb(ByteProvider array) {
+		return fromMsb(array, 0);
 	}
 
-	public static long fromBigEndian(ByteProvider array, int offset) {
-		return fromBigEndian(array, offset, array.length() - offset);
+	public static long fromMsb(ByteProvider array, int offset) {
+		return fromMsb(array, offset, array.length() - offset);
 	}
 
-	public static long fromBigEndian(ByteProvider array, int offset, int length) {
+	public static long fromMsb(ByteProvider array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length(), offset, length);
 		validateMax(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
-			value |= shiftByteLeft(array.get(offset + i), length - i - 1);
+			value |= shiftByteLeft(array.getByte(offset + i), length - i - 1);
 		return value;
 	}
 
-	public static long fromBigEndian(int... array) {
-		return fromBigEndian(ArrayUtil.bytes(array));
+	public static long fromMsb(int... array) {
+		return fromMsb(ArrayUtil.bytes(array));
 	}
 
-	public static long fromBigEndian(byte... array) {
-		return fromBigEndian(array, 0);
+	public static long fromMsb(byte... array) {
+		return fromMsb(array, 0);
 	}
 
-	public static long fromBigEndian(byte[] array, int offset) {
-		return fromBigEndian(array, offset, array.length - offset);
+	public static long fromMsb(byte[] array, int offset) {
+		return fromMsb(array, offset, array.length - offset);
 	}
 
-	public static long fromBigEndian(byte[] array, int offset, int length) {
+	public static long fromMsb(byte[] array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
 		validateMax(length, Long.BYTES);
 		long value = 0;
@@ -399,36 +402,36 @@ public class ByteUtil {
 		return value;
 	}
 
-	public static long fromLittleEndian(ByteProvider array) {
-		return fromLittleEndian(array, 0);
+	public static long fromLsb(ByteProvider array) {
+		return fromLsb(array, 0);
 	}
 
-	public static long fromLittleEndian(ByteProvider array, int offset) {
-		return fromLittleEndian(array, offset, array.length() - offset);
+	public static long fromLsb(ByteProvider array, int offset) {
+		return fromLsb(array, offset, array.length() - offset);
 	}
 
-	public static long fromLittleEndian(ByteProvider array, int offset, int length) {
+	public static long fromLsb(ByteProvider array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length(), offset, length);
 		validateMax(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
-			value |= shiftByteLeft(array.get(offset + i), i);
+			value |= shiftByteLeft(array.getByte(offset + i), i);
 		return value;
 	}
 
-	public static long fromLittleEndian(int... array) {
-		return fromLittleEndian(ArrayUtil.bytes(array));
+	public static long fromLsb(int... array) {
+		return fromLsb(ArrayUtil.bytes(array));
 	}
 
-	public static long fromLittleEndian(byte... array) {
-		return fromLittleEndian(array, 0);
+	public static long fromLsb(byte... array) {
+		return fromLsb(array, 0);
 	}
 
-	public static long fromLittleEndian(byte[] array, int offset) {
-		return fromLittleEndian(array, offset, array.length - offset);
+	public static long fromLsb(byte[] array, int offset) {
+		return fromLsb(array, offset, array.length - offset);
 	}
 
-	public static long fromLittleEndian(byte[] array, int offset, int length) {
+	public static long fromLsb(byte[] array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
 		validateMax(length, Long.BYTES);
 		long value = 0;
@@ -437,8 +440,8 @@ public class ByteUtil {
 		return value;
 	}
 
-	public static int byteValueAt(long value, int byteOffset) {
-		return byteAt(value, byteOffset) & 0xff;
+	public static short ubyteAt(long value, int byteOffset) {
+		return MathUtil.ubyte(byteAt(value, byteOffset));
 	}
 
 	public static byte byteAt(long value, int byteOffset) {

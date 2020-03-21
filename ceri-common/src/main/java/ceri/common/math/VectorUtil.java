@@ -1,6 +1,6 @@
 package ceri.common.math;
 
-import static ceri.common.validation.ValidationUtil.validate;
+import static ceri.common.validation.ValidationUtil.validatef;
 import ceri.common.geom.Point2d;
 import ceri.common.util.ExceptionUtil;
 
@@ -34,7 +34,7 @@ public class VectorUtil {
 		verifySameSize(u, v);
 		if (u.size() == SIZE_7) throw ExceptionUtil.exceptionf(UnsupportedOperationException::new,
 			"Cross product exists for size %d, but is not supported here", u.size());
-		validate(u.size() == SIZE_3, "Cross product only supported for size %d: %d", SIZE_3,
+		validatef(u.size() == SIZE_3, "Cross product only supported for size %d: %d", SIZE_3,
 			u.size());
 		return Vector.of((u.valueAt(1) * v.valueAt(2)) - (u.valueAt(2) * v.valueAt(1)),
 			(u.valueAt(2) * v.valueAt(0)) - (u.valueAt(0) * v.valueAt(2)),
@@ -42,12 +42,12 @@ public class VectorUtil {
 	}
 
 	public static void verifySameSize(Vector v1, Vector v2) {
-		validate(v1.size() == v2.size(), "Vectors must be the same size: %d, %d", v1.size(),
+		validatef(v1.size() == v2.size(), "Vectors must be the same size: %d, %d", v1.size(),
 			v2.size());
 	}
 
 	public static void verifySize(Vector vector, int size) {
-		validate(vector.size() == size, "Vector size must be %d: %d", size, vector.size());
+		validatef(vector.size() == size, "Vector size must be %d: %d", size, vector.size());
 	}
 
 }
