@@ -16,7 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import ceri.common.collection.ImmutableByteArray;
+import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.TestUtil;
 
@@ -36,6 +36,7 @@ public class UdpUtilTest {
 		assertPrivateConstructor(UdpUtil.class);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testHostPort() {
 		assertNull(UdpUtil.hostPort(null));
@@ -53,6 +54,7 @@ public class UdpUtilTest {
 		assertArray(packet.getData(), 't', 'e', 's', 't');
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testReceiveWithTimeout() throws IOException {
 		doThrow(SocketTimeoutException.class).when(socket).receive(any());
@@ -61,7 +63,7 @@ public class UdpUtilTest {
 
 	@Test
 	public void testReceive() throws IOException {
-		ImmutableByteArray data = UdpUtil.receive(socket, buffer);
+		ByteProvider data = UdpUtil.receive(socket, buffer);
 		requireNonNull(data);
 		assertArray(data.copy(), buffer);
 	}

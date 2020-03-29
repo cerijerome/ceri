@@ -23,7 +23,7 @@ import java.util.function.ToIntFunction;
 public class FunctionTestUtil {
 
 	/*
-	 * Function types to help with testing: 0 => throws RuntimeException 1 => throws IOException
+	 * Function types to help with testing: 0 => throws RuntimeException, 1 => throws IOException
 	 */
 
 	public static ExceptionRunnable<IOException> runnable(int i) {

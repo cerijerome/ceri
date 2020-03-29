@@ -54,6 +54,7 @@ public class ByteBufferStreamBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldAllowTransferMoreThanCapacity() throws IOException {
 		try (ByteBufferStream bbs = new ByteBufferStream(400)) {
@@ -68,6 +69,7 @@ public class ByteBufferStreamBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldReturnRemainingDataWhenOutputIsClosed() throws IOException {
 		try (ByteBufferStream bbs = new ByteBufferStream(300)) {
@@ -80,6 +82,7 @@ public class ByteBufferStreamBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldMaintainWrittenByteValuesOnBulkReads() throws IOException {
 		try (ByteBufferStream bbs = new ByteBufferStream()) {
@@ -91,6 +94,7 @@ public class ByteBufferStreamBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldMaintainWrittenByteValuesOnSingleReads() throws IOException {
 		try (ByteBufferStream bbs = new ByteBufferStream(10)) {
@@ -102,6 +106,7 @@ public class ByteBufferStreamBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test(expected = BufferUnderflowException.class)
 	public void shouldFailOnSingleReadIfBufferIsEmpty() throws IOException {
 		try (ByteBufferStream bbs = new ByteBufferStream(200)) {
@@ -109,6 +114,7 @@ public class ByteBufferStreamBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test(expected = BufferUnderflowException.class)
 	public void shouldFailOnReadIfBufferIsEmpty() throws IOException {
 		try (ByteBufferStream bbs = new ByteBufferStream(200)) {
@@ -116,6 +122,7 @@ public class ByteBufferStreamBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test(expected = BufferUnderflowException.class)
 	public void shouldFailOnSingleReadIfBufferHasBeenEmptied() throws IOException {
 		try (final ByteBufferStream bbs = new ByteBufferStream(200)) {
@@ -125,6 +132,7 @@ public class ByteBufferStreamBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test(expected = BufferUnderflowException.class)
 	public void shouldFailOnReadIfBufferHasBeenEmptied() throws IOException {
 		try (final ByteBufferStream bbs = new ByteBufferStream(200)) {

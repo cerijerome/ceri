@@ -17,6 +17,7 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldSpacesIfConfigured() {
 		StringBuilder b = new StringBuilder();
+		@SuppressWarnings("resource")
 		BinaryPrinter bin = BinaryPrinter.builder().printableSpace(true)
 			.out(StringUtil.asPrintStream(b)).showBinary(false).showHex(false).build();
 		bin.print("a b c".getBytes(StandardCharsets.US_ASCII));
@@ -36,6 +37,7 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldAllowCustomBufferSize() throws IOException {
 		StringBuilder b = new StringBuilder();
+		@SuppressWarnings("resource")
 		BinaryPrinter bin = BinaryPrinter.builder().out(StringUtil.asPrintStream(b)).bufferSize(1)
 			.bytesPerColumn(1).build();
 		byte[] bytes = { 0, 0 };
@@ -48,6 +50,7 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldPrintByteBuffer() {
 		StringBuilder b = new StringBuilder();
+		@SuppressWarnings("resource")
 		BinaryPrinter bin =
 			BinaryPrinter.builder().out(StringUtil.asPrintStream(b)).showBinary(false).build();
 		ByteBuffer buffer = ByteBuffer.wrap(ByteUtil.toAscii("abc").copy());
@@ -58,6 +61,7 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldPrintByteArray() {
 		StringBuilder b = new StringBuilder();
+		@SuppressWarnings("resource")
 		BinaryPrinter bin =
 			BinaryPrinter.builder().out(StringUtil.asPrintStream(b)).showBinary(false).build();
 		bin.print(ByteUtil.toAscii("abc"));
@@ -67,6 +71,7 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldPrintCodePoints() {
 		StringBuilder b = new StringBuilder();
+		@SuppressWarnings("resource")
 		BinaryPrinter bin =
 			BinaryPrinter.builder().out(StringUtil.asPrintStream(b)).showBinary(false).build();
 		bin.print("abc");
@@ -76,6 +81,7 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldPrintHex() {
 		StringBuilder b = new StringBuilder();
+		@SuppressWarnings("resource")
 		BinaryPrinter bin =
 			BinaryPrinter.builder().out(StringUtil.asPrintStream(b)).showChar(false).build();
 		byte[] bytes = { 0, 0x7f, -0x80, -1, 1, 0, 0, -0x7f };
@@ -88,6 +94,7 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldPrintFromInputStream() throws IOException {
 		StringBuilder b = new StringBuilder();
+		@SuppressWarnings("resource")
 		BinaryPrinter bin =
 			BinaryPrinter.builder().out(StringUtil.asPrintStream(b)).showHex(false).build();
 		byte[] bytes = { 0, 0x7f, -0x80, -1, 1, 0, 0, -0x7f };
@@ -102,6 +109,7 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldPadColumns() throws IOException {
 		StringBuilder b = new StringBuilder();
+		@SuppressWarnings("resource")
 		BinaryPrinter bin = BinaryPrinter.builder().out(StringUtil.asPrintStream(b))
 			.showBinary(false).bytesPerColumn(3).columns(2).build();
 		byte[] bytes = { 'A', 'a', '~', '!' };

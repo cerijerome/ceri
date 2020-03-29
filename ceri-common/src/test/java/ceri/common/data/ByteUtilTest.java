@@ -3,7 +3,6 @@ package ceri.common.data;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertStream;
-import static ceri.common.test.TestUtil.exerciseEnum;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -20,14 +19,13 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ImmutableByteArray;
 import ceri.common.test.TestUtil;
 
 public class ByteUtilTest {
 	@Mock
 	ByteArrayOutputStream badByteArrayOutputStream;
 	@Mock
-	ImmutableByteArray badImmutableByteArray;
+	ByteProvider badByteProvider;
 
 	@Before
 	public void init() {
@@ -41,8 +39,8 @@ public class ByteUtilTest {
 
 	@Test
 	public void testToHex() {
-		ImmutableByteArray b = ImmutableByteArray.wrap(-1, 0, 127, 128);
-		assertNull(ByteUtil.toHex((ImmutableByteArray) null, ""));
+		ByteProvider b = ByteArray.Immutable.wrap(-1, 0, 127, 128);
+		assertNull(ByteUtil.toHex((ByteProvider) null, ""));
 		assertNull(ByteUtil.toHex((byte[]) null, ""));
 		assertThat(ByteUtil.toHex(b, ""), is("ff007f80"));
 		assertThat(ByteUtil.toHex(b, ":"), is("ff:00:7f:80"));
@@ -60,19 +58,19 @@ public class ByteUtilTest {
 	@Test
 	public void testStreamOf() {
 		byte[] b = ArrayUtil.bytes(-1, 0, 1, 127, 128);
-		assertStream(ByteUtil.streamOf(b), 0xff, 0, 1, 0x7f, 0x80);
+		assertStream(ByteUtil.ustream(b), 0xff, 0, 1, 0x7f, 0x80);
 	}
 
 	@Test
 	public void testToByteArray() {
-		assertArray(ByteUtil.toByteArray(List.of(-1, 0, 127, 128)), -1, 0, 127, 128);
-		assertArray(ByteUtil.toByteArray(IntStream.of(-1, 0, 127, 128)), -1, 0, 127, 128);
+		assertArray(ByteUtil.bytes(List.of(-1, 0, 127, 128)), -1, 0, 127, 128);
+		assertArray(ByteUtil.bytes(IntStream.of(-1, 0, 127, 128)), -1, 0, 127, 128);
 	}
 
 	@Test
 	public void testWriteTo() {
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
-		ImmutableByteArray im = ImmutableByteArray.wrap(-1, 0, 128);
+		ByteProvider im = ByteArray.Immutable.wrap(-1, 0, 128);
 		ByteUtil.writeTo(b, -1, 2);
 		ByteUtil.writeTo(b, new byte[] { 3, 4, 5 }, 1);
 		ByteUtil.writeTo(b, im);
@@ -81,16 +79,18 @@ public class ByteUtilTest {
 		assertArray(b.toByteArray(), -1, 2, 4, 5, -1, 0, 128, 128, -1);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testWriteToWithExceptions() throws IOException {
 		ByteArrayOutputStream b = badByteArrayOutputStream;
-		ImmutableByteArray im = badImmutableByteArray;
+		ByteProvider im = badByteProvider;
 		doThrow(new IOException()).when(badByteArrayOutputStream).write(any());
-		doThrow(new IOException()).when(badImmutableByteArray).writeTo(any(OutputStream.class));
-		doThrow(new IOException()).when(badImmutableByteArray).writeTo(any(OutputStream.class),
+		doThrow(new RuntimeException()).when(badByteArrayOutputStream).write(any(), anyInt(),
 			anyInt());
-		doThrow(new IOException()).when(badImmutableByteArray).writeTo(any(OutputStream.class),
-			anyInt(), anyInt());
+		doThrow(new IOException()).when(badByteProvider).writeTo(any(OutputStream.class));
+		doThrow(new IOException()).when(badByteProvider).writeTo(any(OutputStream.class), anyInt());
+		doThrow(new IOException()).when(badByteProvider).writeTo(anyInt(), any(OutputStream.class),
+			anyInt());
 		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, -1, 2));
 		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, im));
 		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, im, 1));
@@ -106,22 +106,20 @@ public class ByteUtilTest {
 	@Test
 	public void testFromAscii() {
 		assertThat(ByteUtil.fromAscii(0, '\t', '\r', '\n', 't', 'e', 's', 't'), is("\0\t\r\ntest"));
-		assertThat(ByteUtil.fromAscii( //
-			ImmutableByteArray.wrap(0, '\t', '\r', '\n', 't', 'e', 's', 't')), is("\0\t\r\ntest"));
 	}
 
 	@Test
 	public void testApply() {
-		assertThat(ByteUtil.apply(0xffff0000_ffff0000L, 0xffff00_00ffff00L, false),
+		assertThat(ByteUtil.applyMask(0xffff0000_ffff0000L, 0xffff00_00ffff00L, false),
 			is(0xff000000_ff000000L));
-		assertThat(ByteUtil.apply(0xffff0000_ffff0000L, 0xffff00_00ffff00L, true),
+		assertThat(ByteUtil.applyMask(0xffff0000_ffff0000L, 0xffff00_00ffff00L, true),
 			is(0xffffff00_ffffff00L));
 	}
 
 	@Test
 	public void testApplyInt() {
-		assertThat(ByteUtil.applyInt(0xffff0000, 0x00ffff00, false), is(0xff000000));
-		assertThat(ByteUtil.applyInt(0xffff0000, 0x00ffff00, true), is(0xffffff00));
+		assertThat(ByteUtil.applyMaskInt(0xffff0000, 0x00ffff00, false), is(0xff000000));
+		assertThat(ByteUtil.applyMaskInt(0xffff0000, 0x00ffff00, true), is(0xffffff00));
 	}
 
 	@Test
@@ -174,56 +172,52 @@ public class ByteUtilTest {
 	}
 
 	@Test
-	public void testToBigEndian() {
-		assertArray(ByteUtil.toBigEndian(Short.MIN_VALUE), 0x80, 0);
-		assertArray(ByteUtil.toBigEndian(Integer.MIN_VALUE), 0x80, 0, 0, 0);
-		assertArray(ByteUtil.toBigEndian(Long.MIN_VALUE), 0x80, 0, 0, 0, 0, 0, 0, 0);
+	public void testToMsb() {
+		assertArray(ByteUtil.toMsb(Short.MIN_VALUE), 0x80, 0);
+		assertArray(ByteUtil.toMsb(Integer.MIN_VALUE), 0x80, 0, 0, 0);
+		assertArray(ByteUtil.toMsb(Long.MIN_VALUE), 0x80, 0, 0, 0, 0, 0, 0, 0);
 	}
 
 	@Test
-	public void testToLittleEndian() {
-		assertArray(ByteUtil.toLittleEndian(Short.MIN_VALUE), 0, 0x80);
-		assertArray(ByteUtil.toLittleEndian(Integer.MIN_VALUE), 0, 0, 0, 0x80);
-		assertArray(ByteUtil.toLittleEndian(Long.MIN_VALUE), 0, 0, 0, 0, 0, 0, 0, 0x80);
+	public void testToLsb() {
+		assertArray(ByteUtil.toLsb(Short.MIN_VALUE), 0, 0x80);
+		assertArray(ByteUtil.toLsb(Integer.MIN_VALUE), 0, 0, 0, 0x80);
+		assertArray(ByteUtil.toLsb(Long.MIN_VALUE), 0, 0, 0, 0, 0, 0, 0, 0x80);
 	}
 
 	@Test
-	public void testWriteBigEndian() {
+	public void testWriteMsb() {
 		byte[] b = new byte[8];
-		assertThat(ByteUtil.writeBigEndian(0xabcd_ef01_2345_6789L, b), is(8));
+		assertThat(ByteUtil.writeMsb(0xabcd_ef01_2345_6789L, b), is(8));
 		assertArray(b, 0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89);
 		b = new byte[8];
-		assertThat(ByteUtil.writeBigEndian(0xabcd_ef01_2345_6789L, b, 1, 3), is(4));
+		assertThat(ByteUtil.writeMsb(0xabcd_ef01_2345_6789L, b, 1, 3), is(4));
 		assertArray(b, 0, 0x45, 0x67, 0x89, 0, 0, 0, 0);
 	}
 
 	@Test
-	public void testWriteLittleEndian() {
+	public void testWriteLsb() {
 		byte[] b = new byte[8];
-		assertThat(ByteUtil.writeLittleEndian(0xabcd_ef01_2345_6789L, b), is(8));
+		assertThat(ByteUtil.writeLsb(0xabcd_ef01_2345_6789L, b), is(8));
 		assertArray(b, 0x89, 0x67, 0x45, 0x23, 0x01, 0xef, 0xcd, 0xab);
 		b = new byte[8];
-		assertThat(ByteUtil.writeLittleEndian(0xabcd_ef01_2345_6789L, b, 1, 3), is(4));
+		assertThat(ByteUtil.writeLsb(0xabcd_ef01_2345_6789L, b, 1, 3), is(4));
 		assertArray(b, 0, 0x89, 0x67, 0x45, 0, 0, 0, 0);
 	}
 
 	@Test
-	public void testFromBigEndian() {
-		assertThat(ByteUtil.fromBigEndian(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89),
+	public void testFromMsb() {
+		assertThat(ByteUtil.fromMsb(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89),
 			is(0xabcd_ef01_2345_6789L));
-		assertThat(ByteUtil.fromBigEndian(ImmutableByteArray.wrap( //
-			0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89)), is(0xabcd_ef01_2345_6789L));
-		assertThat(ByteUtil.fromBigEndian( //
+		assertThat(ByteUtil.fromMsb( //
 			ArrayUtil.bytes(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3), is(0xcdef01L));
 	}
 
 	@Test
-	public void testFromLittleEndian() {
-		assertThat(ByteUtil.fromLittleEndian(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89),
+	public void testFromLsb() {
+		assertThat(ByteUtil.fromLsb(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89),
 			is(0x8967_4523_01ef_cdabL));
-		assertThat(ByteUtil.fromLittleEndian(ImmutableByteArray.wrap( //
-			0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89)), is(0x8967_4523_01ef_cdabL));
-		assertThat(ByteUtil.fromLittleEndian( //
+		assertThat(ByteUtil.fromLsb( //
 			ArrayUtil.bytes(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3), is(0x01efcdL));
 	}
 
@@ -270,42 +264,18 @@ public class ByteUtilTest {
 
 	@Test
 	public void testInvert() {
-		assertThat(ByteUtil.invert((byte) 0x96), is((byte) 0x69));
-		assertThat(ByteUtil.invert((byte) 0x69), is((byte) 0x96));
-		assertThat(ByteUtil.invert((short) 0x9669), is((short) 0x6996));
-		assertThat(ByteUtil.invert((short) 0x6996), is((short) 0x9669));
+		assertThat(ByteUtil.invertByte(0x96), is((byte) 0x69));
+		assertThat(ByteUtil.invertByte(0x69), is((byte) 0x96));
+		assertThat(ByteUtil.invertShort(0x9669), is((short) 0x6996));
+		assertThat(ByteUtil.invertShort(0x6996), is((short) 0x9669));
 	}
 
 	@Test
 	public void testReverse() {
-		assertThat(ByteUtil.reverse((byte) 0x96), is((byte) 0x69));
-		assertThat(ByteUtil.reverse((byte) 0x69), is((byte) 0x96));
-		assertThat(ByteUtil.reverse((short) 0x9696), is((short) 0x6969));
-		assertThat(ByteUtil.reverse((short) 0x6969), is((short) 0x9696));
-	}
-
-	@Test
-	public void testFill() {
-		byte[] b = ArrayUtil.bytes(-1, 1, 0, 127, 128);
-		ByteUtil.fill(b, 0x8f, 2, 2);
-		assertArray(b, -1, 1, 0x8f, 0x8f, 128);
-		TestUtil.assertThrown(() -> ByteUtil.fill(b, 0x8f, 2, 4));
-	}
-
-	@Test
-	public void testPad() {
-		exerciseEnum(ByteUtil.Align.class);
-		byte[] b = ArrayUtil.bytes(-1, 1, 0, 127, 128);
-		assertArray(ByteUtil.padL(b, 0), -1, 1, 0, 127, 128);
-		assertArray(ByteUtil.padL(b, 4), -1, 1, 0, 127, 128);
-		assertArray(ByteUtil.padL(b, 5), -1, 1, 0, 127, 128);
-		assertArray(ByteUtil.padL(b, 6), 0, -1, 1, 0, 127, 128);
-		assertArray(ByteUtil.padL(b, 8, 0xee), 0xee, 0xee, 0xee, -1, 1, 0, 127, 128);
-		assertArray(ByteUtil.padR(b, 0), -1, 1, 0, 127, 128);
-		assertArray(ByteUtil.padR(b, 4), -1, 1, 0, 127, 128);
-		assertArray(ByteUtil.padR(b, 5), -1, 1, 0, 127, 128);
-		assertArray(ByteUtil.padR(b, 6), -1, 1, 0, 127, 128, 0);
-		assertArray(ByteUtil.padR(b, 8, 0xee), -1, 1, 0, 127, 128, 0xee, 0xee, 0xee);
+		assertThat(ByteUtil.reverseByte(0x96), is((byte) 0x69));
+		assertThat(ByteUtil.reverseByte(0x69), is((byte) 0x96));
+		assertThat(ByteUtil.reverseShort(0x9696), is((short) 0x6969));
+		assertThat(ByteUtil.reverseShort(0x6969), is((short) 0x9696));
 	}
 
 }

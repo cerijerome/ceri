@@ -66,7 +66,7 @@ public class Interval<T> {
 	}
 
 	public boolean isPoint() {
-		return !isInfinite() && lower.isEqualTo(upper.value);
+		return !isInfinite() && lower.valueEquals(upper.value);
 	}
 
 	public boolean contains(T value) {
@@ -75,7 +75,7 @@ public class Interval<T> {
 
 	public boolean isEmpty() {
 		if (lower.isUnbound() || upper.isUnbound()) return false;
-		int compare = lower.compareTo(upper.value);
+		int compare = lower.valueCompare(upper.value);
 		if (compare < 0) return false;
 		if (compare > 0) return true;
 		return lower.type != Type.inclusive || upper.type != Type.inclusive;

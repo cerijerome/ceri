@@ -1,7 +1,7 @@
 package ceri.common.color;
 
 import static ceri.common.color.ColorUtil.CHANNEL_MAX;
-import static ceri.common.data.ByteUtil.byteValueAt;
+import static ceri.common.data.ByteUtil.ubyteAt;
 import static ceri.common.test.TestUtil.assertApprox;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -20,11 +20,11 @@ public class ColorTestUtil {
 	}
 
 	public static void assertColor(Color color, int rgb) {
-		assertColor(color, byteValueAt(rgb, 2), byteValueAt(rgb, 1), byteValueAt(rgb, 0));
+		assertColor(color, ubyteAt(rgb, 2), ubyteAt(rgb, 1), ubyteAt(rgb, 0));
 	}
 
 	public static void assertColor(Color color, int rgb, int a) {
-		assertColor(color, byteValueAt(rgb, 2), byteValueAt(rgb, 1), byteValueAt(rgb, 0), a);
+		assertColor(color, ubyteAt(rgb, 2), ubyteAt(rgb, 1), ubyteAt(rgb, 0), a);
 	}
 
 	public static void assertColor(Color color, int r, int g, int b) {
@@ -48,15 +48,15 @@ public class ColorTestUtil {
 		assertColor(colorx.rgb, color);
 		assertXComponent(colorx, x);
 	}
-	
+
 	public static void assertColorx(Colorx colorx, int rgbx) {
-		assertColorx(colorx, byteValueAt(rgbx, 3), byteValueAt(rgbx, 2), byteValueAt(rgbx, 1),
-			byteValueAt(rgbx, 0));
+		assertColorx(colorx, ubyteAt(rgbx, 3), ubyteAt(rgbx, 2), ubyteAt(rgbx, 1),
+			ubyteAt(rgbx, 0));
 	}
 
 	public static void assertColorx(Colorx colorx, int rgbx, int a) {
-		assertColorx(colorx, byteValueAt(rgbx, 3), byteValueAt(rgbx, 2), byteValueAt(rgbx, 1),
-			byteValueAt(rgbx, 0), a);
+		assertColorx(colorx, ubyteAt(rgbx, 3), ubyteAt(rgbx, 2), ubyteAt(rgbx, 1), ubyteAt(rgbx, 0),
+			a);
 	}
 
 	public static void assertColorx(Colorx colorx, int r, int g, int b, int x) {
@@ -87,7 +87,8 @@ public class ColorTestUtil {
 		assertRgbx(colorx, r, g, b, x, 1.0);
 	}
 
-	public static void assertRgbx(RgbxColor colorx, double r, double g, double b, double x, double a) {
+	public static void assertRgbx(RgbxColor colorx, double r, double g, double b, double x,
+		double a) {
 		assertApprox(colorx.r, r);
 		assertApprox(colorx.g, g);
 		assertApprox(colorx.b, b);

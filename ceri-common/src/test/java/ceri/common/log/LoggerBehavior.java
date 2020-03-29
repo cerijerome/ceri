@@ -25,6 +25,7 @@ public class LoggerBehavior {
 	private static final StringBuilder out = new StringBuilder();
 	private static final StringBuilder err = new StringBuilder();
 
+	@SuppressWarnings("resource")
 	@BeforeClass
 	public static void beforeClass() {
 		stdIo.out(StringUtil.asPrintStream(out));

@@ -1,264 +1,420 @@
 package ceri.common.data;
 
-import static java.lang.Math.max;
+import static ceri.common.data.ByteUtil.BIG_ENDIAN;
 import static java.lang.Math.min;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import ceri.common.collection.ArrayUtil;
 
 /**
- * Interface for receiving bytes into an array. For bulk efficiency, consider overriding these
- * methods that process one byte at a time:
+ * Interface for receiving bytes into an array. For bulk efficiency, consider overriding the
+ * following methods that process one byte at a time, or copy arrays.
  * 
  * <pre>
- * int copyFrom(int pos, byte[] data, int offset, int length)
- * int copyFrom(int pos, ByteProvider array, int offset, int length)
- * int fill(int value, int pos, int length)
- * int readFrom(InputStream in, int offset, int length) throws IOException
+ * int setEndian(int index, long value, int size, boolean msb); [copy]
+ * int fill(int index, int value, int length); [1-byte]
+ * int copyFrom(int index, byte[] array, int offset, int length); [1-byte]
+ * int copyFrom(int index, ByteProvider provider, int offset, int length); [1-byte]
+ * int readFrom(int index, InputStream in, int length) throws IOException; [1-byte]
  * </pre>
+ * 
+ * @see ceri.common.data.MutableByteArray
+ * @see ceri.common.concurrent.VolatileByteArray
+ * @see ceri.dmx.spi.device.SpiPulseDevice
+ * @see ceri.serial.spi.pulse.PulseBuffer
+ * @see ceri.serial.spi.pulse.SpiPulseTransmitter
  */
 public interface ByteReceiver {
-	ByteReceiver EMPTY = wrap(ArrayUtil.EMPTY_BYTE);
+	static final ByteReceiver EMPTY = ByteArray.Mutable.EMPTY;
 	
-	/**
-	 * Wraps a byte array as a byte receiver.
-	 */
-	static ByteReceiver wrap(byte[] array) {
-		return wrap(array, 0);
-	}
-
-	/**
-	 * Wraps a byte array as a byte receiver.
-	 */
-	static ByteReceiver wrap(byte[] array, int off) {
-		return wrap(array, off, array.length - off);
-	}
-
-	/**
-	 * Wraps a byte array as a byte receiver.
-	 */
-	static ByteReceiver wrap(byte[] array, int off, int len) {
-		ArrayUtil.validateSlice(array.length, off, len);
-		return new ByteReceiver() {
-			@Override
-			public int length() {
-				return len;
-			}
-
-			@Override
-			public void set(int pos, int b) {
-				array[off + pos] = (byte) b;
-			}
-
-			@Override
-			public int copyFrom(int pos, byte[] data, int offset, int length) {
-				System.arraycopy(data, offset, array, pos + off, length);
-				return pos + length;
-			}
-
-			@Override
-			public int copyFrom(int pos, ByteProvider data, int offset, int length) {
-				return data.copyTo(offset, array, pos + off, length);
-			}
-
-			@Override
-			public int readFrom(InputStream in, int pos, int length) throws IOException {
-				ArrayUtil.validateSlice(length(), pos + off, length);
-				int n = in.read(array, pos + off, length);
-				return pos + max(n, 0);
-			}
-		};
-	}
-
 	/**
 	 * Length of the space to receive bytes.
 	 */
 	int length();
 
 	/**
-	 * Sets the byte value at given position.
+	 * Sets the byte value at given index, returns index + 1.
 	 */
-	void set(int pos, int b);
+	int setByte(int index, int value);
 
 	/**
-	 * Copies the byte array to position 0. Length copied is the minimum of available source and
-	 * destination lengths. Returns the length copied.
+	 * Creates a byte provider sub-view. A negative length will right-justify the view. Returns the
+	 * current provider for zero index and same length.
 	 */
-	default int copyFrom(int... array) {
-		return copyFrom(ArrayUtil.bytes(array));
+	ByteReceiver slice(int index, int length);
+
+	/**
+	 * Sets byte value 1 or 0 at the index. Returns the index after the written bytes.
+	 */
+	default int setBool(int index, boolean value) {
+		return setByte(index, value ? 1 : 0);
 	}
 
 	/**
-	 * Copies the byte array to position 0. Length copied is the minimum of available source and
-	 * destination lengths. Returns the length copied.
+	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
 	 */
-	default int copyFrom(byte... array) {
+	default int setShort(int index, int value) {
+		return setEndian(index, value, Short.BYTES, BIG_ENDIAN);
+	}
+
+	/**
+	 * Sets the value in big-endian bytes at the index. Returns the index after the written bytes.
+	 */
+	default int setShortMsb(int index, int value) {
+		return setEndian(index, value, Short.BYTES, true);
+	}
+
+	/**
+	 * Sets the value in little-endian bytes at the index. Returns the index after the written
+	 * bytes.
+	 */
+	default int setShortLsb(int index, int value) {
+		return setEndian(index, value, Short.BYTES, false);
+	}
+
+	/**
+	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
+	 */
+	default int setInt(int index, int value) {
+		return setEndian(index, value, Integer.BYTES, BIG_ENDIAN);
+	}
+
+	/**
+	 * Sets the value in big-endian bytes at the index. Returns the index after the written bytes.
+	 */
+	default int setIntMsb(int index, int value) {
+		return setEndian(index, value, Integer.BYTES, true);
+	}
+
+	/**
+	 * Sets the value in little-endian bytes at the index. Returns the index after the written
+	 * bytes.
+	 */
+	default int setIntLsb(int index, int value) {
+		return setEndian(index, value, Integer.BYTES, false);
+	}
+
+	/**
+	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
+	 */
+	default int setLong(int index, long value) {
+		return setEndian(index, value, Long.BYTES, BIG_ENDIAN);
+	}
+
+	/**
+	 * Sets the value in big-endian bytes at the index. Returns the index after the written bytes.
+	 */
+	default int setLongMsb(int index, long value) {
+		return setEndian(index, value, Long.BYTES, true);
+	}
+
+	/**
+	 * Sets the value in little-endian bytes at the index. Returns the index after the written
+	 * bytes.
+	 */
+	default int setLongLsb(int index, long value) {
+		return setEndian(index, value, Long.BYTES, false);
+	}
+
+	/**
+	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
+	 */
+	default int setFloat(int index, float value) {
+		return setInt(index, Float.floatToIntBits(value));
+	}
+
+	/**
+	 * Sets the value in big-endian bytes at the index. Returns the index after the written bytes.
+	 */
+	default int setFloatMsb(int index, float value) {
+		return setIntMsb(index, Float.floatToIntBits(value));
+	}
+
+	/**
+	 * Sets the value in little-endian bytes at the index. Returns the index after the written
+	 * bytes.
+	 */
+	default int setFloatLsb(int index, float value) {
+		return setIntLsb(index, Float.floatToIntBits(value));
+	}
+
+	/**
+	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
+	 */
+	default int setDouble(int index, double value) {
+		return setLong(index, Double.doubleToLongBits(value));
+	}
+
+	/**
+	 * Sets the value in big-endian bytes at the index. Returns the index after the written bytes.
+	 */
+	default int setDoubleMsb(int index, double value) {
+		return setLongMsb(index, Double.doubleToLongBits(value));
+	}
+
+	/**
+	 * Sets the value in little-endian bytes at the index. Returns the index after the written
+	 * bytes.
+	 */
+	default int setDoubleLsb(int index, double value) {
+		return setLongLsb(index, Double.doubleToLongBits(value));
+	}
+
+	/**
+	 * Sets the value in endian bytes at the index. Returns the index after the written bytes.
+	 * Default implementation makes a copy of the bytes; efficiency may be improved by overriding
+	 * this method.
+	 */
+	default int setEndian(int index, long value, int size, boolean msb) {
+		byte[] bytes = msb ? ByteUtil.toMsb(value, size) : ByteUtil.toLsb(value, size);
+		return copyFrom(index, bytes);
+	}
+
+	/**
+	 * Encodes string as ISO-Latin-1 bytes. Returns the index after the written bytes.
+	 */
+	default int setAscii(String s) {
+		return setAscii(0, s);
+	}
+
+	/**
+	 * Encodes string as ISO-Latin-1 bytes from index. Returns the index after the written bytes.
+	 */
+	default int setAscii(int index, String s) {
+		return setString(index, s, StandardCharsets.ISO_8859_1);
+	}
+
+	/**
+	 * Encodes string as UTF-8 bytes. Returns the index after the written bytes.
+	 */
+	default int setUtf8(String s) {
+		return setUtf8(0, s);
+	}
+
+	/**
+	 * Encodes string as UTF-8 bytes from index. Returns the index after the written bytes.
+	 */
+	default int setUtf8(int index, String s) {
+		return setString(index, s, StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * Encodes string as bytes using the default character set. Returns the index after the written
+	 * bytes.
+	 */
+	default int setString(String s) {
+		return setString(0, s);
+	}
+
+	/**
+	 * Encodes string as bytes from index using the default character set. Returns the index after
+	 * the written bytes.
+	 */
+	default int setString(int index, String s) {
+		return setString(index, s, Charset.defaultCharset());
+	}
+
+	/**
+	 * Encodes string as bytes using the character set. Returns the index after the written bytes.
+	 */
+	default int setString(String s, Charset charset) {
+		return setString(0, s, charset);
+	}
+
+	/**
+	 * Encodes string as bytes from index using the character set. Returns the index after the
+	 * written bytes.
+	 */
+	default int setString(int index, String s, Charset charset) {
+		byte[] bytes = s.getBytes(charset);
+		return copyFrom(index, bytes);
+	}
+
+	/**
+	 * Creates a byte provider view from index.
+	 */
+	default ByteReceiver slice(int index) {
+		return slice(index, length() - index);
+	}
+
+	/**
+	 * Fills bytes with the same value. Returns the index after the written bytes.
+	 */
+	default int fill(int value) {
+		return fill(0, value);
+	}
+
+	/**
+	 * Fills bytes from the index with the same value. Returns the index after the written bytes.
+	 */
+	default int fill(int index, int value) {
+		return fill(index, value, length() - index);
+	}
+
+	/**
+	 * Fills bytes from the index with the same value. Returns the index after the written bytes.
+	 * Default implementation copies one byte at a time; efficiency may be improved by overriding
+	 * this method.
+	 */
+	default int fill(int index, int value, int length) {
+		ArrayUtil.validateSlice(length(), index, length);
+		while (length-- > 0)
+			setByte(index++, value);
+		return index;
+	}
+
+	/**
+	 * Copies bytes from the array. Returns the index after the written bytes.
+	 */
+	default int copyFrom(int... array) {
+		return copyFrom(ArrayUtil.bytes(array), 0);
+	}
+
+	/**
+	 * Copies bytes from the array. Returns the index after the written bytes.
+	 */
+	default int copyFrom(byte[] array) {
 		return copyFrom(array, 0);
 	}
 
 	/**
-	 * Copies the byte array slice to position 0. Length copied is the minimum of available source
-	 * and destination lengths. Returns the length copied.
+	 * Copies bytes from the array. Returns the index after the written bytes.
 	 */
 	default int copyFrom(byte[] array, int offset) {
 		return copyFrom(array, offset, min(length(), array.length - offset));
 	}
 
 	/**
-	 * Copies the byte array slice to position 0. Returns the length.
+	 * Copies bytes from the array. Returns the index after the written bytes.
 	 */
 	default int copyFrom(byte[] array, int offset, int length) {
 		return copyFrom(0, array, offset, length);
 	}
 
 	/**
-	 * Copies the byte array to given position. Length copied is the minimum of available source and
-	 * destination lengths. Returns the array position after copying, pos + length.
+	 * Copies bytes from the array to the index. Returns the index after the written bytes.
 	 */
-	default int copyFrom(int pos, byte[] array) {
-		return copyFrom(pos, array, 0);
+	default int copyFrom(int index, byte[] array) {
+		return copyFrom(index, array, 0);
 	}
 
 	/**
-	 * Copies the byte array slice to given position. Length copied is the minimum of available
-	 * source and destination lengths. Returns the array position after copying, pos + length.
+	 * Copies bytes from the array to the index. Returns the index after the written bytes.
 	 */
-	default int copyFrom(int pos, byte[] array, int offset) {
-		return copyFrom(pos, array, offset, min(length() - pos, array.length - offset));
+	default int copyFrom(int index, byte[] array, int offset) {
+		return copyFrom(index, array, offset, array.length - offset);
 	}
 
 	/**
-	 * Copies the byte array slice to given position. Returns the array position after copying, pos
-	 * + length. Default implementation copies one byte at a time; in some cases efficiency may be
-	 * improved by overriding this method and using system array copy.
+	 * Copies bytes from the array to the index. Returns the index after the written bytes. Default
+	 * implementation copies one byte at a time; efficiency may be improved by overriding this
+	 * method.
 	 */
-	default int copyFrom(int pos, byte[] array, int offset, int length) {
+	default int copyFrom(int index, byte[] array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
-		ArrayUtil.validateSlice(length(), pos, length);
-		for (int i = 0; i < length; i++)
-			set(pos + i, array[offset + i]);
-		return pos + length;
+		ArrayUtil.validateSlice(length(), index, length);
+		while (length-- > 0)
+			setByte(index++, array[offset++]);
+		return index;
 	}
 
 	/**
-	 * Copies the byte provider slice to position 0. Returns the length copied.
+	 * Copies bytes from the provider. Returns the index after the written bytes.
 	 */
 	default int copyFrom(ByteProvider array) {
 		return copyFrom(array, 0);
 	}
 
 	/**
-	 * Copies the byte provider slice to position 0. Returns the length copied.
+	 * Copies bytes from the provider. Returns the index after the written bytes.
 	 */
 	default int copyFrom(ByteProvider array, int offset) {
 		return copyFrom(0, array, offset);
 	}
 
 	/**
-	 * Copies the byte provider slice to position 0. Returns the length copied.
+	 * Copies bytes from the provider. Returns the index after the written bytes.
 	 */
 	default int copyFrom(ByteProvider array, int offset, int length) {
 		return copyFrom(0, array, offset, length);
 	}
 
 	/**
-	 * Copies the byte provider to given position. Returns the array position after copying, pos +
-	 * length.
+	 * Copies bytes from the provider to the index. Returns the index after the written bytes.
 	 */
-	default int copyFrom(int pos, ByteProvider array) {
-		return copyFrom(pos, array, 0);
+	default int copyFrom(int index, ByteProvider array) {
+		return copyFrom(index, array, 0);
 	}
 
 	/**
-	 * Copies the byte provider slice to given position. Returns the array position after copying,
-	 * pos + length.
+	 * Copies bytes from the provider to the index. Returns the index after the written bytes.
 	 */
-	default int copyFrom(int pos, ByteProvider array, int offset) {
-		return copyFrom(pos, array, offset, min(length() - pos, array.length() - offset));
+	default int copyFrom(int index, ByteProvider array, int offset) {
+		return copyFrom(index, array, offset, min(length() - index, array.length() - offset));
 	}
 
 	/**
-	 * Copies the byte provider slice to given position. Returns the array position after copying,
-	 * pos + length.
+	 * Copies bytes from the provider to the index. Returns the index after the written bytes.
+	 * Default implementation copies one byte at a time; efficiency may be improved by overriding
+	 * this method.
 	 */
-	default int copyFrom(int pos, ByteProvider array, int offset, int length) {
-		return array.copyTo(offset, this, pos, length);
+	default int copyFrom(int index, ByteProvider provider, int offset, int length) {
+		ArrayUtil.validateSlice(length(), index, length);
+		ArrayUtil.validateSlice(provider.length(), offset, length);
+		while (length-- > 0)
+			setByte(index++, provider.getByte(offset++));
+		return index;
 	}
 
 	/**
-	 * Fills the array. Returns the number of bytes filled, length().
-	 */
-	default int fill(int value) {
-		return fill(value, 0);
-	}
-
-	/**
-	 * Fills bytes from the given position. Returns the array position after copying, length().
-	 */
-	default int fill(int value, int pos) {
-		return fill(value, pos, length() - pos);
-	}
-
-	/**
-	 * Fills bytes at the given position. Returns the array position after filling, pos + length.
-	 */
-	default int fill(int value, int pos, int length) {
-		ArrayUtil.validateSlice(length(), pos, length);
-		for (int i = 0; i < length; i++)
-			set(pos + i, value);
-		return pos + length;
-	}
-
-	/**
-	 * Sets bytes at offset 0 by reading from the input stream. Attempts to fill the length of the
-	 * array. Returns the number of bytes read. Number of bytes read may be less than requested; EOF
-	 * will result in fewer or no bytes read rather than returning -1.
+	 * Reads bytes from the input stream and writes to the receiver. The number of bytes read may be
+	 * less than requested if EOF occurs. Returns the index after the written bytes.
 	 */
 	default int readFrom(InputStream in) throws IOException {
-		return readFrom(in, 0);
+		return readFrom(0, in);
 	}
 
 	/**
-	 * Sets bytes at offset by reading from the input stream. Attempts to fill the remaining length
-	 * of the array. Returns the array position after reading, offset + length. Number of bytes read
-	 * may be less than requested; EOF will result in fewer or no bytes read rather than returning
-	 * -1.
+	 * Reads bytes from the input stream and writes to the receiver at the index. The number of
+	 * bytes read may be less than requested if EOF occurs. Returns the index after the written
+	 * bytes.
 	 */
-	default int readFrom(InputStream in, int pos) throws IOException {
-		return readFrom(in, pos, length() - pos);
+	default int readFrom(int index, InputStream in) throws IOException {
+		return readFrom(index, in, length() - index);
 	}
 
 	/**
-	 * Sets bytes at offset by reading from the input stream. Returns the array position after
-	 * reading, offset + length. Number of bytes read may be less than requested; EOF will result in
-	 * fewer or no bytes read rather than returning -1. Default implementation reads one byte at a
-	 * time; in some cases efficiency may be improved by overriding, or calling readBufferFrom.
+	 * Reads bytes from the input stream and writes to the receiver at the index. The number of
+	 * bytes read may be less than requested if EOF occurs. Returns the index after the written
+	 * bytes. Default implementation reads one byte at a time; efficiency may be improved by
+	 * overriding, or calling:
+	 * 
+	 * <pre>
+	 * return readBufferFrom(this, index, in, length);
+	 * </pre>
 	 */
-	default int readFrom(InputStream in, int pos, int length) throws IOException {
-		ArrayUtil.validateSlice(length(), pos, length);
-		int i = 0;
-		for (; i < length; i++) {
-			int val = in.read();
-			if (val == -1) break;
-			set(pos + i, val);
+	default int readFrom(int index, InputStream in, int length) throws IOException {
+		ArrayUtil.validateSlice(length(), index, length);
+		while (length-- > 0) {
+			int value = in.read();
+			if (value < 0) break; // EOF
+			setByte(index++, value);
 		}
-		return pos + i;
+		return index;
 	}
 
 	/**
-	 * Sets bytes at offset of receiver by reading a buffer from the input stream. Returns the array
-	 * position after reading, offset + length. Number of bytes read may be less than requested; EOF
-	 * will result in fewer or no bytes read rather than returning -1. Implementing classes can call
-	 * this from readFrom() if buffering is more efficient.
+	 * Reads bytes from the input stream and writes to the receiver at the index. The number of
+	 * bytes read may be less than requested if EOF occurs. Returns the index after the written
+	 * bytes. Implementing classes can call this in readFrom() if buffering is more efficient.
 	 */
-	static int readBufferFrom(ByteReceiver rx, InputStream in, int pos, int length)
+	static int readBufferFrom(ByteReceiver receiver, int index, InputStream in, int length)
 		throws IOException {
-		ArrayUtil.validateSlice(rx.length(), pos, length);
-		byte[] buffer = new byte[length];
-		int n = in.read(buffer);
-		if (n <= 0) return pos;
-		rx.copyFrom(pos, buffer, 0, n);
-		return pos + n;
+		ArrayUtil.validateSlice(receiver.length(), index, length);
+		byte[] buffer = in.readNBytes(length); // < length if EOF
+		return receiver.copyFrom(index, buffer);
 	}
 
 }

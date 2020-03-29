@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import java.util.Comparator;
 import org.junit.Test;
 
 public class IntervalBehavior {
@@ -115,4 +116,27 @@ public class IntervalBehavior {
 		assertFalse(i.contains(-1.499));
 	}
 
+	@Test
+	public void shouldAllowCustomComparators() {
+		Comparator<String> comparator = Comparator.comparing(s -> s.length());
+		assertThat(Interval.point("xxx", comparator).contains("aaa"), is(true));
+		assertThat(Interval.point("xxx", comparator).contains("xx"), is(false));
+		assertThat(Interval.point("xxx", comparator).contains("xxxx"), is(false));
+		assertThat(Interval.exclusive("xxx", "xxxxx", comparator).contains("xxxx"), is(true));
+		assertThat(Interval.exclusive("xxx", "xxxxx", comparator).contains("xxx"), is(false));
+		assertThat(Interval.exclusive("xxx", "xxxxx", comparator).contains("xxxxx"), is(false));
+	}
+	
+	@Test
+	public void shouldProvideStringRepresentation() {
+		assertThat(Interval.unbound().toString(), is("(\u221e)")); // (infinity)
+		assertThat(Interval.point(3.33).toString(), is("[3.33]"));
+		assertThat(Interval.lower(Bound.inclusive(3.33)).toString(), is("[3.33, \u221e)"));
+		assertThat(Interval.lower(Bound.exclusive(3.33)).toString(), is("(3.33, \u221e)"));
+		assertThat(Interval.upper(Bound.inclusive(3.33)).toString(), is("(-\u221e, 3.33]"));
+		assertThat(Interval.upper(Bound.exclusive(3.33)).toString(), is("(-\u221e, 3.33)"));
+		assertThat(Interval.inclusive(-2, -3).toString(), is("[-2, -3]"));
+		assertThat(Interval.exclusive(-2, -3).toString(), is("(-2, -3)"));
+	}
+	
 }

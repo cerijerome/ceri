@@ -96,6 +96,7 @@ public class ProcessorBehavior {
 		verify(mock, never()).waitFor(anyLong(), any());
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldStopOnInterruption() throws InterruptedException {
 		Processor p = Processor.builder().noTimeout().captureStdOut(true).verifyErr(true)

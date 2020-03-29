@@ -6,7 +6,7 @@ public interface Navigable {
 
 	Navigable offset(int offset);
 
-	int total();
+	int length();
 
 	/**
 	 * Mark the current offset.
@@ -22,7 +22,7 @@ public interface Navigable {
 	 * Moves offset back to mark.
 	 */
 	default Navigable reset() {
-		return rewind(marked());
+		return skip(-marked());
 	}
 
 	/**
@@ -31,26 +31,19 @@ public interface Navigable {
 	default boolean hasNext() {
 		return remaining() > 0;
 	}
-	
+
 	/**
 	 * Returns the remaining number of bytes.
 	 */
 	default int remaining() {
-		return total() - offset();
+		return length() - offset();
 	}
 
 	/**
-	 * Move forward a number of bytes.
+	 * Move forward a number of bytes. Use a negative length to move backwards.
 	 */
 	default Navigable skip(int length) {
 		return offset(offset() + length);
-	}
-
-	/**
-	 * Move backward a number of bytes.
-	 */
-	default Navigable rewind(int length) {
-		return offset(offset() - length);
 	}
 
 }

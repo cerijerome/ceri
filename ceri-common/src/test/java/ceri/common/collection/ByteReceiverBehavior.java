@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Test;
+import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
 
@@ -59,10 +60,10 @@ public class ByteReceiverBehavior {
 		assertThat(r.fill(0xff), is(4));
 		assertArray(b, 0xff, 0xff, 0xff, 0xff);
 		clear(b);
-		assertThat(r.fill(0x77, 2), is(4));
+		assertThat(r.fill(2, 0x77), is(4));
 		assertArray(b, 0, 0, 0x77, 0x77);
 		clear(b);
-		assertThat(r.fill(0x77, 1, 2), is(3));
+		assertThat(r.fill(1, 0x77, 2), is(3));
 		assertArray(b, 0, 0x77, 0x77, 0);
 	}
 
@@ -76,11 +77,11 @@ public class ByteReceiverBehavior {
 		assertArray(b, 0xff, 1, 0x80, 0x7f);
 		in.reset();
 		clear(b);
-		assertThat(r.readFrom(in, 3), is(4));
+		assertThat(r.readFrom(3, in), is(4));
 		assertArray(b, 0, 0, 0, 0xff);
 		in.reset();
 		clear(b);
-		assertThat(r.readFrom(in, 1, 2), is(3));
+		assertThat(r.readFrom(1, in, 2), is(3));
 		assertArray(b, 0, 0xff, 1, 0);
 	}
 
@@ -90,7 +91,7 @@ public class ByteReceiverBehavior {
 			new ByteArrayInputStream(ArrayUtil.bytes(0xff, 1, 0x80, 0x7f, 0, 2));
 		byte[] b = new byte[4];
 		ByteReceiver r = receiver(b);
-		assertThat(ByteReceiver.readBufferFrom(r, in, 1, 2), is(3));
+		assertThat(ByteReceiver.readBufferFrom(r, 1, in, 2), is(3));
 		assertArray(b, 0, 0xff, 1, 0);
 	}
 
@@ -103,16 +104,16 @@ public class ByteReceiverBehavior {
 		assertArray(b, 0xff, 0x80, 0, 0);
 		in.reset();
 		clear(b);
-		assertThat(ByteReceiver.readBufferFrom(r, in, 0, 3), is(2));
+		assertThat(ByteReceiver.readBufferFrom(r, 0, in, 3), is(2));
 		assertArray(b, 0xff, 0x80, 0, 0);
-		assertThat(ByteReceiver.readBufferFrom(r, in, 0, 3), is(0));
+		assertThat(ByteReceiver.readBufferFrom(r, 0, in, 3), is(0));
 	}
 
 	@Test
 	public void shouldWrapByteArrays() throws IOException {
 		byte[] b = new byte[4];
-		ByteReceiver r = ByteReceiver.wrap(b);
-		r.set(1, 0xff);
+		ByteReceiver r = ByteArray.Mutable.wrap(b);
+		r.setByte(1, 0xff);
 		assertArray(b, 0, 0xff, 0, 0);
 		clear(b);
 		assertThat(r.copyFrom(0xaa, 0xbb, 0xcc), is(3));
@@ -127,32 +128,11 @@ public class ByteReceiverBehavior {
 	}
 
 	private ByteProvider provider(int... values) {
-		byte[] bytes = ArrayUtil.bytes(values);
-		return new ByteProvider() {
-			@Override
-			public int length() {
-				return bytes.length;
-			}
-
-			@Override
-			public byte get(int index) {
-				return bytes[index];
-			}
-		};
+		return ByteArray.Immutable.wrap(values);
 	}
 
 	private ByteReceiver receiver(byte[] bytes) {
-		return new ByteReceiver() {
-			@Override
-			public int length() {
-				return bytes.length;
-			}
-
-			@Override
-			public void set(int pos, int b) {
-				bytes[pos] = (byte) b;
-			}
-		};
+		return ByteArray.Mutable.wrap(bytes);
 	}
 
 	private void clear(byte[] array) {

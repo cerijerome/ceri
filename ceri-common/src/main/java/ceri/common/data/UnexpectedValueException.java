@@ -5,6 +5,7 @@ import ceri.common.util.BasicUtil;
 /**
  * Exception when expecting a specific value.
  */
+@Deprecated
 class UnexpectedValueException extends IllegalArgumentException {
 	private static final long serialVersionUID = -1397888268813085217L;
 	public final int actual;

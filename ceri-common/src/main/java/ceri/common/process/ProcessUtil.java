@@ -13,17 +13,19 @@ import ceri.common.text.StringUtil;
 public class ProcessUtil {
 	private static final Pattern DOUBLE_QUOTES = Pattern.compile("\"");
 	private static final Process NULL_PROCESS = createNullProcess();
-	
+
 	private ProcessUtil() {}
 
 	public static Process nullProcess() {
 		return NULL_PROCESS;
 	}
-	
+
+	@SuppressWarnings("resource")
 	public static String stdOut(Process process) throws IOException {
 		return IoUtil.availableString(process.getInputStream());
 	}
 
+	@SuppressWarnings("resource")
 	public static String stdErr(Process process) throws IOException {
 		return IoUtil.availableString(process.getErrorStream());
 	}

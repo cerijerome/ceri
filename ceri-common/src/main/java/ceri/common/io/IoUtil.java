@@ -25,9 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
-import ceri.common.collection.ImmutableByteArray;
 import ceri.common.collection.WrappedStream;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.data.ByteArray;
+import ceri.common.data.ByteProvider;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionPredicate;
@@ -110,7 +111,7 @@ public class IoUtil {
 	 */
 	public static Path extend(Path path, String... paths) {
 		if (path == null || paths.length == 0) return path;
-		return path.getFileSystem().getPath(path.toString(), paths);
+		return newPath(path, path.toString(), paths);
 	}
 
 	/**
@@ -137,7 +138,7 @@ public class IoUtil {
 		Path parent = path.getParent();
 		if (parent != null) return parent.resolve(fileName);
 		if (path.isAbsolute()) return path.resolve(fileName);
-		return path.getFileSystem().getPath(fileName);
+		return newPath(path, fileName);
 	}
 
 	/**
@@ -163,7 +164,7 @@ public class IoUtil {
 		if (path == null) return null;
 		int count = path.getNameCount();
 		if (count == 1 && path.getName(0).toString().isEmpty()) count = 0;
-		if (start == end && start <= count) return path.getFileSystem().getPath("");
+		if (start == end && start <= count) return newPath(path, "");
 		return path.subpath(start, end);
 	}
 
@@ -182,6 +183,7 @@ public class IoUtil {
 	/**
 	 * Creates a new path using the FileSystem of the given path.
 	 */
+	@SuppressWarnings("resource") // bullshit
 	public static Path newPath(Path ref, String first, String... more) {
 		return ref.getFileSystem().getPath(first, more);
 	}
@@ -333,14 +335,14 @@ public class IoUtil {
 	/**
 	 * Reads all available bytes without blocking.
 	 */
-	public static ImmutableByteArray availableBytes(InputStream in) throws IOException {
+	public static ByteProvider availableBytes(InputStream in) throws IOException {
 		if (in == null) return null;
 		int count = in.available();
-		if (count == 0) return ImmutableByteArray.EMPTY;
+		if (count == 0) return ByteArray.Immutable.EMPTY;
 		byte[] buffer = new byte[count];
 		count = in.read(buffer);
-		if (count <= 0) return ImmutableByteArray.EMPTY;
-		return ImmutableByteArray.wrap(buffer, 0, count);
+		if (count <= 0) return ByteArray.Immutable.EMPTY;
+		return ByteArray.Immutable.wrap(buffer, 0, count);
 	}
 
 	/**
@@ -432,6 +434,7 @@ public class IoUtil {
 	 * Streams relative filtered paths recursively under a given directory. A null filter matches
 	 * all paths. Must be used in context of try-with-resources.
 	 */
+	@SuppressWarnings("resource")
 	public static WrappedStream<IOException, Path> walkRelative(Path dir,
 		ExceptionPredicate<IOException, Path> filter) throws IOException {
 		int levels = dir.getNameCount();
@@ -461,6 +464,7 @@ public class IoUtil {
 	 * Streams filtered paths recursively under a given directory. A null filter matches all paths.
 	 * Must be used in context of try-with-resources.
 	 */
+	@SuppressWarnings("resource") // no 
 	public static WrappedStream<IOException, Path> walk(Path dir,
 		ExceptionPredicate<IOException, Path> filter) throws IOException {
 		return WrappedStream.<IOException, Path>of(Files.walk(dir))
@@ -560,7 +564,9 @@ public class IoUtil {
 	public static List<String> listNames(Path dir, ExceptionPredicate<IOException, Path> filter)
 		throws IOException {
 		ExceptionPredicate<IOException, Path> test = defaultValue(filter, NULL_FILTER);
-		return listCollect(Files.newDirectoryStream(dir, test::test), IoUtil::fileName);
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, test::test)) {
+			return listCollect(stream, IoUtil::fileName);
+		}
 	}
 
 	/**
@@ -586,7 +592,9 @@ public class IoUtil {
 	public static List<Path> list(Path dir, ExceptionPredicate<IOException, Path> filter)
 		throws IOException {
 		ExceptionPredicate<IOException, Path> test = defaultValue(filter, NULL_FILTER);
-		return listCollect(Files.newDirectoryStream(dir, test::test), path -> path);
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, test::test)) {
+			return listCollect(stream, path -> path);
+		}
 	}
 
 	/**
@@ -603,6 +611,7 @@ public class IoUtil {
 	 * Collects mapped paths from a directory stream, then closes the stream. The mapping function
 	 * excludes entries by returning null.
 	 */
+	@SuppressWarnings("resource") // bullshit
 	public static <T> List<T> listCollect(DirectoryStream<Path> stream,
 		ExceptionFunction<IOException, Path, T> mapper) throws IOException {
 		Objects.requireNonNull(stream);
@@ -684,7 +693,7 @@ public class IoUtil {
 	 * Writes byte array content to a file, creating the destination directories if necessary.
 	 * Returns the number of bytes written. Removes created directories on failure.
 	 */
-	public static int write(Path file, ImmutableByteArray data) throws IOException {
+	public static int write(Path file, ByteProvider data) throws IOException {
 		FileTracker tracker = new FileTracker();
 		try {
 			tracker.file(file); // creates parent dirs

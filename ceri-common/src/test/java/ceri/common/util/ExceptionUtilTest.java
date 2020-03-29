@@ -7,7 +7,9 @@ import static org.mockito.Mockito.*;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import org.junit.Test;
+import ceri.common.function.ExceptionRunnable;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.test.Capturer;
 
 public class ExceptionUtilTest {
 
@@ -23,10 +25,19 @@ public class ExceptionUtilTest {
 	
 	@Test
 	public void testShouldNotThrow() {
+		Capturer.Int capturer = Capturer.ofInt();
+		ExceptionUtil.shouldNotThrow(() -> capturer.accept(1));
+		ExceptionRunnable<IOException> runnable = () -> {
+			capturer.accept(2);
+			throw new IOException();
+		};
+		assertThrown(RuntimeException.class, () -> ExceptionUtil.shouldNotThrow(runnable));
 		Callable<String> callable = () -> {
+			capturer.accept(3);
 			throw new IOException();
 		};
 		assertThrown(RuntimeException.class, () -> ExceptionUtil.shouldNotThrow(callable));
+		capturer.verifyInt(1, 2, 3);
 	}
 
 	@Test

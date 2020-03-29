@@ -49,8 +49,7 @@ public class Bound<T> {
 	}
 
 	public static <T extends Comparable<T>> Bound<T> of(T value, Type type) {
-		if (value == null) return unbound();
-		return new Bound<>(value, type, Comparators.comparable());
+		return of(value, type, Comparators.comparable());
 	}
 
 	public static <T> Bound<T> of(T value, Type type, Comparator<T> comparator) {
@@ -83,14 +82,14 @@ public class Bound<T> {
 		return compare < 0 || (compare == 0 && type == Type.inclusive);
 	}
 
-	public Integer compareTo(T value) {
+	public Integer valueCompare(T value) {
 		if (value == null || isUnbound()) return null;
 		return comparator.compare(this.value, value);
 	}
 
-	public boolean isEqualTo(T value) {
+	public boolean valueEquals(T value) {
 		if (value == null && isUnbound()) return true;
-		Integer i = compareTo(value);
+		Integer i = valueCompare(value);
 		return i != null && i == 0;
 	}
 

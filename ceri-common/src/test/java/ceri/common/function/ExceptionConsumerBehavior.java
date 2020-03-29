@@ -2,11 +2,24 @@ package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.consumer;
 import static ceri.common.test.TestUtil.assertThrown;
+import java.io.IOException;
 import java.util.function.Consumer;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil.Std;
+import ceri.common.test.Capturer;
 
 public class ExceptionConsumerBehavior {
+
+	@Test
+	public void shouldCombineConsumers() throws IOException {
+		Capturer.Int capturer = Capturer.ofInt();
+		ExceptionConsumer<IOException, Integer> consumer =
+			FunctionTestUtil.consumer().andThen(capturer::accept);
+		consumer.accept(-1);
+		assertThrown(() -> consumer.accept(0));
+		assertThrown(() -> consumer.accept(1));
+		capturer.verifyInt(-1);
+	}
 
 	@Test
 	public void shouldConvertToConsumer() {

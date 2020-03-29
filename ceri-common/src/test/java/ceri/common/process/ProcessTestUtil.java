@@ -13,6 +13,7 @@ public class ProcessTestUtil {
 
 	private ProcessTestUtil() {}
 
+	@SuppressWarnings("resource")
 	public static Process mockProcess(String in, String err, int exitValue, boolean waitFor)
 		throws InterruptedException {
 		Process process = mock(Process.class);

@@ -6,7 +6,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import ceri.common.data.IntTypeValue.Format;
 
 public class IntTypeValueBehavior {
 
@@ -59,22 +58,18 @@ public class IntTypeValueBehavior {
 
 	@Test
 	public void shouldProvideCompactFormat() {
-		assertThat(IntTypeValue.ofInt(255, E.ten, null).compact(), is("ten"));
-		assertThat(IntTypeValue.ofInt(255, E.ten, null, 1).compact(), is("ten(0x00000001)"));
-		assertThat(IntTypeValue.ofByte(255, null, "test").compact(), is("test(0xff)"));
+		assertThat(IntTypeValue.ofUint(255, E.ten, null).compact(), is("ten"));
+		assertThat(IntTypeValue.ofUint(255, E.ten, null, 1).compact(), is("ten(0x1)"));
+		assertThat(IntTypeValue.ofUbyte(255, null, "test").compact(), is("test(0xff)"));
 	}
 
 	@Test
 	public void shouldFormatValue() {
-		assertThat(IntTypeValue.ofByte(255, E.ten, null).toString(), is("ten(0xff)"));
-		assertThat(IntTypeValue.ofByte(256, E.ten, null, 255).toString(), is("ten(0x00:0xff)"));
-		assertThat(IntTypeValue.ofShort(256, E.ten, null).toString(), is("ten(0x0100)"));
-		assertThat(IntTypeValue.ofShort(256, E.ten, null, 1).toString(), is("ten(0x0100:0x0001)"));
-		assertThat(IntTypeValue.ofInt(256, E.ten, null).toString(), is("ten(0x00000100)"));
-		assertThat(IntTypeValue.of(-1, E.ten, null, null, Format.hex(1)).toString(),
-			is("ten(0xf)"));
-		assertThat(IntTypeValue.of(256, E.ten, null, null, Format.hex).toString(),
-			is("ten(0x100)"));
+		assertThat(IntTypeValue.ofUbyte(255, E.ten, null).toString(), is("ten(0xff)"));
+		assertThat(IntTypeValue.ofUbyte(256, E.ten, null, 255).toString(), is("ten(0x00:0xff)"));
+		assertThat(IntTypeValue.ofUshort(256, E.ten, null).toString(), is("ten(0x0100)"));
+		assertThat(IntTypeValue.ofUshort(256, E.ten, null, 1).toString(), is("ten(0x0100:0x0001)"));
+		assertThat(IntTypeValue.ofUint(256, E.ten, null).toString(), is("ten(0x100)"));
 	}
 
 }

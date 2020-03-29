@@ -7,7 +7,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ImmutableByteArray;
 import ceri.common.math.MathUtil;
 
 /**
@@ -18,7 +17,7 @@ import ceri.common.math.MathUtil;
  * <pre>
  * ByteReader skip(int length); [1-byte]
  * long readEndian(int size, boolean msb); [copy]
- * ByteProvider provideBytes(int length); [copy]
+ * String readString(int length, Charset charset); [copy]
  * int readInto(byte[] dest, int offset, int length); [1-byte]
  * ByteReader transferTo(OutputStream out, int length) throws IOException; [1-byte]
  * </pre>
@@ -33,8 +32,8 @@ public interface ByteReader {
 	byte readByte();
 
 	/**
-	 * Skip a number of bytes. Default implementation skips one byte at a time; in some cases
-	 * efficiency may be improved by overriding.
+	 * Skip a number of bytes. Default implementation skips one byte at a time; efficiency may be
+	 * improved by overriding.
 	 */
 	default ByteReader skip(int length) {
 		while (length-- > 0)
@@ -162,15 +161,6 @@ public interface ByteReader {
 	}
 
 	/**
-	 * Returns the value from endian bytes. Default implementation reads a copy of the bytes
-	 * required; in some cases efficiency may be improved by overriding.
-	 */
-	default long readEndian(int size, boolean msb) {
-		byte[] bytes = readBytes(size);
-		return msb ? ByteUtil.fromMsb(bytes) : ByteUtil.fromLsb(bytes);
-	}
-
-	/**
 	 * Returns the value from native-order bytes.
 	 */
 	default float readFloat() {
@@ -213,6 +203,15 @@ public interface ByteReader {
 	}
 
 	/**
+	 * Returns the value from endian bytes. Default implementation reads a copy of the bytes
+	 * required; efficiency may be improved by overriding.
+	 */
+	default long readEndian(int size, boolean msb) {
+		byte[] bytes = readBytes(size);
+		return msb ? ByteUtil.fromMsb(bytes) : ByteUtil.fromLsb(bytes);
+	}
+
+	/**
 	 * Returns the string from ISO-Latin-1 bytes.
 	 */
 	default String readAscii(int length) {
@@ -235,11 +234,11 @@ public interface ByteReader {
 
 	/**
 	 * Returns the string from character-set encoded bytes. Default implementation reads a copy of
-	 * the bytes required; in some cases efficiency may be improved by overriding.
+	 * the bytes required; efficiency may be improved by overriding.
 	 */
 	default String readString(int length, Charset charset) {
-		ByteProvider bytes = provideBytes(length);
-		return bytes.getString(0, length, charset);
+		byte[] bytes = readBytes(length);
+		return new String(bytes, charset);
 	}
 
 	/**
@@ -253,45 +252,55 @@ public interface ByteReader {
 	}
 
 	/**
-	 * Returns a provider wrapper for subsequent bytes.
+	 * Reads bytes into array. Returns the array offset after reading.
 	 */
-	default ByteProvider provideBytes(int length) {
-		return ImmutableByteArray.wrap(readBytes(length));
+	default int readInto(byte[] array) {
+		return readInto(array, 0);
 	}
 
 	/**
 	 * Reads bytes into array. Returns the array offset after reading.
 	 */
-	default int readInto(byte[] dest) {
-		return readInto(dest, 0);
-	}
-
-	/**
-	 * Reads bytes into array. Returns the array offset after reading.
-	 */
-	default int readInto(byte[] dest, int offset) {
-		return readInto(dest, offset, dest.length - offset);
+	default int readInto(byte[] array, int offset) {
+		return readInto(array, offset, array.length - offset);
 	}
 
 	/**
 	 * Reads bytes into array. Returns the array offset after reading. Default implementation reads
-	 * one byte at a time; in some cases efficiency may be improved by overriding.
+	 * one byte at a time; efficiency may be improved by overriding.
 	 */
-	default int readInto(byte[] dest, int offset, int length) {
-		for (int i = 0; i < length; i++)
-			dest[offset + i] = readByte();
-		return offset + length;
+	default int readInto(byte[] array, int offset, int length) {
+		ArrayUtil.validateSlice(array.length, offset, length);
+		while (length-- > 0)
+			array[offset++] = readByte();
+		return offset;
 	}
 
 	/**
-	 * Writes bytes to the output stream, and returns the number of bytes transferred. Default
-	 * implementation transfers one byte at a time; in some cases efficiency may be improved by
-	 * overriding.
+	 * Transfers bytes to the output stream, and returns the number of bytes transferred. Default
+	 * implementation transfers one byte at a time; efficiency may be improved by overriding, or
+	 * calling:
+	 * 
+	 * <pre>
+	 * return transferBufferTo(this, out, length);
+	 * </pre>
 	 */
 	default int transferTo(OutputStream out, int length) throws IOException {
 		for (int i = 0; i < length; i++)
 			out.write(readByte());
 		return length;
+	}
+
+	/**
+	 * Transfers bytes from the reader to the output stream. Returns the number of bytes
+	 * transferred. Implementing classes can call this in transferTo() if buffering is more
+	 * efficient.
+	 */
+	static int transferBufferTo(ByteReader reader, OutputStream out, int length)
+		throws IOException {
+		byte[] buffer = reader.readBytes(length);
+		out.write(buffer);
+		return buffer.length;
 	}
 
 	/**

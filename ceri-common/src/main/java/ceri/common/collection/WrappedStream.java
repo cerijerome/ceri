@@ -29,26 +29,27 @@ public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 	/**
 	 * Construct a stream from hasNext and next functions.
 	 */
-	public static <E extends Exception, T> WrappedStream<E, T> stream(
-		ExceptionBooleanSupplier<E> hasNextFn, ExceptionSupplier<E, T> nextFn) {
+	public static <E extends Exception, T> WrappedStream<E, T>
+		stream(ExceptionBooleanSupplier<E> hasNextFn, ExceptionSupplier<E, T> nextFn) {
 		return stream(action -> {
 			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
 			if (nextFn != null) action.accept(nextFn.get());
 			return true;
 		});
 	}
-	
+
 	/**
 	 * Construct a stream from spliterator tryAdvance function.
 	 */
-	public static <E extends Exception, T> WrappedStream<E, T> stream(
-		ExceptionPredicate<E, Consumer<? super T>> tryAdvanceFn) {
+	public static <E extends Exception, T> WrappedStream<E, T>
+		stream(ExceptionPredicate<E, Consumer<? super T>> tryAdvanceFn) {
 		FunctionWrapper<E> wrapper = FunctionWrapper.create();
 		Predicate<Consumer<? super T>> wrappedFn = wrapper.wrap(tryAdvanceFn);
 		Spliterator<T> spliterator = spliterator(wrappedFn, Long.MAX_VALUE, Spliterator.ORDERED);
 		return WrappedStream.of(wrapper, StreamSupport.stream(spliterator, false));
 	}
 
+	@SuppressWarnings("resource") // no files open at this point
 	public static <E extends Exception, T, R> WrappedStream<E, R> mapped(Stream<T> stream,
 		ExceptionFunction<E, T, R> fn) {
 		return WrappedStream.<E, T>of(stream).map(fn);
@@ -117,9 +118,11 @@ public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 		return new WrappedStream<>(w, fn.apply(stream));
 	}
 
+	@SuppressWarnings("resource")
 	public WrappedIntStream<E>
 		applyInt(ExceptionFunction<E, ? super Stream<T>, ? extends IntStream> fn) throws E {
-		return new WrappedIntStream<>(w, fn.apply(stream));
+		IntStream intStream = fn.apply(stream);
+		return new WrappedIntStream<>(w, intStream);
 	}
 
 	public <R> R terminateAs(ExceptionFunction<E, ? super Stream<T>, R> fn) throws E {

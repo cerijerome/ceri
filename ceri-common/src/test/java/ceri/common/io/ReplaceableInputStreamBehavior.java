@@ -28,6 +28,7 @@ public class ReplaceableInputStreamBehavior {
 		MockitoAnnotations.initMocks(this);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldNotifyListenerOfMarkException() throws IOException {
 		RuntimeException ex = new RuntimeException();
@@ -40,6 +41,7 @@ public class ReplaceableInputStreamBehavior {
 		verify(listener).accept(ex);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldNotifyListenerOfMarkSupportedException() throws IOException {
 		RuntimeException ex = new RuntimeException();

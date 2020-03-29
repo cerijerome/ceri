@@ -29,6 +29,7 @@ public class StartupValuesBehavior {
 		assertThat(StartupValues.lookup(null, envVar).get(), is(SystemVars.env(envVar)));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldNotifyStdOutWhenValueIsReads() {
 		StringBuilder b = new StringBuilder();

@@ -54,12 +54,14 @@ public class SqlStatementBehavior {
 	@Captor
 	private ArgumentCaptor<Integer> types;
 
+	@SuppressWarnings("resource")
 	@Before
 	public void before() throws SQLException {
 		MockitoAnnotations.initMocks(this);
 		when(con.prepareStatement(any())).thenReturn(ps);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldCreateWithoutParameters() throws SQLException {
 		try (SqlStatement stmt = SqlStatement.of(con, "select * from %s", "table1")) {
@@ -81,6 +83,7 @@ public class SqlStatementBehavior {
 		verify(ps).close();
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldSetParameters() throws SQLException {
 		Blob blob = mock(Blob.class);
@@ -103,6 +106,7 @@ public class SqlStatementBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldSetPrimitiveParameters() throws SQLException {
 		byte[] bytes = new byte[] { 1, 2, 3 };
@@ -125,6 +129,7 @@ public class SqlStatementBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldSetNullParameters() throws SQLException {
 		try (SqlStatement stmt = SqlStatement.track(con, "select ?, ?, ?, ?, ? from table1")) {
@@ -137,6 +142,7 @@ public class SqlStatementBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldTrackParameters() throws SQLException {
 		try (SqlStatement stmt = SqlStatement.track(con, "select ?, ?, ? from table1")) {
@@ -145,6 +151,7 @@ public class SqlStatementBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldAllowFormatterToBeAdded() throws SQLException {
 		try (SqlStatement stmt =
@@ -154,6 +161,7 @@ public class SqlStatementBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldSupportBatchetNullParameters() throws SQLException {
 		try (SqlStatement stmt = SqlStatement.track(con, "select ?, ?, ? from table1")) {

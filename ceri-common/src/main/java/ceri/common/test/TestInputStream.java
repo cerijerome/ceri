@@ -65,7 +65,7 @@ public class TestInputStream extends InputStream {
 		}
 
 		public Builder data(byte[] values) {
-			return data(ByteUtil.streamOf(values).toArray());
+			return data(ByteUtil.ustream(values).toArray());
 		}
 
 		public Builder read(ExceptionIntSupplier<IOException> readSupplier) {

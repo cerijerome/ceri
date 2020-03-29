@@ -77,14 +77,6 @@ public class MathUtil {
 	}
 
 	/**
-	 * Casts a long to unsigned byte. Throws an exception if outside the limits of unsigned byte.
-	 */
-	public static byte ubyteExact(long value) {
-		if (value >= 0 && value <= MAX_UBYTE) return (byte) value;
-		throw new ArithmeticException("byte overflow");
-	}
-
-	/**
 	 * Casts a long to a byte. Throws an exception if outside the limits of byte.
 	 */
 	public static short shortExact(long value) {
@@ -93,19 +85,27 @@ public class MathUtil {
 	}
 
 	/**
+	 * Casts a long to unsigned byte. Throws an exception if outside the limits of unsigned byte.
+	 */
+	public static byte ubyteExact(long value) {
+		if (value >= 0 && value <= MAX_UBYTE) return (byte) value;
+		throw new ArithmeticException("byte overflow");
+	}
+
+	/**
 	 * Casts a long to unsigned short. Throws an exception if outside the limits of unsigned short.
 	 */
 	public static short ushortExact(long value) {
 		if (value >= 0 && value <= MAX_USHORT) return (short) value;
-		throw new ArithmeticException("byte overflow");
+		throw new ArithmeticException("short overflow");
 	}
 
 	/**
 	 * Casts a long to unsigned int. Throws an exception if outside the limits of unsigned int.
 	 */
 	public static int uintExact(long value) {
-		if (value >= 0 && value <= MAX_UINT) return (byte) value;
-		throw new ArithmeticException("byte overflow");
+		if (value >= 0 && value <= MAX_UINT) return (int) value;
+		throw new ArithmeticException("int overflow");
 	}
 
 	/**

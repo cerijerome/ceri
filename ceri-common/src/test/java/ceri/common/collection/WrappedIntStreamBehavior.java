@@ -26,11 +26,13 @@ public class WrappedIntStreamBehavior {
 	// 0 => throws RuntimeException
 	// 1 => throws IOException
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldWrapRange() throws IOException {
 		assertStream(WrappedIntStream.<IOException>range(3), 0, 1, 2);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldThrowTypedExceptionFromMap() throws IOException {
 		assertStream(wrap(4, 3, 2).map(intUnaryOperator()), 4, 3, 2);
@@ -38,6 +40,7 @@ public class WrappedIntStreamBehavior {
 		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).map(intUnaryOperator()));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldThrowTypedExceptionFromMapToInt() throws IOException {
 		assertStream(wrap(4, 3, 2).mapToObj(intFunction()), 4, 3, 2);
@@ -45,6 +48,7 @@ public class WrappedIntStreamBehavior {
 		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).mapToObj(intFunction()));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldThrowTypedExceptionFromFilter() throws IOException {
 		assertStream(wrap(4, -1, 2).filter(intPredicate()), 4, 2);
@@ -52,11 +56,13 @@ public class WrappedIntStreamBehavior {
 		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).filter(intPredicate()));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldBoxInts() throws IOException {
 		assertStream(wrap(4, -1, 2).boxed(), 4, -1, 2);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldThrowTypedExceptionFromForEach() {
 		assertCapture(wrap(4, 3, 2)::forEach, 4, 3, 2);
@@ -68,6 +74,7 @@ public class WrappedIntStreamBehavior {
 			() -> wrap(3, 2, 0).map(intUnaryOperator()).forEach(x -> {}));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldThrowTypedExceptionFromCollect() throws IOException {
 		assertIterable(wrap(4, 3, 2).collect(ArrayList::new, List::add, List::addAll), 4, 3, 2);
@@ -83,12 +90,14 @@ public class WrappedIntStreamBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldApplyStreamMethods() throws IOException {
 		assertStream(wrap(4, 3, 2).apply(s -> s.limit(1)), 4);
 		assertStream(wrap(4, 3, 2).applyObj(s -> s.mapToObj(i -> i - 1)), 3, 2, 1);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldTerminateStream() throws IOException {
 		assertThat(wrap(4, 3, 2).terminateAs(IntStream::count), is(3L));

@@ -1,5 +1,6 @@
 package ceri.common.util;
 
+import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
@@ -26,6 +27,42 @@ public class PrimitiveUtilTest {
 		assertThat(PrimitiveUtil.decode("088", Integer.MIN_VALUE), is(Integer.MIN_VALUE));
 		assertThat(PrimitiveUtil.decode("", Long.MIN_VALUE), is(Long.MIN_VALUE));
 		assertThat(PrimitiveUtil.decode("088", Long.MIN_VALUE), is(Long.MIN_VALUE));
+	}
+
+	@Test
+	public void testConvertArrays() {
+		boolean[] b = { true, false };
+		Boolean[] B = { true, false };
+		assertArray(PrimitiveUtil.convertBooleans(b), B);
+		assertArray(PrimitiveUtil.convertBooleans(B), b);
+		char[] c = { '\0', 'a' };
+		Character[] C = { '\0', 'a' };
+		assertArray(PrimitiveUtil.convertChars(c), C);
+		assertArray(PrimitiveUtil.convertChars(C), c);
+		byte[] bt = { -128, 127 };
+		Byte[] Bt = { -128, 127 };
+		assertArray(PrimitiveUtil.convertBytes(bt), Bt);
+		assertArray(PrimitiveUtil.convertBytes(Bt), bt);
+		short[] s = { Short.MAX_VALUE, Short.MIN_VALUE };
+		Short[] S = { Short.MAX_VALUE, Short.MIN_VALUE };
+		assertArray(PrimitiveUtil.convertShorts(s), S);
+		assertArray(PrimitiveUtil.convertShorts(S), s);
+		int[] i = { Integer.MAX_VALUE, Integer.MIN_VALUE };
+		Integer[] I = { Integer.MAX_VALUE, Integer.MIN_VALUE };
+		assertArray(PrimitiveUtil.convertInts(i), I);
+		assertArray(PrimitiveUtil.convertInts(I), i);
+		long[] l = { Long.MAX_VALUE, Long.MIN_VALUE };
+		Long[] L = { Long.MAX_VALUE, Long.MIN_VALUE };
+		assertArray(PrimitiveUtil.convertLongs(l), L);
+		assertArray(PrimitiveUtil.convertLongs(L), l);
+		double[] d = { Double.MAX_VALUE, Double.MIN_VALUE };
+		Double[] D = { Double.MAX_VALUE, Double.MIN_VALUE };
+		assertArray(PrimitiveUtil.convertDoubles(d), D);
+		assertArray(PrimitiveUtil.convertDoubles(D), d);
+		float[] f = { Float.MAX_VALUE, Float.MIN_VALUE };
+		Float[] F = { Float.MAX_VALUE, Float.MIN_VALUE };
+		assertArray(PrimitiveUtil.convertFloats(f), F);
+		assertArray(PrimitiveUtil.convertFloats(F), f);
 	}
 
 	@Test

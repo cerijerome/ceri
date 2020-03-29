@@ -32,15 +32,16 @@ public class WrappedStreamBehavior {
 	// 0 => throws RuntimeException
 	// 1 => throws IOException
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldStreamAsSpliterator() throws IOException {
 		assertStream(WrappedStream.stream(tryAdvanceFn(4, 3, 2)), 4, 3, 2);
 		assertTerminalThrow(IOException.class, WrappedStream.stream(tryAdvanceFn(4, 3, 1)));
 		assertTerminalThrow(RuntimeException.class, WrappedStream.stream(tryAdvanceFn(4, 3, 0)));
 	}
-	
-	private static ExceptionPredicate<IOException, Consumer<? super Integer>> 
-	tryAdvanceFn(int...is) {
+
+	private static ExceptionPredicate<IOException, Consumer<? super Integer>>
+		tryAdvanceFn(int... is) {
 		Iterator<Integer> i = IntStream.of(is).iterator();
 		ExceptionConsumer<IOException, Integer> consumer = FunctionTestUtil.consumer();
 		return c -> {
@@ -51,18 +52,21 @@ public class WrappedStreamBehavior {
 			return true;
 		};
 	}
-	
+
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldStreamCollections() throws IOException {
 		assertStream(WrappedStream.stream(List.of(4, 3, 2)), 4, 3, 2);
 		assertStream(WrappedStream.stream(List.of(4, 3, 2), FunctionTestUtil.function()), 4, 3, 2);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldWrapValues() throws IOException {
 		assertStream(WrappedStream.<IOException, Integer>of(4, 3, 2), 4, 3, 2);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldThrowTypedExceptionFromMap() throws IOException {
 		assertStream(wrap(4, 3, 2).map(function()), 4, 3, 2);
@@ -70,6 +74,7 @@ public class WrappedStreamBehavior {
 		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).map(function()));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldThrowTypedExceptionFromMapToInt() throws IOException {
 		assertStream(wrap(4, 3, 2).mapToInt(toIntFunction()), 4, 3, 2);
@@ -77,6 +82,7 @@ public class WrappedStreamBehavior {
 		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).mapToInt(toIntFunction()));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldThrowTypedExceptionFromFilter() throws IOException {
 		assertStream(wrap(4, -1, 2).filter(predicate()), 4, 2);
@@ -84,6 +90,7 @@ public class WrappedStreamBehavior {
 		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).filter(predicate()));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldThrowTypedExceptionFromForEach() {
 		assertCapture(wrap(4, 3, 2)::forEach, 4, 3, 2);
@@ -93,6 +100,7 @@ public class WrappedStreamBehavior {
 		assertThrown(RuntimeException.class, () -> wrap(3, 2, 0).map(function()).forEach(x -> {}));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldThrowTypedExceptionFromCollect() throws IOException {
 		assertIterable(wrap(4, 3, 2).collect(Collectors.toList()), 4, 3, 2);
@@ -117,12 +125,14 @@ public class WrappedStreamBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldApplyStreamMethods() throws IOException {
 		assertStream(wrap(4, 3, 2).apply(s -> s.limit(1)), 4);
 		assertStream(wrap(4, 3, 2).applyInt(s -> s.mapToInt(i -> i - 1)), 3, 2, 1);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldTerminateStream() throws IOException {
 		assertThat(wrap(4, 3, 2).terminateAs(Stream::count), is(3L));

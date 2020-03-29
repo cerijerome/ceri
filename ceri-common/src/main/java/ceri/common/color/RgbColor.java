@@ -1,5 +1,6 @@
 package ceri.common.color;
 
+import static ceri.common.color.ColorUtil.b;
 import static ceri.common.color.ColorUtil.fromRatio;
 import static ceri.common.color.ColorUtil.g;
 import static ceri.common.color.ColorUtil.r;
@@ -28,7 +29,7 @@ public class RgbColor implements ComponentColor<RgbColor> {
 	}
 
 	public static RgbColor from(int rgb) {
-		return from(r(rgb), g(rgb), g(rgb));
+		return from(r(rgb), g(rgb), b(rgb));
 	}
 
 	public static RgbColor from(int red, int green, int blue) {

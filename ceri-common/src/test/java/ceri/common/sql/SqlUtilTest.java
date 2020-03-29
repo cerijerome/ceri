@@ -35,12 +35,11 @@ public class SqlUtilTest {
 		assertThat(SqlUtil.type(rs, 1), is(SqlType.sqlVarChar));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testTableNames() throws SQLException {
-		@SuppressWarnings("resource")
 		Connection con = mock(Connection.class);
 		DatabaseMetaData dbmd = mock(DatabaseMetaData.class);
-		@SuppressWarnings("resource")
 		ResultSet rs = mock(ResultSet.class);
 		when(con.getMetaData()).thenReturn(dbmd);
 		when(dbmd.getTables(any(), any(), any(), any())).thenReturn(rs);

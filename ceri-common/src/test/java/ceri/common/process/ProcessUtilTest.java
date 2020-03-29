@@ -1,9 +1,10 @@
 package ceri.common.process;
 
-import static ceri.common.test.TestUtil.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static ceri.common.test.TestUtil.assertArray;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
@@ -12,6 +13,7 @@ import ceri.common.test.TestUtil;
 
 public class ProcessUtilTest {
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testStdOut() throws IOException {
 		try (InputStream in = TestUtil.inputStream("hello")) {
@@ -21,6 +23,7 @@ public class ProcessUtilTest {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testStdErr() throws IOException {
 		try (InputStream in = TestUtil.inputStream("hello")) {
@@ -36,6 +39,7 @@ public class ProcessUtilTest {
 		assertThat(ProcessUtil.toString(b), is("cmd1 \"cmd 2\" \"cmd # 3\""));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testNullProcess() throws InterruptedException, IOException {
 		Process p = ProcessUtil.nullProcess();
@@ -47,5 +51,5 @@ public class ProcessUtilTest {
 		assertArray(p.getErrorStream().readAllBytes());
 		p.getOutputStream().write(new byte[16]);
 	}
-	
+
 }

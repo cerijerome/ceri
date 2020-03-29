@@ -64,6 +64,7 @@ public class TestPrinterBehavior {
 		assertThat(p.tests().iterator().next().description, is("test thisMethod"));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldPrintBehaviorsAndTests() {
 		TestPrinter p = new TestPrinter();

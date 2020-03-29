@@ -16,6 +16,7 @@ import ceri.common.test.TestUtil;
 
 public class ReplaceableOutputStreamBehavior {
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldNotifyListenersOfErrors() throws IOException {
 		List<String> list = new ArrayList<>();

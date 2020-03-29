@@ -49,6 +49,7 @@ public class DebuggerBehavior {
 		assertThat(b, not(matchesRegex("(?ms).* test2\n")));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldWriteToSysErrByDefault() {
 		StringBuilder b = new StringBuilder();

@@ -3,21 +3,22 @@ package ceri.common.concurrent;
 import static ceri.common.test.TestUtil.assertArray;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ImmutableByteArray;
+import ceri.common.data.ByteArray;
+import ceri.common.data.ByteProvider;
 
-public class AtomicByteArrayBehavior {
+public class VolatileByteArrayBehavior {
 
 	@Test
 	public void shouldCreateWithGivenSize() {
-		AtomicByteArray a = AtomicByteArray.of(4);
+		VolatileByteArray a = VolatileByteArray.of(4);
 		assertArray(a.copy(), 0, 0, 0, 0);
 	}
 
 	@Test
 	public void shouldCreateFromImmutableByteArray() {
-		ImmutableByteArray b = ImmutableByteArray.wrap(1, 2, 3);
-		AtomicByteArray a = AtomicByteArray.copyOf(b);
-		a.set(1, 0);
+		ByteProvider b = ByteArray.Immutable.wrap(1, 2, 3);
+		VolatileByteArray a = VolatileByteArray.wrap(b.copy());
+		a.setByte(1, 0);
 		assertArray(a.copy(), 1, 0, 3);
 		assertArray(b.copy(), 1, 2, 3);
 	}
@@ -25,8 +26,8 @@ public class AtomicByteArrayBehavior {
 	@Test
 	public void shouldCreateACopyFromByteArray() {
 		byte[] b = ArrayUtil.bytes(0xff, 0x80, 0x7f);
-		AtomicByteArray a = AtomicByteArray.copyOf(ArrayUtil.bytes(0xff, 0x80, 0x7f));
-		a.set(2, 0);
+		VolatileByteArray a = VolatileByteArray.copyOf(ArrayUtil.bytes(0xff, 0x80, 0x7f));
+		a.setByte(2, 0);
 		assertArray(b, 0xff, 0x80, 0x7f);
 		assertArray(a.copy(), 0xff, 0x80, 0);
 	}
@@ -34,19 +35,19 @@ public class AtomicByteArrayBehavior {
 	@Test
 	public void shouldCreateByWrappingBytes() {
 		byte[] b = ArrayUtil.bytes(0xff, 0x80, 0x7f);
-		AtomicByteArray a = AtomicByteArray.wrap(b);
-		a.set(2, 0);
+		VolatileByteArray a = VolatileByteArray.wrap(b);
+		a.setByte(2, 0);
 		assertArray(b, 0xff, 0x80, 0);
 		assertArray(a.copy(), 0xff, 0x80, 0);
 	}
 
 	@Test
 	public void shouldCreateSlicesOfTheArray() {
-		AtomicByteArray a0 = AtomicByteArray.wrap(1, 2, 3, 4, 5);
-		AtomicByteArray a1 = a0.slice(2);
-		AtomicByteArray a2 = a0.slice(0, 3);
-		AtomicByteArray a3 = a2.slice(2);
-		a0.set(2, 0xff);
+		VolatileByteArray a0 = VolatileByteArray.wrap(1, 2, 3, 4, 5);
+		VolatileByteArray a1 = a0.slice(2);
+		VolatileByteArray a2 = a0.slice(0, 3);
+		VolatileByteArray a3 = a2.slice(2);
+		a0.setByte(2, 0xff);
 		assertArray(a0.copy(), 1, 2, 0xff, 4, 5);
 		assertArray(a1.copy(), 0xff, 4, 5);
 		assertArray(a2.copy(), 1, 2, 0xff);

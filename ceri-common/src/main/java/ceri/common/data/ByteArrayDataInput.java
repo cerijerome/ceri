@@ -6,6 +6,7 @@ import java.io.DataInput;
  * Provides DataInput access to a given byte array. IndexOutOfBoundsException thrown is attempting
  * to read past the end of the buffer.
  */
+@Deprecated
 public class ByteArrayDataInput implements DataInput {
 	private final byte[] data;
 	private int pos;

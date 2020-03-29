@@ -5,6 +5,7 @@ import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertNaN;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertRange;
+import static ceri.common.test.TestUtil.assertThrown;
 import static java.lang.Math.PI;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
@@ -96,10 +97,10 @@ public class MathUtilTest {
 	public void testToShortExact() {
 		long l0 = Short.MIN_VALUE;
 		long l1 = Short.MAX_VALUE;
-		assertThat(MathUtil.ushortExact(l0), is(Short.MIN_VALUE));
-		assertThat(MathUtil.ushortExact(l1), is(Short.MAX_VALUE));
-		TestUtil.assertThrown(() -> MathUtil.ushortExact(Short.MIN_VALUE - 1));
-		TestUtil.assertThrown(() -> MathUtil.ushortExact(Short.MAX_VALUE + 1));
+		assertThat(MathUtil.shortExact(l0), is(Short.MIN_VALUE));
+		assertThat(MathUtil.shortExact(l1), is(Short.MAX_VALUE));
+		TestUtil.assertThrown(() -> MathUtil.shortExact(Short.MIN_VALUE - 1));
+		TestUtil.assertThrown(() -> MathUtil.shortExact(Short.MAX_VALUE + 1));
 	}
 
 	@Test
@@ -498,6 +499,19 @@ public class MathUtilTest {
 		assertThat(MathUtil.fromPercentage(Double.MAX_VALUE, 100), is(Double.MAX_VALUE));
 	}
 
+	@Test
+	public void testUnsignedExact() {
+		assertThat(MathUtil.ubyteExact(0xff), is((byte) 0xff));
+		assertThat(MathUtil.ushortExact(0xffff), is((short) 0xffff));
+		assertThat(MathUtil.uintExact(0xffffffffL), is(0xffffffff));
+		assertThrown(() -> MathUtil.ubyteExact(-1));
+		assertThrown(() -> MathUtil.ubyteExact(0x100));
+		assertThrown(() -> MathUtil.ushortExact(-1));
+		assertThrown(() -> MathUtil.ushortExact(0x10000));
+		assertThrown(() -> MathUtil.uintExact(-1));
+		assertThrown(() -> MathUtil.uintExact(0x100000000L));
+	}
+	
 	@Test
 	public void testUnsigned() {
 		assertThat(MathUtil.ubyte((byte) 0xff), is((short) 0xff));

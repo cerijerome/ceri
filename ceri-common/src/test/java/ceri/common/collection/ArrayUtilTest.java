@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
+import ceri.common.util.PrimitiveUtil;
 
 public class ArrayUtilTest {
 
@@ -149,42 +150,6 @@ public class ArrayUtilTest {
 	}
 
 	@Test
-	public void testConvertArrays() {
-		boolean[] b = { true, false };
-		Boolean[] B = { true, false };
-		assertArray(ArrayUtil.convertBooleans(b), B);
-		assertArray(ArrayUtil.convertBooleans(B), b);
-		char[] c = { '\0', 'a' };
-		Character[] C = { '\0', 'a' };
-		assertArray(ArrayUtil.convertChars(c), C);
-		assertArray(ArrayUtil.convertChars(C), c);
-		byte[] bt = { -128, 127 };
-		Byte[] Bt = { -128, 127 };
-		assertArray(ArrayUtil.convertBytes(bt), Bt);
-		assertArray(ArrayUtil.convertBytes(Bt), bt);
-		short[] s = { Short.MAX_VALUE, Short.MIN_VALUE };
-		Short[] S = { Short.MAX_VALUE, Short.MIN_VALUE };
-		assertArray(ArrayUtil.convertShorts(s), S);
-		assertArray(ArrayUtil.convertShorts(S), s);
-		int[] i = { Integer.MAX_VALUE, Integer.MIN_VALUE };
-		Integer[] I = { Integer.MAX_VALUE, Integer.MIN_VALUE };
-		assertArray(ArrayUtil.convertInts(i), I);
-		assertArray(ArrayUtil.convertInts(I), i);
-		long[] l = { Long.MAX_VALUE, Long.MIN_VALUE };
-		Long[] L = { Long.MAX_VALUE, Long.MIN_VALUE };
-		assertArray(ArrayUtil.convertLongs(l), L);
-		assertArray(ArrayUtil.convertLongs(L), l);
-		double[] d = { Double.MAX_VALUE, Double.MIN_VALUE };
-		Double[] D = { Double.MAX_VALUE, Double.MIN_VALUE };
-		assertArray(ArrayUtil.convertDoubles(d), D);
-		assertArray(ArrayUtil.convertDoubles(D), d);
-		float[] f = { Float.MAX_VALUE, Float.MIN_VALUE };
-		Float[] F = { Float.MAX_VALUE, Float.MIN_VALUE };
-		assertArray(ArrayUtil.convertFloats(f), F);
-		assertArray(ArrayUtil.convertFloats(F), f);
-	}
-
-	@Test
 	public void testIsArray() {
 		assertTrue(ArrayUtil.isArray(new boolean[] {}));
 		assertFalse(ArrayUtil.isArray((boolean[]) null));
@@ -240,6 +205,17 @@ public class ArrayUtilTest {
 	}
 
 	@Test
+	public void testCopy() {
+		byte[] src = ArrayUtil.bytes(1, 2, 3, 4, 5, 6, 7);
+		assertArray(ArrayUtil.copyOf(src, -3, 5), 0, 0, 0, 1, 2);
+		assertArray(ArrayUtil.copyOf(src, 5, 5), 6, 7, 0, 0, 0);
+		assertArray(ArrayUtil.copyOf(src, 3, 3), 4, 5, 6);
+		assertArray(ArrayUtil.copyOf(src, -2, 10), 0, 0, 1, 2, 3, 4, 5, 6, 7, 0);
+		assertArray(ArrayUtil.copyOf(src, -7, 5), 0, 0, 0, 0, 0);
+		assertArray(ArrayUtil.copyOf(src, 9, 5), 0, 0, 0, 0, 0);
+	}
+
+	@Test
 	public void testEquals() {
 		assertTrue(ArrayUtil.equals(ArrayUtil.array("1", "0"), 0, //
 			ArrayUtil.array("-1", "1", "0"), 1));
@@ -285,8 +261,8 @@ public class ArrayUtilTest {
 	@Test
 	public void testAsList() {
 		assertCollection(ArrayUtil.asList(1, 2, 3), 1, 2, 3);
-		assertCollection(ArrayUtil.asList(0, ArrayUtil.convertInts(1, 2, 3)), 0, 1, 2, 3);
-		assertCollection(ArrayUtil.asList(ArrayUtil.convertInts(1, 2, 3), 4, 5), 1, 2, 3, 4, 5);
+		assertCollection(ArrayUtil.asList(0, PrimitiveUtil.convertInts(1, 2, 3)), 0, 1, 2, 3);
+		assertCollection(ArrayUtil.asList(PrimitiveUtil.convertInts(1, 2, 3), 4, 5), 1, 2, 3, 4, 5);
 	}
 
 	@Test

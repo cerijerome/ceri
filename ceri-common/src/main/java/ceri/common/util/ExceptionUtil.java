@@ -138,7 +138,7 @@ public class ExceptionUtil {
 		if (exceptionCls.isInstance(t)) throw BasicUtil.<E>uncheckedCast(t);
 	}
 
-	public static void shouldNotThrow(ExceptionRunnable<Exception> runnable) {
+	public static void shouldNotThrow(ExceptionRunnable<? extends Exception> runnable) {
 		try {
 			runnable.run();
 		} catch (Exception e) {

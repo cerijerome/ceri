@@ -9,8 +9,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Test;
+import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
-import ceri.common.data.ByteReceiver;
 import ceri.common.test.TestUtil;
 
 public class ByteProviderBehavior {
@@ -18,9 +18,9 @@ public class ByteProviderBehavior {
 	@Test
 	public void shouldProvideByteAtGivenIndex() {
 		ByteProvider b = provider(0, 0xff, 0x80, 0x7f);
-		assertByte(b.get(0), 0);
-		assertByte(b.get(3), 0x7f);
-		TestUtil.assertThrown(() -> b.get(4));
+		assertByte(b.getByte(0), 0);
+		assertByte(b.getByte(3), 0x7f);
+		TestUtil.assertThrown(() -> b.getByte(4));
 	}
 
 	@Test
@@ -39,38 +39,14 @@ public class ByteProviderBehavior {
 		assertThat(b.copyTo(a), is(3));
 		assertArray(a, 0, 0xff, 0x80);
 		a = new byte[5];
-		assertThat(b.copyTo(a, 2, 2), is(4));
+		assertThat(b.copyTo(a, 2, 2), is(2));
 		assertArray(a, 0, 0, 0, 0xff, 0);
 		clear(a);
-		assertThat(b.copyTo(1, a), is(3));
+		assertThat(b.copyTo(1, a, 0, 3), is(4));
 		assertArray(a, 0xff, 0x80, 0x7f, 0, 0);
 		clear(a);
-		assertThat(b.copyTo(2, a, 2), is(4));
+		assertThat(b.copyTo(2, a, 2, 2), is(4));
 		assertArray(a, 0, 0, 0x80, 0x7f, 0);
-	}
-
-	@Test
-	public void shouldCopyToByteReceiver() {
-		byte[] a = new byte[5];
-		ByteReceiver r = ByteReceiver.wrap(a);
-		ByteProvider b = provider(0, 0xff, 0x80, 0x7f);
-		assertThat(b.copyTo(r), is(4));
-		assertArray(a, 0, 0xff, 0x80, 0x7f, 0);
-		clear(a);
-		assertThat(b.copyTo(r, 3), is(5));
-		assertArray(a, 0, 0, 0, 0, 0xff);
-		clear(a);
-		assertThat(b.copyTo(r, 1, 2), is(3));
-		assertArray(a, 0, 0, 0xff, 0, 0);
-		clear(a);
-		assertThat(b.copyTo(1, r), is(3));
-		assertArray(a, 0xff, 0x80, 0x7f, 0, 0);
-		clear(a);
-		assertThat(b.copyTo(1, r, 1), is(4));
-		assertArray(a, 0, 0xff, 0x80, 0x7f, 0);
-		clear(a);
-		assertThat(b.copyTo(1, r, 1, 2), is(3));
-		assertArray(a, 0, 0xff, 0x80, 0, 0);
 	}
 
 	@Test
@@ -80,32 +56,32 @@ public class ByteProviderBehavior {
 		b.writeTo(out);
 		assertArray(out.toByteArray(), 0, 0xff, 0x80, 0x7f);
 		out.reset();
-		b.writeTo(out, 2);
+		b.writeTo(2, out);
 		assertArray(out.toByteArray(), 0x80, 0x7f);
 		out.reset();
-		b.writeTo(out, 1, 1);
+		b.writeTo(1, out, 1);
 		assertArray(out.toByteArray(), 0xff);
 	}
 
 	@Test
 	public void shouldWrapByteArrays() throws IOException {
-		ByteProvider b = ByteProvider.wrap(0, 0xff, 0x80, 0x7f);
+		ByteProvider b = ByteArray.Immutable.wrap(0, 0xff, 0x80, 0x7f);
 		assertThat(b.length(), is(4));
-		assertByte(b.get(2), 0x80);
+		assertByte(b.getByte(2), 0x80);
 		byte[] a = new byte[5];
 		b.copyTo(1, a, 1, 3);
 		assertArray(a, 0, 0xff, 0x80, 0x7f, 0);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		b.writeTo(out, 0, 3);
+		b.writeTo(out, 3);
 		assertArray(out.toByteArray(), 0, 0xff, 0x80);
 	}
 
 	@Test
 	public void shouldStreamBytesAsIntegers() {
 		ByteProvider b = provider(0, 0xff, 0x80, 0x7f);
-		assertStream(b.stream(), 0, 0xff, 0x80, 0x7f);
-		assertStream(b.stream(3), 0x7f);
-		assertStream(b.stream(2, 2), 0x80, 0x7f);
+		assertStream(b.ustream(), 0, 0xff, 0x80, 0x7f);
+		assertStream(b.ustream(3), 0x7f);
+		assertStream(b.ustream(2, 2), 0x80, 0x7f);
 	}
 
 	@Test
@@ -225,7 +201,7 @@ public class ByteProviderBehavior {
 			}
 
 			@Override
-			public byte get(int index) {
+			public byte getByte(int index) {
 				return bytes[index];
 			}
 		};

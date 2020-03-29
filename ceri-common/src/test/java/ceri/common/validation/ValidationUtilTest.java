@@ -33,9 +33,9 @@ public class ValidationUtilTest {
 	@Test
 	public void testValidateWithFormattedException() {
 		int i0 = -1;
-		ValidationUtil.validate(i0 < 0, "%d >= 0", i0);
+		ValidationUtil.validatef(i0 < 0, "%d >= 0", i0);
 		int i1 = 1;
-		TestUtil.assertThrown(() -> ValidationUtil.validate(i1 < 0, "%d >= 0", i1));
+		TestUtil.assertThrown(() -> ValidationUtil.validatef(i1 < 0, "%d >= 0", i1));
 	}
 
 	@Test
@@ -46,46 +46,46 @@ public class ValidationUtilTest {
 
 	@Test
 	public void testValidateEqualUnsigned() {
-		ValidationUtil.validateEqualUnsigned(0xffffffff12345678L, 0xffffffff12345678L);
-		ValidationUtil.validateEqualUnsigned(0xffffffffffffffffL, -1L);
-		ValidationUtil.validateEqualUnsigned(Long.MIN_VALUE, Long.MIN_VALUE, "test");
-		TestUtil.assertThrown(() -> ValidationUtil.validateEqualUnsigned(-1L, -2L, "test"));
-		TestUtil.assertThrown(() -> ValidationUtil.validateEqualUnsigned( //
+		ValidationUtil.validateUlong(0xffffffff12345678L, 0xffffffff12345678L);
+		ValidationUtil.validateUlong(0xffffffffffffffffL, -1L);
+		ValidationUtil.validateUlong(Long.MIN_VALUE, Long.MIN_VALUE, "test");
+		TestUtil.assertThrown(() -> ValidationUtil.validateUlong(-1L, -2L, "test"));
+		TestUtil.assertThrown(() -> ValidationUtil.validateUlong( //
 			0xffffffff12345678L, 0xffffffff12345670L));
 	}
 
 	@Test
 	public void testValidateMaxUnsigned() {
-		ValidationUtil.validateMaxUnsigned(Long.MAX_VALUE, Long.MAX_VALUE);
-		ValidationUtil.validateMaxUnsigned(Long.MIN_VALUE, Long.MIN_VALUE);
-		ValidationUtil.validateMaxUnsigned(Long.MAX_VALUE, Long.MIN_VALUE, "test");
-		TestUtil.assertThrown(() -> ValidationUtil.validateMaxUnsigned(Long.MIN_VALUE, Long.MAX_VALUE));
-		TestUtil.assertThrown(() -> ValidationUtil.validateMaxUnsigned(Long.MIN_VALUE, 0, "test"));
-		TestUtil.assertThrown(() -> ValidationUtil.validateMaxUnsigned(-1, 0, "test"));
+		ValidationUtil.validateUmax(Long.MAX_VALUE, Long.MAX_VALUE);
+		ValidationUtil.validateUmax(Long.MIN_VALUE, Long.MIN_VALUE);
+		ValidationUtil.validateUmax(Long.MAX_VALUE, Long.MIN_VALUE, "test");
+		TestUtil.assertThrown(() -> ValidationUtil.validateUmax(Long.MIN_VALUE, Long.MAX_VALUE));
+		TestUtil.assertThrown(() -> ValidationUtil.validateUmax(Long.MIN_VALUE, 0, "test"));
+		TestUtil.assertThrown(() -> ValidationUtil.validateUmax(-1, 0, "test"));
 	}
 
 	@Test
 	public void testValidateMinUnsigned() {
-		ValidationUtil.validateMinUnsigned(Long.MAX_VALUE, Long.MAX_VALUE);
-		ValidationUtil.validateMinUnsigned(Long.MIN_VALUE, Long.MIN_VALUE);
-		ValidationUtil.validateMinUnsigned(Long.MIN_VALUE, Long.MAX_VALUE, "test");
-		TestUtil.assertThrown(() -> ValidationUtil.validateMinUnsigned(Long.MAX_VALUE, Long.MIN_VALUE));
-		TestUtil.assertThrown(() -> ValidationUtil.validateMinUnsigned(0, Long.MIN_VALUE, "test"));
-		TestUtil.assertThrown(() -> ValidationUtil.validateMinUnsigned(0, -1, "test"));
+		ValidationUtil.validateUmin(Long.MAX_VALUE, Long.MAX_VALUE);
+		ValidationUtil.validateUmin(Long.MIN_VALUE, Long.MIN_VALUE);
+		ValidationUtil.validateUmin(Long.MIN_VALUE, Long.MAX_VALUE, "test");
+		TestUtil.assertThrown(() -> ValidationUtil.validateUmin(Long.MAX_VALUE, Long.MIN_VALUE));
+		TestUtil.assertThrown(() -> ValidationUtil.validateUmin(0, Long.MIN_VALUE, "test"));
+		TestUtil.assertThrown(() -> ValidationUtil.validateUmin(0, -1, "test"));
 	}
 
 	@Test
 	public void testValidateRangeUnsigned() {
-		ValidationUtil.validateRangeUnsigned(Long.MAX_VALUE, 0, Long.MAX_VALUE);
-		ValidationUtil.validateRangeUnsigned(Long.MIN_VALUE, 0, Long.MIN_VALUE);
-		ValidationUtil.validateRangeUnsigned(Long.MAX_VALUE, 0, Long.MIN_VALUE, "test");
+		ValidationUtil.validateUrange(Long.MAX_VALUE, 0, Long.MAX_VALUE);
+		ValidationUtil.validateUrange(Long.MIN_VALUE, 0, Long.MIN_VALUE);
+		ValidationUtil.validateUrange(Long.MAX_VALUE, 0, Long.MIN_VALUE, "test");
 		TestUtil.assertThrown(
-			() -> ValidationUtil.validateRangeUnsigned(Long.MIN_VALUE, 0, Long.MAX_VALUE));
+			() -> ValidationUtil.validateUrange(Long.MIN_VALUE, 0, Long.MAX_VALUE));
 		TestUtil.assertThrown(
-			() -> ValidationUtil.validateRangeUnsigned(0, Long.MAX_VALUE, Long.MIN_VALUE));
+			() -> ValidationUtil.validateUrange(0, Long.MAX_VALUE, Long.MIN_VALUE));
 		TestUtil
-			.assertThrown(() -> ValidationUtil.validateRangeUnsigned(0, Long.MIN_VALUE, 0, "test"));
-		TestUtil.assertThrown(() -> ValidationUtil.validateRangeUnsigned(-1, 0, -2, "test"));
+			.assertThrown(() -> ValidationUtil.validateUrange(0, Long.MIN_VALUE, 0, "test"));
+		TestUtil.assertThrown(() -> ValidationUtil.validateUrange(-1, 0, -2, "test"));
 	}
 
 	@Test

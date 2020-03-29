@@ -199,6 +199,7 @@ public class TestUtilTest {
 		public void testThat() {}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testExec() {
 		try (SystemIo sys = SystemIo.of()) {

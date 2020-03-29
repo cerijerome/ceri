@@ -10,6 +10,7 @@ import org.junit.Test;
 
 public class ResponseStreamBehavior {
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldEchoBytes() throws IOException {
 		byte[] buffer = new byte[32];
@@ -19,6 +20,7 @@ public class ResponseStreamBehavior {
 		assertAscii(buffer, 0, count, "\0hello");
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldProcessStringInput() throws IOException {
 		byte[] buffer = new byte[32];
@@ -28,6 +30,7 @@ public class ResponseStreamBehavior {
 		assertAscii(buffer, 0, count, "olleh");
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldProcessBinaryInput() throws IOException {
 		byte[] buffer = new byte[32];

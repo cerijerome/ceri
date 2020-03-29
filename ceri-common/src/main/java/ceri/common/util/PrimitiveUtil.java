@@ -12,6 +12,166 @@ public class PrimitiveUtil {
 
 	private PrimitiveUtil() {}
 
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static boolean[] convertBooleans(Boolean[] array) {
+		var ts = new boolean[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Boolean[] convertBooleans(boolean... array) {
+		var ts = new Boolean[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static byte[] convertBytes(Byte[] array) {
+		var ts = new byte[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Byte[] convertBytes(byte... array) {
+		var ts = new Byte[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static char[] convertChars(Character[] array) {
+		var ts = new char[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Character[] convertChars(char... array) {
+		var ts = new Character[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static short[] convertShorts(Short[] array) {
+		var ts = new short[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Short[] convertShorts(short... array) {
+		var ts = new Short[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static int[] convertInts(Integer[] array) {
+		var ts = new int[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Integer[] convertInts(int... array) {
+		var ts = new Integer[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static long[] convertLongs(Long[] array) {
+		var ts = new long[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Long[] convertLongs(long... array) {
+		var ts = new Long[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static float[] convertFloats(Float[] array) {
+		var ts = new float[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Float[] convertFloats(float... array) {
+		var ts = new Float[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static double[] convertDoubles(Double[] array) {
+		var ts = new double[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Double[] convertDoubles(double... array) {
+		var ts = new Double[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
 	public static <T> boolean lookupBoolean(Map<T, Boolean> map, T type) {
 		return lookupBoolean(map, type, false);
 	}

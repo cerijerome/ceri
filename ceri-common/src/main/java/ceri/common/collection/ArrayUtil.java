@@ -1,5 +1,13 @@
 package ceri.common.collection;
 
+import static ceri.common.util.PrimitiveUtil.convertBooleans;
+import static ceri.common.util.PrimitiveUtil.convertBytes;
+import static ceri.common.util.PrimitiveUtil.convertChars;
+import static ceri.common.util.PrimitiveUtil.convertDoubles;
+import static ceri.common.util.PrimitiveUtil.convertFloats;
+import static ceri.common.util.PrimitiveUtil.convertInts;
+import static ceri.common.util.PrimitiveUtil.convertLongs;
+import static ceri.common.util.PrimitiveUtil.convertShorts;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -429,10 +437,16 @@ public class ArrayUtil {
 		return result;
 	}
 
+	/**
+	 * Creates an int array with values 0 to (count - 1).
+	 */
 	public static int[] intRange(int count) {
 		return intRange(0, count);
 	}
 
+	/**
+	 * Creates an int array with values (start) to (end - 1).
+	 */
 	public static int[] intRange(int start, int end) {
 		int[] range = new int[end - start];
 		for (int i = 0; i < range.length; i++)
@@ -440,175 +454,21 @@ public class ArrayUtil {
 		return range;
 	}
 
+	/**
+	 * Creates a long array with values 0 to (count - 1).
+	 */
 	public static long[] longRange(long count) {
 		return longRange(0, count);
 	}
 
+	/**
+	 * Creates a long array with values (start) to (end - 1).
+	 */
 	public static long[] longRange(long start, long end) {
 		long[] range = new long[Math.toIntExact(end - start)];
 		for (int i = 0; i < range.length; i++)
 			range[i] = start + i;
 		return range;
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static boolean[] convertBooleans(Boolean[] array) {
-		var ts = new boolean[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Boolean[] convertBooleans(boolean... array) {
-		var ts = new Boolean[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static byte[] convertBytes(Byte[] array) {
-		var ts = new byte[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Byte[] convertBytes(byte... array) {
-		var ts = new Byte[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static char[] convertChars(Character[] array) {
-		var ts = new char[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Character[] convertChars(char... array) {
-		var ts = new Character[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static short[] convertShorts(Short[] array) {
-		var ts = new short[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Short[] convertShorts(short... array) {
-		var ts = new Short[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static int[] convertInts(Integer[] array) {
-		var ts = new int[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Integer[] convertInts(int... array) {
-		var ts = new Integer[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static long[] convertLongs(Long[] array) {
-		var ts = new long[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Long[] convertLongs(long... array) {
-		var ts = new Long[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static float[] convertFloats(Float[] array) {
-		var ts = new float[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Float[] convertFloats(float... array) {
-		var ts = new Float[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the object array to a primitive array.
-	 */
-	public static double[] convertDoubles(Double[] array) {
-		var ts = new double[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
-	}
-
-	/**
-	 * Converts the primitive array to an object array.
-	 */
-	public static Double[] convertDoubles(double... array) {
-		var ts = new Double[array.length];
-		for (int i = 0; i < array.length; i++)
-			ts[i] = array[i];
-		return ts;
 	}
 
 	/**
@@ -732,6 +592,358 @@ public class ArrayUtil {
 			ts[ts.length - 1 - i] = tmp;
 		}
 		return ts;
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static boolean[] copyOf(boolean[] array, int offset, int length) {
+		return arrayCopy(array, array.length, offset, length, new boolean[length]);
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static byte[] copyOf(byte[] array, int offset, int length) {
+		return arrayCopy(array, array.length, offset, length, new byte[length]);
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static char[] copyOf(char[] array, int offset, int length) {
+		return arrayCopy(array, array.length, offset, length, new char[length]);
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static short[] copyOf(short[] array, int offset, int length) {
+		return arrayCopy(array, array.length, offset, length, new short[length]);
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static int[] copyOf(int[] array, int offset, int length) {
+		return arrayCopy(array, array.length, offset, length, new int[length]);
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static long[] copyOf(long[] array, int offset, int length) {
+		return arrayCopy(array, array.length, offset, length, new long[length]);
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static float[] copyOf(float[] array, int offset, int length) {
+		return arrayCopy(array, array.length, offset, length, new float[length]);
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static double[] copyOf(double[] array, int offset, int length) {
+		return arrayCopy(array, array.length, offset, length, new double[length]);
+	}
+
+	/**
+	 * Copies from one array to another, using the maximum length without overflowing the arrays.
+	 * Returns the destination offset after copying.
+	 */
+	public static <T> int copy(T[] from, int fromOffset, T[] to, int toOffset) {
+		return copy(from, fromOffset, to, toOffset,
+			Math.min(from.length - fromOffset, to.length - toOffset));
+	}
+
+	/**
+	 * Copies from one array to another, using the maximum length without overflowing the arrays.
+	 * Returns the destination offset after copying.
+	 */
+	public static int copy(boolean[] from, int fromOffset, boolean[] to, int toOffset) {
+		return copy(from, fromOffset, to, toOffset,
+			Math.min(from.length - fromOffset, to.length - toOffset));
+	}
+
+	/**
+	 * Copies from one array to another, using the maximum length without overflowing the arrays.
+	 * Returns the destination offset after copying.
+	 */
+	public static int copy(byte[] from, int fromOffset, byte[] to, int toOffset) {
+		return copy(from, fromOffset, to, toOffset,
+			Math.min(from.length - fromOffset, to.length - toOffset));
+	}
+
+	/**
+	 * Copies from one array to another, using the maximum length without overflowing the arrays.
+	 * Returns the destination offset after copying.
+	 */
+	public static int copy(char[] from, int fromOffset, char[] to, int toOffset) {
+		return copy(from, fromOffset, to, toOffset,
+			Math.min(from.length - fromOffset, to.length - toOffset));
+	}
+
+	/**
+	 * Copies from one array to another, using the maximum length without overflowing the arrays.
+	 * Returns the destination offset after copying.
+	 */
+	public static int copy(short[] from, int fromOffset, short[] to, int toOffset) {
+		return copy(from, fromOffset, to, toOffset,
+			Math.min(from.length - fromOffset, to.length - toOffset));
+	}
+
+	/**
+	 * Copies from one array to another, using the maximum length without overflowing the arrays.
+	 * Returns the destination offset after copying.
+	 */
+	public static int copy(int[] from, int fromOffset, int[] to, int toOffset) {
+		return copy(from, fromOffset, to, toOffset,
+			Math.min(from.length - fromOffset, to.length - toOffset));
+	}
+
+	/**
+	 * Copies from one array to another, using the maximum length without overflowing the arrays.
+	 * Returns the destination offset after copying.
+	 */
+	public static int copy(long[] from, int fromOffset, long[] to, int toOffset) {
+		return copy(from, fromOffset, to, toOffset,
+			Math.min(from.length - fromOffset, to.length - toOffset));
+	}
+
+	/**
+	 * Copies from one array to another, using the maximum length without overflowing the arrays.
+	 * Returns the destination offset after copying.
+	 */
+	public static int copy(float[] from, int fromOffset, float[] to, int toOffset) {
+		return copy(from, fromOffset, to, toOffset,
+			Math.min(from.length - fromOffset, to.length - toOffset));
+	}
+
+	/**
+	 * Copies from one array to another, using the maximum length without overflowing the arrays.
+	 * Returns the destination offset after copying.
+	 */
+	public static int copy(double[] from, int fromOffset, double[] to, int toOffset) {
+		return copy(from, fromOffset, to, toOffset,
+			Math.min(from.length - fromOffset, to.length - toOffset));
+	}
+
+	/**
+	 * Copies from one array to another. Returns the destination offset after copying.
+	 */
+	public static <T> int copy(T[] from, int fromOffset, T[] to, int toOffset, int length) {
+		System.arraycopy(from, fromOffset, to, toOffset, length);
+		return toOffset + length;
+	}
+
+	/**
+	 * Copies from one array to another. Returns the destination offset after copying.
+	 */
+	public static int copy(boolean[] from, int fromOffset, boolean[] to, int toOffset, int length) {
+		System.arraycopy(from, fromOffset, to, toOffset, length);
+		return toOffset + length;
+	}
+
+	/**
+	 * Copies from one array to another. Returns the destination offset after copying.
+	 */
+	public static int copy(byte[] from, int fromOffset, byte[] to, int toOffset, int length) {
+		System.arraycopy(from, fromOffset, to, toOffset, length);
+		return toOffset + length;
+	}
+
+	/**
+	 * Copies from one array to another. Returns the destination offset after copying.
+	 */
+	public static int copy(char[] from, int fromOffset, char[] to, int toOffset, int length) {
+		System.arraycopy(from, fromOffset, to, toOffset, length);
+		return toOffset + length;
+	}
+
+	/**
+	 * Copies from one array to another. Returns the destination offset after copying.
+	 */
+	public static int copy(short[] from, int fromOffset, short[] to, int toOffset, int length) {
+		System.arraycopy(from, fromOffset, to, toOffset, length);
+		return toOffset + length;
+	}
+
+	/**
+	 * Copies from one array to another. Returns the destination offset after copying.
+	 */
+	public static int copy(int[] from, int fromOffset, int[] to, int toOffset, int length) {
+		System.arraycopy(from, fromOffset, to, toOffset, length);
+		return toOffset + length;
+	}
+
+	/**
+	 * Copies from one array to another. Returns the destination offset after copying.
+	 */
+	public static int copy(long[] from, int fromOffset, long[] to, int toOffset, int length) {
+		System.arraycopy(from, fromOffset, to, toOffset, length);
+		return toOffset + length;
+	}
+
+	/**
+	 * Copies from one array to another. Returns the destination offset after copying.
+	 */
+	public static int copy(float[] from, int fromOffset, float[] to, int toOffset, int length) {
+		System.arraycopy(from, fromOffset, to, toOffset, length);
+		return toOffset + length;
+	}
+
+	/**
+	 * Copies from one array to another. Returns the destination offset after copying.
+	 */
+	public static int copy(double[] from, int fromOffset, double[] to, int toOffset, int length) {
+		System.arraycopy(from, fromOffset, to, toOffset, length);
+		return toOffset + length;
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static <T> int fill(T[] array, int offset, T value) {
+		return fill(array, offset, array.length - offset, value);
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static <T> int fill(T[] array, int offset, int length, T value) {
+		if (length > 0) Arrays.fill(array, offset, offset + length, value); // checks range
+		return offset + length;
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(boolean[] array, int offset, boolean value) {
+		return fill(array, offset, array.length - offset, value);
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(boolean[] array, int offset, int length, boolean value) {
+		if (length > 0) Arrays.fill(array, offset, offset + length, value); // checks range
+		return offset + length;
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(byte[] array, int offset, int value) {
+		return fill(array, offset, array.length - offset, value);
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(byte[] array, int offset, int length, int value) {
+		if (length > 0) Arrays.fill(array, offset, offset + length, (byte) value); // checks range
+		return offset + length;
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(char[] array, int offset, char value) {
+		return fill(array, offset, array.length - offset, value);
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(char[] array, int offset, int length, char value) {
+		if (length > 0) Arrays.fill(array, offset, offset + length, value); // checks range
+		return offset + length;
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(short[] array, int offset, int value) {
+		return fill(array, offset, array.length - offset, value);
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(short[] array, int offset, int length, int value) {
+		if (length > 0) Arrays.fill(array, offset, offset + length, (short) value); // checks range
+		return offset + length;
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(int[] array, int offset, int value) {
+		return fill(array, offset, array.length - offset, value);
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(int[] array, int offset, int length, int value) {
+		if (length > 0) Arrays.fill(array, offset, offset + length, value); // checks range
+		return offset + length;
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(long[] array, int offset, long value) {
+		return fill(array, offset, array.length - offset, value);
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(long[] array, int offset, int length, long value) {
+		if (length > 0) Arrays.fill(array, offset, offset + length, value); // checks range
+		return offset + length;
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(float[] array, int offset, float value) {
+		return fill(array, offset, array.length - offset, value);
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(float[] array, int offset, int length, float value) {
+		if (length > 0) Arrays.fill(array, offset, offset + length, value); // checks range
+		return offset + length;
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(double[] array, int offset, double value) {
+		return fill(array, offset, array.length - offset, value);
+	}
+
+	/**
+	 * Fills array with value. Returns array offset after filling.
+	 */
+	public static int fill(double[] array, int offset, int length, double value) {
+		if (length > 0) Arrays.fill(array, offset, offset + length, value); // checks range
+		return offset + length;
 	}
 
 	/**
@@ -938,9 +1150,8 @@ public class ArrayUtil {
 	 * copying from/to primitive arrays, but also not as efficient.
 	 */
 	public static Object arrayCopy(Object from, int fromIndex, Object to, int toIndex, int length) {
-		for (int i = 0; i < length; i++) {
-			Array.set(to, toIndex + i, Array.get(from, fromIndex + i));
-		}
+		while (length-- > 0)
+			Array.set(to, toIndex++, Array.get(from, fromIndex++));
 		return to;
 	}
 
@@ -975,6 +1186,14 @@ public class ArrayUtil {
 			long[].class, obj -> Arrays.toString((long[]) obj), //
 			float[].class, obj -> Arrays.toString((float[]) obj), //
 			double[].class, obj -> Arrays.toString((double[]) obj));
+	}
+
+	private static <T> T arrayCopy(T src, int srcSize, int offset, int length, T dest) {
+		int from = Math.max(0, offset);
+		int to = (from - offset);
+		int len = Math.min(srcSize - from, length - to);
+		if (len > 0) System.arraycopy(src, from, dest, to, len);
+		return dest;
 	}
 
 }

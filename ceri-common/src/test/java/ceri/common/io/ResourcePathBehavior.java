@@ -35,6 +35,7 @@ public class ResourcePathBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldCreateForFile() throws IOException {
 		assertNull(ResourcePath.of(null));

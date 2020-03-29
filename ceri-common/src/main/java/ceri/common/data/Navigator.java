@@ -2,6 +2,7 @@ package ceri.common.data;
 
 import static ceri.common.validation.ValidationUtil.*;
 
+@Deprecated
 public class Navigator implements Navigable {
 	private final int length;
 	private int offset = 0;
@@ -24,7 +25,7 @@ public class Navigator implements Navigable {
 	}
 
 	@Override
-	public int total() {
+	public int length() {
 		return length;
 	}
 

@@ -82,6 +82,7 @@ public class BlockingBufferStreamBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldWritePartialDataIfNotAtMaximum() throws Throwable {
 		try (final BlockingBufferStream stream = new BlockingBufferStream(10, 10)) {
@@ -97,6 +98,7 @@ public class BlockingBufferStreamBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldBlockOnReadIfNoDataInBuffer() throws Throwable {
 		final TestState<Integer> state = new TestState<>(0);
@@ -123,6 +125,7 @@ public class BlockingBufferStreamBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldBlockOnWriteIfBufferIsNotBigEnough() throws Throwable {
 		final TestState<Integer> state = new TestState<>(0);

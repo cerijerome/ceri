@@ -26,4 +26,9 @@ public interface ByteConsumer {
 		return i -> consumer.accept(MathUtil.byteExact(i));
 	}
 
+	static IntConsumer toUintExact(ByteConsumer consumer) {
+		Objects.requireNonNull(consumer);
+		return i -> consumer.accept(MathUtil.ubyteExact(i));
+	}
+
 }

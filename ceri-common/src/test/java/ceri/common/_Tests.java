@@ -9,7 +9,6 @@ import ceri.common.collection.ByteReceiverBehavior;
 import ceri.common.collection.CollectionUtilTest;
 import ceri.common.collection.DelegatingMapBehavior;
 import ceri.common.collection.FixedSizeCacheBehavior;
-import ceri.common.collection.ImmutableByteArrayBehavior;
 import ceri.common.collection.ImmutableIntArrayBehavior;
 import ceri.common.collection.ImmutableUtilTest;
 import ceri.common.collection.IndexedBehavior;
@@ -37,12 +36,12 @@ import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
 import ceri.common.concurrent.AsyncRunnerBehavior;
-import ceri.common.concurrent.AtomicByteArrayBehavior;
 import ceri.common.concurrent.BooleanConditionBehavior;
 import ceri.common.concurrent.ConcurrentUtilTest;
 import ceri.common.concurrent.RuntimeInterruptedExceptionBehavior;
 import ceri.common.concurrent.SafeReadWriteBehavior;
 import ceri.common.concurrent.ValueConditionBehavior;
+import ceri.common.concurrent.VolatileByteArrayBehavior;
 import ceri.common.data.BinaryStateBehavior;
 import ceri.common.data.BooleanAccessorBehavior;
 import ceri.common.data.ByteArrayDataInputBehavior;
@@ -50,9 +49,6 @@ import ceri.common.data.ByteArrayDataOutputBehavior;
 import ceri.common.data.ByteUtilTest;
 import ceri.common.data.CrcAlgorithmBehavior;
 import ceri.common.data.CrcBehavior;
-import ceri.common.data.DataDecoderBehavior;
-import ceri.common.data.DataEncoderBehavior;
-import ceri.common.data.DataUtilTest;
 import ceri.common.data.DecodingExceptionBehavior;
 import ceri.common.data.FieldTranscoderBehavior;
 import ceri.common.data.IntAccessorBehavior;
@@ -60,7 +56,6 @@ import ceri.common.data.IntBitSetBehavior;
 import ceri.common.data.IntTypeValueBehavior;
 import ceri.common.data.MaskTranscoderBehavior;
 import ceri.common.data.TypeTranscoderBehavior;
-import ceri.common.data.UnexpectedValueExceptionBehavior;
 import ceri.common.data.UnsignedOctetTypeBehavior;
 import ceri.common.data.XorBehavior;
 import ceri.common.date.CalendarFieldBehavior;
@@ -86,7 +81,9 @@ import ceri.common.filter.CollectionFiltersTest;
 import ceri.common.filter.EnumFiltersTest;
 import ceri.common.filter.FilterBehavior;
 import ceri.common.filter.FiltersTest;
+import ceri.common.function.AccessorBehavior;
 import ceri.common.function.BooleanConsumerBehavior;
+import ceri.common.function.ByteConsumerBehavior;
 import ceri.common.function.ExceptionBiConsumerBehavior;
 import ceri.common.function.ExceptionBiFunctionBehavior;
 import ceri.common.function.ExceptionBiPredicateBehavior;
@@ -108,6 +105,7 @@ import ceri.common.function.NamedPredicateBuilderBehavior;
 import ceri.common.function.ObjBooleanConsumerBehavior;
 import ceri.common.function.ObjByteConsumerBehavior;
 import ceri.common.function.ObjShortConsumerBehavior;
+import ceri.common.function.ToBooleanFunctionBehavior;
 import ceri.common.function.ToByteFunctionBehavior;
 import ceri.common.function.ToShortFunctionBehavior;
 import ceri.common.geo.LatLngBehavior;
@@ -242,6 +240,7 @@ import ceri.common.tree.TreeIteratorBehavior;
 import ceri.common.tree.TreeNodeBehavior;
 import ceri.common.tree.TreeNodeComparatorsTest;
 import ceri.common.tree.TreeUtilTest;
+import ceri.common.util.AlignBehavior;
 import ceri.common.util.BasicUtilTest;
 import ceri.common.util.CounterBehavior;
 import ceri.common.util.EqualsUtilTest;
@@ -278,7 +277,6 @@ import ceri.common.xml.XmlUtilTest;
 	CollectionUtilTest.class, //
 	DelegatingMapBehavior.class, //
 	FixedSizeCacheBehavior.class, //
-	ImmutableByteArrayBehavior.class, //
 	ImmutableIntArrayBehavior.class, //
 	ImmutableUtilTest.class, //
 	IndexedBehavior.class, //
@@ -309,12 +307,12 @@ import ceri.common.xml.XmlUtilTest;
 	EnumComparatorsTest.class, //
 	// concurrent
 	AsyncRunnerBehavior.class, //
-	AtomicByteArrayBehavior.class, //
 	BooleanConditionBehavior.class, //
 	ConcurrentUtilTest.class, //
 	RuntimeInterruptedExceptionBehavior.class, //
 	SafeReadWriteBehavior.class, //
 	ValueConditionBehavior.class, //
+	VolatileByteArrayBehavior.class, //
 	// data
 	BinaryStateBehavior.class, //
 	BooleanAccessorBehavior.class, //
@@ -323,9 +321,6 @@ import ceri.common.xml.XmlUtilTest;
 	ByteUtilTest.class, //
 	CrcAlgorithmBehavior.class, //
 	CrcBehavior.class, //
-	DataDecoderBehavior.class, //
-	DataEncoderBehavior.class, //
-	DataUtilTest.class, //
 	DecodingExceptionBehavior.class, //
 	FieldTranscoderBehavior.class, //
 	IntAccessorBehavior.class, //
@@ -333,7 +328,6 @@ import ceri.common.xml.XmlUtilTest;
 	IntTypeValueBehavior.class, //
 	MaskTranscoderBehavior.class, //
 	TypeTranscoderBehavior.class, //
-	UnexpectedValueExceptionBehavior.class, //
 	UnsignedOctetTypeBehavior.class, //
 	XorBehavior.class, //
 	// date
@@ -365,7 +359,9 @@ import ceri.common.xml.XmlUtilTest;
 	FilterBehavior.class, //
 	FiltersTest.class, //
 	// function
+	AccessorBehavior.class, //
 	BooleanConsumerBehavior.class, //
+	ByteConsumerBehavior.class, //
 	ExceptionBiConsumerBehavior.class, //
 	ExceptionBiFunctionBehavior.class, //
 	ExceptionBiPredicateBehavior.class, //
@@ -387,6 +383,7 @@ import ceri.common.xml.XmlUtilTest;
 	ObjBooleanConsumerBehavior.class, //
 	ObjByteConsumerBehavior.class, //
 	ObjShortConsumerBehavior.class, //
+	ToBooleanFunctionBehavior.class, //
 	ToByteFunctionBehavior.class, //
 	ToShortFunctionBehavior.class, //
 	// geo
@@ -536,6 +533,7 @@ import ceri.common.xml.XmlUtilTest;
 	TreeNodeComparatorsTest.class, //
 	TreeUtilTest.class, //
 	// util
+	AlignBehavior.class, //
 	BasicUtilTest.class, //
 	CounterBehavior.class, //
 	EqualsUtilTest.class, //

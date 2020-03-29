@@ -9,7 +9,7 @@ public class ToByteFunctionBehavior {
 
 	@Test
 	public void testToUint() {
-		ToByteFunction<String> fn = s -> ByteUtil.toAscii(s).get(0);
+		ToByteFunction<String> fn = s -> ByteUtil.toAscii(s).getByte(0);
 		assertThat(fn.applyAsByte("\u00ff"), is((byte) -1));
 		assertThat(ToByteFunction.toUint(fn).applyAsInt("\u00ff"), is(0xff));
 	}

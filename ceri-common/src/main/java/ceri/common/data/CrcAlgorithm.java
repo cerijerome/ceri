@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-import ceri.common.collection.ImmutableByteArray;
 import ceri.common.util.HashCoder;
 
 /**
@@ -29,8 +28,8 @@ import ceri.common.util.HashCoder;
  */
 public class CrcAlgorithm {
 	private static final int CACHE_SIZE = 1 << Byte.SIZE;
-	public static final ImmutableByteArray checkBytes =
-		ImmutableByteArray.wrap("123456789".getBytes(StandardCharsets.ISO_8859_1));
+	public static final ByteProvider checkBytes =
+		ByteArray.Immutable.wrap("123456789".getBytes(StandardCharsets.ISO_8859_1));
 	public final int width;
 	public final long poly;
 	public final long init;
@@ -219,7 +218,7 @@ public class CrcAlgorithm {
 	long mask(long value) {
 		return value & mask;
 	}
-	
+
 	/**
 	 * Used by Crc object to complete the CRC value.
 	 */

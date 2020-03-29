@@ -4,6 +4,7 @@ import static ceri.common.collection.CollectionUtil.asSet;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.testMap;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
@@ -64,6 +65,33 @@ public class ImmutableUtilTest {
 		assertCollection(one, E.A);
 		assertImmutableCollection(two);
 		assertCollection(two, E.ABC, E.BC);
+	}
+
+	@Test
+	public void testEnumRange() {
+		Set<E> set = ImmutableUtil.enumRange(E.A, E.BC);
+		assertImmutableCollection(set);
+		assertCollection(set, E.A, E.ABC, E.BC);
+		set = ImmutableUtil.enumRange(E.ABC, E.BC);
+		assertImmutableCollection(set);
+		assertCollection(set, E.ABC, E.BC);
+		set = ImmutableUtil.enumRange(E.A, E.A);
+		assertImmutableCollection(set);
+		assertCollection(set, E.A);
+		assertThrown(() -> ImmutableUtil.enumRange(E.BC, E.A));
+	}
+
+	@Test
+	public void testUnboundedEnumRange() {
+		Set<E> set = ImmutableUtil.enumRange(null, null);
+		assertImmutableCollection(set);
+		assertCollection(set);
+		set = ImmutableUtil.enumRange(null, E.ABC);
+		assertImmutableCollection(set);
+		assertCollection(set, E.A, E.ABC);
+		set = ImmutableUtil.enumRange(E.ABC, null);
+		assertImmutableCollection(set);
+		assertCollection(set, E.ABC, E.BC);
 	}
 
 	@Test

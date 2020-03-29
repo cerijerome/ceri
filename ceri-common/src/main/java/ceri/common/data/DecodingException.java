@@ -2,6 +2,7 @@ package ceri.common.data;
 
 import java.io.IOException;
 
+@Deprecated
 public class DecodingException extends IOException {
 	private static final long serialVersionUID = -4279886814654251929L;
 

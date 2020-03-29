@@ -3,6 +3,7 @@ package ceri.common.data;
 import java.util.function.LongFunction;
 import ceri.common.text.StringUtil;
 
+@Deprecated
 public enum UnsignedOctetType {
 	_general(0, Long::toHexString),
 	_long(8, StringUtil::toHex),
@@ -10,10 +11,6 @@ public enum UnsignedOctetType {
 	_short(2, l -> StringUtil.toHex((short) l)),
 	_byte(1, l -> StringUtil.toHex((byte) l));
 
-	public static void main(String[] args) {
-		System.out.println(Long.toHexString(-1));
-	}
-	
 	public final int octets;
 	private final LongFunction<String> formatter;
 

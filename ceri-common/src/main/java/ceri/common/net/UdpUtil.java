@@ -6,7 +6,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
-import ceri.common.collection.ImmutableByteArray;
+import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 
 public class UdpUtil {
@@ -24,12 +24,11 @@ public class UdpUtil {
 		return new DatagramPacket(data.copy(), data.length(), address, port);
 	}
 
-	public static ImmutableByteArray fromPacket(DatagramPacket packet) {
-		return ImmutableByteArray.wrap(packet.getData(), packet.getOffset(), packet.getLength());
+	public static ByteProvider fromPacket(DatagramPacket packet) {
+		return ByteArray.Immutable.wrap(packet.getData(), packet.getOffset(), packet.getLength());
 	}
 
-	public static ImmutableByteArray receive(DatagramSocket socket, byte[] buffer)
-		throws IOException {
+	public static ByteProvider receive(DatagramSocket socket, byte[] buffer) throws IOException {
 		try {
 			DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 			socket.receive(receivePacket);

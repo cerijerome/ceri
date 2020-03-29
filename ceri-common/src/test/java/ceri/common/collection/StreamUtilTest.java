@@ -314,6 +314,7 @@ public class StreamUtilTest {
 			Collectors.toMap(Integer::parseInt, Function.identity(), StreamUtil.mergeError())));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testToList() {
 		Stream<String> stream = Stream.of("A", "BB", null, "DDDD");

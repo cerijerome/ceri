@@ -36,8 +36,8 @@ import org.hamcrest.core.Is;
 import org.hamcrest.core.IsSame;
 import org.junit.runner.JUnitCore;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ImmutableByteArray;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.ExceptionConsumer;
@@ -822,14 +822,14 @@ public class TestUtil {
 	 * Checks contents of the files matches bytes, with specific failure information if not.
 	 */
 	public static void assertFile(Path actual, int... bytes) throws IOException {
-		assertFile(actual, ImmutableByteArray.wrap(bytes));
+		assertFile(actual, ByteArray.Immutable.wrap(bytes));
 	}
 
 	/**
 	 * Checks contents of the files matches bytes, with specific failure information if not.
 	 */
 	public static void assertFile(Path actual, byte[] bytes) throws IOException {
-		assertFile(actual, ImmutableByteArray.wrap(bytes));
+		assertFile(actual, ByteArray.Immutable.wrap(bytes));
 	}
 
 	/**
@@ -847,7 +847,7 @@ public class TestUtil {
 	 * Checks the paths are the same.
 	 */
 	public static void assertPath(Path actual, String expected, String... more) {
-		Path expectedPath = actual.getFileSystem().getPath(expected, more);
+		Path expectedPath = IoUtil.newPath(actual, expected, more);
 		assertThat(actual, is(expectedPath));
 	}
 
@@ -955,7 +955,7 @@ public class TestUtil {
 	 * Creates an input stream based on given data.
 	 */
 	public static InputStream inputStream(byte[] bytes) {
-		return inputStream(ByteUtil.streamOf(bytes).toArray());
+		return inputStream(ByteUtil.ustream(bytes).toArray());
 	}
 
 	/**

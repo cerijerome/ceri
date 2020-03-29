@@ -1,10 +1,25 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertFile;
+import static ceri.common.test.TestUtil.assertHelperPaths;
+import static ceri.common.test.TestUtil.assertPath;
+import static ceri.common.test.TestUtil.assertPaths;
+import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertStream;
+import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
+import static ceri.common.test.TestUtil.inputStream;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -26,8 +41,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.stubbing.answers.ThrowsException;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ImmutableByteArray;
 import ceri.common.collection.WrappedStream;
+import ceri.common.data.ByteArray;
 import ceri.common.test.FileTestHelper;
 import ceri.common.util.SystemVars;
 
@@ -153,11 +168,11 @@ public class IoUtilTest {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testRoot() {
 		assertNull(IoUtil.root(null));
 		assertPath(IoUtil.root(FileSystems.getDefault()), "/");
-		@SuppressWarnings("resource")
 		FileSystem mockFs = Mockito.mock(FileSystem.class);
 		when(mockFs.getRootDirectories()).thenReturn(List.of());
 		assertNull(IoUtil.root(mockFs));
@@ -337,6 +352,7 @@ public class IoUtilTest {
 		}
 	}
 
+	@SuppressWarnings("resource") // bullshit
 	@Test
 	public void testAvailableChar() throws IOException {
 		try (SystemIo sys = SystemIo.of()) {
@@ -367,13 +383,13 @@ public class IoUtilTest {
 	public void testAvailableBytes() throws IOException {
 		assertNull(IoUtil.availableBytes(null));
 		try (InputStream in = new ByteArrayInputStream(ArrayUtil.bytes(0, 1, 2, 3, 4))) {
-			assertThat(IoUtil.availableBytes(in), is(ImmutableByteArray.wrap(0, 1, 2, 3, 4)));
-			assertThat(IoUtil.availableBytes(in), is(ImmutableByteArray.EMPTY));
+			assertThat(IoUtil.availableBytes(in), is(ByteArray.Immutable.wrap(0, 1, 2, 3, 4)));
+			assertThat(IoUtil.availableBytes(in), is(ByteArray.Immutable.EMPTY));
 		}
 		try (InputStream in = Mockito.mock(InputStream.class)) {
 			when(in.available()).thenReturn(5);
 			when(in.read(any())).thenReturn(0);
-			assertThat(IoUtil.availableBytes(in), is(ImmutableByteArray.EMPTY));
+			assertThat(IoUtil.availableBytes(in), is(ByteArray.Immutable.EMPTY));
 		}
 	}
 
@@ -421,6 +437,7 @@ public class IoUtilTest {
 		assertThat(IoUtil.convertPath("a\\b\\c", '\\', '/'), is("a/b/c"));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testWalkRelative() throws IOException {
 		assertStreamPaths(IoUtil.walkRelative(helper.root), //
@@ -430,6 +447,7 @@ public class IoUtilTest {
 			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt", "d");
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testWalk() throws IOException {
 		assertStreamHelperPaths(IoUtil.walk(helper.root), //
@@ -490,8 +508,10 @@ public class IoUtilTest {
 
 	@Test
 	public void testListCollect() throws IOException {
-		assertCollection(IoUtil.listCollect(Files.newDirectoryStream(helper.root),
-			path -> path.getFileName().toString().charAt(0)), 'a', 'b', 'c', 'd');
+		try (var stream = Files.newDirectoryStream(helper.root)) {
+			assertCollection(IoUtil.listCollect(stream, //
+				path -> path.getFileName().toString().charAt(0)), 'a', 'b', 'c', 'd');
+		}
 	}
 
 	@Test
@@ -555,12 +575,12 @@ public class IoUtilTest {
 	@Test
 	public void testWrite() throws IOException {
 		try {
-			ImmutableByteArray ba = ImmutableByteArray.wrap('a', 'b', 'c');
+			ByteArray.Immutable ba = ByteArray.Immutable.wrap('a', 'b', 'c');
 			Path toFile = helper.path("x/x/x.txt");
 			IoUtil.write(toFile, ba);
 			assertFile(toFile, 'a', 'b', 'c');
 
-			var badArray = mock(ImmutableByteArray.class, new ThrowsException(new IOException()));
+			var badArray = mock(ByteArray.Immutable.class, new ThrowsException(new IOException()));
 			Path toFile2 = helper.path("x/y/z.txt");
 			assertThrown(() -> IoUtil.write(toFile2, badArray));
 			assertFalse(Files.exists(helper.path("x/y")));

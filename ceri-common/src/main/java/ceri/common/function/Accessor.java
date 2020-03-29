@@ -14,11 +14,11 @@ public interface Accessor<T> {
 
 	T get();
 
-	static <T> Accessor<T> of(Supplier<T> getFn) {
+	static <T> Accessor<T> getter(Supplier<T> getFn) {
 		return of(getFn, null);
 	}
 
-	static <T> Accessor<T> of(Consumer<T> setFn) {
+	static <T> Accessor<T> setter(Consumer<T> setFn) {
 		return of(null, setFn);
 	}
 
