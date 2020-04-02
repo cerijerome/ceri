@@ -13,14 +13,15 @@ public interface Align {
 	Align invert();
 
 	/**
-	 * Get the offset position, rounding up for center/middle alignment. A negative offset may be
-	 * given if the actual size is larger than container size. For vertical alignment, top is
-	 * considered the start.
+	 * Get the offset position, rounding up for center/middle alignment. Actual is the length of
+	 * item to align, length is the size to fit into. A negative offset may be given if the actual
+	 * size is larger than container size. For vertical alignment, top is considered the start.
 	 */
 	int offset(int actual, int length);
 
 	/**
-	 * Get the offset position, rounding up for center/middle alignment.
+	 * Get the offset position, rounding up for center/middle alignment. Actual is the length of
+	 * item to align, length is the size to fit into.
 	 */
 	int offsetFloor(int actual, int length);
 

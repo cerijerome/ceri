@@ -180,7 +180,7 @@ public class BinaryPrinter {
 	 * Print binary data.
 	 */
 	public BinaryPrinter print(ByteProvider data, int offset, int length) {
-		return print(data.copy(), offset, length);
+		return print(data.copy(0), offset, length);
 	}
 
 	/**

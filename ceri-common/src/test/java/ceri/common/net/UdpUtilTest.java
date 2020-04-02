@@ -65,7 +65,7 @@ public class UdpUtilTest {
 	public void testReceive() throws IOException {
 		ByteProvider data = UdpUtil.receive(socket, buffer);
 		requireNonNull(data);
-		assertArray(data.copy(), buffer);
+		assertArray(data.copy(0), buffer);
 	}
 
 }

@@ -2,6 +2,7 @@ package ceri.common.validation;
 
 import ceri.common.text.StringUtil;
 
+@Deprecated
 class InvalidRangeException extends IllegalArgumentException {
 	private static final long serialVersionUID = 2683785652371313243L;
 	private static final String NO_NAME = "Value";

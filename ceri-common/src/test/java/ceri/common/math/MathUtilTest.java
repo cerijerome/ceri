@@ -284,6 +284,11 @@ public class MathUtilTest {
 	}
 
 	@Test
+	public void testSimpleRoundAll() {
+		assertArray(MathUtil.simpleRoundAll(0, 1.1, 5.5, 9.9), 1, 6, 10);
+	}
+	
+	@Test
 	public void testSimpleRound() {
 		assertThat(MathUtil.simpleRound(11111.11111, 2), is(11111.11));
 		assertThat(MathUtil.simpleRound(11111.11111, 10), is(11111.11111));
@@ -291,11 +296,32 @@ public class MathUtilTest {
 		assertThat(MathUtil.simpleRound(777.7777, 3), is(777.778));
 		assertThat(MathUtil.simpleRound(-777.7777, 3), is(-777.778));
 		assertTrue(Double.isNaN(MathUtil.simpleRound(Double.NaN, 0)));
+		TestUtil.assertThrown(() -> MathUtil.simpleRound(777.7777, -1));
 		TestUtil.assertThrown(() -> MathUtil.simpleRound(777.7777, 11));
-		TestUtil.assertThrown(() -> MathUtil.simpleRound(1000000000.1, 1));
-		TestUtil.assertThrown(() -> MathUtil.simpleRound(-1000000000.1, 1));
-		TestUtil.assertThrown(() -> MathUtil.simpleRound(Double.POSITIVE_INFINITY, 1));
-		TestUtil.assertThrown(() -> MathUtil.simpleRound(Double.NEGATIVE_INFINITY, 1));
+	}
+
+	@Test
+	public void testSimpleRoundForOutOfRangeValues() {
+		// Original values returned if out of range
+		assertThat(MathUtil.simpleRound(1000000000.15, 1), is(1000000000.15));
+		assertThat(MathUtil.simpleRound(-1000000000.15, 1), is(-1000000000.15));
+		assertThat(MathUtil.simpleRound(Double.POSITIVE_INFINITY, 1), is(Double.POSITIVE_INFINITY));
+		assertThat(MathUtil.simpleRound(Double.NEGATIVE_INFINITY, 1), is(Double.NEGATIVE_INFINITY));
+	}
+
+	@Test
+	public void testRoundAll() {
+		assertArray(MathUtil.roundAll(0, 1.1, 5.5, 9.9), 1, 6, 10);
+	}
+	
+	@Test
+	public void testRound() {
+		assertThat(MathUtil.round(1000000000.15, 1), is(1000000000.2));
+		assertThat(MathUtil.round(-1000000000.15, 1), is(-1000000000.2));
+		assertThat(MathUtil.round(Double.POSITIVE_INFINITY, 1), is(Double.POSITIVE_INFINITY));
+		assertThat(MathUtil.round(Double.NEGATIVE_INFINITY, 1), is(Double.NEGATIVE_INFINITY));
+		assertThat(MathUtil.round(Double.NaN, 1), is(Double.NaN));
+		TestUtil.assertThrown(() -> MathUtil.round(777.7777, -1));
 	}
 
 	@Test

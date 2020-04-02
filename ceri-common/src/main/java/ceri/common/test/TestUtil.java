@@ -302,6 +302,13 @@ public class TestUtil {
 	}
 
 	/**
+	 * Convenience method to check short value.
+	 */
+	public static void assertShort(short value, int expected) {
+		assertThat(value, is((short) expected));
+	}
+
+	/**
 	 * Checks a value is within given range, with detailed failure information if not.
 	 */
 	public static void assertRange(long value, long min, long max) {

@@ -51,6 +51,41 @@ public class IntAccessorBehavior {
 	}
 
 	@Test
+	public void shouldAddValues() {
+		Holder h = new Holder();
+		IntAccessor iAcc = Holder.iAcc.from(h);
+		iAcc.set(0x1234);
+		iAcc.add(0x4321);
+		assertThat(h.iVal, is(0x5335));
+	}
+
+	@Test
+	public void shouldRemoveValues() {
+		Holder h = new Holder();
+		IntAccessor iAcc = Holder.iAcc.from(h);
+		iAcc.set(0x1234);
+		iAcc.remove(0x4321);
+		assertThat(h.iVal, is(0x1014));
+	}
+
+	@Test
+	public void shouldProvideGetOnlyAccess() {
+		int[] x = { 7 };
+		IntAccessor accessor = IntAccessor.getter(() -> x[0]);
+		assertThat(accessor.get(), is(7));
+		assertThrown(() -> accessor.set(0));
+	}
+	
+	@Test
+	public void shouldProvideSetOnlyAccess() {
+		int[] x = { 7 };
+		IntAccessor accessor = IntAccessor.setter(i -> x[0] = i);
+		accessor.set(0);
+		assertThat(x[0], is(0));
+		assertThrown(() -> accessor.get());
+	}
+	
+	@Test
 	public void shouldSetMaskedTypeValues() {
 		Holder h = new Holder();
 		Holder.iAcc.set(h, 0x1234);

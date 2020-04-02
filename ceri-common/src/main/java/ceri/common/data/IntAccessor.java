@@ -47,11 +47,11 @@ public interface IntAccessor {
 		return of(getFn, setFn);
 	}
 
-	static IntAccessor of(IntSupplier getFn) {
+	static IntAccessor getter(IntSupplier getFn) {
 		return of(getFn, null);
 	}
 
-	static IntAccessor of(IntConsumer setFn) {
+	static IntAccessor setter(IntConsumer setFn) {
 		return of(null, setFn);
 	}
 

@@ -1,7 +1,6 @@
 package ceri.common.data;
 
 import static ceri.common.data.ByteUtil.BIG_ENDIAN;
-import static java.lang.Math.min;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -28,11 +27,18 @@ import ceri.common.collection.ArrayUtil;
  */
 public interface ByteReceiver {
 	static final ByteReceiver EMPTY = ByteArray.Mutable.EMPTY;
-	
+
 	/**
 	 * Length of the space to receive bytes.
 	 */
 	int length();
+
+	/**
+	 * Determines if the length is 0.
+	 */
+	default boolean isEmpty() {
+		return length() == 0;
+	}
 
 	/**
 	 * Sets the byte value at given index, returns index + 1.
@@ -56,14 +62,14 @@ public interface ByteReceiver {
 	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setShort(int index, int value) {
-		return setEndian(index, value, Short.BYTES, BIG_ENDIAN);
+		return setEndian(index, Short.BYTES, value, BIG_ENDIAN);
 	}
 
 	/**
 	 * Sets the value in big-endian bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setShortMsb(int index, int value) {
-		return setEndian(index, value, Short.BYTES, true);
+		return setEndian(index, Short.BYTES, value, true);
 	}
 
 	/**
@@ -71,21 +77,21 @@ public interface ByteReceiver {
 	 * bytes.
 	 */
 	default int setShortLsb(int index, int value) {
-		return setEndian(index, value, Short.BYTES, false);
+		return setEndian(index, Short.BYTES, value, false);
 	}
 
 	/**
 	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setInt(int index, int value) {
-		return setEndian(index, value, Integer.BYTES, BIG_ENDIAN);
+		return setEndian(index, Integer.BYTES, value, BIG_ENDIAN);
 	}
 
 	/**
 	 * Sets the value in big-endian bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setIntMsb(int index, int value) {
-		return setEndian(index, value, Integer.BYTES, true);
+		return setEndian(index, Integer.BYTES, value, true);
 	}
 
 	/**
@@ -93,21 +99,21 @@ public interface ByteReceiver {
 	 * bytes.
 	 */
 	default int setIntLsb(int index, int value) {
-		return setEndian(index, value, Integer.BYTES, false);
+		return setEndian(index, Integer.BYTES, value, false);
 	}
 
 	/**
 	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setLong(int index, long value) {
-		return setEndian(index, value, Long.BYTES, BIG_ENDIAN);
+		return setEndian(index, Long.BYTES, value, BIG_ENDIAN);
 	}
 
 	/**
 	 * Sets the value in big-endian bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setLongMsb(int index, long value) {
-		return setEndian(index, value, Long.BYTES, true);
+		return setEndian(index, Long.BYTES, value, true);
 	}
 
 	/**
@@ -115,7 +121,7 @@ public interface ByteReceiver {
 	 * bytes.
 	 */
 	default int setLongLsb(int index, long value) {
-		return setEndian(index, value, Long.BYTES, false);
+		return setEndian(index, Long.BYTES, value, false);
 	}
 
 	/**
@@ -167,16 +173,9 @@ public interface ByteReceiver {
 	 * Default implementation makes a copy of the bytes; efficiency may be improved by overriding
 	 * this method.
 	 */
-	default int setEndian(int index, long value, int size, boolean msb) {
+	default int setEndian(int index, int size, long value, boolean msb) {
 		byte[] bytes = msb ? ByteUtil.toMsb(value, size) : ByteUtil.toLsb(value, size);
 		return copyFrom(index, bytes);
-	}
-
-	/**
-	 * Encodes string as ISO-Latin-1 bytes. Returns the index after the written bytes.
-	 */
-	default int setAscii(String s) {
-		return setAscii(0, s);
 	}
 
 	/**
@@ -187,25 +186,10 @@ public interface ByteReceiver {
 	}
 
 	/**
-	 * Encodes string as UTF-8 bytes. Returns the index after the written bytes.
-	 */
-	default int setUtf8(String s) {
-		return setUtf8(0, s);
-	}
-
-	/**
 	 * Encodes string as UTF-8 bytes from index. Returns the index after the written bytes.
 	 */
 	default int setUtf8(int index, String s) {
 		return setString(index, s, StandardCharsets.UTF_8);
-	}
-
-	/**
-	 * Encodes string as bytes using the default character set. Returns the index after the written
-	 * bytes.
-	 */
-	default int setString(String s) {
-		return setString(0, s);
 	}
 
 	/**
@@ -214,13 +198,6 @@ public interface ByteReceiver {
 	 */
 	default int setString(int index, String s) {
 		return setString(index, s, Charset.defaultCharset());
-	}
-
-	/**
-	 * Encodes string as bytes using the character set. Returns the index after the written bytes.
-	 */
-	default int setString(String s, Charset charset) {
-		return setString(0, s, charset);
 	}
 
 	/**
@@ -240,17 +217,10 @@ public interface ByteReceiver {
 	}
 
 	/**
-	 * Fills bytes with the same value. Returns the index after the written bytes.
-	 */
-	default int fill(int value) {
-		return fill(0, value);
-	}
-
-	/**
 	 * Fills bytes from the index with the same value. Returns the index after the written bytes.
 	 */
 	default int fill(int index, int value) {
-		return fill(index, value, length() - index);
+		return fill(index, length() - index, value);
 	}
 
 	/**
@@ -258,7 +228,7 @@ public interface ByteReceiver {
 	 * Default implementation copies one byte at a time; efficiency may be improved by overriding
 	 * this method.
 	 */
-	default int fill(int index, int value, int length) {
+	default int fill(int index, int length, int value) {
 		ArrayUtil.validateSlice(length(), index, length);
 		while (length-- > 0)
 			setByte(index++, value);
@@ -268,29 +238,8 @@ public interface ByteReceiver {
 	/**
 	 * Copies bytes from the array. Returns the index after the written bytes.
 	 */
-	default int copyFrom(int... array) {
-		return copyFrom(ArrayUtil.bytes(array), 0);
-	}
-
-	/**
-	 * Copies bytes from the array. Returns the index after the written bytes.
-	 */
-	default int copyFrom(byte[] array) {
-		return copyFrom(array, 0);
-	}
-
-	/**
-	 * Copies bytes from the array. Returns the index after the written bytes.
-	 */
-	default int copyFrom(byte[] array, int offset) {
-		return copyFrom(array, offset, min(length(), array.length - offset));
-	}
-
-	/**
-	 * Copies bytes from the array. Returns the index after the written bytes.
-	 */
-	default int copyFrom(byte[] array, int offset, int length) {
-		return copyFrom(0, array, offset, length);
+	default int copyFrom(int index, int... array) {
+		return copyFrom(index, ArrayUtil.bytes(array));
 	}
 
 	/**
@@ -321,27 +270,6 @@ public interface ByteReceiver {
 	}
 
 	/**
-	 * Copies bytes from the provider. Returns the index after the written bytes.
-	 */
-	default int copyFrom(ByteProvider array) {
-		return copyFrom(array, 0);
-	}
-
-	/**
-	 * Copies bytes from the provider. Returns the index after the written bytes.
-	 */
-	default int copyFrom(ByteProvider array, int offset) {
-		return copyFrom(0, array, offset);
-	}
-
-	/**
-	 * Copies bytes from the provider. Returns the index after the written bytes.
-	 */
-	default int copyFrom(ByteProvider array, int offset, int length) {
-		return copyFrom(0, array, offset, length);
-	}
-
-	/**
 	 * Copies bytes from the provider to the index. Returns the index after the written bytes.
 	 */
 	default int copyFrom(int index, ByteProvider array) {
@@ -352,7 +280,7 @@ public interface ByteReceiver {
 	 * Copies bytes from the provider to the index. Returns the index after the written bytes.
 	 */
 	default int copyFrom(int index, ByteProvider array, int offset) {
-		return copyFrom(index, array, offset, min(length() - index, array.length() - offset));
+		return copyFrom(index, array, offset, array.length() - offset);
 	}
 
 	/**
@@ -366,14 +294,6 @@ public interface ByteReceiver {
 		while (length-- > 0)
 			setByte(index++, provider.getByte(offset++));
 		return index;
-	}
-
-	/**
-	 * Reads bytes from the input stream and writes to the receiver. The number of bytes read may be
-	 * less than requested if EOF occurs. Returns the index after the written bytes.
-	 */
-	default int readFrom(InputStream in) throws IOException {
-		return readFrom(0, in);
 	}
 
 	/**

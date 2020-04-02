@@ -329,7 +329,7 @@ public class IoUtil {
 	 */
 	public static String availableString(InputStream in, Charset charset) throws IOException {
 		if (in == null) return null;
-		return availableBytes(in).getString(charset);
+		return availableBytes(in).getString(0, charset);
 	}
 
 	/**
@@ -338,10 +338,10 @@ public class IoUtil {
 	public static ByteProvider availableBytes(InputStream in) throws IOException {
 		if (in == null) return null;
 		int count = in.available();
-		if (count == 0) return ByteArray.Immutable.EMPTY;
+		if (count == 0) return ByteProvider.EMPTY;
 		byte[] buffer = new byte[count];
 		count = in.read(buffer);
-		if (count <= 0) return ByteArray.Immutable.EMPTY;
+		if (count <= 0) return ByteProvider.EMPTY;
 		return ByteArray.Immutable.wrap(buffer, 0, count);
 	}
 
@@ -698,7 +698,7 @@ public class IoUtil {
 		try {
 			tracker.file(file); // creates parent dirs
 			try (OutputStream out = Files.newOutputStream(file)) {
-				data.writeTo(out);
+				data.writeTo(0, out);
 				out.flush();
 			}
 			return data.length();

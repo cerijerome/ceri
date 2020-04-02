@@ -4,8 +4,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import ceri.common.collection.ArrayIteratorBehavior;
 import ceri.common.collection.ArrayUtilTest;
-import ceri.common.collection.ByteProviderBehavior;
-import ceri.common.collection.ByteReceiverBehavior;
 import ceri.common.collection.CollectionUtilTest;
 import ceri.common.collection.DelegatingMapBehavior;
 import ceri.common.collection.FixedSizeCacheBehavior;
@@ -44,9 +42,14 @@ import ceri.common.concurrent.ValueConditionBehavior;
 import ceri.common.concurrent.VolatileByteArrayBehavior;
 import ceri.common.data.BinaryStateBehavior;
 import ceri.common.data.BooleanAccessorBehavior;
+import ceri.common.data.ByteArrayBehavior;
 import ceri.common.data.ByteArrayDataInputBehavior;
 import ceri.common.data.ByteArrayDataOutputBehavior;
+import ceri.common.data.ByteProviderBehavior;
+import ceri.common.data.ByteReaderBehavior;
+import ceri.common.data.ByteReceiverBehavior;
 import ceri.common.data.ByteUtilTest;
+import ceri.common.data.ByteWriterBehavior;
 import ceri.common.data.CrcAlgorithmBehavior;
 import ceri.common.data.CrcBehavior;
 import ceri.common.data.DecodingExceptionBehavior;
@@ -55,6 +58,7 @@ import ceri.common.data.IntAccessorBehavior;
 import ceri.common.data.IntBitSetBehavior;
 import ceri.common.data.IntTypeValueBehavior;
 import ceri.common.data.MaskTranscoderBehavior;
+import ceri.common.data.NavigableBehavior;
 import ceri.common.data.TypeTranscoderBehavior;
 import ceri.common.data.UnsignedOctetTypeBehavior;
 import ceri.common.data.XorBehavior;
@@ -259,6 +263,8 @@ import ceri.common.util.StartupValuesBehavior;
 import ceri.common.util.SystemVarsTest;
 import ceri.common.util.TimerBehavior;
 import ceri.common.util.ValueCacheBehavior;
+import ceri.common.validation.DisplayDoubleBehavior;
+import ceri.common.validation.DisplayLongBehavior;
 import ceri.common.validation.ValidationUtilTest;
 import ceri.common.xml.RuntimeXPathExceptionBehavior;
 import ceri.common.xml.XPathUtilTest;
@@ -272,8 +278,6 @@ import ceri.common.xml.XmlUtilTest;
 	// collection
 	ArrayIteratorBehavior.class, //
 	ArrayUtilTest.class, //
-	ByteProviderBehavior.class, //
-	ByteReceiverBehavior.class, //
 	CollectionUtilTest.class, //
 	DelegatingMapBehavior.class, //
 	FixedSizeCacheBehavior.class, //
@@ -316,9 +320,14 @@ import ceri.common.xml.XmlUtilTest;
 	// data
 	BinaryStateBehavior.class, //
 	BooleanAccessorBehavior.class, //
+	ByteArrayBehavior.class, //
 	ByteArrayDataInputBehavior.class, //
 	ByteArrayDataOutputBehavior.class, //
+	ByteProviderBehavior.class, //
+	ByteReaderBehavior.class, //
+	ByteReceiverBehavior.class, //
 	ByteUtilTest.class, //
+	ByteWriterBehavior.class, //
 	CrcAlgorithmBehavior.class, //
 	CrcBehavior.class, //
 	DecodingExceptionBehavior.class, //
@@ -327,6 +336,7 @@ import ceri.common.xml.XmlUtilTest;
 	IntBitSetBehavior.class, //
 	IntTypeValueBehavior.class, //
 	MaskTranscoderBehavior.class, //
+	NavigableBehavior.class, //
 	TypeTranscoderBehavior.class, //
 	UnsignedOctetTypeBehavior.class, //
 	XorBehavior.class, //
@@ -553,6 +563,8 @@ import ceri.common.xml.XmlUtilTest;
 	TimerBehavior.class, //
 	ValueCacheBehavior.class, //
 	// validation
+	DisplayDoubleBehavior.class, //
+	DisplayLongBehavior.class, //
 	ValidationUtilTest.class, //
 	// xml
 	RuntimeXPathExceptionBehavior.class, //

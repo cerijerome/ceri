@@ -53,7 +53,7 @@ public class BinaryPrinterBehavior {
 		@SuppressWarnings("resource")
 		BinaryPrinter bin =
 			BinaryPrinter.builder().out(StringUtil.asPrintStream(b)).showBinary(false).build();
-		ByteBuffer buffer = ByteBuffer.wrap(ByteUtil.toAscii("abc").copy());
+		ByteBuffer buffer = ByteBuffer.wrap(ByteUtil.toAscii("abc").copy(0));
 		bin.print(buffer);
 		assertThat(b.toString(), is("61 62 63                 abc     \n"));
 	}

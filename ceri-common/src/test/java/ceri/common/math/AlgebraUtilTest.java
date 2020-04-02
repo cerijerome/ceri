@@ -23,11 +23,11 @@ public class AlgebraUtilTest {
 			100000000000.0);
 		assertCollection(AlgebraUtil.cubicRealRoots(-3, 3, -1), 1, 1, 1);
 		assertCollection(AlgebraUtil.cubicRealRoots(1, -1, -1), 1, -1, -1);
-		assertCollection(MathUtil.simpleRound(10, AlgebraUtil.cubicRealRoots(-14, 56, -64)), 2, 4,
-			8);
+		assertCollection(MathUtil.simpleRoundAll(10, AlgebraUtil.cubicRealRoots(-14, 56, -64)), 2,
+			4, 8);
 		assertCollection(
-			MathUtil.simpleRound(10, AlgebraUtil.cubicRealRoots(-0.875, 0.21875, -0.015625)), 0.5,
-			0.25, 0.125);
+			MathUtil.simpleRoundAll(10, AlgebraUtil.cubicRealRoots(-0.875, 0.21875, -0.015625)),
+			0.5, 0.25, 0.125);
 	}
 
 	@Test

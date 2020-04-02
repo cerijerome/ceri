@@ -39,20 +39,20 @@ public class ByteUtilTest {
 
 	@Test
 	public void testToHex() {
-		ByteProvider b = ByteArray.Immutable.wrap(-1, 0, 127, 128);
-		assertNull(ByteUtil.toHex((ByteProvider) null, ""));
+		byte[] b = ArrayUtil.bytes(-1, 0, 127, 128);
 		assertNull(ByteUtil.toHex((byte[]) null, ""));
+		assertNull(ByteUtil.toHex((byte[]) null, 0, 0, ""));
 		assertThat(ByteUtil.toHex(b, ""), is("ff007f80"));
 		assertThat(ByteUtil.toHex(b, ":"), is("ff:00:7f:80"));
-		assertThat(ByteUtil.toHex(b.copy(), "-"), is("ff-00-7f-80"));
+		assertThat(ByteUtil.toHex(b, "-"), is("ff-00-7f-80"));
 	}
 
 	@Test
 	public void testFromHex() {
-		assertArray(ByteUtil.fromHex("abcde").copy(), 0x0a, 0xbc, 0xde);
-		assertArray(ByteUtil.fromHex("abcdef").copy(), 0xab, 0xcd, 0xef);
+		assertArray(ByteUtil.fromHex("abcde").copy(0), 0x0a, 0xbc, 0xde);
+		assertArray(ByteUtil.fromHex("abcdef").copy(0), 0xab, 0xcd, 0xef);
 		assertNull(ByteUtil.fromHex(null));
-		assertArray(ByteUtil.fromHex("").copy());
+		assertArray(ByteUtil.fromHex("").copy(0));
 	}
 
 	@Test
@@ -87,8 +87,8 @@ public class ByteUtilTest {
 		doThrow(new IOException()).when(badByteArrayOutputStream).write(any());
 		doThrow(new RuntimeException()).when(badByteArrayOutputStream).write(any(), anyInt(),
 			anyInt());
-		doThrow(new IOException()).when(badByteProvider).writeTo(any(OutputStream.class));
-		doThrow(new IOException()).when(badByteProvider).writeTo(any(OutputStream.class), anyInt());
+		doThrow(new IOException()).when(badByteProvider).writeTo(anyInt(), any(OutputStream.class));
+		doThrow(new IOException()).when(badByteProvider).writeTo(anyInt(), any(OutputStream.class), anyInt());
 		doThrow(new IOException()).when(badByteProvider).writeTo(anyInt(), any(OutputStream.class),
 			anyInt());
 		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, -1, 2));
@@ -99,7 +99,7 @@ public class ByteUtilTest {
 
 	@Test
 	public void testToAscii() {
-		assertArray(ByteUtil.toAscii("\0\t\r\ntest").copy(), //
+		assertArray(ByteUtil.toAscii("\0\t\r\ntest").copy(0), //
 			0, '\t', '\r', '\n', 't', 'e', 's', 't');
 	}
 
@@ -273,9 +273,13 @@ public class ByteUtilTest {
 	@Test
 	public void testReverse() {
 		assertThat(ByteUtil.reverseByte(0x96), is((byte) 0x69));
-		assertThat(ByteUtil.reverseByte(0x69), is((byte) 0x96));
+		assertThat(ByteUtil.reverseByte(0x6), is((byte) 0x60));
+		assertThat(ByteUtil.reverseByte(0x169), is((byte) 0x96));
 		assertThat(ByteUtil.reverseShort(0x9696), is((short) 0x6969));
 		assertThat(ByteUtil.reverseShort(0x6969), is((short) 0x9696));
+		assertThat(ByteUtil.reverseShort(0x16969), is((short) 0x9696));
+		assertThat(ByteUtil.reverseAsInt(0x96, 7), is(0x34)); // 10010110 -> 00110100
+		assertThat(ByteUtil.reverse(0x96, 33), is(0xd2000000L));
 	}
 
 }

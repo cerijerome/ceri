@@ -1,6 +1,7 @@
 package ceri.common.data;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
@@ -44,6 +45,7 @@ public class IntTypeValueBehavior {
 
 	@Test
 	public void shouldProvideCastValues() {
+		assertThat(IntTypeValue.of(0xffff, E.one, null).value(), is(0xffff));
 		assertThat(IntTypeValue.of(0xffff, E.one, null).byteValue(), is((byte) -1));
 		assertThat(IntTypeValue.of(0xffff, E.one, null).shortValue(), is((short) -1));
 	}
@@ -70,6 +72,14 @@ public class IntTypeValueBehavior {
 		assertThat(IntTypeValue.ofUshort(256, E.ten, null).toString(), is("ten(0x0100)"));
 		assertThat(IntTypeValue.ofUshort(256, E.ten, null, 1).toString(), is("ten(0x0100:0x0001)"));
 		assertThat(IntTypeValue.ofUint(256, E.ten, null).toString(), is("ten(0x100)"));
+	}
+
+	@Test
+	public void shouldValidateValue() {
+		IntTypeValue.validate(IntTypeValue.of(1, E.one, "one"));
+		assertThrown(() -> IntTypeValue.validate(IntTypeValue.of(1, null, "one")));
+		IntTypeValue.validateExcept(IntTypeValue.of(1, E.one, "one"), E.two);
+		assertThrown(() -> IntTypeValue.validateExcept(IntTypeValue.of(1, E.one, "one"), E.one));
 	}
 
 }

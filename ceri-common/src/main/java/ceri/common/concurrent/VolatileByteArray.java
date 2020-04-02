@@ -56,6 +56,11 @@ public class VolatileByteArray implements ByteProvider, ByteReceiver {
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return ByteProvider.super.isEmpty();
+	}
+
+	@Override
 	public byte getByte(int index) {
 		return (byte) handle.getVolatile(array, offset + index);
 	}

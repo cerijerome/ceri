@@ -87,15 +87,25 @@ public class ValidationUtil {
 			throw exceptionf("%s = %s: %s", name(name), unexpected, value);
 	}
 
-	/* Number equality validation */
+	/* Number (in-)equality validation */
 
 	public static void validateEqual(long value, long expected, DisplayLong... flags) {
 		validateEqual(value, expected, VALUE, flags);
 	}
 
 	public static void validateEqual(long value, long expected, String name, DisplayLong... flags) {
-		if (value != expected)
-			throw exceptionf("%s != %s: %s", name(name), format(value, flags), expected);
+		if (value != expected) throw exceptionf("%s != %s: %s", name(name), format(value, flags),
+			format(expected, flags));
+	}
+
+	public static void validateNotEqual(long value, long expected, DisplayLong... flags) {
+		validateNotEqual(value, expected, VALUE, flags);
+	}
+
+	public static void validateNotEqual(long value, long expected, String name,
+		DisplayLong... flags) {
+		if (value == expected) throw exceptionf("%s = %s: %s", name(name), format(value, flags),
+			format(expected, flags));
 	}
 
 	public static void validateEqual(double value, double expected, DisplayDouble... flags) {
@@ -104,8 +114,18 @@ public class ValidationUtil {
 
 	public static void validateEqual(double value, double expected, String name,
 		DisplayDouble... flags) {
-		if (value != expected)
-			throw exceptionf("%s != %s: %s", name(name), format(value, flags), expected);
+		if (value != expected) throw exceptionf("%s != %s: %s", name(name), format(value, flags),
+			format(expected, flags));
+	}
+
+	public static void validateNotEqual(double value, double expected, DisplayDouble... flags) {
+		validateNotEqual(value, expected, VALUE, flags);
+	}
+
+	public static void validateNotEqual(double value, double expected, String name,
+		DisplayDouble... flags) {
+		if (value == expected) throw exceptionf("%s = %s: %s", name(name), format(value, flags),
+			format(expected, flags));
 	}
 
 	/* Unsigned equality validation */
@@ -143,12 +163,38 @@ public class ValidationUtil {
 		validateEqual(value, expected, name(name), def(flags, hex16, udec));
 	}
 
-	/* Number interval validation */
+	/* Interval validation */
+
+	public static <T> void validateWithin(T value, Interval<T> interval) {
+		validateWithin(value, interval, VALUE);
+	}
+
+	public static <T> void validateWithin(T value, Interval<T> interval, String name) {
+		if (!interval.contains(value))
+			throw exceptionf("%s is not within %s: %s", name(name), interval, value);
+	}
+
+	public static <T> void validateWithout(T value, Interval<T> interval) {
+		validateWithout(value, interval, VALUE);
+	}
+
+	public static <T> void validateWithout(T value, Interval<T> interval, String name) {
+		if (interval.contains(value))
+			throw exceptionf("%s is within %s: %s", name(name), interval, value);
+	}
+
+	public static void validateWithin(long value, Interval<Long> interval, DisplayLong... flags) {
+		validateWithin(value, interval, VALUE, flags);
+	}
 
 	public static void validateWithin(long value, Interval<Long> interval, String name,
 		DisplayLong... flags) {
 		if (!interval.contains(value)) throw exceptionf("%s is not within %s: %s", name(name),
 			format(interval, flags), format(value, flags));
+	}
+
+	public static void validateWithout(long value, Interval<Long> interval, DisplayLong... flags) {
+		validateWithout(value, interval, VALUE, flags);
 	}
 
 	public static void validateWithout(long value, Interval<Long> interval, String name,
@@ -157,10 +203,20 @@ public class ValidationUtil {
 			format(interval, flags), format(value, flags));
 	}
 
+	public static void validateWithin(double value, Interval<Double> interval,
+		DisplayDouble... flags) {
+		validateWithin(value, interval, VALUE, flags);
+	}
+
 	public static void validateWithin(double value, Interval<Double> interval, String name,
 		DisplayDouble... flags) {
 		if (!interval.contains(value)) throw exceptionf("%s is not within %s: %s", name(name),
 			format(interval, flags), format(value, flags));
+	}
+
+	public static void validateWithout(double value, Interval<Double> interval,
+		DisplayDouble... flags) {
+		validateWithout(value, interval, VALUE, flags);
 	}
 
 	public static void validateWithout(double value, Interval<Double> interval, String name,

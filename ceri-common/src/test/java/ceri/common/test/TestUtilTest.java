@@ -322,6 +322,18 @@ public class TestUtilTest {
 	}
 
 	@Test
+	public void testAssertByte() {
+		TestUtil.assertByte((byte) -1, 0xff);
+		assertAssertion(() -> TestUtil.assertByte((byte) -1, 0xfe));
+	}
+
+	@Test
+	public void testAssertShort() {
+		TestUtil.assertShort((short) -1, 0xffff);
+		assertAssertion(() -> TestUtil.assertShort((short) -1, 0xfffe));
+	}
+
+	@Test
 	public void testAssertRange() {
 		assertAssertion(
 			() -> TestUtil.assertRange(Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE - 1));
@@ -335,7 +347,6 @@ public class TestUtilTest {
 		boolean[] b1 = { false, false };
 		assertAssertion(() -> TestUtil.assertArrayObject(b0, 0, b1, 0, 3));
 		assertArray(new short[] { 1, 2 }, 1, 2);
-
 	}
 
 	@Test

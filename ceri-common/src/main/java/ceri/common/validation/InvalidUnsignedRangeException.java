@@ -3,6 +3,7 @@ package ceri.common.validation;
 import static ceri.common.data.UnsignedOctetType._general;
 import ceri.common.data.UnsignedOctetType;
 
+@Deprecated
 public class InvalidUnsignedRangeException extends IllegalArgumentException {
 	private static final long serialVersionUID = 2683785652371313243L;
 	private static final String NO_NAME = "Value";

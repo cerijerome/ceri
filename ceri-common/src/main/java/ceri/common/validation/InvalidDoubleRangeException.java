@@ -1,5 +1,6 @@
 package ceri.common.validation;
 
+@Deprecated
 public class InvalidDoubleRangeException extends IllegalArgumentException {
 	private static final long serialVersionUID = 3544099867489070075L;
 	private static final String NO_NAME = "Value";

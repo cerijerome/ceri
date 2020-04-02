@@ -54,7 +54,7 @@ public abstract class ByteArray implements ByteProvider {
 			return wrap(ArrayUtil.bytes(array));
 		}
 
-		public static Immutable wrap(byte... array) {
+		public static Immutable wrap(byte[] array) {
 			return wrap(array, 0);
 		}
 
@@ -115,7 +115,11 @@ public abstract class ByteArray implements ByteProvider {
 			return wrap(new byte[length]);
 		}
 
-		public static Mutable wrap(byte... array) {
+		public static Mutable wrap(int... array) {
+			return wrap(ArrayUtil.bytes(array));
+		}
+
+		public static Mutable wrap(byte[] array) {
 			return wrap(array, 0);
 		}
 
@@ -158,14 +162,14 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		@Override
-		public int setEndian(int index, long value, int size, boolean msb) {
+		public int setEndian(int index, int size, long value, boolean msb) {
 			validateSlice(index, size);
 			return msb ? ByteUtil.writeMsb(value, array, offset(index), size) :
 				ByteUtil.writeLsb(value, array, offset(index), size);
 		}
 
 		@Override
-		public int fill(int index, int value, int length) {
+		public int fill(int index, int length, int value) {
 			validateSlice(index, length);
 			Arrays.fill(array, offset(index), offset(index + length), (byte) value);
 			return index + length;
@@ -222,6 +226,11 @@ public abstract class ByteArray implements ByteProvider {
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return ByteProvider.super.isEmpty();
+	}
+
+	@Override
 	public byte getByte(int index) {
 		return array[offset(index)];
 	}
@@ -269,7 +278,7 @@ public abstract class ByteArray implements ByteProvider {
 	}
 
 	@Override
-	public boolean matches(int index, byte[] array, int offset, int length) {
+	public boolean isEqualTo(int index, byte[] array, int offset, int length) {
 		if (!isValidSlice(index, length)) return false;
 		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return false;
 		return Arrays.equals(this.array, offset(index), offset(index + length), array, offset,
@@ -277,9 +286,9 @@ public abstract class ByteArray implements ByteProvider {
 	}
 
 	@Override
-	public boolean matches(int index, ByteProvider provider, int offset, int length) {
-		if (isValidSlice(index, length)) return false;
-		return provider.matches(offset, array, offset(index), length);
+	public boolean isEqualTo(int index, ByteProvider provider, int offset, int length) {
+		if (!isValidSlice(index, length)) return false;
+		return provider.isEqualTo(offset, array, offset(index), length);
 	}
 
 	/* Object overrides */

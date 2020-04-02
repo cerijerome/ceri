@@ -1,6 +1,8 @@
 package ceri.common.concurrent;
 
 import static ceri.common.test.TestUtil.assertArray;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteArray;
@@ -11,16 +13,16 @@ public class VolatileByteArrayBehavior {
 	@Test
 	public void shouldCreateWithGivenSize() {
 		VolatileByteArray a = VolatileByteArray.of(4);
-		assertArray(a.copy(), 0, 0, 0, 0);
+		assertArray(a.copy(0), 0, 0, 0, 0);
 	}
 
 	@Test
 	public void shouldCreateFromImmutableByteArray() {
 		ByteProvider b = ByteArray.Immutable.wrap(1, 2, 3);
-		VolatileByteArray a = VolatileByteArray.wrap(b.copy());
+		VolatileByteArray a = VolatileByteArray.wrap(b.copy(0));
 		a.setByte(1, 0);
-		assertArray(a.copy(), 1, 0, 3);
-		assertArray(b.copy(), 1, 2, 3);
+		assertArray(a.copy(0), 1, 0, 3);
+		assertArray(b.copy(0), 1, 2, 3);
 	}
 
 	@Test
@@ -29,7 +31,7 @@ public class VolatileByteArrayBehavior {
 		VolatileByteArray a = VolatileByteArray.copyOf(ArrayUtil.bytes(0xff, 0x80, 0x7f));
 		a.setByte(2, 0);
 		assertArray(b, 0xff, 0x80, 0x7f);
-		assertArray(a.copy(), 0xff, 0x80, 0);
+		assertArray(a.copy(0), 0xff, 0x80, 0);
 	}
 
 	@Test
@@ -38,7 +40,14 @@ public class VolatileByteArrayBehavior {
 		VolatileByteArray a = VolatileByteArray.wrap(b);
 		a.setByte(2, 0);
 		assertArray(b, 0xff, 0x80, 0);
-		assertArray(a.copy(), 0xff, 0x80, 0);
+		assertArray(a.copy(0), 0xff, 0x80, 0);
+	}
+
+	@Test
+	public void shouldDetermineIfEmpty() {
+		assertThat(VolatileByteArray.of(0).isEmpty(), is(true));
+		assertThat(VolatileByteArray.wrap().isEmpty(), is(true));
+		assertThat(VolatileByteArray.wrap(1).isEmpty(), is(false));
 	}
 
 	@Test
@@ -48,10 +57,10 @@ public class VolatileByteArrayBehavior {
 		VolatileByteArray a2 = a0.slice(0, 3);
 		VolatileByteArray a3 = a2.slice(2);
 		a0.setByte(2, 0xff);
-		assertArray(a0.copy(), 1, 2, 0xff, 4, 5);
-		assertArray(a1.copy(), 0xff, 4, 5);
-		assertArray(a2.copy(), 1, 2, 0xff);
-		assertArray(a3.copy(), 0xff);
+		assertArray(a0.copy(0), 1, 2, 0xff, 4, 5);
+		assertArray(a1.copy(0), 0xff, 4, 5);
+		assertArray(a2.copy(0), 1, 2, 0xff);
+		assertArray(a3.copy(0), 0xff);
 	}
 
 }

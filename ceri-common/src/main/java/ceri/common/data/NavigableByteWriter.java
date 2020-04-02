@@ -99,7 +99,7 @@ public class NavigableByteWriter implements Navigable, ByteWriter<NavigableByteW
 
 	@Override
 	public NavigableByteWriter writeEndian(long value, int size, boolean msb) {
-		return offset(data.setEndian(offset(), value, size, msb));
+		return offset(data.setEndian(offset(), size, value, msb));
 	}
 
 	@Override
@@ -116,7 +116,7 @@ public class NavigableByteWriter implements Navigable, ByteWriter<NavigableByteW
 
 	@Override
 	public NavigableByteWriter fill(int value, int length) {
-		return offset(data.fill(offset(), value, length));
+		return offset(data.fill(offset(), length, value));
 	}
 
 	@Override

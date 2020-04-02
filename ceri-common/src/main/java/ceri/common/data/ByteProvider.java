@@ -29,11 +29,18 @@ import ceri.common.math.MathUtil;
  */
 public interface ByteProvider {
 	static final ByteProvider EMPTY = ByteArray.Immutable.EMPTY;
-	
+
 	/**
 	 * Length of the array.
 	 */
 	int length();
+
+	/**
+	 * Determines if the length is 0.
+	 */
+	default boolean isEmpty() {
+		return length() == 0;
+	}
 
 	/**
 	 * Returns the byte at given index.
@@ -211,13 +218,6 @@ public interface ByteProvider {
 	}
 
 	/**
-	 * Decodes ISO-Latin-1 bytes into a string.
-	 */
-	default String getAscii() {
-		return getAscii(0);
-	}
-
-	/**
 	 * Decodes ISO-Latin-1 bytes from index into a string.
 	 */
 	default String getAscii(int index) {
@@ -229,13 +229,6 @@ public interface ByteProvider {
 	 */
 	default String getAscii(int index, int length) {
 		return getString(index, length, StandardCharsets.ISO_8859_1);
-	}
-
-	/**
-	 * Decodes UTF-8 bytes into a string.
-	 */
-	default String getUtf8() {
-		return getUtf8(0);
 	}
 
 	/**
@@ -255,13 +248,6 @@ public interface ByteProvider {
 	/**
 	 * Decodes bytes from index into a string using the default character set.
 	 */
-	default String getString() {
-		return getString(0);
-	}
-
-	/**
-	 * Decodes bytes from index into a string using the default character set.
-	 */
 	default String getString(int index) {
 		return getString(index, length() - index);
 	}
@@ -271,13 +257,6 @@ public interface ByteProvider {
 	 */
 	default String getString(int index, int length) {
 		return getString(index, length, Charset.defaultCharset());
-	}
-
-	/**
-	 * Decodes bytes into a string using the character set.
-	 */
-	default String getString(Charset charset) {
-		return getString(0, charset);
 	}
 
 	/**
@@ -294,6 +273,20 @@ public interface ByteProvider {
 	default String getString(int index, int length, Charset charset) {
 		byte[] copy = copy(index, length);
 		return new String(copy, charset);
+	}
+
+	/**
+	 * Provides bytes as a hex string, using a delimiter.
+	 */
+	default String getHex(int index, String delimiter) {
+		return toHex(index, length() - index, delimiter);
+	}
+
+	/**
+	 * Provides bytes as a hex string, using a delimiter.
+	 */
+	default String toHex(int index, int length, String delimiter) {
+		return ByteUtil.toHex(ustream(index, length), delimiter);
 	}
 
 	/**
@@ -317,13 +310,6 @@ public interface ByteProvider {
 	}
 
 	/**
-	 * Returns a copy of provided bytes.
-	 */
-	default byte[] copy() {
-		return copy(0);
-	}
-
-	/**
 	 * Returns a copy of provided bytes from index.
 	 */
 	default byte[] copy(int index) {
@@ -339,27 +325,6 @@ public interface ByteProvider {
 		byte[] copy = new byte[length];
 		copyTo(index, copy, 0, length);
 		return copy;
-	}
-
-	/**
-	 * Copies bytes to the array. Returns the index after copying.
-	 */
-	default int copyTo(byte[] array) {
-		return copyTo(array, 0);
-	}
-
-	/**
-	 * Copies bytes to the array. Returns the index after copying.
-	 */
-	default int copyTo(byte[] array, int offset) {
-		return copyTo(array, offset, array.length - offset);
-	}
-
-	/**
-	 * Copies bytes to the array. Returns the index after copying.
-	 */
-	default int copyTo(byte[] array, int offset, int length) {
-		return copyTo(0, array, offset, length);
 	}
 
 	/**
@@ -389,27 +354,6 @@ public interface ByteProvider {
 	}
 
 	/**
-	 * Copies bytes to the receiver. Returns the index after copying.
-	 */
-	default int copyTo(ByteReceiver receiver) {
-		return copyTo(receiver, 0);
-	}
-
-	/**
-	 * Copies bytes to the receiver. Returns the index after copying.
-	 */
-	default int copyTo(ByteReceiver receiver, int offset) {
-		return copyTo(receiver, offset, receiver.length() - offset);
-	}
-
-	/**
-	 * Copies bytes to the receiver. Returns the index after copying.
-	 */
-	default int copyTo(ByteReceiver receiver, int offset, int length) {
-		return copyTo(0, receiver, offset, length);
-	}
-
-	/**
 	 * Copies bytes from index to the receiver. Returns the index after copying.
 	 */
 	default int copyTo(int index, ByteReceiver receiver) {
@@ -434,20 +378,6 @@ public interface ByteProvider {
 		while (length-- > 0)
 			receiver.setByte(offset++, getByte(index++));
 		return index;
-	}
-
-	/**
-	 * Writes bytes to the output stream. Returns the index after writing.
-	 */
-	default int writeTo(OutputStream out) throws IOException {
-		return writeTo(out, length());
-	}
-
-	/**
-	 * Writes bytes to the output stream. Returns the index after writing.
-	 */
-	default int writeTo(OutputStream out, int length) throws IOException {
-		return writeTo(0, out, length);
 	}
 
 	/**
@@ -486,13 +416,6 @@ public interface ByteProvider {
 	}
 
 	/**
-	 * Provides unsigned bytes as a stream.
-	 */
-	default IntStream ustream() {
-		return ustream(0);
-	}
-
-	/**
 	 * Provides unsigned bytes from index as a stream.
 	 */
 	default IntStream ustream(int index) {
@@ -510,49 +433,28 @@ public interface ByteProvider {
 	/**
 	 * Returns true if bytes are equal to array bytes.
 	 */
-	default boolean matches(int... array) {
-		return matches(ArrayUtil.bytes(array));
-	}
-
-	/**
-	 * Returns true if bytes are equal to array bytes.
-	 */
-	default boolean matches(byte... array) {
-		return matches(array, 0);
-	}
-
-	/**
-	 * Returns true if bytes are equal to array bytes.
-	 */
-	default boolean matches(byte[] array, int offset) {
-		return matches(array, offset, array.length - offset);
-	}
-
-	/**
-	 * Returns true if bytes are equal to array bytes.
-	 */
-	default boolean matches(byte[] array, int offset, int length) {
-		return matches(0, array, offset, length);
+	default boolean isEqualTo(int index, int... array) {
+		return isEqualTo(index, ArrayUtil.bytes(array));
 	}
 
 	/**
 	 * Returns true if bytes from index are equal to array bytes.
 	 */
-	default boolean matches(int index, byte[] array) {
-		return matches(index, array, 0);
+	default boolean isEqualTo(int index, byte[] array) {
+		return isEqualTo(index, array, 0);
 	}
 
 	/**
 	 * Returns true if bytes from index are equal to array bytes.
 	 */
-	default boolean matches(int index, byte[] array, int offset) {
-		return matches(index, array, offset, array.length - offset);
+	default boolean isEqualTo(int index, byte[] array, int offset) {
+		return isEqualTo(index, array, offset, array.length - offset);
 	}
 
 	/**
 	 * Returns true if bytes from index are equal to array bytes.
 	 */
-	default boolean matches(int index, byte[] array, int offset, int length) {
+	default boolean isEqualTo(int index, byte[] array, int offset, int length) {
 		if (!ArrayUtil.isValidSlice(length(), index, length)) return false;
 		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return false;
 		while (length-- > 0)
@@ -561,44 +463,23 @@ public interface ByteProvider {
 	}
 
 	/**
-	 * Returns true if bytes are equal to provider bytes.
+	 * Returns true if bytes from index are equal to provider bytes.
 	 */
-	default boolean matches(ByteProvider provider) {
-		return matches(provider, 0);
-	}
-
-	/**
-	 * Returns true if bytes are equal to provider bytes.
-	 */
-	default boolean matches(ByteProvider provider, int offset) {
-		return matches(provider, offset, provider.length() - offset);
-	}
-
-	/**
-	 * Returns true if bytes are equal to provider bytes.
-	 */
-	default boolean matches(ByteProvider provider, int offset, int length) {
-		return matches(0, provider, offset, length);
+	default boolean isEqualTo(int index, ByteProvider provider) {
+		return isEqualTo(index, provider, 0);
 	}
 
 	/**
 	 * Returns true if bytes from index are equal to provider bytes.
 	 */
-	default boolean matches(int index, ByteProvider provider) {
-		return matches(index, provider, 0);
+	default boolean isEqualTo(int index, ByteProvider provider, int offset) {
+		return isEqualTo(index, provider, offset, provider.length() - offset);
 	}
 
 	/**
 	 * Returns true if bytes from index are equal to provider bytes.
 	 */
-	default boolean matches(int index, ByteProvider provider, int offset) {
-		return matches(index, provider, offset, provider.length() - offset);
-	}
-
-	/**
-	 * Returns true if bytes from index are equal to provider bytes.
-	 */
-	default boolean matches(int index, ByteProvider provider, int offset, int length) {
+	default boolean isEqualTo(int index, ByteProvider provider, int offset, int length) {
 		if (!ArrayUtil.isValidSlice(length(), index, length)) return false;
 		if (!ArrayUtil.isValidSlice(provider.length(), offset, length)) return false;
 		while (length-- > 0)
@@ -609,29 +490,8 @@ public interface ByteProvider {
 	/**
 	 * Returns the first index that matches array bytes. Returns -1 if no match.
 	 */
-	default int indexOf(int... array) {
-		return indexOf(ArrayUtil.bytes(array));
-	}
-
-	/**
-	 * Returns the first index that matches array bytes. Returns -1 if no match.
-	 */
-	default int indexOf(byte... array) {
-		return indexOf(array, 0);
-	}
-
-	/**
-	 * Returns the first index that matches array bytes. Returns -1 if no match.
-	 */
-	default int indexOf(byte[] array, int offset) {
-		return indexOf(0, array, offset);
-	}
-
-	/**
-	 * Returns the first index that matches array bytes. Returns -1 if no match.
-	 */
-	default int indexOf(byte[] array, int offset, int length) {
-		return indexOf(0, array, offset, length);
+	default int indexOf(int index, int... array) {
+		return indexOf(index, ArrayUtil.bytes(array));
 	}
 
 	/**
@@ -655,29 +515,8 @@ public interface ByteProvider {
 		if (!ArrayUtil.isValidSlice(length(), index, length)) return -1;
 		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return -1;
 		for (; index <= length() - length; index++)
-			if (matches(index, array, offset, length)) return index;
+			if (isEqualTo(index, array, offset, length)) return index;
 		return -1;
-	}
-
-	/**
-	 * Returns the first index that matches array bytes. Returns -1 if no match.
-	 */
-	default int indexOf(ByteProvider provider) {
-		return indexOf(provider, 0);
-	}
-
-	/**
-	 * Returns the first index that matches provider bytes. Returns -1 if no match.
-	 */
-	default int indexOf(ByteProvider provider, int offset) {
-		return indexOf(provider, offset, provider.length() - offset);
-	}
-
-	/**
-	 * Returns the first index that matches provider bytes. Returns -1 if no match.
-	 */
-	default int indexOf(ByteProvider provider, int offset, int length) {
-		return indexOf(0, provider, offset, length);
 	}
 
 	/**
@@ -701,7 +540,7 @@ public interface ByteProvider {
 		if (!ArrayUtil.isValidSlice(length(), index, length)) return -1;
 		if (!ArrayUtil.isValidSlice(provider.length(), offset, length)) return -1;
 		for (; index <= length() - length; index++)
-			if (matches(index, provider, offset, length)) return index;
+			if (isEqualTo(index, provider, offset, length)) return index;
 		return -1;
 	}
 

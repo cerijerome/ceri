@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -598,6 +599,86 @@ public class ArrayUtil {
 	 * Creates a new array and copies original values to it. Offset can be negative and outside
 	 * range of original array. The overlap is copied to the new array.
 	 */
+	public static <T> T[] copyOf(T[] array, int offset, IntFunction<T[]> constructor) {
+		return copyOf(array, offset, Math.max(0, array.length - offset), constructor);
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static boolean[] copyOf(boolean[] array, int offset) {
+		return copyOf(array, offset, Math.max(0, array.length - offset));
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static byte[] copyOf(byte[] array, int offset) {
+		return copyOf(array, offset, Math.max(0, array.length - offset));
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static char[] copyOf(char[] array, int offset) {
+		return copyOf(array, offset, Math.max(0, array.length - offset));
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static short[] copyOf(short[] array, int offset) {
+		return copyOf(array, offset, Math.max(0, array.length - offset));
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static int[] copyOf(int[] array, int offset) {
+		return copyOf(array, offset, Math.max(0, array.length - offset));
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static long[] copyOf(long[] array, int offset) {
+		return copyOf(array, offset, Math.max(0, array.length - offset));
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static float[] copyOf(float[] array, int offset) {
+		return copyOf(array, offset, Math.max(0, array.length - offset));
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static double[] copyOf(double[] array, int offset) {
+		return copyOf(array, offset, Math.max(0, array.length - offset));
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
+	public static <T> T[] copyOf(T[] array, int offset, int length, IntFunction<T[]> constructor) {
+		return arrayCopy(array, array.length, offset, length, constructor.apply(length));
+	}
+
+	/**
+	 * Creates a new array and copies original values to it. Offset can be negative and outside
+	 * range of original array. The overlap is copied to the new array.
+	 */
 	public static boolean[] copyOf(boolean[] array, int offset, int length) {
 		return arrayCopy(array, array.length, offset, length, new boolean[length]);
 	}
@@ -1168,7 +1249,7 @@ public class ArrayUtil {
 	 * Extends Arrays.deepToString to include any object type.
 	 */
 	public static String deepToString(Object obj) {
-		if (obj == null) return String.valueOf((String) null);
+		if (obj == null) return String.valueOf((Object) null); // if no cast, goes to char[]
 		Class<?> cls = obj.getClass();
 		if (!cls.isArray()) return String.valueOf(obj);
 		Function<Object, String> fn = toStringMap.get(cls);

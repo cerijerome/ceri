@@ -1,5 +1,6 @@
 package ceri.common.validation;
 
+import static ceri.common.collection.CollectionUtil.first;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.LongFunction;
@@ -21,13 +22,10 @@ public enum DisplayLong {
 		return format(value, Arrays.asList(flags));
 	}
 
-	public static void main(String[] args) {
-		System.out.println(format(-1, dec, udec, hex));
-	}
-
 	public static String format(long value, Collection<DisplayLong> flags) {
 		if (flags.isEmpty()) return DisplayLong.dec.format(value);
-		return StringUtil.join(";", "", "", flag -> flag.format(value), flags);
+		if (flags.size() == 1) return first(flags).format(value);
+		return StringUtil.join(", ", "(", ")", flag -> flag.format(value), flags);
 	}
 
 	private DisplayLong(LongFunction<String> formatter) {

@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
-import ceri.common.util.Align;
+import ceri.common.util.EqualsUtil;
 import ceri.common.util.ExceptionAdapter;
 
 public class ByteUtil {
@@ -21,9 +21,10 @@ public class ByteUtil {
 	public static final int HEX_DIGIT_BITS = BITS_PER_NYBBLE;
 	public static final int BYTE_MASK = 0xff;
 	public static final int SHORT_MASK = 0xffff;
-	public static final long INT_MASK = 0xffff_ffff;
+	public static final long INT_MASK = 0xffff_ffffL;
 	public static final long LONG_MASK = 0xffff_ffff_ffff_ffffL;
-	public static final boolean BIG_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN;
+	public static final boolean BIG_ENDIAN =
+		EqualsUtil.equals(ByteOrder.nativeOrder(), ByteOrder.BIG_ENDIAN);
 
 	private ByteUtil() {}
 
@@ -35,20 +36,6 @@ public class ByteUtil {
 		if (hex.isEmpty()) return ByteProvider.EMPTY;
 		byte[] array = new BigInteger(hex, HEX_RADIX).toByteArray(); // may have extra leading byte
 		return ByteArray.Immutable.wrap(array, array[0] == 0 ? 1 : 0); // remove leading byte
-	}
-
-	public static String toHex(ByteProvider array, String delimiter) {
-		return toHex(array, 0, delimiter);
-	}
-
-	public static String toHex(ByteProvider array, int offset, String delimiter) {
-		if (array == null) return null;
-		return toHex(array, offset, array.length() - offset, delimiter);
-	}
-
-	public static String toHex(ByteProvider array, int offset, int len, String delimiter) {
-		if (array == null) return null;
-		return toHex(array.ustream(offset, len), delimiter);
 	}
 
 	public static String toHex(byte[] array, String delimiter) {
@@ -65,7 +52,7 @@ public class ByteUtil {
 		return toHex(ustream(array, offset, len), delimiter);
 	}
 
-	private static String toHex(IntStream stream, String delimiter) {
+	public static String toHex(IntStream stream, String delimiter) {
 		return stream.mapToObj(b -> StringUtil.toHex((byte) b))
 			.collect(Collectors.joining(delimiter));
 	}
@@ -394,27 +381,19 @@ public class ByteUtil {
 	}
 
 	public static byte reverseByte(int value) {
-		return (byte) reverse(value, Byte.SIZE);
+		return (byte) reverseAsInt(value, Byte.SIZE);
 	}
 
 	public static short reverseShort(int value) {
-		return (short) reverse(value, Short.SIZE);
+		return (short) reverseAsInt(value, Short.SIZE);
 	}
 
-	public static int reverseInt(int value, int bits) {
+	public static int reverseAsInt(int value, int bits) {
 		return Integer.reverse(value) >>> (Integer.SIZE - bits);
 	}
 
 	public static long reverse(long value, int bits) {
 		return Long.reverse(value) >>> (Long.SIZE - bits);
-	}
-
-	public static byte[] pad(byte[] array, int length, int fill, Align.H align) {
-		if (array.length >= length) return array;
-		byte[] padded = new byte[length];
-		NavigableByteWriter.of(padded).fill(fill, align.offset(array.length, length))
-			.writeFrom(array).fill(fill);
-		return padded;
 	}
 
 }

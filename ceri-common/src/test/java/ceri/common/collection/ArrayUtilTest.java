@@ -102,15 +102,6 @@ public class ArrayUtilTest {
 		assertThat(ArrayUtil.addAll(array, 2, 3), is(new Number[] { 0, 1, 2, 3 }));
 	}
 
-	@Test
-	public void testArrayCopy() {
-		byte[] b1 = { 0, 1, 2, 3, 4 };
-		byte[] b2 = { 4, 3, 2, 1, 0 };
-		Object array = ArrayUtil.arrayCopy(b1, 1, b2, 1, 3);
-		assertSame(array, b2);
-		assertThat(b2, is(new byte[] { 4, 1, 2, 3, 0 }));
-	}
-
 	@Test(expected = IllegalArgumentException.class)
 	public void testArrayType() {
 		assertThat(ArrayUtil.arrayType(Boolean.class), isClass(Boolean[].class));
@@ -205,14 +196,108 @@ public class ArrayUtilTest {
 	}
 
 	@Test
+	public void testCopyOf() {
+		assertArray(ArrayUtil.copyOf(ArrayUtil.array("a", "b", "c"), 2, String[]::new), "c");
+		assertArray(ArrayUtil.copyOf(ArrayUtil.booleans(true, false, true), 1), false, true);
+		assertArray(ArrayUtil.copyOf(ArrayUtil.bytes(1, 2, 3), -1), 0, 1, 2, 3);
+		assertArray(ArrayUtil.copyOf(ArrayUtil.chars('a', 'b', 'c'), 4));
+		assertArray(ArrayUtil.copyOf(ArrayUtil.shorts(1, 2, 3), 3));
+		assertArray(ArrayUtil.copyOf(ArrayUtil.ints(1, 2, 3), -2), 0, 0, 1, 2, 3);
+		assertArray(ArrayUtil.copyOf(ArrayUtil.ints(1, 2, 3), 2, 3), 3, 0, 0);
+		assertArray(ArrayUtil.copyOf(ArrayUtil.longs(1, 2, 3), 0), 1, 2, 3);
+		assertArray(ArrayUtil.copyOf(ArrayUtil.floats(1, 2, 3), 1), 2, 3);
+		assertArray(ArrayUtil.copyOf(ArrayUtil.doubles(1, 2, 3), 0), 1, 2, 3);
+	}
+
+	@Test
 	public void testCopy() {
-		byte[] src = ArrayUtil.bytes(1, 2, 3, 4, 5, 6, 7);
-		assertArray(ArrayUtil.copyOf(src, -3, 5), 0, 0, 0, 1, 2);
-		assertArray(ArrayUtil.copyOf(src, 5, 5), 6, 7, 0, 0, 0);
-		assertArray(ArrayUtil.copyOf(src, 3, 3), 4, 5, 6);
-		assertArray(ArrayUtil.copyOf(src, -2, 10), 0, 0, 1, 2, 3, 4, 5, 6, 7, 0);
-		assertArray(ArrayUtil.copyOf(src, -7, 5), 0, 0, 0, 0, 0);
-		assertArray(ArrayUtil.copyOf(src, 9, 5), 0, 0, 0, 0, 0);
+		String[] ss = { "a", "b", "c" };
+		assertThat(ArrayUtil.copy(ArrayUtil.array("a", "b", "c"), 0, ss, 2), is(3));
+		assertArray(ss, "a", "b", "a");
+		boolean[] bools = { true, false, true };
+		assertThat(ArrayUtil.copy(bools, 0, bools, 1), is(3));
+		assertArray(bools, true, true, false);
+		byte[] bytes = ArrayUtil.bytes(1, 2, 3);
+		assertThat(ArrayUtil.copy(bytes, 1, bytes, 0), is(2));
+		assertArray(bytes, 2, 3, 3);
+		char[] chars = ArrayUtil.chars('1', '2', '3');
+		assertThat(ArrayUtil.copy(chars, 3, chars, 0), is(0));
+		assertArray(chars, '1', '2', '3');
+		short[] shorts = ArrayUtil.shorts(1, 2, 3);
+		assertThat(ArrayUtil.copy(shorts, 0, shorts, 0), is(3));
+		assertArray(shorts, 1, 2, 3);
+		int[] ints = ArrayUtil.ints(1, 2, 3);
+		assertThat(ArrayUtil.copy(ints, 3, ints, 2), is(2));
+		assertArray(ints, 1, 2, 3);
+		long[] longs = ArrayUtil.longs(1, 2, 3);
+		assertThat(ArrayUtil.copy(longs, 0, longs, 1), is(3));
+		assertArray(longs, 1, 1, 2);
+		float[] floats = ArrayUtil.floats(1, 2, 3);
+		assertThat(ArrayUtil.copy(floats, 0, floats, 1), is(3));
+		assertArray(floats, 1, 1, 2);
+		double[] doubles = ArrayUtil.doubles(1, 2, 3);
+		assertThat(ArrayUtil.copy(doubles, 0, doubles, 1), is(3));
+		assertArray(doubles, 1, 1, 2);
+	}
+	
+	@Test
+	public void testCopyOutOfRange() {
+		assertThrown(() -> ArrayUtil.copy(ArrayUtil.ints(1, 2, 3), 0, null, 0));
+		assertThrown(() -> ArrayUtil.copy(ArrayUtil.ints(1, 2, 3), 0, new int[3], 0, 4));
+		assertThrown(() -> ArrayUtil.copy(ArrayUtil.ints(1, 2, 3), 0, new int[3], 0, -1));
+	}
+	
+	@Test
+	public void testArrayCopy() {
+		byte[] b1 = { 0, 1, 2, 3, 4 };
+		byte[] b2 = { 4, 3, 2, 1, 0 };
+		Object array = ArrayUtil.arrayCopy(b1, 1, b2, 1, 3);
+		assertSame(array, b2);
+		assertThat(b2, is(new byte[] { 4, 1, 2, 3, 0 }));
+	}
+
+	@Test
+	public void testFill() {
+		String[] ss = { "a", "b", "c" };
+		assertThat(ArrayUtil.fill(ss, 1, "x"), is(3));
+		assertArray(ss, "a", "x", "x");
+		boolean[] bools = { true, false, true };
+		assertThat(ArrayUtil.fill(bools, 0, true), is(3));
+		assertArray(bools, true, true, true);
+		byte[] bytes = ArrayUtil.bytes(1, 2, 3);
+		assertThat(ArrayUtil.fill(bytes, 2, 0), is(3));
+		assertArray(bytes, 1, 2, 0);
+		char[] chars = ArrayUtil.chars('1', '2', '3');
+		assertThat(ArrayUtil.fill(chars, 1, '0'), is(3));
+		assertArray(chars, '1', '0', '0');
+		short[] shorts = ArrayUtil.shorts(1, 2, 3, 4);
+		assertThat(ArrayUtil.fill(shorts, 2, 0), is(4));
+		assertArray(shorts, 1, 2, 0, 0);
+		int[] ints = ArrayUtil.ints(1, 2, 3, 4, 5);
+		assertThat(ArrayUtil.fill(ints, 4, 0), is(5));
+		assertArray(ints, 1, 2, 3, 4, 0);
+		long[] longs = ArrayUtil.longs(1, 2, 3);
+		assertThat(ArrayUtil.fill(longs, 0, 1), is(3));
+		assertArray(longs, 1, 1, 1);
+		float[] floats = ArrayUtil.floats(1, 2, 3);
+		assertThat(ArrayUtil.fill(floats, 2, -0.0f), is(3));
+		assertArray(floats, 1, 2, -0.0f);
+		double[] doubles = ArrayUtil.doubles(1, 2, 3);
+		assertThat(ArrayUtil.fill(doubles, 0, -1), is(3));
+		assertArray(doubles, -1, -1, -1);
+	}
+
+	@Test
+	public void testFillZeroCount() {
+		assertThat(ArrayUtil.fill(new String[3], 0, 0, "x"), is(0));
+		assertThat(ArrayUtil.fill(new boolean[3], 1, 0, true), is(1));
+		assertThat(ArrayUtil.fill(new byte[3], 2, 0, 0), is(2));
+		assertThat(ArrayUtil.fill(new char[3], 3, 0, '0'), is(3));
+		assertThat(ArrayUtil.fill(new short[3], 0, 0, 7), is(0));
+		assertThat(ArrayUtil.fill(new int[3], 1, 0, 7), is(1));
+		assertThat(ArrayUtil.fill(new long[3], 2, 0, 7), is(2));
+		assertThat(ArrayUtil.fill(new float[3], 3, 0, 7), is(3));
+		assertThat(ArrayUtil.fill(new double[3], 0, 0, 7), is(0));
 	}
 
 	@Test

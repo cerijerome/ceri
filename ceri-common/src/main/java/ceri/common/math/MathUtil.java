@@ -1,5 +1,7 @@
 package ceri.common.math;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -234,27 +236,48 @@ public class MathUtil {
 	}
 
 	/**
-	 * Rounds an array of values to the given number of decimal places. Too inaccurate for very
-	 * large or small values.
+	 * Rounds an array of values to the given number of decimal places. Supports up to 10 places,
+	 * and does not round very large or small values. However, this method is more efficient than
+	 * round(int, double...).
 	 */
-	public static double[] simpleRound(int places, double... values) {
+	public static double[] simpleRoundAll(int places, double... values) {
 		return DoubleStream.of(values).map(d -> simpleRound(d, places)).toArray();
 	}
 
 	/**
-	 * Rounds a value to the given number of decimal places. Too inaccurate for very large or small
-	 * values.
+	 * Rounds a value to the given number of decimal places. Supports up to 10 places, and does not
+	 * round very large or small values. However, this method is more efficient than round(double,
+	 * int).
 	 */
 	public static double simpleRound(double value, int places) {
 		if (Double.isNaN(value)) return Double.NaN;
-		if (places > MAX_ROUND_PLACES) throw new IllegalArgumentException(
-			"places must be <= " + MAX_ROUND_PLACES + ": " + places);
-		if (value > MAX_ROUND || value < -MAX_ROUND)
-			throw new IllegalArgumentException("value magnitude must be <= " + MAX_ROUND);
+		if (places < 0 || places > MAX_ROUND_PLACES) throw new IllegalArgumentException(
+			"places must be 0.." + MAX_ROUND_PLACES + "): " + places);
+		if (value > MAX_ROUND || value < -MAX_ROUND) return value;
 		long factor = (long) Math.pow(10, places);
 		value = value * factor;
 		long tmp = Math.round(value);
 		return (double) tmp / factor;
+	}
+
+	/**
+	 * Rounds an array of values to the given number of decimal places. Infinity and NaN values are
+	 * returned without change.
+	 */
+	public static double[] roundAll(int places, double... values) {
+		return DoubleStream.of(values).map(d -> simpleRound(d, places)).toArray();
+	}
+
+	/**
+	 * Rounds a value to the given number of decimal places. Infinity and NaN values are returned
+	 * without change.
+	 */
+	public static double round(double value, int places) {
+		if (places < 0) throw new IllegalArgumentException("Places must be >= 0: " + places);
+		if (Double.isInfinite(value) || Double.isNaN(value)) return value;
+		// BigDecimal double constructor is unpredictable (see javadoc)
+		return new BigDecimal(String.valueOf(value)).setScale(places, RoundingMode.HALF_UP)
+			.doubleValue();
 	}
 
 	/**

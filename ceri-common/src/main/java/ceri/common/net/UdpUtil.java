@@ -21,7 +21,7 @@ public class UdpUtil {
 	}
 
 	public static DatagramPacket toPacket(ByteProvider data, InetAddress address, int port) {
-		return new DatagramPacket(data.copy(), data.length(), address, port);
+		return new DatagramPacket(data.copy(0), data.length(), address, port);
 	}
 
 	public static ByteProvider fromPacket(DatagramPacket packet) {
