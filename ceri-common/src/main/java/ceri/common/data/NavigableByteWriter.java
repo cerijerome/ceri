@@ -18,32 +18,28 @@ public class NavigableByteWriter implements Navigable, ByteWriter<NavigableByteW
 	private int offset = 0;
 	private int mark = 0;
 
-	public static NavigableByteWriter of(int length) {
-		return of(new byte[length]);
+	public static NavigableByteWriter wrap(byte[] data) {
+		return wrap(data, 0);
 	}
 
-	public static NavigableByteWriter of(byte[] data) {
-		return of(data, 0);
+	public static NavigableByteWriter wrap(byte[] data, int offset) {
+		return wrap(data, offset, data.length - offset);
 	}
 
-	public static NavigableByteWriter of(byte[] data, int offset) {
-		return of(data, offset, data.length - offset);
+	public static NavigableByteWriter wrap(byte[] data, int offset, int length) {
+		return wrap(ByteArray.Mutable.wrap(data, offset, length));
 	}
 
-	public static NavigableByteWriter of(byte[] data, int offset, int length) {
-		return of(ByteArray.Mutable.wrap(data, offset, length));
+	public static NavigableByteWriter wrap(ByteReceiver receiver) {
+		return new NavigableByteWriter(receiver);
 	}
 
-	public static NavigableByteWriter of(ByteReceiver provider) {
-		return new NavigableByteWriter(provider);
+	public static NavigableByteWriter wrap(ByteReceiver receiver, int offset) {
+		return wrap(receiver, offset, receiver.length() - offset);
 	}
 
-	public static NavigableByteWriter of(ByteReceiver provider, int offset) {
-		return of(provider, offset, provider.length() - offset);
-	}
-
-	public static NavigableByteWriter of(ByteReceiver provider, int offset, int length) {
-		return of(provider.slice(offset, length));
+	public static NavigableByteWriter wrap(ByteReceiver receiver, int offset, int length) {
+		return wrap(receiver.slice(offset, length));
 	}
 
 	private NavigableByteWriter(ByteReceiver data) {
@@ -111,11 +107,11 @@ public class NavigableByteWriter implements Navigable, ByteWriter<NavigableByteW
 	 * Fill remaining bytes with same value.
 	 */
 	public NavigableByteWriter fill(int value) {
-		return fill(value, remaining());
+		return fill(remaining(), value);
 	}
 
 	@Override
-	public NavigableByteWriter fill(int value, int length) {
+	public NavigableByteWriter fill(int length, int value) {
 		return offset(data.fill(offset(), length, value));
 	}
 
@@ -153,8 +149,8 @@ public class NavigableByteWriter implements Navigable, ByteWriter<NavigableByteW
 	 * length to look backwards, which may be useful for checksum calculations.
 	 */
 	public NavigableByteWriter slice(int length) {
-		if (length >= 0) return of(data.slice(offset(), length));
-		return of(data.slice(offset() + length, -length));
+		if (length >= 0) return wrap(data.slice(offset(), length));
+		return wrap(data.slice(offset() + length, -length));
 	}
 
 }

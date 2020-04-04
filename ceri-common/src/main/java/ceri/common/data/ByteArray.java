@@ -20,8 +20,8 @@ import ceri.common.util.HashCoder;
  */
 public abstract class ByteArray implements ByteProvider {
 	final byte[] array;
-	final int offset;
-	final int length;
+	private final int offset;
+	private final int length;
 
 	/**
 	 * Wrapper for a byte array that does not allow modification. It allows slicing of views to

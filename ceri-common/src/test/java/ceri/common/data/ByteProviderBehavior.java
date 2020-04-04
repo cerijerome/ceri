@@ -77,8 +77,8 @@ public class ByteProviderBehavior {
 	@Test
 	public void shouldProviderBytesAsAHexString() {
 		ByteProvider bp = provider(0, -1, 2, -3);
-		assertThat(bp.getHex(0, ":"), is("00:ff:02:fd"));
-		assertThat(bp.getHex(2, ":"), is("02:fd"));
+		assertThat(bp.toHex(0, ":"), is("00:ff:02:fd"));
+		assertThat(bp.toHex(2, ":"), is("02:fd"));
 	}
 
 	@Test
@@ -110,7 +110,7 @@ public class ByteProviderBehavior {
 
 	@Test
 	public void shouldCopyToReceiver() {
-		Holder h = ByteReceiverBehavior.holder(5);
+		Holder h = Holder.of(5);
 		assertThat(bp.copyTo(1, h.receiver), is(6));
 		assertArray(h.bytes, -1, 2, -3, 4, -5);
 		assertThrown(() -> bp.copyTo(6, h.receiver));

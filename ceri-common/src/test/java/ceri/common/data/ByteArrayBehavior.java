@@ -152,6 +152,12 @@ public class ByteArrayBehavior {
 	}
 
 	@Test
+	public void shouldGetString() {
+		assertThat(Immutable.wrap("abcde".getBytes()).getString(0), is("abcde"));
+		assertThrown(() -> Immutable.wrap("abcde".getBytes()).getString(3, 10));
+	}
+
+	@Test
 	public void shouldCopyToByteReceiver() {
 		Mutable m = Mutable.of(3);
 		assertThat(Immutable.wrap(1, 2, 3).copyTo(1, m, 1), is(3));

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.stream.IntStream;
+import ceri.common.collection.ArrayUtil;
 
 /**
  * {@link Navigable} and {@link ByteReader} wrapper for a {@link ByteProvider}. This provides
@@ -19,7 +20,11 @@ public class NavigableByteReader implements ByteReader, Navigable {
 	private int offset = 0;
 	private int mark = 0;
 
-	public static NavigableByteReader of(byte... data) {
+	public static NavigableByteReader of(int... data) {
+		return of(ArrayUtil.bytes(data));
+	}
+
+	public static NavigableByteReader of(byte[] data) {
 		return of(data, 0);
 	}
 
@@ -32,7 +37,7 @@ public class NavigableByteReader implements ByteReader, Navigable {
 	}
 
 	public static NavigableByteReader of(ByteProvider provider) {
-		return of(provider);
+		return new NavigableByteReader(provider);
 	}
 
 	public static NavigableByteReader of(ByteProvider provider, int offset) {

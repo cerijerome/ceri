@@ -19,7 +19,7 @@ import ceri.common.util.BasicUtil;
  * T skip(int length); [1-byte]
  * T writeEndian(long value, int size, boolean msb); [copy]
  * T writeString(String s, Charset charset); [copy]
- * T fill(int value, int length); [1-byte]
+ * T fill(int length, int value); [1-byte]
  * T writeFrom(byte[] dest, int offset, int length); [1-byte]
  * int transferFrom(InputStream in, int length) throws IOException; [1-byte]
  * </pre>
@@ -37,7 +37,7 @@ public interface ByteWriter<T extends ByteWriter<T>> {
 	 * Skips bytes. By default this writes bytes with value 0.
 	 */
 	default T skip(int length) {
-		return fill(0, length);
+		return fill(length, 0);
 	}
 
 	/**
@@ -195,7 +195,7 @@ public interface ByteWriter<T extends ByteWriter<T>> {
 	 * Fill bytes with same value. Default implementation fills one byte at a time; efficiency may
 	 * be improved by overriding.
 	 */
-	default T fill(int value, int length) {
+	default T fill(int length, int value) {
 		while (length-- > 0)
 			writeByte(value);
 		return BasicUtil.uncheckedCast(this);
@@ -256,7 +256,7 @@ public interface ByteWriter<T extends ByteWriter<T>> {
 	 * less than requested if EOF occurs. Returns the number of bytes written. Implementing classes
 	 * can call this in transferFrom() if buffering is more efficient.
 	 */
-	static <T extends ByteWriter<T>> int transferBufferFrom(T writer, InputStream in, int length)
+	static int transferBufferFrom(ByteWriter<?> writer, InputStream in, int length)
 		throws IOException {
 		byte[] buffer = in.readNBytes(length); // < length if EOF
 		writer.writeFrom(buffer);

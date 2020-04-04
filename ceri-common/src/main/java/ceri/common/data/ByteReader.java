@@ -242,6 +242,13 @@ public interface ByteReader {
 	}
 
 	/**
+	 * Returns bytes as a hex string, using a delimiter.
+	 */
+	default String toHex(int length, String delimiter) {
+		return ByteUtil.toHex(ustream(length), delimiter);
+	}
+
+	/**
 	 * Reads a copied array of bytes.
 	 */
 	default byte[] readBytes(int length) {

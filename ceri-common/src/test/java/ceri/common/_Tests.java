@@ -59,6 +59,8 @@ import ceri.common.data.IntBitSetBehavior;
 import ceri.common.data.IntTypeValueBehavior;
 import ceri.common.data.MaskTranscoderBehavior;
 import ceri.common.data.NavigableBehavior;
+import ceri.common.data.NavigableByteReaderBehavior;
+import ceri.common.data.NavigableByteWriterBehavior;
 import ceri.common.data.TypeTranscoderBehavior;
 import ceri.common.data.UnsignedOctetTypeBehavior;
 import ceri.common.data.XorBehavior;
@@ -337,6 +339,8 @@ import ceri.common.xml.XmlUtilTest;
 	IntTypeValueBehavior.class, //
 	MaskTranscoderBehavior.class, //
 	NavigableBehavior.class, //
+	NavigableByteReaderBehavior.class, //
+	NavigableByteWriterBehavior.class, //
 	TypeTranscoderBehavior.class, //
 	UnsignedOctetTypeBehavior.class, //
 	XorBehavior.class, //

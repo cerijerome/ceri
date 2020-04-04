@@ -43,26 +43,26 @@ public class ByteReceiverBehavior {
 
 	@Test
 	public void shouldReceiveByteAlignedValues() {
-		assertBytes(3, br -> assertThat(br.setShortMsb(1, 0x7ff7), is(3)), bytes(0, 0x7f, 0xf7));
-		assertBytes(3, br -> assertThat(br.setShortLsb(1, 0x7ff7), is(3)), bytes(0, 0xf7, 0x7f));
-		assertBytes(4, br -> assertThat(br.setIntMsb(0, 0x12345678), is(4)),
-			bytes(0x12, 0x34, 0x56, 0x78));
-		assertBytes(4, br -> assertThat(br.setIntLsb(0, 0x12345678), is(4)),
-			bytes(0x78, 0x56, 0x34, 0x12));
-		assertBytes(8, br -> assertThat(br.setLongMsb(0, 0x1234567890L), is(8)),
-			bytes(0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0x90));
-		assertBytes(8, br -> assertThat(br.setLongLsb(0, 0x1234567890L), is(8)),
-			bytes(0x90, 0x78, 0x56, 0x34, 0x12, 0, 0, 0));
+		assertBytes(3, br -> assertThat(br.setShortMsb(1, 0x7ff7), is(3)), 0, 0x7f, 0xf7);
+		assertBytes(3, br -> assertThat(br.setShortLsb(1, 0x7ff7), is(3)), 0, 0xf7, 0x7f);
+		assertBytes(4, br -> assertThat(br.setIntMsb(0, 0x12345678), is(4)), 0x12, 0x34, 0x56,
+			0x78);
+		assertBytes(4, br -> assertThat(br.setIntLsb(0, 0x12345678), is(4)), 0x78, 0x56, 0x34,
+			0x12);
+		assertBytes(8, br -> assertThat(br.setLongMsb(0, 0x1234567890L), is(8)), 0, 0, 0, 0x12,
+			0x34, 0x56, 0x78, 0x90);
+		assertBytes(8, br -> assertThat(br.setLongLsb(0, 0x1234567890L), is(8)), 0x90, 0x78, 0x56,
+			0x34, 0x12, 0, 0, 0);
 		assertBytes(4, br -> assertThat(br.setFloatMsb(0, Float.intBitsToFloat(0x12345678)), is(4)),
-			bytes(0x12, 0x34, 0x56, 0x78));
+			0x12, 0x34, 0x56, 0x78);
 		assertBytes(4, br -> assertThat(br.setFloatLsb(0, Float.intBitsToFloat(0x12345678)), is(4)),
-			bytes(0x78, 0x56, 0x34, 0x12));
+			0x78, 0x56, 0x34, 0x12);
 		assertBytes(8,
-			br -> assertThat(br.setDoubleMsb(0, Double.longBitsToDouble(0x1234567890L)), is(8)),
-			bytes(0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0x90));
+			br -> assertThat(br.setDoubleMsb(0, Double.longBitsToDouble(0x1234567890L)), is(8)), 0,
+			0, 0, 0x12, 0x34, 0x56, 0x78, 0x90);
 		assertBytes(8,
 			br -> assertThat(br.setDoubleLsb(0, Double.longBitsToDouble(0x1234567890L)), is(8)),
-			bytes(0x90, 0x78, 0x56, 0x34, 0x12, 0, 0, 0));
+			0x90, 0x78, 0x56, 0x34, 0x12, 0, 0, 0);
 	}
 
 	@Test
@@ -122,7 +122,7 @@ public class ByteReceiverBehavior {
 	 */
 	private static <E extends Exception> void assertBytes(int size,
 		ExceptionConsumer<E, ByteReceiver> action, byte[] bytes) throws E {
-		Holder holder = holder(size);
+		Holder holder = Holder.of(size);
 		action.accept(holder.receiver);
 		assertArray(holder.bytes, bytes);
 	}
@@ -133,6 +133,11 @@ public class ByteReceiverBehavior {
 	public static class Holder {
 		public final byte[] bytes;
 		public final ByteReceiver receiver;
+
+		public static ByteReceiverBehavior.Holder of(int size) {
+			byte[] bytes = new byte[size];
+			return new Holder(bytes, receiver(bytes));
+		}
 
 		private Holder(byte[] bytes, ByteReceiver receiver) {
 			this.bytes = bytes;
@@ -145,20 +150,19 @@ public class ByteReceiverBehavior {
 		}
 	}
 
-	/**
-	 * Holds a byte array and a simple ByteReceiver wrapper.
-	 */
-	public static Holder holder(int size) {
-		byte[] bytes = new byte[size];
-		return new Holder(bytes, receiver(bytes, 0, bytes.length));
-	}
-
 	private static ByteReceiver receiver(int size) {
-		return receiver(new byte[size], 0, size);
+		return receiver(new byte[size]);
 	}
 
 	/**
-	 * Simple ByteReceiver implementation.
+	 * Simple ByteReceiver implementation, wrapping bytes.
+	 */
+	public static ByteReceiver receiver(byte[] bytes) {
+		return receiver(bytes, 0, bytes.length);
+	}
+
+	/**
+	 * Simple ByteReceiver implementation, wrapping bytes.
 	 */
 	public static ByteReceiver receiver(byte[] bytes, int offset, int length) {
 		return new ByteReceiver() {

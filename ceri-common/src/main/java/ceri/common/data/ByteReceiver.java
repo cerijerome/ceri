@@ -12,8 +12,8 @@ import ceri.common.collection.ArrayUtil;
  * following methods that process one byte at a time, or copy arrays.
  * 
  * <pre>
- * int setEndian(int index, long value, int size, boolean msb); [copy]
- * int fill(int index, int value, int length); [1-byte]
+ * int setEndian(int index, int size, long value, boolean msb); [copy]
+ * int fill(int index, int length, int value); [1-byte]
  * int copyFrom(int index, byte[] array, int offset, int length); [1-byte]
  * int copyFrom(int index, ByteProvider provider, int offset, int length); [1-byte]
  * int readFrom(int index, InputStream in, int length) throws IOException; [1-byte]

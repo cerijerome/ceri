@@ -20,8 +20,8 @@ import ceri.common.math.MathUtil;
  * int copyTo(int index, byte[] dest, int destOffset, int length); [1-byte]
  * int copyTo(int index, ByteReceiver dest, int destOffset, int length); [1-byte]
  * int writeTo(int offset, OutputStream out, int length) throws IOException; [1-byte]
- * boolean matches(int index, byte[] array, int offset, int length); [1-byte]
- * boolean matches(int index, ByteProvider provider, int offset, int length); [1-byte]
+ * boolean isEqualTo(int index, byte[] array, int offset, int length); [1-byte]
+ * boolean isEqualTo(int index, ByteProvider provider, int offset, int length); [1-byte]
  * </pre>
  * 
  * @see ceri.common.collection.ImmutableByteArray
@@ -278,7 +278,7 @@ public interface ByteProvider {
 	/**
 	 * Provides bytes as a hex string, using a delimiter.
 	 */
-	default String getHex(int index, String delimiter) {
+	default String toHex(int index, String delimiter) {
 		return toHex(index, length() - index, delimiter);
 	}
 
