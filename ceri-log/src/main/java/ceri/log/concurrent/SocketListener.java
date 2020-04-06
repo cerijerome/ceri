@@ -7,8 +7,9 @@ import java.net.SocketException;
 import java.util.function.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.ImmutableByteArray;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.data.ByteArray;
+import ceri.common.data.ByteProvider;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.log.util.LogUtil;
@@ -21,7 +22,7 @@ public class SocketListener extends LoopingExecutor {
 	private static final int BUFFER_SIZE_DEF = 1024;
 	private final int bufferSize;
 	private final ServerSocket serverSocket;
-	private final Listeners<ImmutableByteArray> listeners = new Listeners<>();
+	private final Listeners<ByteProvider> listeners = new Listeners<>();
 
 	public static SocketListener create(int port, Runnable listenable) throws IOException {
 		return create(port, listenable, null);
@@ -34,10 +35,10 @@ public class SocketListener extends LoopingExecutor {
 		return socketListener;
 	}
 
-	private static void notifyIfMatch(ImmutableByteArray data, Predicate<String> tester,
+	private static void notifyIfMatch(ByteProvider data, Predicate<String> tester,
 		Runnable listenable) {
 		if (tester != null) {
-			String s = new String(data.copy());
+			String s = data.getString(0);
 			if (!tester.test(s)) return;
 		}
 		listenable.run();
@@ -63,7 +64,7 @@ public class SocketListener extends LoopingExecutor {
 		super.close();
 	}
 
-	public Listenable<ImmutableByteArray> listeners() {
+	public Listenable<ByteProvider> listeners() {
 		return listeners;
 	}
 
@@ -79,9 +80,10 @@ public class SocketListener extends LoopingExecutor {
 
 	private void process(Socket socket) throws IOException {
 		byte[] buffer = new byte[bufferSize];
+		@SuppressWarnings("resource") // bullshit
 		int count = socket.getInputStream().read(buffer);
 		if (count < 0) return;
-		ImmutableByteArray data = ImmutableByteArray.wrap(buffer, 0, count);
+		ByteProvider data = ByteArray.Immutable.wrap(buffer, 0, count);
 		listeners.accept(data);
 	}
 

@@ -48,6 +48,7 @@ public class LogUtil {
 		return binaryLogger(BinaryPrinter.ASCII);
 	}
 
+	@SuppressWarnings("resource")
 	public static BinaryPrinter binaryLogger(BinaryPrinter printer) {
 		return binaryLogger(printer, LogPrintStream.of());
 	}
@@ -81,6 +82,7 @@ public class LogUtil {
 	 * Constructs an immutable list of closeable instances from each input object and the
 	 * constructor. If any exception occurs the already created instances will be closed.
 	 */
+	@SuppressWarnings("resource")
 	public static <E extends Exception, T, R extends AutoCloseable> List<R> create(Logger logger,
 		ExceptionFunction<E, T, R> constructor, Collection<T> inputs) throws E {
 		List<R> results = new ArrayList<>();

@@ -8,20 +8,19 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.function.Consumer;
 import org.junit.Test;
-import ceri.common.collection.ImmutableByteArray;
 import ceri.common.concurrent.BooleanCondition;
+import ceri.common.data.ByteProvider;
 
 public class SocketListenerBehavior {
 	private static final int PORT = 9999;
 	private static final int BUFFER_SIZE = 20;
 	private BooleanCondition lastSync = BooleanCondition.of();
-	private ImmutableByteArray lastData;
+	private ByteProvider lastData;
 
 	@Test
 	public void shouldOnlyNotifyOnSuccessfulTestInput() throws IOException, InterruptedException {
 		BooleanCondition sync = BooleanCondition.of();
-		try (SocketListener sl =
-			SocketListener.create(PORT, sync::signal, s -> s.length() > 1)) {
+		try (SocketListener sl = SocketListener.create(PORT, sync::signal, s -> s.length() > 1)) {
 			send("\0");
 			send("xx");
 			assertTrue(sync.await(1000));
@@ -55,7 +54,7 @@ public class SocketListenerBehavior {
 
 	@Test
 	public void shouldAllowToListenAndUnlisten() throws IOException, InterruptedException {
-		Consumer<ImmutableByteArray> listener = this::setLastData;
+		Consumer<ByteProvider> listener = this::setLastData;
 		try (SocketListener sl = SocketListener.create(PORT)) {
 			sl.listeners().listen(listener);
 			send("\0");
@@ -82,11 +81,11 @@ public class SocketListenerBehavior {
 
 	private void verifyLastData(byte[] expectedData) throws InterruptedException {
 		assertTrue(lastSync.await(1000));
-		assertArray(lastData.copy(), expectedData);
+		assertArray(lastData.copy(0), expectedData);
 		clearLastData();
 	}
 
-	private void setLastData(ImmutableByteArray data) {
+	private void setLastData(ByteProvider data) {
 		assertFalse(lastSync.isSet());
 		assertNull(lastData);
 		lastData = data;
@@ -98,6 +97,7 @@ public class SocketListenerBehavior {
 		lastData = null;
 	}
 
+	@SuppressWarnings("resource")
 	private void send(String data) throws IOException {
 		try (Socket s = new Socket("localhost", PORT)) {
 			s.getOutputStream().write(data.getBytes());
