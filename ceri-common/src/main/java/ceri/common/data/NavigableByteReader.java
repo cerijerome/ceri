@@ -154,6 +154,11 @@ public class NavigableByteReader implements ByteReader, Navigable {
 		return data.copyTo(inc(length), dest, offset, length);
 	}
 
+	@Override
+	public int readInto(ByteReceiver receiver, int offset, int length) {
+		return data.copyTo(inc(length), receiver, offset, length);
+	}
+
 	/**
 	 * Writes bytes to the output stream, and returns the number of bytes transferred.
 	 */

@@ -21,6 +21,7 @@ import ceri.common.util.BasicUtil;
  * T writeString(String s, Charset charset); [copy]
  * T fill(int length, int value); [1-byte]
  * T writeFrom(byte[] dest, int offset, int length); [1-byte]
+ * T writeFrom(ByteProvider provider, int offset, int length); [1-byte]
  * int transferFrom(InputStream in, int length) throws IOException; [1-byte]
  * </pre>
  * 
@@ -230,6 +231,31 @@ public interface ByteWriter<T extends ByteWriter<T>> {
 		ArrayUtil.validateSlice(array.length, offset, length);
 		for (int i = 0; i < length; i++)
 			writeByte(array[offset + i]);
+		return BasicUtil.uncheckedCast(this);
+	}
+
+	/**
+	 * Writes bytes from byte provider.
+	 */
+	default T writeFrom(ByteProvider provider) {
+		return writeFrom(provider, 0);
+	}
+
+	/**
+	 * Writes bytes from byte provider.
+	 */
+	default T writeFrom(ByteProvider provider, int offset) {
+		return writeFrom(provider, offset, provider.length() - offset);
+	}
+
+	/**
+	 * Writes bytes from byte provider. Default implementation writes one byte at a time; efficiency
+	 * may be improved by overriding.
+	 */
+	default T writeFrom(ByteProvider provider, int offset, int length) {
+		ArrayUtil.validateSlice(provider.length(), offset, length);
+		for (int i = 0; i < length; i++)
+			writeByte(provider.getByte(offset + i));
 		return BasicUtil.uncheckedCast(this);
 	}
 

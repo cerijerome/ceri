@@ -16,7 +16,7 @@ import ceri.common.util.HashCoder;
  * 
  * TODO: create IntProvider/IntReceiver and refactor this class.
  */
-
+@Deprecated
 public class ImmutableIntArray {
 	public static final ImmutableIntArray EMPTY = new ImmutableIntArray(ArrayUtil.EMPTY_INT, 0, 0);
 	private final int[] array;

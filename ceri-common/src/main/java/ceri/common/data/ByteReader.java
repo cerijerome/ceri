@@ -19,6 +19,7 @@ import ceri.common.math.MathUtil;
  * long readEndian(int size, boolean msb); [copy]
  * String readString(int length, Charset charset); [copy]
  * int readInto(byte[] dest, int offset, int length); [1-byte]
+ * int readInto(ByteReceiver receiver, int offset, int length); [1-byte]
  * ByteReader transferTo(OutputStream out, int length) throws IOException; [1-byte]
  * </pre>
  * 
@@ -280,6 +281,31 @@ public interface ByteReader {
 		ArrayUtil.validateSlice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = readByte();
+		return offset;
+	}
+
+	/**
+	 * Reads bytes into byte receiver. Returns the receiver offset after reading.
+	 */
+	default int readInto(ByteReceiver receiver) {
+		return readInto(receiver, 0);
+	}
+
+	/**
+	 * Reads bytes into byte receiver. Returns the receiver offset after reading.
+	 */
+	default int readInto(ByteReceiver receiver, int offset) {
+		return readInto(receiver, offset, receiver.length() - offset);
+	}
+
+	/**
+	 * Reads bytes into byte receiver. Returns the receiver offset after reading. Default
+	 * implementation reads one byte at a time; efficiency may be improved by overriding.
+	 */
+	default int readInto(ByteReceiver receiver, int offset, int length) {
+		ArrayUtil.validateSlice(receiver.length(), offset, length);
+		while (length-- > 0)
+			receiver.setByte(offset++, readByte());
 		return offset;
 	}
 

@@ -11,6 +11,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 import ceri.common.data.ByteArray.Immutable;
+import ceri.common.data.ByteArray.Mutable;
 
 public class NavigableByteReaderBehavior {
 	private static final byte[] ascii = "abcde".getBytes(StandardCharsets.ISO_8859_1);
@@ -69,6 +70,15 @@ public class NavigableByteReaderBehavior {
 		assertArray(bytes, 0, -1, 2);
 		assertThrown(() -> reader(0, -1, 2, -3, 4).readInto(bytes, 1, 3));
 		assertThrown(() -> reader(0, -1).readInto(bytes));
+	}
+
+	@Test
+	public void shouldReadIntoByteReceiver() {
+		byte[] bytes = new byte[3];
+		assertThat(reader(0, -1, 2, -3, 4).readInto(Mutable.wrap(bytes)), is(3));
+		assertArray(bytes, 0, -1, 2);
+		assertThrown(() -> reader(0, -1, 2, -3, 4).readInto(Mutable.wrap(bytes), 1, 3));
+		assertThrown(() -> reader(0, -1).readInto(Mutable.wrap(bytes)));
 	}
 
 	@Test

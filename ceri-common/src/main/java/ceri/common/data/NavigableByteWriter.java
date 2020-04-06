@@ -120,6 +120,11 @@ public class NavigableByteWriter implements Navigable, ByteWriter<NavigableByteW
 		return offset(data.copyFrom(offset(), array, offset, length));
 	}
 
+	@Override
+	public NavigableByteWriter writeFrom(ByteProvider provider, int offset, int length) {
+		return offset(data.copyFrom(offset(), provider, offset, length));
+	}
+
 	/**
 	 * Writes bytes from the input stream to remaining space, and returns the number of bytes
 	 * transferred.

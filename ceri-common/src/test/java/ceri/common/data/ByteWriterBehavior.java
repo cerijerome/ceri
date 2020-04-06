@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteArray.Mutable;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.test.TestUtil;
 
@@ -77,6 +78,12 @@ public class ByteWriterBehavior {
 	public void shouldWriteFromByteArray() {
 		assertBytes(3, w -> w.writeFrom(1, 2, 3), 1, 2, 3);
 		assertThrown(() -> writer(3).writeFrom(1, 2, 3, 4));
+	}
+
+	@Test
+	public void shouldWriteFromByteProvider() {
+		assertBytes(3, w -> w.writeFrom(Mutable.wrap(1, 2, 3)), 1, 2, 3);
+		assertThrown(() -> writer(3).writeFrom(Mutable.wrap(1, 2, 3, 4)));
 	}
 
 	@Test

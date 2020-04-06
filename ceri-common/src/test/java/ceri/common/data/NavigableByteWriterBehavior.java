@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.test.TestUtil;
@@ -68,6 +69,12 @@ public class NavigableByteWriterBehavior {
 	public void shouldWriteFromByteArray() {
 		assertBytes(3, w -> w.writeFrom(1, 2, 3), 1, 2, 3);
 		assertThrown(() -> writer(3).writeFrom(1, 2, 3, 4));
+	}
+
+	@Test
+	public void shouldWriteFromByteProvider() {
+		assertBytes(3, w -> w.writeFrom(Immutable.wrap(1, 2, 3)), 1, 2, 3);
+		assertThrown(() -> writer(3).writeFrom(Immutable.wrap(1, 2, 3, 4)));
 	}
 
 	@Test
