@@ -68,6 +68,12 @@ public class ByteUtilTest {
 	}
 
 	@Test
+	public void testFill() {
+		assertArray(ByteUtil.fill(3, 0xff), 0xff, 0xff, 0xff);
+		assertArray(ByteUtil.fill(0, 0xff));
+	}
+	
+	@Test
 	public void testWriteTo() {
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 		ByteProvider im = ByteArray.Immutable.wrap(-1, 0, 128);

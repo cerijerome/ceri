@@ -28,7 +28,7 @@ public class NavigableByteWriterBehavior {
 	@Test
 	public void shouldWrapByteReceiver() {
 		byte[] bytes = ArrayUtil.bytes(0, -1, 2, -3, 4);
-		NavigableByteWriter.wrap(Mutable.wrap(bytes), 1).skip(2).fill(0xff);
+		NavigableByteWriter.wrap(Mutable.wrap(bytes, 1)).skip(2).fill(0xff);
 		assertArray(bytes, 0, -1, 2, 0xff, 0xff);
 	}
 
@@ -87,6 +87,12 @@ public class NavigableByteWriterBehavior {
 	}
 
 	@Test
+	public void shouldProvideAccessToReceiver() {
+		NavigableByteWriter<Mutable> w = NavigableByteWriter.wrap(1, 2, 3);
+		assertArray(w.receiver().copy(0), 1, 2, 3);
+	}
+	
+	@Test
 	public void shouldSliceProvidedByteRange() {
 		assertBytes(5, w -> w.skip(2).slice().fill(0xff), 0, 0, 0xff, 0xff, 0xff);
 		assertBytes(3, w -> w.skip(1).slice(0).fill(0xff), 0, 0, 0);
@@ -99,14 +105,14 @@ public class NavigableByteWriterBehavior {
 	 * byte array.
 	 */
 	private static <E extends Exception> void assertBytes(int size,
-		ExceptionConsumer<E, NavigableByteWriter> action, int... bytes) throws E {
+		ExceptionConsumer<E, NavigableByteWriter<?>> action, int... bytes) throws E {
 		assertBytes(size, action, ArrayUtil.bytes(bytes));
 	}
 
 	/**
 	 * Create wrapper for sized byte array; used for exception checking.
 	 */
-	private static NavigableByteWriter writer(int size) {
+	private static NavigableByteWriter<?> writer(int size) {
 		return NavigableByteWriter.wrap(new byte[size]);
 	}
 
@@ -115,7 +121,7 @@ public class NavigableByteWriterBehavior {
 	 * ByteReceiver, and asserts the bytes in the array.
 	 */
 	private static <E extends Exception> void assertBytes(int size,
-		ExceptionConsumer<E, NavigableByteWriter> action, byte[] bytes) throws E {
+		ExceptionConsumer<E, NavigableByteWriter<?>> action, byte[] bytes) throws E {
 		Holder holder = Holder.of(size);
 		action.accept(holder.writer);
 		assertArray(holder.bytes, bytes);
@@ -126,14 +132,14 @@ public class NavigableByteWriterBehavior {
 	 */
 	public static class Holder {
 		public final byte[] bytes;
-		public final NavigableByteWriter writer;
+		public final NavigableByteWriter<?> writer;
 
 		public static Holder of(int size) {
 			byte[] bytes = new byte[size];
 			return new Holder(bytes, NavigableByteWriter.wrap(bytes));
 		}
 
-		private Holder(byte[] bytes, NavigableByteWriter writer) {
+		private Holder(byte[] bytes, NavigableByteWriter<?> writer) {
 			this.bytes = bytes;
 			this.writer = writer;
 		}

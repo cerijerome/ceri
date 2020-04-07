@@ -260,7 +260,8 @@ public interface ByteWriter<T extends ByteWriter<T>> {
 	}
 
 	/**
-	 * Writes bytes from the input stream, and returns the number of bytes transferred. Default
+	 * Writes bytes from the input stream, and returns the number of bytes transferred. The call
+	 * blocks until length bytes are transferred, EOF occurs, or an exception is thrown. Default
 	 * implementation transfers one byte at a time; efficiency may be improved by overriding, or
 	 * calling:
 	 * 

@@ -1,73 +1,87 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteArray.Mutable;
 
 /**
- * ByteReader and Navigator wrapper for a ByteProvider. This provides sequential access to bytes,
- * and relative/absolute positioning for the next read.
+ * {@link Navigable} and {@link ByteWriter} wrapper for a {@link ByteReceiver}. This provides
+ * sequential writing of bytes, and relative/absolute positioning for the next write. The type T
+ * allows typed access to the ByteReceiver.
  * <p/>
- * ByteReader interface is complemented with methods that use remaining bytes instead of given
- * length. Methods must not include an offset position, apart from offset(int). If an absolute
- * position is required, offset(int) should be called first.
+ * ByteWriter interface is complemented with methods that use remaining bytes instead of given
+ * length. Except for {@link #offset(int)}, methods do not include an offset position. Clients must
+ * first call {@link #offset(int)} if an absolute position is required.
  */
-public class NavigableByteWriter implements Navigable, ByteWriter<NavigableByteWriter> {
-	private final ByteReceiver data;
-	private int offset = 0;
+public class NavigableByteWriter<T extends ByteReceiver>
+	implements Navigable, ByteWriter<NavigableByteWriter<T>> {
+	private final T data;
+	private final int offset;
+	private final int length;
+	private int index = 0;
 	private int mark = 0;
 
-	public static NavigableByteWriter wrap(byte[] data) {
+	public static NavigableByteWriter<Mutable> wrap(int... data) {
+		return wrap(ArrayUtil.bytes(data));
+	}
+
+	public static NavigableByteWriter<Mutable> wrap(byte[] data) {
 		return wrap(data, 0);
 	}
 
-	public static NavigableByteWriter wrap(byte[] data, int offset) {
+	public static NavigableByteWriter<Mutable> wrap(byte[] data, int offset) {
 		return wrap(data, offset, data.length - offset);
 	}
 
-	public static NavigableByteWriter wrap(byte[] data, int offset, int length) {
-		return wrap(ByteArray.Mutable.wrap(data, offset, length));
+	public static NavigableByteWriter<Mutable> wrap(byte[] data, int offset, int length) {
+		return wrap(Mutable.wrap(data), offset, length);
 	}
 
-	public static NavigableByteWriter wrap(ByteReceiver receiver) {
-		return new NavigableByteWriter(receiver);
+	public static <T extends ByteReceiver> NavigableByteWriter<T> wrap(T receiver) {
+		return wrap(receiver, 0);
 	}
 
-	public static NavigableByteWriter wrap(ByteReceiver receiver, int offset) {
+	public static <T extends ByteReceiver> NavigableByteWriter<T> wrap(T receiver, int offset) {
 		return wrap(receiver, offset, receiver.length() - offset);
 	}
 
-	public static NavigableByteWriter wrap(ByteReceiver receiver, int offset, int length) {
-		return wrap(receiver.slice(offset, length));
+	public static <T extends ByteReceiver> NavigableByteWriter<T> wrap(T receiver, int offset,
+		int length) {
+		ArrayUtil.validateSlice(receiver.length(), offset, length);
+		return new NavigableByteWriter<>(receiver, offset, length);
 	}
 
-	private NavigableByteWriter(ByteReceiver data) {
+	private NavigableByteWriter(T data, int offset, int length) {
 		this.data = data;
+		this.offset = offset;
+		this.length = length;
 	}
 
 	/* Navigable overrides */
 
 	@Override
 	public int offset() {
-		return offset;
+		return index;
 	}
 
 	@Override
-	public NavigableByteWriter offset(int offset) {
-		validateRange(offset, 0, length());
-		this.offset = offset;
+	public NavigableByteWriter<T> offset(int index) {
+		validateRange(index, 0, this.length, "Index");
+		this.index = index;
 		return this;
 	}
 
 	@Override
 	public int length() {
-		return data.length();
+		return this.length;
 	}
 
 	@Override
-	public NavigableByteWriter mark() {
-		mark = offset;
+	public NavigableByteWriter<T> mark() {
+		mark = index;
 		return this;
 	}
 
@@ -77,52 +91,52 @@ public class NavigableByteWriter implements Navigable, ByteWriter<NavigableByteW
 	}
 
 	@Override
-	public NavigableByteWriter reset() {
+	public NavigableByteWriter<T> reset() {
 		return skip(-marked());
 	}
 
 	@Override
-	public NavigableByteWriter skip(int length) {
+	public NavigableByteWriter<T> skip(int length) {
 		return offset(offset() + length);
 	}
 
 	/* ByteReader overrides and additions */
 
 	@Override
-	public NavigableByteWriter writeByte(int value) {
-		return offset(data.setByte(offset(), value));
+	public NavigableByteWriter<T> writeByte(int value) {
+		return position(data.setByte(position(), value));
 	}
 
 	@Override
-	public NavigableByteWriter writeEndian(long value, int size, boolean msb) {
-		return offset(data.setEndian(offset(), size, value, msb));
+	public NavigableByteWriter<T> writeEndian(long value, int size, boolean msb) {
+		return position(data.setEndian(position(), size, value, msb));
 	}
 
 	@Override
-	public NavigableByteWriter writeString(String s, Charset charset) {
-		return offset(data.setString(offset(), s, charset));
+	public NavigableByteWriter<T> writeString(String s, Charset charset) {
+		return position(data.setString(position(), s, charset));
 	}
 
 	/**
 	 * Fill remaining bytes with same value.
 	 */
-	public NavigableByteWriter fill(int value) {
+	public NavigableByteWriter<T> fill(int value) {
 		return fill(remaining(), value);
 	}
 
 	@Override
-	public NavigableByteWriter fill(int length, int value) {
-		return offset(data.fill(offset(), length, value));
+	public NavigableByteWriter<T> fill(int length, int value) {
+		return position(data.fill(position(), length, value));
 	}
 
 	@Override
-	public NavigableByteWriter writeFrom(byte[] array, int offset, int length) {
-		return offset(data.copyFrom(offset(), array, offset, length));
+	public NavigableByteWriter<T> writeFrom(byte[] array, int offset, int length) {
+		return position(data.copyFrom(position(), array, offset, length));
 	}
 
 	@Override
-	public NavigableByteWriter writeFrom(ByteProvider provider, int offset, int length) {
-		return offset(data.copyFrom(offset(), provider, offset, length));
+	public NavigableByteWriter<T> writeFrom(ByteProvider provider, int offset, int length) {
+		return position(data.copyFrom(position(), provider, offset, length));
 	}
 
 	/**
@@ -135,17 +149,21 @@ public class NavigableByteWriter implements Navigable, ByteWriter<NavigableByteW
 
 	@Override
 	public int transferFrom(InputStream in, int length) throws IOException {
-		int current = offset();
-		offset(data.readFrom(current, in, length));
-		return offset() - current;
+		int current = position();
+		position(data.readFrom(current, in, length));
+		return position() - current;
 	}
 
 	/* Other methods */
 
+	public T receiver() {
+		return data;
+	}
+
 	/**
 	 * Creates a new reader for remaining bytes without incrementing the offset.
 	 */
-	public NavigableByteWriter slice() {
+	public NavigableByteWriter<T> slice() {
 		return slice(remaining());
 	}
 
@@ -153,9 +171,23 @@ public class NavigableByteWriter implements Navigable, ByteWriter<NavigableByteW
 	 * Creates a new reader for subsequent bytes without incrementing the offset. Use a negative
 	 * length to look backwards, which may be useful for checksum calculations.
 	 */
-	public NavigableByteWriter slice(int length) {
-		if (length >= 0) return wrap(data.slice(offset(), length));
-		return wrap(data.slice(offset() + length, -length));
+	public NavigableByteWriter<T> slice(int length) {
+		if (length < 0) return wrap(data, position() + length, -length);
+		return wrap(data, position(), length);
+	}
+
+	/**
+	 * The actual position within the byte receiver.
+	 */
+	private int position() {
+		return offset + index;
+	}
+
+	/**
+	 * Set the index from receiver actual position.
+	 */
+	private NavigableByteWriter<T> position(int offset) {
+		return offset(offset - this.offset);
 	}
 
 }

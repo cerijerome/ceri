@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -99,6 +100,16 @@ public class ByteUtil {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		stream.forEach(out::write);
 		return out.toByteArray();
+	}
+
+	/**
+	 * Creates a byte array of given value.
+	 */
+	public static byte[] fill(int length, int value) {
+		if (length == 0) return ArrayUtil.EMPTY_BYTE;
+		byte[] bytes = new byte[length];
+		Arrays.fill(bytes, (byte) value);
+		return bytes;
 	}
 
 	public static void writeTo(ByteArrayOutputStream out, int... bytes) {
