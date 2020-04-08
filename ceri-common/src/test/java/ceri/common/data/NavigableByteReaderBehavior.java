@@ -25,6 +25,7 @@ public class NavigableByteReaderBehavior {
 
 	@Test
 	public void shouldCreateFromByteProvider() {
+		assertArray(NavigableByteReader.of(Immutable.wrap(1, 2, 3)).readBytes(), 1, 2, 3);
 		assertArray(NavigableByteReader.of(Immutable.wrap(1, 2, 3), 1).readBytes(), 2, 3);
 	}
 
@@ -95,21 +96,27 @@ public class NavigableByteReaderBehavior {
 	}
 
 	@Test
+	public void shouldProvideAccessToProvider() {
+		NavigableByteReader<Immutable> r = NavigableByteReader.of(1, 2, 3);
+		assertArray(r.provider().copy(0), 1, 2, 3);
+	}
+	
+	@Test
 	public void shouldSliceProvidedByteRange() {
 		assertBytes(reader(0, -1, 2, -3, 4).skip(2).slice(), 2, -3, 4);
 		assertBytes(reader(0, -1, 2, -3, 4).skip(2).slice(0));
 		assertBytes(reader(0, -1, 2, -3, 4).skip(4).slice(-3), -1, 2, -3);
 	}
 
-	private static void assertBytes(NavigableByteReader r, int... bytes) {
+	private static void assertBytes(NavigableByteReader<?> r, int... bytes) {
 		assertArray(r.readBytes(), bytes);
 	}
 
-	private static NavigableByteReader reader(int... bytes) {
+	private static NavigableByteReader<?> reader(int... bytes) {
 		return NavigableByteReader.of(bytes);
 	}
 
-	private static NavigableByteReader reader(byte[] bytes) {
+	private static NavigableByteReader<?> reader(byte[] bytes) {
 		return NavigableByteReader.of(bytes);
 	}
 

@@ -21,14 +21,14 @@ public class NavigableByteWriterBehavior {
 	@Test
 	public void shouldWrapByteArray() {
 		byte[] bytes = ArrayUtil.bytes(0, -1, 2, -3, 4);
-		NavigableByteWriter.wrap(bytes).skip(2).fill(0xff);
+		NavigableByteWriter.of(bytes).skip(2).fill(0xff);
 		assertArray(bytes, 0, -1, 0xff, 0xff, 0xff);
 	}
 
 	@Test
 	public void shouldWrapByteReceiver() {
 		byte[] bytes = ArrayUtil.bytes(0, -1, 2, -3, 4);
-		NavigableByteWriter.wrap(Mutable.wrap(bytes, 1)).skip(2).fill(0xff);
+		NavigableByteWriter.of(Mutable.wrap(bytes, 1)).skip(2).fill(0xff);
 		assertArray(bytes, 0, -1, 2, 0xff, 0xff);
 	}
 
@@ -88,7 +88,7 @@ public class NavigableByteWriterBehavior {
 
 	@Test
 	public void shouldProvideAccessToReceiver() {
-		NavigableByteWriter<Mutable> w = NavigableByteWriter.wrap(1, 2, 3);
+		NavigableByteWriter<Mutable> w = NavigableByteWriter.of(1, 2, 3);
 		assertArray(w.receiver().copy(0), 1, 2, 3);
 	}
 	
@@ -113,7 +113,7 @@ public class NavigableByteWriterBehavior {
 	 * Create wrapper for sized byte array; used for exception checking.
 	 */
 	private static NavigableByteWriter<?> writer(int size) {
-		return NavigableByteWriter.wrap(new byte[size]);
+		return NavigableByteWriter.of(new byte[size]);
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class NavigableByteWriterBehavior {
 
 		public static Holder of(int size) {
 			byte[] bytes = new byte[size];
-			return new Holder(bytes, NavigableByteWriter.wrap(bytes));
+			return new Holder(bytes, NavigableByteWriter.of(bytes));
 		}
 
 		private Holder(byte[] bytes, NavigableByteWriter<?> writer) {

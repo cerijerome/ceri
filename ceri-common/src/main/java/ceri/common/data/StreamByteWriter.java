@@ -8,6 +8,8 @@ import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.IoUtil;
+import ceri.common.io.RuntimeIoException;
+import ceri.common.util.ExceptionAdapter;
 
 /**
  * {@link ByteWriter} wrapper for a {@link java.io.OutputStream}. This provides sequential writing
@@ -15,6 +17,7 @@ import ceri.common.io.IoUtil;
  * ByteArrayOutputStream.toByteArray().
  */
 public class StreamByteWriter<T extends OutputStream> implements ByteWriter<StreamByteWriter<T>> {
+	private static final ExceptionAdapter<RuntimeIoException> ioAdapter = IoUtil.RUNTIME_IO_ADAPTER;
 	private final T out;
 
 	/**
@@ -50,7 +53,7 @@ public class StreamByteWriter<T extends OutputStream> implements ByteWriter<Stre
 		this.out = out;
 	}
 
-	/* ByteReader overrides and additions */
+	/* ByteReader overrides */
 
 	@Override
 	public StreamByteWriter<T> writeByte(int value) {
@@ -77,8 +80,8 @@ public class StreamByteWriter<T extends OutputStream> implements ByteWriter<Stre
 		return ByteWriter.transferBufferFrom(this, in, length);
 	}
 
-	/* Other methods */
-
+	/* OutputStream methods */
+	
 	/**
 	 * Typed access to the output stream.
 	 */
@@ -92,9 +95,9 @@ public class StreamByteWriter<T extends OutputStream> implements ByteWriter<Stre
 	public StreamByteWriter<T> flush() {
 		return run(out::flush);
 	}
-
+	
 	private StreamByteWriter<T> run(ExceptionRunnable<IOException> runnable) {
-		IoUtil.RUNTIME_IO_ADAPTER.run(runnable);
+		ioAdapter.run(runnable);
 		return this;
 	}
 

@@ -22,8 +22,8 @@ public class ByteReaderBehavior {
 
 	@Test
 	public void shouldSkipBytes() {
-		assertEnd(reader(1, 2, 3).skip(0), 1, 2, 3);
-		assertEnd(reader(1, 2, 3, 4, 5).skip(3), 4, 5);
+		assertRemaining(reader(1, 2, 3).skip(0), 1, 2, 3);
+		assertRemaining(reader(1, 2, 3, 4, 5).skip(3), 4, 5);
 		assertThrown(() -> reader(1, 2, 3).skip(4));
 	}
 
@@ -130,7 +130,7 @@ public class ByteReaderBehavior {
 		assertThrown(() -> reader(0, -1, 2).ustream(5).toArray());
 	}
 
-	private static void assertEnd(ByteReader reader, int... bytes) {
+	private static void assertRemaining(ByteReader reader, int... bytes) {
 		for (int b : bytes)
 			assertByte(reader.readByte(), b);
 		assertThrown(() -> reader.readByte());

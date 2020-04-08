@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteArray.Immutable;
 
 /**
  * {@link Navigable} and {@link ByteReader} wrapper for a {@link ByteProvider}. This provides
@@ -15,65 +16,69 @@ import ceri.common.collection.ArrayUtil;
  * length. Except for {@link #offset(int)}, methods do not include an offset position. Clients must
  * first call {@link #offset(int)} if an absolute position is required.
  */
-public class NavigableByteReader implements ByteReader, Navigable {
-	private final ByteProvider data;
-	private int offset = 0;
+public class NavigableByteReader<T extends ByteProvider> implements ByteReader, Navigable {
+	private final T provider;
+	private final int off;	
+	private final int len;
+	private int index = 0;
 	private int mark = 0;
 
-	public static NavigableByteReader of(int... data) {
+	public static NavigableByteReader<Immutable> of(int... data) {
 		return of(ArrayUtil.bytes(data));
 	}
 
-	public static NavigableByteReader of(byte[] data) {
+	public static NavigableByteReader<Immutable> of(byte[] data) {
 		return of(data, 0);
 	}
 
-	public static NavigableByteReader of(byte[] data, int offset) {
+	public static NavigableByteReader<Immutable> of(byte[] data, int offset) {
 		return of(data, offset, data.length - offset);
 	}
 
-	public static NavigableByteReader of(byte[] data, int offset, int length) {
-		return of(ByteArray.Immutable.wrap(data, offset, length));
+	public static NavigableByteReader<Immutable> of(byte[] data, int offset, int length) {
+		return of(ByteArray.Immutable.wrap(data), offset, length);
 	}
 
-	public static NavigableByteReader of(ByteProvider provider) {
-		return new NavigableByteReader(provider);
+	public static <T extends ByteProvider> NavigableByteReader<T> of(T provider) {
+		return of(provider, 0);
 	}
 
-	public static NavigableByteReader of(ByteProvider provider, int offset) {
+	public static <T extends ByteProvider> NavigableByteReader<T> of(T provider, int offset) {
 		return of(provider, offset, provider.length() - offset);
 	}
 
-	public static NavigableByteReader of(ByteProvider provider, int offset, int length) {
-		return of(provider.slice(offset, length));
+	public static <T extends ByteProvider> NavigableByteReader<T> of(T provider, int offset, int length) {
+		return new NavigableByteReader<>(provider, offset, length);
 	}
 
-	private NavigableByteReader(ByteProvider data) {
-		this.data = data;
+	private NavigableByteReader(T provider, int offset, int length) {
+		this.provider = provider;
+		this.off = offset;
+		this.len = length;
 	}
 
 	/* Navigable overrides */
 
 	@Override
 	public int offset() {
-		return offset;
+		return index;
 	}
 
 	@Override
-	public NavigableByteReader offset(int offset) {
-		validateRange(offset, 0, length());
-		this.offset = offset;
+	public NavigableByteReader<T> offset(int index) {
+		validateRange(index, 0, length());
+		this.index = index;
 		return this;
 	}
 
 	@Override
 	public int length() {
-		return data.length();
+		return this.len;
 	}
 
 	@Override
-	public NavigableByteReader mark() {
-		mark = offset;
+	public NavigableByteReader<T> mark() {
+		mark = index;
 		return this;
 	}
 
@@ -83,12 +88,12 @@ public class NavigableByteReader implements ByteReader, Navigable {
 	}
 
 	@Override
-	public NavigableByteReader reset() {
+	public NavigableByteReader<T> reset() {
 		return skip(-marked());
 	}
 
 	@Override
-	public NavigableByteReader skip(int length) {
+	public NavigableByteReader<T> skip(int length) {
 		return offset(offset() + length);
 	}
 
@@ -96,12 +101,12 @@ public class NavigableByteReader implements ByteReader, Navigable {
 
 	@Override
 	public byte readByte() {
-		return data.getByte(inc(1));
+		return provider.getByte(inc(1));
 	}
 
 	@Override
 	public long readEndian(int size, boolean msb) {
-		return data.getEndian(inc(size), size, msb);
+		return provider.getEndian(inc(size), size, msb);
 	}
 
 	/**
@@ -134,7 +139,7 @@ public class NavigableByteReader implements ByteReader, Navigable {
 
 	@Override
 	public String readString(int length, Charset charset) {
-		return data.getString(inc(length), length, charset);
+		return provider.getString(inc(length), length, charset);
 	}
 
 	/**
@@ -146,17 +151,17 @@ public class NavigableByteReader implements ByteReader, Navigable {
 
 	@Override
 	public byte[] readBytes(int length) {
-		return data.copy(inc(length), length);
+		return provider.copy(inc(length), length);
 	}
 
 	@Override
 	public int readInto(byte[] dest, int offset, int length) {
-		return data.copyTo(inc(length), dest, offset, length);
+		return provider.copyTo(inc(length), dest, offset, length);
 	}
 
 	@Override
 	public int readInto(ByteReceiver receiver, int offset, int length) {
-		return data.copyTo(inc(length), receiver, offset, length);
+		return provider.copyTo(inc(length), receiver, offset, length);
 	}
 
 	/**
@@ -168,7 +173,7 @@ public class NavigableByteReader implements ByteReader, Navigable {
 
 	@Override
 	public int transferTo(OutputStream out, int length) throws IOException {
-		return data.writeTo(inc(length), out, length);
+		return provider.writeTo(inc(length), out, length);
 	}
 
 	/**
@@ -180,15 +185,19 @@ public class NavigableByteReader implements ByteReader, Navigable {
 
 	@Override
 	public IntStream ustream(int length) {
-		return data.ustream(inc(length), length);
+		return provider.ustream(inc(length), length);
 	}
 
 	/* Other methods */
 
+	public T provider() {
+		return provider;
+	}
+	
 	/**
 	 * Creates a new reader for remaining bytes without incrementing the offset.
 	 */
-	public NavigableByteReader slice() {
+	public NavigableByteReader<T> slice() {
 		return slice(remaining());
 	}
 
@@ -196,16 +205,17 @@ public class NavigableByteReader implements ByteReader, Navigable {
 	 * Creates a new reader for subsequent bytes without incrementing the offset. Use a negative
 	 * length to look backwards, which may be useful for checksum calculations.
 	 */
-	public NavigableByteReader slice(int length) {
-		if (length >= 0) return of(data.slice(offset(), length));
-		return of(data.slice(offset() + length, -length));
+	public NavigableByteReader<T> slice(int length) {
+		int index = length < 0 ? offset() + length : offset();
+		length = Math.abs(length);
+		ArrayUtil.validateSlice(length(), index, length);
+		return of(provider, off + index, length);
 	}
-
-	/* Support methods */
 
 	private int inc(int length) {
-		int current = offset();
-		offset(current + length);
-		return current;
+		int position = off + index;
+		skip(length);
+		return position;
 	}
+	
 }

@@ -61,6 +61,7 @@ import ceri.common.data.MaskTranscoderBehavior;
 import ceri.common.data.NavigableBehavior;
 import ceri.common.data.NavigableByteReaderBehavior;
 import ceri.common.data.NavigableByteWriterBehavior;
+import ceri.common.data.StreamByteReaderBehavior;
 import ceri.common.data.StreamByteWriterBehavior;
 import ceri.common.data.TypeTranscoderBehavior;
 import ceri.common.data.UnsignedOctetTypeBehavior;
@@ -342,6 +343,7 @@ import ceri.common.xml.XmlUtilTest;
 	NavigableBehavior.class, //
 	NavigableByteReaderBehavior.class, //
 	NavigableByteWriterBehavior.class, //
+	StreamByteReaderBehavior.class, //
 	StreamByteWriterBehavior.class, //
 	TypeTranscoderBehavior.class, //
 	UnsignedOctetTypeBehavior.class, //
