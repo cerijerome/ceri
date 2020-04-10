@@ -34,7 +34,7 @@ public class ByteUtil {
 	 */
 	public static ByteProvider fromHex(String hex) {
 		if (hex == null) return null;
-		if (hex.isEmpty()) return ByteProvider.EMPTY;
+		if (hex.isEmpty()) return ByteArray.EMPTY;
 		byte[] array = new BigInteger(hex, HEX_RADIX).toByteArray(); // may have extra leading byte
 		return ByteArray.Immutable.wrap(array, array[0] == 0 ? 1 : 0); // remove leading byte
 	}

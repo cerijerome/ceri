@@ -16,6 +16,7 @@ import ceri.common.data.ByteArray.Mutable;
  * length. Except for {@link #offset(int)}, methods do not include an offset position. Clients must
  * first call {@link #offset(int)} if an absolute position is required.
  */
+@Deprecated
 public class NavigableByteWriter<T extends ByteReceiver>
 	implements Navigable, ByteWriter<NavigableByteWriter<T>> {
 	private final T receiver;
@@ -24,8 +25,8 @@ public class NavigableByteWriter<T extends ByteReceiver>
 	private int index = 0;
 	private int mark = 0;
 
-	public static NavigableByteWriter<Mutable> of(int... data) {
-		return of(ArrayUtil.bytes(data));
+	public static NavigableByteWriter<Mutable> of(int size) {
+		return of(Mutable.of(size));
 	}
 
 	public static NavigableByteWriter<Mutable> of(byte[] data) {

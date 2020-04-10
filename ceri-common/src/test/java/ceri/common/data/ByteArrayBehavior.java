@@ -119,7 +119,7 @@ public class ByteArrayBehavior {
 	@Test
 	public void shouldCopyFromArray() {
 		Mutable m = Mutable.wrap(1, 2, 3, 4, 5);
-		assertThat(m.copyFrom(3, -4, -5), is(5));
+		assertThat(m.setBytes(3, -4, -5), is(5));
 		assertThat(m.isEqualTo(0, 1, 2, 3, -4, -5), is(true));
 		assertThrown(() -> m.copyFrom(3, ArrayUtil.bytes(1, 2, 3), 0));
 		assertThrown(() -> m.copyFrom(0, ArrayUtil.bytes(1, 2, 3), 2, 2));

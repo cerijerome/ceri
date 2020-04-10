@@ -3,6 +3,7 @@ package ceri.common.data;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import ceri.common.data.ByteArray.Mutable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.RuntimeIoException;
 import ceri.common.util.ExceptionAdapter;
@@ -11,6 +12,7 @@ import ceri.common.util.ExceptionAdapter;
  * {@link ByteReader} wrapper for a {@link java.io.InputStream}. This provides sequential reading of
  * bytes. The type T allows typed access to the InputStream methods.
  */
+@Deprecated
 public class StreamByteReader<T extends InputStream> implements ByteReader {
 	private static final ExceptionAdapter<RuntimeIoException> ioAdapter = IoUtil.RUNTIME_IO_ADAPTER;
 	private static final int READ_LIMIT_DEF = 8 * 1024;

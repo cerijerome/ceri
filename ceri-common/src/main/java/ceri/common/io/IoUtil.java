@@ -338,10 +338,10 @@ public class IoUtil {
 	public static ByteProvider availableBytes(InputStream in) throws IOException {
 		if (in == null) return null;
 		int count = in.available();
-		if (count == 0) return ByteProvider.EMPTY;
+		if (count == 0) return ByteArray.EMPTY;
 		byte[] buffer = new byte[count];
 		count = in.read(buffer);
-		if (count <= 0) return ByteProvider.EMPTY;
+		if (count <= 0) return ByteArray.EMPTY;
 		return ByteArray.Immutable.wrap(buffer, 0, count);
 	}
 

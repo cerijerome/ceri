@@ -46,6 +46,13 @@ public interface ByteReceiver {
 	int setByte(int index, int value);
 
 	/**
+	 * Sets bytes at given index. Returns the index after the written bytes.
+	 */
+	default int setBytes(int index, int... array) {
+		return copyFrom(index, ArrayUtil.bytes(array));
+	}
+
+	/**
 	 * Creates a byte provider sub-view. A negative length will right-justify the view. Returns the
 	 * current provider for zero index and same length.
 	 */
@@ -236,13 +243,6 @@ public interface ByteReceiver {
 	}
 
 	/**
-	 * Copies bytes from the array. Returns the index after the written bytes.
-	 */
-	default int copyFrom(int index, int... array) {
-		return copyFrom(index, ArrayUtil.bytes(array));
-	}
-
-	/**
 	 * Copies bytes from the array to the index. Returns the index after the written bytes.
 	 */
 	default int copyFrom(int index, byte[] array) {
@@ -335,6 +335,128 @@ public interface ByteReceiver {
 		ArrayUtil.validateSlice(receiver.length(), index, length);
 		byte[] buffer = in.readNBytes(length); // < length if EOF
 		return receiver.copyFrom(index, buffer);
+	}
+
+	/**
+	 * Provides sequential byte access.
+	 */
+	default Writer writer(int index) {
+		return writer(index, length() - index);
+	}
+	
+	/**
+	 * Provides sequential byte access.
+	 */
+	default Writer writer(int index, int length) {
+		return new Writer(this, index, length);
+	}
+	
+	/**
+	 * {@link Navigator} and {@link ByteWriter} wrapper for a {@link ByteReceiver}. This provides
+	 * sequential writing of bytes, and relative/absolute positioning for the next write. The type T
+	 * allows typed access to the ByteReceiver.
+	 * <p/>
+	 * ByteWriter interface is complemented with methods that use remaining bytes instead of given
+	 * length. Except for {@link #offset(int)}, methods do not include an offset position. Clients
+	 * must first call {@link #offset(int)} if an absolute position is required.
+	 */
+	static class Writer extends Navigator<Writer> implements ByteWriter<Writer> {
+		private final ByteReceiver receiver;
+		private final int start;
+
+		private Writer(ByteReceiver receiver, int offset, int length) {
+			super(length);
+			this.receiver = receiver;
+			this.start = offset;
+		}
+
+		/* ByteWriter overrides and additions */
+
+		@Override
+		public Writer writeByte(int value) {
+			return position(receiver.setByte(position(), value));
+		}
+
+		@Override
+		public Writer writeEndian(long value, int size, boolean msb) {
+			return position(receiver.setEndian(position(), size, value, msb));
+		}
+
+		@Override
+		public Writer writeString(String s, Charset charset) {
+			return position(receiver.setString(position(), s, charset));
+		}
+
+		/**
+		 * Fill remaining bytes with same value.
+		 */
+		public Writer fill(int value) {
+			return fill(remaining(), value);
+		}
+
+		@Override
+		public Writer fill(int length, int value) {
+			return position(receiver.fill(position(), length, value));
+		}
+
+		@Override
+		public Writer writeFrom(byte[] array, int offset, int length) {
+			return position(receiver.copyFrom(position(), array, offset, length));
+		}
+
+		@Override
+		public Writer writeFrom(ByteProvider provider, int offset, int length) {
+			return position(receiver.copyFrom(position(), provider, offset, length));
+		}
+
+		/**
+		 * Writes bytes from the input stream to remaining space, and returns the number of bytes
+		 * transferred.
+		 */
+		public int transferFrom(InputStream in) throws IOException {
+			return transferFrom(in, remaining());
+		}
+
+		@Override
+		public int transferFrom(InputStream in, int length) throws IOException {
+			int current = position();
+			position(receiver.readFrom(current, in, length));
+			return position() - current;
+		}
+
+		/* Other methods */
+
+		/**
+		 * Creates a new reader for remaining bytes without incrementing the offset.
+		 */
+		public Writer slice() {
+			return slice(remaining());
+		}
+
+		/**
+		 * Creates a new reader for subsequent bytes without incrementing the offset. Use a negative
+		 * length to look backwards, which may be useful for checksum calculations.
+		 */
+		public Writer slice(int length) {
+			int offset = length < 0 ? offset() + length : offset();
+			length = Math.abs(length);
+			ArrayUtil.validateSlice(length(), offset, length);
+			return new Writer(receiver, start + offset, length);
+		}
+
+		/**
+		 * The actual position within the byte receiver.
+		 */
+		private int position() {
+			return start + offset();
+		}
+
+		/**
+		 * Set the offset from receiver actual position.
+		 */
+		private Writer position(int position) {
+			return offset(position - start);
+		}
 	}
 
 }

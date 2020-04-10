@@ -4,11 +4,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.RuntimeIoException;
+import ceri.common.util.BasicUtil;
 import ceri.common.util.ExceptionAdapter;
 
 /**
@@ -16,62 +19,43 @@ import ceri.common.util.ExceptionAdapter;
  * of bytes. The type T allows typed access to the OutputStream methods, such as
  * ByteArrayOutputStream.toByteArray().
  */
-public class StreamByteWriter<T extends OutputStream> implements ByteWriter<StreamByteWriter<T>> {
+@Deprecated
+public class StreamByteWriter<T extends StreamByteWriter<T>> implements ByteWriter<T> {
 	private static final ExceptionAdapter<RuntimeIoException> ioAdapter = IoUtil.RUNTIME_IO_ADAPTER;
-	private final T out;
+	private final OutputStream out;
 
-	/**
-	 * Returns a byte array copy of the ByteArrayOutputStream current state. 
-	 */
-	public static byte[] bytes(StreamByteWriter<ByteArrayOutputStream> writer) {
-		return writer.out().toByteArray();
-	}
-	
-	/**
-	 * Creates an immutable byte array copy of the ByteArrayOutputStream current state. 
-	 */
-	public static Immutable immutable(StreamByteWriter<ByteArrayOutputStream> writer) {
-		return Immutable.wrap(bytes(writer));
-	}
-	
-	/**
-	 * Creates a mutable byte array copy of the ByteArrayOutputStream current state. 
-	 */
-	public static Mutable mutable(StreamByteWriter<ByteArrayOutputStream> writer) {
-		return Mutable.wrap(bytes(writer));
-	}
-	
-	public static StreamByteWriter<ByteArrayOutputStream> of() {
-		return of(new ByteArrayOutputStream());
-	}
-
-	public static <T extends OutputStream> StreamByteWriter<T> of(T out) {
-		return new StreamByteWriter<>(out);
-	}
-
-	private StreamByteWriter(T out) {
+	private StreamByteWriter(OutputStream out) {
 		this.out = out;
 	}
 
+	public StreamByteWriter<T> apply(Consumer<? super StreamByteWriter<T>> consumer) {
+		consumer.accept(this);
+		return this;
+	}
+	
+	public <U> U map(Function<? super StreamByteWriter<T>, U> fn) {
+		return fn.apply(this);
+	}
+	
 	/* ByteReader overrides */
 
 	@Override
-	public StreamByteWriter<T> writeByte(int value) {
+	public T writeByte(int value) {
 		return run(() -> out.write(value));
 	}
 
 	@Override
-	public StreamByteWriter<T> fill(int length, int value) {
+	public T fill(int length, int value) {
 		return writeFrom(ByteUtil.fill(length, value));
 	}
 
 	@Override
-	public StreamByteWriter<T> writeFrom(byte[] array, int offset, int length) {
+	public T writeFrom(byte[] array, int offset, int length) {
 		return run(() -> out.write(array, offset, length));
 	}
 
 	@Override
-	public StreamByteWriter<T> writeFrom(ByteProvider provider, int offset, int length) {
+	public T writeFrom(ByteProvider provider, int offset, int length) {
 		return run(() -> provider.writeTo(offset, out, length));
 	}
 
@@ -83,9 +67,9 @@ public class StreamByteWriter<T extends OutputStream> implements ByteWriter<Stre
 	/* OutputStream methods */
 	
 	/**
-	 * Typed access to the output stream.
+	 * Access to the output stream.
 	 */
-	public T out() {
+	public OutputStream out() {
 		return out;
 	}
 
@@ -96,9 +80,13 @@ public class StreamByteWriter<T extends OutputStream> implements ByteWriter<Stre
 		return run(out::flush);
 	}
 	
-	private StreamByteWriter<T> run(ExceptionRunnable<IOException> runnable) {
+	private T run(ExceptionRunnable<IOException> runnable) {
 		ioAdapter.run(runnable);
-		return this;
+		return typedThis();
 	}
 
+	private T typedThis() {
+		return BasicUtil.uncheckedCast(this);
+	}
+	
 }

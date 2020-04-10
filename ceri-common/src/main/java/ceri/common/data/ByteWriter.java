@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.function.Fluent;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -27,7 +28,7 @@ import ceri.common.util.BasicUtil;
  * 
  * @see ceri.common.data.NavigableByteReader
  */
-public interface ByteWriter<T extends ByteWriter<T>> {
+public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 
 	/**
 	 * Writes a byte. May throw unchecked exception if no capacity to write.
@@ -205,7 +206,7 @@ public interface ByteWriter<T extends ByteWriter<T>> {
 	/**
 	 * Writes bytes from array.
 	 */
-	default T writeFrom(int... array) {
+	default T writeBytes(int... array) {
 		return writeFrom(ArrayUtil.bytes(array));
 	}
 

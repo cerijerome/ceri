@@ -90,8 +90,8 @@ public class ByteReceiverBehavior {
 
 	@Test
 	public void shouldCopyFromByteArray() {
-		assertBytes(5, br -> assertThat(br.copyFrom(1, 1, 2, 3), is(4)), 0, 1, 2, 3, 0);
-		assertThrown(() -> receiver(5).copyFrom(4, 1, 2, 3));
+		assertBytes(5, br -> assertThat(br.setBytes(1, 1, 2, 3), is(4)), 0, 1, 2, 3, 0);
+		assertThrown(() -> receiver(5).setBytes(4, 1, 2, 3));
 	}
 
 	@Test

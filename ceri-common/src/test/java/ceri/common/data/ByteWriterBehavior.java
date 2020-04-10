@@ -76,8 +76,8 @@ public class ByteWriterBehavior {
 
 	@Test
 	public void shouldWriteFromByteArray() {
-		assertBytes(3, w -> w.writeFrom(1, 2, 3), 1, 2, 3);
-		assertThrown(() -> writer(3).writeFrom(1, 2, 3, 4));
+		assertBytes(3, w -> w.writeBytes(1, 2, 3), 1, 2, 3);
+		assertThrown(() -> writer(3).writeBytes(1, 2, 3, 4));
 	}
 
 	@Test

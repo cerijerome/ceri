@@ -1,5 +1,6 @@
 package ceri.common.data;
 
+@Deprecated
 public interface Navigable {
 
 	int offset();

@@ -1,13 +1,16 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.function.Fluent;
 import ceri.common.util.HashCoder;
 
 /**
@@ -19,10 +22,29 @@ import ceri.common.util.HashCoder;
  * window must not be accessed or copied.
  */
 public abstract class ByteArray implements ByteProvider {
+	public static final Mutable EMPTY = new Mutable(ArrayUtil.EMPTY_BYTE, 0, 0);
 	final byte[] array;
 	private final int offset;
 	private final int length;
 
+	/**
+	 * Encode a fixed-size byte array, using a ByteWriter.
+	 */
+	public static Mutable encode(int size, Consumer<? super ByteReceiver.Writer> consumer) {
+		Mutable bytes = Mutable.of(size);
+		consumer.accept(bytes.writer(0));
+		return bytes;
+	}
+	
+	/**
+	 * Encode a variable-sized byte array, using a ByteWriter.
+	 */
+	public static Mutable encode(Consumer<? super ByteStream.Writer> consumer) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		consumer.accept(ByteStream.writer(out));
+		return Mutable.wrap(out.toByteArray());
+	}
+	
 	/**
 	 * Wrapper for a byte array that does not allow modification. It allows slicing of views to
 	 * promote re-use rather than copying of bytes. Note that wrap() does not copy the original byte
@@ -30,7 +52,7 @@ public abstract class ByteArray implements ByteProvider {
 	 * large arrays, copying may be better for long-term objects, as the reference to the original
 	 * array is no longer held.
 	 */
-	public static class Immutable extends ByteArray {
+	public static class Immutable extends ByteArray implements Fluent<Immutable> {
 		public static final Immutable EMPTY = new Immutable(EMPTY_BYTE, 0, 0);
 
 		public static Immutable copyOf(byte[] array) {
@@ -108,7 +130,7 @@ public abstract class ByteArray implements ByteProvider {
 	 * re-use rather than copying of bytes. Note that wrap() does not copy the original byte array,
 	 * and modifications of the original array will modify the wrapped array.
 	 */
-	public static class Mutable extends ByteArray implements ByteReceiver {
+	public static class Mutable extends ByteArray implements ByteReceiver, Fluent<Mutable> {
 		public static final Mutable EMPTY = new Mutable(ArrayUtil.EMPTY_BYTE, 0, 0);
 
 		public static Mutable of(int length) {
@@ -212,7 +234,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 	}
 
-	protected ByteArray(byte[] array, int offset, int length) {
+	private ByteArray(byte[] array, int offset, int length) {
 		this.array = array;
 		this.offset = offset;
 		this.length = length;

@@ -16,6 +16,7 @@ import ceri.common.data.ByteArray.Immutable;
  * length. Except for {@link #offset(int)}, methods do not include an offset position. Clients must
  * first call {@link #offset(int)} if an absolute position is required.
  */
+@Deprecated
 public class NavigableByteReader<T extends ByteProvider> implements ByteReader, Navigable {
 	private final T provider;
 	private final int off;	

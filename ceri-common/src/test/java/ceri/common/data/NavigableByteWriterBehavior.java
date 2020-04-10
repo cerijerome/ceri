@@ -19,6 +19,11 @@ public class NavigableByteWriterBehavior {
 	private static final byte[] defCset = "abcde".getBytes(Charset.defaultCharset());
 
 	@Test
+	public void shouldCreateWithGivenSize() {
+		assertThat(NavigableByteWriter.of(3).remaining(), is(3));
+	}
+
+	@Test
 	public void shouldWrapByteArray() {
 		byte[] bytes = ArrayUtil.bytes(0, -1, 2, -3, 4);
 		NavigableByteWriter.of(bytes).skip(2).fill(0xff);
@@ -67,8 +72,8 @@ public class NavigableByteWriterBehavior {
 
 	@Test
 	public void shouldWriteFromByteArray() {
-		assertBytes(3, w -> w.writeFrom(1, 2, 3), 1, 2, 3);
-		assertThrown(() -> writer(3).writeFrom(1, 2, 3, 4));
+		assertBytes(3, w -> w.writeBytes(1, 2, 3), 1, 2, 3);
+		assertThrown(() -> writer(3).writeBytes(1, 2, 3, 4));
 	}
 
 	@Test
@@ -88,10 +93,10 @@ public class NavigableByteWriterBehavior {
 
 	@Test
 	public void shouldProvideAccessToReceiver() {
-		NavigableByteWriter<Mutable> w = NavigableByteWriter.of(1, 2, 3);
+		NavigableByteWriter<Mutable> w = NavigableByteWriter.of(ArrayUtil.bytes(1, 2, 3));
 		assertArray(w.receiver().copy(0), 1, 2, 3);
 	}
-	
+
 	@Test
 	public void shouldSliceProvidedByteRange() {
 		assertBytes(5, w -> w.skip(2).slice().fill(0xff), 0, 0, 0xff, 0xff, 0xff);
@@ -110,13 +115,6 @@ public class NavigableByteWriterBehavior {
 	}
 
 	/**
-	 * Create wrapper for sized byte array; used for exception checking.
-	 */
-	private static NavigableByteWriter<?> writer(int size) {
-		return NavigableByteWriter.of(new byte[size]);
-	}
-
-	/**
 	 * Creates a NavigableByteWriter wrapping a fixed-size byte array, executes the action on the
 	 * ByteReceiver, and asserts the bytes in the array.
 	 */
@@ -125,6 +123,13 @@ public class NavigableByteWriterBehavior {
 		Holder holder = Holder.of(size);
 		action.accept(holder.writer);
 		assertArray(holder.bytes, bytes);
+	}
+
+	/**
+	 * Create wrapper for sized byte array; used for exception checking.
+	 */
+	private static NavigableByteWriter<?> writer(int size) {
+		return NavigableByteWriter.of(size);
 	}
 
 	/**
