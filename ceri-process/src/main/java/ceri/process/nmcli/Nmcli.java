@@ -72,7 +72,7 @@ public class Nmcli {
 
 		public String up(String id, Integer waitSec) throws IOException {
 			Parameters params = Parameters.of(UP_COMMAND, ID_PARAM, id);
-			if (waitSec != null) params.add(WAIT_OPTION, String.valueOf(waitSec));
+			if (waitSec != null) params.add(WAIT_OPTION, waitSec);
 			return exec(params);
 		}
 

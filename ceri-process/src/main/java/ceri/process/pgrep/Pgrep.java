@@ -45,7 +45,7 @@ public class Pgrep {
 	}
 
 	private String exec(Parameters params) throws IOException {
-		return processor.exec(Parameters.of(PGREP).add(params));
+		return processor.exec(Parameters.of(PGREP).addAll(params));
 	}
 
 }

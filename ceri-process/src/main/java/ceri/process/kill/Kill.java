@@ -35,7 +35,7 @@ public class Kill {
 	}
 
 	private String exec(Parameters params) throws IOException {
-		return processor.exec(Parameters.of(KILL).add(params));
+		return processor.exec(Parameters.of(KILL).addAll(params));
 	}
 
 }

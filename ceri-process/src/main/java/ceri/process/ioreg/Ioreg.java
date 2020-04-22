@@ -21,11 +21,11 @@ public class Ioreg {
 	}
 
 	public String exec(String... parameters) throws IOException {
-		return exec(Parameters.of(parameters));
+		return exec(Parameters.ofAll(parameters));
 	}
 
 	private String exec(Parameters params) throws IOException {
-		return processor.exec(Parameters.of(IOREG).add(params));
+		return processor.exec(Parameters.of(IOREG).addAll(params));
 	}
 
 }

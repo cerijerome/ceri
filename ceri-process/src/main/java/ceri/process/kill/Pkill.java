@@ -41,7 +41,7 @@ public class Pkill {
 	}
 
 	private String exec(Parameters params) throws IOException {
-		return processor.exec(Parameters.of(PKILL).add(params));
+		return processor.exec(Parameters.of(PKILL).addAll(params));
 	}
 
 }

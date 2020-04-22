@@ -27,7 +27,7 @@ public class Arp {
 	}
 
 	private String exec(Parameters params) throws IOException {
-		return processor.exec(Parameters.of(ARP).add(params));
+		return processor.exec(Parameters.of(ARP).addAll(params));
 	}
 
 }
