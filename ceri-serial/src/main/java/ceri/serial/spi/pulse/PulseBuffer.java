@@ -1,7 +1,8 @@
 package ceri.serial.spi.pulse;
 
 import java.nio.ByteBuffer;
-import ceri.common.collection.ImmutableByteArray;
+import ceri.common.data.ByteArray.Immutable;
+import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
 import ceri.common.data.ByteUtil;
 
@@ -29,7 +30,7 @@ public class PulseBuffer implements ByteReceiver {
 	}
 
 	/**
-	 * Returns the storage size to hold the data converted to pulses. 
+	 * Returns the storage size to hold the data converted to pulses.
 	 */
 	public int storageSize() {
 		return buffer.length;
@@ -43,10 +44,11 @@ public class PulseBuffer implements ByteReceiver {
 	}
 
 	@Override
-	public void set(int pos, int value) {
+	public int setByte(int pos, int value) {
 		int bit = pos * Byte.SIZE;
 		for (int i = 0; i < Byte.SIZE; i++)
 			setDataBit(bit + Byte.SIZE - i - 1, (value & (1 << i)) != 0);
+		return pos + 1;
 	}
 
 	private void initBuffer(int dataBytes) {
@@ -67,8 +69,8 @@ public class PulseBuffer implements ByteReceiver {
 		out.put(buffer);
 	}
 
-	public ImmutableByteArray buffer() {
-		return ImmutableByteArray.wrap(buffer);
+	public ByteProvider buffer() {
+		return Immutable.wrap(buffer);
 	}
 
 	private void setStorageBits(int pos, int count, boolean on) {

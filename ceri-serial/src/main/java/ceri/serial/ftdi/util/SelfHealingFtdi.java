@@ -220,6 +220,7 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 		execReturn(FunctionUtil.asFunction(consumer));
 	}
 
+	@SuppressWarnings("resource")
 	private <T> T execReturn(ExceptionFunction<LibUsbException, Ftdi, T> fn)
 		throws LibUsbException {
 		try {
@@ -233,7 +234,7 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 	private Ftdi ftdi() throws LibUsbException {
 		Ftdi ftdi = this.ftdi;
 		if (ftdi != null) return ftdi;
-		throw new LibUsbException("Ftdi device is not available", LIBUSB_ERROR_NO_DEVICE);
+		throw LibUsbException.of(LIBUSB_ERROR_NO_DEVICE, "Ftdi device is not available");
 	}
 
 	@Override

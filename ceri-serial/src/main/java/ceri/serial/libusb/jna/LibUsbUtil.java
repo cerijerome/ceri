@@ -13,8 +13,8 @@ public class LibUsbUtil {
 
 	public static void require(ByteBuffer buffer, int remaining) throws LibUsbException {
 		if (buffer == null || buffer.remaining() >= remaining) return;
-		throw new LibUsbException(String.format("Buffer too small: %d / %d",
-			buffer.remaining(), remaining), LIBUSB_ERROR_INVALID_PARAM);
+		throw LibUsbException.of(LIBUSB_ERROR_INVALID_PARAM, "Buffer too small: %d / %d",
+			buffer.remaining(), remaining);
 	}
 
 	public static void require(libusb_device dev) throws LibUsbException {
@@ -35,7 +35,7 @@ public class LibUsbUtil {
 
 	public static void require(Object obj, String name) throws LibUsbException {
 		if (obj != null) return;
-		throw new LibUsbException(name + " unavailable", LIBUSB_ERROR_INVALID_PARAM);
+		throw LibUsbException.of(LIBUSB_ERROR_INVALID_PARAM, name + " unavailable");
 	}
 
 }

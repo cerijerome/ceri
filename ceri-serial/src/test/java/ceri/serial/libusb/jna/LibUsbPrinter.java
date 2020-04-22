@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.function.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.ImmutableByteArray;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.StringUtil;
@@ -35,7 +34,7 @@ public class LibUsbPrinter {
 	public static void main(String[] args) {
 		// Skips devices that cause seg fault
 		builder().skip(0x05ac, 0x8007).skip(0x05ac, 0x8006).build().print();
-		//builder().build().print();
+		// builder().build().print();
 	}
 
 	public static class Builder {
@@ -244,7 +243,7 @@ public class LibUsbPrinter {
 
 	private String hex(byte[] bytes) {
 		if (bytes == null) return null;
-		return "[" + ByteUtil.toHex(ImmutableByteArray.wrap(bytes)) + "]";
+		return "[" + ByteUtil.toHex(bytes, " ") + "]";
 	}
 
 	private String descriptor(libusb_device_handle handle, byte desc_index) throws LibUsbException {

@@ -1,6 +1,6 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.serial.jna.JnaUtil.ubyte;
+import static ceri.common.math.MathUtil.ubyte;
 import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_STRING;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPORTED;
@@ -8,7 +8,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK;
 import static ceri.serial.libusb.jna.LibUsbUtil.require;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
@@ -21,11 +20,13 @@ import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteUtil;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntAccessor;
 import ceri.common.data.MaskTranscoder;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.text.StringUtil;
+import ceri.serial.clib.jna.CUtil;
 import ceri.serial.clib.jna.Time.timeval;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.Struct;
@@ -453,7 +454,7 @@ public class LibUsb {
 		}
 
 		public byte[] extra() {
-			return JnaUtil.byteArray(extra, extra_length);
+			return JnaUtil.byteArray(extra, 0, extra_length);
 		}
 
 		@Override
@@ -515,7 +516,7 @@ public class LibUsb {
 		}
 
 		public byte[] extra() {
-			return JnaUtil.byteArray(extra, extra_length);
+			return JnaUtil.byteArray(extra, 0, extra_length);
 		}
 
 		@Override
@@ -601,7 +602,7 @@ public class LibUsb {
 		}
 
 		public byte[] extra() {
-			return JnaUtil.byteArray(extra, extra_length);
+			return JnaUtil.byteArray(extra, 0, extra_length);
 		}
 
 		@Override
@@ -1695,7 +1696,7 @@ public class LibUsb {
 			libusb_standard_request.LIBUSB_REQUEST_GET_DESCRIPTOR.value,
 			(LIBUSB_DT_STRING.value << 8) | desc_index, langid, buffer, buffer.limit(),
 			DEFAULT_TIMEOUT);
-		return JnaUtil.string(StandardCharsets.UTF_16, buffer, size);
+		return JnaUtil.string(StandardCharsets.UTF_16, buffer, 0, size);
 	}
 
 	/* polling and timeouts */
@@ -1872,7 +1873,7 @@ public class LibUsb {
 
 	public static libusb_version libusb_get_version() throws LibUsbException {
 		libusb_version version = LIBUSB.libusb_get_version();
-		if (version == null) throw error("get_version", LIBUSB_ERROR_NOT_SUPPORTED);
+		if (version == null) throw error(LIBUSB_ERROR_NOT_SUPPORTED, "get_version");
 		return version;
 	}
 
@@ -1914,7 +1915,7 @@ public class LibUsb {
 	public static libusb_device libusb_ref_device(libusb_device dev) throws LibUsbException {
 		require(dev);
 		libusb_device device = LIBUSB.libusb_ref_device(dev);
-		if (device == null) throw error("ref_device", LIBUSB_ERROR_NOT_FOUND);
+		if (device == null) throw error(LIBUSB_ERROR_NOT_FOUND, "ref_device");
 		return device;
 	}
 
@@ -2101,7 +2102,7 @@ public class LibUsb {
 	public static libusb_device libusb_get_parent(libusb_device dev) throws LibUsbException {
 		require(dev);
 		libusb_device device = LIBUSB.libusb_get_parent(dev);
-		if (device == null) throw error("get_parent", LIBUSB_ERROR_NOT_FOUND);
+		if (device == null) throw error(LIBUSB_ERROR_NOT_FOUND, "get_parent");
 		return device;
 	}
 
@@ -2145,7 +2146,7 @@ public class LibUsb {
 		throws LibUsbException {
 		if (dev_handle == null) return null;
 		libusb_device device = LIBUSB.libusb_get_device(dev_handle);
-		if (device == null) throw error("get_device", LIBUSB_ERROR_NOT_FOUND);
+		if (device == null) throw error(LIBUSB_ERROR_NOT_FOUND, "get_device");
 		return device;
 	}
 
@@ -2172,7 +2173,7 @@ public class LibUsb {
 		require(ctx);
 		libusb_device_handle handle =
 			LIBUSB.libusb_open_device_with_vid_pid(ctx, (short) vendor_id, (short) product_id);
-		if (handle == null) throw error("open_device_with_vid_pid", LIBUSB_ERROR_NOT_FOUND);
+		if (handle == null) throw error(LIBUSB_ERROR_NOT_FOUND, "open_device_with_vid_pid");
 		return handle;
 	}
 
@@ -2202,7 +2203,7 @@ public class LibUsb {
 	public static int libusb_alloc_streams(libusb_device_handle dev, int num_streams,
 		byte[] endpoints) throws LibUsbException {
 		require(dev);
-		Memory m = JnaUtil.malloc(endpoints);
+		Memory m = CUtil.malloc(endpoints);
 		return verify(LIBUSB.libusb_alloc_streams(dev, num_streams, m, endpoints.length),
 			"alloc_streams");
 	}
@@ -2215,7 +2216,7 @@ public class LibUsb {
 	public static void libusb_free_streams(libusb_device_handle dev, byte[] endpoints)
 		throws LibUsbException {
 		if (dev == null || endpoints.length == 0) return;
-		Memory m = JnaUtil.malloc(endpoints);
+		Memory m = CUtil.malloc(endpoints);
 		verify(LIBUSB.libusb_free_streams(dev, m, endpoints.length), "free_streams");
 	}
 
@@ -2247,7 +2248,7 @@ public class LibUsb {
 
 	public static libusb_transfer libusb_alloc_transfer(int iso_packets) throws LibUsbException {
 		libusb_transfer transfer = LIBUSB.libusb_alloc_transfer(iso_packets);
-		if (transfer == null) throw error("alloc_transfer", LIBUSB_ERROR_NO_MEM);
+		if (transfer == null) throw error(LIBUSB_ERROR_NO_MEM, "alloc_transfer");
 		return transfer;
 	}
 
@@ -2294,7 +2295,7 @@ public class LibUsb {
 		ByteBuffer buffer = ByteBuffer.allocate(wLength);
 		int count = libusb_control_transfer(dev_handle, request_type, bRequest, wValue, wIndex,
 			buffer, wLength, timeout);
-		return JnaUtil.byteArray(buffer, count);
+		return JnaUtil.byteArray(buffer, 0, count);
 	}
 
 	public static int libusb_control_transfer(libusb_device_handle dev_handle, int request_type,
@@ -2324,7 +2325,7 @@ public class LibUsb {
 		int length, int timeout) throws LibUsbException {
 		ByteBuffer buffer = ByteBuffer.allocate(length);
 		int count = libusb_bulk_transfer(dev_handle, endpoint, buffer, length, timeout);
-		return JnaUtil.byteArray(buffer, count);
+		return JnaUtil.byteArray(buffer, 0, count);
 	}
 
 	public static int libusb_bulk_transfer(libusb_device_handle dev_handle, int endpoint,
@@ -2352,7 +2353,7 @@ public class LibUsb {
 		int length, int timeout) throws LibUsbException {
 		ByteBuffer buffer = ByteBuffer.allocate(length);
 		int len = libusb_interrupt_transfer(dev_handle, endpoint, buffer, length, timeout);
-		return JnaUtil.byteArray(buffer, len);
+		return JnaUtil.byteArray(buffer, 0, len);
 	}
 
 	public static int libusb_interrupt_transfer(libusb_device_handle dev_handle, int endpoint,
@@ -2377,7 +2378,7 @@ public class LibUsb {
 		ByteBuffer buffer = ByteBuffer.allocate(MAX_DESCRIPTOR_SIZE);
 		int size = verify(LIBUSB.libusb_get_string_descriptor_ascii(dev, (byte) desc_index, //
 			buffer, buffer.capacity()), "get_string_descriptor_ascii");
-		return JnaUtil.string(StandardCharsets.ISO_8859_1, buffer, size);
+		return JnaUtil.string(StandardCharsets.ISO_8859_1, buffer, 0, size);
 	}
 
 	/* polling and timeouts */
@@ -2477,7 +2478,7 @@ public class LibUsb {
 		throws LibUsbException {
 		require(ctx);
 		libusb_pollfd.ByReference ref = LIBUSB.libusb_get_pollfds(ctx);
-		if (ref == null) throw error("get_pollfds", LIBUSB_ERROR_NO_MEM);
+		if (ref == null) throw error(LIBUSB_ERROR_NO_MEM, "get_pollfds");
 		return ref;
 	}
 
@@ -2517,17 +2518,16 @@ public class LibUsb {
 
 	private static int verify(int result, String name, Object... objs) throws LibUsbException {
 		if (result >= 0) return result;
-		StringBuilder b = new StringBuilder("libusb_").append(name).append("(");
-		String message = StringUtil.append(b, ", ", objs).append(") failed").toString();
-		throw LibUsbException.fullMessage(message, result);
+		throw LibUsbException.full(result, "libusb_%s(%s) failed", name,
+			StringUtil.join(", ", objs));
 	}
 
-	private static LibUsbException error(String name, libusb_error error) {
-		return LibUsbException.fullMessage("libusb_" + name + " failed", error);
+	private static LibUsbException error(libusb_error error, String name) {
+		return LibUsbException.full(error, "libusb_%s failed", name);
 	}
 
 	private static short libusb_cpu_to_le16(short x) {
-		if (ByteOrder.LITTLE_ENDIAN.equals(ByteOrder.nativeOrder())) return x;
+		if (!ByteUtil.BIG_ENDIAN) return x;
 		return Short.reverseBytes(x);
 	}
 

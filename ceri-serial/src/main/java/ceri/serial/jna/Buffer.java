@@ -13,6 +13,7 @@ import ceri.common.util.HashCoder;
 /**
  * Encapsulates a buffer, tracking its pointer and length in bytes.
  */
+@Deprecated
 public class Buffer {
 	public final int size;
 	public final Pointer p;

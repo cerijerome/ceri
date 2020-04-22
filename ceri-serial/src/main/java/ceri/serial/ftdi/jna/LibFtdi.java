@@ -1,6 +1,7 @@
 package ceri.serial.ftdi.jna;
 
 import static ceri.common.collection.ImmutableUtil.enumSet;
+import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.serial.clib.jna.CException.capture;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_2232C;
@@ -68,7 +69,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSF
 import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_criteria;
 import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_device_callback;
 import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_devices_ref;
-import static java.lang.String.format;
 import static java.util.regex.Pattern.compile;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -107,9 +107,8 @@ import ceri.serial.libusb.jna.LibUsbNotFoundException;
 import ceri.serial.libusb.jna.LibUsbUtil;
 
 /**
- * Implementation of libftdi.
- * 
- * TODO: extensive testing, including async transfers; implement eeprom functionality
+ * Implementation of libftdi. TODO: extensive testing, including async transfers; implement eeprom
+ * functionality
  */
 public class LibFtdi {
 	private static final Logger logger = LogManager.getLogger();
@@ -664,9 +663,8 @@ public class LibFtdi {
 		throws LibUsbException {
 		require(ftdi);
 		if (iface == INTERFACE_ANY) iface = INTERFACE_A;
-		if (ftdi.usb_dev != null && ftdi.index != iface.value)
-			throw new LibUsbException("Interface cannot be changed on an open device",
-				LIBUSB_ERROR_NOT_SUPPORTED);
+		if (ftdi.usb_dev != null && ftdi.index != iface.value) throw LibUsbException
+			.of(LIBUSB_ERROR_NOT_SUPPORTED, "Interface cannot be changed on an open device");
 
 		switch (iface) {
 		case INTERFACE_ANY:
@@ -695,7 +693,7 @@ public class LibFtdi {
 			ftdi.in_ep = libusb_endpoint_address(8, LIBUSB_ENDPOINT_OUT); // 0x08
 			break;
 		default:
-			throw new LibUsbException("Unknown interface: " + iface, LIBUSB_ERROR_INVALID_PARAM);
+			throw LibUsbException.of(LIBUSB_ERROR_INVALID_PARAM, "Unknown interface: " + iface);
 		}
 	}
 
@@ -830,7 +828,7 @@ public class LibFtdi {
 		if (!libusb_find_device_callback(ftdi.usb_ctx, criteria, dev -> {
 			ftdi_usb_open_dev(ftdi, dev);
 			return true;
-		})) throw new LibUsbNotFoundException("Device not found, " + criteria);
+		})) throw LibUsbNotFoundException.of("Device not found, " + criteria);
 	}
 
 	/**
@@ -909,8 +907,8 @@ public class LibFtdi {
 			ftdi_usb_open_desc(ftdi, vendor, product, null, serial);
 			return;
 		}
-		throw new LibUsbException("Invalid description format: " + description,
-			LIBUSB_ERROR_INVALID_PARAM);
+		throw LibUsbException.of(LIBUSB_ERROR_INVALID_PARAM,
+			"Invalid description format: " + description);
 	}
 
 	public static void ftdi_usb_reset(ftdi_context ftdi) throws LibUsbException {
@@ -1029,14 +1027,13 @@ public class LibFtdi {
 
 		if (ftdi.bitbang_enabled().get()) baudrate = baudrate * 4;
 		int actual_baudrate = ftdi_convert_baudrate(baudrate, ftdi, value, index);
-		if (actual_baudrate <= 0) throw new LibUsbException("Baudrate <= 0: " + actual_baudrate,
-			LIBUSB_ERROR_INVALID_PARAM);
+		if (actual_baudrate <= 0) throw LibUsbException.of(LIBUSB_ERROR_INVALID_PARAM,
+			"Baudrate <= 0: " + actual_baudrate);
 
 		if ((actual_baudrate * 2 < baudrate) || ((actual_baudrate < baudrate) ?
 			(actual_baudrate * 21 < baudrate * 20) : (baudrate * 21 < actual_baudrate * 20)))
-			throw new LibUsbException(
-				format("Unsupported baudrate: %d (%d)", baudrate, actual_baudrate),
-				LIBUSB_ERROR_INVALID_PARAM);
+			throw LibUsbException.of(LIBUSB_ERROR_INVALID_PARAM, "Unsupported baudrate: %d (%d)",
+				baudrate, actual_baudrate);
 
 		controlTransferOut(ftdi, SIO_SET_BAUDRATE_REQUEST, value[0], index[0]);
 		ftdi.baudrate = baudrate;
@@ -1095,7 +1092,7 @@ public class LibFtdi {
 	public static int ftdi_read_data(ftdi_context ftdi) throws LibUsbException {
 		byte[] data = ftdi_read_data(ftdi, 1);
 		if (data.length == 0) return -1;
-		return JnaUtil.ubyte(data[0]);
+		return ubyte(data[0]);
 	}
 
 	public static byte[] ftdi_read_data(ftdi_context ftdi, int size) throws LibUsbException {
@@ -1320,7 +1317,7 @@ public class LibFtdi {
 	public static int ftdi_read_pins(ftdi_context ftdi) throws LibUsbException {
 		requireDev(ftdi);
 		byte[] data = controlTransferIn(ftdi, SIO_READ_PINS_REQUEST, 0, ftdi.index, 1);
-		return JnaUtil.ubyte(data[0]);
+		return ubyte(data[0]);
 	}
 
 	public static void ftdi_set_latency_timer(ftdi_context ftdi, int latency)
@@ -1333,7 +1330,7 @@ public class LibFtdi {
 	public static int ftdi_get_latency_timer(ftdi_context ftdi) throws LibUsbException {
 		requireDev(ftdi);
 		byte[] data = controlTransferIn(ftdi, SIO_GET_LATENCY_TIMER_REQUEST, 0, ftdi.index, 1);
-		return JnaUtil.ubyte(data[0]);
+		return ubyte(data[0]);
 	}
 
 	public static int ftdi_poll_modem_status(ftdi_context ftdi) throws LibUsbException {

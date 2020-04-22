@@ -137,7 +137,7 @@ public class Usb implements Closeable {
 			return true;
 		});
 		if (handles[0] != null) return new UsbDeviceHandle(this::context, handles[0]);
-		throw new LibUsbNotFoundException("Device not found, " + criteria);
+		throw LibUsbNotFoundException.of("Device not found, " + criteria);
 	}
 
 	public UsbDeviceHandle openDevice(int vendorId, int productId) throws LibUsbException {

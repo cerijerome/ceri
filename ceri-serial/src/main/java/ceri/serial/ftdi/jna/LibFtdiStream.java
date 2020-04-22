@@ -9,6 +9,7 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout;
 import static ceri.serial.libusb.jna.LibUsb.libusb_submit_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPORTED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
@@ -68,7 +69,8 @@ public class LibFtdiStream {
 	// typedef int (FTDIStreamCallback)(uint8_t *buffer, int length, FTDIProgressInfo *progress,
 	// void *userdata);
 	public interface ftdi_stream_cb extends Callback {
-		int invoke(Pointer buffer, int length, ftdi_progress_info progress, Pointer userdata) throws LibUsbException;
+		int invoke(Pointer buffer, int length, ftdi_progress_info progress, Pointer userdata)
+			throws LibUsbException;
 	}
 
 	public static class ftdi_stream_state extends Struct {
@@ -156,21 +158,18 @@ public class LibFtdiStream {
 	}
 
 	/**
-	 * Streaming reading of data from the device
-	 * 
-	 * Use asynchronous transfers in libusb-1.0 for high-performance streaming of data from a device
-	 * interface back to the PC. This function continuously transfers data until either an error
-	 * occurs or the callback returns a nonzero value. This function returns a libusb error code or
-	 * the callback's return value.
-	 * 
-	 * For every contiguous block of received data, the callback will be invoked.
+	 * Streaming reading of data from the device Use asynchronous transfers in libusb-1.0 for
+	 * high-performance streaming of data from a device interface back to the PC. This function
+	 * continuously transfers data until either an error occurs or the callback returns a nonzero
+	 * value. This function returns a libusb error code or the callback's return value. For every
+	 * contiguous block of received data, the callback will be invoked.
 	 */
 	public static void ftdi_read_stream(ftdi_context ftdi, ftdi_stream_cb callback,
 		Pointer userdata, int packetsPerTransfer, int numTransfers) throws LibUsbException {
 		requireDev(ftdi);
-		if (!ftdi.type().get().isSyncFifoType()) throw new LibUsbException( //
-			"Synchronous FIFO mode not supported: " + ftdi.type().get(),
-			libusb_error.LIBUSB_ERROR_NOT_SUPPORTED);
+		if (!ftdi.type().get().isSyncFifoType())
+			throw LibUsbException.of(LIBUSB_ERROR_NOT_SUPPORTED,
+				"Synchronous FIFO mode not supported: " + ftdi.type().get());
 
 		ftdi_set_bitmode(ftdi, 0xff, ftdi_mpsse_mode.BITMODE_RESET);
 		ftdi_usb_purge_buffers(ftdi);
@@ -195,8 +194,7 @@ public class LibFtdiStream {
 			handleStreamEvents(ftdi, state, timeout);
 		} while (state.result == 0);
 
-		if (state.result < 0)
-			throw LibUsbException.fullMessage("ftdi_read_stream failed", state.result);
+		if (state.result < 0) throw LibUsbException.full(state.result, "ftdi_read_stream failed");
 	}
 
 	private static void handleStreamEvents(ftdi_context ftdi, ftdi_stream_state state,

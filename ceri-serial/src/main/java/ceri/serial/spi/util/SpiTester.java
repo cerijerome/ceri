@@ -13,6 +13,7 @@ import ceri.serial.spi.SpiTransfer;
 
 public class SpiTester {
 
+	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException {
 		StartupValues v = startupValues(args);
 		Direction direction = v.next("direction").apply(Direction::valueOf, Direction.out);

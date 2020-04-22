@@ -19,6 +19,7 @@ import ceri.serial.spi.util.SpiEmulator;
 public class Mcp3008Tester {
 	private static final Logger logger = LogManager.getLogger();
 
+	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException {
 		StartupValues v = LogUtil.startupValues(args);
 		int value = v.next("value").asInt(0x8001); // SGL, CH0
@@ -32,7 +33,7 @@ public class Mcp3008Tester {
 		int bus = v.next("bus").asInt(0);
 		int chip = v.next("chip").asInt(0);
 
-		byte[] send = ByteUtil.toLittleEndian(value, Mcp3008.DATA_SIZE);
+		byte[] send = ByteUtil.toLsb(value, Mcp3008.DATA_SIZE);
 		boolean emulator = OsUtil.IS_MAC;
 
 		logger.info("Opening /dev/spidev{}.{}", bus, chip);

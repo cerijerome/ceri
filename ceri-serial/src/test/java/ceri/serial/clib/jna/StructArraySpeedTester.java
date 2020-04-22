@@ -1,10 +1,11 @@
-package ceri.serial.jna;
+package ceri.serial.clib.jna;
 
 import java.util.List;
 import java.util.function.IntFunction;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import ceri.serial.jna.Struct;
 
 public class StructArraySpeedTester {
 	private static final int S_BYTES = 1;

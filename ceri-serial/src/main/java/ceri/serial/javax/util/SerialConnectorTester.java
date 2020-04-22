@@ -5,8 +5,9 @@ import static ceri.common.util.BasicUtil.conditional;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.ImmutableByteArray;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.data.ByteArray.Immutable;
+import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.event.CloseableListener;
 import ceri.common.io.IoUtil;
@@ -96,12 +97,12 @@ public class SerialConnectorTester extends LoopingExecutor {
 		return "> ";
 	}
 
-	protected void logOutput(ImmutableByteArray dataToPort) {
+	protected void logOutput(ByteProvider dataToPort) {
 		System.out.println("OUT >>>");
 		BinaryPrinter.DEFAULT.print(dataToPort);
 	}
 
-	protected void logInput(ImmutableByteArray dataFromPort) {
+	protected void logInput(ByteProvider dataFromPort) {
 		System.out.println("IN <<<");
 		BinaryPrinter.DEFAULT.print(dataFromPort);
 	}
@@ -142,13 +143,14 @@ public class SerialConnectorTester extends LoopingExecutor {
 	/**
 	 * Read and display bytes from port.
 	 */
+	@SuppressWarnings("resource")
 	private void readFromPort() {
 		try {
 			while (true) {
 				int available = connector.in().available();
 				if (available <= 0) break;
 				int n = connector.in().read(buffer);
-				if (n > 0) logInput(ImmutableByteArray.wrap(buffer, 0, n));
+				if (n > 0) logInput(Immutable.wrap(buffer, 0, n));
 				if (n == available) break;
 			}
 		} catch (IOException e) {
@@ -159,10 +161,11 @@ public class SerialConnectorTester extends LoopingExecutor {
 	/**
 	 * Display and write bytes to port.
 	 */
-	private void writeToPort(ImmutableByteArray dataToPort) throws IOException {
+	@SuppressWarnings("resource")
+	private void writeToPort(ByteProvider dataToPort) throws IOException {
 		if (dataToPort.length() == 0) return;
 		logOutput(dataToPort);
-		dataToPort.writeTo(connector.out());
+		dataToPort.writeTo(0, connector.out());
 		connector.out().flush();
 	}
 

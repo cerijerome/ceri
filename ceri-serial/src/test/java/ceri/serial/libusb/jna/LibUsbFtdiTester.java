@@ -1,6 +1,6 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.serial.jna.JnaUtil.ubyte;
+import static ceri.common.math.MathUtil.ubyte;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bulk_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_claim_interface;
 import static ceri.serial.libusb.jna.LibUsb.libusb_close;

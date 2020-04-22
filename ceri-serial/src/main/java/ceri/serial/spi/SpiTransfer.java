@@ -1,10 +1,10 @@
 package ceri.serial.spi;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
+import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.MathUtil.ushort;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.serial.jna.JnaUtil.buffer;
-import static ceri.serial.jna.JnaUtil.ubyte;
-import static ceri.serial.jna.JnaUtil.ushort;
 import static com.sun.jna.Pointer.nativeValue;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -19,7 +19,6 @@ import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
  * <li></li>
  * <li></li>
  * </ol>
- * 
  */
 public class SpiTransfer {
 	private final Spi spi;
@@ -58,11 +57,12 @@ public class SpiTransfer {
 		return buffer;
 	}
 
+	@SuppressWarnings("resource")
 	public SpiTransfer execute() throws IOException {
 		spi.execute(this);
 		return this;
 	}
-	
+
 	public SpiTransfer write(byte[] data) {
 		if (out.capacity() == 0) return this;
 		out.clear().put(data);

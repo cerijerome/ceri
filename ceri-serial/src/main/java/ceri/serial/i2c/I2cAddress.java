@@ -9,22 +9,28 @@ import ceri.common.util.HashCoder;
  * currently in use by the driver.
  */
 public class I2cAddress {
-	public static final I2cAddress NULL = new I2cAddress(0, false, false);
+	public static final I2cAddress NULL = new I2cAddress(0, false);
 	private static final int HEX_DIGITS_7 = 2;
 	private static final int HEX_DIGITS_10 = 3;
 	private static final int MASK_7 = ByteUtil.maskInt(7);
 	private static final int MASK_10 = ByteUtil.maskInt(10);
 	public final int address;
 	public final boolean tenBit;
-	public final boolean force;
+
+	/**
+	 * Creates a 7-bit address if <= 0x7f, otherwise 10-bit.
+	 */
+	public static I2cAddress of(int value) {
+		return (value & MASK_7) == value ? of7Bit(value) : of10Bit(value);
+	}
 
 	/**
 	 * Encapsulates a 7-bit address. Force allows use of an address even if currently in use by the
 	 * driver.
 	 */
-	public static I2cAddress of7Bit(int address, boolean force) {
+	public static I2cAddress of7Bit(int address) {
 		int masked = address & MASK_7;
-		if (masked == address) return new I2cAddress(masked, false, force);
+		if (masked == address) return new I2cAddress(masked, false);
 		throw new IllegalArgumentException(
 			"Invalid 7-bit address: 0x" + Integer.toHexString(address));
 	}
@@ -33,31 +39,27 @@ public class I2cAddress {
 	 * Encapsulates a 10-bit address. Force allows use of an address even if currently in use by the
 	 * driver.
 	 */
-	public static I2cAddress of10Bit(int address, boolean force) {
+	public static I2cAddress of10Bit(int address) {
 		int masked = address & MASK_10;
-		if (masked == address) return new I2cAddress(masked, true, force);
+		if (masked == address) return new I2cAddress(masked, true);
 		throw new IllegalArgumentException(
 			"Invalid 10-bit address: 0x" + Integer.toHexString(address));
 	}
 
-	private I2cAddress(int address, boolean tenBit, boolean force) {
+	private I2cAddress(int address, boolean tenBit) {
 		this.address = address;
 		this.tenBit = tenBit;
-		this.force = force;
 	}
 
 	public short value() {
 		return (short) address;
 	}
 
-	/**
-	 * Specify the force option, returning a new instance if different.
-	 */
-	public I2cAddress force(boolean force) {
-		if (this.force == force) return this;
-		return new I2cAddress(address, tenBit, force);
+	public byte addressByte(boolean read) {
+		if (tenBit) throw new UnsupportedOperationException("10-bit addresses not supported");
+		return (byte) ((address << 1) | (read ? 1 : 0));
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(address, tenBit);
@@ -70,14 +72,12 @@ public class I2cAddress {
 		I2cAddress other = (I2cAddress) obj;
 		if (address != other.address) return false;
 		if (tenBit != other.tenBit) return false;
-		if (force != other.force) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "0x" + StringUtil.toHex(address, tenBit ? HEX_DIGITS_10 : HEX_DIGITS_7) +
-			(force ? "(f)" : "");
+		return "0x" + StringUtil.toHex(address, tenBit ? HEX_DIGITS_10 : HEX_DIGITS_7);
 	}
 
 }

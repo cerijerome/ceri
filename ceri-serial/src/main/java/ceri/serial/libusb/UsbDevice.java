@@ -1,6 +1,6 @@
 package ceri.serial.libusb;
 
-import static ceri.serial.jna.JnaUtil.ubyte;
+import static ceri.common.math.MathUtil.ubyte;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_active_config_descriptor;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_bus_number;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_config_descriptor;
@@ -79,7 +79,7 @@ public class UsbDevice implements Closeable {
 
 	public List<Integer> portNumbers() throws LibUsbException {
 		byte[] portNumbers = libusb_get_port_numbers(device());
-		return ImmutableUtil.collectAsList(ByteUtil.streamOf(portNumbers).boxed());
+		return ImmutableUtil.collectAsList(ByteUtil.ustream(portNumbers).boxed());
 	}
 
 	public int address() throws LibUsbException {
@@ -142,5 +142,5 @@ public class UsbDevice implements Closeable {
 	public libusb_context context() {
 		return contextSupplier.get();
 	}
-	
+
 }

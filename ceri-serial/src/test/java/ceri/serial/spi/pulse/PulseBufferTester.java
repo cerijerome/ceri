@@ -60,7 +60,7 @@ public class PulseBufferTester {
 		printPulse(b);
 		int val = 1;
 		for (int i = 0; i < b.length(); i++) {
-			b.set(i, val);
+			b.setByte(i, val);
 			val <<= 1;
 		}
 		System.out.println("After changes:");
@@ -74,7 +74,7 @@ public class PulseBufferTester {
 	}
 
 	private static void printPulse(PulseBuffer b) {
-		byte[] data = b.buffer().copy();
+		byte[] data = b.buffer().copy(0);
 		Type type = b.cycle.type();
 		if (type == nbit27) printPulse27(data);
 		else if (type == nbit9) printPulse9(data);
@@ -83,13 +83,15 @@ public class PulseBufferTester {
 
 	private static void printPulse(byte[] data, int bits) {
 		PulsePrinter p = PulsePrinter.ofBits((72 / bits) * bits);
-		for (byte datum : data) p.print(datum);
+		for (byte datum : data)
+			p.print(datum);
 		p.newLine();
 	}
 
 	private static void printPulse9(byte[] data) {
 		PulsePrinter p = PulsePrinter.ofBits(9 * 8);
-		for (byte datum : data) p.print(datum).print(false);
+		for (byte datum : data)
+			p.print(datum).print(false);
 		p.newLine();
 	}
 

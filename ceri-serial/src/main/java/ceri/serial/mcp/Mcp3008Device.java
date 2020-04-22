@@ -22,6 +22,7 @@ public class Mcp3008Device implements Mcp3008 {
 		return new Mcp3008Device(bus, chip, speedHz);
 	}
 
+	@SuppressWarnings("resource")
 	private Mcp3008Device(int bus, int chip, int speedHz) throws IOException {
 		try {
 			spi = SpiDevice.open(bus, chip, Direction.duplex);
@@ -38,7 +39,7 @@ public class Mcp3008Device implements Mcp3008 {
 		xfer.write(ArrayUtil.bytes(START, input.encode(), 0));
 		byte[] result = xfer.execute().read();
 		if (result.length != DATA_SIZE) return 0;
-		return (int) ByteUtil.fromLittleEndian(result, 1) & READ_MASK;
+		return (int) ByteUtil.fromLsb(result, 1) & READ_MASK;
 	}
 
 	@Override

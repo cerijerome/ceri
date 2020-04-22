@@ -145,6 +145,7 @@ public class ResponseSerialConnector implements SerialConnector {
 		return ToStringHelper.createByClass(this, stream).toString();
 	}
 
+	@SuppressWarnings("resource")
 	private int available() throws IOException {
 		logger.debug("available()");
 		verifyUnbroken();
@@ -152,6 +153,7 @@ public class ResponseSerialConnector implements SerialConnector {
 		return stream.in().available();
 	}
 
+	@SuppressWarnings("resource")
 	private int read(byte[] b, int offset, int len) throws IOException {
 		logger.debug("read([], {}, {})", offset, len);
 		verifyUnbroken();
@@ -160,6 +162,7 @@ public class ResponseSerialConnector implements SerialConnector {
 		return stream.in().read(b, offset, len);
 	}
 
+	@SuppressWarnings("resource")
 	private void write(byte[] b, int offset, int len) throws IOException {
 		logger.debug("write([], {}, {})", offset, len);
 		verifyUnbroken();

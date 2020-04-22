@@ -1,12 +1,12 @@
-package ceri.serial.jna;
+package ceri.serial.clib.jna;
 
 import java.util.stream.IntStream;
 import com.sun.jna.Memory;
 import ceri.common.data.ByteUtil;
 
 /**
- * Tests the speed of copying chunks back by a number of bytes within a block of allocated
- * memory. On Mac, results show read/write byte[] is best for small chunks, otherwise memcpy.
+ * Tests the speed of copying chunks back by a number of bytes within a block of allocated memory.
+ * On Mac, results show read/write byte[] is best for small chunks, otherwise memcpy.
  */
 public class MemcpySpeedTester {
 	private static final int KB = 1024;
@@ -31,26 +31,26 @@ public class MemcpySpeedTester {
 	}
 
 	private static long testMemcpySpeed(int size, int chunk, int inc) {
-		byte[] b = ByteUtil.toByteArray(IntStream.range(0, size));
-		Memory m0 = JnaUtil.malloc(b);
+		byte[] b = ByteUtil.bytes(IntStream.range(0, size));
+		Memory m0 = CUtil.malloc(b);
 		long t0 = System.currentTimeMillis();
 		for (int i = 0; i < size - chunk; i += inc)
-			JnaUtil.memcpy(m0, i, i + inc, chunk); // memcpy each chunk back by inc bytes
+			CUtil.memcpy(m0, i, i + inc, chunk); // memcpy each chunk back by inc bytes
 		return System.currentTimeMillis() - t0;
 	}
 
 	private static long testMemmoveSpeed(int size, int chunk, int inc) {
-		byte[] b = ByteUtil.toByteArray(IntStream.range(0, size));
-		Memory m0 = JnaUtil.malloc(b);
+		byte[] b = ByteUtil.bytes(IntStream.range(0, size));
+		Memory m0 = CUtil.malloc(b);
 		long t0 = System.currentTimeMillis();
 		for (int i = 0; i < size - chunk; i += inc)
-			JnaUtil.memmove(m0, i, i + inc, chunk); // memmove each chunk forward by inc bytes
+			CUtil.memmove(m0, i, i + inc, chunk); // memmove each chunk forward by inc bytes
 		return System.currentTimeMillis() - t0;
 	}
 
 	private static long testReuseBufferSpeed(int size, int chunk, int inc) {
-		byte[] b = ByteUtil.toByteArray(IntStream.range(0, size));
-		Memory m0 = JnaUtil.malloc(b);
+		byte[] b = ByteUtil.bytes(IntStream.range(0, size));
+		Memory m0 = CUtil.malloc(b);
 		byte[] buffer = new byte[chunk];
 		long t0 = System.currentTimeMillis();
 		for (int i = 0; i < size - chunk; i += inc) {

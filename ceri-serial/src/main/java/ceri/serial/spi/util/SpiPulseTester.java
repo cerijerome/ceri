@@ -17,6 +17,7 @@ import ceri.serial.spi.pulse.SpiPulseTransmitter;
 
 public class SpiPulseTester {
 
+	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException {
 		StartupValues v = LogUtil.startupValues(args);
 		int size = v.next("size").asInt(4);
@@ -70,7 +71,7 @@ public class SpiPulseTester {
 			System.out.printf(" 0x%02x", data[i]);
 		System.out.println("...");
 		for (int i = 0; i < cycles; i++) {
-			spi.copyFrom(data);
+			spi.copyFrom(0, data);
 			BasicUtil.delay(200);
 		}
 		System.out.println("stopped");

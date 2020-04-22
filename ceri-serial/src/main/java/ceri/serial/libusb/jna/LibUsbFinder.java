@@ -1,10 +1,10 @@
 package ceri.serial.libusb.jna;
 
+import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.MathUtil.ushort;
 import static ceri.common.util.BasicUtil.isEmpty;
 import static ceri.common.util.PrimitiveUtil.decode;
 import static ceri.common.util.PrimitiveUtil.valueOf;
-import static ceri.serial.jna.JnaUtil.ubyte;
-import static ceri.serial.jna.JnaUtil.ushort;
 import static ceri.serial.libusb.jna.LibUsb.libusb_close;
 import static ceri.serial.libusb.jna.LibUsb.libusb_free_device_list;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_bus_number;

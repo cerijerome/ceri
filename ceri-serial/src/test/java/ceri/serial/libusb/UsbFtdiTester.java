@@ -1,6 +1,6 @@
 package ceri.serial.libusb;
 
-import static ceri.serial.jna.JnaUtil.ubyte;
+import static ceri.common.math.MathUtil.ubyte;
 import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

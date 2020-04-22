@@ -102,6 +102,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 		else exec(SerialPort::clearBreakBit);
 	}
 
+	@SuppressWarnings("resource")
 	private void exec(ExceptionConsumer<IOException, SerialPort> consumer) throws IOException {
 		try {
 			consumer.accept(serialPort());
@@ -174,6 +175,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 		notifyListeners(StateChange.broken);
 	}
 
+	@SuppressWarnings("resource")
 	private void initSerialPort() throws IOException {
 		LogUtil.close(logger, serialPort);
 		String commPort = config.commPortSupplier.get();

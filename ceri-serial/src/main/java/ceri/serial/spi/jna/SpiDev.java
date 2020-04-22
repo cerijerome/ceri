@@ -1,9 +1,9 @@
 package ceri.serial.spi.jna;
 
+import static ceri.common.math.MathUtil.ubyte;
 import static ceri.serial.clib.jna.Ioctl._IOC_SIZEBITS;
 import static ceri.serial.clib.jna.Ioctl._IOR;
 import static ceri.serial.clib.jna.Ioctl._IOW;
-import static ceri.serial.jna.JnaUtil.ubyte;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +17,7 @@ import ceri.serial.clib.jna.SizeOf;
 
 public class SpiDev {
 	private static final Logger logger = LogManager.getLogger();
-	
+
 	/* mode flags */
 	public static final int SPI_CPHA = 0x01;
 	public static final int SPI_CPOL = 0x02;

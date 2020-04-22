@@ -14,9 +14,10 @@ import ceri.serial.libusb.jna.LibUsbException;
 
 public class UsbHotplugTester {
 	private static final Logger logger = LogManager.getLogger();
-	private static final int WAIT_MS = 60 * 1000;
+	private static final int WAIT_MS = 30 * 1000;
 	private static final int DELAY_MS = 100;
 
+	@SuppressWarnings("resource")
 	public static void main(String[] args) throws LibUsbException {
 		logger.info("Hotplug capability: {}", hasCapability(LIBUSB_CAP_HAS_HOTPLUG));
 		try (Usb ctx = Usb.init()) {
@@ -30,6 +31,7 @@ public class UsbHotplugTester {
 			ctx.hotplug().registerCallback(registration( //
 				(context, device, event, userData) -> all(device)).allEvents());
 			System.gc();
+			logger.info("Repeating System.gc() over {} ms...", WAIT_MS);
 			long t = System.currentTimeMillis();
 			while (System.currentTimeMillis() - t < WAIT_MS) {
 				ctx.handleEventsCompleted();

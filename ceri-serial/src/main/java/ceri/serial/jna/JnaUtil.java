@@ -1,70 +1,29 @@
 package ceri.serial.jna;
 
+import static ceri.common.collection.ArrayUtil.validateSlice;
+import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.function.Supplier;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.ShortByReference;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.function.ExceptionConsumer;
+import ceri.common.math.MathUtil;
 import ceri.common.util.BasicUtil;
-import ceri.serial.clib.jna.CException;
 
 public class JnaUtil {
-	public static final int INVALID_FILE_DESCRIPTOR = -1;
 	public static final Charset DEFAULT_CHARSET = defaultCharset();
-	private static final int MEMMOVE_OPTIMAL_MAX_SIZE = 8 * 1024;
+	public static final boolean NLONG_LONG = NativeLong.SIZE == Long.BYTES;
+	private static final NativeLong ZERO = new NativeLong(0);
 
 	private JnaUtil() {}
-
-	/**
-	 * Checks function result, and throws exception if negative
-	 */
-	public static int verify(int result) throws CException {
-		return verify(result, "call");
-	}
-
-	/**
-	 * Checks function result, and throws exception if negative
-	 */
-	public static int verify(int result, String name) throws CException {
-		return verify(result, () -> name);
-	}
-
-	/**
-	 * Checks function result, and throws exception if negative
-	 */
-	public static int verify(int result, Supplier<String> name) throws CException {
-		if (result >= 0) return result;
-		throw new CException(String.format("JNA %s failed: %d", name.get(), result), result);
-	}
-
-	/**
-	 * Checks function result, and throws exception if negative
-	 */
-	public static int verifyf(int result, String format, Object... params) throws CException {
-		if (result >= 0) return result;
-		throw CException.fullMessage(StringUtil.format(format, params), result);
-	}
-
-	/**
-	 * Checks a file descriptor validity
-	 */
-	public static boolean isValidFileDescriptor(int fileDescriptor) {
-		return fileDescriptor != INVALID_FILE_DESCRIPTOR;
-	}
-
-	/**
-	 * Validates a file descriptor
-	 */
-	public static int validateFileDescriptor(int fileDescriptor) throws CException {
-		if (isValidFileDescriptor(fileDescriptor)) return fileDescriptor;
-		throw CException.fullMessage("Invalid file descriptor", fileDescriptor);
-	}
 
 	/**
 	 * Load typed native library
@@ -76,270 +35,630 @@ public class JnaUtil {
 	/**
 	 * Debug setting to protect against invalid native memory access. Not supported on all
 	 * platforms. Only use when debugging as this interferes with signal handlers on non-windows
-	 * systems. Returns whether successful.
+	 * systems. Returns true if successful.
 	 */
 	public static boolean setProtected() {
 		Native.setProtected(true);
 		return Native.isProtected();
 	}
 
+	/**
+	 * Printable representation of pointer.
+	 */
+	public static String print(Pointer p) {
+		if (p == null) return String.valueOf(p);
+		if (p instanceof Memory) return print((Memory) p);
+		return String.format("@%x", Pointer.nativeValue(p));
+	}
+
+	/**
+	 * Printable representation of memory pointer.
+	 */
+	public static String print(Memory m) {
+		if (m == null) return String.valueOf(m);
+		return String.format("@%x+%x", Pointer.nativeValue(m), m.size());
+	}
+
+	/**
+	 * Gets the pointer offset by the given number of bytes.
+	 */
+	public static Pointer offset(Pointer p, long offset) {
+		validateNotNull(p);
+		return offset == 0 ? p : p.share(offset);
+	}
+
+	/**
+	 * Gets the memory offset by the given number of bytes.
+	 */
+	public static Memory offset(Memory m, long offset) {
+		validateNotNull(m);
+		return offset(m, offset, m.size() - offset);
+	}
+
+	/**
+	 * Gets the memory offset by the given number of bytes.
+	 */
+	public static Memory offset(Memory m, long offset, long length) {
+		validateNotNull(m);
+		return offset == 0 ? m : (Memory) m.share(offset, length);
+	}
+
+	/**
+	 * Gets the memory size. Throws ArithmeticException if outside signed int range.
+	 */
+	public static int size(Memory m) {
+		return Math.toIntExact(m.size());
+	}
+
+	/**
+	 * Executes a function that takes a byte pointer. Returns the value after execution.
+	 */
+	public static <E extends Exception> byte execByte(ExceptionConsumer<E, Pointer> consumer)
+		throws E {
+		return execByte(0, consumer);
+	}
+
+	/**
+	 * Executes a function that takes a byte pointer. Returns the value after execution.
+	 */
+	public static <E extends Exception> byte execByte(int value,
+		ExceptionConsumer<E, Pointer> consumer) throws E {
+		ByteByReference ref = new ByteByReference((byte) value);
+		consumer.accept(ref.getPointer());
+		return ref.getValue();
+	}
+
+	/**
+	 * Executes a function that takes a byte pointer. Returns the unsigned value after execution.
+	 */
+	public static <E extends Exception> short execUbyte(ExceptionConsumer<E, Pointer> consumer)
+		throws E {
+		return execUbyte(0, consumer);
+	}
+
+	/**
+	 * Executes a function that takes a byte pointer. Returns the unsigned value after execution.
+	 */
+	public static <E extends Exception> short execUbyte(int value,
+		ExceptionConsumer<E, Pointer> consumer) throws E {
+		return MathUtil.ubyte(execByte(value, consumer));
+	}
+
+	/**
+	 * Executes a function that takes a short pointer. Returns the value after execution.
+	 */
+	public static <E extends Exception> short execShort(ExceptionConsumer<E, Pointer> consumer)
+		throws E {
+		return execShort(0, consumer);
+	}
+
+	/**
+	 * Executes a function that takes a short pointer. Returns the value after execution.
+	 */
+	public static <E extends Exception> short execShort(int value,
+		ExceptionConsumer<E, Pointer> consumer) throws E {
+		ShortByReference ref = new ShortByReference((short) value);
+		consumer.accept(ref.getPointer());
+		return ref.getValue();
+	}
+
+	/**
+	 * Executes a function that takes a short pointer. Returns the unsigned value after execution.
+	 */
+	public static <E extends Exception> int execUshort(ExceptionConsumer<E, Pointer> consumer)
+		throws E {
+		return execUshort(0, consumer);
+	}
+
+	/**
+	 * Executes a function that takes a short pointer. Returns the unsigned value after execution.
+	 */
+	public static <E extends Exception> int execUshort(int value,
+		ExceptionConsumer<E, Pointer> consumer) throws E {
+		return MathUtil.ushort(execShort(value, consumer));
+	}
+
+	/**
+	 * Executes a function that takes an int pointer. Returns the value after execution.
+	 */
+	public static <E extends Exception> int execInt(ExceptionConsumer<E, Pointer> consumer)
+		throws E {
+		return execInt(0, consumer);
+	}
+
+	/**
+	 * Executes a function that takes an int pointer. Returns the value after execution.
+	 */
+	public static <E extends Exception> int execInt(int value,
+		ExceptionConsumer<E, Pointer> consumer) throws E {
+		IntByReference ref = new IntByReference(value);
+		consumer.accept(ref.getPointer());
+		return ref.getValue();
+	}
+
+	/**
+	 * Executes a function that takes an int pointer. Returns the unsigned value after execution.
+	 */
+	public static <E extends Exception> long execUint(ExceptionConsumer<E, Pointer> consumer)
+		throws E {
+		return execUint(0, consumer);
+	}
+
+	/**
+	 * Executes a function that takes an int pointer. Returns the unsigned value after execution.
+	 */
+	public static <E extends Exception> long execUint(int value,
+		ExceptionConsumer<E, Pointer> consumer) throws E {
+		return MathUtil.uint(execInt(value, consumer));
+	}
+
+	/**
+	 * Executes a function that takes a native long pointer. Returns the value after execution.
+	 */
+	public static <E extends Exception> NativeLong execNlong(ExceptionConsumer<E, Pointer> consumer)
+		throws E {
+		return execNlong(ZERO, consumer);
+	}
+
+	/**
+	 * Executes a function that takes a native long pointer. Returns the value after execution.
+	 */
+	public static <E extends Exception> NativeLong execNlong(NativeLong value,
+		ExceptionConsumer<E, Pointer> consumer) throws E {
+		NativeLongByReference ref = new NativeLongByReference(value);
+		consumer.accept(ref.getPointer());
+		return ref.getValue();
+	}
+
+	/**
+	 * Executes a function that takes a native long pointer. Returns the unsigned value after
+	 * execution.
+	 */
+	public static <E extends Exception> long execUnlong(NativeLong value,
+		ExceptionConsumer<E, Pointer> consumer) throws E {
+		NativeLongByReference ref = new NativeLongByReference(value);
+		consumer.accept(ref.getPointer());
+		return unlong(ref.getValue());
+	}
+
+	/**
+	 * Executes a function that takes a long pointer. Returns the value after execution.
+	 */
+	public static <E extends Exception> long execLong(ExceptionConsumer<E, Pointer> consumer)
+		throws E {
+		return execLong(0, consumer);
+	}
+
+	/**
+	 * Executes a function that takes a long pointer. Returns the value after execution.
+	 */
+	public static <E extends Exception> long execLong(long value,
+		ExceptionConsumer<E, Pointer> consumer) throws E {
+		LongByReference ref = new LongByReference(value);
+		consumer.accept(ref.getPointer());
+		return ref.getValue();
+	}
+
+	/**
+	 * Get unsigned value from pointer.
+	 */
+	public static short ubyte(Pointer p, int offset) {
+		return MathUtil.ubyte(p.getByte(offset));
+	}
+
+	/**
+	 * Get unsigned value from reference pointer.
+	 */
+	public static short ubyte(ByteByReference ref) {
+		return MathUtil.ubyte(ref.getValue());
+	}
+
+	/**
+	 * Get unsigned value from pointer.
+	 */
+	public static int ushort(Pointer p, int offset) {
+		return MathUtil.ushort(p.getShort(offset));
+	}
+
+	/**
+	 * Get unsigned value from reference pointer.
+	 */
+	public static int ushort(ShortByReference ref) {
+		return MathUtil.ushort(ref.getValue());
+	}
+
+	/**
+	 * Get unsigned value from pointer.
+	 */
+	public static long uint(Pointer p, int offset) {
+		return MathUtil.uint(p.getInt(offset));
+	}
+
+	/**
+	 * Get unsigned value from reference pointer.
+	 */
+	public static long uint(IntByReference ref) {
+		return MathUtil.uint(ref.getValue());
+	}
+
+	/**
+	 * Get unsigned value from pointer.
+	 */
+	public static long unlong(Pointer p, int offset) {
+		return unlong(p.getNativeLong(offset));
+	}
+
+	/**
+	 * Get unsigned value from pointer.
+	 */
+	public static long unlong(NativeLongByReference ref) {
+		return unlong(ref.getValue());
+	}
+
+	/**
+	 * Converts value to unsigned.
+	 */
+	public static long unlong(NativeLong value) {
+		return NLONG_LONG ? value.longValue() : MathUtil.uint(value.intValue());
+	}
+
+	/**
+	 * Creates a reference containing the value.
+	 */
 	public static ByteByReference byteRef(int value) {
 		return new ByteByReference((byte) value);
 	}
 
+	/**
+	 * Creates a reference containing the value.
+	 */
 	public static ShortByReference shortRef(int value) {
 		return new ShortByReference((short) value);
 	}
 
-	public static int size(Memory m) {
-		return Math.toIntExact(m.size());
-	}
-	
 	/**
-	 * Creates an array of bytes from the given structure. If count is 0, returns empty array. Make
-	 * sure count field is unsigned (call JnaUtil.ubyte/ushort if needed).
+	 * Creates a reference containing the value.
+	 */
+	public static IntByReference intRef(int value) {
+		return new IntByReference(value);
+	}
+
+	/**
+	 * Creates a reference containing the value.
+	 */
+	public static NativeLongByReference nlongRef(NativeLong value) {
+		return new NativeLongByReference(value);
+	}
+
+	/**
+	 * Creates a reference containing the value.
+	 */
+	public static NativeLongByReference nlongRef(long value) {
+		return nlongRef(new NativeLong(value));
+	}
+
+	/**
+	 * Creates a reference containing the unsigned value.
+	 */
+	public static NativeLongByReference unlongRef(long value) {
+		return nlongRef(new NativeLong(value, true));
+	}
+
+	/**
+	 * Creates a reference containing the value.
+	 */
+	public static LongByReference longRef(long value) {
+		return new LongByReference(value);
+	}
+
+	/**
+	 * Creates a reference pointer containing the value.
+	 */
+	public static Pointer byteRefPtr(int value) {
+		return byteRef(value).getPointer();
+	}
+
+	/**
+	 * Creates a reference pointer containing the value.
+	 */
+	public static Pointer shortRefPtr(int value) {
+		return shortRef(value).getPointer();
+	}
+
+	/**
+	 * Creates a reference pointer containing the value.
+	 */
+	public static Pointer intRefPtr(int value) {
+		return intRef(value).getPointer();
+	}
+
+	/**
+	 * Creates a reference pointer containing the value.
+	 */
+	public static Pointer nlongRefPtr(NativeLong value) {
+		return nlongRef(value).getPointer();
+	}
+
+	/**
+	 * Creates a reference pointer containing the value.
+	 */
+	public static Pointer nlongRefPtr(long value) {
+		return nlongRef(value).getPointer();
+	}
+
+	/**
+	 * Creates a reference pointer containing the value.
+	 */
+	public static Pointer unlongRefPtr(long value) {
+		return unlongRef(value).getPointer();
+	}
+
+	/**
+	 * Creates a reference pointer containing the value.
+	 */
+	public static Pointer longRefPtr(long value) {
+		return longRef(value).getPointer();
+	}
+
+	/**
+	 * Creates an array of bytes from the given memory pointer.
 	 */
 	public static byte[] byteArray(Memory m) {
-		return byteArray(m, 0, size(m));
+		return byteArray(m, 0);
 	}
 
 	/**
-	 * Creates an array of bytes from the given structure. If count is 0, returns empty array. Make
-	 * sure count field is unsigned (call JnaUtil.ubyte/ushort if needed).
+	 * Creates an array of bytes from the given memory pointer.
 	 */
-	public static byte[] byteArray(Pointer p, int len) {
-		return byteArray(p, 0, len);
+	private static byte[] byteArray(Memory m, long offset) {
+		return byteArray(m, offset, Math.toIntExact(m.size() - offset));
 	}
 
 	/**
-	 * Creates an array of bytes from the given structure. If count is 0, returns empty array. Make
-	 * sure count field is unsigned (call JnaUtil.ubyte/ushort if needed).
+	 * Creates an array of bytes from the given memory pointer.
 	 */
-	public static byte[] byteArray(Pointer p, int offset, int len) {
-		if (len == 0) return ArrayUtil.EMPTY_BYTE;
-		if (p != null) return p.getByteArray(offset, len);
-		throw new IllegalArgumentException("Null pointer but non-zero length: " + len);
+	public static byte[] byteArray(Pointer p, long offset, long length) {
+		if (length == 0) return ArrayUtil.EMPTY_BYTE;
+		if (p == null) throw new IllegalArgumentException("Pointer is null");
+		return p.getByteArray(offset, Math.toIntExact(length));
 	}
 
 	/**
 	 * Extracts bytes from buffer.
 	 */
-	public static byte[] byteArray(ByteBuffer buffer, int len) {
-		return byteArray(buffer, 0, len);
+	private static byte[] byteArray(ByteBuffer buffer) {
+		return byteArray(buffer, 0);
 	}
 
 	/**
 	 * Extracts bytes from buffer.
 	 */
-	public static byte[] byteArray(ByteBuffer buffer, int position, int len) {
-		if (position == 0 && len == buffer.limit()) return buffer.array();
-		byte[] b = new byte[len];
-		buffer.position(position).get(b);
-		return b;
+	private static byte[] byteArray(ByteBuffer buffer, int position) {
+		return byteArray(buffer, position, buffer.limit() - position);
 	}
 
 	/**
-	 * Convenience method to get a byte buffer for all the memory.
+	 * Extracts bytes from buffer.
 	 */
-	public static ByteBuffer buffer(Memory memory) {
-		if (memory == null) return ByteBuffer.allocate(0);
-		return memory.getByteBuffer(0, memory.size());
+	public static byte[] byteArray(ByteBuffer buffer, int position, int length) {
+		if (length == 0) return ArrayUtil.EMPTY_BYTE;
+		if (position == 0 && length == buffer.limit()) return buffer.array();
+		byte[] bytes = new byte[length];
+		buffer.position(position).get(bytes);
+		return bytes;
 	}
 
 	/**
-	 * Allocate a contiguous array, returning the pointers.
+	 * Convenience method to get a byte buffer for the memory.
 	 */
-	public static Pointer[] mallocArray(int size, int count) {
-		if (count == 0) return new Pointer[0];
-		Memory m = new Memory(size * count);
-		Pointer[] ps = new Pointer[count];
-		for (int i = 0; i < count; i++)
-			ps[i] = m.getPointer(size * i);
-		return ps;
+	public static ByteBuffer buffer(Memory m) {
+		return buffer(m, 0);
 	}
 
 	/**
-	 * Allocate native memory and copy array.
+	 * Convenience method to get a byte buffer for the memory.
 	 */
-	public static Memory malloc(byte... array) {
-		return malloc(array, 0);
+	public static ByteBuffer buffer(Memory m, long offset) {
+		if (m == null) return ByteBuffer.allocate(0);
+		return buffer(m, offset, m.size() - offset);
 	}
 
 	/**
-	 * Allocate native memory and copy array.
+	 * Convenience method to get a byte buffer for the pointer.
 	 */
-	public static Memory malloc(byte[] array, int offset) {
-		return malloc(array, offset, array.length - offset);
+	public static ByteBuffer buffer(Pointer p, long offset, long length) {
+		if (p == null || length == 0) return ByteBuffer.allocate(0);
+		return p.getByteBuffer(offset, length);
 	}
 
 	/**
-	 * Allocate native memory and copy array.
-	 */
-	public static Memory malloc(byte[] array, int offset, int length) {
-		ArrayUtil.validateSlice(array.length, offset, length);
-		Memory m = new Memory(length);
-		m.write(0, array, offset, length);
-		return m;
-	}
-
-	/**
-	 * Copies byte array from pointer offset to pointer offset. Faster than memmove only for large
-	 * sizes (>8k depending on system).
-	 */
-	public static int memcpy(Pointer p, long toOffset, long fromOffset, int size) {
-		return memcpy(p, toOffset, p, fromOffset, size);
-	}
-
-	/**
-	 * Copies byte array from pointer offset to pointer offset. Faster than memmove only for large
-	 * sizes (>8k depending on system).
-	 */
-	public static int memcpy(Pointer to, long toOffset, Pointer from, long fromOffset, int size) {
-		if (size < MEMMOVE_OPTIMAL_MAX_SIZE) return memmove(to, toOffset, from, fromOffset, size);
-		ByteBuffer toBuffer = to.getByteBuffer(toOffset, size);
-		ByteBuffer fromBuffer = from.getByteBuffer(fromOffset, size);
-		toBuffer.put(fromBuffer);
-		return size;
-	}
-
-	/**
-	 * Copies byte array from pointer offset to pointer offset using a buffer (if needed).
-	 */
-	public static int memmove(Pointer p, long toOffset, long fromOffset, int size) {
-		if (toOffset >= fromOffset + size || toOffset + size <= fromOffset)
-			return memcpy(p, toOffset, fromOffset, size);
-		return memmove(p, toOffset, p, fromOffset, size);
-	}
-
-	/**
-	 * Copies byte array from pointer offset to pointer offset using a buffer.
-	 */
-	public static int memmove(Pointer to, long toOffset, Pointer from, long fromOffset, int size) {
-		byte[] buffer = from.getByteArray(fromOffset, size);
-		to.write(toOffset, buffer, 0, buffer.length);
-		return buffer.length;
-	}
-
-	/**
-	 * Decodes string bytes from pointer and length. Pointer.getString() does not allow length to be
-	 * specified, and can be return inconsistent values.
+	 * Decodes string from fixed-length bytes at pointer using default charset.
 	 */
 	public static String string(Memory m) {
 		return string(DEFAULT_CHARSET, m);
 	}
 
 	/**
-	 * Decodes string bytes from pointer and length. Pointer.getString() does not allow length to be
-	 * specified, and can be return inconsistent values.
+	 * Decodes string from fixed-length bytes at pointer using default charset.
+	 */
+	private static String string(Memory m, long offset) {
+		return string(m, offset, m.size() - offset);
+	}
+
+	/**
+	 * Decodes string from fixed-length bytes at pointer using default charset.
+	 */
+	public static String string(Pointer p, long offset, long length) {
+		return string(DEFAULT_CHARSET, p, offset, length);
+	}
+
+	/**
+	 * Decodes string from fixed-length bytes at pointer.
 	 */
 	public static String string(Charset charset, Memory m) {
-		return string(charset, m, (int) m.size());
+		return string(charset, m, 0);
 	}
 
 	/**
-	 * Decodes string bytes from pointer and length. Pointer.getString() does not allow length to be
-	 * specified, and can be return inconsistent values.
+	 * Decodes string from fixed-length bytes at pointer.
 	 */
-	public static String string(Pointer p, int len) {
-		return string(p, 0, len);
+	public static String string(Charset charset, Memory m, long offset) {
+		return string(charset, m, offset, m.size() - offset);
 	}
 
 	/**
-	 * Decodes string bytes from pointer and length. Pointer.getString() does not allow length to be
-	 * specified, and can be return inconsistent values.
+	 * Decodes string from fixed-length bytes at pointer.
 	 */
-	public static String string(Charset charset, Pointer p, int len) {
-		return string(charset, p, 0, len);
+	public static String string(Charset charset, Pointer p, long offset, long length) {
+		byte[] bytes = byteArray(p, offset, length);
+		return new String(bytes, charset);
 	}
 
 	/**
-	 * Decodes string bytes from pointer and length. Pointer.getString() does not allow length to be
-	 * specified, and can be return inconsistent values.
+	 * Decodes string from byte buffer using default charset.
 	 */
-	public static String string(Pointer p, long offset, int len) {
-		byte[] b = p.getByteArray(offset, len);
-		return new String(b, DEFAULT_CHARSET);
+	public static String string(ByteBuffer buffer) {
+		return string(buffer, 0);
 	}
 
 	/**
-	 * Decodes string bytes from pointer and length. Pointer.getString() does not allow length to be
-	 * specified, and can be return inconsistent values.
+	 * Decodes string from byte buffer using default charset.
 	 */
-	public static String string(Charset charset, Pointer p, long offset, int len) {
-		byte[] b = p.getByteArray(offset, len);
-		return new String(b, charset);
+	private static String string(ByteBuffer buffer, int position) {
+		return string(buffer, position, buffer.limit() - position);
 	}
 
 	/**
-	 * Decodes string from byte buffer.
+	 * Decodes string from byte buffer using default charset.
 	 */
-	public static String string(ByteBuffer buffer, int len) {
-		return string(buffer, 0, len);
+	public static String string(ByteBuffer buffer, int position, int length) {
+		return string(DEFAULT_CHARSET, buffer, position, length);
 	}
 
 	/**
-	 * Decodes string from byte buffer.
+	 * Decodes string from byte buffer using charset.
 	 */
-	public static String string(ByteBuffer buffer, int offset, int len) {
-		return string(DEFAULT_CHARSET, buffer, offset, len);
+	public static String string(Charset charset, ByteBuffer buffer) {
+		return string(charset, buffer, 0);
 	}
 
 	/**
-	 * Decodes string from byte buffer.
+	 * Decodes string from byte buffer using charset.
 	 */
-	public static String string(Charset charset, ByteBuffer buffer, int len) {
-		return string(charset, buffer, 0, len);
+	private static String string(Charset charset, ByteBuffer buffer, int position) {
+		return string(charset, buffer, position, buffer.limit() - position);
 	}
 
 	/**
-	 * Decodes string from byte buffer.
+	 * Decodes string from byte buffer using charset.
 	 */
-	public static String string(Charset charset, ByteBuffer buffer, int offset, int len) {
-		return charset.decode(buffer.limit(offset + len).position(offset)).toString();
+	public static String string(Charset charset, ByteBuffer buffer, int position, int len) {
+		return charset.decode(buffer.limit(position + len).position(position)).toString();
 	}
 
 	/**
-	 * Convert byte to unsigned int value
+	 * Copies bytes from the pointer to the byte array. Returns the array offset after reading.
 	 */
-	public static int ubyte(ByteByReference ref) {
-		return ubyte(ref.getValue());
+	public static int read(Pointer p, byte[] buffer) {
+		return read(p, buffer, 0);
 	}
 
 	/**
-	 * Convert short to unsigned int value
+	 * Copies bytes from the pointer to the byte array. Returns the array offset after reading.
 	 */
-	public static int ushort(ShortByReference ref) {
-		return ushort(ref.getValue());
+	public static int read(Pointer p, byte[] buffer, int offset) {
+		return read(p, buffer, offset, buffer.length - offset);
 	}
 
 	/**
-	 * Verify int is not negative
+	 * Copies bytes from the pointer to the byte array. Returns the array offset after reading.
 	 */
-	public static int uint(IntByReference ref) {
-		return uint(ref.getValue());
-	}
-	
-	/**
-	 * Convert byte to unsigned int value
-	 */
-	public static int ubyte(int value) {
-		return value & 0xff;
+	public static int read(Pointer p, byte[] buffer, int offset, int length) {
+		return read(p, 0, buffer, offset, length);
 	}
 
 	/**
-	 * Convert short to unsigned int value
+	 * Copies bytes from the pointer to the byte array. Returns the array offset after reading.
 	 */
-	public static int ushort(int value) {
-		return value & 0xffff;
+	public static int read(Pointer p, long index, byte[] buffer) {
+		return read(p, index, buffer, 0);
 	}
 
 	/**
-	 * Verify int is not negative
+	 * Copies bytes from the pointer to the byte array. Returns the array offset after reading.
 	 */
-	public static int uint(int value) {
-		if (value >= 0) return value;
-		throw new ArithmeticException("unsigned int overflow: 0x" + StringUtil.toHex(value));
+	public static int read(Pointer p, long index, byte[] buffer, int offset) {
+		return read(p, index, buffer, offset, buffer.length - offset);
 	}
+
+	/**
+	 * Copies bytes from the pointer to the byte array. Returns the array offset after reading.
+	 */
+	public static int read(Pointer p, long index, byte[] buffer, int offset, int length) {
+		validateSlice(buffer.length, offset, length);
+		p.read(index, buffer, offset, length);
+		return offset + length;
+	}
+
+	/**
+	 * Copies bytes to the pointer. Returns the pointer offset after writing.
+	 */
+	public static int write(Pointer p, int... buffer) {
+		return write(p, ArrayUtil.bytes(buffer));
+	}
+
+	/**
+	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
+	 */
+	public static int write(Pointer p, byte[] buffer) {
+		return write(p, buffer, 0);
+	}
+
+	/**
+	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
+	 */
+	public static int write(Pointer p, byte[] buffer, int offset) {
+		return write(p, buffer, offset, buffer.length - offset);
+	}
+
+	/**
+	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
+	 */
+	public static int write(Pointer p, byte[] buffer, int offset, int length) {
+		return write(p, 0, buffer, offset, length);
+	}
+
+	/**
+	 * Copies bytes to the pointer. Returns the pointer offset after writing.
+	 */
+	public static int write(Pointer p, int index, int... buffer) {
+		return write(p, index, ArrayUtil.bytes(buffer));
+	}
+
+	/**
+	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
+	 */
+	public static int write(Pointer p, int index, byte[] buffer) {
+		return write(p, index, buffer, 0);
+	}
+
+	/**
+	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
+	 */
+	public static int write(Pointer p, int index, byte[] buffer, int offset) {
+		return write(p, index, buffer, offset, buffer.length - offset);
+	}
+
+	/**
+	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
+	 */
+	public static int write(Pointer p, int index, byte[] buffer, int offset, int length) {
+		validateSlice(buffer.length, offset, length);
+		p.write(index, buffer, offset, length);
+		return index + length;
+	}
+
+	/* Support methods */
 
 	private static Charset defaultCharset() {
 		String encoding = Native.getDefaultStringEncoding();

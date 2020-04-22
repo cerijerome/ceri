@@ -9,6 +9,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.SafeReadWrite;
+import ceri.common.data.ByteArray.Mutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
 import ceri.common.util.BasicUtil;
@@ -38,7 +39,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 		buffer = config.buffer();
 		xfer = spi.transfer(buffer.storageSize()).delayMicros(config.delayMicros);
 		data = new byte[buffer.length()];
-		wrapper = ByteReceiver.wrap(data);
+		wrapper = Mutable.wrap(data);
 		start();
 	}
 
@@ -52,8 +53,8 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	}
 
 	@Override
-	public void set(int pos, int b) {
-		copyFrom(pos, ArrayUtil.bytes(b));
+	public int setByte(int pos, int b) {
+		return copyFrom(pos, ArrayUtil.bytes(b));
 	}
 
 	@Override
@@ -67,13 +68,13 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	}
 
 	@Override
-	public int fill(int value, int pos, int length) {
-		return signal(() -> wrapper.fill(value, pos, length));
+	public int fill(int value, int length, int pos) {
+		return signal(() -> wrapper.fill(pos, length, value));
 	}
 
 	@Override
-	public int readFrom(InputStream in, int offset, int length) throws IOException {
-		return ByteReceiver.readBufferFrom(this, in, offset, length);
+	public int readFrom(int index, InputStream in, int length) throws IOException {
+		return ByteReceiver.readBufferFrom(this, index, in, length);
 	}
 
 	@Override
@@ -93,7 +94,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	private void syncData() throws InterruptedException {
 		safe.write(() -> {
 			sync.await();
-			buffer.copyFrom(data);
+			buffer.copyFrom(0, data);
 		});
 	}
 

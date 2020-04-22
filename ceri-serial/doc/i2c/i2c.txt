@@ -1,0 +1,36 @@
+
+SMBus Summary
+-------------
+
+QuickCommand	-> addr + rd/wr bit for on/off (no PEC)
+SendByte		-> addr, b1, [PEC]
+ReceiveByte		<- addr, b1, [PEC]
+WriteByte		-> addr, cmd, b1, [PEC]
+WriteWord		-> addr, cmd, b1, b2, [PEC]
+ReadByte		-> addr, cmd <- addr, b1, [PEC]
+ReadWord		-> addr, cmd <- addr, b1, b2, [PEC]
+ProcessCall		-> addr, cmd, b1, b2 <- addr, b1, b2, [PEC]
+BlockWrite		-> addr, cmd, N, b1..bN, [PEC]
+BlockRead		-> addr, cmd <- addr, 1, b1..bN, [PEC] +I2C_M_RECV_LEN
+BlockProcCall	-> addr, cmd, N, b1..bN <- addr, 1, b1..bN, [PEC] +I2C_M_RECV_LEN
+I2CBlockWrite   -> addr, cmd, b1..bN (no PEC)
+I2CBlockRead    -> addr, cmd <- addr, b1..bN (no PEC)
+
+PEC includes all bytes, including address byte (with read/write bit), command, data.
+For reads, PEC is calculated from write and read messages.
+
+CRC-8, CRC-8/SMBUS (alias)
+C(x)=x8+x2+x+1
+width=8, poly=0x7, init=0, refIn=false, refOut=false, xorOut=0
+
+Source: http://ross.net/crc/download/crc_v3.txt
+width = number of bits
+poly = powers as bits excluding highest
+init = initial value
+refin = true?: reverse bits of each input byte
+refout = true: reverse bits of result
+xorout = value to xor with result (after refout)
+check = result of running ascii bytes "123456789"
+
+
+

@@ -1,7 +1,6 @@
 package ceri.serial.libusb.jna;
 
 import java.nio.ByteBuffer;
-import ceri.common.collection.ImmutableByteArray;
 import ceri.common.data.ByteUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.test.BinaryPrinter;
@@ -18,7 +17,7 @@ public class BbTester {
 	public static void main(String[] args) {
 		readDataTest();
 	}
-	
+
 	public static void readDataTest() {
 		byte[] b = new byte[140];
 		ByteBuffer buffer = ByteBuffer.wrap(b);
@@ -76,55 +75,54 @@ public class BbTester {
 		return b.length;
 	}
 
-	 static void mark(ByteBuffer bb) {
+	static void mark(ByteBuffer bb) {
 		bb.mark();
 		System.out.println("mark()");
 		print(bb);
 	}
 
-	 static void reset(ByteBuffer bb) {
+	static void reset(ByteBuffer bb) {
 		bb.reset();
 		System.out.println("reset()");
 		print(bb);
 	}
 
-	 static void flip(ByteBuffer bb) {
+	static void flip(ByteBuffer bb) {
 		bb.flip();
 		System.out.println("flip()");
 		print(bb);
 	}
 
-	 static void rewind(ByteBuffer bb) {
+	static void rewind(ByteBuffer bb) {
 		bb.rewind();
 		System.out.println("rewind()");
 		print(bb);
 	}
 
-	 static void clear(ByteBuffer bb) {
+	static void clear(ByteBuffer bb) {
 		bb.clear();
 		System.out.println("clear()");
 		print(bb);
 	}
 
-	 static void compact(ByteBuffer bb) {
+	static void compact(ByteBuffer bb) {
 		bb.compact();
 		System.out.println("compact()");
 		print(bb);
 	}
 
-	 static void write(ByteBuffer bb, byte[] b, int len) {
+	static void write(ByteBuffer bb, byte[] b, int len) {
 		int n = len; // Math.min(len, bb.remaining());
 		bb.put(b, 0, n);
-		System.out.printf("write(%d) => (%d) [%s]%n", len, n,
-			ByteUtil.toHex(ImmutableByteArray.wrap(b, 0, n)));
+		System.out.printf("write(%d) => (%d) [%s]%n", len, n, ByteUtil.toHex(b, 0, n, " "));
 		print(bb);
 	}
 
-	 static void read(ByteBuffer bb, int len) {
+	static void read(ByteBuffer bb, int len) {
 		int n = Math.min(len, bb.remaining());
 		byte[] b = new byte[n];
 		bb.get(b);
-		System.out.printf("read(%d) => (%d) [%s]%n", len, n, ByteUtil.toHex(b));
+		System.out.printf("read(%d) => (%d) [%s]%n", len, n, ByteUtil.toHex(b, " "));
 		print(bb);
 	}
 
@@ -133,9 +131,9 @@ public class BbTester {
 		print(bb);
 		int n = read0(bb, bb.capacity());
 		print(bb);
-		byte[] b = JnaUtil.byteArray(bb, n);
+		byte[] b = JnaUtil.byteArray(bb, 0, n);
 		print(bb);
-		System.out.println(ByteUtil.toHex(b));
+		System.out.println(ByteUtil.toHex(b, " "));
 	}
 
 	private static int read0(ByteBuffer buffer, int size) {

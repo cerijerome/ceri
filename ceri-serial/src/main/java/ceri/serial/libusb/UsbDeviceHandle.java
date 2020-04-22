@@ -1,6 +1,5 @@
 package ceri.serial.libusb;
 
-import static ceri.common.data.ByteUtil.toByteArray;
 import static ceri.serial.libusb.jna.LibUsb.libusb_alloc_streams;
 import static ceri.serial.libusb.jna.LibUsb.libusb_alloc_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_attach_kernel_driver;
@@ -143,7 +142,7 @@ public class UsbDeviceHandle implements Closeable {
 	}
 
 	public int allocStreams(int streams, List<Integer> endPoints) throws LibUsbException {
-		return libusb_alloc_streams(handle(), (byte) streams, toByteArray(endPoints));
+		return libusb_alloc_streams(handle(), (byte) streams, ArrayUtil.bytes(endPoints));
 	}
 
 	public void freeStreams(int... endPoints) throws LibUsbException {
@@ -151,7 +150,7 @@ public class UsbDeviceHandle implements Closeable {
 	}
 
 	public void freeStreams(Collection<Integer> endPoints) throws LibUsbException {
-		libusb_free_streams(handle(), toByteArray(endPoints));
+		libusb_free_streams(handle(), ArrayUtil.bytes(endPoints));
 	}
 
 	public int controlTransfer(int requestType, int request, int value, int index, int timeout)

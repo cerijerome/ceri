@@ -41,6 +41,7 @@ public class ReplaceableSerialConnector implements SerialConnector {
 		return listeners;
 	}
 
+	@SuppressWarnings("resource")
 	public void setConnector(SerialConnector con) {
 		unlisten(this.con);
 		this.con = con;
@@ -49,6 +50,7 @@ public class ReplaceableSerialConnector implements SerialConnector {
 		con.listeners().listen(listener);
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public void broken() {
 		try {

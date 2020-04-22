@@ -9,8 +9,8 @@ import ceri.common.io.StreamNotSetException;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.util.BasicUtil;
+import ceri.serial.clib.jna.CUtil;
 import ceri.serial.clib.jna.TermiosUtil;
-import ceri.serial.jna.JnaUtil;
 import jtermios.Termios;
 import purejavacomm.PureJavaIllegalStateException;
 import purejavacomm.PureJavaSerialPort;
@@ -87,7 +87,7 @@ public class SerialPort extends CommPort {
 	}
 
 	private boolean isIncorrectBaudRate(int baud) throws IOException {
-		if (!JnaUtil.isValidFileDescriptor(nativeFileDescriptor)) return false;
+		if (!CUtil.isValidFd(nativeFileDescriptor)) return false;
 		Termios t = TermiosUtil.getTermios(nativeFileDescriptor);
 		return t.c_ospeed != baud;
 	}
@@ -154,7 +154,7 @@ public class SerialPort extends CommPort {
 	 * Starts a break (low signal). Make sure writing is complete or output will be overwritten.
 	 */
 	public void setBreakBit() throws IOException {
-		JnaUtil.validateFileDescriptor(nativeFileDescriptor);
+		CUtil.validateFd(nativeFileDescriptor);
 		TermiosUtil.setBreakBit(nativeFileDescriptor);
 	}
 
@@ -162,7 +162,7 @@ public class SerialPort extends CommPort {
 	 * Stops a break and returns to a high signal (mark/idle).
 	 */
 	public void clearBreakBit() throws IOException {
-		JnaUtil.validateFileDescriptor(nativeFileDescriptor);
+		CUtil.validateFd(nativeFileDescriptor);
 		TermiosUtil.clearBreakBit(nativeFileDescriptor);
 	}
 
@@ -172,7 +172,7 @@ public class SerialPort extends CommPort {
 
 	private static int nativeFileDescriptor(purejavacomm.SerialPort port) {
 		PureJavaSerialPort pure = BasicUtil.castOrNull(PureJavaSerialPort.class, port);
-		if (pure == null) return JnaUtil.INVALID_FILE_DESCRIPTOR;
+		if (pure == null) return CUtil.INVALID_FD;
 		return pure.getNativeFileDescriptor();
 	}
 
