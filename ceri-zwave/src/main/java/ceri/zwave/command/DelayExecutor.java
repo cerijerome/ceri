@@ -62,6 +62,7 @@ public class DelayExecutor implements Executor {
 		return content;
 	}
 
+	@SuppressWarnings("resource")
 	private String requestContent(String url) throws IOException {
 		IOException ex = null;
 		for (int i = retries; i >= 0; i--) {
