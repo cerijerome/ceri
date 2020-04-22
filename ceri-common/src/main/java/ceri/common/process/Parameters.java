@@ -1,7 +1,6 @@
 package ceri.common.process;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +16,7 @@ public class Parameters {
 	private final List<String> readOnly;
 
 	public static Parameters of(Object value, Object... values) {
-		return of().add(value, values);
+		return of().add(value).addAll(values);
 	}
 
 	public static Parameters ofAll(Object[] values) {
@@ -42,7 +41,7 @@ public class Parameters {
 	}
 
 	/**
-	 * Add an object, which is then converted by String.valueOf if not null.
+	 * Add objects, which are then converted by String.valueOf if not null.
 	 */
 	public Parameters add(Object value, Object... values) {
 		return addValue(value).addAll(values);
@@ -52,8 +51,9 @@ public class Parameters {
 	 * Add an array of objects.
 	 */
 	public Parameters addAll(Object[] values) {
-		if (values.length == 0) return this;
-		return addAll(Arrays.asList(values));
+		for (Object value : values)
+			addValue(value);
+		return this;
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class Parameters {
 		if (!EqualsUtil.equals(list, other.list)) return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return ProcessUtil.toString(list);

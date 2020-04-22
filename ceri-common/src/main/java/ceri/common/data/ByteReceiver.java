@@ -56,7 +56,11 @@ public interface ByteReceiver {
 	 * Creates a byte provider sub-view. A negative length will right-justify the view. Returns the
 	 * current provider for zero index and same length.
 	 */
-	ByteReceiver slice(int index, int length);
+	default ByteReceiver slice(int index, int length) {
+		if (index == 0 && length == length()) return this;
+		throw new UnsupportedOperationException(
+			String.format("slice(%d, %d) is not supported", index, length));
+	}
 
 	/**
 	 * Sets byte value 1 or 0 at the index. Returns the index after the written bytes.

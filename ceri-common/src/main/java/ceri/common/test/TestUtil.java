@@ -369,7 +369,7 @@ public class TestUtil {
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
-	public static void assertArray(byte[] array, byte... expected) {
+	public static void assertArray(byte[] array, byte[] expected) {
 		assertArrayObject(array, expected);
 	}
 
@@ -377,16 +377,13 @@ public class TestUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(byte[] array, int... values) {
-		byte[] expected = new byte[values.length];
-		for (int i = 0; i < values.length; i++)
-			expected[i] = (byte) values[i];
-		assertArray(array, expected);
+		assertArray(array, ArrayUtil.bytes(values));
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
-	public static void assertArray(short[] array, short... expected) {
+	public static void assertArray(short[] array, short[] expected) {
 		assertArrayObject(array, expected);
 	}
 
@@ -394,10 +391,7 @@ public class TestUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(short[] array, int... values) {
-		short[] expected = new short[values.length];
-		for (int i = 0; i < values.length; i++)
-			expected[i] = (short) values[i];
-		assertArray(array, expected);
+		assertArray(array, ArrayUtil.shorts(values));
 	}
 
 	/**

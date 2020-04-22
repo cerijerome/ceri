@@ -46,6 +46,7 @@ public class SystemIo implements Closeable {
 		return System.err;
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public void close() {
 		if (in() != in) System.setIn(in);

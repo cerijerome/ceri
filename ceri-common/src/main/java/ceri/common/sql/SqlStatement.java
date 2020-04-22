@@ -28,12 +28,14 @@ public class SqlStatement implements AutoCloseable {
 		return track(SqlFormatter.DEFAULT, con, sqlFormat, args);
 	}
 
+	@SuppressWarnings("resource")
 	public static SqlStatement track(SqlFormatter formatter, Connection con, String sqlFormat,
 		Object... args) throws SQLException {
 		String sql = StringUtil.format(sqlFormat, args);
 		return new SqlStatement(con.prepareStatement(sql), sql, formatter);
 	}
 
+	@SuppressWarnings("resource")
 	public static SqlStatement of(Connection con, String sqlFormat, Object... args)
 		throws SQLException {
 		String sql = StringUtil.format(sqlFormat, args);
@@ -138,6 +140,7 @@ public class SqlStatement implements AutoCloseable {
 		return setWithType(x, Types.CLOB);
 	}
 
+	@SuppressWarnings("resource")
 	public SqlStatement set(Object... xs) throws SQLException {
 		for (Object x : xs)
 			if (!castAccept(SqlNull.class, x, this::setNull)) setWithoutType(x);
@@ -148,12 +151,14 @@ public class SqlStatement implements AutoCloseable {
 		return setWithType(null, value.sqlType.value);
 	}
 
+	@SuppressWarnings("resource")
 	private SqlStatement setWithoutType(Object x) throws SQLException {
 		track(x);
 		ps.setObject(incIndex(), x);
 		return this;
 	}
 
+	@SuppressWarnings("resource")
 	private SqlStatement setWithType(Object x, int sqlType) throws SQLException {
 		track(x);
 		ps.setObject(incIndex(), x, sqlType);

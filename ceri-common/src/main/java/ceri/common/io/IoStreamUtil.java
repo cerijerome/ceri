@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
+import ceri.common.function.ExceptionIntSupplier;
 
 /**
  * Utilities for extending input and output streams.
@@ -58,15 +59,11 @@ public class IoStreamUtil {
 	}
 
 	public static interface ByteReader {
-		int read(byte[] b, int offset, int len) throws IOException;
-	}
-
-	public interface AvailableSupplier {
-		int available() throws IOException;
+		int read(byte[] b, int offset, int length) throws IOException;
 	}
 
 	public interface ByteWriter {
-		void write(byte[] b, int offset, int len) throws IOException;
+		void write(byte[] b, int offset, int length) throws IOException;
 	}
 
 	public static InputStream nullIn() {
@@ -81,11 +78,11 @@ public class IoStreamUtil {
 		return in(reader, () -> 0);
 	}
 
-	public static InputStream in(ByteReader reader, AvailableSupplier available) {
+	public static InputStream in(ByteReader reader, ExceptionIntSupplier<IOException> available) {
 		return new In() {
 			@Override
 			public int available() throws IOException {
-				return available.available();
+				return available.getAsInt();
 			}
 
 			@Override

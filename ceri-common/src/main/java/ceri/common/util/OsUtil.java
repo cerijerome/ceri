@@ -2,6 +2,9 @@ package ceri.common.util;
 
 import java.util.regex.Pattern;
 
+/**
+ * Utility methods and constants to help with OS-specific logic.
+ */
 public class OsUtil {
 	public static final String OS_NAME = SystemVars.sys("os.name");
 	public static final String OS_ARCH = SystemVars.sys("os.arch");
@@ -24,6 +27,22 @@ public class OsUtil {
 
 	static boolean propertyIsSet(String name) {
 		return !BasicUtil.isEmpty(SystemVars.sys(name));
+	}
+	
+	public static <T> T mac(T mac, T other) {
+		return BasicUtil.conditional(IS_MAC, mac, other);
+	}
+	
+	public static <T> T linux(T linux, T other) {
+		return BasicUtil.conditional(IS_LINUX, linux, other);
+	}
+	
+	public static int macInt(int mac, int other) {
+		return BasicUtil.conditionalInt(IS_MAC, mac, other);
+	}
+	
+	public static int linuxInt(int linux, int other) {
+		return BasicUtil.conditionalInt(IS_LINUX, linux, other);
 	}
 	
 }

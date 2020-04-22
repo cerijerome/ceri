@@ -44,6 +44,7 @@ import ceri.common.util.SystemVars;
 public class IoUtil {
 	private static final String TMP_DIR_PROPERTY = "java.io.tmpdir";
 	private static final String USER_HOME_PROPERTY = "user.home";
+	private static final String USER_DIR_PROPERTY = "user.dir";
 	private static final String CLASS_SUFFIX = ".class";
 	private static final int READ_POLL_MS = 50;
 	private static final int MIN_ABSOLUTE_DIRS = 3;
@@ -86,6 +87,14 @@ public class IoUtil {
 	 */
 	public static Path userHome(String... paths) {
 		return systemPropertyPath(USER_HOME_PROPERTY, paths);
+	}
+
+	/**
+	 * Returns the current path extended with given paths, based on system property 'user.dir'.
+	 * Returns null if property does not exist.
+	 */
+	public static Path userDir(String... paths) {
+		return systemPropertyPath(USER_DIR_PROPERTY, paths);
 	}
 
 	/**
@@ -632,14 +641,14 @@ public class IoUtil {
 	}
 
 	/**
-	 * Gets content from input stream as a string. Use 0 for default buffer size.
+	 * Gets content from input stream as a string.
 	 */
 	public static String readString(InputStream in) throws IOException {
 		return readString(in, UTF_8);
 	}
 
 	/**
-	 * Gets content from input stream as a string. Use 0 for default buffer size.
+	 * Gets content from input stream as a string.
 	 */
 	public static String readString(InputStream in, Charset charset) throws IOException {
 		return new String(in.readAllBytes(), charset);

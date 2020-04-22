@@ -45,6 +45,7 @@ public class PathPattern {
 	/**
 	 * Matcher using the default file system.
 	 */
+	@SuppressWarnings("resource")
 	public Predicate<Path> matcher() {
 		return matcher(FileSystems.getDefault());
 	}
@@ -52,6 +53,7 @@ public class PathPattern {
 	/**
 	 * Matcher for the given path file system.
 	 */
+	@SuppressWarnings("resource")
 	public Predicate<Path> matcher(Path path) {
 		return matcher(path.getFileSystem());
 	}

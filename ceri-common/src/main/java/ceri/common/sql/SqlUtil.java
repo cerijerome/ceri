@@ -26,6 +26,7 @@ public class SqlUtil {
 		return tableNames(con, null, null, null, TABLE_TYPE);
 	}
 
+	@SuppressWarnings("resource")
 	public static List<String> tableNames(Connection con, String catalog, String schemaPattern,
 		String namePattern, String... types) throws SQLException {
 		try (ResultSet rs =

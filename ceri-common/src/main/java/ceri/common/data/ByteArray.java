@@ -324,26 +324,26 @@ public abstract class ByteArray implements ByteProvider {
 
 	boolean isEqual(ByteArray other) {
 		if (length != other.length) return false;
-		return Arrays.equals(array, offset, offset + length, other.array, other.offset,
-			other.offset + length);
+		return Arrays.equals(array, offset(0), offset(length), other.array, other.offset(0),
+			other.offset(length));
 	}
 
 	int hash() {
 		HashCoder hashCoder = HashCoder.create();
 		for (int i = 0; i < length; i++)
-			hashCoder.add(array[offset + i]);
+			hashCoder.add(array[offset(i)]);
 		return hashCoder.hashCode();
 	}
 
-	boolean isValidSlice(int offset, int length) {
-		return ArrayUtil.isValidSlice(this.length, offset, length);
+	boolean isValidSlice(int index, int length) {
+		return ArrayUtil.isValidSlice(this.length, index, length);
 	}
 
-	void validateSlice(int offset, int length) {
-		ArrayUtil.validateSlice(this.length, offset, length);
+	void validateSlice(int index, int length) {
+		ArrayUtil.validateSlice(this.length, index, length);
 	}
 
-	int offset(int offset) {
-		return this.offset + offset;
+	int offset(int index) {
+		return this.offset + index;
 	}
 }

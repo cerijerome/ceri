@@ -26,7 +26,8 @@ import ceri.common.util.BasicUtil;
  * int transferFrom(InputStream in, int length) throws IOException; [1-byte]
  * </pre>
  * 
- * @see ceri.common.data.NavigableByteReader
+ * @see ceri.common.data.ByteReceiver.Writer
+ * @see ceri.common.data.ByteStream.Writer
  */
 public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 

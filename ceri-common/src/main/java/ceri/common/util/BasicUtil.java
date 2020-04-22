@@ -8,6 +8,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
 
@@ -56,6 +58,18 @@ public class BasicUtil {
 	}
 
 	/**
+	 * 
+	 */
+	public static <E extends Exception, T> void tryWithResources(
+		T t, ExceptionConsumer<E, T> actionFn, ExceptionConsumer<E, T> closeFn) throws E {
+		try {
+			if (t != null) actionFn.accept(t);			
+		} finally {
+			if (t != null) closeFn.accept(t);
+		}
+	}
+	
+	/**
 	 * Returns default value if main value is null.
 	 */
 	public static <T> T defaultValue(T value, T def) {
@@ -74,6 +88,13 @@ public class BasicUtil {
 	 */
 	public static <T> T conditional(Boolean condition, T trueValue, T falseValue, T nullValue) {
 		if (condition == null) return nullValue;
+		return condition ? trueValue : falseValue;
+	}
+
+	/**
+	 * Returns a value based on condition.
+	 */
+	public static int conditionalInt(boolean condition, int trueValue, int falseValue) {
 		return condition ? trueValue : falseValue;
 	}
 
@@ -139,6 +160,15 @@ public class BasicUtil {
 	 */
 	public static <T extends Enum<T>> List<T> enums(Class<T> cls) {
 		return Arrays.asList(cls.getEnumConstants());
+	}
+
+	/**
+	 * Convenience method that returns all enum constants as a list in reverse order.
+	 */
+	public static <T extends Enum<T>> List<T> enumsReversed(Class<T> cls) {
+		List<T> list = enums(cls);
+		Collections.reverse(list);
+		return list;
 	}
 
 	/**

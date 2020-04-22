@@ -129,21 +129,21 @@ public class FileTestHelper implements Closeable {
 	}
 
 	/**
-	 * Use current directory as the root.
+	 * Use current directory as the helper root.
 	 */
 	public static Builder builder() {
 		return builder("");
 	}
 
 	/**
-	 * Use given directory as the root.
+	 * Use given directory as the helper root.
 	 */
 	public static Builder builder(Path path) {
 		return new Builder(path);
 	}
 
 	/**
-	 * Use given directory in unix format as the root.
+	 * Use given directory in unix format as the helper root.
 	 */
 	public static Builder builder(String path) {
 		return builder(Path.of(path));
@@ -162,28 +162,28 @@ public class FileTestHelper implements Closeable {
 	}
 
 	/**
-	 * Creates a path relative to the root dir from unix format.
+	 * Creates a path relative to the helper root dir from unix format.
 	 */
 	public Path path(String path) {
 		return root.resolve(path);
 	}
 
 	/**
-	 * Creates a path relative to the root dir from unix format.
+	 * Creates a path relative to the helper root dir from unix format.
 	 */
 	public Path pathf(String format, Object... objs) {
 		return path(String.format(format, objs));
 	}
 
 	/**
-	 * Creates an array of paths relative to the root dir from unix format.
+	 * Creates an array of paths relative to the helper root dir from unix format.
 	 */
 	public Path[] paths(String... paths) {
 		return Stream.of(paths).map(this::path).toArray(Path[]::new);
 	}
 
 	/**
-	 * Creates a list of paths relative to the root dir from unix format.
+	 * Creates a list of paths relative to the helper root dir from unix format.
 	 */
 	public List<Path> pathList(String... paths) {
 		return Stream.of(paths).map(this::path).collect(Collectors.toList());

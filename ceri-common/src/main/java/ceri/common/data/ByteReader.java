@@ -23,7 +23,8 @@ import ceri.common.math.MathUtil;
  * ByteReader transferTo(OutputStream out, int length) throws IOException; [1-byte]
  * </pre>
  * 
- * @see ceri.common.data.NavigableByteReader
+ * @see ceri.common.data.ByteProvider.Reader
+ * @see ceri.common.data.ByteStream.Reader
  */
 public interface ByteReader {
 

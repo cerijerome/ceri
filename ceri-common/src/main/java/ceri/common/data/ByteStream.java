@@ -125,7 +125,7 @@ public class ByteStream {
 
 		private void verifyLength(int actual, int expected) {
 			if (actual < expected) throw new RuntimeIoException(
-				String.format("End of stream, not enough bytes: %d/%d", actual, expected));
+				String.format("Incomplete read: %d/%d", actual, expected));
 		}
 	}
 
