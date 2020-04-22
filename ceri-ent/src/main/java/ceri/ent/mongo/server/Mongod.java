@@ -126,12 +126,12 @@ public class Mongod extends ProcessRunner {
 
 		public Parameters params() {
 			Parameters params = Parameters.of(mongodPath);
-			if (dbPath != null) params.add(DB_PATH_OPTION, dbPath.toString());
-			if (port != null) params.add(PORT_OPTION).add(port);
-			if (replSet != null) params.add(REPL_SET_OPTION).add(replSet);
+			if (dbPath != null) params.add(DB_PATH_OPTION, dbPath);
+			if (port != null) params.add(PORT_OPTION, port);
+			if (replSet != null) params.add(REPL_SET_OPTION, replSet);
 			if (configServer) params.add(CONFIG_SERVER_OPTION);
 			if (shardServer) params.add(SHARD_SERVER_OPTION);
-			if (logPath != null) params.add(LOG_PATH_OPTION, logPath.toString());
+			if (logPath != null) params.add(LOG_PATH_OPTION, logPath);
 			if (logAppend) params.add(LOG_APPEND_OPTION);
 			return params;
 		}

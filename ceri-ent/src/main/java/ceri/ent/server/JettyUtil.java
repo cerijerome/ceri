@@ -66,6 +66,7 @@ public class JettyUtil {
 		setResourceBase(context, Arrays.asList(classes));
 	}
 
+	@SuppressWarnings("resource") // collection is correctly closed if error during construction
 	public static void setResourceBase(ContextHandler context, Collection<Class<?>> classes) {
 		context.setBaseResource(resourceCollection(classes));
 	}

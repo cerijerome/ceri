@@ -68,9 +68,9 @@ public class Mongos extends ProcessRunner {
 
 		public Parameters params() {
 			Parameters params = Parameters.of(mongosPath);
-			if (port != null) params.add(PORT_OPTION).add(port);
-			if (configDb != null) params.add(CONFIGDB_OPTION).add(configDb.toString());
-			if (logPath != null) params.add(LOG_PATH_OPTION, logPath.toString());
+			if (port != null) params.add(PORT_OPTION, port);
+			if (configDb != null) params.add(CONFIGDB_OPTION, configDb);
+			if (logPath != null) params.add(LOG_PATH_OPTION, logPath);
 			if (logAppend) params.add(LOG_APPEND_OPTION);
 			return params;
 		}

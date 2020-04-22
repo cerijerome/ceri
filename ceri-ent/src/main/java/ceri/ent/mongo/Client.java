@@ -30,11 +30,13 @@ public class Client implements Closeable {
 		return of(settings.toMongo());
 	}
 
+	@SuppressWarnings("resource")
 	public static Client of(MongoClientSettings settings) {
 		logger.info("Connecting to {}", settings.getClusterSettings().getHosts());
 		return wrap(MongoClients.create(settings));
 	}
 
+	@SuppressWarnings("resource")
 	public static Client of(String connection) {
 		logger.info("Connecting to {}", connection);
 		return wrap(MongoClients.create(connection));

@@ -68,6 +68,7 @@ public class JsonAdapter<T> extends TypeAdapter<T> {
 		return true;
 	}
 
+	@SuppressWarnings("resource")
 	private boolean processNull(JsonWriter out, T value) throws IOException {
 		if (value != null) return false;
 		out.nullValue();

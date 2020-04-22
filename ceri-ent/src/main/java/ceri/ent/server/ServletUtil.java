@@ -45,12 +45,14 @@ public class ServletUtil {
 		setSuccessText(response, SUCCESS_MESSAGE_DEF);
 	}
 
+	@SuppressWarnings("resource")
 	public static void setSuccessText(HttpServletResponse response, String message)
 		throws IOException {
 		response.setContentType(MIME_TYPE_TEXT_PLAIN);
 		response.getWriter().write(message);
 	}
 
+	@SuppressWarnings("resource")
 	public static void setJsonResponse(HttpServletResponse response, String json)
 		throws IOException {
 		response.setContentType(MIME_TYPE_JSON);
