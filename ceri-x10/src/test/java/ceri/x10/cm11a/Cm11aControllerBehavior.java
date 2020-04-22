@@ -31,13 +31,13 @@ public class Cm11aControllerBehavior {
 	}
 
 	@Test
-	public void shouldDispatchUnitCommands() throws IOException {
+	public void shouldDispatchUnitCommands() {
 		controller.command(CommandFactory.on("K9"));
-		assertThat(connector.from.readShort(), is((short) 0x0437));
+		assertThat(connector.from.readShortMsb(), is((short) 0x0437));
 		connector.to.writeByte(Data.shortChecksum(0x0437));
 		assertThat(connector.from.readByte(), is((byte) 0));
 		connector.to.writeByte(0x55);
-		assertThat(connector.from.readShort(), is((short) 0x0632));
+		assertThat(connector.from.readShortMsb(), is((short) 0x0632));
 		connector.to.writeByte(Data.shortChecksum(0x0632));
 		assertThat(connector.from.readByte(), is((byte) 0));
 		connector.to.writeByte(0x55);

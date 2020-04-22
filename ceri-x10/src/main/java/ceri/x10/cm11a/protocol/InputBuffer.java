@@ -1,16 +1,14 @@
 package ceri.x10.cm11a.protocol;
 
-import java.io.DataInput;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.data.ByteArrayDataInput;
-import ceri.common.data.ByteArrayDataOutput;
+import ceri.common.data.ByteArray.Mutable;
+import ceri.common.data.ByteReader;
+import ceri.common.data.ByteWriter;
 import ceri.common.text.ToStringHelper;
 import ceri.x10.cm11a.Entry;
 import ceri.x10.cm11a.EntryDispatcher;
@@ -44,20 +42,19 @@ public class InputBuffer {
 	/**
 	 * Creates a byte array from address and function entries.
 	 */
-	public void writeTo(DataOutput out) throws IOException {
-		byte[] data = new byte[MAX_BYTES];
+	public void writeTo(ByteWriter<?> w) {
+		Mutable data = Mutable.of(MAX_BYTES);
 		int count = 0;
 		BitSet bits = new BitSet(MAX_DATA_BYTES);
-		ByteArrayDataOutput bOut = new ByteArrayDataOutput(data, HEADER_BYTES);
+		ByteWriter<?> out = data.writer(HEADER_BYTES);
 		for (Entry entry : entries) {
 			if (entry.type != Entry.Type.address) bits.set(count);
-			Data.read.writeEntryTo(entry, bOut);
+			Data.read.writeEntryTo(entry, out);
 			count += Data.read.sizeInBytes(entry);
 		}
-		data[0] = (byte) (count + 1);
-		data[1] = bits.toByteArray()[0];
-		if (count < MAX_DATA_BYTES) data = Arrays.copyOf(data, count + HEADER_BYTES);
-		out.write(data);
+		data.setByte(0, count + 1);
+		data.setByte(1, bits.toByteArray()[0]);
+		w.writeFrom(data, 0, count + HEADER_BYTES);
 	}
 
 	/**
@@ -105,18 +102,14 @@ public class InputBuffer {
 	/**
 	 * Creates a data buffer by reading from the given input stream.
 	 */
-	public static InputBuffer readFrom(DataInput in) throws IOException {
-		byte count = in.readByte();
+	public static InputBuffer readFrom(ByteReader r) throws IOException {
+		byte count = r.readByte();
 		if (count < HEADER_BYTES || count >= MAX_BYTES) throw new UnexpectedByteException(count);
-		byte[] data = new byte[count];
-		in.readFully(data);
-		in = new ByteArrayDataInput(data, 0);
 		List<Entry> entries = new ArrayList<>();
-		BitSet bits = BitSet.valueOf(new byte[] { in.readByte() });
-		int i = 0;
-		while (i < count - 1) {
+		BitSet bits = BitSet.valueOf(new byte[] { r.readByte() });
+		for (int i = 0; i < count - 1;) {
 			boolean isFunction = bits.get(i);
-			Entry entry = Data.read.readEntryFrom(isFunction, in);
+			Entry entry = Data.read.readEntryFrom(isFunction, r);
 			entries.add(entry);
 			i += Data.read.sizeInBytes(entry);
 		}

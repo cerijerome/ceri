@@ -1,10 +1,10 @@
 package ceri.x10.cm11a.protocol;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import static ceri.common.validation.ValidationUtil.validateEqual;
+import ceri.common.data.ByteArray;
+import ceri.common.data.ByteProvider;
+import ceri.common.data.ByteReader;
+import ceri.common.data.ByteWriter;
 import ceri.x10.cm11a.Entry;
 import ceri.x10.type.Address;
 import ceri.x10.type.BaseFunction;
@@ -26,56 +26,42 @@ public class WriteData {
 
 	WriteData() {}
 
-	public Address readAddressFrom(DataInput in) throws IOException {
-		byte b = in.readByte();
-		if (b != ADDRESS_PREFIX) throw new IllegalArgumentException("Header does not match 0x" +
-			Integer.toHexString(ADDRESS_PREFIX) + ": 0x" + Integer.toHexString(b));
-		return Data.toAddress(in.readByte());
+	public Address readAddressFrom(ByteReader r) {
+		validateEqual(r.readByte(), ADDRESS_PREFIX, "Header");
+		return Data.toAddress(r.readByte());
 	}
 
-	public void writeAddressTo(Address address, DataOutput out) throws IOException {
-		out.writeByte(ADDRESS_PREFIX);
-		out.writeByte(Data.fromAddress(address));
+	public void writeAddressTo(Address address, ByteWriter<?> w) {
+		w.writeBytes(ADDRESS_PREFIX, Data.fromAddress(address));
 	}
 
-	public Function readFunctionFrom(DataInput in) throws IOException {
-		byte b = in.readByte();
-		if (b != FUNCTION_PREFIX) throw new IllegalArgumentException("Header does not match 0x" +
-			Integer.toHexString(FUNCTION_PREFIX) + ": 0x" + Integer.toHexString(b));
-		b = in.readByte();
+	public Function readFunctionFrom(ByteReader r) {
+		validateEqual(r.readByte(), FUNCTION_PREFIX, "Header");
+		byte b = r.readByte();
 		House house = Data.toHouse(b >> 4 & 0xf);
 		FunctionType type = Data.toFunctionType(b & 0xf);
 		return new Function(house, type);
 	}
 
-	private void writeBaseFunctionTo(BaseFunction function, DataOutput out) throws IOException {
-		int house = Data.fromHouse(function.house);
-		int type = Data.fromFunctionType(function.type);
-		out.writeByte(house << 4 | type);
+	public void writeFunctionTo(Function function, ByteWriter<?> w) {
+		w.writeByte(FUNCTION_PREFIX);
+		writeBaseFunctionTo(function, w);
 	}
 
-	public void writeFunctionTo(Function function, DataOutput out) throws IOException {
-		out.writeByte(FUNCTION_PREFIX);
-		writeBaseFunctionTo(function, out);
-	}
-
-	public DimFunction readDimFunctionFrom(DataInput in) throws IOException {
-		byte b = in.readByte();
-		int header = b & FUNCTION_PREFIX_MASK;
-		if (header != FUNCTION_PREFIX) throw new IllegalArgumentException(
-			"Header does not match 0x" + Integer.toHexString(FUNCTION_PREFIX) + ": 0x" +
-				Integer.toHexString(header));
+	public DimFunction readDimFunctionFrom(ByteReader r) {
+		byte b = r.readByte();
+		validateEqual(b & FUNCTION_PREFIX_MASK, FUNCTION_PREFIX, "Header");
 		int percent = toDim(b >> 3);
-		b = in.readByte();
+		b = r.readByte();
 		House house = Data.toHouse(b >> 4 & 0xf);
 		FunctionType type = Data.toFunctionType(b & 0xf);
 		return new DimFunction(house, type, percent);
 	}
 
-	public void writeDimFunctionTo(DimFunction function, DataOutput out) throws IOException {
+	public void writeDimFunctionTo(DimFunction function, ByteWriter<?> w) {
 		int header = fromDim(function.percent) << 3 | FUNCTION_PREFIX;
-		out.writeByte(header);
-		writeBaseFunctionTo(function, out);
+		w.writeByte(header);
+		writeBaseFunctionTo(function, w);
 	}
 
 	public int toDim(int data) {
@@ -88,32 +74,29 @@ public class WriteData {
 		return (int) data;
 	}
 
-	public ExtFunction readExtFunctionFrom(DataInput in) throws IOException {
-		byte b = in.readByte();
-		if (b != EXT_FUNCTION_PREFIX) throw new IllegalArgumentException(
-			"Header does not match 0x" + Integer.toHexString(EXT_FUNCTION_PREFIX) + ": 0x" +
-				Integer.toHexString(b));
-		b = in.readByte();
+	public ExtFunction readExtFunctionFrom(ByteReader r) {
+		validateEqual(r.readByte(), EXT_FUNCTION_PREFIX, "Header");
+		byte b = r.readByte();
 		House house = Data.toHouse(b >> 4 & 0xf);
 		FunctionType type = Data.toFunctionType(b & 0xf);
-		if (!ExtFunction.isAllowed(type)) throw new IllegalArgumentException(
-			"Type is not extended: " + type);
-		byte data = in.readByte();
-		byte command = in.readByte();
+		if (!ExtFunction.isAllowed(type))
+			throw new IllegalArgumentException("Type is not extended: " + type);
+		byte data = r.readByte();
+		byte command = r.readByte();
 		return new ExtFunction(house, data, command);
 	}
 
-	public void writeExtFunctionTo(ExtFunction function, DataOutput out) throws IOException {
-		out.writeByte(EXT_FUNCTION_PREFIX);
-		writeBaseFunctionTo(function, out);
-		out.writeByte(function.data);
-		out.writeByte(function.command);
+	public void writeExtFunctionTo(ExtFunction function, ByteWriter<?> w) {
+		w.writeByte(EXT_FUNCTION_PREFIX);
+		writeBaseFunctionTo(function, w);
+		w.writeByte(function.data);
+		w.writeByte(function.command);
 	}
 
-	public Entry readEntryFrom(DataInput in) throws IOException {
-		byte header = in.readByte();
-		if (header == ADDRESS_PREFIX) return new Entry(Data.toAddress(in.readByte()));
-		byte b = in.readByte();
+	public Entry readEntryFrom(ByteReader r) {
+		byte header = r.readByte();
+		if (header == ADDRESS_PREFIX) return new Entry(Data.toAddress(r.readByte()));
+		byte b = r.readByte();
 		House house = Data.toHouse(b >> 4);
 		FunctionType type = Data.toFunctionType(b);
 		if (DimFunction.isAllowed(type)) {
@@ -121,40 +104,38 @@ public class WriteData {
 			return new Entry(new DimFunction(house, type, percent));
 		}
 		if (ExtFunction.isAllowed(type)) {
-			byte data = in.readByte();
-			byte command = in.readByte();
+			byte data = r.readByte();
+			byte command = r.readByte();
 			return new Entry(new ExtFunction(house, data, command));
 		}
 		return new Entry(new Function(house, type));
 	}
 
-	public byte[] fromEntry(Entry entry) {
-		try {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			DataOutputStream dOut = new DataOutputStream(out);
-			writeEntryTo(entry, dOut);
-			dOut.flush();
-			return out.toByteArray();
-		} catch (IOException e) {
-			throw new AssertionError("Not possible", e);
+	public ByteProvider fromEntry(Entry entry) {
+		return ByteArray.encoder().apply(w -> writeEntryTo(entry, w)).immutable();
+	}
+
+	public void writeEntryTo(Entry entry, ByteWriter<?> w) {
+		switch (entry.type) {
+		case address:
+			writeAddressTo(entry.asAddress(), w);
+			break;
+		case function:
+			writeFunctionTo(entry.asFunction(), w);
+			break;
+		case dim:
+			writeDimFunctionTo(entry.asDimFunction(), w);
+			break;
+		case ext:
+			writeExtFunctionTo(entry.asExtFunction(), w);
+			break;
 		}
 	}
 
-	public void writeEntryTo(Entry entry, DataOutput out) throws IOException {
-		switch (entry.type) {
-		case address:
-			writeAddressTo(entry.asAddress(), out);
-			break;
-		case function:
-			writeFunctionTo(entry.asFunction(), out);
-			break;
-		case dim:
-			writeDimFunctionTo(entry.asDimFunction(), out);
-			break;
-		case ext:
-			writeExtFunctionTo(entry.asExtFunction(), out);
-			break;
-		}
+	private void writeBaseFunctionTo(BaseFunction function, ByteWriter<?> w) {
+		int house = Data.fromHouse(function.house);
+		int type = Data.fromFunctionType(function.type);
+		w.writeByte(house << 4 | type);
 	}
 
 }

@@ -30,9 +30,8 @@ public class ProcessorBehavior {
 		connector = new Cm11aTestConnector(1, 3000);
 		inQueue = new ArrayBlockingQueue<>(3);
 		outQueue = new ArrayBlockingQueue<>(3);
-		processor =
-			Processor.builder(connector, inQueue, outQueue).readPollMs(5).readTimeoutMs(1000)
-				.queuePollTimeoutMs(100).maxSendAttempts(2).build();
+		processor = Processor.builder(connector, inQueue, outQueue).readPollMs(5)
+			.readTimeoutMs(1000).queuePollTimeoutMs(100).maxSendAttempts(2).build();
 	}
 
 	@After
@@ -41,10 +40,9 @@ public class ProcessorBehavior {
 	}
 
 	@Test
-	public void shouldHandleInputWhileWaitingForReadySignal() throws InterruptedException,
-		IOException {
+	public void shouldHandleInputWhileWaitingForReadySignal() throws InterruptedException {
 		inQueue.add(CommandFactory.allUnitsOff('H'));
-		assertThat(connector.from.readShort(), is((short) 0x06d0));
+		assertThat(connector.from.readShortMsb(), is((short) 0x06d0));
 		connector.to.writeByte(Data.shortChecksum(0x06d0));
 		assertThat(connector.from.readByte(), is((byte) 0));
 		//
@@ -63,9 +61,9 @@ public class ProcessorBehavior {
 	}
 
 	@Test
-	public void shouldHandleInputWhileWaitingForChecksum() throws InterruptedException, IOException {
+	public void shouldHandleInputWhileWaitingForChecksum() throws InterruptedException {
 		inQueue.add(CommandFactory.dim("O11", 50));
-		assertThat(connector.from.readShort(), is((short) 0x0443));
+		assertThat(connector.from.readShortMsb(), is((short) 0x0443));
 		//
 		connector.to.writeByte(Protocol.DATA_POLL.value);
 		BaseCommand<?> command = CommandFactory.allLightsOn('F');
@@ -82,7 +80,7 @@ public class ProcessorBehavior {
 	}
 
 	@Test
-	public void shouldDispatchInputCommand() throws InterruptedException, IOException {
+	public void shouldDispatchInputCommand() throws InterruptedException {
 		connector.to.writeByte(Protocol.DATA_POLL.value);
 		BaseCommand<?> command = CommandFactory.extended("A1", Byte.MIN_VALUE, Byte.MAX_VALUE);
 		Collection<Entry> entries = EntryDispatcher.toEntries(command);
@@ -94,7 +92,7 @@ public class ProcessorBehavior {
 	}
 
 	@Test
-	public void shouldReturnStatus() throws IOException {
+	public void shouldReturnStatus() {
 		connector.to.writeByte(Protocol.TIME_POLL.value);
 		long t = System.currentTimeMillis() - 1000; // milliseconds are zeroed
 		WriteStatus status = WriteStatus.readFrom(connector.from);
@@ -102,13 +100,13 @@ public class ProcessorBehavior {
 	}
 
 	@Test
-	public void shouldDispatchCommand() throws InterruptedException, IOException {
+	public void shouldDispatchCommand() throws InterruptedException {
 		inQueue.add(CommandFactory.off("M16"));
-		assertThat(connector.from.readShort(), is((short) 0x040c));
+		assertThat(connector.from.readShortMsb(), is((short) 0x040c));
 		connector.to.writeByte(Data.shortChecksum(0x040c));
 		assertThat(connector.from.readByte(), is((byte) 0));
 		connector.to.writeByte(0x55);
-		assertThat(connector.from.readShort(), is((short) 0x0603));
+		assertThat(connector.from.readShortMsb(), is((short) 0x0603));
 		connector.to.writeByte(Data.shortChecksum(0x0603));
 		assertThat(connector.from.readByte(), is((byte) 0));
 		connector.to.writeByte(0x55);

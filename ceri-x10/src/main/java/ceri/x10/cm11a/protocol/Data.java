@@ -1,15 +1,17 @@
 package ceri.x10.cm11a.protocol;
 
 import static java.util.Map.entry;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import ceri.common.data.ByteArray.Immutable;
+import ceri.common.data.ByteProvider;
+import ceri.common.data.ByteReader;
+import ceri.common.data.ByteUtil;
+import ceri.common.data.ByteWriter;
 import ceri.x10.type.Address;
 import ceri.x10.type.FunctionType;
 import ceri.x10.type.House;
@@ -64,13 +66,14 @@ public class Data {
 	private Data() {}
 
 	public static byte shortChecksum(int sh) {
-		return checksum((byte) (sh >>> 8), (byte) (sh & 0xff));
+		return checksum(Immutable.wrap(ByteUtil.toMsb(sh, Short.BYTES)));
 	}
 
-	public static byte checksum(byte... bytes) {
+	public static byte checksum(ByteProvider bytes) {
 		int sum = 0;
-		for (byte b : bytes) sum += b;
-		return (byte) (sum & 0xff);
+		for (int i = 0; i < bytes.length(); i++)
+			sum += bytes.getByte(i);
+		return (byte) sum;
 	}
 
 	public static House toHouse(int data) {
@@ -121,16 +124,16 @@ public class Data {
 	 * 	6 to 0 		Day mask (SMTWTFS)
 	 * </pre>
 	 */
-	public static Date readDateFrom(DataInput in) throws IOException {
-		int second = in.readByte();
-		int minute = in.readByte();
-		int hour = in.readByte() * 2;
+	public static Date readDateFrom(ByteReader r) {
+		int second = r.readByte();
+		int minute = r.readByte();
+		int hour = r.readByte() * 2;
 		if (minute > MINUTES_IN_HOUR) {
 			minute -= MINUTES_IN_HOUR;
 			hour++;
 		}
-		int dayOfYear = in.readByte() & 0xff;
-		dayOfYear += (in.readByte() << 1) & 0x100;
+		int dayOfYear = r.readUbyte();
+		dayOfYear += (r.readByte() << 1) & 0x100;
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.MILLISECOND, 0);
 		cal.set(Calendar.SECOND, second);
@@ -153,7 +156,7 @@ public class Data {
 	 * 	6 to 0 		Day mask (SMTWTFS)
 	 * </pre>
 	 */
-	public static void writeDateTo(Date date, DataOutput out) throws IOException {
+	public static void writeDateTo(Date date, ByteWriter<?> w) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		cal.set(Calendar.MILLISECOND, 0);
@@ -165,11 +168,11 @@ public class Data {
 		if (hour % 2 > 0) min += TimeUnit.HOURS.toMinutes(1);
 		hour = hour / 2;
 		dayOfWeek = 1 << (Calendar.SATURDAY - dayOfWeek);
-		out.write(sec);
-		out.write(min);
-		out.write(hour);
-		out.write(day & 0xff);
-		out.write((day & 0x100) >> 1 | dayOfWeek);
+		w.writeByte(sec);
+		w.writeByte(min);
+		w.writeByte(hour);
+		w.writeByte(day & 0xff);
+		w.writeByte((day & 0x100) >> 1 | dayOfWeek);
 	}
 
 	private static <K, V> Map<V, K> reverse(Map<K, V> map) {

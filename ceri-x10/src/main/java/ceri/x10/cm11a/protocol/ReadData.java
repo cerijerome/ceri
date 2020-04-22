@@ -1,8 +1,7 @@
 package ceri.x10.cm11a.protocol;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
+import ceri.common.data.ByteReader;
+import ceri.common.data.ByteWriter;
 import ceri.x10.cm11a.Entry;
 import ceri.x10.type.Address;
 import ceri.x10.type.BaseFunction;
@@ -20,42 +19,42 @@ public class ReadData {
 
 	ReadData() {}
 
-	public Address readAddressFrom(DataInput in) throws IOException {
-		return Data.toAddress(in.readByte());
+	public Address readAddressFrom(ByteReader r) {
+		return Data.toAddress(r.readByte());
 	}
 
-	private void writeAddressTo(Address address, DataOutput out) throws IOException {
-		out.writeByte(Data.fromAddress(address));
+	private void writeAddressTo(Address address, ByteWriter<?> w) {
+		w.writeByte(Data.fromAddress(address));
 	}
 
-	public Function readFunctionFrom(DataInput in) throws IOException {
-		byte b = in.readByte();
+	public Function readFunctionFrom(ByteReader r) {
+		byte b = r.readByte();
 		House house = Data.toHouse(b >> 4 & 0xf);
 		FunctionType type = Data.toFunctionType(b & 0xf);
 		return new Function(house, type);
 	}
 
-	private void writeBaseFunctionTo(BaseFunction function, DataOutput out) throws IOException {
+	private void writeBaseFunctionTo(BaseFunction function, ByteWriter<?> w) {
 		int house = Data.fromHouse(function.house);
 		int type = Data.fromFunctionType(function.type);
-		out.writeByte(house << 4 | type);
+		w.writeByte(house << 4 | type);
 	}
 
-	public void writeFunctionTo(Function function, DataOutput out) throws IOException {
-		writeBaseFunctionTo(function, out);
+	public void writeFunctionTo(Function function, ByteWriter<?> w) {
+		writeBaseFunctionTo(function, w);
 	}
 
-	public DimFunction readDimFunctionFrom(DataInput in) throws IOException {
-		byte b = in.readByte();
+	public DimFunction readDimFunctionFrom(ByteReader r) {
+		byte b = r.readByte();
 		House house = Data.toHouse(b >> 4 & 0xf);
 		FunctionType type = Data.toFunctionType(b & 0xf);
-		int dim = in.readByte();
+		int dim = r.readByte();
 		return new DimFunction(house, type, toDim(dim));
 	}
 
-	public void writeDimFunctionTo(DimFunction function, DataOutput out) throws IOException {
-		writeBaseFunctionTo(function, out);
-		out.writeByte(fromDim(function.percent));
+	public void writeDimFunctionTo(DimFunction function, ByteWriter<?> w) {
+		writeBaseFunctionTo(function, w);
+		w.writeByte(fromDim(function.percent));
 	}
 
 	public int toDim(int data) {
@@ -68,21 +67,21 @@ public class ReadData {
 		return (int) data;
 	}
 
-	public ExtFunction readExtFunctionFrom(DataInput in) throws IOException {
-		byte b = in.readByte();
+	public ExtFunction readExtFunctionFrom(ByteReader r) {
+		byte b = r.readByte();
 		House house = Data.toHouse(b >> 4 & 0xf);
 		FunctionType type = Data.toFunctionType(b & 0xf);
-		if (type != FunctionType.EXTENDED) throw new IllegalArgumentException(
-			"Function type is not extended: " + type);
-		byte data = in.readByte();
-		byte command = in.readByte();
+		if (type != FunctionType.EXTENDED)
+			throw new IllegalArgumentException("Function type is not extended: " + type);
+		byte data = r.readByte();
+		byte command = r.readByte();
 		return new ExtFunction(house, data, command);
 	}
 
-	public void writeExtFunctionTo(ExtFunction function, DataOutput out) throws IOException {
-		writeBaseFunctionTo(function, out);
-		out.writeByte(function.data);
-		out.writeByte(function.command);
+	public void writeExtFunctionTo(ExtFunction function, ByteWriter<?> w) {
+		writeBaseFunctionTo(function, w);
+		w.writeByte(function.data);
+		w.writeByte(function.command);
 	}
 
 	public int sizeInBytes(Entry entry) {
@@ -99,36 +98,36 @@ public class ReadData {
 		}
 	}
 
-	public Entry readEntryFrom(boolean isFunction, DataInput in) throws IOException {
-		byte b = in.readByte();
+	public Entry readEntryFrom(boolean isFunction, ByteReader r) {
+		byte b = r.readByte();
 		if (!isFunction) return new Entry(Data.toAddress(b));
 		House house = Data.toHouse(b >> 4);
 		FunctionType type = Data.toFunctionType(b);
 		if (DimFunction.isAllowed(type)) {
-			int percent = Data.read.toDim(in.readByte());
+			int percent = Data.read.toDim(r.readByte());
 			return new Entry(new DimFunction(house, type, percent));
 		}
 		if (ExtFunction.isAllowed(type)) {
-			byte data = in.readByte();
-			byte command = in.readByte();
+			byte data = r.readByte();
+			byte command = r.readByte();
 			return new Entry(new ExtFunction(house, data, command));
 		}
 		return new Entry(new Function(house, type));
 	}
 
-	public void writeEntryTo(Entry entry, DataOutput out) throws IOException {
+	public void writeEntryTo(Entry entry, ByteWriter<?> w) {
 		switch (entry.type) {
 		case address:
-			writeAddressTo(entry.asAddress(), out);
+			writeAddressTo(entry.asAddress(), w);
 			break;
 		case function:
-			writeFunctionTo(entry.asFunction(), out);
+			writeFunctionTo(entry.asFunction(), w);
 			break;
 		case dim:
-			writeDimFunctionTo(entry.asDimFunction(), out);
+			writeDimFunctionTo(entry.asDimFunction(), w);
 			break;
 		case ext:
-			writeExtFunctionTo(entry.asExtFunction(), out);
+			writeExtFunctionTo(entry.asExtFunction(), w);
 			break;
 		}
 	}

@@ -1,9 +1,8 @@
 package ceri.x10.cm11a.protocol;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.Date;
+import ceri.common.data.ByteReader;
+import ceri.common.data.ByteWriter;
 import ceri.common.date.ImmutableDate;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
@@ -115,31 +114,32 @@ public class ReadStatus {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this,
-			"0x" + Integer.toHexString(batteryTimer & 0xffff), date, house, firmware,
-			Integer.toBinaryString(addressed & 0xffff), Integer.toBinaryString(onOff & 0xffff),
-			Integer.toBinaryString(dim & 0xffff)).toString();
+		return ToStringHelper
+			.createByClass(this, "0x" + Integer.toHexString(batteryTimer & 0xffff), date, house,
+				firmware, Integer.toBinaryString(addressed & 0xffff),
+				Integer.toBinaryString(onOff & 0xffff), Integer.toBinaryString(dim & 0xffff))
+			.toString();
 	}
 
-	public void writeTo(DataOutput out) throws IOException {
-		out.writeShort(batteryTimer);
-		Data.writeDateTo(date, out);
-		out.write(Data.fromHouse(house) << 4 | firmware & 0xf);
-		out.writeShort(addressed);
-		out.writeShort(onOff);
-		out.writeShort(dim);
+	public void writeTo(ByteWriter<?> w) {
+		w.writeShortMsb(batteryTimer);
+		Data.writeDateTo(date, w);
+		w.writeByte(Data.fromHouse(house) << 4 | firmware & 0xf);
+		w.writeShortMsb(addressed);
+		w.writeShortMsb(onOff);
+		w.writeShortMsb(dim);
 	}
 
-	public static ReadStatus readFrom(DataInput in) throws IOException {
+	public static ReadStatus readFrom(ByteReader r) {
 		Builder builder = new Builder();
-		builder.batteryTimer(in.readShort());
-		builder.date(Data.readDateFrom(in));
-		byte b = in.readByte();
+		builder.batteryTimer(r.readShortMsb());
+		builder.date(Data.readDateFrom(r));
+		byte b = r.readByte();
 		builder.house(Data.toHouse(b >> 4));
 		builder.firmware(b & 0xf);
-		builder.addressed(in.readShort());
-		builder.onOff(in.readShort());
-		builder.dim(in.readShort());
+		builder.addressed(r.readShortMsb());
+		builder.onOff(r.readShortMsb());
+		builder.dim(r.readShortMsb());
 		return builder.build();
 	}
 

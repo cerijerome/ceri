@@ -59,6 +59,7 @@ public class ProcessorBehavior {
 		assertBits(inOrder, 1, 0, 1, 0, 1, 1, 0, 1); // Footer
 	}
 
+	@SuppressWarnings("resource")
 	private void assertBits(InOrder inOrder, int... bits) {
 		for (int bit : bits) {
 			if (bit == 1) {
@@ -71,6 +72,7 @@ public class ProcessorBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	private void assertReset(InOrder inOrder) {
 		inOrder.verify(connector).setDtr(false);
 		inOrder.verify(connector).setRts(false);

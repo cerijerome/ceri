@@ -3,8 +3,6 @@ package ceri.x10.cm11a;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
@@ -14,7 +12,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.data.ByteProvider;
+import ceri.common.data.ByteStream;
 import ceri.common.io.PollingInputStream;
+import ceri.common.io.RuntimeIoException;
 import ceri.log.util.LogUtil;
 import ceri.x10.cm11a.protocol.Data;
 import ceri.x10.cm11a.protocol.InputBuffer;
@@ -32,8 +33,8 @@ public class Processor implements Closeable {
 	private final int queuePollTimeoutMs;
 	private final BlockingQueue<? extends BaseCommand<?>> inQueue;
 	private final Collection<? super BaseCommand<?>> outQueue;
-	private final DataInputStream in;
-	private final DataOutputStream out;
+	private final ByteStream.Reader in;
+	private final ByteStream.Writer out;
 	private final EntryDispatcher dispatcher;
 	private final Thread thread;
 
@@ -84,12 +85,13 @@ public class Processor implements Closeable {
 		return new Builder(connector, inQueue, outQueue);
 	}
 
+	@SuppressWarnings("resource")
 	Processor(Builder builder) {
 		PollingInputStream pollIn =
 			new PollingInputStream(new BufferedInputStream(builder.connector.in()),
 				builder.readPollMs, builder.readTimeoutMs);
-		in = new DataInputStream(pollIn);
-		out = new DataOutputStream(new BufferedOutputStream(builder.connector.out()));
+		in = ByteStream.reader(pollIn);
+		out = ByteStream.writer(new BufferedOutputStream(builder.connector.out()));
 		inQueue = builder.inQueue;
 		outQueue = builder.outQueue;
 		queuePollTimeoutMs = builder.queuePollTimeoutMs;
@@ -178,7 +180,7 @@ public class Processor implements Closeable {
 	 * Reads input from the device and dispatches the result to the command listener.
 	 */
 	private void processInputData() throws IOException {
-		out.write(Protocol.PC_READY.value);
+		out.writeByte(Protocol.PC_READY.value);
 		out.flush();
 		InputBuffer buffer = InputBuffer.readFrom(in);
 		dispatcher.dispatch(buffer.entries);
@@ -187,7 +189,7 @@ public class Processor implements Closeable {
 	/**
 	 * Sends status response to the device.
 	 */
-	private void sendStatus() throws IOException {
+	private void sendStatus() {
 		WriteStatus status = new WriteStatus.Builder().build();
 		status.writeTo(out);
 		out.flush();
@@ -207,18 +209,18 @@ public class Processor implements Closeable {
 	 */
 	private void sendEntry(Entry entry, int maxSendAttempts) {
 		logger.debug("Sending: {}", entry);
-		byte[] data = Data.write.fromEntry(entry);
+		ByteProvider data = Data.write.fromEntry(entry);
 		int attempts = 0;
 		while (attempts++ < maxSendAttempts) {
 			try {
-				out.write(data);
+				out.writeFrom(data);
 				out.flush();
 				await(Data.checksum(data), maxSendAttempts);
-				out.write(Protocol.OK.value);
+				out.writeByte(Protocol.OK.value);
 				out.flush();
 				await(Protocol.READY.value, maxSendAttempts);
 				return;
-			} catch (IOException e) {
+			} catch (RuntimeIoException | IOException e) {
 				Level level = attempts < maxSendAttempts ? Level.WARN : Level.ERROR;
 				logger.catching(level, e);
 			}

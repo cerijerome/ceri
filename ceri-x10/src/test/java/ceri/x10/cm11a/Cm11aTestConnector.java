@@ -1,27 +1,28 @@
 package ceri.x10.cm11a;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import ceri.common.data.ByteStream;
 import ceri.common.io.PollingInputStream;
 
 public class Cm11aTestConnector implements Cm11aConnector {
 	private final PipedInputStream in;
 	private final PipedOutputStream out;
-	public final DataOutputStream to;
-	public final DataInputStream from;
+	public final ByteStream.Reader from;
+	public final ByteStream.Writer to;
+	// public final DataOutputStream to;
+	// public final DataInputStream from;
 
+	@SuppressWarnings("resource")
 	public Cm11aTestConnector(int pollingMs, int timeoutMs) throws IOException {
 		out = new PipedOutputStream();
-		@SuppressWarnings("resource")
 		InputStream is = new PipedInputStream(out);
-		from = new DataInputStream(new PollingInputStream(is, pollingMs, timeoutMs));
+		from = ByteStream.reader(new PollingInputStream(is, pollingMs, timeoutMs));
 		in = new PipedInputStream();
-		to = new DataOutputStream(new PipedOutputStream(in));
+		to = ByteStream.writer(new PipedOutputStream(in));
 	}
 
 	@Override
@@ -36,8 +37,8 @@ public class Cm11aTestConnector implements Cm11aConnector {
 
 	@Override
 	public void close() throws IOException {
-		from.close();
-		to.close();
+		in.close();
+		out.close();
 	}
 
 }

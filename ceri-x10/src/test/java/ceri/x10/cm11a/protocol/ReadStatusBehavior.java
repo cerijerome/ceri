@@ -4,24 +4,20 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.Date;
 import org.junit.Test;
-import ceri.common.data.ByteArrayDataInput;
+import ceri.common.data.ByteArray;
+import ceri.common.data.ByteArray.Immutable;
 import ceri.x10.type.House;
 
 public class ReadStatusBehavior {
 
 	@Test
-	public void shouldWriteAndReadToStreams() throws IOException {
+	public void shouldWriteAndReadToStreams() {
 		Date date = new Date((System.currentTimeMillis() / 1000) * 1000);
 		ReadStatus status = new ReadStatus.Builder().date(date).build();
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		DataOutputStream data = new DataOutputStream(out);
-		status.writeTo(data);
-		ReadStatus status2 = ReadStatus.readFrom(new ByteArrayDataInput(out.toByteArray(), 0));
+		Immutable bytes = ByteArray.encoder().apply(status::writeTo).immutable();
+		ReadStatus status2 = ReadStatus.readFrom(bytes.reader(0));
 		assertThat(status, is(status2));
 	}
 

@@ -1,9 +1,8 @@
 package ceri.x10.cm11a.protocol;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.Date;
+import ceri.common.data.ByteReader;
+import ceri.common.data.ByteWriter;
 import ceri.common.date.ImmutableDate;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
@@ -104,27 +103,28 @@ public class WriteStatus {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, date, house, clearBatteryTimer,
-			clearMonitoredStatus, purgeTimer).toString();
+		return ToStringHelper
+			.createByClass(this, date, house, clearBatteryTimer, clearMonitoredStatus, purgeTimer)
+			.toString();
 	}
 
-	public void writeTo(DataOutput out) throws IOException {
-		out.writeByte(Protocol.TIME.value);
-		Data.writeDateTo(date, out);
+	public void writeTo(ByteWriter<?> w) {
+		w.writeByte(Protocol.TIME.value);
+		Data.writeDateTo(date, w);
 		int b = house == null ? 0 : Data.fromHouse(house) << 4;
 		if (clearBatteryTimer) b |= 0x4;
 		if (clearMonitoredStatus) b |= 0x2;
 		if (purgeTimer) b |= 0x1;
-		out.writeByte(b);
+		w.writeByte(b);
 	}
 
-	public static WriteStatus readFrom(DataInput in) throws IOException {
+	public static WriteStatus readFrom(ByteReader r) {
 		Builder builder = new Builder();
-		byte b = in.readByte();
+		byte b = r.readByte();
 		if (b != Protocol.TIME.value) throw new IllegalArgumentException("Expected TIME byte 0x" +
 			Integer.toHexString(Protocol.TIME.value) + ": 0x" + Integer.toHexString(b));
-		builder.date(Data.readDateFrom(in));
-		b = in.readByte();
+		builder.date(Data.readDateFrom(r));
+		b = r.readByte();
 		builder.house(Data.toHouse(b >> 4));
 		builder.clearBatteryTimer((b & 0x4) != 0);
 		builder.clearMonitoredStatus((b & 0x2) != 0);
