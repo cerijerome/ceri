@@ -205,6 +205,7 @@ public class SelfHealingSocket extends LoopingExecutor {
 		notifyListeners(StateChange.broken);
 	}
 
+	@SuppressWarnings("resource")
 	private void initSocket() throws IOException {
 		LogUtil.close(logger, socket);
 		socket = createSocket();
