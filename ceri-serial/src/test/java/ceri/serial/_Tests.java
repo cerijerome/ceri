@@ -9,6 +9,7 @@ import ceri.serial.clib.FileWriterBehavior;
 import ceri.serial.clib.ModeBehavior;
 import ceri.serial.clib.OpenFlagBehavior;
 import ceri.serial.clib.SeekBehavior;
+import ceri.serial.clib.jna.CLibBehavior;
 import ceri.serial.jna.JnaUtilTest;
 import ceri.serial.libusb.jna.LibUsbFinderTest;
 
@@ -24,6 +25,8 @@ import ceri.serial.libusb.jna.LibUsbFinderTest;
 	ModeBehavior.class, //
 	OpenFlagBehavior.class, //
 	SeekBehavior.class, //
+	// clib.jna
+	CLibBehavior.class, //
 	// jna
 	JnaUtilTest.class, //
 	// libusb.jna

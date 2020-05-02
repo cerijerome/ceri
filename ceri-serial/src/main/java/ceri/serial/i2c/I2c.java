@@ -1,6 +1,5 @@
 package ceri.serial.i2c;
 
-import static ceri.common.math.MathUtil.byteExact;
 import static ceri.serial.clib.OpenFlag.O_RDWR;
 import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_RD;
 import static ceri.serial.jna.JnaUtil.byteRef;
@@ -24,9 +23,6 @@ import ceri.serial.clib.jna.CUtil;
 import ceri.serial.i2c.jna.I2cDev;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
-import ceri.serial.i2c.jna.I2cDev.i2c_msg_flag;
-import ceri.serial.jna.ByteReader;
-import ceri.serial.jna.ByteWriter;
 import ceri.serial.jna.JnaUtil;
 
 public class I2c implements Closeable {
@@ -61,11 +57,11 @@ public class I2c implements Closeable {
 	 */
 	public static I2c open(int bus) throws CException {
 		if (bus < 0) throw new IllegalArgumentException("Invalid bus number: " + bus);
-		return new I2c(FileDescriptor.of(I2cDev.i2c_open(bus, O_RDWR.value)));
+		return new I2c(I2cDev.i2c_open(bus, O_RDWR.value));
 	}
 
-	private I2c(FileDescriptor fd) {
-		this.fd = fd;
+	private I2c(int fd) {
+		this.fd = FileDescriptor.of(fd);
 	}
 
 	/**
@@ -96,7 +92,8 @@ public class I2c implements Closeable {
 	 */
 	public boolean exists(I2cAddress address) {
 		try {
-			reader(address).readByte();
+			selectDevice(address);
+			fd.reader(1).readByte();
 			return true;
 		} catch (CException e) {
 			return false;
@@ -111,30 +108,6 @@ public class I2c implements Closeable {
 			.filter(this::exists).collect(Collectors.toSet());
 	}
 
-	/**
-	 * Accessor to read bytes using file descriptor.
-	 */
-	public ByteReader reader(I2cAddress address) {
-		return (p, offset, len) -> {
-			selectDevice(address);
-			return fd.readInto(p, offset, len);
-		};
-	}
-
-	/**
-	 * Accessor to write bytes using file descriptor.
-	 */
-	public ByteWriter writer(I2cAddress address) {
-		return new ByteWriter() {
-			@Override
-			public ByteWriter writeFrom(Pointer p, int offset, int len) throws CException {
-				selectDevice(address);
-				fd.writeFrom(p, offset, len);
-				return this;
-			}
-		};
-	}
-
 	public void smBusPec(boolean on) throws CException {
 		I2cDev.i2c_smbus_pec(fd.fd(), on);
 		state.pec = on;
@@ -144,8 +117,8 @@ public class I2c implements Closeable {
 	 * Provide SMBus functionality. Emulated SMBus uses ioctl read-writes calls.
 	 */
 	public SmBus smBus(I2cAddress address, boolean emulated) {
-		if (address.tenBit) throw new UnsupportedOperationException(
-			"SMBus not supported for 10-bit addresses");
+		if (address.tenBit)
+			throw new UnsupportedOperationException("SMBus not supported for 10-bit addresses");
 		return emulated ? new SmBusEmulated(this, address) : new SmBusActual(this, address);
 	}
 
@@ -154,7 +127,7 @@ public class I2c implements Closeable {
 	 */
 	public int readWordData(I2cAddress address, int command) throws CException {
 		ShortByReference resultRef = new ShortByReference();
-		readWrite(address, Byte.BYTES, byteRef(command).getPointer(), Short.BYTES,
+		writeRead(address, Byte.BYTES, byteRef(command).getPointer(), Short.BYTES,
 			resultRef.getPointer());
 		return JnaUtil.ushort(resultRef);
 	}
@@ -179,7 +152,7 @@ public class I2c implements Closeable {
 	public byte[] readData(I2cAddress address, byte[] command, int readLen) throws CException {
 		Memory write = CUtil.malloc(command);
 		Memory read = new Memory(readLen);
-		readWrite(address, size(write), write, size(read), read);
+		writeRead(address, size(write), write, size(read), read);
 		return JnaUtil.byteArray(read);
 	}
 
@@ -209,21 +182,12 @@ public class I2c implements Closeable {
 
 	/* End: Shared with SMBus */
 
-	private void readWrite(I2cAddress address, int writeLen, Pointer writeBuf, int readLen,
+	private void writeRead(I2cAddress address, int writeLen, Pointer writeBuf, int readLen,
 		Pointer readBuf) throws CException {
 		i2c_msg.ByReference[] msgs = i2c_msg.array(2);
-		populate(msgs[0], address, writeLen, writeBuf);
-		populate(msgs[1], address, readLen, readBuf, I2C_M_RD);
+		I2cUtil.populate(msgs[0], address, writeLen, writeBuf);
+		I2cUtil.populate(msgs[1], address, readLen, readBuf, I2C_M_RD);
 		I2cDev.i2c_rdwr(fd.fd(), msgs);
-	}
-
-	private static void populate(i2c_msg msg, I2cAddress address, int size, Pointer p,
-		i2c_msg_flag... flags) {
-		msg.addr = address.value();
-		msg.len = byteExact(size);
-		msg.buf = p;
-		msg.flags().set(flags);
-		if (address.tenBit) msg.flags().add(i2c_msg_flag.I2C_M_TEN);
 	}
 
 	private void setSlaveAddress(int address) throws CException {

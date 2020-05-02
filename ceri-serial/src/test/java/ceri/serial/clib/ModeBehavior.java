@@ -36,6 +36,14 @@ public class ModeBehavior {
 	}
 
 	@Test
+	public void shouldEncodeMask() {
+		assertThat(Mask.encode(rwxu, rwxg, rwxo), is(0777));
+		assertThat(Mask.encode(rusr, wusr, rgrp, wgrp, roth, woth), is(0666));
+		assertThat(Mask.encode(fmt), is(0170000));
+		assertThat(Mask.encode(fmt, fsock, flnk), is(0170000));
+	}
+
+	@Test
 	public void shouldDecodeMask() {
 		assertCollection(Mode.of(0777).masks(), rwxu, rwxg, rwxo);
 		assertCollection(Mode.of(0666).masks(), rusr, wusr, rgrp, wgrp, roth, woth);
@@ -45,11 +53,18 @@ public class ModeBehavior {
 	}
 
 	@Test
-	public void shouldEncodeMask() {
-		assertThat(Mask.encode(rwxu, rwxg, rwxo), is(0777));
-		assertThat(Mask.encode(rusr, wusr, rgrp, wgrp, roth, woth), is(0666));
-		assertThat(Mask.encode(fmt), is(0170000));
-		assertThat(Mask.encode(fmt, fsock, flnk), is(0170000));
+	public void shouldDetermineIfModeContainsMasks() {
+		assertThat(Mode.of(07).has(), is(true));
+		assertThat(Mode.of(07).has(rwxo), is(true));
+		assertThat(Mode.of(07).has(roth, woth), is(true));
+		assertThat(Mode.of(07).has(roth, woth, rusr), is(false));
+		assertThat(Mode.of(07).has(rusr), is(false));
 	}
-
+	
+	@Test
+	public void shouldProvideMaskStringRepresentation() {
+		assertThat(Mode.of(0777).maskString(), is("rwxu|rwxg|rwxo"));
+		assertThat(Mode.of(0666).maskString(), is("rusr|wusr|rgrp|wgrp|roth|woth"));
+	}
+	
 }

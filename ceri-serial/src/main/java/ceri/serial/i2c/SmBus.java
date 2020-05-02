@@ -26,21 +26,45 @@ public interface SmBus {
 	default void writeBlockData(int command, int... values) throws CException {
 		writeBlockData(command, ArrayUtil.bytes(values));
 	}
-	
-	void writeBlockData(int command, byte... values) throws CException;
+
+	default void writeBlockData(int command, byte[] values) throws CException {
+		writeBlockData(command, values, 0);
+	}
+
+	default void writeBlockData(int command, byte[] values, int offset) throws CException {
+		writeBlockData(command, values, offset, values.length - offset);
+	}
+
+	void writeBlockData(int command, byte[] values, int offset, int length) throws CException;
 
 	byte[] readI2cBlockData(int command, int length) throws CException;
 
 	default void writeI2cBlockData(int command, int... values) throws CException {
 		writeI2cBlockData(command, ArrayUtil.bytes(values));
 	}
-	
-	void writeI2cBlockData(int command, byte... values) throws CException;
+
+	default void writeI2cBlockData(int command, byte[] values) throws CException {
+		writeI2cBlockData(command, values, 0);
+	}
+
+	default void writeI2cBlockData(int command, byte[] values, int offset) throws CException {
+		writeI2cBlockData(command, values, offset, values.length - offset);
+	}
+
+	void writeI2cBlockData(int command, byte[] values, int offset, int length) throws CException;
 
 	default byte[] blockProcessCall(int command, int... values) throws CException {
 		return blockProcessCall(command, ArrayUtil.bytes(values));
 	}
-	
-	byte[] blockProcessCall(int command, byte... values) throws CException;
+
+	default byte[] blockProcessCall(int command, byte[] values) throws CException {
+		return blockProcessCall(command, values, 0);
+	}
+
+	default byte[] blockProcessCall(int command, byte[] values, int offset) throws CException {
+		return blockProcessCall(command, values, offset, values.length - offset);
+	}
+
+	byte[] blockProcessCall(int command, byte[] values, int offset, int length) throws CException;
 
 }

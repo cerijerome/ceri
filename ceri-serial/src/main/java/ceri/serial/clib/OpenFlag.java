@@ -7,6 +7,7 @@ import java.util.Set;
 import ceri.common.collection.StreamUtil;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.text.StringUtil;
+import ceri.serial.jna.JnaUtil;
 
 /**
  * Flags for CLib open() call, usually defined in fcntl.h.
@@ -36,8 +37,8 @@ public enum OpenFlag {
 	O_SYMLINK(macInt(0x200000, -1)); // mac only
 
 	private static final int NO_RDONLY_MASK = 0x3;
-	private static final TypeTranscoder<OpenFlag> xcoder = TypeTranscoder.of(t -> t.value,
-		StreamUtil.stream(OpenFlag.class).filter(t -> t.value != -1).toArray(OpenFlag[]::new));
+	private static final TypeTranscoder<OpenFlag> xcoder =
+		JnaUtil.xcoder(t -> t.value, OpenFlag.class, OpenFlag[]::new);
 	public final int value;
 
 	public static int encode(OpenFlag... flags) {

@@ -27,7 +27,7 @@ import ceri.serial.clib.jna.CUtil;
 
 public class FileDescriptorBehavior {
 	private static final byte[] file1Bytes =
-		ByteArray.encode(w -> w.writeAscii("test").writeShortMsb(0x3456)).copy(0);
+		ByteArray.encoder().writeAscii("test").writeShortMsb(0x3456).bytes();
 	private static FileTestHelper helper = null;
 
 	@BeforeClass

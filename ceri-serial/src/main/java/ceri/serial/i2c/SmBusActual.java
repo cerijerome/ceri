@@ -70,9 +70,10 @@ class SmBusActual implements SmBus {
 	}
 
 	@Override
-	public void writeBlockData(int command, byte... values) throws CException {
+	public void writeBlockData(int command, byte[] values, int offset, int length)
+		throws CException {
 		selectDevice();
-		I2cDev.i2c_smbus_write_block_data(fd(), command, values);
+		I2cDev.i2c_smbus_write_block_data(fd(), command, values, offset, length);
 	}
 
 	@Override
@@ -82,13 +83,15 @@ class SmBusActual implements SmBus {
 	}
 
 	@Override
-	public void writeI2cBlockData(int command, byte... values) throws CException {
+	public void writeI2cBlockData(int command, byte[] values, int offset, int length)
+		throws CException {
 		selectDevice();
-		I2cDev.i2c_smbus_write_i2c_block_data(fd(), command, values);
+		I2cDev.i2c_smbus_write_i2c_block_data(fd(), command, values, offset, length);
 	}
 
 	@Override
-	public byte[] blockProcessCall(int command, byte... values) throws CException {
+	public byte[] blockProcessCall(int command, byte[] values, int offset, int length)
+		throws CException {
 		selectDevice();
 		return I2cDev.i2c_smbus_block_process_call(fd(), command, values);
 	}
@@ -97,6 +100,7 @@ class SmBusActual implements SmBus {
 		i2c.selectDevice(address);
 	}
 
+	@SuppressWarnings("resource")
 	private int fd() {
 		return i2c.fd().fd();
 	}

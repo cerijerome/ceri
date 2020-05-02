@@ -19,7 +19,7 @@ import ceri.serial.clib.jna.CException;
 
 public class FileReaderBehavior {
 	private static final byte[] file1Bytes =
-		ByteArray.encode(w -> w.writeAscii("test").writeShortMsb(0x3456)).copy(0);
+		ByteArray.encoder().writeAscii("test").writeShortMsb(0x3456).bytes();
 	private static FileTestHelper helper = null;
 
 	@BeforeClass

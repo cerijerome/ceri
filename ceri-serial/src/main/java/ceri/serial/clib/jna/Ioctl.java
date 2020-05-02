@@ -1,42 +1,19 @@
 package ceri.serial.clib.jna;
 
-import com.sun.jna.Platform;
+import static ceri.common.util.OsUtil.macInt;
+import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validateUbyte;
 
 /**
- * From ioccom.h (Mac) and ioctl.h (Linux)
- * 
- * Macros for calculating constants.
+ * Macros for calculating ioctl command constants. From ioccom.h (Mac) and ioctl.h (Linux).
  */
 public class Ioctl {
-
-	static {
-		if (Platform.isMac()) {
-			IOC_VOID = 0x20000000; // why?
-		} else {
-			IOC_VOID = 0;
-		}
-	}
-
 	public static final int _IOC_SIZEBITS = 14;
-	private static final int IOCPARM_MASK = 0x3fff;
-	private static final int IOC_VOID;
+	private static final int IOC_SIZE_MASK = macInt(0x1fff, 0x3fff);
+	private static final int IOC_VOID = macInt(0x20000000, 0); // why Mac?
 	private static final int IOC_OUT = 0x40000000;
 	private static final int IOC_IN = 0x80000000;
 	private static final int IOC_INOUT = IOC_IN | IOC_OUT;
-
-	/**
-	 * <pre>
-	 * |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx| value
-	 * |--------|--------|--------|--------|
-	 * |xxx00000|00000000|00000000|00000000| inOut (3/32)
-	 * |   xxxxx|xxxxxxxx|        |        | len (13)      |
-	 * |        |        |xxxxxxxx|        | group (8)
-	 * |        |        |        |xxxxxxxx| num (8)
-	 * </pre>
-	 */
-	public static int _IOC(int inOut, int group, int num, int len) {
-		return inOut | ((len & IOCPARM_MASK) << Short.SIZE) | (group << Byte.SIZE) | num;
-	}
 
 	public static int _IO(int group, int num) {
 		return _IOC(IOC_VOID, group, num, 0);
@@ -54,6 +31,22 @@ public class Ioctl {
 		return _IOC(IOC_INOUT, group, num, size); // sizeof(t)
 	}
 
-	private Ioctl() {}
+	/**
+	 * <pre>
+	 * |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx| value
+	 * |--------|--------|--------|--------|
+	 * |xx000000|00000000|00000000|00000000| in/out (2)
+	 * |  ?xxxxx|xxxxxxxx|        |        | size (14|13)
+	 * |        |        |xxxxxxxx|        | group (8)
+	 * |        |        |        |xxxxxxxx| num (8)
+	 * </pre>
+	 */
+	private static int _IOC(int inOut, int group, int num, int size) {
+		validateUbyte(group, "Group");
+		validateUbyte(num, "Num");
+		validateRange(size, 0, IOC_SIZE_MASK, "Size");
+		return inOut | ((size & IOC_SIZE_MASK) << Short.SIZE) | (group << Byte.SIZE) | num;
+	}
 
+	private Ioctl() {}
 }

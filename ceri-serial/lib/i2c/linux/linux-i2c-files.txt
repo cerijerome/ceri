@@ -1,0 +1,131 @@
+I2C files
+=========
+
+General notes:
+- old ioctl used Big Kernel Lock (BKL) causing latency issues
+- unlocked_ioctl = new ioctl
+- compat_ioctl = allows 32-bit users to call ioctl on 64-bit kernel
+  - usually converts 32-bit params to 64-bit
+- __fn_name is unlocked version of fn_name
+- i2c_smbus_read/write_xxx fns primarily called by other drivers, not from user space
+
+
+Method calls:
+
+[USER SPACE]
+{ i2c.h     }                 [KERNEL]
+{ i2c-dev.h } --------------> { i2c-dev.c } 
+  open        open            i2cdev_open
+  close       release         i2cdev_release        { i2c.h }          { i2c-core-base.c }
+  read        read            i2dev_read ---------> i2c_master_recv -> i2c_transfer_buffer_flags ->
+  write       write           i2dev_write --------> i2c_master_send -> i2c_transfer_buffer_flags ->
+  ioctl       unlocked_ioctl  i2cdev_ioctl -------> I2C_FUNCS: i2c_get_functionality
+ (32bit)      compat_ioctl    compat_i2cdev_ioctl   I2C_RDWR:  i2cdev_ioctl_rdwr -->
+                                                    I2C_SMBUS: i2cdev_ioctl_smbus ->
+                                                               { i2c-dev.c }
+{ i2c-core-base.c }           { i2c-core-base.c }
+i2c_transfer_buffer_flags --> i2c_transfer -------> master_xfer (i2c_algorithm, dev-specific)
+i2cdev_ioctl_rdwr ----------> i2c_transfer -------> master_xfer (i2c_algorithm, dev-specific)
+i2cdev_ioctl_smbus ---------> i2c_smbus_xfer -----> smbus_xfer (i2c_algorithm, dev-specific)
+{ i2cdev.c }                  { i2c-core-smbus.c }  i2c_smbus_xfer_emulated (if no smbus fn) ->
+                                                    { i2c-core-smbus.c }
+                                                   
+{ i2c-core-smbus.c }          { i2c-core-base.c }                                          
+i2c_smbus_xfer_emulated ----> i2c_transfer -------> master_xfer (i2c_algorithm, dev-specific)
+
+
+Relevant linux source files:
+
+/include/uapi/linux/i2c.h: (user-space i2c types)
+- struct i2c_msg: i2c transaction segment
+- I2C_M_XXX: i2c_msg flags
+- I2C_FUNC_XXX: available functionality flags
+- union i2c_smbus_data: data for smbus messages
+- I2C_SMBUS_XXX: transaction types ("size")
+
+/include/uapi/linux/i2c-dev.h: (user-space i2c ioctl types)
+- I2C_XXX ioctl codes (no macro)
+- struct i2c_smbus_ioctl_data: contains i2c_smbus_data
+- struct i2c_rdwr_ioctl_data: contains multiple i2c_msg
+
+/include/linux/i2c.h: (definitions for i2c bus interface)
+- includes uapi/linux/i2c.h
+- fn i2c_transfer_buffer_flags
+- fn i2c_master_recv: calls i2c_transfer_buffer_flags with RD flag
+- fn i2c_master_send: calls i2c_transfer_buffer_flags
+- fn i2c_transfer
+- fn i2c_smbus_xfer
+- fn i2c_smbus_read_byte
+- fn i2c_smbus_write_byte
+- fn i2c_smbus_read_byte_data
+- fn i2c_smbus_write_byte_data
+- fn i2c_smbus_read_word_data
+- fn i2c_smbus_write_word_data
+- fn i2c_smbus_read_block_data
+- fn i2c_smbus_write_block_data
+- fn i2c_smbus_read_i2c_block_data
+- fn i2c_smbus_write_i2c_block_data
+- struct i2c_device_identity: mfr ids
+- enum i2c_alert_protocol
+- struct i2c_driver
+- struct i2c_client
+- struct i2c_board_info
+- fn i2c_new_device
+- fn i2c_new_client_device
+- fn i2c_unregister_device
+- struct i2c_algorithm: fns for low-level master/smbus xfers
+- struct i2c_adapter_quirks
+- struct i2c_adapter
+- fn i2c_get_functionality
+- fn i2c_check_functionality
+- fn i2c_check_quirks
+
+/include/linux/i2c-dev.h: (no additional functionality)
+- includes uapi/linux/i2c-dev.h
+
+/include/linux/i2c-smbus.h: (smbus extensions for alerts)
+- includes linux/i2c.h
+
+/drivers/i2c/i2c-dev.c:
+- struct i2c_dev
+- fn i2cdev_read
+- fn i2cdev_write
+- fn i2cdev_ioctl_rdwr
+- fn i2cdev_ioctl_smbus
+- fn i2cdev_ioctl: 
+- struct i2c_smbus_ioctl_data32
+- struct i2c_msg32
+- struct i2c_rdwr_ioctl_data32
+- fn compat_i2cdev_ioctl:
+- fn i2cdev_open: 
+- struct i2cdev_fops: maps char-device operations to fns (open, rd/wr, ioctl)
+- fn i2cdev_attach_adapter: 
+
+/drivers/i2c/i2c-core-base.c:
+- init/register devices
+- fn i2c_transfer: 
+- fn i2c_transfer_buffer_flags: calls i2c_transfer
+
+/drivers/i2c/i2c-core-smbus.c:
+- fn i2c_smbus_*_pec: generate/check PEC (emulated smbus only)
+- note: i2c_smbus_read/write_xxx fns primarily called by other drivers, not from user space
+- fn i2c_smbus_read_byte: calls i2c_smbus_xfer
+- fn i2c_smbus_write_byte: calls i2c_smbus_xfer
+- fn i2c_smbus_read_byte_data: calls i2c_smbus_xfer
+- fn i2c_smbus_write_byte_data: calls i2c_smbus_xfer
+- fn i2c_smbus_read_word_data: calls i2c_smbus_xfer
+- fn i2c_smbus_write_word_data: calls i2c_smbus_xfer
+- fn i2c_smbus_read_block_data: calls i2c_smbus_xfer
+- fn i2c_smbus_write_block_data: calls i2c_smbus_xfer
+- fn i2c_smbus_read_i2c_block_data: calls i2c_smbus_xfer
+- fn i2c_smbus_write_i2c_block_data: calls i2c_smbus_xfer
+- fn i2c_smbus_xfer_emulated: sets up buffers, calls i2c_transfer
+- fn i2c_smbus_xfer: calls algorithm smbus_xfer, or i2c_smbus_xfer_emulated if none
+- fn i2c_smbus_read_i2c_block_data_or_emulated: (not called from user space)
+    - calls i2c_smbus_read_i2c_block_data
+    - or i2c_smbus_read_word_data x n
+    - or i2c_smbus_read_byte_data x n
+
+/drivers/i2c/i2c-stub.c: (i2c/smbus chip emulator)
+- fn stub_xfer: smbus_xfer implementation
+

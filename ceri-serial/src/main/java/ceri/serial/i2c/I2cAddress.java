@@ -25,8 +25,7 @@ public class I2cAddress {
 	}
 
 	/**
-	 * Encapsulates a 7-bit address. Force allows use of an address even if currently in use by the
-	 * driver.
+	 * Encapsulates a 7-bit address.
 	 */
 	public static I2cAddress of7Bit(int address) {
 		int masked = address & MASK_7;
@@ -36,8 +35,7 @@ public class I2cAddress {
 	}
 
 	/**
-	 * Encapsulates a 10-bit address. Force allows use of an address even if currently in use by the
-	 * driver.
+	 * Encapsulates a 10-bit address.
 	 */
 	public static I2cAddress of10Bit(int address) {
 		int masked = address & MASK_10;
@@ -51,12 +49,18 @@ public class I2cAddress {
 		this.tenBit = tenBit;
 	}
 
+	/**
+	 * Returns the address value as short.
+	 */
 	public short value() {
 		return (short) address;
 	}
 
+	/**
+	 * Returns a byte for the address and read/write bit.
+	 */
 	public byte addressByte(boolean read) {
-		if (tenBit) throw new UnsupportedOperationException("10-bit addresses not supported");
+		if (tenBit) throw new UnsupportedOperationException("Not available for 10-bit addresses");
 		return (byte) ((address << 1) | (read ? 1 : 0));
 	}
 

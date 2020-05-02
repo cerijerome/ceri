@@ -1,21 +1,24 @@
 
 SMBus Summary
 -------------
+['spec' name]  [method name]        [data transfers]
+QuickCommand:  write_quick			-> addr + rd/wr bit for on/off (no PEC)
+ReceiveByte:   read_byte			<- addr, b1, [PEC]
+SendByte:	   write_byte			-> addr, b1, [PEC]
+ReadByte:	   read_byte_data		-> addr, cmd <- addr, b1, [PEC]
+WriteByte:	   write_byte_data		-> addr, cmd, b1, [PEC]
+ReadWord:	   read_word_data		-> addr, cmd <- addr, b1, b2, [PEC]
+WriteWord:	   write_word_data		-> addr, cmd, b1, b2, [PEC]
+ProcessCall:   process_call			-> addr, cmd, b1, b2 <- addr, b1, b2, [PEC]
+BlockRead:	   read_block_data		-> addr, cmd <- addr, 1, b1..bN, [PEC] +I2C_M_RECV_LEN
+BlockWrite:	   write_block_data		-> addr, cmd, N, b1..bN, [PEC]
+BlockProcCall: block_process_call	-> addr, cmd, N, b1..bN <- addr, 1, b1..bN, [PEC] +I2C_M_RECV_LEN
+I2CBlockRead:  read_i2c_block_data	-> addr, cmd <- addr, b1..bN (no PEC)
+I2CBlockWrite: write_i2c_block_data -> addr, cmd, b1..bN (no PEC)
 
-QuickCommand	-> addr + rd/wr bit for on/off (no PEC)
-SendByte		-> addr, b1, [PEC]
-ReceiveByte		<- addr, b1, [PEC]
-WriteByte		-> addr, cmd, b1, [PEC]
-WriteWord		-> addr, cmd, b1, b2, [PEC]
-ReadByte		-> addr, cmd <- addr, b1, [PEC]
-ReadWord		-> addr, cmd <- addr, b1, b2, [PEC]
-ProcessCall		-> addr, cmd, b1, b2 <- addr, b1, b2, [PEC]
-BlockWrite		-> addr, cmd, N, b1..bN, [PEC]
-BlockRead		-> addr, cmd <- addr, 1, b1..bN, [PEC] +I2C_M_RECV_LEN
-BlockProcCall	-> addr, cmd, N, b1..bN <- addr, 1, b1..bN, [PEC] +I2C_M_RECV_LEN
-I2CBlockWrite   -> addr, cmd, b1..bN (no PEC)
-I2CBlockRead    -> addr, cmd <- addr, b1..bN (no PEC)
-
+SMBus spec defines block write, block read, block proc calls only.
+The variations in linux driver represent the driver interface, the wire protocol matches spec?
+ 
 PEC includes all bytes, including address byte (with read/write bit), command, data.
 For reads, PEC is calculated from write and read messages.
 
@@ -23,14 +26,64 @@ CRC-8, CRC-8/SMBUS (alias)
 C(x)=x8+x2+x+1
 width=8, poly=0x7, init=0, refIn=false, refOut=false, xorOut=0
 
-Source: http://ross.net/crc/download/crc_v3.txt
-width = number of bits
-poly = powers as bits excluding highest
-init = initial value
-refin = true?: reverse bits of each input byte
-refout = true: reverse bits of result
-xorout = value to xor with result (after refout)
-check = result of running ascii bytes "123456789"
+Ioctls:
+I2C_SMBUS_QUICK = write_quick
+I2C_SMBUS_BYTE  = read_byte, write_byte
+I2C_SMBUS_BYTE_DATA = read_byte_data, write_byte_data
+I2C_SMBUS_WORD_DATA = read_word_data, write_word_data
+I2C_SMBUS_PROC_CALL = process_call
+I2C_SMBUS_BLOCK_DATA = read_block_data, write_block_data
+I2C_SMBUS_BLOCK_PROC_CALL = block_process_call
+I2C_SMBUS_I2C_BLOCK_DATA = read_i2c_block_data, write_i2c_block_data
+
+SMBus Emulation
+---------------
+Provide SMBus functionality using only standard i2c functionality.
+Params = addr, flags, r/w, cmd, "size", data; convert to i2c_msg[] for I2C_RDWR ioctl.
+Max read buffer size is 32 bytes.
+
+I2C_SMBUS_QUICK: (no PEC)
+W: (addr, 0, 0, null)
+R: (addr, RD, 0, null)
+
+I2C_SMBUS_BYTE:
+W:  (addr, 0, 1, [byte])
+Wp: (addr, 0, 2, [byte, PEC]) => generate PEC
+R:  (addr, RD, 1, [0])
+Rp: (addr, RD, 2, [0, PEC]) <= verify PEC
+
+I2C_SMBUS_BYTE_DATA:
+W:  (addr, 0, 2, [cmd, byte])
+Wp: (addr, 0, 3, [cmd, byte, PEC]) => generate PEC
+R:  (addr, 0, 1, [cmd]), (addr, RD, 1, [0])
+Rp: (addr, 0, 1, [cmd]), (addr, RD, 2, [0, PEC]) <= verify PEC
+
+I2C_SMBUS_WORD_DATA:
+W:  (addr, 0, 3, [cmd, w0, w1])
+Wp: (addr, 0, 4, [cmd, w0, w1, PEC]) => generate PEC
+R:  (addr, 0, 1, [cmd]), (addr, RD, 2, [0, 0])
+Rp: (addr, 0, 1, [cmd]), (addr, RD, 3, [0, 0, PEC]) <= verify PEC
+
+I2C_SMBUS_PROC_CALL:
+W:  (addr, 0, 3, [cmd, w0, w1]), (addr, RD, 2, [0, 0])
+Wp: (addr, 0, 3, [cmd, w0, w1]), (addr, RD, 3, [0, 0, PEC]) <= verify PEC
+
+I2C_SMBUS_BLOCK_DATA:
+W:  (addr, 0, N+2, [cmd, N, b1..bN])
+Wp: (addr, 0, N+3, [cmd, N, b1..bN, PEC]) => generate PEC
+R:  (addr, 0, 1, [cmd]), (addr, RD|RECV_LEN, 1, [0(x33)])
+Rp: (addr, 0, 1, [cmd]), (addr, RD|RECV_LEN, 1, [0(x33), PEC]) <= verify PEC
+
+I2C_SMBUS_BLOCK_PROC_CALL:
+W:  (addr, 0, N+2, [cmd, N, b1..bN]), (addr, RD|RECV_LEN, 1, [0(x33)])
+Wp: (addr, 0, N+2, [cmd, N, b1..bN]), (addr, RD|RECV_LEN, 1, [0(x33), PEC]) <= verify PEC
+
+I2C_SMBUS_I2C_BLOCK_DATA:
+W:  (addr, 0, N+1, [cmd, b1..bN])
+Wp: (addr, 0, N+2, [cmd, b1..bN, PEC]) => generate PEC
+R:  (addr, 0, 1, [cmd]), (addr, RD, N, [0(xN)])
+Rp: (addr, 0, 1, [cmd]), (addr, RD, N, [0(xN), PEC]) <= verify PEC
+
 
 
 

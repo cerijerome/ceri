@@ -6,12 +6,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Supplier;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.io.IoStreamUtil;
 import ceri.common.util.HashCoder;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.clib.jna.CLib;
+import ceri.serial.clib.jna.CUtil;
 import ceri.serial.jna.JnaUtil;
 
 /**
@@ -190,11 +192,31 @@ public class FileDescriptor implements Closeable {
 		return FileWriter.of(this, bufferSize);
 	}
 
+	/**
+	 * Performs an ioctl function. Arguments and return value depend on the function.
+	 */
+	public int ioctl(int request, Object... objs) throws CException {
+		return ioctl((String) null, request, objs);
+	}
+
+	/**
+	 * Performs an ioctl function. Arguments and return value depend on the function.
+	 */
+	public int ioctl(String name, int request, Object... objs) throws CException {
+		return CLib.ioctl(name, fd(), request, objs);
+	}
+
+	/**
+	 * Performs an ioctl function. Arguments and return value depend on the function.
+	 */
+	public int ioctl(Supplier<String> errorMsg, int request, Object... objs) throws CException {
+		return CLib.ioctl(errorMsg, fd(), request, objs);
+	}
+
 	@Override
 	public void close() throws CException {
 		if (closed) return;
-		closed = true;
-		CLib.close(fd);
+		closed = CUtil.close(fd);
 	}
 
 	@Override

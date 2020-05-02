@@ -9,13 +9,14 @@ import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BL
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BLOCK_PROC_CALL;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BYTE;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BYTE_DATA;
-import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_I2C_BLOCK_BROKEN;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_I2C_BLOCK_DATA;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_PROC_CALL;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_QUICK;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_WORD_DATA;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.NativeLong;
@@ -23,19 +24,19 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Union;
 import com.sun.jna.ptr.NativeLongByReference;
-import ceri.common.data.ByteArray.Immutable;
-import ceri.common.data.ByteArray.Mutable;
-import ceri.common.data.ByteReceiver;
+import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntAccessor;
 import ceri.common.data.TypeTranscoder;
-import ceri.common.function.Accessor;
 import ceri.common.math.MathUtil;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.clib.jna.CLib;
 import ceri.serial.jna.Struct;
-import ceri.serial.jna.UnionAccessor;
 
+/**
+ * I2C device communication, through ioctl commands. Linux-only?
+ */
 public class I2cDev {
 	private static final Logger logger = LogManager.getLogger();
 
@@ -86,7 +87,14 @@ public class I2cDev {
 		public static class ByReference extends i2c_msg implements Structure.ByReference {}
 
 		public static ByReference[] array(int count) {
-			return Struct.<ByReference>array(count, ByReference::new, ByReference[]::new);
+			return Struct.array(count, ByReference::new, ByReference[]::new);
+		}
+
+		public void populate(int address, int flags, int len, Pointer buf) {
+			this.addr = (short) address;
+			this.flags = (short) flags;
+			this.len = (short) len;
+			this.buf = buf;
 		}
 
 		public FieldTranscoder<i2c_msg_flag> flags() {
@@ -139,6 +147,10 @@ public class I2cDev {
 			Set.of(I2C_FUNC_SMBUS_READ_BLOCK_DATA, I2C_FUNC_SMBUS_WRITE_BLOCK_DATA);
 		public static final Set<i2c_func> I2C_FUNC_SMBUS_I2C_BLOCK =
 			Set.of(I2C_FUNC_SMBUS_READ_I2C_BLOCK, I2C_FUNC_SMBUS_WRITE_I2C_BLOCK);
+		public static final Set<i2c_func> I2C_FUNC_SMBUS_EMUL = ImmutableUtil.collectAsSet( //
+			Stream.of(Set.of(I2C_FUNC_SMBUS_QUICK, I2C_FUNC_SMBUS_PROC_CALL, I2C_FUNC_SMBUS_PEC),
+				I2C_FUNC_SMBUS_BYTE, I2C_FUNC_SMBUS_BYTE_DATA, I2C_FUNC_SMBUS_WORD_DATA,
+				I2C_FUNC_SMBUS_BLOCK_DATA, I2C_FUNC_SMBUS_I2C_BLOCK).flatMap(t -> t.stream()));
 		public final int value;
 
 		public static final TypeTranscoder<i2c_func> xcoder =
@@ -151,43 +163,59 @@ public class I2cDev {
 
 	public static final int I2C_SMBUS_BLOCK_MAX = 32;
 
+	public static void main(String[] args) {
+		for (Field f : i2c_smbus_data.class.getFields()) {
+			System.out.println(f);
+		}
+	}
+
 	/**
 	 * Data for SMBus Messages.
 	 */
 	private static class i2c_smbus_data extends Union {
-		private static final IntAccessor.Typed<i2c_smbus_data> byteAccessor =
-			UnionAccessor.ofUbyte("byte_", u -> u.byte_, (u, b) -> u.byte_ = b);
-		private static final IntAccessor.Typed<i2c_smbus_data> wordAccessor =
-			UnionAccessor.ofUshort("word", u -> u.word, (u, w) -> u.word = w);
-		private static final Accessor.Typed<i2c_smbus_data, byte[]> blockAccessor =
-			UnionAccessor.of("block", u -> u.block, null);
+		public static class ByReference extends i2c_smbus_data implements Structure.ByReference {}
+
 		byte byte_;
 		short word;
 		byte[] block = new byte[I2C_SMBUS_BLOCK_MAX + 2]; // block[0] for length
 
-		public static class ByReference extends i2c_smbus_data implements Structure.ByReference {}
-
-		public IntAccessor byte_() {
-			return byteAccessor.from(this);
+		public void setByte(int value) {
+			byte_ = MathUtil.ubyteExact(value);
+			setType("byte_");
 		}
 
-		public IntAccessor word() {
-			return wordAccessor.from(this);
+		public void setWord(int value) {
+			word = MathUtil.ushortExact(value);
+			setType("word");
 		}
 
-		public Accessor<byte[]> block() {
-			return blockAccessor.from(this);
+		public void setBlockLength(int length) {
+			validateRange(length, 1, I2C_SMBUS_BLOCK_MAX, "Length");
+			block[0] = (byte) length;
+			setType("block");
+		}
+
+		public void setBlock(byte[] data, int offset, int length) {
+			ArrayUtil.validateSlice(data.length, offset, length);
+			validateMax(length, I2C_SMBUS_BLOCK_MAX, "Data length");
+			ArrayUtil.copy(data, offset, block, 1, length);
+			setBlockLength(length);
+		}
+
+		public byte[] getBlock() {
+			int length = Math.min(ubyte(block[0]), I2C_SMBUS_BLOCK_MAX);
+			return ArrayUtil.copyOf(block, 1, length);
 		}
 	}
 
 	/*
-	 * i2c_smbus_xfer read or write markers
+	 * i2c_smbus_ioctl_data read or write markers
 	 */
 	private static final int I2C_SMBUS_READ = 1;
 	private static final int I2C_SMBUS_WRITE = 0;
 
 	/**
-	 * SMBus transaction types.
+	 * SMBus transaction types, or "size".
 	 */
 	static enum i2c_smbus_transaction_type {
 		I2C_SMBUS_QUICK(0),
@@ -196,10 +224,10 @@ public class I2cDev {
 		I2C_SMBUS_WORD_DATA(3),
 		I2C_SMBUS_PROC_CALL(4),
 		I2C_SMBUS_BLOCK_DATA(5),
-		I2C_SMBUS_I2C_BLOCK_BROKEN(6),
+		// I2C_SMBUS_I2C_BLOCK_BROKEN(6), // linux kernel < 2.6.23, fixed length I2C_SMBUS_BLOCK_MAX
 		// SMBus 2.0
 		I2C_SMBUS_BLOCK_PROC_CALL(7),
-		I2C_SMBUS_I2C_BLOCK_DATA(8);
+		I2C_SMBUS_I2C_BLOCK_DATA(8); // replaces I2C_SMBUS_BLOCK_DATA?
 
 		public final int size;
 
@@ -251,12 +279,12 @@ public class I2cDev {
 	private static final int I2C_RETRIES = 0x0701;
 	private static final int I2C_TIMEOUT = 0x0702;
 	private static final int I2C_SLAVE = 0x0703;
-	private static final int I2C_SLAVE_FORCE = 0x0706;
 	private static final int I2C_TENBIT = 0x0704;
-	private static final int I2C_FUNCS = 0x0705;
-	private static final int I2C_RDWR = 0x0707;
-	private static final int I2C_PEC = 0x0708;
-	private static final int I2C_SMBUS = 0x0720;
+	private static final int I2C_FUNCS = 0x0705; // pointer to unsigned long
+	private static final int I2C_SLAVE_FORCE = 0x0706;
+	private static final int I2C_RDWR = 0x0707; // pointer to struct i2c_rdwr_ioctl_data
+	private static final int I2C_PEC = 0x0708; // kernel drivers will use client setting instead
+	private static final int I2C_SMBUS = 0x0720; // pointer to struct i2c_smbus_ioctl_data
 	// linux device path
 	private static final String PATH_FORMAT = "/dev/i2c-%d";
 
@@ -275,40 +303,35 @@ public class I2cDev {
 	 * Specify the number of times a device address should be polled when not acknowledging.
 	 */
 	public static void i2c_retries(int fd, int retries) throws CException {
-		NativeLong value = new NativeLong(retries, true);
-		CLib.ioctl("I2C_RETRIES", fd, I2C_RETRIES, value);
+		ioctl("I2C_RETRIES", fd, I2C_RETRIES, retries);
 	}
 
 	/**
-	 * Set timeout. Underlying ioctl call takes units of 10ms.
+	 * Set timeout in milliseconds. Underlying ioctl call takes units of 10ms.
 	 */
 	public static void i2c_timeout(int fd, long timeoutMs) throws CException {
-		NativeLong value = new NativeLong(timeoutMs / 10, true);
-		CLib.ioctl("I2C_TIMEOUT", fd, I2C_TIMEOUT, value);
+		ioctl("I2C_TIMEOUT", fd, I2C_TIMEOUT, timeoutMs / 10);
 	}
 
 	/**
 	 * Use this slave address. Can be 7 or 10 bits (supported?).
 	 */
 	public static void i2c_slave(int fd, int address) throws CException {
-		NativeLong value = new NativeLong(address, true);
-		CLib.ioctl("I2C_SLAVE", fd, I2C_SLAVE, value);
+		ioctl("I2C_SLAVE", fd, I2C_SLAVE, address);
 	}
 
 	/**
 	 * Use this slave address, even if it is already in use by a driver.
 	 */
 	public static void i2c_slave_force(int fd, int address) throws CException {
-		NativeLong value = new NativeLong(address, true);
-		CLib.ioctl("I2C_SLAVE_FORCE", fd, I2C_SLAVE_FORCE, value);
+		ioctl("I2C_SLAVE_FORCE", fd, I2C_SLAVE_FORCE, address);
 	}
 
 	/**
 	 * Enable 10-bit addressing. Underlying ioctl takes 0 for 7 bit, != 0 for 10 bit.
 	 */
 	public static void i2c_tenbit(int fd, boolean enabled) throws CException {
-		NativeLong value = new NativeLong(enabled ? 1 : 0, true);
-		CLib.ioctl("I2C_TENBIT", fd, I2C_TENBIT, value);
+		ioctl("I2C_TENBIT", fd, I2C_TENBIT, enabled ? 1 : 0);
 	}
 
 	/**
@@ -335,115 +358,192 @@ public class I2cDev {
 	 * Set SMBus error checking. Underlying ioctl takes != 0 to use PEC with SMBus
 	 */
 	public static void i2c_smbus_pec(int fd, boolean enabled) throws CException {
-		NativeLong value = new NativeLong(enabled ? 1 : 0, true);
-		CLib.ioctl("I2C_PEC", fd, I2C_PEC, value);
+		ioctl("I2C_PEC", fd, I2C_PEC, enabled ? 1 : 0);
 	}
 
+	/**
+	 * SMBus: quick write, using address read/write bit.
+	 */
 	public static void i2c_smbus_write_quick(int fd, boolean on) throws CException {
-		i2c_smbus_access(fd, on ? I2C_SMBUS_READ : I2C_SMBUS_WRITE, 0, I2C_SMBUS_QUICK, null);
+		smbusIoctl(fd, on ? I2C_SMBUS_READ : I2C_SMBUS_WRITE, 0, I2C_SMBUS_QUICK, null);
 	}
 
+	/**
+	 * SMBus: read 1 byte, with PEC if enabled.
+	 */
 	public static int i2c_smbus_read_byte(int fd) throws CException {
 		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		i2c_smbus_access(fd, I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, data);
+		smbusIoctl(fd, I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, data);
 		return ubyte(data.byte_);
 	}
 
+	/**
+	 * SMBus: write 1 byte, with PEC if enabled.
+	 */
 	public static void i2c_smbus_write_byte(int fd, int value) throws CException {
-		i2c_smbus_access(fd, I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, null);
+		smbusIoctl(fd, I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, null);
 	}
 
+	/**
+	 * SMBus: send 1-byte command, and read 1-byte data, with PEC if enabled.
+	 */
 	public static int i2c_smbus_read_byte_data(int fd, int command) throws CException {
 		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		i2c_smbus_access(fd, I2C_SMBUS_READ, command, I2C_SMBUS_BYTE_DATA, data);
+		smbusIoctl(fd, I2C_SMBUS_READ, command, I2C_SMBUS_BYTE_DATA, data);
 		return ubyte(data.byte_);
 	}
 
+	/**
+	 * SMBus: send 1-byte command and 1-byte data, with PEC if enabled.
+	 */
 	public static void i2c_smbus_write_byte_data(int fd, int command, int value) throws CException {
 		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		data.byte_().set(value);
-		i2c_smbus_access(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_BYTE_DATA, data);
+		data.setByte(value);
+		smbusIoctl(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_BYTE_DATA, data);
 	}
 
+	/**
+	 * SMBus: send 1-byte command, and read 2-byte data, with PEC if enabled.
+	 */
 	public static int i2c_smbus_read_word_data(int fd, int command) throws CException {
 		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		i2c_smbus_access(fd, I2C_SMBUS_READ, command, I2C_SMBUS_WORD_DATA, data);
+		smbusIoctl(fd, I2C_SMBUS_READ, command, I2C_SMBUS_WORD_DATA, data);
 		return ushort(data.word);
 	}
 
+	/**
+	 * SMBus: send 1-byte command and 2-byte data, with PEC if enabled.
+	 */
 	public static void i2c_smbus_write_word_data(int fd, int command, int value) throws CException {
 		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		data.word().set(value);
-		i2c_smbus_access(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_WORD_DATA, data);
+		data.setWord(value);
+		smbusIoctl(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_WORD_DATA, data);
 	}
 
+	/**
+	 * SMBus: send 1-byte command and 2-byte data, and read 2-byte data, with PEC if enabled.
+	 */
 	public static int i2c_smbus_process_call(int fd, int command, int value) throws CException {
 		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		data.word().set(value);
-		i2c_smbus_access(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_PROC_CALL, data);
+		data.setWord(value);
+		smbusIoctl(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_PROC_CALL, data);
 		return ushort(data.word);
 	}
 
+	/**
+	 * SMBus: send 1-byte command, and read 1-byte N, N-byte data, with PEC if enabled.
+	 */
 	public static byte[] i2c_smbus_read_block_data(int fd, int command) throws CException {
 		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		i2c_smbus_access(fd, I2C_SMBUS_READ, command, I2C_SMBUS_BLOCK_DATA, data);
-		return copyFrom(data.block().get());
+		smbusIoctl(fd, I2C_SMBUS_READ, command, I2C_SMBUS_BLOCK_DATA, data);
+		return data.getBlock();
 	}
 
+	/**
+	 * SMBus: send 1-byte command, 1-byte N, and N-byte data, with PEC if enabled.
+	 */
 	public static void i2c_smbus_write_block_data(int fd, int command, byte[] values)
 		throws CException {
-		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		copyTo(values, data);
-		i2c_smbus_access(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_BLOCK_DATA, data);
+		i2c_smbus_write_block_data(fd, command, values, 0);
 	}
 
-	public static byte[] i2c_smbus_read_i2c_block_data(int fd, int command, int length)
+	/**
+	 * SMBus: send 1-byte command, 1-byte N, and N-byte data, with PEC if enabled.
+	 */
+	public static void i2c_smbus_write_block_data(int fd, int command, byte[] values, int offset)
 		throws CException {
-		validateRange(length, 0, I2C_SMBUS_BLOCK_MAX, "Length");
-		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		byte[] block = data.block().get();
-		block[0] = (byte) length;
-		i2c_smbus_access(fd, I2C_SMBUS_READ, command, length == I2C_SMBUS_BLOCK_MAX ? //
-			I2C_SMBUS_I2C_BLOCK_BROKEN : I2C_SMBUS_I2C_BLOCK_DATA, data);
-		return copyFrom(block);
+		i2c_smbus_write_block_data(fd, command, values, offset, values.length - offset);
 	}
 
-	public static void i2c_smbus_write_i2c_block_data(int fd, int command, byte[] values)
-		throws CException {
+	/**
+	 * SMBus: send 1-byte command, 1-byte N, and N-byte data, with PEC if enabled.
+	 */
+	public static void i2c_smbus_write_block_data(int fd, int command, byte[] values, int offset,
+		int length) throws CException {
 		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		copyTo(values, data);
-		i2c_smbus_access(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_I2C_BLOCK_BROKEN, data);
+		data.setBlock(values, offset, length);
+		smbusIoctl(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_BLOCK_DATA, data);
 	}
 
+	/**
+	 * SMBus: send 1-byte command, 1-byte N, and N-byte data, then read 1-byte N, N-byte data, with
+	 * PEC if enabled.
+	 */
 	public static byte[] i2c_smbus_block_process_call(int fd, int command, byte[] values)
 		throws CException {
-		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		byte[] block = copyTo(values, data);
-		i2c_smbus_access(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_BLOCK_PROC_CALL, data);
-		return copyFrom(block);
+		return i2c_smbus_block_process_call(fd, command, values, 0);
 	}
 
-	private static int i2c_smbus_access(int fd, int readWrite, int command,
+	/**
+	 * SMBus: send 1-byte command, 1-byte N, and N-byte data, then read 1-byte N, N-byte data, with
+	 * PEC if enabled.
+	 */
+	public static byte[] i2c_smbus_block_process_call(int fd, int command, byte[] values,
+		int offset) throws CException {
+		return i2c_smbus_block_process_call(fd, command, values, offset, values.length - offset);
+	}
+
+	/**
+	 * SMBus: send 1-byte command, 1-byte N, and N-byte data, then read 1-byte N, N-byte data, with
+	 * PEC if enabled.
+	 */
+	public static byte[] i2c_smbus_block_process_call(int fd, int command, byte[] values,
+		int offset, int length) throws CException {
+		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
+		data.setBlock(values, offset, length);
+		smbusIoctl(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_BLOCK_PROC_CALL, data);
+		return data.getBlock();
+	}
+
+	/**
+	 * SMBus: send 1-byte command, and read N-byte data.
+	 */
+	public static byte[] i2c_smbus_read_i2c_block_data(int fd, int command, int length)
+		throws CException {
+		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
+		data.setBlockLength(length);
+		smbusIoctl(fd, I2C_SMBUS_READ, command, I2C_SMBUS_I2C_BLOCK_DATA, data);
+		return data.getBlock();
+	}
+
+	/**
+	 * SMBus: send 1-byte command and N-byte data.
+	 */
+	public static void i2c_smbus_write_i2c_block_data(int fd, int command, byte[] values)
+		throws CException {
+		i2c_smbus_write_i2c_block_data(fd, command, values, 0);
+	}
+
+	/**
+	 * SMBus: send 1-byte command and N-byte data.
+	 */
+	public static void i2c_smbus_write_i2c_block_data(int fd, int command, byte[] values,
+		int offset) throws CException {
+		i2c_smbus_write_i2c_block_data(fd, command, values, offset, values.length - offset);
+	}
+
+	/**
+	 * SMBus: send 1-byte command and N-byte data.
+	 */
+	public static void i2c_smbus_write_i2c_block_data(int fd, int command, byte[] values,
+		int offset, int length) throws CException {
+		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
+		data.setBlock(values, offset, length);
+		smbusIoctl(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_I2C_BLOCK_DATA, data);
+	}
+
+	private static void ioctl(String name, int fd, int request, long value) throws CException {
+		CLib.ioctl(name, fd, request, new NativeLong(value, true));
+	}
+
+	private static int smbusIoctl(int fd, int readWrite, int command,
 		i2c_smbus_transaction_type type, i2c_smbus_data.ByReference data) throws CException {
 		i2c_smbus_ioctl_data smbus = new i2c_smbus_ioctl_data();
-		smbus.read_write = MathUtil.byteExact(readWrite);
-		smbus.command = MathUtil.byteExact(command);
+		smbus.read_write = MathUtil.ubyteExact(readWrite);
+		smbus.command = MathUtil.ubyteExact(command);
 		smbus.size = type.size;
 		smbus.data = data;
 		return CLib.ioctl("I2C_SMBUS", fd, I2C_SMBUS, smbus); // smbus.read() if reading?
-	}
-
-	private static byte[] copyFrom(byte[] block) {
-		return Immutable.wrap(block).copy(1, ubyte(block[0])); // set type again?
-	}
-
-	private static byte[] copyTo(byte[] values, i2c_smbus_data.ByReference data) {
-		validateMax(values.length, I2C_SMBUS_BLOCK_MAX, "Values length");
-		byte[] block = data.block().get();
-		ByteReceiver receiver = Mutable.wrap(block);
-		receiver.setByte(0, values.length);
-		receiver.copyFrom(1, values);
-		return block;
 	}
 
 }

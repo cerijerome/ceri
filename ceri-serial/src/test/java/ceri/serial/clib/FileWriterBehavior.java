@@ -20,7 +20,7 @@ public class FileWriterBehavior {
 	private static final Mode mode = Mode.of(0666);
 	private static final Set<OpenFlag> flags = Set.of(OpenFlag.O_CREAT, OpenFlag.O_RDWR);
 	private static final byte[] file1Bytes =
-		ByteArray.encode(w -> w.writeAscii("test").writeShortMsb(0x3456)).copy(0);
+		ByteArray.encoder().writeAscii("test").writeShortMsb(0x3456).bytes();
 	private static FileTestHelper helper = null;
 
 	@BeforeClass

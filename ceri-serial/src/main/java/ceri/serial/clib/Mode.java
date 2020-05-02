@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.math.MathUtil;
+import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.HashCoder;
 
@@ -53,6 +54,10 @@ public class Mode {
 			return xcoder.decodeAll(value);
 		}
 
+		public static String string(int value) {
+			return StringUtil.join("|", decode(value));
+		}
+		
 		private Mask(int value) {
 			this.value = value;
 		}
@@ -101,10 +106,23 @@ public class Mode {
 		return mode;
 	}
 
+	public boolean has(Mask...masks) {
+		return has(Arrays.asList(masks));
+	}
+	
+	public boolean has(Collection<Mask> masks) {
+		int value = Mask.encode(masks);
+		return (mode & value) == value;
+	}
+	
 	public Set<Mask> masks() {
 		return Mask.decode(mode);
 	}
 
+	public String maskString() {
+		return Mask.string(mode);
+	}
+	
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(mode);

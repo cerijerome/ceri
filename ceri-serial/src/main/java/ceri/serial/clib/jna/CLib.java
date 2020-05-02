@@ -4,10 +4,12 @@ import static ceri.serial.jna.JnaUtil.print;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.sun.jna.IntegerType;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import ceri.common.text.StringUtil;
 import ceri.serial.clib.OpenFlag;
+import ceri.serial.clib.jna.Termios.termios;
 import ceri.serial.jna.JnaUtil;
 
 /**
@@ -17,6 +19,30 @@ public class CLib {
 	public static final int EOF = -1;
 	private static final Logger logger = LogManager.getLogger();
 	private static final CLibNative CLIB = loadLibrary(Platform.C_LIBRARY_NAME);
+
+	private CLib() {}
+
+	@SuppressWarnings("serial")
+	public static class size_t extends IntegerType {
+		public size_t() {
+			this(0);
+		}
+
+		public size_t(long value) {
+			super(SizeOf.SIZE_T, value, true);
+		}
+	}
+
+	@SuppressWarnings("serial")
+	public static class ssize_t extends IntegerType {
+		public ssize_t() {
+			this(0);
+		}
+
+		public ssize_t(long value) {
+			super(SizeOf.SIZE_T, value);
+		}
+	}
 
 	/**
 	 * Opens the path with flags, and returns a file descriptor.
@@ -47,7 +73,7 @@ public class CLib {
 	 */
 	public static int read(int fd, Pointer buffer, int length) throws CException {
 		if (length == 0) return 0;
-		int result = CUtil.verifyErrno(() -> CLIB.read(fd, buffer, length),
+		int result = CUtil.verifyErrno(() -> CLIB.read(fd, buffer, new size_t(length)).intValue(),
 			() -> String.format("read(%d, %s, %d)", fd, print(buffer), length));
 		return result == 0 ? EOF : result;
 	}
@@ -57,8 +83,16 @@ public class CLib {
 	 */
 	public static int write(int fd, Pointer buffer, int length) throws CException {
 		if (length == 0) return 0;
-		return CUtil.verifyErrno(() -> CLIB.write(fd, buffer, length),
+		return CUtil.verifyErrno(() -> CLIB.write(fd, buffer, new size_t(length)).intValue(),
 			() -> String.format("write(%d, %s, %d)", fd, print(buffer), length));
+	}
+
+	/**
+	 * Moves the position of file descriptor. Returns the new position.
+	 */
+	public static int lseek(int fd, int offset, int whence) throws CException {
+		return CUtil.verifyErrno(() -> CLIB.lseek(fd, offset, whence),
+			() -> String.format("lseek(%d, %d, %d)", fd, offset, whence));
 	}
 
 	/**
@@ -83,13 +117,19 @@ public class CLib {
 		return CUtil.verifyErrno(() -> CLIB.ioctl(fd, request, objs), errorMsg);
 	}
 
-	/**
-	 * Moves the position of file descriptor. Returns the new position.
-	 */
-	public static int lseek(int fd, int offset, int whence) throws CException {
-		return CUtil.verifyErrno(() -> CLIB.lseek(fd, offset, whence),
-			() -> String.format("lseek(%d, %d, %d)", fd, offset, whence));
+	public static termios tcgetattr(int fd) throws CException {
+		termios.ByReference ref = new termios.ByReference();
+		CUtil.verifyErrno(() -> CLIB.tcgetattr(fd, ref),
+			() -> String.format("tcgetattr(%d, %d)", fd, JnaUtil.print(ref)));
+		return ref;
 	}
+
+	public static void tcsetattr(int fd, int actions, termios termios) throws CException {
+		CUtil.verifyErrno(() -> CLIB.tcsetattr(fd, actions, termios),
+			() -> String.format("tcgetattr(%d, %d)", fd, termios));
+	}
+
+	/* Support methods */
 
 	private static String formatIoctl(String name, int fd, int request, Object... objs) {
 		name = name == null ? "ioctl" : "ioctl:" + name;
