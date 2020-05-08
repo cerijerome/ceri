@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateMinD;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
@@ -16,8 +16,8 @@ public class Rectangle2d {
 	}
 
 	public static Rectangle2d of(double x, double y, double w, double h) {
-		validateMin(w, 0, "Width");
-		validateMin(h, 0, "Height");
+		validateMinD(w, 0, "Width");
+		validateMinD(h, 0, "Height");
 		if (ZERO.equals(x, y, w, h)) return null;
 		return new Rectangle2d(x + .0, y + .0, w + .0, h + .0);
 	}

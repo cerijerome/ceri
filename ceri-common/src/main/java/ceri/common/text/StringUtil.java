@@ -74,6 +74,7 @@ public class StringUtil {
 	public static final int INT_BINARY_DIGITS = 32;
 	public static final int SHORT_BINARY_DIGITS = 16;
 	public static final int BYTE_BINARY_DIGITS = 8;
+	public static final int HEX_BINARY_DIGITS = 4;
 
 	private StringUtil() {}
 
@@ -377,10 +378,26 @@ public class StringUtil {
 	}
 
 	/**
+	 * Convenience method to convert a byte to an 8-digit binary string. A separator is added each
+	 * count digits, aligned to the right.
+	 */
+	public static String toBinary(byte b, String separator, int... counts) {
+		return toBinary(b, BYTE_BINARY_DIGITS, separator, counts);
+	}
+
+	/**
 	 * Convenience method to convert a short to a 16-digit binary string.
 	 */
 	public static String toBinary(short s) {
 		return toBinary(s, SHORT_BINARY_DIGITS);
+	}
+
+	/**
+	 * Convenience method to convert a byte to an 8-digit binary string. A separator is added each
+	 * count digits, aligned to the right.
+	 */
+	public static String toBinary(short s, String separator, int... counts) {
+		return toBinary(s, SHORT_BINARY_DIGITS, separator, counts);
 	}
 
 	/**
@@ -391,10 +408,26 @@ public class StringUtil {
 	}
 
 	/**
+	 * Convenience method to convert a byte to an 8-digit binary string. A separator is added each
+	 * count digits, aligned to the right.
+	 */
+	public static String toBinary(int i, String separator, int... counts) {
+		return toBinary(i, INT_BINARY_DIGITS, separator, counts);
+	}
+
+	/**
 	 * Convenience method to convert a long to a 64-digit binary string.
 	 */
 	public static String toBinary(long l) {
 		return toBinary(l, LONG_BINARY_DIGITS);
+	}
+
+	/**
+	 * Convenience method to convert a byte to an 8-digit binary string. A separator is added each
+	 * count digits, aligned to the right.
+	 */
+	public static String toBinary(long l, String separator, int... counts) {
+		return toBinary(l, LONG_BINARY_DIGITS, separator, counts);
 	}
 
 	/**
@@ -403,6 +436,15 @@ public class StringUtil {
 	 */
 	public static String toBinary(long l, int digits) {
 		return toUnsigned(l, BINARY_RADIX, digits);
+	}
+
+	/**
+	 * Converts a number to radix-based string with exactly the numbers of specified digits. For
+	 * numbers larger than the digits specified, the most significant digits are dropped. A
+	 * separator is added each count digits, aligned to the right.
+	 */
+	public static String toBinary(long l, int digits, String separator, int... counts) {
+		return separate(toUnsigned(l, BINARY_RADIX, digits), separator, Align.H.right, counts);
 	}
 
 	/**
@@ -827,6 +869,40 @@ public class StringUtil {
 		if (align == Align.H.right) return count;
 		if (align == Align.H.center) return count / 2;
 		return 0;
+	}
+
+	/**
+	 * Add separators to a string each count characters, aligned to left or right. Multiple counts
+	 * can be used for variable separation widths.
+	 */
+	public static String separate(CharSequence str, CharSequence separator, Align.H align,
+		int... counts) {
+		int len = str.length();
+		if (len == 0 || counts.length == 0 || separator.length() == 0) return str.toString();
+		if (align == null || align == Align.H.center)
+			throw new IllegalArgumentException("Alignment not supported: " + align);
+		int[] sections = sections(len, align, counts);
+		StringBuilder b = new StringBuilder();
+		for (int i = 1; i < sections.length; i++) {
+			b.append(str.subSequence(sections[i - 1], sections[i]));
+			if (sections[i] < len) b.append(separator);
+		}
+		return b.toString();
+	}
+
+	private static int[] sections(int len, Align.H align, int... counts) {
+		List<Integer> list = new ArrayList<>();
+		list.add(0);
+		for (int pos = 0, i = 0; pos < len;) {
+			int count = counts[Math.min(counts.length - 1, i++)];
+			pos = count <= 0 ? len : Math.min(len, pos + count);
+			list.add(pos);
+		}
+		int[] sections = new int[list.size()];
+		for (int i = 0; i < list.size(); i++)
+			sections[i] =
+				align == Align.H.left ? list.get(i) : len - list.get(sections.length - i - 1);
+		return sections;
 	}
 
 	/**

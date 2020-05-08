@@ -20,6 +20,22 @@ public class OsUtil {
 
 	private OsUtil() {}
 
+	public static <T> T mac(T mac, T other) {
+		return BasicUtil.conditional(IS_MAC, mac, other);
+	}
+
+	public static <T> T linux(T linux, T other) {
+		return BasicUtil.conditional(IS_LINUX, linux, other);
+	}
+
+	public static int macInt(int mac, int other) {
+		return BasicUtil.conditionalInt(IS_MAC, mac, other);
+	}
+
+	public static int linuxInt(int linux, int other) {
+		return BasicUtil.conditionalInt(IS_LINUX, linux, other);
+	}
+
 	private static boolean matches(String s, String regex) {
 		Pattern pattern = Pattern.compile(regex);
 		return pattern.matcher(s).find();
@@ -27,22 +43,5 @@ public class OsUtil {
 
 	static boolean propertyIsSet(String name) {
 		return !BasicUtil.isEmpty(SystemVars.sys(name));
-	}
-	
-	public static <T> T mac(T mac, T other) {
-		return BasicUtil.conditional(IS_MAC, mac, other);
-	}
-	
-	public static <T> T linux(T linux, T other) {
-		return BasicUtil.conditional(IS_LINUX, linux, other);
-	}
-	
-	public static int macInt(int mac, int other) {
-		return BasicUtil.conditionalInt(IS_MAC, mac, other);
-	}
-	
-	public static int linuxInt(int linux, int other) {
-		return BasicUtil.conditionalInt(IS_LINUX, linux, other);
-	}
-	
+	}	
 }

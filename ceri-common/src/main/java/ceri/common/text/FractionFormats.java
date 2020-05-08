@@ -1,6 +1,6 @@
 package ceri.common.text;
 
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validateRangeL;
 import static ceri.common.validation.ValidationUtil.validatef;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -112,7 +112,7 @@ public class FractionFormats {
 		}
 
 		public static char toChar(long digit) {
-			validateRange(digit, 0, 9);
+			validateRangeL(digit, 0, 9);
 			if (digit == 1) return '\u00b9';
 			if (digit == 2) return '\u00b2';
 			if (digit == 3) return '\u00b3';
@@ -142,7 +142,7 @@ public class FractionFormats {
 		}
 
 		public static char toChar(long digit) {
-			validateRange(digit, 0, 9);
+			validateRangeL(digit, 0, 9);
 			return (char) ('\u2080' + digit);
 		}
 

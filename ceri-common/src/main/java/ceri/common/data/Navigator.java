@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validateRangeL;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -26,7 +26,7 @@ public abstract class Navigator<T extends Navigator<T>> {
 	 * Validates and sets the offset.
 	 */
 	public T offset(int offset) {
-		validateRange(offset, 0, length);
+		validateRangeL(offset, 0, length);
 		this.offset = offset;
 		return typedThis();
 	}

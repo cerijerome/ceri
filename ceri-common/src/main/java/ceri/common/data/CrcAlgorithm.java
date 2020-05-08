@@ -6,7 +6,6 @@ import static ceri.common.data.ByteUtil.INT_MASK;
 import static ceri.common.data.ByteUtil.maskOfBits;
 import static ceri.common.data.ByteUtil.shiftBits;
 import static ceri.common.math.MathUtil.ubyte;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,14 +27,15 @@ import ceri.common.util.HashCoder;
  */
 public class CrcAlgorithm {
 	private static final int CACHE_SIZE = 1 << Byte.SIZE;
-	public static final ByteProvider checkBytes =
-		ByteArray.Immutable.wrap("123456789".getBytes(StandardCharsets.ISO_8859_1));
+	public static final ByteProvider checkBytes = ByteUtil.toAscii("123456789");
+	// Algorithm parameters
 	public final int width;
 	public final long poly;
 	public final long init;
 	public final boolean refIn;
 	public final boolean refOut;
 	public final long xorOut;
+	// internal constants
 	private final long mask;
 	private final long lastBit;
 	private final int shift0;
@@ -43,6 +43,9 @@ public class CrcAlgorithm {
 	private final int shift2;
 	private final EntryAccessor cache;
 
+	/**
+	 * Commonly used algorithms, cached on access.
+	 */
 	public static enum Std {
 		none(() -> of(0, 0)),
 		crc8Smbus(() -> of(8, 0x7), //
@@ -63,9 +66,9 @@ public class CrcAlgorithm {
 			"CRC-32/ISO-HDLC", "CRC-32", "CRC-32/ADCCP", "CRC-32/V-42", "CRC-32/XZ", "PKZIP"),
 		crc32Mpeg2(() -> of(32, 0x04c11db7, -1), //
 			"CRC-32/MPEG-2"),
-		crc64GoIso(() -> of(64, 0x1b, -1L, true, true, -1L), //
+		crc64GoIso(() -> of(64, 0x1b, -1, true, true, -1), //
 			"CRC-64/GO-ISO"),
-		crc64Xz(() -> of(64, 0x42f0e1eba9ea3693L, -1L, true, true, -1L), //
+		crc64Xz(() -> of(64, 0x42f0e1eba9ea3693L, -1, true, true, -1), //
 			"CRC-64/XZ");
 
 		private static final Map<Std, CrcAlgorithm> cache = new ConcurrentHashMap<>();

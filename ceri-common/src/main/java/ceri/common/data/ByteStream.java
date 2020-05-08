@@ -1,18 +1,22 @@
 package ceri.common.data;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import ceri.common.data.ByteArray.Immutable;
+import ceri.common.data.ByteArray.Mutable;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.Fluent;
 import ceri.common.io.IoUtil;
 import ceri.common.io.RuntimeIoException;
+import ceri.common.util.BasicUtil;
 import ceri.common.util.ExceptionAdapter;
 
 /**
- * {@link ByteWriter} wrapper for a {@link java.io.OutputStream}. This provides sequential writing
- * of bytes. The type T allows typed access to the OutputStream methods, such as
- * ByteArrayOutputStream.toByteArray().
+ * Container class for {@link ByteReader} and {@link ByteWriter} wrappers for I/O streams. The
+ * wrappers provide sequential access to stream bytes. The {@link Encoder} class enables building of
+ * variable-length byte arrays using an underlying {@link ByteArrayOutputStream}.
  */
 public class ByteStream {
 	private static final ExceptionAdapter<RuntimeIoException> ioAdapter = IoUtil.RUNTIME_IO_ADAPTER;
@@ -129,32 +133,76 @@ public class ByteStream {
 		}
 	}
 
-	public static class Writer implements ByteWriter<Writer> {
-		private final OutputStream out;
-
+	/**
+	 * Concrete class for output stream writer.
+	 */
+	public static class Writer extends AbstractWriter<OutputStream, Writer> {
 		private Writer(OutputStream out) {
+			super(out);
+		}
+
+		/**
+		 * Flushes the stream if supported by the wrapped stream, otherwise no-op.
+		 */
+		public Writer flush() {
+			return run(out::flush);
+		}
+	}
+
+	/**
+	 * Class to enable building of variable-sized byte arrays.
+	 */
+	public static class Encoder extends AbstractWriter<ByteArrayOutputStream, Encoder> {
+		
+		static Encoder of() {
+			return new Encoder();
+		}
+		
+		private Encoder() {
+			super(new ByteArrayOutputStream());
+		}
+
+		public byte[] bytes() {
+			return out.toByteArray();
+		}
+
+		public Immutable immutable() {
+			return Immutable.wrap(bytes());
+		}
+
+		public Mutable mutable() {
+			return Mutable.wrap(bytes());
+		}
+	}
+
+	/**
+	 * Base abstract class for output stream writer.
+	 */
+	private static abstract class AbstractWriter<S extends OutputStream, //
+		T extends AbstractWriter<S, T>> implements ByteWriter<T> {
+		final S out;
+
+		private AbstractWriter(S out) {
 			this.out = out;
 		}
 
-		/* ByteWriter overrides */
-
 		@Override
-		public Writer writeByte(int value) {
+		public T writeByte(int value) {
 			return run(() -> out.write(value));
 		}
 
 		@Override
-		public Writer fill(int length, int value) {
+		public T fill(int length, int value) {
 			return writeFrom(ByteUtil.fill(length, value));
 		}
 
 		@Override
-		public Writer writeFrom(byte[] array, int offset, int length) {
+		public T writeFrom(byte[] array, int offset, int length) {
 			return run(() -> out.write(array, offset, length));
 		}
 
 		@Override
-		public Writer writeFrom(ByteProvider provider, int offset, int length) {
+		public T writeFrom(ByteProvider provider, int offset, int length) {
 			return run(() -> provider.writeTo(offset, out, length));
 		}
 
@@ -163,18 +211,9 @@ public class ByteStream {
 			return ByteWriter.transferBufferFrom(this, in, length);
 		}
 
-		/* OutputStream methods */
-
-		/**
-		 * Flushes the stream if supported by the wrapped stream, otherwise no-op.
-		 */
-		public Writer flush() {
-			return run(out::flush);
-		}
-
-		private Writer run(ExceptionRunnable<IOException> runnable) {
+		T run(ExceptionRunnable<IOException> runnable) {
 			ioAdapter.run(runnable);
-			return this;
+			return BasicUtil.uncheckedCast(this);
 		}
 	}
 

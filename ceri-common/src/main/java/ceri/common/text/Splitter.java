@@ -1,7 +1,7 @@
 package ceri.common.text;
 
 import static ceri.common.collection.StreamUtil.toList;
-import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateMinL;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +32,7 @@ public class Splitter {
 
 		public static Extraction of(String text, int size) {
 			validateNotNull(text);
-			validateMin(size, 0);
+			validateMinL(size, 0);
 			return new Extraction(text, size);
 		}
 

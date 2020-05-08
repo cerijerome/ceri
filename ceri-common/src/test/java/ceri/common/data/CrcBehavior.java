@@ -13,7 +13,9 @@ public class CrcBehavior {
 	@Test
 	public void shouldVerifyCrc() {
 		CRC16_XMODEM.start().add(CrcAlgorithm.checkBytes).verify(0x31c3);
+		CRC16_XMODEM.start().add(CrcAlgorithm.checkBytes).verify((short) 0x31c3);
 		CRC8_SMBUS.start().add(CrcAlgorithm.checkBytes).verify(0xf4);
+		CRC8_SMBUS.start().add(CrcAlgorithm.checkBytes).verify((byte) 0xf4);
 		assertThrown(() -> CRC16_XMODEM.start().add(CrcAlgorithm.checkBytes).verify(0x31c2));
 		assertThrown(() -> CRC8_SMBUS.start().add(CrcAlgorithm.checkBytes).verify(0xf5));
 	}

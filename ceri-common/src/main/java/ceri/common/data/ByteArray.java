@@ -28,22 +28,43 @@ public abstract class ByteArray implements ByteProvider {
 	private final int length;
 
 	/**
-	 * Encode a fixed-size byte array, using a ByteWriter.
+	 * A fixed-size byte array encoder.
 	 */
-	public static Mutable encode(int size, Consumer<? super ByteReceiver.Writer> consumer) {
-		Mutable bytes = Mutable.of(size);
-		consumer.accept(bytes.writer(0));
-		return bytes;
+	public static ByteReceiver.Encoder encoder(byte[] data) {
+		return ByteReceiver.Encoder.wrap(data);
 	}
 	
 	/**
-	 * Encode a variable-sized byte array, using a ByteWriter.
+	 * A fixed-size byte array encoder.
 	 */
-	public static Mutable encode(Consumer<? super ByteStream.Writer> consumer) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		consumer.accept(ByteStream.writer(out));
-		return Mutable.wrap(out.toByteArray());
+	public static ByteReceiver.Encoder encoder(int size) {
+		return ByteReceiver.Encoder.of(size);
 	}
+	
+	/**
+	 * A variable-length byte array encoder.
+	 */
+	public static ByteStream.Encoder encoder() {
+		return ByteStream.Encoder.of();
+	}
+	
+//	/**
+//	 * Encode a fixed-size byte array, using a ByteWriter.
+//	 */
+//	public static Mutable encode(int size, Consumer<? super ByteReceiver.Writer> consumer) {
+//		Mutable bytes = Mutable.of(size);
+//		consumer.accept(bytes.writer(0));
+//		return bytes;
+//	}
+//	
+//	/**
+//	 * Encode a variable-sized byte array, using a ByteWriter.
+//	 */
+//	public static Mutable encode(Consumer<? super ByteStream.Writer> consumer) {
+//		ByteArrayOutputStream out = new ByteArrayOutputStream();
+//		consumer.accept(ByteStream.writer(out));
+//		return Mutable.wrap(out.toByteArray());
+//	}
 	
 	/**
 	 * Wrapper for a byte array that does not allow modification. It allows slicing of views to

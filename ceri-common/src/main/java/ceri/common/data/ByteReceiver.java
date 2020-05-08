@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteArray.Immutable;
+import ceri.common.data.ByteArray.Mutable;
 
 /**
  * Interface for receiving bytes into an array. For bulk efficiency, consider overriding the
@@ -364,71 +366,10 @@ public interface ByteReceiver {
 	 * length. Except for {@link #offset(int)}, methods do not include an offset position. Clients
 	 * must first call {@link #offset(int)} if an absolute position is required.
 	 */
-	static class Writer extends Navigator<Writer> implements ByteWriter<Writer> {
-		private final ByteReceiver receiver;
-		private final int start;
-
+	static class Writer extends AbstractWriter<Writer> {
 		private Writer(ByteReceiver receiver, int offset, int length) {
-			super(length);
-			this.receiver = receiver;
-			this.start = offset;
+			super(receiver, offset, length);
 		}
-
-		/* ByteWriter overrides and additions */
-
-		@Override
-		public Writer writeByte(int value) {
-			return position(receiver.setByte(position(), value));
-		}
-
-		@Override
-		public Writer writeEndian(long value, int size, boolean msb) {
-			return position(receiver.setEndian(position(), size, value, msb));
-		}
-
-		@Override
-		public Writer writeString(String s, Charset charset) {
-			return position(receiver.setString(position(), s, charset));
-		}
-
-		/**
-		 * Fill remaining bytes with same value.
-		 */
-		public Writer fill(int value) {
-			return fill(remaining(), value);
-		}
-
-		@Override
-		public Writer fill(int length, int value) {
-			return position(receiver.fill(position(), length, value));
-		}
-
-		@Override
-		public Writer writeFrom(byte[] array, int offset, int length) {
-			return position(receiver.copyFrom(position(), array, offset, length));
-		}
-
-		@Override
-		public Writer writeFrom(ByteProvider provider, int offset, int length) {
-			return position(receiver.copyFrom(position(), provider, offset, length));
-		}
-
-		/**
-		 * Writes bytes from the input stream to remaining space, and returns the number of bytes
-		 * transferred.
-		 */
-		public int transferFrom(InputStream in) throws IOException {
-			return transferFrom(in, remaining());
-		}
-
-		@Override
-		public int transferFrom(InputStream in, int length) throws IOException {
-			int current = position();
-			position(receiver.readFrom(current, in, length));
-			return position() - current;
-		}
-
-		/* Other methods */
 
 		/**
 		 * Creates a new reader for remaining bytes without incrementing the offset.
@@ -448,6 +389,114 @@ public interface ByteReceiver {
 			return new Writer(receiver, start + offset, length);
 		}
 
+	}
+	
+	/**
+	 * A byte array encoder for a fixed-length array.
+	 */
+	static class Encoder extends AbstractWriter<Encoder> {
+		private final byte[] bytes;
+		
+		static Encoder wrap(byte[] data) {
+			return new Encoder(data);
+		}
+		
+		static Encoder of(int size) {
+			return new Encoder(new byte[size]);
+		}
+		
+		private Encoder(byte[] bytes) {
+			super(Mutable.wrap(bytes), 0, bytes.length);
+			this.bytes = bytes;
+		}
+		
+		public byte[] bytes() {
+			return bytes;
+		}
+		
+		public Mutable mutable() {
+			return Mutable.wrap(bytes());
+		}
+		
+		public Immutable immutable() {
+			return Immutable.wrap(bytes());
+		}
+	}
+	
+	/**
+	 * {@link Navigator} and {@link ByteWriter} wrapper for a {@link ByteReceiver}. This provides
+	 * sequential writing of bytes, and relative/absolute positioning for the next write. The type T
+	 * allows typed access to the ByteReceiver.
+	 * <p/>
+	 * ByteWriter interface is complemented with methods that use remaining bytes instead of given
+	 * length. Except for {@link #offset(int)}, methods do not include an offset position. Clients
+	 * must first call {@link #offset(int)} if an absolute position is required.
+	 */
+	static abstract class AbstractWriter<T extends AbstractWriter<T>>
+		extends Navigator<T> implements ByteWriter<T> {
+		final ByteReceiver receiver;
+		final int start;
+
+		private AbstractWriter(ByteReceiver receiver, int offset, int length) {
+			super(length);
+			this.receiver = receiver;
+			this.start = offset;
+		}
+
+		/* ByteWriter overrides and additions */
+
+		@Override
+		public T writeByte(int value) {
+			return position(receiver.setByte(position(), value));
+		}
+
+		@Override
+		public T writeEndian(long value, int size, boolean msb) {
+			return position(receiver.setEndian(position(), size, value, msb));
+		}
+
+		@Override
+		public T writeString(String s, Charset charset) {
+			return position(receiver.setString(position(), s, charset));
+		}
+
+		/**
+		 * Fill remaining bytes with same value.
+		 */
+		public T fill(int value) {
+			return fill(remaining(), value);
+		}
+
+		@Override
+		public T fill(int length, int value) {
+			return position(receiver.fill(position(), length, value));
+		}
+
+		@Override
+		public T writeFrom(byte[] array, int offset, int length) {
+			return position(receiver.copyFrom(position(), array, offset, length));
+		}
+
+		@Override
+		public T writeFrom(ByteProvider provider, int offset, int length) {
+			return position(receiver.copyFrom(position(), provider, offset, length));
+		}
+
+		/**
+		 * Writes bytes from the input stream to remaining space, and returns the number of bytes
+		 * transferred.
+		 */
+		public int transferFrom(InputStream in) throws IOException {
+			return transferFrom(in, remaining());
+		}
+
+		@Override
+		public int transferFrom(InputStream in, int length) throws IOException {
+			int current = position();
+			position(receiver.readFrom(current, in, length));
+			return position() - current;
+		}
+
 		/**
 		 * The actual position within the byte receiver.
 		 */
@@ -458,7 +507,7 @@ public interface ByteReceiver {
 		/**
 		 * Set the offset from receiver actual position.
 		 */
-		private Writer position(int position) {
+		private T position(int position) {
 			return offset(position - start);
 		}
 	}

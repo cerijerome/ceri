@@ -1,7 +1,10 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.*;
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.color.ColorUtil.b;
+import static ceri.common.color.ColorUtil.g;
+import static ceri.common.color.ColorUtil.r;
+import static ceri.common.color.ColorUtil.toRatio;
+import static ceri.common.validation.ValidationUtil.validateRangeD;
 import java.awt.Color;
 import ceri.common.data.ByteUtil;
 import ceri.common.math.MathUtil;
@@ -135,7 +138,7 @@ public class HsbColor implements ComponentColor<HsbColor> {
 	}
 
 	private void validate(double value, String name) {
-		validateRange(value, 0, MAX_VALUE, name);
+		validateRangeD(value, 0, MAX_VALUE, name);
 	}
 
 	private double limit(double value) {

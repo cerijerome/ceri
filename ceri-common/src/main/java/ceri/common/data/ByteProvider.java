@@ -670,6 +670,20 @@ public interface ByteProvider {
 		/* Other methods */
 
 		/**
+		 * Returns a view of the ByteProvider, incrementing the offset.
+		 */
+		public ByteProvider provide() {
+			return provide(remaining());
+		}
+
+		/**
+		 * Returns a view of the ByteProvider, incrementing the offset.
+		 */
+		public ByteProvider provide(int length) {
+			return provider.slice(inc(length), length);
+		}
+
+		/**
 		 * Creates a new reader for remaining bytes without incrementing the offset.
 		 */
 		public Reader slice() {

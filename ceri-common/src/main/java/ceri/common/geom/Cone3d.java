@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateMinD;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
@@ -16,8 +16,8 @@ public class Cone3d implements Radial3d {
 
 	public static Cone3d create(double r, double h) {
 		if (r == 0 && h == 0) return NULL;
-		validateMin(r, 0, "Radius");
-		validateMin(h, 0, "Height");
+		validateMinD(r, 0, "Radius");
+		validateMinD(h, 0, "Height");
 		return new Cone3d(r + .0, h + .0);
 	}
 

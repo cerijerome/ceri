@@ -2,8 +2,8 @@ package ceri.common.data;
 
 import static ceri.common.data.ByteUtil.toHex;
 import static ceri.common.text.StringUtil.escape;
-import static ceri.common.validation.ValidationUtil.validateMax;
-import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateMaxL;
+import static ceri.common.validation.ValidationUtil.validateMinL;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.function.Function;
 import ceri.common.text.Utf8Util;

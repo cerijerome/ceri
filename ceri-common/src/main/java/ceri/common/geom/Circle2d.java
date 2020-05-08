@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateMinD;
 import ceri.common.math.MathUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
@@ -12,7 +12,7 @@ public class Circle2d {
 
 	public static Circle2d of(double r) {
 		if (r == 0) return NULL;
-		validateMin(r, 0, "Radius");
+		validateMinD(r, 0, "Radius");
 		return new Circle2d(r + .0);
 	}
 

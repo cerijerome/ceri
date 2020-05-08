@@ -1,8 +1,8 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateMinL;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validateRangeL;
 import java.util.BitSet;
 import java.util.function.Consumer;
 import ceri.common.collection.ArrayUtil;

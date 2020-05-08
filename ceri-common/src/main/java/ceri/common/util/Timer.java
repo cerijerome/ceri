@@ -1,6 +1,6 @@
 package ceri.common.util;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateMinL;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.text.ToStringHelper;
 
@@ -89,7 +89,7 @@ public class Timer {
 	public static Timer of(long periodMs) {
 		if (periodMs == ZERO.periodMs) return ZERO;
 		if (periodMs == INFINITE.periodMs) return INFINITE;
-		validateMin(periodMs, 0);
+		validateMinL(periodMs, 0);
 		return new Timer(periodMs);
 	}
 

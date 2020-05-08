@@ -1,7 +1,7 @@
 package ceri.common.data;
 
 import static ceri.common.text.StringUtil.HEX_RADIX;
-import static ceri.common.validation.ValidationUtil.validateMax;
+import static ceri.common.validation.ValidationUtil.validateMaxL;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.nio.ByteOrder;
@@ -220,73 +220,126 @@ public class ByteUtil {
 		return 1L << bit;
 	}
 
+	public static int maskOfBitsInt(int... bits) {
+		return (int) maskOfBits(bits);
+	}
+
+	public static int maskOfBitInt(boolean flag, int bit) {
+		return (int) maskOfBit(flag, bit);
+	}
+
+	/**
+	 * Returns true if the given bit is set in the value.
+	 */
 	public static boolean bit(long value, int bit) {
 		return (value & (1L << bit)) != 0;
 	}
 
+	/**
+	 * Converts value to bytes, msb first.
+	 */
 	public static byte[] toMsb(short value) {
 		return toMsb(value, Short.BYTES);
 	}
 
+	/**
+	 * Converts value to bytes, msb first.
+	 */
 	public static byte[] toMsb(int value) {
 		return toMsb(value, Integer.BYTES);
 	}
 
+	/**
+	 * Converts value to bytes, msb first.
+	 */
 	public static byte[] toMsb(long value) {
 		return toMsb(value, Long.BYTES);
 	}
 
+	/**
+	 * Converts value to bytes, msb first.
+	 */
 	public static byte[] toMsb(long value, int length) {
 		byte[] data = new byte[length];
 		writeMsb(value, data, 0, length);
 		return data;
 	}
 
+	/**
+	 * Converts value to bytes, lsb first.
+	 */
 	public static byte[] toLsb(short value) {
 		return toLsb(value, Short.BYTES);
 	}
 
+	/**
+	 * Converts value to bytes, lsb first.
+	 */
 	public static byte[] toLsb(int value) {
 		return toLsb(value, Integer.BYTES);
 	}
 
+	/**
+	 * Converts value to bytes, lsb first.
+	 */
 	public static byte[] toLsb(long value) {
 		return toLsb(value, Long.BYTES);
 	}
 
+	/**
+	 * Converts value to bytes, lsb first.
+	 */
 	public static byte[] toLsb(long value, int length) {
 		byte[] data = new byte[length];
 		writeLsb(value, data, 0, length);
 		return data;
 	}
 
+	/**
+	 * Writes converted value to byte array, msb first.
+	 */
 	public static int writeMsb(long value, byte[] data) {
 		return writeMsb(value, data, 0);
 	}
 
+	/**
+	 * Writes converted value to byte array, msb first.
+	 */
 	public static int writeMsb(long value, byte[] data, int offset) {
 		return writeMsb(value, data, offset, data.length - offset);
 	}
 
+	/**
+	 * Writes converted value to byte array, msb first.
+	 */
 	public static int writeMsb(long value, byte[] data, int offset, int length) {
 		ArrayUtil.validateSlice(data.length, offset, length);
-		validateMax(length, Long.BYTES);
+		validateMaxL(length, Long.BYTES);
 		while (--length >= 0)
 			data[offset++] = byteAt(value, length);
 		return offset;
 	}
 
+	/**
+	 * Writes converted value to byte array, lsb first.
+	 */
 	public static int writeLsb(long value, byte[] data) {
 		return writeLsb(value, data, 0);
 	}
 
+	/**
+	 * Writes converted value to byte array, lsb first.
+	 */
 	public static int writeLsb(long value, byte[] data, int offset) {
 		return writeLsb(value, data, offset, data.length - offset);
 	}
 
+	/**
+	 * Writes converted value to byte array, lsb first.
+	 */
 	public static int writeLsb(long value, byte[] data, int offset, int length) {
 		ArrayUtil.validateSlice(data.length, offset, length);
-		validateMax(length, Long.BYTES);
+		validateMaxL(length, Long.BYTES);
 		for (int i = 0; i < length; i++)
 			data[offset++] = byteAt(value, i);
 		return offset;
@@ -306,7 +359,7 @@ public class ByteUtil {
 
 	public static long fromMsb(byte[] array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
-		validateMax(length, Long.BYTES);
+		validateMaxL(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
 			value |= shiftByteLeft(array[offset + i], length - i - 1);
@@ -327,7 +380,7 @@ public class ByteUtil {
 
 	public static long fromLsb(byte[] array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
-		validateMax(length, Long.BYTES);
+		validateMaxL(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
 			value |= shiftByteLeft(array[offset + i], i);

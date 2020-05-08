@@ -1,6 +1,6 @@
 package ceri.common.math;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateMinL;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import static ceri.common.validation.ValidationUtil.validatef;
 import java.util.Arrays;
@@ -32,8 +32,8 @@ public class Matrix {
 
 		public Builder size(int rows, int columns) {
 			if (this.rows == rows && this.columns == columns) return this;
-			validateMin(rows, 0);
-			validateMin(columns, 0);
+			validateMinL(rows, 0);
+			validateMinL(columns, 0);
 			this.rows = rows;
 			this.columns = columns;
 			values = resize(rows, columns, values);
@@ -49,15 +49,15 @@ public class Matrix {
 		}
 
 		public Builder set(int row, int column, double value) {
-			validateMin(row, 0);
-			validateMin(column, 0);
+			validateMinL(row, 0);
+			validateMinL(column, 0);
 			size(Math.max(row + 1, this.rows), Math.max(column + 1, this.columns));
 			set(row, column, values, value);
 			return this;
 		}
 
 		public Builder setRow(int row, double... line) {
-			validateMin(row, 0);
+			validateMinL(row, 0);
 			validateNotNull(line);
 			size(Math.max(row + 1, rows), Math.max(line.length, columns));
 			for (int column = 0; column < line.length; column++)
@@ -70,7 +70,7 @@ public class Matrix {
 		}
 
 		public Builder setColumn(int column, double... line) {
-			validateMin(column, 0);
+			validateMinL(column, 0);
 			validateNotNull(line);
 			size(Math.max(line.length, rows), Math.max(column + 1, columns));
 			for (int row = 0; row < line.length; row++)

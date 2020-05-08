@@ -61,7 +61,7 @@ public class ValidationUtilTest {
 	public void testValidateObjectEquality() {
 		ValidationUtil.validateEqual(OBJ, OBJ);
 		ValidationUtil.validateEqual(null, null);
-		ValidationUtil.validateEqual(I0, I1);
+		ValidationUtil.validateEqualL(I0, I1);
 		ValidationUtil.validateNotEqual(null, OBJ);
 		ValidationUtil.validateNotEqual(OBJ, null);
 		ValidationUtil.validateNotEqual(I0, OBJ);
@@ -74,28 +74,28 @@ public class ValidationUtilTest {
 
 	@Test
 	public void testValidateNumberEquality() {
-		ValidationUtil.validateEqual(Long.MIN_VALUE, Long.MIN_VALUE, DisplayLong.hex);
-		ValidationUtil.validateNotEqual(Long.MIN_VALUE, Long.MAX_VALUE, DisplayLong.udec);
-		ValidationUtil.validateEqual(Double.MIN_VALUE, Double.MIN_VALUE, DisplayDouble.round1);
-		ValidationUtil.validateNotEqual(Double.MIN_VALUE, Double.MAX_VALUE, DisplayDouble.round);
+		ValidationUtil.validateEqualL(Long.MIN_VALUE, Long.MIN_VALUE, DisplayLong.hex);
+		ValidationUtil.validateNotEqualL(Long.MIN_VALUE, Long.MAX_VALUE, DisplayLong.udec);
+		ValidationUtil.validateEqualD(Double.MIN_VALUE, Double.MIN_VALUE, DisplayDouble.round1);
+		ValidationUtil.validateNotEqualD(Double.MIN_VALUE, Double.MAX_VALUE, DisplayDouble.round);
 		TestUtil.assertThrown(
-			() -> ValidationUtil.validateEqual(Long.MIN_VALUE, Long.MAX_VALUE, DisplayLong.hex16));
-		TestUtil.assertThrown(() -> ValidationUtil.validateNotEqual(Long.MIN_VALUE, Long.MIN_VALUE,
+			() -> ValidationUtil.validateEqualL(Long.MIN_VALUE, Long.MAX_VALUE, DisplayLong.hex16));
+		TestUtil.assertThrown(() -> ValidationUtil.validateNotEqualL(Long.MIN_VALUE, Long.MIN_VALUE,
 			DisplayLong.hex4));
-		TestUtil.assertThrown(() -> ValidationUtil.validateEqual(Double.MAX_VALUE, Double.MIN_VALUE,
+		TestUtil.assertThrown(() -> ValidationUtil.validateEqualD(Double.MAX_VALUE, Double.MIN_VALUE,
 			DisplayDouble.std));
 		TestUtil.assertThrown(
-			() -> ValidationUtil.validateNotEqual(1.00001, 1.00001, DisplayDouble.round1));
+			() -> ValidationUtil.validateNotEqualD(1.00001, 1.00001, DisplayDouble.round1));
 	}
 
 	@Test
 	public void testValidateNumberEqualityFormat() {
 		assertThat(
-			TestUtil.thrown(() -> ValidationUtil.validateEqual(-1, 0xff, (String) null,
+			TestUtil.thrown(() -> ValidationUtil.validateEqualL(-1, 0xff, (String) null,
 				DisplayLong.dec, DisplayLong.hex4)).getMessage(),
 			is("Value != (-1, 0xffff): (255, 0x00ff)"));
 		assertThat(TestUtil
-			.thrown(() -> ValidationUtil.validateEqual(1, 1.111, "Num", DisplayDouble.round1))
+			.thrown(() -> ValidationUtil.validateEqualD(1, 1.111, "Num", DisplayDouble.round1))
 			.getMessage(), is("Num != 1.0: 1.1"));
 	}
 
@@ -145,11 +145,11 @@ public class ValidationUtilTest {
 	public void testValidateWithin() {
 		ValidationUtil.validateWithin(1, Interval.inclusive(0, 1));
 		assertThrown(() -> ValidationUtil.validateWithin(1, Interval.exclusive(0, 1)));
-		ValidationUtil.validateWithin(1, Interval.inclusive(0L, 1L), DisplayLong.hex);
+		ValidationUtil.validateWithinL(1, Interval.inclusive(0L, 1L), DisplayLong.hex);
 		assertThrown(
-			() -> ValidationUtil.validateWithin(1, Interval.exclusive(0L, 1L), DisplayLong.hex));
-		ValidationUtil.validateWithin(1, Interval.inclusive(0.0, 1.0), DisplayDouble.round);
-		assertThrown(() -> ValidationUtil.validateWithin(1, Interval.exclusive(0.0, 1.0),
+			() -> ValidationUtil.validateWithinL(1, Interval.exclusive(0L, 1L), DisplayLong.hex));
+		ValidationUtil.validateWithinD(1, Interval.inclusive(0.0, 1.0), DisplayDouble.round);
+		assertThrown(() -> ValidationUtil.validateWithinD(1, Interval.exclusive(0.0, 1.0),
 			DisplayDouble.round));
 	}
 
@@ -157,80 +157,80 @@ public class ValidationUtilTest {
 	public void testValidateWithout() {
 		ValidationUtil.validateWithout(1, Interval.exclusive(0, 1));
 		assertThrown(() -> ValidationUtil.validateWithout(1, Interval.inclusive(0, 1)));
-		ValidationUtil.validateWithout(1, Interval.exclusive(0L, 1L), DisplayLong.hex);
+		ValidationUtil.validateWithoutL(1, Interval.exclusive(0L, 1L), DisplayLong.hex);
 		assertThrown(
-			() -> ValidationUtil.validateWithout(1, Interval.inclusive(0L, 1L), DisplayLong.hex));
-		ValidationUtil.validateWithout(1, Interval.exclusive(0.0, 1.0), DisplayDouble.round);
-		assertThrown(() -> ValidationUtil.validateWithout(1, Interval.inclusive(0.0, 1.0),
+			() -> ValidationUtil.validateWithoutL(1, Interval.inclusive(0L, 1L), DisplayLong.hex));
+		ValidationUtil.validateWithoutD(1, Interval.exclusive(0.0, 1.0), DisplayDouble.round);
+		assertThrown(() -> ValidationUtil.validateWithoutD(1, Interval.inclusive(0.0, 1.0),
 			DisplayDouble.round));
 	}
 
 	@Test
 	public void testValidateMin() {
-		ValidationUtil.validateMin(Long.MAX_VALUE, Long.MAX_VALUE);
-		ValidationUtil.validateMin(Long.MAX_VALUE, Long.MIN_VALUE);
-		ValidationUtil.validateMin(Long.MIN_VALUE, Long.MIN_VALUE);
-		ValidationUtil.validateMin(Long.MAX_VALUE, 0, "test");
-		ValidationUtil.validateMin(Double.MIN_VALUE, Double.MIN_VALUE);
-		ValidationUtil.validateMin(Double.MAX_VALUE, Double.MIN_VALUE);
-		ValidationUtil.validateMin(Double.MAX_VALUE, Double.MAX_VALUE);
-		ValidationUtil.validateMin(Double.MIN_VALUE, 0, "test");
-		TestUtil.assertThrown(() -> ValidationUtil.validateMin(Long.MIN_VALUE, 0));
-		TestUtil.assertThrown(() -> ValidationUtil.validateMin(Long.MIN_VALUE, Long.MAX_VALUE));
-		TestUtil.assertThrown(() -> ValidationUtil.validateMin(-1, 0, "test"));
-		TestUtil.assertThrown(() -> ValidationUtil.validateMin(Double.MIN_VALUE, Double.MAX_VALUE));
-		TestUtil.assertThrown(() -> ValidationUtil.validateMin(0, Double.MIN_VALUE));
-		TestUtil.assertThrown(() -> ValidationUtil.validateMin(-0.0, Double.MIN_NORMAL, "test"));
+		ValidationUtil.validateMinL(Long.MAX_VALUE, Long.MAX_VALUE);
+		ValidationUtil.validateMinL(Long.MAX_VALUE, Long.MIN_VALUE);
+		ValidationUtil.validateMinL(Long.MIN_VALUE, Long.MIN_VALUE);
+		ValidationUtil.validateMinL(Long.MAX_VALUE, 0, "test");
+		ValidationUtil.validateMinD(Double.MIN_VALUE, Double.MIN_VALUE);
+		ValidationUtil.validateMinD(Double.MAX_VALUE, Double.MIN_VALUE);
+		ValidationUtil.validateMinD(Double.MAX_VALUE, Double.MAX_VALUE);
+		ValidationUtil.validateMinD(Double.MIN_VALUE, 0, "test");
+		TestUtil.assertThrown(() -> ValidationUtil.validateMinL(Long.MIN_VALUE, 0));
+		TestUtil.assertThrown(() -> ValidationUtil.validateMinL(Long.MIN_VALUE, Long.MAX_VALUE));
+		TestUtil.assertThrown(() -> ValidationUtil.validateMinL(-1, 0, "test"));
+		TestUtil.assertThrown(() -> ValidationUtil.validateMinD(Double.MIN_VALUE, Double.MAX_VALUE));
+		TestUtil.assertThrown(() -> ValidationUtil.validateMinD(0, Double.MIN_VALUE));
+		TestUtil.assertThrown(() -> ValidationUtil.validateMinD(-0.0, Double.MIN_NORMAL, "test"));
 	}
 
 	@Test
 	public void testValidateMax() {
-		ValidationUtil.validateMax(Long.MIN_VALUE, Long.MIN_VALUE);
-		ValidationUtil.validateMax(Long.MIN_VALUE, Long.MAX_VALUE);
-		ValidationUtil.validateMax(Long.MAX_VALUE, Long.MAX_VALUE);
-		ValidationUtil.validateMax(-1, 0, "test");
-		ValidationUtil.validateMax(Double.MAX_VALUE, Double.MAX_VALUE);
-		ValidationUtil.validateMax(Double.MIN_VALUE, Double.MAX_VALUE);
-		ValidationUtil.validateMax(Double.MIN_VALUE, Double.MIN_VALUE);
-		ValidationUtil.validateMax(0, Double.MIN_VALUE, "test");
-		TestUtil.assertThrown(() -> ValidationUtil.validateMax(Long.MAX_VALUE, Long.MIN_VALUE));
-		TestUtil.assertThrown(() -> ValidationUtil.validateMax(Long.MAX_VALUE, 0));
-		TestUtil.assertThrown(() -> ValidationUtil.validateMax(0, -1, "test"));
-		TestUtil.assertThrown(() -> ValidationUtil.validateMax(Double.MAX_VALUE, Double.MIN_VALUE));
-		TestUtil.assertThrown(() -> ValidationUtil.validateMax(Double.MIN_VALUE, 0));
-		TestUtil.assertThrown(() -> ValidationUtil.validateMax(Double.MIN_NORMAL, -0.0, "test"));
+		ValidationUtil.validateMaxL(Long.MIN_VALUE, Long.MIN_VALUE);
+		ValidationUtil.validateMaxL(Long.MIN_VALUE, Long.MAX_VALUE);
+		ValidationUtil.validateMaxL(Long.MAX_VALUE, Long.MAX_VALUE);
+		ValidationUtil.validateMaxL(-1, 0, "test");
+		ValidationUtil.validateMaxD(Double.MAX_VALUE, Double.MAX_VALUE);
+		ValidationUtil.validateMaxD(Double.MIN_VALUE, Double.MAX_VALUE);
+		ValidationUtil.validateMaxD(Double.MIN_VALUE, Double.MIN_VALUE);
+		ValidationUtil.validateMaxD(0, Double.MIN_VALUE, "test");
+		TestUtil.assertThrown(() -> ValidationUtil.validateMaxL(Long.MAX_VALUE, Long.MIN_VALUE));
+		TestUtil.assertThrown(() -> ValidationUtil.validateMaxL(Long.MAX_VALUE, 0));
+		TestUtil.assertThrown(() -> ValidationUtil.validateMaxL(0, -1, "test"));
+		TestUtil.assertThrown(() -> ValidationUtil.validateMaxD(Double.MAX_VALUE, Double.MIN_VALUE));
+		TestUtil.assertThrown(() -> ValidationUtil.validateMaxD(Double.MIN_VALUE, 0));
+		TestUtil.assertThrown(() -> ValidationUtil.validateMaxD(Double.MIN_NORMAL, -0.0, "test"));
 	}
 
 	@Test
 	public void testValidateRange() {
-		ValidationUtil.validateRange(0, Long.MIN_VALUE, Long.MAX_VALUE);
-		ValidationUtil.validateRange(Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
-		ValidationUtil.validateRange(Long.MIN_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
-		ValidationUtil.validateRange(Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE);
-		ValidationUtil.validateRange(Long.MIN_VALUE, Long.MIN_VALUE, Long.MIN_VALUE);
-		ValidationUtil.validateRange(0, 0, 0);
-		ValidationUtil.validateRange(0, -1, 1, "test");
-		ValidationUtil.validateRange(Double.MIN_VALUE, 0, Double.MAX_VALUE);
-		ValidationUtil.validateRange(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
-		ValidationUtil.validateRange(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE);
-		ValidationUtil.validateRange(-0.0, 0.0, 0.0);
-		ValidationUtil.validateRange(0.0, -1.0, 1.0, "test");
+		ValidationUtil.validateRangeL(0, Long.MIN_VALUE, Long.MAX_VALUE);
+		ValidationUtil.validateRangeL(Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
+		ValidationUtil.validateRangeL(Long.MIN_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
+		ValidationUtil.validateRangeL(Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE);
+		ValidationUtil.validateRangeL(Long.MIN_VALUE, Long.MIN_VALUE, Long.MIN_VALUE);
+		ValidationUtil.validateRangeL(0, 0, 0);
+		ValidationUtil.validateRangeL(0, -1, 1, "test");
+		ValidationUtil.validateRangeD(Double.MIN_VALUE, 0, Double.MAX_VALUE);
+		ValidationUtil.validateRangeD(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+		ValidationUtil.validateRangeD(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE);
+		ValidationUtil.validateRangeD(-0.0, 0.0, 0.0);
+		ValidationUtil.validateRangeD(0.0, -1.0, 1.0, "test");
 		TestUtil
-			.assertThrown(() -> ValidationUtil.validateRange(0, Long.MAX_VALUE, Long.MIN_VALUE));
+			.assertThrown(() -> ValidationUtil.validateRangeL(0, Long.MAX_VALUE, Long.MIN_VALUE));
 		TestUtil.assertThrown(
-			() -> ValidationUtil.validateRange(Long.MAX_VALUE, Long.MIN_VALUE, Long.MIN_VALUE));
+			() -> ValidationUtil.validateRangeL(Long.MAX_VALUE, Long.MIN_VALUE, Long.MIN_VALUE));
 		TestUtil.assertThrown(
-			() -> ValidationUtil.validateRange(Long.MIN_VALUE, Long.MAX_VALUE, Long.MAX_VALUE));
-		TestUtil.assertThrown(() -> ValidationUtil.validateRange(-1, 0, 1, "test"));
-		TestUtil.assertThrown(() -> ValidationUtil.validateRange(1, -1, 0, "test"));
+			() -> ValidationUtil.validateRangeL(Long.MIN_VALUE, Long.MAX_VALUE, Long.MAX_VALUE));
+		TestUtil.assertThrown(() -> ValidationUtil.validateRangeL(-1, 0, 1, "test"));
+		TestUtil.assertThrown(() -> ValidationUtil.validateRangeL(1, -1, 0, "test"));
 		TestUtil.assertThrown(
-			() -> ValidationUtil.validateRange(0, Double.MIN_VALUE, Double.MAX_VALUE));
-		TestUtil.assertThrown(() -> ValidationUtil.validateRange(Double.MAX_VALUE, Double.MAX_VALUE,
+			() -> ValidationUtil.validateRangeD(0, Double.MIN_VALUE, Double.MAX_VALUE));
+		TestUtil.assertThrown(() -> ValidationUtil.validateRangeD(Double.MAX_VALUE, Double.MAX_VALUE,
 			Double.MIN_VALUE));
-		TestUtil.assertThrown(() -> ValidationUtil.validateRange(Double.MIN_VALUE, Double.MAX_VALUE,
+		TestUtil.assertThrown(() -> ValidationUtil.validateRangeD(Double.MIN_VALUE, Double.MAX_VALUE,
 			Double.MIN_VALUE));
-		TestUtil.assertThrown(() -> ValidationUtil.validateRange(-1.0, 0.0, 1.0, "test"));
-		TestUtil.assertThrown(() -> ValidationUtil.validateRange(1.0, -1.0, 0.0, "test"));
+		TestUtil.assertThrown(() -> ValidationUtil.validateRangeD(-1.0, 0.0, 1.0, "test"));
+		TestUtil.assertThrown(() -> ValidationUtil.validateRangeD(1.0, -1.0, 0.0, "test"));
 	}
 
 	@Test

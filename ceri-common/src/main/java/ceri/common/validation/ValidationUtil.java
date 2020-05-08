@@ -137,14 +137,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that the integer values are equal.
 	 */
-	public static long validateEqual(long value, long expected, DisplayLong... flags) {
-		return validateEqual(value, expected, VALUE, flags);
+	public static long validateEqualL(long value, long expected, DisplayLong... flags) {
+		return validateEqualL(value, expected, VALUE, flags);
 	}
 
 	/**
 	 * Validates that the integer values are equal.
 	 */
-	public static long validateEqual(long value, long expected, String name, DisplayLong... flags) {
+	public static long validateEqualL(long value, long expected, String name, DisplayLong... flags) {
 		if (value != expected) throw exceptionf("%s != %s: %s", name(name), format(value, flags),
 			format(expected, flags));
 		return value;
@@ -153,14 +153,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that the integer values are not equal.
 	 */
-	public static long validateNotEqual(long value, long expected, DisplayLong... flags) {
-		return validateNotEqual(value, expected, VALUE, flags);
+	public static long validateNotEqualL(long value, long expected, DisplayLong... flags) {
+		return validateNotEqualL(value, expected, VALUE, flags);
 	}
 
 	/**
 	 * Validates that the integer values are not equal.
 	 */
-	public static long validateNotEqual(long value, long expected, String name,
+	public static long validateNotEqualL(long value, long expected, String name,
 		DisplayLong... flags) {
 		if (value == expected) throw exceptionf("%s = %s: %s", name(name), format(value, flags),
 			format(expected, flags));
@@ -170,14 +170,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that the floating point values are equal.
 	 */
-	public static double validateEqual(double value, double expected, DisplayDouble... flags) {
-		return validateEqual(value, expected, VALUE, flags);
+	public static double validateEqualD(double value, double expected, DisplayDouble... flags) {
+		return validateEqualD(value, expected, VALUE, flags);
 	}
 
 	/**
 	 * Validates that the floating point values are equal.
 	 */
-	public static double validateEqual(double value, double expected, String name,
+	public static double validateEqualD(double value, double expected, String name,
 		DisplayDouble... flags) {
 		if (value != expected) throw exceptionf("%s != %s: %s", name(name), format(value, flags),
 			format(expected, flags));
@@ -187,14 +187,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that the floating point values are not equal.
 	 */
-	public static double validateNotEqual(double value, double expected, DisplayDouble... flags) {
-		return validateNotEqual(value, expected, VALUE, flags);
+	public static double validateNotEqualD(double value, double expected, DisplayDouble... flags) {
+		return validateNotEqualD(value, expected, VALUE, flags);
 	}
 
 	/**
 	 * Validates that the floating point values are not equal.
 	 */
-	public static double validateNotEqual(double value, double expected, String name,
+	public static double validateNotEqualD(double value, double expected, String name,
 		DisplayDouble... flags) {
 		if (value == expected) throw exceptionf("%s = %s: %s", name(name), format(value, flags),
 			format(expected, flags));
@@ -214,7 +214,7 @@ public class ValidationUtil {
 	 * Validates that unsigned byte values are equal.
 	 */
 	public static long validateUbyte(long value, long expected, String name, DisplayLong... flags) {
-		return validateEqual(ubyte(value), ubyte(expected), name(name), def(flags, hex2, udec));
+		return validateEqualL(ubyte(value), ubyte(expected), name(name), def(flags, hex2, udec));
 	}
 
 	/**
@@ -229,7 +229,7 @@ public class ValidationUtil {
 	 */
 	public static long validateUshort(long value, long expected, String name,
 		DisplayLong... flags) {
-		return validateEqual(ushort(value), ushort(expected), name(name), def(flags, hex4, udec));
+		return validateEqualL(ushort(value), ushort(expected), name(name), def(flags, hex4, udec));
 	}
 
 	/**
@@ -243,7 +243,7 @@ public class ValidationUtil {
 	 * Validates that unsigned int values are equal.
 	 */
 	public static long validateUint(long value, long expected, String name, DisplayLong... flags) {
-		return validateEqual(uint(value), uint(expected), name(name), def(flags, hex8, udec));
+		return validateEqualL(uint(value), uint(expected), name(name), def(flags, hex8, udec));
 	}
 
 	/**
@@ -257,7 +257,7 @@ public class ValidationUtil {
 	 * Validates that unsigned long values are equal.
 	 */
 	public static long validateUlong(long value, long expected, String name, DisplayLong... flags) {
-		return validateEqual(value, expected, name(name), def(flags, hex16, udec));
+		return validateEqualL(value, expected, name(name), def(flags, hex16, udec));
 	}
 
 	/* Interval validation */
@@ -297,14 +297,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that the integer value is within the interval.
 	 */
-	public static long validateWithin(long value, Interval<Long> interval, DisplayLong... flags) {
-		return validateWithin(value, interval, VALUE, flags);
+	public static long validateWithinL(long value, Interval<Long> interval, DisplayLong... flags) {
+		return validateWithinL(value, interval, VALUE, flags);
 	}
 
 	/**
 	 * Validates that the integer value is within the interval.
 	 */
-	public static long validateWithin(long value, Interval<Long> interval, String name,
+	public static long validateWithinL(long value, Interval<Long> interval, String name,
 		DisplayLong... flags) {
 		if (!interval.contains(value)) throw exceptionf("%s is not within %s: %s", name(name),
 			format(interval, flags), format(value, flags));
@@ -314,14 +314,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that the integer value is not within the interval.
 	 */
-	public static long validateWithout(long value, Interval<Long> interval, DisplayLong... flags) {
-		return validateWithout(value, interval, VALUE, flags);
+	public static long validateWithoutL(long value, Interval<Long> interval, DisplayLong... flags) {
+		return validateWithoutL(value, interval, VALUE, flags);
 	}
 
 	/**
 	 * Validates that the integer value is not within the interval.
 	 */
-	public static long validateWithout(long value, Interval<Long> interval, String name,
+	public static long validateWithoutL(long value, Interval<Long> interval, String name,
 		DisplayLong... flags) {
 		if (interval.contains(value)) throw exceptionf("%s is within %s: %s", name(name),
 			format(interval, flags), format(value, flags));
@@ -331,15 +331,15 @@ public class ValidationUtil {
 	/**
 	 * Validates that the floating point value is within the interval.
 	 */
-	public static double validateWithin(double value, Interval<Double> interval,
+	public static double validateWithinD(double value, Interval<Double> interval,
 		DisplayDouble... flags) {
-		return validateWithin(value, interval, VALUE, flags);
+		return validateWithinD(value, interval, VALUE, flags);
 	}
 
 	/**
 	 * Validates that the floating point value is within the interval.
 	 */
-	public static double validateWithin(double value, Interval<Double> interval, String name,
+	public static double validateWithinD(double value, Interval<Double> interval, String name,
 		DisplayDouble... flags) {
 		if (!interval.contains(value)) throw exceptionf("%s is not within %s: %s", name(name),
 			format(interval, flags), format(value, flags));
@@ -349,15 +349,15 @@ public class ValidationUtil {
 	/**
 	 * Validates that the floating point value is not within the interval.
 	 */
-	public static double validateWithout(double value, Interval<Double> interval,
+	public static double validateWithoutD(double value, Interval<Double> interval,
 		DisplayDouble... flags) {
-		return validateWithout(value, interval, VALUE, flags);
+		return validateWithoutD(value, interval, VALUE, flags);
 	}
 
 	/**
 	 * Validates that the floating point value is not within the interval.
 	 */
-	public static double validateWithout(double value, Interval<Double> interval, String name,
+	public static double validateWithoutD(double value, Interval<Double> interval, String name,
 		DisplayDouble... flags) {
 		if (interval.contains(value)) throw exceptionf("%s is within %s: %s", name(name),
 			format(interval, flags), format(value, flags));
@@ -369,14 +369,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that integer value is >= minimum.
 	 */
-	public static long validateMin(long value, long min, DisplayLong... flags) {
-		return validateMin(value, min, VALUE, flags);
+	public static long validateMinL(long value, long min, DisplayLong... flags) {
+		return validateMinL(value, min, VALUE, flags);
 	}
 
 	/**
 	 * Validates that integer value is >= minimum.
 	 */
-	public static long validateMin(long value, long min, String name, DisplayLong... flags) {
+	public static long validateMinL(long value, long min, String name, DisplayLong... flags) {
 		if (value < min)
 			throw exceptionf("%s < %s: %s", name(name), format(min, flags), format(value, flags));
 		return value;
@@ -385,14 +385,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that floating point value is >= minimum.
 	 */
-	public static double validateMin(double value, double min, DisplayDouble... flags) {
-		return validateMin(value, min, VALUE, flags);
+	public static double validateMinD(double value, double min, DisplayDouble... flags) {
+		return validateMinD(value, min, VALUE, flags);
 	}
 
 	/**
 	 * Validates that floating point value is >= minimum.
 	 */
-	public static double validateMin(double value, double min, String name,
+	public static double validateMinD(double value, double min, String name,
 		DisplayDouble... flags) {
 		if (value < min)
 			throw exceptionf("%s < %s: %s", name(name), format(min, flags), format(value, flags));
@@ -402,14 +402,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that integer value is <= maximum.
 	 */
-	public static long validateMax(long value, long max, DisplayLong... flags) {
-		return validateMax(value, max, VALUE, flags);
+	public static long validateMaxL(long value, long max, DisplayLong... flags) {
+		return validateMaxL(value, max, VALUE, flags);
 	}
 
 	/**
 	 * Validates that integer value is <= maximum.
 	 */
-	public static long validateMax(long value, long max, String name, DisplayLong... flags) {
+	public static long validateMaxL(long value, long max, String name, DisplayLong... flags) {
 		if (value > max)
 			throw exceptionf("%s > %s: %s", name(name), format(max, flags), format(value, flags));
 		return value;
@@ -418,14 +418,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that floating point value is <= maximum.
 	 */
-	public static double validateMax(double value, double max, DisplayDouble... flags) {
-		return validateMax(value, max, VALUE, flags);
+	public static double validateMaxD(double value, double max, DisplayDouble... flags) {
+		return validateMaxD(value, max, VALUE, flags);
 	}
 
 	/**
 	 * Validates that floating point value is <= maximum.
 	 */
-	public static double validateMax(double value, double max, String name,
+	public static double validateMaxD(double value, double max, String name,
 		DisplayDouble... flags) {
 		if (value > max)
 			throw exceptionf("%s > %s: %s", name(name), format(max, flags), format(value, flags));
@@ -435,14 +435,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that integer value is inclusively between minimum and maximum.
 	 */
-	public static long validateRange(long value, long min, long max, DisplayLong... flags) {
-		return validateRange(value, min, max, VALUE, flags);
+	public static long validateRangeL(long value, long min, long max, DisplayLong... flags) {
+		return validateRangeL(value, min, max, VALUE, flags);
 	}
 
 	/**
 	 * Validates that integer value is inclusively between minimum and maximum.
 	 */
-	public static long validateRange(long value, long min, long max, String name,
+	public static long validateRangeL(long value, long min, long max, String name,
 		DisplayLong... flags) {
 		if (value < min || value > max) throw exceptionf("%s is not within [%s, %s]: %s",
 			name(name), format(min, flags), format(max, flags), format(value, flags));
@@ -452,15 +452,15 @@ public class ValidationUtil {
 	/**
 	 * Validates that floating point value is inclusively between minimum and maximum.
 	 */
-	public static double validateRange(double value, double min, double max,
+	public static double validateRangeD(double value, double min, double max,
 		DisplayDouble... flags) {
-		return validateRange(value, min, max, VALUE, flags);
+		return validateRangeD(value, min, max, VALUE, flags);
 	}
 
 	/**
 	 * Validates that floating point value is inclusively between minimum and maximum.
 	 */
-	public static double validateRange(double value, double min, double max, String name,
+	public static double validateRangeD(double value, double min, double max, String name,
 		DisplayDouble... flags) {
 		if (value < min || value > max) throw exceptionf("%s is not within [%s, %s]: %s",
 			name(name), format(min, flags), format(max, flags), format(value, flags));
@@ -532,7 +532,7 @@ public class ValidationUtil {
 	 * Validates value is within unsigned byte range.
 	 */
 	public static long validateUbyte(long value, String name, DisplayLong... flags) {
-		return validateRange(value, 0, BYTE_MASK, name(name), def(flags, hex));
+		return validateRangeL(value, 0, BYTE_MASK, name(name), def(flags, hex));
 	}
 
 	/**
@@ -546,7 +546,7 @@ public class ValidationUtil {
 	 * Validates value is within unsigned short range.
 	 */
 	public static long validateUshort(long value, String name, DisplayLong... flags) {
-		return validateRange(value, 0, SHORT_MASK, name(name), def(flags, hex));
+		return validateRangeL(value, 0, SHORT_MASK, name(name), def(flags, hex));
 	}
 
 	/**
@@ -560,7 +560,7 @@ public class ValidationUtil {
 	 * Validates value is within unsigned int range.
 	 */
 	public static long validateUint(long value, String name, DisplayLong... flags) {
-		return validateRange(value, 0, INT_MASK, name(name), def(flags, hex));
+		return validateRangeL(value, 0, INT_MASK, name(name), def(flags, hex));
 	}
 
 	/* Byte validations */

@@ -70,7 +70,7 @@ public class NavigableByteWriter<T extends ByteReceiver>
 
 	@Override
 	public NavigableByteWriter<T> offset(int index) {
-		validateRange(index, 0, length());
+		validateRangeL(index, 0, length());
 		this.index = index;
 		return this;
 	}
