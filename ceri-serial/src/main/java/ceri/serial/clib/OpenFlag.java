@@ -4,7 +4,6 @@ import static ceri.common.util.OsUtil.macInt;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
-import ceri.common.collection.StreamUtil;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.text.StringUtil;
 import ceri.serial.jna.JnaUtil;

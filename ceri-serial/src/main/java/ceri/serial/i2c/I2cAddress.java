@@ -1,5 +1,6 @@
 package ceri.serial.i2c;
 
+import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.HashCoder;
@@ -9,11 +10,15 @@ import ceri.common.util.HashCoder;
  * currently in use by the driver.
  */
 public class I2cAddress {
-	public static final I2cAddress NULL = new I2cAddress(0, false);
+	/** General Call used with Wr bit, Start byte with Rd bit */
+	public static final I2cAddress GENERAL_CALL = new I2cAddress(0, false);
+	/** Device ID, used with Wr and Rd bits */
+	public static final I2cAddress DEVICE_ID = new I2cAddress(0x7c, false);
 	private static final int HEX_DIGITS_7 = 2;
 	private static final int HEX_DIGITS_10 = 3;
-	private static final int MASK_7 = ByteUtil.maskInt(7);
-	private static final int MASK_10 = ByteUtil.maskInt(10);
+	private static final int MASK_7BIT = ByteUtil.maskInt(7);
+	private static final int MASK_10BIT = ByteUtil.maskInt(10);
+	private static final int FRAME1_10BIT_PREFIX = 0xf0; // 1st frame prefix of 10-bit address
 	public final int address;
 	public final boolean tenBit;
 
@@ -21,14 +26,14 @@ public class I2cAddress {
 	 * Creates a 7-bit address if <= 0x7f, otherwise 10-bit.
 	 */
 	public static I2cAddress of(int value) {
-		return (value & MASK_7) == value ? of7Bit(value) : of10Bit(value);
+		return (value & MASK_7BIT) == value ? of7Bit(value) : of10Bit(value);
 	}
 
 	/**
 	 * Encapsulates a 7-bit address.
 	 */
 	public static I2cAddress of7Bit(int address) {
-		int masked = address & MASK_7;
+		int masked = address & MASK_7BIT;
 		if (masked == address) return new I2cAddress(masked, false);
 		throw new IllegalArgumentException(
 			"Invalid 7-bit address: 0x" + Integer.toHexString(address));
@@ -38,7 +43,7 @@ public class I2cAddress {
 	 * Encapsulates a 10-bit address.
 	 */
 	public static I2cAddress of10Bit(int address) {
-		int masked = address & MASK_10;
+		int masked = address & MASK_10BIT;
 		if (masked == address) return new I2cAddress(masked, true);
 		throw new IllegalArgumentException(
 			"Invalid 10-bit address: 0x" + Integer.toHexString(address));
@@ -57,12 +62,23 @@ public class I2cAddress {
 	}
 
 	/**
-	 * Returns a byte for the address and read/write bit.
+	 * Returns frame bytes for the address and read/write bit. 2 bytes for a 10-bit address, 1 byte
+	 * for 7-bit.
 	 */
-	public byte addressByte(boolean read) {
-		if (tenBit) throw new UnsupportedOperationException("Not available for 10-bit addresses");
-		return (byte) ((address << 1) | (read ? 1 : 0));
+	public byte[] frames(boolean read) {
+		if (!tenBit) return ArrayUtil.bytes((address << 1) | (read ? 1 : 0));
+		return ArrayUtil.bytes(
+			FRAME1_10BIT_PREFIX | (ByteUtil.byteAt(address, 1) << 1) | (read ? 1 : 0),
+			ByteUtil.byteAt(address, 0));
 	}
+
+	// /**
+	// * Returns a byte for the address and read/write bit.
+	// */
+	// public byte addressByte(boolean read) {
+	// if (tenBit) throw new UnsupportedOperationException("Not available for 10-bit addresses");
+	// return (byte) ((address << 1) | (read ? 1 : 0));
+	// }
 
 	@Override
 	public int hashCode() {

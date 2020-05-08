@@ -2,8 +2,8 @@ package ceri.serial.i2c.jna;
 
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
-import static ceri.common.validation.ValidationUtil.validateMax;
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validateMaxL;
+import static ceri.common.validation.ValidationUtil.validateRangeL;
 import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_RD;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BLOCK_DATA;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BLOCK_PROC_CALL;
@@ -13,7 +13,6 @@ import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_I2
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_PROC_CALL;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_QUICK;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_WORD_DATA;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -87,7 +86,7 @@ public class I2cDev {
 		public static class ByReference extends i2c_msg implements Structure.ByReference {}
 
 		public static ByReference[] array(int count) {
-			return Struct.array(count, ByReference::new, ByReference[]::new);
+			return Struct.<ByReference>array(count, ByReference::new, ByReference[]::new);
 		}
 
 		public void populate(int address, int flags, int len, Pointer buf) {
@@ -163,21 +162,15 @@ public class I2cDev {
 
 	public static final int I2C_SMBUS_BLOCK_MAX = 32;
 
-	public static void main(String[] args) {
-		for (Field f : i2c_smbus_data.class.getFields()) {
-			System.out.println(f);
-		}
-	}
-
 	/**
 	 * Data for SMBus Messages.
 	 */
-	private static class i2c_smbus_data extends Union {
+	public static class i2c_smbus_data extends Union {
 		public static class ByReference extends i2c_smbus_data implements Structure.ByReference {}
 
-		byte byte_;
-		short word;
-		byte[] block = new byte[I2C_SMBUS_BLOCK_MAX + 2]; // block[0] for length
+		public byte byte_;
+		public short word;
+		public byte[] block = new byte[I2C_SMBUS_BLOCK_MAX + 2]; // block[0] for length
 
 		public void setByte(int value) {
 			byte_ = MathUtil.ubyteExact(value);
@@ -190,14 +183,14 @@ public class I2cDev {
 		}
 
 		public void setBlockLength(int length) {
-			validateRange(length, 1, I2C_SMBUS_BLOCK_MAX, "Length");
+			validateRangeL(length, 1, I2C_SMBUS_BLOCK_MAX, "Length");
 			block[0] = (byte) length;
 			setType("block");
 		}
 
 		public void setBlock(byte[] data, int offset, int length) {
 			ArrayUtil.validateSlice(data.length, offset, length);
-			validateMax(length, I2C_SMBUS_BLOCK_MAX, "Data length");
+			validateMaxL(length, I2C_SMBUS_BLOCK_MAX, "Data length");
 			ArrayUtil.copy(data, offset, block, 1, length);
 			setBlockLength(length);
 		}
@@ -344,10 +337,11 @@ public class I2cDev {
 	}
 
 	/**
-	 * Combined read/write transfer with one STOP only.
+	 * Combined read/write transfer with one STOP only. Messages should be contiguous,
+	 * created with i2c_msg.array(n).
 	 */
 	public static void i2c_rdwr(int fd, i2c_msg.ByReference... msgs) throws CException {
-		validateMax(msgs.length, I2C_RDWR_IOCTL_MAX_MSGS, "Message count");
+		validateMaxL(msgs.length, I2C_RDWR_IOCTL_MAX_MSGS, "Message count");
 		i2c_rdwr_ioctl_data data = new i2c_rdwr_ioctl_data();
 		data.msgs = msgs[0];
 		data.nmsgs = msgs.length;
@@ -362,7 +356,7 @@ public class I2cDev {
 	}
 
 	/**
-	 * SMBus: quick write, using address read/write bit.
+	 * SMBus: quick write, using address read/write bit for on/off.
 	 */
 	public static void i2c_smbus_write_quick(int fd, boolean on) throws CException {
 		smbusIoctl(fd, on ? I2C_SMBUS_READ : I2C_SMBUS_WRITE, 0, I2C_SMBUS_QUICK, null);

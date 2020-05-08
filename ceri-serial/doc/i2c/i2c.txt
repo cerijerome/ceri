@@ -36,6 +36,7 @@ I2C_SMBUS_BLOCK_DATA = read_block_data, write_block_data
 I2C_SMBUS_BLOCK_PROC_CALL = block_process_call
 I2C_SMBUS_I2C_BLOCK_DATA = read_i2c_block_data, write_i2c_block_data
 
+
 SMBus Emulation
 ---------------
 Provide SMBus functionality using only standard i2c functionality.
@@ -83,7 +84,5 @@ W:  (addr, 0, N+1, [cmd, b1..bN])
 Wp: (addr, 0, N+2, [cmd, b1..bN, PEC]) => generate PEC
 R:  (addr, 0, 1, [cmd]), (addr, RD, N, [0(xN)])
 Rp: (addr, 0, 1, [cmd]), (addr, RD, N, [0(xN), PEC]) <= verify PEC
-
-
 
 

@@ -77,4 +77,4 @@ pushd . >/dev/null
 [[ "$NODEPLOY" ]] || deploy
 popd > /dev/null
 
-echo "Run on remote: sudo java -cp ./$JAR:lib/* <main-class-fqn> <params>"
+[[ "$NODEPLOY" ]] || echo "Run on remote: sudo java -cp ./$JAR:lib/* <main-class-fqn> <params>"

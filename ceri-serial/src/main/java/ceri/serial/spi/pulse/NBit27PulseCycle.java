@@ -1,8 +1,8 @@
 package ceri.serial.spi.pulse;
 
 import static ceri.common.math.MathUtil.divideUp;
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validateMinL;
+import static ceri.common.validation.ValidationUtil.validateRangeL;
 import static java.lang.Math.min;
 
 /**
@@ -16,14 +16,14 @@ public class NBit27PulseCycle extends PulseCycle {
 	private static final int MIN_LEN = MIN_T1 + 2;
 
 	public static NBit27PulseCycle of(int n, int offset, int t0Bits, int t1Bits) {
-		validateMin(n, MIN_LEN, "Len");
+		validateMinL(n, MIN_LEN, "Len");
 		int minT0 = offset == 0 ? MIN_T0 + 1 : MIN_T0;
 		int minT1 = minT0 + 1;
 		int count = divideUp(25 - 1, n);
 		int spareBits = CYCLE_STORAGE_BITS - minT1 - ((count - 1) * n);
-		if (offset != 0) validateRange(offset, 2, spareBits, "Offset");
-		validateRange(t0Bits, minT0, min(n - 1 - 1, minT0 + spareBits - offset), "t0 len");
-		validateRange(t1Bits, t0Bits + 1, min(n - 1, minT1 + spareBits - offset), "t1 len");
+		if (offset != 0) validateRangeL(offset, 2, spareBits, "Offset");
+		validateRangeL(t0Bits, minT0, min(n - 1 - 1, minT0 + spareBits - offset), "t0 len");
+		validateRangeL(t1Bits, t0Bits + 1, min(n - 1, minT1 + spareBits - offset), "t1 len");
 		return new NBit27PulseCycle(n, offset, t0Bits, t1Bits);
 	}
 

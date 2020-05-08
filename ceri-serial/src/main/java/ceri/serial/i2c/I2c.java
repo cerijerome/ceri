@@ -2,20 +2,17 @@ package ceri.serial.i2c;
 
 import static ceri.serial.clib.OpenFlag.O_RDWR;
 import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_RD;
-import static ceri.serial.jna.JnaUtil.byteRef;
 import static ceri.serial.jna.JnaUtil.size;
 import java.io.Closeable;
-import java.nio.charset.StandardCharsets;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.ShortByReference;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.util.StartupValues;
+import ceri.common.collection.StreamUtil;
+import ceri.common.data.ByteUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.clib.FileDescriptor;
 import ceri.serial.clib.jna.CException;
@@ -27,20 +24,11 @@ import ceri.serial.jna.JnaUtil;
 
 public class I2c implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
-	private static final int SCAN_7BIT_LIMIT = 0x80;
+	private static final int SCAN_7BIT_MIN = 0x03;
+	private static final int SCAN_7BIT_MAX = 0x77;
+	private static final int SOFTWARE_RESET = 0x06;
 	private final FileDescriptor fd;
 	private final State state = new State();
-
-	public static void main(String[] args) throws CException {
-		StartupValues values = StartupValues.of(args);
-		int device = values.next().asInt(0x33);
-		try (I2c i2c = open(1)) {
-			System.out.println("Scan: " + i2c.scan7Bit());
-			I2cAddress addr = I2cAddress.of(device);
-			i2c.smBus(addr, false).writeQuick(true);
-			// i2c.smBus(addr, false).writeQuick(false);
-		}
-	}
 
 	/**
 	 * Keep state to avoid unneeded ioctl calls.
@@ -88,12 +76,20 @@ public class I2c implements Closeable {
 	}
 
 	/**
-	 * Verify the address is in use.
+	 * Verify the address is in use. Uses SMBus quick write (off) to check. Returns true if no
+	 * exception. Results of various methods:
+	 * 
+	 * <pre>
+	 * (actual and emulated SMBus)
+	 * writeQuick(off) => success only for existing device
+	 * writeQuick(on) => success whether device exists or not
+	 * readByte() => success only for existing device
+	 * writeByte(0) => success only for existing device, but may have side-effects
+	 * </pre>
 	 */
 	public boolean exists(I2cAddress address) {
 		try {
-			selectDevice(address);
-			fd.reader(1).readByte();
+			smBus(address, false).writeQuick(false);
 			return true;
 		} catch (CException e) {
 			return false;
@@ -104,46 +100,41 @@ public class I2c implements Closeable {
 	 * Scan 7-bit address range for existing devices.
 	 */
 	public Set<I2cAddress> scan7Bit() {
-		return IntStream.range(0, SCAN_7BIT_LIMIT).mapToObj(i -> I2cAddress.of7Bit(i))
-			.filter(this::exists).collect(Collectors.toSet());
+		return StreamUtil.toSet(IntStream.rangeClosed(SCAN_7BIT_MIN, SCAN_7BIT_MAX)
+			.mapToObj(i -> I2cAddress.of7Bit(i)).filter(this::exists));
 	}
 
+	/**
+	 * Send a software reset to all devices.
+	 */
+	public void softwareReset() throws CException {
+		writeData(I2cAddress.GENERAL_CALL, ArrayUtil.bytes(SOFTWARE_RESET));
+	}
+
+	/**
+	 * Read the device id for the address. (Not working with MLX90640)
+	 */
+	public DeviceId deviceId(I2cAddress address) throws CException {
+		validate7Bit(address);
+		byte[] read = readData(I2cAddress.DEVICE_ID, address.frames(false), DeviceId.BYTES);
+		return DeviceId.decode((int) ByteUtil.fromLsb(read));
+	}
+
+	/**
+	 * Enable or disable user-mode PEC.
+	 */
 	public void smBusPec(boolean on) throws CException {
 		I2cDev.i2c_smbus_pec(fd.fd(), on);
 		state.pec = on;
 	}
 
 	/**
-	 * Provide SMBus functionality. Emulated SMBus uses ioctl read-writes calls.
+	 * Provide SMBus functionality. Emulated SMBus uses ioctl read-writes calls. SMBus only supports
+	 * 7-bit addresses.
 	 */
 	public SmBus smBus(I2cAddress address, boolean emulated) {
-		if (address.tenBit)
-			throw new UnsupportedOperationException("SMBus not supported for 10-bit addresses");
+		validate7Bit(address);
 		return emulated ? new SmBusEmulated(this, address) : new SmBusActual(this, address);
-	}
-
-	/**
-	 * Send byte command to address, and read unsigned short response, using ioctl.
-	 */
-	public int readWordData(I2cAddress address, int command) throws CException {
-		ShortByReference resultRef = new ShortByReference();
-		writeRead(address, Byte.BYTES, byteRef(command).getPointer(), Short.BYTES,
-			resultRef.getPointer());
-		return JnaUtil.ushort(resultRef);
-	}
-
-	/**
-	 * Send byte command to address, and read byte array response, using ioctl.
-	 */
-	public byte[] readData(I2cAddress address, int command, int readLen) throws CException {
-		return readData(address, ArrayUtil.bytes(command), readLen);
-	}
-
-	/**
-	 * Send ascii command to address, and read byte array response, using ioctl.
-	 */
-	public byte[] readData(I2cAddress address, String command, int readLen) throws CException {
-		return readData(address, command.getBytes(StandardCharsets.ISO_8859_1), readLen);
 	}
 
 	/**
@@ -154,6 +145,14 @@ public class I2c implements Closeable {
 		Memory read = new Memory(readLen);
 		writeRead(address, size(write), write, size(read), read);
 		return JnaUtil.byteArray(read);
+	}
+
+	/**
+	 * Send byte array data to address, using ioctl.
+	 */
+	public void writeData(I2cAddress address, byte[] data) throws CException {
+		Memory write = CUtil.malloc(data);
+		write(address, size(write), write);
 	}
 
 	@Override
@@ -172,6 +171,7 @@ public class I2c implements Closeable {
 		try {
 			setSlaveAddress(address.address);
 		} catch (CException e) {
+			logger.info("Failed to set slave address, trying force: {}", e);
 			forceSlaveAddress(address.address);
 		}
 	}
@@ -181,6 +181,12 @@ public class I2c implements Closeable {
 	}
 
 	/* End: Shared with SMBus */
+
+	private void write(I2cAddress address, int writeLen, Pointer writeBuf) throws CException {
+		i2c_msg.ByReference msg = new i2c_msg.ByReference();
+		I2cUtil.populate(msg, address, writeLen, writeBuf);
+		I2cDev.i2c_rdwr(fd.fd(), msg);
+	}
 
 	private void writeRead(I2cAddress address, int writeLen, Pointer writeBuf, int readLen,
 		Pointer readBuf) throws CException {
@@ -206,6 +212,11 @@ public class I2c implements Closeable {
 		I2cDev.i2c_tenbit(fd.fd(), tenBit);
 		state.address = State.NO_ADDRESS;
 		state.tenBit = tenBit;
+	}
+
+	private void validate7Bit(I2cAddress address) {
+		if (address.tenBit) throw new UnsupportedOperationException(
+			"Operation not supported for 10-bit addresses: " + address);
 	}
 
 }

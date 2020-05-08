@@ -3,7 +3,7 @@ package ceri.serial.spi;
 import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validateRangeL;
 import static ceri.serial.jna.JnaUtil.buffer;
 import static com.sun.jna.Pointer.nativeValue;
 import java.io.IOException;
@@ -90,7 +90,7 @@ public class SpiTransfer {
 	}
 
 	public SpiTransfer limit(int size) {
-		validateRange(size, 0, sizeMax);
+		validateRangeL(size, 0, sizeMax);
 		transfer.len = size;
 		return this;
 	}

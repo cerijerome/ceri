@@ -159,7 +159,7 @@ public class FileDescriptor implements Closeable {
 	 * Creates an OutputStream using a buffer of given size.
 	 */
 	public OutputStream out(int bufferSize) {
-		validateMin(bufferSize, 1, "Buffer size");
+		validateMinL(bufferSize, 1, "Buffer size");
 		Memory buffer = new Memory(bufferSize);
 		return IoStreamUtil.out((array, offset, length) -> write(buffer, array, offset, length));
 	}

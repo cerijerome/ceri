@@ -3,8 +3,8 @@ package ceri.serial.i2c;
 import static ceri.common.data.ByteUtil.byteAt;
 import static ceri.common.data.CrcAlgorithm.Std.crc8Smbus;
 import static ceri.common.math.MathUtil.ubyte;
-import static ceri.common.validation.ValidationUtil.validateMax;
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validateMaxL;
+import static ceri.common.validation.ValidationUtil.validateRangeL;
 import static ceri.serial.i2c.I2cUtil.populate;
 import static ceri.serial.i2c.jna.I2cDev.I2C_SMBUS_BLOCK_MAX;
 import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_RD;
@@ -38,7 +38,7 @@ class SmBusEmulated implements SmBus {
 	@Override
 	public void writeQuick(boolean on) throws CException {
 		i2c_msg.ByReference msg =
-			on ? populate(null, address, null) : populate(null, address, null, I2C_M_RD);
+			on ? populate(null, address, null, I2C_M_RD) : populate(null, address, null);
 		I2cDev.i2c_rdwr(fd(), msg);
 	}
 
@@ -93,7 +93,7 @@ class SmBusEmulated implements SmBus {
 	public void writeBlockData(int command, byte[] values, int offset, int length)
 		throws CException {
 		ArrayUtil.validateSlice(values.length, offset, length);
-		validateMax(length, I2C_SMBUS_BLOCK_MAX, "Write block size");
+		validateMaxL(length, I2C_SMBUS_BLOCK_MAX, "Write block size");
 		byte[] send = ByteArray.encoder(1 + 1 + length + 1).writeBytes(command, length)
 			.writeFrom(values, offset, length).bytes();
 		write(send);
@@ -103,7 +103,7 @@ class SmBusEmulated implements SmBus {
 	public byte[] blockProcessCall(int command, byte[] values, int offset, int length)
 		throws CException {
 		ArrayUtil.validateSlice(values.length, offset, length);
-		validateMax(length, I2C_SMBUS_BLOCK_MAX, "Write block size");
+		validateMaxL(length, I2C_SMBUS_BLOCK_MAX, "Write block size");
 		byte[] send = ByteArray.encoder(1 + 1 + length).writeBytes(command, length)
 			.writeFrom(values, offset, length).bytes();
 		return writeReadBlock(send);
@@ -111,7 +111,7 @@ class SmBusEmulated implements SmBus {
 
 	@Override
 	public byte[] readI2cBlockData(int command, int length) throws CException {
-		validateRange(length, 0, I2C_SMBUS_BLOCK_MAX, "Read block size");
+		validateRangeL(length, 0, I2C_SMBUS_BLOCK_MAX, "Read block size");
 		byte[] send = { (byte) command };
 		return writeRead(send, length).copy(0);
 	}
@@ -120,7 +120,7 @@ class SmBusEmulated implements SmBus {
 	public void writeI2cBlockData(int command, byte[] values, int offset, int length)
 		throws CException {
 		ArrayUtil.validateSlice(values.length, offset, length);
-		validateMax(length, I2C_SMBUS_BLOCK_MAX, "Write block size");
+		validateMaxL(length, I2C_SMBUS_BLOCK_MAX, "Write block size");
 		byte[] send = ByteArray.encoder(1 + length + 1).writeByte(command)
 			.writeFrom(values, offset, length).bytes();
 		write(send);
@@ -186,7 +186,7 @@ class SmBusEmulated implements SmBus {
 	}
 
 	private byte crcAddr(boolean read) {
-		return address.addressByte(read);
+		return address.frames(read)[0];
 	}
 
 	private int length(int length, boolean pec) {

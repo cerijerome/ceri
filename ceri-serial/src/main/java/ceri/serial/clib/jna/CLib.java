@@ -133,7 +133,7 @@ public class CLib {
 
 	private static String formatIoctl(String name, int fd, int request, Object... objs) {
 		name = name == null ? "ioctl" : "ioctl:" + name;
-		String args = objs.length == 0 ? "" : StringUtil.join(", ", ", ", "", objs);
+		String args = objs.length == 0 ? "" : StringUtil.compact(StringUtil.join(", ", ", ", "", objs));
 		return String.format("%s(%d, 0x%x%s)", name, fd, request, args);
 	}
 

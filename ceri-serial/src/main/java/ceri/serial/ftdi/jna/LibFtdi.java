@@ -2,7 +2,7 @@ package ceri.serial.ftdi.jna;
 
 import static ceri.common.collection.ImmutableUtil.enumSet;
 import static ceri.common.math.MathUtil.ubyte;
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validateRangeL;
 import static ceri.serial.clib.jna.CException.capture;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_2232C;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_2232H;
@@ -1322,7 +1322,7 @@ public class LibFtdi {
 
 	public static void ftdi_set_latency_timer(ftdi_context ftdi, int latency)
 		throws LibUsbException {
-		validateRange(latency, 1, 255, "latency");
+		validateRangeL(latency, 1, 255, "latency");
 		requireDev(ftdi);
 		controlTransferOut(ftdi, SIO_SET_LATENCY_TIMER_REQUEST, latency, ftdi.index);
 	}
