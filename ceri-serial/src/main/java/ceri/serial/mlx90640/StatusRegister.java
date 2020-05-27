@@ -1,69 +1,57 @@
 package ceri.serial.mlx90640;
 
-import static ceri.common.validation.ValidationUtil.validateNotNull;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.FieldTranscoder;
+import ceri.common.data.IntAccessor;
 import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class StatusRegister {
-	private static final int ENABLE_OVERWRITE_BIT = 4;
-	private static final int NEW_DATA_AVAILABLE_BIT = 3;
-	private final boolean enableOverwrite;
-	private final boolean newDataAvailable;
-	private final SubPage lastMeasuredSubPage;
+	private static final int START_SYNC = 0x30;
+	private static final IntAccessor.Typed<StatusRegister> accessor =
+		IntAccessor.typed(t -> t.value, (t, i) -> t.value = i);
+	private static final FieldTranscoder.Typed<StatusRegister, SubPage> subPageField =
+		SubPage.xcoder.field(accessor.maskBits(0, 3));
+	private static final IntAccessor.Typed<StatusRegister> dataAvailableField =
+		accessor.maskBits(3, 1);
+	private static final IntAccessor.Typed<StatusRegister> overwriteEnabledField =
+		accessor.maskBits(4, 1);
+	private int value;
 
-	/**
-	 * Decode settings from integer value.
-	 */
-	public static StatusRegister decode(int value) {
-		boolean enableOverwrite = ByteUtil.bit(value, ENABLE_OVERWRITE_BIT);
-		boolean newDataAvailable = ByteUtil.bit(value, NEW_DATA_AVAILABLE_BIT);
-		return of(enableOverwrite, newDataAvailable, SubPage.decode(value));
+	public static StatusRegister startSync() {
+		return new StatusRegister(START_SYNC);
 	}
 
-	public static StatusRegister of(boolean enableOverwrite, boolean newDataAvailable,
-		SubPage lastMeasuredSubPage) {
-		validateNotNull(lastMeasuredSubPage);
-		return new StatusRegister(enableOverwrite, newDataAvailable, lastMeasuredSubPage);
+	static StatusRegister of(int value) {
+		return new StatusRegister(value);
 	}
 
-	private StatusRegister(boolean enableOverwrite, boolean newDataAvailable,
-		SubPage lastMeasuredSubPage) {
-		this.enableOverwrite = enableOverwrite;
-		this.newDataAvailable = newDataAvailable;
-		this.lastMeasuredSubPage = lastMeasuredSubPage;
+	private StatusRegister(int value) {
+		this.value = value;
 	}
 
-	/**
-	 * Encodes settings to an integer value.
-	 */
-	public int encode() {
-		return ByteUtil.maskOfBitInt(enableOverwrite, ENABLE_OVERWRITE_BIT) |
-			ByteUtil.maskOfBitInt(newDataAvailable, NEW_DATA_AVAILABLE_BIT) |
-			lastMeasuredSubPage.encode();
+	public int value() {
+		return value;
 	}
 
-	@Override
-	public int hashCode() {
-		return HashCoder.hash(enableOverwrite, newDataAvailable, lastMeasuredSubPage);
+	public boolean overwriteEnabled() {
+		return overwriteEnabledField.get(this) != 0;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof StatusRegister)) return false;
-		StatusRegister other = (StatusRegister) obj;
-		if (enableOverwrite != other.enableOverwrite) return false;
-		if (newDataAvailable != other.newDataAvailable) return false;
-		if (!EqualsUtil.equals(lastMeasuredSubPage, other.lastMeasuredSubPage)) return false;
-		return true;
+	public boolean dataAvailable() {
+		return dataAvailableField.get(this) != 0;
+	}
+
+	public SubPage lastSubPage() {
+		return subPageField.get(this);
+	}
+
+	public int lastSubPageBit() {
+		return subPageField.accessor().get(this) & 1;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper
-			.createByClass(this, enableOverwrite, newDataAvailable, lastMeasuredSubPage).toString();
+		return ToStringHelper.createByClass(this, String.format("0x%04x", value),
+			overwriteEnabled(), dataAvailable(), lastSubPage()).toString();
 	}
 
 }

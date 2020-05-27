@@ -12,6 +12,8 @@ import ceri.serial.clib.SeekBehavior;
 import ceri.serial.clib.jna.CLibBehavior;
 import ceri.serial.jna.JnaUtilTest;
 import ceri.serial.libusb.jna.LibUsbFinderTest;
+import ceri.serial.mlx90640.EepromDataBehavior;
+import ceri.serial.mlx90640.FrameDataBehavior;
 
 /**
  * Generated test suite for ceri-serial
@@ -31,6 +33,9 @@ import ceri.serial.libusb.jna.LibUsbFinderTest;
 	JnaUtilTest.class, //
 	// libusb.jna
 	LibUsbFinderTest.class, //
+	// mlx90640
+	EepromDataBehavior.class, //
+	FrameDataBehavior.class, //
 })
 public class _Tests {
 	public static void main(String... args) {

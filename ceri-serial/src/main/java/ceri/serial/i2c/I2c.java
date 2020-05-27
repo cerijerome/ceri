@@ -22,6 +22,9 @@ import ceri.serial.i2c.jna.I2cDev.i2c_func;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
 import ceri.serial.jna.JnaUtil;
 
+/**
+ * Encapsulation of I2C bus.
+ */
 public class I2c implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int SCAN_7BIT_MIN = 0x03;
@@ -143,8 +146,20 @@ public class I2c implements Closeable {
 	public byte[] readData(I2cAddress address, byte[] command, int readLen) throws CException {
 		Memory write = CUtil.malloc(command);
 		Memory read = new Memory(readLen);
-		writeRead(address, size(write), write, size(read), read);
+		writeRead(address, write, size(write), read, size(read));
 		return JnaUtil.byteArray(read);
+	}
+
+	/**
+	 * Send byte array command to address, and read byte array response, using ioctl. Read data is
+	 * written to data array at offset.
+	 */
+	public void readData(I2cAddress address, byte[] command, byte[] data, int offset, int length)
+		throws CException {
+		Memory write = CUtil.malloc(command);
+		Memory read = new Memory(length);
+		writeRead(address, write, size(write), read, size(read));
+		read.read(0, data, offset, length);
 	}
 
 	/**
@@ -153,6 +168,40 @@ public class I2c implements Closeable {
 	public void writeData(I2cAddress address, byte[] data) throws CException {
 		Memory write = CUtil.malloc(data);
 		write(address, size(write), write);
+	}
+
+	/**
+	 * Write using supplied memory buffer for ioctl.
+	 */
+	public void write(I2cAddress address, Memory writeBuf) throws CException {
+		write(address, size(writeBuf), writeBuf);
+	}
+	
+	/**
+	 * I2C write using supplied memory buffer for ioctl.
+	 */
+	public void write(I2cAddress address, int writeLen, Pointer writeBuf) throws CException {
+		i2c_msg.ByReference msg = new i2c_msg.ByReference();
+		I2cUtil.populate(msg, address, writeLen, writeBuf);
+		I2cDev.i2c_rdwr(fd.fd(), msg);
+	}
+
+	/**
+	 * I2C write and read using supplied memory buffers for ioctl.
+	 */
+	public void writeRead(I2cAddress address, Memory writeBuf, Memory readBuf) throws CException {
+		writeRead(address, writeBuf, size(writeBuf), readBuf, size(readBuf));
+	}
+	
+	/**
+	 * I2C write and read using supplied memory buffers for ioctl.
+	 */
+	public void writeRead(I2cAddress address, Pointer writeBuf, int writeLen, Pointer readBuf,
+		int readLen) throws CException {
+		i2c_msg.ByReference[] msgs = i2c_msg.array(2);
+		I2cUtil.populate(msgs[0], address, writeLen, writeBuf);
+		I2cUtil.populate(msgs[1], address, readLen, readBuf, I2C_M_RD);
+		I2cDev.i2c_rdwr(fd.fd(), msgs);
 	}
 
 	@Override
@@ -181,20 +230,6 @@ public class I2c implements Closeable {
 	}
 
 	/* End: Shared with SMBus */
-
-	private void write(I2cAddress address, int writeLen, Pointer writeBuf) throws CException {
-		i2c_msg.ByReference msg = new i2c_msg.ByReference();
-		I2cUtil.populate(msg, address, writeLen, writeBuf);
-		I2cDev.i2c_rdwr(fd.fd(), msg);
-	}
-
-	private void writeRead(I2cAddress address, int writeLen, Pointer writeBuf, int readLen,
-		Pointer readBuf) throws CException {
-		i2c_msg.ByReference[] msgs = i2c_msg.array(2);
-		I2cUtil.populate(msgs[0], address, writeLen, writeBuf);
-		I2cUtil.populate(msgs[1], address, readLen, readBuf, I2C_M_RD);
-		I2cDev.i2c_rdwr(fd.fd(), msgs);
-	}
 
 	private void setSlaveAddress(int address) throws CException {
 		if (state.address == address) return;

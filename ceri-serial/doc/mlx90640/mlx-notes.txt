@@ -1,0 +1,225 @@
+MLX90640 Notes
+==============
+
+Registers
+---------
+Address Type    Eeprom[] Frame[]  Description
+0x0000+ ROM                       ROM
+0x0400+ RAM              0-767    Pixel
+0x0700  RAM              768      Ta_Vbe
+0x0708  RAM              776      CP(SP0)
+0x070A  RAM              778      GAIN
+0x0720  RAM              800      Ta_PTAT
+0x0728  RAM              808      CP(SP1)
+0x072A  RAM              810      VDDpix
+0x2400  EEPROM  0                 Osc Trim
+0x2401  EEPROM  1                 Ana Trim
+0x2403  EEPROM  3                 Config register
+0x2407+ EEPROM  7-9               Device id 1..3
+0x240A  EEPROM  10                Device options
+0x240C  EEPROM  12                Control register 1
+0x240D  EEPROM  13                Control register 2
+0x240E  EEPROM  14                I2C config register
+0x240F  EEPROM  15                Reserved / I2C address
+0x2410  EEPROM  16                Alpha PTAT, scale OCC row/column/remnant
+0x2411  EEPROM  17                Pix os avg
+0x2412+ EEPROM  18-23             OCC row (4 x 6)
+0x2418+ EEPROM  24-31             OCC column (4 x 8)
+0x2420  EEPROM  32                Alpha scale, scale ACC row/column/remnant)
+0x2421  EEPROM  33                Pix sensitivity average
+0x2422+ EEPROM  34-39             ACC row (4 x 6)
+0x2428+ EEPROM  40-47             ACC column (4 x 8)
+0x2430  EEPROM  48                GAIN
+0x2431  EEPROM  49                PTAT 25
+0x2432  EEPROM  50                Kv PTAT, Kt PTAT
+0x2433  EEPROM  51                Kv Vdd, Vdd 25
+0x2434  EEPROM  52                Kv average row/column odd/even
+0x2435  EEPROM  53                Interleaved/chess C3,2,1
+0x2436+ EEPROM  54-55             Kta average row/column odd/even
+0x2438  EEPROM  56                Res control calib, Kv scale, Kta scale 1,2
+0x2439  EEPROM  57                Alpha CP subpage 1,0
+0x243A  EEPROM  58                Offset CP subpage 1,0
+0x243B  EEPROM  59                Kv CP, Kta CP
+0x243C  EEPROM  60                KsTa, TGC
+0x243D  EEPROM  61                KsTo range 2,1
+0x243E  EEPROM  62                KsTo range 4,3
+0x243F  EEPROM  63                Temp step, CT4, CT3, KsTo scale offset
+0x2440+ EEPROM  64-831            Offset pixel, alpha pixel, Kta, outlier
+0x8000  Reg              833*     Status register (* subpage only)
+0x800D  Reg              832      Control register 1
+0x800F  Reg                       I2C configuration register
+
+
+Glossary
+--------
+25 = value x 2^5?
+ACC = alpha calibration coefficient?
+CP = compensation pixel
+CT = corner temperature (-40C, 0C, CT3, CT4+)
+Fps = frames per second
+Kxx = coefficient of xx? or temperature in Kelvin?
+  KsTo(r) = sensitivity slope for temp range r 
+  Kta(i,j) = ambient temperature coefficient at pixel (i, j)?
+  Kv(i,j) = voltage coefficient at pixel (i, j)?
+OCC = offset calibration coefficient?
+os = offset
+POR = power on reset
+PTAT = proportional to absolute temperature
+Ta = ambient temperature
+TC = temperature coefficient
+TGC = temperature grade coefficient
+To = object temperature
+Tr = reflected temperature (MLX90640 open air shift is -8C from measured Ta)
+Vdd = supply voltage
+
+
+Emissivity
+----------
+Efficiency of a surface to emit thermal energy (1.0 = max, perfect thermal mirror)
+Source: https://www.thermoworks.com/emissivity-table
+Aluminium (polished) = 0.05
+Brick = 0.90
+Concrete = 0.92
+Copper (polished) = 0.05
+Fabric (hessian) = 0.87
+Glass = 0.92
+Gravel = 0.28
+Paint = 0.94
+Sand = 0.90
+Skin (human) = 0.95-0.98
+Soil (dry) = 0.92
+Stainless Steel = 0.59
+Varnish (flat) = 0.93
+Water = 0.95
+Wood (planed) = 0.90
+Wood (panelling, light) = 0.87
+
+
+Melexis Datasheet Corrections
+-----------------------------
+11.2.2.3 page 37:
+  Ta = 14.18442378914584 + 25 (vs 14.18440152 + 25)
+
+11.2.2.6.2 page 40:
+  for interleaved mode:
+  pixOsCpSp1 = pixGainCpSp1 - (offCpSubpage1 + ilChessC1) * ...
+
+11.2.2.6.2 page 41:
+  pixOsCpSp1 = 24.437722295625953 (vs 21.6315865670509)
+
+11.2.2.7 page 42:
+  Vir(12,16)compensated = 679.5697733952506 (vs 679.250909123826)
+
+
+Melexis Driver Code
+-------------------
+https://github.com/melexis/mlx90640-library
+
+- functions/MLX90640_API.cpp = high-level functionality
+  - MLX90640_DumpEE = read all eeprom values: 832 (0x340) values @0x2400
+  - MLX90640_SynchFrame = write bit4+5 to stat-reg, read stat-reg until bit3 set
+  - MLX90640_TriggerMeasurement = read ctrl-reg, set bit15, write back, s/w reset, read+verify bit
+  - MLX90640_GetFrameData = read stat-reg until bit3 set, write bit4+5 to stat-reg,
+      read 0x400-0x6ff frame data, read 0x700-0x73f aux data, read ctrl-reg, save subpage#,
+      validate aux+frame data, return subpage#
+  - MLX90640_ExtractParameters = save params vdd, ptat, gain, tgc, res, kstsa, kstso, cp, alpha,
+      offset, kta-pix, kv-pix, cilc, dev-pix 
+  - MLX90640_GetCur/SetResolution = read/write masked ctrl-reg
+  - MLX90640_Get/SetRefreshRate = read/write masked ctrl-reg
+  - MLX90640_GetCur/SetInterleaved/SetChessMode = read/write masked ctrl-reg
+  - MLX90640_CalculateTo = calc float[] from frame, params, emissivity, tr
+  - MLX90640_GetImage = calc float[] from frame, params
+  - MLX90640_GetVdd = calc vdd from frame aux and ctrl-reg
+  - MLX90640_GetTa = calc ta from vdd and frame aux
+  - MLX90640_GetSubPageNumber = get subpage saved with frame
+  - MLX90640_BadPixelsCorrection = adjust bad to[] with median from neighbors
+  - ExtractXxxParameters = set params from eeprom data
+  - ExtractDeviatingPixels = check each px+2rows is 0 or odd (?), mark px#, err if > 4
+  - CheckAdjacentPixels = check bad px diff against each other
+  - GetMedian = sort bad px and get median
+  - IsPixelBad = check px is makred bad/outlier
+  - ValidateFrameData = check line first px, err if 0x7fff and line = subpage (interleaved only?)
+  - ValidateAuxData = check 0x7fff for [0, 8-18, 20-22, 24-32, 40-50, 52-54, 56-63]
+
+- functions/MLX90640_I2C_Driver.cpp = driver using mbed I2C
+  (https://os.mbed.com/docs/mbed-os/v5.15/apis/i2c.html)
+  - MLX90640_I2CInit = stop
+  - MLX90640_I2CGeneralReset = stop, wait 5us, s/w reset, wait 50us
+  - MLX90640_I2CRead = stop, wait 5us, write reg, read nx2 bytes, stop, return short[n]
+  - MLX90640_I2CFreqSet = set i2c freq
+  - MLX90640_I2CWrite = stop, wait 5us, write reg + value, stop, read reg to verify 
+  
+- functions/MLX90640_SWI2C_Driver.cpp = software I2C driver
+  - I2C driver using software to generate signals
+
+
+Adafruit Code
+-------------
+https://github.com/adafruit/Adafruit_*
+
+- Adafruit_CircuitPython_MLX90640/blob/master/adafruit_mlx90640.py
+  - MLX90640.__init__ = open I2CDevice, read eeData 832 @0x2400, extract params
+  - MLX90640.serial_number = read short[3] @0x2407
+  - MLX90640.refresh_rate(r) = read ctrl-reg @0x800d, return bit7-9 
+  - MLX90640.refresh_rate(w) = read ctrl-reg @0x800d, mask 0xfc7f+rate, write @0x800d
+  - MLX90640.getFrame = _GetFrameData, _GetTa, _CalculateTo (x2? = per subpage?)
+  - MLX90640._GetFrameData = read stat-reg until bit3;
+      write bit4+5 to stat-reg, read 0x400-73f, read stat-reg, repeat <=5 time until !bit3;
+      read ctrl-reg, extract subpage, return subpage
+  - MLX90640._GetTa = calc from frame, vdd
+  - MLX90640._GetVdd = calc from frame
+  - MLX90640._CalculateTo = populate float[] from frame, fields
+  - MLX90640._ExtractParameters = save params vdd, ptat, gain, tgc, res, kstsa, kstso, cp, alpha,
+        offset, kta-pix, kv-pix, cilc, dev-pix
+  - MLX90640._ExtractXxxParameters = set fields from eeprom data
+  - MLX90640._I2CWriteWord = i2c write short to address, then read to verify
+  - MLX90640._I2CReadWords = repeat i2c read short[] until count 
+
+- Adafruit_CircuitPython_BusDevice/blob/master/adafruit_bus_device/i2c_device.py
+  - I2CDevice.__init__ = save busio.I2C and address, optional probe for device
+  - I2CDevice.readinto = delegate to I2C.readfrom_into
+  - I2CDevice.write = delegate to I2C.writeto
+  - I2CDevice.write_then_readinto = delegate to I2C.writeto_then_readfrom
+  - I2CDevice.__probe_for_device = empty I2C.writeto or 1-byte I2C.readfrom_into
+
+- Adafruit_Blinka/blob/master/src/busio.py
+  - I2C.init = detect h/w type and import I2C, create I2C
+  - I2C.scan/readfrom_into/writeto/writeto_then_readfrom = delegate to I2C
+  - SPI.__init__ = detect h/w type and import _SPI, create _SPI
+  - SPI.configure = init _SPI with baud, polarity, phase, pins
+  - SPI.frequency/write/readinto/write_readinto = delegate to _SPI
+  - UART.__init__ = minimal h/w support, use pyserial for linux 
+  - UART.read/readinto/readline/write = delegate to _UART
+
+- Adafruit_Blinka/blob/master/src/adafruit_blinka/microcontroller/generic_linux/i2c.py
+  - (impl of busio I2C)
+  - I2C.__init__ = open SMBus with bus#
+  - I2C.scan = iterate addr 0..0x80 with SMBus.read_byte, save if no error
+  - I2C.writeto = calls SMBus.write_bytes with byte array
+  - I2C.readfrom_into = calls SMBus.read_bytes
+  - I2C.writeto_then_readfrom = calls writeto + readfrom_into (stop), or SMBus.read_i2c_block_data
+
+- Adafruit_Python_PureIO/blob/master/Adafruit_PureIO/smbus.py
+  - (linux i2c types)
+  - make_i2c_rdwr_data = make i2c_rdwr_ioctl_data from i2c_msg array
+  - SMBus.open = opens fd /dev/i2c-N
+  - SMBus._select_device = calls ioctl I2C_SLAVE
+  - SMBus.read_byte = select device, reads 1 byte from fd
+  - SMBus.read_bytes = select device, read byte array from fd
+  - SMBus.read_byte_data = ioctl I2C_RDWR: write byte, read byte 
+  - SMBus.read_word_data = ioctl I2C_RDWR: write byte, read word
+  - SMBus.read_i2c_block_data = ioctl I2C_RDWR: write bytes, read bytes
+  - SMBus.write_quick = ioctl I2C_RDWR: write 0 bytes
+  - SMBus.write_byte = select device, write byte to fd
+  - SMBus.write_bytes = select device, write byte array to fd
+  - SMBus.write_byte_data = select device, write 2 bytes to fd
+  - SMBus.write_word_data = select device, write byte, word to fd
+  - SMBus.write_block_data = select device, write byte, len byte array to fd
+  - SMBus.write_i2c_block_data = select device, write byte, byte array to fd
+  - SMBus.process_call = ioctl I2C_RDWR: write byte, word, read word
+
+
+
+
+
+

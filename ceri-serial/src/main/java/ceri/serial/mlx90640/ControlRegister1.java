@@ -1,163 +1,119 @@
 package ceri.serial.mlx90640;
 
-import ceri.common.data.ByteUtil;
+import ceri.common.data.FieldTranscoder;
+import ceri.common.data.IntAccessor;
 import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class ControlRegister1 {
-	public static final ControlRegister1 DEFAULT = builder().build();
-	private static final int READING_PATTERN_BIT = 12;
-	private static final int RESOLUTION_BIT = 10;
-	private static final int REFRESH_RATE_BIT = 7;
-	private static final int SUB_PAGE_BIT = 4;
-	private static final int SUB_PAGES_REPEAT_BIT = 3;
-	private static final int DATA_HOLD_BIT = 2;
-	private static final int SUB_PAGES_MODE_BIT = 0;
-	private static final int RESERVED_MASK = 0xe000;
-	public final ReadingPattern readingPattern;
-	public final Resolution resolution;
-	public final RefreshRate refreshRate;
-	public final SubPage selectSubPage;
-	public final boolean enableSubPagesRepeat;
-	public final boolean enableDataHold;
-	public final boolean enableSubPagesMode;
-	public final int reserved; // preserve reserved bits
+	private static final IntAccessor.Typed<ControlRegister1> accessor =
+		IntAccessor.typed(t -> t.value, (t, i) -> t.value = i);
+	private static final IntAccessor.Typed<ControlRegister1> subPagesModeField =
+		accessor.maskBits(0, 1);
+	private static final IntAccessor.Typed<ControlRegister1> dataHoldField = //
+		accessor.maskBits(2, 1);
+	private static final IntAccessor.Typed<ControlRegister1> subPagesRepeatField =
+		accessor.maskBits(3, 1);
+	private static final FieldTranscoder.Typed<ControlRegister1, SubPage> subPageField =
+		SubPage.xcoder.field(accessor.maskBits(4, 3));
+	private static final FieldTranscoder.Typed<ControlRegister1, RefreshRate> refreshRateField =
+		RefreshRate.xcoder.field(accessor.maskBits(7, 3));
+	private static final FieldTranscoder.Typed<ControlRegister1, Resolution> resolutionField =
+		Resolution.xcoder.field(accessor.maskBits(10, 2));
+	private static final FieldTranscoder.Typed<ControlRegister1, ReadingPattern> patternField =
+		ReadingPattern.xcoder.field(accessor.maskBits(12, 1));
+	private static final IntAccessor.Typed<ControlRegister1> startMeasurementField =
+		accessor.maskBits(15, 1);
+	private int value;
 
-	/**
-	 * Decode settings from integer value.
-	 */
-	public static ControlRegister1 decode(int value) {
-		return builder().readingPattern(ReadingPattern.decode(value >>> READING_PATTERN_BIT))
-			.resolution(Resolution.decode(value >>> RESOLUTION_BIT))
-			.refreshRate(RefreshRate.decode(value >>> REFRESH_RATE_BIT))
-			.selectSubPage(SubPage.decode(value >>> SUB_PAGE_BIT))
-			.enableSubPagesRepeat(ByteUtil.bit(value, SUB_PAGES_REPEAT_BIT))
-			.enableDataHold(ByteUtil.bit(value, DATA_HOLD_BIT))
-			.enableSubPagesMode(ByteUtil.bit(value, SUB_PAGES_MODE_BIT)).reserved(value).build();
+	static ControlRegister1 of(int value) {
+		return new ControlRegister1(value);
 	}
 
-	public static class Builder {
-		ReadingPattern readingPattern = ReadingPattern.chess;
-		Resolution resolution = Resolution._18bit;
-		RefreshRate refreshRate = RefreshRate._2Hz;
-		SubPage selectSubPage = SubPage._0;
-		boolean enableSubPagesRepeat = false;
-		boolean enableDataHold = false;
-		boolean enableSubPagesMode = true;
-		int reserved = 0;
-
-		Builder() {}
-
-		public Builder readingPattern(ReadingPattern readingPattern) {
-			this.readingPattern = readingPattern;
-			return this;
-		}
-
-		public Builder resolution(Resolution resolution) {
-			this.resolution = resolution;
-			return this;
-		}
-
-		public Builder refreshRate(RefreshRate refreshRate) {
-			this.refreshRate = refreshRate;
-			return this;
-		}
-
-		public Builder selectSubPage(SubPage selectSubPage) {
-			this.selectSubPage = selectSubPage;
-			return this;
-		}
-
-		public Builder enableSubPagesRepeat(boolean enableSubPagesRepeat) {
-			this.enableSubPagesRepeat = enableSubPagesRepeat;
-			return this;
-		}
-
-		public Builder enableDataHold(boolean enableDataHold) {
-			this.enableDataHold = enableDataHold;
-			return this;
-		}
-
-		public Builder enableSubPagesMode(boolean enableSubPagesMode) {
-			this.enableSubPagesMode = enableSubPagesMode;
-			return this;
-		}
-
-		public Builder reserved(int reserved) {
-			this.reserved = reserved & RESERVED_MASK;
-			return this;
-		}
-
-		public ControlRegister1 build() {
-			return new ControlRegister1(this);
-		}
+	private ControlRegister1(int value) {
+		this.value = value;
 	}
 
-	public static Builder builder() {
-		return new Builder();
+	public int value() {
+		return value;
 	}
 
-	ControlRegister1(Builder builder) {
-		readingPattern = builder.readingPattern;
-		resolution = builder.resolution;
-		refreshRate = builder.refreshRate;
-		selectSubPage = builder.selectSubPage;
-		enableSubPagesRepeat = builder.enableSubPagesRepeat;
-		enableDataHold = builder.enableDataHold;
-		enableSubPagesMode = builder.enableSubPagesMode;
-		reserved = builder.reserved;
+	public ControlRegister1 subPagesMode(boolean enable) {
+		subPagesModeField.set(this, enable ? 1 : 0);
+		return this;
 	}
 
-	/**
-	 * Encodes settings to an integer value.
-	 */
-	public int encode() {
-		return (readingPattern.encode() << READING_PATTERN_BIT) |
-			(resolution.encode() << RESOLUTION_BIT) | (refreshRate.encode() << REFRESH_RATE_BIT) |
-			(selectSubPage.encode() << SUB_PAGE_BIT) |
-			ByteUtil.maskOfBitInt(enableSubPagesRepeat, SUB_PAGES_REPEAT_BIT) |
-			ByteUtil.maskOfBitInt(enableDataHold, DATA_HOLD_BIT) |
-			ByteUtil.maskOfBitInt(enableSubPagesMode, SUB_PAGES_MODE_BIT);
+	public boolean subPagesMode() {
+		return subPagesModeField.get(this) != 0;
 	}
 
-	/**
-	 * Returns a builder to modify settings.
-	 */
-	public Builder modify() {
-		return builder().readingPattern(readingPattern).resolution(resolution)
-			.refreshRate(refreshRate).selectSubPage(selectSubPage)
-			.enableSubPagesRepeat(enableSubPagesRepeat).enableDataHold(enableDataHold)
-			.enableSubPagesMode(enableSubPagesMode).reserved(reserved);
+	public ControlRegister1 dataHold(boolean enable) {
+		dataHoldField.set(this, enable ? 1 : 0);
+		return this;
 	}
 
-	@Override
-	public int hashCode() {
-		return HashCoder.hash(readingPattern, resolution, refreshRate, selectSubPage,
-			enableSubPagesRepeat, enableDataHold, enableSubPagesMode, reserved);
+	public boolean dataHold() {
+		return dataHoldField.get(this) != 0;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof ControlRegister1)) return false;
-		ControlRegister1 other = (ControlRegister1) obj;
-		if (!EqualsUtil.equals(readingPattern, other.readingPattern)) return false;
-		if (!EqualsUtil.equals(resolution, other.resolution)) return false;
-		if (!EqualsUtil.equals(refreshRate, other.refreshRate)) return false;
-		if (!EqualsUtil.equals(selectSubPage, other.selectSubPage)) return false;
-		if (enableSubPagesRepeat != other.enableSubPagesRepeat) return false;
-		if (enableDataHold != other.enableDataHold) return false;
-		if (enableSubPagesMode != other.enableSubPagesMode) return false;
-		if (reserved != other.reserved) return false;
-		return true;
+	public ControlRegister1 subPagesRepeat(boolean enable) {
+		subPagesRepeatField.set(this, enable ? 1 : 0);
+		return this;
+	}
+
+	public boolean subPagesRepeat() {
+		return subPagesRepeatField.get(this) != 0;
+	}
+
+	ControlRegister1 subPage(SubPage subPage) {
+		subPageField.set(this, subPage);
+		return this;
+	}
+
+	public SubPage subPage() {
+		return subPageField.get(this);
+	}
+
+	public ControlRegister1 refreshRate(RefreshRate refreshRate) {
+		refreshRateField.set(this, refreshRate);
+		return this;
+	}
+
+	public RefreshRate refreshRate() {
+		return refreshRateField.get(this);
+	}
+
+	public ControlRegister1 resolution(Resolution resolution) {
+		resolutionField.set(this, resolution);
+		return this;
+	}
+
+	public Resolution resolution() {
+		return resolutionField.get(this);
+	}
+
+	public ControlRegister1 pattern(ReadingPattern pattern) {
+		patternField.set(this, pattern);
+		return this;
+	}
+
+	public ReadingPattern pattern() {
+		return patternField.get(this);
+	}
+
+	ControlRegister1 startMeasurement(boolean enable) {
+		startMeasurementField.set(this, enable ? 1 : 0);
+		return this;
+	}
+
+	boolean startMeasurement() {
+		return startMeasurementField.get(this) != 0;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, readingPattern, resolution, refreshRate,
-			selectSubPage, enableSubPagesRepeat, enableDataHold, enableSubPagesMode,
-			"0x" + Integer.toHexString(reserved)).toString();
+		return ToStringHelper.createByClass(this, String.format("0x%04x", value),
+			startMeasurement(), pattern(), resolution(), refreshRate(), subPage(), subPagesRepeat(),
+			dataHold(), subPagesMode()).toString();
 	}
 
 }

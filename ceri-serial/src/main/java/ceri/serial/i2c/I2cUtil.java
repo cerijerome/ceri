@@ -1,6 +1,6 @@
 package ceri.serial.i2c;
 
-import static ceri.common.math.MathUtil.byteExact;
+import static ceri.common.math.MathUtil.ushortExact;
 import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_TEN;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -21,7 +21,7 @@ public class I2cUtil {
 		int size, Pointer p, i2c_msg_flag... flags) {
 		if (msg == null) msg = new i2c_msg.ByReference();
 		msg.addr = address.value();
-		msg.len = byteExact(size);
+		msg.len = ushortExact(size);
 		msg.buf = p;
 		if (address.tenBit) msg.flags().add(flags).add(I2C_M_TEN);
 		else if (flags.length > 0) msg.flags().add(flags);

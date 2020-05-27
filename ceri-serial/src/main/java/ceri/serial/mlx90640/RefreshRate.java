@@ -1,5 +1,6 @@
 package ceri.serial.mlx90640;
 
+import java.util.concurrent.TimeUnit;
 import ceri.common.data.TypeTranscoder;
 
 public enum RefreshRate {
@@ -12,25 +13,24 @@ public enum RefreshRate {
 	_32Hz(6, 32),
 	_64Hz(7, 64);
 
-	private static final TypeTranscoder<RefreshRate> xcoder =
+	public static final TypeTranscoder<RefreshRate> xcoder =
 		TypeTranscoder.of(t -> t.id, RefreshRate.class);
-	private static final int MASK = 0x7;
+	public static final RefreshRate DEFAULT = _2Hz;
 	private final int id;
 	public final double hz;
-
-	public static RefreshRate decode(int value) {
-		return xcoder.decode(value & MASK);
-	}
 
 	private RefreshRate(int id, double hz) {
 		this.id = id;
 		this.hz = hz;
 	}
 
-	public int encode() {
-		return id;
+	/**
+	 * Time for each sub-page refresh in milliseconds.
+	 */
+	public int timeMs() {
+		return (int) Math.ceil(TimeUnit.SECONDS.toMillis(1) / hz);	
 	}
-
+	
 	@Override
 	public String toString() {
 		return this == _0_5Hz ? "0.5Hz" : name().substring(1);

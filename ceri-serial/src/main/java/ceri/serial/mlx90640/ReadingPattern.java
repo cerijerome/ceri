@@ -1,21 +1,16 @@
 package ceri.serial.mlx90640;
 
+import ceri.common.data.TypeTranscoder;
+
 public enum ReadingPattern {
 	interleaved(0),
 	chess(1);
-	
+
+	public static final TypeTranscoder<ReadingPattern> xcoder =
+		TypeTranscoder.of(t -> t.id, ReadingPattern.class);
 	private final int id;
-	
-	public static ReadingPattern decode(int value) {
-		return (value & 1) == 0 ? interleaved : chess;
-	}
-	
+
 	private ReadingPattern(int id) {
 		this.id = id;
 	}
-	
-	public int encode() {
-		return id;
-	}
-	
 }

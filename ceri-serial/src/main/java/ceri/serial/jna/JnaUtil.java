@@ -5,6 +5,7 @@ import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.function.IntFunction;
+import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -22,7 +23,7 @@ import ceri.common.data.TypeTranscoder;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.math.MathUtil;
 import ceri.common.util.BasicUtil;
-import ceri.serial.clib.OpenFlag;
+import ceri.common.util.ValueCache;
 
 public class JnaUtil {
 	public static final Charset DEFAULT_CHARSET = defaultCharset();
@@ -81,6 +82,13 @@ public class JnaUtil {
 	public static String print(Memory m) {
 		if (m == null) return String.valueOf(m);
 		return String.format("@%x+%x", Pointer.nativeValue(m), m.size());
+	}
+
+	/**
+	 * A lazy buffer, that only allocates memory when needed.
+	 */
+	public static Supplier<Memory> lazyBuffer(long size) {
+		return ValueCache.of(() -> new Memory(size));
 	}
 
 	/**
