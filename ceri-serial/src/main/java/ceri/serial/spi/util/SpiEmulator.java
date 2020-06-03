@@ -17,7 +17,7 @@ public class SpiEmulator implements Spi {
 	private int bitsPerWord = 0; // 0 => 8 bits
 	private int maxSpeedHz = 250000000 / 65536; // Raspberry Pi default?
 
-	public interface Responder {
+	public static interface Responder {
 		Responder ECHO = new Responder() {};
 
 		@SuppressWarnings("unused")

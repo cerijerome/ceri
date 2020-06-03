@@ -1,8 +1,8 @@
 package ceri.serial.mlx90640;
 
-import static ceri.serial.mlx90640.CalibrationData.SUBPAGES;
 import static ceri.serial.mlx90640.Mlx90640.COLUMNS;
 import static ceri.serial.mlx90640.Mlx90640.PIXELS;
+import static ceri.serial.mlx90640.Mlx90640.SUBPAGES;
 import static ceri.serial.mlx90640.MlxError.badData;
 import static ceri.serial.mlx90640.ReadingPattern.chess;
 
@@ -11,46 +11,48 @@ import static ceri.serial.mlx90640.ReadingPattern.chess;
  * <p/>
  * Magic numbers taken from MLX90640 datasheet.
  */
-public class FrameData extends MlxBuffer {
-	// TODO: test different resolution
-	// TODO: test chess and interleaved pattern
+public class RamData extends MlxBuffer {
 	public static final int ADDRESS = 0x400;
-	public static final int WORDS = 0x342;
+	public static final int WORDS = 0x340;
 	private static final int AUX_INDEX = 0x300;
-	static final int CONTROL_REGISTER_INDEX = 0x340;
-	static final int SUBPAGE_INDEX = 0x341;
 	private static final int BAD_VALUE = 0x7fff;
 	private static final double C0K = 273.15; // 0C in Kelvin
 	private final CalibrationData cal;
-	// Config
-	private final double vdd0 = 3.3;
-	private final double ta0 = 25;
-	private final double trTaOffset = -8;
-	// Cached values:
-	ReadingPattern mode;
+	private final double vdd0;
+	private final double ta0;
+	private final double trTaOffset;
+	// Data set each init():
+	private int subPage;
+	private ReadingPattern mode;
 	private double vdd;
 	private double ta;
 	private double kGain;
 	private final double[] pixGainCpSp = new double[SUBPAGES];
 	private final double[] pixOsCpSp = new double[SUBPAGES];
 
-	static FrameData of(byte[] data, CalibrationData cal) {
-		return new FrameData(data, cal);
+	static RamData of(byte[] data, CalibrationData cal, double vdd0, double ta0,
+		double trTaOffset) {
+		return new RamData(data, cal, vdd0, ta0, trTaOffset);
 	}
 
-	private FrameData(byte[] data, CalibrationData cal) {
+	private RamData(byte[] data, CalibrationData cal, double vdd0, double ta0,
+		double trTaOffset) {
 		super(data, 0, WORDS * Short.BYTES);
 		this.cal = cal;
+		this.vdd0 = vdd0;
+		this.ta0 = ta0;
+		this.trTaOffset = trTaOffset;
 	}
 
 	/**
 	 * Called when new frame data has loaded.
 	 */
-	public void init() throws MlxException {
+	public void init(int subPage, ControlRegister1 control1) throws MlxException {
+		this.subPage = subPage;
+		mode = control1.pattern();
 		validateFrameData();
 		validateAuxData();
-		determineMode();
-		calculateSupplyVoltage();
+		calculateSupplyVoltage(control1);
 		calculateAmbientTemperature();
 		calculateGain();
 		calculateCpGain();
@@ -89,7 +91,6 @@ public class FrameData extends MlxBuffer {
 	 * Calculate absolute object temperature array.
 	 */
 	public void calculateTo(double[] values, double tr, double e) {
-		int subPage = subPage();
 		double tar = tar(ta, tr, e);
 		for (int p = 0; p < PIXELS; p++) {
 			int pattern = pattern(p, mode);
@@ -106,7 +107,6 @@ public class FrameData extends MlxBuffer {
 	 * Calculate relative object temperature array.
 	 */
 	public void getImage(double[] values) {
-		int subPage = subPage();
 		for (int p = 0; p < PIXELS; p++) {
 			int pattern = pattern(p, mode);
 			if (pattern != subPage) continue; // only process current sub-page
@@ -121,17 +121,10 @@ public class FrameData extends MlxBuffer {
 	/* Frame initialization */
 
 	/**
-	 * Pattern mode from control register at time of reading - chess or interleaved.
-	 */
-	private void determineMode() {
-		mode = ReadingPattern.xcoder.decode(ubits(CONTROL_REGISTER_INDEX, 12, 1));
-	}
-
-	/**
 	 * Datasheet 11.2.2.1, 11.2.2.2.
 	 */
-	private void calculateSupplyVoltage() {
-		int resolutionReg = ubits(CONTROL_REGISTER_INDEX, 10, 2);
+	private void calculateSupplyVoltage(ControlRegister1 control1) {
+		int resolutionReg = control1.resolution().id;
 		double resolutionCorr = (double) (1 << cal.resolutionEe) / (1 << resolutionReg);
 		int vddPix = value(ram(0x72a));
 		vdd = (resolutionCorr * vddPix - cal.vdd25) / cal.kVdd + vdd0;
@@ -171,10 +164,10 @@ public class FrameData extends MlxBuffer {
 	 */
 	private void calculateCpOffsetTaVdd() {
 		double multiplier = (1 + cal.ktaCp * (ta - ta0)) * (1 + cal.kvCp * (vdd - vdd0));
-		pixOsCpSp[0] = pixGainCpSp[0] - cal.offCpSubpage[0] * multiplier;
+		pixOsCpSp[0] = pixGainCpSp[0] - cal.offCpSubpage(0) * multiplier;
 		pixOsCpSp[1] = mode == chess ? //
-			pixGainCpSp[1] - cal.offCpSubpage[1] * multiplier :
-			pixGainCpSp[1] - (cal.offCpSubpage[1] + cal.ilChessC[0]) * multiplier;
+			pixGainCpSp[1] - cal.offCpSubpage(1) * multiplier :
+			pixGainCpSp[1] - (cal.offCpSubpage(1) + cal.ilChessC(0)) * multiplier;
 	}
 
 	/* Initialized field exposure */
@@ -207,7 +200,7 @@ public class FrameData extends MlxBuffer {
 	 */
 	private double pixOsChess(int n, double pixGain, double ta, double vdd) {
 		return pixGain -
-			cal.pixOsRef[n] * (1 + cal.kta[n] * (ta - ta0)) * (1 + cal.kv[n] * (vdd - vdd0));
+			cal.pixOsRef(n) * (1 + cal.kta(n) * (ta - ta0)) * (1 + cal.kv(n) * (vdd - vdd0));
 	}
 
 	/**
@@ -216,8 +209,8 @@ public class FrameData extends MlxBuffer {
 	private double pixOsIl(int n, double pixGain, double ta, double vdd, int pattern) {
 		int conversionPattern = conversionPattern(n, pattern);
 		return pixOsChess(n, pixGain, ta, vdd) //
-			+ cal.ilChessC[2] * (2 * pattern - 1) //
-			- cal.ilChessC[1] * conversionPattern;
+			+ cal.ilChessC(2) * (2 * pattern - 1) //
+			- cal.ilChessC(1) * conversionPattern;
 	}
 
 	/**
@@ -254,8 +247,8 @@ public class FrameData extends MlxBuffer {
 	 * Datasheet 11.2.2.8.
 	 */
 	double aComp(int n, int pattern, double ta) {
-		return (cal.a[n] -
-			cal.tgc * ((1 - pattern) * cal.aCpSubpage[0] + pattern * cal.aCpSubpage[1])) *
+		return (cal.a(n) -
+			cal.tgc * ((1 - pattern) * cal.aCpSubpage(0) + pattern * cal.aCpSubpage(1))) *
 			(1 + cal.ksTa * (ta - ta0));
 	}
 
@@ -274,7 +267,7 @@ public class FrameData extends MlxBuffer {
 	double sx(double aComp, double tar, double vIrCompensated) {
 		double aComp3 = aComp * aComp * aComp;
 		double aComp4 = aComp3 * aComp;
-		return cal.ksTo[1] * Math.pow(aComp3 * vIrCompensated + aComp4 * tar, 0.25);
+		return cal.ksTo(1) * Math.pow(aComp3 * vIrCompensated + aComp4 * tar, 0.25);
 	}
 
 	/**
@@ -282,7 +275,7 @@ public class FrameData extends MlxBuffer {
 	 */
 	double to(double aComp, double tar, double vIrCompensated) {
 		double sx = sx(aComp, tar, vIrCompensated);
-		double ksTo2 = cal.ksTo[1];
+		double ksTo2 = cal.ksTo(1);
 		return Math.pow(vIrCompensated / (aComp * (1 - ksTo2 * C0K) + sx) + tar, 0.25) - C0K;
 	}
 
@@ -293,14 +286,13 @@ public class FrameData extends MlxBuffer {
 		int x = cal.range(to);
 		return Math.pow(
 			vIrCompensated /
-				(aComp * cal.alphaCorrRange[x] * (1 + cal.ksTo[x] * (to - cal.ct[x]))) + tar,
+				(aComp * cal.alphaCorrRange(x) * (1 + cal.ksTo(x) * (to - cal.ct(x)))) + tar,
 			0.25) - C0K;
 	}
 
 	/* Validation */
 
 	private void validateFrameData() throws MlxException {
-		int subPage = subPage();
 		for (int line = 0, i = 0; i < PIXELS; i += COLUMNS, line++)
 			if (line % 2 == subPage) validateData(i);
 	}
@@ -328,13 +320,6 @@ public class FrameData extends MlxBuffer {
 	}
 
 	/* Data access */
-
-	/**
-	 * Sub-page at time of reading.
-	 */
-	private int subPage() {
-		return uvalue(SUBPAGE_INDEX);
-	}
 
 	/**
 	 * Gets the buffer offset from RAM address.

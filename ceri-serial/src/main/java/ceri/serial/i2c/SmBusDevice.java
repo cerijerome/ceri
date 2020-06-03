@@ -6,11 +6,11 @@ import ceri.serial.i2c.jna.I2cDev;
 /**
  * Provides SMBus functionality directly. Sets address if needed before SMBus action.
  */
-class SmBusActual implements SmBus {
-	private final I2c i2c;
+class SmBusDevice implements SmBus {
+	private final I2cDevice i2c;
 	private final I2cAddress address;
 
-	SmBusActual(I2c i2c, I2cAddress address) {
+	SmBusDevice(I2cDevice i2c, I2cAddress address) {
 		this.i2c = i2c;
 		this.address = address;
 	}

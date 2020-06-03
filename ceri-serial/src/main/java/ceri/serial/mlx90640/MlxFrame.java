@@ -1,9 +1,10 @@
 package ceri.serial.mlx90640;
 
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.validation.ValidationUtil.validateRangeL;
 import static ceri.serial.mlx90640.Mlx90640.COLUMNS;
 import static ceri.serial.mlx90640.Mlx90640.PIXELS;
 import static ceri.serial.mlx90640.Mlx90640.ROWS;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.math.MathUtil;
 
 /**
@@ -20,32 +21,38 @@ public class MlxFrame {
 	public static MlxFrame of() {
 		return new MlxFrame();
 	}
-	
+
 	private MlxFrame() {}
+
+	public MlxFrame copyFrom(MlxFrame frame) {
+		setContext(frame.mode, frame.vdd, frame.ta, frame.tr, frame.emissivity);
+		ArrayUtil.copy(frame.values, 0, values, 0);
+		return this;
+	}
 
 	public ReadingPattern mode() {
 		return mode;
 	}
-	
+
 	public double vdd() {
 		return vdd;
 	}
-	
+
 	public double ta() {
 		return ta;
 	}
-	
+
 	public double tr() {
 		return tr;
 	}
-	
+
 	public double emissivity() {
 		return emissivity;
 	}
-	
+
 	public double value(int row, int column) {
-		validateRangeL(row, 0,  ROWS - 1);
-		validateRangeL(column, 0,  COLUMNS - 1);
+		validateRangeL(row, 0, ROWS - 1);
+		validateRangeL(column, 0, COLUMNS - 1);
 		return values[row * COLUMNS + column];
 	}
 
@@ -56,15 +63,15 @@ public class MlxFrame {
 	public double max() {
 		return MathUtil.max(values);
 	}
-	
+
 	public double min() {
 		return MathUtil.min(values);
 	}
-	
+
 	public double average() {
 		return MathUtil.average(values);
 	}
-	
+
 	void setContext(ReadingPattern mode, double vdd, double ta, double tr, double emissivity) {
 		this.mode = mode;
 		this.vdd = vdd;
@@ -72,9 +79,9 @@ public class MlxFrame {
 		this.tr = tr;
 		this.emissivity = emissivity;
 	}
-	
+
 	double[] values() {
 		return values;
 	}
-	
+
 }

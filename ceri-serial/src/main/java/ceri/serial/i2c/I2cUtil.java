@@ -9,8 +9,20 @@ import ceri.serial.i2c.jna.I2cDev.i2c_msg_flag;
 import ceri.serial.jna.JnaUtil;
 
 public class I2cUtil {
+	public static final int SCAN_7BIT_MIN = 0x03;
+	public static final int SCAN_7BIT_MAX = 0x77;
+	public static final int SOFTWARE_RESET = 0x06;
 
 	private I2cUtil() {}
+
+	public static I2cAddress address(int address, boolean bit10) {
+		return bit10 ? I2cAddress.of10Bit(address) : I2cAddress.of7Bit(address);
+	}
+	
+	public static void validate7Bit(I2cAddress address) {
+		if (address.tenBit) throw new UnsupportedOperationException(
+			"Operation not supported for 10-bit addresses: " + address);
+	}
 
 	public static i2c_msg.ByReference populate(i2c_msg.ByReference msg, I2cAddress address,
 		Memory m, i2c_msg_flag... flags) {

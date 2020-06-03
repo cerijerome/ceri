@@ -65,6 +65,10 @@ public class DeviceId {
 		return (manufacturer << MANUFACTURER_BIT) | (part << PART_BIT) | revision;
 	}
 
+	public byte[] encodeBytes() {
+		return ByteUtil.toMsb(encode(), BYTES);
+	}
+
 	public Company company() {
 		return companyIds.getOrDefault(manufacturer, Company.unknown);
 	}

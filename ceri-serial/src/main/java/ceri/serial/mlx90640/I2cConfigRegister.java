@@ -1,10 +1,11 @@
 package ceri.serial.mlx90640;
 
+import java.util.Objects;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntAccessor;
 import ceri.common.text.ToStringHelper;
 
-public class I2cConfigRegister {
+public class I2cConfigRegister implements Register {
 	private static final int START_SYNC = 0x30;
 	private static final IntAccessor.Typed<I2cConfigRegister> accessor =
 		IntAccessor.typed(t -> t.value, (t, i) -> t.value = i);
@@ -28,6 +29,7 @@ public class I2cConfigRegister {
 		this.value = value;
 	}
 
+	@Override
 	public int value() {
 		return value;
 	}
@@ -57,6 +59,19 @@ public class I2cConfigRegister {
 
 	public boolean currentLimit() {
 		return currentLimitField.get(this) == 0; // opposite!
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(value);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof I2cConfigRegister)) return false;
+		I2cConfigRegister other = (I2cConfigRegister) obj;
+		return value == other.value;
 	}
 
 	@Override

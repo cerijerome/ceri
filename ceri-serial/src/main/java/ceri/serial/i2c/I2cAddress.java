@@ -1,7 +1,11 @@
 package ceri.serial.i2c;
 
+import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.util.ExceptionUtil.exceptionf;
+import static ceri.common.validation.ValidationUtil.validateRangeL;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteUtil;
+import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.HashCoder;
 
@@ -18,15 +22,32 @@ public class I2cAddress {
 	private static final int HEX_DIGITS_10 = 3;
 	private static final int MASK_7BIT = ByteUtil.maskInt(7);
 	private static final int MASK_10BIT = ByteUtil.maskInt(10);
-	private static final int FRAME1_10BIT_PREFIX = 0xf0; // 1st frame prefix of 10-bit address
+	private static final int FRAME0_10BIT_PREFIX = 0xf0; // frame[0] prefix of 10-bit address
+	private static final int SLAVE_7BIT_MIN = 0x08;
+	private static final int SLAVE_7BIT_MAX = 0x77;
 	public final int address;
 	public final boolean tenBit;
+
+	/**
+	 * Extracts address from frame bytes. 2 bytes for a 10-bit address, 1 byte for 7-bit.
+	 */
+	public static I2cAddress fromFrames(byte[] frames) {
+		validateRangeL(frames.length, 1, 2);
+		if (frames.length == 1) return of7Bit(MathUtil.ubyte(frames[0]) >>> 1);
+		if ((FRAME0_10BIT_PREFIX & frames[0]) != FRAME0_10BIT_PREFIX)
+			throw exceptionf("Invalid 10-bit frames: 0x%02x, 0x%02x", frames[0], frames[1]);
+		int address =
+			(int) ByteUtil.fromMsb((~FRAME0_10BIT_PREFIX & ubyte(frames[0])) >>> 1, frames[1]);
+		return of10Bit(address);
+	}
 
 	/**
 	 * Creates a 7-bit address if <= 0x7f, otherwise 10-bit.
 	 */
 	public static I2cAddress of(int value) {
-		return (value & MASK_7BIT) == value ? of7Bit(value) : of10Bit(value);
+		if ((value & MASK_7BIT) == value) return new I2cAddress(value, false);
+		if ((value & MASK_10BIT) == value) return new I2cAddress(value, true);
+		throw exceptionf("Invalid 7-bit or 10-bit address: 0x%x", value);
 	}
 
 	/**
@@ -35,8 +56,7 @@ public class I2cAddress {
 	public static I2cAddress of7Bit(int address) {
 		int masked = address & MASK_7BIT;
 		if (masked == address) return new I2cAddress(masked, false);
-		throw new IllegalArgumentException(
-			"Invalid 7-bit address: 0x" + Integer.toHexString(address));
+		throw exceptionf("Invalid 7-bit address: 0x%x", address);
 	}
 
 	/**
@@ -45,13 +65,20 @@ public class I2cAddress {
 	public static I2cAddress of10Bit(int address) {
 		int masked = address & MASK_10BIT;
 		if (masked == address) return new I2cAddress(masked, true);
-		throw new IllegalArgumentException(
-			"Invalid 10-bit address: 0x" + Integer.toHexString(address));
+		throw exceptionf("Invalid 10-bit address: 0x%x", address);
 	}
 
 	private I2cAddress(int address, boolean tenBit) {
 		this.address = address;
 		this.tenBit = tenBit;
+	}
+
+	/**
+	 * Is this address for a specific slave device? Otherwise this is a reserved address.
+	 */
+	public boolean isSlave() {
+		if (tenBit) return true;
+		return (address >= SLAVE_7BIT_MIN && address <= SLAVE_7BIT_MAX);
 	}
 
 	/**
@@ -68,17 +95,9 @@ public class I2cAddress {
 	public byte[] frames(boolean read) {
 		if (!tenBit) return ArrayUtil.bytes((address << 1) | (read ? 1 : 0));
 		return ArrayUtil.bytes(
-			FRAME1_10BIT_PREFIX | (ByteUtil.byteAt(address, 1) << 1) | (read ? 1 : 0),
+			FRAME0_10BIT_PREFIX | (ByteUtil.byteAt(address, 1) << 1) | (read ? 1 : 0),
 			ByteUtil.byteAt(address, 0));
 	}
-
-	// /**
-	// * Returns a byte for the address and read/write bit.
-	// */
-	// public byte addressByte(boolean read) {
-	// if (tenBit) throw new UnsupportedOperationException("Not available for 10-bit addresses");
-	// return (byte) ((address << 1) | (read ? 1 : 0));
-	// }
 
 	@Override
 	public int hashCode() {

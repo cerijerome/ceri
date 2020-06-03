@@ -7,9 +7,12 @@ import java.io.PrintStream;
 import java.util.function.DoubleUnaryOperator;
 import ceri.common.color.ColorUtil;
 import ceri.common.color.HsbColor;
+import ceri.common.math.MathUtil;
 
+/**
+ * Outputs an animated ANSI-color terminal display of frames.
+ */
 public class AnsiDisplay {
-	private final MlxFrame frame;
 	private final PrintStream out;
 	private final DoubleUnaryOperator hueFn;
 	private final double saturation;
@@ -19,7 +22,6 @@ public class AnsiDisplay {
 	private boolean printed = false;
 
 	public static class Builder {
-		final MlxFrame frame;
 		PrintStream out = System.out;
 		DoubleUnaryOperator hueFn = d -> d;
 		double saturation = 0.75;
@@ -27,9 +29,7 @@ public class AnsiDisplay {
 		Double min = null;
 		Double max = null;
 
-		Builder(MlxFrame frame) {
-			this.frame = frame;
-		}
+		Builder() {}
 
 		public Builder out(PrintStream out) {
 			this.out = out;
@@ -66,12 +66,11 @@ public class AnsiDisplay {
 		}
 	}
 
-	public static Builder builder(MlxFrame frame) {
-		return new Builder(frame);
+	public static Builder builder() {
+		return new Builder();
 	}
 
 	AnsiDisplay(Builder builder) {
-		frame = builder.frame;
 		out = builder.out;
 		hueFn = builder.hueFn;
 		saturation = builder.saturation;
@@ -80,10 +79,21 @@ public class AnsiDisplay {
 		max = builder.max;
 	}
 
-	public void print() {
-		double min = min();
-		double max = max();
+	public AnsiDisplay reset() {
+		printed = false;
+		return this;
+	}
+	
+	/**
+	 * Prints context information and color frame. Subsequent printing overwrites.
+	 */
+	public AnsiDisplay print(MlxFrame frame) {
+		double min = min(frame);
+		double max = max(frame);
 		if (printed) System.out.print(csi.cursorUp(ROWS + 2));
+		out.printf("  Params: mode=%s Vdd=%s Ta=%s Tr=%s e=%s %n", frame.mode(), f(frame.vdd(), 2),
+			f(frame.ta(), 1), f(frame.tr(), 1), f(frame.emissivity(), 2));
+		out.printf("  Range:  %.1f - %.1f \u00b0C %n", frame.min(), frame.max());
 		for (int i = 0; i < ROWS; i++) {
 			out.print("  ");
 			for (int j = 0; j < COLUMNS; j++) {
@@ -93,23 +103,25 @@ public class AnsiDisplay {
 			}
 			out.println(csi.sgr().reset());
 		}
-		out.printf("Params: mode=%s Vdd=%.2f Ta=%.2f Tr=%.2f e=%.2f%n", frame.mode(), frame.vdd(),
-			frame.ta(), frame.tr(), frame.emissivity());
-		out.printf("Range:  %.1f - %.1f \u00b0C%n", frame.min(), frame.max());
 		printed = true;
+		return this;
 	}
 
-	private double min() {
+	private String f(double d, int places) {
+		return String.valueOf(MathUtil.simpleRound(d, places));
+	}
+
+	private double min(MlxFrame frame) {
 		return min == null ? frame.min() : min;
 	}
 
-	private double max() {
+	private double max(MlxFrame frame) {
 		return max == null ? frame.max() : max;
 	}
 
 	private int rgb(double value) {
-		if (value > 1.0) value = 1.0;
-		if (value < 0.0) value = 0.0;
+		while (value > 1.0) value -= 1.0;
+		while (value < 0.0) value += 1.0;
 		double hue = hueFn.applyAsDouble(value);
 		HsbColor hsb = HsbColor.of(hue, saturation, brightness);
 		return ColorUtil.rgb(hsb.asColor());

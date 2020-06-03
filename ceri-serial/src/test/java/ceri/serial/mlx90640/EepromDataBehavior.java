@@ -1,10 +1,11 @@
 package ceri.serial.mlx90640;
 
-import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.serial.mlx90640.Mlx90640.COLUMNS;
 import static ceri.serial.mlx90640.Mlx90640.ROWS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import java.util.function.IntFunction;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
@@ -45,30 +46,29 @@ public class EepromDataBehavior {
 
 	@Test
 	public void shouldRestoreOffset() {
-		assertThat(cal.offsetAverage, is(-69));
-		assertArray(cal.pixOsRef, pixOsRefExpected());
-		assertThat(cal.pixOsRef[px], is(-75));
-		assertArray(cal.ilChessC, 1.25, 3, 0.125);
-		
-		
+		assertCalArray(cal::pixOsRef, pixOsRefExpected());
+		assertThat(cal.pixOsRef(px), is(-75));
+		assertCalArray(cal::ilChessC, 1.25, 3, 0.125);
+
 	}
 
 	@Test
 	public void shouldRestoreSensitivityAlpha() {
-		assertArray(cal.a, aExpected());
-		assertThat(cal.a[px], is(1.2622331269085407E-7));
+		assertCalArray(cal::a, aExpected());
+		assertThat(cal.a(px), is(1.2622331269085407E-7));
 	}
 
 	@Test
 	public void shouldRestoreKvCoefficient() {
-		assertOddEven(cal.kv, 0.625, 0.625, 0.5, 0.5);
-		assertThat(cal.kv[px], is(0.5));
+		assertOddEven(cal::kv, 0.625, 0.625, 0.5, 0.5);
+		assertThat(cal.kv(px), is(0.5));
 	}
 
 	@Test
 	public void shouldRestoreKtaCoefficient() {
-		assertOddEven(cal.kta, 0.00640869140625, 0.00506591796875, 0.0052490234375, 0.005126953125);
-		assertThat(cal.kta[px], is(0.005126953125));
+		assertOddEven(cal::kta, 0.00640869140625, 0.00506591796875, 0.0052490234375,
+			0.005126953125);
+		assertThat(cal.kta(px), is(0.005126953125));
 	}
 
 	@Test
@@ -83,28 +83,29 @@ public class EepromDataBehavior {
 
 	@Test
 	public void shoudRestoreCornerTemperatures() {
-		assertArray(cal.ct, -40, 0, 160, 320);
+		assertCalArray(cal::ct, -40, 0, 160, 320);
 	}
 
 	@Test
 	public void shouldRestoreKsToCoefficient() {
-		assertArray(cal.ksTo, -8.0108642578125E-4, -8.0108642578125E-4, -8.0108642578125E-4,
+		assertCalArray(cal::ksTo, -8.0108642578125E-4, -8.0108642578125E-4, -8.0108642578125E-4,
 			-8.0108642578125E-4);
 	}
 
 	@Test
 	public void shouldRestoreSensitivityCorrectionCoefficients() {
-		assertArray(cal.alphaCorrRange, 1.0331042310360048, 1.0, 0.871826171875, 0.760080873966217);
+		assertCalArray(cal::alphaCorrRange, 1.0331042310360048, 1.0, 0.871826171875,
+			0.760080873966217);
 	}
 
 	@Test
 	public void shouldRestoreSensitivityAlphaCp() {
-		assertArray(cal.aCpSubpage, 4.0745362639427185E-9, 3.851710062008351E-9);
+		assertCalArray(cal::aCpSubpage, 4.0745362639427185E-9, 3.851710062008351E-9);
 	}
 
 	@Test
 	public void shouldRestoreCompensationPixelOffset() {
-		assertArray(cal.offCpSubpage, -75, -77);
+		assertCalArray(cal::offCpSubpage, -75, -77);
 	}
 
 	@Test
@@ -127,16 +128,28 @@ public class EepromDataBehavior {
 		assertThat(cal.resolutionEe, is(2));
 	}
 
-	private void assertOddEven(double[] actual, double roco, double roce, double reco,
+	private void assertCalArray(IntFunction<Double> fn, double... values) {
+		for (int i = 0; i < values.length; i++)
+			assertThat(fn.apply(i), is(values[i]));
+		assertThrown(() -> fn.apply(values.length));
+	}
+
+	private void assertCalArray(IntFunction<Integer> fn, int... values) {
+		for (int i = 0; i < values.length; i++)
+			assertThat(fn.apply(i), is(values[i]));
+		assertThrown(() -> fn.apply(values.length));
+	}
+
+	private void assertOddEven(IntFunction<Double> actual, double roco, double roce, double reco,
 		double rece) {
 		for (int p = 0, i = 0; i < ROWS; i++) {
 			boolean oddRow = i % 2 == 0; // counting 1..24
 			for (int j = 0; j < COLUMNS; j++, p++) {
 				boolean oddCol = j % 2 == 0; // counting 1..32
-				if (oddRow && oddCol) assertThat(actual[p], is(roco));
-				if (oddRow && !oddCol) assertThat(actual[p], is(roce));
-				if (!oddRow && oddCol) assertThat(actual[p], is(reco));
-				if (!oddRow && !oddCol) assertThat(actual[p], is(rece));
+				if (oddRow && oddCol) assertThat(actual.apply(p), is(roco));
+				if (oddRow && !oddCol) assertThat(actual.apply(p), is(roce));
+				if (!oddRow && oddCol) assertThat(actual.apply(p), is(reco));
+				if (!oddRow && !oddCol) assertThat(actual.apply(p), is(rece));
 			}
 		}
 	}

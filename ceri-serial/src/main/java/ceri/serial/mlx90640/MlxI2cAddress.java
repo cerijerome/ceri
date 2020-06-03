@@ -1,40 +1,43 @@
 package ceri.serial.mlx90640;
 
+import java.util.Objects;
+import ceri.common.data.IntAccessor;
 import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 import ceri.serial.i2c.I2cAddress;
 
-public class MlxI2cAddress {
-	private static final int ADDRESS_MASK = 0xff;
-	private static final int RESERVED_MASK = 0xff00;
-	public final I2cAddress address;
-	public final int reserved;
+public class MlxI2cAddress implements Register {
+	private static final IntAccessor.Typed<MlxI2cAddress> accessor =
+		IntAccessor.typed(t -> t.value, (t, i) -> t.value = i);
+	private static final IntAccessor.Typed<MlxI2cAddress> addressField = accessor.maskBits(0, 8);
+	private int value;
 
-	public static MlxI2cAddress decode(int value) {
-		I2cAddress address = I2cAddress.of7Bit(value & ADDRESS_MASK);
-		int reserved = value & RESERVED_MASK;
-		return of(address, reserved);
+	public static MlxI2cAddress of(int value) {
+		return new MlxI2cAddress(value);
 	}
 
-	public static MlxI2cAddress of(I2cAddress address, int reserved) {
+	private MlxI2cAddress(int value) {
+		this.value = value;
+	}
+
+	@Override
+	public int value() {
+		return value;
+	}
+
+	public I2cAddress address() {
+		return I2cAddress.of7Bit(addressField.get(this));
+	}
+
+	public MlxI2cAddress address(I2cAddress address) {
 		if (address.tenBit)
 			throw new IllegalArgumentException("10-bit addresses are not supported: " + address);
-		return new MlxI2cAddress(address, reserved);
-	}
-
-	private MlxI2cAddress(I2cAddress address, int reserved) {
-		this.address = address;
-		this.reserved = reserved;
-	}
-
-	public int encode() {
-		return address.address | reserved;
+		addressField.set(this, address.address);
+		return this;
 	}
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(address, reserved);
+		return Objects.hash(value);
 	}
 
 	@Override
@@ -42,14 +45,12 @@ public class MlxI2cAddress {
 		if (this == obj) return true;
 		if (!(obj instanceof MlxI2cAddress)) return false;
 		MlxI2cAddress other = (MlxI2cAddress) obj;
-		if (!EqualsUtil.equals(address, other.address)) return false;
-		if (reserved != other.reserved) return false;
-		return true;
+		return value == other.value;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, address, "0x" + Integer.toHexString(reserved))
+		return ToStringHelper.createByClass(this, String.format("0x%04x", value), address())
 			.toString();
 	}
 

@@ -7,15 +7,19 @@ public enum SubPage {
 	_1(1);
 
 	public static final TypeTranscoder<SubPage> xcoder =
-		TypeTranscoder.of(t -> t.id, SubPage.class);
-	private final int id;
+		TypeTranscoder.of(t -> t.value, SubPage.class);
+	public final int value;
 
-	private SubPage(int id) {
-		this.id = id;
+	public static SubPage from(int value) {
+		return xcoder.decode(value);
+	}
+	
+	private SubPage(int value) {
+		this.value = value;
 	}
 
 	@Override
 	public String toString() {
-		return "subpage" + id;
+		return "subpage" + value;
 	}
 }

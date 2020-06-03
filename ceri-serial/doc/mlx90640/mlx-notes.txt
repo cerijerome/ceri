@@ -49,6 +49,86 @@ Address Type    Eeprom[] Frame[]  Description
 0x800D  Reg              832      Control register 1
 0x800F  Reg                       I2C configuration register
 
+Status Register (0x8000)
+b00 }- last measured subpage (0,1) [read-only]
+b01 }  reserved
+b02 }  reserved
+b03 - new data available in RAM (1=new data; set to 0 after reading data)
+b04 - overwrite data in RAM (0=disabled, 1=enabled)
+b05 - start measurement?
+
+Control Register 1 (0x800D, 0x240C)
+b00 - subpage mode (0=off,1=on)
+b02 - data hold (0=xfer data to RAM each frame, 1=only if Status b04 is set)
+b03 - subpage repeat (0=toggle 0/1, 1=use b04 to select subpage) = bad data!
+b04 }- select subpage (0,1)
+b05 }  not applicable
+b06 }  not applicable
+b07  }
+b08  }- refresh rate (0..7 = 0.5Hz..64Hz)
+b09  }
+b10 }- ADC resolution (0..3 = 16bit..19bit)
+b11 } 
+b12 - reading pattern (0=interleaved, 1=chess)
+
+I2C Config Register (0x800F, 0x240E)
+b00 - FM+ (0=enabled, 1=disabled)
+b01 - threshold levels (0=vdd, 1=1.8V)
+b02 - SDA driver current limit (0=enabled, 1=disabled)
+
+I2c Address Register (0x240F)
+b00-07 - address (7-bit)
+
+
+Datasheet Fields
+----------------
+11.1.1: kVdd, vdd25
+11.1.2: kvPtat, ktPtat, dV, vPtat25, ta, vPtatArt, vPtat, vBe, alphaPtatEe, alphaPtat
+11.1.3: pixOsRef[], offsetAverage, occRow[], occScaleRow, occColumn[], occScaleColumn,
+        offset[], occScaleRemnant
+11.1.3.1: pixOsRef[], pixGain[], ilChessC[], ilPattern, conversionPattern, kta[], ta, ta0,
+          kv[], vdd, vdd0
+11.1.4: a[], aReference, aScale, accRow[], accScaleRow, accColumn[], accScaleColumn,
+        aPixel[], accScaleRemnant
+11.1.5: kv[], kvScale
+11.1.6: kta[], ktaRcEe, ktaEe[], ktaScale1, ktaScale2
+11.1.7: gain
+11.1.8: ksTa, ksTaEe
+11.1.9: step, ct[]
+11.1.10: ksTo[], ksToEe[], ksToScale
+11.1.11: alphaCorrRange[]
+11.1.12: aCpSubpage[], aScaleCp, cpP1P0Ratio
+11.1.13: offCpSubpage[], offCpSubpage1Delta
+11.1.14: kvCp, kvScale, kvCpEe
+11.1.15: ktaCp, ktaScale1, ktaCpEe
+11.1.16: tgc, tgcEe
+11.1.17: resolutionEe
+11.2.2.1: resolutionReg, resolutionCorr, resolutionEe
+11.2.2.2: vdd, vdd0, kVdd, vdd25, resolutionCorr
+11.2.2.3: ta, dV, kvPtat, vPtatArt, vPtat25, ktPtat, kVdd, vdd25, vPtat, vBe, alphaPtat,
+          alphaPtatEe
+11.2.2.4: kGain, gain
+11.2.2.5.1: pixGain[], kGain
+11.2.2.5.2: pixOsRef[], offsetAverage, occRow[], occScaleRow, occColumn, occScaleColumn,
+            offset[], occScaleRemnant
+11.2.2.5.3: pixOs[], pixGain[], pixOsRef, kta[], ta, ta0, kv[], vdd, vdd0, ktaRcEe,
+            ktaEe[], ktaScale1, ktaScale2, kvScale
+11.2.2.5.4: vIrEmissivityCompensated[], pixOs, e
+11.2.2.6.1: pixGainCpSp[], kGain
+11.2.2.6.2: pixOsCpSp[], pixGainCpCp[], offCpSubpage[], ktaCp, ta, ta0, kvCp, vdd, vdd0,
+            ilChessC[0], offCpSubpage1Delta, ktaCpEe, ktaScale1, kvCpEe, kvScale
+11.2.2.7: pixelNumber, pattern, tgc, tgcEe, vIrCompensated[]
+11.2.2.8: aComp[], a[], tgc, pattern, aCpSubpage[], ksTa, ta, ta0, aScaleCp, cpP1P0Ratio,
+          ksTaEe, aReference, accRow[], accScaleRow, accColumn[], accScaleColumn,
+          aPixel[], accScaleRemnant, aScale
+11.2.2.9: ct[], ksTo[], ksToEe[], ksToScale, tr, ta, taK4, trK4, tar, e, sx[], aComp[],
+          vIrCompensated[], to[]
+11.2.2.9.1: ct[], ksTo[], to[]
+11.2.2.9.1.1: step, ct[]
+11.2.2.9.1.2: ksToScale, ksTo[], ksToEe[], alphaCorrRange[], ct[]
+11.2.2.9.1.3: to[], ksTo[], alphaCorrRange[], ct[], toExtraRange[], aComp[], tar,
+              vIrCompensated[]
+
 
 Glossary
 --------
@@ -95,8 +175,17 @@ Wood (planed) = 0.90
 Wood (panelling, light) = 0.87
 
 
-Melexis Datasheet Corrections
------------------------------
+Melexis Datasheet Corrections/Mising Info
+-----------------------------------------
+Step mode (no subpage repeat):
+  Unable to retrieve correct vdd, ta, or to data
+  
+Api code:
+  MLX90640_TriggerMeasurement: Control Register 1 B15, no documentation
+
+10.5 page 13:
+  Figure 7: no documentation for Status Register B5
+
 11.2.2.3 page 37:
   Ta = 14.18442378914584 + 25 (vs 14.18440152 + 25)
 
@@ -114,6 +203,14 @@ Melexis Datasheet Corrections
 Melexis Driver Code
 -------------------
 https://github.com/melexis/mlx90640-library
+
+Name mapping:
+- cpOffset[] => offCpSubpage[]
+- irDataCP[] => pixOsCpSp[]
+- irData => pixGain, pixOs, vIrCompensated
+- taTr => tar
+- alphaCorrR[] => alphaCorrRange[]
+- alphaCompensated => aComp
 
 - functions/MLX90640_API.cpp = high-level functionality
   - MLX90640_DumpEE = read all eeprom values: 832 (0x340) values @0x2400
@@ -137,7 +234,7 @@ https://github.com/melexis/mlx90640-library
   - ExtractDeviatingPixels = check each px+2rows is 0 or odd (?), mark px#, err if > 4
   - CheckAdjacentPixels = check bad px diff against each other
   - GetMedian = sort bad px and get median
-  - IsPixelBad = check px is makred bad/outlier
+  - IsPixelBad = check px is marked bad/outlier
   - ValidateFrameData = check line first px, err if 0x7fff and line = subpage (interleaved only?)
   - ValidateAuxData = check 0x7fff for [0, 8-18, 20-22, 24-32, 40-50, 52-54, 56-63]
 

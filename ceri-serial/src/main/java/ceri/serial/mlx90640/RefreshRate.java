@@ -27,8 +27,15 @@ public enum RefreshRate {
 	/**
 	 * Time for each sub-page refresh in milliseconds.
 	 */
-	public int timeMs() {
+	public int timeMillis() {
 		return (int) Math.ceil(TimeUnit.SECONDS.toMillis(1) / hz);	
+	}
+	
+	/**
+	 * Time for each sub-page refresh in microseconds.
+	 */
+	public int timeMicros() {
+		return (int) Math.ceil(TimeUnit.SECONDS.toMicros(1) / hz);	
 	}
 	
 	@Override

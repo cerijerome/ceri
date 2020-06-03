@@ -1,10 +1,11 @@
 package ceri.serial.mlx90640;
 
+import java.util.Objects;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntAccessor;
 import ceri.common.text.ToStringHelper;
 
-public class ControlRegister1 {
+public class ControlRegister1 implements Register {
 	private static final IntAccessor.Typed<ControlRegister1> accessor =
 		IntAccessor.typed(t -> t.value, (t, i) -> t.value = i);
 	private static final IntAccessor.Typed<ControlRegister1> subPagesModeField =
@@ -33,6 +34,7 @@ public class ControlRegister1 {
 		this.value = value;
 	}
 
+	@Override
 	public int value() {
 		return value;
 	}
@@ -55,13 +57,17 @@ public class ControlRegister1 {
 		return dataHoldField.get(this) != 0;
 	}
 
+	/**
+	 * Enables/disables sub-page auto-toggle (continuous vs step mode). Note: step mode produces bad
+	 * data from the device and should not be used.
+	 */
 	public ControlRegister1 subPagesRepeat(boolean enable) {
-		subPagesRepeatField.set(this, enable ? 1 : 0);
+		subPagesRepeatField.set(this, enable ? 0 : 1); // 0 = true
 		return this;
 	}
 
 	public boolean subPagesRepeat() {
-		return subPagesRepeatField.get(this) != 0;
+		return subPagesRepeatField.get(this) == 0; // 0 = true
 	}
 
 	ControlRegister1 subPage(SubPage subPage) {
@@ -107,6 +113,19 @@ public class ControlRegister1 {
 
 	boolean startMeasurement() {
 		return startMeasurementField.get(this) != 0;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(value);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof ControlRegister1)) return false;
+		ControlRegister1 other = (ControlRegister1) obj;
+		return value == other.value;
 	}
 
 	@Override

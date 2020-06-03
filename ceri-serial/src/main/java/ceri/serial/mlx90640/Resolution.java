@@ -10,7 +10,7 @@ public enum Resolution {
 
 	public static final TypeTranscoder<Resolution> xcoder =
 		TypeTranscoder.of(t -> t.id, Resolution.class);
-	private final int id;
+	public final int id;
 
 	private Resolution(int id) {
 		this.id = id;

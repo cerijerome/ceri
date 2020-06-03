@@ -1,23 +1,26 @@
 package ceri.serial.mlx90640;
 
+import java.util.Objects;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntAccessor;
 import ceri.common.text.ToStringHelper;
 
-public class StatusRegister {
-	private static final int START_SYNC = 0x30;
+public class StatusRegister implements Register {
+	private static final int DATA_RESET = 0x30;
 	private static final IntAccessor.Typed<StatusRegister> accessor =
 		IntAccessor.typed(t -> t.value, (t, i) -> t.value = i);
-	private static final FieldTranscoder.Typed<StatusRegister, SubPage> subPageField =
+	private static final FieldTranscoder.Typed<StatusRegister, SubPage> lastSubPageField =
 		SubPage.xcoder.field(accessor.maskBits(0, 3));
 	private static final IntAccessor.Typed<StatusRegister> dataAvailableField =
 		accessor.maskBits(3, 1);
-	private static final IntAccessor.Typed<StatusRegister> overwriteEnabledField =
+	private static final IntAccessor.Typed<StatusRegister> overwriteRamField =
 		accessor.maskBits(4, 1);
+	private static final IntAccessor.Typed<StatusRegister> startOfMeasurementField =
+		accessor.maskBits(5, 1);
 	private int value;
 
-	public static StatusRegister startSync() {
-		return new StatusRegister(START_SYNC);
+	public static StatusRegister dataReset() {
+		return new StatusRegister(DATA_RESET);
 	}
 
 	static StatusRegister of(int value) {
@@ -28,30 +31,63 @@ public class StatusRegister {
 		this.value = value;
 	}
 
+	@Override
 	public int value() {
 		return value;
 	}
 
-	public boolean overwriteEnabled() {
-		return overwriteEnabledField.get(this) != 0;
+	public SubPage lastSubPage() {
+		return lastSubPageField.get(this);
+	}
+
+	public int lastSubPageNumber() {
+		return lastSubPageField.accessor().get(this) & 1;
 	}
 
 	public boolean dataAvailable() {
 		return dataAvailableField.get(this) != 0;
 	}
 
-	public SubPage lastSubPage() {
-		return subPageField.get(this);
+	public StatusRegister dataAvailable(boolean available) {
+		dataAvailableField.set(this, available ? 1 : 0);
+		return this;
 	}
 
-	public int lastSubPageBit() {
-		return subPageField.accessor().get(this) & 1;
+	public boolean overwriteRam() {
+		return overwriteRamField.get(this) != 0;
+	}
+
+	public StatusRegister overwriteRam(boolean enable) {
+		overwriteRamField.set(this, enable ? 1 : 0);
+		return this;
+	}
+
+	public boolean startMeasurement() {
+		return startOfMeasurementField.get(this) != 0;
+	}
+
+	public StatusRegister startMeasurement(boolean start) {
+		startOfMeasurementField.set(this, start ? 1 : 0);
+		return this;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(value);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof StatusRegister)) return false;
+		StatusRegister other = (StatusRegister) obj;
+		return value == other.value;
 	}
 
 	@Override
 	public String toString() {
 		return ToStringHelper.createByClass(this, String.format("0x%04x", value),
-			overwriteEnabled(), dataAvailable(), lastSubPage()).toString();
+			startMeasurement(), overwriteRam(), dataAvailable(), lastSubPage()).toString();
 	}
 
 }
