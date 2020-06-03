@@ -16,6 +16,8 @@ import java.util.function.IntFunction;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionRunnable;
@@ -63,9 +65,19 @@ public class LogUtil {
 	public static void execute(Logger logger, ExceptionRunnable<Exception> runnable) {
 		try {
 			if (runnable != null) runnable.run();
+		} catch (InterruptedException | RuntimeInterruptedException e) {
+			if (logger != null) logger.info(e);
 		} catch (Exception e) {
 			if (logger != null) logger.catching(e);
 		}
+	}
+
+	/**
+	 * Submit runnable to the executor service. Log any exception as an error.
+	 */
+	public static Future<?> submit(Logger logger, ExecutorService executor,
+		ExceptionRunnable<Exception> runnable) {
+		return ConcurrentUtil.submit(executor, () -> execute(logger, runnable));
 	}
 
 	/**
@@ -156,8 +168,8 @@ public class LogUtil {
 		process.destroy();
 		try {
 			return process.waitFor(timeoutMs, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			if (logger != null) logger.catching(Level.INFO, e);
+		} catch (InterruptedException | RuntimeInterruptedException e) {
+			if (logger != null) logger.info(e);
 		}
 		return false;
 	}
@@ -179,8 +191,8 @@ public class LogUtil {
 		executor.shutdownNow();
 		try {
 			return executor.awaitTermination(timeoutMs, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			if (logger != null) logger.catching(Level.INFO, e);
+		} catch (InterruptedException | RuntimeInterruptedException e) {
+			if (logger != null) logger.info(e);
 		}
 		return false;
 	}
@@ -205,7 +217,9 @@ public class LogUtil {
 			return true;
 		} catch (CancellationException e) {
 			return true;
-		} catch (ExecutionException | TimeoutException | InterruptedException e) {
+		} catch (InterruptedException | RuntimeInterruptedException e) {
+			if (logger != null) logger.info(e);
+		} catch (ExecutionException | TimeoutException e) {
 			if (logger != null) logger.catching(Level.WARN, e);
 		}
 		return false;
