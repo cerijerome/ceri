@@ -12,6 +12,7 @@ import ceri.process.scutil.NcStatisticsBehavior;
 import ceri.process.scutil.NcStatusBehavior;
 import ceri.process.scutil.ParserBehavior;
 import ceri.process.scutil.ScUtilBehavior;
+import ceri.process.uptime.UptimeBehavior;
 
 /**
  * Generated test suite for ceri-process
@@ -29,6 +30,8 @@ import ceri.process.scutil.ScUtilBehavior;
 	NcStatusBehavior.class, //
 	ParserBehavior.class, //
 	ScUtilBehavior.class, //
+	// uptime
+	UptimeBehavior.class, //
 })
 public class _Tests {
 	public static void main(String... args) {

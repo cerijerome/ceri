@@ -1,4 +1,5 @@
 # Process - running executables from java
+The project contains classes to run and parse comand-line processes.
 
 ## MacOSX
 When running via eclipse, `PATH` may not include `/usr/local/bin`.  
