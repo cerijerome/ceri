@@ -46,6 +46,7 @@ import ceri.common.data.ByteArrayBehavior;
 import ceri.common.data.ByteArrayDataInputBehavior;
 import ceri.common.data.ByteArrayDataOutputBehavior;
 import ceri.common.data.ByteProviderBehavior;
+import ceri.common.data.ByteProviderReaderBehavior;
 import ceri.common.data.ByteReaderBehavior;
 import ceri.common.data.ByteReceiverBehavior;
 import ceri.common.data.ByteUtilTest;
@@ -210,6 +211,7 @@ import ceri.common.svg.PathGroupBehavior;
 import ceri.common.svg.PositionBehavior;
 import ceri.common.svg.SvgUtilTest;
 import ceri.common.svg.SweepFlagBehavior;
+import ceri.common.test.ApproxMatcherBehavior;
 import ceri.common.test.BinaryLogInputStreamBehavior;
 import ceri.common.test.BinaryLogOutputStreamBehavior;
 import ceri.common.test.BinaryPrinterBehavior;
@@ -328,6 +330,7 @@ import ceri.common.xml.XmlUtilTest;
 	ByteArrayDataInputBehavior.class, //
 	ByteArrayDataOutputBehavior.class, //
 	ByteProviderBehavior.class, //
+	ByteProviderReaderBehavior.class, //
 	ByteReaderBehavior.class, //
 	ByteReceiverBehavior.class, //
 	ByteUtilTest.class, //
@@ -511,6 +514,7 @@ import ceri.common.xml.XmlUtilTest;
 	SvgUtilTest.class, //
 	SweepFlagBehavior.class, //
 	// test
+	ApproxMatcherBehavior.class, //
 	BinaryLogInputStreamBehavior.class, //
 	BinaryLogOutputStreamBehavior.class, //
 	BinaryPrinterBehavior.class, //

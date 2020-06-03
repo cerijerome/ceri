@@ -103,7 +103,7 @@ public class ValueCondition<T> {
 	 * Waits for predicate to be true, or timer to expire. Current value is cleared.
 	 */
 	public T await(long timeoutMs, Predicate<T> predicate) throws InterruptedException {
-		return await(Timer.of(timeoutMs), predicate);
+		return await(Timer.millis(timeoutMs), predicate);
 	}
 
 	private T await(Timer timer, Predicate<T> predicate) throws InterruptedException {
@@ -160,7 +160,7 @@ public class ValueCondition<T> {
 	 * Waits for predicate to be true, or timer to expire.
 	 */
 	public T awaitPeek(long timeoutMs, Predicate<T> predicate) throws InterruptedException {
-		return awaitPeek(Timer.of(timeoutMs), predicate);
+		return awaitPeek(Timer.millis(timeoutMs), predicate);
 	}
 
 	private T awaitPeek(Timer timer, Predicate<T> predicate) throws InterruptedException {
@@ -181,9 +181,9 @@ public class ValueCondition<T> {
 		timer.start();
 		while (!predicate.test(value)) {
 			Timer.Snapshot snapshot = timer.snapshot();
-			if (timer.snapshot().expired()) break;
-			if (timer.isInfinite()) condition.await();
-			else condition.await(snapshot.remaining, TimeUnit.MILLISECONDS);
+			if (snapshot.expired()) break;
+			if (snapshot.infinite()) condition.await();
+			else snapshot.applyRemaining(t -> condition.await(t, TimeUnit.MILLISECONDS));
 		}
 		return value;
 	}

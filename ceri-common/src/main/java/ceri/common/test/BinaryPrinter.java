@@ -18,7 +18,7 @@ import ceri.common.util.Align;
  * 00101111 00000000 01000011 10100000  2F 00 43 A0  /.C.
  * </pre>
  *
- * for 4 bytes per column, and 1 column. Unprintable ascii chars will show as "."
+ * for 4 bytes per column, and 1 column. Unprintable ascii chars will show as "." by default
  */
 public class BinaryPrinter {
 	public static final BinaryPrinter DEFAULT = builder().build();
@@ -30,20 +30,26 @@ public class BinaryPrinter {
 	private final int bufferSize;
 	private final int bytesPerColumn;
 	private final int columns;
+	private final boolean columnSpace;
 	private final boolean showBinary;
 	private final boolean showHex;
 	private final boolean showChar;
+	private final boolean upper;
 	private final boolean printableSpace;
+	private final char unprintable;
 
 	public static class Builder {
 		PrintStream out = System.out;
 		int bufferSize = 32 * 1024;
 		int bytesPerColumn = 8;
 		int columns = 1;
+		boolean columnSpace = true;
 		boolean showBinary = true;
 		boolean showHex = true;
 		boolean showChar = true;
+		boolean upper = false;
 		boolean printableSpace = false;
+		char unprintable = '.';
 
 		Builder() {}
 
@@ -52,38 +58,80 @@ public class BinaryPrinter {
 			return this;
 		}
 
-		public Builder printableSpace(boolean printableSpace) {
-			this.printableSpace = printableSpace;
-			return this;
-		}
-
 		public Builder bufferSize(int bufferSize) {
 			this.bufferSize = bufferSize;
 			return this;
 		}
 
+		/**
+		 * Specify how many bytes in a column.
+		 */
 		public Builder bytesPerColumn(int bytesPerColumn) {
 			this.bytesPerColumn = bytesPerColumn;
 			return this;
 		}
 
+		/**
+		 * Specify how many columns per line. Applies to each shown type binary/hex/char.
+		 */
 		public Builder columns(int columns) {
 			this.columns = columns;
 			return this;
 		}
 
+		/**
+		 * Specify whether to show a space between columns.
+		 */
+		public Builder columnSpace(boolean columnSpace) {
+			this.columnSpace = columnSpace;
+			return this;
+		}
+
+		/**
+		 * Specify whether to show 8-digit binary per byte.
+		 */
 		public Builder showBinary(boolean showBinary) {
 			this.showBinary = showBinary;
 			return this;
 		}
 
+		/**
+		 * Specify whether to show 2-digit hex per byte.
+		 */
 		public Builder showHex(boolean showHex) {
 			this.showHex = showHex;
 			return this;
 		}
 
+		/**
+		 * Specify whether to show ascii per byte.
+		 */
 		public Builder showChar(boolean showChar) {
 			this.showChar = showChar;
+			return this;
+		}
+
+		/**
+		 * Determines if hex digits are printed as upper-case.
+		 */
+		public Builder upper(boolean upper) {
+			this.upper = upper;
+			return this;
+		}
+
+		/**
+		 * Determines if ascii-32 is printed as a space or as unprintable char.
+		 */
+		public Builder printableSpace(boolean printableSpace) {
+			this.printableSpace = printableSpace;
+			return this;
+		}
+
+		/**
+		 * Sets the character that appears for unprintable bytes.
+		 */
+		public Builder unprintable(char unprintable) {
+			this.unprintable = unprintable;
 			return this;
 		}
 
@@ -100,7 +148,7 @@ public class BinaryPrinter {
 		return new Builder().out(printer.out).bufferSize(printer.bufferSize)
 			.bytesPerColumn(printer.bytesPerColumn).columns(printer.columns)
 			.showBinary(printer.showBinary).showHex(printer.showHex).showChar(printer.showChar)
-			.printableSpace(printer.printableSpace);
+			.printableSpace(printer.printableSpace).unprintable(printer.unprintable);
 	}
 
 	BinaryPrinter(Builder builder) {
@@ -108,17 +156,21 @@ public class BinaryPrinter {
 		bufferSize = builder.bufferSize;
 		bytesPerColumn = builder.bytesPerColumn;
 		columns = builder.columns;
+		columnSpace = builder.columnSpace;
 		showBinary = builder.showBinary;
 		showHex = builder.showHex;
 		showChar = builder.showChar;
+		upper = builder.upper;
 		printableSpace = builder.printableSpace;
+		unprintable = builder.unprintable;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, //
-			out == null ? null : out.getClass().getSimpleName(), bytesPerColumn, columns,
-			showBinary, showHex, showChar).toString();
+		String outName = out == null ? null : out.getClass().getSimpleName();
+		return ToStringHelper.createByClass(this, outName, bufferSize, bytesPerColumn, columns,
+			columnSpace, showBinary, showHex, showChar, upper, printableSpace, unprintable)
+			.toString();
 	}
 
 	/**
@@ -246,6 +298,7 @@ public class BinaryPrinter {
 	}
 
 	private void appendItemSpace(StringBuilder binB, StringBuilder hexB) {
+		if (!columnSpace) return;
 		binB.append(' ');
 		hexB.append(' ');
 	}
@@ -253,11 +306,11 @@ public class BinaryPrinter {
 	private void appendByte(StringBuilder binB, StringBuilder hexB, StringBuilder charB, int b) {
 		String s = StringUtil.pad(Integer.toBinaryString(b), Byte.SIZE, "0", Align.H.right);
 		binB.append(s);
-		s = Integer.toHexString(b).toUpperCase();
+		s = Integer.toHexString(b);
 		if (s.length() == 1) hexB.append('0');
-		hexB.append(s);
+		hexB.append(upper ? s.toUpperCase() : s);
 		boolean printable = (b >= ASCII_MIN && b <= ASCII_MAX) || (printableSpace && b == ' ');
-		charB.append(printable ? (char) b : '.');
+		charB.append(printable ? (char) b : unprintable);
 	}
 
 	private void resetBuffers(StringBuilder binB, StringBuilder hexB, StringBuilder charB) {
@@ -269,12 +322,13 @@ public class BinaryPrinter {
 	private void appendMissingItemSpace(StringBuilder binB, StringBuilder hexB,
 		StringBuilder charB) {
 		binB.append("        ");
-		hexB.append("  ");
+		hexB.append(' ');
 		charB.append(' ');
 	}
 
 	private void appendColumnSpace(StringBuilder binB, StringBuilder hexB, StringBuilder charB) {
-		appendItemSpace(binB, hexB);
+		binB.append(' ');
+		hexB.append(' ');
 		charB.append(' ');
 	}
 

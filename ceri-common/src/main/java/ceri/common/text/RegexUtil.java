@@ -22,6 +22,9 @@ import ceri.common.util.BasicUtil;
 import ceri.common.util.HashCoder;
 import ceri.common.util.PrimitiveUtil;
 
+/**
+ * General utilities for regular expressions.
+ */
 public class RegexUtil {
 	public static final Pattern ALL = Pattern.compile(".*");
 	private static final Pattern GROUP_NAME_REGEX = Pattern.compile("\\(\\?\\<([^>]+)\\>");
@@ -42,11 +45,18 @@ public class RegexUtil {
 
 	private RegexUtil() {}
 
+	/**
+	 * Pattern does not override hashCode(); this method generates a hash code for a Pattern
+	 * instance.
+	 */
 	public static int hashCode(Pattern pattern) {
 		if (pattern == null) return HashCoder.hash((Object) null);
 		return HashCoder.hash(pattern.pattern(), pattern.flags());
 	}
 
+	/**
+	 * Pattern does not override equals(); this method checks if patterns are equal.
+	 */
 	public static boolean equals(Pattern lhs, Pattern rhs) {
 		if (lhs == rhs) return true;
 		if (lhs == null || rhs == null) return false;

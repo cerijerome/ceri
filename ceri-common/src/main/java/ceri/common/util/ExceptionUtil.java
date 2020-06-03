@@ -69,8 +69,13 @@ public class ExceptionUtil {
 	 * Gets the throwable message, or class name if no message.
 	 */
 	public static String message(Throwable t) {
-		if (t == null) return null;
-		return BasicUtil.defaultValue(t.getMessage(), t.getClass().getSimpleName());
+		Throwable t0 = t;
+		while (t != null) {
+			String message = t.getMessage();
+			if (!BasicUtil.isEmpty(message)) return message;
+			t = t.getCause();
+		}
+		return t0 == null ? null : t0.getClass().getSimpleName();
 	}
 
 	/**

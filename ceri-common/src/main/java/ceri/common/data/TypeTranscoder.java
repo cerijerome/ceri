@@ -33,11 +33,11 @@ public class TypeTranscoder<T> {
 		public boolean isEmpty() {
 			return types.isEmpty() && isExact();
 		}
-		
+
 		public boolean isExact() {
 			return remainder == 0;
 		}
-		
+
 		@Override
 		public int hashCode() {
 			return HashCoder.hash(types, remainder);
@@ -105,6 +105,10 @@ public class TypeTranscoder<T> {
 		return FieldTranscoder.of(accessor, this);
 	}
 
+	public <S> FieldTranscoder.Typed<S, T> field(IntAccessor.Typed<S> accessor) {
+		return FieldTranscoder.Typed.of(accessor, this);
+	}
+
 	@SafeVarargs
 	public final int encode(T... ts) {
 		if (ts == null || ts.length == 0) return 0;
@@ -122,19 +126,28 @@ public class TypeTranscoder<T> {
 	}
 
 	/**
-	 * Simple bitwise check if value contains the types. May not match decodeAll if type values
+	 * Simple bitwise check if value contains the type. May not match decodeAll if type values
 	 * overlap.
 	 */
-	@SafeVarargs
-	public final boolean hasAnyOf(int value, T... ts) {
-		return hasAnyOf(value, Arrays.asList(ts));
+	public boolean has(int value, T t) {
+		int mask = valueFn.applyAsInt(t);
+		return (value & mask) == mask;
 	}
 
 	/**
 	 * Simple bitwise check if value contains the types. May not match decodeAll if type values
 	 * overlap.
 	 */
-	public boolean hasAnyOf(int value, Collection<T> ts) {
+	@SafeVarargs
+	public final boolean hasAny(int value, T... ts) {
+		return hasAny(value, Arrays.asList(ts));
+	}
+
+	/**
+	 * Simple bitwise check if value contains the types. May not match decodeAll if type values
+	 * overlap.
+	 */
+	public boolean hasAny(int value, Collection<T> ts) {
 		return ts.stream().mapToInt(valueFn).filter(v -> (value & v) == v).findAny().isPresent();
 	}
 
@@ -143,15 +156,15 @@ public class TypeTranscoder<T> {
 	 * overlap.
 	 */
 	@SafeVarargs
-	public final boolean hasAllOf(int value, T... ts) {
-		return hasAllOf(value, Arrays.asList(ts));
+	public final boolean hasAll(int value, T... ts) {
+		return hasAll(value, Arrays.asList(ts));
 	}
 
 	/**
 	 * Simple bitwise check if value contains the types. May not match decodeAll if type values
 	 * overlap.
 	 */
-	public boolean hasAllOf(int value, Collection<T> ts) {
+	public boolean hasAll(int value, Collection<T> ts) {
 		int mask = StreamUtil.bitwiseOr(ts.stream().mapToInt(valueFn));
 		return (value & mask) == mask;
 	}

@@ -9,6 +9,7 @@ import static ceri.common.collection.ArrayUtil.ints;
 import static ceri.common.collection.ArrayUtil.longs;
 import static ceri.common.collection.ArrayUtil.shorts;
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertAssertion;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertDir;
 import static ceri.common.test.TestUtil.assertExists;
@@ -35,7 +36,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -52,7 +52,6 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.SystemIo;
 import ceri.common.text.StringUtil;
 import ceri.common.util.Align;
@@ -444,18 +443,6 @@ public class TestUtilTest {
 		assertIterable(set);
 		Collections.addAll(set, Integer.MAX_VALUE, Integer.MIN_VALUE, 0);
 		assertIterable(set, Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
-	}
-
-	private void assertAssertion(ExceptionRunnable<Exception> runnable) {
-		try {
-			runnable.run();
-		} catch (Exception e) {
-			fail();
-		} catch (AssertionError e) {
-			// Success
-			return;
-		}
-		fail();
 	}
 
 }

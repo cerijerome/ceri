@@ -7,26 +7,21 @@ import ceri.common.util.HashCoder;
  * Extracts and calculates masked values within a long value.
  */
 public class MaskTranscoder {
-	public static final MaskTranscoder NULL = mask(-1);
+	public static final MaskTranscoder NULL = mask(-1, 0);
 	private final long mask; // value mask; before shift for decoding
 	private final int shiftBits;
 
-	public static MaskTranscoder mask(long mask) {
-		return mask(mask, 0);
-	}
-
+	/**
+	 * Mask bits and shift. Masked value is right-shifted given number of bits.
+	 */
 	public static MaskTranscoder mask(long mask, int shiftBits) {
 		return new MaskTranscoder(mask, shiftBits);
 	}
 
-	public static MaskTranscoder bits(int startBit, int bitCount) {
-		return mask(ByteUtil.mask(startBit, bitCount));
-	}
-
-	public static MaskTranscoder bits(int bitCount) {
-		return bits(0, bitCount);
-	}
-
+	/**
+	 * Mask bits and shift. Masked value is right-shifted to start at bit 0.
+	 * TODO: rename to 'bits'
+	 */
 	public static MaskTranscoder shiftBits(int startBit, int bitCount) {
 		return mask(ByteUtil.mask(startBit, bitCount), startBit);
 	}

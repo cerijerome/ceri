@@ -63,8 +63,7 @@ public class TestState<T> {
 	}
 
 	private void waitForValue(T value, long ms) throws InterruptedException {
-		Timer timer = ms == 0 ? Timer.INFINITE : Timer.of(ms);
-		timer.start();
+		Timer timer = (ms == 0 ? Timer.INFINITE : Timer.millis(ms)).start();
 		while (!Objects.equals(this.value, value)) {
 			Timer.Snapshot snapshot = timer.snapshot();
 			if (snapshot.expired()) break;

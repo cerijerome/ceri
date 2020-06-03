@@ -11,7 +11,14 @@ import ceri.common.function.ToByteFunction;
 import ceri.common.function.ToShortFunction;
 
 /**
- * Interface to get and set integer values within an object.
+ * Interface to get and set integer values within an object. The main interface holds a getter and
+ * setter function.
+ * <p/>
+ * The Typed nested class requires a typed object to be passed in to a getter and setter. This
+ * allows the typed accessor to be statically declared on types.
+ * <p/>
+ * A mask transcoder can be applied to either accessor type, to mask and shift bits when 
+ * calling access methods. This allows only a subset of bits to be affected during access.
  */
 public interface IntAccessor {
 
@@ -38,7 +45,7 @@ public interface IntAccessor {
 	}
 
 	default IntAccessor mask(int mask) {
-		return mask(MaskTranscoder.mask(mask));
+		return mask(MaskTranscoder.mask(mask, 0));
 	}
 
 	default IntAccessor mask(MaskTranscoder mask) {
@@ -89,7 +96,10 @@ public interface IntAccessor {
 			safeApply(setFn, ObjShortConsumer::toUintExact));
 	}
 
-	class Typed<T> {
+	/**
+	 * Provides getter and setter access to an integer value, for a given typed object.
+	 */
+	static class Typed<T> {
 		public final ToIntFunction<T> getFn;
 		public final ObjIntConsumer<T> setFn;
 
@@ -102,25 +112,63 @@ public interface IntAccessor {
 			return IntAccessor.of(() -> get(t), i -> set(t, i));
 		}
 
-		public IntAccessor.Typed<T> mask(int mask) {
-			return mask(MaskTranscoder.mask(mask));
+		/**
+		 * Apply a mask when accessing the value. Mask bits but don't shift to get value.
+		 */
+		public IntAccessor.Typed<T> mask(int mask, int shiftBits) {
+			return mask(MaskTranscoder.mask(mask, shiftBits));
 		}
 
+		/**
+		 * Apply a mask when accessing the value. Mask bits and shift to get value.
+		 */
+		public IntAccessor.Typed<T> maskBits(int startBit, int bitCount) {
+			return mask(MaskTranscoder.shiftBits(startBit, bitCount));
+		}
+
+		/**
+		 * Apply a mask when accessing the value.
+		 */
 		public IntAccessor.Typed<T> mask(MaskTranscoder mask) {
 			ToIntFunction<T> getFn = t -> mask.decodeInt(get(t));
 			ObjIntConsumer<T> setFn = (t, i) -> set(t, mask.encodeInt(i, get(t)));
 			return typed(getFn, setFn);
 		}
 
+		/**
+		 * Get the value from the typed object.
+		 */
 		public int get(T value) {
 			if (getFn == null) throw new UnsupportedOperationException();
 			return getFn.applyAsInt(value);
 		}
 
+		/**
+		 * Set the value on the typed object.
+		 */
 		public void set(T t, int value) {
 			if (setFn == null) throw new UnsupportedOperationException();
 			setFn.accept(t, value);
 		}
+
+		/**
+		 * Add value with bitwise-or.
+		 */
+		public int add(T t, int value) {
+			int added = get(t) | value;
+			set(t, added);
+			return added;
+		}
+
+		/**
+		 * Remove value by masking bits.
+		 */
+		public int remove(T t, int value) {
+			int removed = get(t) & ~value;
+			set(t, removed);
+			return removed;
+		}
+
 	}
 
 }

@@ -200,6 +200,7 @@ public class BasicUtil {
 	 * interrupted.
 	 */
 	public static void delayMicros(long delayMicros) {
+		if (delayMicros <= 0) return; 
 		long ms = delayMicros / MICROS_IN_MILLIS;
 		int ns = (int) ((delayMicros % MICROS_IN_MILLIS) * NANOS_IN_MICROS);
 		if (ms == 0 && ns == 0) return;

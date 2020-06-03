@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.function.Function;
 import ceri.common.function.ExceptionBooleanSupplier;
 import ceri.common.function.ExceptionIntSupplier;
+import ceri.common.function.ExceptionLongSupplier;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.reflect.ReflectUtil;
@@ -64,6 +65,16 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 	public int getInt(ExceptionIntSupplier<?> supplier) throws E {
 		try {
 			return supplier.getAsInt();
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw apply(e);
+		}
+	}
+
+	public long getLong(ExceptionLongSupplier<?> supplier) throws E {
+		try {
+			return supplier.getAsLong();
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {

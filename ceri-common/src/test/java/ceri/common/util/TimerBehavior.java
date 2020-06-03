@@ -10,15 +10,15 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import org.junit.Test;
-import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.util.Timer.State;
 
 public class TimerBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		Timer t0 = Timer.of(1000);
-		Timer t1 = Timer.of(1000);
+		Timer t0 = Timer.millis(1000);
+		Timer t1 = Timer.millis(1000);
 		Timer.Snapshot s0 = new Timer.Snapshot(t0, State.started, 100, 101, 99);
 		Timer.Snapshot s1 = new Timer.Snapshot(t0, State.started, 100, 101, 99);
 		Timer.Snapshot s2 = new Timer.Snapshot(t1, State.started, 100, 101, 99);
@@ -32,7 +32,7 @@ public class TimerBehavior {
 
 	@Test
 	public void shouldDetermineIfExpired() {
-		Timer t = Timer.of(10000);
+		Timer t = Timer.millis(10000);
 		assertFalse(t.snapshot().expired()); // false - not started
 		t.stop();
 		assertTrue(t.snapshot().expired()); // true - stopped
@@ -44,24 +44,23 @@ public class TimerBehavior {
 
 	@Test
 	public void shouldDetermineRemainingTime() {
-		Timer t = Timer.of(Integer.MAX_VALUE + 10000L);
+		Timer t = Timer.millis(Integer.MAX_VALUE + 10000L);
 		assertThat(t.snapshot().remainingInt(), is(Integer.MAX_VALUE));
-		assertThat(Timer.of(-1).snapshot().remainingInt(), is(0));
-		assertThat(Timer.of(0).snapshot().remainingInt(), is(0));
+		assertThat(Timer.millis(-1).snapshot().remainingInt(), is(0));
+		assertThat(Timer.millis(0).snapshot().remainingInt(), is(0));
 	}
 
 	@Test
 	public void shouldApplyRemainingTime() throws Exception {
-		ExceptionConsumer<Exception, Integer> consumer =
-			uncheckedCast(mock(ExceptionConsumer.class));
-		Timer.INFINITE.applyRemaining(consumer);
-		Timer.of(0).applyRemaining(consumer);
+		ExceptionIntConsumer<Exception> consumer = uncheckedCast(mock(ExceptionIntConsumer.class));
+		Timer.INFINITE.applyRemainingInt(consumer);
+		Timer.millis(0).applyRemainingInt(consumer);
 		verifyNoMoreInteractions(consumer);
 	}
 
 	@Test
 	public void shouldPauseIfRunning() {
-		Timer t = Timer.of(10000);
+		Timer t = Timer.millis(10000);
 		assertFalse(t.pause()); // false - not started
 		t.start();
 		assertTrue(t.pause()); // true - was running
@@ -71,7 +70,7 @@ public class TimerBehavior {
 
 	@Test
 	public void shouldResumeIfPaused() {
-		Timer t = Timer.of(10000);
+		Timer t = Timer.millis(10000);
 		assertFalse(t.resume()); // false - not started
 		t.start();
 		assertFalse(t.resume()); // false - running

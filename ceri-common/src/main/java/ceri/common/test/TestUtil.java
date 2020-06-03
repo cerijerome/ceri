@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -152,6 +153,21 @@ public class TestUtil {
 	}
 
 	/**
+	 * Checkan assertion error is thrown. Useful for checking assertXxx methods.
+	 */
+	public static void assertAssertion(ExceptionRunnable<Exception> runnable) {
+		try {
+			runnable.run();
+		} catch (Exception e) {
+			// Failure
+		} catch (AssertionError e) {
+			// Success
+			return;
+		}
+		fail();
+	}
+	
+	/**
 	 * Checks all objects are not equal to the first given object.
 	 */
 	@SafeVarargs
@@ -272,8 +288,8 @@ public class TestUtil {
 		if (!Double.isFinite(expected) || !Double.isFinite(value)) {
 			assertThat(reason, value, is(expected));
 		} else {
-			double approxValue = MathUtil.simpleRound(value, precision);
-			double approxExpected = MathUtil.simpleRound(expected, precision);
+			double approxValue = MathUtil.round(value, precision);
+			double approxExpected = MathUtil.round(expected, precision);
 			assertThat(reason, approxValue, is(approxExpected));
 		}
 	}
@@ -926,6 +942,20 @@ public class TestUtil {
 	public static <T> Matcher<T> isObject(Object obj) {
 		Matcher<Object> is = Is.is(obj);
 		return BasicUtil.uncheckedCast(is);
+	}
+
+	/**
+	 * Matcher for double within delta precision.
+	 */
+	public static Matcher<Double> isApprox(double expected, double delta) {
+		return ApproxMatcher.delta(expected, delta);
+	}
+
+	/**
+	 * Matcher for double rounded to decimal places.
+	 */
+	public static Matcher<Double> isRounded(double expected, int places) {
+		return ApproxMatcher.round(expected, places);
 	}
 
 	/**

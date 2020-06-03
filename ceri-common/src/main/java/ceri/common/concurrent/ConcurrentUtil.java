@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
@@ -18,6 +19,20 @@ import ceri.common.function.ExceptionSupplier;
 public class ConcurrentUtil {
 
 	private ConcurrentUtil() {}
+
+	/**
+	 * Calls shutdownNow() on executor and waits for termination. Throws RuntimeInterruptedException
+	 * if interrupted while waiting.
+	 */
+	public static boolean stopAndWait(ExecutorService executor, int timeoutMs) {
+		if (executor == null) return false;
+		executor.shutdownNow();
+		try {
+			return executor.awaitTermination(timeoutMs, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			throw new RuntimeInterruptedException(e);
+		}
+	}
 
 	public static <E extends Exception> void executeAndWait(ExecutorService executor,
 		ExceptionRunnable<?> runnable, Function<Throwable, ? extends E> exceptionConstructor)
@@ -31,6 +46,13 @@ public class ConcurrentUtil {
 		get(submit(executor, runnable), exceptionConstructor, timeoutMs);
 	}
 
+	public static boolean cancelAndWait(Future<?> future) {
+		if (future == null) return false;
+		future.cancel(true);
+		get(future, RuntimeException::new);
+		return true;
+	}
+	
 	/**
 	 * Calls future get with support for converting exceptions.
 	 */
@@ -75,8 +97,8 @@ public class ConcurrentUtil {
 	 * Executes all runnable tasks and waits for completion.
 	 */
 	public static <E extends Exception> void invoke(ExecutorService executor,
-		Function<Throwable, ? extends E> exceptionConstructor, Collection<ExceptionRunnable<E>> runnables)
-		throws InterruptedException, E {
+		Function<Throwable, ? extends E> exceptionConstructor,
+		Collection<ExceptionRunnable<E>> runnables) throws InterruptedException, E {
 		invokeAll(executor, exceptionConstructor, null, runnables);
 	}
 
@@ -137,8 +159,7 @@ public class ConcurrentUtil {
 	/**
 	 * Executes the operation within the lock and returns the result.
 	 */
-	public static <E extends Exception, T> T executeGet(Lock lock,
-		ExceptionSupplier<E, T> supplier)
+	public static <E extends Exception, T> T executeGet(Lock lock, ExceptionSupplier<E, T> supplier)
 		throws E {
 		lock.lock();
 		try {
@@ -191,8 +212,8 @@ public class ConcurrentUtil {
 	/**
 	 * Executes and converts InterruptedException to runtime.
 	 */
-	public static <T> T executeGetInterruptible(
-		ExceptionSupplier<InterruptedException, T> supplier) {
+	public static <T> T
+		executeGetInterruptible(ExceptionSupplier<InterruptedException, T> supplier) {
 		try {
 			return supplier.get();
 		} catch (InterruptedException e) {
