@@ -11,8 +11,9 @@ import com.gargoylesoftware.htmlunit.SilentCssErrorHandler;
 import com.gargoylesoftware.htmlunit.StringWebResponse;
 import com.gargoylesoftware.htmlunit.TopLevelWindow;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HTMLParser;
+//import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.html.parser.HTMLParser;
 import ceri.ent.web.SampleHeader;
 
 public class WebClientHelper implements Closeable {
@@ -100,7 +101,7 @@ public class WebClientHelper implements Closeable {
 	public HtmlPage getPage(String url, Path file) throws IOException {
 		String content = Files.readString(file);
 		StringWebResponse response = new StringWebResponse(content, new URL(url));
-		return HTMLParser.parseHtml(response, new TopLevelWindow("", webClient) {
+		return htmlParser().parseHtml(response, new TopLevelWindow("", webClient) {
 			private static final long serialVersionUID = 0L;
 		});
 	}
@@ -128,6 +129,10 @@ public class WebClientHelper implements Closeable {
 		try (WebClientHelper downloader = WebClientHelper.create()) {
 			return downloader.getContent(url);
 		}
+	}
+
+	private HTMLParser htmlParser() {
+		return webClient.getPageCreator().getHtmlParser();
 	}
 
 }
