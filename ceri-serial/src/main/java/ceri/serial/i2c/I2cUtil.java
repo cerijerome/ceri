@@ -18,7 +18,7 @@ public class I2cUtil {
 	public static I2cAddress address(int address, boolean bit10) {
 		return bit10 ? I2cAddress.of10Bit(address) : I2cAddress.of7Bit(address);
 	}
-	
+
 	public static void validate7Bit(I2cAddress address) {
 		if (address.tenBit) throw new UnsupportedOperationException(
 			"Operation not supported for 10-bit addresses: " + address);
