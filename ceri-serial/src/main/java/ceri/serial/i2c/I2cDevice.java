@@ -2,7 +2,6 @@ package ceri.serial.i2c;
 
 import static ceri.serial.clib.OpenFlag.O_RDWR;
 import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_RD;
-import java.io.IOException;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +12,10 @@ import ceri.serial.clib.jna.CException;
 import ceri.serial.i2c.jna.I2cDev;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
-import ceri.serial.i2c.jna.I2cDev.i2c_msg.ByReference;
+import ceri.serial.i2c.smbus.SmBus;
+import ceri.serial.i2c.smbus.SmBusDevice;
+import ceri.serial.i2c.smbus.SmBusI2c;
+import ceri.serial.i2c.util.I2cUtil;
 
 /**
  * Implementation of I2c interface using the standard Linux i2c driver.
@@ -45,54 +47,44 @@ public class I2cDevice implements I2c {
 		this.fd = FileDescriptor.of(fd);
 	}
 
-	/**
-	 * Specify the number of times a device address should be polled when not acknowledging.
-	 */
 	@Override
 	public I2cDevice retries(int count) throws CException {
 		I2cDev.i2c_retries(fd.fd(), count);
 		return this;
 	}
 
-	/**
-	 * Specify the call timeout.
-	 */
 	@Override
 	public I2cDevice timeout(int timeoutMs) throws CException {
 		I2cDev.i2c_timeout(fd.fd(), timeoutMs);
 		return this;
 	}
 
-	/**
-	 * Determine functionality supported by the bus.
-	 */
 	@Override
 	public Set<i2c_func> functions() throws CException {
 		return i2c_func.xcoder.decodeAll(I2cDev.i2c_funcs(fd.fd()));
 	}
 
-	/**
-	 * Enable or disable user-mode PEC.
-	 */
 	@Override
 	public void smBusPec(boolean on) throws CException {
 		I2cDev.i2c_smbus_pec(fd.fd(), on);
 		state.pec = on;
 	}
 
-	/**
-	 * Provide SMBus functionality. Emulated SMBus uses ioctl read-writes calls. SMBus only supports
-	 * 7-bit addresses.
-	 */
 	@Override
-	public SmBus smBus(I2cAddress address, boolean useI2c) {
+	public SmBus smBus(I2cAddress address) {
 		I2cUtil.validate7Bit(address);
-		return useI2c ? SmBusI2c.of(smBusSupport(), address) : new SmBusDevice(this, address);
+		return SmBusDevice.of(fd::fd, this::selectDevice, address);
 	}
 
 	/**
-	 * I2C write using supplied memory buffer for ioctl.
+	 * Provide SMBus functionality using I2C read-writes calls instead of SMBUS direct calls. SMBus
+	 * only supports 7-bit addresses.
 	 */
+	public SmBus smBusI2c(I2cAddress address) {
+		I2cUtil.validate7Bit(address);
+		return SmBusI2c.of(this::transfer, this::smBusPec, address);
+	}
+
 	@Override
 	public void write(I2cAddress address, int writeLen, Pointer writeBuf) throws CException {
 		i2c_msg.ByReference msg = new i2c_msg.ByReference();
@@ -100,9 +92,6 @@ public class I2cDevice implements I2c {
 		transfer(msg);
 	}
 
-	/**
-	 * I2C write and read using supplied memory buffers for ioctl.
-	 */
 	@Override
 	public void writeRead(I2cAddress address, Pointer writeBuf, int writeLen, Pointer readBuf,
 		int readLen) throws CException {
@@ -117,13 +106,7 @@ public class I2cDevice implements I2c {
 		LogUtil.close(logger, fd);
 	}
 
-	/* Start: Shared with SMBus */
-
-	FileDescriptor fd() {
-		return fd;
-	}
-
-	void selectDevice(I2cAddress address) throws CException {
+	private void selectDevice(I2cAddress address) throws CException {
 		setAddressBits(address.tenBit);
 		try {
 			setSlaveAddress(address.address);
@@ -162,20 +145,6 @@ public class I2cDevice implements I2c {
 		I2cDev.i2c_tenbit(fd.fd(), tenBit);
 		state.address = State.NO_ADDRESS;
 		state.tenBit = tenBit;
-	}
-
-	private SmBusI2c.I2cSupport smBusSupport() {
-		return new SmBusI2c.I2cSupport() {
-			@Override
-			public void transfer(ByReference... msgs) throws IOException {
-				I2cDevice.this.transfer(msgs);
-			}
-
-			@Override
-			public boolean smBusPec() {
-				return I2cDevice.this.smBusPec();
-			}
-		};
 	}
 
 }

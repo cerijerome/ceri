@@ -5,8 +5,9 @@ import java.util.Collection;
 import com.sun.jna.Pointer;
 import ceri.serial.i2c.I2c;
 import ceri.serial.i2c.I2cAddress;
-import ceri.serial.i2c.SmBus;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
+import ceri.serial.i2c.smbus.NullSmBus;
+import ceri.serial.i2c.smbus.SmBus;
 
 /**
  * A no-op implementation of I2c interface.
@@ -32,7 +33,7 @@ public class NullI2c implements I2c {
 	public void smBusPec(boolean on) throws IOException {}
 
 	@Override
-	public SmBus smBus(I2cAddress address, boolean useI2c) {
+	public SmBus smBus(I2cAddress address) {
 		return NullSmBus.instance();
 	}
 

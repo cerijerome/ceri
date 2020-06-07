@@ -2,6 +2,7 @@ package ceri.serial.mlx90640;
 
 import ceri.common.data.TypeTranscoder;
 
+@Deprecated
 public enum MlxError {
 	i2cError(-1),
 	i2cWriteFailed(-2),

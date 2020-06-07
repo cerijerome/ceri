@@ -1,0 +1,37 @@
+#!/bin/bash
+#------------------------------------------------------------------------------
+# Runs test class locally
+#------------------------------------------------------------------------------
+set -e
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+showHelp() {
+    echo "Usage: $(basename "${BASH_SOURCE[0]}") <fully-qualified-class-name> [params]"
+    echo "Options:"
+    echo "  -h, --help, -?            Show this message"
+    echo "  -v, --verbose             Verbose messaging"
+}
+
+while true; do
+    case "$1" in
+        -h | --help | -\? ) HELP=1; break;;
+        -v | --verbose ) VERBOSE=1; shift;;
+        -- ) shift; break;;
+        -* ) UNKNOWN="$1"; break;;
+        * ) break ;;
+    esac
+done
+CLASS="${1:-ceri.serial.mlx90640.Mlx90640Tester}"
+PARAMS="${@:2}"
+
+PRJDIR=$DIR/../..
+PRJNAME="$(basename "$(cd "$PRJDIR" && pwd)")"
+TARGETDIR="$DIR/../../target"
+CPATH="classes:test-classes:dependency/*"
+
+[[ "$HELP" ]] && { showHelp; exit 0; }
+[[ "$UNKNOWN" ]] && { >&2 echo "Unknown option: $UNKNOWN"; showHelp; exit 1; }
+
+cd "$TARGETDIR"
+java -cp $CPATH $CLASS $PARAMS

@@ -6,6 +6,7 @@ import ceri.serial.clib.jna.CException;
 /**
  * Exception for MLX90640 errors. Holds ErrorCode (may be null) and code.
  */
+@Deprecated
 public class MlxException extends CException {
 	private static final long serialVersionUID = 3696913945167490798L;
 	public final MlxError error;

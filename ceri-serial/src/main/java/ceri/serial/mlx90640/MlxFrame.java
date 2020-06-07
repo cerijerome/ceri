@@ -6,6 +6,7 @@ import static ceri.serial.mlx90640.Mlx90640.PIXELS;
 import static ceri.serial.mlx90640.Mlx90640.ROWS;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.math.MathUtil;
+import ceri.serial.mlx90640.register.ReadingPattern;
 
 /**
  * Wrapper for pixel temperature settings. Populated by Mlx90640 and MlxData classes.

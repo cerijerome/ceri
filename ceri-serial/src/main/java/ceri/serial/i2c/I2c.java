@@ -1,8 +1,8 @@
 package ceri.serial.i2c;
 
-import static ceri.serial.i2c.I2cUtil.SCAN_7BIT_MAX;
-import static ceri.serial.i2c.I2cUtil.SCAN_7BIT_MIN;
-import static ceri.serial.i2c.I2cUtil.SOFTWARE_RESET;
+import static ceri.serial.i2c.util.I2cUtil.SCAN_7BIT_MAX;
+import static ceri.serial.i2c.util.I2cUtil.SCAN_7BIT_MIN;
+import static ceri.serial.i2c.util.I2cUtil.SOFTWARE_RESET;
 import static ceri.serial.jna.JnaUtil.size;
 import java.io.Closeable;
 import java.io.IOException;
@@ -16,6 +16,7 @@ import ceri.common.collection.StreamUtil;
 import ceri.common.data.ByteUtil;
 import ceri.serial.clib.jna.CUtil;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
+import ceri.serial.i2c.smbus.SmBus;
 import ceri.serial.jna.JnaUtil;
 
 /**
@@ -43,16 +44,16 @@ public interface I2c extends Closeable {
 	 * exception. Results of various methods:
 	 * 
 	 * <pre>
-	 * (actual and emulated SMBus)
-	 * writeQuick(off) => success only for existing device
-	 * writeQuick(on) => success whether device exists or not
-	 * readByte() => success only for existing device
-	 * writeByte(0) => success only for existing device, but may have side-effects
+	 * Direct and i2c-emulated SMBus call results tested against MLX90640 device:
+	 * - writeQuick(off) => success only for existing device
+	 * - writeQuick(on) => success whether device exists or not
+	 * - readByte() => success only for existing device
+	 * - writeByte(0) => success only for existing device, but may have side-effects
 	 * </pre>
 	 */
 	default boolean exists(I2cAddress address) {
 		try {
-			smBus(address, false).writeQuick(false);
+			smBus(address).writeQuick(false);
 			return true;
 		} catch (IOException e) {
 			return false;
@@ -89,10 +90,9 @@ public interface I2c extends Closeable {
 	void smBusPec(boolean on) throws IOException;
 
 	/**
-	 * Provide SMBus functionality. The useI2c flag determines whether SMBUS calls should use I2C
-	 * read-writes calls instead of SMBUS direct calls. SMBus only supports 7-bit addresses.
+	 * Provide SMBus functionality. SMBus only supports 7-bit addresses.
 	 */
-	SmBus smBus(I2cAddress address, boolean useI2c);
+	SmBus smBus(I2cAddress address);
 
 	/**
 	 * Send byte array command to address, and read byte array response, using ioctl.

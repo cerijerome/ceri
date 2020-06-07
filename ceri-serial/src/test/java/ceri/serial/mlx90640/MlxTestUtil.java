@@ -13,6 +13,13 @@ public class MlxTestUtil {
 	private MlxTestUtil() {}
 
 	/**
+	 * Return offset for pixel row and column (1-based).
+	 */
+	public static int px(int row, int column) {
+		return (row - 1) * COLUMNS + column - 1;
+	}
+	
+	/**
 	 * Print array values.
 	 */
 	public static void printArray(Object array) {

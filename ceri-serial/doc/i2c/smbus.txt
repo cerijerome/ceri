@@ -1,4 +1,3 @@
-
 SMBus Summary
 -------------
 ['spec' name]  [method name]        [data transfers]

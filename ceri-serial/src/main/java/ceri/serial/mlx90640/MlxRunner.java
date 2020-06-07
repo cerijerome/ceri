@@ -14,6 +14,11 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Timer;
 import ceri.log.util.LogUtil;
+import ceri.serial.mlx90640.register.ControlRegister1;
+import ceri.serial.mlx90640.register.ReadingPattern;
+import ceri.serial.mlx90640.register.RefreshRate;
+import ceri.serial.mlx90640.register.Resolution;
+import ceri.serial.mlx90640.register.StatusRegister;
 
 /**
  * Generates the temperature grid in one thread, and mediates for other threads to receive the data.
