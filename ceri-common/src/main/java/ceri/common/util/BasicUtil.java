@@ -207,6 +207,9 @@ public class BasicUtil {
 		ConcurrentUtil.executeInterruptible(() -> Thread.sleep(ms, ns));
 	}
 
+	/**
+	 * Returns time in microseconds from an arbitrary origin time. Use only to compare elapsed time.
+	 */
 	public static long microTime() {
 		return System.nanoTime() / NANOS_IN_MICROS;
 	}

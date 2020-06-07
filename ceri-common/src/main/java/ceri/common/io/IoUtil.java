@@ -34,6 +34,7 @@ import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.FunctionUtil;
 import ceri.common.function.FunctionWrapper;
+import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.ExceptionAdapter;
 import ceri.common.util.SystemVars;
@@ -58,6 +59,20 @@ public class IoUtil {
 	private static final ExceptionPredicate<IOException, Path> NULL_FILTER = path -> true;
 
 	private IoUtil() {}
+
+	/**
+	 * Creates an exception with formatted message.
+	 */
+	public static IOException ioExceptionf(String format, Object... args) {
+		return new IOException(StringUtil.format(format, args));
+	}
+
+	/**
+	 * Creates an exception with formatted message.
+	 */
+	public static IOException ioExceptionf(Throwable cause, String format, Object... args) {
+		return new IOException(StringUtil.format(format, args), cause);
+	}
 
 	/**
 	 * Clears available bytes from an input stream and returns the total number of bytes cleared.
@@ -473,7 +488,7 @@ public class IoUtil {
 	 * Streams filtered paths recursively under a given directory. A null filter matches all paths.
 	 * Must be used in context of try-with-resources.
 	 */
-	@SuppressWarnings("resource") // no 
+	@SuppressWarnings("resource") // no
 	public static WrappedStream<IOException, Path> walk(Path dir,
 		ExceptionPredicate<IOException, Path> filter) throws IOException {
 		return WrappedStream.<IOException, Path>of(Files.walk(dir))

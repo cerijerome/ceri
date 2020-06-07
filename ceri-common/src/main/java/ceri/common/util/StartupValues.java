@@ -7,6 +7,9 @@ import ceri.common.function.ExceptionSupplier;
 import ceri.common.property.PathFactory;
 import ceri.common.text.StringUtil;
 
+/**
+ * Utility to read parameters from args[], system properties, and environment variables.
+ */
 public class StartupValues {
 	private final String[] args;
 	private Class<?> pkgPrefix = null;
@@ -27,19 +30,31 @@ public class StartupValues {
 		return of().value(sysProp, envVar);
 	}
 
+	/**
+	 * Creates an instance that prints value assignments to stdout. 
+	 */
 	public static StartupValues sysOut(String... args) {
 		return of(args).notifier(System.out::println);
 	}
 
+	/**
+	 * Creates an instance with no notification. 
+	 */
 	public static StartupValues of(String... args) {
 		return new StartupValues(args);
 	}
 
+	/**
+	 * Creates an instance that prints value assignments to the given notifier. 
+	 */
 	public StartupValues notifier(Consumer<String> notifier) {
 		this.notifier = notifier;
 		return this;
 	}
 
+	/**
+	 * A wrapper to perform value assignment, and provide typed access. 
+	 */
 	public static class Value {
 		public final String name;
 		public final Integer argIndex;
@@ -214,7 +229,8 @@ public class StartupValues {
 
 	public Value next(String name) {
 		String sysProp = sysProp(pkgPrefix, name);
-		return next(name, sysProp, envVar(sysProp));
+		String envVar = envVar(sysProp);
+		return next(name, sysProp, envVar);
 	}
 
 	public Value next(String name, String sysProp, String envVar) {

@@ -2,6 +2,7 @@ package ceri.common.collection;
 
 import static ceri.common.collection.CollectionUtil.spliterator;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Spliterator;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -125,6 +126,14 @@ public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 		return new WrappedIntStream<>(w, intStream);
 	}
 
+	public Optional<T> findAny() throws E {
+		return terminateAs(Stream::findAny);
+	}
+	
+	public Optional<T> findFirst() throws E {
+		return terminateAs(Stream::findFirst);
+	}
+	
 	public <R> R terminateAs(ExceptionFunction<E, ? super Stream<T>, R> fn) throws E {
 		return w.unwrapSupplier(() -> fn.apply(stream));
 	}
