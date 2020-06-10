@@ -1,4 +1,4 @@
-package ceri.serial.mlx90640.display;
+package ceri.serial.mlx90640.util;
 
 import static ceri.common.text.AnsiEscape.csi;
 import static ceri.serial.mlx90640.Mlx90640.ROWS;
@@ -46,13 +46,13 @@ public class AnsiDisplay extends TerminalDisplay {
 		}
 
 		@Override
-		public Builder min(double min) {
+		public Builder min(Double min) {
 			super.min(min);
 			return this;
 		}
 
 		@Override
-		public Builder max(double max) {
+		public Builder max(Double max) {
 			super.max(max);
 			return this;
 		}

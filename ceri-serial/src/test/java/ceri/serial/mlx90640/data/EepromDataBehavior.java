@@ -2,6 +2,7 @@ package ceri.serial.mlx90640.data;
 
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.serial.mlx90640.Mlx90640.COLUMNS;
+import static ceri.serial.mlx90640.Mlx90640.EEPROM_PIXEL_START;
 import static ceri.serial.mlx90640.Mlx90640.EEPROM_START;
 import static ceri.serial.mlx90640.Mlx90640.EEPROM_WORDS;
 import static ceri.serial.mlx90640.Mlx90640.ROWS;
@@ -12,8 +13,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.serial.mlx90640.MlxTestUtil;
-import ceri.serial.mlx90640.data.CalibrationData;
-import ceri.serial.mlx90640.data.EepromData;
 
 /**
  * Data and results taken from datasheet.
@@ -25,7 +24,7 @@ public class EepromDataBehavior {
 	/**
 	 * Generates test calibration data.
 	 */
-	public static CalibrationData calibrationTestData() {
+	public static CalibrationData calibrationTestData() throws MlxDataException {
 		EepromData eepromData = EepromData.of(MlxTestUtil.bytes(eepromData()));
 		CalibrationData.Builder cal = CalibrationData.builder();
 		eepromData.restoreCalibrationData(cal);
@@ -33,7 +32,7 @@ public class EepromDataBehavior {
 	}
 
 	@BeforeClass
-	public static void init() {
+	public static void init() throws MlxDataException {
 		cal = calibrationTestData();
 	}
 
@@ -164,7 +163,7 @@ public class EepromDataBehavior {
 	private static int[] eepromData() {
 		int[] eepromData = new int[EEPROM_WORDS];
 		ArrayUtil.copy(eepromParams(), 0, eepromData, ee(0x2410));
-		eepromData[ee(0x2440) + px] = 0x08a0; // 0x25af
+		eepromData[ee(EEPROM_PIXEL_START) + px] = 0x08a0; // 0x25af
 		return eepromData;
 	}
 

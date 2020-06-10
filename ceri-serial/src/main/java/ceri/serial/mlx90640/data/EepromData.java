@@ -2,6 +2,7 @@ package ceri.serial.mlx90640.data;
 
 import static ceri.common.validation.ValidationUtil.validateMinL;
 import static ceri.serial.mlx90640.Mlx90640.COLUMNS;
+import static ceri.serial.mlx90640.Mlx90640.EEPROM_PIXEL_START;
 import static ceri.serial.mlx90640.Mlx90640.EEPROM_START;
 import static ceri.serial.mlx90640.Mlx90640.EEPROM_WORDS;
 import static ceri.serial.mlx90640.Mlx90640.ROWS;
@@ -13,6 +14,7 @@ import static ceri.serial.mlx90640.Mlx90640.ROWS;
  */
 public class EepromData extends MlxBuffer {
 	public static final int BYTES = EEPROM_WORDS * Short.BYTES;
+	private static final int MAX_BAD_PIXELS = 4;
 
 	public static EepromData of(byte[] data) {
 		validateMinL(data.length, BYTES);
@@ -24,9 +26,10 @@ public class EepromData extends MlxBuffer {
 	}
 
 	/**
-	 * Extracts calibration data from EEPROM data.
+	 * Restores calibration data from EEPROM data.
 	 */
-	public void restoreCalibrationData(CalibrationData.Builder cal) {
+	public void restoreCalibrationData(CalibrationData.Builder cal) throws MlxDataException {
+		extractBadPixels(cal);
 		restoreVddSensorParameters(cal); // datasheet 11.1.1
 		restoreTaSensorParameters(cal); // datasheet 11.1.2 (partial)
 		restoreOffset(cal); // datasheet 11.1.3
@@ -84,7 +87,7 @@ public class EepromData extends MlxBuffer {
 
 		for (int p = 0, i = 0; i < ROWS; i++) {
 			for (int j = 0; j < COLUMNS; j++, p++) {
-				int offset = bits(ee(0x2440) + p, 10, 6);
+				int offset = bits(ee(EEPROM_PIXEL_START) + p, 10, 6);
 				cal.pixOsRef[p] = offsetAverage //
 					+ (occRow[i] << occScaleRow) //
 					+ (occColumn[j] << occScaleColumn) //
@@ -122,7 +125,7 @@ public class EepromData extends MlxBuffer {
 
 		for (int p = 0, i = 0; i < ROWS; i++) {
 			for (int j = 0; j < COLUMNS; j++, p++) {
-				int aPixel = bits(ee(0x2440) + p, 4, 6); // unsigned instead?
+				int aPixel = bits(ee(EEPROM_PIXEL_START) + p, 4, 6); // unsigned instead?
 				cal.a[p] = (double) (aReference //
 					+ (accRow[i] << accScaleRow) //
 					+ (accColumn[j] << accScaleColumn) //
@@ -165,7 +168,7 @@ public class EepromData extends MlxBuffer {
 		for (int p = 0, i = 0; i < ROWS; i++) {
 			for (int j = 0; j < COLUMNS; j++, p++) {
 				int k = 2 * (i % 2) + (j % 2);
-				int ktaEe = bits(ee(0x2440) + p, 1, 3);
+				int ktaEe = bits(ee(EEPROM_PIXEL_START) + p, 1, 3);
 				cal.kta[p] = (double) (ktaRcEe[k] + (ktaEe << ktaScale2)) / (1L << ktaScale1);
 			}
 		}
@@ -275,6 +278,51 @@ public class EepromData extends MlxBuffer {
 	 */
 	private void restoreResolutionControlCoefficient(CalibrationData.Builder cal) {
 		cal.resolutionEe = ubits(ee(0x2438), 12, 2);
+	}
+
+	/**
+	 * Extracts broken and outlier pixels from EEPROM data. Checks for maximum allowed bad pixels,
+	 * and if any are directly adjacent.
+	 */
+	private void extractBadPixels(CalibrationData.Builder cal) throws MlxDataException {
+		for (int p = 0, i = 0; i < ROWS; i++) {
+			for (int j = 0; j < COLUMNS; j++, p++) {
+				int value = uvalue(ee(EEPROM_PIXEL_START) + p);
+				if (value == 0) cal.broken(p);
+				else if ((value & 1) != 0) cal.outlier(p);
+				else continue;
+				checkBadPixelCount(cal);
+				checkNeighbors(cal, p, i, j);
+			}
+		}
+	}
+
+	/**
+	 * Checks for bad neighboring pixels. Since pixel index incrementing, no need to check ahead.
+	 * 
+	 * <pre>
+	 * .---   .---  .---.  .---  ---.
+	 * |o    |xo    |xx    |xxx   xx|
+	 * |     |      |o     |xo    xo|
+	 * </pre>
+	 */
+	private void checkNeighbors(CalibrationData.Builder cal, int px, int i, int j)
+		throws MlxDataException {
+		if (j > 0) checkNeighbor(cal, px - 1);
+		if (i == 0) return;
+		if (j > 0) checkNeighbor(cal, px - COLUMNS - 1);
+		checkNeighbor(cal, px - COLUMNS);
+		if (j < COLUMNS - 1) checkNeighbor(cal, px - COLUMNS + 1);
+	}
+
+	private void checkNeighbor(CalibrationData.Builder cal, int px) throws MlxDataException {
+		if (cal.broken.contains(px) || cal.outliers.contains(px)) throw MlxDataException
+			.of("Adjacent bad pixels: broken=%s, outliers=%s", cal.broken, cal.outliers);
+	}
+
+	private void checkBadPixelCount(CalibrationData.Builder cal) throws MlxDataException {
+		if (cal.broken.size() + cal.outliers.size() > MAX_BAD_PIXELS) throw MlxDataException
+			.of("Too many bad pixels: broken=%s, outliers=%s", cal.broken, cal.outliers);
 	}
 
 	/**

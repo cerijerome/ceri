@@ -2,11 +2,11 @@ package ceri.serial.mlx90640;
 
 import static ceri.common.data.ByteArray.encoder;
 import static ceri.common.data.ByteUtil.toMsb;
-import static ceri.serial.mlx90640.MlxError.failedToStart;
-import static ceri.serial.mlx90640.MlxError.i2cWriteFailed;
+import static ceri.common.io.IoUtil.ioExceptionf;
 import static ceri.serial.mlx90640.register.ReadingPattern.chess;
 import static ceri.serial.mlx90640.register.RefreshRate._8Hz;
 import static ceri.serial.mlx90640.register.Resolution._19bit;
+import static ceri.serial.mlx90640.util.TerminalDisplay.Type.ansi;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import com.sun.jna.Memory;
@@ -25,12 +25,12 @@ import ceri.serial.jna.JnaUtil;
 import ceri.serial.mlx90640.data.CalibrationData;
 import ceri.serial.mlx90640.data.EepromData;
 import ceri.serial.mlx90640.data.RamData;
-import ceri.serial.mlx90640.display.AnsiDisplay;
 import ceri.serial.mlx90640.register.ControlRegister1;
 import ceri.serial.mlx90640.register.I2cConfigRegister;
 import ceri.serial.mlx90640.register.MlxI2cAddress;
 import ceri.serial.mlx90640.register.RefreshRate;
 import ceri.serial.mlx90640.register.StatusRegister;
+import ceri.serial.mlx90640.util.TerminalDisplay;
 
 /**
  * MLX90640 I2C controller class.
@@ -53,6 +53,7 @@ public class Mlx90640 {
 	public static final int EEPROM_CONTROL_REGISTER_1 = 0x240c;
 	public static final int EEPROM_I2C_CONF_REGISTER = 0x240e;
 	public static final int EEPROM_I2C_ADDRESS = 0x240f;
+	public static final int EEPROM_PIXEL_START = 0x2440;
 	public static final int STATUS_REGISTER = 0x8000;
 	public static final int CONTROL_REGISTER_1 = 0x800d;
 	public static final int I2C_CONF_REGISTER = 0x800f;
@@ -69,7 +70,6 @@ public class Mlx90640 {
 	private final int eepromWriteMicros;
 	private final int ramWriteMicros;
 	private final int dataAvailablePollMicros;
-	private final int resetDelayMicros;
 	private final int maxPollRetries;
 	// Data buffer used for EEPROM data then frame data processing
 	private final byte[] data = new byte[RAM_WORDS * Short.BYTES];
@@ -77,6 +77,11 @@ public class Mlx90640 {
 	private final Memory readBuffer = new Memory(data.length);
 	private CalibrationData calibrationData = null;
 	private RamData ramData = null;
+
+	// TODO:
+	// check write register verify yes/no
+	// reset i2c if i2c error?
+	// check mlx/adafruit algorithm for averages/fixes
 
 	public static void main(String[] args) throws Exception {
 		StartupValues values = StartupValues.of(args);
@@ -90,9 +95,11 @@ public class Mlx90640 {
 			System.out.printf("Absolute temp wait %d ms%n", absoluteTempWaitMs());
 			System.out.println("DeviceId: " + mlx.deviceId().toHex(0, "-"));
 			MlxFrame frame = MlxFrame.of();
-			AnsiDisplay display = AnsiDisplay.builder().min(25).max(40).build();
+			TerminalDisplay display = TerminalDisplay.of(ansi, 25.0, 40.0);
 			MlxRunner runner = MlxRunner.of(mlx);
-			runner.start(_8Hz, _19bit, chess, 1, null);
+			MlxRunnerConfig config = MlxRunnerConfig.builder().refreshRate(_8Hz).resolution(_19bit)
+				.pattern(chess).emissivity(1.0).build();
+			runner.start(config);
 			while (true) {
 				runner.awaitFrame(frame);
 				display.print(frame);
@@ -133,7 +140,6 @@ public class Mlx90640 {
 		int eepromWriteMicros = 5000;
 		int ramWriteMicros = 100;
 		int dataAvailablePollMicros = 200;
-		int resetDelayMicros = 100;
 		int maxPollRetries = 1000;
 
 		Builder(I2c i2c, I2cAddress address) {
@@ -171,11 +177,6 @@ public class Mlx90640 {
 			return this;
 		}
 
-		public Builder resetDelayMicros(int resetDelayMicros) {
-			this.dataAvailablePollMicros = resetDelayMicros;
-			return this;
-		}
-
 		public Builder maxPollRetries(int maxPollRetries) {
 			this.maxPollRetries = maxPollRetries;
 			return this;
@@ -199,7 +200,6 @@ public class Mlx90640 {
 		eepromWriteMicros = builder.eepromWriteMicros;
 		ramWriteMicros = builder.ramWriteMicros;
 		dataAvailablePollMicros = builder.dataAvailablePollMicros;
-		resetDelayMicros = builder.resetDelayMicros;
 		maxPollRetries = builder.maxPollRetries;
 	}
 
@@ -301,88 +301,47 @@ public class Mlx90640 {
 	}
 
 	/**
-	 * Load RAM frame data and validate.
+	 * Sets status register to clear data available. Should be called before waitForFrame().
 	 */
-	public void loadFrame() throws IOException {
-		StatusRegister status = readFrameData();
-		ControlRegister1 control1 = control1();
-		ramData.init(status.lastSubPageNumber(), control1);
+	public void clearFrame() throws IOException {
+		status(StatusRegister.dataReset());
 	}
 
-	public StatusRegister waitForData(int subPage) throws IOException {
+	/**
+	 * Wait until status register indicates new data is available.
+	 */
+	public StatusRegister waitForFrame() throws IOException {
 		for (int i = 0; i < maxPollRetries; i++) {
 			if (i > 0) BasicUtil.delayMicros(dataAvailablePollMicros);
 			StatusRegister status = status();
-			if (!status.dataAvailable()) continue;
-			if (subPage == -1 || status.lastSubPageNumber() == subPage) return status;
-			// if (status.dataAvailable()) return status;
+			if (status.dataAvailable()) return status;
 		}
 		throw new IOException("Data unavailable: " + maxPollRetries + " attempts");
 	}
 
-	public void loadFrame(int subPage, ControlRegister1 control1) throws IOException {
+	/**
+	 * Load frame data from RAM. Should only be called when data is available.
+	 */
+	public void loadFrame(int subPage) throws IOException {
+		ControlRegister1 control1 = control1();
 		readBytes(RAM_START, data, 0, RAM_WORDS * Short.BYTES);
 		ramData.init(subPage, control1);
 	}
 
-	public void calculateTo(MlxFrame frame, double emissivity, Double tr) throws IOException {
+	/**
+	 * Calculates absolute temperatures for the frame. Should be called after loadFrame().
+	 */
+	public void calculateTo(MlxFrame frame, double emissivity, Double tr) {
 		if (tr == null) tr = ramData.tr();
 		ramData.calculateTo(frame.values(), tr, emissivity);
-		// frameData.fixBadPixels(frame.values());
+		ramData.fixBadPixels(frame.values());
 		frame.setContext(ramData.mode(), ramData.vdd(), ramData.ta(), tr, emissivity);
-	}
-
-	public void getImage(MlxFrame frame) throws IOException {
-		loadFrame();
-		ramData.getImage(frame.values());
-		// frameData.fixBadPixels(frame.values());
-	}
-
-	private void syncFrame() throws IOException {
-		status(StatusRegister.dataReset());
-		pollForData(true);
-	}
-
-	private void triggerMeasurement() throws IOException {
-		control1(control1().startMeasurement(true));
-		generalReset();
-		ControlRegister1 control1 = control1();
-		if (control1.startMeasurement())
-			throw MlxException.of(failedToStart, "Failed to start: " + control1);
 	}
 
 	/* Support methods */
 
 	private void readEepromData() throws IOException {
 		readBytes(EEPROM_START, data, 0, EEPROM_WORDS * Short.BYTES);
-	}
-
-	private StatusRegister readFrameData() throws IOException {
-		StatusRegister status = pollForData(true);
-		status(StatusRegister.dataReset());
-		readBytes(RAM_START, data, 0, RAM_WORDS * Short.BYTES);
-		return status;
-	}
-
-	/**
-	 * Poll status register until it shows data available (true/false). Implements a delay between
-	 * retries, and a maximum retry count.
-	 */
-	private StatusRegister pollForData(boolean available) throws IOException {
-		for (int i = 0; i < maxPollRetries; i++) {
-			if (i > 0) BasicUtil.delayMicros(dataAvailablePollMicros);
-			StatusRegister status = status();
-			if (status.dataAvailable() == available) return status;
-		}
-		throw new IOException("Data unavailable: " + maxPollRetries + " attempts");
-	}
-
-	/**
-	 * Send I2C software reset.
-	 */
-	private void generalReset() throws IOException {
-		i2c.softwareReset();
-		BasicUtil.delayMicros(resetDelayMicros);
 	}
 
 	/**
@@ -400,8 +359,8 @@ public class Mlx90640 {
 		else writeRamRegister(register, value);
 		int actual = readRegister(register);
 		if (!validate) return;
-		if (actual != value) throw MlxException.of(i2cWriteFailed,
-			"Value not written to 0x%04x: 0x%x (expected 0x%x)", register, actual, value);
+		if (actual != value) throw ioExceptionf("Value not written to 0x%04x: 0x%x (expected 0x%x)",
+			register, actual, value);
 	}
 
 	/**

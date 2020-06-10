@@ -3,6 +3,9 @@ package ceri.serial.mlx90640.data;
 import static ceri.common.collection.ArrayUtil.copy;
 import static ceri.serial.mlx90640.Mlx90640.PIXELS;
 import static ceri.serial.mlx90640.Mlx90640.SUBPAGES;
+import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Calibration settings extracted from EEPROM data.
@@ -34,6 +37,7 @@ public class CalibrationData {
 	public final double ktaCp; // float cpKta
 	public final double tgc; // float tgc
 	public final int resolutionEe; // uint8_t resolutionEE
+	public final Set<Integer> badPixels;
 
 	public static class Builder {
 		public double vdd0 = 3.3;
@@ -61,6 +65,18 @@ public class CalibrationData {
 		public double ktaCp;
 		public double tgc;
 		public int resolutionEe;
+		public final Set<Integer> broken = new TreeSet<>();
+		public final Set<Integer> outliers = new TreeSet<>();
+
+		public Builder broken(int px) {
+			broken.add(px);
+			return this;
+		}
+
+		public Builder outlier(int px) {
+			outliers.add(px);
+			return this;
+		}
 
 		public CalibrationData build() {
 			return new CalibrationData(this);
@@ -70,7 +86,7 @@ public class CalibrationData {
 	public static Builder builder() {
 		return new Builder();
 	}
-	
+
 	private CalibrationData(Builder builder) {
 		vdd0 = builder.vdd0;
 		ta0 = builder.ta0;
@@ -97,6 +113,10 @@ public class CalibrationData {
 		ktaCp = builder.ktaCp;
 		tgc = builder.tgc;
 		resolutionEe = builder.resolutionEe;
+		Set<Integer> badPixels = new TreeSet<>();
+		badPixels.addAll(builder.broken);
+		badPixels.addAll(builder.outliers);
+		this.badPixels = Collections.unmodifiableSet(badPixels);
 	}
 
 	/**
@@ -105,7 +125,7 @@ public class CalibrationData {
 	public double tr(double ta) {
 		return ta + trTaOffset;
 	}
-	
+
 	/**
 	 * Datasheet 11.2.2.9.1.3.
 	 */
@@ -190,6 +210,13 @@ public class CalibrationData {
 	 */
 	public int offCpSubpage(int i) {
 		return offCpSubpage[i];
+	}
+
+	/**
+	 * Checks if pixel is a broken or an outlier.
+	 */
+	public boolean isBadPixel(int i) {
+		return badPixels.contains(i);
 	}
 
 }

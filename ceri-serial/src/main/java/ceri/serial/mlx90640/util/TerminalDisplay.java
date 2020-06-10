@@ -1,4 +1,4 @@
-package ceri.serial.mlx90640.display;
+package ceri.serial.mlx90640.util;
 
 import static ceri.serial.mlx90640.Mlx90640.COLUMNS;
 import static ceri.serial.mlx90640.Mlx90640.ROWS;
@@ -14,6 +14,21 @@ public class TerminalDisplay {
 	private final Double min;
 	private final Double max;
 
+	public static enum Type {
+		temp,
+		ascii,
+		ansi;
+	}
+
+	/**
+	 * Convenience method to create a display of given type.
+	 */
+	public static TerminalDisplay of(Type type, Double min, Double max) {
+		if (type == Type.ansi) return AnsiDisplay.builder().min(min).max(max).build();
+		if (type == Type.ascii) return AsciiDisplay.builder().min(min).max(max).build();
+		return builder().min(min).max(max).build();
+	}
+	
 	public static class Builder {
 		PrintStream out = System.out;
 		Double min = null;
@@ -26,12 +41,12 @@ public class TerminalDisplay {
 			return this;
 		}
 
-		public Builder min(double min) {
+		public Builder min(Double min) {
 			this.min = min;
 			return this;
 		}
 
-		public Builder max(double max) {
+		public Builder max(Double max) {
 			this.max = max;
 			return this;
 		}

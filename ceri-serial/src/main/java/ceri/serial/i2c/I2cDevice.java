@@ -6,6 +6,7 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
+import ceri.common.util.EqualsUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.clib.FileDescriptor;
 import ceri.serial.clib.jna.CException;
@@ -19,6 +20,7 @@ import ceri.serial.i2c.util.I2cUtil;
 
 /**
  * Implementation of I2c interface using the standard Linux i2c driver.
+ * Not thread-safe.
  */
 public class I2cDevice implements I2c {
 	private static final Logger logger = LogManager.getLogger();
@@ -29,10 +31,15 @@ public class I2cDevice implements I2c {
 	 * Keep state to avoid unneeded ioctl calls.
 	 */
 	private static class State {
-		static final int NO_ADDRESS = -1;
-		int address = NO_ADDRESS;
-		boolean tenBit = false;
-		boolean pec = false;
+		Integer address = null;
+		Boolean tenBit = null;
+		Boolean pec = null;
+		
+		public void reset() {
+			address = null;
+			tenBit = null;
+			pec = null;
+		}
 	}
 
 	/**
@@ -117,10 +124,12 @@ public class I2cDevice implements I2c {
 	}
 
 	/**
-	 * Returns whether user-mode PEC is enabled.
+	 * Returns whether user-mode PEC is enabled. If unknown state (null), assume false.
+	 * If incorrect, SMBus I2C emulation will fail from invalid PEC. No need to throw an 
+	 * exception here to force a failure.
 	 */
 	boolean smBusPec() {
-		return state.pec;
+		return state.pec != null && state.pec;
 	}
 
 	void transfer(i2c_msg.ByReference... msgs) throws CException {
@@ -130,7 +139,7 @@ public class I2cDevice implements I2c {
 	/* End: Shared with SMBus */
 
 	private void setSlaveAddress(int address) throws CException {
-		if (state.address == address) return;
+		if (state.address != null && state.address == address) return;
 		I2cDev.i2c_slave(fd.fd(), address);
 		state.address = address;
 	}
@@ -141,9 +150,9 @@ public class I2cDevice implements I2c {
 	}
 
 	private void setAddressBits(boolean tenBit) throws CException {
-		if (state.tenBit == tenBit) return;
+		if (state.tenBit != null && state.tenBit == tenBit) return;
 		I2cDev.i2c_tenbit(fd.fd(), tenBit);
-		state.address = State.NO_ADDRESS;
+		state.address = null;
 		state.tenBit = tenBit;
 	}
 

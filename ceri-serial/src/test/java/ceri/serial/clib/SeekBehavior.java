@@ -1,5 +1,6 @@
 package ceri.serial.clib;
 
+import static ceri.common.util.OsUtil.macInt;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -12,8 +13,9 @@ public class SeekBehavior {
 		assertThat(Seek.from(0), is(Seek.SEEK_SET));
 		assertThat(Seek.from(1), is(Seek.SEEK_CUR));
 		assertThat(Seek.from(2), is(Seek.SEEK_END));
+		assertThat(Seek.from(macInt(4, 3)), is(Seek.SEEK_DATA));
+		assertThat(Seek.from(macInt(3, 4)), is(Seek.SEEK_HOLE));
 		assertNull(Seek.from(-1));
-		assertNull(Seek.from(4));
 	}
 
 }

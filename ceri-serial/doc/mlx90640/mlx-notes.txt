@@ -205,12 +205,23 @@ Melexis Driver Code
 https://github.com/melexis/mlx90640-library
 
 Name mapping:
+- alpha[] => a[]
+- alphaCompensated => aComp
+- alphaCorrR[] => alphaCorrRange[]
+- cpAlpha[] => aCpSubpage[]
+- cpKta => ktaCp
+- cpKv => kvCp
 - cpOffset[] => offCpSubpage[]
 - irDataCP[] => pixOsCpSp[]
 - irData => pixGain, pixOs, vIrCompensated
+- offset[] => pixOsRef[]
 - taTr => tar
-- alphaCorrR[] => alphaCorrRange[]
-- alphaCompensated => aComp
+
+
+- MLX90640_BadPixelsCorrection = adjust bad to[] with median from neighbors
+- GetMedian = sort bad px and get median
+- IsPixelBad = check px is marked bad/outlier
+
 
 - functions/MLX90640_API.cpp = high-level functionality
   - MLX90640_DumpEE = read all eeprom values: 832 (0x340) values @0x2400
@@ -231,7 +242,7 @@ Name mapping:
   - MLX90640_GetSubPageNumber = get subpage saved with frame
   - MLX90640_BadPixelsCorrection = adjust bad to[] with median from neighbors
   - ExtractXxxParameters = set params from eeprom data
-  - ExtractDeviatingPixels = check each px+2rows is 0 or odd (?), mark px#, err if > 4
+  - ExtractDeviatingPixels = save broken/outlier pixel indexes, err if > 4 or direct neighbors
   - CheckAdjacentPixels = check bad px diff against each other
   - GetMedian = sort bad px and get median
   - IsPixelBad = check px is marked bad/outlier

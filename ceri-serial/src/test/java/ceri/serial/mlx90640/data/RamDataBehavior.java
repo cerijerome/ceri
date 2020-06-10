@@ -7,12 +7,10 @@ import static ceri.serial.mlx90640.register.ReadingPattern.chess;
 import static ceri.serial.mlx90640.register.ReadingPattern.interleaved;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import java.io.IOException;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ceri.serial.mlx90640.MlxException;
 import ceri.serial.mlx90640.MlxTestUtil;
-import ceri.serial.mlx90640.data.CalibrationData;
-import ceri.serial.mlx90640.data.RamData;
 import ceri.serial.mlx90640.register.ControlRegister1;
 
 public class RamDataBehavior {
@@ -21,7 +19,7 @@ public class RamDataBehavior {
 	private static final int px = MlxTestUtil.px(12, 16);
 
 	@BeforeClass
-	public static void init() throws MlxException {
+	public static void init() throws IOException {
 		cal = EepromDataBehavior.calibrationTestData();
 		frame = RamData.of(MlxTestUtil.bytes(frameData()), cal);
 		frame.init(0, ControlRegister1.of(0x0901));

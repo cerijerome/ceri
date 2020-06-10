@@ -1,15 +1,16 @@
 package ceri.serial.mlx90640.data;
 
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.math.MathUtil.average;
+import static ceri.common.math.MathUtil.median;
+import static ceri.common.validation.ValidationUtil.validateMinL;
 import static ceri.serial.mlx90640.Mlx90640.COLUMNS;
 import static ceri.serial.mlx90640.Mlx90640.PIXELS;
 import static ceri.serial.mlx90640.Mlx90640.RAM_AUX;
 import static ceri.serial.mlx90640.Mlx90640.RAM_START;
 import static ceri.serial.mlx90640.Mlx90640.RAM_WORDS;
+import static ceri.serial.mlx90640.Mlx90640.ROWS;
 import static ceri.serial.mlx90640.Mlx90640.SUBPAGES;
-import static ceri.serial.mlx90640.MlxError.badData;
 import static ceri.serial.mlx90640.register.ReadingPattern.chess;
-import ceri.serial.mlx90640.MlxException;
 import ceri.serial.mlx90640.register.ControlRegister1;
 import ceri.serial.mlx90640.register.ReadingPattern;
 
@@ -20,10 +21,10 @@ import ceri.serial.mlx90640.register.ReadingPattern;
  */
 public class RamData extends MlxBuffer {
 	public static final int BYTES = RAM_WORDS * Short.BYTES;
-	private static final int BAD_VALUE = 0x7fff;
+	public static final int BAD_VALUE = 0x7fff;
 	private static final double C0K = 273.15; // 0C in Kelvin
 	private final CalibrationData cal;
-	// Data set each init():
+	// Data populated each init()
 	private int subPage;
 	private ReadingPattern mode;
 	private double vdd;
@@ -45,7 +46,7 @@ public class RamData extends MlxBuffer {
 	/**
 	 * Called when new frame data has loaded.
 	 */
-	public void init(int subPage, ControlRegister1 control1) throws MlxException {
+	public void init(int subPage, ControlRegister1 control1) throws MlxDataException {
 		this.subPage = subPage;
 		mode = control1.pattern();
 		validateFrameData();
@@ -102,17 +103,14 @@ public class RamData extends MlxBuffer {
 	}
 
 	/**
-	 * Calculate relative object temperature array.
+	 * Fill in broken/outlier pixels identified in EEPROM data.
 	 */
-	public void getImage(double[] values) {
-		for (int p = 0; p < PIXELS; p++) {
-			int pattern = pattern(p, mode);
-			if (pattern != subPage) continue; // only process current sub-page
-			// TODO: this bit
-			// double vIrCompensated = vIrCompensated(p, pattern, e);
-			// double aComp = aComp(p, pattern, ta);
-			// double to = to(aComp, tar, vIrCompensated);
-			// values[p] = toExtraRange(to, aComp, tar, vIrCompensated);
+	public void fixBadPixels(double[] values) {
+		for (int px : cal.badPixels) {
+			int i = px / COLUMNS;
+			int j = px % COLUMNS;
+			values[px] = mode == ReadingPattern.chess ? fixChessPixel(values, px, i, j) :
+				fixInterleavedPixel(values, px, j);
 		}
 	}
 
@@ -288,16 +286,40 @@ public class RamData extends MlxBuffer {
 			0.25) - C0K;
 	}
 
-	/* Validation */
+	/* Validation and error correction */
 
-	private void validateFrameData() throws MlxException {
+	private double fixChessPixel(double[] values, int px, int i, int j) {
+		if (i == 0 && j == 0) return values[px + COLUMNS + 1];
+		if (i == 0 && j == COLUMNS - 1) return values[px + COLUMNS - 1];
+		if (i == ROWS - 1 && j == 0) return values[px - COLUMNS + 1];
+		if (i == ROWS - 1 && j == COLUMNS - 1) return values[px - COLUMNS - 1];
+		if (i == 0) return average(values[px + COLUMNS - 1], values[px + COLUMNS + 1]);
+		if (i == ROWS - 1) return average(values[px - COLUMNS - 1], values[px - COLUMNS + 1]);
+		if (j == 0) return average(values[px - COLUMNS + 1], values[px + COLUMNS + 1]);
+		if (j == COLUMNS - 1) return average(values[px - COLUMNS - 1], values[px + COLUMNS - 1]);
+		return median(values[px - COLUMNS - 1], values[px - COLUMNS + 1], values[px + COLUMNS - 1],
+			values[px + COLUMNS + 1]);
+	}
+
+	private double fixInterleavedPixel(double[] values, int px, int j) {
+		if (j == 0) return values[px + 1];
+		if (j == COLUMNS - 1) return values[px - 1];
+		if (j == 1 || j == COLUMNS - 2 || cal.isBadPixel(j - 2) || cal.isBadPixel(j + 2))
+			return average(values[px - 1], values[px + 1]);
+		double lDiff = values[px - 1] - values[px + 2];
+		double rDiff = values[px + 1] - values[px + 2];
+		if (Math.abs(lDiff) < Math.abs(rDiff)) return values[px - 1] + lDiff;
+		return values[px + 1] + rDiff;
+	}
+
+	private void validateFrameData() throws MlxDataException {
 		for (int line = 0, i = 0; i < PIXELS; i += COLUMNS, line++)
 			if (line % 2 == subPage) validateData(i);
 	}
 
-	private void validateAuxData() throws MlxException {
+	private void validateAuxData() throws MlxDataException {
 		// not checked: 1-7, 19, 23, 33-39, 51, 55
-		validateData(0);
+		validateData(aux(0));
 		validateData(aux(8), 11);
 		validateData(aux(20), 3);
 		validateData(aux(24), 9);
@@ -306,14 +328,14 @@ public class RamData extends MlxBuffer {
 		validateData(aux(56), 8);
 	}
 
-	private void validateData(int index, int count) throws MlxException {
+	private void validateData(int index, int count) throws MlxDataException {
 		for (int i = 0; i < count; i++, index++)
 			validateData(index);
 	}
 
-	private void validateData(int index) throws MlxException {
+	private void validateData(int index) throws MlxDataException {
 		int value = value(index);
-		if (value == BAD_VALUE) throw badData.exception("RAM[0x%04x] Bad data: 0x%04x (%d)",
+		if (value == BAD_VALUE) throw MlxDataException.of("RAM[0x%x] Bad data: 0x%x (%d)",
 			RAM_START + index, (short) value, value);
 	}
 

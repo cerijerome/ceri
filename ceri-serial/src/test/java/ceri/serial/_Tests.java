@@ -12,7 +12,6 @@ import ceri.serial.clib.SeekBehavior;
 import ceri.serial.clib.jna.CLibBehavior;
 import ceri.serial.jna.JnaUtilTest;
 import ceri.serial.libusb.jna.LibUsbFinderTest;
-import ceri.serial.mlx90640.Mlx90640Tester;
 import ceri.serial.mlx90640.data.EepromDataBehavior;
 import ceri.serial.mlx90640.data.RamDataBehavior;
 
@@ -34,9 +33,8 @@ import ceri.serial.mlx90640.data.RamDataBehavior;
 	JnaUtilTest.class, //
 	// libusb.jna
 	LibUsbFinderTest.class, //
-	// mlx90640
+	// mlx90640.data
 	EepromDataBehavior.class, //
-	Mlx90640Tester.class, //
 	RamDataBehavior.class, //
 })
 public class _Tests {

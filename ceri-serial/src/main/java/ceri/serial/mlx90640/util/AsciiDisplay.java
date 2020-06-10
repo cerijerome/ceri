@@ -1,4 +1,4 @@
-package ceri.serial.mlx90640.display;
+package ceri.serial.mlx90640.util;
 
 import java.io.PrintStream;
 
@@ -33,13 +33,13 @@ public class AsciiDisplay extends TerminalDisplay {
 		}
 
 		@Override
-		public Builder min(double min) {
+		public Builder min(Double min) {
 			super.min(min);
 			return this;
 		}
 
 		@Override
-		public Builder max(double max) {
+		public Builder max(Double max) {
 			super.max(max);
 			return this;
 		}

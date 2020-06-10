@@ -1,20 +1,19 @@
 package ceri.serial.mlx90640;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ceri.common.util.StartupValues;
 import ceri.log.util.LogUtil;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.util.I2cEmulator;
-import ceri.serial.mlx90640.data.MlxTestData;
-import ceri.serial.mlx90640.display.AnsiDisplay;
-import ceri.serial.mlx90640.display.AsciiDisplay;
-import ceri.serial.mlx90640.display.TerminalDisplay;
+import ceri.serial.mlx90640.data.SampleData;
 import ceri.serial.mlx90640.register.RefreshRate;
 import ceri.serial.mlx90640.util.Mlx90650I2cEmulator;
+import ceri.serial.mlx90640.util.TerminalDisplay;
+import ceri.serial.mlx90640.util.TerminalDisplay.Type;
 
 public class Mlx90640Tester {
-	private static final String TEMP = "temp";
-	private static final String ASCII = "ascii";
-	private static final String ANSI = "ansi";
+	private static final Logger logger = LogManager.getLogger();
 
 	public static void main(String[] args) throws Exception {
 		StartupValues v = LogUtil.startupValues(args);
@@ -22,36 +21,27 @@ public class Mlx90640Tester {
 		double emissivity = v.next().asDouble(1.0);
 		Double min = v.next().asDouble();
 		Double max = v.next().asDouble();
-		String displayType = v.next().get(ANSI);
-		MlxTestData data = v.next().apply(MlxTestData::valueOf, MlxTestData.ram0);
+		Type displayType = v.next().apply(Type::valueOf, Type.ascii);
+		SampleData data = v.next().apply(SampleData::valueOf, SampleData.ram0);
 		int i2cFrequency = v.next().asInt(400000);
 
 		I2cAddress address = I2cAddress.of7Bit(0x33);
 		try (I2cEmulator i2c = I2cEmulator.of(i2cFrequency)) {
-			data.populate(Mlx90650I2cEmulator.builder()).build().addTo(i2c);
+			Mlx90650I2cEmulator.builder().sample(data)
+				.broken(351, 353, 415, 417, 500).build().addTo(i2c);
 			Mlx90640 mlx = Mlx90640.of(i2c, address);
 			MlxFrame frame = MlxFrame.of();
-			TerminalDisplay display = display(displayType, min, max);
+			TerminalDisplay display = TerminalDisplay.of(displayType, min, max);
 			MlxRunner runner = MlxRunner.of(mlx);
-			runner.start(refreshRate, data.resolution, data.pattern, emissivity, null);
+			MlxRunnerConfig config = MlxRunnerConfig.builder().refreshRate(refreshRate)
+				.resolution(data.resolution).pattern(data.pattern).emissivity(emissivity).build();
+			logger.info("Starting: {}", config);
+			runner.start(config);
 			while (true) {
 				runner.awaitFrame(frame);
 				display.print(frame);
 			}
 		}
-	}
-
-	private static TerminalDisplay display(String type, Double min, Double max) {
-		TerminalDisplay.Builder b = displayBuilder(type);
-		if (min != null) b.min(min);
-		if (max != null) b.max(max);
-		return b.build();
-	}
-
-	private static TerminalDisplay.Builder displayBuilder(String type) {
-		if (TEMP.equals(type)) return TerminalDisplay.builder();
-		if (ASCII.equals(type)) return AsciiDisplay.builder();
-		return AnsiDisplay.builder();
 	}
 
 }
