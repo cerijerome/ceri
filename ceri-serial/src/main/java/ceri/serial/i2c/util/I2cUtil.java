@@ -44,7 +44,7 @@ public class I2cUtil {
 
 	public static void validate7Bit(I2cAddress address) {
 		if (address.tenBit) throw new UnsupportedOperationException(
-			"Operation not supported for 10-bit addresses: " + address);
+			"Only 7-bit addresses are supported: " + address);
 	}
 
 	public static i2c_msg.ByReference populate(i2c_msg.ByReference msg, I2cAddress address,

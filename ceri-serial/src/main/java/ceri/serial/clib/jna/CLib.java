@@ -2,12 +2,16 @@ package ceri.serial.clib.jna;
 
 import static ceri.serial.jna.JnaUtil.print;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.IntegerType;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
-import ceri.common.text.StringUtil;
+import ceri.common.text.RegexUtil;
+import ceri.common.util.BasicUtil;
 import ceri.serial.clib.OpenFlag;
 import ceri.serial.clib.jna.Termios.termios;
 import ceri.serial.jna.JnaUtil;
@@ -16,6 +20,9 @@ import ceri.serial.jna.JnaUtil;
  * Methods that call the native C-library.
  */
 public class CLib {
+	private static final int MAX_ARG_STRING_LEN = 40;
+	private static final int CUT_ARG_STRING_LEN = 16;
+	private static final Pattern STRING_ARG_REGEX = Pattern.compile("^[\\w$]+");
 	public static final int EOF = -1;
 	private static final Logger logger = LogManager.getLogger();
 	private static final CLibNative CLIB = loadLibrary(Platform.C_LIBRARY_NAME);
@@ -133,8 +140,17 @@ public class CLib {
 
 	private static String formatIoctl(String name, int fd, int request, Object... objs) {
 		name = name == null ? "ioctl" : "ioctl:" + name;
-		String args = objs.length == 0 ? "" : StringUtil.compact(StringUtil.join(", ", ", ", "", objs));
+		String args = objs.length == 0 ? "" :
+			Stream.of(objs).map(CLib::formatArg).collect(Collectors.joining(", ", ", ", ""));
 		return String.format("%s(%d, 0x%x%s)", name, fd, request, args);
+	}
+
+	private static String formatArg(Object obj) {
+		String s = String.valueOf(obj);
+		if (s.length() <= MAX_ARG_STRING_LEN) return s;
+		s = BasicUtil.defaultValue(RegexUtil.find(STRING_ARG_REGEX, s), s);
+		if (s.length() > MAX_ARG_STRING_LEN) s = s.substring(0, CUT_ARG_STRING_LEN);
+		return s + "...";
 	}
 
 	private static CLibNative loadLibrary(String name) {

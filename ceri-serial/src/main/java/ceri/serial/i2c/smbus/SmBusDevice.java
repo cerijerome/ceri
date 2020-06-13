@@ -1,8 +1,8 @@
 package ceri.serial.i2c.smbus;
 
 import java.io.IOException;
-import java.util.function.IntSupplier;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionIntSupplier;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.jna.I2cDev;
 
@@ -10,17 +10,17 @@ import ceri.serial.i2c.jna.I2cDev;
  * Provides SMBus functionality directly. Sets address if needed before SMBus action.
  */
 public class SmBusDevice implements SmBus {
-	private final IntSupplier fdFn;
+	private final ExceptionIntSupplier<IOException> fdFn;
 	private final ExceptionConsumer<IOException, I2cAddress> selectDeviceFn;
 	private final I2cAddress address;
 
-	public static SmBusDevice of(IntSupplier fdFn,
+	public static SmBusDevice of(ExceptionIntSupplier<IOException> fdFn,
 		ExceptionConsumer<IOException, I2cAddress> selectDeviceFn, I2cAddress address) {
 		return new SmBusDevice(fdFn, selectDeviceFn, address);
 	}
 
-	private SmBusDevice(IntSupplier fdFn, ExceptionConsumer<IOException, I2cAddress> selectDeviceFn,
-		I2cAddress address) {
+	private SmBusDevice(ExceptionIntSupplier<IOException> fdFn,
+		ExceptionConsumer<IOException, I2cAddress> selectDeviceFn, I2cAddress address) {
 		this.fdFn = fdFn;
 		this.selectDeviceFn = selectDeviceFn;
 		this.address = address;
@@ -111,7 +111,7 @@ public class SmBusDevice implements SmBus {
 		selectDeviceFn.accept(address);
 	}
 
-	private int fd() {
+	private int fd() throws IOException {
 		return fdFn.getAsInt();
 	}
 

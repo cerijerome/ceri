@@ -4,7 +4,6 @@ import static ceri.serial.i2c.util.I2cUtil.SCAN_7BIT_MAX;
 import static ceri.serial.i2c.util.I2cUtil.SCAN_7BIT_MIN;
 import static ceri.serial.i2c.util.I2cUtil.SOFTWARE_RESET;
 import static ceri.serial.jna.JnaUtil.size;
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
@@ -22,7 +21,7 @@ import ceri.serial.jna.JnaUtil;
 /**
  * Encapsulation of I2C bus.
  */
-public interface I2c extends Closeable {
+public interface I2c {
 
 	/**
 	 * Specify the number of times a device address should be polled when not acknowledging.
@@ -79,7 +78,7 @@ public interface I2c extends Closeable {
 	 * Read the device id for the address. (Not working with MLX90640)
 	 */
 	default DeviceId deviceId(I2cAddress address) throws IOException {
-		//I2cUtil.validate7Bit(address);
+		// I2cUtil.validate7Bit(address);
 		byte[] read = readData(I2cAddress.DEVICE_ID, address.frames(false), DeviceId.BYTES);
 		return DeviceId.decode((int) ByteUtil.fromMsb(read));
 	}
@@ -92,7 +91,7 @@ public interface I2c extends Closeable {
 	/**
 	 * Provide SMBus functionality. SMBus only supports 7-bit addresses.
 	 */
-	SmBus smBus(I2cAddress address);
+	SmBus smBus(I2cAddress address) throws IOException;
 
 	/**
 	 * Send byte array command to address, and read byte array response, using ioctl.

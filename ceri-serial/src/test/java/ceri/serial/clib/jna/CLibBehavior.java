@@ -24,7 +24,7 @@ import ceri.common.io.IoUtil;
 import ceri.common.test.FileTestHelper;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.OsUtil;
-import ceri.serial.clib.FileDescriptor;
+import ceri.serial.clib.CFileDescriptor;
 import ceri.serial.clib.Mode;
 import ceri.serial.clib.Mode.Mask;
 import ceri.serial.clib.OpenFlag;

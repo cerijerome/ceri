@@ -1,8 +1,5 @@
 package ceri.serial.clib.jna;
 
-import static ceri.serial.clib.OpenFlag.O_NOCTTY;
-import static ceri.serial.clib.OpenFlag.O_NONBLOCK;
-import static ceri.serial.clib.OpenFlag.O_RDWR;
 import java.util.Arrays;
 import java.util.List;
 import com.sun.jna.NativeLong;
@@ -10,21 +7,11 @@ import com.sun.jna.Structure;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
-import ceri.serial.clib.FileDescriptor;
 import ceri.serial.jna.Struct;
 
 public class Termios {
 
 	private Termios() {}
-
-	public static void main(String[] args) throws Exception {
-		try (FileDescriptor fd =
-			FileDescriptor.open("/dev/tty.usbserial-00000000", O_RDWR, O_NOCTTY, O_NONBLOCK)) {
-			termios t = CLib.tcgetattr(fd.fd());
-
-			System.out.println(t);
-		}
-	}
 
 	public static class Size {
 		public static final int TCFLAG_T = SizeOf.LONG;

@@ -101,9 +101,6 @@ public class I2cEmulator implements I2c {
 		JnaUtil.write(readBuf, response);
 	}
 
-	@Override
-	public void close() {}
-
 	/**
 	 * Execute a write for registered slave devices.
 	 */

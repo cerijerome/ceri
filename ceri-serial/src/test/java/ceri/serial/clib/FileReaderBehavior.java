@@ -34,7 +34,7 @@ public class FileReaderBehavior {
 
 	@Test
 	public void shouldReadBytes() throws IOException {
-		try (FileDescriptor fd = read("file1")) {
+		try (CFileDescriptor fd = read("file1")) {
 			FileReader r = FileReader.of(fd);
 			assertByte(r.readByte(), 't');
 			assertByte(r.readByte(), 'e');
@@ -45,7 +45,7 @@ public class FileReaderBehavior {
 
 	@Test
 	public void shouldThrowExceptionIFUnableToReadBytes() throws IOException {
-		try (FileDescriptor fd = read("file1")) {
+		try (CFileDescriptor fd = read("file1")) {
 			FileReader r = FileReader.of(fd);
 			r.skip(6);
 			assertThrown(() -> r.readByte());
@@ -55,7 +55,7 @@ public class FileReaderBehavior {
 	@Test
 	public void shouldReadIntoByteReceiver() throws IOException {
 		Mutable m = Mutable.of(10);
-		try (FileDescriptor fd = read("file1")) {
+		try (CFileDescriptor fd = read("file1")) {
 			FileReader r = FileReader.of(fd);
 			assertThat(r.readInto(m, 2, 4), is(6));
 			assertThrown(() -> r.readInto(m, 6, 4));
@@ -66,7 +66,7 @@ public class FileReaderBehavior {
 	@Test
 	public void shouldReadIntoMemory() throws IOException {
 		Memory m = new Memory(10);
-		try (FileDescriptor fd = read("file1")) {
+		try (CFileDescriptor fd = read("file1")) {
 			FileReader r = FileReader.of(fd);
 			assertThat(r.readInto(m, 2, 4), is(6));
 			assertThrown(() -> r.readInto(m, 6, 4));
@@ -77,7 +77,7 @@ public class FileReaderBehavior {
 	@Test
 	public void shouldTransferToOutputStream() throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try (FileDescriptor fd = read("file1")) {
+		try (CFileDescriptor fd = read("file1")) {
 			FileReader r = FileReader.of(fd);
 			assertThat(r.transferTo(out, 4), is(4));
 			assertThrown(() -> r.transferTo(out, 4));
@@ -85,7 +85,7 @@ public class FileReaderBehavior {
 		}
 	}
 
-	private FileDescriptor read(String name) throws CException {
-		return FileDescriptor.open(helper.path(name).toString());
+	private CFileDescriptor read(String name) throws CException {
+		return CFileDescriptor.open(helper.path(name).toString());
 	}
 }

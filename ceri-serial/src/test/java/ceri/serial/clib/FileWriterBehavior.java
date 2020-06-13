@@ -35,7 +35,7 @@ public class FileWriterBehavior {
 
 	@Test
 	public void shouldWriteBytes() throws IOException {
-		try (FileDescriptor fd = create("file2")) {
+		try (CFileDescriptor fd = create("file2")) {
 			FileWriter w = FileWriter.of(fd);
 			w.writeByte('a').writeByte('b').skip(2).fill(2, 'x');
 			assertFile(helper.path("file2"), 'a', 'b', 0, 0, 'x', 'x');
@@ -47,7 +47,7 @@ public class FileWriterBehavior {
 	@Test
 	public void shouldWriteFromByteProvider() throws IOException {
 		JnaMemory m = JnaMemory.of(CUtil.malloc(file1Bytes));
-		try (FileDescriptor fd = create("file2")) {
+		try (CFileDescriptor fd = create("file2")) {
 			FileWriter w = FileWriter.of(fd);
 			w.writeFrom(m).writeFrom(m, 2, 2);
 			assertFile(helper.path("file2"), "test4Vst".getBytes());
@@ -59,7 +59,7 @@ public class FileWriterBehavior {
 	@Test
 	public void shouldWriteFromMemory() throws IOException {
 		Memory m = CUtil.malloc(file1Bytes);
-		try (FileDescriptor fd = create("file2")) {
+		try (CFileDescriptor fd = create("file2")) {
 			FileWriter w = FileWriter.of(fd);
 			w.writeFrom(m, 1, 4);
 			assertFile(helper.path("file2"), "est4".getBytes());
@@ -71,8 +71,8 @@ public class FileWriterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldTransferFromInputStream() throws IOException {
-		try (FileDescriptor fd0 = read("file1")) {
-			try (FileDescriptor fd = create("file2")) {
+		try (CFileDescriptor fd0 = read("file1")) {
+			try (CFileDescriptor fd = create("file2")) {
 				FileWriter w = FileWriter.of(fd);
 				assertThat(w.transferFrom(fd0.in(), 8), is(6));
 				assertFile(helper.path("file2"), "test4V".getBytes());
@@ -82,11 +82,11 @@ public class FileWriterBehavior {
 		}
 	}
 
-	private FileDescriptor create(String name) throws CException {
-		return FileDescriptor.open(helper.path(name).toString(), mode, flags);
+	private CFileDescriptor create(String name) throws CException {
+		return CFileDescriptor.open(helper.path(name).toString(), mode, flags);
 	}
 
-	private FileDescriptor read(String name) throws CException {
-		return FileDescriptor.open(helper.path(name).toString());
+	private CFileDescriptor read(String name) throws CException {
+		return CFileDescriptor.open(helper.path(name).toString());
 	}
 }

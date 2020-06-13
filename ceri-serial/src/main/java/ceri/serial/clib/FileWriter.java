@@ -42,7 +42,7 @@ public class FileWriter implements JnaWriter<FileWriter> {
 
 	@Override
 	public FileWriter skip(int length) {
-		ioAdapter.run(() -> fd.lseek(length, Seek.SEEK_CUR));
+		ioAdapter.run(() -> fd.seek(length, Seek.SEEK_CUR));
 		return this;
 	}
 

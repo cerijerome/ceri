@@ -42,11 +42,11 @@ public class FileDescriptorBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() throws CException {
-		try (FileDescriptor t = open("file1")) {
+		try (CFileDescriptor t = open("file1")) {
 			@SuppressWarnings("resource")
-			FileDescriptor eq0 = FileDescriptor.of(t.fd());
+			CFileDescriptor eq0 = CFileDescriptor.of(t.fd());
 			@SuppressWarnings("resource")
-			FileDescriptor ne0 = FileDescriptor.of(t.fd() + 1);
+			CFileDescriptor ne0 = CFileDescriptor.of(t.fd() + 1);
 			exerciseEquals(t, eq0);
 			assertAllNotEqual(t, ne0);
 		}
@@ -54,7 +54,7 @@ public class FileDescriptorBehavior {
 
 	@Test
 	public void shouldFailToProvideDescriptorIfClosed() throws CException {
-		try (FileDescriptor fd = open("file1")) {
+		try (CFileDescriptor fd = open("file1")) {
 			fd.fd();
 			fd.close();
 			assertThrown(() -> fd.fd());
@@ -63,13 +63,13 @@ public class FileDescriptorBehavior {
 
 	@Test
 	public void shouldFailToWrapInvalidDescriptor() {
-		assertThrown(() -> FileDescriptor.of(-1));
+		assertThrown(() -> CFileDescriptor.of(-1));
 	}
 
 	@Test
 	public void shouldReadIntoMemory() throws IOException {
 		Memory m = new Memory(8);
-		try (FileDescriptor fd = open("file1")) {
+		try (CFileDescriptor fd = open("file1")) {
 			assertThat(fd.read(m, 0, 0), is(0));
 			assertThat(fd.read(m), is(6));
 			assertMemory(m, 0, 6, file1Bytes);
@@ -79,7 +79,7 @@ public class FileDescriptorBehavior {
 	@Test
 	public void shouldWriteFromMemory() throws IOException {
 		Memory m = CUtil.malloc(file1Bytes);
-		try (FileDescriptor fd = open("file2", Mode.of(0666), O_CREAT, O_RDWR)) {
+		try (CFileDescriptor fd = open("file2", Mode.of(0666), O_CREAT, O_RDWR)) {
 			fd.write(m);
 			assertFile(helper.path("file2"), 't', 'e', 's', 't', 0x34, 0x56);
 		} finally {
@@ -89,7 +89,7 @@ public class FileDescriptorBehavior {
 
 	@Test
 	public void shouldProvideFileInputStream() throws IOException {
-		try (FileDescriptor fd = open("file1")) {
+		try (CFileDescriptor fd = open("file1")) {
 			try (InputStream in = fd.in()) {
 				assertArray(in.readNBytes(4), 't', 'e', 's', 't');
 				fd.lseek(0, Seek.SEEK_SET);
@@ -103,7 +103,7 @@ public class FileDescriptorBehavior {
 
 	@Test
 	public void shouldAllowCustomStreamBufferSize() throws IOException {
-		try (FileDescriptor fd = open("file1")) {
+		try (CFileDescriptor fd = open("file1")) {
 			try (InputStream in = fd.in(6)) {
 				assertArray(in.readAllBytes(), 't', 'e', 's', 't', 0x34, 0x56);
 				assertArray(in.readAllBytes());
@@ -113,7 +113,7 @@ public class FileDescriptorBehavior {
 
 	@Test
 	public void shouldProvideFileOutputStream() throws IOException {
-		try (FileDescriptor fd = open("file2", Mode.of(0666), O_CREAT, O_RDWR)) {
+		try (CFileDescriptor fd = open("file2", Mode.of(0666), O_CREAT, O_RDWR)) {
 			try (OutputStream out = fd.out()) {
 				ByteUtil.toAscii("test").writeTo(0, out);
 			}
@@ -125,7 +125,7 @@ public class FileDescriptorBehavior {
 
 	@Test
 	public void shouldReadFile() throws IOException {
-		try (FileDescriptor fd = open("file1")) {
+		try (CFileDescriptor fd = open("file1")) {
 			FileReader r = fd.reader();
 			assertThat(r.readAscii(4), is("test"));
 			assertShort(r.readShortMsb(), 0x3456);
@@ -134,7 +134,7 @@ public class FileDescriptorBehavior {
 
 	@Test
 	public void shouldWriteFile() throws IOException {
-		try (FileDescriptor fd = open("file2", Mode.of(0666), O_CREAT, O_RDWR)) {
+		try (CFileDescriptor fd = open("file2", Mode.of(0666), O_CREAT, O_RDWR)) {
 			FileWriter w = fd.writer();
 			w.writeAscii("test").writeShortLsb(0x3456);
 			assertFile(helper.path("file2"), ByteUtil.toAscii("testV4"));
@@ -145,7 +145,7 @@ public class FileDescriptorBehavior {
 
 	@Test
 	public void shouldSetPositionWithinAFile() throws IOException {
-		try (FileDescriptor fd = open("file1")) {
+		try (CFileDescriptor fd = open("file1")) {
 			assertThat(fd.lseek(3, Seek.SEEK_CUR), is(3));
 			assertThat(fd.lseek(1, Seek.SEEK_CUR), is(4));
 			assertThat(fd.lseek(1, Seek.SEEK_END), is(7));
@@ -155,12 +155,12 @@ public class FileDescriptorBehavior {
 		}
 	}
 
-	private FileDescriptor open(String name, OpenFlag... flags) throws CException {
-		return FileDescriptor.open(helper.path(name).toString(), flags);
+	private CFileDescriptor open(String name, OpenFlag... flags) throws CException {
+		return CFileDescriptor.open(helper.path(name).toString(), flags);
 	}
 
-	private FileDescriptor open(String name, Mode mode, OpenFlag... flags) throws CException {
-		return FileDescriptor.open(helper.path(name).toString(), mode, flags);
+	private CFileDescriptor open(String name, Mode mode, OpenFlag... flags) throws CException {
+		return CFileDescriptor.open(helper.path(name).toString(), mode, flags);
 	}
 
 }

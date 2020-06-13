@@ -65,13 +65,8 @@ public class CException extends IOException {
 			e.getMessage() + ": " + StringUtil.format(format, args));
 	}
 
-	public CException(int code) {
-		this.code = code;
-	}
-
 	public CException(int code, String message) {
-		super(message);
-		this.code = code;
+		this(code, message, null);
 	}
 
 	public CException(int code, String message, Throwable t) {

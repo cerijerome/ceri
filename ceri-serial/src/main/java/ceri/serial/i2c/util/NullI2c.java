@@ -44,7 +44,4 @@ public class NullI2c implements I2c {
 	public void writeRead(I2cAddress address, Pointer writeBuf, int writeLen, Pointer readBuf,
 		int readLen) throws IOException {}
 
-	@Override
-	public void close() throws IOException {}
-
 }

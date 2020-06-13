@@ -2,12 +2,12 @@ package ceri.serial.i2c;
 
 import static ceri.serial.clib.OpenFlag.O_RDWR;
 import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_RD;
+import java.io.IOException;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
-import ceri.common.util.EqualsUtil;
-import ceri.log.util.LogUtil;
+import ceri.serial.clib.CFileDescriptor;
 import ceri.serial.clib.FileDescriptor;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.i2c.jna.I2cDev;
@@ -19,8 +19,7 @@ import ceri.serial.i2c.smbus.SmBusI2c;
 import ceri.serial.i2c.util.I2cUtil;
 
 /**
- * Implementation of I2c interface using the standard Linux i2c driver.
- * Not thread-safe.
+ * Implementation of I2c interface using the standard Linux i2c driver. Not thread-safe.
  */
 public class I2cDevice implements I2c {
 	private static final Logger logger = LogManager.getLogger();
@@ -34,7 +33,7 @@ public class I2cDevice implements I2c {
 		Integer address = null;
 		Boolean tenBit = null;
 		Boolean pec = null;
-		
+
 		public void reset() {
 			address = null;
 			tenBit = null;
@@ -43,42 +42,46 @@ public class I2cDevice implements I2c {
 	}
 
 	/**
-	 * Open a handle to the I2C bus.
+	 * Open a file descriptor to the I2C bus.
 	 */
-	public static I2cDevice open(int bus) throws CException {
+	public static CFileDescriptor file(int bus) throws IOException {
 		if (bus < 0) throw new IllegalArgumentException("Invalid bus number: " + bus);
-		return new I2cDevice(I2cDev.i2c_open(bus, O_RDWR.value));
+		return CFileDescriptor.of(I2cDev.i2c_open(bus, O_RDWR.value));
 	}
 
-	private I2cDevice(int fd) {
-		this.fd = FileDescriptor.of(fd);
+	public static I2cDevice of(FileDescriptor fd) {
+		return new I2cDevice(fd);
+	}
+
+	private I2cDevice(FileDescriptor fd) {
+		this.fd = fd;
 	}
 
 	@Override
-	public I2cDevice retries(int count) throws CException {
+	public I2cDevice retries(int count) throws IOException {
 		I2cDev.i2c_retries(fd.fd(), count);
 		return this;
 	}
 
 	@Override
-	public I2cDevice timeout(int timeoutMs) throws CException {
+	public I2cDevice timeout(int timeoutMs) throws IOException {
 		I2cDev.i2c_timeout(fd.fd(), timeoutMs);
 		return this;
 	}
 
 	@Override
-	public Set<i2c_func> functions() throws CException {
+	public Set<i2c_func> functions() throws IOException {
 		return i2c_func.xcoder.decodeAll(I2cDev.i2c_funcs(fd.fd()));
 	}
 
 	@Override
-	public void smBusPec(boolean on) throws CException {
+	public void smBusPec(boolean on) throws IOException {
 		I2cDev.i2c_smbus_pec(fd.fd(), on);
 		state.pec = on;
 	}
 
 	@Override
-	public SmBus smBus(I2cAddress address) {
+	public SmBus smBus(I2cAddress address) throws IOException {
 		I2cUtil.validate7Bit(address);
 		return SmBusDevice.of(fd::fd, this::selectDevice, address);
 	}
@@ -93,7 +96,7 @@ public class I2cDevice implements I2c {
 	}
 
 	@Override
-	public void write(I2cAddress address, int writeLen, Pointer writeBuf) throws CException {
+	public void write(I2cAddress address, int writeLen, Pointer writeBuf) throws IOException {
 		i2c_msg.ByReference msg = new i2c_msg.ByReference();
 		I2cUtil.populate(msg, address, writeLen, writeBuf);
 		transfer(msg);
@@ -101,19 +104,14 @@ public class I2cDevice implements I2c {
 
 	@Override
 	public void writeRead(I2cAddress address, Pointer writeBuf, int writeLen, Pointer readBuf,
-		int readLen) throws CException {
+		int readLen) throws IOException {
 		i2c_msg.ByReference[] msgs = i2c_msg.array(2);
 		I2cUtil.populate(msgs[0], address, writeLen, writeBuf);
 		I2cUtil.populate(msgs[1], address, readLen, readBuf, I2C_M_RD);
 		transfer(msgs);
 	}
 
-	@Override
-	public void close() {
-		LogUtil.close(logger, fd);
-	}
-
-	private void selectDevice(I2cAddress address) throws CException {
+	private void selectDevice(I2cAddress address) throws IOException {
 		setAddressBits(address.tenBit);
 		try {
 			setSlaveAddress(address.address);
@@ -124,32 +122,32 @@ public class I2cDevice implements I2c {
 	}
 
 	/**
-	 * Returns whether user-mode PEC is enabled. If unknown state (null), assume false.
-	 * If incorrect, SMBus I2C emulation will fail from invalid PEC. No need to throw an 
-	 * exception here to force a failure.
+	 * Returns whether user-mode PEC is enabled. If unknown state (null), assume false. If
+	 * incorrect, SMBus I2C emulation will fail from invalid PEC. No need to throw an exception here
+	 * to force a failure.
 	 */
 	boolean smBusPec() {
 		return state.pec != null && state.pec;
 	}
 
-	void transfer(i2c_msg.ByReference... msgs) throws CException {
+	void transfer(i2c_msg.ByReference... msgs) throws IOException {
 		I2cDev.i2c_rdwr(fd.fd(), msgs);
 	}
 
 	/* End: Shared with SMBus */
 
-	private void setSlaveAddress(int address) throws CException {
+	private void setSlaveAddress(int address) throws IOException {
 		if (state.address != null && state.address == address) return;
 		I2cDev.i2c_slave(fd.fd(), address);
 		state.address = address;
 	}
 
-	private void forceSlaveAddress(int address) throws CException {
+	private void forceSlaveAddress(int address) throws IOException {
 		I2cDev.i2c_slave_force(fd.fd(), address);
 		state.address = address;
 	}
 
-	private void setAddressBits(boolean tenBit) throws CException {
+	private void setAddressBits(boolean tenBit) throws IOException {
 		if (state.tenBit != null && state.tenBit == tenBit) return;
 		I2cDev.i2c_tenbit(fd.fd(), tenBit);
 		state.address = null;
