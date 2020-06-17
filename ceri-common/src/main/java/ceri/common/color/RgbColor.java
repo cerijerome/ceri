@@ -5,7 +5,7 @@ import static ceri.common.color.ColorUtil.fromRatio;
 import static ceri.common.color.ColorUtil.g;
 import static ceri.common.color.ColorUtil.r;
 import static ceri.common.color.ColorUtil.toRatio;
-import static ceri.common.validation.ValidationUtil.validateRangeD;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import java.awt.Color;
 import ceri.common.math.MathUtil;
 import ceri.common.util.EqualsUtil;
@@ -109,7 +109,7 @@ public class RgbColor implements ComponentColor<RgbColor> {
 	}
 
 	private void validate(double value, String name) {
-		validateRangeD(value, 0, MAX_VALUE, name);
+		validateRange(value, 0, MAX_VALUE, name);
 	}
 
 	private double limit(double value) {

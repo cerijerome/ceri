@@ -1,6 +1,6 @@
 package ceri.common.io;
 
-import static ceri.common.validation.ValidationUtil.validateMaxL;
+import static ceri.common.validation.ValidationUtil.validateMax;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.BufferUnderflowException;
@@ -102,7 +102,7 @@ public class ByteBufferStream extends ByteArrayOutputStream {
 	}
 
 	private void compact(int offset) {
-		validateMaxL(offset, count);
+		validateMax(offset, count);
 		int len = count - offset;
 		if (len > 0) System.arraycopy(buf, offset, buf, 0, len);
 		count = len;

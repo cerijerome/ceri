@@ -2,7 +2,7 @@ package ceri.common.color;
 
 import static ceri.common.color.Bias.MAX_RATIO;
 import static ceri.common.color.Bias.MIN_RATIO;
-import static ceri.common.validation.ValidationUtil.validateRangeD;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import static java.lang.Math.PI;
 import java.util.Arrays;
 import java.util.List;
@@ -68,7 +68,7 @@ public class Biases {
 	 * may be clipped.
 	 */
 	public static Bias partial(Bias bias, double len) {
-		validateRangeD(len, MIN_RATIO, MAX_RATIO);
+		validateRange(len, MIN_RATIO, MAX_RATIO);
 		if (len == MIN_RATIO) return DOWN;
 		double max = bias.bias(len);
 		if (max == MIN_RATIO) return UP;

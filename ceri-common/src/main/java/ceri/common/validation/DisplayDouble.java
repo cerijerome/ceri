@@ -10,9 +10,9 @@ import ceri.common.text.StringUtil;
 public enum DisplayDouble {
 	std(String::valueOf), // standard view
 	round(d -> String.valueOf(Math.round(d))), // rounded to long
-	round1(d -> String.valueOf(MathUtil.round(d, 1))), // 1 decimal place
-	round2(d -> String.valueOf(MathUtil.round(d, 2))), // 2 decimal places
-	round3(d -> String.valueOf(MathUtil.round(d, 3))); // 3 decimal places
+	round1(d -> String.valueOf(MathUtil.round(1, d))), // 1 decimal place
+	round2(d -> String.valueOf(MathUtil.round(2, d))), // 2 decimal places
+	round3(d -> String.valueOf(MathUtil.round(3, d))); // 3 decimal places
 
 	private final DoubleFunction<String> formatter;
 

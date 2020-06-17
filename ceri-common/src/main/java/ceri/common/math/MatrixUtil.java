@@ -54,7 +54,7 @@ public class MatrixUtil {
 		Matrix.Builder b = Matrix.builder(m.rows, m.columns);
 		for (int row = 0; row < m.rows; row++)
 			for (int column = 0; column < m.columns; column++)
-				b.set(row, column, MathUtil.simpleRound(m.valueAt(row, column), decimals));
+				b.set(row, column, MathUtil.simpleRound(decimals, m.valueAt(row, column)));
 		return b.build();
 	}
 

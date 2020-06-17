@@ -288,8 +288,8 @@ public class TestUtil {
 		if (!Double.isFinite(expected) || !Double.isFinite(value)) {
 			assertThat(reason, value, is(expected));
 		} else {
-			double approxValue = MathUtil.round(value, precision);
-			double approxExpected = MathUtil.round(expected, precision);
+			double approxValue = MathUtil.round(precision, value);
+			double approxExpected = MathUtil.round(precision, expected);
 			assertThat(reason, approxValue, is(approxExpected));
 		}
 	}
@@ -327,9 +327,17 @@ public class TestUtil {
 	/**
 	 * Checks a value is within given range, with detailed failure information if not.
 	 */
-	public static void assertRange(long value, long min, long max) {
-		assertTrue("Expected >= " + min + " but was " + value, value >= min);
-		assertTrue("Expected <= " + max + " but was " + value, value <= max);
+	public static void assertRange(long value, long minInclusive, long maxInclusive) {
+		assertTrue("Expected >= " + minInclusive + " but was " + value, value >= minInclusive);
+		assertTrue("Expected <= " + maxInclusive + " but was " + value, value <= maxInclusive);
+	}
+
+	/**
+	 * Checks a value is within given range, with detailed failure information if not.
+	 */
+	public static void assertRange(double value, double minInclusive, double maxExclusive) {
+		assertTrue("Expected >= " + minInclusive + " but was " + value, value >= minInclusive);
+		assertTrue("Expected < " + maxExclusive + " but was " + value, value < maxExclusive);
 	}
 
 	/**

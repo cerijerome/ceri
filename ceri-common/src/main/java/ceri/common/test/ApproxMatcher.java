@@ -60,8 +60,8 @@ public class ApproxMatcher extends BaseMatcher<Double> {
 	private boolean matchRound(double actual) {
 		if (!Double.isFinite(actual) || !Double.isFinite(expected))
 			return EqualsUtil.equals(actual, expected);
-		double approxActual = MathUtil.round(actual, places);
-		double approxExpected = MathUtil.round(expected, places);
+		double approxActual = MathUtil.round(places, actual);
+		double approxExpected = MathUtil.round(places, expected);
 		return EqualsUtil.equals(approxActual, approxExpected);
 	}
 

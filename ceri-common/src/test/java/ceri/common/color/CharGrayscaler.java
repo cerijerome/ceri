@@ -7,7 +7,7 @@ import ceri.common.io.IoUtil;
 import ceri.common.io.RuntimeIoException;
 
 /**
- * Tool to order ascii characters by gray-level.
+ * Tool to manually order characters by gray-level.
  * <pre>
  * x = exit
  * a = move to index 0
@@ -17,7 +17,7 @@ import ceri.common.io.RuntimeIoException;
  * s = swap characters (left-most and next)
  * </pre>
  */
-public class AsciiGrayscaler {
+public class CharGrayscaler {
 	public static final String COURIER_GRAYSCALE =
 		"@WMB#80Q&$%bdpOmqUXZkawho*CYJIunx1zfjtLv{}c[]?i()l<>|/\\r+;!~\"^:_-,'.` ";
 	public static final String COURIER_GRAYSCALE_COMPACT =

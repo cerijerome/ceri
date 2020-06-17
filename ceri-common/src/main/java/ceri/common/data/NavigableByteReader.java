@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.validateRangeL;
+import static ceri.common.validation.ValidationUtil.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -67,7 +67,7 @@ public class NavigableByteReader<T extends ByteProvider> implements ByteReader, 
 
 	@Override
 	public NavigableByteReader<T> offset(int index) {
-		validateRangeL(index, 0, length());
+		validateRange(index, 0, length());
 		this.index = index;
 		return this;
 	}

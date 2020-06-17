@@ -16,16 +16,53 @@ public class Bound<T> {
 	private final Comparator<T> comparator;
 
 	public enum Type {
-		inclusive("[", "]"),
-		exclusive("(", ")");
+		inclusive("[", "]", "<=", ">="),
+		exclusive("(", ")", "<", ">");
 
 		public final String left;
 		public final String right;
+		public final String upper;
+		public final String lower;
 
-		private Type(String left, String right) {
+		private Type(String left, String right, String upper, String lower) {
 			this.left = left;
 			this.right = right;
+			this.upper = upper;
+			this.lower = lower;
 		}
+
+		public boolean isUpper(int value, int limit) {
+			return this == inclusive ? value <= limit : value < limit;
+		}
+
+		public boolean isUpper(long value, long limit) {
+			return this == inclusive ? value <= limit : value < limit;
+		}
+
+		public boolean isUpper(float value, float limit) {
+			return this == inclusive ? value <= limit : value < limit;
+		}
+
+		public boolean isUpper(double value, double limit) {
+			return this == inclusive ? value <= limit : value < limit;
+		}
+
+		public boolean isLower(int value, int limit) {
+			return this == inclusive ? limit <= value : limit < value;
+		}
+
+		public boolean isLower(long value, long limit) {
+			return this == inclusive ? limit <= value : limit < value;
+		}
+
+		public boolean isLower(float value, float limit) {
+			return this == inclusive ? limit <= value : limit < value;
+		}
+
+		public boolean isLower(double value, double limit) {
+			return this == inclusive ? limit <= value : limit < value;
+		}
+
 	}
 
 	public static <T> Bound<T> unbound() {

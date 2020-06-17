@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMaxD;
+import static ceri.common.validation.ValidationUtil.validateMax;
 import ceri.common.math.MathUtil;
 
 /**
@@ -66,8 +66,8 @@ public class GeometryUtil {
 	 */
 	public static Rectangle2d crop(Dimension2d size, Dimension2d crop, Ratio2d ratio) {
 		crop = crop(size, crop);
-		validateMaxD(ratio.x, 1, "X spacing ratio");
-		validateMaxD(ratio.y, 1, "Y spacing ratio");
+		validateMax(ratio.x, 1, "X spacing ratio");
+		validateMax(ratio.y, 1, "Y spacing ratio");
 		double x = ratio.x * (size.w - crop.w);
 		double y = ratio.y * (size.h - crop.h);
 		return Rectangle2d.of(x, y, crop.w, crop.h);

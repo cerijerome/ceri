@@ -5,7 +5,8 @@ import static ceri.common.validation.DisplayLong.dec;
 import static ceri.common.validation.DisplayLong.hex;
 import static ceri.common.validation.DisplayLong.hex2;
 import static ceri.common.validation.DisplayLong.hex4;
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.validation.ValidationUtil.validateNotEqualObj;
+import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.function.IntFunction;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
@@ -113,7 +114,7 @@ public class IntTypeValue<T> {
 	public static <T> void validateExcept(IntTypeValue<T> value, T invalid, String name) {
 		validateNotNull(value, name);
 		validateNotNull(value.type(), name);
-		if (invalid != null) validateNotEquals(value.type(), invalid, name);
+		if (invalid != null) validateNotEqualObj(value.type(), invalid, name);
 	}
 
 	private IntTypeValue(int value, T type, String name, Integer subValue,

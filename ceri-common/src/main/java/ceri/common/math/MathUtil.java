@@ -1,17 +1,17 @@
 package ceri.common.math;
 
+import static ceri.common.math.Bound.Type.exclusive;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
+import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
+import ceri.common.collection.ArrayUtil;
 
 public class MathUtil {
 	public static final double PIx2 = Math.PI * 2; // common calculation
 	public static final double PI_BY_2 = Math.PI / 2; // common calculation
-	private static final char ZERO = '0';
-	private static final int BASE10 = 10;
 	private static final int MAX_ROUND_PLACES = 10;
 	private static final double MAX_ROUND = 1000000000.0;
 	private static final int MAX_UBYTE = 0xff;
@@ -20,38 +20,11 @@ public class MathUtil {
 
 	private MathUtil() {}
 
+	/**
+	 * Determines int value from boolean.
+	 */
 	public static int toInt(boolean b) {
 		return b ? 1 : 0;
-	}
-
-	public static double average(double... values) {
-		if (values.length == 0) return Double.NaN;
-		if (values.length == 1) return values[0];
-		return DoubleStream.of(values).average().orElse(Double.NaN);
-	}
-
-	public static int averageInt(int... values) {
-		return (int) Math.round(average(values));
-	}
-
-	public static double average(int... values) {
-		if (values.length == 0) return Double.NaN;
-		if (values.length == 1) return values[0];
-		return IntStream.of(values).average().orElse(Double.NaN);
-	}
-
-	public static long averageLong(long... values) {
-		return Math.round(average(values));
-	}
-
-	public static double average(long... values) {
-		if (values.length == 0) return Double.NaN;
-		if (values.length == 1) return values[0];
-		return LongStream.of(values).average().orElse(Double.NaN);
-	}
-
-	public static boolean approxEqual(double lhs, double rhs, double precision) {
-		return lhs == rhs || Math.abs(lhs - rhs) <= precision;
 	}
 
 	/**
@@ -132,6 +105,175 @@ public class MathUtil {
 	}
 
 	/**
+	 * Return absolute value. Throws ArithmeticException if overflow.
+	 */
+	public static int absExact(int value) {
+		if (value != Integer.MIN_VALUE) return Math.abs(value);
+		throw new ArithmeticException("int overflow");
+	}
+
+	/**
+	 * Return absolute value. Throws ArithmeticException if overflow.
+	 */
+	public static long absExact(long value) {
+		if (value != Long.MIN_VALUE) return Math.abs(value);
+		throw new ArithmeticException("long overflow");
+	}
+
+	/**
+	 * Rounds a double value to an int. Throws an ArithmeticException if the value overflows.
+	 */
+	public static int intRoundExact(double value) {
+		return Math.toIntExact(Math.round(value));
+	}
+
+	/**
+	 * Rounds up the division of two values.
+	 */
+	public static int ceilDiv(int x, int y) {
+		int r = x / y;
+		if ((x ^ y) >= 0 && (r * y != x)) r++; // round up if same signs and modulo not zero
+		return r;
+	}
+
+	/**
+	 * Rounds up the division of two values.
+	 */
+	public static long ceilDiv(long x, long y) {
+		long r = x / y;
+		if ((x ^ y) >= 0 && (r * y != x)) r++; // round up if same signs and modulo not zero
+		return r;
+	}
+
+	/**
+	 * Rounds the division of two values.
+	 */
+	public static int roundDiv(int x, int y) {
+		if (y == 0) throw new ArithmeticException("/ by zero");
+		return (int) Math.round((double) x / y);
+	}
+
+	/**
+	 * Rounds the division of two values.
+	 */
+	public static long roundDiv(long x, long y) {
+		if (y == 0) throw new ArithmeticException("/ by zero");
+		return Math.round((double) x / y);
+	}
+
+	/**
+	 * Rounds a value to the given number of decimal places. Infinity and NaN values are returned
+	 * without change.
+	 */
+	public static double round(int places, double value) {
+		if (places < 0) throw new IllegalArgumentException("Places must be >= 0: " + places);
+		if (Double.isInfinite(value) || Double.isNaN(value)) return value;
+		// BigDecimal double constructor is unpredictable (see javadoc)
+		return new BigDecimal(String.valueOf(value)).setScale(places, RoundingMode.HALF_UP)
+			.doubleValue();
+	}
+
+	/**
+	 * Rounds a value to the given number of decimal places. Supports up to 10 places, and does not
+	 * round very large or small values. However, this method is more efficient than round(double,
+	 * int).
+	 */
+	public static double simpleRound(int places, double value) {
+		if (Double.isNaN(value)) return Double.NaN;
+		if (places < 0 || places > MAX_ROUND_PLACES) throw new IllegalArgumentException(
+			"places must be 0.." + MAX_ROUND_PLACES + "): " + places);
+		if (value > MAX_ROUND || value < -MAX_ROUND) return value;
+		long factor = (long) Math.pow(10, places);
+		value = value * factor;
+		long tmp = Math.round(value);
+		return (double) tmp / factor;
+	}
+
+	/**
+	 * Determines are equal within given precision.
+	 */
+	public static boolean approxEqual(double lhs, double rhs, double precision) {
+		return lhs == rhs || Math.abs(lhs - rhs) <= precision;
+	}
+
+	/**
+	 * Returns true if the sum of the two values has overflowed.
+	 */
+	public static boolean overflow(int sum, int l, int r) {
+		return ((l ^ sum) & (r ^ sum)) < 0;
+	}
+
+	/**
+	 * Returns true if the sum of the two values has overflowed.
+	 */
+	public static boolean overflow(long sum, long l, long r) {
+		return ((l ^ sum) & (r ^ sum)) < 0;
+	}
+
+	/**
+	 * Generates a pseudo-random number from min to max inclusive.
+	 */
+	public static int random(int min, int max) {
+		if (min == Integer.MIN_VALUE && max == Integer.MAX_VALUE)
+			return ThreadLocalRandom.current().nextInt();
+		if (max == Integer.MAX_VALUE) return ThreadLocalRandom.current().nextInt(min - 1, max) + 1;
+		return ThreadLocalRandom.current().nextInt(min, max + 1);
+	}
+
+	/**
+	 * Generates a pseudo-random number from min to max inclusive.
+	 */
+	public static long random(long min, long max) {
+		if (min == Long.MIN_VALUE && max == Long.MAX_VALUE)
+			return ThreadLocalRandom.current().nextLong();
+		if (max == Long.MAX_VALUE) return ThreadLocalRandom.current().nextLong(min - 1, max) + 1;
+		return ThreadLocalRandom.current().nextLong(min, max + 1);
+	}
+
+	/**
+	 * Generates a pseudo-random number from 0 (inclusive) to 1 (exclusive).
+	 */
+	public static double random() {
+		return ThreadLocalRandom.current().nextDouble();
+	}
+
+	/**
+	 * Generates a pseudo-random number from min (inclusive) to max (exclusive).
+	 */
+	public static double random(double min, double maxExclusive) {
+		return ThreadLocalRandom.current().nextDouble(min, maxExclusive);
+	}
+
+	/**
+	 * Returns the percentage for a value 0..1. Returns NaN for a zero range.
+	 */
+	public static double toPercent(double value) {
+		return toPercent(value, 1.0);
+	}
+
+	/**
+	 * Returns the percentage for a value in a range. Returns NaN for a zero range.
+	 */
+	public static double toPercent(double value, double range) {
+		if (range == 0) return Double.NaN;
+		return (value / range) * 100;
+	}
+
+	/**
+	 * Returns the value for a percentage of a 0..1.
+	 */
+	public static double fromPercent(double percentage) {
+		return fromPercent(percentage, 1.0);
+	}
+
+	/**
+	 * Returns the value for a percentage of a range.
+	 */
+	public static double fromPercent(double percentage, double range) {
+		return (percentage / 100) * range;
+	}
+
+	/**
 	 * Calculates the greatest common divisor of two numbers.
 	 */
 	public static int gcd(int lhs, int rhs) {
@@ -171,500 +313,658 @@ public class MathUtil {
 		return absExact(Math.multiplyExact(lhs / gcd(lhs, rhs), rhs));
 	}
 
-	public static int signum(long x, long y) {
-		if (x == 0 || y == 0) return 0;
-		return (x > 0 == y > 0) ? 1 : -1;
-	}
-
 	/**
-	 * Return absolute value. Throws ArithmeticException if overflow.
+	 * Mean value from a primitive array.
 	 */
-	public static long absExact(long value) {
-		if (value != Long.MIN_VALUE) return Math.abs(value);
-		throw new ArithmeticException("long overflow");
+	public static double mean(int... array) {
+		return mean(array, 0);
 	}
 
 	/**
-	 * Return absolute value. Throws ArithmeticException if overflow.
+	 * Mean value from a primitive array.
 	 */
-	public static int absExact(int value) {
-		if (value != Integer.MIN_VALUE) return Math.abs(value);
-		throw new ArithmeticException("int overflow");
+	public static double mean(int[] array, int offset) {
+		return mean(array, offset, array.length - offset);
 	}
 
 	/**
-	 * Generates a pseudo-random number from min to max inclusive.
+	 * Mean value from a primitive array.
 	 */
-	public static int randomInt(int min, int max) {
-		return (int) random(min, max);
+	public static double mean(int[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
+		if (length == 1) return array[offset];
+		long sum = 0;
+		for (int i = 0; i < length; i++, offset++)
+			sum += array[offset];
+		return (double) sum / length;
 	}
 
 	/**
-	 * Generates a pseudo-random number from min to max inclusive.
+	 * Mean value from a primitive array.
 	 */
-	public static long random(long min, long max) {
-		if (min == max) return min;
-		return Math.round((Math.random() * (max - min)) + min);
+	public static double mean(long... array) {
+		return mean(array, 0);
 	}
 
 	/**
-	 * Divides two numbers, rounding any remainder away from 0.
+	 * Mean value from a primitive array.
 	 */
-	public static long divideUp(long x, long y) {
-		return Math.addExact(x / y, x % y == 0 ? 0 : signum(x, y));
+	public static double mean(long[] array, int offset) {
+		return mean(array, offset, array.length - offset);
 	}
 
 	/**
-	 * Divides two numbers, rounding any remainder away from 0.
+	 * Mean value from a primitive array.
 	 */
-	public static int divideUp(int x, int y) {
-		return Math.addExact(x / y, x % y == 0 ? 0 : 1);
+	public static double mean(long[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
+		long div = 0;
+		long rem = 0;
+		for (int i = 0; i < length; i++, offset++) {
+			div += array[offset] / length;
+			rem += array[offset] % length; // cannot overflow long
+		}
+		return div + (double) rem / length;
 	}
 
 	/**
-	 * Rounds the division of two long values.
+	 * Mean value from a primitive array.
 	 */
-	public static long roundDiv(long x, long y) {
-		return Math.round(((double) x) / y);
+	public static float mean(float... array) {
+		return mean(array, 0);
 	}
 
 	/**
-	 * Rounds a double value to an int. Throws an ArithmeticException if the value overflows.
+	 * Mean value from a primitive array.
 	 */
-	public static int intRoundExact(double value) {
-		return Math.toIntExact(Math.round(value));
+	public static float mean(float[] array, int offset) {
+		return mean(array, offset, array.length - offset);
 	}
 
 	/**
-	 * Rounds an array of values to the given number of decimal places. Supports up to 10 places,
-	 * and does not round very large or small values. However, this method is more efficient than
-	 * round(int, double...).
+	 * Mean value from a primitive array.
 	 */
-	public static double[] simpleRoundAll(int places, double... values) {
-		return DoubleStream.of(values).map(d -> simpleRound(d, places)).toArray();
+	public static float mean(float[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
+		if (length == 1) return array[offset];
+		float sum = 0;
+		for (int i = 0; i < length; i++, offset++)
+			sum += array[offset];
+		return sum / length;
 	}
 
 	/**
-	 * Rounds a value to the given number of decimal places. Supports up to 10 places, and does not
-	 * round very large or small values. However, this method is more efficient than round(double,
-	 * int).
+	 * Mean value from a primitive array.
 	 */
-	public static double simpleRound(double value, int places) {
-		if (Double.isNaN(value)) return Double.NaN;
-		if (places < 0 || places > MAX_ROUND_PLACES) throw new IllegalArgumentException(
-			"places must be 0.." + MAX_ROUND_PLACES + "): " + places);
-		if (value > MAX_ROUND || value < -MAX_ROUND) return value;
-		long factor = (long) Math.pow(10, places);
-		value = value * factor;
-		long tmp = Math.round(value);
-		return (double) tmp / factor;
+	public static double mean(double... array) {
+		return mean(array, 0);
 	}
 
 	/**
-	 * Rounds an array of values to the given number of decimal places. Infinity and NaN values are
-	 * returned without change.
+	 * Mean value from a primitive array.
 	 */
-	public static double[] roundAll(int places, double... values) {
-		return DoubleStream.of(values).map(d -> simpleRound(d, places)).toArray();
+	public static double mean(double[] array, int offset) {
+		return mean(array, offset, array.length - offset);
 	}
 
 	/**
-	 * Rounds a value to the given number of decimal places. Infinity and NaN values are returned
-	 * without change.
+	 * Mean value from a primitive array.
 	 */
-	public static double round(double value, int places) {
-		if (places < 0) throw new IllegalArgumentException("Places must be >= 0: " + places);
-		if (Double.isInfinite(value) || Double.isNaN(value)) return value;
-		// BigDecimal double constructor is unpredictable (see javadoc)
-		return new BigDecimal(String.valueOf(value)).setScale(places, RoundingMode.HALF_UP)
-			.doubleValue();
+	public static double mean(double[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
+		if (length == 1) return array[offset];
+		double sum = 0;
+		for (int i = 0; i < length; i++, offset++)
+			sum += array[offset];
+		return sum / length;
 	}
 
 	/**
-	 * Convert a short value to an array of 2 bytes.
+	 * Calculates the median value from an array of primitives. The array will be sorted; if this is
+	 * not desired, pass in a copy of the array instead.
 	 */
-	public static byte[] shortToBytes(int i) {
-		short s = (short) i;
-		return new byte[] { (byte) (s >> 8), (byte) s };
+	public static double median(int... values) {
+		return median(values, 0);
 	}
 
 	/**
-	 * Convert an int value to an array of 4 bytes.
+	 * Calculates the median value from an array of primitives. The array slice will be sorted; if
+	 * this is not desired, pass in a copy of the array instead.
 	 */
-	public static byte[] intToBytes(int i) {
-		return new byte[] { (byte) (i >> 24), (byte) (i >> 16), (byte) (i >> 8), (byte) i };
+	public static double median(int[] values, int offset) {
+		return median(values, offset, values.length - offset);
 	}
 
 	/**
-	 * Mean value from an array of doubles.
+	 * Calculates the median value from an array of primitives. The array slice will be sorted; if
+	 * this is not desired, pass in a copy of the array instead.
 	 */
-	public static double mean(double... values) {
-		if (values.length == 0) throw new IllegalArgumentException("No values specified");
-		if (values.length == 1) return values[0];
-		double d = 0;
-		int i = 0;
-		while (i < values.length)
-			d += values[i++];
-		return d / i;
+	public static double median(int[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
+		if (length == 1) return array[offset];
+		Arrays.sort(array, offset, offset + length);
+		int i = offset + (length >>> 1);
+		return length % 2 == 1 ? array[i] : mean(array[i - 1], array[i]);
 	}
 
 	/**
-	 * Median value from an array of doubles.
+	 * Calculates the median value from an array of primitives. The array will be sorted; if this is
+	 * not desired, pass in a copy of the array instead.
+	 */
+	public static double median(long... values) {
+		return median(values, 0);
+	}
+
+	/**
+	 * Calculates the median value from an array of primitives. The array slice will be sorted; if
+	 * this is not desired, pass in a copy of the array instead.
+	 */
+	public static double median(long[] values, int offset) {
+		return median(values, offset, values.length - offset);
+	}
+
+	/**
+	 * Calculates the median value from an array of primitives. The array slice will be sorted; if
+	 * this is not desired, pass in a copy of the array instead.
+	 */
+	public static double median(long[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
+		if (length == 1) return array[offset];
+		Arrays.sort(array, offset, offset + length);
+		int i = offset + (length >>> 1);
+		return length % 2 == 1 ? array[i] : mean(array[i - 1], array[i]);
+	}
+
+	/**
+	 * Calculates the median value from an array of primitives. The array will be sorted; if this is
+	 * not desired, pass in a copy of the array instead.
+	 */
+	public static float median(float... values) {
+		return median(values, 0);
+	}
+
+	/**
+	 * Calculates the median value from an array of primitives. The array slice will be sorted; if
+	 * this is not desired, pass in a copy of the array instead.
+	 */
+	public static float median(float[] values, int offset) {
+		return median(values, offset, values.length - offset);
+	}
+
+	/**
+	 * Calculates the median value from an array of primitives. The array slice will be sorted; if
+	 * this is not desired, pass in a copy of the array instead.
+	 */
+	public static float median(float[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
+		if (length == 1) return array[offset];
+		Arrays.sort(array, offset, offset + length);
+		int i = offset + (length >>> 1);
+		return length % 2 == 1 ? array[i] : mean(array[i - 1], array[i]);
+	}
+
+	/**
+	 * Calculates the median value from an array of primitives. The array will be sorted; if this is
+	 * not desired, pass in a copy of the array instead.
 	 */
 	public static double median(double... values) {
-		if (values.length == 0) throw new IllegalArgumentException("No values specified");
-		if (values.length == 1) return values[0];
-		double[] sortedValues = Arrays.copyOf(values, values.length);
-		Arrays.sort(sortedValues);
-		int midIndex = values.length / 2;
-		if (values.length % 2 == 1) return sortedValues[midIndex];
-		return (sortedValues[midIndex - 1] + sortedValues[midIndex]) / 2.0;
+		return median(values, 0);
 	}
 
 	/**
-	 * Converts a long value into an array of digits in base 10.
+	 * Calculates the median value from an array of primitives. The array slice will be sorted; if
+	 * this is not desired, pass in a copy of the array instead.
 	 */
-	public static byte[] digits(long value) {
-		return digits(value, BASE10);
+	public static double median(double[] values, int offset) {
+		return median(values, offset, values.length - offset);
 	}
 
 	/**
-	 * Converts a long value into an array of digits in given radix. If radix is outside of
-	 * Character.MIN_RADIX and Character.MAX_RADIX then 10 is used.
+	 * Calculates the median value from an array of primitives. The array slice will be sorted; if
+	 * this is not desired, pass in a copy of the array instead.
 	 */
-	public static byte[] digits(long value, int radix) {
-		String valueStr = Long.toString(value, radix);
-		byte[] digits = new byte[valueStr.length()];
-		for (int i = 0; i < digits.length; i++) {
-			char ch = valueStr.charAt(i);
-			digits[i] = (byte) (ch >= 'a' ? ch - 'a' + 10 : ch - ZERO);
-		}
-		return digits;
+	public static double median(double[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
+		if (length == 1) return array[offset];
+		Arrays.sort(array, offset, offset + length);
+		int i = offset + (length >>> 1);
+		return length % 2 == 1 ? array[i] : mean(array[i - 1], array[i]);
 	}
 
 	/**
-	 * Comparison of two integers, 1 (lhs > rhs), 0 (lhs = rhs), -1 (lhs < rhs)
-	 */
-	public static int compare(int lhs, int rhs) {
-		if (lhs == rhs) return 0;
-		return (lhs > rhs ? 1 : -1);
-	}
-
-	/**
-	 * Returns the percentage for a value 0..1. Returns NaN for a zero range.
-	 */
-	public static double toPercentage(double value) {
-		return toPercentage(value, 1.0);
-	}
-
-	/**
-	 * Returns the percentage for a value in a range. Returns NaN for a zero range.
-	 */
-	public static double toPercentage(double value, double range) {
-		if (range == 0) return Double.NaN;
-		// Optimization for large range values
-		if (range > 100) return (value / range) * 100;
-		return (value * 100) / range;
-	}
-
-	/**
-	 * Returns the value for a percentage of a 0..1.
-	 */
-	public static double fromPercentage(double percentage) {
-		return fromPercentage(percentage, 1.0);
-	}
-
-	/**
-	 * Returns the value for a percentage of a range.
-	 */
-	public static double fromPercentage(double percentage, double range) {
-		// Optimization for large range values
-		if (range > 100) return percentage * (range / 100);
-		// Optimization for large percentage values
-		if (percentage > 100) return (percentage / 100) * range;
-		return (percentage * range) / 100;
-	}
-
-	/**
-	 * Increments all values in the primitive array. If the amount is negative the values will be
-	 * decremented.
-	 */
-	public static byte[] increment(byte[] array, byte amount) {
-		if (amount != 0) for (int i = 0; i < array.length; i++)
-			array[i] += amount;
-		return array;
-	}
-
-	/**
-	 * Increments all values in the primitive array. If the amount is negative the values will be
-	 * decremented.
-	 */
-	public static short[] increment(short[] array, short amount) {
-		if (amount != 0) for (int i = 0; i < array.length; i++)
-			array[i] += amount;
-		return array;
-	}
-
-	/**
-	 * Increments all values in the primitive array. If the amount is negative the values will be
-	 * decremented.
-	 */
-	public static int[] increment(int[] array, int amount) {
-		if (amount != 0) for (int i = 0; i < array.length; i++)
-			array[i] += amount;
-		return array;
-	}
-
-	/**
-	 * Increments all values in the primitive array. If the amount is negative the values will be
-	 * decremented.
-	 */
-	public static long[] increment(long[] array, long amount) {
-		if (amount != 0) for (int i = 0; i < array.length; i++)
-			array[i] += amount;
-		return array;
-	}
-
-	/**
-	 * Increments all values in the primitive array. If the amount is negative the values will be
-	 * decremented.
-	 */
-	public static float[] increment(float[] array, float amount) {
-		if (amount != 0) for (int i = 0; i < array.length; i++)
-			array[i] += amount;
-		return array;
-	}
-
-	/**
-	 * Increments all values in the primitive array. If the amount is negative the values will be
-	 * decremented.
-	 */
-	public static double[] increment(double[] array, double amount) {
-		if (amount != 0) for (int i = 0; i < array.length; i++)
-			array[i] += amount;
-		return array;
-	}
-
-	/**
-	 * Limits the value to be within the min and max.
-	 */
-	public static float limit(float value, float min, float max) {
-		if (value < min) return min;
-		if (value > max) return max;
-		return value;
-	}
-
-	/**
-	 * Limits the value to be within the min and max.
-	 */
-	public static double limit(double value, double min, double max) {
-		if (value < min) return min;
-		if (value > max) return max;
-		return value;
-	}
-
-	/**
-	 * Limits the value to be within the min and max.
+	 * Limits the value to be within the min and max inclusive.
 	 */
 	public static int limit(int value, int min, int max) {
+		validateMin(max, min);
 		if (value < min) return min;
 		if (value > max) return max;
 		return value;
 	}
 
 	/**
-	 * Limits the value to be within the min and max.
+	 * Limits the value to be within the min and max inclusive.
 	 */
 	public static long limit(long value, long min, long max) {
+		validateMin(max, min);
 		if (value < min) return min;
 		if (value > max) return max;
 		return value;
 	}
 
 	/**
-	 * Adjust a periodic value to be within 0 and period (inclusive).
+	 * Limits the value to be within the min and max inclusive.
 	 */
-	public static float periodicLimit(float value, float period) {
+	public static float limit(float value, float min, float max) {
+		validateMin(max, min);
+		if (value < min) return min;
+		if (value > max) return max;
+		return value;
+	}
+
+	/**
+	 * Limits the value to be within the min and max inclusive.
+	 */
+	public static double limit(double value, double min, double max) {
+		validateMin(max, min);
+		if (value < min) return min;
+		if (value > max) return max;
+		return value;
+	}
+
+	/**
+	 * Adjust a periodic value to be within 0 and period (inclusive or exclusive).
+	 */
+	public static int periodicLimit(int value, int period, Bound.Type type) {
+		Objects.requireNonNull(type);
+		validateMin(period, 1);
 		while (value > period)
 			value -= period;
+		if (type == exclusive && value == period) value -= period;
 		while (value < 0)
 			value += period;
 		return value;
 	}
 
 	/**
-	 * Adjust a periodic value to be within 0 and period (inclusive).
+	 * Adjust a periodic value to be within 0 and period (inclusive or exclusive).
 	 */
-	public static double periodicLimit(double value, double period) {
+	public static long periodicLimit(long value, long period, Bound.Type type) {
+		Objects.requireNonNull(type);
+		validateMin(period, 1);
 		while (value > period)
 			value -= period;
+		if (type == exclusive && value == period) value -= period;
 		while (value < 0)
 			value += period;
 		return value;
 	}
 
 	/**
-	 * Adjust a periodic value to be within 0 and period.
+	 * Adjust a periodic value to be within 0 and period (inclusive or exclusive).
 	 */
-	public static long periodicLimit(long value, long period) {
+	public static float periodicLimit(float value, float period, Bound.Type type) {
+		Objects.requireNonNull(type);
+		validateMin(period, 0.0, exclusive);
 		while (value > period)
 			value -= period;
+		if (type == exclusive && value == period) value -= period;
 		while (value < 0)
 			value += period;
 		return value;
 	}
 
 	/**
-	 * Adjust a periodic value to be within 0 and period (exclusive).
+	 * Adjust a periodic value to be within 0 and period (inclusive or exclusive). Period must be >
+	 * 0.
 	 */
-	public static int periodicLimitEx(int value, int period) {
-		while (value >= period)
+	public static double periodicLimit(double value, double period, Bound.Type type) {
+		Objects.requireNonNull(type);
+		validateMin(period, 0.0, exclusive);
+		while (value > period)
 			value -= period;
+		if (type == exclusive && value == period) value -= period;
 		while (value < 0)
 			value += period;
 		return value;
 	}
 
 	/**
-	 * Adjust a periodic value to be within 0 and period (exclusive).
-	 */
-	public static long periodicLimitEx(long value, long period) {
-		while (value >= period)
-			value -= period;
-		while (value < 0)
-			value += period;
-		return value;
-	}
-
-	/**
-	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
+	 * Returns the minimum value in the primitive array; throws exception if no values.
 	 */
 	public static byte min(byte... array) {
-		if (array == null || array.length == 0) return 0;
+		return min(array, 0);
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array; throws exception if no values.
+	 */
+	public static byte min(byte[] array, int offset) {
+		return min(array, offset, array.length - offset);
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array; throws exception if no values.
+	 */
+	public static byte min(byte[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
 		byte min = Byte.MAX_VALUE;
-		for (byte val : array)
-			if (min > val) min = val;
+		for (; length > 0; length--, offset++)
+			min = min <= array[offset] ? min : array[offset];
 		return min;
 	}
 
 	/**
-	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
+	 * Returns the minimum value in the primitive array; throws exception if no values.
 	 */
 	public static short min(short... array) {
-		if (array == null || array.length == 0) return 0;
+		return min(array, 0);
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array; throws exception if no values.
+	 */
+	public static short min(short[] array, int offset) {
+		return min(array, offset, array.length - offset);
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array; throws exception if no values.
+	 */
+	public static short min(short[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
 		short min = Short.MAX_VALUE;
-		for (short val : array)
-			if (min > val) min = val;
+		for (; length > 0; length--, offset++)
+			min = min <= array[offset] ? min : array[offset];
 		return min;
 	}
 
 	/**
-	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
+	 * Returns the minimum value in the primitive array; throws exception if no values.
 	 */
 	public static int min(int... array) {
-		if (array == null || array.length == 0) return 0;
+		return min(array, 0);
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array; throws exception if no values.
+	 */
+	public static int min(int[] array, int offset) {
+		return min(array, offset, array.length - offset);
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array; throws exception if no values.
+	 */
+	public static int min(int[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
 		int min = Integer.MAX_VALUE;
-		for (int val : array)
-			if (min > val) min = val;
+		for (; length > 0; length--, offset++)
+			min = Integer.min(min, array[offset]);
 		return min;
 	}
 
 	/**
-	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
+	 * Returns the minimum value in the primitive array; throws exception if no values.
 	 */
 	public static long min(long... array) {
-		if (array == null || array.length == 0) return 0;
+		return min(array, 0);
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array; throws exception if no values.
+	 */
+	public static long min(long[] array, int offset) {
+		return min(array, offset, array.length - offset);
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array; throws exception if no values.
+	 */
+	public static long min(long[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
 		long min = Long.MAX_VALUE;
-		for (long val : array)
-			if (min > val) min = val;
+		for (; length > 0; length--, offset++)
+			min = Long.min(min, array[offset]);
 		return min;
 	}
 
 	/**
-	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
+	 * Returns the minimum value in the primitive array; throws exception if no values.
 	 */
 	public static float min(float... array) {
-		if (array == null || array.length == 0) return 0;
-		float min = Float.MAX_VALUE;
-		for (float val : array)
-			if (min > val) min = val;
+		return min(array, 0);
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array; throws exception if no values.
+	 */
+	public static float min(float[] array, int offset) {
+		return min(array, offset, array.length - offset);
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array; throws exception if no values.
+	 */
+	public static float min(float[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
+		float min = Float.POSITIVE_INFINITY;
+		for (; length > 0; length--, offset++)
+			min = Float.min(min, array[offset]);
 		return min;
 	}
 
 	/**
-	 * Returns the minimum value in the primitive array, or 0 if the array has no values.
+	 * Returns the minimum value in the primitive array; throws exception if no values.
 	 */
 	public static double min(double... array) {
-		if (array == null || array.length == 0) return 0;
-		double min = Double.MAX_VALUE;
-		for (double val : array)
-			if (min > val) min = val;
+		return min(array, 0);
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array; throws exception if no values.
+	 */
+	public static double min(double[] array, int offset) {
+		return min(array, offset, array.length - offset);
+	}
+
+	/**
+	 * Returns the minimum value in the primitive array; throws exception if no values.
+	 */
+	public static double min(double[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
+		double min = Double.POSITIVE_INFINITY;
+		for (; length > 0; length--, offset++)
+			min = Double.min(min, array[offset]);
 		return min;
 	}
 
 	/**
-	 * Returns the maximum value in the primitive array, or 0 if the array has no values.
+	 * Returns the maximum value in the primitive array; throws exception if no values.
 	 */
-	public static byte max(byte... array) {
-		if (array == null || array.length == 0) return 0;
+	public static byte max(byte[] array) {
+		return max(array, 0);
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array; throws exception if no values.
+	 */
+	public static byte max(byte[] array, int offset) {
+		return max(array, offset, array.length - offset);
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array; throws exception if no values.
+	 */
+	public static byte max(byte[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
 		byte max = Byte.MIN_VALUE;
-		for (byte val : array)
-			if (max < val) max = val;
+		for (; length > 0; length--, offset++)
+			max = max >= array[offset] ? max : array[offset];
 		return max;
 	}
 
 	/**
-	 * Returns the maximum value in the primitive array, or 0 if the array has no values.
+	 * Returns the maximum value in the primitive array; throws exception if no values.
 	 */
-	public static short max(short... array) {
-		if (array == null || array.length == 0) return 0;
+	public static short max(short[] array) {
+		return max(array, 0);
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array; throws exception if no values.
+	 */
+	public static short max(short[] array, int offset) {
+		return max(array, offset, array.length - offset);
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array; throws exception if no values.
+	 */
+	public static short max(short[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
 		short max = Short.MIN_VALUE;
-		for (short val : array)
-			if (max < val) max = val;
+		for (; length > 0; length--, offset++)
+			max = max >= array[offset] ? max : array[offset];
 		return max;
 	}
 
 	/**
-	 * Returns the maximum value in the primitive array, or 0 if the array has no values.
+	 * Returns the maximum value in the primitive array; throws exception if no values.
 	 */
 	public static int max(int... array) {
-		if (array == null || array.length == 0) return 0;
+		return max(array, 0);
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array; throws exception if no values.
+	 */
+	public static int max(int[] array, int offset) {
+		return max(array, offset, array.length - offset);
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array; throws exception if no values.
+	 */
+	public static int max(int[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
 		int max = Integer.MIN_VALUE;
-		for (int val : array)
-			if (max < val) max = val;
+		for (; length > 0; length--, offset++)
+			max = Integer.max(max, array[offset]);
 		return max;
 	}
 
 	/**
-	 * Returns the maximum value in the primitive array, or 0 if the array has no values.
+	 * Returns the maximum value in the primitive array; throws exception if no values.
 	 */
 	public static long max(long... array) {
-		if (array == null || array.length == 0) return 0;
+		return max(array, 0);
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array; throws exception if no values.
+	 */
+	public static long max(long[] array, int offset) {
+		return max(array, offset, array.length - offset);
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array; throws exception if no values.
+	 */
+	public static long max(long[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
 		long max = Long.MIN_VALUE;
-		for (long val : array)
-			if (max < val) max = val;
+		for (; length > 0; length--, offset++)
+			max = Long.max(max, array[offset]);
 		return max;
 	}
 
 	/**
-	 * Returns the maximum value in the primitive array, or 0 if the array has no values.
+	 * Returns the maximum value in the primitive array; throws exception if no values.
 	 */
 	public static float max(float... array) {
-		if (array == null || array.length == 0) return 0;
-		float max = Float.MIN_VALUE;
-		for (float val : array)
-			if (max < val) max = val;
+		return max(array, 0);
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array; throws exception if no values.
+	 */
+	public static float max(float[] array, int offset) {
+		return max(array, offset, array.length - offset);
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array; throws exception if no values.
+	 */
+	public static float max(float[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
+		float max = Float.NEGATIVE_INFINITY;
+		for (; length > 0; length--, offset++)
+			max = Float.max(max, array[offset]);
 		return max;
 	}
 
 	/**
-	 * Returns the maximum value in the primitive array, or 0 if the array has no values.
+	 * Returns the maximum value in the primitive array; throws exception if no values.
 	 */
 	public static double max(double... array) {
-		if (array == null || array.length == 0) return 0;
-		double max = -Double.MAX_VALUE;
-		for (double val : array)
-			if (max < val) max = val;
+		return max(array, 0);
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array; throws exception if no values.
+	 */
+	public static double max(double[] array, int offset) {
+		return max(array, offset, array.length - offset);
+	}
+
+	/**
+	 * Returns the maximum value in the primitive array; throws exception if no values.
+	 */
+	public static double max(double[] array, int offset, int length) {
+		Objects.requireNonNull(array);
+		ArrayUtil.validateSlice(array.length, offset, length);
+		validateMin(length, 1);
+		double max = Double.NEGATIVE_INFINITY;
+		for (; length > 0; length--, offset++)
+			max = Double.max(max, array[offset]);
 		return max;
 	}
 

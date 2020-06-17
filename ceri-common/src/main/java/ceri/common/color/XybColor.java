@@ -1,6 +1,6 @@
 package ceri.common.color;
 
-import static ceri.common.validation.ValidationUtil.validateRangeD;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import ceri.common.geom.Point2d;
 import ceri.common.math.MathUtil;
 import ceri.common.util.EqualsUtil;
@@ -109,7 +109,7 @@ public class XybColor implements ComponentColor<XybColor> {
 	}
 
 	private void validate(double value, String name) {
-		validateRangeD(value, 0, MAX_VALUE, name);
+		validateRange(value, 0, MAX_VALUE, name);
 	}
 
 	private double limit(double value) {

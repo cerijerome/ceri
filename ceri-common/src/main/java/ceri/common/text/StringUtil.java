@@ -305,7 +305,7 @@ public class StringUtil {
 	 * Compact floating point representation - trailing .0 is removed if present.
 	 */
 	public static String compact(double d, int precision) {
-		return compact(MathUtil.simpleRound(d, precision));
+		return compact(MathUtil.simpleRound(precision, d));
 	}
 
 	/**

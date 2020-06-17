@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinD;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.math.MathUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
@@ -13,8 +13,8 @@ public class Ellipse2d {
 
 	public static Ellipse2d create(double a, double b) {
 		if (a == 0 && b == 0) return NULL;
-		validateMinD(a, 0, "Axis a");
-		validateMinD(b, 0, "Axis b");
+		validateMin(a, 0, "Axis a");
+		validateMin(b, 0, "Axis b");
 		return new Ellipse2d(a + .0, b + .0);
 	}
 

@@ -49,9 +49,9 @@ public class CollectionScorersTest {
 	public void testMapMultiplySum() {
 		Map<Integer, Float> map = MapPopulator.of(2, 0.1f, 3, 1.1f).map;
 		Scorer<Map<Integer, Float>> scorer = CollectionScorers.mapMultiplySum(Scorers.value());
-		assertThat(MathUtil.simpleRound(scorer.score(map), 6), is(3.5));
+		assertThat(MathUtil.simpleRound(6, scorer.score(map)), is(3.5));
 		scorer = CollectionScorers.mapMultiplySum(i -> i / 2.0, f -> f + 1.0);
-		assertThat(MathUtil.simpleRound(scorer.score(map), 6), is(4.25));
+		assertThat(MathUtil.simpleRound(6, scorer.score(map)), is(4.25));
 		scorer = CollectionScorers.mapMultiplySum(null);
 		assertThat(scorer.score(map), is(0.0));
 		scorer = CollectionScorers.mapMultiplySum(Scorers.value(), null);

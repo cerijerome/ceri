@@ -1,7 +1,7 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinD;
-import static ceri.common.validation.ValidationUtil.validateRangeD;
+import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
@@ -14,8 +14,8 @@ public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 	private final double v;
 
 	public static <T extends Radial3d> TruncatedRadial3d<T> create(T radial, double h0, double h) {
-		validateMinD(h0, 0, "Height offset");
-		validateRangeD(h, 0, radial.height() - h0, "Height");
+		validateMin(h0, 0, "Height offset");
+		validateRange(h, 0, radial.height() - h0, "Height");
 		return new TruncatedRadial3d<>(radial, h0 + .0, h + .0);
 	}
 

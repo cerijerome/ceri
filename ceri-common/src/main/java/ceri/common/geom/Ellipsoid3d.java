@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinD;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.stream.DoubleStream;
 import ceri.common.math.AlgebraUtil;
 import ceri.common.text.ToStringHelper;
@@ -16,9 +16,9 @@ public class Ellipsoid3d {
 
 	public static Ellipsoid3d create(double a, double b, double c) {
 		if (a == 0 && b == 0 && c == 0) return NULL;
-		validateMinD(a, 0, "Axis a");
-		validateMinD(b, 0, "Axis b");
-		validateMinD(c, 0, "Axis c");
+		validateMin(a, 0, "Axis a");
+		validateMin(b, 0, "Axis b");
+		validateMin(c, 0, "Axis c");
 		return new Ellipsoid3d(a + .0, b + .0, c + .0);
 	}
 

@@ -86,19 +86,19 @@ public class TypeTranscoderBehavior {
 
 	@Test
 	public void shouldDetermineIfValueHasAnyTypes() {
-		assertThat(xcoder.hasAnyOf(0, E.a, E.b, E.c), is(false));
-		assertThat(xcoder.hasAnyOf(1, E.a, E.b, E.c), is(true));
-		assertThat(xcoder.hasAnyOf(13, E.a, E.b, E.c), is(true));
-		assertThat(xcoder.hasAnyOf(13, E.b), is(false));
+		assertThat(xcoder.hasAny(0, E.a, E.b, E.c), is(false));
+		assertThat(xcoder.hasAny(1, E.a, E.b, E.c), is(true));
+		assertThat(xcoder.hasAny(13, E.a, E.b, E.c), is(true));
+		assertThat(xcoder.hasAny(13, E.b), is(false));
 	}
 
 	@Test
 	public void shouldDetermineIfValueHasAllTypes() {
-		assertThat(xcoder.hasAllOf(0), is(true));
-		assertThat(xcoder.hasAllOf(1, E.a), is(true));
-		assertThat(xcoder.hasAllOf(13, E.a, E.c), is(true));
-		assertThat(xcoder.hasAllOf(13, E.a, E.b, E.c), is(false));
-		assertThat(xcoder.hasAllOf(13, E.b), is(false));
+		assertThat(xcoder.hasAll(0), is(true));
+		assertThat(xcoder.hasAll(1, E.a), is(true));
+		assertThat(xcoder.hasAll(13, E.a, E.c), is(true));
+		assertThat(xcoder.hasAll(13, E.a, E.b, E.c), is(false));
+		assertThat(xcoder.hasAll(13, E.b), is(false));
 	}
 
 	@Test

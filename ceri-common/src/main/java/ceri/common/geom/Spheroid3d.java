@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinD;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
@@ -19,8 +19,8 @@ public class Spheroid3d implements Radial3d {
 
 	public static Spheroid3d create(double r, double c) {
 		if (r == 0 && c == 0) return NULL;
-		validateMinD(r, 0, "Radius");
-		validateMinD(c, 0, "Axis c");
+		validateMin(r, 0, "Radius");
+		validateMin(c, 0, "Axis c");
 		return new Spheroid3d(r + .0, c + .0);
 	}
 

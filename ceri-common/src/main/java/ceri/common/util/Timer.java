@@ -1,6 +1,6 @@
 package ceri.common.util;
 
-import static ceri.common.validation.ValidationUtil.validateMinL;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.concurrent.TimeUnit;
 import java.util.function.LongSupplier;
 import ceri.common.date.DateUtil;
@@ -56,15 +56,15 @@ public class Timer {
 		public TimeUnit unit() {
 			return timer.unit;
 		}
-		
+
 		public long period() {
 			return timer.period;
 		}
-		
+
 		public long elapsed() {
 			return period() - remaining;
 		}
-		
+
 		public boolean expired() {
 			if (state == State.notStarted) return false;
 			if (state == State.stopped) return true;
@@ -143,7 +143,7 @@ public class Timer {
 	}
 
 	private static Timer of(long period, TimeUnit unit, LongSupplier timeSupplier) {
-		validateMinL(period, INFINITE_PERIOD);
+		validateMin(period, INFINITE_PERIOD);
 		return new Timer(period, unit, timeSupplier);
 	}
 

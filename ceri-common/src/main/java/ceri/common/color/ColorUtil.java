@@ -2,6 +2,7 @@ package ceri.common.color;
 
 import static ceri.common.collection.StreamUtil.first;
 import static ceri.common.collection.StreamUtil.toList;
+import static ceri.common.math.Bound.Type.inclusive;
 import static java.util.Map.entry;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -376,7 +377,7 @@ public class ColorUtil {
 		double diff = max - min;
 		if (Math.abs(diff) > HALF) diff -= Math.signum(diff);
 		double h = min + (ratio * diff);
-		return MathUtil.periodicLimit(h, 1);
+		return MathUtil.periodicLimit(h, 1, inclusive);
 	}
 
 	public static Color scale(Color min, Color max, double ratio) {

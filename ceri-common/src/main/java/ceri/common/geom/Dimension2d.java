@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinD;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
@@ -10,8 +10,8 @@ public class Dimension2d {
 	public final double h;
 
 	public static Dimension2d of(double w, double h) {
-		validateMinD(w, 0, "Width");
-		validateMinD(h, 0, "Height");
+		validateMin(w, 0, "Width");
+		validateMin(h, 0, "Height");
 		if (w == 0 && h == 0) return ZERO;
 		return new Dimension2d(w + .0, h + .0);
 	}

@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -70,7 +70,7 @@ public class NavigableByteWriter<T extends ByteReceiver>
 
 	@Override
 	public NavigableByteWriter<T> offset(int index) {
-		validateRangeL(index, 0, length());
+		validateRange(index, 0, length());
 		this.index = index;
 		return this;
 	}

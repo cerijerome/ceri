@@ -170,7 +170,7 @@ public class ColorxUtil {
 		}
 
 		public static Colorx applyRgb(Colorx cx0, Colorx cx1, BinaryOperator<Color> rgbFn) {
-			return applyRgb(cx0, cx1, rgbFn, MathUtil::averageInt);
+			return applyRgb(cx0, cx1, rgbFn, (l, r) -> averageInt(l, r));
 		}
 
 		public static Colorx applyRgb(Colorx cx0, Colorx cx1, BinaryOperator<Color> rgbFn,
@@ -455,6 +455,10 @@ public class ColorxUtil {
 		Random rnd = ThreadLocalRandom.current();
 		int max = CHANNEL_MAX + 1;
 		return Colorx.of(rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max));
+	}
+
+	private static int averageInt(int... values) {
+		return (int) Math.round(MathUtil.mean(values));
 	}
 
 	private static Map<Integer, String> colorMap() {

@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinD;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
@@ -18,7 +18,7 @@ public class Polar2d {
 
 	public static Polar2d of(double r, double phi) {
 		if (r == ZERO.r && phi == ZERO.phi) return ZERO;
-		validateMinD(r, 0, "Radius");
+		validateMin(r, 0, "Radius");
 		return new Polar2d(r + .0, phi + .0);
 	}
 

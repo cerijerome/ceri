@@ -1,7 +1,7 @@
 package ceri.common.data;
 
 import static ceri.common.text.StringUtil.HEX_RADIX;
-import static ceri.common.validation.ValidationUtil.validateMaxL;
+import static ceri.common.validation.ValidationUtil.validateMax;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.nio.ByteOrder;
@@ -314,7 +314,7 @@ public class ByteUtil {
 	 */
 	public static int writeMsb(long value, byte[] data, int offset, int length) {
 		ArrayUtil.validateSlice(data.length, offset, length);
-		validateMaxL(length, Long.BYTES);
+		validateMax(length, Long.BYTES);
 		while (--length >= 0)
 			data[offset++] = byteAt(value, length);
 		return offset;
@@ -339,7 +339,7 @@ public class ByteUtil {
 	 */
 	public static int writeLsb(long value, byte[] data, int offset, int length) {
 		ArrayUtil.validateSlice(data.length, offset, length);
-		validateMaxL(length, Long.BYTES);
+		validateMax(length, Long.BYTES);
 		for (int i = 0; i < length; i++)
 			data[offset++] = byteAt(value, i);
 		return offset;
@@ -359,7 +359,7 @@ public class ByteUtil {
 
 	public static long fromMsb(byte[] array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
-		validateMaxL(length, Long.BYTES);
+		validateMax(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
 			value |= shiftByteLeft(array[offset + i], length - i - 1);
@@ -380,7 +380,7 @@ public class ByteUtil {
 
 	public static long fromLsb(byte[] array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
-		validateMaxL(length, Long.BYTES);
+		validateMax(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
 			value |= shiftByteLeft(array[offset + i], i);

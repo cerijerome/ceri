@@ -4,7 +4,8 @@ import static ceri.common.color.ColorUtil.b;
 import static ceri.common.color.ColorUtil.g;
 import static ceri.common.color.ColorUtil.r;
 import static ceri.common.color.ColorUtil.toRatio;
-import static ceri.common.validation.ValidationUtil.validateRangeD;
+import static ceri.common.math.Bound.Type.inclusive;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import java.awt.Color;
 import ceri.common.data.ByteUtil;
 import ceri.common.math.MathUtil;
@@ -111,7 +112,7 @@ public class HsbColor implements ComponentColor<HsbColor> {
 
 	@Override
 	public HsbColor normalize() {
-		double h = MathUtil.periodicLimit(this.h, MAX_VALUE);
+		double h = MathUtil.periodicLimit(this.h, MAX_VALUE, inclusive);
 		double s = limit(this.s);
 		double b = limit(this.b);
 		double a = limit(this.a);
@@ -138,7 +139,7 @@ public class HsbColor implements ComponentColor<HsbColor> {
 	}
 
 	private void validate(double value, String name) {
-		validateRangeD(value, 0, MAX_VALUE, name);
+		validateRange(value, 0, MAX_VALUE, name);
 	}
 
 	private double limit(double value) {

@@ -1,7 +1,7 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinD;
-import static ceri.common.validation.ValidationUtil.validateRangeD;
+import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import ceri.common.math.ReverseFunction;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
@@ -24,9 +24,9 @@ public class ConcaveSpheroid3d implements Radial3d {
 
 	public static ConcaveSpheroid3d create(double r, double a, double c) {
 		if (r == 0 && a == 0 && c == 0) return NULL;
-		validateMinD(r, 0, "Radius");
-		validateRangeD(a, 0, r, "Axis a");
-		validateMinD(c, 0, "Axis c");
+		validateMin(r, 0, "Radius");
+		validateRange(a, 0, r, "Axis a");
+		validateMin(c, 0, "Axis c");
 		return new ConcaveSpheroid3d(r + .0, a + .0, c + .0, REVERSE_STEPS_DEF);
 	}
 

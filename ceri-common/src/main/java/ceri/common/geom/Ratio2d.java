@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinD;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
@@ -17,8 +17,8 @@ public class Ratio2d {
 	public static Ratio2d of(double x, double y) {
 		if (x == 0 && y == 0) return ZERO;
 		if (x == 1 && y == 1) return ONE;
-		validateMinD(x, 0, "X ratio");
-		validateMinD(y, 0, "Y ratio");
+		validateMin(x, 0, "X ratio");
+		validateMin(y, 0, "Y ratio");
 		return new Ratio2d(x + .0, y + .0);
 	}
 
