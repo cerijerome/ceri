@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.StringUtil;
@@ -254,6 +255,13 @@ public class BinaryPrinter {
 	/**
 	 * Print binary data.
 	 */
+	public BinaryPrinter print(int... bytes) {
+		return print(ArrayUtil.bytes(bytes));
+	}
+
+	/**
+	 * Print binary data.
+	 */
 	public BinaryPrinter print(byte[] bytes) {
 		return print(bytes, 0);
 	}
@@ -322,7 +330,7 @@ public class BinaryPrinter {
 	private void appendMissingItemSpace(StringBuilder binB, StringBuilder hexB,
 		StringBuilder charB) {
 		binB.append("        ");
-		hexB.append(' ');
+		hexB.append("  ");
 		charB.append(' ');
 	}
 

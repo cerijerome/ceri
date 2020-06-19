@@ -160,6 +160,18 @@ public class ByteUtilTest {
 	}
 
 	@Test
+	public void testMaskOfBitsInt() {
+		assertThat(ByteUtil.maskOfBitsInt((int[]) null), is(0));
+		assertThat(ByteUtil.maskOfBitsInt((List<Integer>) null), is(0));
+		assertThat(ByteUtil.maskOfBitsInt(31, 16, 15, 8, 7, 0), is(0x80018181));
+		assertThat(ByteUtil.maskOfBitsInt(List.of(31, 16, 15, 8, 7, 0)),
+			is(0x80018181));
+		assertThat(ByteUtil.maskOfBitsInt(32), is(0));
+		assertThat(ByteUtil.maskOfBitInt(true, 31), is(0x80000000));
+		assertThat(ByteUtil.maskOfBitInt(false, 31), is(0));
+	}
+
+	@Test
 	public void testBit() {
 		assertThat(ByteUtil.bit(0, 0), is(false));
 		assertThat(ByteUtil.bit(0, 63), is(false));

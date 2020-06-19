@@ -25,7 +25,16 @@ public class TypeTranscoder<T> {
 		public final Set<T> types;
 		public final int remainder;
 
-		private Remainder(Set<T> types, int remainder) {
+		@SafeVarargs
+		public static <T> Remainder<T> of(int remainder, T...types) {
+			return of(remainder, Arrays.asList(types));
+		}
+		
+		public static <T> Remainder<T> of(int remainder, Collection<T> types) {
+			return new Remainder<>(remainder, Set.copyOf(types));
+		}
+		
+		private Remainder(int remainder, Set<T> types) {
 			this.types = types;
 			this.remainder = remainder;
 		}
@@ -105,7 +114,7 @@ public class TypeTranscoder<T> {
 		return FieldTranscoder.of(accessor, this);
 	}
 
-	public <S> FieldTranscoder.Typed<S, T> field(IntAccessor.Typed<S> accessor) {
+	public <U> FieldTranscoder.Typed<U, T> field(IntAccessor.Typed<U> accessor) {
 		return FieldTranscoder.Typed.of(accessor, this);
 	}
 
@@ -186,15 +195,10 @@ public class TypeTranscoder<T> {
 	}
 
 	public Set<T> decodeAll(int value) {
-		return decodeAllWithRemainder(value).types;
+		return decodeWithRemainder(value).types;
 	}
 
 	public Remainder<T> decodeWithRemainder(int value) {
-		Remainder<T> rem = decodeAllWithRemainder(value);
-		return new Remainder<>(ImmutableUtil.copyAsSet(rem.types), rem.remainder);
-	}
-
-	private Remainder<T> decodeAllWithRemainder(int value) {
 		value = mask.decodeInt(value);
 		Set<T> set = new LinkedHashSet<>();
 		for (Map.Entry<Integer, T> entry : lookup.entrySet()) {
@@ -205,7 +209,7 @@ public class TypeTranscoder<T> {
 			set.add(t);
 			if (value == 0) break;
 		}
-		return new Remainder<>(set, value);
+		return Remainder.of(value, set);
 	}
 
 	private int encodeTypes(Collection<T> ts) {

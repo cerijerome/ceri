@@ -32,6 +32,46 @@ public class BoundBehavior {
 	}
 
 	@Test
+	public void shouldDetermineTypeLowerLimit() {
+		assertThat(Bound.Type.exclusive.isLower(Integer.MAX_VALUE, Integer.MIN_VALUE), is(true));
+		assertThat(Bound.Type.exclusive.isLower(Integer.MIN_VALUE, Integer.MIN_VALUE), is(false));
+		assertThat(Bound.Type.inclusive.isLower(Integer.MIN_VALUE, Integer.MAX_VALUE), is(false));
+		assertThat(Bound.Type.inclusive.isLower(Integer.MIN_VALUE, Integer.MIN_VALUE), is(true));
+		assertThat(Bound.Type.exclusive.isLower(Long.MAX_VALUE, Long.MIN_VALUE), is(true));
+		assertThat(Bound.Type.exclusive.isLower(Long.MIN_VALUE, Long.MIN_VALUE), is(false));
+		assertThat(Bound.Type.inclusive.isLower(Long.MIN_VALUE, Long.MAX_VALUE), is(false));
+		assertThat(Bound.Type.inclusive.isLower(Long.MIN_VALUE, Long.MIN_VALUE), is(true));
+		assertThat(Bound.Type.exclusive.isLower(0.1f, 0.0f), is(true));
+		assertThat(Bound.Type.exclusive.isLower(0.0f, 0.0f), is(false));
+		assertThat(Bound.Type.inclusive.isLower(0.0f, 0.1f), is(false));
+		assertThat(Bound.Type.inclusive.isLower(0.0f, 0.0f), is(true));
+		assertThat(Bound.Type.exclusive.isLower(0.1, 0.0), is(true));
+		assertThat(Bound.Type.exclusive.isLower(0.0, 0.0), is(false));
+		assertThat(Bound.Type.inclusive.isLower(0.0, 0.1), is(false));
+		assertThat(Bound.Type.inclusive.isLower(0.0, 0.0), is(true));
+	}
+	
+	@Test
+	public void shouldDetermineTypeUpperLimit() {
+		assertThat(Bound.Type.exclusive.isUpper(Integer.MIN_VALUE, Integer.MAX_VALUE), is(true));
+		assertThat(Bound.Type.exclusive.isUpper(Integer.MIN_VALUE, Integer.MIN_VALUE), is(false));
+		assertThat(Bound.Type.inclusive.isUpper(Integer.MAX_VALUE, Integer.MIN_VALUE), is(false));
+		assertThat(Bound.Type.inclusive.isUpper(Integer.MIN_VALUE, Integer.MIN_VALUE), is(true));
+		assertThat(Bound.Type.exclusive.isUpper(Long.MIN_VALUE, Long.MAX_VALUE), is(true));
+		assertThat(Bound.Type.exclusive.isUpper(Long.MIN_VALUE, Long.MIN_VALUE), is(false));
+		assertThat(Bound.Type.inclusive.isUpper(Long.MAX_VALUE, Long.MIN_VALUE), is(false));
+		assertThat(Bound.Type.inclusive.isUpper(Long.MIN_VALUE, Long.MIN_VALUE), is(true));
+		assertThat(Bound.Type.exclusive.isUpper(0.0f, 0.1f), is(true));
+		assertThat(Bound.Type.exclusive.isUpper(0.0f, 0.0f), is(false));
+		assertThat(Bound.Type.inclusive.isUpper(0.1f, 0.0f), is(false));
+		assertThat(Bound.Type.inclusive.isUpper(0.0f, 0.0f), is(true));
+		assertThat(Bound.Type.exclusive.isUpper(0.0, 0.1), is(true));
+		assertThat(Bound.Type.exclusive.isUpper(0.0, 0.0), is(false));
+		assertThat(Bound.Type.inclusive.isUpper(0.1, 0.0), is(false));
+		assertThat(Bound.Type.inclusive.isUpper(0.0, 0.0), is(true));
+	}
+	
+	@Test
 	public void shouldBeUnboundForNullValue() {
 		assertThat(Bound.of((String) null, Type.exclusive), is(Bound.unbound()));
 	}

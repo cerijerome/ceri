@@ -28,6 +28,13 @@ public class TypeTranscoderBehavior {
 		}
 	}
 
+	static class Holder {
+		static final IntAccessor.Typed<Holder> acc =
+			IntAccessor.typed(h -> h.val, (h, i) -> h.val = i);
+
+		int val = 0;
+	}
+
 	@Test
 	public void shouldNotBreachRemainderEqualsContract() {
 		Remainder<E> t = xcoder.decodeWithRemainder(7);
@@ -85,6 +92,13 @@ public class TypeTranscoderBehavior {
 	}
 
 	@Test
+	public void shouldDetermineIfValueHasType() {
+		assertThat(xcoder.has(0, E.a), is(false));
+		assertThat(xcoder.has(1, E.a), is(true));
+		assertThat(xcoder.has(13, E.b), is(false));
+	}
+
+	@Test
 	public void shouldDetermineIfValueHasAnyTypes() {
 		assertThat(xcoder.hasAny(0, E.a, E.b, E.c), is(false));
 		assertThat(xcoder.hasAny(1, E.a, E.b, E.c), is(true));
@@ -124,7 +138,7 @@ public class TypeTranscoderBehavior {
 
 	@Test
 	public void shouldTranscodeMaskValues() {
-		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, mask(0x0e), E.class);
+		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, mask(0x0e, 0), E.class);
 		assertThat(xcoder.encode(E.a), is(0));
 		assertThat(xcoder.encode(E.c), is(E.c.value));
 		assertThat(xcoder.encode(E.a, E.c), is(E.c.value));
@@ -134,7 +148,7 @@ public class TypeTranscoderBehavior {
 
 	@Test
 	public void shouldTranscodeOverlappingMaskValues() {
-		TypeTranscoder<E> xcoder = TypeTranscoder.<E>of(t -> t.value, mask(0x0e), E.b, E.c);
+		TypeTranscoder<E> xcoder = TypeTranscoder.<E>of(t -> t.value, mask(0x0e, 0), E.b, E.c);
 		assertThat(xcoder.encode(E.a), is(0));
 		assertThat(xcoder.encode(E.c), is(E.c.value));
 		assertThat(xcoder.encode(E.a, E.c), is(E.c.value));
@@ -153,6 +167,14 @@ public class TypeTranscoderBehavior {
 		field.set(E.a, E.c);
 		assertThat(store[0], is(E.a.value + E.c.value));
 		assertCollection(field.getAll(), E.a, E.c);
+	}
+
+	@Test
+	public void shouldTranscodeTypedFields() {
+		FieldTranscoder.Typed<Holder, E> field = xcoder.field(Holder.acc);
+		Holder h = new Holder();
+		field.set(h, E.a, E.b);
+		assertThat(h.val, is(3));
 	}
 
 	@SafeVarargs

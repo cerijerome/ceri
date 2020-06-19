@@ -129,11 +129,11 @@ public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 	public Optional<T> findAny() throws E {
 		return terminateAs(Stream::findAny);
 	}
-	
+
 	public Optional<T> findFirst() throws E {
 		return terminateAs(Stream::findFirst);
 	}
-	
+
 	public <R> R terminateAs(ExceptionFunction<E, ? super Stream<T>, R> fn) throws E {
 		return w.unwrapSupplier(() -> fn.apply(stream));
 	}

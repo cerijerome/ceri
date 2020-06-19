@@ -62,6 +62,16 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 		}
 	}
 
+	public boolean getBoolean(ExceptionBooleanSupplier<?> supplier) throws E {
+		try {
+			return supplier.getAsBoolean();
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw apply(e);
+		}
+	}
+
 	public int getInt(ExceptionIntSupplier<?> supplier) throws E {
 		try {
 			return supplier.getAsInt();
@@ -75,16 +85,6 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 	public long getLong(ExceptionLongSupplier<?> supplier) throws E {
 		try {
 			return supplier.getAsLong();
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (Exception e) {
-			throw apply(e);
-		}
-	}
-
-	public boolean getBoolean(ExceptionBooleanSupplier<?> supplier) throws E {
-		try {
-			return supplier.getAsBoolean();
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {

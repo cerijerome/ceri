@@ -7,7 +7,10 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.time.format.FormatStyle;
+import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 
 public class DateUtilTest {
@@ -15,6 +18,18 @@ public class DateUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(DateUtil.class);
+	}
+
+	@Test
+	public void testJvmUptime() {
+		assertThat(DateUtil.jvmUptimeMs() > 0, is(true));
+		assertThat(DateUtil.jvmUptimeMs() < TimeUnit.DAYS.toMillis(30 * 365), is(true));
+	}
+
+	@Test
+	public void testDateTimePattern() {
+		assertThat(DateUtil.dateTimePattern(FormatStyle.FULL, FormatStyle.FULL, Locale.US),
+			is("EEEE, MMMM d, y 'at' h:mm:ss a zzzz"));
 	}
 
 	@Test

@@ -7,10 +7,15 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.function.ExceptionLongConsumer;
 import ceri.common.util.Timer.State;
 
 public class TimerBehavior {
@@ -28,6 +33,20 @@ public class TimerBehavior {
 		Timer.Snapshot s6 = new Timer.Snapshot(t0, State.started, 100, 101, 100);
 		exerciseEquals(s0, s1);
 		assertAllNotEqual(s0, s2, s3, s4, s5, s6);
+	}
+
+	@Test
+	public void shouldSupportTimeUnits() {
+		assertThat(Timer.micros(1000).unit, is(TimeUnit.MICROSECONDS));
+		assertThat(Timer.micros(1000).snapshot().unit(), is(TimeUnit.MICROSECONDS));
+		assertThat(Timer.nanos(1000).unit, is(TimeUnit.NANOSECONDS));
+		assertThat(Timer.nanos(1000).snapshot().unit(), is(TimeUnit.NANOSECONDS));
+	}
+
+	@Test
+	public void shouldCalculateElapsedTime() {
+		Timer.Snapshot s0 = Timer.nanos(100).start().snapshot();
+		assertThat(s0.elapsed(), is(s0.period() - s0.remaining));
 	}
 
 	@Test
@@ -51,11 +70,35 @@ public class TimerBehavior {
 	}
 
 	@Test
+	public void shouldDetermineRemainingIntTime() {
+		Timer t = Timer.nanos(1000);
+		Timer.Snapshot s0 = new Timer.Snapshot(t, State.started, 0, 0, Long.MIN_VALUE);
+		Timer.Snapshot s1 = new Timer.Snapshot(t, State.started, 0, 0, Long.MAX_VALUE);
+		Timer.Snapshot s2 = new Timer.Snapshot(t, State.started, 0, 0, 1000L);
+		assertThat(s0.remainingInt(), is(Integer.MIN_VALUE));
+		assertThat(s1.remainingInt(), is(Integer.MAX_VALUE));
+		assertThat(s2.remainingInt(), is(1000));
+	}
+
+	@Test
 	public void shouldApplyRemainingTime() throws Exception {
+		ExceptionLongConsumer<Exception> consumer =
+			uncheckedCast(mock(ExceptionLongConsumer.class));
+		Timer.INFINITE.applyRemaining(consumer);
+		Timer.millis(0).applyRemaining(consumer);
+		verifyNoMoreInteractions(consumer);
+		Timer.millis(Long.MAX_VALUE).applyRemaining(consumer);
+		verify(consumer).accept(anyLong());
+	}
+
+	@Test
+	public void shouldApplyRemainingIntTime() throws Exception {
 		ExceptionIntConsumer<Exception> consumer = uncheckedCast(mock(ExceptionIntConsumer.class));
 		Timer.INFINITE.applyRemainingInt(consumer);
 		Timer.millis(0).applyRemainingInt(consumer);
 		verifyNoMoreInteractions(consumer);
+		Timer.millis(Long.MAX_VALUE).applyRemainingInt(consumer);
+		verify(consumer).accept(anyInt());
 	}
 
 	@Test

@@ -17,8 +17,8 @@ import ceri.common.function.ToShortFunction;
  * The Typed nested class requires a typed object to be passed in to a getter and setter. This
  * allows the typed accessor to be statically declared on types.
  * <p/>
- * A mask transcoder can be applied to either accessor type, to mask and shift bits when 
- * calling access methods. This allows only a subset of bits to be affected during access.
+ * A mask transcoder can be applied to either accessor type, to mask and shift bits when calling
+ * access methods. This allows only a subset of bits to be affected during access.
  */
 public interface IntAccessor {
 
@@ -110,20 +110,6 @@ public interface IntAccessor {
 
 		public IntAccessor from(T t) {
 			return IntAccessor.of(() -> get(t), i -> set(t, i));
-		}
-
-		/**
-		 * Apply a mask when accessing the value. Mask bits but don't shift to get value.
-		 */
-		public IntAccessor.Typed<T> mask(int mask, int shiftBits) {
-			return mask(MaskTranscoder.mask(mask, shiftBits));
-		}
-
-		/**
-		 * Apply a mask when accessing the value. Mask bits and shift to get value.
-		 */
-		public IntAccessor.Typed<T> maskBits(int startBit, int bitCount) {
-			return mask(MaskTranscoder.shiftBits(startBit, bitCount));
 		}
 
 		/**

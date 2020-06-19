@@ -16,6 +16,7 @@ import ceri.common.collection.StreamUtilTest;
 import ceri.common.collection.WrappedIntStreamBehavior;
 import ceri.common.collection.WrappedStreamBehavior;
 import ceri.common.color.BiasesTest;
+import ceri.common.color.CharGrayscaleBehavior;
 import ceri.common.color.ColorComparatorsTest;
 import ceri.common.color.ColorUtilTest;
 import ceri.common.color.ColorableTest;
@@ -81,11 +82,6 @@ import ceri.common.event.IntListenersBehavior;
 import ceri.common.event.ListenersBehavior;
 import ceri.common.event.NullIntListenableBehavior;
 import ceri.common.event.NullListenableBehavior;
-import ceri.common.factory.DateFactoriesTest;
-import ceri.common.factory.FactoriesTest;
-import ceri.common.factory.FactoryExceptionBehavior;
-import ceri.common.factory.NumberFactoriesTest;
-import ceri.common.factory.StringFactoriesTest;
 import ceri.common.filter.CollectionFiltersTest;
 import ceri.common.filter.EnumFiltersTest;
 import ceri.common.filter.FilterBehavior;
@@ -104,10 +100,17 @@ import ceri.common.function.ExceptionIntFunctionBehavior;
 import ceri.common.function.ExceptionIntPredicateBehavior;
 import ceri.common.function.ExceptionIntSupplierBehavior;
 import ceri.common.function.ExceptionIntUnaryOperatorBehavior;
+import ceri.common.function.ExceptionLongConsumerBehavior;
+import ceri.common.function.ExceptionLongFunctionBehavior;
+import ceri.common.function.ExceptionLongPredicateBehavior;
+import ceri.common.function.ExceptionLongSupplierBehavior;
+import ceri.common.function.ExceptionLongUnaryOperatorBehavior;
+import ceri.common.function.ExceptionObjIntFunctionBehavior;
 import ceri.common.function.ExceptionPredicateBehavior;
 import ceri.common.function.ExceptionRunnableBehavior;
 import ceri.common.function.ExceptionSupplierBehavior;
 import ceri.common.function.ExceptionToIntFunctionBehavior;
+import ceri.common.function.FluentBehavior;
 import ceri.common.function.FunctionUtilTest;
 import ceri.common.function.FunctionWrapperBehavior;
 import ceri.common.function.NamedPredicateBuilderBehavior;
@@ -157,6 +160,7 @@ import ceri.common.io.PollingInputStreamBehavior;
 import ceri.common.io.ReplaceableInputStreamBehavior;
 import ceri.common.io.ReplaceableOutputStreamBehavior;
 import ceri.common.io.ResourcePathBehavior;
+import ceri.common.io.RuntimeEofExceptionBehavior;
 import ceri.common.io.RuntimeIoExceptionBehavior;
 import ceri.common.io.StateChangeBehavior;
 import ceri.common.io.StringPrintStreamBehavior;
@@ -215,6 +219,7 @@ import ceri.common.test.ApproxMatcherBehavior;
 import ceri.common.test.BinaryLogInputStreamBehavior;
 import ceri.common.test.BinaryLogOutputStreamBehavior;
 import ceri.common.test.BinaryPrinterBehavior;
+import ceri.common.test.BranchCaptorBehavior;
 import ceri.common.test.DebuggerBehavior;
 import ceri.common.test.FileTestHelperBehavior;
 import ceri.common.test.PulsePrinterBehavior;
@@ -297,6 +302,7 @@ import ceri.common.xml.XmlUtilTest;
 	WrappedStreamBehavior.class, //
 	// color
 	BiasesTest.class, //
+	CharGrayscaleBehavior.class, //
 	ColorComparatorsTest.class, //
 	ColorUtilTest.class, //
 	ColorableTest.class, //
@@ -368,12 +374,6 @@ import ceri.common.xml.XmlUtilTest;
 	ListenersBehavior.class, //
 	NullIntListenableBehavior.class, //
 	NullListenableBehavior.class, //
-	// factory
-	DateFactoriesTest.class, //
-	FactoriesTest.class, //
-	FactoryExceptionBehavior.class, //
-	NumberFactoriesTest.class, //
-	StringFactoriesTest.class, //
 	// filter
 	CollectionFiltersTest.class, //
 	EnumFiltersTest.class, //
@@ -394,10 +394,17 @@ import ceri.common.xml.XmlUtilTest;
 	ExceptionIntPredicateBehavior.class, //
 	ExceptionIntSupplierBehavior.class, //
 	ExceptionIntUnaryOperatorBehavior.class, //
+	ExceptionLongConsumerBehavior.class, //
+	ExceptionLongFunctionBehavior.class, //
+	ExceptionLongPredicateBehavior.class, //
+	ExceptionLongSupplierBehavior.class, //
+	ExceptionLongUnaryOperatorBehavior.class, //
+	ExceptionObjIntFunctionBehavior.class, //
 	ExceptionPredicateBehavior.class, //
 	ExceptionRunnableBehavior.class, //
 	ExceptionSupplierBehavior.class, //
 	ExceptionToIntFunctionBehavior.class, //
+	FluentBehavior.class, //
 	FunctionUtilTest.class, //
 	FunctionWrapperBehavior.class, //
 	NamedPredicateBuilderBehavior.class, //
@@ -450,6 +457,7 @@ import ceri.common.xml.XmlUtilTest;
 	ReplaceableInputStreamBehavior.class, //
 	ReplaceableOutputStreamBehavior.class, //
 	ResourcePathBehavior.class, //
+	RuntimeEofExceptionBehavior.class, //
 	RuntimeIoExceptionBehavior.class, //
 	StateChangeBehavior.class, //
 	StringPrintStreamBehavior.class, //
@@ -518,6 +526,7 @@ import ceri.common.xml.XmlUtilTest;
 	BinaryLogInputStreamBehavior.class, //
 	BinaryLogOutputStreamBehavior.class, //
 	BinaryPrinterBehavior.class, //
+	BranchCaptorBehavior.class, //
 	DebuggerBehavior.class, //
 	FileTestHelperBehavior.class, //
 	PulsePrinterBehavior.class, //

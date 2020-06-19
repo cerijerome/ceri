@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -164,9 +163,9 @@ public class TestUtil {
 			// Success
 			return;
 		}
-		fail();
+		throw new AssertionError("Expected to assert");
 	}
-	
+
 	/**
 	 * Checks all objects are not equal to the first given object.
 	 */
@@ -960,9 +959,23 @@ public class TestUtil {
 	}
 
 	/**
+	 * Matcher for float within delta precision.
+	 */
+	public static Matcher<Float> isApprox(float expected, float delta) {
+		return ApproxMatcher.delta(expected, delta);
+	}
+
+	/**
 	 * Matcher for double rounded to decimal places.
 	 */
 	public static Matcher<Double> isRounded(double expected, int places) {
+		return ApproxMatcher.round(expected, places);
+	}
+
+	/**
+	 * Matcher for float rounded to decimal places.
+	 */
+	public static Matcher<Float> isRounded(float expected, int places) {
 		return ApproxMatcher.round(expected, places);
 	}
 

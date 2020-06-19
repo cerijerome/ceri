@@ -4,8 +4,8 @@ import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.concurrent.TimeUnit;
 import java.util.function.LongSupplier;
 import ceri.common.date.DateUtil;
-import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.function.ExceptionLongConsumer;
 import ceri.common.text.ToStringHelper;
 
 /**
@@ -43,7 +43,7 @@ public class Timer {
 		public final State state;
 		public final long started;
 		public final long current;
-		public final long remaining;
+		public final long remaining; // negative for time past period
 
 		Snapshot(Timer timer, State state, long started, long current, long remaining) {
 			this.timer = timer;
@@ -82,7 +82,7 @@ public class Timer {
 			return timer.isInfinite();
 		}
 
-		public <E extends Exception> Snapshot applyRemaining(ExceptionConsumer<E, Long> consumer)
+		public <E extends Exception> Snapshot applyRemaining(ExceptionLongConsumer<E> consumer)
 			throws E {
 			if (infinite() || remaining <= 0) return this;
 			consumer.accept(remaining);
@@ -189,7 +189,7 @@ public class Timer {
 		return period == INFINITE_PERIOD;
 	}
 
-	public <E extends Exception> Snapshot applyRemaining(ExceptionConsumer<E, Long> consumer)
+	public <E extends Exception> Snapshot applyRemaining(ExceptionLongConsumer<E> consumer)
 		throws E {
 		return snapshot().applyRemaining(consumer);
 	}

@@ -43,7 +43,7 @@ public class DateUtil {
 	}
 
 	/**
-	 * Returns the date/time pattern for default locale. Use null for unwanted style. Can be used to
+	 * Returns the date/time pattern for a locale. Use null for unwanted style. Can be used to
 	 * modify a local date pattern, keeping the ordering, but modifying the field size.
 	 */
 	public static String dateTimePattern(FormatStyle dateStyle, FormatStyle timeStyle,

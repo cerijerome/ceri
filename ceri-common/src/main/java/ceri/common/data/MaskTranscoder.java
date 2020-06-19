@@ -1,5 +1,6 @@
 package ceri.common.data;
 
+import ceri.common.math.MathUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
 
@@ -14,16 +15,23 @@ public class MaskTranscoder {
 	/**
 	 * Mask bits and shift. Masked value is right-shifted given number of bits.
 	 */
+	public static MaskTranscoder mask(int mask, int shiftBits) {
+		return mask(MathUtil.uint(mask), shiftBits);
+	}
+
+	/**
+	 * Mask bits and shift. Masked value is right-shifted given number of bits.
+	 */
 	public static MaskTranscoder mask(long mask, int shiftBits) {
 		return new MaskTranscoder(mask, shiftBits);
 	}
 
 	/**
-	 * Mask bits and shift. Masked value is right-shifted to start at bit 0.
+	 * Mask bits and shift. Masked value is right-shifted given number of bits.
 	 * TODO: rename to 'bits'
 	 */
-	public static MaskTranscoder shiftBits(int startBit, int bitCount) {
-		return mask(ByteUtil.mask(startBit, bitCount), startBit);
+	public static MaskTranscoder xbits(int bitCount, int shiftBits) {
+		return mask(ByteUtil.mask(shiftBits, bitCount), shiftBits);
 	}
 
 	private MaskTranscoder(long mask, int shiftBits) {

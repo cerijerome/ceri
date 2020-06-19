@@ -124,6 +124,14 @@ public class TestUtilTest {
 	}
 
 	@Test
+	public void testAssertAssertion() {
+		assertAssertion(() -> assertAssertion(() -> {}));
+		assertAssertion(() -> assertAssertion(() -> {
+			throw new IOException();
+		}));
+	}
+	
+	@Test
 	public void testAssertRegex() {
 		assertRegex("test", "%1$s..%1$s", "t");
 		assertAssertion(() -> assertRegex("test", "%1$s..%1$s", "T"));
@@ -338,6 +346,11 @@ public class TestUtilTest {
 			() -> TestUtil.assertRange(Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE - 1));
 		assertAssertion(
 			() -> TestUtil.assertRange(Long.MIN_VALUE, Long.MIN_VALUE + 1, Long.MAX_VALUE - 1));
+		TestUtil.assertRange(0.0, 0.0, 1.0);
+		TestUtil.assertRange(0.999, 0.0, 1.0);
+		assertAssertion(() -> TestUtil.assertRange(1.0, 0.0, 1.0));
+		assertAssertion(() -> TestUtil.assertRange(1.0, 1.0, 1.0));
+		assertAssertion(() -> TestUtil.assertRange(-1.0, 0.0, 1.0));
 	}
 
 	@Test

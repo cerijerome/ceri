@@ -6,13 +6,15 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import java.util.Collections;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
+import ceri.common.data.TypeTranscoder.Remainder;
 
 public class FieldTranscoderBehavior {
 	private final int[] store = { 0 };
 	private final IntAccessor accessor = IntAccessor.of(() -> store[0], i -> store[0] = i);
-	private final TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, E.class);
+	private static final TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, E.class);
 	private final FieldTranscoder<E> field = xcoder.field(accessor);
 
 	enum E {
@@ -27,6 +29,15 @@ public class FieldTranscoderBehavior {
 		}
 	}
 
+	static class Holder {
+		static IntAccessor.Typed<Holder> accessor = IntAccessor.typed(
+			h -> h.val, (h, i) -> h.val = i);
+		static FieldTranscoder.Typed<Holder, E> field = FieldTranscoder.Typed.of(
+			Holder.accessor, xcoder);
+
+		int val;
+	}
+	
 	@Before
 	public void init() {
 		store[0] = 0;
@@ -86,6 +97,104 @@ public class FieldTranscoderBehavior {
 		assertThat(field.isValid(), is(true));
 		store[0] = 6;
 		assertThat(field.isValid(), is(false));
+	}
+
+	@Test
+	public void shouldDetermineIfFieldHasValues() {
+		assertThat(field.has(E.a), is(false));
+		assertThat(field.hasAny(E.a, E.b, E.c), is(false));
+		assertThat(field.hasAll(E.a, E.b), is(false));
+		field.add(E.a, E.b);
+		assertThat(field.has(E.a), is(true));
+		assertThat(field.hasAny(E.a, E.b, E.c), is(true));
+		assertThat(field.hasAll(E.a, E.b), is(true));
+		assertThat(field.hasAll(E.a, E.b, E.c), is(false));
+	}
+
+	@Test
+	public void shouldSetValuesOnType() {
+		Holder h = new Holder();
+		h.val = 15;
+		Holder.field.set(h, E.a, E.b);
+		assertThat(h.val, is(3));
+		Holder.field.set(h, E.c);
+		assertThat(h.val, is(12));
+	}
+	
+	@Test
+	public void shouldSetRemainderValueOnType() {
+		Holder h = new Holder();
+		h.val = 0;
+		Holder.field.set(h, Remainder.of(8, E.a, E.b));
+		assertThat(h.val, is(11));
+	}
+	
+	@Test
+	public void shouldGetValueFromType() {
+		Holder h = new Holder();
+		h.val = 2;
+		assertThat(Holder.field.get(h), is(E.b));
+		h.val = 4;
+		assertNull(Holder.field.get(h));
+	}
+	
+	@Test
+	public void shouldGetValuesFromType() {
+		Holder h = new Holder();
+		h.val = 3;
+		assertCollection(Holder.field.getAll(h), E.a, E.b);
+	}
+	
+	@Test
+	public void shouldGetRemainderFromType() {
+		Holder h = new Holder();
+		h.val = 7;
+		assertRemainder(Holder.field.getWithRemainder(h), 4, E.a, E.b);
+	}
+	
+	@Test
+	public void shouldAddValuesToType() {
+		Holder h = new Holder();
+		h.val = 0;
+		Holder.field.add(h, E.a, E.b);
+		assertThat(h.val, is(3));
+		Holder.field.add(h);
+		Holder.field.add(h, Set.of());
+		assertThat(h.val, is(3));
+	}
+	
+	@Test
+	public void shouldRemoveValuesFromType() {
+		Holder h = new Holder();
+		h.val = 15;
+		Holder.field.remove(h, E.c, E.a);
+		assertThat(h.val, is(2));
+		Holder.field.remove(h);
+		Holder.field.remove(h, Set.of());
+		assertThat(h.val, is(2));
+	}
+	
+	@Test
+	public void shouldValidateType() {
+		Holder h = new Holder();
+		h.val = 0;
+		assertThat(Holder.field.isValid(h), is(true));
+		h.val = 7;
+		assertThat(Holder.field.isValid(h), is(false));
+		h.val = 3;
+		assertThat(Holder.field.isValid(h), is(true));
+	}
+
+	@Test
+	public void shouldDetermineIfTypeHasValues() {
+		Holder h = new Holder();
+		h.val = 3;
+		assertThat(Holder.field.has(h, E.a), is(true));
+		assertThat(Holder.field.hasAny(h, E.a, E.c), is(true));
+		assertThat(Holder.field.hasAny(h, E.c), is(false));
+		assertThat(Holder.field.hasAll(h, E.a), is(true));
+		assertThat(Holder.field.hasAll(h, E.a, E.b), is(true));
+		assertThat(Holder.field.hasAll(h, E.a, E.b, E.c), is(false));
 	}
 
 }

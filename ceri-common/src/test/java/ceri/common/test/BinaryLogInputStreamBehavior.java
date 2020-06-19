@@ -12,6 +12,7 @@ public class BinaryLogInputStreamBehavior {
 	private StringBuilder s;
 	private BinaryLogInputStream in;
 
+	@SuppressWarnings("resource")
 	private void init(int bytesPerColumn, byte... bytes) {
 		s = new StringBuilder();
 		BinaryPrinter printer = BinaryPrinter.builder().bytesPerColumn(bytesPerColumn) //
@@ -27,13 +28,13 @@ public class BinaryLogInputStreamBehavior {
 		assertThat(s.toString(), is("10000000  80  .\n"));
 		s.setLength(0);
 		assertThat(in.read(), is(Byte.MAX_VALUE & 0xff));
-		assertThat(s.toString(), is("01111111  7F  .\n"));
+		assertThat(s.toString(), is("01111111  7f  .\n"));
 		s.setLength(0);
 		assertThat(in.read(), is(0));
 		assertThat(s.toString(), is("00000000  00  .\n"));
 		s.setLength(0);
 		assertThat(in.read(), is(0xff));
-		assertThat(s.toString(), is("11111111  FF  .\n"));
+		assertThat(s.toString(), is("11111111  ff  .\n"));
 	}
 
 	@Test
@@ -45,7 +46,7 @@ public class BinaryLogInputStreamBehavior {
 		int count = in.read(b, 1, 4);
 		assertThat(count, is(3));
 		assertArrayEquals(b0, b);
-		assertThat(s.toString(), is("10000000 01111111 11111111  80 7F FF  ...\n"));
+		assertThat(s.toString(), is("10000000 01111111 11111111  80 7f ff  ...\n"));
 	}
 
 	@Test

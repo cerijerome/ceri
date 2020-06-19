@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+@SuppressWarnings("resource")
 public class KeyCheckerBehavior {
 	private @Mock InputStream in;
 	private @Mock Thread thread;

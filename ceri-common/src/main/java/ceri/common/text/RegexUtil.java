@@ -14,9 +14,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.factory.Factories;
-import ceri.common.factory.Factory;
-import ceri.common.factory.StringFactories;
 import ceri.common.function.ObjIntFunction;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.HashCoder;
@@ -28,20 +25,6 @@ import ceri.common.util.PrimitiveUtil;
 public class RegexUtil {
 	public static final Pattern ALL = Pattern.compile(".*");
 	private static final Pattern GROUP_NAME_REGEX = Pattern.compile("\\(\\?\\<([^>]+)\\>");
-	private static final Factory<List<Boolean>, Iterable<String>> BOOLEAN_LIST_FACTORY =
-		Factories.list(StringFactories.TO_BOOLEAN);
-	private static final Factory<List<Byte>, Iterable<String>> BYTE_LIST_FACTORY =
-		Factories.list(StringFactories.TO_BYTE);
-	private static final Factory<List<Short>, Iterable<String>> SHORT_LIST_FACTORY =
-		Factories.list(StringFactories.TO_SHORT);
-	private static final Factory<List<Integer>, Iterable<String>> INT_LIST_FACTORY =
-		Factories.list(StringFactories.TO_INTEGER);
-	private static final Factory<List<Long>, Iterable<String>> LONG_LIST_FACTORY =
-		Factories.list(StringFactories.TO_LONG);
-	private static final Factory<List<Float>, Iterable<String>> FLOAT_LIST_FACTORY =
-		Factories.list(StringFactories.TO_FLOAT);
-	private static final Factory<List<Double>, Iterable<String>> DOUBLE_LIST_FACTORY =
-		Factories.list(StringFactories.TO_DOUBLE);
 
 	private RegexUtil() {}
 
@@ -393,109 +376,113 @@ public class RegexUtil {
 	 * Finds the first matching regex and returns the first group.
 	 */
 	public static Boolean findBoolean(Pattern regex, String s) {
-		return StringFactories.TO_BOOLEAN.create(find(regex, s));
+		return Boolean.valueOf(find(regex, s));
 	}
 
 	/**
 	 * Finds the first matching regex and returns the first group.
 	 */
 	public static Byte findByte(Pattern regex, String s) {
-		return StringFactories.TO_BYTE.create(find(regex, s));
+		return Byte.valueOf(find(regex, s));
 	}
 
 	/**
 	 * Finds the first matching regex and returns the first group.
 	 */
 	public static Short findShort(Pattern regex, String s) {
-		return StringFactories.TO_SHORT.create(find(regex, s));
+		return Short.valueOf(find(regex, s));
 	}
 
 	/**
 	 * Finds the first matching regex and returns the first group.
 	 */
 	public static Integer findInt(Pattern regex, String s) {
-		return StringFactories.TO_INTEGER.create(find(regex, s));
+		return Integer.valueOf(find(regex, s));
 	}
 
 	/**
 	 * Finds the first matching regex and returns the first group.
 	 */
 	public static Long findLong(Pattern regex, String s) {
-		return StringFactories.TO_LONG.create(find(regex, s));
+		return Long.valueOf(find(regex, s));
 	}
 
 	/**
 	 * Finds the first matching regex and returns the first group.
 	 */
 	public static Float findFloat(Pattern regex, String s) {
-		return StringFactories.TO_FLOAT.create(find(regex, s));
+		return Float.valueOf(find(regex, s));
 	}
 
 	/**
 	 * Finds the first matching regex and returns the first group.
 	 */
 	public static Double findDouble(Pattern regex, String s) {
-		return StringFactories.TO_DOUBLE.create(find(regex, s));
+		return Double.valueOf(find(regex, s));
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
 	public static List<String> findAll(Pattern regex, String s) {
-		List<String> values = new ArrayList<>();
-		Matcher m = regex.matcher(s);
-		while (m.find())
-			values.add(m.group(1));
-		return values;
+		return findAll(regex, s, t -> t);
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
 	public static List<Boolean> findAllBooleans(Pattern regex, String s) {
-		return BOOLEAN_LIST_FACTORY.create(findAll(regex, s));
+		return findAll(regex, s, Boolean::valueOf);
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
 	public static List<Byte> findAllBytes(Pattern regex, String s) {
-		return BYTE_LIST_FACTORY.create(findAll(regex, s));
+		return findAll(regex, s, Byte::valueOf);
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
 	public static List<Short> findAllShorts(Pattern regex, String s) {
-		return SHORT_LIST_FACTORY.create(findAll(regex, s));
+		return findAll(regex, s, Short::valueOf);
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
 	public static List<Integer> findAllInts(Pattern regex, String s) {
-		return INT_LIST_FACTORY.create(findAll(regex, s));
+		return findAll(regex, s, Integer::valueOf);
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
 	public static List<Long> findAllLongs(Pattern regex, String s) {
-		return LONG_LIST_FACTORY.create(findAll(regex, s));
+		return findAll(regex, s, Long::valueOf);
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
 	public static List<Float> findAllFloats(Pattern regex, String s) {
-		return FLOAT_LIST_FACTORY.create(findAll(regex, s));
+		return findAll(regex, s, Float::valueOf);
 	}
 
 	/**
 	 * Finds matching regex and returns the first group for each match.
 	 */
 	public static List<Double> findAllDoubles(Pattern regex, String s) {
-		return DOUBLE_LIST_FACTORY.create(findAll(regex, s));
+		return findAll(regex, s, Double::valueOf);
+	}
+
+	private static <T> List<T> findAll(Pattern regex, String s, Function<String, T> fn) {
+		List<T> values = new ArrayList<>();
+		Matcher m = regex.matcher(s);
+		while (m.find())
+			values.add(fn.apply(m.group(1)));
+		return values;
 	}
 
 }

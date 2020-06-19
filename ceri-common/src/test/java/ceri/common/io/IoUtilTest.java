@@ -66,6 +66,12 @@ public class IoUtilTest {
 	}
 
 	@Test
+	public void testIoExceptionf() {
+		assertThat(IoUtil.ioExceptionf("%s", "test").getMessage(), is("test"));
+		assertThat(IoUtil.ioExceptionf(new Throwable(), "%s", "test").getMessage(), is("test"));
+	}
+	
+	@Test
 	public void testExecIo() throws IOException {
 		IoUtil.IO_ADAPTER.run(() -> {});
 		assertThrown(RuntimeException.class,
@@ -144,6 +150,12 @@ public class IoUtilTest {
 	public void testUserHome() {
 		assertPath(IoUtil.userHome(), SystemVars.sys("user.home"));
 		assertPath(IoUtil.userHome("test"), SystemVars.sys("user.home") + "/test");
+	}
+
+	@Test
+	public void testUserDir() {
+		assertPath(IoUtil.userDir(), SystemVars.sys("user.dir"));
+		assertPath(IoUtil.userDir("test"), SystemVars.sys("user.dir") + "/test");
 	}
 
 	@Test
@@ -384,12 +396,12 @@ public class IoUtilTest {
 		assertNull(IoUtil.availableBytes(null));
 		try (InputStream in = new ByteArrayInputStream(ArrayUtil.bytes(0, 1, 2, 3, 4))) {
 			assertThat(IoUtil.availableBytes(in), is(ByteArray.Immutable.wrap(0, 1, 2, 3, 4)));
-			assertThat(IoUtil.availableBytes(in), is(ByteArray.Immutable.EMPTY));
+			assertThat(IoUtil.availableBytes(in), is(ByteArray.EMPTY));
 		}
 		try (InputStream in = Mockito.mock(InputStream.class)) {
 			when(in.available()).thenReturn(5);
 			when(in.read(any())).thenReturn(0);
-			assertThat(IoUtil.availableBytes(in), is(ByteArray.Immutable.EMPTY));
+			assertThat(IoUtil.availableBytes(in), is(ByteArray.EMPTY));
 		}
 	}
 

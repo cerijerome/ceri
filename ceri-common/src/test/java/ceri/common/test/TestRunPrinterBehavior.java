@@ -7,6 +7,7 @@ import ceri.common.text.StringUtil;
 
 public class TestRunPrinterBehavior {
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldWriteOneLinePerMethod() {
 		StringBuilder b = new StringBuilder();

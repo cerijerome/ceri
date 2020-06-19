@@ -9,7 +9,7 @@ import ceri.common.util.EqualsUtil;
 /**
  * Matcher for double, approximating to decimal places or by a delta value.
  */
-public class ApproxMatcher extends BaseMatcher<Double> {
+public class ApproxMatcher<T> extends BaseMatcher<T> {
 	private final Integer places;
 	private final double delta;
 	private final double expected;
@@ -17,15 +17,29 @@ public class ApproxMatcher extends BaseMatcher<Double> {
 	/**
 	 * Creates a matcher for decimal places.
 	 */
-	public static ApproxMatcher round(double expected, int places) {
-		return new ApproxMatcher(expected, places, Double.NaN);
+	public static ApproxMatcher<Double> round(double expected, int places) {
+		return new ApproxMatcher<>(expected, places, Double.NaN);
+	}
+
+	/**
+	 * Creates a matcher for decimal places.
+	 */
+	public static ApproxMatcher<Float> round(float expected, int places) {
+		return new ApproxMatcher<>(expected, places, Float.NaN);
 	}
 
 	/**
 	 * Creates a matcher with a delta value.
 	 */
-	public static ApproxMatcher delta(double expected, double delta) {
-		return new ApproxMatcher(expected, null, delta);
+	public static ApproxMatcher<Double> delta(double expected, double delta) {
+		return new ApproxMatcher<>(expected, null, delta);
+	}
+
+	/**
+	 * Creates a matcher with a delta value.
+	 */
+	public static ApproxMatcher<Float> delta(float expected, float delta) {
+		return new ApproxMatcher<>(expected, null, delta);
 	}
 
 	private ApproxMatcher(double expected, Integer places, double delta) {

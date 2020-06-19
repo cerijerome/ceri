@@ -13,6 +13,11 @@ import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
 import java.util.function.IntSupplier;
 import java.util.function.IntUnaryOperator;
+import java.util.function.LongConsumer;
+import java.util.function.LongFunction;
+import java.util.function.LongPredicate;
+import java.util.function.LongSupplier;
+import java.util.function.LongUnaryOperator;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
@@ -57,6 +62,14 @@ public class FunctionTestUtil {
 		};
 	}
 
+	public static ExceptionLongSupplier<IOException> longSupplier(long i) {
+		return () -> {
+			if (i == 1) throw new IOException("1");
+			if (i == 0) throw new RuntimeException("0");
+			return i;
+		};
+	}
+
 	public static ExceptionConsumer<IOException, Integer> consumer() {
 		return i -> {
 			if (i == 1) throw new IOException("1");
@@ -65,6 +78,13 @@ public class FunctionTestUtil {
 	}
 
 	public static ExceptionIntConsumer<IOException> intConsumer() {
+		return i -> {
+			if (i == 1) throw new IOException("1");
+			if (i == 0) throw new RuntimeException("0");
+		};
+	}
+
+	public static ExceptionLongConsumer<IOException> longConsumer() {
 		return i -> {
 			if (i == 1) throw new IOException("1");
 			if (i == 0) throw new RuntimeException("0");
@@ -94,6 +114,14 @@ public class FunctionTestUtil {
 		};
 	}
 
+	public static ExceptionLongFunction<IOException, Integer> longFunction() {
+		return i -> {
+			if (i == 1) throw new IOException("1");
+			if (i == 0) throw new RuntimeException("0");
+			return Math.toIntExact(i);
+		};
+	}
+
 	public static ExceptionToIntFunction<IOException, Integer> toIntFunction() {
 		return i -> {
 			if (i == 1) throw new IOException("1");
@@ -107,6 +135,22 @@ public class FunctionTestUtil {
 			if (i == 1) throw new IOException("1");
 			if (i == 0) throw new RuntimeException("0");
 			return i;
+		};
+	}
+
+	public static ExceptionLongUnaryOperator<IOException> longUnaryOperator() {
+		return i -> {
+			if (i == 1) throw new IOException("1");
+			if (i == 0) throw new RuntimeException("0");
+			return i;
+		};
+	}
+
+	public static ExceptionObjIntFunction<IOException, Integer, Integer> objIntFunction() {
+		return (i, j) -> {
+			if (i == 1 || j == 1) throw new IOException("1");
+			if (i == 0 || j == 0) throw new RuntimeException("0");
+			return i + j;
 		};
 	}
 
@@ -127,6 +171,14 @@ public class FunctionTestUtil {
 	}
 
 	public static ExceptionIntPredicate<IOException> intPredicate() {
+		return i -> {
+			if (i == 1) throw new IOException("1");
+			if (i == 0) throw new RuntimeException("0");
+			return i > 0;
+		};
+	}
+
+	public static ExceptionLongPredicate<IOException> longPredicate() {
 		return i -> {
 			if (i == 1) throw new IOException("1");
 			if (i == 0) throw new RuntimeException("0");
@@ -182,6 +234,13 @@ public class FunctionTestUtil {
 			};
 		}
 
+		public static LongSupplier longSupplier(long i) {
+			return () -> {
+				if (i == 0) throw new RuntimeException("0");
+				return i;
+			};
+		}
+
 		public static Consumer<Integer> consumer() {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");
@@ -189,6 +248,12 @@ public class FunctionTestUtil {
 		}
 
 		public static IntConsumer intConsumer() {
+			return i -> {
+				if (i == 0) throw new RuntimeException("0");
+			};
+		}
+
+		public static LongConsumer longConsumer() {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");
 			};
@@ -214,6 +279,13 @@ public class FunctionTestUtil {
 			};
 		}
 
+		public static LongFunction<Integer> longFunction() {
+			return i -> {
+				if (i == 0) throw new RuntimeException("0");
+				return Math.toIntExact(i);
+			};
+		}
+
 		public static ToIntFunction<Integer> toIntFunction() {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");
@@ -225,6 +297,20 @@ public class FunctionTestUtil {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");
 				return i;
+			};
+		}
+
+		public static LongUnaryOperator longUnaryOperator() {
+			return i -> {
+				if (i == 0) throw new RuntimeException("0");
+				return i;
+			};
+		}
+
+		public static ObjIntFunction<Integer, Integer> objIntFunction() {
+			return (i, j) -> {
+				if (i == 0 || j == 0) throw new RuntimeException("0");
+				return i + j;
 			};
 		}
 
@@ -243,6 +329,13 @@ public class FunctionTestUtil {
 		}
 
 		public static IntPredicate intPredicate() {
+			return i -> {
+				if (i == 0) throw new RuntimeException("0");
+				return i > 0;
+			};
+		}
+
+		public static LongPredicate longPredicate() {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");
 				return i > 0;

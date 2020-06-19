@@ -1,5 +1,6 @@
 package ceri.common.function;
 
+import java.util.Objects;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -15,13 +16,13 @@ public interface Fluent<T> {
 	}
 
 	default <E extends Exception, U> U map(ExceptionFunction<E, ? super T, U> fn) throws E {
-		if (fn == null) return null; // or throw?
+		Objects.requireNonNull(fn);
 		T typedThis = BasicUtil.uncheckedCast(this);
 		return fn.apply(typedThis);
 	}
 
 	default <E extends Exception> int mapToInt(ExceptionToIntFunction<E, ? super T> fn) throws E {
-		if (fn == null) return 0; // or throw?
+		Objects.requireNonNull(fn);
 		T typedThis = BasicUtil.uncheckedCast(this);
 		return fn.applyAsInt(typedThis);
 	}

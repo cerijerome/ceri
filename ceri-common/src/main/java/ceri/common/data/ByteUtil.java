@@ -220,6 +220,10 @@ public class ByteUtil {
 		return 1L << bit;
 	}
 
+	public static int maskOfBitsInt(Collection<Integer> bits) {
+		return (int) maskOfBits(bits);
+	}
+
 	public static int maskOfBitsInt(int... bits) {
 		return (int) maskOfBits(bits);
 	}

@@ -16,6 +16,7 @@ public class PulsePrinterBehavior {
 		}), is("\u2587\u2581"));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldPrintToGivenPrintStream() {
 		StringBuilder b = new StringBuilder();
@@ -57,6 +58,7 @@ public class PulsePrinterBehavior {
 		}), is("10000011111100110010"));
 	}
 
+	@SuppressWarnings("resource")
 	private String stdOut(Runnable runnable) {
 		StringBuilder b = new StringBuilder();
 		try (SystemIo sys = SystemIo.of()) {

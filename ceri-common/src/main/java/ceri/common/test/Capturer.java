@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
+import java.util.function.LongConsumer;
 import ceri.common.collection.ArrayUtil;
 
 /**
@@ -46,10 +47,15 @@ public class Capturer<T> implements Consumer<T> {
 		assertList(this.values, values);
 	}
 
-	public static class Int extends Capturer<Integer> implements IntConsumer {
+	public static class Int extends Capturer<Integer> implements IntConsumer, LongConsumer {
 		@Override
 		public void accept(int value) {
 			accept(Integer.valueOf(value));
+		}
+
+		@Override
+		public void accept(long value) {
+			accept(Math.toIntExact(value));
 		}
 
 		@Override

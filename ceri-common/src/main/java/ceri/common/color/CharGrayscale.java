@@ -1,5 +1,6 @@
 package ceri.common.color;
 
+import ceri.common.text.StringUtil;
 /**
  * Outputs an animated ASCII-grayscale terminal display of frames.
  */
@@ -11,8 +12,6 @@ public class CharGrayscale {
 	public static final String COURIER_GRAYSCALE =
 		"@WMB#80Q&$%bdpOmqUXZkawho*CYJIunx1zfjtLv{}c[]?i()l<>|/\\r+;!~\"^:_-,'.` ";
 	public static final String COURIER_GRAYSCALE_COMPACT =
-		"@WMB#80Q&$%bOmqUXZkawho*CYJIunx1zfjtLv{c[?i(l<|/r+;!~\"^:_-,'.` ";
-	public static final String COURIER_GRAYSCALE_COMPACT2 =
 		"@WMB#80Q&$%bOmqUXZkawho*CYJIunx1zfjtLv{c[?i(l</r+;!~\"^:,'.` ";
 	private final String grayscale;
 
@@ -33,6 +32,10 @@ public class CharGrayscale {
 		return grayscale.charAt(index);
 	}
 
+	public CharGrayscale reverse() {
+		return of(StringUtil.reverse(grayscale));
+	}
+	
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(grayscale);

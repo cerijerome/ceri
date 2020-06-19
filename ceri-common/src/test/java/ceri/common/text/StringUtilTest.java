@@ -3,6 +3,7 @@ package ceri.common.text;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseSwitch;
 import static ceri.common.text.StringUtil.repeat;
 import static org.hamcrest.CoreMatchers.is;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
 import ceri.common.util.Align;
+import ceri.common.util.Align.H;
 
 public class StringUtilTest {
 
@@ -131,7 +133,7 @@ public class StringUtilTest {
 		assertThat(StringUtil.spacesToTabs("abcde   fgh      i", 4), is("abcde\tfgh\t\t i"));
 		assertThat(StringUtil.spacesToTabs("a\t b \t c", 4), is("a\t b\t c"));
 	}
-	
+
 	@Test
 	public void testTabsToSpaces() {
 		assertNull(StringUtil.tabsToSpaces(null, 1));
@@ -153,7 +155,7 @@ public class StringUtilTest {
 		assertThat(StringUtil.tabsToSpaces("abc\t\tdef  \tg", 4), is("abc     def     g"));
 		assertThat(StringUtil.tabsToSpaces("abcde\tfgh\t\ti", 4), is("abcde   fgh     i"));
 	}
-	
+
 	@Test
 	public void testCompact() {
 		assertNull(StringUtil.compact(null));
@@ -295,6 +297,17 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testToBinaryWithSeparator() {
+		assertThat(StringUtil.toBinary((byte) 0x7f, "_", 4, 2), is("01_11_1111"));
+		assertThat(StringUtil.toBinary((short) 0x7ff, "_", 4, 6, 2, 4), is("0000_01_111111_1111"));
+		assertThat(StringUtil.toBinary(0x7ff, "_", 4, 6, 2, 4),
+			is("0000_0000_0000_0000_0000_01_111111_1111"));
+		assertThat(StringUtil.toBinary(0x7ffL, "_", 8, 6, 2, 8),
+			is("00000000_00000000_00000000_00000000_00000000_00000000_00_000111_11111111"));
+		assertThat(StringUtil.toBinary(0x7ffL, 20, "_", 8, 6, 2, 8), is("0000_00_000111_11111111"));
+	}
+
+	@Test
 	public void testToUnsignedString() {
 		assertThat(StringUtil.toUnsigned(0, 16, 2), is("00"));
 		assertThat(StringUtil.toUnsigned(0, 26, 16), is("0000000000000000"));
@@ -379,6 +392,20 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testSeparate() {
+		assertThat(StringUtil.separate("", "-", H.left, 2), is(""));
+		assertThat(StringUtil.separate("abc", "", H.left), is("abc"));
+		assertThat(StringUtil.separate("abc", "", H.left, 2), is("abc"));
+		assertThrown(() -> StringUtil.separate("abc", "-", H.center, 2));
+		assertThat(StringUtil.separate("abcdef", "-", H.left, 2, 1), is("ab-c-d-e-f"));
+		assertThat(StringUtil.separate("abcdef", "-", null, 2, 1), is("ab-c-d-e-f"));
+		assertThat(StringUtil.separate("abcdef", "-", H.right, 2, 1), is("a-b-c-d-ef"));
+		assertThat(StringUtil.separate("abcdef", "-", H.left, 4), is("abcd-ef"));
+		assertThat(StringUtil.separate("abc", "-", H.left, 4), is("abc"));
+		assertThat(StringUtil.separate("abc", "-", H.left, 2, 0), is("ab-c"));
+	}
+
+	@Test
 	public void testSafeSubstring() {
 		String s = "\u3fff\u3ffe\u3ffd";
 		assertThat(StringUtil.safeSubstring(s, 0), is(s));
@@ -449,7 +476,7 @@ public class StringUtilTest {
 		assertIterable(StringUtil.lines("\n"));
 		assertIterable(StringUtil.lines(" \n\t"), " ", "\t");
 	}
-	
+
 	@Test
 	public void testPrefixLines() {
 		assertThat(StringUtil.prefixLines("xxx", "abc"), is("xxxabc"));

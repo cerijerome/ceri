@@ -1,5 +1,6 @@
 package ceri.common.data;
 
+import static ceri.common.data.MaskTranscoder.mask;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -86,10 +87,28 @@ public class IntAccessorBehavior {
 	}
 	
 	@Test
+	public void shouldAddTypedValues() {
+		Holder h = new Holder();
+		Holder.iAcc.set(h, 0x1200);
+		assertThat(h.iVal, is(0x1200));
+		Holder.iAcc.add(h, 0x0034);
+		assertThat(h.iVal, is(0x1234));
+	}
+
+	@Test
+	public void shouldRemoveTypedValues() {
+		Holder h = new Holder();
+		Holder.iAcc.set(h, 0x1234);
+		assertThat(h.iVal, is(0x1234));
+		Holder.iAcc.remove(h, 0x0034);
+		assertThat(h.iVal, is(0x1200));
+	}
+
+	@Test
 	public void shouldSetMaskedTypeValues() {
 		Holder h = new Holder();
 		Holder.iAcc.set(h, 0x1234);
-		Holder.iAcc.mask(0xff00).set(h, 0xabcd);
+		Holder.iAcc.mask(mask(0xff00, 0)).set(h, 0xabcd);
 		assertThat(h.iVal, is(0xab34));
 	}
 
@@ -97,7 +116,7 @@ public class IntAccessorBehavior {
 	public void shouldGetMaskedTypeValues() {
 		Holder h = new Holder();
 		Holder.iAcc.set(h, 0x123456);
-		assertThat(Holder.iAcc.mask(0xff00).get(h), is(0x3400));
+		assertThat(Holder.iAcc.mask(mask(0xff00, 0)).get(h), is(0x3400));
 	}
 
 	@Test

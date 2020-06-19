@@ -879,7 +879,8 @@ public class StringUtil {
 		int... counts) {
 		int len = str.length();
 		if (len == 0 || counts.length == 0 || separator.length() == 0) return str.toString();
-		if (align == null || align == Align.H.center)
+		if (align == null) align = Align.H.left;
+		if (align == Align.H.center)
 			throw new IllegalArgumentException("Alignment not supported: " + align);
 		int[] sections = sections(len, align, counts);
 		StringBuilder b = new StringBuilder();

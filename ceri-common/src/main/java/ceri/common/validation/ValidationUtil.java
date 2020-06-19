@@ -274,9 +274,8 @@ public class ValidationUtil {
 	 * Validates that the value is within the interval.
 	 */
 	public static <T> T validateWithinObj(T value, Interval<T> interval, String name) {
-		if (!interval.contains(value))
-			throw exceptionf("%s is not within %s: %s", name(name), interval, value);
-		return value;
+		if (interval.contains(value)) return value;
+		throw exceptionf("%s is not within %s: %s", name(name), interval, value);
 	}
 
 	/**
@@ -379,7 +378,8 @@ public class ValidationUtil {
 	 */
 	public static long validateMin(long value, long min, String name, DisplayLong... flags) {
 		if (value >= min) return value;
-		throw exceptionf("%s must be >= %s: %s", name(name), format(min, flags), format(value, flags));
+		throw exceptionf("%s must be >= %s: %s", name(name), format(min, flags),
+			format(value, flags));
 	}
 
 	/**
@@ -400,7 +400,8 @@ public class ValidationUtil {
 	/**
 	 * Validates value is > or >= minimum. A null bound is treated as inclusive.
 	 */
-	public static double validateMin(double value, double min, Bound.Type bound, DisplayDouble... flags) {
+	public static double validateMin(double value, double min, Bound.Type bound,
+		DisplayDouble... flags) {
 		return validateMin(value, min, VALUE, bound, flags);
 	}
 
@@ -411,7 +412,8 @@ public class ValidationUtil {
 		DisplayDouble... flags) {
 		if (bound == null) bound = Bound.Type.inclusive;
 		if (bound.isLower(value, min)) return value;
-		throw exceptionf("%s must be %s %s: %s", name(name), bound.lower, format(min, flags), format(value, flags));
+		throw exceptionf("%s must be %s %s: %s", name(name), bound.lower, format(min, flags),
+			format(value, flags));
 	}
 
 	/**
@@ -426,7 +428,8 @@ public class ValidationUtil {
 	 */
 	public static long validateMax(long value, long max, String name, DisplayLong... flags) {
 		if (value <= max) return value;
-		throw exceptionf("%s must be <= %s: %s", name(name), format(max, flags), format(value, flags));
+		throw exceptionf("%s must be <= %s: %s", name(name), format(max, flags),
+			format(value, flags));
 	}
 
 	/**
@@ -451,7 +454,7 @@ public class ValidationUtil {
 		DisplayDouble... flags) {
 		return validateMax(value, max, VALUE, bound, flags);
 	}
-	
+
 	/**
 	 * Validates value is < or <= maximum. A null bound is treated as inclusive.
 	 */
@@ -459,7 +462,8 @@ public class ValidationUtil {
 		DisplayDouble... flags) {
 		if (bound == null) bound = Bound.Type.inclusive;
 		if (bound.isUpper(value, max)) return value;
-		throw exceptionf("%s must be %s %s: %s", name(name), bound.lower, format(max, flags), format(value, flags));
+		throw exceptionf("%s must be %s %s: %s", name(name), bound.lower, format(max, flags),
+			format(value, flags));
 	}
 
 	/**
