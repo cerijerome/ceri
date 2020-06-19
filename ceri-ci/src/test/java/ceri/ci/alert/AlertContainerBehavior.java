@@ -23,6 +23,7 @@ public class AlertContainerBehavior {
 		properties = new Properties();
 	}
 	
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldNotCreateEmailServiceIfDisabled() throws IOException {
 		properties.setProperty("node0.email.enabled", "false");

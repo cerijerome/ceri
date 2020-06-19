@@ -26,6 +26,7 @@ public class EmailContainerBehavior {
 	@Mock private EmailEventParser parser1;
 	private Properties properties;
 
+	@SuppressWarnings("resource")
 	@Before
 	public void init() {
 		MockitoAnnotations.initMocks(this);

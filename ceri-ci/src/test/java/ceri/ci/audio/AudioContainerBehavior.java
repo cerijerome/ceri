@@ -18,6 +18,7 @@ public class AudioContainerBehavior {
 	@Mock private AudioFactory factory;
 	private Properties properties;
 
+	@SuppressWarnings("resource")
 	@Before
 	public void init() throws IOException {
 		MockitoAnnotations.initMocks(this);
@@ -26,10 +27,11 @@ public class AudioContainerBehavior {
 		properties = new Properties();
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldCreateAudioAlerterIfPropertyIsEnabled() throws IOException {
 		properties.put("audio.enabled", "true");
-		@SuppressWarnings({ "unused", "resource" })
+		@SuppressWarnings("unused")
 		AudioContainer container = new AudioContainer(baseProperties(), factory, null);
 		verify(factory).createMessages(any(), anyFloat());
 		verify(factory).createAlerter(messages, null);

@@ -59,6 +59,7 @@ public class AdminServlet extends HttpServlet {
 		sendResponse(response, commandResponse);
 	}
 
+	@SuppressWarnings("resource")
 	private void sendResponse(HttpServletResponse response, Response commandResponse)
 		throws IOException {
 		response.setContentType(contentType(commandResponse));

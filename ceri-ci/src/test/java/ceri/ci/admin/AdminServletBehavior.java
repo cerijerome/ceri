@@ -28,6 +28,7 @@ public class AdminServletBehavior {
 	@Mock private PrintWriter writer;
 	private AdminServlet servlet;
 
+	@SuppressWarnings("resource")
 	@Before
 	public void init() throws IOException {
 		MockitoAnnotations.initMocks(this);
@@ -39,6 +40,7 @@ public class AdminServletBehavior {
 		when(response.getWriter()).thenReturn(writer);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldReturnSuccessfulResponse() throws IOException, ServletException {
 		servlet.init(config);

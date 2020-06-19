@@ -25,6 +25,7 @@ public class AlertServiceImplBehavior {
 	BooleanCondition sync;
 	AlertServiceImpl service;
 
+	@SuppressWarnings("resource")
 	@Before
 	public void init() {
 		alerters = mock(AlerterGroup.class);
@@ -37,6 +38,7 @@ public class AlertServiceImplBehavior {
 		service.close();
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldRemind() throws InterruptedException {
 		try (AlerterGroup remindAlerters = new AlerterGroup(AlerterGroup.builder()) {
@@ -104,6 +106,7 @@ public class AlertServiceImplBehavior {
 		assertThat(build, is(new Build("build0")));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldClearAll() throws InterruptedException {
 		service.clear(null, null);
@@ -111,6 +114,7 @@ public class AlertServiceImplBehavior {
 		verify(alerters).clear();
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldClearBuild() throws InterruptedException {
 		service.clear("b0", null);
@@ -118,6 +122,7 @@ public class AlertServiceImplBehavior {
 		verify(alerters).update(any());
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldClearJob() throws InterruptedException {
 		service.clear("b0", "j0");
@@ -125,6 +130,7 @@ public class AlertServiceImplBehavior {
 		verify(alerters).update(any());
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldBreak() throws InterruptedException {
 		service.process(new BuildEvent("build0", "job0", e0));

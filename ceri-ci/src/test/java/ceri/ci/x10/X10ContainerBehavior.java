@@ -24,6 +24,7 @@ public class X10ContainerBehavior {
 	@Mock private X10Factory factory;
 	private Properties properties;
 
+	@SuppressWarnings("resource")
 	@Before
 	public void init() throws IOException {
 		MockitoAnnotations.initMocks(this);
@@ -43,7 +44,7 @@ public class X10ContainerBehavior {
 		properties.put("x10.controller", "cm17a");
 		properties.put("x10.address.key0", "P1");
 		properties.put("x10.address.key1", "A16");
-		@SuppressWarnings({ "unused", "resource" })
+		@SuppressWarnings("unused")
 		X10Container container = new X10Container(baseProperties(), factory);
 		verify(factory).builder(cm17aController);
 		verify(builder).address("key0", "P1");
@@ -61,9 +62,9 @@ public class X10ContainerBehavior {
 		verify(cm17aController).close();
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldNotCreateAlerterIfPropertyIsMissingOrDisabled() throws IOException {
-		@SuppressWarnings("resource")
 		X10Container container = new X10Container(baseProperties(), factory);
 		assertNull(container.alerter);
 		properties.put("x10.enabled", "false");
@@ -71,23 +72,25 @@ public class X10ContainerBehavior {
 		assertNull(container.alerter);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldCreateCm17aIfControllerPropertyIsSet() throws IOException {
 		properties.put("x10.enabled", "true");
 		properties.put("x10.comm.port", "com");
 		properties.put("x10.controller", "cm17a");
-		@SuppressWarnings({ "unused", "resource" })
+		@SuppressWarnings("unused")
 		X10Container container = new X10Container(baseProperties(), factory);
 		verify(factory).createCm17aConnector("com");
 		verify(factory).createCm17aController(cm17aConnector);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldCreateCm11aIfControllerPropertyIsSet() throws IOException {
 		properties.put("x10.enabled", "true");
 		properties.put("x10.comm.port", "com");
 		properties.put("x10.controller", "cm11a");
-		@SuppressWarnings({ "unused", "resource" })
+		@SuppressWarnings("unused")
 		X10Container container = new X10Container(baseProperties(), factory);
 		verify(factory).createCm11aConnector("com");
 		verify(factory).createCm11aController(cm11aConnector);

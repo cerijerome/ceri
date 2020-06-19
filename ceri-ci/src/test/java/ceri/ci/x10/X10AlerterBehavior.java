@@ -26,6 +26,7 @@ public class X10AlerterBehavior {
 		TestUtil.assertThrown(() -> builder.address("x", "A0"));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldTurnOnDeviceForGivenKeyAlert() {
 		X10Alerter x10 = X10Alerter.builder(controller).address("key", "F13").build();
@@ -49,6 +50,7 @@ public class X10AlerterBehavior {
 		verifyZeroInteractions(controller);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldTurnOffDevicesForFixedKeyAlerts() {
 		X10Alerter x10 =
@@ -60,6 +62,7 @@ public class X10AlerterBehavior {
 		verify(controller).command(CommandFactory.on("P16"));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldTurnOnDevicesForGivenKeyAlerts() {
 		X10Alerter x10 =
@@ -69,6 +72,7 @@ public class X10AlerterBehavior {
 		verify(controller).command(CommandFactory.on("F13"));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldTurnOffDevicesForClearAlerts() {
 		X10Alerter x10 =
