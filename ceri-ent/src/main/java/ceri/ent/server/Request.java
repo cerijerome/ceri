@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import javax.servlet.http.HttpServletRequest;
-import ceri.common.factory.Factory;
 import ceri.common.text.StringUtil;
 import ceri.common.util.PrimitiveUtil;
 
@@ -21,7 +20,7 @@ public class Request {
 	public String userAgent() {
 		return http.getHeader(USER_AGENT_HEADER);
 	}
-	
+
 	public String remoteAddress() {
 		String ipAddress = http.getHeader(XFF_HEADER);
 		if (ipAddress != null) ipAddress = StringUtil.commaSplit(ipAddress).get(0);
@@ -33,26 +32,26 @@ public class Request {
 		return http.getParameter(name);
 	}
 
-	public <T> T value(String name, Factory<T, String> factory) {
+	public <T> T value(String name, Function<String, T> fromStringFn) {
 		String value = http.getParameter(name);
 		if (value == null) return null;
-		return factory.create(value);
+		return fromStringFn.apply(value);
 	}
 
-	public <T> T value(String name, T def, Factory<T, String> factory) {
+	public <T> T value(String name, T def, Function<String, T> fromStringFn) {
 		try {
-			return value(name, factory);
+			return value(name, fromStringFn);
 		} catch (RuntimeException e) {
 			return def;
 		}
 	}
 
-	public <T> List<T> commaValues(String name, Function<String, T> factory) {
+	public <T> List<T> commaValues(String name, Function<String, T> fromStringFn) {
 		List<String> values = commaValues(name);
 		if (values.isEmpty()) return Collections.emptyList();
 		List<T> ts = new ArrayList<>();
 		for (String value : values) {
-			T t = factory.apply(value);
+			T t = fromStringFn.apply(value);
 			if (t != null) ts.add(t);
 		}
 		return ts;

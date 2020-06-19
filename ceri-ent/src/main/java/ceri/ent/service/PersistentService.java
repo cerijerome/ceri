@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
 import ceri.common.concurrent.SafeReadWrite;
-import ceri.common.factory.Factory;
 import ceri.common.filter.Filter;
 import ceri.common.filter.Filters;
 
@@ -22,12 +22,12 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 	private final PersistentStore<Collection<V>> store;
 	private final SafeReadWrite safe = SafeReadWrite.of();
 	private final Map<K, V> map = new TreeMap<>();
-	private final Factory<K, V> identifier;
+	private final Function<V, K> idFn;
 	private boolean modified = false;
 
-	public PersistentService(PersistentStore<Collection<V>> store, Factory<K, V> identifier) {
+	public PersistentService(PersistentStore<Collection<V>> store, Function<V, K> idFn) {
 		this.store = store;
-		this.identifier = identifier;
+		this.idFn = idFn;
 	}
 
 	public V findById(K id) {
@@ -110,7 +110,7 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 		if (store == null) return false;
 		return safe.read(() -> modified);
 	}
-	
+
 	protected void clear() {
 		safe.write(() -> {
 			if (!map.isEmpty()) modified = true;
@@ -125,12 +125,12 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 	protected int size() {
 		return safe.read(map::size);
 	}
-	
+
 	private Map<K, V> toMap(Iterable<V> values) {
 		if (values == null) return Collections.emptyMap();
 		Map<K, V> map = new HashMap<>();
 		for (V value : values) {
-			K id = identifier.create(value);
+			K id = idFn.apply(value);
 			map.put(id, value);
 		}
 		return map;
