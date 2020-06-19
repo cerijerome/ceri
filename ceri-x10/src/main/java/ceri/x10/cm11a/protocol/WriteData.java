@@ -1,6 +1,6 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.validation.ValidationUtil.validateEqualL;
+import static ceri.common.validation.ValidationUtil.validateEqual;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
@@ -27,7 +27,7 @@ public class WriteData {
 	WriteData() {}
 
 	public Address readAddressFrom(ByteReader r) {
-		validateEqualL(r.readByte(), ADDRESS_PREFIX, "Header");
+		validateEqual(r.readByte(), ADDRESS_PREFIX, "Header");
 		return Data.toAddress(r.readByte());
 	}
 
@@ -36,7 +36,7 @@ public class WriteData {
 	}
 
 	public Function readFunctionFrom(ByteReader r) {
-		validateEqualL(r.readByte(), FUNCTION_PREFIX, "Header");
+		validateEqual(r.readByte(), FUNCTION_PREFIX, "Header");
 		byte b = r.readByte();
 		House house = Data.toHouse(b >> 4 & 0xf);
 		FunctionType type = Data.toFunctionType(b & 0xf);
@@ -50,7 +50,7 @@ public class WriteData {
 
 	public DimFunction readDimFunctionFrom(ByteReader r) {
 		byte b = r.readByte();
-		validateEqualL(b & FUNCTION_PREFIX_MASK, FUNCTION_PREFIX, "Header");
+		validateEqual(b & FUNCTION_PREFIX_MASK, FUNCTION_PREFIX, "Header");
 		int percent = toDim(b >> 3);
 		b = r.readByte();
 		House house = Data.toHouse(b >> 4 & 0xf);
@@ -75,7 +75,7 @@ public class WriteData {
 	}
 
 	public ExtFunction readExtFunctionFrom(ByteReader r) {
-		validateEqualL(r.readByte(), EXT_FUNCTION_PREFIX, "Header");
+		validateEqual(r.readByte(), EXT_FUNCTION_PREFIX, "Header");
 		byte b = r.readByte();
 		House house = Data.toHouse(b >> 4 & 0xf);
 		FunctionType type = Data.toFunctionType(b & 0xf);
