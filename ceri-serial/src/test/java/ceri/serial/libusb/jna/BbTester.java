@@ -59,7 +59,7 @@ public class BbTester {
 	private static byte x = 0x10;
 
 	private static int bulkTransfer(ByteBuffer readBuffer, int len) {
-		int n = MathUtil.randomInt(0, 2) > 0 ? len : MathUtil.randomInt(len / 2, len);
+		int n = MathUtil.random(0, 2) > 0 ? len : MathUtil.random(len / 2, len);
 		byte[] b = new byte[n];
 		int packets = 0;
 		for (int i = 0; i < b.length; i++) {
@@ -137,7 +137,7 @@ public class BbTester {
 	}
 
 	private static int read0(ByteBuffer buffer, int size) {
-		int n = MathUtil.randomInt(0, size);
+		int n = MathUtil.random(0, size);
 		System.out.println("n=" + n);
 		for (int i = 0; i < n; i++)
 			buffer.put((byte) ('A' + i));

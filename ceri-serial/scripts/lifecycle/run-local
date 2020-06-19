@@ -22,7 +22,7 @@ while true; do
         * ) break ;;
     esac
 done
-CLASS="${1:-ceri.serial.mlx90640.Mlx90640Tester}"
+CLASS="$1"
 PARAMS="${@:2}"
 
 PRJDIR=$DIR/../..

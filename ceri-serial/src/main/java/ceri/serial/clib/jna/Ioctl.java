@@ -1,7 +1,7 @@
 package ceri.serial.clib.jna;
 
 import static ceri.common.util.OsUtil.macInt;
-import static ceri.common.validation.ValidationUtil.validateRangeL;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.common.validation.ValidationUtil.validateUbyte;
 
 /**
@@ -44,7 +44,7 @@ public class Ioctl {
 	private static int _IOC(int inOut, int group, int num, int size) {
 		validateUbyte(group, "Group");
 		validateUbyte(num, "Num");
-		validateRangeL(size, 0, IOC_SIZE_MASK, "Size");
+		validateRange(size, 0, IOC_SIZE_MASK, "Size");
 		return inOut | ((size & IOC_SIZE_MASK) << Short.SIZE) | (group << Byte.SIZE) | num;
 	}
 

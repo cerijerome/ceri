@@ -1,6 +1,6 @@
 package ceri.serial.i2c;
 
-import static ceri.common.validation.ValidationUtil.validateRangeL;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -49,9 +49,9 @@ public class DeviceId {
 	}
 
 	public static DeviceId of(int manufacturer, int part, int revision) {
-		validateRangeL(manufacturer, 0, MANUFACTURER_MASK);
-		validateRangeL(part, 0, MANUFACTURER_MASK);
-		validateRangeL(revision, 0, MANUFACTURER_MASK);
+		validateRange(manufacturer, 0, MANUFACTURER_MASK);
+		validateRange(part, 0, MANUFACTURER_MASK);
+		validateRange(revision, 0, MANUFACTURER_MASK);
 		return new DeviceId(manufacturer, part, revision);
 	}
 

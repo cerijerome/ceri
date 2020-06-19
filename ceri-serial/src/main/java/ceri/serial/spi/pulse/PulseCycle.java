@@ -1,6 +1,6 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.math.MathUtil.divideUp;
+import static ceri.common.math.MathUtil.ceilDiv;
 import static ceri.common.util.BasicUtil.unused;
 
 /**
@@ -20,7 +20,7 @@ public abstract class PulseCycle {
 		nbit9,
 		nbit27;
 	}
-	
+
 	protected PulseCycle(int cycleStorageBits, int pulseBits, int pulseOffsetBits, int t0Bits,
 		int t1Bits) {
 		this.cycleStorageBits = cycleStorageBits;
@@ -33,18 +33,18 @@ public abstract class PulseCycle {
 	}
 
 	public abstract Type type();
-	
+
 	/**
 	 * The number of signal bits in a cycle
 	 */
 	public int cycleSignalBits() {
 		return cycleStorageBits;
 	}
-	
+
 	public int storageBytes(int dataBytes) {
 		int dataBit = (dataBytes * Byte.SIZE) - 1;
 		int pos = t0Pos(dataBit) + t1Bits(dataBit);
-		return divideUp(pos, Byte.SIZE);
+		return ceilDiv(pos, Byte.SIZE);
 	}
 
 	public PulseStats stats(int freqHz) {
@@ -83,7 +83,7 @@ public abstract class PulseCycle {
 	public String toString() {
 		return "" + pulseBits + type();
 	}
-	
+
 	private int offset(int cycles) {
 		return cycles * cycleStorageBytes * Byte.SIZE;
 	}

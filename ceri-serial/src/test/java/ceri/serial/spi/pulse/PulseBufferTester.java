@@ -1,6 +1,6 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.math.MathUtil.divideUp;
+import static ceri.common.math.MathUtil.ceilDiv;
 import static ceri.serial.spi.pulse.PulseCycle.Type.nbit27;
 import static ceri.serial.spi.pulse.PulseCycle.Type.nbit9;
 import ceri.common.test.BinaryPrinter;
@@ -48,7 +48,7 @@ public class PulseBufferTester {
 			PulseStats stats = PulseCycles.pulseStats(cycle, DATA_HZ);
 			System.out.printf("(%03d) %02d %d => %02d %d (%03d) %3s %4sns(%d) %sns(%d) %sns%n", i,
 				i / Byte.SIZE, i % Byte.SIZE, t0 / Byte.SIZE, t0 % Byte.SIZE, t0,
-				cycle.storageBytes(divideUp(i + 1, Byte.SIZE)), (int) stats.t0Ns, cycle.t0Bits,
+				cycle.storageBytes(ceilDiv(i + 1, Byte.SIZE)), (int) stats.t0Ns, cycle.t0Bits,
 				(int) stats.t1Ns, cycle.t1Bits, (int) stats.pulseNs);
 		}
 		System.out.println();

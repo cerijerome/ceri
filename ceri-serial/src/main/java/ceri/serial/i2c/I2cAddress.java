@@ -2,7 +2,7 @@ package ceri.serial.i2c;
 
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.util.ExceptionUtil.exceptionf;
-import static ceri.common.validation.ValidationUtil.validateRangeL;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.math.MathUtil;
@@ -32,7 +32,7 @@ public class I2cAddress {
 	 * Extracts address from frame bytes. 2 bytes for a 10-bit address, 1 byte for 7-bit.
 	 */
 	public static I2cAddress fromFrames(byte[] frames) {
-		validateRangeL(frames.length, 1, 2);
+		validateRange(frames.length, 1, 2);
 		if (frames.length == 1) return of7Bit(MathUtil.ubyte(frames[0]) >>> 1);
 		if ((FRAME0_10BIT_PREFIX & frames[0]) != FRAME0_10BIT_PREFIX)
 			throw exceptionf("Invalid 10-bit frames: 0x%02x, 0x%02x", frames[0], frames[1]);

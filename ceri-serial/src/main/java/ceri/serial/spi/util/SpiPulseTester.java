@@ -92,7 +92,7 @@ public class SpiPulseTester {
 	private static byte[] rnd(int size) {
 		byte[] rnd = new byte[size];
 		for (int i = 0; i < rnd.length; i++)
-			rnd[i] = (byte) MathUtil.randomInt(0, 0xff);
+			rnd[i] = (byte) MathUtil.random(0, 0xff);
 		return rnd;
 	}
 

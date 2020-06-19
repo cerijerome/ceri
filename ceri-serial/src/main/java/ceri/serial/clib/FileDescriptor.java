@@ -1,6 +1,6 @@
 package ceri.serial.clib;
 
-import static ceri.common.validation.ValidationUtil.validateMinL;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -99,7 +99,7 @@ public interface FileDescriptor extends Closeable {
 	 * Creates an OutputStream using a buffer of given size.
 	 */
 	default OutputStream out(int bufferSize) {
-		validateMinL(bufferSize, 1, "Buffer size");
+		validateMin(bufferSize, 1, "Buffer size");
 		Memory buffer = new Memory(bufferSize);
 		return IoStreamUtil
 			.out((array, offset, length) -> write(this, buffer, array, offset, length));
