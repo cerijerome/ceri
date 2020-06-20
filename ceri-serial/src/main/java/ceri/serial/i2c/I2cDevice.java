@@ -57,6 +57,13 @@ public class I2cDevice implements I2c {
 		this.fd = fd;
 	}
 
+	/**
+	 * Call if file descriptor is reset.
+	 */
+	public void reset() {
+		state.reset();
+	}
+	
 	@Override
 	public I2cDevice retries(int count) throws IOException {
 		I2cDev.i2c_retries(fd.fd(), count);

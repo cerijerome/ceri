@@ -55,6 +55,8 @@ public class Mode {
 		}
 
 		public static String string(int value) {
+			Set<Mask> masks = decode(value);
+			System.out.println(masks);
 			return StringUtil.join("|", decode(value));
 		}
 		

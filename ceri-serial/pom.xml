@@ -25,6 +25,11 @@
 			<groupId>com.github.purejavacomm</groupId>
 			<artifactId>purejavacomm</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
 
     <build>

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import com.sun.jna.Pointer;
 import ceri.common.text.RegexUtil;
@@ -19,7 +18,8 @@ import ceri.serial.jna.JnaUtil;
  * Encapsulates a file descriptor as a closable resource.
  */
 public class CFileDescriptor implements FileDescriptor {
-	private static final Set<Integer> BROKEN_ERROR_CODES = Set.of(121); // remote I/O
+	private static final Set<Integer> BROKEN_ERROR_CODES = Set.of(2, // no such file/dir
+		121); // remote I/O
 	private static final Pattern BROKEN_MESSAGE_REGEX = Pattern.compile("(?i)(?:remote i/o)");
 	private final int fd;
 	private volatile boolean closed = false;
@@ -111,11 +111,6 @@ public class CFileDescriptor implements FileDescriptor {
 	}
 
 	@Override
-	public int ioctl(Supplier<String> errorMsg, int request, Object... objs) throws IOException {
-		return CLib.ioctl(errorMsg, fd(), request, objs);
-	}
-
-	@Override
 	public void close() throws IOException {
 		if (closed) return;
 		closed = CUtil.close(fd);
@@ -137,7 +132,7 @@ public class CFileDescriptor implements FileDescriptor {
 
 	@Override
 	public String toString() {
-		return String.format("fd=%d/%x", fd, fd);
+		return String.format("fd=%d/0x%x", fd, fd);
 	}
 
 }

@@ -5,7 +5,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.function.Supplier;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.io.IoStreamUtil;
@@ -106,34 +105,6 @@ public interface FileDescriptor extends Closeable {
 	}
 
 	/**
-	 * Creates a reader for sequential reading of bytes.
-	 */
-	default FileReader reader() {
-		return reader(BUFFER_SIZE);
-	}
-
-	/**
-	 * Creates a reader for sequential reading of bytes.
-	 */
-	default FileReader reader(int bufferSize) {
-		return FileReader.of(this, bufferSize);
-	}
-
-	/**
-	 * Creates a writer for sequential writing of bytes.
-	 */
-	default FileWriter writer() {
-		return writer(BUFFER_SIZE);
-	}
-
-	/**
-	 * Creates a writer for sequential writing of bytes.
-	 */
-	default FileWriter writer(int bufferSize) {
-		return FileWriter.of(this, bufferSize);
-	}
-
-	/**
 	 * Performs an ioctl function. Arguments and return value depend on the function.
 	 */
 	default int ioctl(int request, Object... objs) throws IOException {
@@ -144,11 +115,6 @@ public interface FileDescriptor extends Closeable {
 	 * Performs an ioctl function. Arguments and return value depend on the function.
 	 */
 	int ioctl(String name, int request, Object... objs) throws IOException;
-
-	/**
-	 * Performs an ioctl function. Arguments and return value depend on the function.
-	 */
-	int ioctl(Supplier<String> errorMsg, int request, Object... objs) throws IOException;
 
 	/**
 	 * Read bytes into array using memory buffer.

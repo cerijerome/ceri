@@ -2,7 +2,7 @@ package ceri.serial.clib.util;
 
 import static ceri.serial.clib.OpenFlag.O_RDONLY;
 import java.io.IOException;
-import java.util.function.Supplier;
+import java.io.InputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
@@ -14,13 +14,13 @@ import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.StateChange;
+import ceri.common.test.BinaryPrinter;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.ExceptionTracker;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
 import ceri.serial.clib.CFileDescriptor;
 import ceri.serial.clib.FileDescriptor;
-import ceri.serial.clib.FileReader;
 import ceri.serial.clib.Seek;
 import ceri.serial.libusb.jna.LibUsbException;
 
@@ -44,19 +44,26 @@ public class SelfHealingFd extends LoopingExecutor
 	// - NullFd (not needed?)
 	// - ResponseFd (test fd)
 	// - RpcFd (not needed)
-	
+
 	public static void main(String[] args) {
+		BinaryPrinter bp = BinaryPrinter.builder().showBinary(false).build();
 		SelfHealingFdConfig conf = SelfHealingFdConfig.of("scripts/lifecycle/hello", O_RDONLY);
 		try (SelfHealingFd fd = SelfHealingFd.of(conf)) {
 			fd.openQuietly();
-			FileReader r = fd.reader();
+			InputStream in = fd.in();
 			ExceptionTracker exceptions = ExceptionTracker.of();
+			byte[] bytes = new byte[100];
 			while (true) {
 				try {
-					logger.info("Read: {}", r.readAscii(5));
+					// fd.seek(20 + MathUtil.random(0, 10), Seek.SEEK_SET);
+					int n = in.read(bytes, 0, 4);
+					if (n > 0) bp.print(bytes, 0, n);
+					if (n < 0) fd.seek(0, Seek.SEEK_SET);
 					exceptions.clear();
-				} catch (RuntimeException e) {
-					if (exceptions.add(e)) logger.warn(e.getMessage());
+					BasicUtil.delay(3000);
+				} catch (RuntimeException | IOException e) {
+					// if (exceptions.add(e)) logger.warn(e.getMessage());
+					logger.warn(e.getMessage());
 					BasicUtil.delay(3000);
 				}
 			}
@@ -139,14 +146,6 @@ public class SelfHealingFd extends LoopingExecutor
 	@Override
 	public int ioctl(String name, int request, Object... objs) throws IOException {
 		return execReturn(fd -> fd.ioctl(name, request, objs));
-	}
-
-	/**
-	 * Performs an ioctl function. Arguments and return value depend on the function.
-	 */
-	@Override
-	public int ioctl(Supplier<String> errorMsg, int request, Object... objs) throws IOException {
-		return execReturn(fd -> fd.ioctl(errorMsg, request, objs));
 	}
 
 	private void exec(ExceptionConsumer<IOException, CFileDescriptor> consumer) throws IOException {

@@ -39,6 +39,11 @@ public interface I2c {
 	Collection<i2c_func> functions() throws IOException;
 
 	/**
+	 * Reset internal state.
+	 */
+	default void reset() {}
+	
+	/**
 	 * Verify the address is in use. Uses SMBus quick write (off) to check. Returns true if no
 	 * exception. Results of various methods:
 	 * 
