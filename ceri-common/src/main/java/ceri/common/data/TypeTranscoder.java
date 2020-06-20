@@ -26,14 +26,14 @@ public class TypeTranscoder<T> {
 		public final int remainder;
 
 		@SafeVarargs
-		public static <T> Remainder<T> of(int remainder, T...types) {
+		public static <T> Remainder<T> of(int remainder, T... types) {
 			return of(remainder, Arrays.asList(types));
 		}
-		
+
 		public static <T> Remainder<T> of(int remainder, Collection<T> types) {
-			return new Remainder<>(remainder, Set.copyOf(types));
+			return new Remainder<>(remainder, ImmutableUtil.copyAsSet(types));
 		}
-		
+
 		private Remainder(int remainder, Set<T> types) {
 			this.types = types;
 			this.remainder = remainder;
@@ -209,7 +209,7 @@ public class TypeTranscoder<T> {
 			set.add(t);
 			if (value == 0) break;
 		}
-		return Remainder.of(value, set);
+		return new Remainder<>(value, set);
 	}
 
 	private int encodeTypes(Collection<T> ts) {

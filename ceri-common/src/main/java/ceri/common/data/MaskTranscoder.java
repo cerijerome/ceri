@@ -1,5 +1,6 @@
 package ceri.common.data;
 
+import static ceri.common.validation.ValidationUtil.*;
 import ceri.common.math.MathUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
@@ -31,6 +32,7 @@ public class MaskTranscoder {
 	 * TODO: rename to 'bits'
 	 */
 	public static MaskTranscoder xbits(int bitCount, int shiftBits) {
+		validateMin(bitCount, 1);
 		return mask(ByteUtil.mask(shiftBits, bitCount), shiftBits);
 	}
 
