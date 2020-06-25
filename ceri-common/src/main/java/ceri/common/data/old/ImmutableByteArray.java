@@ -1,4 +1,4 @@
-package ceri.common.collection;
+package ceri.common.data.old;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
 import java.io.IOException;

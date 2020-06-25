@@ -1,4 +1,4 @@
-package ceri.common.data;
+package ceri.common.data.old;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -6,6 +6,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import ceri.common.data.ByteProvider;
+import ceri.common.data.ByteUtil;
+import ceri.common.data.ByteWriter;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.function.ExceptionRunnable;

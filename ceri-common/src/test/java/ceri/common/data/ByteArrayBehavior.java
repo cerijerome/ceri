@@ -1,21 +1,17 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertByte;
-import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.stream.IntStream;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteArray.Mutable;
+import ceri.common.util.BasicUtil;
 
 public class ByteArrayBehavior {
 
@@ -40,11 +36,6 @@ public class ByteArrayBehavior {
 		Immutable im = Immutable.copyOf(bytes);
 		bytes[1] = 0;
 		assertByte(im.getByte(1), 2);
-	}
-
-	@Test
-	public void shouldCreateImmutableCopyOfStream() {
-		assertThat(Immutable.wrap(IntStream.of(1, 2, 3)).isEqualTo(0, 1, 2, 3), is(true));
 	}
 
 	@Test
@@ -82,6 +73,16 @@ public class ByteArrayBehavior {
 		assertAllNotEqual(t, ne0, ne1, ne2);
 	}
 
+	@Test
+	public void shouldProvideAnImmutableView() {
+		byte[] bytes = ArrayUtil.bytes(1, 2, 3);
+		Mutable m = Mutable.wrap(bytes);
+		assertArray(m.asImmutable().copy(0), 1, 2, 3);
+		assertNull(BasicUtil.castOrNull(ByteReceiver.class, m.asImmutable()));
+		m.setByte(0,  -1);
+		assertArray(m.asImmutable().copy(0), -1, 2, 3);
+	}
+	
 	@Test
 	public void shouldCreateMutableSlice() {
 		Mutable m = Mutable.wrap(1, 2, 3, 4, 5);
@@ -189,4 +190,11 @@ public class ByteArrayBehavior {
 		assertThat(Immutable.wrap(1, 2, 3).isEqualTo(0, Immutable.wrap(1, 2), 0, 3), is(false));
 	}
 
+	/* Encoder tests */
+	
+	@Test
+	public void shouldEncodeBytes() {
+		//assertThat(ByteArray.(), is());
+	}
+	
 }

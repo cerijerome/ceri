@@ -1,0 +1,68 @@
+Byte Buffer Notes
+=================
+
+java.nio.ByteBuffer:
+- absolute position and sequential access
+- can convert to read-only buffer (no API change, throws ReadOnlyBufferException)
+- allocate vs allocateDirect for efficiency with native IO calls
+- mark, reset, rewind for sequential positioning
+- slice, limit to limit access (but limit can be moved)
+- keeps byte order state for set/put
+- unable to increase size once created
+- can convert to Char/Short/Int/Long/Float/Double buffer
+
+ceri.common.data public interface types:
+- ByteProvider = read-only absolute position access; slice, ustream, indexOf, isEqualTo
+- ByteReceiver = write-only absolute position access; slice, fill
+- ByteReader = read-only sequential access; skip, ustream, transferTo
+- ByteWriter = write-only sequential access; skip, fill
+ceri.common.data public concrete types:
+- ByteProvider.Reader = ByteReader wrapper for ByteProvider; navigable access
+- ByteReceiver.Writer = ByteWriter wrapper for ByteReceiver; navigable access, slice
+- ByteReceiver.Encoder = ByteWriter wrapper for ByteReceiver; navigable access, slice, to array
+- ByteArray.Immutable = ByteProvider wrapper for byte[] 
+- ByteArray.Mutable = ByteProvider/ByteReceiver wrapper for byte[] 
+- ByteStream.Reader = ByteReader wrapper for InputStream; runtime io exceptions
+- ByteStream.Writer = ByteWriter wrapper for OutputStream; runtime io exceptions
+- ByteStream.Encoder = ByteWriter wrapper for ByteArrayOutputStream; to array
+- VolatileByteArray = ByteProvider/ByteReceiver for byte[] with volatile access
+- JnaMemory = ByteProvider/ByteReceiver for Memory; Memory copy, native long access
+
+
+Type hierarchy:
+
+  ByteProvider                  ByteReceiver
+    ByteArray                     ByteArray.Mutable
+      ByteArray.Immutable         VolatileByteArray
+      ByteArray.Mutable           JnaMemory
+    VolatileByteArray
+    JnaMemory
+
+  ByteReader                    ByteWriter<T>
+    ByteProvider.Reader           ByteReceiver.AbstractWriter<T>
+    ByteStream.Reader               ByteReceiver.Writer
+                                    ByteReceiver.Encoder
+                                  ByteStream.AbstractWriter<T>
+                                    ByteStream.Writer
+                                    ByteStream.Encoder
+
+Types list:
+- ByteProvider
+  - ByteProvider.Reader <-- ByteReader, Navigator<T>, Fluent<T>
+- ByteReceiver
+  - ByteReceiver.AbstractWriter<T> <-- ByteWriter<T>, Navigator<T>
+  - ByteReceiver.Writer <-- AbstractWriter<T>
+  - ByteReceiver.Encoder <-- AbstractWriter<T>
+- ByteReader
+- ByteWriter<T> <-- Fluent<T>
+- ByteArray <-- ByteProvider
+  - ByteArray.Immutable <-- ByteArray, Fluent<T>
+  - ByteArray.Mutable <-- ByteArray, ByteReceiver, Fluent<T>
+- ByteStream
+  - ByteStream.Reader <-- ByteReader, Fluent<T>
+  - ByteStream.AbstractWriter<S, T> <-- ByteWriter<T>
+  - ByteStream.Writer <-- AbstractWriter<S, T>
+  - ByteStream.Encoder <-- AbstractWriter<S, T>
+- VolatileByteArray <-- ByteProvider, ByteReceiver
+- JnaMemory <-- ByteProvider, ByteReceiver
+	

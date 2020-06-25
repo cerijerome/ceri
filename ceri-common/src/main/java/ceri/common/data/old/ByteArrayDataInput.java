@@ -1,4 +1,4 @@
-package ceri.common.data;
+package ceri.common.data.old;
 
 import java.io.DataInput;
 

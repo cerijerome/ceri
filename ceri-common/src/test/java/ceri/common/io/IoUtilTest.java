@@ -43,6 +43,7 @@ import org.mockito.internal.stubbing.answers.ThrowsException;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.WrappedStream;
 import ceri.common.data.ByteArray;
+import ceri.common.data.ByteProvider;
 import ceri.common.test.FileTestHelper;
 import ceri.common.util.SystemVars;
 
@@ -396,12 +397,12 @@ public class IoUtilTest {
 		assertNull(IoUtil.availableBytes(null));
 		try (InputStream in = new ByteArrayInputStream(ArrayUtil.bytes(0, 1, 2, 3, 4))) {
 			assertThat(IoUtil.availableBytes(in), is(ByteArray.Immutable.wrap(0, 1, 2, 3, 4)));
-			assertThat(IoUtil.availableBytes(in), is(ByteArray.EMPTY));
+			assertThat(IoUtil.availableBytes(in), is(ByteProvider.empty()));
 		}
 		try (InputStream in = Mockito.mock(InputStream.class)) {
 			when(in.available()).thenReturn(5);
 			when(in.read(any())).thenReturn(0);
-			assertThat(IoUtil.availableBytes(in), is(ByteArray.EMPTY));
+			assertThat(IoUtil.availableBytes(in), is(ByteProvider.empty()));
 		}
 	}
 

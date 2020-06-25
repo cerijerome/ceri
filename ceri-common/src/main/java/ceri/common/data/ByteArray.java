@@ -1,13 +1,11 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.Fluent;
@@ -15,57 +13,17 @@ import ceri.common.util.HashCoder;
 
 /**
  * Base wrapper for a byte array, implementing the ByteProvider interface. The Immutable sub-class
- * provides a concrete type. The Mutable sub-class implements ByteReceiver, which provides
- * additional mutable access to the array.
+ * provides a concrete type. The Mutable sub-class also implements ByteReceiver, which provides
+ * mutable access to the array.
  * <p/>
  * Internally, offset and length mark the permitted access window of the array. Bytes outside this
  * window must not be accessed or copied.
  */
 public abstract class ByteArray implements ByteProvider {
-	public static final Mutable EMPTY = new Mutable(ArrayUtil.EMPTY_BYTE, 0, 0);
 	final byte[] array;
 	private final int offset;
 	private final int length;
 
-	/**
-	 * A fixed-size byte array encoder.
-	 */
-	public static ByteReceiver.Encoder encoder(byte[] data) {
-		return ByteReceiver.Encoder.wrap(data);
-	}
-	
-	/**
-	 * A fixed-size byte array encoder.
-	 */
-	public static ByteReceiver.Encoder encoder(int size) {
-		return ByteReceiver.Encoder.of(size);
-	}
-	
-	/**
-	 * A variable-length byte array encoder.
-	 */
-	public static ByteStream.Encoder encoder() {
-		return ByteStream.Encoder.of();
-	}
-	
-//	/**
-//	 * Encode a fixed-size byte array, using a ByteWriter.
-//	 */
-//	public static Mutable encode(int size, Consumer<? super ByteReceiver.Writer> consumer) {
-//		Mutable bytes = Mutable.of(size);
-//		consumer.accept(bytes.writer(0));
-//		return bytes;
-//	}
-//	
-//	/**
-//	 * Encode a variable-sized byte array, using a ByteWriter.
-//	 */
-//	public static Mutable encode(Consumer<? super ByteStream.Writer> consumer) {
-//		ByteArrayOutputStream out = new ByteArrayOutputStream();
-//		consumer.accept(ByteStream.writer(out));
-//		return Mutable.wrap(out.toByteArray());
-//	}
-	
 	/**
 	 * Wrapper for a byte array that does not allow modification. It allows slicing of views to
 	 * promote re-use rather than copying of bytes. Note that wrap() does not copy the original byte
@@ -87,10 +45,6 @@ public abstract class ByteArray implements ByteProvider {
 		public static Immutable copyOf(byte[] array, int offset, int length) {
 			byte[] newArray = Arrays.copyOfRange(array, offset, offset + length);
 			return wrap(newArray);
-		}
-
-		public static Immutable wrap(IntStream stream) {
-			return wrap(ByteUtil.bytes(stream));
 		}
 
 		public static Immutable wrap(int... array) {
@@ -152,7 +106,7 @@ public abstract class ByteArray implements ByteProvider {
 	 * and modifications of the original array will modify the wrapped array.
 	 */
 	public static class Mutable extends ByteArray implements ByteReceiver, Fluent<Mutable> {
-		public static final Mutable EMPTY = new Mutable(ArrayUtil.EMPTY_BYTE, 0, 0);
+		public static final Mutable EMPTY = new Mutable(EMPTY_BYTE, 0, 0);
 
 		public static Mutable of(int length) {
 			return wrap(new byte[length]);
@@ -180,7 +134,19 @@ public abstract class ByteArray implements ByteProvider {
 			super(array, offset, length);
 		}
 
+		/**
+		 * Returns an immutable view. Any changes to this class will be seen in new view. 
+		 */
+		public Immutable asImmutable() {
+			return Immutable.wrap(array, offset(0), length());
+		}
+
 		/* ByteProvider overrides */
+
+		@Override
+		public boolean isEmpty() {
+			return super.isEmpty();
+		}
 
 		@Override
 		public Mutable slice(int index) {
@@ -255,6 +221,187 @@ public abstract class ByteArray implements ByteProvider {
 		}
 	}
 
+	/**
+	 * Wrapper for an expandable byte array, implementing ByteWriter and ByteReader. Reader methods
+	 * will not increase the size of the array, and can throw IndexOutOfBoundsException if out of
+	 * range. Writer methods will increase the size of the array as needed, up to MAX_SIZE.
+	 * <p/>
+	 * Internally, length is the current size, either the initial minimum size, or advanced by
+	 * writing bytes. The length determines the size of the array for bytes(), mutable(),
+	 * immutable() calls.
+	 */
+	public static class Encoder extends Navigator<Encoder>
+		implements ByteWriter<Encoder>, ByteReader {
+		public static final int MAX_SIZE = Integer.MAX_VALUE - 8; // from ByteArrayOutputStream
+		private static final int DEFAULT_SIZE = 32;
+		private Mutable mutable;
+		private byte[] array;
+
+		/**
+		 * Create an encoder with zero length, and default buffer size.
+		 */
+		public static Encoder of() {
+			return new Encoder(new byte[DEFAULT_SIZE], 0);
+		}
+
+		/**
+		 * Create an encoder with minimum length, and matching buffer size. Useful to optimize
+		 * delivery of the byte array if the length is known ahead of time.
+		 */
+		public static Encoder of(int min) {
+			return new Encoder(new byte[min], min);
+		}
+
+		private Encoder(byte[] array, int limit) {
+			super(limit);
+			this.array = array;
+			mutable = Mutable.wrap(array);
+		}
+
+		public byte[] bytes() {
+			if (length() == array.length) return array;
+			return Arrays.copyOf(array, length());
+		}
+
+		public Mutable mutable() {
+			return Mutable.wrap(array, 0, length());
+		}
+
+		public Immutable immutable() {
+			return Immutable.wrap(array, 0, length());
+		}
+
+		/* ByteReader */
+
+		@Override
+		public byte readByte() {
+			return array[readInc(1)];
+		}
+
+		@Override
+		public long readEndian(int size, boolean msb) {
+			return mutable.getEndian(readInc(size), size, msb);
+		}
+
+		@Override
+		public String readString(int length, Charset charset) {
+			return mutable.getString(readInc(length), length, charset);
+		}
+
+		@Override
+		public byte[] readBytes(int length) {
+			return mutable.copy(readInc(length), length);
+		}
+
+		@Override
+		public int readInto(byte[] dest, int offset, int length) {
+			return mutable.copyTo(readInc(length), dest, offset, length);
+		}
+
+		@Override
+		public int readInto(ByteReceiver receiver, int offset, int length) {
+			return mutable.copyTo(readInc(length), receiver, offset, length);
+		}
+
+		@Override
+		public int transferTo(OutputStream out, int length) throws IOException {
+			return mutable.writeTo(readInc(length), out, length);
+		}
+
+		@Override
+		public IntStream ustream(int length) {
+			return mutable.ustream(readInc(length), length);
+		}
+
+		/* ByteWriter */
+
+		@Override
+		public Encoder skip(int length) {
+			writeInc(length);
+			return this;
+		}
+
+		@Override
+		public Encoder writeByte(int value) {
+			mutable.setByte(writeInc(1), value);
+			return this;
+		}
+
+		@Override
+		public Encoder writeEndian(long value, int size, boolean msb) {
+			mutable.setEndian(writeInc(size), size, value, msb);
+			return this;
+		}
+
+		@Override
+		public Encoder writeString(String s, Charset charset) {
+			byte[] bytes = s.getBytes(charset);
+			mutable.copyFrom(writeInc(bytes.length), bytes);
+			return this;
+		}
+
+		@Override
+		public Encoder fill(int length, int value) {
+			mutable.fill(writeInc(length), length, value);
+			return this;
+		}
+
+		@Override
+		public Encoder writeFrom(byte[] array, int offset, int length) {
+			mutable.copyFrom(writeInc(length), array, offset, length);
+			return this;
+		}
+
+		@Override
+		public Encoder writeFrom(ByteProvider provider, int offset, int length) {
+			mutable.copyFrom(writeInc(length), provider, offset, length);
+			return this;
+		}
+
+		@Override
+		public int transferFrom(InputStream in, int length) throws IOException {
+			int current = writeInc(length);
+			offset(mutable.readFrom(current, in, length));
+			return offset() - current;
+		}
+
+		private int readInc(int length) {
+			return inc(length, false);
+		}
+
+		private int writeInc(int length) {
+			return inc(length, true);
+		}
+
+		/**
+		 * Returns the current position and increments the offset by given length. If this exceeds
+		 * the limit, and growth is permitted, the byte array is expanded to contain the new length.
+		 * If growth is required but not permitted, an exception is thrown.
+		 */
+		private int inc(int length, boolean grow) {
+			int current = offset();
+			int offset = current + length;
+			if (!grow && (offset < 0 || offset > length())) // includes overflow
+				throw new IndexOutOfBoundsException(offset);
+			if (grow) grow(offset);
+			length(Math.max(length(), offset));
+			offset(offset);
+			return current;
+		}
+
+		private void grow(int length) {
+			if (length < 0 || length > MAX_SIZE) throw new OutOfMemoryError(
+				String.format("Max allocation size 0x%x bytes: 0x%x", MAX_SIZE, length));
+			if (length <= array.length) return;
+			int newLen = array.length << 1;
+			if (newLen < 0 || newLen > MAX_SIZE) newLen = MAX_SIZE;
+			if (newLen < DEFAULT_SIZE) newLen = DEFAULT_SIZE;
+			if (newLen < length) newLen = length;
+			array = Arrays.copyOf(array, newLen);
+			mutable = Mutable.wrap(array);
+		}
+	}
+
 	private ByteArray(byte[] array, int offset, int length) {
 		this.array = array;
 		this.offset = offset;
@@ -266,11 +413,6 @@ public abstract class ByteArray implements ByteProvider {
 	@Override
 	public int length() {
 		return length;
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return ByteProvider.super.isEmpty();
 	}
 
 	@Override

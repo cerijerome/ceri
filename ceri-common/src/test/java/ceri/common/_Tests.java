@@ -7,7 +7,6 @@ import ceri.common.collection.ArrayUtilTest;
 import ceri.common.collection.CollectionUtilTest;
 import ceri.common.collection.DelegatingMapBehavior;
 import ceri.common.collection.FixedSizeCacheBehavior;
-import ceri.common.collection.ImmutableIntArrayBehavior;
 import ceri.common.collection.ImmutableUtilTest;
 import ceri.common.collection.IndexedBehavior;
 import ceri.common.collection.MapPopulatorBehavior;
@@ -44,29 +43,20 @@ import ceri.common.concurrent.VolatileByteArrayBehavior;
 import ceri.common.data.BinaryStateBehavior;
 import ceri.common.data.BooleanAccessorBehavior;
 import ceri.common.data.ByteArrayBehavior;
-import ceri.common.data.ByteArrayDataInputBehavior;
-import ceri.common.data.ByteArrayDataOutputBehavior;
 import ceri.common.data.ByteProviderBehavior;
-import ceri.common.data.ByteProviderReaderBehavior;
 import ceri.common.data.ByteReaderBehavior;
 import ceri.common.data.ByteReceiverBehavior;
 import ceri.common.data.ByteUtilTest;
 import ceri.common.data.ByteWriterBehavior;
 import ceri.common.data.CrcAlgorithmBehavior;
 import ceri.common.data.CrcBehavior;
-import ceri.common.data.DecodingExceptionBehavior;
 import ceri.common.data.FieldTranscoderBehavior;
 import ceri.common.data.IntAccessorBehavior;
 import ceri.common.data.IntBitSetBehavior;
 import ceri.common.data.IntTypeValueBehavior;
 import ceri.common.data.MaskTranscoderBehavior;
-import ceri.common.data.NavigableBehavior;
-import ceri.common.data.NavigableByteReaderBehavior;
-import ceri.common.data.NavigableByteWriterBehavior;
-import ceri.common.data.StreamByteReaderBehavior;
-import ceri.common.data.StreamByteWriterBehavior;
+import ceri.common.data.NavigatorBehavior;
 import ceri.common.data.TypeTranscoderBehavior;
-import ceri.common.data.UnsignedOctetTypeBehavior;
 import ceri.common.data.XorBehavior;
 import ceri.common.date.CalendarFieldBehavior;
 import ceri.common.date.DateUtilTest;
@@ -292,7 +282,6 @@ import ceri.common.xml.XmlUtilTest;
 	CollectionUtilTest.class, //
 	DelegatingMapBehavior.class, //
 	FixedSizeCacheBehavior.class, //
-	ImmutableIntArrayBehavior.class, //
 	ImmutableUtilTest.class, //
 	IndexedBehavior.class, //
 	MapPopulatorBehavior.class, //
@@ -333,29 +322,20 @@ import ceri.common.xml.XmlUtilTest;
 	BinaryStateBehavior.class, //
 	BooleanAccessorBehavior.class, //
 	ByteArrayBehavior.class, //
-	ByteArrayDataInputBehavior.class, //
-	ByteArrayDataOutputBehavior.class, //
 	ByteProviderBehavior.class, //
-	ByteProviderReaderBehavior.class, //
 	ByteReaderBehavior.class, //
 	ByteReceiverBehavior.class, //
 	ByteUtilTest.class, //
 	ByteWriterBehavior.class, //
 	CrcAlgorithmBehavior.class, //
 	CrcBehavior.class, //
-	DecodingExceptionBehavior.class, //
 	FieldTranscoderBehavior.class, //
 	IntAccessorBehavior.class, //
 	IntBitSetBehavior.class, //
 	IntTypeValueBehavior.class, //
 	MaskTranscoderBehavior.class, //
-	NavigableBehavior.class, //
-	NavigableByteReaderBehavior.class, //
-	NavigableByteWriterBehavior.class, //
-	StreamByteReaderBehavior.class, //
-	StreamByteWriterBehavior.class, //
+	NavigatorBehavior.class, //
 	TypeTranscoderBehavior.class, //
-	UnsignedOctetTypeBehavior.class, //
 	XorBehavior.class, //
 	// date
 	CalendarFieldBehavior.class, //

@@ -1,8 +1,10 @@
-package ceri.common.data;
+package ceri.common.data.old;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import ceri.common.data.ByteReader;
+import ceri.common.data.ByteReceiver;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.RuntimeIoException;

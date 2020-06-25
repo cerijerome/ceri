@@ -3,15 +3,16 @@ package ceri.common.data;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertStream;
 import static ceri.common.test.TestUtil.assertThrown;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteProvider.Reader;
 import ceri.common.data.ByteReceiverBehavior.Holder;
 
 public class ByteProviderBehavior {
@@ -20,6 +21,21 @@ public class ByteProviderBehavior {
 	private static final byte[] ascii = "abcde".getBytes(StandardCharsets.ISO_8859_1);
 	private static final byte[] utf8 = "abcde".getBytes(StandardCharsets.UTF_8);
 	private static final byte[] defCset = "abcde".getBytes(Charset.defaultCharset());
+
+	/* ByteProvider tests */
+
+	@Test
+	public void shouldProvideAnEmptyInstance() {
+		assertThat(ByteProvider.empty().length(), is(0));
+		assertThat(ByteProvider.empty().isEmpty(), is(true));
+		assertThrown(() -> ByteProvider.empty().getByte(0));
+	}
+
+	@Test
+	public void shouldDetermineIfEmpty() {
+		assertThat(bp.isEmpty(), is(false));
+		assertThat(ByteProvider.empty().isEmpty(), is(true));
+	}
 
 	@Test
 	public void shouldProvidePrimitiveValues() {
@@ -71,25 +87,18 @@ public class ByteProviderBehavior {
 		assertThat(provider(ascii).getAscii(2, 2), is("cd"));
 		assertThat(provider(utf8).getUtf8(0), is("abcde"));
 		assertThat(provider(utf8).getUtf8(2, 2), is("cd"));
+		assertThat(provider(utf8).getString(0, UTF_8), is("abcde"));
 		assertThat(provider(defCset).getString(0), is("abcde"));
-	}
-
-	@Test
-	public void shouldProviderBytesAsAHexString() {
-		ByteProvider bp = provider(0, -1, 2, -3);
-		assertThat(bp.toHex(0, ":"), is("00:ff:02:fd"));
-		assertThat(bp.toHex(2, ":"), is("02:fd"));
 	}
 
 	@Test
 	public void shouldSliceProvidedByteRange() {
 		assertThat(bp.slice(10).isEmpty(), is(true));
 		assertArray(bp.slice(5, 0).copy(0));
-		assertThat(bp.slice(9).isEmpty(), is(false));
-		assertArray(bp.slice(6).copy(0), 6, -7, 8, -9);
-		assertArray(bp.slice(6, -2).copy(0), 4, -5);
-		assertTrue(bp.slice(0) == bp);
-		assertArray(bp.slice(0, 2).copy(0), 0, -1);
+		assertThat(bp.slice(0), is(bp));
+		assertThat(bp.slice(0, 10), is(bp));
+		assertThrown(() -> bp.slice(1, 10));
+		assertThrown(() -> bp.slice(0, 9));
 	}
 
 	@Test
@@ -170,6 +179,86 @@ public class ByteProviderBehavior {
 		assertThat(bp.indexOf(8, provider(-1, 2, -3)), is(-1));
 		assertThat(bp.indexOf(0, provider(-1, 2, -3), 0, 4), is(-1));
 	}
+
+	@Test
+	public void shouldProvideReaderAccessToBytes() {
+		assertArray(bp.reader(5).readBytes(), -5, 6, -7, 8, -9);
+		assertArray(bp.reader(5, 0).readBytes());
+		assertArray(bp.reader(10, 0).readBytes());
+		assertThrown(() -> bp.reader(10, 1));
+		assertThrown(() -> bp.reader(11, 0));
+	}
+
+	/* ByteProvider.Reader tests */
+
+	@Test
+	public void shouldReadByte() {
+		assertThat(bp.reader(1).readByte(), is((byte) -1));
+		assertThrown(() -> bp.reader(1, 0).readByte());
+	}
+
+	@Test
+	public void shouldReadEndian() {
+		assertThat(bp.reader(6).readEndian(3, false), is(0x08f906L));
+		assertThat(bp.reader(6).readEndian(3, true), is(0x06f908L));
+	}
+
+	@Test
+	public void shouldReadStrings() {
+		assertThat(provider(ascii).reader(2, 2).readAscii(), is("cd"));
+		assertThat(provider(utf8).reader(1).readUtf8(), is("bcde"));
+		assertThat(provider(defCset).reader(0).readString(), is("abcde"));
+		assertThat(provider(utf8).reader(3).readString(UTF_8), is("de"));
+	}
+
+	@Test
+	public void shouldReadIntoByteArray() {
+		byte[] bytes = new byte[4];
+		bp.reader(5).readInto(bytes);
+		assertArray(bytes, -5, 6, -7, 8);
+	}
+
+	@Test
+	public void shouldReadIntoByteReceiver() {
+		byte[] bytes = new byte[4];
+		ByteReceiver br = ByteArray.Mutable.wrap(bytes);
+		bp.reader(5).readInto(br);
+		assertArray(bytes, -5, 6, -7, 8);
+	}
+
+	@Test
+	public void shouldTransferToOutputStream() throws IOException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		assertThat(bp.reader(4).transferTo(out), is(6));
+		assertArray(out.toByteArray(), 4, -5, 6, -7, 8, -9);
+	}
+
+	@Test
+	public void shouldStreamReaderUnsignedBytes() {
+		assertStream(bp.reader(6).ustream(), 6, 0xf9, 8, 0xf7);
+		assertThrown(() -> bp.reader(0).ustream(11));
+	}
+
+	@Test
+	public void shouldReturnReaderByteProvider() {
+		assertThat(bp.reader(0).provider(), is(bp));
+		assertThat(bp.reader(5, 0).provider().isEmpty(), is(true));
+		assertThrown(() -> bp.reader(5).provider()); // slice() fails
+	}
+
+	@Test
+	public void shouldSliceReader() {
+		Reader r0 = bp.reader(6);
+		Reader r1 = r0.slice();
+		Reader r2 = r0.slice(3);
+		assertThrown(() -> r0.slice(5));
+		assertThrown(() -> r0.slice(-2));
+		assertArray(r0.readBytes(), 6, -7, 8, -9);
+		assertArray(r1.readBytes(), 6, -7, 8, -9);
+		assertArray(r2.readBytes(), 6, -7, 8);
+	}
+
+	/* Support methods */
 
 	public static ByteProvider provider(int... values) {
 		return provider(ArrayUtil.bytes(values));

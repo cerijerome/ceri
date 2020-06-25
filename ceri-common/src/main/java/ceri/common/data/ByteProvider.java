@@ -30,8 +30,170 @@ import ceri.common.math.MathUtil;
  */
 public interface ByteProvider {
 
+	static ByteProvider empty() {
+		return ByteArray.Immutable.EMPTY;
+	}
+	
 	/**
-	 * Length of the array.
+	 * {@link Navigator} and {@link ByteReader} wrapper for a {@link ByteProvider}. This provides
+	 * sequential access to bytes, and relative/absolute positioning for the next read.
+	 * <p/>
+	 * ByteReader interface is complemented with methods that use remaining bytes instead of given
+	 * length. Except for {@link #offset(int)}, methods do not include an offset position. Clients
+	 * must first call {@link #offset(int)} if an absolute position is required.
+	 */
+	static class Reader extends Navigator<Reader> implements ByteReader, Fluent<Reader> {
+		private final ByteProvider provider;
+		private final int start;
+
+		private Reader(ByteProvider provider, int offset, int length) {
+			super(length);
+			this.provider = provider;
+			this.start = offset;
+		}
+
+		/* ByteReader overrides and additions */
+
+		@Override
+		public byte readByte() {
+			return provider.getByte(inc(1));
+		}
+
+		@Override
+		public long readEndian(int size, boolean msb) {
+			return provider.getEndian(inc(size), size, msb);
+		}
+
+		/**
+		 * Returns the string from ISO-Latin-1 bytes.
+		 */
+		public String readAscii() {
+			return readAscii(remaining());
+		}
+
+		/**
+		 * Returns the string from UTF-8 bytes.
+		 */
+		public String readUtf8() {
+			return readUtf8(remaining());
+		}
+
+		/**
+		 * Returns the string from default character-set bytes.
+		 */
+		public String readString() {
+			return readString(remaining());
+		}
+
+		/**
+		 * Returns the string from character-set encoded bytes.
+		 */
+		public String readString(Charset charset) {
+			return readString(remaining(), charset);
+		}
+
+		@Override
+		public String readString(int length, Charset charset) {
+			return provider.getString(inc(length), length, charset);
+		}
+
+		/**
+		 * Reads an array of the remaining bytes.
+		 */
+		public byte[] readBytes() {
+			return readBytes(remaining());
+		}
+
+		@Override
+		public byte[] readBytes(int length) {
+			return provider.copy(inc(length), length);
+		}
+
+		@Override
+		public int readInto(byte[] dest, int offset, int length) {
+			return provider.copyTo(inc(length), dest, offset, length);
+		}
+
+		@Override
+		public int readInto(ByteReceiver receiver, int offset, int length) {
+			return provider.copyTo(inc(length), receiver, offset, length);
+		}
+
+		/**
+		 * Writes bytes to the output stream, and returns the number of bytes transferred.
+		 */
+		public int transferTo(OutputStream out) throws IOException {
+			return transferTo(out, remaining());
+		}
+
+		@Override
+		public int transferTo(OutputStream out, int length) throws IOException {
+			int offset = inc(length);
+			return provider.writeTo(offset, out, length) - offset;
+		}
+
+		/**
+		 * Provides unsigned bytes as a stream.
+		 */
+		public IntStream ustream() {
+			return ustream(remaining());
+		}
+
+		@Override
+		public IntStream ustream(int length) {
+			return provider.ustream(inc(length), length);
+		}
+
+		/* Other methods */
+
+		@Override
+		public Reader skip(int length) {
+			return super.skip(length);
+		}
+
+		/**
+		 * Returns a view of the ByteProvider, incrementing the offset. Only supported if slice()
+		 * is implemented.
+		 */
+		public ByteProvider provider() {
+			return provider(remaining());
+		}
+
+		/**
+		 * Returns a view of the ByteProvider, incrementing the offset. Only supported if slice()
+		 * is implemented.
+		 */
+		public ByteProvider provider(int length) {
+			return provider.slice(inc(length), length);
+		}
+
+		/**
+		 * Creates a new reader for remaining bytes without incrementing the offset.
+		 */
+		public Reader slice() {
+			return slice(remaining());
+		}
+
+		/**
+		 * Creates a new reader for subsequent bytes without incrementing the offset.
+		 */
+		public Reader slice(int length) {
+			ArrayUtil.validateSlice(length(), offset(), length);
+			return new Reader(provider, start + offset(), length);
+		}
+
+		/**
+		 * Returns the current position and increments the offset by length.
+		 */
+		private int inc(int length) {
+			int position = start + offset();
+			skip(length);
+			return position;
+		}
+	}
+
+	/**
+	 * The number of provided bytes.
 	 */
 	int length();
 
@@ -276,20 +438,6 @@ public interface ByteProvider {
 	}
 
 	/**
-	 * Provides bytes as a hex string, using a delimiter.
-	 */
-	default String toHex(int index, String delimiter) {
-		return toHex(index, length() - index, delimiter);
-	}
-
-	/**
-	 * Provides bytes as a hex string, using a delimiter.
-	 */
-	default String toHex(int index, int length, String delimiter) {
-		return ByteUtil.toHex(ustream(index, length), delimiter);
-	}
-
-	/**
 	 * Creates a byte provider view from index.
 	 */
 	default ByteProvider slice(int index) {
@@ -302,11 +450,10 @@ public interface ByteProvider {
 	 * bytes; efficiency may be improved by overriding this method.
 	 */
 	default ByteProvider slice(int index, int length) {
-		if (length == 0) return ByteArray.Immutable.EMPTY;
-		if (length < 0) return slice(index + length, -length);
-		ArrayUtil.validateSlice(length(), index, length);
+		if (length == 0) return empty();
 		if (index == 0 && length == length()) return this;
-		return ByteArray.Immutable.wrap(copy(index, length));
+		throw new UnsupportedOperationException(
+			String.format("slice(%d, %d) is not supported", index, length));
 	}
 
 	/**
@@ -555,160 +702,8 @@ public interface ByteProvider {
 	 * Provides sequential byte access.
 	 */
 	default Reader reader(int index, int length) {
+		ArrayUtil.validateSlice(length(), index, length);
 		return new Reader(this, index, length);
-	}
-
-	/**
-	 * {@link Navigator} and {@link ByteReader} wrapper for a {@link ByteProvider}. This provides
-	 * sequential access to bytes, and relative/absolute positioning for the next read.
-	 * <p/>
-	 * ByteReader interface is complemented with methods that use remaining bytes instead of given
-	 * length. Except for {@link #offset(int)}, methods do not include an offset position. Clients
-	 * must first call {@link #offset(int)} if an absolute position is required.
-	 */
-	static class Reader extends Navigator<Reader> implements ByteReader, Fluent<Reader> {
-		private final ByteProvider provider;
-		private final int start;
-
-		private Reader(ByteProvider provider, int offset, int length) {
-			super(length);
-			this.provider = provider;
-			this.start = offset;
-		}
-
-		/* ByteReader overrides and additions */
-
-		@Override
-		public byte readByte() {
-			return provider.getByte(inc(1));
-		}
-
-		@Override
-		public long readEndian(int size, boolean msb) {
-			return provider.getEndian(inc(size), size, msb);
-		}
-
-		/**
-		 * Returns the string from ISO-Latin-1 bytes.
-		 */
-		public String readAscii() {
-			return readAscii(remaining());
-		}
-
-		/**
-		 * Returns the string from UTF-8 bytes.
-		 */
-		public String readUtf8() {
-			return readUtf8(remaining());
-		}
-
-		/**
-		 * Returns the string from default character-set bytes.
-		 */
-		public String readString() {
-			return readString(remaining());
-		}
-
-		/**
-		 * Returns the string from character-set encoded bytes.
-		 */
-		public String readString(Charset charset) {
-			return readString(remaining(), charset);
-		}
-
-		@Override
-		public String readString(int length, Charset charset) {
-			return provider.getString(inc(length), length, charset);
-		}
-
-		/**
-		 * Reads an array of the remaining bytes.
-		 */
-		public byte[] readBytes() {
-			return readBytes(remaining());
-		}
-
-		@Override
-		public byte[] readBytes(int length) {
-			return provider.copy(inc(length), length);
-		}
-
-		@Override
-		public int readInto(byte[] dest, int offset, int length) {
-			return provider.copyTo(inc(length), dest, offset, length);
-		}
-
-		@Override
-		public int readInto(ByteReceiver receiver, int offset, int length) {
-			return provider.copyTo(inc(length), receiver, offset, length);
-		}
-
-		/**
-		 * Writes bytes to the output stream, and returns the number of bytes transferred.
-		 */
-		public int transferTo(OutputStream out) throws IOException {
-			return transferTo(out, remaining());
-		}
-
-		@Override
-		public int transferTo(OutputStream out, int length) throws IOException {
-			return provider.writeTo(inc(length), out, length);
-		}
-
-		/**
-		 * Provides unsigned bytes as a stream.
-		 */
-		public IntStream ustream() {
-			return ustream(remaining());
-		}
-
-		@Override
-		public IntStream ustream(int length) {
-			return provider.ustream(inc(length), length);
-		}
-
-		/* Other methods */
-
-		/**
-		 * Returns a view of the ByteProvider, incrementing the offset.
-		 */
-		public ByteProvider provide() {
-			return provide(remaining());
-		}
-
-		/**
-		 * Returns a view of the ByteProvider, incrementing the offset.
-		 */
-		public ByteProvider provide(int length) {
-			return provider.slice(inc(length), length);
-		}
-
-		/**
-		 * Creates a new reader for remaining bytes without incrementing the offset.
-		 */
-		public Reader slice() {
-			return slice(remaining());
-		}
-
-		/**
-		 * Creates a new reader for subsequent bytes without incrementing the offset. Use a negative
-		 * length to look backwards, which may be useful for checksum calculations.
-		 */
-		public Reader slice(int length) {
-			int offset = length < 0 ? offset() + length : offset();
-			length = Math.abs(length);
-			ArrayUtil.validateSlice(length(), offset, length);
-			return new Reader(provider, start + offset, length);
-		}
-
-		/**
-		 * Returns the current position and increments the offset by length.
-		 */
-		private int inc(int length) {
-			int position = start + offset();
-			skip(length);
-			return position;
-		}
 	}
 
 }

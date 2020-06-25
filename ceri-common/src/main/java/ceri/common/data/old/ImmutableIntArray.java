@@ -1,9 +1,10 @@
-package ceri.common.collection;
+package ceri.common.data.old;
 
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;
 
