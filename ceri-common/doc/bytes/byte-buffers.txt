@@ -15,6 +15,59 @@ ceri.common.data public interface types:
 - ByteProvider = read-only absolute position access; slice, ustream, indexOf, isEqualTo
 - ByteReceiver = write-only absolute position access; slice, fill
 - ByteReader = read-only sequential access; skip, ustream, transferTo
+- ByteWriter<T> = write-only sequential access; skip, fill
+- Fluent<T> = fluent method chaining; apply, map, mapToInt
+ceri.common.data public concrete types:
+- Navigator<T> = index navigation; length, offset, mark/reset, skip, remaining
+- ByteProvider.Reader = ByteReader wrapper for ByteProvider; navigable access
+- ByteReceiver.Writer = ByteWriter wrapper for ByteReceiver; navigable access, slice
+- ByteArray.Immutable = ByteProvider wrapper for byte[] 
+- ByteArray.Mutable = ByteProvider/ByteReceiver wrapper for byte[] 
+- ByteArray.Encoder = ByteWriter/ByteReader wrapper for growable byte[]; navigable access, to array
+- ByteStream.Reader = ByteReader and FilterInputStream; runtime io exceptions
+- ByteStream.Writer = ByteWriter and FilterOutputStream; runtime io exceptions
+- VolatileByteArray = ByteProvider/ByteReceiver for byte[] with volatile access
+- JnaMemory = ByteProvider/ByteReceiver for Memory; Memory copy, native long access
+
+Type hierarchy
+--------------
+  ByteProvider                  ByteReceiver
+    ByteArray                     ByteArray.Mutable
+      ByteArray.Immutable         VolatileByteArray
+      ByteArray.Mutable           JnaMemory
+    VolatileByteArray
+    JnaMemory
+
+  ByteReader                    ByteWriter<T>
+    ByteProvider.Reader           ByteReceiver.Writer
+    ByteArray.Encoder             ByteArray.Encoder
+    ByteStream.Reader             ByteStream.Writer
+
+Types list:
+- ByteProvider
+  - ByteProvider.Reader <-- ByteReader, Navigator<T>, Fluent<T>
+- ByteReceiver
+  - ByteReceiver.Writer <-- ByteWriter<T>, Navigator<T>
+- ByteReader
+- ByteWriter<T> <-- Fluent<T>
+- ByteArray <-- ByteProvider
+  - ByteArray.Immutable <-- ByteArray, Fluent<T>
+  - ByteArray.Mutable <-- ByteArray, ByteReceiver, Fluent<T>
+  - ByteArray.Encoder <-- ByteWriter<T>, ByteReader, Navigator<T>
+- ByteStream
+  - ByteStream.Reader <-- FilterInputStream, ByteReader, Fluent<T>
+  - ByteStream.Writer <-- FilterOutputStream, ByteWriter<T>
+- VolatileByteArray <-- ByteProvider, ByteReceiver
+- JnaMemory <-- ByteProvider, ByteReceiver
+
+
+Previous Revision
+=================
+
+ceri.common.data public interface types:
+- ByteProvider = read-only absolute position access; slice, ustream, indexOf, isEqualTo
+- ByteReceiver = write-only absolute position access; slice, fill
+- ByteReader = read-only sequential access; skip, ustream, transferTo
 - ByteWriter = write-only sequential access; skip, fill
 ceri.common.data public concrete types:
 - ByteProvider.Reader = ByteReader wrapper for ByteProvider; navigable access
@@ -66,3 +119,424 @@ Types list:
 - VolatileByteArray <-- ByteProvider, ByteReceiver
 - JnaMemory <-- ByteProvider, ByteReceiver
 	
+
+Usage
+-----
+
+encode/decode classes:
+- ceri.net.ieee.*
+- ceri.net.upnp.message.*
+- ceri.print.*
+- ceri.serial.mcp.*
+- ceri.dmx.*
+- ceri.av.*
+- ceri.hue.*
+
+ByteArrayOutputStream usage:
+- ceri.net.ieee.util.IeeeUtil
+- ceri.print.*
+- ceri.x10.cm11a.protocol.WriteData
+
+DataInput/DataOutput usage:
+- ceri.x10.*
+
+
+Interfaces
+----------
+
+Fluent<T>:
+- apply(ExceptionConsumer<E, ? super T>)
+- map(ExceptionFunction<E, ? super T, U>)
+- mapToInt(ExceptionToIntFunction<E, ? super T>)
+
+Navigator<T>:
+- hasNext()
+- length()
+- mark()
+- marked()
+- offset()
+- offset(int)
+- remaining()
+- reset()
+- skip(int)
+
+ByteProvider:
+= writeBufferTo(ByteProvider, int, OutputStream, int)
+- copy(int)
+- copy(int, int)
+- copyTo(int, byte[])
+- copyTo(int, byte[], int)
+* copyTo(int, byte[], int, int)
+- copyTo(int, ByteReceiver)
+- copyTo(int, ByteReceiver, int)
+* copyTo(int, ByteReceiver, int, int)
+- getAscii(int)
+- getAscii(int, int)
+- getBool(int)
+A getByte(int)
+- getDouble(int)
+- getDoubleLsb(int)
+- getDoubleMsb(int)
+* getEndian(int, int, boolean)
+- getFloat(int)
+- getFloatLsb(int)
+- getFloatMsb(int)
+- getInt(int)
+- getIntLsb(int)
+- getIntMsb(int)
+- getLong(int)
+- getLongLsb(int)
+- getLongMsb(int)
+- getShort(int)
+- getShortLsb(int)
+- getShortMsb(int)
+- getString(int)
+- getString(int, Charset)
+- getString(int, int)
+* getString(int, int, Charset)
+- getUbyte(int)
+- getUint(int)
+- getUintLsb(int)
+- getUintMsb(int)
+- getUshort(int)
+- getUshortLsb(int)
+- getUshortMsb(int)
+- getUtf8(int)
+- getUtf8(int, int)
+- indexOf(int, byte[])
+- indexOf(int, byte[], int)
+- indexOf(int, byte[], int, int)
+- indexOf(int, ByteProvider)
+- indexOf(int, ByteProvider, int)
+- indexOf(int, ByteProvider, int, int)
+- indexOf(int, int...)
+- isEmpty()
+- isEqualTo(int, byte[])
+- isEqualTo(int, byte[], int)
+* isEqualTo(int, byte[], int, int)
+- isEqualTo(int, ByteProvider)
+- isEqualTo(int, ByteProvider, int)
+* isEqualTo(int, ByteProvider, int, int)
+- isEqualTo(int, int...)
+A length()
+- reader(int)
+- reader(int, int)
+- slice(int)
+* slice(int, int)
+- toHex(int, int, String)
+- toHex(int, String)
+- ustream(int)
+- ustream(int, int)
+- writeTo(int, OutputStream)
+- writeTo(int, OutputStream, int)
+
+ByteProvider.Reader: < Navigator<T>, ByteReader, Fluent<T>
+- provide()
+- provide(int)
+- readAscii()
+- readByte()
+- readBytes()
+- readBytes(int)
+- readEndian(int, boolean)
+- readInto(byte[], int, int)
+- readInto(ByteReceiver, int, int)
+- readString()
+- readString(Charset)
+- readString(int, Charset)
+- readUtf8()
+- slice()
+- slice(int)
+- transferTo(OutputStream)
+- transferTo(OutputStream, int)
+- ustream()
+- ustream(int)
+
+ByteReceiver:
+= readBufferFrom(ByteReceiver, int, InputStream, int)
+- copyFrom(int, byte[])
+- copyFrom(int, byte[], int)
+* copyFrom(int, byte[], int, int)
+- copyFrom(int, ByteProvider)
+- copyFrom(int, ByteProvider, int)
+* copyFrom(int, ByteProvider, int, int)
+- fill(int, int)
+* fill(int, int, int)
+- isEmpty()
+A length()
+- readFrom(int, InputStream)
+* readFrom(int, InputStream, int)
+- setAscii(int, String)
+- setBool(int, boolean)
+A setByte(int, int)
+- setBytes(int, int...)
+- setDouble(int, double)
+- setDoubleLsb(int, double)
+- setDoubleMsb(int, double)
+* setEndian(int, int, long, boolean)
+- setFloat(int, float)
+- setFloatLsb(int, float)
+- setFloatMsb(int, float)
+- setInt(int, int)
+- setIntLsb(int, int)
+- setIntMsb(int, int)
+- setLong(int, long)
+- setLongLsb(int, long)
+- setLongMsb(int, long)
+- setShort(int, int)
+- setShortLsb(int, int)
+- setShortMsb(int, int)
+- setString(int, String)
+- setString(int, String, Charset)
+- setUtf8(int, String)
+- slice(int)
+- slice(int, int)
+- writer(int)
+- writer(int, int)
+
+ByteReceiver.AbstractWriter<T>: < Navigator<T>, ByteWriter
+- fill(int)
+- fill(int, int)
+- transferFrom(InputStream)
+- transferFrom(InputStream, int)
+- writeByte(int)
+- writeEndian(long, int, boolean)
+- writeFrom(byte[], int, int)
+- writeFrom(ByteProvider, int, int)
+- writeString(String, Charset)
+
+ByteReceiver.Encoder: < AbstractWriter<T>
+- bytes()
+- immutable()
+- mutable()
+
+ByteReceiver.Writer: < AbstractWriter<T>
+- slice()
+- slice(int)
+
+ByteReader:
+= transferBufferTo(ByteReader, OutputStream, int)
+- readAscii(int)
+- readBool()
+A readByte()
+- readBytes(int)
+- readDouble()
+- readDoubleLsb()
+- readDoubleMsb()
+* readEndian(int, boolean)
+- readFloat()
+- readFloatLsb()
+- readFloatMsb()
+- readInt()
+- readIntLsb()
+- readIntMsb()
+- readInto(byte[])
+- readInto(byte[], int)
+- readInto(byte[], int, int)
+- readInto(ByteReceiver)
+- readInto(ByteReceiver, int)
+* readInto(ByteReceiver, int, int)
+- readLong()
+- readLongLsb()
+- readLongMsb()
+- readShort()
+- readShortLsb()
+- readShortMsb()
+- readString(int)
+* readString(int, Charset)
+- readUbyte()
+- readUint()
+- readUintLsb()
+- readUintMsb()
+- readUshort()
+- readUshortLsb()
+- readUshortMsb()
+- readUtf8(int)
+* skip(int)
+- toHex(int, String)
+* transferTo(OutputStream, int)
+- ustream(int)
+
+ByteWriter<T>: < Fluent<T>
+= transferBufferFrom(ByteWriter<?>, InputStream, int)
+* fill(int, int)
+* skip(int)
+* transferFrom(InputStream, int)
+- writeAscii(String)
+- writeBool(boolean)
+A writeByte(int)
+- writeBytes(int...)
+- writeDouble(double)
+- writeDoubleLsb(double)
+- writeDoubleMsb(double)
+* writeEndian(long, int, boolean)
+- writeFloat(float)
+- writeFloatLsb(float)
+- writeFloatMsb(float)
+- writeFrom(byte[])
+- writeFrom(byte[], int)
+* writeFrom(byte[], int, int)
+- writeFrom(ByteProvider)
+- writeFrom(ByteProvider, int)
+* writeFrom(ByteProvider, int, int)
+- writeInt(int)
+- writeIntLsb(int)
+- writeIntMsb(int)
+- writeLong(long)
+- writeLongLsb(long)
+- writeLongMsb(long)
+- writeShort(int)
+- writeShortLsb(int)
+- writeShortMsb(int)
+- writeString(String)
+* writeString(String, Charset)
+- writeUtf8(String)
+
+ByteArray: < ByteProvider
+= encoder()
+= encoder(byte[])
+= encoder(int)
+- copy(int, int)
+- copyTo(int, byte[], int, int)
+- copyTo(int, ByteReceiver, int, int)
+- getByte(int)
+- getEndian(int, int, boolean)
+- getString(int, int, Charset)
+- isEmpty()
+- isEqualTo(int, byte[], int, int)
+- isEqualTo(int, ByteProvider, int, int)
+- length()
+- toString()
+- writeTo(int, OutputStream, int)
+
+ByteArray.Immutable: < ByteArray, Fluent<T>
+= copyOf(byte[])
+= copyOf(byte[], int)
+= copyOf(byte[], int, int)
+= wrap(byte[])
+= wrap(byte[], int)
+= wrap(byte[], int, int)
+= wrap(int...)
+= wrap(IntStream)
+- slice(int)
+- slice(int, int)
+
+ByteArray.Mutable: < ByteArray, ByteReceiver, Fluent<T>
+= of(int)
+= wrap(byte[])
+= wrap(byte[], int)
+= wrap(byte[], int, int)
+= wrap(int...)
+- copyFrom(int, byte[], int, int)
+- copyFrom(int, ByteProvider, int, int)
+- fill(int, int, int)
+- readFrom(int, InputStream, int)
+- setByte(int, int)
+- setEndian(int, int, long, boolean)
+- slice(int)
+- slice(int, int)
+
+ByteStream:
+= reader(InputStream)
+= writer(OutputStream)
+
+ByteStream.AbstractWriter<S, T>: < ByteWriter<T> 
+- fill(int, int)
+- transferFrom(InputStream, int)
+- writeByte(int)
+- writeFrom(byte[], int, int)
+- writeFrom(ByteProvider, int, int)
+
+ByteStream.Encoder: < AbstractWriter<S, T>
+- bytes()
+- immutable()
+- mutable()
+
+ByteStream.Reader: < ByteReader, Fluent<T>
+- available()
+- mark()
+- mark(int)
+- markSupported()
+- readByte()
+- readBytes(int)
+- readInto(byte[], int, int)
+- readInto(ByteReceiver, int, int)
+- reset()
+- skip(int)
+- transferTo(OutputStream, int)
+
+ByteStream.Writer: < AbstractWriter<S, T>
+- flush()
+
+VolatileByteArray: < ByteProvider, ByteReceiver
+- copyOf(byte[])
+- copyOf(byte[], int)
+- copyOf(byte[], int, int)
+- of(int)
+- wrap(byte[])
+- wrap(int...)
+- getByte(int)
+- isEmpty()
+- length()
+- setByte(int, int)
+- slice(int)
+- slice(int, int)
+
+JnaMemory: < ByteProvider, ByteReceiver
+= of(Memory)
+= of(Memory, int)
+= of(Pointer, int, int)
+- accessor(int)
+- accessor(int, int)
+- copyFrom(int, byte[], int, int)
+- copyFrom(int, ByteProvider, int, int)
+- copyFrom(int, Memory)
+- copyFrom(int, Memory, int)
+- copyFrom(int, Pointer, int, int)
+- copyTo(int, byte[], int, int)
+- copyTo(int, ByteReceiver, int, int)
+- copyTo(int, Memory)
+- copyTo(int, Memory, int)
+- copyTo(int, Pointer, int, int)
+- fill(int, int, int)
+- getByte(int)
+- getNlong(int)
+- getNlongLsb(int)
+- getNlongMsb(int)
+- getUnlong(int)
+- getUnlongLsb(int)
+- getUnlongMsb(int)
+- isEmpty()
+- length()
+- readFrom(int, InputStream, int)
+- setByte(int, int)
+- setNlong(int, NativeLong)
+- setNlongLsb(int, NativeLong)
+- setNlongMsb(int, NativeLong)
+- slice(int)
+- slice(int, int)
+- writeTo(int, OutputStream, int)
+
+InputStream:
+= nullInputStream()
+- available()
+- close()
+- mark(int)
+- markSupported()
+- read()
+- read(byte[])
+- read(byte[], int, int)
+- readAllBytes()
+- readNBytes(byte[], int, int)
+- readNBytes(int)
+- reset()
+- skip(long)
+- skipNBytes(long)
+- transferTo(OutputStream)
+
+OutputStream:
+= nullOutputStream()
+- close()
+- flush()
+- write(byte[])
+- write(byte[], int, int)
+- write(int)

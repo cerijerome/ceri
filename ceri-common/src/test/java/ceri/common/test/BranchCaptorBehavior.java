@@ -13,20 +13,20 @@ public class BranchCaptorBehavior {
 	public void shouldFindNoMissingBranches() {
 		BranchCaptor bc = new BranchCaptor();
 		assertThat(bc.missing().size(), is(0));
-		bc.commit(true);
+		bc.add(true);
 		assertThat(bc.missing().size(), is(1));
-		bc.commit(false);
+		bc.add(false);
 		assertThat(bc.missing().size(), is(0));
 	}
-	
+
 	@Test
 	public void shouldIdentifyMissingBranches() {
 		BranchCaptor bc = new BranchCaptor();
-		bc.commit(false, false, false);
-		bc.commit(false, false, true);
-		bc.commit(false, true, false);
-		bc.commit(true, false, true);
-		bc.commit(true, true, true);
+		bc.add(false, false, false);
+		bc.add(false, false, true);
+		bc.add(false, true, false);
+		bc.add(true, false, true);
+		bc.add(true, true, true);
 		assertThat(bc.branches(), is(5));
 		assertCollection(bc.missing(), //
 			BranchCaptor.string(false, true, true), //
@@ -40,11 +40,11 @@ public class BranchCaptorBehavior {
 		try (SystemIo stdio = SystemIo.of()) {
 			stdio.out(IoUtil.nullPrintStream());
 			BranchCaptor bc = new BranchCaptor();
-			bc.commit(true, true);
-			bc.commit(true, false);
-			bc.commit(false, true);
+			bc.add(true, true);
+			bc.add(true, false);
+			bc.add(false, true);
 			bc.report();
-			bc.commit(false, false);
+			bc.add(false, false);
 			bc.report();
 		}
 	}

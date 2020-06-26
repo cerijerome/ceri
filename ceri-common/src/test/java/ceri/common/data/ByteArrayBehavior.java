@@ -1,14 +1,22 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertByte;
+import static ceri.common.test.TestUtil.assertStream;
+import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.exerciseEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteArray.Encoder;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.util.BasicUtil;
@@ -79,10 +87,10 @@ public class ByteArrayBehavior {
 		Mutable m = Mutable.wrap(bytes);
 		assertArray(m.asImmutable().copy(0), 1, 2, 3);
 		assertNull(BasicUtil.castOrNull(ByteReceiver.class, m.asImmutable()));
-		m.setByte(0,  -1);
+		m.setByte(0, -1);
 		assertArray(m.asImmutable().copy(0), -1, 2, 3);
 	}
-	
+
 	@Test
 	public void shouldCreateMutableSlice() {
 		Mutable m = Mutable.wrap(1, 2, 3, 4, 5);
@@ -159,6 +167,12 @@ public class ByteArrayBehavior {
 	}
 
 	@Test
+	public void shouldCopyBytes() {
+		assertArray(ByteArray.Immutable.wrap().copy(0));
+		assertArray(ByteArray.Immutable.wrap(1, 2, 3).copy(0), 1, 2, 3);
+	}
+
+	@Test
 	public void shouldCopyToByteReceiver() {
 		Mutable m = Mutable.of(3);
 		assertThat(Immutable.wrap(1, 2, 3).copyTo(1, m, 1), is(3));
@@ -191,10 +205,126 @@ public class ByteArrayBehavior {
 	}
 
 	/* Encoder tests */
-	
+
 	@Test
-	public void shouldEncodeBytes() {
-		//assertThat(ByteArray.(), is());
+	public void shouldEncodeToMinimumSizedArray() {
+		assertArray(Encoder.of().bytes());
+		assertArray(Encoder.of(5).bytes(), 0, 0, 0, 0, 0);
 	}
-	
+
+	@Test
+	public void shouldEncodeAsByteArrayWrappers() {
+		assertArray(Encoder.of().writeUtf8("abc").bytes(), 'a', 'b', 'c');
+		assertArray(Encoder.of().writeUtf8("abc").mutable().copy(0), 'a', 'b', 'c');
+		assertArray(Encoder.of().writeUtf8("abc").immutable().copy(0), 'a', 'b', 'c');
+	}
+
+	@Test
+	public void shouldEncodeAndReadByte() {
+		assertThat(Encoder.of().writeByte(-1).skip(-1).readByte(), is((byte) -1));
+	}
+
+	@Test
+	public void shouldEncodeAndReadEndian() {
+		assertThat(Encoder.of().writeEndian(0xfedcba, 3, true).skip(-3).readEndian(3, true),
+			is(0xfedcbaL));
+		assertThat(Encoder.of().writeEndian(0xfedcba, 3, false).skip(-3).readEndian(3, false),
+			is(0xfedcbaL));
+	}
+
+	@Test
+	public void shouldEncodeAndReadString() {
+		String s = "abc";
+		byte[] bytes = s.getBytes(Charset.defaultCharset());
+		int n = bytes.length;
+		assertThat(Encoder.of().writeString(s).skip(-n).readString(n), is(s));
+		assertArray(Encoder.of().writeString(s).bytes(), bytes);
+	}
+
+	@Test
+	public void shouldEncodeAndReadBytes() {
+		assertArray(Encoder.of().writeBytes(1, 2, 3).skip(-3).readBytes(3), 1, 2, 3);
+	}
+
+	@Test
+	public void shouldEncodeAndReadFromIntoByteArray() {
+		byte[] bin = ArrayUtil.bytes(1, 2, 3, 4, 5);
+		byte[] bout = new byte[3];
+		Encoder.of().writeFrom(bin, 1, 3).skip(-3).readInto(bout, 1, 2);
+		assertArray(bout, 0, 2, 3);
+	}
+
+	@Test
+	public void shouldEncodeToAndReadIntoByteAccessor() {
+		Mutable m = Mutable.wrap(1, 2, 3, 0, 0);
+		Encoder.of().writeFrom(m, 0, 3).skip(-3).readInto(m, 2);
+		assertArray(m.copy(0), 1, 2, 1, 2, 3);
+	}
+
+	@Test
+	public void shouldEncodeFillBytes() {
+		assertArray(Encoder.of().fill(3, -1).skip(2).bytes(), -1, -1, -1, 0, 0);
+	}
+
+	@Test
+	public void shouldEncodeToOutputStreams() throws IOException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		assertThat(Encoder.of().writeBytes(1, 2, 3).skip(-3).transferTo(out, 3), is(3));
+		assertArray(out.toByteArray(), 1, 2, 3);
+	}
+
+	@Test
+	public void shouldEncodeFromInputStream() throws IOException {
+		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes(1, 2, 3));
+		Encoder en = Encoder.of();
+		assertThat(en.transferFrom(in, 5), is(3));
+		assertArray(en.bytes(), 1, 2, 3);
+	}
+
+	@Test
+	public void shouldEncodeToStream() {
+		assertStream(Encoder.of().writeBytes(1, 2, 3).offset(0).ustream(3), 1, 2, 3);
+	}
+
+	@Test
+	public void shouldNotGrowEncoderIfReading() {
+		Encoder en = Encoder.of();
+		en.writeBytes(1, 2, 3).skip(-2);
+		assertThrown(() -> en.readBytes(3));
+		assertThrown(() -> en.readBytes(Integer.MAX_VALUE));
+	}
+
+	@Test
+	public void shouldFailToGrowEncoderAtomically() {
+		Encoder en = Encoder.of(0, 3).writeBytes(1);
+		assertThrown(() -> en.writeBytes(1, 2, 3));
+		assertThrown(() -> en.fill(3, 0xff));
+		assertThrown(() -> en.skip(3));
+		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes(1, 2, 3));
+		assertThrown(() -> en.transferFrom(in, 3));
+		en.writeBytes(1, 2);
+	}
+
+	@Test
+	public void shouldNotGrowEncoderPastMax() {
+		Encoder en0 = Encoder.of(0, 3).writeBytes(1);
+		assertThrown(() -> en0.writeBytes(1, 2, 3));
+		assertThrown(() -> en0.fill(Integer.MAX_VALUE, 0xff));
+		Encoder en1 = Encoder.of(3, 5);
+		en1.writeBytes(1, 2, 3, 4);
+	}
+
+	@Test
+	public void shouldNotDoubleEncoderSizePastMax() { // each growth x2 size, but <= max
+		Encoder en = Encoder.of(3, 5);
+		assertArray(en.writeBytes(1, 2, 3, 4).bytes(), 1, 2, 3, 4);
+	}
+
+	@Test
+	public void shouldNotGrowEncoderLessThanDefaultSize() { // grow to minimum of 32 (default size)
+		Encoder en = Encoder.of(20);
+		en.fill(21, 0xff); // grow to 20x2 = 40
+		en.fill(60, 1); // grow to 81 (> 40x2)
+	}
+
 }

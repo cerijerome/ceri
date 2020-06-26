@@ -46,6 +46,7 @@ import ceri.common.data.ByteArrayBehavior;
 import ceri.common.data.ByteProviderBehavior;
 import ceri.common.data.ByteReaderBehavior;
 import ceri.common.data.ByteReceiverBehavior;
+import ceri.common.data.ByteStreamBehavior;
 import ceri.common.data.ByteUtilTest;
 import ceri.common.data.ByteWriterBehavior;
 import ceri.common.data.CrcAlgorithmBehavior;
@@ -216,6 +217,7 @@ import ceri.common.test.PulsePrinterBehavior;
 import ceri.common.test.RegexMatcherBehavior;
 import ceri.common.test.ResponseStreamBehavior;
 import ceri.common.test.TestInputStreamBehavior;
+import ceri.common.test.TestOutputStreamBehavior;
 import ceri.common.test.TestPrinterBehavior;
 import ceri.common.test.TestRunAdapterBehavior;
 import ceri.common.test.TestRunPrinterBehavior;
@@ -325,6 +327,7 @@ import ceri.common.xml.XmlUtilTest;
 	ByteProviderBehavior.class, //
 	ByteReaderBehavior.class, //
 	ByteReceiverBehavior.class, //
+	ByteStreamBehavior.class, //
 	ByteUtilTest.class, //
 	ByteWriterBehavior.class, //
 	CrcAlgorithmBehavior.class, //
@@ -513,6 +516,7 @@ import ceri.common.xml.XmlUtilTest;
 	RegexMatcherBehavior.class, //
 	ResponseStreamBehavior.class, //
 	TestInputStreamBehavior.class, //
+	TestOutputStreamBehavior.class, //
 	TestPrinterBehavior.class, //
 	TestRunAdapterBehavior.class, //
 	TestRunPrinterBehavior.class, //

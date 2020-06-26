@@ -1018,6 +1018,16 @@ public class TestUtil {
 	}
 
 	/**
+	 * Creates an output stream where activity is determined by the given data. Each write advances
+	 * the index into the data; a value of -1 throws EOFException, -2 throws an IOException, -3
+	 * throws a RuntimeException, other values do nothing. Written values are collected, and may be
+	 * retrieved by calling written().
+	 */
+	public static TestOutputStream outputStream(int... data) {
+		return TestOutputStream.of(data);
+	}
+
+	/**
 	 * Returns "[lambda]" if anonymous lambda, otherwise toString.
 	 */
 	public static String lambdaName(Object lambda) {

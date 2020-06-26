@@ -21,7 +21,7 @@ public class BranchCaptor {
 		return b.toString();
 	}
 
-	public void commit(boolean... exprs) {
+	public void add(boolean... exprs) {
 		branches.add(string(exprs));
 		size = Math.max(size, exprs.length);
 	}

@@ -1,6 +1,7 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,6 +10,7 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.Fluent;
+import ceri.common.math.MathUtil;
 import ceri.common.util.HashCoder;
 
 /**
@@ -135,7 +137,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		/**
-		 * Returns an immutable view. Any changes to this class will be seen in new view. 
+		 * Returns an immutable view. Any changes to this class will be seen in new view.
 		 */
 		public Immutable asImmutable() {
 			return Immutable.wrap(array, offset(0), length());
@@ -232,8 +234,9 @@ public abstract class ByteArray implements ByteProvider {
 	 */
 	public static class Encoder extends Navigator<Encoder>
 		implements ByteWriter<Encoder>, ByteReader {
-		public static final int MAX_SIZE = Integer.MAX_VALUE - 8; // from ByteArrayOutputStream
-		private static final int DEFAULT_SIZE = 32;
+		public static final int MAX_DEF = Integer.MAX_VALUE - 8; // from ByteArrayOutputStream
+		private static final int SIZE_DEF = 32;
+		private final int max;
 		private Mutable mutable;
 		private byte[] array;
 
@@ -241,7 +244,7 @@ public abstract class ByteArray implements ByteProvider {
 		 * Create an encoder with zero length, and default buffer size.
 		 */
 		public static Encoder of() {
-			return new Encoder(new byte[DEFAULT_SIZE], 0);
+			return new Encoder(new byte[SIZE_DEF], 0, MAX_DEF);
 		}
 
 		/**
@@ -249,11 +252,21 @@ public abstract class ByteArray implements ByteProvider {
 		 * delivery of the byte array if the length is known ahead of time.
 		 */
 		public static Encoder of(int min) {
-			return new Encoder(new byte[min], min);
+			return of(min, MAX_DEF);
 		}
 
-		private Encoder(byte[] array, int limit) {
+		/**
+		 * Create an encoder with minimum length, and matching buffer size. Useful to optimize
+		 * delivery of the byte array if the length is known ahead of time. The max determines the
+		 * maximum size the byte array can grow to.
+		 */
+		public static Encoder of(int min, int max) {
+			return new Encoder(new byte[min], min, max);
+		}
+
+		private Encoder(byte[] array, int limit, int max) {
 			super(limit);
+			this.max = max;
 			this.array = array;
 			mutable = Mutable.wrap(array);
 		}
@@ -305,7 +318,10 @@ public abstract class ByteArray implements ByteProvider {
 
 		@Override
 		public int transferTo(OutputStream out, int length) throws IOException {
-			return mutable.writeTo(readInc(length), out, length);
+			int current = offset();
+			ArrayUtil.validateSlice(length(), current, length);
+			offset(mutable.writeTo(current, out, length));
+			return offset() - current;
 		}
 
 		@Override
@@ -323,45 +339,53 @@ public abstract class ByteArray implements ByteProvider {
 
 		@Override
 		public Encoder writeByte(int value) {
-			mutable.setByte(writeInc(1), value);
+			int current = writeInc(1); // may modify mutable reference, don't combine
+			mutable.setByte(current, value);
 			return this;
 		}
 
 		@Override
 		public Encoder writeEndian(long value, int size, boolean msb) {
-			mutable.setEndian(writeInc(size), size, value, msb);
+			int current = writeInc(size); // may modify mutable reference, don't combine
+			mutable.setEndian(current, size, value, msb);
 			return this;
 		}
 
 		@Override
 		public Encoder writeString(String s, Charset charset) {
 			byte[] bytes = s.getBytes(charset);
-			mutable.copyFrom(writeInc(bytes.length), bytes);
+			int current = writeInc(bytes.length); // may modify mutable reference, don't combine
+			mutable.copyFrom(current, bytes);
 			return this;
 		}
 
 		@Override
 		public Encoder fill(int length, int value) {
-			mutable.fill(writeInc(length), length, value);
+			int current = writeInc(length); // may modify mutable reference, don't combine
+			mutable.fill(current, length, value);
 			return this;
 		}
 
 		@Override
 		public Encoder writeFrom(byte[] array, int offset, int length) {
-			mutable.copyFrom(writeInc(length), array, offset, length);
+			int current = writeInc(length); // may modify mutable reference, don't combine
+			mutable.copyFrom(current, array, offset, length);
 			return this;
 		}
 
 		@Override
 		public Encoder writeFrom(ByteProvider provider, int offset, int length) {
-			mutable.copyFrom(writeInc(length), provider, offset, length);
+			int current = writeInc(length); // may modify mutable reference, don't combine
+			mutable.copyFrom(current, provider, offset, length);
 			return this;
 		}
 
 		@Override
 		public int transferFrom(InputStream in, int length) throws IOException {
-			int current = writeInc(length);
-			offset(mutable.readFrom(current, in, length));
+			validateMin(length, 0);
+			int current = offset();
+			grow(current + length);
+			writeInc(mutable.readFrom(current, in, length) - current);
 			return offset() - current;
 		}
 
@@ -390,15 +414,19 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		private void grow(int length) {
-			if (length < 0 || length > MAX_SIZE) throw new OutOfMemoryError(
-				String.format("Max allocation size 0x%x bytes: 0x%x", MAX_SIZE, length));
+			verifyGrowLength(length);
 			if (length <= array.length) return;
 			int newLen = array.length << 1;
-			if (newLen < 0 || newLen > MAX_SIZE) newLen = MAX_SIZE;
-			if (newLen < DEFAULT_SIZE) newLen = DEFAULT_SIZE;
+			if (MathUtil.uint(newLen) > max) newLen = max;
+			if (newLen < SIZE_DEF) newLen = Math.min(SIZE_DEF, max);
 			if (newLen < length) newLen = length;
 			array = Arrays.copyOf(array, newLen);
 			mutable = Mutable.wrap(array);
+		}
+
+		private void verifyGrowLength(int length) {
+			if (MathUtil.uint(length) > max) throw new IllegalArgumentException(String
+				.format("Max allocation size %1$d (0x%1$x) bytes: %2$d (0x%2$x)", max, length));
 		}
 	}
 
