@@ -112,7 +112,7 @@ public class WriteData {
 	}
 
 	public ByteProvider fromEntry(Entry entry) {
-		return ByteArray.encoder().apply(w -> writeEntryTo(entry, w)).immutable();
+		return ByteArray.Encoder.of().apply(w -> writeEntryTo(entry, w)).immutable();
 	}
 
 	public void writeEntryTo(Entry entry, ByteWriter<?> w) {

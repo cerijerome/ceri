@@ -43,7 +43,7 @@ public class WriteDataBehavior {
 
 	@Test
 	public void shouldWriteExtFunctionToOutput() {
-		byte[] bytes = ByteArray.encoder().apply(w -> write.writeExtFunctionTo( //
+		byte[] bytes = ByteArray.Encoder.of().apply(w -> write.writeExtFunctionTo( //
 			new ExtFunction(House.A, (byte) 0x7f, (byte) 0x80), w)).bytes();
 		assertArray(bytes, 0x07, 0x67, 0x7f, 0x80);
 	}
@@ -56,7 +56,7 @@ public class WriteDataBehavior {
 
 	@Test
 	public void shouldWriteDimFunctionToOutput() {
-		byte[] bytes = ByteArray.encoder()
+		byte[] bytes = ByteArray.Encoder.of()
 			.apply(w -> write.writeDimFunctionTo(DimFunction.bright(House.A, 50), w)).bytes();
 		assertArray(bytes, 0x5e, 0x65);
 	}

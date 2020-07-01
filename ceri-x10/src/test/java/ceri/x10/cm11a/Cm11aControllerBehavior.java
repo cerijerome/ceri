@@ -30,6 +30,7 @@ public class Cm11aControllerBehavior {
 		controller.close();
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldDispatchUnitCommands() {
 		controller.command(CommandFactory.on("K9"));

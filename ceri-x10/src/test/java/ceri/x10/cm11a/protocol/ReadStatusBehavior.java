@@ -16,7 +16,7 @@ public class ReadStatusBehavior {
 	public void shouldWriteAndReadToStreams() {
 		Date date = new Date((System.currentTimeMillis() / 1000) * 1000);
 		ReadStatus status = new ReadStatus.Builder().date(date).build();
-		Immutable bytes = ByteArray.encoder().apply(status::writeTo).immutable();
+		Immutable bytes = ByteArray.Encoder.of().apply(status::writeTo).immutable();
 		ReadStatus status2 = ReadStatus.readFrom(bytes.reader(0));
 		assertThat(status, is(status2));
 	}

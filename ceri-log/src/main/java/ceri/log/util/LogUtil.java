@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -21,10 +20,12 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.ExceptionSupplier;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
 import ceri.common.util.Align;
+import ceri.common.util.ExceptionAdapter;
 import ceri.common.util.StartupValues;
 import ceri.log.io.LogPrintStream;
 
@@ -292,19 +293,21 @@ public class LogUtil {
 	 * Returns an object whose toString() executes the supplier method. Used for logging lazy string
 	 * instantiations.
 	 */
-	public static Object toString(final Callable<String> stringSupplier) {
+	public static Object toString(final ExceptionSupplier<?, String> stringSupplier) {
 		return new Object() {
 			@Override
 			public String toString() {
-				try {
-					return stringSupplier.call();
-				} catch (RuntimeException e) {
-					throw e;
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+				return ExceptionAdapter.RUNTIME.get(stringSupplier);
 			}
 		};
+	}
+
+	/**
+	 * Returns an object whose toString() executes the conversion method on the given object. Used
+	 * for logging lazy string instantiations.
+	 */
+	public static <T> Object toString(T t, ExceptionFunction<?, T, String> converter) {
+		return toString(() -> converter.apply(t));
 	}
 
 	/**

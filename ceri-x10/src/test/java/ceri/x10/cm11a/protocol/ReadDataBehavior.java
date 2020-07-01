@@ -25,7 +25,7 @@ public class ReadDataBehavior {
 
 	@Test
 	public void shouldWriteDimFunctionToOutput() {
-		byte[] bytes = ByteArray.encoder()
+		byte[] bytes = ByteArray.Encoder.of()
 			.apply(w -> read.writeDimFunctionTo(DimFunction.bright(House.A, 100), w)).bytes();
 		assertArray(bytes, 0x65, 0xd2);
 	}

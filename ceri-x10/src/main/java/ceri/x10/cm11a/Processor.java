@@ -179,6 +179,7 @@ public class Processor implements Closeable {
 	/**
 	 * Reads input from the device and dispatches the result to the command listener.
 	 */
+	@SuppressWarnings("resource")
 	private void processInputData() throws IOException {
 		out.writeByte(Protocol.PC_READY.value);
 		out.flush();
@@ -189,7 +190,7 @@ public class Processor implements Closeable {
 	/**
 	 * Sends status response to the device.
 	 */
-	private void sendStatus() {
+	private void sendStatus() throws IOException {
 		WriteStatus status = new WriteStatus.Builder().build();
 		status.writeTo(out);
 		out.flush();
@@ -207,6 +208,7 @@ public class Processor implements Closeable {
 	 * Sends a single entry to the device. Waits for checksum response, checks the value then sends
 	 * acknowledgment.
 	 */
+	@SuppressWarnings("resource")
 	private void sendEntry(Entry entry, int maxSendAttempts) {
 		logger.debug("Sending: {}", entry);
 		ByteProvider data = Data.write.fromEntry(entry);

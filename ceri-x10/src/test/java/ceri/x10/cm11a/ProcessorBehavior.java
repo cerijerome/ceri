@@ -19,6 +19,7 @@ import ceri.x10.cm11a.protocol.WriteStatus;
 import ceri.x10.command.BaseCommand;
 import ceri.x10.command.CommandFactory;
 
+@SuppressWarnings("resource")
 public class ProcessorBehavior {
 	private Cm11aTestConnector connector;
 	private BlockingQueue<BaseCommand<?>> inQueue;
