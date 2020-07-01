@@ -6,7 +6,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import ceri.common.text.Utf8Util;
 
@@ -30,8 +29,8 @@ public class TestInputStreamBehavior {
 			assertArray(in.readNBytes(5));
 			assertArray(in.readNBytes(1));
 		}
-		try (InputStream in = TestInputStream.of(1, 2, 3, -1, 0, 0)) {
-			assertArray(in.readNBytes(5), 1, 2, 3);
+		try (InputStream in = TestInputStream.of(1, 2, 3, -1, 0, -2)) {
+			assertArray(in.readNBytes(5), 1, 2, 3, 0);
 			assertArray(in.readNBytes(5));
 			assertArray(in.readNBytes(1));
 		}
@@ -44,12 +43,12 @@ public class TestInputStreamBehavior {
 			assertThat(Utf8Util.decode(in.readAllBytes()), is("abc"));
 		}
 	}
-	
+
 	@Test
 	public void shouldProvideAvailableByteCount() throws IOException {
 		try (InputStream in = TestInputStream.of(1, 2, 3, -1, 0, 0)) {
 			assertThat(in.available(), is(6));
-			assertArray(in.readNBytes(6), 1, 2, 3);
+			assertArray(in.readNBytes(6), 1, 2, 3, 0, 0);
 			assertThat(in.available(), is(0));
 		}
 	}
@@ -66,13 +65,9 @@ public class TestInputStreamBehavior {
 
 	@Test
 	public void shouldBuildBehaviorWithFunctions() throws IOException {
-		AtomicInteger i = new AtomicInteger();
 		Capturer<Boolean> closer = Capturer.of();
-		try (InputStream in = TestInputStream.builder() //
-			.read(i::getAndIncrement) //
-			.available(() -> Math.max(0, 16 - i.get())) //
-			.close(() -> closer.accept(true)) //
-			.build()) {
+		try (InputStream in = TestInputStream.builder().read(i -> i).available(i -> 16 - i)
+			.close(() -> closer.accept(true)).build()) {
 			assertThat(in.available(), is(16));
 			assertArray(in.readNBytes(5), 0, 1, 2, 3, 4);
 			assertThat(in.available(), is(11));
@@ -81,4 +76,29 @@ public class TestInputStreamBehavior {
 		closer.verify(true);
 	}
 
+	@Test
+	public void shouldProvideCount() throws IOException {
+		try (TestInputStream in = TestInputStream.of(1, 2, -1, 3, -2, 4, -3, 5)) {
+			assertArray(in.readNBytes(3), 1, 2, 3);
+			assertThat(in.count(), is(4));
+			assertThrown(() -> in.readNBytes(3));
+			assertThat(in.count(), is(5));
+			assertThrown(() -> in.readNBytes(3));
+			assertThat(in.count(), is(7));
+			assertArray(in.readNBytes(3), 5);
+			assertThat(in.count(), is(8));
+		}
+	}
+	
+	@Test
+	public void shouldReset() throws IOException {
+		try (InputStream in = TestInputStream.of(1, 2, 3)) {
+			assertArray(in.readNBytes(3), 1, 2, 3);
+			in.reset();
+			assertArray(in.readNBytes(4), 1, 2, 3);
+			in.reset();
+			assertArray(in.readNBytes(4), 1, 2, 3);
+		}
+	}
+	
 }

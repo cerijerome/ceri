@@ -2,6 +2,7 @@ package ceri.common.test;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertThrown;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
@@ -10,7 +11,7 @@ public class TestOutputStreamBehavior {
 
 	@Test
 	public void shouldCollectWrittenBytes() throws IOException {
-		try (var out = TestOutputStream.builder().dataSize(5).build()) {
+		try (var out = TestOutputStream.limit(5)) {
 			out.write(ArrayUtil.bytes(1, 2, 3));
 			assertThrown(() -> out.write(ArrayUtil.bytes(4, 5, 6)));
 			assertThrown(() -> out.write(ArrayUtil.bytes(7)));
@@ -23,7 +24,19 @@ public class TestOutputStreamBehavior {
 		try (var out = TestOutputStream.builder().collect(false).build()) {
 			out.write(ArrayUtil.bytes(1, 2, 3));
 			assertArray(out.written());
+			out.reset();
+			assertArray(out.written());
 		}
+	}
+
+	@Test
+	public void shouldRegisterByteConsumer() throws IOException {
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		try (var out = TestOutputStream.builder()
+			.write(b -> bout.write(b)).build()) {
+			out.write(ArrayUtil.bytes(1, 2, 3));
+		}
+		assertArray(bout.toByteArray(), 1, 2, 3);
 	}
 
 	@Test
@@ -37,7 +50,7 @@ public class TestOutputStreamBehavior {
 
 	@Test
 	public void shouldGenerateExceptions() throws IOException {
-		try (var out = TestOutputStream.of(0, -3, 0, -2, 0, -1, 0)) {
+		try (var out = TestOutputStream.actions(0, -3, 0, -2, 0, -1, 0)) {
 			out.write(1);
 			assertThrown(() -> out.write(2));
 			out.write(3);
@@ -50,4 +63,16 @@ public class TestOutputStreamBehavior {
 		}
 	}
 
+	@Test
+	public void shouldReset() throws IOException {
+		try (var out = TestOutputStream.of()) {
+			out.write(ArrayUtil.bytes(1, 2, 3));
+			assertArray(out.written(), 1, 2, 3);
+			out.reset();
+			assertArray(out.written());
+			out.write(ArrayUtil.bytes(4, 5));
+			assertArray(out.written(), 4, 5);
+		}
+	}
+	
 }

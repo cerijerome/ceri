@@ -158,6 +158,13 @@ public class StringUtil {
 	}
 
 	/**
+	 * Escapes non-visible character.
+	 */
+	public static String escape(char c) {
+		return isPrintable(c) ? String.valueOf(c) : escapeChar(c);
+	}
+
+	/**
 	 * Escapes a non-printable char.
 	 */
 	static String escapeChar(char c) {

@@ -84,12 +84,6 @@ public class ByteReaderBehavior {
 	}
 
 	@Test
-	public void shouldProviderBytesAsAHexString() {
-		assertThat(reader(0, -1, 2, -3).toHex(4, ":"), is("00:ff:02:fd"));
-		assertThat(reader(0, -1, 2, -3).toHex(2, ":"), is("00:ff"));
-	}
-
-	@Test
 	public void shouldReadBytes() {
 		assertArray(reader(1, 2, 3).readBytes(0));
 		assertArray(reader(1, 2, 3).readBytes(3), 1, 2, 3);

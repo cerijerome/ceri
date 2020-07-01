@@ -38,6 +38,7 @@ import org.junit.runner.JUnitCore;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteArray;
+import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.ExceptionConsumer;
@@ -994,26 +995,40 @@ public class TestUtil {
 	}
 
 	/**
-	 * Creates an input stream based based on given data. Use a value of -1 for an early EOF, -2 to
-	 * throw an IOException, -3 to throw a RuntimeException, otherwise (byte & 0xff). Buffered reads
-	 * will often squash an IOException when it is not the first byte read. To be sure of a thrown
-	 * exception, use -2, -2.
+	 * Returns a ByteProvider.Reader wrapper for bytes.
 	 */
-	public static InputStream inputStream(int... bytes) {
-		return TestInputStream.of(bytes);
+	public static ByteProvider.Reader reader(int... bytes) {
+		return Immutable.wrap(bytes).reader(0);
+	}
+
+	/**
+	 * Returns a ByteProvider.Reader wrapper for chars.
+	 */
+	public static ByteProvider.Reader reader(String s) {
+		return Immutable.wrap(s.chars().toArray()).reader(0);
+	}
+
+	/**
+	 * Creates an input stream based based on given action data. Use a value of -1 for an early EOF,
+	 * -2 to throw an IOException, -3 to throw a RuntimeException, otherwise (byte & 0xff). Buffered
+	 * reads will often squash an IOException when it is not the first byte read. To be sure of a
+	 * thrown exception, use -2, -2.
+	 */
+	public static TestInputStream inputStream(int... actions) {
+		return TestInputStream.of(actions);
 	}
 
 	/**
 	 * Creates an input stream based on given data.
 	 */
-	public static InputStream inputStream(byte[] bytes) {
+	public static TestInputStream inputStream(byte[] bytes) {
 		return inputStream(ByteUtil.ustream(bytes).toArray());
 	}
 
 	/**
 	 * Creates an input stream based on UTF8 text bytes.
 	 */
-	public static InputStream inputStream(String text) {
+	public static TestInputStream inputStream(String text) {
 		return inputStream(Utf8Util.encode(text));
 	}
 
@@ -1023,8 +1038,8 @@ public class TestUtil {
 	 * throws a RuntimeException, other values do nothing. Written values are collected, and may be
 	 * retrieved by calling written().
 	 */
-	public static TestOutputStream outputStream(int... data) {
-		return TestOutputStream.of(data);
+	public static TestOutputStream outputStream(int... actions) {
+		return TestOutputStream.actions(actions);
 	}
 
 	/**

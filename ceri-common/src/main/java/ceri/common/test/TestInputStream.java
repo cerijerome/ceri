@@ -1,51 +1,31 @@
 package ceri.common.test;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import ceri.common.data.ByteUtil;
-import ceri.common.function.ExceptionIntSupplier;
+import ceri.common.function.ExceptionIntUnaryOperator;
 import ceri.common.function.ExceptionRunnable;
 
 /**
  * InputStream controlled by supplier functions for read(), available(), and close(). Integer data
- * can also be supplied to read() and available(). Use a value of -1 for an early EOF, -2 to throw
- * an IOException, -3 to throw a RuntimeException, otherwise (byte & 0xff). Buffered reads will
- * often squash an IOException when it is not the first byte read. To be sure of a thrown exception,
- * use -2, -2.
+ * can also be supplied to read() and available(). Use a value of -1 to throw EOFException, -2 to
+ * throw an IOException, -3 to throw a RuntimeException, otherwise (byte & 0xff). Buffered reads
+ * will often squash an IOException when it is not the first byte read. To be sure of a thrown
+ * exception, use -2, -2.
  */
 public class TestInputStream extends InputStream {
 	private static final int AVAILABLE_DEF = 16;
 	private static final int EOF_VALUE = -1;
 	private static final int THROW_IO_VALUE = -2;
 	private static final int THROW_RT_VALUE = -3;
-	private final ExceptionIntSupplier<IOException> readSupplier;
-	private final ExceptionIntSupplier<IOException> availableSupplier;
+	private final ExceptionIntUnaryOperator<IOException> readSupplier;
+	private final ExceptionIntUnaryOperator<IOException> availableSupplier;
 	private final ExceptionRunnable<IOException> closeRunnable;
+	private int count = 0;
 
-	private static class Data {
-		private int pos = 0;
-		private final int[] data;
-
-		public Data(int... data) {
-			this.data = data;
-		}
-
-		public int read() throws IOException {
-			if (pos >= data.length) return EOF_VALUE;
-			int value = data[pos++];
-			if (value == THROW_IO_VALUE) throw new IOException("Read = " + THROW_IO_VALUE);
-			if (value == THROW_RT_VALUE) throw new RuntimeException("Read = " + THROW_RT_VALUE);
-			if (value == EOF_VALUE) pos = data.length;
-			return value;
-		}
-
-		public int available() {
-			return data.length - pos;
-		}
-	}
-
-	public static TestInputStream of(int... bytes) {
-		return builder().data(bytes).build();
+	public static TestInputStream of(int... actions) {
+		return builder().actions(actions).build();
 	}
 
 	public static TestInputStream of(byte[] bytes) {
@@ -53,27 +33,26 @@ public class TestInputStream extends InputStream {
 	}
 
 	public static class Builder {
-		ExceptionIntSupplier<IOException> readSupplier = () -> 0;
-		ExceptionIntSupplier<IOException> availableSupplier = () -> AVAILABLE_DEF;
+		ExceptionIntUnaryOperator<IOException> readSupplier = i -> 0;
+		ExceptionIntUnaryOperator<IOException> availableSupplier = i -> AVAILABLE_DEF;
 		ExceptionRunnable<IOException> closeRunnable = () -> {};
 
 		Builder() {}
 
-		public Builder data(int... values) {
-			Data data = new Data(values);
-			return read(data::read).available(data::available);
+		public Builder actions(int... actions) {
+			return read(i -> action(i, actions)).available(i -> Math.max(0, actions.length - i));
 		}
 
 		public Builder data(byte[] values) {
-			return data(ByteUtil.ustream(values).toArray());
+			return actions(ByteUtil.ustream(values).toArray());
 		}
 
-		public Builder read(ExceptionIntSupplier<IOException> readSupplier) {
+		public Builder read(ExceptionIntUnaryOperator<IOException> readSupplier) {
 			this.readSupplier = readSupplier;
 			return this;
 		}
 
-		public Builder available(ExceptionIntSupplier<IOException> availableSupplier) {
+		public Builder available(ExceptionIntUnaryOperator<IOException> availableSupplier) {
 			this.availableSupplier = availableSupplier;
 			return this;
 		}
@@ -98,19 +77,39 @@ public class TestInputStream extends InputStream {
 		closeRunnable = builder.closeRunnable;
 	}
 
+	public int count() {
+		return count;
+	}
+
+	@Override
+	public void reset() {
+		count = 0;
+	}
+
 	@Override
 	public int read() throws IOException {
-		return readSupplier.getAsInt();
+		int value = readSupplier.applyAsInt(count++);
+		if (value < 0) count--;
+		return value;
 	}
 
 	@Override
 	public int available() throws IOException {
-		return availableSupplier.getAsInt();
+		return availableSupplier.applyAsInt(count);
 	}
 
 	@Override
 	public void close() throws IOException {
 		closeRunnable.run();
+	}
+
+	private static int action(int i, int[] data) throws IOException {
+		if (i >= data.length) return EOF_VALUE;
+		int value = data[i];
+		if (value == THROW_IO_VALUE) throw new IOException("Read = " + THROW_IO_VALUE);
+		if (value == THROW_RT_VALUE) throw new RuntimeException("Read = " + THROW_RT_VALUE);
+		if (value == EOF_VALUE) throw new EOFException("Read = " + EOF_VALUE);
+		return value;
 	}
 
 }

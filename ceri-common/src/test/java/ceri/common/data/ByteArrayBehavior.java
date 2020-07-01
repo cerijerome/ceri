@@ -213,6 +213,14 @@ public class ByteArrayBehavior {
 	}
 
 	@Test
+	public void shouldEncodeFixedSize() {
+		Encoder en = Encoder.fixed(3);
+		en.fill(3, 1);
+		assertThrown(() -> en.writeByte(1));
+		assertArray(en.bytes(), 1, 1, 1);
+	}
+	
+	@Test
 	public void shouldEncodeAsByteArrayWrappers() {
 		assertArray(Encoder.of().writeUtf8("abc").bytes(), 'a', 'b', 'c');
 		assertArray(Encoder.of().writeUtf8("abc").mutable().copy(0), 'a', 'b', 'c');

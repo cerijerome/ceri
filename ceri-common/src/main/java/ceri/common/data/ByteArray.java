@@ -264,6 +264,13 @@ public abstract class ByteArray implements ByteProvider {
 			return new Encoder(new byte[min], min, max);
 		}
 
+		/**
+		 * Create an encoder with fixed length.
+		 */
+		public static Encoder fixed(int size) {
+			return new Encoder(new byte[size], size, size);
+		}
+
 		private Encoder(byte[] array, int limit, int max) {
 			super(limit);
 			this.max = max;

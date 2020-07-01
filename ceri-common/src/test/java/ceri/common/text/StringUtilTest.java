@@ -271,6 +271,8 @@ public class StringUtilTest {
 	public void testEscape() {
 		assertThat(StringUtil.escape("\\ \b \u001b \t \f \r \n \0 \1"),
 			is("\\ \\b \\e \\t \\f \\r \\n \\0 \\u0001"));
+		assertThat(StringUtil.escape('\\'), is("\\"));
+		assertThat(StringUtil.escape('\0'), is("\\0"));
 		assertThat(StringUtil.escapeChar('\\'), is("\\\\"));
 	}
 

@@ -51,6 +51,7 @@ import ceri.common.data.ByteUtilTest;
 import ceri.common.data.ByteWriterBehavior;
 import ceri.common.data.CrcAlgorithmBehavior;
 import ceri.common.data.CrcBehavior;
+import ceri.common.data.DataUtilTest;
 import ceri.common.data.FieldTranscoderBehavior;
 import ceri.common.data.IntAccessorBehavior;
 import ceri.common.data.IntBitSetBehavior;
@@ -332,6 +333,7 @@ import ceri.common.xml.XmlUtilTest;
 	ByteWriterBehavior.class, //
 	CrcAlgorithmBehavior.class, //
 	CrcBehavior.class, //
+	DataUtilTest.class, //
 	FieldTranscoderBehavior.class, //
 	IntAccessorBehavior.class, //
 	IntBitSetBehavior.class, //

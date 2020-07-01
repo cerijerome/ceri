@@ -165,7 +165,6 @@ public class TestUtilTest {
 			assertAssertion(() -> assertDir(helper.path("a/0"), helper.path("a/4")));
 			assertAssertion(() -> assertDir(helper.path("a/0"), helper.path("a/5")));
 		}
-
 	}
 
 	@Test
@@ -458,4 +457,10 @@ public class TestUtilTest {
 		assertIterable(set, Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
 	}
 
+	@Test
+	public void testReader() {
+		assertArray(TestUtil.reader(1, 2, 3).readBytes(), 1, 2, 3);
+		assertArray(TestUtil.reader("abc").readBytes(), 'a', 'b', 'c');
+	}
+	
 }

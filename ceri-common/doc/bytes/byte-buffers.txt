@@ -29,6 +29,12 @@ ceri.common.data public concrete types:
 - VolatileByteArray = ByteProvider/ByteReceiver for byte[] with volatile access
 - JnaMemory = ByteProvider/ByteReceiver for Memory; Memory copy, native long access
 
+Usage:
+- Absolute byte[] access: ByteProvider, ByteReceiver
+- Sequential byte[] access: ByteProvider.Reader, ByteReceiver.Writer
+- Building byte[]: ByteArray.Encoder, ByteArray.Mutable(.reader/.writer)
+- Stream decode/encode: ByteStream.Reader, ByteStream.Writer
+
 Type hierarchy
 --------------
   ByteProvider                  ByteReceiver
