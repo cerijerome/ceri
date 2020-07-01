@@ -24,7 +24,7 @@
 		<maven.surefire.version>3.0.0-M3</maven.surefire.version>
 		<junit.version>4.12</junit.version>
 		<mockito.version>2.28.2</mockito.version>
-		<log4j.version>2.12.1</log4j.version>
+		<log4j.version>2.13.3</log4j.version>
 		<httpcomponents.version>4.5.10</httpcomponents.version>
 		<jetty.version>9.4.24.v20191120</jetty.version>
 		<servlet-api.version>4.0.1</servlet-api.version>
