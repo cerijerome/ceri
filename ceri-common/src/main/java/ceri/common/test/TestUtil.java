@@ -50,7 +50,6 @@ import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
-import ceri.common.text.Utf8Util;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.EqualsUtil;
 
@@ -1029,7 +1028,7 @@ public class TestUtil {
 	 * Creates an input stream based on UTF8 text bytes.
 	 */
 	public static TestInputStream inputStream(String text) {
-		return inputStream(Utf8Util.encode(text));
+		return TestInputStream.of(text);
 	}
 
 	/**

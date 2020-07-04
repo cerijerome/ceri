@@ -1,5 +1,8 @@
 package ceri.common.data;
 
+import static ceri.common.test.TestInputStream.EOFX;
+import static ceri.common.test.TestInputStream.IOX;
+import static ceri.common.test.TestInputStream.RTX;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.inputStream;
@@ -20,7 +23,7 @@ public class ByteStreamBehavior {
 
 	@Test
 	public void shouldReadByte() {
-		Reader r = ByteStream.reader(inputStream(1, -3, 2, -2, 3));
+		Reader r = ByteStream.reader(inputStream(1, RTX, 2, IOX, 3));
 		assertThat(r.readByte(), is((byte) 1));
 		assertThrown(() -> r.readByte());
 		assertThat(r.readByte(), is((byte) 2));
@@ -75,7 +78,7 @@ public class ByteStreamBehavior {
 
 	@Test
 	public void shouldWriteByte() {
-		var out = outputStream(0, -3, -2, -1); // 1 byte, then exceptions
+		var out = outputStream(0, RTX, IOX, EOFX); // 1 byte, then exceptions
 		Writer w = ByteStream.writer(out);
 		w.writeByte(1);
 		assertThrown(() -> w.writeByte(2));

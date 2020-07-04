@@ -1,5 +1,6 @@
 package ceri.common.io;
 
+import static ceri.common.test.TestInputStream.IOX;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertFile;
@@ -71,7 +72,7 @@ public class IoUtilTest {
 		assertThat(IoUtil.ioExceptionf("%s", "test").getMessage(), is("test"));
 		assertThat(IoUtil.ioExceptionf(new Throwable(), "%s", "test").getMessage(), is("test"));
 	}
-	
+
 	@Test
 	public void testExecIo() throws IOException {
 		IoUtil.IO_ADAPTER.run(() -> {});
@@ -576,7 +577,7 @@ public class IoUtilTest {
 				assertFile(fromFile, toFile);
 			}
 			@SuppressWarnings("resource")
-			InputStream badIn = inputStream(0, 1, 2, -2, -2);
+			InputStream badIn = inputStream(0, 1, 2, IOX, IOX);
 			Path toFile2 = helper.path("x/y/z.txt");
 			assertThrown(() -> IoUtil.copy(badIn, toFile2));
 			assertFalse(Files.exists(helper.path("x/y")));

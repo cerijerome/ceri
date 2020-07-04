@@ -92,10 +92,10 @@ public class ValidationUtilTest {
 		assertThat(
 			TestUtil.thrown(() -> ValidationUtil.validateEqual(-1, 0xff, (String) null,
 				DisplayLong.dec, DisplayLong.hex4)).getMessage(),
-			is("Value != (-1, 0xffff): (255, 0x00ff)"));
+			is("Value != (255, 0x00ff): (-1, 0xffff)"));
 		assertThat(TestUtil
 			.thrown(() -> ValidationUtil.validateEqual(1, 1.111, "Num", DisplayDouble.round1))
-			.getMessage(), is("Num != 1.0: 1.1"));
+			.getMessage(), is("Num != 1.1: 1.0"));
 	}
 
 	@Test

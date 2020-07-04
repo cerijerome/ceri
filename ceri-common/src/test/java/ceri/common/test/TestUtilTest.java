@@ -463,4 +463,11 @@ public class TestUtilTest {
 		assertArray(TestUtil.reader("abc").readBytes(), 'a', 'b', 'c');
 	}
 	
+	@Test
+	public void testInputStreamBytes() throws IOException {
+		try (var in = TestUtil.inputStream(ArrayUtil.bytes(1, 2, 3, -1, -2, -3, 4))) {
+			assertArray(in.readAllBytes(), 1, 2, 3, -1, -2, -3, 4);
+		}
+	}
+	
 }

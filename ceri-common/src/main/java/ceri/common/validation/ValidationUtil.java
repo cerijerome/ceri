@@ -129,7 +129,7 @@ public class ValidationUtil {
 	 */
 	public static <T> T validateNotEqualObj(T value, Object unexpected, String name) {
 		if (EqualsUtil.equals(value, unexpected))
-			throw exceptionf("%s = %s: %s", name(name), unexpected, value);
+			throw exceptionf("%s = %s", name(name), value);
 		return value;
 	}
 
@@ -146,8 +146,8 @@ public class ValidationUtil {
 	 * Validates that the integer values are equal.
 	 */
 	public static long validateEqual(long value, long expected, String name, DisplayLong... flags) {
-		if (value != expected) throw exceptionf("%s != %s: %s", name(name), format(value, flags),
-			format(expected, flags));
+		if (value != expected) throw exceptionf("%s != %s: %s", name(name),
+			format(expected, flags), format(value, flags));
 		return value;
 	}
 
@@ -163,8 +163,7 @@ public class ValidationUtil {
 	 */
 	public static long validateNotEqual(long value, long expected, String name,
 		DisplayLong... flags) {
-		if (value == expected) throw exceptionf("%s = %s: %s", name(name), format(value, flags),
-			format(expected, flags));
+		if (value == expected) throw exceptionf("%s = %s", name(name), format(value, flags));
 		return value;
 	}
 
@@ -180,8 +179,8 @@ public class ValidationUtil {
 	 */
 	public static double validateEqual(double value, double expected, String name,
 		DisplayDouble... flags) {
-		if (value != expected) throw exceptionf("%s != %s: %s", name(name), format(value, flags),
-			format(expected, flags));
+		if (value != expected) throw exceptionf("%s != %s: %s", name(name),
+			format(expected, flags), format(value, flags));
 		return value;
 	}
 
@@ -197,8 +196,7 @@ public class ValidationUtil {
 	 */
 	public static double validateNotEqual(double value, double expected, String name,
 		DisplayDouble... flags) {
-		if (value == expected) throw exceptionf("%s = %s: %s", name(name), format(value, flags),
-			format(expected, flags));
+		if (value == expected) throw exceptionf("%s = %s", name(name), format(value, flags));
 		return value;
 	}
 

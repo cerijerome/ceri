@@ -4,9 +4,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Set;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.ExceptionBiConsumer;
-import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.function.ExceptionIntBinaryOperator;
 import ceri.common.function.ExceptionRunnable;
 
 /**
@@ -15,10 +16,11 @@ import ceri.common.function.ExceptionRunnable;
  * based on current byte count.
  */
 public class TestOutputStream extends OutputStream {
-	private static final int EOF_VALUE = -1;
-	private static final int THROW_IO_VALUE = -2;
-	private static final int THROW_RT_VALUE = -3;
-	private final ExceptionBiConsumer<IOException, Integer, Integer> writeConsumer;
+	public static final int EOFX = TestInputStream.EOFX;
+	public static final int IOX = TestInputStream.IOX;
+	public static final int RTX = TestInputStream.RTX;
+	private static final Set<Integer> allowedActions = Set.of(EOFX, IOX, RTX);
+	private final ExceptionIntBinaryOperator<IOException> writeConsumer;
 	private final ExceptionRunnable<IOException> closer;
 	private final ByteArrayOutputStream collector;
 	private int count = 0;
@@ -47,7 +49,7 @@ public class TestOutputStream extends OutputStream {
 	}
 
 	public static class Builder {
-		ExceptionBiConsumer<IOException, Integer, Integer> writeConsumer = (i, b) -> {};
+		ExceptionIntBinaryOperator<IOException> writeConsumer = (i, b) -> 0;
 		ExceptionRunnable<IOException> closer = () -> {};
 		boolean collect = true;
 
@@ -57,7 +59,7 @@ public class TestOutputStream extends OutputStream {
 		 * Throws an EOFException after size bytes have been written.
 		 */
 		public Builder limit(int size) {
-			return write((i, b) -> verifyLimit(i, size));
+			return write((i, b) -> TestOutputStream.limit(i, size));
 		}
 
 		/**
@@ -66,22 +68,27 @@ public class TestOutputStream extends OutputStream {
 		 * the action count is exceeded, an EOFException is thrown.
 		 */
 		public Builder actions(int... actions) {
-			return write((i, b) -> action(i, actions));
+			for (int action : actions)
+				verify(action);
+			return writeAction((i, b) -> TestOutputStream.action(i, actions));
 		}
 
 		/**
 		 * Register a callback for written byte values.
 		 */
-		public Builder write(ExceptionIntConsumer<IOException> writeConsumer) {
-			return write((i, b) -> writeConsumer.accept(b));
+		public Builder writeAction(ExceptionIntBinaryOperator<IOException> writeConsumer) {
+			this.writeConsumer = writeConsumer;
+			return this;
 		}
 
 		/**
-		 * Register a callback for written byte count and values.
+		 * Register a callback for written byte values.
 		 */
 		public Builder write(ExceptionBiConsumer<IOException, Integer, Integer> writeConsumer) {
-			this.writeConsumer = writeConsumer;
-			return this;
+			return writeAction((i, b) -> {
+				writeConsumer.accept(i, b);
+				return 0;
+			});
 		}
 
 		/**
@@ -117,7 +124,8 @@ public class TestOutputStream extends OutputStream {
 
 	@Override
 	public void write(int b) throws IOException {
-		writeConsumer.accept(count++, b);
+		int action = writeConsumer.applyAsInt(count++, b);
+		throwAction(action);
 		if (collector != null) collector.write(b);
 	}
 
@@ -139,17 +147,26 @@ public class TestOutputStream extends OutputStream {
 		closer.run();
 	}
 
-	private static void verifyLimit(int i, int limit) throws IOException {
-		if (i < limit) return;
-		throw new EOFException("Exceeded limit: " + i);
+	private static void verify(int action) {
+		if (action >= 0 || allowedActions.contains(action)) return;
+		throw new AssertionError("Invalid action: " + action);
 	}
 
-	private static void action(int i, int[] actions) throws IOException {
-		if (i >= actions.length) throw new EOFException("End of actions");
-		int value = actions[i];
-		if (value == THROW_IO_VALUE) throw new IOException("Write = " + THROW_IO_VALUE);
-		if (value == THROW_RT_VALUE) throw new RuntimeException("Write = " + THROW_RT_VALUE);
-		if (value == EOF_VALUE) throw new EOFException("Write = " + EOF_VALUE);
+	private static int limit(int i, int limit) throws IOException {
+		if (i < limit) return 0;
+		throw new EOFException("Exceeded limit: " + i + " >= " + limit);
 	}
 
+	private static int action(int i, int[] actions) throws IOException {
+		if (i < actions.length) return actions[i];
+		throw new EOFException("Exceeded limit: " + i + " >= " + actions.length);
+	}
+
+	private static int throwAction(int action) throws IOException {
+		if (action == EOFX) throw new EOFException("Action = " + EOFX);
+		if (action == IOX) throw new IOException("Action = " + IOX);
+		if (action == RTX) throw new RuntimeException("Action = " + RTX);
+		if (action < 0) throw new AssertionError("Invalid action: " + action);
+		return action;
+	}
 }

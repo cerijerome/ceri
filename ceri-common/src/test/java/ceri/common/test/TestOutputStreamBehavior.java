@@ -1,6 +1,10 @@
 package ceri.common.test;
 
+import static ceri.common.test.TestOutputStream.EOFX;
+import static ceri.common.test.TestOutputStream.IOX;
+import static ceri.common.test.TestOutputStream.RTX;
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertAssertion;
 import static ceri.common.test.TestUtil.assertThrown;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,8 +36,7 @@ public class TestOutputStreamBehavior {
 	@Test
 	public void shouldRegisterByteConsumer() throws IOException {
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		try (var out = TestOutputStream.builder()
-			.write(b -> bout.write(b)).build()) {
+		try (var out = TestOutputStream.builder().write((i, b) -> bout.write(b)).build()) {
 			out.write(ArrayUtil.bytes(1, 2, 3));
 		}
 		assertArray(bout.toByteArray(), 1, 2, 3);
@@ -49,8 +52,16 @@ public class TestOutputStreamBehavior {
 	}
 
 	@Test
+	public void shouldFailForInvalidActions() throws IOException {
+		assertAssertion(() -> TestOutputStream.actions(0, EOFX, IOX, RTX, -3));
+		try (var out = TestOutputStream.builder().writeAction((i, b) -> -3).build()) {
+			assertAssertion(() -> out.write(0));
+		}
+	}
+
+	@Test
 	public void shouldGenerateExceptions() throws IOException {
-		try (var out = TestOutputStream.actions(0, -3, 0, -2, 0, -1, 0)) {
+		try (var out = TestOutputStream.actions(0, RTX, 0, IOX, 0, EOFX, 0)) {
 			out.write(1);
 			assertThrown(() -> out.write(2));
 			out.write(3);
@@ -74,5 +85,5 @@ public class TestOutputStreamBehavior {
 			assertArray(out.written(), 4, 5);
 		}
 	}
-	
+
 }
