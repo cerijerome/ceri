@@ -1,7 +1,0 @@
-//---------------------------------------------------------
-// Grammar for general control instructions.
-//---------------------------------------------------------
-
-// Public rules
-public <exit> = exit;
-public <state> = state;
