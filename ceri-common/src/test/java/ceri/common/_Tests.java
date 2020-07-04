@@ -87,6 +87,7 @@ import ceri.common.function.ExceptionBiPredicateBehavior;
 import ceri.common.function.ExceptionBooleanSupplierBehavior;
 import ceri.common.function.ExceptionConsumerBehavior;
 import ceri.common.function.ExceptionFunctionBehavior;
+import ceri.common.function.ExceptionIntBinaryOperatorBehavior;
 import ceri.common.function.ExceptionIntConsumerBehavior;
 import ceri.common.function.ExceptionIntFunctionBehavior;
 import ceri.common.function.ExceptionIntPredicateBehavior;
@@ -374,6 +375,7 @@ import ceri.common.xml.XmlUtilTest;
 	ExceptionBooleanSupplierBehavior.class, //
 	ExceptionConsumerBehavior.class, //
 	ExceptionFunctionBehavior.class, //
+	ExceptionIntBinaryOperatorBehavior.class, //
 	ExceptionIntConsumerBehavior.class, //
 	ExceptionIntFunctionBehavior.class, //
 	ExceptionIntPredicateBehavior.class, //

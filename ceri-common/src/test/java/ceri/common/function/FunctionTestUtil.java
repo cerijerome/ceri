@@ -8,6 +8,7 @@ import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntBinaryOperator;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
@@ -155,6 +156,14 @@ public class FunctionTestUtil {
 	}
 
 	public static ExceptionBiFunction<IOException, Integer, Integer, Integer> biFunction() {
+		return (i, j) -> {
+			if (i == 1 || j == 1) throw new IOException("1");
+			if (i == 0 || j == 0) throw new RuntimeException("0");
+			return i + j;
+		};
+	}
+
+	public static ExceptionIntBinaryOperator<IOException> intBinaryOperator() {
 		return (i, j) -> {
 			if (i == 1 || j == 1) throw new IOException("1");
 			if (i == 0 || j == 0) throw new RuntimeException("0");
@@ -315,6 +324,13 @@ public class FunctionTestUtil {
 		}
 
 		public static BiFunction<Integer, Integer, Integer> biFunction() {
+			return (i, j) -> {
+				if (i == 0 || j == 0) throw new RuntimeException("0");
+				return i + j;
+			};
+		}
+
+		public static IntBinaryOperator intBinaryOperator() {
 			return (i, j) -> {
 				if (i == 0 || j == 0) throw new RuntimeException("0");
 				return i + j;
