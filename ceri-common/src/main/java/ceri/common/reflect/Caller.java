@@ -33,6 +33,11 @@ public class Caller {
 		return new Caller(s.getClassName(), s.getLineNumber(), s.getMethodName(), s.getFileName());
 	}
 
+	public String pkg() {
+		if (cls.length() >= fullCls.length()) return "";
+		return fullCls.substring(0, fullCls.length() - cls.length() - 1);
+	}
+	
 	public Class<?> cls() {
 		try {
 			return Class.forName(fullCls);

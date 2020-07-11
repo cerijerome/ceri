@@ -20,6 +20,10 @@ public class Listeners<T> implements Consumer<T>, Listenable<T> {
 		return listeners.isEmpty();
 	}
 
+	public void clear() {
+		listeners.clear();
+	}
+
 	@Override
 	public boolean listen(Consumer<? super T> listener) {
 		return listeners.add(listener);

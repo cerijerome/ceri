@@ -30,4 +30,12 @@ public class CallerBehavior {
 		assertAllNotEqual(caller, caller2, caller3, caller4, caller5);
 	}
 
+	@Test
+	public void shouldDeterminePackage() {
+		assertThat(Caller.NULL.pkg(), is(""));
+		StackTraceElement ste = new Exception().getStackTrace()[0];
+		Caller caller = Caller.fromStackTraceElement(ste);
+		assertThat(caller.pkg(), is(getClass().getPackage().getName()));
+	}
+
 }

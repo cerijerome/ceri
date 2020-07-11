@@ -53,6 +53,7 @@ import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.io.SystemIo;
+import ceri.common.property.BaseProperties;
 import ceri.common.text.StringUtil;
 import ceri.common.util.Align;
 
@@ -273,6 +274,18 @@ public class TestUtilTest {
 		assertThrown(RuntimeException.class, () -> resource("not-found.txt"));
 	}
 
+	@Test
+	public void testProperties() throws IOException {
+		BaseProperties properties = TestUtil.properties(getClass(), "test.properties");
+		var p = new BaseProperties(properties, "a") {
+			@Override
+			public String toString() {
+				return value("b");
+			}
+		};
+		assertThat(p.toString(), is("123"));
+	}
+	
 	@Test
 	public void testAssertNan() {
 		assertNaN(Double.NaN);

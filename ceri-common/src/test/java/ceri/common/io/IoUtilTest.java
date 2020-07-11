@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
@@ -341,6 +342,17 @@ public class IoUtilTest {
 		assertTrue(IoUtil.isEmptyDir(helper.path("d")));
 	}
 
+	@SuppressWarnings("resource")
+	@Test
+	public void testExecOrClose() throws IOException {
+		InputStream in = Mockito.mock(InputStream.class);
+		when(in.read()).thenReturn(-1);
+		assertThat(IoUtil.execOrClose(in, InputStream::read), is(in));
+		when(in.read()).thenThrow(IOException.class);
+		assertThrown(() -> IoUtil.execOrClose(in, InputStream::read));
+		verify(in).close();
+	}
+	
 	@Test
 	public void testClose() {
 		final StringReader in = new StringReader("0123456789");

@@ -11,10 +11,11 @@ import ceri.common.reflect.ReflectUtil;
  * logged based on stack trace.
  */
 public class Debugger {
-	public static final Debugger DBG = new Debugger(System.err, 8, 0); // Global debugger
+	public static final Debugger DBG = new Debugger(System.err, 8, 0, true); // Global debugger
 	private final PrintStream stream;
 	private final int traceStartIndex;
 	private final long stopCount;
+	private final boolean showPkg;
 	private final Map<Caller, Integer> methodCounts = new HashMap<>();
 	private long totalCalls = 0;
 
@@ -22,21 +23,23 @@ public class Debugger {
 	 * Creates a debugger writing to given stderr.
 	 */
 	public static Debugger of() {
-		return of(System.err, 0, 0);
+		return of(System.err, 0, 0, false);
 	}
-	
+
 	/**
 	 * Creates a debugger writing to given stream, indent starting at given index in stack trace,
 	 * stopping output after given number of method calls to the debugger.
 	 */
-	public static Debugger of(PrintStream stream, int traceStartIndex, int stopCount) {
-		return new Debugger(stream, traceStartIndex, stopCount);
+	public static Debugger of(PrintStream stream, int traceStartIndex, int stopCount,
+		boolean showPkg) {
+		return new Debugger(stream, traceStartIndex, stopCount, showPkg);
 	}
 
-	private Debugger(PrintStream stream, int traceStartIndex, int stopCount) {
+	private Debugger(PrintStream stream, int traceStartIndex, int stopCount, boolean showPkg) {
 		this.stream = stream;
 		this.traceStartIndex = traceStartIndex;
 		this.stopCount = stopCount;
+		this.showPkg = showPkg;
 	}
 
 	/**
@@ -75,9 +78,16 @@ public class Debugger {
 			if (i > 0) b.append(", ");
 			b.append(objs[i]);
 		}
-		b.append(") (").append(caller.file).append(':').append(caller.line).append(") ");
-		b.append(msg);
+		b.append(") ");
+		appendFile(b, caller);
+		b.append(' ').append(msg);
 		stream.println(b.toString());
+	}
+
+	private void appendFile(StringBuilder b, Caller caller) {
+		if (showPkg) b.append(caller.pkg()).append("..(").append(caller.file).append(':')
+			.append(caller.line).append(')');
+		else b.append('(').append(caller.file).append(':').append(caller.line).append(')');
 	}
 
 	private int indents(int indentOffset) {

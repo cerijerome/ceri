@@ -58,7 +58,7 @@ public class BasicUtil {
 	}
 
 	/**
-	 * 
+	 * Executes a try-with-resources from type, action function, and close function.
 	 */
 	public static <E extends Exception, T> void tryWithResources(
 		T t, ExceptionConsumer<E, T> actionFn, ExceptionConsumer<E, T> closeFn) throws E {

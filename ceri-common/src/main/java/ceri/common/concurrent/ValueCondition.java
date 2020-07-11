@@ -1,7 +1,7 @@
 package ceri.common.concurrent;
 
+import static ceri.common.function.FunctionUtil.truePredicate;
 import static java.util.function.Predicate.isEqual;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -68,7 +68,7 @@ public class ValueCondition<T> {
 	 * Waits indefinitely for current value to be non-null. Current value is cleared.
 	 */
 	public T await() throws InterruptedException {
-		return await(Objects::nonNull);
+		return await(truePredicate());
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class ValueCondition<T> {
 	 * Waits for current value to be non-null, or timer to expire. Current value is cleared.
 	 */
 	public T await(long timeoutMs) throws InterruptedException {
-		return await(timeoutMs, Objects::nonNull);
+		return await(timeoutMs, truePredicate());
 	}
 
 	/**
@@ -125,7 +125,7 @@ public class ValueCondition<T> {
 	 * Waits indefinitely for current value to be non-null.
 	 */
 	public T awaitPeek() throws InterruptedException {
-		return awaitPeek(Objects::nonNull);
+		return awaitPeek(truePredicate());
 	}
 
 	/**
@@ -146,7 +146,7 @@ public class ValueCondition<T> {
 	 * Waits for current value to be non-null, or timer to expire.
 	 */
 	public T awaitPeek(long timeoutMs) throws InterruptedException {
-		return awaitPeek(timeoutMs, Objects::nonNull);
+		return awaitPeek(timeoutMs, truePredicate());
 	}
 
 	/**
@@ -179,7 +179,7 @@ public class ValueCondition<T> {
 	 */
 	private T awaitValue(Timer timer, Predicate<T> predicate) throws InterruptedException {
 		timer.start();
-		while (!predicate.test(value)) {
+		while (value == null || !predicate.test(value)) {
 			Timer.Snapshot snapshot = timer.snapshot();
 			if (snapshot.expired()) break;
 			if (snapshot.infinite()) condition.await();

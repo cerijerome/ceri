@@ -43,9 +43,16 @@ public class ValueConditionBehavior {
 		assertThat(flag.value(), is((Integer) null));
 		flag.signal(3);
 		flag.clear();
-		assertThat(flag.await((Integer) null), is((Integer) null));
+		assertThat(flag.await(0), is((Integer) null));
 		flag.signal(4);
 		assertThat(flag.await(0, 4), is(4));
+	}
+
+	@Test
+	public void shouldWaitForValue() throws InterruptedException {
+		ValueCondition<Integer> flag = ValueCondition.of();
+		flag.signal(2);
+		assertThat(flag.await(Integer.valueOf(2)), is(2));
 	}
 
 }

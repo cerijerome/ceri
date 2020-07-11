@@ -71,6 +71,7 @@ import ceri.common.event.CloseableIntListenerBehavior;
 import ceri.common.event.CloseableListenerBehavior;
 import ceri.common.event.EventTrackerBehavior;
 import ceri.common.event.IntListenersBehavior;
+import ceri.common.event.ListenableBehavior;
 import ceri.common.event.ListenersBehavior;
 import ceri.common.event.NullIntListenableBehavior;
 import ceri.common.event.NullListenableBehavior;
@@ -219,6 +220,7 @@ import ceri.common.test.PulsePrinterBehavior;
 import ceri.common.test.RegexMatcherBehavior;
 import ceri.common.test.ResponseStreamBehavior;
 import ceri.common.test.TestInputStreamBehavior;
+import ceri.common.test.TestListenerBehavior;
 import ceri.common.test.TestOutputStreamBehavior;
 import ceri.common.test.TestPrinterBehavior;
 import ceri.common.test.TestRunAdapterBehavior;
@@ -357,6 +359,7 @@ import ceri.common.xml.XmlUtilTest;
 	CloseableListenerBehavior.class, //
 	EventTrackerBehavior.class, //
 	IntListenersBehavior.class, //
+	ListenableBehavior.class, //
 	ListenersBehavior.class, //
 	NullIntListenableBehavior.class, //
 	NullListenableBehavior.class, //
@@ -520,6 +523,7 @@ import ceri.common.xml.XmlUtilTest;
 	RegexMatcherBehavior.class, //
 	ResponseStreamBehavior.class, //
 	TestInputStreamBehavior.class, //
+	TestListenerBehavior.class, //
 	TestOutputStreamBehavior.class, //
 	TestPrinterBehavior.class, //
 	TestRunAdapterBehavior.class, //

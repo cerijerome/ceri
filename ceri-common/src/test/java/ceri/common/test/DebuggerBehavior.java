@@ -16,7 +16,7 @@ public class DebuggerBehavior {
 	public void shouldAllowLoggingOfNullObjects() {
 		StringBuilder b = new StringBuilder();
 		try (PrintStream out = StringUtil.asPrintStream(b)) {
-			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0);
+			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log((Object[]) null);
 			dbg.method((Object[]) null);
 		}
@@ -28,7 +28,7 @@ public class DebuggerBehavior {
 	public void shouldLogMultipleObjects() {
 		StringBuilder b = new StringBuilder();
 		try (PrintStream out = StringUtil.asPrintStream(b)) {
-			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0);
+			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log("test1", "test2");
 			dbg.method("test3", "test4");
 		}
@@ -37,10 +37,21 @@ public class DebuggerBehavior {
 	}
 
 	@Test
+	public void shouldLogFullPackageName() {
+		StringBuilder b = new StringBuilder();
+		try (PrintStream out = StringUtil.asPrintStream(b)) {
+			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, true);
+			dbg.log("test");
+		}
+		assertThat(b, matchesRegex("(?ms).* %s\\.\\.\\(%s\\.java:\\d+\\) test\n.*",
+			getClass().getPackageName(), getClass().getSimpleName()));
+	}
+
+	@Test
 	public void shouldStopLoggingAfterGivenLimit() {
 		StringBuilder b = new StringBuilder();
 		try (PrintStream out = StringUtil.asPrintStream(b)) {
-			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 1);
+			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 1, false);
 			dbg.log("test1");
 			dbg.log("test2");
 			dbg.method("test2");
@@ -65,7 +76,7 @@ public class DebuggerBehavior {
 	public void shouldLogMethodFileAndMessage() {
 		StringBuilder b = new StringBuilder();
 		try (PrintStream out = StringUtil.asPrintStream(b)) {
-			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0);
+			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log("test");
 		}
 		assertThat(b, matchesRegex("(?ms)\\Q" + method() + " (" + file() + ":\\E\\d+\\) test\n"));
@@ -75,7 +86,7 @@ public class DebuggerBehavior {
 	public void shouldLogMethodFileAndNull() {
 		StringBuilder b = new StringBuilder();
 		try (PrintStream out = StringUtil.asPrintStream(b)) {
-			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0);
+			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log((Object) null);
 		}
 		assertThat(b, matchesRegex("(?ms)\\Q" + method() + " (" + file() + ":\\E\\d+\\) null\n"));
@@ -85,7 +96,7 @@ public class DebuggerBehavior {
 	public void shouldLogMethodAndFileOnlyIfEmpty() {
 		StringBuilder b = new StringBuilder();
 		try (PrintStream out = StringUtil.asPrintStream(b)) {
-			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0);
+			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log();
 		}
 		assertThat(b, matchesRegex("(?ms)\\Q" + method() + " (" + file() + ":\\E\\d+\\) \n"));
@@ -95,7 +106,7 @@ public class DebuggerBehavior {
 	public void shouldCountAndPrintMethodInvocations() {
 		StringBuilder b = new StringBuilder();
 		try (PrintStream out = StringUtil.asPrintStream(b)) {
-			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0);
+			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			debugMethod(dbg, "test1");
 			debugMethod(dbg, "test2");
 		}

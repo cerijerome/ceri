@@ -4,6 +4,7 @@ import static ceri.common.function.FunctionUtil.safeAccept;
 import static ceri.common.util.BasicUtil.defaultValue;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -285,6 +286,21 @@ public class IoUtil {
 		if (dir == null || !Files.isDirectory(dir)) return false;
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
 			return !stream.iterator().hasNext();
+		}
+	}
+
+	/**
+	 * Executes an action on the given closable instance; closes the instance if an exception is
+	 * thrown.
+	 */
+	public static <T extends Closeable> T execOrClose(T t, ExceptionConsumer<IOException, T> execFn)
+		throws IOException {
+		try {
+			if (t != null) execFn.accept(t);
+			return t;
+		} catch (RuntimeException | IOException e) {
+			close(t);
+			throw e;
 		}
 	}
 

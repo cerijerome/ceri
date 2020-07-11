@@ -9,8 +9,8 @@ import ceri.common.util.BasicUtil;
  */
 public class CloseableListener<T> implements Closeable {
 	private static final CloseableListener<?> NULL = new CloseableListener<>(null, null);
-	private final Listenable<T> listenable;
-	private final Consumer<T> listener;
+	public final Listenable<T> listenable;
+	public final Consumer<T> listener;
 
 	public static <T> CloseableListener<T> of(Listenable.Indirect<T> listenable,
 		Consumer<T> listener) {

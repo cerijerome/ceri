@@ -18,12 +18,16 @@ import ceri.common.function.ExceptionRunnable;
  */
 public class TestInputStream extends InputStream {
 	private static final int AVAILABLE_DEF = 16;
-	// Action values
-	public static final int EOF = -1; // early EOF
-	public static final int BRK = -2; // mark available() endpoints
-	public static final int EOFX = -101; // throw EOFException
-	public static final int IOX = -102; // throw IOException
-	public static final int RTX = -103; // throw RuntimeException
+	/** Action for early EOF */
+	public static final int EOF = -1;
+	/** Action to mark available() endpoint */
+	public static final int BRK = -2;
+	/** Action to throw an EOFException */
+	public static final int EOFX = -101;
+	/** Action to throw an IOException */
+	public static final int IOX = -102;
+	/** Action to throw a RuntimeException */
+	public static final int RTX = -103;
 	private static final Set<Integer> allowedActions = Set.of(EOF, BRK, EOFX, IOX, RTX);
 	private final ExceptionIntUnaryOperator<IOException> readSupplier;
 	private final ExceptionIntUnaryOperator<IOException> availableSupplier;

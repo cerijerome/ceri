@@ -18,10 +18,17 @@ public interface Listenable<T> {
 	boolean unlisten(Consumer<? super T> listener);
 
 	/**
+	 * Converts into an indirect listenable type.
+	 */
+	default Indirect<T> indirect() {
+		return Indirect.from(this);
+	}
+	
+	/**
 	 * Interface to indirectly add/remove notification listeners. Useful when classes use a
 	 * Listeners instance.
 	 */
-	interface Indirect<T> {
+	static interface Indirect<T> {
 		Listenable<T> listeners();
 
 		/**

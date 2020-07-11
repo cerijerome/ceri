@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -47,6 +48,8 @@ import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
+import ceri.common.property.BaseProperties;
+import ceri.common.property.PropertyUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
@@ -124,6 +127,14 @@ public class TestUtil {
 	public static String resource(String name) {
 		Class<?> cls = ReflectUtil.previousCaller(1).cls();
 		return init(() -> IoUtil.resourceString(cls, name));
+	}
+
+	/**
+	 * Creates BaseProperties from resource under class package, with given filename.
+	 */
+	public static BaseProperties properties(Class<?> cls, String name) throws IOException {
+		Properties properties = PropertyUtil.load(cls, name);
+		return BaseProperties.from(properties);
 	}
 
 	/**

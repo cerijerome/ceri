@@ -34,6 +34,21 @@ public class ListenersBehavior {
 	}
 
 	@Test
+	public void shouldClearListeners() {
+		StringBuilder b = new StringBuilder();
+		Consumer<String> l0 = s -> b.append(s.charAt(0));
+		Consumer<String> l1 = s -> b.append(s.charAt(1));
+		Listeners<String> ls = new Listeners<>();
+		ls.listen(l0);
+		ls.listen(l1);
+		ls.accept("ab");
+		assertThat(b.toString(), is("ab"));
+		ls.clear();
+		ls.accept("cd");
+		assertThat(b.toString(), is("ab"));
+	}
+	
+	@Test
 	public void shouldDuplicateListeners() {
 		Listeners<String> ls = new Listeners<>();
 		Consumer<String> l0 = s -> {};
