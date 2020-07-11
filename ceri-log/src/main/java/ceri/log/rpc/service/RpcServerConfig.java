@@ -10,10 +10,16 @@ public class RpcServerConfig {
 	public final Integer port;
 	public final int shutdownTimeoutMs;
 
+	/**
+	 * Default settings with server-chosen port.
+	 */
 	public static RpcServerConfig of() {
-		return builder().build();
+		return of(0);
 	}
 
+	/**
+	 * Default settings with given port.
+	 */
 	public static RpcServerConfig of(int port) {
 		return builder().port(port).build();
 	}

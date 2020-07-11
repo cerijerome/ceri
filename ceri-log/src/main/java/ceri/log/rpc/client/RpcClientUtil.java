@@ -10,8 +10,7 @@ import ceri.common.util.ExceptionUtil;
 import io.grpc.StatusRuntimeException;
 
 public class RpcClientUtil {
-	private static final Pattern HALF_CLOSED_MSG_REGEX =
-		Pattern.compile("(?i)call already half-closed");
+	private static final Pattern HALF_CLOSED_MSG_REGEX = Pattern.compile("(?i)already half-closed");
 	private static final Pattern SHUTDOWN_MSG_REGEX = Pattern.compile("(?i)channel shutdown");
 
 	private RpcClientUtil() {}

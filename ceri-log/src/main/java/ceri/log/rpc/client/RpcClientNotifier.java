@@ -2,6 +2,7 @@ package ceri.log.rpc.client;
 
 import static ceri.log.rpc.client.RpcClientUtil.ignorable;
 import static ceri.log.rpc.util.RpcUtil.EMPTY;
+import static ceri.log.util.LogUtil.compact;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
@@ -38,15 +39,22 @@ import io.grpc.stub.StreamObserver;
  */
 public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenable<T> {
 	private static final Logger logger = LogManager.getLogger();
-	private final Function<StreamObserver<V>, StreamObserver<Empty>> call;
+	private final Function<StreamObserver<V>, StreamObserver<Empty>> call; // rpc stub call
 	private final Function<V, T> transform;
-	private final StreamObserver<V> callback;
+	private final StreamObserver<V> callback; // handles notifications from service
 	private final Lock lock = new ReentrantLock();
 	private final BooleanCondition sync = BooleanCondition.of(lock);
 	private final Set<Consumer<? super T>> listeners = new LinkedHashSet<>();
 	private final RpcClientNotifierConfig config;
 	private boolean reset = false;
-	private RpcStreamer<Empty> caller = null;
+	private RpcStreamer<Empty> caller = null; //
+
+	private static enum Action {
+		none,
+		receive,
+		resetAndReceive,
+		stop
+	}
 
 	public static <T, V> RpcClientNotifier<T, V> of(
 		Function<StreamObserver<V>, StreamObserver<Empty>> call, Function<V, T> transform,
@@ -59,15 +67,16 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 		this.call = call;
 		this.transform = transform;
 		this.config = config;
-		callback = callback();
+		callback = RpcUtil.observer(this::onNotify, this::onCompleted, this::onError);
 		start();
 	}
 
-	private enum Action {
-		none,
-		receive,
-		resetAndReceive,
-		stop
+	public void clear() {
+		ConcurrentUtil.execute(lock, () -> {
+			if (listeners.isEmpty()) return;
+			listeners.clear();
+			sync.signal(); // signal to stop listening
+		});
 	}
 
 	@Override
@@ -97,7 +106,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	@Override
 	protected void loop() throws InterruptedException {
 		Action action = waitForAction();
-		if (action == Action.none) return;
+		logger.trace("Action: {}", action);
 		if (action != Action.receive) stopReceiving();
 		if (action != Action.stop) startReceiving();
 		if (action == Action.resetAndReceive) BasicUtil.delay(config.resetDelayMs);
@@ -118,15 +127,11 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 		return Action.receive;
 	}
 
-	private StreamObserver<V> callback() {
-		return RpcUtil.observer(this::onNotify, this::onCompleted, this::onError);
-	}
-
 	private void startReceiving() {
 		if (caller != null && !caller.closed()) return; // already receiving
 		logger.debug("Waiting for notifications");
-		caller = RpcStreamer.of(call.apply(callback));
-		caller.next(EMPTY);
+		caller = RpcStreamer.of(call.apply(callback)); // wrap observer as new closable instance
+		caller.next(EMPTY); // start receiving; close() to stop
 	}
 
 	private void stopReceiving() {
@@ -136,9 +141,10 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	private void onNotify(V v) {
-		logger.trace("New notification received: {}", v);
+		logger.trace("Notification: {}", compact(v));
 		T t = transform.apply(v);
-		Set<Consumer<? super T>> listeners = ConcurrentUtil.executeGet(lock, () -> this.listeners);
+		Set<Consumer<? super T>> listeners =
+			ConcurrentUtil.executeGet(lock, () -> new LinkedHashSet<>(this.listeners));
 		notifyListeners(listeners, t);
 	}
 

@@ -39,6 +39,22 @@ public class LogUtil {
 
 	private LogUtil() {}
 
+	/**
+	 * For lazy string instantiation.
+	 */
+	private static class ToString {
+		private final ExceptionSupplier<?, String> stringSupplier;
+		
+		private ToString(ExceptionSupplier<?, String> stringSupplier) {
+			this.stringSupplier = stringSupplier;
+		}
+		
+		@Override
+		public String toString() {
+			return ExceptionAdapter.RUNTIME.get(stringSupplier);
+		}
+	}
+	
 	public static StartupValues startupValues(String... args) {
 		return startupValues(null, args);
 	}
@@ -294,12 +310,7 @@ public class LogUtil {
 	 * instantiations.
 	 */
 	public static Object toString(final ExceptionSupplier<?, String> stringSupplier) {
-		return new Object() {
-			@Override
-			public String toString() {
-				return ExceptionAdapter.RUNTIME.get(stringSupplier);
-			}
-		};
+		return new ToString(stringSupplier);
 	}
 
 	/**

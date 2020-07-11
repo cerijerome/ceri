@@ -51,7 +51,7 @@ public class RpcChannel implements Closeable {
 		try {
 			channel.awaitTermination(shutdownTimeoutMs, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			if (logger != null) logger.catching(Level.INFO, e);
+			logger.catching(Level.INFO, e);
 		}
 		logger.info("Stopped");
 	}

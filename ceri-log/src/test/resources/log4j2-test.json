@@ -13,11 +13,17 @@
     },
     "loggers": {
       "root": {
-        "level": "off",
+        "level": "warn",
         "appender-ref": {
           "ref": "Console"
         }
-      }
+      },
+      "logger" : [
+        {
+          "name": "io.grpc.netty",
+          "level" : "info"
+        }
+      ]
     }
   }
 }

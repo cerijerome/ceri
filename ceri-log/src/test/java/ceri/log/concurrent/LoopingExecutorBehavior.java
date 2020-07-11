@@ -1,11 +1,13 @@
 package ceri.log.concurrent;
 
 import java.util.concurrent.Executors;
+import org.apache.logging.log4j.Level;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.ValueCondition;
+import ceri.log.test.LogModifier;
 
 public class LoopingExecutorBehavior {
 	private int count;
@@ -52,10 +54,12 @@ public class LoopingExecutorBehavior {
 
 	@Test
 	public void shouldStopOnException() throws InterruptedException {
-		try (LoopingExecutor loop = LoopingExecutor.start(() -> countWithException(10))) {
-			while (condition.await() < 9) {}
-			loop.start();
-		}
+		LogModifier.run(LoopingExecutor.class, Level.OFF, () -> {
+			try (LoopingExecutor loop = LoopingExecutor.start(() -> countWithException(10))) {
+				while (condition.await() < 9) {}
+				loop.start();
+			}
+		});
 	}
 
 	private void waitFor(BooleanCondition flag) {

@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.io.IoUtil;
 import ceri.common.text.ToStringHelper;
 import io.grpc.BindableService;
 import io.grpc.Server;
@@ -16,13 +17,27 @@ public class RpcServer implements Closeable {
 	private final RpcServerConfig config;
 	private final Server server;
 
-	public static RpcServer of(BindableService service, RpcServerConfig config) {
-		return new RpcServer(service, config);
+	/**
+	 * Convenience method to create and start a server, tidying up if an exception is thrown.
+	 */
+	@SuppressWarnings("resource")
+	public static RpcServer start(BindableService service, RpcServerConfig config)
+		throws IOException {
+		return IoUtil.execOrClose(of(service, config), RpcServer::start);
 	}
 
-	private RpcServer(BindableService service, RpcServerConfig config) {
+	public static RpcServer of(BindableService service, RpcServerConfig config) {
+		Server server = ServerBuilder.forPort(config.port).addService(service).build();
+		return new RpcServer(server, config);
+	}
+
+	RpcServer(Server server, RpcServerConfig config) {
 		this.config = config;
-		server = ServerBuilder.forPort(config.port).addService(service).build();
+		this.server = server;
+	}
+
+	public int port() {
+		return server.getPort();
 	}
 
 	public void start() throws IOException {
@@ -36,7 +51,7 @@ public class RpcServer implements Closeable {
 		try {
 			server.awaitTermination(config.shutdownTimeoutMs, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			if (logger != null) logger.catching(Level.INFO, e);
+			logger.catching(Level.INFO, e);
 		}
 		logger.info("Stopped");
 	}
@@ -45,5 +60,5 @@ public class RpcServer implements Closeable {
 	public String toString() {
 		return ToStringHelper.createByClass(this, server.getPort()).toString();
 	}
-	
+
 }
