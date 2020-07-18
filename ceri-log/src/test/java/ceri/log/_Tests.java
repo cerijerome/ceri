@@ -3,8 +3,12 @@ package ceri.log;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import ceri.common.test.TestUtil;
+import ceri.log.concurrent.CloseableExecutorBehavior;
 import ceri.log.concurrent.LoopingExecutorBehavior;
+import ceri.log.concurrent.ShutdownListenerBehavior;
 import ceri.log.concurrent.SocketListenerBehavior;
+import ceri.log.io.LogPrintStreamBehavior;
+import ceri.log.io.SelfHealingSocketBehavior;
 import ceri.log.rpc.RpcBehavior;
 import ceri.log.rpc.client.RpcChannelBehavior;
 import ceri.log.rpc.client.RpcChannelConfigBehavior;
@@ -27,8 +31,13 @@ import ceri.log.util.LogUtilTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	// concurrent
+	CloseableExecutorBehavior.class, //
 	LoopingExecutorBehavior.class, //
+	ShutdownListenerBehavior.class, //
 	SocketListenerBehavior.class, //
+	// io
+	LogPrintStreamBehavior.class, //
+	SelfHealingSocketBehavior.class, //
 	// rpc
 	RpcBehavior.class, //
 	// rpc.client

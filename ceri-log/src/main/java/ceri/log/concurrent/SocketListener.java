@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.data.ByteArray;
+import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
@@ -19,18 +19,16 @@ import ceri.log.util.LogUtil;
  */
 public class SocketListener extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
-	private static final int BUFFER_SIZE_DEF = 1024;
-	private final int bufferSize;
 	private final ServerSocket serverSocket;
 	private final Listeners<ByteProvider> listeners = new Listeners<>();
 
-	public static SocketListener create(int port, Runnable listenable) throws IOException {
-		return create(port, listenable, null);
+	public static SocketListener of(int port, Runnable listenable) throws IOException {
+		return of(port, listenable, null);
 	}
 
-	public static SocketListener create(int port, Runnable listenable, Predicate<String> tester)
+	public static SocketListener of(int port, Runnable listenable, Predicate<String> tester)
 		throws IOException {
-		SocketListener socketListener = create(port);
+		SocketListener socketListener = of(port);
 		socketListener.listeners().listen(data -> notifyIfMatch(data, tester, listenable));
 		return socketListener;
 	}
@@ -38,24 +36,23 @@ public class SocketListener extends LoopingExecutor {
 	private static void notifyIfMatch(ByteProvider data, Predicate<String> tester,
 		Runnable listenable) {
 		if (tester != null) {
-			String s = data.getString(0);
+			String s = data.getUtf8(0);
 			if (!tester.test(s)) return;
 		}
 		listenable.run();
 	}
 
-	public static SocketListener create(int port) throws IOException {
-		return create(port, BUFFER_SIZE_DEF);
+	public static SocketListener of(int port) throws IOException {
+		return new SocketListener(port);
 	}
 
-	public static SocketListener create(int port, int bufferSize) throws IOException {
-		return new SocketListener(port, bufferSize);
-	}
-
-	SocketListener(int port, int bufferSize) throws IOException {
-		this.bufferSize = bufferSize;
+	private SocketListener(int port) throws IOException {
 		serverSocket = new ServerSocket(port);
 		start();
+	}
+
+	public int port() {
+		return serverSocket.getLocalPort();
 	}
 
 	@Override
@@ -79,12 +76,9 @@ public class SocketListener extends LoopingExecutor {
 	}
 
 	private void process(Socket socket) throws IOException {
-		byte[] buffer = new byte[bufferSize];
-		@SuppressWarnings("resource") // bullshit
-		int count = socket.getInputStream().read(buffer);
-		if (count < 0) return;
-		ByteProvider data = ByteArray.Immutable.wrap(buffer, 0, count);
-		listeners.accept(data);
+		@SuppressWarnings("resource")
+		byte[] data = socket.getInputStream().readAllBytes();
+		listeners.accept(Immutable.wrap(data));
 	}
 
 }

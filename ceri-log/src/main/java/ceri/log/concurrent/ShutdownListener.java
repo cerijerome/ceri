@@ -17,20 +17,24 @@ public class ShutdownListener implements Closeable {
 	private final BooleanCondition stop = BooleanCondition.of();
 	private final SocketListener socket;
 
-	public static ShutdownListener create() throws IOException {
-		return create(PORT_DEF);
+	public static ShutdownListener of() throws IOException {
+		return of(PORT_DEF);
 	}
 
-	public static ShutdownListener create(int port) throws IOException {
+	public static ShutdownListener of(int port) throws IOException {
 		return new ShutdownListener(port);
 	}
 
 	private ShutdownListener(int port) throws IOException {
-		socket = SocketListener.create(port);
+		socket = SocketListener.of(port);
 		socket.listeners().listen(data -> stop());
 		logger.debug("Listening on port {}", port);
 	}
 
+	public int port() {
+		return socket.port();
+	}
+	
 	/**
 	 * Call this method to wait for shutdown.
 	 */

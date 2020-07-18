@@ -1,117 +1,56 @@
 package ceri.log.concurrent;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.util.function.Consumer;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.ValueCondition;
 import ceri.common.data.ByteProvider;
 
 public class SocketListenerBehavior {
-	private static final int PORT = 9999;
-	private static final int BUFFER_SIZE = 20;
-	private BooleanCondition lastSync = BooleanCondition.of();
-	private ByteProvider lastData;
 
 	@Test
-	public void shouldOnlyNotifyOnSuccessfulTestInput() throws IOException, InterruptedException {
+	public void shouldNotifyOnData() throws IOException, InterruptedException {
+		ValueCondition<ByteProvider> sync = ValueCondition.of();
+		try (SocketListener sl = SocketListener.of(12345)) {
+			sl.listeners().listen(sync::signal);
+			send("test", sl.port());
+			assertThat(sync.await().getAscii(0), is("test"));
+		}
+	}
+
+	@Test
+	public void shouldExecuteOnNotification() throws IOException, InterruptedException {
 		BooleanCondition sync = BooleanCondition.of();
-		try (SocketListener sl = SocketListener.create(PORT, sync::signal, s -> s.length() > 1)) {
-			send("\0");
-			send("xx");
-			assertTrue(sync.await(1000));
-			send("x");
-			send("\0\0");
-			assertTrue(sync.await(1000));
+		try (SocketListener sl = SocketListener.of(12345, () -> sync.signal())) {
+			send("test", sl.port());
+			sync.await();
 		}
 	}
 
 	@Test
-	public void shouldNotifyOnInput() throws IOException, InterruptedException {
-		BooleanCondition sync = BooleanCondition.of();
-		try (SocketListener sl = SocketListener.create(PORT, sync::signal)) {
-			send("\0");
-			assertTrue(sync.await(1000));
-			send("xxxxxxxxxxxxxxxxxxxx");
-			assertTrue(sync.await(1000));
+	public void shouldExecuteOnMatchingNotification() throws IOException, InterruptedException {
+		ValueCondition<Integer> sync = ValueCondition.of();
+		AtomicInteger value = new AtomicInteger(0);
+		try (SocketListener sl = SocketListener.of(12345, () -> sync.signal(value.addAndGet(1)),
+			s -> s.startsWith("test"))) {
+			send("Test1", sl.port());
+			send("test2", sl.port());
+			assertThat(sync.await(), is(1));
 		}
 	}
 
-	@Test
-	public void shouldCaptureInput() throws IOException, InterruptedException {
-		try (SocketListener sl = SocketListener.create(PORT)) {
-			sl.listeners().listen(this::setLastData);
-			send("\0");
-			verifyLastData(new byte[] { 0 });
-			send("xxxxxxxxxxxxxxxxxxxx");
-			verifyLastData("xxxxxxxxxxxxxxxxxxxx");
+	private void send(String data, int port) throws IOException {
+		try (Socket s = new Socket("localhost", port)) {
+			@SuppressWarnings("resource")
+			OutputStream out = s.getOutputStream();
+			out.write(data.getBytes(StandardCharsets.ISO_8859_1));
+			out.flush();
 		}
 	}
-
-	@Test
-	public void shouldAllowToListenAndUnlisten() throws IOException, InterruptedException {
-		Consumer<ByteProvider> listener = this::setLastData;
-		try (SocketListener sl = SocketListener.create(PORT)) {
-			sl.listeners().listen(listener);
-			send("\0");
-			verifyLastData(new byte[] { 0 });
-			sl.listeners().unlisten(listener);
-			send("xxxxxxxxxxxxxxxxxxxx");
-		}
-		assertFalse(lastSync.isSet());
-	}
-
-	@Test
-	public void shouldBeAbleToCloseItself() throws IOException, InterruptedException {
-		BooleanCondition closeSync = BooleanCondition.of();
-		try (SocketListener sl = createWithCloseSync(closeSync)) {
-			sl.listeners().listen(data -> sl.close());
-			send("\0");
-		}
-		assertTrue(closeSync.await(1000));
-	}
-
-	private void verifyLastData(String expected) throws InterruptedException {
-		verifyLastData(expected.getBytes());
-	}
-
-	private void verifyLastData(byte[] expectedData) throws InterruptedException {
-		assertTrue(lastSync.await(1000));
-		assertArray(lastData.copy(0), expectedData);
-		clearLastData();
-	}
-
-	private void setLastData(ByteProvider data) {
-		assertFalse(lastSync.isSet());
-		assertNull(lastData);
-		lastData = data;
-		lastSync.signal();
-	}
-
-	private void clearLastData() {
-		lastSync.clear();
-		lastData = null;
-	}
-
-	@SuppressWarnings("resource")
-	private void send(String data) throws IOException {
-		try (Socket s = new Socket("localhost", PORT)) {
-			s.getOutputStream().write(data.getBytes());
-		}
-	}
-
-	private SocketListener createWithCloseSync(BooleanCondition closeSync) throws IOException {
-		return new SocketListener(PORT, BUFFER_SIZE) {
-			@Override
-			public void close() {
-				super.close();
-				closeSync.signal();
-			}
-		};
-	}
-
 }

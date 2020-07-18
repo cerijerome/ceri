@@ -15,7 +15,6 @@ import java.util.function.IntFunction;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
@@ -44,17 +43,23 @@ public class LogUtil {
 	 */
 	private static class ToString {
 		private final ExceptionSupplier<?, String> stringSupplier;
-		
+
 		private ToString(ExceptionSupplier<?, String> stringSupplier) {
 			this.stringSupplier = stringSupplier;
 		}
-		
+
 		@Override
 		public String toString() {
 			return ExceptionAdapter.RUNTIME.get(stringSupplier);
 		}
 	}
-	
+
+	public static String loggerName(Class<?> cls) {
+		String logger = cls.getCanonicalName();
+		if (logger == null) logger = cls.getName();
+		return logger;
+	}
+
 	public static StartupValues startupValues(String... args) {
 		return startupValues(null, args);
 	}
@@ -77,24 +82,29 @@ public class LogUtil {
 	}
 
 	/**
-	 * Execute runnable and log any exception as an error.
+	 * Execute runnable and log any exception as an error. Returns true if the runnable executed
+	 * successfully.
 	 */
-	public static void execute(Logger logger, ExceptionRunnable<Exception> runnable) {
+	public static boolean execute(Logger logger, ExceptionRunnable<Exception> runnable) {
 		try {
-			if (runnable != null) runnable.run();
+			if (runnable == null) return false;
+			runnable.run();
+			return true;
 		} catch (InterruptedException | RuntimeInterruptedException e) {
 			if (logger != null) logger.info(e);
 		} catch (Exception e) {
 			if (logger != null) logger.catching(e);
 		}
+		return false;
 	}
 
 	/**
-	 * Submit runnable to the executor service. Log any exception as an error.
+	 * Submit runnable to the executor service. Log any exception as an error. Future result is true
+	 * if the runnable executed successfully.
 	 */
-	public static Future<?> submit(Logger logger, ExecutorService executor,
+	public static Future<Boolean> submit(Logger logger, ExecutorService executor,
 		ExceptionRunnable<Exception> runnable) {
-		return ConcurrentUtil.submit(executor, () -> execute(logger, runnable));
+		return executor.submit(() -> execute(logger, runnable));
 	}
 
 	/**

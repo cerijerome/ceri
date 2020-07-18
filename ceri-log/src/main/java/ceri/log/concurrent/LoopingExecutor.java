@@ -8,7 +8,6 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.function.ExceptionRunnable;
 import ceri.log.util.LogUtil;
 
 /**
@@ -22,32 +21,15 @@ public abstract class LoopingExecutor implements Closeable {
 	private final ExecutorService executor;
 	private final BooleanCondition stopped = BooleanCondition.of();
 
-	public static LoopingExecutor start(ExceptionRunnable<Exception> runnable) {
-		return start(null, EXIT_TIMEOUT_MS_DEF, runnable);
-	}
-
-	public static LoopingExecutor start(String logName, int exitTimeoutMs,
-		ExceptionRunnable<Exception> runnable) {
-		if (logName == null) logName = LoopingExecutor.class.getSimpleName();
-		LoopingExecutor executor = new LoopingExecutor(logName, exitTimeoutMs) {
-			@Override
-			protected void loop() throws Exception {
-				runnable.run();
-			}
-		};
-		executor.start();
-		return executor;
-	}
-
-	public LoopingExecutor() {
+	protected LoopingExecutor() {
 		this(null);
 	}
 
-	public LoopingExecutor(String logName) {
+	protected LoopingExecutor(String logName) {
 		this(logName, EXIT_TIMEOUT_MS_DEF);
 	}
 
-	public LoopingExecutor(String logName, int exitTimeoutMs) {
+	protected LoopingExecutor(String logName, int exitTimeoutMs) {
 		this.logName = logName == null ? getClass().getSimpleName() : logName;
 		this.exitTimeoutMs = exitTimeoutMs;
 		executor = Executors.newSingleThreadExecutor();
@@ -65,11 +47,11 @@ public abstract class LoopingExecutor implements Closeable {
 	}
 
 	public void waitUntilStopped() throws InterruptedException {
-		stopped.await();
+		stopped.awaitPeek();
 	}
 
 	public void waitUntilStopped(long timeoutMs) throws InterruptedException {
-		stopped.await(timeoutMs);
+		stopped.awaitPeek(timeoutMs);
 	}
 
 	public boolean stopped() {

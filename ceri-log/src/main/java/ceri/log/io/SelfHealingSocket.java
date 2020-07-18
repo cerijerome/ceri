@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BooleanCondition;
@@ -23,6 +24,7 @@ import ceri.log.util.LogUtil;
  */
 public class SelfHealingSocket extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
+	private final SocketFactory socketFactory;
 	private final String host;
 	private final int port;
 	private final Integer receiveBufferSize;
@@ -40,9 +42,14 @@ public class SelfHealingSocket extends LoopingExecutor {
 	private final BooleanCondition sync = BooleanCondition.of();
 	private volatile Socket socket = null;
 
+	static interface SocketFactory {
+		Socket create(String host, int port) throws UnknownHostException, IOException;
+	}
+	
 	public static class Builder {
 		final String host;
 		final int port;
+		SocketFactory socketFactory = Socket::new; // override for testing
 		Integer receiveBufferSize;
 		Integer sendBufferSize;
 		Boolean tcpNoDelay;
@@ -80,7 +87,7 @@ public class SelfHealingSocket extends LoopingExecutor {
 		}
 
 		public Builder soLinger(int lingerSeconds) {
-			soLingerEnabled = Boolean.FALSE;
+			soLingerEnabled = Boolean.TRUE;
 			soLingerSeconds = lingerSeconds;
 			return this;
 		}
@@ -115,6 +122,7 @@ public class SelfHealingSocket extends LoopingExecutor {
 	}
 
 	SelfHealingSocket(Builder builder) {
+		socketFactory = builder.socketFactory;
 		host = builder.host;
 		port = builder.port;
 		receiveBufferSize = builder.receiveBufferSize;
@@ -214,12 +222,12 @@ public class SelfHealingSocket extends LoopingExecutor {
 	}
 
 	private Socket createSocket() throws IOException {
-		Socket socket = new Socket(this.host, this.port);
+		Socket socket = socketFactory.create(host, port);
 		if (receiveBufferSize != null) socket.setReceiveBufferSize(receiveBufferSize);
 		if (sendBufferSize != null) socket.setSendBufferSize(sendBufferSize);
 		if (keepAlive != null) socket.setKeepAlive(keepAlive);
 		if (tcpNoDelay != null) socket.setTcpNoDelay(tcpNoDelay);
-		if (soTimeoutSeconds != null) socket.setSoTimeout(soLingerSeconds);
+		if (soTimeoutSeconds != null) socket.setSoTimeout(soTimeoutSeconds);
 		if (soLingerEnabled != null) socket.setSoLinger(soLingerEnabled, soLingerSeconds);
 		return socket;
 	}

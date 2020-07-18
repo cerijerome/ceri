@@ -1,5 +1,6 @@
 package ceri.log.test;
 
+import static ceri.log.util.LogUtil.loggerName;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +21,7 @@ public class LogModifier implements AutoCloseable {
 	 */
 	public static <E extends Exception> void run(Class<?> logger, Level level,
 		ExceptionRunnable<E> runnable) throws E {
-		run(logger(logger), level, runnable);
+		run(loggerName(logger), level, runnable);
 	}
 
 	/**
@@ -39,7 +40,7 @@ public class LogModifier implements AutoCloseable {
 		Builder() {}
 
 		public Builder set(Class<?> cls, Level level) {
-			return set(logger(cls), level);
+			return set(loggerName(cls), level);
 		}
 
 		public Builder set(String logger, Level level) {
@@ -75,12 +76,6 @@ public class LogModifier implements AutoCloseable {
 		levels.forEach((logger, level) -> {
 			Configurator.setLevel(logger, level);
 		});
-	}
-
-	private static String logger(Class<?> cls) {
-		String logger = cls.getCanonicalName();
-		if (logger == null) logger = cls.getName();
-		return logger;
 	}
 
 }

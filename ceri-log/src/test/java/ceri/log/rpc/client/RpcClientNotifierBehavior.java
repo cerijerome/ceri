@@ -16,13 +16,13 @@ import ceri.log.test.LogModifier;
 import io.grpc.stub.StreamObserver;
 
 public class RpcClientNotifierBehavior {
+	private static final RpcClientNotifierConfig config = RpcClientNotifierConfig.of(0);
 	private static TestCall call;
 	private static RpcClientNotifier<Integer, String> notifier;
 
 	@BeforeClass
 	public static void beforeClass() {
 		call = new TestCall();
-		var config = RpcClientNotifierConfig.of(0);
 		notifier = RpcClientNotifier.of(call, Integer::parseInt, config);
 	}
 
@@ -88,7 +88,6 @@ public class RpcClientNotifierBehavior {
 			call.completed.await();
 			call.next.await();
 		}
-		call.completed.await();
 	}
 
 	@Test

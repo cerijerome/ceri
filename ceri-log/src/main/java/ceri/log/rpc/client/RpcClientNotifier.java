@@ -62,7 +62,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 		return new RpcClientNotifier<>(call, transform, config);
 	}
 
-	private RpcClientNotifier(Function<StreamObserver<V>, StreamObserver<Empty>> call,
+	RpcClientNotifier(Function<StreamObserver<V>, StreamObserver<Empty>> call,
 		Function<V, T> transform, RpcClientNotifierConfig config) {
 		this.call = call;
 		this.transform = transform;
@@ -135,7 +135,6 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	private void stopReceiving() {
-		if (caller == null || caller.closed()) return; // already stopped
 		logger.debug("Stopping notifications");
 		LogUtil.close(logger, caller);
 	}

@@ -6,20 +6,27 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.io.StringPrintStream;
 import ceri.common.text.StringUtil;
 
+/**
+ * Collects output and writes compacted lines to logger on flush().
+ */
 public class LogPrintStream extends StringPrintStream {
 	private static final Logger defaultLogger = LogManager.getLogger();
 	private final Logger logger;
-	private final Level level;
+	private Level level;
 
 	public static LogPrintStream of() {
 		return of(Level.DEBUG);
 	}
 
 	public static LogPrintStream of(Level level) {
-		return of(level, defaultLogger);
+		return of(defaultLogger, level);
 	}
 
-	public static LogPrintStream of(Level level, Logger logger) {
+	public static LogPrintStream of(Logger logger) {
+		return of(logger, Level.DEBUG);
+	}
+
+	public static LogPrintStream of(Logger logger, Level level) {
 		return new LogPrintStream(level, logger);
 	}
 
@@ -28,6 +35,11 @@ public class LogPrintStream extends StringPrintStream {
 		this.logger = logger;
 	}
 
+	public void level(Level level) {
+		flush();
+		this.level = level;
+	}
+	
 	@Override
 	public void flush() {
 		super.flush();

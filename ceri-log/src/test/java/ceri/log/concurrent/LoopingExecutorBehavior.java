@@ -1,82 +1,64 @@
 package ceri.log.concurrent;
 
-import java.util.concurrent.Executors;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import java.io.IOException;
 import org.apache.logging.log4j.Level;
-import org.junit.Before;
 import org.junit.Test;
-import ceri.common.concurrent.BooleanCondition;
-import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.ValueCondition;
+import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.util.BasicUtil;
 import ceri.log.test.LogModifier;
 
 public class LoopingExecutorBehavior {
-	private int count;
-	private ValueCondition<Integer> condition;
-
-	@Before
-	public void init() {
-		count = 0;
-		condition = ValueCondition.of();
-	}
-
-	@Test
-	public void shouldAllowCloseToBeInterrupted() {
-		BooleanCondition flag = BooleanCondition.of();
-		try (LoopingExecutor loop = LoopingExecutor.start(null, 100000, () -> {
-			try {
-				Thread.sleep(100000);
-			} catch (InterruptedException e) { // happens when close() is called
-				flag.signal();
-				Thread.sleep(100000);
-			}
-		})) {
-			Thread current = Thread.currentThread();
-			Executors.newSingleThreadExecutor().execute(() -> {
-				waitFor(flag); // wait for loop to be interrupted
-				current.interrupt(); // interrupt calling thread
-			});
-			loop.close(); // interrupt loop
-		}
-	}
 
 	@Test
 	public void shouldLoop() throws InterruptedException {
-		try (LoopingExecutor loop = new LoopingExecutor() {
-			@Override
-			protected void loop() {
-				count();
-			}
-		}) {
-			loop.start();
-			while (condition.await() < 10) {}
+		ValueCondition<Integer> sync = ValueCondition.of();
+		try (TestLoop loop = new TestLoop(sync::signal)) {
+			assertTrue(sync.await(i -> i > 3) > 3);
 		}
 	}
 
 	@Test
 	public void shouldStopOnException() throws InterruptedException {
 		LogModifier.run(LoopingExecutor.class, Level.OFF, () -> {
-			try (LoopingExecutor loop = LoopingExecutor.start(() -> countWithException(10))) {
-				while (condition.await() < 9) {}
-				loop.start();
+			try (TestLoop loop = new TestLoop(i -> throwIoException())) {
+				loop.waitUntilStopped();
+				loop.waitUntilStopped(1);
+				assertThat(loop.stopped(), is(true));
 			}
 		});
 	}
 
-	private void waitFor(BooleanCondition flag) {
-		try {
-			flag.await();
-		} catch (InterruptedException e) {
-			throw new RuntimeInterruptedException(e);
+	@Test
+	public void shouldUseLogName() {
+		try (TestLoop loop = new TestLoop("testloop", i -> BasicUtil.delay(1))) {}
+	}
+
+	private static void throwIoException() throws IOException {
+		throw new IOException("test");
+	}
+
+	private static class TestLoop extends LoopingExecutor {
+		private final ExceptionIntConsumer<?> looper;
+		private int count = 0;
+
+		TestLoop(String logName, ExceptionIntConsumer<?> looper) {
+			super(logName);
+			this.looper = looper;
+			start();
+		}
+
+		TestLoop(ExceptionIntConsumer<?> looper) {
+			this.looper = looper;
+			start();
+		}
+
+		@Override
+		protected void loop() throws Exception {
+			looper.accept(count++);
 		}
 	}
-
-	void count() {
-		condition.signal(count++);
-	}
-
-	private void countWithException(int max) throws Exception {
-		condition.signal(count++);
-		if (count == max) throw new Exception();
-	}
-
 }

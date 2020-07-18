@@ -1,5 +1,6 @@
 package ceri.log.rpc.service;
 
+import static ceri.common.test.TestUtil.throwIt;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -55,9 +56,7 @@ public class RpcServiceUtilTest {
 		LogModifier.run(RpcServiceUtil.class, Level.OFF, () -> {
 			StreamObserver<String> observer = BasicUtil.uncheckedCast(mock(StreamObserver.class));
 			IOException e = new IOException("test");
-			RpcServiceUtil.respond(observer, () -> {
-				throw e;
-			});
+			RpcServiceUtil.respond(observer, () -> throwIt(e));
 			verify(observer).onError(any(StatusRuntimeException.class));
 		});
 	}
@@ -75,9 +74,7 @@ public class RpcServiceUtilTest {
 		LogModifier.run(RpcServiceUtil.class, Level.OFF, () -> {
 			StreamObserver<String> observer = BasicUtil.uncheckedCast(mock(StreamObserver.class));
 			IOException e = new IOException("test");
-			RpcServiceUtil.respond(observer, "test", () -> {
-				throw e;
-			});
+			RpcServiceUtil.respond(observer, "test", () -> throwIt(e));
 			verify(observer).onError(any(StatusRuntimeException.class));
 		});
 	}
