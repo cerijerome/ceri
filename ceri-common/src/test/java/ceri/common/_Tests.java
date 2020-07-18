@@ -217,6 +217,7 @@ import ceri.common.test.BranchCaptorBehavior;
 import ceri.common.test.DebuggerBehavior;
 import ceri.common.test.FileTestHelperBehavior;
 import ceri.common.test.PulsePrinterBehavior;
+import ceri.common.test.RegexFinderBehavior;
 import ceri.common.test.RegexMatcherBehavior;
 import ceri.common.test.ResponseStreamBehavior;
 import ceri.common.test.TestInputStreamBehavior;
@@ -520,6 +521,7 @@ import ceri.common.xml.XmlUtilTest;
 	DebuggerBehavior.class, //
 	FileTestHelperBehavior.class, //
 	PulsePrinterBehavior.class, //
+	RegexFinderBehavior.class, //
 	RegexMatcherBehavior.class, //
 	ResponseStreamBehavior.class, //
 	TestInputStreamBehavior.class, //

@@ -5,7 +5,8 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 
 /**
- * A PrintStream where the output can be captured with toString(). Stream is auto-flushed.
+ * A PrintStream that captures bytes written in given character set. Captured text is retrieved with
+ * toString(). The stream is auto-flushed.
  */
 public class StringPrintStream extends PrintStream {
 	private final Charset charSet;
@@ -29,6 +30,10 @@ public class StringPrintStream extends PrintStream {
 		this.charSet = charSet;
 	}
 
+	public void clear() {
+		baos.reset();
+	}
+
 	/**
 	 * Returns the current output as a String.
 	 */
@@ -38,7 +43,4 @@ public class StringPrintStream extends PrintStream {
 		return baos.toString(charSet);
 	}
 
-	public void clear() {
-		baos.reset();
-	}
 }

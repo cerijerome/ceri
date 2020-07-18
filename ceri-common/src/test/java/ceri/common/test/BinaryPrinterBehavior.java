@@ -100,8 +100,24 @@ public class BinaryPrinterBehavior {
 	public void shouldPrintCodePoints() {
 		StringBuilder b = new StringBuilder();
 		BinaryPrinter bin = BinaryPrinter.builder().out(asPrintStream(b)).showBinary(false).build();
-		bin.print("abc");
-		assertThat(b.toString(), is("00 61 00 62 00 63        .a.b.c  \n"));
+		bin.printCodePoints("abc\u2154");
+		assertThat(b.toString(), is("00 61 00 62 00 63 21 54  .a.b.c!T\n"));
+	}
+
+	@Test
+	public void shouldPrintAscii() {
+		StringBuilder b = new StringBuilder();
+		BinaryPrinter bin = BinaryPrinter.builder().out(asPrintStream(b)).showBinary(false).build();
+		bin.printAscii("abc\u2154");
+		assertThat(b.toString(), is("61 62 63 3f              abc?    \n"));
+	}
+
+	@Test
+	public void shouldPrintUtf8() {
+		StringBuilder b = new StringBuilder();
+		BinaryPrinter bin = BinaryPrinter.builder().out(asPrintStream(b)).showBinary(false).build();
+		bin.print("abc\u2154");
+		assertThat(b.toString(), is("61 62 63 e2 85 94        abc...  \n"));
 	}
 
 	@Test

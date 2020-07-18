@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
@@ -184,10 +185,24 @@ public class BinaryPrinter {
 	/**
 	 * Print string as unicode code points.
 	 */
-	public BinaryPrinter print(String s) {
+	public BinaryPrinter printCodePoints(String s) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		s.codePoints().forEach(cp -> ByteUtil.writeTo(out, ByteUtil.toMsb((short) cp)));
 		return print(out.toByteArray());
+	}
+
+	/**
+	 * Print string as Latin-1 bytes.
+	 */
+	public BinaryPrinter printAscii(String s) {
+		return print(s.getBytes(StandardCharsets.ISO_8859_1));
+	}
+
+	/**
+	 * Print string as UTF8 bytes.
+	 */
+	public BinaryPrinter print(String s) {
+		return print(s.getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**

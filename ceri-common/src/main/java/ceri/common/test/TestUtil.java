@@ -47,6 +47,7 @@ import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.IoUtil;
+import ceri.common.io.SystemIo;
 import ceri.common.math.MathUtil;
 import ceri.common.property.BaseProperties;
 import ceri.common.property.PropertyUtil;
@@ -148,6 +149,17 @@ public class TestUtil {
 		}
 	}
 
+	/**
+	 * Return a SystemIo instance with System.err output nullified.
+	 */
+	@SuppressWarnings("resource")
+	public static SystemIo nullErr() {
+		SystemIo sys = SystemIo.of();
+		sys.out(IoUtil.nullPrintStream());
+		sys.err(IoUtil.nullPrintStream());
+		return sys;
+	}
+	
 	/**
 	 * Simple map creation with alternating keys and values.
 	 */
@@ -693,6 +705,13 @@ public class TestUtil {
 	}
 
 	/**
+	 * Throws the given exception. Useful for creating a lambda without the need for a code block. 
+	 */
+	public static <E extends Exception, T> T throwIt(E exception) throws E {
+		throw exception;
+	}
+	
+	/**
 	 * Capture and return any thrown exception.
 	 */
 	public static Throwable thrown(ExceptionRunnable<?> runnable) {
@@ -921,6 +940,20 @@ public class TestUtil {
 	 */
 	public static <T> Matcher<T> matchesRegex(Pattern pattern) {
 		return new RegexMatcher<>(pattern);
+	}
+
+	/**
+	 * Convenience method for creating a regex matcher.
+	 */
+	public static <T> Matcher<T> findsRegex(String format, Object... objs) {
+		return findsRegex(RegexUtil.compile(format, objs));
+	}
+
+	/**
+	 * Convenience method for creating a regex matcher.
+	 */
+	public static <T> Matcher<T> findsRegex(Pattern pattern) {
+		return new RegexFinder<>(pattern);
 	}
 
 	/**

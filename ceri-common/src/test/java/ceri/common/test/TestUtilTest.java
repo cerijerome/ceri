@@ -131,7 +131,7 @@ public class TestUtilTest {
 			throw new IOException();
 		}));
 	}
-	
+
 	@Test
 	public void testAssertRegex() {
 		assertRegex("test", "%1$s..%1$s", "t");
@@ -250,6 +250,13 @@ public class TestUtilTest {
 	}
 
 	@Test
+	public void testNullErr() {
+		try (SystemIo sys = TestUtil.nullErr()) {
+			System.err.print("This text should not appear");
+		}
+	}
+
+	@Test
 	public void testAssertList() {
 		TestUtil.assertList(List.of(1), 0, List.of(1), 0, 1);
 		assertAssertion(() -> TestUtil.assertList(List.of(), 0, List.of(), 0, 1));
@@ -285,7 +292,7 @@ public class TestUtilTest {
 		};
 		assertThat(p.toString(), is("123"));
 	}
-	
+
 	@Test
 	public void testAssertNan() {
 		assertNaN(Double.NaN);
@@ -410,6 +417,11 @@ public class TestUtilTest {
 	}
 
 	@Test
+	public void testThrowIt() {
+		assertThrown(IOException.class, () -> TestUtil.throwIt(new IOException("test")));
+	}
+
+	@Test
 	public void testToReadableString() {
 		byte[] bytes = { 0, 'a', '.', Byte.MAX_VALUE, Byte.MIN_VALUE, '~', '!', -1 };
 		assertThat(TestUtil.toReadableString(bytes), is("?a.??~!?"));
@@ -475,12 +487,12 @@ public class TestUtilTest {
 		assertArray(TestUtil.reader(1, 2, 3).readBytes(), 1, 2, 3);
 		assertArray(TestUtil.reader("abc").readBytes(), 'a', 'b', 'c');
 	}
-	
+
 	@Test
 	public void testInputStreamBytes() throws IOException {
 		try (var in = TestUtil.inputStream(ArrayUtil.bytes(1, 2, 3, -1, -2, -3, 4))) {
 			assertArray(in.readAllBytes(), 1, 2, 3, -1, -2, -3, 4);
 		}
 	}
-	
+
 }
