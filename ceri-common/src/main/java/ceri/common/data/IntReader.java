@@ -1,0 +1,186 @@
+package ceri.common.data;
+
+import static ceri.common.data.ByteUtil.BIG_ENDIAN;
+import static ceri.common.data.IntUtil.LONG_INTS;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import ceri.common.collection.ArrayUtil;
+import ceri.common.math.MathUtil;
+
+/**
+ * Interface that provides sequential access to ints. Reads are of known length, or require a given
+ * length. For bulk efficiency, consider overriding these methods that process one int at a time, or
+ * make a sub-array copy:
+ * 
+ * <pre>
+ * ByteReader skip(int length); [1-int]
+ * String readString(int length); [copy]
+ * int readInto(int[] dest, int offset, int length); [1-int]
+ * int readInto(ByteReceiver receiver, int offset, int length); [1-int]
+ * </pre>
+ * 
+ * @see ceri.common.data.IntProvider.Reader
+ */
+public interface IntReader {
+
+	/**
+	 * Returns the next int value. May throw unchecked exception if no ints remain.
+	 */
+	int readInt();
+
+	/**
+	 * Skip a number of ints. Default implementation skips one int at a time; efficiency may be
+	 * improved by overriding.
+	 */
+	default IntReader skip(int length) {
+		while (length-- > 0)
+			readInt();
+		return this;
+	}
+
+	/**
+	 * Returns the unsigned int value.
+	 */
+	default long readUint() {
+		return MathUtil.uint(readInt());
+	}
+
+	/**
+	 * Returns true if int is non-zero.
+	 */
+	default boolean readBool() {
+		return readInt() != 0;
+	}
+
+	/**
+	 * Returns the value from native-order ints.
+	 */
+	default long readLong() {
+		return BIG_ENDIAN ? readLongMsb() : readLongLsb();
+	}
+
+	/**
+	 * Returns the value from big-endian ints.
+	 */
+	default long readLongMsb() {
+		return IntUtil.longFromMsb(readInts(LONG_INTS));
+	}
+
+	/**
+	 * Returns the value from little-endian ints.
+	 */
+	default long readLongLsb() {
+		return IntUtil.longFromLsb(readInts(LONG_INTS));
+	}
+
+	/**
+	 * Returns the value from native-order ints.
+	 */
+	default float readFloat() {
+		return Float.intBitsToFloat(readInt());
+	}
+
+	/**
+	 * Returns the value from native-order ints.
+	 */
+	default double readDouble() {
+		return Double.longBitsToDouble(readLong());
+	}
+
+	/**
+	 * Returns the value from big-endian ints.
+	 */
+	default double readDoubleMsb() {
+		return Double.longBitsToDouble(readLongMsb());
+	}
+
+	/**
+	 * Returns the value from little-endian ints.
+	 */
+	default double readDoubleLsb() {
+		return Double.longBitsToDouble(readLongLsb());
+	}
+
+	/**
+	 * Creates a string from Unicode code points.
+	 */
+	default String readString(int length) {
+		int[] ints = readInts(length);
+		return new String(ints, 0, ints.length);
+	}
+
+	/**
+	 * Reads a copied array of ints.
+	 */
+	default int[] readInts(int length) {
+		if (length == 0) return ArrayUtil.EMPTY_INT;
+		int[] copy = new int[length];
+		readInto(copy);
+		return copy;
+	}
+
+	/**
+	 * Reads ints into array. Returns the array offset after reading.
+	 */
+	default int readInto(int[] array) {
+		return readInto(array, 0);
+	}
+
+	/**
+	 * Reads ints into array. Returns the array offset after reading.
+	 */
+	default int readInto(int[] array, int offset) {
+		return readInto(array, offset, array.length - offset);
+	}
+
+	/**
+	 * Reads ints into array. Returns the array offset after reading. Default implementation reads
+	 * one int at a time; efficiency may be improved by overriding.
+	 */
+	default int readInto(int[] array, int offset, int length) {
+		ArrayUtil.validateSlice(array.length, offset, length);
+		while (length-- > 0)
+			array[offset++] = readInt();
+		return offset;
+	}
+
+	/**
+	 * Reads int into int receiver. Returns the receiver offset after reading.
+	 */
+	default int readInto(IntReceiver receiver) {
+		return readInto(receiver, 0);
+	}
+
+	/**
+	 * Reads ints into int receiver. Returns the receiver offset after reading.
+	 */
+	default int readInto(IntReceiver receiver, int offset) {
+		return readInto(receiver, offset, receiver.length() - offset);
+	}
+
+	/**
+	 * Reads ints into int receiver. Returns the receiver offset after reading. Default
+	 * implementation reads one int at a time; efficiency may be improved by overriding.
+	 */
+	default int readInto(IntReceiver receiver, int offset, int length) {
+		ArrayUtil.validateSlice(receiver.length(), offset, length);
+		while (length-- > 0)
+			receiver.setInt(offset++, readInt());
+		return offset;
+	}
+
+	/**
+	 * Provides ints as a stream, starting at offset, for given length.
+	 */
+	default IntStream stream(int length) {
+		return IntStream.range(0, length).map(i -> readInt());
+	}
+
+	/**
+	 * Provides unsigned ints as a stream, starting at offset, for given length.
+	 */
+	default LongStream ustream(int length) {
+		return IntStream.range(0, length).mapToLong(i -> readUint());
+	}
+
+}

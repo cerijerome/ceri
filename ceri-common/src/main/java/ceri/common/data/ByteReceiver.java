@@ -337,15 +337,15 @@ public interface ByteReceiver {
 	}
 
 	/**
-	 * Creates a byte provider view from index.
+	 * Creates a byte receiver view from index.
 	 */
 	default ByteReceiver slice(int index) {
 		return slice(index, length() - index);
 	}
 
 	/**
-	 * Creates a byte provider sub-view. A negative length will right-justify the view. Returns the
-	 * current provider for zero index and same length.
+	 * Creates a byte receiver sub-view. A negative length will right-justify the view. Returns the
+	 * current receiver for zero index and same length.
 	 */
 	default ByteReceiver slice(int index, int length) {
 		if (length == 0) return empty();

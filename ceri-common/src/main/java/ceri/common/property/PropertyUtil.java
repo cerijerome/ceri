@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -11,6 +12,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
+import ceri.common.util.ExceptionUtil;
 
 /**
  * Utility methods for property files.
@@ -20,6 +22,17 @@ public class PropertyUtil {
 
 	private PropertyUtil() {}
 
+	/**
+	 * Parse properties from text.
+	 */
+	public static Properties parse(String text) {
+		try (var r = new StringReader(text)) {
+			Properties properties = new Properties();
+			ExceptionUtil.shouldNotThrow(() -> properties.load(r));
+			return properties;
+		}
+	}
+	
 	/**
 	 * Merges multiple properties. Latter properties override the former.
 	 */

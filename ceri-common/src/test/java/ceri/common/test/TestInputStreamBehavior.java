@@ -5,6 +5,7 @@ import static ceri.common.test.TestInputStream.BRK;
 import static ceri.common.test.TestInputStream.EOF;
 import static ceri.common.test.TestInputStream.EOFX;
 import static ceri.common.test.TestInputStream.IOX;
+import static ceri.common.test.TestInputStream.IOXS;
 import static ceri.common.test.TestInputStream.RTX;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertAssertion;
@@ -137,6 +138,16 @@ public class TestInputStreamBehavior {
 			assertThat(in.read(), is(3));
 			assertThrown(() -> in.readAllBytes()); // different to IOException
 			assertThat(in.read(), is(5)); // different to IOException
+		}
+	}
+
+	@Test
+	public void shouldSupportActionsInText() throws IOException {
+		try (var in = TestInputStream.of("\ud83c\udc39" + IOXS + "e")) {
+			assertArray(in.readNBytes(4), 0xf0, 0x9f, 0x80, 0xb9);
+			assertThrown(() -> in.read());
+			assertArray(in.readAllBytes(), 'e');
+			assertThat(in.read(), is(-1));
 		}
 	}
 

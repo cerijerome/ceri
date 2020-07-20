@@ -31,6 +31,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
@@ -131,10 +132,19 @@ public class TestUtil {
 	}
 
 	/**
-	 * Creates BaseProperties from resource under class package, with given filename.
+	 * Creates BaseProperties from name.properties file under caller's package.
 	 */
-	public static BaseProperties properties(Class<?> cls, String name) throws IOException {
-		Properties properties = PropertyUtil.load(cls, name);
+	public static BaseProperties properties(String name) {
+		Class<?> cls = ReflectUtil.previousCaller(1).cls();
+		return properties(cls, name);
+	}
+
+	/**
+	 * Creates BaseProperties from name.properties under class package.
+	 */
+	public static BaseProperties properties(Class<?> cls, String name) {
+		String text = init(() -> IoUtil.resourceString(cls, name + ".properties"));
+		Properties properties = PropertyUtil.parse(text);
 		return BaseProperties.from(properties);
 	}
 
@@ -702,6 +712,10 @@ public class TestUtil {
 
 	public static void assertStream(IntStream stream, int... is) {
 		assertArray(stream.toArray(), is);
+	}
+
+	public static void assertStream(LongStream stream, long... ls) {
+		assertArray(stream.toArray(), ls);
 	}
 
 	/**

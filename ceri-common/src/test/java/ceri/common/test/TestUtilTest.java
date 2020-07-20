@@ -282,8 +282,8 @@ public class TestUtilTest {
 	}
 
 	@Test
-	public void testProperties() throws IOException {
-		BaseProperties properties = TestUtil.properties(getClass(), "test.properties");
+	public void testProperties() {
+		BaseProperties properties = TestUtil.properties("test");
 		var p = new BaseProperties(properties, "a") {
 			@Override
 			public String toString() {

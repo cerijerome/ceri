@@ -54,6 +54,7 @@ import ceri.common.data.CrcBehavior;
 import ceri.common.data.DataUtilTest;
 import ceri.common.data.FieldTranscoderBehavior;
 import ceri.common.data.IntAccessorBehavior;
+import ceri.common.data.IntArrayBehavior;
 import ceri.common.data.IntBitSetBehavior;
 import ceri.common.data.IntTypeValueBehavior;
 import ceri.common.data.MaskTranscoderBehavior;
@@ -340,6 +341,7 @@ import ceri.common.xml.XmlUtilTest;
 	DataUtilTest.class, //
 	FieldTranscoderBehavior.class, //
 	IntAccessorBehavior.class, //
+	IntArrayBehavior.class, //
 	IntBitSetBehavior.class, //
 	IntTypeValueBehavior.class, //
 	MaskTranscoderBehavior.class, //
