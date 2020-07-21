@@ -56,7 +56,11 @@ import ceri.common.data.FieldTranscoderBehavior;
 import ceri.common.data.IntAccessorBehavior;
 import ceri.common.data.IntArrayBehavior;
 import ceri.common.data.IntBitSetBehavior;
+import ceri.common.data.IntProviderBehavior;
+import ceri.common.data.IntReaderBehavior;
+import ceri.common.data.IntReceiverBehavior;
 import ceri.common.data.IntTypeValueBehavior;
+import ceri.common.data.IntWriterBehavior;
 import ceri.common.data.MaskTranscoderBehavior;
 import ceri.common.data.NavigatorBehavior;
 import ceri.common.data.TypeTranscoderBehavior;
@@ -343,7 +347,11 @@ import ceri.common.xml.XmlUtilTest;
 	IntAccessorBehavior.class, //
 	IntArrayBehavior.class, //
 	IntBitSetBehavior.class, //
+	IntProviderBehavior.class, //
+	IntReaderBehavior.class, //
+	IntReceiverBehavior.class, //
 	IntTypeValueBehavior.class, //
+	IntWriterBehavior.class, //
 	MaskTranscoderBehavior.class, //
 	NavigatorBehavior.class, //
 	TypeTranscoderBehavior.class, //

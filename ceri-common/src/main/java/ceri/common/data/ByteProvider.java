@@ -25,7 +25,7 @@ import ceri.common.math.MathUtil;
  * boolean isEqualTo(int index, ByteProvider provider, int offset, int length); [1-byte]
  * </pre>
  * 
- * @see ceri.common.collection.ImmutableByteArray
+ * @see ceri.common.data.ByteArray.Immutable
  * @see ceri.common.concurrent.VolatileByteArray
  */
 public interface ByteProvider {

@@ -46,21 +46,15 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 	 * Writes native-order ints.
 	 */
 	default T writeLong(long value) {
-		return BIG_ENDIAN ? writeLongMsb(value) : writeLongLsb(value);
+		return writeLong(value, BIG_ENDIAN);
 	}
 
 	/**
-	 * Writes big-endian ints.
+	 * Writes endian ints.
 	 */
-	default T writeLongMsb(long value) {
-		return writeInts(IntUtil.longToMsb(value));
-	}
-
-	/**
-	 * Writes little-endian ints.
-	 */
-	default T writeLongLsb(long value) {
-		return writeInts(IntUtil.longToLsb(value));
+	default T writeLong(long value, boolean msb) {
+		int[] ints = msb ? IntUtil.longToMsb(value) : IntUtil.longToLsb(value);
+		return writeInts(ints);
 	}
 
 	/**
@@ -78,25 +72,18 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 	}
 
 	/**
-	 * Writes big-endian ints.
+	 * Writes endian ints.
 	 */
-	default T writeDoubleMsb(double value) {
-		return writeLongMsb(Double.doubleToLongBits(value));
-	}
-
-	/**
-	 * Writes little-endian ints.
-	 */
-	default T writeDoubleLsb(double value) {
-		return writeLongLsb(Double.doubleToLongBits(value));
+	default T writeDouble(double value, boolean msb) {
+		return writeLong(Double.doubleToLongBits(value), msb);
 	}
 
 	/**
 	 * Writes the string Unicode code points.
 	 */
 	default T writeString(String s) {
-		s.codePoints().forEach(this::writeInt);
-		return BasicUtil.uncheckedCast(this);
+		int[] ints = s.codePoints().toArray();
+		return writeInts(ints);
 	}
 
 	/**

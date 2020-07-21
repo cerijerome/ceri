@@ -19,7 +19,7 @@ import ceri.common.collection.ArrayUtil;
  * int readFrom(int index, InputStream in, int length) throws IOException; [1-byte]
  * </pre>
  * 
- * @see ceri.common.data.MutableByteArray
+ * @see ceri.common.data.ByteArray.Mutable
  * @see ceri.common.concurrent.VolatileByteArray
  * @see ceri.dmx.spi.device.SpiPulseDevice
  * @see ceri.serial.spi.pulse.PulseBuffer

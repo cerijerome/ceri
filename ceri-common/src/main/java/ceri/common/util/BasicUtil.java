@@ -99,6 +99,13 @@ public class BasicUtil {
 	}
 
 	/**
+	 * Returns a value based on condition.
+	 */
+	public static long conditionalLong(boolean condition, long trueValue, long falseValue) {
+		return condition ? trueValue : falseValue;
+	}
+
+	/**
 	 * Make a system beep sound
 	 */
 	public static void beep() {

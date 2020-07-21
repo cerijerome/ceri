@@ -21,8 +21,7 @@ import ceri.common.math.MathUtil;
  * boolean isEqualTo(int index, IntProvider provider, int offset, int length); [1-int]
  * </pre>
  * 
- * @see ceri.common.collection.ImmutableIntArray
- * @see ceri.common.concurrent.VolatileIntArray
+ * @see ceri.common.data.IntArray.Immutable
  */
 public interface IntProvider {
 
@@ -55,26 +54,11 @@ public interface IntProvider {
 			return provider.getInt(inc(1));
 		}
 
-		@Override
-		public long readLongMsb() {
-			return provider.getLongMsb(inc(LONG_INTS));
-		}
-
-		@Override
-		public long readLongLsb() {
-			return provider.getLongLsb(inc(LONG_INTS));
-		}
-
 		/**
 		 * Creates a string from Unicode code points.
 		 */
 		public String readString() {
 			return readString(remaining());
-		}
-
-		@Override
-		public String readString(int length) {
-			return provider.getString(inc(length), length);
 		}
 
 		/**
@@ -206,21 +190,15 @@ public interface IntProvider {
 	 * Returns the value from native-order ints at given index.
 	 */
 	default long getLong(int index) {
-		return BIG_ENDIAN ? getLongMsb(index) : getLongLsb(index);
-	}
-
-	/**
-	 * Returns the value from big-endian ints at given index.
-	 */
-	default long getLongMsb(int index) {
-		return IntUtil.longFromMsb(copy(index, LONG_INTS));
+		return getLong(index, BIG_ENDIAN);
 	}
 
 	/**
 	 * Returns the value from little-endian ints at given index.
 	 */
-	default long getLongLsb(int index) {
-		return IntUtil.longFromLsb(copy(index, LONG_INTS));
+	default long getLong(int index, boolean msb) {
+		int[] ints = copy(index, LONG_INTS);
+		return msb ? IntUtil.longFromMsb(ints) : IntUtil.longFromLsb(ints);
 	}
 
 	/**
@@ -238,17 +216,10 @@ public interface IntProvider {
 	}
 
 	/**
-	 * Returns the value from big-endian ints at given index.
+	 * Returns the value from endian ints at given index.
 	 */
-	default double getDoubleMsb(int index) {
-		return Double.longBitsToDouble(getLongMsb(index));
-	}
-
-	/**
-	 * Returns the value from little-endian ints at given index.
-	 */
-	default double getDoubleLsb(int index) {
-		return Double.longBitsToDouble(getLongLsb(index));
+	default double getDouble(int index, boolean msb) {
+		return Double.longBitsToDouble(getLong(index, msb));
 	}
 
 	/**
@@ -383,7 +354,7 @@ public interface IntProvider {
 	 */
 	default LongStream ustream(int index, int length) {
 		ArrayUtil.validateSlice(length(), index, length);
-		return IntStream.range(0, length).mapToLong(i -> getUint(i));
+		return IntStream.range(index, index + length).mapToLong(i -> getUint(i));
 	}
 
 	/**

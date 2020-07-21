@@ -122,6 +122,10 @@ public class BasicUtilTest {
 		assertThat(BasicUtil.conditional(null, "a", "b", "c"), is("c"));
 		assertThat(BasicUtil.conditional(Boolean.TRUE, "a", "b", "c"), is("a"));
 		assertThat(BasicUtil.conditional(Boolean.FALSE, "a", "b", "c"), is("b"));
+		assertThat(BasicUtil.conditionalInt(true, 1, -1), is(1));
+		assertThat(BasicUtil.conditionalInt(false, 1, -1), is(-1));
+		assertThat(BasicUtil.conditionalLong(true, 1, -1), is(1L));
+		assertThat(BasicUtil.conditionalLong(false, 1, -1), is(-1L));
 	}
 
 	private enum Enum {

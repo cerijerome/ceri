@@ -52,21 +52,6 @@ public interface IntReceiver {
 			return position(receiver.setInt(position(), value));
 		}
 
-		@Override
-		public Writer writeLongMsb(long value) {
-			return position(receiver.setLongMsb(position(), value));
-		}
-
-		@Override
-		public Writer writeLongLsb(long value) {
-			return position(receiver.setLongLsb(position(), value));
-		}
-
-		@Override
-		public Writer writeString(String s) {
-			return position(receiver.setString(position(), s));
-		}
-
 		/**
 		 * Fill remaining ints with same value.
 		 */
@@ -174,21 +159,15 @@ public interface IntReceiver {
 	 * Sets the value in native-order ints at the index. Returns the index after the written ints.
 	 */
 	default int setLong(int index, long value) {
-		return BIG_ENDIAN ? setLongMsb(index, value) : setLongLsb(index, value);
+		return setLong(index, value, BIG_ENDIAN);
 	}
 
 	/**
-	 * Sets the value in big-endian ints at the index. Returns the index after the written ints.
+	 * Sets the value in endian ints at the index. Returns the index after the written ints.
 	 */
-	default int setLongMsb(int index, long value) {
-		return setInts(index, IntUtil.longToMsb(value));
-	}
-
-	/**
-	 * Sets the value in little-endian ints at the index. Returns the index after the written ints.
-	 */
-	default int setLongLsb(int index, long value) {
-		return setInts(index, IntUtil.longToLsb(value));
+	default int setLong(int index, long value, boolean msb) {
+		int[] ints = msb ? IntUtil.longToMsb(value) : IntUtil.longToLsb(value);
+		return setInts(index, ints);
 	}
 
 	/**
@@ -206,17 +185,10 @@ public interface IntReceiver {
 	}
 
 	/**
-	 * Sets the value in big-endian ints at the index. Returns the index after the written ints.
+	 * Sets the value in endian ints at the index. Returns the index after the written ints.
 	 */
-	default int setDoubleMsb(int index, double value) {
-		return setLongMsb(index, Double.doubleToLongBits(value));
-	}
-
-	/**
-	 * Sets the value in little-endian ints at the index. Returns the index after the written ints.
-	 */
-	default int setDoubleLsb(int index, double value) {
-		return setLongLsb(index, Double.doubleToLongBits(value));
+	default int setDouble(int index, double value, boolean msb) {
+		return setLong(index, Double.doubleToLongBits(value), msb);
 	}
 
 	/**

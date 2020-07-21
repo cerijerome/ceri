@@ -105,9 +105,9 @@ public class IntArrayBehavior {
 	public void shouldSetLong() {
 		int[] ints = ArrayUtil.ints(1, 2, 3);
 		Mutable m = Mutable.wrap(ints);
-		assertThat(m.setLongMsb(1, 0xffffeeeeddddccccL), is(3));
+		assertThat(m.setLong(1, 0xffffeeeeddddccccL, true), is(3));
 		assertArray(ints, 1, 0xffffeeee, 0xddddcccc);
-		assertThat(m.setLongLsb(1, 0xffffeeeeddddccccL), is(3));
+		assertThat(m.setLong(1, 0xffffeeeeddddccccL, false), is(3));
 		assertArray(ints, 1, 0xddddcccc, 0xffffeeee);
 	}
 
@@ -141,12 +141,12 @@ public class IntArrayBehavior {
 
 	@Test
 	public void shouldGetLongFromInts() {
-		assertThat(Immutable.wrap(0, 0x7fffffff, 0x80000000, 0).getLongMsb(1),
+		assertThat(Immutable.wrap(0, 0x7fffffff, 0x80000000, 0).getLong(1, true),
 			is(0x7fffffff80000000L));
-		assertThat(Immutable.wrap(0, 0x7fffffff, 0x80000000, 0).getLongLsb(1),
+		assertThat(Immutable.wrap(0, 0x7fffffff, 0x80000000, 0).getLong(1, false),
 			is(0x800000007fffffffL));
-		assertThrown(() -> Immutable.wrap(0, 0x7fffffff).getLongMsb(1));
-		assertThrown(() -> Immutable.wrap(0, 0x7fffffff).getLongLsb(1));
+		assertThrown(() -> Immutable.wrap(0, 0x7fffffff).getLong(1, true));
+		assertThrown(() -> Immutable.wrap(0, 0x7fffffff).getLong(1, false));
 	}
 
 	@Test
@@ -214,9 +214,9 @@ public class IntArrayBehavior {
 
 	@Test
 	public void shouldEncodeAndReadLongs() {
-		assertThat(Encoder.of().writeLongMsb(Long.MIN_VALUE).skip(-2).readLongMsb(),
+		assertThat(Encoder.of().writeLong(Long.MIN_VALUE, true).skip(-2).readLong(true),
 			is(Long.MIN_VALUE));
-		assertThat(Encoder.of().writeLongLsb(Long.MIN_VALUE).skip(-2).readLongLsb(),
+		assertThat(Encoder.of().writeLong(Long.MIN_VALUE, false).skip(-2).readLong(false),
 			is(Long.MIN_VALUE));
 	}
 

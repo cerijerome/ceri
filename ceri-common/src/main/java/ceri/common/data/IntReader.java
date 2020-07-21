@@ -14,7 +14,6 @@ import ceri.common.math.MathUtil;
  * 
  * <pre>
  * ByteReader skip(int length); [1-int]
- * String readString(int length); [copy]
  * int readInto(int[] dest, int offset, int length); [1-int]
  * int readInto(ByteReceiver receiver, int offset, int length); [1-int]
  * </pre>
@@ -56,21 +55,15 @@ public interface IntReader {
 	 * Returns the value from native-order ints.
 	 */
 	default long readLong() {
-		return BIG_ENDIAN ? readLongMsb() : readLongLsb();
+		return readLong(BIG_ENDIAN);
 	}
 
 	/**
-	 * Returns the value from big-endian ints.
+	 * Returns the value from endian ints.
 	 */
-	default long readLongMsb() {
-		return IntUtil.longFromMsb(readInts(LONG_INTS));
-	}
-
-	/**
-	 * Returns the value from little-endian ints.
-	 */
-	default long readLongLsb() {
-		return IntUtil.longFromLsb(readInts(LONG_INTS));
+	default long readLong(boolean msb) {
+		int[] ints = readInts(LONG_INTS);
+		return msb ? IntUtil.longFromMsb(ints) : IntUtil.longFromLsb(ints);
 	}
 
 	/**
@@ -88,17 +81,10 @@ public interface IntReader {
 	}
 
 	/**
-	 * Returns the value from big-endian ints.
+	 * Returns the value from endian ints.
 	 */
-	default double readDoubleMsb() {
-		return Double.longBitsToDouble(readLongMsb());
-	}
-
-	/**
-	 * Returns the value from little-endian ints.
-	 */
-	default double readDoubleLsb() {
-		return Double.longBitsToDouble(readLongLsb());
+	default double readDouble(boolean msb) {
+		return Double.longBitsToDouble(readLong(msb));
 	}
 
 	/**

@@ -1,7 +1,6 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_INT;
-import static ceri.common.data.IntUtil.LONG_INTS;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -162,16 +161,6 @@ public abstract class IntArray implements IntProvider {
 		}
 
 		@Override
-		public int setLongMsb(int index, long value) {
-			return IntUtil.writeLongMsb(value, array, offset(index)) - offset(0);
-		}
-
-		@Override
-		public int setLongLsb(int index, long value) {
-			return IntUtil.writeLongLsb(value, array, offset(index)) - offset(0);
-		}
-
-		@Override
 		public int fill(int index, int length, int value) {
 			validateSlice(index, length);
 			Arrays.fill(array, offset(index), offset(index + length), value);
@@ -284,21 +273,6 @@ public abstract class IntArray implements IntProvider {
 		}
 
 		@Override
-		public long readLongMsb() {
-			return mutable.getLongMsb(readInc(LONG_INTS));
-		}
-
-		@Override
-		public long readLongLsb() {
-			return mutable.getLongLsb(readInc(LONG_INTS));
-		}
-
-		@Override
-		public String readString(int length) {
-			return mutable.getString(readInc(length), length);
-		}
-
-		@Override
 		public int[] readInts(int length) {
 			return mutable.copy(readInc(length), length);
 		}
@@ -335,28 +309,6 @@ public abstract class IntArray implements IntProvider {
 		public Encoder writeInt(int value) {
 			int current = writeInc(1); // may modify mutable reference, don't combine
 			mutable.setInt(current, value);
-			return this;
-		}
-
-		@Override
-		public Encoder writeLongMsb(long value) {
-			int current = writeInc(LONG_INTS);
-			mutable.setLongMsb(current, value);
-			return this;
-		}
-
-		@Override
-		public Encoder writeLongLsb(long value) {
-			int current = writeInc(LONG_INTS);
-			mutable.setLongLsb(current, value);
-			return this;
-		}
-
-		@Override
-		public Encoder writeString(String s) {
-			int[] ints = s.codePoints().toArray();
-			int current = writeInc(ints.length); // may modify mutable reference, don't combine
-			mutable.copyFrom(current, ints);
 			return this;
 		}
 
@@ -438,16 +390,6 @@ public abstract class IntArray implements IntProvider {
 	@Override
 	public int getInt(int index) {
 		return array[offset(index)];
-	}
-
-	@Override
-	public long getLongMsb(int index) {
-		return IntUtil.longFromMsb(array, offset(index));
-	}
-
-	@Override
-	public long getLongLsb(int index) {
-		return IntUtil.longFromLsb(array, offset(index));
 	}
 
 	@Override
