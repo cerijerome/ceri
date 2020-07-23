@@ -1,7 +1,7 @@
 /*
  * Created on May 15, 2006
  */
-package ceri.common.email;
+package ceri.common.net;
 
 import java.util.regex.Pattern;
 

@@ -4,6 +4,7 @@ import static ceri.common.test.TestUtil.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import org.junit.Test;
@@ -111,6 +112,12 @@ public class ExceptionUtilTest {
 		assertThat(ExceptionUtil.limitStackTrace(e, count), is(false));
 		assertThat(ExceptionUtil.limitStackTrace(e, count - 1), is(true));
 		assertThat(e.getStackTrace().length, is(count - 1));
+	}
+	
+	@Test
+	public void testThrowIfType() throws IOException {
+		ExceptionUtil.throwIfType(IOException.class, new InterruptedException());
+		assertThrown(IOException.class, () -> ExceptionUtil.throwIfType(IOException.class, new EOFException()));
 	}
 	
 }

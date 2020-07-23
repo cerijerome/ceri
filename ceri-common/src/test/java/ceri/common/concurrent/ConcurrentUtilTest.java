@@ -6,18 +6,25 @@ import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.junit.AfterClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 import ceri.common.test.TestUtil;
 import ceri.common.util.BasicUtil;
 
@@ -33,6 +40,21 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ConcurrentUtil.class);
+	}
+
+	@Test
+	public void testCloseExecutor() {
+		ExecutorService exec = Executors.newSingleThreadExecutor();
+		exec.submit(() -> BasicUtil.delay(60000));
+		assertThat(ConcurrentUtil.close(exec, 1000), is(true));
+	}
+
+	@Test
+	public void testCloseExecutorWithException() throws InterruptedException {
+		assertThat(ConcurrentUtil.close(null, 0), is(false));
+		ExecutorService exec = Mockito.mock(ExecutorService.class);
+		when(exec.awaitTermination(anyLong(), any())).thenThrow(new InterruptedException());
+		assertThat(ConcurrentUtil.close(exec, 0), is(false));
 	}
 
 	@Test
@@ -62,19 +84,15 @@ public class ConcurrentUtilTest {
 	}
 
 	@Test
-	public void testExecuteAndWaitInterruptions() throws Exception {
-		AsyncRunner<?> runner1 = AsyncRunner.create(() -> ConcurrentUtil
-			.executeAndWait(exec, () -> BasicUtil.delay(10000), IOException::new, 5000)).start();
-		AsyncRunner<?> runner2 = AsyncRunner.create(
-			() -> ConcurrentUtil.executeAndWait(exec, () -> runner1.join(10000), IOException::new))
-			.start();
-		AsyncRunner<?> runner3 = AsyncRunner.create(() -> {
-			runner1.interrupt();
-			runner2.interrupt();
-		}).start();
-		runner3.join(10000);
-		TestUtil.assertThrown(() -> runner2.join(10000));
-		TestUtil.assertThrown(() -> runner1.join(10000));
+	public void testGetFutureInterruption()
+		throws InterruptedException, ExecutionException, TimeoutException {
+		Future<?> future = Mockito.mock(Future.class);
+		when(future.get()).thenThrow(new InterruptedException());
+		when(future.get(anyLong(), any())).thenThrow(new InterruptedException());
+		assertThrown(RuntimeInterruptedException.class,
+			() -> ConcurrentUtil.get(future, RuntimeException::new));
+		assertThrown(RuntimeInterruptedException.class,
+			() -> ConcurrentUtil.get(future, RuntimeException::new, 1000));
 	}
 
 	@Test
@@ -125,8 +143,7 @@ public class ConcurrentUtilTest {
 	public void testCheckRuntimeInterrupted() {
 		ConcurrentUtil.checkRuntimeInterrupted();
 		Thread.currentThread().interrupt();
-		assertThrown(RuntimeInterruptedException.class,
-			ConcurrentUtil::checkRuntimeInterrupted);
+		assertThrown(RuntimeInterruptedException.class, ConcurrentUtil::checkRuntimeInterrupted);
 	}
 
 	@Test

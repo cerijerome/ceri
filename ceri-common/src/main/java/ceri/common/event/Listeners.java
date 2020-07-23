@@ -13,25 +13,25 @@ public class Listeners<T> implements Consumer<T>, Listenable<T> {
 	private final Collection<Consumer<? super T>> listeners = new ConcurrentLinkedQueue<>();
 
 	public int size() {
-		return listeners.size();
+		return listeners().size();
 	}
 
 	public boolean isEmpty() {
-		return listeners.isEmpty();
+		return listeners().isEmpty();
 	}
 
 	public void clear() {
-		listeners.clear();
+		listeners().clear();
 	}
 
 	@Override
 	public boolean listen(Consumer<? super T> listener) {
-		return listeners.add(listener);
+		return listeners().add(listener);
 	}
 
 	@Override
 	public boolean unlisten(Consumer<? super T> listener) {
-		return listeners.remove(listener);
+		return listeners().remove(listener);
 	}
 
 	/**
@@ -39,7 +39,10 @@ public class Listeners<T> implements Consumer<T>, Listenable<T> {
 	 */
 	@Override
 	public void accept(T value) {
-		listeners.forEach(l -> l.accept(value));
+		listeners().forEach(l -> l.accept(value));
 	}
 
+	protected Collection<Consumer<? super T>> listeners() {
+		return listeners;
+	}
 }

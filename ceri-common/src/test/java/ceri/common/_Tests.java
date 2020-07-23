@@ -33,11 +33,11 @@ import ceri.common.color.XyzColorBehavior;
 import ceri.common.comparator.ComparatorSequenceBehavior;
 import ceri.common.comparator.ComparatorsTest;
 import ceri.common.comparator.EnumComparatorsTest;
-import ceri.common.concurrent.AsyncRunnerBehavior;
 import ceri.common.concurrent.BooleanConditionBehavior;
 import ceri.common.concurrent.ConcurrentUtilTest;
 import ceri.common.concurrent.RuntimeInterruptedExceptionBehavior;
 import ceri.common.concurrent.SafeReadWriteBehavior;
+import ceri.common.concurrent.SimpleExecutorBehavior;
 import ceri.common.concurrent.ValueConditionBehavior;
 import ceri.common.concurrent.VolatileByteArrayBehavior;
 import ceri.common.data.BinaryStateBehavior;
@@ -71,7 +71,6 @@ import ceri.common.date.HolidayBehavior;
 import ceri.common.date.ImmutableDateBehavior;
 import ceri.common.date.ImmutableTimeZoneBehavior;
 import ceri.common.date.MultiDateParserBehavior;
-import ceri.common.email.EmailUtilTest;
 import ceri.common.event.CloseableIntListenerBehavior;
 import ceri.common.event.CloseableListenerBehavior;
 import ceri.common.event.EventTrackerBehavior;
@@ -179,6 +178,7 @@ import ceri.common.math.ReverseFunctionBehavior;
 import ceri.common.math.TrigUtilTest;
 import ceri.common.math.VectorBehavior;
 import ceri.common.math.VectorUtilTest;
+import ceri.common.net.EmailUtilTest;
 import ceri.common.net.HostPortBehavior;
 import ceri.common.net.NetUtilTest;
 import ceri.common.net.UdpUtilTest;
@@ -227,6 +227,7 @@ import ceri.common.test.RegexMatcherBehavior;
 import ceri.common.test.ResponseStreamBehavior;
 import ceri.common.test.TestInputStreamBehavior;
 import ceri.common.test.TestListenerBehavior;
+import ceri.common.test.TestListenersBehavior;
 import ceri.common.test.TestOutputStreamBehavior;
 import ceri.common.test.TestPrinterBehavior;
 import ceri.common.test.TestRunAdapterBehavior;
@@ -323,11 +324,11 @@ import ceri.common.xml.XmlUtilTest;
 	ComparatorsTest.class, //
 	EnumComparatorsTest.class, //
 	// concurrent
-	AsyncRunnerBehavior.class, //
 	BooleanConditionBehavior.class, //
 	ConcurrentUtilTest.class, //
 	RuntimeInterruptedExceptionBehavior.class, //
 	SafeReadWriteBehavior.class, //
+	SimpleExecutorBehavior.class, //
 	ValueConditionBehavior.class, //
 	VolatileByteArrayBehavior.class, //
 	// data
@@ -363,8 +364,6 @@ import ceri.common.xml.XmlUtilTest;
 	ImmutableDateBehavior.class, //
 	ImmutableTimeZoneBehavior.class, //
 	MultiDateParserBehavior.class, //
-	// email
-	EmailUtilTest.class, //
 	// event
 	CloseableIntListenerBehavior.class, //
 	CloseableListenerBehavior.class, //
@@ -481,6 +480,7 @@ import ceri.common.xml.XmlUtilTest;
 	VectorBehavior.class, //
 	VectorUtilTest.class, //
 	// net
+	EmailUtilTest.class, //
 	HostPortBehavior.class, //
 	NetUtilTest.class, //
 	UdpUtilTest.class, //
@@ -536,6 +536,7 @@ import ceri.common.xml.XmlUtilTest;
 	ResponseStreamBehavior.class, //
 	TestInputStreamBehavior.class, //
 	TestListenerBehavior.class, //
+	TestListenersBehavior.class, //
 	TestOutputStreamBehavior.class, //
 	TestPrinterBehavior.class, //
 	TestRunAdapterBehavior.class, //

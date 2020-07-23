@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
@@ -19,6 +20,19 @@ public class ConcurrentUtil {
 
 	private ConcurrentUtil() {}
 
+	/**
+	 * Shuts down an executor and waits for completion. Returns true if successfully shut down.
+	 */
+	public static boolean close(ExecutorService exec, int timeoutMs) {
+		try {
+			if (exec == null) return false;
+			exec.shutdownNow();
+			return exec.awaitTermination(timeoutMs, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			return false;
+		}
+	}
+	
 	public static <E extends Exception> void executeAndWait(ExecutorService executor,
 		ExceptionRunnable<?> runnable, Function<Throwable, ? extends E> exceptionConstructor)
 		throws E {

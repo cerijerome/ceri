@@ -1,4 +1,4 @@
-package ceri.common.email;
+package ceri.common.net;
 
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.junit.Assert.assertFalse;
