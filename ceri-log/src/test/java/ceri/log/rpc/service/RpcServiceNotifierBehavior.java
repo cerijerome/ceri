@@ -25,9 +25,9 @@ public class RpcServiceNotifierBehavior {
 			notifier.waitForListener(i -> i == 1);
 			response.onError(halfCloseException()); // not logged
 			notifier.waitForListener(i -> i == 0);
-			LogModifier.run(RpcServiceNotifier.class, Level.ERROR, () -> {
+			LogModifier.run(() -> {
 				response.onError(new IOException());
-			});
+			}, Level.ERROR, RpcServiceNotifier.class);
 		}
 	}
 

@@ -53,10 +53,10 @@ public class RpcStreamerBehavior {
 
 	@Test
 	public void shouldLogErrorOnClose() {
-		LogModifier.run(RpcStreamer.class, Level.ERROR, () -> {
+		LogModifier.run(() -> {
 			StreamObserver<String> observer = BasicUtil.uncheckedCast(mock(StreamObserver.class));
 			doThrow(new RuntimeException()).when(observer).onCompleted();
 			try (RpcStreamer<String> streamer = RpcStreamer.of(observer)) {}
-		});
+		}, Level.ERROR, RpcStreamer.class);
 	}
 }

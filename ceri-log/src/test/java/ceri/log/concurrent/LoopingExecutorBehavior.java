@@ -23,13 +23,13 @@ public class LoopingExecutorBehavior {
 
 	@Test
 	public void shouldStopOnException() throws InterruptedException {
-		LogModifier.run(LoopingExecutor.class, Level.OFF, () -> {
+		LogModifier.run(() -> {
 			try (TestLoop loop = new TestLoop(i -> throwIoException())) {
 				loop.waitUntilStopped();
 				loop.waitUntilStopped(1);
 				assertThat(loop.stopped(), is(true));
 			}
-		});
+		}, Level.OFF, LoopingExecutor.class);
 	}
 
 	@Test

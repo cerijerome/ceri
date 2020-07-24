@@ -291,6 +291,11 @@ public class LogUtilTest {
 	}
 
 	@Test
+	public void testEscaped() {
+		assertThat(LogUtil.escaped("a\n\0\t").toString(), is("a\\n\\0\\t"));
+	}
+
+	@Test
 	public void testIntroMessage() {
 		assertThat(LogUtil.introMessage("Test"), findsRegex(" Test "));
 		assertThat(LogUtil.introMessage(StringUtil.repeat("Test", 20)),

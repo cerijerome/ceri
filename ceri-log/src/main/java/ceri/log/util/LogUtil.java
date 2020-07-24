@@ -369,6 +369,13 @@ public class LogUtil {
 	}
 
 	/**
+	 * Returns an object with an escaped toString(), replacing unprintable chars with literals.
+	 */
+	public static Object escaped(final Object obj) {
+		return toString(() -> StringUtil.escape(String.valueOf(obj)));
+	}
+
+	/**
 	 * Intro logging message.
 	 */
 	public static String introMessage(String title) {

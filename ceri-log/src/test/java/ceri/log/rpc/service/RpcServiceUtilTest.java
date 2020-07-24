@@ -53,12 +53,12 @@ public class RpcServiceUtilTest {
 
 	@Test
 	public void testRespondSupplierWithException() {
-		LogModifier.run(RpcServiceUtil.class, Level.OFF, () -> {
+		LogModifier.run(() -> {
 			StreamObserver<String> observer = BasicUtil.uncheckedCast(mock(StreamObserver.class));
 			IOException e = new IOException("test");
 			RpcServiceUtil.respond(observer, () -> throwIt(e));
 			verify(observer).onError(any(StatusRuntimeException.class));
-		});
+		}, Level.OFF, RpcServiceUtil.class);
 	}
 
 	@Test
@@ -71,12 +71,12 @@ public class RpcServiceUtilTest {
 
 	@Test
 	public void testRespondRunnableWithException() {
-		LogModifier.run(RpcServiceUtil.class, Level.OFF, () -> {
+		LogModifier.run(() -> {
 			StreamObserver<String> observer = BasicUtil.uncheckedCast(mock(StreamObserver.class));
 			IOException e = new IOException("test");
 			RpcServiceUtil.respond(observer, "test", () -> throwIt(e));
 			verify(observer).onError(any(StatusRuntimeException.class));
-		});
+		}, Level.OFF, RpcServiceUtil.class);
 	}
 
 }

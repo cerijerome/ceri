@@ -26,7 +26,7 @@ public class SelfHealingSocketBehavior {
 
 	@BeforeClass
 	public static void beforeClass() {
-		logMod = LogModifier.builder().set(SelfHealingSocket.class, Level.OFF).build();
+		logMod = LogModifier.builder().set(Level.OFF, SelfHealingSocket.class).build();
 	}
 
 	@AfterClass
@@ -127,7 +127,7 @@ public class SelfHealingSocketBehavior {
 
 	private SelfHealingSocket.Builder builder() {
 		SelfHealingSocket.Builder b =
-			SelfHealingSocket.builder("localhost", 12345).fixRetryDelayMs(0).recoveryDelayMs(0);
+			SelfHealingSocket.builder("localhost", 12345).fixRetryDelayMs(1).recoveryDelayMs(1);
 		b.socketFactory = (host, port) -> socket;
 		return b;
 	}

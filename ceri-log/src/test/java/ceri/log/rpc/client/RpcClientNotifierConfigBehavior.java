@@ -5,7 +5,6 @@ import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.test.TestUtil.properties;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import java.io.IOException;
 import org.junit.Test;
 
 public class RpcClientNotifierConfigBehavior {
@@ -22,10 +21,10 @@ public class RpcClientNotifierConfigBehavior {
 	}
 
 	@Test
-	public void shouldBuildFromProperties() throws IOException {
+	public void shouldBuildFromProperties() {
 		RpcClientNotifierConfig config =
-			new RpcClientNotifierProperties(properties(getClass(), "rpc-client.properties"),
-				"rpc-client.notifier").config();
+			new RpcClientNotifierProperties(properties("rpc-client"), "rpc-client.notifier")
+				.config();
 		assertThat(config.resetDelayMs, is(1000));
 	}
 

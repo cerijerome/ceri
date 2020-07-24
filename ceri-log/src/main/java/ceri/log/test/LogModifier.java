@@ -19,17 +19,19 @@ public class LogModifier implements AutoCloseable {
 	/**
 	 * Sets logger level, execute runnable, then resets level.
 	 */
-	public static <E extends Exception> void run(Class<?> logger, Level level,
-		ExceptionRunnable<E> runnable) throws E {
-		run(loggerName(logger), level, runnable);
+	public static <E extends Exception> void run(
+		ExceptionRunnable<E> runnable, Level level, Class<?>...loggers) throws E {
+		try (var modifier = builder().set(level, loggers).build()) {
+			runnable.run();
+		}
 	}
 
 	/**
 	 * Sets logger level, execute runnable, then resets level.
 	 */
-	public static <E extends Exception> void run(String logger, Level level,
-		ExceptionRunnable<E> runnable) throws E {
-		try (var modifier = builder().set(logger, level).build()) {
+	public static <E extends Exception> void run(
+		ExceptionRunnable<E> runnable, Level level, String...loggers) throws E {
+		try (var modifier = builder().set(level, loggers).build()) {
 			runnable.run();
 		}
 	}
@@ -39,12 +41,15 @@ public class LogModifier implements AutoCloseable {
 
 		Builder() {}
 
-		public Builder set(Class<?> cls, Level level) {
-			return set(loggerName(cls), level);
+		public Builder set(Level level, Class<?>...classes) {
+			for (Class<?> cls : classes)
+				set(level, loggerName(cls));
+			return this;
 		}
 
-		public Builder set(String logger, Level level) {
-			levels.put(logger, level);
+		public Builder set(Level level, String...loggers) {
+			for (String logger : loggers)
+				levels.put(logger, level);
 			return this;
 		}
 

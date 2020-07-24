@@ -5,7 +5,6 @@ import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.test.TestUtil.properties;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import java.io.IOException;
 import org.junit.Test;
 import ceri.log.rpc.client.RpcChannelConfig;
 
@@ -23,10 +22,9 @@ public class RpcServerConfigBehavior {
 	}
 
 	@Test
-	public void shouldBuildFromProperties() throws IOException {
+	public void shouldBuildFromProperties() {
 		RpcServerConfig config =
-			new RpcServerProperties(properties(getClass(), "rpc-server.properties"), "rpc-server")
-				.config();
+			new RpcServerProperties(properties("rpc-server"), "rpc-server").config();
 		assertThat(config.port, is(12345));
 		assertThat(config.shutdownTimeoutMs, is(1000));
 	}

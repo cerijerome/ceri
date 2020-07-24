@@ -4,6 +4,9 @@ import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ValueCondition;
 import io.grpc.stub.StreamObserver;
 
+/**
+ * Observer that signals conditions when methods are called. 
+ */
 public class TestObserver<T> implements StreamObserver<T> {
 	public final ValueCondition<T> next = ValueCondition.of();
 	public final BooleanCondition completed = BooleanCondition.of();
