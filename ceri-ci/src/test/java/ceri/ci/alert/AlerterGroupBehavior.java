@@ -8,28 +8,29 @@ import org.junit.Test;
 import ceri.ci.build.Builds;
 import ceri.ci.common.Alerter;
 import ceri.ci.common.TestAlerter;
-import ceri.common.test.TestState;
+import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.ValueCondition;
 
 public class AlerterGroupBehavior {
-	TestState<Integer> state = new TestState<>();
+	ValueCondition<Integer> sync;
 	private AlerterGroup alertGroup;
 
 	@Before
 	public void init() {
-		state = new TestState<>();
+		sync = ValueCondition.of();
 		Alerter alerter0 = new TestAlerter() {
 			@Override
 			protected void common() {
-				state.set(1);
-				state.waitFor(2);
-				state.set(3);
+				sync.signal(1);
+				await(sync, 2);
+				sync.signal(3);
 			}
 		};
 		Alerter alerter1 = new TestAlerter() {
 			@Override
 			protected void common() {
-				state.waitFor(1);
-				state.set(2);
+				await(sync, 1);
+				sync.signal(2);
 			}
 		};
 		alertGroup =
@@ -40,23 +41,26 @@ public class AlerterGroupBehavior {
 	public void end() {
 		alertGroup.close();
 	}
-	
+
 	@Test
 	public void shouldExecuteUpdateInParallel() {
 		alertGroup.update(new Builds());
-		assertThat(state.get(), is(3));
+		assertThat(sync.value(), is(3));
 	}
 
 	@Test
 	public void shouldExecuteClearInParallel() {
 		alertGroup.clear();
-		assertThat(state.get(), is(3));
+		assertThat(sync.value(), is(3));
 	}
 
 	@Test
 	public void shouldExecuteRemindInParallel() {
 		alertGroup.remind();
-		assertThat(state.get(), is(3));
+		assertThat(sync.value(), is(3));
 	}
 
+	private static void await(ValueCondition<Integer> sync, int i) {
+		ConcurrentUtil.executeInterruptible(() -> sync.await(i));
+	}
 }

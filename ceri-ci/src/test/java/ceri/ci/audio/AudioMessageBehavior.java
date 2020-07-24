@@ -1,6 +1,5 @@
 package ceri.ci.audio;
 
-import static ceri.common.test.TestUtil.assertThrown;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
@@ -9,24 +8,22 @@ import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.test.TestThread;
+import ceri.common.concurrent.SimpleExecutor;
 
 public class AudioMessageBehavior {
 	private AudioPlayer player;
-	
+
 	@Before
 	public void init() {
 		player = mock(AudioPlayer.class);
 	}
-	
+
 	@Test
 	public void shouldFailIfInterrupted() throws Exception {
 		final AudioMessages audio = new AudioMessages(player, getClass(), "");
-		TestThread<Exception> thread = TestThread.create(audio::playRandomAlarm);
-		thread.start();
-		thread.interrupt();
-		assertThrown(RuntimeInterruptedException.class, thread::stop);
+		try (var exec = SimpleExecutor.run(audio::playRandomAlarm)) {
+			exec.cancel();
+		}
 	}
 
 	@Test
