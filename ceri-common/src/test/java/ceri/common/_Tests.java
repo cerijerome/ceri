@@ -141,8 +141,6 @@ import ceri.common.geom.Shape3dUtilTest;
 import ceri.common.geom.Spheroid3dBehavior;
 import ceri.common.geom.TruncatedRadial3dBehavior;
 import ceri.common.io.BitIteratorBehavior;
-import ceri.common.io.BlockingBufferStreamBehavior;
-import ceri.common.io.ByteBufferStreamBehavior;
 import ceri.common.io.CloseableWrapperBehavior;
 import ceri.common.io.DeviceModeBehavior;
 import ceri.common.io.FileTrackerBehavior;
@@ -232,9 +230,7 @@ import ceri.common.test.TestOutputStreamBehavior;
 import ceri.common.test.TestPrinterBehavior;
 import ceri.common.test.TestRunAdapterBehavior;
 import ceri.common.test.TestRunPrinterBehavior;
-import ceri.common.test.TestStateBehavior;
 import ceri.common.test.TestStyleBehavior;
-import ceri.common.test.TestThreadBehavior;
 import ceri.common.test.TestTimerBehavior;
 import ceri.common.test.TestUtil;
 import ceri.common.test.TestUtilTest;
@@ -440,8 +436,6 @@ import ceri.common.xml.XmlUtilTest;
 	TruncatedRadial3dBehavior.class, //
 	// io
 	BitIteratorBehavior.class, //
-	BlockingBufferStreamBehavior.class, //
-	ByteBufferStreamBehavior.class, //
 	CloseableWrapperBehavior.class, //
 	DeviceModeBehavior.class, //
 	FileTrackerBehavior.class, //
@@ -541,9 +535,7 @@ import ceri.common.xml.XmlUtilTest;
 	TestPrinterBehavior.class, //
 	TestRunAdapterBehavior.class, //
 	TestRunPrinterBehavior.class, //
-	TestStateBehavior.class, //
 	TestStyleBehavior.class, //
-	TestThreadBehavior.class, //
 	TestTimerBehavior.class, //
 	TestUtilTest.class, //
 	// text

@@ -29,6 +29,11 @@ public class TestListener<T> implements Closeable {
 		return listener.listenable;
 	}
 	
+	public T await(boolean clear) throws InterruptedException {
+		if (clear) listen.clear();
+		return listen.await();
+	}
+	
 	@Override
 	public void close() {
 		listener.close();

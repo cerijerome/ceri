@@ -39,6 +39,7 @@ import org.hamcrest.core.IsSame;
 import org.junit.runner.JUnitCore;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
@@ -59,6 +60,7 @@ import ceri.common.util.BasicUtil;
 import ceri.common.util.EqualsUtil;
 
 public class TestUtil {
+	private static final int DELAY_MICROS = 1;
 	private static final int SMALL_BUFFER_SIZE = 1024;
 	public static final int APPROX_PRECISION_DEF = 3;
 	private static final String LAMBDA_NAME = "[lambda]";
@@ -99,6 +101,19 @@ public class TestUtil {
 		core.addListener(tp);
 		core.run(classes);
 		tp.print(out);
+	}
+
+	/**
+	 * Repeat action with a 1us delay until executor is closed. Useful to avoid intermittent thread
+	 * timing issues when waiting on an event by repeatedly triggering that event.
+	 */
+	public static SimpleExecutor<RuntimeException, ?> runRepeat(ExceptionRunnable<?> runnable) {
+		return SimpleExecutor.run(() -> {
+			while (true) {
+				runnable.run();
+				BasicUtil.delayMicros(DELAY_MICROS);
+			}
+		});
 	}
 
 	public static AssertionError failure(String format, Object... args) {
@@ -169,7 +184,7 @@ public class TestUtil {
 		sys.err(IoUtil.nullPrintStream());
 		return sys;
 	}
-	
+
 	/**
 	 * Simple map creation with alternating keys and values.
 	 */
@@ -719,12 +734,12 @@ public class TestUtil {
 	}
 
 	/**
-	 * Throws the given exception. Useful for creating a lambda without the need for a code block. 
+	 * Throws the given exception. Useful for creating a lambda without the need for a code block.
 	 */
 	public static <E extends Exception, T> T throwIt(E exception) throws E {
 		throw exception;
 	}
-	
+
 	/**
 	 * Capture and return any thrown exception.
 	 */

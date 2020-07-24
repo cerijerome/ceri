@@ -88,21 +88,21 @@ public class ValueCondition<T> {
 	/**
 	 * Waits for current value to be non-null, or timer to expire. Current value is cleared.
 	 */
-	public T await(long timeoutMs) throws InterruptedException {
-		return await(timeoutMs, truePredicate());
+	public T awaitTimeout(long timeoutMs) throws InterruptedException {
+		return awaitTimeout(timeoutMs, truePredicate());
 	}
 
 	/**
 	 * Waits for current value to equal given value, or timer to expire. Current value is cleared.
 	 */
-	public T await(long timeoutMs, T value) throws InterruptedException {
-		return await(timeoutMs, isEqual(value));
+	public T awaitTimeout(long timeoutMs, T value) throws InterruptedException {
+		return awaitTimeout(timeoutMs, isEqual(value));
 	}
 
 	/**
 	 * Waits for predicate to be true, or timer to expire. Current value is cleared.
 	 */
-	public T await(long timeoutMs, Predicate<T> predicate) throws InterruptedException {
+	public T awaitTimeout(long timeoutMs, Predicate<T> predicate) throws InterruptedException {
 		return await(Timer.millis(timeoutMs), predicate);
 	}
 

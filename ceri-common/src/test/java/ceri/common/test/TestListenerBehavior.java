@@ -1,5 +1,6 @@
 package ceri.common.test;
 
+import static ceri.common.test.TestUtil.runRepeat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
@@ -12,7 +13,17 @@ public class TestListenerBehavior {
 		Listeners<String> listeners = new Listeners<>();
 		try (TestListener<String> listener = TestListener.of(listeners)) {
 			listeners.accept("test");
-			assertThat(listener.listen.await(), is("test"));
+			assertThat(listener.await(false), is("test"));
+		}
+	}
+
+	@Test
+	public void shouldNotFuckingHang() throws InterruptedException {
+		Listeners<String> listeners = new Listeners<>();
+		try (TestListener<String> listener = TestListener.of(listeners)) {
+			try (var exec = runRepeat(() -> listeners.accept("test"))) {
+				assertThat(listener.await(true), is("test"));
+			}
 		}
 	}
 

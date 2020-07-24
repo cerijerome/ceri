@@ -86,6 +86,10 @@ public class SimpleExecutor<E extends Exception, T> implements AutoCloseable {
 		return ConcurrentUtil.get(future, exceptionConstructor, timeoutMs);
 	}
 
+	public boolean cancel() {
+		return future.cancel(true);
+	}
+	
 	@Override
 	public void close() {
 		ConcurrentUtil.close(exec, closeTimeoutMs);

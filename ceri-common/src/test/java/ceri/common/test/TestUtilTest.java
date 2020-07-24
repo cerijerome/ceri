@@ -52,6 +52,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.concurrent.BooleanCondition;
 import ceri.common.io.SystemIo;
 import ceri.common.property.BaseProperties;
 import ceri.common.text.StringUtil;
@@ -77,6 +78,15 @@ public class TestUtilTest {
 	public void testExerciseEnums() {
 		TestUtil.exerciseEnum(Align.H.class);
 		TestUtil.assertThrown(() -> TestUtil.exerciseEnum(BadEnum.class));
+	}
+
+	@Test
+	public void testRunRepeat() throws InterruptedException {
+		BooleanCondition sync = BooleanCondition.of();
+		try (var exec = TestUtil.runRepeat(sync::signal)) {
+			sync.await();
+			sync.await();
+		}
 	}
 
 	@Test

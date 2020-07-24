@@ -47,7 +47,7 @@ public class BooleanCondition {
 	 * Waits for a signal or timer to expire, and returns true if signaled. Clears the signal.
 	 */
 	public boolean await(long timeoutMs) throws InterruptedException {
-		return isSet(condition.await(timeoutMs));
+		return isSet(condition.awaitTimeout(timeoutMs));
 	}
 
 	/**

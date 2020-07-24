@@ -33,19 +33,19 @@ public class ValueConditionBehavior {
 	public void shouldSetAndClearValues() throws InterruptedException {
 		ValueCondition<Integer> flag = ValueCondition.of();
 		assertThat(flag.value(), is((Integer) null));
-		assertThat(flag.await(0), is((Integer) null));
-		assertThat(flag.await(1), is((Integer) null));
+		assertThat(flag.awaitTimeout(0), is((Integer) null));
+		assertThat(flag.awaitTimeout(1), is((Integer) null));
 		flag.signal(1);
 		assertThat(flag.value(), is(1));
-		assertThat(flag.await(1), is(1));
+		assertThat(flag.awaitTimeout(1), is(1));
 		flag.signal(2);
 		flag.await();
 		assertThat(flag.value(), is((Integer) null));
 		flag.signal(3);
 		flag.clear();
-		assertThat(flag.await(0), is((Integer) null));
+		assertThat(flag.awaitTimeout(0), is((Integer) null));
 		flag.signal(4);
-		assertThat(flag.await(0, 4), is(4));
+		assertThat(flag.awaitTimeout(0, 4), is(4));
 	}
 
 	@Test

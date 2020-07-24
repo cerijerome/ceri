@@ -8,21 +8,21 @@ public class TestListenersBehavior {
 
 	@Test
 	public void shouldNotifyOnListen() throws InterruptedException {
-		TestListeners<String> l = new TestListeners<>();
+		TestListeners<String> l = TestListeners.of();
 		l.listen(s -> {});
 		l.await(false);
 	}
 
 	@Test
 	public void shouldNotifyOnUnlisten() throws InterruptedException {
-		TestListeners<String> l = new TestListeners<>();
+		TestListeners<String> l = TestListeners.of();
 		l.unlisten(s -> {});
 		l.await(false);
 	}
 
 	@Test
 	public void shouldResetSync() throws InterruptedException {
-		TestListeners<String> l = new TestListeners<>();
+		TestListeners<String> l = TestListeners.of();
 		try (SimpleExecutor<?, ?> exec = SimpleExecutor.run(() -> unlisten(l))) {
 			l.await(true);
 		}

@@ -4,15 +4,17 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import org.junit.Test;
 
 public class PollingInputStreamBehavior {
-	private BlockingBufferStream stream = new BlockingBufferStream();
 
 	@Test(expected = IoTimeoutException.class)
 	public void shouldTimeoutIfNoData() throws IOException {
-		try (PollingInputStream in = new PollingInputStream(stream.asInputStream(), 1, 1)) {
-			in.read();
+		try (InputStream in0 = IoStreamUtil.in((b, offset, len) -> 0)) {
+			try (PollingInputStream in = new PollingInputStream(in0, 1, 1)) {
+				in.read();
+			}
 		}
 	}
 
