@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +13,7 @@ import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.test.TestListener;
 import ceri.log.rpc.TestObserver;
+import ceri.log.test.LogModifier;
 import io.grpc.stub.StreamObserver;
 
 public class RpcClientNotifierBehavior {
@@ -73,11 +75,13 @@ public class RpcClientNotifierBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldResetOnServiceError() throws InterruptedException {
-		TestListener.of(notifier);
-		call.await();
-		call.callback.onError(new IllegalStateException("already half-closed"));
-		call.callback.onError(new RuntimeException("test"));
-		call.await();
+		LogModifier.run(() -> {
+			TestListener.of(notifier);
+			call.await();
+			call.callback.onError(new IllegalStateException("already half-closed"));
+			call.callback.onError(new RuntimeException("test"));
+			call.await();
+		}, Level.ERROR, RpcClientNotifier.class);
 	}
 
 	@SuppressWarnings("resource")
