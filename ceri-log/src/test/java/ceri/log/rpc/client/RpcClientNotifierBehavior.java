@@ -12,7 +12,7 @@ import com.google.protobuf.Empty;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.test.TestListener;
-import ceri.log.rpc.TestObserver;
+import ceri.log.rpc.test.TestObserver;
 import ceri.log.test.LogModifier;
 import io.grpc.stub.StreamObserver;
 

@@ -1,4 +1,4 @@
-package ceri.log.rpc;
+package ceri.log.rpc.test;
 
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ValueCondition;

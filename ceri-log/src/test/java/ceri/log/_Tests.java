@@ -19,6 +19,7 @@ import ceri.log.rpc.service.RpcServerBehavior;
 import ceri.log.rpc.service.RpcServerConfigBehavior;
 import ceri.log.rpc.service.RpcServiceNotifierBehavior;
 import ceri.log.rpc.service.RpcServiceUtilTest;
+import ceri.log.rpc.test.TestObserverBehavior;
 import ceri.log.rpc.util.RpcStreamerBehavior;
 import ceri.log.rpc.util.RpcUtilTest;
 import ceri.log.test.ContainerTestHelperBehavior;
@@ -51,6 +52,8 @@ import ceri.log.util.LogUtilTest;
 	RpcServerConfigBehavior.class, //
 	RpcServiceNotifierBehavior.class, //
 	RpcServiceUtilTest.class, //
+	// rpc.test
+	TestObserverBehavior.class, //
 	// rpc.util
 	RpcStreamerBehavior.class, //
 	RpcUtilTest.class, //

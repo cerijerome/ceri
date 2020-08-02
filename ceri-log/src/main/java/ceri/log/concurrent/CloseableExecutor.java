@@ -24,7 +24,7 @@ public class CloseableExecutor implements Closeable {
 	public static CloseableExecutor single() {
 		return of(Executors.newSingleThreadExecutor());
 	}
-	
+
 	public static CloseableExecutor of(ExecutorService executor) {
 		return new CloseableExecutor(executor);
 	}
@@ -33,7 +33,6 @@ public class CloseableExecutor implements Closeable {
 		this.executor = executor;
 	}
 
-	
 	public void execute(Runnable command) {
 		executor.execute(command);
 	}
