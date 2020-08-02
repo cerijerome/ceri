@@ -14,9 +14,15 @@ public class TestListeners<T> extends Listeners<T> {
 	public static <T> TestListeners<T> of() {
 		return new TestListeners<>();
 	}
-	
+
 	private TestListeners() {}
-	
+
+	@Override
+	public void clear() {
+		sync.clear();
+		super.clear();
+	}
+
 	@Override
 	public boolean listen(Consumer<? super T> listener) {
 		boolean result = super.listen(listener);
@@ -35,10 +41,13 @@ public class TestListeners<T> extends Listeners<T> {
 	public Collection<Consumer<? super T>> listeners() {
 		return super.listeners();
 	}
-	
+
+	/**
+	 * Wait for a change in listeners. Optionally clear the condition before waiting.
+	 */
 	public void await(boolean clear) throws InterruptedException {
 		if (clear) sync.clear();
 		sync.await();
 	}
-	
+
 }

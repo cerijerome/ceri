@@ -9,6 +9,7 @@ import ceri.common.data.IntArray.Encoder;
 import ceri.common.function.ExceptionIntUnaryOperator;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.math.MathUtil;
+import ceri.common.text.StringUtil;
 import ceri.common.text.Utf8Util;
 
 /**
@@ -53,8 +54,8 @@ public class TestInputStream extends InputStream {
 		return builder().data(bytes).build();
 	}
 
-	public static TestInputStream of(String s) {
-		return builder().data(s).build();
+	public static TestInputStream of(String format, Object... args) {
+		return builder().data(format, args).build();
 	}
 
 	public static class Builder {
@@ -71,8 +72,8 @@ public class TestInputStream extends InputStream {
 				.available(i -> TestInputStream.available(i, actions));
 		}
 
-		public Builder data(String s) {
-			return actions(encodeWithActions(s));
+		public Builder data(String format, Object... args) {
+			return actions(encodeWithActions(StringUtil.format(format, args)));
 		}
 
 		public Builder data(byte[] values) {

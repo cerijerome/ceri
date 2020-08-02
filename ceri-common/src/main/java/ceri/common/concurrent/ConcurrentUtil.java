@@ -33,6 +33,18 @@ public class ConcurrentUtil {
 		}
 	}
 	
+	public static <E extends Exception, T> T executeAndGet(ExecutorService executor,
+		Callable<T> callable, Function<Throwable, ? extends E> exceptionConstructor)
+		throws E {
+		return get(executor.submit(callable), exceptionConstructor);
+	}
+
+	public static <E extends Exception, T> T executeAndGet(ExecutorService executor,
+		Callable<T> callable, Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs)
+		throws E {
+		return get(executor.submit(callable), exceptionConstructor, timeoutMs);
+	}
+
 	public static <E extends Exception> void executeAndWait(ExecutorService executor,
 		ExceptionRunnable<?> runnable, Function<Throwable, ? extends E> exceptionConstructor)
 		throws E {

@@ -1,10 +1,19 @@
 package ceri.common.test;
 
+import static org.junit.Assert.assertNull;
 import org.junit.Test;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.util.BasicUtil;
 
 public class TestListenersBehavior {
+
+	@Test
+	public void shouldClearSync() {
+		TestListeners<String> l = TestListeners.of();
+		l.sync.set(1);
+		l.clear();
+		assertNull(l.sync.value());
+	}
 
 	@Test
 	public void shouldNotifyOnListen() throws InterruptedException {

@@ -58,6 +58,16 @@ public class ConcurrentUtilTest {
 	}
 
 	@Test
+	public void testExecuteAndGet() throws IOException {
+		ValueCondition<String> signal = ValueCondition.of();
+		signal.signal("test");
+		assertThat(ConcurrentUtil.executeAndGet(exec, signal::await, IOException::new), is("test"));
+		signal.signal("test2");
+		assertThat(ConcurrentUtil.executeAndGet(exec, signal::await, IOException::new, 10000),
+			is("test2"));
+	}
+
+	@Test
 	public void testExecuteAndWait() throws IOException {
 		BooleanCondition signal = BooleanCondition.of();
 		ConcurrentUtil.executeAndWait(exec, signal::signal, IOException::new);
