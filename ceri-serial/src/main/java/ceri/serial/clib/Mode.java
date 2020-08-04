@@ -55,11 +55,9 @@ public class Mode {
 		}
 
 		public static String string(int value) {
-			Set<Mask> masks = decode(value);
-			System.out.println(masks);
 			return StringUtil.join("|", decode(value));
 		}
-		
+
 		private Mask(int value) {
 			this.value = value;
 		}
@@ -108,15 +106,15 @@ public class Mode {
 		return mode;
 	}
 
-	public boolean has(Mask...masks) {
+	public boolean has(Mask... masks) {
 		return has(Arrays.asList(masks));
 	}
-	
+
 	public boolean has(Collection<Mask> masks) {
 		int value = Mask.encode(masks);
 		return (mode & value) == value;
 	}
-	
+
 	public Set<Mask> masks() {
 		return Mask.decode(mode);
 	}
@@ -124,7 +122,7 @@ public class Mode {
 	public String maskString() {
 		return Mask.string(mode);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return HashCoder.hash(mode);

@@ -30,6 +30,8 @@ public class ResponseSerialConnector implements SerialConnector {
 	private volatile boolean connected = false;
 	private volatile boolean broken;
 
+	// TODO: combine with SerialTestConnector
+	
 	public static ResponseSerialConnector echo() {
 		return of(ResponseStream.echo());
 	}

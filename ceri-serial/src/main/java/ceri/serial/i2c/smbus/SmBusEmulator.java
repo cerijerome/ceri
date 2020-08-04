@@ -2,11 +2,11 @@ package ceri.serial.i2c.smbus;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
 import static ceri.common.collection.ArrayUtil.bytes;
-import static ceri.common.data.ByteArray.encoder;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
 import static ceri.serial.i2c.util.I2cEmulator.ANY_READ_LEN;
 import java.io.IOException;
+import ceri.common.data.ByteArray.Encoder;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.StringUtil;
 import ceri.serial.i2c.I2cAddress;
@@ -61,13 +61,13 @@ public class SmBusEmulator implements SmBus {
 
 	@Override
 	public void writeWordData(int command, int value) throws IOException {
-		write(encoder().writeByte(command).writeShortLsb(command).bytes());
+		write(Encoder.of().writeByte(command).writeShortLsb(command).bytes());
 	}
 
 	@Override
 	public int processCall(int command, int value) throws IOException {
 		return ushort(ByteUtil.fromLsb(
-			read(encoder().writeByte(command).writeShortLsb(command).bytes(), Short.BYTES), 0,
+			read(Encoder.of().writeByte(command).writeShortLsb(command).bytes(), Short.BYTES), 0,
 			Short.BYTES));
 	}
 
@@ -79,7 +79,7 @@ public class SmBusEmulator implements SmBus {
 	@Override
 	public void writeBlockData(int command, byte[] values, int offset, int length)
 		throws IOException {
-		write(encoder().writeByte(command).writeFrom(values, offset, length).bytes());
+		write(Encoder.of().writeByte(command).writeFrom(values, offset, length).bytes());
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class SmBusEmulator implements SmBus {
 	@Override
 	public byte[] blockProcessCall(int command, byte[] values, int offset, int length)
 		throws IOException {
-		return read(encoder().writeByte(command).writeFrom(values, offset, length).bytes(),
+		return read(Encoder.of().writeByte(command).writeFrom(values, offset, length).bytes(),
 			ANY_READ_LEN);
 	}
 

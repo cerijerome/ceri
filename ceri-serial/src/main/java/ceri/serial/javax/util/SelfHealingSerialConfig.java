@@ -8,14 +8,14 @@ import ceri.serial.javax.SerialPortParams;
 
 public class SelfHealingSerialConfig {
 	public static final SelfHealingSerialConfig NULL = builder((CommPortSupplier) null).build();
-	static final Predicate<Exception> DEFAULT_PREDICATE =
+	public static final Predicate<Exception> DEFAULT_PREDICATE =
 		named(SerialPort::isBroken, "SerialPort::isBroken");
-	final CommPortSupplier commPortSupplier;
-	final SerialPortParams params;
-	final int connectionTimeoutMs;
-	final int fixRetryDelayMs;
-	final int recoveryDelayMs;
-	final Predicate<Exception> brokenPredicate;
+	public final CommPortSupplier commPortSupplier;
+	public final SerialPortParams params;
+	public final int connectionTimeoutMs;
+	public final int fixRetryDelayMs;
+	public final int recoveryDelayMs;
+	public final Predicate<Exception> brokenPredicate;
 
 	/**
 	 * Returns config with serial params replaced.

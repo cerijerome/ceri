@@ -458,14 +458,14 @@ public class JnaUtil {
 	/**
 	 * Extracts bytes from buffer.
 	 */
-	private static byte[] byteArray(ByteBuffer buffer) {
+	public static byte[] byteArray(ByteBuffer buffer) {
 		return byteArray(buffer, 0);
 	}
 
 	/**
 	 * Extracts bytes from buffer.
 	 */
-	private static byte[] byteArray(ByteBuffer buffer, int position) {
+	public static byte[] byteArray(ByteBuffer buffer, int position) {
 		return byteArray(buffer, position, buffer.limit() - position);
 	}
 
@@ -513,7 +513,7 @@ public class JnaUtil {
 	/**
 	 * Decodes string from fixed-length bytes at pointer using default charset.
 	 */
-	private static String string(Memory m, long offset) {
+	public static String string(Memory m, long offset) {
 		return string(m, offset, m.size() - offset);
 	}
 
