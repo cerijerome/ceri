@@ -68,7 +68,7 @@ public class ResponseStream {
 	private ResponseStream(Responder responder) {
 		this.responder = responder;
 		internalOut = new PipedOutputStream();
-		externalIn = pipedIn(internalOut);
+		externalIn = pipedIn(internalOut); // new PipedInputStream(internalOut)
 		externalOut = IoStreamUtil.out(this::write);
 	}
 

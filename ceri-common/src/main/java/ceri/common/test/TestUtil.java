@@ -43,7 +43,6 @@ import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
-import ceri.common.data.ByteUtil;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.ExceptionRunnable;
@@ -1081,37 +1080,43 @@ public class TestUtil {
 	}
 
 	/**
-	 * Creates an input stream based based on given action data. Use a value of -1 for an early EOF,
-	 * -2 to throw an IOException, -3 to throw a RuntimeException, otherwise (byte & 0xff). Buffered
-	 * reads will often squash an IOException when it is not the first byte read. To be sure of a
-	 * thrown exception, use -2, -2.
+	 * Creates a test input stream based on given action data. Values >= 0 are byte data values,
+	 * values < 0 are actions for generating early EOF, altering available() response, and
+	 * generating exceptions.
 	 */
 	public static TestInputStream inputStream(int... actions) {
-		return TestInputStream.of(actions);
+		TestInputStream in = new TestInputStream();
+		in.actions(actions);
+		return in;
 	}
 
 	/**
-	 * Creates an input stream based on given data.
+	 * Creates a test input stream based on ascii bytes and encoded actions.
+	 */
+	public static TestInputStream inputStream(String format, Object... args) {
+		TestInputStream in = new TestInputStream();
+		in.actions(format, args);
+		return in;
+	}
+
+	/**
+	 * Creates a test input stream based on given data.
 	 */
 	public static TestInputStream inputStream(byte[] bytes) {
-		return inputStream(ByteUtil.ustream(bytes).toArray());
+		TestInputStream in = new TestInputStream();
+		in.data(bytes);
+		return in;
 	}
 
 	/**
-	 * Creates an input stream based on UTF8 text bytes.
-	 */
-	public static TestInputStream inputStream(String text) {
-		return TestInputStream.of(text);
-	}
-
-	/**
-	 * Creates an output stream where activity is determined by the given data. Each write advances
-	 * the index into the data; a value of -1 throws EOFException, -2 throws an IOException, -3
-	 * throws a RuntimeException, other values do nothing. Written values are collected, and may be
-	 * retrieved by calling written().
+	 * Creates a test output stream based on given action data. Values < 0 are actions for
+	 * generating exceptions. Written values are collected, and may be retrieved by calling
+	 * written().
 	 */
 	public static TestOutputStream outputStream(int... actions) {
-		return TestOutputStream.actions(actions);
+		TestOutputStream out = new TestOutputStream();
+		out.actions(actions);
+		return out;
 	}
 
 	/**

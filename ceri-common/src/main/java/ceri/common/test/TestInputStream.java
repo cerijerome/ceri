@@ -13,14 +13,13 @@ import ceri.common.text.StringUtil;
 import ceri.common.text.Utf8Util;
 
 /**
- * InputStream controlled by supplier functions for read(), available(), and close(). Integer data
- * can also be supplied to read() and available(). Use a value of -1 to return EOF, -2 to throw an
- * IOException, -3 to throw a RuntimeException, -4 to throw EOFException, otherwise (byte & 0xff).
- * Buffered reads will often squash an IOException when it is not the first byte read. To be sure of
- * a thrown exception, use -2, -2.
+ * An InputStream controlled by supplier functions for read() and available(), based on read byte
+ * count, and on runnable function for close(). Returned int values for read() and available() are
+ * interpreted as actions if < 0. EOF returns EOF, BRK is used to mark an available() endpoint, EOFX
+ * throws an EOFException, IOX throws an IOException, and RTX throws a RuntimeException.
  * <p/>
  * String data can embed actions with constant strings EOFS, BRKS, EOFXS, IOXS, and RTXS. The
- * strings use Unicode private use code points from U+f000.
+ * strings use Unicode private-use code points from U+f000.
  */
 public class TestInputStream extends InputStream {
 	private static final int AVAILABLE_DEF = 16;
@@ -41,90 +40,101 @@ public class TestInputStream extends InputStream {
 	public static final int RTX = -103;
 	public static final String RTXS = str(RTX);
 	private static final Set<Integer> allowedActions = Set.of(EOF, BRK, EOFX, IOX, RTX);
-	private final ExceptionIntUnaryOperator<IOException> readSupplier;
-	private final ExceptionIntUnaryOperator<IOException> availableSupplier;
-	private final ExceptionRunnable<IOException> closeRunnable;
-	private int count = 0;
+	private volatile ExceptionIntUnaryOperator<IOException> readSupplier = i -> 0;
+	private volatile ExceptionIntUnaryOperator<IOException> availableSupplier = i -> AVAILABLE_DEF;
+	private volatile ExceptionRunnable<IOException> closeRunnable = () -> {};
+	private volatile int count = 0;
+	private volatile int mark = 0;
 
-	public static TestInputStream of(int... actions) {
-		return builder().actions(actions).build();
+	/**
+	 * Provide byte data. EOF is returned once all data is read. Resets current count to 0.
+	 */
+	public void data(byte[] values) {
+		data(values, 0);
 	}
 
-	public static TestInputStream of(byte[] bytes) {
-		return builder().data(bytes).build();
+	/**
+	 * Provide byte data. EOF is returned once all data is read. Resets current count to 0.
+	 */
+	public void data(byte[] values, int offset) {
+		data(values, offset, values.length - offset);
 	}
 
-	public static TestInputStream of(String format, Object... args) {
-		return builder().data(format, args).build();
+	/**
+	 * Provide byte data. EOF is returned once all data is read. Resets current count to 0.
+	 */
+	public void data(byte[] values, int offset, int length) {
+		actions(ByteUtil.ustream(values, offset, length).toArray());
 	}
 
-	public static class Builder {
-		ExceptionIntUnaryOperator<IOException> readSupplier = i -> 0;
-		ExceptionIntUnaryOperator<IOException> availableSupplier = i -> AVAILABLE_DEF;
-		ExceptionRunnable<IOException> closeRunnable = () -> {};
-
-		Builder() {}
-
-		public Builder actions(int... actions) {
-			for (int action : actions)
-				verify(action);
-			return read(i -> TestInputStream.action(i, actions))
-				.available(i -> TestInputStream.available(i, actions));
-		}
-
-		public Builder data(String format, Object... args) {
-			return actions(encodeWithActions(StringUtil.format(format, args)));
-		}
-
-		public Builder data(byte[] values) {
-			return data(values, 0);
-		}
-
-		public Builder data(byte[] values, int offset) {
-			return data(values, offset, values.length - offset);
-		}
-
-		public Builder data(byte[] values, int offset, int length) {
-			return actions(ByteUtil.ustream(values, offset, length).toArray());
-		}
-
-		public Builder read(ExceptionIntUnaryOperator<IOException> readSupplier) {
-			this.readSupplier = readSupplier;
-			return this;
-		}
-
-		public Builder available(ExceptionIntUnaryOperator<IOException> availableSupplier) {
-			this.availableSupplier = availableSupplier;
-			return this;
-		}
-
-		public Builder close(ExceptionRunnable<IOException> closeRunnable) {
-			this.closeRunnable = closeRunnable;
-			return this;
-		}
-
-		public TestInputStream build() {
-			return new TestInputStream(this);
-		}
+	/**
+	 * Set read() and available() functions based on given list of actions. Resets current count to
+	 * 0.
+	 */
+	public void actions(int... actions) {
+		for (int action : actions)
+			verify(action);
+		read(i -> action(i, actions));
+		available(i -> TestInputStream.available(i, actions));
 	}
 
-	public static Builder builder() {
-		return new Builder();
+	/**
+	 * Set read() and available() functions based on ascii chars and encoded actions. Resets current
+	 * count to 0.
+	 */
+	public void actions(String format, Object... args) {
+		actions(encodeWithActions(StringUtil.format(format, args)));
 	}
 
-	TestInputStream(Builder builder) {
-		readSupplier = builder.readSupplier;
-		availableSupplier = builder.availableSupplier;
-		closeRunnable = builder.closeRunnable;
+	/**
+	 * Delegate read() and available() functions to the given input stream.
+	 */
+	public void in(InputStream in) {
+		read(i -> in.read());
+		available(i -> in.available());
 	}
 
-	public int count() {
-		return count;
+	/**
+	 * Set stream read() function. Returns an int, given the current read byte count. Int value is
+	 * processed as an action if < 0. Resets current count to 0.
+	 */
+	public void read(ExceptionIntUnaryOperator<IOException> readSupplier) {
+		this.readSupplier = readSupplier;
+		resetState();
+	}
+
+	/**
+	 * Set stream available() function. Returns an int, given the current read byte count. Int value
+	 * is processed as an action if < 0.
+	 */
+	public void available(ExceptionIntUnaryOperator<IOException> availableSupplier) {
+		this.availableSupplier = availableSupplier;
+	}
+
+	/**
+	 * Set close() function.
+	 */
+	public void close(ExceptionRunnable<IOException> closeRunnable) {
+		this.closeRunnable = closeRunnable;
+	}
+
+	@Override
+	public void mark(int n) {
+		mark = count;
 	}
 
 	@Override
 	public void reset() {
+		count = mark;
+	}
+
+	public void resetState() {
+		mark = 0;
 		count = 0;
+	}
+
+	public int count() {
+		return count;
 	}
 
 	@Override
