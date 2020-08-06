@@ -1,16 +1,18 @@
 package ceri.serial.javax;
 
 import java.io.IOException;
-import ceri.serial.javax.util.ResponseSerialConnector;
-import ceri.serial.javax.util.SerialConnectorTester;
+import ceri.common.test.ResponseStream;
+import ceri.serial.javax.test.SerialConnectorTester;
+import ceri.serial.javax.test.SerialTestConnector;
 
 public class SerialTester {
 
 	public static void main(String[] args) throws IOException {
-		try (SerialConnector connector = ResponseSerialConnector.echo()) {
+		try (SerialTestConnector connector = new SerialTestConnector()) {
+			connector.response(ResponseStream.echo());
 			connector.connect();
-			SerialConnectorTester.test(connector);
+			SerialConnectorTester.test(connector, connector::fixed);
 		}
 	}
-	
+
 }

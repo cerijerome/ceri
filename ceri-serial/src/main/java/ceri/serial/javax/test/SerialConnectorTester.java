@@ -1,4 +1,4 @@
-package ceri.serial.javax.util;
+package ceri.serial.javax.test;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
 import static ceri.common.util.BasicUtil.conditional;
@@ -10,6 +10,7 @@ import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.event.CloseableListener;
+import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.StateChange;
 import ceri.common.test.BinaryPrinter;
@@ -19,6 +20,8 @@ import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
 import ceri.serial.javax.FlowControl;
 import ceri.serial.javax.SerialConnector;
+import ceri.serial.javax.util.SelfHealingSerialConfig;
+import ceri.serial.javax.util.SelfHealingSerialConnector;
 
 /**
  * Class to test serial ports. Takes commands via System.in and calls methods on the serial
@@ -36,39 +39,43 @@ import ceri.serial.javax.SerialConnector;
  */
 public class SerialConnectorTester extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
-	private static final int INPUT_BYTES_MAX = 32 * 1024;
 	protected static final int DELAY_MS_DEF = 200;
+	private final ExceptionRunnable<IOException> fixConnectorFn;
 	private final int delayMs;
 	protected final SerialConnector connector;
 	private final CloseableListener<StateChange> listener;
-	private final byte[] buffer = new byte[INPUT_BYTES_MAX];
 	private boolean showHelp = true;
 
-	public static void test(String commPort) throws IOException {
+	public static void test(String commPort)
+		throws IOException {
 		SelfHealingSerialConfig config = SelfHealingSerialConfig.of(commPort);
 		try (SelfHealingSerialConnector con = SelfHealingSerialConnector.of(config)) {
 			con.connect();
-			test(con);
+			test(con, null);
 		}
 	}
 
-	public static void test(SerialConnector con) {
+	public static void test(SerialConnector con, ExceptionRunnable<IOException> fixConnectorFn) {
 		// Make sure connector is connected first
-		try (SerialConnectorTester tester = SerialConnectorTester.of(con)) {
+		try (SerialConnectorTester tester = SerialConnectorTester.of(con, fixConnectorFn)) {
 			tester.waitUntilStopped();
 		}
 	}
 
-	public static SerialConnectorTester of(SerialConnector connector) {
-		return of(connector, DELAY_MS_DEF);
+	public static SerialConnectorTester of(SerialConnector connector,
+		ExceptionRunnable<IOException> fixConnectorFn) {
+		return of(connector, fixConnectorFn, DELAY_MS_DEF);
 	}
 
-	public static SerialConnectorTester of(SerialConnector connector, int delayMs) {
-		return new SerialConnectorTester(connector, delayMs);
+	public static SerialConnectorTester of(SerialConnector connector,
+		ExceptionRunnable<IOException> fixConnectorFn, int delayMs) {
+		return new SerialConnectorTester(connector, fixConnectorFn, delayMs);
 	}
 
-	protected SerialConnectorTester(SerialConnector connector, int delayMs) {
+	protected SerialConnectorTester(SerialConnector connector,
+		ExceptionRunnable<IOException> fixConnectorFn, int delayMs) {
 		this.connector = connector;
+		this.fixConnectorFn = fixConnectorFn;
 		this.delayMs = delayMs;
 		listener = CloseableListener.of(connector, this::event);
 		start();
@@ -116,6 +123,7 @@ public class SerialConnectorTester extends LoopingExecutor {
 		else if (cmd == 'f') safeAccept(flowControlType(params), connector::setFlowControl);
 		else if (cmd == 'o') writeToPort(ByteUtil.toAscii(params));
 		else if (cmd == 'z') connector.broken();
+		else if (cmd == 'Z' && fixConnectorFn != null) fixConnectorFn.run();
 	}
 
 	@Override
@@ -146,13 +154,10 @@ public class SerialConnectorTester extends LoopingExecutor {
 	@SuppressWarnings("resource")
 	private void readFromPort() {
 		try {
-			while (true) {
-				int available = connector.in().available();
-				if (available <= 0) break;
-				int n = connector.in().read(buffer);
-				if (n > 0) logInput(Immutable.wrap(buffer, 0, n));
-				if (n == available) break;
-			}
+			int available = connector.in().available();
+			if (available <= 0) return;
+			byte[] bytes = connector.in().readNBytes(available);
+			if (bytes.length > 0) logInput(Immutable.wrap(bytes));
 		} catch (IOException e) {
 			logger.catching(e);
 		}
@@ -202,6 +207,7 @@ public class SerialConnectorTester extends LoopingExecutor {
 		System.out.println("  f[nrx][01] = set flow control none, rts-cts in/out, xon-xoff in/out");
 		System.out.println("  o<literal-chars> = write char bytes to output (e.g. \\xff for 0xff)");
 		System.out.println("  z = mark the connector as broken");
+		if (fixConnectorFn != null) System.out.println("  Z = mark the connector as fixed");
 		System.out.println("  ? = show this message");
 		System.out.println("  x = exit");
 	}
