@@ -68,6 +68,12 @@ public class Crc {
 		return this;
 	}
 
+	public Crc add(ByteReader r, int length) {
+		while (length-- > 0)
+			crc = algorithm.apply(crc, r.readByte());
+		return this;
+	}
+
 	public Crc add(ByteProvider data) {
 		return add(data, 0);
 	}

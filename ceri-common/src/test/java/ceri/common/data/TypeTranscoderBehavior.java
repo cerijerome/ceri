@@ -3,6 +3,7 @@ package ceri.common.data;
 import static ceri.common.data.MaskTranscoder.mask;
 import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
@@ -89,6 +90,14 @@ public class TypeTranscoderBehavior {
 		assertCollection(xcoder.decodeAll(3), E.a, E.b);
 		assertCollection(xcoder.decodeAll(15), E.a, E.b, E.c);
 		assertCollection(xcoder.decodeAll(31), E.a, E.b, E.c);
+	}
+
+	@Test
+	public void shouldDecodeValueWithValidation() {
+		assertThrown(() -> xcoder.decodeValid(0));
+		assertThrown(() -> xcoder.decodeValid(0, "E"));
+		assertThat(xcoder.decodeValid(2), is(E.b));
+		assertThat(xcoder.decodeValid(2, "E"), is(E.b));
 	}
 
 	@Test

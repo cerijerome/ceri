@@ -2,28 +2,28 @@ package ceri.common.data.old;
 
 @Deprecated
 class DataDecoder {
-	// private final ImmutableByteArray data;
+	// private final ByteProvider data;
 	// private int mark = 0;
 	// private int offset = 0;
 	//
-	// public static <T> T decode(ImmutableByteArray data, Function<DataDecoder, T> fn) {
+	// public static <T> T decode(ByteProvider data, Function<DataDecoder, T> fn) {
 	// return fn.apply(of(data));
 	// }
 	//
-	// public static DataDecoder of(ImmutableByteArray data, int offset) {
+	// public static DataDecoder of(ByteProvider data, int offset) {
 	// return of(data.slice(offset));
 	// }
 	//
-	// public static DataDecoder of(ImmutableByteArray data, int offset, int length) {
+	// public static DataDecoder of(ByteProvider data, int offset, int length) {
 	// return of(data.slice(offset, length));
 	// }
 	//
-	// public static DataDecoder of(ImmutableByteArray data) {
+	// public static DataDecoder of(ByteProvider data) {
 	// validateNotNull(data);
 	// return new DataDecoder(data);
 	// }
 	//
-	// private DataDecoder(ImmutableByteArray data) {
+	// private DataDecoder(ByteProvider data) {
 	// this.data = data;
 	// }
 	//
@@ -31,12 +31,12 @@ class DataDecoder {
 	// return DataDecoder.of(slice(length));
 	// }
 	//
-	// public ImmutableByteArray slice() {
+	// public ByteProvider slice() {
 	// return slice(remaining());
 	// }
 	//
-	// public ImmutableByteArray slice(int length) {
-	// ImmutableByteArray data = this.data.slice(offset, length);
+	// public ByteProvider slice(int length) {
+	// ByteProvider data = this.data.slice(offset, length);
 	// incrementOffset(data.length());
 	// return data;
 	// }
@@ -108,7 +108,7 @@ class DataDecoder {
 	// }
 	//
 	// public DataDecoder validateAscii(String value) {
-	// ImmutableByteArray data = ByteUtil.toAscii(value);
+	// ByteProvider data = ByteUtil.toAscii(value);
 	// if (this.data.matches(offset, data)) return skip(data.length());
 	// String actual = ByteUtil.fromAscii(this.data, offset, data.length());
 	// throw ExceptionUtil.exceptionf("Expected %s: %s", escape(value), escape(actual));

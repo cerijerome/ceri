@@ -1,5 +1,6 @@
 package ceri.common.data;
 
+import static ceri.common.validation.ValidationUtil.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -190,14 +191,38 @@ public class TypeTranscoder<T> {
 		return value == 0;
 	}
 
+	/**
+	 * Decode the value to return a single type. Returns null if not found.
+	 */
 	public T decode(int value) {
 		return lookup.get(mask.decodeInt(value));
 	}
 
+	/**
+	 * Decode the value to return a single type. Throws IllegalArgumentException if not found.
+	 */
+	public T decodeValid(int value) {
+		return validateIntLookup(this::decode, value);
+	}
+
+	/**
+	 * Decode the value to return a single type. Throws IllegalArgumentException if not found.
+	 */
+	public T decodeValid(int value, String name) {
+		return validateIntLookup(this::decode, value, name);
+	}
+
+	/**
+	 * Decode the value into multiple types. Iteration over the types is in lookup entry order. Any
+	 * remainder is discarded.
+	 */
 	public Set<T> decodeAll(int value) {
 		return decodeWithRemainder(value).types;
 	}
 
+	/**
+	 * Decode the value into multiple types. Iteration over the types is in lookup entry order.
+	 */
 	public Remainder<T> decodeWithRemainder(int value) {
 		value = mask.decodeInt(value);
 		Set<T> set = new LinkedHashSet<>();

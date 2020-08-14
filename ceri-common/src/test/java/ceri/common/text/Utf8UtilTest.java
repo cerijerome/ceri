@@ -210,7 +210,7 @@ public class Utf8UtilTest {
 	}
 
 	@Test
-	public void testDecodeImmutableByteArray() {
+	public void testDecodeByteProvider() {
 		assertThat(Utf8Util.decode(ByteArray.Immutable.wrap('A')), is(StringUtil.toString(_1B)));
 		assertThat(Utf8Util.decode(ByteArray.Immutable.wrap(0xc2, 0xa9)),
 			is(StringUtil.toString(_2B)));

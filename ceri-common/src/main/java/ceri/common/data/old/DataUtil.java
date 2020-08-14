@@ -178,7 +178,7 @@ class DataUtil {
 	// }
 	//
 	// public static int validateAscii(String value, ByteProvider data, int offset) {
-	// ImmutableByteArray expected = ByteUtil.toAscii(value);
+	// ByteProvider expected = ByteUtil.toAscii(value);
 	// if (expected.matches(data, offset, expected.length())) return offset + expected.length();
 	// throw ExceptionUtil.exceptionf("Expected %s: %s", escape(value),
 	// escape(fromAscii(data, offset, expected.length())));

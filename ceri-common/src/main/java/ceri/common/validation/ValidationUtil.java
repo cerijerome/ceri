@@ -12,6 +12,8 @@ import static ceri.common.validation.DisplayLong.hex2;
 import static ceri.common.validation.DisplayLong.hex4;
 import static ceri.common.validation.DisplayLong.hex8;
 import static ceri.common.validation.DisplayLong.udec;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import ceri.common.math.Bound;
 import ceri.common.math.Interval;
@@ -65,6 +67,71 @@ public class ValidationUtil {
 	 */
 	public static void validatef(boolean expr, String format, Object... args) {
 		if (!expr) throw exceptionf(format, args);
+	}
+
+	/* Lookup validation */
+
+	/**
+	 * Validates and returns a value found by lookup function.
+	 */
+	public static <T, U> T validateLookup(Function<U, T> lookup, U value) {
+		return validateLookup(lookup, value, VALUE);
+	}
+
+	/**
+	 * Validates and returns a value found by lookup function.
+	 */
+	public static <T, U> T validateLookup(Function<U, T> lookup, U value, String name) {
+		T t = lookup.apply(value);
+		if (t != null) return t;
+		throw exceptionf("%s is invalid: %s", name, value, value);
+	}
+
+	/**
+	 * Validates and returns a value found by lookup function.
+	 */
+	public static <T, U> T validateLookup(Function<U, T> lookup, T expected, U value) {
+		return validateLookup(lookup, expected, value, VALUE);
+	}
+
+	/**
+	 * Validates and returns a value found by lookup function.
+	 */
+	public static <T, U> T validateLookup(Function<U, T> lookup, T expected, U value, String name) {
+		T t = validateLookup(lookup, value, name);
+		return validateEqualObj(t, expected);
+	}
+
+	/**
+	 * Validates and returns a value found by lookup function.
+	 */
+	public static <T> T validateIntLookup(IntFunction<T> lookup, int value) {
+		return validateIntLookup(lookup, value, VALUE);
+	}
+
+	/**
+	 * Validates and returns a value found by lookup function.
+	 */
+	public static <T> T validateIntLookup(IntFunction<T> lookup, int value, String name) {
+		T t = lookup.apply(value);
+		if (t != null) return t;
+		throw exceptionf("%s is invalid: %d (0x%x)", name, value, value);
+	}
+
+	/**
+	 * Validates and returns a value found by lookup function.
+	 */
+	public static <T> T validateIntLookup(IntFunction<T> lookup, T expected, int value) {
+		return validateIntLookup(lookup, expected, value, VALUE);
+	}
+
+	/**
+	 * Validates and returns a value found by lookup function.
+	 */
+	public static <T> T validateIntLookup(IntFunction<T> lookup, T expected, int value,
+		String name) {
+		T t = validateIntLookup(lookup, value, name);
+		return validateEqualObj(t, expected);
 	}
 
 	/* (Not) null validation */
@@ -128,8 +195,7 @@ public class ValidationUtil {
 	 * Validates that the objects are not equal.
 	 */
 	public static <T> T validateNotEqualObj(T value, Object unexpected, String name) {
-		if (EqualsUtil.equals(value, unexpected))
-			throw exceptionf("%s = %s", name(name), value);
+		if (EqualsUtil.equals(value, unexpected)) throw exceptionf("%s = %s", name(name), value);
 		return value;
 	}
 
@@ -146,8 +212,8 @@ public class ValidationUtil {
 	 * Validates that the integer values are equal.
 	 */
 	public static long validateEqual(long value, long expected, String name, DisplayLong... flags) {
-		if (value != expected) throw exceptionf("%s != %s: %s", name(name),
-			format(expected, flags), format(value, flags));
+		if (value != expected) throw exceptionf("%s != %s: %s", name(name), format(expected, flags),
+			format(value, flags));
 		return value;
 	}
 
@@ -179,8 +245,8 @@ public class ValidationUtil {
 	 */
 	public static double validateEqual(double value, double expected, String name,
 		DisplayDouble... flags) {
-		if (value != expected) throw exceptionf("%s != %s: %s", name(name),
-			format(expected, flags), format(value, flags));
+		if (value != expected) throw exceptionf("%s != %s: %s", name(name), format(expected, flags),
+			format(value, flags));
 		return value;
 	}
 
@@ -205,30 +271,34 @@ public class ValidationUtil {
 	/**
 	 * Validates that unsigned byte values are equal.
 	 */
-	public static long validateUbyte(long value, long expected, DisplayLong... flags) {
+	public static short validateUbyte(long value, long expected, DisplayLong... flags) {
 		return validateUbyte(value, expected, VALUE, flags);
 	}
 
 	/**
 	 * Validates that unsigned byte values are equal.
 	 */
-	public static long validateUbyte(long value, long expected, String name, DisplayLong... flags) {
-		return validateEqual(ubyte(value), ubyte(expected), name(name), def(flags, hex2, udec));
+	public static short validateUbyte(long value, long expected, String name,
+		DisplayLong... flags) {
+		short ubyte = ubyte(value);
+		validateEqual(ubyte, ubyte(expected), name(name), def(flags, hex2, udec));
+		return ubyte;
 	}
 
 	/**
 	 * Validates that unsigned short values are equal.
 	 */
-	public static long validateUshort(long value, long expected, DisplayLong... flags) {
+	public static int validateUshort(long value, long expected, DisplayLong... flags) {
 		return validateUshort(value, expected, VALUE, flags);
 	}
 
 	/**
 	 * Validates that unsigned short values are equal.
 	 */
-	public static long validateUshort(long value, long expected, String name,
-		DisplayLong... flags) {
-		return validateEqual(ushort(value), ushort(expected), name(name), def(flags, hex4, udec));
+	public static int validateUshort(long value, long expected, String name, DisplayLong... flags) {
+		int ushort = ushort(value);
+		validateEqual(ushort, ushort(expected), name(name), def(flags, hex4, udec));
+		return ushort;
 	}
 
 	/**
@@ -556,29 +626,29 @@ public class ValidationUtil {
 	/**
 	 * Validates value is within unsigned byte range.
 	 */
-	public static long validateUbyte(long value, DisplayLong... flags) {
+	public static short validateUbyte(long value, DisplayLong... flags) {
 		return validateUbyte(value, VALUE, flags);
 	}
 
 	/**
 	 * Validates value is within unsigned byte range.
 	 */
-	public static long validateUbyte(long value, String name, DisplayLong... flags) {
-		return validateRange(value, 0, BYTE_MASK, name(name), def(flags, hex));
+	public static short validateUbyte(long value, String name, DisplayLong... flags) {
+		return ubyte(validateRange(value, 0, BYTE_MASK, name(name), def(flags, hex)));
 	}
 
 	/**
 	 * Validates value is within unsigned short range.
 	 */
-	public static long validateUshort(long value, DisplayLong... flags) {
+	public static int validateUshort(long value, DisplayLong... flags) {
 		return validateUshort(value, VALUE, flags);
 	}
 
 	/**
 	 * Validates value is within unsigned short range.
 	 */
-	public static long validateUshort(long value, String name, DisplayLong... flags) {
-		return validateRange(value, 0, SHORT_MASK, name(name), def(flags, hex));
+	public static int validateUshort(long value, String name, DisplayLong... flags) {
+		return ushort(validateRange(value, 0, SHORT_MASK, name(name), def(flags, hex)));
 	}
 
 	/**

@@ -117,7 +117,7 @@ public class IntTypeValue<T> {
 		if (invalid != null) validateNotEqualObj(value.type(), invalid, name);
 	}
 
-	private IntTypeValue(int value, T type, String name, Integer subValue,
+	protected IntTypeValue(int value, T type, String name, Integer subValue,
 		IntFunction<String> formatter) {
 		this.type = type;
 		this.value = value;

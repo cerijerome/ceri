@@ -17,7 +17,7 @@ public class VolatileByteArrayBehavior {
 	}
 
 	@Test
-	public void shouldCreateFromImmutableByteArray() {
+	public void shouldCreateFromByteProvider() {
 		ByteProvider b = ByteArray.Immutable.wrap(1, 2, 3);
 		VolatileByteArray a = VolatileByteArray.wrap(b.copy(0));
 		a.setByte(1, 0);

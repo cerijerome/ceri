@@ -24,61 +24,61 @@ import ceri.common.util.HashCoder;
  */
 @Deprecated
 class ImmutableByteArray { //implements ByteProvider {
-//	public static final ImmutableByteArray EMPTY = new ImmutableByteArray(EMPTY_BYTE, 0, 0);
+//	public static final ByteProvider EMPTY = new ByteProvider(EMPTY_BYTE, 0, 0);
 //	private final byte[] array;
 //	private final int offset;
 //	private final int length;
 //
-//	public static ImmutableByteArray copyOf(byte[] array) {
+//	public static ByteProvider copyOf(byte[] array) {
 //		return copyOf(array, 0);
 //	}
 //
-//	public static ImmutableByteArray copyOf(byte[] array, int offset) {
+//	public static ByteProvider copyOf(byte[] array, int offset) {
 //		return copyOf(array, offset, array.length - offset);
 //	}
 //
-//	public static ImmutableByteArray copyOf(byte[] array, int offset, int length) {
+//	public static ByteProvider copyOf(byte[] array, int offset, int length) {
 //		byte[] newArray = Arrays.copyOfRange(array, offset, offset + length);
 //		return wrap(newArray);
 //	}
 //
-//	public static ImmutableByteArray wrap(IntStream stream) {
+//	public static Immutable.wrap(IntStream stream) {
 //		return wrap(ByteUtil.toBytes(stream));
 //	}
 //
-//	public static ImmutableByteArray wrap(int... array) {
+//	public static Immutable.wrap(int... array) {
 //		return wrap(ArrayUtil.bytes(array));
 //	}
 //
-//	public static ImmutableByteArray wrap(byte... array) {
+//	public static Immutable.wrap(byte... array) {
 //		return wrap(array, 0);
 //	}
 //
-//	public static ImmutableByteArray wrap(byte[] array, int offset) {
+//	public static Immutable.wrap(byte[] array, int offset) {
 //		return wrap(array, offset, array.length - offset);
 //	}
 //
-//	public static ImmutableByteArray wrap(byte[] array, int offset, int length) {
+//	public static Immutable.wrap(byte[] array, int offset, int length) {
 //		ArrayUtil.validateSlice(array.length, offset, length);
 //		if (length == 0) return EMPTY;
-//		return new ImmutableByteArray(array, offset, length);
+//		return new ByteProvider(array, offset, length);
 //	}
 //
-////	public static ImmutableByteArray from(ByteProvider provider) {
+////	public static ByteProvider from(ByteProvider provider) {
 ////		return from(provider, 0);
 ////	}
 ////
-////	public static ImmutableByteArray from(ByteProvider provider, int offset) {
+////	public static ByteProvider from(ByteProvider provider, int offset) {
 ////		return from(provider, offset, provider.length() - offset);
 ////	}
 ////
-////	public static ImmutableByteArray from(ByteProvider provider, int offset, int length) {
-////		if (provider instanceof ImmutableByteArray)
-////			return ((ImmutableByteArray) provider).slice(offset, length);
+////	public static ByteProvider from(ByteProvider provider, int offset, int length) {
+////		if (provider instanceof ByteProvider)
+////			return ((ByteProvider) provider).slice(offset, length);
 ////		return wrap(provider.copy(offset, length));
 ////	}
 //
-//	private ImmutableByteArray(byte[] array, int offset, int length) {
+//	private ByteProvider(byte[] array, int offset, int length) {
 //		this.array = array;
 //		this.offset = offset;
 //		this.length = length;
@@ -110,13 +110,13 @@ class ImmutableByteArray { //implements ByteProvider {
 //	}
 //
 //	@Override
-//	public ImmutableByteArray slice(int index) {
+//	public ByteProvider slice(int index) {
 //		return slice(index, length() - index);
 //	}
 //
 //	@Override
-//	public ImmutableByteArray slice(int index, int length) {
-//		if (length == 0) return ImmutableByteArray.EMPTY;
+//	public ByteProvider slice(int index, int length) {
+//		if (length == 0) return ByteProvider.EMPTY;
 //		if (length < 0) return slice(index + length, -length);
 //		validateSlice(index, length);
 //		if (index == 0 && length == length()) return this;
@@ -168,27 +168,27 @@ class ImmutableByteArray { //implements ByteProvider {
 //
 //	/* New functionality */
 //	
-//	public ImmutableByteArray append(byte... array) {
+//	public ByteProvider append(byte... array) {
 //		return append(array, 0);
 //	}
 //
-//	public ImmutableByteArray append(byte[] array, int offset) {
+//	public ByteProvider append(byte[] array, int offset) {
 //		return append(array, offset, array.length - offset);
 //	}
 //
-//	public ImmutableByteArray append(byte[] array, int offset, int length) {
+//	public ByteProvider append(byte[] array, int offset, int length) {
 //		return append(wrap(array, offset, length));
 //	}
 //
-//	public ImmutableByteArray append(ByteProvider array) {
+//	public ByteProvider append(ByteProvider array) {
 //		return append(array, 0);
 //	}
 //
-//	public ImmutableByteArray append(ByteProvider array, int offset) {
+//	public ByteProvider append(ByteProvider array, int offset) {
 //		return append(array, offset, array.length() - offset);
 //	}
 //
-//	public ImmutableByteArray append(ByteProvider array, int offset, int length) {
+//	public ByteProvider append(ByteProvider array, int offset, int length) {
 //		ArrayUtil.validateSlice(array.length(), offset, length);
 //		if (length == 0) return this;
 //		byte[] buffer = new byte[length() + length];
@@ -201,7 +201,7 @@ class ImmutableByteArray { //implements ByteProvider {
 //	 * Resizes the array view. If any part is outside the range, a new array is created and the
 //	 * overlap copied into it.
 //	 */
-//	public ImmutableByteArray resize(int length) {
+//	public ByteProvider resize(int length) {
 //		return resize(0, length);
 //	}
 //
@@ -209,8 +209,8 @@ class ImmutableByteArray { //implements ByteProvider {
 //	 * Resizes the array view. Use a negative length to right-justify the view. If any part is
 //	 * outside the range, a new array is created and the overlap copied into it.
 //	 */
-//	public ImmutableByteArray resize(int index, int length) {
-//		if (length == 0) return ImmutableByteArray.EMPTY;
+//	public ByteProvider resize(int index, int length) {
+//		if (length == 0) return ByteProvider.EMPTY;
 //		if (length < 0) return resize(index + length, -length);
 //		if (isValidSlice(index, length)) return slice(index, length);
 //		byte[] array = new byte[length];
@@ -233,8 +233,8 @@ class ImmutableByteArray { //implements ByteProvider {
 //	@Override
 //	public boolean equals(Object obj) {
 //		if (this == obj) return true;
-//		if (!(obj instanceof ImmutableByteArray)) return false;
-//		ImmutableByteArray other = (ImmutableByteArray) obj;
+//		if (!(obj instanceof ByteProvider)) return false;
+//		ByteProvider other = (ByteProvider) obj;
 //		if (length != other.length) return false;
 //		return Arrays.equals(array, offset, offset + length, other.array, other.offset,
 //			other.offset + length);

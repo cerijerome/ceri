@@ -65,9 +65,9 @@ public class DataEncoder {
 	// return 0;
 	// }
 	//
-	// default ImmutableByteArray encode() {
+	// default ByteProvider encode() {
 	// int size = size();
-	// if (size == 0) return ImmutableByteArray.EMPTY;
+	// if (size == 0) return ByteProvider.EMPTY;
 	// return DataEncoder.encode(size, this::encode);
 	// }
 	//
@@ -76,10 +76,10 @@ public class DataEncoder {
 	// }
 	// }
 	//
-	// public static ImmutableByteArray encode(int size, Consumer<DataEncoder> consumer) {
+	// public static ByteProvider encode(int size, Consumer<DataEncoder> consumer) {
 	// byte[] data = new byte[size];
 	// consumer.accept(DataEncoder.of(data));
-	// return ImmutableByteArray.wrap(data);
+	// return Immutable.wrap(data);
 	// }
 	//
 	// public static DataEncoder of(int size) {
@@ -143,20 +143,20 @@ public class DataEncoder {
 	// return length;
 	// }
 	//
-	// public ImmutableByteArray data() {
-	// return ImmutableByteArray.wrap(data, start, length);
+	// public ByteProvider data() {
+	// return Immutable.wrap(data, start, length);
 	// }
 	//
-	// public ImmutableByteArray slice(int offset) {
+	// public ByteProvider slice(int offset) {
 	// return slice(offset, length - offset);
 	// }
 	//
-	// public ImmutableByteArray slice(int offset, int length) {
+	// public ByteProvider slice(int offset, int length) {
 	// return data().slice(offset, length);
 	// }
 	//
 	// public DataEncoder encode(BitSet bitSet) {
-	// return copy(ImmutableByteArray.wrap(bitSet.toByteArray()));
+	// return copy(Immutable.wrap(bitSet.toByteArray()));
 	// }
 	//
 	// public DataEncoder encodeByte(int value) {
@@ -241,7 +241,7 @@ public class DataEncoder {
 	// }
 	//
 	// private DataEncoder copyWithPadding(byte[] data, int offset, int length) {
-	// return copyWithPadding(ImmutableByteArray.wrap(data), offset, length);
+	// return copyWithPadding(Immutable.wrap(data), offset, length);
 	// }
 	//
 	// private DataEncoder copyWithPadding(ByteProvider data, int offset, int length) {
