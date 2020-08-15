@@ -74,32 +74,17 @@ public class ValidationUtil {
 	/**
 	 * Validates and returns a value found by lookup function.
 	 */
-	public static <T, U> T validateLookup(Function<U, T> lookup, U value) {
+	public static <T, R> R validateLookup(Function<T, R> lookup, T value) {
 		return validateLookup(lookup, value, VALUE);
 	}
 
 	/**
 	 * Validates and returns a value found by lookup function.
 	 */
-	public static <T, U> T validateLookup(Function<U, T> lookup, U value, String name) {
-		T t = lookup.apply(value);
-		if (t != null) return t;
+	public static <T, R> R validateLookup(Function<T, R> lookup, T value, String name) {
+		R r = lookup.apply(value);
+		if (r != null) return r;
 		throw exceptionf("%s is invalid: %s", name, value, value);
-	}
-
-	/**
-	 * Validates and returns a value found by lookup function.
-	 */
-	public static <T, U> T validateLookup(Function<U, T> lookup, T expected, U value) {
-		return validateLookup(lookup, expected, value, VALUE);
-	}
-
-	/**
-	 * Validates and returns a value found by lookup function.
-	 */
-	public static <T, U> T validateLookup(Function<U, T> lookup, T expected, U value, String name) {
-		T t = validateLookup(lookup, value, name);
-		return validateEqualObj(t, expected);
 	}
 
 	/**
@@ -121,14 +106,30 @@ public class ValidationUtil {
 	/**
 	 * Validates and returns a value found by lookup function.
 	 */
-	public static <T> T validateIntLookup(IntFunction<T> lookup, T expected, int value) {
-		return validateIntLookup(lookup, expected, value, VALUE);
+	public static <T, R> R validateLookupEquals(Function<T, R> lookup, T value, R expected) {
+		return validateLookupEquals(lookup, value, expected, VALUE);
 	}
 
 	/**
 	 * Validates and returns a value found by lookup function.
 	 */
-	public static <T> T validateIntLookup(IntFunction<T> lookup, T expected, int value,
+	public static <T, R> R validateLookupEquals(Function<T, R> lookup, T value, R expected,
+		String name) {
+		R r = validateLookup(lookup, value, name);
+		return validateEqualObj(r, expected);
+	}
+
+	/**
+	 * Validates and returns a value found by lookup function.
+	 */
+	public static <T> T validateIntLookupEquals(IntFunction<T> lookup, int value, T expected) {
+		return validateIntLookupEquals(lookup, value, expected, VALUE);
+	}
+
+	/**
+	 * Validates and returns a value found by lookup function.
+	 */
+	public static <T> T validateIntLookupEquals(IntFunction<T> lookup, int value, T expected,
 		String name) {
 		T t = validateIntLookup(lookup, value, name);
 		return validateEqualObj(t, expected);

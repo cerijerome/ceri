@@ -59,12 +59,12 @@ public class DataUtilTest {
 
 	@Test
 	public void testExpectByteArray() {
-		DataUtil.expectx(reader(1, 2, 3), 1, 2, 3);
-		DataUtil.expectx(reader(1, 2, 3, 4), 1, 2, 3);
+		DataUtil.expect(reader(1, 2, 3), 1, 2, 3);
+		DataUtil.expect(reader(1, 2, 3, 4), 1, 2, 3);
 		DataUtil.expect(reader(1, 2, 3), bytes(0, 1, 2, 3, 4), 1, 3);
-		assertThrown(() -> DataUtil.expectx(reader(1, 2, 3), 1, 2, 4));
+		assertThrown(() -> DataUtil.expect(reader(1, 2, 3), 1, 2, 4));
 		var r = reader(1, 2, 3, 4, 5);
-		assertThrown(() -> DataUtil.expectx(r, 1, 1, 3));
+		assertThrown(() -> DataUtil.expect(r, 1, 1, 3));
 		assertArray(r.readBytes(), 3, 4, 5);
 	}
 

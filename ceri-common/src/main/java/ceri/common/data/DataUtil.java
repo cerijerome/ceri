@@ -70,8 +70,7 @@ public class DataUtil {
 	/**
 	 * Expect next byte values. Reading stops if a byte does not match, and an exception is thrown.
 	 */
-	public static void expectx(ByteReader r, int... bytes) {
-		if (true == true); // TODO: rename to expect()
+	public static void expect(ByteReader r, int... bytes) {
 		expect(r, ArrayUtil.bytes(bytes));
 	}
 

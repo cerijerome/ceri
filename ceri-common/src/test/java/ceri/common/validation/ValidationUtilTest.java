@@ -61,6 +61,20 @@ public class ValidationUtilTest {
 	}
 
 	@Test
+	public void testValidateLookupEquals() {
+		Map<String, Integer> map = Map.of("one", 1, "two", 2, "three", 3);
+		assertThat(ValidationUtil.validateLookupEquals(map::get, "two", 2), is(2));
+		assertThrown(() -> ValidationUtil.validateLookupEquals(map::get, "two", 3));
+	}
+
+	@Test
+	public void testValidateIntLookupEquals() {
+		Map<Integer, String> map = Map.of(1, "one", 2, "two", 3, "three");
+		assertThat(ValidationUtil.validateIntLookupEquals(map::get, 2, "two"), is("two"));
+		assertThrown(() -> ValidationUtil.validateIntLookupEquals(map::get, 2, "three"));
+	}
+
+	@Test
 	public void testValidateNotNull() {
 		ValidationUtil.validateNotNull(OBJ);
 		ValidationUtil.validateNotNull(OBJ, "test");

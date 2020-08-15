@@ -12,6 +12,7 @@ import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Helper to convert between object types and integer values. Integers can map to a single instance
@@ -209,7 +210,7 @@ public class TypeTranscoder<T> {
 	 * Decode the value to return a single type. Throws IllegalArgumentException if not found.
 	 */
 	public T decodeValid(int value, String name) {
-		return validateIntLookup(this::decode, value, name);
+		return ValidationUtil.<T>validateIntLookup(this::decode, value, name);
 	}
 
 	/**
