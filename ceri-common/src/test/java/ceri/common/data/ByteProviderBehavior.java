@@ -181,6 +181,24 @@ public class ByteProviderBehavior {
 	}
 
 	@Test
+	public void shouldDetermineLastIndexOfBytes() {
+		ByteProvider bp = provider(0, -1, 2, -1, 0, 2, -1, 0);
+		assertThat(bp.lastIndexOf(0, 2, -1), is(5));
+		assertThat(bp.lastIndexOf(0, 2, 1), is(-1));
+		assertThat(bp.lastIndexOf(7, 0, -1), is(-1));
+		assertThat(bp.lastIndexOf(0, ArrayUtil.bytes(2, -1, 0), 0, 4), is(-1));
+	}
+
+	@Test
+	public void shouldDetermineLastIndexOfProviderBytes() {
+		ByteProvider bp = provider(0, -1, 2, -1, 0, 2, -1, 0);
+		assertThat(bp.lastIndexOf(0, provider(2, -1)), is(5));
+		assertThat(bp.lastIndexOf(0, provider(2, 1)), is(-1));
+		assertThat(bp.lastIndexOf(7, provider(0, -1)), is(-1));
+		assertThat(bp.lastIndexOf(0, provider(2, -1, 0), 0, 4), is(-1));
+	}
+
+	@Test
 	public void shouldProvideReaderAccessToBytes() {
 		assertArray(bp.reader(5).readBytes(), -5, 6, -7, 8, -9);
 		assertArray(bp.reader(5, 0).readBytes());

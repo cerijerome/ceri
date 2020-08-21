@@ -478,7 +478,7 @@ public interface IntProvider {
 		if (!ArrayUtil.isValidSlice(length(), index, length)) return -1;
 		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return -1;
 		for (int i = length() - length; i >= index; i--)
-			if (isEqualTo(i, array, offset, length)) return index;
+			if (isEqualTo(i, array, offset, length)) return i;
 		return -1;
 	}
 
