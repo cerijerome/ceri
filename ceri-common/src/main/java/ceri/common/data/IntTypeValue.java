@@ -1,5 +1,7 @@
 package ceri.common.data;
 
+import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.MathUtil.ushort;
 import static ceri.common.util.BasicUtil.defaultValue;
 import static ceri.common.validation.DisplayLong.dec;
 import static ceri.common.validation.DisplayLong.hex;
@@ -41,28 +43,28 @@ public class IntTypeValue<T> {
 	 * Create unsigned byte type.
 	 */
 	public static <T> IntTypeValue<T> ofUbyte(int value, T type, String name) {
-		return of((byte) value, type, name, null, hex2::format);
+		return of(ubyte(value), type, name, null, hex2::format);
 	}
 
 	/**
 	 * Create unsigned byte type with sub-value.
 	 */
 	public static <T> IntTypeValue<T> ofUbyte(int value, T type, String name, int subValue) {
-		return of((byte) value, type, name, subValue, hex2::format);
+		return of(ubyte(value), type, name, subValue, hex2::format);
 	}
 
 	/**
 	 * Create unsigned short type.
 	 */
 	public static <T> IntTypeValue<T> ofUshort(int value, T type, String name) {
-		return of((short) value, type, name, null, hex4::format);
+		return of(ushort(value), type, name, null, hex4::format);
 	}
 
 	/**
 	 * Create unsigned short type with sub-value.
 	 */
 	public static <T> IntTypeValue<T> ofUshort(int value, T type, String name, int subValue) {
-		return of((short) value, type, name, subValue, hex4::format);
+		return of(ushort(value), type, name, subValue, hex4::format);
 	}
 
 	/**

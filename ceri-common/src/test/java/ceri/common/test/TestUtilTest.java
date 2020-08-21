@@ -391,6 +391,12 @@ public class TestUtilTest {
 	}
 
 	@Test
+	public void testAssertArrayForByteProvider() {
+		TestUtil.assertArray(TestUtil.provider(1, 2, 3), 1, 2, 3);
+		assertAssertion(() -> TestUtil.assertArray(TestUtil.provider(1, 2, 3), 1, 2));
+	}
+
+	@Test
 	public void testAssertCollection() {
 		List<Integer> list = ArrayUtil.intList(5, 1, 4, 2, 3);
 		TestUtil.assertCollection(list, 1, 2, 3, 4, 5);
@@ -428,6 +434,7 @@ public class TestUtilTest {
 
 	@Test
 	public void testThrowIt() {
+		assertThrown(() -> TestUtil.throwIt());
 		assertThrown(IOException.class, () -> TestUtil.throwIt(new IOException("test")));
 	}
 

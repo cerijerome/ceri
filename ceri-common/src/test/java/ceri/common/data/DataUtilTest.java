@@ -13,9 +13,9 @@ public class DataUtilTest {
 
 	@Test
 	public void testRequireSize() {
-		DataUtil.requireSize(reader("abc"), 3);
-		DataUtil.requireSize(reader("abcd"), 3);
-		assertThrown(() -> DataUtil.requireSize(reader("ab"), 3));
+		DataUtil.requireMin(reader("abc"), 3);
+		DataUtil.requireMin(reader("abcd"), 3);
+		assertThrown(() -> DataUtil.requireMin(reader("ab"), 3));
 	}
 
 	@Test

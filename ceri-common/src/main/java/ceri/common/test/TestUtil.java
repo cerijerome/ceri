@@ -43,6 +43,7 @@ import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
+import ceri.common.data.IntProvider;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.ExceptionRunnable;
@@ -493,6 +494,27 @@ public class TestUtil {
 	}
 
 	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	public static void assertArray(ByteProvider array, byte[] expected) {
+		assertArray(array.copy(0), expected);
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	public static void assertArray(ByteProvider array, int... values) {
+		assertArray(array, ArrayUtil.bytes(values));
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	public static void assertArray(IntProvider array, int... values) {
+		assertArray(array.copy(0), values);
+	}
+
+	/**
 	 * Checks two lists are equal, with specific failure information if not.
 	 */
 	public static <T> void assertList(List<? extends T> lhs, List<? extends T> rhs) {
@@ -730,6 +752,13 @@ public class TestUtil {
 
 	public static void assertStream(LongStream stream, long... ls) {
 		assertArray(stream.toArray(), ls);
+	}
+
+	/**
+	 * Throws a runtime exception. Useful for creating a lambda without the need for a code block.
+	 */
+	public static <T> T throwIt() {
+		throw new RuntimeException("throwIt");
 	}
 
 	/**
@@ -1066,10 +1095,17 @@ public class TestUtil {
 	}
 
 	/**
+	 * Returns a ByteProvider wrapper for bytes.
+	 */
+	public static ByteProvider provider(int... bytes) {
+		return Immutable.wrap(bytes);
+	}
+
+	/**
 	 * Returns a ByteProvider.Reader wrapper for bytes.
 	 */
 	public static ByteProvider.Reader reader(int... bytes) {
-		return Immutable.wrap(bytes).reader(0);
+		return provider(bytes).reader(0);
 	}
 
 	/**

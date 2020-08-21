@@ -9,11 +9,15 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import java.util.function.Consumer;
+import java.util.function.IntSupplier;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.data.IntArray.Encodable;
 import ceri.common.data.IntArray.Encoder;
 import ceri.common.data.IntArray.Immutable;
 import ceri.common.data.IntArray.Mutable;
+import ceri.common.test.TestUtil;
 import ceri.common.util.BasicUtil;
 
 public class IntArrayBehavior {
@@ -302,6 +306,38 @@ public class IntArrayBehavior {
 		Encoder en = Encoder.of(20);
 		en.fill(21, 0xff); // grow to 20x2 = 40
 		en.fill(60, 1); // grow to 81 (> 40x2)
+	}
+
+	/* Encodable tests */
+
+	@Test
+	public void shouldReturnEmptyArrayForZeroSizeEncodable() {
+		assertArray(encodable(() -> 0, enc -> TestUtil.throwIt()).encode());
+	}
+
+	@Test
+	public void shouldEncodeFixedSizeAsEncodable() {
+		assertArray(encodable(() -> 3, enc -> enc.writeInts(1, 2, 3)).encode(), 1, 2, 3);
+	}
+
+	@Test
+	public void shouldFailEncodingIfSizeDoesNotMatchBytesAsEncodable() {
+		assertThrown(() -> encodable(() -> 2, enc -> enc.writeInts(1, 2, 3)).encode());
+		assertThrown(() -> encodable(() -> 4, enc -> enc.writeInts(1, 2, 3)).encode());
+	}
+
+	private static Encodable encodable(IntSupplier sizeFn, Consumer<Encoder> encodeFn) {
+		return new Encodable() {
+			@Override
+			public int size() {
+				return sizeFn.getAsInt();
+			}
+
+			@Override
+			public void encode(Encoder encoder) {
+				encodeFn.accept(encoder);
+			}
+		};
 	}
 
 }

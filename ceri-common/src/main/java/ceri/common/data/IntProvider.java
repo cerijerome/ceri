@@ -458,6 +458,56 @@ public interface IntProvider {
 	}
 
 	/**
+	 * Returns the last index that matches array ints. Returns -1 if no match.
+	 */
+	default int lastIndexOf(int index, int... array) {
+		return lastIndexOf(index, array, 0);
+	}
+
+	/**
+	 * Returns the last index that matches array ints. Returns -1 if no match.
+	 */
+	default int lastIndexOf(int index, int[] array, int offset) {
+		return lastIndexOf(index, array, offset, array.length - offset);
+	}
+
+	/**
+	 * Returns the last index that matches array ints. Returns -1 if no match.
+	 */
+	default int lastIndexOf(int index, int[] array, int offset, int length) {
+		if (!ArrayUtil.isValidSlice(length(), index, length)) return -1;
+		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return -1;
+		for (int i = length() - length; i >= index; i--)
+			if (isEqualTo(i, array, offset, length)) return index;
+		return -1;
+	}
+
+	/**
+	 * Returns the last index that matches provider ints. Returns -1 if no match.
+	 */
+	default int lastIndexOf(int index, IntProvider provider) {
+		return lastIndexOf(index, provider, 0);
+	}
+
+	/**
+	 * Returns the last index that matches provider ints. Returns -1 if no match.
+	 */
+	default int lastIndexOf(int index, IntProvider provider, int offset) {
+		return lastIndexOf(index, provider, offset, provider.length() - offset);
+	}
+
+	/**
+	 * Returns the last index that matches provider ints. Returns -1 if no match.
+	 */
+	default int lastIndexOf(int index, IntProvider provider, int offset, int length) {
+		if (!ArrayUtil.isValidSlice(length(), index, length)) return -1;
+		if (!ArrayUtil.isValidSlice(provider.length(), offset, length)) return -1;
+		for (int i = length() - length; i >= index; i--)
+			if (isEqualTo(i, provider, offset, length)) return i;
+		return -1;
+	}
+	
+	/**
 	 * Provides sequential int access.
 	 */
 	default Reader reader(int index) {

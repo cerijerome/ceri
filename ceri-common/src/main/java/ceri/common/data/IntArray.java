@@ -1,6 +1,7 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_INT;
+import static ceri.common.validation.ValidationUtil.validateEqual;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -371,6 +372,23 @@ public abstract class IntArray implements IntProvider {
 		private void verifyGrowLength(int length) {
 			if (MathUtil.uint(length) > max) throw new IllegalArgumentException(String
 				.format("Max allocation size %1$d (0x%1$x) ints: %2$d (0x%2$x)", max, length));
+		}
+	}
+
+	/**
+	 * Interface for fixed-size encoding. This optimizes the encoded int array size.
+	 */
+	public static interface Encodable {
+		int size();
+
+		void encode(Encoder encoder);
+
+		default IntProvider encode() {
+			int size = size();
+			if (size == 0) return Immutable.EMPTY;
+			Encoder encoder = Encoder.fixed(size).apply(this::encode);
+			validateEqual(encoder.remaining(), 0, "Remaining ints");
+			return encoder.immutable();
 		}
 	}
 

@@ -1,6 +1,7 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
+import static ceri.common.validation.ValidationUtil.validateEqual;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import java.io.IOException;
 import java.io.InputStream;
@@ -434,6 +435,23 @@ public abstract class ByteArray implements ByteProvider {
 		private void verifyGrowLength(int length) {
 			if (MathUtil.uint(length) > max) throw new IllegalArgumentException(String
 				.format("Max allocation size %1$d (0x%1$x) bytes: %2$d (0x%2$x)", max, length));
+		}
+	}
+
+	/**
+	 * Interface for fixed-size encoding. This optimizes the encoded byte array size.
+	 */
+	public static interface Encodable {
+		int size();
+
+		void encode(Encoder encoder);
+
+		default ByteProvider encode() {
+			int size = size();
+			if (size == 0) return Immutable.EMPTY;
+			Encoder encoder = Encoder.fixed(size).apply(this::encode);
+			validateEqual(encoder.remaining(), 0, "Remaining bytes");
+			return encoder.immutable();
 		}
 	}
 

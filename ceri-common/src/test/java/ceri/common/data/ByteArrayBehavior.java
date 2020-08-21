@@ -14,11 +14,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.function.Consumer;
+import java.util.function.IntSupplier;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteArray.Encodable;
 import ceri.common.data.ByteArray.Encoder;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteArray.Mutable;
+import ceri.common.test.TestUtil;
 import ceri.common.util.BasicUtil;
 
 public class ByteArrayBehavior {
@@ -219,7 +223,7 @@ public class ByteArrayBehavior {
 		assertThrown(() -> en.writeByte(1));
 		assertArray(en.bytes(), 1, 1, 1);
 	}
-	
+
 	@Test
 	public void shouldEncodeAsByteArrayWrappers() {
 		assertArray(Encoder.of().writeUtf8("abc").bytes(), 'a', 'b', 'c');
@@ -335,4 +339,36 @@ public class ByteArrayBehavior {
 		en.fill(60, 1); // grow to 81 (> 40x2)
 	}
 
+	/* Encodable tests */
+
+	@Test
+	public void shouldReturnEmptyArrayForZeroSizeEncodable() {
+		assertArray(encodable(() -> 0, enc -> TestUtil.throwIt()).encode());
+	}
+
+	@Test
+	public void shouldEncodeFixedSizeAsEncodable() {
+		assertArray(encodable(() -> 3, enc -> enc.writeBytes(1, 2, 3)).encode(), 1, 2, 3);
+	}
+
+	@Test
+	public void shouldFailEncodingIfSizeDoesNotMatchBytesAsEncodable() {
+		assertThrown(() -> encodable(() -> 2, enc -> enc.writeBytes(1, 2, 3)).encode());
+		assertThrown(() -> encodable(() -> 4, enc -> enc.writeBytes(1, 2, 3)).encode());
+	}
+
+	private static Encodable encodable(IntSupplier sizeFn, Consumer<Encoder> encodeFn) {
+		return new Encodable() {
+			@Override
+			public int size() {
+				return sizeFn.getAsInt();
+			}
+
+			@Override
+			public void encode(Encoder encoder) {
+				encodeFn.accept(encoder);
+			}
+		};
+	}
+	
 }

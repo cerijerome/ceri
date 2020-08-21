@@ -42,42 +42,42 @@ public class Utf8Util {
 	}
 
 	/**
-	 * Returns the string as UTF8 bytes.
+	 * Returns the string from UTF8 bytes.
 	 */
 	public static String decode(byte[] utf8Bytes) {
 		return decode(utf8Bytes, 0);
 	}
 
 	/**
-	 * Returns the string as UTF8 bytes.
+	 * Returns the string from UTF8 bytes.
 	 */
 	public static String decode(byte[] utf8Bytes, int offset) {
 		return decode(utf8Bytes, offset, utf8Bytes.length - offset);
 	}
 
 	/**
-	 * Returns the string as UTF8 bytes.
+	 * Returns the string from UTF8 bytes.
 	 */
 	public static String decode(byte[] utf8Bytes, int offset, int length) {
 		return new String(utf8Bytes, offset, length, charset());
 	}
 
 	/**
-	 * Returns the string as UTF8 bytes.
+	 * Returns the string from UTF8 bytes.
 	 */
 	public static String decode(ByteProvider utf8Bytes) {
 		return decode(utf8Bytes, 0);
 	}
 
 	/**
-	 * Returns the string as UTF8 bytes.
+	 * Returns the string from UTF8 bytes.
 	 */
 	public static String decode(ByteProvider utf8Bytes, int offset) {
 		return decode(utf8Bytes, offset, utf8Bytes.length() - offset);
 	}
 
 	/**
-	 * Returns the string as UTF8 bytes.
+	 * Returns the string from UTF8 bytes.
 	 */
 	public static String decode(ByteProvider utf8Bytes, int offset, int length) {
 		return new String(utf8Bytes.copy(offset, length), charset());
