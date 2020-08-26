@@ -152,6 +152,7 @@ import ceri.common.io.IoUtilTest;
 import ceri.common.io.KeyCheckerBehavior;
 import ceri.common.io.PathFiltersTest;
 import ceri.common.io.PathPatternBehavior;
+import ceri.common.io.PipedStreamBehavior;
 import ceri.common.io.PollingInputStreamBehavior;
 import ceri.common.io.ReplaceableInputStreamBehavior;
 import ceri.common.io.ReplaceableOutputStreamBehavior;
@@ -447,6 +448,7 @@ import ceri.common.xml.XmlUtilTest;
 	KeyCheckerBehavior.class, //
 	PathFiltersTest.class, //
 	PathPatternBehavior.class, //
+	PipedStreamBehavior.class, //
 	PollingInputStreamBehavior.class, //
 	ReplaceableInputStreamBehavior.class, //
 	ReplaceableOutputStreamBehavior.class, //
