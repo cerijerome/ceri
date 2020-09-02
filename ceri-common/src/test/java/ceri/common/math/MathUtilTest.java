@@ -6,8 +6,11 @@ import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertRange;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
 
@@ -316,6 +319,23 @@ public class MathUtilTest {
 	public void testRandomDoubleRange() {
 		assertRange(MathUtil.random(-1.0, 2.0), -1.0, 2.0);
 		assertRange(MathUtil.random(-1.0, 0.0), -1.0, 0.0);
+	}
+
+	@Test
+	public void testRandomList() {
+		String s = MathUtil.random("1", "2", "3");
+		assertThat(Set.of("1", "2", "3").contains(s), is(true));
+		assertThat(MathUtil.random("1"), is("1"));
+		assertNull(MathUtil.random(List.of()));
+	}
+
+	@Test
+	public void testRandomSet() {
+		Set<String> set = Set.of("1", "2", "3");
+		String s = MathUtil.random(set);
+		assertThat(set.contains(s), is(true));
+		assertThat(MathUtil.random(Set.of("1")), is("1"));
+		assertNull(MathUtil.random(Set.of()));
 	}
 
 	@Test

@@ -463,7 +463,7 @@ public class CollectionUtil {
 	 * Returns the element at index based on the set iterator.
 	 */
 	public static <T> T get(int index, Set<T> set) {
-		if (set == null || set.size() <= index) return null;
+		if (set == null || index < 0 || set.size() <= index) return null;
 		Iterator<T> i = set.iterator();
 		while (index-- > 0) i.next();
 		return i.next();

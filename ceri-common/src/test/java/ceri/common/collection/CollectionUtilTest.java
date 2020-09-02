@@ -184,7 +184,7 @@ public class CollectionUtilTest {
 		CollectionUtil.spliterator(null, 1, 0).tryAdvance(capturer);
 		capturer.verify();
 	}
-	
+
 	@Test
 	public void testSpliteratorNext() {
 		Capturer<Object> capturer = Capturer.of();
@@ -197,7 +197,7 @@ public class CollectionUtilTest {
 		CollectionUtil.spliterator(() -> true, () -> "test", 1, 0).tryAdvance(capturer);
 		capturer.verify("test");
 	}
-	
+
 	@Test
 	public void testToArray() {
 		TestUtil.assertThrown(() -> CollectionUtil.toArray(Collections.emptyList(), Integer.TYPE));
@@ -257,6 +257,17 @@ public class CollectionUtilTest {
 		assertNull(CollectionUtil.last(ii));
 		Collections.addAll(ii, 1, 0, -1);
 		assertThat(CollectionUtil.last(ii), is(-1));
+	}
+
+	@Test
+	public void testGetFromSet() {
+		Set<String> set = new LinkedHashSet<>(Arrays.asList("1", "2", "3"));
+		assertThat(CollectionUtil.get(0, set), is("1"));
+		assertThat(CollectionUtil.get(1, set), is("2"));
+		assertThat(CollectionUtil.get(2, set), is("3"));
+		assertNull(CollectionUtil.get(-1, set));
+		assertNull(CollectionUtil.get(3, set));
+		assertNull(CollectionUtil.get(0, null));
 	}
 
 	@Test
