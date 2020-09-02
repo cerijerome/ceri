@@ -5,9 +5,12 @@ import static ceri.common.validation.ValidationUtil.validateMin;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.CollectionUtil;
 
 public class MathUtil {
 	public static final double PIx2 = Math.PI * 2; // common calculation
@@ -242,6 +245,32 @@ public class MathUtil {
 	 */
 	public static double random(double min, double maxExclusive) {
 		return ThreadLocalRandom.current().nextDouble(min, maxExclusive);
+	}
+
+	/**
+	 * Selects a pseudo-random object.
+	 */
+	@SafeVarargs
+	public static <T> T random(T... ts) {
+		return random(Arrays.asList(ts));
+	}
+
+	/**
+	 * Selects a pseudo-random object.
+	 */
+	public static <T> T random(List<T> ts) {
+		if (ts.isEmpty()) return null;
+		int index = random(0, ts.size() - 1);
+		return ts.get(index);
+	}
+
+	/**
+	 * Selects a pseudo-random object.
+	 */
+	public static <T> T random(Set<T> ts) {
+		if (ts.isEmpty()) return null;
+		int i = random(0, ts.size() - 1);
+		return CollectionUtil.get(i, ts);
 	}
 
 	/**

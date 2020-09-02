@@ -71,7 +71,7 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Copies an array of objects into an mutable LinkedHashSet.
+	 * Copies an array of objects into a mutable LinkedHashSet.
 	 */
 	@SafeVarargs
 	public static <T> Set<T> asSet(T... array) {
@@ -456,6 +456,16 @@ public class CollectionUtil {
 		if (iterable == null) return null;
 		Iterator<T> i = iterable.iterator();
 		if (!i.hasNext()) return null;
+		return i.next();
+	}
+
+	/**
+	 * Returns the element at index based on the set iterator.
+	 */
+	public static <T> T get(int index, Set<T> set) {
+		if (set == null || set.size() <= index) return null;
+		Iterator<T> i = set.iterator();
+		while (index-- > 0) i.next();
 		return i.next();
 	}
 

@@ -2,6 +2,7 @@ package ceri.common.io;
 
 import static ceri.common.util.ExceptionUtil.shouldNotThrow;
 import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
@@ -29,6 +30,10 @@ public class PipedStream implements Closeable {
 
 	public OutputStream out() {
 		return out;
+	}
+
+	public void clear() throws IOException {
+		IoUtil.clear(in);
 	}
 
 	@Override
