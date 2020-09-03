@@ -149,18 +149,32 @@ public class TestUtil {
 	/**
 	 * Creates BaseProperties from name.properties file under caller's package.
 	 */
-	public static BaseProperties properties(String name) {
+	public static BaseProperties baseProperties(String name) {
 		Class<?> cls = ReflectUtil.previousCaller(1).cls();
-		return properties(cls, name);
+		return baseProperties(cls, name);
 	}
 
 	/**
 	 * Creates BaseProperties from name.properties under class package.
 	 */
-	public static BaseProperties properties(Class<?> cls, String name) {
+	public static BaseProperties baseProperties(Class<?> cls, String name) {
+		return BaseProperties.from(properties(cls, name));
+	}
+
+	/**
+	 * Creates Properties from name.properties file under caller's package.
+	 */
+	public static Properties properties(String name) {
+		Class<?> cls = ReflectUtil.previousCaller(1).cls();
+		return properties(cls, name);
+	}
+
+	/**
+	 * Creates Properties from name.properties under class package.
+	 */
+	public static Properties properties(Class<?> cls, String name) {
 		String text = init(() -> IoUtil.resourceString(cls, name + ".properties"));
-		Properties properties = PropertyUtil.parse(text);
-		return BaseProperties.from(properties);
+		return PropertyUtil.parse(text);
 	}
 
 	/**

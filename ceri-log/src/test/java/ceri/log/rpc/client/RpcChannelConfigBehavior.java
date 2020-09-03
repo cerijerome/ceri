@@ -2,7 +2,7 @@ package ceri.log.rpc.client;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static ceri.common.test.TestUtil.properties;
+import static ceri.common.test.TestUtil.baseProperties;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class RpcChannelConfigBehavior {
 	@Test
 	public void shouldBuildFromProperties() {
 		RpcChannelConfig config =
-			new RpcChannelProperties(properties("rpc-client"), "rpc-client").config();
+			new RpcChannelProperties(baseProperties("rpc-client"), "rpc-client").config();
 		assertThat(config.host, is("127.0.0.1"));
 		assertThat(config.port, is(12345));
 	}

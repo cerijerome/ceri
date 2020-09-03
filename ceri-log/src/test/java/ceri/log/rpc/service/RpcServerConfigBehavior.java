@@ -2,7 +2,7 @@ package ceri.log.rpc.service;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static ceri.common.test.TestUtil.properties;
+import static ceri.common.test.TestUtil.baseProperties;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class RpcServerConfigBehavior {
 	@Test
 	public void shouldBuildFromProperties() {
 		RpcServerConfig config =
-			new RpcServerProperties(properties("rpc-server"), "rpc-server").config();
+			new RpcServerProperties(baseProperties("rpc-server"), "rpc-server").config();
 		assertThat(config.port, is(12345));
 		assertThat(config.shutdownTimeoutMs, is(1000));
 	}

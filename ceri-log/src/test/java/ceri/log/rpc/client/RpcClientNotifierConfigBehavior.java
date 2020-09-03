@@ -2,7 +2,7 @@ package ceri.log.rpc.client;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static ceri.common.test.TestUtil.properties;
+import static ceri.common.test.TestUtil.baseProperties;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class RpcClientNotifierConfigBehavior {
 	@Test
 	public void shouldBuildFromProperties() {
 		RpcClientNotifierConfig config =
-			new RpcClientNotifierProperties(properties("rpc-client"), "rpc-client.notifier")
+			new RpcClientNotifierProperties(baseProperties("rpc-client"), "rpc-client.notifier")
 				.config();
 		assertThat(config.resetDelayMs, is(1000));
 	}

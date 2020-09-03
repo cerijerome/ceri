@@ -45,6 +45,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -292,8 +293,8 @@ public class TestUtilTest {
 	}
 
 	@Test
-	public void testProperties() {
-		BaseProperties properties = TestUtil.properties("test");
+	public void testBaseProperties() {
+		BaseProperties properties = TestUtil.baseProperties("test");
 		var p = new BaseProperties(properties, "a") {
 			@Override
 			public String toString() {
@@ -301,6 +302,12 @@ public class TestUtilTest {
 			}
 		};
 		assertThat(p.toString(), is("123"));
+	}
+
+	@Test
+	public void testProperties() {
+		Properties properties = TestUtil.properties("test");
+		assertThat(properties.getProperty("a.b"), is("123"));
 	}
 
 	@Test
