@@ -16,9 +16,6 @@ import ceri.common.collection.ArrayUtil;
  * 
  * @see ceri.common.data.MutableIntArray
  * @see ceri.common.concurrent.VolatileIntArray
- * @see ceri.dmx.spi.device.SpiPulseDevice
- * @see ceri.serial.spi.pulse.PulseBuffer
- * @see ceri.serial.spi.pulse.SpiPulseTransmitter
  */
 public interface IntReceiver {
 

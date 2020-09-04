@@ -21,9 +21,8 @@ import ceri.common.collection.ArrayUtil;
  * 
  * @see ceri.common.data.ByteArray.Mutable
  * @see ceri.common.concurrent.VolatileByteArray
- * @see ceri.dmx.spi.device.SpiPulseDevice
  * @see ceri.serial.spi.pulse.PulseBuffer
- * @see ceri.serial.spi.pulse.SpiPulseTransmitter
+ * @see ceri.serial.spi.pulse.SpiPulseDevice
  */
 public interface ByteReceiver {
 

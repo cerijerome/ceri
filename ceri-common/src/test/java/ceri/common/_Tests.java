@@ -224,6 +224,7 @@ import ceri.common.test.PulsePrinterBehavior;
 import ceri.common.test.RegexFinderBehavior;
 import ceri.common.test.RegexMatcherBehavior;
 import ceri.common.test.ResponseStreamBehavior;
+import ceri.common.test.TestConsumerBehavior;
 import ceri.common.test.TestInputStreamBehavior;
 import ceri.common.test.TestListenerBehavior;
 import ceri.common.test.TestListenersBehavior;
@@ -530,6 +531,7 @@ import ceri.common.xml.XmlUtilTest;
 	RegexFinderBehavior.class, //
 	RegexMatcherBehavior.class, //
 	ResponseStreamBehavior.class, //
+	TestConsumerBehavior.class, //
 	TestInputStreamBehavior.class, //
 	TestListenerBehavior.class, //
 	TestListenersBehavior.class, //
