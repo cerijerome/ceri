@@ -39,7 +39,7 @@ public class SpiPulseTester {
 
 		try (Spi spi = SpiDevice.open(bus, chip, out)) {
 			spi.mode(mode).maxSpeedHz(speed);
-			try (SpiPulseTransmitter processor = SpiPulseTransmitter.of(spi, config)) {
+			try (SpiPulseTransmitter processor = SpiPulseTransmitter.of(1, spi, config)) {
 				BasicUtil.delay(1000);
 				runCycles(processor);
 			}
@@ -72,6 +72,7 @@ public class SpiPulseTester {
 		System.out.println("...");
 		for (int i = 0; i < cycles; i++) {
 			spi.copyFrom(0, data);
+			spi.send();
 			BasicUtil.delay(200);
 		}
 		System.out.println("stopped");

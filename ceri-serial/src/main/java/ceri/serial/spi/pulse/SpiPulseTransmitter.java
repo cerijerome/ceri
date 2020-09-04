@@ -2,14 +2,11 @@ package ceri.serial.spi.pulse;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.function.IntSupplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.SafeReadWrite;
-import ceri.common.data.ByteArray.Mutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
 import ceri.common.util.BasicUtil;
@@ -18,7 +15,7 @@ import ceri.serial.spi.Spi;
 import ceri.serial.spi.SpiTransfer;
 
 /**
- * Controls transmission of spi pulse data.
+ * Provides a ByteReceiver interface for writing pulse data to an Spi device.
  */
 public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver {
 	private static final Logger logger = LogManager.getLogger();
@@ -27,20 +24,23 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	private final SpiPulseConfig config;
 	private final PulseBuffer buffer;
 	private final SpiTransfer xfer;
-	private final ByteReceiver wrapper;
-	private final byte[] data;
+	private final int id;
 
-	public static SpiPulseTransmitter of(Spi spi, SpiPulseConfig config) {
-		return new SpiPulseTransmitter(spi, config);
+	public static SpiPulseTransmitter of(int id, Spi spi, SpiPulseConfig config) {
+		return new SpiPulseTransmitter(id, spi, config);
 	}
 
-	private SpiPulseTransmitter(Spi spi, SpiPulseConfig config) {
+	private SpiPulseTransmitter(int id, Spi spi, SpiPulseConfig config) {
+		super(logName(id, config));
+		this.id = id;
 		this.config = config;
 		buffer = config.buffer();
 		xfer = spi.transfer(buffer.storageSize()).delayMicros(config.delayMicros);
-		data = new byte[buffer.length()];
-		wrapper = Mutable.wrap(data);
 		start();
+	}
+
+	public int id() {
+		return id;
 	}
 
 	public PulseCycle cycle() {
@@ -54,27 +54,31 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 
 	@Override
 	public int setByte(int pos, int b) {
-		return copyFrom(pos, ArrayUtil.bytes(b));
+		return safe.writeWithReturn(() -> buffer.setByte(pos, b));
 	}
 
 	@Override
 	public int copyFrom(int pos, byte[] array, int offset, int length) {
-		return signal(() -> wrapper.copyFrom(pos, array, offset, length));
+		return safe.writeWithReturn(() -> buffer.copyFrom(pos, array, offset, length));
 	}
 
 	@Override
 	public int copyFrom(int pos, ByteProvider provider, int offset, int length) {
-		return signal(() -> wrapper.copyFrom(pos, provider, offset, length));
+		return safe.writeWithReturn(() -> buffer.copyFrom(pos, provider, offset, length));
 	}
 
 	@Override
 	public int fill(int value, int length, int pos) {
-		return signal(() -> wrapper.fill(pos, length, value));
+		return safe.writeWithReturn(() -> buffer.fill(pos, length, value));
 	}
 
 	@Override
 	public int readFrom(int index, InputStream in, int length) throws IOException {
 		return ByteReceiver.readBufferFrom(this, index, in, length);
+	}
+
+	public void send() {
+		sync.signal();
 	}
 
 	@Override
@@ -94,16 +98,13 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	private void syncData() throws InterruptedException {
 		safe.write(() -> {
 			sync.await();
-			buffer.copyFrom(0, data);
+			buffer.writePulseTo(xfer.out());
 		});
 	}
 
-	private int signal(IntSupplier action) {
-		return safe.writeWithReturn(() -> {
-			int result = action.getAsInt();
-			sync.signal();
-			return result;
-		});
+	private static String logName(int id, SpiPulseConfig config) {
+		return String.format("%s(%d:%d:%s)", SpiPulseTransmitter.class.getSimpleName(), id,
+			config.size, config.cycle);
 	}
 
 }
