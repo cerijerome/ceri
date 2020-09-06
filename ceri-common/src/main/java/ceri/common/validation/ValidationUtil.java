@@ -237,14 +237,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that the floating point values are equal.
 	 */
-	public static double validateEqual(double value, double expected, DisplayDouble... flags) {
+	public static double validateEqual(double value, Double expected, DisplayDouble... flags) {
 		return validateEqual(value, expected, VALUE, flags);
 	}
 
 	/**
 	 * Validates that the floating point values are equal.
 	 */
-	public static double validateEqual(double value, double expected, String name,
+	public static double validateEqual(double value, Double expected, String name,
 		DisplayDouble... flags) {
 		if (value != expected) throw exceptionf("%s != %s: %s", name(name), format(expected, flags),
 			format(value, flags));
@@ -254,14 +254,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that the floating point values are not equal.
 	 */
-	public static double validateNotEqual(double value, double expected, DisplayDouble... flags) {
+	public static double validateNotEqual(double value, Double expected, DisplayDouble... flags) {
 		return validateNotEqual(value, expected, VALUE, flags);
 	}
 
 	/**
 	 * Validates that the floating point values are not equal.
 	 */
-	public static double validateNotEqual(double value, double expected, String name,
+	public static double validateNotEqual(double value, Double expected, String name,
 		DisplayDouble... flags) {
 		if (value == expected) throw exceptionf("%s = %s", name(name), format(value, flags));
 		return value;

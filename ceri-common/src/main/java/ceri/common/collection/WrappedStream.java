@@ -116,7 +116,7 @@ public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 
 	public <R> WrappedStream<E, R>
 		apply(ExceptionFunction<E, ? super Stream<T>, ? extends Stream<R>> fn) throws E {
-		var s = fn.apply(stream);
+		Stream<R> s = fn.apply(stream);
 		WrappedStream<E, R> wrapped = new WrappedStream<>(w, s);
 		return wrapped;
 	}

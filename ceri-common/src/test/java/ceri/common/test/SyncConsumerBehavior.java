@@ -8,11 +8,11 @@ import org.junit.Test;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.SimpleExecutor;
 
-public class TestConsumerBehavior {
+public class SyncConsumerBehavior {
 
 	@Test
 	public void shouldProvideBooleanReceiver() throws InterruptedException {
-		TestConsumer.Bool<IOException> consumer = TestConsumer.bool();
+		SyncConsumer.Bool<IOException> consumer = SyncConsumer.bool();
 		try (var exec = SimpleExecutor.run(() -> consumer.accept())) {
 			consumer.awaitCall();
 			exec.get();
@@ -22,7 +22,7 @@ public class TestConsumerBehavior {
 	@Test
 	public void shouldExecuteActionBeforeResuming() throws InterruptedException, IOException {
 		StringBuilder b = new StringBuilder().append("test");
-		TestConsumer<IOException, String> consumer = TestConsumer.of();
+		SyncConsumer<IOException, String> consumer = SyncConsumer.of();
 		try (var exec = SimpleExecutor.run(() -> {
 			consumer.accept(b.toString());
 			consumer.accept(b.toString());
@@ -37,7 +37,7 @@ public class TestConsumerBehavior {
 
 	@Test
 	public void shouldVerifyNoCall() throws InterruptedException {
-		TestConsumer<IOException, String> consumer = TestConsumer.of();
+		SyncConsumer<IOException, String> consumer = SyncConsumer.of();
 		try (var exec = SimpleExecutor.run(() -> consumer.accept("test0"))) {
 			consumer.assertCall("test0");
 			exec.get();
@@ -47,7 +47,7 @@ public class TestConsumerBehavior {
 
 	@Test
 	public void shouldGenerateRuntimeExceptions() throws InterruptedException {
-		TestConsumer<IOException, String> consumer = TestConsumer.of();
+		SyncConsumer<IOException, String> consumer = SyncConsumer.of();
 		consumer.rtError();
 		try (var exec = SimpleExecutor.run(() -> {
 			assertThrown(RuntimeException.class, () -> consumer.accept("test0"));
@@ -61,7 +61,7 @@ public class TestConsumerBehavior {
 
 	@Test
 	public void shouldGenerateRuntimeInterruptedExceptions() throws InterruptedException {
-		TestConsumer<IOException, String> consumer = TestConsumer.of();
+		SyncConsumer<IOException, String> consumer = SyncConsumer.of();
 		consumer.rtiError();
 		try (var exec = SimpleExecutor.run(() -> {
 			assertThrown(RuntimeInterruptedException.class, () -> consumer.accept("test0"));
@@ -75,7 +75,7 @@ public class TestConsumerBehavior {
 
 	@Test
 	public void shouldGenerateExceptions() throws InterruptedException {
-		TestConsumer<IOException, String> consumer = TestConsumer.of();
+		SyncConsumer<IOException, String> consumer = SyncConsumer.of();
 		consumer.error(IOException::new);
 		try (var exec = SimpleExecutor.run(() -> {
 			assertThrown(IOException.class, () -> consumer.accept("test0"));
@@ -89,7 +89,7 @@ public class TestConsumerBehavior {
 
 	@Test
 	public void shouldGenerateExceptionsWithPredicate() throws InterruptedException {
-		TestConsumer<IOException, String> consumer = TestConsumer.of();
+		SyncConsumer<IOException, String> consumer = SyncConsumer.of();
 		consumer.rtiError(i -> i == 1);
 		consumer.error(IOException::new, i -> i == 2);
 		try (var exec = SimpleExecutor.run(() -> {

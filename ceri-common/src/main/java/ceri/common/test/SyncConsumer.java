@@ -19,7 +19,7 @@ import ceri.common.function.ExceptionRunnable;
  * call from a thread will only complete once the resume condition is signaled, either by calling
  * awaitCall or assertCall. This ensures no calls are missed by the test class.
  */
-public class TestConsumer<E extends Exception, T> implements ExceptionConsumer<E, T> {
+public class SyncConsumer<E extends Exception, T> implements ExceptionConsumer<E, T> {
 	private final List<ThrowEntry<RuntimeException>> rtExceptions = new ArrayList<>();
 	private final List<ThrowEntry<E>> exceptions = new ArrayList<>();
 	private final ValueCondition<T> call = ValueCondition.of();
@@ -41,7 +41,7 @@ public class TestConsumer<E extends Exception, T> implements ExceptionConsumer<E
 		}
 	}
 
-	public static class Bool<E extends Exception> extends TestConsumer<E, Boolean> {
+	public static class Bool<E extends Exception> extends SyncConsumer<E, Boolean> {
 		protected Bool() {}
 
 		public void accept() throws E {
@@ -53,11 +53,11 @@ public class TestConsumer<E extends Exception, T> implements ExceptionConsumer<E
 		return new Bool<>();
 	}
 
-	public static <E extends Exception, T> TestConsumer<E, T> of() {
-		return new TestConsumer<>();
+	public static <E extends Exception, T> SyncConsumer<E, T> of() {
+		return new SyncConsumer<>();
 	}
 
-	protected TestConsumer() {}
+	protected SyncConsumer() {}
 
 	/**
 	 * The call to be made by the thread. Signals waiting callers, waits for resume, then
@@ -121,14 +121,14 @@ public class TestConsumer<E extends Exception, T> implements ExceptionConsumer<E
 	/**
 	 * Generate a RuntimeInterruptedException whenever a call is made.
 	 */
-	public TestConsumer<E, T> rtiError() {
+	public SyncConsumer<E, T> rtiError() {
 		return rtiError((Integer i) -> true);
 	}
 
 	/**
 	 * Generate a RuntimeInterruptedException whenever the predicate matches the call count.
 	 */
-	public TestConsumer<E, T> rtiError(Predicate<Integer> countMatch) {
+	public SyncConsumer<E, T> rtiError(Predicate<Integer> countMatch) {
 		rtExceptions.add(new ThrowEntry<>(RuntimeInterruptedException::new, countMatch));
 		return this;
 	}
@@ -136,14 +136,14 @@ public class TestConsumer<E extends Exception, T> implements ExceptionConsumer<E
 	/**
 	 * Generate a RuntimeException whenever a call is made.
 	 */
-	public TestConsumer<E, T> rtError() {
+	public SyncConsumer<E, T> rtError() {
 		return rtError((Integer i) -> true);
 	}
 
 	/**
 	 * Generate a RuntimeException whenever the predicate matches the call count.
 	 */
-	public TestConsumer<E, T> rtError(Predicate<Integer> countMatch) {
+	public SyncConsumer<E, T> rtError(Predicate<Integer> countMatch) {
 		rtExceptions.add(new ThrowEntry<>(RuntimeException::new, countMatch));
 		return this;
 	}
@@ -152,7 +152,7 @@ public class TestConsumer<E extends Exception, T> implements ExceptionConsumer<E
 	 * Generate the Exception whenever a call is made. The count as text is passed to the exception
 	 * constructor.
 	 */
-	public TestConsumer<E, T> error(Function<String, E> exceptionFn) {
+	public SyncConsumer<E, T> error(Function<String, E> exceptionFn) {
 		return error(exceptionFn, i -> true);
 	}
 
@@ -160,7 +160,7 @@ public class TestConsumer<E extends Exception, T> implements ExceptionConsumer<E
 	 * Generate the Exception whenever the predicate matches the call count. The count as text is
 	 * passed to the exception constructor.
 	 */
-	public TestConsumer<E, T> error(Function<String, E> exceptionFn,
+	public SyncConsumer<E, T> error(Function<String, E> exceptionFn,
 		Predicate<Integer> countMatch) {
 		exceptions.add(new ThrowEntry<>(exceptionFn, countMatch));
 		return this;
