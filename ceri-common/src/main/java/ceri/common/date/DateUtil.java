@@ -43,6 +43,20 @@ public class DateUtil {
 	}
 
 	/**
+	 * Returns the epoch milliseconds from LocalDateTime in the given ZoneId.
+	 */
+	public static long epochMilli(LocalDateTime dateTime, ZoneId zoneId) {
+		return dateTime.atZone(zoneId).toInstant().toEpochMilli();
+	}
+	
+	/**
+	 * Returns the epoch milliseconds from LocalDateTime in the system ZoneId.
+	 */
+	public static long epochMilli(LocalDateTime dateTime) {
+		return epochMilli(dateTime, ZoneId.systemDefault());
+	}
+	
+	/**
 	 * Returns the date/time pattern for a locale. Use null for unwanted style. Can be used to
 	 * modify a local date pattern, keeping the ordering, but modifying the field size.
 	 */
@@ -64,6 +78,13 @@ public class DateUtil {
 	 */
 	public static LocalDateTime dateTime(long millis, ZoneId zone) {
 		return Instant.ofEpochMilli(millis).atZone(zone).toLocalDateTime();
+	}
+
+	/**
+	 * Returns a local date-time in the system time zone from epoch milliseconds.
+	 */
+	public static LocalDateTime dateTime(long millis) {
+		return dateTime(millis, ZoneId.systemDefault());
 	}
 
 	/**

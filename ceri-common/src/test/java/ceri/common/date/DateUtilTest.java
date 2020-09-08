@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
 import java.util.Locale;
@@ -26,6 +27,20 @@ public class DateUtilTest {
 		assertThat(DateUtil.jvmUptimeMs() < TimeUnit.DAYS.toMillis(30 * 365), is(true));
 	}
 
+	@Test
+	public void testEpochMilli() {
+		long t0 = DateUtil.epochMilli(LocalDateTime.now());
+		long t1 = System.currentTimeMillis();
+		assertTrue(t1 - t0 < 1000);
+	}
+	
+	@Test
+	public void testDateTime() {
+		LocalDateTime t0 = LocalDateTime.now();
+		LocalDateTime t1 = DateUtil.dateTime(System.currentTimeMillis());
+		assertTrue(Duration.between(t0, t1).toMillis() < 1000);
+	}
+	
 	@Test
 	public void testDateTimePattern() {
 		assertThat(DateUtil.dateTimePattern(FormatStyle.FULL, FormatStyle.FULL, Locale.US),
