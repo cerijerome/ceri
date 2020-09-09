@@ -10,7 +10,7 @@ import ceri.common.event.Listeners;
  * streams.
  */
 public class ReplaceableInputStream extends InputStream implements Listenable.Indirect<Exception> {
-	private final Listeners<Exception> listeners = new Listeners<>();
+	private final Listeners<Exception> listeners = Listeners.of();
 	private volatile InputStream in = null;
 
 	@Override

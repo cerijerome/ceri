@@ -14,7 +14,7 @@ public class ListenersBehavior {
 		StringBuilder b = new StringBuilder();
 		Consumer<String> l0 = s -> b.append(s.charAt(0));
 		Consumer<String> l1 = s -> b.append(s.charAt(1));
-		Listeners<String> ls = new Listeners<>();
+		Listeners<String> ls = Listeners.of();
 		assertTrue(ls.isEmpty());
 		ls.listen(l0);
 		ls.listen(l0);
@@ -38,7 +38,7 @@ public class ListenersBehavior {
 		StringBuilder b = new StringBuilder();
 		Consumer<String> l0 = s -> b.append(s.charAt(0));
 		Consumer<String> l1 = s -> b.append(s.charAt(1));
-		Listeners<String> ls = new Listeners<>();
+		Listeners<String> ls = Listeners.of();
 		ls.listen(l0);
 		ls.listen(l1);
 		ls.accept("ab");
@@ -50,7 +50,7 @@ public class ListenersBehavior {
 	
 	@Test
 	public void shouldDuplicateListeners() {
-		Listeners<String> ls = new Listeners<>();
+		Listeners<String> ls = Listeners.of();
 		Consumer<String> l0 = s -> {};
 		Consumer<String> l1 = s -> {};
 		assertTrue(ls.listen(l0));

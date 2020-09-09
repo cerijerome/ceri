@@ -10,7 +10,7 @@ public class TestListenerBehavior {
 
 	@Test
 	public void shouldListenForNotifications() throws InterruptedException {
-		Listeners<String> listeners = new Listeners<>();
+		Listeners<String> listeners = Listeners.of();
 		try (TestListener<String> listener = TestListener.of(listeners)) {
 			listeners.accept("test");
 			assertThat(listener.await(false), is("test"));
@@ -18,8 +18,8 @@ public class TestListenerBehavior {
 	}
 
 	@Test
-	public void shouldNotFuckingHang() throws InterruptedException {
-		Listeners<String> listeners = new Listeners<>();
+	public void shouldNotHang() throws InterruptedException {
+		Listeners<String> listeners = Listeners.of();
 		try (TestListener<String> listener = TestListener.of(listeners)) {
 			try (var exec = runRepeat(() -> listeners.accept("test"))) {
 				assertThat(listener.await(true), is("test"));
@@ -28,12 +28,11 @@ public class TestListenerBehavior {
 	}
 
 	@Test
-	public void shouldAccessActors() {
-		Listeners<String> listeners = new Listeners<>();
+	public void shouldReturnListener() throws InterruptedException {
+		Listeners<String> listeners = Listeners.of();
 		try (TestListener<String> listener = TestListener.of(listeners)) {
-			assertThat(listener.listenable(), is(listeners));
-			assertThat(listener.listener(), is(listener.listener.listener));
-
+			listener.listener().accept("test");
+			assertThat(listener.await(false), is("test"));
 		}
 	}
 

@@ -11,7 +11,7 @@ import ceri.common.event.Listeners;
  */
 public class ReplaceableOutputStream extends OutputStream
 	implements Listenable.Indirect<Exception> {
-	private final Listeners<Exception> listeners = new Listeners<>();
+	private final Listeners<Exception> listeners = Listeners.of();
 	private volatile OutputStream out;
 
 	@Override

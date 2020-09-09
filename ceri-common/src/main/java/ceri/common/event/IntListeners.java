@@ -12,6 +12,12 @@ import java.util.function.IntConsumer;
 public class IntListeners implements IntConsumer, IntListenable {
 	private final Collection<IntConsumer> listeners = new ConcurrentLinkedQueue<>();
 
+	public static IntListeners of() {
+		return new IntListeners();
+	}
+
+	protected IntListeners() {}
+
 	public int size() {
 		return listeners.size();
 	}

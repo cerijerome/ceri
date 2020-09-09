@@ -2,285 +2,7 @@ package ceri.common;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import ceri.common.collection.ArrayIteratorBehavior;
-import ceri.common.collection.ArrayUtilTest;
-import ceri.common.collection.CollectionUtilTest;
-import ceri.common.collection.DelegatingMapBehavior;
-import ceri.common.collection.FixedSizeCacheBehavior;
-import ceri.common.collection.ImmutableUtilTest;
-import ceri.common.collection.IndexedBehavior;
-import ceri.common.collection.MapPopulatorBehavior;
-import ceri.common.collection.NodeBehavior;
-import ceri.common.collection.StreamUtilTest;
-import ceri.common.collection.WrappedIntStreamBehavior;
-import ceri.common.collection.WrappedStreamBehavior;
-import ceri.common.color.BiasesTest;
-import ceri.common.color.CharGrayscaleBehavior;
-import ceri.common.color.ColorComparatorsTest;
-import ceri.common.color.ColorUtilTest;
-import ceri.common.color.ColorableTest;
-import ceri.common.color.ColorxBehavior;
-import ceri.common.color.ColorxComparatorsTest;
-import ceri.common.color.ColorxUtilTest;
-import ceri.common.color.ColorxableTest;
-import ceri.common.color.CtColorBehavior;
-import ceri.common.color.HsbColorBehavior;
-import ceri.common.color.RgbColorBehavior;
-import ceri.common.color.RgbxColorBehavior;
-import ceri.common.color.X11ColorTest;
-import ceri.common.color.XybColorBehavior;
-import ceri.common.color.XyzColorBehavior;
-import ceri.common.comparator.ComparatorSequenceBehavior;
-import ceri.common.comparator.ComparatorsTest;
-import ceri.common.comparator.EnumComparatorsTest;
-import ceri.common.concurrent.BooleanConditionBehavior;
-import ceri.common.concurrent.ConcurrentUtilTest;
-import ceri.common.concurrent.RuntimeInterruptedExceptionBehavior;
-import ceri.common.concurrent.SafeReadWriteBehavior;
-import ceri.common.concurrent.SimpleExecutorBehavior;
-import ceri.common.concurrent.ValueConditionBehavior;
-import ceri.common.concurrent.VolatileByteArrayBehavior;
-import ceri.common.data.BinaryStateBehavior;
-import ceri.common.data.BooleanAccessorBehavior;
-import ceri.common.data.ByteArrayBehavior;
-import ceri.common.data.ByteProviderBehavior;
-import ceri.common.data.ByteReaderBehavior;
-import ceri.common.data.ByteReceiverBehavior;
-import ceri.common.data.ByteStreamBehavior;
-import ceri.common.data.ByteUtilTest;
-import ceri.common.data.ByteWriterBehavior;
-import ceri.common.data.CrcAlgorithmBehavior;
-import ceri.common.data.CrcBehavior;
-import ceri.common.data.DataUtilTest;
-import ceri.common.data.FieldTranscoderBehavior;
-import ceri.common.data.IntAccessorBehavior;
-import ceri.common.data.IntArrayBehavior;
-import ceri.common.data.IntBitSetBehavior;
-import ceri.common.data.IntProviderBehavior;
-import ceri.common.data.IntReaderBehavior;
-import ceri.common.data.IntReceiverBehavior;
-import ceri.common.data.IntTypeValueBehavior;
-import ceri.common.data.IntWriterBehavior;
-import ceri.common.data.MaskTranscoderBehavior;
-import ceri.common.data.NavigatorBehavior;
-import ceri.common.data.TypeTranscoderBehavior;
-import ceri.common.data.XorBehavior;
-import ceri.common.date.CalendarFieldBehavior;
-import ceri.common.date.DateUtilTest;
-import ceri.common.date.HolidayBehavior;
-import ceri.common.date.ImmutableDateBehavior;
-import ceri.common.date.ImmutableTimeZoneBehavior;
-import ceri.common.date.MultiDateParserBehavior;
-import ceri.common.event.CloseableIntListenerBehavior;
-import ceri.common.event.CloseableListenerBehavior;
-import ceri.common.event.EventTrackerBehavior;
-import ceri.common.event.IntListenersBehavior;
-import ceri.common.event.ListenableBehavior;
-import ceri.common.event.ListenersBehavior;
-import ceri.common.event.NullIntListenableBehavior;
-import ceri.common.event.NullListenableBehavior;
-import ceri.common.filter.CollectionFiltersTest;
-import ceri.common.filter.EnumFiltersTest;
-import ceri.common.filter.FilterBehavior;
-import ceri.common.filter.FiltersTest;
-import ceri.common.function.AccessorBehavior;
-import ceri.common.function.BooleanConsumerBehavior;
-import ceri.common.function.ByteConsumerBehavior;
-import ceri.common.function.ExceptionBiConsumerBehavior;
-import ceri.common.function.ExceptionBiFunctionBehavior;
-import ceri.common.function.ExceptionBiPredicateBehavior;
-import ceri.common.function.ExceptionBooleanSupplierBehavior;
-import ceri.common.function.ExceptionConsumerBehavior;
-import ceri.common.function.ExceptionFunctionBehavior;
-import ceri.common.function.ExceptionIntBinaryOperatorBehavior;
-import ceri.common.function.ExceptionIntConsumerBehavior;
-import ceri.common.function.ExceptionIntFunctionBehavior;
-import ceri.common.function.ExceptionIntPredicateBehavior;
-import ceri.common.function.ExceptionIntSupplierBehavior;
-import ceri.common.function.ExceptionIntUnaryOperatorBehavior;
-import ceri.common.function.ExceptionLongConsumerBehavior;
-import ceri.common.function.ExceptionLongFunctionBehavior;
-import ceri.common.function.ExceptionLongPredicateBehavior;
-import ceri.common.function.ExceptionLongSupplierBehavior;
-import ceri.common.function.ExceptionLongUnaryOperatorBehavior;
-import ceri.common.function.ExceptionObjIntFunctionBehavior;
-import ceri.common.function.ExceptionPredicateBehavior;
-import ceri.common.function.ExceptionRunnableBehavior;
-import ceri.common.function.ExceptionSupplierBehavior;
-import ceri.common.function.ExceptionToIntFunctionBehavior;
-import ceri.common.function.FluentBehavior;
-import ceri.common.function.FunctionUtilTest;
-import ceri.common.function.FunctionWrapperBehavior;
-import ceri.common.function.NamedPredicateBuilderBehavior;
-import ceri.common.function.ObjBooleanConsumerBehavior;
-import ceri.common.function.ObjByteConsumerBehavior;
-import ceri.common.function.ObjShortConsumerBehavior;
-import ceri.common.function.ToBooleanFunctionBehavior;
-import ceri.common.function.ToByteFunctionBehavior;
-import ceri.common.function.ToShortFunctionBehavior;
-import ceri.common.geo.LatLngBehavior;
-import ceri.common.geo.LatLngUtilTest;
-import ceri.common.geom.Circle2dBehavior;
-import ceri.common.geom.ConcaveSpheroidBehavior;
-import ceri.common.geom.Cone3dBehavior;
-import ceri.common.geom.Cylinder3dBehavior;
-import ceri.common.geom.Dimension2dBehavior;
-import ceri.common.geom.Ellipse2dBehavior;
-import ceri.common.geom.Ellipsoid3dBehavior;
-import ceri.common.geom.GeometryUtilTest;
-import ceri.common.geom.InvertedRadial3dBehavior;
-import ceri.common.geom.Line2dBehavior;
-import ceri.common.geom.Line2dEquationBehavior;
-import ceri.common.geom.LineUtilTest;
-import ceri.common.geom.Point2dBehavior;
-import ceri.common.geom.Polar2dBehavior;
-import ceri.common.geom.Radial3dBehavior;
-import ceri.common.geom.Ratio2dBehavior;
-import ceri.common.geom.Rectangle2dBehavior;
-import ceri.common.geom.Shape3dUtilTest;
-import ceri.common.geom.Spheroid3dBehavior;
-import ceri.common.geom.TruncatedRadial3dBehavior;
-import ceri.common.io.BitIteratorBehavior;
-import ceri.common.io.CloseableWrapperBehavior;
-import ceri.common.io.DeviceModeBehavior;
-import ceri.common.io.FileTrackerBehavior;
-import ceri.common.io.FileVisitUtilTest;
-import ceri.common.io.InputStreamIteratorBehavior;
-import ceri.common.io.IoStreamUtilTest;
-import ceri.common.io.IoTimeoutExceptionBehavior;
-import ceri.common.io.IoUtilTest;
-import ceri.common.io.KeyCheckerBehavior;
-import ceri.common.io.PathFiltersTest;
-import ceri.common.io.PathPatternBehavior;
-import ceri.common.io.PipedStreamBehavior;
-import ceri.common.io.PollingInputStreamBehavior;
-import ceri.common.io.ReplaceableInputStreamBehavior;
-import ceri.common.io.ReplaceableOutputStreamBehavior;
-import ceri.common.io.ResourcePathBehavior;
-import ceri.common.io.RuntimeEofExceptionBehavior;
-import ceri.common.io.RuntimeIoExceptionBehavior;
-import ceri.common.io.StateChangeBehavior;
-import ceri.common.io.StringPrintStreamBehavior;
-import ceri.common.log.LevelBehavior;
-import ceri.common.log.LoggerBehavior;
-import ceri.common.math.AlgebraUtilTest;
-import ceri.common.math.BoundBehavior;
-import ceri.common.math.FractionBehavior;
-import ceri.common.math.IntervalBehavior;
-import ceri.common.math.IntervalUtilTest;
-import ceri.common.math.MathUtilTest;
-import ceri.common.math.MatrixBehavior;
-import ceri.common.math.MatrixUtilTest;
-import ceri.common.math.MixedFractionBehavior;
-import ceri.common.math.NumberPatternsBehavior;
-import ceri.common.math.ReverseFunctionBehavior;
-import ceri.common.math.TrigUtilTest;
-import ceri.common.math.VectorBehavior;
-import ceri.common.math.VectorUtilTest;
-import ceri.common.net.EmailUtilTest;
-import ceri.common.net.HostPortBehavior;
-import ceri.common.net.NetUtilTest;
-import ceri.common.net.UdpUtilTest;
-import ceri.common.process.ColumnsBehavior;
-import ceri.common.process.OutputBehavior;
-import ceri.common.process.ParametersBehavior;
-import ceri.common.process.ProcessCommandBehavior;
-import ceri.common.process.ProcessUtilTest;
-import ceri.common.process.ProcessorBehavior;
-import ceri.common.property.BasePropertiesBehavior;
-import ceri.common.property.LocatorBehavior;
-import ceri.common.property.PathBehavior;
-import ceri.common.property.PathFactoryBehavior;
-import ceri.common.property.PropertyAccessorBehavior;
-import ceri.common.property.PropertyUtilTest;
-import ceri.common.reflect.CallerBehavior;
-import ceri.common.reflect.CreateExceptionBehavior;
-import ceri.common.reflect.ReflectUtilTest;
-import ceri.common.score.CollectionScorersTest;
-import ceri.common.score.ScoreLookupBehavior;
-import ceri.common.score.ScoreResultBehavior;
-import ceri.common.score.ScorersTest;
-import ceri.common.sql.SqlFormatterBehavior;
-import ceri.common.sql.SqlStatementBehavior;
-import ceri.common.sql.SqlUtilTest;
-import ceri.common.svg.EllipseBehavior;
-import ceri.common.svg.EllipticalArcBehavior;
-import ceri.common.svg.GroundedPathBehavior;
-import ceri.common.svg.LargeArcFlagBehavior;
-import ceri.common.svg.LineToBehavior;
-import ceri.common.svg.MoveToBehavior;
-import ceri.common.svg.PathGroupBehavior;
-import ceri.common.svg.PositionBehavior;
-import ceri.common.svg.SvgUtilTest;
-import ceri.common.svg.SweepFlagBehavior;
-import ceri.common.test.ApproxMatcherBehavior;
-import ceri.common.test.BinaryLogInputStreamBehavior;
-import ceri.common.test.BinaryLogOutputStreamBehavior;
-import ceri.common.test.BinaryPrinterBehavior;
-import ceri.common.test.BranchCaptorBehavior;
-import ceri.common.test.DebuggerBehavior;
-import ceri.common.test.FileTestHelperBehavior;
-import ceri.common.test.PulsePrinterBehavior;
-import ceri.common.test.RegexFinderBehavior;
-import ceri.common.test.RegexMatcherBehavior;
-import ceri.common.test.ResponseStreamBehavior;
-import ceri.common.test.SyncConsumerBehavior;
-import ceri.common.test.TestInputStreamBehavior;
-import ceri.common.test.TestListenerBehavior;
-import ceri.common.test.TestListenersBehavior;
-import ceri.common.test.TestOutputStreamBehavior;
-import ceri.common.test.TestPrinterBehavior;
-import ceri.common.test.TestRunAdapterBehavior;
-import ceri.common.test.TestRunPrinterBehavior;
-import ceri.common.test.TestStyleBehavior;
-import ceri.common.test.TestTimerBehavior;
 import ceri.common.test.TestUtil;
-import ceri.common.test.TestUtilTest;
-import ceri.common.text.AnsiEscapeBehavior;
-import ceri.common.text.DsvCodecBehavior;
-import ceri.common.text.DsvParserBehavior;
-import ceri.common.text.FractionFormatsTest;
-import ceri.common.text.MarshallerBehavior;
-import ceri.common.text.NonMatchResultBehavior;
-import ceri.common.text.NonMatcherBehavior;
-import ceri.common.text.RegexSequencerBehavior;
-import ceri.common.text.RegexUtilTest;
-import ceri.common.text.SplitterBehavior;
-import ceri.common.text.StringTypeBehavior;
-import ceri.common.text.StringUtilTest;
-import ceri.common.text.TextUtilTest;
-import ceri.common.text.ToStringHelperBehavior;
-import ceri.common.text.Utf8UtilTest;
-import ceri.common.tree.NodeTreeBehavior;
-import ceri.common.tree.TreeIteratorBehavior;
-import ceri.common.tree.TreeNodeBehavior;
-import ceri.common.tree.TreeNodeComparatorsTest;
-import ceri.common.tree.TreeUtilTest;
-import ceri.common.util.AlignBehavior;
-import ceri.common.util.BasicUtilTest;
-import ceri.common.util.CounterBehavior;
-import ceri.common.util.EqualsUtilTest;
-import ceri.common.util.ExceptionAdapterBehavior;
-import ceri.common.util.ExceptionTrackerBehavior;
-import ceri.common.util.ExceptionUtilTest;
-import ceri.common.util.HashCoderBehavior;
-import ceri.common.util.HolderBehavior;
-import ceri.common.util.KeyValueBehavior;
-import ceri.common.util.LocaleUtilTest;
-import ceri.common.util.MultiPatternBehavior;
-import ceri.common.util.NameValueBehavior;
-import ceri.common.util.OsUtilTest;
-import ceri.common.util.PrimitiveUtilTest;
-import ceri.common.util.StartupValuesBehavior;
-import ceri.common.util.SystemVarsTest;
-import ceri.common.util.TimerBehavior;
-import ceri.common.util.ValueCacheBehavior;
-import ceri.common.validation.DisplayDoubleBehavior;
-import ceri.common.validation.DisplayLongBehavior;
-import ceri.common.validation.ValidationUtilTest;
-import ceri.common.xml.RuntimeXPathExceptionBehavior;
-import ceri.common.xml.XPathUtilTest;
-import ceri.common.xml.XmlUtilTest;
 
 /**
  * Generated test suite for ceri-common
@@ -288,310 +10,307 @@ import ceri.common.xml.XmlUtilTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	// collection
-	ArrayIteratorBehavior.class, //
-	ArrayUtilTest.class, //
-	CollectionUtilTest.class, //
-	DelegatingMapBehavior.class, //
-	FixedSizeCacheBehavior.class, //
-	ImmutableUtilTest.class, //
-	IndexedBehavior.class, //
-	MapPopulatorBehavior.class, //
-	NodeBehavior.class, //
-	StreamUtilTest.class, //
-	WrappedIntStreamBehavior.class, //
-	WrappedStreamBehavior.class, //
+	ceri.common.collection.ArrayIteratorBehavior.class, //
+	ceri.common.collection.ArrayUtilTest.class, //
+	ceri.common.collection.CollectionUtilTest.class, //
+	ceri.common.collection.DelegatingMapBehavior.class, //
+	ceri.common.collection.FixedSizeCacheBehavior.class, //
+	ceri.common.collection.ImmutableUtilTest.class, //
+	ceri.common.collection.IndexedBehavior.class, //
+	ceri.common.collection.MapPopulatorBehavior.class, //
+	ceri.common.collection.NodeBehavior.class, //
+	ceri.common.collection.StreamUtilTest.class, //
+	ceri.common.collection.WrappedIntStreamBehavior.class, //
+	ceri.common.collection.WrappedStreamBehavior.class, //
 	// color
-	BiasesTest.class, //
-	CharGrayscaleBehavior.class, //
-	ColorComparatorsTest.class, //
-	ColorUtilTest.class, //
-	ColorableTest.class, //
-	ColorxBehavior.class, //
-	ColorxComparatorsTest.class, //
-	ColorxUtilTest.class, //
-	ColorxableTest.class, //
-	CtColorBehavior.class, //
-	HsbColorBehavior.class, //
-	RgbColorBehavior.class, //
-	RgbxColorBehavior.class, //
-	X11ColorTest.class, //
-	XybColorBehavior.class, //
-	XyzColorBehavior.class, //
+	ceri.common.color.BiasesTest.class, //
+	ceri.common.color.CharGrayscaleBehavior.class, //
+	ceri.common.color.ColorComparatorsTest.class, //
+	ceri.common.color.ColorUtilTest.class, //
+	ceri.common.color.ColorableTest.class, //
+	ceri.common.color.ColorxBehavior.class, //
+	ceri.common.color.ColorxComparatorsTest.class, //
+	ceri.common.color.ColorxUtilTest.class, //
+	ceri.common.color.ColorxableTest.class, //
+	ceri.common.color.CtColorBehavior.class, //
+	ceri.common.color.HsbColorBehavior.class, //
+	ceri.common.color.RgbColorBehavior.class, //
+	ceri.common.color.RgbxColorBehavior.class, //
+	ceri.common.color.X11ColorTest.class, //
+	ceri.common.color.XybColorBehavior.class, //
+	ceri.common.color.XyzColorBehavior.class, //
 	// comparator
-	ComparatorSequenceBehavior.class, //
-	ComparatorsTest.class, //
-	EnumComparatorsTest.class, //
+	ceri.common.comparator.ComparatorSequenceBehavior.class, //
+	ceri.common.comparator.ComparatorsTest.class, //
+	ceri.common.comparator.EnumComparatorsTest.class, //
 	// concurrent
-	BooleanConditionBehavior.class, //
-	ConcurrentUtilTest.class, //
-	RuntimeInterruptedExceptionBehavior.class, //
-	SafeReadWriteBehavior.class, //
-	SimpleExecutorBehavior.class, //
-	ValueConditionBehavior.class, //
-	VolatileByteArrayBehavior.class, //
+	ceri.common.concurrent.BooleanConditionBehavior.class, //
+	ceri.common.concurrent.ConcurrentUtilTest.class, //
+	ceri.common.concurrent.RuntimeInterruptedExceptionBehavior.class, //
+	ceri.common.concurrent.SafeReadWriteBehavior.class, //
+	ceri.common.concurrent.SimpleExecutorBehavior.class, //
+	ceri.common.concurrent.ValueConditionBehavior.class, //
+	ceri.common.concurrent.VolatileByteArrayBehavior.class, //
 	// data
-	BinaryStateBehavior.class, //
-	BooleanAccessorBehavior.class, //
-	ByteArrayBehavior.class, //
-	ByteProviderBehavior.class, //
-	ByteReaderBehavior.class, //
-	ByteReceiverBehavior.class, //
-	ByteStreamBehavior.class, //
-	ByteUtilTest.class, //
-	ByteWriterBehavior.class, //
-	CrcAlgorithmBehavior.class, //
-	CrcBehavior.class, //
-	DataUtilTest.class, //
-	FieldTranscoderBehavior.class, //
-	IntAccessorBehavior.class, //
-	IntArrayBehavior.class, //
-	IntBitSetBehavior.class, //
-	IntProviderBehavior.class, //
-	IntReaderBehavior.class, //
-	IntReceiverBehavior.class, //
-	IntTypeValueBehavior.class, //
-	IntWriterBehavior.class, //
-	MaskTranscoderBehavior.class, //
-	NavigatorBehavior.class, //
-	TypeTranscoderBehavior.class, //
-	XorBehavior.class, //
+	ceri.common.data.BinaryStateBehavior.class, //
+	ceri.common.data.BooleanAccessorBehavior.class, //
+	ceri.common.data.ByteArrayBehavior.class, //
+	ceri.common.data.ByteProviderBehavior.class, //
+	ceri.common.data.ByteReaderBehavior.class, //
+	ceri.common.data.ByteReceiverBehavior.class, //
+	ceri.common.data.ByteStreamBehavior.class, //
+	ceri.common.data.ByteUtilTest.class, //
+	ceri.common.data.ByteWriterBehavior.class, //
+	ceri.common.data.CrcAlgorithmBehavior.class, //
+	ceri.common.data.CrcBehavior.class, //
+	ceri.common.data.DataUtilTest.class, //
+	ceri.common.data.FieldTranscoderBehavior.class, //
+	ceri.common.data.IntAccessorBehavior.class, //
+	ceri.common.data.IntArrayBehavior.class, //
+	ceri.common.data.IntBitSetBehavior.class, //
+	ceri.common.data.IntProviderBehavior.class, //
+	ceri.common.data.IntReaderBehavior.class, //
+	ceri.common.data.IntReceiverBehavior.class, //
+	ceri.common.data.IntTypeValueBehavior.class, //
+	ceri.common.data.IntWriterBehavior.class, //
+	ceri.common.data.MaskTranscoderBehavior.class, //
+	ceri.common.data.NavigatorBehavior.class, //
+	ceri.common.data.TypeTranscoderBehavior.class, //
+	ceri.common.data.XorBehavior.class, //
 	// date
-	CalendarFieldBehavior.class, //
-	DateUtilTest.class, //
-	HolidayBehavior.class, //
-	ImmutableDateBehavior.class, //
-	ImmutableTimeZoneBehavior.class, //
-	MultiDateParserBehavior.class, //
+	ceri.common.date.CalendarFieldBehavior.class, //
+	ceri.common.date.DateUtilTest.class, //
+	ceri.common.date.HolidayBehavior.class, //
+	ceri.common.date.ImmutableDateBehavior.class, //
+	ceri.common.date.ImmutableTimeZoneBehavior.class, //
+	ceri.common.date.MultiDateParserBehavior.class, //
 	// event
-	CloseableIntListenerBehavior.class, //
-	CloseableListenerBehavior.class, //
-	EventTrackerBehavior.class, //
-	IntListenersBehavior.class, //
-	ListenableBehavior.class, //
-	ListenersBehavior.class, //
-	NullIntListenableBehavior.class, //
-	NullListenableBehavior.class, //
+	ceri.common.event.EventTrackerBehavior.class, //
+	ceri.common.event.IntListenableBehavior.class, //
+	ceri.common.event.IntListenersBehavior.class, //
+	ceri.common.event.ListenableBehavior.class, //
+	ceri.common.event.ListenersBehavior.class, //
 	// filter
-	CollectionFiltersTest.class, //
-	EnumFiltersTest.class, //
-	FilterBehavior.class, //
-	FiltersTest.class, //
+	ceri.common.filter.CollectionFiltersTest.class, //
+	ceri.common.filter.EnumFiltersTest.class, //
+	ceri.common.filter.FilterBehavior.class, //
+	ceri.common.filter.FiltersTest.class, //
 	// function
-	AccessorBehavior.class, //
-	BooleanConsumerBehavior.class, //
-	ByteConsumerBehavior.class, //
-	ExceptionBiConsumerBehavior.class, //
-	ExceptionBiFunctionBehavior.class, //
-	ExceptionBiPredicateBehavior.class, //
-	ExceptionBooleanSupplierBehavior.class, //
-	ExceptionConsumerBehavior.class, //
-	ExceptionFunctionBehavior.class, //
-	ExceptionIntBinaryOperatorBehavior.class, //
-	ExceptionIntConsumerBehavior.class, //
-	ExceptionIntFunctionBehavior.class, //
-	ExceptionIntPredicateBehavior.class, //
-	ExceptionIntSupplierBehavior.class, //
-	ExceptionIntUnaryOperatorBehavior.class, //
-	ExceptionLongConsumerBehavior.class, //
-	ExceptionLongFunctionBehavior.class, //
-	ExceptionLongPredicateBehavior.class, //
-	ExceptionLongSupplierBehavior.class, //
-	ExceptionLongUnaryOperatorBehavior.class, //
-	ExceptionObjIntFunctionBehavior.class, //
-	ExceptionPredicateBehavior.class, //
-	ExceptionRunnableBehavior.class, //
-	ExceptionSupplierBehavior.class, //
-	ExceptionToIntFunctionBehavior.class, //
-	FluentBehavior.class, //
-	FunctionUtilTest.class, //
-	FunctionWrapperBehavior.class, //
-	NamedPredicateBuilderBehavior.class, //
-	ObjBooleanConsumerBehavior.class, //
-	ObjByteConsumerBehavior.class, //
-	ObjShortConsumerBehavior.class, //
-	ToBooleanFunctionBehavior.class, //
-	ToByteFunctionBehavior.class, //
-	ToShortFunctionBehavior.class, //
+	ceri.common.function.AccessorBehavior.class, //
+	ceri.common.function.BooleanConsumerBehavior.class, //
+	ceri.common.function.ByteConsumerBehavior.class, //
+	ceri.common.function.ExceptionBiConsumerBehavior.class, //
+	ceri.common.function.ExceptionBiFunctionBehavior.class, //
+	ceri.common.function.ExceptionBiPredicateBehavior.class, //
+	ceri.common.function.ExceptionBooleanSupplierBehavior.class, //
+	ceri.common.function.ExceptionConsumerBehavior.class, //
+	ceri.common.function.ExceptionFunctionBehavior.class, //
+	ceri.common.function.ExceptionIntBinaryOperatorBehavior.class, //
+	ceri.common.function.ExceptionIntConsumerBehavior.class, //
+	ceri.common.function.ExceptionIntFunctionBehavior.class, //
+	ceri.common.function.ExceptionIntPredicateBehavior.class, //
+	ceri.common.function.ExceptionIntSupplierBehavior.class, //
+	ceri.common.function.ExceptionIntUnaryOperatorBehavior.class, //
+	ceri.common.function.ExceptionLongConsumerBehavior.class, //
+	ceri.common.function.ExceptionLongFunctionBehavior.class, //
+	ceri.common.function.ExceptionLongPredicateBehavior.class, //
+	ceri.common.function.ExceptionLongSupplierBehavior.class, //
+	ceri.common.function.ExceptionLongUnaryOperatorBehavior.class, //
+	ceri.common.function.ExceptionObjIntFunctionBehavior.class, //
+	ceri.common.function.ExceptionPredicateBehavior.class, //
+	ceri.common.function.ExceptionRunnableBehavior.class, //
+	ceri.common.function.ExceptionSupplierBehavior.class, //
+	ceri.common.function.ExceptionToIntFunctionBehavior.class, //
+	ceri.common.function.FluentBehavior.class, //
+	ceri.common.function.FunctionUtilTest.class, //
+	ceri.common.function.FunctionWrapperBehavior.class, //
+	ceri.common.function.NamedPredicateBuilderBehavior.class, //
+	ceri.common.function.ObjBooleanConsumerBehavior.class, //
+	ceri.common.function.ObjByteConsumerBehavior.class, //
+	ceri.common.function.ObjShortConsumerBehavior.class, //
+	ceri.common.function.ToBooleanFunctionBehavior.class, //
+	ceri.common.function.ToByteFunctionBehavior.class, //
+	ceri.common.function.ToShortFunctionBehavior.class, //
 	// geo
-	LatLngBehavior.class, //
-	LatLngUtilTest.class, //
+	ceri.common.geo.LatLngBehavior.class, //
+	ceri.common.geo.LatLngUtilTest.class, //
 	// geom
-	Circle2dBehavior.class, //
-	ConcaveSpheroidBehavior.class, //
-	Cone3dBehavior.class, //
-	Cylinder3dBehavior.class, //
-	Dimension2dBehavior.class, //
-	Ellipse2dBehavior.class, //
-	Ellipsoid3dBehavior.class, //
-	GeometryUtilTest.class, //
-	InvertedRadial3dBehavior.class, //
-	Line2dBehavior.class, //
-	Line2dEquationBehavior.class, //
-	LineUtilTest.class, //
-	Point2dBehavior.class, //
-	Polar2dBehavior.class, //
-	Radial3dBehavior.class, //
-	Ratio2dBehavior.class, //
-	Rectangle2dBehavior.class, //
-	Shape3dUtilTest.class, //
-	Spheroid3dBehavior.class, //
-	TruncatedRadial3dBehavior.class, //
+	ceri.common.geom.Circle2dBehavior.class, //
+	ceri.common.geom.ConcaveSpheroidBehavior.class, //
+	ceri.common.geom.Cone3dBehavior.class, //
+	ceri.common.geom.Cylinder3dBehavior.class, //
+	ceri.common.geom.Dimension2dBehavior.class, //
+	ceri.common.geom.Ellipse2dBehavior.class, //
+	ceri.common.geom.Ellipsoid3dBehavior.class, //
+	ceri.common.geom.GeometryUtilTest.class, //
+	ceri.common.geom.InvertedRadial3dBehavior.class, //
+	ceri.common.geom.Line2dBehavior.class, //
+	ceri.common.geom.Line2dEquationBehavior.class, //
+	ceri.common.geom.LineUtilTest.class, //
+	ceri.common.geom.Point2dBehavior.class, //
+	ceri.common.geom.Polar2dBehavior.class, //
+	ceri.common.geom.Radial3dBehavior.class, //
+	ceri.common.geom.Ratio2dBehavior.class, //
+	ceri.common.geom.Rectangle2dBehavior.class, //
+	ceri.common.geom.Shape3dUtilTest.class, //
+	ceri.common.geom.Spheroid3dBehavior.class, //
+	ceri.common.geom.TruncatedRadial3dBehavior.class, //
 	// io
-	BitIteratorBehavior.class, //
-	CloseableWrapperBehavior.class, //
-	DeviceModeBehavior.class, //
-	FileTrackerBehavior.class, //
-	FileVisitUtilTest.class, //
-	InputStreamIteratorBehavior.class, //
-	IoStreamUtilTest.class, //
-	IoTimeoutExceptionBehavior.class, //
-	IoUtilTest.class, //
-	KeyCheckerBehavior.class, //
-	PathFiltersTest.class, //
-	PathPatternBehavior.class, //
-	PipedStreamBehavior.class, //
-	PollingInputStreamBehavior.class, //
-	ReplaceableInputStreamBehavior.class, //
-	ReplaceableOutputStreamBehavior.class, //
-	ResourcePathBehavior.class, //
-	RuntimeEofExceptionBehavior.class, //
-	RuntimeIoExceptionBehavior.class, //
-	StateChangeBehavior.class, //
-	StringPrintStreamBehavior.class, //
+	ceri.common.io.BitIteratorBehavior.class, //
+	ceri.common.io.DeviceModeBehavior.class, //
+	ceri.common.io.FileTrackerBehavior.class, //
+	ceri.common.io.FileVisitUtilTest.class, //
+	ceri.common.io.InputStreamIteratorBehavior.class, //
+	ceri.common.io.IoStreamUtilTest.class, //
+	ceri.common.io.IoTimeoutExceptionBehavior.class, //
+	ceri.common.io.IoUtilTest.class, //
+	ceri.common.io.KeyCheckerBehavior.class, //
+	ceri.common.io.PathFiltersTest.class, //
+	ceri.common.io.PathPatternBehavior.class, //
+	ceri.common.io.PipedStreamBehavior.class, //
+	ceri.common.io.PollingInputStreamBehavior.class, //
+	ceri.common.io.ReplaceableInputStreamBehavior.class, //
+	ceri.common.io.ReplaceableOutputStreamBehavior.class, //
+	ceri.common.io.ResourcePathBehavior.class, //
+	ceri.common.io.RuntimeEofExceptionBehavior.class, //
+	ceri.common.io.RuntimeIoExceptionBehavior.class, //
+	ceri.common.io.StateChangeBehavior.class, //
+	ceri.common.io.StringPrintStreamBehavior.class, //
 	// log
-	LevelBehavior.class, //
-	LoggerBehavior.class, //
+	ceri.common.log.LevelBehavior.class, //
+	ceri.common.log.LoggerBehavior.class, //
 	// math
-	AlgebraUtilTest.class, //
-	BoundBehavior.class, //
-	FractionBehavior.class, //
-	IntervalBehavior.class, //
-	IntervalUtilTest.class, //
-	MathUtilTest.class, //
-	MatrixBehavior.class, //
-	MatrixUtilTest.class, //
-	MixedFractionBehavior.class, //
-	NumberPatternsBehavior.class, //
-	ReverseFunctionBehavior.class, //
-	TrigUtilTest.class, //
-	VectorBehavior.class, //
-	VectorUtilTest.class, //
+	ceri.common.math.AlgebraUtilTest.class, //
+	ceri.common.math.BoundBehavior.class, //
+	ceri.common.math.FractionBehavior.class, //
+	ceri.common.math.IntervalBehavior.class, //
+	ceri.common.math.IntervalUtilTest.class, //
+	ceri.common.math.MathUtilTest.class, //
+	ceri.common.math.MatrixBehavior.class, //
+	ceri.common.math.MatrixUtilTest.class, //
+	ceri.common.math.MixedFractionBehavior.class, //
+	ceri.common.math.NumberPatternsBehavior.class, //
+	ceri.common.math.ReverseFunctionBehavior.class, //
+	ceri.common.math.TrigUtilTest.class, //
+	ceri.common.math.VectorBehavior.class, //
+	ceri.common.math.VectorUtilTest.class, //
 	// net
-	EmailUtilTest.class, //
-	HostPortBehavior.class, //
-	NetUtilTest.class, //
-	UdpUtilTest.class, //
+	ceri.common.net.EmailUtilTest.class, //
+	ceri.common.net.HostPortBehavior.class, //
+	ceri.common.net.NetUtilTest.class, //
+	ceri.common.net.UdpUtilTest.class, //
 	// process
-	ColumnsBehavior.class, //
-	OutputBehavior.class, //
-	ParametersBehavior.class, //
-	ProcessCommandBehavior.class, //
-	ProcessUtilTest.class, //
-	ProcessorBehavior.class, //
+	ceri.common.process.ColumnsBehavior.class, //
+	ceri.common.process.OutputBehavior.class, //
+	ceri.common.process.ParametersBehavior.class, //
+	ceri.common.process.ProcessCommandBehavior.class, //
+	ceri.common.process.ProcessUtilTest.class, //
+	ceri.common.process.ProcessorBehavior.class, //
 	// property
-	BasePropertiesBehavior.class, //
-	LocatorBehavior.class, //
-	PathBehavior.class, //
-	PathFactoryBehavior.class, //
-	PropertyAccessorBehavior.class, //
-	PropertyUtilTest.class, //
+	ceri.common.property.BasePropertiesBehavior.class, //
+	ceri.common.property.LocatorBehavior.class, //
+	ceri.common.property.PathBehavior.class, //
+	ceri.common.property.PathFactoryBehavior.class, //
+	ceri.common.property.PropertyAccessorBehavior.class, //
+	ceri.common.property.PropertyUtilTest.class, //
 	// reflect
-	CallerBehavior.class, //
-	CreateExceptionBehavior.class, //
-	ReflectUtilTest.class, //
+	ceri.common.reflect.CallerBehavior.class, //
+	ceri.common.reflect.CreateExceptionBehavior.class, //
+	ceri.common.reflect.ReflectUtilTest.class, //
 	// score
-	CollectionScorersTest.class, //
-	ScoreLookupBehavior.class, //
-	ScoreResultBehavior.class, //
-	ScorersTest.class, //
+	ceri.common.score.CollectionScorersTest.class, //
+	ceri.common.score.ScoreLookupBehavior.class, //
+	ceri.common.score.ScoreResultBehavior.class, //
+	ceri.common.score.ScorersTest.class, //
 	// sql
-	SqlFormatterBehavior.class, //
-	SqlStatementBehavior.class, //
-	SqlUtilTest.class, //
+	ceri.common.sql.SqlFormatterBehavior.class, //
+	ceri.common.sql.SqlStatementBehavior.class, //
+	ceri.common.sql.SqlUtilTest.class, //
 	// svg
-	EllipseBehavior.class, //
-	EllipticalArcBehavior.class, //
-	GroundedPathBehavior.class, //
-	LargeArcFlagBehavior.class, //
-	LineToBehavior.class, //
-	MoveToBehavior.class, //
-	PathGroupBehavior.class, //
-	PositionBehavior.class, //
-	SvgUtilTest.class, //
-	SweepFlagBehavior.class, //
+	ceri.common.svg.EllipseBehavior.class, //
+	ceri.common.svg.EllipticalArcBehavior.class, //
+	ceri.common.svg.GroundedPathBehavior.class, //
+	ceri.common.svg.LargeArcFlagBehavior.class, //
+	ceri.common.svg.LineToBehavior.class, //
+	ceri.common.svg.MoveToBehavior.class, //
+	ceri.common.svg.PathGroupBehavior.class, //
+	ceri.common.svg.PositionBehavior.class, //
+	ceri.common.svg.SvgUtilTest.class, //
+	ceri.common.svg.SweepFlagBehavior.class, //
 	// test
-	ApproxMatcherBehavior.class, //
-	BinaryLogInputStreamBehavior.class, //
-	BinaryLogOutputStreamBehavior.class, //
-	BinaryPrinterBehavior.class, //
-	BranchCaptorBehavior.class, //
-	DebuggerBehavior.class, //
-	FileTestHelperBehavior.class, //
-	PulsePrinterBehavior.class, //
-	RegexFinderBehavior.class, //
-	RegexMatcherBehavior.class, //
-	ResponseStreamBehavior.class, //
-	SyncConsumerBehavior.class, //
-	TestInputStreamBehavior.class, //
-	TestListenerBehavior.class, //
-	TestListenersBehavior.class, //
-	TestOutputStreamBehavior.class, //
-	TestPrinterBehavior.class, //
-	TestRunAdapterBehavior.class, //
-	TestRunPrinterBehavior.class, //
-	TestStyleBehavior.class, //
-	TestTimerBehavior.class, //
-	TestUtilTest.class, //
+	ceri.common.test.ApproxMatcherBehavior.class, //
+	ceri.common.test.BinaryLogInputStreamBehavior.class, //
+	ceri.common.test.BinaryLogOutputStreamBehavior.class, //
+	ceri.common.test.BinaryPrinterBehavior.class, //
+	ceri.common.test.BranchCaptorBehavior.class, //
+	ceri.common.test.DebuggerBehavior.class, //
+	ceri.common.test.FileTestHelperBehavior.class, //
+	ceri.common.test.PulsePrinterBehavior.class, //
+	ceri.common.test.RegexFinderBehavior.class, //
+	ceri.common.test.RegexMatcherBehavior.class, //
+	ceri.common.test.ResponseStreamBehavior.class, //
+	ceri.common.test.SyncConsumerBehavior.class, //
+	ceri.common.test.TestInputStreamBehavior.class, //
+	ceri.common.test.TestListenerBehavior.class, //
+	ceri.common.test.TestListenersBehavior.class, //
+	ceri.common.test.TestOutputStreamBehavior.class, //
+	ceri.common.test.TestPrinterBehavior.class, //
+	ceri.common.test.TestRunAdapterBehavior.class, //
+	ceri.common.test.TestRunPrinterBehavior.class, //
+	ceri.common.test.TestStyleBehavior.class, //
+	ceri.common.test.TestTimerBehavior.class, //
+	ceri.common.test.TestUtilTest.class, //
 	// text
-	AnsiEscapeBehavior.class, //
-	DsvCodecBehavior.class, //
-	DsvParserBehavior.class, //
-	FractionFormatsTest.class, //
-	MarshallerBehavior.class, //
-	NonMatchResultBehavior.class, //
-	NonMatcherBehavior.class, //
-	RegexSequencerBehavior.class, //
-	RegexUtilTest.class, //
-	SplitterBehavior.class, //
-	StringTypeBehavior.class, //
-	StringUtilTest.class, //
-	TextUtilTest.class, //
-	ToStringHelperBehavior.class, //
-	Utf8UtilTest.class, //
+	ceri.common.text.AnsiEscapeBehavior.class, //
+	ceri.common.text.DsvCodecBehavior.class, //
+	ceri.common.text.DsvParserBehavior.class, //
+	ceri.common.text.FractionFormatsTest.class, //
+	ceri.common.text.MarshallerBehavior.class, //
+	ceri.common.text.NonMatchResultBehavior.class, //
+	ceri.common.text.NonMatcherBehavior.class, //
+	ceri.common.text.RegexSequencerBehavior.class, //
+	ceri.common.text.RegexUtilTest.class, //
+	ceri.common.text.SplitterBehavior.class, //
+	ceri.common.text.StringTypeBehavior.class, //
+	ceri.common.text.StringUtilTest.class, //
+	ceri.common.text.TextUtilTest.class, //
+	ceri.common.text.ToStringHelperBehavior.class, //
+	ceri.common.text.Utf8UtilTest.class, //
 	// tree
-	NodeTreeBehavior.class, //
-	TreeIteratorBehavior.class, //
-	TreeNodeBehavior.class, //
-	TreeNodeComparatorsTest.class, //
-	TreeUtilTest.class, //
+	ceri.common.tree.NodeTreeBehavior.class, //
+	ceri.common.tree.TreeIteratorBehavior.class, //
+	ceri.common.tree.TreeNodeBehavior.class, //
+	ceri.common.tree.TreeNodeComparatorsTest.class, //
+	ceri.common.tree.TreeUtilTest.class, //
 	// util
-	AlignBehavior.class, //
-	BasicUtilTest.class, //
-	CounterBehavior.class, //
-	EqualsUtilTest.class, //
-	ExceptionAdapterBehavior.class, //
-	ExceptionTrackerBehavior.class, //
-	ExceptionUtilTest.class, //
-	HashCoderBehavior.class, //
-	HolderBehavior.class, //
-	KeyValueBehavior.class, //
-	LocaleUtilTest.class, //
-	MultiPatternBehavior.class, //
-	NameValueBehavior.class, //
-	OsUtilTest.class, //
-	PrimitiveUtilTest.class, //
-	StartupValuesBehavior.class, //
-	SystemVarsTest.class, //
-	TimerBehavior.class, //
-	ValueCacheBehavior.class, //
+	ceri.common.util.AlignBehavior.class, //
+	ceri.common.util.BasicUtilTest.class, //
+	ceri.common.util.CounterBehavior.class, //
+	ceri.common.util.EnclosedBehavior.class, //
+	ceri.common.util.EqualsUtilTest.class, //
+	ceri.common.util.ExceptionAdapterBehavior.class, //
+	ceri.common.util.ExceptionTrackerBehavior.class, //
+	ceri.common.util.ExceptionUtilTest.class, //
+	ceri.common.util.HashCoderBehavior.class, //
+	ceri.common.util.HolderBehavior.class, //
+	ceri.common.util.KeyValueBehavior.class, //
+	ceri.common.util.LocaleUtilTest.class, //
+	ceri.common.util.MultiPatternBehavior.class, //
+	ceri.common.util.NameValueBehavior.class, //
+	ceri.common.util.OsUtilTest.class, //
+	ceri.common.util.PrimitiveUtilTest.class, //
+	ceri.common.util.StartupValuesBehavior.class, //
+	ceri.common.util.SystemVarsTest.class, //
+	ceri.common.util.TimerBehavior.class, //
+	ceri.common.util.ValueCacheBehavior.class, //
 	// validation
-	DisplayDoubleBehavior.class, //
-	DisplayLongBehavior.class, //
-	ValidationUtilTest.class, //
+	ceri.common.validation.DisplayDoubleBehavior.class, //
+	ceri.common.validation.DisplayLongBehavior.class, //
+	ceri.common.validation.ValidationUtilTest.class, //
 	// xml
-	RuntimeXPathExceptionBehavior.class, //
-	XPathUtilTest.class, //
-	XmlUtilTest.class, //
+	ceri.common.xml.RuntimeXPathExceptionBehavior.class, //
+	ceri.common.xml.XPathUtilTest.class, //
+	ceri.common.xml.XmlUtilTest.class, //
 })
 public class _Tests {
 	public static void main(String... args) {

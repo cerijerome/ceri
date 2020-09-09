@@ -12,6 +12,12 @@ import java.util.function.Consumer;
 public class Listeners<T> implements Consumer<T>, Listenable<T> {
 	private final Collection<Consumer<? super T>> listeners = new ConcurrentLinkedQueue<>();
 
+	public static <T> Listeners<T> of() {
+		return new Listeners<>();
+	}
+
+	protected Listeners() {}
+	
 	public int size() {
 		return listeners().size();
 	}

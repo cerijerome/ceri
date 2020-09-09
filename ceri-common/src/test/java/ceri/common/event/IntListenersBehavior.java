@@ -14,7 +14,7 @@ public class IntListenersBehavior {
 		int[] count = new int[1];
 		IntConsumer l0 = i -> count[0] += i;
 		IntConsumer l1 = i -> count[0] += (i * 100);
-		IntListeners ls = new IntListeners();
+		IntListeners ls = IntListeners.of();
 		assertThat(ls.isEmpty(), is(true));
 		ls.listen(l0);
 		ls.listen(l0);
@@ -35,7 +35,7 @@ public class IntListenersBehavior {
 
 	@Test
 	public void shouldDuplicateIntListeners() {
-		IntListeners ls = new IntListeners();
+		IntListeners ls = IntListeners.of();
 		IntConsumer l0 = s -> {};
 		IntConsumer l1 = s -> {};
 		assertTrue(ls.listen(l0));
