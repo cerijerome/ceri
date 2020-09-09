@@ -34,7 +34,7 @@ import ceri.serial.libusb.jna.LibUsbException;
 public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indirect<StateChange> {
 	private static final Logger logger = LogManager.getLogger();
 	private final SelfHealingFtdiConfig config;
-	private final Listeners<StateChange> listeners = new Listeners<>();
+	private final Listeners<StateChange> listeners = Listeners.of();
 	private final BooleanCondition sync = BooleanCondition.of();
 	private volatile Ftdi ftdi;
 

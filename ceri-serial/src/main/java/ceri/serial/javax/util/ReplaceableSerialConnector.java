@@ -21,8 +21,8 @@ import ceri.serial.javax.SerialConnector;
  */
 public class ReplaceableSerialConnector implements SerialConnector {
 	private static final Logger logger = LogManager.getLogger();
-	private final Listeners<Exception> errorListeners = new Listeners<>();
-	private final Listeners<StateChange> listeners = new Listeners<>();
+	private final Listeners<Exception> errorListeners = Listeners.of();
+	private final Listeners<StateChange> listeners = Listeners.of();
 	private final Consumer<StateChange> listener = this::listen;
 	private final ReplaceableInputStream in = new ReplaceableInputStream();
 	private final ReplaceableOutputStream out = new ReplaceableOutputStream();

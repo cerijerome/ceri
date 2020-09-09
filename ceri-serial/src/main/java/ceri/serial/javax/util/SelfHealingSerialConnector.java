@@ -30,7 +30,7 @@ import ceri.serial.javax.SerialPort;
 public class SelfHealingSerialConnector extends LoopingExecutor implements SerialConnector {
 	private static final Logger logger = LogManager.getLogger();
 	private final SelfHealingSerialConfig config;
-	private final Listeners<StateChange> listeners = new Listeners<>();
+	private final Listeners<StateChange> listeners = Listeners.of();
 	private final ReplaceableInputStream in = new ReplaceableInputStream();
 	private final ReplaceableOutputStream out = new ReplaceableOutputStream();
 	private final BooleanCondition sync = BooleanCondition.of();

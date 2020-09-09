@@ -32,7 +32,7 @@ public class SelfHealingFd extends LoopingExecutor
 	implements FileDescriptor, Listenable.Indirect<StateChange> {
 	private static final Logger logger = LogManager.getLogger();
 	private final SelfHealingFdConfig config;
-	private final Listeners<StateChange> listeners = new Listeners<>();
+	private final Listeners<StateChange> listeners = Listeners.of();
 	private final BooleanCondition sync = BooleanCondition.of();
 	private volatile CFileDescriptor fd;
 

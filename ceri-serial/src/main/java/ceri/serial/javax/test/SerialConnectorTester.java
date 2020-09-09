@@ -9,13 +9,13 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
-import ceri.common.event.CloseableListener;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.StateChange;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.Enclosed;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
 import ceri.serial.javax.FlowControl;
@@ -43,11 +43,10 @@ public class SerialConnectorTester extends LoopingExecutor {
 	private final ExceptionRunnable<IOException> fixConnectorFn;
 	private final int delayMs;
 	protected final SerialConnector connector;
-	private final CloseableListener<StateChange> listener;
+	private final Enclosed<?> listener;
 	private boolean showHelp = true;
 
-	public static void test(String commPort)
-		throws IOException {
+	public static void test(String commPort) throws IOException {
 		SelfHealingSerialConfig config = SelfHealingSerialConfig.of(commPort);
 		try (SelfHealingSerialConnector con = SelfHealingSerialConnector.of(config)) {
 			con.connect();
@@ -77,7 +76,7 @@ public class SerialConnectorTester extends LoopingExecutor {
 		this.connector = connector;
 		this.fixConnectorFn = fixConnectorFn;
 		this.delayMs = delayMs;
-		listener = CloseableListener.of(connector, this::event);
+		listener = connector.listeners().enclose(this::event);
 		start();
 	}
 
