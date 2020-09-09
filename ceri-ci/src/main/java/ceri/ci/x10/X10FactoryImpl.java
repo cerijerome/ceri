@@ -2,12 +2,12 @@ package ceri.ci.x10;
 
 import java.io.IOException;
 import ceri.ci.x10.X10Alerter.Builder;
-import ceri.x10.cm11a.Cm11aConnector;
-import ceri.x10.cm11a.Cm11aController;
-import ceri.x10.cm11a.Cm11aSerialConnector;
-import ceri.x10.cm17a.Cm17aConnector;
-import ceri.x10.cm17a.Cm17aController;
+import ceri.x10.cm11a.device.Cm11aConnector;
+import ceri.x10.cm11a.device.Cm11aDevice;
+import ceri.x10.cm11a.device.Cm11aSerialConnector;
 import ceri.x10.cm17a.Cm17aSerialConnector;
+import ceri.x10.cm17a.device.Cm17aConnector;
+import ceri.x10.cm17a.device.Cm17aDevice;
 import ceri.x10.util.X10Controller;
 
 public class X10FactoryImpl implements X10Factory {
@@ -18,8 +18,8 @@ public class X10FactoryImpl implements X10Factory {
 	}
 
 	@Override
-	public Cm11aController createCm11aController(Cm11aConnector connector) {
-		return new Cm11aController(connector, null);
+	public Cm11aDevice createCm11aController(Cm11aConnector connector) {
+		return new Cm11aDevice(connector, null);
 	}
 
 	@Override
@@ -28,8 +28,8 @@ public class X10FactoryImpl implements X10Factory {
 	}
 
 	@Override
-	public Cm17aController createCm17aController(Cm17aConnector connector) throws IOException {
-		return new Cm17aController(connector, null);
+	public Cm17aDevice createCm17aController(Cm17aConnector connector) throws IOException {
+		return new Cm17aDevice(connector, null);
 	}
 
 	@Override

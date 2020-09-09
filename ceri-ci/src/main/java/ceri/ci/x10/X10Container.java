@@ -6,8 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.io.IoUtil;
 import ceri.common.property.BaseProperties;
-import ceri.x10.cm11a.Cm11aConnector;
-import ceri.x10.cm17a.Cm17aConnector;
+import ceri.x10.cm11a.device.Cm11aConnector;
+import ceri.x10.cm17a.device.Cm17aConnector;
 import ceri.x10.util.X10Controller;
 import ceri.x10.util.X10ControllerType;
 

@@ -36,7 +36,7 @@ public class X10Alerter implements Alerter {
 
 		public Builder address(String name, String address) {
 			if (name == null) throw new NullPointerException("Name cannot be null");
-			addresses.put(name, Address.fromString(address));
+			addresses.put(name, Address.from(address));
 			return this;
 		}
 

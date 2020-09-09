@@ -10,16 +10,16 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ceri.common.property.BaseProperties;
-import ceri.x10.cm11a.Cm11aConnector;
-import ceri.x10.cm11a.Cm11aController;
-import ceri.x10.cm17a.Cm17aConnector;
-import ceri.x10.cm17a.Cm17aController;
+import ceri.x10.cm11a.device.Cm11aConnector;
+import ceri.x10.cm11a.device.Cm11aDevice;
+import ceri.x10.cm17a.device.Cm17aConnector;
+import ceri.x10.cm17a.device.Cm17aDevice;
 
 public class X10ContainerBehavior {
 	@Mock private Cm17aConnector cm17aConnector;
-	@Mock private Cm17aController cm17aController;
+	@Mock private Cm17aDevice cm17aController;
 	@Mock private Cm11aConnector cm11aConnector;
-	@Mock private Cm11aController cm11aController;
+	@Mock private Cm11aDevice cm11aController;
 	@Mock private X10Alerter.Builder builder;
 	@Mock private X10Factory factory;
 	private Properties properties;
