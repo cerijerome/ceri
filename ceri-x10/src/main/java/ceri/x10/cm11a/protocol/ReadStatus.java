@@ -1,9 +1,10 @@
 package ceri.x10.cm11a.protocol;
 
-import java.util.Date;
+import static java.lang.Integer.toBinaryString;
+import static java.lang.Integer.toHexString;
+import java.time.LocalDateTime;
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteWriter;
-import ceri.common.date.ImmutableDate;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
@@ -29,29 +30,43 @@ import ceri.x10.type.House;
  */
 public class ReadStatus {
 	public final short batteryTimer;
-	public final Date date;
+	public final LocalDateTime date;
 	public final House house;
 	public final int firmware;
 	public final short addressed;
 	public final short onOff;
 	public final short dim;
-	private final int hashCode;
+
+	public static ReadStatus decode(ByteReader r) {
+		Builder builder = new Builder();
+		builder.batteryTimer(r.readUshortMsb());
+		builder.date(Data.readDateFrom(r));
+		int b = r.readUbyte();
+		builder.house(Data.toHouse(b >> 4));
+		builder.firmware(b & 0xf);
+		builder.addressed(r.readUshortMsb());
+		builder.onOff(r.readUshortMsb());
+		builder.dim(r.readUshortMsb());
+		return builder.build();
+	}
 
 	public static class Builder {
 		short batteryTimer = 0;
-		Date date = new Date();
+		LocalDateTime date = LocalDateTime.now();
 		House house = House.M;
 		int firmware = 1;
 		short addressed = 0;
 		short onOff = 0;
 		short dim = 0;
 
+		Builder() {}
+		
 		public Builder batteryTimer(int batteryTimer) {
 			this.batteryTimer = (short) batteryTimer;
 			return this;
 		}
 
-		public Builder date(Date date) {
+		public Builder date(LocalDateTime date) {
 			this.date = date;
 			return this;
 		}
@@ -88,18 +103,26 @@ public class ReadStatus {
 
 	ReadStatus(Builder builder) {
 		batteryTimer = builder.batteryTimer;
-		date = builder.date == null ? null : new ImmutableDate(builder.date);
+		date = builder.date;
 		house = builder.house;
 		firmware = builder.firmware;
 		addressed = builder.addressed;
 		onOff = builder.onOff;
 		dim = builder.dim;
-		hashCode = HashCoder.hash(batteryTimer, date, house, firmware, addressed, onOff, dim);
+	}
+
+	public void encode(ByteWriter<?> w) {
+		w.writeShortMsb(batteryTimer);
+		Data.writeDateTo(date, w);
+		w.writeByte(Data.fromHouse(house) << 4 | firmware & 0xf);
+		w.writeShortMsb(addressed);
+		w.writeShortMsb(onOff);
+		w.writeShortMsb(dim);
 	}
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return HashCoder.hash(batteryTimer, date, house, firmware, addressed, onOff, dim);
 	}
 
 	@Override
@@ -114,33 +137,9 @@ public class ReadStatus {
 
 	@Override
 	public String toString() {
-		return ToStringHelper
-			.createByClass(this, "0x" + Integer.toHexString(batteryTimer & 0xffff), date, house,
-				firmware, Integer.toBinaryString(addressed & 0xffff),
-				Integer.toBinaryString(onOff & 0xffff), Integer.toBinaryString(dim & 0xffff))
+		return ToStringHelper.createByClass(this, "0x" + toHexString(batteryTimer), date, house,
+			firmware, toBinaryString(addressed), toBinaryString(onOff), toBinaryString(dim))
 			.toString();
-	}
-
-	public void writeTo(ByteWriter<?> w) {
-		w.writeShortMsb(batteryTimer);
-		Data.writeDateTo(date, w);
-		w.writeByte(Data.fromHouse(house) << 4 | firmware & 0xf);
-		w.writeShortMsb(addressed);
-		w.writeShortMsb(onOff);
-		w.writeShortMsb(dim);
-	}
-
-	public static ReadStatus readFrom(ByteReader r) {
-		Builder builder = new Builder();
-		builder.batteryTimer(r.readShortMsb());
-		builder.date(Data.readDateFrom(r));
-		byte b = r.readByte();
-		builder.house(Data.toHouse(b >> 4));
-		builder.firmware(b & 0xf);
-		builder.addressed(r.readShortMsb());
-		builder.onOff(r.readShortMsb());
-		builder.dim(r.readShortMsb());
-		return builder.build();
 	}
 
 }

@@ -12,7 +12,7 @@ public class HouseCommand extends BaseCommand<Function> {
 	
 	@Override
 	public Function function() {
-		return new Function(house, type);
+		return Function.of(house, type);
 	}
 	
 }

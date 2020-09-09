@@ -12,14 +12,13 @@ public class WriteStatusBehavior {
 
 	@Test
 	public void shouldObeyEqualsContract() {
-		WriteStatus status1 = WriteStatus.createDefault();
-		WriteStatus status2 = new WriteStatus.Builder().date(status1.date).build();
-		WriteStatus status3 =
-			new WriteStatus.Builder().date(new Date(status1.date.getTime() + 1000)).build();
-		WriteStatus status4 = new WriteStatus.Builder().clearBatteryTimer(true).build();
-		WriteStatus status5 = new WriteStatus.Builder().clearMonitoredStatus(true).build();
-		WriteStatus status6 = new WriteStatus.Builder().purgeTimer(true).build();
-		WriteStatus status7 = new WriteStatus.Builder().house(House.I).build();
+		WriteStatus status1 = WriteStatus.DEFAULT;
+		WriteStatus status2 = WriteStatus.builder().date(status1.date).build();
+		WriteStatus status3 = WriteStatus.builder().date(status1.date.plusSeconds(1)).build();
+		WriteStatus status4 = WriteStatus.builder().clearBatteryTimer(true).build();
+		WriteStatus status5 = WriteStatus.builder().clearMonitoredStatus(true).build();
+		WriteStatus status6 = WriteStatus.builder().purgeTimer(true).build();
+		WriteStatus status7 = WriteStatus.builder().house(House.I).build();
 		assertThat(status1, is(status1));
 		assertThat(status1, is(status2));
 		assertNotEquals(null, status1);

@@ -1,11 +1,12 @@
 package ceri.x10.cm11a.protocol;
 
+import static ceri.common.data.DataUtil.expect;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteWriter;
-import ceri.x10.cm11a.Entry;
+import ceri.x10.cm11a.device.Entry;
 import ceri.x10.type.Address;
 import ceri.x10.type.BaseFunction;
 import ceri.x10.type.DimFunction;
@@ -27,8 +28,8 @@ public class WriteData {
 	WriteData() {}
 
 	public Address readAddressFrom(ByteReader r) {
-		validateEqual(r.readByte(), ADDRESS_PREFIX, "Header");
-		return Data.toAddress(r.readByte());
+		expect(r, ADDRESS_PREFIX);
+		return Data.toAddress(r.readUbyte());
 	}
 
 	public void writeAddressTo(Address address, ByteWriter<?> w) {
@@ -36,11 +37,11 @@ public class WriteData {
 	}
 
 	public Function readFunctionFrom(ByteReader r) {
-		validateEqual(r.readByte(), FUNCTION_PREFIX, "Header");
-		byte b = r.readByte();
+		expect(r, FUNCTION_PREFIX);
+		int b = r.readUbyte();
 		House house = Data.toHouse(b >> 4 & 0xf);
 		FunctionType type = Data.toFunctionType(b & 0xf);
-		return new Function(house, type);
+		return Function.of(house, type);
 	}
 
 	public void writeFunctionTo(Function function, ByteWriter<?> w) {
@@ -49,11 +50,11 @@ public class WriteData {
 	}
 
 	public DimFunction readDimFunctionFrom(ByteReader r) {
-		byte b = r.readByte();
-		validateEqual(b & FUNCTION_PREFIX_MASK, FUNCTION_PREFIX, "Header");
+		int b = r.readUbyte();
+		validateEqual(b & FUNCTION_PREFIX_MASK, FUNCTION_PREFIX);
 		int percent = toDim(b >> 3);
-		b = r.readByte();
-		House house = Data.toHouse(b >> 4 & 0xf);
+		b = r.readUbyte();
+		House house = Data.toHouse((b >> 4) & 0xf);
 		FunctionType type = Data.toFunctionType(b & 0xf);
 		return new DimFunction(house, type, percent);
 	}
@@ -75,15 +76,13 @@ public class WriteData {
 	}
 
 	public ExtFunction readExtFunctionFrom(ByteReader r) {
-		validateEqual(r.readByte(), EXT_FUNCTION_PREFIX, "Header");
-		byte b = r.readByte();
-		House house = Data.toHouse(b >> 4 & 0xf);
+		expect(r, EXT_FUNCTION_PREFIX);
+		int b = r.readUbyte();
+		House house = Data.toHouse((b >> 4) & 0xf);
 		FunctionType type = Data.toFunctionType(b & 0xf);
 		if (!ExtFunction.isAllowed(type))
 			throw new IllegalArgumentException("Type is not extended: " + type);
-		byte data = r.readByte();
-		byte command = r.readByte();
-		return new ExtFunction(house, data, command);
+		return Data.decodeExtFunction(house, r);
 	}
 
 	public void writeExtFunctionTo(ExtFunction function, ByteWriter<?> w) {
@@ -94,24 +93,20 @@ public class WriteData {
 	}
 
 	public Entry readEntryFrom(ByteReader r) {
-		byte header = r.readByte();
-		if (header == ADDRESS_PREFIX) return new Entry(Data.toAddress(r.readByte()));
-		byte b = r.readByte();
+		int header = r.readUbyte();
+		int b = r.readUbyte();
+		if (header == ADDRESS_PREFIX) return Entry.of(Data.toAddress(b));
 		House house = Data.toHouse(b >> 4);
 		FunctionType type = Data.toFunctionType(b);
 		if (DimFunction.isAllowed(type)) {
 			int percent = toDim(header >> 3);
-			return new Entry(new DimFunction(house, type, percent));
+			return Entry.of(new DimFunction(house, type, percent));
 		}
-		if (ExtFunction.isAllowed(type)) {
-			byte data = r.readByte();
-			byte command = r.readByte();
-			return new Entry(new ExtFunction(house, data, command));
-		}
-		return new Entry(new Function(house, type));
+		if (ExtFunction.isAllowed(type)) return Entry.of(Data.decodeExtFunction(house, r));
+		return Entry.of(Function.of(house, type));
 	}
 
-	public ByteProvider fromEntry(Entry entry) {
+	public ByteProvider encode(Entry entry) {
 		return ByteArray.Encoder.of().apply(w -> writeEntryTo(entry, w)).immutable();
 	}
 

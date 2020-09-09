@@ -1,99 +1,48 @@
 package ceri.x10.command;
 
-import java.io.Closeable;
+import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.util.Enclosed;
+import ceri.common.util.ExceptionTracker;
+import ceri.log.concurrent.LoopingExecutor;
 
-public class CommandDispatcher implements Closeable {
+public class CommandDispatcher extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
-	private static final int POLL_TIMEOUT_MS_DEF = 10000;
 	private final long pollTimeoutMs;
 	private final BlockingQueue<? extends BaseCommand<?>> queue;
-	private final CommandListener listener;
-	private final Thread thread;
+	private final Collection<CommandListener> listeners = new ConcurrentLinkedQueue<>();
+	private final ExceptionTracker exceptions = ExceptionTracker.of();
 
-	public CommandDispatcher(BlockingQueue<? extends BaseCommand<?>> queue, CommandListener listener) {
-		this(queue, listener, POLL_TIMEOUT_MS_DEF);
-	}
-
-	public CommandDispatcher(BlockingQueue<? extends BaseCommand<?>> queue,
-		CommandListener listener, long pollTimeoutMs) {
+	public CommandDispatcher(BlockingQueue<? extends BaseCommand<?>> queue, long pollTimeoutMs) {
 		this.queue = queue;
-		this.listener = listener;
 		this.pollTimeoutMs = pollTimeoutMs;
-		thread = new Thread(CommandDispatcher.this::run);
-		thread.start();
+		start();
 	}
 
-	public static void dispatch(BaseCommand<?> command, CommandListener listener) {
-		switch (command.type) {
-		case ALL_UNITS_OFF:
-			listener.allUnitsOff((HouseCommand) command);
-			break;
-		case ALL_LIGHTS_OFF:
-			listener.allLightsOff((HouseCommand) command);
-			break;
-		case ALL_LIGHTS_ON:
-			listener.allLightsOn((HouseCommand) command);
-			break;
-		case OFF:
-			listener.off((UnitCommand) command);
-			break;
-		case ON:
-			listener.on((UnitCommand) command);
-			break;
-		case DIM:
-			listener.dim((DimCommand) command);
-			break;
-		case BRIGHT:
-			listener.bright((DimCommand) command);
-			break;
-		case EXTENDED:
-			listener.extended((ExtCommand) command);
-			break;
-		default:
-			throw new UnsupportedOperationException("Function type not supported: " + command.type);
-		}
+	public Enclosed<CommandListener> listen(CommandListener listener) {
+		listeners.add(listener);
+		return Enclosed.of(listener, listeners::remove);
 	}
 
 	@Override
-	public void close() {
-		thread.interrupt();
+	protected void loop() throws InterruptedException {
 		try {
-			thread.join();
-		} catch (InterruptedException e) {
-			logger.catching(Level.WARN, e);
-		}
-	}
-
-	void run() {
-		logger.info("Dispatcher thread started");
-		try {
-			process();
+			BaseCommand<?> command = queue.poll(pollTimeoutMs, TimeUnit.MILLISECONDS);
+			if (command == null || listeners.isEmpty()) return;
+			logger.debug("Dispatching: {}", command);
+			Consumer<CommandListener> dispatchConsumer = CommandListener.dispatcher(command);
+			listeners.forEach(dispatchConsumer::accept);
 		} catch (InterruptedException | RuntimeInterruptedException e) {
-			logger.info("Dispatcher thread interrupted");
+			throw e;
 		} catch (RuntimeException e) {
-			logger.catching(e);
-		} finally {
-			logger.info("Dispatcher thread stopped");
-		}
-	}
-
-	private void process() throws InterruptedException {
-		while (true) {
-			try {
-				BaseCommand<?> command = queue.poll(pollTimeoutMs, TimeUnit.MILLISECONDS);
-				if (command != null && listener != null) {
-					logger.info("Dispatching: {}", command);
-					dispatch(command, listener);
-				}
-			} catch (RuntimeException e) {
-				logger.catching(e);
-			}
+			if (exceptions.add(e)) logger.catching(Level.WARN, e);
 		}
 	}
 

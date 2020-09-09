@@ -1,5 +1,7 @@
 package ceri.x10.type;
 
+import ceri.common.data.TypeTranscoder;
+
 /**
  * The house code.
  */
@@ -21,14 +23,21 @@ public enum House {
 	O,
 	P;
 
+	private static final TypeTranscoder<House> xcoder = TypeTranscoder.of(t -> t.id, House.class);
 	public final char value;
+	public final int id;
+
+	public static House fromId(int id) {
+		return xcoder.decodeValid(id, House.class.getSimpleName());
+	}
+
+	public static House from(char ch) {
+		return fromId(Character.toUpperCase(ch) + 1 - 'A');
+	}
 
 	House() {
 		value = name().charAt(0);
-	}
-
-	public static House fromChar(char ch) {
-		return House.valueOf(String.valueOf(Character.toUpperCase(ch)));
+		id = value + 1 - 'A';
 	}
 
 }

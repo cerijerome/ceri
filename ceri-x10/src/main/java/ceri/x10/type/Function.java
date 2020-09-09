@@ -1,7 +1,6 @@
 package ceri.x10.type;
 
-import java.util.Collections;
-import java.util.EnumSet;
+import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.Set;
 
 /**
@@ -9,17 +8,19 @@ import java.util.Set;
  * ON, OFF).
  */
 public final class Function extends BaseFunction {
-	private static final Set<FunctionGroup> ALLOWED_GROUPS = Collections.unmodifiableSet(EnumSet
-		.of(FunctionGroup.house, FunctionGroup.unit));
+	private static final Set<FunctionGroup> ALLOWED_GROUPS =
+		Set.of(FunctionGroup.house, FunctionGroup.unit);
 
-	public Function(House house, FunctionType type) {
-		super(house, type);
-		if (!isAllowed(type)) throw new IllegalArgumentException("Function type not allowed: " +
-			type);
+	public static Function of(House house, FunctionType type) {
+		validateNotNull(house);
+		validateNotNull(type);
+		if (!ALLOWED_GROUPS.contains(type.group))
+			throw new IllegalArgumentException("Function type not allowed: " + type);
+		return new Function(house, type);
 	}
 
-	public static boolean isAllowed(FunctionType type) {
-		return ALLOWED_GROUPS.contains(type.group);
+	private Function(House house, FunctionType type) {
+		super(house, type);
 	}
 
 	@Override

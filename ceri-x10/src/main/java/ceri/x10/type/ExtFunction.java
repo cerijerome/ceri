@@ -1,26 +1,33 @@
 package ceri.x10.type;
 
+import static ceri.common.validation.ValidationUtil.*;
+import static java.lang.Integer.toHexString;
 import ceri.common.util.HashCoder;
 
 public class ExtFunction extends BaseFunction {
-	public final byte data;
-	public final byte command;
-	private final int hashCode;
+	public final int data;
+	public final int command;
 
-	public ExtFunction(House house, byte data, byte command) {
-		super(house, FunctionType.EXTENDED);
+	public static ExtFunction of(House house, int data, int command) {
+		validateNotNull(house);
+		validateUbyte(data);
+		validateUbyte(command);
+		return new ExtFunction(house, data, command);
+	}
+
+	private ExtFunction(House house, int data, int command) {
+		super(house, FunctionType.extended);
 		this.data = data;
 		this.command = command;
-		hashCode = HashCoder.hash(super.hashCode(), data, command);
 	}
 
 	public static boolean isAllowed(FunctionType type) {
-		return type == FunctionType.EXTENDED;
+		return type == FunctionType.extended;
 	}
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return HashCoder.hash(super.hashCode(), data, command);
 	}
 
 	@Override
@@ -33,8 +40,7 @@ public class ExtFunction extends BaseFunction {
 
 	@Override
 	public String toString() {
-		return super.toString() + ":0x" + Integer.toHexString(data) + ":0x" +
-			Integer.toHexString(command);
+		return super.toString() + ":0x" + toHexString(data) + ":0x" + toHexString(command);
 	}
 
 }

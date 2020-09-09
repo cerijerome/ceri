@@ -1,28 +1,30 @@
 package ceri.x10.type;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 
 public class ExtFunctionBehavior {
 
 	@Test
-	public void shouldObeyEqualsContract() {
-		ExtFunction ext1 = new ExtFunction(House.I, (byte) -1, (byte) 1);
-		ExtFunction ext2 = new ExtFunction(House.I, (byte) -1, (byte) 1);
-		ExtFunction ext3 = new ExtFunction(House.J, (byte) -1, (byte) 1);
-		ExtFunction ext4 = new ExtFunction(House.I, (byte) 1, (byte) 1);
-		ExtFunction ext5 = new ExtFunction(House.I, (byte) -1, (byte) -1);
-		assertThat(ext1, is(ext1));
-		assertThat(ext1, is(ext2));
-		assertNotEquals(null, ext1);
-		assertNotEquals(ext1, new Object());
-		assertThat(ext1, not(ext3));
-		assertThat(ext1, not(ext4));
-		assertThat(ext1, not(ext5));
-		assertThat(ext1.toString(), is(ext2.toString()));
+	public void shouldNotBreachEqualsContract() {
+		ExtFunction t = ExtFunction.of(House.I, 0xff, 0x80);
+		ExtFunction eq0 = ExtFunction.of(House.I, 0xff, 0x80);
+		ExtFunction ne0 = ExtFunction.of(House.J, 0xff, 0x80);
+		ExtFunction ne1 = ExtFunction.of(House.I, 0xfe, 0x80);
+		ExtFunction ne2 = ExtFunction.of(House.I, 0xff, 0x7f);
+		exerciseEquals(t, eq0);
+		assertAllNotEqual(t, ne0, ne1, ne2);
+	}
+
+	@Test
+	public void shouldValidateArguments() {
+		assertThrown(() -> ExtFunction.of(null, 0, 0));
+		assertThrown(() -> ExtFunction.of(House.A, -1, 0));
+		assertThrown(() -> ExtFunction.of(House.A, 0x100, 0));
+		assertThrown(() -> ExtFunction.of(House.A, 0, -1));
+		assertThrown(() -> ExtFunction.of(House.A, 0, 0x100));
 	}
 
 }

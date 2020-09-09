@@ -1,9 +1,9 @@
 package ceri.x10.cm11a.protocol;
 
-import java.util.Date;
+import static ceri.common.data.DataUtil.expect;
+import java.time.LocalDateTime;
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteWriter;
-import ceri.common.date.ImmutableDate;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
@@ -29,21 +29,36 @@ import ceri.x10.type.House;
  * </pre>
  */
 public class WriteStatus {
-	public final Date date;
+	public static final WriteStatus DEFAULT = builder().build();
+	public final LocalDateTime date;
 	public final House house;
 	public final boolean clearBatteryTimer;
 	public final boolean clearMonitoredStatus;
 	public final boolean purgeTimer;
 	private final int hashCode;
 
+	public static WriteStatus decode(ByteReader r) {
+		Builder builder = new Builder();
+		expect(r, Protocol.TIME.value);
+		builder.date(Data.readDateFrom(r));
+		int b = r.readUbyte();
+		builder.house(Data.toHouse(b >> 4));
+		builder.clearBatteryTimer((b & 0x4) != 0);
+		builder.clearMonitoredStatus((b & 0x2) != 0);
+		builder.purgeTimer((b & 0x1) != 0);
+		return builder.build();
+	}
+
 	public static class Builder {
-		Date date = new Date();
+		LocalDateTime date = LocalDateTime.now();
 		House house = null;
 		boolean clearBatteryTimer = false;
 		boolean clearMonitoredStatus = false;
 		boolean purgeTimer = false;
 
-		public Builder date(Date date) {
+		Builder() {}
+
+		public Builder date(LocalDateTime date) {
 			this.date = date;
 			return this;
 		}
@@ -73,8 +88,12 @@ public class WriteStatus {
 		}
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
 	WriteStatus(Builder builder) {
-		date = new ImmutableDate(builder.date);
+		date = builder.date;
 		house = builder.house;
 		clearBatteryTimer = builder.clearBatteryTimer;
 		clearMonitoredStatus = builder.clearMonitoredStatus;
@@ -82,8 +101,14 @@ public class WriteStatus {
 		hashCode = HashCoder.hash(date, house, clearBatteryTimer, clearMonitoredStatus, purgeTimer);
 	}
 
-	public static WriteStatus createDefault() {
-		return new Builder().build();
+	public void encode(ByteWriter<?> w) {
+		w.writeByte(Protocol.TIME.value);
+		Data.writeDateTo(date, w);
+		int b = house == null ? 0 : Data.fromHouse(house) << 4;
+		if (clearBatteryTimer) b |= 0x4;
+		if (clearMonitoredStatus) b |= 0x2;
+		if (purgeTimer) b |= 0x1;
+		w.writeByte(b);
 	}
 
 	@Override
@@ -106,30 +131,6 @@ public class WriteStatus {
 		return ToStringHelper
 			.createByClass(this, date, house, clearBatteryTimer, clearMonitoredStatus, purgeTimer)
 			.toString();
-	}
-
-	public void writeTo(ByteWriter<?> w) {
-		w.writeByte(Protocol.TIME.value);
-		Data.writeDateTo(date, w);
-		int b = house == null ? 0 : Data.fromHouse(house) << 4;
-		if (clearBatteryTimer) b |= 0x4;
-		if (clearMonitoredStatus) b |= 0x2;
-		if (purgeTimer) b |= 0x1;
-		w.writeByte(b);
-	}
-
-	public static WriteStatus readFrom(ByteReader r) {
-		Builder builder = new Builder();
-		byte b = r.readByte();
-		if (b != Protocol.TIME.value) throw new IllegalArgumentException("Expected TIME byte 0x" +
-			Integer.toHexString(Protocol.TIME.value) + ": 0x" + Integer.toHexString(b));
-		builder.date(Data.readDateFrom(r));
-		b = r.readByte();
-		builder.house(Data.toHouse(b >> 4));
-		builder.clearBatteryTimer((b & 0x4) != 0);
-		builder.clearMonitoredStatus((b & 0x2) != 0);
-		builder.purgeTimer((b & 0x1) != 0);
-		return builder.build();
 	}
 
 }

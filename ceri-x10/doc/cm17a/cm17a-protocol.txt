@@ -610,4 +610,13 @@ P16 OFF         00110100   01111000
 P BRIGHT 005    00110000   10001000
 P DIM 005       00110000   10011000
     
+2.1 Data format
+
+Functionally the table can be summarized as follows:
+
+House  = B0:7-4 of index in MNOPCDABEFGHKLIJ
+Unit   = B0:2, B1:6,3,4 high-to-low bits of (value - 1)
+Off    = B1:5 bits on
+Dim    = B1:7,4,3 bits on (no unit)
+Bright = B1:7,3 bits on (no unit)
 

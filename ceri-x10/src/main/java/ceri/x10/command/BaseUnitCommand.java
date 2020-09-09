@@ -9,21 +9,19 @@ import ceri.x10.type.Unit;
 
 public abstract class BaseUnitCommand<T extends BaseFunction> extends BaseCommand<T> {
 	public final Unit unit;
-	private final int hashCode;
 	
 	protected BaseUnitCommand(House house, Unit unit, FunctionType function) {
 		super(house, function);
 		this.unit = unit;
-		hashCode = HashCoder.hash(super.hashCode(), unit); 
 	}
 	
 	public Address address() {
-		return new Address(house, unit);
+		return Address.of(house, unit);
 	}
 	
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return HashCoder.hash(super.hashCode(), unit);
 	}
 	
 	@Override
@@ -36,7 +34,7 @@ public abstract class BaseUnitCommand<T extends BaseFunction> extends BaseComman
 	
 	@Override
 	public String toString() {
-		return house.name() + unit.index + ":" + type.name();
+		return house.name() + unit.value + ":" + type.name();
 	}
 	
 }

@@ -8,19 +8,17 @@ import ceri.x10.type.House;
 public abstract class BaseCommand<T extends BaseFunction> {
 	public final House house;
 	public final FunctionType type;
-	private final int hashCode;
 	
 	protected BaseCommand(House house, FunctionType type) {
 		this.house = house;
 		this.type = type;
-		hashCode = HashCoder.hash(house, type);
 	}
 	
 	public abstract T function();
 	
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return HashCoder.hash(house, type);
 	}
 	
 	@Override

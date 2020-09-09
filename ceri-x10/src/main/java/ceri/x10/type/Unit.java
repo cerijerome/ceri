@@ -1,5 +1,7 @@
 package ceri.x10.type;
 
+import ceri.common.data.TypeTranscoder;
+
 /**
  * The device unit code. Use level for the integer value.
  */
@@ -21,18 +23,15 @@ public enum Unit {
 	_15,
 	_16;
 
-	public final int index;
+	private static final TypeTranscoder<Unit> xcoder = TypeTranscoder.of(t -> t.value, Unit.class);
+	public final int value;
 
-	Unit() {
-		index = Integer.parseInt(name().substring(1));
+	public static Unit from(int value) {
+		return xcoder.decodeValid(value, Unit.class.getSimpleName());
 	}
 
-	public static Unit fromIndex(String index) {
-		return Unit.valueOf("_" + index.trim());
-	}
-
-	public static Unit fromIndex(int index) {
-		return Unit.valueOf("_" + index);
+	private Unit() {
+		value = Integer.parseInt(name().substring(1));
 	}
 
 }

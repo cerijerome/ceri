@@ -9,31 +9,31 @@ public class CommandFactory {
 	private CommandFactory() {}
 
 	public static HouseCommand allUnitsOff(char house) {
-		return allUnitsOff(House.fromChar(house));
+		return allUnitsOff(House.from(house));
 	}
 
 	public static HouseCommand allUnitsOff(House house) {
-		return new HouseCommand(house, FunctionType.ALL_UNITS_OFF);
+		return new HouseCommand(house, FunctionType.allUnitsOff);
 	}
 
 	public static HouseCommand allLightsOff(char house) {
-		return allLightsOff(House.fromChar(house));
+		return allLightsOff(House.from(house));
 	}
 
 	public static HouseCommand allLightsOff(House house) {
-		return new HouseCommand(house, FunctionType.ALL_LIGHTS_OFF);
+		return new HouseCommand(house, FunctionType.allLightsOff);
 	}
 
 	public static HouseCommand allLightsOn(char house) {
-		return allLightsOn(House.fromChar(house));
+		return allLightsOn(House.from(house));
 	}
 
 	public static HouseCommand allLightsOn(House house) {
-		return new HouseCommand(house, FunctionType.ALL_LIGHTS_ON);
+		return new HouseCommand(house, FunctionType.allLightsOn);
 	}
 
 	public static UnitCommand off(String address) {
-		Address addr = Address.fromString(address);
+		Address addr = Address.from(address);
 		return off(addr);
 	}
 
@@ -42,11 +42,11 @@ public class CommandFactory {
 	}
 
 	public static UnitCommand off(House house, Unit unit) {
-		return new UnitCommand(house, unit, FunctionType.OFF);
+		return new UnitCommand(house, unit, FunctionType.off);
 	}
 
 	public static UnitCommand on(String address) {
-		Address addr = Address.fromString(address);
+		Address addr = Address.from(address);
 		return on(addr);
 	}
 
@@ -55,11 +55,11 @@ public class CommandFactory {
 	}
 
 	public static UnitCommand on(House house, Unit unit) {
-		return new UnitCommand(house, unit, FunctionType.ON);
+		return new UnitCommand(house, unit, FunctionType.on);
 	}
 
 	public static DimCommand dim(String address, int percent) {
-		Address addr = Address.fromString(address);
+		Address addr = Address.from(address);
 		return dim(addr, percent);
 	}
 
@@ -68,11 +68,11 @@ public class CommandFactory {
 	}
 
 	public static DimCommand dim(House house, Unit unit, int percent) {
-		return new DimCommand(house, unit, FunctionType.DIM, percent);
+		return new DimCommand(house, unit, FunctionType.dim, percent);
 	}
 
 	public static DimCommand bright(String address, int percent) {
-		Address addr = Address.fromString(address);
+		Address addr = Address.from(address);
 		return bright(addr, percent);
 	}
 
@@ -81,11 +81,11 @@ public class CommandFactory {
 	}
 
 	public static DimCommand bright(House house, Unit unit, int percent) {
-		return new DimCommand(house, unit, FunctionType.BRIGHT, percent);
+		return new DimCommand(house, unit, FunctionType.bright, percent);
 	}
 
 	public static ExtCommand extended(String address, int data, int command) {
-		Address addr = Address.fromString(address);
+		Address addr = Address.from(address);
 		return extended(addr, data, command);
 	}
 
@@ -94,7 +94,7 @@ public class CommandFactory {
 	}
 
 	public static ExtCommand extended(House house, Unit unit, int data, int command) {
-		return new ExtCommand(house, unit, (byte)data, (byte)command);
+		return ExtCommand.of(house, unit, data, command);
 	}
 
 }

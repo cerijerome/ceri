@@ -1,6 +1,7 @@
-package ceri.x10.cm11a;
+package ceri.x10.cm11a.device;
 
-import ceri.common.util.EqualsUtil;
+import static ceri.common.validation.ValidationUtil.validateNotNull;
+import java.util.Objects;
 import ceri.common.util.HashCoder;
 import ceri.x10.type.Address;
 import ceri.x10.type.BaseFunction;
@@ -13,8 +14,7 @@ import ceri.x10.type.Function;
  */
 public class Entry {
 	public final Type type;
-	private final Object obj;
-	private final int hashCode;
+	private final Object object;
 
 	/**
 	 * Enum to identify the wrapped type.
@@ -29,37 +29,38 @@ public class Entry {
 	/**
 	 * Creates an entry that wraps an address.
 	 */
-	public Entry(Address address) {
-		obj = address;
-		type = Type.address;
-		hashCode = HashCoder.hash(type, obj);
+	public static Entry of(Address address) {
+		validateNotNull(address);
+		return new Entry(Type.address, address);
 	}
 
 	/**
 	 * Creates an entry that wraps a function.
 	 */
-	public Entry(Function function) {
-		obj = function;
-		type = Type.function;
-		hashCode = HashCoder.hash(type, obj);
+	public static Entry of(Function function) {
+		validateNotNull(function);
+		return new Entry(Type.function, function);
 	}
 
 	/**
 	 * Creates an entry that wraps a dim function.
 	 */
-	public Entry(DimFunction function) {
-		obj = function;
-		type = Type.dim;
-		hashCode = HashCoder.hash(type, obj);
+	public static Entry of(DimFunction function) {
+		validateNotNull(function);
+		return new Entry(Type.dim, function);
 	}
 
 	/**
 	 * Creates an entry that wraps an extended function.
 	 */
-	public Entry(ExtFunction function) {
-		obj = function;
-		type = Type.ext;
-		hashCode = HashCoder.hash(type, obj);
+	public static Entry of(ExtFunction function) {
+		validateNotNull(function);
+		return new Entry(Type.ext, function);
+	}
+
+	private Entry(Type type, Object obj) {
+		this.type = type;
+		this.object = obj;
 	}
 
 	/**
@@ -67,7 +68,7 @@ public class Entry {
 	 */
 	public Address asAddress() {
 		if (type != Type.address) return null;
-		return (Address) obj;
+		return (Address) object;
 	}
 
 	/**
@@ -75,7 +76,7 @@ public class Entry {
 	 */
 	public Function asFunction() {
 		if (type != Type.function) return null;
-		return (Function) obj;
+		return (Function) object;
 	}
 
 	/**
@@ -83,7 +84,7 @@ public class Entry {
 	 */
 	public DimFunction asDimFunction() {
 		if (type != Type.dim) return null;
-		return (DimFunction) obj;
+		return (DimFunction) object;
 	}
 
 	/**
@@ -91,7 +92,7 @@ public class Entry {
 	 */
 	public ExtFunction asExtFunction() {
 		if (type != Type.ext) return null;
-		return (ExtFunction) obj;
+		return (ExtFunction) object;
 	}
 
 	/**
@@ -99,25 +100,27 @@ public class Entry {
 	 */
 	public BaseFunction asBaseFunction() {
 		if (type == Type.address) return null;
-		return (BaseFunction) obj;
+		return (BaseFunction) object;
 	}
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return HashCoder.hash(type, object);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (!(obj instanceof Entry)) return false;
-		Entry other = (Entry)obj;
-		return type == other.type && EqualsUtil.equals(this.obj,  other.obj);
+		Entry other = (Entry) obj;
+		if (type != other.type) return false;
+		if (!Objects.equals(object, other.object)) return false;
+		return true;
 	}
-	
+
 	@Override
 	public String toString() {
-		return obj.toString();
+		return object.toString();
 	}
-	
+
 }

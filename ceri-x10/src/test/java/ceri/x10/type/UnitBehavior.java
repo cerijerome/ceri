@@ -8,9 +8,9 @@ public class UnitBehavior {
 
 	@Test
 	public void shouldCreateFromIndex() {
-		assertThat(Unit.fromIndex(1), is(Unit._1));
-		assertThat(Unit.fromIndex(10), is(Unit._10));
-		assertThat(Unit.fromIndex(16), is(Unit._16));
+		assertThat(Unit.from(1), is(Unit._1));
+		assertThat(Unit.from(10), is(Unit._10));
+		assertThat(Unit.from(16), is(Unit._16));
 	}
 
 }

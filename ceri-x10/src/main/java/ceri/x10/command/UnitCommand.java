@@ -13,7 +13,7 @@ public class UnitCommand extends BaseUnitCommand<Function> {
 
 	@Override
 	public Function function() {
-		return new Function(house, type);
+		return Function.of(house, type);
 	}
 	
 }

@@ -1,31 +1,38 @@
 package ceri.x10.type;
 
+import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 public class AddressBehavior {
 
-	@Test(expected = IllegalArgumentException.class)
-	public void shouldFailToCreateFromInvalidString() {
-		Address.fromString("A");
+	@Test
+	public void shouldNotBreachEqualsContract() {
+		Address t = Address.of(House.E, Unit._13);
+		Address eq0 = Address.of(House.E, Unit._13);
+		Address eq1 = Address.from("E13");
+		Address ne0 = Address.of(House.D, Unit._13);
+		Address ne1 = Address.of(House.E, Unit._14);
+		Address ne2 = Address.from("F13");
+		Address ne3 = Address.from("E12");
+		exerciseEquals(t, eq0, eq1);
+		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
 	}
 
 	@Test
-	public void shouldObeyEqualsContract() {
-		Address addr1 = Address.fromString("A10");
-		Address addr2 = Address.fromString("A10");
-		Address addr3 = Address.fromString("A11");
-		Address addr4 = Address.fromString("B10");
-		assertThat(addr1, is(addr1));
-		assertThat(addr1, is(addr2));
-		assertNotEquals(null, addr1);
-		assertNotEquals(addr1, new Object());
-		assertThat(addr1, not(addr3));
-		assertThat(addr1, not(addr4));
-		assertThat(addr1.toString(), is(addr2.toString()));
+	public void shouldCreateFromString() {
+		assertThat(Address.from("P16"), is(Address.of(House.P, Unit._16)));
+		assertThat(Address.from("O8"), is(Address.of(House.O, Unit._8)));
+		assertThrown(() -> Address.from(null));
+		assertThrown(() -> Address.from(""));
+		assertThrown(() -> Address.from("A"));
+		assertThrown(() -> Address.from("A0"));
+		assertThrown(() -> Address.from("A17"));
+		assertThrown(() -> Address.from("17"));
+		assertThrown(() -> Address.from("Q1"));
 	}
 
 }

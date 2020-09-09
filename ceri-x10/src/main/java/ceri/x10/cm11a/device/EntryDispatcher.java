@@ -1,4 +1,4 @@
-package ceri.x10.cm11a;
+package ceri.x10.cm11a.device;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,27 +35,27 @@ public class EntryDispatcher {
 		this.commands = commands;
 	}
 
-	public static Collection<Entry> toEntries(BaseCommand<?> command) {
-		Collection<Entry> entries = new ArrayList<>();
+	public static List<Entry> toEntries(BaseCommand<?> command) {
+		List<Entry> entries = new ArrayList<>();
 		switch (command.type.group) {
 		case house:
 			HouseCommand houseCommand = (HouseCommand) command;
-			entries.add(new Entry(houseCommand.function()));
+			entries.add(Entry.of(houseCommand.function()));
 			break;
 		case unit:
 			UnitCommand unitCommand = (UnitCommand) command;
-			entries.add(new Entry(unitCommand.address()));
-			entries.add(new Entry(unitCommand.function()));
+			entries.add(Entry.of(unitCommand.address()));
+			entries.add(Entry.of(unitCommand.function()));
 			break;
 		case dim:
 			DimCommand dimCommand = (DimCommand) command;
-			entries.add(new Entry(dimCommand.address()));
-			entries.add(new Entry(dimCommand.function()));
+			entries.add(Entry.of(dimCommand.address()));
+			entries.add(Entry.of(dimCommand.function()));
 			break;
 		case extended:
 			ExtCommand extCommand = (ExtCommand) command;
-			entries.add(new Entry(extCommand.address()));
-			entries.add(new Entry(extCommand.function()));
+			entries.add(Entry.of(extCommand.address()));
+			entries.add(Entry.of(extCommand.function()));
 			break;
 		default:
 			logger.warn("Unsupported command: " + command);
@@ -96,20 +96,20 @@ public class EntryDispatcher {
 	}
 
 	private boolean dispatchHouseFunction(BaseFunction function) {
-		if (function.type == FunctionType.ALL_UNITS_OFF) commands.add(CommandFactory
+		if (function.type == FunctionType.allUnitsOff) commands.add(CommandFactory
 			.allUnitsOff(function.house));
-		else if (function.type == FunctionType.ALL_LIGHTS_OFF) commands.add(CommandFactory
+		else if (function.type == FunctionType.allLightsOff) commands.add(CommandFactory
 			.allLightsOff(function.house));
-		else if (function.type == FunctionType.ALL_LIGHTS_ON) commands.add(CommandFactory
+		else if (function.type == FunctionType.allLightsOn) commands.add(CommandFactory
 			.allLightsOn(function.house));
 		else return false;
 		return true;
 	}
 
 	private boolean dispatchUnitFunction(Address address, BaseFunction function) {
-		if (function.type == FunctionType.OFF) commands.add(CommandFactory.off(address.house,
+		if (function.type == FunctionType.off) commands.add(CommandFactory.off(address.house,
 			address.unit));
-		else if (function.type == FunctionType.ON) commands.add(CommandFactory.on(address.house,
+		else if (function.type == FunctionType.on) commands.add(CommandFactory.on(address.house,
 			address.unit));
 		else return false;
 		return true;
@@ -118,9 +118,9 @@ public class EntryDispatcher {
 	private boolean dispatchDimFunction(Address address, Entry entry) {
 		DimFunction function = entry.asDimFunction();
 		if (function == null) return false;
-		if (function.type == FunctionType.DIM) commands.add(CommandFactory.dim(address.house,
+		if (function.type == FunctionType.dim) commands.add(CommandFactory.dim(address.house,
 			address.unit, function.percent));
-		else if (function.type == FunctionType.BRIGHT) commands.add(CommandFactory.bright(
+		else if (function.type == FunctionType.bright) commands.add(CommandFactory.bright(
 			address.house, address.unit, function.percent));
 		else return false;
 		return true;
@@ -129,8 +129,7 @@ public class EntryDispatcher {
 	private boolean dispatchExtFunction(Address address, Entry entry) {
 		ExtFunction function = entry.asExtFunction();
 		if (function == null) return false;
-		commands.add(CommandFactory.extended(address.house, address.unit, function.data,
-			function.command));
+		commands.add(ExtCommand.of(address.house, address.unit, function.data, function.command));
 		return true;
 	}
 

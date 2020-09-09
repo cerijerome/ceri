@@ -20,7 +20,7 @@ public class ReadDataBehavior {
 	@Test
 	public void shouldReadExtFunctionFromInput() {
 		assertThat(read.readExtFunctionFrom(in(0x67, 0x7f, 0x80)),
-			is(new ExtFunction(House.A, (byte) 0x7f, (byte) 0x80)));
+			is(ExtFunction.of(House.A, 0x7f, 0x80)));
 	}
 
 	@Test
@@ -38,12 +38,12 @@ public class ReadDataBehavior {
 	@Test
 	public void shouldReadFunctionFromInput() {
 		assertThat(read.readFunctionFrom(in(0x66)),
-			is(new Function(House.A, FunctionType.ALL_LIGHTS_OFF)));
+			is(Function.of(House.A, FunctionType.allLightsOff)));
 	}
 
 	@Test
 	public void shouldReadAddressFromInput() {
-		assertThat(read.readAddressFrom(in(0x66)), is(Address.fromString("A1")));
+		assertThat(read.readAddressFrom(in(0x66)), is(Address.from("A1")));
 	}
 
 	private ByteReader in(int... bytes) {

@@ -1,5 +1,6 @@
 package ceri.x10.command;
 
+import static ceri.common.validation.ValidationUtil.*;
 import ceri.common.util.HashCoder;
 import ceri.x10.type.ExtFunction;
 import ceri.x10.type.FunctionType;
@@ -7,25 +8,31 @@ import ceri.x10.type.House;
 import ceri.x10.type.Unit;
 
 public class ExtCommand extends BaseUnitCommand<ExtFunction> {
-	public final byte data;
-	public final byte command;
-	private final int hashCode;
+	public final int data;
+	public final int command;
 
-	ExtCommand(House house, Unit unit, byte data, byte command) {
-		super(house, unit, FunctionType.EXTENDED);
+	public static ExtCommand of(House house, Unit unit, int data, int command) {
+		validateNotNull(house);
+		validateNotNull(house);
+		validateUbyte(data);
+		validateUbyte(command);
+		return new ExtCommand(house, unit, data, command);
+	}
+	
+	private ExtCommand(House house, Unit unit, int data, int command) {
+		super(house, unit, FunctionType.extended);
 		this.data = data;
 		this.command = command;
-		hashCode = HashCoder.hash(super.hashCode(), data, command);
 	}
 
 	@Override
 	public ExtFunction function() {
-		return new ExtFunction(house, data, command);
+		return ExtFunction.of(house, data, command);
 	}
 	
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return HashCoder.hash(super.hashCode(), data, command);
 	}
 
 	@Override
@@ -33,7 +40,9 @@ public class ExtCommand extends BaseUnitCommand<ExtFunction> {
 		if (this == obj) return true;
 		if (!(obj instanceof ExtCommand)) return false;
 		ExtCommand other = (ExtCommand) obj;
-		return data == other.data && command == other.command && super.equals(obj);
+		if (data != other.data) return false;
+		if (command != other.command) return false;
+		return super.equals(obj);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package ceri.x10.cm11a.protocol;
 
+import ceri.common.data.TypeTranscoder;
 
 public enum Protocol {
 	OK(0x00),
@@ -12,18 +13,16 @@ public enum Protocol {
 	RING_DISABLE(0xdb),
 	RING_ENABLE(0xeb);
 
-	public final byte value;
+	private static final TypeTranscoder<Protocol> xcoder =
+		TypeTranscoder.of(t -> t.value, Protocol.class);
+	public final int value;
 
-	Protocol(int value) {
-		this.value = (byte) value;
+	public static Protocol from(int value) {
+		return xcoder.decodeValid(value, Protocol.class.getSimpleName());
 	}
 
-	public static Protocol fromValue(int value) {
-		byte b = (byte) value;
-		for (Protocol p : Protocol.values())
-			if (p.value == b) return p;
-		throw new IllegalArgumentException("No such protocol byte: 0x" +
-			Integer.toHexString(value & 0xff));
+	Protocol(int value) {
+		this.value = value;
 	}
 
 }

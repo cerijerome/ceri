@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import org.junit.Test;
-import ceri.x10.cm11a.Entry;
-import ceri.x10.cm11a.EntryDispatcher;
+import ceri.x10.cm11a.device.Entry;
+import ceri.x10.cm11a.device.EntryDispatcher;
 import ceri.x10.command.CommandFactory;
 import ceri.x10.type.Address;
 import ceri.x10.type.ExtFunction;
@@ -20,9 +20,9 @@ public class InputBufferBehavior {
 
 	@Test
 	public void shouldCreateFromCommand() {
-		InputBuffer buffer = InputBuffer.create(CommandFactory.extended("P16", 0xff, 0xff));
-		assertCollection(buffer.entries, new Entry(Address.fromString("P16")), new Entry(
-			new ExtFunction(House.P, (byte) 0xff, (byte) 0xff)));
+		InputBuffer buffer = InputBuffer.from(CommandFactory.extended("P16", 0xff, 0xff));
+		assertCollection(buffer.entries, Entry.of(Address.from("P16")),
+			Entry.of(ExtFunction.of(House.P, 0xff, 0xff)));
 	}
 
 	@Test
@@ -31,19 +31,19 @@ public class InputBufferBehavior {
 		entries.addAll(EntryDispatcher.toEntries(CommandFactory.extended("A1", 0, 0)));
 		entries.addAll(EntryDispatcher.toEntries(CommandFactory.extended("B1", 0, 0)));
 		entries.addAll(EntryDispatcher.toEntries(CommandFactory.extended("C1", 0, 0)));
-		Collection<InputBuffer> buffers = InputBuffer.create(entries);
+		Collection<InputBuffer> buffers = InputBuffer.allFrom(entries);
 		assertThat(buffers.size(), is(2));
 	}
 
 	@Test
 	public void shouldCombineInputBuffersIntoEntries() {
-		Entry entry1 = new Entry(Address.fromString("A1"));
-		Entry entry2 = new Entry(new Function(House.A, FunctionType.ON));
-		Entry entry3 = new Entry(Address.fromString("B1"));
-		Entry entry4 = new Entry(new Function(House.B, FunctionType.ON));
+		Entry entry1 = Entry.of(Address.from("A1"));
+		Entry entry2 = Entry.of(Function.of(House.A, FunctionType.on));
+		Entry entry3 = Entry.of(Address.from("B1"));
+		Entry entry4 = Entry.of(Function.of(House.B, FunctionType.on));
 		Collection<InputBuffer> buffers = new ArrayList<>();
-		buffers.addAll(InputBuffer.create(Arrays.asList(entry1, entry2)));
-		buffers.addAll(InputBuffer.create(Arrays.asList(entry3, entry4)));
+		buffers.addAll(InputBuffer.allFrom(Arrays.asList(entry1, entry2)));
+		buffers.addAll(InputBuffer.allFrom(Arrays.asList(entry3, entry4)));
 		assertCollection(InputBuffer.combine(buffers), Arrays
 			.asList(entry1, entry2, entry3, entry4));
 	}

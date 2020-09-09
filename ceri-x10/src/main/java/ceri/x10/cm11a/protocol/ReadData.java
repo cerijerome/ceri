@@ -2,7 +2,8 @@ package ceri.x10.cm11a.protocol;
 
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteWriter;
-import ceri.x10.cm11a.Entry;
+import ceri.common.math.MathUtil;
+import ceri.x10.cm11a.device.Entry;
 import ceri.x10.type.Address;
 import ceri.x10.type.BaseFunction;
 import ceri.x10.type.DimFunction;
@@ -20,7 +21,7 @@ public class ReadData {
 	ReadData() {}
 
 	public Address readAddressFrom(ByteReader r) {
-		return Data.toAddress(r.readByte());
+		return Data.toAddress(r.readUbyte());
 	}
 
 	private void writeAddressTo(Address address, ByteWriter<?> w) {
@@ -28,10 +29,10 @@ public class ReadData {
 	}
 
 	public Function readFunctionFrom(ByteReader r) {
-		byte b = r.readByte();
-		House house = Data.toHouse(b >> 4 & 0xf);
+		int b = r.readUbyte();
+		House house = Data.toHouse((b >> 4) & 0xf);
 		FunctionType type = Data.toFunctionType(b & 0xf);
-		return new Function(house, type);
+		return Function.of(house, type);
 	}
 
 	private void writeBaseFunctionTo(BaseFunction function, ByteWriter<?> w) {
@@ -45,10 +46,10 @@ public class ReadData {
 	}
 
 	public DimFunction readDimFunctionFrom(ByteReader r) {
-		byte b = r.readByte();
-		House house = Data.toHouse(b >> 4 & 0xf);
+		int b = r.readUbyte();
+		House house = Data.toHouse((b >> 4) & 0xf);
 		FunctionType type = Data.toFunctionType(b & 0xf);
-		int dim = r.readByte();
+		int dim = r.readUbyte();
 		return new DimFunction(house, type, toDim(dim));
 	}
 
@@ -58,7 +59,7 @@ public class ReadData {
 	}
 
 	public int toDim(int data) {
-		double percent = (double) (data & 0xff) * 100 / DIM_MAX;
+		double percent = (double) MathUtil.ubyte(data) * 100 / DIM_MAX;
 		return (int) percent;
 	}
 
@@ -68,14 +69,12 @@ public class ReadData {
 	}
 
 	public ExtFunction readExtFunctionFrom(ByteReader r) {
-		byte b = r.readByte();
-		House house = Data.toHouse(b >> 4 & 0xf);
+		int b = r.readUbyte();
+		House house = Data.toHouse((b >> 4) & 0xf);
 		FunctionType type = Data.toFunctionType(b & 0xf);
-		if (type != FunctionType.EXTENDED)
+		if (type != FunctionType.extended)
 			throw new IllegalArgumentException("Function type is not extended: " + type);
-		byte data = r.readByte();
-		byte command = r.readByte();
-		return new ExtFunction(house, data, command);
+		return Data.decodeExtFunction(house, r);
 	}
 
 	public void writeExtFunctionTo(ExtFunction function, ByteWriter<?> w) {
@@ -99,20 +98,17 @@ public class ReadData {
 	}
 
 	public Entry readEntryFrom(boolean isFunction, ByteReader r) {
-		byte b = r.readByte();
-		if (!isFunction) return new Entry(Data.toAddress(b));
+		int b = r.readUbyte();
+		if (!isFunction) return Entry.of(Data.toAddress(b));
 		House house = Data.toHouse(b >> 4);
 		FunctionType type = Data.toFunctionType(b);
 		if (DimFunction.isAllowed(type)) {
-			int percent = Data.read.toDim(r.readByte());
-			return new Entry(new DimFunction(house, type, percent));
+			int percent = Data.read.toDim(r.readUbyte());
+			return Entry.of(new DimFunction(house, type, percent));
 		}
-		if (ExtFunction.isAllowed(type)) {
-			byte data = r.readByte();
-			byte command = r.readByte();
-			return new Entry(new ExtFunction(house, data, command));
-		}
-		return new Entry(new Function(house, type));
+		if (ExtFunction.isAllowed(type))
+			return Entry.of(Data.decodeExtFunction(house, r));
+		return Entry.of(Function.of(house, type));
 	}
 
 	public void writeEntryTo(Entry entry, ByteWriter<?> w) {

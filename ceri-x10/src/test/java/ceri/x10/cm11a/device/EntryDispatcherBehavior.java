@@ -1,4 +1,4 @@
-package ceri.x10.cm11a;
+package ceri.x10.cm11a.device;
 
 import static ceri.common.test.TestUtil.assertCollection;
 import java.util.ArrayList;
@@ -15,16 +15,16 @@ import ceri.x10.command.UnitCommand;
 public class EntryDispatcherBehavior {
 	private List<BaseCommand<?>> commands = new ArrayList<>();
 	private EntryDispatcher dispatcher;
-	
+
 	@Before
 	public void init() {
 		commands.clear();
 		dispatcher = new EntryDispatcher(commands);
 	}
-	
+
 	@Test
 	public void shouldDispatchExtendedCommands() {
-		ExtCommand command = CommandFactory.extended("B2",  Byte.MAX_VALUE,  Byte.MIN_VALUE);
+		ExtCommand command = CommandFactory.extended("B2", 0xff, 0);
 		dispatcher.dispatch(EntryDispatcher.toEntries(command));
 		assertCollection(commands, command);
 	}
@@ -57,6 +57,5 @@ public class EntryDispatcherBehavior {
 		dispatcher.dispatch(EntryDispatcher.toEntries(command3));
 		assertCollection(commands, command1, command2, command3);
 	}
-
 
 }

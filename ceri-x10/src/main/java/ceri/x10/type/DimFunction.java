@@ -20,14 +20,14 @@ public class DimFunction extends BaseFunction {
 	 * Convenience method to create a dim function.
 	 */
 	public static DimFunction dim(House house, int percent) {
-		return new DimFunction(house, FunctionType.DIM, percent);
+		return new DimFunction(house, FunctionType.dim, percent);
 	}
 
 	/**
 	 * Convenience method to create a bright function.
 	 */
 	public static DimFunction bright(House house, int percent) {
-		return new DimFunction(house, FunctionType.BRIGHT, percent);
+		return new DimFunction(house, FunctionType.bright, percent);
 	}
 
 	/**

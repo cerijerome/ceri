@@ -1,7 +1,9 @@
 package ceri.x10.type;
 
+import static ceri.common.validation.ValidationUtil.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.text.RegexUtil;
 import ceri.common.util.HashCoder;
 
 /**
@@ -11,28 +13,32 @@ public class Address {
 	private static final Pattern FROM_STRING_REGEX = Pattern.compile("(\\w)(\\d\\d?)");
 	public final House house;
 	public final Unit unit;
-	private final int hashCode;
-	
-	public Address(House house, Unit unit) {
-		this.house = house;
-		this.unit = unit;
-		hashCode = HashCoder.hash(house, unit);
-	}
 	
 	/**
 	 * Creates an address object from the string address such as "P13"
 	 */
-	public static Address fromString(String address) {
-		Matcher m = FROM_STRING_REGEX.matcher(address);
-		if (!m.find()) throw new IllegalArgumentException("Invalid address format: " + address);
-		House house = House.valueOf(m.group(1));
-		Unit unit = Unit.fromIndex(m.group(2));
+	public static Address from(String address) {
+		Matcher m = RegexUtil.matched(FROM_STRING_REGEX, address);
+		if (m == null) throw new IllegalArgumentException("Invalid address format: " + address);
+		House house = House.from(m.group(1).charAt(0));
+		Unit unit = Unit.from(Integer.parseInt(m.group(2)));
 		return new Address(house, unit);
+	}
+	
+	public static Address of(House house, Unit unit) {
+		validateNotNull(house);
+		validateNotNull(unit);
+		return new Address(house, unit);
+	}
+	
+	private Address(House house, Unit unit) {
+		this.house = house;
+		this.unit = unit;
 	}
 	
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return HashCoder.hash(house, unit);
 	}
 	
 	@Override
@@ -45,7 +51,7 @@ public class Address {
 	
 	@Override
 	public String toString() {
-		return house.name() + unit.index;
+		return house.name() + unit.value;
 	}
 	
 }

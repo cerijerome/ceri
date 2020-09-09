@@ -8,17 +8,15 @@ import ceri.common.util.HashCoder;
 public abstract class BaseFunction {
 	public final House house;
 	public final FunctionType type;
-	private final int hashCode;
 	
 	protected BaseFunction(House house, FunctionType type) {
 		this.house = house;
 		this.type = type;
-		hashCode = HashCoder.hash(house, type);
 	}
 	
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return HashCoder.hash(house, type);
 	}
 	
 	@Override

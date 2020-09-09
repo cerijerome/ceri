@@ -1,4 +1,4 @@
-package ceri.x10.cm17a;
+package ceri.x10.cm17a.device;
 
 import static ceri.common.test.TestUtil.isObject;
 import static org.junit.Assert.assertThat;
@@ -22,13 +22,12 @@ public class ProcessorBehavior {
 	private Processor processor;
 
 	@Before
-	public void init() throws IOException {
+	public void init() {
 		connector = mock(Cm17aConnector.class);
 		inQueue = new ArrayBlockingQueue<>(3);
 		outQueue = new ArrayBlockingQueue<>(3);
-		processor =
-			Processor.builder(connector, inQueue, outQueue).waitIntervalMs(0).resetIntervalMs(0)
-				.commandIntervalMs(0).queuePollTimeoutMs(1000).build();
+		Cm17aDeviceConfig config = Cm17aDeviceBehavior.config;
+		processor = new Processor(config, connector, inQueue, outQueue);
 	}
 
 	@After
@@ -47,20 +46,19 @@ public class ProcessorBehavior {
 	}
 
 	@Test
-	public void shouldSendCommandsToConnector() throws InterruptedException {
+	public void shouldSendCommandsToConnector() throws InterruptedException, IOException {
 		inQueue.add(CommandFactory.off("J10"));
 		BaseCommand<?> command = outQueue.poll(3000, TimeUnit.MILLISECONDS);
 		assertThat(command, isObject(CommandFactory.off("J10")));
 		InOrder inOrder = inOrder(connector);
 		assertReset(inOrder);
 		assertBits(inOrder, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0); // Header
-		// J10 OFF 11110100   00110000
+		// J10 OFF 11110100 00110000
 		assertBits(inOrder, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0); // Command
 		assertBits(inOrder, 1, 0, 1, 0, 1, 1, 0, 1); // Footer
 	}
 
-	@SuppressWarnings("resource")
-	private void assertBits(InOrder inOrder, int... bits) {
+	private void assertBits(InOrder inOrder, int... bits) throws IOException {
 		for (int bit : bits) {
 			if (bit == 1) {
 				inOrder.verify(connector).setDtr(false);
@@ -72,8 +70,7 @@ public class ProcessorBehavior {
 		}
 	}
 
-	@SuppressWarnings("resource")
-	private void assertReset(InOrder inOrder) {
+	private void assertReset(InOrder inOrder) throws IOException {
 		inOrder.verify(connector).setDtr(false);
 		inOrder.verify(connector).setRts(false);
 		inOrder.verify(connector).setDtr(true);

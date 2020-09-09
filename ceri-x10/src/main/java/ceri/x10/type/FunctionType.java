@@ -1,36 +1,40 @@
 package ceri.x10.type;
 
-import static ceri.x10.type.FunctionGroup.dim;
-import static ceri.x10.type.FunctionGroup.extended;
-import static ceri.x10.type.FunctionGroup.house;
-import static ceri.x10.type.FunctionGroup.unit;
-import static ceri.x10.type.FunctionGroup.unsupported;
+import ceri.common.data.TypeTranscoder;
 
 /**
  * Function type, and its grouping.
  */
 public enum FunctionType {
-	ALL_UNITS_OFF(house),
-	ALL_LIGHTS_ON(house),
-	ON(unit),
-	OFF(unit),
-	DIM(dim),
-	BRIGHT(dim),
-	ALL_LIGHTS_OFF(house),
-	EXTENDED(extended),
-	HAIL_REQUEST(unsupported),
-	HAIL_ACKNOWLEDGE(unsupported),
-	PRESET_DIM_1(unsupported),
-	PRESET_DIM_2(unsupported),
-	EXTENDED_DATA_XFER(unsupported),
-	STATUS_ON(unsupported),
-	STATUS_OFF(unsupported),
-	STATUS_REQUEST(unsupported);
+	allUnitsOff(1, FunctionGroup.house),
+	allLightsOn(2, FunctionGroup.house),
+	on(3, FunctionGroup.unit),
+	off(4, FunctionGroup.unit),
+	dim(5, FunctionGroup.dim),
+	bright(6, FunctionGroup.dim),
+	allLightsOff(7, FunctionGroup.house),
+	extended(8, FunctionGroup.extended),
+	hailRequest(9, FunctionGroup.unsupported),
+	hailAcknowledge(10, FunctionGroup.unsupported),
+	presetDim1(11, FunctionGroup.unsupported),
+	presetDim2(12, FunctionGroup.unsupported),
+	extendedDataXfer(13, FunctionGroup.unsupported),
+	statusOn(14, FunctionGroup.unsupported),
+	statusOff(15, FunctionGroup.unsupported),
+	statusRequest(16, FunctionGroup.unsupported);
 
+	private static final TypeTranscoder<FunctionType> xcoder =
+		TypeTranscoder.of(t -> t.id, FunctionType.class);
 	public final FunctionGroup group;
-	
-	FunctionType(FunctionGroup group) {
-		this.group = group;
+	public final int id;
+
+	public static FunctionType from(int id) {
+		return xcoder.decodeValid(id, "Function type");
 	}
-	
+
+	FunctionType(int id, FunctionGroup group) {
+		this.group = group;
+		this.id = id;
+	}
+
 }
