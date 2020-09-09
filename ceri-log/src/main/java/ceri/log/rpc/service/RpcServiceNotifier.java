@@ -14,8 +14,8 @@ import org.apache.logging.log4j.Logger;
 import com.google.protobuf.Empty;
 import ceri.common.concurrent.SafeReadWrite;
 import ceri.common.concurrent.ValueCondition;
-import ceri.common.event.CloseableListener;
 import ceri.common.event.Listenable;
+import ceri.common.util.Enclosed;
 import ceri.log.rpc.util.RpcUtil;
 import ceri.log.util.LogUtil;
 import io.grpc.stub.StreamObserver;
@@ -40,7 +40,7 @@ public class RpcServiceNotifier<T, V> implements Closeable {
 	/** Used to notify whenever a listener is added or removed */
 	private final ValueCondition<Integer> listenerSync = ValueCondition.of(safe.conditionLock());
 	private final Set<StreamObserver<V>> observers = new LinkedHashSet<>(); // rpc clients
-	private final CloseableListener<T> listener; // listen on create, unlisten on close
+	private final Enclosed<?> listener; // listen on create, unlisten on close
 	private final Function<T, V> transform; // transforms T to grpc value type V
 
 	public static <T, V> RpcServiceNotifier<T, V> of(Listenable<T> listenable,
@@ -50,7 +50,7 @@ public class RpcServiceNotifier<T, V> implements Closeable {
 
 	private RpcServiceNotifier(Listenable<T> listenable, Function<T, V> transform) {
 		this.transform = transform;
-		listener = CloseableListener.of(listenable, this::notification);
+		listener = listenable.enclose(this::notification);
 		logger.debug("Started");
 	}
 

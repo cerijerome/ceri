@@ -14,7 +14,7 @@ import ceri.log.rpc.TestGrpc;
 import io.grpc.stub.StreamObserver;
 
 public class TestRpcService extends TestGrpc.TestImplBase implements Closeable {
-	private final Listeners<Integer> listeners = new Listeners<>();
+	private final Listeners<Integer> listeners = Listeners.of();
 	private final RpcServiceNotifier<Integer, UInt32Value> notifier;
 	public ExceptionRunnable<?> run = null;
 	public ExceptionIntConsumer<?> set = null;

@@ -8,7 +8,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.function.Consumer;
 import com.google.protobuf.UInt32Value;
-import ceri.common.event.CloseableListener;
+import ceri.common.util.Enclosed;
 import ceri.log.rpc.TestGrpc;
 import ceri.log.rpc.TestGrpc.TestStub;
 
@@ -26,8 +26,8 @@ public class TestRpcClient implements Closeable {
 		notifier = createNotifier(channel, notifierResetDelayMs);
 	}
 
-	public CloseableListener<Integer> listen(Consumer<Integer> consumer) {
-		return CloseableListener.of(notifier, consumer);
+	public Enclosed<?> listen(Consumer<Integer> consumer) {
+		return notifier.enclose(consumer);
 	}
 
 	public void run() throws IOException {

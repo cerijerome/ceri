@@ -36,7 +36,7 @@ public class SelfHealingSocket extends LoopingExecutor {
 	private final Boolean keepAlive;
 	private final int fixRetryDelayMs;
 	private final int recoveryDelayMs;
-	private final Listeners<StateChange> listeners = new Listeners<>();
+	private final Listeners<StateChange> listeners = Listeners.of();
 	private final ReplaceableInputStream in = new ReplaceableInputStream();
 	private final ReplaceableOutputStream out = new ReplaceableOutputStream();
 	private final BooleanCondition sync = BooleanCondition.of();

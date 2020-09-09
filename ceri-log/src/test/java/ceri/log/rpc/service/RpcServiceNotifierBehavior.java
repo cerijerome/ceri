@@ -17,7 +17,7 @@ public class RpcServiceNotifierBehavior {
 
 	@Test
 	public void shouldStopNotifyingOnClientError() throws InterruptedException {
-		Listeners<String> listeners = new Listeners<>();
+		Listeners<String> listeners = Listeners.of();
 		try (var notifier = RpcServiceNotifier.of(listeners, Integer::parseInt)) {
 			StreamObserver<Integer> client = BasicUtil.uncheckedCast(mock(StreamObserver.class));
 			StreamObserver<Empty> response = notifier.listen(client);

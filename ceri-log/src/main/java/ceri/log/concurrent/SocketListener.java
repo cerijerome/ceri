@@ -20,7 +20,7 @@ import ceri.log.util.LogUtil;
 public class SocketListener extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
 	private final ServerSocket serverSocket;
-	private final Listeners<ByteProvider> listeners = new Listeners<>();
+	private final Listeners<ByteProvider> listeners = Listeners.of();
 
 	public static SocketListener of(int port, Runnable listenable) throws IOException {
 		return of(port, listenable, null);
