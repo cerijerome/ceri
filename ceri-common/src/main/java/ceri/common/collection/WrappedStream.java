@@ -1,6 +1,6 @@
 package ceri.common.collection;
 
-import static ceri.common.collection.CollectionUtil.spliterator;
+import static ceri.common.collection.Iterators.spliterator;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Spliterator;
@@ -113,12 +113,11 @@ public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 	public <R, A> R collect(Collector<? super T, A, R> collector) throws E {
 		return w.unwrapSupplier(() -> stream.collect(collector));
 	}
-
+	
 	public <R> WrappedStream<E, R>
 		apply(ExceptionFunction<E, ? super Stream<T>, ? extends Stream<R>> fn) throws E {
 		Stream<R> s = fn.apply(stream);
-		WrappedStream<E, R> wrapped = new WrappedStream<>(w, s);
-		return wrapped;
+		return new WrappedStream<>(w, s);
 	}
 
 	@SuppressWarnings("resource")

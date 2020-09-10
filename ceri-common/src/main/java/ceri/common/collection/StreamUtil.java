@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import static ceri.common.collection.Iterators.spliterator;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -409,8 +410,7 @@ public class StreamUtil {
 	 * values, otherwise it passes the next value to the action, and returns true.
 	 */
 	public static <T> Stream<T> stream(Predicate<Consumer<? super T>> tryAdvanceFn) {
-		Spliterator<T> spliterator =
-			CollectionUtil.spliterator(tryAdvanceFn, Long.MAX_VALUE, Spliterator.ORDERED);
+		Spliterator<T> spliterator = spliterator(tryAdvanceFn, Long.MAX_VALUE, Spliterator.ORDERED);
 		return StreamSupport.stream(spliterator, false);
 	}
 

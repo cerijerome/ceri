@@ -6,27 +6,19 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Deque;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import ceri.common.comparator.Comparators;
@@ -300,108 +292,6 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Construct a spliterator from a try-advance method. The method returns false if no more
-	 * values, otherwise it passes the next value to the action, and returns true. Pass
-	 * Long.MAX_VALUE for estimated size if unknown. Pass 0 for characteristics if none apply.
-	 */
-	public static <T> Spliterator<T> spliterator(Predicate<Consumer<? super T>> tryAdvanceFn,
-		long estimatedSize, int characteristics) {
-		return new Spliterators.AbstractSpliterator<>(estimatedSize, characteristics) {
-			@Override
-			public boolean tryAdvance(Consumer<? super T> action) {
-				if (tryAdvanceFn == null) return false;
-				return tryAdvanceFn.test(action);
-			}
-		};
-	}
-
-	/**
-	 * Construct a spliterator from hasNext and next functions. Pass Long.MAX_VALUE for estimated
-	 * size if unknown. Pass 0 for characteristics if none apply.
-	 */
-	public static <T> Spliterator<T> spliterator(BooleanSupplier hasNextFn, Supplier<T> nextFn,
-		long estimatedSize, int characteristics) {
-		return spliterator(action -> {
-			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
-			if (nextFn != null) action.accept(nextFn.get());
-			return true;
-		}, estimatedSize, characteristics);
-	}
-
-	/**
-	 * Allows an enumeration to be run in a for-each loop.
-	 */
-	public static <T> Iterable<T> iterable(final Enumeration<? extends T> enumeration) {
-		return BasicUtil.forEach(iterator(enumeration));
-	}
-
-	/**
-	 * Returns an iterator for an enumeration.
-	 */
-	public static <T> Iterator<T> iterator(final Enumeration<? extends T> enumeration) {
-		return new Iterator<>() {
-			@Override
-			public final boolean hasNext() {
-				return enumeration.hasMoreElements();
-			}
-
-			@Override
-			public final T next() {
-				return enumeration.nextElement();
-			}
-
-			@Override
-			public final void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
-	}
-
-	/**
-	 * Returns a reversed list iterator.
-	 */
-	public static <T> Iterator<T> reverseListIterator(List<T> list) {
-		final ListIterator<T> listIterator = list.listIterator(list.size());
-		return new Iterator<>() {
-			@Override
-			public boolean hasNext() {
-				return listIterator.hasPrevious();
-			}
-
-			@Override
-			public T next() {
-				return listIterator.previous();
-			}
-
-			@Override
-			public void remove() {
-				listIterator.remove();
-			}
-		};
-	}
-
-	/**
-	 * Returns a reverse iterable type useful in for-each loops.
-	 */
-	public static <T> Iterable<T> reverseIterableList(final List<T> list) {
-		return () -> reverseListIterator(list);
-	}
-
-	/**
-	 * Returns a reverse iterable type useful in for-each loops.
-	 */
-	public static <T> Iterable<T> reverseIterableQueue(final Deque<T> deque) {
-		return deque::descendingIterator;
-	}
-
-	/**
-	 * Returns a reverse iterable type useful in for-each loops.
-	 */
-	public static <T> Iterable<T> reverseIterableSet(final NavigableSet<T> navSet) {
-		return navSet::descendingIterator;
-	}
-
-	/**
 	 * Map wrapper that returns a default value if key is not in map or its value is null.
 	 */
 	public static <K, V> Map<K, V> defaultValueMap(Map<K, V> map, final V def) {
@@ -465,7 +355,8 @@ public class CollectionUtil {
 	public static <T> T get(int index, Set<T> set) {
 		if (set == null || index < 0 || set.size() <= index) return null;
 		Iterator<T> i = set.iterator();
-		while (index-- > 0) i.next();
+		while (index-- > 0)
+			i.next();
 		return i.next();
 	}
 

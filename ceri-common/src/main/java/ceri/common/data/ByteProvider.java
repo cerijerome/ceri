@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.Iterators;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
 
@@ -28,12 +30,12 @@ import ceri.common.math.MathUtil;
  * @see ceri.common.data.ByteArray.Immutable
  * @see ceri.common.concurrent.VolatileByteArray
  */
-public interface ByteProvider {
+public interface ByteProvider extends Iterable<Integer> {
 
 	static ByteProvider empty() {
 		return ByteArray.Immutable.EMPTY;
 	}
-	
+
 	/**
 	 * {@link Navigator} and {@link ByteReader} wrapper for a {@link ByteProvider}. This provides
 	 * sequential access to bytes, and relative/absolute positioning for the next read.
@@ -152,16 +154,16 @@ public interface ByteProvider {
 		}
 
 		/**
-		 * Returns a view of the ByteProvider, incrementing the offset. Only supported if slice()
-		 * is implemented.
+		 * Returns a view of the ByteProvider, incrementing the offset. Only supported if slice() is
+		 * implemented.
 		 */
 		public ByteProvider provider() {
 			return provider(remaining());
 		}
 
 		/**
-		 * Returns a view of the ByteProvider, incrementing the offset. Only supported if slice()
-		 * is implemented.
+		 * Returns a view of the ByteProvider, incrementing the offset. Only supported if slice() is
+		 * implemented.
 		 */
 		public ByteProvider provider(int length) {
 			return provider.slice(inc(length), length);
@@ -190,6 +192,14 @@ public interface ByteProvider {
 			skip(length);
 			return position;
 		}
+	}
+
+	/**
+	 * Iterates over unsigned bytes.
+	 */
+	@Override
+	default Iterator<Integer> iterator() {
+		return Iterators.indexed(length(), i -> (int) getUbyte(i));
 	}
 
 	/**

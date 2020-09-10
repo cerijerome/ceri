@@ -658,7 +658,7 @@ public class StringUtil {
 	/**
 	 * Creates a formatted string for iterable items.
 	 */
-	public static String join(CharSequence delimiter, Object... iterable) {
+	public static String joinAll(CharSequence delimiter, Object... iterable) {
 		return join(delimiter, String::valueOf, asList(iterable));
 	}
 

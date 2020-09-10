@@ -10,13 +10,13 @@ import ceri.common.test.TestUtil;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	// collection
-	ceri.common.collection.ArrayIteratorBehavior.class, //
 	ceri.common.collection.ArrayUtilTest.class, //
 	ceri.common.collection.CollectionUtilTest.class, //
 	ceri.common.collection.DelegatingMapBehavior.class, //
 	ceri.common.collection.FixedSizeCacheBehavior.class, //
 	ceri.common.collection.ImmutableUtilTest.class, //
 	ceri.common.collection.IndexedBehavior.class, //
+	ceri.common.collection.IteratorsTest.class, //
 	ceri.common.collection.MapPopulatorBehavior.class, //
 	ceri.common.collection.NodeBehavior.class, //
 	ceri.common.collection.StreamUtilTest.class, //
@@ -156,7 +156,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.geom.Spheroid3dBehavior.class, //
 	ceri.common.geom.TruncatedRadial3dBehavior.class, //
 	// io
-	ceri.common.io.BitIteratorBehavior.class, //
 	ceri.common.io.DeviceModeBehavior.class, //
 	ceri.common.io.FileTrackerBehavior.class, //
 	ceri.common.io.FileVisitUtilTest.class, //

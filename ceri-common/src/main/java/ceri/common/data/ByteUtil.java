@@ -8,10 +8,13 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.Iterators;
 import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.EqualsUtil;
@@ -28,6 +31,18 @@ public class ByteUtil {
 		EqualsUtil.equals(ByteOrder.nativeOrder(), ByteOrder.BIG_ENDIAN);
 
 	private ByteUtil() {}
+
+	/**
+	 * Iterate bits of bytes. A true highBit iterates each byte from bit 7 to 0.
+	 */
+	public static Iterator<Boolean> bitIterator(boolean highBit, ByteProvider bytes) {
+		IntUnaryOperator bitFn = highBit ? i -> Byte.SIZE - i - 1 : i -> i;
+		return Iterators.indexed(bytes.length() * Byte.SIZE, i -> {
+			int value = bytes.getByte(i / Byte.SIZE);
+			int bit = bitFn.applyAsInt(i % Byte.SIZE);
+			return bit(value, bit);
+		});
+	}
 
 	/**
 	 * Converts hex string to its minimal byte array. Remove any delimiters before calling this.

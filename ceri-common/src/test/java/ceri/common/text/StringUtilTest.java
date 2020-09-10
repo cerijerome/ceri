@@ -362,7 +362,6 @@ public class StringUtilTest {
 
 	@Test
 	public void testJoin() {
-		assertThat(StringUtil.join("|", 1, 2, 3), is("1|2|3"));
 		assertThat(StringUtil.join("|", "{", "}", "Test1", "Test2", "Test3"),
 			is("{Test1|Test2|Test3}"));
 		assertThat(StringUtil.join("|", "{", "}", "Test"), is("{Test}"));
@@ -372,6 +371,11 @@ public class StringUtilTest {
 		assertThat(StringUtil.join("|", "{", "}", i -> repeat("x", i), 1, 2, 3), is("{x|xx|xxx}"));
 	}
 
+	@Test
+	public void testJoinAll() {
+		assertThat(StringUtil.joinAll("|", 1, 2, 3), is("1|2|3"));
+	}
+	
 	@Test
 	public void testPaddingNumbers() {
 		assertThat(StringUtil.pad(100, 5), is("00100"));

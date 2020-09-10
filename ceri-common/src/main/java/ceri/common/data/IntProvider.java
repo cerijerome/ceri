@@ -2,9 +2,11 @@ package ceri.common.data;
 
 import static ceri.common.data.ByteUtil.BIG_ENDIAN;
 import static ceri.common.data.IntUtil.LONG_INTS;
+import java.util.Iterator;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.Iterators;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
 
@@ -23,7 +25,7 @@ import ceri.common.math.MathUtil;
  * 
  * @see ceri.common.data.IntArray.Immutable
  */
-public interface IntProvider {
+public interface IntProvider extends Iterable<Integer> {
 
 	static IntProvider empty() {
 		return IntArray.Immutable.EMPTY;
@@ -153,6 +155,14 @@ public interface IntProvider {
 			skip(length);
 			return position;
 		}
+	}
+
+	/**
+	 * Iterates over integers.
+	 */
+	@Override
+	default Iterator<Integer> iterator() {
+		return Iterators.indexed(length(), this::getInt);
 	}
 
 	/**
@@ -506,7 +516,7 @@ public interface IntProvider {
 			if (isEqualTo(i, provider, offset, length)) return i;
 		return -1;
 	}
-	
+
 	/**
 	 * Provides sequential int access.
 	 */

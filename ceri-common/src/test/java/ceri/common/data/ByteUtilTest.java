@@ -3,6 +3,8 @@ package ceri.common.data;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertStream;
+import static ceri.common.test.TestUtil.provider;
+import static ceri.common.util.BasicUtil.forEach;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -19,6 +21,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.test.Capturer;
 import ceri.common.test.TestUtil;
 
 public class ByteUtilTest {
@@ -35,6 +38,26 @@ public class ByteUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ByteUtil.class);
+	}
+
+	@Test
+	public void testBitIteratorHigh() {
+		Capturer<Boolean> captor = Capturer.of();
+		for (boolean b : forEach(ByteUtil.bitIterator(true, provider(0xa9, 0, 0xff))))
+			captor.accept(b);
+		captor.verify(true, false, true, false, true, false, false, true, //
+			false, false, false, false, false, false, false, false, //
+			true, true, true, true, true, true, true, true);
+	}
+
+	@Test
+	public void testBitIteratorLow() {
+		Capturer<Boolean> captor = Capturer.of();
+		for (boolean b : forEach(ByteUtil.bitIterator(false, provider(0xa9, 0, 0xff))))
+			captor.accept(b);
+		captor.verify(true, false, false, true, false, true, false, true, //
+			false, false, false, false, false, false, false, false, //
+			true, true, true, true, true, true, true, true);
 	}
 
 	@Test
@@ -72,7 +95,7 @@ public class ByteUtilTest {
 		assertArray(ByteUtil.fill(3, 0xff), 0xff, 0xff, 0xff);
 		assertArray(ByteUtil.fill(0, 0xff));
 	}
-	
+
 	@Test
 	public void testWriteTo() {
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
@@ -94,7 +117,8 @@ public class ByteUtilTest {
 		doThrow(new RuntimeException()).when(badByteArrayOutputStream).write(any(), anyInt(),
 			anyInt());
 		doThrow(new IOException()).when(badByteProvider).writeTo(anyInt(), any(OutputStream.class));
-		doThrow(new IOException()).when(badByteProvider).writeTo(anyInt(), any(OutputStream.class), anyInt());
+		doThrow(new IOException()).when(badByteProvider).writeTo(anyInt(), any(OutputStream.class),
+			anyInt());
 		doThrow(new IOException()).when(badByteProvider).writeTo(anyInt(), any(OutputStream.class),
 			anyInt());
 		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, -1, 2));
@@ -164,8 +188,7 @@ public class ByteUtilTest {
 		assertThat(ByteUtil.maskOfBitsInt((int[]) null), is(0));
 		assertThat(ByteUtil.maskOfBitsInt((List<Integer>) null), is(0));
 		assertThat(ByteUtil.maskOfBitsInt(31, 16, 15, 8, 7, 0), is(0x80018181));
-		assertThat(ByteUtil.maskOfBitsInt(List.of(31, 16, 15, 8, 7, 0)),
-			is(0x80018181));
+		assertThat(ByteUtil.maskOfBitsInt(List.of(31, 16, 15, 8, 7, 0)), is(0x80018181));
 		assertThat(ByteUtil.maskOfBitsInt(32), is(0));
 		assertThat(ByteUtil.maskOfBitInt(true, 31), is(0x80000000));
 		assertThat(ByteUtil.maskOfBitInt(false, 31), is(0));

@@ -9,6 +9,7 @@ import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.IntProvider.Reader;
 import ceri.common.data.IntReceiverBehavior.Holder;
+import ceri.common.test.Capturer;
 
 public class IntProviderBehavior {
 	private static final boolean msb = ByteUtil.BIG_ENDIAN;
@@ -23,6 +24,17 @@ public class IntProviderBehavior {
 		assertThat(IntProvider.empty().length(), is(0));
 		assertThat(IntProvider.empty().isEmpty(), is(true));
 		assertThrown(() -> IntProvider.empty().getInt(0));
+	}
+
+	@Test
+	public void shouldIterateValues() {
+		Capturer.Int captor = Capturer.ofInt();
+		for (int i : IntProvider.empty())
+			captor.accept(i);
+		captor.verifyInt();
+		for (int i : provider(-1, 0, 1, Integer.MIN_VALUE, Integer.MAX_VALUE, 0xffffffff))
+			captor.accept(i);
+		captor.verifyInt(-1, 0, 1, Integer.MIN_VALUE, Integer.MAX_VALUE, 0xffffffff);
 	}
 
 	@Test
@@ -164,7 +176,7 @@ public class IntProviderBehavior {
 		assertThat(ip.lastIndexOf(7, provider(0, -1)), is(-1));
 		assertThat(ip.lastIndexOf(0, provider(2, -1, 0), 0, 4), is(-1));
 	}
-	
+
 	@Test
 	public void shouldProvideReaderAccessToInts() {
 		assertArray(ip.reader(5).readInts(), -5, 6, -7, 8, -9);

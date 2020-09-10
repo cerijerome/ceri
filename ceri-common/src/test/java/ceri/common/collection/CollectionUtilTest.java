@@ -3,31 +3,21 @@ package ceri.common.collection;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableSet;
-import java.util.NoSuchElementException;
-import java.util.Properties;
 import java.util.Set;
-import java.util.TreeSet;
 import org.junit.Test;
-import ceri.common.test.Capturer;
 import ceri.common.test.TestUtil;
 
 public class CollectionUtilTest {
@@ -165,40 +155,6 @@ public class CollectionUtilTest {
 	}
 
 	@Test
-	public void testIterable() {
-		Properties props = new Properties();
-		props.put("A", 1);
-		props.put("B", 2);
-		props.put("C", 3);
-		Iterable<Object> iterable = CollectionUtil.iterable(props.propertyNames());
-		Set<String> set = new HashSet<>();
-		for (Object obj : iterable)
-			set.add((String) obj);
-		assertCollection(set, "A", "B", "C");
-		TestUtil.assertThrown(() -> iterable.iterator().remove());
-	}
-
-	@Test
-	public void testSpliteratorTryAdvance() {
-		Capturer<Object> capturer = Capturer.of();
-		CollectionUtil.spliterator(null, 1, 0).tryAdvance(capturer);
-		capturer.verify();
-	}
-
-	@Test
-	public void testSpliteratorNext() {
-		Capturer<Object> capturer = Capturer.of();
-		CollectionUtil.spliterator(null, null, 1, 0).tryAdvance(capturer);
-		capturer.verify();
-		CollectionUtil.spliterator(() -> false, null, 1, 0).tryAdvance(capturer);
-		capturer.verify();
-		CollectionUtil.spliterator(() -> true, null, 1, 0).tryAdvance(capturer);
-		capturer.verify();
-		CollectionUtil.spliterator(() -> true, () -> "test", 1, 0).tryAdvance(capturer);
-		capturer.verify("test");
-	}
-
-	@Test
 	public void testToArray() {
 		TestUtil.assertThrown(() -> CollectionUtil.toArray(Collections.emptyList(), Integer.TYPE));
 		Number[] numbers = CollectionUtil.toArray(Arrays.asList(1, 2, 3), Number.class);
@@ -216,18 +172,6 @@ public class CollectionUtilTest {
 		assertTrue(map.containsKey(""));
 		assertTrue(map.containsValue(-1));
 		assertThat(map.get(""), is(-1));
-	}
-
-	@Test
-	public void testReverseListIterator() {
-		final Iterator<String> iterator =
-			CollectionUtil.reverseListIterator(ArrayUtil.asList("A", "B", "C"));
-		assertThat(iterator.next(), is("C"));
-		iterator.remove();
-		assertThat(iterator.next(), is("B"));
-		assertThat(iterator.next(), is("A"));
-		assertFalse(iterator.hasNext());
-		assertThrown(NoSuchElementException.class, iterator::next);
 	}
 
 	@Test
@@ -289,38 +233,6 @@ public class CollectionUtilTest {
 	public void testReverse() {
 		List<Integer> list = Arrays.asList(1, 2, 3);
 		assertThat(CollectionUtil.reverse(list), is(List.of(3, 2, 1)));
-	}
-
-	@Test(expected = NoSuchElementException.class)
-	public void testReverseIterableList() {
-		Iterator<Integer> iterator =
-			CollectionUtil.reverseIterableList(Arrays.asList(1, 2, 3)).iterator();
-		assertThat(iterator.next(), is(3));
-		assertThat(iterator.next(), is(2));
-		assertThat(iterator.next(), is(1));
-		iterator.next();
-	}
-
-	@Test(expected = NoSuchElementException.class)
-	public void testReverseIterableQueue() {
-		Deque<Integer> queue = new ArrayDeque<>();
-		Collections.addAll(queue, 1, 2, 3);
-		Iterator<Integer> iterator = CollectionUtil.reverseIterableQueue(queue).iterator();
-		assertThat(iterator.next(), is(3));
-		assertThat(iterator.next(), is(2));
-		assertThat(iterator.next(), is(1));
-		iterator.next();
-	}
-
-	@Test(expected = NoSuchElementException.class)
-	public void testReverseIterableSet() {
-		NavigableSet<Integer> set = new TreeSet<>();
-		Collections.addAll(set, 1, 2, 3);
-		Iterator<Integer> iterator = CollectionUtil.reverseIterableSet(set).iterator();
-		assertThat(iterator.next(), is(3));
-		assertThat(iterator.next(), is(2));
-		assertThat(iterator.next(), is(1));
-		iterator.next();
 	}
 
 	@Test

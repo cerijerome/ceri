@@ -14,6 +14,7 @@ import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteProvider.Reader;
 import ceri.common.data.ByteReceiverBehavior.Holder;
+import ceri.common.test.Capturer;
 
 public class ByteProviderBehavior {
 	private static final boolean msb = ByteUtil.BIG_ENDIAN;
@@ -31,6 +32,15 @@ public class ByteProviderBehavior {
 		assertThrown(() -> ByteProvider.empty().getByte(0));
 	}
 
+	@Test
+	public void shouldIterateValues() {
+		Capturer.Int captor = Capturer.ofInt();
+		for (int i : ByteProvider.empty()) captor.accept(i);
+		captor.verifyInt();
+		for (int i : provider(-1, 0, 1, Byte.MIN_VALUE, Byte.MAX_VALUE, 0xff)) captor.accept(i);
+		captor.verifyInt(0xff, 0, 1, 0x80,0x7f, 0xff);
+	}
+	
 	@Test
 	public void shouldDetermineIfEmpty() {
 		assertThat(bp.isEmpty(), is(false));
