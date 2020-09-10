@@ -10,30 +10,36 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ceri.common.property.BaseProperties;
-import ceri.x10.cm11a.device.Cm11aConnector;
+import ceri.x10.cm11a.Cm11aContainer;
 import ceri.x10.cm11a.device.Cm11aDevice;
-import ceri.x10.cm17a.device.Cm17aConnector;
+import ceri.x10.cm17a.Cm17aContainer;
 import ceri.x10.cm17a.device.Cm17aDevice;
 
 public class X10ContainerBehavior {
-	@Mock private Cm17aConnector cm17aConnector;
-	@Mock private Cm17aDevice cm17aController;
-	@Mock private Cm11aConnector cm11aConnector;
-	@Mock private Cm11aDevice cm11aController;
-	@Mock private X10Alerter.Builder builder;
-	@Mock private X10Factory factory;
+	@Mock
+	private Cm11aContainer cm11aContainer;
+	@Mock
+	private Cm11aDevice cm11a;
+	@Mock
+	private Cm17aContainer cm17aContainer;
+	@Mock
+	private Cm17aDevice cm17a;
+	@Mock
+	private X10Alerter.Builder builder;
+	@Mock
+	private X10Factory factory;
 	private Properties properties;
 
 	@SuppressWarnings("resource")
 	@Before
 	public void init() throws IOException {
 		MockitoAnnotations.initMocks(this);
-		when(factory.createCm11aConnector("com")).thenReturn(cm11aConnector);
-		when(factory.createCm11aController(cm11aConnector)).thenReturn(cm11aController);
-		when(factory.createCm17aConnector("com")).thenReturn(cm17aConnector);
-		when(factory.createCm17aController(cm17aConnector)).thenReturn(cm17aController);
-		when(factory.builder(cm17aController)).thenReturn(builder);
-		when(factory.builder(cm11aController)).thenReturn(builder);
+		when(factory.createCm11aContainer("com")).thenReturn(cm11aContainer);
+		when(cm11aContainer.cm11a()).thenReturn(cm11a);
+		when(factory.createCm17aContainer("com")).thenReturn(cm17aContainer);
+		when(cm17aContainer.cm17a()).thenReturn(cm17a);
+		when(factory.builder(cm17a)).thenReturn(builder);
+		when(factory.builder(cm11a)).thenReturn(builder);
 		properties = new Properties();
 	}
 
@@ -46,7 +52,7 @@ public class X10ContainerBehavior {
 		properties.put("x10.address.key1", "A16");
 		@SuppressWarnings("unused")
 		X10Container container = new X10Container(baseProperties(), factory);
-		verify(factory).builder(cm17aController);
+		verify(factory).builder(cm17a);
 		verify(builder).address("key0", "P1");
 		verify(builder).address("key1", "A16");
 	}
@@ -58,8 +64,7 @@ public class X10ContainerBehavior {
 		properties.put("x10.comm.port", "com");
 		properties.put("x10.controller", "cm17a");
 		try (X10Container container = new X10Container(baseProperties(), factory)) {}
-		verify(cm17aConnector).close();
-		verify(cm17aController).close();
+		verify(cm17aContainer).close();
 	}
 
 	@SuppressWarnings("resource")
@@ -80,8 +85,7 @@ public class X10ContainerBehavior {
 		properties.put("x10.controller", "cm17a");
 		@SuppressWarnings("unused")
 		X10Container container = new X10Container(baseProperties(), factory);
-		verify(factory).createCm17aConnector("com");
-		verify(factory).createCm17aController(cm17aConnector);
+		verify(factory).createCm17aContainer("com");
 	}
 
 	@SuppressWarnings("resource")
@@ -92,12 +96,11 @@ public class X10ContainerBehavior {
 		properties.put("x10.controller", "cm11a");
 		@SuppressWarnings("unused")
 		X10Container container = new X10Container(baseProperties(), factory);
-		verify(factory).createCm11aConnector("com");
-		verify(factory).createCm11aController(cm11aConnector);
+		verify(factory).createCm11aContainer("com");
 	}
 
 	private BaseProperties baseProperties() {
 		return new BaseProperties(properties) {};
 	}
-	
+
 }

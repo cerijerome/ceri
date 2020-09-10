@@ -16,7 +16,7 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Session;
 import org.junit.Test;
-import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.Iterators;
 
 public class EmailUtilTest {
 
@@ -27,7 +27,7 @@ public class EmailUtilTest {
 		Properties props = session.getProperties();
 		boolean imap = false;
 		boolean imaps = false;
-		for (Object name : CollectionUtil.iterable(props.propertyNames())) {
+		for (Object name : Iterators.forEach(props.propertyNames())) {
 			if (name.toString().contains(".imap.")) imap = true;
 			if (name.toString().contains(".imaps.")) imaps = true;
 		}

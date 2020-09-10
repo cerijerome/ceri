@@ -4,10 +4,10 @@ import java.io.Closeable;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.io.IoUtil;
 import ceri.common.property.BaseProperties;
-import ceri.x10.cm11a.device.Cm11aConnector;
-import ceri.x10.cm17a.device.Cm17aConnector;
+import ceri.log.util.LogUtil;
+import ceri.x10.cm11a.Cm11aContainer;
+import ceri.x10.cm17a.Cm17aContainer;
 import ceri.x10.util.X10Controller;
 import ceri.x10.util.X10ControllerType;
 
@@ -17,7 +17,7 @@ import ceri.x10.util.X10ControllerType;
 public class X10Container implements Closeable {
 	private final Logger logger = LogManager.getLogger();
 	private static final String GROUP = "x10";
-	private final Closeable connector;
+	private final AutoCloseable container;
 	private final X10Controller controller;
 	public final X10Alerter alerter;
 
@@ -29,36 +29,25 @@ public class X10Container implements Closeable {
 		X10Properties x10Properties = new X10Properties(properties, GROUP);
 		if (!x10Properties.enabled()) {
 			logger.info("X10 alerter disabled");
-			connector = null;
+			container = null;
 			controller = null;
-			alerter = null;
 		} else if (x10Properties.controllerType() == X10ControllerType.cm11a) {
-			logger.info("Creating CM11A connector");
-			Cm11aConnector cm11aConnector = factory.createCm11aConnector(x10Properties.commPort());
-			connector = cm11aConnector;
-			logger.info("Creating CM11A controller");
-			controller = factory.createCm11aController(cm11aConnector);
-			alerter = createAlerter(x10Properties, factory, controller);
+			logger.info("Creating CM11A container");
+			Cm11aContainer cm11a = factory.createCm11aContainer(x10Properties.commPort());
+			container = cm11a;
+			controller = cm11a.cm11a();
 		} else {
-			logger.info("Creating CM17A connector");
-			Cm17aConnector cm17aConnector = factory.createCm17aConnector(x10Properties.commPort());
-			connector = cm17aConnector;
-			logger.info("Creating CM17A controller");
-			controller = factory.createCm17aController(cm17aConnector);
-			alerter = createAlerter(x10Properties, factory, controller);
+			logger.info("Creating CM17A container");
+			Cm17aContainer cm17a = factory.createCm17aContainer(x10Properties.commPort());
+			container = cm17a;
+			controller = cm17a.cm17a();
 		}
+		alerter = controller == null ? null : createAlerter(x10Properties, factory, controller);
 	}
 
 	@Override
 	public void close() {
-		if (controller != null) {
-			logger.info("Closing X10 controller");
-			IoUtil.close(controller);
-		}
-		if (connector != null) {
-			logger.info("Closing X10 connector");
-			IoUtil.close(connector);
-		}
+		LogUtil.close(logger, container);
 	}
 
 	private X10Alerter createAlerter(X10Properties properties, X10Factory factory,

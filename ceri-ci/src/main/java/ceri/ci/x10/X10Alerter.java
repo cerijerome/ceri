@@ -13,7 +13,7 @@ import ceri.ci.build.Builds;
 import ceri.ci.common.Alerter;
 import ceri.common.collection.ImmutableUtil;
 import ceri.x10.command.CommandFactory;
-import ceri.x10.type.Address;
+import ceri.x10.util.Address;
 import ceri.x10.util.X10Controller;
 
 /**
