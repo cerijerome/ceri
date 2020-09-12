@@ -12,12 +12,12 @@ import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.common.Alerter;
 import ceri.common.collection.ImmutableUtil;
-import ceri.x10.command.CommandFactory;
-import ceri.x10.util.Address;
+import ceri.x10.command.Address;
+import ceri.x10.command.Command;
 import ceri.x10.util.X10Controller;
 
 /**
- * Alerter that turns on X10 devices for build failures. 
+ * Alerter that turns on X10 devices for build failures.
  */
 public class X10Alerter implements Alerter {
 	private static final Logger logger = LogManager.getLogger();
@@ -59,7 +59,7 @@ public class X10Alerter implements Alerter {
 		Collection<String> breakNames = BuildUtil.summarizedBreakNames(builds);
 		alert(breakNames);
 	}
-	
+
 	public void alert(String... keys) {
 		alert(Arrays.asList(keys));
 	}
@@ -86,7 +86,7 @@ public class X10Alerter implements Alerter {
 	public void remind() {
 		// Do nothing
 	}
-	
+
 	private Collection<Address> keysToAddresses(Collection<String> keys) {
 		Collection<Address> addresses = new HashSet<>();
 		for (String key : keys) {
@@ -99,7 +99,7 @@ public class X10Alerter implements Alerter {
 	private void deviceOn(Address address) {
 		try {
 			logger.debug("Turning on {}", address);
-			x10.command(CommandFactory.on(address));
+			x10.command(Command.on(address));
 			activeAddresses.add(address);
 		} catch (RuntimeException e) {
 			logger.catching(e);
@@ -109,7 +109,7 @@ public class X10Alerter implements Alerter {
 	private void deviceOff(Address address) {
 		try {
 			logger.debug("Turning off {}", address);
-			x10.command(CommandFactory.off(address));
+			x10.command(Command.off(address));
 			activeAddresses.remove(address);
 		} catch (RuntimeException e) {
 			logger.catching(e);

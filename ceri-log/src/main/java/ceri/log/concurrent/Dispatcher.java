@@ -1,0 +1,72 @@
+package ceri.log.concurrent;
+
+import java.util.Collection;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.util.Enclosed;
+import ceri.common.util.ExceptionTracker;
+
+/**
+ * A dispatcher thread for notifying listeners of events. Useful to prevent a misbehaving listener
+ * from slowing down processing. An adapter allows listener types to have multiple consuming methods
+ * for the event type. If a single consumer is required, then the Direct nested class can be used.
+ */
+public class Dispatcher<L, T> extends LoopingExecutor {
+	private static final Logger logger = LogManager.getLogger();
+	private final long pollTimeoutMs;
+	private final Function<T, Consumer<L>> adaptor;
+	private final BlockingQueue<T> queue;
+	private final Collection<L> listeners = new ConcurrentLinkedQueue<>();
+	private final ExceptionTracker exceptions = ExceptionTracker.of();
+
+	public static class Direct<T> extends Dispatcher<Consumer<T>, T> {
+		private Direct(BlockingQueue<T> queue, long pollTimeoutMs) {
+			super(queue, pollTimeoutMs, t -> l -> l.accept(t));
+		}
+	}
+
+	public static <T> Direct<T> direct(BlockingQueue<T> queue, long pollTimeoutMs) {
+		return new Direct<>(queue, pollTimeoutMs);
+	}
+
+	public static <L, T> Dispatcher<L, T> of(BlockingQueue<T> queue, long pollTimeoutMs,
+		Function<T, Consumer<L>> adaptor) {
+		return new Dispatcher<>(queue, pollTimeoutMs, adaptor);
+	}
+
+	private Dispatcher(BlockingQueue<T> queue, long pollTimeoutMs,
+		Function<T, Consumer<L>> adaptor) {
+		this.adaptor = adaptor;
+		this.queue = queue;
+		this.pollTimeoutMs = pollTimeoutMs;
+		start();
+	}
+
+	public Enclosed<L> listen(L listener) {
+		listeners.add(listener);
+		return Enclosed.of(listener, listeners::remove);
+	}
+
+	@Override
+	protected void loop() throws InterruptedException {
+		try {
+			T t = queue.poll(pollTimeoutMs, TimeUnit.MILLISECONDS);
+			if (t == null || listeners.isEmpty()) return;
+			logger.debug("Dispatching: {}", t);
+			Consumer<L> consumer = adaptor.apply(t);
+			listeners.forEach(l -> consumer.accept(l));
+		} catch (InterruptedException | RuntimeInterruptedException e) {
+			throw e;
+		} catch (RuntimeException e) {
+			if (exceptions.add(e)) logger.catching(Level.WARN, e);
+		}
+	}
+
+}

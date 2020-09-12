@@ -67,6 +67,13 @@ public class DateUtil {
 	}
 
 	/**
+	 * Return the current local time with no seconds.
+	 */
+	public static LocalDateTime nowSec() {
+		return LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+	}
+	
+	/**
 	 * Returns a local date-time in UTC from epoch milliseconds.
 	 */
 	public static LocalDateTime utcDateTime(long millis) {
