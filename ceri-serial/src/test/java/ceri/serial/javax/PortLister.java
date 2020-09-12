@@ -1,10 +1,8 @@
 package ceri.serial.javax;
 
 import java.util.Enumeration;
-import ceri.common.collection.CollectionUtil;
 import ceri.common.util.BasicUtil;
 import purejavacomm.CommPortIdentifier;
-
 
 public class PortLister {
 
@@ -15,11 +13,11 @@ public class PortLister {
 			System.out.printf("%s %d (%s)%n", id.getName(), id.getPortType(), owner);
 		}
 	}
-	
+
 	private static Iterable<CommPortIdentifier> identifiers() {
 		Enumeration<?> enumeration = CommPortIdentifier.getPortIdentifiers();
-		Enumeration<CommPortIdentifier> identifiers = BasicUtil.uncheckedCast(enumeration); 
-		return CollectionUtil.iterable(identifiers);
+		Enumeration<CommPortIdentifier> identifiers = BasicUtil.uncheckedCast(enumeration);
+		return identifiers::asIterator;
 	}
-	
+
 }

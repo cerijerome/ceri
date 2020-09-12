@@ -2519,7 +2519,7 @@ public class LibUsb {
 	private static int verify(int result, String name, Object... objs) throws LibUsbException {
 		if (result >= 0) return result;
 		throw LibUsbException.full(result, "libusb_%s(%s) failed", name,
-			StringUtil.join(", ", objs));
+			StringUtil.joinAll(", ", objs));
 	}
 
 	private static LibUsbException error(libusb_error error, String name) {
