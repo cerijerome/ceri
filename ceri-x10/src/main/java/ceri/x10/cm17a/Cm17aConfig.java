@@ -1,5 +1,6 @@
 package ceri.x10.cm17a;
 
+import ceri.common.io.DeviceMode;
 import ceri.common.text.ToStringHelper;
 import ceri.serial.javax.util.SelfHealingSerialConfig;
 import ceri.x10.cm17a.device.Cm17aDeviceConfig;
@@ -9,6 +10,7 @@ import ceri.x10.cm17a.device.Cm17aDeviceConfig;
  */
 public class Cm17aConfig {
 	public final int id;
+	public final DeviceMode mode;
 	public final Cm17aDeviceConfig device;
 	public final SelfHealingSerialConfig deviceSerial;
 
@@ -22,6 +24,7 @@ public class Cm17aConfig {
 
 	public static class Builder {
 		int id = 1;
+		DeviceMode mode = DeviceMode.enabled;
 		Cm17aDeviceConfig device = Cm17aDeviceConfig.DEFAULT;
 		SelfHealingSerialConfig deviceSerial = SelfHealingSerialConfig.NULL;
 
@@ -29,6 +32,11 @@ public class Cm17aConfig {
 
 		public Builder id(int id) {
 			this.id = id;
+			return this;
+		}
+
+		public Builder mode(DeviceMode mode) {
+			this.mode = mode;
 			return this;
 		}
 
@@ -53,13 +61,14 @@ public class Cm17aConfig {
 
 	Cm17aConfig(Builder builder) {
 		id = builder.id;
+		mode = builder.mode;
 		deviceSerial = builder.deviceSerial;
 		device = builder.device;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, id, device, deviceSerial).toString();
+		return ToStringHelper.createByClass(this, id, mode, device, deviceSerial).toString();
 	}
 
 }

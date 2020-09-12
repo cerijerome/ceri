@@ -1,18 +1,19 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.x10.type.FunctionType.bright;
-import static ceri.x10.type.FunctionType.dim;
-import static ceri.x10.type.FunctionType.off;
-import static ceri.x10.type.FunctionType.on;
-import static ceri.x10.type.House.A;
-import static ceri.x10.type.House.B;
-import static ceri.x10.type.House.H;
-import static ceri.x10.type.House.J;
-import static ceri.x10.type.House.M;
-import static ceri.x10.type.Unit._1;
-import static ceri.x10.type.Unit._16;
+import static ceri.x10.command.FunctionType.bright;
+import static ceri.x10.command.FunctionType.dim;
+import static ceri.x10.command.FunctionType.off;
+import static ceri.x10.command.FunctionType.on;
+import static ceri.x10.command.House.A;
+import static ceri.x10.command.House.B;
+import static ceri.x10.command.House.H;
+import static ceri.x10.command.House.J;
+import static ceri.x10.command.House.M;
+import static ceri.x10.command.Unit._1;
+import static ceri.x10.command.Unit._16;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 public class DataTest {
@@ -24,16 +25,16 @@ public class DataTest {
 
 	@Test
 	public void testTransmissionForUnitOnOff() {
-		assertArray(Data.transmission(A, _1, off), 0xd5, 0xaa, 0x60, 0x20, 0xad);
-		assertArray(Data.transmission(J, _16, on), 0xd5, 0xaa, 0xf4, 0x58, 0xad);
-		assertArray(Data.transmission(M, _1, on), 0xd5, 0xaa, 0x00, 0x00, 0xad);
+		assertThat(Data.code(A, _1, off), is(0x6020));
+		assertThat(Data.code(J, _16, on), is(0xf458));
+		assertThat(Data.code(M, _1, on), is(0x0000));
 	}
 
 	@Test
 	public void testTransmissionSequenceForDim() {
-		assertArray(Data.transmission(B, dim), 0xd5, 0xaa, 0x70, 0x98, 0xad);
-		assertArray(Data.transmission(H, bright), 0xd5, 0xaa, 0xb0, 0x88, 0xad);
-		assertArray(Data.transmission(M, dim), 0xd5, 0xaa, 0x00, 0x98, 0xad);
+		assertThat(Data.code(B, dim), is(0x7098));
+		assertThat(Data.code(H, bright), is(0xb088));
+		assertThat(Data.code(M, dim), is(0x0098));
 	}
 
 }

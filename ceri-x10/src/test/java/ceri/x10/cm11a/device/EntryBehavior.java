@@ -7,13 +7,13 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import ceri.x10.type.Address;
+import ceri.x10.command.Address;
+import ceri.x10.command.FunctionType;
+import ceri.x10.command.House;
+import ceri.x10.command.Unit;
 import ceri.x10.type.DimFunction;
 import ceri.x10.type.ExtFunction;
 import ceri.x10.type.Function;
-import ceri.x10.type.FunctionType;
-import ceri.x10.type.House;
-import ceri.x10.type.Unit;
 
 public class EntryBehavior {
 

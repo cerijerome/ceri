@@ -1,12 +1,13 @@
 package ceri.x10.cm17a.device;
 
 import static ceri.common.collection.CollectionUtil.getOrDefault;
+import static ceri.common.math.MathUtil.limit;
+import static ceri.common.math.MathUtil.roundDiv;
+import static ceri.x10.util.X10Util.DIM_MAX_PERCENT;
 import java.util.List;
-import ceri.common.data.ByteArray.Encoder;
-import ceri.common.data.ByteProvider;
-import ceri.x10.type.FunctionType;
-import ceri.x10.type.House;
-import ceri.x10.type.Unit;
+import ceri.x10.command.FunctionType;
+import ceri.x10.command.House;
+import ceri.x10.command.Unit;
 
 /**
  * Creates the transmission sequences for device commands.
@@ -19,32 +20,33 @@ public class Data {
 	private static final List<Integer> houseValues = // MNOPCDABEFGHKLIJ order
 		List.of(6, 7, 4, 5, 8, 9, 10, 11, 14, 15, 12, 13, 0, 1, 2, 3);
 	private static final List<Integer> unitMasks = List.of(0x10, 0x08, 0x40, 0x400); // bits 0..3
-	private static final byte HEADER1 = (byte) 0xd5;
-	private static final byte HEADER2 = (byte) 0xaa;
-	private static final byte FOOTER = (byte) 0xad;
-	private static final byte TRANSMISSION_LEN = 5;
+	private static final int DIM_PERCENT_PER_SEND = 5;
+	public static final int HEADER1 = 0xd5;
+	public static final int HEADER2 = 0xaa;
+	public static final int FOOTER = 0xad;
 
 	private Data() {}
 
-	/**
-	 * Returns the binary transmission sequence for an on/off command.
-	 */
-	public static ByteProvider transmission(House house, Unit unit, FunctionType type) {
-		int value = encodeHouse(house) | encodeUnit(unit) | encodeFunction(type);
-		return transmission(value);
+	public static int toDimCount(int percent) {
+		return roundDiv(limit(percent, 0, DIM_MAX_PERCENT), DIM_PERCENT_PER_SEND);
+	}
+
+	public static int fromDimCount(int count) {
+		return limit(count * DIM_PERCENT_PER_SEND, 0, DIM_MAX_PERCENT);
 	}
 
 	/**
-	 * Returns the binary transmission sequence for a dim command.
+	 * Returns the transmission code for an on/off command.
 	 */
-	public static ByteProvider transmission(House house, FunctionType type) {
-		int value = encodeHouse(house) | encodeFunction(type);
-		return transmission(value);
+	public static int code(House house, Unit unit, FunctionType type) {
+		return encodeHouse(house) | encodeUnit(unit) | encodeFunction(type);
 	}
 
-	private static ByteProvider transmission(int code) {
-		return Encoder.fixed(TRANSMISSION_LEN).writeBytes(HEADER1, HEADER2).writeShortMsb(code)
-			.writeByte(FOOTER).immutable();
+	/**
+	 * Returns the transmission code for a dim command.
+	 */
+	public static int code(House house, FunctionType type) {
+		return encodeHouse(house) | encodeFunction(type);
 	}
 
 	private static int encodeHouse(House house) {

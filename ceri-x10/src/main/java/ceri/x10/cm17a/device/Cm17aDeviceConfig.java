@@ -10,17 +10,17 @@ import ceri.common.util.HashCoder;
 public class Cm17aDeviceConfig {
 	public static final Cm17aDeviceConfig DEFAULT = builder().build();
 	public final int pollTimeoutMs;
-	public final int waitIntervalMs;
-	public final int resetIntervalMs;
-	public final int commandIntervalMs;
+	public final int waitIntervalMicros;
+	public final int resetIntervalMicros;
+	public final int commandIntervalMicros;
 	public final int errorDelayMs;
 	public final int queueSize;
 
 	public static class Builder {
 		int pollTimeoutMs = 10000;
-		int waitIntervalMs = 1;
-		int resetIntervalMs = 10;
-		int commandIntervalMs = 1000;
+		int waitIntervalMicros = 800;
+		int resetIntervalMicros = 10000;
+		int commandIntervalMicros = 1000;
 		int errorDelayMs = 1000;
 		int queueSize = 100;
 
@@ -31,18 +31,18 @@ public class Cm17aDeviceConfig {
 			return this;
 		}
 
-		public Builder waitIntervalMs(int waitIntervalMs) {
-			this.waitIntervalMs = waitIntervalMs;
+		public Builder waitIntervalMicros(int waitIntervalMicros) {
+			this.waitIntervalMicros = waitIntervalMicros;
 			return this;
 		}
 
-		public Builder resetIntervalMs(int resetIntervalMs) {
-			this.resetIntervalMs = resetIntervalMs;
+		public Builder resetIntervalMicros(int resetIntervalMicros) {
+			this.resetIntervalMicros = resetIntervalMicros;
 			return this;
 		}
 
-		public Builder commandIntervalMs(int commandIntervalMs) {
-			this.commandIntervalMs = commandIntervalMs;
+		public Builder commandIntervalMicros(int commandIntervalMicros) {
+			this.commandIntervalMicros = commandIntervalMicros;
 			return this;
 		}
 
@@ -67,17 +67,17 @@ public class Cm17aDeviceConfig {
 
 	Cm17aDeviceConfig(Builder builder) {
 		pollTimeoutMs = builder.pollTimeoutMs;
-		waitIntervalMs = builder.waitIntervalMs;
-		resetIntervalMs = builder.resetIntervalMs;
-		commandIntervalMs = builder.commandIntervalMs;
+		waitIntervalMicros = builder.waitIntervalMicros;
+		resetIntervalMicros = builder.resetIntervalMicros;
+		commandIntervalMicros = builder.commandIntervalMicros;
 		errorDelayMs = builder.errorDelayMs;
 		queueSize = builder.queueSize;
 	}
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(pollTimeoutMs, waitIntervalMs, resetIntervalMs, commandIntervalMs,
-			errorDelayMs, queueSize);
+		return HashCoder.hash(pollTimeoutMs, waitIntervalMicros, resetIntervalMicros,
+			commandIntervalMicros, errorDelayMs, queueSize);
 	}
 
 	@Override
@@ -86,9 +86,9 @@ public class Cm17aDeviceConfig {
 		if (!(obj instanceof Cm17aDeviceConfig)) return false;
 		Cm17aDeviceConfig other = (Cm17aDeviceConfig) obj;
 		if (pollTimeoutMs != other.pollTimeoutMs) return false;
-		if (waitIntervalMs != other.waitIntervalMs) return false;
-		if (resetIntervalMs != other.resetIntervalMs) return false;
-		if (commandIntervalMs != other.commandIntervalMs) return false;
+		if (waitIntervalMicros != other.waitIntervalMicros) return false;
+		if (resetIntervalMicros != other.resetIntervalMicros) return false;
+		if (commandIntervalMicros != other.commandIntervalMicros) return false;
 		if (errorDelayMs != other.errorDelayMs) return false;
 		if (queueSize != other.queueSize) return false;
 		return true;
@@ -96,7 +96,7 @@ public class Cm17aDeviceConfig {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, pollTimeoutMs, waitIntervalMs, resetIntervalMs,
-			commandIntervalMs, errorDelayMs, queueSize).toString();
+		return ToStringHelper.createByClass(this, pollTimeoutMs, waitIntervalMicros,
+			resetIntervalMicros, commandIntervalMicros, errorDelayMs, queueSize).toString();
 	}
 }

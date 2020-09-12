@@ -1,7 +1,7 @@
 package ceri.x10.util;
 
 import ceri.common.util.Enclosed;
-import ceri.x10.command.BaseCommand;
+import ceri.x10.command.Command;
 import ceri.x10.command.CommandListener;
 
 /**
@@ -10,9 +10,16 @@ import ceri.x10.command.CommandListener;
 public interface X10Controller {
 
 	/**
+	 * Determines if the controller supports the command.
+	 */
+	default boolean supports(@SuppressWarnings("unused") Command command) {
+		return false;
+	}
+
+	/**
 	 * Puts a command on the processing queue.
 	 */
-	void command(BaseCommand<?> command);
+	void command(Command command);
 
 	/**
 	 * Listen to received/sent commands.

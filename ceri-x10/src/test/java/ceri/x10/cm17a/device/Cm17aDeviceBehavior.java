@@ -1,5 +1,7 @@
 package ceri.x10.cm17a.device;
 
+import static ceri.x10.command.House.A;
+import static ceri.x10.util.X10TestUtil.addr;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -7,12 +9,12 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.util.Enclosed;
-import ceri.x10.command.CommandFactory;
+import ceri.x10.command.Command;
 import ceri.x10.command.CommandListener;
 
 public class Cm17aDeviceBehavior {
-	public static final Cm17aDeviceConfig config = Cm17aDeviceConfig.builder().waitIntervalMs(1)
-		.resetIntervalMs(1).errorDelayMs(1).commandIntervalMs(1).build();
+	public static final Cm17aDeviceConfig config = Cm17aDeviceConfig.builder().waitIntervalMicros(1)
+		.resetIntervalMicros(1).errorDelayMs(1).commandIntervalMicros(1).build();
 	private static CommandListener listener;
 	private static Cm17aDevice controller;
 	private static Enclosed<CommandListener> enclosed;
@@ -33,13 +35,13 @@ public class Cm17aDeviceBehavior {
 
 	@Test
 	public void shouldDispatchUnitCommands() {
-		controller.command(CommandFactory.on("K9"));
-		verify(listener, timeout(1000)).on(CommandFactory.on("K9"));
+		controller.command(Command.on(addr("K9")));
+		verify(listener, timeout(1000)).on(Command.on(addr("K9")));
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void shouldFailForUnsupportedCommands() {
-		controller.command(CommandFactory.allLightsOff('A'));
+		controller.command(Command.allLightsOff(A));
 	}
 
 }

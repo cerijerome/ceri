@@ -4,51 +4,47 @@ import java.util.function.Consumer;
 
 public interface CommandListener {
 
-	default void allUnitsOff(@SuppressWarnings("unused") HouseCommand command) {}
+	default void allUnitsOff(@SuppressWarnings("unused") Command command) {}
 
-	default void allLightsOff(@SuppressWarnings("unused") HouseCommand command) {}
+	default void allLightsOff(@SuppressWarnings("unused") Command command) {}
 
-	default void allLightsOn(@SuppressWarnings("unused") HouseCommand command) {}
+	default void allLightsOn(@SuppressWarnings("unused") Command command) {}
 
-	default void off(@SuppressWarnings("unused") UnitCommand command) {}
+	default void off(@SuppressWarnings("unused") Command command) {}
 
-	default void on(@SuppressWarnings("unused") UnitCommand command) {}
+	default void on(@SuppressWarnings("unused") Command command) {}
 
-	default void dim(@SuppressWarnings("unused") DimCommand command) {}
+	default void dim(@SuppressWarnings("unused") Command.Dim command) {}
 
-	default void bright(@SuppressWarnings("unused") DimCommand command) {}
+	default void bright(@SuppressWarnings("unused") Command.Dim command) {}
 
-	default void extended(@SuppressWarnings("unused") ExtCommand command) {}
+	default void extended(@SuppressWarnings("unused") Command.Ext command) {}
 
+	default Consumer<Command> asConsumer() {
+		return command -> dispatcher(command).accept(this);
+	}
+	
 	/**
-	 * Returns a dispatch consumer that calls the matching CommandListener method for a command. 
+	 * Returns a dispatch consumer that calls the matching CommandListener method for a command.
 	 */
-	static Consumer<CommandListener> dispatcher(BaseCommand<?> command) {
-		switch (command.type) {
+	static Consumer<CommandListener> dispatcher(Command command) {
+		switch (command.type()) {
 		case allUnitsOff:
-			HouseCommand allUnitsOff = (HouseCommand) command;
-			return listener -> listener.allUnitsOff(allUnitsOff);
+			return listener -> listener.allUnitsOff(command);
 		case allLightsOff:
-			HouseCommand allLightsOff = (HouseCommand) command;
-			return listener -> listener.allLightsOff(allLightsOff);
+			return listener -> listener.allLightsOff(command);
 		case allLightsOn:
-			HouseCommand allLightsOn = (HouseCommand) command;
-			return listener -> listener.allLightsOn(allLightsOn);
+			return listener -> listener.allLightsOn(command);
 		case off:
-			UnitCommand off = (UnitCommand) command;
-			return listener -> listener.off(off);
+			return listener -> listener.off(command);
 		case on:
-			UnitCommand on = (UnitCommand) command;
-			return listener -> listener.on(on);
+			return listener -> listener.on(command);
 		case dim:
-			DimCommand dim = (DimCommand) command;
-			return listener -> listener.dim(dim);
+			return listener -> listener.dim((Command.Dim) command);
 		case bright:
-			DimCommand bright = (DimCommand) command;
-			return listener -> listener.bright(bright);
-		case extended:
-			ExtCommand extended = (ExtCommand) command;
-			return listener -> listener.extended(extended);
+			return listener -> listener.bright((Command.Dim) command);
+		case ext:
+			return listener -> listener.extended((Command.Ext) command);
 		default:
 			throw new UnsupportedOperationException("Function type not supported: " + command);
 		}

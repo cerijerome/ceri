@@ -48,7 +48,7 @@ PC sends ack 0xc3 to stop poll and initiate data receive.
 Device sends up to 10 bytes
   0 => buffer size
   1 => function(1) or address(0) bits for next 8 bytes
-  2-9 => data bytes house:device or house:function
+  2-9 => data bytes:  house:unit, house:func, house:func;dim, or house:func;data;command
 
 
 

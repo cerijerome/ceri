@@ -1,6 +1,7 @@
 package ceri.x10.cm17a.device;
 
 import static ceri.common.test.TestUtil.isObject;
+import static ceri.x10.util.X10TestUtil.addr;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -12,13 +13,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
-import ceri.x10.command.BaseCommand;
-import ceri.x10.command.CommandFactory;
+import ceri.x10.command.Command;
 
 public class ProcessorBehavior {
 	private Cm17aConnector connector;
-	private BlockingQueue<BaseCommand<?>> inQueue;
-	private BlockingQueue<BaseCommand<?>> outQueue;
+	private BlockingQueue<Command> inQueue;
+	private BlockingQueue<Command> outQueue;
 	private Processor processor;
 
 	@Before
@@ -37,19 +37,19 @@ public class ProcessorBehavior {
 
 	@Test
 	public void shouldDispatchCommands() throws InterruptedException {
-		inQueue.add(CommandFactory.on("M16"));
-		inQueue.add(CommandFactory.dim("A1", 5));
-		BaseCommand<?> command = outQueue.poll(3000, TimeUnit.MILLISECONDS);
-		assertThat(command, isObject(CommandFactory.on("M16")));
+		inQueue.add(Command.on(addr("M16")));
+		inQueue.add(Command.dim(addr("A1"), 5));
+		Command command = outQueue.poll(3000, TimeUnit.MILLISECONDS);
+		assertThat(command, isObject(Command.on(addr("M16"))));
 		command = outQueue.poll(3000, TimeUnit.MILLISECONDS);
-		assertThat(command, isObject(CommandFactory.dim("A1", 5)));
+		assertThat(command, isObject(Command.dim(addr("A1"), 5)));
 	}
 
 	@Test
 	public void shouldSendCommandsToConnector() throws InterruptedException, IOException {
-		inQueue.add(CommandFactory.off("J10"));
-		BaseCommand<?> command = outQueue.poll(3000, TimeUnit.MILLISECONDS);
-		assertThat(command, isObject(CommandFactory.off("J10")));
+		inQueue.add(Command.off(addr("J10")));
+		Command command = outQueue.poll(3000, TimeUnit.MILLISECONDS);
+		assertThat(command, isObject(Command.off(addr("J10"))));
 		InOrder inOrder = inOrder(connector);
 		assertReset(inOrder);
 		assertBits(inOrder, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0); // Header

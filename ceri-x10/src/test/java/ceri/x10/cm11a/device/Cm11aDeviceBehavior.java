@@ -1,5 +1,6 @@
 package ceri.x10.cm11a.device;
 
+import static ceri.x10.util.X10TestUtil.addr;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -10,8 +11,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.util.Enclosed;
-import ceri.x10.cm11a.protocol.Data;
-import ceri.x10.command.CommandFactory;
+import ceri.x10.cm11a.entry.Data;
+import ceri.x10.command.Command;
 import ceri.x10.command.CommandListener;
 
 public class Cm11aDeviceBehavior {
@@ -45,7 +46,7 @@ public class Cm11aDeviceBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldDispatchUnitCommands() {
-		controller.command(CommandFactory.on("K9"));
+		controller.command(Command.on(addr("K9")));
 		assertThat(connector.from.readUshortMsb(), is(0x0437));
 		connector.to.writeByte(Data.shortChecksum(0x0437));
 		assertThat(connector.from.readUbyte(), is((short) 0));
@@ -54,7 +55,7 @@ public class Cm11aDeviceBehavior {
 		connector.to.writeByte(Data.shortChecksum(0x0632));
 		assertThat(connector.from.readUbyte(), is((short) 0));
 		connector.to.writeByte(0x55);
-		verify(listener, timeout(1000)).on(CommandFactory.on("K9"));
+		verify(listener, timeout(1000)).on(Command.on(addr("K9")));
 	}
 
 }
