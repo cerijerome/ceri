@@ -1,4 +1,4 @@
-package ceri.x10.cm11a.entry;
+package ceri.x10.cm11a.protocol;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.is;
@@ -11,6 +11,7 @@ import java.time.ZoneId;
 import org.junit.Test;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteArray.Immutable;
+import ceri.x10.cm11a.protocol.Status;
 import ceri.x10.command.House;
 
 public class StatusBehavior {

@@ -1,5 +1,6 @@
 package ceri.x10.util;
 
+import java.io.IOException;
 import ceri.common.util.Enclosed;
 import ceri.x10.command.Command;
 import ceri.x10.command.CommandListener;
@@ -19,7 +20,7 @@ public interface X10Controller {
 	/**
 	 * Puts a command on the processing queue.
 	 */
-	void command(Command command);
+	void command(Command command) throws IOException;
 
 	/**
 	 * Listen to received/sent commands.

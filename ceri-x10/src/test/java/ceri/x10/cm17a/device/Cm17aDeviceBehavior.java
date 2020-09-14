@@ -5,6 +5,7 @@ import static ceri.x10.util.X10TestUtil.addr;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,13 +35,13 @@ public class Cm17aDeviceBehavior {
 	}
 
 	@Test
-	public void shouldDispatchUnitCommands() {
+	public void shouldDispatchUnitCommands() throws IOException {
 		controller.command(Command.on(addr("K9")));
 		verify(listener, timeout(1000)).on(Command.on(addr("K9")));
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void shouldFailForUnsupportedCommands() {
+	public void shouldFailForUnsupportedCommands() throws IOException {
 		controller.command(Command.allLightsOff(A));
 	}
 

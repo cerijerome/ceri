@@ -1,7 +1,7 @@
 package ceri.x10.cm11a.device;
 
 import java.io.Closeable;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.util.Enclosed;
 import ceri.log.concurrent.Dispatcher;
 import ceri.log.util.LogUtil;
+import ceri.x10.cm11a.protocol.Status;
 import ceri.x10.command.Command;
 import ceri.x10.command.CommandListener;
 import ceri.x10.command.FunctionGroup;
@@ -17,8 +18,6 @@ import ceri.x10.util.X10Util;
 
 public class Cm11aDevice implements X10Controller, Closeable {
 	private static final Logger logger = LogManager.getLogger();
-	private static final int MAX_QUEUE_SIZE_DEF = 100;
-	private final BlockingQueue<Command> inQueue;
 	private final Processor processor;
 	private final Dispatcher<CommandListener, Command> dispatcher;
 
@@ -27,10 +26,10 @@ public class Cm11aDevice implements X10Controller, Closeable {
 	}
 
 	private Cm11aDevice(Cm11aDeviceConfig config, Cm11aConnector connector) {
-		inQueue = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE_DEF);
 		BlockingQueue<Command> outQueue = new LinkedBlockingQueue<>();
-		processor = new Processor(config, connector, inQueue, outQueue);
-		dispatcher = Dispatcher.of(outQueue, config.pollTimeoutMs, CommandListener::dispatcher);
+		processor = new Processor(config, connector, outQueue);
+		dispatcher =
+			Dispatcher.of(outQueue, config.queuePollTimeoutMs, CommandListener::dispatcher);
 	}
 
 	@Override
@@ -39,10 +38,15 @@ public class Cm11aDevice implements X10Controller, Closeable {
 	}
 
 	@Override
-	public void command(Command command) {
+	public void command(Command command) throws IOException {
 		X10Util.verifySupported(this, command);
 		logger.info("Command: {}", command);
-		inQueue.add(command);
+		processor.command(command);
+	}
+
+	public Status requestStatus() throws IOException {
+		logger.info("Request: status");
+		return processor.requestStatus();
 	}
 
 	@Override

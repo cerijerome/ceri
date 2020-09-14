@@ -17,17 +17,15 @@ import ceri.x10.command.Command;
 
 public class ProcessorBehavior {
 	private Cm17aConnector connector;
-	private BlockingQueue<Command> inQueue;
 	private BlockingQueue<Command> outQueue;
 	private Processor processor;
 
 	@Before
 	public void init() {
 		connector = mock(Cm17aConnector.class);
-		inQueue = new ArrayBlockingQueue<>(3);
 		outQueue = new ArrayBlockingQueue<>(3);
 		Cm17aDeviceConfig config = Cm17aDeviceBehavior.config;
-		processor = new Processor(config, connector, inQueue, outQueue);
+		processor = new Processor(config, connector, outQueue);
 	}
 
 	@After
@@ -36,9 +34,9 @@ public class ProcessorBehavior {
 	}
 
 	@Test
-	public void shouldDispatchCommands() throws InterruptedException {
-		inQueue.add(Command.on(addr("M16")));
-		inQueue.add(Command.dim(addr("A1"), 5));
+	public void shouldDispatchCommands() throws InterruptedException, IOException {
+		processor.command(Command.on(addr("M16")));
+		processor.command(Command.dim(addr("A1"), 5));
 		Command command = outQueue.poll(3000, TimeUnit.MILLISECONDS);
 		assertThat(command, isObject(Command.on(addr("M16"))));
 		command = outQueue.poll(3000, TimeUnit.MILLISECONDS);
@@ -47,7 +45,7 @@ public class ProcessorBehavior {
 
 	@Test
 	public void shouldSendCommandsToConnector() throws InterruptedException, IOException {
-		inQueue.add(Command.off(addr("J10")));
+		processor.command(Command.off(addr("J10")));
 		Command command = outQueue.poll(3000, TimeUnit.MILLISECONDS);
 		assertThat(command, isObject(Command.off(addr("J10"))));
 		InOrder inOrder = inOrder(connector);

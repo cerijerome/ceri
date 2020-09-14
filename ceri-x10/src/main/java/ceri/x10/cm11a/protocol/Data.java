@@ -1,4 +1,4 @@
-package ceri.x10.cm11a.entry;
+package ceri.x10.cm11a.protocol;
 
 import static ceri.x10.util.X10Util.fromNybble;
 import static ceri.x10.util.X10Util.octet;

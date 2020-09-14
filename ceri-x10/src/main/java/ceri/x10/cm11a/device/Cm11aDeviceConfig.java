@@ -6,14 +6,14 @@ import ceri.common.util.HashCoder;
 public class Cm11aDeviceConfig {
 	public static final Cm11aDeviceConfig DEFAULT = builder().build();
 	public final int maxSendAttempts;
-	public final int pollTimeoutMs;
+	public final int queuePollTimeoutMs;
 	public final int readPollMs;
 	public final int readTimeoutMs;
 	public final int queueSize;
 
 	public static class Builder {
 		int maxSendAttempts = 3;
-		int pollTimeoutMs = 50;
+		int queuePollTimeoutMs = 50;
 		int readPollMs = 20;
 		int readTimeoutMs = 3000;
 		int queueSize = 100;
@@ -25,8 +25,8 @@ public class Cm11aDeviceConfig {
 			return this;
 		}
 
-		public Builder pollTimeoutMs(int pollTimeoutMs) {
-			this.pollTimeoutMs = pollTimeoutMs;
+		public Builder queuePollTimeoutMs(int queuePollTimeoutMs) {
+			this.queuePollTimeoutMs = queuePollTimeoutMs;
 			return this;
 		}
 
@@ -56,7 +56,7 @@ public class Cm11aDeviceConfig {
 
 	Cm11aDeviceConfig(Builder builder) {
 		maxSendAttempts = builder.maxSendAttempts;
-		pollTimeoutMs = builder.pollTimeoutMs;
+		queuePollTimeoutMs = builder.queuePollTimeoutMs;
 		readPollMs = builder.readPollMs;
 		readTimeoutMs = builder.readTimeoutMs;
 		queueSize = builder.queueSize;
@@ -64,7 +64,8 @@ public class Cm11aDeviceConfig {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(maxSendAttempts, pollTimeoutMs, readPollMs, readTimeoutMs, queueSize);
+		return HashCoder.hash(maxSendAttempts, queuePollTimeoutMs, readPollMs, readTimeoutMs,
+			queueSize);
 	}
 
 	@Override
@@ -73,7 +74,7 @@ public class Cm11aDeviceConfig {
 		if (!(obj instanceof Cm11aDeviceConfig)) return false;
 		Cm11aDeviceConfig other = (Cm11aDeviceConfig) obj;
 		if (maxSendAttempts != other.maxSendAttempts) return false;
-		if (pollTimeoutMs != other.pollTimeoutMs) return false;
+		if (queuePollTimeoutMs != other.queuePollTimeoutMs) return false;
 		if (readPollMs != other.readPollMs) return false;
 		if (readTimeoutMs != other.readTimeoutMs) return false;
 		if (queueSize != other.queueSize) return false;
@@ -82,7 +83,7 @@ public class Cm11aDeviceConfig {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, maxSendAttempts, pollTimeoutMs, readPollMs,
+		return ToStringHelper.createByClass(this, maxSendAttempts, queuePollTimeoutMs, readPollMs,
 			readTimeoutMs, queueSize).toString();
 	}
 

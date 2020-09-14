@@ -1,4 +1,4 @@
-package ceri.x10.cm11a.entry;
+package ceri.x10.cm11a.protocol;
 
 import static ceri.common.test.TestUtil.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -11,6 +11,7 @@ import ceri.common.data.ByteArray.Encoder;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.BinaryPrinter;
+import ceri.x10.cm11a.protocol.Data;
 
 public class DataBehavior {
 

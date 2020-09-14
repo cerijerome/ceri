@@ -1,4 +1,4 @@
-package ceri.x10.cm11a.entry;
+package ceri.x10.cm11a.protocol;
 
 import static ceri.common.data.DataUtil.expect;
 import java.time.LocalDateTime;

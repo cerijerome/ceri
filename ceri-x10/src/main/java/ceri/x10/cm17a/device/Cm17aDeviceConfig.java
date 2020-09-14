@@ -9,7 +9,7 @@ import ceri.common.util.HashCoder;
  */
 public class Cm17aDeviceConfig {
 	public static final Cm17aDeviceConfig DEFAULT = builder().build();
-	public final int pollTimeoutMs;
+	public final int queuePollTimeoutMs;
 	public final int waitIntervalMicros;
 	public final int resetIntervalMicros;
 	public final int commandIntervalMicros;
@@ -17,7 +17,7 @@ public class Cm17aDeviceConfig {
 	public final int queueSize;
 
 	public static class Builder {
-		int pollTimeoutMs = 10000;
+		int queuePollTimeoutMs = 10000;
 		int waitIntervalMicros = 800;
 		int resetIntervalMicros = 10000;
 		int commandIntervalMicros = 1000;
@@ -26,8 +26,8 @@ public class Cm17aDeviceConfig {
 
 		Builder() {}
 
-		public Builder pollTimeoutMs(int pollTimeoutMs) {
-			this.pollTimeoutMs = pollTimeoutMs;
+		public Builder queuePollTimeoutMs(int queuePollTimeoutMs) {
+			this.queuePollTimeoutMs = queuePollTimeoutMs;
 			return this;
 		}
 
@@ -66,7 +66,7 @@ public class Cm17aDeviceConfig {
 	}
 
 	Cm17aDeviceConfig(Builder builder) {
-		pollTimeoutMs = builder.pollTimeoutMs;
+		queuePollTimeoutMs = builder.queuePollTimeoutMs;
 		waitIntervalMicros = builder.waitIntervalMicros;
 		resetIntervalMicros = builder.resetIntervalMicros;
 		commandIntervalMicros = builder.commandIntervalMicros;
@@ -76,7 +76,7 @@ public class Cm17aDeviceConfig {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(pollTimeoutMs, waitIntervalMicros, resetIntervalMicros,
+		return HashCoder.hash(queuePollTimeoutMs, waitIntervalMicros, resetIntervalMicros,
 			commandIntervalMicros, errorDelayMs, queueSize);
 	}
 
@@ -85,7 +85,7 @@ public class Cm17aDeviceConfig {
 		if (this == obj) return true;
 		if (!(obj instanceof Cm17aDeviceConfig)) return false;
 		Cm17aDeviceConfig other = (Cm17aDeviceConfig) obj;
-		if (pollTimeoutMs != other.pollTimeoutMs) return false;
+		if (queuePollTimeoutMs != other.queuePollTimeoutMs) return false;
 		if (waitIntervalMicros != other.waitIntervalMicros) return false;
 		if (resetIntervalMicros != other.resetIntervalMicros) return false;
 		if (commandIntervalMicros != other.commandIntervalMicros) return false;
@@ -96,7 +96,7 @@ public class Cm17aDeviceConfig {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, pollTimeoutMs, waitIntervalMicros,
+		return ToStringHelper.createByClass(this, queuePollTimeoutMs, waitIntervalMicros,
 			resetIntervalMicros, commandIntervalMicros, errorDelayMs, queueSize).toString();
 	}
 }

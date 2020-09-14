@@ -3,7 +3,6 @@ package ceri.x10.cm17a.device;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.concurrent.BlockingQueue;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +15,7 @@ import ceri.x10.command.Address;
 import ceri.x10.command.Command;
 import ceri.x10.command.FunctionGroup;
 import ceri.x10.command.FunctionType;
+import ceri.x10.util.TaskQueue;
 
 /**
  * Handles all communication with the device. Reads commands from the input queue, and dispatches
@@ -24,19 +24,22 @@ import ceri.x10.command.FunctionType;
 public class Processor extends LoopingExecutor {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private final Cm17aDeviceConfig config;
-	private final BlockingQueue<Command> inQueue;
+	private final TaskQueue<IOException> taskQueue;
 	private final Collection<Command> outQueue;
 	private final Cm17aConnector connector;
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 	private Address lastOn = null;
 
-	Processor(Cm17aDeviceConfig config, Cm17aConnector connector, BlockingQueue<Command> inQueue,
-		Collection<Command> outQueue) {
+	Processor(Cm17aDeviceConfig config, Cm17aConnector connector, Collection<Command> outQueue) {
 		this.config = config;
 		this.connector = connector;
-		this.inQueue = inQueue;
 		this.outQueue = outQueue;
+		taskQueue = TaskQueue.of(config.queueSize);
 		start();
+	}
+
+	public void command(Command command) throws IOException {
+		taskQueue.execute(() -> sendCommand(command));
 	}
 
 	@Override
@@ -45,11 +48,8 @@ public class Processor extends LoopingExecutor {
 			sendReset();
 			lastOn = null;
 			while (true) {
-				Command command = inQueue.poll(config.pollTimeoutMs, MILLISECONDS);
-				if (command == null) continue;
-				sendCommand(command);
-				outQueue.add(command);
-				BasicUtil.delayMicros(config.commandIntervalMicros);
+				if (taskQueue.processNext(config.queuePollTimeoutMs, MILLISECONDS))
+					BasicUtil.delayMicros(config.commandIntervalMicros);
 			}
 		} catch (RuntimeInterruptedException e) {
 			throw e;
@@ -62,6 +62,7 @@ public class Processor extends LoopingExecutor {
 	private void sendCommand(Command command) throws IOException {
 		if (command.group() == FunctionGroup.dim) sendDimCommand((Command.Dim) command);
 		else sendUnitCommand(command);
+		outQueue.add(command);
 	}
 
 	private void sendUnitCommand(Command command) throws IOException {

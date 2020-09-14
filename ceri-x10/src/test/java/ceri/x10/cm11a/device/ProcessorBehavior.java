@@ -7,6 +7,7 @@ import static ceri.x10.util.X10TestUtil.addr;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -15,26 +16,24 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.date.DateUtil;
-import ceri.x10.cm11a.entry.Clock;
-import ceri.x10.cm11a.entry.Data;
-import ceri.x10.cm11a.entry.Entry;
-import ceri.x10.cm11a.entry.EntryBuffer;
-import ceri.x10.cm11a.entry.Protocol;
+import ceri.x10.cm11a.protocol.Clock;
+import ceri.x10.cm11a.protocol.Data;
+import ceri.x10.cm11a.protocol.Entry;
+import ceri.x10.cm11a.protocol.EntryBuffer;
+import ceri.x10.cm11a.protocol.Protocol;
 import ceri.x10.command.Command;
 
 @SuppressWarnings("resource")
 public class ProcessorBehavior {
 	private Cm11aTestConnector connector;
-	private BlockingQueue<Command> inQueue;
 	private BlockingQueue<Command> outQueue;
 	private Processor processor;
 
 	@Before
 	public void init() {
 		connector = new Cm11aTestConnector();
-		inQueue = new ArrayBlockingQueue<>(3);
 		outQueue = new ArrayBlockingQueue<>(3);
-		processor = new Processor(Cm11aDeviceBehavior.config, connector, inQueue, outQueue);
+		processor = new Processor(Cm11aDeviceBehavior.config, connector, outQueue);
 	}
 
 	@After
@@ -43,8 +42,9 @@ public class ProcessorBehavior {
 	}
 
 	@Test
-	public void shouldHandleInputWhileWaitingForReadySignal() throws InterruptedException {
-		inQueue.add(Command.allUnitsOff(H));
+	public void shouldHandleInputWhileWaitingForReadySignal()
+		throws InterruptedException, IOException {
+		processor.command(Command.allUnitsOff(H));
 		assertThat(connector.from.readShortMsb(), is((short) 0x06d0));
 		connector.to.writeByte(Data.shortChecksum(0x06d0));
 		assertThat(connector.from.readByte(), is((byte) 0));
@@ -64,8 +64,9 @@ public class ProcessorBehavior {
 	}
 
 	@Test
-	public void shouldHandleInputWhileWaitingForChecksum() throws InterruptedException {
-		inQueue.add(Command.dim(addr("O11"), 50));
+	public void shouldHandleInputWhileWaitingForChecksum()
+		throws InterruptedException, IOException {
+		processor.command(Command.dim(addr("O11"), 50));
 		assertThat(connector.from.readShortMsb(), is((short) 0x0443));
 		//
 		connector.to.writeByte(Protocol.DATA_POLL.value);
@@ -103,8 +104,8 @@ public class ProcessorBehavior {
 	}
 
 	@Test
-	public void shouldDispatchCommand() throws InterruptedException {
-		inQueue.add(Command.off(addr("M16")));
+	public void shouldDispatchCommand() throws InterruptedException, IOException {
+		processor.command(Command.off(addr("M16")));
 		assertThat(connector.from.readShortMsb(), is((short) 0x040c));
 		connector.to.writeByte(Data.shortChecksum(0x040c));
 		assertThat(connector.from.readByte(), is((byte) 0));

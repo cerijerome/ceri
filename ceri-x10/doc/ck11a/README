@@ -40,18 +40,53 @@ PC         Device
   <data>                   <command>
 
 
-Communication
--------------
+Data Poll
+---------
+PC         Device
+        <= 0x5a 
+   0xc3 =>      
+        <= 2-10 bytes
 
-Device will poll PC with 0x5a once per second.
+On receiving data, the device will poll PC with 0x5a once per second.
 PC sends ack 0xc3 to stop poll and initiate data receive.
-Device sends up to 10 bytes
-  0 => buffer size
-  1 => function(1) or address(0) bits for next 8 bytes
-  2-9 => data bytes:  house:unit, house:func, house:func;dim, or house:func;data;command
+Device sends 2-10 bytes:
+  0 = buffer size (1-9)
+  1 = up to 8 bits; function(1) or address(0) for next 8 bytes
+  2-9 = data bytes: house:unit, house:func, house:func;dim, or house:func;data;command
 
 
+Set Clock
+---------
+PC         Device
+        <= 0xa5
+7 bytes => 
+ 
+Device can send 0xa5 set clock request when it detects a power loss.
+PC should reply, but can also send at any time:
+  0 = set clock header 0x9b
+  1 = seconds
+  2 = minutes 0-119
+  3 = hours/2 0-11
+  4 = year day
+  5 = year day (1 bit), day mask 
+  6 = house:flags
 
+  
+Get Status
+----------
+PC         Device
+   0x8b =>
+        <= 14 bytes
 
-
-
+PC can send 0x8b to request the device status.
+Device returns immediately with 14 bytes:
+  0-1 = battery timer / reset
+  2 = seconds
+  3 = minutes 0-119
+  4 = hours/2 0-11
+  5 = year day
+  6 = year day (1 bit), day mask
+  7 = house:firmware
+  8-9 = address devices (16 bits)
+  10-11 = on/off status (16 bits)
+  12-13 = dim status (16 bits)

@@ -1,4 +1,4 @@
-package ceri.x10.cm11a.entry;
+package ceri.x10.cm11a.protocol;
 
 import static ceri.common.text.StringUtil.toBinary;
 import java.time.LocalDateTime;
@@ -40,10 +40,6 @@ public class Status implements Encodable {
 	public final int addressed;
 	public final int onOff;
 	public final int dim;
-
-	public static void main(String[] args) {
-		System.out.println(builder().build());
-	}
 
 	public static Status decode(ByteReader r) {
 		Builder builder = new Builder();

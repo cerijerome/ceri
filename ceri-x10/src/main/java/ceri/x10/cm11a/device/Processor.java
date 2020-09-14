@@ -6,26 +6,25 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.concurrent.BlockingQueue;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteStream;
-import ceri.common.data.ByteUtil;
 import ceri.common.io.PollingInputStream;
 import ceri.common.util.ExceptionTracker;
 import ceri.log.concurrent.LoopingExecutor;
-import ceri.x10.cm11a.entry.Clock;
-import ceri.x10.cm11a.entry.Data;
-import ceri.x10.cm11a.entry.Entry;
-import ceri.x10.cm11a.entry.EntryBuffer;
-import ceri.x10.cm11a.entry.EntryCollector;
-import ceri.x10.cm11a.entry.Protocol;
-import ceri.x10.cm11a.entry.Transmit;
+import ceri.x10.cm11a.protocol.Clock;
+import ceri.x10.cm11a.protocol.Data;
+import ceri.x10.cm11a.protocol.Entry;
+import ceri.x10.cm11a.protocol.EntryBuffer;
+import ceri.x10.cm11a.protocol.EntryCollector;
+import ceri.x10.cm11a.protocol.Protocol;
+import ceri.x10.cm11a.protocol.Status;
+import ceri.x10.cm11a.protocol.Transmit;
 import ceri.x10.command.Command;
+import ceri.x10.util.TaskQueue;
 
 /**
  * Handles all communication with the device. Reads commands from the input queue, and dispatches
@@ -34,7 +33,7 @@ import ceri.x10.command.Command;
 public class Processor extends LoopingExecutor {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private final Cm11aDeviceConfig config;
-	private final BlockingQueue<Command> inQueue;
+	private final TaskQueue<IOException> taskQueue;
 	private final Collection<Command> outQueue;
 	private final ByteStream.Reader in;
 	private final ByteStream.Writer out;
@@ -42,15 +41,14 @@ public class Processor extends LoopingExecutor {
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 
 	@SuppressWarnings("resource")
-	Processor(Cm11aDeviceConfig config, Cm11aConnector connector, BlockingQueue<Command> inQueue,
-		Collection<Command> outQueue) {
+	Processor(Cm11aDeviceConfig config, Cm11aConnector connector, Collection<Command> outQueue) {
 		try {
 			this.config = config;
+			taskQueue = TaskQueue.of(config.queueSize);
 			PollingInputStream pollIn = new PollingInputStream(
 				new BufferedInputStream(connector.in()), config.readPollMs, config.readTimeoutMs);
 			in = ByteStream.reader(pollIn);
 			out = ByteStream.writer(new BufferedOutputStream(connector.out()));
-			this.inQueue = inQueue;
 			this.outQueue = outQueue;
 			collector = new EntryCollector(outQueue);
 			start();
@@ -60,9 +58,12 @@ public class Processor extends LoopingExecutor {
 		}
 	}
 
-	@Override
-	public void close() {
-		super.close();
+	public void command(Command command) throws IOException {
+		taskQueue.execute(() -> sendCommand(command));
+	}
+
+	public Status requestStatus() throws IOException {
+		return taskQueue.executeGet(() -> sendStatusRequest());
 	}
 
 	@Override
@@ -70,7 +71,7 @@ public class Processor extends LoopingExecutor {
 		try {
 			ConcurrentUtil.checkInterrupted();
 			if (in.available() > 0) processInput(in.readUbyte());
-			else processQueue();
+			else taskQueue.processNext(config.queuePollTimeoutMs, MILLISECONDS);
 			exceptions.clear();
 		} catch (RuntimeInterruptedException | InterruptedException e) {
 			throw e;
@@ -79,10 +80,9 @@ public class Processor extends LoopingExecutor {
 		}
 	}
 
-	private void processQueue() throws InterruptedException, IOException {
-		Command command = inQueue.poll(config.pollTimeoutMs, MILLISECONDS);
-		if (command == null) return;
-		sendCommand(command, config.maxSendAttempts);
+	private void sendCommand(Command command) throws IOException {
+		for (Entry entry : Entry.allFrom(command))
+			sendEntry(entry);
 		outQueue.add(command);
 	}
 
@@ -107,86 +107,63 @@ public class Processor extends LoopingExecutor {
 	}
 
 	/**
+	 * Sends a single entry to the device, waits for checksum, checks the value then sends
+	 * acknowledgment.
+	 */
+	@SuppressWarnings("resource")
+	private void sendEntry(Entry entry) throws IOException {
+		logger.debug("Sending: %s", entry);
+		ByteProvider data = Transmit.encode(entry);
+		int checksum = Data.checksum(data);
+		out.writeFrom(data);
+		await(checksum);
+		out.writeByte(Protocol.OK.value);
+		await(Protocol.READY.value);
+	}
+
+	@SuppressWarnings("resource")
+	private Status sendStatusRequest() throws IOException {
+		logger.debug("Request: status");
+		out.writeByte(Protocol.STATUS.value).flush();
+		return Status.decode(in);
+	}
+
+	/**
 	 * Reads data from the device and dispatches the result to the command listener.
 	 */
 	@SuppressWarnings("resource")
 	private void receiveData() throws IOException {
-		out.writeByte(Protocol.PC_READY.value);
-		out.flush();
+		out.writeByte(Protocol.PC_READY.value).flush();
 		EntryBuffer buffer = EntryBuffer.decode(in);
 		collector.collectAll(buffer.entries);
 	}
 
 	/**
 	 * Sends status response to the device.
+	 * 
+	 * @throws IOException
 	 */
+	@SuppressWarnings("resource")
 	private void sendClock(Clock clock) throws IOException {
 		logger.debug("Sending: %s", clock);
 		ByteProvider data = clock.encode();
-		send(data, config.maxSendAttempts);
-	}
-
-	/**
-	 * Sends a command by breaking it into entries and sending each entry.
-	 * 
-	 * @throws IOException
-	 */
-	private void sendCommand(Command command, int maxSendAttempts) throws IOException {
-		for (Entry entry : Entry.allFrom(command))
-			sendEntry(entry, maxSendAttempts);
-	}
-
-	/**
-	 * Sends a single entry to the device. Waits for checksum response, checks the value then sends
-	 * acknowledgment.
-	 * 
-	 * @throws IOException
-	 */
-	private void sendEntry(Entry entry, int maxSendAttempts) throws IOException {
-		logger.debug("Sending: %s", entry);
-		ByteProvider data = Transmit.encode(entry);
-		send(data, maxSendAttempts);
-	}
-
-	/**
-	 * Sends a single entry to the device. Waits for checksum response, checks the value then sends
-	 * acknowledgment.
-	 */
-	@SuppressWarnings("resource")
-	private void send(ByteProvider data, int maxSendAttempts) throws IOException {
-		int checksum = Data.checksum(data);
-		ExceptionTracker exceptions = ExceptionTracker.of();
-		for (int i = 0; i < maxSendAttempts; i++) {
-			try {
-				out.writeFrom(data);
-				out.flush();
-				await(checksum, maxSendAttempts);
-				out.writeByte(Protocol.OK.value);
-				out.flush();
-				await(Protocol.READY.value, maxSendAttempts);
-				return;
-			} catch (RuntimeInterruptedException e) {
-				throw e;
-			} catch (RuntimeException | IOException e) {
-				if (exceptions.add(e)) logger.catching(Level.WARN, e);
-			}
-		}
-		throw ioExceptionf("Failed to send data in %d attempts: %s", maxSendAttempts,
-			ByteUtil.toHex(data.ustream(0), "-"));
+		out.writeFrom(data).flush();
 	}
 
 	/**
 	 * Waits for a specific byte from the device. If the byte is a protocol input value, process
 	 * that then wait again. Only retry the given maximum number of times.
 	 */
-	private void await(int expected, int maxAttempts) throws IOException {
+	private void await(int expected) throws IOException {
 		logger.debug("Waiting for byte 0x%02x", expected);
-		for (int i = 0; i < maxAttempts; i++) {
+		out.flush();
+		for (int i = 0; i < config.maxSendAttempts; i++) {
 			int actual = in.readUbyte();
 			if (actual == expected) return;
 			processInput(actual);
 		}
-		throw ioExceptionf("Failed to receive 0x%02x in %d attempts", expected, maxAttempts);
+		throw ioExceptionf("Failed to receive 0x%02x in %d attempts", expected,
+			config.maxSendAttempts);
 	}
 
 }
