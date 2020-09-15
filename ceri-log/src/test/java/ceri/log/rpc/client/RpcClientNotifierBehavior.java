@@ -38,7 +38,7 @@ public class RpcClientNotifierBehavior {
 		TestListener<Integer> listener = TestListener.of(notifier);
 		call.await();
 		call.callback.onNext("123");
-		assertThat(listener.await(false), is(123));
+		assertThat(listener.await(), is(123));
 	}
 
 	@Test
