@@ -8,7 +8,7 @@ import ceri.serial.javax.test.SerialTestConnector;
 public class SerialTester {
 
 	public static void main(String[] args) throws IOException {
-		try (SerialTestConnector connector = new SerialTestConnector()) {
+		try (SerialTestConnector connector = SerialTestConnector.of()) {
 			connector.response(ResponseStream.echo());
 			connector.connect();
 			SerialConnectorTester.test(connector, connector::fixed);

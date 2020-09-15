@@ -50,7 +50,11 @@ public class SerialTestConnector implements SerialConnector {
 	public volatile Boolean connected;
 	public volatile Boolean broken;
 
-	public SerialTestConnector() {
+	public static SerialTestConnector of() {
+		return new SerialTestConnector();
+	}
+	
+	protected SerialTestConnector() {
 		inActual = IoStreamUtil.in(this::read, this::available);
 		outActual = IoStreamUtil.out(this::write);
 		reset(true);
