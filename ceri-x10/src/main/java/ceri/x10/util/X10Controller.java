@@ -9,22 +9,37 @@ import ceri.x10.command.CommandListener;
  * Interface for X10 controllers.
  */
 public interface X10Controller {
+	static X10Controller NULL = new X10Controller() {};
 
 	/**
 	 * Determines if the controller supports the command.
 	 */
 	default boolean supports(@SuppressWarnings("unused") Command command) {
+		// Support no commands by default
 		return false;
 	}
 
 	/**
-	 * Puts a command on the processing queue.
+	 * Processes a command.
 	 */
-	void command(Command command) throws IOException;
+	@SuppressWarnings("unused")
+	default void command(Command command) throws IOException {
+		verifySupported(this, command);
+	}
 
 	/**
 	 * Listen to received/sent commands.
 	 */
-	Enclosed<CommandListener> listen(CommandListener listener);
+	default Enclosed<CommandListener> listen(CommandListener listener) {
+		// Do nothing by default
+		return Enclosed.noOp(listener);
+	}
 
+	/**
+	 * Throws an exception if the controller does not support the command.
+	 */
+	static Command verifySupported(X10Controller x10, Command command) {
+		if (x10 != null && x10.supports(command)) return command;
+		throw new UnsupportedOperationException("Command not supported: " + command);
+	}
 }

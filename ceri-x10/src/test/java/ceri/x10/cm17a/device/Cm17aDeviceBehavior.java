@@ -1,48 +1,149 @@
 package ceri.x10.cm17a.device;
 
+import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.x10.cm17a.device.Data.code;
+import static ceri.x10.command.FunctionType.bright;
+import static ceri.x10.command.FunctionType.dim;
+import static ceri.x10.command.FunctionType.off;
+import static ceri.x10.command.FunctionType.on;
 import static ceri.x10.command.House.A;
-import static ceri.x10.util.X10TestUtil.addr;
+import static ceri.x10.command.House.B;
+import static ceri.x10.command.House.C;
+import static ceri.x10.command.House.D;
+import static ceri.x10.command.House.K;
+import static ceri.x10.command.House.L;
+import static ceri.x10.command.House.P;
+import static ceri.x10.command.Unit._10;
+import static ceri.x10.command.Unit._13;
+import static ceri.x10.command.Unit._14;
+import static ceri.x10.command.Unit._15;
+import static ceri.x10.command.Unit._16;
+import static ceri.x10.command.Unit._3;
+import static ceri.x10.command.Unit._5;
+import static ceri.x10.command.Unit._7;
+import static ceri.x10.command.Unit._9;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
 import java.io.IOException;
+import org.apache.logging.log4j.Level;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.stubbing.Stubber;
+import ceri.common.concurrent.ValueCondition;
+import ceri.common.function.ExceptionConsumer;
+import ceri.common.io.StateChange;
+import ceri.common.test.TestListener;
 import ceri.common.util.Enclosed;
+import ceri.log.test.LogModifier;
 import ceri.x10.command.Command;
 import ceri.x10.command.CommandListener;
+import ceri.x10.util.X10TestUtil.ErrorType;
 
 public class Cm17aDeviceBehavior {
-	public static final Cm17aDeviceConfig config = Cm17aDeviceConfig.builder().waitIntervalMicros(1)
-		.resetIntervalMicros(1).errorDelayMs(1).commandIntervalMicros(1).build();
-	private static CommandListener listener;
-	private static Cm17aDevice controller;
-	private static Enclosed<CommandListener> enclosed;
+	private static final Cm17aDeviceConfig config =
+		Cm17aDeviceConfig.builder().commandIntervalMicros(1).resetIntervalMicros(1)
+			.waitIntervalMicros(1).queuePollTimeoutMs(1).errorDelayMs(1).build();
+	private static final Cm17aTestConnector con = new Cm17aTestConnector();
+	private static Cm17aDevice cm17a;
 
 	@BeforeClass
 	public static void beforeClass() {
-		Cm17aConnector connector = mock(Cm17aConnector.class);
-		listener = mock(CommandListener.class);
-		controller = Cm17aDevice.of(config, connector);
-		enclosed = controller.listen(listener);
+		cm17a = Cm17aDevice.of(config, con);
+	}
+
+	@Before
+	public void before() {
+		// Processor only sets rts/dtr to standby on start or on error,
+		// so don't reset rts/dtr before each test.
+		con.reset(false);
 	}
 
 	@AfterClass
 	public static void afterClass() {
-		enclosed.close();
-		controller.close();
+		cm17a.close();
 	}
 
 	@Test
-	public void shouldDispatchUnitCommands() throws IOException {
-		controller.command(Command.on(addr("K9")));
-		verify(listener, timeout(1000)).on(Command.on(addr("K9")));
+	public void shouldHandleOnCommands() throws IOException {
+		cm17a.command(Command.from("A10:on"));
+		con.assertCodes(code(A, _10, on));
+		cm17a.command(Command.from("A10:on"));
+		con.assertCodes();
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
-	public void shouldFailForUnsupportedCommands() throws IOException {
-		controller.command(Command.allLightsOff(A));
+	@Test
+	public void shouldSendOffCommands() throws IOException {
+		cm17a.command(Command.from("B3:off"));
+		con.assertCodes(code(B, _3, off));
+		cm17a.command(Command.from("B3:off"));
+		con.assertCodes(code(B, _3, off));
+	}
+
+	@Test
+	public void shouldHandleDimCommands() throws IOException {
+		cm17a.command(Command.from("P[15,16]:dim:10%"));
+		con.assertCodes( //
+			code(P, _15, on), // 0x3448
+			code(P, dim), // 0x3098,
+			code(P, dim), // 0x3098,
+			code(P, _16, on), // 0x3458,
+			code(P, dim), // 0x3098
+			code(P, dim)); // 0x3098
+		cm17a.command(Command.from("P[16]:bright:1%"));
+		con.assertCodes( //
+			code(P, bright)); // 0x3088
+	}
+
+	@Test
+	public void shouldResetOnError() throws IOException {
+		LogModifier.run(() -> {
+			Command cmd = Command.off(K, _13, _14);
+			con.errors(ErrorType.io, ErrorType.none);
+			assertThrown(() -> cm17a.command(cmd));
+			con.errors(ErrorType.none, ErrorType.none);
+			cm17a.command(cmd);
+			con.errors(ErrorType.none, ErrorType.rt);
+			assertThrown(() -> cm17a.command(cmd));
+			con.errors(ErrorType.none, ErrorType.none);
+			cm17a.command(cmd);
+		}, Level.ERROR, Processor.class);
+	}
+
+	@Test
+	public void shouldFailForUnsupportedCommands() {
+		assertThrown(() -> cm17a.command(Command.allLightsOff(C)));
+		assertThrown(() -> cm17a.command(Command.ext(D, 1, 2, _7)));
+	}
+
+	@Test
+	public void shouldListenForCommands() throws IOException, InterruptedException {
+		ValueCondition<Command> sync = ValueCondition.of();
+		CommandListener listener = mock(CommandListener.class);
+		answer((Command c) -> sync.signal(c)).when(listener).dim(any());
+		try (Enclosed<?> enc = cm17a.listen(listener)) {
+			cm17a.command(Command.dim(L, 50, _5, _9));
+			assertThat(sync.await(), is(Command.dim(L, 50, _5, _9)));
+		}
+	}
+
+	@Test
+	public void shouldListenForConnectorStateChange() throws InterruptedException {
+		try (TestListener<StateChange> listener = TestListener.of(cm17a.listeners())) {
+			con.listeners.accept(StateChange.broken);
+			assertThat(listener.await(), is(StateChange.broken));
+		}
+	}
+
+	public static <E extends Exception, T> Stubber answer(ExceptionConsumer<E, T> consumer) {
+		return doAnswer(inv -> {
+			consumer.accept(inv.getArgument(0));
+			return null;
+		});
 	}
 
 }

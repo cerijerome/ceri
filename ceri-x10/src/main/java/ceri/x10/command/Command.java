@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import ceri.common.collection.StreamUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
+import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
 public abstract class Command {
@@ -203,7 +204,7 @@ public abstract class Command {
 		if (!(obj instanceof Command)) return false;
 		Command other = (Command) obj;
 		if (house != other.house) return false;
-		if (units != other.units) return false;
+		if (!EqualsUtil.equals(units, other.units)) return false;
 		if (type != other.type) return false;
 		if (data != other.data) return false;
 		if (command != other.command) return false;

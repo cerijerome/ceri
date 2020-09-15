@@ -1,7 +1,5 @@
 package ceri.x10.util;
 
-import ceri.x10.command.Command;
-
 public class X10Util {
 	private static final int NYBBLE_BITS = 4;
 	private static final int NYBBLE_MASK = 0xf;
@@ -9,11 +7,8 @@ public class X10Util {
 
 	private X10Util() {}
 
-	public static Command verifySupported(X10Controller x10, Command command) {
-		if (x10 != null && x10.supports(command)) return command;
-		throw new UnsupportedOperationException("Command not supported: " + command);
-	}
-
+	// TODO: move to ByteUtil
+	
 	public static int fromNybble(int value, int nybble) {
 		return (value >>> (nybble * NYBBLE_BITS)) & NYBBLE_MASK;
 	}

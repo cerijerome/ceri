@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.concurrent.TaskQueue;
 import ceri.common.data.ByteUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.ExceptionTracker;
@@ -15,7 +16,6 @@ import ceri.x10.command.Address;
 import ceri.x10.command.Command;
 import ceri.x10.command.FunctionGroup;
 import ceri.x10.command.FunctionType;
-import ceri.x10.util.TaskQueue;
 
 /**
  * Handles all communication with the device. Reads commands from the input queue, and dispatches
@@ -73,7 +73,7 @@ public class Processor extends LoopingExecutor {
 	}
 
 	private void sendDimCommand(Command.Dim command) throws IOException {
-		int count = Math.min(1, Data.toDimCount(command.percent()));
+		int count = Data.toDimCount(command.percent());
 		int dimCode = Data.code(command.house(), command.type());
 		for (Address address : command.addresses()) {
 			sendOn(address);
@@ -101,7 +101,6 @@ public class Processor extends LoopingExecutor {
 	private void send(int code) throws IOException {
 		logger.debug("Sending: 0x%02x", code);
 		sendByte(Data.HEADER1);
-		sendByte(Data.HEADER2);
 		sendByte(Data.HEADER2);
 		sendByte(ByteUtil.ubyteAt(code, 1));
 		sendByte(ByteUtil.ubyteAt(code, 0));

@@ -66,6 +66,14 @@ public class Cm17aConfig {
 		device = builder.device;
 	}
 
+	public boolean isTest() {
+		return mode == DeviceMode.test;
+	}
+
+	public boolean isDevice() {
+		return mode == DeviceMode.enabled && deviceSerial.enabled();
+	}
+
 	@Override
 	public String toString() {
 		return ToStringHelper.createByClass(this, id, mode, device, deviceSerial).toString();

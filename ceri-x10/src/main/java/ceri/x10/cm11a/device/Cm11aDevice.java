@@ -1,5 +1,6 @@
 package ceri.x10.cm11a.device;
 
+import static ceri.x10.util.X10Controller.verifySupported;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
@@ -14,7 +15,6 @@ import ceri.x10.command.Command;
 import ceri.x10.command.CommandListener;
 import ceri.x10.command.FunctionGroup;
 import ceri.x10.util.X10Controller;
-import ceri.x10.util.X10Util;
 
 public class Cm11aDevice implements X10Controller, Closeable {
 	private static final Logger logger = LogManager.getLogger();
@@ -39,7 +39,7 @@ public class Cm11aDevice implements X10Controller, Closeable {
 
 	@Override
 	public void command(Command command) throws IOException {
-		X10Util.verifySupported(this, command);
+		verifySupported(this, command);
 		logger.info("Command: {}", command);
 		processor.command(command);
 	}

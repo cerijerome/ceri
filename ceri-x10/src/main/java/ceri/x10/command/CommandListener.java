@@ -18,7 +18,7 @@ public interface CommandListener {
 
 	default void bright(@SuppressWarnings("unused") Command.Dim command) {}
 
-	default void extended(@SuppressWarnings("unused") Command.Ext command) {}
+	default void ext(@SuppressWarnings("unused") Command.Ext command) {}
 
 	default Consumer<Command> asConsumer() {
 		return command -> dispatcher(command).accept(this);
@@ -44,7 +44,7 @@ public interface CommandListener {
 		case bright:
 			return listener -> listener.bright((Command.Dim) command);
 		case ext:
-			return listener -> listener.extended((Command.Ext) command);
+			return listener -> listener.ext((Command.Ext) command);
 		default:
 			throw new UnsupportedOperationException("Function type not supported: " + command);
 		}

@@ -28,7 +28,8 @@ public class Data {
 	private Data() {}
 
 	public static int toDimCount(int percent) {
-		return roundDiv(limit(percent, 0, DIM_MAX_PERCENT), DIM_PERCENT_PER_SEND);
+		if (percent == 0) return 0;
+		return Math.max(1, roundDiv(limit(percent, 0, DIM_MAX_PERCENT), DIM_PERCENT_PER_SEND));
 	}
 
 	public static int fromDimCount(int count) {

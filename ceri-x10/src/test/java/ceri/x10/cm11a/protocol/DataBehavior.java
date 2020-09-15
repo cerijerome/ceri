@@ -17,9 +17,11 @@ public class DataBehavior {
 
 	@Test
 	public void shouldWriteDateTime() {
-		ByteProvider bytes = Encoder.of().apply(enc -> Data.writeDateTo(LocalDateTime.now(), enc)).immutable();
-		BinaryPrinter.DEFAULT.print(bytes);
-		System.out.println(Data.readDateFrom(bytes.reader(0)));
+		ByteProvider bytes =
+			Encoder.of().apply(enc -> Data.writeDateTo(LocalDateTime.now(), enc)).immutable();
+		var dt = Data.readDateFrom(bytes.reader(0));
+		// BinaryPrinter.DEFAULT.print(bytes);
+		// System.out.println(Data.readDateFrom(bytes.reader(0)));
 	}
-	
+
 }

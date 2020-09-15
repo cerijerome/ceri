@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.concurrent.TaskQueue;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteStream;
 import ceri.common.io.PollingInputStream;
@@ -24,7 +25,6 @@ import ceri.x10.cm11a.protocol.Protocol;
 import ceri.x10.cm11a.protocol.Status;
 import ceri.x10.cm11a.protocol.Transmit;
 import ceri.x10.command.Command;
-import ceri.x10.util.TaskQueue;
 
 /**
  * Handles all communication with the device. Reads commands from the input queue, and dispatches

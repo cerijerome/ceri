@@ -1,9 +1,7 @@
 package ceri.x10.util;
 
-import static ceri.common.test.TestUtil.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 public class X10UtilTest {
@@ -23,5 +21,5 @@ public class X10UtilTest {
 		assertThat(X10Util.toNybble(0xa9, 2), is(0x900));
 		assertThat(X10Util.toNybble(0xa, 3), is(0xa000));
 	}
-	
+
 }
