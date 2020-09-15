@@ -67,7 +67,7 @@ public class DateUtil {
 	}
 
 	/**
-	 * Return the current local time with no seconds.
+	 * Return the current local time truncated to seconds.
 	 */
 	public static LocalDateTime nowSec() {
 		return LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);

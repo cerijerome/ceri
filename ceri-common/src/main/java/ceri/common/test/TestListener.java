@@ -16,7 +16,7 @@ public class TestListener<T> implements Closeable {
 	public static <T> TestListener<T> of(Listenable<T> listenable) {
 		return new TestListener<>(listenable);
 	}
-	
+
 	private TestListener(Listenable<T> listenable) {
 		listener = listenable.enclose(listen::signal);
 	}
@@ -24,12 +24,16 @@ public class TestListener<T> implements Closeable {
 	public Consumer<T> listener() {
 		return listener.subject;
 	}
-	
-	public T await(boolean clear) throws InterruptedException {
-		if (clear) listen.clear();
+
+	public T await() throws InterruptedException {
 		return listen.await();
 	}
-	
+
+	public T awaitClear() throws InterruptedException {
+		listen.clear();
+		return await();
+	}
+
 	@Override
 	public void close() {
 		listener.close();

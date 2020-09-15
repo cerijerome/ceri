@@ -13,7 +13,7 @@ public class TestListenerBehavior {
 		Listeners<String> listeners = Listeners.of();
 		try (TestListener<String> listener = TestListener.of(listeners)) {
 			listeners.accept("test");
-			assertThat(listener.await(false), is("test"));
+			assertThat(listener.await(), is("test"));
 		}
 	}
 
@@ -22,7 +22,7 @@ public class TestListenerBehavior {
 		Listeners<String> listeners = Listeners.of();
 		try (TestListener<String> listener = TestListener.of(listeners)) {
 			try (var exec = runRepeat(() -> listeners.accept("test"))) {
-				assertThat(listener.await(true), is("test"));
+				assertThat(listener.awaitClear(), is("test"));
 			}
 		}
 	}
@@ -32,7 +32,7 @@ public class TestListenerBehavior {
 		Listeners<String> listeners = Listeners.of();
 		try (TestListener<String> listener = TestListener.of(listeners)) {
 			listener.listener().accept("test");
-			assertThat(listener.await(false), is("test"));
+			assertThat(listener.await(), is("test"));
 		}
 	}
 

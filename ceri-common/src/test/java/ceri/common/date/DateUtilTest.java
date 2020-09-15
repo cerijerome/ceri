@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
+import java.time.temporal.ChronoField;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -33,18 +34,24 @@ public class DateUtilTest {
 		long t1 = System.currentTimeMillis();
 		assertTrue(t1 - t0 < 1000);
 	}
-	
+
 	@Test
 	public void testDateTime() {
 		LocalDateTime t0 = LocalDateTime.now();
 		LocalDateTime t1 = DateUtil.dateTime(System.currentTimeMillis());
 		assertTrue(Duration.between(t0, t1).toMillis() < 1000);
 	}
-	
+
 	@Test
 	public void testDateTimePattern() {
 		assertThat(DateUtil.dateTimePattern(FormatStyle.FULL, FormatStyle.FULL, Locale.US),
 			is("EEEE, MMMM d, y 'at' h:mm:ss a zzzz"));
+	}
+
+	@Test
+	public void testNowSec() {
+		assertThat(DateUtil.nowSec().get(ChronoField.MILLI_OF_SECOND), is(0));
+		assertThat(DateUtil.nowSec().get(ChronoField.MICRO_OF_SECOND), is(0));
 	}
 
 	@Test

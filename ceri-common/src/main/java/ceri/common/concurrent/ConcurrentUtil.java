@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
 import ceri.common.collection.CollectionUtil;
@@ -19,6 +20,20 @@ import ceri.common.function.ExceptionSupplier;
 public class ConcurrentUtil {
 
 	private ConcurrentUtil() {}
+
+	/**
+	 * Calls await() on a Condition with or without a timeout. Use a null timeout to call without.
+	 * Must be called inside a locked block.
+	 */
+	public static boolean await(Condition condition, Integer timeout, TimeUnit unit) {
+		try {
+			if (timeout != null) return condition.await(timeout, unit);
+			condition.await();
+			return true;
+		} catch (InterruptedException e) {
+			throw new RuntimeInterruptedException(e);
+		}
+	}
 
 	/**
 	 * Shuts down an executor and waits for completion. Returns true if successfully shut down.
@@ -32,10 +47,9 @@ public class ConcurrentUtil {
 			return false;
 		}
 	}
-	
+
 	public static <E extends Exception, T> T executeAndGet(ExecutorService executor,
-		Callable<T> callable, Function<Throwable, ? extends E> exceptionConstructor)
-		throws E {
+		Callable<T> callable, Function<Throwable, ? extends E> exceptionConstructor) throws E {
 		return get(executor.submit(callable), exceptionConstructor);
 	}
 

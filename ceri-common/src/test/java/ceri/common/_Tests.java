@@ -49,6 +49,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.concurrent.RuntimeInterruptedExceptionBehavior.class, //
 	ceri.common.concurrent.SafeReadWriteBehavior.class, //
 	ceri.common.concurrent.SimpleExecutorBehavior.class, //
+	ceri.common.concurrent.TaskQueueBehavior.class, //
 	ceri.common.concurrent.ValueConditionBehavior.class, //
 	ceri.common.concurrent.VolatileByteArrayBehavior.class, //
 	// data
@@ -242,6 +243,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.BinaryLogOutputStreamBehavior.class, //
 	ceri.common.test.BinaryPrinterBehavior.class, //
 	ceri.common.test.BranchCaptorBehavior.class, //
+	ceri.common.test.CapturerBehavior.class, //
 	ceri.common.test.DebuggerBehavior.class, //
 	ceri.common.test.FileTestHelperBehavior.class, //
 	ceri.common.test.PulsePrinterBehavior.class, //

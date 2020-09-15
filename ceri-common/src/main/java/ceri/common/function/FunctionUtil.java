@@ -325,4 +325,26 @@ public class FunctionUtil {
 		};
 	}
 
+	/**
+	 * Converts a runnable to a supplier that returns the given value.
+	 */
+	public static <E extends Exception, T> ExceptionSupplier<E, T>
+		asSupplier(ExceptionRunnable<E> runnable, T t) {
+		return () -> {
+			runnable.run();
+			return t;
+		};
+	}
+
+	/**
+	 * Converts a runnable to a supplier that returns null.
+	 */
+	public static <E extends Exception, T> ExceptionSupplier<E, T>
+		asSupplier(ExceptionRunnable<E> runnable) {
+		return () -> {
+			runnable.run();
+			return null;
+		};
+	}
+
 }

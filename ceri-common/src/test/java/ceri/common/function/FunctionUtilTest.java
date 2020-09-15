@@ -172,6 +172,11 @@ public class FunctionUtilTest {
 	}
 
 	@Test
+	public void testAsSupplier() throws IOException {
+		assertThat(FunctionUtil.asSupplier(runnable(2), 5).get(), is(5));
+	}
+	
+	@Test
 	public void testForEachIterable() {
 		Capturer.Int capturer = Capturer.ofInt();
 		assertThrown(IOException.class,
