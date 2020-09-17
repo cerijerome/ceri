@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import ceri.common.net.HostPort;
-
 /**
  * Simplified mongo client settings.
  */

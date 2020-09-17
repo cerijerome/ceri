@@ -5,8 +5,8 @@ import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_criteria;
 import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.test.BinaryPrinter;
-import ceri.common.util.BasicUtil;
 import ceri.serial.ftdi.jna.LibFtdiStream.ftdi_progress_info;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
@@ -29,7 +29,7 @@ public class FtdiStreamTester {
 		int waitMs = 60 * 1000;
 		ftdi.readStream(FtdiStreamTester::stream, "hello!", 1, 3);
 		logger.info("Waiting for callback invocation");
-		BasicUtil.delay(waitMs);
+		ConcurrentUtil.delay(waitMs);
 		logger.info("Done");
 	}
 

@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
@@ -257,7 +258,7 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 		logger.info("Ftdi is broken - attempting to fix");
 		fixFtdi();
 		logger.info("Ftdi is now fixed");
-		BasicUtil.delay(config.recoveryDelayMs); // wait for clients to recover before clearing
+		ConcurrentUtil.delay(config.recoveryDelayMs); // wait for clients to recover before clearing
 		sync.clear();
 		notifyListeners(StateChange.fixed);
 	}
@@ -270,7 +271,7 @@ public class SelfHealingFtdi extends LoopingExecutor implements Listenable.Indir
 				break;
 			} catch (LibUsbException e) {
 				if (exceptions.add(e)) logger.error("Failed to fix ftdi, retrying:", e);
-				BasicUtil.delay(config.fixRetryDelayMs);
+				ConcurrentUtil.delay(config.fixRetryDelayMs);
 			}
 		}
 	}

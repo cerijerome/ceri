@@ -6,20 +6,7 @@ import ceri.common.io.StateChange;
 import ceri.serial.javax.SerialConnector;
 
 public interface Cm17aConnector extends Listenable.Indirect<StateChange> {
-	static Cm17aConnector NULL = new Null();
-
-	void setRts(boolean on) throws IOException;
-
-	void setDtr(boolean on) throws IOException;
-
-	static Serial serial(SerialConnector connector) {
-		return new Serial(connector);
-	}
-
-	static class Null implements Cm17aConnector {
-
-		private Null() {}
-
+	static Cm17aConnector NULL = new Cm17aConnector() {
 		@Override
 		public Listenable<StateChange> listeners() {
 			return Listenable.ofNull();
@@ -30,6 +17,14 @@ public interface Cm17aConnector extends Listenable.Indirect<StateChange> {
 
 		@Override
 		public void setDtr(boolean on) {}
+	};
+
+	void setRts(boolean on) throws IOException;
+
+	void setDtr(boolean on) throws IOException;
+
+	static Serial serial(SerialConnector connector) {
+		return new Serial(connector);
 	}
 
 	static class Serial implements Cm17aConnector {

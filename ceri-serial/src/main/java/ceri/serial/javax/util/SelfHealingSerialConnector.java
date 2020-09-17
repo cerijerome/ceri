@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
@@ -14,7 +15,6 @@ import ceri.common.io.ReplaceableInputStream;
 import ceri.common.io.ReplaceableOutputStream;
 import ceri.common.io.StateChange;
 import ceri.common.text.ToStringHelper;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.ExceptionTracker;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
@@ -136,7 +136,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 		fixSerialPort();
 		logger.info("Connection is now fixed");
 		// wait for streams to recover before clearing
-		BasicUtil.delay(config.recoveryDelayMs);
+		ConcurrentUtil.delay(config.recoveryDelayMs);
 		sync.clear();
 		notifyListeners(StateChange.fixed);
 	}
@@ -149,7 +149,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 				break;
 			} catch (IOException e) {
 				if (exceptions.add(e)) logger.error("Failed to fix connection, retrying:", e);
-				BasicUtil.delay(config.fixRetryDelayMs);
+				ConcurrentUtil.delay(config.fixRetryDelayMs);
 			}
 		}
 	}

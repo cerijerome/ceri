@@ -10,7 +10,7 @@ import static ceri.serial.ftdi.jna.LibFtdi.ftdi_write_data;
 import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_criteria;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.util.BasicUtil;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.libusb.jna.LibUsbException;
@@ -34,12 +34,12 @@ public class LibFtdiTester {
 	private static void process(ftdi_context ftdi) throws LibUsbException {
 		int delayMs = 1000;
 		read(ftdi);
-		BasicUtil.delay(delayMs);
+		ConcurrentUtil.delay(delayMs);
 		for (int i = 0; i < 16; i++) {
 			write(ftdi, i);
-			BasicUtil.delay(delayMs);
+			ConcurrentUtil.delay(delayMs);
 			read(ftdi);
-			BasicUtil.delay(delayMs);
+			ConcurrentUtil.delay(delayMs);
 		}
 		logger.info("Done");
 	}

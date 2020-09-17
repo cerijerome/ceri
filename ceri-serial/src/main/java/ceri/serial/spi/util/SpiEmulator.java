@@ -2,7 +2,7 @@ package ceri.serial.spi.util;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-import ceri.common.util.BasicUtil;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.serial.spi.Spi;
 import ceri.serial.spi.SpiMode;
 import ceri.serial.spi.SpiTransfer;
@@ -124,7 +124,7 @@ public class SpiEmulator implements Spi {
 			write(xfer, responder.duplex(read(xfer)));
 			break;
 		}
-		BasicUtil.delayMicros(transferTimeMicros(xfer));
+		ConcurrentUtil.delayMicros(transferTimeMicros(xfer));
 		return this;
 	}
 

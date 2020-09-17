@@ -1,5 +1,6 @@
 package ceri.log.concurrent;
 
+import static ceri.common.concurrent.ConcurrentUtil.delayMicros;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -8,7 +9,6 @@ import org.apache.logging.log4j.Level;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.util.BasicUtil;
 import ceri.log.test.LogModifier;
 
 public class LoopingExecutorBehavior {
@@ -34,7 +34,7 @@ public class LoopingExecutorBehavior {
 
 	@Test
 	public void shouldUseLogName() {
-		try (TestLoop loop = new TestLoop("testloop", i -> BasicUtil.delay(1))) {}
+		try (TestLoop loop = new TestLoop("testloop", i -> delayMicros(10))) {}
 	}
 
 	private static void throwIoException() throws IOException {

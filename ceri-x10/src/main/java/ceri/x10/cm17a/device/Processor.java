@@ -2,14 +2,13 @@ package ceri.x10.cm17a.device;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.io.IOException;
-import java.util.Collection;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.TaskQueue;
 import ceri.common.data.ByteUtil;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.ExceptionTracker;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.x10.command.Address;
@@ -25,15 +24,13 @@ public class Processor extends LoopingExecutor {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private final Cm17aDeviceConfig config;
 	private final TaskQueue<IOException> taskQueue;
-	private final Collection<Command> outQueue;
 	private final Cm17aConnector connector;
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 	private Address lastOn = null;
 
-	Processor(Cm17aDeviceConfig config, Cm17aConnector connector, Collection<Command> outQueue) {
+	Processor(Cm17aDeviceConfig config, Cm17aConnector connector) {
 		this.config = config;
 		this.connector = connector;
-		this.outQueue = outQueue;
 		taskQueue = TaskQueue.of(config.queueSize);
 		start();
 	}
@@ -49,20 +46,19 @@ public class Processor extends LoopingExecutor {
 			lastOn = null;
 			while (true) {
 				if (taskQueue.processNext(config.queuePollTimeoutMs, MILLISECONDS))
-					BasicUtil.delayMicros(config.commandIntervalMicros);
+					ConcurrentUtil.delayMicros(config.commandIntervalMicros);
 			}
 		} catch (RuntimeInterruptedException e) {
 			throw e;
 		} catch (RuntimeException | IOException e) {
 			if (exceptions.add(e)) logger.catching(Level.WARN, e);
-			BasicUtil.delay(config.errorDelayMs);
+			ConcurrentUtil.delay(config.errorDelayMs);
 		}
 	}
 
 	private void sendCommand(Command command) throws IOException {
 		if (command.group() == FunctionGroup.dim) sendDimCommand((Command.Dim) command);
 		else sendUnitCommand(command);
-		outQueue.add(command);
 	}
 
 	private void sendUnitCommand(Command command) throws IOException {
@@ -73,13 +69,16 @@ public class Processor extends LoopingExecutor {
 	}
 
 	private void sendDimCommand(Command.Dim command) throws IOException {
+		long t = System.currentTimeMillis();
 		int count = Data.toDimCount(command.percent());
+		System.out.println("dim-count=" + count);
 		int dimCode = Data.code(command.house(), command.type());
 		for (Address address : command.addresses()) {
 			sendOn(address);
 			for (int i = 0; i < count; i++)
 				send(dimCode);
 		}
+		System.out.printf("sendDimCommand=%dms%n", System.currentTimeMillis() - t);
 	}
 
 	private void sendOff(Address address) throws IOException {
@@ -114,14 +113,14 @@ public class Processor extends LoopingExecutor {
 		for (int i = Byte.SIZE - 1; i >= 0; i--) {
 			if (ByteUtil.bit(b, i)) {
 				connector.setDtr(false);
-				BasicUtil.delayMicros(config.waitIntervalMicros);
+				ConcurrentUtil.delayMicros(config.waitIntervalMicros);
 				connector.setDtr(true);
-				BasicUtil.delayMicros(config.waitIntervalMicros);
+				ConcurrentUtil.delayMicros(config.waitIntervalMicros);
 			} else {
 				connector.setRts(false);
-				BasicUtil.delayMicros(config.waitIntervalMicros);
+				ConcurrentUtil.delayMicros(config.waitIntervalMicros);
 				connector.setRts(true);
-				BasicUtil.delayMicros(config.waitIntervalMicros);
+				ConcurrentUtil.delayMicros(config.waitIntervalMicros);
 			}
 		}
 	}
@@ -133,10 +132,10 @@ public class Processor extends LoopingExecutor {
 		logger.debug("Sending reset");
 		connector.setDtr(false);
 		connector.setRts(false);
-		BasicUtil.delayMicros(config.resetIntervalMicros);
+		ConcurrentUtil.delayMicros(config.resetIntervalMicros);
 		connector.setDtr(true);
 		connector.setRts(true);
-		BasicUtil.delayMicros(config.resetIntervalMicros);
+		ConcurrentUtil.delayMicros(config.resetIntervalMicros);
 	}
 
 }

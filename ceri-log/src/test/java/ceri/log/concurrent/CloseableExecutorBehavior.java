@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.junit.Test;
 import ceri.common.concurrent.BooleanCondition;
-import ceri.common.util.BasicUtil;
+import ceri.common.concurrent.ConcurrentUtil;
 
 public class CloseableExecutorBehavior {
 
@@ -69,7 +69,7 @@ public class CloseableExecutorBehavior {
 	}
 
 	private static String call(int delayMs, String response) {
-		BasicUtil.delay(delayMs);
+		ConcurrentUtil.delay(delayMs);
 		return response;
 	}
 	

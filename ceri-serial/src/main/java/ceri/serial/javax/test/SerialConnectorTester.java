@@ -5,6 +5,7 @@ import static ceri.common.util.BasicUtil.conditional;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
@@ -14,7 +15,6 @@ import ceri.common.io.IoUtil;
 import ceri.common.io.StateChange;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.Enclosed;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
@@ -128,7 +128,7 @@ public class SerialConnectorTester extends LoopingExecutor {
 	@Override
 	protected void loop() {
 		try {
-			BasicUtil.delay(delayMs);
+			ConcurrentUtil.delay(delayMs);
 			readFromPort();
 			String command = getInput();
 			processCmd(command);

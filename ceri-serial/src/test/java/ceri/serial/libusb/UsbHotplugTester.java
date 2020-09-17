@@ -8,7 +8,7 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event.LIBUSB_HOTPLUG_
 import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_flag.LIBUSB_HOTPLUG_ENUMERATE;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.util.BasicUtil;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
 import ceri.serial.libusb.jna.LibUsbException;
 
@@ -35,7 +35,7 @@ public class UsbHotplugTester {
 			long t = System.currentTimeMillis();
 			while (System.currentTimeMillis() - t < WAIT_MS) {
 				ctx.handleEventsCompleted();
-				BasicUtil.delay(DELAY_MS);
+				ConcurrentUtil.delay(DELAY_MS);
 				System.gc();
 			}
 			logger.info("Done");

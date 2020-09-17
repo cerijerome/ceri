@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
@@ -15,7 +16,6 @@ import ceri.common.function.ExceptionFunction;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.StateChange;
 import ceri.common.test.BinaryPrinter;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.ExceptionTracker;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
@@ -60,11 +60,11 @@ public class SelfHealingFd extends LoopingExecutor
 					if (n > 0) bp.print(bytes, 0, n);
 					if (n < 0) fd.seek(0, Seek.SEEK_SET);
 					exceptions.clear();
-					BasicUtil.delay(3000);
+					ConcurrentUtil.delay(3000);
 				} catch (RuntimeException | IOException e) {
 					// if (exceptions.add(e)) logger.warn(e.getMessage());
 					logger.warn(e.getMessage());
-					BasicUtil.delay(3000);
+					ConcurrentUtil.delay(3000);
 				}
 			}
 		}
@@ -181,7 +181,7 @@ public class SelfHealingFd extends LoopingExecutor
 		logger.info("File descriptor is invalid - attempting to fix");
 		fixFd();
 		logger.info("File is now open");
-		BasicUtil.delay(config.recoveryDelayMs); // wait for clients to recover before clearing
+		ConcurrentUtil.delay(config.recoveryDelayMs); // wait for clients to recover before clearing
 		sync.clear();
 		notifyListeners(StateChange.fixed);
 	}
@@ -194,7 +194,7 @@ public class SelfHealingFd extends LoopingExecutor
 				break;
 			} catch (IOException e) {
 				if (exceptions.add(e)) logger.error("Failed to open file, retrying:", e);
-				BasicUtil.delay(config.fixRetryDelayMs);
+				ConcurrentUtil.delay(config.fixRetryDelayMs);
 			}
 		}
 	}

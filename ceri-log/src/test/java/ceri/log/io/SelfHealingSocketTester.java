@@ -12,8 +12,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.ExceptionRunnable;
-import ceri.common.util.BasicUtil;
 import ceri.log.util.LogUtil;
 
 public class SelfHealingSocketTester implements Closeable {
@@ -25,7 +25,7 @@ public class SelfHealingSocketTester implements Closeable {
 	public static void main(String[] args) {
 		int port = 7890;
 		try (SelfHealingSocketTester test = new SelfHealingSocketTester(port)) {
-			BasicUtil.delay(60 * 60 * 1000);
+			ConcurrentUtil.delay(60 * 60 * 1000);
 		}
 	}
 
@@ -49,7 +49,7 @@ public class SelfHealingSocketTester implements Closeable {
 			} catch (IOException e) {
 				log(e);
 			}
-			BasicUtil.delay(1000);
+			ConcurrentUtil.delay(1000);
 		}
 	}
 
@@ -116,7 +116,7 @@ public class SelfHealingSocketTester implements Closeable {
 
 	private void pause() {
 		while (pause)
-			BasicUtil.delay(50);
+			ConcurrentUtil.delay(50);
 	}
 
 	private static void send(OutputStreamWriter out, String name, String text) throws IOException {

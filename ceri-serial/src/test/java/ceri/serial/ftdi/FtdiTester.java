@@ -2,7 +2,7 @@ package ceri.serial.ftdi;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.util.BasicUtil;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.util.SelfHealingFtdi;
 import ceri.serial.ftdi.util.SelfHealingFtdiConfig;
@@ -20,7 +20,7 @@ public class FtdiTester {
 					process(ftdi);
 				} catch (LibUsbException | RuntimeException e) {
 					logger.error(e.getMessage());
-					BasicUtil.delay(3000);
+					ConcurrentUtil.delay(3000);
 				}
 			}
 		}
@@ -29,12 +29,12 @@ public class FtdiTester {
 	private static void process(SelfHealingFtdi ftdi) throws LibUsbException {
 		int delayMs = 500;
 		read(ftdi);
-		BasicUtil.delay(delayMs);
+		ConcurrentUtil.delay(delayMs);
 		for (int i = 0; i < 16; i++) {
 			write(ftdi, i);
-			BasicUtil.delay(delayMs);
+			ConcurrentUtil.delay(delayMs);
 			read(ftdi);
-			BasicUtil.delay(delayMs);
+			ConcurrentUtil.delay(delayMs);
 		}
 		logger.info("Done");
 	}

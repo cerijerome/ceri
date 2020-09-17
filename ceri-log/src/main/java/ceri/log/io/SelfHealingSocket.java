@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
@@ -183,11 +184,11 @@ public class SelfHealingSocket extends LoopingExecutor {
 				if (lastErrorMsg == null || !lastErrorMsg.equals(errorMsg))
 					logger.debug("Failed to fix connection, retrying: {}", errorMsg);
 				lastErrorMsg = errorMsg;
-				BasicUtil.delay(fixRetryDelayMs);
+				ConcurrentUtil.delay(fixRetryDelayMs);
 			}
 		}
 		logger.info("Connection is now fixed");
-		BasicUtil.delay(recoveryDelayMs); // wait for streams to recover before clearing
+		ConcurrentUtil.delay(recoveryDelayMs); // wait for streams to recover before clearing
 		sync.clear();
 		notifyListeners(StateChange.fixed);
 	}

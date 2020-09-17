@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import com.sun.jna.Pointer;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.FunctionUtil;
-import ceri.common.util.BasicUtil;
 import ceri.serial.i2c.I2c;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
@@ -157,7 +157,7 @@ public class I2cEmulator implements I2c {
 
 	private void delay(I2cAddress address, int bytes) {
 		long micros = I2cUtil.micros(hz, address, bytes);
-		BasicUtil.delayMicros(micros);
+		ConcurrentUtil.delayMicros(micros);
 	}
 
 }

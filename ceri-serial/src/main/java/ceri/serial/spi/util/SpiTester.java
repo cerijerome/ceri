@@ -3,7 +3,7 @@ package ceri.serial.spi.util;
 import static ceri.log.util.LogUtil.startupValues;
 import java.io.IOException;
 import java.util.Arrays;
-import ceri.common.util.BasicUtil;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.util.StartupValues;
 import ceri.serial.spi.Spi;
 import ceri.serial.spi.Spi.Direction;
@@ -40,7 +40,7 @@ public class SpiTester {
 			long t0 = System.currentTimeMillis();
 			for (int i = 0; i < repeat; i++) {
 				xfer.execute();
-				BasicUtil.delay(repeatDelayMs);
+				ConcurrentUtil.delay(repeatDelayMs);
 			}
 			long t1 = System.currentTimeMillis();
 			System.out.printf("Time taken: %.2fs%n", (t1 - t0) / 1000.0);

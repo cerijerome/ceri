@@ -14,10 +14,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.StateChange;
-import ceri.common.util.BasicUtil;
 import ceri.log.test.LogModifier;
 
 public class SelfHealingSocketBehavior {
@@ -68,7 +68,7 @@ public class SelfHealingSocketBehavior {
 			socket.listeners().listen(sync::signal);
 			assertThrown(() -> socket.in().readAllBytes());
 			assertThrown(() -> socket.out().write(0));
-			BasicUtil.delay(1);
+			ConcurrentUtil.delayMicros(10);
 			sync.await(StateChange.broken);
 		}
 	}
@@ -89,7 +89,7 @@ public class SelfHealingSocketBehavior {
 			socket.listeners().listen(sync::signal);
 			socket.listeners().listen(t -> throwIt(new RuntimeException("rte")));
 			assertThrown(() -> socket.out().write(0));
-			BasicUtil.delay(1);
+			ConcurrentUtil.delayMicros(10);
 			sync.await(StateChange.fixed);
 		}
 	}

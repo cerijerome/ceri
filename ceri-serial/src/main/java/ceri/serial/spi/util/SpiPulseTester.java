@@ -3,8 +3,8 @@ package ceri.serial.spi.util;
 import static ceri.serial.spi.Spi.Direction.out;
 import java.io.IOException;
 import java.util.function.Supplier;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.math.MathUtil;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.StartupValues;
 import ceri.log.util.LogUtil;
 import ceri.serial.spi.Spi;
@@ -40,7 +40,7 @@ public class SpiPulseTester {
 		try (Spi spi = SpiDevice.open(bus, chip, out)) {
 			spi.mode(mode).maxSpeedHz(speed);
 			try (SpiPulseTransmitter processor = SpiPulseTransmitter.of(1, spi, config)) {
-				BasicUtil.delay(1000);
+				ConcurrentUtil.delay(1000);
 				runCycles(processor);
 			}
 		}
@@ -73,10 +73,10 @@ public class SpiPulseTester {
 		for (int i = 0; i < cycles; i++) {
 			spi.copyFrom(0, data);
 			spi.send();
-			BasicUtil.delay(200);
+			ConcurrentUtil.delay(200);
 		}
 		System.out.println("stopped");
-		BasicUtil.delay(1000);
+		ConcurrentUtil.delay(1000);
 	}
 
 	private static byte[] fill(int size, int... values) {

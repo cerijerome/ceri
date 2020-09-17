@@ -1,8 +1,8 @@
 package ceri.log.rpc.client;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.test.TestUtil.baseProperties;
+import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;

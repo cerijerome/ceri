@@ -3,6 +3,7 @@ package ceri.log.concurrent;
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -22,29 +23,27 @@ public class Dispatcher<L, T> extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
 	private final long pollTimeoutMs;
 	private final Function<T, Consumer<L>> adaptor;
-	private final BlockingQueue<T> queue;
+	private final BlockingQueue<T> queue = new LinkedBlockingQueue<>();
 	private final Collection<L> listeners = new ConcurrentLinkedQueue<>();
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 
 	public static class Direct<T> extends Dispatcher<Consumer<T>, T> {
-		private Direct(BlockingQueue<T> queue, long pollTimeoutMs) {
-			super(queue, pollTimeoutMs, t -> l -> l.accept(t));
+		private Direct(long pollTimeoutMs) {
+			super(pollTimeoutMs, t -> l -> l.accept(t));
 		}
 	}
 
-	public static <T> Direct<T> direct(BlockingQueue<T> queue, long pollTimeoutMs) {
-		return new Direct<>(queue, pollTimeoutMs);
+	public static <T> Direct<T> direct(long pollTimeoutMs) {
+		return new Direct<>(pollTimeoutMs);
 	}
 
-	public static <L, T> Dispatcher<L, T> of(BlockingQueue<T> queue, long pollTimeoutMs,
+	public static <L, T> Dispatcher<L, T> of(long pollTimeoutMs,
 		Function<T, Consumer<L>> adaptor) {
-		return new Dispatcher<>(queue, pollTimeoutMs, adaptor);
+		return new Dispatcher<>(pollTimeoutMs, adaptor);
 	}
 
-	private Dispatcher(BlockingQueue<T> queue, long pollTimeoutMs,
-		Function<T, Consumer<L>> adaptor) {
+	private Dispatcher(long pollTimeoutMs, Function<T, Consumer<L>> adaptor) {
 		this.adaptor = adaptor;
-		this.queue = queue;
 		this.pollTimeoutMs = pollTimeoutMs;
 		start();
 	}
@@ -54,6 +53,10 @@ public class Dispatcher<L, T> extends LoopingExecutor {
 		return Enclosed.of(listener, listeners::remove);
 	}
 
+	public void dispatch(T t) {
+		queue.add(t);
+	}
+	
 	@Override
 	protected void loop() throws InterruptedException {
 		try {

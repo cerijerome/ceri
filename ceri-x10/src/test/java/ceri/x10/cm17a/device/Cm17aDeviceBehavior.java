@@ -125,10 +125,17 @@ public class Cm17aDeviceBehavior {
 		ValueCondition<Command> sync = ValueCondition.of();
 		CommandListener listener = mock(CommandListener.class);
 		answer((Command c) -> sync.signal(c)).when(listener).dim(any());
+		//answer((Command c) -> sync.signal(c)).when(listener).off(any());
+		long t;
 		try (Enclosed<?> enc = cm17a.listen(listener)) {
+			t = System.currentTimeMillis();
 			cm17a.command(Command.dim(L, 50, _5, _9));
+			//cm17a.command(Command.off(L, _5));
+			t = System.currentTimeMillis() - t;
 			assertThat(sync.await(), is(Command.dim(L, 50, _5, _9)));
+			//assertThat(sync.await(), is(Command.off(L, _5)));
 		}
+		System.out.printf("listen=%dms%n", t);
 	}
 
 	@Test

@@ -17,7 +17,7 @@ import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.util.BasicUtil;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
@@ -62,14 +62,14 @@ public class LibUsbFtdiTester {
 		// libusb_control_transfer(handle, 0x40, 0x0b, 0x01ff, 1, 500);
 		libusb_control_transfer(handle, 0x40, 0x0b, 0x010f, 1, 500);
 		read(handle);
-		BasicUtil.delay(delayMs);
+		ConcurrentUtil.delay(delayMs);
 		ByteBuffer b =
 			ByteBuffer.wrap(ArrayUtil.bytes(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15));
 		for (int i = 0; i < 16; i++) {
 			write(handle, b, i);
-			BasicUtil.delay(delayMs);
+			ConcurrentUtil.delay(delayMs);
 			read(handle);
-			BasicUtil.delay(delayMs);
+			ConcurrentUtil.delay(delayMs);
 		}
 		logger.info("Bit-bang off");
 		libusb_control_transfer(handle, 0x40, 0x0b, 0, 0x0001, 500);

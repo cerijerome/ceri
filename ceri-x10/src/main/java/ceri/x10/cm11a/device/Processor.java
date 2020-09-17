@@ -5,7 +5,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
@@ -34,14 +34,14 @@ public class Processor extends LoopingExecutor {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private final Cm11aDeviceConfig config;
 	private final TaskQueue<IOException> taskQueue;
-	private final Collection<Command> outQueue;
+	private final Consumer<Command> dispatcher;
 	private final ByteStream.Reader in;
 	private final ByteStream.Writer out;
 	private final EntryCollector collector;
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 
 	@SuppressWarnings("resource")
-	Processor(Cm11aDeviceConfig config, Cm11aConnector connector, Collection<Command> outQueue) {
+	Processor(Cm11aDeviceConfig config, Cm11aConnector connector, Consumer<Command> dispatcher) {
 		try {
 			this.config = config;
 			taskQueue = TaskQueue.of(config.queueSize);
@@ -49,8 +49,8 @@ public class Processor extends LoopingExecutor {
 				new BufferedInputStream(connector.in()), config.readPollMs, config.readTimeoutMs);
 			in = ByteStream.reader(pollIn);
 			out = ByteStream.writer(new BufferedOutputStream(connector.out()));
-			this.outQueue = outQueue;
-			collector = new EntryCollector(outQueue);
+			this.dispatcher = dispatcher;
+			collector = new EntryCollector(dispatcher);
 			start();
 		} catch (RuntimeException e) {
 			close();
@@ -83,7 +83,7 @@ public class Processor extends LoopingExecutor {
 	private void sendCommand(Command command) throws IOException {
 		for (Entry entry : Entry.allFrom(command))
 			sendEntry(entry);
-		outQueue.add(command);
+		dispatcher.accept(command);
 	}
 
 	/**

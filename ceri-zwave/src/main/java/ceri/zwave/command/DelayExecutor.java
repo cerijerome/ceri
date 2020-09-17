@@ -10,8 +10,8 @@ import org.apache.http.client.fluent.Response;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.io.IoUtil;
-import ceri.common.util.BasicUtil;
 
 /**
  * Makes sure a delay occurs before sending a command. Thread safe.
@@ -76,7 +76,7 @@ public class DelayExecutor implements Executor {
 			} catch (IOException e) {
 				logger.catching(Level.WARN, e);
 				ex = e;
-				if (i > 0) BasicUtil.delay(retryDelay);
+				if (i > 0) ConcurrentUtil.delay(retryDelay);
 			}
 		}
 		throw new IOException("Failed calling " + url + " after " + (retries + 1) + " attempts", ex);
@@ -85,7 +85,7 @@ public class DelayExecutor implements Executor {
 	private void waitForDelay() {
 		long t = System.currentTimeMillis() - lastRun;
 		if (t >= delay) return;
-		BasicUtil.delay(delay - (int) t);
+		ConcurrentUtil.delay(delay - (int) t);
 	}
 
 	private void resetDelay() {

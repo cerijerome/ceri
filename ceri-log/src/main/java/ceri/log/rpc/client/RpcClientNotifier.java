@@ -15,7 +15,6 @@ import com.google.protobuf.Empty;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.event.Listenable;
-import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.rpc.util.RpcStreamer;
 import ceri.log.rpc.util.RpcUtil;
@@ -109,7 +108,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 		logger.trace("Action: {}", action);
 		if (action != Action.receive) stopReceiving();
 		if (action != Action.stop) startReceiving();
-		if (action == Action.resetAndReceive) BasicUtil.delay(config.resetDelayMs);
+		if (action == Action.resetAndReceive) ConcurrentUtil.delay(config.resetDelayMs);
 	}
 
 	private Action waitForAction() throws InterruptedException {
