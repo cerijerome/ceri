@@ -11,7 +11,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -159,19 +158,6 @@ public class CollectionUtilTest {
 		TestUtil.assertThrown(() -> CollectionUtil.toArray(Collections.emptyList(), Integer.TYPE));
 		Number[] numbers = CollectionUtil.toArray(Arrays.asList(1, 2, 3), Number.class);
 		assertCollection(numbers, 1, 2, 3);
-	}
-
-	@Test
-	public void testDefaultValueMap() {
-		Map<String, Integer> map = new HashMap<>();
-		map = CollectionUtil.defaultValueMap(map, 0);
-		assertThat(map.get(""), is(0));
-		assertTrue(map.isEmpty());
-		map.put("", -1);
-		assertThat(map.size(), is(1));
-		assertTrue(map.containsKey(""));
-		assertTrue(map.containsValue(-1));
-		assertThat(map.get(""), is(-1));
 	}
 
 	@Test

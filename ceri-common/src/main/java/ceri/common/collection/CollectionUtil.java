@@ -292,20 +292,6 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Map wrapper that returns a default value if key is not in map or its value is null.
-	 */
-	public static <K, V> Map<K, V> defaultValueMap(Map<K, V> map, final V def) {
-		return new DelegatingMap<>(map) {
-			@Override
-			public V get(Object key) {
-				V value = super.get(key);
-				if (value != null) return value;
-				return def;
-			}
-		};
-	}
-
-	/**
 	 * Variation of Collection.addAll that returns the collection type.
 	 */
 	@SafeVarargs

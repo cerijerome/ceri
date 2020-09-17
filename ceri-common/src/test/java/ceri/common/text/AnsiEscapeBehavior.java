@@ -2,7 +2,7 @@ package ceri.common.text;
 
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.*;
+import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.blue;
 import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.cyan;
 import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.magenta;
 import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.yellow;

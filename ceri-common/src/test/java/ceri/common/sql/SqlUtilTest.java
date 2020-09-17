@@ -15,10 +15,24 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class SqlUtilTest {
+	private static ResultSet rs;
+	
+	@BeforeClass
+	public static void beforeClass() {
+		rs = mock(ResultSet.class);
+	}
 
+	@Before
+	public void before() {
+		Mockito.clearInvocations(rs); // since mocking ResultSet takes a long time		
+	}
+	
 	@Test
 	public void testNow() {
 		Timestamp t0 = new Timestamp(System.currentTimeMillis() - 1000);
@@ -27,8 +41,6 @@ public class SqlUtilTest {
 
 	@Test
 	public void testType() throws SQLException {
-		@SuppressWarnings("resource")
-		ResultSet rs = mock(ResultSet.class);
 		ResultSetMetaData rsmd = mock(ResultSetMetaData.class);
 		when(rs.getMetaData()).thenReturn(rsmd);
 		when(rsmd.getColumnType(anyInt())).thenReturn(Types.VARCHAR);
@@ -40,7 +52,6 @@ public class SqlUtilTest {
 	public void testTableNames() throws SQLException {
 		Connection con = mock(Connection.class);
 		DatabaseMetaData dbmd = mock(DatabaseMetaData.class);
-		ResultSet rs = mock(ResultSet.class);
 		when(con.getMetaData()).thenReturn(dbmd);
 		when(dbmd.getTables(any(), any(), any(), any())).thenReturn(rs);
 		when(rs.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);

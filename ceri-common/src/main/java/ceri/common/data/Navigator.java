@@ -1,6 +1,7 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import ceri.common.util.BasicUtil;
 
 /**

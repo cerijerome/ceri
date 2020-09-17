@@ -11,7 +11,6 @@ import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.function.ExceptionRunnable;
-import ceri.common.util.BasicUtil;
 
 public class TaskQueueBehavior {
 
@@ -37,7 +36,7 @@ public class TaskQueueBehavior {
 	public void shouldReturnNullOnTimeout() throws Exception {
 		TaskQueue<?> queue = TaskQueue.of(1);
 		assertNull(queue.executeGet(() -> {
-			BasicUtil.delay(100000);
+			ConcurrentUtil.delay(100000);
 			return 0;
 		}, 1, MICROSECONDS));
 	}
@@ -75,7 +74,7 @@ public class TaskQueueBehavior {
 	private ExceptionRunnable<?> task(TaskQueue<?> queue, BooleanCondition error) {
 		return () -> {
 			try {
-				queue.execute(() -> BasicUtil.delay(100000));
+				queue.execute(() -> ConcurrentUtil.delay(100000));
 			} finally {
 				error.signal();
 			}

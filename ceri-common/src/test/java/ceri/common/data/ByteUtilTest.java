@@ -8,32 +8,17 @@ import static ceri.common.util.BasicUtil.forEach;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doThrow;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.stream.IntStream;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.test.Capturer;
 import ceri.common.test.TestUtil;
 
 public class ByteUtilTest {
-	@Mock
-	ByteArrayOutputStream badByteArrayOutputStream;
-	@Mock
-	ByteProvider badByteProvider;
-
-	@Before
-	public void init() {
-		MockitoAnnotations.initMocks(this);
-	}
 
 	@Test
 	public void testConstructorIsPrivate() {
@@ -108,23 +93,32 @@ public class ByteUtilTest {
 		assertArray(b.toByteArray(), -1, 2, 4, 5, -1, 0, 128, 128, -1);
 	}
 
-	@SuppressWarnings("resource")
 	@Test
-	public void testWriteToWithExceptions() throws IOException {
-		ByteArrayOutputStream b = badByteArrayOutputStream;
-		ByteProvider im = badByteProvider;
-		doThrow(new IOException()).when(badByteArrayOutputStream).write(any());
-		doThrow(new RuntimeException()).when(badByteArrayOutputStream).write(any(), anyInt(),
-			anyInt());
-		doThrow(new IOException()).when(badByteProvider).writeTo(anyInt(), any(OutputStream.class));
-		doThrow(new IOException()).when(badByteProvider).writeTo(anyInt(), any(OutputStream.class),
-			anyInt());
-		doThrow(new IOException()).when(badByteProvider).writeTo(anyInt(), any(OutputStream.class),
-			anyInt());
-		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, -1, 2));
-		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, im));
-		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, im, 1));
-		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, im, 0, 2));
+	public void testWriteToWithExceptions() {
+		ByteProvider badProvider = badProvider(3);
+		ByteArrayOutputStream b = new ByteArrayOutputStream();
+		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, badProvider));
+		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, badProvider, 1));
+		TestUtil.assertThrown(() -> ByteUtil.writeTo(b, badProvider, 0, 2));
+	}
+
+	private static ByteProvider badProvider(int length) {
+		return new ByteProvider() {
+			@Override
+			public int writeTo(int index, OutputStream out, int length) throws IOException {
+				throw new IOException("generated");
+			}
+
+			@Override
+			public byte getByte(int index) {
+				return 0;
+			}
+
+			@Override
+			public int length() {
+				return length;
+			}
+		};
 	}
 
 	@Test

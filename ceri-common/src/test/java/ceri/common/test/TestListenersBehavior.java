@@ -2,8 +2,8 @@ package ceri.common.test;
 
 import static org.junit.Assert.assertNull;
 import org.junit.Test;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.SimpleExecutor;
-import ceri.common.util.BasicUtil;
 
 public class TestListenersBehavior {
 
@@ -43,7 +43,7 @@ public class TestListenersBehavior {
 	private static void unlisten(TestListeners<String> listeners) {
 		while (true) {
 			listeners.unlisten(s -> {});
-			BasicUtil.delay(1);
+			ConcurrentUtil.delayMicros(10);
 		}
 	}
 

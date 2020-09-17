@@ -13,16 +13,21 @@ import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Objects;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.Mockito;
 
 public class NetUtilTest {
-	private @Mock InetAddress address;
+	private static InetAddress address;
+
+	@BeforeClass
+	public static void beforeClass() {
+		address = Mockito.mock(InetAddress.class);
+	}
 
 	@Before
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	public void before() {
+		Mockito.reset(address); // to reduce testing time
 	}
 
 	@Test

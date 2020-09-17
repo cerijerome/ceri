@@ -3,48 +3,59 @@ package ceri.common.color;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import java.awt.Color;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 public class ColorableTest {
-	@Mock
-	Colorable c0;
-	@Mock
-	Colorable c1;
-	@Mock
-	Colorable c2;
 
-	@Before
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	@Test
+	public void testMultiSetColorForEmptyCollection() {
+		Colorable c = Colorable.multi();
+		c.color(X11Color.chartreuse);
+		c.color(Color.white);
 	}
 
 	@Test
 	public void testMultiSetColor() {
-		Colorable c = Colorable.multi();
+		TestColorable c0 = new TestColorable();
+		TestColorable c1 = new TestColorable();
+		TestColorable c2 = new TestColorable();
+		Colorable c = Colorable.multi(c0, c1, c2);
 		c.color(X11Color.chartreuse);
-		c.color(Color.white);
-		c = Colorable.multi(c0, c1, c2);
-		c.color(0x102030);
-		verify(c0).color(0x10, 0x20, 0x30);
-		verify(c1).color(0x10, 0x20, 0x30);
-		verify(c2).color(0x10, 0x20, 0x30);
+		assertThat(c0.color, is(X11Color.chartreuse.color));
+		assertThat(c1.color, is(X11Color.chartreuse.color));
+		assertThat(c2.color, is(X11Color.chartreuse.color));
+	}
+
+	@Test
+	public void testMultiGetColorForEmptyCollection() {
+		Colorable c = Colorable.multi();
+		assertNull(c.color());
 	}
 
 	@Test
 	public void testMultiGetColor() {
-		Colorable c = Colorable.multi();
-		assertNull(c.color());
-		c = Colorable.multi(c0, c1, c2);
-		when(c0.color()).thenReturn(Color.red);
-		when(c1.color()).thenReturn(Color.cyan);
-		when(c2.color()).thenReturn(Color.magenta);
+		TestColorable c0 = new TestColorable();
+		TestColorable c1 = new TestColorable();
+		TestColorable c2 = new TestColorable();
+		Colorable c = Colorable.multi(c0, c1, c2);
+		c0.color(Color.red);
+		c1.color(Color.cyan);
+		c2.color(Color.magenta.getRGB());
 		assertThat(c.color(), is(Color.red));
 	}
 
+	private static class TestColorable implements Colorable {
+		public Color color;
+
+		@Override
+		public Color color() {
+			return color;
+		}
+
+		@Override
+		public void color(int r, int g, int b) {
+			color = new Color(r, g, b);
+		}
+	}
 }

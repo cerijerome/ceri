@@ -14,13 +14,26 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Properties;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestUtil;
 
 public class PropertyUtilTest {
-
+	private static Properties properties;
+	
+	@BeforeClass
+	public static void beforeClass() {
+		properties = Mockito.mock(Properties.class);
+	}
+	
+	@Before
+	public void before() {
+		Mockito.clearInvocations(properties); // reduce test times
+	}
+	
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(PropertyUtil.class);
@@ -45,7 +58,6 @@ public class PropertyUtilTest {
 	@Test
 	public void testStoreWithFailingIO() throws IOException {
 		try (FileTestHelper helper = FileTestHelper.builder().build()) {
-			Properties properties = Mockito.mock(Properties.class);
 			doThrow(new IOException()).when(properties).store((Writer) any(), anyString());
 			java.nio.file.Path file = helper.path("test.properties");
 			TestUtil.assertThrown(() -> PropertyUtil.store(properties, file));
@@ -56,7 +68,6 @@ public class PropertyUtilTest {
 	@Test
 	public void testLoadWithFailingIO() throws IOException {
 		try (FileTestHelper helper = FileTestHelper.builder().build()) {
-			Properties properties = Mockito.mock(Properties.class);
 			doThrow(new IOException()).when(properties).load((InputStream) any());
 			java.nio.file.Path file = helper.path("test.properties");
 			TestUtil.assertThrown(() -> PropertyUtil.load(file));
@@ -108,11 +119,6 @@ public class PropertyUtilTest {
 		}
 	}
 
-//	@Test
-//	public void testLoadLocators() throws IOException {
-//		InputStream badIn = TestUtil.inputStream(-2, -2);
-//	}
-	
 	@Test
 	public void testLoadLocators() throws IOException {
 		Locator abc = Locator.of(getClass(), "property-test-a-b-c");

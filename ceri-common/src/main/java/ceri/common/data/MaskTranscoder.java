@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.math.MathUtil;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.HashCoder;

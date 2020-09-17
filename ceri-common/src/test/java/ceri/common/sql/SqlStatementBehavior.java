@@ -36,29 +36,34 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 public class SqlStatementBehavior {
-	@Mock
-	private PreparedStatement ps;
-	@Mock
-	private Connection con;
-	@Captor
+	private static PreparedStatement ps;
+	private static Connection con;
 	private ArgumentCaptor<Integer> indexes;
-	@Captor
 	private ArgumentCaptor<Object> objects;
-	@Captor
 	private ArgumentCaptor<Integer> types;
 
 	@SuppressWarnings("resource")
-	@Before
-	public void before() throws SQLException {
-		MockitoAnnotations.initMocks(this);
+	@BeforeClass
+	public static void beforeClass() throws SQLException {
+		ps = Mockito.mock(PreparedStatement.class);
+		con = Mockito.mock(Connection.class);
 		when(con.prepareStatement(any())).thenReturn(ps);
+	}
+
+	@Before
+	public void before() {
+		MockitoAnnotations.initMocks(this);
+		Mockito.clearInvocations(ps); // to reduce test times
+		indexes = ArgumentCaptor.forClass(Integer.class);
+		objects = ArgumentCaptor.forClass(Object.class);
+		types = ArgumentCaptor.forClass(Integer.class);
 	}
 
 	@SuppressWarnings("resource")

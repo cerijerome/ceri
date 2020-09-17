@@ -3,6 +3,7 @@ package ceri.common.concurrent;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.runRepeat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -26,7 +27,6 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import ceri.common.test.TestUtil;
-import ceri.common.util.BasicUtil;
 
 public class ConcurrentUtilTest {
 	private static final ExecutorService exec = Executors.newCachedThreadPool();
@@ -43,9 +43,35 @@ public class ConcurrentUtilTest {
 	}
 
 	@Test
+	public void testDelay() throws InterruptedException {
+		BooleanCondition sync = BooleanCondition.of();
+		try (var exec = runRepeat(() -> {
+			ConcurrentUtil.delay(0);
+			ConcurrentUtil.delay(1);
+			sync.signal();
+			ConcurrentUtil.delay(100000);
+		})) {
+			sync.await();
+		}
+	}
+	
+	@Test
+	public void testDelayMicros() throws InterruptedException {
+		BooleanCondition sync = BooleanCondition.of();
+		try (var exec = runRepeat(() -> {
+			ConcurrentUtil.delayMicros(0);
+			ConcurrentUtil.delayMicros(10);
+			sync.signal();
+			ConcurrentUtil.delay(100000000);
+		})) {
+			sync.await();
+		}
+	}
+	
+	@Test
 	public void testCloseExecutor() {
 		ExecutorService exec = Executors.newSingleThreadExecutor();
-		exec.submit(() -> BasicUtil.delay(60000));
+		exec.submit(() -> ConcurrentUtil.delay(60000));
 		assertThat(ConcurrentUtil.close(exec, 1000), is(true));
 	}
 

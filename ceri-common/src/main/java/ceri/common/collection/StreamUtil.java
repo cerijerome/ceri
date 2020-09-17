@@ -46,8 +46,18 @@ public class StreamUtil {
 	private static final IntBinaryOperator intBitwiseAnd = (lhs, rhs) -> lhs & rhs;
 	private static final IntBinaryOperator intBitwiseOr = (lhs, rhs) -> lhs | rhs;
 	private static final IntBinaryOperator intBitwiseXor = (lhs, rhs) -> lhs ^ rhs;
+	private static final BiConsumer<?, ?> badCombiner = (r1, r2) -> {
+		throw new IllegalStateException();
+	};
 
 	private StreamUtil() {}
+
+	/**
+	 * Use when a combiner is required for a Stream method, but should not be invoked.
+	 */
+	public static <T> BiConsumer<T, T> badCombiner() {
+		return BasicUtil.uncheckedCast(badCombiner);
+	}
 
 	public static <E extends Exception, T, R> R closeableApply(Stream<T> stream,
 		ExceptionFunction<E, Stream<T>, R> fn) throws E {
@@ -187,9 +197,7 @@ public class StreamUtil {
 	 */
 	public static <T, R> R collect(Stream<T> stream, Supplier<R> supplier,
 		BiConsumer<R, ? super T> accumulator) {
-		return stream.sequential().collect(supplier, accumulator, (r1, r2) -> {
-			throw new IllegalStateException();
-		});
+		return stream.sequential().collect(supplier, accumulator, badCombiner());
 	}
 
 	/**

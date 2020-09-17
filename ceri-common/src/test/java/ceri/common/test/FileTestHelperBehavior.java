@@ -1,9 +1,12 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertExists;
+import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.TestUtil.assertThrown;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

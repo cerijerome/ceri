@@ -12,10 +12,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,8 +20,6 @@ import java.util.HashSet;
 import java.util.Map;
 import org.junit.Test;
 import org.mockito.Mock;
-import ceri.common.concurrent.BooleanCondition;
-import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.test.TestUtil;
 
 public class BasicUtilTest {
@@ -98,17 +92,6 @@ public class BasicUtilTest {
 	}
 
 	@Test
-	public void testCopyToClipboard() throws IOException, UnsupportedFlavorException {
-		String s0 = "clipboard\ntest\n";
-		BasicUtil.copyToClipBoard(s0);
-		Transferable trans = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-		Object obj = trans.getTransferData(trans.getTransferDataFlavors()[0]);
-		assertThat(obj, is(s0));
-		String s = BasicUtil.copyFromClipBoard();
-		assertThat(s, is(s0));
-	}
-
-	@Test
 	public void testDefaultValue() {
 		assertNull(BasicUtil.defaultValue(null, null));
 		assertThat(BasicUtil.defaultValue(null, 1), is(1));
@@ -144,27 +127,6 @@ public class BasicUtilTest {
 		assertThat(BasicUtil.valueOf(Enum.class, null, Enum.a), is(Enum.a));
 		assertThat(BasicUtil.valueOf(Enum.class, "ab", Enum.c), is(Enum.c));
 		assertNull(BasicUtil.valueOf(Enum.class, "ab", null));
-	}
-
-	@Test
-	public void testDelay() throws InterruptedException {
-		final BooleanCondition flag = BooleanCondition.of();
-		Thread thread = new Thread(() -> {
-			try {
-				BasicUtil.delay(0);
-				BasicUtil.delayMicros(0);
-				BasicUtil.delayMicros(1);
-				BasicUtil.delayMicros(1000);
-				// BasicUtil.delay(1);
-				flag.signal();
-				BasicUtil.delay(10000);
-				fail("RuntimeInterruptedException should be thrown");
-			} catch (RuntimeInterruptedException e) {}
-		});
-		thread.start();
-		flag.await();
-		thread.interrupt();
-		thread.join();
 	}
 
 	@Test

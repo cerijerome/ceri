@@ -1,7 +1,7 @@
 package ceri.common.text;
 
 import static ceri.common.text.AnsiEscape.csi;
-import ceri.common.util.BasicUtil;
+import ceri.common.concurrent.ConcurrentUtil;
 
 /**
  * Simple tester for ANSI escape codes.
@@ -13,7 +13,7 @@ public class AnsiTester {
 			csi.sgr().reset());
 		for (int i = 1000; i >= 0; i--) {
 			System.out.printf("%s %d %s %n", csi.sgr().reverse(true), i, csi.sgr().reverse(false));
-			BasicUtil.delay(10);
+			ConcurrentUtil.delay(10);
 			if (i > 0) System.out.print(csi.cursorPrevLine(1));
 		}
 		System.out.print(csi.sgr().reset());

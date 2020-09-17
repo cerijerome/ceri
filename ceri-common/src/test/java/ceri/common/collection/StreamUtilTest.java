@@ -11,11 +11,6 @@ import static java.lang.Double.parseDouble;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,15 +19,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionFunction;
+import ceri.common.function.ExceptionIntUnaryOperator;
+import ceri.common.function.ExceptionToIntFunction;
+import ceri.common.function.FunctionTestUtil;
 import ceri.common.test.TestUtil;
-import ceri.common.util.BasicUtil;
 
 public class StreamUtilTest {
 	private enum Abc {
@@ -47,54 +44,43 @@ public class StreamUtilTest {
 	}
 
 	@Test
-	public void testCloseableApply() {
-		Stream<String> stream1 = mockStream();
-		StreamUtil.closeableApply(stream1, s -> s);
-		verify(stream1).close();
-
-		Stream<String> stream2 = mockStream();
-		assertThrown(() -> StreamUtil.closeableApply(stream2, s -> {
-			throw new IOException();
-		}));
-		verify(stream2).close();
+	public void testBadCombiner() {
+		assertThrown(() -> StreamUtil.badCombiner().accept(null, null));
+		assertThrown(() -> StreamUtil.badCombiner().accept(1, 2));
 	}
 
 	@Test
-	public void testCloseableApplyInt() {
-		Stream<String> stream1 = mockStream();
-		StreamUtil.closeableApplyAsInt(stream1, s -> 0);
-		verify(stream1).close();
-
-		Stream<String> stream2 = mockStream();
-		assertThrown(() -> StreamUtil.closeableApplyAsInt(stream2, s -> {
-			throw new IOException();
-		}));
-		verify(stream2).close();
+	public void testCloseableApply() throws IOException {
+		ExceptionFunction<IOException, Integer, Integer> iFn = FunctionTestUtil.function();
+		ExceptionFunction<IOException, Stream<Integer>, Integer> fn =
+			s -> iFn.apply(s.findFirst().get());
+		StreamUtil.closeableApply(Stream.of(2, 3, 4), fn);
+		assertThrown(() -> StreamUtil.closeableApply(Stream.of(1, 2, 3), fn));
 	}
 
 	@Test
-	public void testCloseableAccept() {
-		Stream<String> stream1 = mockStream();
-		StreamUtil.closeableAccept(stream1, s -> {});
-		verify(stream1).close();
-
-		Stream<String> stream2 = mockStream();
-		assertThrown(() -> StreamUtil.closeableAccept(stream2, s -> {
-			throw new IOException();
-		}));
-		verify(stream2).close();
+	public void testCloseableApplyAsInt() throws IOException {
+		ExceptionIntUnaryOperator<IOException> intOp = FunctionTestUtil.intUnaryOperator();
+		ExceptionToIntFunction<IOException, Stream<Integer>> toIntFn =
+			s -> intOp.applyAsInt(s.findFirst().get());
+		StreamUtil.closeableApplyAsInt(Stream.of(2, 3, 4), toIntFn);
+		assertThrown(() -> StreamUtil.closeableApplyAsInt(Stream.of(1, 2, 3), toIntFn));
 	}
 
 	@Test
-	public void testCloseableForEach() {
-		Stream<String> stream1 = mockStream();
-		StreamUtil.closeableForEach(stream1, s -> {});
-		verify(stream1).close();
+	public void testCloseableAccept() throws IOException {
+		ExceptionConsumer<IOException, Integer> consumer = FunctionTestUtil.consumer();
+		ExceptionConsumer<IOException, Stream<Integer>> streamConsumer =
+			s -> consumer.accept(s.findFirst().get());
+		StreamUtil.closeableAccept(Stream.of(2, 3, 4), streamConsumer);
+		assertThrown(() -> StreamUtil.closeableAccept(Stream.of(1, 2, 3), streamConsumer));
+	}
 
-		Stream<String> stream2 = mockStream();
-		doThrow(RuntimeException.class).when(stream2).forEach(any());
-		assertThrown(() -> StreamUtil.closeableForEach(stream2, s -> {}));
-		verify(stream2).close();
+	@Test
+	public void testCloseableForEach() throws IOException {
+		StreamUtil.closeableForEach(Stream.of(2, 3, 4), FunctionTestUtil.consumer());
+		assertThrown(
+			() -> StreamUtil.closeableForEach(Stream.of(2, 1), FunctionTestUtil.consumer()));
 	}
 
 	@Test
@@ -163,16 +149,17 @@ public class StreamUtilTest {
 
 	@Test
 	public void testCollect() {
-		assertList(StreamUtil.collect(Stream.of(1, 2, 3), ArrayList::new, List::add),
-			List.of(1, 2, 3));
-		Stream<Integer> stream = BasicUtil.uncheckedCast(mock(Stream.class));
-		when(stream.sequential()).thenReturn(stream);
-		when(stream.collect(any(), any(), any())).thenReturn(new ArrayList<>());
-		assertIterable(StreamUtil.collect(stream, ArrayList::new, List::add));
-		ArgumentCaptor<BiConsumer<List<Integer>, List<Integer>>> captor =
-			BasicUtil.uncheckedCast(ArgumentCaptor.forClass(BiConsumer.class));
-		verify(stream).collect(any(), any(), captor.capture());
-		assertThrown(() -> captor.getValue().accept(null, null));
+		assertIterable(StreamUtil.collect(Stream.of(1, 2, 3), ArrayList::new, List::add), 1, 2, 3);
+
+		//
+		// Stream<Integer> stream = BasicUtil.uncheckedCast(mock(Stream.class));
+		// when(stream.sequential()).thenReturn(stream);
+		// when(stream.collect(any(), any(), any())).thenReturn(new ArrayList<>());
+		// assertIterable(StreamUtil.collect(stream, ArrayList::new, List::add));
+		// ArgumentCaptor<BiConsumer<List<Integer>, List<Integer>>> captor =
+		// BasicUtil.uncheckedCast(ArgumentCaptor.forClass(BiConsumer.class));
+		// verify(stream).collect(any(), any(), captor.capture());
+		// assertThrown(() -> captor.getValue().accept(null, null));
 	}
 
 	@Test
@@ -342,10 +329,6 @@ public class StreamUtilTest {
 		assertThat(map.get(2), is("2"));
 		assertThat(map.get(3), is("3"));
 		assertThat(map.get(4), is("4"));
-	}
-
-	private <T> Stream<T> mockStream() {
-		return BasicUtil.uncheckedCast(mock(Stream.class));
 	}
 
 }

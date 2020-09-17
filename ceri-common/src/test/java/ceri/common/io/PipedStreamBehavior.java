@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.SimpleExecutor;
 
 public class PipedStreamBehavior {
@@ -16,6 +17,7 @@ public class PipedStreamBehavior {
 		byte[] data = ArrayUtil.bytes(1, 2, 3, 4, 5);
 		try (var ps = PipedStream.of()) {
 			try (var exec = SimpleExecutor.run(() -> ps.out().write(data))) {
+				ConcurrentUtil.delay(1); // avoids PipedInputStream wait(1000)
 				assertArray(ps.in().readNBytes(data.length), data);
 			}
 		}
@@ -27,6 +29,7 @@ public class PipedStreamBehavior {
 		byte[] data = ArrayUtil.bytes(1, 2, 3, 4, 5);
 		try (var ps = PipedStream.of()) {
 			try (var exec = SimpleExecutor.run(() -> ps.out().write(data))) {
+				ConcurrentUtil.delay(1); // avoids PipedInputStream wait(1000)
 				assertArray(ps.in().readNBytes(2), 1, 2);
 				assertThat(ps.in().available(), is(3));
 				ps.clear();

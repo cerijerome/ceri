@@ -3,9 +3,6 @@
  */
 package ceri.common.util;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +13,6 @@ import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
@@ -27,7 +23,6 @@ import ceri.common.function.ExceptionSupplier;
 public class BasicUtil {
 	private static final Pattern PACKAGE_REGEX =
 		Pattern.compile("(?<![\\w$])([a-z$])[a-z0-9_$]+\\.");
-	private static final int MICROS_IN_MILLIS = (int) TimeUnit.MILLISECONDS.toMicros(1);
 	private static final int NANOS_IN_MICROS = (int) TimeUnit.MICROSECONDS.toNanos(1);
 	private final static Map<Class<?>, Object> loadedClasses = new WeakHashMap<>();
 
@@ -60,15 +55,15 @@ public class BasicUtil {
 	/**
 	 * Executes a try-with-resources from type, action function, and close function.
 	 */
-	public static <E extends Exception, T> void tryWithResources(
-		T t, ExceptionConsumer<E, T> actionFn, ExceptionConsumer<E, T> closeFn) throws E {
+	public static <E extends Exception, T> void tryWithResources(T t,
+		ExceptionConsumer<E, T> actionFn, ExceptionConsumer<E, T> closeFn) throws E {
 		try {
-			if (t != null) actionFn.accept(t);			
+			if (t != null) actionFn.accept(t);
 		} finally {
 			if (t != null) closeFn.accept(t);
 		}
 	}
-	
+
 	/**
 	 * Returns default value if main value is null.
 	 */
@@ -111,22 +106,6 @@ public class BasicUtil {
 	public static void beep() {
 		// Disabled to avoid annoying unit test sound...
 		// Toolkit.getDefaultToolkit().beep();
-	}
-
-	/**
-	 * Copy string to the clipboard
-	 */
-	public static void copyToClipBoard(String s) {
-		StringSelection selection = new StringSelection(s);
-		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
-	}
-
-	/**
-	 * Copy string from the clipboard
-	 */
-	public static String copyFromClipBoard() {
-		return (String) ExceptionUtil.shouldNotThrow(() -> Toolkit.getDefaultToolkit()
-			.getSystemClipboard().getData(DataFlavor.stringFlavor));
 	}
 
 	/**
@@ -191,26 +170,6 @@ public class BasicUtil {
 	public static <T> T castOrNull(Class<T> cls, Object obj) {
 		if (!cls.isInstance(obj)) return null;
 		return cls.cast(obj);
-	}
-
-	/**
-	 * Sleeps for given milliseconds, or not if 0. Throws RuntimeInterruptedException if
-	 * interrupted.
-	 */
-	public static void delay(long delayMs) {
-		if (delayMs == 0) return;
-		ConcurrentUtil.executeInterruptible(() -> Thread.sleep(delayMs));
-	}
-
-	/**
-	 * Sleeps for given microseconds, or not if 0. Throws RuntimeInterruptedException if
-	 * interrupted.
-	 */
-	public static void delayMicros(long delayMicros) {
-		if (delayMicros <= 0) return; 
-		long ms = delayMicros / MICROS_IN_MILLIS;
-		int ns = (int) ((delayMicros % MICROS_IN_MILLIS) * NANOS_IN_MICROS);
-		ConcurrentUtil.executeInterruptible(() -> Thread.sleep(ms, ns));
 	}
 
 	/**

@@ -13,22 +13,26 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.Mockito;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.TestUtil;
 
 public class UdpUtilTest {
-	private @Mock DatagramSocket socket;
-	private @Mock InetAddress address;
-	private byte[] buffer;
+	private static DatagramSocket socket;
+	private static InetAddress address;
+
+	@BeforeClass
+	public static void beforeClass() {
+		socket = Mockito.mock(DatagramSocket.class);
+		address = Mockito.mock(InetAddress.class);
+	}
 
 	@Before
 	public void init() {
-		MockitoAnnotations.initMocks(this);
-		buffer = new byte[100];
+		Mockito.reset(socket, address); // to reduce test times
 	}
 
 	@Test
@@ -57,12 +61,14 @@ public class UdpUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testReceiveWithTimeout() throws IOException {
+		byte[] buffer = new byte[100];
 		doThrow(SocketTimeoutException.class).when(socket).receive(any());
 		assertNull(UdpUtil.receive(socket, buffer));
 	}
 
 	@Test
 	public void testReceive() throws IOException {
+		byte[] buffer = new byte[100];
 		ByteProvider data = UdpUtil.receive(socket, buffer);
 		requireNonNull(data);
 		assertArray(data.copy(0), buffer);

@@ -12,7 +12,6 @@ import ceri.common.test.TestUtil;
 	// collection
 	ceri.common.collection.ArrayUtilTest.class, //
 	ceri.common.collection.CollectionUtilTest.class, //
-	ceri.common.collection.DelegatingMapBehavior.class, //
 	ceri.common.collection.FixedSizeCacheBehavior.class, //
 	ceri.common.collection.ImmutableUtilTest.class, //
 	ceri.common.collection.IndexedBehavior.class, //

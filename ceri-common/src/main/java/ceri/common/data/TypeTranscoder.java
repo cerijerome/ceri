@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.validation.ValidationUtil.validateIntLookup;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;

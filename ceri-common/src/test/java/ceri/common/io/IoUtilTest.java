@@ -1,5 +1,6 @@
 package ceri.common.io;
 
+import static ceri.common.test.TestInputStream.BRK;
 import static ceri.common.test.TestInputStream.IOX;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertCollection;
@@ -27,7 +28,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.net.URL;
@@ -41,12 +42,12 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.internal.stubbing.answers.ThrowsException;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.WrappedStream;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.FileTestHelper;
+import ceri.common.test.TestInputStream;
 import ceri.common.util.SystemVars;
 
 public class IoUtilTest {
@@ -121,12 +122,6 @@ public class IoUtilTest {
 		assertClearBuffer(new byte[0]);
 		assertClearBuffer(new byte[100]);
 		assertClearBuffer(new byte[32 * 1024]);
-		assertClearBuffer(new byte[65 * 1024]);
-		try (InputStream in = Mockito.mock(InputStream.class)) {
-			when(in.available()).thenReturn(1);
-			when(in.read(any())).thenReturn(0);
-			assertThat(IoUtil.clear(in), is(0L));
-		}
 	}
 
 	private void assertClearBuffer(byte[] buffer) throws IOException {
@@ -352,7 +347,7 @@ public class IoUtilTest {
 		assertThrown(() -> IoUtil.execOrClose(in, InputStream::read));
 		verify(in).close();
 	}
-	
+
 	@Test
 	public void testClose() {
 		final StringReader in = new StringReader("0123456789");
@@ -378,7 +373,7 @@ public class IoUtilTest {
 		}
 	}
 
-	@SuppressWarnings("resource") // bullshit
+	@SuppressWarnings("resource")
 	@Test
 	public void testAvailableChar() throws IOException {
 		try (SystemIo sys = SystemIo.of()) {
@@ -432,18 +427,12 @@ public class IoUtilTest {
 
 	@Test
 	public void testPollForData() throws IOException {
-		try (InputStream in = Mockito.mock(InputStream.class)) {
+		try (var in = new TestInputStream()) {
+			in.actions(BRK, BRK, BRK, BRK);
 			assertThrown(IoTimeoutException.class, () -> IoUtil.pollForData(in, 1, 1, 1));
-			when(in.available()).thenReturn(0).thenReturn(2);
+			in.actions(BRK, 0, 0, BRK);
 			assertThat(IoUtil.pollForData(in, 1, 0, 1), is(2));
 		}
-	}
-
-	@Test
-	public void testCheckIoInterrupted() throws InterruptedIOException {
-		IoUtil.checkIoInterrupted();
-		Thread.currentThread().interrupt();
-		assertThrown(InterruptedIOException.class, IoUtil::checkIoInterrupted);
 	}
 
 	@Test
@@ -605,14 +594,32 @@ public class IoUtilTest {
 			Path toFile = helper.path("x/x/x.txt");
 			IoUtil.write(toFile, ba);
 			assertFile(toFile, 'a', 'b', 'c');
-
-			var badArray = mock(ByteArray.Immutable.class, new ThrowsException(new IOException()));
+			ByteProvider badArray = badProvider(3);
 			Path toFile2 = helper.path("x/y/z.txt");
 			assertThrown(() -> IoUtil.write(toFile2, badArray));
 			assertFalse(Files.exists(helper.path("x/y")));
 		} finally {
 			IoUtil.deleteAll(helper.path("x"));
 		}
+	}
+
+	private static ByteProvider badProvider(int length) {
+		return new ByteProvider() {
+			@Override
+			public int writeTo(int index, OutputStream out, int length) throws IOException {
+				throw new IOException("generated");
+			}
+
+			@Override
+			public byte getByte(int index) {
+				return 0;
+			}
+
+			@Override
+			public int length() {
+				return length;
+			}
+		};
 	}
 
 	@Test

@@ -12,14 +12,40 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.LockSupport;
 import java.util.function.Function;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
 
 public class ConcurrentUtil {
+	private static final int NANOS_IN_MICROS = (int) TimeUnit.MICROSECONDS.toNanos(1);
 
 	private ConcurrentUtil() {}
+
+	/**
+	 * Sleeps approximately for given milliseconds, or not if 0. Throws RuntimeInterruptedException
+	 * if interrupted. Checks for interrupted thread even if 0 delay.
+	 */
+	public static void delay(long delayMs) {
+		checkRuntimeInterrupted();
+		if (delayMs == 0) return;
+		ConcurrentUtil.executeInterruptible(() -> Thread.sleep(delayMs));
+	}
+
+	/**
+	 * Sleeps approximately for given microseconds, or not if 0. Throws RuntimeInterruptedException
+	 * if interrupted. Checks for interrupted thread even if 0 delay.
+	 */
+	public static void delayMicros(long delayMicros) {
+		long deadline = System.nanoTime() + delayMicros * NANOS_IN_MICROS;
+		while (true) {
+			checkRuntimeInterrupted();
+			long delayNs = deadline - System.nanoTime();
+			if (delayNs < NANOS_IN_MICROS) return;
+			LockSupport.parkNanos(delayNs); // can return spuriously
+		}
+	}
 
 	/**
 	 * Calls await() on a Condition with or without a timeout. Use a null timeout to call without.

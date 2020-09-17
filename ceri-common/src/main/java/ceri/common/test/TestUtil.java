@@ -39,6 +39,7 @@ import org.hamcrest.core.IsSame;
 import org.junit.runner.JUnitCore;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteArray.Immutable;
@@ -111,7 +112,7 @@ public class TestUtil {
 		return SimpleExecutor.run(() -> {
 			while (true) {
 				runnable.run();
-				BasicUtil.delayMicros(DELAY_MICROS);
+				ConcurrentUtil.delayMicros(DELAY_MICROS);
 			}
 		});
 	}

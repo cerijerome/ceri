@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
@@ -36,7 +35,6 @@ import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.FunctionUtil;
 import ceri.common.function.FunctionWrapper;
 import ceri.common.text.StringUtil;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.ExceptionAdapter;
 import ceri.common.util.SystemVars;
 
@@ -418,20 +416,8 @@ public class IoUtil {
 			if (n >= count) return n;
 			if (timeoutMs != 0 && (System.currentTimeMillis() > t)) throw new IoTimeoutException(
 				"Bytes not available within " + timeoutMs + "ms: " + n + "/" + count);
-			BasicUtil.delay(pollMs);
-			ConcurrentUtil.checkRuntimeInterrupted();
+			ConcurrentUtil.delay(pollMs);
 		}
-	}
-
-	/**
-	 * Checks if the current thread has been interrupted, and throws an InterruptedIOException. With
-	 * blocking I/O, (i.e. anything that doesn't use the nio packages) a thread can be interrupted,
-	 * but the I/O will still proceed, and the InterruptedException is only thrown when a call to
-	 * Thread.sleep() or Object.wait() is made. This method or the BasicUtil.checkInterrupted()
-	 * method is recommended to be called after any blocking I/O calls.
-	 */
-	public static void checkIoInterrupted() throws InterruptedIOException {
-		if (Thread.interrupted()) throw new InterruptedIOException("Thread has been interrupted");
 	}
 
 	/**

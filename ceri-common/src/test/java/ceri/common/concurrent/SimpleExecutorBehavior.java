@@ -4,7 +4,6 @@ import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import ceri.common.util.BasicUtil;
 
 public class SimpleExecutorBehavior {
 
@@ -31,7 +30,7 @@ public class SimpleExecutorBehavior {
 
 	@Test
 	public void shouldCancel() {
-		try (var exec = SimpleExecutor.run(() -> BasicUtil.delay(10000))) {
+		try (var exec = SimpleExecutor.run(() -> ConcurrentUtil.delay(10000))) {
 			exec.cancel();
 		}
 	}
