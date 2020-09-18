@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.util.ExceptionUtil.exceptionf;
+import static ceri.common.exception.ExceptionUtil.exceptionf;
 import ceri.common.collection.ArrayUtil;
 
 /**

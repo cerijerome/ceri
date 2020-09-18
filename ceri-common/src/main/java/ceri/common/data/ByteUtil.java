@@ -15,10 +15,10 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.Iterators;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.EqualsUtil;
-import ceri.common.util.ExceptionAdapter;
 
 public class ByteUtil {
 	public static final int BITS_PER_NYBBLE = 4;

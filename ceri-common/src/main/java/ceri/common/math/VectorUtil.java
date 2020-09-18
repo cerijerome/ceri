@@ -1,8 +1,8 @@
 package ceri.common.math;
 
 import static ceri.common.validation.ValidationUtil.validatef;
+import ceri.common.exception.ExceptionUtil;
 import ceri.common.geom.Point2d;
-import ceri.common.util.ExceptionUtil;
 
 public class VectorUtil {
 	private static final int SIZE_2 = 2;

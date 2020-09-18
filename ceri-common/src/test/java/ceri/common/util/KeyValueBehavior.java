@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import ceri.common.util.KeyValue.Named;
 
 public class KeyValueBehavior {
 
@@ -43,4 +44,11 @@ public class KeyValueBehavior {
 		assertThat(kv, is(not(kv6)));
 	}
 
+	@Test
+	public void shouldConstructNameValue() {
+		Named<Integer> nv = KeyValue.named("test", 1);
+		assertThat(nv.key, is("test"));
+		assertThat(nv.value, is(1));
+		assertThat(nv, is(KeyValue.of("test", 1)));
+	}
 }

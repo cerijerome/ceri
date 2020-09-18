@@ -77,24 +77,16 @@ import ceri.common.test.TestUtil;
 	ceri.common.data.NavigatorBehavior.class, //
 	ceri.common.data.TypeTranscoderBehavior.class, //
 	ceri.common.data.XorBehavior.class, //
-	// date
-	ceri.common.date.CalendarFieldBehavior.class, //
-	ceri.common.date.DateUtilTest.class, //
-	ceri.common.date.HolidayBehavior.class, //
-	ceri.common.date.ImmutableDateBehavior.class, //
-	ceri.common.date.ImmutableTimeZoneBehavior.class, //
-	ceri.common.date.MultiDateParserBehavior.class, //
 	// event
 	ceri.common.event.EventTrackerBehavior.class, //
 	ceri.common.event.IntListenableBehavior.class, //
 	ceri.common.event.IntListenersBehavior.class, //
 	ceri.common.event.ListenableBehavior.class, //
 	ceri.common.event.ListenersBehavior.class, //
-	// filter
-	ceri.common.filter.CollectionFiltersTest.class, //
-	ceri.common.filter.EnumFiltersTest.class, //
-	ceri.common.filter.FilterBehavior.class, //
-	ceri.common.filter.FiltersTest.class, //
+	// exception
+	ceri.common.exception.ExceptionAdapterBehavior.class, //
+	ceri.common.exception.ExceptionTrackerBehavior.class, //
+	ceri.common.exception.ExceptionUtilTest.class, //
 	// function
 	ceri.common.function.AccessorBehavior.class, //
 	ceri.common.function.BooleanConsumerBehavior.class, //
@@ -128,6 +120,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.ObjBooleanConsumerBehavior.class, //
 	ceri.common.function.ObjByteConsumerBehavior.class, //
 	ceri.common.function.ObjShortConsumerBehavior.class, //
+	ceri.common.function.PredicatesTest.class, //
 	ceri.common.function.ToBooleanFunctionBehavior.class, //
 	ceri.common.function.ToByteFunctionBehavior.class, //
 	ceri.common.function.ToShortFunctionBehavior.class, //
@@ -166,6 +159,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.io.KeyCheckerBehavior.class, //
 	ceri.common.io.PathFiltersTest.class, //
 	ceri.common.io.PathPatternBehavior.class, //
+	ceri.common.io.PipedConnectorBehavior.class, //
 	ceri.common.io.PipedStreamBehavior.class, //
 	ceri.common.io.PollingInputStreamBehavior.class, //
 	ceri.common.io.ReplaceableInputStreamBehavior.class, //
@@ -266,6 +260,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.text.DsvParserBehavior.class, //
 	ceri.common.text.FractionFormatsTest.class, //
 	ceri.common.text.MarshallerBehavior.class, //
+	ceri.common.text.MultiPatternBehavior.class, //
 	ceri.common.text.NonMatchResultBehavior.class, //
 	ceri.common.text.NonMatcherBehavior.class, //
 	ceri.common.text.RegexSequencerBehavior.class, //
@@ -276,6 +271,14 @@ import ceri.common.test.TestUtil;
 	ceri.common.text.TextUtilTest.class, //
 	ceri.common.text.ToStringHelperBehavior.class, //
 	ceri.common.text.Utf8UtilTest.class, //
+	// time
+	ceri.common.time.CalendarFieldBehavior.class, //
+	ceri.common.time.DateUtilTest.class, //
+	ceri.common.time.HolidayBehavior.class, //
+	ceri.common.time.ImmutableDateBehavior.class, //
+	ceri.common.time.ImmutableTimeZoneBehavior.class, //
+	ceri.common.time.MultiDateParserBehavior.class, //
+	ceri.common.time.TimerBehavior.class, //
 	// tree
 	ceri.common.tree.NodeTreeBehavior.class, //
 	ceri.common.tree.TreeIteratorBehavior.class, //
@@ -288,20 +291,14 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.CounterBehavior.class, //
 	ceri.common.util.EnclosedBehavior.class, //
 	ceri.common.util.EqualsUtilTest.class, //
-	ceri.common.util.ExceptionAdapterBehavior.class, //
-	ceri.common.util.ExceptionTrackerBehavior.class, //
-	ceri.common.util.ExceptionUtilTest.class, //
 	ceri.common.util.HashCoderBehavior.class, //
 	ceri.common.util.HolderBehavior.class, //
 	ceri.common.util.KeyValueBehavior.class, //
 	ceri.common.util.LocaleUtilTest.class, //
-	ceri.common.util.MultiPatternBehavior.class, //
-	ceri.common.util.NameValueBehavior.class, //
 	ceri.common.util.OsUtilTest.class, //
 	ceri.common.util.PrimitiveUtilTest.class, //
 	ceri.common.util.StartupValuesBehavior.class, //
 	ceri.common.util.SystemVarsTest.class, //
-	ceri.common.util.TimerBehavior.class, //
 	ceri.common.util.ValueCacheBehavior.class, //
 	// validation
 	ceri.common.validation.DisplayDoubleBehavior.class, //

@@ -8,8 +8,8 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import org.junit.Test;
-import ceri.common.filter.Filter;
 
 public class ScorersTest {
 
@@ -81,11 +81,11 @@ public class ScorersTest {
 	@Test
 	public void testFilter() {
 		Scorer<String> len = Scorers.nonNull(String::length);
-		Filter<String> filter = Scorers.filter(len, 2.0, 3.0);
-		assertThat(filter.filter("AAA"), is(true));
-		assertThat(filter.filter("B"), is(false));
-		assertThat(filter.filter("CCCC"), is(false));
-		assertThat(filter.filter("DD"), is(true));
+		Predicate<String> filter = Scorers.filter(len, 2.0, 3.0);
+		assertThat(filter.test("AAA"), is(true));
+		assertThat(filter.test("B"), is(false));
+		assertThat(filter.test("CCCC"), is(false));
+		assertThat(filter.test("DD"), is(true));
 	}
 
 	@Test

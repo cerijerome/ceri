@@ -23,7 +23,7 @@ import ceri.common.util.Align;
  * for 4 bytes per column, and 1 column. Unprintable ascii chars will show as "." by default
  */
 public class BinaryPrinter {
-	public static final BinaryPrinter DEFAULT = builder().build();
+	public static final BinaryPrinter STD = builder().build();
 	public static final BinaryPrinter ASCII =
 		builder().showBinary(false).bytesPerColumn(16).printableSpace(true).build();
 	private static final int ASCII_MIN = '!';
@@ -209,24 +209,14 @@ public class BinaryPrinter {
 	 * Print data from the given input stream.
 	 */
 	public BinaryPrinter print(InputStream in) throws IOException {
-		return print(in, 0);
+		return print(in, in.available());
 	}
 
 	/**
 	 * Print data from the given input stream up to given number of bytes.
 	 */
-	public BinaryPrinter print(InputStream in, long len) throws IOException {
-		byte[] buffer = new byte[bufferSize];
-		long n = 0;
-		while (true) {
-			int readLen = buffer.length;
-			if (len > 0 && len - n < buffer.length) readLen = (int) (len - n);
-			if (readLen == 0) break;
-			int count = in.read(buffer, 0, readLen);
-			if (count == -1) break;
-			print(buffer, 0, count);
-			n += count;
-		}
+	public BinaryPrinter print(InputStream in, int len) throws IOException {
+		print(in.readNBytes(len));
 		return this;
 	}
 

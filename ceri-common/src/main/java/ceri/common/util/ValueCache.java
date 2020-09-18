@@ -3,7 +3,7 @@ package ceri.common.util;
 import java.util.function.Supplier;
 
 /**
- * A lazy-loaded value using a supplier. Unlike Optional, this allows null value.
+ * A lazy-loaded value using a supplier. Unlike Optional, this allows null values.
  * Not thread-safe.
  */
 public class ValueCache<T> implements Supplier<T> {

@@ -3,9 +3,9 @@ package ceri.common.tree;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Abstract class for a node in a tree. Supports immutability through builder construction. Subclass
@@ -19,7 +19,6 @@ public abstract class TreeNode<T extends TreeNode<T>> implements Parent<T> {
 	public final int level;
 	public final int id;
 	private final Set<T> children;
-	private final int hashCode;
 
 	protected TreeNode(T parent, Builder<T> builder) {
 		this.cls = BasicUtil.uncheckedCast(getClass());
@@ -30,7 +29,6 @@ public abstract class TreeNode<T extends TreeNode<T>> implements Parent<T> {
 		for (Builder<T> child : builder.children)
 			children.add(child.build(typedThis()));
 		this.children = Collections.unmodifiableSet(children);
-		hashCode = HashCoder.create().add(id).add(cls).add(this.children).hashCode();
 	}
 
 	@Override
@@ -61,7 +59,7 @@ public abstract class TreeNode<T extends TreeNode<T>> implements Parent<T> {
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return Objects.hash(id, cls, children);
 	}
 
 	@Override

@@ -29,13 +29,13 @@ import ceri.common.collection.WrappedStream;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.FunctionUtil;
 import ceri.common.function.FunctionWrapper;
 import ceri.common.text.StringUtil;
-import ceri.common.util.ExceptionAdapter;
 import ceri.common.util.SystemVars;
 
 /**

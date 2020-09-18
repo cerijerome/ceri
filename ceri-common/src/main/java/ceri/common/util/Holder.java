@@ -6,7 +6,7 @@ package ceri.common.util;
 public class Holder<T> {
 	private T value;
 
-	public static <T> Holder<T> init() {
+	public static <T> Holder<T> of() {
 		return new Holder<>();
 	}
 

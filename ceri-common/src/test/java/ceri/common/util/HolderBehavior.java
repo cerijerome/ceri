@@ -10,7 +10,7 @@ public class HolderBehavior {
 
 	@Test
 	public void shouldInitializeWithOrWithoutValue() {
-		Holder<Integer> holder = Holder.init();
+		Holder<Integer> holder = Holder.of();
 		assertNull(holder.get());
 		holder = Holder.init(1);
 		assertThat(holder.get(), is(1));
@@ -18,7 +18,7 @@ public class HolderBehavior {
 
 	@Test
 	public void shouldVerifyValue() {
-		Holder<Integer> holder = Holder.init();
+		Holder<Integer> holder = Holder.of();
 		assertNull(holder.get());
 		TestUtil.assertThrown(holder::verify);
 		holder.set(0);

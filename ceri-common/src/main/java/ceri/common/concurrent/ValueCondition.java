@@ -8,8 +8,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
+import ceri.common.time.Timer;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.Timer;
 
 /**
  * Simple condition to signal and wait for a value change.

@@ -412,6 +412,13 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testIsBlank() {
+		assertTrue(StringUtil.isBlank((String) null));
+		assertTrue(StringUtil.isBlank(" \t\r\n"));
+		assertFalse(StringUtil.isBlank("  _"));
+	}
+
+	@Test
 	public void testSafeSubstring() {
 		String s = "\u3fff\u3ffe\u3ffd";
 		assertThat(StringUtil.safeSubstring(s, 0), is(s));

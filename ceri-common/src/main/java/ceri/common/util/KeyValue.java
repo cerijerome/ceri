@@ -9,6 +9,16 @@ public class KeyValue<K, V> {
 	public final K key;
 	public final V value;
 
+	public static class Named<T> extends KeyValue<String, T> {
+		protected Named(String name, T value) {
+			super(name, value);
+		}
+	}
+
+	public static <T> Named<T> named(String name, T value) {
+		return new Named<>(name, value);
+	}
+
 	public static <K, V> KeyValue<K, V> of(K key, V value) {
 		return new KeyValue<>(key, value);
 	}

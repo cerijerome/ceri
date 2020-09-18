@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 import ceri.common.comparator.Comparators;
-import ceri.common.filter.Filter;
-import ceri.common.filter.Filters;
+import ceri.common.function.Predicates;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -43,12 +43,12 @@ public class Scorers {
 		return toList(ts.stream().map(t -> ScoreResult.<T>of(t, scorer.score(t))).sorted());
 	}
 
-	public static <T> Filter<T> filter(Scorer<T> scorer, Filter<Double> filter) {
-		return (t -> filter.filter(scorer.score(t)));
+	public static <T> Predicate<T> filter(Scorer<T> scorer, Predicate<Double> filter) {
+		return (t -> filter.test(scorer.score(t)));
 	}
 
-	public static <T> Filter<T> filter(Scorer<T> scorer, Double min, Double max) {
-		return filter(scorer, Filters.all(Filters.gte(min), Filters.lte(max)));
+	public static <T> Predicate<T> filter(Scorer<T> scorer, Double min, Double max) {
+		return filter(scorer, Predicates.all(Predicates.gte(min), Predicates.lte(max)));
 	}
 
 	/**

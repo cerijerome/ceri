@@ -3,7 +3,7 @@ package ceri.common.math;
 import static ceri.common.validation.ValidationUtil.validate;
 import static ceri.common.validation.ValidationUtil.validatef;
 import java.util.stream.IntStream;
-import ceri.common.util.ExceptionUtil;
+import ceri.common.exception.ExceptionUtil;
 
 public class MatrixUtil {
 	private static final int SIZE_2 = 2;

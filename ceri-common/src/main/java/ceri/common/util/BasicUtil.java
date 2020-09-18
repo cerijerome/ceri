@@ -13,6 +13,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
@@ -191,20 +192,6 @@ public class BasicUtil {
 	 */
 	public static boolean isEmpty(Collection<?> collection) {
 		return collection == null || collection.isEmpty();
-	}
-
-	/**
-	 * Checks if the given object array is null or empty.
-	 */
-	public static <T> boolean isEmpty(T[] array) {
-		return array == null || array.length == 0;
-	}
-
-	/**
-	 * Checks if the given string is null or empty or contains only whitespace.
-	 */
-	public static boolean isEmpty(String str) {
-		return str == null || str.isBlank();
 	}
 
 	/**

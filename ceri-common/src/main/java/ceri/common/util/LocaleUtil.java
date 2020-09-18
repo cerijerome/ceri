@@ -1,6 +1,7 @@
 package ceri.common.util;
 
 import java.util.Locale;
+import ceri.common.text.StringUtil;
 
 public class LocaleUtil {
 
@@ -10,7 +11,7 @@ public class LocaleUtil {
 	 * Creates a locale object from a lang_COUNTRY_VARIANT string.
 	 */
 	public static Locale fromString(String localeStr) {
-		if (BasicUtil.isEmpty(localeStr)) return new Locale("");
+		if (StringUtil.isBlank(localeStr)) return new Locale("");
 		String[] split = localeStr.split("_", 3);
 		String lang = split[0];
 		String country = split.length > 1 ? split[1] : "";
@@ -26,8 +27,8 @@ public class LocaleUtil {
 		String lang = locale.getLanguage();
 		String country = locale.getCountry();
 		String variant = locale.getVariant();
-		if (!BasicUtil.isEmpty(variant)) return new Locale(lang, country);
-		if (!BasicUtil.isEmpty(country)) return new Locale(lang);
+		if (!StringUtil.isBlank(variant)) return new Locale(lang, country);
+		if (!StringUtil.isBlank(country)) return new Locale(lang);
 		return Locale.ROOT;
 	}
 

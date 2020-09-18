@@ -468,10 +468,7 @@ public abstract class IntArray implements IntProvider {
 	}
 
 	int hash() {
-		HashCoder hashCoder = HashCoder.create();
-		for (int i = 0; i < length; i++)
-			hashCoder.add(array[offset(i)]);
-		return hashCoder.hashCode();
+		return HashCoder.intHash(array, offset, length);
 	}
 
 	boolean isValidSlice(int index, int length) {

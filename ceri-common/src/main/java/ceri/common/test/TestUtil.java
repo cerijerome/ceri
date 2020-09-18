@@ -905,6 +905,20 @@ public class TestUtil {
 	}
 
 	/**
+	 * Check bytes read from input stream.
+	 */
+	public static void assertRead(InputStream in, int...bytes) throws IOException {
+		assertRead(in, ArrayUtil.bytes(bytes));
+	}
+
+	/**
+	 * Check bytes read from input stream.
+	 */
+	public static void assertRead(InputStream in, byte[] bytes) throws IOException {
+		assertArray(in.readNBytes(bytes.length), bytes);
+	}
+
+	/**
 	 * Check if file exists.
 	 */
 	public static void assertExists(Path path, boolean exists) {

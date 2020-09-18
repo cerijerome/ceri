@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
-import ceri.common.util.ExceptionUtil;
+import ceri.common.exception.ExceptionUtil;
 
 /**
  * Utility methods for property files.

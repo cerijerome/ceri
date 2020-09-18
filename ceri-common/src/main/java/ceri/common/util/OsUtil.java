@@ -1,6 +1,7 @@
 package ceri.common.util;
 
 import java.util.regex.Pattern;
+import ceri.common.text.StringUtil;
 
 /**
  * Utility methods and constants to help with OS-specific logic.
@@ -42,6 +43,6 @@ public class OsUtil {
 	}
 
 	static boolean propertyIsSet(String name) {
-		return !BasicUtil.isEmpty(SystemVars.sys(name));
+		return !StringUtil.isBlank(SystemVars.sys(name));
 	}	
 }

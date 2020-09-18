@@ -1,6 +1,9 @@
 package ceri.common.util;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Objects;
+import ceri.common.collection.ArrayUtil;
 
 /**
  * Class for construction of strong hash codes.
@@ -8,9 +11,126 @@ import java.lang.reflect.Array;
 public class HashCoder {
 	private static final int INITIAL_VALUE = 17; // convenient prime
 	private static final int MULTIPLIER = 31; // convenient prime
+	private static final int INIT = 1;
+	private static final int TRUE_HASH = 1231;
+	private static final int FALSE_HASH = 1237;
 	private int result = INITIAL_VALUE;
 
 	private HashCoder() {}
+
+	public static void main(String[] args) {
+		String[] ss = { "hello", null, "there" };
+		System.out.println(objHash(ss, 0, 3));
+		System.out.println(Arrays.hashCode(ss));
+		//long[] a = { Long.MIN_VALUE, -1, 0, 1, Long.MAX_VALUE };
+		boolean[] a = { true, true, false, true, false };
+		System.out.println(Arrays.hashCode(a));
+		//System.out.println(longHash(a, 0, 5));
+		System.out.println(boolHash(a, 0, 5));
+	}
+	
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int boolHash(boolean[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = INIT;
+		while (length-- > 0)
+            result = MULTIPLIER * result + (a[offset++] ? TRUE_HASH : FALSE_HASH);
+		return result;
+	}
+
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int byteHash(byte[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = INIT;
+		while (length-- > 0)
+            result = MULTIPLIER * result + a[offset++];
+		return result;
+	}
+
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int charHash(char[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = INIT;
+		while (length-- > 0)
+            result = MULTIPLIER * result + a[offset++];
+		return result;
+	}
+
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int shortHash(short[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = INIT;
+		while (length-- > 0)
+            result = MULTIPLIER * result + a[offset++];
+		return result;
+	}
+
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int intHash(int[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = INIT;
+		while (length-- > 0)
+            result = MULTIPLIER * result + a[offset++];
+		return result;
+	}
+
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int longHash(long[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = INIT;
+		while (length-- > 0) {
+			long l = a[offset++];
+			result = MULTIPLIER * result + (int) (l ^ (l >>> Integer.SIZE));
+		}
+		return result;
+	}
+
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int floatHash(float[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = INIT;
+		while (length-- > 0)
+            result = MULTIPLIER * result + Float.floatToIntBits(a[offset++]);
+		return result;
+	}
+
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int doubleHash(double[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = INIT;
+		while (length-- > 0) {
+			long l = Double.doubleToLongBits(a[offset++]);
+			result = MULTIPLIER * result + (int) (l ^ (l >>> Integer.SIZE));
+		}
+		return result;
+	}
+
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int objHash(Object[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = INIT;
+		while (length-- > 0)
+            result = MULTIPLIER * result + Objects.hashCode(a[offset++]);
+		return result;
+	}
 
 	/**
 	 * Constructor - using this with the add methods is more efficient for adding primitives.

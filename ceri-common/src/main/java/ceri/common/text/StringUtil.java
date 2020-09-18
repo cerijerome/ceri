@@ -914,11 +914,17 @@ public class StringUtil {
 	}
 
 	/**
+	 * Checks if the given string is null or empty or contains only whitespace.
+	 */
+	public static boolean isBlank(String str) {
+		return str == null || str.isBlank();
+	}
+
+	/**
 	 * Trims a string if not null.
 	 */
 	public static String trim(String s) {
-		if (s == null) return s;
-		return s.trim();
+		return s == null ? null : s.trim();
 	}
 
 	/**

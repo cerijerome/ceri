@@ -1,6 +1,6 @@
 package ceri.common.function;
 
-import static ceri.common.util.ExceptionAdapter.RUNTIME;
+import static ceri.common.exception.ExceptionAdapter.RUNTIME;
 import java.util.Objects;
 import java.util.function.IntFunction;
 

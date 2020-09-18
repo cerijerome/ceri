@@ -1,6 +1,6 @@
 package ceri.common.io;
 
-import static ceri.common.util.ExceptionUtil.shouldNotThrow;
+import static ceri.common.exception.ExceptionUtil.shouldNotThrow;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;

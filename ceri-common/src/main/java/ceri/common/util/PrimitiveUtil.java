@@ -2,6 +2,7 @@ package ceri.common.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import ceri.common.text.StringUtil;
 
 /**
  * Utility methods for handling primitives and primitive wrappers.
@@ -264,7 +265,7 @@ public class PrimitiveUtil {
 	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Boolean valueOf(String value, Boolean def) {
-		if (BasicUtil.isEmpty(value)) return def;
+		if (StringUtil.isBlank(value)) return def;
 		return Boolean.valueOf(value.trim());
 	}
 
@@ -287,7 +288,7 @@ public class PrimitiveUtil {
 	 */
 	public static Byte valueOf(String value, Byte def, int radix) {
 		try {
-			if (BasicUtil.isEmpty(value)) return def;
+			if (StringUtil.isBlank(value)) return def;
 			return Byte.valueOf(value.trim(), radix);
 		} catch (NumberFormatException e) {
 			return def;
@@ -299,7 +300,7 @@ public class PrimitiveUtil {
 	 */
 	public static Byte decode(String value, Byte def) {
 		try {
-			if (BasicUtil.isEmpty(value)) return def;
+			if (StringUtil.isBlank(value)) return def;
 			return Byte.decode(value.trim());
 		} catch (NumberFormatException e) {
 			return def;
@@ -331,7 +332,7 @@ public class PrimitiveUtil {
 	 * Converts a string to a value or returns the default value if the string cannot be parsed.
 	 */
 	public static Character valueOf(String value, Character def) {
-		if (BasicUtil.isEmpty(value)) return def;
+		if (StringUtil.isBlank(value)) return def;
 		return value.trim().charAt(0);
 	}
 
@@ -354,7 +355,7 @@ public class PrimitiveUtil {
 	 */
 	public static Short valueOf(String value, Short def, int radix) {
 		try {
-			if (BasicUtil.isEmpty(value)) return def;
+			if (StringUtil.isBlank(value)) return def;
 			return Short.valueOf(value, radix);
 		} catch (NumberFormatException e) {
 			return def;
@@ -366,7 +367,7 @@ public class PrimitiveUtil {
 	 */
 	public static Short decode(String value, Short def) {
 		try {
-			if (BasicUtil.isEmpty(value)) return def;
+			if (StringUtil.isBlank(value)) return def;
 			return Short.decode(value);
 		} catch (NumberFormatException e) {
 			return def;
@@ -406,7 +407,7 @@ public class PrimitiveUtil {
 	 */
 	public static Integer valueOf(String value, Integer def, int radix) {
 		try {
-			if (BasicUtil.isEmpty(value)) return def;
+			if (StringUtil.isBlank(value)) return def;
 			return Integer.valueOf(value, radix);
 		} catch (NumberFormatException e) {
 			return def;
@@ -418,7 +419,7 @@ public class PrimitiveUtil {
 	 */
 	public static Integer decode(String value, Integer def) {
 		try {
-			if (BasicUtil.isEmpty(value)) return def;
+			if (StringUtil.isBlank(value)) return def;
 			return Integer.decode(value);
 		} catch (NumberFormatException e) {
 			return def;
@@ -458,7 +459,7 @@ public class PrimitiveUtil {
 	 */
 	public static Long valueOf(String value, Long def, int radix) {
 		try {
-			if (BasicUtil.isEmpty(value)) return def;
+			if (StringUtil.isBlank(value)) return def;
 			return Long.valueOf(value, radix);
 		} catch (NumberFormatException e) {
 			return def;
@@ -470,7 +471,7 @@ public class PrimitiveUtil {
 	 */
 	public static Long decode(String value, Long def) {
 		try {
-			if (BasicUtil.isEmpty(value)) return def;
+			if (StringUtil.isBlank(value)) return def;
 			return Long.decode(value);
 		} catch (NumberFormatException e) {
 			return def;
@@ -503,7 +504,7 @@ public class PrimitiveUtil {
 	 */
 	public static Float valueOf(String value, Float def) {
 		try {
-			if (BasicUtil.isEmpty(value)) return def;
+			if (StringUtil.isBlank(value)) return def;
 			return Float.valueOf(value);
 		} catch (NumberFormatException e) {
 			return def;
@@ -522,7 +523,7 @@ public class PrimitiveUtil {
 	 */
 	public static Double valueOf(String value, Double def) {
 		try {
-			if (BasicUtil.isEmpty(value)) return def;
+			if (StringUtil.isBlank(value)) return def;
 			return Double.valueOf(value);
 		} catch (NumberFormatException e) {
 			return def;

@@ -21,6 +21,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.mockito.Mock;
 import ceri.common.test.TestUtil;
+import ceri.common.text.StringUtil;
 
 public class BasicUtilTest {
 	@Mock
@@ -157,9 +158,8 @@ public class BasicUtilTest {
 
 	@Test
 	public void testIsEmpty() {
-		assertTrue(BasicUtil.isEmpty((String) null));
-		assertTrue(BasicUtil.isEmpty((String[]) null));
-		assertTrue(BasicUtil.isEmpty(" \t\r\n"));
+		assertTrue(StringUtil.isBlank((String) null));
+		assertTrue(StringUtil.isBlank(" \t\r\n"));
 		assertTrue(BasicUtil.isEmpty((Map<?, ?>) null));
 		assertTrue(BasicUtil.isEmpty(Collections.emptyMap()));
 		assertFalse(BasicUtil.isEmpty(Collections.singletonMap(1, 2)));
@@ -168,8 +168,6 @@ public class BasicUtilTest {
 		assertTrue(BasicUtil.isEmpty(collection));
 		collection.add(null);
 		assertFalse(BasicUtil.isEmpty(collection));
-		assertTrue(BasicUtil.isEmpty(new Object[] {}));
-		assertFalse(BasicUtil.isEmpty(new Object[] { null }));
 	}
 
 	@Test

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import ceri.common.util.ExceptionAdapter;
+import ceri.common.exception.ExceptionAdapter;
 
 public class NetUtil {
 	private static final Pattern LOCALHOST_REGEX =

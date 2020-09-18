@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.io.IoUtil;
-import ceri.common.util.ExceptionAdapter;
 
 /**
  * Creates files and dirs under a temp directory, and deletes them on close. Use this to test

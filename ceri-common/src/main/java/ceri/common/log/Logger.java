@@ -21,11 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.date.DateUtil;
+import ceri.common.exception.ExceptionUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.StringUtil;
+import ceri.common.time.DateUtil;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.ExceptionUtil;
 
 /**
  * Simple logger for when a logging framework cannot be used. A logger is built with a global lookup

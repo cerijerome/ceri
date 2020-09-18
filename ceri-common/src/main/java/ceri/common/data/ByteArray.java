@@ -545,10 +545,7 @@ public abstract class ByteArray implements ByteProvider {
 	}
 
 	int hash() {
-		HashCoder hashCoder = HashCoder.create();
-		for (int i = 0; i < length; i++)
-			hashCoder.add(array[offset(i)]);
-		return hashCoder.hashCode();
+		return HashCoder.byteHash(array, offset, length);
 	}
 
 	boolean isValidSlice(int index, int length) {

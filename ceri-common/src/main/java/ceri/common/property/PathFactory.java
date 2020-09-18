@@ -1,6 +1,6 @@
 package ceri.common.property;
 
-import static ceri.common.filter.Filters.not;
+import static ceri.common.function.Predicates.not;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

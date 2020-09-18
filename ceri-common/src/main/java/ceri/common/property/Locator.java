@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToStringHelper;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 
@@ -70,7 +69,7 @@ public class Locator {
 
 	public static Builder builder(Class<?> cls, String name) {
 		validateNotNull(cls);
-		validate(!BasicUtil.isEmpty(name), "Name cannot be blank");
+		validate(!StringUtil.isBlank(name), "Name cannot be blank");
 		Builder b = new Builder(cls);
 		int i = name.lastIndexOf('.');
 		if (i == -1) return b.add(name);
@@ -120,7 +119,7 @@ public class Locator {
 	}
 
 	public String filename() {
-		if (BasicUtil.isEmpty(extension)) return name.value;
+		if (StringUtil.isBlank(extension)) return name.value;
 		return name.value + "." + extension;
 	}
 

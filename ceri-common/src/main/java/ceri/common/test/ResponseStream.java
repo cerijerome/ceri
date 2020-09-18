@@ -9,9 +9,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.function.Function;
+import ceri.common.exception.ExceptionUtil;
 import ceri.common.io.IoStreamUtil;
 import ceri.common.text.ToStringHelper;
-import ceri.common.util.ExceptionUtil;
 
 /**
  * Provides an output stream that responds to input data. Can be created to handle bytes or Strings.

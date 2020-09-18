@@ -1,8 +1,8 @@
 package ceri.common.data;
 
+import static ceri.common.exception.ExceptionUtil.exceptionf;
 import static ceri.common.text.StringUtil.DECIMAL_RADIX;
 import static ceri.common.text.StringUtil.escape;
-import static ceri.common.util.ExceptionUtil.exceptionf;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.collection.ArrayUtil;
 

@@ -5,9 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.function.Predicate;
-import ceri.common.filter.Filters;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.FunctionUtil;
+import ceri.common.function.Predicates;
 
 public class PathFilters {
 	/**
@@ -82,7 +82,7 @@ public class PathFilters {
 	 * A filter that applies the text match to the filename extension.
 	 */
 	public static Predicate<Path> byExtension(String... extensions) {
-		return byExtension(Filters.eqAny(extensions));
+		return byExtension(Predicates.eqAny(extensions));
 	}
 
 	/**

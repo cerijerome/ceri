@@ -18,9 +18,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.BooleanFunction;
 import ceri.common.text.StringUtil;
-import ceri.common.util.ExceptionUtil;
 
 /**
  * Abstract class for accessing properties with a common key prefix. Useful when sharing one

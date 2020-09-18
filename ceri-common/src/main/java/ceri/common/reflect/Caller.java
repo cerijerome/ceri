@@ -1,7 +1,7 @@
 package ceri.common.reflect;
 
+import java.util.Objects;
 import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Encapsulates information about the caller of a method.
@@ -14,7 +14,6 @@ public class Caller {
 	public final int line;
 	public final String method;
 	public final String file;
-	private final int hashCode;
 
 	Caller(String fullCls, int line, String method, String file) {
 		this.fullCls = fullCls == null ? UNKNOWN : fullCls;
@@ -22,7 +21,6 @@ public class Caller {
 		this.line = line;
 		this.method = method == null ? UNKNOWN : method;
 		this.file = file == null ? UNKNOWN : file;
-		hashCode = HashCoder.hash(this.fullCls, this.line, this.method, this.file);
 	}
 
 	/**
@@ -37,7 +35,7 @@ public class Caller {
 		if (cls.length() >= fullCls.length()) return "";
 		return fullCls.substring(0, fullCls.length() - cls.length() - 1);
 	}
-	
+
 	public Class<?> cls() {
 		try {
 			return Class.forName(fullCls);
@@ -48,7 +46,7 @@ public class Caller {
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return Objects.hash(fullCls, line, method, file);
 	}
 
 	@Override
