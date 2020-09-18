@@ -1,23 +1,21 @@
 package ceri.misc.parser.expression;
 
+import java.util.Objects;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class Parentheses implements Expression {
 	private final Expression expression;
-	private final int hashCode;
 
 	public Parentheses(Expression expression) {
 		this.expression = expression;
-		hashCode = HashCoder.hash(expression);
 	}
 
 	@Override
 	public boolean matches(String str) {
 		return expression.matches(str);
 	}
-	
+
 	@Override
 	public String asRegex() {
 		return expression.asRegex(); // No parentheses?
@@ -35,9 +33,9 @@ public class Parentheses implements Expression {
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return Objects.hash(expression);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
@@ -45,5 +43,5 @@ public class Parentheses implements Expression {
 		Parentheses exp = (Parentheses) obj;
 		return EqualsUtil.equals(expression, exp.expression);
 	}
-	
+
 }

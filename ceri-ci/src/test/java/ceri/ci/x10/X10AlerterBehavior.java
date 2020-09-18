@@ -4,6 +4,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -28,7 +29,7 @@ public class X10AlerterBehavior {
 	}
 
 	@Test
-	public void shouldTurnOnDeviceForGivenKeyAlert() {
+	public void shouldTurnOnDeviceForGivenKeyAlert() throws IOException {
 		X10Alerter x10 = X10Alerter.builder(controller).address("key", "F13").build();
 		x10.alert("key");
 		InOrder inOrder = inOrder(controller);
@@ -51,7 +52,7 @@ public class X10AlerterBehavior {
 	}
 
 	@Test
-	public void shouldTurnOffDevicesForFixedKeyAlerts() {
+	public void shouldTurnOffDevicesForFixedKeyAlerts() throws IOException {
 		X10Alerter x10 =
 			X10Alerter.builder(controller).address("key1", "F13").address("key2", "P16").build();
 		x10.alert("key1");
@@ -62,7 +63,7 @@ public class X10AlerterBehavior {
 	}
 
 	@Test
-	public void shouldTurnOnDevicesForGivenKeyAlerts() {
+	public void shouldTurnOnDevicesForGivenKeyAlerts() throws IOException {
 		X10Alerter x10 =
 			X10Alerter.builder(controller).address("key1", "F13").address("key2", "P16").build();
 		x10.alert("key2", "key1");
@@ -71,7 +72,7 @@ public class X10AlerterBehavior {
 	}
 
 	@Test
-	public void shouldTurnOffDevicesForClearAlerts() {
+	public void shouldTurnOffDevicesForClearAlerts() throws IOException {
 		X10Alerter x10 =
 			X10Alerter.builder(controller).address("key1", "F13").address("key2", "P16").build();
 		x10.alert("key1", "key2");

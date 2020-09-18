@@ -1,20 +1,18 @@
 package ceri.misc.parser.expression;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class Concat implements Expression {
 	private final Expression lhs;
 	private final Expression rhs;
-	private final int hashCode;
 	private final Pattern pattern;
 
 	public Concat(Expression lhs, Expression rhs) {
 		this.lhs = lhs;
 		this.rhs = rhs;
-		hashCode = HashCoder.hash(lhs, rhs);
 		pattern = Pattern.compile(lhs.asRegex() + rhs.asRegex());
 	}
 
@@ -22,7 +20,7 @@ public class Concat implements Expression {
 	public boolean matches(String str) {
 		return pattern.matcher(str).find();
 	}
-	
+
 	@Override
 	public String asRegex() {
 		return lhs.asRegex() + rhs.asRegex();
@@ -40,9 +38,9 @@ public class Concat implements Expression {
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return Objects.hash(lhs, rhs);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
@@ -51,5 +49,5 @@ public class Concat implements Expression {
 		if (!EqualsUtil.equals(lhs, exp.lhs)) return false;
 		return EqualsUtil.equals(rhs, exp.rhs);
 	}
-	
+
 }

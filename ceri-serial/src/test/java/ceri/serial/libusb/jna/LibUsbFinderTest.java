@@ -1,10 +1,10 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.util.BasicUtil.isEmpty;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.text.StringUtil;
 import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
 
 public class LibUsbFinderTest {
@@ -46,9 +46,10 @@ public class LibUsbFinderTest {
 		assertThat(actual.product, is(expected.product));
 		assertThat(actual.busNumber, is(expected.busNumber));
 		assertThat(actual.deviceAddress, is(expected.deviceAddress));
-		if (isEmpty(expected.description)) assertTrue(isEmpty(actual.description));
+		if (StringUtil.isBlank(expected.description))
+			assertTrue(StringUtil.isBlank(actual.description));
 		else assertThat(actual.description, is(expected.description));
-		if (isEmpty(expected.serial)) assertTrue(isEmpty(actual.serial));
+		if (StringUtil.isBlank(expected.serial)) assertTrue(StringUtil.isBlank(actual.serial));
 		else assertThat(actual.serial, is(expected.serial));
 		assertThat(actual.index, is(expected.index));
 	}

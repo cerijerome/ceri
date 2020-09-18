@@ -35,12 +35,12 @@ public class X10Container implements Closeable {
 			logger.info("Creating CM11A container");
 			Cm11aContainer cm11a = factory.createCm11aContainer(x10Properties.commPort());
 			container = cm11a;
-			controller = cm11a.cm11a();
+			controller = cm11a.cm11a;
 		} else {
 			logger.info("Creating CM17A container");
 			Cm17aContainer cm17a = factory.createCm17aContainer(x10Properties.commPort());
 			container = cm17a;
-			controller = cm17a.cm17a();
+			controller = cm17a.cm17a;
 		}
 		alerter = controller == null ? null : createAlerter(x10Properties, factory, controller);
 	}

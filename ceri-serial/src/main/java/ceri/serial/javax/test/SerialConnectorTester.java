@@ -105,12 +105,12 @@ public class SerialConnectorTester extends LoopingExecutor {
 
 	protected void logOutput(ByteProvider dataToPort) {
 		System.out.println("OUT >>>");
-		BinaryPrinter.DEFAULT.print(dataToPort);
+		BinaryPrinter.STD.print(dataToPort);
 	}
 
 	protected void logInput(ByteProvider dataFromPort) {
 		System.out.println("IN <<<");
-		BinaryPrinter.DEFAULT.print(dataFromPort);
+		BinaryPrinter.STD.print(dataFromPort);
 	}
 
 	protected void processCmd(char cmd, String params) throws IOException {

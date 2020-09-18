@@ -1,20 +1,18 @@
 package ceri.ci.web;
 
+import java.util.Objects;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class Actor implements Comparable<Actor> {
 	public final String name;
 	public final String build;
 	public final String job;
-	private final int hashCode;
 
 	public Actor(String name, String build, String job) {
 		this.name = name;
 		this.build = build;
 		this.job = job;
-		hashCode = HashCoder.hash(name, build, job);
 	}
 
 	public String getName() {
@@ -36,7 +34,7 @@ public class Actor implements Comparable<Actor> {
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return Objects.hash(name, build, job);
 	}
 
 	@Override

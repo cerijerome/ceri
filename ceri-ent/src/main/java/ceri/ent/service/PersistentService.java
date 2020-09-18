@@ -10,9 +10,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import ceri.common.concurrent.SafeReadWrite;
-import ceri.common.filter.Filter;
-import ceri.common.filter.Filters;
+import ceri.common.function.Predicates;
 
 /**
  * An in-memory data service with persistence.
@@ -35,23 +35,23 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 	}
 
 	protected Collection<V> findAll() {
-		return find(Filters._true());
+		return find(Predicates.yes());
 	}
 
-	public V findFirst(Filter<V> filter) {
+	public V findFirst(Predicate<V> filter) {
 		Collection<V> collection = find(filter, 1);
 		return collection.isEmpty() ? null : collection.iterator().next();
 	}
 
-	public Collection<V> find(Filter<V> filter) {
+	public Collection<V> find(Predicate<V> filter) {
 		return find(filter, UNLIMITED_COUNT);
 	}
 
-	public Collection<V> find(Filter<V> filter, int maxCount) {
+	public Collection<V> find(Predicate<V> filter, int maxCount) {
 		return safe.read(() -> {
 			Collection<V> values = new HashSet<>();
 			for (V value : this.map.values()) {
-				if (!filter.filter(value)) continue;
+				if (!filter.test(value)) continue;
 				values.add(value);
 				if (maxCount > 0 && values.size() >= maxCount) break;
 			}

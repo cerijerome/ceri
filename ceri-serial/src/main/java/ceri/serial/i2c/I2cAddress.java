@@ -1,7 +1,7 @@
 package ceri.serial.i2c;
 
+import static ceri.common.exception.ExceptionUtil.exceptionf;
 import static ceri.common.math.MathUtil.ubyte;
-import static ceri.common.util.ExceptionUtil.exceptionf;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteUtil;

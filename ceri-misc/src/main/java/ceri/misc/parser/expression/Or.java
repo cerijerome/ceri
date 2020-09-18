@@ -1,27 +1,25 @@
 package ceri.misc.parser.expression;
 
+import java.util.Objects;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class Or implements Expression {
 	private final Expression lhs;
 	private final Expression rhs;
-	private final int hashCode;
 
 	public Or(Expression lhs, Expression rhs) {
-		if (lhs == null || rhs == null) throw new IllegalArgumentException("lhs or rhs is null: " +
-			lhs + ", " + rhs);
+		if (lhs == null || rhs == null)
+			throw new IllegalArgumentException("lhs or rhs is null: " + lhs + ", " + rhs);
 		this.lhs = lhs;
 		this.rhs = rhs;
-		hashCode = HashCoder.hash(lhs, rhs);
 	}
 
 	@Override
 	public boolean matches(String str) {
 		return lhs.matches(str) || rhs.matches(str);
 	}
-	
+
 	@Override
 	public String asRegex() {
 		return "(?:" + lhs.asRegex() + "|" + rhs.asRegex() + ")";
@@ -39,9 +37,9 @@ public class Or implements Expression {
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return Objects.hash(lhs, rhs);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
@@ -50,5 +48,5 @@ public class Or implements Expression {
 		if (!EqualsUtil.equals(lhs, exp.lhs)) return false;
 		return EqualsUtil.equals(rhs, exp.rhs);
 	}
-	
+
 }

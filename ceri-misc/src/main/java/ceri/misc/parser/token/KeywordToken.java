@@ -1,10 +1,10 @@
 package ceri.misc.parser.token;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class KeywordToken extends Token.Base {
 	static final Pattern PATTERN = Pattern.compile("^[^\"\\s\\*\\(\\)]+");
@@ -13,18 +13,16 @@ public class KeywordToken extends Token.Base {
 		if (m == null) return null;
 		return new KeywordToken(m.group());
 	};
-	private final int hashCode;
 	public final String value;
 
 	public KeywordToken(String value) {
 		super(Type.Keyword);
 		this.value = value;
-		hashCode = HashCoder.hash(type(), value);
 	}
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return Objects.hash(type(), value);
 	}
 
 	@Override

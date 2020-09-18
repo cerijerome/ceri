@@ -9,15 +9,19 @@ import ceri.common.test.TestUtil;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	// cm11a.device
+	ceri.x10.cm11a.device.Cm11aDeviceBehavior.class, //
 	// cm11a.protocol
 	ceri.x10.cm11a.protocol.ClockBehavior.class, //
 	ceri.x10.cm11a.protocol.DataBehavior.class, //
 	// cm17a
 	ceri.x10.cm17a.Cm17aConfigBehavior.class, //
 	// cm17a.device
+	ceri.x10.cm17a.device.Cm17aBehavior.class, //
 	ceri.x10.cm17a.device.Cm17aConnectorBehavior.class, //
 	ceri.x10.cm17a.device.Cm17aDeviceBehavior.class, //
 	ceri.x10.cm17a.device.Cm17aDeviceConfigBehavior.class, //
+	ceri.x10.cm17a.device.Cm17aEmulatorBehavior.class, //
 	ceri.x10.cm17a.device.DataTest.class, //
 	// command
 	ceri.x10.command.AddressBehavior.class, //

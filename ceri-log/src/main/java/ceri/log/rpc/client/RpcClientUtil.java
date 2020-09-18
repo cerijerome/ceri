@@ -4,9 +4,9 @@ import static ceri.common.text.RegexUtil.finder;
 import java.io.IOException;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
-import ceri.common.util.ExceptionUtil;
 import io.grpc.StatusRuntimeException;
 
 public class RpcClientUtil {

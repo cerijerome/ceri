@@ -22,7 +22,6 @@ public class Email {
 	public final long sentDateMs;
 	public final String subject;
 	public final String content;
-	private final int hashCode;
 
 	public static class Builder {
 		final Collection<String> recipients = new HashSet<>();
@@ -33,7 +32,7 @@ public class Email {
 
 		Builder() {}
 
-		public Builder recipients(String...recipients) {
+		public Builder recipients(String... recipients) {
 			return recipients(Arrays.asList(recipients));
 		}
 
@@ -77,7 +76,6 @@ public class Email {
 		sentDateMs = builder.sentDateMs;
 		subject = builder.subject;
 		content = builder.content;
-		hashCode = HashCoder.hash(recipients, from, sentDateMs, subject, content);
 	}
 
 	public static Email createFrom(Message message) throws MessagingException, IOException {
@@ -104,13 +102,14 @@ public class Email {
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return HashCoder.hash(recipients, from, sentDateMs, subject, content);
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, recipients, from, sentDateMs,
-			new Date(sentDateMs), subject).toString();
+		return ToStringHelper
+			.createByClass(this, recipients, from, sentDateMs, new Date(sentDateMs), subject)
+			.toString();
 	}
 
 }

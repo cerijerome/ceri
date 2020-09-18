@@ -1,17 +1,15 @@
 package ceri.misc.parser.expression;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class Exclude implements Expression {
 	private final Expression expression;
-	private final int hashCode;
 
 	public Exclude(Expression expression) {
 		this.expression = expression;
-		hashCode = HashCoder.hash(expression);
 	}
 
 	public static void main(String[] args) {
@@ -23,18 +21,18 @@ public class Exclude implements Expression {
 		match("bc|^((?!bc).)*$", "abcde");
 		match("(?:(?:(?!\\Qa\\E).*?\\Qb\\E)|(?:\\Qb\\E.*?(?!\\Qa\\E)))", "ba");
 	}
-	
+
 	private static void match(String regex, String s) {
 		Pattern p = Pattern.compile(regex);
 		boolean result = p.matcher(s).find();
 		System.out.println(regex + " => \"" + s + "\" = " + result);
 	}
-	
+
 	@Override
 	public boolean matches(String str) {
 		return !expression.matches(str);
 	}
-	
+
 	@Override
 	public String asRegex() {
 		// Only use for concat expressions
@@ -54,9 +52,9 @@ public class Exclude implements Expression {
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return Objects.hash(expression);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
@@ -64,5 +62,5 @@ public class Exclude implements Expression {
 		Exclude exp = (Exclude) obj;
 		return EqualsUtil.equals(expression, exp.expression);
 	}
-	
+
 }

@@ -11,8 +11,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.exception.ExceptionTracker;
 import ceri.common.util.Enclosed;
-import ceri.common.util.ExceptionTracker;
 
 /**
  * A dispatcher thread for notifying listeners of events. Useful to prevent a misbehaving listener

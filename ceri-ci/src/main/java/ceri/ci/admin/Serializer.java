@@ -13,7 +13,7 @@ import ceri.ci.build.BuildEvent;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
 import ceri.ci.build.Job;
-import ceri.common.util.BasicUtil;
+import ceri.common.text.StringUtil;
 
 public class Serializer {
 	private static final Type buildEventCollectionType = new TypeToken<Collection<BuildEvent>>() {}
@@ -31,7 +31,7 @@ public class Serializer {
 	}
 
 	public Collection<BuildEvent> toBuildEvents(String json) {
-		if (BasicUtil.isEmpty(json)) return Collections.emptyList();
+		if (StringUtil.isBlank(json)) return Collections.emptyList();
 		Collection<BuildEvent> gsonBuildEvents = gson.fromJson(json, buildEventCollectionType);
 		Collection<BuildEvent> buildEvents = new ArrayList<>();
 		for (BuildEvent gsonBuildEvent : gsonBuildEvents) {

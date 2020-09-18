@@ -1,5 +1,6 @@
 package ceri.ci.x10;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -101,7 +102,7 @@ public class X10Alerter implements Alerter {
 			logger.debug("Turning on {}", address);
 			x10.command(Command.on(address));
 			activeAddresses.add(address);
-		} catch (RuntimeException e) {
+		} catch (RuntimeException | IOException e) {
 			logger.catching(e);
 		}
 	}
@@ -111,7 +112,7 @@ public class X10Alerter implements Alerter {
 			logger.debug("Turning off {}", address);
 			x10.command(Command.off(address));
 			activeAddresses.remove(address);
-		} catch (RuntimeException e) {
+		} catch (RuntimeException | IOException e) {
 			logger.catching(e);
 		}
 	}

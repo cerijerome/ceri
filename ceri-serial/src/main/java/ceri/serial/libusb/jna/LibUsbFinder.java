@@ -2,7 +2,6 @@ package ceri.serial.libusb.jna;
 
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
-import static ceri.common.util.BasicUtil.isEmpty;
 import static ceri.common.util.PrimitiveUtil.decode;
 import static ceri.common.util.PrimitiveUtil.valueOf;
 import static ceri.serial.libusb.jna.LibUsb.libusb_close;
@@ -110,7 +109,7 @@ public class LibUsbFinder {
 		}
 
 		boolean needsOpen() {
-			return !isEmpty(description) || !isEmpty(serial);
+			return !StringUtil.isBlank(description) || !StringUtil.isBlank(serial);
 		}
 
 		@Override

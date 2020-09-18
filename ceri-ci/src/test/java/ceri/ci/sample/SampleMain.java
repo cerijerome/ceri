@@ -11,8 +11,8 @@ import ceri.ci.build.Event;
 import ceri.ci.phone.PhoneContainer;
 import ceri.ci.x10.X10Container;
 import ceri.ci.zwave.ZWaveContainer;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.property.PropertyUtil;
-import ceri.common.util.BasicUtil;
 
 /**
  * Sample alert system that parses emails to trigger alerts. <code>SampleMain.properties</code>
@@ -65,13 +65,13 @@ public class SampleMain implements Closeable {
 		try (SampleMain container = new SampleMain()) {
 			container.master.alert()
 				.process(new BuildEvent("master", "commit", Event.failure("user1")));
-			BasicUtil.delay(15000);
+			ConcurrentUtil.delay(15000);
 			container.master.alert()
 				.process(new BuildEvent("master", "commit", Event.failure("user2")));
-			BasicUtil.delay(15000);
+			ConcurrentUtil.delay(15000);
 			container.master.alert()
 				.process(new BuildEvent("master", "commit", Event.success("user1", "user2")));
-			BasicUtil.delay(15000);
+			ConcurrentUtil.delay(15000);
 		}
 	}
 

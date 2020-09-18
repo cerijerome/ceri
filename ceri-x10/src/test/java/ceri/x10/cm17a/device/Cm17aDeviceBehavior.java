@@ -24,9 +24,7 @@ import static ceri.x10.command.Unit._7;
 import static ceri.x10.command.Unit._9;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.AfterClass;
@@ -41,7 +39,7 @@ import ceri.common.test.TestListener;
 import ceri.common.util.Enclosed;
 import ceri.log.test.LogModifier;
 import ceri.x10.command.Command;
-import ceri.x10.command.CommandListener;
+import ceri.x10.command.TestCommandListener;
 import ceri.x10.util.X10TestUtil.ErrorType;
 
 public class Cm17aDeviceBehavior {
@@ -122,20 +120,11 @@ public class Cm17aDeviceBehavior {
 
 	@Test
 	public void shouldListenForCommands() throws IOException, InterruptedException {
-		ValueCondition<Command> sync = ValueCondition.of();
-		CommandListener listener = mock(CommandListener.class);
-		answer((Command c) -> sync.signal(c)).when(listener).dim(any());
-		//answer((Command c) -> sync.signal(c)).when(listener).off(any());
-		long t;
+		TestCommandListener listener = new TestCommandListener();
 		try (Enclosed<?> enc = cm17a.listen(listener)) {
-			t = System.currentTimeMillis();
 			cm17a.command(Command.dim(L, 50, _5, _9));
-			//cm17a.command(Command.off(L, _5));
-			t = System.currentTimeMillis() - t;
-			assertThat(sync.await(), is(Command.dim(L, 50, _5, _9)));
-			//assertThat(sync.await(), is(Command.off(L, _5)));
+			assertThat(listener.sync.await(), is(Command.dim(L, 50, _5, _9)));
 		}
-		System.out.printf("listen=%dms%n", t);
 	}
 
 	@Test

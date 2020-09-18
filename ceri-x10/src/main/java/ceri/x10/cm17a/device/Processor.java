@@ -9,7 +9,7 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.TaskQueue;
 import ceri.common.data.ByteUtil;
-import ceri.common.util.ExceptionTracker;
+import ceri.common.exception.ExceptionTracker;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.x10.command.Address;
 import ceri.x10.command.Command;
@@ -69,16 +69,13 @@ public class Processor extends LoopingExecutor {
 	}
 
 	private void sendDimCommand(Command.Dim command) throws IOException {
-		long t = System.currentTimeMillis();
 		int count = Data.toDimCount(command.percent());
-		System.out.println("dim-count=" + count);
 		int dimCode = Data.code(command.house(), command.type());
 		for (Address address : command.addresses()) {
 			sendOn(address);
 			for (int i = 0; i < count; i++)
 				send(dimCode);
 		}
-		System.out.printf("sendDimCommand=%dms%n", System.currentTimeMillis() - t);
 	}
 
 	private void sendOff(Address address) throws IOException {

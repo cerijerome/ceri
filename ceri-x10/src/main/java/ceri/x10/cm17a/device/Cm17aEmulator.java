@@ -44,7 +44,7 @@ public class Cm17aEmulator implements Cm17a {
 	@Override
 	public void command(Command command) throws IOException {
 		verifySupported(this, command);
-		CommandListener.dispatcher(command);
+		dispatcher.dispatch(command);
 	}
 
 	@Override

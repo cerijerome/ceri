@@ -1,23 +1,21 @@
 package ceri.misc.parser.expression;
 
+import java.util.Objects;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class Quote implements Expression {
 	public final String value;
-	private final int hashCode;
 
 	public Quote(String value) {
 		this.value = value;
-		hashCode = HashCoder.hash(value); 
 	}
 
 	@Override
 	public boolean matches(String str) {
 		return str.contains(value);
 	}
-	
+
 	@Override
 	public String asRegex() {
 		return "\\Q" + value + "\\E";
@@ -35,9 +33,9 @@ public class Quote implements Expression {
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return Objects.hash(value);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
@@ -45,5 +43,5 @@ public class Quote implements Expression {
 		Quote exp = (Quote) obj;
 		return EqualsUtil.equals(value, exp.value);
 	}
-	
+
 }

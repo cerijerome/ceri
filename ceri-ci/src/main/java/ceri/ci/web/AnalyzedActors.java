@@ -2,6 +2,7 @@ package ceri.ci.web;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import ceri.ci.build.Build;
@@ -10,7 +11,6 @@ import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
 import ceri.ci.build.Job;
 import ceri.common.text.ToStringHelper;
-import ceri.common.util.HashCoder;
 
 /**
  * Analyzes the builds for heroes and villains. Villains have broken the build, whereas heroes have
@@ -20,12 +20,10 @@ public class AnalyzedActors {
 	public static final AnalyzedActors EMPTY = new AnalyzedActors();
 	public final Collection<Actor> heroes;
 	public final Collection<Actor> villains;
-	private final int hashCode;
 
 	private AnalyzedActors() {
 		heroes = Collections.emptySet();
 		villains = Collections.emptySet();
-		hashCode = HashCoder.hash(heroes, villains);
 	}
 
 	public AnalyzedActors(Builds builds) {
@@ -35,7 +33,6 @@ public class AnalyzedActors {
 		analyze(builds, heroes, villains);
 		this.heroes = Collections.unmodifiableSet(heroes);
 		this.villains = Collections.unmodifiableSet(villains);
-		hashCode = HashCoder.hash(this.heroes, this.villains);
 	}
 
 	public Collection<Actor> getHeroes() {
@@ -48,7 +45,7 @@ public class AnalyzedActors {
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return Objects.hash(heroes, villains);
 	}
 
 	@Override

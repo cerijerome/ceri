@@ -1,10 +1,10 @@
 package ceri.misc.parser.token;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.text.ToStringHelper;
 import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class QuoteToken extends Token.Base {
 	static final Pattern PATTERN = Pattern.compile("^\"([^\"]*)\"");
@@ -13,20 +13,18 @@ public class QuoteToken extends Token.Base {
 		if (m == null) return null;
 		return new QuoteToken(m.group(1));
 	};
-	private final int hashCode;
 	public final String value;
-	
+
 	public QuoteToken(String value) {
 		super(Type.Quote);
 		this.value = value;
-		hashCode = HashCoder.hash(type(), value);
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return Objects.hash(type(), value);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
@@ -34,7 +32,7 @@ public class QuoteToken extends Token.Base {
 		QuoteToken token = (QuoteToken) obj;
 		return EqualsUtil.equals(value, token.value);
 	}
-	
+
 	@Override
 	public String asString() {
 		return "\"" + value + "\"";

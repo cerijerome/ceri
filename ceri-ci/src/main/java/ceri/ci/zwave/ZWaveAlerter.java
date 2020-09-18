@@ -16,7 +16,7 @@ import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.common.Alerter;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.util.BasicUtil;
+import ceri.common.concurrent.ConcurrentUtil;
 
 /**
  * Alerter that turns on zwave devices for build failure events.
@@ -109,7 +109,7 @@ public class ZWaveAlerter implements Alerter {
 			int index = (int) (random.nextDouble() * keys.size());
 			String key = keys.get(index);
 			setDevicesOn(Arrays.asList(key));
-			BasicUtil.delay(randomizeDelayMs);
+			ConcurrentUtil.delay(randomizeDelayMs);
 		}
 		setDevicesOn(Collections.emptySet());
 	}

@@ -1,22 +1,20 @@
 package ceri.misc.parser.expression;
 
+import java.util.Objects;
 import ceri.common.text.ToStringHelper;
-import ceri.common.util.HashCoder;
-
 
 public class Wildcard implements Expression {
-	private final int hashCode = HashCoder.hash();
-	
+
 	@Override
 	public boolean matches(String str) {
 		return true;
 	}
-	
+
 	@Override
 	public String asRegex() {
 		return ".*?";
 	}
-	
+
 	@Override
 	public String asString() {
 		return "*";
@@ -29,13 +27,13 @@ public class Wildcard implements Expression {
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return Objects.hash();
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		return obj instanceof Wildcard;
 	}
-	
+
 }

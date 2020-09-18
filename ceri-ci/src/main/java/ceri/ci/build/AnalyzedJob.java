@@ -17,7 +17,6 @@ public class AnalyzedJob {
 	public final Collection<Job> justBroken;
 	public final Collection<Job> stillBroken;
 	public final Collection<Job> justFixed;
-	private final int hashCode;
 
 	/**
 	 * Analyzes current and previous summarized builds.
@@ -42,7 +41,6 @@ public class AnalyzedJob {
 		this.justBroken = Collections.unmodifiableList(justBroken);
 		this.stillBroken = Collections.unmodifiableList(stillBroken);
 		this.justFixed = Collections.unmodifiableList(justFixed);
-		hashCode = HashCoder.hash(this.build, this.justBroken, this.stillBroken, this.justFixed);
 	}
 
 	public boolean isEmpty() {
@@ -51,7 +49,7 @@ public class AnalyzedJob {
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return HashCoder.hash(build, justBroken, stillBroken, justFixed);
 	}
 
 	@Override
@@ -68,8 +66,8 @@ public class AnalyzedJob {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, build).children(justBroken, stillBroken,
-			justFixed).toString();
+		return ToStringHelper.createByClass(this, build)
+			.children(justBroken, stillBroken, justFixed).toString();
 	}
 
 	private Event.Type type(Event event) {

@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.util.BasicUtil;
+import ceri.common.text.StringUtil;
 
 /**
  * Used to create fixers from property files. Add fixer builders for each field, then process the
@@ -60,7 +60,7 @@ public class FixerPropertyParser<K> {
 	public FixerPropertyParser<K> process(Properties properties) {
 		Set<String> missedFields = new HashSet<>();
 		for (String name : properties.stringPropertyNames()) {
-			if (name.startsWith("#") || BasicUtil.isEmpty(name)) continue;
+			if (name.startsWith("#") || StringUtil.isBlank(name)) continue;
 			String value = properties.getProperty(name);
 			int i = name.indexOf('.');
 			K key = key(name, i);

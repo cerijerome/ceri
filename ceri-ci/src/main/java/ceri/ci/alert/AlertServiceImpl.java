@@ -20,7 +20,6 @@ import ceri.ci.common.LoggingExecutor;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.io.IoUtil;
-import ceri.common.util.BasicUtil;
 import ceri.log.util.LogUtil;
 
 /**
@@ -232,7 +231,7 @@ public class AlertServiceImpl implements AlertService, Closeable {
 	private void purgeCycle(long purgeDelayMs) {
 		while (true) {
 			try {
-				BasicUtil.delay(purgeDelayMs);
+				ConcurrentUtil.delay(purgeDelayMs);
 				purge();
 			} catch (RuntimeInterruptedException e) {
 				throw e;

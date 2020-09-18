@@ -11,10 +11,10 @@ import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import ceri.common.date.DateUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToStringHelper;
+import ceri.common.time.DateUtil;
 import ceri.common.util.EqualsUtil;
 import ceri.common.util.HashCoder;
 

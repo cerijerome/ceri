@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.TreeSet;
 import ceri.common.comparator.Comparators;
+import ceri.common.text.StringUtil;
 import ceri.common.text.ToStringHelper;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.HashCoder;
 
 /**
@@ -21,7 +21,7 @@ public class Job implements Iterable<Event> {
 	public final String name;
 
 	public Job(String name) {
-		if (BasicUtil.isEmpty(name)) throw new IllegalArgumentException("Name cannot be empty: " +
+		if (StringUtil.isBlank(name)) throw new IllegalArgumentException("Name cannot be empty: " +
 			name);
 		this.name = name;
 	}
