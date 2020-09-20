@@ -29,7 +29,7 @@ public class SqlFormatterBehavior {
 		assertThat(f.format(123), is("321"));
 		assertThat(f.format(123, Types.DATE), is("321"));
 	}
-	
+
 	@Test
 	public void shouldFormatByClass() {
 		assertThat(formatter.format(null), is("null"));

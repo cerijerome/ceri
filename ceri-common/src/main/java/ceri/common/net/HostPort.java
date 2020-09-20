@@ -3,11 +3,10 @@ package ceri.common.net;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.text.RegexUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class HostPort {
 	public static HostPort LOCALHOST = new HostPort(NetUtil.LOCALHOST, null);
@@ -45,7 +44,7 @@ public class HostPort {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(host, port);
+		return Objects.hash(host, port);
 	}
 
 	@Override
@@ -53,8 +52,8 @@ public class HostPort {
 		if (this == obj) return true;
 		if (!(obj instanceof HostPort)) return false;
 		HostPort other = (HostPort) obj;
-		if (!EqualsUtil.equals(host, other.host)) return false;
-		if (!EqualsUtil.equals(port, other.port)) return false;
+		if (!Objects.equals(host, other.host)) return false;
+		if (!Objects.equals(port, other.port)) return false;
 		return true;
 	}
 

@@ -39,15 +39,15 @@ public class FileTracker {
 	}
 
 	/**
-	 * Delete all tracked files and dirs.
-	 * Returns true only if all tracked paths are deleted.
+	 * Delete all tracked files and dirs. Returns true only if all tracked paths are deleted.
 	 */
 	public boolean delete() {
 		return delete(null);
 	}
+
 	/**
-	 * Delete all tracked files and dirs. Caller can receive errors via onError callback.
-	 * Returns true only if all tracked paths are deleted.
+	 * Delete all tracked files and dirs. Caller can receive errors via onError callback. Returns
+	 * true only if all tracked paths are deleted.
 	 */
 	public boolean delete(BiConsumer<IOException, Path> onError) {
 		boolean success = true;

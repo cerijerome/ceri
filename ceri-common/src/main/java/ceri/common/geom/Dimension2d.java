@@ -1,8 +1,7 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import static ceri.common.validation.ValidationUtil.validateMinFp;
+import java.util.Objects;
 
 public class Dimension2d {
 	public static final Dimension2d ZERO = new Dimension2d(0, 0);
@@ -10,8 +9,8 @@ public class Dimension2d {
 	public final double h;
 
 	public static Dimension2d of(double w, double h) {
-		validateMin(w, 0, "Width");
-		validateMin(h, 0, "Height");
+		validateMinFp(w, 0, "Width");
+		validateMinFp(h, 0, "Height");
 		if (w == 0 && h == 0) return ZERO;
 		return new Dimension2d(w + .0, h + .0);
 	}
@@ -42,7 +41,7 @@ public class Dimension2d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(w, h);
+		return Objects.hash(w, h);
 	}
 
 	@Override
@@ -50,8 +49,8 @@ public class Dimension2d {
 		if (this == obj) return true;
 		if (!(obj instanceof Dimension2d)) return false;
 		Dimension2d other = (Dimension2d) obj;
-		if (!EqualsUtil.equals(w, other.w)) return false;
-		if (!EqualsUtil.equals(h, other.h)) return false;
+		if (!Objects.equals(w, other.w)) return false;
+		if (!Objects.equals(h, other.h)) return false;
 		return true;
 	}
 

@@ -13,7 +13,7 @@ import ceri.common.math.MathUtil;
  * Interface that provides sequential access to bytes. Reads are of known length, or require a given
  * length. For bulk efficiency, consider overriding these methods that process one byte at a time,
  * or make a sub-array copy:
- * 
+ *
  * <pre>
  * ByteReader skip(int length); [1-byte]
  * long readEndian(int size, boolean msb); [copy]
@@ -22,7 +22,7 @@ import ceri.common.math.MathUtil;
  * int readInto(ByteReceiver receiver, int offset, int length); [1-byte]
  * ByteReader transferTo(OutputStream out, int length) throws IOException; [1-byte]
  * </pre>
- * 
+ *
  * @see ceri.common.data.ByteProvider.Reader
  * @see ceri.common.data.ByteStream.Reader
  */
@@ -307,7 +307,7 @@ public interface ByteReader {
 	 * Transfers bytes to the output stream, and returns the number of bytes transferred. Default
 	 * implementation transfers one byte at a time; efficiency may be improved by overriding, or
 	 * calling:
-	 * 
+	 *
 	 * <pre>
 	 * return transferBufferTo(this, out, length);
 	 * </pre>

@@ -32,7 +32,7 @@ public class PropertyUtil {
 			return properties;
 		}
 	}
-	
+
 	/**
 	 * Merges multiple properties. Latter properties override the former.
 	 */

@@ -11,5 +11,5 @@ public class RuntimeXPathExceptionBehavior {
 		e = new RuntimeXPathException("test", e);
 		assertNotNull(e);
 	}
-	
+
 }

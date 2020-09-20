@@ -370,5 +370,5 @@ public class ByteArrayBehavior {
 			}
 		};
 	}
-	
+
 }

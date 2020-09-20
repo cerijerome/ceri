@@ -4,10 +4,9 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.util.Objects;
 import java.util.function.Predicate;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 /**
  * A path filter for glob and regex patterns, using a FileSystem matcher.
@@ -68,7 +67,7 @@ public class PathPattern {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(pattern);
+		return Objects.hash(pattern);
 	}
 
 	@Override
@@ -76,13 +75,13 @@ public class PathPattern {
 		if (this == obj) return true;
 		if (!(obj instanceof PathPattern)) return false;
 		PathPattern other = (PathPattern) obj;
-		if (!EqualsUtil.equals(pattern, other.pattern)) return false;
+		if (!Objects.equals(pattern, other.pattern)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, pattern).toString();
+		return ToString.forClass(this, pattern);
 	}
 
 }

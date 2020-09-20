@@ -1,0 +1,36 @@
+General Object notes
+--------------------
+
+Equals methods:
+- Objects.equals(Object, Object) => checks refs, calls Object.equals
+- Objects.deepEquals(Object, Object) => calls Array deepEquals, checks types, all children
+- Arrays.equals(Object[], Object[]) => checks elements
+- Arrays.equals(primitive[], primitive[]) => check elements
+- Arrays.equals(primitive[], from, to, primitive[], from, to) => checks element range
+- Arrays.deepEquals(Object[], Object[]) => checks types, all children
+- ArrayUtil.equals(primitive[], from, primitive[], from, len) => checks element slice
+- Optional methods that may be added:
+  - deepEquals(primitive[][]) to optimize type checking (may also extend to [][][])
+
+HashCode methods:
+- Objects.hash(Object...) => vararg call to Arrays.hashCode(Object[])
+- Objects.hashCode(Object) => Object.hashCode or 0 for null
+- Arrays.hashCode(Object[]) => combines each Object.hashCode (0 for null)
+- Arrays.hashCode(primitive[]) => combines primitives mapped to int
+- Arrays.deepHashCode(Object[]) => combines each element and children by type checks
+- ArrayUtil.hash(primitive[], off, len) => sub-array version of Arrays.hashCode(primitive[])
+- ArrayUtil.hash(Object[], off, len) => sub-array version of Arrays.hashCode(Object[])
+- ArrayUtil.deepHash(Object...) => vararg call to Arrays.deepHashCode(Object[])
+- Optional methods that may be added:
+  - deepHash(primitive[][]) to optimize type checking (may also extend to [][][])
+
+ToString methods:
+- Objects.toString(Object) => String.valueOf(Object)
+- Objects.toString(Object, String) => String.valueOf(Object) or default string for null
+- Arrays.toString(Object[]) => combines each Object.hashCode (0 for null)
+- Arrays.toString(primitive[]) => combines primitives mapped to int
+- Arrays.deepToString(Object[]) => combines each element and children by type checks
+- ArrayUtil.deepToString(Object) => calls Arrays depending on array type, else String.valueOf
+- ToStringHelper => structured string builder
+- Optional methods that may be added:
+  - toString(primitive[], off, len)

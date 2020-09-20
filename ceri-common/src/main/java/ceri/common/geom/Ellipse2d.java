@@ -1,10 +1,9 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateMinFp;
+import java.util.Objects;
 import ceri.common.math.MathUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class Ellipse2d {
 	public static final Ellipse2d NULL = new Ellipse2d(0, 0);
@@ -13,8 +12,8 @@ public class Ellipse2d {
 
 	public static Ellipse2d create(double a, double b) {
 		if (a == 0 && b == 0) return NULL;
-		validateMin(a, 0, "Axis a");
-		validateMin(b, 0, "Axis b");
+		validateMinFp(a, 0, "Axis a");
+		validateMinFp(b, 0, "Axis b");
 		return new Ellipse2d(a + .0, b + .0);
 	}
 
@@ -133,7 +132,7 @@ public class Ellipse2d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(a, b);
+		return Objects.hash(a, b);
 	}
 
 	@Override
@@ -141,14 +140,14 @@ public class Ellipse2d {
 		if (this == obj) return true;
 		if (!(obj instanceof Ellipse2d)) return false;
 		Ellipse2d other = (Ellipse2d) obj;
-		if (!EqualsUtil.equals(a, other.a)) return false;
-		if (!EqualsUtil.equals(b, other.b)) return false;
+		if (!Objects.equals(a, other.a)) return false;
+		if (!Objects.equals(b, other.b)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, a, b).toString();
+		return ToString.forClass(this, a, b);
 	}
 
 	private static double integral(double r, double a, double b) {

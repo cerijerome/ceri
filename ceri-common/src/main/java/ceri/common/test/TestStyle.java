@@ -34,7 +34,7 @@ public enum TestStyle {
 		if (cls == null) return none;
 		return guessFrom(cls.getSimpleName());
 	}
-	
+
 	/**
 	 * Guess from class - can be target or test class.
 	 */
@@ -47,7 +47,7 @@ public enum TestStyle {
 		if (target.isEmpty()) return none;
 		return testGuessSuffixes.stream().anyMatch(s -> target.endsWith(s)) ? test : behavior;
 	}
-	
+
 	/**
 	 * Returns the test target. Simple/full class names, filenames, and paths are permitted. Returns
 	 * given string if it does not match a test style.

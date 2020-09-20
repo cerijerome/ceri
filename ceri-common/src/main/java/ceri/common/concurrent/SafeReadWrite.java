@@ -12,19 +12,19 @@ public class SafeReadWrite {
 	public static SafeReadWrite of() {
 		return of(false);
 	}
-	
+
 	public static SafeReadWrite of(boolean fair) {
 		return new SafeReadWrite(new ReentrantReadWriteLock(fair));
 	}
-	
+
 	private SafeReadWrite(ReadWriteLock lock) {
 		this.lock = lock;
 	}
-	
+
 	public Lock conditionLock() {
 		return lock.writeLock();
 	}
-	
+
 	public <E extends Exception, T> T read(ExceptionSupplier<E, T> supplier) throws E {
 		return ConcurrentUtil.executeGet(lock.readLock(), supplier);
 	}

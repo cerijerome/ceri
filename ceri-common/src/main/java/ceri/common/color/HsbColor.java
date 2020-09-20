@@ -5,12 +5,11 @@ import static ceri.common.color.ColorUtil.g;
 import static ceri.common.color.ColorUtil.r;
 import static ceri.common.color.ColorUtil.toRatio;
 import static ceri.common.math.Bound.Type.inclusive;
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.awt.Color;
+import java.util.Objects;
 import ceri.common.data.ByteUtil;
 import ceri.common.math.MathUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Encapsulates HSBA color with values 0-1.
@@ -139,7 +138,7 @@ public class HsbColor implements ComponentColor<HsbColor> {
 	}
 
 	private void validate(double value, String name) {
-		validateRange(value, 0, MAX_VALUE, name);
+		validateRangeFp(value, 0, MAX_VALUE, name);
 	}
 
 	private double limit(double value) {
@@ -148,7 +147,7 @@ public class HsbColor implements ComponentColor<HsbColor> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(h, s, b, a);
+		return Objects.hash(h, s, b, a);
 	}
 
 	@Override
@@ -156,10 +155,10 @@ public class HsbColor implements ComponentColor<HsbColor> {
 		if (this == obj) return true;
 		if (!(obj instanceof HsbColor)) return false;
 		HsbColor other = (HsbColor) obj;
-		if (!EqualsUtil.equals(h, other.h)) return false;
-		if (!EqualsUtil.equals(s, other.s)) return false;
-		if (!EqualsUtil.equals(b, other.b)) return false;
-		if (!EqualsUtil.equals(a, other.a)) return false;
+		if (!Objects.equals(h, other.h)) return false;
+		if (!Objects.equals(s, other.s)) return false;
+		if (!Objects.equals(b, other.b)) return false;
+		if (!Objects.equals(a, other.a)) return false;
 		return true;
 	}
 

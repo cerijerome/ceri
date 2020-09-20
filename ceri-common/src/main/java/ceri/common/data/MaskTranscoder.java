@@ -1,9 +1,9 @@
 package ceri.common.data;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
+import java.util.Objects;
 import ceri.common.math.MathUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 /**
  * Extracts and calculates masked values within a long value.
@@ -28,8 +28,8 @@ public class MaskTranscoder {
 	}
 
 	/**
-	 * Mask bits and shift. Masked value is right-shifted given number of bits.
-	 * TODO: rename to 'bits'
+	 * Mask bits and shift. Masked value is right-shifted given number of bits. TODO: rename to
+	 * 'bits'
 	 */
 	public static MaskTranscoder xbits(int bitCount, int shiftBits) {
 		validateMin(bitCount, 1);
@@ -93,7 +93,7 @@ public class MaskTranscoder {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(mask, shiftBits);
+		return Objects.hash(mask, shiftBits);
 	}
 
 	@Override
@@ -108,7 +108,7 @@ public class MaskTranscoder {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, mask, shiftBits).toString();
+		return ToString.forClass(this, mask, shiftBits);
 	}
 
 }

@@ -21,8 +21,8 @@ public class AlgebraUtil {
 	 */
 	public static long longFactorial(long value) {
 		double factorial = factorial(value);
-		if (factorial > Long.MAX_VALUE) throw new IllegalArgumentException(value +
-			"! is larger than long type allows: " + factorial);
+		if (factorial > Long.MAX_VALUE) throw new IllegalArgumentException(
+			value + "! is larger than long type allows: " + factorial);
 		return (long) factorial;
 	}
 

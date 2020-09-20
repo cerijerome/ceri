@@ -1,8 +1,7 @@
 package ceri.common.geom;
 
 import static ceri.common.text.StringUtil.compact;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
 
 /**
  * Line formula ax + by + c = 0.
@@ -81,15 +80,15 @@ public class LineEquation2d {
 	public double distanceTo(Point2d point) {
 		return distanceTo(point.x, point.y);
 	}
-	
+
 	public double distanceTo(double x, double y) {
 		if (isNull()) return Double.NaN;
 		return Math.abs((a * x) + (b * y) + c) / Math.sqrt((a * a) + (b * b));
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(a, b, c);
+		return Objects.hash(a, b, c);
 	}
 
 	@Override
@@ -97,9 +96,9 @@ public class LineEquation2d {
 		if (this == obj) return true;
 		if (!(obj instanceof LineEquation2d)) return false;
 		LineEquation2d other = (LineEquation2d) obj;
-		if (!EqualsUtil.equals(a, other.a)) return false;
-		if (!EqualsUtil.equals(b, other.b)) return false;
-		if (!EqualsUtil.equals(c, other.c)) return false;
+		if (!Objects.equals(a, other.a)) return false;
+		if (!Objects.equals(b, other.b)) return false;
+		if (!Objects.equals(c, other.c)) return false;
 		return true;
 	}
 

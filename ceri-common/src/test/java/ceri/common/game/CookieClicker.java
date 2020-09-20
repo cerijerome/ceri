@@ -11,9 +11,8 @@ import java.awt.event.InputEvent;
 import ceri.common.util.BasicUtil;
 
 /**
- * Cheating app for Cookie Clicker http://orteil.dashnet.org/cookieclicker/
- * Clicks the mouse when within a given rectangle.
- * Makes reminder sound to look for lucky cookie.
+ * Cheating app for Cookie Clicker http://orteil.dashnet.org/cookieclicker/ Clicks the mouse when
+ * within a given rectangle. Makes reminder sound to look for lucky cookie.
  */
 public class CookieClicker {
 	private final Rectangle clickArea;
@@ -24,18 +23,18 @@ public class CookieClicker {
 	private final int delayMs;
 	private final Dimension screenSize;
 
-//		10		  20        30        40        50        60        70        80        90       100
-//       |         |         |         |         |         |         |         |         |         |
+	// 10 20 30 40 50 60 70 80 90 100
+	// | | | | | | | | | |
 
 	public static class Builder {
-		//Rectangle clickArea = new Rectangle(80, 310, 270, 270);
+		// Rectangle clickArea = new Rectangle(80, 310, 270, 270);
 		Rectangle clickArea = new Rectangle(110, 340, 200, 200);
 		int gcReminderMs = 130000;
 		Rectangle resetArea = new Rectangle(0, 0, 20, 20);
 		Rectangle disableArea = new Rectangle(0, -20, 20, 20);
 		Rectangle exitArea = new Rectangle(-20, -20, 20, 20);
 		int delayMs = 50;
-		
+
 		Builder() {}
 
 		public Builder clickArea(int x, int y, int w, int h) {
@@ -88,14 +87,14 @@ public class CookieClicker {
 		int y = r.y >= 0 ? r.y : screenSize.height + r.y;
 		return new Rectangle(x, y, r.width, r.height);
 	}
-	
+
 	public static Builder builder() {
 		return new Builder();
 	}
 
 	public void start() throws AWTException {
 		Robot r = new Robot();
-		//r.setAutoWaitForIdle(true);
+		// r.setAutoWaitForIdle(true);
 		long gc = 0;
 		boolean enabled = true;
 		while (true) {
@@ -117,7 +116,7 @@ public class CookieClicker {
 			long t = System.currentTimeMillis();
 			if (enabled && t > gc + gcReminderMs) {
 				gc = t;
-				//BasicUtil.beep();
+				// BasicUtil.beep();
 			}
 		}
 	}
@@ -127,12 +126,12 @@ public class CookieClicker {
 		if (info == null) return null;
 		return info.getLocation();
 	}
-	
+
 	private boolean changeState(boolean from, boolean to) {
 		if (from != to) BasicUtil.beep();
 		return to;
 	}
-	
+
 	private static Dimension screenSize() {
 		return MouseInfo.getPointerInfo().getDevice().getDefaultConfiguration().getBounds()
 			.getSize();

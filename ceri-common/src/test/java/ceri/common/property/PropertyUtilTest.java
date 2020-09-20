@@ -23,17 +23,17 @@ import ceri.common.test.TestUtil;
 
 public class PropertyUtilTest {
 	private static Properties properties;
-	
+
 	@BeforeClass
 	public static void beforeClass() {
 		properties = Mockito.mock(Properties.class);
 	}
-	
+
 	@Before
 	public void before() {
 		Mockito.clearInvocations(properties); // reduce test times
 	}
-	
+
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(PropertyUtil.class);

@@ -43,7 +43,8 @@ public class XPathUtil {
 		return nodes.get(0);
 	}
 
-	public static Node node(XPathExpression expression, Object dom) throws XPathExpressionException {
+	public static Node node(XPathExpression expression, Object dom)
+		throws XPathExpressionException {
 		List<Node> nodes = nodeList(expression, dom);
 		if (nodes.isEmpty()) return null;
 		return nodes.get(0);

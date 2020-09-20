@@ -6,12 +6,11 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.ToIntFunction;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.StreamUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -51,7 +50,7 @@ public class TypeTranscoder<T> {
 
 		@Override
 		public int hashCode() {
-			return HashCoder.hash(types, remainder);
+			return Objects.hash(types, remainder);
 		}
 
 		@Override
@@ -59,7 +58,7 @@ public class TypeTranscoder<T> {
 			if (this == obj) return true;
 			if (!(obj instanceof Remainder)) return false;
 			Remainder<?> other = (Remainder<?>) obj;
-			if (!EqualsUtil.equals(types, other.types)) return false;
+			if (!Objects.equals(types, other.types)) return false;
 			if (remainder != other.remainder) return false;
 			return true;
 		}

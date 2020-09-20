@@ -24,8 +24,8 @@ public class WrappedStreamTestUtil {
 	}
 
 	@SafeVarargs
-	public static <E extends Exception, T> void assertCapture(
-		ExceptionConsumer<E, ExceptionConsumer<E, T>> fn, T... values) {
+	public static <E extends Exception, T> void
+		assertCapture(ExceptionConsumer<E, ExceptionConsumer<E, T>> fn, T... values) {
 		Capturer<T> capture = Capturer.of();
 		try {
 			fn.accept(capture::accept);
@@ -35,8 +35,8 @@ public class WrappedStreamTestUtil {
 		capture.verify(values);
 	}
 
-	public static <E extends Exception> void assertCapture(
-		ExceptionConsumer<E, ExceptionIntConsumer<E>> fn, int... values) {
+	public static <E extends Exception> void
+		assertCapture(ExceptionConsumer<E, ExceptionIntConsumer<E>> fn, int... values) {
 		Capturer.Int capture = Capturer.ofInt();
 		try {
 			fn.accept(capture::accept);
@@ -71,8 +71,7 @@ public class WrappedStreamTestUtil {
 		TestUtil.assertStream(tStream, values);
 	}
 
-	public static <E extends Exception> void assertStream(WrappedIntStream<E> stream,
-		int... values)
+	public static <E extends Exception> void assertStream(WrappedIntStream<E> stream, int... values)
 		throws E {
 		IntStream iStream = stream.terminateAs(s -> s);
 		TestUtil.assertStream(iStream, values);

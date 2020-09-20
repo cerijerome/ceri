@@ -20,8 +20,8 @@ public class NamedPredicateBuilder<E extends Exception, T> {
 		return new NamedPredicateBuilder<>();
 	}
 
-	public static <E extends Exception, T> NamedPredicateBuilder<E, T> of(
-		ExceptionPredicate<E, T> predicate, String name) {
+	public static <E extends Exception, T> NamedPredicateBuilder<E, T>
+		of(ExceptionPredicate<E, T> predicate, String name) {
 		return new NamedPredicateBuilder<E, T>().and(predicate, name);
 	}
 

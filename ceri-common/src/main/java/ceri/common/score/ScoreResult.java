@@ -1,8 +1,7 @@
 package ceri.common.score;
 
 import java.util.Comparator;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
 
 public class ScoreResult<T> implements Comparable<ScoreResult<T>> {
 	private static final Comparator<ScoreResult<?>> COMPARATOR =
@@ -26,7 +25,7 @@ public class ScoreResult<T> implements Comparable<ScoreResult<T>> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(ref, score);
+		return Objects.hash(ref, score);
 	}
 
 	@Override
@@ -34,8 +33,8 @@ public class ScoreResult<T> implements Comparable<ScoreResult<T>> {
 		if (this == obj) return true;
 		if (!(obj instanceof ScoreResult)) return false;
 		ScoreResult<?> other = (ScoreResult<?>) obj;
-		if (!EqualsUtil.equals(ref, other.ref)) return false;
-		if (!EqualsUtil.equals(score, other.score)) return false;
+		if (!Objects.equals(ref, other.ref)) return false;
+		if (!Objects.equals(score, other.score)) return false;
 		return true;
 	}
 

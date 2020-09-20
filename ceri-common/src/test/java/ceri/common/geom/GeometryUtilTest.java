@@ -42,7 +42,7 @@ public class GeometryUtilTest {
 		assertApprox(GeometryUtil.angleFromGradient(1), Math.PI / 4);
 		assertApprox(GeometryUtil.angleFromGradient(-1), -Math.PI / 4);
 	}
-	
+
 	@Test
 	public void testOverlap() {
 		assertRect(GeometryUtil.overlap(rt0, rt0), 0, 0, 200, 100);

@@ -67,7 +67,7 @@ public class Capturer<T> implements Consumer<T> {
 		public final void verifyInt(int... values) {
 			verify(ArrayUtil.intList(values));
 		}
-		
+
 		public int[] ints() {
 			return ArrayUtil.ints(values);
 		}

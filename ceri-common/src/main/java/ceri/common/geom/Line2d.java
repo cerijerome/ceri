@@ -1,9 +1,7 @@
 package ceri.common.geom;
 
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
-
+import java.util.Objects;
+import ceri.common.text.ToString;
 
 public class Line2d {
 	public static final Line2d ZERO = new Line2d(Point2d.ZERO, Point2d.ZERO);
@@ -100,7 +98,7 @@ public class Line2d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(from, to);
+		return Objects.hash(from, to);
 	}
 
 	@Override
@@ -108,14 +106,14 @@ public class Line2d {
 		if (this == obj) return true;
 		if (!(obj instanceof Line2d)) return false;
 		Line2d other = (Line2d) obj;
-		if (!EqualsUtil.equals(from, other.from)) return false;
-		if (!EqualsUtil.equals(to, other.to)) return false;
+		if (!Objects.equals(from, other.from)) return false;
+		if (!Objects.equals(to, other.to)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, from, to).toString();
+		return ToString.forClass(this, from, to);
 	}
 
 }

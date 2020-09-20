@@ -22,7 +22,7 @@ public interface Colorable {
 		color(new Color(rgb));
 	}
 
-	static Colorable multi(Colorable...colorables) {
+	static Colorable multi(Colorable... colorables) {
 		return multi(Arrays.asList(colorables));
 	}
 

@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
@@ -58,7 +59,6 @@ import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.EqualsUtil;
 
 public class TestUtil {
 	private static final int DELAY_MICROS = 1;
@@ -557,7 +557,7 @@ public class TestUtil {
 		if (!hasLhs && !hasRhs) throw failure("Nothing at index %d", i);
 		if (!hasLhs) throw failure("Nothing at index %d, expected %s", i, toString(rhs));
 		if (!hasRhs) throw failure("Unexpected item at index %d: %s", i, toString(lhs));
-		if (!EqualsUtil.equals(lhs, rhs)) throw failExpected(lhs, rhs, "Index %d", i);
+		if (!Objects.deepEquals(lhs, rhs)) throw failExpected(lhs, rhs, "Index %d", i);
 	}
 
 	private static <T> AssertionError failExpected(T actual, T expected, String format,
@@ -907,7 +907,7 @@ public class TestUtil {
 	/**
 	 * Check bytes read from input stream.
 	 */
-	public static void assertRead(InputStream in, int...bytes) throws IOException {
+	public static void assertRead(InputStream in, int... bytes) throws IOException {
 		assertRead(in, ArrayUtil.bytes(bytes));
 	}
 

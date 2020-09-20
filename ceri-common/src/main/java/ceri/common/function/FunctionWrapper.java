@@ -156,7 +156,8 @@ public class FunctionWrapper<E extends Exception> {
 		return unwrapGet(() -> function.applyAsInt(i));
 	}
 
-	public <T, U, R> R unwrapBiFunction(ExceptionBiFunction<E, T, U, R> function, T t, U u) throws E {
+	public <T, U, R> R unwrapBiFunction(ExceptionBiFunction<E, T, U, R> function, T t, U u)
+		throws E {
 		return unwrapGet(() -> function.apply(t, u));
 	}
 

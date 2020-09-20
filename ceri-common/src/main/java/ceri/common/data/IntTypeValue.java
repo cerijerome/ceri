@@ -9,9 +9,8 @@ import static ceri.common.validation.DisplayLong.hex2;
 import static ceri.common.validation.DisplayLong.hex4;
 import static ceri.common.validation.ValidationUtil.validateNotEqualObj;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
+import java.util.Objects;
 import java.util.function.IntFunction;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Used to hold values that may have a type value, such as an enum. If no type maps to the value,
@@ -163,7 +162,7 @@ public class IntTypeValue<T> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(type, name, value, subValue);
+		return Objects.hash(type, name, value, subValue);
 	}
 
 	@Override
@@ -172,9 +171,9 @@ public class IntTypeValue<T> {
 		if (!(obj instanceof IntTypeValue)) return false;
 		IntTypeValue<?> other = (IntTypeValue<?>) obj;
 		if (value != other.value) return false;
-		if (!EqualsUtil.equals(type, other.type)) return false;
-		if (!EqualsUtil.equals(subValue, other.subValue)) return false;
-		if (!EqualsUtil.equals(name, other.name)) return false;
+		if (!Objects.equals(type, other.type)) return false;
+		if (!Objects.equals(subValue, other.subValue)) return false;
+		if (!Objects.equals(name, other.name)) return false;
 		return true;
 	}
 

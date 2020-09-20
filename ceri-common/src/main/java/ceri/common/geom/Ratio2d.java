@@ -1,8 +1,7 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import static ceri.common.validation.ValidationUtil.validateMinFp;
+import java.util.Objects;
 
 public class Ratio2d {
 	public static final Ratio2d ZERO = new Ratio2d(0, 0);
@@ -17,8 +16,8 @@ public class Ratio2d {
 	public static Ratio2d of(double x, double y) {
 		if (x == 0 && y == 0) return ZERO;
 		if (x == 1 && y == 1) return ONE;
-		validateMin(x, 0, "X ratio");
-		validateMin(y, 0, "Y ratio");
+		validateMinFp(x, 0, "X ratio");
+		validateMinFp(y, 0, "Y ratio");
 		return new Ratio2d(x + .0, y + .0);
 	}
 
@@ -29,7 +28,7 @@ public class Ratio2d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(x, y);
+		return Objects.hash(x, y);
 	}
 
 	@Override
@@ -37,8 +36,8 @@ public class Ratio2d {
 		if (this == obj) return true;
 		if (!(obj instanceof Ratio2d)) return false;
 		Ratio2d other = (Ratio2d) obj;
-		if (!EqualsUtil.equals(x, other.x)) return false;
-		if (!EqualsUtil.equals(y, other.y)) return false;
+		if (!Objects.equals(x, other.x)) return false;
+		if (!Objects.equals(y, other.y)) return false;
 		return true;
 	}
 

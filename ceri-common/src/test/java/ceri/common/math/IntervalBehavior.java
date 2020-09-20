@@ -126,7 +126,7 @@ public class IntervalBehavior {
 		assertThat(Interval.exclusive("xxx", "xxxxx", comparator).contains("xxx"), is(false));
 		assertThat(Interval.exclusive("xxx", "xxxxx", comparator).contains("xxxxx"), is(false));
 	}
-	
+
 	@Test
 	public void shouldProvideStringRepresentation() {
 		assertThat(Interval.unbound().toString(), is("(\u221e)")); // (infinity)
@@ -138,5 +138,5 @@ public class IntervalBehavior {
 		assertThat(Interval.inclusive(-2, -3).toString(), is("[-2, -3]"));
 		assertThat(Interval.exclusive(-2, -3).toString(), is("(-2, -3)"));
 	}
-	
+
 }

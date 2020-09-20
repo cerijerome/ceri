@@ -27,7 +27,7 @@ public class ExceptionUtilTest {
 	public void testDoNotCall() {
 		assertThrown(() -> ExceptionUtil.doNotCall(1, "2"));
 	}
-	
+
 	@Test
 	public void testShouldNotThrow() {
 		Capturer.Int capturer = Capturer.ofInt();
@@ -81,7 +81,7 @@ public class ExceptionUtilTest {
 		assertThat(ExceptionUtil.message(new IOException()), is("IOException"));
 		assertThat(ExceptionUtil.message(new Exception("test")), is("test"));
 	}
-	
+
 	@Test
 	public void testStackTrace() {
 		assertNull(ExceptionUtil.stackTrace(null));
@@ -100,13 +100,13 @@ public class ExceptionUtilTest {
 		assertNull(ExceptionUtil.firstStackElement(null));
 		StackTraceElement el = ExceptionUtil.firstStackElement(new IOException());
 		assertThat(el.getMethodName(), is(ReflectUtil.currentMethodName()));
-		
+
 		Exception e = mock(Exception.class);
 		assertNull(ExceptionUtil.firstStackElement(e));
 		when(e.getStackTrace()).thenReturn(new StackTraceElement[0]);
 		assertNull(ExceptionUtil.firstStackElement(e));
 	}
-	
+
 	@Test
 	public void testLimitStackTrace() {
 		assertThat(ExceptionUtil.limitStackTrace(null, 0), is(false));
@@ -117,11 +117,12 @@ public class ExceptionUtilTest {
 		assertThat(ExceptionUtil.limitStackTrace(e, count - 1), is(true));
 		assertThat(e.getStackTrace().length, is(count - 1));
 	}
-	
+
 	@Test
 	public void testThrowIfType() throws IOException {
 		ExceptionUtil.throwIfType(IOException.class, new InterruptedException());
-		assertThrown(IOException.class, () -> ExceptionUtil.throwIfType(IOException.class, new EOFException()));
+		assertThrown(IOException.class,
+			() -> ExceptionUtil.throwIfType(IOException.class, new EOFException()));
 	}
-	
+
 }

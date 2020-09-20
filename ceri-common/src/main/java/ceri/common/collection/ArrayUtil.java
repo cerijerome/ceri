@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import ceri.common.util.BasicUtil;
@@ -25,6 +26,11 @@ import ceri.common.util.BasicUtil;
  * @see ceri.common.util.PrimitiveUtil
  */
 public class ArrayUtil {
+	private static final String NULL_STRING = "null";
+	private static final int HASH_INIT = 1;
+	private static final int HASH_MULTIPLIER = 31;
+	private static final int TRUE_HASH = 1231;
+	private static final int FALSE_HASH = 1237;
 	public static final boolean[] EMPTY_BOOLEAN = new boolean[0];
 	public static final byte[] EMPTY_BYTE = new byte[0];
 	public static final char[] EMPTY_CHAR = new char[0];
@@ -1028,75 +1034,113 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 * Varargs method for Arrays.deepHashCode().
 	 */
-	public static <T> boolean equals(T[] lhs, int lhsStart, T[] rhs, int rhsStart) {
-		return equals(lhs, lhsStart, rhs, rhsStart,
-			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	public static int deepHash(Object... objs) {
+		return Arrays.deepHashCode(objs);
 	}
 
 	/**
-	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 * Provides Arrays.hashCode() for a sub-array.
 	 */
-	public static boolean equals(boolean[] lhs, int lhsStart, boolean[] rhs, int rhsStart) {
-		return equals(lhs, lhsStart, rhs, rhsStart,
-			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	public static int hash(boolean[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = HASH_INIT;
+		while (length-- > 0)
+			result = HASH_MULTIPLIER * result + (a[offset++] ? TRUE_HASH : FALSE_HASH);
+		return result;
 	}
 
 	/**
-	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 * Provides Arrays.hashCode() for a sub-array.
 	 */
-	public static boolean equals(byte[] lhs, int lhsStart, byte[] rhs, int rhsStart) {
-		return equals(lhs, lhsStart, rhs, rhsStart,
-			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	public static int hash(byte[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = HASH_INIT;
+		while (length-- > 0)
+			result = HASH_MULTIPLIER * result + a[offset++];
+		return result;
 	}
 
 	/**
-	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 * Provides Arrays.hashCode() for a sub-array.
 	 */
-	public static boolean equals(char[] lhs, int lhsStart, char[] rhs, int rhsStart) {
-		return equals(lhs, lhsStart, rhs, rhsStart,
-			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	public static int hash(char[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = HASH_INIT;
+		while (length-- > 0)
+			result = HASH_MULTIPLIER * result + a[offset++];
+		return result;
 	}
 
 	/**
-	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 * Provides Arrays.hashCode() for a sub-array.
 	 */
-	public static boolean equals(short[] lhs, int lhsStart, short[] rhs, int rhsStart) {
-		return equals(lhs, lhsStart, rhs, rhsStart,
-			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	public static int hash(short[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = HASH_INIT;
+		while (length-- > 0)
+			result = HASH_MULTIPLIER * result + a[offset++];
+		return result;
 	}
 
 	/**
-	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 * Provides Arrays.hashCode() for a sub-array.
 	 */
-	public static boolean equals(int[] lhs, int lhsStart, int[] rhs, int rhsStart) {
-		return equals(lhs, lhsStart, rhs, rhsStart,
-			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	public static int hash(int[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = HASH_INIT;
+		while (length-- > 0)
+			result = HASH_MULTIPLIER * result + a[offset++];
+		return result;
 	}
 
 	/**
-	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 * Provides Arrays.hashCode() for a sub-array.
 	 */
-	public static boolean equals(long[] lhs, int lhsStart, long[] rhs, int rhsStart) {
-		return equals(lhs, lhsStart, rhs, rhsStart,
-			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	public static int hash(long[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = HASH_INIT;
+		while (length-- > 0) {
+			long l = a[offset++];
+			result = HASH_MULTIPLIER * result + (int) (l ^ (l >>> Integer.SIZE));
+		}
+		return result;
 	}
 
 	/**
-	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 * Provides Arrays.hashCode() for a sub-array.
 	 */
-	public static boolean equals(float[] lhs, int lhsStart, float[] rhs, int rhsStart) {
-		return equals(lhs, lhsStart, rhs, rhsStart,
-			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	public static int hash(float[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = HASH_INIT;
+		while (length-- > 0)
+			result = HASH_MULTIPLIER * result + Float.floatToIntBits(a[offset++]);
+		return result;
 	}
 
 	/**
-	 * Checks if arrays are equals, using offsets and minimum overlapping length
+	 * Provides Arrays.hashCode() for a sub-array.
 	 */
-	public static boolean equals(double[] lhs, int lhsStart, double[] rhs, int rhsStart) {
-		return equals(lhs, lhsStart, rhs, rhsStart,
-			Math.min(lhs.length - lhsStart, rhs.length - rhsStart));
+	public static int hash(double[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = HASH_INIT;
+		while (length-- > 0) {
+			long l = Double.doubleToLongBits(a[offset++]);
+			result = HASH_MULTIPLIER * result + (int) (l ^ (l >>> Integer.SIZE));
+		}
+		return result;
+	}
+
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int hash(Object[] a, int offset, int length) {
+		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
+		int result = HASH_INIT;
+		while (length-- > 0)
+			result = HASH_MULTIPLIER * result + Objects.hashCode(a[offset++]);
+		return result;
 	}
 
 	/**
@@ -1161,6 +1205,18 @@ public class ArrayUtil {
 	 */
 	public static boolean equals(double[] lhs, int lhsStart, double[] rhs, int rhsStart, int len) {
 		return Arrays.equals(lhs, lhsStart, lhsStart + len, rhs, rhsStart, rhsStart + len);
+	}
+
+	/**
+	 * Extends Arrays.deepToString to include any object type.
+	 */
+	public static String deepToString(Object obj) {
+		if (obj == null) return NULL_STRING;
+		Class<?> cls = obj.getClass();
+		if (!cls.isArray()) return String.valueOf(obj);
+		Function<Object, String> fn = toStringMap.get(cls);
+		if (fn != null) return fn.apply(obj);
+		return Arrays.deepToString((Object[]) obj);
 	}
 
 	/**
@@ -1245,16 +1301,12 @@ public class ArrayUtil {
 		return obj.getClass().isArray();
 	}
 
-	/**
-	 * Extends Arrays.deepToString to include any object type.
-	 */
-	public static String deepToString(Object obj) {
-		if (obj == null) return String.valueOf((Object) null); // if no cast, goes to char[]
-		Class<?> cls = obj.getClass();
-		if (!cls.isArray()) return String.valueOf(obj);
-		Function<Object, String> fn = toStringMap.get(cls);
-		if (fn != null) return fn.apply(obj);
-		return Arrays.deepToString((Object[]) obj);
+	private static <T> T arrayCopy(T src, int srcSize, int offset, int length, T dest) {
+		int from = Math.max(0, offset);
+		int to = (from - offset);
+		int len = Math.min(srcSize - from, length - to);
+		if (len > 0) System.arraycopy(src, from, dest, to, len);
+		return dest;
 	}
 
 	private static Map<Class<?>, Function<Object, String>> toStringMap() {
@@ -1267,14 +1319,6 @@ public class ArrayUtil {
 			long[].class, obj -> Arrays.toString((long[]) obj), //
 			float[].class, obj -> Arrays.toString((float[]) obj), //
 			double[].class, obj -> Arrays.toString((double[]) obj));
-	}
-
-	private static <T> T arrayCopy(T src, int srcSize, int offset, int length, T dest) {
-		int from = Math.max(0, offset);
-		int to = (from - offset);
-		int len = Math.min(srcSize - from, length - to);
-		if (len > 0) System.arraycopy(src, from, dest, to, len);
-		return dest;
 	}
 
 }

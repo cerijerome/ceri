@@ -3,8 +3,7 @@ package ceri.common.math;
 import static java.lang.Math.addExact;
 import static java.lang.Math.multiplyExact;
 import static java.lang.Math.negateExact;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
 
 public class MixedFraction {
 	public static final MixedFraction ZERO = new MixedFraction(0, Fraction.ZERO);
@@ -88,7 +87,7 @@ public class MixedFraction {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(whole, fraction);
+		return Objects.hash(whole, fraction);
 	}
 
 	@Override
@@ -97,7 +96,7 @@ public class MixedFraction {
 		if (!(obj instanceof MixedFraction)) return false;
 		MixedFraction other = (MixedFraction) obj;
 		if (whole != other.whole) return false;
-		if (!EqualsUtil.equals(fraction, other.fraction)) return false;
+		if (!Objects.equals(fraction, other.fraction)) return false;
 		return true;
 	}
 

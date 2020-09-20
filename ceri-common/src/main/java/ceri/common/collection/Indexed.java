@@ -1,9 +1,8 @@
 package ceri.common.collection;
 
+import java.util.Objects;
 import java.util.function.ObjIntConsumer;
 import ceri.common.function.ObjIntFunction;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Useful for streaming an object and its index, to replace a for loop.
@@ -31,7 +30,7 @@ public class Indexed<T> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(val, i);
+		return Objects.hash(val, i);
 	}
 
 	@Override
@@ -40,7 +39,7 @@ public class Indexed<T> {
 		if (!(obj instanceof Indexed)) return false;
 		Indexed<?> other = (Indexed<?>) obj;
 		if (i != other.i) return false;
-		if (!EqualsUtil.equals(val, other.val)) return false;
+		if (!Objects.equals(val, other.val)) return false;
 		return true;
 	}
 

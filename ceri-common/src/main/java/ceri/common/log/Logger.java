@@ -29,13 +29,11 @@ import ceri.common.util.BasicUtil;
 
 /**
  * Simple logger for when a logging framework cannot be used. A logger is built with a global lookup
- * key. When requesting a log, if the key is not found, the default logger is returned.
- * 
- * Loggers can be specify the default output consumer. An optional error output can be specified,
- * with a level at which to write instead of the standard output. Log format is specified with
- * Formatter syntax. FormatFlags can be used to optimize unused log fields. The format field indexes
- * are:
- * 
+ * key. When requesting a log, if the key is not found, the default logger is returned. Loggers can
+ * be specify the default output consumer. An optional error output can be specified, with a level
+ * at which to write instead of the standard output. Log format is specified with Formatter syntax.
+ * FormatFlags can be used to optimize unused log fields. The format field indexes are:
+ *
  * <pre>
  *  1 = local date-time
  *  2 = thread name
@@ -43,7 +41,7 @@ import ceri.common.util.BasicUtil;
  *  4 = class:line stack trace
  *  5 = message
  * </pre>
- * 
+ *
  * Log methods always return null. This allows for callers to simplify multi-stage evaluations where
  * a failed evaluation results in null, and requires a message to be logged.
  */

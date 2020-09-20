@@ -7,7 +7,7 @@ import ceri.common.math.MathUtil;
 public interface ObjShortConsumer<T> {
 
 	void accept(T t, short value);
-	
+
 	default ObjShortConsumer<T> andThen(ObjShortConsumer<? super T> after) {
 		Objects.requireNonNull(after);
 		return (t, i) -> {
@@ -15,7 +15,7 @@ public interface ObjShortConsumer<T> {
 			after.accept(t, i);
 		};
 	}
-	
+
 	static <T> ObjIntConsumer<T> toInt(ObjShortConsumer<T> consumer) {
 		Objects.requireNonNull(consumer);
 		return (t, i) -> consumer.accept(t, (short) i);

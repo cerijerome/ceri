@@ -269,7 +269,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.text.StringTypeBehavior.class, //
 	ceri.common.text.StringUtilTest.class, //
 	ceri.common.text.TextUtilTest.class, //
-	ceri.common.text.ToStringHelperBehavior.class, //
+	ceri.common.text.ToStringBehavior.class, //
 	ceri.common.text.Utf8UtilTest.class, //
 	// time
 	ceri.common.time.CalendarFieldBehavior.class, //
@@ -290,8 +290,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.BasicUtilTest.class, //
 	ceri.common.util.CounterBehavior.class, //
 	ceri.common.util.EnclosedBehavior.class, //
-	ceri.common.util.EqualsUtilTest.class, //
-	ceri.common.util.HashCoderBehavior.class, //
 	ceri.common.util.HolderBehavior.class, //
 	ceri.common.util.KeyValueBehavior.class, //
 	ceri.common.util.LocaleUtilTest.class, //

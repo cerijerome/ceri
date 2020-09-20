@@ -5,14 +5,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class PathGroup implements Path<PathGroup> {
 	public final List<Path<?>> paths;
@@ -65,7 +64,7 @@ public class PathGroup implements Path<PathGroup> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(paths);
+		return Objects.hash(paths);
 	}
 
 	@Override
@@ -73,13 +72,13 @@ public class PathGroup implements Path<PathGroup> {
 		if (this == obj) return true;
 		if (!(obj instanceof PathGroup)) return false;
 		PathGroup other = (PathGroup) obj;
-		if (!EqualsUtil.equals(paths, other.paths)) return false;
+		if (!Objects.equals(paths, other.paths)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, end).childrens(paths).toString();
+		return ToString.ofClass(this, end).childrens(paths).toString();
 	}
 
 }

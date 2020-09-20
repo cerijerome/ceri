@@ -28,8 +28,8 @@ public class NodeTree<T extends TreeNode<T>> {
 
 	private void process(Map<Integer, T> lookup, T node) {
 		Integer id = node.id;
-		if (lookup.containsKey(id)) throw new IllegalStateException("Failed to add " + node +
-			"; id " + id + " already exists in tree");
+		if (lookup.containsKey(id)) throw new IllegalStateException(
+			"Failed to add " + node + "; id " + id + " already exists in tree");
 		lookup.put(id, node);
 		for (T child : node.children())
 			process(lookup, child);

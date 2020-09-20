@@ -1,9 +1,8 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import static ceri.common.validation.ValidationUtil.validateMinFp;
+import java.util.Objects;
+import ceri.common.text.ToString;
 
 public class Cylinder3d implements Radial3d {
 	public static final Cylinder3d NULL = new Cylinder3d(0, 0);
@@ -13,8 +12,8 @@ public class Cylinder3d implements Radial3d {
 
 	public static Cylinder3d create(double r, double h) {
 		if (r == 0 && h == 0) return NULL;
-		validateMin(r, 0, "Radius");
-		validateMin(h, 0, "Height");
+		validateMinFp(r, 0, "Radius");
+		validateMinFp(h, 0, "Height");
 		return new Cylinder3d(r + .0, h + .0);
 	}
 
@@ -74,7 +73,7 @@ public class Cylinder3d implements Radial3d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(r, h);
+		return Objects.hash(r, h);
 	}
 
 	@Override
@@ -82,14 +81,14 @@ public class Cylinder3d implements Radial3d {
 		if (this == obj) return true;
 		if (!(obj instanceof Cylinder3d)) return false;
 		Cylinder3d other = (Cylinder3d) obj;
-		if (!EqualsUtil.equals(r, other.r)) return false;
-		if (!EqualsUtil.equals(h, other.h)) return false;
+		if (!Objects.equals(r, other.r)) return false;
+		if (!Objects.equals(h, other.h)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, r, h).toString();
+		return ToString.forClass(this, r, h);
 	}
 
 }

@@ -13,7 +13,8 @@ public class EventTracker {
 	private final List<Long> timeStamps = new LinkedList<>();
 
 	public enum State {
-		ok, exceeded;
+		ok,
+		exceeded;
 	}
 
 	public EventTracker(int maxEvents, long windowMs) {
@@ -43,7 +44,8 @@ public class EventTracker {
 	private void purge(long t) {
 		Iterator<Long> i = timeStamps.iterator();
 		long t0 = t - windowMs;
-		while (i.hasNext()) if (i.next() < t0) i.remove();
+		while (i.hasNext())
+			if (i.next() < t0) i.remove();
 	}
 
 	long currentTimeMs() {

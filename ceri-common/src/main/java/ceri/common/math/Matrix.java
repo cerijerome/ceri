@@ -6,8 +6,8 @@ import static ceri.common.validation.ValidationUtil.validatef;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.HashCoder;
+import ceri.common.collection.ArrayUtil;
+import ceri.common.text.ToString;
 
 public class Matrix {
 	public static final Matrix EMPTY = builder().build();
@@ -272,7 +272,7 @@ public class Matrix {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(rows, columns, values);
+		return ArrayUtil.deepHash(rows, columns, values);
 	}
 
 	@Override
@@ -288,7 +288,7 @@ public class Matrix {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, String.format("%dx%d", rows, columns))
+		return ToString.ofClass(this, String.format("%dx%d", rows, columns))
 			.children((Object[]) values).toString();
 	}
 

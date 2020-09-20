@@ -8,9 +8,11 @@ import org.junit.Test;
 
 public class EnumComparatorsTest {
 	private enum TestEnum {
-		C, B, A
+		C,
+		B,
+		A
 	}
-	
+
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(EnumComparators.class);

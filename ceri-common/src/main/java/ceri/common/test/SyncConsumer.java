@@ -60,16 +60,18 @@ public class SyncConsumer<E extends Exception, T> implements ExceptionConsumer<E
 	protected SyncConsumer() {}
 
 	/**
-	 * The call to be made by the thread. Signals waiting callers, waits for resume, then
-	 * throws an exception if a predicate has been set.
+	 * The call to be made by the thread. Signals waiting callers, waits for resume, then throws an
+	 * exception if a predicate has been set.
 	 */
 	@Override
 	public void accept(T t) throws E {
 		try {
 			call.signal(t);
 			ConcurrentUtil.executeInterruptible(resume::await);
-			for (ThrowEntry<E> ex : exceptions) ex.exec(count);
-			for (ThrowEntry<RuntimeException> ex : rtExceptions) ex.exec(count);
+			for (ThrowEntry<E> ex : exceptions)
+				ex.exec(count);
+			for (ThrowEntry<RuntimeException> ex : rtExceptions)
+				ex.exec(count);
 		} finally {
 			count++;
 		}

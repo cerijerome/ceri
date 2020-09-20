@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.MatchResult;
@@ -16,7 +17,6 @@ import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.function.ObjIntFunction;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.HashCoder;
 import ceri.common.util.PrimitiveUtil;
 
 /**
@@ -33,8 +33,8 @@ public class RegexUtil {
 	 * instance.
 	 */
 	public static int hashCode(Pattern pattern) {
-		if (pattern == null) return HashCoder.hash((Object) null);
-		return HashCoder.hash(pattern.pattern(), pattern.flags());
+		if (pattern == null) return Objects.hash();
+		return Objects.hash(pattern.pattern(), pattern.flags());
 	}
 
 	/**
@@ -43,8 +43,9 @@ public class RegexUtil {
 	public static boolean equals(Pattern lhs, Pattern rhs) {
 		if (lhs == rhs) return true;
 		if (lhs == null || rhs == null) return false;
-		if (!lhs.pattern().equals(rhs.pattern())) return false;
-		return lhs.flags() == rhs.flags();
+		if (!Objects.equals(lhs.pattern(), rhs.pattern())) return false;
+		if (lhs.flags() != rhs.flags()) return false;
+		return true;
 	}
 
 	public static Predicate<String> finder(String format, Object... objs) {

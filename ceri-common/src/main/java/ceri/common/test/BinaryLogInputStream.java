@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;

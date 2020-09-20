@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
 
 /**
  * Convenience class for collecting command string parameters.
@@ -85,7 +84,7 @@ public class Parameters {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(list);
+		return Objects.hash(list);
 	}
 
 	@Override
@@ -93,7 +92,7 @@ public class Parameters {
 		if (this == obj) return true;
 		if (!(obj instanceof Parameters)) return false;
 		Parameters other = (Parameters) obj;
-		if (!EqualsUtil.equals(list, other.list)) return false;
+		if (!Objects.equals(list, other.list)) return false;
 		return true;
 	}
 

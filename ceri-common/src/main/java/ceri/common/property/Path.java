@@ -4,8 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
 
 /**
  * Represents an immutable lookup key with a separator.
@@ -66,7 +65,7 @@ public class Path {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(factory, value);
+		return Objects.hash(factory, value);
 	}
 
 	@Override
@@ -74,8 +73,8 @@ public class Path {
 		if (this == obj) return true;
 		if (!(obj instanceof Path)) return false;
 		Path other = (Path) obj;
-		if (!EqualsUtil.equals(factory, other.factory)) return false;
-		if (!EqualsUtil.equals(value, other.value)) return false;
+		if (!Objects.equals(factory, other.factory)) return false;
+		if (!Objects.equals(value, other.value)) return false;
 		return true;
 	}
 

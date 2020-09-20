@@ -6,10 +6,10 @@ import ceri.common.math.MathUtil;
 
 public interface ToByteFunction<T> {
 	byte applyAsByte(T value);
-	
+
 	static <T> ToIntFunction<T> toUint(ToByteFunction<T> fn) {
 		Objects.requireNonNull(fn);
 		return t -> MathUtil.ubyte(fn.applyAsByte(t));
 	}
-	
+
 }

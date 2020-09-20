@@ -3,12 +3,11 @@ package ceri.common.process;
 import static ceri.common.process.ProcessUtil.stdErr;
 import static ceri.common.process.ProcessUtil.stdOut;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.text.StringUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class Processor {
 	public static final Processor DEFAULT = builder().build();
@@ -145,7 +144,7 @@ public class Processor {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(timeoutMs, captureStdOut, verifyExitValue, verifyErr);
+		return Objects.hash(timeoutMs, captureStdOut, verifyExitValue, verifyErr);
 	}
 
 	@Override
@@ -153,7 +152,7 @@ public class Processor {
 		if (this == obj) return true;
 		if (!(obj instanceof Processor)) return false;
 		Processor other = (Processor) obj;
-		if (!EqualsUtil.equals(timeoutMs, other.timeoutMs)) return false;
+		if (!Objects.equals(timeoutMs, other.timeoutMs)) return false;
 		if (captureStdOut != other.captureStdOut) return false;
 		if (verifyExitValue != other.verifyExitValue) return false;
 		if (verifyErr != other.verifyErr) return false;
@@ -162,8 +161,7 @@ public class Processor {
 
 	@Override
 	public String toString() {
-		return ToStringHelper
-			.createByClass(this, timeoutMs, captureStdOut, verifyExitValue, verifyErr).toString();
+		return ToString.forClass(this, timeoutMs, captureStdOut, verifyExitValue, verifyErr);
 	}
 
 }

@@ -30,14 +30,14 @@ public class FieldTranscoderBehavior {
 	}
 
 	static class Holder {
-		static IntAccessor.Typed<Holder> accessor = IntAccessor.typed(
-			h -> h.val, (h, i) -> h.val = i);
-		static FieldTranscoder.Typed<Holder, E> field = FieldTranscoder.Typed.of(
-			Holder.accessor, xcoder);
+		static IntAccessor.Typed<Holder> accessor =
+			IntAccessor.typed(h -> h.val, (h, i) -> h.val = i);
+		static FieldTranscoder.Typed<Holder, E> field =
+			FieldTranscoder.Typed.of(Holder.accessor, xcoder);
 
 		int val;
 	}
-	
+
 	@Before
 	public void init() {
 		store[0] = 0;
@@ -120,7 +120,7 @@ public class FieldTranscoderBehavior {
 		Holder.field.set(h, E.c);
 		assertThat(h.val, is(12));
 	}
-	
+
 	@Test
 	public void shouldSetRemainderValueOnType() {
 		Holder h = new Holder();
@@ -128,7 +128,7 @@ public class FieldTranscoderBehavior {
 		Holder.field.set(h, Remainder.of(8, E.a, E.b));
 		assertThat(h.val, is(11));
 	}
-	
+
 	@Test
 	public void shouldGetValueFromType() {
 		Holder h = new Holder();
@@ -137,21 +137,21 @@ public class FieldTranscoderBehavior {
 		h.val = 4;
 		assertNull(Holder.field.get(h));
 	}
-	
+
 	@Test
 	public void shouldGetValuesFromType() {
 		Holder h = new Holder();
 		h.val = 3;
 		assertCollection(Holder.field.getAll(h), E.a, E.b);
 	}
-	
+
 	@Test
 	public void shouldGetRemainderFromType() {
 		Holder h = new Holder();
 		h.val = 7;
 		assertRemainder(Holder.field.getWithRemainder(h), 4, E.a, E.b);
 	}
-	
+
 	@Test
 	public void shouldAddValuesToType() {
 		Holder h = new Holder();
@@ -162,7 +162,7 @@ public class FieldTranscoderBehavior {
 		Holder.field.add(h, Set.of());
 		assertThat(h.val, is(3));
 	}
-	
+
 	@Test
 	public void shouldRemoveValuesFromType() {
 		Holder h = new Holder();
@@ -173,7 +173,7 @@ public class FieldTranscoderBehavior {
 		Holder.field.remove(h, Set.of());
 		assertThat(h.val, is(2));
 	}
-	
+
 	@Test
 	public void shouldValidateType() {
 		Holder h = new Holder();

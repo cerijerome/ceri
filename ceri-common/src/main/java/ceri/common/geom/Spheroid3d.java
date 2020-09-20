@@ -1,9 +1,8 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import static ceri.common.validation.ValidationUtil.validateMinFp;
+import java.util.Objects;
+import ceri.common.text.ToString;
 
 /**
  * Describes an ellipsoid with equal radii on at least the non-vertical axes. A simplified rugby
@@ -19,8 +18,8 @@ public class Spheroid3d implements Radial3d {
 
 	public static Spheroid3d create(double r, double c) {
 		if (r == 0 && c == 0) return NULL;
-		validateMin(r, 0, "Radius");
-		validateMin(c, 0, "Axis c");
+		validateMinFp(r, 0, "Radius");
+		validateMinFp(c, 0, "Axis c");
 		return new Spheroid3d(r + .0, c + .0);
 	}
 
@@ -64,7 +63,7 @@ public class Spheroid3d implements Radial3d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(r, c);
+		return Objects.hash(r, c);
 	}
 
 	@Override
@@ -72,14 +71,14 @@ public class Spheroid3d implements Radial3d {
 		if (this == obj) return true;
 		if (!(obj instanceof Spheroid3d)) return false;
 		Spheroid3d other = (Spheroid3d) obj;
-		if (!EqualsUtil.equals(r, other.r)) return false;
-		if (!EqualsUtil.equals(c, other.c)) return false;
+		if (!Objects.equals(r, other.r)) return false;
+		if (!Objects.equals(c, other.c)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, r, c).toString();
+		return ToString.forClass(this, r, c);
 	}
 
 }

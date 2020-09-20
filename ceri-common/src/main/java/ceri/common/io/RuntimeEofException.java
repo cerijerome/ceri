@@ -11,15 +11,15 @@ public class RuntimeEofException extends RuntimeIoException {
 	public static RuntimeEofException of() {
 		return new RuntimeEofException(null, null);
 	}
-	
-	public static RuntimeEofException of(String format, Object...args) {
+
+	public static RuntimeEofException of(String format, Object... args) {
 		return of(null, format, args);
 	}
-	
-	public static RuntimeEofException of(Throwable t, String format, Object...args) {
+
+	public static RuntimeEofException of(Throwable t, String format, Object... args) {
 		return new RuntimeEofException(StringUtil.format(format, args), t);
 	}
-	
+
 	private RuntimeEofException(String message, Throwable e) {
 		super(message, e);
 	}

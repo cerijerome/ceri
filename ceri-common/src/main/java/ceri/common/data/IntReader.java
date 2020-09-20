@@ -11,13 +11,13 @@ import ceri.common.math.MathUtil;
  * Interface that provides sequential access to ints. Reads are of known length, or require a given
  * length. For bulk efficiency, consider overriding these methods that process one int at a time, or
  * make a sub-array copy:
- * 
+ *
  * <pre>
  * ByteReader skip(int length); [1-int]
  * int readInto(int[] dest, int offset, int length); [1-int]
  * int readInto(ByteReceiver receiver, int offset, int length); [1-int]
  * </pre>
- * 
+ *
  * @see ceri.common.data.IntProvider.Reader
  */
 public interface IntReader {

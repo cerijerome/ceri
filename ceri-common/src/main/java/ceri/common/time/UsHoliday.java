@@ -31,7 +31,7 @@ public enum UsHoliday {
 	UsHoliday(Holiday day) {
 		this(day, false);
 	}
-	
+
 	UsHoliday(Holiday day, boolean observed) {
 		this.day = day;
 		this.observed = observed ? Holiday.observed(day) : day;

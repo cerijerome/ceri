@@ -35,12 +35,14 @@ public class ByteProviderBehavior {
 	@Test
 	public void shouldIterateValues() {
 		Capturer.Int captor = Capturer.ofInt();
-		for (int i : ByteProvider.empty()) captor.accept(i);
+		for (int i : ByteProvider.empty())
+			captor.accept(i);
 		captor.verifyInt();
-		for (int i : provider(-1, 0, 1, Byte.MIN_VALUE, Byte.MAX_VALUE, 0xff)) captor.accept(i);
-		captor.verifyInt(0xff, 0, 1, 0x80,0x7f, 0xff);
+		for (int i : provider(-1, 0, 1, Byte.MIN_VALUE, Byte.MAX_VALUE, 0xff))
+			captor.accept(i);
+		captor.verifyInt(0xff, 0, 1, 0x80, 0x7f, 0xff);
 	}
-	
+
 	@Test
 	public void shouldDetermineIfEmpty() {
 		assertThat(bp.isEmpty(), is(false));

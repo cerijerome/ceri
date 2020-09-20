@@ -1,10 +1,10 @@
 package ceri.common.test;
 
+import java.util.Objects;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import ceri.common.math.MathUtil;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.EqualsUtil;
 
 /**
  * Matcher for double, approximating to decimal places or by a delta value.
@@ -73,10 +73,10 @@ public class ApproxMatcher<T> extends BaseMatcher<T> {
 
 	private boolean matchRound(double actual) {
 		if (!Double.isFinite(actual) || !Double.isFinite(expected))
-			return EqualsUtil.equals(actual, expected);
+			return Objects.equals(actual, expected);
 		double approxActual = MathUtil.round(places, actual);
 		double approxExpected = MathUtil.round(places, expected);
-		return EqualsUtil.equals(approxActual, approxExpected);
+		return Objects.equals(approxActual, approxExpected);
 	}
 
 	private boolean matchDelta(double actual) {

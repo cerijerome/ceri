@@ -140,7 +140,7 @@ public class Predicates {
 	}
 
 	/* Comparable predicates */
-	
+
 	/**
 	 * Comparable filter that returns true if the value >= given minimum value.
 	 */
@@ -187,7 +187,7 @@ public class Predicates {
 	}
 
 	/* String predicates */
-	
+
 	/**
 	 * Predicate that returns true for strings that equal the given substring, ignoring case.
 	 */

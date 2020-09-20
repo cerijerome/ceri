@@ -1,10 +1,9 @@
 package ceri.common.color;
 
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validateRangeFp;
+import java.util.Objects;
 import ceri.common.geom.Point2d;
 import ceri.common.math.MathUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Represents xyY color, Y = brightness (b).
@@ -109,7 +108,7 @@ public class XybColor implements ComponentColor<XybColor> {
 	}
 
 	private void validate(double value, String name) {
-		validateRange(value, 0, MAX_VALUE, name);
+		validateRangeFp(value, 0, MAX_VALUE, name);
 	}
 
 	private double limit(double value) {
@@ -118,7 +117,7 @@ public class XybColor implements ComponentColor<XybColor> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(x, y, b, a);
+		return Objects.hash(x, y, b, a);
 	}
 
 	@Override
@@ -126,10 +125,10 @@ public class XybColor implements ComponentColor<XybColor> {
 		if (this == obj) return true;
 		if (!(obj instanceof XybColor)) return false;
 		XybColor other = (XybColor) obj;
-		if (!EqualsUtil.equals(x, other.x)) return false;
-		if (!EqualsUtil.equals(y, other.y)) return false;
-		if (!EqualsUtil.equals(b, other.b)) return false;
-		if (!EqualsUtil.equals(a, other.a)) return false;
+		if (!Objects.equals(x, other.x)) return false;
+		if (!Objects.equals(y, other.y)) return false;
+		if (!Objects.equals(b, other.b)) return false;
+		if (!Objects.equals(a, other.a)) return false;
 		return true;
 	}
 

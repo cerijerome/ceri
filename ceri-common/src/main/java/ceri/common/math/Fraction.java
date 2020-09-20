@@ -7,13 +7,12 @@ import static java.lang.Math.addExact;
 import static java.lang.Math.multiplyExact;
 import static java.lang.Math.negateExact;
 import static java.lang.Math.subtractExact;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
 
 /**
  * Holds a numerator and denominator. This is a visual representation, so reduction is not
- * automatic. A zero denominator is allowed to exist, but may fail arithmetic operations.
- * 
- * May need some optimization.
+ * automatic. A zero denominator is allowed to exist, but may fail arithmetic operations. May need
+ * some optimization.
  */
 public class Fraction {
 	public static final Fraction ZERO = new Fraction(0, 1);
@@ -103,7 +102,7 @@ public class Fraction {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(numerator, denominator);
+		return Objects.hash(numerator, denominator);
 	}
 
 	public boolean equals(long numerator, long denominator) {

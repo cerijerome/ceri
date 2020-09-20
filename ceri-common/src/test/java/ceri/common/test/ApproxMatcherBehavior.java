@@ -38,28 +38,28 @@ public class ApproxMatcherBehavior {
 		assertThat(Double.NEGATIVE_INFINITY, isRounded(Double.NEGATIVE_INFINITY, 1));
 		assertAssertion(() -> assertThat(0.0, isRounded(Double.NEGATIVE_INFINITY, 1)));
 		assertAssertion(() -> assertThat(Double.NEGATIVE_INFINITY, isRounded(0.0, 1)));
-		assertAssertion(() -> assertThat(Double.POSITIVE_INFINITY,
-			isRounded(Double.NEGATIVE_INFINITY, 1)));
-		assertAssertion(() -> assertThat(Double.NEGATIVE_INFINITY,
-			isRounded(Double.POSITIVE_INFINITY, 1)));
+		assertAssertion(
+			() -> assertThat(Double.POSITIVE_INFINITY, isRounded(Double.NEGATIVE_INFINITY, 1)));
+		assertAssertion(
+			() -> assertThat(Double.NEGATIVE_INFINITY, isRounded(Double.POSITIVE_INFINITY, 1)));
 	}
-	
+
 	@Test
 	public void shouldMatchInfiniteFloats() {
 		assertThat(Float.POSITIVE_INFINITY, isRounded(Float.POSITIVE_INFINITY, 1));
 		assertThat(Float.NEGATIVE_INFINITY, isRounded(Float.NEGATIVE_INFINITY, 1));
 		assertAssertion(() -> assertThat(0.0f, isRounded(Float.NEGATIVE_INFINITY, 1)));
 		assertAssertion(() -> assertThat(Float.NEGATIVE_INFINITY, isRounded(0.0f, 1)));
-		assertAssertion(() -> assertThat(Float.POSITIVE_INFINITY,
-			isRounded(Float.NEGATIVE_INFINITY, 1)));
-		assertAssertion(() -> assertThat(Float.NEGATIVE_INFINITY,
-			isRounded(Float.POSITIVE_INFINITY, 1)));
+		assertAssertion(
+			() -> assertThat(Float.POSITIVE_INFINITY, isRounded(Float.NEGATIVE_INFINITY, 1)));
+		assertAssertion(
+			() -> assertThat(Float.NEGATIVE_INFINITY, isRounded(Float.POSITIVE_INFINITY, 1)));
 	}
-	
+
 	@Test
 	public void shouldFailForNull() {
 		assertAssertion(() -> assertThat(null, isRounded(1.0, 8)));
 		assertAssertion(() -> assertThat(null, isRounded(1.0f, 8)));
 	}
-	
+
 }

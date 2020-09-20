@@ -15,7 +15,7 @@ import ceri.common.util.BasicUtil;
  * <p>
  * For bulk efficiency, consider overriding these methods that process one byte at a time, or make a
  * sub-array copy:
- * 
+ *
  * <pre>
  * T skip(int length); [1-byte]
  * T writeEndian(long value, int size, boolean msb); [copy]
@@ -25,7 +25,7 @@ import ceri.common.util.BasicUtil;
  * T writeFrom(ByteProvider provider, int offset, int length); [1-byte]
  * int transferFrom(InputStream in, int length) throws IOException; [1-byte]
  * </pre>
- * 
+ *
  * @see ceri.common.data.ByteReceiver.Writer
  * @see ceri.common.data.ByteStream.Writer
  */
@@ -266,7 +266,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * blocks until length bytes are transferred, EOF occurs, or an exception is thrown. Default
 	 * implementation transfers one byte at a time; efficiency may be improved by overriding, or
 	 * calling:
-	 * 
+	 *
 	 * <pre>
 	 * return transferBufferFrom(this, in, length);
 	 * </pre>

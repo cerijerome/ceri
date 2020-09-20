@@ -58,8 +58,10 @@ public class TreeUtilTest {
 	public void testToString() {
 		String[] s = TreeUtil.toString(helper.root).split("[\r\n]+");
 		assertThat(s.length, is(7)); // 7 nodes total
-		assertThat(s, is(new String[] { "TestNode(0,0)", "\tTestNode(1,1)", "\t\tTestNode(11,2)",
-			"\t\t\tTestNode(111,3)", "\tTestNode(2,1)", "\t\tTestNode(21,2)", "\tTestNode(3,1)", }));
+		assertThat(s,
+			is(new String[] { "TestNode(0,0)", "\tTestNode(1,1)", "\t\tTestNode(11,2)",
+				"\t\t\tTestNode(111,3)", "\tTestNode(2,1)", "\t\tTestNode(21,2)",
+				"\tTestNode(3,1)", }));
 	}
 
 }

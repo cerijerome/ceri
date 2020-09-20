@@ -17,15 +17,15 @@ public class PulsePrinter {
 	public static PulsePrinter of() {
 		return builder().build();
 	}
-	
+
 	public static PulsePrinter ofBits(int bitsPerLine) {
 		return builder().bitsPerLine(bitsPerLine).build();
 	}
-	
+
 	public static PulsePrinter ofBytes(int bytesPerLine) {
 		return builder().bytesPerLine(bytesPerLine).build();
 	}
-	
+
 	public static class Builder {
 		char high = '\u2587';
 		char low = '\u2581';

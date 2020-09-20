@@ -7,9 +7,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
+import ceri.common.text.ToString;
 
 public class ScoreLookup<T> implements Scorer<T> {
 	private final Map<T, Double> map;
@@ -73,7 +72,7 @@ public class ScoreLookup<T> implements Scorer<T> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(map);
+		return Objects.hash(map);
 	}
 
 	@Override
@@ -81,13 +80,13 @@ public class ScoreLookup<T> implements Scorer<T> {
 		if (this == obj) return true;
 		if (!(obj instanceof ScoreLookup)) return false;
 		ScoreLookup<?> other = (ScoreLookup<?>) obj;
-		if (!EqualsUtil.equals(map, other.map)) return false;
+		if (!Objects.equals(map, other.map)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, map).toString();
+		return ToString.forClass(this, map);
 	}
 
 }

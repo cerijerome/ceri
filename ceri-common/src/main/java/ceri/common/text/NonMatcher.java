@@ -196,8 +196,7 @@ public class NonMatcher implements NonMatchResult {
 	@Override
 	public String toString() {
 		String group = isValid(first) ? group() : null;
-		return ToStringHelper.createByClass(this, pattern(), regionStart(), regionEnd(), group)
-			.toString();
+		return ToString.forClass(this, pattern(), regionStart(), regionEnd(), group);
 	}
 
 	/**

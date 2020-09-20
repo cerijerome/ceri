@@ -18,5 +18,5 @@ public class AnsiTester {
 		}
 		System.out.print(csi.sgr().reset());
 	}
-	
+
 }

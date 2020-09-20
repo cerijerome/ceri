@@ -13,7 +13,7 @@ public class ColorxComparatorsTest {
 	private static final Colorx lightGray = Colorx.of(Color.lightGray, 0);
 	private static final Colorx blue = Colorx.of(Color.blue, 0);
 	private static final Colorx green = Colorx.of(Color.green, 0);
-	
+
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ColorxComparators.class);

@@ -196,9 +196,9 @@ public class FileTestHelper implements Closeable {
 
 	private void createDirs(List<Path> dirs) throws IOException {
 		for (Path dir : dirs)
-			Files.createDirectories(root.resolve(dir));	
+			Files.createDirectories(root.resolve(dir));
 	}
-	
+
 	private void createFiles(Map<Path, byte[]> files) throws IOException {
 		for (Map.Entry<Path, byte[]> entry : files.entrySet()) {
 			Path file = root.resolve(entry.getKey());

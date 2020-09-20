@@ -1,9 +1,8 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import static ceri.common.validation.ValidationUtil.validateMinFp;
+import java.util.Objects;
+import ceri.common.text.ToString;
 
 /**
  * A cone with its apex at h = 0.
@@ -16,8 +15,8 @@ public class Cone3d implements Radial3d {
 
 	public static Cone3d create(double r, double h) {
 		if (r == 0 && h == 0) return NULL;
-		validateMin(r, 0, "Radius");
-		validateMin(h, 0, "Height");
+		validateMinFp(r, 0, "Radius");
+		validateMinFp(h, 0, "Height");
 		return new Cone3d(r + .0, h + .0);
 	}
 
@@ -93,7 +92,7 @@ public class Cone3d implements Radial3d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(r, h);
+		return Objects.hash(r, h);
 	}
 
 	@Override
@@ -101,14 +100,14 @@ public class Cone3d implements Radial3d {
 		if (this == obj) return true;
 		if (!(obj instanceof Cone3d)) return false;
 		Cone3d other = (Cone3d) obj;
-		if (!EqualsUtil.equals(r, other.r)) return false;
-		if (!EqualsUtil.equals(h, other.h)) return false;
+		if (!Objects.equals(r, other.r)) return false;
+		if (!Objects.equals(h, other.h)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, r, h).toString();
+		return ToString.forClass(this, r, h);
 	}
 
 }

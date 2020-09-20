@@ -1,8 +1,7 @@
 package ceri.common.geom;
 
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
+import ceri.common.text.ToString;
 
 public class InvertedRadial3d<T extends Radial3d> implements Radial3d {
 	private final T radial;
@@ -57,7 +56,7 @@ public class InvertedRadial3d<T extends Radial3d> implements Radial3d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(radial);
+		return Objects.hash(radial);
 	}
 
 	@Override
@@ -65,13 +64,13 @@ public class InvertedRadial3d<T extends Radial3d> implements Radial3d {
 		if (this == obj) return true;
 		if (!(obj instanceof InvertedRadial3d)) return false;
 		InvertedRadial3d<?> other = (InvertedRadial3d<?>) obj;
-		if (!EqualsUtil.equals(radial, other.radial)) return false;
+		if (!Objects.equals(radial, other.radial)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, radial).toString();
+		return ToString.forClass(this, radial);
 	}
 
 }

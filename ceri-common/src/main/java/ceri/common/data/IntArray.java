@@ -8,7 +8,6 @@ import java.util.stream.LongStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Base wrapper for an int array, implementing the IntProvider interface. The Immutable sub-class
@@ -442,8 +441,7 @@ public abstract class IntArray implements IntProvider {
 	public boolean isEqualTo(int index, int[] array, int offset, int length) {
 		if (!isValidSlice(index, length)) return false;
 		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return false;
-		return Arrays.equals(this.array, offset(index), offset(index + length), array, offset,
-			offset + length);
+		return ArrayUtil.equals(this.array, offset(index), array, offset, length);
 	}
 
 	@Override
@@ -463,12 +461,11 @@ public abstract class IntArray implements IntProvider {
 
 	boolean isEqual(IntArray other) {
 		if (length != other.length) return false;
-		return Arrays.equals(array, offset(0), offset(length), other.array, other.offset(0),
-			other.offset(length));
+		return ArrayUtil.equals(array, offset(0), other.array, other.offset(0), length);
 	}
 
 	int hash() {
-		return HashCoder.intHash(array, offset, length);
+		return ArrayUtil.hash(array, offset, length);
 	}
 
 	boolean isValidSlice(int index, int length) {

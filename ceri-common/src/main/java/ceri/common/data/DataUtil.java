@@ -10,7 +10,6 @@ public class DataUtil {
 
 	private DataUtil() {}
 
-	
 	/**
 	 * Validate minimum data size.
 	 */

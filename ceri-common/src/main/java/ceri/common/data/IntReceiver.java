@@ -6,14 +6,14 @@ import ceri.common.collection.ArrayUtil;
 /**
  * Interface for receiving ints into an array. For bulk efficiency, consider overriding the
  * following methods that process one int at a time, or copy arrays.
- * 
+ *
  * <pre>
  * int fill(int index, int length, int value); [1-int]
  * int copyFrom(int index, int[] array, int offset, int length); [1-int]
  * int copyFrom(int index, IntProvider provider, int offset, int length); [1-int]
  * int readFrom(int index, InputStream in, int length) throws IOException; [1-int]
  * </pre>
- * 
+ *
  * @see ceri.common.data.MutableIntArray
  * @see ceri.common.concurrent.VolatileIntArray
  */

@@ -17,7 +17,7 @@ public class Listeners<T> implements Consumer<T>, Listenable<T> {
 	}
 
 	protected Listeners() {}
-	
+
 	public int size() {
 		return listeners().size();
 	}

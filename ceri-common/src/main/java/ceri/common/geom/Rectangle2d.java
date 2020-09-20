@@ -1,8 +1,7 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import static ceri.common.validation.ValidationUtil.validateMinFp;
+import java.util.Objects;
 
 public class Rectangle2d {
 	public static final Rectangle2d ZERO = new Rectangle2d(0, 0, 0, 0);
@@ -16,8 +15,8 @@ public class Rectangle2d {
 	}
 
 	public static Rectangle2d of(double x, double y, double w, double h) {
-		validateMin(w, 0, "Width");
-		validateMin(h, 0, "Height");
+		validateMinFp(w, 0, "Width");
+		validateMinFp(h, 0, "Height");
 		if (ZERO.equals(x, y, w, h)) return null;
 		return new Rectangle2d(x + .0, y + .0, w + .0, h + .0);
 	}
@@ -51,7 +50,7 @@ public class Rectangle2d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(x, y, w, h);
+		return Objects.hash(x, y, w, h);
 	}
 
 	@Override
@@ -59,10 +58,10 @@ public class Rectangle2d {
 		if (this == obj) return true;
 		if (!(obj instanceof Rectangle2d)) return false;
 		Rectangle2d other = (Rectangle2d) obj;
-		if (!EqualsUtil.equals(x, other.x)) return false;
-		if (!EqualsUtil.equals(y, other.y)) return false;
-		if (!EqualsUtil.equals(w, other.w)) return false;
-		if (!EqualsUtil.equals(h, other.h)) return false;
+		if (!Objects.equals(x, other.x)) return false;
+		if (!Objects.equals(y, other.y)) return false;
+		if (!Objects.equals(w, other.w)) return false;
+		if (!Objects.equals(h, other.h)) return false;
 		return true;
 	}
 

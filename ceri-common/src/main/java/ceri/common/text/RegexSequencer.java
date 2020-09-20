@@ -4,8 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Applies subsequent pattern matchers to a string.
- * Can be replaced by Matcher.usePattern?
+ * Applies subsequent pattern matchers to a string. Can be replaced by Matcher.usePattern?
  */
 public class RegexSequencer {
 	private String s;

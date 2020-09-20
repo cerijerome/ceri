@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -18,7 +19,6 @@ import ceri.common.collection.Iterators;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
-import ceri.common.util.EqualsUtil;
 
 public class ByteUtil {
 	public static final int BITS_PER_NYBBLE = 4;
@@ -28,7 +28,7 @@ public class ByteUtil {
 	public static final long INT_MASK = 0xffff_ffffL;
 	public static final long LONG_MASK = 0xffff_ffff_ffff_ffffL;
 	public static final boolean BIG_ENDIAN =
-		EqualsUtil.equals(ByteOrder.nativeOrder(), ByteOrder.BIG_ENDIAN);
+		Objects.equals(ByteOrder.nativeOrder(), ByteOrder.BIG_ENDIAN);
 
 	private ByteUtil() {}
 

@@ -1,9 +1,8 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import static ceri.common.validation.ValidationUtil.validateMinFp;
+import java.util.Objects;
+import ceri.common.text.ToString;
 
 public class Polar2d {
 	public static final Polar2d ZERO = new Polar2d(0, 0);
@@ -18,7 +17,7 @@ public class Polar2d {
 
 	public static Polar2d of(double r, double phi) {
 		if (r == ZERO.r && phi == ZERO.phi) return ZERO;
-		validateMin(r, 0, "Radius");
+		validateMinFp(r, 0, "Radius");
 		return new Polar2d(r + .0, phi + .0);
 	}
 
@@ -41,7 +40,7 @@ public class Polar2d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(r, phi);
+		return Objects.hash(r, phi);
 	}
 
 	@Override
@@ -49,14 +48,14 @@ public class Polar2d {
 		if (this == obj) return true;
 		if (!(obj instanceof Polar2d)) return false;
 		Polar2d other = (Polar2d) obj;
-		if (!EqualsUtil.equals(r, other.r)) return false;
-		if (!EqualsUtil.equals(phi, other.phi)) return false;
+		if (!Objects.equals(r, other.r)) return false;
+		if (!Objects.equals(phi, other.phi)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, r, phi).toString();
+		return ToString.forClass(this, r, phi);
 	}
 
 }

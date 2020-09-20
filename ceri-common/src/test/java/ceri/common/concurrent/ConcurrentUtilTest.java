@@ -54,7 +54,7 @@ public class ConcurrentUtilTest {
 			sync.await();
 		}
 	}
-	
+
 	@Test
 	public void testDelayMicros() throws InterruptedException {
 		BooleanCondition sync = BooleanCondition.of();
@@ -67,7 +67,7 @@ public class ConcurrentUtilTest {
 			sync.await();
 		}
 	}
-	
+
 	@Test
 	public void testCloseExecutor() {
 		ExecutorService exec = Executors.newSingleThreadExecutor();

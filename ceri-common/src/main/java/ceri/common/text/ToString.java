@@ -11,16 +11,12 @@ import java.util.Map;
 import ceri.common.collection.ArrayUtil;
 
 /**
- * Helps create string representations of objects.
- *
- * Output takes the form: Name(Value1,Value2,...)[Field1,Field2,...]
- *
- * Fields can be of the form "Key=Value" Also has support for classes such as
- * ClassName(Value,...)[Field,...] and Name(Value,...)[ClassName=Value,...]
- *
+ * Helps create string representations of objects. Output takes the form:
+ * Name(Value1,Value2,...)[Field1,Field2,...] Fields can be of the form "Key=Value" Also has support
+ * for classes such as ClassName(Value,...)[Field,...] and Name(Value,...)[ClassName=Value,...]
  * Typical usage is Value for intrinsic or unnamed data, Field for supplementary or named data.
  */
-public class ToStringHelper {
+public class ToString {
 	private static final String CHILD_INDENT_DEF = "  ";
 	private final String name;
 	private List<Object> values = Collections.emptyList();
@@ -38,43 +34,42 @@ public class ToStringHelper {
 		}
 	}
 
-	private ToStringHelper(String name) {
+	/**
+	 * Generates a string for given name and values. "Name(Value1,Value2,...)"
+	 */
+	public static String forName(String name, Object... values) {
+		return ofName(name, values).toString();
+	}
+
+	/**
+	 * Generates a string for simple class name and values. "Name(Value1,Value2,...)"
+	 */
+	public static String forClass(Object obj, Object... values) {
+		return forName(obj.getClass().getSimpleName(), values);
+	}
+
+	/**
+	 * Creates an instance with given name and values. "Name(Value1,Value2,...)"
+	 */
+	public static ToString ofName(String name, Object... values) {
+		return new ToString(name).values(values);
+	}
+
+	/**
+	 * Creates an instance with simple class name and values. "Name(Value1,Value2,...)"
+	 */
+	public static ToString ofClass(Object obj, Object... values) {
+		return ofName(obj.getClass().getSimpleName(), values);
+	}
+
+	private ToString(String name) {
 		this.name = name;
-	}
-
-	/**
-	 * Creates an instance with given simple name.
-	 */
-	public static ToStringHelper create(String name) {
-		return new ToStringHelper(name);
-	}
-
-	/**
-	 * Creates an instance with given name and values. Name(Value1,Value2,...)
-	 */
-	public static ToStringHelper create(String name, Object... values) {
-		return create(name).values(values);
-	}
-
-	/**
-	 * Creates an instance with name from the simple class name of the given object.
-	 */
-	public static ToStringHelper createByClass(Object obj) {
-		return create(obj.getClass().getSimpleName());
-	}
-
-	/**
-	 * Creates an instance with name from the simple class name of the given object, and values.
-	 * Name(Value1,Value2,...)
-	 */
-	public static ToStringHelper createByClass(Object obj, Object... values) {
-		return create(obj.getClass().getSimpleName()).values(values);
 	}
 
 	/**
 	 * Adds values to the string representation. ...(Value1,Value2,...)
 	 */
-	public ToStringHelper values(Object... values) {
+	public ToString values(Object... values) {
 		if (values.length == 0) return this;
 		if (this.values.isEmpty()) this.values = new ArrayList<>();
 		Collections.addAll(this.values, values);
@@ -84,7 +79,7 @@ public class ToStringHelper {
 	/**
 	 * Adds fields to the string representation. ...[Field1,Field2,...]
 	 */
-	public ToStringHelper fields(Object... fields) {
+	public ToString fields(Object... fields) {
 		for (Object field : fields)
 			field((String) null, field);
 		return this;
@@ -93,7 +88,7 @@ public class ToStringHelper {
 	/**
 	 * Add a key-value field to the string representation. ...[Key=Value]
 	 */
-	public ToStringHelper field(String key, Object value) {
+	public ToString field(String key, Object value) {
 		if (this.fields.isEmpty()) this.fields = new ArrayList<>();
 		this.fields.add(new Field(key, value));
 		return this;
@@ -102,7 +97,7 @@ public class ToStringHelper {
 	/**
 	 * Add a key-value field to the string representation, class name as key. ...[ClassName=Value]
 	 */
-	public ToStringHelper field(Class<?> key, Object value) {
+	public ToString field(Class<?> key, Object value) {
 		return field(key.getSimpleName(), value);
 	}
 
@@ -110,7 +105,7 @@ public class ToStringHelper {
 	 * Add a key-value fields to the string representation, with the class name of each given value
 	 * as the key. ...[ClassName1=Value1,ClassName2=Value2,...]
 	 */
-	public ToStringHelper fieldsByClass(Object... fields) {
+	public ToString fieldsByClass(Object... fields) {
 		for (Object field : fields) {
 			if (field == null) fields(field);
 			else field(field.getClass(), field);
@@ -118,21 +113,33 @@ public class ToStringHelper {
 		return this;
 	}
 
-	public ToStringHelper childIndent(String childIndent) {
+	/**
+	 * Specify the nested line indent.
+	 */
+	public ToString childIndent(String childIndent) {
 		this.childIndent = childIndent;
 		return this;
 	}
 
-	public ToStringHelper children(Object... children) {
+	/**
+	 * Add items to nested lines.
+	 */
+	public ToString children(Object... children) {
 		return childrens(Arrays.asList(children));
 	}
 
-	public ToStringHelper childrens(Map<?, ?> children) {
+	/**
+	 * Add items to nested lines.
+	 */
+	public ToString childrens(Map<?, ?> children) {
 		if (children == null) children = Collections.emptyMap();
 		return childrens(children.entrySet());
 	}
 
-	public ToStringHelper childrens(Iterable<?> children) {
+	/**
+	 * Add items to nested lines.
+	 */
+	public ToString childrens(Iterable<?> children) {
 		if (this.children.isEmpty()) this.children = new ArrayList<>();
 		for (Object child : children)
 			this.children.add(child);

@@ -13,7 +13,7 @@ import ceri.common.math.MathUtil;
 /**
  * Interface that provides positional access to ints. For bulk efficiency, consider overriding the
  * following methods that process one int at a time, or copy arrays.
- * 
+ *
  * <pre>
  * IntProvider slice(int offset, int length); [copy]
  * int copyTo(int index, int[] dest, int destOffset, int length); [1-int]
@@ -22,7 +22,7 @@ import ceri.common.math.MathUtil;
  * boolean isEqualTo(int index, int[] array, int offset, int length); [1-int]
  * boolean isEqualTo(int index, IntProvider provider, int offset, int length); [1-int]
  * </pre>
- * 
+ *
  * @see ceri.common.data.IntArray.Immutable
  */
 public interface IntProvider extends Iterable<Integer> {

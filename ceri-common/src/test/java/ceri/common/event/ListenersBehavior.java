@@ -47,7 +47,7 @@ public class ListenersBehavior {
 		ls.accept("cd");
 		assertThat(b.toString(), is("ab"));
 	}
-	
+
 	@Test
 	public void shouldDuplicateListeners() {
 		Listeners<String> ls = Listeners.of();

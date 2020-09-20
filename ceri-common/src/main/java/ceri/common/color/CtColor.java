@@ -1,9 +1,8 @@
 package ceri.common.color;
 
+import java.util.Objects;
 import ceri.common.math.MathUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 /**
  * Encapsulates color temperature, brightness, and alpha channel.
@@ -48,7 +47,7 @@ public class CtColor {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(k, b, a);
+		return Objects.hash(k, b, a);
 	}
 
 	@Override
@@ -57,14 +56,14 @@ public class CtColor {
 		if (!(obj instanceof CtColor)) return false;
 		CtColor other = (CtColor) obj;
 		if (k != other.k) return false;
-		if (!EqualsUtil.equals(b, other.b)) return false;
-		if (!EqualsUtil.equals(a, other.a)) return false;
+		if (!Objects.equals(b, other.b)) return false;
+		if (!Objects.equals(a, other.a)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, k, b, a).toString();
+		return ToString.forClass(this, k, b, a);
 	}
 
 }

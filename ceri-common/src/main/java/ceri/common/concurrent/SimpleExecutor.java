@@ -89,7 +89,7 @@ public class SimpleExecutor<E extends Exception, T> implements AutoCloseable {
 	public boolean cancel() {
 		return future.cancel(true);
 	}
-	
+
 	@Override
 	public void close() {
 		ConcurrentUtil.close(exec, closeTimeoutMs);

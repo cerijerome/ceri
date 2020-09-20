@@ -1,10 +1,9 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateMinFp;
+import java.util.Objects;
 import ceri.common.math.MathUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class Circle2d {
 	public static final Circle2d NULL = new Circle2d(0);
@@ -12,7 +11,7 @@ public class Circle2d {
 
 	public static Circle2d of(double r) {
 		if (r == 0) return NULL;
-		validateMin(r, 0, "Radius");
+		validateMinFp(r, 0, "Radius");
 		return new Circle2d(r + .0);
 	}
 
@@ -126,7 +125,7 @@ public class Circle2d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(r);
+		return Objects.hash(r);
 	}
 
 	@Override
@@ -134,13 +133,13 @@ public class Circle2d {
 		if (this == obj) return true;
 		if (!(obj instanceof Circle2d)) return false;
 		Circle2d other = (Circle2d) obj;
-		if (!EqualsUtil.equals(r, other.r)) return false;
+		if (!Objects.equals(r, other.r)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, r).toString();
+		return ToString.forClass(this, r);
 	}
 
 	private static double integral(double x, double r) {

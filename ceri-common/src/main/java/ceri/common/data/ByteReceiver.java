@@ -10,7 +10,7 @@ import ceri.common.collection.ArrayUtil;
 /**
  * Interface for receiving bytes into an array. For bulk efficiency, consider overriding the
  * following methods that process one byte at a time, or copy arrays.
- * 
+ *
  * <pre>
  * int setEndian(int index, int size, long value, boolean msb); [copy]
  * int fill(int index, int length, int value); [1-byte]
@@ -18,7 +18,7 @@ import ceri.common.collection.ArrayUtil;
  * int copyFrom(int index, ByteProvider provider, int offset, int length); [1-byte]
  * int readFrom(int index, InputStream in, int length) throws IOException; [1-byte]
  * </pre>
- * 
+ *
  * @see ceri.common.data.ByteArray.Mutable
  * @see ceri.common.concurrent.VolatileByteArray
  * @see ceri.serial.spi.pulse.PulseBuffer
@@ -29,7 +29,7 @@ public interface ByteReceiver {
 	static ByteReceiver empty() {
 		return ByteArray.Mutable.EMPTY;
 	}
-	
+
 	/**
 	 * {@link Navigator} and {@link ByteWriter} wrapper for a {@link ByteReceiver}. This provides
 	 * sequential writing of bytes, and relative/absolute positioning for the next write. The type T
@@ -440,7 +440,7 @@ public interface ByteReceiver {
 	 * bytes read may be less than requested if EOF occurs. Returns the index after the written
 	 * bytes. Default implementation reads one byte at a time; efficiency may be improved by
 	 * overriding, or calling:
-	 * 
+	 *
 	 * <pre>
 	 * return readBufferFrom(this, index, in, length);
 	 * </pre>

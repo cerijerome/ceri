@@ -79,8 +79,8 @@ public class BooleanAccessorBehavior {
 		b.set(true);
 		assertThat(h.val, is(true));
 		assertThat(h.iVal, is(1));
-		assertThat(h.sVal, is((short)1));
-		assertThat(h.bVal, is((byte)1));
+		assertThat(h.sVal, is((short) 1));
+		assertThat(h.bVal, is((byte) 1));
 		assertThat(a.get(), is(true));
 		assertThat(i.get(), is(true));
 		assertThat(s.get(), is(true));

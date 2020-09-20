@@ -1,12 +1,11 @@
 package ceri.common.svg;
 
+import java.util.Objects;
 import ceri.common.geom.Dimension2d;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class Ellipse implements Path<Ellipse> {
 	public final Dimension2d radii;
@@ -69,7 +68,7 @@ public class Ellipse implements Path<Ellipse> {
 		if (xRotation == 0) return this;
 		return builder(this).rotation(xRotation).build();
 	}
-	
+
 	@Override
 	public Ellipse reverse() {
 		return builder(this).center(center.reverse()).rotation(-rotation).build();
@@ -110,7 +109,7 @@ public class Ellipse implements Path<Ellipse> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(radii, rotation, center);
+		return Objects.hash(radii, rotation, center);
 	}
 
 	@Override
@@ -118,15 +117,15 @@ public class Ellipse implements Path<Ellipse> {
 		if (this == obj) return true;
 		if (!(obj instanceof Ellipse)) return false;
 		Ellipse other = (Ellipse) obj;
-		if (!EqualsUtil.equals(radii, other.radii)) return false;
-		if (!EqualsUtil.equals(rotation, other.rotation)) return false;
-		if (!EqualsUtil.equals(center, other.center)) return false;
+		if (!Objects.equals(radii, other.radii)) return false;
+		if (!Objects.equals(rotation, other.rotation)) return false;
+		if (!Objects.equals(center, other.center)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, center, radii, rotation).toString();
+		return ToString.forClass(this, center, radii, rotation);
 	}
 
 }

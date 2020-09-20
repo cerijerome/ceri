@@ -37,5 +37,5 @@ public class CharGrayscaleBehavior {
 		assertThat(cg.charOf(0.999), is('@'));
 		assertThat(cg.charOf(1.0), is('@'));
 	}
-	
+
 }

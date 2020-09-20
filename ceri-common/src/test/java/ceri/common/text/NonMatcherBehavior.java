@@ -24,7 +24,7 @@ public class NonMatcherBehavior {
 		assertThat(m.replaceAll("X"), is("XaXbbXcccX"));
 		assertThat(m.replaceAll(r -> String.valueOf(r.end() - r.start())), is("1a2bb3ccc8"));
 	}
-	
+
 	@Test
 	public void shouldReplaceFirstMatch() {
 		NonMatcher m = nonMatcher("[a-c]+", "abc");
@@ -34,7 +34,7 @@ public class NonMatcherBehavior {
 		assertThat(m.replaceFirst("X"), is("abcXabABaA"));
 		assertThat(m.replaceFirst(r -> String.valueOf(r.end() - r.start())), is("abc3abABaA"));
 	}
-	
+
 	@Test
 	public void shouldFindNonMatchingText() {
 		NonMatcher m = nonMatcher("[a-c]", "AaBbCcDd");

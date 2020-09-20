@@ -6,7 +6,7 @@ import java.util.function.Consumer;
  * Provides an AutoCloseable type for an object and a given close method on that object.
  */
 public class Enclosed<T> implements AutoCloseable {
-	private static final Enclosed<?> EMPTY = of(null, null); 
+	private static final Enclosed<?> EMPTY = of(null, null);
 	public final T subject;
 	private final Consumer<T> closer;
 
@@ -37,16 +37,16 @@ public class Enclosed<T> implements AutoCloseable {
 	 * Returns true if this instance has no subject.
 	 */
 	public boolean isEmpty() {
-		return subject == null; 
+		return subject == null;
 	}
-	
+
 	/**
 	 * Returns true if this instance has no close action.
 	 */
 	public boolean isNoOp() {
-		return closer == null || isEmpty(); 
+		return closer == null || isEmpty();
 	}
-	
+
 	@Override
 	public void close() {
 		if (subject == null || closer == null) return;

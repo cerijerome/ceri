@@ -12,7 +12,6 @@ import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Base wrapper for a byte array, implementing the ByteProvider interface. The Immutable sub-class
@@ -519,8 +518,7 @@ public abstract class ByteArray implements ByteProvider {
 	public boolean isEqualTo(int index, byte[] array, int offset, int length) {
 		if (!isValidSlice(index, length)) return false;
 		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return false;
-		return Arrays.equals(this.array, offset(index), offset(index + length), array, offset,
-			offset + length);
+		return ArrayUtil.equals(this.array, offset(index), array, offset, length);
 	}
 
 	@Override
@@ -540,12 +538,11 @@ public abstract class ByteArray implements ByteProvider {
 
 	boolean isEqual(ByteArray other) {
 		if (length != other.length) return false;
-		return Arrays.equals(array, offset(0), offset(length), other.array, other.offset(0),
-			other.offset(length));
+		return ArrayUtil.equals(array, offset(0), other.array, other.offset(0), length);
 	}
 
 	int hash() {
-		return HashCoder.byteHash(array, offset, length);
+		return ArrayUtil.hash(array, offset, length);
 	}
 
 	boolean isValidSlice(int index, int length) {

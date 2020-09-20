@@ -31,21 +31,21 @@ public class StartupValues {
 	}
 
 	/**
-	 * Creates an instance that prints value assignments to stdout. 
+	 * Creates an instance that prints value assignments to stdout.
 	 */
 	public static StartupValues sysOut(String... args) {
 		return of(args).notifier(System.out::println);
 	}
 
 	/**
-	 * Creates an instance with no notification. 
+	 * Creates an instance with no notification.
 	 */
 	public static StartupValues of(String... args) {
 		return new StartupValues(args);
 	}
 
 	/**
-	 * Creates an instance that prints value assignments to the given notifier. 
+	 * Creates an instance that prints value assignments to the given notifier.
 	 */
 	public StartupValues notifier(Consumer<String> notifier) {
 		this.notifier = notifier;
@@ -53,7 +53,7 @@ public class StartupValues {
 	}
 
 	/**
-	 * A wrapper to perform value assignment, and provide typed access. 
+	 * A wrapper to perform value assignment, and provide typed access.
 	 */
 	public static class Value {
 		public final String name;

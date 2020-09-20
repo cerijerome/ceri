@@ -8,6 +8,7 @@ import ceri.common.io.RuntimeIoException;
 
 /**
  * Tool to manually order characters by gray-level.
+ * 
  * <pre>
  * x = exit
  * a = move to index 0
@@ -53,7 +54,7 @@ public class CharGrayscaler {
 		cs = ArrayUtil.copyOf(cs, 0, cs.length - 1);
 		System.out.println("Deleted " + c);
 	}
-	
+
 	private static void swap(char[] cs, int i) {
 		if (i >= cs.length - 1) return;
 		char c = cs[i];
@@ -61,16 +62,17 @@ public class CharGrayscaler {
 		cs[i + 1] = c;
 		System.out.println("Swapped " + cs[i] + " <-> " + cs[i + 1]);
 	}
-	
+
 	private static void printBlocks(char[] cs, int i, int size, double blocks) {
 		String[] cols = new String[(int) Math.ceil(blocks)];
 		for (int j = 0; j < cols.length; j++) {
 			if (i + j >= cs.length) cols[j] = "";
 			else if (j < cols.length - 1) cols[j] = repeat(cs[i + j], size * 2);
-			else cols[j] = repeat(cs[i + j], (int)(size * 2 * (blocks - j)));
+			else cols[j] = repeat(cs[i + j], (int) (size * 2 * (blocks - j)));
 		}
 		for (int j = 0; j < size; j++) {
-			for (String col : cols) System.out.print(col);
+			for (String col : cols)
+				System.out.print(col);
 			System.out.println();
 		}
 	}

@@ -17,10 +17,10 @@ public class ExceptionUtil {
 	/**
 	 * Call to generate an IllegalStateException. Use for lambdas that shouldn't be called.
 	 */
-	public static void doNotCall(Object...args) {
+	public static void doNotCall(Object... args) {
 		BasicUtil.unused(args);
 		throw new IllegalStateException();
-	}	
+	}
 
 	/**
 	 * Creates an exception with formatted message.

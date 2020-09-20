@@ -14,8 +14,8 @@ public class MultiDateParserBehavior {
 	@Test
 	public void shouldReturnNullIfNoFormats() throws ParseException {
 		MultiDateParser parser = new MultiDateParser();
-		assertThat(parser.parse(""), is((Date)null));
-		assertThat(parser.parse("1970"), is((Date)null));
+		assertThat(parser.parse(""), is((Date) null));
+		assertThat(parser.parse("1970"), is((Date) null));
 	}
 
 	@Test

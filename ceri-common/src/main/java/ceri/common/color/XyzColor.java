@@ -1,7 +1,6 @@
 package ceri.common.color;
 
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
 
 public class XyzColor implements ComponentColor<XyzColor> {
 	public static final XyzColor D50 = of(0.964212, 1.0, 0.825188);
@@ -72,7 +71,7 @@ public class XyzColor implements ComponentColor<XyzColor> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(x, y, z, a);
+		return Objects.hash(x, y, z, a);
 	}
 
 	@Override
@@ -80,10 +79,10 @@ public class XyzColor implements ComponentColor<XyzColor> {
 		if (this == obj) return true;
 		if (!(obj instanceof XyzColor)) return false;
 		XyzColor other = (XyzColor) obj;
-		if (!EqualsUtil.equals(x, other.x)) return false;
-		if (!EqualsUtil.equals(y, other.y)) return false;
-		if (!EqualsUtil.equals(z, other.z)) return false;
-		if (!EqualsUtil.equals(a, other.a)) return false;
+		if (!Objects.equals(x, other.x)) return false;
+		if (!Objects.equals(y, other.y)) return false;
+		if (!Objects.equals(z, other.z)) return false;
+		if (!Objects.equals(a, other.a)) return false;
 		return true;
 	}
 

@@ -12,13 +12,13 @@ import static ceri.common.validation.DisplayLong.hex2;
 import static ceri.common.validation.DisplayLong.hex4;
 import static ceri.common.validation.DisplayLong.hex8;
 import static ceri.common.validation.DisplayLong.udec;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import ceri.common.math.Bound;
 import ceri.common.math.Interval;
 import ceri.common.text.StringUtil;
-import ceri.common.util.EqualsUtil;
 
 /**
  * Common validation methods. IllegalArgumentException is thrown for a failed validation. Specified
@@ -180,7 +180,7 @@ public class ValidationUtil {
 	 * Validates that the objects are equal.
 	 */
 	public static <T> T validateEqualObj(T value, Object expected, String name) {
-		if (!EqualsUtil.equals(value, expected))
+		if (!Objects.equals(value, expected))
 			throw exceptionf("%s != %s: %s", name(name), expected, value);
 		return value;
 	}
@@ -196,7 +196,7 @@ public class ValidationUtil {
 	 * Validates that the objects are not equal.
 	 */
 	public static <T> T validateNotEqualObj(T value, Object unexpected, String name) {
-		if (EqualsUtil.equals(value, unexpected)) throw exceptionf("%s = %s", name(name), value);
+		if (Objects.equals(value, unexpected)) throw exceptionf("%s = %s", name(name), value);
 		return value;
 	}
 
@@ -237,14 +237,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that the floating point values are equal.
 	 */
-	public static double validateEqual(double value, Double expected, DisplayDouble... flags) {
-		return validateEqual(value, expected, VALUE, flags);
+	public static double validateEqualFp(double value, double expected, DisplayDouble... flags) {
+		return validateEqualFp(value, expected, VALUE, flags);
 	}
 
 	/**
 	 * Validates that the floating point values are equal.
 	 */
-	public static double validateEqual(double value, Double expected, String name,
+	public static double validateEqualFp(double value, double expected, String name,
 		DisplayDouble... flags) {
 		if (value != expected) throw exceptionf("%s != %s: %s", name(name), format(expected, flags),
 			format(value, flags));
@@ -254,14 +254,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that the floating point values are not equal.
 	 */
-	public static double validateNotEqual(double value, Double expected, DisplayDouble... flags) {
-		return validateNotEqual(value, expected, VALUE, flags);
+	public static double validateNotEqualFp(double value, double expected, DisplayDouble... flags) {
+		return validateNotEqualFp(value, expected, VALUE, flags);
 	}
 
 	/**
 	 * Validates that the floating point values are not equal.
 	 */
-	public static double validateNotEqual(double value, Double expected, String name,
+	public static double validateNotEqualFp(double value, double expected, String name,
 		DisplayDouble... flags) {
 		if (value == expected) throw exceptionf("%s = %s", name(name), format(value, flags));
 		return value;
@@ -400,15 +400,15 @@ public class ValidationUtil {
 	/**
 	 * Validates that the floating point value is within the interval.
 	 */
-	public static double validateWithin(double value, Interval<Double> interval,
+	public static double validateWithinFp(double value, Interval<Double> interval,
 		DisplayDouble... flags) {
-		return validateWithin(value, interval, VALUE, flags);
+		return validateWithinFp(value, interval, VALUE, flags);
 	}
 
 	/**
 	 * Validates that the floating point value is within the interval.
 	 */
-	public static double validateWithin(double value, Interval<Double> interval, String name,
+	public static double validateWithinFp(double value, Interval<Double> interval, String name,
 		DisplayDouble... flags) {
 		if (!interval.contains(value)) throw exceptionf("%s is not within %s: %s", name(name),
 			format(interval, flags), format(value, flags));
@@ -418,15 +418,15 @@ public class ValidationUtil {
 	/**
 	 * Validates that the floating point value is not within the interval.
 	 */
-	public static double validateWithout(double value, Interval<Double> interval,
+	public static double validateWithoutFp(double value, Interval<Double> interval,
 		DisplayDouble... flags) {
-		return validateWithout(value, interval, VALUE, flags);
+		return validateWithoutFp(value, interval, VALUE, flags);
 	}
 
 	/**
 	 * Validates that the floating point value is not within the interval.
 	 */
-	public static double validateWithout(double value, Interval<Double> interval, String name,
+	public static double validateWithoutFp(double value, Interval<Double> interval, String name,
 		DisplayDouble... flags) {
 		if (interval.contains(value)) throw exceptionf("%s is within %s: %s", name(name),
 			format(interval, flags), format(value, flags));
@@ -446,38 +446,55 @@ public class ValidationUtil {
 	 * Validates that integer value is >= minimum.
 	 */
 	public static long validateMin(long value, long min, String name, DisplayLong... flags) {
-		if (value >= min) return value;
-		throw exceptionf("%s must be >= %s: %s", name(name), format(min, flags),
-			format(value, flags));
-	}
-
-	/**
-	 * Validates that floating point value is >= minimum.
-	 */
-	public static double validateMin(double value, double min, DisplayDouble... flags) {
-		return validateMin(value, min, VALUE, flags);
-	}
-
-	/**
-	 * Validates that floating point value is >= minimum.
-	 */
-	public static double validateMin(double value, double min, String name,
-		DisplayDouble... flags) {
 		return validateMin(value, min, name, null, flags);
 	}
 
 	/**
 	 * Validates value is > or >= minimum. A null bound is treated as inclusive.
 	 */
-	public static double validateMin(double value, double min, Bound.Type bound,
-		DisplayDouble... flags) {
+	public static long validateMin(long value, long min, Bound.Type bound,
+		DisplayLong... flags) {
 		return validateMin(value, min, VALUE, bound, flags);
 	}
 
 	/**
 	 * Validates value is > or >= minimum. A null bound is treated as inclusive.
 	 */
-	public static double validateMin(double value, double min, String name, Bound.Type bound,
+	public static long validateMin(long value, long min, String name, Bound.Type bound,
+		DisplayLong... flags) {
+		if (bound == null) bound = Bound.Type.inclusive;
+		if (bound.isLower(value, min)) return value;
+		throw exceptionf("%s must be %s %s: %s", name(name), bound.lower, format(min, flags),
+			format(value, flags));
+	}
+
+	/**
+	 * Validates that floating point value is >= minimum.
+	 */
+	public static double validateMinFp(double value, double min, DisplayDouble... flags) {
+		return validateMinFp(value, min, VALUE, flags);
+	}
+
+	/**
+	 * Validates that floating point value is >= minimum.
+	 */
+	public static double validateMinFp(double value, double min, String name,
+		DisplayDouble... flags) {
+		return validateMinFp(value, min, name, null, flags);
+	}
+
+	/**
+	 * Validates value is > or >= minimum. A null bound is treated as inclusive.
+	 */
+	public static double validateMinFp(double value, double min, Bound.Type bound,
+		DisplayDouble... flags) {
+		return validateMinFp(value, min, VALUE, bound, flags);
+	}
+
+	/**
+	 * Validates value is > or >= minimum. A null bound is treated as inclusive.
+	 */
+	public static double validateMinFp(double value, double min, String name, Bound.Type bound,
 		DisplayDouble... flags) {
 		if (bound == null) bound = Bound.Type.inclusive;
 		if (bound.isLower(value, min)) return value;
@@ -496,38 +513,55 @@ public class ValidationUtil {
 	 * Validates that integer value is <= maximum.
 	 */
 	public static long validateMax(long value, long max, String name, DisplayLong... flags) {
-		if (value <= max) return value;
-		throw exceptionf("%s must be <= %s: %s", name(name), format(max, flags),
-			format(value, flags));
-	}
-
-	/**
-	 * Validates that floating point value is <= maximum.
-	 */
-	public static double validateMax(double value, double max, DisplayDouble... flags) {
-		return validateMax(value, max, VALUE, flags);
-	}
-
-	/**
-	 * Validates that floating point value is <= maximum.
-	 */
-	public static double validateMax(double value, double max, String name,
-		DisplayDouble... flags) {
 		return validateMax(value, max, name, null, flags);
 	}
 
 	/**
 	 * Validates value is < or <= maximum. A null bound is treated as inclusive.
 	 */
-	public static double validateMax(double value, double max, Bound.Type bound,
-		DisplayDouble... flags) {
+	public static double validateMax(long value, long max, Bound.Type bound,
+		DisplayLong... flags) {
 		return validateMax(value, max, VALUE, bound, flags);
 	}
 
 	/**
 	 * Validates value is < or <= maximum. A null bound is treated as inclusive.
 	 */
-	public static double validateMax(double value, double max, String name, Bound.Type bound,
+	public static long validateMax(long value, long max, String name, Bound.Type bound,
+		DisplayLong... flags) {
+		if (bound == null) bound = Bound.Type.inclusive;
+		if (bound.isUpper(value, max)) return value;
+		throw exceptionf("%s must be %s %s: %s", name(name), bound.lower, format(max, flags),
+			format(value, flags));
+	}
+	
+	/**
+	 * Validates that floating point value is <= maximum.
+	 */
+	public static double validateMaxFp(double value, double max, DisplayDouble... flags) {
+		return validateMaxFp(value, max, VALUE, flags);
+	}
+
+	/**
+	 * Validates that floating point value is <= maximum.
+	 */
+	public static double validateMaxFp(double value, double max, String name,
+		DisplayDouble... flags) {
+		return validateMaxFp(value, max, name, null, flags);
+	}
+
+	/**
+	 * Validates value is < or <= maximum. A null bound is treated as inclusive.
+	 */
+	public static double validateMaxFp(double value, double max, Bound.Type bound,
+		DisplayDouble... flags) {
+		return validateMaxFp(value, max, VALUE, bound, flags);
+	}
+
+	/**
+	 * Validates value is < or <= maximum. A null bound is treated as inclusive.
+	 */
+	public static double validateMaxFp(double value, double max, String name, Bound.Type bound,
 		DisplayDouble... flags) {
 		if (bound == null) bound = Bound.Type.inclusive;
 		if (bound.isUpper(value, max)) return value;
@@ -555,15 +589,15 @@ public class ValidationUtil {
 	/**
 	 * Validates that floating point value is inclusively between minimum and maximum.
 	 */
-	public static double validateRange(double value, double min, double max,
+	public static double validateRangeFp(double value, double min, double max,
 		DisplayDouble... flags) {
-		return validateRange(value, min, max, VALUE, flags);
+		return validateRangeFp(value, min, max, VALUE, flags);
 	}
 
 	/**
 	 * Validates that floating point value is inclusively between minimum and maximum.
 	 */
-	public static double validateRange(double value, double min, double max, String name,
+	public static double validateRangeFp(double value, double min, double max, String name,
 		DisplayDouble... flags) {
 		if (value < min || value > max) throw exceptionf("%s is not within [%s, %s]: %s",
 			name(name), format(min, flags), format(max, flags), format(value, flags));

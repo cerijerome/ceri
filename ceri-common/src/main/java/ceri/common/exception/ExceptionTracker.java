@@ -2,8 +2,7 @@ package ceri.common.exception;
 
 import java.util.HashMap;
 import java.util.Map;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
 
 /**
  * Tracks thrown exceptions to determine if they are repeated based on type and message. Useful for
@@ -23,7 +22,7 @@ public class ExceptionTracker {
 
 		@Override
 		public int hashCode() {
-			return HashCoder.hash(cls, message);
+			return Objects.hash(cls, message);
 		}
 
 		@Override
@@ -31,8 +30,8 @@ public class ExceptionTracker {
 			if (this == obj) return true;
 			if (!(obj instanceof Key)) return false;
 			Key other = (Key) obj;
-			if (!EqualsUtil.equals(cls, other.cls)) return false;
-			if (!EqualsUtil.equals(message, other.message)) return false;
+			if (!Objects.equals(cls, other.cls)) return false;
+			if (!Objects.equals(message, other.message)) return false;
 			return true;
 		}
 	}
@@ -72,5 +71,5 @@ public class ExceptionTracker {
 	public int size() {
 		return map.size();
 	}
-	
+
 }

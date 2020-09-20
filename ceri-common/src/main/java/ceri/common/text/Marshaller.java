@@ -9,7 +9,7 @@ public class Marshaller<T> {
 	public static <T> Marshaller<T> of(Function<T, String> to, Function<String, T> from) {
 		return new Marshaller<>(to, from);
 	}
-	
+
 	private Marshaller(Function<T, String> to, Function<String, T> from) {
 		this.to = to;
 		this.from = from;

@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.function.Function;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.io.IoStreamUtil;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 
 /**
  * Provides an output stream that responds to input data. Can be created to handle bytes or Strings.
@@ -82,7 +82,7 @@ public class ResponseStream {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, responder).toString();
+		return ToString.forClass(this, responder);
 	}
 
 	private void write(byte[] b, int offset, int len) throws IOException {

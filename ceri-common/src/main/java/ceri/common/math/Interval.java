@@ -1,10 +1,9 @@
 package ceri.common.math;
 
 import java.util.Comparator;
+import java.util.Objects;
 import ceri.common.math.Bound.Type;
 import ceri.common.util.Align;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class Interval<T> {
 	public final Bound<T> lower;
@@ -83,7 +82,7 @@ public class Interval<T> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(lower, upper);
+		return Objects.hash(lower, upper);
 	}
 
 	@Override
@@ -91,8 +90,8 @@ public class Interval<T> {
 		if (this == obj) return true;
 		if (!(obj instanceof Interval)) return false;
 		Interval<?> other = (Interval<?>) obj;
-		if (!EqualsUtil.equals(lower, other.lower)) return false;
-		if (!EqualsUtil.equals(upper, other.upper)) return false;
+		if (!Objects.equals(lower, other.lower)) return false;
+		if (!Objects.equals(upper, other.upper)) return false;
 		return true;
 	}
 

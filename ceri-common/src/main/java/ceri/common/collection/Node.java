@@ -8,16 +8,15 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.property.PathFactory;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 import ceri.common.util.PrimitiveUtil;
 
 /**
@@ -195,7 +194,7 @@ public class Node<T> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(name, value, children);
+		return Objects.hash(name, value, children);
 	}
 
 	@Override
@@ -203,15 +202,15 @@ public class Node<T> {
 		if (this == obj) return true;
 		if (!(obj instanceof Node)) return false;
 		Node<?> other = (Node<?>) obj;
-		if (!EqualsUtil.equals(name, other.name)) return false;
-		if (!EqualsUtil.equals(value, other.value)) return false;
-		if (!EqualsUtil.equals(children, other.children)) return false;
+		if (!Objects.equals(name, other.name)) return false;
+		if (!Objects.equals(value, other.value)) return false;
+		if (!Objects.equals(children, other.children)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, name, value).childrens(children).toString();
+		return ToString.ofClass(this, name, value).childrens(children).toString();
 	}
 
 	private <U> U convert(Class<U> cls, Function<String, U> fn) {

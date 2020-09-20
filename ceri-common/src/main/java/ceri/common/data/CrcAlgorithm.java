@@ -7,14 +7,14 @@ import static ceri.common.data.ByteUtil.maskOfBits;
 import static ceri.common.data.ByteUtil.shiftBits;
 import static ceri.common.math.MathUtil.ubyte;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-import ceri.common.util.HashCoder;
 
 /**
  * Encapsulates the algorithm used to generate CRC values. Generates an entry cache on creation.
- * 
+ *
  * <pre>
  * See http://ross.net/crc/download/crc_v3.txt
  * poly = powers as bits (excluding highest bit)
@@ -238,7 +238,7 @@ public class CrcAlgorithm {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(width, poly, init, refIn, refOut, xorOut);
+		return Objects.hash(width, poly, init, refIn, refOut, xorOut);
 	}
 
 	@Override

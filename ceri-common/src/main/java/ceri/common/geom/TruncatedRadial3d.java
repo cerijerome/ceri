@@ -1,10 +1,9 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateRange;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import static ceri.common.validation.ValidationUtil.validateMinFp;
+import static ceri.common.validation.ValidationUtil.validateRangeFp;
+import java.util.Objects;
+import ceri.common.text.ToString;
 
 public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 	private final T radial;
@@ -14,8 +13,8 @@ public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 	private final double v;
 
 	public static <T extends Radial3d> TruncatedRadial3d<T> create(T radial, double h0, double h) {
-		validateMin(h0, 0, "Height offset");
-		validateRange(h, 0, radial.height() - h0, "Height");
+		validateMinFp(h0, 0, "Height offset");
+		validateRangeFp(h, 0, radial.height() - h0, "Height");
 		return new TruncatedRadial3d<>(radial, h0 + .0, h + .0);
 	}
 
@@ -70,7 +69,7 @@ public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(radial, h0, h);
+		return Objects.hash(radial, h0, h);
 	}
 
 	@Override
@@ -78,15 +77,15 @@ public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 		if (this == obj) return true;
 		if (!(obj instanceof TruncatedRadial3d)) return false;
 		TruncatedRadial3d<?> other = (TruncatedRadial3d<?>) obj;
-		if (!EqualsUtil.equals(radial, other.radial)) return false;
-		if (!EqualsUtil.equals(h0, other.h0)) return false;
-		if (!EqualsUtil.equals(h, other.h)) return false;
+		if (!Objects.equals(radial, other.radial)) return false;
+		if (!Objects.equals(h0, other.h0)) return false;
+		if (!Objects.equals(h, other.h)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, h0, h, radial).toString();
+		return ToString.forClass(this, h0, h, radial);
 	}
 
 }

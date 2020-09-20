@@ -54,7 +54,7 @@ public interface Listenable<T> {
 	static <T> Null<T> ofNull() {
 		return BasicUtil.uncheckedCast(Null.INSTANCE);
 	}
-	
+
 	static class Null<T> implements Listenable<T>, Listenable.Indirect<T> {
 		private static final Null<?> INSTANCE = new Null<>();
 

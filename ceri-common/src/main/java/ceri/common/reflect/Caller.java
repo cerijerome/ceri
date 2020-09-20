@@ -1,7 +1,6 @@
 package ceri.common.reflect;
 
 import java.util.Objects;
-import ceri.common.util.EqualsUtil;
 
 /**
  * Encapsulates information about the caller of a method.
@@ -55,9 +54,9 @@ public class Caller {
 		if (!(obj instanceof Caller)) return false;
 		Caller other = (Caller) obj;
 		if (line != other.line) return false;
-		if (!EqualsUtil.equals(fullCls, other.fullCls)) return false;
-		if (!EqualsUtil.equals(method, other.method)) return false;
-		if (!EqualsUtil.equals(file, other.file)) return false;
+		if (!Objects.equals(fullCls, other.fullCls)) return false;
+		if (!Objects.equals(method, other.method)) return false;
+		if (!Objects.equals(file, other.file)) return false;
 		return true;
 	}
 

@@ -8,8 +8,8 @@ import ceri.common.util.BasicUtil;
  * Comparators for TreeNode types.
  */
 public class TreeNodeComparators {
-	private static final Comparator<TreeNode<?>> ID = Comparators
-		.nonNull((lhs, rhs) -> Comparators.INT.compare(lhs.id, rhs.id));
+	private static final Comparator<TreeNode<?>> ID =
+		Comparators.nonNull((lhs, rhs) -> Comparators.INT.compare(lhs.id, rhs.id));
 
 	private TreeNodeComparators() {}
 

@@ -73,7 +73,7 @@ public class TestOutputStream extends OutputStream {
 		flush(i -> out.flush());
 		close(out::close);
 	}
-	
+
 	/**
 	 * Enable or disable collection of written bytes.
 	 */

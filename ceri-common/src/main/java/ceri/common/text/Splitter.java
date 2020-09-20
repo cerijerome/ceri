@@ -8,12 +8,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import ceri.common.function.ObjIntFunction;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Utility for extracting text sequentially.
@@ -47,7 +46,7 @@ public class Splitter {
 
 		@Override
 		public int hashCode() {
-			return HashCoder.hash(text, size);
+			return Objects.hash(text, size);
 		}
 
 		@Override
@@ -55,7 +54,7 @@ public class Splitter {
 			if (this == obj) return true;
 			if (!(obj instanceof Extraction)) return false;
 			Extraction other = (Extraction) obj;
-			if (!EqualsUtil.equals(text, other.text)) return false;
+			if (!Objects.equals(text, other.text)) return false;
 			if (size != other.size) return false;
 			return true;
 		}

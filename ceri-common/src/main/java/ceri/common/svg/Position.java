@@ -1,11 +1,10 @@
 package ceri.common.svg;
 
+import java.util.Objects;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class Position {
 	public static final Position RELATIVE_ZERO = new Position(PositionType.relative, 0, 0);
@@ -86,7 +85,7 @@ public class Position {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(type, x, y);
+		return Objects.hash(type, x, y);
 	}
 
 	@Override
@@ -94,15 +93,15 @@ public class Position {
 		if (this == obj) return true;
 		if (!(obj instanceof Position)) return false;
 		Position other = (Position) obj;
-		if (!EqualsUtil.equals(type, other.type)) return false;
-		if (!EqualsUtil.equals(x, other.x)) return false;
-		if (!EqualsUtil.equals(y, other.y)) return false;
+		if (!Objects.equals(type, other.type)) return false;
+		if (!Objects.equals(x, other.x)) return false;
+		if (!Objects.equals(y, other.y)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, type, x, y).toString();
+		return ToString.forClass(this, type, x, y);
 	}
 
 }

@@ -8,10 +8,10 @@ import static org.junit.Assert.assertNotEquals;
 import org.junit.Test;
 
 public class ReverseFunctionBehavior {
-	private static final ReverseFunction f0 = ReverseFunction
-		.create(0, Math.PI / 2, 100, Math::sin);
-	private static final ReverseFunction f1 = ReverseFunction
-		.create(-0.99, 0.99, 100, x -> x * x * x);
+	private static final ReverseFunction f0 =
+		ReverseFunction.create(0, Math.PI / 2, 100, Math::sin);
+	private static final ReverseFunction f1 =
+		ReverseFunction.create(-0.99, 0.99, 100, x -> x * x * x);
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
@@ -30,7 +30,7 @@ public class ReverseFunctionBehavior {
 		assertApprox(f.x(0), NaN);
 		assertApprox(f.x(1), NaN);
 	}
-	
+
 	@Test
 	public void shouldHandleSingleLookupEntry() {
 		ReverseFunction f = ReverseFunction.builder().add(1, 1).build();
@@ -38,7 +38,7 @@ public class ReverseFunctionBehavior {
 		assertApprox(f.x(1), 1);
 		assertApprox(f.x(2), 1);
 	}
-	
+
 	@Test
 	public void shouldExtrapolateValuesOutsideTheRange() {
 		assertApprox(f0.x(-0.001), -0.001);

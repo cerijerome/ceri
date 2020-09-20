@@ -12,14 +12,14 @@ import java.util.regex.Pattern;
  */
 public class TextUtil {
 	private static final Pattern CAPITALIZED_WORD_PATTERN = Pattern.compile("^[A-Z]$|^[A-Z][a-z]");
-	private static final Pattern WORD_SPLIT_PATTERN = Pattern
-		.compile("(?<![A-Z])(?=[A-Z0-9])|(?<=[A-Z0-9])(?=[A-Z][a-z])|[\\s_]+");
+	private static final Pattern WORD_SPLIT_PATTERN =
+		Pattern.compile("(?<![A-Z])(?=[A-Z0-9])|(?<=[A-Z0-9])(?=[A-Z][a-z])|[\\s_]+");
 	private static final Pattern WORD_BOUNDARY_PATTERN = Pattern.compile("([^a-zA-Z])([a-z])");
 	private static final Pattern CASE_BOUNDARY_PATTERN = Pattern.compile("([a-z0-9])([A-Z])");
 	private static final Pattern UPPER_CASE_WORD_PATTERN = Pattern.compile("([A-Z])([A-Z0-9]*)");
 	private static final Pattern LETTER_PATTERN = Pattern.compile("(?i)([A-Z])");
-	private static final Pattern UNDERSCORE_WORD_SEPARATOR_PATTERN = Pattern
-		.compile("(?i)([a-z0-9])_([a-z])");
+	private static final Pattern UNDERSCORE_WORD_SEPARATOR_PATTERN =
+		Pattern.compile("(?i)([a-z0-9])_([a-z])");
 	private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
 
 	private TextUtil() {}
@@ -193,7 +193,7 @@ public class TextUtil {
 		if (str == null || str.isEmpty()) return str;
 		return firstLetterToLower(underscoreToPascal(str));
 	}
-	
+
 	/**
 	 * Changes underscore-separated upper case to property name style. Only single underscores
 	 * surrounded by letters are converted. e.g. HELLO_THERE_ABC => hello.there.abc

@@ -1,11 +1,10 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateMinFp;
+import java.util.Objects;
 import java.util.stream.DoubleStream;
 import ceri.common.math.AlgebraUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class Ellipsoid3d {
 	public static final Ellipsoid3d NULL = new Ellipsoid3d(0, 0, 0);
@@ -16,9 +15,9 @@ public class Ellipsoid3d {
 
 	public static Ellipsoid3d create(double a, double b, double c) {
 		if (a == 0 && b == 0 && c == 0) return NULL;
-		validateMin(a, 0, "Axis a");
-		validateMin(b, 0, "Axis b");
-		validateMin(c, 0, "Axis c");
+		validateMinFp(a, 0, "Axis a");
+		validateMinFp(b, 0, "Axis b");
+		validateMinFp(c, 0, "Axis c");
 		return new Ellipsoid3d(a + .0, b + .0, c + .0);
 	}
 
@@ -88,7 +87,7 @@ public class Ellipsoid3d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(a, b, c);
+		return Objects.hash(a, b, c);
 	}
 
 	@Override
@@ -96,15 +95,15 @@ public class Ellipsoid3d {
 		if (this == obj) return true;
 		if (!(obj instanceof Ellipsoid3d)) return false;
 		Ellipsoid3d other = (Ellipsoid3d) obj;
-		if (!EqualsUtil.equals(a, other.a)) return false;
-		if (!EqualsUtil.equals(b, other.b)) return false;
-		if (!EqualsUtil.equals(c, other.c)) return false;
+		if (!Objects.equals(a, other.a)) return false;
+		if (!Objects.equals(b, other.b)) return false;
+		if (!Objects.equals(c, other.c)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, a, b, c).toString();
+		return ToString.forClass(this, a, b, c);
 	}
 
 	public double volumeToX(double x, double a, double b, double c) {

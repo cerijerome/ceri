@@ -1,9 +1,8 @@
 package ceri.common.math;
 
+import java.util.Objects;
 import java.util.stream.Stream;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class Vector {
 	public static final Vector EMPTY = new Vector(Matrix.EMPTY);
@@ -76,7 +75,7 @@ public class Vector {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(matrix);
+		return Objects.hash(matrix);
 	}
 
 	@Override
@@ -84,13 +83,13 @@ public class Vector {
 		if (this == obj) return true;
 		if (!(obj instanceof Vector)) return false;
 		Vector other = (Vector) obj;
-		if (!EqualsUtil.equals(matrix, other.matrix)) return false;
+		if (!Objects.equals(matrix, other.matrix)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, matrix).toString();
+		return ToString.forClass(this, matrix);
 	}
 
 }

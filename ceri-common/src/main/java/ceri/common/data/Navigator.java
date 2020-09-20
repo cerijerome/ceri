@@ -92,7 +92,7 @@ public abstract class Navigator<T extends Navigator<T>> {
 		if (offset() > length) return offset(length);
 		return typedThis();
 	}
-	
+
 	/**
 	 * Returns the typed instance.
 	 */

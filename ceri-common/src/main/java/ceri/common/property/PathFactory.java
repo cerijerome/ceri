@@ -6,11 +6,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 /**
  * Represents an immutable lookup key with '.' separator.
@@ -119,7 +118,7 @@ public class PathFactory {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(separator);
+		return Objects.hash(separator);
 	}
 
 	@Override
@@ -127,13 +126,13 @@ public class PathFactory {
 		if (this == obj) return true;
 		if (!(obj instanceof PathFactory)) return false;
 		PathFactory other = (PathFactory) obj;
-		if (!EqualsUtil.equals(separator, other.separator)) return false;
+		if (!Objects.equals(separator, other.separator)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, separator).toString();
+		return ToString.forClass(this, separator);
 	}
 
 }

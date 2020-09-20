@@ -1,6 +1,7 @@
 package ceri.common.util;
 
-import ceri.common.text.ToStringHelper;
+import java.util.Objects;
+import ceri.common.text.ToString;
 
 /**
  * Useful for storing key values in a list where multiple values exist for a key.
@@ -30,7 +31,7 @@ public class KeyValue<K, V> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(key, value);
+		return Objects.hash(key, value);
 	}
 
 	@Override
@@ -38,14 +39,14 @@ public class KeyValue<K, V> {
 		if (this == obj) return true;
 		if (!(obj instanceof KeyValue)) return false;
 		KeyValue<?, ?> other = (KeyValue<?, ?>) obj;
-		if (!EqualsUtil.equals(key, other.key)) return false;
-		if (!EqualsUtil.equals(value, other.value)) return false;
+		if (!Objects.equals(key, other.key)) return false;
+		if (!Objects.equals(value, other.value)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, key, value).toString();
+		return ToString.forClass(this, key, value);
 	}
 
 }

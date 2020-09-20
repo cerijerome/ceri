@@ -11,7 +11,6 @@ import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.EqualsUtil;
 
 public class FunctionUtil {
 	private static final int MAX_RECURSIONS_DEF = 20;
@@ -181,7 +180,7 @@ public class FunctionUtil {
 		while (max-- > 0) {
 			last = t;
 			t = fn.apply(t);
-			if (EqualsUtil.equals(t, last)) break;
+			if (Objects.equals(t, last)) break;
 		}
 		return t;
 	}

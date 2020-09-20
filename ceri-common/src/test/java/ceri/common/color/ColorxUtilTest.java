@@ -80,8 +80,8 @@ public class ColorxUtilTest {
 	public void testTransformRgbBinaryOperator() {
 		assertColorx(ColorxUtil.Fn.transform(ColorUtil.Fn.scale(0.5)) //
 			.apply(full, black), 0x80808080);
-		assertColorx(ColorxUtil.Fn.transform(ColorUtil.Fn.scale(0.5), Math::max)
-			.apply(full, black), 0x808080ff);
+		assertColorx(ColorxUtil.Fn.transform(ColorUtil.Fn.scale(0.5), Math::max).apply(full, black),
+			0x808080ff);
 		assertColorx(ColorxUtil.Fn.transform(ColorUtil.Fn.scale(0.5)).apply(null, black), black);
 		assertColorx(ColorxUtil.Fn.transform(ColorUtil.Fn.scale(0.5)).apply(full, null), full);
 		assertColorx(ColorxUtil.Fn.transform((BinaryOperator<Color>) null) //

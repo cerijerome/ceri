@@ -17,7 +17,7 @@ import java.io.IOException;
 import org.junit.Test;
 
 public class TestInputStreamBehavior {
-	
+
 	@Test
 	public void shouldProvideBytesByDefault() throws IOException {
 		try (var in = new TestInputStream()) {

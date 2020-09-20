@@ -16,15 +16,17 @@ public class Shape3dUtilTest {
 
 	@Test
 	public void testTruncatedConcaveSemiSpheroidFromNegativeGradient() {
-		TestUtil.assertThrown(() -> Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(4, 4, 8, 1));
-		TestUtil.assertThrown(() -> Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(2, 4, 8, 0));
+		TestUtil
+			.assertThrown(() -> Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(4, 4, 8, 1));
+		TestUtil
+			.assertThrown(() -> Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(2, 4, 8, 0));
 		TruncatedRadial3d<ConcaveSpheroid3d> r =
 			Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(2, 4, 8, 1);
 		ConcaveSpheroid3d c = r.wrapped();
 		assertApprox(c.r, 5);
 		assertApprox(c.a, 3);
 		assertApprox(c.c, 8.485);
-		r = 	Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(2, 4, 8, -1);
+		r = Shape3dUtil.truncatedConcaveSemiSpheroidFromGradient(2, 4, 8, -1);
 		c = r.wrapped();
 		assertApprox(c.r, 5);
 		assertApprox(c.a, 3);

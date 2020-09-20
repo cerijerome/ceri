@@ -54,14 +54,14 @@ public class DateUtil {
 	public static long epochMilli(LocalDateTime dateTime, ZoneId zoneId) {
 		return dateTime.atZone(zoneId).toInstant().toEpochMilli();
 	}
-	
+
 	/**
 	 * Returns the epoch milliseconds from LocalDateTime in the system ZoneId.
 	 */
 	public static long epochMilli(LocalDateTime dateTime) {
 		return epochMilli(dateTime, ZoneId.systemDefault());
 	}
-	
+
 	/**
 	 * Returns the date/time pattern for a locale. Use null for unwanted style. Can be used to
 	 * modify a local date pattern, keeping the ordering, but modifying the field size.
@@ -78,7 +78,7 @@ public class DateUtil {
 	public static LocalDateTime nowSec() {
 		return LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 	}
-	
+
 	/**
 	 * Returns a local date-time in UTC from epoch milliseconds.
 	 */
@@ -117,28 +117,28 @@ public class DateUtil {
 	}
 
 	/**
-	 * Formats epoch milliseconds to ISO date-time in UTC. 
+	 * Formats epoch milliseconds to ISO date-time in UTC.
 	 */
 	public static String formatIso(long t) {
 		return format(t, ZoneOffset.UTC, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 	}
 
 	/**
-	 * Formats epoch milliseconds to ISO date-time in default time zone. 
+	 * Formats epoch milliseconds to ISO date-time in default time zone.
 	 */
 	public static String formatLocalIso(long t) {
 		return formatLocal(t, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 	}
 
 	/**
-	 * Formats epoch milliseconds to given format in default time zone. 
+	 * Formats epoch milliseconds to given format in default time zone.
 	 */
 	public static String formatLocal(long t, DateTimeFormatter formatter) {
 		return format(t, ZoneId.systemDefault(), formatter);
 	}
 
 	/**
-	 * Formats epoch milliseconds to given format in given time zone. 
+	 * Formats epoch milliseconds to given format in given time zone.
 	 */
 	public static String format(long t, ZoneId zoneId, DateTimeFormatter formatter) {
 		Instant instant = Instant.ofEpochMilli(t).truncatedTo(ChronoUnit.SECONDS);

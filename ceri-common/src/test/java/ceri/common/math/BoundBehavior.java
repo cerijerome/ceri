@@ -50,7 +50,7 @@ public class BoundBehavior {
 		assertThat(Bound.Type.inclusive.isLower(0.0, 0.1), is(false));
 		assertThat(Bound.Type.inclusive.isLower(0.0, 0.0), is(true));
 	}
-	
+
 	@Test
 	public void shouldDetermineTypeUpperLimit() {
 		assertThat(Bound.Type.exclusive.isUpper(Integer.MIN_VALUE, Integer.MAX_VALUE), is(true));
@@ -70,7 +70,7 @@ public class BoundBehavior {
 		assertThat(Bound.Type.inclusive.isUpper(0.1, 0.0), is(false));
 		assertThat(Bound.Type.inclusive.isUpper(0.0, 0.0), is(true));
 	}
-	
+
 	@Test
 	public void shouldBeUnboundForNullValue() {
 		assertThat(Bound.of((String) null, Type.exclusive), is(Bound.unbound()));
@@ -141,7 +141,7 @@ public class BoundBehavior {
 		assertThat(Bound.exclusive("abc", comparator).valueCompare("abd"), is(1));
 		assertThat(Bound.exclusive("abc", comparator).valueCompare("abb"), is(-1));
 	}
-	
+
 	@Test
 	public void shouldCheckValueEquality() {
 		assertThat(Bound.unbound().valueEquals(null), is(true));
@@ -153,5 +153,5 @@ public class BoundBehavior {
 		assertThat(Bound.exclusive(0).valueEquals(0), is(true));
 		assertThat(Bound.exclusive(0).valueEquals(1), is(false));
 	}
-	
+
 }

@@ -2,6 +2,7 @@ package ceri.common.math;
 
 import static ceri.common.math.Bound.Type.exclusive;
 import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
@@ -600,7 +601,7 @@ public class MathUtil {
 	 * Limits the value to be within the min and max inclusive.
 	 */
 	public static float limit(float value, float min, float max) {
-		validateMin(max, min);
+		validateMinFp(max, min);
 		if (value < min) return min;
 		if (value > max) return max;
 		return value;
@@ -610,7 +611,7 @@ public class MathUtil {
 	 * Limits the value to be within the min and max inclusive.
 	 */
 	public static double limit(double value, double min, double max) {
-		validateMin(max, min);
+		validateMinFp(max, min);
 		if (value < min) return min;
 		if (value > max) return max;
 		return value;
@@ -649,7 +650,7 @@ public class MathUtil {
 	 */
 	public static float periodicLimit(float value, float period, Bound.Type type) {
 		Objects.requireNonNull(type);
-		validateMin(period, 0.0, exclusive);
+		validateMinFp(period, 0.0, exclusive);
 		while (value > period)
 			value -= period;
 		if (type == exclusive && value == period) value -= period;
@@ -664,7 +665,7 @@ public class MathUtil {
 	 */
 	public static double periodicLimit(double value, double period, Bound.Type type) {
 		Objects.requireNonNull(type);
-		validateMin(period, 0.0, exclusive);
+		validateMinFp(period, 0.0, exclusive);
 		while (value > period)
 			value -= period;
 		if (type == exclusive && value == period) value -= period;

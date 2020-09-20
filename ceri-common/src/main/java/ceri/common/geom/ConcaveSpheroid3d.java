@@ -1,11 +1,10 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validateMinFp;
+import static ceri.common.validation.ValidationUtil.validateRangeFp;
+import java.util.Objects;
 import ceri.common.math.ReverseFunction;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 /**
  * The hole inside an elliptical torus.
@@ -24,9 +23,9 @@ public class ConcaveSpheroid3d implements Radial3d {
 
 	public static ConcaveSpheroid3d create(double r, double a, double c) {
 		if (r == 0 && a == 0 && c == 0) return NULL;
-		validateMin(r, 0, "Radius");
-		validateRange(a, 0, r, "Axis a");
-		validateMin(c, 0, "Axis c");
+		validateMinFp(r, 0, "Radius");
+		validateRangeFp(a, 0, r, "Axis a");
+		validateMinFp(c, 0, "Axis c");
 		return new ConcaveSpheroid3d(r + .0, a + .0, c + .0, REVERSE_STEPS_DEF);
 	}
 
@@ -92,7 +91,7 @@ public class ConcaveSpheroid3d implements Radial3d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(r, a, c);
+		return Objects.hash(r, a, c);
 	}
 
 	@Override
@@ -100,15 +99,15 @@ public class ConcaveSpheroid3d implements Radial3d {
 		if (this == obj) return true;
 		if (!(obj instanceof ConcaveSpheroid3d)) return false;
 		ConcaveSpheroid3d other = (ConcaveSpheroid3d) obj;
-		if (!EqualsUtil.equals(r, other.r)) return false;
-		if (!EqualsUtil.equals(a, other.a)) return false;
-		if (!EqualsUtil.equals(c, other.c)) return false;
+		if (!Objects.equals(r, other.r)) return false;
+		if (!Objects.equals(a, other.a)) return false;
+		if (!Objects.equals(c, other.c)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, r, a, c).toString();
+		return ToString.forClass(this, r, a, c);
 	}
 
 	/**

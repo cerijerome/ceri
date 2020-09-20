@@ -3,11 +3,10 @@ package ceri.common.tree;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 
 /**
- * Test node and builder static classes to help test TreeNodes. Sample tree to
- * be used for testing.
+ * Test node and builder static classes to help test TreeNodes. Sample tree to be used for testing.
  */
 public class TreeNodeTestHelper {
 	public final TestNode root;
@@ -16,11 +15,10 @@ public class TreeNodeTestHelper {
 
 	public TreeNodeTestHelper() {
 		// 0-+-1---11--111
-		//   |-2---21
-		//   `-3
-		root =
-			builder(0).child(builder(1).child(builder(11).child(builder(111)))).child(
-				builder(2).child(builder(21))).child(builder(3)).build();
+		// |-2---21
+		// `-3
+		root = builder(0).child(builder(1).child(builder(11).child(builder(111))))
+			.child(builder(2).child(builder(21))).child(builder(3)).build();
 		tree = NodeTree.create(root);
 	}
 
@@ -28,9 +26,10 @@ public class TreeNodeTestHelper {
 		return tree.get(id);
 	}
 
-	public Collection<TestNode> nodes(int...ids) {
+	public Collection<TestNode> nodes(int... ids) {
 		Set<TestNode> nodes = new LinkedHashSet<>();
-		for (int id : ids) nodes.add(node(id));
+		for (int id : ids)
+			nodes.add(node(id));
 		return nodes;
 	}
 
@@ -48,7 +47,7 @@ public class TreeNodeTestHelper {
 
 		public static class Builder extends TreeNode.Builder<TestNode> {
 			int id2 = 0;
-			
+
 			public Builder(int id) {
 				super(id);
 			}
@@ -57,7 +56,7 @@ public class TreeNodeTestHelper {
 				this.id2 = id2;
 				return this;
 			}
-			
+
 			@Override
 			protected TestNode build(TestNode parent) {
 				return new TestNode(parent, this);
@@ -68,7 +67,7 @@ public class TreeNodeTestHelper {
 		public TestNode(TestNode parent, Builder builder) {
 			super(parent, builder);
 			id2 = builder.id2;
-			toString = ToStringHelper.createByClass(this, id, level).toString();
+			toString = ToString.forClass(this, id, level);
 		}
 
 		@Override

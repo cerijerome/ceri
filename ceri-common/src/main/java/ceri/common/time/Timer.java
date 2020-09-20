@@ -1,14 +1,13 @@
 package ceri.common.time;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.LongSupplier;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionLongConsumer;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Timer to keep track of elapsed and remaining time. Can be paused/resumed multiple times without
@@ -100,7 +99,7 @@ public class Timer {
 
 		@Override
 		public int hashCode() {
-			return HashCoder.hash(timer, state, started, current, remaining);
+			return Objects.hash(timer, state, started, current, remaining);
 		}
 
 		@Override
@@ -108,8 +107,8 @@ public class Timer {
 			if (this == obj) return true;
 			if (!(obj instanceof Snapshot)) return false;
 			Snapshot other = (Snapshot) obj;
-			if (!EqualsUtil.equals(timer, other.timer)) return false;
-			if (!EqualsUtil.equals(state, other.state)) return false;
+			if (!Objects.equals(timer, other.timer)) return false;
+			if (!Objects.equals(state, other.state)) return false;
 			if (started != other.started) return false;
 			if (current != other.current) return false;
 			if (remaining != other.remaining) return false;
@@ -118,8 +117,8 @@ public class Timer {
 
 		@Override
 		public String toString() {
-			return ToStringHelper.createByClass(this, timer.period, DateUtil.symbol(timer.unit),
-				state, started, current, remaining).toString();
+			return ToString.forClass(this, timer.period, DateUtil.symbol(timer.unit), state,
+				started, current, remaining);
 		}
 	}
 

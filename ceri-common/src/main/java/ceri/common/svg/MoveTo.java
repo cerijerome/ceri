@@ -1,12 +1,11 @@
 package ceri.common.svg;
 
 import static ceri.common.svg.SvgUtil.string;
+import java.util.Objects;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class MoveTo implements Path<MoveTo> {
 	public final Position position;
@@ -70,7 +69,7 @@ public class MoveTo implements Path<MoveTo> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(position);
+		return Objects.hash(position);
 	}
 
 	@Override
@@ -78,13 +77,13 @@ public class MoveTo implements Path<MoveTo> {
 		if (this == obj) return true;
 		if (!(obj instanceof MoveTo)) return false;
 		MoveTo other = (MoveTo) obj;
-		if (!EqualsUtil.equals(position, other.position)) return false;
+		if (!Objects.equals(position, other.position)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, position).toString();
+		return ToString.forClass(this, position);
 	}
 
 }

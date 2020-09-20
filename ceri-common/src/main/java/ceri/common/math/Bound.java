@@ -2,11 +2,10 @@ package ceri.common.math;
 
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.Comparator;
+import java.util.Objects;
 import ceri.common.comparator.Comparators;
 import ceri.common.util.Align;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class Bound<T> {
 	private static final Bound<?> UNBOUND = new Bound<>(null, Type.exclusive, null);
@@ -132,7 +131,7 @@ public class Bound<T> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(value, type);
+		return Objects.hash(value, type);
 	}
 
 	@Override
@@ -140,8 +139,8 @@ public class Bound<T> {
 		if (this == obj) return true;
 		if (!(obj instanceof Bound)) return false;
 		Bound<?> other = (Bound<?>) obj;
-		if (!EqualsUtil.equals(value, other.value)) return false;
-		if (!EqualsUtil.equals(type, other.type)) return false;
+		if (!Objects.equals(value, other.value)) return false;
+		if (!Objects.equals(type, other.type)) return false;
 		return true;
 	}
 

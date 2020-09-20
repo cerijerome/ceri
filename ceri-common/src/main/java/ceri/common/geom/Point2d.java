@@ -1,8 +1,7 @@
 package ceri.common.geom;
 
 import static ceri.common.validation.ValidationUtil.validate;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
 
 public class Point2d {
 	public static final Point2d NULL = new Point2d(Double.NaN, Double.NaN);
@@ -29,7 +28,7 @@ public class Point2d {
 	public boolean isNull() {
 		return Double.isNaN(x);
 	}
-	
+
 	public Point2d reverse() {
 		return Point2d.of(-x, -y);
 	}
@@ -69,7 +68,7 @@ public class Point2d {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(x, y);
+		return Objects.hash(x, y);
 	}
 
 	@Override
@@ -77,8 +76,8 @@ public class Point2d {
 		if (this == obj) return true;
 		if (!(obj instanceof Point2d)) return false;
 		Point2d other = (Point2d) obj;
-		if (!EqualsUtil.equals(x, other.x)) return false;
-		if (!EqualsUtil.equals(y, other.y)) return false;
+		if (!Objects.equals(x, other.x)) return false;
+		if (!Objects.equals(y, other.y)) return false;
 		return true;
 	}
 

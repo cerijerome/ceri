@@ -239,14 +239,14 @@ public class ArrayUtilTest {
 		assertThat(ArrayUtil.copy(doubles, 0, doubles, 1), is(3));
 		assertArray(doubles, 1, 1, 2);
 	}
-	
+
 	@Test
 	public void testCopyOutOfRange() {
 		assertThrown(() -> ArrayUtil.copy(ArrayUtil.ints(1, 2, 3), 0, null, 0));
 		assertThrown(() -> ArrayUtil.copy(ArrayUtil.ints(1, 2, 3), 0, new int[3], 0, 4));
 		assertThrown(() -> ArrayUtil.copy(ArrayUtil.ints(1, 2, 3), 0, new int[3], 0, -1));
 	}
-	
+
 	@Test
 	public void testArrayCopy() {
 		byte[] b1 = { 0, 1, 2, 3, 4 };
@@ -298,28 +298,6 @@ public class ArrayUtilTest {
 		assertThat(ArrayUtil.fill(new long[3], 2, 0, 7), is(2));
 		assertThat(ArrayUtil.fill(new float[3], 3, 0, 7), is(3));
 		assertThat(ArrayUtil.fill(new double[3], 0, 0, 7), is(0));
-	}
-
-	@Test
-	public void testEquals() {
-		assertTrue(ArrayUtil.equals(ArrayUtil.array("1", "0"), 0, //
-			ArrayUtil.array("-1", "1", "0"), 1));
-		assertTrue(ArrayUtil.equals(ArrayUtil.booleans(true, false), 0,
-			ArrayUtil.booleans(false, true, false), 1));
-		assertTrue(ArrayUtil.equals(ArrayUtil.chars('\n', '\0'), 0, //
-			ArrayUtil.chars('x', '\n', '\0'), 1));
-		assertTrue(ArrayUtil.equals(ArrayUtil.bytes(Byte.MAX_VALUE, Byte.MIN_VALUE), 0,
-			ArrayUtil.bytes(0, Byte.MAX_VALUE, Byte.MIN_VALUE), 1));
-		assertTrue(ArrayUtil.equals(ArrayUtil.shorts(Short.MAX_VALUE, Short.MIN_VALUE), 0,
-			ArrayUtil.shorts(0, Short.MAX_VALUE, Short.MIN_VALUE), 1));
-		assertTrue(ArrayUtil.equals(ArrayUtil.ints(Integer.MAX_VALUE, Integer.MIN_VALUE), 0,
-			ArrayUtil.ints(0, Integer.MAX_VALUE, Integer.MIN_VALUE), 1));
-		assertTrue(ArrayUtil.equals(ArrayUtil.longs(Long.MAX_VALUE, Long.MIN_VALUE), 0,
-			ArrayUtil.longs(0, Long.MAX_VALUE, Long.MIN_VALUE), 1));
-		assertTrue(ArrayUtil.equals(ArrayUtil.floats(Float.MAX_VALUE, Float.MIN_VALUE), 0,
-			ArrayUtil.floats(0, Float.MAX_VALUE, Float.MIN_VALUE), 1));
-		assertTrue(ArrayUtil.equals(ArrayUtil.doubles(Double.MAX_VALUE, Double.MIN_VALUE), 0,
-			ArrayUtil.doubles(0, Double.MAX_VALUE, Double.MIN_VALUE), 1));
 	}
 
 	@Test

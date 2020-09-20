@@ -16,22 +16,22 @@ public class OsUtilTest {
 	public void testMac() {
 		assertThat(OsUtil.mac("mac", "other"), is(OsUtil.IS_MAC ? "mac" : "other"));
 	}
-	
+
 	@Test
 	public void testLinux() {
 		assertThat(OsUtil.linux("linux", "other"), is(OsUtil.IS_LINUX ? "linux" : "other"));
 	}
-	
+
 	@Test
 	public void testMacInt() {
 		assertThat(OsUtil.macInt(0, 1), is(OsUtil.IS_MAC ? 0 : 1));
 	}
-	
+
 	@Test
 	public void testLinuxInt() {
 		assertThat(OsUtil.linuxInt(0, 1), is(OsUtil.IS_LINUX ? 0 : 1));
 	}
-	
+
 	@Test
 	public void testOsArch() {
 		String arch = SystemVars.sys("os.arch");

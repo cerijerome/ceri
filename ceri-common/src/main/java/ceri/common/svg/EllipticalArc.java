@@ -1,13 +1,12 @@
 package ceri.common.svg;
 
 import static ceri.common.svg.SvgUtil.string;
+import java.util.Objects;
 import ceri.common.geom.Dimension2d;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class EllipticalArc implements Path<EllipticalArc> {
 	public final Dimension2d radii;
@@ -130,7 +129,7 @@ public class EllipticalArc implements Path<EllipticalArc> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(radii, rotation, size, sweep, end);
+		return Objects.hash(radii, rotation, size, sweep, end);
 	}
 
 	@Override
@@ -138,17 +137,17 @@ public class EllipticalArc implements Path<EllipticalArc> {
 		if (this == obj) return true;
 		if (!(obj instanceof EllipticalArc)) return false;
 		EllipticalArc other = (EllipticalArc) obj;
-		if (!EqualsUtil.equals(radii, other.radii)) return false;
-		if (!EqualsUtil.equals(rotation, other.rotation)) return false;
-		if (!EqualsUtil.equals(size, other.size)) return false;
-		if (!EqualsUtil.equals(sweep, other.sweep)) return false;
-		if (!EqualsUtil.equals(end, other.end)) return false;
+		if (!Objects.equals(radii, other.radii)) return false;
+		if (!Objects.equals(rotation, other.rotation)) return false;
+		if (!Objects.equals(size, other.size)) return false;
+		if (!Objects.equals(sweep, other.sweep)) return false;
+		if (!Objects.equals(end, other.end)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, end, radii, rotation, size, sweep).toString();
+		return ToString.forClass(this, end, radii, rotation, size, sweep);
 	}
 
 }

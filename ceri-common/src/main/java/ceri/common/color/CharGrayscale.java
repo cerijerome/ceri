@@ -1,12 +1,8 @@
 package ceri.common.color;
 
+import java.util.Objects;
 import ceri.common.text.StringUtil;
-/**
- * Outputs an animated ASCII-grayscale terminal display of frames.
- */
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class CharGrayscale {
 	public static final String COURIER_GRAYSCALE =
@@ -35,10 +31,10 @@ public class CharGrayscale {
 	public CharGrayscale reverse() {
 		return of(StringUtil.reverse(grayscale));
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(grayscale);
+		return Objects.hash(grayscale);
 	}
 
 	@Override
@@ -46,13 +42,13 @@ public class CharGrayscale {
 		if (this == obj) return true;
 		if (!(obj instanceof CharGrayscale)) return false;
 		CharGrayscale other = (CharGrayscale) obj;
-		if (!EqualsUtil.equals(grayscale, other.grayscale)) return false;
+		if (!Objects.equals(grayscale, other.grayscale)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, grayscale).toString();
+		return ToString.forClass(this, grayscale);
 	}
 
 }

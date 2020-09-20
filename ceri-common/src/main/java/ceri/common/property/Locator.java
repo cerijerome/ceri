@@ -8,10 +8,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import ceri.common.text.StringUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class Locator {
 	public static final Locator NULL = new Builder(null).extension("").build();
@@ -126,10 +125,10 @@ public class Locator {
 	public InputStream resourceAsStream() {
 		return cls.getResourceAsStream(filename());
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(cls, name, extension);
+		return Objects.hash(cls, name, extension);
 	}
 
 	@Override
@@ -137,15 +136,15 @@ public class Locator {
 		if (this == obj) return true;
 		if (!(obj instanceof Locator)) return false;
 		Locator other = (Locator) obj;
-		if (!EqualsUtil.equals(cls, other.cls)) return false;
-		if (!EqualsUtil.equals(name, other.name)) return false;
-		if (!EqualsUtil.equals(extension, other.extension)) return false;
+		if (!Objects.equals(cls, other.cls)) return false;
+		if (!Objects.equals(name, other.name)) return false;
+		if (!Objects.equals(extension, other.extension)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, cls, filename()).toString();
+		return ToString.forClass(this, cls, filename());
 	}
 
 }

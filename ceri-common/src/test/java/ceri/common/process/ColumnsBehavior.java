@@ -41,5 +41,5 @@ public class ColumnsBehavior {
 		Columns col = Columns.builder().add(2, 4, 8, Integer.MAX_VALUE).build();
 		assertIterable(col.parse(s), "a", "bc", "def", "g");
 	}
-	
+
 }

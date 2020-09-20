@@ -375,7 +375,7 @@ public class StringUtilTest {
 	public void testJoinAll() {
 		assertThat(StringUtil.joinAll("|", 1, 2, 3), is("1|2|3"));
 	}
-	
+
 	@Test
 	public void testPaddingNumbers() {
 		assertThat(StringUtil.pad(100, 5), is("00100"));

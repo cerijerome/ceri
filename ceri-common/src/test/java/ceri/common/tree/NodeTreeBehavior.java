@@ -8,8 +8,8 @@ import org.junit.Test;
 import ceri.common.tree.TreeNodeTestHelper.TestNode;
 
 public class NodeTreeBehavior {
-	
-	@Test(expected=IllegalStateException.class)
+
+	@Test(expected = IllegalStateException.class)
 	public void shouldNotAllowDuplicateIds() {
 		TestNode root = builder(1).child(builder(1)).build();
 		NodeTree.create(root);
@@ -23,7 +23,7 @@ public class NodeTreeBehavior {
 		assertThat(tree.root, is(node11));
 		assertThat(tree.get(1), is(nullValue()));
 	}
-	
+
 	@Test
 	public void shouldLookUpNodesById() {
 		TestNode root = builder(1).child(builder(11).child(builder(111))).build();

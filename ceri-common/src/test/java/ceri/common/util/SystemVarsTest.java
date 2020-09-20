@@ -52,7 +52,7 @@ public class SystemVarsTest {
 		assertNull(SystemVars.env("!@#$%"));
 		assertNull(SystemVars.sys("!@#$%"));
 	}
-	
+
 	@Test
 	public void testSetNullToHideVariables() {
 		String name = TestUtil.firstSystemPropertyName();
@@ -62,7 +62,7 @@ public class SystemVarsTest {
 		var map = SystemVars.sys();
 		assertNull(map.get(name));
 	}
-	
+
 	@Test
 	public void testSet() {
 		assertNull(SystemVars.env("!@#$%"));

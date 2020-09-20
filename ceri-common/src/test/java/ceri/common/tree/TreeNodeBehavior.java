@@ -73,8 +73,7 @@ public class TreeNodeBehavior {
 	public void shouldHaveImmutableTree() {
 		// Compiler won't let fields be changed, only able to test children
 		assertThrown(UnsupportedOperationException.class, () -> helper.root.children().clear());
-		assertThrown(UnsupportedOperationException.class,
-			() -> helper.root.children().add(null));
+		assertThrown(UnsupportedOperationException.class, () -> helper.root.children().add(null));
 	}
 
 }

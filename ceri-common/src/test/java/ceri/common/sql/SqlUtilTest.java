@@ -22,7 +22,7 @@ import org.mockito.Mockito;
 
 public class SqlUtilTest {
 	private static ResultSet rs;
-	
+
 	@BeforeClass
 	public static void beforeClass() {
 		rs = mock(ResultSet.class);
@@ -30,9 +30,9 @@ public class SqlUtilTest {
 
 	@Before
 	public void before() {
-		Mockito.clearInvocations(rs); // since mocking ResultSet takes a long time		
+		Mockito.clearInvocations(rs); // since mocking ResultSet takes a long time
 	}
-	
+
 	@Test
 	public void testNow() {
 		Timestamp t0 = new Timestamp(System.currentTimeMillis() - 1000);

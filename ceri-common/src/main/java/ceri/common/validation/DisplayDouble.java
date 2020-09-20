@@ -1,9 +1,9 @@
 package ceri.common.validation;
 
-import static ceri.common.collection.CollectionUtil.first;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.DoubleFunction;
+import ceri.common.collection.CollectionUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
 
@@ -22,7 +22,7 @@ public enum DisplayDouble {
 
 	public static String format(double value, Collection<DisplayDouble> flags) {
 		if (flags.isEmpty()) return DisplayDouble.std.format(value);
-		if (flags.size() == 1) return first(flags).format(value);
+		if (flags.size() == 1) return CollectionUtil.first(flags).format(value);
 		return StringUtil.join(", ", "(", ")", flag -> flag.format(value), flags);
 	}
 

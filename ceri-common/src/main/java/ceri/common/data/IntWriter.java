@@ -11,14 +11,14 @@ import ceri.common.util.BasicUtil;
  * <p>
  * For bulk efficiency, consider overriding these methods that process one int at a time, or make a
  * sub-array copy:
- * 
+ *
  * <pre>
  * T skip(int length); [1-int]
  * T fill(int length, int value); [1-int]
  * T writeFrom(int[] dest, int offset, int length); [1-int]
  * T writeFrom(IntProvider provider, int offset, int length); [1-int]
  * </pre>
- * 
+ *
  * @see ceri.common.data.IntReceiver.Writer
  */
 public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {

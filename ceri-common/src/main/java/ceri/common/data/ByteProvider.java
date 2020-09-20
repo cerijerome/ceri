@@ -15,7 +15,7 @@ import ceri.common.math.MathUtil;
 /**
  * Interface that provides positional access to bytes. For bulk efficiency, consider overriding the
  * following methods that process one byte at a time, or copy arrays.
- * 
+ *
  * <pre>
  * long getEndian(int index, int size, boolean msb); [copy]
  * String getString(int index, int length, Charset charset); [copy]
@@ -26,7 +26,7 @@ import ceri.common.math.MathUtil;
  * boolean isEqualTo(int index, byte[] array, int offset, int length); [1-byte]
  * boolean isEqualTo(int index, ByteProvider provider, int offset, int length); [1-byte]
  * </pre>
- * 
+ *
  * @see ceri.common.data.ByteArray.Immutable
  * @see ceri.common.concurrent.VolatileByteArray
  */
@@ -548,7 +548,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Writes bytes from index to the output stream. Returns the index after writing. Default
 	 * implementation writes one byte at a time; efficiency may be improved by overriding, or by
 	 * calling:
-	 * 
+	 *
 	 * <pre>
 	 * return writeBufferTo(this, index, out, length);
 	 * </pre>

@@ -76,7 +76,7 @@ public class IntAccessorBehavior {
 		assertThat(accessor.get(), is(7));
 		assertThrown(() -> accessor.set(0));
 	}
-	
+
 	@Test
 	public void shouldProvideSetOnlyAccess() {
 		int[] x = { 7 };
@@ -85,7 +85,7 @@ public class IntAccessorBehavior {
 		assertThat(x[0], is(0));
 		assertThrown(() -> accessor.get());
 	}
-	
+
 	@Test
 	public void shouldAddTypedValues() {
 		Holder h = new Holder();

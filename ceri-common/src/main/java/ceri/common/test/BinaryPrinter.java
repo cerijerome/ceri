@@ -10,7 +10,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.StringUtil;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import ceri.common.util.Align;
 
 /**
@@ -170,9 +170,8 @@ public class BinaryPrinter {
 	@Override
 	public String toString() {
 		String outName = out == null ? null : out.getClass().getSimpleName();
-		return ToStringHelper.createByClass(this, outName, bufferSize, bytesPerColumn, columns,
-			columnSpace, showBinary, showHex, showChar, upper, printableSpace, unprintable)
-			.toString();
+		return ToString.forClass(this, outName, bufferSize, bytesPerColumn, columns, columnSpace,
+			showBinary, showHex, showChar, upper, printableSpace, unprintable);
 	}
 
 	/**

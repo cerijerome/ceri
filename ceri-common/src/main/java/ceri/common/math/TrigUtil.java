@@ -1,7 +1,7 @@
 package ceri.common.math;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validateMinFp;
+import static ceri.common.validation.ValidationUtil.validateRangeFp;
 
 public class TrigUtil {
 	public static final Interval<Double> INTERVAL =
@@ -34,7 +34,7 @@ public class TrigUtil {
 	 * Finds the area of a segment of a circle with given radius and segment angle in radians.
 	 */
 	public static double segmentArea(double radius, double angle) {
-		validateRange(angle, 0, MathUtil.PIx2, "angle");
+		validateRangeFp(angle, 0, MathUtil.PIx2, "angle");
 		return 0.5 * (angle - Math.sin(angle)) * radius * radius;
 	}
 
@@ -43,7 +43,7 @@ public class TrigUtil {
 	 * the circle starting at the same point at given distance away from the center.
 	 */
 	public static double tangentAngle(double radius, double distance) {
-		validateMin(distance, radius, "distance");
+		validateMinFp(distance, radius, "distance");
 		return Math.asin(radius / distance);
 	}
 

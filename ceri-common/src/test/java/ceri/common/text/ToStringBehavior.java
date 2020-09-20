@@ -10,26 +10,26 @@ import java.util.Date;
 import java.util.Map;
 import org.junit.Test;
 
-public class ToStringHelperBehavior {
+public class ToStringBehavior {
 
 	@Test
 	public void shouldUseClassNameIfSpecified() {
-		String toString = ToStringHelper.createByClass(new Date()).toString();
+		String toString = ToString.forClass(new Date());
 		assertThat(toString, is("Date"));
 	}
 
 	@Test
 	public void shouldShowValues() {
-		String toString = ToStringHelper.create("Test", "Value1", "Value2").toString();
+		String toString = ToString.ofName("Test", "Value1", "Value2").toString();
 		assertThat(toString, is("Test(Value1,Value2)"));
-		toString = ToStringHelper.create("Test").values().values("v1").values("v2").toString();
+		toString = ToString.ofName("Test").values().values("v1").values("v2").toString();
 		assertThat(toString, is("Test(v1,v2)"));
 	}
 
 	@Test
 	public void shouldShowDefaultFormattedDateValues() {
 		Date date = new Date(0);
-		String toString = ToStringHelper.create("Test", date, null).toString();
+		String toString = ToString.ofName("Test", date, null).toString();
 		Instant.ofEpochMilli(0);
 		LocalDateTime dt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.systemDefault());
 		assertThat(toString, is("Test(" + dt + ",null)"));
@@ -37,33 +37,33 @@ public class ToStringHelperBehavior {
 
 	@Test
 	public void shouldNotShowEmptyValuesOrFields() {
-		String toString = ToStringHelper.create("Test").toString();
+		String toString = ToString.ofName("Test").toString();
 		assertThat(toString, is("Test"));
 	}
 
 	@Test
 	public void shouldNotShowEmptyValuesWithFieldsSet() {
-		String toString = ToStringHelper.create("Test").fields("Field").toString();
+		String toString = ToString.ofName("Test").fields("Field").toString();
 		assertThat(toString, is("Test[Field]"));
 	}
 
 	@Test
 	public void shouldUseClassNameFieldKeyIfSpecified() {
-		String toString = ToStringHelper.create("Test").fieldsByClass("Field") //
+		String toString = ToString.ofName("Test").fieldsByClass("Field") //
 			.fieldsByClass((Object) null).toString();
 		assertThat(toString, is("Test[String=Field,null]"));
 	}
 
 	@Test
 	public void shouldAddMapsOfChildren() {
-		String toString = ToStringHelper.create("Test").children("aaa", "bbb")
+		String toString = ToString.ofName("Test").children("aaa", "bbb")
 			.childrens(Map.of("k0", "v0")).childrens((Map<String, String>) null).toString();
 		assertThat(toString, is(lines("Test {", "  aaa", "  bbb", "  k0: v0", "}")));
 	}
 
 	@Test
 	public void shouldAddIndentedChildren() {
-		String toString = ToStringHelper.create("Test").children("aaa", "bbb")
+		String toString = ToString.ofName("Test").children("aaa", "bbb")
 			.childrens(Arrays.asList("ccc", "ddd")).toString();
 		assertThat(toString, is(lines("Test {", "  aaa", "  bbb", "  ccc", "  ddd", "}")));
 	}
@@ -71,15 +71,15 @@ public class ToStringHelperBehavior {
 	@Test
 	public void shouldAddChildrenWithSpecifiedPrefix() {
 		String toString =
-			ToStringHelper.create("Test").childIndent("\t").children("a", "b", "c").toString();
+			ToString.ofName("Test").childIndent("\t").children("a", "b", "c").toString();
 		assertThat(toString, is(lines("Test {", "\ta", "\tb", "\tc", "}")));
 	}
 
 	@Test
 	public void shouldIndentChildrenOfChildren() {
-		String child1 = ToStringHelper.create("Child1").children("a1", "b1").toString();
-		String child2 = ToStringHelper.create("Child2").children("a2", "b2").toString();
-		String toString = ToStringHelper.create("Test").children(child1, child2).toString();
+		String child1 = ToString.ofName("Child1").children("a1", "b1").toString();
+		String child2 = ToString.ofName("Child2").children("a2", "b2").toString();
+		String toString = ToString.ofName("Test").children(child1, child2).toString();
 		assertThat(toString, is(lines("Test {", "  Child1 {", "    a1", "    b1", "  }",
 			"  Child2 {", "    a2", "    b2", "  }", "}")));
 	}
@@ -87,7 +87,7 @@ public class ToStringHelperBehavior {
 	@Test
 	public void shouldAllowValuesFieldsAndChildren() {
 		String toString =
-			ToStringHelper.create("Test", "Value").fields("Field").children("Child").toString();
+			ToString.ofName("Test", "Value").fields("Field").children("Child").toString();
 		assertThat(toString, is(lines("Test(Value)[Field] {", "  Child", "}")));
 	}
 

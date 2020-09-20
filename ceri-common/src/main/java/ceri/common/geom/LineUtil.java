@@ -15,15 +15,15 @@ public class LineUtil {
 	public static double distance(Line2d line, double x, double y) {
 		return distance(line, Point2d.of(x, y));
 	}
-	
+
 	/**
 	 * Calculates the shortest distance from a point to a line segment.
 	 */
 	public static double distance(Line2d line, Point2d point) {
 		// a = start of line, b = end of line, p = point, c = closest point on line to p
 		// a--c---b
-		//    |
-		//    p
+		// |
+		// p
 		if (line.vector.equals(Point2d.ZERO)) return line.from.distanceTo(point);
 		Vector ab = fromPoint(line.vector);
 		Vector ap = fromPoint(line.from.to(point));
@@ -32,5 +32,5 @@ public class LineUtil {
 		Vector c = fromPoint(line.from).add(ab.multiply(t));
 		return VectorUtil.toPoint(c).distanceTo(point);
 	}
-	
+
 }

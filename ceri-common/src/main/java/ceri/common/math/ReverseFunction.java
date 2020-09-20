@@ -2,11 +2,10 @@ package ceri.common.math;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.function.DoubleUnaryOperator;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 /**
  * Provides a lookup for non-reversible functions. Add function values to the lookup, or auto-load
@@ -20,7 +19,7 @@ public class ReverseFunction {
 		for (int i = 0; i <= steps; i++) {
 			double x = steps == 0 ? x0 : x0 + (i * (x1 - x0) / steps);
 			double y = fn.applyAsDouble(x);
-			//noinspection SuspiciousNameCombination
+			// noinspection SuspiciousNameCombination
 			b.add(y, x);
 		}
 		return b.build();
@@ -69,7 +68,7 @@ public class ReverseFunction {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(values);
+		return Objects.hash(values);
 	}
 
 	@Override
@@ -77,13 +76,13 @@ public class ReverseFunction {
 		if (this == obj) return true;
 		if (!(obj instanceof ReverseFunction)) return false;
 		ReverseFunction other = (ReverseFunction) obj;
-		if (!EqualsUtil.equals(values, other.values)) return false;
+		if (!Objects.equals(values, other.values)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, values).toString();
+		return ToString.forClass(this, values);
 	}
 
 	private double x(double y, Map.Entry<Double, Double> floor, Map.Entry<Double, Double> ceiling) {
