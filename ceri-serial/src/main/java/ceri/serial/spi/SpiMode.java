@@ -12,7 +12,7 @@ import static ceri.serial.spi.jna.SpiDev.SPI_RX_DUAL;
 import static ceri.serial.spi.jna.SpiDev.SPI_RX_QUAD;
 import static ceri.serial.spi.jna.SpiDev.SPI_TX_DUAL;
 import static ceri.serial.spi.jna.SpiDev.SPI_TX_QUAD;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
 
 public class SpiMode {
 	public static final SpiMode MODE_0 = of(0);
@@ -154,7 +154,7 @@ public class SpiMode {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(value);
+		return Objects.hash(value);
 	}
 
 	@Override

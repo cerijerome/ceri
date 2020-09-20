@@ -4,16 +4,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+/**
+ * Simplified mongo client settings.
+ */
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import ceri.common.net.HostPort;
-/**
- * Simplified mongo client settings.
- */
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class ClientSettings {
 	public final HostList hosts;
@@ -103,7 +102,7 @@ public class ClientSettings {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(hosts, connectionTimeoutMs, readTimeoutMs);
+		return Objects.hash(hosts, connectionTimeoutMs, readTimeoutMs);
 	}
 
 	@Override
@@ -111,16 +110,15 @@ public class ClientSettings {
 		if (this == obj) return true;
 		if (!(obj instanceof ClientSettings)) return false;
 		ClientSettings other = (ClientSettings) obj;
-		if (!EqualsUtil.equals(hosts, other.hosts)) return false;
-		if (!EqualsUtil.equals(connectionTimeoutMs, other.connectionTimeoutMs)) return false;
-		if (!EqualsUtil.equals(readTimeoutMs, other.readTimeoutMs)) return false;
+		if (!Objects.equals(hosts, other.hosts)) return false;
+		if (!Objects.equals(connectionTimeoutMs, other.connectionTimeoutMs)) return false;
+		if (!Objects.equals(readTimeoutMs, other.readTimeoutMs)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, hosts, connectionTimeoutMs, readTimeoutMs)
-			.toString();
+		return ToString.forClass(this, hosts, connectionTimeoutMs, readTimeoutMs);
 	}
 
 }

@@ -61,8 +61,7 @@ public abstract class Struct extends Structure {
 	 * Creates a typed array of given structure. If count is 0, returns empty array. Make sure count
 	 * field is unsigned (call JnaUtil.ubyte/ushort if needed).
 	 */
-	public static <T extends Struct> T[] array(int count, T p,
-		IntFunction<T[]> arrayConstructor) {
+	public static <T extends Struct> T[] array(int count, T p, IntFunction<T[]> arrayConstructor) {
 		if (count == 0) return arrayConstructor.apply(0);
 		if (p != null) return BasicUtil.uncheckedCast(p.toArray(count));
 		throw new IllegalArgumentException("Null pointer but non-zero count: " + count);

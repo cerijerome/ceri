@@ -19,14 +19,20 @@ import ceri.ci.build.Builds;
 import ceri.ci.build.Job;
 
 public class CommandFactoryBehavior {
-	@Mock private Serializer serializer;
-	@Mock private Params params;
-	@Mock private AlertService service;
-	@Mock private Builds builds;
-	@Mock private Build build;
-	@Mock private Job job;
+	@Mock
+	private Serializer serializer;
+	@Mock
+	private Params params;
+	@Mock
+	private AlertService service;
+	@Mock
+	private Builds builds;
+	@Mock
+	private Build build;
+	@Mock
+	private Job job;
 	private CommandFactory factory;
-	
+
 	@Before
 	public void init() {
 		MockitoAnnotations.initMocks(this);

@@ -1,9 +1,8 @@
 package ceri.serial.javax;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class SerialPortParams {
 	public static final SerialPortParams DEFAULT = builder().build();
@@ -87,7 +86,7 @@ public class SerialPortParams {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(baudRate, dataBits, stopBits, parity);
+		return Objects.hash(baudRate, dataBits, stopBits, parity);
 	}
 
 	@Override
@@ -96,15 +95,15 @@ public class SerialPortParams {
 		if (!(obj instanceof SerialPortParams)) return false;
 		SerialPortParams other = (SerialPortParams) obj;
 		if (baudRate != other.baudRate) return false;
-		if (!EqualsUtil.equals(dataBits, other.dataBits)) return false;
-		if (!EqualsUtil.equals(stopBits, other.stopBits)) return false;
-		if (!EqualsUtil.equals(parity, other.parity)) return false;
+		if (!Objects.equals(dataBits, other.dataBits)) return false;
+		if (!Objects.equals(stopBits, other.stopBits)) return false;
+		if (!Objects.equals(parity, other.parity)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, baudRate, dataBits, stopBits, parity).toString();
+		return ToString.forClass(this, baudRate, dataBits, stopBits, parity);
 	}
 
 }

@@ -12,17 +12,20 @@ public class ZWaveNetwork {
 	private static final String ALL_OFF_DATA = "0-0x19-0xff-2-0x27-5";
 	private static final String ALL_ON_DATA = "0-0x19-0xff-2-0x27-4";
 	private final CommandFactory factory;
-	
+
 	public enum AllOnOff {
-		none(0), off(1), on(2), both(255);
-		
+		none(0),
+		off(1),
+		on(2),
+		both(255);
+
 		public final int value;
-		
+
 		AllOnOff(int value) {
 			this.value = value;
 		}
 	}
-	
+
 	public enum Variable implements ceri.zwave.command.Variable {
 		LastUpdate, // DEVICEDATA_LastUpdate_CONST
 		LastHeal, // DEVICEDATA_LastUpdate_CONST
@@ -53,7 +56,8 @@ public class ZWaveNetwork {
 		Use45,
 		UseMR,
 		TO3066, // indicates when we're going to work around the TO3066 issue
-		LimitNeighbors; // indicates when we figure manual routing, only consider Z-Wave's neighbors as valid options
+		LimitNeighbors; // indicates when we figure manual routing, only consider Z-Wave's neighbors
+						// as valid options
 	}
 
 	public enum Action implements ceri.zwave.command.Action {
@@ -73,25 +77,25 @@ public class ZWaveNetwork {
 		SceneIDs, // For scene controllers, node#-button#=ZWaveSceneID,...
 		PutByte;
 	}
-	
+
 	public ZWaveNetwork(CommandFactory factory) {
 		this.factory = factory;
 	}
-	
+
 	public void allOn(int device) throws IOException {
 		sendData(device, ALL_ON_DATA);
 	}
-	
+
 	public void allOff(int device) throws IOException {
 		sendData(device, ALL_OFF_DATA);
 	}
-	
+
 	public void setAllOnOff(int device, AllOnOff aoo) throws IOException {
 		sendData(device, SET_ALL_ON_OFF_DATA + Integer.toHexString(aoo.value));
 	}
-	
+
 	public void sendData(int device, String data) throws IOException {
 		factory.action(Action.SendData, sid).device(device).param(DATA, data).execute();
 	}
-	
+
 }

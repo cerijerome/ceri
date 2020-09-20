@@ -23,8 +23,7 @@ public class ZWavePropertiesBehavior {
 
 	@Test
 	public void shouldReadValuesWithPrefix() {
-		ZWaveProperties zwave =
-			new ZWaveProperties(new BaseProperties(props) {}, "x");
+		ZWaveProperties zwave = new ZWaveProperties(new BaseProperties(props) {}, "x");
 		assertThat(zwave.enabled(), is(true));
 		assertThat(zwave.host(), is("aaa"));
 		assertThat(zwave.callDelayMs(), is(111));

@@ -37,7 +37,7 @@ public class Nmcli {
 
 		/**
 		 * Call <b>nmcli show</b> without id. Example output:
-		 * 
+		 *
 		 * <pre>
 		 * NAME  UUID                                  TYPE      DEVICE
 		 * eth1  01fa0bf4-b6bd-484f-a9a3-2b10ff701dcd  ethernet  eth1
@@ -51,7 +51,7 @@ public class Nmcli {
 
 		/**
 		 * Call <b>nmcli show id [id]</b>. Example output:
-		 * 
+		 *
 		 * <pre>
 		 * connection.id:                          eth2
 		 * connection.uuid:                        186053d4-9369-4a4e-87b8-d1f9a419f985

@@ -1,9 +1,8 @@
 package ceri.process.scutil;
 
+import java.util.Objects;
 import ceri.common.collection.Node;
 import ceri.common.text.StringUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class NcStatus {
 	public final NcServiceState state;
@@ -27,7 +26,7 @@ public class NcStatus {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(state, data);
+		return Objects.hash(state, data);
 	}
 
 	@Override
@@ -35,8 +34,8 @@ public class NcStatus {
 		if (this == obj) return true;
 		if (!(obj instanceof NcStatus)) return false;
 		NcStatus other = (NcStatus) obj;
-		if (!EqualsUtil.equals(state, other.state)) return false;
-		if (!EqualsUtil.equals(data, other.data)) return false;
+		if (!Objects.equals(state, other.state)) return false;
+		if (!Objects.equals(data, other.data)) return false;
 		return true;
 	}
 

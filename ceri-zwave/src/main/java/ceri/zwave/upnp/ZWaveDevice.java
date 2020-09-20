@@ -7,7 +7,8 @@ public class ZWaveDevice {
 
 	public enum Variable implements ceri.zwave.command.Variable {
 		PollSettings, // DEVICEDATA_Polling_Settings_CONST
-		PollCommands, // A comma-separated list of command classes/commands to poll.  X means the device won't respond to any poll
+		PollCommands, // A comma-separated list of command classes/commands to poll. X means the
+						// device won't respond to any poll
 		MultiChEndpoint, // DEVICEDATA_Multi_Channel_End_Point_CONST
 		MultiChCapabilities, // DEVICEDATA_Multi_Channel_Capabilities_CONST
 
@@ -35,9 +36,12 @@ public class ZWaveDevice {
 		SetPointInfo,
 		NodeInfo, // The Z-Wave node info frame
 		InitialName, // The name that was initially set when the node was first added
-		ConfiguredName, // The user-specified name when we configured the node.  We won't need to set the name unless this has changed
-		ConfiguredVariable, // The user-specified VariablesSet when we configured the node.  We won't need to set the name unless this has changed
-		ConfiguredAssoc, // The user-specified AssociationSet when we configured the node.  We won't need to set the name unless this has changed
+		ConfiguredName, // The user-specified name when we configured the node. We won't need to set
+						// the name unless this has changed
+		ConfiguredVariable, // The user-specified VariablesSet when we configured the node. We won't
+							// need to set the name unless this has changed
+		ConfiguredAssoc, // The user-specified AssociationSet when we configured the node. We won't
+							// need to set the name unless this has changed
 		Documentation, // For the Z-Wave options page
 		MeterType,
 		MeterScale,

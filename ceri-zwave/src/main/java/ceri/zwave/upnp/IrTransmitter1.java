@@ -6,5 +6,5 @@ public class IrTransmitter1 {
 	public enum Variable implements ceri.zwave.command.Variable {
 		SendProntoCode;
 	}
-	
+
 }

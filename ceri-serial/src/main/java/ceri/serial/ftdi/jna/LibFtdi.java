@@ -871,14 +871,14 @@ public class LibFtdi {
 
 	/**
 	 * Opens the device based on descriptor formats:
-	 * 
+	 *
 	 * <pre>
 	 * d:bus/addr
 	 * i:vendor:product
 	 * i:vendor:product:index
 	 * s:vendor:product:serial
 	 * </pre>
-	 * 
+	 *
 	 * Vendor and product ids may be specified in hex/octal/decimal
 	 */
 	public static void ftdi_usb_open_string(ftdi_context ftdi, String description)

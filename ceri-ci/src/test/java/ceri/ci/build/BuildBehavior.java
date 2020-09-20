@@ -20,7 +20,6 @@ public class BuildBehavior {
 	private static final Event e6 = new Event(Event.Type.success, 6L);
 	private static final Event e7 = new Event(Event.Type.success, 7L, "g1");
 
-	
 	@Test
 	public void shouldDeleteJobs() {
 		Build build = new Build("test");

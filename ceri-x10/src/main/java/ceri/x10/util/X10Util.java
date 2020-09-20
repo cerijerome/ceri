@@ -8,7 +8,7 @@ public class X10Util {
 	private X10Util() {}
 
 	// TODO: move to ByteUtil
-	
+
 	public static int fromNybble(int value, int nybble) {
 		return (value >>> (nybble * NYBBLE_BITS)) & NYBBLE_MASK;
 	}

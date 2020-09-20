@@ -5,14 +5,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class Builds implements Iterable<Build>, BuildEventProcessor {
 	private transient final Map<String, Build> mutableBuilds = new TreeMap<>();
-	public final Collection<Build> builds = Collections.unmodifiableCollection(mutableBuilds
-		.values());
+	public final Collection<Build> builds =
+		Collections.unmodifiableCollection(mutableBuilds.values());
 
 	public Builds() {}
 
@@ -52,20 +52,21 @@ public class Builds implements Iterable<Build>, BuildEventProcessor {
 	public Iterator<Build> iterator() {
 		return builds.iterator();
 	}
-	
+
 	@Override
-	public void process(BuildEvent...events) {
+	public void process(BuildEvent... events) {
 		process(Arrays.asList(events));
 	}
-	
+
 	@Override
 	public void process(Collection<BuildEvent> events) {
-		for (BuildEvent event : events) event.applyTo(this);
+		for (BuildEvent event : events)
+			event.applyTo(this);
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(mutableBuilds);
+		return Objects.hash(mutableBuilds);
 	}
 
 	@Override
@@ -78,9 +79,9 @@ public class Builds implements Iterable<Build>, BuildEventProcessor {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this).childrens(builds).toString();
+		return ToString.ofClass(this).childrens(builds).toString();
 	}
-	
+
 	private void add(Build build) {
 		mutableBuilds.put(build.name, build);
 	}

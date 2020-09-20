@@ -4,25 +4,25 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.TreeSet;
 import ceri.common.comparator.Comparators;
 import ceri.common.text.StringUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 /**
- * Keeps state of fix/break events on a named job. Events are sorted in order of
- * descending time-stamp.
+ * Keeps state of fix/break events on a named job. Events are sorted in order of descending
+ * time-stamp.
  */
 public class Job implements Iterable<Event> {
-	private transient final Collection<Event> mutableEvents = new TreeSet<>(Comparators
-		.reverse(EventComparators.TIMESTAMP));
+	private transient final Collection<Event> mutableEvents =
+		new TreeSet<>(Comparators.reverse(EventComparators.TIMESTAMP));
 	public final Collection<Event> events = Collections.unmodifiableCollection(mutableEvents);
 	public final String name;
 
 	public Job(String name) {
-		if (StringUtil.isBlank(name)) throw new IllegalArgumentException("Name cannot be empty: " +
-			name);
+		if (StringUtil.isBlank(name))
+			throw new IllegalArgumentException("Name cannot be empty: " + name);
 		this.name = name;
 	}
 
@@ -56,8 +56,8 @@ public class Job implements Iterable<Event> {
 	}
 
 	/**
-	 * Remove events up to the latest break and fix event sequences. Checks for
-	 * transitions from one event type to another, and keeps the latest of each.
+	 * Remove events up to the latest break and fix event sequences. Checks for transitions from one
+	 * event type to another, and keeps the latest of each.
 	 */
 	public void purge() {
 		boolean fixTransition = false;
@@ -85,10 +85,10 @@ public class Job implements Iterable<Event> {
 	public Iterator<Event> iterator() {
 		return events.iterator();
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(name, mutableEvents);
+		return Objects.hash(name, mutableEvents);
 	}
 
 	@Override
@@ -101,7 +101,7 @@ public class Job implements Iterable<Event> {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, name).childrens(mutableEvents).toString();
+		return ToString.ofClass(this, name).childrens(mutableEvents).toString();
 	}
 
 }

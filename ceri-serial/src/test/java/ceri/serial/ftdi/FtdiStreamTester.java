@@ -13,9 +13,9 @@ import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
 
 public class FtdiStreamTester {
 	private static final Logger logger = LogManager.getLogger();
-	private static final BinaryPrinter printer = BinaryPrinter.builder()
-		.columns(4).showBinary(false).build();
-		
+	private static final BinaryPrinter printer =
+		BinaryPrinter.builder().columns(4).showBinary(false).build();
+
 	public static void main(String[] args) throws LibUsbException {
 		try (Ftdi ftdi = Ftdi.create()) {
 			libusb_device_criteria criteria = libusb_find_criteria().vendor(FTDI_VENDOR_ID);

@@ -15,8 +15,10 @@ import ceri.ci.admin.Params.BuildJob;
 import ceri.ci.build.BuildEvent;
 
 public class ParamsBehavior {
-	@Mock private HttpServletRequest request;
-	@Mock private Serializer serializer;
+	@Mock
+	private HttpServletRequest request;
+	@Mock
+	private Serializer serializer;
 	private Params params;
 
 	@Before

@@ -32,7 +32,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.stubbing.Stubber;
-import ceri.common.concurrent.ValueCondition;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.io.StateChange;
 import ceri.common.test.TestListener;

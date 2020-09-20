@@ -22,11 +22,11 @@ import ceri.common.property.PropertyUtil;
  * Configure your CI pipeline (for example Jenkins) to send emails to an IMAP-supported email
  * account whenever a build event occurs. The email subject should be of the following form in order
  * to trigger an alert:
- * 
+ *
  * <pre>
  * Sample: build-name job-name [fixed|broken]
  * </pre>
- * 
+ *
  * The content of the email should contain a comma-separated list of committers to be listed in
  * alert event.
  * <p/>
@@ -53,7 +53,6 @@ import ceri.common.property.PropertyUtil;
  * <li>ceri-x10</li>
  * <li>ceri-zwave</li>
  * </ul>
- * 
  */
 public class SampleMain implements Closeable {
 	private final AudioContainer audio;

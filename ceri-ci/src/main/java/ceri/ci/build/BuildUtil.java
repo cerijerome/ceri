@@ -14,22 +14,24 @@ public class BuildUtil {
 	 */
 	public static int countEvents(Builds builds) {
 		int count = 0;
-		for (Build build : builds.builds) count += countEvents(build);
+		for (Build build : builds.builds)
+			count += countEvents(build);
 		return count;
 	}
-	
+
 	/**
 	 * Counts the total number of events stored by the build.
 	 */
 	public static int countEvents(Build build) {
 		int count = 0;
-		for (Job job : build.jobs) count += job.events.size();
+		for (Job job : build.jobs)
+			count += job.events.size();
 		return count;
 	}
-	
+
 	/**
-	 * Copies the summarized last break names of all builds into given
-	 * collection. Given Builds should already be summarized.
+	 * Copies the summarized last break names of all builds into given collection. Given Builds
+	 * should already be summarized.
 	 */
 	public static Collection<String> summarizedBreakNames(Builds summarizedBuilds) {
 		Collection<String> names = new HashSet<>();
@@ -40,8 +42,7 @@ public class BuildUtil {
 	}
 
 	/**
-	 * Copies the summarized last break names of all jobs in the build into
-	 * given collection.
+	 * Copies the summarized last break names of all jobs in the build into given collection.
 	 */
 	private static void breakNames(Build summarizedBuild, Collection<String> names) {
 		for (Job job : summarizedBuild.jobs)
@@ -60,7 +61,7 @@ public class BuildUtil {
 	}
 
 	/**
-	 * Summarizes all build job events into last fix and last break events. 
+	 * Summarizes all build job events into last fix and last break events.
 	 */
 	public static Builds summarize(Builds fromBuilds) {
 		Builds toBuilds = new Builds();
@@ -70,8 +71,7 @@ public class BuildUtil {
 	}
 
 	/**
-	 * Summarizes all jobs for the build into toBuild, which is expected to be
-	 * empty.
+	 * Summarizes all jobs for the build into toBuild, which is expected to be empty.
 	 */
 	private static void summarize(Build fromBuild, Build toBuild) {
 		for (Job job : fromBuild.jobs)
@@ -79,10 +79,10 @@ public class BuildUtil {
 	}
 
 	/**
-	 * Summarizes job events into the last break and last fix events. The break
-	 * event is the earliest event of the last break sequence, with an
-	 * aggregation of all names. The fix event is the earliest event of the last
-	 * fix sequence. Events are added to toJob, which is expected to be empty.
+	 * Summarizes job events into the last break and last fix events. The break event is the
+	 * earliest event of the last break sequence, with an aggregation of all names. The fix event is
+	 * the earliest event of the last fix sequence. Events are added to toJob, which is expected to
+	 * be empty.
 	 */
 	private static void summarize(Job fromJob, Job toJob) {
 		Job job = new Job(fromJob);
@@ -146,18 +146,16 @@ public class BuildUtil {
 	}
 
 	/**
-	 * Aggregates the events of given type into a single event. The earliest
-	 * time-stamp is used, and all unique names are combined. If no events of
-	 * the given type are found null is returned.
+	 * Aggregates the events of given type into a single event. The earliest time-stamp is used, and
+	 * all unique names are combined. If no events of the given type are found null is returned.
 	 */
 	public static Event aggregate(Event.Type type, Event... events) {
 		return aggregate(type, Arrays.asList(events));
 	}
 
 	/**
-	 * Aggregates the events of given type into a single event. The earliest
-	 * time-stamp is used, and all unique names are combined. If no events of
-	 * the given type are found null is returned.
+	 * Aggregates the events of given type into a single event. The earliest time-stamp is used, and
+	 * all unique names are combined. If no events of the given type are found null is returned.
 	 */
 	public static Event aggregate(Event.Type type, Collection<Event> events) {
 		boolean found = false;

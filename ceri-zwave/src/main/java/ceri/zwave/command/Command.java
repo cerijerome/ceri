@@ -13,38 +13,38 @@ public class Command {
 	private final String host;
 	private final Executor executor;
 	private final Map<String, Object> params = new LinkedHashMap<>();
-	
+
 	public Command(String host, Executor executor) {
 		this.host = host;
 		this.executor = executor;
 		outputFormat(OutputFormat.xml);
 	}
-	
+
 	public Command outputFormat(OutputFormat format) {
 		param(OUTPUT_FORMAT, format.name());
 		return this;
 	}
-	
+
 	public Command param(String key, Object value) {
 		params.put(key, value);
 		return this;
 	}
-	
+
 	public Command targetValue(Object obj) {
 		param(NEW_TARGET_VALUE, obj.toString());
 		return this;
 	}
-	
+
 	public Command device(int device) {
 		param(DEVICE_NUM, device);
 		return this;
 	}
-	
+
 	public String execute() throws IOException {
 		String url = createUrl(host, params);
 		return executor.execute(url);
 	}
-	
+
 	private String createUrl(String host, Map<String, Object> params) {
 		StringBuilder b = new StringBuilder(HTTP_PREFIX);
 		b.append(host).append('/').append(DATA_REQUEST);
@@ -59,5 +59,5 @@ public class Command {
 		}
 		return b.toString();
 	}
-	
+
 }

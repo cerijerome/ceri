@@ -7,24 +7,24 @@ import ceri.common.function.ExceptionSupplier;
 
 public class UriBuilder {
 	private final URIBuilder builder;
-	
+
 	public static UriBuilder of(String uri) {
 		return new UriBuilder(wrap(() -> new URIBuilder(uri)));
 	}
-	
+
 	private UriBuilder(URIBuilder builder) {
 		this.builder = builder;
 	}
-	
+
 	public UriBuilder param(String name, Object value) {
 		if (value != null) builder.addParameter(name, String.valueOf(value));
 		return this;
 	}
-	
+
 	public URI build() {
 		return wrap(builder::build);
 	}
-	
+
 	private static <T> T wrap(ExceptionSupplier<URISyntaxException, T> supplier) {
 		try {
 			return supplier.get();
@@ -32,5 +32,5 @@ public class UriBuilder {
 			throw new IllegalArgumentException(e);
 		}
 	}
-	
+
 }

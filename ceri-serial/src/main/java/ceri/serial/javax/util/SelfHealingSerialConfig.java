@@ -2,7 +2,7 @@ package ceri.serial.javax.util;
 
 import static ceri.common.function.FunctionUtil.named;
 import java.util.function.Predicate;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import ceri.serial.javax.SerialPort;
 import ceri.serial.javax.SerialPortParams;
 
@@ -120,8 +120,8 @@ public class SelfHealingSerialConfig {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, commPortSupplier, params, connectionTimeoutMs,
-			fixRetryDelayMs, recoveryDelayMs, brokenPredicate).toString();
+		return ToString.forClass(this, commPortSupplier, params, connectionTimeoutMs,
+			fixRetryDelayMs, recoveryDelayMs, brokenPredicate);
 	}
 
 }

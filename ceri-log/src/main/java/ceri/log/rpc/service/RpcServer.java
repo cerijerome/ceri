@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.io.IoUtil;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -58,7 +58,7 @@ public class RpcServer implements Closeable {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, server.getPort()).toString();
+		return ToString.forClass(this, server.getPort());
 	}
 
 }

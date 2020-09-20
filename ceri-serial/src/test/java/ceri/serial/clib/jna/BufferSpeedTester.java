@@ -13,7 +13,7 @@ import ceri.common.util.BasicUtil;
  * Compare memory access 1-byte vs byte[] buffer. Copies between Memory and
  * ByteProvider/ByteReceiver wrapper for byte[]. Results show buffer is far better, even for small
  * reads/writes.
- * 
+ *
  * <pre>
  * Results:
  * []->P  [16B x100000] => single=27ms(17.1ns/B) buffer=14ms(8.8ns/B)

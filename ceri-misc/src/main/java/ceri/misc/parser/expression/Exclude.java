@@ -2,8 +2,7 @@ package ceri.misc.parser.expression;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
+import ceri.common.text.ToString;
 
 public class Exclude implements Expression {
 	private final Expression expression;
@@ -47,7 +46,7 @@ public class Exclude implements Expression {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, expression).toString();
+		return ToString.forClass(this, expression);
 	}
 
 	@Override
@@ -60,7 +59,7 @@ public class Exclude implements Expression {
 		if (this == obj) return true;
 		if (!(obj instanceof Exclude)) return false;
 		Exclude exp = (Exclude) obj;
-		return EqualsUtil.equals(expression, exp.expression);
+		return Objects.equals(expression, exp.expression);
 	}
 
 }

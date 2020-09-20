@@ -53,7 +53,8 @@ public class CloseableExecutorBehavior {
 	@Test
 	public void shouldInvokeAnyTasks() throws InterruptedException, ExecutionException {
 		try (CloseableExecutor exec = CloseableExecutor.of(Executors.newCachedThreadPool())) {
-			var result = exec.invokeAny(List.of(() -> call(10000, "test1"), () -> call(0, "test2")));
+			var result =
+				exec.invokeAny(List.of(() -> call(10000, "test1"), () -> call(0, "test2")));
 			assertThat(result, is("test2"));
 		}
 	}
@@ -72,5 +73,5 @@ public class CloseableExecutorBehavior {
 		ConcurrentUtil.delay(delayMs);
 		return response;
 	}
-	
+
 }

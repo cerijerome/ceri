@@ -1,9 +1,8 @@
 package ceri.process.scutil;
 
+import java.util.Objects;
 import ceri.common.collection.Node;
 import ceri.common.text.StringUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class NcShow {
 	public final NcListItem item;
@@ -27,7 +26,7 @@ public class NcShow {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(item, data);
+		return Objects.hash(item, data);
 	}
 
 	@Override
@@ -35,8 +34,8 @@ public class NcShow {
 		if (this == obj) return true;
 		if (!(obj instanceof NcShow)) return false;
 		NcShow other = (NcShow) obj;
-		if (!EqualsUtil.equals(item, other.item)) return false;
-		if (!EqualsUtil.equals(data, other.data)) return false;
+		if (!Objects.equals(item, other.item)) return false;
+		if (!Objects.equals(data, other.data)) return false;
 		return true;
 	}
 

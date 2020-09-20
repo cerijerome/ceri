@@ -10,13 +10,13 @@ public enum FlowControl {
 	xonXoffOut(purejavacomm.SerialPort.FLOWCONTROL_XONXOFF_OUT);
 
 	public final int value;
-	
+
 	FlowControl(int value) {
 		this.value = value;
 	}
-	
+
 	public static FlowControl from(int value) {
 		return BasicUtil.find(FlowControl.class, t -> t.value == value);
 	}
-	
+
 }

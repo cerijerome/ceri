@@ -3,7 +3,7 @@ package ceri.serial.ftdi.util;
 import static ceri.common.function.FunctionUtil.named;
 import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_criteria_string;
 import java.util.function.Predicate;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import ceri.serial.ftdi.FtdiBitmode;
 import ceri.serial.ftdi.FtdiLineParams;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
@@ -33,7 +33,7 @@ public class SelfHealingFtdiConfig {
 	public static SelfHealingFtdiConfig of(String finder) {
 		return builder().find(finder).build();
 	}
-	
+
 	public static class Builder {
 		libusb_device_criteria find = null;
 		ftdi_interface iface = ftdi_interface.INTERFACE_ANY;
@@ -120,8 +120,8 @@ public class SelfHealingFtdiConfig {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, find, iface, baud, line, bitmode, fixRetryDelayMs,
-			recoveryDelayMs, brokenPredicate).toString();
+		return ToString.forClass(this, find, iface, baud, line, bitmode, fixRetryDelayMs,
+			recoveryDelayMs, brokenPredicate);
 	}
 
 }

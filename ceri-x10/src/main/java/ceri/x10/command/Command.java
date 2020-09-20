@@ -10,6 +10,7 @@ import static ceri.x10.util.X10Util.DIM_MAX_PERCENT;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -17,8 +18,6 @@ import java.util.regex.Pattern;
 import ceri.common.collection.StreamUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public abstract class Command {
 	private static final Pattern COMMAND_REGEX = Pattern.compile("([A-Pa-p])" + // house
@@ -192,10 +191,10 @@ public abstract class Command {
 	public boolean isGroup(FunctionGroup group) {
 		return group() == group;
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(house, units, type, data, command);
+		return Objects.hash(house, units, type, data, command);
 	}
 
 	@Override
@@ -204,7 +203,7 @@ public abstract class Command {
 		if (!(obj instanceof Command)) return false;
 		Command other = (Command) obj;
 		if (house != other.house) return false;
-		if (!EqualsUtil.equals(units, other.units)) return false;
+		if (!Objects.equals(units, other.units)) return false;
 		if (type != other.type) return false;
 		if (data != other.data) return false;
 		if (command != other.command) return false;

@@ -4,10 +4,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.TreeSet;
 import ceri.common.text.StringUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Encapsulation of http://wiki.micasaverde.com/index.php/ZWave_Command_Classes
@@ -26,7 +25,6 @@ public class Capabilities {
 	public final int specificDeviceClass;
 	public final Collection<Flag> flags;
 	public final Collection<CommandClass> commandClasses;
-	private final int hashCode;
 
 	public enum Flag {
 		L, // Listens
@@ -104,14 +102,12 @@ public class Capabilities {
 		specificDeviceClass = builder.specificDeviceClass;
 		flags = Collections.unmodifiableCollection(new TreeSet<>(builder.flags));
 		commandClasses = Collections.unmodifiableCollection(new TreeSet<>(builder.commandClasses));
-		hashCode =
-			HashCoder.hash(capability, security, basicDeviceClass, genericDeviceClass,
-				specificDeviceClass, flags, commandClasses);
 	}
 
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return Objects.hash(capability, security, basicDeviceClass, genericDeviceClass,
+			specificDeviceClass, flags, commandClasses);
 	}
 
 	@Override
@@ -124,8 +120,8 @@ public class Capabilities {
 		if (basicDeviceClass != capabilities.basicDeviceClass) return false;
 		if (genericDeviceClass != capabilities.genericDeviceClass) return false;
 		if (specificDeviceClass != capabilities.specificDeviceClass) return false;
-		if (!EqualsUtil.equals(flags, capabilities.flags)) return false;
-		return EqualsUtil.equals(commandClasses, capabilities.commandClasses);
+		if (!Objects.equals(flags, capabilities.flags)) return false;
+		return Objects.equals(commandClasses, capabilities.commandClasses);
 	}
 
 	@Override

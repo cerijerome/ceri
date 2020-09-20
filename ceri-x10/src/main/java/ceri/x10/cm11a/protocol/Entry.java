@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 import ceri.x10.command.Command;
 import ceri.x10.command.FunctionGroup;
 import ceri.x10.command.FunctionType;
@@ -100,7 +100,7 @@ public class Entry {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(house, unit, type, data, command);
+		return Objects.hash(house, unit, type, data, command);
 	}
 
 	@Override
@@ -118,7 +118,7 @@ public class Entry {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, house, unit, type, data, command).toString();
+		return ToString.forClass(this, house, unit, type, data, command);
 	}
 
 	private boolean isValidCommand(House house, Collection<Unit> units) {

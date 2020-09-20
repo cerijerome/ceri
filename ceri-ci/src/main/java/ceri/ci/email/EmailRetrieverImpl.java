@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 
 /**
  * Fetches email messages from a server. Uses a server-side limit query based on minimum sent date,
@@ -114,7 +114,7 @@ public class EmailRetrieverImpl implements EmailRetriever {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, protocol, host, port, name, folder).toString();
+		return ToString.forClass(this, protocol, host, port, name, folder);
 	}
 
 	/**

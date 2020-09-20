@@ -1,8 +1,7 @@
 package ceri.ent.service;
 
+import java.util.Objects;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class Entry<K, V> {
 	public final K key;
@@ -25,7 +24,7 @@ public class Entry<K, V> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(key, value, expiration);
+		return Objects.hash(key, value, expiration);
 	}
 
 	@Override
@@ -33,7 +32,7 @@ public class Entry<K, V> {
 		if (this == obj) return true;
 		if (!(obj instanceof Entry)) return false;
 		Entry<K, V> other = BasicUtil.uncheckedCast(obj);
-		return EqualsUtil.equals(key, other.key) && EqualsUtil.equals(value, other.value) &&
+		return Objects.equals(key, other.key) && Objects.equals(value, other.value) &&
 			expiration == other.expiration;
 	}
 

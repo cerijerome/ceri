@@ -26,8 +26,8 @@ public class Cm17aTestConnector implements Cm17aConnector {
 
 	/**
 	 * Resets the state. A full reset sets the rts/dtr reset state to power-off state. Processor
-	 * only sets rts/dtr to standby on start/error; outside of these cases, the first bit would
-	 * be lost with a full reset.
+	 * only sets rts/dtr to standby on start/error; outside of these cases, the first bit would be
+	 * lost with a full reset.
 	 */
 	public void reset(boolean full) {
 		listeners.clear();

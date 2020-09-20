@@ -12,9 +12,12 @@ import org.mockito.MockitoAnnotations;
 import ceri.common.property.BaseProperties;
 
 public class PhoneContainerBehavior {
-	@Mock private PhoneClient client;
-	@Mock private PhoneAlerter.Builder builder;
-	@Mock private PhoneFactory factory;
+	@Mock
+	private PhoneClient client;
+	@Mock
+	private PhoneAlerter.Builder builder;
+	@Mock
+	private PhoneFactory factory;
 	private Properties properties;
 
 	@Before
@@ -52,5 +55,5 @@ public class PhoneContainerBehavior {
 	private BaseProperties baseProperties() {
 		return new BaseProperties(properties) {};
 	}
-	
+
 }

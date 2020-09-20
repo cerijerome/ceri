@@ -140,7 +140,7 @@ public class Processor extends LoopingExecutor {
 
 	/**
 	 * Sends status response to the device.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	@SuppressWarnings("resource")

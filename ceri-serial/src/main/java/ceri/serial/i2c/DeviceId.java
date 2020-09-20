@@ -4,8 +4,8 @@ import static ceri.common.validation.ValidationUtil.validateRange;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import ceri.common.data.ByteUtil;
-import ceri.common.util.HashCoder;
 
 public class DeviceId {
 	public static final int BYTES = 3;
@@ -75,7 +75,7 @@ public class DeviceId {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(manufacturer, part, revision);
+		return Objects.hash(manufacturer, part, revision);
 	}
 
 	@Override

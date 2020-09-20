@@ -15,7 +15,8 @@ import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
 
 public class AudioAlerterBehavior {
-	@Mock private AudioMessages message;
+	@Mock
+	private AudioMessages message;
 	private AudioAlerter audio;
 
 	@Before
@@ -28,7 +29,7 @@ public class AudioAlerterBehavior {
 	public void end() {
 		audio.close();
 	}
-	
+
 	@Test
 	public void shouldPlayReminderAudioForAnyBrokenJobs() throws IOException {
 		Builds builds = new Builds();

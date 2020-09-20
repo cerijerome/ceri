@@ -14,7 +14,7 @@ public class EmailTestUtil {
 	public static TestMessageBuilder messageBuilder() {
 		return new TestMessageBuilder();
 	}
-	
+
 	public static Address[] mockAddresses(String... emails) {
 		return mockAddresses(Arrays.asList(emails));
 	}
@@ -35,12 +35,12 @@ public class EmailTestUtil {
 
 	public static Email.Builder presetEmail() {
 		Email.Builder builder = Email.builder();
-		builder.content("content" );
+		builder.content("content");
 		builder.from("from@test.com");
 		builder.recipients("to@test.com");
 		builder.sentDateMs(0);
 		builder.subject("subject");
 		return builder;
 	}
-	
+
 }

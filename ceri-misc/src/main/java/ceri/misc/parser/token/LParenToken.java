@@ -1,7 +1,7 @@
 package ceri.misc.parser.token;
 
 import java.util.regex.Pattern;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 
 public class LParenToken extends Token.Base {
 	static final Pattern PATTERN = Pattern.compile("^\\(\\s*");
@@ -11,7 +11,7 @@ public class LParenToken extends Token.Base {
 	public LParenToken() {
 		super(Type.LParen);
 	}
-	
+
 	@Override
 	public String asString() {
 		return "(";
@@ -19,7 +19,7 @@ public class LParenToken extends Token.Base {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this).toString();
+		return ToString.forClass(this);
 	}
 
 }

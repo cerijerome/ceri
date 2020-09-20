@@ -10,7 +10,7 @@ import ceri.common.data.ByteReader;
  * Extends ByteReader for JNA-specific sequential access to bytes. As with ByteReader, reads are of
  * known length, or require a given length. For bulk efficiency, consider overriding this method
  * that processes one byte at a time:
- * 
+ *
  * <pre>
  * int readInto(Pointer p, int offset, int length); [1-byte]
  * </pre>

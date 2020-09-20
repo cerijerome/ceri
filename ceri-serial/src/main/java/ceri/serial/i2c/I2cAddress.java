@@ -3,11 +3,11 @@ package ceri.serial.i2c;
 import static ceri.common.exception.ExceptionUtil.exceptionf;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.validation.ValidationUtil.validateRange;
+import java.util.Objects;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Encapsulates an I2C address, allowing for 10-bit addresses, and forcing use of address if
@@ -101,7 +101,7 @@ public class I2cAddress {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(address, tenBit);
+		return Objects.hash(address, tenBit);
 	}
 
 	@Override

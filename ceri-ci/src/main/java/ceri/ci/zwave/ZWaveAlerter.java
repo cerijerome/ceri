@@ -44,8 +44,8 @@ public class ZWaveAlerter implements Alerter {
 
 		public Builder device(String name, int device) {
 			if (name == null) throw new NullPointerException("Name cannot be null");
-			if (device <= 0) throw new IllegalArgumentException("Not a valid device for " + name +
-				": " + device);
+			if (device <= 0) throw new IllegalArgumentException(
+				"Not a valid device for " + name + ": " + device);
 			devices.put(name, device);
 			return this;
 		}
@@ -55,7 +55,7 @@ public class ZWaveAlerter implements Alerter {
 			this.randomizePeriodMs = randomizePeriodMs;
 			return this;
 		}
-		
+
 		public ZWaveAlerter build() {
 			return new ZWaveAlerter(this);
 		}
@@ -113,7 +113,7 @@ public class ZWaveAlerter implements Alerter {
 		}
 		setDevicesOn(Collections.emptySet());
 	}
-	
+
 	private void setDevicesOn(Collection<String> keys) {
 		Collection<Integer> devices = keysToDevices(keys);
 		for (Integer device : new HashSet<>(activeDevices))

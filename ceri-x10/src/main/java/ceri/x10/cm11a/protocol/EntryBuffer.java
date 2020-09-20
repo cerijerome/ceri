@@ -11,7 +11,7 @@ import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.ByteWriter;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import ceri.x10.command.Command;
 
 /**
@@ -118,7 +118,7 @@ public class EntryBuffer {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this).children(entries).toString();
+		return ToString.ofClass(this).children(entries).toString();
 	}
 
 	private static int size(Collection<Entry> entries) {

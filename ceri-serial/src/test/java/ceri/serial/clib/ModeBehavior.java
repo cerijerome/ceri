@@ -60,11 +60,11 @@ public class ModeBehavior {
 		assertThat(Mode.of(07).has(roth, woth, rusr), is(false));
 		assertThat(Mode.of(07).has(rusr), is(false));
 	}
-	
+
 	@Test
 	public void shouldProvideMaskStringRepresentation() {
 		assertThat(Mode.of(0777).maskString(), is("rwxu|rwxg|rwxo"));
 		assertThat(Mode.of(0666).maskString(), is("rusr|wusr|rgrp|wgrp|roth|woth"));
 	}
-	
+
 }

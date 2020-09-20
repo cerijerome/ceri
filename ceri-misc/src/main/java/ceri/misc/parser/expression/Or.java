@@ -1,8 +1,7 @@
 package ceri.misc.parser.expression;
 
 import java.util.Objects;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
+import ceri.common.text.ToString;
 
 public class Or implements Expression {
 	private final Expression lhs;
@@ -32,7 +31,7 @@ public class Or implements Expression {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, lhs, rhs).toString();
+		return ToString.forClass(this, lhs, rhs);
 	}
 
 	@Override
@@ -45,8 +44,8 @@ public class Or implements Expression {
 		if (this == obj) return true;
 		if (!(obj instanceof Or)) return false;
 		Or exp = (Or) obj;
-		if (!EqualsUtil.equals(lhs, exp.lhs)) return false;
-		return EqualsUtil.equals(rhs, exp.rhs);
+		if (!Objects.equals(lhs, exp.lhs)) return false;
+		return Objects.equals(rhs, exp.rhs);
 	}
 
 }

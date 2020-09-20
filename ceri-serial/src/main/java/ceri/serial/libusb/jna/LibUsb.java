@@ -1652,11 +1652,11 @@ public class LibUsb {
 	 * relies on the assumption that every packet within the transfer is of identical size to the
 	 * first packet. Calculating the location of the packet buffer is then just a simple
 	 * calculation:
-	 * 
+	 *
 	 * <pre>
 	 * buffer + (packet_size * packet)
 	 * </pre>
-	 * 
+	 *
 	 * Do not use this function on transfers other than those that have identical packet lengths for
 	 * each packet.
 	 *
@@ -1677,7 +1677,7 @@ public class LibUsb {
 	/**
 	 * Retrieve a descriptor from the default control pipe. This is a convenience function which
 	 * formulates the appropriate control message to retrieve the descriptor.
-	 * 
+	 *
 	 * @return number of bytes returned in data
 	 */
 	public static byte[] libusb_get_descriptor(libusb_device_handle dev,

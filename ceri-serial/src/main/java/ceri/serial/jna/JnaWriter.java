@@ -13,7 +13,7 @@ import ceri.common.util.BasicUtil;
  * covariant return types.
  * <p>
  * For bulk efficiency, consider overriding this method that processes one byte at a time:
- * 
+ *
  * <pre>
  * T writeFrom(Pointer p, int offset, int length); [1-byte]
  * </pre>

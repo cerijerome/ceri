@@ -10,8 +10,8 @@ import java.util.Collections;
 import org.junit.Test;
 
 public class EventBehavior {
-	
-	@Test(expected=Exception.class)
+
+	@Test(expected = Exception.class)
 	public void shouldBeImmutable() {
 		Event event = new Event(Event.Type.failure, 100L, "a", "b", "c");
 		event.names.add("d");

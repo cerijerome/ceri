@@ -2,19 +2,18 @@ package ceri.x10.cm11a.protocol;
 
 import static ceri.common.text.StringUtil.toBinary;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import ceri.common.data.ByteArray.Encodable;
 import ceri.common.data.ByteArray.Encoder;
-import ceri.common.time.DateUtil;
 import ceri.common.data.ByteReader;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.time.DateUtil;
 import ceri.x10.command.House;
 
 /**
  * Status read from CM11a after a status request 0x8b.
  * <p/>
  * Protocol doc section 9.
- * 
+ *
  * <pre>
  * Bit range  Description
  * 111 to 96  Battery timer (set to 0xffff on reset)
@@ -140,7 +139,7 @@ public class Status implements Encodable {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(batteryTimer, date, house, firmware, addressed, onOff, dim);
+		return Objects.hash(batteryTimer, date, house, firmware, addressed, onOff, dim);
 	}
 
 	@Override
@@ -149,7 +148,7 @@ public class Status implements Encodable {
 		if (!(obj instanceof Status)) return false;
 		Status other = (Status) obj;
 		if (batteryTimer != other.batteryTimer) return false;
-		if (!EqualsUtil.equals(date, other.date)) return false;
+		if (!Objects.equals(date, other.date)) return false;
 		if (house != other.house) return false;
 		if (firmware != other.firmware) return false;
 		if (addressed != other.addressed) return false;

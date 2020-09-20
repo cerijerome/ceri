@@ -10,11 +10,11 @@ public enum NcServiceState {
 	noService("No service");
 
 	private final Pattern regex;
-	
+
 	private NcServiceState(String regex) {
 		this.regex = regex == null ? null : Pattern.compile(regex);
 	}
-	
+
 	public static NcServiceState from(String state) {
 		if (state != null) for (NcServiceState en : NcServiceState.values()) {
 			if (en.regex == null) continue;

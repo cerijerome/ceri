@@ -53,7 +53,7 @@ public class SerialTestConnector implements SerialConnector {
 	public static SerialTestConnector of() {
 		return new SerialTestConnector();
 	}
-	
+
 	protected SerialTestConnector() {
 		inActual = IoStreamUtil.in(this::read, this::available);
 		outActual = IoStreamUtil.out(this::write);
@@ -102,7 +102,7 @@ public class SerialTestConnector implements SerialConnector {
 	}
 
 	public void fixed() {
-		boolean notify = broken == TRUE; 
+		boolean notify = broken == TRUE;
 		broken = false;
 		connected = true;
 		if (notify) listeners.accept(StateChange.fixed);

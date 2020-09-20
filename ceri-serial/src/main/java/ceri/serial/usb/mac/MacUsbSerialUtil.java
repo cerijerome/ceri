@@ -16,8 +16,8 @@ public class MacUsbSerialUtil {
 	private static final XPathExpression LOCATION_ID_XPATH =
 		compile("key[text()='locationID']/following-sibling::integer/text()");
 	private static final XPathExpression DEVICE_XPATH =
-		compile("array/dict/array/dict/array/dict/key[text()='IODialinDevice']"
-			+ "/following-sibling::string/text()");
+		compile("array/dict/array/dict/array/dict/key[text()='IODialinDevice']" +
+			"/following-sibling::string/text()");
 	private static final String IOREG_OPTIONS = "-arlx";
 	private static final String IOREG_NAME_OPTION = "-n";
 	public static final String USB_SERIAL_NAME = "AppleUSBInterface@0"; // Since OSX El Capitan

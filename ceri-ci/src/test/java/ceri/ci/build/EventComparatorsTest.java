@@ -18,7 +18,7 @@ public class EventComparatorsTest {
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(EventComparators.class);
 	}
-	
+
 	@Test
 	public void testSortByType() {
 		List<Event> events = new ArrayList<>();

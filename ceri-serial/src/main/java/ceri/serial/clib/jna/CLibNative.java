@@ -35,7 +35,7 @@ public interface CLibNative extends Library {
 	int ioctl(int fd, int request, Object... objs) throws LastErrorException;
 
 	/* termios */
-	
+
 	// termios.h: int tcgetattr(int fd, struct termios *termios_p)
 	int tcgetattr(int fd, termios.ByReference termios) throws LastErrorException;
 

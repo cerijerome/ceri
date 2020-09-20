@@ -33,14 +33,14 @@ public class DataTest {
 		assertThat(Data.toDimCount(12), is(2));
 		assertThat(Data.toDimCount(200), is(20));
 	}
-	
+
 	@Test
 	public void testFromDimCount() {
 		assertThat(Data.fromDimCount(0), is(0));
 		assertThat(Data.fromDimCount(1), is(5));
 		assertThat(Data.fromDimCount(25), is(100));
 	}
-	
+
 	@Test
 	public void testCodeOnOff() {
 		assertThat(Data.code(null, null, null), is(0));

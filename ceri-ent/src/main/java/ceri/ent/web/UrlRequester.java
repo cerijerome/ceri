@@ -15,7 +15,7 @@ public class UrlRequester {
 	private static final Logger logger = LogManager.getLogger();
 	public static final UrlRequester DEFAULT = new UrlRequester(3);
 	private final int retries;
-	
+
 	public UrlRequester(int retries) {
 		this.retries = retries;
 	}
@@ -38,7 +38,8 @@ public class UrlRequester {
 				ex = e;
 			}
 		}
-		throw new IOException("Failed calling " + url + " after " + (retries + 1) + " attempts", ex);
+		throw new IOException("Failed calling " + url + " after " + (retries + 1) + " attempts",
+			ex);
 	}
 
 }

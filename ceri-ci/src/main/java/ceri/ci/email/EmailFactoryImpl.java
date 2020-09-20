@@ -11,8 +11,8 @@ public class EmailFactoryImpl implements EmailFactory {
 	}
 
 	@Override
-	public EmailRetrieverImpl.Builder
-		retrieverBuilder(String host, String account, String password) {
+	public EmailRetrieverImpl.Builder retrieverBuilder(String host, String account,
+		String password) {
 		return EmailRetrieverImpl.builder(host, account, password);
 	}
 

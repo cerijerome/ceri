@@ -2,9 +2,8 @@ package ceri.serial.ftdi;
 
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_BITBANG;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_RESET;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
+import ceri.common.text.ToString;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 
 public class FtdiBitmode {
@@ -67,7 +66,7 @@ public class FtdiBitmode {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(mode, bitmask);
+		return Objects.hash(mode, bitmask);
 	}
 
 	@Override
@@ -75,14 +74,14 @@ public class FtdiBitmode {
 		if (this == obj) return true;
 		if (!(obj instanceof FtdiBitmode)) return false;
 		FtdiBitmode other = (FtdiBitmode) obj;
-		if (!EqualsUtil.equals(mode, other.mode)) return false;
+		if (!Objects.equals(mode, other.mode)) return false;
 		if (bitmask != other.bitmask) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, mode, bitmask).toString();
+		return ToString.forClass(this, mode, bitmask);
 	}
 
 }

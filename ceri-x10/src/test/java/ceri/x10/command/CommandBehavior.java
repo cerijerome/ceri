@@ -6,7 +6,7 @@ public class CommandBehavior {
 
 	@Test
 	public void should() {
-		//Command.
+		// Command.
 	}
 
 }

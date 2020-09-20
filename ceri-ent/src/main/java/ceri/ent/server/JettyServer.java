@@ -72,7 +72,7 @@ public class JettyServer implements Closeable {
 		if (rootUrl.endsWith("/") && path.startsWith("/")) path = path.substring(1);
 		return rootUrl + path;
 	}
-	
+
 	@SuppressWarnings("resource")
 	private String rootUrl() {
 		WebAppContext context = context();

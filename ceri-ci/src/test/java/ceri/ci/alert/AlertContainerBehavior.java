@@ -12,9 +12,12 @@ import ceri.ci.common.Alerter;
 import ceri.ci.email.EmailEventParser;
 
 public class AlertContainerBehavior {
-	@Mock private Alerter alerter0;
-	@Mock private Alerter alerter1;
-	@Mock private EmailEventParser parser0;
+	@Mock
+	private Alerter alerter0;
+	@Mock
+	private Alerter alerter1;
+	@Mock
+	private EmailEventParser parser0;
 	private Properties properties;
 
 	@Before
@@ -22,7 +25,7 @@ public class AlertContainerBehavior {
 		MockitoAnnotations.initMocks(this);
 		properties = new Properties();
 	}
-	
+
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldNotCreateEmailServiceIfDisabled() throws IOException {

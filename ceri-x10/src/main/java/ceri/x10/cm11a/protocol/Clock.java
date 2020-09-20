@@ -2,20 +2,19 @@ package ceri.x10.cm11a.protocol;
 
 import static ceri.common.data.DataUtil.expect;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import ceri.common.data.ByteArray.Encodable;
 import ceri.common.data.ByteArray.Encoder;
 import ceri.common.data.ByteReader;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import ceri.common.time.DateUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 import ceri.x10.command.House;
 
 /**
  * Data to send for a set interface clock request 0xa5 from the CM11a device.
  * <p/>
  * Protocol doc section 8.
- * 
+ *
  * <pre>
  * 	Bit range	Description
  * 	55 to 48	timer download header (0x9b)
@@ -129,7 +128,7 @@ public class Clock implements Encodable {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(date, house, clearBatteryTimer, clearMonitoredStatus, purgeTimer);
+		return Objects.hash(date, house, clearBatteryTimer, clearMonitoredStatus, purgeTimer);
 	}
 
 	@Override
@@ -137,7 +136,7 @@ public class Clock implements Encodable {
 		if (this == obj) return true;
 		if (!(obj instanceof Clock)) return false;
 		Clock other = (Clock) obj;
-		if (!EqualsUtil.equals(date, other.date)) return false;
+		if (!Objects.equals(date, other.date)) return false;
 		if (house != other.house) return false;
 		if (clearBatteryTimer != other.clearBatteryTimer) return false;
 		if (clearMonitoredStatus != other.clearMonitoredStatus) return false;
@@ -147,9 +146,8 @@ public class Clock implements Encodable {
 
 	@Override
 	public String toString() {
-		return ToStringHelper
-			.createByClass(this, date, house, clearBatteryTimer, clearMonitoredStatus, purgeTimer)
-			.toString();
+		return ToString.forClass(this, date, house, clearBatteryTimer, clearMonitoredStatus,
+			purgeTimer);
 	}
 
 	private static boolean clearBatteryTimer(int code) {

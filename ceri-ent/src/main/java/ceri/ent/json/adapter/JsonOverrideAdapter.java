@@ -12,8 +12,8 @@ import com.google.gson.stream.JsonWriter;
 import ceri.common.util.BasicUtil;
 
 /**
- * Json adapter that can override and/or use the default serialization adapter.
- * Useful? for implementing special cases of non-trivial objects. 
+ * Json adapter that can override and/or use the default serialization adapter. Useful? for
+ * implementing special cases of non-trivial objects.
  */
 public class JsonOverrideAdapter<T> {
 	public final Type type;

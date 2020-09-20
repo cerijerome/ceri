@@ -17,9 +17,12 @@ import ceri.common.collection.CollectionUtil;
 import ceri.common.property.BaseProperties;
 
 public class ZWaveContainerBehavior {
-	@Mock private ZWaveController controller;
-	@Mock private ZWaveAlerter.Builder builder;
-	@Mock private ZWaveFactory factory;
+	@Mock
+	private ZWaveController controller;
+	@Mock
+	private ZWaveAlerter.Builder builder;
+	@Mock
+	private ZWaveFactory factory;
 	private Properties properties;
 
 	@Before

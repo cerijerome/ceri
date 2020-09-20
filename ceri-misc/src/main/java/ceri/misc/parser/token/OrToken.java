@@ -1,7 +1,7 @@
 package ceri.misc.parser.token;
 
 import java.util.regex.Pattern;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 
 public class OrToken extends Token.Base {
 	static final Pattern PATTERN = Pattern.compile("(?i)^\\s+OR\\s+");
@@ -19,7 +19,7 @@ public class OrToken extends Token.Base {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this).toString();
+		return ToString.forClass(this);
 	}
 
 }

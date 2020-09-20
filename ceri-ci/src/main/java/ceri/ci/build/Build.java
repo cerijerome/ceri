@@ -4,10 +4,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import ceri.common.text.StringUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class Build implements Iterable<Job> {
 	private transient final Map<String, Job> mutableJobs = new TreeMap<>();
@@ -15,8 +15,8 @@ public class Build implements Iterable<Job> {
 	public final String name;
 
 	public Build(String name) {
-		if (StringUtil.isBlank(name)) throw new IllegalArgumentException("Name cannot be empty: " +
-			name);
+		if (StringUtil.isBlank(name))
+			throw new IllegalArgumentException("Name cannot be empty: " + name);
 		this.name = name;
 	}
 
@@ -60,7 +60,7 @@ public class Build implements Iterable<Job> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(name, mutableJobs);
+		return Objects.hash(name, mutableJobs);
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class Build implements Iterable<Job> {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, name).childrens(jobs).toString();
+		return ToString.ofClass(this, name).childrens(jobs).toString();
 	}
 
 }

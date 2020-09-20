@@ -121,8 +121,8 @@ public class PhoneAlerter implements Alerter {
 		return jobNames;
 	}
 
-	private Map<String, Map<String, Collection<String>>> nameBuildJobs(
-		Collection<AnalyzedJob> analyzedJobs) {
+	private Map<String, Map<String, Collection<String>>>
+		nameBuildJobs(Collection<AnalyzedJob> analyzedJobs) {
 		Map<String, Map<String, Collection<String>>> nameBuildJobs = new TreeMap<>();
 		for (AnalyzedJob analyzedJob : analyzedJobs) {
 			for (Job job : analyzedJob.justBroken) {

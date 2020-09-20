@@ -1,7 +1,7 @@
 package ceri.x10.cm11a.device;
 
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
+import ceri.common.text.ToString;
 
 public class Cm11aDeviceConfig {
 	public static final Cm11aDeviceConfig DEFAULT = builder().build();
@@ -64,7 +64,7 @@ public class Cm11aDeviceConfig {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(maxSendAttempts, queuePollTimeoutMs, readPollMs, readTimeoutMs,
+		return Objects.hash(maxSendAttempts, queuePollTimeoutMs, readPollMs, readTimeoutMs,
 			queueSize);
 	}
 
@@ -83,8 +83,8 @@ public class Cm11aDeviceConfig {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, maxSendAttempts, queuePollTimeoutMs, readPollMs,
-			readTimeoutMs, queueSize).toString();
+		return ToString.forClass(this, maxSendAttempts, queuePollTimeoutMs, readPollMs,
+			readTimeoutMs, queueSize);
 	}
 
 }

@@ -30,7 +30,7 @@ public class DelayExecutor implements Executor {
 	public DelayExecutor() {
 		this(DELAY_DEF);
 	}
-	
+
 	public DelayExecutor(int delay) {
 		this(delay, RETRIES_DEF, RETRY_DELAY_DEF);
 	}
@@ -70,8 +70,8 @@ public class DelayExecutor implements Executor {
 				Response response = Request.Get(url).execute();
 				HttpResponse httpResponse = response.returnResponse();
 				int statusCode = httpResponse.getStatusLine().getStatusCode();
-				if (statusCode != HttpStatus.SC_OK) throw new IOException(
-					"Unexpected http response: " + statusCode);
+				if (statusCode != HttpStatus.SC_OK)
+					throw new IOException("Unexpected http response: " + statusCode);
 				return IoUtil.readString(httpResponse.getEntity().getContent());
 			} catch (IOException e) {
 				logger.catching(Level.WARN, e);
@@ -79,9 +79,10 @@ public class DelayExecutor implements Executor {
 				if (i > 0) ConcurrentUtil.delay(retryDelay);
 			}
 		}
-		throw new IOException("Failed calling " + url + " after " + (retries + 1) + " attempts", ex);
+		throw new IOException("Failed calling " + url + " after " + (retries + 1) + " attempts",
+			ex);
 	}
-	
+
 	private void waitForDelay() {
 		long t = System.currentTimeMillis() - lastRun;
 		if (t >= delay) return;

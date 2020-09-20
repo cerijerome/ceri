@@ -13,9 +13,12 @@ import org.mockito.MockitoAnnotations;
 import ceri.common.property.BaseProperties;
 
 public class AudioContainerBehavior {
-	@Mock private AudioMessages messages;
-	@Mock private AudioAlerter alerter;
-	@Mock private AudioFactory factory;
+	@Mock
+	private AudioMessages messages;
+	@Mock
+	private AudioAlerter alerter;
+	@Mock
+	private AudioFactory factory;
 	private Properties properties;
 
 	@SuppressWarnings("resource")
@@ -48,5 +51,5 @@ public class AudioContainerBehavior {
 	private BaseProperties baseProperties() {
 		return new BaseProperties(properties) {};
 	}
-	
+
 }

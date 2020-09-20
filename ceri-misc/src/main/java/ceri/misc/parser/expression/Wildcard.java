@@ -1,7 +1,7 @@
 package ceri.misc.parser.expression;
 
 import java.util.Objects;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 
 public class Wildcard implements Expression {
 
@@ -22,7 +22,7 @@ public class Wildcard implements Expression {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this).toString();
+		return ToString.forClass(this);
 	}
 
 	@Override

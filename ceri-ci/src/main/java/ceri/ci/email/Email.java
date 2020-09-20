@@ -6,12 +6,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.TreeSet;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 /**
  * Keeps track of the main fields of an email.
@@ -93,23 +92,21 @@ public class Email {
 		if (obj == this) return true;
 		if (!(obj instanceof Email)) return false;
 		Email other = (Email) obj;
-		if (!EqualsUtil.equals(other.recipients, recipients)) return false;
-		if (!EqualsUtil.equals(other.from, from)) return false;
+		if (!Objects.equals(other.recipients, recipients)) return false;
+		if (!Objects.equals(other.from, from)) return false;
 		if (other.sentDateMs != sentDateMs) return false;
-		if (!EqualsUtil.equals(other.subject, subject)) return false;
-		return EqualsUtil.equals(other.content, content);
+		if (!Objects.equals(other.subject, subject)) return false;
+		return Objects.equals(other.content, content);
 	}
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(recipients, from, sentDateMs, subject, content);
+		return Objects.hash(recipients, from, sentDateMs, subject, content);
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper
-			.createByClass(this, recipients, from, sentDateMs, new Date(sentDateMs), subject)
-			.toString();
+		return ToString.forClass(this, recipients, from, sentDateMs, new Date(sentDateMs), subject);
 	}
 
 }

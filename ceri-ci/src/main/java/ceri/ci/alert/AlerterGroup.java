@@ -17,8 +17,8 @@ import ceri.common.collection.ImmutableUtil;
 import ceri.common.io.IoUtil;
 
 /**
- * Container for alerter components. Executes alerter methods in parallel.
- * Manages the summarized builds state. Is thread-safe.
+ * Container for alerter components. Executes alerter methods in parallel. Manages the summarized
+ * builds state. Is thread-safe.
  */
 public class AlerterGroup implements Alerter, Closeable {
 	static final Logger logger = LogManager.getLogger();

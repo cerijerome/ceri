@@ -1,8 +1,7 @@
 package ceri.ci.build;
 
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
+import ceri.common.text.ToString;
 
 public class BuildEvent {
 	public final String build;
@@ -21,7 +20,7 @@ public class BuildEvent {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(build, job, event);
+		return Objects.hash(build, job, event);
 	}
 
 	@Override
@@ -29,13 +28,13 @@ public class BuildEvent {
 		if (this == obj) return true;
 		if (!(obj instanceof BuildEvent)) return false;
 		BuildEvent other = (BuildEvent) obj;
-		return EqualsUtil.equals(build, other.build) && EqualsUtil.equals(job, other.job)
-			&& EqualsUtil.equals(event, other.event);
+		return Objects.equals(build, other.build) && Objects.equals(job, other.job) &&
+			Objects.equals(event, other.event);
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, build, job, event).toString();
+		return ToString.forClass(this, build, job, event);
 	}
-	
+
 }

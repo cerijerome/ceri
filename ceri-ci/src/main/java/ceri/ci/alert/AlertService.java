@@ -6,14 +6,13 @@ import ceri.ci.build.Builds;
 import ceri.ci.build.Job;
 
 /**
- * Service that manages the state of builds, and calls update, remind, and clear on the
- * alerter group.
+ * Service that manages the state of builds, and calls update, remind, and clear on the alerter
+ * group.
  */
 public interface AlertService extends BuildEventProcessor {
 
 	/**
-	 * Purges older events from the builds.
-	 * TODO: put on timer, or based on event count
+	 * Purges older events from the builds. TODO: put on timer, or based on event count
 	 */
 	void purge();
 
@@ -33,8 +32,8 @@ public interface AlertService extends BuildEventProcessor {
 	Job job(String build, String job);
 
 	/**
-	 * Clears events from jobs. If build is null, all events are cleared. If job is null, all
-	 * events for the build are cleared. Otherwise only events for job are cleared.
+	 * Clears events from jobs. If build is null, all events are cleared. If job is null, all events
+	 * for the build are cleared. Otherwise only events for job are cleared.
 	 */
 	void clear(String build, String job);
 

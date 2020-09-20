@@ -23,7 +23,7 @@ public interface CommandListener {
 	default Consumer<Command> asConsumer() {
 		return command -> dispatcher(command).accept(this);
 	}
-	
+
 	/**
 	 * Returns a dispatch consumer that calls the matching CommandListener method for a command.
 	 */

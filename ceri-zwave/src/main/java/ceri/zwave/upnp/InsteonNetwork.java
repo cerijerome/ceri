@@ -28,5 +28,5 @@ public class InsteonNetwork {
 		NodeID, // The dongle's id
 		sl_X10Code;
 	}
-	
+
 }

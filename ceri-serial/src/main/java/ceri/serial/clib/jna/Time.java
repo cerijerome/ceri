@@ -65,18 +65,18 @@ public class Time {
 	}
 
 	public static class Util {
-		
+
 		public static timeval timeval(Duration d) {
 			if (d == null) return null;
 			return new timeval(d.getSeconds(), d.getNano() / 1000L);
 		}
-		
+
 		public static Duration duration(timeval tv) {
 			if (tv == null) return null;
 			return Duration.ofSeconds(tv.tv_sec.longValue(), tv.tv_usec.longValue() * 1000L);
 		}
-		
+
 		private Util() {}
 	}
-	
+
 }

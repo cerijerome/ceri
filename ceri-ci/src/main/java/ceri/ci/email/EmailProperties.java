@@ -40,11 +40,11 @@ public class EmailProperties extends BaseProperties {
 	public String protocol() {
 		return value(PROTOCOL_KEY);
 	}
-	
+
 	public String folder() {
 		return value(FOLDER_KEY);
 	}
-	
+
 	public Long sentDateBufferMs() {
 		return longValue(SENT_DATE_BUFFER_MS_KEY);
 	}

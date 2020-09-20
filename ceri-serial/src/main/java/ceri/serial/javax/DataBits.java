@@ -17,5 +17,5 @@ public enum DataBits {
 	public static DataBits from(int value) {
 		return BasicUtil.find(DataBits.class, t -> t.value == value);
 	}
-	
+
 }

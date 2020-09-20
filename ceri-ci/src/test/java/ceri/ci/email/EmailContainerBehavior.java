@@ -16,14 +16,22 @@ import ceri.ci.build.BuildEventProcessor;
 import ceri.common.property.BaseProperties;
 
 public class EmailContainerBehavior {
-	@Mock private BuildEventProcessor processor;
-	@Mock private EmailService.Builder serviceBuilder;
-	@Mock private EmailService service;
-	@Mock private EmailRetrieverImpl.Builder retrieverBuilder;
-	@Mock private EmailRetriever retriever;
-	@Mock private EmailFactory factory;
-	@Mock private EmailEventParser parser0;
-	@Mock private EmailEventParser parser1;
+	@Mock
+	private BuildEventProcessor processor;
+	@Mock
+	private EmailService.Builder serviceBuilder;
+	@Mock
+	private EmailService service;
+	@Mock
+	private EmailRetrieverImpl.Builder retrieverBuilder;
+	@Mock
+	private EmailRetriever retriever;
+	@Mock
+	private EmailFactory factory;
+	@Mock
+	private EmailEventParser parser0;
+	@Mock
+	private EmailEventParser parser1;
 	private Properties properties;
 
 	@SuppressWarnings("resource")
@@ -91,7 +99,7 @@ public class EmailContainerBehavior {
 		try (EmailContainer container =
 			new EmailContainer(baseProperties(), factory, processor, parser0, null)) {
 			verify(serviceBuilder).parsers(parser0);
-			verify(serviceBuilder, never()).parsers((EmailEventParser)null);
+			verify(serviceBuilder, never()).parsers((EmailEventParser) null);
 		}
 	}
 

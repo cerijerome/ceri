@@ -18,26 +18,27 @@ import ceri.misc.parser.token.Token;
 
 public class Expressor {
 	private final PrintStream err;
-	
+
 	public Expressor() {
 		this(null);
 	}
-	
+
 	public Expressor(PrintStream err) {
 		this.err = err;
 	}
-	
-	public Expression express(Token...tokens) {
+
+	public Expression express(Token... tokens) {
 		return express(Arrays.asList(tokens));
 	}
-	
+
 	public Expression express(List<Token> tokens) {
 		return process(tokens.listIterator());
 	}
 
 	private Expression process(ListIterator<Token> iterator) {
 		Expression exp = null;
-		while (exp == null && iterator.hasNext()) exp = processSingle(iterator);
+		while (exp == null && iterator.hasNext())
+			exp = processSingle(iterator);
 		return processBinaryOp(exp, iterator);
 	}
 
@@ -70,7 +71,7 @@ public class Expressor {
 		Expression next = processConcatable(iterator.next(), iterator);
 		if (exp instanceof Wildcard && next instanceof Wildcard) return exp;
 		if (exp instanceof Quote && next instanceof Quote)
-			return new Quote(((Quote)exp).value + ((Quote)next).value);
+			return new Quote(((Quote) exp).value + ((Quote) next).value);
 		if (next != null) return new Concat(exp, next);
 		iterator.previous();
 		return exp;
@@ -116,5 +117,5 @@ public class Expressor {
 		if (err == null) return;
 		err.println(s);
 	}
-	
+
 }

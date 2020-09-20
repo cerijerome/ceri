@@ -17,16 +17,16 @@ import java.util.List;
 import ceri.common.collection.ImmutableUtil;
 
 public class Tokenizer {
-	private static final Collection<Token.Factory> FACTORIES = ImmutableUtil.asList(
-		QuoteToken.FACTORY, OrToken.FACTORY, LParenToken.FACTORY, RParenToken.FACTORY,
-		AndToken.FACTORY, ExcludeToken.FACTORY, WildcardToken.FACTORY, KeywordToken.FACTORY,
-		UnknownToken.FACTORY);
+	private static final Collection<Token.Factory> FACTORIES =
+		ImmutableUtil.asList(QuoteToken.FACTORY, OrToken.FACTORY, LParenToken.FACTORY,
+			RParenToken.FACTORY, AndToken.FACTORY, ExcludeToken.FACTORY, WildcardToken.FACTORY,
+			KeywordToken.FACTORY, UnknownToken.FACTORY);
 	private static final Collection<Type> BINARY_OP = Collections.unmodifiableSet(EnumSet.of( //
 		And, Or));
-	private static final Collection<Type> VALID_BINARY_LHS = Collections.unmodifiableSet(EnumSet
-		.of(RParen, Quote, Keyword, Wildcard));
-	private static final Collection<Type> VALID_BINARY_RHS = Collections.unmodifiableSet(EnumSet
-		.of(LParen, Quote, Keyword, Wildcard, Exclude));
+	private static final Collection<Type> VALID_BINARY_LHS =
+		Collections.unmodifiableSet(EnumSet.of(RParen, Quote, Keyword, Wildcard));
+	private static final Collection<Type> VALID_BINARY_RHS =
+		Collections.unmodifiableSet(EnumSet.of(LParen, Quote, Keyword, Wildcard, Exclude));
 
 	public List<Token> tokenize(String str) {
 		Index i = new Index();

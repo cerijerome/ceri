@@ -1,10 +1,9 @@
 package ceri.log.rpc.client;
 
 import static ceri.common.net.NetUtil.LOCALHOST;
+import java.util.Objects;
 import ceri.common.net.NetUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class RpcChannelConfig {
 	public static final RpcChannelConfig NULL = builder().build();
@@ -59,7 +58,7 @@ public class RpcChannelConfig {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(host, port);
+		return Objects.hash(host, port);
 	}
 
 	@Override
@@ -67,14 +66,14 @@ public class RpcChannelConfig {
 		if (this == obj) return true;
 		if (!(obj instanceof RpcChannelConfig)) return false;
 		RpcChannelConfig other = (RpcChannelConfig) obj;
-		if (!EqualsUtil.equals(host, other.host)) return false;
-		if (!EqualsUtil.equals(port, other.port)) return false;
+		if (!Objects.equals(host, other.host)) return false;
+		if (!Objects.equals(port, other.port)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, host, port).toString();
+		return ToString.forClass(this, host, port);
 	}
 
 }

@@ -23,8 +23,7 @@ public abstract class TypedPointer extends PointerType {
 	/**
 	 * Convenience constructor for typed pointer references
 	 */
-	public static <T extends ByReference<?>> T from(Supplier<T> constructor, Pointer p,
-		int count) {
+	public static <T extends ByReference<?>> T from(Supplier<T> constructor, Pointer p, int count) {
 		T t = constructor.get();
 		t.setPointer(p);
 		t.setCount(count);

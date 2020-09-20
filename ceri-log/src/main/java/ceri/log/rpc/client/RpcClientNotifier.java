@@ -25,12 +25,12 @@ import io.grpc.stub.StreamObserver;
  * Handles notifications from remote serial service to local listeners. The rpc call is passed to
  * the constructor as well as a function to transform the rpc notify type to a non-rpc object. Local
  * listeners then receive the non-rpc object. The rpc call proto definition should be of the form:
- * 
+ *
  * <pre>
  * rpc &lt;notify-call-name&gt; (stream google.protobuf.Empty)
  *   returns (stream &lt;notify-type&gt;) {}
  * </pre>
- * 
+ *
  * When the first listener starts listening, a streaming rpc call is started. The service returns
  * notification events. When no listeners are listening the call is stopped. When the service causes
  * the call to end, attempts are continually made to restart the call, with a delay between failed

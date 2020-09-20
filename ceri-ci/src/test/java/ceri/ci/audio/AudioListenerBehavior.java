@@ -7,8 +7,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 public class AudioListenerBehavior {
-	@Mock private AudioListener listener1;
-	@Mock private AudioListener listener2;
+	@Mock
+	private AudioListener listener1;
+	@Mock
+	private AudioListener listener2;
 
 	@Before
 	public void init() {

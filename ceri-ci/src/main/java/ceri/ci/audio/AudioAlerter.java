@@ -25,7 +25,7 @@ public class AudioAlerter implements Alerter, Closeable {
 	public AudioAlerter(AudioMessages messages) {
 		this(messages, null);
 	}
-	
+
 	public AudioAlerter(AudioMessages messages, AudioListener listener) {
 		this.messages = messages;
 		this.listener = listener;
@@ -92,15 +92,15 @@ public class AudioAlerter implements Alerter, Closeable {
 	private void audioStarted() {
 		if (listener != null) listener.audioStart();
 	}
-	
+
 	private void voiceStarted() {
 		if (listener != null) listener.voiceStart();
 	}
-	
+
 	private void audioEnded() {
 		if (listener != null) listener.audioEnd();
 	}
-	
+
 	private void playJustBroken(String buildName, Collection<Job> jobs) throws IOException {
 		if (jobs.isEmpty()) return;
 		for (Job job : jobs) {

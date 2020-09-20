@@ -1,7 +1,7 @@
 package ceri.x10.cm17a;
 
 import ceri.common.io.DeviceMode;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import ceri.serial.javax.util.SelfHealingSerialConfig;
 import ceri.x10.cm17a.device.Cm17aDeviceConfig;
 
@@ -76,7 +76,7 @@ public class Cm17aConfig {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, id, mode, device, deviceSerial).toString();
+		return ToString.forClass(this, id, mode, device, deviceSerial);
 	}
 
 }

@@ -16,8 +16,8 @@ import ceri.serial.javax.FlowControl;
 import ceri.serial.javax.SerialConnector;
 
 /**
- * A serial connector pass-through that allows the underlying connector to be replaced.
- * The caller to setConnector is responsible for close/connect when changing connectors.
+ * A serial connector pass-through that allows the underlying connector to be replaced. The caller
+ * to setConnector is responsible for close/connect when changing connectors.
  */
 public class ReplaceableSerialConnector implements SerialConnector {
 	private static final Logger logger = LogManager.getLogger();

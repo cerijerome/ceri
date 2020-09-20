@@ -1,8 +1,7 @@
 package ceri.misc.parser.expression;
 
 import java.util.Objects;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
+import ceri.common.text.ToString;
 
 public class Parentheses implements Expression {
 	private final Expression expression;
@@ -28,7 +27,7 @@ public class Parentheses implements Expression {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, expression).toString();
+		return ToString.forClass(this, expression);
 	}
 
 	@Override
@@ -41,7 +40,7 @@ public class Parentheses implements Expression {
 		if (this == obj) return true;
 		if (!(obj instanceof Parentheses)) return false;
 		Parentheses exp = (Parentheses) obj;
-		return EqualsUtil.equals(expression, exp.expression);
+		return Objects.equals(expression, exp.expression);
 	}
 
 }

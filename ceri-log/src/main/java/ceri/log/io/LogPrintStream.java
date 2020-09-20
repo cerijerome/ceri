@@ -39,7 +39,7 @@ public class LogPrintStream extends StringPrintStream {
 		flush();
 		this.level = level;
 	}
-	
+
 	@Override
 	public void flush() {
 		super.flush();

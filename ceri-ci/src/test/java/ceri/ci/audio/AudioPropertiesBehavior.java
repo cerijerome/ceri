@@ -9,14 +9,14 @@ import ceri.common.property.BaseProperties;
 
 public class AudioPropertiesBehavior {
 	private static Properties props = new Properties();
-	
+
 	@BeforeClass
 	public static void init() {
 		props.put("x.enabled", "true");
 		props.put("x.pitch", "1.2");
 		props.put("x.voice", "a/b/c");
 	}
-	
+
 	@Test
 	public void shouldReadValuesWithPrefix() {
 		AudioProperties audio = new AudioProperties(new BaseProperties(props) {}, "x");

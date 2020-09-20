@@ -48,8 +48,8 @@ public class EmailBehavior {
 	}
 
 	private Email.Builder presetBuilder() {
-		return Email.builder().content("content").from("from@test.com").recipients("to0@test.com",
-			"to1@test.com").sentDateMs(time).subject("subject");
+		return Email.builder().content("content").from("from@test.com")
+			.recipients("to0@test.com", "to1@test.com").sentDateMs(time).subject("subject");
 	}
 
 }

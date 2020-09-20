@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
+import ceri.common.text.ToString;
 
 /**
  * Checks a build for jobs that have just been broken, are still broken, or have just been fixed.
@@ -23,7 +22,7 @@ public class AnalyzedJob {
 	 */
 	public AnalyzedJob(Build latestBuild, Build previousBuild) {
 		build = latestBuild.name;
-		if (!EqualsUtil.equals(build, previousBuild.name)) throw new IllegalArgumentException(
+		if (!Objects.equals(build, previousBuild.name)) throw new IllegalArgumentException(
 			"Build names do not match: " + build + ", " + previousBuild.name);
 		List<Job> justBroken = new ArrayList<>();
 		List<Job> stillBroken = new ArrayList<>();
@@ -49,7 +48,7 @@ public class AnalyzedJob {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(build, justBroken, stillBroken, justFixed);
+		return Objects.hash(build, justBroken, stillBroken, justFixed);
 	}
 
 	@Override
@@ -57,17 +56,17 @@ public class AnalyzedJob {
 		if (this == obj) return true;
 		if (!(obj instanceof AnalyzedJob)) return false;
 		AnalyzedJob other = (AnalyzedJob) obj;
-		if (!EqualsUtil.equals(build, other.build)) return false;
-		if (!EqualsUtil.equals(justBroken, other.justBroken)) return false;
-		if (!EqualsUtil.equals(stillBroken, other.stillBroken)) return false;
-		if (!EqualsUtil.equals(justFixed, other.justFixed)) return false;
+		if (!Objects.equals(build, other.build)) return false;
+		if (!Objects.equals(justBroken, other.justBroken)) return false;
+		if (!Objects.equals(stillBroken, other.stillBroken)) return false;
+		if (!Objects.equals(justFixed, other.justFixed)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, build)
-			.children(justBroken, stillBroken, justFixed).toString();
+		return ToString.ofClass(this, build).children(justBroken, stillBroken, justFixed)
+			.toString();
 	}
 
 	private Event.Type type(Event event) {

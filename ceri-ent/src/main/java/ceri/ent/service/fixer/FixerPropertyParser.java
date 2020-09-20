@@ -71,21 +71,21 @@ public class FixerPropertyParser<K> {
 		}
 		return this;
 	}
-	
+
 	private void missedField(Set<String> missedFields, K key, String field) {
 		if (missedFields.contains(field)) return;
 		logger.warn("Field ignored for key {}: {}", key, field);
 		missedFields.add(field);
 	}
-	
+
 	private K key(String name, int i) {
 		if (i == -1) return keyFn.apply(name);
 		return keyFn.apply(name.substring(0, i));
 	}
-	
+
 	private String field(String name, int i) {
 		if (i == -1) return NO_FIELD;
 		return name.substring(i + 1);
 	}
-	
+
 }

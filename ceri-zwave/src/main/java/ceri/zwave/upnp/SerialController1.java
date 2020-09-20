@@ -13,7 +13,8 @@ public class SerialController1 {
 		NumButtons,
 		FiresOffEvents,
 		SceneShortcuts,
-		ActivationMethod; // 1=BASIC_SET only (ignore scene_activate) 2=SCENE_ACTIVATE only (ignore basic set).  0=anything goes
+		ActivationMethod; // 1=BASIC_SET only (ignore scene_activate) 2=SCENE_ACTIVATE only (ignore
+							// basic set). 0=anything goes
 	}
-	
+
 }

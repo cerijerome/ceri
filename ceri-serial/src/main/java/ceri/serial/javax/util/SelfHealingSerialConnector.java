@@ -15,7 +15,7 @@ import ceri.common.function.ExceptionConsumer;
 import ceri.common.io.ReplaceableInputStream;
 import ceri.common.io.ReplaceableOutputStream;
 import ceri.common.io.StateChange;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
 import ceri.serial.javax.FlowControl;
@@ -126,7 +126,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, config).toString();
+		return ToString.forClass(this, config);
 	}
 
 	@Override

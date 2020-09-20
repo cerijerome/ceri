@@ -1,7 +1,7 @@
 package ceri.misc.parser.token;
 
 import java.util.Objects;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 
 public class UnknownToken extends Token.Base {
 	public static final Token.Factory FACTORY = (str, i) -> {
@@ -36,7 +36,7 @@ public class UnknownToken extends Token.Base {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, ch).toString();
+		return ToString.forClass(this, ch);
 	}
 
 }

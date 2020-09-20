@@ -34,7 +34,7 @@ public class ShutdownListener implements Closeable {
 	public int port() {
 		return socket.port();
 	}
-	
+
 	/**
 	 * Call this method to wait for shutdown.
 	 */
@@ -50,7 +50,7 @@ public class ShutdownListener implements Closeable {
 		logger.debug("Stop requested");
 		stop.signal();
 	}
-	
+
 	@Override
 	public void close() {
 		LogUtil.close(logger, socket);

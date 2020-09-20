@@ -62,8 +62,8 @@ public class AlertContainer implements Closeable {
 	}
 
 	public static Builder builder(Properties properties) throws IOException {
-		if (properties == null) properties =
-			PropertyUtil.load(AlertService.class, PROPERTY_FILE_DEF);
+		if (properties == null)
+			properties = PropertyUtil.load(AlertService.class, PROPERTY_FILE_DEF);
 		String prefix = Node.createFromEnv().name;
 		logger.info("*** {} ***", prefix);
 		BaseProperties baseProperties = new BaseProperties(properties, prefix) {};

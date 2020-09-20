@@ -12,13 +12,14 @@ public class TokenUtil {
 	 */
 	public static String asString(List<Token> tokens) {
 		StringBuilder b = new StringBuilder();
-		for (Token token : tokens) b.append(token.asString());
+		for (Token token : tokens)
+			b.append(token.asString());
 		return b.toString();
 	}
-	
+
 	/**
-	 * Tries to match a pattern at given position in a string.
-	 * If no match it returns null, otherwise increment the index and return the matcher.
+	 * Tries to match a pattern at given position in a string. If no match it returns null,
+	 * otherwise increment the index and return the matcher.
 	 */
 	public static Matcher matcher(Pattern pattern, String str, Index i) {
 		Matcher m = pattern.matcher(str.substring(i.value()));
@@ -28,8 +29,8 @@ public class TokenUtil {
 	}
 
 	/**
-	 * Tries to match a pattern at given position in a string.
-	 * If no match it returns false, otherwise increment the index and return true.
+	 * Tries to match a pattern at given position in a string. If no match it returns false,
+	 * otherwise increment the index and return true.
 	 */
 	public static boolean matches(Pattern pattern, String str, Index i) {
 		return matcher(pattern, str, i) != null;

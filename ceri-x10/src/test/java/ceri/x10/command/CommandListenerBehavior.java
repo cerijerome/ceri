@@ -13,17 +13,17 @@ import org.mockito.Mockito;
 
 public class CommandListenerBehavior {
 	private static CommandListener listener;
-	
+
 	@BeforeClass
 	public static void beforeClass() {
 		listener = mock(CommandListener.class);
 	}
-	
+
 	@Before
 	public void before() {
 		Mockito.reset(listener);
 	}
-	
+
 	@Test
 	public void shouldDispatchAllUnitsOff() {
 		CommandListener.dispatcher(Command.allUnitsOff(C)).accept(listener);

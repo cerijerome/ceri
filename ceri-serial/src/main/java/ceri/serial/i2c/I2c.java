@@ -42,11 +42,11 @@ public interface I2c {
 	 * Reset internal state.
 	 */
 	default void reset() {}
-	
+
 	/**
 	 * Verify the address is in use. Uses SMBus quick write (off) to check. Returns true if no
 	 * exception. Results of various methods:
-	 * 
+	 *
 	 * <pre>
 	 * Direct and i2c-emulated SMBus call results tested against MLX90640 device:
 	 * - writeQuick(off) => success only for existing device

@@ -5,7 +5,7 @@ import static ceri.common.util.BasicUtil.defaultValue;
 import java.io.Closeable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import ceri.log.util.LogUtil;
 import ceri.serial.javax.SerialConnector;
 import ceri.serial.javax.util.SelfHealingSerialConfig;
@@ -88,7 +88,7 @@ public class Cm11aContainer implements Closeable {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, id, type, connector).toString();
+		return ToString.forClass(this, id, type, connector);
 	}
 
 	private Cm11aType cm11aType(Cm11aConfig config, Cm11a cm11a, SerialConnector connector) {

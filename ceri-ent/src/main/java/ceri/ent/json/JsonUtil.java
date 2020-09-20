@@ -27,7 +27,7 @@ public class JsonUtil {
 		if (json == null || !json.isJsonPrimitive()) return null;
 		return json.getAsString();
 	}
-	
+
 	/**
 	 * Convenience method to match mechanics of JsonElement getAs...
 	 */
@@ -36,7 +36,7 @@ public class JsonUtil {
 		if (obj != null) return obj;
 		throw new IllegalStateException("No json object named " + memberName + ": " + json);
 	}
-	
+
 	/**
 	 * Iterates over names and elements of a json object.
 	 */

@@ -3,10 +3,10 @@ package ceri.ci.build;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Objects;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.comparator.Comparators;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 /**
  * Immutable successful or failed build event.
@@ -21,10 +21,10 @@ public class Event implements Comparable<Event> {
 		failure;
 	}
 
-	public Event(Type type, Long timeStamp, String...names) {
+	public Event(Type type, Long timeStamp, String... names) {
 		this(type, timeStamp, Arrays.asList(names));
 	}
-	
+
 	public Event(Type type, Long timeStamp, Collection<String> names) {
 		this.timeStamp = timeStamp == null ? System.currentTimeMillis() : timeStamp;
 		this.type = type;
@@ -34,15 +34,15 @@ public class Event implements Comparable<Event> {
 	public Event(Event event) {
 		this(event.type, event.timeStamp, event.names);
 	}
-	
-	public static Event success(String...names) {
+
+	public static Event success(String... names) {
 		return new Event(Type.success, null, names);
 	}
-	
-	public static Event failure(String...names) {
+
+	public static Event failure(String... names) {
 		return new Event(Type.failure, null, names);
 	}
-	
+
 	@Override
 	public int compareTo(Event event) {
 		return Comparators.LONG.compare(timeStamp, event.timeStamp);
@@ -50,7 +50,7 @@ public class Event implements Comparable<Event> {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(type, timeStamp, names);
+		return Objects.hash(type, timeStamp, names);
 	}
 
 	@Override
@@ -63,8 +63,7 @@ public class Event implements Comparable<Event> {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, type, timeStamp, new Date(timeStamp), names)
-			.toString();
+		return ToString.forClass(this, type, timeStamp, new Date(timeStamp), names);
 	}
 
 }

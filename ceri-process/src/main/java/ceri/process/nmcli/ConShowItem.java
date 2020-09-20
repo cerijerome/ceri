@@ -3,15 +3,14 @@ package ceri.process.nmcli;
 import static ceri.common.collection.StreamUtil.toList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import ceri.common.process.Columns;
 import ceri.common.text.StringUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 /**
  * One line from <b>nmcli con show</b> command.
- * 
+ *
  * <pre>
  * NAME  UUID                                  TYPE      DEVICE
  * eth1  01fa0bf4-b6bd-484f-a9a3-2b10ff701dcd  ethernet  eth1
@@ -48,7 +47,7 @@ public class ConShowItem {
 	public static ConShowItem of(String name, String uuid, String type, String device) {
 		return new ConShowItem(name, uuid, type, device);
 	}
-	
+
 	private ConShowItem(String name, String uuid, String type, String device) {
 		this.name = name;
 		this.uuid = uuid;
@@ -59,10 +58,10 @@ public class ConShowItem {
 	public boolean isNull() {
 		return name == null && uuid == null && type == null && device == null;
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(name, uuid, type, device);
+		return Objects.hash(name, uuid, type, device);
 	}
 
 	@Override
@@ -70,16 +69,16 @@ public class ConShowItem {
 		if (this == obj) return true;
 		if (!(obj instanceof ConShowItem)) return false;
 		ConShowItem other = (ConShowItem) obj;
-		if (!EqualsUtil.equals(name, other.name)) return false;
-		if (!EqualsUtil.equals(uuid, other.uuid)) return false;
-		if (!EqualsUtil.equals(type, other.type)) return false;
-		if (!EqualsUtil.equals(device, other.device)) return false;
+		if (!Objects.equals(name, other.name)) return false;
+		if (!Objects.equals(uuid, other.uuid)) return false;
+		if (!Objects.equals(type, other.type)) return false;
+		if (!Objects.equals(device, other.device)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, name, uuid, type, device).toString();
+		return ToString.forClass(this, name, uuid, type, device);
 	}
 
 }

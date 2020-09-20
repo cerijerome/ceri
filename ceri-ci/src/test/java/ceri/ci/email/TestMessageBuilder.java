@@ -18,36 +18,36 @@ public class TestMessageBuilder {
 	private Date sentDate;
 	private String subject;
 	private String content;
-	
-	public TestMessageBuilder recipients(String...recipients) {
+
+	public TestMessageBuilder recipients(String... recipients) {
 		return recipients(Arrays.asList(recipients));
 	}
-	
+
 	public TestMessageBuilder recipients(Collection<String> recipients) {
 		this.recipients.addAll(recipients);
 		return this;
 	}
-	
+
 	public TestMessageBuilder from(String from) {
 		this.from = from;
 		return this;
 	}
-	
+
 	public TestMessageBuilder sentDate(Date sentDate) {
 		this.sentDate = sentDate;
 		return this;
 	}
-	
+
 	public TestMessageBuilder subject(String subject) {
 		this.subject = subject;
 		return this;
 	}
-	
+
 	public TestMessageBuilder content(String content) {
 		this.content = content;
 		return this;
 	}
-	
+
 	public Message build() {
 		try {
 			Message message = mock(Message.class);
@@ -63,5 +63,5 @@ public class TestMessageBuilder {
 			throw new AssertionError("Should not happen", e);
 		}
 	}
-	
+
 }

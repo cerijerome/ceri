@@ -41,12 +41,12 @@ public class AlertServiceContainer implements Closeable {
 	}
 
 	private AlertServiceImpl createAlertService(AlerterGroup alerters, AlertProperties properties) {
-		return new AlertServiceImpl(alerters, properties.reminderMs(), properties
-			.shutdownTimeoutMs(), properties.purgeDelayMs());
+		return new AlertServiceImpl(alerters, properties.reminderMs(),
+			properties.shutdownTimeoutMs(), properties.purgeDelayMs());
 	}
 
-	private AlerterGroup
-		createAlerterGroup(AlertProperties properties, Collection<Alerter> alerters) {
+	private AlerterGroup createAlerterGroup(AlertProperties properties,
+		Collection<Alerter> alerters) {
 		AlerterGroup.Builder builder =
 			AlerterGroup.builder().shutdownTimeoutMs(properties.shutdownTimeoutMs());
 		for (Alerter alerter : alerters)

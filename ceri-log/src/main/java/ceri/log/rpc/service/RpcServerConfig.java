@@ -1,8 +1,7 @@
 package ceri.log.rpc.service;
 
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
+import ceri.common.text.ToString;
 import ceri.log.rpc.client.RpcChannelConfig;
 
 public class RpcServerConfig {
@@ -63,12 +62,12 @@ public class RpcServerConfig {
 	 */
 	public boolean isLoop(RpcChannelConfig channel) {
 		if (!enabled() || channel == null || !channel.isLocalhost()) return false;
-		return EqualsUtil.equals(channel.port, port);
+		return Objects.equals(channel.port, port);
 	}
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(port, shutdownTimeoutMs);
+		return Objects.hash(port, shutdownTimeoutMs);
 	}
 
 	@Override
@@ -76,14 +75,14 @@ public class RpcServerConfig {
 		if (this == obj) return true;
 		if (!(obj instanceof RpcServerConfig)) return false;
 		RpcServerConfig other = (RpcServerConfig) obj;
-		if (!EqualsUtil.equals(port, other.port)) return false;
+		if (!Objects.equals(port, other.port)) return false;
 		if (shutdownTimeoutMs != other.shutdownTimeoutMs) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, port, shutdownTimeoutMs).toString();
+		return ToString.forClass(this, port, shutdownTimeoutMs);
 	}
 
 }

@@ -1,7 +1,7 @@
 package ceri.log.rpc.client;
 
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
+import ceri.common.text.ToString;
 
 public class RpcClientNotifierConfig {
 	public static final RpcClientNotifierConfig DEFAULT = builder().build();
@@ -40,7 +40,7 @@ public class RpcClientNotifierConfig {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(resetDelayMs);
+		return Objects.hash(resetDelayMs);
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class RpcClientNotifierConfig {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, resetDelayMs).toString();
+		return ToString.forClass(this, resetDelayMs);
 	}
 
 }

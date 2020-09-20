@@ -2,10 +2,9 @@ package ceri.serial.usb;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 public class UsbSerialDevices {
 	public final Map<Integer, String> devices;
@@ -41,10 +40,10 @@ public class UsbSerialDevices {
 	public String device(int locationId) {
 		return devices.get(locationId);
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(devices);
+		return Objects.hash(devices);
 	}
 
 	@Override
@@ -52,13 +51,13 @@ public class UsbSerialDevices {
 		if (this == obj) return true;
 		if (!(obj instanceof UsbSerialDevices)) return false;
 		UsbSerialDevices other = (UsbSerialDevices) obj;
-		if (!EqualsUtil.equals(devices, other.devices)) return false;
+		if (!Objects.equals(devices, other.devices)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, devices).toString();
+		return ToString.forClass(this, devices);
 	}
 
 }

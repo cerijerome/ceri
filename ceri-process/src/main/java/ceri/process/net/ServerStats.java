@@ -8,19 +8,18 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import ceri.common.time.DateUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Encapsulates the result of running 'net stats srv'. Example output:
- * 
+ *
  * <pre>
  * Server Statistics for \\Computer_Name
  * Statistics since 1/10/2020 12:01:58 AM
@@ -86,7 +85,7 @@ public class ServerStats {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(computerName, since);
+		return Objects.hash(computerName, since);
 	}
 
 	@Override
@@ -94,14 +93,14 @@ public class ServerStats {
 		if (this == obj) return true;
 		if (!(obj instanceof ServerStats)) return false;
 		ServerStats other = (ServerStats) obj;
-		if (!EqualsUtil.equals(computerName, other.computerName)) return false;
-		if (!EqualsUtil.equals(since, other.since)) return false;
+		if (!Objects.equals(computerName, other.computerName)) return false;
+		if (!Objects.equals(since, other.since)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, computerName, since).toString();
+		return ToString.forClass(this, computerName, since);
 	}
 
 	/**

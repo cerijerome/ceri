@@ -9,7 +9,8 @@ import org.mockito.MockitoAnnotations;
 import ceri.ci.audio.AudioListener;
 
 public class ZWaveGroupBehavior {
-	@Mock private ZWaveController controller;
+	@Mock
+	private ZWaveController controller;
 
 	@Before
 	public void before() {

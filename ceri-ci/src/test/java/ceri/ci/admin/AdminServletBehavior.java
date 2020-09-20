@@ -20,12 +20,18 @@ import ceri.ci.alert.AlertService;
 import ceri.ci.build.Builds;
 
 public class AdminServletBehavior {
-	@Mock private HttpServletRequest request;
-	@Mock private HttpServletResponse response;
-	@Mock private ServletContext context;
-	@Mock private ServletConfig config;
-	@Mock private AlertService service;
-	@Mock private PrintWriter writer;
+	@Mock
+	private HttpServletRequest request;
+	@Mock
+	private HttpServletResponse response;
+	@Mock
+	private ServletContext context;
+	@Mock
+	private ServletConfig config;
+	@Mock
+	private AlertService service;
+	@Mock
+	private PrintWriter writer;
 	private AdminServlet servlet;
 
 	@SuppressWarnings("resource")

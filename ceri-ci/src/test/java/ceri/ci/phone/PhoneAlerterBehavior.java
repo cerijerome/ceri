@@ -14,9 +14,10 @@ import ceri.ci.build.Event.Type;
 public class PhoneAlerterBehavior {
 	private static final Event e0 = new Event(Type.failure, 1L, "A");
 	private static final Event e1 = new Event(Type.failure, 2L, "CCC");
-	@Mock private PhoneClient client;
+	@Mock
+	private PhoneClient client;
 	PhoneAlerter alerter;
-	
+
 	@Before
 	public void init() {
 		MockitoAnnotations.initMocks(this);

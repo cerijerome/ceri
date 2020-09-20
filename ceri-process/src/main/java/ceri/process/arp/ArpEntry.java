@@ -1,14 +1,13 @@
 package ceri.process.arp;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import ceri.common.collection.StreamUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 /*
  ? (10.0.0.1) at 6a:ee:96:a9:67:6a on en0 ifscope [ethernet]
@@ -62,7 +61,7 @@ public class ArpEntry {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(ip, mac, iface);
+		return Objects.hash(ip, mac, iface);
 	}
 
 	@Override
@@ -70,15 +69,15 @@ public class ArpEntry {
 		if (this == obj) return true;
 		if (!(obj instanceof ArpEntry)) return false;
 		ArpEntry other = (ArpEntry) obj;
-		if (!EqualsUtil.equals(ip, other.ip)) return false;
-		if (!EqualsUtil.equals(mac, other.mac)) return false;
-		if (!EqualsUtil.equals(iface, other.iface)) return false;
+		if (!Objects.equals(ip, other.ip)) return false;
+		if (!Objects.equals(mac, other.mac)) return false;
+		if (!Objects.equals(iface, other.iface)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, ip, mac, iface).toString();
+		return ToString.forClass(this, ip, mac, iface);
 	}
 
 }

@@ -12,8 +12,8 @@ public class VeraLite {
 	public final Dimming dimming;
 
 	public VeraLite(String host, int callDelayMs) {
-		if (host == null || host.isEmpty()) throw new IllegalArgumentException(
-			"Host must be specified");
+		if (host == null || host.isEmpty())
+			throw new IllegalArgumentException("Host must be specified");
 		CommandFactory factory = new CommandFactory(host, new DelayExecutor(callDelayMs));
 		zWaveNetwork = new ZWaveNetwork(factory);
 		switchPower = new SwitchPower(factory);

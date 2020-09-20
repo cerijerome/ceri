@@ -36,8 +36,8 @@ public class LoggingExecutor implements Closeable {
 	}
 
 	/**
-	 * Shuts down the executor, interrupting any running tasks.
-	 * Waits for completion up to time limit.
+	 * Shuts down the executor, interrupting any running tasks. Waits for completion up to time
+	 * limit.
 	 */
 	@Override
 	public void close() {
@@ -58,8 +58,8 @@ public class LoggingExecutor implements Closeable {
 	 * Executes a task using an executor service thread.
 	 */
 	public void execute(final Runnable runnable) {
-		if (service.isShutdown()) throw new RuntimeInterruptedException(
-			name + " executor service is shut down");
+		if (service.isShutdown())
+			throw new RuntimeInterruptedException(name + " executor service is shut down");
 		Future<?> future = service.submit(() -> {
 			logger.debug("{} thread started", name);
 			try {
@@ -97,5 +97,5 @@ public class LoggingExecutor implements Closeable {
 			throw new RuntimeException(e.getCause());
 		}
 	}
-	
+
 }

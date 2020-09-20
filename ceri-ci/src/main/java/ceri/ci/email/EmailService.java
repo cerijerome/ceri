@@ -155,8 +155,8 @@ public class EmailService implements Closeable {
 	}
 
 	/**
-	 * Uses the filter to drop any messages we are not interested in.
-	 * This is called by the email retriever.
+	 * Uses the filter to drop any messages we are not interested in. This is called by the email
+	 * retriever.
 	 */
 	private boolean matches(Message message) throws MessagingException {
 		for (EmailEventParser parser : parsers)

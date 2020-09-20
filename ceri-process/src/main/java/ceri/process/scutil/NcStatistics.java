@@ -3,14 +3,13 @@ package ceri.process.scutil;
 import static ceri.common.function.FunctionUtil.safeAccept;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.Node;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Wrapper for the results of {@code scutil --nc statistics <service-name>}:
- * 
+ *
  * <pre>
  * 	{@code <dictionary>} {
  * 		PPP : {@code <dictionary>} {
@@ -111,7 +110,7 @@ public class NcStatistics {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(values);
+		return Objects.hash(values);
 	}
 
 	@Override
@@ -119,7 +118,7 @@ public class NcStatistics {
 		if (this == obj) return true;
 		if (!(obj instanceof NcStatistics)) return false;
 		NcStatistics other = (NcStatistics) obj;
-		if (!EqualsUtil.equals(values, other.values)) return false;
+		if (!Objects.equals(values, other.values)) return false;
 		return true;
 	}
 

@@ -1,8 +1,7 @@
 package ceri.ci.web;
 
 import java.util.Objects;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
+import ceri.common.text.ToString;
 
 public class Actor implements Comparable<Actor> {
 	public final String name;
@@ -42,13 +41,13 @@ public class Actor implements Comparable<Actor> {
 		if (obj == this) return true;
 		if (!(obj instanceof Actor)) return false;
 		Actor other = (Actor) obj;
-		return EqualsUtil.equals(name, other.name) && EqualsUtil.equals(build, other.build) &&
-			EqualsUtil.equals(job, other.job);
+		return Objects.equals(name, other.name) && Objects.equals(build, other.build) &&
+			Objects.equals(job, other.job);
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, name, build, job).toString();
+		return ToString.forClass(this, name, build, job);
 	}
 
 }

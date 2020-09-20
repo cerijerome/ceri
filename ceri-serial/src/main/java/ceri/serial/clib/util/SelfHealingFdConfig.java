@@ -4,7 +4,7 @@ import static ceri.common.function.FunctionUtil.named;
 import java.io.IOException;
 import java.util.function.Predicate;
 import ceri.common.function.ExceptionSupplier;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import ceri.serial.clib.CFileDescriptor;
 import ceri.serial.clib.Mode;
 import ceri.serial.clib.OpenFlag;
@@ -20,7 +20,7 @@ public class SelfHealingFdConfig {
 	public static SelfHealingFdConfig of(String path, OpenFlag... flags) {
 		return of(path, null, flags);
 	}
-	
+
 	public static SelfHealingFdConfig of(String path, Mode mode, OpenFlag... flags) {
 		return builder(() -> CFileDescriptor.open(path, mode, flags)).build();
 	}
@@ -68,9 +68,7 @@ public class SelfHealingFdConfig {
 
 	@Override
 	public String toString() {
-		return ToStringHelper
-			.createByClass(this, openFn, recoveryDelayMs, fixRetryDelayMs, brokenPredicate)
-			.toString();
+		return ToString.forClass(this, openFn, recoveryDelayMs, fixRetryDelayMs, brokenPredicate);
 	}
 
 }

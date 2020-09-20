@@ -7,12 +7,10 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.text.RegexUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * One line from scutil --nc list.
- * 
+ *
  * <pre>
  * * (state) id protocol --> device "name" [protocol:type]
  * </pre>
@@ -113,7 +111,7 @@ public class NcListItem {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(enabled, state, passwordHash, protocol, device, name, type);
+		return Objects.hash(enabled, state, passwordHash, protocol, device, name, type);
 	}
 
 	@Override
@@ -122,12 +120,12 @@ public class NcListItem {
 		if (!(obj instanceof NcListItem)) return false;
 		NcListItem other = (NcListItem) obj;
 		if (enabled != other.enabled) return false;
-		if (!EqualsUtil.equals(state, other.state)) return false;
-		if (!EqualsUtil.equals(passwordHash, other.passwordHash)) return false;
-		if (!EqualsUtil.equals(protocol, other.protocol)) return false;
-		if (!EqualsUtil.equals(device, other.device)) return false;
-		if (!EqualsUtil.equals(name, other.name)) return false;
-		if (!EqualsUtil.equals(type, other.type)) return false;
+		if (!Objects.equals(state, other.state)) return false;
+		if (!Objects.equals(passwordHash, other.passwordHash)) return false;
+		if (!Objects.equals(protocol, other.protocol)) return false;
+		if (!Objects.equals(device, other.device)) return false;
+		if (!Objects.equals(name, other.name)) return false;
+		if (!Objects.equals(type, other.type)) return false;
 		return true;
 	}
 

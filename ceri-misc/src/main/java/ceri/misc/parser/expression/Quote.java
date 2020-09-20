@@ -1,8 +1,7 @@
 package ceri.misc.parser.expression;
 
 import java.util.Objects;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
+import ceri.common.text.ToString;
 
 public class Quote implements Expression {
 	public final String value;
@@ -28,7 +27,7 @@ public class Quote implements Expression {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, "\"" + value + "\"").toString();
+		return ToString.forClass(this, "\"" + value + "\"");
 	}
 
 	@Override
@@ -41,7 +40,7 @@ public class Quote implements Expression {
 		if (this == obj) return true;
 		if (!(obj instanceof Quote)) return false;
 		Quote exp = (Quote) obj;
-		return EqualsUtil.equals(value, exp.value);
+		return Objects.equals(value, exp.value);
 	}
 
 }

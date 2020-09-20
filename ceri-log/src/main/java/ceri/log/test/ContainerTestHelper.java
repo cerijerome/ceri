@@ -14,8 +14,8 @@ import ceri.log.util.LogCloseableTracker;
 import ceri.log.util.LogUtil;
 
 /**
- * Test helper to create containers from a property file and close after use.
- * Containers are cached by id so multiples are not created.
+ * Test helper to create containers from a property file and close after use. Containers are cached
+ * by id so multiples are not created.
  */
 public class ContainerTestHelper implements Closeable {
 	private static final Logger logger = LogManager.getLogger();

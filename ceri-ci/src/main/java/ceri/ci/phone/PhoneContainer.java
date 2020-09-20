@@ -15,7 +15,7 @@ public class PhoneContainer {
 	public PhoneContainer(BaseProperties properties) {
 		this(properties, new PhoneFactoryImpl());
 	}
-	
+
 	public PhoneContainer(BaseProperties properties, PhoneFactory factory) {
 		PhoneProperties phoneProperties = new PhoneProperties(properties, GROUP);
 		if (!phoneProperties.enabled()) {

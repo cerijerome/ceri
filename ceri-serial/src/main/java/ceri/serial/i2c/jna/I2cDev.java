@@ -337,8 +337,8 @@ public class I2cDev {
 	}
 
 	/**
-	 * Combined read/write transfer with one STOP only. Messages should be contiguous,
-	 * created with i2c_msg.array(n).
+	 * Combined read/write transfer with one STOP only. Messages should be contiguous, created with
+	 * i2c_msg.array(n).
 	 */
 	public static void i2c_rdwr(int fd, i2c_msg.ByReference... msgs) throws CException {
 		validateMax(msgs.length, I2C_RDWR_IOCTL_MAX_MSGS, "Message count");

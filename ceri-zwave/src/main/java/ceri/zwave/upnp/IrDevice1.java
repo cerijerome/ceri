@@ -13,5 +13,5 @@ public class IrDevice1 {
 		Remote,
 		MfrId;
 	}
-	
+
 }

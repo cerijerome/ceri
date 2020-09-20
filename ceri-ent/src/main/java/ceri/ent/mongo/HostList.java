@@ -4,12 +4,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.net.HostPort;
 import ceri.common.net.NetUtil;
 import ceri.common.text.StringUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 
 public class HostList {
 	public static final HostList LOCALHOST = from(NetUtil.LOCALHOST);
@@ -69,7 +68,7 @@ public class HostList {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(hosts);
+		return Objects.hash(hosts);
 	}
 
 	@Override
@@ -77,7 +76,7 @@ public class HostList {
 		if (this == obj) return true;
 		if (!(obj instanceof HostList)) return false;
 		HostList other = (HostList) obj;
-		if (!EqualsUtil.equals(hosts, other.hosts)) return false;
+		if (!Objects.equals(hosts, other.hosts)) return false;
 		return true;
 	}
 

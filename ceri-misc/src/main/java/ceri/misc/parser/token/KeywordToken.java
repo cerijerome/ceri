@@ -3,8 +3,7 @@ package ceri.misc.parser.token;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
+import ceri.common.text.ToString;
 
 public class KeywordToken extends Token.Base {
 	static final Pattern PATTERN = Pattern.compile("^[^\"\\s\\*\\(\\)]+");
@@ -30,7 +29,7 @@ public class KeywordToken extends Token.Base {
 		if (this == obj) return true;
 		if (!(obj instanceof KeywordToken)) return false;
 		KeywordToken token = (KeywordToken) obj;
-		return EqualsUtil.equals(value, token.value);
+		return Objects.equals(value, token.value);
 	}
 
 	@Override
@@ -40,7 +39,7 @@ public class KeywordToken extends Token.Base {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, value).toString();
+		return ToString.forClass(this, value);
 	}
 
 }

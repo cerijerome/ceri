@@ -41,15 +41,15 @@ public class ZWaveProperties extends BaseProperties {
 	public int callDelayMs() {
 		return intValue(CALL_DELAY_MS_DEF, CALL_KEY, DELAY_MS_KEY);
 	}
-	
+
 	public int randomizeDelayMs() {
 		return intValue(RANDOMIZE_DELAY_MS_DEF, RANDOMIZE_KEY, DELAY_MS_KEY);
 	}
-	
+
 	public long randomizePeriodMs() {
 		return longValue(RANDOMIZE_PERIOD_MS_DEF, RANDOMIZE_KEY, PERIOD_MS_KEY);
 	}
-	
+
 	public Integer device(String name) {
 		return intValue(DEVICE_KEY, name);
 	}
@@ -59,14 +59,14 @@ public class ZWaveProperties extends BaseProperties {
 		if (values == null) return null;
 		return integers(values);
 	}
-	
+
 	private Collection<Integer> integers(Collection<String> values) {
 		Collection<Integer> devices = new LinkedHashSet<>();
 		for (String value : values)
 			devices.add(Integer.valueOf(value.trim()));
 		return devices;
 	}
-	
+
 	public Collection<String> names() {
 		String prefix = key(DEVICE_KEY) + ".";
 		int offset = prefix.length();

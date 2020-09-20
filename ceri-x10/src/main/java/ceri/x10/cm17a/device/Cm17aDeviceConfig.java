@@ -1,7 +1,7 @@
 package ceri.x10.cm17a.device;
 
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
+import ceri.common.text.ToString;
 
 /**
  * Handles all communication with the device. Reads commands from the input queue, and dispatches
@@ -76,7 +76,7 @@ public class Cm17aDeviceConfig {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(queuePollTimeoutMs, waitIntervalMicros, resetIntervalMicros,
+		return Objects.hash(queuePollTimeoutMs, waitIntervalMicros, resetIntervalMicros,
 			commandIntervalMicros, errorDelayMs, queueSize);
 	}
 
@@ -96,7 +96,7 @@ public class Cm17aDeviceConfig {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, queuePollTimeoutMs, waitIntervalMicros,
-			resetIntervalMicros, commandIntervalMicros, errorDelayMs, queueSize).toString();
+		return ToString.forClass(this, queuePollTimeoutMs, waitIntervalMicros, resetIntervalMicros,
+			commandIntervalMicros, errorDelayMs, queueSize);
 	}
 }

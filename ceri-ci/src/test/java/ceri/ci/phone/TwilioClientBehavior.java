@@ -15,11 +15,16 @@ import com.twilio.sdk.resource.instance.Message;
 import ceri.common.test.TestUtil;
 
 public class TwilioClientBehavior {
-	@Mock private TwilioFactory factory;
-	@Mock private TwilioRestClient client;
-	@Mock private Account account;
-	@Mock private MessageFactory messageFactory;
-	@Mock private Message message;
+	@Mock
+	private TwilioFactory factory;
+	@Mock
+	private TwilioRestClient client;
+	@Mock
+	private Account account;
+	@Mock
+	private MessageFactory messageFactory;
+	@Mock
+	private Message message;
 
 	@Before
 	public void init() throws TwilioRestException {
@@ -40,8 +45,10 @@ public class TwilioClientBehavior {
 
 	@Test
 	public void shouldNotAllowNullConstructorArguments() {
-		TestUtil.assertThrown(() -> new TwilioClient(null, "authToken", "fromPhoneNumber", factory));
-		TestUtil.assertThrown(() -> new TwilioClient("accountSid", null, "fromPhoneNumber", factory));
+		TestUtil
+			.assertThrown(() -> new TwilioClient(null, "authToken", "fromPhoneNumber", factory));
+		TestUtil
+			.assertThrown(() -> new TwilioClient("accountSid", null, "fromPhoneNumber", factory));
 		TestUtil.assertThrown(() -> new TwilioClient("accountSid", "authToken", null, factory));
 	}
 

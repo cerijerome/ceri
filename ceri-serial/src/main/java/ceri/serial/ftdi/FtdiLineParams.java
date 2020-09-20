@@ -1,8 +1,7 @@
 package ceri.serial.ftdi;
 
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import java.util.Objects;
+import ceri.common.text.ToString;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type;
@@ -58,10 +57,10 @@ public class FtdiLineParams {
 		parity = builder.parity;
 		breakType = builder.breakType;
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(bits, sbit, parity, breakType);
+		return Objects.hash(bits, sbit, parity, breakType);
 	}
 
 	@Override
@@ -69,16 +68,16 @@ public class FtdiLineParams {
 		if (this == obj) return true;
 		if (!(obj instanceof FtdiLineParams)) return false;
 		FtdiLineParams other = (FtdiLineParams) obj;
-		if (!EqualsUtil.equals(bits, other.bits)) return false;
-		if (!EqualsUtil.equals(sbit, other.sbit)) return false;
-		if (!EqualsUtil.equals(parity, other.parity)) return false;
-		if (!EqualsUtil.equals(breakType, other.breakType)) return false;
+		if (!Objects.equals(bits, other.bits)) return false;
+		if (!Objects.equals(sbit, other.sbit)) return false;
+		if (!Objects.equals(parity, other.parity)) return false;
+		if (!Objects.equals(breakType, other.breakType)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, bits, sbit, parity, breakType).toString();
+		return ToString.forClass(this, bits, sbit, parity, breakType);
 	}
-	
+
 }

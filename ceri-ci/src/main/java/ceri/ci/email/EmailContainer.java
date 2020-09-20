@@ -61,9 +61,8 @@ public class EmailContainer implements Closeable {
 	}
 
 	private EmailRetriever createRetriever(EmailProperties properties, EmailFactory factory) {
-		EmailRetrieverImpl.Builder builder =
-			factory
-				.retrieverBuilder(properties.host(), properties.account(), properties.password());
+		EmailRetrieverImpl.Builder builder = factory.retrieverBuilder(properties.host(),
+			properties.account(), properties.password());
 		String protocol = properties.protocol();
 		if (protocol != null) builder.protocol(protocol);
 		String folder = properties.folder();

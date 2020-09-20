@@ -11,7 +11,7 @@ import ceri.common.text.StringUtil;
 
 /**
  * Handles the following requests:
- * 
+ *
  * <pre>
  * /
  * /?purge

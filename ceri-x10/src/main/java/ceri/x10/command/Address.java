@@ -2,16 +2,16 @@ package ceri.x10.command;
 
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.text.RegexUtil;
-import ceri.common.util.HashCoder;
 
 /**
  * Device address, made up of house and unit codes.
  */
 public class Address implements Comparable<Address> {
-	private static final Comparator<Address> COMPARATOR = 
+	private static final Comparator<Address> COMPARATOR =
 		Comparator.<Address, House>comparing(a -> a.house).thenComparing(a -> a.unit);
 	private static final Pattern ADDRESS_REGEX = Pattern.compile("(\\w)(\\d\\d?)");
 	public final House house;
@@ -43,10 +43,10 @@ public class Address implements Comparable<Address> {
 	public int compareTo(Address other) {
 		return COMPARATOR.compare(this, other);
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(house, unit);
+		return Objects.hash(house, unit);
 	}
 
 	@Override

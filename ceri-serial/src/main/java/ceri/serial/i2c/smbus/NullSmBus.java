@@ -12,9 +12,9 @@ public class NullSmBus implements SmBus {
 	public static NullSmBus instance() {
 		return INSTANCE;
 	}
-	
+
 	private NullSmBus() {}
-	
+
 	@Override
 	public void writeQuick(boolean on) {}
 

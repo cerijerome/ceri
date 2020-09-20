@@ -1,5 +1,7 @@
 package ceri.zwave.command;
 
 public enum OutputFormat {
-	json, xml, text;
+	json,
+	xml,
+	text;
 }

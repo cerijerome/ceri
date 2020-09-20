@@ -26,7 +26,7 @@ import ceri.serial.javax.util.SelfHealingSerialConnector;
 /**
  * Class to test serial ports. Takes commands via System.in and calls methods on the serial
  * connector. Logs data received from the port. Commands:
- * 
+ *
  * <pre>
  * b[0|1] = set break bit off/on
  * d[0|1] = set DTR off/on

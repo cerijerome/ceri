@@ -9,15 +9,15 @@ public class PhoneFactoryImpl implements PhoneFactory, TwilioFactory {
 	public TwilioRestClient createRestClient(String accountSid, String authToken) {
 		return new TwilioRestClient(accountSid, authToken);
 	}
-	
+
 	@Override
 	public PhoneClient createClient(String accountSid, String authToken, String fromNumber) {
 		return new TwilioClient(accountSid, authToken, fromNumber, this);
 	}
-	
+
 	@Override
 	public Builder builder(PhoneClient client) {
 		return PhoneAlerter.builder(client);
 	}
-	
+
 }

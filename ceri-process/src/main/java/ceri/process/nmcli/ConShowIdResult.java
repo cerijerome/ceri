@@ -2,18 +2,17 @@ package ceri.process.nmcli;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
+import ceri.common.text.ToString;
 
 /**
  * Output from <b>nmcli show id [id]</b>.
- * 
+ *
  * <pre>
  * connection.id:                          eth2
  * connection.uuid:                        186053d4-9369-4a4e-87b8-d1f9a419f985
@@ -42,15 +41,15 @@ public class ConShowIdResult {
 		Builder b = builder();
 		for (String line : StringUtil.lines(output)) {
 			Matcher m = RegexUtil.matched(NAME_VALUE_SPLIT, line);
-			if (m != null) b.value(m.group(1), m.group(2)); 
+			if (m != null) b.value(m.group(1), m.group(2));
 		}
 		return b.build();
 	}
-	
+
 	public static ConShowIdResult of(Map<String, String> values) {
 		return builder().values(values).build();
 	}
-	
+
 	public static class Builder {
 		final Map<String, String> values = new LinkedHashMap<>();
 
@@ -82,39 +81,39 @@ public class ConShowIdResult {
 	public boolean isNull() {
 		return values.isEmpty();
 	}
-	
+
 	public String connectionId() {
 		return value(CONNECTION_ID);
 	}
-	
+
 	public String connectionUuid() {
 		return value(CONNECTION_UUID);
 	}
-	
+
 	public String connectionType() {
 		return value(CONNECTION_TYPE);
 	}
-	
+
 	public String connectionInterfaceName() {
 		return value(CONNECTION_INTERFACE_NAME);
 	}
-	
+
 	public String generalState() {
 		return value(GENERAL_STATE);
 	}
-	
+
 	public boolean generalVpn() {
 		return value(GENERAL_VPN).equals(YES);
 	}
-	
+
 	public String value(String key) {
 		String value = values.getOrDefault(key, "");
 		return NONE.equals(value) ? "" : value;
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(values);
+		return Objects.hash(values);
 	}
 
 	@Override
@@ -122,13 +121,13 @@ public class ConShowIdResult {
 		if (this == obj) return true;
 		if (!(obj instanceof ConShowIdResult)) return false;
 		ConShowIdResult other = (ConShowIdResult) obj;
-		if (!EqualsUtil.equals(values, other.values)) return false;
+		if (!Objects.equals(values, other.values)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, values).toString();
+		return ToString.forClass(this, values);
 	}
 
 }

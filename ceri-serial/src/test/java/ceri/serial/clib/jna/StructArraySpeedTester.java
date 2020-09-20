@@ -14,7 +14,7 @@ public class StructArraySpeedTester {
 
 	public static void main(String[] args) {
 		compareTest(1); // 77/1/1 ms (probably due to class-loading)
-		compareTest(64); // 46/35/[33] ms (due to page sizes?) 
+		compareTest(64); // 46/35/[33] ms (due to page sizes?)
 		compareTest(1024); // 229/[85]/211 ms
 	}
 

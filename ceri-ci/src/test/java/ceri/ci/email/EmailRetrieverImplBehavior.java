@@ -21,9 +21,12 @@ import org.mockito.MockitoAnnotations;
 import ceri.common.test.TestUtil;
 
 public class EmailRetrieverImplBehavior {
-	@Mock Store store;
-	@Mock Folder defaultFolder;
-	@Mock Folder folder;
+	@Mock
+	Store store;
+	@Mock
+	Folder defaultFolder;
+	@Mock
+	Folder folder;
 
 	@Before
 	public void init() throws MessagingException {
@@ -37,13 +40,13 @@ public class EmailRetrieverImplBehavior {
 		String s = create(presetBuilder()).toString();
 		assertTrue(s.contains("host"));
 	}
-	
+
 	@Test
 	public void shouldFailIfNoMinimumDateForFetchingEmails() {
 		EmailRetriever retriever = create(presetBuilder());
 		TestUtil.assertThrown(() -> retriever.retrieve(null, null));
 	}
-	
+
 	@Test
 	public void shouldFetchEmailsBasedOnGivenMatcher() throws IOException, MessagingException {
 		Message msg0 = mockMessage(1);
@@ -51,8 +54,8 @@ public class EmailRetrieverImplBehavior {
 		Message msg2 = mockMessage(11);
 		when(folder.search(any())).thenReturn(new Message[] { msg0, msg1, msg2 });
 		EmailRetriever retriever = create(presetBuilder());
-		List<Email> emails = retriever.retrieve(new Date(2),
-			message -> message.getSentDate().getTime() < 10);
+		List<Email> emails =
+			retriever.retrieve(new Date(2), message -> message.getSentDate().getTime() < 10);
 		assertThat(emails.size(), is(1));
 		assertThat(emails.get(0).sentDateMs, is(5L));
 	}

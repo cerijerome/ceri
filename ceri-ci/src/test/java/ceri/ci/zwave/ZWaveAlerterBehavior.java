@@ -14,15 +14,15 @@ import org.mockito.MockitoAnnotations;
 import ceri.common.test.TestUtil;
 
 public class ZWaveAlerterBehavior {
-	@Mock private ZWaveController controller;
+	@Mock
+	private ZWaveController controller;
 	private ZWaveAlerter alerter;
 
 	@Before
 	public void before() {
 		MockitoAnnotations.initMocks(this);
-		alerter =
-			ZWaveAlerter.builder(controller).device("1", 1).device("2", 2).device("3", 3)
-				.randomize(0, 0).build();
+		alerter = ZWaveAlerter.builder(controller).device("1", 1).device("2", 2).device("3", 3)
+			.randomize(0, 0).build();
 	}
 
 	@Test

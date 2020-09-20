@@ -2,13 +2,13 @@ package ceri.serial.clib;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.HashCoder;
 
 public class Mode {
 	private final int mode;
@@ -125,7 +125,7 @@ public class Mode {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(mode);
+		return Objects.hash(mode);
 	}
 
 	@Override

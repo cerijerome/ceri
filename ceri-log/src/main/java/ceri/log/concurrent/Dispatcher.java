@@ -37,8 +37,7 @@ public class Dispatcher<L, T> extends LoopingExecutor {
 		return new Direct<>(pollTimeoutMs);
 	}
 
-	public static <L, T> Dispatcher<L, T> of(long pollTimeoutMs,
-		Function<T, Consumer<L>> adaptor) {
+	public static <L, T> Dispatcher<L, T> of(long pollTimeoutMs, Function<T, Consumer<L>> adaptor) {
 		return new Dispatcher<>(pollTimeoutMs, adaptor);
 	}
 
@@ -56,7 +55,7 @@ public class Dispatcher<L, T> extends LoopingExecutor {
 	public void dispatch(T t) {
 		queue.add(t);
 	}
-	
+
 	@Override
 	protected void loop() throws InterruptedException {
 		try {

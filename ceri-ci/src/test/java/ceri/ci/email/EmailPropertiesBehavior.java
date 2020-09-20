@@ -26,8 +26,7 @@ public class EmailPropertiesBehavior {
 
 	@Test
 	public void shouldReadValuesWithPrefix() {
-		EmailProperties email =
-			new EmailProperties(new BaseProperties(props) {}, "x");
+		EmailProperties email = new EmailProperties(new BaseProperties(props) {}, "x");
 		assertThat(email.enabled(), is(true));
 		assertThat(email.host(), is("host"));
 		assertThat(email.account(), is("account"));

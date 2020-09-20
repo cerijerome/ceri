@@ -17,7 +17,7 @@ public class XPathUtil {
 		if (DomElement.ATTRIBUTE_NOT_DEFINED.equals(attribute)) return null;
 		return attribute;
 	}
-	
+
 	public static List<DomNode> xPaths(DomNode dom, String xPath) {
 		return BasicUtil.uncheckedCast(dom.getByXPath(xPath));
 	}
@@ -43,7 +43,7 @@ public class XPathUtil {
 		if (dom == null) return null;
 		return trim(dom.getTextContent());
 	}
-	
+
 	public static String trim(String s) {
 		if (s == null) return null;
 		s = WHITESPACE.matcher(s).replaceAll(" ");

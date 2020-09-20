@@ -1,7 +1,7 @@
 package ceri.x10.cm11a;
 
 import ceri.common.io.DeviceMode;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import ceri.serial.javax.util.SelfHealingSerialConfig;
 import ceri.x10.cm11a.device.Cm11aDeviceConfig;
 
@@ -73,10 +73,10 @@ public class Cm11aConfig {
 	public boolean isDevice() {
 		return mode == DeviceMode.enabled && deviceSerial.enabled();
 	}
-	
+
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, id, mode, device, deviceSerial).toString();
+		return ToString.forClass(this, id, mode, device, deviceSerial);
 	}
 
 }

@@ -3,12 +3,12 @@ package ceri.serial.clib;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import com.sun.jna.Pointer;
 import ceri.common.text.RegexUtil;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.HashCoder;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.clib.jna.CLib;
 import ceri.serial.clib.jna.CUtil;
@@ -118,7 +118,7 @@ public class CFileDescriptor implements FileDescriptor {
 
 	@Override
 	public int hashCode() {
-		return HashCoder.hash(fd);
+		return Objects.hash(fd);
 	}
 
 	@Override

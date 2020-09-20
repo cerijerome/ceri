@@ -13,7 +13,7 @@ import ceri.ci.build.Event;
 import ceri.ci.build.Job;
 
 public class SerializerBehavior {
-	
+
 	@Test
 	public void shouldDeSerializeBuildEvents() {
 		Serializer serializer = new Serializer();
@@ -23,16 +23,16 @@ public class SerializerBehavior {
 			"{\"build\":\"b1\",\"job\":\"j1\"," +
 			"\"event\":{\"timeStamp\":1,\"type\":\"failure\",\"names\":[]}}]";
 		Collection<BuildEvent> buildEvents = serializer.toBuildEvents(s);
-		BuildEvent ev0 = new BuildEvent("b0",  "j0",  new Event(Event.Type.success, 0L, "n0"));
-		BuildEvent ev1 = new BuildEvent("b1",  "j1",  new Event(Event.Type.failure, 1L));
+		BuildEvent ev0 = new BuildEvent("b0", "j0", new Event(Event.Type.success, 0L, "n0"));
+		BuildEvent ev1 = new BuildEvent("b1", "j1", new Event(Event.Type.failure, 1L));
 		assertCollection(buildEvents, ev0, ev1);
 	}
 
 	@Test
 	public void shouldSerializeBuildEvents() {
 		Serializer serializer = new Serializer();
-		BuildEvent ev0 = new BuildEvent("b0",  "j0",  new Event(Event.Type.success, 0L, "n0"));
-		BuildEvent ev1 = new BuildEvent("b1",  "j1",  new Event(Event.Type.failure, 1L));
+		BuildEvent ev0 = new BuildEvent("b0", "j0", new Event(Event.Type.success, 0L, "n0"));
+		BuildEvent ev1 = new BuildEvent("b1", "j1", new Event(Event.Type.failure, 1L));
 		String s = serializer.fromBuildEvents(ev0, ev1);
 		assertTrue(s.contains("\"build\":\"b0\""));
 		assertTrue(s.contains("\"job\":\"j0\""));

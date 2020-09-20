@@ -13,7 +13,7 @@ public class Params {
 	private static final Pattern PATH_SPLIT = Pattern.compile("/+([^/\\?]+)");
 	private final HttpServletRequest request;
 	private final Serializer serializer;
-	
+
 	public static class BuildJob {
 		public final String build;
 		public final String job;

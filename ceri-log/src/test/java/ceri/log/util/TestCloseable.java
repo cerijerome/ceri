@@ -3,7 +3,7 @@ package ceri.log.util;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Objects;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 
 public class TestCloseable implements Closeable {
 	public final int value;
@@ -37,7 +37,7 @@ public class TestCloseable implements Closeable {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, value).toString();
+		return ToString.forClass(this, value);
 	}
 
 }

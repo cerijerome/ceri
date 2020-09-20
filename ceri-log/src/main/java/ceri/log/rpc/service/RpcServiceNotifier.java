@@ -25,12 +25,12 @@ import io.grpc.stub.StreamObserver;
  * streaming rpc call to receive notifications; notifications only continue while the call is
  * active. Services can delegate the rpc call to this class. Its proto definition should be of the
  * form:
- * 
+ *
  * <pre>
  * rpc &lt;notify-call-name&gt; (stream google.protobuf.Empty)
  *   returns (stream &lt;notify-type&gt;) {}
  * </pre>
- * 
+ *
  * This class receives local notifications, transforms to the rpc notify-type and uses the rpc
  * stream observers to notify remote clients.
  */

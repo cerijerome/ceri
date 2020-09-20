@@ -55,28 +55,28 @@ public class CUtil {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Writes bytes to file.
 	 */
 	public static void write(int fd, int... bytes) throws CException {
 		write(fd, ArrayUtil.bytes(bytes));
 	}
-	
+
 	/**
 	 * Writes bytes to file.
 	 */
 	public static void write(int fd, byte[] bytes) throws CException {
 		write(fd, bytes, 0);
 	}
-	
+
 	/**
 	 * Writes bytes to file.
 	 */
 	public static void write(int fd, byte[] bytes, int offset) throws CException {
 		write(fd, bytes, offset, bytes.length - offset);
 	}
-	
+
 	/**
 	 * Writes bytes to file.
 	 */
@@ -84,14 +84,14 @@ public class CUtil {
 		Memory m = malloc(bytes, offset, length);
 		CLib.write(fd, m, length);
 	}
-	
+
 	/**
 	 * Reads all bytes from current position in file.
 	 */
 	public static byte[] readAll(int fd) throws CException {
 		return read(fd, size(fd));
 	}
-	
+
 	/**
 	 * Reads up to length bytes from current position in file.
 	 */
@@ -108,15 +108,16 @@ public class CUtil {
 	public static int position(int fd) throws CException {
 		return CLib.lseek(fd, 0, Seek.SEEK_CUR.value);
 	}
-	
+
 	/**
 	 * Sets the current position in the file.
 	 */
 	public static void position(int fd, int position) throws CException {
 		int n = CLib.lseek(fd, position, Seek.SEEK_SET.value);
-		if (n != position) throw CException.general("Unable to set position on %d: %d", fd, position);
+		if (n != position)
+			throw CException.general("Unable to set position on %d: %d", fd, position);
 	}
-	
+
 	/**
 	 * Returns the file size by moving to end of file then back to original position.
 	 */
@@ -126,7 +127,7 @@ public class CUtil {
 		position(fd, pos);
 		return size;
 	}
-	
+
 	/**
 	 * Checks function result, and throws exception if negative
 	 */

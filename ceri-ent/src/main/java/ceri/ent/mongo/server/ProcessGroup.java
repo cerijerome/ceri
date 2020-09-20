@@ -25,22 +25,26 @@ public abstract class ProcessGroup implements Closeable {
 	}
 
 	public void stop() {
-		for (ProcessRunner runner : runners) runner.stop();
+		for (ProcessRunner runner : runners)
+			runner.stop();
 	}
 
 	public void waitFor() throws InterruptedException {
-		for (ProcessRunner runner : runners) runner.waitFor();
+		for (ProcessRunner runner : runners)
+			runner.waitFor();
 	}
 
 	public void verifyStartup() throws IOException {
-		for (ProcessRunner runner : runners) runner.verifyStartup();
+		for (ProcessRunner runner : runners)
+			runner.verifyStartup();
 	}
 
 	/**
 	 * Make sure server has started - check server is alive after startup time has elapsed
 	 */
 	public void verifyStartup(long startupMs) throws IOException {
-		for (ProcessRunner runner : runners) runner.verifyStartup(startupMs);
+		for (ProcessRunner runner : runners)
+			runner.verifyStartup(startupMs);
 	}
 
 	@Override

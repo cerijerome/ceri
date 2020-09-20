@@ -12,7 +12,11 @@ import ceri.ci.email.EmailEventParser;
 
 /**
  * A sample email parser that accepts emails with subject of the form:
- * <pre>Sample: build-name job-name [broken|fixed]</pre>
+ * 
+ * <pre>
+ * Sample: build-name job-name [broken|fixed]
+ * </pre>
+ * 
  * and content with a comma-separated list of committers.
  */
 public class SampleEmailParser implements EmailEventParser {

@@ -15,7 +15,7 @@ import ceri.common.event.Listeners;
 import ceri.common.io.ReplaceableInputStream;
 import ceri.common.io.ReplaceableOutputStream;
 import ceri.common.io.StateChange;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
@@ -46,7 +46,7 @@ public class SelfHealingSocket extends LoopingExecutor {
 	static interface SocketFactory {
 		Socket create(String host, int port) throws UnknownHostException, IOException;
 	}
-	
+
 	public static class Builder {
 		final String host;
 		final int port;
@@ -235,9 +235,9 @@ public class SelfHealingSocket extends LoopingExecutor {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, host, port, receiveBufferSize, sendBufferSize,
-			tcpNoDelay, soTimeoutSeconds, soLingerEnabled, soLingerSeconds, keepAlive,
-			fixRetryDelayMs, recoveryDelayMs).toString();
+		return ToString.forClass(this, host, port, receiveBufferSize, sendBufferSize, tcpNoDelay,
+			soTimeoutSeconds, soLingerEnabled, soLingerSeconds, keepAlive, fixRetryDelayMs,
+			recoveryDelayMs);
 	}
 
 }

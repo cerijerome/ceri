@@ -62,8 +62,8 @@ public class BuildUtilTest {
 		assertIterable(builds.build("b0").job("j0").events, new Event(Event.Type.success, 6L),
 			new Event(Event.Type.failure, 3L, "c1", "c2", "c3", "d1", "e1", "e2", "e3", "e4"));
 		assertTrue(builds.build("b0").job("j1").events.isEmpty());
-		assertIterable(builds.build("b1").job("j0").events, new Event(Event.Type.failure, 0L, "c1",
-			"c2", "c3", "d1"));
+		assertIterable(builds.build("b1").job("j0").events,
+			new Event(Event.Type.failure, 0L, "c1", "c2", "c3", "d1"));
 	}
 
 	@Test

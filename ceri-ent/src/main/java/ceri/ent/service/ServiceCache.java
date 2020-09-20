@@ -182,7 +182,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 			map.put(entry.key, entry);
 		return map;
 	}
-	
+
 	private boolean writeToCache(K key, V value) {
 		if (value == null && !cacheNulls) return false;
 		safe.write(() -> {

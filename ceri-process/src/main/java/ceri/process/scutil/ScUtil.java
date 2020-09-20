@@ -16,7 +16,7 @@ public class ScUtil {
 	public static ScUtil of() {
 		return of(Processor.DEFAULT);
 	}
-	
+
 	public static ScUtil of(Processor processor) {
 		return new ScUtil(processor);
 	}
@@ -55,8 +55,7 @@ public class ScUtil {
 		}
 
 		public Output<NcStatistics> statistics(String service) throws IOException {
-			return Output.of(exec(Parameters.of(STATISTICS_COMMAND, service)),
-				NcStatistics::from);
+			return Output.of(exec(Parameters.of(STATISTICS_COMMAND, service)), NcStatistics::from);
 		}
 
 		public String start(String service, String user, String password, String secret)

@@ -16,8 +16,8 @@ import ceri.ci.build.Job;
 import ceri.common.text.StringUtil;
 
 public class Serializer {
-	private static final Type buildEventCollectionType = new TypeToken<Collection<BuildEvent>>() {}
-		.getType();
+	private static final Type buildEventCollectionType =
+		new TypeToken<Collection<BuildEvent>>() {}.getType();
 	private final Gson gson;
 
 	public Serializer() {

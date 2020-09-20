@@ -10,7 +10,7 @@ import ceri.ci.build.BuildUtil;
 import ceri.ci.build.Builds;
 import ceri.ci.build.Event;
 import ceri.ci.build.Job;
-import ceri.common.text.ToStringHelper;
+import ceri.common.text.ToString;
 
 /**
  * Analyzes the builds for heroes and villains. Villains have broken the build, whereas heroes have
@@ -58,7 +58,7 @@ public class AnalyzedActors {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, heroes, villains).toString();
+		return ToString.forClass(this, heroes, villains);
 	}
 
 	private void analyze(Builds builds, Set<Actor> heroes, Set<Actor> villains) {

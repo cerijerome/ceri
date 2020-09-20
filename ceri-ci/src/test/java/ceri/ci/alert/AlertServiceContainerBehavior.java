@@ -10,8 +10,10 @@ import ceri.ci.common.Alerter;
 import ceri.common.property.BaseProperties;
 
 public class AlertServiceContainerBehavior {
-	@Mock private Alerter alerter0;
-	@Mock private Alerter alerter1;
+	@Mock
+	private Alerter alerter0;
+	@Mock
+	private Alerter alerter1;
 	private Properties properties;
 
 	@Before

@@ -29,11 +29,11 @@ public class WebDriverUtil {
 	private WebDriverUtil() {}
 
 	public static JavascriptExecutor nullJs() {
-		return NULL_JS_EXECUTOR;	
+		return NULL_JS_EXECUTOR;
 	}
-	
+
 	public static JavascriptExecutor unsupportedJs() {
-		return UNSUPPORTED_JS_EXECUTOR;	
+		return UNSUPPORTED_JS_EXECUTOR;
 	}
-	
+
 }

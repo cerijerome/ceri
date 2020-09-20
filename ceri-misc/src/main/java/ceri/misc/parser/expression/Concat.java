@@ -2,8 +2,7 @@ package ceri.misc.parser.expression;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
-import ceri.common.text.ToStringHelper;
-import ceri.common.util.EqualsUtil;
+import ceri.common.text.ToString;
 
 public class Concat implements Expression {
 	private final Expression lhs;
@@ -33,7 +32,7 @@ public class Concat implements Expression {
 
 	@Override
 	public String toString() {
-		return ToStringHelper.createByClass(this, lhs, rhs).toString();
+		return ToString.forClass(this, lhs, rhs);
 	}
 
 	@Override
@@ -46,8 +45,8 @@ public class Concat implements Expression {
 		if (this == obj) return true;
 		if (!(obj instanceof Concat)) return false;
 		Concat exp = (Concat) obj;
-		if (!EqualsUtil.equals(lhs, exp.lhs)) return false;
-		return EqualsUtil.equals(rhs, exp.rhs);
+		if (!Objects.equals(lhs, exp.lhs)) return false;
+		return Objects.equals(rhs, exp.rhs);
 	}
 
 }

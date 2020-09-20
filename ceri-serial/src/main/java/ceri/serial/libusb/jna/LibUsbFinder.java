@@ -18,11 +18,10 @@ import static ceri.serial.libusb.jna.LibUsbUtil.require;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.text.DsvParser;
 import ceri.common.text.StringUtil;
-import ceri.common.util.EqualsUtil;
-import ceri.common.util.HashCoder;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
@@ -114,7 +113,7 @@ public class LibUsbFinder {
 
 		@Override
 		public int hashCode() {
-			return HashCoder.hash(vendor, product, busNumber, deviceAddress, description, serial,
+			return Objects.hash(vendor, product, busNumber, deviceAddress, description, serial,
 				index);
 		}
 
@@ -127,8 +126,8 @@ public class LibUsbFinder {
 			if (product != other.product) return false;
 			if (busNumber != other.busNumber) return false;
 			if (deviceAddress != other.deviceAddress) return false;
-			if (!EqualsUtil.equals(description, other.description)) return false;
-			if (!EqualsUtil.equals(serial, other.serial)) return false;
+			if (!Objects.equals(description, other.description)) return false;
+			if (!Objects.equals(serial, other.serial)) return false;
 			if (index != other.index) return false;
 			return true;
 		}
@@ -160,11 +159,11 @@ public class LibUsbFinder {
 
 	/**
 	 * Creates a criteria object from a string. String syntax:
-	 * 
+	 *
 	 * <pre>
 	 * vendor:product:bus-number:device-address:description:serial:index
 	 * </pre>
-	 * 
+	 *
 	 * Vendor and product are 16-bit unsigned integers, and can be blank, or specified as decimal,
 	 * octal (leading 0), or hex (leading 0x). Bus-number and device-address are 8-bit unsigned
 	 * integers, and can be blank or specified as decimal, octal (leading 0), or hex (leading 0x).
