@@ -28,6 +28,150 @@ public class ArrayUtilTest {
 	}
 
 	@Test
+	public void testHashOfBooleanSubArray() {
+		boolean[] array = { true, true, false, true, false };
+		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertThat(ArrayUtil.hash((boolean[]) null, 0, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+	}
+
+	@Test
+	public void testHashOfByteSubArray() {
+		byte[] array = ArrayUtil.bytes(-1, Byte.MAX_VALUE, 0, Byte.MIN_VALUE, 1);
+		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertThat(ArrayUtil.hash((byte[]) null, 0, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+	}
+
+	@Test
+	public void testHashOfCharSubArray() {
+		char[] array = ArrayUtil.chars(-1, Character.MAX_VALUE, 0, Character.MIN_VALUE, 1);
+		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertThat(ArrayUtil.hash((char[]) null, 0, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+	}
+
+	@Test
+	public void testHashOfShortSubArray() {
+		short[] array = ArrayUtil.shorts(-1, Short.MAX_VALUE, 0, Short.MIN_VALUE, 1);
+		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertThat(ArrayUtil.hash((short[]) null, 0, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+	}
+
+	@Test
+	public void testHashOfIntegerSubArray() {
+		int[] array = ArrayUtil.ints(-1, Integer.MAX_VALUE, 0, Integer.MIN_VALUE, 1);
+		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertThat(ArrayUtil.hash((int[]) null, 0, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+	}
+
+	@Test
+	public void testHashOfLongSubArray() {
+		long[] array = ArrayUtil.longs(-1, Long.MAX_VALUE, 0, Long.MIN_VALUE, 1);
+		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertThat(ArrayUtil.hash((long[]) null, 0, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+	}
+
+	@Test
+	public void testHashOfFloatSubArray() {
+		float[] array = ArrayUtil.floats(-1, Float.MAX_VALUE, Float.NaN, Float.MIN_VALUE, 1);
+		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertThat(ArrayUtil.hash((float[]) null, 0, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+	}
+
+	@Test
+	public void testHashOfDoubleSubArray() {
+		double[] array = ArrayUtil.doubles(-1, Double.MAX_VALUE, Double.NaN, Double.MIN_VALUE, 1);
+		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertThat(ArrayUtil.hash((double[]) null, 0, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+	}
+
+	@Test
+	public void testHashOfSubArray() {
+		String[] array = { "", "test", null, "TEST", "x" };
+		var sub = ArrayUtil.copyOf(array, 1, 3, String[]::new);
+		assertThat(ArrayUtil.hash((String[]) null, 0, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
+		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+	}
+
+	@Test
+	public void testEqualsForBooleanSubArray() {
+		boolean[] array0 = ArrayUtil.booleans(true, true, false, true, false);
+		boolean[] array1 = ArrayUtil.booleans(true, false, true, false);
+		assertTrue(ArrayUtil.equals(array0, 1, array1, 0, 3));
+	}
+
+	@Test
+	public void testEqualsForByteSubArray() {
+		byte[] array0 = ArrayUtil.bytes(-1, Byte.MAX_VALUE, 0, Byte.MIN_VALUE, 1);
+		byte[] array1 = ArrayUtil.bytes(Byte.MAX_VALUE, 0, Byte.MIN_VALUE, 1);
+		assertTrue(ArrayUtil.equals(array0, 1, array1, 0, 3));
+	}
+
+	@Test
+	public void testEqualsForCharSubArray() {
+		char[] array0 = ArrayUtil.chars(-1, Character.MAX_VALUE, 0, Character.MIN_VALUE, 1);
+		char[] array1 = ArrayUtil.chars(Character.MAX_VALUE, 0, Character.MIN_VALUE, 1);
+		assertTrue(ArrayUtil.equals(array0, 1, array1, 0, 3));
+	}
+
+	@Test
+	public void testEqualsForShortSubArray() {
+		short[] array0 = ArrayUtil.shorts(-1, Short.MAX_VALUE, 0, Short.MIN_VALUE, 1);
+		short[] array1 = ArrayUtil.shorts(Short.MAX_VALUE, 0, Short.MIN_VALUE, 1);
+		assertTrue(ArrayUtil.equals(array0, 1, array1, 0, 3));
+	}
+
+	@Test
+	public void testEqualsForIntSubArray() {
+		int[] array0 = ArrayUtil.ints(-1, Integer.MAX_VALUE, 0, Integer.MIN_VALUE, 1);
+		int[] array1 = ArrayUtil.ints(Integer.MAX_VALUE, 0, Integer.MIN_VALUE, 1);
+		assertTrue(ArrayUtil.equals(array0, 1, array1, 0, 3));
+	}
+
+	@Test
+	public void testEqualsForLongSubArray() {
+		long[] array0 = ArrayUtil.longs(-1, Long.MAX_VALUE, 0, Long.MIN_VALUE, 1);
+		long[] array1 = ArrayUtil.longs(Long.MAX_VALUE, 0, Long.MIN_VALUE, 1);
+		assertTrue(ArrayUtil.equals(array0, 1, array1, 0, 3));
+	}
+
+	@Test
+	public void testEqualsForFloatSubArray() {
+		float[] array0 = ArrayUtil.floats(-1, Float.MAX_VALUE, Float.NaN, Float.MIN_VALUE, 1);
+		float[] array1 = ArrayUtil.floats(Float.MAX_VALUE, Float.NaN, Float.MIN_VALUE, 1);
+		assertTrue(ArrayUtil.equals(array0, 1, array1, 0, 3));
+	}
+
+	@Test
+	public void testEqualsForDoubleSubArray() {
+		double[] array0 = ArrayUtil.doubles(-1, Double.MAX_VALUE, Double.NaN, Double.MIN_VALUE, 1);
+		double[] array1 = ArrayUtil.doubles(Double.MAX_VALUE, Double.NaN, Double.MIN_VALUE, 1);
+		assertTrue(ArrayUtil.equals(array0, 1, array1, 0, 3));
+	}
+
+	@Test
+	public void testEqualsForSubArray() {
+		String[] array0 = { "", "test", null, "TEST", "x" };
+		String[] array1 = { "test", null, "TEST", "x" };
+		assertTrue(ArrayUtil.equals(array0, 1, array1, 0, 3));
+	}
+
+	@Test
 	public void testDeepToString() {
 		assertThat(ArrayUtil.deepToString(null), is("null"));
 		assertThat(ArrayUtil.deepToString("test"), is("test"));
