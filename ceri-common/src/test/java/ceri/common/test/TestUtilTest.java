@@ -18,6 +18,7 @@ import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertMap;
 import static ceri.common.test.TestUtil.assertNaN;
 import static ceri.common.test.TestUtil.assertRange;
+import static ceri.common.test.TestUtil.assertRead;
 import static ceri.common.test.TestUtil.assertRegex;
 import static ceri.common.test.TestUtil.assertThrowable;
 import static ceri.common.test.TestUtil.assertThrown;
@@ -147,6 +148,18 @@ public class TestUtilTest {
 	public void testAssertRegex() {
 		assertRegex("test", "%1$s..%1$s", "t");
 		assertAssertion(() -> assertRegex("test", "%1$s..%1$s", "T"));
+	}
+
+	@Test
+	public void testAssertRead() throws IOException {
+		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes(1, 2, 3));
+		assertRead(in, 1, 2, 3);
+		in.reset();
+		assertRead(in, 1, 2);
+		in.reset();
+		assertAssertion(() -> assertRead(in, 1, 2, 3, 4));
+		in.reset();
+		assertAssertion(() -> assertRead(in, 1, 2, 4));
 	}
 
 	@Test

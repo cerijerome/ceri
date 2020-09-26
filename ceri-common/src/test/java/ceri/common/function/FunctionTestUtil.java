@@ -19,6 +19,7 @@ import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
 import java.util.function.LongSupplier;
 import java.util.function.LongUnaryOperator;
+import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
@@ -93,6 +94,13 @@ public class FunctionTestUtil {
 	}
 
 	public static ExceptionBiConsumer<IOException, Integer, Integer> biConsumer() {
+		return (i, j) -> {
+			if (i == 1 || j == 1) throw new IOException("1");
+			if (i == 0 || j == 0) throw new RuntimeException("0");
+		};
+	}
+
+	public static ExceptionObjIntConsumer<IOException, Integer> objIntConsumer() {
 		return (i, j) -> {
 			if (i == 1 || j == 1) throw new IOException("1");
 			if (i == 0 || j == 0) throw new RuntimeException("0");
@@ -203,6 +211,14 @@ public class FunctionTestUtil {
 		};
 	}
 
+	public static ExceptionObjIntPredicate<IOException, Integer> objIntPredicate() {
+		return (i, j) -> {
+			if (i == 1 || j == 1) throw new IOException("1");
+			if (i == 0 || j == 0) throw new RuntimeException("0");
+			return i > 0;
+		};
+	}
+
 	/**
 	 * Standard function types to help with testing: 0 => throws RuntimeException
 	 */
@@ -269,6 +285,12 @@ public class FunctionTestUtil {
 		}
 
 		public static BiConsumer<Integer, Integer> biConsumer() {
+			return (i, j) -> {
+				if (i == 0 || j == 0) throw new RuntimeException("0");
+			};
+		}
+
+		public static ObjIntConsumer<Integer> objIntConsumer() {
 			return (i, j) -> {
 				if (i == 0 || j == 0) throw new RuntimeException("0");
 			};
@@ -359,6 +381,13 @@ public class FunctionTestUtil {
 		}
 
 		public static BiPredicate<Integer, Integer> biPredicate() {
+			return (i, j) -> {
+				if (i == 0 || j == 0) throw new RuntimeException("0");
+				return i > 0;
+			};
+		}
+
+		public static ObjIntPredicate<Integer> objIntPredicate() {
 			return (i, j) -> {
 				if (i == 0 || j == 0) throw new RuntimeException("0");
 				return i > 0;

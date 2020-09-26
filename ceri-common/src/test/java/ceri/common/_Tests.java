@@ -108,7 +108,9 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.ExceptionLongPredicateBehavior.class, //
 	ceri.common.function.ExceptionLongSupplierBehavior.class, //
 	ceri.common.function.ExceptionLongUnaryOperatorBehavior.class, //
+	ceri.common.function.ExceptionObjIntConsumerBehavior.class, //
 	ceri.common.function.ExceptionObjIntFunctionBehavior.class, //
+	ceri.common.function.ExceptionObjIntPredicateBehavior.class, //
 	ceri.common.function.ExceptionPredicateBehavior.class, //
 	ceri.common.function.ExceptionRunnableBehavior.class, //
 	ceri.common.function.ExceptionSupplierBehavior.class, //
@@ -119,6 +121,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.NamedPredicateBuilderBehavior.class, //
 	ceri.common.function.ObjBooleanConsumerBehavior.class, //
 	ceri.common.function.ObjByteConsumerBehavior.class, //
+	ceri.common.function.ObjIntPredicateBehavior.class, //
 	ceri.common.function.ObjShortConsumerBehavior.class, //
 	ceri.common.function.PredicatesTest.class, //
 	ceri.common.function.ToBooleanFunctionBehavior.class, //
@@ -152,14 +155,12 @@ import ceri.common.test.TestUtil;
 	ceri.common.io.DeviceModeBehavior.class, //
 	ceri.common.io.FileTrackerBehavior.class, //
 	ceri.common.io.FileVisitUtilTest.class, //
-	ceri.common.io.InputStreamIteratorBehavior.class, //
 	ceri.common.io.IoStreamUtilTest.class, //
 	ceri.common.io.IoTimeoutExceptionBehavior.class, //
 	ceri.common.io.IoUtilTest.class, //
 	ceri.common.io.KeyCheckerBehavior.class, //
 	ceri.common.io.PathFiltersTest.class, //
 	ceri.common.io.PathPatternBehavior.class, //
-	ceri.common.io.PipedConnectorBehavior.class, //
 	ceri.common.io.PipedStreamBehavior.class, //
 	ceri.common.io.PollingInputStreamBehavior.class, //
 	ceri.common.io.ReplaceableInputStreamBehavior.class, //
@@ -238,6 +239,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.BranchCaptorBehavior.class, //
 	ceri.common.test.CapturerBehavior.class, //
 	ceri.common.test.DebuggerBehavior.class, //
+	ceri.common.test.ErrorGenBehavior.class, //
 	ceri.common.test.FileTestHelperBehavior.class, //
 	ceri.common.test.PulsePrinterBehavior.class, //
 	ceri.common.test.RegexFinderBehavior.class, //
