@@ -1,0 +1,111 @@
+I/O Streams
+===========
+
+InputStream
+- available(): # bytes to read without blocking, defaults to 0
+- read(): abstract; reads ubyte, blocking until available; -1 for EOF
+- read(byte[], off, len): read bytes into array until exception or EOF
+  - calls read(), once then loops read() breaking on IOException or EOF
+  - exception only thrown for first read(), otherwise partial read
+  - EOF only returned for first read(), otherwise partial read
+- readNBytes(len): blocking read of len bytes, returned as array 
+  - loop read(...) to fill up to 8K-size byte[] block, or EOF
+  - loop block reads, adding byte[] block to list until len read or EOF
+  - copy blocks to single byte[] and return it 
+- readNBytes(byte): blocking read of len bytes into array
+  - loop read(...) until len read, or EOF
+- readAllBytes: call readNBytes(max-int)
+  - loops until max-int read, or EOF
+- skip(n): read and discard n bytes
+  - loop read(...) up to 2K-size blocks
+- skipNBytes(n): skip exactly n bytes or throw EOF exception
+- mark(limit): save current position; default is no-op
+- reset(): return to mark; not supported by default
+
+OutputStream
+- write(b): abstract; writes ubyte; does not typically block
+- write(byte[], off, len): writes bytes from array
+  - loops write() for array bytes
+- flush(): forces bytes to be written; default is no-op
+
+FilterInputStream
+- wrapper for another InputStream
+- delegates available(), read(), read(...), skip(n), mark(limit), reset() 
+
+FilterOutputStream
+- wrapper for another OutputStream
+- delegates write(b), flush()
+- write(byte[], off, len): loops write()
+- close(): calls flush() then wrapped close()
+
+BufferedInputStream
+- extends FilterInputStream
+- byte[] buffer with count and pos markers; size set on creation, default 8K
+- available(): returns available buffer bytes + wrapped available() count
+- read(): if buffer empty, calls wrapped read(...) to fill buffer
+  - buffer position logic more complex if mark() was called 
+- read(byte[], off, len): if buffer empty, calls wrapped read(...) to fill buffer
+  - returns available bytes, which may be less than requested (depends on wrapped stream)
+  - buffer position logic more complex if mark() was called 
+- skip(n): call wrapped skip(n) if no mark(), otherwise fill buffer first
+
+BufferedOutputStream
+- extends FilterOutputStream
+- byte[] buffer with count marker; size set on creation, default 8K
+- write(b): flush() if buffer is full, then write byte to buffer
+- write(byte[], off, len): flush() if buffer is full, then write bytes to buffer
+  - if len is larger than buffer, flush() then write directly to wrapped stream
+- flush(): call wrapped write(...) with buffer content
+
+PipedInputStream
+- attached to PipedOutputStream
+- circular buffer size can be specified, defaults to 1024
+- buffer filled by PipedOutputStream, usually separate thread
+- available(): return available buffer byte count 
+- read(): blocks until at least 1 byte is available
+  - if no bytes immediately available, enters hard-coded 1000ms wait loop
+- read(byte[], off, len): calls read(), blocking for 1+ bytes, then copies current bytes only
+
+PipedOutputStream
+- attached to PipedInputStream
+- write does not block unless PipedInputStream buffer is full
+- setting input buffer to size 1 will block on write, but locks up with buffer streams
+- write(b): calls PipedInputStream to accept byte
+  - will block if PipedInputStream buffer is full
+- write(byte[], off, len): calls PipedInputStream to accept bytes
+  - will block if PipedInputStream buffer is full
+- flush(): wakes up PipedInputStream thread to process received bytes
+
+IoStreamUtil
+- creates streams using functions to implement methods
+- use arrayReadFn with BufferedInputStream, as read(...) is called to fill its buffer
+  - otherwise read(...) will iterate read() to try to fill the buffer
+- in(byteReadFn): fn for read()
+- in(byteReadFn, availableFn): fns for read() and available()
+- in(arrayReadFn): fn for read(...)
+  - read() calls read(...) with single byte array
+- in(arrayReadFn, availableFn): fns for read(...) and available()
+  - read() calls read(...) with single byte array
+- filterIn(in, byteReadFn): wrapper; fn for read()
+  - fn can return null to delegate to wrapped stream
+  - read(...) iterates over read()
+- filterIn(in, byteReadFn, availableFn): wrapper; fns for read() and available()  
+  - fn can return null to delegate to wrapped stream
+  - read(...) iterates over read()
+- filterIn(in, arrayReadFn): wrapper; fn for read(...)
+  - fn can return null to delegate to wrapped stream
+  - read() calls read(...) with single byte array
+- filterIn(in, arrayReadFn, availableFn): wrapper; fns for read(...) and available()
+  - fn can return null to delegate to wrapped stream
+  - read() calls read(...) with single byte array
+- out(byteWriteFn): fn for write(b)
+  - write(...) iterates over wite(b)
+- out(arrayWriteFn): fn for write(...)
+  - write(b) calls write(...) with single byte array
+- filterOut(out, byteWriteFn): wrapper; fn for write(b) 
+  - fn can return null to delegate to wrapped stream
+  - write(...) iterates over wite(b)
+- filterOut(out, arrayWriteFn): wrapper; fn for write(...)
+  - fn can return null to delegate to wrapped stream
+  - write(b) calls write(...) with single byte array
+
