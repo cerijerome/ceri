@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import ceri.common.concurrent.ConcurrentUtil;
 
 /**
  * Creates a paired PipedInputStream and PipedOutputStream.
@@ -87,6 +88,29 @@ public class PipedStream implements Closeable {
 		return out;
 	}
 
+	/**
+	 * Wait for PipedInputStream to read available bytes.
+	 */
+	public void awaitRead(int pollMs) throws IOException {
+		while (in.available() > 0)
+			ConcurrentUtil.delay(pollMs);
+	}
+
+	/**
+	 * Wait for PipedInputStream to read available bytes. Returns false if timeout exceeded.
+	 */
+	public boolean awaitRead(int pollMs, int timeoutMs) throws IOException {
+		long t = System.currentTimeMillis() + timeoutMs;
+		while (true) {
+			if (in.available() == 0) return true;
+			if (System.currentTimeMillis() >= t) return false;
+			ConcurrentUtil.delay(pollMs);
+		}
+	}
+
+	/**
+	 * Clear available bytes.
+	 */
 	public void clear() throws IOException {
 		IoUtil.clear(in);
 	}

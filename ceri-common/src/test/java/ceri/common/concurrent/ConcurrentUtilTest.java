@@ -3,7 +3,6 @@ package ceri.common.concurrent;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.runRepeat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -45,7 +44,7 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testDelay() throws InterruptedException {
 		BooleanCondition sync = BooleanCondition.of();
-		try (var exec = runRepeat(() -> {
+		try (var exec = SimpleExecutor.run(() -> {
 			ConcurrentUtil.delay(0);
 			ConcurrentUtil.delay(1);
 			sync.signal();
@@ -58,7 +57,7 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testDelayMicros() throws InterruptedException {
 		BooleanCondition sync = BooleanCondition.of();
-		try (var exec = runRepeat(() -> {
+		try (var exec = SimpleExecutor.run(() -> {
 			ConcurrentUtil.delayMicros(0);
 			ConcurrentUtil.delayMicros(10);
 			sync.signal();

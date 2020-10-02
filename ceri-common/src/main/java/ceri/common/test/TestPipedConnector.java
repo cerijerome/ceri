@@ -5,7 +5,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.data.ByteStream;
 import ceri.common.event.Listenable;
 import ceri.common.io.IoStreamUtil;
@@ -14,9 +13,9 @@ import ceri.common.io.StateChange;
 
 /**
  * Blocking input and output streams for testing hardware device controllers by simulating hardware
- * interaction. Allows for generation of errors when making i/o calls.
- * Writing to the controller will not block (unless PipedInputStream buffer is full); to block,
- * call awaitFeed() to wait for feed data to be read. 
+ * interaction. Allows for generation of errors when making i/o calls. Writing to the controller
+ * will not block (unless PipedInputStream buffer is full); to block, call awaitFeed() to wait for
+ * feed data to be read.
  */
 public class TestPipedConnector implements Closeable, Listenable.Indirect<StateChange> {
 	public final TestListeners<StateChange> listeners = TestListeners.of();
@@ -32,7 +31,7 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 	public static TestPipedConnector of() {
 		return new TestPipedConnector();
 	}
-	
+
 	@SuppressWarnings("resource")
 	protected TestPipedConnector() {
 		con = PipedStream.connector();
@@ -73,11 +72,10 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 	}
 
 	/**
-	 * Wait for PipedInputStream to read feed bytes.
+	 * Wait for PipedInputStream to read available bytes.
 	 */
 	public void awaitFeed() throws IOException {
-		while (in.available() > 0)
-			ConcurrentUtil.delay(1);
+		con.pipedIn.awaitRead(1);
 	}
 
 	@Override
