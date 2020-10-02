@@ -777,6 +777,13 @@ public class TestUtil {
 	}
 
 	/**
+	 * Throws an i/o exception. Useful for creating a lambda without the need for a code block.
+	 */
+	public static <T> T throwItIo() throws IOException {
+		throw new IOException("throwItIo");
+	}
+
+	/**
 	 * Throws the given exception. Useful for creating a lambda without the need for a code block.
 	 */
 	public static <E extends Exception, T> T throwIt(E exception) throws E {
@@ -1025,7 +1032,7 @@ public class TestUtil {
 	 * Convenience method for creating a regex matcher.
 	 */
 	public static <T> Matcher<T> matchesRegex(Pattern pattern) {
-		return new RegexMatcher<>(pattern);
+		return RegexMatcher.match(pattern);
 	}
 
 	/**
@@ -1039,7 +1046,7 @@ public class TestUtil {
 	 * Convenience method for creating a regex matcher.
 	 */
 	public static <T> Matcher<T> findsRegex(Pattern pattern) {
-		return new RegexFinder<>(pattern);
+		return RegexMatcher.find(pattern);
 	}
 
 	/**

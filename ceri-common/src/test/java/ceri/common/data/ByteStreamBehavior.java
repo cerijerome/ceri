@@ -1,20 +1,25 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestInputStream.EOFX;
-import static ceri.common.test.TestInputStream.IOX;
-import static ceri.common.test.TestInputStream.RTX;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.inputStream;
 import static ceri.common.test.TestUtil.outputStream;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.data.ByteStream.Reader;
 import ceri.common.data.ByteStream.Writer;
+import ceri.common.io.IoStreamUtil;
+import ceri.common.io.RuntimeIoException;
+import ceri.common.test.ErrorGen;
+import ceri.common.test.ErrorGen.Mode;
 
 @SuppressWarnings("resource")
 public class ByteStreamBehavior {
@@ -23,13 +28,24 @@ public class ByteStreamBehavior {
 
 	@Test
 	public void shouldReadByte() {
-		Reader r = ByteStream.reader(inputStream(1, RTX, 2, IOX, 3));
+		Reader r = ByteStream.reader(inputStream(1, 2, 3));
 		assertThat(r.readByte(), is((byte) 1));
-		assertThrown(() -> r.readByte());
 		assertThat(r.readByte(), is((byte) 2));
-		assertThrown(() -> r.readByte());
 		assertThat(r.readByte(), is((byte) 3));
 		assertThrown(() -> r.readByte());
+	}
+
+	@Test
+	public void shouldReadByteWithErrors() {
+		ErrorGen error = ErrorGen.of();
+		InputStream in = IoStreamUtil.in(error::generateIo);
+		Reader r = ByteStream.reader(in);
+		error.mode(Mode.rt);
+		assertThrown(RuntimeException.class, () -> r.readByte());
+		error.mode(Mode.rtInterrupted);
+		assertThrown(RuntimeInterruptedException.class, () -> r.readByte());
+		error.mode(Mode.checked);
+		assertThrown(RuntimeIoException.class, () -> r.readByte());
 	}
 
 	@Test
@@ -78,13 +94,25 @@ public class ByteStreamBehavior {
 
 	@Test
 	public void shouldWriteByte() {
-		var out = outputStream(0, RTX, IOX, EOFX); // 1 byte, then exceptions
+		var out = new ByteArrayOutputStream();
 		Writer w = ByteStream.writer(out);
 		w.writeByte(1);
-		assertThrown(() -> w.writeByte(2));
-		assertThrown(() -> w.writeByte(3));
-		assertThrown(() -> w.writeByte(4));
-		assertArray(out.written(), 1);
+		w.writeByte(2);
+		w.writeByte(3);
+		assertArray(out.toByteArray(), 1, 2, 3);
+	}
+
+	@Test
+	public void shouldWriteByteWithErrors() {
+		ErrorGen error = ErrorGen.of();
+		OutputStream out = IoStreamUtil.out(i -> error.generateIo());
+		Writer w = ByteStream.writer(out);
+		error.mode(Mode.rt);
+		assertThrown(RuntimeException.class, () -> w.writeByte(1));
+		error.mode(Mode.rtInterrupted);
+		assertThrown(RuntimeInterruptedException.class, () -> w.writeByte(2));
+		error.mode(Mode.checked);
+		assertThrown(RuntimeIoException.class, () -> w.writeByte(3));
 	}
 
 	@Test

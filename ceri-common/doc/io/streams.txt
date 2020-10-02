@@ -63,6 +63,7 @@ PipedInputStream
 - buffer filled by PipedOutputStream, usually separate thread
 - available(): return available buffer byte count 
 - read(): blocks until at least 1 byte is available
+  - records current read thread; next write will fail if thread has stopped
   - if no bytes immediately available, enters hard-coded 1000ms wait loop
 - read(byte[], off, len): calls read(), blocking for 1+ bytes, then copies current bytes only
 

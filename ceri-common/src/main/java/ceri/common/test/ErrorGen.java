@@ -2,6 +2,7 @@ package ceri.common.test;
 
 import java.io.IOException;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import ceri.common.concurrent.RuntimeInterruptedException;
 
 /**
@@ -9,7 +10,7 @@ import ceri.common.concurrent.RuntimeInterruptedException;
  */
 public class ErrorGen {
 	private static final String MESSAGE = "generated";
-	private volatile Mode mode = Mode.none;
+	private volatile Supplier<Mode> modeSupplier;
 
 	public static enum Mode {
 		none,
@@ -30,40 +31,81 @@ public class ErrorGen {
 	}
 
 	public ErrorGen mode(Mode mode) {
-		this.mode = mode;
+		return mode(() -> mode);
+	}
+
+	public ErrorGen mode(Supplier<Mode> modeSupplier) {
+		this.modeSupplier = modeSupplier;
 		return this;
 	}
 
-	public void generateRt() {
+	public <T> T generateRt() {
+		Mode mode = mode();
+		generateRt(mode);
+		return null;
+	}
+
+	public <T> T generateWithInterrupt() throws InterruptedException {
+		Mode mode = mode();
+		generateInterrupted(mode);
+		generateRt(mode);
+		return null;
+	}
+
+	public <T> T generateIo() throws IOException {
+		Mode mode = mode();
+		generateIo(mode);
+		generateRt(mode);
+		return null;
+	}
+
+	public <T> T generateIoWithInterrupt() throws IOException, InterruptedException {
+		Mode mode = mode();
+		generateIo(mode);
+		generateInterrupted(mode);
+		generateRt(mode);
+		return null;
+	}
+
+	public <E extends Exception, T> T generate(Function<String, E> errorFn) throws E {
+		Mode mode = mode();
+		generate(mode, errorFn);
+		generateRt(mode);
+		return null;
+	}
+
+	public <E extends Exception, T> T generateWithInterrupt(Function<String, E> errorFn)
+		throws E, InterruptedException {
+		Mode mode = mode();
+		generate(mode, errorFn);
+		generateInterrupted(mode);
+		generateRt(mode);
+		return null;
+	}
+
+	private static <E extends Exception> void generate(Mode mode, Function<String, E> errorFn)
+		throws E {
+		if (mode == Mode.checked) throw errorFn.apply(MESSAGE);
+	}
+
+	private static void generateIo(Mode mode) throws IOException {
+		if (mode == Mode.checked) throw new IOException(MESSAGE);
+	}
+
+	private static void generateInterrupted(Mode mode) throws InterruptedException {
+		if (mode == Mode.interrupted) throw new InterruptedException(MESSAGE);
+	}
+
+	private static void generateRt(Mode mode) {
 		if (mode == Mode.none) return;
 		if (mode == Mode.rtInterrupted) throw new RuntimeInterruptedException(MESSAGE);
 		throw new RuntimeException(MESSAGE); // catch-all
 	}
 
-	public void generateWithInterrupt() throws InterruptedException {
-		if (mode == Mode.interrupted) throw new InterruptedException(MESSAGE);
-		generateRt();
+	private Mode mode() {
+		Supplier<Mode> modeSupplier = this.modeSupplier;
+		if (modeSupplier == null) return Mode.none;
+		Mode mode = modeSupplier.get();
+		return mode == null ? Mode.none : mode;
 	}
-
-	public void generateIo() throws IOException {
-		if (mode == Mode.checked) throw new IOException(MESSAGE);
-		generateRt();
-	}
-
-	public void generateIoWithInterrupt() throws IOException, InterruptedException {
-		if (mode == Mode.checked) throw new IOException(MESSAGE);
-		generateWithInterrupt();
-	}
-
-	public <E extends Exception> void generate(Function<String, E> errorFn) throws E {
-		if (mode == Mode.checked) throw errorFn.apply(MESSAGE);
-		generateRt();
-	}
-
-	public <E extends Exception> void generateWithInterrupt(Function<String, E> errorFn)
-		throws E, InterruptedException {
-		if (mode == Mode.checked) throw errorFn.apply(MESSAGE);
-		generateWithInterrupt();
-	}
-
 }

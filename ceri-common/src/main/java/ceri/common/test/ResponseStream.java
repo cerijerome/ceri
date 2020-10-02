@@ -3,14 +3,12 @@ package ceri.common.test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.function.Function;
-import ceri.common.exception.ExceptionUtil;
 import ceri.common.io.IoStreamUtil;
+import ceri.common.io.PipedStream;
 import ceri.common.text.ToString;
 
 /**
@@ -18,9 +16,8 @@ import ceri.common.text.ToString;
  * Can be used to simulate hardware devices.
  */
 public class ResponseStream {
-	private final InputStream externalIn;
-	private final OutputStream externalOut;
-	private final PipedOutputStream internalOut;
+	private final OutputStream out;
+	private final PipedStream piped;
 	private final Responder responder;
 
 	public interface Responder {
@@ -67,17 +64,16 @@ public class ResponseStream {
 
 	private ResponseStream(Responder responder) {
 		this.responder = responder;
-		internalOut = new PipedOutputStream();
-		externalIn = pipedIn(internalOut); // new PipedInputStream(internalOut)
-		externalOut = IoStreamUtil.out(this::write);
+		piped = PipedStream.of();
+		out = IoStreamUtil.out(this::write);
 	}
 
 	public InputStream in() {
-		return externalIn;
+		return piped.in();
 	}
 
 	public OutputStream out() {
-		return externalOut;
+		return out;
 	}
 
 	@Override
@@ -85,13 +81,10 @@ public class ResponseStream {
 		return ToString.forClass(this, responder);
 	}
 
+	@SuppressWarnings("resource")
 	private void write(byte[] b, int offset, int len) throws IOException {
 		byte[] dataOut = responder.respond(b, offset, len);
-		internalOut.write(dataOut);
-	}
-
-	private PipedInputStream pipedIn(PipedOutputStream out) {
-		return ExceptionUtil.shouldNotThrow(() -> new PipedInputStream(out));
+		piped.out().write(dataOut);
 	}
 
 }

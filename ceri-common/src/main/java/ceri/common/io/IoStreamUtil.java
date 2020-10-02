@@ -280,7 +280,7 @@ public class IoStreamUtil {
 	/**
 	 * Returns a stream based on given write function.
 	 */
-	public static OutputStream out(OutputStream out,
+	public static OutputStream filterOut(OutputStream out,
 		ExceptionObjIntPredicate<IOException, OutputStream> writeFn) {
 		return new FilterOutputStream(out) {
 			@Override
@@ -298,7 +298,7 @@ public class IoStreamUtil {
 	/**
 	 * Returns a filtered stream that can handle or delegate write methods to the wrapped stream.
 	 */
-	public static OutputStream out(OutputStream out, FilterWrite writeFn) {
+	public static OutputStream filterOut(OutputStream out, FilterWrite writeFn) {
 		return new FilterOutputStream(out) {
 			@Override
 			public void write(int b) throws IOException {
@@ -385,7 +385,7 @@ public class IoStreamUtil {
 	}
 
 	/* FilterOutputStream methods */
-	
+
 	private static void write(OutputStream out,
 		ExceptionObjIntPredicate<IOException, OutputStream> writeFn, int b) throws IOException {
 		if (!safeApply(writeFn, w -> w.test(out, b), false)) out.write(b);

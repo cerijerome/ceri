@@ -1,0 +1,115 @@
+package ceri.common.test;
+
+import static ceri.common.function.FunctionUtil.execQuietly;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.data.ByteStream;
+import ceri.common.event.Listenable;
+import ceri.common.io.IoStreamUtil;
+import ceri.common.io.PipedStream;
+import ceri.common.io.StateChange;
+
+/**
+ * Blocking input and output streams for testing hardware device controllers by simulating hardware
+ * interaction. Allows for generation of errors when making i/o calls.
+ * Writing to the controller will not block (unless PipedInputStream buffer is full); to block,
+ * call awaitFeed() to wait for feed data to be read. 
+ */
+public class TestPipedConnector implements Closeable, Listenable.Indirect<StateChange> {
+	public final TestListeners<StateChange> listeners = TestListeners.of();
+	private final PipedStream.Connector con;
+	public final ErrorGen readError = ErrorGen.of();
+	public final ErrorGen availableError = ErrorGen.of();
+	public final ErrorGen writeError = ErrorGen.of();
+	private final InputStream in;
+	private final OutputStream out;
+	public final ByteStream.Reader from; // read code output
+	public final ByteStream.Writer to; // write code input
+
+	public static TestPipedConnector of() {
+		return new TestPipedConnector();
+	}
+	
+	@SuppressWarnings("resource")
+	protected TestPipedConnector() {
+		con = PipedStream.connector();
+		in = IoStreamUtil.filterIn(con.in(), this::read, this::available);
+		out = IoStreamUtil.filterOut(con.out(), this::write);
+		to = ByteStream.writer(con.inFeed());
+		from = ByteStream.reader(con.outSink());
+	}
+
+	/**
+	 * Clear state.
+	 */
+	public void reset(boolean clearListeners) {
+		if (clearListeners) listeners.clear();
+		readError.reset();
+		availableError.reset();
+		writeError.reset();
+		execQuietly(con::clear);
+	}
+
+	@Override
+	public Listenable<StateChange> listeners() {
+		return listeners;
+	}
+
+	/**
+	 * The hardware input stream used by the device controller.
+	 */
+	public InputStream in() {
+		return in;
+	}
+
+	/**
+	 * The hardware output stream used by the device controller.
+	 */
+	public OutputStream out() {
+		return out;
+	}
+
+	/**
+	 * Wait for PipedInputStream to read feed bytes.
+	 */
+	public void awaitFeed() throws IOException {
+		while (in.available() > 0)
+			ConcurrentUtil.delay(1);
+	}
+
+	@Override
+	public void close() {
+		con.close();
+	}
+
+	/**
+	 * Calls available before error generation logic.
+	 */
+	private Integer available(InputStream in) throws IOException {
+		int n = in.available();
+		availableError.generateIo();
+		return n;
+	}
+
+	/**
+	 * Calls read before error generation logic.
+	 */
+	private Integer read(InputStream in, byte[] b, int offset, int length) throws IOException {
+		int n = in.read(b, offset, length);
+		readError.generateIo();
+		return n;
+	}
+
+	/**
+	 * Calls write before error generation logic.
+	 */
+	private boolean write(OutputStream out, byte[] b, int offset, int length) throws IOException {
+		out.write(b, offset, length);
+		writeError.generateIo();
+		return true;
+	}
+
+}

@@ -92,6 +92,10 @@ public class ByteWriterBehavior {
 			assertBytes(3, w -> assertThat(w.transferFrom(in, 2), is(2)), 1, 2, 0);
 			assertBytes(3, w -> assertThat(w.transferFrom(in, 2), is(1)), 3, 0, 0);
 		}
+	}
+
+	@Test
+	public void shouldTransferBufferFromInputStream() throws IOException {
 		try (InputStream in = TestUtil.inputStream(1, 2, 3)) {
 			assertBytes(3, w -> assertThat(ByteWriter.transferBufferFrom(w, in, 2), is(2)), 1, 2,
 				0);

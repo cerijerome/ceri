@@ -1,7 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestInputStream.BRK;
-import static ceri.common.test.TestInputStream.IOX;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertFile;
@@ -46,8 +44,9 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.WrappedStream;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
+import ceri.common.io.IoStreamUtil.Read;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.TestInputStream;
+import ceri.common.test.TestUtil;
 import ceri.common.util.SystemVars;
 
 public class IoUtilTest {
@@ -427,11 +426,11 @@ public class IoUtilTest {
 
 	@Test
 	public void testPollForData() throws IOException {
-		try (var in = new TestInputStream()) {
-			in.actions(BRK, BRK, BRK, BRK);
+		int[] available = { 0 };
+		try (var in = IoStreamUtil.in((Read) null, () -> available[0])) {
 			assertThrown(IoTimeoutException.class, () -> IoUtil.pollForData(in, 1, 1, 1));
-			in.actions(BRK, 0, 0, BRK);
-			assertThat(IoUtil.pollForData(in, 1, 0, 1), is(2));
+			available[0] = 3;
+			assertThat(IoUtil.pollForData(in, 1, 0, 1), is(3));
 		}
 	}
 
@@ -539,7 +538,7 @@ public class IoUtilTest {
 	@Test
 	public void testReadString() throws IOException {
 		@SuppressWarnings("resource")
-		InputStream in = inputStream('a', 'b', 'c', 0);
+		InputStream in = inputStream("abc\0");
 		assertThat(IoUtil.readString(in), is("abc\0"));
 	}
 
@@ -557,7 +556,14 @@ public class IoUtilTest {
 			Path toFile = helper.path("x/x/x.txt");
 			IoUtil.copyFile(fromFile, toFile);
 			assertFile(fromFile, toFile);
+		} finally {
+			IoUtil.deleteAll(helper.path("x"));
+		}
+	}
 
+	@Test
+	public void testCopyBadFile() throws IOException {
+		try {
 			Path badFile = mock(Path.class);
 			Path toFile2 = helper.path("x/y/z.txt");
 			assertThrown(() -> IoUtil.copyFile(badFile, toFile2));
@@ -577,8 +583,16 @@ public class IoUtilTest {
 				assertThat(n, is(3L));
 				assertFile(fromFile, toFile);
 			}
+		} finally {
+			IoUtil.deleteAll(helper.path("x"));
+		}
+	}
+
+	@Test
+	public void testCopyWithBadInput() throws IOException {
+		try {
 			@SuppressWarnings("resource")
-			InputStream badIn = inputStream(0, 1, 2, IOX, IOX);
+			InputStream badIn = IoStreamUtil.in(TestUtil::throwItIo);
 			Path toFile2 = helper.path("x/y/z.txt");
 			assertThrown(() -> IoUtil.copy(badIn, toFile2));
 			assertFalse(Files.exists(helper.path("x/y")));

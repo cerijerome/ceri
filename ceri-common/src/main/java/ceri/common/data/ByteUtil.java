@@ -151,8 +151,12 @@ public class ByteUtil {
 		ExceptionAdapter.RUNTIME.run(() -> b.writeTo(offset, out, length));
 	}
 
+	public static byte[] toAsciiBytes(String s) {
+		return s.getBytes(StandardCharsets.ISO_8859_1);
+	}
+
 	public static ByteProvider toAscii(String s) {
-		return ByteArray.Immutable.wrap(s.getBytes(StandardCharsets.ISO_8859_1));
+		return ByteArray.Immutable.wrap(toAsciiBytes(s));
 	}
 
 	public static String fromAscii(int... data) {

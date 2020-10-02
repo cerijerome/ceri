@@ -233,8 +233,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.svg.SweepFlagBehavior.class, //
 	// test
 	ceri.common.test.ApproxMatcherBehavior.class, //
-	ceri.common.test.BinaryLogInputStreamBehavior.class, //
-	ceri.common.test.BinaryLogOutputStreamBehavior.class, //
 	ceri.common.test.BinaryPrinterBehavior.class, //
 	ceri.common.test.BranchCaptorBehavior.class, //
 	ceri.common.test.CapturerBehavior.class, //
@@ -245,14 +243,14 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.RegexFinderBehavior.class, //
 	ceri.common.test.RegexMatcherBehavior.class, //
 	ceri.common.test.ResponseStreamBehavior.class, //
-	ceri.common.test.SyncConsumerBehavior.class, //
+	ceri.common.test.SyncStateBehavior.class, //
 	ceri.common.test.TestInputStreamBehavior.class, //
 	ceri.common.test.TestListenerBehavior.class, //
 	ceri.common.test.TestListenersBehavior.class, //
 	ceri.common.test.TestOutputStreamBehavior.class, //
+	ceri.common.test.TestPipedConnectorBehavior.class, //
 	ceri.common.test.TestPrinterBehavior.class, //
 	ceri.common.test.TestRunAdapterBehavior.class, //
-	ceri.common.test.TestRunPrinterBehavior.class, //
 	ceri.common.test.TestStyleBehavior.class, //
 	ceri.common.test.TestTimerBehavior.class, //
 	ceri.common.test.TestUtilTest.class, //

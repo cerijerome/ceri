@@ -452,8 +452,7 @@ public class ValidationUtil {
 	/**
 	 * Validates value is > or >= minimum. A null bound is treated as inclusive.
 	 */
-	public static long validateMin(long value, long min, Bound.Type bound,
-		DisplayLong... flags) {
+	public static long validateMin(long value, long min, Bound.Type bound, DisplayLong... flags) {
 		return validateMin(value, min, VALUE, bound, flags);
 	}
 
@@ -519,8 +518,7 @@ public class ValidationUtil {
 	/**
 	 * Validates value is < or <= maximum. A null bound is treated as inclusive.
 	 */
-	public static double validateMax(long value, long max, Bound.Type bound,
-		DisplayLong... flags) {
+	public static double validateMax(long value, long max, Bound.Type bound, DisplayLong... flags) {
 		return validateMax(value, max, VALUE, bound, flags);
 	}
 
@@ -534,7 +532,7 @@ public class ValidationUtil {
 		throw exceptionf("%s must be %s %s: %s", name(name), bound.lower, format(max, flags),
 			format(value, flags));
 	}
-	
+
 	/**
 	 * Validates that floating point value is <= maximum.
 	 */

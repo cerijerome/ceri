@@ -1,5 +1,7 @@
 package ceri.common.test;
 
+import java.io.PrintStream;
+import ceri.common.reflect.ReflectUtil;
 import junit.runner.TestRunListener;
 
 /**
@@ -8,6 +10,13 @@ import junit.runner.TestRunListener;
  */
 public class TestRunAdapter implements TestRunListener {
 
+	/**
+	 * Implementation to print all methods to given print stream.
+	 */
+	public static TestRunAdapter printer(PrintStream out) {
+		return new Printer(out);
+	}
+	
 	@Override
 	public void testEnded(String arg0) {}
 
@@ -26,4 +35,41 @@ public class TestRunAdapter implements TestRunListener {
 	@Override
 	public void testStarted(String arg0) {}
 
+	private static class Printer extends TestRunAdapter {
+		private final PrintStream out;
+
+		private Printer(PrintStream out) {
+			this.out = out;
+		}
+
+		@Override
+		public void testEnded(String arg0) {
+			out.println(ReflectUtil.currentMethodName() + ": " + arg0);
+		}
+
+		@Override
+		public void testFailed(int arg0, String arg1, String arg2) {
+			out.println(ReflectUtil.currentMethodName() + ": " + arg0 + ", " + arg1 + ", " + arg2);
+		}
+
+		@Override
+		public void testRunEnded(long arg0) {
+			out.println(ReflectUtil.currentMethodName() + ": " + arg0);
+		}
+
+		@Override
+		public void testRunStarted(String arg0, int arg1) {
+			out.println(ReflectUtil.currentMethodName() + ": " + arg0 + ", " + arg1);
+		}
+
+		@Override
+		public void testRunStopped(long arg0) {
+			out.println(ReflectUtil.currentMethodName() + ": " + arg0);
+		}
+
+		@Override
+		public void testStarted(String arg0) {
+			out.println(ReflectUtil.currentMethodName() + ": " + arg0);
+		}
+	}
 }

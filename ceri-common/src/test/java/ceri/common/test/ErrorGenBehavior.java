@@ -12,14 +12,25 @@ public class ErrorGenBehavior {
 	private static final Function<String, SQLException> sqlFn = SQLException::new;
 
 	@Test
-	public void shouldGenerateNoException() throws InterruptedException, IOException {
+	public void shouldGenerateNoException() throws Exception {
 		var eg = ErrorGen.of();
 		eg.generateRt();
 		eg.generateWithInterrupt();
 		eg.generateIo();
 		eg.generateIoWithInterrupt();
-		eg.generate(IOException::new);
-		eg.generateWithInterrupt(IOException::new);
+		eg.generate(sqlFn);
+		eg.generateWithInterrupt(sqlFn);
+	}
+
+	@Test
+	public void shouldTreatNullModeAsNone() throws Exception {
+		var eg = ErrorGen.of().mode(() -> null);
+		eg.generateRt();
+		eg.generateWithInterrupt();
+		eg.generateIo();
+		eg.generateIoWithInterrupt();
+		eg.generate(sqlFn);
+		eg.generateWithInterrupt(sqlFn);
 	}
 
 	@Test

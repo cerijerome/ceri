@@ -224,7 +224,7 @@ public class IoStreamUtilTest {
 	@Test
 	public void testFilterOutWithNullByteWrite() throws IOException {
 		try (var out =
-			IoStreamUtil.out(bout0, (ExceptionObjIntPredicate<IOException, OutputStream>) null)) {
+			IoStreamUtil.filterOut(bout0, (ExceptionObjIntPredicate<IOException, OutputStream>) null)) {
 			out.write(bytes(1, 2));
 			out.write(3);
 			assertArray(bout0.toByteArray(), 1, 2, 3);
@@ -233,7 +233,7 @@ public class IoStreamUtilTest {
 
 	@Test
 	public void testFilterOutWithByteWrite() throws IOException {
-		try (var out = IoStreamUtil.out(bout1, (os, b) -> writeMax(bout0, 3, b))) {
+		try (var out = IoStreamUtil.filterOut(bout1, (os, b) -> writeMax(bout0, 3, b))) {
 			out.write(bytes(1, 2, 3, 4));
 			out.write(5);
 			assertArray(bout0.toByteArray(), 1, 2, 3);
@@ -243,7 +243,7 @@ public class IoStreamUtilTest {
 
 	@Test
 	public void testFilterOutWithNullArrayWrite() throws IOException {
-		try (var out = IoStreamUtil.out(bout0, (FilterWrite) null)) {
+		try (var out = IoStreamUtil.filterOut(bout0, (FilterWrite) null)) {
 			out.write(bytes(1, 2));
 			out.write(3);
 			assertArray(bout0.toByteArray(), 1, 2, 3);
@@ -253,7 +253,7 @@ public class IoStreamUtilTest {
 	@Test
 	public void testFilterOutWithArrayWrite() throws IOException {
 		try (var out =
-			IoStreamUtil.out(bout1, (os, b, off, len) -> writeMax(bout0, 3, b, off, len))) {
+			IoStreamUtil.filterOut(bout1, (os, b, off, len) -> writeMax(bout0, 3, b, off, len))) {
 			out.write(bytes(1, 2, 3));
 			out.write(bytes(4, 5));
 			out.write(6);
