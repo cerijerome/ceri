@@ -79,7 +79,7 @@ public class EntryBuffer {
 	public static Collection<Entry> combine(EntryBuffer... buffers) {
 		return combine(Arrays.asList(buffers));
 	}
-	
+
 	/**
 	 * Collects all inputs from collection of EntryBuffers.
 	 */

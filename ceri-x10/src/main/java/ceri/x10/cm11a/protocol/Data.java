@@ -27,7 +27,7 @@ import ceri.x10.command.Unit;
  */
 public class Data {
 	public static final int DATE_BYTES = 5;
-	private static final int MAX_DAY_DIFF = 30;
+	private static final int MAX_DAY_DIFF = 182; // 365/2
 	private static final int MINUTES_IN_HOUR = (int) TimeUnit.HOURS.toMinutes(1);
 	private static final IntProvider fromTypes =
 		IntArray.Immutable.wrap(6, 14, 2, 10, 1, 9, 5, 13, 7, 15, 3, 11, 0, 8, 4, 12);
@@ -98,10 +98,7 @@ public class Data {
 	}
 
 	public static int checksum(ByteProvider bytes) {
-		int sum = 0;
-		for (int i = 0; i < bytes.length(); i++)
-			sum += bytes.getByte(i);
-		return MathUtil.ubyte(sum);
+		return MathUtil.ubyte(bytes.ustream(0).sum());
 	}
 
 	/**
@@ -126,7 +123,7 @@ public class Data {
 			hour++;
 		}
 		int dayOfYear = r.readUbyte() + ((r.readUbyte() << 1) & 0x100);
-		LocalDate date = date(dayOfYear);
+		LocalDate date = nearestDate(LocalDate.now(), dayOfYear);
 		LocalTime time = LocalTime.of(hour, minute, second);
 		return LocalDateTime.of(date, time);
 	}
@@ -159,8 +156,7 @@ public class Data {
 	/**
 	 * Determines year from current year and given day.
 	 */
-	private static LocalDate date(int dayOfYear) {
-		LocalDate now = LocalDate.now();
+	public static LocalDate nearestDate(LocalDate now, int dayOfYear) {
 		LocalDate date = LocalDate.ofYearDay(now.getYear(), dayOfYear);
 		long days = ChronoUnit.DAYS.between(now, date);
 		// Adjust in case end of year time difference

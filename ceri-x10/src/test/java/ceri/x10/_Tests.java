@@ -23,6 +23,9 @@ import ceri.common.test.TestUtil;
 	ceri.x10.cm11a.protocol.EntryBehavior.class, //
 	ceri.x10.cm11a.protocol.EntryBufferBehavior.class, //
 	ceri.x10.cm11a.protocol.EntryCollectorBehavior.class, //
+	ceri.x10.cm11a.protocol.ReceiveTest.class, //
+	ceri.x10.cm11a.protocol.StatusBehavior.class, //
+	ceri.x10.cm11a.protocol.TransmitTest.class, //
 	// cm17a
 	ceri.x10.cm17a.Cm17aConfigBehavior.class, //
 	// cm17a.device
