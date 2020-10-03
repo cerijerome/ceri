@@ -64,7 +64,7 @@ public class Clock implements Encodable {
 
 	public static class Builder {
 		LocalDateTime date = DateUtil.nowSec();
-		House house = null;
+		House house = House.A;
 		boolean clearBatteryTimer = false;
 		boolean clearMonitoredStatus = false;
 		boolean purgeTimer = false;

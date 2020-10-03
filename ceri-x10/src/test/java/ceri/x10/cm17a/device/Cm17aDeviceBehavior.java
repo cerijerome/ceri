@@ -34,12 +34,12 @@ import org.junit.Test;
 import org.mockito.stubbing.Stubber;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.io.StateChange;
+import ceri.common.test.ErrorGen.Mode;
 import ceri.common.test.TestListener;
 import ceri.common.util.Enclosed;
 import ceri.log.test.LogModifier;
 import ceri.x10.command.Command;
 import ceri.x10.command.TestCommandListener;
-import ceri.x10.util.X10TestUtil.ErrorType;
 
 public class Cm17aDeviceBehavior {
 	private static final Cm17aDeviceConfig config =
@@ -100,13 +100,13 @@ public class Cm17aDeviceBehavior {
 	public void shouldResetOnError() throws IOException {
 		LogModifier.run(() -> {
 			Command cmd = Command.off(K, _13, _14);
-			con.errors(ErrorType.io, ErrorType.none);
+			con.dtrError.mode(Mode.checked);
 			assertThrown(() -> cm17a.command(cmd));
-			con.errors(ErrorType.none, ErrorType.none);
+			con.dtrError.reset();
 			cm17a.command(cmd);
-			con.errors(ErrorType.none, ErrorType.rt);
+			con.rtsError.mode(Mode.rt);
 			assertThrown(() -> cm17a.command(cmd));
-			con.errors(ErrorType.none, ErrorType.none);
+			con.rtsError.reset();
 			cm17a.command(cmd);
 		}, Level.ERROR, Processor.class);
 	}
@@ -119,7 +119,7 @@ public class Cm17aDeviceBehavior {
 
 	@Test
 	public void shouldListenForCommands() throws IOException, InterruptedException {
-		TestCommandListener listener = new TestCommandListener();
+		TestCommandListener listener = TestCommandListener.of();
 		try (Enclosed<?> enc = cm17a.listen(listener)) {
 			cm17a.command(Command.dim(L, 50, _5, _9));
 			assertThat(listener.sync.await(), is(Command.dim(L, 50, _5, _9)));

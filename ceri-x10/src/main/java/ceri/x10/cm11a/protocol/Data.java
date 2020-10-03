@@ -121,7 +121,7 @@ public class Data {
 		int second = r.readUbyte();
 		int minute = r.readUbyte();
 		int hour = r.readUbyte() << 1;
-		if (minute > MINUTES_IN_HOUR) {
+		if (minute >= MINUTES_IN_HOUR) {
 			minute -= MINUTES_IN_HOUR;
 			hour++;
 		}

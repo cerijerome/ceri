@@ -151,7 +151,7 @@ public abstract class Command {
 		}
 	}
 
-	private Command(House house, Set<Unit> units, FunctionType type, int data, int command) {
+	Command(House house, Set<Unit> units, FunctionType type, int data, int command) {
 		this.house = house;
 		this.units = units;
 		this.type = type;

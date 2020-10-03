@@ -10,26 +10,14 @@ import ceri.serial.javax.SerialConnector;
 import ceri.serial.javax.SerialPortParams;
 
 public interface Cm11aConnector extends Listenable.Indirect<StateChange> {
-	static Cm11aConnector NULL = new Cm11aConnector() {
-		@Override
-		public Listenable<StateChange> listeners() {
-			return Listenable.ofNull();
-		}
-
-		@Override
-		public InputStream in() {
-			return IoStreamUtil.nullIn();
-		}
-
-		@Override
-		public OutputStream out() {
-			return IoStreamUtil.nullOut();
-		}
-	};
 
 	InputStream in();
 
 	OutputStream out();
+
+	static Cm11aConnector ofNull() {
+		return new Null();
+	}
 
 	static Serial serial(SerialConnector connector) {
 		return new Serial(connector);
@@ -66,4 +54,28 @@ public interface Cm11aConnector extends Listenable.Indirect<StateChange> {
 			return connector.out();
 		}
 	}
+
+	static class Null implements Cm11aConnector {
+		private final Listenable<StateChange> listeners = Listenable.ofNull();
+		private final InputStream in = IoStreamUtil.nullIn();
+		private final OutputStream out = IoStreamUtil.nullOut();
+
+		private Null() {}
+
+		@Override
+		public Listenable<StateChange> listeners() {
+			return listeners;
+		}
+
+		@Override
+		public InputStream in() {
+			return in;
+		}
+
+		@Override
+		public OutputStream out() {
+			return out;
+		}
+	}
+
 }

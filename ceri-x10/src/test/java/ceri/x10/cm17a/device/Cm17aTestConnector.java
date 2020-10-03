@@ -6,9 +6,8 @@ import ceri.common.data.IntArray.Encoder;
 import ceri.common.event.Listenable;
 import ceri.common.io.StateChange;
 import ceri.common.test.Capturer;
+import ceri.common.test.ErrorGen;
 import ceri.common.test.TestListeners;
-import ceri.x10.util.X10TestUtil;
-import ceri.x10.util.X10TestUtil.ErrorType;
 
 /**
  * Recreates bytes from connector calls.
@@ -16,8 +15,8 @@ import ceri.x10.util.X10TestUtil.ErrorType;
 public class Cm17aTestConnector implements Cm17aConnector {
 	public final TestListeners<StateChange> listeners = TestListeners.of();
 	public final Capturer.Int bytes = Capturer.ofInt();
-	private volatile ErrorType dtrError = ErrorType.none;
-	private volatile ErrorType rtsError = ErrorType.none;
+	public final ErrorGen dtrError = ErrorGen.of();
+	public final ErrorGen rtsError = ErrorGen.of();
 	private boolean rts = false;
 	private boolean dtr = false;
 	private boolean reset = true;
@@ -32,7 +31,8 @@ public class Cm17aTestConnector implements Cm17aConnector {
 	public void reset(boolean full) {
 		listeners.clear();
 		bytes.reset();
-		errors(ErrorType.none, ErrorType.none);
+		dtrError.reset();
+		rtsError.reset();
 		if (full) reset = true; // Will lose first bit if Processor does not send a reset.
 		value = 0;
 		bit = 0;
@@ -56,11 +56,6 @@ public class Cm17aTestConnector implements Cm17aConnector {
 		bytes.reset();
 	}
 
-	public void errors(ErrorType dtrError, ErrorType rtsError) {
-		this.dtrError = dtrError;
-		this.rtsError = rtsError;
-	}
-
 	@Override
 	public Listenable<StateChange> listeners() {
 		return listeners;
@@ -68,7 +63,7 @@ public class Cm17aTestConnector implements Cm17aConnector {
 
 	@Override
 	public void setDtr(boolean on) throws IOException {
-		X10TestUtil.error(dtrError);
+		dtrError.generateIo();
 		if (!reset && rts && !dtr && on) bit(true);
 		dtr = on;
 		if (!rts && !dtr) reset = true;
@@ -77,7 +72,7 @@ public class Cm17aTestConnector implements Cm17aConnector {
 
 	@Override
 	public void setRts(boolean on) throws IOException {
-		X10TestUtil.error(rtsError);
+		rtsError.generateIo();
 		if (!reset && dtr && !rts && on) bit(false);
 		rts = on;
 		if (!rts && !dtr) reset = true;

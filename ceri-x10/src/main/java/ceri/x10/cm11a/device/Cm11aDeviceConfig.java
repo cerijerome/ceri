@@ -9,6 +9,7 @@ public class Cm11aDeviceConfig {
 	public final int queuePollTimeoutMs;
 	public final int readPollMs;
 	public final int readTimeoutMs;
+	public final int errorDelayMs;
 	public final int queueSize;
 
 	public static class Builder {
@@ -16,6 +17,7 @@ public class Cm11aDeviceConfig {
 		int queuePollTimeoutMs = 50;
 		int readPollMs = 20;
 		int readTimeoutMs = 3000;
+		int errorDelayMs = 1000;
 		int queueSize = 100;
 
 		Builder() {}
@@ -40,6 +42,11 @@ public class Cm11aDeviceConfig {
 			return this;
 		}
 
+		public Builder errorDelayMs(int errorDelayMs) {
+			this.errorDelayMs = errorDelayMs;
+			return this;
+		}
+
 		public Builder queueSize(int queueSize) {
 			this.queueSize = queueSize;
 			return this;
@@ -59,13 +66,14 @@ public class Cm11aDeviceConfig {
 		queuePollTimeoutMs = builder.queuePollTimeoutMs;
 		readPollMs = builder.readPollMs;
 		readTimeoutMs = builder.readTimeoutMs;
+		errorDelayMs = builder.errorDelayMs;
 		queueSize = builder.queueSize;
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(maxSendAttempts, queuePollTimeoutMs, readPollMs, readTimeoutMs,
-			queueSize);
+			errorDelayMs, queueSize);
 	}
 
 	@Override
@@ -77,6 +85,7 @@ public class Cm11aDeviceConfig {
 		if (queuePollTimeoutMs != other.queuePollTimeoutMs) return false;
 		if (readPollMs != other.readPollMs) return false;
 		if (readTimeoutMs != other.readTimeoutMs) return false;
+		if (errorDelayMs != other.errorDelayMs) return false;
 		if (queueSize != other.queueSize) return false;
 		return true;
 	}
@@ -84,7 +93,7 @@ public class Cm11aDeviceConfig {
 	@Override
 	public String toString() {
 		return ToString.forClass(this, maxSendAttempts, queuePollTimeoutMs, readPollMs,
-			readTimeoutMs, queueSize);
+			readTimeoutMs, errorDelayMs, queueSize);
 	}
 
 }

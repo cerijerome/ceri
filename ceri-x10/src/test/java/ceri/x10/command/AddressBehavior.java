@@ -35,4 +35,13 @@ public class AddressBehavior {
 		assertThrown(() -> Address.from("Q1"));
 	}
 
+	@Test
+	public void shouldCompareAddresses() {
+		assertThat(Address.from("I10").compareTo(Address.from("I10")), is(0));
+		assertThat(Address.from("I10").compareTo(Address.from("I11")), is(-1));
+		assertThat(Address.from("I10").compareTo(Address.from("J11")), is(-1));
+		assertThat(Address.from("I10").compareTo(Address.from("I9")), is(1));
+		assertThat(Address.from("I10").compareTo(Address.from("H10")), is(1));
+	}
+
 }

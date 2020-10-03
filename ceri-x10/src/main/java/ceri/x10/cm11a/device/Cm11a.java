@@ -6,6 +6,7 @@ import ceri.common.io.StateChange;
 import ceri.common.util.Enclosed;
 import ceri.x10.command.Command;
 import ceri.x10.command.CommandListener;
+import ceri.x10.command.FunctionGroup;
 import ceri.x10.util.X10Controller;
 
 public interface Cm11a extends X10Controller, Listenable.Indirect<StateChange>, Closeable {
@@ -21,14 +22,14 @@ public interface Cm11a extends X10Controller, Listenable.Indirect<StateChange>, 
 		}
 
 		@Override
-		public boolean supports(Command command) {
-			return true;
-		}
-
-		@Override
 		public void command(Command command) {}
 
 		@Override
 		public void close() {}
 	};
+	
+	@Override
+	default boolean supports(Command command) {
+		return command.group() != FunctionGroup.unsupported;
+	}
 }

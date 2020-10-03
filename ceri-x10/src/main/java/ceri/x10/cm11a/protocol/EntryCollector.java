@@ -29,7 +29,7 @@ public class EntryCollector {
 	}
 
 	/**
-	 * Processes entries and dispatches commands. State is kept between invocations.
+	 * ∆ Processes entries and dispatches commands. State is kept between invocations.
 	 */
 	public void collectAll(Collection<Entry> entries) {
 		entries.forEach(this::collect);
@@ -53,7 +53,7 @@ public class EntryCollector {
 	private void addToLast(House house, Unit unit) {
 		if (lastHouse != house || lastInputIsFunction) clearLast();
 		lastHouse = house;
-		if (unit != null) lastUnits.add(unit);
+		lastUnits.add(unit);
 		lastInputIsFunction = false;
 	}
 

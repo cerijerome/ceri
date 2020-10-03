@@ -37,14 +37,9 @@ public class Cm11aEmulator implements Cm11a {
 	}
 
 	@Override
-	public boolean supports(Command command) {
-		return true;
-	}
-
-	@Override
 	public void command(Command command) throws IOException {
 		verifySupported(this, command);
-		CommandListener.dispatcher(command);
+		dispatcher.dispatch(command);
 	}
 
 	@Override

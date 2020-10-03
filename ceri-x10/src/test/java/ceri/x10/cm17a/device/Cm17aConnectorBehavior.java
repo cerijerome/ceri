@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.StateChange;
 import ceri.common.test.TestListener;
-import ceri.serial.javax.test.SerialTestConnector;
+import ceri.serial.javax.test.TestSerialConnector;
 
 public class Cm17aConnectorBehavior {
 
@@ -20,14 +20,14 @@ public class Cm17aConnectorBehavior {
 
 	@Test
 	public void shouldDelegateToSerialConnector() throws IOException, InterruptedException {
-		try (SerialTestConnector serial = SerialTestConnector.of()) {
+		try (TestSerialConnector serial = TestSerialConnector.of()) {
 			Cm17aConnector.Serial con = Cm17aConnector.serial(serial);
 			con.connect();
-			serial.connectSync.await();
+			serial.connectSync.awaitCall();
 			con.setDtr(false);
-			assertThat(serial.dtrSync.await(), is(false));
+			serial.dtrSync.assertCall(false);
 			con.setRts(true);
-			assertThat(serial.rtsSync.await(), is(true));
+			serial.rtsSync.assertCall(true);
 			try (TestListener<StateChange> listener = TestListener.of(con.listeners())) {
 				con.broken();
 				assertThat(listener.await(), is(StateChange.broken));

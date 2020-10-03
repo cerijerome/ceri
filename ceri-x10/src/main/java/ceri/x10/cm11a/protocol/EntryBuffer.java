@@ -3,8 +3,10 @@ package ceri.x10.cm11a.protocol;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteArray.Encoder;
 import ceri.common.data.ByteProvider;
@@ -42,16 +44,16 @@ public class EntryBuffer {
 	}
 
 	/**
-	 * Creates an InputBuffer from given command.
+	 * Creates an EntryBuffer from given command.
 	 */
 	public static List<EntryBuffer> allFrom(Command command) {
-		List<Entry> inputs = Entry.allFrom(command);
-		return allFrom(inputs);
+		List<Entry> entries = Entry.allFrom(command);
+		return allFrom(entries);
 	}
 
 	/**
-	 * Creates InputBuffers from given collection of address/function inputs. As inputs fill each
-	 * InputBuffer, a new one is created to hold subsequent inputs.
+	 * Creates EntryBuffers from given collection of address/function inputs. As inputs fill each
+	 * EntryBuffer, a new one is created to hold subsequent inputs.
 	 */
 	public static List<EntryBuffer> allFrom(Collection<Entry> entries) {
 		List<EntryBuffer> buffers = new ArrayList<>();
@@ -59,8 +61,8 @@ public class EntryBuffer {
 		int count = 0;
 		for (Entry entry : entries) {
 			int len = Receive.size(entry);
-			if (count + len > MAX_DATA_BYTES && !bufferEntries.isEmpty()) {
-				buffers.add(new EntryBuffer(bufferEntries));
+			if (count + len > MAX_DATA_BYTES) {
+				buffers.add(EntryBuffer.of(bufferEntries));
 				bufferEntries.clear();
 				count = 0;
 			}
@@ -72,7 +74,14 @@ public class EntryBuffer {
 	}
 
 	/**
-	 * Collects all inputs from collection of InputBuffers.
+	 * Collects all inputs from collection of EntryBuffers.
+	 */
+	public static Collection<Entry> combine(EntryBuffer... buffers) {
+		return combine(Arrays.asList(buffers));
+	}
+	
+	/**
+	 * Collects all inputs from collection of EntryBuffers.
 	 */
 	public static Collection<Entry> combine(Collection<EntryBuffer> buffers) {
 		List<Entry> inputs = new ArrayList<>();
@@ -81,8 +90,12 @@ public class EntryBuffer {
 		return inputs;
 	}
 
-	private static EntryBuffer of(Collection<Entry> entries) {
-		validateMax(size(entries), MAX_DATA_BYTES, "Total entry size");
+	public static EntryBuffer of(Entry... entries) {
+		return of(Arrays.asList(entries));
+	}
+
+	public static EntryBuffer of(Collection<Entry> entries) {
+		validateMax(size(entries), MAX_BYTES, "Total entry size");
 		return new EntryBuffer(ImmutableUtil.copyAsList(entries));
 	}
 
@@ -105,20 +118,35 @@ public class EntryBuffer {
 	 * Writes bytes for count, bits, and entries.
 	 */
 	public void encode(ByteWriter<?> w) {
-		int count = size() - 1;
+		int count = 0;
 		int bits = 0;
 		List<ByteProvider> encodeds = new ArrayList<>();
 		for (Entry entry : entries) {
 			if (!entry.isAddress()) bits |= 1 << count;
+			count += Receive.size(entry);
 			encodeds.add(Receive.encode(entry));
 		}
-		w.writeBytes(count, bits);
+		w.writeBytes(size() - 1, bits);
 		encodeds.forEach(encoded -> w.writeFrom(encoded));
 	}
 
 	@Override
+	public int hashCode() {
+		return Objects.hash(entries);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof EntryBuffer)) return false;
+		EntryBuffer other = (EntryBuffer) obj;
+		if (!Objects.equals(entries, other.entries)) return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
-		return ToString.ofClass(this).children(entries).toString();
+		return ToString.ofClass(this).childrens(entries).toString();
 	}
 
 	private static int size(Collection<Entry> entries) {

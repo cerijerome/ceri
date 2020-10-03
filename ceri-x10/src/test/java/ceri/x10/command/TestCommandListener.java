@@ -7,6 +7,12 @@ import ceri.x10.command.Command.Ext;
 public class TestCommandListener implements CommandListener {
 	public final ValueCondition<Command> sync = ValueCondition.of();
 
+	public static TestCommandListener of() {
+		return new TestCommandListener();
+	}
+	
+	protected TestCommandListener() {}
+	
 	@Override
 	public void allUnitsOff(Command command) {
 		sync.signal(command);

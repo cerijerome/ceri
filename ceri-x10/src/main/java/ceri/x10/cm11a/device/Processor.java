@@ -115,6 +115,7 @@ public class Processor extends LoopingExecutor {
 		logger.debug("Sending: %s", entry);
 		ByteProvider data = Transmit.encode(entry);
 		int checksum = Data.checksum(data);
+		// TODO: add resend logic if checksum fails
 		out.writeFrom(data);
 		await(checksum);
 		out.writeByte(Protocol.OK.value);

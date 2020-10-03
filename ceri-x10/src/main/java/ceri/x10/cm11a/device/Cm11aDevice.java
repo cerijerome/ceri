@@ -12,7 +12,6 @@ import ceri.log.util.LogUtil;
 import ceri.x10.cm11a.protocol.Status;
 import ceri.x10.command.Command;
 import ceri.x10.command.CommandListener;
-import ceri.x10.command.FunctionGroup;
 
 public class Cm11aDevice implements Cm11a {
 	private static final Logger logger = LogManager.getLogger();
@@ -33,11 +32,6 @@ public class Cm11aDevice implements Cm11a {
 	@Override
 	public Listenable<StateChange> listeners() {
 		return connector.listeners();
-	}
-
-	@Override
-	public boolean supports(Command command) {
-		return command.group() != FunctionGroup.unsupported;
 	}
 
 	@Override
