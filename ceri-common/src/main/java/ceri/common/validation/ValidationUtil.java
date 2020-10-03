@@ -529,7 +529,7 @@ public class ValidationUtil {
 		DisplayLong... flags) {
 		if (bound == null) bound = Bound.Type.inclusive;
 		if (bound.isUpper(value, max)) return value;
-		throw exceptionf("%s must be %s %s: %s", name(name), bound.lower, format(max, flags),
+		throw exceptionf("%s must be %s %s: %s", name(name), bound.upper, format(max, flags),
 			format(value, flags));
 	}
 
@@ -563,7 +563,7 @@ public class ValidationUtil {
 		DisplayDouble... flags) {
 		if (bound == null) bound = Bound.Type.inclusive;
 		if (bound.isUpper(value, max)) return value;
-		throw exceptionf("%s must be %s %s: %s", name(name), bound.lower, format(max, flags),
+		throw exceptionf("%s must be %s %s: %s", name(name), bound.upper, format(max, flags),
 			format(value, flags));
 	}
 

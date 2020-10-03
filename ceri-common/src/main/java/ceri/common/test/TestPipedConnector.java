@@ -36,7 +36,7 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 	protected TestPipedConnector() {
 		con = PipedStream.connector();
 		in = IoStreamUtil.filterIn(con.in(), this::read, this::available);
-		out = IoStreamUtil.filterOut(con.out(), this::write);
+		out = IoStreamUtil.filterOut(con.out(), this::writeWithReturn);
 		to = ByteStream.writer(con.inFeed());
 		from = ByteStream.reader(con.outSink());
 	}
@@ -86,7 +86,7 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 	/**
 	 * Calls available before error generation logic.
 	 */
-	private Integer available(InputStream in) throws IOException {
+	protected int available(InputStream in) throws IOException {
 		int n = in.available();
 		availableError.generateIo();
 		return n;
@@ -95,7 +95,7 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 	/**
 	 * Calls read before error generation logic.
 	 */
-	private Integer read(InputStream in, byte[] b, int offset, int length) throws IOException {
+	protected int read(InputStream in, byte[] b, int offset, int length) throws IOException {
 		int n = in.read(b, offset, length);
 		readError.generateIo();
 		return n;
@@ -104,10 +104,14 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 	/**
 	 * Calls write before error generation logic.
 	 */
-	private boolean write(OutputStream out, byte[] b, int offset, int length) throws IOException {
+	protected void write(OutputStream out, byte[] b, int offset, int length) throws IOException {
 		out.write(b, offset, length);
 		writeError.generateIo();
-		return true;
 	}
 
+	private boolean writeWithReturn(OutputStream out, byte[] b, int offset, int length)
+		throws IOException {
+		write(out, b, offset, length);
+		return true;
+	}
 }
