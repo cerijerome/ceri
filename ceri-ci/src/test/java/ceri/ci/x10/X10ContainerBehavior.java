@@ -30,16 +30,14 @@ public class X10ContainerBehavior {
 	private X10Factory factory;
 	private Properties properties;
 
-	Fix me
-
 	@SuppressWarnings("resource")
 	@Before
 	public void init() throws IOException {
 		MockitoAnnotations.initMocks(this);
 		when(factory.createCm11aContainer("com")).thenReturn(cm11aContainer);
-		when(cm11aContainer.cm11a).thenReturn(cm11a);
+		when(cm11aContainer.cm11a()).thenReturn(cm11a);
 		when(factory.createCm17aContainer("com")).thenReturn(cm17aContainer);
-		when(cm17aContainer.cm17a).thenReturn(cm17a);
+		when(cm17aContainer.cm17a()).thenReturn(cm17a);
 		when(factory.builder(cm17a)).thenReturn(builder);
 		when(factory.builder(cm11a)).thenReturn(builder);
 		properties = new Properties();
