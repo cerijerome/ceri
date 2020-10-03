@@ -26,7 +26,7 @@ public class Cm17aContainer implements Closeable {
 	private final SerialConnector createdConnector;
 	private final SerialConnector connector;
 	private final Cm17a createdCm17a;
-	public final Cm17a cm17a;
+	private final Cm17a cm17a;
 
 	public static enum Cm17aType {
 		device,
@@ -80,6 +80,10 @@ public class Cm17aContainer implements Closeable {
 		}
 	}
 
+	public Cm17a cm17a() {
+		return cm17a;
+	}
+	
 	@Override
 	public void close() {
 		LogUtil.close(logger, createdCm17a, createdConnector);

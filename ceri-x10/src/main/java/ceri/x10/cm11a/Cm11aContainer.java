@@ -26,7 +26,7 @@ public class Cm11aContainer implements Closeable {
 	private final SerialConnector createdConnector;
 	private final SerialConnector connector;
 	private final Cm11a createdCm11a;
-	public final Cm11a cm11a;
+	private final Cm11a cm11a;
 
 	public static enum Cm11aType {
 		device,
@@ -78,6 +78,10 @@ public class Cm11aContainer implements Closeable {
 			close();
 			throw e;
 		}
+	}
+
+	public Cm11a cm11a() {
+		return cm11a;
 	}
 
 	@Override
