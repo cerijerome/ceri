@@ -24,15 +24,12 @@ import static ceri.x10.command.Unit._7;
 import static ceri.x10.command.Unit._9;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doAnswer;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.stubbing.Stubber;
-import ceri.common.function.ExceptionConsumer;
 import ceri.common.io.StateChange;
 import ceri.common.test.ErrorGen.Mode;
 import ceri.common.test.TestListener;
@@ -132,13 +129,6 @@ public class Cm17aDeviceBehavior {
 			con.listeners.accept(StateChange.broken);
 			assertThat(listener.await(), is(StateChange.broken));
 		}
-	}
-
-	public static <E extends Exception, T> Stubber answer(ExceptionConsumer<E, T> consumer) {
-		return doAnswer(inv -> {
-			consumer.accept(inv.getArgument(0));
-			return null;
-		});
 	}
 
 }
