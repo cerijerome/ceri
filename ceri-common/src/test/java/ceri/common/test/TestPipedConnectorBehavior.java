@@ -68,6 +68,16 @@ public class TestPipedConnectorBehavior {
 
 	@SuppressWarnings("resource")
 	@Test
+	public void shouldConfigureEofWhenNoBytesRemain() throws IOException {
+		con.to.writeBytes(1, 2, 3);
+		con.eof(true);
+		assertRead(con.in(), 1, 2, 3);
+		assertThat(con.in().read(), is(-1));
+		assertThat(con.in().read(new byte[3]), is(-1));
+	}
+
+	@SuppressWarnings("resource")
+	@Test
 	public void shouldSinkBytes() throws IOException {
 		con.out().write(ArrayUtil.bytes(1, 2, 3));
 		assertThat(con.from.available(), is(3));

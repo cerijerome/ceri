@@ -27,6 +27,7 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 	private final OutputStream out;
 	public final ByteStream.Reader from; // read code output
 	public final ByteStream.Writer to; // write code input
+	private volatile boolean eof = false;
 
 	public static TestPipedConnector of() {
 		return new TestPipedConnector();
@@ -46,6 +47,7 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 	 */
 	public void reset(boolean clearListeners) {
 		if (clearListeners) listeners.clear();
+		eof(false);
 		readError.reset();
 		availableError.reset();
 		writeError.reset();
@@ -57,6 +59,13 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 		return listeners;
 	}
 
+	/**
+	 * Set input stream EOF after current buffer has been read. 
+	 */
+	public void eof(boolean eof) {
+		this.eof = eof;
+	}
+	
 	/**
 	 * The hardware input stream used by the device controller.
 	 */
@@ -96,7 +105,8 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 	 * Calls read before error generation logic.
 	 */
 	protected int read(InputStream in, byte[] b, int offset, int length) throws IOException {
-		int n = in.read(b, offset, length);
+		boolean eof = this.eof && in.available() == 0;
+		int n = eof ? -1 : in.read(b, offset, length);
 		readError.generateIo();
 		return n;
 	}
