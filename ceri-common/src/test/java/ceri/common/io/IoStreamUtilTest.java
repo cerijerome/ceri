@@ -131,7 +131,7 @@ public class IoStreamUtilTest {
 			assertThat(in.available(), is(3));
 			assertThat(in.read(), is(1));
 			assertReadBytes(in, 2, 3, 4);
-			assertThat(in.read(), is(5));
+			assertThat(in.skip(1), is(1L));
 			assertReadBytes(in, new byte[0]);
 			assertReadBytes(in, new byte[3], 6);
 			assertThat(in.read(), is(-1));
@@ -177,9 +177,19 @@ public class IoStreamUtilTest {
 			assertThat(in.available(), is(3));
 			assertThat(in.read(), is(1));
 			assertReadBytes(in, new byte[3], 2, 3);
-			assertThat(in.read(), is(4));
+			assertThat(in.skip(1), is(1L));
 			assertReadBytes(in, new byte[3], 5, 6);
 			assertThat(in.read(), is(-1));
+		}
+	}
+
+	@Test
+	public void testFilterInSkip() throws IOException {
+		try (var in =
+			IoStreamUtil.filterIn(bin1, (is, b, off, len) -> readOrNull(bin0, b, off, len))) {
+			assertThat(in.skip(0), is(0L));
+			assertThat(in.skip(4), is(4L));
+			assertThat(in.skip(4), is(2L));
 		}
 	}
 

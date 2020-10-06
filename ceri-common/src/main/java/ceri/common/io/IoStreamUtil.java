@@ -19,6 +19,7 @@ import ceri.common.math.MathUtil;
  * Utilities for creating input and output streams.
  */
 public class IoStreamUtil {
+	private static final int MAX_SKIP_BUFFER_SIZE = 2048; // from InputStream
 
 	private IoStreamUtil() {}
 
@@ -213,6 +214,11 @@ public class IoStreamUtil {
 			public int read(byte[] b, int off, int len) throws IOException {
 				return IoStreamUtil.read(in, readFn, b, off, len);
 			}
+			
+			@Override
+			public long skip(long n) throws IOException {
+				return IoStreamUtil.skip(this, n);
+			}
 		};
 	}
 
@@ -243,6 +249,11 @@ public class IoStreamUtil {
 			@Override
 			public int read(byte[] b, int off, int len) throws IOException {
 				return IoStreamUtil.read(in, readFn, b, off, len);
+			}
+			
+			@Override
+			public long skip(long n) throws IOException {
+				return IoStreamUtil.skip(this, n);
 			}
 		};
 	}
@@ -337,6 +348,18 @@ public class IoStreamUtil {
 	}
 
 	/* FilterInputStream methods */
+
+	private static long skip(InputStream in, long n) throws IOException {
+		if (n <= 0) return 0;
+		long rem = n;
+		byte[] buffer = new byte[(int) Math.min(MAX_SKIP_BUFFER_SIZE, n)];
+		while (rem > 0) {
+			int r = in.read(buffer, 0, (int) Math.min(buffer.length, rem));
+			if (r < 0) break;
+			rem -= r;
+		}
+		return n - rem;
+	}
 
 	private static int available(InputStream in,
 		ExceptionFunction<IOException, InputStream, Integer> availableFn) throws IOException {
