@@ -42,11 +42,12 @@ public class Cm17aDeviceBehavior {
 	private static final Cm17aDeviceConfig config =
 		Cm17aDeviceConfig.builder().commandIntervalMicros(1).resetIntervalMicros(1)
 			.waitIntervalMicros(1).queuePollTimeoutMs(1).errorDelayMs(1).build();
-	private static final Cm17aTestConnector con = new Cm17aTestConnector();
+	private static Cm17aTestConnector con;
 	private static Cm17aDevice cm17a;
 
 	@BeforeClass
 	public static void beforeClass() {
+		con = Cm17aTestConnector.of();
 		cm17a = Cm17aDevice.of(config, con);
 	}
 
@@ -60,6 +61,7 @@ public class Cm17aDeviceBehavior {
 	@AfterClass
 	public static void afterClass() {
 		cm17a.close();
+		con.close();
 	}
 
 	@Test
