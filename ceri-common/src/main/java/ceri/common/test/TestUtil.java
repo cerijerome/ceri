@@ -45,6 +45,7 @@ import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
+import ceri.common.data.ByteReader;
 import ceri.common.data.IntProvider;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionPredicate;
@@ -912,6 +913,21 @@ public class TestUtil {
 	}
 
 	/**
+	 * Check ascii read from byte reader.
+	 */
+	public static void assertAscii(ByteReader reader, String s) {
+		var actual = reader.readAscii(s.length());
+		assertThat(actual, is(s));
+	}
+
+	/**
+	 * Check bytes read from input stream.
+	 */
+	public static void assertRead(InputStream in, ByteProvider bytes) throws IOException {
+		assertRead(in, bytes.copy(0));
+	}
+
+	/**
 	 * Check bytes read from input stream.
 	 */
 	public static void assertRead(InputStream in, int... bytes) throws IOException {
@@ -1192,6 +1208,20 @@ public class TestUtil {
 	}
 
 	/**
+	 * Execute a closable call in a separate thread. Use get() to retrieve the result.
+	 */
+	public static <T> SimpleExecutor<RuntimeException, T> threadCall(Callable<T> callable) {
+		return SimpleExecutor.call(callable);
+	}
+
+	/**
+	 * Execute a closable call in a separate thread. Use get() to wait for completion.
+	 */
+	public static SimpleExecutor<RuntimeException, ?> threadRun(ExceptionRunnable<?> runnable) {
+		return SimpleExecutor.run(runnable);
+	}
+
+	/**
 	 * Returns "[lambda]" if anonymous lambda, otherwise toString.
 	 */
 	public static String lambdaName(Object lambda) {
@@ -1214,21 +1244,21 @@ public class TestUtil {
 	/**
 	 * Converts a byte array to string, with non-visible chars converted to '?'.
 	 */
-	public static String toReadableString(byte[] array) {
-		return toReadableString(array, 0, array.length);
+	public static String readableString(byte[] array) {
+		return readableString(array, 0, array.length);
 	}
 
 	/**
 	 * Converts a byte array to string, with non-visible chars converted to '?'.
 	 */
-	public static String toReadableString(byte[] array, int offset, int len) {
-		return toReadableString(array, offset, len, "UTF8", '?');
+	public static String readableString(byte[] array, int offset, int len) {
+		return readableString(array, offset, len, "UTF8", '?');
 	}
 
 	/**
 	 * Converts a byte array to string, with non-visible chars converted to given char.
 	 */
-	public static String toReadableString(byte[] array, int offset, int len, String charset,
+	public static String readableString(byte[] array, int offset, int len, String charset,
 		char unreadableChar) {
 		StringBuilder b = new StringBuilder();
 		try {

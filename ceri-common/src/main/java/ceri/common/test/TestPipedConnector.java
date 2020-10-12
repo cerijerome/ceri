@@ -1,6 +1,8 @@
 package ceri.common.test;
 
-import static ceri.common.function.FunctionUtil.execQuietly;
+import static ceri.common.function.FunctionUtil.execSilently;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +53,7 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 		readError.reset();
 		availableError.reset();
 		writeError.reset();
-		execQuietly(con::clear);
+		execSilently(con::clear);
 	}
 
 	@Override
@@ -60,12 +62,12 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 	}
 
 	/**
-	 * Set input stream EOF after current buffer has been read. 
+	 * Overrides read response with EOF.
 	 */
 	public void eof(boolean eof) {
 		this.eof = eof;
 	}
-	
+
 	/**
 	 * The hardware input stream used by the device controller.
 	 */
@@ -87,6 +89,14 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 		con.pipedIn.awaitRead(1);
 	}
 
+	/**
+	 * Assert available bytes from controller.
+	 */
+	@SuppressWarnings("resource")
+	public void assertAvailable(int n) throws IOException {
+		assertThat(con.outSink().available(), is(n));
+	}
+
 	@Override
 	public void close() {
 		con.close();
@@ -102,11 +112,11 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 	}
 
 	/**
-	 * Calls read before error generation logic.
+	 * Calls read before error generation logic. EOF overrides read response.
 	 */
 	protected int read(InputStream in, byte[] b, int offset, int length) throws IOException {
-		boolean eof = this.eof && in.available() == 0;
-		int n = eof ? -1 : in.read(b, offset, length);
+		int n = in.read(b, offset, length);
+		if (eof) n = -1;
 		readError.generateIo();
 		return n;
 	}

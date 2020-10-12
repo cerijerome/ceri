@@ -1,6 +1,7 @@
 package ceri.common.test;
 
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertAssertion;
 import static ceri.common.test.TestUtil.assertRead;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
@@ -68,12 +69,14 @@ public class TestPipedConnectorBehavior {
 
 	@SuppressWarnings("resource")
 	@Test
-	public void shouldConfigureEofWhenNoBytesRemain() throws IOException {
-		con.to.writeBytes(1, 2, 3);
+	public void shouldReturnEof() throws IOException {
+		con.to.writeBytes(1, 2, 3, 4, 5);
 		con.eof(true);
-		assertRead(con.in(), 1, 2, 3);
+		assertThat(con.in().available(), is(5));
 		assertThat(con.in().read(), is(-1));
-		assertThat(con.in().read(new byte[3]), is(-1));
+		assertThat(con.in().read(new byte[2]), is(-1));
+		con.eof(false);
+		assertRead(con.in(), 4, 5);
 	}
 
 	@SuppressWarnings("resource")
@@ -111,6 +114,16 @@ public class TestPipedConnectorBehavior {
 		assertThat(con.in().available(), is(0));
 		con.availableError.mode(Mode.checked);
 		assertThrown(() -> con.in().available());
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void should() throws IOException {
+		con.assertAvailable(0);
+		con.out().write(ArrayUtil.bytes(1, 2, 3));
+		con.out().flush();
+		assertAssertion(() -> con.assertAvailable(2));
+		con.assertAvailable(3);
 	}
 
 	@SuppressWarnings("resource")

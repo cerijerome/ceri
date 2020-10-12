@@ -9,6 +9,7 @@ import static ceri.common.collection.ArrayUtil.ints;
 import static ceri.common.collection.ArrayUtil.longs;
 import static ceri.common.collection.ArrayUtil.shorts;
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertAscii;
 import static ceri.common.test.TestUtil.assertAssertion;
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertDir;
@@ -55,6 +56,10 @@ import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.ValueCondition;
+import ceri.common.data.ByteArray;
+import ceri.common.data.ByteProvider;
+import ceri.common.data.ByteUtil;
 import ceri.common.io.SystemIo;
 import ceri.common.property.BaseProperties;
 import ceri.common.text.StringUtil;
@@ -125,6 +130,24 @@ public class TestUtilTest {
 	}
 
 	@Test
+	public void testThreadCall() {
+		ValueCondition<String> sync = ValueCondition.of();
+		try (var exec = TestUtil.threadCall(sync::await)) {
+			sync.signal("test");
+			assertThat(exec.get(), is("test"));
+		}
+	}
+
+	@Test
+	public void testThreadRun() {
+		BooleanCondition sync = BooleanCondition.of();
+		try (var exec = TestUtil.threadRun(sync::await)) {
+			sync.signal();
+			exec.get();
+		}
+	}
+
+	@Test
 	public void testIsArray() {
 		Integer[] array = { 1, 2, 3 };
 		assertThat(array, isArray(1, 2, 3));
@@ -151,15 +174,23 @@ public class TestUtilTest {
 	}
 
 	@Test
+	public void testAssertAscii() {
+		ByteProvider.Reader r = ByteUtil.toAscii("tests").reader(0);
+		assertAscii(r, "test");
+		r.reset();
+		assertAssertion(() -> assertAscii(r, "test0"));
+	}
+
+	@Test
 	public void testAssertRead() throws IOException {
 		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes(1, 2, 3));
 		assertRead(in, 1, 2, 3);
 		in.reset();
-		assertRead(in, 1, 2);
+		assertRead(in, ByteArray.Immutable.wrap(1, 2));
 		in.reset();
 		assertAssertion(() -> assertRead(in, 1, 2, 3, 4));
 		in.reset();
-		assertAssertion(() -> assertRead(in, 1, 2, 4));
+		assertAssertion(() -> assertRead(in, ByteArray.Immutable.wrap(1, 2, 4)));
 	}
 
 	@Test
@@ -461,11 +492,11 @@ public class TestUtilTest {
 	@Test
 	public void testToReadableString() {
 		byte[] bytes = { 0, 'a', '.', Byte.MAX_VALUE, Byte.MIN_VALUE, '~', '!', -1 };
-		assertThat(TestUtil.toReadableString(bytes), is("?a.??~!?"));
+		assertThat(TestUtil.readableString(bytes), is("?a.??~!?"));
 		assertThrown(IllegalArgumentException.class,
-			() -> TestUtil.toReadableString(bytes, 3, 2, "test", '?'));
-		assertThat(TestUtil.toReadableString(new byte[0], 0, 0, null, '.'), is(""));
-		assertThat(TestUtil.toReadableString(new byte[0], 0, 0, "", '.'), is(""));
+			() -> TestUtil.readableString(bytes, 3, 2, "test", '?'));
+		assertThat(TestUtil.readableString(new byte[0], 0, 0, null, '.'), is(""));
+		assertThat(TestUtil.readableString(new byte[0], 0, 0, "", '.'), is(""));
 	}
 
 	@Test

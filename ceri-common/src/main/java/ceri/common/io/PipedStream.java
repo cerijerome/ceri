@@ -112,6 +112,7 @@ public class PipedStream implements Closeable {
 	 * Clear available bytes.
 	 */
 	public void clear() throws IOException {
+		out.flush();
 		IoUtil.clear(in);
 	}
 

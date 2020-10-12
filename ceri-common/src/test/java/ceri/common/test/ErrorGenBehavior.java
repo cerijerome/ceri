@@ -14,7 +14,7 @@ public class ErrorGenBehavior {
 	@Test
 	public void shouldGenerateNoException() throws Exception {
 		var eg = ErrorGen.of();
-		eg.generateRt();
+		eg.generate();
 		eg.generateWithInterrupt();
 		eg.generateIo();
 		eg.generateIoWithInterrupt();
@@ -25,7 +25,7 @@ public class ErrorGenBehavior {
 	@Test
 	public void shouldTreatNullModeAsNone() throws Exception {
 		var eg = ErrorGen.of().mode(() -> null);
-		eg.generateRt();
+		eg.generate();
 		eg.generateWithInterrupt();
 		eg.generateIo();
 		eg.generateIoWithInterrupt();
@@ -34,17 +34,27 @@ public class ErrorGenBehavior {
 	}
 
 	@Test
+	public void shouldSetModeForNCalls() {
+		var eg = ErrorGen.of().modeTimes(Mode.checked, 3);
+		assertThrown(() -> eg.generate());
+		assertThrown(() -> eg.generate());
+		assertThrown(() -> eg.generate());
+		eg.generate();
+		eg.generate();
+	}
+	
+	@Test
 	public void shouldReset() {
 		var eg = ErrorGen.of().mode(Mode.rt);
-		assertThrown(RuntimeException.class, eg::generateRt);
+		assertThrown(RuntimeException.class, eg::generate);
 		eg.reset();
-		eg.generateRt();
+		eg.generate();
 	}
 
 	@Test
 	public void shouldGenerateRuntimeException() {
 		var eg = ErrorGen.of().mode(Mode.rt);
-		assertThrown(RuntimeException.class, eg::generateRt);
+		assertThrown(RuntimeException.class, eg::generate);
 		assertThrown(RuntimeException.class, eg::generateWithInterrupt);
 		assertThrown(RuntimeException.class, eg::generateIo);
 		assertThrown(RuntimeException.class, eg::generateIoWithInterrupt);
@@ -55,7 +65,7 @@ public class ErrorGenBehavior {
 	@Test
 	public void shouldGenerateRuntimeInterruptedException() {
 		var eg = ErrorGen.of().mode(Mode.rtInterrupted);
-		assertThrown(RuntimeInterruptedException.class, eg::generateRt);
+		assertThrown(RuntimeInterruptedException.class, eg::generate);
 		assertThrown(RuntimeInterruptedException.class, eg::generateWithInterrupt);
 		assertThrown(RuntimeInterruptedException.class, eg::generateIo);
 		assertThrown(RuntimeInterruptedException.class, eg::generateIoWithInterrupt);
@@ -66,7 +76,7 @@ public class ErrorGenBehavior {
 	@Test
 	public void shouldGenerateInterruptedException() {
 		var eg = ErrorGen.of().mode(Mode.interrupted);
-		assertThrown(RuntimeException.class, eg::generateRt); // catch-all
+		assertThrown(RuntimeException.class, eg::generate); // catch-all
 		assertThrown(InterruptedException.class, eg::generateWithInterrupt);
 		assertThrown(RuntimeException.class, eg::generateIo);
 		assertThrown(InterruptedException.class, eg::generateIoWithInterrupt);
@@ -77,7 +87,7 @@ public class ErrorGenBehavior {
 	@Test
 	public void shouldGenerateCheckedException() {
 		var eg = ErrorGen.of().mode(Mode.checked);
-		assertThrown(RuntimeException.class, eg::generateRt);
+		assertThrown(RuntimeException.class, eg::generate);
 		assertThrown(RuntimeException.class, eg::generateWithInterrupt);
 		assertThrown(IOException.class, eg::generateIo);
 		assertThrown(IOException.class, eg::generateIoWithInterrupt);

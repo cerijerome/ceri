@@ -96,7 +96,7 @@ public class SyncState<T> {
 	 */
 	public void accept(T t) {
 		sync(t);
-		error.generateRt();
+		error.generate();
 	}
 
 	/**

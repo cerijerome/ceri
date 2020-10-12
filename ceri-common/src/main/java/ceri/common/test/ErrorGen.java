@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.util.Counter;
 
 /**
  * Utility for generating common errors during tests.
@@ -39,7 +40,12 @@ public class ErrorGen {
 		return this;
 	}
 
-	public <T> T generateRt() {
+	public ErrorGen modeTimes(Mode mode, int n) {
+		Counter counter = Counter.of();
+		return mode(() -> counter.intInc() <= n ? mode : Mode.none);
+	}
+
+	public <T> T generate() {
 		Mode mode = mode();
 		generateRt(mode);
 		return null;

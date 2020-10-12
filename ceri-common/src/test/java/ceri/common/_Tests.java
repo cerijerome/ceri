@@ -19,6 +19,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.collection.MapPopulatorBehavior.class, //
 	ceri.common.collection.NodeBehavior.class, //
 	ceri.common.collection.StreamUtilTest.class, //
+	ceri.common.collection.TypedPipeBehavior.class, //
 	ceri.common.collection.WrappedIntStreamBehavior.class, //
 	ceri.common.collection.WrappedStreamBehavior.class, //
 	// color
@@ -152,6 +153,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.geom.Spheroid3dBehavior.class, //
 	ceri.common.geom.TruncatedRadial3dBehavior.class, //
 	// io
+	ceri.common.io.BufferedOutputStreamBehavior.class, //
 	ceri.common.io.DeviceModeBehavior.class, //
 	ceri.common.io.FileTrackerBehavior.class, //
 	ceri.common.io.FileVisitUtilTest.class, //

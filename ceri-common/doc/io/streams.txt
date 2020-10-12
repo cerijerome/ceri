@@ -49,13 +49,19 @@ BufferedInputStream
   - buffer position logic more complex if mark() was called 
 - skip(n): call wrapped skip(n) if no mark(), otherwise fill buffer first
 
-BufferedOutputStream
+BufferedOutputStream (java.io)
 - extends FilterOutputStream
 - byte[] buffer with count marker; size set on creation, default 8K
 - write(b): flush() if buffer is full, then write byte to buffer
 - write(byte[], off, len): flush() if buffer is full, then write bytes to buffer
   - if len is larger than buffer, flush() then write directly to wrapped stream
+  - if an error occurs when flushing, the bytes are still in the buffer
 - flush(): call wrapped write(...) with buffer content
+
+BufferedOutputStream (ceri.common.io)
+- same as java.io.BufferedOutputStream, except for flushing the buffer
+- the buffer is emptied during flushing, even if an exception occurs (unlike java.io)
+- this prevents build-up of data when the wrapped stream is in a bad state
 
 PipedInputStream
 - attached to PipedOutputStream
