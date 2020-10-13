@@ -49,12 +49,12 @@ public interface Cm17aConnector extends Listenable.Indirect<StateChange> {
 
 		@Override
 		public void setDtr(boolean on) throws IOException {
-			connector.setDtr(on);
+			connector.dtr(on);
 		}
 
 		@Override
 		public void setRts(boolean on) throws IOException {
-			connector.setRts(on);
+			connector.rts(on);
 		}
 	}
 }
