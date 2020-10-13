@@ -1,13 +1,12 @@
-package ceri.serial.javax.test;
+package ceri.serial.ftdi.test;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
-import static ceri.common.util.BasicUtil.conditional;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.data.ByteArray.Immutable;
+import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.ExceptionRunnable;
@@ -16,62 +15,66 @@ import ceri.common.io.StateChange;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
 import ceri.common.util.Enclosed;
+import ceri.common.util.PrimitiveUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
-import ceri.serial.javax.FlowControl;
-import ceri.serial.javax.SerialConnector;
-import ceri.serial.javax.util.SelfHealingSerialConfig;
-import ceri.serial.javax.util.SelfHealingSerialConnector;
+import ceri.serial.ftdi.FlowControl;
+import ceri.serial.ftdi.FtdiBitmode;
+import ceri.serial.ftdi.FtdiConnector;
+import ceri.serial.ftdi.util.SelfHealingFtdiConfig;
+import ceri.serial.ftdi.util.SelfHealingFtdiConnector;
 
 /**
  * Class to test serial ports. Takes commands via System.in and calls methods on the serial
  * connector. Logs data received from the port. Commands:
  *
  * <pre>
- * b[0|1] = set break bit off/on
+ * b[0|1] = set bitbang off/on
  * d[0|1] = set DTR off/on
  * r[0|1] = set RTS off/on
- * f[n|r0|r1|x0|x1] = set flow control none, rts-cts in/out, xon-xoff in/out
+ * f[n|r|d|x] = set flow control none, rts-cts, dtr-dsr, xon-xoff
+ * p = read pins
+ * i[n] = read input n bytes (1 if no n)
  * o[literal-chars] = write chars as bytes to output (e.g. \xff for byte 0xff)
  * z = mark the connector as broken
  * x = exit
  * </pre>
  */
-public class SerialConnectorTester extends LoopingExecutor {
+public class FtdiConnectorTester extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
 	protected static final int DELAY_MS_DEF = 200;
 	private final ExceptionRunnable<IOException> fixConnectorFn;
 	private final int delayMs;
-	protected final SerialConnector connector;
+	protected final FtdiConnector connector;
 	private final Enclosed<?> listener;
 	private boolean showHelp = true;
 
-	public static void test(String commPort) throws IOException {
-		SelfHealingSerialConfig config = SelfHealingSerialConfig.of(commPort);
-		try (SelfHealingSerialConnector con = SelfHealingSerialConnector.of(config)) {
+	public static void test(String finder) throws IOException {
+		SelfHealingFtdiConfig config = SelfHealingFtdiConfig.of(finder);
+		try (SelfHealingFtdiConnector con = SelfHealingFtdiConnector.of(config)) {
 			con.connect();
 			test(con, null);
 		}
 	}
 
-	public static void test(SerialConnector con, ExceptionRunnable<IOException> fixConnectorFn) {
+	public static void test(FtdiConnector con, ExceptionRunnable<IOException> fixConnectorFn) {
 		// Make sure connector is connected first
-		try (SerialConnectorTester tester = SerialConnectorTester.of(con, fixConnectorFn)) {
+		try (FtdiConnectorTester tester = FtdiConnectorTester.of(con, fixConnectorFn)) {
 			tester.waitUntilStopped();
 		}
 	}
 
-	public static SerialConnectorTester of(SerialConnector connector,
+	public static FtdiConnectorTester of(FtdiConnector connector,
 		ExceptionRunnable<IOException> fixConnectorFn) {
 		return of(connector, fixConnectorFn, DELAY_MS_DEF);
 	}
 
-	public static SerialConnectorTester of(SerialConnector connector,
+	public static FtdiConnectorTester of(FtdiConnector connector,
 		ExceptionRunnable<IOException> fixConnectorFn, int delayMs) {
-		return new SerialConnectorTester(connector, fixConnectorFn, delayMs);
+		return new FtdiConnectorTester(connector, fixConnectorFn, delayMs);
 	}
 
-	protected SerialConnectorTester(SerialConnector connector,
+	protected FtdiConnectorTester(FtdiConnector connector,
 		ExceptionRunnable<IOException> fixConnectorFn, int delayMs) {
 		this.connector = connector;
 		this.fixConnectorFn = fixConnectorFn;
@@ -108,19 +111,24 @@ public class SerialConnectorTester extends LoopingExecutor {
 		BinaryPrinter.STD.print(dataToPort);
 	}
 
-	protected void logInput(ByteProvider dataFromPort) {
-		System.out.println("IN <<<");
+	protected void logInput(String name, ByteProvider dataFromPort) {
+		System.out.println(name + " <<<");
 		BinaryPrinter.STD.print(dataFromPort);
 	}
+
+	// p = read pins
+	// i[n] = read input n bytes (1 if no n)
 
 	protected void processCmd(char cmd, String params) throws IOException {
 		if (cmd == 'x') throw new RuntimeInterruptedException("Exiting");
 		if (cmd == '?') showHelp = true;
-		else if (cmd == 'b') safeAccept(bool(params), connector::breakBit);
+		else if (cmd == 'b') safeAccept(bool(params), this::bitbang);
 		else if (cmd == 'd') safeAccept(bool(params), connector::dtr);
 		else if (cmd == 'r') safeAccept(bool(params), connector::rts);
 		else if (cmd == 'f') safeAccept(flowControlType(params), connector::flowControl);
-		else if (cmd == 'o') writeToPort(ByteUtil.toAscii(params));
+		else if (cmd == 'p') readPins();
+		else if (cmd == 'i') readIn(PrimitiveUtil.valueOf(params, 1));
+		else if (cmd == 'o') writeOut(ByteUtil.toAscii(params));
 		else if (cmd == 'z') connector.broken();
 		else if (cmd == 'Z' && fixConnectorFn != null) fixConnectorFn.run();
 	}
@@ -129,7 +137,6 @@ public class SerialConnectorTester extends LoopingExecutor {
 	protected void loop() {
 		try {
 			ConcurrentUtil.delay(delayMs);
-			readFromPort();
 			String command = getInput();
 			processCmd(command);
 		} catch (IOException e) {
@@ -137,9 +144,10 @@ public class SerialConnectorTester extends LoopingExecutor {
 		}
 	}
 
-	/**
-	 * Get command from stdin.
-	 */
+	private void bitbang(boolean enabled) throws IOException {
+		connector.bitmode(enabled ? FtdiBitmode.BITBANG : FtdiBitmode.OFF);
+	}
+
 	private String getInput() throws IOException {
 		if (showHelp) showHelp();
 		System.out.print(prompt());
@@ -147,30 +155,21 @@ public class SerialConnectorTester extends LoopingExecutor {
 		return StringUtil.unEscape(s);
 	}
 
-	/**
-	 * Read and display bytes from port.
-	 */
-	@SuppressWarnings("resource")
-	private void readFromPort() {
-		try {
-			int available = connector.in().available();
-			if (available <= 0) return;
-			byte[] bytes = connector.in().readNBytes(available);
-			if (bytes.length > 0) logInput(Immutable.wrap(bytes));
-		} catch (IOException e) {
-			logger.catching(e);
-		}
+	private void readPins() throws IOException {
+		int pins = connector.readPins();
+		logInput("PINS", ByteArray.Immutable.wrap(pins));
 	}
 
-	/**
-	 * Display and write bytes to port.
-	 */
-	@SuppressWarnings("resource")
-	private void writeToPort(ByteProvider dataToPort) throws IOException {
-		if (dataToPort.length() == 0) return;
-		logOutput(dataToPort);
-		dataToPort.writeTo(0, connector.out());
-		connector.out().flush();
+	private void readIn(int n) throws IOException {
+		if (n == 0) return;
+		byte[] bytes = connector.read(n);
+		logInput("IN", ByteArray.Immutable.wrap(bytes));
+	}
+
+	private void writeOut(ByteProvider data) throws IOException {
+		if (data.length() == 0) return;
+		logOutput(data);
+		connector.write(data.copy(0));
 	}
 
 	private void processCmd(String command) throws IOException {
@@ -186,10 +185,10 @@ public class SerialConnectorTester extends LoopingExecutor {
 	private FlowControl flowControlType(String s) {
 		if (s.isEmpty()) return null;
 		char c = s.charAt(0);
-		String p = s.substring(1);
-		if (c == 'n') return FlowControl.none;
-		if (c == 'r') return conditional(bool(p), FlowControl.rtsCtsOut, FlowControl.rtsCtsIn);
-		if (c == 'x') return conditional(bool(p), FlowControl.xonXoffOut, FlowControl.xonXoffIn);
+		if (c == 'n') return FlowControl.disabled;
+		if (c == 'r') return FlowControl.rtsCts;
+		if (c == 'd') return FlowControl.dtrDsr;
+		if (c == 'x') return FlowControl.xonXoff;
 		return null;
 	}
 
@@ -200,10 +199,12 @@ public class SerialConnectorTester extends LoopingExecutor {
 	}
 
 	protected void showHelpCommands() {
-		System.out.println("  b[01] = set break bit off/on");
+		System.out.println("  b[01] = set bitbang off/on");
 		System.out.println("  d[01] = set DTR off/on");
 		System.out.println("  r[01] = set RTS off/on");
-		System.out.println("  f[nrx][01] = set flow control none, rts-cts in/out, xon-xoff in/out");
+		System.out.println("  f[nrdx] = set flow control none, rts-cts, dtr-dsr, xon-xoff");
+		System.out.println("  p = read pins");
+		System.out.println("  i[n] = read n char bytes from input, 1 if n not specified");
 		System.out.println("  o<literal-chars> = write char bytes to output (e.g. \\xff for 0xff)");
 		System.out.println("  z = mark the connector as broken");
 		if (fixConnectorFn != null) System.out.println("  Z = mark the connector as fixed");

@@ -71,7 +71,6 @@ import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_device_callback;
 import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_devices_ref;
 import static java.util.regex.Pattern.compile;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -81,7 +80,6 @@ import org.apache.logging.log4j.Logger;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.data.BooleanAccessor;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntAccessor;
@@ -1052,28 +1050,6 @@ public class LibFtdi {
 		controlTransferOut(ftdi, SIO_SET_DATA_REQUEST, value, ftdi.index);
 	}
 
-	public static int ftdi_write_data(ftdi_context ftdi, int... data) throws LibUsbException {
-		return ftdi_write_data(ftdi, ArrayUtil.bytes(data), 0, data.length);
-	}
-
-	public static int ftdi_write_data(ftdi_context ftdi, byte[] data) throws LibUsbException {
-		return ftdi_write_data(ftdi, data, 0);
-	}
-
-	public static int ftdi_write_data(ftdi_context ftdi, byte[] data, int offset)
-		throws LibUsbException {
-		return ftdi_write_data(ftdi, data, offset, data.length - offset);
-	}
-
-	public static int ftdi_write_data(ftdi_context ftdi, byte[] data, int offset, int len)
-		throws LibUsbException {
-		return ftdi_write_data(ftdi, ByteBuffer.wrap(data, offset, len));
-	}
-
-	public static int ftdi_write_data(ftdi_context ftdi, ByteBuffer buffer) throws LibUsbException {
-		return ftdi_write_data(ftdi, buffer, buffer.remaining());
-	}
-
 	public static int ftdi_write_data(ftdi_context ftdi, ByteBuffer buffer, int len)
 		throws LibUsbException {
 		requireDev(ftdi);
@@ -1087,22 +1063,6 @@ public class LibFtdi {
 			remaining -= n;
 		}
 		return len - remaining;
-	}
-
-	public static int ftdi_read_data(ftdi_context ftdi) throws LibUsbException {
-		byte[] data = ftdi_read_data(ftdi, 1);
-		if (data.length == 0) return -1;
-		return ubyte(data[0]);
-	}
-
-	public static byte[] ftdi_read_data(ftdi_context ftdi, int size) throws LibUsbException {
-		byte[] buffer = new byte[size];
-		int n = ftdi_read_data(ftdi, ByteBuffer.wrap(buffer), size);
-		return n == size ? buffer : Arrays.copyOf(buffer, n);
-	}
-
-	public static int ftdi_read_data(ftdi_context ftdi, ByteBuffer buffer) throws LibUsbException {
-		return ftdi_read_data(ftdi, buffer, buffer.remaining());
 	}
 
 	public static int ftdi_read_data(ftdi_context ftdi, ByteBuffer buffer, int size)

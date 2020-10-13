@@ -82,22 +82,22 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 	}
 
 	@Override
-	public void setDtr(boolean state) throws IOException {
+	public void dtr(boolean state) throws IOException {
 		exec(port -> port.setDTR(state));
 	}
 
 	@Override
-	public void setRts(boolean state) throws IOException {
+	public void rts(boolean state) throws IOException {
 		exec(port -> port.setRTS(state));
 	}
 
 	@Override
-	public void setFlowControl(FlowControl flowControl) throws IOException {
+	public void flowControl(FlowControl flowControl) throws IOException {
 		exec(port -> port.setFlowControl(flowControl));
 	}
 
 	@Override
-	public void setBreakBit(boolean on) throws IOException {
+	public void breakBit(boolean on) throws IOException {
 		if (on) exec(SerialPort::setBreakBit);
 		else exec(SerialPort::clearBreakBit);
 	}

@@ -1,65 +1,85 @@
-package ceri.serial.javax.test;
+package ceri.serial.ftdi.test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.io.StateChange;
 import ceri.common.test.SyncState;
 import ceri.common.test.TestPipedConnector;
-import ceri.serial.javax.FlowControl;
-import ceri.serial.javax.SerialConnector;
+import ceri.serial.ftdi.FlowControl;
+import ceri.serial.ftdi.FtdiBitmode;
+import ceri.serial.ftdi.FtdiConnector;
 
 /**
  * A connector for testing logic against serial connectors.
  */
-public class TestSerialConnector extends TestPipedConnector implements SerialConnector {
+public class TestFtdiConnector extends TestPipedConnector implements FtdiConnector {
 	public final SyncState.Bool connectSync = SyncState.boolNoResume();
+	public final SyncState<FtdiBitmode> bitmodeSync = SyncState.noResume();
 	public final SyncState<Boolean> dtrSync = SyncState.noResume();
 	public final SyncState<Boolean> rtsSync = SyncState.noResume();
 	public final SyncState<FlowControl> flowCtrlSync = SyncState.noResume();
-	public final SyncState<Boolean> breakBitSync = SyncState.noResume();
+	public final SyncState<Integer> pinsSync = SyncState.noResume();
 	public final SyncState<Boolean> brokenSync = SyncState.noResume();
 	// State fields
-	public volatile boolean breakBit;
+	public volatile FtdiBitmode bitmode = FtdiBitmode.OFF;
 	public volatile boolean rts;
 	public volatile boolean dtr;
-	public volatile FlowControl flowControl = FlowControl.none;
+	public volatile FlowControl flowControl = FlowControl.disabled;
 	public volatile boolean connected;
 	public volatile boolean broken;
 
 	/**
-	 * Provide a test connector that echoes output to input.
+	 * Provide a test connector that echoes output to input, writes the last byte to pins.
 	 */
-	public static TestSerialConnector echo() {
-		return new TestSerialConnector() {
+	public static TestFtdiConnector echoPins() {
+		return new TestFtdiConnector() {
 			@Override
-			protected void write(OutputStream out, byte[] b, int offset, int length)
-				throws IOException {
+			public int readPins() throws IOException {
+				Integer b = pinsSync.get();
 				verifyUnbroken();
 				verifyConnected();
-				to.write(b, offset, length);
+				return b == null ? 0 : b;
+			}
+
+			@SuppressWarnings("resource")
+			@Override
+			public int read(byte[] buffer, int offset, int length) throws IOException {
+				if (in().available() == 0) return 0;
+				return super.read(buffer, offset, length);
+			}
+
+			@Override
+			public int write(byte[] data, int offset, int length) throws IOException {
+				to.write(data, offset, length);
+				// Write last byte only
+				if (length > 0) pinsSync.accept(data[offset + length - 1] & 0xff);
+				writeError.generateIo();
+				verifyUnbroken();
+				verifyConnected();
+				return length;
 			}
 		};
 	}
 
-	public static TestSerialConnector of() {
-		return new TestSerialConnector();
+	public static TestFtdiConnector of() {
+		return new TestFtdiConnector();
 	}
 
-	protected TestSerialConnector() {}
+	protected TestFtdiConnector() {}
 
 	@Override
 	public void reset(boolean clearListeners) {
 		connectSync.reset();
+		bitmodeSync.reset();
 		dtrSync.reset();
 		rtsSync.reset();
 		flowCtrlSync.reset();
-		breakBitSync.reset();
+		pinsSync.reset();
 		brokenSync.reset();
-		breakBit = false;
+		bitmode = FtdiBitmode.OFF;
 		rts = false;
 		dtr = false;
-		flowControl = FlowControl.none;
+		flowControl = FlowControl.disabled;
 		connected = false;
 		broken = false;
 		super.reset(clearListeners);
@@ -89,6 +109,14 @@ public class TestSerialConnector extends TestPipedConnector implements SerialCon
 	}
 
 	@Override
+	public void bitmode(FtdiBitmode bitmode) throws IOException {
+		bitmodeSync.accept(bitmode);
+		verifyUnbroken();
+		verifyConnected();
+		this.bitmode = bitmode;
+	}
+
+	@Override
 	public void dtr(boolean on) throws IOException {
 		dtrSync.accept(on);
 		verifyUnbroken();
@@ -113,39 +141,34 @@ public class TestSerialConnector extends TestPipedConnector implements SerialCon
 	}
 
 	@Override
-	public void breakBit(boolean on) throws IOException {
-		breakBitSync.accept(on);
+	public int readPins() throws IOException {
+		Integer n = ConcurrentUtil.executeGetInterruptible(pinsSync::awaitCall);
 		verifyUnbroken();
 		verifyConnected();
-		breakBit = on;
+		return n == null ? 0 : n;
+	}
+
+	@SuppressWarnings("resource")
+	@Override
+	public int read(byte[] buffer, int offset, int length) throws IOException {
+		int n = in().read(buffer, offset, length);
+		verifyUnbroken();
+		verifyConnected();
+		return n;
+	}
+
+	@SuppressWarnings("resource")
+	@Override
+	public int write(byte[] data, int offset, int length) throws IOException {
+		out().write(data, offset, length);
+		verifyUnbroken();
+		verifyConnected();
+		return length;
 	}
 
 	@Override
 	public void close() {
 		connected = false;
-	}
-
-	@Override
-	protected int available(InputStream in) throws IOException {
-		int n = super.available(in);
-		verifyUnbroken();
-		verifyConnected();
-		return n;
-	}
-
-	@Override
-	protected int read(InputStream in, byte[] b, int offset, int length) throws IOException {
-		int n = super.read(in, b, offset, length);
-		verifyUnbroken();
-		verifyConnected();
-		return n;
-	}
-
-	@Override
-	protected void write(OutputStream out, byte[] b, int offset, int length) throws IOException {
-		super.write(out, b, offset, length);
-		verifyUnbroken();
-		verifyConnected();
 	}
 
 	protected void verifyConnected() throws IOException {

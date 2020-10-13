@@ -87,23 +87,23 @@ public class ReplaceableSerialConnector implements SerialConnector {
 	}
 
 	@Override
-	public void setBreakBit(boolean on) throws IOException {
-		exec(() -> con().setBreakBit(on));
+	public void breakBit(boolean on) throws IOException {
+		exec(() -> con().breakBit(on));
 	}
 
 	@Override
-	public void setDtr(boolean on) throws IOException {
-		exec(() -> con().setDtr(on));
+	public void dtr(boolean on) throws IOException {
+		exec(() -> con().dtr(on));
 	}
 
 	@Override
-	public void setFlowControl(FlowControl flowControl) throws IOException {
-		exec(() -> con().setFlowControl(flowControl));
+	public void flowControl(FlowControl flowControl) throws IOException {
+		exec(() -> con().flowControl(flowControl));
 	}
 
 	@Override
-	public void setRts(boolean on) throws IOException {
-		exec(() -> con().setRts(on));
+	public void rts(boolean on) throws IOException {
+		exec(() -> con().rts(on));
 	}
 
 	private void listen(StateChange state) {

@@ -1,6 +1,7 @@
 package ceri.serial.ftdi;
 
 import static ceri.common.collection.StreamUtil.toList;
+import static ceri.common.math.MathUtil.ubyte;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_disable_bitbang;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_enable_bitbang;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_free;
@@ -42,6 +43,7 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,8 +53,8 @@ import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
+import ceri.common.collection.ArrayUtil;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_flow_control;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_string_descriptors;
 import ceri.serial.ftdi.jna.LibFtdiStream.ftdi_progress_info;
@@ -159,42 +161,65 @@ public class Ftdi implements Closeable {
 			properties.breakType);
 	}
 
-	public int write(int... data) throws LibUsbException {
-		return ftdi_write_data(ftdi(), data);
+	public int write(int data) throws LibUsbException {
+		return write(ArrayUtil.bytes(data));
 	}
 
 	public int write(byte[] data) throws LibUsbException {
-		return ftdi_write_data(ftdi(), data);
+		return write(data, 0);
 	}
 
 	public int write(byte[] data, int offset) throws LibUsbException {
-		return ftdi_write_data(ftdi(), data, offset);
+		return write(data, offset, data.length - offset);
 	}
 
 	public int write(byte[] data, int offset, int len) throws LibUsbException {
-		return ftdi_write_data(ftdi(), data, offset, len);
+		return write(ByteBuffer.wrap(data, offset, len), len);
 	}
 
 	public int write(ByteBuffer buffer) throws LibUsbException {
-		return ftdi_write_data(ftdi(), buffer);
+		return write(buffer, buffer.remaining());
 	}
 
 	public int write(ByteBuffer buffer, int len) throws LibUsbException {
 		return ftdi_write_data(ftdi(), buffer, len);
 	}
 
+	/**
+	 * Reads 1 byte. Returns -1 if no byte available.
+	 */
 	public int read() throws LibUsbException {
-		return ftdi_read_data(ftdi());
+		byte[] data = read(1);
+		if (data.length == 0) return -1;
+		return ubyte(data[0]);
 	}
 
+	/**
+	 * Reads bytes and returns array.
+	 */
 	public byte[] read(int size) throws LibUsbException {
-		return ftdi_read_data(ftdi(), size);
+		byte[] buffer = new byte[size];
+		int n = read(ByteBuffer.wrap(buffer), size);
+		return n == size ? buffer : Arrays.copyOf(buffer, n);
 	}
 
+	/**
+	 * Reads bytes into array.
+	 */
+	public int read(byte[] buffer, int offset, int length) throws LibUsbException {
+		return read(ByteBuffer.wrap(buffer, offset, length), length);
+	}
+
+	/**
+	 * Reads bytes into buffer.
+	 */
 	public int read(ByteBuffer buffer) throws LibUsbException {
-		return ftdi_read_data(ftdi(), buffer);
+		return read(buffer, buffer.remaining());
 	}
 
+	/**
+	 * Reads bytes into buffer.
+	 */
 	public int read(ByteBuffer buffer, int size) throws LibUsbException {
 		return ftdi_read_data(ftdi(), buffer, size);
 	}
@@ -242,6 +267,9 @@ public class Ftdi implements Closeable {
 		else ftdi_disable_bitbang(ftdi());
 	}
 
+	/**
+	 * Reads 8-bit pin status.
+	 */
 	public int readPins() throws LibUsbException {
 		return ftdi_read_pins(ftdi());
 	}
@@ -258,8 +286,8 @@ public class Ftdi implements Closeable {
 		return ftdi_poll_modem_status(ftdi());
 	}
 
-	public void flowCtrl(ftdi_flow_control flowCtrl) throws LibUsbException {
-		ftdi_set_flow_ctrl(ftdi(), flowCtrl);
+	public void flowControl(FlowControl flowCtrl) throws LibUsbException {
+		ftdi_set_flow_ctrl(ftdi(), flowCtrl.value);
 	}
 
 	public void dtr(boolean state) throws LibUsbException {

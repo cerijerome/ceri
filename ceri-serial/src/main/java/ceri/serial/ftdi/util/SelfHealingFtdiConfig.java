@@ -20,7 +20,7 @@ public class SelfHealingFtdiConfig {
 	public static final SelfHealingFtdiConfig DEFAULT =
 		builder().find(LibFtdiUtil.finder()).build();
 	static final Predicate<Exception> DEFAULT_PREDICATE =
-		named(SelfHealingFtdi::isBroken, "SelfHealingFtdi::isBroken");
+		named(SelfHealingFtdiConnector::isBroken, "SelfHealingFtdi::isBroken");
 	final libusb_device_criteria find;
 	final ftdi_interface iface;
 	final Integer baud;
