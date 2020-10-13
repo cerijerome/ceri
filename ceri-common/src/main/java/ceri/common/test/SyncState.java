@@ -47,8 +47,21 @@ public class SyncState<T> {
 		}
 	}
 
+	public static Bool boolNoResume() {
+		Bool bool = new Bool();
+		bool.resume(false);
+		return bool;
+	}
+
 	public static Bool bool() {
 		return new Bool();
+	}
+
+	/**
+	 * Create an instance with the resume function disabled.
+	 */
+	public static <T> SyncState<T> noResume() {
+		return SyncState.<T>of().resume(false);
 	}
 
 	public static <T> SyncState<T> of() {
@@ -165,10 +178,20 @@ public class SyncState<T> {
 	}
 
 	/**
+	 * Gets current value, then signals the call to resume.
+	 */
+	public T get() {
+		T t = call.value();
+		resume.signal();
+		return t;
+	}
+
+	/**
 	 * Signals that a call has been made, and waits for the resume signal (if enabled).
 	 */
 	protected void sync(T t) {
 		call.signal(t);
 		if (resumeEnabled) ConcurrentUtil.executeInterruptible(resume::await);
 	}
+	
 }

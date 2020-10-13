@@ -2,6 +2,9 @@ package ceri.common.test;
 
 import static ceri.common.test.TestUtil.assertAssertion;
 import static ceri.common.test.TestUtil.assertThrown;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.sql.SQLException;
 import org.junit.Test;
@@ -35,6 +38,13 @@ public class SyncStateBehavior {
 			sync.awaitCall();
 			exec.get();
 		}
+	}
+
+	@Test
+	public void shouldNotWaitIfBoolResumeIsDisabled() throws IOException, InterruptedException {
+		SyncState.Bool sync = SyncState.boolNoResume();
+		sync.acceptIo();
+		sync.awaitCall();
 	}
 
 	@Test
@@ -85,10 +95,17 @@ public class SyncStateBehavior {
 
 	@Test
 	public void shouldNotWaitIfResumeIsDisabled() throws IOException, InterruptedException {
-		SyncState<String> sync = SyncState.of();
-		sync.resume(false);
+		SyncState<String> sync = SyncState.noResume();
 		sync.acceptIo("test");
 		sync.assertCall("test");
+	}
+
+	@Test
+	public void shouldGetCurrentValue() {
+		SyncState<String> sync = SyncState.of();
+		assertNull(sync.get());
+		sync.accept("test");
+		assertThat(sync.get(), is("test"));
 	}
 
 }
