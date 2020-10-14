@@ -5,7 +5,7 @@ import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static java.lang.Double.MAX_VALUE;
 import static java.lang.Double.NaN;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.math.MathUtil;
 

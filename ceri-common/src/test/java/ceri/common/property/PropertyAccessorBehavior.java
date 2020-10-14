@@ -3,7 +3,7 @@ package ceri.common.property;
 import static ceri.common.test.TestUtil.assertCollection;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;

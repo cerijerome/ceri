@@ -2,7 +2,7 @@ package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertExists;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

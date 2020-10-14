@@ -4,7 +4,7 @@ import static ceri.common.color.Colorx.black;
 import static ceri.common.color.Colorx.full;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.awt.Color;
 import org.junit.Test;
 

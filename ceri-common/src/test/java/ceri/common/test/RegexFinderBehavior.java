@@ -2,7 +2,7 @@ package ceri.common.test;
 
 import static ceri.common.test.TestUtil.assertAssertion;
 import static ceri.common.test.TestUtil.findsRegex;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 
 public class RegexFinderBehavior {

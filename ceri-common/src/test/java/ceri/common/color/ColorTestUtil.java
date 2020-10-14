@@ -3,8 +3,9 @@ package ceri.common.color;
 import static ceri.common.color.ColorUtil.CHANNEL_MAX;
 import static ceri.common.data.ByteUtil.ubyteAt;
 import static ceri.common.test.TestUtil.assertApprox;
+import static ceri.common.test.TestUtil.assertEq;
+import static ceri.common.test.TestUtil.assertThat;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import java.awt.Color;
 
 public class ColorTestUtil {
@@ -69,7 +70,7 @@ public class ColorTestUtil {
 	}
 
 	private static void assertXComponent(Colorx colorx, int x) {
-		assertThat("x-component", colorx.x(), is(x));
+		assertEq(colorx.x(), x, "x-component");
 	}
 
 	public static void assertRgb(RgbColor color, double r, double g, double b) {

@@ -3,7 +3,7 @@ package ceri.common.io;
 import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.nio.file.Path;
 import java.util.function.Predicate;
 import org.junit.Test;

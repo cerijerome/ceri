@@ -5,7 +5,7 @@ import static ceri.common.exception.ExceptionAdapter.RUNTIME;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.junit.Test;

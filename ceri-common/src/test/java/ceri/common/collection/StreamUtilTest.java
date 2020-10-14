@@ -10,7 +10,7 @@ import static ceri.common.test.TestUtil.assertThrown;
 import static java.lang.Double.parseDouble;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

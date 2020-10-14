@@ -2,7 +2,7 @@ package ceri.common.test;
 
 import static ceri.common.test.TestUtil.matchesRegex;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.PrintStream;
 import org.junit.Test;
 import ceri.common.io.SystemIo;

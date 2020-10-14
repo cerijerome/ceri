@@ -1,7 +1,7 @@
 package ceri.common.io;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 

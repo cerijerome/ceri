@@ -10,7 +10,7 @@ import static java.awt.Color.pink;
 import static java.awt.Color.red;
 import static java.awt.Color.white;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.awt.Color;
 import org.junit.Test;
 

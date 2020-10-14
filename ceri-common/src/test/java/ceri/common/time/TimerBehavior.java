@@ -5,7 +5,7 @@ import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.util.BasicUtil.uncheckedCast;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;

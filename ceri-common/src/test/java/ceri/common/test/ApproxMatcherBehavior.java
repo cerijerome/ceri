@@ -3,7 +3,7 @@ package ceri.common.test;
 import static ceri.common.test.TestUtil.assertAssertion;
 import static ceri.common.test.TestUtil.isApprox;
 import static ceri.common.test.TestUtil.isRounded;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 
 public class ApproxMatcherBehavior {

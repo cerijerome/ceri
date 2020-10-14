@@ -4,7 +4,7 @@ import static ceri.common.sql.SqlType.sqlClob;
 import static ceri.common.sql.SqlType.sqlNumeric;
 import static ceri.common.sql.SqlType.sqlVarChar;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.sql.Types;
 import org.junit.Test;
 import ceri.common.text.StringUtil;

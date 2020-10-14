@@ -10,7 +10,7 @@ import static ceri.common.function.FunctionTestUtil.intUnaryOperator;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

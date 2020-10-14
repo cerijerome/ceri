@@ -24,6 +24,16 @@ public class SafeReadWriteBehavior {
 	}
 
 	@Test
+	public void shouldUseReadLockToReadWithNoReturn() {
+		SafeReadWrite safe = SafeReadWrite.of();
+		safe.readNoReturn(() -> {
+			assertTrue(safe.lock.readLock().tryLock());
+			safe.lock.readLock().unlock();
+			assertFalse(safe.lock.writeLock().tryLock());
+		});
+	}
+
+	@Test
 	public void shouldUseWriteLockToWrite() {
 		SafeReadWrite safe = SafeReadWrite.of();
 		safe.write(() -> {

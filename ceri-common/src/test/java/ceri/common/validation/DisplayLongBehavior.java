@@ -9,7 +9,7 @@ import static ceri.common.validation.DisplayLong.hex4;
 import static ceri.common.validation.DisplayLong.hex8;
 import static ceri.common.validation.DisplayLong.udec;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 
 public class DisplayLongBehavior {

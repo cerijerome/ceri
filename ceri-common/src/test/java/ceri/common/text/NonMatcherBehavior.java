@@ -1,11 +1,12 @@
 package ceri.common.text;
 
+import static ceri.common.test.TestUtil.assertEq;
+import static ceri.common.test.TestUtil.assertNotEq;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.text.NonMatchResultBehavior.assertNonMatchResult;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -166,7 +167,7 @@ public class NonMatcherBehavior {
 		NonMatchResult r0 = m.toResult();
 		assertThrown(() -> r0.group());
 		m.find();
-		assertThat(m.toResult().group(), is("BC"));
+		assertEq(m.toResult().group(), "BC");
 	}
 
 	@Test
@@ -185,18 +186,18 @@ public class NonMatcherBehavior {
 		NonMatcher m0 = nonMatcher("[a-c]+", "ABC").region(1, 2);
 		NonMatcher m1 = nonMatcher("[a-c]+", "ABC").region(1, 2);
 		NonMatcher m2 = nonMatcher("[a-c]+", "ABC");
-		assertThat(m0.toString(), is(m1.toString()));
-		assertThat(m0.toString(), is(not(m2.toString())));
-		assertTrue(m0.find());
-		assertThat(m0.toString(), is(not(m1.toString())));
+		assertEq(m0.toString(), m1.toString());
+		assertNotEq(m0.toString(), m2.toString());
+		assertEq(m0.find(), true);
+		assertNotEq(m0.toString(), m1.toString());
 		assertTrue(m1.find());
-		assertThat(m0.toString(), is(m1.toString()));
+		assertEq(m0.toString(), m1.toString());
 	}
 
 	public static void assertNonMatcher(NonMatcher m, String group, int start, int end) {
-		assertThat("group", m.group(), is(group));
-		assertThat("start", m.start(), is(start));
-		assertThat("end", m.end(), is(end));
+		assertEq(m.group(), group, "group");
+		assertEq(m.start(), start, "start");
+		assertEq(m.end(), end, "end");
 	}
 
 	private static NonMatcher nonMatcher(String pattern, String text) {

@@ -5,7 +5,7 @@ import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import ceri.common.color.X11Color;

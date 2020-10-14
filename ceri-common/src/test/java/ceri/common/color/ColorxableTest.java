@@ -3,7 +3,7 @@ package ceri.common.color;
 import static ceri.common.color.ColorTestUtil.assertColorx;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 
 public class ColorxableTest {

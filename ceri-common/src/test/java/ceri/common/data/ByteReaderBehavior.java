@@ -5,7 +5,7 @@ import static ceri.common.test.TestUtil.assertByte;
 import static ceri.common.test.TestUtil.assertStream;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;

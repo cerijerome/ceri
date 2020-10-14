@@ -4,7 +4,7 @@ import static ceri.common.data.TypeTranscoderBehavior.assertRemainder;
 import static ceri.common.test.TestUtil.assertCollection;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.util.Collections;
 import java.util.Set;
 import org.junit.Before;

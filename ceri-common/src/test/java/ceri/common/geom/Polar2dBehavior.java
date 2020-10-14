@@ -8,7 +8,7 @@ import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Math.PI;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
 

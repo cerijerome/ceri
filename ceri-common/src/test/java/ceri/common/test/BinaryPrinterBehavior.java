@@ -2,7 +2,7 @@ package ceri.common.test;
 
 import static ceri.common.text.StringUtil.asPrintStream;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;

@@ -21,13 +21,11 @@ import static ceri.common.test.TestUtil.assertNaN;
 import static ceri.common.test.TestUtil.assertRange;
 import static ceri.common.test.TestUtil.assertRead;
 import static ceri.common.test.TestUtil.assertRegex;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrowable;
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.assertValue;
 import static ceri.common.test.TestUtil.init;
-import static ceri.common.test.TestUtil.isArray;
-import static ceri.common.test.TestUtil.isList;
-import static ceri.common.test.TestUtil.isObject;
 import static ceri.common.test.TestUtil.matchesRegex;
 import static ceri.common.test.TestUtil.resource;
 import static ceri.common.test.TestUtil.testMap;
@@ -36,14 +34,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -145,18 +141,6 @@ public class TestUtilTest {
 			sync.signal();
 			exec.get();
 		}
-	}
-
-	@Test
-	public void testIsArray() {
-		Integer[] array = { 1, 2, 3 };
-		assertThat(array, isArray(1, 2, 3));
-	}
-
-	@Test
-	public void testIsList() {
-		List<Integer> list = Arrays.asList(1, 2, 3);
-		assertThat(list, isList(1, 2, 3));
 	}
 
 	@Test
@@ -513,13 +497,6 @@ public class TestUtilTest {
 			char c = r.charAt(i);
 			assertRange(c, ' ', '~');
 		}
-	}
-
-	@Test
-	public void testIsObject() {
-		assertThat(Integer.valueOf(1), isObject(1));
-		assertThat(1, isObject(Integer.valueOf(1)));
-		assertThat(Integer.valueOf(1), not(isObject(1L)));
 	}
 
 	@Test

@@ -2,7 +2,7 @@ package ceri.common.concurrent;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteArray;

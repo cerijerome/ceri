@@ -1,7 +1,7 @@
 package ceri.common.validation;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.util.BasicUtil;
 

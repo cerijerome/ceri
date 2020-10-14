@@ -3,7 +3,7 @@ package ceri.common.function;
 import static ceri.common.function.FunctionTestUtil.longFunction;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.util.function.LongFunction;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil.Std;

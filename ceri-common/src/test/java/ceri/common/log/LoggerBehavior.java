@@ -6,7 +6,7 @@ import static ceri.common.log.Logger.FormatFlag.noStackTrace;
 import static ceri.common.log.Logger.FormatFlag.noThread;
 import static ceri.common.test.TestUtil.assertValue;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import org.junit.After;

@@ -6,7 +6,7 @@ import static ceri.common.test.TestUtil.assertRead;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.Before;

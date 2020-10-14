@@ -7,7 +7,7 @@ import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.cyan;
 import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.magenta;
 import static ceri.common.text.AnsiEscape.Csi.Sgr.BasicColor.yellow;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.awt.Color;
 import org.junit.Test;
 

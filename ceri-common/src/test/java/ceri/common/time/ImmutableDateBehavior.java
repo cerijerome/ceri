@@ -2,7 +2,7 @@ package ceri.common.time;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.util.Calendar;
 import java.util.Date;
 import org.junit.Test;

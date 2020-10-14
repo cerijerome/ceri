@@ -4,7 +4,7 @@ import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

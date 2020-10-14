@@ -3,7 +3,7 @@ package ceri.common.function;
 import static ceri.common.function.FunctionTestUtil.longUnaryOperator;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.util.function.LongUnaryOperator;
 import org.junit.Test;

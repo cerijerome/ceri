@@ -1,7 +1,7 @@
 package ceri.common.concurrent;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 
 public class RuntimeInterruptedExceptionBehavior {

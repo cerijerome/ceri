@@ -1,11 +1,7 @@
 package ceri.common.test;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.not;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -35,7 +31,7 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.hamcrest.Matcher;
-import org.hamcrest.core.Is;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.IsSame;
 import org.junit.runner.JUnitCore;
 import ceri.common.collection.ArrayUtil;
@@ -70,14 +66,38 @@ public class TestUtil {
 
 	private TestUtil() {}
 
+	public static <T> void assertThat(T actual, Matcher<? super T> matcher) {
+		assertThat("", actual, matcher);
+	}
+
+	public static <T> void assertThat(String reason, T actual, Matcher<? super T> matcher) {
+		MatcherAssert.assertThat(reason, actual, matcher);
+	}
+
+	public static <T> void assertEq(T actual, T expected) {
+		assertEq(actual, expected, "");
+	}
+
+	public static <T> void assertEq(T actual, T expected, String reason) {
+		MatcherAssert.assertThat(reason, actual, is(expected));
+	}
+
+	public static <T> void assertNotEq(T actual, T expected) {
+		assertNotEq(actual, expected, "");
+	}
+
+	public static <T> void assertNotEq(T actual, T expected, String reason) {
+		MatcherAssert.assertThat(reason, actual, not(expected));
+	}
+
 	/**
 	 * Calls private constructor. Useful for code coverage of utility classes.
 	 */
 	public static void assertPrivateConstructor(Class<?> cls) {
 		try {
 			Constructor<?> constructor = cls.getDeclaredConstructor();
-			assertTrue("Constructor is not private",
-				Modifier.isPrivate(constructor.getModifiers()));
+			assertEq(Modifier.isPrivate(constructor.getModifiers()), true,
+				"Constructor is not private");
 			constructor.setAccessible(true);
 			constructor.newInstance();
 			constructor.setAccessible(false);
@@ -236,7 +256,7 @@ public class TestUtil {
 	@SafeVarargs
 	public static <T> void assertAllNotEqual(T t0, T... ts) {
 		for (T t : ts)
-			assertNotEquals(t0, t);
+			assertNotEq(t0, t);
 	}
 
 	/**
@@ -247,14 +267,14 @@ public class TestUtil {
 		exerciseEqual(t0, t0);
 		for (T t : ts)
 			exerciseEqual(t0, t);
-		assertNotEquals(t0, null);
-		assertNotEquals(t0, new Object());
+		assertNotEq(t0, null);
+		assertNotEq(t0, new Object());
 	}
 
 	private static <T> void exerciseEqual(T t0, T t1) {
-		assertEquals(t0, t1);
-		assertThat(t0.hashCode(), is(t1.hashCode()));
-		assertThat(t0.toString(), is(t1.toString()));
+		assertEq(t0, t1);
+		assertEq(t0.hashCode(), t1.hashCode());
+		assertEq(t0.toString(), t1.toString());
 	}
 
 	/**
@@ -320,7 +340,7 @@ public class TestUtil {
 	 * Checks a double value is NaN.
 	 */
 	public static void assertNaN(String reason, double value) {
-		assertTrue(reason, Double.isNaN(value));
+		assertEq(Double.isNaN(value), true, reason);
 	}
 
 	/**
@@ -349,11 +369,11 @@ public class TestUtil {
 	 */
 	public static void assertApprox(String reason, double value, double expected, int precision) {
 		if (!Double.isFinite(expected) || !Double.isFinite(value)) {
-			assertThat(reason, value, is(expected));
+			assertEq(value, expected, reason);
 		} else {
 			double approxValue = MathUtil.round(precision, value);
 			double approxExpected = MathUtil.round(precision, expected);
-			assertThat(reason, approxValue, is(approxExpected));
+			assertEq(approxValue, approxExpected, reason);
 		}
 	}
 
@@ -368,7 +388,7 @@ public class TestUtil {
 	 * Checks double values are correct to given number of decimal places.
 	 */
 	public static void assertApproxPrecision(double[] values, int precision, double... expecteds) {
-		assertThat("Array size", values.length, is(expecteds.length));
+		assertEq(values.length, expecteds.length, "Array size");
 		for (int i = 0; i < values.length; i++)
 			assertApprox("Index " + i, values[i], expecteds[i], precision);
 	}
@@ -377,30 +397,30 @@ public class TestUtil {
 	 * Convenience method to check byte value.
 	 */
 	public static void assertByte(byte value, int expected) {
-		assertThat(value, is((byte) expected));
+		assertEq(value, (byte) expected);
 	}
 
 	/**
 	 * Convenience method to check short value.
 	 */
 	public static void assertShort(short value, int expected) {
-		assertThat(value, is((short) expected));
+		assertEq(value, (short) expected);
 	}
 
 	/**
 	 * Checks a value is within given range, with detailed failure information if not.
 	 */
 	public static void assertRange(long value, long minInclusive, long maxInclusive) {
-		assertTrue("Expected >= " + minInclusive + " but was " + value, value >= minInclusive);
-		assertTrue("Expected <= " + maxInclusive + " but was " + value, value <= maxInclusive);
+		assertEq(value >= minInclusive, true, "Expected >= " + minInclusive + " but was " + value);
+		assertEq(value <= maxInclusive, true, "Expected <= " + maxInclusive + " but was " + value);
 	}
 
 	/**
 	 * Checks a value is within given range, with detailed failure information if not.
 	 */
 	public static void assertRange(double value, double minInclusive, double maxExclusive) {
-		assertTrue("Expected >= " + minInclusive + " but was " + value, value >= minInclusive);
-		assertTrue("Expected < " + maxExclusive + " but was " + value, value < maxExclusive);
+		assertEq(value >= minInclusive, true, "Expected >= " + minInclusive + " but was " + value);
+		assertEq(value < maxExclusive, true, "Expected < " + maxExclusive + " but was " + value);
 	}
 
 	/**
@@ -693,12 +713,12 @@ public class TestUtil {
 		Collection<? extends T> rhs) {
 		int i = 0;
 		for (T t : lhs) {
-			assertTrue("Unexpected element at position " + i + ": " + t, rhs.contains(t));
+			assertEq(rhs.contains(t), true, "Unexpected element at position " + i + ": " + t);
 			i++;
 		}
 		for (T t : rhs)
-			assertTrue("Missing element: " + t, lhs.contains(t));
-		assertEquals("Collection size", rhs.size(), lhs.size());
+			assertEq(lhs.contains(t), true, "Missing element: " + t);
+		assertEq(lhs.size(), rhs.size(), "Collection size");
 	}
 
 	/**
@@ -724,37 +744,37 @@ public class TestUtil {
 	}
 
 	private static void assertSize(String message, long lhsSize, long rhsSize) {
-		assertThat(message, lhsSize, is(rhsSize));
+		assertEq(lhsSize, rhsSize, message);
 	}
 
 	private static void assertIsArray(Object array) {
-		assertTrue("Expected an array but was " + array.getClass(), array.getClass().isArray());
+		assertEq(array.getClass().isArray(), true, "Expected an array but was " + array.getClass());
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject) {
-		assertThat(subject, is(Map.of()));
+		assertEq(subject, Map.of());
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k, V v) {
-		assertThat(subject, is(ImmutableUtil.asMap(k, v)));
+		assertEq(subject, ImmutableUtil.asMap(k, v));
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1) {
-		assertThat(subject, is(ImmutableUtil.asMap(k0, v0, k1, v1)));
+		assertEq(subject, ImmutableUtil.asMap(k0, v0, k1, v1));
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2) {
-		assertThat(subject, is(ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2)));
+		assertEq(subject, ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2));
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2, K k3,
 		V v3) {
-		assertThat(subject, is(ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2, k3, v3)));
+		assertEq(subject, ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2, k3, v3));
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2, K k3,
 		V v3, K k4, V v4) {
-		assertThat(subject, is(ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2, k3, v3, k4, v4)));
+		assertEq(subject, ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2, k3, v3, k4, v4));
 	}
 
 	@SafeVarargs
@@ -835,10 +855,11 @@ public class TestUtil {
 	/**
 	 * Verifies throwable super class and message.
 	 */
+	@SuppressWarnings("null")
 	public static void assertThrowable(Throwable t, Class<? extends Throwable> superCls,
 		Predicate<String> messageTest) {
 		if (t == null && superCls == null && messageTest == null) return;
-		assertNotNull("Throwable is null", t);
+		assertNotEq(t, null, "Throwable is null");
 		if (superCls != null && !superCls.isAssignableFrom(t.getClass()))
 			throw failure("Expected %s: %s", superCls.getName(), t.getClass().getName());
 		if (messageTest == null) return;
@@ -917,7 +938,7 @@ public class TestUtil {
 	 */
 	public static void assertAscii(ByteReader reader, String s) {
 		var actual = reader.readAscii(s.length());
-		assertThat(actual, is(s));
+		assertEq(actual, s);
 	}
 
 	/**
@@ -945,14 +966,14 @@ public class TestUtil {
 	 * Check if file exists.
 	 */
 	public static void assertExists(Path path, boolean exists) {
-		assertThat("Path exists: " + path, Files.exists(path), is(exists));
+		assertEq(Files.exists(path), exists, "Path exists: " + path);
 	}
 
 	/**
 	 * Check if file exists.
 	 */
 	public static void assertDir(Path path, boolean isDir) {
-		assertThat("Path is a directory: " + path, Files.isDirectory(path), is(isDir));
+		assertEq(Files.isDirectory(path), isDir, "Path is a directory: " + path);
 	}
 
 	/**
@@ -967,7 +988,7 @@ public class TestUtil {
 			Path rhsFile = rhsDir.resolve(path);
 			boolean lhsIsDir = Files.isDirectory(lhsFile);
 			boolean rhsIsDir = Files.isDirectory(rhsFile);
-			assertThat(lhsFile + " is directory", lhsIsDir, is(rhsIsDir));
+			assertEq(lhsIsDir, rhsIsDir, lhsFile + " is directory");
 			if (!rhsIsDir) assertFile(lhsFile, rhsFile);
 		}
 	}
@@ -976,7 +997,7 @@ public class TestUtil {
 	 * Checks contents of two files are equal, with specific failure information if not.
 	 */
 	public static void assertFile(Path actual, Path expected) throws IOException {
-		assertThat("File size", Files.size(actual), is(Files.size(expected)));
+		assertEq(Files.size(actual), Files.size(expected), "File size");
 		long pos = Files.mismatch(actual, expected);
 		if (pos >= 0) throw failure("Byte mismatch at index %d", pos);
 	}
@@ -999,7 +1020,7 @@ public class TestUtil {
 	 * Checks contents of the files matches bytes, with specific failure information if not.
 	 */
 	public static void assertFile(Path actual, ByteProvider byteProvider) throws IOException {
-		assertThat("File size", Files.size(actual), is((long) byteProvider.length()));
+		assertEq(Files.size(actual), (long) byteProvider.length(), "File size");
 		byte[] actualBytes = Files.readAllBytes(actual);
 		for (int i = 0; i < actualBytes.length; i++)
 			if (actualBytes[i] != byteProvider.getByte(i))
@@ -1011,7 +1032,7 @@ public class TestUtil {
 	 */
 	public static void assertPath(Path actual, String expected, String... more) {
 		Path expectedPath = IoUtil.newPath(actual, expected, more);
-		assertThat(actual, is(expectedPath));
+		assertEq(actual, expectedPath);
 	}
 
 	/**
@@ -1019,7 +1040,7 @@ public class TestUtil {
 	 */
 	public static void assertPaths(Collection<Path> actual, String... paths) {
 		if (actual.isEmpty()) {
-			assertEquals("Path count", 0, paths.length);
+			assertEq(paths.length, 0, "Path count");
 			return;
 		}
 		@SuppressWarnings("resource")
@@ -1073,35 +1094,11 @@ public class TestUtil {
 	}
 
 	/**
-	 * Convenience method for creating an array matcher.
-	 */
-	@SafeVarargs
-	public static <T> Matcher<T[]> isArray(T... ts) {
-		return Is.is(ts);
-	}
-
-	/**
-	 * Convenience method for creating a list matcher.
-	 */
-	@SafeVarargs
-	public static <T> Matcher<List<T>> isList(T... ts) {
-		return Is.is(Arrays.asList(ts));
-	}
-
-	/**
 	 * Version of CoreMatchers.is(Class<T>) that checks for class, not instance of class.
 	 */
 	public static <T> Matcher<T> isClass(Class<?> cls) {
 		IsSame<?> isSame = new IsSame<>(cls);
 		return BasicUtil.uncheckedCast(isSame);
-	}
-
-	/**
-	 * Untyped version of CoreMatchers.is(T), useful for primitives.
-	 */
-	public static <T> Matcher<T> isObject(Object obj) {
-		Matcher<Object> is = Is.is(obj);
-		return BasicUtil.uncheckedCast(is);
 	}
 
 	/**

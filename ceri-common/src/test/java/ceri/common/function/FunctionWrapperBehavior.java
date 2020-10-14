@@ -14,7 +14,7 @@ import static ceri.common.function.FunctionTestUtil.supplier;
 import static ceri.common.function.FunctionTestUtil.toIntFunction;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.util.List;
 import org.junit.Test;
