@@ -6,7 +6,7 @@ import static ceri.common.test.TestUtil.assertThrowable;
 import static ceri.common.text.RegexUtil.finder;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

@@ -2,7 +2,7 @@ package ceri.log.concurrent;
 
 import static ceri.common.concurrent.ConcurrentUtil.delayMicros;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;

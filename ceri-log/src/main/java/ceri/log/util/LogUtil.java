@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.data.ByteUtil;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
@@ -373,6 +374,13 @@ public class LogUtil {
 	 */
 	public static Object escaped(final Object obj) {
 		return toString(() -> StringUtil.escape(String.valueOf(obj)));
+	}
+
+	/**
+	 * Returns an object with an escaped toString(), replacing unprintable chars with literals.
+	 */
+	public static Object escapedAscii(byte[] bytes, int offset, int length) {
+		return toString(() -> StringUtil.escape(ByteUtil.fromAscii(bytes, offset, length)));
 	}
 
 	/**

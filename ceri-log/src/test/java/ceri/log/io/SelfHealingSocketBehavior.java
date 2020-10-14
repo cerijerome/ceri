@@ -4,7 +4,7 @@ import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.findsRegex;
 import static ceri.common.test.TestUtil.throwIt;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import static org.mockito.Mockito.verify;
 import java.io.IOException;
 import java.net.Socket;

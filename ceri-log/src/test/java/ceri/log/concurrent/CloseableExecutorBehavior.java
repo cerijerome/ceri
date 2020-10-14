@@ -2,7 +2,7 @@ package ceri.log.concurrent;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
