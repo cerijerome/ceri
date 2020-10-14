@@ -7,7 +7,7 @@ import static ceri.x10.command.House.C;
 import static ceri.x10.command.House.I;
 import static ceri.x10.command.Unit._11;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;

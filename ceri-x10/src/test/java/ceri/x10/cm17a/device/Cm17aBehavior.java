@@ -1,7 +1,7 @@
 package ceri.x10.cm17a.device;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.x10.command.Command;

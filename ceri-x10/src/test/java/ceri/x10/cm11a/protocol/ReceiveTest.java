@@ -12,7 +12,7 @@ import static ceri.x10.command.House.G;
 import static ceri.x10.command.Unit._1;
 import static ceri.x10.command.Unit._3;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 
 public class ReceiveTest {

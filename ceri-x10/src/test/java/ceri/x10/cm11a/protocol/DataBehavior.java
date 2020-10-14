@@ -5,7 +5,7 @@ import static ceri.common.time.DateUtil.UTC_EPOCH;
 import static ceri.x10.command.House.L;
 import static ceri.x10.command.Unit._12;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.time.LocalDate;
 import org.junit.Test;
 import ceri.common.data.ByteArray;

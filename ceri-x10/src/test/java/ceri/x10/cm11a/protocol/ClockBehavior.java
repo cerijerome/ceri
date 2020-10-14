@@ -6,7 +6,7 @@ import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.test.TestUtil.reader;
 import static ceri.common.time.DateUtil.UTC_EPOCH;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.time.Month;
 import org.junit.Test;
 import ceri.x10.command.House;

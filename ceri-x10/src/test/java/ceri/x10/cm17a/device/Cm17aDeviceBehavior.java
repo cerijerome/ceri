@@ -23,7 +23,7 @@ import static ceri.x10.command.Unit._5;
 import static ceri.x10.command.Unit._7;
 import static ceri.x10.command.Unit._9;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.AfterClass;

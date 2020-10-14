@@ -21,7 +21,7 @@ import static ceri.x10.command.Unit._2;
 import static ceri.x10.command.Unit._3;
 import static ceri.x10.command.Unit._4;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.util.Collection;
 import org.junit.Test;
 

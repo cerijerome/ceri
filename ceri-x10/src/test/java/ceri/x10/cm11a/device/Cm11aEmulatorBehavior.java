@@ -4,7 +4,7 @@ import static ceri.x10.command.House.B;
 import static ceri.x10.command.Unit._6;
 import static ceri.x10.command.Unit._7;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

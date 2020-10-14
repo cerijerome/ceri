@@ -2,7 +2,7 @@ package ceri.x10.cm11a.protocol;
 
 import static ceri.common.test.TestUtil.reader;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;

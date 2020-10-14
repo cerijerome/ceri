@@ -2,7 +2,7 @@ package ceri.x10.cm17a;
 
 import static ceri.common.test.TestUtil.assertRegex;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.io.DeviceMode;
 import ceri.serial.javax.util.SelfHealingSerialConfig;

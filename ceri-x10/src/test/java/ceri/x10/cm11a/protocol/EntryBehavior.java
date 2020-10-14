@@ -34,7 +34,7 @@ import static ceri.x10.command.Unit._6;
 import static ceri.x10.command.Unit._8;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.util.Set;
 import org.junit.Test;
 import ceri.x10.command.Command;
