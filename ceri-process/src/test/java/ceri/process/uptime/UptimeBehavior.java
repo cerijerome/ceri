@@ -1,7 +1,7 @@
 package ceri.process.uptime;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.process.util.ProcessTestUtil;

@@ -5,7 +5,7 @@ import static ceri.process.util.ProcessTestUtil.assertParameters;
 import static ceri.process.util.ProcessTestUtil.mockProcessor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.util.Map;
 import org.junit.Test;
