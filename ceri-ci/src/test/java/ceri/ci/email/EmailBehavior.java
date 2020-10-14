@@ -5,7 +5,7 @@ import static ceri.common.test.TestUtil.assertCollection;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.util.Date;
 import javax.mail.Message;

@@ -1,7 +1,7 @@
 package ceri.ci.alert;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;

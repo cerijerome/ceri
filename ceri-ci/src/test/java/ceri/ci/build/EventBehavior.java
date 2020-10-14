@@ -4,7 +4,7 @@ import static ceri.common.test.TestUtil.assertRange;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import org.junit.Test;

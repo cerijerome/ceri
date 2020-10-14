@@ -1,12 +1,12 @@
 package ceri.ci.build;
 
 import static ceri.ci.build.BuildTestUtil.assertBuildNames;
-import static ceri.ci.build.BuildTestUtil.assertEvents;
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
+import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 public class BuildEventBehavior {
@@ -22,7 +22,7 @@ public class BuildEventBehavior {
 		b1.applyTo(builds);
 		assertBuildNames(builds, "build");
 		assertJobNames(builds.build("build"), "job");
-		assertEvents(builds.build("build").job("job").events, e1, e0);
+		assertCollection(builds.build("build").job("job").events, e1, e0);
 	}
 
 	@Test

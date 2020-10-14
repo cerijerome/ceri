@@ -1,12 +1,12 @@
 package ceri.ci.build;
 
 import static ceri.ci.build.BuildTestUtil.assertBuildNames;
-import static ceri.ci.build.BuildTestUtil.assertEvents;
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
+import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class BuildsBehavior {
 		builds.delete("b0");
 		assertBuildNames(builds, "b1");
 		assertJobNames(builds.build("b1"), "j0");
-		assertEvents(builds.build("b1").job("j0").events, e3);
+		assertCollection(builds.build("b1").job("j0").events, e3);
 		builds.delete();
 		assertThat(builds, is(new Builds()));
 	}
@@ -42,8 +42,8 @@ public class BuildsBehavior {
 		builds.process(b0, b1);
 		assertBuildNames(builds, "b0");
 		assertJobNames(builds.build("b0"), "j0", "j1");
-		assertEvents(builds.build("b0").job("j0").events, e0);
-		assertEvents(builds.build("b0").job("j1").events, e1);
+		assertCollection(builds.build("b0").job("j0").events, e0);
+		assertCollection(builds.build("b0").job("j1").events, e1);
 	}
 
 	@Test
@@ -56,8 +56,8 @@ public class BuildsBehavior {
 		assertBuildNames(builds, "b0", "b1");
 		assertJobNames(builds.build("b0"), "j0", "j1");
 		assertJobNames(builds.build("b1"), "j0");
-		assertEvents(builds.build("b0").job("j0").events, e4, e3, e2, e1);
-		assertEvents(builds.build("b0").job("j1").events, e6, e5, e4);
+		assertCollection(builds.build("b0").job("j0").events, e4, e3, e2, e1);
+		assertCollection(builds.build("b0").job("j1").events, e6, e5, e4);
 		assertTrue(builds.build("b1").job("j0").events.isEmpty());
 	}
 
@@ -86,17 +86,17 @@ public class BuildsBehavior {
 		builds.build("b2").job("j1").events(e4);
 		builds.build("b2").job("j2").events(e5, e6, e7);
 		Builds builds2 = new Builds(builds);
-		assertEvents(builds2.build("b1").job("j1").events, e1, e0);
-		assertEvents(builds2.build("b1").job("j2").events, e3);
-		assertEvents(builds2.build("b2").job("j1").events, e4);
-		assertEvents(builds2.build("b2").job("j2").events, e7, e6, e5);
+		assertCollection(builds2.build("b1").job("j1").events, e1, e0);
+		assertCollection(builds2.build("b1").job("j2").events, e3);
+		assertCollection(builds2.build("b2").job("j1").events, e4);
+		assertCollection(builds2.build("b2").job("j2").events, e7, e6, e5);
 		builds.build("b1").job("j1").events(e7);
 		builds.build("b1").job("j2").events(e7);
 		builds.build("b2").job("j1").events(e7);
-		assertEvents(builds2.build("b1").job("j1").events, e1, e0);
-		assertEvents(builds2.build("b1").job("j2").events, e3);
-		assertEvents(builds2.build("b2").job("j1").events, e4);
-		assertEvents(builds2.build("b2").job("j2").events, e7, e6, e5);
+		assertCollection(builds2.build("b1").job("j1").events, e1, e0);
+		assertCollection(builds2.build("b1").job("j2").events, e3);
+		assertCollection(builds2.build("b2").job("j1").events, e4);
+		assertCollection(builds2.build("b2").job("j2").events, e7, e6, e5);
 	}
 
 	@Test
