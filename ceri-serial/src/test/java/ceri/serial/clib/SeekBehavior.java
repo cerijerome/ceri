@@ -3,7 +3,7 @@ package ceri.serial.clib;
 import static ceri.common.util.OsUtil.macInt;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 
 public class SeekBehavior {

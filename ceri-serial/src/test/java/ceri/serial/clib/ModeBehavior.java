@@ -17,7 +17,7 @@ import static ceri.serial.clib.Mode.Mask.woth;
 import static ceri.serial.clib.Mode.Mask.wusr;
 import static ceri.serial.clib.Mode.Mask.xusr;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.serial.clib.Mode.Mask;
 

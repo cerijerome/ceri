@@ -9,7 +9,7 @@ import static ceri.serial.clib.OpenFlag.O_CREAT;
 import static ceri.serial.clib.OpenFlag.O_RDWR;
 import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

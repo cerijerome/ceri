@@ -4,7 +4,7 @@ import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import org.junit.Test;
 import com.sun.jna.Memory;

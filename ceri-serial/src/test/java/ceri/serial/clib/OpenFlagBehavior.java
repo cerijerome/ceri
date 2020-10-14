@@ -7,7 +7,7 @@ import static ceri.serial.clib.OpenFlag.O_RDWR;
 import static ceri.serial.clib.OpenFlag.O_TRUNC;
 import static ceri.serial.clib.OpenFlag.O_WRONLY;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 
 public class OpenFlagBehavior {
