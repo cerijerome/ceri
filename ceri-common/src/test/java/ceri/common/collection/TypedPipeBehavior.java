@@ -4,6 +4,7 @@ import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.SimpleExecutor;
 
 public class TypedPipeBehavior {
@@ -28,7 +29,10 @@ public class TypedPipeBehavior {
 	public void shouldAwaitRead() {
 		TypedPipe<String> pipe = TypedPipe.of();
 		pipe.out().writeAll("a", "b", "c");
-		try (var exec = SimpleExecutor.call(() -> pipe.in().readN(3))) {
+		try (var exec = SimpleExecutor.call(() -> {
+			ConcurrentUtil.delay(1);
+			return pipe.in().readN(3);
+		})) {
 			pipe.awaitRead(1);
 			assertIterable(exec.get(), "a", "b", "c");
 		}

@@ -66,7 +66,6 @@ public class TestUtil {
 	private TestUtil() {}
 
 	// TODO:
-	// - check all asserts with String
 	// - change assertThat(..., is(...)) to assertEquals(..., ...)
 	// - reorder assert calls
 	// - move to AssertUtil
