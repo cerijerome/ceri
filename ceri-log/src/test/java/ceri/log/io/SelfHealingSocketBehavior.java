@@ -1,10 +1,10 @@
 package ceri.log.io;
 
+import static ceri.common.test.TestUtil.assertFind;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.findsRegex;
 import static ceri.common.test.TestUtil.throwIt;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import static org.mockito.Mockito.verify;
 import java.io.IOException;
 import java.net.Socket;
@@ -121,7 +121,7 @@ public class SelfHealingSocketBehavior {
 	@Test
 	public void shouldHaveStringRepresentation() {
 		try (SelfHealingSocket socket = builder().build()) {
-			assertThat(socket.toString(), findsRegex("localhost.*12345"));
+			assertFind(socket.toString(), "localhost.*12345");
 		}
 	}
 

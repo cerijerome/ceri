@@ -2,8 +2,8 @@ package ceri.common.data;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertCollection;
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class IntBitSetBehavior {

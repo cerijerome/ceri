@@ -1,7 +1,7 @@
 package ceri.log.rpc;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.Before;

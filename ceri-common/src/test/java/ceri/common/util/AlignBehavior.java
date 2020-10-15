@@ -1,7 +1,7 @@
 package ceri.common.util;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class AlignBehavior {

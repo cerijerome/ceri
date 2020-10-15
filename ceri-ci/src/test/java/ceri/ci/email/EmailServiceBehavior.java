@@ -1,9 +1,9 @@
 package ceri.ci.email;
 
 import static ceri.common.test.TestUtil.assertCollection;
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;

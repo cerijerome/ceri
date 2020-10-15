@@ -1,9 +1,9 @@
 package ceri.common.net;
 
-import static ceri.common.test.TestUtil.assertEq;
+import static ceri.common.test.TestUtil.assertEquals;
+import static ceri.common.test.TestUtil.assertFalse;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertTrue;
 import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -38,10 +38,10 @@ public class NetUtilTest {
 	public void testIsLocalhost() {
 		for (String address : Arrays.asList("localhost", "Localhost", "127.0.0.1", "127.1",
 			"127.255.255.255", "::1", "0:0:0:0:0:0:0:1", "0000::0001", "00:01"))
-			assertEq(NetUtil.isLocalhost(address), true, address);
+			assertEquals(NetUtil.isLocalhost(address), true, address);
 		for (String address : Arrays.asList(null, "", "local_host", "128.0.0.1", "127", "0.0.0.0",
 			"::0", "0:0:0:0:0:0:1:1", "0000::0000"))
-			assertEq(NetUtil.isLocalhost(address), false, address);
+			assertEquals(NetUtil.isLocalhost(address), false, address);
 	}
 
 	@Test

@@ -1,7 +1,9 @@
 package ceri.x10.cm11a.device;
 
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.assertTrue;
 import static ceri.x10.cm11a.protocol.Protocol.READY;
 import static ceri.x10.cm11a.protocol.Protocol.RING_ENABLE;
 import static ceri.x10.command.House.A;
@@ -17,8 +19,6 @@ import static ceri.x10.command.Unit._6;
 import static ceri.x10.command.Unit._7;
 import static ceri.x10.command.Unit._9;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;

@@ -1,7 +1,7 @@
 package ceri.process.util;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;

@@ -2,16 +2,15 @@ package ceri.common.collection;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertFalse;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertSame;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.isClass;
+import static ceri.common.test.TestUtil.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -248,7 +247,7 @@ public class ArrayUtilTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testArrayType() {
-		assertThat(ArrayUtil.arrayType(Boolean.class), isClass(Boolean[].class));
+		assertSame(ArrayUtil.arrayType(Boolean.class), Boolean[].class);
 		ArrayUtil.arrayType(boolean.class); // Primitive types not allowed
 	}
 
@@ -502,19 +501,19 @@ public class ArrayUtilTest {
 	public void testSuperclass() {
 		C[][] obj = new C[0][];
 		Class<?> cls = obj.getClass();
-		assertThat(cls, isClass(C[][].class));
+		assertSame(cls, C[][].class);
 		cls = ArrayUtil.superclass(cls);
-		assertThat(cls, isClass(B[][].class));
+		assertSame(cls, B[][].class);
 		cls = ArrayUtil.superclass(cls);
-		assertThat(cls, isClass(A[][].class));
+		assertSame(cls, A[][].class);
 		cls = ArrayUtil.superclass(cls);
-		assertThat(cls, isClass(Object[][].class));
+		assertSame(cls, Object[][].class);
 		cls = ArrayUtil.superclass(cls);
-		assertThat(cls, isClass(Object[].class));
+		assertSame(cls, Object[].class);
 		cls = ArrayUtil.superclass(cls);
-		assertThat(cls, isClass(Object.class));
+		assertSame(cls, Object.class);
 		cls = ArrayUtil.superclass(cls);
-		assertThat(cls, isClass(null));
+		assertSame(cls, null);
 	}
 
 }

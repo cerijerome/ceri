@@ -1,8 +1,8 @@
 package ceri.common.data;
 
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteArray.Immutable;

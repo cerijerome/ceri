@@ -2,9 +2,9 @@ package ceri.common.text;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.text.Splitter.Extraction;
 import ceri.common.text.Splitter.Extractor;

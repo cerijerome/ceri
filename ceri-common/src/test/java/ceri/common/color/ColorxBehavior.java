@@ -3,9 +3,9 @@ package ceri.common.color;
 import static ceri.common.color.ColorTestUtil.assertColor;
 import static ceri.common.color.ColorTestUtil.assertColorx;
 import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import java.awt.Color;
 import org.junit.Test;
 

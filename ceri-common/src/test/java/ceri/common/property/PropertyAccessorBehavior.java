@@ -1,9 +1,9 @@
 package ceri.common.property;
 
 import static ceri.common.test.TestUtil.assertCollection;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;

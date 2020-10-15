@@ -1,7 +1,7 @@
 package ceri.serial.jna;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import ceri.common.data.ByteUtil;

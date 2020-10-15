@@ -1,8 +1,8 @@
 package ceri.common.svg;
 
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class SvgUtilTest {

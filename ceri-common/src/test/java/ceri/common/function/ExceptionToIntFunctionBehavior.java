@@ -1,9 +1,9 @@
 package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.toIntFunction;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import java.util.function.ToIntFunction;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil.Std;

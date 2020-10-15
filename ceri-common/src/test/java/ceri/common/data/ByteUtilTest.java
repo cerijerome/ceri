@@ -1,13 +1,13 @@
 package ceri.common.data;
 
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertStream;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.common.util.BasicUtil.forEach;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;

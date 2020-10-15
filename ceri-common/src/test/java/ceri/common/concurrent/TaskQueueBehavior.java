@@ -1,13 +1,13 @@
 package ceri.common.concurrent;
 
+import static ceri.common.test.TestUtil.assertNull;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.runRepeat;
 import static ceri.common.test.TestUtil.throwIt;
 import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.function.ExceptionRunnable;

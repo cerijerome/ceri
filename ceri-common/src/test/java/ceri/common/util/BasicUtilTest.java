@@ -1,17 +1,17 @@
 package ceri.common.util;
 
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertFalse;
 import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.TestUtil.assertNotNull;
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;

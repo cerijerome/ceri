@@ -1,9 +1,9 @@
 package ceri.common.exception;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.junit.Test;

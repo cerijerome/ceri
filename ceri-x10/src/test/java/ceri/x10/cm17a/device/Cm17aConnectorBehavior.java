@@ -1,7 +1,7 @@
 package ceri.x10.cm17a.device;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.StateChange;
@@ -15,7 +15,7 @@ public class Cm17aConnectorBehavior {
 		Cm17aConnector con = Cm17aConnector.NULL;
 		con.setDtr(true);
 		con.setRts(false);
-		try (TestListener<StateChange> listener = TestListener.of(con.listeners())) {}
+		try (var enc = con.listeners().enclose(x -> {})) {}
 	}
 
 	@Test

@@ -2,10 +2,10 @@ package ceri.common.concurrent;
 
 import static ceri.common.test.TestUtil.assertCollection;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;

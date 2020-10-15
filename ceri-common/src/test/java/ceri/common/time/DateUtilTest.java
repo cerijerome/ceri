@@ -1,10 +1,10 @@
 package ceri.common.time;
 
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
 import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;

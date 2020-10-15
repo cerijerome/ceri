@@ -1,9 +1,7 @@
 package ceri.ci.email;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertEquals;
+import static ceri.common.test.TestUtil.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -31,8 +29,8 @@ public class EmailUtilTest {
 			if (name.toString().contains(".imap.")) imap = true;
 			if (name.toString().contains(".imaps.")) imaps = true;
 		}
-		assertTrue("Properties do not contain imap settings", imap);
-		assertTrue("Properties do not contain imaps settings", imaps);
+		assertEquals(imap, true, "Properties do not contain imap settings");
+		assertEquals(imaps, true, "Properties do not contain imaps settings");
 	}
 
 	@Test
@@ -42,7 +40,7 @@ public class EmailUtilTest {
 		Message message = mock(Message.class);
 		when(message.getContent()).thenReturn(in);
 		String content = EmailUtil.content(message);
-		assertThat(content, is("ABC"));
+		assertEquals(content, "ABC");
 	}
 
 	@Test
@@ -54,7 +52,7 @@ public class EmailUtilTest {
 		when(multipart.getBodyPart(anyInt())).thenReturn(bodyPart);
 		when(bodyPart.getContent()).thenReturn("content");
 		String content = EmailUtil.content(message);
-		assertThat(content, is("content"));
+		assertEquals(content, "content");
 	}
 
 	@Test
@@ -68,7 +66,7 @@ public class EmailUtilTest {
 		Message message = mock(Message.class);
 		when(message.getContent()).thenReturn(obj);
 		String content = EmailUtil.content(message);
-		assertThat(content, is("content"));
+		assertEquals(content, "content");
 	}
 
 }

@@ -1,10 +1,10 @@
 package ceri.common.test;
 
 import static ceri.common.test.TestUtil.assertAssertion;
+import static ceri.common.test.TestUtil.assertNull;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.sql.SQLException;
 import org.junit.Test;

@@ -20,8 +20,8 @@ public class GeometryTestUtil {
 	}
 
 	public static void assertApprox(Point2d point, double x, double y, int precision) {
-		TestUtil.assertApprox("Point2d.x", point.x, x, precision);
-		TestUtil.assertApprox("Point2d.y", point.y, y, precision);
+		TestUtil.assertApprox(point.x, x, precision);
+		TestUtil.assertApprox(point.y, y, precision);
 	}
 
 }

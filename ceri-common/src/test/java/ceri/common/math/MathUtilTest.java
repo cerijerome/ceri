@@ -2,13 +2,13 @@ package ceri.common.math;
 
 import static ceri.common.math.Bound.Type.exclusive;
 import static ceri.common.math.Bound.Type.inclusive;
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertRange;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
 import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
 import java.util.List;
 import java.util.Set;
 import org.junit.Test;

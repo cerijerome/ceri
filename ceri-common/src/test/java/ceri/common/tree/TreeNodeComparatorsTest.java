@@ -1,8 +1,8 @@
 package ceri.common.tree;
 
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.util.Comparator;
 import org.junit.Test;
 import ceri.common.tree.TreeNodeTestHelper.TestNode;

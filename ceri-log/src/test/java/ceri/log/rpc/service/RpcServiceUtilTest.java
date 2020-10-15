@@ -1,10 +1,10 @@
 package ceri.log.rpc.service;
 
+import static ceri.common.test.TestUtil.assertFalse;
+import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.TestUtil.assertTrue;
 import static ceri.common.test.TestUtil.throwIt;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

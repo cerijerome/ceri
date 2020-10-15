@@ -1,6 +1,7 @@
 package ceri.x10.cm17a.device;
 
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.x10.command.FunctionType.bright;
 import static ceri.x10.command.FunctionType.dim;
 import static ceri.x10.command.FunctionType.off;
@@ -13,7 +14,6 @@ import static ceri.x10.command.House.M;
 import static ceri.x10.command.Unit._1;
 import static ceri.x10.command.Unit._16;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 
 public class DataTest {

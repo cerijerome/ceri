@@ -1,9 +1,9 @@
 package ceri.ci.build;
 
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertEquals;
+import static ceri.common.test.TestUtil.assertNotEquals;
+import static ceri.common.test.TestUtil.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.test.TestUtil;

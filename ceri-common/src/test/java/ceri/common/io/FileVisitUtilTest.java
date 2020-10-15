@@ -1,12 +1,12 @@
 package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertHelperPaths;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 import static java.nio.file.FileVisitResult.TERMINATE;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;

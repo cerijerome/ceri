@@ -1,9 +1,9 @@
 package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.intUnaryOperator;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.util.function.IntUnaryOperator;
 import org.junit.Test;

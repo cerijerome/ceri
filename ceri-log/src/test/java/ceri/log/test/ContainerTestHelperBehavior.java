@@ -1,7 +1,7 @@
 package ceri.log.test;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Properties;

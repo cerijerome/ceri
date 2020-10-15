@@ -1,7 +1,7 @@
 package ceri.log.rpc.client;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.logging.log4j.Level;

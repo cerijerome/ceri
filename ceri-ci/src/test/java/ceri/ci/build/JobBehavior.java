@@ -1,13 +1,13 @@
 package ceri.ci.build;
 
+import static ceri.common.test.TestUtil.assertEquals;
+import static ceri.common.test.TestUtil.assertFalse;
 import static ceri.common.test.TestUtil.assertIterable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotSame;
+import static ceri.common.test.TestUtil.assertNotEquals;
+import static ceri.common.test.TestUtil.assertNotSame;
 import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
 

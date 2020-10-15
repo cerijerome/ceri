@@ -1,8 +1,8 @@
 package ceri.log.concurrent;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;

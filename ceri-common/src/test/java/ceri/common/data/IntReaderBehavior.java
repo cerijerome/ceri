@@ -2,10 +2,10 @@ package ceri.common.data;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertStream;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static java.lang.Integer.MIN_VALUE;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.IntArray.Mutable;

@@ -1,6 +1,6 @@
 package ceri.common.xml;
 
-import static org.junit.Assert.assertNotNull;
+import static ceri.common.test.TestUtil.assertNotNull;
 import org.junit.Test;
 
 public class RuntimeXPathExceptionBehavior {

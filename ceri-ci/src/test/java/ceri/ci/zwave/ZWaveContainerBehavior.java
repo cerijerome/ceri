@@ -1,6 +1,6 @@
 package ceri.ci.zwave;
 
-import static org.junit.Assert.assertNull;
+import static ceri.common.test.TestUtil.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;

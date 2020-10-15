@@ -1,7 +1,7 @@
 package ceri.common.text;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;

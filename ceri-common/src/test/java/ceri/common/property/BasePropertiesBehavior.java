@@ -2,13 +2,12 @@ package ceri.common.property;
 
 import static ceri.common.property.PropertyUtil.load;
 import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertEquals;
+import static ceri.common.test.TestUtil.assertFalse;
 import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.TestUtil.assertMatch;
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertPath;
-import static ceri.common.test.TestUtil.matchesRegex;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,9 +65,9 @@ public class BasePropertiesBehavior {
 		BaseProperties bp = BaseProperties.merge( //
 			BaseProperties.from(load(getClass(), "property-test-a-b-c.properties")),
 			BaseProperties.from(load(getClass(), "property-test-d-e-f.properties")));
-		assertThat(bp.value("name"), is("property-test-d-e-f"));
-		assertThat(bp.value("a.b.c"), is("true"));
-		assertThat(bp.value("d.e.f"), is("true"));
+		assertEquals(bp.value("name"), "property-test-d-e-f");
+		assertEquals(bp.value("a.b.c"), "true");
+		assertEquals(bp.value("d.e.f"), "true");
 	}
 
 	@Test
@@ -83,7 +82,7 @@ public class BasePropertiesBehavior {
 		ResourceBundle r = ResourceBundle.getBundle( //
 			"ceri.common.property.PropertyAccessor", Locale.ENGLISH);
 		BaseProperties bp = BaseProperties.from(r);
-		assertThat(bp.value("name"), is("PropertyAccessor"));
+		assertEquals(bp.value("name"), "PropertyAccessor");
 	}
 
 	@Test
@@ -106,13 +105,13 @@ public class BasePropertiesBehavior {
 	@Test
 	public void shouldCheckIfChildrenExist() {
 		BaseProperties bp = new BaseProperties(properties, "m.n") {};
-		assertThat(bp.hasChild("0"), is(true));
-		assertThat(bp.hasChild("0.b"), is(true));
-		assertThat(bp.hasChild("0.c"), is(false));
-		assertThat(bp.hasChild("0.b.c"), is(true));
-		assertThat(bp.hasChild("1"), is(true));
-		assertThat(bp.hasChild("2.a"), is(true));
-		assertThat(bp.hasChild("3"), is(false));
+		assertEquals(bp.hasChild("0"), true);
+		assertEquals(bp.hasChild("0.b"), true);
+		assertEquals(bp.hasChild("0.c"), false);
+		assertEquals(bp.hasChild("0.b.c"), true);
+		assertEquals(bp.hasChild("1"), true);
+		assertEquals(bp.hasChild("2.a"), true);
+		assertEquals(bp.hasChild("3"), false);
 	}
 
 	@Test
@@ -146,9 +145,9 @@ public class BasePropertiesBehavior {
 	@Test
 	public void shouldReadEnums() {
 		BaseProperties bp = BaseProperties.from(properties);
-		assertThat(bp.enumValue(E.class, "a.b"), is(E.AB));
-		assertThat(bp.enumValue(E.class, E.A, "a.b"), is(E.AB));
-		assertThat(bp.enumValue(E.class, E.A, "xx"), is(E.A));
+		assertEquals(bp.enumValue(E.class, "a.b"), E.AB);
+		assertEquals(bp.enumValue(E.class, E.A, "a.b"), E.AB);
+		assertEquals(bp.enumValue(E.class, E.A, "xx"), E.A);
 		TestUtil.assertThrown(() -> bp.enumValue(E.class, "a.b.c"));
 		assertCollection(bp.enumValues(E.class, "a", "abc"), E.A, E.ABC);
 	}
@@ -157,23 +156,23 @@ public class BasePropertiesBehavior {
 	public void shouldReadValues() {
 		BaseProperties bp = new BaseProperties(properties) {};
 		assertNull(bp.value("xyz"));
-		assertThat(bp.stringValue("", "a"), is("A"));
-		assertThat(bp.booleanValue("a"), is(false));
-		assertThat(bp.booleanValue(true, "a"), is(false));
-		assertThat(bp.byteValue("a.b.c"), is((byte) 3));
-		assertThat(bp.byteValue((byte) 0, "a.b.c"), is((byte) 3));
-		assertThat(bp.charValue("a"), is('A'));
-		assertThat(bp.charValue('B', "a"), is('A'));
-		assertThat(bp.shortValue("a.b.c"), is((short) 3));
-		assertThat(bp.shortValue((short) 1, "a.b.c"), is((short) 3));
-		assertThat(bp.intValue("a.b.c"), is(3));
-		assertThat(bp.intValue(1, "a.b.c"), is(3));
-		assertThat(bp.longValue("a.b.c"), is(3L));
-		assertThat(bp.longValue(1L, "a.b.c"), is(3L));
-		assertThat(bp.floatValue("a.b.c"), is(3.0f));
-		assertThat(bp.floatValue(1.0f, "a.b.c"), is(3.0f));
-		assertThat(bp.doubleValue("a.b.c"), is(3.0));
-		assertThat(bp.doubleValue(1.0, "a.b.c"), is(3.0));
+		assertEquals(bp.stringValue("", "a"), "A");
+		assertEquals(bp.booleanValue("a"), false);
+		assertEquals(bp.booleanValue(true, "a"), false);
+		assertEquals(bp.byteValue("a.b.c"), (byte) 3);
+		assertEquals(bp.byteValue((byte) 0, "a.b.c"), (byte) 3);
+		assertEquals(bp.charValue("a"), 'A');
+		assertEquals(bp.charValue('B', "a"), 'A');
+		assertEquals(bp.shortValue("a.b.c"), (short) 3);
+		assertEquals(bp.shortValue((short) 1, "a.b.c"), (short) 3);
+		assertEquals(bp.intValue("a.b.c"), 3);
+		assertEquals(bp.intValue(1, "a.b.c"), 3);
+		assertEquals(bp.longValue("a.b.c"), 3L);
+		assertEquals(bp.longValue(1L, "a.b.c"), 3L);
+		assertEquals(bp.floatValue("a.b.c"), 3.0f);
+		assertEquals(bp.floatValue(1.0f, "a.b.c"), 3.0f);
+		assertEquals(bp.doubleValue("a.b.c"), 3.0);
+		assertEquals(bp.doubleValue(1.0, "a.b.c"), 3.0);
 		assertPath(bp.pathValue("m.n.0.b.c.d"), "mn0bcd");
 		assertPath(bp.pathValue(java.nio.file.Path.of("a"), "m.n.0.b.c.d"), "mn0bcd");
 	}
@@ -181,16 +180,16 @@ public class BasePropertiesBehavior {
 	@Test
 	public void shouldReadAndConvertValues() {
 		BaseProperties bp = new BaseProperties(properties) {};
-		assertThat(bp.valueFromBoolean(b -> b ? "Y" : "N", "a.y"), is("Y"));
-		assertThat(bp.valueFromBoolean(b -> b ? "Y" : "N", "a.n"), is("N"));
-		assertThat(bp.valueFromBoolean(1, 2, "a.y"), is(1));
-		assertThat(bp.valueFromBoolean(1, 2, "a.n"), is(2));
-		assertThat(bp.valueFromBoolean(0, 1, 2, "a.y"), is(1));
-		assertThat(bp.valueFromBoolean(0, 1, 2, "a.n"), is(2));
-		assertThat(bp.valueFromBoolean(0, 1, 2, "a.x"), is(0));
-		assertThat(bp.valueFromInt(Integer::toString, "a.b.c"), is("3"));
-		assertThat(bp.valueFromDouble(Double::toString, "a.b.c"), is("3.0"));
-		assertThat(bp.valueFromLong(Long::toHexString, "a.l"), is("fedcba987654321"));
+		assertEquals(bp.valueFromBoolean(b -> b ? "Y" : "N", "a.y"), "Y");
+		assertEquals(bp.valueFromBoolean(b -> b ? "Y" : "N", "a.n"), "N");
+		assertEquals(bp.valueFromBoolean(1, 2, "a.y"), 1);
+		assertEquals(bp.valueFromBoolean(1, 2, "a.n"), 2);
+		assertEquals(bp.valueFromBoolean(0, 1, 2, "a.y"), 1);
+		assertEquals(bp.valueFromBoolean(0, 1, 2, "a.n"), 2);
+		assertEquals(bp.valueFromBoolean(0, 1, 2, "a.x"), 0);
+		assertEquals(bp.valueFromInt(Integer::toString, "a.b.c"), "3");
+		assertEquals(bp.valueFromDouble(Double::toString, "a.b.c"), "3.0");
+		assertEquals(bp.valueFromLong(Long::toHexString, "a.l"), "fedcba987654321");
 	}
 
 	@Test
@@ -209,78 +208,78 @@ public class BasePropertiesBehavior {
 		properties.put("a", "A");
 		properties.put("b", "B");
 		BaseProperties bp = new BaseProperties(properties) {};
-		assertThat(bp.toString(), matchesRegex(".*a=A.*"));
-		assertThat(bp.toString(), matchesRegex(".*b=B.*"));
+		assertMatch(bp.toString(), ".*a=A.*");
+		assertMatch(bp.toString(), ".*b=B.*");
 	}
 
 	@Test
 	public void shouldExtendPrefixWhenCreatingFromBaseProperties() {
 		BaseProperties bp0 = new BaseProperties(properties) {};
 		BaseProperties bp1 = new BaseProperties(bp0) {};
-		assertThat(bp1.value("a"), is("A"));
+		assertEquals(bp1.value("a"), "A");
 		BaseProperties bp2 = new BaseProperties(bp1, "a") {};
-		assertThat(bp2.value("b"), is("AB"));
+		assertEquals(bp2.value("b"), "AB");
 		BaseProperties bp3 = new BaseProperties(bp2, "b", "c") {};
-		assertThat(bp3.value("d"), is("4"));
+		assertEquals(bp3.value("d"), "4");
 	}
 
 	@Test
 	public void shouldReturnStringValuesFromACommaSeparatedList() {
 		BaseProperties bp = new BaseProperties(properties) {};
-		assertThat(bp.stringValues("x"), is(Arrays.asList("X")));
-		assertThat(bp.stringValues("y"), is(Arrays.asList("YyY", "yy", "y")));
-		assertThat(bp.stringValues("z"), is(Arrays.asList()));
+		assertEquals(bp.stringValues("x"), Arrays.asList("X"));
+		assertEquals(bp.stringValues("y"), Arrays.asList("YyY", "yy", "y"));
+		assertEquals(bp.stringValues("z"), Arrays.asList());
 		assertNull(bp.stringValues("Z"));
 		List<String> def = Arrays.asList("d,ef");
-		assertThat(bp.stringValues(def, "x"), is(Arrays.asList("X")));
-		assertThat(bp.stringValues(def, "y"), is(Arrays.asList("YyY", "yy", "y")));
-		assertThat(bp.stringValues(def, "z"), is(Arrays.asList()));
-		assertThat(bp.stringValues(def, "Z"), is(def));
+		assertEquals(bp.stringValues(def, "x"), Arrays.asList("X"));
+		assertEquals(bp.stringValues(def, "y"), Arrays.asList("YyY", "yy", "y"));
+		assertEquals(bp.stringValues(def, "z"), Arrays.asList());
+		assertEquals(bp.stringValues(def, "Z"), def);
 	}
 
 	@Test
 	public void shouldAllowNullPrefix() {
 		BaseProperties bp = new BaseProperties(properties, new String[] { null }) {};
-		assertThat(bp.value("a"), is("A"));
+		assertEquals(bp.value("a"), "A");
 		bp = new BaseProperties(properties, (String[]) null) {};
-		assertThat(bp.value("a"), is("A"));
+		assertEquals(bp.value("a"), "A");
 		bp = new BaseProperties(properties, null, null) {};
-		assertThat(bp.value("a"), is("A"));
+		assertEquals(bp.value("a"), "A");
 		bp = new BaseProperties(properties, "a", null) {};
-		assertThat(bp.value("b"), is("AB"));
+		assertEquals(bp.value("b"), "AB");
 		bp = new BaseProperties(properties, null, "a") {};
-		assertThat(bp.value("b"), is("AB"));
+		assertEquals(bp.value("b"), "AB");
 	}
 
 	@Test
 	public void shouldOnlyReadPrefixedProperties() {
 		BaseProperties bp = new BaseProperties(properties, "a") {};
-		assertThat(bp.key("b.c"), is("a.b.c"));
+		assertEquals(bp.key("b.c"), "a.b.c");
 		assertCollection(bp.keys(), "a.b.c.d", "a.b.c", "a.b", "a.abc", "a", "a.y", "a.n", "a.l");
 		bp = new BaseProperties(properties) {};
-		assertThat(bp.key("a.b"), is("a.b"));
+		assertEquals(bp.key("a.b"), "a.b");
 		assertCollection(bp.keys(), properties.keySet());
 	}
 
 	@Test
 	public void shouldAccessValuesWithKeySuffixes() {
 		BaseProperties bp = new BaseProperties(properties, "a") {};
-		assertThat(bp.value("b"), is("AB"));
-		assertThat(bp.intValue("b.c"), is(3));
+		assertEquals(bp.value("b"), "AB");
+		assertEquals(bp.intValue("b.c"), 3);
 	}
 
 	@Test
 	public void shouldReturnDefaultValuesForMissingProperties() {
 		BaseProperties bp = new BaseProperties(properties) {};
-		assertThat(bp.booleanValue(true, "xx"), is(true));
-		assertThat(bp.charValue('x', "xx"), is('x'));
-		assertThat(bp.stringValue("x", "xx"), is("x"));
-		assertThat(bp.byteValue(Byte.MIN_VALUE, "xx"), is(Byte.MIN_VALUE));
-		assertThat(bp.shortValue(Short.MIN_VALUE, "xx"), is(Short.MIN_VALUE));
-		assertThat(bp.intValue(Integer.MIN_VALUE, "xx"), is(Integer.MIN_VALUE));
-		assertThat(bp.longValue(Long.MIN_VALUE, "xx"), is(Long.MIN_VALUE));
-		assertThat(bp.floatValue(Float.MIN_VALUE, "xx"), is(Float.MIN_VALUE));
-		assertThat(bp.doubleValue(Double.MIN_VALUE, "xx"), is(Double.MIN_VALUE));
+		assertEquals(bp.booleanValue(true, "xx"), true);
+		assertEquals(bp.charValue('x', "xx"), 'x');
+		assertEquals(bp.stringValue("x", "xx"), "x");
+		assertEquals(bp.byteValue(Byte.MIN_VALUE, "xx"), Byte.MIN_VALUE);
+		assertEquals(bp.shortValue(Short.MIN_VALUE, "xx"), Short.MIN_VALUE);
+		assertEquals(bp.intValue(Integer.MIN_VALUE, "xx"), Integer.MIN_VALUE);
+		assertEquals(bp.longValue(Long.MIN_VALUE, "xx"), Long.MIN_VALUE);
+		assertEquals(bp.floatValue(Float.MIN_VALUE, "xx"), Float.MIN_VALUE);
+		assertEquals(bp.doubleValue(Double.MIN_VALUE, "xx"), Double.MIN_VALUE);
 		assertPath(bp.pathValue(java.nio.file.Path.of("a"), "xx"), "a");
 	}
 
@@ -294,8 +293,8 @@ public class BasePropertiesBehavior {
 	@Test
 	public void shouldReadCharValuesAsFirstCharInString() {
 		BaseProperties bp = new BaseProperties(properties) {};
-		assertThat(bp.charValue("a.b"), is('A'));
-		assertThat(bp.charValue("a.b.c"), is('3'));
+		assertEquals(bp.charValue("a.b"), 'A');
+		assertEquals(bp.charValue("a.b.c"), '3');
 	}
 
 	@Test(expected = NumberFormatException.class)

@@ -1,8 +1,7 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.matchesRegex;
-import static org.hamcrest.CoreMatchers.not;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.TestUtil.assertMatch;
+import static ceri.common.test.TestUtil.assertNoMatch;
 import java.io.PrintStream;
 import org.junit.Test;
 import ceri.common.io.SystemIo;
@@ -20,8 +19,8 @@ public class DebuggerBehavior {
 			dbg.log((Object[]) null);
 			dbg.method((Object[]) null);
 		}
-		assertThat(b, matchesRegex("(?ms).*\\) \n.*"));
-		assertThat(b, matchesRegex("(?ms).*\\(\\)[^\n]+\n"));
+		assertMatch(b, "(?ms).*\\) \n.*");
+		assertMatch(b, "(?ms).*\\(\\)[^\n]+\n");
 	}
 
 	@Test
@@ -32,8 +31,8 @@ public class DebuggerBehavior {
 			dbg.log("test1", "test2");
 			dbg.method("test3", "test4");
 		}
-		assertThat(b, matchesRegex("(?ms).* test1, test2\n.*"));
-		assertThat(b, matchesRegex("(?ms).*\\(test3, test4\\).*"));
+		assertMatch(b, "(?ms).* test1, test2\n.*");
+		assertMatch(b, "(?ms).*\\(test3, test4\\).*");
 	}
 
 	@Test
@@ -43,8 +42,8 @@ public class DebuggerBehavior {
 			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, true);
 			dbg.log("test");
 		}
-		assertThat(b, matchesRegex("(?ms).* %s\\.\\.\\(%s\\.java:\\d+\\) test\n.*",
-			getClass().getPackageName(), getClass().getSimpleName()));
+		assertMatch(b, "(?ms).* %s\\.\\.\\(%s\\.java:\\d+\\) test\n.*", getClass().getPackageName(),
+			getClass().getSimpleName());
 	}
 
 	@Test
@@ -56,8 +55,8 @@ public class DebuggerBehavior {
 			dbg.log("test2");
 			dbg.method("test2");
 		}
-		assertThat(b, matchesRegex("(?ms).* test1\n"));
-		assertThat(b, not(matchesRegex("(?ms).* test2\n")));
+		assertMatch(b, "(?ms).* test1\n");
+		assertNoMatch(b, "(?ms).* test2\n");
 	}
 
 	@SuppressWarnings("resource")
@@ -69,7 +68,7 @@ public class DebuggerBehavior {
 			Debugger dbg = Debugger.of();
 			dbg.log("test");
 		}
-		assertThat(b, matchesRegex("(?ms).* test\n"));
+		assertMatch(b, "(?ms).* test\n");
 	}
 
 	@Test
@@ -79,7 +78,7 @@ public class DebuggerBehavior {
 			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log("test");
 		}
-		assertThat(b, matchesRegex("(?ms)\\Q" + method() + " (" + file() + ":\\E\\d+\\) test\n"));
+		assertMatch(b, "(?ms)\\Q%s (%s:\\E\\d+\\) test\n", method(), file());
 	}
 
 	@Test
@@ -89,7 +88,7 @@ public class DebuggerBehavior {
 			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log((Object) null);
 		}
-		assertThat(b, matchesRegex("(?ms)\\Q" + method() + " (" + file() + ":\\E\\d+\\) null\n"));
+		assertMatch(b, "(?ms)\\Q%s (%s:\\E\\d+\\) null\n", method(), file());
 	}
 
 	@Test
@@ -99,7 +98,7 @@ public class DebuggerBehavior {
 			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log();
 		}
-		assertThat(b, matchesRegex("(?ms)\\Q" + method() + " (" + file() + ":\\E\\d+\\) \n"));
+		assertMatch(b, "(?ms)\\Q%s (%s:\\E\\d+\\) \n", method(), file());
 	}
 
 	@Test
@@ -112,8 +111,8 @@ public class DebuggerBehavior {
 		}
 		String method1 = debugMethod(null, "test1");
 		String method2 = debugMethod(null, "test2");
-		assertThat(b, matchesRegex("(?ms)\\Q" + method1 + " (" + file() + ":\\E\\d+\\) 0\n" +
-			"\\Q" + method2 + " (" + file() + ":\\E\\d+\\) 1\n"));
+		assertMatch(b, "(?ms)\\Q%s (%s:\\E\\d+\\) 0\n\\Q%s (%s:\\E\\d+\\) 1\n", method1, file(),
+			method2, file());
 	}
 
 	private String debugMethod(Debugger dbg, String msg) {

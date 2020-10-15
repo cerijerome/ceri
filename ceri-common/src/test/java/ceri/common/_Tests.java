@@ -234,7 +234,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.svg.SvgUtilTest.class, //
 	ceri.common.svg.SweepFlagBehavior.class, //
 	// test
-	ceri.common.test.ApproxMatcherBehavior.class, //
 	ceri.common.test.BinaryPrinterBehavior.class, //
 	ceri.common.test.BranchCaptorBehavior.class, //
 	ceri.common.test.CapturerBehavior.class, //

@@ -1,12 +1,12 @@
 package ceri.common.property;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.assertFalse;
 import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.TestUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import ceri.common.color.X11Color;
 import ceri.common.test.TestUtil;

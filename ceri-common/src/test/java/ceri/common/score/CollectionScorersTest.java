@@ -1,8 +1,8 @@
 package ceri.common.score;
 
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;

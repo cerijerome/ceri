@@ -1,7 +1,7 @@
 package ceri.common.text;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Test;

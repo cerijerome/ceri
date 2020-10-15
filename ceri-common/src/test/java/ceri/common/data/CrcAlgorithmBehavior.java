@@ -3,10 +3,10 @@ package ceri.common.data;
 import static ceri.common.data.CrcBehavior.CRC16_XMODEM;
 import static ceri.common.data.CrcBehavior.CRC8_SMBUS;
 import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.assertNull;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 
 public class CrcAlgorithmBehavior {

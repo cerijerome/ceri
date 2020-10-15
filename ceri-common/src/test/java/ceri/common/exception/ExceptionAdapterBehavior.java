@@ -2,10 +2,10 @@ package ceri.common.exception;
 
 import static ceri.common.exception.ExceptionAdapter.NULL;
 import static ceri.common.exception.ExceptionAdapter.RUNTIME;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.junit.Test;

@@ -1,8 +1,8 @@
 package ceri.common.svg;
 
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 

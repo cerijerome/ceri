@@ -1,8 +1,8 @@
 package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertExists;
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +31,7 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.core.IsSame;
+import org.junit.Assert;
 import org.junit.runner.JUnitCore;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
@@ -66,28 +65,82 @@ public class TestUtil {
 
 	private TestUtil() {}
 
-	public static <T> void assertThat(T actual, Matcher<? super T> matcher) {
-		assertThat("", actual, matcher);
+	// TODO:
+	// - check all asserts with String
+	// - change assertThat(..., is(...)) to assertEquals(..., ...)
+	// - reorder assert calls
+	// - move to AssertUtil
+
+	public static void fail() {
+		throw new AssertionError();
 	}
 
-	public static <T> void assertThat(String reason, T actual, Matcher<? super T> matcher) {
+	public static void fail(String format, Object... args) {
+		throw failure(format, args);
+	}
+
+	public static AssertionError failure(String format, Object... args) {
+		return new AssertionError(String.format(format, args));
+	}
+
+	public static void assertFalse(boolean condition) {
+		assertFalse(condition, null);
+	}
+
+	public static void assertFalse(boolean condition, String message) {
+		Assert.assertFalse(message, condition);
+	}
+
+	public static void assertTrue(boolean condition) {
+		assertTrue(condition, null);
+	}
+
+	public static void assertTrue(boolean condition, String message) {
+		Assert.assertTrue(message, condition);
+	}
+
+	public static <T> void assertSame(T actual, T expected) {
+		Assert.assertSame(expected, actual);
+	}
+
+	public static <T> void assertNotSame(T actual, T unexpected) {
+		Assert.assertNotSame(unexpected, actual);
+	}
+
+	public static <T> void assertNull(T actual) {
+		Assert.assertNull(actual);
+	}
+
+	public static <T> void assertNotNull(T actual) {
+		Assert.assertNotNull(actual);
+	}
+
+	public static <T> void assertThat(T actual, Matcher<? super T> matcher) {
+		assertThat(actual, matcher, "");
+	}
+
+	public static <T> void assertThat(T actual, Matcher<? super T> matcher, String reason) {
 		MatcherAssert.assertThat(reason, actual, matcher);
 	}
 
-	public static <T> void assertEq(T actual, T expected) {
-		assertEq(actual, expected, "");
+	public static <T> void assertEquals(T actual, T expected) {
+		assertEquals(actual, expected, null);
 	}
 
-	public static <T> void assertEq(T actual, T expected, String reason) {
-		MatcherAssert.assertThat(reason, actual, is(expected));
+	public static <T> void assertEquals(T actual, T expected, String message) {
+		Assert.assertEquals(message, expected, actual);
 	}
 
-	public static <T> void assertNotEq(T actual, T expected) {
-		assertNotEq(actual, expected, "");
+	public static void assertEquals(double actual, double expected, double diff) {
+		Assert.assertEquals(expected, actual, diff);
 	}
 
-	public static <T> void assertNotEq(T actual, T expected, String reason) {
-		MatcherAssert.assertThat(reason, actual, not(expected));
+	public static <T> void assertNotEquals(T actual, T expected) {
+		assertNotEquals(actual, expected, null);
+	}
+
+	public static <T> void assertNotEquals(T actual, T unexpected, String message) {
+		Assert.assertNotEquals(message, unexpected, actual);
 	}
 
 	/**
@@ -96,7 +149,7 @@ public class TestUtil {
 	public static void assertPrivateConstructor(Class<?> cls) {
 		try {
 			Constructor<?> constructor = cls.getDeclaredConstructor();
-			assertEq(Modifier.isPrivate(constructor.getModifiers()), true,
+			assertEquals(Modifier.isPrivate(constructor.getModifiers()), true,
 				"Constructor is not private");
 			constructor.setAccessible(true);
 			constructor.newInstance();
@@ -136,10 +189,6 @@ public class TestUtil {
 				ConcurrentUtil.delayMicros(DELAY_MICROS);
 			}
 		});
-	}
-
-	public static AssertionError failure(String format, Object... args) {
-		return new AssertionError(String.format(format, args));
 	}
 
 	public static String firstSystemPropertyName() {
@@ -214,7 +263,7 @@ public class TestUtil {
 	 * Return a SystemIo instance with System.err output nullified.
 	 */
 	@SuppressWarnings("resource")
-	public static SystemIo nullErr() {
+	public static SystemIo nullOutErr() {
 		SystemIo sys = SystemIo.of();
 		sys.out(IoUtil.nullPrintStream());
 		sys.err(IoUtil.nullPrintStream());
@@ -256,7 +305,7 @@ public class TestUtil {
 	@SafeVarargs
 	public static <T> void assertAllNotEqual(T t0, T... ts) {
 		for (T t : ts)
-			assertNotEq(t0, t);
+			assertNotEquals(t0, t);
 	}
 
 	/**
@@ -267,14 +316,14 @@ public class TestUtil {
 		exerciseEqual(t0, t0);
 		for (T t : ts)
 			exerciseEqual(t0, t);
-		assertNotEq(t0, null);
-		assertNotEq(t0, new Object());
+		assertNotEquals(null, t0);
+		assertNotEquals(new Object(), t0);
 	}
 
 	private static <T> void exerciseEqual(T t0, T t1) {
-		assertEq(t0, t1);
-		assertEq(t0.hashCode(), t1.hashCode());
-		assertEq(t0.toString(), t1.toString());
+		assertEquals(t0, t1);
+		assertEquals(t0.hashCode(), t1.hashCode());
+		assertEquals(t0.toString(), t1.toString());
 	}
 
 	/**
@@ -333,94 +382,61 @@ public class TestUtil {
 	 * Checks a double value is NaN.
 	 */
 	public static void assertNaN(double value) {
-		assertNaN("Expected NaN: " + value, value);
-	}
-
-	/**
-	 * Checks a double value is NaN.
-	 */
-	public static void assertNaN(String reason, double value) {
-		assertEq(Double.isNaN(value), true, reason);
+		assertEquals(Double.isNaN(value), true, "Expected NaN: " + value);
 	}
 
 	/**
 	 * Checks a double value is correct to 3 decimal places.
 	 */
-	public static void assertApprox(double value, double expected) {
-		assertApprox("", value, expected);
-	}
-
-	/**
-	 * Checks a double value is correct to 3 decimal places.
-	 */
-	public static void assertApprox(String reason, double value, double expected) {
-		assertApprox(reason, value, expected, APPROX_PRECISION_DEF);
+	public static void assertApprox(double actual, double expected) {
+		assertApprox(actual, expected, APPROX_PRECISION_DEF);
 	}
 
 	/**
 	 * Checks a double value is correct to given number of digits after the decimal separator.
 	 */
-	public static void assertApprox(double value, double expected, int precision) {
-		assertApprox("", value, expected, precision);
-	}
-
-	/**
-	 * Checks a double value is correct to given number of digits after the decimal separator.
-	 */
-	public static void assertApprox(String reason, double value, double expected, int precision) {
-		if (!Double.isFinite(expected) || !Double.isFinite(value)) {
-			assertEq(value, expected, reason);
+	public static void assertApprox(double actual, double expected, int precision) {
+		if (!Double.isFinite(expected) || !Double.isFinite(actual)) {
+			assertEquals(actual, expected);
 		} else {
-			double approxValue = MathUtil.round(precision, value);
+			double approxValue = MathUtil.round(precision, actual);
 			double approxExpected = MathUtil.round(precision, expected);
-			assertEq(approxValue, approxExpected, reason);
+			assertEquals(approxValue, approxExpected);
 		}
-	}
-
-	/**
-	 * Checks double values are correct to 3 decimal places.
-	 */
-	public static void assertApprox(double[] values, double... expecteds) {
-		assertApproxPrecision(values, APPROX_PRECISION_DEF, expecteds);
-	}
-
-	/**
-	 * Checks double values are correct to given number of decimal places.
-	 */
-	public static void assertApproxPrecision(double[] values, int precision, double... expecteds) {
-		assertEq(values.length, expecteds.length, "Array size");
-		for (int i = 0; i < values.length; i++)
-			assertApprox("Index " + i, values[i], expecteds[i], precision);
 	}
 
 	/**
 	 * Convenience method to check byte value.
 	 */
 	public static void assertByte(byte value, int expected) {
-		assertEq(value, (byte) expected);
+		assertEquals(value, (byte) expected);
 	}
 
 	/**
 	 * Convenience method to check short value.
 	 */
 	public static void assertShort(short value, int expected) {
-		assertEq(value, (short) expected);
+		assertEquals(value, (short) expected);
 	}
 
 	/**
 	 * Checks a value is within given range, with detailed failure information if not.
 	 */
 	public static void assertRange(long value, long minInclusive, long maxInclusive) {
-		assertEq(value >= minInclusive, true, "Expected >= " + minInclusive + " but was " + value);
-		assertEq(value <= maxInclusive, true, "Expected <= " + maxInclusive + " but was " + value);
+		assertEquals(value >= minInclusive, true,
+			"Expected >= " + minInclusive + " but was " + value);
+		assertEquals(value <= maxInclusive, true,
+			"Expected <= " + maxInclusive + " but was " + value);
 	}
 
 	/**
 	 * Checks a value is within given range, with detailed failure information if not.
 	 */
 	public static void assertRange(double value, double minInclusive, double maxExclusive) {
-		assertEq(value >= minInclusive, true, "Expected >= " + minInclusive + " but was " + value);
-		assertEq(value < maxExclusive, true, "Expected < " + maxExclusive + " but was " + value);
+		assertEquals(value >= minInclusive, true,
+			"Expected >= " + minInclusive + " but was " + value);
+		assertEquals(value < maxExclusive, true,
+			"Expected < " + maxExclusive + " but was " + value);
 	}
 
 	/**
@@ -713,12 +729,12 @@ public class TestUtil {
 		Collection<? extends T> rhs) {
 		int i = 0;
 		for (T t : lhs) {
-			assertEq(rhs.contains(t), true, "Unexpected element at position " + i + ": " + t);
+			assertEquals(rhs.contains(t), true, "Unexpected element at position " + i + ": " + t);
 			i++;
 		}
 		for (T t : rhs)
-			assertEq(lhs.contains(t), true, "Missing element: " + t);
-		assertEq(lhs.size(), rhs.size(), "Collection size");
+			assertEquals(lhs.contains(t), true, "Missing element: " + t);
+		assertEquals(lhs.size(), rhs.size(), "Collection size");
 	}
 
 	/**
@@ -744,37 +760,38 @@ public class TestUtil {
 	}
 
 	private static void assertSize(String message, long lhsSize, long rhsSize) {
-		assertEq(lhsSize, rhsSize, message);
+		assertEquals(lhsSize, rhsSize, message);
 	}
 
 	private static void assertIsArray(Object array) {
-		assertEq(array.getClass().isArray(), true, "Expected an array but was " + array.getClass());
+		assertEquals(array.getClass().isArray(), true,
+			"Expected an array but was " + array.getClass());
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject) {
-		assertEq(subject, Map.of());
+		assertEquals(subject, Map.of());
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k, V v) {
-		assertEq(subject, ImmutableUtil.asMap(k, v));
+		assertEquals(subject, ImmutableUtil.asMap(k, v));
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1) {
-		assertEq(subject, ImmutableUtil.asMap(k0, v0, k1, v1));
+		assertEquals(subject, ImmutableUtil.asMap(k0, v0, k1, v1));
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2) {
-		assertEq(subject, ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2));
+		assertEquals(subject, ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2));
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2, K k3,
 		V v3) {
-		assertEq(subject, ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2, k3, v3));
+		assertEquals(subject, ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2, k3, v3));
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2, K k3,
 		V v3, K k4, V v4) {
-		assertEq(subject, ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2, k3, v3, k4, v4));
+		assertEquals(subject, ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2, k3, v3, k4, v4));
 	}
 
 	@SafeVarargs
@@ -800,8 +817,8 @@ public class TestUtil {
 	/**
 	 * Throws an i/o exception. Useful for creating a lambda without the need for a code block.
 	 */
-	public static <T> T throwItIo() throws IOException {
-		throw new IOException("throwItIo");
+	public static <T> T throwIo() throws IOException {
+		throw new IOException("throwIo");
 	}
 
 	/**
@@ -859,7 +876,7 @@ public class TestUtil {
 	public static void assertThrowable(Throwable t, Class<? extends Throwable> superCls,
 		Predicate<String> messageTest) {
 		if (t == null && superCls == null && messageTest == null) return;
-		assertNotEq(t, null, "Throwable is null");
+		assertNotEquals(t, null, "Throwable is null");
 		if (superCls != null && !superCls.isAssignableFrom(t.getClass()))
 			throw failure("Expected %s: %s", superCls.getName(), t.getClass().getName());
 		if (messageTest == null) return;
@@ -920,17 +937,59 @@ public class TestUtil {
 	}
 
 	/**
-	 * Checks the string matches regex.
+	 * Checks regex not found against the string.
 	 */
-	public static void assertRegex(String actual, String pattern, Object... objs) {
-		assertRegex(actual, RegexUtil.compile(pattern, objs));
+	public static void assertNotFound(CharSequence actual, String pattern, Object... objs) {
+		assertNotFound(actual, RegexUtil.compile(pattern, objs));
 	}
 
 	/**
-	 * Checks the string matches regex.
+	 * Checks regex not found against the string.
 	 */
-	public static void assertRegex(String actual, Pattern pattern) {
-		assertThat(actual, matchesRegex(pattern));
+	public static void assertNotFound(CharSequence actual, Pattern pattern) {
+		assertThat(String.valueOf(actual), not(RegexMatcher.find(pattern)));
+	}
+
+	/**
+	 * Checks regex find against the string.
+	 */
+	public static void assertFind(CharSequence actual, String pattern, Object... objs) {
+		assertFind(actual, RegexUtil.compile(pattern, objs));
+	}
+
+	/**
+	 * Checks regex find against the string.
+	 */
+	public static void assertFind(CharSequence actual, Pattern pattern) {
+		assertThat(String.valueOf(actual), RegexMatcher.find(pattern));
+	}
+
+	/**
+	 * Checks regex match against the string.
+	 */
+	public static void assertMatch(CharSequence actual, String pattern, Object... objs) {
+		assertMatch(actual, RegexUtil.compile(pattern, objs));
+	}
+
+	/**
+	 * Checks regex match against the string.
+	 */
+	public static void assertMatch(CharSequence actual, Pattern pattern) {
+		assertThat(String.valueOf(actual), RegexMatcher.match(pattern));
+	}
+
+	/**
+	 * Checks regex does not match against the string.
+	 */
+	public static void assertNoMatch(CharSequence actual, String pattern, Object... objs) {
+		assertNoMatch(actual, RegexUtil.compile(pattern, objs));
+	}
+
+	/**
+	 * Checks regex does not match against the string.
+	 */
+	public static void assertNoMatch(CharSequence actual, Pattern pattern) {
+		assertThat(String.valueOf(actual), not(RegexMatcher.match(pattern)));
 	}
 
 	/**
@@ -938,7 +997,7 @@ public class TestUtil {
 	 */
 	public static void assertAscii(ByteReader reader, String s) {
 		var actual = reader.readAscii(s.length());
-		assertEq(actual, s);
+		assertEquals(actual, s);
 	}
 
 	/**
@@ -966,14 +1025,14 @@ public class TestUtil {
 	 * Check if file exists.
 	 */
 	public static void assertExists(Path path, boolean exists) {
-		assertEq(Files.exists(path), exists, "Path exists: " + path);
+		assertEquals(Files.exists(path), exists, "Path exists: " + path);
 	}
 
 	/**
 	 * Check if file exists.
 	 */
 	public static void assertDir(Path path, boolean isDir) {
-		assertEq(Files.isDirectory(path), isDir, "Path is a directory: " + path);
+		assertEquals(Files.isDirectory(path), isDir, "Path is a directory: " + path);
 	}
 
 	/**
@@ -988,7 +1047,7 @@ public class TestUtil {
 			Path rhsFile = rhsDir.resolve(path);
 			boolean lhsIsDir = Files.isDirectory(lhsFile);
 			boolean rhsIsDir = Files.isDirectory(rhsFile);
-			assertEq(lhsIsDir, rhsIsDir, lhsFile + " is directory");
+			assertEquals(lhsIsDir, rhsIsDir, lhsFile + " is directory");
 			if (!rhsIsDir) assertFile(lhsFile, rhsFile);
 		}
 	}
@@ -997,7 +1056,7 @@ public class TestUtil {
 	 * Checks contents of two files are equal, with specific failure information if not.
 	 */
 	public static void assertFile(Path actual, Path expected) throws IOException {
-		assertEq(Files.size(actual), Files.size(expected), "File size");
+		assertEquals(Files.size(actual), Files.size(expected), "File size");
 		long pos = Files.mismatch(actual, expected);
 		if (pos >= 0) throw failure("Byte mismatch at index %d", pos);
 	}
@@ -1020,7 +1079,7 @@ public class TestUtil {
 	 * Checks contents of the files matches bytes, with specific failure information if not.
 	 */
 	public static void assertFile(Path actual, ByteProvider byteProvider) throws IOException {
-		assertEq(Files.size(actual), (long) byteProvider.length(), "File size");
+		assertEquals(Files.size(actual), (long) byteProvider.length(), "File size");
 		byte[] actualBytes = Files.readAllBytes(actual);
 		for (int i = 0; i < actualBytes.length; i++)
 			if (actualBytes[i] != byteProvider.getByte(i))
@@ -1032,7 +1091,7 @@ public class TestUtil {
 	 */
 	public static void assertPath(Path actual, String expected, String... more) {
 		Path expectedPath = IoUtil.newPath(actual, expected, more);
-		assertEq(actual, expectedPath);
+		assertEquals(actual, expectedPath);
 	}
 
 	/**
@@ -1040,7 +1099,7 @@ public class TestUtil {
 	 */
 	public static void assertPaths(Collection<Path> actual, String... paths) {
 		if (actual.isEmpty()) {
-			assertEq(paths.length, 0, "Path count");
+			assertEquals(paths.length, 0, "Path count");
 			return;
 		}
 		@SuppressWarnings("resource")
@@ -1056,77 +1115,6 @@ public class TestUtil {
 		String... paths) {
 		List<Path> expected = Stream.of(paths).map(helper::path).collect(Collectors.toList());
 		assertCollection(actual, expected);
-	}
-
-	/**
-	 * Convenience method for creating a regex matcher.
-	 */
-	public static <T> Matcher<T> matchesRegex(String format, Object... objs) {
-		return matchesRegex(RegexUtil.compile(format, objs));
-	}
-
-	/**
-	 * Convenience method for creating a regex matcher.
-	 */
-	public static <T> Matcher<T> matchesRegex(Pattern pattern) {
-		return RegexMatcher.match(pattern);
-	}
-
-	/**
-	 * Convenience method for creating a regex matcher.
-	 */
-	public static <T> Matcher<T> findsRegex(String format, Object... objs) {
-		return findsRegex(RegexUtil.compile(format, objs));
-	}
-
-	/**
-	 * Convenience method for creating a regex matcher.
-	 */
-	public static <T> Matcher<T> findsRegex(Pattern pattern) {
-		return RegexMatcher.find(pattern);
-	}
-
-	/**
-	 * Convenience method for creating a same matcher.
-	 */
-	public static <T> Matcher<T> isSame(T t) {
-		return new IsSame<>(t);
-	}
-
-	/**
-	 * Version of CoreMatchers.is(Class<T>) that checks for class, not instance of class.
-	 */
-	public static <T> Matcher<T> isClass(Class<?> cls) {
-		IsSame<?> isSame = new IsSame<>(cls);
-		return BasicUtil.uncheckedCast(isSame);
-	}
-
-	/**
-	 * Matcher for double within delta precision.
-	 */
-	public static Matcher<Double> isApprox(double expected, double delta) {
-		return ApproxMatcher.delta(expected, delta);
-	}
-
-	/**
-	 * Matcher for float within delta precision.
-	 */
-	public static Matcher<Float> isApprox(float expected, float delta) {
-		return ApproxMatcher.delta(expected, delta);
-	}
-
-	/**
-	 * Matcher for double rounded to decimal places.
-	 */
-	public static Matcher<Double> isRounded(double expected, int places) {
-		return ApproxMatcher.round(expected, places);
-	}
-
-	/**
-	 * Matcher for float rounded to decimal places.
-	 */
-	public static Matcher<Float> isRounded(float expected, int places) {
-		return ApproxMatcher.round(expected, places);
 	}
 
 	/**

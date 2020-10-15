@@ -1,7 +1,7 @@
 package ceri.ci.alert;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static ceri.common.test.TestUtil.assertNotNull;
+import static ceri.common.test.TestUtil.assertNull;
 import java.io.IOException;
 import java.util.Properties;
 import org.junit.Before;

@@ -1,8 +1,8 @@
 package ceri.common.time;
 
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;

@@ -2,6 +2,7 @@ package ceri.serial.clib;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.serial.clib.Mode.Mask.flnk;
 import static ceri.serial.clib.Mode.Mask.fmt;
@@ -17,7 +18,6 @@ import static ceri.serial.clib.Mode.Mask.woth;
 import static ceri.serial.clib.Mode.Mask.wusr;
 import static ceri.serial.clib.Mode.Mask.xusr;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.serial.clib.Mode.Mask;
 

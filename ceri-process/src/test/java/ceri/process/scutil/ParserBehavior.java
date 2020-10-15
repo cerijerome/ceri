@@ -1,7 +1,7 @@
 package ceri.process.scutil;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.collection.Node;
 import ceri.common.collection.NodeBuilder;

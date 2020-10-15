@@ -1,5 +1,6 @@
 package ceri.x10.command;
 
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.x10.command.House.A;
 import static ceri.x10.command.House.B;
@@ -7,7 +8,6 @@ import static ceri.x10.command.House.C;
 import static ceri.x10.command.House.I;
 import static ceri.x10.command.Unit._11;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;

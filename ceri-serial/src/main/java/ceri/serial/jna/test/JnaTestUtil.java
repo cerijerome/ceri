@@ -1,8 +1,8 @@
 package ceri.serial.jna.test;
 
 import static ceri.common.test.TestUtil.assertArray;
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;

@@ -1,8 +1,8 @@
 package ceri.common.test;
 
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.runRepeat;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.event.Listeners;
 

@@ -1,11 +1,11 @@
 package ceri.common.util;
 
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertPath;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
 import static ceri.common.test.TestUtil.firstSystemPropertyName;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
 import java.nio.file.Path;
 import org.junit.Test;
 import ceri.common.function.ExceptionFunction;

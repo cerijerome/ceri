@@ -2,10 +2,10 @@ package ceri.common.util;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertSame;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertSame;
-import static ceri.common.test.TestUtil.assertThat;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;

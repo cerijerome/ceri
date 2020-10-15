@@ -1,9 +1,9 @@
 package ceri.log.rpc.client;
 
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.throwIt;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import org.junit.Test;
 import io.grpc.Status;

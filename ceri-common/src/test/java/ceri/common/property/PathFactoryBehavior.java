@@ -1,11 +1,11 @@
 package ceri.common.property;
 
 import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.exerciseEquals;
-import static ceri.common.test.TestUtil.isSame;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotEquals;
+import static ceri.common.test.TestUtil.assertNotEquals;
+import static ceri.common.test.TestUtil.assertSame;
 import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.TestUtil.exerciseEquals;
+import static org.hamcrest.CoreMatchers.is;
 import java.util.Collection;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
@@ -85,21 +85,21 @@ public class PathFactoryBehavior {
 	@Test
 	public void shouldNotCreateNewNullInstances() {
 		Path key = PathFactory.dot.path((String) null);
-		assertThat(key, isSame(PathFactory.dot.emptyPath));
+		assertSame(key, PathFactory.dot.emptyPath);
 		key = PathFactory.dot.path((String) null);
-		assertThat(key, isSame(PathFactory.dot.emptyPath));
+		assertSame(key, PathFactory.dot.emptyPath);
 		key = PathFactory.dot.path((String[]) null);
-		assertThat(key, isSame(PathFactory.dot.emptyPath));
+		assertSame(key, PathFactory.dot.emptyPath);
 		key = PathFactory.dot.path(PathFactory.dot.emptyPath.value);
-		assertThat(key, isSame(PathFactory.dot.emptyPath));
+		assertSame(key, PathFactory.dot.emptyPath);
 		key = PathFactory.dot.emptyPath.parent();
-		assertThat(key, isSame(PathFactory.dot.emptyPath));
+		assertSame(key, PathFactory.dot.emptyPath);
 		key = PathFactory.dot.path("");
-		assertThat(key, isSame(PathFactory.dot.emptyPath));
+		assertSame(key, PathFactory.dot.emptyPath);
 		key = PathFactory.dot.path(PathFactory.dot.emptyPath.value, "", "");
-		assertThat(key, isSame(PathFactory.dot.emptyPath));
+		assertSame(key, PathFactory.dot.emptyPath);
 		key = PathFactory.dot.path(null, (String[]) null);
-		assertThat(key, isSame(PathFactory.dot.emptyPath));
+		assertSame(key, PathFactory.dot.emptyPath);
 	}
 
 }

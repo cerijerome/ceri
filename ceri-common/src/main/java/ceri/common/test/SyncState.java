@@ -1,9 +1,9 @@
 package ceri.common.test;
 
+import static ceri.common.test.TestUtil.assertNull;
+import static ceri.common.test.TestUtil.assertThat;
 import static java.lang.Boolean.TRUE;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.util.function.Function;
 import java.util.function.Supplier;

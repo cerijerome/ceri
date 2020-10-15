@@ -1,8 +1,8 @@
 package ceri.ent.json;
 
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.resource;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

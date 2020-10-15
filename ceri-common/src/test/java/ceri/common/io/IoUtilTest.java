@@ -2,20 +2,20 @@ package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertFalse;
 import static ceri.common.test.TestUtil.assertFile;
 import static ceri.common.test.TestUtil.assertHelperPaths;
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertPath;
 import static ceri.common.test.TestUtil.assertPaths;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.assertStream;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.assertTrue;
 import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
 import static ceri.common.test.TestUtil.inputStream;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -592,7 +592,7 @@ public class IoUtilTest {
 	public void testCopyWithBadInput() throws IOException {
 		try {
 			@SuppressWarnings("resource")
-			InputStream badIn = IoStreamUtil.in(TestUtil::throwItIo);
+			InputStream badIn = IoStreamUtil.in(TestUtil::throwIo);
 			Path toFile2 = helper.path("x/y/z.txt");
 			assertThrown(() -> IoUtil.copy(badIn, toFile2));
 			assertFalse(Files.exists(helper.path("x/y")));

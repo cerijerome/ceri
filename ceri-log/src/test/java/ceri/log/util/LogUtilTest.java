@@ -1,15 +1,14 @@
 package ceri.log.util;
 
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertEquals;
+import static ceri.common.test.TestUtil.assertFalse;
+import static ceri.common.test.TestUtil.assertFind;
 import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.TestUtil.assertMatch;
 import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.findsRegex;
-import static ceri.common.test.TestUtil.matchesRegex;
+import static ceri.common.test.TestUtil.assertTrue;
 import static ceri.common.test.TestUtil.throwIt;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -56,20 +55,20 @@ public class LogUtilTest {
 
 	@Test
 	public void testLoggerName() {
-		assertThat(LogUtil.loggerName(getClass()), is(getClass().getName()));
-		assertThat(LogUtil.loggerName(OBJ.getClass()), is(getClass().getName() + "$1"));
+		assertEquals(LogUtil.loggerName(getClass()), getClass().getName());
+		assertEquals(LogUtil.loggerName(OBJ.getClass()), getClass().getName() + "$1");
 	}
 
 	@Test
 	public void testStartupValues() {
 		StartupValues values = LogUtil.startupValues("abc", "123");
-		assertThat(values.next().get(), is("abc"));
-		assertThat(values.next().asInt(), is(123));
+		assertEquals(values.next().get(), "abc");
+		assertEquals(values.next().asInt(), 123);
 		values = LogUtil.startupValues(logger, "abc", "123");
-		assertThat(values.next("val1").get(), is("abc"));
-		testLog.assertFindRegex("val1 = abc \\(from args\\[0\\]\\)");
-		assertThat(values.next("val2").asInt(), is(123));
-		testLog.assertFindRegex("val2 = 123 \\(from args\\[1\\]\\)");
+		assertEquals(values.next("val1").get(), "abc");
+		testLog.assertFind("val1 = abc \\(from args\\[0\\]\\)");
+		assertEquals(values.next("val2").asInt(), 123);
+		testLog.assertFind("val2 = 123 \\(from args\\[1\\]\\)");
 	}
 
 	@Test
@@ -79,26 +78,26 @@ public class LogUtilTest {
 		try (var stream = LogPrintStream.of(logger)) {
 			bp = LogUtil.binaryLogger(BinaryPrinter.ASCII, stream);
 			bp.print("abc").flush();
-			testLog.assertFindRegex("DEBUG .* 61 62 63 abc");
+			testLog.assertFind("DEBUG .* 61 62 63 abc");
 		}
 	}
 
 	@Test
 	public void testExecute() {
-		assertThat(LogUtil.execute(null, () -> {}), is(true));
-		assertThat(LogUtil.execute(logger, () -> {}), is(true));
-		assertThat(LogUtil.execute(logger, null), is(false));
+		assertEquals(LogUtil.execute(null, () -> {}), true);
+		assertEquals(LogUtil.execute(logger, () -> {}), true);
+		assertEquals(LogUtil.execute(logger, null), false);
 		testLog.assertEmpty();
 	}
 
 	@Test
 	public void testExecuteWithException() {
-		assertThat(LogUtil.execute(null, () -> throwIt(new RuntimeException("rtx"))), is(false));
-		assertThat(LogUtil.execute(logger, () -> throwIt(new RuntimeException("rtx"))), is(false));
-		testLog.assertFindRegex("(?is)ERROR .* catching.*RuntimeException.*rtx");
-		assertThat(LogUtil.execute(null, () -> throwIt(new InterruptedException())), is(false));
-		assertThat(LogUtil.execute(logger, () -> throwIt(new InterruptedException())), is(false));
-		testLog.assertFindRegex("(?is)INFO .*InterruptedException");
+		assertEquals(LogUtil.execute(null, () -> throwIt(new RuntimeException("rtx"))), false);
+		assertEquals(LogUtil.execute(logger, () -> throwIt(new RuntimeException("rtx"))), false);
+		testLog.assertFind("(?is)ERROR .* catching.*RuntimeException.*rtx");
+		assertEquals(LogUtil.execute(null, () -> throwIt(new InterruptedException())), false);
+		assertEquals(LogUtil.execute(logger, () -> throwIt(new InterruptedException())), false);
+		testLog.assertFind("(?is)INFO .*InterruptedException");
 	}
 
 	@Test
@@ -106,7 +105,7 @@ public class LogUtilTest {
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 		LogUtil.submit(logger, exec, () -> {}).get();
 		LogUtil.submit(logger, exec, () -> throwIt(new IOException("iox"))).get();
-		testLog.assertFindRegex("(?is)ERROR .* catching.*IOException.*iox");
+		testLog.assertFind("(?is)ERROR .* catching.*IOException.*iox");
 	}
 
 	@SuppressWarnings("resource")
@@ -115,7 +114,7 @@ public class LogUtilTest {
 		assertIterable(LogUtil.create(logger, TestCloseable::of, "1", "-1"), new TestCloseable(1),
 			new TestCloseable(-1));
 		assertThrown(() -> LogUtil.create(logger, TestCloseable::of, "1", "-1", "x"));
-		testLog.assertFindRegex("(?is)WARN .* catching.*IOException.*-1");
+		testLog.assertFind("(?is)WARN .* catching.*IOException.*-1");
 	}
 
 	@SuppressWarnings("resource")
@@ -125,7 +124,7 @@ public class LogUtilTest {
 			new TestCloseable(1), new TestCloseable(-1));
 		assertThrown(() -> LogUtil.createArray(logger, TestCloseable[]::new, TestCloseable::of, "1",
 			"-1", "x"));
-		testLog.assertFindRegex("(?is)WARN .* catching.*IOException.*-1");
+		testLog.assertFind("(?is)WARN .* catching.*IOException.*-1");
 	}
 
 	@Test
@@ -135,9 +134,9 @@ public class LogUtilTest {
 		@SuppressWarnings("resource")
 		TestCloseable tc2 = new TestCloseable(-1);
 		try (AutoCloseable closeable = LogUtil.closeable(logger, tc1, tc2)) {}
-		testLog.assertFindRegex("(?is)WARN .* catching.*IOException.*-1");
+		testLog.assertFind("(?is)WARN .* catching.*IOException.*-1");
 		try (AutoCloseable closeable = LogUtil.closeable(logger, List.of(tc1, tc2))) {}
-		testLog.assertFindRegex("(?is)WARN .* catching.*IOException.*-1");
+		testLog.assertFind("(?is)WARN .* catching.*IOException.*-1");
 	}
 
 	@Test
@@ -154,7 +153,7 @@ public class LogUtilTest {
 		when(process.waitFor(anyLong(), any())).thenThrow(new InterruptedException());
 		assertFalse(LogUtil.close(null, process));
 		assertFalse(LogUtil.close(logger, process));
-		testLog.assertFindRegex("(?is)INFO .*InterruptedException");
+		testLog.assertFind("(?is)INFO .*InterruptedException");
 	}
 
 	@Test
@@ -173,7 +172,7 @@ public class LogUtilTest {
 		when(exec.awaitTermination(anyLong(), any())).thenThrow(new InterruptedException());
 		assertFalse(LogUtil.close(null, exec));
 		assertFalse(LogUtil.close(logger, exec));
-		testLog.assertFindRegex("(?is)INFO .*InterruptedException");
+		testLog.assertFind("(?is)INFO .*InterruptedException");
 	}
 
 	@Test
@@ -204,7 +203,7 @@ public class LogUtilTest {
 		when(future.get(anyLong(), any())).thenThrow(new InterruptedException());
 		assertFalse(LogUtil.close(null, future));
 		assertFalse(LogUtil.close(logger, future));
-		testLog.assertFindRegex("(?is)INFO .*InterruptedException");
+		testLog.assertFind("(?is)INFO .*InterruptedException");
 	}
 
 	@Test
@@ -214,7 +213,7 @@ public class LogUtilTest {
 		when(future.get(anyLong(), any())).thenThrow(new TimeoutException());
 		assertFalse(LogUtil.close(null, future));
 		assertFalse(LogUtil.close(logger, future));
-		testLog.assertFindRegex("(?is)WARN .*TimeoutException");
+		testLog.assertFind("(?is)WARN .*TimeoutException");
 	}
 
 	@Test
@@ -225,81 +224,81 @@ public class LogUtilTest {
 	@Test
 	public void testFatalf() {
 		LogUtil.fatalf(logger, "%d", 123);
-		testLog.assertFindRegex("FATAL .* 123");
+		testLog.assertFind("FATAL .* 123");
 	}
 
 	@Test
 	public void testErrorf() {
 		LogUtil.errorf(logger, "%d", 123);
-		testLog.assertFindRegex("ERROR .* 123");
+		testLog.assertFind("ERROR .* 123");
 	}
 
 	@Test
 	public void testWarnf() {
 		LogUtil.warnf(logger, "%d", 123);
-		testLog.assertFindRegex("WARN .* 123");
+		testLog.assertFind("WARN .* 123");
 	}
 
 	@Test
 	public void testInfof() {
 		LogUtil.infof(logger, "%d", 123);
-		testLog.assertFindRegex("INFO .* 123");
+		testLog.assertFind("INFO .* 123");
 	}
 
 	@Test
 	public void testDebug() {
 		LogUtil.debugf(logger, "%d", 123);
-		testLog.assertFindRegex("DEBUG .* 123");
+		testLog.assertFind("DEBUG .* 123");
 	}
 
 	@Test
 	public void testTracef() {
 		LogUtil.tracef(logger, "%d", 123);
-		testLog.assertFindRegex("TRACE .* 123");
+		testLog.assertFind("TRACE .* 123");
 	}
 
 	@Test
 	public void testLogf() {
 		LogUtil.logf(logger, Level.WARN, "%d", 123);
-		testLog.assertFindRegex("WARN .* 123");
+		testLog.assertFind("WARN .* 123");
 	}
 
 	@Test
 	public void testToStringFunction() {
-		assertThat(LogUtil.toString("test", String::toUpperCase).toString(), is("TEST"));
+		assertEquals(LogUtil.toString("test", String::toUpperCase).toString(), "TEST");
 	}
 
 	@Test
 	public void testHashId() {
-		assertThat(LogUtil.hashId(new Object()).toString(), matchesRegex("@[a-f\\d]+"));
+		assertMatch(LogUtil.hashId(new Object()).toString(), "@[a-f\\d]+");
 	}
 
 	@Test
 	public void testToStringOrHash() {
-		assertThat(LogUtil.toStringOrHash("test@1234").toString(), is("@1234"));
-		assertThat(LogUtil.toStringOrHash(new Object()).toString(), matchesRegex("@[a-f\\d]+"));
+		assertEquals(LogUtil.toStringOrHash("test@1234").toString(), "@1234");
+		assertMatch(LogUtil.toStringOrHash(new Object()).toString(), "@[a-f\\d]+");
 	}
 
 	@Test
 	public void testToHex() {
-		assertThat(LogUtil.toHex(1023).toString(), is("3ff"));
+		assertEquals(LogUtil.toHex(1023).toString(), "3ff");
 	}
 
 	@Test
 	public void testCompact() {
-		assertThat(LogUtil.compact("a  b\n  c   ").toString(), is("a b c"));
+		assertEquals(LogUtil.compact("a  b\n  c   ").toString(), "a b c");
 	}
 
 	@Test
 	public void testEscaped() {
-		assertThat(LogUtil.escaped("a\n\0\t").toString(), is("a\\n\\0\\t"));
+		assertEquals(LogUtil.escaped("a\n\0\t").toString(), "a\\n\\0\\t");
 	}
 
 	@Test
 	public void testIntroMessage() {
-		assertThat(LogUtil.introMessage("Test"), findsRegex(" Test "));
-		assertThat(LogUtil.introMessage(StringUtil.repeat("Test", 20)),
-			findsRegex(" " + StringUtil.repeat("Test", 19) + " "));
+		assertFind(LogUtil.introMessage("Test"), " Test ");
+		assertFind(LogUtil.introMessage(StringUtil.repeat("Test", 20)),
+			" " + StringUtil.repeat("Test", 19) + " ");
 	}
 
 	private static void signalAndSleep(BooleanCondition sync, long sleepMs) {

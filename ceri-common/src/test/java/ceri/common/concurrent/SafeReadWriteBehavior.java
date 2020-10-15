@@ -1,7 +1,7 @@
 package ceri.common.concurrent;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertFalse;
+import static ceri.common.test.TestUtil.assertTrue;
 import org.junit.Test;
 
 public class SafeReadWriteBehavior {

@@ -1,13 +1,13 @@
 package ceri.common.property;
 
-import static ceri.common.test.TestUtil.exerciseEquals;
-import static ceri.common.test.TestUtil.isSame;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
+import static ceri.common.test.TestUtil.assertEquals;
+import static ceri.common.test.TestUtil.assertFalse;
+import static ceri.common.test.TestUtil.assertNotEquals;
+import static ceri.common.test.TestUtil.assertSame;
 import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.TestUtil.exerciseEquals;
+import static org.hamcrest.CoreMatchers.is;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -66,7 +66,7 @@ public class PathBehavior {
 		assertThat(key.value, is("a"));
 		assertTrue(key.isRoot());
 		key = key.parent();
-		assertThat(key, isSame(PathFactory.dot.emptyPath));
+		assertSame(key, PathFactory.dot.emptyPath);
 		assertTrue(key.isRoot());
 	}
 
@@ -84,13 +84,13 @@ public class PathBehavior {
 	public void shouldNavigateOrphans() {
 		Path key = PathFactory.dot.path("a", "b", "c");
 		key = key.orphan();
-		assertThat(key.value, is("b.c"));
+		assertEquals(key.value, "b.c");
 		key = key.orphan();
-		assertThat(key.value, is("c"));
+		assertEquals(key.value, "c");
 		key = key.orphan();
-		assertThat(key, isSame(PathFactory.dot.emptyPath));
+		assertSame(key, PathFactory.dot.emptyPath);
 		key = key.orphan();
-		assertThat(key, isSame(PathFactory.dot.emptyPath));
+		assertSame(key, PathFactory.dot.emptyPath);
 	}
 
 	@Test

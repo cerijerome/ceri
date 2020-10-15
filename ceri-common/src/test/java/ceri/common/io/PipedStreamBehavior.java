@@ -1,8 +1,8 @@
 package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertArray;
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.junit.Test;

@@ -1,11 +1,11 @@
 package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.biPredicate;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
+import static ceri.common.test.TestUtil.assertFalse;
 import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import java.util.function.BiPredicate;
 import org.junit.Test;

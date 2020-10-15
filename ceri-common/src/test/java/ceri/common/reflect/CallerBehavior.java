@@ -1,10 +1,10 @@
 package ceri.common.reflect;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.assertNotEquals;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
 

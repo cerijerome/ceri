@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import static org.junit.Assert.assertNull;
+import static ceri.common.test.TestUtil.assertNull;
 import org.junit.Test;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.SimpleExecutor;

@@ -1,8 +1,8 @@
 package ceri.serial.libusb.jna;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.text.StringUtil;
 import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;

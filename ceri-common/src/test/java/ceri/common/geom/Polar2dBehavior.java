@@ -4,11 +4,11 @@ import static ceri.common.geom.Point2d.X_UNIT;
 import static ceri.common.geom.Point2d.Y_UNIT;
 import static ceri.common.math.MathUtil.PI_BY_2;
 import static ceri.common.test.TestUtil.assertApprox;
+import static ceri.common.test.TestUtil.assertNotEquals;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Math.PI;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
 

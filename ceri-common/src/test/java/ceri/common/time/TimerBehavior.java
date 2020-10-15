@@ -1,12 +1,12 @@
 package ceri.common.time;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.assertFalse;
+import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.TestUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.util.BasicUtil.uncheckedCast;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;

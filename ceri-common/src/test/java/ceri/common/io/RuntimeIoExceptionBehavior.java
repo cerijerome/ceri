@@ -1,8 +1,8 @@
 package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.junit.Test;

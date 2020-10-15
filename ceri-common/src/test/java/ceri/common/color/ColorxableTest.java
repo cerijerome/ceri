@@ -1,9 +1,9 @@
 package ceri.common.color;
 
 import static ceri.common.color.ColorTestUtil.assertColorx;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class ColorxableTest {

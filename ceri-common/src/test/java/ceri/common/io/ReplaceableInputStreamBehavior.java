@@ -1,10 +1,10 @@
 package ceri.common.io;
 
 import static ceri.common.test.TestUtil.assertArray;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
+import static ceri.common.test.TestUtil.assertFalse;
 import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;

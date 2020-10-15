@@ -1,13 +1,13 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.assertEq;
-import static ceri.common.test.TestUtil.assertNotEq;
+import static ceri.common.test.TestUtil.assertEquals;
+import static ceri.common.test.TestUtil.assertFalse;
+import static ceri.common.test.TestUtil.assertNotEquals;
 import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.assertTrue;
 import static ceri.common.text.NonMatchResultBehavior.assertNonMatchResult;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
@@ -167,7 +167,7 @@ public class NonMatcherBehavior {
 		NonMatchResult r0 = m.toResult();
 		assertThrown(() -> r0.group());
 		m.find();
-		assertEq(m.toResult().group(), "BC");
+		assertEquals(m.toResult().group(), "BC");
 	}
 
 	@Test
@@ -186,18 +186,18 @@ public class NonMatcherBehavior {
 		NonMatcher m0 = nonMatcher("[a-c]+", "ABC").region(1, 2);
 		NonMatcher m1 = nonMatcher("[a-c]+", "ABC").region(1, 2);
 		NonMatcher m2 = nonMatcher("[a-c]+", "ABC");
-		assertEq(m0.toString(), m1.toString());
-		assertNotEq(m0.toString(), m2.toString());
-		assertEq(m0.find(), true);
-		assertNotEq(m0.toString(), m1.toString());
+		assertEquals(m0.toString(), m1.toString());
+		assertNotEquals(m0.toString(), m2.toString());
+		assertEquals(m0.find(), true);
+		assertNotEquals(m0.toString(), m1.toString());
 		assertTrue(m1.find());
-		assertEq(m0.toString(), m1.toString());
+		assertEquals(m0.toString(), m1.toString());
 	}
 
 	public static void assertNonMatcher(NonMatcher m, String group, int start, int end) {
-		assertEq(m.group(), group, "group");
-		assertEq(m.start(), start, "start");
-		assertEq(m.end(), end, "end");
+		assertEquals(m.group(), group, "group");
+		assertEquals(m.start(), start, "start");
+		assertEquals(m.end(), end, "end");
 	}
 
 	private static NonMatcher nonMatcher(String pattern, String text) {

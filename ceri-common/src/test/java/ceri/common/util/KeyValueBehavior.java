@@ -1,9 +1,9 @@
 package ceri.common.util;
 
+import static ceri.common.test.TestUtil.assertNotEquals;
+import static ceri.common.test.TestUtil.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.util.KeyValue.Named;
 

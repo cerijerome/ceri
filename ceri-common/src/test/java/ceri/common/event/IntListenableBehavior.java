@@ -1,7 +1,7 @@
 package ceri.common.event;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.IntConsumer;

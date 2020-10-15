@@ -1,5 +1,6 @@
 package ceri.x10.cm17a.device;
 
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.x10.cm17a.device.Data.code;
 import static ceri.x10.command.FunctionType.bright;
@@ -23,7 +24,6 @@ import static ceri.x10.command.Unit._5;
 import static ceri.x10.command.Unit._7;
 import static ceri.x10.command.Unit._9;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.AfterClass;

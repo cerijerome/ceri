@@ -2,9 +2,9 @@ package ceri.x10.cm11a.device;
 
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.TestUtil.assertRead;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;

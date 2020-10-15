@@ -1,9 +1,9 @@
 package ceri.ci.audio;
 
+import static ceri.common.test.TestUtil.assertNotNull;
+import static ceri.common.test.TestUtil.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertNotNull;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

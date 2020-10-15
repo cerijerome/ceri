@@ -1,13 +1,13 @@
 package ceri.common.reflect;
 
+import static ceri.common.test.TestUtil.assertFalse;
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.isClass;
+import static ceri.common.test.TestUtil.assertSame;
+import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.TestUtil.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
 import java.util.Date;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
@@ -43,7 +43,7 @@ public class ReflectUtilTest {
 
 	@Test
 	public void testForName() {
-		assertThat(ReflectUtil.forName("java.lang.String"), isClass(String.class));
+		assertSame(ReflectUtil.forName("java.lang.String"), String.class);
 		TestUtil.assertThrown(() -> ReflectUtil.forName("___"));
 	}
 
@@ -148,7 +148,7 @@ public class ReflectUtilTest {
 		assertThat(caller.cls, is(cls.getSimpleName()));
 		assertThat(caller.fullCls, is(cls.getName()));
 		assertThat(caller.file, is(cls.getSimpleName() + ".java"));
-		assertThat(caller.cls(), isClass(cls));
+		assertSame(caller.cls(), cls);
 		Caller caller2 = ReflectUtil.currentCaller();
 		assertThat(caller, not(caller2));
 		assertThat(new Caller(caller2.fullCls, caller.line, caller2.method, caller2.file),
@@ -157,15 +157,15 @@ public class ReflectUtilTest {
 
 	@Test
 	public void testCurrentClassLine() {
-		TestUtil.assertRegex(ReflectUtil.currentClassLine(),
+		TestUtil.assertMatch(ReflectUtil.currentClassLine(),
 			"\\Q" + ReflectUtilTest.class.getName() + "\\E:\\d+");
 	}
 
 	@Test
 	public void testPreviousClassLine() {
-		TestUtil.assertRegex(getPreviousClassLine(0),
+		TestUtil.assertMatch(getPreviousClassLine(0),
 			"\\Q" + ReflectUtilTest.class.getName() + "\\E:\\d+");
-		TestUtil.assertRegex(getPreviousClassLine(1),
+		TestUtil.assertMatch(getPreviousClassLine(1),
 			"\\Q" + ReflectUtilTest.class.getName() + "\\E:\\d+");
 	}
 

@@ -3,11 +3,11 @@ package ceri.common.test;
 import static ceri.common.test.TestStyle.behavior;
 import static ceri.common.test.TestStyle.none;
 import static ceri.common.test.TestStyle.test;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static ceri.common.test.TestUtil.assertFalse;
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class TestStyleBehavior {

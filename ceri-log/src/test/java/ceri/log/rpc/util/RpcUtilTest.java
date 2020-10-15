@@ -2,11 +2,11 @@ package ceri.log.rpc.util;
 
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.TestUtil.assertNull;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrowable;
 import static ceri.common.text.RegexUtil.finder;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

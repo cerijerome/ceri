@@ -19,11 +19,11 @@ public class LogPrintStreamBehavior {
 			try (LogPrintStream stream = LogPrintStream.of(testLog.logger())) {
 				stream.print("test1");
 				stream.flush();
-				testLog.assertFindRegex("DEBUG .* test1");
+				testLog.assertFind("DEBUG .* test1");
 				stream.level(Level.INFO);
 				stream.print("test2");
 				stream.flush();
-				testLog.assertFindRegex("INFO .* test2");
+				testLog.assertFind("INFO .* test2");
 			}
 		}
 	}

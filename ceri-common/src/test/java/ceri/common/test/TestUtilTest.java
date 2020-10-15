@@ -17,24 +17,26 @@ import static ceri.common.test.TestUtil.assertExists;
 import static ceri.common.test.TestUtil.assertFile;
 import static ceri.common.test.TestUtil.assertIterable;
 import static ceri.common.test.TestUtil.assertMap;
+import static ceri.common.test.TestUtil.assertMatch;
 import static ceri.common.test.TestUtil.assertNaN;
+import static ceri.common.test.TestUtil.assertNotFound;
+import static ceri.common.test.TestUtil.assertNotNull;
+import static ceri.common.test.TestUtil.assertNotSame;
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertRange;
 import static ceri.common.test.TestUtil.assertRead;
-import static ceri.common.test.TestUtil.assertRegex;
 import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrowable;
 import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.assertTrue;
 import static ceri.common.test.TestUtil.assertValue;
+import static ceri.common.test.TestUtil.fail;
 import static ceri.common.test.TestUtil.init;
-import static ceri.common.test.TestUtil.matchesRegex;
 import static ceri.common.test.TestUtil.resource;
 import static ceri.common.test.TestUtil.testMap;
 import static ceri.common.test.TestUtil.thrown;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -78,6 +80,25 @@ public class TestUtilTest {
 	}
 
 	@Test
+	public void testFail() {
+		assertAssertion(() -> fail());
+		assertAssertion(() -> fail("Test"));
+	}
+
+	@Test
+	public void testAssertNotSame() {
+		Object obj = new Object();
+		assertNotSame(obj, new Object());
+		assertAssertion(() -> assertNotSame(obj, obj));
+	}
+
+	@Test
+	public void testNotFound() {
+		assertNotFound("hello", "l{3}");
+		assertAssertion(() -> assertNotFound("hello", "l{2}"));
+	}
+	
+	@Test
 	public void testExerciseEnums() {
 		TestUtil.exerciseEnum(Align.H.class);
 		TestUtil.assertThrown(() -> TestUtil.exerciseEnum(BadEnum.class));
@@ -97,8 +118,6 @@ public class TestUtilTest {
 		assertAssertion(() -> TestUtil.assertApprox(Double.POSITIVE_INFINITY, Double.MAX_VALUE));
 		TestUtil.assertApprox(0.000995, 0.00099499, 4);
 		assertAssertion(() -> TestUtil.assertApprox(0.000995, 0.00099499, 5));
-		double[] dd = { 1.0015, -0.00501, 0 };
-		TestUtil.assertApprox(dd, 1.0015, -0.00502, 0);
 	}
 
 	@Test
@@ -153,8 +172,8 @@ public class TestUtilTest {
 
 	@Test
 	public void testAssertRegex() {
-		assertRegex("test", "%1$s..%1$s", "t");
-		assertAssertion(() -> assertRegex("test", "%1$s..%1$s", "T"));
+		assertMatch("test", "%1$s..%1$s", "t");
+		assertAssertion(() -> assertMatch("test", "%1$s..%1$s", "T"));
 	}
 
 	@Test
@@ -290,7 +309,7 @@ public class TestUtilTest {
 
 	@Test
 	public void testNullErr() {
-		try (SystemIo sys = TestUtil.nullErr()) {
+		try (SystemIo sys = TestUtil.nullOutErr()) {
 			System.err.print("This text should not appear");
 		}
 	}
@@ -341,9 +360,7 @@ public class TestUtilTest {
 	@Test
 	public void testAssertNan() {
 		assertNaN(Double.NaN);
-		assertNaN("test", Double.NaN);
 		assertAssertion(() -> assertNaN(Double.MAX_VALUE));
-		assertAssertion(() -> assertNaN("test", 0.0));
 	}
 
 	@Test
@@ -486,7 +503,7 @@ public class TestUtilTest {
 	@Test
 	public void testMatchesRegex() {
 		Pattern p = Pattern.compile("[a-z]+");
-		assertThat("abc", matchesRegex(p));
+		assertMatch("abc", p);
 	}
 
 	@Test

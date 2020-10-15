@@ -1,11 +1,11 @@
 package ceri.serial.clib.jna;
 
 import static ceri.common.test.TestUtil.assertFile;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.serial.clib.OpenFlag.O_CREAT;
 import static ceri.serial.clib.OpenFlag.O_RDWR;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

@@ -1,10 +1,10 @@
 package ceri.common.math;
 
 import static ceri.common.test.TestUtil.assertApprox;
+import static ceri.common.test.TestUtil.assertEquals;
+import static ceri.common.test.TestUtil.assertNotEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Double.NaN;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import org.junit.Test;
 
 public class ReverseFunctionBehavior {

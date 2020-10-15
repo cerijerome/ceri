@@ -1,13 +1,13 @@
 package ceri.serial.clib;
 
 import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.serial.clib.OpenFlag.O_CREAT;
 import static ceri.serial.clib.OpenFlag.O_RDONLY;
 import static ceri.serial.clib.OpenFlag.O_RDWR;
 import static ceri.serial.clib.OpenFlag.O_TRUNC;
 import static ceri.serial.clib.OpenFlag.O_WRONLY;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 
 public class OpenFlagBehavior {

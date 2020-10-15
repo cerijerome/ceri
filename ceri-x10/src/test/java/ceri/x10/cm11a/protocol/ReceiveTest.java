@@ -1,6 +1,7 @@
 package ceri.x10.cm11a.protocol;
 
 import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.reader;
 import static ceri.x10.command.FunctionType.allLightsOff;
 import static ceri.x10.command.FunctionType.bright;
@@ -12,7 +13,6 @@ import static ceri.x10.command.House.G;
 import static ceri.x10.command.Unit._1;
 import static ceri.x10.command.Unit._3;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 
 public class ReceiveTest {

@@ -1,11 +1,11 @@
 package ceri.common.tree;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.tree.TreeNodeTestHelper.builder;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.tree.TreeNodeTestHelper.TestNode;
 

@@ -6,7 +6,7 @@ import ceri.common.concurrent.ValueCondition;
 import ceri.common.event.Listeners;
 
 /**
- * Overrides Listeners to notify when listeners are added or removed.
+ * Extends Listeners to notify when listeners are added or removed.
  */
 public class TestListeners<T> extends Listeners<T> {
 	public final ValueCondition<Integer> sync = ValueCondition.of();

@@ -1,10 +1,10 @@
 package ceri.common.math;
 
 import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertEquals;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
 

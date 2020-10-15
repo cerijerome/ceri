@@ -2,9 +2,9 @@ package ceri.common.svg;
 
 import static ceri.common.svg.SvgTestUtil.assertPath;
 import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;

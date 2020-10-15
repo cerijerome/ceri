@@ -1,9 +1,9 @@
 package ceri.serial.clib;
 
+import static ceri.common.test.TestUtil.assertNull;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.util.OsUtil.macInt;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 
 public class SeekBehavior {

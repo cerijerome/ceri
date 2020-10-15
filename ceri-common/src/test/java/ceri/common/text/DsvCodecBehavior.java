@@ -1,12 +1,12 @@
 package ceri.common.text;
 
 import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.TestUtil.assertNull;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.text.DsvCodec.CSV;
 import static ceri.common.text.DsvCodec.TSV;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;

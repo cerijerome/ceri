@@ -3,11 +3,11 @@ package ceri.common.math;
 import static ceri.common.math.MathUtil.PI_BY_2;
 import static ceri.common.math.MathUtil.PIx2;
 import static ceri.common.test.TestUtil.assertApprox;
+import static ceri.common.test.TestUtil.assertFalse;
 import static ceri.common.test.TestUtil.assertNaN;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertTrue;
 import static java.lang.Math.PI;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
 

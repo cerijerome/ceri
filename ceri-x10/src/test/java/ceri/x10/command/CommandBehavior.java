@@ -1,6 +1,7 @@
 package ceri.x10.command;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.x10.command.House.A;
@@ -21,7 +22,6 @@ import static ceri.x10.command.Unit._2;
 import static ceri.x10.command.Unit._3;
 import static ceri.x10.command.Unit._4;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import java.util.Collection;
 import org.junit.Test;
 

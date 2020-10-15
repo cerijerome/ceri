@@ -1,8 +1,8 @@
 package ceri.common.color;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.awt.Color;
 import org.junit.Test;
 

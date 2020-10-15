@@ -1,8 +1,8 @@
 package ceri.ci.zwave;
 
 import static ceri.common.test.TestUtil.assertCollection;
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;

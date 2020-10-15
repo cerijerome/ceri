@@ -1,12 +1,12 @@
 package ceri.common.geom;
 
 import static ceri.common.test.TestUtil.assertApprox;
+import static ceri.common.test.TestUtil.assertNotEquals;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.NaN;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 
 public class TruncatedRadial3dBehavior {

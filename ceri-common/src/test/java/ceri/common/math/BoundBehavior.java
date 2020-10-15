@@ -1,13 +1,13 @@
 package ceri.common.math;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.TestUtil.assertFalse;
+import static ceri.common.test.TestUtil.assertNull;
+import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.TestUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
 import java.util.Comparator;
 import org.junit.Test;
 import ceri.common.comparator.Comparators;

@@ -1,8 +1,8 @@
 package ceri.common.test;
 
 import static ceri.common.function.FunctionUtil.execSilently;
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;

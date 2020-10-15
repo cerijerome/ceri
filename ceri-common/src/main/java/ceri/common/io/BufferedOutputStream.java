@@ -1,6 +1,6 @@
 package ceri.common.io;
 
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;

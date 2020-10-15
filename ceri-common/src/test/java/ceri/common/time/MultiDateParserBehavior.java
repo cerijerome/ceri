@@ -1,7 +1,7 @@
 package ceri.common.time;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;

@@ -8,13 +8,13 @@ import static ceri.common.function.FunctionTestUtil.runnable;
 import static ceri.common.function.FunctionTestUtil.supplier;
 import static ceri.common.test.TestUtil.assertArray;
 import static ceri.common.test.TestUtil.assertCollection;
+import static ceri.common.test.TestUtil.assertFalse;
+import static ceri.common.test.TestUtil.assertNull;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.TestUtil.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
@@ -90,7 +90,7 @@ public class FunctionUtilTest {
 	}
 
 	@Test
-	public void testCastApply() {
+	public void testCastApply() throws Exception {
 		Object obj = new int[] { -1 };
 		assertThat(FunctionUtil.castApply(int[].class, obj, x -> x[0] = 1), is(1));
 		assertArray((int[]) obj, 1);

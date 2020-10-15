@@ -1,8 +1,8 @@
 package ceri.common.test;
 
 import static ceri.common.test.TestUtil.assertCollection;
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.io.IoUtil;
 import ceri.common.io.SystemIo;

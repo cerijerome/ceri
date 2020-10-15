@@ -1,7 +1,7 @@
 package ceri.common.comparator;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.util.Collections;
 import java.util.Comparator;
 import org.junit.Test;

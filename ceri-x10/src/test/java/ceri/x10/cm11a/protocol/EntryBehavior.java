@@ -2,6 +2,8 @@ package ceri.x10.cm11a.protocol;
 
 import static ceri.common.test.TestUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.TestUtil.assertNull;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.test.TestUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.x10.command.FunctionType.allLightsOff;
@@ -33,8 +35,6 @@ import static ceri.x10.command.Unit._5;
 import static ceri.x10.command.Unit._6;
 import static ceri.x10.command.Unit._8;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
 import java.util.Set;
 import org.junit.Test;
 import ceri.x10.command.Command;

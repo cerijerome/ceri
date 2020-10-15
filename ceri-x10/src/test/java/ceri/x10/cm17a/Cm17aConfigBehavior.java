@@ -1,8 +1,8 @@
 package ceri.x10.cm17a;
 
-import static ceri.common.test.TestUtil.assertRegex;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.TestUtil.assertMatch;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.io.DeviceMode;
 import ceri.serial.javax.util.SelfHealingSerialConfig;
@@ -27,7 +27,7 @@ public class Cm17aConfigBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertRegex(Cm17aConfig.builder().id(777).deviceSerial(SelfHealingSerialConfig.of("com"))
+		assertMatch(Cm17aConfig.builder().id(777).deviceSerial(SelfHealingSerialConfig.of("com"))
 			.build().toString(), ".*\\b777\\b.*\\bcom\\b.*");
 	}
 

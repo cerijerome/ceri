@@ -1,9 +1,9 @@
 package ceri.common.tree;
 
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.common.tree.TreeNodeTestHelper.builder;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.tree.TreeNodeTestHelper.TestNode;
 

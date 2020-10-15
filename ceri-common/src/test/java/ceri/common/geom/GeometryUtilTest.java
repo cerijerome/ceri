@@ -2,10 +2,10 @@ package ceri.common.geom;
 
 import static ceri.common.test.TestUtil.assertApprox;
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertThat;
 import static java.lang.Double.MAX_VALUE;
 import static java.lang.Double.NaN;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import org.junit.Test;
 import ceri.common.math.MathUtil;
 

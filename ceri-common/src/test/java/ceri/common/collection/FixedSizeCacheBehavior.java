@@ -1,8 +1,8 @@
 package ceri.common.collection;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
+import static ceri.common.test.TestUtil.assertFalse;
 import static ceri.common.test.TestUtil.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Assume;

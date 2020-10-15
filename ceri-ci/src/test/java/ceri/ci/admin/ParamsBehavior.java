@@ -1,8 +1,8 @@
 package ceri.ci.admin;
 
-import static org.hamcrest.CoreMatchers.is;
 import static ceri.common.test.TestUtil.assertThat;
-import static org.junit.Assert.assertTrue;
+import static ceri.common.test.TestUtil.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Collection;

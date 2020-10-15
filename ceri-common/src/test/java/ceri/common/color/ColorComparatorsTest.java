@@ -1,6 +1,7 @@
 package ceri.common.color;
 
 import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.TestUtil.assertThat;
 import static java.awt.Color.black;
 import static java.awt.Color.blue;
 import static java.awt.Color.green;
@@ -10,7 +11,6 @@ import static java.awt.Color.pink;
 import static java.awt.Color.red;
 import static java.awt.Color.white;
 import static org.hamcrest.CoreMatchers.is;
-import static ceri.common.test.TestUtil.assertThat;
 import java.awt.Color;
 import org.junit.Test;
 

@@ -1,12 +1,12 @@
 package ceri.process.nmcli;
 
+import static ceri.common.test.TestUtil.assertFalse;
 import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.TestUtil.assertNotNull;
+import static ceri.common.test.TestUtil.assertThat;
 import static ceri.process.util.ProcessTestUtil.assertParameters;
 import static ceri.process.util.ProcessTestUtil.mockProcessor;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static ceri.common.test.TestUtil.assertThat;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.process.Processor;
