@@ -128,9 +128,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.ToBooleanFunctionBehavior.class, //
 	ceri.common.function.ToByteFunctionBehavior.class, //
 	ceri.common.function.ToShortFunctionBehavior.class, //
-	// geo
-	ceri.common.geo.LatLngBehavior.class, //
-	ceri.common.geo.LatLngUtilTest.class, //
 	// geom
 	ceri.common.geom.Circle2dBehavior.class, //
 	ceri.common.geom.ConcaveSpheroidBehavior.class, //
@@ -291,6 +288,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.EnclosedBehavior.class, //
 	ceri.common.util.HolderBehavior.class, //
 	ceri.common.util.KeyValueBehavior.class, //
+	ceri.common.util.LatLngBehavior.class, //
 	ceri.common.util.LocaleUtilTest.class, //
 	ceri.common.util.OsUtilTest.class, //
 	ceri.common.util.PrimitiveUtilTest.class, //
