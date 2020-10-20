@@ -1,9 +1,9 @@
 package ceri.common.net;
 
-import static ceri.common.test.TestUtil.assertEquals;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.InetAddress;

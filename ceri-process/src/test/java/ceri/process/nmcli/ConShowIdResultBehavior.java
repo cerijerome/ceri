@@ -1,7 +1,7 @@
 package ceri.process.nmcli;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertMap;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.Map;
 import org.junit.Test;

@@ -1,10 +1,9 @@
 package ceri.common.xml;
 
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.util.List;
 import javax.xml.xpath.XPathException;
 import org.junit.Test;
@@ -40,7 +39,7 @@ public class XPathUtilTest {
 		InputSource in = XmlUtil.input(XML);
 		Node root = XPathUtil.node("*", in);
 		Node node = XPathUtil.node("//c1/text()", root);
-		assertThat(node.getTextContent(), is("C11"));
+		assertEquals(node.getTextContent(), "C11");
 		in = XmlUtil.input(XML);
 		assertNull(XPathUtil.node("//d0", in));
 		assertNull(XPathUtil.node("//d0", root));
@@ -50,22 +49,22 @@ public class XPathUtilTest {
 	public void testNodeListFromInputSource() throws XPathException {
 		InputSource in = XmlUtil.input(XML);
 		List<Node> nodes = XPathUtil.nodeList("//*[@n='0']", in);
-		assertThat(nodes.size(), is(3));
-		assertThat(nodes.get(0).getNodeName(), is("a0"));
-		assertThat(nodes.get(1).getNodeName(), is("b0"));
-		assertThat(nodes.get(2).getNodeName(), is("b0"));
+		assertEquals(nodes.size(), 3);
+		assertEquals(nodes.get(0).getNodeName(), "a0");
+		assertEquals(nodes.get(1).getNodeName(), "b0");
+		assertEquals(nodes.get(2).getNodeName(), "b0");
 	}
 
 	@Test
 	public void testNodeListFromNode() throws XPathException {
 		InputSource in = XmlUtil.input(XML);
 		Node root = XPathUtil.node("*", in);
-		assertThat(root.getNodeName(), is("a0"));
+		assertEquals(root.getNodeName(), "a0");
 		List<Node> nodes = XPathUtil.nodeList("//*[text()='B0']/following-sibling::*", root);
-		assertThat(nodes.size(), is(3));
-		assertThat(nodes.get(0).getNodeName(), is("b1"));
-		assertThat(nodes.get(1).getNodeName(), is("b0"));
-		assertThat(nodes.get(2).getNodeName(), is("b1"));
+		assertEquals(nodes.size(), 3);
+		assertEquals(nodes.get(0).getNodeName(), "b1");
+		assertEquals(nodes.get(1).getNodeName(), "b0");
+		assertEquals(nodes.get(2).getNodeName(), "b1");
 	}
 
 }

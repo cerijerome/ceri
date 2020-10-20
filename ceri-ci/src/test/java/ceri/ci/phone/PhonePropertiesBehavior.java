@@ -1,8 +1,8 @@
 package ceri.ci.phone;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -26,14 +26,14 @@ public class PhonePropertiesBehavior {
 	@Test
 	public void shouldReadValuesWithPrefix() {
 		PhoneProperties phone = new PhoneProperties(baseProps, "x");
-		assertThat(phone.enabled(), is(true));
-		assertThat(phone.accountSid(), is("accountSid"));
-		assertThat(phone.authToken(), is("authToken"));
-		assertThat(phone.fromNumber(), is("fromNumber"));
+		assertTrue(phone.enabled());
+		assertEquals(phone.accountSid(), "accountSid");
+		assertEquals(phone.authToken(), "authToken");
+		assertEquals(phone.fromNumber(), "fromNumber");
 		assertCollection(phone.names(), "A", "BB", "CCC");
-		assertThat(phone.number("A"), is("aaa"));
-		assertThat(phone.number("BB"), is("bb"));
-		assertThat(phone.number("CCC"), is("c"));
+		assertEquals(phone.number("A"), "aaa");
+		assertEquals(phone.number("BB"), "bb");
+		assertEquals(phone.number("CCC"), "c");
 	}
 
 }

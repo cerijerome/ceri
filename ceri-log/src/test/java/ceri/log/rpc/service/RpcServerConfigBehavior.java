@@ -1,10 +1,11 @@
 package ceri.log.rpc.service;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.baseProperties;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.log.rpc.client.RpcChannelConfig;
 
@@ -25,22 +26,22 @@ public class RpcServerConfigBehavior {
 	public void shouldBuildFromProperties() {
 		RpcServerConfig config =
 			new RpcServerProperties(baseProperties("rpc-server"), "rpc-server").config();
-		assertThat(config.port, is(12345));
-		assertThat(config.shutdownTimeoutMs, is(1000));
+		assertEquals(config.port, 12345);
+		assertEquals(config.shutdownTimeoutMs, 1000);
 	}
 
 	@Test
 	public void shouldDetermineIfEnabled() {
-		assertThat(RpcServerConfig.NULL.enabled(), is(false));
-		assertThat(RpcServerConfig.of().enabled(), is(true));
+		assertFalse(RpcServerConfig.NULL.enabled());
+		assertTrue(RpcServerConfig.of().enabled());
 	}
 
 	@Test
 	public void shouldDetermineIfLoop() {
-		assertThat(RpcServerConfig.NULL.isLoop(RpcChannelConfig.localhost(12345)), is(false));
-		assertThat(RpcServerConfig.of(12345).isLoop(null), is(false));
-		assertThat(RpcServerConfig.of(12345).isLoop(RpcChannelConfig.of("xxx", 12345)), is(false));
-		assertThat(RpcServerConfig.of(12345).isLoop(RpcChannelConfig.localhost(12345)), is(true));
+		assertFalse(RpcServerConfig.NULL.isLoop(RpcChannelConfig.localhost(12345)));
+		assertFalse(RpcServerConfig.of(12345).isLoop(null));
+		assertFalse(RpcServerConfig.of(12345).isLoop(RpcChannelConfig.of("xxx", 12345)));
+		assertTrue(RpcServerConfig.of(12345).isLoop(RpcChannelConfig.localhost(12345)));
 	}
 
 }

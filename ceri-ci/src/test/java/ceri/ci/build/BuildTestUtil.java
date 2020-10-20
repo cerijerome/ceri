@@ -1,9 +1,8 @@
 package ceri.ci.build;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,7 +39,7 @@ public class BuildTestUtil {
 	 * Checks event fields except for time-stamp.
 	 */
 	public static void assertEvent(Event event, Event.Type type, Collection<String> names) {
-		assertThat(event.type, is(type));
+		assertEquals(event.type, type);
 		assertCollection(event.names, names);
 	}
 

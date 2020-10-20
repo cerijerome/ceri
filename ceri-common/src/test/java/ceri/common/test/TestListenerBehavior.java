@@ -1,8 +1,7 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.runRepeat;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.event.Listeners;
 
@@ -13,7 +12,7 @@ public class TestListenerBehavior {
 		Listeners<String> listeners = Listeners.of();
 		try (TestListener<String> listener = TestListener.of(listeners)) {
 			listeners.accept("test");
-			assertThat(listener.await(), is("test"));
+			assertEquals(listener.await(), "test");
 		}
 	}
 
@@ -22,7 +21,7 @@ public class TestListenerBehavior {
 		Listeners<String> listeners = Listeners.of();
 		try (TestListener<String> listener = TestListener.of(listeners)) {
 			try (var exec = runRepeat(() -> listeners.accept("test"))) {
-				assertThat(listener.awaitClear(), is("test"));
+				assertEquals(listener.awaitClear(), "test");
 			}
 		}
 	}
@@ -32,7 +31,7 @@ public class TestListenerBehavior {
 		Listeners<String> listeners = Listeners.of();
 		try (TestListener<String> listener = TestListener.of(listeners)) {
 			listener.listener().accept("test");
-			assertThat(listener.await(), is("test"));
+			assertEquals(listener.await(), "test");
 		}
 	}
 

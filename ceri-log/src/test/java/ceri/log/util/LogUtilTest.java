@@ -1,14 +1,15 @@
 package ceri.log.util;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertEquals;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertFind;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertMatch;
-import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.assertTrue;
-import static ceri.common.test.TestUtil.throwIt;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertFind;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertMatch;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.throwIt;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -84,19 +85,19 @@ public class LogUtilTest {
 
 	@Test
 	public void testExecute() {
-		assertEquals(LogUtil.execute(null, () -> {}), true);
-		assertEquals(LogUtil.execute(logger, () -> {}), true);
-		assertEquals(LogUtil.execute(logger, null), false);
+		assertTrue(LogUtil.execute(null, () -> {}));
+		assertTrue(LogUtil.execute(logger, () -> {}));
+		assertFalse(LogUtil.execute(logger, null));
 		testLog.assertEmpty();
 	}
 
 	@Test
 	public void testExecuteWithException() {
-		assertEquals(LogUtil.execute(null, () -> throwIt(new RuntimeException("rtx"))), false);
-		assertEquals(LogUtil.execute(logger, () -> throwIt(new RuntimeException("rtx"))), false);
+		assertFalse(LogUtil.execute(null, () -> throwIt(new RuntimeException("rtx"))));
+		assertFalse(LogUtil.execute(logger, () -> throwIt(new RuntimeException("rtx"))));
 		testLog.assertFind("(?is)ERROR .* catching.*RuntimeException.*rtx");
-		assertEquals(LogUtil.execute(null, () -> throwIt(new InterruptedException())), false);
-		assertEquals(LogUtil.execute(logger, () -> throwIt(new InterruptedException())), false);
+		assertFalse(LogUtil.execute(null, () -> throwIt(new InterruptedException())));
+		assertFalse(LogUtil.execute(logger, () -> throwIt(new InterruptedException())));
 		testLog.assertFind("(?is)INFO .*InterruptedException");
 	}
 
@@ -292,6 +293,12 @@ public class LogUtilTest {
 	@Test
 	public void testEscaped() {
 		assertEquals(LogUtil.escaped("a\n\0\t").toString(), "a\\n\\0\\t");
+	}
+
+	@Test
+	public void testEscapedAscii() {
+		assertEquals(LogUtil.escapedAscii("a\n\0\t".getBytes(ISO_8859_1), 1, 3).toString(),
+			"\\n\\0\\t");
 	}
 
 	@Test

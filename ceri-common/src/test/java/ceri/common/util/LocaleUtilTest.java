@@ -1,7 +1,7 @@
 package ceri.common.util;
 
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assume.assumeThat;
 import java.util.Locale;
@@ -19,27 +19,27 @@ public class LocaleUtilTest {
 		Locale locale = new Locale("en", "US", "Test");
 		assumeThat("en_US_Test", is(locale.toString()));
 		Locale localeFromString = LocaleUtil.fromString("en_US_Test");
-		assertThat(locale, is(localeFromString));
-		assertThat(LocaleUtil.fromString(""), is(new Locale("")));
-		assertThat(LocaleUtil.fromString("a"), is(new Locale("a")));
-		assertThat(LocaleUtil.fromString("a_"), is(new Locale("a")));
-		assertThat(LocaleUtil.fromString("a_b"), is(new Locale("a", "b")));
-		assertThat(LocaleUtil.fromString("a_b_"), is(new Locale("a", "b")));
-		assertThat(LocaleUtil.fromString("a_b_c"), is(new Locale("a", "b", "c")));
-		assertThat(LocaleUtil.fromString("a_b_c_"), is(new Locale("a", "b", "c_")));
+		assertEquals(locale, localeFromString);
+		assertEquals(LocaleUtil.fromString(""), new Locale(""));
+		assertEquals(LocaleUtil.fromString("a"), new Locale("a"));
+		assertEquals(LocaleUtil.fromString("a_"), new Locale("a"));
+		assertEquals(LocaleUtil.fromString("a_b"), new Locale("a", "b"));
+		assertEquals(LocaleUtil.fromString("a_b_"), new Locale("a", "b"));
+		assertEquals(LocaleUtil.fromString("a_b_c"), new Locale("a", "b", "c"));
+		assertEquals(LocaleUtil.fromString("a_b_c_"), new Locale("a", "b", "c_"));
 	}
 
 	@Test
 	public void testParentOf() {
 		Locale locale = new Locale("en", "US", "Test");
 		locale = LocaleUtil.parentOf(locale);
-		assertThat(locale, is(new Locale("en", "US")));
+		assertEquals(locale, new Locale("en", "US"));
 		locale = LocaleUtil.parentOf(locale);
-		assertThat(locale, is(new Locale("en")));
+		assertEquals(locale, new Locale("en"));
 		locale = LocaleUtil.parentOf(locale);
-		assertThat(locale, is(new Locale("")));
+		assertEquals(locale, new Locale(""));
 		locale = LocaleUtil.parentOf(locale);
-		assertThat(locale, is(new Locale("")));
+		assertEquals(locale, new Locale(""));
 	}
 
 }

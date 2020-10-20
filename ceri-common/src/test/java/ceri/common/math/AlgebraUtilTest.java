@@ -1,12 +1,10 @@
 package ceri.common.math;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertEquals;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class AlgebraUtilTest {
 
@@ -47,28 +45,28 @@ public class AlgebraUtilTest {
 
 	@Test
 	public void testFactorial() {
-		assertThat(AlgebraUtil.factorial(0), is(1.0));
+		assertEquals(AlgebraUtil.factorial(0), 1.0);
 		assertEquals(9.33262e157, AlgebraUtil.factorial(100), 0.00001e157);
-		TestUtil.assertThrown(() -> AlgebraUtil.factorial(-1));
-		TestUtil.assertThrown(() -> AlgebraUtil.longFactorial(21));
-		assertThat(AlgebraUtil.longFactorial(20), is(2432902008176640000L));
+		assertThrown(() -> AlgebraUtil.factorial(-1));
+		assertThrown(() -> AlgebraUtil.longFactorial(21));
+		assertEquals(AlgebraUtil.longFactorial(20), 2432902008176640000L);
 	}
 
 	@Test
 	public void testPascal() {
-		assertThat(AlgebraUtil.pascal(0, 0), is(1L));
-		assertThat(AlgebraUtil.pascal(1, 0), is(1L));
-		assertThat(AlgebraUtil.pascal(1, 1), is(1L));
-		assertThat(AlgebraUtil.pascal(5, 0), is(1L));
-		assertThat(AlgebraUtil.pascal(5, 1), is(5L));
-		assertThat(AlgebraUtil.pascal(5, 2), is(10L));
-		assertThat(AlgebraUtil.pascal(5, 3), is(10L));
-		assertThat(AlgebraUtil.pascal(5, 4), is(5L));
-		assertThat(AlgebraUtil.pascal(5, 5), is(1L));
-		assertThat(AlgebraUtil.pascal(-1, 0), is(0L));
-		assertThat(AlgebraUtil.pascal(0, -1), is(0L));
-		assertThat(AlgebraUtil.pascal(0, 1), is(0L));
-		assertThat(AlgebraUtil.pascal(1, 2), is(0L));
+		assertEquals(AlgebraUtil.pascal(0, 0), 1L);
+		assertEquals(AlgebraUtil.pascal(1, 0), 1L);
+		assertEquals(AlgebraUtil.pascal(1, 1), 1L);
+		assertEquals(AlgebraUtil.pascal(5, 0), 1L);
+		assertEquals(AlgebraUtil.pascal(5, 1), 5L);
+		assertEquals(AlgebraUtil.pascal(5, 2), 10L);
+		assertEquals(AlgebraUtil.pascal(5, 3), 10L);
+		assertEquals(AlgebraUtil.pascal(5, 4), 5L);
+		assertEquals(AlgebraUtil.pascal(5, 5), 1L);
+		assertEquals(AlgebraUtil.pascal(-1, 0), 0L);
+		assertEquals(AlgebraUtil.pascal(0, -1), 0L);
+		assertEquals(AlgebraUtil.pascal(0, 1), 0L);
+		assertEquals(AlgebraUtil.pascal(1, 2), 0L);
 	}
 
 }

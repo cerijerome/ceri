@@ -1,8 +1,8 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.ints;
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 import java.util.Arrays;

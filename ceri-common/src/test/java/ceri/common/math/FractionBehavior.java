@@ -1,13 +1,12 @@
 package ceri.common.math;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class FractionBehavior {
 
@@ -50,7 +49,7 @@ public class FractionBehavior {
 	public void shouldDivideFractions() {
 		assertFraction(Fraction.of(0, 1).divide(Fraction.of(1, 1)), 0, 1);
 		assertFraction(Fraction.of(1, 1).divide(Fraction.of(1, 1)), 1, 1);
-		TestUtil.assertThrown(() -> Fraction.of(0, 1).divide(Fraction.of(0, 1)));
+		assertThrown(() -> Fraction.of(0, 1).divide(Fraction.of(0, 1)));
 		assertFraction(Fraction.of(7, 3).divide(Fraction.of(2, 5)), 35, 6);
 	}
 
@@ -81,14 +80,14 @@ public class FractionBehavior {
 		assertFraction(Fraction.of(0, 1).negate(), 0, 1);
 		assertFraction(Fraction.of(10, 9).negate(), -10, 9);
 		assertFraction(Fraction.of(-9, 10).negate(), 9, 10);
-		TestUtil.assertThrown(() -> Fraction.of(Long.MIN_VALUE, 101).negate());
+		assertThrown(() -> Fraction.of(Long.MIN_VALUE, 101).negate());
 	}
 
 	@Test
 	public void shouldInvert() {
 		assertFraction(Fraction.of(-9, 7).invert(), -7, 9);
-		TestUtil.assertThrown(() -> Fraction.of(0, Long.MAX_VALUE).invert());
-		TestUtil.assertThrown(() -> Fraction.of(Long.MIN_VALUE, 1).invert());
+		assertThrown(() -> Fraction.of(0, Long.MAX_VALUE).invert());
+		assertThrown(() -> Fraction.of(Long.MIN_VALUE, 1).invert());
 	}
 
 	@Test
@@ -99,10 +98,10 @@ public class FractionBehavior {
 
 	@Test
 	public void shouldFailToCreateInvalidFraction() {
-		TestUtil.assertThrown(() -> Fraction.of(0, 0));
-		TestUtil.assertThrown(() -> Fraction.of(1, 0));
-		TestUtil.assertThrown(() -> Fraction.of(1, Long.MIN_VALUE));
-		TestUtil.assertThrown(() -> Fraction.of(Long.MIN_VALUE, -1));
+		assertThrown(() -> Fraction.of(0, 0));
+		assertThrown(() -> Fraction.of(1, 0));
+		assertThrown(() -> Fraction.of(1, Long.MIN_VALUE));
+		assertThrown(() -> Fraction.of(Long.MIN_VALUE, -1));
 	}
 
 	@Test
@@ -117,8 +116,8 @@ public class FractionBehavior {
 	}
 
 	public static void assertFraction(Fraction fraction, long numerator, long denominator) {
-		assertThat(fraction.numerator, is(numerator));
-		assertThat(fraction.denominator, is(denominator));
+		assertEquals(fraction.numerator, numerator);
+		assertEquals(fraction.denominator, denominator);
 	}
 
 }

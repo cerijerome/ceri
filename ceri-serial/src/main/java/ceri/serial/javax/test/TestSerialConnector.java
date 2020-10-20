@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import ceri.common.io.StateChange;
-import ceri.common.test.SyncState;
+import ceri.common.test.CallSync;
 import ceri.common.test.TestPipedConnector;
 import ceri.serial.javax.FlowControl;
 import ceri.serial.javax.SerialConnector;
@@ -13,19 +13,13 @@ import ceri.serial.javax.SerialConnector;
  * A connector for testing logic against serial connectors.
  */
 public class TestSerialConnector extends TestPipedConnector implements SerialConnector {
-	public final SyncState.Bool connectSync = SyncState.boolNoResume();
-	public final SyncState<Boolean> dtrSync = SyncState.noResume();
-	public final SyncState<Boolean> rtsSync = SyncState.noResume();
-	public final SyncState<FlowControl> flowCtrlSync = SyncState.noResume();
-	public final SyncState<Boolean> breakBitSync = SyncState.noResume();
-	public final SyncState<Boolean> brokenSync = SyncState.noResume();
-	// State fields
-	public volatile boolean breakBit;
-	public volatile boolean rts;
-	public volatile boolean dtr;
-	public volatile FlowControl flowControl = FlowControl.none;
-	public volatile boolean connected;
-	public volatile boolean broken;
+	public final CallSync.Accept<Boolean> broken = CallSync.consumer(false, true);
+	public final CallSync.Accept<Boolean> connect = CallSync.consumer(false, true);
+	public final CallSync.Accept<Boolean> dtr = CallSync.consumer(false, true);
+	public final CallSync.Accept<Boolean> rts = CallSync.consumer(false, true);
+	public final CallSync.Accept<FlowControl> flowControl =
+		CallSync.consumer(FlowControl.none, true);
+	public final CallSync.Accept<Boolean> breakBit = CallSync.consumer(false, true);
 
 	/**
 	 * Provide a test connector that echoes output to input.
@@ -50,79 +44,65 @@ public class TestSerialConnector extends TestPipedConnector implements SerialCon
 
 	@Override
 	public void reset(boolean clearListeners) {
-		connectSync.reset();
-		dtrSync.reset();
-		rtsSync.reset();
-		flowCtrlSync.reset();
-		breakBitSync.reset();
-		brokenSync.reset();
-		breakBit = false;
-		rts = false;
-		dtr = false;
-		flowControl = FlowControl.none;
-		connected = false;
-		broken = false;
+		broken.reset();
+		connect.reset();
+		dtr.reset();
+		rts.reset();
+		flowControl.reset();
+		breakBit.reset();
 		super.reset(clearListeners);
 	}
 
 	@Override
 	public void broken() {
-		boolean notify = !broken;
-		broken = true;
-		if (notify) listeners.accept(StateChange.broken);
-		brokenSync.accept(true);
+		if (!broken.value()) listeners.accept(StateChange.broken);
+		broken.accept(true);
+		connect.value(false);
 	}
 
 	public void fixed() {
-		boolean notify = broken;
-		broken = false;
-		connected = true;
-		if (notify) listeners.accept(StateChange.fixed);
-		brokenSync.accept(false);
+		connect.value(true); // don't signal call
+		if (broken.value()) listeners.accept(StateChange.fixed);
+		broken.accept(false);
 	}
 
 	@Override
 	public void connect() throws IOException {
-		connectSync.accept();
+		connect.accept(true, IOException::new);
 		verifyUnbroken();
-		connected = true;
 	}
 
 	@Override
 	public void dtr(boolean on) throws IOException {
-		dtrSync.accept(on);
+		dtr.accept(on, IOException::new);
 		verifyUnbroken();
 		verifyConnected();
-		dtr = on;
 	}
 
 	@Override
 	public void rts(boolean on) throws IOException {
-		rtsSync.accept(on);
+		rts.accept(on, IOException::new);
 		verifyUnbroken();
 		verifyConnected();
-		rts = on;
 	}
 
 	@Override
 	public void flowControl(FlowControl flowControl) throws IOException {
-		flowCtrlSync.accept(flowControl);
+		this.flowControl.accept(flowControl, IOException::new);
 		verifyUnbroken();
 		verifyConnected();
-		this.flowControl = flowControl;
 	}
 
 	@Override
 	public void breakBit(boolean on) throws IOException {
-		breakBitSync.accept(on);
+		breakBit.accept(on, IOException::new);
 		verifyUnbroken();
 		verifyConnected();
-		breakBit = on;
 	}
 
 	@Override
 	public void close() {
-		connected = false;
+		connect.value(false);
 	}
 
 	@Override
@@ -149,11 +129,11 @@ public class TestSerialConnector extends TestPipedConnector implements SerialCon
 	}
 
 	protected void verifyConnected() throws IOException {
-		if (!connected) throw new IOException("Not connected");
+		if (!connect.value()) throw new IOException("Not connected");
 	}
 
 	protected void verifyUnbroken() throws IOException {
-		if (broken) throw new IOException("Connector is broken");
+		if (broken.value()) throw new IOException("Connector is broken");
 	}
 
 }

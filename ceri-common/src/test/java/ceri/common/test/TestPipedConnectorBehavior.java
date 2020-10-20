@@ -1,12 +1,11 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertAssertion;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertRead;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertAssertion;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertRead;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -49,10 +48,10 @@ public class TestPipedConnectorBehavior {
 		ValueCondition<StateChange> sync = ValueCondition.of();
 		try (var enc = con.listeners().enclose(sync::signal)) {
 			con.listeners.accept(StateChange.broken);
-			assertThat(sync.await(), is(StateChange.broken));
+			assertEquals(sync.await(), StateChange.broken);
 			con.reset(false);
 			con.listeners.accept(StateChange.broken);
-			assertThat(sync.await(), is(StateChange.broken));
+			assertEquals(sync.await(), StateChange.broken);
 		}
 		con.listeners.accept(StateChange.broken);
 		assertNull(sync.value());
@@ -62,9 +61,9 @@ public class TestPipedConnectorBehavior {
 	@Test
 	public void shouldFeedBytes() throws IOException {
 		con.to.writeBytes(1, 2, 3);
-		assertThat(con.in().available(), is(3));
+		assertEquals(con.in().available(), 3);
 		assertRead(con.in(), 1, 2, 3);
-		assertThat(con.in().available(), is(0));
+		assertEquals(con.in().available(), 0);
 	}
 
 	@SuppressWarnings("resource")
@@ -72,9 +71,9 @@ public class TestPipedConnectorBehavior {
 	public void shouldReturnEof() throws IOException {
 		con.to.writeBytes(1, 2, 3, 4, 5);
 		con.eof(true);
-		assertThat(con.in().available(), is(5));
-		assertThat(con.in().read(), is(-1));
-		assertThat(con.in().read(new byte[2]), is(-1));
+		assertEquals(con.in().available(), 5);
+		assertEquals(con.in().read(), -1);
+		assertEquals(con.in().read(new byte[2]), -1);
 		con.eof(false);
 		assertRead(con.in(), 4, 5);
 	}
@@ -83,9 +82,9 @@ public class TestPipedConnectorBehavior {
 	@Test
 	public void shouldSinkBytes() throws IOException {
 		con.out().write(ArrayUtil.bytes(1, 2, 3));
-		assertThat(con.from.available(), is(3));
+		assertEquals(con.from.available(), 3);
 		assertRead(con.from, 1, 2, 3);
-		assertThat(con.from.available(), is(0));
+		assertEquals(con.from.available(), 0);
 	}
 
 	@SuppressWarnings("resource")
@@ -103,15 +102,15 @@ public class TestPipedConnectorBehavior {
 	public void shouldGenerateReadError() throws IOException {
 		con.to.writeByte(0);
 		con.readError.mode(Mode.checked);
-		assertThat(con.in().available(), is(1));
+		assertEquals(con.in().available(), 1);
 		assertThrown(() -> con.in().read());
-		assertThat(con.in().available(), is(0));
+		assertEquals(con.in().available(), 0);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldGenerateAvailableError() throws IOException {
-		assertThat(con.in().available(), is(0));
+		assertEquals(con.in().available(), 0);
 		con.availableError.mode(Mode.checked);
 		assertThrown(() -> con.in().available());
 	}

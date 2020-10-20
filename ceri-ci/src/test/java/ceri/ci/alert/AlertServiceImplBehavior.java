@@ -1,7 +1,6 @@
 package ceri.ci.alert;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -63,7 +62,7 @@ public class AlertServiceImplBehavior {
 		service.process(new BuildEvent("build1", "job1", e2));
 		Builds refBuilds = new Builds();
 		refBuilds.build("build0").job("job0").events(e0, e1);
-		assertThat(builds, is(refBuilds));
+		assertEquals(builds, refBuilds);
 	}
 
 	@Test
@@ -74,7 +73,7 @@ public class AlertServiceImplBehavior {
 		service.process(new BuildEvent("build0", "job1", e2));
 		Build refBuild = new Build("build0");
 		refBuild.job("job0").events(e0, e1);
-		assertThat(build, is(refBuild));
+		assertEquals(build, refBuild);
 	}
 
 	@Test
@@ -85,7 +84,7 @@ public class AlertServiceImplBehavior {
 		service.process(new BuildEvent("build0", "job0", e2));
 		Job refJob = new Job("job0");
 		refJob.events(e0, e1);
-		assertThat(job, is(refJob));
+		assertEquals(job, refJob);
 	}
 
 	@Test
@@ -94,7 +93,7 @@ public class AlertServiceImplBehavior {
 		service.process(new BuildEvent("build0", "job0", e1));
 		service.delete("build0", null);
 		Builds builds = service.builds();
-		assertThat(builds, is(new Builds()));
+		assertEquals(builds, new Builds());
 	}
 
 	@Test
@@ -103,7 +102,7 @@ public class AlertServiceImplBehavior {
 		service.process(new BuildEvent("build0", "job0", e1));
 		service.delete("build0", "job0");
 		Build build = service.build("build0");
-		assertThat(build, is(new Build("build0")));
+		assertEquals(build, new Build("build0"));
 	}
 
 	@SuppressWarnings("resource")

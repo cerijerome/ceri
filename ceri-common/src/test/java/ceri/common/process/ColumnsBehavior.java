@@ -1,7 +1,7 @@
 package ceri.common.process;
 
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertMap;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertMap;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.test.TestUtil;

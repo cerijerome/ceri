@@ -1,15 +1,14 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertExists;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertExists;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 import ceri.common.test.FileTestHelper;
 
 public class FileTrackerBehavior {
@@ -73,10 +72,10 @@ public class FileTrackerBehavior {
 		FileTracker tracker = new FileTracker();
 		tracker.dir(helper.path("z/z"));
 		Files.delete(helper.path("z/z"));
-		Capturer.Bi<IOException, Path> capturer = Capturer.ofBi();
+		Captor.Bi<IOException, Path> capturer = Captor.ofBi();
 		tracker.delete(capturer::accept);
-		assertThat(capturer.first.values.size(), is(1));
-		assertThat(capturer.second.values.size(), is(1));
+		assertEquals(capturer.first.values.size(), 1);
+		assertEquals(capturer.second.values.size(), 1);
 	}
 
 }

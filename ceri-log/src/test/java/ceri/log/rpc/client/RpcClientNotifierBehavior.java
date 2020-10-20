@@ -1,7 +1,8 @@
 package ceri.log.rpc.client;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.logging.log4j.Level;
@@ -38,7 +39,7 @@ public class RpcClientNotifierBehavior {
 		TestListener<Integer> listener = TestListener.of(notifier);
 		call.await();
 		call.callback.onNext("123");
-		assertThat(listener.await(), is(123));
+		assertEquals(listener.await(), 123);
 	}
 
 	@Test
@@ -46,12 +47,12 @@ public class RpcClientNotifierBehavior {
 		ValueCondition<Integer> sync = ValueCondition.of();
 		Consumer<Integer> fn1 = sync::signal;
 		Consumer<Integer> fn2 = sync::signal;
-		assertThat(notifier.listen(fn1), is(true));
-		assertThat(notifier.listen(fn2), is(true));
-		assertThat(notifier.listen(fn1), is(false));
-		assertThat(notifier.unlisten(fn1), is(true));
-		assertThat(notifier.unlisten(fn2), is(true));
-		assertThat(notifier.unlisten(fn1), is(false));
+		assertTrue(notifier.listen(fn1));
+		assertTrue(notifier.listen(fn2));
+		assertFalse(notifier.listen(fn1));
+		assertTrue(notifier.unlisten(fn1));
+		assertTrue(notifier.unlisten(fn2));
+		assertFalse(notifier.unlisten(fn1));
 	}
 
 	@Test

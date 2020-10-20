@@ -1,10 +1,9 @@
 package ceri.common.svg;
 
 import static ceri.common.svg.SvgTestUtil.assertPath;
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
@@ -30,7 +29,7 @@ public class PathGroupBehavior {
 	public void shouldDetermineEnd() {
 		PathGroup g = PathGroup.of(LineTo.relative(1, 1), MoveTo.relative(4, 1), //
 			LineTo.absolute(0, 0));
-		assertThat(g.end(), is(Position.absolute(0, 0)));
+		assertEquals(g.end(), Position.absolute(0, 0));
 	}
 
 	@Test

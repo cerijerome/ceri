@@ -1,10 +1,9 @@
 package ceri.ci.common;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,7 +38,7 @@ public class ResourceMapBehavior {
 	public void shouldFindResourcesFromFile() throws Exception {
 		ResourceMap map = new ResourceMap(getClass(), "res/test", "txt");
 		assertCollection(map.keys(), "A", "BB", "CCC");
-		assertThat(map.resources().size(), is(3));
+		assertEquals(map.resources().size(), 3);
 		assertArray(map.resource("A").data, 'a', 'a', 'a');
 		assertArray(map.resource("BB").data, 'b', 'b');
 		assertArray(map.resource("CCC").data, 'c');

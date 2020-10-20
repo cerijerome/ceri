@@ -1,61 +1,60 @@
 package ceri.common.test;
 
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestStyle.behavior;
 import static ceri.common.test.TestStyle.none;
 import static ceri.common.test.TestStyle.test;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class TestStyleBehavior {
 
 	@Test
 	public void shouldGuessStyleFromTargetOrTestClass() {
-		assertThat(TestStyle.guessFrom((Class<?>) null), is(none));
-		assertThat(TestStyle.guessFrom(TestUtil.class), is(test));
-		assertThat(TestStyle.guessFrom(TestStyle.class), is(behavior));
-		assertThat(TestStyle.guessFrom(TestStyleBehavior.class), is(behavior));
-		assertThat(TestStyle.guessFrom((String) null), is(none));
-		assertThat(TestStyle.guessFrom(""), is(none));
-		assertThat(TestStyle.guessFrom("Util"), is(test));
-		assertThat(TestStyle.guessFrom("Helper"), is(behavior));
+		assertEquals(TestStyle.guessFrom((Class<?>) null), none);
+		assertEquals(TestStyle.guessFrom(TestUtil.class), test);
+		assertEquals(TestStyle.guessFrom(TestStyle.class), behavior);
+		assertEquals(TestStyle.guessFrom(TestStyleBehavior.class), behavior);
+		assertEquals(TestStyle.guessFrom((String) null), none);
+		assertEquals(TestStyle.guessFrom(""), none);
+		assertEquals(TestStyle.guessFrom("Util"), test);
+		assertEquals(TestStyle.guessFrom("Helper"), behavior);
 	}
 
 	@Test
 	public void shouldConvertToTest() {
 		assertNull(test.test(null));
-		assertThat(test.test(""), is("Test"));
-		assertThat(test.test("My\n"), is("My\n"));
-		assertThat(test.test("My"), is("MyTest"));
-		assertThat(test.test("ceri.common.My"), is("ceri.common.MyTest"));
-		assertThat(test.test("/My.class"), is("/MyTest.class"));
-		assertThat(behavior.test(""), is("Behavior"));
-		assertThat(behavior.test("My.java"), is("MyBehavior.java"));
-		assertThat(behavior.test("ceri/common/My.java"), is("ceri/common/MyBehavior.java"));
-		assertThat(none.test("My\n"), is("My\n"));
-		assertThat(none.test(""), is(""));
-		assertThat(none.test("My"), is("My"));
-		assertThat(none.test("ceri.common.My"), is("ceri.common.My"));
-		assertThat(none.test("My.java"), is("My.java"));
-		assertThat(none.test("/My.class"), is("/My.class"));
-		assertThat(none.test("ceri/common/My.java"), is("ceri/common/My.java"));
+		assertEquals(test.test(""), "Test");
+		assertEquals(test.test("My\n"), "My\n");
+		assertEquals(test.test("My"), "MyTest");
+		assertEquals(test.test("ceri.common.My"), "ceri.common.MyTest");
+		assertEquals(test.test("/My.class"), "/MyTest.class");
+		assertEquals(behavior.test(""), "Behavior");
+		assertEquals(behavior.test("My.java"), "MyBehavior.java");
+		assertEquals(behavior.test("ceri/common/My.java"), "ceri/common/MyBehavior.java");
+		assertEquals(none.test("My\n"), "My\n");
+		assertEquals(none.test(""), "");
+		assertEquals(none.test("My"), "My");
+		assertEquals(none.test("ceri.common.My"), "ceri.common.My");
+		assertEquals(none.test("My.java"), "My.java");
+		assertEquals(none.test("/My.class"), "/My.class");
+		assertEquals(none.test("ceri/common/My.java"), "ceri/common/My.java");
 	}
 
 	@Test
 	public void shouldExtractTarget() {
 		assertNull(TestStyle.target(null));
-		assertThat(TestStyle.target(""), is(""));
-		assertThat(TestStyle.target("Test\n"), is("Test\n"));
-		assertThat(TestStyle.target("Test"), is(""));
-		assertThat(TestStyle.target("Behavior.class"), is(".class"));
-		assertThat(TestStyle.target("MyTest"), is("My"));
-		assertThat(TestStyle.target("MyClass"), is("MyClass"));
-		assertThat(TestStyle.target("MyBehavior.java"), is("My.java"));
-		assertThat(TestStyle.target("ceri.common.MyTest"), is("ceri.common.My"));
-		assertThat(TestStyle.target("ceri/common/MyBehavior.class"), is("ceri/common/My.class"));
+		assertEquals(TestStyle.target(""), "");
+		assertEquals(TestStyle.target("Test\n"), "Test\n");
+		assertEquals(TestStyle.target("Test"), "");
+		assertEquals(TestStyle.target("Behavior.class"), ".class");
+		assertEquals(TestStyle.target("MyTest"), "My");
+		assertEquals(TestStyle.target("MyClass"), "MyClass");
+		assertEquals(TestStyle.target("MyBehavior.java"), "My.java");
+		assertEquals(TestStyle.target("ceri.common.MyTest"), "ceri.common.My");
+		assertEquals(TestStyle.target("ceri/common/MyBehavior.class"), "ceri/common/My.class");
 	}
 
 	@Test
@@ -78,46 +77,46 @@ public class TestStyleBehavior {
 
 	@Test
 	public void shouldGetFromName() {
-		assertThat(TestStyle.from(null), is(none));
-		assertThat(TestStyle.from("Name"), is(none));
-		assertThat(TestStyle.from("Test\n"), is(none));
-		assertThat(TestStyle.from("ceri.common.test.FullName"), is(none));
-		assertThat(TestStyle.from("ceri.common.test"), is(none));
-		assertThat(TestStyle.from("ceri.common.behavior"), is(none));
-		assertThat(TestStyle.from("Test"), is(test));
-		assertThat(TestStyle.from("ceri.common.test.Test"), is(test));
-		assertThat(TestStyle.from("ceri.common.test.MyTest"), is(test));
-		assertThat(TestStyle.from("ceri.common.test.BehaviorTest"), is(test));
-		assertThat(TestStyle.from("ceri.common.test.TestTest"), is(test));
-		assertThat(TestStyle.from("Behavior"), is(behavior));
-		assertThat(TestStyle.from("ceri.common.test.Behavior"), is(behavior));
-		assertThat(TestStyle.from("ceri.common.test.TestBehavior"), is(behavior));
-		assertThat(TestStyle.from("ceri.common.test.TestBehavior"), is(behavior));
-		assertThat(TestStyle.from("ceri.common.test.BehaviorBehavior"), is(behavior));
+		assertEquals(TestStyle.from(null), none);
+		assertEquals(TestStyle.from("Name"), none);
+		assertEquals(TestStyle.from("Test\n"), none);
+		assertEquals(TestStyle.from("ceri.common.test.FullName"), none);
+		assertEquals(TestStyle.from("ceri.common.test"), none);
+		assertEquals(TestStyle.from("ceri.common.behavior"), none);
+		assertEquals(TestStyle.from("Test"), test);
+		assertEquals(TestStyle.from("ceri.common.test.Test"), test);
+		assertEquals(TestStyle.from("ceri.common.test.MyTest"), test);
+		assertEquals(TestStyle.from("ceri.common.test.BehaviorTest"), test);
+		assertEquals(TestStyle.from("ceri.common.test.TestTest"), test);
+		assertEquals(TestStyle.from("Behavior"), behavior);
+		assertEquals(TestStyle.from("ceri.common.test.Behavior"), behavior);
+		assertEquals(TestStyle.from("ceri.common.test.TestBehavior"), behavior);
+		assertEquals(TestStyle.from("ceri.common.test.TestBehavior"), behavior);
+		assertEquals(TestStyle.from("ceri.common.test.BehaviorBehavior"), behavior);
 	}
 
 	@Test
 	public void shouldGetFromPath() {
-		assertThat(TestStyle.from("Name.java"), is(none));
-		assertThat(TestStyle.from("Name.class"), is(none));
-		assertThat(TestStyle.from("Test.jar"), is(none));
-		assertThat(TestStyle.from("Test.javax"), is(none));
-		assertThat(TestStyle.from("Test.java"), is(test));
-		assertThat(TestStyle.from("Behavior.class"), is(behavior));
-		assertThat(TestStyle.from("/Test.java"), is(test));
-		assertThat(TestStyle.from("ceri/common/test/Test.class"), is(test));
-		assertThat(TestStyle.from("ceri/common/test/MyBehavior.class"), is(behavior));
+		assertEquals(TestStyle.from("Name.java"), none);
+		assertEquals(TestStyle.from("Name.class"), none);
+		assertEquals(TestStyle.from("Test.jar"), none);
+		assertEquals(TestStyle.from("Test.javax"), none);
+		assertEquals(TestStyle.from("Test.java"), test);
+		assertEquals(TestStyle.from("Behavior.class"), behavior);
+		assertEquals(TestStyle.from("/Test.java"), test);
+		assertEquals(TestStyle.from("ceri/common/test/Test.class"), test);
+		assertEquals(TestStyle.from("ceri/common/test/MyBehavior.class"), behavior);
 	}
 
 	@Test
 	public void shouldGetFromSuffix() {
-		assertThat(TestStyle.fromSuffix(null), is(none));
-		assertThat(TestStyle.fromSuffix(""), is(none));
-		assertThat(TestStyle.fromSuffix("Tester"), is(none));
-		assertThat(TestStyle.fromSuffix("test"), is(none));
-		assertThat(TestStyle.fromSuffix("behavior"), is(none));
-		assertThat(TestStyle.fromSuffix("Test"), is(test));
-		assertThat(TestStyle.fromSuffix("Behavior"), is(behavior));
+		assertEquals(TestStyle.fromSuffix(null), none);
+		assertEquals(TestStyle.fromSuffix(""), none);
+		assertEquals(TestStyle.fromSuffix("Tester"), none);
+		assertEquals(TestStyle.fromSuffix("test"), none);
+		assertEquals(TestStyle.fromSuffix("behavior"), none);
+		assertEquals(TestStyle.fromSuffix("Test"), test);
+		assertEquals(TestStyle.fromSuffix("Behavior"), behavior);
 	}
 
 }

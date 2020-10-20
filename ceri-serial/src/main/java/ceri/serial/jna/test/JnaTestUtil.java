@@ -1,8 +1,7 @@
 package ceri.serial.jna.test;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
@@ -26,7 +25,7 @@ public class JnaTestUtil {
 	 * Checks remaining memory from offset matches bytes.
 	 */
 	public static void assertMemory(Memory m, int offset, byte[] bytes) {
-		assertThat(m.size() - offset, is((long) bytes.length));
+		assertEquals(m.size() - offset, (long) bytes.length);
 		assertPointer(m, offset, bytes);
 	}
 

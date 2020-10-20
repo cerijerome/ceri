@@ -1,7 +1,6 @@
 package ceri.log.test;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,7 +21,7 @@ public class LogModifierBehavior {
 	public void shouldTemporarilyChangeNamedLogLevel() {
 		log(logger);
 		LogModifier.run(() -> {
-			assertThat(logger.getLevel(), is(Level.ERROR));
+			assertEquals(logger.getLevel(), Level.ERROR);
 			log(logger);
 		}, Level.ERROR, LogUtil.loggerName(getClass()));
 		log(logger);
@@ -32,7 +31,7 @@ public class LogModifierBehavior {
 	public void shouldTemporarilyChangeClassLogLevel() {
 		log(logger);
 		LogModifier.run(() -> {
-			assertThat(logger.getLevel(), is(Level.ERROR));
+			assertEquals(logger.getLevel(), Level.ERROR);
 			log(logger);
 		}, Level.ERROR, getClass());
 		log(logger);

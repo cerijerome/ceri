@@ -1,7 +1,6 @@
 package ceri.ci.alert;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,19 +44,19 @@ public class AlerterGroupBehavior {
 	@Test
 	public void shouldExecuteUpdateInParallel() {
 		alertGroup.update(new Builds());
-		assertThat(sync.value(), is(3));
+		assertEquals(sync.value(), 3);
 	}
 
 	@Test
 	public void shouldExecuteClearInParallel() {
 		alertGroup.clear();
-		assertThat(sync.value(), is(3));
+		assertEquals(sync.value(), 3);
 	}
 
 	@Test
 	public void shouldExecuteRemindInParallel() {
 		alertGroup.remind();
-		assertThat(sync.value(), is(3));
+		assertEquals(sync.value(), 3);
 	}
 
 	private static void await(ValueCondition<Integer> sync, int i) {

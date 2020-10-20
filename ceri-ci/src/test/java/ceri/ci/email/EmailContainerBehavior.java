@@ -1,6 +1,6 @@
 package ceri.ci.email;
 
-import static ceri.common.test.TestUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyLong;

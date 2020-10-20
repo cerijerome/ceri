@@ -1,7 +1,6 @@
 package ceri.process.scutil;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import org.junit.Test;
 import ceri.common.collection.Node;
 import ceri.common.collection.NodeBuilder;
@@ -10,20 +9,20 @@ public class ParserBehavior {
 
 	@Test
 	public void shouldParseValues() {
-		assertThat(Parser.parse(""), is(Node.NULL));
-		assertThat(Parser.parse("line"), is(NodeBuilder.of().value(null, "line").build()));
-		assertThat(Parser.parse("name:value"), is(NodeBuilder.of().value("name", "value").build()));
+		assertEquals(Parser.parse(""), Node.NULL);
+		assertEquals(Parser.parse("line"), NodeBuilder.of().value(null, "line").build());
+		assertEquals(Parser.parse("name:value"), NodeBuilder.of().value("name", "value").build());
 	}
 
 	@Test
 	public void shouldParseGroups() {
-		assertThat(Parser.parse("<x> {\n}"), is(NodeBuilder.of().startGroup("", "x").build()));
-		assertThat(Parser.parse("n:<x> {\n}"), is(NodeBuilder.of().startGroup("n", "x").build()));
-		assertThat(Parser.parse("n:<x> {\nz\n}"),
-			is(NodeBuilder.of().startGroup("n", "x").value(null, "z").build()));
-		assertThat(Parser.parse("n:<x> {\n<y>{\na:b\n}\nc:d\n}"),
-			is(NodeBuilder.of().startGroup("n", "x").startGroup("", "y").value("a", "b")
-				.closeGroup().value("c", "d").build()));
+		assertEquals(Parser.parse("<x> {\n}"), NodeBuilder.of().startGroup("", "x").build());
+		assertEquals(Parser.parse("n:<x> {\n}"), NodeBuilder.of().startGroup("n", "x").build());
+		assertEquals(Parser.parse("n:<x> {\nz\n}"),
+			NodeBuilder.of().startGroup("n", "x").value(null, "z").build());
+		assertEquals(Parser.parse("n:<x> {\n<y>{\na:b\n}\nc:d\n}"),
+			NodeBuilder.of().startGroup("n", "x").startGroup("", "y").value("a", "b").closeGroup()
+				.value("c", "d").build());
 	}
 
 }

@@ -1,8 +1,9 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.junit.Test;
@@ -18,6 +19,7 @@ public class PipedStreamBehavior {
 		try (var ps = PipedStream.of()) {
 			try (var exec = SimpleExecutor.run(() -> writeFlush(ps.out(), data))) {
 				assertArray(ps.in().readNBytes(data.length), data);
+				exec.get();
 			}
 		}
 	}
@@ -30,6 +32,7 @@ public class PipedStreamBehavior {
 			try (var exec = SimpleExecutor.run(() -> ps.in().readNBytes(data.length))) {
 				writeFlush(ps.out(), data);
 				ps.awaitRead(0);
+				exec.get();
 			}
 		}
 	}
@@ -40,9 +43,10 @@ public class PipedStreamBehavior {
 		byte[] data = ArrayUtil.bytes(1, 2, 3, 4, 5);
 		try (var ps = PipedStream.of()) {
 			ps.out().write(data);
-			assertThat(ps.awaitRead(0, 1), is(false));
+			assertFalse(ps.awaitRead(0, 1));
 			try (var exec = SimpleExecutor.run(() -> ps.in().readNBytes(data.length))) {
-				assertThat(ps.awaitRead(0, 10000), is(true));
+				assertTrue(ps.awaitRead(0, 10000));
+				exec.get();
 			}
 		}
 	}
@@ -54,9 +58,10 @@ public class PipedStreamBehavior {
 		try (var ps = PipedStream.of()) {
 			try (var exec = SimpleExecutor.run(() -> writeFlush(ps.out(), data))) {
 				assertArray(ps.in().readNBytes(2), 1, 2);
-				assertThat(ps.in().available(), is(3));
+				assertEquals(ps.in().available(), 3);
 				ps.clear();
-				assertThat(ps.in().available(), is(0));
+				assertEquals(ps.in().available(), 0);
+				exec.get();
 			}
 		}
 	}
@@ -68,9 +73,10 @@ public class PipedStreamBehavior {
 		try (var con = PipedStream.connector()) {
 			try (var exec = SimpleExecutor.run(() -> writeFlush(con.inFeed(), data))) {
 				assertArray(con.in().readNBytes(2), 1, 2);
-				assertThat(con.in().available(), is(3));
+				assertEquals(con.in().available(), 3);
 				con.clear();
-				assertThat(con.in().available(), is(0));
+				assertEquals(con.in().available(), 0);
+				exec.get();
 			}
 		}
 	}
@@ -82,9 +88,10 @@ public class PipedStreamBehavior {
 		try (var con = PipedStream.connector()) {
 			try (var exec = SimpleExecutor.run(() -> writeFlush(con.out(), data))) {
 				assertArray(con.outSink().readNBytes(2), 1, 2);
-				assertThat(con.outSink().available(), is(3));
+				assertEquals(con.outSink().available(), 3);
 				con.clear();
-				assertThat(con.outSink().available(), is(0));
+				assertEquals(con.outSink().available(), 0);
+				exec.get();
 			}
 		}
 	}

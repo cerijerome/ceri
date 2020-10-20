@@ -27,7 +27,7 @@ public interface Cm11a extends X10Controller, Listenable.Indirect<StateChange>, 
 		@Override
 		public void close() {}
 	};
-	
+
 	@Override
 	default boolean supports(Command command) {
 		return command.group() != FunctionGroup.unsupported;

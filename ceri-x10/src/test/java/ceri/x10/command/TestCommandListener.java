@@ -10,9 +10,9 @@ public class TestCommandListener implements CommandListener {
 	public static TestCommandListener of() {
 		return new TestCommandListener();
 	}
-	
+
 	protected TestCommandListener() {}
-	
+
 	@Override
 	public void allUnitsOff(Command command) {
 		sync.signal(command);

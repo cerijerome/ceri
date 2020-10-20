@@ -1,12 +1,11 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.text.DsvCodec.CSV;
 import static ceri.common.text.DsvCodec.TSV;
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.is;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -15,62 +14,62 @@ public class DsvCodecBehavior {
 
 	@Test
 	public void shouldCreateCodecFromDelimiter() {
-		assertThat(DsvCodec.of('\t'), is(DsvCodec.TSV));
-		assertThat(DsvCodec.of(','), is(DsvCodec.CSV));
+		assertEquals(DsvCodec.of('\t'), DsvCodec.TSV);
+		assertEquals(DsvCodec.of(','), DsvCodec.CSV);
 		DsvCodec psv = DsvCodec.of('|');
-		assertThat(psv.encodeLine("a", "b", "c"), is("a|b|c"));
+		assertEquals(psv.encodeLine("a", "b", "c"), "a|b|c");
 	}
 
 	@Test
 	public void shouldEncodeTsv() {
 		assertNull(TSV.encodeValue(null));
-		assertThat(TSV.encodeValue(""), is(""));
-		assertThat(TSV.encodeValue("\t"), is("\"\t\""));
+		assertEquals(TSV.encodeValue(""), "");
+		assertEquals(TSV.encodeValue("\t"), "\"\t\"");
 	}
 
 	@Test
 	public void shouldDecodeTsv() {
 		assertNull(TSV.decodeValue(null));
-		assertThat(TSV.decodeValue(""), is(""));
-		assertThat(TSV.decodeValue("\t"), is("\t"));
+		assertEquals(TSV.decodeValue(""), "");
+		assertEquals(TSV.decodeValue("\t"), "\t");
 	}
 
 	@Test
 	public void shouldEncodeDocument() {
 		assertNull(CSV.encode((String[][]) null));
 		assertNull(CSV.encode((List<List<String>>) null));
-		assertThat(CSV.encode(new String[][] {}), is(""));
-		assertThat(CSV.encode(new String[][] { {} }), is(""));
-		assertThat(CSV.encode(new String[][] { {}, {} }), is("\r\n"));
-		assertThat(CSV.encode(Arrays.asList(Arrays.asList(",", ""), Arrays.asList("\""))),
-			is("\",\",\r\n\"\""));
+		assertEquals(CSV.encode(new String[][] {}), "");
+		assertEquals(CSV.encode(new String[][] { {} }), "");
+		assertEquals(CSV.encode(new String[][] { {}, {} }), "\r\n");
+		assertEquals(CSV.encode(Arrays.asList(Arrays.asList(",", ""), Arrays.asList("\""))),
+			"\",\",\r\n\"\"");
 	}
 
 	@Test
 	public void shouldEncodeLines() {
 		assertNull(CSV.encodeLine((List<String>) null));
 		assertNull(CSV.encodeLine((String[]) null));
-		assertThat(CSV.encodeLine((String) null), is(""));
-		assertThat(CSV.encodeLine(""), is(""));
-		assertThat(CSV.encodeLine("", ""), is(","));
-		assertThat(CSV.encodeLine("", "", ""), is(",,"));
-		assertThat(CSV.encodeLine(" "), is(" "));
-		assertThat(CSV.encodeLine(" ", " "), is(" , "));
-		assertThat(CSV.encodeLine(" ", " ", ""), is(" , ,"));
-		assertThat(CSV.encodeLine("\"", ",", ",\"", "\",\""),
-			is("\"\",\",\",\",\"\"\",\"\"\",\"\"\""));
+		assertEquals(CSV.encodeLine((String) null), "");
+		assertEquals(CSV.encodeLine(""), "");
+		assertEquals(CSV.encodeLine("", ""), ",");
+		assertEquals(CSV.encodeLine("", "", ""), ",,");
+		assertEquals(CSV.encodeLine(" "), " ");
+		assertEquals(CSV.encodeLine(" ", " "), " , ");
+		assertEquals(CSV.encodeLine(" ", " ", ""), " , ,");
+		assertEquals(CSV.encodeLine("\"", ",", ",\"", "\",\""),
+			"\"\",\",\",\",\"\"\",\"\"\",\"\"\"");
 	}
 
 	@Test
 	public void shouldEncodeValues() {
 		assertNull(CSV.encodeValue(null));
-		assertThat(CSV.encodeValue(""), is(""));
-		assertThat(CSV.encodeValue(" "), is(" "));
-		assertThat(CSV.encodeValue("\""), is("\"\""));
-		assertThat(CSV.encodeValue("\"\""), is("\"\"\"\""));
-		assertThat(CSV.encodeValue(","), is("\",\""));
-		assertThat(CSV.encodeValue(" , "), is("\" , \""));
-		assertThat(CSV.encodeValue("\",\""), is("\"\"\",\"\"\""));
+		assertEquals(CSV.encodeValue(""), "");
+		assertEquals(CSV.encodeValue(" "), " ");
+		assertEquals(CSV.encodeValue("\""), "\"\"");
+		assertEquals(CSV.encodeValue("\"\""), "\"\"\"\"");
+		assertEquals(CSV.encodeValue(","), "\",\"");
+		assertEquals(CSV.encodeValue(" , "), "\" , \"");
+		assertEquals(CSV.encodeValue("\",\""), "\"\"\",\"\"\"");
 	}
 
 	@Test
@@ -98,21 +97,21 @@ public class DsvCodecBehavior {
 	@Test
 	public void shouldDecodeValues() {
 		assertNull(CSV.decodeValue(null));
-		assertThat(CSV.decodeValue(""), is(""));
-		assertThat(CSV.decodeValue(" "), is(" "));
-		assertThat(CSV.decodeValue("\""), is(""));
-		assertThat(CSV.decodeValue("\"\""), is(""));
-		assertThat(CSV.decodeValue("\"\"\""), is("\""));
-		assertThat(CSV.decodeValue("\"\"\"\""), is("\"\""));
-		assertThat(CSV.decodeValue("\"\"\"\"\""), is("\"\""));
-		assertThat(CSV.decodeValue("\"\"\"\"\"\""), is("\"\""));
-		assertThat(CSV.decodeValue("\"\"\"\"\"\"\""), is("\"\"\""));
-		assertThat(CSV.decodeValue("\"\"\"\"\"\"\"\""), is("\"\"\"\""));
-		assertThat(CSV.decodeValue(" \"\" "), is(""));
-		assertThat(CSV.decodeValue(" \",\" "), is(","));
-		assertThat(CSV.decodeValue(" \"\",\" "), is(" \",\" "));
-		assertThat(CSV.decodeValue(","), is(","));
-		assertThat(CSV.decodeValue(" , "), is(" , "));
+		assertEquals(CSV.decodeValue(""), "");
+		assertEquals(CSV.decodeValue(" "), " ");
+		assertEquals(CSV.decodeValue("\""), "");
+		assertEquals(CSV.decodeValue("\"\""), "");
+		assertEquals(CSV.decodeValue("\"\"\""), "\"");
+		assertEquals(CSV.decodeValue("\"\"\"\""), "\"\"");
+		assertEquals(CSV.decodeValue("\"\"\"\"\""), "\"\"");
+		assertEquals(CSV.decodeValue("\"\"\"\"\"\""), "\"\"");
+		assertEquals(CSV.decodeValue("\"\"\"\"\"\"\""), "\"\"\"");
+		assertEquals(CSV.decodeValue("\"\"\"\"\"\"\"\""), "\"\"\"\"");
+		assertEquals(CSV.decodeValue(" \"\" "), "");
+		assertEquals(CSV.decodeValue(" \",\" "), ",");
+		assertEquals(CSV.decodeValue(" \"\",\" "), " \",\" ");
+		assertEquals(CSV.decodeValue(","), ",");
+		assertEquals(CSV.decodeValue(" , "), " , ");
 	}
 
 }

@@ -1,11 +1,12 @@
 package ceri.common.tree;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.tree.TreeNodeTestHelper.builder;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.tree.TreeNodeTestHelper.TestNode;
 
@@ -33,8 +34,8 @@ public class TreeNodeBehavior {
 	public void shouldHaveTopLevelRootNode() {
 		TestNode root = builder(0).child(builder(1)).build();
 		NodeTree<TestNode> tree = NodeTree.create(root);
-		assertThat(root.isRoot(), is(true));
-		assertThat(tree.get(1).isRoot(), is(false));
+		assertTrue(root.isRoot());
+		assertFalse(tree.get(1).isRoot());
 	}
 
 	@Test
@@ -49,24 +50,24 @@ public class TreeNodeBehavior {
 
 	@Test
 	public void shouldKnowIfChildOfAnotherNode() {
-		assertThat(helper.node(111).isChildOf(helper.node(11)), is(true));
-		assertThat(helper.node(111).isChildOf(helper.node(0)), is(true));
-		assertThat(helper.node(1).isChildOf(helper.node(1)), is(false));
-		assertThat(helper.node(0).isChildOf(helper.node(1)), is(false));
+		assertTrue(helper.node(111).isChildOf(helper.node(11)));
+		assertTrue(helper.node(111).isChildOf(helper.node(0)));
+		assertFalse(helper.node(1).isChildOf(helper.node(1)));
+		assertFalse(helper.node(0).isChildOf(helper.node(1)));
 	}
 
 	@Test
 	public void shouldKnowIfALeaf() {
-		assertThat(helper.node(111).isLeaf(), is(true));
-		assertThat(helper.node(3).isLeaf(), is(true));
-		assertThat(helper.node(2).isLeaf(), is(false));
+		assertTrue(helper.node(111).isLeaf());
+		assertTrue(helper.node(3).isLeaf());
+		assertFalse(helper.node(2).isLeaf());
 	}
 
 	@Test
 	public void shouldMatchBuilderChildStructure() {
 		final TestNode node = TreeNodeTestHelper.builder(0).child(TreeNodeTestHelper.builder(1))
 			.child(TreeNodeTestHelper.builder(2)).child(TreeNodeTestHelper.builder(3)).build(null);
-		assertThat(node.children().size(), is(3));
+		assertEquals(node.children().size(), 3);
 	}
 
 	@Test

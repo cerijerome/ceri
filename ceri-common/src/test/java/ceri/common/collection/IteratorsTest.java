@@ -1,10 +1,11 @@
 package ceri.common.collection;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,16 +17,16 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.Test;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 
 public class IteratorsTest {
 
 	@Test
 	public void testIndexed() {
 		Iterator<String> iter = Iterators.indexed(3, i -> String.valueOf(i));
-		assertThat(iter.next(), is("0"));
-		assertThat(iter.next(), is("1"));
-		assertThat(iter.next(), is("2"));
+		assertEquals(iter.next(), "0");
+		assertEquals(iter.next(), "1");
+		assertEquals(iter.next(), "2");
 		assertThrown(() -> iter.next());
 	}
 
@@ -33,12 +34,12 @@ public class IteratorsTest {
 	public void testReverseList() {
 		List<String> list = add(new ArrayList<>(), "1", "2", "3");
 		Iterator<String> iter = Iterators.reverseList(list);
-		assertThat(iter.next(), is("3"));
-		assertThat(iter.next(), is("2"));
+		assertEquals(iter.next(), "3");
+		assertEquals(iter.next(), "2");
 		iter.remove();
-		assertThat(iter.hasNext(), is(true));
-		assertThat(iter.next(), is("1"));
-		assertThat(iter.hasNext(), is(false));
+		assertTrue(iter.hasNext());
+		assertEquals(iter.next(), "1");
+		assertFalse(iter.hasNext());
 		assertThrown(() -> iter.next());
 		assertIterable(list, "1", "3");
 	}
@@ -57,7 +58,7 @@ public class IteratorsTest {
 
 	@Test
 	public void testForEachReversedList() {
-		Capturer<String> captor = Capturer.of();
+		Captor<String> captor = Captor.of();
 		for (String s : Iterators.forEachReversedList(add(new ArrayList<>(), "1", "2", "3")))
 			captor.accept(s);
 		captor.verify("3", "2", "1");
@@ -65,7 +66,7 @@ public class IteratorsTest {
 
 	@Test
 	public void testForEachReversedQueue() {
-		Capturer<String> captor = Capturer.of();
+		Captor<String> captor = Captor.of();
 		for (String s : Iterators.forEachReversedQueue(add(new ArrayDeque<>(), "1", "2", "3")))
 			captor.accept(s);
 		captor.verify("3", "2", "1");
@@ -73,7 +74,7 @@ public class IteratorsTest {
 
 	@Test
 	public void testForEachReversedSet() {
-		Capturer<String> captor = Capturer.of();
+		Captor<String> captor = Captor.of();
 		for (String s : Iterators.forEachReversedSet(add(new TreeSet<>(), "1", "2", "3")))
 			captor.accept(s);
 		captor.verify("3", "2", "1");
@@ -81,22 +82,22 @@ public class IteratorsTest {
 
 	@Test
 	public void testSpliteratorTryAdvance() {
-		Capturer<Object> capturer = Capturer.of();
-		Iterators.spliterator(null, 1, 0).tryAdvance(capturer);
-		capturer.verify();
+		Captor<Object> captor = Captor.of();
+		Iterators.spliterator(null, 1, 0).tryAdvance(captor);
+		captor.verify();
 	}
 
 	@Test
 	public void testSpliteratorNext() {
-		Capturer<Object> capturer = Capturer.of();
-		Iterators.spliterator(null, null, 1, 0).tryAdvance(capturer);
-		capturer.verify();
-		Iterators.spliterator(() -> false, null, 1, 0).tryAdvance(capturer);
-		capturer.verify();
-		Iterators.spliterator(() -> true, null, 1, 0).tryAdvance(capturer);
-		capturer.verify();
-		Iterators.spliterator(() -> true, () -> "test", 1, 0).tryAdvance(capturer);
-		capturer.verify("test");
+		Captor<Object> captor = Captor.of();
+		Iterators.spliterator(null, null, 1, 0).tryAdvance(captor);
+		captor.verify();
+		Iterators.spliterator(() -> false, null, 1, 0).tryAdvance(captor);
+		captor.verify();
+		Iterators.spliterator(() -> true, null, 1, 0).tryAdvance(captor);
+		captor.verify();
+		Iterators.spliterator(() -> true, () -> "test", 1, 0).tryAdvance(captor);
+		captor.verify("test");
 	}
 
 	/**

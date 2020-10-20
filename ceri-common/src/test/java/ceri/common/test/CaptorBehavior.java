@@ -1,13 +1,13 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertArray;
 import org.junit.Test;
 
-public class CapturerBehavior {
+public class CaptorBehavior {
 
 	@Test
 	public void shouldProvideIntArray() {
-		Capturer.Int captor = Capturer.ofInt();
+		Captor.Int captor = Captor.ofInt();
 		captor.accept(1);
 		captor.accept(2);
 		captor.accept(3);

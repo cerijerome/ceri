@@ -1,8 +1,10 @@
 package ceri.common.test;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.util.Counter;
 
@@ -40,9 +42,13 @@ public class ErrorGen {
 		return this;
 	}
 
-	public ErrorGen modeTimes(Mode mode, int n) {
+	/**
+	 * Sets the error generator mode, based on call count.
+	 */
+	public ErrorGen modeForIndex(Mode mode, int... indexes) {
+		List<Integer> list = ArrayUtil.intList(indexes);
 		Counter counter = Counter.of();
-		return mode(() -> counter.intInc() <= n ? mode : Mode.none);
+		return mode(() -> list.contains(counter.intInc() - 1) ? mode : Mode.none);
 	}
 
 	public <T> T generate() {

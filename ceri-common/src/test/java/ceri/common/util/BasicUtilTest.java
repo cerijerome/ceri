@@ -1,17 +1,15 @@
 package ceri.common.util;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertNotNull;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEnum;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,7 +18,6 @@ import java.util.HashSet;
 import java.util.Map;
 import org.junit.Test;
 import org.mockito.Mock;
-import ceri.common.test.TestUtil;
 import ceri.common.text.StringUtil;
 
 public class BasicUtilTest {
@@ -35,10 +32,9 @@ public class BasicUtilTest {
 	@Test
 	public void testAbbreviatePackages() {
 		assertNull(BasicUtil.abbreviatePackages(null));
-		assertThat(BasicUtil.abbreviatePackages(""), is(""));
-		assertThat(BasicUtil.abbreviatePackages("ceri.common.util.BasicUtil"),
-			is("c.c.u.BasicUtil"));
-		assertThat(BasicUtil.abbreviatePackages("Name.abc.def.Xyz"), is("Name.a.d.Xyz"));
+		assertEquals(BasicUtil.abbreviatePackages(""), "");
+		assertEquals(BasicUtil.abbreviatePackages("ceri.common.util.BasicUtil"), "c.c.u.BasicUtil");
+		assertEquals(BasicUtil.abbreviatePackages("Name.abc.def.Xyz"), "Name.a.d.Xyz");
 	}
 
 	@Test
@@ -73,8 +69,8 @@ public class BasicUtilTest {
 
 	@Test
 	public void testFind() {
-		assertThat(BasicUtil.find(Align.H.class, t -> t != Align.H.left), is(Align.H.center));
-		assertThat(BasicUtil.find(Align.H.class, t -> t.name().endsWith("t")), is(Align.H.left));
+		assertEquals(BasicUtil.find(Align.H.class, t -> t != Align.H.left), Align.H.center);
+		assertEquals(BasicUtil.find(Align.H.class, t -> t.name().endsWith("t")), Align.H.left);
 		assertNull(BasicUtil.find(Align.H.class, t -> t.name().endsWith("x")));
 	}
 
@@ -95,21 +91,21 @@ public class BasicUtilTest {
 	@Test
 	public void testDefaultValue() {
 		assertNull(BasicUtil.defaultValue(null, null));
-		assertThat(BasicUtil.defaultValue(null, 1), is(1));
-		assertThat(BasicUtil.defaultValue(1, null), is(1));
-		assertThat(BasicUtil.defaultValue(1, 2), is(1));
+		assertEquals(BasicUtil.defaultValue(null, 1), 1);
+		assertEquals(BasicUtil.defaultValue(1, null), 1);
+		assertEquals(BasicUtil.defaultValue(1, 2), 1);
 	}
 
 	@Test
 	public void testConditional() {
 		assertNull(BasicUtil.conditional(null, "a", "b"));
-		assertThat(BasicUtil.conditional(null, "a", "b", "c"), is("c"));
-		assertThat(BasicUtil.conditional(Boolean.TRUE, "a", "b", "c"), is("a"));
-		assertThat(BasicUtil.conditional(Boolean.FALSE, "a", "b", "c"), is("b"));
-		assertThat(BasicUtil.conditionalInt(true, 1, -1), is(1));
-		assertThat(BasicUtil.conditionalInt(false, 1, -1), is(-1));
-		assertThat(BasicUtil.conditionalLong(true, 1, -1), is(1L));
-		assertThat(BasicUtil.conditionalLong(false, 1, -1), is(-1L));
+		assertEquals(BasicUtil.conditional(null, "a", "b", "c"), "c");
+		assertEquals(BasicUtil.conditional(Boolean.TRUE, "a", "b", "c"), "a");
+		assertEquals(BasicUtil.conditional(Boolean.FALSE, "a", "b", "c"), "b");
+		assertEquals(BasicUtil.conditionalInt(true, 1, -1), 1);
+		assertEquals(BasicUtil.conditionalInt(false, 1, -1), -1);
+		assertEquals(BasicUtil.conditionalLong(true, 1, -1), 1L);
+		assertEquals(BasicUtil.conditionalLong(false, 1, -1), -1L);
 	}
 
 	private enum Enum {
@@ -120,13 +116,13 @@ public class BasicUtilTest {
 
 	@Test
 	public void testValueOf() {
-		assertThat(BasicUtil.valueOf(null, "a", Enum.a), is(Enum.a));
-		assertThat(BasicUtil.valueOf(Enum.class, "a"), is(Enum.a));
+		assertEquals(BasicUtil.valueOf(null, "a", Enum.a), Enum.a);
+		assertEquals(BasicUtil.valueOf(Enum.class, "a"), Enum.a);
 		assertNull(BasicUtil.valueOf(Enum.class, "ab"));
 		assertNull(BasicUtil.valueOf(Enum.class, null, null));
-		assertThat(BasicUtil.valueOf(Enum.class, "b", null), is(Enum.b));
-		assertThat(BasicUtil.valueOf(Enum.class, null, Enum.a), is(Enum.a));
-		assertThat(BasicUtil.valueOf(Enum.class, "ab", Enum.c), is(Enum.c));
+		assertEquals(BasicUtil.valueOf(Enum.class, "b", null), Enum.b);
+		assertEquals(BasicUtil.valueOf(Enum.class, null, Enum.a), Enum.a);
+		assertEquals(BasicUtil.valueOf(Enum.class, "ab", Enum.c), Enum.c);
 		assertNull(BasicUtil.valueOf(Enum.class, "ab", null));
 	}
 
@@ -140,20 +136,20 @@ public class BasicUtilTest {
 	@Test
 	public void testCastOrNull() {
 		java.sql.Date sqlDate = new java.sql.Date(0);
-		assertThat(BasicUtil.castOrNull(Date.class, sqlDate), is(sqlDate));
+		assertEquals(BasicUtil.castOrNull(Date.class, sqlDate), sqlDate);
 		Date date = new Date(0);
-		assertThat(BasicUtil.castOrNull(java.sql.Date.class, date), nullValue());
+		assertNull(BasicUtil.castOrNull(java.sql.Date.class, date));
 	}
 
 	@Test
 	public void testForceInit() {
-		assertThat(ForceInitTestClassHelper.count, is(0));
+		assertEquals(ForceInitTestClassHelper.count, 0);
 		Class<ForceInitTestClass> cls = BasicUtil.forceInit(ForceInitTestClass.class);
-		assertThat(ForceInitTestClassHelper.count, is(1));
+		assertEquals(ForceInitTestClassHelper.count, 1);
 		cls = BasicUtil.forceInit(ForceInitTestClass.class);
 		assertNotNull(cls);
-		assertThat(ForceInitTestClassHelper.count, is(1));
-		TestUtil.assertThrown(() -> BasicUtil.load("", this.getClass().getClassLoader()));
+		assertEquals(ForceInitTestClassHelper.count, 1);
+		assertThrown(() -> BasicUtil.load("", this.getClass().getClassLoader()));
 	}
 
 	@Test

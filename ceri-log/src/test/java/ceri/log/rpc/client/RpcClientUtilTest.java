@@ -1,9 +1,8 @@
 package ceri.log.rpc.client;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.throwIt;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.throwIt;
 import java.io.IOException;
 import org.junit.Test;
 import io.grpc.Status;
@@ -30,7 +29,7 @@ public class RpcClientUtilTest {
 
 	@Test
 	public void testWrapReturn() throws IOException {
-		assertThat(RpcClientUtil.wrapReturn(() -> "test"), is("test"));
+		assertEquals(RpcClientUtil.wrapReturn(() -> "test"), "test");
 		assertThrown(IOException.class,
 			() -> RpcClientUtil.wrapReturn(() -> throwIt(new IOException("test"))));
 		assertThrown(IOException.class,

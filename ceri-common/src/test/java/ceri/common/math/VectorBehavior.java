@@ -1,12 +1,11 @@
 package ceri.common.math;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class VectorBehavior {
@@ -24,10 +23,10 @@ public class VectorBehavior {
 	@Test
 	public void shouldCreateFromMatrix() {
 		assertNull(Vector.of((Matrix) null));
-		assertThat(Vector.of(Matrix.EMPTY), is(Vector.EMPTY));
-		assertThat(Vector.of(Matrix.singleton(7)), is(Vector.of(7)));
-		assertThat(Vector.of(Matrix.rowVector(1, 2, 3)), is(Vector.of(1, 2, 3)));
-		assertThat(Vector.of(Matrix.columnVector(1, 2, 3)), is(Vector.of(1, 2, 3)));
+		assertEquals(Vector.of(Matrix.EMPTY), Vector.EMPTY);
+		assertEquals(Vector.of(Matrix.singleton(7)), Vector.of(7));
+		assertEquals(Vector.of(Matrix.rowVector(1, 2, 3)), Vector.of(1, 2, 3));
+		assertEquals(Vector.of(Matrix.columnVector(1, 2, 3)), Vector.of(1, 2, 3));
 	}
 
 	@Test
@@ -45,22 +44,22 @@ public class VectorBehavior {
 
 	@Test
 	public void shouldProvideSubVectors() {
-		assertThat(Vector.of(1, 2, 3).subVector(1, 2), is(Vector.of(2, 3)));
-		assertThat(Vector.of(1, 2, 3).subVector(2, 2), is(Vector.of(3, 0)));
-		assertThat(Vector.of(1, 2, 3).subVector(4, 2), is(Vector.of(0, 0)));
+		assertEquals(Vector.of(1, 2, 3).subVector(1, 2), Vector.of(2, 3));
+		assertEquals(Vector.of(1, 2, 3).subVector(2, 2), Vector.of(3, 0));
+		assertEquals(Vector.of(1, 2, 3).subVector(4, 2), Vector.of(0, 0));
 	}
 
 	@Test
 	public void shouldProvideWrappedSubVectors() {
-		assertThat(Vector.of(1, 2, 3).wrappedSubVector(1, 2), is(Vector.of(2, 3)));
-		assertThat(Vector.of(1, 2, 3).wrappedSubVector(2, 2), is(Vector.of(3, 1)));
-		assertThat(Vector.of(1, 2, 3).wrappedSubVector(4, 4), is(Vector.of(2, 3, 1, 2)));
-		assertThat(Vector.of(1, 2, 3).wrappedSubVector(-1, 2), is(Vector.of(3, 1)));
+		assertEquals(Vector.of(1, 2, 3).wrappedSubVector(1, 2), Vector.of(2, 3));
+		assertEquals(Vector.of(1, 2, 3).wrappedSubVector(2, 2), Vector.of(3, 1));
+		assertEquals(Vector.of(1, 2, 3).wrappedSubVector(4, 4), Vector.of(2, 3, 1, 2));
+		assertEquals(Vector.of(1, 2, 3).wrappedSubVector(-1, 2), Vector.of(3, 1));
 	}
 
 	@Test
 	public void shouldNegateValues() {
-		assertThat(Vector.of(-1, 0, 1).negate(), is(Vector.of(1, 0, -1)));
+		assertEquals(Vector.of(-1, 0, 1).negate(), Vector.of(1, 0, -1));
 	}
 
 }

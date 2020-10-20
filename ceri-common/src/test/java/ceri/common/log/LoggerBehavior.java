@@ -4,9 +4,8 @@ import static ceri.common.log.Logger.FormatFlag.abbreviatePackage;
 import static ceri.common.log.Logger.FormatFlag.noDate;
 import static ceri.common.log.Logger.FormatFlag.noStackTrace;
 import static ceri.common.log.Logger.FormatFlag.noThread;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertValue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertValue;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import org.junit.After;
@@ -15,7 +14,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.io.SystemIo;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
@@ -57,14 +56,14 @@ public class LoggerBehavior {
 
 	@Test
 	public void shouldAllowOutputsToBeSet() {
-		Capturer<String> out = Capturer.of();
-		Capturer<String> err = Capturer.of();
+		Captor<String> out = Captor.of();
+		Captor<String> err = Captor.of();
 		Logger logger = Logger.builder(KEY).out(out).err(err).build();
 		logger.info("test: %s", "info");
 		logger.error("test: %s", "error");
-		assertThat(out.values.size(), is(1));
+		assertEquals(out.values.size(), 1);
 		assertValue(out.values.get(0), s -> s.endsWith("test: info"));
-		assertThat(err.values.size(), is(1));
+		assertEquals(err.values.size(), 1);
 		assertValue(err.values.get(0), s -> s.endsWith("test: error"));
 	}
 
@@ -154,9 +153,9 @@ public class LoggerBehavior {
 	@Test
 	public void shouldFindLoggerByKey() {
 		Logger logger = Logger.builder(KEY).build();
-		assertThat(Logger.logger(KEY), is(logger));
+		assertEquals(Logger.logger(KEY), logger);
 		logger = Logger.builder(KEY).build();
-		assertThat(Logger.logger(KEY), is(logger));
+		assertEquals(Logger.logger(KEY), logger);
 	}
 
 	private void assertAndReset(StringBuilder b, Predicate<String> test) {

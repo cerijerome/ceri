@@ -1,8 +1,10 @@
 package ceri.serial.clib;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.serial.clib.Mode.Mask.flnk;
 import static ceri.serial.clib.Mode.Mask.fmt;
@@ -17,7 +19,6 @@ import static ceri.serial.clib.Mode.Mask.wgrp;
 import static ceri.serial.clib.Mode.Mask.woth;
 import static ceri.serial.clib.Mode.Mask.wusr;
 import static ceri.serial.clib.Mode.Mask.xusr;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.serial.clib.Mode.Mask;
 
@@ -37,10 +38,10 @@ public class ModeBehavior {
 
 	@Test
 	public void shouldEncodeMask() {
-		assertThat(Mask.encode(rwxu, rwxg, rwxo), is(0777));
-		assertThat(Mask.encode(rusr, wusr, rgrp, wgrp, roth, woth), is(0666));
-		assertThat(Mask.encode(fmt), is(0170000));
-		assertThat(Mask.encode(fmt, fsock, flnk), is(0170000));
+		assertEquals(Mask.encode(rwxu, rwxg, rwxo), 0777);
+		assertEquals(Mask.encode(rusr, wusr, rgrp, wgrp, roth, woth), 0666);
+		assertEquals(Mask.encode(fmt), 0170000);
+		assertEquals(Mask.encode(fmt, fsock, flnk), 0170000);
 	}
 
 	@Test
@@ -54,17 +55,17 @@ public class ModeBehavior {
 
 	@Test
 	public void shouldDetermineIfModeContainsMasks() {
-		assertThat(Mode.of(07).has(), is(true));
-		assertThat(Mode.of(07).has(rwxo), is(true));
-		assertThat(Mode.of(07).has(roth, woth), is(true));
-		assertThat(Mode.of(07).has(roth, woth, rusr), is(false));
-		assertThat(Mode.of(07).has(rusr), is(false));
+		assertTrue(Mode.of(07).has());
+		assertTrue(Mode.of(07).has(rwxo));
+		assertTrue(Mode.of(07).has(roth, woth));
+		assertFalse(Mode.of(07).has(roth, woth, rusr));
+		assertFalse(Mode.of(07).has(rusr));
 	}
 
 	@Test
 	public void shouldProvideMaskStringRepresentation() {
-		assertThat(Mode.of(0777).maskString(), is("rwxu|rwxg|rwxo"));
-		assertThat(Mode.of(0666).maskString(), is("rusr|wusr|rgrp|wgrp|roth|woth"));
+		assertEquals(Mode.of(0777).maskString(), "rwxu|rwxg|rwxo");
+		assertEquals(Mode.of(0666).maskString(), "rusr|wusr|rgrp|wgrp|roth|woth");
 	}
 
 }

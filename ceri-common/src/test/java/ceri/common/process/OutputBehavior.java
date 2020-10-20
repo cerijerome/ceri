@@ -1,9 +1,8 @@
 package ceri.common.process;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
 import java.util.function.Function;
 import org.junit.Test;
 import ceri.common.text.StringUtil;
@@ -16,8 +15,8 @@ public class OutputBehavior {
 		Function<String, int[]> parser =
 			s -> StringUtil.commaSplit(s).stream().mapToInt(PrimitiveUtil::intValue).toArray();
 		Output<int[]> output = Output.of("1, 2, 3", parser);
-		assertThat(output.out, is("1, 2, 3"));
-		assertThat(output.toString(), is("1, 2, 3"));
+		assertEquals(output.out, "1, 2, 3");
+		assertEquals(output.toString(), "1, 2, 3");
 		assertArray(output.parse(), 1, 2, 3);
 	}
 

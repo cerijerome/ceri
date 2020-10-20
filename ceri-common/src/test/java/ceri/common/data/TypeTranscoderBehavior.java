@@ -1,13 +1,14 @@
 package ceri.common.data;
 
 import static ceri.common.data.MaskTranscoder.mask;
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -49,19 +50,19 @@ public class TypeTranscoderBehavior {
 
 	@Test
 	public void shouldDetermineIfRemainderIsEmpty() {
-		assertThat(xcoder.decodeWithRemainder(0).isEmpty(), is(true));
-		assertThat(xcoder.decodeWithRemainder(4).isEmpty(), is(false));
-		assertThat(xcoder.decodeWithRemainder(1).isEmpty(), is(false));
-		assertThat(xcoder.decodeWithRemainder(5).isEmpty(), is(false));
+		assertTrue(xcoder.decodeWithRemainder(0).isEmpty());
+		assertFalse(xcoder.decodeWithRemainder(4).isEmpty());
+		assertFalse(xcoder.decodeWithRemainder(1).isEmpty());
+		assertFalse(xcoder.decodeWithRemainder(5).isEmpty());
 	}
 
 	@Test
 	public void shouldDetermineIfRemainderIsExact() {
-		assertThat(xcoder.decodeWithRemainder(0).isExact(), is(true));
-		assertThat(xcoder.decodeWithRemainder(1).isExact(), is(true));
-		assertThat(xcoder.decodeWithRemainder(3).isExact(), is(true));
-		assertThat(xcoder.decodeWithRemainder(4).isExact(), is(false));
-		assertThat(xcoder.decodeWithRemainder(5).isExact(), is(false));
+		assertTrue(xcoder.decodeWithRemainder(0).isExact());
+		assertTrue(xcoder.decodeWithRemainder(1).isExact());
+		assertTrue(xcoder.decodeWithRemainder(3).isExact());
+		assertFalse(xcoder.decodeWithRemainder(4).isExact());
+		assertFalse(xcoder.decodeWithRemainder(5).isExact());
 	}
 
 	@Test
@@ -71,20 +72,20 @@ public class TypeTranscoderBehavior {
 
 	@Test
 	public void shouldEncodeValues() {
-		assertThat(xcoder.encode(), is(0));
-		assertThat(xcoder.encode((E[]) null), is(0));
-		assertThat(xcoder.encode((List<E>) null), is(0));
-		assertThat(xcoder.encode(List.of()), is(0));
-		assertThat(xcoder.encode((Remainder<E>) null), is(0));
-		assertThat(xcoder.encode(E.b), is(E.b.value));
-		assertThat(xcoder.encode(E.b, E.c), is(E.b.value + E.c.value));
+		assertEquals(xcoder.encode(), 0);
+		assertEquals(xcoder.encode((E[]) null), 0);
+		assertEquals(xcoder.encode((List<E>) null), 0);
+		assertEquals(xcoder.encode(List.of()), 0);
+		assertEquals(xcoder.encode((Remainder<E>) null), 0);
+		assertEquals(xcoder.encode(E.b), E.b.value);
+		assertEquals(xcoder.encode(E.b, E.c), E.b.value + E.c.value);
 	}
 
 	@Test
 	public void shouldDecodeValues() {
 		assertNull(xcoder.decode(0));
 		assertNull(xcoder.decode(3));
-		assertThat(xcoder.decode(2), is(E.b));
+		assertEquals(xcoder.decode(2), E.b);
 		assertCollection(xcoder.decodeAll(0));
 		assertCollection(xcoder.decodeAll(4));
 		assertCollection(xcoder.decodeAll(3), E.a, E.b);
@@ -96,72 +97,72 @@ public class TypeTranscoderBehavior {
 	public void shouldDecodeValueWithValidation() {
 		assertThrown(() -> xcoder.decodeValid(0));
 		assertThrown(() -> xcoder.decodeValid(0, "E"));
-		assertThat(xcoder.decodeValid(2), is(E.b));
-		assertThat(xcoder.decodeValid(2, "E"), is(E.b));
+		assertEquals(xcoder.decodeValid(2), E.b);
+		assertEquals(xcoder.decodeValid(2, "E"), E.b);
 	}
 
 	@Test
 	public void shouldDetermineIfValueHasType() {
-		assertThat(xcoder.has(0, E.a), is(false));
-		assertThat(xcoder.has(1, E.a), is(true));
-		assertThat(xcoder.has(13, E.b), is(false));
+		assertFalse(xcoder.has(0, E.a));
+		assertTrue(xcoder.has(1, E.a));
+		assertFalse(xcoder.has(13, E.b));
 	}
 
 	@Test
 	public void shouldDetermineIfValueHasAnyTypes() {
-		assertThat(xcoder.hasAny(0, E.a, E.b, E.c), is(false));
-		assertThat(xcoder.hasAny(1, E.a, E.b, E.c), is(true));
-		assertThat(xcoder.hasAny(13, E.a, E.b, E.c), is(true));
-		assertThat(xcoder.hasAny(13, E.b), is(false));
+		assertFalse(xcoder.hasAny(0, E.a, E.b, E.c));
+		assertTrue(xcoder.hasAny(1, E.a, E.b, E.c));
+		assertTrue(xcoder.hasAny(13, E.a, E.b, E.c));
+		assertFalse(xcoder.hasAny(13, E.b));
 	}
 
 	@Test
 	public void shouldDetermineIfValueHasAllTypes() {
-		assertThat(xcoder.hasAll(0), is(true));
-		assertThat(xcoder.hasAll(1, E.a), is(true));
-		assertThat(xcoder.hasAll(13, E.a, E.c), is(true));
-		assertThat(xcoder.hasAll(13, E.a, E.b, E.c), is(false));
-		assertThat(xcoder.hasAll(13, E.b), is(false));
+		assertTrue(xcoder.hasAll(0));
+		assertTrue(xcoder.hasAll(1, E.a));
+		assertTrue(xcoder.hasAll(13, E.a, E.c));
+		assertFalse(xcoder.hasAll(13, E.a, E.b, E.c));
+		assertFalse(xcoder.hasAll(13, E.b));
 	}
 
 	@Test
 	public void shouldValidateValues() {
-		assertThat(xcoder.isValid(0), is(true));
-		assertThat(xcoder.isValid(-1), is(false));
-		assertThat(xcoder.isValid(12), is(true));
-		assertThat(xcoder.isValid(3), is(true));
-		assertThat(xcoder.isValid(4), is(false));
+		assertTrue(xcoder.isValid(0));
+		assertFalse(xcoder.isValid(-1));
+		assertTrue(xcoder.isValid(12));
+		assertTrue(xcoder.isValid(3));
+		assertFalse(xcoder.isValid(4));
 	}
 
 	@Test
 	public void shouldEncodeSubset() {
 		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, E.a, E.c);
-		assertThat(xcoder.encode(), is(0));
-		assertThat(xcoder.encode((E[]) null), is(0));
-		assertThat(xcoder.encode((List<E>) null), is(0));
-		assertThat(xcoder.encode(List.of()), is(0));
-		assertThat(xcoder.encode(E.b), is(0));
-		assertThat(xcoder.encode(E.a), is(E.a.value));
-		assertThat(xcoder.encode(E.b, E.c), is(E.c.value));
+		assertEquals(xcoder.encode(), 0);
+		assertEquals(xcoder.encode((E[]) null), 0);
+		assertEquals(xcoder.encode((List<E>) null), 0);
+		assertEquals(xcoder.encode(List.of()), 0);
+		assertEquals(xcoder.encode(E.b), 0);
+		assertEquals(xcoder.encode(E.a), E.a.value);
+		assertEquals(xcoder.encode(E.b, E.c), E.c.value);
 	}
 
 	@Test
 	public void shouldTranscodeMaskValues() {
 		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, mask(0x0e, 0), E.class);
-		assertThat(xcoder.encode(E.a), is(0));
-		assertThat(xcoder.encode(E.c), is(E.c.value));
-		assertThat(xcoder.encode(E.a, E.c), is(E.c.value));
-		assertThat(xcoder.decode(0xd), is(E.c));
+		assertEquals(xcoder.encode(E.a), 0);
+		assertEquals(xcoder.encode(E.c), E.c.value);
+		assertEquals(xcoder.encode(E.a, E.c), E.c.value);
+		assertEquals(xcoder.decode(0xd), E.c);
 		assertCollection(xcoder.decodeAll(0xff), E.b, E.c);
 	}
 
 	@Test
 	public void shouldTranscodeOverlappingMaskValues() {
 		TypeTranscoder<E> xcoder = TypeTranscoder.<E>of(t -> t.value, mask(0x0e, 0), E.b, E.c);
-		assertThat(xcoder.encode(E.a), is(0));
-		assertThat(xcoder.encode(E.c), is(E.c.value));
-		assertThat(xcoder.encode(E.a, E.c), is(E.c.value));
-		assertThat(xcoder.decode(0xd), is(E.c));
+		assertEquals(xcoder.encode(E.a), 0);
+		assertEquals(xcoder.encode(E.c), E.c.value);
+		assertEquals(xcoder.encode(E.a, E.c), E.c.value);
+		assertEquals(xcoder.decode(0xd), E.c);
 		assertCollection(xcoder.decodeAll(0xff), E.b, E.c);
 	}
 
@@ -171,10 +172,10 @@ public class TypeTranscoderBehavior {
 		IntAccessor accessor = IntAccessor.of(() -> store[0], i -> store[0] = i);
 		FieldTranscoder<E> field = xcoder.field(accessor);
 		field.set(E.b);
-		assertThat(store[0], is(E.b.value));
-		assertThat(field.get(), is(E.b));
+		assertEquals(store[0], E.b.value);
+		assertEquals(field.get(), E.b);
 		field.set(E.a, E.c);
-		assertThat(store[0], is(E.a.value + E.c.value));
+		assertEquals(store[0], E.a.value + E.c.value);
 		assertCollection(field.getAll(), E.a, E.c);
 	}
 
@@ -183,7 +184,7 @@ public class TypeTranscoderBehavior {
 		FieldTranscoder.Typed<Holder, E> field = xcoder.field(Holder.acc);
 		Holder h = new Holder();
 		field.set(h, E.a, E.b);
-		assertThat(h.val, is(3));
+		assertEquals(h.val, 3);
 	}
 
 	@SafeVarargs
@@ -192,7 +193,7 @@ public class TypeTranscoderBehavior {
 	}
 
 	public static <T> void assertRemainder(Remainder<T> actual, int rem, Collection<T> ts) {
-		assertThat(actual.remainder, is(rem));
+		assertEquals(actual.remainder, rem);
 		assertCollection(actual.types, ts);
 	}
 

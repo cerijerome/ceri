@@ -1,9 +1,8 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
 import org.junit.Test;
 
 public class IntBitSetBehavior {
@@ -18,7 +17,7 @@ public class IntBitSetBehavior {
 	public void shouldBinaryOrBits() {
 		IntBitSet b = IntBitSet.of();
 		b.or(IntBitSet.of(0xff));
-		assertThat(b.value(), is(0xff));
+		assertEquals(b.value(), 0xff);
 	}
 
 	@Test
@@ -50,7 +49,7 @@ public class IntBitSetBehavior {
 	@Test
 	public void shouldGetValueFromBits() {
 		IntBitSet b = IntBitSet.of(0xf0e0d);
-		assertThat(b.getValue(8, Short.SIZE), is(0x0f0e));
+		assertEquals(b.getValue(8, Short.SIZE), 0x0f0e);
 	}
 
 	@Test
@@ -62,10 +61,10 @@ public class IntBitSetBehavior {
 	@Test
 	public void shouldValueByWidth() {
 		IntBitSet b = IntBitSet.of(0xfedcba98);
-		assertThat(b.byteValue(), is((byte) 0x98));
-		assertThat(b.shortValue(), is((short) 0xba98));
-		assertThat(b.value(), is(0xfedcba98));
-		assertThat(b.unsignedValue(), is(0xfedcba98L));
+		assertEquals(b.byteValue(), (byte) 0x98);
+		assertEquals(b.shortValue(), (short) 0xba98);
+		assertEquals(b.value(), 0xfedcba98);
+		assertEquals(b.unsignedValue(), 0xfedcba98L);
 	}
 
 }

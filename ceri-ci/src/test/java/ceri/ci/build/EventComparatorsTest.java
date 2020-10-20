@@ -1,7 +1,7 @@
 package ceri.ci.build;
 
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

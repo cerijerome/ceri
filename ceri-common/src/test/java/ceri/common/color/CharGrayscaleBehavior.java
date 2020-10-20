@@ -1,9 +1,8 @@
 package ceri.common.color;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class CharGrayscaleBehavior {
@@ -20,22 +19,22 @@ public class CharGrayscaleBehavior {
 	@Test
 	public void shouldReturnCharacterForRatio() {
 		CharGrayscale cg = CharGrayscale.of("@0QOo*. ");
-		assertThat(cg.charOf(-1.0), is('@'));
-		assertThat(cg.charOf(0.0), is('@'));
-		assertThat(cg.charOf(0.5), is('o'));
-		assertThat(cg.charOf(0.874), is('.'));
-		assertThat(cg.charOf(0.999), is(' '));
-		assertThat(cg.charOf(1.0), is(' '));
-		assertThat(cg.charOf(2.0), is(' '));
+		assertEquals(cg.charOf(-1.0), '@');
+		assertEquals(cg.charOf(0.0), '@');
+		assertEquals(cg.charOf(0.5), 'o');
+		assertEquals(cg.charOf(0.874), '.');
+		assertEquals(cg.charOf(0.999), ' ');
+		assertEquals(cg.charOf(1.0), ' ');
+		assertEquals(cg.charOf(2.0), ' ');
 	}
 
 	@Test
 	public void shouldReverse() {
 		CharGrayscale cg = CharGrayscale.of("@0QOo*. ").reverse();
-		assertThat(cg.charOf(0.0), is(' '));
-		assertThat(cg.charOf(0.5), is('O'));
-		assertThat(cg.charOf(0.999), is('@'));
-		assertThat(cg.charOf(1.0), is('@'));
+		assertEquals(cg.charOf(0.0), ' ');
+		assertEquals(cg.charOf(0.5), 'O');
+		assertEquals(cg.charOf(0.999), '@');
+		assertEquals(cg.charOf(1.0), '@');
 	}
 
 }

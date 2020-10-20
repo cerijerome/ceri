@@ -1,15 +1,14 @@
 package ceri.common.property;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.color.X11Color;
-import ceri.common.test.TestUtil;
 
 public class LocatorBehavior {
 
@@ -37,10 +36,11 @@ public class LocatorBehavior {
 
 	@Test
 	public void shouldCreateChildLocators() {
-		assertThat(Locator.of(Object.class, "abc.txt").child("def").filename(), is("abc-def.txt"));
-		assertThat(Locator.of(Object.class, "a.txt").child("b", "c").filename(), is("a-b-c.txt"));
-		assertThat(Locator.of(Object.class, "a.txt").child(X11Color.cyan, X11Color.lime).filename(),
-			is("a-cyan-lime.txt"));
+		assertEquals(Locator.of(Object.class, "abc.txt").child("def").filename(), "abc-def.txt");
+		assertEquals(Locator.of(Object.class, "a.txt").child("b", "c").filename(), "a-b-c.txt");
+		assertEquals(
+			Locator.of(Object.class, "a.txt").child(X11Color.cyan, X11Color.lime).filename(),
+			"a-cyan-lime.txt");
 	}
 
 	@Test
@@ -61,20 +61,20 @@ public class LocatorBehavior {
 
 	@Test
 	public void shouldCreateLocators() {
-		assertThat(Locator.of(Object.class).filename(), is("Object.properties"));
-		assertThat(Locator.of(Object.class, "test").filename(), is("test.properties"));
-		assertThat(Locator.builder(String.class).add(X11Color.aqua).build().filename(),
-			is("String-aqua.properties"));
-		TestUtil.assertThrown(() -> Locator.of(getClass(), ""));
+		assertEquals(Locator.of(Object.class).filename(), "Object.properties");
+		assertEquals(Locator.of(Object.class, "test").filename(), "test.properties");
+		assertEquals(Locator.builder(String.class).add(X11Color.aqua).build().filename(),
+			"String-aqua.properties");
+		assertThrown(() -> Locator.of(getClass(), ""));
 	}
 
 	@Test
 	public void shouldReturnFilename() {
-		assertThat(Locator.of(getClass(), "abc").filename(), is("abc.properties"));
-		assertThat(Locator.builder(getClass(), "A").extension(null).build().filename(), is("A"));
-		assertThat(Locator.builder(getClass(), "A").extension("").build().filename(), is("A"));
-		assertThat(Locator.of(getClass(), ".A").filename(), is(".A"));
-		assertThat(Locator.of(getClass(), "A.").filename(), is("A"));
+		assertEquals(Locator.of(getClass(), "abc").filename(), "abc.properties");
+		assertEquals(Locator.builder(getClass(), "A").extension(null).build().filename(), "A");
+		assertEquals(Locator.builder(getClass(), "A").extension("").build().filename(), "A");
+		assertEquals(Locator.of(getClass(), ".A").filename(), ".A");
+		assertEquals(Locator.of(getClass(), "A.").filename(), "A");
 	}
 
 }

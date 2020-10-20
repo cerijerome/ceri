@@ -1,11 +1,11 @@
 package ceri.common.exception;
 
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import java.io.EOFException;
@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
 import org.junit.Test;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.reflect.ReflectUtil;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 
 public class ExceptionUtilTest {
 
@@ -30,7 +30,7 @@ public class ExceptionUtilTest {
 
 	@Test
 	public void testShouldNotThrow() {
-		Capturer.Int capturer = Capturer.ofInt();
+		Captor.Int capturer = Captor.ofInt();
 		ExceptionUtil.shouldNotThrow(() -> capturer.accept(1));
 		ExceptionRunnable<IOException> runnable = () -> {
 			capturer.accept(2);
@@ -49,20 +49,20 @@ public class ExceptionUtilTest {
 	public void testRootCause() {
 		assertNull(ExceptionUtil.rootCause(null));
 		IOException io = new IOException();
-		assertThat(ExceptionUtil.rootCause(io), is(io));
+		assertEquals(ExceptionUtil.rootCause(io), io);
 		RuntimeException r = new RuntimeException(io);
-		assertThat(ExceptionUtil.rootCause(r), is(io));
+		assertEquals(ExceptionUtil.rootCause(r), io);
 	}
 
 	@Test
 	public void testMatchesThrowable() {
-		assertThat(ExceptionUtil.matches(null, Exception.class), is(false));
-		assertThat(ExceptionUtil.matches(new IOException(), Exception.class), is(true));
-		assertThat(ExceptionUtil.matches(new IOException(), RuntimeException.class), is(false));
-		assertThat(ExceptionUtil.matches(new IOException(), String::isEmpty), is(false));
-		assertThat(ExceptionUtil.matches(new Exception("test"), RuntimeException.class), is(false));
-		assertThat(ExceptionUtil.matches(new Exception("test"), s -> s.startsWith("t")), is(true));
-		assertThat(ExceptionUtil.matches(new Exception("Test"), s -> s.startsWith("t")), is(false));
+		assertFalse(ExceptionUtil.matches(null, Exception.class));
+		assertTrue(ExceptionUtil.matches(new IOException(), Exception.class));
+		assertFalse(ExceptionUtil.matches(new IOException(), RuntimeException.class));
+		assertFalse(ExceptionUtil.matches(new IOException(), String::isEmpty));
+		assertFalse(ExceptionUtil.matches(new Exception("test"), RuntimeException.class));
+		assertTrue(ExceptionUtil.matches(new Exception("test"), s -> s.startsWith("t")));
+		assertFalse(ExceptionUtil.matches(new Exception("Test"), s -> s.startsWith("t")));
 	}
 
 	@Test
@@ -70,16 +70,16 @@ public class ExceptionUtilTest {
 		IllegalStateException e1 = new IllegalStateException();
 		IllegalArgumentException e2 = new IllegalArgumentException();
 		IllegalStateException e = ExceptionUtil.initCause(e1, e2);
-		assertThat(e.getCause(), is(e2));
+		assertEquals(e.getCause(), e2);
 		ExceptionUtil.initCause(e1, null);
-		assertThat(e1.getCause(), is(e2));
+		assertEquals(e1.getCause(), e2);
 	}
 
 	@Test
 	public void testMessage() {
 		assertNull(ExceptionUtil.message(null));
-		assertThat(ExceptionUtil.message(new IOException()), is("IOException"));
-		assertThat(ExceptionUtil.message(new Exception("test")), is("test"));
+		assertEquals(ExceptionUtil.message(new IOException()), "IOException");
+		assertEquals(ExceptionUtil.message(new Exception("test")), "test");
 	}
 
 	@Test
@@ -87,7 +87,7 @@ public class ExceptionUtilTest {
 		assertNull(ExceptionUtil.stackTrace(null));
 		String stackTrace = ExceptionUtil.stackTrace(new Exception());
 		String[] lines = stackTrace.split("[\\r\\n]+");
-		assertThat(lines[0], is("java.lang.Exception"));
+		assertEquals(lines[0], "java.lang.Exception");
 		String fullClassName = getClass().getName();
 		String className = getClass().getSimpleName();
 		String methodName = ReflectUtil.currentMethodName();
@@ -99,7 +99,7 @@ public class ExceptionUtilTest {
 	public void testFirstStackElement() {
 		assertNull(ExceptionUtil.firstStackElement(null));
 		StackTraceElement el = ExceptionUtil.firstStackElement(new IOException());
-		assertThat(el.getMethodName(), is(ReflectUtil.currentMethodName()));
+		assertEquals(el.getMethodName(), ReflectUtil.currentMethodName());
 
 		Exception e = mock(Exception.class);
 		assertNull(ExceptionUtil.firstStackElement(e));
@@ -109,13 +109,13 @@ public class ExceptionUtilTest {
 
 	@Test
 	public void testLimitStackTrace() {
-		assertThat(ExceptionUtil.limitStackTrace(null, 0), is(false));
+		assertFalse(ExceptionUtil.limitStackTrace(null, 0));
 		Exception e = new Exception();
 		int count = e.getStackTrace().length;
-		assertThat(ExceptionUtil.limitStackTrace(e, count + 1), is(false));
-		assertThat(ExceptionUtil.limitStackTrace(e, count), is(false));
-		assertThat(ExceptionUtil.limitStackTrace(e, count - 1), is(true));
-		assertThat(e.getStackTrace().length, is(count - 1));
+		assertFalse(ExceptionUtil.limitStackTrace(e, count + 1));
+		assertFalse(ExceptionUtil.limitStackTrace(e, count));
+		assertTrue(ExceptionUtil.limitStackTrace(e, count - 1));
+		assertEquals(e.getStackTrace().length, count - 1);
 	}
 
 	@Test

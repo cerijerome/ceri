@@ -1,9 +1,8 @@
 package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.objIntFunction;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil.Std;
 
@@ -12,7 +11,7 @@ public class ExceptionObjIntFunctionBehavior {
 	@Test
 	public void shouldConvertToFunction() {
 		ObjIntFunction<Integer, Integer> f = objIntFunction().asObjIntFunction();
-		assertThat(f.apply(2, 3), is(5));
+		assertEquals(f.apply(2, 3), 5);
 		assertThrown(RuntimeException.class, () -> f.apply(1, 2));
 		assertThrown(RuntimeException.class, () -> f.apply(2, 0));
 	}

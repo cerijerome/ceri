@@ -1,7 +1,6 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -15,15 +14,15 @@ public class ToStringBehavior {
 	@Test
 	public void shouldUseClassNameIfSpecified() {
 		String toString = ToString.forClass(new Date());
-		assertThat(toString, is("Date"));
+		assertEquals(toString, "Date");
 	}
 
 	@Test
 	public void shouldShowValues() {
 		String toString = ToString.ofName("Test", "Value1", "Value2").toString();
-		assertThat(toString, is("Test(Value1,Value2)"));
+		assertEquals(toString, "Test(Value1,Value2)");
 		toString = ToString.ofName("Test").values().values("v1").values("v2").toString();
-		assertThat(toString, is("Test(v1,v2)"));
+		assertEquals(toString, "Test(v1,v2)");
 	}
 
 	@Test
@@ -32,47 +31,47 @@ public class ToStringBehavior {
 		String toString = ToString.ofName("Test", date, null).toString();
 		Instant.ofEpochMilli(0);
 		LocalDateTime dt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.systemDefault());
-		assertThat(toString, is("Test(" + dt + ",null)"));
+		assertEquals(toString, "Test(" + dt + ",null)");
 	}
 
 	@Test
 	public void shouldNotShowEmptyValuesOrFields() {
 		String toString = ToString.ofName("Test").toString();
-		assertThat(toString, is("Test"));
+		assertEquals(toString, "Test");
 	}
 
 	@Test
 	public void shouldNotShowEmptyValuesWithFieldsSet() {
 		String toString = ToString.ofName("Test").fields("Field").toString();
-		assertThat(toString, is("Test[Field]"));
+		assertEquals(toString, "Test[Field]");
 	}
 
 	@Test
 	public void shouldUseClassNameFieldKeyIfSpecified() {
 		String toString = ToString.ofName("Test").fieldsByClass("Field") //
 			.fieldsByClass((Object) null).toString();
-		assertThat(toString, is("Test[String=Field,null]"));
+		assertEquals(toString, "Test[String=Field,null]");
 	}
 
 	@Test
 	public void shouldAddMapsOfChildren() {
 		String toString = ToString.ofName("Test").children("aaa", "bbb")
 			.childrens(Map.of("k0", "v0")).childrens((Map<String, String>) null).toString();
-		assertThat(toString, is(lines("Test {", "  aaa", "  bbb", "  k0: v0", "}")));
+		assertEquals(toString, lines("Test {", "  aaa", "  bbb", "  k0: v0", "}"));
 	}
 
 	@Test
 	public void shouldAddIndentedChildren() {
 		String toString = ToString.ofName("Test").children("aaa", "bbb")
 			.childrens(Arrays.asList("ccc", "ddd")).toString();
-		assertThat(toString, is(lines("Test {", "  aaa", "  bbb", "  ccc", "  ddd", "}")));
+		assertEquals(toString, lines("Test {", "  aaa", "  bbb", "  ccc", "  ddd", "}"));
 	}
 
 	@Test
 	public void shouldAddChildrenWithSpecifiedPrefix() {
 		String toString =
 			ToString.ofName("Test").childIndent("\t").children("a", "b", "c").toString();
-		assertThat(toString, is(lines("Test {", "\ta", "\tb", "\tc", "}")));
+		assertEquals(toString, lines("Test {", "\ta", "\tb", "\tc", "}"));
 	}
 
 	@Test
@@ -80,15 +79,15 @@ public class ToStringBehavior {
 		String child1 = ToString.ofName("Child1").children("a1", "b1").toString();
 		String child2 = ToString.ofName("Child2").children("a2", "b2").toString();
 		String toString = ToString.ofName("Test").children(child1, child2).toString();
-		assertThat(toString, is(lines("Test {", "  Child1 {", "    a1", "    b1", "  }",
-			"  Child2 {", "    a2", "    b2", "  }", "}")));
+		assertEquals(toString, lines("Test {", "  Child1 {", "    a1", "    b1", "  }",
+			"  Child2 {", "    a2", "    b2", "  }", "}"));
 	}
 
 	@Test
 	public void shouldAllowValuesFieldsAndChildren() {
 		String toString =
 			ToString.ofName("Test", "Value").fields("Field").children("Child").toString();
-		assertThat(toString, is(lines("Test(Value)[Field] {", "  Child", "}")));
+		assertEquals(toString, lines("Test(Value)[Field] {", "  Child", "}"));
 	}
 
 	private static String lines(String... lines) {

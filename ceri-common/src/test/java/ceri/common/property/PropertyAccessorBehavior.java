@@ -1,9 +1,8 @@
 package ceri.common.property;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
@@ -18,10 +17,10 @@ public class PropertyAccessorBehavior {
 		ResourceBundle r = ResourceBundle.getBundle( //
 			"ceri.common.property.PropertyAccessor", Locale.ENGLISH);
 		PropertyAccessor accessor = PropertyAccessor.from(r);
-		assertThat(accessor.property("name"), is("PropertyAccessor"));
-		assertThat(accessor.property("locale"), is("en"));
+		assertEquals(accessor.property("name"), "PropertyAccessor");
+		assertEquals(accessor.property("locale"), "en");
 		assertNull(accessor.property("test"));
-		assertThat(accessor.toString(), is(r.toString()));
+		assertEquals(accessor.toString(), r.toString());
 		assertCollection(accessor.keys(), "name", "locale");
 	}
 
@@ -31,8 +30,8 @@ public class PropertyAccessorBehavior {
 			"ceri.common.property.PropertyAccessor", Locale.ENGLISH);
 		PropertyAccessor accessor = PropertyAccessor.from(r);
 		Map<? super String, ? super String> map = accessor.properties();
-		assertThat(map.get("name"), is("PropertyAccessor"));
-		assertThat(map.get("locale"), is("en"));
+		assertEquals(map.get("name"), "PropertyAccessor");
+		assertEquals(map.get("locale"), "en");
 		assertNull(map.get("test"));
 	}
 
@@ -41,9 +40,9 @@ public class PropertyAccessorBehavior {
 		Properties p = PropertyUtil.load(getClass(), "PropertyAccessor_en.properties");
 		PropertyAccessor accessor = PropertyAccessor.from(p);
 		assertNull(accessor.property("name"));
-		assertThat(accessor.property("locale"), is("en"));
+		assertEquals(accessor.property("locale"), "en");
 		assertNull(accessor.property("test"));
-		assertThat(accessor.toString(), is(p.toString()));
+		assertEquals(accessor.toString(), p.toString());
 		assertCollection(accessor.keys(), "locale");
 	}
 
@@ -52,8 +51,8 @@ public class PropertyAccessorBehavior {
 		Properties p = PropertyUtil.load(getClass(), "PropertyAccessor.properties");
 		PropertyAccessor accessor = PropertyAccessor.from(p);
 		Map<? super String, ? super String> map = accessor.properties();
-		assertThat(map.get("name"), is("PropertyAccessor"));
-		assertThat(map.get("locale"), is("none"));
+		assertEquals(map.get("name"), "PropertyAccessor");
+		assertEquals(map.get("locale"), "none");
 		assertNull(map.get("test"));
 	}
 

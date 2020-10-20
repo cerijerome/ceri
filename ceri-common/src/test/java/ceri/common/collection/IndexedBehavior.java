@@ -1,9 +1,8 @@
 package ceri.common.collection;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class IndexedBehavior {
@@ -24,13 +23,13 @@ public class IndexedBehavior {
 		Indexed<String> indexed = Indexed.of("abc", 100);
 		StringBuilder b = new StringBuilder();
 		indexed.consume((s, i) -> b.append(i).append(":").append(s));
-		assertThat(b.toString(), is("100:abc"));
+		assertEquals(b.toString(), "100:abc");
 	}
 
 	@Test
 	public void shouldBeApplied() {
 		Indexed<String> indexed = Indexed.of("abc", 100);
-		assertThat(indexed.apply((s, i) -> i + ":" + s), is("100:abc"));
+		assertEquals(indexed.apply((s, i) -> i + ":" + s), "100:abc");
 	}
 
 }

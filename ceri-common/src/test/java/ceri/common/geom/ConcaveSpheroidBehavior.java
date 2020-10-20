@@ -1,14 +1,13 @@
 package ceri.common.geom;
 
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Double.NaN;
 import static java.lang.Double.POSITIVE_INFINITY;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class ConcaveSpheroidBehavior {
 	private final ConcaveSpheroid3d s0 = ConcaveSpheroid3d.create(3, 1, 2);
@@ -23,16 +22,16 @@ public class ConcaveSpheroidBehavior {
 
 	@Test
 	public void shouldFailForInvalidAxes() {
-		TestUtil.assertThrown(() -> ConcaveSpheroid3d.create(-0.1, 1, 1));
-		TestUtil.assertThrown(() -> ConcaveSpheroid3d.create(0, 1, 1));
-		TestUtil.assertThrown(() -> ConcaveSpheroid3d.create(2, -0.1, 1));
-		TestUtil.assertThrown(() -> ConcaveSpheroid3d.create(2, 2.1, 1));
-		TestUtil.assertThrown(() -> ConcaveSpheroid3d.create(2, 2, -1));
+		assertThrown(() -> ConcaveSpheroid3d.create(-0.1, 1, 1));
+		assertThrown(() -> ConcaveSpheroid3d.create(0, 1, 1));
+		assertThrown(() -> ConcaveSpheroid3d.create(2, -0.1, 1));
+		assertThrown(() -> ConcaveSpheroid3d.create(2, 2.1, 1));
+		assertThrown(() -> ConcaveSpheroid3d.create(2, 2, -1));
 	}
 
 	@Test
 	public void shouldDefineNull() {
-		assertThat(ConcaveSpheroid3d.create(0, 0, 0), is(ConcaveSpheroid3d.NULL));
+		assertEquals(ConcaveSpheroid3d.create(0, 0, 0), ConcaveSpheroid3d.NULL);
 		assertApprox(ConcaveSpheroid3d.NULL.height(), 0);
 		assertApprox(ConcaveSpheroid3d.NULL.r, 0);
 		assertApprox(ConcaveSpheroid3d.NULL.c, 0);

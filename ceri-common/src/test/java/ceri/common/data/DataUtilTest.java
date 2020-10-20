@@ -1,11 +1,10 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.bytes;
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.reader;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.data.ByteArray.Immutable;
 
@@ -24,7 +23,7 @@ public class DataUtilTest {
 		DataUtil.expectAscii(reader("abcd"), 'a', 'b', 'c');
 		var r = reader("abcde");
 		assertThrown(() -> DataUtil.expectAscii(r, 'a', 'a', 'c'));
-		assertThat(r.readAscii(), is("cde"));
+		assertEquals(r.readAscii(), "cde");
 	}
 
 	@Test
@@ -34,7 +33,7 @@ public class DataUtilTest {
 		assertThrown(() -> DataUtil.expectAscii(reader("abc"), "abd"));
 		var r = reader("abcde");
 		assertThrown(() -> DataUtil.expectAscii(r, "aac"));
-		assertThat(r.readAscii(), is("cde"));
+		assertEquals(r.readAscii(), "cde");
 	}
 
 	@Test
@@ -44,7 +43,7 @@ public class DataUtilTest {
 		assertThrown(() -> DataUtil.expectAsciiAll(reader("abc"), 'a', 'b', 'd'));
 		var r = reader("abcde");
 		assertThrown(() -> DataUtil.expectAsciiAll(r, 'a', 'a', 'c'));
-		assertThat(r.readAscii(), is("de"));
+		assertEquals(r.readAscii(), "de");
 	}
 
 	@Test
@@ -54,7 +53,7 @@ public class DataUtilTest {
 		assertThrown(() -> DataUtil.expectAsciiAll(reader("abc"), "abd"));
 		var r = reader("abcde");
 		assertThrown(() -> DataUtil.expectAsciiAll(r, "aac"));
-		assertThat(r.readAscii(), is("de"));
+		assertEquals(r.readAscii(), "de");
 	}
 
 	@Test
@@ -103,8 +102,8 @@ public class DataUtilTest {
 
 	@Test
 	public void testDigits() {
-		assertThat(DataUtil.digits(reader("09870"), 5), is(9870));
-		assertThat(DataUtil.digits(reader("09870"), 3), is(98));
+		assertEquals(DataUtil.digits(reader("09870"), 5), 9870);
+		assertEquals(DataUtil.digits(reader("09870"), 3), 98);
 		assertThrown(() -> DataUtil.digits(reader("12"), 3));
 		assertThrown(() -> DataUtil.digits(reader("12A"), 3));
 		assertThrown(() -> DataUtil.digits(reader("1 3"), 3));

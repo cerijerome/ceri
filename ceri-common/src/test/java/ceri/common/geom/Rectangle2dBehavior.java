@@ -1,9 +1,8 @@
 package ceri.common.geom;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class Rectangle2dBehavior {
@@ -23,16 +22,16 @@ public class Rectangle2dBehavior {
 
 	@Test
 	public void shouldCalculateArea() {
-		assertThat(Rectangle2d.of(100, -200, 0, 0).area(), is(0.0));
-		assertThat(Rectangle2d.of(10, -20, 50, 20).area(), is(1000.0));
+		assertEquals(Rectangle2d.of(100, -200, 0, 0).area(), 0.0);
+		assertEquals(Rectangle2d.of(10, -20, 50, 20).area(), 1000.0);
 	}
 
 	@Test
 	public void shouldExposeDimensions() {
 		Rectangle2d r = Rectangle2d.of(100, -20, 50, 10);
-		assertThat(r.position(), is(Point2d.of(100, -20)));
-		assertThat(r.size(), is(Dimension2d.of(50, 10)));
-		assertThat(r.corner(), is(Point2d.of(150, -10)));
+		assertEquals(r.position(), Point2d.of(100, -20));
+		assertEquals(r.size(), Dimension2d.of(50, 10));
+		assertEquals(r.corner(), Point2d.of(150, -10));
 	}
 
 }

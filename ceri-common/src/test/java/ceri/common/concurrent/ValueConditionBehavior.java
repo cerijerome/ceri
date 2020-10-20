@@ -1,7 +1,6 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import org.junit.Test;
 
 public class ValueConditionBehavior {
@@ -9,18 +8,18 @@ public class ValueConditionBehavior {
 	@Test
 	public void shouldPeekWithoutResettingValue() throws InterruptedException {
 		ValueCondition<Integer> count = ValueCondition.of(this::merge);
-		assertThat(count.awaitPeek(0), is((Integer) null));
-		assertThat(count.awaitPeek(1), is((Integer) null));
+		assertEquals(count.awaitPeek(0), (Integer) null);
+		assertEquals(count.awaitPeek(1), (Integer) null);
 		count.signal(1);
-		assertThat(count.awaitPeek(), is(1));
-		assertThat(count.awaitPeek(0), is(1));
-		assertThat(count.awaitPeek(1), is(1));
-		assertThat(count.awaitPeek((Integer) 1), is(1));
+		assertEquals(count.awaitPeek(), 1);
+		assertEquals(count.awaitPeek(0), 1);
+		assertEquals(count.awaitPeek(1), 1);
+		assertEquals(count.awaitPeek((Integer) 1), 1);
 		count.signal(2);
-		assertThat(count.awaitPeek(), is(3));
-		assertThat(count.awaitPeek(0), is(3));
-		assertThat(count.awaitPeek(1), is(3));
-		assertThat(count.awaitPeek(0, 2), is(3));
+		assertEquals(count.awaitPeek(), 3);
+		assertEquals(count.awaitPeek(0), 3);
+		assertEquals(count.awaitPeek(1), 3);
+		assertEquals(count.awaitPeek(0, 2), 3);
 	}
 
 	private Integer merge(Integer i, Integer j) {
@@ -32,27 +31,27 @@ public class ValueConditionBehavior {
 	@Test
 	public void shouldSetAndClearValues() throws InterruptedException {
 		ValueCondition<Integer> flag = ValueCondition.of();
-		assertThat(flag.value(), is((Integer) null));
-		assertThat(flag.awaitTimeout(0), is((Integer) null));
-		assertThat(flag.awaitTimeout(1), is((Integer) null));
+		assertEquals(flag.value(), (Integer) null);
+		assertEquals(flag.awaitTimeout(0), (Integer) null);
+		assertEquals(flag.awaitTimeout(1), (Integer) null);
 		flag.signal(1);
-		assertThat(flag.value(), is(1));
-		assertThat(flag.awaitTimeout(1), is(1));
+		assertEquals(flag.value(), 1);
+		assertEquals(flag.awaitTimeout(1), 1);
 		flag.signal(2);
 		flag.await();
-		assertThat(flag.value(), is((Integer) null));
+		assertEquals(flag.value(), (Integer) null);
 		flag.signal(3);
 		flag.clear();
-		assertThat(flag.awaitTimeout(0), is((Integer) null));
+		assertEquals(flag.awaitTimeout(0), (Integer) null);
 		flag.signal(4);
-		assertThat(flag.awaitTimeout(0, 4), is(4));
+		assertEquals(flag.awaitTimeout(0, 4), 4);
 	}
 
 	@Test
 	public void shouldWaitForValue() throws InterruptedException {
 		ValueCondition<Integer> flag = ValueCondition.of();
 		flag.signal(2);
-		assertThat(flag.await(Integer.valueOf(2)), is(2));
+		assertEquals(flag.await(Integer.valueOf(2)), 2);
 	}
 
 }

@@ -1,14 +1,12 @@
 package ceri.ci.build;
 
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
-import static ceri.common.test.TestUtil.assertEquals;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class BuildBehavior {
 	private static final Event e0 = new Event(Event.Type.failure, 0L);
@@ -83,7 +81,7 @@ public class BuildBehavior {
 	public void shouldNotAllowModificationOfJobsField() {
 		final Build build = new Build("build");
 		assertTrue(build.jobs.isEmpty());
-		TestUtil.assertThrown(() -> build.jobs.add(new Job("job")));
+		assertThrown(() -> build.jobs.add(new Job("job")));
 	}
 
 	@Test
@@ -108,8 +106,8 @@ public class BuildBehavior {
 		build.job("j1").events(e0, e1);
 		Build build2 = new Build(build);
 		assertEquals(build, build2);
-		assertThat(build.hashCode(), is(build2.hashCode()));
-		assertThat(build.toString(), is(build2.toString()));
+		assertEquals(build.hashCode(), build2.hashCode());
+		assertEquals(build.toString(), build2.toString());
 	}
 
 }

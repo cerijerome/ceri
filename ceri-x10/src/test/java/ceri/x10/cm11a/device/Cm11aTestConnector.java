@@ -7,7 +7,7 @@ public class Cm11aTestConnector extends TestPipedConnector implements Cm11aConne
 	public static Cm11aTestConnector of() {
 		return new Cm11aTestConnector();
 	}
-	
+
 	private Cm11aTestConnector() {}
 
 }

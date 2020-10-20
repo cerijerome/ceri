@@ -7,10 +7,10 @@ import static ceri.common.function.FunctionTestUtil.consumer;
 import static ceri.common.function.FunctionTestUtil.function;
 import static ceri.common.function.FunctionTestUtil.predicate;
 import static ceri.common.function.FunctionTestUtil.toIntFunction;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,11 +24,11 @@ import org.junit.Test;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.FunctionTestUtil;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 
 @SuppressWarnings("resource")
 public class WrappedStreamBehavior {
-	private final Capturer<Integer> capture = Capturer.of();
+	private final Captor<Integer> captor = Captor.of();
 
 	// Function type generators:
 	// 0 => throws RuntimeException
@@ -142,21 +142,21 @@ public class WrappedStreamBehavior {
 
 	@Test
 	public void shouldTerminateStream() throws IOException {
-		assertThat(wrap(4, 3, 2).terminateAs(Stream::count), is(3L));
-		wrap(4, 3, 2).terminate(s -> s.forEach(capture.reset()));
-		capture.verify(4, 3, 2);
+		assertEquals(wrap(4, 3, 2).terminateAs(Stream::count), 3L);
+		wrap(4, 3, 2).terminate(s -> s.forEach(captor.reset()));
+		captor.verify(4, 3, 2);
 	}
 
 	@Test
 	public void shouldFindFirst() throws IOException {
-		assertThat(wrap(4, 3, 2).filter(i -> i < 4).findFirst().get(), is(3));
-		assertThat(wrap(4, 3, 2).filter(i -> i > 4).findFirst().isEmpty(), is(true));
+		assertEquals(wrap(4, 3, 2).filter(i -> i < 4).findFirst().get(), 3);
+		assertTrue(wrap(4, 3, 2).filter(i -> i > 4).findFirst().isEmpty());
 	}
 
 	@Test
 	public void shouldFindAny() throws IOException {
-		assertThat(wrap(4, 3, 2).filter(i -> i < 4).findAny().get(), is(3));
-		assertThat(wrap(4, 3, 2).filter(i -> i > 4).findAny().isEmpty(), is(true));
+		assertEquals(wrap(4, 3, 2).filter(i -> i < 4).findAny().get(), 3);
+		assertTrue(wrap(4, 3, 2).filter(i -> i > 4).findAny().isEmpty());
 	}
 
 	private WrappedStream<IOException, Integer> wrap(Integer... values) {

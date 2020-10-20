@@ -1,7 +1,7 @@
 package ceri.log.rpc.util;
 
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import java.io.IOException;

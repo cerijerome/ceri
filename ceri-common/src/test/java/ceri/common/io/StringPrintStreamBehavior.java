@@ -1,7 +1,6 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 
@@ -19,7 +18,7 @@ public class StringPrintStreamBehavior {
 			out.print(-1);
 			out.print(1L);
 			out.print((Object) null);
-			assertThat(out.toString(), is("falseabcd0.1-0.1-11null"));
+			assertEquals(out.toString(), "falseabcd0.1-0.1-11null");
 		}
 	}
 
@@ -28,7 +27,7 @@ public class StringPrintStreamBehavior {
 		try (StringPrintStream out = new StringPrintStream(StandardCharsets.UTF_8)) {
 			String s = "\0\u0100\u0102\u0104";
 			out.print(s);
-			assertThat(out.toString(), is(s));
+			assertEquals(out.toString(), s);
 		}
 	}
 
@@ -38,7 +37,7 @@ public class StringPrintStreamBehavior {
 			String s = "\0\u0100\u0102\u0104";
 			out.print(s);
 			out.clear();
-			assertThat(out.toString(), is(""));
+			assertEquals(out.toString(), "");
 		}
 	}
 

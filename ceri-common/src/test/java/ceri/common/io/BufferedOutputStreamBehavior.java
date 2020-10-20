@@ -1,7 +1,7 @@
 package ceri.common.io;
 
 import static ceri.common.collection.ArrayUtil.bytes;
-import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertArray;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Before;

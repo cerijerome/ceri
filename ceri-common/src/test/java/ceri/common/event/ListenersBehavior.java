@@ -1,9 +1,8 @@
 package ceri.common.event;
 
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.function.Consumer;
 import org.junit.Test;
 
@@ -19,18 +18,18 @@ public class ListenersBehavior {
 		ls.listen(l0);
 		ls.listen(l0);
 		ls.listen(l1);
-		assertThat(ls.size(), is(3)); // listeners stored in list, not set
+		assertEquals(ls.size(), 3); // listeners stored in list, not set
 		ls.accept("ab");
-		assertThat(b.toString(), is("aab"));
+		assertEquals(b.toString(), "aab");
 		ls.unlisten(l0);
 		ls.accept("cd");
-		assertThat(b.toString(), is("aabcd"));
+		assertEquals(b.toString(), "aabcd");
 		ls.unlisten(l1);
 		ls.accept("ef");
-		assertThat(b.toString(), is("aabcde"));
+		assertEquals(b.toString(), "aabcde");
 		ls.unlisten(l0);
 		ls.accept("gh");
-		assertThat(b.toString(), is("aabcde"));
+		assertEquals(b.toString(), "aabcde");
 	}
 
 	@Test
@@ -42,10 +41,10 @@ public class ListenersBehavior {
 		ls.listen(l0);
 		ls.listen(l1);
 		ls.accept("ab");
-		assertThat(b.toString(), is("ab"));
+		assertEquals(b.toString(), "ab");
 		ls.clear();
 		ls.accept("cd");
-		assertThat(b.toString(), is("ab"));
+		assertEquals(b.toString(), "ab");
 	}
 
 	@Test

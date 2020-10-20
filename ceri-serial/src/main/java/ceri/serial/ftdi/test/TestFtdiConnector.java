@@ -1,9 +1,8 @@
 package ceri.serial.ftdi.test;
 
 import java.io.IOException;
-import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.io.StateChange;
-import ceri.common.test.SyncState;
+import ceri.common.test.CallSync;
 import ceri.common.test.TestPipedConnector;
 import ceri.serial.ftdi.FlowControl;
 import ceri.serial.ftdi.FtdiBitmode;
@@ -13,34 +12,20 @@ import ceri.serial.ftdi.FtdiConnector;
  * A connector for testing logic against serial connectors.
  */
 public class TestFtdiConnector extends TestPipedConnector implements FtdiConnector {
-	public final SyncState.Bool connectSync = SyncState.boolNoResume();
-	public final SyncState<FtdiBitmode> bitmodeSync = SyncState.noResume();
-	public final SyncState<Boolean> dtrSync = SyncState.noResume();
-	public final SyncState<Boolean> rtsSync = SyncState.noResume();
-	public final SyncState<FlowControl> flowCtrlSync = SyncState.noResume();
-	public final SyncState<Integer> pinsSync = SyncState.noResume();
-	public final SyncState<Boolean> brokenSync = SyncState.noResume();
-	// State fields
-	public volatile FtdiBitmode bitmode = FtdiBitmode.OFF;
-	public volatile boolean rts;
-	public volatile boolean dtr;
-	public volatile FlowControl flowControl = FlowControl.disabled;
-	public volatile boolean connected;
-	public volatile boolean broken;
+	public final CallSync.Accept<Boolean> broken = CallSync.consumer(false, true);
+	public final CallSync.Accept<Boolean> connect = CallSync.consumer(false, true);
+	public final CallSync.Accept<FtdiBitmode> bitmode = CallSync.consumer(FtdiBitmode.OFF, true);
+	public final CallSync.Accept<Boolean> dtr = CallSync.consumer(false, true);
+	public final CallSync.Accept<Boolean> rts = CallSync.consumer(false, true);
+	public final CallSync.Accept<FlowControl> flowControl =
+		CallSync.consumer(FlowControl.disabled, true);
+	public final CallSync.Get<Integer> pins = CallSync.supplier(null);
 
 	/**
-	 * Provide a test connector that echoes output to input, writes the last byte to pins.
+	 * Provide a test connector that echoes output to input, and writes the last byte to pins.
 	 */
 	public static TestFtdiConnector echoPins() {
-		return new TestFtdiConnector() {
-			@Override
-			public int readPins() throws IOException {
-				Integer b = pinsSync.get();
-				verifyUnbroken();
-				verifyConnected();
-				return b == null ? 0 : b;
-			}
-
+		var con = new TestFtdiConnector() {
 			@SuppressWarnings("resource")
 			@Override
 			public int read(byte[] buffer, int offset, int length) throws IOException {
@@ -52,13 +37,15 @@ public class TestFtdiConnector extends TestPipedConnector implements FtdiConnect
 			public int write(byte[] data, int offset, int length) throws IOException {
 				to.write(data, offset, length);
 				// Write last byte only
-				if (length > 0) pinsSync.accept(data[offset + length - 1] & 0xff);
+				if (length > 0) pins.autoResponse(data[offset + length - 1] & 0xff);
 				writeError.generateIo();
 				verifyUnbroken();
 				verifyConnected();
 				return length;
 			}
 		};
+		con.pins.autoResponse(0);
+		return con;
 	}
 
 	public static TestFtdiConnector of() {
@@ -69,80 +56,66 @@ public class TestFtdiConnector extends TestPipedConnector implements FtdiConnect
 
 	@Override
 	public void reset(boolean clearListeners) {
-		connectSync.reset();
-		bitmodeSync.reset();
-		dtrSync.reset();
-		rtsSync.reset();
-		flowCtrlSync.reset();
-		pinsSync.reset();
-		brokenSync.reset();
-		bitmode = FtdiBitmode.OFF;
-		rts = false;
-		dtr = false;
-		flowControl = FlowControl.disabled;
-		connected = false;
-		broken = false;
+		broken.reset();
+		connect.reset();
+		bitmode.reset();
+		dtr.reset();
+		rts.reset();
+		flowControl.reset();
+		pins.reset();
 		super.reset(clearListeners);
 	}
 
 	@Override
 	public void broken() {
-		boolean notify = !broken;
-		broken = true;
-		if (notify) listeners.accept(StateChange.broken);
-		brokenSync.accept(true);
+		if (!broken.value()) listeners.accept(StateChange.broken);
+		broken.accept(true);
+		connect.value(false);
 	}
 
 	public void fixed() {
-		boolean notify = broken;
-		broken = false;
-		connected = true;
-		if (notify) listeners.accept(StateChange.fixed);
-		brokenSync.accept(false);
+		if (broken.value()) listeners.accept(StateChange.fixed);
+		broken.accept(false);
+		connect.value(true);
 	}
 
 	@Override
 	public void connect() throws IOException {
-		connectSync.accept();
+		connect.accept(true, IOException::new);
 		verifyUnbroken();
-		connected = true;
 	}
 
 	@Override
 	public void bitmode(FtdiBitmode bitmode) throws IOException {
-		bitmodeSync.accept(bitmode);
+		this.bitmode.accept(bitmode, IOException::new);
 		verifyUnbroken();
 		verifyConnected();
-		this.bitmode = bitmode;
 	}
 
 	@Override
 	public void dtr(boolean on) throws IOException {
-		dtrSync.accept(on);
+		dtr.accept(on, IOException::new);
 		verifyUnbroken();
 		verifyConnected();
-		dtr = on;
 	}
 
 	@Override
 	public void rts(boolean on) throws IOException {
-		rtsSync.accept(on);
+		rts.accept(on, IOException::new);
 		verifyUnbroken();
 		verifyConnected();
-		rts = on;
 	}
 
 	@Override
 	public void flowControl(FlowControl flowControl) throws IOException {
-		flowCtrlSync.accept(flowControl);
+		this.flowControl.accept(flowControl, IOException::new);
 		verifyUnbroken();
 		verifyConnected();
-		this.flowControl = flowControl;
 	}
 
 	@Override
 	public int readPins() throws IOException {
-		Integer n = ConcurrentUtil.executeGetInterruptible(pinsSync::awaitCall);
+		Integer n = pins.get(IOException::new);
 		verifyUnbroken();
 		verifyConnected();
 		return n == null ? 0 : n;
@@ -168,15 +141,15 @@ public class TestFtdiConnector extends TestPipedConnector implements FtdiConnect
 
 	@Override
 	public void close() {
-		connected = false;
+		connect.value(false);
 	}
 
 	protected void verifyConnected() throws IOException {
-		if (!connected) throw new IOException("Not connected");
+		if (!connect.value()) throw new IOException("Not connected");
 	}
 
 	protected void verifyUnbroken() throws IOException {
-		if (broken) throw new IOException("Connector is broken");
+		if (broken.value()) throw new IOException("Connector is broken");
 	}
 
 }

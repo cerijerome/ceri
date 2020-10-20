@@ -1,14 +1,13 @@
 package ceri.common.math;
 
 import static ceri.common.math.FractionBehavior.assertFraction;
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class MixedFractionBehavior {
 
@@ -36,11 +35,11 @@ public class MixedFractionBehavior {
 
 	@Test
 	public void shouldHaveStringRepresentation() {
-		assertThat(MixedFraction.of(0, 0, 1).toString(), is("0"));
-		assertThat(MixedFraction.of(1).toString(), is("1"));
-		assertThat(MixedFraction.of(0, 1, 2).toString(), is("1/2"));
-		assertThat(MixedFraction.of(1, 1, 2).toString(), is("1_1/2"));
-		assertThat(MixedFraction.of(-1, -1, 2).toString(), is("-1_1/2"));
+		assertEquals(MixedFraction.of(0, 0, 1).toString(), "0");
+		assertEquals(MixedFraction.of(1).toString(), "1");
+		assertEquals(MixedFraction.of(0, 1, 2).toString(), "1/2");
+		assertEquals(MixedFraction.of(1, 1, 2).toString(), "1_1/2");
+		assertEquals(MixedFraction.of(-1, -1, 2).toString(), "-1_1/2");
 	}
 
 	@Test
@@ -81,7 +80,7 @@ public class MixedFractionBehavior {
 		assertMixedFraction(MixedFraction.of(0).divide(MixedFraction.of(1, 0, 1)), 0, 0, 1);
 		assertMixedFraction(MixedFraction.of(1).divide(MixedFraction.of(1, 1, 2)), 0, 2, 3);
 		assertMixedFraction(MixedFraction.of(3, 2, 3).divide(MixedFraction.of(1, 0, 1)), 3, 2, 3);
-		TestUtil.assertThrown(() -> MixedFraction.of(0).divide(MixedFraction.of(0, 0, 1)));
+		assertThrown(() -> MixedFraction.of(0).divide(MixedFraction.of(0, 0, 1)));
 		assertMixedFraction(MixedFraction.of(3, 2, 3).divide(MixedFraction.of(-1, -1, 4)), //
 			-2, -14, 15);
 	}
@@ -119,11 +118,11 @@ public class MixedFractionBehavior {
 
 	@Test
 	public void shouldFailToCreateInvalidFraction() {
-		TestUtil.assertThrown(() -> MixedFraction.of(0, 0, 0));
-		TestUtil.assertThrown(() -> MixedFraction.of(1, 1, 0));
-		TestUtil.assertThrown(() -> MixedFraction.of(0, -1, Long.MIN_VALUE));
-		TestUtil.assertThrown(() -> MixedFraction.of(0, 1, Long.MIN_VALUE));
-		TestUtil.assertThrown(() -> MixedFraction.of(Long.MIN_VALUE, -1, 1));
+		assertThrown(() -> MixedFraction.of(0, 0, 0));
+		assertThrown(() -> MixedFraction.of(1, 1, 0));
+		assertThrown(() -> MixedFraction.of(0, -1, Long.MIN_VALUE));
+		assertThrown(() -> MixedFraction.of(0, 1, Long.MIN_VALUE));
+		assertThrown(() -> MixedFraction.of(Long.MIN_VALUE, -1, 1));
 	}
 
 	@Test
@@ -137,9 +136,9 @@ public class MixedFractionBehavior {
 
 	public static void assertMixedFraction(MixedFraction fraction, long whole, long numerator,
 		long denominator) {
-		assertThat(fraction.whole, is(whole));
-		assertThat(fraction.fraction.numerator, is(numerator));
-		assertThat(fraction.fraction.denominator, is(denominator));
+		assertEquals(fraction.whole, whole);
+		assertEquals(fraction.fraction.numerator, numerator);
+		assertEquals(fraction.fraction.denominator, denominator);
 	}
 
 }

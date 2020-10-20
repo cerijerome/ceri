@@ -1,8 +1,7 @@
 package ceri.common.test;
 
 import static ceri.common.function.FunctionUtil.execSilently;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -94,7 +93,7 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 	 */
 	@SuppressWarnings("resource")
 	public void assertAvailable(int n) throws IOException {
-		assertThat(con.outSink().available(), is(n));
+		assertEquals(con.outSink().available(), n);
 	}
 
 	@Override

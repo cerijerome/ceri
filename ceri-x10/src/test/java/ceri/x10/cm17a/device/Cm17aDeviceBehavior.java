@@ -1,7 +1,7 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.x10.cm17a.device.Data.code;
 import static ceri.x10.command.FunctionType.bright;
 import static ceri.x10.command.FunctionType.dim;
@@ -23,7 +23,6 @@ import static ceri.x10.command.Unit._3;
 import static ceri.x10.command.Unit._5;
 import static ceri.x10.command.Unit._7;
 import static ceri.x10.command.Unit._9;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.AfterClass;
@@ -121,7 +120,7 @@ public class Cm17aDeviceBehavior {
 		TestCommandListener listener = TestCommandListener.of();
 		try (Enclosed<?> enc = cm17a.listen(listener)) {
 			cm17a.command(Command.dim(L, 50, _5, _9));
-			assertThat(listener.sync.await(), is(Command.dim(L, 50, _5, _9)));
+			assertEquals(listener.sync.await(), Command.dim(L, 50, _5, _9));
 		}
 	}
 
@@ -129,7 +128,7 @@ public class Cm17aDeviceBehavior {
 	public void shouldListenForConnectorStateChange() throws InterruptedException {
 		try (TestListener<StateChange> listener = TestListener.of(cm17a.listeners())) {
 			con.listeners.accept(StateChange.broken);
-			assertThat(listener.await(), is(StateChange.broken));
+			assertEquals(listener.await(), StateChange.broken);
 		}
 	}
 

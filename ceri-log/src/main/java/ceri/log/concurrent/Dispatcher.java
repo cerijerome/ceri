@@ -22,7 +22,7 @@ import ceri.common.util.Enclosed;
 public class Dispatcher<L, T> extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
 	private final long pollTimeoutMs;
-	private final Function<T, Consumer<L>> adaptor;
+	private final Function<T, Consumer<L>> adapter;
 	private final BlockingQueue<T> queue = new LinkedBlockingQueue<>();
 	private final Collection<L> listeners = new ConcurrentLinkedQueue<>();
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
@@ -37,12 +37,12 @@ public class Dispatcher<L, T> extends LoopingExecutor {
 		return new Direct<>(pollTimeoutMs);
 	}
 
-	public static <L, T> Dispatcher<L, T> of(long pollTimeoutMs, Function<T, Consumer<L>> adaptor) {
-		return new Dispatcher<>(pollTimeoutMs, adaptor);
+	public static <L, T> Dispatcher<L, T> of(long pollTimeoutMs, Function<T, Consumer<L>> adapter) {
+		return new Dispatcher<>(pollTimeoutMs, adapter);
 	}
 
-	private Dispatcher(long pollTimeoutMs, Function<T, Consumer<L>> adaptor) {
-		this.adaptor = adaptor;
+	private Dispatcher(long pollTimeoutMs, Function<T, Consumer<L>> adapter) {
+		this.adapter = adapter;
 		this.pollTimeoutMs = pollTimeoutMs;
 		start();
 	}
@@ -60,9 +60,11 @@ public class Dispatcher<L, T> extends LoopingExecutor {
 	protected void loop() throws InterruptedException {
 		try {
 			T t = queue.poll(pollTimeoutMs, TimeUnit.MILLISECONDS);
-			if (t == null || listeners.isEmpty()) return;
+			// if (t == null || listeners.isEmpty()) return;
+			if (t == null) return;
+			if (listeners.isEmpty()) return;
 			logger.debug("Dispatching: {}", t);
-			Consumer<L> consumer = adaptor.apply(t);
+			Consumer<L> consumer = adapter.apply(t);
 			listeners.forEach(l -> consumer.accept(l));
 		} catch (InterruptedException | RuntimeInterruptedException e) {
 			throw e;

@@ -1,14 +1,13 @@
 package ceri.common.geom;
 
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.NaN;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class Spheroid3dBehavior {
 	private final Spheroid3d s0 = Spheroid3d.create(2, 3);
@@ -22,13 +21,13 @@ public class Spheroid3dBehavior {
 
 	@Test
 	public void shouldOnlyAllowPositiveAxes() {
-		TestUtil.assertThrown(() -> Spheroid3d.create(-0.1, 1));
-		TestUtil.assertThrown(() -> Spheroid3d.create(2, -1));
+		assertThrown(() -> Spheroid3d.create(-0.1, 1));
+		assertThrown(() -> Spheroid3d.create(2, -1));
 	}
 
 	@Test
 	public void shouldDefineNull() {
-		assertThat(Spheroid3d.create(0, 0), is(Spheroid3d.NULL));
+		assertEquals(Spheroid3d.create(0, 0), Spheroid3d.NULL);
 		assertApprox(Spheroid3d.NULL.height(), 0);
 		assertApprox(Spheroid3d.NULL.r, 0);
 		assertApprox(Spheroid3d.NULL.c, 0);

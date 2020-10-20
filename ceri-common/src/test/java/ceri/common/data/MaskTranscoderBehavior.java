@@ -1,9 +1,8 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class MaskTranscoderBehavior {
@@ -25,53 +24,52 @@ public class MaskTranscoderBehavior {
 
 	@Test
 	public void shouldEncodeValues() {
-		assertThat(MaskTranscoder.xbits(8, 4).encode(0xabcd), is(0xcd0L));
-		assertThat(MaskTranscoder.xbits(8, 4).encodeInt(0xabcd), is(0xcd0));
+		assertEquals(MaskTranscoder.xbits(8, 4).encode(0xabcd), 0xcd0L);
+		assertEquals(MaskTranscoder.xbits(8, 4).encodeInt(0xabcd), 0xcd0);
 	}
 
 	@Test
 	public void shouldEncodeWithCurrentValues() {
-		assertThat(MaskTranscoder.xbits(8, 4).encode(0xabcd, 0x1234), is(0x1cd4L));
-		assertThat(MaskTranscoder.xbits(8, 4).encodeInt(0xabcd, 0x1234), is(0x1cd4));
+		assertEquals(MaskTranscoder.xbits(8, 4).encode(0xabcd, 0x1234), 0x1cd4L);
+		assertEquals(MaskTranscoder.xbits(8, 4).encodeInt(0xabcd, 0x1234), 0x1cd4);
 	}
 
 	@Test
 	public void shouldDecodeBitShiftMaskValues() {
-		assertThat(MaskTranscoder.xbits(32, 16).decode(0xff_ffffff00L), is(0xffffffL));
-		assertThat(MaskTranscoder.xbits(32, 16).decode(0xff_ff000000L), is(0xffff00L));
-		assertThat(MaskTranscoder.xbits(17, 47).decode(-1L), is(0x1ffffL));
-		assertThat(MaskTranscoder.xbits(17, 15).decode(-1L), is(0x1ffffL));
+		assertEquals(MaskTranscoder.xbits(32, 16).decode(0xff_ffffff00L), 0xffffffL);
+		assertEquals(MaskTranscoder.xbits(32, 16).decode(0xff_ff000000L), 0xffff00L);
+		assertEquals(MaskTranscoder.xbits(17, 47).decode(-1L), 0x1ffffL);
+		assertEquals(MaskTranscoder.xbits(17, 15).decode(-1L), 0x1ffffL);
 	}
 
 	@Test
 	public void shouldDecodeBitShiftMaskValuesAsInt() {
-		assertThat(MaskTranscoder.xbits(32, 16).decodeInt(0xff_ffffff00L), is(0xffffff));
-		assertThat(MaskTranscoder.xbits(32, 16).decodeInt(0xff_ff000000L), is(0xffff00));
-		assertThat(MaskTranscoder.xbits(17, 47).decodeInt(-1L), is(0x1ffff));
-		assertThat(MaskTranscoder.xbits(17, 15).decodeInt(-1L), is(0x1ffff));
+		assertEquals(MaskTranscoder.xbits(32, 16).decodeInt(0xff_ffffff00L), 0xffffff);
+		assertEquals(MaskTranscoder.xbits(32, 16).decodeInt(0xff_ff000000L), 0xffff00);
+		assertEquals(MaskTranscoder.xbits(17, 47).decodeInt(-1L), 0x1ffff);
+		assertEquals(MaskTranscoder.xbits(17, 15).decodeInt(-1L), 0x1ffff);
 	}
 
 	@Test
 	public void shouldDecodeMaskedValues() {
-		assertThat(MaskTranscoder.mask(0xffff_ffff0000L, 0).decode(0xff_ffffff00L),
-			is(0xff_ffff0000L));
-		assertThat(MaskTranscoder.mask(0xffff_ffff0000L, 16).decode(0xff_ffffff00L), is(0xffffffL));
-		assertThat(MaskTranscoder.mask(0xffff8000_00000000L, 47).decode(-1L), is(0x1ffffL));
-		assertThat(MaskTranscoder.mask(0xffff8000L, 15).decode(-1L), is(0x1ffffL));
-		assertThat(MaskTranscoder.mask(0xffff8000, 15).decode(-1L), is(0x1ffffL));
-		assertThat(MaskTranscoder.mask(0xf0f0, 4).decode(0xeeee), is(0xe0eL));
+		assertEquals(MaskTranscoder.mask(0xffff_ffff0000L, 0).decode(0xff_ffffff00L),
+			0xff_ffff0000L);
+		assertEquals(MaskTranscoder.mask(0xffff_ffff0000L, 16).decode(0xff_ffffff00L), 0xffffffL);
+		assertEquals(MaskTranscoder.mask(0xffff8000_00000000L, 47).decode(-1L), 0x1ffffL);
+		assertEquals(MaskTranscoder.mask(0xffff8000L, 15).decode(-1L), 0x1ffffL);
+		assertEquals(MaskTranscoder.mask(0xffff8000, 15).decode(-1L), 0x1ffffL);
+		assertEquals(MaskTranscoder.mask(0xf0f0, 4).decode(0xeeee), 0xe0eL);
 	}
 
 	@Test
 	public void shouldDecodeMaskedValuesAsInt() {
-		assertThat(MaskTranscoder.mask(0xffff_ffff0000L, 0).decodeInt(0xff_ffffff00L),
-			is(0xffff0000));
-		assertThat(MaskTranscoder.mask(0xffff_ffff0000L, 16).decodeInt(0xff_ffffff00L),
-			is(0xffffff));
-		assertThat(MaskTranscoder.mask(0xffff8000_00000000L, 47).decodeInt(-1L), is(0x1ffff));
-		assertThat(MaskTranscoder.mask(0xffff8000L, 15).decodeInt(-1L), is(0x1ffff));
-		assertThat(MaskTranscoder.mask(0xffff8000, 15).decodeInt(-1L), is(0x1ffff));
-		assertThat(MaskTranscoder.mask(0xf0f0, 4).decodeInt(0xeeee), is(0xe0e));
+		assertEquals(MaskTranscoder.mask(0xffff_ffff0000L, 0).decodeInt(0xff_ffffff00L),
+			0xffff0000);
+		assertEquals(MaskTranscoder.mask(0xffff_ffff0000L, 16).decodeInt(0xff_ffffff00L), 0xffffff);
+		assertEquals(MaskTranscoder.mask(0xffff8000_00000000L, 47).decodeInt(-1L), 0x1ffff);
+		assertEquals(MaskTranscoder.mask(0xffff8000L, 15).decodeInt(-1L), 0x1ffff);
+		assertEquals(MaskTranscoder.mask(0xffff8000, 15).decodeInt(-1L), 0x1ffff);
+		assertEquals(MaskTranscoder.mask(0xf0f0, 4).decodeInt(0xeeee), 0xe0e);
 	}
 
 }

@@ -7,20 +7,19 @@ import static ceri.common.function.FunctionTestUtil.intConsumer;
 import static ceri.common.function.FunctionTestUtil.intFunction;
 import static ceri.common.function.FunctionTestUtil.intPredicate;
 import static ceri.common.function.FunctionTestUtil.intUnaryOperator;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 
 public class WrappedIntStreamBehavior {
-	private final Capturer.Int capture = Capturer.ofInt();
+	private final Captor.Int capture = Captor.ofInt();
 
 	// Function type generators:
 	// 0 => throws RuntimeException
@@ -100,7 +99,7 @@ public class WrappedIntStreamBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldTerminateStream() throws IOException {
-		assertThat(wrap(4, 3, 2).terminateAs(IntStream::count), is(3L));
+		assertEquals(wrap(4, 3, 2).terminateAs(IntStream::count), 3L);
 		wrap(4, 3, 2).terminate(s -> s.forEach(capture.reset()));
 		capture.verify(4, 3, 2);
 	}

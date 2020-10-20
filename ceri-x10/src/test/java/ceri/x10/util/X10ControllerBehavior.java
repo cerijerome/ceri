@@ -1,8 +1,7 @@
 package ceri.x10.util;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.util.Enclosed;
@@ -16,7 +15,7 @@ public class X10ControllerBehavior {
 
 	@Test
 	public void shouldSupportNoCommandByDefault() {
-		assertThat(X10Controller.NULL.supports(Command.on(House.J, Unit._8)), is(false));
+		assertFalse(X10Controller.NULL.supports(Command.on(House.J, Unit._8)));
 		assertThrown(() -> X10Controller.verifySupported(null, Command.on(House.J, Unit._8)));
 	}
 

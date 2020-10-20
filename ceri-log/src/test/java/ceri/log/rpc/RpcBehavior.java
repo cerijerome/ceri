@@ -1,14 +1,13 @@
 package ceri.log.rpc;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 
 public class RpcBehavior {
 	private static final int PORT = 12345;
@@ -37,18 +36,18 @@ public class RpcBehavior {
 		try (var listener = rpc.client0.listen(i -> sync.signal(i))) {
 			rpc.service.waitForClients(1);
 			rpc.service.notify(1);
-			assertThat(sync.await(), is(1));
+			assertEquals(sync.await(), 1);
 			rpc.service.notify(2);
-			assertThat(sync.await(), is(2));
+			assertEquals(sync.await(), 2);
 			rpc.service.notify(3);
-			assertThat(sync.await(), is(3));
+			assertEquals(sync.await(), 3);
 		}
 		rpc.service.waitForClients(0);
 	}
 
 	@Test
 	public void shouldHandleNoArgumentsWithNoReturnValue() throws IOException {
-		var captor = Capturer.ofInt();
+		var captor = Captor.ofInt();
 		rpc.service.run = () -> captor.accept(captor.values.size() + 1);
 		rpc.client0.run();
 		rpc.client0.run();
@@ -58,7 +57,7 @@ public class RpcBehavior {
 
 	@Test
 	public void shouldHandleArgumentsWithNoReturnValue() throws IOException {
-		var captor = Capturer.ofInt();
+		var captor = Captor.ofInt();
 		rpc.service.set = i -> captor.accept(i);
 		rpc.client0.set(1);
 		rpc.client0.set(2);
@@ -68,7 +67,7 @@ public class RpcBehavior {
 
 	@Test
 	public void shouldHandleNoArgumentsWithReturnValue() throws IOException {
-		var captor = Capturer.ofInt();
+		var captor = Captor.ofInt();
 		rpc.service.get = () -> captor.values.size() + 1;
 		captor.accept(rpc.client0.get());
 		captor.accept(rpc.client0.get());

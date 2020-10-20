@@ -1,7 +1,7 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertAssertion;
-import static ceri.common.test.TestUtil.assertFind;
+import static ceri.common.test.AssertUtil.assertAssertion;
+import static ceri.common.test.AssertUtil.assertFind;
 import org.junit.Test;
 
 public class RegexFinderBehavior {

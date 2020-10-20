@@ -4,14 +4,14 @@ import static ceri.common.collection.StreamUtil.toList;
 import static ceri.common.color.ColorTestUtil.assertColorx;
 import static ceri.common.color.Colorx.black;
 import static ceri.common.color.Colorx.full;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertNotNull;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static java.awt.Color.green;
 import static java.awt.Color.red;
-import static org.hamcrest.CoreMatchers.is;
 import java.awt.Color;
 import java.util.List;
 import java.util.function.BinaryOperator;
@@ -22,7 +22,6 @@ import org.junit.Test;
 import ceri.common.color.ColorUtil.Fn.ChannelAdjuster;
 import ceri.common.color.ColorUtil.Fn.ChannelScaler;
 import ceri.common.function.BinaryFunction;
-import ceri.common.test.TestUtil;
 
 public class ColorxUtilTest {
 
@@ -138,8 +137,8 @@ public class ColorxUtilTest {
 
 	@Test
 	public void testValidColor() {
-		TestUtil.assertThrown(() -> ColorxUtil.validColor(null));
-		TestUtil.assertThrown(() -> ColorxUtil.validColor("\0black"));
+		assertThrown(() -> ColorxUtil.validColor(null));
+		assertThrown(() -> ColorxUtil.validColor("\0black"));
 		assertColorx(ColorxUtil.validColor("black"), black);
 	}
 
@@ -184,27 +183,27 @@ public class ColorxUtilTest {
 	@Test
 	public void testToString() {
 		assertNull(ColorxUtil.toString(null));
-		assertThat(ColorxUtil.toString(full), is("full"));
-		assertThat(ColorxUtil.toString(0xff, 0xff, 0, 0), is("yellow"));
-		assertThat(ColorxUtil.toString(0xff, 0xff, 0, 0xff), is("#ffff00ff"));
+		assertEquals(ColorxUtil.toString(full), "full");
+		assertEquals(ColorxUtil.toString(0xff, 0xff, 0, 0), "yellow");
+		assertEquals(ColorxUtil.toString(0xff, 0xff, 0, 0xff), "#ffff00ff");
 	}
 
 	@Test
 	public void testToName() {
 		assertNull(ColorxUtil.toName(null));
 		assertNull(ColorxUtil.toName(0x12345678));
-		assertThat(ColorxUtil.toName(full), is("full"));
-		assertThat(ColorxUtil.toName(black), is("black"));
-		assertThat(ColorxUtil.toName(0xff, 0, 0xff, 0), is("magenta"));
+		assertEquals(ColorxUtil.toName(full), "full");
+		assertEquals(ColorxUtil.toName(black), "black");
+		assertEquals(ColorxUtil.toName(0xff, 0, 0xff, 0), "magenta");
 	}
 
 	@Test
 	public void testToHex() {
 		assertNull(ColorxUtil.toHex(null));
-		assertThat(ColorxUtil.toHex(black), is("#00000000"));
-		assertThat(ColorxUtil.toHex(full), is("#ffffffff"));
-		assertThat(ColorxUtil.toHex(0x88664422), is("#88664422"));
-		assertThat(ColorxUtil.toHex(16, 32, 64, 128), is("#10204080"));
+		assertEquals(ColorxUtil.toHex(black), "#00000000");
+		assertEquals(ColorxUtil.toHex(full), "#ffffffff");
+		assertEquals(ColorxUtil.toHex(0x88664422), "#88664422");
+		assertEquals(ColorxUtil.toHex(16, 32, 64, 128), "#10204080");
 	}
 
 	@Test

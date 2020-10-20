@@ -1,7 +1,7 @@
 package ceri.ci.web;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 import ceri.ci.build.BuildTestUtil;
 import ceri.ci.build.Builds;

@@ -1,13 +1,13 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.throwIt;
 import static ceri.common.test.TestUtil.runRepeat;
-import static ceri.common.test.TestUtil.throwIt;
 import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.function.ExceptionRunnable;
@@ -21,15 +21,15 @@ public class TaskQueueBehavior {
 		try (var exec = runRepeat(queue::processNext)) {
 			queue.execute(() -> {});
 			queue.execute(() -> {}, 1000, MILLISECONDS);
-			assertThat(queue.executeGet(() -> "test"), is("test"));
-			assertThat(queue.executeGet(() -> "test", 1000, MILLISECONDS), is("test"));
+			assertEquals(queue.executeGet(() -> "test"), "test");
+			assertEquals(queue.executeGet(() -> "test", 1000, MILLISECONDS), "test");
 		}
 	}
 
 	@Test
 	public void shouldReturnFalseOnQueueTimeout() throws Exception {
 		TaskQueue<?> queue = TaskQueue.of(10);
-		assertThat(queue.processNext(1, MICROSECONDS), is(false));
+		assertFalse(queue.processNext(1, MICROSECONDS));
 	}
 
 	@Test

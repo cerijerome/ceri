@@ -1,18 +1,18 @@
 package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.objIntConsumer;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import java.util.function.ObjIntConsumer;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil.Std;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 
 public class ExceptionObjIntConsumerBehavior {
 
 	@Test
 	public void shouldCombineWithAndThen() throws IOException {
-		Capturer.Int capturer = Capturer.ofInt();
+		Captor.Int capturer = Captor.ofInt();
 		var consumer = FunctionTestUtil.objIntConsumer().andThen((i, j) -> {
 			capturer.accept(i);
 			capturer.accept(j);

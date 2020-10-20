@@ -1,11 +1,10 @@
 package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.objIntPredicate;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil.Std;
@@ -15,9 +14,9 @@ public class ExceptionObjIntPredicateBehavior {
 	@Test
 	public void shouldAllowNaming() throws IOException {
 		ExceptionObjIntPredicate<IOException, Integer> p = objIntPredicate().name("name");
-		assertThat(p.toString(), is("name"));
-		assertThat(p.test(2, 2), is(true));
-		assertThat(p.test(-1, 2), is(false));
+		assertEquals(p.toString(), "name");
+		assertTrue(p.test(2, 2));
+		assertFalse(p.test(-1, 2));
 		assertThrown(IOException.class, () -> p.test(1, 2));
 		assertThrown(RuntimeException.class, () -> p.test(0, 2));
 	}
@@ -25,7 +24,7 @@ public class ExceptionObjIntPredicateBehavior {
 	@Test
 	public void shouldConvertToBiPredicate() {
 		ObjIntPredicate<Integer> p = objIntPredicate().asPredicate();
-		assertThat(p.test(2, 2), is(true));
+		assertTrue(p.test(2, 2));
 		assertThrown(RuntimeException.class, () -> p.test(1, 2));
 		assertThrown(RuntimeException.class, () -> p.test(0, 2));
 	}
@@ -34,8 +33,8 @@ public class ExceptionObjIntPredicateBehavior {
 	public void shouldConvertFromBiPredicate() {
 		ExceptionObjIntPredicate<RuntimeException, Integer> p =
 			ExceptionObjIntPredicate.of(Std.objIntPredicate());
-		assertThat(p.test(1, 2), is(true));
-		assertThat(p.test(-1, 2), is(false));
+		assertTrue(p.test(1, 2));
+		assertFalse(p.test(-1, 2));
 		assertThrown(() -> p.test(0, 2));
 	}
 
@@ -43,9 +42,9 @@ public class ExceptionObjIntPredicateBehavior {
 	public void shouldNegateTest() throws IOException {
 		ExceptionObjIntPredicate<IOException, Integer> p0 = objIntPredicate();
 		ExceptionObjIntPredicate<IOException, Integer> p = p0.negate();
-		assertThat(p0.test(2, 2), is(true));
-		assertThat(p.test(2, 2), is(false));
-		assertThat(p.test(-2, 2), is(true));
+		assertTrue(p0.test(2, 2));
+		assertFalse(p.test(2, 2));
+		assertTrue(p.test(-2, 2));
 		assertThrown(IOException.class, () -> p.test(1, 2));
 		assertThrown(RuntimeException.class, () -> p.test(0, 2));
 	}

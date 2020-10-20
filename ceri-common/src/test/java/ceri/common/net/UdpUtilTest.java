@@ -1,8 +1,9 @@
 package ceri.common.net;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static java.util.Objects.requireNonNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -18,7 +19,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
-import ceri.common.test.TestUtil;
 
 public class UdpUtilTest {
 	private static DatagramSocket socket;
@@ -45,7 +45,7 @@ public class UdpUtilTest {
 	public void testHostPort() {
 		assertNull(UdpUtil.hostPort(null));
 		doReturn(null).when(socket).getInetAddress();
-		TestUtil.assertThrown(() -> UdpUtil.hostPort(socket));
+		assertThrown(() -> UdpUtil.hostPort(socket));
 		doReturn(address).when(socket).getInetAddress();
 		doReturn(777).when(socket).getPort();
 		doReturn("test").when(address).getHostAddress();

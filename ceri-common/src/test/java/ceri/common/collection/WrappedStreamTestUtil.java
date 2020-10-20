@@ -1,12 +1,12 @@
 package ceri.common.collection;
 
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.test.Capturer;
-import ceri.common.test.TestUtil;
+import ceri.common.test.AssertUtil;
+import ceri.common.test.Captor;
 
 public class WrappedStreamTestUtil {
 
@@ -26,18 +26,18 @@ public class WrappedStreamTestUtil {
 	@SafeVarargs
 	public static <E extends Exception, T> void
 		assertCapture(ExceptionConsumer<E, ExceptionConsumer<E, T>> fn, T... values) {
-		Capturer<T> capture = Capturer.of();
+		Captor<T> captor = Captor.of();
 		try {
-			fn.accept(capture::accept);
+			fn.accept(captor::accept);
 		} catch (Exception e) {
 			throw new AssertionError(e);
 		}
-		capture.verify(values);
+		captor.verify(values);
 	}
 
 	public static <E extends Exception> void
 		assertCapture(ExceptionConsumer<E, ExceptionIntConsumer<E>> fn, int... values) {
-		Capturer.Int capture = Capturer.ofInt();
+		Captor.Int capture = Captor.ofInt();
 		try {
 			fn.accept(capture::accept);
 		} catch (Exception e) {
@@ -68,13 +68,13 @@ public class WrappedStreamTestUtil {
 	public static <E extends Exception, T> void assertStream(WrappedStream<E, T> stream,
 		T... values) throws E {
 		Stream<T> tStream = stream.terminateAs(s -> s);
-		TestUtil.assertStream(tStream, values);
+		AssertUtil.assertStream(tStream, values);
 	}
 
 	public static <E extends Exception> void assertStream(WrappedIntStream<E> stream, int... values)
 		throws E {
 		IntStream iStream = stream.terminateAs(s -> s);
-		TestUtil.assertStream(iStream, values);
+		AssertUtil.assertStream(iStream, values);
 	}
 
 }

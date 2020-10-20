@@ -1,13 +1,15 @@
 package ceri.common.property;
 
 import static ceri.common.property.PropertyUtil.load;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertEquals;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertMatch;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPath;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertMatch;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPath;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,7 +19,6 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class BasePropertiesBehavior {
 	private static Properties properties = new Properties();
@@ -105,13 +106,13 @@ public class BasePropertiesBehavior {
 	@Test
 	public void shouldCheckIfChildrenExist() {
 		BaseProperties bp = new BaseProperties(properties, "m.n") {};
-		assertEquals(bp.hasChild("0"), true);
-		assertEquals(bp.hasChild("0.b"), true);
-		assertEquals(bp.hasChild("0.c"), false);
-		assertEquals(bp.hasChild("0.b.c"), true);
-		assertEquals(bp.hasChild("1"), true);
-		assertEquals(bp.hasChild("2.a"), true);
-		assertEquals(bp.hasChild("3"), false);
+		assertTrue(bp.hasChild("0"));
+		assertTrue(bp.hasChild("0.b"));
+		assertFalse(bp.hasChild("0.c"));
+		assertTrue(bp.hasChild("0.b.c"));
+		assertTrue(bp.hasChild("1"));
+		assertTrue(bp.hasChild("2.a"));
+		assertFalse(bp.hasChild("3"));
 	}
 
 	@Test
@@ -148,7 +149,7 @@ public class BasePropertiesBehavior {
 		assertEquals(bp.enumValue(E.class, "a.b"), E.AB);
 		assertEquals(bp.enumValue(E.class, E.A, "a.b"), E.AB);
 		assertEquals(bp.enumValue(E.class, E.A, "xx"), E.A);
-		TestUtil.assertThrown(() -> bp.enumValue(E.class, "a.b.c"));
+		assertThrown(() -> bp.enumValue(E.class, "a.b.c"));
 		assertCollection(bp.enumValues(E.class, "a", "abc"), E.A, E.ABC);
 	}
 
@@ -157,8 +158,8 @@ public class BasePropertiesBehavior {
 		BaseProperties bp = new BaseProperties(properties) {};
 		assertNull(bp.value("xyz"));
 		assertEquals(bp.stringValue("", "a"), "A");
-		assertEquals(bp.booleanValue("a"), false);
-		assertEquals(bp.booleanValue(true, "a"), false);
+		assertFalse(bp.booleanValue("a"));
+		assertFalse(bp.booleanValue(true, "a"));
 		assertEquals(bp.byteValue("a.b.c"), (byte) 3);
 		assertEquals(bp.byteValue((byte) 0, "a.b.c"), (byte) 3);
 		assertEquals(bp.charValue("a"), 'A');
@@ -271,7 +272,7 @@ public class BasePropertiesBehavior {
 	@Test
 	public void shouldReturnDefaultValuesForMissingProperties() {
 		BaseProperties bp = new BaseProperties(properties) {};
-		assertEquals(bp.booleanValue(true, "xx"), true);
+		assertTrue(bp.booleanValue(true, "xx"));
 		assertEquals(bp.charValue('x', "xx"), 'x');
 		assertEquals(bp.stringValue("x", "xx"), "x");
 		assertEquals(bp.byteValue(Byte.MIN_VALUE, "xx"), Byte.MIN_VALUE);

@@ -1,12 +1,11 @@
 package ceri.common.geom;
 
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class Cone3dBehavior {
 	private final Cone3d c0 = Cone3d.create(2, 8);
@@ -21,13 +20,13 @@ public class Cone3dBehavior {
 
 	@Test
 	public void shouldOnlyAllowPositiveAxes() {
-		TestUtil.assertThrown(() -> Cone3d.create(-0.1, 2));
-		TestUtil.assertThrown(() -> Cone3d.create(4, -0.1));
+		assertThrown(() -> Cone3d.create(-0.1, 2));
+		assertThrown(() -> Cone3d.create(4, -0.1));
 	}
 
 	@Test
 	public void shouldDefineNullCone() {
-		assertThat(Cone3d.create(0, 0), is(Cone3d.NULL));
+		assertEquals(Cone3d.create(0, 0), Cone3d.NULL);
 		assertApprox(Cone3d.NULL.gradient(), Double.NaN);
 		assertApprox(Cone3d.NULL.height(), 0);
 		assertApprox(Cone3d.NULL.radius(), 0);

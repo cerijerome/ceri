@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertList;
+import static ceri.common.test.AssertUtil.assertList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,19 +13,19 @@ import ceri.common.collection.ArrayUtil;
 /**
  * Simple consumer to collect values during testing, then verify.
  */
-public class Capturer<T> implements Consumer<T> {
+public class Captor<T> implements Consumer<T> {
 	public final List<T> values = new ArrayList<>();
 
-	public static <T> Capturer<T> of() {
-		return new Capturer<>();
+	public static <T> Captor<T> of() {
+		return new Captor<>();
 	}
 
-	public static Capturer.Int ofInt() {
-		return new Capturer.Int();
+	public static Captor.Int ofInt() {
+		return new Captor.Int();
 	}
 
-	public static <T, U> Capturer.Bi<T, U> ofBi() {
-		return new Capturer.Bi<>(of(), of());
+	public static <T, U> Captor.Bi<T, U> ofBi() {
+		return new Captor.Bi<>(of(), of());
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class Capturer<T> implements Consumer<T> {
 		values.add(t);
 	}
 
-	public Capturer<T> reset() {
+	public Captor<T> reset() {
 		values.clear();
 		return this;
 	}
@@ -47,7 +47,7 @@ public class Capturer<T> implements Consumer<T> {
 		assertList(this.values, values);
 	}
 
-	public static class Int extends Capturer<Integer> implements IntConsumer, LongConsumer {
+	public static class Int extends Captor<Integer> implements IntConsumer, LongConsumer {
 		@Override
 		public void accept(int value) {
 			accept(Integer.valueOf(value));
@@ -59,7 +59,7 @@ public class Capturer<T> implements Consumer<T> {
 		}
 
 		@Override
-		public Capturer.Int reset() {
+		public Captor.Int reset() {
 			values.clear();
 			return this;
 		}
@@ -74,15 +74,15 @@ public class Capturer<T> implements Consumer<T> {
 	}
 
 	public static class Bi<T, U> implements BiConsumer<T, U> {
-		public final Capturer<T> first;
-		public final Capturer<U> second;
+		public final Captor<T> first;
+		public final Captor<U> second;
 
-		Bi(Capturer<T> first, Capturer<U> second) {
+		Bi(Captor<T> first, Captor<U> second) {
 			this.first = first;
 			this.second = second;
 		}
 
-		public Capturer.Bi<T, U> reset() {
+		public Captor.Bi<T, U> reset() {
 			first.reset();
 			second.reset();
 			return this;

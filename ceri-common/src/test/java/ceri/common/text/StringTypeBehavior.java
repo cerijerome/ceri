@@ -1,9 +1,8 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -37,8 +36,8 @@ public class StringTypeBehavior {
 
 	@Test
 	public void shouldReturnWrappedToString() {
-		assertThat(s.toString(), is("abcabc"));
-		assertThat(sb.toString(), is("abcabc"));
+		assertEquals(s.toString(), "abcabc");
+		assertEquals(sb.toString(), "abcabc");
 	}
 
 	@Test
@@ -85,42 +84,42 @@ public class StringTypeBehavior {
 
 	@Test
 	public void shouldReturnSubstring() {
-		assertThat(s.substring(2), is("cabc"));
-		assertThat(s.substring(1, 4), is("bca"));
-		assertThat(s.subSequence(1, 4), is("bca"));
-		assertThat(sb.substring(2), is("cabc"));
-		assertThat(sb.substring(1, 4), is("bca"));
-		assertThat(sb.subSequence(1, 4), is("bca"));
-		assertThat(cs.substring(2), is("cabc"));
-		assertThat(cs.substring(1, 4), is("bca"));
-		assertThat(cs.subSequence(1, 4), is("bca"));
+		assertEquals(s.substring(2), "cabc");
+		assertEquals(s.substring(1, 4), "bca");
+		assertEquals(s.subSequence(1, 4), "bca");
+		assertEquals(sb.substring(2), "cabc");
+		assertEquals(sb.substring(1, 4), "bca");
+		assertEquals(sb.subSequence(1, 4), "bca");
+		assertEquals(cs.substring(2), "cabc");
+		assertEquals(cs.substring(1, 4), "bca");
+		assertEquals(cs.subSequence(1, 4), "bca");
 	}
 
 	@Test
 	public void shouldDetermineIndexOfString() {
-		assertThat(s.indexOf("bc"), is(1));
-		assertThat(s.indexOf("bc", 1), is(1));
-		assertThat(s.indexOf("bc", 2), is(4));
-		assertThat(sb.indexOf("bc"), is(1));
-		assertThat(sb.indexOf("bc", 1), is(1));
-		assertThat(sb.indexOf("bc", 2), is(4));
-		assertThat(cs.indexOf("bc"), is(1));
-		assertThat(cs.indexOf("bc", 1), is(1));
-		assertThat(cs.indexOf("bc", 2), is(4));
+		assertEquals(s.indexOf("bc"), 1);
+		assertEquals(s.indexOf("bc", 1), 1);
+		assertEquals(s.indexOf("bc", 2), 4);
+		assertEquals(sb.indexOf("bc"), 1);
+		assertEquals(sb.indexOf("bc", 1), 1);
+		assertEquals(sb.indexOf("bc", 2), 4);
+		assertEquals(cs.indexOf("bc"), 1);
+		assertEquals(cs.indexOf("bc", 1), 1);
+		assertEquals(cs.indexOf("bc", 2), 4);
 	}
 
 	@Test
 	public void shouldDetermineIfUnfoundIndex() {
-		assertThat(s.indexOf("bd"), is(-1));
-		assertThat(sb.indexOf("bd"), is(-1));
-		assertThat(cs.indexOf("bd"), is(-1));
+		assertEquals(s.indexOf("bd"), -1);
+		assertEquals(sb.indexOf("bd"), -1);
+		assertEquals(cs.indexOf("bd"), -1);
 	}
 
 	@Test
 	public void shouldDetermineLength() {
-		assertThat(s.length(), is(6));
-		assertThat(sb.length(), is(6));
-		assertThat(cs.length(), is(6));
+		assertEquals(s.length(), 6);
+		assertEquals(sb.length(), 6);
+		assertEquals(cs.length(), 6);
 	}
 
 	@Test
@@ -133,9 +132,9 @@ public class StringTypeBehavior {
 
 	@Test
 	public void shouldDetermineCharAtIndex() {
-		assertThat(s.charAt(4), is('b'));
-		assertThat(sb.charAt(4), is('b'));
-		assertThat(cs.charAt(4), is('b'));
+		assertEquals(s.charAt(4), 'b');
+		assertEquals(sb.charAt(4), 'b');
+		assertEquals(cs.charAt(4), 'b');
 	}
 
 }

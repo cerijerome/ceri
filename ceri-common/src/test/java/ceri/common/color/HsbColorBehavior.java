@@ -4,15 +4,14 @@ import static ceri.common.color.ColorTestUtil.assertColor;
 import static ceri.common.color.ColorTestUtil.assertHsb;
 import static ceri.common.color.ColorTestUtil.assertRgb;
 import static ceri.common.color.ColorUtil.alphaColor;
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import java.awt.Color;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class HsbColorBehavior {
 
@@ -130,7 +129,7 @@ public class HsbColorBehavior {
 	@Test
 	public void shouldDim() {
 		HsbColor c = HsbColor.of(0.6, 0.8, 0.4, 0.5);
-		assertThat(c.dim(1), is(c));
+		assertEquals(c.dim(1), c);
 		assertHsb(c.dim(0.5), 0.6, 0.8, 0.2, 0.5);
 		assertHsb(c.dim(0), 0.6, 0.8, 0.0, 0.5);
 	}
@@ -156,10 +155,10 @@ public class HsbColorBehavior {
 	@Test
 	public void shouldVerifyValues() {
 		HsbColor.of(0.5, 0.6, 0.3, 0.2).verify();
-		TestUtil.assertThrown(() -> HsbColor.of(1.1, 0.6, 0.3, 0.2).verify());
-		TestUtil.assertThrown(() -> HsbColor.of(0.5, 1.1, 0.3, 0.2).verify());
-		TestUtil.assertThrown(() -> HsbColor.of(0.5, 0.6, -0.1, 0.2).verify());
-		TestUtil.assertThrown(() -> HsbColor.of(0.5, 0.6, 0.3, 5.0).verify());
+		assertThrown(() -> HsbColor.of(1.1, 0.6, 0.3, 0.2).verify());
+		assertThrown(() -> HsbColor.of(0.5, 1.1, 0.3, 0.2).verify());
+		assertThrown(() -> HsbColor.of(0.5, 0.6, -0.1, 0.2).verify());
+		assertThrown(() -> HsbColor.of(0.5, 0.6, 0.3, 5.0).verify());
 	}
 
 }

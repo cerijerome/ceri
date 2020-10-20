@@ -1,7 +1,8 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 
 public class BooleanAccessorBehavior {
@@ -26,44 +27,44 @@ public class BooleanAccessorBehavior {
 	public void shouldAccessBooleanFields() {
 		Holder h = new Holder();
 		Holder.acc.set(h, true);
-		assertThat(h.val, is(true));
-		assertThat(Holder.acc.get(h), is(true));
+		assertTrue(h.val);
+		assertTrue(Holder.acc.get(h));
 		Holder.acc.set(h, false);
-		assertThat(h.val, is(false));
-		assertThat(Holder.acc.get(h), is(false));
+		assertFalse(h.val);
+		assertFalse(Holder.acc.get(h));
 	}
 
 	@Test
 	public void shouldAccessIntegerFields() {
 		Holder h = new Holder();
 		Holder.iAcc.set(h, true);
-		assertThat(h.iVal, is(1));
-		assertThat(Holder.iAcc.get(h), is(true));
+		assertEquals(h.iVal, 1);
+		assertTrue(Holder.iAcc.get(h));
 		Holder.iAcc.set(h, false);
-		assertThat(h.iVal, is(0));
-		assertThat(Holder.iAcc.get(h), is(false));
+		assertEquals(h.iVal, 0);
+		assertFalse(Holder.iAcc.get(h));
 	}
 
 	@Test
 	public void shouldAccessShortFields() {
 		Holder h = new Holder();
 		Holder.sAcc.set(h, true);
-		assertThat(h.sVal, is((short) 1));
-		assertThat(Holder.sAcc.get(h), is(true));
+		assertEquals(h.sVal, (short) 1);
+		assertTrue(Holder.sAcc.get(h));
 		Holder.sAcc.set(h, false);
-		assertThat(h.sVal, is((short) 0));
-		assertThat(Holder.sAcc.get(h), is(false));
+		assertEquals(h.sVal, (short) 0);
+		assertFalse(Holder.sAcc.get(h));
 	}
 
 	@Test
 	public void shouldAccessByteFields() {
 		Holder h = new Holder();
 		Holder.bAcc.set(h, true);
-		assertThat(h.bVal, is((byte) 1));
-		assertThat(Holder.bAcc.get(h), is(true));
+		assertEquals(h.bVal, (byte) 1);
+		assertTrue(Holder.bAcc.get(h));
 		Holder.bAcc.set(h, false);
-		assertThat(h.bVal, is((byte) 0));
-		assertThat(Holder.bAcc.get(h), is(false));
+		assertEquals(h.bVal, (byte) 0);
+		assertFalse(Holder.bAcc.get(h));
 	}
 
 	@Test
@@ -77,14 +78,14 @@ public class BooleanAccessorBehavior {
 		i.set(true);
 		s.set(true);
 		b.set(true);
-		assertThat(h.val, is(true));
-		assertThat(h.iVal, is(1));
-		assertThat(h.sVal, is((short) 1));
-		assertThat(h.bVal, is((byte) 1));
-		assertThat(a.get(), is(true));
-		assertThat(i.get(), is(true));
-		assertThat(s.get(), is(true));
-		assertThat(b.get(), is(true));
+		assertTrue(h.val);
+		assertEquals(h.iVal, 1);
+		assertEquals(h.sVal, (short) 1);
+		assertEquals(h.bVal, (byte) 1);
+		assertTrue(a.get());
+		assertTrue(i.get());
+		assertTrue(s.get());
+		assertTrue(b.get());
 	}
 
 }

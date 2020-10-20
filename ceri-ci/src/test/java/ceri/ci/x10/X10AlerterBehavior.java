@@ -1,5 +1,6 @@
 package ceri.ci.x10;
 
+import static ceri.common.test.AssertUtil.assertThrown;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -8,7 +9,6 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
-import ceri.common.test.TestUtil;
 import ceri.x10.command.Address;
 import ceri.x10.command.Command;
 import ceri.x10.util.X10Controller;
@@ -24,8 +24,8 @@ public class X10AlerterBehavior {
 	@Test
 	public void shouldFailToBuildWithInvalidAddress() {
 		final X10Alerter.Builder builder = X10Alerter.builder(controller);
-		TestUtil.assertThrown(() -> builder.address(null, "A1"));
-		TestUtil.assertThrown(() -> builder.address("x", "A0"));
+		assertThrown(() -> builder.address(null, "A1"));
+		assertThrown(() -> builder.address("x", "A0"));
 	}
 
 	@Test

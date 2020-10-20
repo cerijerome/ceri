@@ -2,12 +2,10 @@ package ceri.ci.build;
 
 import static ceri.ci.build.BuildTestUtil.assertBuildNames;
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertEquals;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 
 public class BuildsBehavior {
@@ -31,7 +29,7 @@ public class BuildsBehavior {
 		assertJobNames(builds.build("b1"), "j0");
 		assertCollection(builds.build("b1").job("j0").events, e3);
 		builds.delete();
-		assertThat(builds, is(new Builds()));
+		assertEquals(builds, new Builds());
 	}
 
 	@Test
@@ -112,8 +110,8 @@ public class BuildsBehavior {
 		builds.build("b1").job("j0").events(e0, e1);
 		Builds builds2 = new Builds(builds);
 		assertEquals(builds, builds2);
-		assertThat(builds.hashCode(), is(builds2.hashCode()));
-		assertThat(builds.toString(), is(builds2.toString()));
+		assertEquals(builds.hashCode(), builds2.hashCode());
+		assertEquals(builds.toString(), builds2.toString());
 	}
 
 }

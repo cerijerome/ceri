@@ -1,10 +1,9 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.bytes;
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -89,18 +88,16 @@ public class ByteWriterBehavior {
 	@Test
 	public void shouldTransferFromInputStream() throws IOException {
 		try (InputStream in = TestUtil.inputStream(1, 2, 3)) {
-			assertBytes(3, w -> assertThat(w.transferFrom(in, 2), is(2)), 1, 2, 0);
-			assertBytes(3, w -> assertThat(w.transferFrom(in, 2), is(1)), 3, 0, 0);
+			assertBytes(3, w -> assertEquals(w.transferFrom(in, 2), 2), 1, 2, 0);
+			assertBytes(3, w -> assertEquals(w.transferFrom(in, 2), 1), 3, 0, 0);
 		}
 	}
 
 	@Test
 	public void shouldTransferBufferFromInputStream() throws IOException {
 		try (InputStream in = TestUtil.inputStream(1, 2, 3)) {
-			assertBytes(3, w -> assertThat(ByteWriter.transferBufferFrom(w, in, 2), is(2)), 1, 2,
-				0);
-			assertBytes(3, w -> assertThat(ByteWriter.transferBufferFrom(w, in, 2), is(1)), 3, 0,
-				0);
+			assertBytes(3, w -> assertEquals(ByteWriter.transferBufferFrom(w, in, 2), 2), 1, 2, 0);
+			assertBytes(3, w -> assertEquals(ByteWriter.transferBufferFrom(w, in, 2), 1), 3, 0, 0);
 		}
 	}
 

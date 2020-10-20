@@ -1,8 +1,7 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
 import org.junit.Test;
 
 public class MarshallerBehavior {
@@ -11,9 +10,9 @@ public class MarshallerBehavior {
 	public void shouldConvertBetweenStringsAndObjects() {
 		Marshaller<Double> m = Marshaller.of(String::valueOf, Double::valueOf);
 		assertNull(m.to(null));
-		assertThat(m.to(.123456), is("0.123456"));
+		assertEquals(m.to(.123456), "0.123456");
 		assertNull(m.from(null));
-		assertThat(m.from(".123456"), is(0.123456));
+		assertEquals(m.from(".123456"), 0.123456);
 	}
 
 }

@@ -7,15 +7,15 @@ import org.hamcrest.Description;
 public class RegexMatcher {
 
 	private RegexMatcher() {}
-	
+
 	public static <T> Find<T> find(Pattern pattern) {
 		return new Find<>(pattern);
 	}
-	
+
 	public static <T> Match<T> match(Pattern pattern) {
 		return new Match<>(pattern);
 	}
-	
+
 	public static class Match<T> extends BaseMatcher<T> {
 		private final Pattern pattern;
 
@@ -33,7 +33,7 @@ public class RegexMatcher {
 			return pattern.matcher(item.toString()).matches();
 		}
 	}
-	
+
 	public static class Find<T> extends BaseMatcher<T> {
 		private final Pattern pattern;
 

@@ -1,12 +1,13 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.ints;
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
-import static org.hamcrest.CoreMatchers.is;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
@@ -21,79 +22,77 @@ public class IntReceiverBehavior {
 
 	@Test
 	public void shouldProvideAnEmptyInstance() {
-		assertThat(IntReceiver.empty().length(), is(0));
+		assertEquals(IntReceiver.empty().length(), 0);
 		assertThrown(() -> IntReceiver.empty().setInt(0, 0));
 	}
 
 	@Test
 	public void shouldDetermineIfEmpty() {
-		assertThat(receiver(3).isEmpty(), is(false));
-		assertThat(receiver(0).isEmpty(), is(true));
-		assertThat(IntReceiver.empty().isEmpty(), is(true));
+		assertFalse(receiver(3).isEmpty());
+		assertTrue(receiver(0).isEmpty());
+		assertTrue(IntReceiver.empty().isEmpty());
 	}
 
 	@Test
 	public void shouldReceivePrimitiveValues() {
-		assertInts(2, br -> assertThat(br.setBool(0, true), is(1)), 1, 0);
-		assertInts(2, br -> assertThat(br.setBool(1, false), is(2)), 0, 0);
-		assertInts(1, br -> assertThat(br.setInt(0, -1), is(1)), -1);
-		assertInts(3, br -> assertThat(br.setInt(1, MAX_VALUE), is(2)), 0, MAX_VALUE, 0);
-		assertInts(2, br -> assertThat(br.setInt(0, MIN_VALUE), is(1)), MIN_VALUE, 0);
-		assertInts(2, br -> assertThat(br.setLong(0, 0x1234567890L), is(2)),
+		assertInts(2, br -> assertEquals(br.setBool(0, true), 1), 1, 0);
+		assertInts(2, br -> assertEquals(br.setBool(1, false), 2), 0, 0);
+		assertInts(1, br -> assertEquals(br.setInt(0, -1), 1), -1);
+		assertInts(3, br -> assertEquals(br.setInt(1, MAX_VALUE), 2), 0, MAX_VALUE, 0);
+		assertInts(2, br -> assertEquals(br.setInt(0, MIN_VALUE), 1), MIN_VALUE, 0);
+		assertInts(2, br -> assertEquals(br.setLong(0, 0x1234567890L), 2),
 			msb ? ints(0x12, 0x34567890) : ints(0x34567890, 0x12));
-		assertInts(2, br -> assertThat(br.setFloat(0, Float.intBitsToFloat(0x12345678)), is(1)),
+		assertInts(2, br -> assertEquals(br.setFloat(0, Float.intBitsToFloat(0x12345678)), 1),
 			0x12345678, 0);
 		assertInts(2,
-			br -> assertThat(br.setDouble(0, Double.longBitsToDouble(0x1234567890L)), is(2)),
+			br -> assertEquals(br.setDouble(0, Double.longBitsToDouble(0x1234567890L)), 2),
 			msb ? ints(0x12, 0x34567890) : ints(0x34567890, 0x12));
 	}
 
 	@Test
 	public void shouldReceiveIntAlignedValues() {
-		assertInts(2, br -> assertThat(br.setLong(0, 0x1234567890L, true), is(2)), 0x12,
-			0x34567890);
-		assertInts(2, br -> assertThat(br.setLong(0, 0x1234567890L, false), is(2)), 0x34567890,
-			0x12);
+		assertInts(2, br -> assertEquals(br.setLong(0, 0x1234567890L, true), 2), 0x12, 0x34567890);
+		assertInts(2, br -> assertEquals(br.setLong(0, 0x1234567890L, false), 2), 0x34567890, 0x12);
 		assertInts(2,
-			br -> assertThat(br.setDouble(0, Double.longBitsToDouble(0x1234567890L), true), is(2)),
+			br -> assertEquals(br.setDouble(0, Double.longBitsToDouble(0x1234567890L), true), 2),
 			0x12, 0x34567890);
 		assertInts(2,
-			br -> assertThat(br.setDouble(0, Double.longBitsToDouble(0x1234567890L), false), is(2)),
+			br -> assertEquals(br.setDouble(0, Double.longBitsToDouble(0x1234567890L), false), 2),
 			0x34567890, 0x12);
 	}
 
 	@Test
 	public void shouldReceiveCodePoints() {
-		assertInts(6, br -> assertThat(br.setString(0, str), is(6)), cp);
+		assertInts(6, br -> assertEquals(br.setString(0, str), 6), cp);
 	}
 
 	@Test
 	public void shouldSliceReceivingIntRange() {
 		int[] ints = new int[5];
 		IntReceiver br = receiver(ints, 0, ints.length);
-		assertThat(br.slice(5).isEmpty(), is(true));
-		assertThat(br.slice(4, 0).isEmpty(), is(true));
-		assertThat(br.slice(0), is(br));
+		assertTrue(br.slice(5).isEmpty());
+		assertTrue(br.slice(4, 0).isEmpty());
+		assertEquals(br.slice(0), br);
 		assertThrown(() -> br.slice(1, 4));
 		assertThrown(() -> br.slice(0, 4));
 	}
 
 	@Test
 	public void shouldFillInts() {
-		assertInts(5, br -> assertThat(br.fill(2, 0xff), is(5)), 0, 0, 0xff, 0xff, 0xff);
+		assertInts(5, br -> assertEquals(br.fill(2, 0xff), 5), 0, 0, 0xff, 0xff, 0xff);
 		assertThrown(() -> receiver(5).fill(3, 3, 0));
 	}
 
 	@Test
 	public void shouldCopyFromIntArray() {
-		assertInts(5, br -> assertThat(br.setInts(1, 1, 2, 3), is(4)), 0, 1, 2, 3, 0);
+		assertInts(5, br -> assertEquals(br.setInts(1, 1, 2, 3), 4), 0, 1, 2, 3, 0);
 		assertThrown(() -> receiver(5).setInts(4, 1, 2, 3));
 	}
 
 	@Test
 	public void shouldCopyFromIntProvider() {
 		IntProvider bp = IntProviderBehavior.provider(1, 2, 3);
-		assertInts(5, br -> assertThat(br.copyFrom(1, bp), is(4)), 0, 1, 2, 3, 0);
+		assertInts(5, br -> assertEquals(br.copyFrom(1, bp), 4), 0, 1, 2, 3, 0);
 		assertThrown(() -> receiver(5).copyFrom(4, bp));
 	}
 
@@ -146,8 +145,8 @@ public class IntReceiverBehavior {
 	@Test
 	public void shouldReturnWriterIntProvider() {
 		IntReceiver br = receiver(ArrayUtil.ints(1, 2, 3, 4, 5));
-		assertThat(br.writer(0).receiver(), is(br));
-		assertThat(br.writer(5, 0).receiver().isEmpty(), is(true));
+		assertEquals(br.writer(0).receiver(), br);
+		assertTrue(br.writer(5, 0).receiver().isEmpty());
 		assertThrown(() -> br.writer(2).receiver());
 	}
 

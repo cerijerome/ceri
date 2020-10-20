@@ -1,16 +1,16 @@
 package ceri.common.reflect;
 
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertSame;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertMatch;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertSame;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Date;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class ReflectUtilTest {
 
@@ -33,52 +33,52 @@ public class ReflectUtilTest {
 
 	@Test
 	public void testPackageLevels() {
-		assertThat(ReflectUtil.packageLevels((Class<?>) null), is(0));
-		assertThat(ReflectUtil.packageLevels(getClass()), is(3));
-		assertThat(ReflectUtil.packageLevels((String) null), is(0));
-		assertThat(ReflectUtil.packageLevels(""), is(0));
-		assertThat(ReflectUtil.packageLevels("a"), is(1));
-		assertThat(ReflectUtil.packageLevels("a.b.c.d"), is(4));
+		assertEquals(ReflectUtil.packageLevels((Class<?>) null), 0);
+		assertEquals(ReflectUtil.packageLevels(getClass()), 3);
+		assertEquals(ReflectUtil.packageLevels((String) null), 0);
+		assertEquals(ReflectUtil.packageLevels(""), 0);
+		assertEquals(ReflectUtil.packageLevels("a"), 1);
+		assertEquals(ReflectUtil.packageLevels("a.b.c.d"), 4);
 	}
 
 	@Test
 	public void testForName() {
 		assertSame(ReflectUtil.forName("java.lang.String"), String.class);
-		TestUtil.assertThrown(() -> ReflectUtil.forName("___"));
+		assertThrown(() -> ReflectUtil.forName("___"));
 	}
 
 	@Test
 	public void testToStringOrHashId() {
 		assertNull(ReflectUtil.toStringOrHash(null));
-		assertThat(ReflectUtil.toStringOrHash(new Object() {
+		assertEquals(ReflectUtil.toStringOrHash(new Object() {
 			@Override
 			public int hashCode() {
 				return 0xabcdef;
 			}
-		}), is("@abcdef"));
-		assertThat(ReflectUtil.toStringOrHash(new Object() {
+		}), "@abcdef");
+		assertEquals(ReflectUtil.toStringOrHash(new Object() {
 			@Override
 			public String toString() {
 				return "test";
 			}
-		}), is("test"));
-		assertThat(ReflectUtil.toStringOrHash(new Object() {
+		}), "test");
+		assertEquals(ReflectUtil.toStringOrHash(new Object() {
 			@Override
 			public String toString() {
 				return "test@";
 			}
-		}), is("test@"));
+		}), "test@");
 	}
 
 	@Test
 	public void testHashId() {
 		assertNull(ReflectUtil.hashId(null));
-		assertThat(ReflectUtil.hashId(new Object() {
+		assertEquals(ReflectUtil.hashId(new Object() {
 			@Override
 			public int hashCode() {
 				return 0xabcdef;
 			}
-		}), is("@abcdef"));
+		}), "@abcdef");
 	}
 
 	@Test(expected = CreateException.class)
@@ -88,17 +88,17 @@ public class ReflectUtilTest {
 
 	@Test
 	public void testCreateErrorObject() {
-		TestUtil.assertThrown(() -> ReflectUtil.create(Error.class));
+		assertThrown(() -> ReflectUtil.create(Error.class));
 	}
 
 	@Test
 	public void testCreateObject() throws CreateException {
 		Class<?>[] argTypes = {};
 		Object[] args = {};
-		assertThat(ReflectUtil.create(String.class, argTypes, args), is(""));
+		assertEquals(ReflectUtil.create(String.class, argTypes, args), "");
 		argTypes = new Class<?>[] { long.class };
 		args = new Object[] { 0 };
-		assertThat(ReflectUtil.create(Date.class, argTypes, args), is(new Date(0)));
+		assertEquals(ReflectUtil.create(Date.class, argTypes, args), new Date(0));
 	}
 
 	@Test
@@ -116,25 +116,25 @@ public class ReflectUtilTest {
 
 	@Test(expected = CreateException.class)
 	public void testCreateObjectDefault() throws CreateException {
-		assertThat(ReflectUtil.create(String.class), is(""));
+		assertEquals(ReflectUtil.create(String.class), "");
 		ReflectUtil.create(Boolean.class);
 	}
 
 	@Test
 	public void testCurrentStackTraceElement() {
 		StackTraceElement element = ReflectUtil.currentStackTraceElement();
-		assertThat(element.getMethodName(), is("testCurrentStackTraceElement"));
-		assertThat(element.getClassName(), is(ReflectUtilTest.class.getName()));
+		assertEquals(element.getMethodName(), "testCurrentStackTraceElement");
+		assertEquals(element.getClassName(), ReflectUtilTest.class.getName());
 	}
 
 	@Test
 	public void testPreviousStackTraceElement() {
 		StackTraceElement element = getPreviousStackTraceElement(0);
-		assertThat(element.getMethodName(), is("getPreviousStackTraceElement"));
-		assertThat(element.getClassName(), is(ReflectUtilTest.class.getName()));
+		assertEquals(element.getMethodName(), "getPreviousStackTraceElement");
+		assertEquals(element.getClassName(), ReflectUtilTest.class.getName());
 		element = getPreviousStackTraceElement(1);
-		assertThat(element.getMethodName(), is("testPreviousStackTraceElement"));
-		assertThat(element.getClassName(), is(ReflectUtilTest.class.getName()));
+		assertEquals(element.getMethodName(), "testPreviousStackTraceElement");
+		assertEquals(element.getClassName(), ReflectUtilTest.class.getName());
 	}
 
 	private StackTraceElement getPreviousStackTraceElement(int countBack) {
@@ -145,28 +145,26 @@ public class ReflectUtilTest {
 	public void testCurrentCaller() {
 		Caller caller = ReflectUtil.currentCaller();
 		Class<?> cls = getClass();
-		assertThat(caller.cls, is(cls.getSimpleName()));
-		assertThat(caller.fullCls, is(cls.getName()));
-		assertThat(caller.file, is(cls.getSimpleName() + ".java"));
+		assertEquals(caller.cls, cls.getSimpleName());
+		assertEquals(caller.fullCls, cls.getName());
+		assertEquals(caller.file, cls.getSimpleName() + ".java");
 		assertSame(caller.cls(), cls);
 		Caller caller2 = ReflectUtil.currentCaller();
-		assertThat(caller, not(caller2));
-		assertThat(new Caller(caller2.fullCls, caller.line, caller2.method, caller2.file),
-			is(caller));
+		assertNotEquals(caller, caller2);
+		assertEquals(new Caller(caller2.fullCls, caller.line, caller2.method, caller2.file),
+			caller);
 	}
 
 	@Test
 	public void testCurrentClassLine() {
-		TestUtil.assertMatch(ReflectUtil.currentClassLine(),
+		assertMatch(ReflectUtil.currentClassLine(),
 			"\\Q" + ReflectUtilTest.class.getName() + "\\E:\\d+");
 	}
 
 	@Test
 	public void testPreviousClassLine() {
-		TestUtil.assertMatch(getPreviousClassLine(0),
-			"\\Q" + ReflectUtilTest.class.getName() + "\\E:\\d+");
-		TestUtil.assertMatch(getPreviousClassLine(1),
-			"\\Q" + ReflectUtilTest.class.getName() + "\\E:\\d+");
+		assertMatch(getPreviousClassLine(0), "\\Q" + ReflectUtilTest.class.getName() + "\\E:\\d+");
+		assertMatch(getPreviousClassLine(1), "\\Q" + ReflectUtilTest.class.getName() + "\\E:\\d+");
 	}
 
 	private String getPreviousClassLine(int countBack) {
@@ -176,13 +174,13 @@ public class ReflectUtilTest {
 	@Test
 	public void testPreviousCaller() {
 		StackTraceElement[] e = Thread.currentThread().getStackTrace();
-		assertThat(ReflectUtil.previousCaller(e.length - 2), not(Caller.NULL));
-		assertThat(ReflectUtil.previousCaller(e.length - 1), is(Caller.NULL));
+		assertNotEquals(ReflectUtil.previousCaller(e.length - 2), Caller.NULL);
+		assertEquals(ReflectUtil.previousCaller(e.length - 1), Caller.NULL);
 	}
 
 	@Test
 	public void testCurrentMethodName() {
-		assertThat(ReflectUtil.currentMethodName(), is("testCurrentMethodName"));
+		assertEquals(ReflectUtil.currentMethodName(), "testCurrentMethodName");
 	}
 
 	@Test
@@ -191,12 +189,12 @@ public class ReflectUtilTest {
 	}
 
 	private void callPreviousMethodName1() {
-		assertThat(ReflectUtil.previousMethodName(1), is("testPreviousMethodName"));
+		assertEquals(ReflectUtil.previousMethodName(1), "testPreviousMethodName");
 		callPreviousMethodName2();
 	}
 
 	private void callPreviousMethodName2() {
-		assertThat(ReflectUtil.previousMethodName(2), is("testPreviousMethodName"));
+		assertEquals(ReflectUtil.previousMethodName(2), "testPreviousMethodName");
 	}
 
 }

@@ -1,11 +1,10 @@
 package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.predicate;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.util.function.Predicate;
 import org.junit.Test;
@@ -16,9 +15,9 @@ public class ExceptionPredicateBehavior {
 	@Test
 	public void shouldAllowNaming() throws IOException {
 		ExceptionPredicate<IOException, Integer> p = predicate().name("name");
-		assertThat(p.toString(), is("name"));
-		assertThat(p.test(2), is(true));
-		assertThat(p.test(-1), is(false));
+		assertEquals(p.toString(), "name");
+		assertTrue(p.test(2));
+		assertFalse(p.test(-1));
 		assertThrown(IOException.class, () -> p.test(1));
 		assertThrown(RuntimeException.class, () -> p.test(0));
 	}
@@ -26,7 +25,7 @@ public class ExceptionPredicateBehavior {
 	@Test
 	public void shouldConvertToPredicate() {
 		Predicate<Integer> p = predicate().asPredicate();
-		assertThat(p.test(2), is(true));
+		assertTrue(p.test(2));
 		assertThrown(RuntimeException.class, () -> p.test(1));
 		assertThrown(RuntimeException.class, () -> p.test(0));
 	}
@@ -34,8 +33,8 @@ public class ExceptionPredicateBehavior {
 	@Test
 	public void shouldConvertFromPredicate() {
 		ExceptionPredicate<RuntimeException, Integer> p = ExceptionPredicate.of(Std.predicate());
-		assertThat(p.test(1), is(true));
-		assertThat(p.test(-1), is(false));
+		assertTrue(p.test(1));
+		assertFalse(p.test(-1));
 		assertThrown(() -> p.test(0));
 	}
 
@@ -43,8 +42,8 @@ public class ExceptionPredicateBehavior {
 	public void shouldNegateTest() throws IOException {
 		ExceptionPredicate<IOException, Integer> p0 = predicate();
 		ExceptionPredicate<IOException, Integer> p = p0.negate();
-		assertThat(p0.test(2), is(true));
-		assertThat(p.test(2), is(false));
+		assertTrue(p0.test(2));
+		assertFalse(p.test(2));
 		assertThrown(IOException.class, () -> p.test(1));
 		assertThrown(RuntimeException.class, () -> p.test(0));
 	}

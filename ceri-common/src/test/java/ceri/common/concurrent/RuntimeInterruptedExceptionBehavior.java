@@ -1,7 +1,6 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import org.junit.Test;
 
 public class RuntimeInterruptedExceptionBehavior {
@@ -10,7 +9,7 @@ public class RuntimeInterruptedExceptionBehavior {
 	public void shouldHaveInterruptedExceptionAsCause() {
 		InterruptedException ex = new InterruptedException();
 		RuntimeInterruptedException e = new RuntimeInterruptedException(ex);
-		assertThat(e.getCause(), is(ex));
+		assertEquals(e.getCause(), ex);
 	}
 
 }

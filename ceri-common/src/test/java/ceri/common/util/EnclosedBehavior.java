@@ -1,8 +1,8 @@
 package ceri.common.util;
 
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 
 public class EnclosedBehavior {
@@ -31,23 +31,23 @@ public class EnclosedBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldDetermineIfSubjectExists() {
-		assertThat(Enclosed.empty().isEmpty(), is(true));
-		assertThat(Enclosed.noOp(null).isEmpty(), is(true));
-		assertThat(Enclosed.noOp(new Object()).isEmpty(), is(false));
-		assertThat(Enclosed.of(new Object(), null).isEmpty(), is(false));
-		assertThat(Enclosed.of(null, x -> {}).isNoOp(), is(true));
-		assertThat(Enclosed.of(new Object(), x -> {}).isNoOp(), is(false));
+		assertTrue(Enclosed.empty().isEmpty());
+		assertTrue(Enclosed.noOp(null).isEmpty());
+		assertFalse(Enclosed.noOp(new Object()).isEmpty());
+		assertFalse(Enclosed.of(new Object(), null).isEmpty());
+		assertTrue(Enclosed.of(null, x -> {}).isNoOp());
+		assertFalse(Enclosed.of(new Object(), x -> {}).isNoOp());
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldDetermineIfCloseOperationExists() {
-		assertThat(Enclosed.empty().isNoOp(), is(true));
-		assertThat(Enclosed.noOp(null).isNoOp(), is(true));
-		assertThat(Enclosed.noOp(new Object()).isNoOp(), is(true));
-		assertThat(Enclosed.of(new Object(), null).isNoOp(), is(true));
-		assertThat(Enclosed.of(null, x -> {}).isNoOp(), is(true));
-		assertThat(Enclosed.of(new Object(), x -> {}).isNoOp(), is(false));
+		assertTrue(Enclosed.empty().isNoOp());
+		assertTrue(Enclosed.noOp(null).isNoOp());
+		assertTrue(Enclosed.noOp(new Object()).isNoOp());
+		assertTrue(Enclosed.of(new Object(), null).isNoOp());
+		assertTrue(Enclosed.of(null, x -> {}).isNoOp());
+		assertFalse(Enclosed.of(new Object(), x -> {}).isNoOp());
 	}
 
 }

@@ -1,10 +1,9 @@
 package ceri.common.math;
 
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class MatrixUtilTest {
 	private static final Matrix m0 = Matrix.of(new double[][] { { 1, -1 }, { -2, 0 } });
@@ -21,30 +20,30 @@ public class MatrixUtilTest {
 
 	@Test
 	public void testDeterminant() {
-		assertThat(MatrixUtil.determinant(Matrix.EMPTY), is(0.0));
-		assertThat(MatrixUtil.determinant(Matrix.singleton(1)), is(1.0));
-		assertThat(MatrixUtil.determinant(m0), is(-2.0));
-		assertThat(MatrixUtil.determinant(m1), is(1.0));
-		assertThat(MatrixUtil.determinant(m2), is(0.0));
-		assertThat(MatrixUtil.determinant(m3), is(0.0));
+		assertEquals(MatrixUtil.determinant(Matrix.EMPTY), 0.0);
+		assertEquals(MatrixUtil.determinant(Matrix.singleton(1)), 1.0);
+		assertEquals(MatrixUtil.determinant(m0), -2.0);
+		assertEquals(MatrixUtil.determinant(m1), 1.0);
+		assertEquals(MatrixUtil.determinant(m2), 0.0);
+		assertEquals(MatrixUtil.determinant(m3), 0.0);
 	}
 
 	@Test
 	public void testInvert() {
-		assertThat(MatrixUtil.invert(Matrix.EMPTY), is(Matrix.EMPTY));
-		assertThat(MatrixUtil.invert(Matrix.singleton(2)), is(Matrix.singleton(0.5)));
-		assertThat(MatrixUtil.invert(m0),
-			is(Matrix.of(new double[][] { { 0, -0.5 }, { -1, -0.5 } })));
-		assertThat(MatrixUtil.invert(m1),
-			is(Matrix.of(new double[][] { { -1, -1, -1 }, { -2, -1, -1 }, { -2, -1, -2 } })));
-		TestUtil.assertThrown(() -> MatrixUtil.invert(m2));
-		TestUtil.assertThrown(() -> MatrixUtil.invert(m3));
+		assertEquals(MatrixUtil.invert(Matrix.EMPTY), Matrix.EMPTY);
+		assertEquals(MatrixUtil.invert(Matrix.singleton(2)), Matrix.singleton(0.5));
+		assertEquals(MatrixUtil.invert(m0),
+			Matrix.of(new double[][] { { 0, -0.5 }, { -1, -0.5 } }));
+		assertEquals(MatrixUtil.invert(m1),
+			Matrix.of(new double[][] { { -1, -1, -1 }, { -2, -1, -1 }, { -2, -1, -2 } }));
+		assertThrown(() -> MatrixUtil.invert(m2));
+		assertThrown(() -> MatrixUtil.invert(m3));
 	}
 
 	@Test
 	public void testVerifySquare() {
 		MatrixUtil.verifySquare(m0, 2);
-		TestUtil.assertThrown(() -> MatrixUtil.verifySquare(m0, 1));
+		assertThrown(() -> MatrixUtil.verifySquare(m0, 1));
 	}
 
 	@Test
@@ -53,18 +52,18 @@ public class MatrixUtilTest {
 		MatrixUtil.verifyVector(Matrix.singleton(3), 1);
 		MatrixUtil.verifyVector(Matrix.rowVector(1, 2), 2);
 		MatrixUtil.verifyVector(Matrix.columnVector(1, 2), 2);
-		TestUtil.assertThrown(() -> MatrixUtil.verifyVector(Matrix.EMPTY, 1));
-		TestUtil.assertThrown(() -> MatrixUtil.verifyVector(Matrix.singleton(3), 0));
-		TestUtil.assertThrown(() -> MatrixUtil.verifyVector(Matrix.rowVector(1, 2), 3));
-		TestUtil.assertThrown(() -> MatrixUtil.verifyVector(Matrix.columnVector(1, 2), 3));
-		TestUtil.assertThrown(() -> MatrixUtil.verifyVector(m0, 2));
+		assertThrown(() -> MatrixUtil.verifyVector(Matrix.EMPTY, 1));
+		assertThrown(() -> MatrixUtil.verifyVector(Matrix.singleton(3), 0));
+		assertThrown(() -> MatrixUtil.verifyVector(Matrix.rowVector(1, 2), 3));
+		assertThrown(() -> MatrixUtil.verifyVector(Matrix.columnVector(1, 2), 3));
+		assertThrown(() -> MatrixUtil.verifyVector(m0, 2));
 	}
 
 	@Test
 	public void testVerifySize() {
 		MatrixUtil.verifySize(m0, 2, 2);
-		TestUtil.assertThrown(() -> MatrixUtil.verifySize(m0, 1, 2));
-		TestUtil.assertThrown(() -> MatrixUtil.verifySize(m0, 2, 1));
+		assertThrown(() -> MatrixUtil.verifySize(m0, 1, 2));
+		assertThrown(() -> MatrixUtil.verifySize(m0, 2, 1));
 	}
 
 }

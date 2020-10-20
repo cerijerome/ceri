@@ -1,10 +1,9 @@
 package ceri.common.svg;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.geom.Point2d;
@@ -34,17 +33,17 @@ public class PositionBehavior {
 		Position p0 = Position.absolute(1, -1);
 		Position p1 = Position.absolute(2, 0);
 		Position p2 = Position.relative(1, 1);
-		assertThat(p0.combine(null), is(p0));
-		assertThat(p0.combine(p1), is(p1));
-		assertThat(p1.combine(p0), is(p0));
-		assertThat(p0.combine(p2), is(Position.absolute(2, 0)));
-		assertThat(p2.combine(p0), is(p0));
+		assertEquals(p0.combine(null), p0);
+		assertEquals(p0.combine(p1), p1);
+		assertEquals(p1.combine(p0), p0);
+		assertEquals(p0.combine(p2), Position.absolute(2, 0));
+		assertEquals(p2.combine(p0), p0);
 	}
 
 	@Test
 	public void shouldCalculateVector() {
 		Position p = Position.relative(-10, 100);
-		assertThat(p.vector(), is(Point2d.of(-10, 100)));
+		assertEquals(p.vector(), Point2d.of(-10, 100));
 	}
 
 }

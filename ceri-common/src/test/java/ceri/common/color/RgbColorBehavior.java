@@ -2,14 +2,13 @@ package ceri.common.color;
 
 import static ceri.common.color.ColorTestUtil.assertColor;
 import static ceri.common.color.ColorTestUtil.assertRgb;
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import java.awt.Color;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class RgbColorBehavior {
 
@@ -40,7 +39,7 @@ public class RgbColorBehavior {
 	@Test
 	public void shouldDim() {
 		RgbColor c = RgbColor.of(0.6, 0.8, 0.4, 0.5);
-		assertThat(c.dim(1), is(c));
+		assertEquals(c.dim(1), c);
 		assertRgb(c.dim(0.5), 0.3, 0.4, 0.2, 0.5);
 		assertRgb(c.dim(0), 0.0, 0.0, 0.0, 0.5);
 	}
@@ -67,10 +66,10 @@ public class RgbColorBehavior {
 	@Test
 	public void shouldVerifyValues() {
 		RgbColor.of(0.5, 0.6, 0.3, 0.2).verify();
-		TestUtil.assertThrown(() -> RgbColor.of(1.1, 0.6, 0.3, 0.2).verify());
-		TestUtil.assertThrown(() -> RgbColor.of(0.5, 1.1, 0.3, 0.2).verify());
-		TestUtil.assertThrown(() -> RgbColor.of(0.5, 0.6, -0.1, 0.2).verify());
-		TestUtil.assertThrown(() -> RgbColor.of(0.5, 0.6, 0.3, 5.0).verify());
+		assertThrown(() -> RgbColor.of(1.1, 0.6, 0.3, 0.2).verify());
+		assertThrown(() -> RgbColor.of(0.5, 1.1, 0.3, 0.2).verify());
+		assertThrown(() -> RgbColor.of(0.5, 0.6, -0.1, 0.2).verify());
+		assertThrown(() -> RgbColor.of(0.5, 0.6, 0.3, 5.0).verify());
 	}
 
 }

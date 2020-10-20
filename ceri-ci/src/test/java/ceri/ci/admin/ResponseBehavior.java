@@ -1,7 +1,8 @@
 package ceri.ci.admin;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 
 public class ResponseBehavior {
@@ -10,31 +11,31 @@ public class ResponseBehavior {
 	public void shouldCreateFailureResponseFromException() {
 		Exception e = new RuntimeException();
 		Response response = Response.fail(e);
-		assertThat(response.exception, is(e));
-		assertThat(response.success, is(false));
+		assertEquals(response.exception, e);
+		assertFalse(response.success);
 	}
 
 	@Test
 	public void shouldCreateFailureResponseFromMessage() {
 		Response response = Response.fail("fail");
-		assertThat(response.content, is("fail"));
-		assertThat(response.exception, is((Exception) null));
-		assertThat(response.success, is(false));
+		assertEquals(response.content, "fail");
+		assertEquals(response.exception, (Exception) null);
+		assertFalse(response.success);
 	}
 
 	@Test
 	public void shouldCreateSuccessResponseFromMessage() {
 		Response response = Response.success("success");
-		assertThat(response.content, is("success"));
-		assertThat(response.exception, is((Exception) null));
-		assertThat(response.success, is(true));
+		assertEquals(response.content, "success");
+		assertEquals(response.exception, (Exception) null);
+		assertTrue(response.success);
 	}
 
 	@Test
 	public void shouldCreateDefaultSuccessResponse() {
 		Response response = Response.success();
-		assertThat(response.exception, is((Exception) null));
-		assertThat(response.success, is(true));
+		assertEquals(response.exception, (Exception) null);
+		assertTrue(response.success);
 	}
 
 }

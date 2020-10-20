@@ -1,13 +1,12 @@
 package ceri.common.test;
 
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertAssertion;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestOutputStream.EOFX;
 import static ceri.common.test.TestOutputStream.IOX;
 import static ceri.common.test.TestOutputStream.RTX;
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertAssertion;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Test;
@@ -55,14 +54,14 @@ public class TestOutputStreamBehavior {
 			out.out(bout);
 			out.write(ByteUtil.toAscii("abc").copy(0));
 			out.flush();
-			assertThat(out.writtenString(), is("abc"));
+			assertEquals(out.writtenString(), "abc");
 		}
 		assertArray(bout.toByteArray(), 'a', 'b', 'c');
 	}
 
 	@Test
 	public void shouldSetFlushBehavior() throws IOException {
-		Capturer.Int captor = Capturer.ofInt();
+		Captor.Int captor = Captor.ofInt();
 		try (var out = new TestOutputStream()) {
 			out.flush();
 			out.flush(i -> captor.accept(i));
@@ -77,7 +76,7 @@ public class TestOutputStreamBehavior {
 
 	@Test
 	public void shouldSetCloseBehavior() throws IOException {
-		Capturer.Int captor = Capturer.ofInt();
+		Captor.Int captor = Captor.ofInt();
 		try (var out = new TestOutputStream()) {
 			out.close(() -> captor.accept(-1));
 			out.close();

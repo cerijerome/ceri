@@ -1,8 +1,8 @@
 package ceri.common.math;
 
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertEquals;
-import static ceri.common.test.TestUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Double.NaN;
 import org.junit.Test;

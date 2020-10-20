@@ -1,8 +1,7 @@
 package ceri.common.color;
 
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
 import java.awt.Color;
 import org.junit.Test;
 
@@ -22,9 +21,9 @@ public class ColorableTest {
 		TestColorable c2 = new TestColorable();
 		Colorable c = Colorable.multi(c0, c1, c2);
 		c.color(X11Color.chartreuse);
-		assertThat(c0.color, is(X11Color.chartreuse.color));
-		assertThat(c1.color, is(X11Color.chartreuse.color));
-		assertThat(c2.color, is(X11Color.chartreuse.color));
+		assertEquals(c0.color, X11Color.chartreuse.color);
+		assertEquals(c1.color, X11Color.chartreuse.color);
+		assertEquals(c2.color, X11Color.chartreuse.color);
 	}
 
 	@Test
@@ -42,7 +41,7 @@ public class ColorableTest {
 		c0.color(Color.red);
 		c1.color(Color.cyan);
 		c2.color(Color.magenta.getRGB());
-		assertThat(c.color(), is(Color.red));
+		assertEquals(c.color(), Color.red);
 	}
 
 	private static class TestColorable implements Colorable {

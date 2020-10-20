@@ -1,10 +1,9 @@
 package ceri.common.time;
 
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -24,8 +23,8 @@ public class DateUtilTest {
 
 	@Test
 	public void testJvmUptime() {
-		assertThat(DateUtil.jvmUptimeMs() > 0, is(true));
-		assertThat(DateUtil.jvmUptimeMs() < TimeUnit.DAYS.toMillis(30 * 365), is(true));
+		assertTrue(DateUtil.jvmUptimeMs() > 0);
+		assertTrue(DateUtil.jvmUptimeMs() < TimeUnit.DAYS.toMillis(30 * 365));
 	}
 
 	@Test
@@ -44,23 +43,23 @@ public class DateUtilTest {
 
 	@Test
 	public void testDateTimePattern() {
-		assertThat(DateUtil.dateTimePattern(FormatStyle.FULL, FormatStyle.FULL, Locale.US),
-			is("EEEE, MMMM d, y 'at' h:mm:ss a zzzz"));
+		assertEquals(DateUtil.dateTimePattern(FormatStyle.FULL, FormatStyle.FULL, Locale.US),
+			"EEEE, MMMM d, y 'at' h:mm:ss a zzzz");
 	}
 
 	@Test
 	public void testNowSec() {
-		assertThat(DateUtil.nowSec().get(ChronoField.MILLI_OF_SECOND), is(0));
-		assertThat(DateUtil.nowSec().get(ChronoField.MICRO_OF_SECOND), is(0));
+		assertEquals(DateUtil.nowSec().get(ChronoField.MILLI_OF_SECOND), 0);
+		assertEquals(DateUtil.nowSec().get(ChronoField.MICRO_OF_SECOND), 0);
 	}
 
 	@Test
 	public void testFormatIso() {
-		assertThat(DateUtil.formatIso(0), is("1970-01-01T00:00:00Z"));
-		assertThat(DateUtil.formatIso(-1000), is("1969-12-31T23:59:59Z"));
-		assertThat(DateUtil.formatIso(-999), is("1969-12-31T23:59:59Z"));
-		assertThat(DateUtil.formatIso(999), is("1970-01-01T00:00:00Z"));
-		assertThat(DateUtil.formatIso(1000), is("1970-01-01T00:00:01Z"));
+		assertEquals(DateUtil.formatIso(0), "1970-01-01T00:00:00Z");
+		assertEquals(DateUtil.formatIso(-1000), "1969-12-31T23:59:59Z");
+		assertEquals(DateUtil.formatIso(-999), "1969-12-31T23:59:59Z");
+		assertEquals(DateUtil.formatIso(999), "1970-01-01T00:00:00Z");
+		assertEquals(DateUtil.formatIso(1000), "1970-01-01T00:00:01Z");
 	}
 
 	@Test
@@ -72,13 +71,13 @@ public class DateUtilTest {
 
 	@Test
 	public void testTimeToDuration() {
-		assertThat(DateUtil.timeToDuration(LocalTime.of(2, 15)), is(Duration.ofMinutes(135)));
+		assertEquals(DateUtil.timeToDuration(LocalTime.of(2, 15)), Duration.ofMinutes(135));
 		assertNull(DateUtil.timeToDuration(null));
 	}
 
 	@Test
 	public void testDurationToTime() {
-		assertThat(DateUtil.durationToTime(Duration.ofMinutes(135)), is(LocalTime.of(2, 15)));
+		assertEquals(DateUtil.durationToTime(Duration.ofMinutes(135)), LocalTime.of(2, 15));
 		assertNull(DateUtil.durationToTime(null));
 	}
 

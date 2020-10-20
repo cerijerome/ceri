@@ -1,7 +1,6 @@
 package ceri.process.uptime;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.process.util.ProcessTestUtil;
@@ -22,7 +21,7 @@ public class UptimeBehavior {
 
 	private static void assertUptime(String output, int days, int hours, int minutes)
 		throws IOException {
-		assertThat(uptime(output).uptimeMs().parse(), is(ms(days, hours, minutes)));
+		assertEquals(uptime(output).uptimeMs().parse(), ms(days, hours, minutes));
 	}
 
 	private static long ms(int days, int hours, int minutes) {

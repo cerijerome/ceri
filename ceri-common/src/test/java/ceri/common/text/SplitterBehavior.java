@@ -1,10 +1,11 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.text.Splitter.Extraction;
 import ceri.common.text.Splitter.Extractor;
@@ -24,36 +25,36 @@ public class SplitterBehavior {
 
 	@Test
 	public void shouldDetermineNullExtraction() {
-		assertThat(Extraction.NULL.isNull(), is(true));
-		assertThat(Extraction.of("", 0).isNull(), is(true));
-		assertThat(Extraction.of("x", 0).isNull(), is(false));
-		assertThat(Extraction.of("", 1).isNull(), is(false));
+		assertTrue(Extraction.NULL.isNull());
+		assertTrue(Extraction.of("", 0).isNull());
+		assertFalse(Extraction.of("x", 0).isNull());
+		assertFalse(Extraction.of("", 1).isNull());
 	}
 
 	@Test
 	public void shouldReturnStateOfSplitter() {
 		Splitter sp = Splitter.of("a b c");
-		assertThat(sp.position(), is(0));
-		assertThat(sp.remainder(), is("a b c"));
-		assertThat(sp.text(), is("a b c"));
-		assertThat(sp.extract(Extractor.byWidth(2)), is(Extraction.of("a", 2)));
-		assertThat(sp.position(), is(2));
-		assertThat(sp.remainder(), is("b c"));
-		assertThat(sp.text(), is("a b c"));
-		assertThat(sp.extract(Extractor.byWidth(2)), is(Extraction.of("b", 2)));
-		assertThat(sp.position(), is(4));
-		assertThat(sp.remainder(), is("c"));
-		assertThat(sp.text(), is("a b c"));
-		assertThat(sp.extract(Extractor.byWidth(2)), is(Extraction.of("c", 1)));
-		assertThat(sp.position(), is(5));
-		assertThat(sp.remainder(), is(""));
-		assertThat(sp.text(), is("a b c"));
+		assertEquals(sp.position(), 0);
+		assertEquals(sp.remainder(), "a b c");
+		assertEquals(sp.text(), "a b c");
+		assertEquals(sp.extract(Extractor.byWidth(2)), Extraction.of("a", 2));
+		assertEquals(sp.position(), 2);
+		assertEquals(sp.remainder(), "b c");
+		assertEquals(sp.text(), "a b c");
+		assertEquals(sp.extract(Extractor.byWidth(2)), Extraction.of("b", 2));
+		assertEquals(sp.position(), 4);
+		assertEquals(sp.remainder(), "c");
+		assertEquals(sp.text(), "a b c");
+		assertEquals(sp.extract(Extractor.byWidth(2)), Extraction.of("c", 1));
+		assertEquals(sp.position(), 5);
+		assertEquals(sp.remainder(), "");
+		assertEquals(sp.text(), "a b c");
 	}
 
 	@Test
 	public void shouldSplitByTabs() {
-		assertThat(Splitter.of("abc\td\t\t e \tf").extract(Extractor.byTabs()),
-			is(Extraction.of("abc", 4)));
+		assertEquals(Splitter.of("abc\td\t\t e \tf").extract(Extractor.byTabs()),
+			Extraction.of("abc", 4));
 		assertIterable(Splitter.of("abc\td\t\t e \tf").extractAll(Extractor.byTabs()),
 			Extraction.of("abc", 4));
 		assertIterable(Splitter.of("abc\td\t\t e \tf").extractToCompletion(Extractor.byTabs()),
@@ -63,8 +64,8 @@ public class SplitterBehavior {
 
 	@Test
 	public void shouldSplitByFixedWidths() {
-		assertThat(Splitter.of("abcdefgh  ").extract(Extractor.byWidth(1)),
-			is(Extraction.of("a", 1)));
+		assertEquals(Splitter.of("abcdefgh  ").extract(Extractor.byWidth(1)),
+			Extraction.of("a", 1));
 		assertIterable(Splitter.of("abcdefgh  ").extractAll(Extractor.byWidths(1, 2, 3)),
 			Extraction.of("a", 1), Extraction.of("bc", 2), Extraction.of("def", 3));
 		assertIterable(Splitter.of("abcdefgh  ").extractToCompletion(Extractor.byWidths(1, 2, 3)),
@@ -88,22 +89,22 @@ public class SplitterBehavior {
 	public void shouldSplitByRegex() {
 		String s = "";
 		String r = "";
-		assertThat(Splitter.of(s).extract(Extractor.byRegex(r)), is(Extraction.NULL));
+		assertEquals(Splitter.of(s).extract(Extractor.byRegex(r)), Extraction.NULL);
 		assertIterable(Splitter.of(s).extractAll(Extractor.byRegex(r)), Extraction.NULL);
 		assertIterable(Splitter.of(s).extractToCompletion(Extractor.byRegex(r)));
 		s = "abc";
 		r = "";
-		assertThat(Splitter.of(s).extract(Extractor.byRegex(r)), is(Extraction.NULL));
+		assertEquals(Splitter.of(s).extract(Extractor.byRegex(r)), Extraction.NULL);
 		assertIterable(Splitter.of(s).extractAll(Extractor.byRegex(r)), Extraction.NULL);
 		assertIterable(Splitter.of(s).extractToCompletion(Extractor.byRegex(r)));
 		s = "abc";
 		r = "123";
-		assertThat(Splitter.of(s).extract(Extractor.byRegex(r)), is(Extraction.NULL));
+		assertEquals(Splitter.of(s).extract(Extractor.byRegex(r)), Extraction.NULL);
 		assertIterable(Splitter.of(s).extractAll(Extractor.byRegex(r)), Extraction.NULL);
 		assertIterable(Splitter.of(s).extractToCompletion(Extractor.byRegex(r)));
 		s = "  a\tbc \nd";
 		r = "(.*?)(?:\\s+|$)";
-		assertThat(Splitter.of(s).extract(Extractor.byRegex(r)), is(Extraction.of("", 2)));
+		assertEquals(Splitter.of(s).extract(Extractor.byRegex(r)), Extraction.of("", 2));
 		assertIterable(Splitter.of(s).extractAll(Extractor.byRegex(r)), Extraction.of("", 2));
 		assertIterable(Splitter.of(s).extractToCompletion(Extractor.byRegex(r)),
 			Extraction.of("", 2), Extraction.of("a", 2), Extraction.of("bc", 4),
@@ -113,7 +114,7 @@ public class SplitterBehavior {
 	@Test
 	public void shouldSplitByRemainder() {
 		String s = "a b c";
-		assertThat(Splitter.of(s).extract(Extractor.byRemainder()), is(Extraction.of("a b c", 5)));
+		assertEquals(Splitter.of(s).extract(Extractor.byRemainder()), Extraction.of("a b c", 5));
 		assertIterable(Splitter.of(s).extractAll(Extractor.byWidth(2), Extractor.byRemainder()),
 			Extraction.of("a", 2), Extraction.of("b c", 3));
 		assertIterable(

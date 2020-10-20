@@ -1,10 +1,11 @@
 package ceri.log.rpc.client;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.baseProperties;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class RpcChannelConfigBehavior {
@@ -22,17 +23,17 @@ public class RpcChannelConfigBehavior {
 
 	@Test
 	public void shouldDetermineIfEnabled() {
-		assertThat(RpcChannelConfig.NULL.enabled(), is(false));
-		assertThat(RpcChannelConfig.builder().host("localhost").build().enabled(), is(false));
-		assertThat(RpcChannelConfig.of("host", 12345).enabled(), is(true));
+		assertFalse(RpcChannelConfig.NULL.enabled());
+		assertFalse(RpcChannelConfig.builder().host("localhost").build().enabled());
+		assertTrue(RpcChannelConfig.of("host", 12345).enabled());
 	}
 
 	@Test
 	public void shouldBuildFromProperties() {
 		RpcChannelConfig config =
 			new RpcChannelProperties(baseProperties("rpc-client"), "rpc-client").config();
-		assertThat(config.host, is("127.0.0.1"));
-		assertThat(config.port, is(12345));
+		assertEquals(config.host, "127.0.0.1");
+		assertEquals(config.port, 12345);
 	}
 
 }

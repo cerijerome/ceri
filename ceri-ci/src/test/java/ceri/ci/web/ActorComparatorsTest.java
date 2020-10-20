@@ -1,7 +1,7 @@
 package ceri.ci.web;
 
-import static ceri.common.test.TestUtil.assertList;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertList;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

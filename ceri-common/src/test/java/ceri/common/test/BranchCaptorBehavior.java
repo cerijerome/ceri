@@ -1,8 +1,7 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
 import org.junit.Test;
 import ceri.common.io.IoUtil;
 import ceri.common.io.SystemIo;
@@ -12,11 +11,11 @@ public class BranchCaptorBehavior {
 	@Test
 	public void shouldFindNoMissingBranches() {
 		BranchCaptor bc = new BranchCaptor();
-		assertThat(bc.missing().size(), is(0));
+		assertEquals(bc.missing().size(), 0);
 		bc.add(true);
-		assertThat(bc.missing().size(), is(1));
+		assertEquals(bc.missing().size(), 1);
 		bc.add(false);
-		assertThat(bc.missing().size(), is(0));
+		assertEquals(bc.missing().size(), 0);
 	}
 
 	@Test
@@ -27,7 +26,7 @@ public class BranchCaptorBehavior {
 		bc.add(false, true, false);
 		bc.add(true, false, true);
 		bc.add(true, true, true);
-		assertThat(bc.branches(), is(5));
+		assertEquals(bc.branches(), 5);
 		assertCollection(bc.missing(), //
 			BranchCaptor.string(false, true, true), //
 			BranchCaptor.string(true, false, false), //

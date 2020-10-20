@@ -1,12 +1,12 @@
 package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.longConsumer;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import java.util.function.LongConsumer;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil.Std;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 
 public class ExceptionLongConsumerBehavior {
 
@@ -27,7 +27,7 @@ public class ExceptionLongConsumerBehavior {
 
 	@Test
 	public void shouldSequenceOperators() throws IOException {
-		Capturer.Int capturer = Capturer.ofInt();
+		Captor.Int capturer = Captor.ofInt();
 		ExceptionLongConsumer<IOException> f = longConsumer().andThen(capturer::accept);
 		f.accept(2);
 		capturer.verify(2);

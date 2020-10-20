@@ -1,13 +1,11 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.assertEquals;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.text.NonMatchResultBehavior.assertNonMatchResult;
-import static org.hamcrest.CoreMatchers.is;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
@@ -19,21 +17,21 @@ public class NonMatcherBehavior {
 	@Test
 	public void shouldReplaceAllMatches() {
 		NonMatcher m = nonMatcher("[a-c]+", "abc");
-		assertThat(m.replaceAll("X"), is("abc"));
-		assertThat(m.replaceAll(r -> String.valueOf(r.end() - r.start())), is("abc"));
+		assertEquals(m.replaceAll("X"), "abc");
+		assertEquals(m.replaceAll(r -> String.valueOf(r.end() - r.start())), "abc");
 		m = nonMatcher("[a-c]+", "AaBBbbCCCcccDDDDdddd");
-		assertThat(m.replaceAll("X"), is("XaXbbXcccX"));
-		assertThat(m.replaceAll(r -> String.valueOf(r.end() - r.start())), is("1a2bb3ccc8"));
+		assertEquals(m.replaceAll("X"), "XaXbbXcccX");
+		assertEquals(m.replaceAll(r -> String.valueOf(r.end() - r.start())), "1a2bb3ccc8");
 	}
 
 	@Test
 	public void shouldReplaceFirstMatch() {
 		NonMatcher m = nonMatcher("[a-c]+", "abc");
-		assertThat(m.replaceFirst("X"), is("abc"));
-		assertThat(m.replaceFirst(r -> String.valueOf(r.end() - r.start())), is("abc"));
+		assertEquals(m.replaceFirst("X"), "abc");
+		assertEquals(m.replaceFirst(r -> String.valueOf(r.end() - r.start())), "abc");
 		m = nonMatcher("[a-c]+", "abcABCabABaA");
-		assertThat(m.replaceFirst("X"), is("abcXabABaA"));
-		assertThat(m.replaceFirst(r -> String.valueOf(r.end() - r.start())), is("abc3abABaA"));
+		assertEquals(m.replaceFirst("X"), "abcXabABaA");
+		assertEquals(m.replaceFirst(r -> String.valueOf(r.end() - r.start())), "abc3abABaA");
 	}
 
 	@Test
@@ -188,7 +186,7 @@ public class NonMatcherBehavior {
 		NonMatcher m2 = nonMatcher("[a-c]+", "ABC");
 		assertEquals(m0.toString(), m1.toString());
 		assertNotEquals(m0.toString(), m2.toString());
-		assertEquals(m0.find(), true);
+		assertTrue(m0.find());
 		assertNotEquals(m0.toString(), m1.toString());
 		assertTrue(m1.find());
 		assertEquals(m0.toString(), m1.toString());

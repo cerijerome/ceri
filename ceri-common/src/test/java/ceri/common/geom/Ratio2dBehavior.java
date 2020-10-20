@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.test.TestUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 

@@ -1,9 +1,9 @@
 package ceri.ci.email;
 
 import static ceri.ci.email.EmailTestUtil.messageBuilder;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -18,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import ceri.common.test.TestUtil;
 
 public class EmailRetrieverImplBehavior {
 	@Mock
@@ -44,7 +43,7 @@ public class EmailRetrieverImplBehavior {
 	@Test
 	public void shouldFailIfNoMinimumDateForFetchingEmails() {
 		EmailRetriever retriever = create(presetBuilder());
-		TestUtil.assertThrown(() -> retriever.retrieve(null, null));
+		assertThrown(() -> retriever.retrieve(null, null));
 	}
 
 	@Test
@@ -56,8 +55,8 @@ public class EmailRetrieverImplBehavior {
 		EmailRetriever retriever = create(presetBuilder());
 		List<Email> emails =
 			retriever.retrieve(new Date(2), message -> message.getSentDate().getTime() < 10);
-		assertThat(emails.size(), is(1));
-		assertThat(emails.get(0).sentDateMs, is(5L));
+		assertEquals(emails.size(), 1);
+		assertEquals(emails.get(0).sentDateMs, 5L);
 	}
 
 	@Test
@@ -68,9 +67,9 @@ public class EmailRetrieverImplBehavior {
 		when(folder.search(any())).thenReturn(new Message[] { msg0, msg1, msg2 });
 		EmailRetriever retriever = create(presetBuilder());
 		List<Email> emails = retriever.retrieve(new Date(1), null);
-		assertThat(emails.size(), is(2));
-		assertThat(emails.get(0).sentDateMs, is(1L));
-		assertThat(emails.get(1).sentDateMs, is(2L));
+		assertEquals(emails.size(), 2);
+		assertEquals(emails.get(0).sentDateMs, 1L);
+		assertEquals(emails.get(1).sentDateMs, 2L);
 	}
 
 	private EmailRetrieverImpl.Builder presetBuilder() {

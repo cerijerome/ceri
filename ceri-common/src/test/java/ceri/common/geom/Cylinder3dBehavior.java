@@ -1,12 +1,11 @@
 package ceri.common.geom;
 
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class Cylinder3dBehavior {
 	private final Cylinder3d c0 = Cylinder3d.create(2, 8);
@@ -21,15 +20,15 @@ public class Cylinder3dBehavior {
 
 	@Test
 	public void shouldOnlyAllowPositiveAxes() {
-		TestUtil.assertThrown(() -> Cylinder3d.create(-0.1, 2));
-		TestUtil.assertThrown(() -> Cylinder3d.create(4, -0.1));
+		assertThrown(() -> Cylinder3d.create(-0.1, 2));
+		assertThrown(() -> Cylinder3d.create(4, -0.1));
 	}
 
 	@Test
 	public void shouldDefineNull() {
-		assertThat(Cylinder3d.create(0, 0), is(Cylinder3d.NULL));
-		assertThat(Cylinder3d.NULL.height(), is(0.0));
-		assertThat(Cylinder3d.NULL.radius(), is(0.0));
+		assertEquals(Cylinder3d.create(0, 0), Cylinder3d.NULL);
+		assertEquals(Cylinder3d.NULL.height(), 0.0);
+		assertEquals(Cylinder3d.NULL.radius(), 0.0);
 	}
 
 	@Test

@@ -1,12 +1,13 @@
 package ceri.common.collection;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import java.util.Map;
 import org.junit.Test;
 
@@ -53,58 +54,58 @@ public class NodeBehavior {
 
 	@Test
 	public void shouldDetermineIfHasValue() {
-		assertThat(NULL.hasValue(), is(false));
-		assertThat(Node.of(null).hasValue(), is(false));
-		assertThat(Node.of("").hasValue(), is(true));
+		assertFalse(NULL.hasValue());
+		assertFalse(Node.of(null).hasValue());
+		assertTrue(Node.of("").hasValue());
 	}
 
 	@Test
 	public void shouldDetermineIfNull() {
-		assertThat(NULL.isNull(), is(true));
-		assertThat(Node.of(null).isNull(), is(true));
-		assertThat(Node.of(1).isNull(), is(false));
-		assertThat(Node.of("", null).isNull(), is(false));
+		assertTrue(NULL.isNull());
+		assertTrue(Node.of(null).isNull());
+		assertFalse(Node.of(1).isNull());
+		assertFalse(Node.of("", null).isNull());
 		Node<?> node = Node.builder(null).add(Node.builder(null)).build();
-		assertThat(node.isNull(), is(false));
+		assertFalse(node.isNull());
 	}
 
 	@Test
 	public void shouldDetermineIfHasName() {
-		assertThat(NULL.isNamed(), is(false));
-		assertThat(Node.of(null).isNamed(), is(false));
-		assertThat(Node.of(1).isNamed(), is(false));
-		assertThat(Node.of("", 1).isNamed(), is(true));
+		assertFalse(NULL.isNamed());
+		assertFalse(Node.of(null).isNamed());
+		assertFalse(Node.of(1).isNamed());
+		assertTrue(Node.of("", 1).isNamed());
 	}
 
 	@Test
 	public void shouldAccessValue() {
 		assertNull(NULL.asBoolean());
-		assertThat(NULL.asBoolean(true), is(Boolean.TRUE));
-		assertThat(Node.of(false).asBoolean(), is(Boolean.FALSE));
-		assertThat(Node.of(false).asBoolean(true), is(Boolean.FALSE));
-		assertThat(Node.of("true").asBoolean(), is(Boolean.TRUE));
-		assertThat(Node.of("true").asBoolean(false), is(Boolean.TRUE));
+		assertEquals(NULL.asBoolean(true), Boolean.TRUE);
+		assertEquals(Node.of(false).asBoolean(), Boolean.FALSE);
+		assertEquals(Node.of(false).asBoolean(true), Boolean.FALSE);
+		assertEquals(Node.of("true").asBoolean(), Boolean.TRUE);
+		assertEquals(Node.of("true").asBoolean(false), Boolean.TRUE);
 
 		assertNull(NULL.asInt());
-		assertThat(NULL.asInt(1), is(1));
-		assertThat(Node.of(2).asInt(), is(2));
-		assertThat(Node.of(2).asInt(1), is(2));
-		assertThat(Node.of("2").asInt(), is(2));
-		assertThat(Node.of("2").asInt(1), is(2));
+		assertEquals(NULL.asInt(1), 1);
+		assertEquals(Node.of(2).asInt(), 2);
+		assertEquals(Node.of(2).asInt(1), 2);
+		assertEquals(Node.of("2").asInt(), 2);
+		assertEquals(Node.of("2").asInt(1), 2);
 
 		assertNull(NULL.asLong());
-		assertThat(NULL.asLong(1), is(1L));
-		assertThat(Node.of(2).asLong(), is(2L));
-		assertThat(Node.of(2).asLong(1), is(2L));
-		assertThat(Node.of("2").asLong(), is(2L));
-		assertThat(Node.of("2").asLong(1), is(2L));
+		assertEquals(NULL.asLong(1), 1L);
+		assertEquals(Node.of(2).asLong(), 2L);
+		assertEquals(Node.of(2).asLong(1), 2L);
+		assertEquals(Node.of("2").asLong(), 2L);
+		assertEquals(Node.of("2").asLong(1), 2L);
 
 		assertNull(NULL.asDouble());
-		assertThat(NULL.asDouble(1), is(1.0));
-		assertThat(Node.of(2).asDouble(), is(2.0));
-		assertThat(Node.of(2).asDouble(1), is(2.0));
-		assertThat(Node.of("2").asDouble(), is(2.0));
-		assertThat(Node.of("2").asDouble(1), is(2.0));
+		assertEquals(NULL.asDouble(1), 1.0);
+		assertEquals(Node.of(2).asDouble(), 2.0);
+		assertEquals(Node.of(2).asDouble(1), 2.0);
+		assertEquals(Node.of("2").asDouble(), 2.0);
+		assertEquals(Node.of("2").asDouble(1), 2.0);
 	}
 
 	@Test
@@ -123,11 +124,11 @@ public class NodeBehavior {
 	@Test
 	public void shouldDetermineChildren() {
 		assertIterable(NODE.childNames(), "b0", "b1", "b2", "b4");
-		assertThat(NODE.hasChild("b2"), is(true));
-		assertThat(NODE.hasChild("3"), is(false));
-		assertThat(NODE.hasChild("b3"), is(false));
+		assertTrue(NODE.hasChild("b2"));
+		assertFalse(NODE.hasChild("3"));
+		assertFalse(NODE.hasChild("b3"));
 		Map<String, Node<?>> map = NODE.namedChildren();
-		assertThat(map.size(), is(4));
+		assertEquals(map.size(), 4);
 		assertNodeNameValue(map.get("b0"), "b0", "B00");
 		assertNodeNameValue(map.get("b1"), "b1", "B01");
 		assertNodeNameValue(map.get("b2"), "b2", null);
@@ -168,17 +169,17 @@ public class NodeBehavior {
 
 	@Test
 	public void shouldReturnNullForChildOutOfBounds() {
-		assertThat(NODE.child(-1), is(NULL));
-		assertThat(NODE.child(5), is(NULL));
-		assertThat(NODE.child(3, 3), is(NULL));
-		assertThat(NODE.child("5"), is(NULL));
-		assertThat(NODE.child("3", "3"), is(NULL));
-		assertThat(NODE.child("x"), is(NULL));
+		assertEquals(NODE.child(-1), NULL);
+		assertEquals(NODE.child(5), NULL);
+		assertEquals(NODE.child(3, 3), NULL);
+		assertEquals(NODE.child("5"), NULL);
+		assertEquals(NODE.child("3", "3"), NULL);
+		assertEquals(NODE.child("x"), NULL);
 	}
 
 	private static void assertNodeNameValue(Node<?> node, String name, Object value) {
-		assertThat(node.name, is(name));
-		assertThat(node.value, is(value));
+		assertEquals(node.name, name);
+		assertEquals(node.value, value);
 	}
 
 }

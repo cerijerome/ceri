@@ -1,14 +1,13 @@
 package ceri.common.geom;
 
 import static ceri.common.geom.GeometryTestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class Ellipse2dBehavior {
 	private final Ellipse2d e0 = Ellipse2d.create(4, 2);
@@ -23,43 +22,43 @@ public class Ellipse2dBehavior {
 
 	@Test
 	public void shouldOnlyAllowPositiveAxes() {
-		TestUtil.assertThrown(() -> Ellipse2d.create(-0.1, 4));
-		TestUtil.assertThrown(() -> Ellipse2d.create(1, -0.1));
+		assertThrown(() -> Ellipse2d.create(-0.1, 4));
+		assertThrown(() -> Ellipse2d.create(1, -0.1));
 	}
 
 	@Test
 	public void shouldDefineNull() {
-		assertThat(Ellipse2d.create(0, 0), is(Ellipse2d.NULL));
+		assertEquals(Ellipse2d.create(0, 0), Ellipse2d.NULL);
 	}
 
 	@Test
 	public void shouldCalculateGradient() {
 		assertTrue(Double.isNaN(e0.gradientAtX(-5)));
-		assertThat(e0.gradientAtX(-4), is(Double.POSITIVE_INFINITY));
+		assertEquals(e0.gradientAtX(-4), Double.POSITIVE_INFINITY);
 		assertApprox(e0.gradientAtX(-2), 0.289);
 		assertApprox(e0.gradientAtX(0), 0);
 		assertApprox(e0.gradientAtX(2), -0.289);
-		assertThat(e0.gradientAtX(4), is(Double.NEGATIVE_INFINITY));
+		assertEquals(e0.gradientAtX(4), Double.NEGATIVE_INFINITY);
 		assertTrue(Double.isNaN(e0.gradientAtX(5)));
 		assertTrue(Double.isNaN(e0.gradientAtY(-3)));
 		assertApprox(e0.gradientAtY(-2), 0);
 		assertApprox(e0.gradientAtY(-1), 0.866);
-		assertThat(e0.gradientAtY(0), is(Double.NEGATIVE_INFINITY));
+		assertEquals(e0.gradientAtY(0), Double.NEGATIVE_INFINITY);
 		assertApprox(e0.gradientAtY(1), -0.866);
 		assertApprox(e0.gradientAtY(2), 0);
 		assertTrue(Double.isNaN(e0.gradientAtY(3)));
-		assertThat(Ellipse2d.NULL.gradientAtX(0), is(Double.NaN));
-		assertThat(Ellipse2d.NULL.gradientAtX(1), is(Double.NaN));
-		assertThat(Ellipse2d.NULL.gradientAtY(0), is(Double.NaN));
-		assertThat(Ellipse2d.NULL.gradientAtY(1), is(Double.NaN));
-		assertThat(Ellipse2d.create(0, 1).gradientAtX(0), is(Double.NEGATIVE_INFINITY));
-		assertThat(Ellipse2d.create(0, 1).gradientAtY(0), is(Double.NEGATIVE_INFINITY));
-		assertThat(Ellipse2d.create(0, 1).gradientAtY(0.5), is(Double.NEGATIVE_INFINITY));
-		assertThat(Ellipse2d.create(0, 1).gradientAtY(1), is(0.0));
-		assertThat(Ellipse2d.create(1, 0).gradientAtX(0), is(0.0));
-		assertThat(Ellipse2d.create(1, 0).gradientAtY(0), is(0.0));
-		assertThat(Ellipse2d.create(1, 0).gradientAtX(-0.5), is(0.0));
-		assertThat(Ellipse2d.create(1, 0).gradientAtX(-1), is(Double.POSITIVE_INFINITY));
+		assertEquals(Ellipse2d.NULL.gradientAtX(0), Double.NaN);
+		assertEquals(Ellipse2d.NULL.gradientAtX(1), Double.NaN);
+		assertEquals(Ellipse2d.NULL.gradientAtY(0), Double.NaN);
+		assertEquals(Ellipse2d.NULL.gradientAtY(1), Double.NaN);
+		assertEquals(Ellipse2d.create(0, 1).gradientAtX(0), Double.NEGATIVE_INFINITY);
+		assertEquals(Ellipse2d.create(0, 1).gradientAtY(0), Double.NEGATIVE_INFINITY);
+		assertEquals(Ellipse2d.create(0, 1).gradientAtY(0.5), Double.NEGATIVE_INFINITY);
+		assertEquals(Ellipse2d.create(0, 1).gradientAtY(1), 0.0);
+		assertEquals(Ellipse2d.create(1, 0).gradientAtX(0), 0.0);
+		assertEquals(Ellipse2d.create(1, 0).gradientAtY(0), 0.0);
+		assertEquals(Ellipse2d.create(1, 0).gradientAtX(-0.5), 0.0);
+		assertEquals(Ellipse2d.create(1, 0).gradientAtX(-1), Double.POSITIVE_INFINITY);
 	}
 
 	@Test
@@ -108,8 +107,8 @@ public class Ellipse2dBehavior {
 		assertApprox(e0.xFromY(2), 0);
 		assertApprox(e0.xFromY(1.732), 2);
 		assertApprox(e0.xFromY(-2), 0);
-		assertThat(Ellipse2d.NULL.yFromX(1), is(Double.NaN));
-		assertThat(Ellipse2d.NULL.xFromY(1), is(Double.NaN));
+		assertEquals(Ellipse2d.NULL.yFromX(1), Double.NaN);
+		assertEquals(Ellipse2d.NULL.xFromY(1), Double.NaN);
 	}
 
 	@Test

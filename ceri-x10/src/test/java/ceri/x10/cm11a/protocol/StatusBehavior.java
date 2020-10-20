@@ -1,7 +1,7 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.time.DateUtil.UTC_EPOCH;
 import org.junit.Test;

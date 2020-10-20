@@ -1,8 +1,8 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertHelperPaths;
-import static ceri.common.test.TestUtil.assertPaths;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertHelperPaths;
+import static ceri.common.test.AssertUtil.assertPaths;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

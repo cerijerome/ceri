@@ -1,9 +1,8 @@
 package ceri.common.geo;
 
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import org.junit.Test;
 
 public class LatLngUtilTest {
@@ -17,8 +16,8 @@ public class LatLngUtilTest {
 	public void testDistance() {
 		assertNull(LatLngUtil.distance(null, LatLng.of(0, 0)));
 		assertNull(LatLngUtil.distance(LatLng.of(0, 0), null));
-		assertThat(LatLngUtil.distance(LatLng.of(0, 0), LatLng.of(0, 0)), is(0.0));
-		assertThat(LatLngUtil.distance(LatLng.of(-30, -40), LatLng.of(60, 80)), is(150.0));
+		assertEquals(LatLngUtil.distance(LatLng.of(0, 0), LatLng.of(0, 0)), 0.0);
+		assertEquals(LatLngUtil.distance(LatLng.of(-30, -40), LatLng.of(60, 80)), 150.0);
 	}
 
 	@Test
@@ -32,7 +31,7 @@ public class LatLngUtilTest {
 	}
 
 	private void assertLatLng(LatLng latLng, double lat, double lng) {
-		assertThat(latLng, is(LatLng.of(lat, lng)));
+		assertEquals(latLng, LatLng.of(lat, lng));
 	}
 
 }

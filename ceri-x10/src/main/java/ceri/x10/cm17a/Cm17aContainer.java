@@ -83,7 +83,7 @@ public class Cm17aContainer implements Closeable {
 	public Cm17a cm17a() {
 		return cm17a;
 	}
-	
+
 	@Override
 	public void close() {
 		LogUtil.close(logger, createdCm17a, createdConnector);

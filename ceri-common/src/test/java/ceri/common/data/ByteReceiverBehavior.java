@@ -1,12 +1,13 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.bytes;
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -25,107 +26,105 @@ public class ByteReceiverBehavior {
 
 	@Test
 	public void shouldProvideAnEmptyInstance() {
-		assertThat(ByteReceiver.empty().length(), is(0));
+		assertEquals(ByteReceiver.empty().length(), 0);
 		assertThrown(() -> ByteReceiver.empty().setByte(0, 0));
 	}
 
 	@Test
 	public void shouldDetermineIfEmpty() {
-		assertThat(receiver(3).isEmpty(), is(false));
-		assertThat(receiver(0).isEmpty(), is(true));
-		assertThat(ByteReceiver.empty().isEmpty(), is(true));
+		assertFalse(receiver(3).isEmpty());
+		assertTrue(receiver(0).isEmpty());
+		assertTrue(ByteReceiver.empty().isEmpty());
 	}
 
 	@Test
 	public void shouldReceivePrimitiveValues() {
-		assertBytes(2, br -> assertThat(br.setBool(0, true), is(1)), 1, 0);
-		assertBytes(2, br -> assertThat(br.setBool(1, false), is(2)), 0, 0);
-		assertBytes(1, br -> assertThat(br.setByte(0, -1), is(1)), 0xff);
-		assertBytes(3, br -> assertThat(br.setByte(1, 0x7f), is(2)), 0, 0x7f, 0);
-		assertBytes(3, br -> assertThat(br.setShort(1, 0x7ff7), is(3)),
+		assertBytes(2, br -> assertEquals(br.setBool(0, true), 1), 1, 0);
+		assertBytes(2, br -> assertEquals(br.setBool(1, false), 2), 0, 0);
+		assertBytes(1, br -> assertEquals(br.setByte(0, -1), 1), 0xff);
+		assertBytes(3, br -> assertEquals(br.setByte(1, 0x7f), 2), 0, 0x7f, 0);
+		assertBytes(3, br -> assertEquals(br.setShort(1, 0x7ff7), 3),
 			msb ? bytes(0, 0x7f, 0xf7) : bytes(0, 0xf7, 0x7f));
-		assertBytes(4, br -> assertThat(br.setInt(0, 0x12345678), is(4)),
+		assertBytes(4, br -> assertEquals(br.setInt(0, 0x12345678), 4),
 			msb ? bytes(0x12, 0x34, 0x56, 0x78) : bytes(0x78, 0x56, 0x34, 0x12));
-		assertBytes(8, br -> assertThat(br.setLong(0, 0x1234567890L), is(8)),
+		assertBytes(8, br -> assertEquals(br.setLong(0, 0x1234567890L), 8),
 			msb ? bytes(0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0x90) :
 				bytes(0x90, 0x78, 0x56, 0x34, 0x12, 0, 0, 0));
-		assertBytes(4, br -> assertThat(br.setFloat(0, Float.intBitsToFloat(0x12345678)), is(4)),
+		assertBytes(4, br -> assertEquals(br.setFloat(0, Float.intBitsToFloat(0x12345678)), 4),
 			msb ? bytes(0x12, 0x34, 0x56, 0x78) : bytes(0x78, 0x56, 0x34, 0x12));
 		assertBytes(8,
-			br -> assertThat(br.setDouble(0, Double.longBitsToDouble(0x1234567890L)), is(8)),
+			br -> assertEquals(br.setDouble(0, Double.longBitsToDouble(0x1234567890L)), 8),
 			msb ? bytes(0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0x90) :
 				bytes(0x90, 0x78, 0x56, 0x34, 0x12, 0, 0, 0));
 	}
 
 	@Test
 	public void shouldReceiveByteAlignedValues() {
-		assertBytes(3, br -> assertThat(br.setShortMsb(1, 0x7ff7), is(3)), 0, 0x7f, 0xf7);
-		assertBytes(3, br -> assertThat(br.setShortLsb(1, 0x7ff7), is(3)), 0, 0xf7, 0x7f);
-		assertBytes(4, br -> assertThat(br.setIntMsb(0, 0x12345678), is(4)), 0x12, 0x34, 0x56,
-			0x78);
-		assertBytes(4, br -> assertThat(br.setIntLsb(0, 0x12345678), is(4)), 0x78, 0x56, 0x34,
-			0x12);
-		assertBytes(8, br -> assertThat(br.setLongMsb(0, 0x1234567890L), is(8)), 0, 0, 0, 0x12,
-			0x34, 0x56, 0x78, 0x90);
-		assertBytes(8, br -> assertThat(br.setLongLsb(0, 0x1234567890L), is(8)), 0x90, 0x78, 0x56,
+		assertBytes(3, br -> assertEquals(br.setShortMsb(1, 0x7ff7), 3), 0, 0x7f, 0xf7);
+		assertBytes(3, br -> assertEquals(br.setShortLsb(1, 0x7ff7), 3), 0, 0xf7, 0x7f);
+		assertBytes(4, br -> assertEquals(br.setIntMsb(0, 0x12345678), 4), 0x12, 0x34, 0x56, 0x78);
+		assertBytes(4, br -> assertEquals(br.setIntLsb(0, 0x12345678), 4), 0x78, 0x56, 0x34, 0x12);
+		assertBytes(8, br -> assertEquals(br.setLongMsb(0, 0x1234567890L), 8), 0, 0, 0, 0x12, 0x34,
+			0x56, 0x78, 0x90);
+		assertBytes(8, br -> assertEquals(br.setLongLsb(0, 0x1234567890L), 8), 0x90, 0x78, 0x56,
 			0x34, 0x12, 0, 0, 0);
-		assertBytes(4, br -> assertThat(br.setFloatMsb(0, Float.intBitsToFloat(0x12345678)), is(4)),
+		assertBytes(4, br -> assertEquals(br.setFloatMsb(0, Float.intBitsToFloat(0x12345678)), 4),
 			0x12, 0x34, 0x56, 0x78);
-		assertBytes(4, br -> assertThat(br.setFloatLsb(0, Float.intBitsToFloat(0x12345678)), is(4)),
+		assertBytes(4, br -> assertEquals(br.setFloatLsb(0, Float.intBitsToFloat(0x12345678)), 4),
 			0x78, 0x56, 0x34, 0x12);
 		assertBytes(8,
-			br -> assertThat(br.setDoubleMsb(0, Double.longBitsToDouble(0x1234567890L)), is(8)), 0,
-			0, 0, 0x12, 0x34, 0x56, 0x78, 0x90);
+			br -> assertEquals(br.setDoubleMsb(0, Double.longBitsToDouble(0x1234567890L)), 8), 0, 0,
+			0, 0x12, 0x34, 0x56, 0x78, 0x90);
 		assertBytes(8,
-			br -> assertThat(br.setDoubleLsb(0, Double.longBitsToDouble(0x1234567890L)), is(8)),
-			0x90, 0x78, 0x56, 0x34, 0x12, 0, 0, 0);
+			br -> assertEquals(br.setDoubleLsb(0, Double.longBitsToDouble(0x1234567890L)), 8), 0x90,
+			0x78, 0x56, 0x34, 0x12, 0, 0, 0);
 	}
 
 	@Test
 	public void shouldReceiveEncodedStrings() {
-		assertBytes(5, br -> assertThat(br.setAscii(0, "abcde"), is(5)), ascii);
-		assertBytes(5, br -> assertThat(br.setUtf8(0, "abcde"), is(5)), utf8);
-		assertBytes(5, br -> assertThat(br.setString(0, "abcde"), is(5)), defCset);
+		assertBytes(5, br -> assertEquals(br.setAscii(0, "abcde"), 5), ascii);
+		assertBytes(5, br -> assertEquals(br.setUtf8(0, "abcde"), 5), utf8);
+		assertBytes(5, br -> assertEquals(br.setString(0, "abcde"), 5), defCset);
 	}
 
 	@Test
 	public void shouldSliceReceivingByteRange() {
 		byte[] bytes = new byte[5];
 		ByteReceiver br = receiver(bytes, 0, bytes.length);
-		assertThat(br.slice(5).isEmpty(), is(true));
-		assertThat(br.slice(4, 0).isEmpty(), is(true));
-		assertThat(br.slice(0), is(br));
+		assertTrue(br.slice(5).isEmpty());
+		assertTrue(br.slice(4, 0).isEmpty());
+		assertEquals(br.slice(0), br);
 		assertThrown(() -> br.slice(1, 4));
 		assertThrown(() -> br.slice(0, 4));
 	}
 
 	@Test
 	public void shouldFillBytes() {
-		assertBytes(5, br -> assertThat(br.fill(2, 0xff), is(5)), 0, 0, 0xff, 0xff, 0xff);
+		assertBytes(5, br -> assertEquals(br.fill(2, 0xff), 5), 0, 0, 0xff, 0xff, 0xff);
 		assertThrown(() -> receiver(5).fill(3, 3, 0));
 	}
 
 	@Test
 	public void shouldCopyFromByteArray() {
-		assertBytes(5, br -> assertThat(br.setBytes(1, 1, 2, 3), is(4)), 0, 1, 2, 3, 0);
+		assertBytes(5, br -> assertEquals(br.setBytes(1, 1, 2, 3), 4), 0, 1, 2, 3, 0);
 		assertThrown(() -> receiver(5).setBytes(4, 1, 2, 3));
 	}
 
 	@Test
 	public void shouldCopyFromByteProvider() {
 		ByteProvider bp = ByteProviderBehavior.provider(1, 2, 3);
-		assertBytes(5, br -> assertThat(br.copyFrom(1, bp), is(4)), 0, 1, 2, 3, 0);
+		assertBytes(5, br -> assertEquals(br.copyFrom(1, bp), 4), 0, 1, 2, 3, 0);
 		assertThrown(() -> receiver(5).copyFrom(4, bp));
 	}
 
 	@Test
 	public void shouldReadFromInputStream() throws IOException {
 		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes(1, 2, 3));
-		assertBytes(5, br -> assertThat(br.readFrom(1, in), is(4)), 0, 1, 2, 3, 0);
-		assertBytes(2, br -> assertThat(br.readFrom(1, in, 0), is(1)), 0, 0);
+		assertBytes(5, br -> assertEquals(br.readFrom(1, in), 4), 0, 1, 2, 3, 0);
+		assertBytes(2, br -> assertEquals(br.readFrom(1, in, 0), 1), 0, 0);
 		in.reset();
-		assertBytes(5, br -> assertThat(ByteReceiver.readBufferFrom(br, 1, in, 3), is(4)), 0, 1, 2,
-			3, 0);
+		assertBytes(5, br -> assertEquals(ByteReceiver.readBufferFrom(br, 1, in, 3), 4), 0, 1, 2, 3,
+			0);
 	}
 
 	@Test
@@ -172,7 +171,7 @@ public class ByteReceiverBehavior {
 	@Test
 	public void shouldTransferFromInputStream() throws IOException {
 		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes(1, 2, 3));
-		assertBytes(5, br -> assertThat(br.writer(1).transferFrom(in), is(3)), 0, 1, 2, 3, 0);
+		assertBytes(5, br -> assertEquals(br.writer(1).transferFrom(in), 3), 0, 1, 2, 3, 0);
 	}
 
 	@Test
@@ -183,8 +182,8 @@ public class ByteReceiverBehavior {
 	@Test
 	public void shouldReturnWriterByteProvider() {
 		ByteReceiver br = receiver(ArrayUtil.bytes(1, 2, 3, 4, 5));
-		assertThat(br.writer(0).receiver(), is(br));
-		assertThat(br.writer(5, 0).receiver().isEmpty(), is(true));
+		assertEquals(br.writer(0).receiver(), br);
+		assertTrue(br.writer(5, 0).receiver().isEmpty());
 		assertThrown(() -> br.writer(2).receiver());
 	}
 

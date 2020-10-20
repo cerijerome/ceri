@@ -1,9 +1,9 @@
 package ceri.common.function;
 
-import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertArray;
 import java.util.function.IntConsumer;
 import org.junit.Test;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 
 public class BooleanConsumerBehavior {
 
@@ -18,12 +18,12 @@ public class BooleanConsumerBehavior {
 
 	@Test
 	public void shouldConvertToInt() {
-		Capturer<Boolean> capturer = Capturer.of();
-		IntConsumer consumer = BooleanConsumer.toInt(b -> capturer.accept(b));
+		Captor<Boolean> captor = Captor.of();
+		IntConsumer consumer = BooleanConsumer.toInt(b -> captor.accept(b));
 		consumer.accept(0);
 		consumer.accept(1);
 		consumer.accept(-1);
-		capturer.verify(false, true, true);
+		captor.verify(false, true, true);
 	}
 
 }

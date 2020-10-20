@@ -1,11 +1,12 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertByte;
-import static ceri.common.test.TestUtil.assertStream;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertByte;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertStream;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -29,58 +30,58 @@ public class ByteReaderBehavior {
 
 	@Test
 	public void shouldReadPrimitiveValues() {
-		assertThat(reader(0).readBool(), is(false));
-		assertThat(reader(-1).readBool(), is(true));
-		assertThat(reader(-1).readByte(), is((byte) -1));
-		assertThat(reader(0x80, 0x7f).readShort(), is((short) (msb ? 0x807f : 0x7f80)));
-		assertThat(reader(0x80, 0x7f, 0, 1).readInt(), is(msb ? 0x807f0001 : 0x1007f80));
-		assertThat(reader(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0).readLong(),
-			is(msb ? 0x807f0001ff000000L : 0xff01007f80L));
-		assertThat(reader(0x80, 0x7f, 0, 1).readFloat(),
-			is(Float.intBitsToFloat(msb ? 0x807f0001 : 0x1007f80)));
-		assertThat(reader(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0).readDouble(),
-			is(Double.longBitsToDouble(msb ? 0x807f0001ff000000L : 0xff01007f80L)));
+		assertFalse(reader(0).readBool());
+		assertTrue(reader(-1).readBool());
+		assertEquals(reader(-1).readByte(), (byte) -1);
+		assertEquals(reader(0x80, 0x7f).readShort(), (short) (msb ? 0x807f : 0x7f80));
+		assertEquals(reader(0x80, 0x7f, 0, 1).readInt(), msb ? 0x807f0001 : 0x1007f80);
+		assertEquals(reader(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0).readLong(),
+			msb ? 0x807f0001ff000000L : 0xff01007f80L);
+		assertEquals(reader(0x80, 0x7f, 0, 1).readFloat(),
+			Float.intBitsToFloat(msb ? 0x807f0001 : 0x1007f80));
+		assertEquals(reader(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0).readDouble(),
+			Double.longBitsToDouble(msb ? 0x807f0001ff000000L : 0xff01007f80L));
 	}
 
 	@Test
 	public void shouldReadUnsignedValues() {
-		assertThat(reader(-1).readUbyte(), is((short) 0xff));
-		assertThat(reader(0x80).readUbyte(), is((short) 0x80));
-		assertThat(reader(-1, 2).readUshort(), is(msb ? 0xff02 : 0x2ff));
-		assertThat(reader(-1, 2, -3, 4).readUint(), is(msb ? 0xff02fd04L : 0x4fd02ffL));
+		assertEquals(reader(-1).readUbyte(), (short) 0xff);
+		assertEquals(reader(0x80).readUbyte(), (short) 0x80);
+		assertEquals(reader(-1, 2).readUshort(), msb ? 0xff02 : 0x2ff);
+		assertEquals(reader(-1, 2, -3, 4).readUint(), msb ? 0xff02fd04L : 0x4fd02ffL);
 	}
 
 	@Test
 	public void shouldReadByteAlignedValues() {
-		assertThat(reader(0x80, 0x7f).readShortMsb(), is((short) 0x807f));
-		assertThat(reader(0x80, 0x7f).readShortLsb(), is((short) 0x7f80));
-		assertThat(reader(0x80, 0x7f, 0, 1).readIntMsb(), is(0x807f0001));
-		assertThat(reader(0x80, 0x7f, 0, 1).readIntLsb(), is(0x1007f80));
-		assertThat(reader(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0).readLongMsb(), is(0x807f0001ff000000L));
-		assertThat(reader(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0).readLongLsb(), is(0xff01007f80L));
-		assertThat(reader(0x80, 0x7f, 0, 1).readFloatMsb(), is(Float.intBitsToFloat(0x807f0001)));
-		assertThat(reader(0x80, 0x7f, 0, 1).readFloatLsb(), is(Float.intBitsToFloat(0x1007f80)));
-		assertThat(reader(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0).readDoubleMsb(),
-			is(Double.longBitsToDouble(0x807f0001ff000000L)));
-		assertThat(reader(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0).readDoubleLsb(),
-			is(Double.longBitsToDouble(0xff01007f80L)));
+		assertEquals(reader(0x80, 0x7f).readShortMsb(), (short) 0x807f);
+		assertEquals(reader(0x80, 0x7f).readShortLsb(), (short) 0x7f80);
+		assertEquals(reader(0x80, 0x7f, 0, 1).readIntMsb(), 0x807f0001);
+		assertEquals(reader(0x80, 0x7f, 0, 1).readIntLsb(), 0x1007f80);
+		assertEquals(reader(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0).readLongMsb(), 0x807f0001ff000000L);
+		assertEquals(reader(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0).readLongLsb(), 0xff01007f80L);
+		assertEquals(reader(0x80, 0x7f, 0, 1).readFloatMsb(), Float.intBitsToFloat(0x807f0001));
+		assertEquals(reader(0x80, 0x7f, 0, 1).readFloatLsb(), Float.intBitsToFloat(0x1007f80));
+		assertEquals(reader(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0).readDoubleMsb(),
+			Double.longBitsToDouble(0x807f0001ff000000L));
+		assertEquals(reader(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0).readDoubleLsb(),
+			Double.longBitsToDouble(0xff01007f80L));
 	}
 
 	@Test
 	public void shouldReadByteAlignedUnsignedValues() {
-		assertThat(reader(-1, 2).readUshortMsb(), is(0xff02));
-		assertThat(reader(-1, 2).readUshortLsb(), is(0x2ff));
-		assertThat(reader(-1, 2, -3, 4).readUintMsb(), is(0xff02fd04L));
-		assertThat(reader(-1, 2, -3, 4).readUintLsb(), is(0x4fd02ffL));
+		assertEquals(reader(-1, 2).readUshortMsb(), 0xff02);
+		assertEquals(reader(-1, 2).readUshortLsb(), 0x2ff);
+		assertEquals(reader(-1, 2, -3, 4).readUintMsb(), 0xff02fd04L);
+		assertEquals(reader(-1, 2, -3, 4).readUintLsb(), 0x4fd02ffL);
 	}
 
 	@Test
 	public void shouldProvideDecodedStrings() {
-		assertThat(reader(ascii).readAscii(5), is("abcde"));
-		assertThat(reader(ascii).readAscii(2), is("ab"));
-		assertThat(reader(utf8).readUtf8(5), is("abcde"));
-		assertThat(reader(utf8).readUtf8(2), is("ab"));
-		assertThat(reader(defCset).readString(5), is("abcde"));
+		assertEquals(reader(ascii).readAscii(5), "abcde");
+		assertEquals(reader(ascii).readAscii(2), "ab");
+		assertEquals(reader(utf8).readUtf8(5), "abcde");
+		assertEquals(reader(utf8).readUtf8(2), "ab");
+		assertEquals(reader(defCset).readString(5), "abcde");
 	}
 
 	@Test
@@ -93,7 +94,7 @@ public class ByteReaderBehavior {
 	@Test
 	public void shouldReadIntoByteArray() {
 		byte[] bytes = new byte[3];
-		assertThat(reader(0, -1, 2, -3, 4).readInto(bytes), is(3));
+		assertEquals(reader(0, -1, 2, -3, 4).readInto(bytes), 3);
 		assertArray(bytes, 0, -1, 2);
 		assertThrown(() -> reader(0, -1, 2, -3, 4).readInto(bytes, 1, 3));
 		assertThrown(() -> reader(0, -1).readInto(bytes));
@@ -102,7 +103,7 @@ public class ByteReaderBehavior {
 	@Test
 	public void shouldReadIntoByteReceiver() {
 		byte[] bytes = new byte[3];
-		assertThat(reader(0, -1, 2, -3, 4).readInto(Mutable.wrap(bytes)), is(3));
+		assertEquals(reader(0, -1, 2, -3, 4).readInto(Mutable.wrap(bytes)), 3);
 		assertArray(bytes, 0, -1, 2);
 		assertThrown(() -> reader(0, -1, 2, -3, 4).readInto(Mutable.wrap(bytes), 1, 3));
 		assertThrown(() -> reader(0, -1).readInto(Mutable.wrap(bytes)));
@@ -111,10 +112,10 @@ public class ByteReaderBehavior {
 	@Test
 	public void shouldTransferToOutputStream() throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		assertThat(reader(0, -1, 2, -3, 4).transferTo(out, 3), is(3));
+		assertEquals(reader(0, -1, 2, -3, 4).transferTo(out, 3), 3);
 		assertArray(out.toByteArray(), 0, -1, 2);
 		out.reset();
-		assertThat(ByteReader.transferBufferTo(reader(0, -1, 2), out, 3), is(3));
+		assertEquals(ByteReader.transferBufferTo(reader(0, -1, 2), out, 3), 3);
 		assertArray(out.toByteArray(), 0, -1, 2);
 	}
 

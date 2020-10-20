@@ -2,13 +2,12 @@ package ceri.common.color;
 
 import static ceri.common.color.ColorTestUtil.assertXyb;
 import static ceri.common.color.ColorTestUtil.assertXyz;
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.geom.Point2d;
-import ceri.common.test.TestUtil;
 
 public class XybColorBehavior {
 
@@ -41,7 +40,7 @@ public class XybColorBehavior {
 	@Test
 	public void shouldDim() {
 		XybColor c = XybColor.of(0.6, 0.8, 0.4, 0.5);
-		assertThat(c.dim(1), is(c));
+		assertEquals(c.dim(1), c);
 		assertXyb(c.dim(0.5), 0.6, 0.8, 0.2, 0.5);
 		assertXyb(c.dim(0), 0.6, 0.8, 0.0, 0.5);
 	}
@@ -70,10 +69,10 @@ public class XybColorBehavior {
 	@Test
 	public void shouldVerifyValues() {
 		XybColor.of(0.5, 0.6, 0.3, 0.2).verify();
-		TestUtil.assertThrown(() -> XybColor.of(1.1, 0.6, 0.3, 0.2).verify());
-		TestUtil.assertThrown(() -> XybColor.of(0.5, 1.1, 0.3, 0.2).verify());
-		TestUtil.assertThrown(() -> XybColor.of(0.5, 0.6, -0.1, 0.2).verify());
-		TestUtil.assertThrown(() -> XybColor.of(0.5, 0.6, 0.3, 5.0).verify());
+		assertThrown(() -> XybColor.of(1.1, 0.6, 0.3, 0.2).verify());
+		assertThrown(() -> XybColor.of(0.5, 1.1, 0.3, 0.2).verify());
+		assertThrown(() -> XybColor.of(0.5, 0.6, -0.1, 0.2).verify());
+		assertThrown(() -> XybColor.of(0.5, 0.6, 0.3, 5.0).verify());
 	}
 
 }

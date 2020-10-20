@@ -1,7 +1,7 @@
 package ceri.common.comparator;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Collections;
 import java.util.Comparator;
 import org.junit.Test;
@@ -31,32 +31,32 @@ public class ComparatorSequenceBehavior {
 	@Test
 	public void should() {
 		ComparatorSequence<String> comparator = ComparatorSequence.<String>builder().build();
-		assertThat(comparator.comparators(), is(Collections.emptyList()));
-		assertThat(comparator.compare("1", ""), is(0));
+		assertEquals(comparator.comparators(), Collections.emptyList());
+		assertEquals(comparator.compare("1", ""), 0);
 	}
 
 	@Test
 	public void shouldHaveSameBehaviorWithSingleComparator() {
 		Comparator<A> comparator = ComparatorSequence.<A>builder().add(aIComparator).build();
-		assertThat(comparator.compare(A1, A2) == 0, is(true));
-		assertThat(comparator.compare(A2, A3) < 0, is(true));
-		assertThat(comparator.compare(A3, A4) == 0, is(true));
-		assertThat(comparator.compare(A4, A1) > 0, is(true));
+		assertTrue(comparator.compare(A1, A2) == 0);
+		assertTrue(comparator.compare(A2, A3) < 0);
+		assertTrue(comparator.compare(A3, A4) == 0);
+		assertTrue(comparator.compare(A4, A1) > 0);
 	}
 
 	@Test
 	public void shouldCompareUsingComparatorsInSequence() {
 		Comparator<A> comparator =
 			ComparatorSequence.<A>builder().add(aIComparator, aJComparator).build();
-		assertThat(comparator.compare(A1, A2) < 0, is(true));
-		assertThat(comparator.compare(A2, A3) < 0, is(true));
-		assertThat(comparator.compare(A3, A4) < 0, is(true));
-		assertThat(comparator.compare(A4, A1) > 0, is(true));
+		assertTrue(comparator.compare(A1, A2) < 0);
+		assertTrue(comparator.compare(A2, A3) < 0);
+		assertTrue(comparator.compare(A3, A4) < 0);
+		assertTrue(comparator.compare(A4, A1) > 0);
 		comparator = ComparatorSequence.<A>builder().add(aJComparator, aIComparator).build();
-		assertThat(comparator.compare(A1, A2) < 0, is(true));
-		assertThat(comparator.compare(A2, A3) > 0, is(true));
-		assertThat(comparator.compare(A3, A4) < 0, is(true));
-		assertThat(comparator.compare(A4, A1) > 0, is(true));
+		assertTrue(comparator.compare(A1, A2) < 0);
+		assertTrue(comparator.compare(A2, A3) > 0);
+		assertTrue(comparator.compare(A3, A4) < 0);
+		assertTrue(comparator.compare(A4, A1) > 0);
 	}
 
 }

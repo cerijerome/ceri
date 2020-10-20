@@ -1,9 +1,8 @@
 package ceri.common.score;
 
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class ScoreLookupBehavior {
@@ -27,10 +26,10 @@ public class ScoreLookupBehavior {
 	public void shouldNormalizeScores() {
 		ScoreLookup<String> lookup = ScoreLookup.<String>builder().score(1.0, "A").score(4.0, "B")
 			.score(0.0, "C").normalize().build();
-		assertThat(lookup.score("A"), is(0.2));
-		assertThat(lookup.score("B"), is(0.8));
-		assertThat(lookup.score("C"), is(0.0));
-		assertThat(lookup.score("D"), is(0.0));
+		assertEquals(lookup.score("A"), 0.2);
+		assertEquals(lookup.score("B"), 0.8);
+		assertEquals(lookup.score("C"), 0.0);
+		assertEquals(lookup.score("D"), 0.0);
 	}
 
 }

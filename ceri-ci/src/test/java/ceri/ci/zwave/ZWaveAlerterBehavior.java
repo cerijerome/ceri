@@ -1,6 +1,7 @@
 package ceri.ci.zwave;
 
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.io.IOException;
@@ -11,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import ceri.common.test.TestUtil;
 
 public class ZWaveAlerterBehavior {
 	@Mock
@@ -38,8 +38,8 @@ public class ZWaveAlerterBehavior {
 	@Test
 	public void shouldFailToBuildWithInvalidAddress() {
 		final ZWaveAlerter.Builder builder = ZWaveAlerter.builder(controller);
-		TestUtil.assertThrown(() -> builder.device(null, 0));
-		TestUtil.assertThrown(() -> builder.device("x", -1));
+		assertThrown(() -> builder.device(null, 0));
+		assertThrown(() -> builder.device("x", -1));
 	}
 
 	@Test

@@ -1,15 +1,16 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertMap;
-import static ceri.common.test.TestUtil.assertNotNull;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertMap;
+import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.text.StringUtil.reverse;
-import static org.hamcrest.CoreMatchers.is;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -17,7 +18,6 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class RegexUtilTest {
 	private static final Pattern LSTRING_PATTERN = Pattern.compile("([a-z]+)");
@@ -36,46 +36,46 @@ public class RegexUtilTest {
 		Pattern p0 = Pattern.compile("(?m).*");
 		Pattern p1 = Pattern.compile("(?m).+");
 		Pattern p2 = Pattern.compile("(?m).*", 1);
-		assertThat(RegexUtil.hashCode(null), is(RegexUtil.hashCode(null)));
-		assertThat(RegexUtil.hashCode(p0), is(RegexUtil.hashCode(p0)));
-		assertThat(RegexUtil.hashCode(p1), is(RegexUtil.hashCode(p1)));
-		assertThat(RegexUtil.hashCode(p2), is(RegexUtil.hashCode(p2)));
+		assertEquals(RegexUtil.hashCode(null), RegexUtil.hashCode(null));
+		assertEquals(RegexUtil.hashCode(p0), RegexUtil.hashCode(p0));
+		assertEquals(RegexUtil.hashCode(p1), RegexUtil.hashCode(p1));
+		assertEquals(RegexUtil.hashCode(p2), RegexUtil.hashCode(p2));
 	}
 
 	@Test
 	public void testEquals() {
 		Pattern p = Pattern.compile("test.*");
-		assertThat(RegexUtil.equals(null, null), is(true));
-		assertThat(RegexUtil.equals(p, null), is(false));
-		assertThat(RegexUtil.equals(null, p), is(false));
-		assertThat(RegexUtil.equals(p, p), is(true));
-		assertThat(RegexUtil.equals(p, Pattern.compile("test.*")), is(true));
-		assertThat(RegexUtil.equals(p, Pattern.compile("test.+")), is(false));
-		assertThat(RegexUtil.equals(Pattern.compile(".*", 1), Pattern.compile(".*", 1)), is(true));
-		assertThat(RegexUtil.equals(Pattern.compile(".*", 1), Pattern.compile(".*", 2)), is(false));
+		assertTrue(RegexUtil.equals(null, null));
+		assertFalse(RegexUtil.equals(p, null));
+		assertFalse(RegexUtil.equals(null, p));
+		assertTrue(RegexUtil.equals(p, p));
+		assertTrue(RegexUtil.equals(p, Pattern.compile("test.*")));
+		assertFalse(RegexUtil.equals(p, Pattern.compile("test.+")));
+		assertTrue(RegexUtil.equals(Pattern.compile(".*", 1), Pattern.compile(".*", 1)));
+		assertFalse(RegexUtil.equals(Pattern.compile(".*", 1), Pattern.compile(".*", 2)));
 	}
 
 	@Test
 	public void testFinder() {
-		assertThat(RegexUtil.finder(INT_PATTERN).test(null), is(false));
-		assertThat(RegexUtil.finder("(\\d+)").test("abc123def456"), is(true));
-		assertThat(RegexUtil.finder(LSTRING_PATTERN).test("abc123def456"), is(true));
-		assertThat(RegexUtil.finder(USTRING_PATTERN).test("abc123def456"), is(false));
+		assertFalse(RegexUtil.finder(INT_PATTERN).test(null));
+		assertTrue(RegexUtil.finder("(\\d+)").test("abc123def456"));
+		assertTrue(RegexUtil.finder(LSTRING_PATTERN).test("abc123def456"));
+		assertFalse(RegexUtil.finder(USTRING_PATTERN).test("abc123def456"));
 	}
 
 	@Test
 	public void testMatcher() {
-		assertThat(RegexUtil.matcher(INT_PATTERN).test(null), is(false));
-		assertThat(RegexUtil.matcher(INT_PATTERN).test("123"), is(true));
-		assertThat(RegexUtil.matcher("(\\d+)").test("123def456"), is(false));
-		assertThat(RegexUtil.matcher(LSTRING_PATTERN).test("abc"), is(true));
-		assertThat(RegexUtil.matcher(USTRING_PATTERN).test("abc"), is(false));
+		assertFalse(RegexUtil.matcher(INT_PATTERN).test(null));
+		assertTrue(RegexUtil.matcher(INT_PATTERN).test("123"));
+		assertFalse(RegexUtil.matcher("(\\d+)").test("123def456"));
+		assertTrue(RegexUtil.matcher(LSTRING_PATTERN).test("abc"));
+		assertFalse(RegexUtil.matcher(USTRING_PATTERN).test("abc"));
 	}
 
 	@Test
 	public void testCompileOr() {
 		Pattern p = RegexUtil.compileOr(INT_PATTERN, LSTRING_PATTERN);
-		assertThat(p.pattern().toString(), is("((\\d+)|([a-z]+))"));
+		assertEquals(p.pattern().toString(), "((\\d+)|([a-z]+))");
 	}
 
 	@Test
@@ -95,39 +95,39 @@ public class RegexUtilTest {
 
 	@Test
 	public void testReplaceAllQuoted() {
-		assertThat(RegexUtil.replaceAllQuoted(Pattern.compile("\\d+"), "abc123de45f6", m -> null),
-			is("abc123de45f6"));
-		assertThat(RegexUtil.replaceAllQuoted(Pattern.compile("\\d+"), "abc123de45f6", "N\\$"),
-			is("abcN\\$deN\\$fN\\$"));
-		assertThat(RegexUtil.replaceAllQuoted(Pattern.compile("[\\\\$]+"), "abc$\\def\\$",
-			m -> reverse(m.group())), is("abc\\$def$\\"));
+		assertEquals(RegexUtil.replaceAllQuoted(Pattern.compile("\\d+"), "abc123de45f6", m -> null),
+			"abc123de45f6");
+		assertEquals(RegexUtil.replaceAllQuoted(Pattern.compile("\\d+"), "abc123de45f6", "N\\$"),
+			"abcN\\$deN\\$fN\\$");
+		assertEquals(RegexUtil.replaceAllQuoted(Pattern.compile("[\\\\$]+"), "abc$\\def\\$",
+			m -> reverse(m.group())), "abc\\$def$\\");
 	}
 
 	@Test
 	public void testReplaceAllQuotedWithIndex() {
 		String s = "abcdef";
 		s = RegexUtil.replaceAllQuoted(Pattern.compile("[a-f]"), s, (m, i) -> "$" + i);
-		assertThat(s, is("$0$1$2$3$4$5"));
+		assertEquals(s, "$0$1$2$3$4$5");
 	}
 
 	@Test
 	public void testReplaceAll() {
 		String s = "abcdefghijklmnopqrstuvwxyz";
 		s = RegexUtil.replaceAll(Pattern.compile("[aeiou]"), s, m -> m.group().toUpperCase());
-		assertThat(s, is("AbcdEfghIjklmnOpqrstUvwxyz"));
+		assertEquals(s, "AbcdEfghIjklmnOpqrstUvwxyz");
 		Pattern p = Pattern.compile("((?<!\\\\)\".*?(?<!\\\\)\"|\\s+)");
 		Function<MatchResult, String> fn = r -> r.group().charAt(0) == '\"' ? null : "";
-		assertThat(RegexUtil.replaceAll(p, "", fn), is(""));
-		assertThat(RegexUtil.replaceAll(p, "test", fn), is("test"));
-		assertThat(RegexUtil.replaceAll(p, "\"test\"", fn), is("\"test\""));
-		assertThat(RegexUtil.replaceAll(p, "t e s t", fn), is("test"));
-		assertThat(RegexUtil.replaceAll(p, "\"t e s t\"", fn), is("\"t e s t\""));
-		assertThat(RegexUtil.replaceAll(p, "\"t \\\"e s\\\" t\"", fn), is("\"t \\\"e s\\\" t\""));
-		assertThat(RegexUtil.replaceAll(p, "{ \"_id\" : ObjectId(\"12345\")", fn),
-			is("{\"_id\":ObjectId(\"12345\")"));
-		assertThat(RegexUtil.replaceAll(Pattern.compile("abc"), "ab", (m, i) -> ""), is("ab"));
-		assertThat(RegexUtil.replaceAll(Pattern.compile("^"), "ab", (m, i) -> "x"), is("xab"));
-		assertThat(RegexUtil.replaceAll(Pattern.compile("ab"), "ab", (m, i) -> ""), is(""));
+		assertEquals(RegexUtil.replaceAll(p, "", fn), "");
+		assertEquals(RegexUtil.replaceAll(p, "test", fn), "test");
+		assertEquals(RegexUtil.replaceAll(p, "\"test\"", fn), "\"test\"");
+		assertEquals(RegexUtil.replaceAll(p, "t e s t", fn), "test");
+		assertEquals(RegexUtil.replaceAll(p, "\"t e s t\"", fn), "\"t e s t\"");
+		assertEquals(RegexUtil.replaceAll(p, "\"t \\\"e s\\\" t\"", fn), "\"t \\\"e s\\\" t\"");
+		assertEquals(RegexUtil.replaceAll(p, "{ \"_id\" : ObjectId(\"12345\")", fn),
+			"{\"_id\":ObjectId(\"12345\")");
+		assertEquals(RegexUtil.replaceAll(Pattern.compile("abc"), "ab", (m, i) -> ""), "ab");
+		assertEquals(RegexUtil.replaceAll(Pattern.compile("^"), "ab", (m, i) -> "x"), "xab");
+		assertEquals(RegexUtil.replaceAll(Pattern.compile("ab"), "ab", (m, i) -> ""), "");
 	}
 
 	@Test
@@ -139,31 +139,30 @@ public class RegexUtilTest {
 
 	@Test
 	public void testReplaceAllWithIndex() {
-		assertThat(
+		assertEquals(
 			RegexUtil.replaceAll(Pattern.compile("[a-f]"), "abcdefg", (m, i) -> String.valueOf(i)),
-			is("012345g"));
+			"012345g");
 	}
 
 	@Test
 	public void testReplaceExcept() {
-		assertThat(RegexUtil.replaceExcept(Pattern.compile(""), "", ""), is(""));
-		assertThat(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "AaBbCcDd", "x"),
-			is("xaxbxcx"));
-		assertThat(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "abc", "x"), is("abc"));
-		assertThat(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "def", "x"), is("x"));
-		assertThat(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "def", ""), is(""));
-		assertThat(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "def", (String) null),
-			is("def"));
-		assertThat(RegexUtil.replaceExcept(Pattern.compile("^"), "abc", "x"), is("x"));
-		assertThat(RegexUtil.replaceExcept(Pattern.compile("$"), "abc", "x"), is("x"));
-		assertThat(RegexUtil.replaceExcept(Pattern.compile("[a-c]+"), "abcdefbca",
-			m -> m.group().toUpperCase()), is("abcDEFbca"));
+		assertEquals(RegexUtil.replaceExcept(Pattern.compile(""), "", ""), "");
+		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "AaBbCcDd", "x"), "xaxbxcx");
+		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "abc", "x"), "abc");
+		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "def", "x"), "x");
+		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "def", ""), "");
+		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "def", (String) null),
+			"def");
+		assertEquals(RegexUtil.replaceExcept(Pattern.compile("^"), "abc", "x"), "x");
+		assertEquals(RegexUtil.replaceExcept(Pattern.compile("$"), "abc", "x"), "x");
+		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]+"), "abcdefbca",
+			m -> m.group().toUpperCase()), "abcDEFbca");
 	}
 
 	@Test
 	public void testReplaceExceptWithIndex() {
-		assertThat(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "AaBbCcDd",
-			(m, i) -> String.valueOf(i)), is("0a1b2c3"));
+		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "AaBbCcDd",
+			(m, i) -> String.valueOf(i)), "0a1b2c3");
 	}
 
 	@Test
@@ -193,13 +192,13 @@ public class RegexUtilTest {
 	public void testTypedGroups() {
 		Matcher m = MULTI_PATTERN.matcher("123 true 4.5");
 		assertTrue(m.find());
-		assertThat(RegexUtil.booleanGroup(m, 2), is(true));
-		assertThat(RegexUtil.byteGroup(m, 1), is((byte) 123));
-		assertThat(RegexUtil.shortGroup(m, 1), is((short) 123));
-		assertThat(RegexUtil.intGroup(m, 1), is(123));
-		assertThat(RegexUtil.longGroup(m, 1), is(123L));
-		assertThat(RegexUtil.floatGroup(m, 3), is(4.5f));
-		assertThat(RegexUtil.doubleGroup(m, 3), is(4.5));
+		assertTrue(RegexUtil.booleanGroup(m, 2));
+		assertEquals(RegexUtil.byteGroup(m, 1), (byte) 123);
+		assertEquals(RegexUtil.shortGroup(m, 1), (short) 123);
+		assertEquals(RegexUtil.intGroup(m, 1), 123);
+		assertEquals(RegexUtil.longGroup(m, 1), 123L);
+		assertEquals(RegexUtil.floatGroup(m, 3), 4.5f);
+		assertEquals(RegexUtil.doubleGroup(m, 3), 4.5);
 	}
 
 	@Test
@@ -209,21 +208,21 @@ public class RegexUtilTest {
 		assertTrue(m.find());
 		assertNull(RegexUtil.namedGroup(m, "test"));
 		assertNull(RegexUtil.namedGroup(m, "letter"));
-		assertThat(RegexUtil.namedGroup(m, "number"), is("123"));
+		assertEquals(RegexUtil.namedGroup(m, "number"), "123");
 		assertTrue(m.find());
-		assertThat(RegexUtil.namedGroup(m, "letter"), is("abc"));
+		assertEquals(RegexUtil.namedGroup(m, "letter"), "abc");
 		assertNull(RegexUtil.namedGroup(m, "number"));
 		assertTrue(m.find());
 		assertNull(RegexUtil.namedGroup(m, "letter"));
-		assertThat(RegexUtil.namedGroup(m, "number"), is("45"));
+		assertEquals(RegexUtil.namedGroup(m, "number"), "45");
 		assertTrue(m.find());
-		assertThat(RegexUtil.namedGroup(m, "letter"), is("de"));
+		assertEquals(RegexUtil.namedGroup(m, "letter"), "de");
 		assertNull(RegexUtil.namedGroup(m, "number"));
 		assertTrue(m.find());
 		assertNull(RegexUtil.namedGroup(m, "letter"));
-		assertThat(RegexUtil.namedGroup(m, "number"), is("6"));
+		assertEquals(RegexUtil.namedGroup(m, "number"), "6");
 		assertTrue(m.find());
-		assertThat(RegexUtil.namedGroup(m, "letter"), is("f"));
+		assertEquals(RegexUtil.namedGroup(m, "letter"), "f");
 		assertNull(RegexUtil.namedGroup(m, "number"));
 	}
 
@@ -244,7 +243,7 @@ public class RegexUtilTest {
 	public void testFound() {
 		assertNull(RegexUtil.found(INT_PATTERN, null));
 		assertNull(RegexUtil.found(INT_PATTERN, "abc"));
-		assertThat(RegexUtil.found(INT_PATTERN, "abc123de45f6").group(), is("123"));
+		assertEquals(RegexUtil.found(INT_PATTERN, "abc123de45f6").group(), "123");
 	}
 
 	@Test
@@ -253,59 +252,59 @@ public class RegexUtilTest {
 		Pattern p1 = Pattern.compile("abc.*");
 		assertNull(RegexUtil.match(p0, null));
 		assertNull(RegexUtil.match(p0, "ab"));
-		assertThat(RegexUtil.match(p0, "abcdef"), is("abc"));
-		assertThat(RegexUtil.match(p1, "abcdef"), is("abcdef"));
+		assertEquals(RegexUtil.match(p0, "abcdef"), "abc");
+		assertEquals(RegexUtil.match(p1, "abcdef"), "abcdef");
 	}
 
 	@Test
 	public void testFind() {
-		assertThat(RegexUtil.find(LSTRING_PATTERN, "abc123DEF456ghi789JKL"), is("abc"));
-		assertThat(RegexUtil.find(USTRING_PATTERN, "abc123DEF456ghi789JKL"), is("DEF"));
-		assertThat(RegexUtil.find(INT_PATTERN, "abc123DEF456ghi789JKL"), is("123"));
+		assertEquals(RegexUtil.find(LSTRING_PATTERN, "abc123DEF456ghi789JKL"), "abc");
+		assertEquals(RegexUtil.find(USTRING_PATTERN, "abc123DEF456ghi789JKL"), "DEF");
+		assertEquals(RegexUtil.find(INT_PATTERN, "abc123DEF456ghi789JKL"), "123");
 		assertNull(RegexUtil.find(INT_PATTERN, "abcDEFghiJKL"));
 	}
 
 	@Test
 	public void testFindBoolean() {
-		assertThat(RegexUtil.findBoolean(USTRING_PATTERN, "falseTRUE123"), is(true));
-		assertThat(RegexUtil.findBoolean(INT_PATTERN, "abc123DEF456ghi789JKL"), is(false));
-		assertThat(RegexUtil.findBoolean(LSTRING_PATTERN, "abc123DEF456ghi789JKL"), is(false));
+		assertTrue(RegexUtil.findBoolean(USTRING_PATTERN, "falseTRUE123"));
+		assertFalse(RegexUtil.findBoolean(INT_PATTERN, "abc123DEF456ghi789JKL"));
+		assertFalse(RegexUtil.findBoolean(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindByte() {
-		assertThat(RegexUtil.findByte(INT_PATTERN, "abc123DEF456ghi789JKL"), is((byte) 123));
-		TestUtil.assertThrown(() -> RegexUtil.findByte(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		assertEquals(RegexUtil.findByte(INT_PATTERN, "abc123DEF456ghi789JKL"), (byte) 123);
+		assertThrown(() -> RegexUtil.findByte(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindShort() {
-		assertThat(RegexUtil.findShort(INT_PATTERN, "abc123DEF456ghi789JKL"), is((short) 123));
-		TestUtil.assertThrown(() -> RegexUtil.findShort(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		assertEquals(RegexUtil.findShort(INT_PATTERN, "abc123DEF456ghi789JKL"), (short) 123);
+		assertThrown(() -> RegexUtil.findShort(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindInt() {
-		assertThat(RegexUtil.findInt(INT_PATTERN, "abc123DEF456ghi789JKL"), is(123));
-		TestUtil.assertThrown(() -> RegexUtil.findInt(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		assertEquals(RegexUtil.findInt(INT_PATTERN, "abc123DEF456ghi789JKL"), 123);
+		assertThrown(() -> RegexUtil.findInt(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindLong() {
-		assertThat(RegexUtil.findLong(INT_PATTERN, "abc123DEF456ghi789JKL"), is(123L));
-		TestUtil.assertThrown(() -> RegexUtil.findLong(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		assertEquals(RegexUtil.findLong(INT_PATTERN, "abc123DEF456ghi789JKL"), 123L);
+		assertThrown(() -> RegexUtil.findLong(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindFloat() {
-		assertThat(RegexUtil.findFloat(INT_PATTERN, "abc123DEF456ghi789JKL"), is(123f));
-		TestUtil.assertThrown(() -> RegexUtil.findFloat(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		assertEquals(RegexUtil.findFloat(INT_PATTERN, "abc123DEF456ghi789JKL"), 123f);
+		assertThrown(() -> RegexUtil.findFloat(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindDouble() {
-		assertThat(RegexUtil.findDouble(INT_PATTERN, "abc123DEF456ghi789JKL"), is(123.0));
-		TestUtil.assertThrown(() -> RegexUtil.findDouble(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		assertEquals(RegexUtil.findDouble(INT_PATTERN, "abc123DEF456ghi789JKL"), 123.0);
+		assertThrown(() -> RegexUtil.findDouble(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
@@ -328,48 +327,42 @@ public class RegexUtilTest {
 	public void testFindAllBytes() {
 		assertCollection(RegexUtil.findAllBytes(INT_PATTERN, "abc123DEF127ghi0000JKL"), (byte) 123,
 			(byte) 127, (byte) 0);
-		TestUtil
-			.assertThrown(() -> RegexUtil.findAllBytes(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		assertThrown(() -> RegexUtil.findAllBytes(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindAllShorts() {
 		assertCollection(RegexUtil.findAllShorts(INT_PATTERN, "abc123DEF456ghi789JKL"), (short) 123,
 			(short) 456, (short) 789);
-		TestUtil
-			.assertThrown(() -> RegexUtil.findAllShorts(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		assertThrown(() -> RegexUtil.findAllShorts(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindAllInts() {
 		assertCollection(RegexUtil.findAllInts(INT_PATTERN, "abc123DEF456ghi789JKL"), 123, 456,
 			789);
-		TestUtil
-			.assertThrown(() -> RegexUtil.findAllInts(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		assertThrown(() -> RegexUtil.findAllInts(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindAllLongs() {
 		assertCollection(RegexUtil.findAllLongs(INT_PATTERN, "abc123DEF456ghi789JKL"), 123L, 456L,
 			789L);
-		TestUtil
-			.assertThrown(() -> RegexUtil.findAllLongs(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		assertThrown(() -> RegexUtil.findAllLongs(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindAllFloats() {
 		assertCollection(RegexUtil.findAllFloats(INT_PATTERN, "abc123DEF456ghi789JKL"), 123f, 456f,
 			789f);
-		TestUtil
-			.assertThrown(() -> RegexUtil.findAllFloats(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		assertThrown(() -> RegexUtil.findAllFloats(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 	@Test
 	public void testFindAllDoubles() {
 		assertCollection(RegexUtil.findAllDoubles(INT_PATTERN, "abc123DEF456ghi789JKL"), 123.0,
 			456.0, 789.0);
-		TestUtil
-			.assertThrown(() -> RegexUtil.findAllDoubles(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		assertThrown(() -> RegexUtil.findAllDoubles(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
 	}
 
 }

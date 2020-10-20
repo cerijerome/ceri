@@ -1,8 +1,7 @@
 package ceri.ent.json;
 
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.resource;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,11 +13,11 @@ public class JsonUtilTest {
 
 	@Test
 	public void testExtract() {
-		assertThat(JsonUtil.extract(OBJ1, "glossary.title"), is("example glossary"));
-		assertThat(JsonUtil.extract(OBJ1,
-			"glossary.GlossDiv.GlossList.GlossEntry.GlossDef.GlossSeeAlso.1"), is("XML"));
-		assertThat(JsonUtil.extract(OBJ2, "cars.2.models.0"), is("500"));
-		assertThat(JsonUtil.extractInt(OBJ2, "cars.2.models.0"), is(500));
+		assertEquals(JsonUtil.extract(OBJ1, "glossary.title"), "example glossary");
+		assertEquals(JsonUtil.extract(OBJ1,
+			"glossary.GlossDiv.GlossList.GlossEntry.GlossDef.GlossSeeAlso.1"), "XML");
+		assertEquals(JsonUtil.extract(OBJ2, "cars.2.models.0"), "500");
+		assertEquals(JsonUtil.extractInt(OBJ2, "cars.2.models.0"), 500);
 	}
 
 }

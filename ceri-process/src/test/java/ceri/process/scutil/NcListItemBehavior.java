@@ -1,10 +1,9 @@
 package ceri.process.scutil;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class NcListItemBehavior {
@@ -28,8 +27,8 @@ public class NcListItemBehavior {
 
 	@Test
 	public void shouldShowStateOnlyForNoService() {
-		assertThat(NcListItem.builder().state(NcServiceState.noService).build().toString(),
-			is(NcServiceState.noService.toString()));
+		assertEquals(NcListItem.builder().state(NcServiceState.noService).build().toString(),
+			NcServiceState.noService.toString());
 	}
 
 	@Test

@@ -1,14 +1,14 @@
 package ceri.common.function;
 
-import static ceri.common.test.TestUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertArray;
 import org.junit.Test;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 
 public class ObjBooleanConsumerBehavior {
 
 	@Test
 	public void shouldCombineWithAndThen() {
-		Capturer.Bi<Integer, Boolean> capturer = Capturer.ofBi();
+		Captor.Bi<Integer, Boolean> capturer = Captor.ofBi();
 		ObjBooleanConsumer<Integer> consumer0 = (i, b) -> capturer.accept(i, null);
 		ObjBooleanConsumer<Integer> consumer1 = (i, b) -> capturer.accept(null, b);
 		ObjBooleanConsumer<Integer> consumer = consumer0.andThen(consumer1);

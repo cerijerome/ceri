@@ -1,9 +1,8 @@
 package ceri.common.event;
 
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.function.IntConsumer;
 import org.junit.Test;
 
@@ -15,22 +14,22 @@ public class IntListenersBehavior {
 		IntConsumer l0 = i -> count[0] += i;
 		IntConsumer l1 = i -> count[0] += (i * 100);
 		IntListeners ls = IntListeners.of();
-		assertThat(ls.isEmpty(), is(true));
+		assertTrue(ls.isEmpty());
 		ls.listen(l0);
 		ls.listen(l0);
 		ls.listen(l1);
-		assertThat(ls.size(), is(3));
+		assertEquals(ls.size(), 3);
 		ls.accept(1);
-		assertThat(count[0], is(102));
+		assertEquals(count[0], 102);
 		ls.unlisten(l0);
 		ls.accept(2);
-		assertThat(count[0], is(102 + 202));
+		assertEquals(count[0], 102 + 202);
 		ls.unlisten(l1);
 		ls.accept(3);
-		assertThat(count[0], is(102 + 202 + 3));
+		assertEquals(count[0], 102 + 202 + 3);
 		ls.unlisten(l0);
 		ls.accept(4);
-		assertThat(count[0], is(102 + 202 + 3));
+		assertEquals(count[0], 102 + 202 + 3);
 	}
 
 	@Test

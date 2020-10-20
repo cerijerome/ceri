@@ -1,11 +1,9 @@
 package ceri.ci.web;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertEquals;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 import ceri.ci.build.BuildTestUtil;
 import ceri.ci.build.Builds;
@@ -77,8 +75,8 @@ public class AnalyzedActorsBehavior {
 		assertNotEquals(null, actors);
 		assertEquals(actors, actors);
 		assertEquals(actors, actors2);
-		assertThat(actors.hashCode(), is(actors2.hashCode()));
-		assertThat(actors.toString(), is(actors2.toString()));
+		assertEquals(actors.hashCode(), actors2.hashCode());
+		assertEquals(actors.toString(), actors2.toString());
 	}
 
 }

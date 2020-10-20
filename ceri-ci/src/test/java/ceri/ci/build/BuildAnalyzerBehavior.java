@@ -1,9 +1,8 @@
 package ceri.ci.build;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Collection;
 import org.junit.Test;
 
@@ -34,15 +33,15 @@ public class BuildAnalyzerBehavior {
 		ba.update(builds);
 		ba.update();
 		Collection<AnalyzedJob> ajs = ba.analyzedJobs();
-		assertThat(ajs.size(), is(1));
+		assertEquals(ajs.size(), 1);
 		AnalyzedJob aj = ajs.iterator().next();
 		assertTrue(aj.justBroken.isEmpty());
 		assertTrue(aj.justFixed.isEmpty());
-		assertThat(aj.stillBroken.size(), is(1));
+		assertEquals(aj.stillBroken.size(), 1);
 		Job job = aj.stillBroken.iterator().next();
 		Job j0 = new Job("j0");
 		j0.events(e0);
-		assertThat(job, is(j0));
+		assertEquals(job, j0);
 	}
 
 	@Test

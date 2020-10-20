@@ -1,11 +1,9 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
 import java.util.Iterator;
 import org.junit.Test;
 import org.junit.runner.Description;
@@ -39,10 +37,10 @@ public class TestPrinterBehavior {
 		Description d = Description.createTestDescription(MyClass.class, "myMethod");
 		d.addChild(Description.createTestDescription(MySubClass.class, "mySubMethod"));
 		p.testStarted(d);
-		assertThat(p.tests().size(), is(2));
+		assertEquals(p.tests().size(), 2);
 		Iterator<TestPrinter.Test> i = p.tests().iterator();
-		assertThat(i.next().description, is("mySubMethod"));
-		assertThat(i.next().description, is("myMethod"));
+		assertEquals(i.next().description, "mySubMethod");
+		assertEquals(i.next().description, "myMethod");
 	}
 
 	@Test
@@ -51,8 +49,8 @@ public class TestPrinterBehavior {
 		Description d = Description.createTestDescription(getClass(), "shouldConvertToPhrase");
 		p.testStarted(d);
 		assertTrue(p.tests().isEmpty());
-		assertThat(p.behaviors().size(), is(1));
-		assertThat(p.behaviors().iterator().next().description, is("should convert to phrase"));
+		assertEquals(p.behaviors().size(), 1);
+		assertEquals(p.behaviors().iterator().next().description, "should convert to phrase");
 	}
 
 	@Test
@@ -61,7 +59,7 @@ public class TestPrinterBehavior {
 		Description d = Description.createTestDescription(getClass(), "testThisMethod");
 		p.testStarted(d);
 		assertTrue(p.behaviors().isEmpty());
-		assertThat(p.tests().iterator().next().description, is("test thisMethod"));
+		assertEquals(p.tests().iterator().next().description, "test thisMethod");
 	}
 
 	@SuppressWarnings("resource")
@@ -75,8 +73,8 @@ public class TestPrinterBehavior {
 		StringBuilder b = new StringBuilder();
 		p.print(StringUtil.asPrintStream(b));
 		String output = b.toString();
-		assertThat(output, containsString("should be\n"));
-		assertThat(output, containsString("test this\n"));
+		assertTrue(output.contains("should be\n"));
+		assertTrue(output.contains("test this\n"));
 	}
 
 }

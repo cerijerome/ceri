@@ -1,8 +1,7 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 
@@ -15,8 +14,8 @@ public class RuntimeEofExceptionBehavior {
 		RuntimeEofException e2 = RuntimeEofException.of("%s", "test");
 		RuntimeEofException e3 = RuntimeEofException.of(new IOException(), "%s", "test");
 		assertAllNotEqual(e0, e1, e2, e3);
-		assertThat(e1.getMessage(), is(e2.getMessage()));
-		assertThat(e1.getMessage(), is(e3.getMessage()));
+		assertEquals(e1.getMessage(), e2.getMessage());
+		assertEquals(e1.getMessage(), e3.getMessage());
 	}
 
 }

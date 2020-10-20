@@ -1,10 +1,9 @@
 package ceri.common.color;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class CtColorBehavior {
@@ -23,7 +22,7 @@ public class CtColorBehavior {
 	@Test
 	public void shouldConvertBetweenMiredAndKelvin() {
 		assertApprox(CtColor.of(4500).mired(), 222.222);
-		assertThat(CtColor.miredToKelvin(222.222), is(4500));
+		assertEquals(CtColor.miredToKelvin(222.222), 4500);
 	}
 
 }

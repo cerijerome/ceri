@@ -1,7 +1,7 @@
 package ceri.common.geom;
 
-import static ceri.common.test.TestUtil.APPROX_PRECISION_DEF;
-import ceri.common.test.TestUtil;
+import static ceri.common.test.AssertUtil.APPROX_PRECISION_DEF;
+import ceri.common.test.AssertUtil;
 
 public class GeometryTestUtil {
 
@@ -20,8 +20,8 @@ public class GeometryTestUtil {
 	}
 
 	public static void assertApprox(Point2d point, double x, double y, int precision) {
-		TestUtil.assertApprox(point.x, x, precision);
-		TestUtil.assertApprox(point.y, y, precision);
+		AssertUtil.assertApprox(point.x, x, precision);
+		AssertUtil.assertApprox(point.y, y, precision);
 	}
 
 }

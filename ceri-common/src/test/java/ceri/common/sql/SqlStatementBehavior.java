@@ -3,8 +3,8 @@ package ceri.common.sql;
 import static ceri.common.sql.SqlNull.nullClob;
 import static ceri.common.sql.SqlNull.nullDate;
 import static ceri.common.sql.SqlNull.nullInt;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterable;
 import static java.sql.Types.BIGINT;
 import static java.sql.Types.BIT;
 import static java.sql.Types.BLOB;
@@ -20,7 +20,6 @@ import static java.sql.Types.TIMESTAMP;
 import static java.sql.Types.TINYINT;
 import static java.sql.Types.VARBINARY;
 import static java.sql.Types.VARCHAR;
-import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -70,9 +69,9 @@ public class SqlStatementBehavior {
 	@Test
 	public void shouldCreateWithoutParameters() throws SQLException {
 		try (SqlStatement stmt = SqlStatement.of(con, "select * from %s", "table1")) {
-			assertThat(stmt.fields(), is(0));
-			assertThat(stmt.toString(), is("select * from table1"));
-			assertThat(stmt.jdbc(), is(ps));
+			assertEquals(stmt.fields(), 0);
+			assertEquals(stmt.toString(), "select * from table1");
+			assertEquals(stmt.jdbc(), ps);
 		}
 		verify(ps).close();
 	}
@@ -81,9 +80,9 @@ public class SqlStatementBehavior {
 	public void shouldCreateWithParameters() throws SQLException {
 		try (SqlStatement stmt =
 			SqlStatement.of(con, "select ?, ?, ?, ?, ?, ?, ? from %s", "table1")) {
-			assertThat(stmt.sql, is("select ?, ?, ?, ?, ?, ?, ? from table1"));
-			assertThat(stmt.toString(), is("select ?, ?, ?, ?, ?, ?, ? from table1"));
-			assertThat(stmt.fields(), is(7));
+			assertEquals(stmt.sql, "select ?, ?, ?, ?, ?, ?, ? from table1");
+			assertEquals(stmt.toString(), "select ?, ?, ?, ?, ?, ?, ? from table1");
+			assertEquals(stmt.fields(), 7);
 		}
 		verify(ps).close();
 	}
@@ -152,7 +151,7 @@ public class SqlStatementBehavior {
 	public void shouldTrackParameters() throws SQLException {
 		try (SqlStatement stmt = SqlStatement.track(con, "select ?, ?, ? from table1")) {
 			stmt.set(1, "x", SqlNull.nullClob);
-			assertThat(stmt.toString(), is("select 1, x, null from table1"));
+			assertEquals(stmt.toString(), "select 1, x, null from table1");
 		}
 	}
 
@@ -162,7 +161,7 @@ public class SqlStatementBehavior {
 		try (SqlStatement stmt =
 			SqlStatement.of(con, "select ?, ?, ? from table1").with(SqlFormatter.DEFAULT)) {
 			stmt.set(1, "x", SqlNull.nullClob);
-			assertThat(stmt.toString(), is("select 1, x, null from table1"));
+			assertEquals(stmt.toString(), "select 1, x, null from table1");
 		}
 	}
 
@@ -171,11 +170,11 @@ public class SqlStatementBehavior {
 	public void shouldSupportBatchetNullParameters() throws SQLException {
 		try (SqlStatement stmt = SqlStatement.track(con, "select ?, ?, ? from table1")) {
 			stmt.set(1, nullDate, "x").batch();
-			assertThat(stmt.toString(), is("select 1, null, x from table1"));
+			assertEquals(stmt.toString(), "select 1, null, x from table1");
 			stmt.set(2).batch();
-			assertThat(stmt.toString(), is("select 2, null, x from table1"));
+			assertEquals(stmt.toString(), "select 2, null, x from table1");
 			stmt.skip(2).set("z").batch();
-			assertThat(stmt.toString(), is("select 2, null, z from table1"));
+			assertEquals(stmt.toString(), "select 2, null, z from table1");
 
 			verify(ps, times(1)).setObject(indexes.capture(), objects.capture(), types.capture());
 			verify(ps, times(4)).setObject(indexes.capture(), objects.capture());

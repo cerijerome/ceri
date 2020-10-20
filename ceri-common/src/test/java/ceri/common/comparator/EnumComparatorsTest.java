@@ -1,8 +1,7 @@
 package ceri.common.comparator;
 
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Comparator;
 import org.junit.Test;
 
@@ -21,17 +20,17 @@ public class EnumComparatorsTest {
 	@Test
 	public void testByOrdinal() {
 		Comparator<TestEnum> comparator = EnumComparators.ordinal();
-		assertThat(comparator.compare(TestEnum.C, TestEnum.B) < 0, is(true));
-		assertThat(comparator.compare(TestEnum.B, TestEnum.A) < 0, is(true));
-		assertThat(comparator.compare(TestEnum.A, TestEnum.C) > 0, is(true));
+		assertTrue(comparator.compare(TestEnum.C, TestEnum.B) < 0);
+		assertTrue(comparator.compare(TestEnum.B, TestEnum.A) < 0);
+		assertTrue(comparator.compare(TestEnum.A, TestEnum.C) > 0);
 	}
 
 	@Test
 	public void testByName() {
 		Comparator<TestEnum> comparator = EnumComparators.name();
-		assertThat(comparator.compare(TestEnum.C, TestEnum.B) > 0, is(true));
-		assertThat(comparator.compare(TestEnum.B, TestEnum.A) > 0, is(true));
-		assertThat(comparator.compare(TestEnum.A, TestEnum.C) < 0, is(true));
+		assertTrue(comparator.compare(TestEnum.C, TestEnum.B) > 0);
+		assertTrue(comparator.compare(TestEnum.B, TestEnum.A) > 0);
+		assertTrue(comparator.compare(TestEnum.A, TestEnum.C) < 0);
 	}
 
 }

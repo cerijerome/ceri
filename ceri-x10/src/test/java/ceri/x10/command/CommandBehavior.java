@@ -1,8 +1,10 @@
 package ceri.x10.command;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.x10.command.House.A;
 import static ceri.x10.command.House.B;
@@ -21,7 +23,6 @@ import static ceri.x10.command.Unit._13;
 import static ceri.x10.command.Unit._2;
 import static ceri.x10.command.Unit._3;
 import static ceri.x10.command.Unit._4;
-import static org.hamcrest.CoreMatchers.is;
 import java.util.Collection;
 import org.junit.Test;
 
@@ -44,14 +45,14 @@ public class CommandBehavior {
 
 	@Test
 	public void shouldCreateFromString() {
-		assertThat(Command.from("A[1,2]:on"), is(Command.on(A, _1, _2)));
-		assertThat(Command.from("B[]:on"), is(Command.on(B)));
-		assertThat(Command.from("C[ ]:on"), is(Command.on(C)));
-		assertThat(Command.from("D:on"), is(Command.on(D)));
-		assertThat(Command.from("E:allLightsOn"), is(Command.allLightsOn(E)));
-		assertThat(Command.from("F:allLightsOff"), is(Command.allLightsOff(F)));
-		assertThat(Command.from("G:allUnitsOff"), is(Command.allUnitsOff(G)));
-		assertThat(Command.from("H[3,4]:ext:100:200"), is(Command.ext(H, 100, 200, _3, _4)));
+		assertEquals(Command.from("A[1,2]:on"), Command.on(A, _1, _2));
+		assertEquals(Command.from("B[]:on"), Command.on(B));
+		assertEquals(Command.from("C[ ]:on"), Command.on(C));
+		assertEquals(Command.from("D:on"), Command.on(D));
+		assertEquals(Command.from("E:allLightsOn"), Command.allLightsOn(E));
+		assertEquals(Command.from("F:allLightsOff"), Command.allLightsOff(F));
+		assertEquals(Command.from("G:allUnitsOff"), Command.allUnitsOff(G));
+		assertEquals(Command.from("H[3,4]:ext:100:200"), Command.ext(H, 100, 200, _3, _4));
 	}
 
 	@Test
@@ -70,15 +71,15 @@ public class CommandBehavior {
 
 	@Test
 	public void shouldDetermineIfNoOpCommand() {
-		assertThat(Command.allLightsOn(H).isNoOp(), is(false));
-		assertThat(Command.on(H).isNoOp(), is(true));
-		assertThat(Command.dim(H, 0, _1).isNoOp(), is(true));
+		assertFalse(Command.allLightsOn(H).isNoOp());
+		assertTrue(Command.on(H).isNoOp());
+		assertTrue(Command.dim(H, 0, _1).isNoOp());
 	}
 
 	@Test
 	public void shouldCheckFunctionGroup() {
-		assertThat(Command.on(H, _1).isGroup(FunctionGroup.unit), is(true));
-		assertThat(Command.on(H, _1).isGroup(FunctionGroup.house), is(false));
+		assertTrue(Command.on(H, _1).isGroup(FunctionGroup.unit));
+		assertFalse(Command.on(H, _1).isGroup(FunctionGroup.house));
 	}
 
 }

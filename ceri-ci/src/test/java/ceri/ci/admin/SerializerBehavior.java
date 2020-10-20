@@ -1,9 +1,8 @@
 package ceri.ci.admin;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Collection;
 import org.junit.Test;
 import ceri.ci.build.Build;
@@ -53,7 +52,7 @@ public class SerializerBehavior {
 		Serializer serializer = new Serializer();
 		Builds builds = new Builds();
 		String s = serializer.fromBuilds(builds);
-		assertThat(s, is("{\"builds\":[]}"));
+		assertEquals(s, "{\"builds\":[]}");
 		builds.build("b0");
 		builds.build("b1");
 		s = serializer.fromBuilds(builds);

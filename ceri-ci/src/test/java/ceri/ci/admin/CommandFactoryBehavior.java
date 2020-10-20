@@ -1,7 +1,6 @@
 package ceri.ci.admin;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -50,7 +49,7 @@ public class CommandFactoryBehavior {
 		Command command = factory.create(params);
 		Response response = command.execute(service);
 		verify(service).process(buildEvents);
-		assertThat(response.success, is(true));
+		assertTrue(response.success);
 	}
 
 	@Test
@@ -61,7 +60,7 @@ public class CommandFactoryBehavior {
 		Command command = factory.create(params);
 		Response response = command.execute(service);
 		verify(serializer).fromBuilds(builds);
-		assertThat(response.success, is(true));
+		assertTrue(response.success);
 	}
 
 	@Test
@@ -72,7 +71,7 @@ public class CommandFactoryBehavior {
 		Command command = factory.create(params);
 		Response response = command.execute(service);
 		verify(serializer).fromBuild(build);
-		assertThat(response.success, is(true));
+		assertTrue(response.success);
 	}
 
 	@Test
@@ -83,7 +82,7 @@ public class CommandFactoryBehavior {
 		Command command = factory.create(params);
 		Response response = command.execute(service);
 		verify(serializer).fromJob(job);
-		assertThat(response.success, is(true));
+		assertTrue(response.success);
 	}
 
 	@Test
@@ -92,7 +91,7 @@ public class CommandFactoryBehavior {
 		Command command = factory.create(params);
 		Response response = command.execute(service);
 		verify(service).purge();
-		assertThat(response.success, is(true));
+		assertTrue(response.success);
 	}
 
 	@Test
@@ -103,7 +102,7 @@ public class CommandFactoryBehavior {
 		Command command = factory.create(params);
 		Response response = command.execute(service);
 		verify(service).delete("b0", null);
-		assertThat(response.success, is(true));
+		assertTrue(response.success);
 	}
 
 	@Test
@@ -114,7 +113,7 @@ public class CommandFactoryBehavior {
 		Command command = factory.create(params);
 		Response response = command.execute(service);
 		verify(service).clear("b0", "j0");
-		assertThat(response.success, is(true));
+		assertTrue(response.success);
 	}
 
 }

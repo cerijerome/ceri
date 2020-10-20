@@ -1,10 +1,9 @@
 package ceri.x10.cm11a.device;
 
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.x10.command.House.B;
 import static ceri.x10.command.Unit._6;
 import static ceri.x10.command.Unit._7;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -32,7 +31,7 @@ public class Cm11aEmulatorBehavior {
 		ValueCondition<StateChange> sync = ValueCondition.of();
 		try (var enc = cm11a.listeners().enclose(sync::signal)) {
 			cm11a.listeners.accept(StateChange.broken);
-			assertThat(sync.await(), is(StateChange.broken));
+			assertEquals(sync.await(), StateChange.broken);
 		}
 	}
 

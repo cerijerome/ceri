@@ -1,7 +1,6 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.StateChange;
@@ -23,14 +22,14 @@ public class Cm17aConnectorBehavior {
 		try (TestSerialConnector serial = TestSerialConnector.of()) {
 			Cm17aConnector.Serial con = Cm17aConnector.serial(serial);
 			con.connect();
-			serial.connectSync.awaitCall();
+			serial.connect.awaitAuto();
 			con.setDtr(false);
-			serial.dtrSync.assertCall(false);
+			serial.dtr.assertAuto(false);
 			con.setRts(true);
-			serial.rtsSync.assertCall(true);
+			serial.rts.assertAuto(true);
 			try (TestListener<StateChange> listener = TestListener.of(con.listeners())) {
 				con.broken();
-				assertThat(listener.await(), is(StateChange.broken));
+				assertEquals(listener.await(), StateChange.broken);
 			}
 		}
 	}

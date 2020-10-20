@@ -1,11 +1,10 @@
 package ceri.common.geom;
 
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Double.NaN;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class InvertedRadial3dBehavior {
@@ -23,8 +22,8 @@ public class InvertedRadial3dBehavior {
 
 	@Test
 	public void shouldExposeWrappedRadial3d() {
-		assertThat(i0.wrapped(), is(c0));
-		assertThat(i1.wrapped(), is(s0));
+		assertEquals(i0.wrapped(), c0);
+		assertEquals(i1.wrapped(), s0);
 	}
 
 	@Test

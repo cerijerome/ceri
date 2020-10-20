@@ -1,11 +1,9 @@
 package ceri.ci.email;
 
 import static ceri.ci.email.EmailTestUtil.messageBuilder;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertEquals;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
 import java.io.IOException;
 import java.util.Date;
 import javax.mail.Message;
@@ -41,10 +39,10 @@ public class EmailBehavior {
 				.sentDate(new Date(time)).subject("subject").content("content").build();
 		Email email = Email.createFrom(message);
 		assertCollection(email.recipients, "to0@test.com", "to1@test.com");
-		assertThat(email.from, is("from@test.com"));
-		assertThat(email.sentDateMs, is(time));
-		assertThat(email.subject, is("subject"));
-		assertThat(email.content, is("content"));
+		assertEquals(email.from, "from@test.com");
+		assertEquals(email.sentDateMs, time);
+		assertEquals(email.subject, "subject");
+		assertEquals(email.content, "content");
 	}
 
 	private Email.Builder presetBuilder() {

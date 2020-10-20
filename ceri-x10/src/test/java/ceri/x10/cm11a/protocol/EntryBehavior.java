@@ -1,10 +1,10 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.x10.command.FunctionType.allLightsOff;
 import static ceri.x10.command.FunctionType.allLightsOn;
@@ -34,7 +34,6 @@ import static ceri.x10.command.Unit._4;
 import static ceri.x10.command.Unit._5;
 import static ceri.x10.command.Unit._6;
 import static ceri.x10.command.Unit._8;
-import static org.hamcrest.CoreMatchers.is;
 import java.util.Set;
 import org.junit.Test;
 import ceri.x10.command.Command;
@@ -86,18 +85,16 @@ public class EntryBehavior {
 
 	@Test
 	public void shouldCreateCommandFromAddressAndUnits() {
-		assertThat(Entry.function(K, allUnitsOff).command(null, null), is(Command.allUnitsOff(K)));
-		assertThat(Entry.function(D, allLightsOff).command(null, Set.of()),
-			is(Command.allLightsOff(D)));
-		assertThat(Entry.function(G, allLightsOn).command(F, Set.of(_1)),
-			is(Command.allLightsOn(G)));
-		assertThat(Entry.function(H, on).command(H, Set.of(_1, _2)), is(Command.on(H, _1, _2)));
-		assertThat(Entry.function(I, off).command(I, Set.of(_4)), is(Command.off(I, _4)));
-		assertThat(Entry.dim(J, dim, 11).command(J, Set.of(_5, _6)),
-			is(Command.dim(J, 11, _5, _6)));
-		assertThat(Entry.dim(J, bright, 33).command(J, Set.of(_5, _6)),
-			is(Command.bright(J, 33, _5, _6)));
-		assertThat(Entry.ext(E, 50, 60).command(E, Set.of(_8)), is(Command.ext(E, 50, 60, _8)));
+		assertEquals(Entry.function(K, allUnitsOff).command(null, null), Command.allUnitsOff(K));
+		assertEquals(Entry.function(D, allLightsOff).command(null, Set.of()),
+			Command.allLightsOff(D));
+		assertEquals(Entry.function(G, allLightsOn).command(F, Set.of(_1)), Command.allLightsOn(G));
+		assertEquals(Entry.function(H, on).command(H, Set.of(_1, _2)), Command.on(H, _1, _2));
+		assertEquals(Entry.function(I, off).command(I, Set.of(_4)), Command.off(I, _4));
+		assertEquals(Entry.dim(J, dim, 11).command(J, Set.of(_5, _6)), Command.dim(J, 11, _5, _6));
+		assertEquals(Entry.dim(J, bright, 33).command(J, Set.of(_5, _6)),
+			Command.bright(J, 33, _5, _6));
+		assertEquals(Entry.ext(E, 50, 60).command(E, Set.of(_8)), Command.ext(E, 50, 60, _8));
 	}
 
 }

@@ -1,8 +1,7 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.junit.Test;
@@ -22,7 +21,7 @@ public class RuntimeIoExceptionBehavior {
 	public void shouldWrapIoException() {
 		IOException io = new FileNotFoundException("test");
 		RuntimeIoException e = new RuntimeIoException(io);
-		assertThat(e.getCause(), is(io));
+		assertEquals(e.getCause(), io);
 	}
 
 }

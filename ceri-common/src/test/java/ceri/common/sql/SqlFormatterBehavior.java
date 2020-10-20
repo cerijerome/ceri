@@ -3,8 +3,7 @@ package ceri.common.sql;
 import static ceri.common.sql.SqlType.sqlClob;
 import static ceri.common.sql.SqlType.sqlNumeric;
 import static ceri.common.sql.SqlType.sqlVarChar;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.sql.Types;
 import org.junit.Test;
 import ceri.common.text.StringUtil;
@@ -25,25 +24,25 @@ public class SqlFormatterBehavior {
 	@Test
 	public void shouldIgnoreTypeByDefault() {
 		SqlFormatter f = obj -> StringUtil.reverse(String.valueOf(obj));
-		assertThat(f.format(null), is("llun"));
-		assertThat(f.format(123), is("321"));
-		assertThat(f.format(123, Types.DATE), is("321"));
+		assertEquals(f.format(null), "llun");
+		assertEquals(f.format(123), "321");
+		assertEquals(f.format(123, Types.DATE), "321");
 	}
 
 	@Test
 	public void shouldFormatByClass() {
-		assertThat(formatter.format(null), is("null"));
-		assertThat(formatter.format("test"), is("String:test"));
-		assertThat(formatter.format(9), is("Number:9"));
+		assertEquals(formatter.format(null), "null");
+		assertEquals(formatter.format("test"), "String:test");
+		assertEquals(formatter.format(9), "Number:9");
 	}
 
 	@Test
 	public void shouldFormatBySqlType() {
-		assertThat(formatter.format(null, sqlVarChar), is("VarChar:null"));
-		assertThat(formatter.format(null, sqlClob), is("null"));
-		assertThat(formatter.format("test", sqlVarChar), is("VarChar:test"));
-		assertThat(formatter.format("test", sqlClob), is("test"));
-		assertThat(formatter.format(9, sqlNumeric), is("Numeric:9"));
+		assertEquals(formatter.format(null, sqlVarChar), "VarChar:null");
+		assertEquals(formatter.format(null, sqlClob), "null");
+		assertEquals(formatter.format("test", sqlVarChar), "VarChar:test");
+		assertEquals(formatter.format("test", sqlClob), "test");
+		assertEquals(formatter.format(9, sqlNumeric), "Numeric:9");
 	}
 
 	private String formatByClass(Object obj) {

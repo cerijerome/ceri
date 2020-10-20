@@ -1,9 +1,9 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import java.nio.file.Path;
 import java.util.function.Predicate;
 import org.junit.Test;
@@ -25,11 +25,11 @@ public class PathPatternBehavior {
 	@Test
 	public void shouldProvideMatcher() {
 		Predicate<Path> test = PathPattern.glob("*.java").matcher();
-		assertThat(test.test(Path.of("Test.java")), is(true));
-		assertThat(test.test(Path.of("org/junit/Test.java")), is(false));
+		assertTrue(test.test(Path.of("Test.java")));
+		assertFalse(test.test(Path.of("org/junit/Test.java")));
 		test = PathPattern.glob("**/*.java").matcher();
-		assertThat(test.test(Path.of("Test.java")), is(false));
-		assertThat(test.test(Path.of("org/junit/Test.java")), is(true));
+		assertFalse(test.test(Path.of("Test.java")));
+		assertTrue(test.test(Path.of("org/junit/Test.java")));
 	}
 
 }

@@ -1,7 +1,7 @@
 package ceri.common.process;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.Arrays;
 import org.junit.Test;

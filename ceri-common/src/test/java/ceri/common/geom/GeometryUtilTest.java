@@ -1,11 +1,10 @@
 package ceri.common.geom;
 
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static java.lang.Double.MAX_VALUE;
 import static java.lang.Double.NaN;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.math.MathUtil;
 
@@ -87,15 +86,15 @@ public class GeometryUtilTest {
 	}
 
 	private void assertDim(Dimension2d dim, double w, double h) {
-		assertThat(dim.w, is(w));
-		assertThat(dim.h, is(h));
+		assertEquals(dim.w, w);
+		assertEquals(dim.h, h);
 	}
 
 	private void assertRect(Rectangle2d rect, double x, double y, double w, double h) {
-		assertThat(rect.x, is(x));
-		assertThat(rect.y, is(y));
-		assertThat(rect.w, is(w));
-		assertThat(rect.h, is(h));
+		assertEquals(rect.x, x);
+		assertEquals(rect.y, y);
+		assertEquals(rect.w, w);
+		assertEquals(rect.h, h);
 	}
 
 }

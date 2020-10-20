@@ -1,7 +1,7 @@
 package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.runnable;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil.Std;
 

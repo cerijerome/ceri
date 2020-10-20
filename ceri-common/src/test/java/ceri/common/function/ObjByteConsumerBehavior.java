@@ -1,14 +1,14 @@
 package ceri.common.function;
 
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 
 public class ObjByteConsumerBehavior {
 
 	@Test
 	public void shouldCombineWithAndThen() {
-		Capturer.Bi<String, Byte> capturer = Capturer.ofBi();
+		Captor.Bi<String, Byte> capturer = Captor.ofBi();
 		ObjByteConsumer<String> consumer0 = (s, b) -> capturer.accept(s, null);
 		ObjByteConsumer<String> consumer1 = (s, b) -> capturer.accept(null, b);
 		var consumer = consumer0.andThen(consumer1);
@@ -19,7 +19,7 @@ public class ObjByteConsumerBehavior {
 
 	@Test
 	public void shouldConvertToIntConsumer() {
-		Capturer.Bi<String, Byte> capturer = Capturer.ofBi();
+		Captor.Bi<String, Byte> capturer = Captor.ofBi();
 		var consumer = ObjByteConsumer.toInt(capturer::accept);
 		consumer.accept("a", Byte.MAX_VALUE);
 		consumer.accept("b", Byte.MIN_VALUE);
@@ -30,7 +30,7 @@ public class ObjByteConsumerBehavior {
 
 	@Test
 	public void shouldConvertToIntExactConsumer() {
-		Capturer.Bi<String, Byte> capturer = Capturer.ofBi();
+		Captor.Bi<String, Byte> capturer = Captor.ofBi();
 		var consumer = ObjByteConsumer.toIntExact(capturer::accept);
 		consumer.accept("a", Byte.MAX_VALUE);
 		consumer.accept("b", Byte.MIN_VALUE);
@@ -41,7 +41,7 @@ public class ObjByteConsumerBehavior {
 
 	@Test
 	public void shouldConvertToUintExactConsumer() {
-		Capturer.Bi<String, Byte> capturer = Capturer.ofBi();
+		Captor.Bi<String, Byte> capturer = Captor.ofBi();
 		var consumer = ObjByteConsumer.toUintExact(capturer::accept);
 		consumer.accept("a", Byte.MAX_VALUE);
 		assertThrown(() -> consumer.accept("b", Byte.MIN_VALUE));

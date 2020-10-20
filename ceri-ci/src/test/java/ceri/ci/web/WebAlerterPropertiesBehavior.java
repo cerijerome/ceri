@@ -1,7 +1,6 @@
 package ceri.ci.web;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -18,7 +17,7 @@ public class WebAlerterPropertiesBehavior {
 	@Test
 	public void shouldReadValuesWithPrefix() {
 		WebAlerterProperties web = new WebAlerterProperties(new BaseProperties(props) {}, "x");
-		assertThat(web.enabled(), is(true));
+		assertTrue(web.enabled());
 	}
 
 }

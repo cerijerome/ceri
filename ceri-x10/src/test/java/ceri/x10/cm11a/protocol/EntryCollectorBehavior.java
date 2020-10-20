@@ -1,6 +1,6 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.x10.command.FunctionType.on;
 import static ceri.x10.command.House.E;
 import static ceri.x10.command.House.G;

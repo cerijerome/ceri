@@ -1,8 +1,7 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.regex.Matcher;
 import org.junit.Test;
 
@@ -13,12 +12,12 @@ public class RegexSequencerBehavior {
 		RegexSequencer seq = RegexSequencer.of("abc123de45f6");
 		Matcher m = seq.matcher("[a-z]+");
 		assertTrue(m.find());
-		assertThat(m.group(), is("abc"));
+		assertEquals(m.group(), "abc");
 		assertTrue(m.find());
-		assertThat(m.group(), is("de"));
+		assertEquals(m.group(), "de");
 		m = seq.matcher("[0-9]+");
 		assertTrue(m.find());
-		assertThat(m.group(), is("45"));
+		assertEquals(m.group(), "45");
 	}
 
 	@Test
@@ -27,7 +26,7 @@ public class RegexSequencerBehavior {
 		Matcher m = seq.matcher("[a-z]+");
 		m = seq.matcher("[a-z]+");
 		assertTrue(m.find());
-		assertThat(m.group(), is("abc"));
+		assertEquals(m.group(), "abc");
 	}
 
 }

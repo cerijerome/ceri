@@ -1,8 +1,7 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
 
 public class SimpleExecutorBehavior {
@@ -15,16 +14,16 @@ public class SimpleExecutorBehavior {
 	@Test
 	public void shouldReturnConstant() {
 		try (var exec = SimpleExecutor.run(() -> {}, "test")) {
-			assertThat(exec.get(1000), is("test"));
-			assertThat(exec.get(), is("test"));
+			assertEquals(exec.get(1000), "test");
+			assertEquals(exec.get(), "test");
 		}
 	}
 
 	@Test
 	public void shouldExecuteCallable() {
 		try (var exec = SimpleExecutor.call(() -> "test")) {
-			assertThat(exec.get(1000), is("test"));
-			assertThat(exec.get(), is("test"));
+			assertEquals(exec.get(1000), "test");
+			assertEquals(exec.get(), "test");
 		}
 	}
 

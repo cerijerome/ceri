@@ -1,8 +1,7 @@
 package ceri.common.score;
 
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -22,40 +21,40 @@ public class CollectionScorersTest {
 	public void testSum() {
 		List<String> list = Arrays.asList("a", "bbbb", "cc", "dd");
 		Scorer<Collection<String>> scorer = CollectionScorers.sum(String::length);
-		assertThat(scorer.score(list), is(9.0));
+		assertEquals(scorer.score(list), 9.0);
 		scorer = CollectionScorers.sum(null);
-		assertThat(scorer.score(list), is(0.0));
+		assertEquals(scorer.score(list), 0.0);
 	}
 
 	@Test
 	public void testAverage() {
 		List<String> list = Arrays.asList("a", "bbbb", "cc", "dd");
 		Scorer<Collection<String>> scorer = CollectionScorers.average(String::length);
-		assertThat(scorer.score(list), is(2.25));
+		assertEquals(scorer.score(list), 2.25);
 		scorer = CollectionScorers.average(null);
-		assertThat(scorer.score(list), is(0.0));
+		assertEquals(scorer.score(list), 0.0);
 	}
 
 	@Test
 	public void testMultiply() {
 		List<String> list = Arrays.asList("a", "bbbb", "cc", "dd");
 		Scorer<Collection<String>> scorer = CollectionScorers.multiply(String::length);
-		assertThat(scorer.score(list), is(16.0));
+		assertEquals(scorer.score(list), 16.0);
 		scorer = CollectionScorers.multiply(null);
-		assertThat(scorer.score(list), is(0.0));
+		assertEquals(scorer.score(list), 0.0);
 	}
 
 	@Test
 	public void testMapMultiplySum() {
 		Map<Integer, Float> map = MapPopulator.of(2, 0.1f, 3, 1.1f).map;
 		Scorer<Map<Integer, Float>> scorer = CollectionScorers.mapMultiplySum(Scorers.value());
-		assertThat(MathUtil.simpleRound(6, scorer.score(map)), is(3.5));
+		assertEquals(MathUtil.simpleRound(6, scorer.score(map)), 3.5);
 		scorer = CollectionScorers.mapMultiplySum(i -> i / 2.0, f -> f + 1.0);
-		assertThat(MathUtil.simpleRound(6, scorer.score(map)), is(4.25));
+		assertEquals(MathUtil.simpleRound(6, scorer.score(map)), 4.25);
 		scorer = CollectionScorers.mapMultiplySum(null);
-		assertThat(scorer.score(map), is(0.0));
+		assertEquals(scorer.score(map), 0.0);
 		scorer = CollectionScorers.mapMultiplySum(Scorers.value(), null);
-		assertThat(scorer.score(map), is(0.0));
+		assertEquals(scorer.score(map), 0.0);
 	}
 
 }

@@ -34,6 +34,7 @@ import ceri.serial.javax.util.SelfHealingSerialConnector;
  * f[n|r0|r1|x0|x1] = set flow control none, rts-cts in/out, xon-xoff in/out
  * o[literal-chars] = write chars as bytes to output (e.g. \xff for byte 0xff)
  * z = mark the connector as broken
+ * Z = fix the connector (if supported)
  * x = exit
  * </pre>
  */

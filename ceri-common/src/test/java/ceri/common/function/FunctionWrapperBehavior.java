@@ -12,9 +12,9 @@ import static ceri.common.function.FunctionTestUtil.predicate;
 import static ceri.common.function.FunctionTestUtil.runnable;
 import static ceri.common.function.FunctionTestUtil.supplier;
 import static ceri.common.function.FunctionTestUtil.toIntFunction;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.util.List;
 import org.junit.Test;
@@ -90,20 +90,20 @@ public class FunctionWrapperBehavior {
 
 	@Test
 	public void shouldHandleSuppliers() throws IOException {
-		assertThat(w.unwrapSupplier(supplier(2)), is(2));
+		assertEquals(w.unwrapSupplier(supplier(2)), 2);
 		assertThrown(IOException.class, () -> w.unwrapSupplier(supplier(1)));
 		assertThrown(RuntimeException.class, () -> w.unwrapSupplier(supplier(0)));
-		assertThat(w.unwrapSupplier(w.wrap(supplier(2))::get), is(2));
+		assertEquals(w.unwrapSupplier(w.wrap(supplier(2))::get), 2);
 		assertThrown(IOException.class, () -> w.unwrapSupplier(w.wrap(supplier(1))::get));
 		assertThrown(RuntimeException.class, () -> w.unwrapSupplier(w.wrap(supplier(0))::get));
 	}
 
 	@Test
 	public void shouldHandleIntSuppliers() throws IOException {
-		assertThat(w.unwrapIntSupplier(intSupplier(2)), is(2));
+		assertEquals(w.unwrapIntSupplier(intSupplier(2)), 2);
 		assertThrown(IOException.class, () -> w.unwrapIntSupplier(intSupplier(1)));
 		assertThrown(RuntimeException.class, () -> w.unwrapIntSupplier(intSupplier(0)));
-		assertThat(w.unwrapIntSupplier(w.wrap(intSupplier(2))::getAsInt), is(2));
+		assertEquals(w.unwrapIntSupplier(w.wrap(intSupplier(2))::getAsInt), 2);
 		assertThrown(IOException.class,
 			() -> w.unwrapIntSupplier(w.wrap(intSupplier(1))::getAsInt));
 		assertThrown(RuntimeException.class,
@@ -112,20 +112,20 @@ public class FunctionWrapperBehavior {
 
 	@Test
 	public void shouldHandleFunctions() throws IOException {
-		assertThat(w.unwrapFunction(function(), 2), is(2));
+		assertEquals(w.unwrapFunction(function(), 2), 2);
 		assertThrown(IOException.class, () -> w.unwrapFunction(function(), 1));
 		assertThrown(RuntimeException.class, () -> w.unwrapFunction(function(), 0));
-		assertThat(w.unwrapFunction(w.wrap(function())::apply, 2), is(2));
+		assertEquals(w.unwrapFunction(w.wrap(function())::apply, 2), 2);
 		assertThrown(IOException.class, () -> w.unwrapFunction(w.wrap(function())::apply, 1));
 		assertThrown(RuntimeException.class, () -> w.unwrapFunction(w.wrap(function())::apply, 0));
 	}
 
 	@Test
 	public void shouldHandleIntFunctions() throws IOException {
-		assertThat(w.unwrapIntFunction(intFunction(), 2), is(2));
+		assertEquals(w.unwrapIntFunction(intFunction(), 2), 2);
 		assertThrown(IOException.class, () -> w.unwrapIntFunction(intFunction(), 1));
 		assertThrown(RuntimeException.class, () -> w.unwrapIntFunction(intFunction(), 0));
-		assertThat(w.unwrapIntFunction(w.wrap(intFunction())::apply, 2), is(2));
+		assertEquals(w.unwrapIntFunction(w.wrap(intFunction())::apply, 2), 2);
 		assertThrown(IOException.class, () -> w.unwrapIntFunction(w.wrap(intFunction())::apply, 1));
 		assertThrown(RuntimeException.class,
 			() -> w.unwrapIntFunction(w.wrap(intFunction())::apply, 0));
@@ -133,10 +133,10 @@ public class FunctionWrapperBehavior {
 
 	@Test
 	public void shouldHandleToIntFunctions() throws IOException {
-		assertThat(w.unwrapToIntFunction(toIntFunction(), 2), is(2));
+		assertEquals(w.unwrapToIntFunction(toIntFunction(), 2), 2);
 		assertThrown(IOException.class, () -> w.unwrapToIntFunction(toIntFunction(), 1));
 		assertThrown(RuntimeException.class, () -> w.unwrapToIntFunction(toIntFunction(), 0));
-		assertThat(w.unwrapToIntFunction(w.wrap(toIntFunction())::applyAsInt, 2), is(2));
+		assertEquals(w.unwrapToIntFunction(w.wrap(toIntFunction())::applyAsInt, 2), 2);
 		assertThrown(IOException.class,
 			() -> w.unwrapToIntFunction(w.wrap(toIntFunction())::applyAsInt, 1));
 		assertThrown(RuntimeException.class,
@@ -145,10 +145,10 @@ public class FunctionWrapperBehavior {
 
 	@Test
 	public void shouldHandleIntUnaryOperators() throws IOException {
-		assertThat(w.unwrapIntUnaryOperator(intUnaryOperator(), 2), is(2));
+		assertEquals(w.unwrapIntUnaryOperator(intUnaryOperator(), 2), 2);
 		assertThrown(IOException.class, () -> w.unwrapIntUnaryOperator(intUnaryOperator(), 1));
 		assertThrown(RuntimeException.class, () -> w.unwrapIntUnaryOperator(intUnaryOperator(), 0));
-		assertThat(w.unwrapIntUnaryOperator(w.wrap(intUnaryOperator())::applyAsInt, 2), is(2));
+		assertEquals(w.unwrapIntUnaryOperator(w.wrap(intUnaryOperator())::applyAsInt, 2), 2);
 		assertThrown(IOException.class,
 			() -> w.unwrapIntUnaryOperator(w.wrap(intUnaryOperator())::applyAsInt, 1));
 		assertThrown(RuntimeException.class,
@@ -157,20 +157,20 @@ public class FunctionWrapperBehavior {
 
 	@Test
 	public void shouldHandlePredicates() throws IOException {
-		assertThat(w.unwrapPredicate(predicate(), 2), is(true));
+		assertTrue(w.unwrapPredicate(predicate(), 2));
 		assertThrown(IOException.class, () -> w.unwrapPredicate(predicate(), 1));
 		assertThrown(RuntimeException.class, () -> w.unwrapPredicate(predicate(), 0));
-		assertThat(w.unwrapPredicate(w.wrap(predicate())::test, 2), is(true));
+		assertTrue(w.unwrapPredicate(w.wrap(predicate())::test, 2));
 		assertThrown(IOException.class, () -> w.unwrapPredicate(w.wrap(predicate())::test, 1));
 		assertThrown(RuntimeException.class, () -> w.unwrapPredicate(w.wrap(predicate())::test, 0));
 	}
 
 	@Test
 	public void shouldHandleIntPredicates() throws IOException {
-		assertThat(w.unwrapIntPredicate(intPredicate(), 2), is(true));
+		assertTrue(w.unwrapIntPredicate(intPredicate(), 2));
 		assertThrown(IOException.class, () -> w.unwrapIntPredicate(intPredicate(), 1));
 		assertThrown(RuntimeException.class, () -> w.unwrapIntPredicate(intPredicate(), 0));
-		assertThat(w.unwrapIntPredicate(w.wrap(intPredicate())::test, 2), is(true));
+		assertTrue(w.unwrapIntPredicate(w.wrap(intPredicate())::test, 2));
 		assertThrown(IOException.class,
 			() -> w.unwrapIntPredicate(w.wrap(intPredicate())::test, 1));
 		assertThrown(RuntimeException.class,
@@ -179,8 +179,8 @@ public class FunctionWrapperBehavior {
 
 	@Test
 	public void shouldWrapBiFunctions() throws IOException {
-		assertThat(w.wrap((s, i) -> s + "=" + i, "value", 3), is("value=3"));
-		assertThat(w.unwrapBiFunction((s, i) -> s + "=" + i, "x", -1), is("x=-1"));
+		assertEquals(w.wrap((s, i) -> s + "=" + i, "value", 3), "value=3");
+		assertEquals(w.unwrapBiFunction((s, i) -> s + "=" + i, "x", -1), "x=-1");
 	}
 
 }

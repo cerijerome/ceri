@@ -1,8 +1,7 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -42,7 +41,7 @@ public class ResponseStreamBehavior {
 
 	@Test
 	public void shouldHaveStringRepresentation() {
-		assertThat(ResponseStream.echo().toString(), is("ResponseStream(echo)"));
+		assertEquals(ResponseStream.echo().toString(), "ResponseStream(echo)");
 	}
 
 	private void assertAscii(byte[] buffer, int offset, int len, String expected) {

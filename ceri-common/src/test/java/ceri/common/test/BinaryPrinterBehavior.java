@@ -1,8 +1,7 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.text.StringUtil.asPrintStream;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,14 +21,14 @@ public class BinaryPrinterBehavior {
 		bin.print("a b c".getBytes(StandardCharsets.US_ASCII));
 		bin = BinaryPrinter.builder(bin).printableSpace(false).build();
 		bin.print("a b c".getBytes(StandardCharsets.US_ASCII));
-		assertThat(b.toString(), is("a b c   \na.b.c   \n"));
+		assertEquals(b.toString(), "a b c   \na.b.c   \n");
 	}
 
 	@Test
 	public void shouldPrintToString() {
-		assertThat(new BinaryPrinter().toString(), is(new BinaryPrinter().toString()));
-		assertThat(BinaryPrinter.builder().out(null).build().toString(),
-			is(BinaryPrinter.builder().out(null).build().toString()));
+		assertEquals(new BinaryPrinter().toString(), new BinaryPrinter().toString());
+		assertEquals(BinaryPrinter.builder().out(null).build().toString(),
+			BinaryPrinter.builder().out(null).build().toString());
 	}
 
 	@Test
@@ -40,7 +39,7 @@ public class BinaryPrinterBehavior {
 		byte[] bytes = { 0, 0 };
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
 			bin.print(in, 1);
-			assertThat(b.toString(), is("00000000  00  .\n"));
+			assertEquals(b.toString(), "00000000  00  .\n");
 		}
 	}
 
@@ -50,7 +49,7 @@ public class BinaryPrinterBehavior {
 		BinaryPrinter bin = BinaryPrinter.builder().out(asPrintStream(b)).showBinary(false)
 			.showChar(false).upper(true).build();
 		bin.print(0xff, 0xaa, 0);
-		assertThat(b.toString(), is("FF AA 00                 \n"));
+		assertEquals(b.toString(), "FF AA 00                 \n");
 	}
 
 	@Test
@@ -59,7 +58,7 @@ public class BinaryPrinterBehavior {
 		BinaryPrinter bin = BinaryPrinter.builder().out(asPrintStream(b)).bytesPerColumn(4)
 			.showBinary(false).printableSpace(true).build();
 		bin.print(0xff, 0x20, 0x00);
-		assertThat(b.toString(), is("ff 20 00     . . \n"));
+		assertEquals(b.toString(), "ff 20 00     . . \n");
 	}
 
 	@Test
@@ -68,7 +67,7 @@ public class BinaryPrinterBehavior {
 		BinaryPrinter bin = BinaryPrinter.builder().out(asPrintStream(b)).bytesPerColumn(4)
 			.columnSpace(false).build();
 		bin.print(0xff, 0, 0x55);
-		assertThat(b.toString(), is("111111110000000001010101         ff0055   ..U \n"));
+		assertEquals(b.toString(), "111111110000000001010101         ff0055   ..U \n");
 	}
 
 	@Test
@@ -77,7 +76,7 @@ public class BinaryPrinterBehavior {
 		BinaryPrinter bin = BinaryPrinter.builder().out(asPrintStream(b)).showBinary(false).build();
 		ByteBuffer buffer = ByteBuffer.wrap(ByteUtil.toAscii("abc").copy(0));
 		bin.print(buffer);
-		assertThat(b.toString(), is("61 62 63                 abc     \n"));
+		assertEquals(b.toString(), "61 62 63                 abc     \n");
 	}
 
 	@Test
@@ -85,7 +84,7 @@ public class BinaryPrinterBehavior {
 		StringBuilder b = new StringBuilder();
 		BinaryPrinter bin = BinaryPrinter.builder().out(asPrintStream(b)).showBinary(false).build();
 		bin.print(ByteUtil.toAscii("abc"));
-		assertThat(b.toString(), is("61 62 63                 abc     \n"));
+		assertEquals(b.toString(), "61 62 63                 abc     \n");
 	}
 
 	@Test
@@ -93,7 +92,7 @@ public class BinaryPrinterBehavior {
 		StringBuilder b = new StringBuilder();
 		BinaryPrinter bin = BinaryPrinter.builder().out(asPrintStream(b)).showBinary(false).build();
 		bin.print('a', 'b', 'c');
-		assertThat(b.toString(), is("61 62 63                 abc     \n"));
+		assertEquals(b.toString(), "61 62 63                 abc     \n");
 	}
 
 	@Test
@@ -101,7 +100,7 @@ public class BinaryPrinterBehavior {
 		StringBuilder b = new StringBuilder();
 		BinaryPrinter bin = BinaryPrinter.builder().out(asPrintStream(b)).showBinary(false).build();
 		bin.printCodePoints("abc\u2154");
-		assertThat(b.toString(), is("00 61 00 62 00 63 21 54  .a.b.c!T\n"));
+		assertEquals(b.toString(), "00 61 00 62 00 63 21 54  .a.b.c!T\n");
 	}
 
 	@Test
@@ -109,7 +108,7 @@ public class BinaryPrinterBehavior {
 		StringBuilder b = new StringBuilder();
 		BinaryPrinter bin = BinaryPrinter.builder().out(asPrintStream(b)).showBinary(false).build();
 		bin.printAscii("abc\u2154");
-		assertThat(b.toString(), is("61 62 63 3f              abc?    \n"));
+		assertEquals(b.toString(), "61 62 63 3f              abc?    \n");
 	}
 
 	@Test
@@ -117,7 +116,7 @@ public class BinaryPrinterBehavior {
 		StringBuilder b = new StringBuilder();
 		BinaryPrinter bin = BinaryPrinter.builder().out(asPrintStream(b)).showBinary(false).build();
 		bin.print("abc\u2154");
-		assertThat(b.toString(), is("61 62 63 e2 85 94        abc...  \n"));
+		assertEquals(b.toString(), "61 62 63 e2 85 94        abc...  \n");
 	}
 
 	@Test
@@ -126,9 +125,9 @@ public class BinaryPrinterBehavior {
 		BinaryPrinter bin = BinaryPrinter.builder().out(asPrintStream(b)).showChar(false).build();
 		byte[] bytes = { 0, 0x7f, -0x80, -1, 1, 0, 0, -0x7f };
 		bin.print(bytes);
-		assertThat(b.toString(),
-			is("00000000 01111111 10000000 11111111 00000001 00000000 00000000 10000001  " +
-				"00 7f 80 ff 01 00 00 81  \n"));
+		assertEquals(b.toString(),
+			"00000000 01111111 10000000 11111111 00000001 00000000 00000000 10000001  " +
+				"00 7f 80 ff 01 00 00 81  \n");
 	}
 
 	@Test
@@ -138,9 +137,9 @@ public class BinaryPrinterBehavior {
 		byte[] bytes = { 0, 0x7f, -0x80, -1, 1, 0, 0, -0x7f };
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
 			bin.print(in);
-			assertThat(b.toString(),
-				is("00000000 01111111 10000000 11111111 00000001 00000000 00000000 10000001  " +
-					"........\n"));
+			assertEquals(b.toString(),
+				"00000000 01111111 10000000 11111111 00000001 00000000 00000000 10000001  " +
+					"........\n");
 		}
 	}
 
@@ -152,7 +151,7 @@ public class BinaryPrinterBehavior {
 		byte[] bytes = { 'A', 'a', '~', '!' };
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
 			bin.print(in).flush();
-			assertThat(b.toString(), is("41 61 7e  21        Aa~ !  \n"));
+			assertEquals(b.toString(), "41 61 7e  21        Aa~ !  \n");
 		}
 	}
 

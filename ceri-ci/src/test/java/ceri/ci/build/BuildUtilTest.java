@@ -2,13 +2,12 @@ package ceri.ci.build;
 
 import static ceri.ci.build.BuildTestUtil.assertBuildNames;
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Collection;
 import org.junit.Test;
 
@@ -31,11 +30,11 @@ public class BuildUtilTest {
 	public void testCountEvents() {
 		Builds builds = new Builds();
 		builds.build("b0").job("j0").events(e0, e1);
-		assertThat(BuildUtil.countEvents(builds), is(2));
+		assertEquals(BuildUtil.countEvents(builds), 2);
 		builds.build("b0").job("j1").events(e2);
-		assertThat(BuildUtil.countEvents(builds), is(3));
+		assertEquals(BuildUtil.countEvents(builds), 3);
 		builds.build("b1").job("j0").events(e0);
-		assertThat(BuildUtil.countEvents(builds), is(4));
+		assertEquals(BuildUtil.countEvents(builds), 4);
 	}
 
 	@Test
@@ -69,7 +68,7 @@ public class BuildUtilTest {
 	@Test
 	public void testLatest() {
 		Event event = BuildUtil.latest(Event.Type.failure, e0, e1, e2, e3, e4, e5, e6, e7);
-		assertThat(event, is(e5));
+		assertEquals(event, e5);
 		event = BuildUtil.latest(Event.Type.success, e0, e3, e4);
 		assertNull(event);
 		event = BuildUtil.latest(Event.Type.failure);
@@ -79,7 +78,7 @@ public class BuildUtilTest {
 	@Test
 	public void testEarliest() {
 		Event event = BuildUtil.earliest(Event.Type.success, e0, e1, e2, e3, e4, e5, e6, e7);
-		assertThat(event, is(e1));
+		assertEquals(event, e1);
 		event = BuildUtil.earliest(Event.Type.failure, e1, e2, e6);
 		assertNull(event);
 		event = BuildUtil.earliest(Event.Type.success);
@@ -99,12 +98,12 @@ public class BuildUtilTest {
 	@Test
 	public void testAggregate() {
 		Event event = BuildUtil.aggregate(Event.Type.failure, e0, e1, e2, e3, e4, e5, e6, e7);
-		assertThat(event.type, is(Event.Type.failure));
-		assertThat(event.timeStamp, is(0L));
+		assertEquals(event.type, Event.Type.failure);
+		assertEquals(event.timeStamp, 0L);
 		assertCollection(event.names, "c1", "c2", "c3", "d1", "e1", "e2", "e3", "e4");
 		event = BuildUtil.aggregate(Event.Type.success, e0, e1, e2, e3, e4, e5, e6, e7);
-		assertThat(event.type, is(Event.Type.success));
-		assertThat(event.timeStamp, is(1L));
+		assertEquals(event.type, Event.Type.success);
+		assertEquals(event.timeStamp, 1L);
 		assertCollection(event.names, "a1", "b1", "b2", "g1");
 	}
 

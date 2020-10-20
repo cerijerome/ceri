@@ -16,7 +16,7 @@ public class TestRunAdapter implements TestRunListener {
 	public static TestRunAdapter printer(PrintStream out) {
 		return new Printer(out);
 	}
-	
+
 	@Override
 	public void testEnded(String arg0) {}
 

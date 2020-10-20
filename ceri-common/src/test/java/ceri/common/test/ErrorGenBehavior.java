@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.function.Function;
@@ -34,15 +34,15 @@ public class ErrorGenBehavior {
 	}
 
 	@Test
-	public void shouldSetModeForNCalls() {
-		var eg = ErrorGen.of().modeTimes(Mode.checked, 3);
-		assertThrown(() -> eg.generate());
-		assertThrown(() -> eg.generate());
+	public void shouldSetModeForCallIndex() {
+		var eg = ErrorGen.of().modeForIndex(Mode.checked, 0, 2, 3);
 		assertThrown(() -> eg.generate());
 		eg.generate();
+		assertThrown(() -> eg.generate());
+		assertThrown(() -> eg.generate());
 		eg.generate();
 	}
-	
+
 	@Test
 	public void shouldReset() {
 		var eg = ErrorGen.of().mode(Mode.rt);

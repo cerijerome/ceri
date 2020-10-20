@@ -1,10 +1,9 @@
 package ceri.log.rpc.service;
 
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static ceri.common.test.TestUtil.throwIt;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.throwIt;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -22,7 +21,7 @@ public class RpcServiceUtilTest {
 	@Test
 	public void testStatusExceptionPassThrough() {
 		StatusRuntimeException e = Status.CANCELLED.withDescription("test").asRuntimeException();
-		assertThat(RpcServiceUtil.statusException(e), is(e));
+		assertEquals(RpcServiceUtil.statusException(e), e);
 	}
 
 	@Test

@@ -1,7 +1,8 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import java.io.ByteArrayOutputStream;
@@ -12,7 +13,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.junit.Test;
 import org.mockito.Mockito;
-import ceri.common.test.TestUtil;
 
 public class ReplaceableOutputStreamBehavior {
 
@@ -26,9 +26,9 @@ public class ReplaceableOutputStreamBehavior {
 				Consumer<Exception> consumer = e -> list.add(e.getMessage());
 				rout.listeners().listen(consumer);
 				doThrow(new IOException("1")).when(out).write(anyInt());
-				TestUtil.assertThrown(() -> rout.write(0));
+				assertThrown(() -> rout.write(0));
 				doThrow(new IOException("2")).when(out).write(anyInt());
-				TestUtil.assertThrown(() -> rout.write(0xff));
+				assertThrown(() -> rout.write(0xff));
 				rout.listeners().unlisten(consumer);
 				assertIterable(list, "1", "2");
 			}
@@ -38,11 +38,11 @@ public class ReplaceableOutputStreamBehavior {
 	@Test
 	public void shouldFailWithAnInvalidStream() throws IOException {
 		try (ReplaceableOutputStream rout = new ReplaceableOutputStream()) {
-			TestUtil.assertThrown(() -> rout.write(0));
+			assertThrown(() -> rout.write(0));
 			byte[] buffer = new byte[100];
-			TestUtil.assertThrown(() -> rout.write(buffer));
-			TestUtil.assertThrown(() -> rout.write(buffer, 1, 98));
-			TestUtil.assertThrown(rout::flush);
+			assertThrown(() -> rout.write(buffer));
+			assertThrown(() -> rout.write(buffer, 1, 98));
+			assertThrown(rout::flush);
 		}
 	}
 

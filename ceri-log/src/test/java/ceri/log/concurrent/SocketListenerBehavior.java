@@ -1,7 +1,6 @@
 package ceri.log.concurrent;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -20,7 +19,7 @@ public class SocketListenerBehavior {
 		try (SocketListener sl = SocketListener.of(12345)) {
 			sl.listeners().listen(sync::signal);
 			send("test", sl.port());
-			assertThat(sync.await().getAscii(0), is("test"));
+			assertEquals(sync.await().getAscii(0), "test");
 		}
 	}
 
@@ -41,7 +40,7 @@ public class SocketListenerBehavior {
 			s -> s.startsWith("test"))) {
 			send("Test1", sl.port());
 			send("test2", sl.port());
-			assertThat(sync.await(), is(1));
+			assertEquals(sync.await(), 1);
 		}
 	}
 

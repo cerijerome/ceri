@@ -1,12 +1,13 @@
 package ceri.log.rpc.util;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrowable;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertThrowable;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.text.RegexUtil.finder;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,32 +28,32 @@ public class RpcUtilTest {
 
 	@Test
 	public void testInt32Value() {
-		assertThat(RpcUtil.int32(Integer.MAX_VALUE).getValue(), is(Integer.MAX_VALUE));
-		assertThat(RpcUtil.int32(Integer.MIN_VALUE).getValue(), is(Integer.MIN_VALUE));
+		assertEquals(RpcUtil.int32(Integer.MAX_VALUE).getValue(), Integer.MAX_VALUE);
+		assertEquals(RpcUtil.int32(Integer.MIN_VALUE).getValue(), Integer.MIN_VALUE);
 	}
 
 	@Test
 	public void testUint32Value() {
-		assertThat(RpcUtil.uint32(Integer.MAX_VALUE).getValue(), is(Integer.MAX_VALUE));
-		assertThat(RpcUtil.uint32(Integer.MIN_VALUE).getValue(), is(Integer.MIN_VALUE));
+		assertEquals(RpcUtil.uint32(Integer.MAX_VALUE).getValue(), Integer.MAX_VALUE);
+		assertEquals(RpcUtil.uint32(Integer.MIN_VALUE).getValue(), Integer.MIN_VALUE);
 	}
 
 	@Test
 	public void testInt64Value() {
-		assertThat(RpcUtil.int64(Long.MAX_VALUE).getValue(), is(Long.MAX_VALUE));
-		assertThat(RpcUtil.int64(Long.MIN_VALUE).getValue(), is(Long.MIN_VALUE));
+		assertEquals(RpcUtil.int64(Long.MAX_VALUE).getValue(), Long.MAX_VALUE);
+		assertEquals(RpcUtil.int64(Long.MIN_VALUE).getValue(), Long.MIN_VALUE);
 	}
 
 	@Test
 	public void testUint64Value() {
-		assertThat(RpcUtil.uint64(Long.MAX_VALUE).getValue(), is(Long.MAX_VALUE));
-		assertThat(RpcUtil.uint64(Long.MIN_VALUE).getValue(), is(Long.MIN_VALUE));
+		assertEquals(RpcUtil.uint64(Long.MAX_VALUE).getValue(), Long.MAX_VALUE);
+		assertEquals(RpcUtil.uint64(Long.MIN_VALUE).getValue(), Long.MIN_VALUE);
 	}
 
 	@Test
 	public void testBool() {
-		assertThat(RpcUtil.bool(true).getValue(), is(true));
-		assertThat(RpcUtil.bool(false).getValue(), is(false));
+		assertTrue(RpcUtil.bool(true).getValue());
+		assertFalse(RpcUtil.bool(false).getValue());
 	}
 
 	@Test
@@ -93,7 +94,7 @@ public class RpcUtilTest {
 		assertIterable(next, 123, null, 456);
 		assertThrowable(stop.get(0), NumberFormatException.class);
 		assertNull(stop.get(1));
-		assertThat(stop.get(2), is(e));
+		assertEquals(stop.get(2), e);
 	}
 
 	@Test

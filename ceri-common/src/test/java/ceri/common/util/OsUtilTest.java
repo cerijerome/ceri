@@ -1,8 +1,7 @@
 package ceri.common.util;
 
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import org.junit.Test;
 
 public class OsUtilTest {
@@ -14,22 +13,22 @@ public class OsUtilTest {
 
 	@Test
 	public void testMac() {
-		assertThat(OsUtil.mac("mac", "other"), is(OsUtil.IS_MAC ? "mac" : "other"));
+		assertEquals(OsUtil.mac("mac", "other"), OsUtil.IS_MAC ? "mac" : "other");
 	}
 
 	@Test
 	public void testLinux() {
-		assertThat(OsUtil.linux("linux", "other"), is(OsUtil.IS_LINUX ? "linux" : "other"));
+		assertEquals(OsUtil.linux("linux", "other"), OsUtil.IS_LINUX ? "linux" : "other");
 	}
 
 	@Test
 	public void testMacInt() {
-		assertThat(OsUtil.macInt(0, 1), is(OsUtil.IS_MAC ? 0 : 1));
+		assertEquals(OsUtil.macInt(0, 1), OsUtil.IS_MAC ? 0 : 1);
 	}
 
 	@Test
 	public void testLinuxInt() {
-		assertThat(OsUtil.linuxInt(0, 1), is(OsUtil.IS_LINUX ? 0 : 1));
+		assertEquals(OsUtil.linuxInt(0, 1), OsUtil.IS_LINUX ? 0 : 1);
 	}
 
 	@Test
@@ -37,22 +36,22 @@ public class OsUtilTest {
 		String arch = SystemVars.sys("os.arch");
 		boolean isX86 = arch.startsWith("x86");
 		boolean is64Bit = arch.endsWith("64");
-		assertThat(OsUtil.IS_X86, is(isX86));
-		assertThat(OsUtil.IS_64BIT, is(is64Bit));
+		assertEquals(OsUtil.IS_X86, isX86);
+		assertEquals(OsUtil.IS_64BIT, is64Bit);
 	}
 
 	@Test
 	public void testOsName() {
 		String name = SystemVars.sys("os.name");
 		boolean isMac = name.startsWith("Mac");
-		assertThat(OsUtil.IS_MAC, is(isMac));
+		assertEquals(OsUtil.IS_MAC, isMac);
 	}
 
 	@Test
 	public void testAws() {
 		String name = SystemVars.sys("AWS_PATH");
 		boolean isAws = name != null && !name.isEmpty();
-		assertThat(OsUtil.IS_AWS, is(isAws));
+		assertEquals(OsUtil.IS_AWS, isAws);
 	}
 
 	@Test

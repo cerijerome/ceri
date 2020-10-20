@@ -1,7 +1,6 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Test;
@@ -12,21 +11,21 @@ public class MultiPatternBehavior {
 	public void shouldMatchFirstCorrectStringPattern() {
 		MultiPattern mp = MultiPattern.builder().pattern("cde", "bcd", "abc").build();
 		Matcher m = mp.find("abcd");
-		assertThat(m.pattern().pattern(), is("bcd"));
+		assertEquals(m.pattern().pattern(), "bcd");
 	}
 
 	@Test
 	public void shouldReturnNullForNonMatchingFind() {
 		MultiPattern mp = MultiPattern.builder().pattern("cde", "bcd", "abc").build();
 		Matcher m = mp.find("z");
-		assertThat(m, is((Matcher) null));
+		assertEquals(m, (Matcher) null);
 	}
 
 	@Test
 	public void shouldAcceptPatterns() {
 		MultiPattern mp = MultiPattern.builder().pattern(Pattern.compile("cde")).build();
 		Matcher m = mp.find("abcdefgh");
-		assertThat(m.pattern().pattern(), is("cde"));
+		assertEquals(m.pattern().pattern(), "cde");
 	}
 
 }

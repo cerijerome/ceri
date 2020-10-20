@@ -1,22 +1,19 @@
 package ceri.common.collection;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertSame;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertSame;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 import ceri.common.util.PrimitiveUtil;
 
 public class ArrayUtilTest {
@@ -30,81 +27,81 @@ public class ArrayUtilTest {
 	public void testHashOfBooleanSubArray() {
 		boolean[] array = { true, true, false, true, false };
 		var sub = ArrayUtil.copyOf(array, 1, 3);
-		assertThat(ArrayUtil.hash((boolean[]) null, 0, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+		assertEquals(ArrayUtil.hash((boolean[]) null, 0, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
 	}
 
 	@Test
 	public void testHashOfByteSubArray() {
 		byte[] array = ArrayUtil.bytes(-1, Byte.MAX_VALUE, 0, Byte.MIN_VALUE, 1);
 		var sub = ArrayUtil.copyOf(array, 1, 3);
-		assertThat(ArrayUtil.hash((byte[]) null, 0, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+		assertEquals(ArrayUtil.hash((byte[]) null, 0, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
 	}
 
 	@Test
 	public void testHashOfCharSubArray() {
 		char[] array = ArrayUtil.chars(-1, Character.MAX_VALUE, 0, Character.MIN_VALUE, 1);
 		var sub = ArrayUtil.copyOf(array, 1, 3);
-		assertThat(ArrayUtil.hash((char[]) null, 0, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+		assertEquals(ArrayUtil.hash((char[]) null, 0, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
 	}
 
 	@Test
 	public void testHashOfShortSubArray() {
 		short[] array = ArrayUtil.shorts(-1, Short.MAX_VALUE, 0, Short.MIN_VALUE, 1);
 		var sub = ArrayUtil.copyOf(array, 1, 3);
-		assertThat(ArrayUtil.hash((short[]) null, 0, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+		assertEquals(ArrayUtil.hash((short[]) null, 0, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
 	}
 
 	@Test
 	public void testHashOfIntegerSubArray() {
 		int[] array = ArrayUtil.ints(-1, Integer.MAX_VALUE, 0, Integer.MIN_VALUE, 1);
 		var sub = ArrayUtil.copyOf(array, 1, 3);
-		assertThat(ArrayUtil.hash((int[]) null, 0, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+		assertEquals(ArrayUtil.hash((int[]) null, 0, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
 	}
 
 	@Test
 	public void testHashOfLongSubArray() {
 		long[] array = ArrayUtil.longs(-1, Long.MAX_VALUE, 0, Long.MIN_VALUE, 1);
 		var sub = ArrayUtil.copyOf(array, 1, 3);
-		assertThat(ArrayUtil.hash((long[]) null, 0, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+		assertEquals(ArrayUtil.hash((long[]) null, 0, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
 	}
 
 	@Test
 	public void testHashOfFloatSubArray() {
 		float[] array = ArrayUtil.floats(-1, Float.MAX_VALUE, Float.NaN, Float.MIN_VALUE, 1);
 		var sub = ArrayUtil.copyOf(array, 1, 3);
-		assertThat(ArrayUtil.hash((float[]) null, 0, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+		assertEquals(ArrayUtil.hash((float[]) null, 0, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
 	}
 
 	@Test
 	public void testHashOfDoubleSubArray() {
 		double[] array = ArrayUtil.doubles(-1, Double.MAX_VALUE, Double.NaN, Double.MIN_VALUE, 1);
 		var sub = ArrayUtil.copyOf(array, 1, 3);
-		assertThat(ArrayUtil.hash((double[]) null, 0, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+		assertEquals(ArrayUtil.hash((double[]) null, 0, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
 	}
 
 	@Test
 	public void testHashOfSubArray() {
 		String[] array = { "", "test", null, "TEST", "x" };
 		var sub = ArrayUtil.copyOf(array, 1, 3, String[]::new);
-		assertThat(ArrayUtil.hash((String[]) null, 0, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 3, 3), is(0));
-		assertThat(ArrayUtil.hash(array, 1, 3), is(Arrays.hashCode(sub)));
+		assertEquals(ArrayUtil.hash((String[]) null, 0, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
 	}
 
 	@Test
@@ -172,25 +169,25 @@ public class ArrayUtilTest {
 
 	@Test
 	public void testDeepToString() {
-		assertThat(ArrayUtil.deepToString(null), is("null"));
-		assertThat(ArrayUtil.deepToString("test"), is("test"));
-		assertThat(ArrayUtil.deepToString(new boolean[] { true, false }), is("[true, false]"));
-		assertThat(ArrayUtil.deepToString(new byte[] { 1, 2 }), is("[1, 2]"));
-		assertThat(ArrayUtil.deepToString(new char[] { '1', '2' }), is("[1, 2]"));
-		assertThat(ArrayUtil.deepToString(new short[] { 1, 2 }), is("[1, 2]"));
-		assertThat(ArrayUtil.deepToString(new int[] { 1, 2 }), is("[1, 2]"));
-		assertThat(ArrayUtil.deepToString(new long[] { 1, 2 }), is("[1, 2]"));
-		assertThat(ArrayUtil.deepToString(new float[] { 1, 2 }), is("[1.0, 2.0]"));
-		assertThat(ArrayUtil.deepToString(new double[] { 1, 2 }), is("[1.0, 2.0]"));
-		assertThat(ArrayUtil.deepToString(new String[] { "1", "2" }), is("[1, 2]"));
+		assertEquals(ArrayUtil.deepToString(null), "null");
+		assertEquals(ArrayUtil.deepToString("test"), "test");
+		assertEquals(ArrayUtil.deepToString(new boolean[] { true, false }), "[true, false]");
+		assertEquals(ArrayUtil.deepToString(new byte[] { 1, 2 }), "[1, 2]");
+		assertEquals(ArrayUtil.deepToString(new char[] { '1', '2' }), "[1, 2]");
+		assertEquals(ArrayUtil.deepToString(new short[] { 1, 2 }), "[1, 2]");
+		assertEquals(ArrayUtil.deepToString(new int[] { 1, 2 }), "[1, 2]");
+		assertEquals(ArrayUtil.deepToString(new long[] { 1, 2 }), "[1, 2]");
+		assertEquals(ArrayUtil.deepToString(new float[] { 1, 2 }), "[1.0, 2.0]");
+		assertEquals(ArrayUtil.deepToString(new double[] { 1, 2 }), "[1.0, 2.0]");
+		assertEquals(ArrayUtil.deepToString(new String[] { "1", "2" }), "[1, 2]");
 	}
 
 	@Test
 	public void testEmptyArrays() {
-		assertThat(ArrayUtil.EMPTY_BOOLEAN, is(new boolean[0]));
-		assertThat(ArrayUtil.empty(String.class), is(new String[0]));
-		assertThat(ArrayUtil.empty(Object.class), is(new Object[0]));
-		assertThat(ArrayUtil.empty(Date.class), is(ArrayUtil.empty(Date.class)));
+		assertArray(ArrayUtil.EMPTY_BOOLEAN);
+		assertArray(ArrayUtil.empty(String.class));
+		assertArray(ArrayUtil.empty(Object.class));
+		assertArray(ArrayUtil.empty(Date.class));
 	}
 
 	@Test
@@ -198,12 +195,12 @@ public class ArrayUtilTest {
 		int[] array = { 1, 2, 3, 4 };
 		ArrayUtil.validateIndex(array.length, 0);
 		ArrayUtil.validateIndex(array.length, 3);
-		TestUtil.assertThrown(() -> ArrayUtil.validateIndex(array.length, -1));
-		TestUtil.assertThrown(() -> ArrayUtil.validateIndex(array.length, 4));
-		assertThat(ArrayUtil.isValidIndex(array.length, 0), is(true));
-		assertThat(ArrayUtil.isValidIndex(array.length, 3), is(true));
-		assertThat(ArrayUtil.isValidIndex(array.length, -1), is(false));
-		assertThat(ArrayUtil.isValidIndex(array.length, 4), is(false));
+		assertThrown(() -> ArrayUtil.validateIndex(array.length, -1));
+		assertThrown(() -> ArrayUtil.validateIndex(array.length, 4));
+		assertTrue(ArrayUtil.isValidIndex(array.length, 0));
+		assertTrue(ArrayUtil.isValidIndex(array.length, 3));
+		assertFalse(ArrayUtil.isValidIndex(array.length, -1));
+		assertFalse(ArrayUtil.isValidIndex(array.length, 4));
 	}
 
 	@Test
@@ -211,15 +208,15 @@ public class ArrayUtilTest {
 		int[] array = { 1, 2, 3, 4 };
 		ArrayUtil.validateSlice(array.length, 0, 4);
 		ArrayUtil.validateSlice(array.length, 1, 2);
-		TestUtil.assertThrown(() -> ArrayUtil.validateSlice(array.length, -1, 1));
-		TestUtil.assertThrown(() -> ArrayUtil.validateSlice(array.length, 5, 1));
-		TestUtil.assertThrown(() -> ArrayUtil.validateSlice(array.length, 2, 4));
-		assertThat(ArrayUtil.isValidSlice(array.length, 0, 4), is(true));
-		assertThat(ArrayUtil.isValidSlice(array.length, 1, 2), is(true));
-		assertThat(ArrayUtil.isValidSlice(array.length, -1, 1), is(false));
-		assertThat(ArrayUtil.isValidSlice(array.length, 5, 1), is(false));
-		assertThat(ArrayUtil.isValidSlice(array.length, 2, 4), is(false));
-		assertThat(ArrayUtil.isValidSlice(array.length, 2, -1), is(false));
+		assertThrown(() -> ArrayUtil.validateSlice(array.length, -1, 1));
+		assertThrown(() -> ArrayUtil.validateSlice(array.length, 5, 1));
+		assertThrown(() -> ArrayUtil.validateSlice(array.length, 2, 4));
+		assertTrue(ArrayUtil.isValidSlice(array.length, 0, 4));
+		assertTrue(ArrayUtil.isValidSlice(array.length, 1, 2));
+		assertFalse(ArrayUtil.isValidSlice(array.length, -1, 1));
+		assertFalse(ArrayUtil.isValidSlice(array.length, 5, 1));
+		assertFalse(ArrayUtil.isValidSlice(array.length, 2, 4));
+		assertFalse(ArrayUtil.isValidSlice(array.length, 2, -1));
 	}
 
 	@Test
@@ -227,22 +224,22 @@ public class ArrayUtilTest {
 		int[] array = { 1, 2, 3, 4 };
 		ArrayUtil.validateRange(array.length, 0, 4);
 		ArrayUtil.validateRange(array.length, 1, 3);
-		TestUtil.assertThrown(() -> ArrayUtil.validateRange(array.length, -1, 0));
-		TestUtil.assertThrown(() -> ArrayUtil.validateRange(array.length, 5, 6));
-		TestUtil.assertThrown(() -> ArrayUtil.validateRange(array.length, 2, 1));
-		TestUtil.assertThrown(() -> ArrayUtil.validateRange(array.length, 2, 5));
-		assertThat(ArrayUtil.isValidRange(array.length, 0, 4), is(true));
-		assertThat(ArrayUtil.isValidRange(array.length, 1, 3), is(true));
-		assertThat(ArrayUtil.isValidRange(array.length, -1, 0), is(false));
-		assertThat(ArrayUtil.isValidRange(array.length, 5, 8), is(false));
-		assertThat(ArrayUtil.isValidRange(array.length, 2, 6), is(false));
-		assertThat(ArrayUtil.isValidRange(array.length, 2, 1), is(false));
+		assertThrown(() -> ArrayUtil.validateRange(array.length, -1, 0));
+		assertThrown(() -> ArrayUtil.validateRange(array.length, 5, 6));
+		assertThrown(() -> ArrayUtil.validateRange(array.length, 2, 1));
+		assertThrown(() -> ArrayUtil.validateRange(array.length, 2, 5));
+		assertTrue(ArrayUtil.isValidRange(array.length, 0, 4));
+		assertTrue(ArrayUtil.isValidRange(array.length, 1, 3));
+		assertFalse(ArrayUtil.isValidRange(array.length, -1, 0));
+		assertFalse(ArrayUtil.isValidRange(array.length, 5, 8));
+		assertFalse(ArrayUtil.isValidRange(array.length, 2, 6));
+		assertFalse(ArrayUtil.isValidRange(array.length, 2, 1));
 	}
 
 	@Test
 	public void testAddAll() {
 		Number[] array = { 0, 1 };
-		assertThat(ArrayUtil.addAll(array, 2, 3), is(new Number[] { 0, 1, 2, 3 }));
+		assertArray(ArrayUtil.addAll(array, 2, 3), new Number[] { 0, 1, 2, 3 });
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -259,8 +256,8 @@ public class ArrayUtilTest {
 
 	@Test
 	public void testComponentType() {
-		assertThat(ArrayUtil.componentType(Boolean[].class), equalTo(Boolean.class));
-		assertThat(ArrayUtil.componentType(boolean[][].class), equalTo(boolean[].class));
+		assertSame(ArrayUtil.componentType(Boolean[].class), Boolean.class);
+		assertSame(ArrayUtil.componentType(boolean[][].class), boolean[].class);
 	}
 
 	@Test
@@ -275,7 +272,7 @@ public class ArrayUtilTest {
 		array[0] = "0";
 		array[1] = "1";
 		array[2] = "2";
-		assertThat(array, is(new String[] { "0", "1", "2" }));
+		assertArray(array, "0", "1", "2");
 	}
 
 	@Test
@@ -291,21 +288,21 @@ public class ArrayUtilTest {
 
 	@Test
 	public void testLast() {
-		assertThat(ArrayUtil.last(ArrayUtil.array("0", "1")), is("1"));
-		assertThat(ArrayUtil.last(ArrayUtil.booleans(true, false)), is(false));
-		assertThat(ArrayUtil.last(ArrayUtil.chars('\0', '\n')), is('\n'));
-		assertThat(ArrayUtil.last(ArrayUtil.bytes(Byte.MAX_VALUE, Byte.MIN_VALUE)),
-			is(Byte.MIN_VALUE));
-		assertThat(ArrayUtil.last(ArrayUtil.shorts(Short.MIN_VALUE, Short.MAX_VALUE)),
-			is(Short.MAX_VALUE));
-		assertThat(ArrayUtil.last(ArrayUtil.ints(Integer.MIN_VALUE, Integer.MAX_VALUE)),
-			is(Integer.MAX_VALUE));
-		assertThat(ArrayUtil.last(ArrayUtil.longs(Long.MIN_VALUE, Long.MAX_VALUE)),
-			is(Long.MAX_VALUE));
-		assertThat(ArrayUtil.last(ArrayUtil.floats(Float.MIN_VALUE, Float.MAX_VALUE)),
-			is(Float.MAX_VALUE));
-		assertThat(ArrayUtil.last(ArrayUtil.doubles(Double.MIN_VALUE, Double.MAX_VALUE)),
-			is(Double.MAX_VALUE));
+		assertEquals(ArrayUtil.last(ArrayUtil.array("0", "1")), "1");
+		assertFalse(ArrayUtil.last(ArrayUtil.booleans(true, false)));
+		assertEquals(ArrayUtil.last(ArrayUtil.chars('\0', '\n')), '\n');
+		assertEquals(ArrayUtil.last(ArrayUtil.bytes(Byte.MAX_VALUE, Byte.MIN_VALUE)),
+			Byte.MIN_VALUE);
+		assertEquals(ArrayUtil.last(ArrayUtil.shorts(Short.MIN_VALUE, Short.MAX_VALUE)),
+			Short.MAX_VALUE);
+		assertEquals(ArrayUtil.last(ArrayUtil.ints(Integer.MIN_VALUE, Integer.MAX_VALUE)),
+			Integer.MAX_VALUE);
+		assertEquals(ArrayUtil.last(ArrayUtil.longs(Long.MIN_VALUE, Long.MAX_VALUE)),
+			Long.MAX_VALUE);
+		assertEquals(ArrayUtil.last(ArrayUtil.floats(Float.MIN_VALUE, Float.MAX_VALUE)),
+			Float.MAX_VALUE);
+		assertEquals(ArrayUtil.last(ArrayUtil.doubles(Double.MIN_VALUE, Double.MAX_VALUE)),
+			Double.MAX_VALUE);
 		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_BOOLEAN));
 		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_CHAR));
 		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_BYTE));
@@ -355,31 +352,31 @@ public class ArrayUtilTest {
 	@Test
 	public void testCopy() {
 		String[] ss = { "a", "b", "c" };
-		assertThat(ArrayUtil.copy(ArrayUtil.array("a", "b", "c"), 0, ss, 2), is(3));
+		assertEquals(ArrayUtil.copy(ArrayUtil.array("a", "b", "c"), 0, ss, 2), 3);
 		assertArray(ss, "a", "b", "a");
 		boolean[] bools = { true, false, true };
-		assertThat(ArrayUtil.copy(bools, 0, bools, 1), is(3));
+		assertEquals(ArrayUtil.copy(bools, 0, bools, 1), 3);
 		assertArray(bools, true, true, false);
 		byte[] bytes = ArrayUtil.bytes(1, 2, 3);
-		assertThat(ArrayUtil.copy(bytes, 1, bytes, 0), is(2));
+		assertEquals(ArrayUtil.copy(bytes, 1, bytes, 0), 2);
 		assertArray(bytes, 2, 3, 3);
 		char[] chars = ArrayUtil.chars('1', '2', '3');
-		assertThat(ArrayUtil.copy(chars, 3, chars, 0), is(0));
+		assertEquals(ArrayUtil.copy(chars, 3, chars, 0), 0);
 		assertArray(chars, '1', '2', '3');
 		short[] shorts = ArrayUtil.shorts(1, 2, 3);
-		assertThat(ArrayUtil.copy(shorts, 0, shorts, 0), is(3));
+		assertEquals(ArrayUtil.copy(shorts, 0, shorts, 0), 3);
 		assertArray(shorts, 1, 2, 3);
 		int[] ints = ArrayUtil.ints(1, 2, 3);
-		assertThat(ArrayUtil.copy(ints, 3, ints, 2), is(2));
+		assertEquals(ArrayUtil.copy(ints, 3, ints, 2), 2);
 		assertArray(ints, 1, 2, 3);
 		long[] longs = ArrayUtil.longs(1, 2, 3);
-		assertThat(ArrayUtil.copy(longs, 0, longs, 1), is(3));
+		assertEquals(ArrayUtil.copy(longs, 0, longs, 1), 3);
 		assertArray(longs, 1, 1, 2);
 		float[] floats = ArrayUtil.floats(1, 2, 3);
-		assertThat(ArrayUtil.copy(floats, 0, floats, 1), is(3));
+		assertEquals(ArrayUtil.copy(floats, 0, floats, 1), 3);
 		assertArray(floats, 1, 1, 2);
 		double[] doubles = ArrayUtil.doubles(1, 2, 3);
-		assertThat(ArrayUtil.copy(doubles, 0, doubles, 1), is(3));
+		assertEquals(ArrayUtil.copy(doubles, 0, doubles, 1), 3);
 		assertArray(doubles, 1, 1, 2);
 	}
 
@@ -396,51 +393,51 @@ public class ArrayUtilTest {
 		byte[] b2 = { 4, 3, 2, 1, 0 };
 		Object array = ArrayUtil.arrayCopy(b1, 1, b2, 1, 3);
 		assertSame(array, b2);
-		assertThat(b2, is(new byte[] { 4, 1, 2, 3, 0 }));
+		assertArray(b2, 4, 1, 2, 3, 0);
 	}
 
 	@Test
 	public void testFill() {
 		String[] ss = { "a", "b", "c" };
-		assertThat(ArrayUtil.fill(ss, 1, "x"), is(3));
+		assertEquals(ArrayUtil.fill(ss, 1, "x"), 3);
 		assertArray(ss, "a", "x", "x");
 		boolean[] bools = { true, false, true };
-		assertThat(ArrayUtil.fill(bools, 0, true), is(3));
+		assertEquals(ArrayUtil.fill(bools, 0, true), 3);
 		assertArray(bools, true, true, true);
 		byte[] bytes = ArrayUtil.bytes(1, 2, 3);
-		assertThat(ArrayUtil.fill(bytes, 2, 0), is(3));
+		assertEquals(ArrayUtil.fill(bytes, 2, 0), 3);
 		assertArray(bytes, 1, 2, 0);
 		char[] chars = ArrayUtil.chars('1', '2', '3');
-		assertThat(ArrayUtil.fill(chars, 1, '0'), is(3));
+		assertEquals(ArrayUtil.fill(chars, 1, '0'), 3);
 		assertArray(chars, '1', '0', '0');
 		short[] shorts = ArrayUtil.shorts(1, 2, 3, 4);
-		assertThat(ArrayUtil.fill(shorts, 2, 0), is(4));
+		assertEquals(ArrayUtil.fill(shorts, 2, 0), 4);
 		assertArray(shorts, 1, 2, 0, 0);
 		int[] ints = ArrayUtil.ints(1, 2, 3, 4, 5);
-		assertThat(ArrayUtil.fill(ints, 4, 0), is(5));
+		assertEquals(ArrayUtil.fill(ints, 4, 0), 5);
 		assertArray(ints, 1, 2, 3, 4, 0);
 		long[] longs = ArrayUtil.longs(1, 2, 3);
-		assertThat(ArrayUtil.fill(longs, 0, 1), is(3));
+		assertEquals(ArrayUtil.fill(longs, 0, 1), 3);
 		assertArray(longs, 1, 1, 1);
 		float[] floats = ArrayUtil.floats(1, 2, 3);
-		assertThat(ArrayUtil.fill(floats, 2, -0.0f), is(3));
+		assertEquals(ArrayUtil.fill(floats, 2, -0.0f), 3);
 		assertArray(floats, 1, 2, -0.0f);
 		double[] doubles = ArrayUtil.doubles(1, 2, 3);
-		assertThat(ArrayUtil.fill(doubles, 0, -1), is(3));
+		assertEquals(ArrayUtil.fill(doubles, 0, -1), 3);
 		assertArray(doubles, -1, -1, -1);
 	}
 
 	@Test
 	public void testFillZeroCount() {
-		assertThat(ArrayUtil.fill(new String[3], 0, 0, "x"), is(0));
-		assertThat(ArrayUtil.fill(new boolean[3], 1, 0, true), is(1));
-		assertThat(ArrayUtil.fill(new byte[3], 2, 0, 0), is(2));
-		assertThat(ArrayUtil.fill(new char[3], 3, 0, '0'), is(3));
-		assertThat(ArrayUtil.fill(new short[3], 0, 0, 7), is(0));
-		assertThat(ArrayUtil.fill(new int[3], 1, 0, 7), is(1));
-		assertThat(ArrayUtil.fill(new long[3], 2, 0, 7), is(2));
-		assertThat(ArrayUtil.fill(new float[3], 3, 0, 7), is(3));
-		assertThat(ArrayUtil.fill(new double[3], 0, 0, 7), is(0));
+		assertEquals(ArrayUtil.fill(new String[3], 0, 0, "x"), 0);
+		assertEquals(ArrayUtil.fill(new boolean[3], 1, 0, true), 1);
+		assertEquals(ArrayUtil.fill(new byte[3], 2, 0, 0), 2);
+		assertEquals(ArrayUtil.fill(new char[3], 3, 0, '0'), 3);
+		assertEquals(ArrayUtil.fill(new short[3], 0, 0, 7), 0);
+		assertEquals(ArrayUtil.fill(new int[3], 1, 0, 7), 1);
+		assertEquals(ArrayUtil.fill(new long[3], 2, 0, 7), 2);
+		assertEquals(ArrayUtil.fill(new float[3], 3, 0, 7), 3);
+		assertEquals(ArrayUtil.fill(new double[3], 0, 0, 7), 0);
 	}
 
 	@Test

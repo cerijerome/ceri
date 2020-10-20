@@ -1,11 +1,10 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertExists;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertExists;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,7 +36,7 @@ public class FileTestHelperBehavior {
 			try (FileTestHelper unix = FileTestHelper.builder(root.root).root("a/b")
 				.file("a/a/a.txt", "aaa").filef("bbb", "a/a/b.%s", "txt") //
 				.dir("a/b").dirf("a/%s/%s", "b", "c").build()) {
-				assertThat(unix.root, is(root.path("a/b")));
+				assertEquals(unix.root, root.path("a/b"));
 			}
 		}
 	}
@@ -46,7 +45,7 @@ public class FileTestHelperBehavior {
 	public void shouldCreateTextFiles() throws IOException {
 		try (FileTestHelper files = FileTestHelper.builder().dirf("%s/%s", "a", "b")
 			.filef("abc", "%s/%s", "a", "test.txt").build()) {
-			assertThat(Files.readString(files.path("a/test.txt")), is("abc"));
+			assertEquals(Files.readString(files.path("a/test.txt")), "abc");
 		}
 	}
 
@@ -61,7 +60,7 @@ public class FileTestHelperBehavior {
 	@Test
 	public void shouldProvideFiles() throws IOException {
 		try (FileTestHelper files = FileTestHelper.builder().dir("a/b/c").build()) {
-			assertThat(files.pathf("%s/%s", "a", "b"), is(files.path("a/b")));
+			assertEquals(files.pathf("%s/%s", "a", "b"), files.path("a/b"));
 			assertArray(files.paths("a", "a/b", "a/b/c"), files.path("a"), files.path("a/b"),
 				files.path("a/b/c"));
 			assertIterable(files.pathList("a", "a/b", "a/b/c"), files.path("a"), files.path("a/b"),
@@ -72,8 +71,8 @@ public class FileTestHelperBehavior {
 	@Test
 	public void shouldProvidePaths() throws IOException {
 		try (FileTestHelper files = FileTestHelper.builder().dir("a/b/c").build()) {
-			assertThat(files.path("a/b/c"), is(files.root.resolve("a/b/c")));
-			assertThat(files.pathf("%s/%s", "a", "b"), is(files.path("a/b")));
+			assertEquals(files.path("a/b/c"), files.root.resolve("a/b/c"));
+			assertEquals(files.pathf("%s/%s", "a", "b"), files.path("a/b"));
 			assertArray(files.paths("a", "a/b", "a/b/c"), files.path("a"), files.path("a/b"),
 				files.path("a/b/c"));
 			assertIterable(files.pathList("a", "a/b", "a/b/c"), files.path("a"), files.path("a/b"),

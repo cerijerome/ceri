@@ -2,11 +2,10 @@ package ceri.common.data;
 
 import static ceri.common.data.CrcBehavior.CRC16_XMODEM;
 import static ceri.common.data.CrcBehavior.CRC8_SMBUS;
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class CrcAlgorithmBehavior {
@@ -31,52 +30,52 @@ public class CrcAlgorithmBehavior {
 
 	@Test
 	public void shouldDetermineStorageBytes() {
-		assertThat(CrcAlgorithm.of(3, 0).bytes(), is(1));
-		assertThat(CrcAlgorithm.of(9, 0).bytes(), is(2));
-		assertThat(CrcAlgorithm.of(32, 0).bytes(), is(4));
-		assertThat(CrcAlgorithm.of(33, 0).bytes(), is(5));
+		assertEquals(CrcAlgorithm.of(3, 0).bytes(), 1);
+		assertEquals(CrcAlgorithm.of(9, 0).bytes(), 2);
+		assertEquals(CrcAlgorithm.of(32, 0).bytes(), 4);
+		assertEquals(CrcAlgorithm.of(33, 0).bytes(), 5);
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertThat(CrcAlgorithm.of(8, 0x3, 0x1, true, false, 0xff).toString(),
-			is("CRC-8[0x3,0x1,T,F,0xff]"));
+		assertEquals(CrcAlgorithm.of(8, 0x3, 0x1, true, false, 0xff).toString(),
+			"CRC-8[0x3,0x1,T,F,0xff]");
 	}
 
 	@Test
 	public void shouldGenerateCheckValue() {
-		assertThat(CRC16_XMODEM.check(), is(0x31c3L));
-		assertThat(CRC8_SMBUS.check(), is(0xf4L));
+		assertEquals(CRC16_XMODEM.check(), 0x31c3L);
+		assertEquals(CRC8_SMBUS.check(), 0xf4L);
 	}
 
 	@Test
 	public void shouldProvideCheckValue() {
-		assertThat(CrcAlgorithm.Std.none.check(), is(0L));
-		assertThat(CrcAlgorithm.Std.crc8Smbus.check(), is(0xf4L));
-		assertThat(CrcAlgorithm.Std.crc16Ibm3740.check(), is(0x29b1L));
-		assertThat(CrcAlgorithm.Std.crc16Kermit.check(), is(0x2189L));
-		assertThat(CrcAlgorithm.Std.crc16Xmodem.check(), is(0x31c3L));
-		assertThat(CrcAlgorithm.Std.crc24Ble.check(), is(0xc25a56L));
-		assertThat(CrcAlgorithm.Std.crc32Bzip2.check(), is(0xfc891918L));
-		assertThat(CrcAlgorithm.Std.crc32Cksum.check(), is(0x765e7680L));
-		assertThat(CrcAlgorithm.Std.crc32IsoHdlc.check(), is(0xcbf43926L));
-		assertThat(CrcAlgorithm.Std.crc32Mpeg2.check(), is(0x0376e6e7L));
-		assertThat(CrcAlgorithm.Std.crc64GoIso.check(), is(0xb90956c775a41001L));
-		assertThat(CrcAlgorithm.Std.crc64Xz.check(), is(0x995dc9bbdf1939faL));
+		assertEquals(CrcAlgorithm.Std.none.check(), 0L);
+		assertEquals(CrcAlgorithm.Std.crc8Smbus.check(), 0xf4L);
+		assertEquals(CrcAlgorithm.Std.crc16Ibm3740.check(), 0x29b1L);
+		assertEquals(CrcAlgorithm.Std.crc16Kermit.check(), 0x2189L);
+		assertEquals(CrcAlgorithm.Std.crc16Xmodem.check(), 0x31c3L);
+		assertEquals(CrcAlgorithm.Std.crc24Ble.check(), 0xc25a56L);
+		assertEquals(CrcAlgorithm.Std.crc32Bzip2.check(), 0xfc891918L);
+		assertEquals(CrcAlgorithm.Std.crc32Cksum.check(), 0x765e7680L);
+		assertEquals(CrcAlgorithm.Std.crc32IsoHdlc.check(), 0xcbf43926L);
+		assertEquals(CrcAlgorithm.Std.crc32Mpeg2.check(), 0x0376e6e7L);
+		assertEquals(CrcAlgorithm.Std.crc64GoIso.check(), 0xb90956c775a41001L);
+		assertEquals(CrcAlgorithm.Std.crc64Xz.check(), 0x995dc9bbdf1939faL);
 	}
 
 	@Test
 	public void shouldStartCrc() {
-		assertThat(CrcAlgorithm.Std.none.start().crc(), is(0L));
-		assertThat(CrcAlgorithm.Std.crc8Smbus.start().crc(), is(0L));
-		assertThat(CrcAlgorithm.Std.crc16Xmodem.start().crc(), is(0L));
+		assertEquals(CrcAlgorithm.Std.none.start().crc(), 0L);
+		assertEquals(CrcAlgorithm.Std.crc8Smbus.start().crc(), 0L);
+		assertEquals(CrcAlgorithm.Std.crc16Xmodem.start().crc(), 0L);
 	}
 
 	@Test
 	public void shouldFindByName() {
 		assertNull(CrcAlgorithm.Std.from("CRC8"));
-		assertThat(CrcAlgorithm.Std.from("CRC-8"), is(CrcAlgorithm.Std.crc8Smbus));
-		assertThat(CrcAlgorithm.Std.from("xmodem"), is(CrcAlgorithm.Std.crc16Xmodem));
+		assertEquals(CrcAlgorithm.Std.from("CRC-8"), CrcAlgorithm.Std.crc8Smbus);
+		assertEquals(CrcAlgorithm.Std.from("xmodem"), CrcAlgorithm.Std.crc16Xmodem);
 	}
 
 }

@@ -1,5 +1,6 @@
 package ceri.ci.phone;
 
+import static ceri.common.test.AssertUtil.assertThrown;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,7 +13,6 @@ import com.twilio.sdk.TwilioRestException;
 import com.twilio.sdk.resource.factory.MessageFactory;
 import com.twilio.sdk.resource.instance.Account;
 import com.twilio.sdk.resource.instance.Message;
-import ceri.common.test.TestUtil;
 
 public class TwilioClientBehavior {
 	@Mock
@@ -45,11 +45,9 @@ public class TwilioClientBehavior {
 
 	@Test
 	public void shouldNotAllowNullConstructorArguments() {
-		TestUtil
-			.assertThrown(() -> new TwilioClient(null, "authToken", "fromPhoneNumber", factory));
-		TestUtil
-			.assertThrown(() -> new TwilioClient("accountSid", null, "fromPhoneNumber", factory));
-		TestUtil.assertThrown(() -> new TwilioClient("accountSid", "authToken", null, factory));
+		assertThrown(() -> new TwilioClient(null, "authToken", "fromPhoneNumber", factory));
+		assertThrown(() -> new TwilioClient("accountSid", null, "fromPhoneNumber", factory));
+		assertThrown(() -> new TwilioClient("accountSid", "authToken", null, factory));
 	}
 
 }

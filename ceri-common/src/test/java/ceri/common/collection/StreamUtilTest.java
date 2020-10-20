@@ -1,16 +1,18 @@
 package ceri.common.collection;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertList;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertStream;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertList;
+import static ceri.common.test.AssertUtil.assertMap;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertStream;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static java.lang.Double.parseDouble;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +31,6 @@ import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionIntUnaryOperator;
 import ceri.common.function.ExceptionToIntFunction;
 import ceri.common.function.FunctionTestUtil;
-import ceri.common.test.TestUtil;
 
 public class StreamUtilTest {
 	private enum Abc {
@@ -85,21 +86,19 @@ public class StreamUtilTest {
 
 	@Test
 	public void testUnitRange() {
-		assertThat(StreamUtil.unitRange(5).toArray(),
-			is(new double[] { 0.0, 0.25, 0.5, 0.75, 1.0 }));
+		assertArray(StreamUtil.unitRange(5).toArray(), 0.0, 0.25, 0.5, 0.75, 1.0);
 	}
 
 	@Test
 	public void testToInt() {
-		assertThat(StreamUtil.toInt(List.of(1.2, 2.4, 3.6, 4.8).stream()).toArray(),
-			is(new int[] { 1, 2, 3, 4 }));
+		assertArray(StreamUtil.toInt(List.of(1.2, 2.4, 3.6, 4.8).stream()).toArray(), 1, 2, 3, 4);
 	}
 
 	@Test
 	public void testBitwiseOperators() {
-		assertThat(StreamUtil.bitwiseOr(IntStream.of(1, 2, 5)), is(7));
-		assertThat(StreamUtil.bitwiseAnd(IntStream.of(15, 7, 14)), is(6));
-		assertThat(StreamUtil.bitwiseXor(IntStream.of(1, 2, 5)), is(6));
+		assertEquals(StreamUtil.bitwiseOr(IntStream.of(1, 2, 5)), 7);
+		assertEquals(StreamUtil.bitwiseAnd(IntStream.of(15, 7, 14)), 6);
+		assertEquals(StreamUtil.bitwiseXor(IntStream.of(1, 2, 5)), 6);
 	}
 
 	@Test
@@ -144,22 +143,12 @@ public class StreamUtilTest {
 		String[] array = { "a", "b", "c" };
 		int i = 0;
 		for (String s : StreamUtil.forEach(Stream.of(array)))
-			assertThat(s, is(array[i++]));
+			assertEquals(s, array[i++]);
 	}
 
 	@Test
 	public void testCollect() {
 		assertIterable(StreamUtil.collect(Stream.of(1, 2, 3), ArrayList::new, List::add), 1, 2, 3);
-
-		//
-		// Stream<Integer> stream = BasicUtil.uncheckedCast(mock(Stream.class));
-		// when(stream.sequential()).thenReturn(stream);
-		// when(stream.collect(any(), any(), any())).thenReturn(new ArrayList<>());
-		// assertIterable(StreamUtil.collect(stream, ArrayList::new, List::add));
-		// ArgumentCaptor<BiConsumer<List<Integer>, List<Integer>>> captor =
-		// BasicUtil.uncheckedCast(ArgumentCaptor.forClass(BiConsumer.class));
-		// verify(stream).collect(any(), any(), captor.capture());
-		// assertThrown(() -> captor.getValue().accept(null, null));
 	}
 
 	@Test
@@ -176,8 +165,8 @@ public class StreamUtilTest {
 	public void testToString() {
 		assertNull(StreamUtil.toString(null, "-"));
 		assertNull(StreamUtil.toString(null, "(", ":", ")"));
-		assertThat(StreamUtil.toString(Stream.of(1, null, 2), "-"), is("1-null-2"));
-		assertThat(StreamUtil.toString(Stream.of(1, null, 2), "(", "::", ")"), is("(1::null::2)"));
+		assertEquals(StreamUtil.toString(Stream.of(1, null, 2), "-"), "1-null-2");
+		assertEquals(StreamUtil.toString(Stream.of(1, null, 2), "(", "::", ")"), "(1::null::2)");
 	}
 
 	@Test
@@ -196,34 +185,34 @@ public class StreamUtilTest {
 
 	@Test
 	public void testIsEmpty() {
-		assertThat(StreamUtil.isEmpty(Stream.of()), is(true));
-		assertThat(StreamUtil.isEmpty(Stream.of("test")), is(false));
+		assertTrue(StreamUtil.isEmpty(Stream.of()));
+		assertFalse(StreamUtil.isEmpty(Stream.of("test")));
 	}
 
 	@Test
 	public void testFindFirstNonNull() {
 		Stream<String> stream = Stream.of(null, null, "abc", "de", "f");
-		assertThat(StreamUtil.findFirstNonNull(stream, s -> s.length() < 3), is("de"));
+		assertEquals(StreamUtil.findFirstNonNull(stream, s -> s.length() < 3), "de");
 	}
 
 	@Test
 	public void testFirstNonNull() {
 		Stream<String> stream = Stream.of(null, null, "abc", "def");
-		assertThat(StreamUtil.firstNonNull(stream), is("abc"));
+		assertEquals(StreamUtil.firstNonNull(stream), "abc");
 	}
 
 	@Test
 	public void testMaxAndMin() {
-		assertThat(StreamUtil.min(Stream.of("abc", "", "ABC")), is(""));
-		assertThat(StreamUtil.max(Stream.of("abc", "", "ABC")), is("abc"));
-		TestUtil.assertThrown(() -> StreamUtil.min(Stream.of("abc", null, "ABC")));
-		assertThat(StreamUtil.max(Stream.of("abc", null, "ABC")), is("abc"));
+		assertEquals(StreamUtil.min(Stream.of("abc", "", "ABC")), "");
+		assertEquals(StreamUtil.max(Stream.of("abc", "", "ABC")), "abc");
+		assertThrown(() -> StreamUtil.min(Stream.of("abc", null, "ABC")));
+		assertEquals(StreamUtil.max(Stream.of("abc", null, "ABC")), "abc");
 	}
 
 	@Test
 	public void testFirst() {
 		Stream<Integer> stream = Stream.of(1, 2, 3, 4, 5).filter(i -> i % 2 == 0);
-		assertThat(StreamUtil.first(stream), is(2));
+		assertEquals(StreamUtil.first(stream), 2);
 	}
 
 	@Test
@@ -240,14 +229,14 @@ public class StreamUtilTest {
 
 	@Test
 	public void testToEntryMap() {
-		assertThat(StreamUtil.toEntryMap(Map.of(1, "1", 2, "2").entrySet().stream()),
-			is(Map.of(1, "1", 2, "2")));
+		assertMap(StreamUtil.toEntryMap(Map.of(1, "1", 2, "2").entrySet().stream()), 1, "1", 2,
+			"2");
 	}
 
 	@Test
 	public void testEntryCollector() {
-		assertThat(Map.of(1, "1", 2, "2").entrySet().stream().collect(StreamUtil.entryCollector()),
-			is(Map.of(1, "1", 2, "2")));
+		assertMap(Map.of(1, "1", 2, "2").entrySet().stream().collect(StreamUtil.entryCollector()),
+			1, "1", 2, "2");
 	}
 
 	@Test
@@ -297,7 +286,7 @@ public class StreamUtilTest {
 	@Test
 	public void testMergeError() {
 		Stream<String> stream = Stream.of("1", "2", "3", "1");
-		TestUtil.assertThrown(() -> stream.collect(
+		assertThrown(() -> stream.collect(
 			Collectors.toMap(Integer::parseInt, Function.identity(), StreamUtil.mergeError())));
 	}
 
@@ -325,10 +314,10 @@ public class StreamUtilTest {
 		Stream<String> stream = Stream.of("1", "2", "3", "4");
 		Map<Integer, String> map = StreamUtil.toMap(stream, Integer::parseInt);
 		assertIterable(map.keySet(), 1, 2, 3, 4);
-		assertThat(map.get(1), is("1"));
-		assertThat(map.get(2), is("2"));
-		assertThat(map.get(3), is("3"));
-		assertThat(map.get(4), is("4"));
+		assertEquals(map.get(1), "1");
+		assertEquals(map.get(2), "2");
+		assertEquals(map.get(3), "3");
+		assertEquals(map.get(4), "4");
 	}
 
 }

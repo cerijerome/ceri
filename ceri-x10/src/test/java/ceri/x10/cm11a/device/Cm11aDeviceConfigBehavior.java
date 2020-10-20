@@ -1,6 +1,6 @@
 package ceri.x10.cm11a.device;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 

@@ -1,15 +1,16 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertStream;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertStream;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.IntProvider.Reader;
 import ceri.common.data.IntReceiverBehavior.Holder;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 
 public class IntProviderBehavior {
 	private static final boolean msb = ByteUtil.BIG_ENDIAN;
@@ -21,14 +22,14 @@ public class IntProviderBehavior {
 
 	@Test
 	public void shouldProvideAnEmptyInstance() {
-		assertThat(IntProvider.empty().length(), is(0));
-		assertThat(IntProvider.empty().isEmpty(), is(true));
+		assertEquals(IntProvider.empty().length(), 0);
+		assertTrue(IntProvider.empty().isEmpty());
 		assertThrown(() -> IntProvider.empty().getInt(0));
 	}
 
 	@Test
 	public void shouldIterateValues() {
-		Capturer.Int captor = Capturer.ofInt();
+		Captor.Int captor = Captor.ofInt();
 		for (int i : IntProvider.empty())
 			captor.accept(i);
 		captor.verifyInt();
@@ -39,46 +40,46 @@ public class IntProviderBehavior {
 
 	@Test
 	public void shouldDetermineIfEmpty() {
-		assertThat(ip.isEmpty(), is(false));
-		assertThat(IntProvider.empty().isEmpty(), is(true));
+		assertFalse(ip.isEmpty());
+		assertTrue(IntProvider.empty().isEmpty());
 	}
 
 	@Test
 	public void shouldProvidePrimitiveValues() {
-		assertThat(ip.getBool(0), is(false));
-		assertThat(ip.getBool(1), is(true));
-		assertThat(ip.getInt(1), is(-1));
-		assertThat(ip.getLong(1), is(msb ? 0xffffffff00000002L : 0x2ffffffffL));
-		assertThat(ip.getFloat(2), is(Float.intBitsToFloat(2)));
-		assertThat(ip.getDouble(1),
-			is(Double.longBitsToDouble(msb ? 0xffffffff00000002L : 0x2ffffffffL)));
+		assertFalse(ip.getBool(0));
+		assertTrue(ip.getBool(1));
+		assertEquals(ip.getInt(1), -1);
+		assertEquals(ip.getLong(1), msb ? 0xffffffff00000002L : 0x2ffffffffL);
+		assertEquals(ip.getFloat(2), Float.intBitsToFloat(2));
+		assertEquals(ip.getDouble(1),
+			Double.longBitsToDouble(msb ? 0xffffffff00000002L : 0x2ffffffffL));
 	}
 
 	@Test
 	public void shouldProvideUnsignedValues() {
-		assertThat(ip.getUint(1), is(0xffffffffL));
-		assertThat(ip.getUint(2), is(2L));
+		assertEquals(ip.getUint(1), 0xffffffffL);
+		assertEquals(ip.getUint(2), 2L);
 	}
 
 	@Test
 	public void shouldProvideIntAlignedValues() {
-		assertThat(ip.getLong(1, true), is(0xffffffff00000002L));
-		assertThat(ip.getLong(1, false), is(0x2ffffffffL));
-		assertThat(ip.getDouble(1, true), is(Double.longBitsToDouble(0xffffffff00000002L)));
-		assertThat(ip.getDouble(1, false), is(Double.longBitsToDouble(0x2ffffffffL)));
+		assertEquals(ip.getLong(1, true), 0xffffffff00000002L);
+		assertEquals(ip.getLong(1, false), 0x2ffffffffL);
+		assertEquals(ip.getDouble(1, true), Double.longBitsToDouble(0xffffffff00000002L));
+		assertEquals(ip.getDouble(1, false), Double.longBitsToDouble(0x2ffffffffL));
 	}
 
 	@Test
 	public void shouldProvideDecodedStrings() {
-		assertThat(provider(cp).getString(0), is(str));
+		assertEquals(provider(cp).getString(0), str);
 	}
 
 	@Test
 	public void shouldSliceProvidedIntRange() {
-		assertThat(ip.slice(10).isEmpty(), is(true));
+		assertTrue(ip.slice(10).isEmpty());
 		assertArray(ip.slice(5, 0).copy(0));
-		assertThat(ip.slice(0), is(ip));
-		assertThat(ip.slice(0, 10), is(ip));
+		assertEquals(ip.slice(0), ip);
+		assertEquals(ip.slice(0, 10), ip);
 		assertThrown(() -> ip.slice(1, 10));
 		assertThrown(() -> ip.slice(0, 9));
 	}
@@ -92,7 +93,7 @@ public class IntProviderBehavior {
 	@Test
 	public void shouldCopyToIntArray() {
 		int[] ints = new int[5];
-		assertThat(ip.copyTo(1, ints), is(6));
+		assertEquals(ip.copyTo(1, ints), 6);
 		assertArray(ints, -1, 2, -3, 4, -5);
 		assertThrown(() -> ip.copyTo(6, ints));
 		assertThrown(() -> ip.copyTo(-1, ints));
@@ -102,7 +103,7 @@ public class IntProviderBehavior {
 	@Test
 	public void shouldCopyToReceiver() {
 		Holder h = Holder.of(5);
-		assertThat(ip.copyTo(1, h.receiver), is(6));
+		assertEquals(ip.copyTo(1, h.receiver), 6);
 		assertArray(h.ints, -1, 2, -3, 4, -5);
 		assertThrown(() -> ip.copyTo(6, h.receiver));
 		assertThrown(() -> ip.copyTo(-1, h.receiver));
@@ -124,57 +125,57 @@ public class IntProviderBehavior {
 
 	@Test
 	public void shouldDetermineIfIntsAreEqual() {
-		assertThat(ip.isEqualTo(5, -5, 6, -7, 8, -9), is(true));
-		assertThat(ip.isEqualTo(5, -5, 6, -7, 8, 9), is(false));
+		assertTrue(ip.isEqualTo(5, -5, 6, -7, 8, -9));
+		assertFalse(ip.isEqualTo(5, -5, 6, -7, 8, 9));
 		int[] ints = ArrayUtil.ints(0, -1, 2, -3, 4);
-		assertThat(ip.isEqualTo(0, ints), is(true));
-		assertThat(ip.isEqualTo(0, ints, 0, 6), is(false));
-		assertThat(ip.isEqualTo(9, -9, 0), is(false));
+		assertTrue(ip.isEqualTo(0, ints));
+		assertFalse(ip.isEqualTo(0, ints, 0, 6));
+		assertFalse(ip.isEqualTo(9, -9, 0));
 	}
 
 	@Test
 	public void shouldDetermineIfProvidedIntsAreEqual() {
-		assertThat(ip.isEqualTo(0, ip), is(true));
-		assertThat(ip.isEqualTo(5, ip, 5), is(true));
-		assertThat(ip.isEqualTo(5, ip, 5, 3), is(true));
-		assertThat(ip.isEqualTo(1, provider(-1, 2, -3)), is(true));
-		assertThat(ip.isEqualTo(1, provider(1, 2, -3)), is(false));
-		assertThat(ip.isEqualTo(0, provider(1, 2, 3), 0, 4), is(false));
-		assertThat(ip.isEqualTo(9, provider(1, 2, 3)), is(false));
+		assertTrue(ip.isEqualTo(0, ip));
+		assertTrue(ip.isEqualTo(5, ip, 5));
+		assertTrue(ip.isEqualTo(5, ip, 5, 3));
+		assertTrue(ip.isEqualTo(1, provider(-1, 2, -3)));
+		assertFalse(ip.isEqualTo(1, provider(1, 2, -3)));
+		assertFalse(ip.isEqualTo(0, provider(1, 2, 3), 0, 4));
+		assertFalse(ip.isEqualTo(9, provider(1, 2, 3)));
 	}
 
 	@Test
 	public void shouldDetermineIndexOfInts() {
-		assertThat(ip.indexOf(0, -1, 2, -3), is(1));
-		assertThat(ip.indexOf(0, -1, 2, 3), is(-1));
-		assertThat(ip.indexOf(8, -1, 2, -3), is(-1));
-		assertThat(ip.indexOf(0, ArrayUtil.ints(-1, 2, -3), 0, 4), is(-1));
+		assertEquals(ip.indexOf(0, -1, 2, -3), 1);
+		assertEquals(ip.indexOf(0, -1, 2, 3), -1);
+		assertEquals(ip.indexOf(8, -1, 2, -3), -1);
+		assertEquals(ip.indexOf(0, ArrayUtil.ints(-1, 2, -3), 0, 4), -1);
 	}
 
 	@Test
 	public void shouldDetermineIndexOfProvidedInts() {
-		assertThat(ip.indexOf(0, provider(-1, 2, -3)), is(1));
-		assertThat(ip.indexOf(0, provider(-1, 2, 3)), is(-1));
-		assertThat(ip.indexOf(8, provider(-1, 2, -3)), is(-1));
-		assertThat(ip.indexOf(0, provider(-1, 2, -3), 0, 4), is(-1));
+		assertEquals(ip.indexOf(0, provider(-1, 2, -3)), 1);
+		assertEquals(ip.indexOf(0, provider(-1, 2, 3)), -1);
+		assertEquals(ip.indexOf(8, provider(-1, 2, -3)), -1);
+		assertEquals(ip.indexOf(0, provider(-1, 2, -3), 0, 4), -1);
 	}
 
 	@Test
 	public void shouldDetermineLastIndexOfBytes() {
 		IntProvider ip = provider(0, -1, 2, -1, 0, 2, -1, 0);
-		assertThat(ip.lastIndexOf(0, 2, -1), is(5));
-		assertThat(ip.lastIndexOf(0, 2, 1), is(-1));
-		assertThat(ip.lastIndexOf(7, 0, -1), is(-1));
-		assertThat(ip.lastIndexOf(0, ArrayUtil.ints(2, -1, 0), 0, 4), is(-1));
+		assertEquals(ip.lastIndexOf(0, 2, -1), 5);
+		assertEquals(ip.lastIndexOf(0, 2, 1), -1);
+		assertEquals(ip.lastIndexOf(7, 0, -1), -1);
+		assertEquals(ip.lastIndexOf(0, ArrayUtil.ints(2, -1, 0), 0, 4), -1);
 	}
 
 	@Test
 	public void shouldDetermineLastIndexOfProviderBytes() {
 		IntProvider ip = provider(0, -1, 2, -1, 0, 2, -1, 0);
-		assertThat(ip.lastIndexOf(0, provider(2, -1)), is(5));
-		assertThat(ip.lastIndexOf(0, provider(2, 1)), is(-1));
-		assertThat(ip.lastIndexOf(7, provider(0, -1)), is(-1));
-		assertThat(ip.lastIndexOf(0, provider(2, -1, 0), 0, 4), is(-1));
+		assertEquals(ip.lastIndexOf(0, provider(2, -1)), 5);
+		assertEquals(ip.lastIndexOf(0, provider(2, 1)), -1);
+		assertEquals(ip.lastIndexOf(7, provider(0, -1)), -1);
+		assertEquals(ip.lastIndexOf(0, provider(2, -1, 0), 0, 4), -1);
 	}
 
 	@Test
@@ -190,19 +191,19 @@ public class IntProviderBehavior {
 
 	@Test
 	public void shouldReadInt() {
-		assertThat(ip.reader(1).readInt(), is(-1));
+		assertEquals(ip.reader(1).readInt(), -1);
 		assertThrown(() -> ip.reader(1, 0).readInt());
 	}
 
 	@Test
 	public void shouldReadLong() {
-		assertThat(ip.reader(6).readLong(true), is(0x6fffffff9L));
-		assertThat(ip.reader(6).readLong(false), is(0xfffffff900000006L));
+		assertEquals(ip.reader(6).readLong(true), 0x6fffffff9L);
+		assertEquals(ip.reader(6).readLong(false), 0xfffffff900000006L);
 	}
 
 	@Test
 	public void shouldReadStrings() {
-		assertThat(provider(cp).reader(2, 3).readString(), is("c\ud83c\udc39d"));
+		assertEquals(provider(cp).reader(2, 3).readString(), "c\ud83c\udc39d");
 	}
 
 	@Test
@@ -234,8 +235,8 @@ public class IntProviderBehavior {
 
 	@Test
 	public void shouldReturnReaderIntProvider() {
-		assertThat(ip.reader(0).provider(), is(ip));
-		assertThat(ip.reader(5, 0).provider().isEmpty(), is(true));
+		assertEquals(ip.reader(0).provider(), ip);
+		assertTrue(ip.reader(5, 0).provider().isEmpty());
 		assertThrown(() -> ip.reader(5).provider()); // slice() fails
 	}
 

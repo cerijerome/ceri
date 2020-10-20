@@ -1,8 +1,7 @@
 package ceri.log.util;
 
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static java.lang.Boolean.TRUE;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -19,8 +18,8 @@ import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import ceri.common.test.AssertUtil;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.TestUtil;
 import ceri.common.text.StringUtil;
 
 /**
@@ -57,15 +56,15 @@ public class TestLog implements Closeable {
 	}
 
 	public void assertEmpty() {
-		assertThat(extract(), is(""));
+		assertEquals(extract(), "");
 	}
 
 	public void assertFind(String pattern, Object... args) {
-		TestUtil.assertFind(extract(), pattern, args);
+		AssertUtil.assertFind(extract(), pattern, args);
 	}
 
 	public void assertMatch(String pattern, Object... args) {
-		TestUtil.assertMatch(extract(), pattern, args);
+		AssertUtil.assertMatch(extract(), pattern, args);
 	}
 
 	public String extract() {

@@ -1,8 +1,7 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.reader;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;
@@ -12,14 +11,12 @@ public class TransmitTest {
 
 	@Test
 	public void testDecode() {
-		assertThat(Transmit.decode(reader(0x04, 0x9b)), is(Entry.address(House.F, Unit._12)));
-		assertThat(Transmit.decode(reader(0x06, 0x90)),
-			is(Entry.function(House.F, FunctionType.allUnitsOff)));
-		assertThat(Transmit.decode(reader(0x06, 0x92)),
-			is(Entry.function(House.F, FunctionType.on)));
-		assertThat(Transmit.decode(reader(0x26, 0x94)),
-			is(Entry.dim(House.F, FunctionType.dim, 18)));
-		assertThat(Transmit.decode(reader(0x07, 0x97, 0x14, 0x1e)), is(Entry.ext(House.F, 20, 30)));
+		assertEquals(Transmit.decode(reader(0x04, 0x9b)), Entry.address(House.F, Unit._12));
+		assertEquals(Transmit.decode(reader(0x06, 0x90)),
+			Entry.function(House.F, FunctionType.allUnitsOff));
+		assertEquals(Transmit.decode(reader(0x06, 0x92)), Entry.function(House.F, FunctionType.on));
+		assertEquals(Transmit.decode(reader(0x26, 0x94)), Entry.dim(House.F, FunctionType.dim, 18));
+		assertEquals(Transmit.decode(reader(0x07, 0x97, 0x14, 0x1e)), Entry.ext(House.F, 20, 30));
 	}
 
 }

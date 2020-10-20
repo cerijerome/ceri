@@ -2,12 +2,11 @@ package ceri.common.color;
 
 import static ceri.common.color.ColorTestUtil.assertXyb;
 import static ceri.common.color.ColorTestUtil.assertXyz;
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class XyzColorBehavior {
 
@@ -44,16 +43,16 @@ public class XyzColorBehavior {
 
 	@Test
 	public void shouldLimitValues() {
-		assertThat(XyzColor.of(0, 0, 0).limit(), is(XyzColor.of(0, 0, 0)));
-		assertThat(XyzColor.of(0, 0, 0, 0.5).limit(), is(XyzColor.of(0, 0, 0, 0.5)));
-		assertThat(XyzColor.of(0, 0, 0, 2.0).limit(), is(XyzColor.of(0, 0, 0, 1.0)));
-		assertThat(XyzColor.of(1.4, 1.0, 1.6, 1.2).limit(), is(XyzColor.of(1.4, 1.0, 1.6, 1.0)));
+		assertEquals(XyzColor.of(0, 0, 0).limit(), XyzColor.of(0, 0, 0));
+		assertEquals(XyzColor.of(0, 0, 0, 0.5).limit(), XyzColor.of(0, 0, 0, 0.5));
+		assertEquals(XyzColor.of(0, 0, 0, 2.0).limit(), XyzColor.of(0, 0, 0, 1.0));
+		assertEquals(XyzColor.of(1.4, 1.0, 1.6, 1.2).limit(), XyzColor.of(1.4, 1.0, 1.6, 1.0));
 	}
 
 	@Test
 	public void shouldVerifyValues() {
 		XyzColor.of(0.5, 0.6, 0.3, 0.2).verify();
-		TestUtil.assertThrown(() -> XyzColor.of(1.333, 1, -1.333, 0.2).verify());
+		assertThrown(() -> XyzColor.of(1.333, 1, -1.333, 0.2).verify());
 	}
 
 }

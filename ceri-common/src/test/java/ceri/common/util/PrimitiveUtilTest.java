@@ -1,11 +1,12 @@
 package ceri.common.util;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertSame;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertSame;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
@@ -19,14 +20,14 @@ public class PrimitiveUtilTest {
 
 	@Test
 	public void testDecode() {
-		assertThat(PrimitiveUtil.decode("", Byte.MIN_VALUE), is(Byte.MIN_VALUE));
-		assertThat(PrimitiveUtil.decode("088", Byte.MIN_VALUE), is(Byte.MIN_VALUE));
-		assertThat(PrimitiveUtil.decode("", Short.MIN_VALUE), is(Short.MIN_VALUE));
-		assertThat(PrimitiveUtil.decode("088", Short.MIN_VALUE), is(Short.MIN_VALUE));
-		assertThat(PrimitiveUtil.decode("", Integer.MIN_VALUE), is(Integer.MIN_VALUE));
-		assertThat(PrimitiveUtil.decode("088", Integer.MIN_VALUE), is(Integer.MIN_VALUE));
-		assertThat(PrimitiveUtil.decode("", Long.MIN_VALUE), is(Long.MIN_VALUE));
-		assertThat(PrimitiveUtil.decode("088", Long.MIN_VALUE), is(Long.MIN_VALUE));
+		assertEquals(PrimitiveUtil.decode("", Byte.MIN_VALUE), Byte.MIN_VALUE);
+		assertEquals(PrimitiveUtil.decode("088", Byte.MIN_VALUE), Byte.MIN_VALUE);
+		assertEquals(PrimitiveUtil.decode("", Short.MIN_VALUE), Short.MIN_VALUE);
+		assertEquals(PrimitiveUtil.decode("088", Short.MIN_VALUE), Short.MIN_VALUE);
+		assertEquals(PrimitiveUtil.decode("", Integer.MIN_VALUE), Integer.MIN_VALUE);
+		assertEquals(PrimitiveUtil.decode("088", Integer.MIN_VALUE), Integer.MIN_VALUE);
+		assertEquals(PrimitiveUtil.decode("", Long.MIN_VALUE), Long.MIN_VALUE);
+		assertEquals(PrimitiveUtil.decode("088", Long.MIN_VALUE), Long.MIN_VALUE);
 	}
 
 	@Test
@@ -82,93 +83,101 @@ public class PrimitiveUtilTest {
 
 	@Test
 	public void testAutoBoxAssignable() {
-		assertThat(PrimitiveUtil.isAutoBoxAssignable(Long.class, long.class), is(true));
-		assertThat(PrimitiveUtil.isAutoBoxAssignable(long.class, Long.class), is(true));
-		assertThat(PrimitiveUtil.isAutoBoxAssignable(double.class, Number.class), is(true));
-		assertThat(PrimitiveUtil.isAutoBoxAssignable(Number.class, double.class), is(false));
+		assertTrue(PrimitiveUtil.isAutoBoxAssignable(Long.class, long.class));
+		assertTrue(PrimitiveUtil.isAutoBoxAssignable(long.class, Long.class));
+		assertTrue(PrimitiveUtil.isAutoBoxAssignable(double.class, Number.class));
+		assertFalse(PrimitiveUtil.isAutoBoxAssignable(Number.class, double.class));
 	}
 
 	@Test
 	public void testValueOf() {
-		assertThat(PrimitiveUtil.valueOf(null, true), is(true));
-		assertThat(PrimitiveUtil.valueOf("FALSE", true), is(false));
-		assertThat(PrimitiveUtil.valueOf("1", false), is(false));
-		assertThat(PrimitiveUtil.valueOf(null, '\n'), is('\n'));
-		assertThat(PrimitiveUtil.valueOf("A", 'a'), is('A'));
-		assertThat(PrimitiveUtil.valueOf(null, (byte) 0), is((byte) 0));
-		assertThat(PrimitiveUtil.valueOf("x", Byte.MIN_VALUE), is(Byte.MIN_VALUE));
-		assertThat(PrimitiveUtil.valueOf("-1", Byte.MIN_VALUE), is((byte) -1));
-		assertThat(PrimitiveUtil.valueOf(null, (short) -1), is((short) -1));
-		assertThat(PrimitiveUtil.valueOf("x", Short.MIN_VALUE), is(Short.MIN_VALUE));
-		assertThat(PrimitiveUtil.valueOf("1", Short.MIN_VALUE), is((short) 1));
-		assertThat(PrimitiveUtil.valueOf(null, Integer.MIN_VALUE), is(Integer.MIN_VALUE));
-		assertThat(PrimitiveUtil.valueOf("--", Integer.MAX_VALUE), is(Integer.MAX_VALUE));
-		assertThat(PrimitiveUtil.valueOf("100", Integer.MAX_VALUE), is(100));
-		assertThat(PrimitiveUtil.valueOf(null, 1L), is(1L));
-		assertThat(PrimitiveUtil.valueOf("x", 1L), is(1L));
-		assertThat(PrimitiveUtil.valueOf("-100000000000", 1L), is(-100000000000L));
-		assertThat(PrimitiveUtil.valueOf(null, Double.NaN), is(Double.NaN));
-		assertThat(PrimitiveUtil.valueOf("a", Double.NaN), is(Double.NaN));
-		assertThat(PrimitiveUtil.valueOf("-0.1E300", Double.NaN), is(-0.1E300));
-		assertThat(PrimitiveUtil.valueOf(null, Float.NaN), is(Float.NaN));
-		assertThat(PrimitiveUtil.valueOf("a", Float.NaN), is(Float.NaN));
-		assertThat(PrimitiveUtil.valueOf("1E30", Float.NaN), is(1E30f));
+		assertTrue(PrimitiveUtil.valueOf(null, true));
+		assertFalse(PrimitiveUtil.valueOf("FALSE", true));
+		assertFalse(PrimitiveUtil.valueOf("1", false));
+		assertEquals(PrimitiveUtil.valueOf(null, '\n'), '\n');
+		assertEquals(PrimitiveUtil.valueOf("A", 'a'), 'A');
+		assertEquals(PrimitiveUtil.valueOf(null, (byte) 0), (byte) 0);
+		assertEquals(PrimitiveUtil.valueOf("x", Byte.MIN_VALUE), Byte.MIN_VALUE);
+		assertEquals(PrimitiveUtil.valueOf("-1", Byte.MIN_VALUE), (byte) -1);
+		assertEquals(PrimitiveUtil.valueOf(null, (short) -1), (short) -1);
+		assertEquals(PrimitiveUtil.valueOf("x", Short.MIN_VALUE), Short.MIN_VALUE);
+		assertEquals(PrimitiveUtil.valueOf("1", Short.MIN_VALUE), (short) 1);
+		assertEquals(PrimitiveUtil.valueOf(null, Integer.MIN_VALUE), Integer.MIN_VALUE);
+		assertEquals(PrimitiveUtil.valueOf("--", Integer.MAX_VALUE), Integer.MAX_VALUE);
+		assertEquals(PrimitiveUtil.valueOf("100", Integer.MAX_VALUE), 100);
+		assertEquals(PrimitiveUtil.valueOf(null, 1L), 1L);
+		assertEquals(PrimitiveUtil.valueOf("x", 1L), 1L);
+		assertEquals(PrimitiveUtil.valueOf("-100000000000", 1L), -100000000000L);
+		assertEquals(PrimitiveUtil.valueOf(null, Double.NaN), Double.NaN);
+		assertEquals(PrimitiveUtil.valueOf("a", Double.NaN), Double.NaN);
+		assertEquals(PrimitiveUtil.valueOf("-0.1E300", Double.NaN), -0.1E300);
+		assertEquals(PrimitiveUtil.valueOf(null, Float.NaN), Float.NaN);
+		assertEquals(PrimitiveUtil.valueOf("a", Float.NaN), Float.NaN);
+		assertEquals(PrimitiveUtil.valueOf("1E30", Float.NaN), 1E30f);
 	}
 
 	@Test
 	public void testValue() {
-		assertThat(PrimitiveUtil.booleanValue("TRUE"), is(true));
-		assertThat(PrimitiveUtil.byteValue("127"), is((byte) 127));
-		assertThat(PrimitiveUtil.byteValue("7f", 16), is((byte) 0x7f));
-		assertThat(PrimitiveUtil.charValue("\u00b2"), is('\u00b2'));
-		assertThat(PrimitiveUtil.shortValue("32767"), is((short) 32767));
-		assertThat(PrimitiveUtil.shortValue("7fff", 16), is((short) 0x7fff));
-		assertThat(PrimitiveUtil.intValue("2147483647"), is(2147483647));
-		assertThat(PrimitiveUtil.intValue("7fffffff", 16), is(0x7fffffff));
-		assertThat(PrimitiveUtil.longValue("9223372036854775807"), is(9223372036854775807L));
-		assertThat(PrimitiveUtil.longValue("7fffffffffffffff", 16), is(0x7fffffffffffffffL));
-		assertThat(PrimitiveUtil.floatValue("0.0000000000000001"), is(0.0000000000000001f));
-		assertThat(PrimitiveUtil.doubleValue("0.0000000000000000001"), is(0.0000000000000000001));
+		assertTrue(PrimitiveUtil.booleanValue("TRUE"));
+		assertEquals(PrimitiveUtil.byteValue("127"), (byte) 127);
+		assertEquals(PrimitiveUtil.byteValue("7f", 16), (byte) 0x7f);
+		assertEquals(PrimitiveUtil.charValue("\u00b2"), '\u00b2');
+		assertEquals(PrimitiveUtil.shortValue("32767"), (short) 32767);
+		assertEquals(PrimitiveUtil.shortValue("7fff", 16), (short) 0x7fff);
+		assertEquals(PrimitiveUtil.intValue("2147483647"), 2147483647);
+		assertEquals(PrimitiveUtil.intValue("7fffffff", 16), 0x7fffffff);
+		assertEquals(PrimitiveUtil.longValue("9223372036854775807"), 9223372036854775807L);
+		assertEquals(PrimitiveUtil.longValue("7fffffffffffffff", 16), 0x7fffffffffffffffL);
+		assertEquals(PrimitiveUtil.floatValue("0.0000000000000001"), 0.0000000000000001f);
+		assertEquals(PrimitiveUtil.doubleValue("0.0000000000000000001"), 0.0000000000000000001);
 	}
 
 	@Test
 	public void testLookup() {
-		assertThat(PrimitiveUtil.lookupBoolean(null, "a"), is(false));
-		assertThat(PrimitiveUtil.lookupBoolean(map("a", true, "b", false), "a"), is(true));
-		assertThat(PrimitiveUtil.lookupBoolean(map("a", true, "b", false), "c", true), is(true));
-		assertThat(PrimitiveUtil.lookupChar(null, "a"), is('\0'));
-		assertThat(PrimitiveUtil.lookupChar(map("a", 'A', "b", 'B'), "a"), is('A'));
-		assertThat(PrimitiveUtil.lookupChar(map("a", 'A', "b", 'B'), "c", 'C'), is('C'));
-		assertThat(PrimitiveUtil.lookupByte(null, "a"), is((byte) 0));
-		assertThat(PrimitiveUtil.lookupByte(map("a", Byte.MIN_VALUE, "b", Byte.MAX_VALUE), //
-			"a"), is(Byte.MIN_VALUE));
-		assertThat(PrimitiveUtil.lookupByte(map("a", Byte.MIN_VALUE, "b", Byte.MAX_VALUE), //
-			"c", (byte) -1), is((byte) -1));
-		assertThat(PrimitiveUtil.lookupShort(null, "a"), is((short) 0));
-		assertThat(PrimitiveUtil.lookupShort(map("a", Short.MIN_VALUE, "b", Short.MAX_VALUE), //
-			"a"), is(Short.MIN_VALUE));
-		assertThat(PrimitiveUtil.lookupShort(map("a", Short.MIN_VALUE, "b", Short.MAX_VALUE), //
-			"c", (short) -1), is((short) -1));
-		assertThat(PrimitiveUtil.lookupInt(null, "a"), is(0));
-		assertThat(PrimitiveUtil.lookupInt(map("a", Integer.MIN_VALUE, "b", Integer.MAX_VALUE), //
-			"a"), is(Integer.MIN_VALUE));
-		assertThat(PrimitiveUtil.lookupInt(map("a", Integer.MIN_VALUE, "b", Integer.MAX_VALUE), //
-			"c", -1), is(-1));
-		assertThat(PrimitiveUtil.lookupLong(null, "a"), is(0L));
-		assertThat(PrimitiveUtil.lookupLong(map("a", Long.MIN_VALUE, "b", Long.MAX_VALUE), //
-			"a"), is(Long.MIN_VALUE));
-		assertThat(PrimitiveUtil.lookupLong(map("a", Long.MIN_VALUE, "b", Long.MAX_VALUE), //
-			"c", -1), is(-1L));
-		assertThat(PrimitiveUtil.lookupFloat(null, "a"), is(0.0f));
-		assertThat(PrimitiveUtil.lookupFloat(map("a", Float.MIN_VALUE, "b", Float.MAX_VALUE), //
-			"a"), is(Float.MIN_VALUE));
-		assertThat(PrimitiveUtil.lookupFloat(map("a", Float.MIN_VALUE, "b", Float.MAX_VALUE), //
-			"c", -1), is(-1.0f));
-		assertThat(PrimitiveUtil.lookupDouble(null, "a"), is(0.0));
-		assertThat(PrimitiveUtil.lookupDouble(map("a", Double.MIN_VALUE, "b", Double.MAX_VALUE), //
-			"a"), is(Double.MIN_VALUE));
-		assertThat(PrimitiveUtil.lookupDouble(map("a", Double.MIN_VALUE, "b", Double.MAX_VALUE), //
-			"c", -1), is(-1.0));
+		assertFalse(PrimitiveUtil.lookupBoolean(null, "a"));
+		assertTrue(PrimitiveUtil.lookupBoolean(map("a", true, "b", false), "a"));
+		assertTrue(PrimitiveUtil.lookupBoolean(map("a", true, "b", false), "c", true));
+		assertEquals(PrimitiveUtil.lookupChar(null, "a"), '\0');
+		assertEquals(PrimitiveUtil.lookupChar(map("a", 'A', "b", 'B'), "a"), 'A');
+		assertEquals(PrimitiveUtil.lookupChar(map("a", 'A', "b", 'B'), "c", 'C'), 'C');
+		assertEquals(PrimitiveUtil.lookupByte(null, "a"), (byte) 0);
+		assertEquals(PrimitiveUtil.lookupByte(map("a", Byte.MIN_VALUE, "b", Byte.MAX_VALUE), "a"),
+			Byte.MIN_VALUE);
+		assertEquals(
+			PrimitiveUtil.lookupByte(map("a", Byte.MIN_VALUE, "b", Byte.MAX_VALUE), "c", (byte) -1),
+			(byte) -1);
+		assertEquals(PrimitiveUtil.lookupShort(null, "a"), (short) 0);
+		assertEquals(
+			PrimitiveUtil.lookupShort(map("a", Short.MIN_VALUE, "b", Short.MAX_VALUE), "a"),
+			Short.MIN_VALUE);
+		assertEquals(PrimitiveUtil.lookupShort(map("a", Short.MIN_VALUE, "b", Short.MAX_VALUE), "c",
+			(short) -1), (short) -1);
+		assertEquals(PrimitiveUtil.lookupInt(null, "a"), 0);
+		assertEquals(
+			PrimitiveUtil.lookupInt(map("a", Integer.MIN_VALUE, "b", Integer.MAX_VALUE), "a"),
+			Integer.MIN_VALUE);
+		assertEquals(
+			PrimitiveUtil.lookupInt(map("a", Integer.MIN_VALUE, "b", Integer.MAX_VALUE), "c", -1),
+			-1);
+		assertEquals(PrimitiveUtil.lookupLong(null, "a"), 0L);
+		assertEquals(PrimitiveUtil.lookupLong(map("a", Long.MIN_VALUE, "b", Long.MAX_VALUE), "a"),
+			Long.MIN_VALUE);
+		assertEquals(
+			PrimitiveUtil.lookupLong(map("a", Long.MIN_VALUE, "b", Long.MAX_VALUE), "c", -1), -1L);
+		assertEquals(PrimitiveUtil.lookupFloat(null, "a"), 0.0f);
+		assertEquals(
+			PrimitiveUtil.lookupFloat(map("a", Float.MIN_VALUE, "b", Float.MAX_VALUE), "a"),
+			Float.MIN_VALUE);
+		assertEquals(
+			PrimitiveUtil.lookupFloat(map("a", Float.MIN_VALUE, "b", Float.MAX_VALUE), "c", -1),
+			-1.0f);
+		assertEquals(PrimitiveUtil.lookupDouble(null, "a"), 0.0);
+		assertEquals(
+			PrimitiveUtil.lookupDouble(map("a", Double.MIN_VALUE, "b", Double.MAX_VALUE), "a"),
+			Double.MIN_VALUE);
+		assertEquals(
+			PrimitiveUtil.lookupDouble(map("a", Double.MIN_VALUE, "b", Double.MAX_VALUE), "c", -1),
+			-1.0);
 	}
 
 	private static <T, U> Map<T, U> map(T t1, U u1, T t2, U u2) {

@@ -1,11 +1,11 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -25,7 +25,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import ceri.common.test.TestUtil;
 
 public class ConcurrentUtilTest {
 	private static final ExecutorService exec = Executors.newCachedThreadPool();
@@ -71,25 +70,25 @@ public class ConcurrentUtilTest {
 	public void testCloseExecutor() {
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 		exec.submit(() -> ConcurrentUtil.delay(60000));
-		assertThat(ConcurrentUtil.close(exec, 1000), is(true));
+		assertTrue(ConcurrentUtil.close(exec, 1000));
 	}
 
 	@Test
 	public void testCloseExecutorWithException() throws InterruptedException {
-		assertThat(ConcurrentUtil.close(null, 0), is(false));
+		assertFalse(ConcurrentUtil.close(null, 0));
 		ExecutorService exec = Mockito.mock(ExecutorService.class);
 		when(exec.awaitTermination(anyLong(), any())).thenThrow(new InterruptedException());
-		assertThat(ConcurrentUtil.close(exec, 0), is(false));
+		assertFalse(ConcurrentUtil.close(exec, 0));
 	}
 
 	@Test
 	public void testExecuteAndGet() throws IOException {
 		ValueCondition<String> signal = ValueCondition.of();
 		signal.signal("test");
-		assertThat(ConcurrentUtil.executeAndGet(exec, signal::await, IOException::new), is("test"));
+		assertEquals(ConcurrentUtil.executeAndGet(exec, signal::await, IOException::new), "test");
 		signal.signal("test2");
-		assertThat(ConcurrentUtil.executeAndGet(exec, signal::await, IOException::new, 10000),
-			is("test2"));
+		assertEquals(ConcurrentUtil.executeAndGet(exec, signal::await, IOException::new, 10000),
+			"test2");
 	}
 
 	@Test
@@ -135,14 +134,14 @@ public class ConcurrentUtilTest {
 		Lock lock = new ReentrantLock();
 		final boolean[] exec = { false };
 		ConcurrentUtil.execute(lock, () -> exec[0] = true);
-		assertThat(exec[0], is(true));
+		assertTrue(exec[0]);
 		assertTrue(lock.tryLock(1, TimeUnit.MILLISECONDS));
 	}
 
 	@Test
 	public void testExecuteRunnableUnlocksOnException() throws InterruptedException {
 		Lock lock = new ReentrantLock();
-		TestUtil.assertThrown(() -> ConcurrentUtil.execute(lock, () -> {
+		assertThrown(() -> ConcurrentUtil.execute(lock, () -> {
 			throw new RuntimeInterruptedException("test");
 		}));
 		assertTrue(lock.tryLock(1, TimeUnit.MILLISECONDS));
@@ -152,7 +151,7 @@ public class ConcurrentUtilTest {
 	public void testExecuteSupplier() throws InterruptedException {
 		Lock lock = new ReentrantLock();
 		String result = ConcurrentUtil.executeGet(lock, () -> "test");
-		assertThat(result, is("test"));
+		assertEquals(result, "test");
 		assertTrue(lock.tryLock(1, TimeUnit.MILLISECONDS));
 	}
 
@@ -160,7 +159,7 @@ public class ConcurrentUtilTest {
 	public void testExecuteSupplierUnlocksOnException() throws InterruptedException {
 		Lock lock = new ReentrantLock();
 		boolean throwEx = true;
-		TestUtil.assertThrown(() -> ConcurrentUtil.executeGet(lock, () -> {
+		assertThrown(() -> ConcurrentUtil.executeGet(lock, () -> {
 			if (throwEx) throw new RuntimeInterruptedException("test");
 			return "test";
 		}));
@@ -192,7 +191,7 @@ public class ConcurrentUtilTest {
 
 	@Test
 	public void testExecuteGetInterruptible() {
-		assertThat(ConcurrentUtil.executeGetInterruptible(() -> "x"), is("x"));
+		assertEquals(ConcurrentUtil.executeGetInterruptible(() -> "x"), "x");
 		assertThrown(RuntimeInterruptedException.class,
 			() -> ConcurrentUtil.executeGetInterruptible(() -> {
 				throw new InterruptedException();

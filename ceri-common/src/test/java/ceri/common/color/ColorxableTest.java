@@ -1,9 +1,8 @@
 package ceri.common.color;
 
 import static ceri.common.color.ColorTestUtil.assertColorx;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
 import org.junit.Test;
 
 public class ColorxableTest {
@@ -22,9 +21,9 @@ public class ColorxableTest {
 		TestColorxable c2 = new TestColorxable();
 		Colorxable c = Colorxable.multi(c0, c1, c2);
 		c.colorx(0x10203040);
-		assertThat(c0.colorx.rgbx(), is(0x10203040));
-		assertThat(c1.colorx.rgbx(), is(0x10203040));
-		assertThat(c2.colorx.rgbx(), is(0x10203040));
+		assertEquals(c0.colorx.rgbx(), 0x10203040);
+		assertEquals(c1.colorx.rgbx(), 0x10203040);
+		assertEquals(c2.colorx.rgbx(), 0x10203040);
 	}
 
 	@Test

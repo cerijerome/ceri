@@ -1,7 +1,6 @@
 package ceri.log.test;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Properties;
@@ -13,11 +12,11 @@ public class ContainerTestHelperBehavior {
 	@Test
 	public void shouldCreateContainerOnce() throws IOException {
 		try (var helper = new TestContainerHelper()) {
-			assertThat(helper.container(1).value, is("def"));
-			assertThat(helper.container(0).value, is("abc"));
-			assertThat(helper.container(1).value, is("def"));
-			assertThat(helper.container(0).value, is("abc"));
-			assertThat(TestContainer.instances, is(2));
+			assertEquals(helper.container(1).value, "def");
+			assertEquals(helper.container(0).value, "abc");
+			assertEquals(helper.container(1).value, "def");
+			assertEquals(helper.container(0).value, "abc");
+			assertEquals(TestContainer.instances, 2);
 		}
 	}
 

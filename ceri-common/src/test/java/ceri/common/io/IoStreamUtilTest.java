@@ -1,12 +1,11 @@
 package ceri.common.io;
 
 import static ceri.common.collection.ArrayUtil.bytes;
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.throwIt;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.throwIt;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,8 +45,8 @@ public class IoStreamUtilTest {
 
 	@Test
 	public void testNullInputStream() throws IOException {
-		assertThat(nullIn.available(), is(0));
-		assertThat(nullIn.read(), is(0));
+		assertEquals(nullIn.available(), 0);
+		assertEquals(nullIn.read(), 0);
 		assertArray(nullIn.readAllBytes());
 		assertArray(nullIn.readNBytes(3), 0, 0, 0);
 		assertReadNBytes(nullIn, 0, 0, 0);
@@ -70,8 +69,8 @@ public class IoStreamUtilTest {
 	@Test
 	public void testInWithNullByteRead() throws IOException {
 		try (var in = IoStreamUtil.in((ExceptionIntSupplier<IOException>) null)) {
-			assertThat(in.available(), is(0));
-			assertThat(in.read(), is(0));
+			assertEquals(in.available(), 0);
+			assertEquals(in.read(), 0);
 			assertReadBytes(in, 0, 0, 0);
 		}
 	}
@@ -79,25 +78,25 @@ public class IoStreamUtilTest {
 	@Test
 	public void testInWithByteRead() throws IOException {
 		try (var in = IoStreamUtil.in(() -> bin0.read())) {
-			assertThat(in.available(), is(0));
-			assertThat(in.read(), is(1));
+			assertEquals(in.available(), 0);
+			assertEquals(in.read(), 1);
 			assertReadBytes(in, 2, 3);
-			assertThat(in.read(), is(-1));
+			assertEquals(in.read(), -1);
 		}
 	}
 
 	@Test
 	public void testInWithAvailable() throws IOException {
 		try (var in = IoStreamUtil.in(() -> bin0.read(), bin0::available)) {
-			assertThat(in.available(), is(3));
+			assertEquals(in.available(), 3);
 		}
 	}
 
 	@Test
 	public void testInWithNullArrayRead() throws IOException {
 		try (var in = IoStreamUtil.in((Read) null)) {
-			assertThat(in.available(), is(0));
-			assertThat(in.read(), is(0));
+			assertEquals(in.available(), 0);
+			assertEquals(in.read(), 0);
 			assertReadBytes(in, 0, 0, 0);
 		}
 	}
@@ -105,10 +104,10 @@ public class IoStreamUtilTest {
 	@Test
 	public void testInWithArrayRead() throws IOException {
 		try (var in = IoStreamUtil.in((b, off, len) -> bin0.read(b, off, len))) {
-			assertThat(in.available(), is(0));
-			assertThat(in.read(), is(1));
+			assertEquals(in.available(), 0);
+			assertEquals(in.read(), 1);
 			assertReadBytes(in, 2, 3);
-			assertThat(in.read(), is(-1));
+			assertEquals(in.read(), -1);
 		}
 	}
 
@@ -118,24 +117,24 @@ public class IoStreamUtilTest {
 	public void testFilterInWithNullByteRead() throws IOException {
 		try (var in = IoStreamUtil.filterIn(bin0,
 			(ExceptionFunction<IOException, InputStream, Integer>) null)) {
-			assertThat(in.available(), is(3));
-			assertThat(in.read(), is(1));
+			assertEquals(in.available(), 3);
+			assertEquals(in.read(), 1);
 			assertReadBytes(in, new byte[2], 2, 3);
-			assertThat(in.read(), is(-1));
+			assertEquals(in.read(), -1);
 		}
 	}
 
 	@Test
 	public void testFilterInWithByteRead() throws IOException {
 		try (var in = IoStreamUtil.filterIn(bin1, is -> readOrNull(bin0))) {
-			assertThat(in.available(), is(3));
-			assertThat(in.read(), is(1));
+			assertEquals(in.available(), 3);
+			assertEquals(in.read(), 1);
 			assertReadBytes(in, 2, 3, 4);
-			assertThat(in.skip(1), is(1L));
+			assertEquals(in.skip(1), 1L);
 			assertReadBytes(in, new byte[0]);
 			assertReadBytes(in, new byte[3], 6);
-			assertThat(in.read(), is(-1));
-			assertThat(in.read(new byte[3], 0, 3), is(-1));
+			assertEquals(in.read(), -1);
+			assertEquals(in.read(new byte[3], 0, 3), -1);
 		}
 	}
 
@@ -143,18 +142,18 @@ public class IoStreamUtilTest {
 	public void testFilterInWithAvailable() throws IOException {
 		try (var in =
 			IoStreamUtil.filterIn(bin1, is -> readOrNull(bin0), is -> availableOrNull(bin0))) {
-			assertThat(in.available(), is(3));
+			assertEquals(in.available(), 3);
 			in.read();
-			assertThat(in.available(), is(2));
+			assertEquals(in.available(), 2);
 			in.readNBytes(2);
-			assertThat(in.available(), is(3));
+			assertEquals(in.available(), 3);
 		}
 	}
 
 	@Test
 	public void testFilterInWithByteReadError() throws IOException {
 		try (var in = IoStreamUtil.filterIn(nullIn, is -> readOrError(bin0))) {
-			assertThat(in.read(), is(1));
+			assertEquals(in.read(), 1);
 			assertReadBytes(in, new byte[3], 2, 3);
 			assertThrown(in::read);
 		}
@@ -163,10 +162,10 @@ public class IoStreamUtilTest {
 	@Test
 	public void testFilterInWithNullArrayRead() throws IOException {
 		try (var in = IoStreamUtil.filterIn(bin0, (FilterRead) null)) {
-			assertThat(in.available(), is(3));
-			assertThat(in.read(), is(1));
+			assertEquals(in.available(), 3);
+			assertEquals(in.read(), 1);
 			assertReadBytes(in, new byte[2], 2, 3);
-			assertThat(in.read(), is(-1));
+			assertEquals(in.read(), -1);
 		}
 	}
 
@@ -174,12 +173,12 @@ public class IoStreamUtilTest {
 	public void testFilterInWithArrayRead() throws IOException {
 		try (var in =
 			IoStreamUtil.filterIn(bin1, (is, b, off, len) -> readOrNull(bin0, b, off, len))) {
-			assertThat(in.available(), is(3));
-			assertThat(in.read(), is(1));
+			assertEquals(in.available(), 3);
+			assertEquals(in.read(), 1);
 			assertReadBytes(in, new byte[3], 2, 3);
-			assertThat(in.skip(1), is(1L));
+			assertEquals(in.skip(1), 1L);
 			assertReadBytes(in, new byte[3], 5, 6);
-			assertThat(in.read(), is(-1));
+			assertEquals(in.read(), -1);
 		}
 	}
 
@@ -187,9 +186,9 @@ public class IoStreamUtilTest {
 	public void testFilterInSkip() throws IOException {
 		try (var in =
 			IoStreamUtil.filterIn(bin1, (is, b, off, len) -> readOrNull(bin0, b, off, len))) {
-			assertThat(in.skip(0), is(0L));
-			assertThat(in.skip(4), is(4L));
-			assertThat(in.skip(4), is(2L));
+			assertEquals(in.skip(0), 0L);
+			assertEquals(in.skip(4), 4L);
+			assertEquals(in.skip(4), 2L);
 		}
 	}
 
@@ -233,8 +232,8 @@ public class IoStreamUtilTest {
 
 	@Test
 	public void testFilterOutWithNullByteWrite() throws IOException {
-		try (var out =
-			IoStreamUtil.filterOut(bout0, (ExceptionObjIntPredicate<IOException, OutputStream>) null)) {
+		try (var out = IoStreamUtil.filterOut(bout0,
+			(ExceptionObjIntPredicate<IOException, OutputStream>) null)) {
 			out.write(bytes(1, 2));
 			out.write(3);
 			assertArray(bout0.toByteArray(), 1, 2, 3);
@@ -306,19 +305,19 @@ public class IoStreamUtilTest {
 
 	private static void assertReadBytes(InputStream in, byte[] bytes, int... actual)
 		throws IOException {
-		assertThat(in.read(bytes), is(actual.length));
+		assertEquals(in.read(bytes), actual.length);
 		assertArray(Arrays.copyOf(bytes, actual.length), actual);
 	}
 
 	private static void assertReadBytes(InputStream in, int... actual) throws IOException {
 		byte[] b = new byte[actual.length];
-		assertThat(in.read(b), is(b.length));
+		assertEquals(in.read(b), b.length);
 		assertArray(b, actual);
 	}
 
 	private static void assertReadNBytes(InputStream in, int... actual) throws IOException {
 		byte[] b = new byte[actual.length];
-		assertThat(in.readNBytes(b, 0, b.length), is(b.length));
+		assertEquals(in.readNBytes(b, 0, b.length), b.length);
 		assertArray(b, actual);
 	}
 }

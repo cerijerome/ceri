@@ -1,9 +1,10 @@
 package ceri.x10.cm11a.device;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.x10.cm11a.protocol.Protocol.READY;
 import static ceri.x10.cm11a.protocol.Protocol.RING_ENABLE;
 import static ceri.x10.command.House.A;
@@ -18,7 +19,6 @@ import static ceri.x10.command.Unit._16;
 import static ceri.x10.command.Unit._6;
 import static ceri.x10.command.Unit._7;
 import static ceri.x10.command.Unit._9;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -67,7 +67,7 @@ public class Cm11aDeviceBehavior {
 		ValueCondition<StateChange> sync = ValueCondition.of();
 		try (var enc = cm11a.listeners().enclose(sync::signal)) {
 			con.listeners.accept(StateChange.broken);
-			assertThat(sync.await(), is(StateChange.broken));
+			assertEquals(sync.await(), StateChange.broken);
 		}
 	}
 
@@ -135,15 +135,15 @@ public class Cm11aDeviceBehavior {
 			assertArray(con.from.readBytes(1), 0x8b);
 			con.to.writeBytes(0xff, 0xff, 30, 100, 7, 140, 4, 0x6a, 0, 0xf, 0, 0xa, 0, 0x3).flush();
 			Status status = exec.get();
-			assertThat(status.batteryTimer, is(0xffff));
-			assertThat(status.house, is(A));
-			assertThat(status.addressed, is(0x000f));
-			assertThat(status.onOff, is(0x000a));
-			assertThat(status.dim, is(0x0003));
-			assertThat(status.date.getSecond(), is(30));
-			assertThat(status.date.getMinute(), is(40));
-			assertThat(status.date.getHour(), is(15));
-			assertThat(status.date.getMonth(), is(Month.MAY));
+			assertEquals(status.batteryTimer, 0xffff);
+			assertEquals(status.house, A);
+			assertEquals(status.addressed, 0x000f);
+			assertEquals(status.onOff, 0x000a);
+			assertEquals(status.dim, 0x0003);
+			assertEquals(status.date.getSecond(), 30);
+			assertEquals(status.date.getMinute(), 40);
+			assertEquals(status.date.getHour(), 15);
+			assertEquals(status.date.getMonth(), Month.MAY);
 		}
 	}
 
@@ -152,10 +152,10 @@ public class Cm11aDeviceBehavior {
 	public void shouldProcessClockRequestFromDevice() throws IOException {
 		con.to.writeByte(0xa5).flush();
 		Clock clock = Clock.decode(con.from);
-		assertThat(clock.house, is(A));
-		assertThat(clock.clearBatteryTimer, is(false));
-		assertThat(clock.clearMonitoredStatus, is(false));
-		assertThat(clock.purgeTimer, is(false));
+		assertEquals(clock.house, A);
+		assertFalse(clock.clearBatteryTimer);
+		assertFalse(clock.clearMonitoredStatus);
+		assertFalse(clock.purgeTimer);
 		long diffMs = Duration.between(clock.date, LocalDateTime.now()).toMillis();
 		assertTrue(diffMs < 1000);
 	}

@@ -1,7 +1,7 @@
 package ceri.common.collection;
 
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
 import static org.hamcrest.CoreMatchers.is;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,17 +27,17 @@ public class FixedSizeCacheBehavior {
 	public void initCache() {
 		cache = new FixedSizeCache<>(3);
 		cache.putAll(map);
-		assertThat(cache, is(map));
+		assertEquals(cache, map);
 	}
 
 	@Test
 	public void shouldNotExceedMaxSize() {
 		cache.put(4, "four");
-		assertThat(cache.size(), is(3));
+		assertEquals(cache.size(), 3);
 		cache.put(5, "five");
-		assertThat(cache.size(), is(3));
+		assertEquals(cache.size(), 3);
 		cache.put(6, "six");
-		assertThat(cache.size(), is(3));
+		assertEquals(cache.size(), 3);
 	}
 
 	@Test

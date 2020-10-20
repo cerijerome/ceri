@@ -1,9 +1,9 @@
 package ceri.ci.audio;
 
-import static ceri.common.test.TestUtil.assertNotNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import ceri.common.io.ResourcePath;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.TestUtil;
 
 public class AudioBehavior {
 	private static ResourcePath resourcePath;
@@ -37,15 +36,15 @@ public class AudioBehavior {
 	public void shouldClipToANewAudioObject() throws IOException {
 		Audio audio = Audio.create(testFile);
 		Audio audio2 = audio.clip(0, 16);
-		assertThat(audio, not(audio2));
+		assertNotEquals(audio, audio2);
 	}
 
 	@Test
 	public void shouldFailIfClipLimitsAreNotWithinDataRange() throws IOException {
 		Audio audio = Audio.create(testFile);
-		TestUtil.assertThrown(() -> audio.clip(11000, 11000));
+		assertThrown(() -> audio.clip(11000, 11000));
 		Audio audio2 = audio.clip(0, 16);
-		assertThat(audio, not(audio2));
+		assertNotEquals(audio, audio2);
 	}
 
 	@Test
@@ -53,8 +52,8 @@ public class AudioBehavior {
 		Audio audio = Audio.create(testFile);
 		Audio audio2 = audio.changePitch(1.0f);
 		Audio audio3 = audio.changePitch(2.0f);
-		assertThat(audio, is(audio2));
-		assertThat(audio, not(audio3));
+		assertEquals(audio, audio2);
+		assertNotEquals(audio, audio3);
 	}
 
 	@Test

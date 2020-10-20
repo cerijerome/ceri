@@ -1,7 +1,7 @@
 package ceri.ci.audio;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,9 +20,9 @@ public class AudioPropertiesBehavior {
 	@Test
 	public void shouldReadValuesWithPrefix() {
 		AudioProperties audio = new AudioProperties(new BaseProperties(props) {}, "x");
-		assertThat(audio.enabled(), is(true));
-		assertThat(audio.pitch(), is(1.2f));
-		assertThat(audio.voice(), is("a/b/c"));
+		assertTrue(audio.enabled());
+		assertEquals(audio.pitch(), 1.2f);
+		assertEquals(audio.voice(), "a/b/c");
 	}
 
 }

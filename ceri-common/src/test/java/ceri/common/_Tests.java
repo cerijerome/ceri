@@ -234,9 +234,11 @@ import ceri.common.test.TestUtil;
 	ceri.common.svg.SvgUtilTest.class, //
 	ceri.common.svg.SweepFlagBehavior.class, //
 	// test
+	ceri.common.test.AssertUtilTest.class, //
 	ceri.common.test.BinaryPrinterBehavior.class, //
 	ceri.common.test.BranchCaptorBehavior.class, //
-	ceri.common.test.CapturerBehavior.class, //
+	ceri.common.test.CallSyncBehavior.class, //
+	ceri.common.test.CaptorBehavior.class, //
 	ceri.common.test.DebuggerBehavior.class, //
 	ceri.common.test.ErrorGenBehavior.class, //
 	ceri.common.test.FileTestHelperBehavior.class, //
@@ -244,7 +246,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.RegexFinderBehavior.class, //
 	ceri.common.test.RegexMatcherBehavior.class, //
 	ceri.common.test.ResponseStreamBehavior.class, //
-	ceri.common.test.SyncStateBehavior.class, //
 	ceri.common.test.TestInputStreamBehavior.class, //
 	ceri.common.test.TestListenerBehavior.class, //
 	ceri.common.test.TestListenersBehavior.class, //
@@ -276,9 +277,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.time.CalendarFieldBehavior.class, //
 	ceri.common.time.DateUtilTest.class, //
 	ceri.common.time.HolidayBehavior.class, //
-	ceri.common.time.ImmutableDateBehavior.class, //
-	ceri.common.time.ImmutableTimeZoneBehavior.class, //
-	ceri.common.time.MultiDateParserBehavior.class, //
 	ceri.common.time.TimerBehavior.class, //
 	// tree
 	ceri.common.tree.NodeTreeBehavior.class, //

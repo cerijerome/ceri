@@ -1,12 +1,11 @@
 package ceri.common.net;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertNotNull;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import org.junit.Test;
@@ -35,19 +34,19 @@ public class HostPortBehavior {
 		HostPort ne2 = HostPort.of("test");
 		exerciseEquals(obj, eq0, eq1);
 		assertAllNotEqual(obj, ne0, ne1, ne2);
-		assertThat(obj.toString(), is(not(ne2.toString())));
+		assertNotEquals(obj.toString(), ne2.toString());
 	}
 
 	@Test
 	public void shouldProvidePortOrDefault() {
-		assertThat(HostPort.of("test", 777).port(888), is(777));
-		assertThat(HostPort.of("test").port(888), is(888));
+		assertEquals(HostPort.of("test", 777).port(888), 777);
+		assertEquals(HostPort.of("test").port(888), 888);
 	}
 
 	@Test
 	public void shouldCreateInetAddress() throws UnknownHostException {
 		InetAddress addr = HostPort.of("0.0.0.0").asAddress();
-		assertThat(addr.getHostAddress(), is("0.0.0.0"));
+		assertEquals(addr.getHostAddress(), "0.0.0.0");
 	}
 
 	private static void assertHostPort(HostPort hostPort, String host) {
@@ -60,8 +59,8 @@ public class HostPortBehavior {
 			return;
 		}
 		assertNotNull(hostPort);
-		assertThat(hostPort.host, is(host));
+		assertEquals(hostPort.host, host);
 		if (port == null) assertNull(hostPort.port);
-		else assertThat(hostPort.port, is(port));
+		else assertEquals(hostPort.port, port);
 	}
 }

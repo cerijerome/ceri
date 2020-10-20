@@ -1,10 +1,9 @@
 package ceri.x10.cm11a.device;
 
 import static ceri.common.collection.ArrayUtil.bytes;
-import static ceri.common.test.TestUtil.assertRead;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertRead;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;
@@ -17,7 +16,7 @@ public class Cm11aConnectorBehavior {
 	@Test
 	public void shouldProvideNullConnector() throws IOException {
 		Cm11aConnector con = Cm11aConnector.ofNull();
-		assertThat(con.in().read(), is(0));
+		assertEquals(con.in().read(), 0);
 		con.out().write(0);
 		try (var enclosed = con.listeners().enclose(sc -> {})) {}
 	}
@@ -64,7 +63,7 @@ public class Cm11aConnectorBehavior {
 			try (var enclosed = con.listeners().enclose(sync::signal)) {
 				con.connect();
 				con.broken();
-				assertThat(sync.await(), is(StateChange.broken));
+				assertEquals(sync.await(), StateChange.broken);
 			}
 		}
 	}

@@ -1,12 +1,12 @@
 package ceri.process.nmcli;
 
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertNotNull;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.process.util.ProcessTestUtil.assertParameters;
 import static ceri.process.util.ProcessTestUtil.mockProcessor;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.process.Processor;
@@ -39,13 +39,13 @@ public class NmcliBehavior {
 		var output = Nmcli.of(p).con.show("test");
 		assertParameters(p, "nmcli", "con", "show", "id", "test");
 		ConShowIdResult result = output.parse();
-		assertThat(result.connectionId(), is("eth2"));
-		assertThat(result.connectionUuid(), is("186053d4-9369-4a4e-87b8-d1f9a419f985"));
-		assertThat(result.connectionInterfaceName(), is("eth2"));
-		assertThat(result.connectionType(), is("802-3-ethernet"));
-		assertThat(result.generalState(), is("activated"));
-		assertThat(result.generalVpn(), is(true));
-		assertThat(result.value("connection.stable-id"), is(""));
+		assertEquals(result.connectionId(), "eth2");
+		assertEquals(result.connectionUuid(), "186053d4-9369-4a4e-87b8-d1f9a419f985");
+		assertEquals(result.connectionInterfaceName(), "eth2");
+		assertEquals(result.connectionType(), "802-3-ethernet");
+		assertEquals(result.generalState(), "activated");
+		assertTrue(result.generalVpn());
+		assertEquals(result.value("connection.stable-id"), "");
 		assertFalse(result.isNull());
 	}
 
@@ -54,12 +54,12 @@ public class NmcliBehavior {
 		Processor p = mockProcessor("output");
 		var output = Nmcli.of(p).con.up("test");
 		assertParameters(p, "nmcli", "con", "up", "id", "test");
-		assertThat(output, is("output"));
+		assertEquals(output, "output");
 
 		p = mockProcessor("output");
 		output = Nmcli.of(p).con.up("test", 10);
 		assertParameters(p, "nmcli", "con", "up", "id", "test", "--wait", "10");
-		assertThat(output, is("output"));
+		assertEquals(output, "output");
 	}
 
 	@Test
@@ -67,6 +67,6 @@ public class NmcliBehavior {
 		Processor p = mockProcessor("output");
 		var output = Nmcli.of(p).con.down("test");
 		assertParameters(p, "nmcli", "con", "down", "id", "test");
-		assertThat(output, is("output"));
+		assertEquals(output, "output");
 	}
 }

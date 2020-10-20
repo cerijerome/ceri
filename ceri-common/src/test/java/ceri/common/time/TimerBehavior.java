@@ -1,12 +1,11 @@
 package ceri.common.time;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.util.BasicUtil.uncheckedCast;
-import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
@@ -37,16 +36,16 @@ public class TimerBehavior {
 
 	@Test
 	public void shouldSupportTimeUnits() {
-		assertThat(Timer.micros(1000).unit, is(TimeUnit.MICROSECONDS));
-		assertThat(Timer.micros(1000).snapshot().unit(), is(TimeUnit.MICROSECONDS));
-		assertThat(Timer.nanos(1000).unit, is(TimeUnit.NANOSECONDS));
-		assertThat(Timer.nanos(1000).snapshot().unit(), is(TimeUnit.NANOSECONDS));
+		assertEquals(Timer.micros(1000).unit, TimeUnit.MICROSECONDS);
+		assertEquals(Timer.micros(1000).snapshot().unit(), TimeUnit.MICROSECONDS);
+		assertEquals(Timer.nanos(1000).unit, TimeUnit.NANOSECONDS);
+		assertEquals(Timer.nanos(1000).snapshot().unit(), TimeUnit.NANOSECONDS);
 	}
 
 	@Test
 	public void shouldCalculateElapsedTime() {
 		Timer.Snapshot s0 = Timer.nanos(100).start().snapshot();
-		assertThat(s0.elapsed(), is(s0.period() - s0.remaining));
+		assertEquals(s0.elapsed(), s0.period() - s0.remaining);
 	}
 
 	@Test
@@ -64,9 +63,9 @@ public class TimerBehavior {
 	@Test
 	public void shouldDetermineRemainingTime() {
 		Timer t = Timer.millis(Integer.MAX_VALUE + 10000L);
-		assertThat(t.snapshot().remainingInt(), is(Integer.MAX_VALUE));
-		assertThat(Timer.millis(-1).snapshot().remainingInt(), is(0));
-		assertThat(Timer.millis(0).snapshot().remainingInt(), is(0));
+		assertEquals(t.snapshot().remainingInt(), Integer.MAX_VALUE);
+		assertEquals(Timer.millis(-1).snapshot().remainingInt(), 0);
+		assertEquals(Timer.millis(0).snapshot().remainingInt(), 0);
 	}
 
 	@Test
@@ -75,9 +74,9 @@ public class TimerBehavior {
 		Timer.Snapshot s0 = new Timer.Snapshot(t, State.started, 0, 0, Long.MIN_VALUE);
 		Timer.Snapshot s1 = new Timer.Snapshot(t, State.started, 0, 0, Long.MAX_VALUE);
 		Timer.Snapshot s2 = new Timer.Snapshot(t, State.started, 0, 0, 1000L);
-		assertThat(s0.remainingInt(), is(Integer.MIN_VALUE));
-		assertThat(s1.remainingInt(), is(Integer.MAX_VALUE));
-		assertThat(s2.remainingInt(), is(1000));
+		assertEquals(s0.remainingInt(), Integer.MIN_VALUE);
+		assertEquals(s1.remainingInt(), Integer.MAX_VALUE);
+		assertEquals(s2.remainingInt(), 1000);
 	}
 
 	@Test

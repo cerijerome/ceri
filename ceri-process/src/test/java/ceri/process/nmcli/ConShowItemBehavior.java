@@ -1,10 +1,10 @@
 package ceri.process.nmcli;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class ConShowItemBehavior {
@@ -29,11 +29,11 @@ public class ConShowItemBehavior {
 
 	@Test
 	public void shouldDetermineIfNull() {
-		assertThat(ConShowItem.of(null, null, null, null).isNull(), is(true));
-		assertThat(ConShowItem.of("", null, null, null).isNull(), is(false));
-		assertThat(ConShowItem.of(null, "", null, null).isNull(), is(false));
-		assertThat(ConShowItem.of(null, null, "", null).isNull(), is(false));
-		assertThat(ConShowItem.of(null, null, null, "").isNull(), is(false));
+		assertTrue(ConShowItem.of(null, null, null, null).isNull());
+		assertFalse(ConShowItem.of("", null, null, null).isNull());
+		assertFalse(ConShowItem.of(null, "", null, null).isNull());
+		assertFalse(ConShowItem.of(null, null, "", null).isNull());
+		assertFalse(ConShowItem.of(null, null, null, "").isNull());
 	}
 
 }

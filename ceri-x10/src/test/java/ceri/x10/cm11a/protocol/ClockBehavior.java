@@ -1,12 +1,12 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.test.TestUtil.reader;
 import static ceri.common.time.DateUtil.UTC_EPOCH;
-import static org.hamcrest.CoreMatchers.is;
 import java.time.Month;
 import org.junit.Test;
 import ceri.x10.command.House;
@@ -30,15 +30,15 @@ public class ClockBehavior {
 	@Test
 	public void shouldDecode() {
 		Clock clock = Clock.decode(reader(0x9b, 0, 0, 0, 1, 0x04, 0x57));
-		assertThat(clock.house, is(House.G));
-		assertThat(clock.date.getMonth(), is(Month.JANUARY));
-		assertThat(clock.date.getDayOfMonth(), is(1));
-		assertThat(clock.date.getHour(), is(0));
-		assertThat(clock.date.getMinute(), is(0));
-		assertThat(clock.date.getSecond(), is(0));
-		assertThat(clock.clearBatteryTimer, is(true));
-		assertThat(clock.clearMonitoredStatus, is(true));
-		assertThat(clock.purgeTimer, is(true));
+		assertEquals(clock.house, House.G);
+		assertEquals(clock.date.getMonth(), Month.JANUARY);
+		assertEquals(clock.date.getDayOfMonth(), 1);
+		assertEquals(clock.date.getHour(), 0);
+		assertEquals(clock.date.getMinute(), 0);
+		assertEquals(clock.date.getSecond(), 0);
+		assertTrue(clock.clearBatteryTimer);
+		assertTrue(clock.clearMonitoredStatus);
+		assertTrue(clock.purgeTimer);
 	}
 
 	@Test

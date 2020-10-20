@@ -5,10 +5,9 @@ import static ceri.common.svg.Position.ABSOLUTE_ZERO;
 import static ceri.common.svg.Position.RELATIVE_ZERO;
 import static ceri.common.svg.SvgTestUtil.assertPath;
 import static ceri.common.svg.SweepFlag.negative;
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.geom.Dimension2d;
 import ceri.common.geom.Line2d;
@@ -37,7 +36,7 @@ public class EllipticalArcBehavior {
 	@Test
 	public void shouldDetermineEnd() {
 		EllipticalArc e = EllipticalArc.of(Position.absolute(1, 1), Dimension2d.of(4, 1));
-		assertThat(e.end(), is(Position.absolute(1, 1)));
+		assertEquals(e.end(), Position.absolute(1, 1));
 	}
 
 	@Test

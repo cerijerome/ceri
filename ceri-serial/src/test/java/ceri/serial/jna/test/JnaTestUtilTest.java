@@ -1,7 +1,7 @@
 package ceri.serial.jna.test;
 
-import static ceri.common.test.TestUtil.assertAssertion;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertAssertion;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.serial.jna.test.JnaTestUtil.assertMemory;
 import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
 import org.junit.Test;

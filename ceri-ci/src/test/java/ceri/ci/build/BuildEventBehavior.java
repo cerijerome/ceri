@@ -2,11 +2,9 @@ package ceri.ci.build;
 
 import static ceri.ci.build.BuildTestUtil.assertBuildNames;
 import static ceri.ci.build.BuildTestUtil.assertJobNames;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertEquals;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
 import org.junit.Test;
 
 public class BuildEventBehavior {
@@ -37,8 +35,8 @@ public class BuildEventBehavior {
 		BuildEvent b2 = new BuildEvent("build", "job", e0);
 		assertEquals(b0, b2);
 		assertEquals(b2, b0);
-		assertThat(b0.hashCode(), is(b2.hashCode()));
-		assertThat(b0.toString(), is(b2.toString()));
+		assertEquals(b0.hashCode(), b2.hashCode());
+		assertEquals(b0.toString(), b2.toString());
 	}
 
 }

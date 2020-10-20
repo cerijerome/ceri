@@ -1,10 +1,9 @@
 package ceri.common.svg;
 
 import static ceri.common.svg.SvgTestUtil.assertPath;
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
@@ -37,7 +36,7 @@ public class GroundedPathBehavior {
 	@Test
 	public void shouldDetermineEnd() {
 		GroundedPath<MoveTo> p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
-		assertThat(p.end(), is(Position.absolute(3, -1)));
+		assertEquals(p.end(), Position.absolute(3, -1));
 	}
 
 	@Test

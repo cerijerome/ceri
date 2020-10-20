@@ -1,9 +1,8 @@
 package ceri.process.scutil;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.collection.Node;
 import ceri.common.collection.NodeBuilder;
@@ -27,9 +26,9 @@ public class NcShowBehavior {
 	@Test
 	public void shouldCreateFromOutput() {
 		NcShow ns = NcShow.from("* (Connecting) X P --> D \"N\" [P:T]");
-		assertThat(ns.item, is(NcListItem.builder().enabled(true).state("Connecting")
-			.passwordHash("X").protocol("P").device("D").name("N").type("T").build()));
-		assertThat(ns.data, is(Node.NULL));
+		assertEquals(ns.item, NcListItem.builder().enabled(true).state("Connecting")
+			.passwordHash("X").protocol("P").device("D").name("N").type("T").build());
+		assertEquals(ns.data, Node.NULL);
 	}
 
 }

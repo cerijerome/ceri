@@ -1,24 +1,23 @@
 package ceri.common.reflect;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class CallerBehavior {
 
 	@Test
 	public void shouldSupportNull() {
-		TestUtil.assertThrown(Caller.NULL::cls);
+		assertThrown(Caller.NULL::cls);
 	}
 
 	@Test
 	public void shouldConformToEqualsContract() {
 		assertNotEquals(null, Caller.NULL);
-		assertThat(Caller.NULL, is(Caller.NULL));
+		assertEquals(Caller.NULL, Caller.NULL);
 		StackTraceElement ste = new Exception().getStackTrace()[0];
 		Caller caller = Caller.fromStackTraceElement(ste);
 		Caller caller1 = Caller.fromStackTraceElement(ste);
@@ -32,10 +31,10 @@ public class CallerBehavior {
 
 	@Test
 	public void shouldDeterminePackage() {
-		assertThat(Caller.NULL.pkg(), is(""));
+		assertEquals(Caller.NULL.pkg(), "");
 		StackTraceElement ste = new Exception().getStackTrace()[0];
 		Caller caller = Caller.fromStackTraceElement(ste);
-		assertThat(caller.pkg(), is(getClass().getPackage().getName()));
+		assertEquals(caller.pkg(), getClass().getPackage().getName());
 	}
 
 }

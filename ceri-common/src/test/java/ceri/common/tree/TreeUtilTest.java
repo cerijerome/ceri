@@ -1,10 +1,10 @@
 package ceri.common.tree;
 
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class TreeUtilTest {
 	private final TreeNodeTestHelper helper = new TreeNodeTestHelper();
@@ -16,13 +16,13 @@ public class TreeUtilTest {
 
 	@Test
 	public void testIterable() {
-		TestUtil.assertThrown(() -> TreeUtil.iterable(null));
+		assertThrown(() -> TreeUtil.iterable(null));
 	}
 
 	@Test
 	public void testIsChild() {
-		TestUtil.assertThrown(() -> TreeUtil.isChild(null, null));
-		TestUtil.assertThrown(() -> TreeUtil.isChild(helper.root, null));
+		assertThrown(() -> TreeUtil.isChild(null, null));
+		assertThrown(() -> TreeUtil.isChild(helper.root, null));
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -32,7 +32,7 @@ public class TreeUtilTest {
 
 	@Test
 	public void testLeaves() {
-		assertThat(TreeUtil.leaves(helper.root), is(helper.nodes(111, 21, 3)));
+		assertEquals(TreeUtil.leaves(helper.root), helper.nodes(111, 21, 3));
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -42,26 +42,23 @@ public class TreeUtilTest {
 
 	@Test
 	public void testRootOf() {
-		assertThat(TreeUtil.rootOf(helper.node(111)), is(helper.root));
-		assertThat(TreeUtil.rootOf(helper.node(21)), is(helper.root));
-		assertThat(TreeUtil.rootOf(helper.node(3)), is(helper.root));
-		assertThat(TreeUtil.rootOf(helper.root), is(helper.root));
-		assertThat(TreeUtil.rootOf(helper.node(0)), is(helper.root));
+		assertEquals(TreeUtil.rootOf(helper.node(111)), helper.root);
+		assertEquals(TreeUtil.rootOf(helper.node(21)), helper.root);
+		assertEquals(TreeUtil.rootOf(helper.node(3)), helper.root);
+		assertEquals(TreeUtil.rootOf(helper.root), helper.root);
+		assertEquals(TreeUtil.rootOf(helper.node(0)), helper.root);
 	}
 
 	@Test
 	public void testToStringOfNull() {
-		assertThat(TreeUtil.toString(null), is("null"));
+		assertEquals(TreeUtil.toString(null), "null");
 	}
 
 	@Test
 	public void testToString() {
 		String[] s = TreeUtil.toString(helper.root).split("[\r\n]+");
-		assertThat(s.length, is(7)); // 7 nodes total
-		assertThat(s,
-			is(new String[] { "TestNode(0,0)", "\tTestNode(1,1)", "\t\tTestNode(11,2)",
-				"\t\t\tTestNode(111,3)", "\tTestNode(2,1)", "\t\tTestNode(21,2)",
-				"\tTestNode(3,1)", }));
+		assertArray(s, "TestNode(0,0)", "\tTestNode(1,1)", "\t\tTestNode(11,2)",
+			"\t\t\tTestNode(111,3)", "\tTestNode(2,1)", "\t\tTestNode(21,2)", "\tTestNode(3,1)");
 	}
 
 }

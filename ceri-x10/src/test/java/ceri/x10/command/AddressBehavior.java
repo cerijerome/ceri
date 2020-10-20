@@ -1,10 +1,9 @@
 package ceri.x10.command;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class AddressBehavior {
@@ -24,8 +23,8 @@ public class AddressBehavior {
 
 	@Test
 	public void shouldCreateFromString() {
-		assertThat(Address.from("P16"), is(Address.of(House.P, Unit._16)));
-		assertThat(Address.from("O8"), is(Address.of(House.O, Unit._8)));
+		assertEquals(Address.from("P16"), Address.of(House.P, Unit._16));
+		assertEquals(Address.from("O8"), Address.of(House.O, Unit._8));
 		assertThrown(() -> Address.from(null));
 		assertThrown(() -> Address.from(""));
 		assertThrown(() -> Address.from("A"));
@@ -37,11 +36,11 @@ public class AddressBehavior {
 
 	@Test
 	public void shouldCompareAddresses() {
-		assertThat(Address.from("I10").compareTo(Address.from("I10")), is(0));
-		assertThat(Address.from("I10").compareTo(Address.from("I11")), is(-1));
-		assertThat(Address.from("I10").compareTo(Address.from("J11")), is(-1));
-		assertThat(Address.from("I10").compareTo(Address.from("I9")), is(1));
-		assertThat(Address.from("I10").compareTo(Address.from("H10")), is(1));
+		assertEquals(Address.from("I10").compareTo(Address.from("I10")), 0);
+		assertEquals(Address.from("I10").compareTo(Address.from("I11")), -1);
+		assertEquals(Address.from("I10").compareTo(Address.from("J11")), -1);
+		assertEquals(Address.from("I10").compareTo(Address.from("I9")), 1);
+		assertEquals(Address.from("I10").compareTo(Address.from("H10")), 1);
 	}
 
 }

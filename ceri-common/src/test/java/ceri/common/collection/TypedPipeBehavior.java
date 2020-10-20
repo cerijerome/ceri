@@ -1,8 +1,9 @@
 package ceri.common.collection;
 
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.SimpleExecutor;
@@ -20,9 +21,9 @@ public class TypedPipeBehavior {
 	public void shouldClearPipe() {
 		TypedPipe<String> pipe = TypedPipe.of();
 		pipe.out().writeAll("a", "b", "c");
-		assertThat(pipe.in().available(), is(3));
+		assertEquals(pipe.in().available(), 3);
 		pipe.clear();
-		assertThat(pipe.in().available(), is(0));
+		assertEquals(pipe.in().available(), 0);
 	}
 
 	@Test
@@ -41,9 +42,9 @@ public class TypedPipeBehavior {
 	@Test
 	public void shouldAwaitReadWithTimeout() {
 		TypedPipe<String> pipe = TypedPipe.of();
-		assertThat(pipe.awaitRead(0, 1000), is(true));
+		assertTrue(pipe.awaitRead(0, 1000));
 		pipe.out().writeAll("a", "b", "c");
-		assertThat(pipe.awaitRead(0, 1), is(false));
+		assertFalse(pipe.awaitRead(0, 1));
 	}
 
 	@Test
@@ -60,8 +61,8 @@ public class TypedPipeBehavior {
 		pipe.inFeed().writeAll("a", "b", "c");
 		pipe.out().writeAll("a", "b", "c");
 		pipe.clear();
-		assertThat(pipe.in().available(), is(0));
-		assertThat(pipe.outSink().available(), is(0));
+		assertEquals(pipe.in().available(), 0);
+		assertEquals(pipe.outSink().available(), 0);
 	}
 
 }

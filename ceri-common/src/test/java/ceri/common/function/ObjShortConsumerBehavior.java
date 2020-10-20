@@ -1,14 +1,14 @@
 package ceri.common.function;
 
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 
 public class ObjShortConsumerBehavior {
 
 	@Test
 	public void shouldCombineWithAndThen() {
-		Capturer.Bi<String, Short> capturer = Capturer.ofBi();
+		Captor.Bi<String, Short> capturer = Captor.ofBi();
 		ObjShortConsumer<String> consumer0 = (st, sh) -> capturer.accept(st, null);
 		ObjShortConsumer<String> consumer1 = (st, sh) -> capturer.accept(null, sh);
 		var consumer = consumer0.andThen(consumer1);
@@ -19,7 +19,7 @@ public class ObjShortConsumerBehavior {
 
 	@Test
 	public void shouldConvertToIntConsumer() {
-		Capturer.Bi<String, Short> capturer = Capturer.ofBi();
+		Captor.Bi<String, Short> capturer = Captor.ofBi();
 		var consumer = ObjShortConsumer.toInt(capturer::accept);
 		consumer.accept("a", Short.MAX_VALUE);
 		consumer.accept("b", Short.MIN_VALUE);
@@ -30,7 +30,7 @@ public class ObjShortConsumerBehavior {
 
 	@Test
 	public void shouldConvertToIntExactConsumer() {
-		Capturer.Bi<String, Short> capturer = Capturer.ofBi();
+		Captor.Bi<String, Short> capturer = Captor.ofBi();
 		var consumer = ObjShortConsumer.toIntExact(capturer::accept);
 		consumer.accept("a", Short.MAX_VALUE);
 		consumer.accept("b", Short.MIN_VALUE);
@@ -41,7 +41,7 @@ public class ObjShortConsumerBehavior {
 
 	@Test
 	public void shouldConvertToUintExactConsumer() {
-		Capturer.Bi<String, Short> capturer = Capturer.ofBi();
+		Captor.Bi<String, Short> capturer = Captor.ofBi();
 		var consumer = ObjShortConsumer.toUintExact(capturer::accept);
 		consumer.accept("a", Short.MAX_VALUE);
 		assertThrown(() -> consumer.accept("b", Short.MIN_VALUE));

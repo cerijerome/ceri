@@ -1,9 +1,10 @@
 package ceri.common.exception;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.junit.Test;
@@ -26,9 +27,9 @@ public class ExceptionTrackerBehavior {
 	@Test
 	public void shouldAllowNullMessages() {
 		ExceptionTracker tracker = ExceptionTracker.of();
-		assertThat(tracker.add(null), is(false));
-		assertThat(tracker.add(new IOException()), is(true));
-		assertThat(tracker.add(new IOException()), is(false));
+		assertFalse(tracker.add(null));
+		assertTrue(tracker.add(new IOException()));
+		assertFalse(tracker.add(new IOException()));
 	}
 
 	@Test
@@ -40,26 +41,26 @@ public class ExceptionTrackerBehavior {
 		Exception e4 = new RuntimeIoException("test");
 		IOException e5 = new IOException("test\0");
 		ExceptionTracker tracker = ExceptionTracker.of();
-		assertThat(tracker.add(e0), is(true));
-		assertThat(tracker.add(e0), is(false));
-		assertThat(tracker.add(e1), is(false));
-		assertThat(tracker.add(e2), is(true));
-		assertThat(tracker.add(e3), is(true));
-		assertThat(tracker.add(e4), is(true));
-		assertThat(tracker.add(e5), is(true));
-		assertThat(tracker.add(e0), is(false));
-		assertThat(tracker.size(), is(5));
+		assertTrue(tracker.add(e0));
+		assertFalse(tracker.add(e0));
+		assertFalse(tracker.add(e1));
+		assertTrue(tracker.add(e2));
+		assertTrue(tracker.add(e3));
+		assertTrue(tracker.add(e4));
+		assertTrue(tracker.add(e5));
+		assertFalse(tracker.add(e0));
+		assertEquals(tracker.size(), 5);
 	}
 
 	@Test
 	public void shouldClearExceptions() {
 		ExceptionTracker tracker = ExceptionTracker.of();
-		assertThat(tracker.add(new IOException("test")), is(true));
-		assertThat(tracker.add(new IOException("test")), is(false));
+		assertTrue(tracker.add(new IOException("test")));
+		assertFalse(tracker.add(new IOException("test")));
 		tracker.clear();
-		assertThat(tracker.isEmpty(), is(true));
-		assertThat(tracker.add(new IOException("test")), is(true));
-		assertThat(tracker.isEmpty(), is(false));
+		assertTrue(tracker.isEmpty());
+		assertTrue(tracker.add(new IOException("test")));
+		assertFalse(tracker.isEmpty());
 	}
 
 }

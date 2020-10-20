@@ -1,7 +1,6 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.StateChange;
@@ -27,7 +26,7 @@ public class Cm17aEmulatorBehavior {
 		try (var emu = Cm17aEmulator.of(0)) {
 			try (TestListener<?> listener = TestListener.of(emu.listeners())) {
 				emu.listeners.accept(StateChange.broken);
-				assertThat(listener.await(), is(StateChange.broken));
+				assertEquals(listener.await(), StateChange.broken);
 			}
 		}
 	}

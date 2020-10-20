@@ -1,18 +1,17 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteArray;
-import ceri.common.test.TestUtil;
 
 public class Utf8UtilTest {
 	private static final int _1B = 'A';
@@ -39,93 +38,93 @@ public class Utf8UtilTest {
 	@Test
 	public void testCeilingStart() {
 		byte[] b = Utf8Util.encode(COMBO);
-		TestUtil.assertThrown(() -> Utf8Util.ceilingStart(b, -1));
-		assertThat(Utf8Util.ceilingStart(b, 0), is(0));
-		assertThat(Utf8Util.ceilingStart(b, 1), is(1));
-		assertThat(Utf8Util.ceilingStart(b, 2), is(2));
-		assertThat(Utf8Util.ceilingStart(b, 3), is(4));
-		assertThat(Utf8Util.ceilingStart(b, 4), is(4));
-		assertThat(Utf8Util.ceilingStart(b, 5), is(7));
-		assertThat(Utf8Util.ceilingStart(b, 6), is(7));
-		assertThat(Utf8Util.ceilingStart(b, 7), is(7));
-		assertThat(Utf8Util.ceilingStart(b, 8), is(-1));
-		assertThat(Utf8Util.ceilingStart(b, 9), is(-1));
-		assertThat(Utf8Util.ceilingStart(b, 10), is(-1));
-		TestUtil.assertThrown(() -> Utf8Util.ceilingStart(b, 11));
-		TestUtil.assertThrown(() -> Utf8Util.ceilingStart(b, Integer.MIN_VALUE));
-		TestUtil.assertThrown(() -> Utf8Util.ceilingStart(b, Integer.MAX_VALUE));
+		assertThrown(() -> Utf8Util.ceilingStart(b, -1));
+		assertEquals(Utf8Util.ceilingStart(b, 0), 0);
+		assertEquals(Utf8Util.ceilingStart(b, 1), 1);
+		assertEquals(Utf8Util.ceilingStart(b, 2), 2);
+		assertEquals(Utf8Util.ceilingStart(b, 3), 4);
+		assertEquals(Utf8Util.ceilingStart(b, 4), 4);
+		assertEquals(Utf8Util.ceilingStart(b, 5), 7);
+		assertEquals(Utf8Util.ceilingStart(b, 6), 7);
+		assertEquals(Utf8Util.ceilingStart(b, 7), 7);
+		assertEquals(Utf8Util.ceilingStart(b, 8), -1);
+		assertEquals(Utf8Util.ceilingStart(b, 9), -1);
+		assertEquals(Utf8Util.ceilingStart(b, 10), -1);
+		assertThrown(() -> Utf8Util.ceilingStart(b, 11));
+		assertThrown(() -> Utf8Util.ceilingStart(b, Integer.MIN_VALUE));
+		assertThrown(() -> Utf8Util.ceilingStart(b, Integer.MAX_VALUE));
 	}
 
 	@Test
 	public void testHigherStart() {
 		byte[] b = Utf8Util.encode(COMBO);
-		TestUtil.assertThrown(() -> Utf8Util.higherStart(b, -1));
-		assertThat(Utf8Util.higherStart(b, 0), is(1));
-		assertThat(Utf8Util.higherStart(b, 1), is(2));
-		assertThat(Utf8Util.higherStart(b, 2), is(4));
-		assertThat(Utf8Util.higherStart(b, 3), is(4));
-		assertThat(Utf8Util.higherStart(b, 4), is(7));
-		assertThat(Utf8Util.higherStart(b, 5), is(7));
-		assertThat(Utf8Util.higherStart(b, 6), is(7));
-		assertThat(Utf8Util.higherStart(b, 7), is(-1));
-		assertThat(Utf8Util.higherStart(b, 8), is(-1));
-		assertThat(Utf8Util.higherStart(b, 9), is(-1));
-		assertThat(Utf8Util.higherStart(b, 10), is(-1));
-		TestUtil.assertThrown(() -> Utf8Util.higherStart(b, 11));
-		TestUtil.assertThrown(() -> Utf8Util.higherStart(b, Integer.MIN_VALUE));
-		TestUtil.assertThrown(() -> Utf8Util.higherStart(b, Integer.MAX_VALUE));
+		assertThrown(() -> Utf8Util.higherStart(b, -1));
+		assertEquals(Utf8Util.higherStart(b, 0), 1);
+		assertEquals(Utf8Util.higherStart(b, 1), 2);
+		assertEquals(Utf8Util.higherStart(b, 2), 4);
+		assertEquals(Utf8Util.higherStart(b, 3), 4);
+		assertEquals(Utf8Util.higherStart(b, 4), 7);
+		assertEquals(Utf8Util.higherStart(b, 5), 7);
+		assertEquals(Utf8Util.higherStart(b, 6), 7);
+		assertEquals(Utf8Util.higherStart(b, 7), -1);
+		assertEquals(Utf8Util.higherStart(b, 8), -1);
+		assertEquals(Utf8Util.higherStart(b, 9), -1);
+		assertEquals(Utf8Util.higherStart(b, 10), -1);
+		assertThrown(() -> Utf8Util.higherStart(b, 11));
+		assertThrown(() -> Utf8Util.higherStart(b, Integer.MIN_VALUE));
+		assertThrown(() -> Utf8Util.higherStart(b, Integer.MAX_VALUE));
 	}
 
 	@Test
 	public void testFloorStart() {
 		byte[] b = Utf8Util.encode(COMBO);
-		TestUtil.assertThrown(() -> Utf8Util.floorStart(b, -1));
-		assertThat(Utf8Util.floorStart(b, 0), is(0));
-		assertThat(Utf8Util.floorStart(b, 1), is(1));
-		assertThat(Utf8Util.floorStart(b, 2), is(2));
-		assertThat(Utf8Util.floorStart(b, 3), is(2));
-		assertThat(Utf8Util.floorStart(b, 4), is(4));
-		assertThat(Utf8Util.floorStart(b, 5), is(4));
-		assertThat(Utf8Util.floorStart(b, 6), is(4));
-		assertThat(Utf8Util.floorStart(b, 7), is(7));
-		assertThat(Utf8Util.floorStart(b, 8), is(7));
-		assertThat(Utf8Util.floorStart(b, 9), is(7));
-		assertThat(Utf8Util.floorStart(b, 10), is(7));
-		TestUtil.assertThrown(() -> Utf8Util.floorStart(b, 11));
-		TestUtil.assertThrown(() -> Utf8Util.floorStart(b, Integer.MIN_VALUE));
-		TestUtil.assertThrown(() -> Utf8Util.floorStart(b, Integer.MAX_VALUE));
+		assertThrown(() -> Utf8Util.floorStart(b, -1));
+		assertEquals(Utf8Util.floorStart(b, 0), 0);
+		assertEquals(Utf8Util.floorStart(b, 1), 1);
+		assertEquals(Utf8Util.floorStart(b, 2), 2);
+		assertEquals(Utf8Util.floorStart(b, 3), 2);
+		assertEquals(Utf8Util.floorStart(b, 4), 4);
+		assertEquals(Utf8Util.floorStart(b, 5), 4);
+		assertEquals(Utf8Util.floorStart(b, 6), 4);
+		assertEquals(Utf8Util.floorStart(b, 7), 7);
+		assertEquals(Utf8Util.floorStart(b, 8), 7);
+		assertEquals(Utf8Util.floorStart(b, 9), 7);
+		assertEquals(Utf8Util.floorStart(b, 10), 7);
+		assertThrown(() -> Utf8Util.floorStart(b, 11));
+		assertThrown(() -> Utf8Util.floorStart(b, Integer.MIN_VALUE));
+		assertThrown(() -> Utf8Util.floorStart(b, Integer.MAX_VALUE));
 		byte[] b2 = new byte[] { (byte) 0x90, (byte) 0x80, 'A', (byte) 0xc2, (byte) 0xa9 };
-		assertThat(Utf8Util.floorStart(b2, 0), is(-1));
-		assertThat(Utf8Util.floorStart(b2, 1), is(-1));
-		assertThat(Utf8Util.floorStart(b2, 2), is(2));
-		assertThat(Utf8Util.floorStart(b2, 3), is(3));
-		assertThat(Utf8Util.floorStart(b2, 4), is(3));
+		assertEquals(Utf8Util.floorStart(b2, 0), -1);
+		assertEquals(Utf8Util.floorStart(b2, 1), -1);
+		assertEquals(Utf8Util.floorStart(b2, 2), 2);
+		assertEquals(Utf8Util.floorStart(b2, 3), 3);
+		assertEquals(Utf8Util.floorStart(b2, 4), 3);
 	}
 
 	@Test
 	public void testLowerStart() {
 		byte[] b = Utf8Util.encode(COMBO);
-		TestUtil.assertThrown(() -> Utf8Util.lowerStart(b, -1));
-		assertThat(Utf8Util.lowerStart(b, 0), is(-1));
-		assertThat(Utf8Util.lowerStart(b, 1), is(0));
-		assertThat(Utf8Util.lowerStart(b, 2), is(1));
-		assertThat(Utf8Util.lowerStart(b, 3), is(2));
-		assertThat(Utf8Util.lowerStart(b, 4), is(2));
-		assertThat(Utf8Util.lowerStart(b, 5), is(4));
-		assertThat(Utf8Util.lowerStart(b, 6), is(4));
-		assertThat(Utf8Util.lowerStart(b, 7), is(4));
-		assertThat(Utf8Util.lowerStart(b, 8), is(7));
-		assertThat(Utf8Util.lowerStart(b, 9), is(7));
-		assertThat(Utf8Util.lowerStart(b, 10), is(7));
-		TestUtil.assertThrown(() -> Utf8Util.lowerStart(b, 11));
-		TestUtil.assertThrown(() -> Utf8Util.lowerStart(b, Integer.MIN_VALUE));
-		TestUtil.assertThrown(() -> Utf8Util.lowerStart(b, Integer.MAX_VALUE));
+		assertThrown(() -> Utf8Util.lowerStart(b, -1));
+		assertEquals(Utf8Util.lowerStart(b, 0), -1);
+		assertEquals(Utf8Util.lowerStart(b, 1), 0);
+		assertEquals(Utf8Util.lowerStart(b, 2), 1);
+		assertEquals(Utf8Util.lowerStart(b, 3), 2);
+		assertEquals(Utf8Util.lowerStart(b, 4), 2);
+		assertEquals(Utf8Util.lowerStart(b, 5), 4);
+		assertEquals(Utf8Util.lowerStart(b, 6), 4);
+		assertEquals(Utf8Util.lowerStart(b, 7), 4);
+		assertEquals(Utf8Util.lowerStart(b, 8), 7);
+		assertEquals(Utf8Util.lowerStart(b, 9), 7);
+		assertEquals(Utf8Util.lowerStart(b, 10), 7);
+		assertThrown(() -> Utf8Util.lowerStart(b, 11));
+		assertThrown(() -> Utf8Util.lowerStart(b, Integer.MIN_VALUE));
+		assertThrown(() -> Utf8Util.lowerStart(b, Integer.MAX_VALUE));
 		byte[] b2 = new byte[] { (byte) 0x90, (byte) 0x80, 'A', (byte) 0xc2, (byte) 0xa9 };
-		assertThat(Utf8Util.lowerStart(b2, 0), is(-1));
-		assertThat(Utf8Util.lowerStart(b2, 1), is(-1));
-		assertThat(Utf8Util.lowerStart(b2, 2), is(-1));
-		assertThat(Utf8Util.lowerStart(b2, 3), is(2));
-		assertThat(Utf8Util.lowerStart(b2, 4), is(3));
+		assertEquals(Utf8Util.lowerStart(b2, 0), -1);
+		assertEquals(Utf8Util.lowerStart(b2, 1), -1);
+		assertEquals(Utf8Util.lowerStart(b2, 2), -1);
+		assertEquals(Utf8Util.lowerStart(b2, 3), 2);
+		assertEquals(Utf8Util.lowerStart(b2, 4), 3);
 	}
 
 	@Test
@@ -188,36 +187,35 @@ public class Utf8UtilTest {
 
 	@Test
 	public void testByteCount() {
-		assertThat(Utf8Util.byteCount(-1), is(0));
-		assertThat(Utf8Util.byteCount(0), is(1));
-		assertThat(Utf8Util.byteCount(_1B), is(1));
-		assertThat(Utf8Util.byteCount(_2B), is(2));
-		assertThat(Utf8Util.byteCount(_3B), is(3));
-		assertThat(Utf8Util.byteCount(_4B), is(4));
-		assertThat(Utf8Util.byteCount(Integer.MIN_VALUE), is(0));
-		assertThat(Utf8Util.byteCount(Integer.MAX_VALUE), is(0));
-		assertThat(Utf8Util.byteCount(COMBO), is(11));
+		assertEquals(Utf8Util.byteCount(-1), 0);
+		assertEquals(Utf8Util.byteCount(0), 1);
+		assertEquals(Utf8Util.byteCount(_1B), 1);
+		assertEquals(Utf8Util.byteCount(_2B), 2);
+		assertEquals(Utf8Util.byteCount(_3B), 3);
+		assertEquals(Utf8Util.byteCount(_4B), 4);
+		assertEquals(Utf8Util.byteCount(Integer.MIN_VALUE), 0);
+		assertEquals(Utf8Util.byteCount(Integer.MAX_VALUE), 0);
+		assertEquals(Utf8Util.byteCount(COMBO), 11);
 	}
 
 	@Test
 	public void testDecodeBytes() {
-		assertThat(Utf8Util.decode(ArrayUtil.bytes('A')), is(StringUtil.toString(_1B)));
-		assertThat(Utf8Util.decode(ArrayUtil.bytes(0xc2, 0xa9)), is(StringUtil.toString(_2B)));
-		assertThat(Utf8Util.decode(ArrayUtil.bytes(0xe2, 0x84, 0x83)),
-			is(StringUtil.toString(_3B)));
-		assertThat(Utf8Util.decode(ArrayUtil.bytes(0xf0, 0x9d, 0x90, 0x80)),
-			is(StringUtil.toString(_4B)));
+		assertEquals(Utf8Util.decode(ArrayUtil.bytes('A')), StringUtil.toString(_1B));
+		assertEquals(Utf8Util.decode(ArrayUtil.bytes(0xc2, 0xa9)), StringUtil.toString(_2B));
+		assertEquals(Utf8Util.decode(ArrayUtil.bytes(0xe2, 0x84, 0x83)), StringUtil.toString(_3B));
+		assertEquals(Utf8Util.decode(ArrayUtil.bytes(0xf0, 0x9d, 0x90, 0x80)),
+			StringUtil.toString(_4B));
 	}
 
 	@Test
 	public void testDecodeByteProvider() {
-		assertThat(Utf8Util.decode(ByteArray.Immutable.wrap('A')), is(StringUtil.toString(_1B)));
-		assertThat(Utf8Util.decode(ByteArray.Immutable.wrap(0xc2, 0xa9)),
-			is(StringUtil.toString(_2B)));
-		assertThat(Utf8Util.decode(ByteArray.Immutable.wrap(0xe2, 0x84, 0x83)),
-			is(StringUtil.toString(_3B)));
-		assertThat(Utf8Util.decode(ByteArray.Immutable.wrap(0xf0, 0x9d, 0x90, 0x80)),
-			is(StringUtil.toString(_4B)));
+		assertEquals(Utf8Util.decode(ByteArray.Immutable.wrap('A')), StringUtil.toString(_1B));
+		assertEquals(Utf8Util.decode(ByteArray.Immutable.wrap(0xc2, 0xa9)),
+			StringUtil.toString(_2B));
+		assertEquals(Utf8Util.decode(ByteArray.Immutable.wrap(0xe2, 0x84, 0x83)),
+			StringUtil.toString(_3B));
+		assertEquals(Utf8Util.decode(ByteArray.Immutable.wrap(0xf0, 0x9d, 0x90, 0x80)),
+			StringUtil.toString(_4B));
 	}
 
 	@Test
@@ -237,17 +235,17 @@ public class Utf8UtilTest {
 	@Test
 	public void testEncodeTo() {
 		byte[] b = new byte[11];
-		assertThat(Utf8Util.encodeTo(-1, b, 0), is(0));
-		assertThat(Utf8Util.encodeTo(0, b, 0), is(1));
-		assertThat(Utf8Util.encodeTo(_1B, b, 1), is(2));
-		assertThat(Utf8Util.encodeTo(_2B, b, 2), is(4));
-		assertThat(Utf8Util.encodeTo(_3B, b, 4), is(7));
-		assertThat(Utf8Util.encodeTo(_4B, b, 7), is(11));
-		assertThat(Utf8Util.encodeTo(Integer.MIN_VALUE, b, 7), is(7));
-		assertThat(Utf8Util.encodeTo(Integer.MAX_VALUE, b, 7), is(7));
+		assertEquals(Utf8Util.encodeTo(-1, b, 0), 0);
+		assertEquals(Utf8Util.encodeTo(0, b, 0), 1);
+		assertEquals(Utf8Util.encodeTo(_1B, b, 1), 2);
+		assertEquals(Utf8Util.encodeTo(_2B, b, 2), 4);
+		assertEquals(Utf8Util.encodeTo(_3B, b, 4), 7);
+		assertEquals(Utf8Util.encodeTo(_4B, b, 7), 11);
+		assertEquals(Utf8Util.encodeTo(Integer.MIN_VALUE, b, 7), 7);
+		assertEquals(Utf8Util.encodeTo(Integer.MAX_VALUE, b, 7), 7);
 		assertArray(b, 0, 'A', 0xc2, 0xa9, 0xe2, 0x84, 0x83, 0xf0, 0x9d, 0x90, 0x80);
 		b = new byte[11];
-		assertThat(Utf8Util.encodeTo(COMBO, b, 0), is(11));
+		assertEquals(Utf8Util.encodeTo(COMBO, b, 0), 11);
 		assertArray(b, 0, 'A', 0xc2, 0xa9, 0xe2, 0x84, 0x83, 0xf0, 0x9d, 0x90, 0x80);
 	}
 

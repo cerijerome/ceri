@@ -1,9 +1,8 @@
 package ceri.common.sql;
 
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -44,7 +43,7 @@ public class SqlUtilTest {
 		ResultSetMetaData rsmd = mock(ResultSetMetaData.class);
 		when(rs.getMetaData()).thenReturn(rsmd);
 		when(rsmd.getColumnType(anyInt())).thenReturn(Types.VARCHAR);
-		assertThat(SqlUtil.type(rs, 1), is(SqlType.sqlVarChar));
+		assertEquals(SqlUtil.type(rs, 1), SqlType.sqlVarChar);
 	}
 
 	@SuppressWarnings("resource")

@@ -214,7 +214,7 @@ public class IoStreamUtil {
 			public int read(byte[] b, int off, int len) throws IOException {
 				return IoStreamUtil.read(in, readFn, b, off, len);
 			}
-			
+
 			@Override
 			public long skip(long n) throws IOException {
 				return IoStreamUtil.skip(this, n);
@@ -250,7 +250,7 @@ public class IoStreamUtil {
 			public int read(byte[] b, int off, int len) throws IOException {
 				return IoStreamUtil.read(in, readFn, b, off, len);
 			}
-			
+
 			@Override
 			public long skip(long n) throws IOException {
 				return IoStreamUtil.skip(this, n);

@@ -1,11 +1,10 @@
 package ceri.serial.clib.jna;
 
-import static ceri.common.test.TestUtil.assertFile;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFile;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.serial.clib.OpenFlag.O_CREAT;
 import static ceri.serial.clib.OpenFlag.O_RDWR;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,13 +40,13 @@ public class CLibBehavior {
 	public void shouldReadFromFileDescriptor() throws CException {
 		int fd = CLib.open(helper.path("file1").toString(), 0);
 		try {
-			assertThat(CLib.read(fd, null, 0), is(0));
+			assertEquals(CLib.read(fd, null, 0), 0);
 			Memory m = new Memory(4);
-			assertThat(CLib.read(fd, m, 1), is(1));
+			assertEquals(CLib.read(fd, m, 1), 1);
 			JnaTestUtil.assertPointer(m, 0, 't');
-			assertThat(CLib.read(fd, m, 4), is(3));
+			assertEquals(CLib.read(fd, m, 4), 3);
 			JnaTestUtil.assertPointer(m, 0, 'e', 's', 't');
-			assertThat(CLib.read(fd, m, 1), is(-1));
+			assertEquals(CLib.read(fd, m, 1), -1);
 		} finally {
 			CUtil.close(fd);
 		}
@@ -65,8 +64,8 @@ public class CLibBehavior {
 		int fd = CLib.open(path.toString(), OpenFlag.encode(O_CREAT, O_RDWR), 0666);
 		try {
 			Memory m = CUtil.malloc("test".getBytes());
-			assertThat(CLib.write(fd, null, 0), is(0));
-			assertThat(CLib.write(fd, m, 4), is(4));
+			assertEquals(CLib.write(fd, null, 0), 0);
+			assertEquals(CLib.write(fd, m, 4), 4);
 			assertFile(path, "test".getBytes());
 		} finally {
 			CUtil.close(fd);
@@ -84,9 +83,9 @@ public class CLibBehavior {
 	public void shouldSeekFile() throws CException {
 		int fd = CLib.open(helper.path("file1").toString(), 0);
 		try {
-			assertThat(CLib.lseek(fd, 0, Seek.SEEK_CUR.value), is(0));
-			assertThat(CLib.lseek(fd, 0, Seek.SEEK_END.value), is(4));
-			assertThat(CLib.lseek(fd, 0, Seek.SEEK_CUR.value), is(4));
+			assertEquals(CLib.lseek(fd, 0, Seek.SEEK_CUR.value), 0);
+			assertEquals(CLib.lseek(fd, 0, Seek.SEEK_END.value), 4);
+			assertEquals(CLib.lseek(fd, 0, Seek.SEEK_CUR.value), 4);
 			assertThrown(() -> CLib.lseek(fd, -1, Seek.SEEK_SET.value));
 		} finally {
 			CUtil.close(fd);

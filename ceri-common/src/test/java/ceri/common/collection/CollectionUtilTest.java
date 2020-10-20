@@ -1,13 +1,13 @@
 package ceri.common.collection;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class CollectionUtilTest {
 
@@ -57,23 +56,23 @@ public class CollectionUtilTest {
 	public void testGetOrDefault() {
 		List<Integer> list = List.of(100, 10, 1000);
 		assertNull(CollectionUtil.getOrDefault(list, -1, null));
-		assertThat(CollectionUtil.getOrDefault(list, -1, 1), is(1));
-		assertThat(CollectionUtil.getOrDefault(list, 0, null), is(100));
-		assertThat(CollectionUtil.getOrDefault(list, 3, -1), is(-1));
-		assertThat(CollectionUtil.getOrDefault(List.of(), 1, -1), is(-1));
+		assertEquals(CollectionUtil.getOrDefault(list, -1, 1), 1);
+		assertEquals(CollectionUtil.getOrDefault(list, 0, null), 100);
+		assertEquals(CollectionUtil.getOrDefault(list, 3, -1), -1);
+		assertEquals(CollectionUtil.getOrDefault(List.of(), 1, -1), -1);
 	}
 
 	@Test
 	public void testInvert() {
-		assertThat(CollectionUtil.invert(Map.of()), is(Map.of()));
-		assertThat(CollectionUtil.invert(Map.of(1, "1")), is(Map.of("1", 1)));
+		assertEquals(CollectionUtil.invert(Map.of()), Map.of());
+		assertEquals(CollectionUtil.invert(Map.of(1, "1")), Map.of("1", 1));
 		assertTrue(CollectionUtil.invert(Map.of(1, "1", 2, "1")).containsKey("1"));
 	}
 
 	@Test
 	public void testFill() {
 		List<Integer> list = ArrayUtil.asList(1, 2, 3, 4, 5);
-		assertThat(CollectionUtil.fill(list, 1, 2, 0), is(3));
+		assertEquals(CollectionUtil.fill(list, 1, 2, 0), 3);
 		assertIterable(list, 1, 0, 0, 4, 5);
 	}
 
@@ -81,7 +80,7 @@ public class CollectionUtilTest {
 	public void testInsert() {
 		List<Integer> list1 = ArrayUtil.asList(1, 2, 3);
 		List<Integer> list2 = ArrayUtil.asList(4, 5, 6);
-		assertThat(CollectionUtil.insert(list2, 1, list1, 1, 2), is(3));
+		assertEquals(CollectionUtil.insert(list2, 1, list1, 1, 2), 3);
 		assertIterable(list1, 1, 5, 6, 2, 3);
 	}
 
@@ -89,7 +88,7 @@ public class CollectionUtilTest {
 	public void testCopy() {
 		List<Integer> list1 = ArrayUtil.asList(1, 2, 3);
 		List<Integer> list2 = ArrayUtil.asList(4, 5, 6);
-		assertThat(CollectionUtil.copy(list2, 1, list1, 1, 2), is(3));
+		assertEquals(CollectionUtil.copy(list2, 1, list1, 1, 2), 3);
 		assertIterable(list1, 1, 5, 6);
 	}
 
@@ -131,9 +130,9 @@ public class CollectionUtilTest {
 	public void testToMap() {
 		List<String> list = List.of("A", "ABC", "AB");
 		Map<?, ?> map = CollectionUtil.toMap(String::length, list);
-		assertThat(map, is(Map.of(1, "A", 3, "ABC", 2, "AB")));
+		assertEquals(map, Map.of(1, "A", 3, "ABC", 2, "AB"));
 		map = CollectionUtil.toMap(String::toLowerCase, String::length, list);
-		assertThat(map, is(Map.of("a", 1, "abc", 3, "ab", 2)));
+		assertEquals(map, Map.of("a", 1, "abc", 3, "ab", 2));
 	}
 
 	@Test
@@ -155,7 +154,7 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testToArray() {
-		TestUtil.assertThrown(() -> CollectionUtil.toArray(Collections.emptyList(), Integer.TYPE));
+		assertThrown(() -> CollectionUtil.toArray(Collections.emptyList(), Integer.TYPE));
 		Number[] numbers = CollectionUtil.toArray(Arrays.asList(1, 2, 3), Number.class);
 		assertCollection(numbers, 1, 2, 3);
 	}
@@ -163,38 +162,37 @@ public class CollectionUtilTest {
 	@Test
 	public void testAddAll() {
 		List<String> list = CollectionUtil.addAll(new ArrayList<>(), "1", "2", "3");
-		assertThat(list, is(Arrays.asList("1", "2", "3")));
-		assertThat(CollectionUtil.addAll(list, list),
-			is(Arrays.asList("1", "2", "3", "1", "2", "3")));
+		assertEquals(list, Arrays.asList("1", "2", "3"));
+		assertIterable(CollectionUtil.addAll(list, list), "1", "2", "3", "1", "2", "3");
 	}
 
 	@Test
 	public void testFirst() {
 		assertNull(CollectionUtil.first(null));
 		assertNull(CollectionUtil.first(Collections.emptySet()));
-		assertThat(CollectionUtil.first(Arrays.asList("1", "2", "3")), is("1"));
+		assertEquals(CollectionUtil.first(Arrays.asList("1", "2", "3")), "1");
 		Set<String> set = new LinkedHashSet<>();
 		Collections.addAll(set, "1", "2", "3");
-		assertThat(CollectionUtil.first(set), is("1"));
+		assertEquals(CollectionUtil.first(set), "1");
 	}
 
 	@Test
 	public void testLast() {
 		assertNull(CollectionUtil.last(null));
 		assertNull(CollectionUtil.last(Collections.emptyList()));
-		assertThat(CollectionUtil.last(Arrays.asList("1", "2", "3")), is("3"));
+		assertEquals(CollectionUtil.last(Arrays.asList("1", "2", "3")), "3");
 		Set<Integer> ii = new LinkedHashSet<>();
 		assertNull(CollectionUtil.last(ii));
 		Collections.addAll(ii, 1, 0, -1);
-		assertThat(CollectionUtil.last(ii), is(-1));
+		assertEquals(CollectionUtil.last(ii), -1);
 	}
 
 	@Test
 	public void testGetFromSet() {
 		Set<String> set = new LinkedHashSet<>(Arrays.asList("1", "2", "3"));
-		assertThat(CollectionUtil.get(0, set), is("1"));
-		assertThat(CollectionUtil.get(1, set), is("2"));
-		assertThat(CollectionUtil.get(2, set), is("3"));
+		assertEquals(CollectionUtil.get(0, set), "1");
+		assertEquals(CollectionUtil.get(1, set), "2");
+		assertEquals(CollectionUtil.get(2, set), "3");
 		assertNull(CollectionUtil.get(-1, set));
 		assertNull(CollectionUtil.get(3, set));
 		assertNull(CollectionUtil.get(0, null));
@@ -205,31 +203,31 @@ public class CollectionUtilTest {
 		List<Integer> list1 = ArrayUtil.asList(0, 1, 2, 3, 4);
 		List<Integer> list2 = ArrayUtil.asList(1, 3, 5, 7, 9);
 		CollectionUtil.intersect(list1, list2);
-		assertThat(list1, is(Arrays.asList(1, 3)));
+		assertEquals(list1, Arrays.asList(1, 3));
 	}
 
 	@Test
 	public void testRemoveAll() {
 		List<Integer> list = ArrayUtil.asList(0, 1, 2, 3, 4);
 		CollectionUtil.removeAll(list, 1, 3, 5, 7, 9);
-		assertThat(list, is(Arrays.asList(0, 2, 4)));
+		assertEquals(list, Arrays.asList(0, 2, 4));
 	}
 
 	@Test
 	public void testReverse() {
 		List<Integer> list = Arrays.asList(1, 2, 3);
-		assertThat(CollectionUtil.reverse(list), is(List.of(3, 2, 1)));
+		assertEquals(CollectionUtil.reverse(list), List.of(3, 2, 1));
 	}
 
 	@Test
 	public void testKey() {
-		assertThat(CollectionUtil.key(Collections.emptyMap(), "a"), is((Integer) null));
+		assertEquals(CollectionUtil.key(Collections.emptyMap(), "a"), (Integer) null);
 		Map<Integer, String> map = MapPopulator.wrap(new LinkedHashMap<Integer, String>()) //
 			.put(1, "1").put(-1, null).put(2, "2").put(22, "2").put(-2, null).map;
-		assertThat(CollectionUtil.key(map, "1"), is(1));
-		assertThat(CollectionUtil.key(map, "2"), is(2));
-		assertThat(CollectionUtil.key(map, new String("2")), is(2));
-		assertThat(CollectionUtil.key(map, null), is(-1));
+		assertEquals(CollectionUtil.key(map, "1"), 1);
+		assertEquals(CollectionUtil.key(map, "2"), 2);
+		assertEquals(CollectionUtil.key(map, new String("2")), 2);
+		assertEquals(CollectionUtil.key(map, null), -1);
 	}
 
 	@Test

@@ -1,10 +1,10 @@
 package ceri.common.property;
 
 import static ceri.common.collection.StreamUtil.toList;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -19,7 +19,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.TestUtil;
 
 public class PropertyUtilTest {
 	private static Properties properties;
@@ -49,10 +48,10 @@ public class PropertyUtilTest {
 		prop2.put("a.b", "AB");
 		prop2.put("a.b.c.d", "ABCD");
 		Properties properties = PropertyUtil.merge(prop1, prop2);
-		assertThat(properties.getProperty("a"), is("a"));
-		assertThat(properties.getProperty("a.b"), is("AB"));
-		assertThat(properties.getProperty("a.b.c"), is("abc"));
-		assertThat(properties.getProperty("a.b.c.d"), is("ABCD"));
+		assertEquals(properties.getProperty("a"), "a");
+		assertEquals(properties.getProperty("a.b"), "AB");
+		assertEquals(properties.getProperty("a.b.c"), "abc");
+		assertEquals(properties.getProperty("a.b.c.d"), "ABCD");
 	}
 
 	@Test
@@ -60,7 +59,7 @@ public class PropertyUtilTest {
 		try (FileTestHelper helper = FileTestHelper.builder().build()) {
 			doThrow(new IOException()).when(properties).store((Writer) any(), anyString());
 			java.nio.file.Path file = helper.path("test.properties");
-			TestUtil.assertThrown(() -> PropertyUtil.store(properties, file));
+			assertThrown(() -> PropertyUtil.store(properties, file));
 			PropertyUtil.store(new Properties(), file);
 		}
 	}
@@ -70,8 +69,8 @@ public class PropertyUtilTest {
 		try (FileTestHelper helper = FileTestHelper.builder().build()) {
 			doThrow(new IOException()).when(properties).load((InputStream) any());
 			java.nio.file.Path file = helper.path("test.properties");
-			TestUtil.assertThrown(() -> PropertyUtil.load(file));
-			TestUtil.assertThrown(() -> PropertyUtil.load(getClass(), "test.properties"));
+			assertThrown(() -> PropertyUtil.load(file));
+			assertThrown(() -> PropertyUtil.load(getClass(), "test.properties"));
 		}
 	}
 
@@ -93,21 +92,21 @@ public class PropertyUtilTest {
 		Properties properties = new Properties();
 		properties.setProperty("a.b.c", "abc");
 		String value = PropertyUtil.property(properties, PathFactory.dot.path("a", "b", "c"));
-		assertThat(value, is("abc"));
+		assertEquals(value, "abc");
 	}
 
 	@Test
 	public void testLoadResource() throws IOException {
 		Properties properties = PropertyUtil.load(getClass());
-		assertThat(properties.getProperty("a.b.c"), is("abc"));
-		assertThat(properties.getProperty("d.e.f"), is("def"));
+		assertEquals(properties.getProperty("a.b.c"), "abc");
+		assertEquals(properties.getProperty("d.e.f"), "def");
 	}
 
 	@Test
 	public void testLoadFile() throws IOException {
 		try (FileTestHelper helper = FileTestHelper.builder().file("a", "b=c").build()) {
 			Properties properties = PropertyUtil.load(helper.path("a"));
-			assertThat(properties.getProperty("b"), is("c"));
+			assertEquals(properties.getProperty("b"), "c");
 		}
 	}
 
@@ -115,7 +114,7 @@ public class PropertyUtilTest {
 	public void testLoadFileFromName() throws IOException {
 		try (FileTestHelper helper = FileTestHelper.builder().file("a", "b=c").build()) {
 			Properties properties = PropertyUtil.load(helper.path("a").toString());
-			assertThat(properties.getProperty("b"), is("c"));
+			assertEquals(properties.getProperty("b"), "c");
 		}
 	}
 
@@ -125,10 +124,10 @@ public class PropertyUtilTest {
 		Locator a = Locator.of(getClass(), "property-test-a");
 		Locator def = Locator.of(getClass(), "property-test-d-e-f");
 		Properties properties = PropertyUtil.load(abc, def, a);
-		assertThat(properties.getProperty("a"), is("true"));
-		assertThat(properties.getProperty("a.b.c"), is("true"));
-		assertThat(properties.getProperty("d.e.f"), is("true"));
-		assertThat(properties.getProperty("name"), is("property-test-a"));
+		assertEquals(properties.getProperty("a"), "true");
+		assertEquals(properties.getProperty("a.b.c"), "true");
+		assertEquals(properties.getProperty("d.e.f"), "true");
+		assertEquals(properties.getProperty("name"), "property-test-a");
 	}
 
 	@Test
@@ -136,10 +135,10 @@ public class PropertyUtilTest {
 		Locator abc = Locator.of(getClass(), "property-test-a-b-c");
 		Locator def = Locator.of(getClass(), "property-test-d-e-f");
 		Properties properties = PropertyUtil.loadPaths(abc, def);
-		assertThat(properties.getProperty("a"), is("true"));
-		assertThat(properties.getProperty("a.b.c"), is("true"));
-		assertThat(properties.getProperty("d.e.f"), is("true"));
-		assertThat(properties.getProperty("name"), is("property-test-d-e-f"));
+		assertEquals(properties.getProperty("a"), "true");
+		assertEquals(properties.getProperty("a.b.c"), "true");
+		assertEquals(properties.getProperty("d.e.f"), "true");
+		assertEquals(properties.getProperty("name"), "property-test-d-e-f");
 	}
 
 }

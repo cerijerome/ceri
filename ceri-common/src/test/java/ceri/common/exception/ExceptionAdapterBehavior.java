@@ -2,15 +2,14 @@ package ceri.common.exception;
 
 import static ceri.common.exception.ExceptionAdapter.NULL;
 import static ceri.common.exception.ExceptionAdapter.RUNTIME;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.IoUtil;
-import ceri.common.test.TestUtil;
 
 public class ExceptionAdapterBehavior {
 
@@ -18,14 +17,14 @@ public class ExceptionAdapterBehavior {
 	public void shouldNotAdaptMatchingTypes() {
 		ExceptionAdapter<IOException> ad = ExceptionAdapter.of(IOException.class, IOException::new);
 		Throwable t = new FileNotFoundException("test");
-		assertThat(ad.apply(t), is(t));
+		assertEquals(ad.apply(t), t);
 		t = new IOException("test");
-		assertThat(ad.apply(t), is(t));
+		assertEquals(ad.apply(t), t);
 	}
 
 	@Test
 	public void shouldReturnType() {
-		assertThat(RUNTIME.get(() -> "test"), is("test"));
+		assertEquals(RUNTIME.get(() -> "test"), "test");
 		assertThrown(RuntimeException.class, () -> RUNTIME.get(() -> {
 			throw new IOException();
 		}));
@@ -36,7 +35,7 @@ public class ExceptionAdapterBehavior {
 
 	@Test
 	public void shouldReturnBoolean() {
-		assertThat(RUNTIME.getBoolean(() -> false), is(false));
+		assertFalse(RUNTIME.getBoolean(() -> false));
 		assertThrown(RuntimeException.class, () -> RUNTIME.getBoolean(() -> {
 			throw new IOException();
 		}));
@@ -47,7 +46,7 @@ public class ExceptionAdapterBehavior {
 
 	@Test
 	public void shouldReturnInt() {
-		assertThat(RUNTIME.getInt(() -> Integer.MAX_VALUE), is(Integer.MAX_VALUE));
+		assertEquals(RUNTIME.getInt(() -> Integer.MAX_VALUE), Integer.MAX_VALUE);
 		assertThrown(RuntimeException.class, () -> RUNTIME.getInt(() -> {
 			throw new IOException();
 		}));
@@ -58,7 +57,7 @@ public class ExceptionAdapterBehavior {
 
 	@Test
 	public void shouldReturnLong() {
-		assertThat(RUNTIME.getLong(() -> Long.MAX_VALUE), is(Long.MAX_VALUE));
+		assertEquals(RUNTIME.getLong(() -> Long.MAX_VALUE), Long.MAX_VALUE);
 		assertThrown(RuntimeException.class, () -> RUNTIME.getLong(() -> {
 			throw new IOException();
 		}));
@@ -72,61 +71,61 @@ public class ExceptionAdapterBehavior {
 		ExceptionAdapter<IOException> ad = ExceptionAdapter.of(IOException.class, IOException::new);
 		Throwable t = new InterruptedException("test");
 		IOException e = ad.apply(t);
-		assertThat(e, is(not(t)));
+		assertNotEquals(e, t);
 		t = new Exception("test");
 		e = ad.apply(t);
-		assertThat(e, is(not(t)));
+		assertNotEquals(e, t);
 	}
 
 	@Test
 	public void shouldCreateAdapterFunctionFromClass() {
-		TestUtil.assertThrown(() -> ExceptionAdapter.of(FileNotFoundException.class)); // no
-																						// matching
+		assertThrown(() -> ExceptionAdapter.of(FileNotFoundException.class)); // no
+																				// matching
 		// con.
 		ExceptionAdapter<IOException> ad = ExceptionAdapter.of(IOException.class);
 		Throwable t = new FileNotFoundException("test");
-		assertThat(ad.apply(t), is(t));
+		assertEquals(ad.apply(t), t);
 		t = new IOException("test");
-		assertThat(ad.apply(t), is(t));
+		assertEquals(ad.apply(t), t);
 		t = new InterruptedException("test");
 		IOException e = ad.apply(t);
-		assertThat(e, is(not(t)));
+		assertNotEquals(e, t);
 		t = new Exception("test");
 		e = ad.apply(t);
-		assertThat(e, is(not(t)));
+		assertNotEquals(e, t);
 	}
 
 	@Test
 	public void shouldAdaptNoExceptionsIfNull() {
 		Throwable t = new FileNotFoundException("test");
-		assertThat(NULL.apply(t), is(t));
+		assertEquals(NULL.apply(t), t);
 		t = new IOException("test");
-		assertThat(NULL.apply(t), is(t));
+		assertEquals(NULL.apply(t), t);
 		t = new InterruptedException("test");
-		assertThat(NULL.apply(t), is(t));
+		assertEquals(NULL.apply(t), t);
 		t = new RuntimeException("test");
-		assertThat(NULL.apply(t), is(t));
+		assertEquals(NULL.apply(t), t);
 		t = new Exception("test");
-		assertThat(NULL.apply(t), is(t));
+		assertEquals(NULL.apply(t), t);
 	}
 
 	@Test
 	public void shouldAdaptRuntimeExceptions() {
 		Throwable t = new IOException("test");
 		RuntimeException e = RUNTIME.apply(t);
-		assertThat(e, is(not(t)));
+		assertNotEquals(e, t);
 		t = new InterruptedException("test");
 		e = RUNTIME.apply(t);
-		assertThat(e, is(not(t)));
+		assertNotEquals(e, t);
 		t = new Exception("test");
 		e = RUNTIME.apply(t);
-		assertThat(e, is(not(t)));
+		assertNotEquals(e, t);
 		t = new IllegalArgumentException("test");
 		e = RUNTIME.apply(t);
-		assertThat(e, is(t));
+		assertEquals(e, t);
 		t = new RuntimeException("test");
 		e = RUNTIME.apply(t);
-		assertThat(e, is(t));
+		assertEquals(e, t);
 	}
 
 }

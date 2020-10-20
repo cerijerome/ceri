@@ -2,10 +2,8 @@ package ceri.common.color;
 
 import static ceri.common.color.ColorUtil.CHANNEL_MAX;
 import static ceri.common.data.ByteUtil.ubyteAt;
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertEquals;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.awt.Color;
 
 public class ColorTestUtil {
@@ -17,7 +15,7 @@ public class ColorTestUtil {
 	}
 
 	public static void assertColor(Color color, Color c, int alpha) {
-		assertThat(color, is(new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha)));
+		assertEquals(color, new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha));
 	}
 
 	public static void assertColor(Color color, int rgb) {
@@ -33,7 +31,7 @@ public class ColorTestUtil {
 	}
 
 	public static void assertColor(Color color, int r, int g, int b, int a) {
-		assertThat(color, is(new Color(r, g, b, a)));
+		assertEquals(color, new Color(r, g, b, a));
 	}
 
 	public static void assertColorx(Colorx colorx, Colorx cx) {

@@ -2,11 +2,10 @@ package ceri.common.validation;
 
 import static ceri.common.math.Bound.Type.exclusive;
 import static ceri.common.math.Bound.Type.inclusive;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.thrown;
-import static org.hamcrest.CoreMatchers.is;
 import java.util.Map;
 import org.junit.Test;
 import ceri.common.math.Interval;
@@ -49,28 +48,28 @@ public class ValidationUtilTest {
 	@Test
 	public void testValidateLookup() {
 		Map<String, Integer> map = Map.of("one", 1, "two", 2, "three", 3);
-		assertThat(ValidationUtil.validateLookup(map::get, "two"), is(2));
+		assertEquals(ValidationUtil.validateLookup(map::get, "two"), 2);
 		assertThrown(() -> ValidationUtil.validateLookup(map::get, "TWO"));
 	}
 
 	@Test
 	public void testValidateIntLookup() {
 		Map<Integer, String> map = Map.of(1, "one", 2, "two", 3, "three");
-		assertThat(ValidationUtil.validateIntLookup(map::get, 2), is("two"));
+		assertEquals(ValidationUtil.validateIntLookup(map::get, 2), "two");
 		assertThrown(() -> ValidationUtil.validateIntLookup(map::get, 0));
 	}
 
 	@Test
 	public void testValidateLookupEquals() {
 		Map<String, Integer> map = Map.of("one", 1, "two", 2, "three", 3);
-		assertThat(ValidationUtil.validateLookupEquals(map::get, "two", 2), is(2));
+		assertEquals(ValidationUtil.validateLookupEquals(map::get, "two", 2), 2);
 		assertThrown(() -> ValidationUtil.validateLookupEquals(map::get, "two", 3));
 	}
 
 	@Test
 	public void testValidateIntLookupEquals() {
 		Map<Integer, String> map = Map.of(1, "one", 2, "two", 3, "three");
-		assertThat(ValidationUtil.validateIntLookupEquals(map::get, 2, "two"), is("two"));
+		assertEquals(ValidationUtil.validateIntLookupEquals(map::get, 2, "two"), "two");
 		assertThrown(() -> ValidationUtil.validateIntLookupEquals(map::get, 2, "three"));
 	}
 
@@ -123,17 +122,17 @@ public class ValidationUtilTest {
 
 	@Test
 	public void testValidateLongEqualityFormat() {
-		assertThat(thrown(() -> ValidationUtil.validateEqual(-1, 0xff, (String) null,
+		assertEquals(thrown(() -> ValidationUtil.validateEqual(-1, 0xff, (String) null,
 			DisplayLong.dec, DisplayLong.hex4)).getMessage(),
-			is("Value != (255, 0x00ff): (-1, 0xffff)"));
+			"Value != (255, 0x00ff): (-1, 0xffff)");
 	}
 
 	@Test
 	public void testValidateDoubleEqualityFormat() {
-		assertThat(
+		assertEquals(
 			thrown(() -> ValidationUtil.validateEqualFp(1.0, 1.111, "Num", DisplayDouble.round1))
 				.getMessage(),
-			is("Num != 1.1: 1.0"));
+			"Num != 1.1: 1.0");
 	}
 
 	@Test
@@ -159,9 +158,9 @@ public class ValidationUtilTest {
 		ValidationUtil.validateUbyte(0xff);
 		assertThrown(() -> ValidationUtil.validateUbyte(-1));
 		assertThrown(() -> ValidationUtil.validateUbyte(0x100));
-		assertThat(
+		assertEquals(
 			thrown(() -> ValidationUtil.validateUbyte(-1, "Byte", DisplayLong.dec)).getMessage(),
-			is("Byte is not within [0, 255]: -1"));
+			"Byte is not within [0, 255]: -1");
 	}
 
 	@Test

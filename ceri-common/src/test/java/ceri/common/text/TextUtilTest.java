@@ -1,11 +1,10 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 
 public class TextUtilTest {
@@ -113,167 +112,167 @@ public class TextUtilTest {
 	@Test
 	public void testToPhrase() {
 		assertNull(TextUtil.toPhrase(null));
-		assertThat(TextUtil.toPhrase(""), is(""));
-		assertThat(TextUtil.toPhrase("_"), is(""));
+		assertEquals(TextUtil.toPhrase(""), "");
+		assertEquals(TextUtil.toPhrase("_"), "");
 
-		assertThat(TextUtil.toPhrase("abcd"), is("abcd"));
-		assertThat(TextUtil.toPhrase("Abcd"), is("abcd"));
-		assertThat(TextUtil.toPhrase("aBcd"), is("a bcd"));
-		assertThat(TextUtil.toPhrase("ABcd"), is("a bcd"));
-		assertThat(TextUtil.toPhrase("abCd"), is("ab cd"));
-		assertThat(TextUtil.toPhrase("AbCd"), is("ab cd"));
-		assertThat(TextUtil.toPhrase("aBCd"), is("a b cd"));
-		assertThat(TextUtil.toPhrase("ABCd"), is("AB cd"));
+		assertEquals(TextUtil.toPhrase("abcd"), "abcd");
+		assertEquals(TextUtil.toPhrase("Abcd"), "abcd");
+		assertEquals(TextUtil.toPhrase("aBcd"), "a bcd");
+		assertEquals(TextUtil.toPhrase("ABcd"), "a bcd");
+		assertEquals(TextUtil.toPhrase("abCd"), "ab cd");
+		assertEquals(TextUtil.toPhrase("AbCd"), "ab cd");
+		assertEquals(TextUtil.toPhrase("aBCd"), "a b cd");
+		assertEquals(TextUtil.toPhrase("ABCd"), "AB cd");
 
-		assertThat(TextUtil.toPhrase("abcD"), is("abc d"));
-		assertThat(TextUtil.toPhrase("AbcD"), is("abc d"));
-		assertThat(TextUtil.toPhrase("aBcD"), is("a bc d"));
-		assertThat(TextUtil.toPhrase("ABcD"), is("a bc d"));
-		assertThat(TextUtil.toPhrase("abCD"), is("ab CD"));
-		assertThat(TextUtil.toPhrase("AbCD"), is("ab CD"));
-		assertThat(TextUtil.toPhrase("aBCD"), is("a BCD"));
-		assertThat(TextUtil.toPhrase("ABCD"), is("ABCD"));
+		assertEquals(TextUtil.toPhrase("abcD"), "abc d");
+		assertEquals(TextUtil.toPhrase("AbcD"), "abc d");
+		assertEquals(TextUtil.toPhrase("aBcD"), "a bc d");
+		assertEquals(TextUtil.toPhrase("ABcD"), "a bc d");
+		assertEquals(TextUtil.toPhrase("abCD"), "ab CD");
+		assertEquals(TextUtil.toPhrase("AbCD"), "ab CD");
+		assertEquals(TextUtil.toPhrase("aBCD"), "a BCD");
+		assertEquals(TextUtil.toPhrase("ABCD"), "ABCD");
 
-		assertThat(TextUtil.toPhrase("AbCDEf"), is("ab CD ef"));
-		assertThat(TextUtil.toPhrase("_helloThere2ABC3_"), is("hello there 2 ABC3"));
-		assertThat(TextUtil.toPhrase("testPart1a"), is("test part 1a"));
+		assertEquals(TextUtil.toPhrase("AbCDEf"), "ab CD ef");
+		assertEquals(TextUtil.toPhrase("_helloThere2ABC3_"), "hello there 2 ABC3");
+		assertEquals(TextUtil.toPhrase("testPart1a"), "test part 1a");
 	}
 
 	@Test
 	public void testToCapitalizedPhrase() {
 		assertNull(TextUtil.toCapitalizedPhrase(null));
-		assertThat(TextUtil.toCapitalizedPhrase(""), is(""));
-		assertThat(TextUtil.toCapitalizedPhrase("_"), is(""));
+		assertEquals(TextUtil.toCapitalizedPhrase(""), "");
+		assertEquals(TextUtil.toCapitalizedPhrase("_"), "");
 
-		assertThat(TextUtil.toCapitalizedPhrase("abcd"), is("Abcd"));
-		assertThat(TextUtil.toCapitalizedPhrase("Abcd"), is("Abcd"));
-		assertThat(TextUtil.toCapitalizedPhrase("aBcd"), is("A Bcd"));
-		assertThat(TextUtil.toCapitalizedPhrase("ABcd"), is("A Bcd"));
-		assertThat(TextUtil.toCapitalizedPhrase("abCd"), is("Ab Cd"));
-		assertThat(TextUtil.toCapitalizedPhrase("AbCd"), is("Ab Cd"));
-		assertThat(TextUtil.toCapitalizedPhrase("aBCd"), is("A B Cd"));
-		assertThat(TextUtil.toCapitalizedPhrase("ABCd"), is("AB Cd"));
+		assertEquals(TextUtil.toCapitalizedPhrase("abcd"), "Abcd");
+		assertEquals(TextUtil.toCapitalizedPhrase("Abcd"), "Abcd");
+		assertEquals(TextUtil.toCapitalizedPhrase("aBcd"), "A Bcd");
+		assertEquals(TextUtil.toCapitalizedPhrase("ABcd"), "A Bcd");
+		assertEquals(TextUtil.toCapitalizedPhrase("abCd"), "Ab Cd");
+		assertEquals(TextUtil.toCapitalizedPhrase("AbCd"), "Ab Cd");
+		assertEquals(TextUtil.toCapitalizedPhrase("aBCd"), "A B Cd");
+		assertEquals(TextUtil.toCapitalizedPhrase("ABCd"), "AB Cd");
 
-		assertThat(TextUtil.toCapitalizedPhrase("abcD"), is("Abc D"));
-		assertThat(TextUtil.toCapitalizedPhrase("AbcD"), is("Abc D"));
-		assertThat(TextUtil.toCapitalizedPhrase("aBcD"), is("A Bc D"));
-		assertThat(TextUtil.toCapitalizedPhrase("ABcD"), is("A Bc D"));
-		assertThat(TextUtil.toCapitalizedPhrase("abCD"), is("Ab CD"));
-		assertThat(TextUtil.toCapitalizedPhrase("AbCD"), is("Ab CD"));
-		assertThat(TextUtil.toCapitalizedPhrase("aBCD"), is("A BCD"));
-		assertThat(TextUtil.toCapitalizedPhrase("ABCD"), is("ABCD"));
+		assertEquals(TextUtil.toCapitalizedPhrase("abcD"), "Abc D");
+		assertEquals(TextUtil.toCapitalizedPhrase("AbcD"), "Abc D");
+		assertEquals(TextUtil.toCapitalizedPhrase("aBcD"), "A Bc D");
+		assertEquals(TextUtil.toCapitalizedPhrase("ABcD"), "A Bc D");
+		assertEquals(TextUtil.toCapitalizedPhrase("abCD"), "Ab CD");
+		assertEquals(TextUtil.toCapitalizedPhrase("AbCD"), "Ab CD");
+		assertEquals(TextUtil.toCapitalizedPhrase("aBCD"), "A BCD");
+		assertEquals(TextUtil.toCapitalizedPhrase("ABCD"), "ABCD");
 
-		assertThat(TextUtil.toCapitalizedPhrase("AbCDEf"), is("Ab CD Ef"));
-		assertThat(TextUtil.toCapitalizedPhrase("_helloThere2ABC3_"), is("Hello There 2 ABC3"));
-		assertThat(TextUtil.toCapitalizedPhrase("testPart1a"), is("Test Part 1a"));
+		assertEquals(TextUtil.toCapitalizedPhrase("AbCDEf"), "Ab CD Ef");
+		assertEquals(TextUtil.toCapitalizedPhrase("_helloThere2ABC3_"), "Hello There 2 ABC3");
+		assertEquals(TextUtil.toCapitalizedPhrase("testPart1a"), "Test Part 1a");
 	}
 
 	@Test
 	public void testCamelToHyphenated() {
 		assertNull(TextUtil.camelToHyphenated(null));
-		assertThat(TextUtil.camelToHyphenated(""), is(""));
-		assertThat(TextUtil.camelToHyphenated("_helloThereABC_"), is("_hello-there-abc_"));
-		assertThat(TextUtil.camelToHyphenated("hello1there2ABC3_"), is("hello1there2-abc3_"));
+		assertEquals(TextUtil.camelToHyphenated(""), "");
+		assertEquals(TextUtil.camelToHyphenated("_helloThereABC_"), "_hello-there-abc_");
+		assertEquals(TextUtil.camelToHyphenated("hello1there2ABC3_"), "hello1there2-abc3_");
 	}
 
 	@Test
 	public void testCamelToPascal() {
 		assertNull(TextUtil.camelToPascal(null));
-		assertThat(TextUtil.camelToPascal(""), is(""));
-		assertThat(TextUtil.camelToPascal("_helloThereABC_"), is("_HelloThereABC_"));
-		assertThat(TextUtil.camelToPascal("hello1there2ABC3_"), is("Hello1There2ABC3_"));
+		assertEquals(TextUtil.camelToPascal(""), "");
+		assertEquals(TextUtil.camelToPascal("_helloThereABC_"), "_HelloThereABC_");
+		assertEquals(TextUtil.camelToPascal("hello1there2ABC3_"), "Hello1There2ABC3_");
 	}
 
 	@Test
 	public void testPascalToProperty() {
 		assertNull(TextUtil.pascalToProperty(null));
-		assertThat(TextUtil.pascalToProperty(""), is(""));
-		assertThat(TextUtil.pascalToProperty("_HelloThereABC_"), is("_hello.there.abc_"));
-		assertThat(TextUtil.pascalToProperty("hello1there2ABC3_"), is("hello1there2.abc3_"));
+		assertEquals(TextUtil.pascalToProperty(""), "");
+		assertEquals(TextUtil.pascalToProperty("_HelloThereABC_"), "_hello.there.abc_");
+		assertEquals(TextUtil.pascalToProperty("hello1there2ABC3_"), "hello1there2.abc3_");
 	}
 
 	@Test
 	public void testFirstToUpper() {
 		assertNull(TextUtil.firstToUpper(null));
-		assertThat(TextUtil.firstToUpper(""), is(""));
-		assertThat(TextUtil.firstToUpper("hello"), is("Hello"));
-		assertThat(TextUtil.firstToUpper("Hello"), is("Hello"));
-		assertThat(TextUtil.firstToUpper("_"), is("_"));
+		assertEquals(TextUtil.firstToUpper(""), "");
+		assertEquals(TextUtil.firstToUpper("hello"), "Hello");
+		assertEquals(TextUtil.firstToUpper("Hello"), "Hello");
+		assertEquals(TextUtil.firstToUpper("_"), "_");
 	}
 
 	@Test
 	public void testFirstToLower() {
 		assertNull(TextUtil.firstToLower(null));
-		assertThat(TextUtil.firstToLower(""), is(""));
-		assertThat(TextUtil.firstToLower("hello"), is("hello"));
-		assertThat(TextUtil.firstToLower("Hello"), is("hello"));
-		assertThat(TextUtil.firstToLower("_"), is("_"));
+		assertEquals(TextUtil.firstToLower(""), "");
+		assertEquals(TextUtil.firstToLower("hello"), "hello");
+		assertEquals(TextUtil.firstToLower("Hello"), "hello");
+		assertEquals(TextUtil.firstToLower("_"), "_");
 	}
 
 	@Test
 	public void testFirstLetterToUpper() {
 		assertNull(TextUtil.firstLetterToUpper(null));
-		assertThat(TextUtil.firstLetterToUpper(""), is(""));
-		assertThat(TextUtil.firstLetterToUpper("abc"), is("Abc"));
-		assertThat(TextUtil.firstLetterToUpper("  abc"), is("  Abc"));
-		assertThat(TextUtil.firstLetterToUpper("_ABc"), is("_ABc"));
+		assertEquals(TextUtil.firstLetterToUpper(""), "");
+		assertEquals(TextUtil.firstLetterToUpper("abc"), "Abc");
+		assertEquals(TextUtil.firstLetterToUpper("  abc"), "  Abc");
+		assertEquals(TextUtil.firstLetterToUpper("_ABc"), "_ABc");
 	}
 
 	@Test
 	public void testFirstLetterToLower() {
 		assertNull(TextUtil.firstLetterToLower(null));
-		assertThat(TextUtil.firstLetterToLower(""), is(""));
-		assertThat(TextUtil.firstLetterToLower("ABC"), is("aBC"));
-		assertThat(TextUtil.firstLetterToLower("  ABC"), is("  aBC"));
-		assertThat(TextUtil.firstLetterToLower("_abC"), is("_abC"));
+		assertEquals(TextUtil.firstLetterToLower(""), "");
+		assertEquals(TextUtil.firstLetterToLower("ABC"), "aBC");
+		assertEquals(TextUtil.firstLetterToLower("  ABC"), "  aBC");
+		assertEquals(TextUtil.firstLetterToLower("_abC"), "_abC");
 	}
 
 	@Test
 	public void testPascalToUnderscore() {
 		assertNull(TextUtil.pascalToUnderscore(null));
-		assertThat(TextUtil.pascalToUnderscore(""), is(""));
-		assertThat(TextUtil.pascalToUnderscore("_HelloThereABC_"), is("_HELLO_THERE_ABC_"));
-		assertThat(TextUtil.pascalToUnderscore("_Hello1There2ABC3_"), is("_HELLO1_THERE2_ABC3_"));
+		assertEquals(TextUtil.pascalToUnderscore(""), "");
+		assertEquals(TextUtil.pascalToUnderscore("_HelloThereABC_"), "_HELLO_THERE_ABC_");
+		assertEquals(TextUtil.pascalToUnderscore("_Hello1There2ABC3_"), "_HELLO1_THERE2_ABC3_");
 	}
 
 	@Test
 	public void testUpperToCapitalized() {
 		assertNull(TextUtil.upperToCapitalized(null));
-		assertThat(TextUtil.upperToCapitalized(""), is(""));
-		assertThat(TextUtil.upperToCapitalized("_HELLO_THERE_ABC_"), is("_Hello_There_Abc_"));
-		assertThat(TextUtil.upperToCapitalized("_HELLO1_THERE2_ABC3_"), is("_Hello1_There2_Abc3_"));
+		assertEquals(TextUtil.upperToCapitalized(""), "");
+		assertEquals(TextUtil.upperToCapitalized("_HELLO_THERE_ABC_"), "_Hello_There_Abc_");
+		assertEquals(TextUtil.upperToCapitalized("_HELLO1_THERE2_ABC3_"), "_Hello1_There2_Abc3_");
 	}
 
 	@Test
 	public void testUnderscoreToPascal() {
 		assertNull(TextUtil.underscoreToPascal(null));
-		assertThat(TextUtil.underscoreToPascal(""), is(""));
-		assertThat(TextUtil.underscoreToPascal("_HELLO_THERE_ABC_"), is("_HelloThereAbc_"));
-		assertThat(TextUtil.underscoreToPascal("_HELLO1_THERE2_ABC3_"), is("_Hello1There2Abc3_"));
+		assertEquals(TextUtil.underscoreToPascal(""), "");
+		assertEquals(TextUtil.underscoreToPascal("_HELLO_THERE_ABC_"), "_HelloThereAbc_");
+		assertEquals(TextUtil.underscoreToPascal("_HELLO1_THERE2_ABC3_"), "_Hello1There2Abc3_");
 	}
 
 	@Test
 	public void testUnderscoreToCamel() {
 		assertNull(TextUtil.underscoreToCamel(null));
-		assertThat(TextUtil.underscoreToCamel(""), is(""));
-		assertThat(TextUtil.underscoreToCamel("_HELLO_THERE_ABC_"), is("_helloThereAbc_"));
-		assertThat(TextUtil.underscoreToCamel("_HELLO1_THERE2_ABC3_"), is("_hello1There2Abc3_"));
+		assertEquals(TextUtil.underscoreToCamel(""), "");
+		assertEquals(TextUtil.underscoreToCamel("_HELLO_THERE_ABC_"), "_helloThereAbc_");
+		assertEquals(TextUtil.underscoreToCamel("_HELLO1_THERE2_ABC3_"), "_hello1There2Abc3_");
 	}
 
 	@Test
 	public void testUnderscoreToProperty() {
 		assertNull(TextUtil.underscoreToProperty(null));
-		assertThat(TextUtil.underscoreToProperty(""), is(""));
-		assertThat(TextUtil.underscoreToProperty("HELLO_THERE_ABC"), is("hello.there.abc"));
-		assertThat(TextUtil.underscoreToProperty("HELLO1_THERE2_ABC3"), is("hello1.there2.abc3"));
+		assertEquals(TextUtil.underscoreToProperty(""), "");
+		assertEquals(TextUtil.underscoreToProperty("HELLO_THERE_ABC"), "hello.there.abc");
+		assertEquals(TextUtil.underscoreToProperty("HELLO1_THERE2_ABC3"), "hello1.there2.abc3");
 	}
 
 	@Test
 	public void testPropertyToUnderscore() {
 		assertNull(TextUtil.propertyToUnderscore(null));
-		assertThat(TextUtil.propertyToUnderscore(""), is(""));
-		assertThat(TextUtil.propertyToUnderscore("hello.there.abc"), is("HELLO_THERE_ABC"));
-		assertThat(TextUtil.propertyToUnderscore("hello1.there2.abc3"), is("HELLO1_THERE2_ABC3"));
+		assertEquals(TextUtil.propertyToUnderscore(""), "");
+		assertEquals(TextUtil.propertyToUnderscore("hello.there.abc"), "HELLO_THERE_ABC");
+		assertEquals(TextUtil.propertyToUnderscore("hello1.there2.abc3"), "HELLO1_THERE2_ABC3");
 	}
 
 }

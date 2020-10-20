@@ -1,11 +1,10 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.inputStream;
 import static ceri.common.test.TestUtil.outputStream;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,9 +28,9 @@ public class ByteStreamBehavior {
 	@Test
 	public void shouldReadByte() {
 		Reader r = ByteStream.reader(inputStream(1, 2, 3));
-		assertThat(r.readByte(), is((byte) 1));
-		assertThat(r.readByte(), is((byte) 2));
-		assertThat(r.readByte(), is((byte) 3));
+		assertEquals(r.readByte(), (byte) 1);
+		assertEquals(r.readByte(), (byte) 2);
+		assertEquals(r.readByte(), (byte) 3);
 		assertThrown(() -> r.readByte());
 	}
 
@@ -51,7 +50,7 @@ public class ByteStreamBehavior {
 	@Test
 	public void shouldSkipReaderBytes() {
 		Reader r = ByteStream.reader(inputStream(1, 2, 3, 4, 5));
-		assertThat(r.skip(3).readByte(), is((byte) 4));
+		assertEquals(r.skip(3).readByte(), (byte) 4);
 		assertThrown(() -> r.skip(2));
 		assertThrown(() -> r.skip(1));
 	}
@@ -67,7 +66,7 @@ public class ByteStreamBehavior {
 	public void shouldReadIntoByteArray() {
 		Reader r = ByteStream.reader(inputStream(1, 2, 3, 4, 5));
 		byte[] bytes = new byte[5];
-		assertThat(r.readInto(bytes, 1, 3), is(4));
+		assertEquals(r.readInto(bytes, 1, 3), 4);
 		assertArray(bytes, 0, 1, 2, 3, 0);
 		assertThrown(() -> r.readInto(bytes, 0, 3));
 	}
@@ -76,7 +75,7 @@ public class ByteStreamBehavior {
 	public void shouldReadIntoByteReceiver() {
 		Reader r = ByteStream.reader(inputStream(1, 2, 3, 4, 5));
 		Mutable m = Mutable.of(5);
-		assertThat(r.readInto(m, 1, 3), is(4));
+		assertEquals(r.readInto(m, 1, 3), 4);
 		assertArray(m.copy(0), 0, 1, 2, 3, 0);
 		assertThrown(() -> r.readInto(m, 0, 3));
 	}
@@ -85,7 +84,7 @@ public class ByteStreamBehavior {
 	public void shouldTransferToOutputStream() throws IOException {
 		Reader r = ByteStream.reader(inputStream(1, 2, 3, 4, 5));
 		var out = outputStream(new int[6]);
-		assertThat(r.transferTo(out, 3), is(3));
+		assertEquals(r.transferTo(out, 3), 3);
 		assertThrown(() -> r.transferTo(out, 3));
 		assertArray(out.written(), 1, 2, 3);
 	}
@@ -149,9 +148,9 @@ public class ByteStreamBehavior {
 		var in = inputStream(1, 2, 3, 4, 5);
 		var out = outputStream(new int[6]);
 		Writer w = ByteStream.writer(out);
-		assertThat(w.transferFrom(in, 3), is(3));
-		assertThat(w.transferFrom(in, 3), is(2));
-		assertThat(w.transferFrom(in, 3), is(0));
+		assertEquals(w.transferFrom(in, 3), 3);
+		assertEquals(w.transferFrom(in, 3), 2);
+		assertEquals(w.transferFrom(in, 3), 0);
 		assertArray(out.written(), 1, 2, 3, 4, 5);
 	}
 

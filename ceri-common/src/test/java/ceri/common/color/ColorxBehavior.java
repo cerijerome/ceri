@@ -2,10 +2,9 @@ package ceri.common.color;
 
 import static ceri.common.color.ColorTestUtil.assertColor;
 import static ceri.common.color.ColorTestUtil.assertColorx;
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import java.awt.Color;
 import org.junit.Test;
 
@@ -38,7 +37,7 @@ public class ColorxBehavior {
 
 	@Test
 	public void shouldConvertToRgbxInteger() {
-		assertThat(Colorx.of(255, 127, 63, 31).rgbx(), is(0xff7f3f1f));
+		assertEquals(Colorx.of(255, 127, 63, 31).rgbx(), 0xff7f3f1f);
 	}
 
 	@Test
@@ -52,11 +51,11 @@ public class ColorxBehavior {
 	@Test
 	public void shouldAccessComponents() {
 		Colorx cx = Colorx.of(0xaa, 0x77, 0x44, 0x11, 0xf0);
-		assertThat(cx.r(), is(0xaa));
-		assertThat(cx.g(), is(0x77));
-		assertThat(cx.b(), is(0x44));
-		assertThat(cx.x(), is(0x11));
-		assertThat(cx.a(), is(0xf0));
+		assertEquals(cx.r(), 0xaa);
+		assertEquals(cx.g(), 0x77);
+		assertEquals(cx.b(), 0x44);
+		assertEquals(cx.x(), 0x11);
+		assertEquals(cx.a(), 0xf0);
 	}
 
 }

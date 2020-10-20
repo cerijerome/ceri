@@ -1,13 +1,12 @@
 package ceri.x10.command;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.x10.command.House.A;
 import static ceri.x10.command.House.B;
 import static ceri.x10.command.House.C;
 import static ceri.x10.command.House.I;
 import static ceri.x10.command.Unit._11;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;
@@ -45,7 +44,7 @@ public class CommandListenerBehavior {
 	@Test
 	public void shouldProvideCommandConsumer() throws InterruptedException {
 		listener.asConsumer().accept(off);
-		assertThat(sync.await(), is(off));
+		assertEquals(sync.await(), off);
 	}
 
 	@Test
@@ -57,49 +56,49 @@ public class CommandListenerBehavior {
 	@Test
 	public void shouldDispatchAllUnitsOff() throws InterruptedException {
 		CommandListener.dispatcher(allUnitsOff).accept(listener);
-		assertThat(sync.await(), is(allUnitsOff));
+		assertEquals(sync.await(), allUnitsOff);
 	}
 
 	@Test
 	public void shouldDispatchAllLightsOff() throws InterruptedException {
 		CommandListener.dispatcher(allLightsOff).accept(listener);
-		assertThat(sync.await(), is(allLightsOff));
+		assertEquals(sync.await(), allLightsOff);
 	}
 
 	@Test
 	public void shouldDispatchAllLightsOn() throws InterruptedException {
 		CommandListener.dispatcher(allLightsOn).accept(listener);
-		assertThat(sync.await(), is(allLightsOn));
+		assertEquals(sync.await(), allLightsOn);
 	}
 
 	@Test
 	public void shouldDispatchOff() throws InterruptedException {
 		CommandListener.dispatcher(off).accept(listener);
-		assertThat(sync.await(), is(off));
+		assertEquals(sync.await(), off);
 	}
 
 	@Test
 	public void shouldDispatchOn() throws InterruptedException {
 		CommandListener.dispatcher(on).accept(listener);
-		assertThat(sync.await(), is(on));
+		assertEquals(sync.await(), on);
 	}
 
 	@Test
 	public void shouldDispatchDim() throws InterruptedException {
 		CommandListener.dispatcher(dim).accept(listener);
-		assertThat(sync.await(), is(dim));
+		assertEquals(sync.await(), dim);
 	}
 
 	@Test
 	public void shouldDispatchBright() throws InterruptedException {
 		CommandListener.dispatcher(bright).accept(listener);
-		assertThat(sync.await(), is(bright));
+		assertEquals(sync.await(), bright);
 	}
 
 	@Test
 	public void shouldDispatchExt() throws InterruptedException {
 		CommandListener.dispatcher(ext).accept(listener);
-		assertThat(sync.await(), is(ext));
+		assertEquals(sync.await(), ext);
 	}
 
 	private static CommandListener listener(ValueCondition<Command> sync) {

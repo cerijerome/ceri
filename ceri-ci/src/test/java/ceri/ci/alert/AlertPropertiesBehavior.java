@@ -1,7 +1,6 @@
 package ceri.ci.alert;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,9 +19,9 @@ public class AlertPropertiesBehavior {
 	@Test
 	public void shouldReadValuesWithPrefix() {
 		AlertProperties properties = new AlertProperties(new BaseProperties(props) {}, "x");
-		assertThat(properties.reminderMs(), is(999999L));
-		assertThat(properties.shutdownTimeoutMs(), is(777L));
-		assertThat(properties.purgeDelayMs(), is(44444L));
+		assertEquals(properties.reminderMs(), 999999L);
+		assertEquals(properties.shutdownTimeoutMs(), 777L);
+		assertEquals(properties.purgeDelayMs(), 44444L);
 	}
 
 }

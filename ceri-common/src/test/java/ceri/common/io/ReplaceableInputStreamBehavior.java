@@ -1,10 +1,10 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -17,7 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import ceri.common.test.TestUtil;
 
 public class ReplaceableInputStreamBehavior {
 	private @Mock Consumer<Exception> listener;
@@ -36,7 +35,7 @@ public class ReplaceableInputStreamBehavior {
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
 			rin.listeners().listen(listener);
 			rin.setInputStream(in);
-			TestUtil.assertThrown(() -> rin.mark(0));
+			assertThrown(() -> rin.mark(0));
 		}
 		verify(listener).accept(ex);
 	}
@@ -50,7 +49,7 @@ public class ReplaceableInputStreamBehavior {
 			rin.listeners().listen(listener);
 			assertFalse(rin.markSupported());
 			rin.setInputStream(in);
-			TestUtil.assertThrown(rin::markSupported);
+			assertThrown(rin::markSupported);
 		}
 		verify(listener).accept(ex);
 	}
@@ -63,8 +62,8 @@ public class ReplaceableInputStreamBehavior {
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
 			rin.setInputStream(in);
 			rin.listeners().listen(listener);
-			TestUtil.assertThrown(rin::read);
-			TestUtil.assertThrown(rin::read);
+			assertThrown(rin::read);
+			assertThrown(rin::read);
 			rin.listeners().unlisten(listener);
 		}
 		verify(listener).accept(e0);
@@ -74,14 +73,14 @@ public class ReplaceableInputStreamBehavior {
 	@Test
 	public void shouldFailWithAnInvalidStream() throws IOException {
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
-			TestUtil.assertThrown(rin::read);
-			TestUtil.assertThrown(rin::available);
-			TestUtil.assertThrown(() -> rin.skip(0));
+			assertThrown(rin::read);
+			assertThrown(rin::available);
+			assertThrown(() -> rin.skip(0));
 			rin.mark(4);
-			TestUtil.assertThrown(rin::reset);
+			assertThrown(rin::reset);
 			byte[] buffer = new byte[100];
-			TestUtil.assertThrown(() -> rin.read(buffer));
-			TestUtil.assertThrown(() -> rin.read(buffer, 1, 99));
+			assertThrown(() -> rin.read(buffer));
+			assertThrown(() -> rin.read(buffer, 1, 99));
 		}
 	}
 
@@ -92,7 +91,7 @@ public class ReplaceableInputStreamBehavior {
 				assertFalse(rin.markSupported());
 				rin.setInputStream(in);
 				assertTrue(rin.markSupported());
-				assertThat(rin.available(), is(4));
+				assertEquals(rin.available(), 4);
 				byte[] buffer = new byte[6];
 				rin.read(buffer, 0, 2);
 				rin.mark(2);
@@ -127,7 +126,7 @@ public class ReplaceableInputStreamBehavior {
 			try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
 				rin.setInputStream(in);
 				byte[] buffer = new byte[2];
-				assertThat(rin.read(), is((int) 't'));
+				assertEquals(rin.read(), (int) 't');
 				rin.read(buffer);
 				assertArray(buffer, 'e', 's');
 				rin.read(buffer, 1, 1);

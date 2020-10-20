@@ -1,15 +1,13 @@
 package ceri.ci.build;
 
-import static ceri.common.test.TestUtil.assertEquals;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertNotSame;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertNotSame;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class JobBehavior {
 
@@ -27,7 +25,7 @@ public class JobBehavior {
 	public void shouldNotAllowModificationOfEventsField() {
 		final Job job = new Job("test");
 		assertTrue(job.events.isEmpty());
-		TestUtil.assertThrown(() -> job.events.add(Event.success()));
+		assertThrown(() -> job.events.add(Event.success()));
 	}
 
 	@Test
@@ -76,7 +74,7 @@ public class JobBehavior {
 		job1.events(Event.success("a1", "a2"));
 		job1.events(Event.failure());
 		Job job2 = new Job(job1);
-		assertThat(job1.name, is(job2.name));
+		assertEquals(job1.name, job2.name);
 		assertIterable(job1.events, job2.events);
 		assertNotSame(job1.events, job2.events);
 	}
@@ -93,8 +91,8 @@ public class JobBehavior {
 		job.events(e0, e1);
 		Job job2 = new Job(job);
 		assertEquals(job, job2);
-		assertThat(job.hashCode(), is(job2.hashCode()));
-		assertThat(job.toString(), is(job2.toString()));
+		assertEquals(job.hashCode(), job2.hashCode());
+		assertEquals(job.toString(), job2.toString());
 	}
 
 }

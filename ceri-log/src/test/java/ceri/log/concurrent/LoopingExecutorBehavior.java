@@ -1,9 +1,7 @@
 package ceri.log.concurrent;
 
 import static ceri.common.concurrent.ConcurrentUtil.delayMicros;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.Test;
@@ -27,7 +25,7 @@ public class LoopingExecutorBehavior {
 			try (TestLoop loop = new TestLoop(i -> throwIoException())) {
 				loop.waitUntilStopped();
 				loop.waitUntilStopped(1);
-				assertThat(loop.stopped(), is(true));
+				assertTrue(loop.stopped());
 			}
 		}, Level.OFF, LoopingExecutor.class);
 	}

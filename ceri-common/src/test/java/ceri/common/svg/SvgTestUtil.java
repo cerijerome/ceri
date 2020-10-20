@@ -1,7 +1,6 @@
 package ceri.common.svg;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.util.regex.Pattern;
 
 public class SvgTestUtil {
@@ -15,7 +14,7 @@ public class SvgTestUtil {
 
 	public static void assertPath(String path, String expected) {
 		String simplePath = simplePath(path);
-		assertThat(simplePath, is(expected));
+		assertEquals(simplePath, expected);
 	}
 
 	public static String simplePath(String path) {

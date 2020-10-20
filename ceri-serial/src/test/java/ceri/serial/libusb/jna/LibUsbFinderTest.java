@@ -1,8 +1,7 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 import ceri.common.text.StringUtil;
 import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
@@ -42,16 +41,16 @@ public class LibUsbFinderTest {
 	}
 
 	private void assertCriteria(libusb_device_criteria actual, libusb_device_criteria expected) {
-		assertThat(actual.vendor, is(expected.vendor));
-		assertThat(actual.product, is(expected.product));
-		assertThat(actual.busNumber, is(expected.busNumber));
-		assertThat(actual.deviceAddress, is(expected.deviceAddress));
+		assertEquals(actual.vendor, expected.vendor);
+		assertEquals(actual.product, expected.product);
+		assertEquals(actual.busNumber, expected.busNumber);
+		assertEquals(actual.deviceAddress, expected.deviceAddress);
 		if (StringUtil.isBlank(expected.description))
 			assertTrue(StringUtil.isBlank(actual.description));
-		else assertThat(actual.description, is(expected.description));
+		else assertEquals(actual.description, expected.description);
 		if (StringUtil.isBlank(expected.serial)) assertTrue(StringUtil.isBlank(actual.serial));
-		else assertThat(actual.serial, is(expected.serial));
-		assertThat(actual.index, is(expected.index));
+		else assertEquals(actual.serial, expected.serial);
+		assertEquals(actual.index, expected.index);
 	}
 
 }

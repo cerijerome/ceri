@@ -1,11 +1,10 @@
 package ceri.common.text;
 
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Iterator;
@@ -42,12 +41,12 @@ public class DsvParserBehavior {
 		assertFalse(parser.hasHeaderValue("field4"));
 		assertIterable(parser.header(), "field1", "field2", "field3");
 		assertTrue(parser.hasFields());
-		assertThat(parser.field("field1"), is("this"));
-		assertThat(parser.field("field2"), is("is"));
-		assertThat(parser.field("field3", "not"), is("a"));
-		assertThat(parser.field("field4", "test"), is("test"));
+		assertEquals(parser.field("field1"), "this");
+		assertEquals(parser.field("field2"), "is");
+		assertEquals(parser.field("field3", "not"), "a");
+		assertEquals(parser.field("field4", "test"), "test");
 		next();
-		assertThat(parser.field("field1"), is("test"));
+		assertEquals(parser.field("field1"), "test");
 		assertNull(parser.field("field2"));
 		assertNull(parser.field("field3"));
 		next();
@@ -62,31 +61,31 @@ public class DsvParserBehavior {
 		assertNull(parser.field(1));
 		next();
 		assertNull(parser.field(-1));
-		assertThat(parser.field(0), is("1"));
-		assertThat(parser.field(1), is("2"));
-		assertThat(parser.field(2), is("3"));
+		assertEquals(parser.field(0), "1");
+		assertEquals(parser.field(1), "2");
+		assertEquals(parser.field(2), "3");
 		assertNull(parser.field(3));
 	}
 
 	@Test
 	public void shouldParseTypedFields() {
 		skip(3);
-		assertThat(parser.intField("field1"), is(1));
-		assertThat(parser.intField("field2"), is(2));
-		assertThat(parser.intField("field3"), is(3));
-		assertThat(parser.intField("field4", 4), is(4));
+		assertEquals(parser.intField("field1"), 1);
+		assertEquals(parser.intField("field2"), 2);
+		assertEquals(parser.intField("field3"), 3);
+		assertEquals(parser.intField("field4", 4), 4);
 		next();
-		assertThat(parser.doubleField("field1"), is(1.0));
-		assertThat(parser.doubleField("field2", 2.0), is(2.0));
-		assertThat(parser.doubleField("field3", 3.0), is(2.0));
+		assertEquals(parser.doubleField("field1"), 1.0);
+		assertEquals(parser.doubleField("field2", 2.0), 2.0);
+		assertEquals(parser.doubleField("field3", 3.0), 2.0);
 		next();
-		assertThat(parser.booleanField("field1", true), is(true));
-		assertThat(parser.booleanField("field2"), is(true));
-		assertThat(parser.booleanField("field3", true), is(false));
+		assertTrue(parser.booleanField("field1", true));
+		assertTrue(parser.booleanField("field2"));
+		assertFalse(parser.booleanField("field3", true));
 		next();
-		assertThat(parser.longField("field1", Long.MIN_VALUE), is(1000000000000000000L));
-		assertThat(parser.longField("field2"), is(-1L));
-		assertThat(parser.longField("field3", Long.MAX_VALUE), is(Long.MAX_VALUE));
+		assertEquals(parser.longField("field1", Long.MIN_VALUE), 1000000000000000000L);
+		assertEquals(parser.longField("field2"), -1L);
+		assertEquals(parser.longField("field3", Long.MAX_VALUE), Long.MAX_VALUE);
 	}
 
 	private void next() {

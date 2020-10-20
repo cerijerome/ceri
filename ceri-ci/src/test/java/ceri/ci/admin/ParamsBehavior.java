@@ -1,8 +1,7 @@
 package ceri.ci.admin;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,35 +33,35 @@ public class ParamsBehavior {
 		Collection<BuildEvent> events = new ArrayList<>() {};
 		when(request.getParameter("events")).thenReturn("test");
 		when(serializer.toBuildEvents("test")).thenReturn(events);
-		assertThat(params.buildEvents(), is(events));
+		assertEquals(params.buildEvents(), events);
 	}
 
 	@Test
 	public void shouldParseBuildAndJobFromRequestPathInfo() {
 		BuildJob buildJob = params.buildJob();
-		assertThat(buildJob.build, is((String) null));
-		assertThat(buildJob.job, is((String) null));
+		assertEquals(buildJob.build, (String) null);
+		assertEquals(buildJob.job, (String) null);
 		when(request.getPathInfo()).thenReturn("/b0/");
 		buildJob = params.buildJob();
-		assertThat(buildJob.build, is("b0"));
-		assertThat(buildJob.job, is((String) null));
+		assertEquals(buildJob.build, "b0");
+		assertEquals(buildJob.job, (String) null);
 		when(request.getPathInfo()).thenReturn("/b0/j0");
 		buildJob = params.buildJob();
-		assertThat(buildJob.build, is("b0"));
-		assertThat(buildJob.job, is("j0"));
+		assertEquals(buildJob.build, "b0");
+		assertEquals(buildJob.job, "j0");
 	}
 
 	@Test
 	public void shouldParseActionFromRequestParameter() {
 		Params params = new Params(request, new Serializer());
 		when(request.getParameter(Action.clear.name())).thenReturn("");
-		assertThat(params.action(), is(Action.clear));
+		assertEquals(params.action(), Action.clear);
 	}
 
 	@Test
 	public void shouldParseViewAsDefaultAction() {
 		Params params = new Params(request, new Serializer());
-		assertThat(params.action(), is(Action.view));
+		assertEquals(params.action(), Action.view);
 	}
 
 }

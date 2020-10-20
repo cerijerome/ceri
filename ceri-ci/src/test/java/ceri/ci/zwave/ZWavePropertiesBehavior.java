@@ -1,8 +1,8 @@
 package ceri.ci.zwave;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -24,12 +24,12 @@ public class ZWavePropertiesBehavior {
 	@Test
 	public void shouldReadValuesWithPrefix() {
 		ZWaveProperties zwave = new ZWaveProperties(new BaseProperties(props) {}, "x");
-		assertThat(zwave.enabled(), is(true));
-		assertThat(zwave.host(), is("aaa"));
-		assertThat(zwave.callDelayMs(), is(111));
+		assertTrue(zwave.enabled());
+		assertEquals(zwave.host(), "aaa");
+		assertEquals(zwave.callDelayMs(), 111);
 		assertCollection(zwave.groupDevices(), 1, 3, 100);
-		assertThat(zwave.device("A"), is(1));
-		assertThat(zwave.device("B"), is(2));
+		assertEquals(zwave.device("A"), 1);
+		assertEquals(zwave.device("B"), 2);
 		assertCollection(zwave.names(), "A", "B");
 	}
 

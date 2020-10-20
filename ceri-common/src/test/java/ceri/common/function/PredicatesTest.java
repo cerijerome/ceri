@@ -1,11 +1,10 @@
 package ceri.common.function;
 
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertSame;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertSame;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -244,7 +243,7 @@ public class PredicatesTest {
 		Predicate<Character> filter = Predicates.eq('A');
 		List<Character> items = ArrayUtil.asList('A', null, 'B', 'a', null, 'A', 'b');
 		Predicates.remove(items, filter);
-		assertThat(items, is(Arrays.asList('A', 'A')));
+		assertEquals(items, Arrays.asList('A', 'A'));
 	}
 
 	@Test

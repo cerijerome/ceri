@@ -1,11 +1,10 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
@@ -16,14 +15,14 @@ public class ResourcePathBehavior {
 	@Test
 	public void shouldRepresentationPathAsString() throws IOException {
 		try (ResourcePath rp = ResourcePath.of(getClass(), "res", "test")) {
-			assertThat(rp.toString(), is(rp.path().toString()));
+			assertEquals(rp.toString(), rp.path().toString());
 		}
 	}
 
 	@Test
 	public void shouldCreateBySuffix() throws IOException {
 		try (ResourcePath rp = ResourcePath.ofSuffix(IoUtilTest.class, "properties")) {
-			assertThat(rp.readString(), is("a=b"));
+			assertEquals(rp.readString(), "a=b");
 		}
 	}
 
@@ -41,10 +40,10 @@ public class ResourcePathBehavior {
 		assertNull(ResourcePath.of(null));
 		try (ResourcePath rp = ResourcePath.of(getClass(), "res", "test")) {
 			assertCollection(IoUtil.listNames(rp.path()), "A.txt", "BB.txt", "CCC.txt");
-			assertThat(Files.readString(rp.resolve("A.txt")), is("aaa"));
+			assertEquals(Files.readString(rp.resolve("A.txt")), "aaa");
 		}
 		try (ResourcePath rp = ResourcePath.of(getClass(), "res", "test", "BB.txt")) {
-			assertThat(rp.readString(), is("bb"));
+			assertEquals(rp.readString(), "bb");
 		}
 	}
 

@@ -1,8 +1,9 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 
 public class NavigatorBehavior {
@@ -11,11 +12,11 @@ public class NavigatorBehavior {
 	public void shouldOnlyAllowNonNegativeLengths() {
 		assertThrown(() -> navigator(-1));
 		Navigator<?> n = navigator(10);
-		assertThat(n.length(), is(10));
+		assertEquals(n.length(), 10);
 		n.length(5).length(20);
-		assertThat(n.length(), is(20));
+		assertEquals(n.length(), 20);
 		assertThrown(() -> n.length(-1));
-		assertThat(n.length(), is(20));
+		assertEquals(n.length(), 20);
 	}
 
 	@Test
@@ -31,9 +32,9 @@ public class NavigatorBehavior {
 	public void shouldModifyOffsetIfLengthIsReduced() {
 		Navigator<?> n = navigator(10);
 		n.offset(8);
-		assertThat(n.offset(), is(8));
+		assertEquals(n.offset(), 8);
 		n.length(5);
-		assertThat(n.offset(), is(5));
+		assertEquals(n.offset(), 5);
 	}
 
 	@Test
@@ -47,19 +48,19 @@ public class NavigatorBehavior {
 	@Test
 	public void shouldSupportMarkAndReset() {
 		Navigator<?> n = navigator(10);
-		assertThat(n.offset(5).offset(), is(5));
-		assertThat(n.reset().offset(), is(0));
+		assertEquals(n.offset(5).offset(), 5);
+		assertEquals(n.reset().offset(), 0);
 		n.offset(5).mark();
-		assertThat(n.offset(8).reset().offset(), is(5));
+		assertEquals(n.offset(8).reset().offset(), 5);
 	}
 
 	@Test
 	public void shouldDetermineRemainingLengthFromOffset() {
 		Navigator<?> n = navigator(5);
-		assertThat(n.remaining(), is(5));
-		assertThat(n.hasNext(), is(true));
-		assertThat(n.offset(5).remaining(), is(0));
-		assertThat(n.hasNext(), is(false));
+		assertEquals(n.remaining(), 5);
+		assertTrue(n.hasNext());
+		assertEquals(n.offset(5).remaining(), 0);
+		assertFalse(n.hasNext());
 	}
 
 	private static Navigator<?> navigator(int length) {

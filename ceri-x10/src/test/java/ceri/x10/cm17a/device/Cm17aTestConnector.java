@@ -1,7 +1,7 @@
 package ceri.x10.cm17a.device;
 
 import static ceri.common.function.FunctionUtil.execSilently;
-import static ceri.common.test.TestUtil.assertRead;
+import static ceri.common.test.AssertUtil.assertRead;
 import java.io.Closeable;
 import java.io.IOException;
 import ceri.common.data.ByteStream;

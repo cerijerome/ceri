@@ -1,15 +1,14 @@
 package ceri.serial.clib;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertFile;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFile;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.serial.clib.OpenFlag.O_CREAT;
 import static ceri.serial.clib.OpenFlag.O_RDWR;
 import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -68,8 +67,8 @@ public class FileDescriptorBehavior {
 	public void shouldReadIntoMemory() throws IOException {
 		Memory m = new Memory(8);
 		try (CFileDescriptor fd = open("file1")) {
-			assertThat(fd.read(m, 0, 0), is(0));
-			assertThat(fd.read(m), is(6));
+			assertEquals(fd.read(m, 0, 0), 0);
+			assertEquals(fd.read(m), 6);
 			assertPointer(m, 0, file1Bytes);
 		}
 	}
@@ -125,11 +124,11 @@ public class FileDescriptorBehavior {
 	@Test
 	public void shouldSetPositionWithinAFile() throws IOException {
 		try (CFileDescriptor fd = open("file1")) {
-			assertThat(fd.seek(3, Seek.SEEK_CUR), is(3));
-			assertThat(fd.seek(1, Seek.SEEK_CUR), is(4));
-			assertThat(fd.seek(1, Seek.SEEK_END), is(7));
-			assertThat(fd.seek(0, Seek.SEEK_CUR), is(7));
-			assertThat(fd.seek(4, Seek.SEEK_SET), is(4));
+			assertEquals(fd.seek(3, Seek.SEEK_CUR), 3);
+			assertEquals(fd.seek(1, Seek.SEEK_CUR), 4);
+			assertEquals(fd.seek(1, Seek.SEEK_END), 7);
+			assertEquals(fd.seek(0, Seek.SEEK_CUR), 7);
+			assertEquals(fd.seek(4, Seek.SEEK_SET), 4);
 			assertArray(fd.in().readAllBytes(), 0x34, 0x56);
 		}
 	}

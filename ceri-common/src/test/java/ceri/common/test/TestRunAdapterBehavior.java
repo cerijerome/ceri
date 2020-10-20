@@ -1,7 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import org.junit.Test;
 import ceri.common.text.StringUtil;
 
@@ -31,7 +30,7 @@ public class TestRunAdapterBehavior {
 		p.testStarted("6");
 		String output = b.toString();
 		String[] lines = output.split("\r?\n");
-		assertThat(lines.length, is(6));
+		assertEquals(lines.length, 6);
 	}
 
 }

@@ -1,8 +1,9 @@
 package ceri.common.util;
 
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,28 +18,28 @@ public class ValueCacheBehavior {
 	@Test
 	public void shouldOnlyLoadOnce() {
 		var cache = ValueCache.of(this::count);
-		assertThat(count(), is(0));
-		assertThat(cache.hasValue(), is(false));
-		assertThat(cache.get(), is(1));
-		assertThat(cache.hasValue(), is(true));
-		assertThat(count(), is(2));
-		assertThat(cache.get(), is(1));
+		assertEquals(count(), 0);
+		assertFalse(cache.hasValue());
+		assertEquals(cache.get(), 1);
+		assertTrue(cache.hasValue());
+		assertEquals(count(), 2);
+		assertEquals(cache.get(), 1);
 	}
 
 	@Test
 	public void shouldAllowNulls() {
 		var cache = ValueCache.of(() -> null);
-		assertThat(cache.hasValue(), is(false));
+		assertFalse(cache.hasValue());
 		assertNull(cache.get());
-		assertThat(cache.hasValue(), is(true));
+		assertTrue(cache.hasValue());
 	}
 
 	@Test
 	public void shouldHaveStringRepresentation() {
 		var cache = ValueCache.of(() -> null);
-		assertThat(cache.toString().isEmpty(), is(false));
+		assertFalse(cache.toString().isEmpty());
 		cache.get();
-		assertThat(cache.toString().isEmpty(), is(false));
+		assertFalse(cache.toString().isEmpty());
 	}
 
 	private int count() {

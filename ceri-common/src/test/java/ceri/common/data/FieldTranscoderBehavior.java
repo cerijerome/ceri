@@ -1,10 +1,11 @@
 package ceri.common.data;
 
 import static ceri.common.data.TypeTranscoderBehavior.assertRemainder;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Collections;
 import java.util.Set;
 import org.junit.Before;
@@ -81,34 +82,34 @@ public class FieldTranscoderBehavior {
 		assertNull(field.get());
 		assertCollection(field.getAll());
 		store[0] = E.c.value;
-		assertThat(field.get(), is(E.c));
+		assertEquals(field.get(), E.c);
 		store[0] = E.a.value + E.c.value;
 		assertCollection(field.getAll(), E.a, E.c);
 	}
 
 	@Test
 	public void shouldValidateFields() {
-		assertThat(field.isValid(), is(true));
+		assertTrue(field.isValid());
 		field.set(E.c);
-		assertThat(field.isValid(), is(true));
+		assertTrue(field.isValid());
 		store[0] = 6;
-		assertThat(field.isValid(), is(false));
+		assertFalse(field.isValid());
 		field.set(E.a, E.c);
-		assertThat(field.isValid(), is(true));
+		assertTrue(field.isValid());
 		store[0] = 6;
-		assertThat(field.isValid(), is(false));
+		assertFalse(field.isValid());
 	}
 
 	@Test
 	public void shouldDetermineIfFieldHasValues() {
-		assertThat(field.has(E.a), is(false));
-		assertThat(field.hasAny(E.a, E.b, E.c), is(false));
-		assertThat(field.hasAll(E.a, E.b), is(false));
+		assertFalse(field.has(E.a));
+		assertFalse(field.hasAny(E.a, E.b, E.c));
+		assertFalse(field.hasAll(E.a, E.b));
 		field.add(E.a, E.b);
-		assertThat(field.has(E.a), is(true));
-		assertThat(field.hasAny(E.a, E.b, E.c), is(true));
-		assertThat(field.hasAll(E.a, E.b), is(true));
-		assertThat(field.hasAll(E.a, E.b, E.c), is(false));
+		assertTrue(field.has(E.a));
+		assertTrue(field.hasAny(E.a, E.b, E.c));
+		assertTrue(field.hasAll(E.a, E.b));
+		assertFalse(field.hasAll(E.a, E.b, E.c));
 	}
 
 	@Test
@@ -116,9 +117,9 @@ public class FieldTranscoderBehavior {
 		Holder h = new Holder();
 		h.val = 15;
 		Holder.field.set(h, E.a, E.b);
-		assertThat(h.val, is(3));
+		assertEquals(h.val, 3);
 		Holder.field.set(h, E.c);
-		assertThat(h.val, is(12));
+		assertEquals(h.val, 12);
 	}
 
 	@Test
@@ -126,14 +127,14 @@ public class FieldTranscoderBehavior {
 		Holder h = new Holder();
 		h.val = 0;
 		Holder.field.set(h, Remainder.of(8, E.a, E.b));
-		assertThat(h.val, is(11));
+		assertEquals(h.val, 11);
 	}
 
 	@Test
 	public void shouldGetValueFromType() {
 		Holder h = new Holder();
 		h.val = 2;
-		assertThat(Holder.field.get(h), is(E.b));
+		assertEquals(Holder.field.get(h), E.b);
 		h.val = 4;
 		assertNull(Holder.field.get(h));
 	}
@@ -157,10 +158,10 @@ public class FieldTranscoderBehavior {
 		Holder h = new Holder();
 		h.val = 0;
 		Holder.field.add(h, E.a, E.b);
-		assertThat(h.val, is(3));
+		assertEquals(h.val, 3);
 		Holder.field.add(h);
 		Holder.field.add(h, Set.of());
-		assertThat(h.val, is(3));
+		assertEquals(h.val, 3);
 	}
 
 	@Test
@@ -168,33 +169,33 @@ public class FieldTranscoderBehavior {
 		Holder h = new Holder();
 		h.val = 15;
 		Holder.field.remove(h, E.c, E.a);
-		assertThat(h.val, is(2));
+		assertEquals(h.val, 2);
 		Holder.field.remove(h);
 		Holder.field.remove(h, Set.of());
-		assertThat(h.val, is(2));
+		assertEquals(h.val, 2);
 	}
 
 	@Test
 	public void shouldValidateType() {
 		Holder h = new Holder();
 		h.val = 0;
-		assertThat(Holder.field.isValid(h), is(true));
+		assertTrue(Holder.field.isValid(h));
 		h.val = 7;
-		assertThat(Holder.field.isValid(h), is(false));
+		assertFalse(Holder.field.isValid(h));
 		h.val = 3;
-		assertThat(Holder.field.isValid(h), is(true));
+		assertTrue(Holder.field.isValid(h));
 	}
 
 	@Test
 	public void shouldDetermineIfTypeHasValues() {
 		Holder h = new Holder();
 		h.val = 3;
-		assertThat(Holder.field.has(h, E.a), is(true));
-		assertThat(Holder.field.hasAny(h, E.a, E.c), is(true));
-		assertThat(Holder.field.hasAny(h, E.c), is(false));
-		assertThat(Holder.field.hasAll(h, E.a), is(true));
-		assertThat(Holder.field.hasAll(h, E.a, E.b), is(true));
-		assertThat(Holder.field.hasAll(h, E.a, E.b, E.c), is(false));
+		assertTrue(Holder.field.has(h, E.a));
+		assertTrue(Holder.field.hasAny(h, E.a, E.c));
+		assertFalse(Holder.field.hasAny(h, E.c));
+		assertTrue(Holder.field.hasAll(h, E.a));
+		assertTrue(Holder.field.hasAll(h, E.a, E.b));
+		assertFalse(Holder.field.hasAll(h, E.a, E.b, E.c));
 	}
 
 }

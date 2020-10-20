@@ -1,9 +1,8 @@
 package ceri.ci.email;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
@@ -87,7 +86,7 @@ public class EmailServiceBehavior {
 		ArgumentCaptor<Date> dateCaptor = ArgumentCaptor.forClass(Date.class);
 		verify(mockRetriever, atLeast(2)).retrieve(dateCaptor.capture(), any());
 		long t = dateCaptor.getValue().getTime();
-		assertThat(t, is(testStartTime - 5000));
+		assertEquals(t, testStartTime - 5000);
 	}
 
 	@Test

@@ -1,19 +1,18 @@
 package ceri.common.event;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.IntConsumer;
 import org.junit.Test;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 import ceri.common.util.Enclosed;
 
 public class IntListenableBehavior {
 
 	@Test
 	public void shouldProvideWrapperToUnlistenOnClose() {
-		Capturer.Int captor = Capturer.ofInt();
+		Captor.Int captor = Captor.ofInt();
 		IntListeners listeners = IntListeners.of();
 		try (Enclosed<?> enclosed = listeners.enclose(captor)) {
 			listeners.accept(0);
@@ -24,13 +23,13 @@ public class IntListenableBehavior {
 
 	@Test
 	public void shouldUnlistenCloseWrappedListenerOnceOnly() {
-		Capturer.Int captor = Capturer.ofInt();
+		Captor.Int captor = Captor.ofInt();
 		TestListenable listeners = new TestListenable();
 		try (Enclosed<?> enclosed0 = listeners.enclose(captor)) {
 			listeners.accept(0);
 			try (Enclosed<?> enclosed1 = listeners.enclose(captor)) {
 				listeners.accept(1);
-				assertThat(enclosed1.isNoOp(), is(true));
+				assertTrue(enclosed1.isNoOp());
 			}
 			listeners.accept(2);
 		}
@@ -40,7 +39,7 @@ public class IntListenableBehavior {
 
 	@Test
 	public void shouldProvideIndirectAccess() {
-		Capturer.Int captor = Capturer.ofInt();
+		Captor.Int captor = Captor.ofInt();
 		IntListeners listeners = IntListeners.of();
 		listeners.indirect().listeners().listen(captor);
 		listeners.accept(0);
@@ -49,7 +48,7 @@ public class IntListenableBehavior {
 
 	@Test
 	public void shouldProvideNullListener() {
-		Capturer.Int captor = Capturer.ofInt();
+		Captor.Int captor = Captor.ofInt();
 		IntListenable listeners = IntListenable.ofNull();
 		listeners.listen(captor);
 		listeners.unlisten(captor);

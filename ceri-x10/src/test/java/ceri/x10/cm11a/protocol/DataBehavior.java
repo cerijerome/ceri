@@ -1,11 +1,10 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.time.DateUtil.UTC_EPOCH;
 import static ceri.x10.command.House.L;
 import static ceri.x10.command.Unit._12;
-import static org.hamcrest.CoreMatchers.is;
 import java.time.LocalDate;
 import org.junit.Test;
 import ceri.common.data.ByteArray;
@@ -16,16 +15,16 @@ public class DataBehavior {
 
 	@Test
 	public void testEncode() {
-		assertThat(Data.encode(null, (Unit) null), is(0));
-		assertThat(Data.encode(null, _12), is(0x0b));
-		assertThat(Data.encode(L, (Unit) null), is(0xb0));
+		assertEquals(Data.encode(null, (Unit) null), 0);
+		assertEquals(Data.encode(null, _12), 0x0b);
+		assertEquals(Data.encode(L, (Unit) null), 0xb0);
 	}
 
 	@Test
 	public void testShortChecksum() {
-		assertThat(Data.shortChecksum(0xffff), is(0xfe));
-		assertThat(Data.shortChecksum(0x9876), is(0x0e));
-		assertThat(Data.shortChecksum(0x1234), is(0x46));
+		assertEquals(Data.shortChecksum(0xffff), 0xfe);
+		assertEquals(Data.shortChecksum(0x9876), 0x0e);
+		assertEquals(Data.shortChecksum(0x1234), 0x46);
 	}
 
 	@Test
@@ -34,15 +33,18 @@ public class DataBehavior {
 		Data.writeDateTo(UTC_EPOCH, enc);
 		assertArray(enc.bytes(), 0, 0, 0, 1, 4);
 		enc.reset();
+		Data.writeDateTo(UTC_EPOCH.plusHours(1), enc);
+		assertArray(enc.bytes(), 0, 60, 0, 1, 4);
+		enc.reset();
 		Data.writeDateTo(UTC_EPOCH.plusDays(3), enc);
 		assertArray(enc.bytes(), 0, 0, 0, 4, 0x40);
 	}
 
 	@Test
 	public void testNearestDate() {
-		assertThat(Data.nearestDate(LocalDate.of(1970, 1, 1), 90), is(LocalDate.of(1970, 3, 31)));
-		assertThat(Data.nearestDate(LocalDate.of(1970, 1, 1), 200), is(LocalDate.of(1969, 7, 19)));
-		assertThat(Data.nearestDate(LocalDate.of(1970, 12, 1), 100), is(LocalDate.of(1971, 4, 10)));
+		assertEquals(Data.nearestDate(LocalDate.of(1970, 1, 1), 90), LocalDate.of(1970, 3, 31));
+		assertEquals(Data.nearestDate(LocalDate.of(1970, 1, 1), 200), LocalDate.of(1969, 7, 19));
+		assertEquals(Data.nearestDate(LocalDate.of(1970, 12, 1), 100), LocalDate.of(1971, 4, 10));
 	}
 
 }

@@ -1,21 +1,20 @@
 package ceri.common.io;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertFile;
-import static ceri.common.test.TestUtil.assertHelperPaths;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertPath;
-import static ceri.common.test.TestUtil.assertPaths;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
-import static ceri.common.test.TestUtil.assertStream;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertFile;
+import static ceri.common.test.AssertUtil.assertHelperPaths;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPath;
+import static ceri.common.test.AssertUtil.assertPaths;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertStream;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
 import static ceri.common.test.TestUtil.inputStream;
-import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -45,8 +44,8 @@ import ceri.common.collection.WrappedStream;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.io.IoStreamUtil.Read;
+import ceri.common.test.AssertUtil;
 import ceri.common.test.FileTestHelper;
-import ceri.common.test.TestUtil;
 import ceri.common.util.SystemVars;
 
 public class IoUtilTest {
@@ -70,8 +69,8 @@ public class IoUtilTest {
 
 	@Test
 	public void testIoExceptionf() {
-		assertThat(IoUtil.ioExceptionf("%s", "test").getMessage(), is("test"));
-		assertThat(IoUtil.ioExceptionf(new Throwable(), "%s", "test").getMessage(), is("test"));
+		assertEquals(IoUtil.ioExceptionf("%s", "test").getMessage(), "test");
+		assertEquals(IoUtil.ioExceptionf(new Throwable(), "%s", "test").getMessage(), "test");
 	}
 
 	@Test
@@ -125,8 +124,8 @@ public class IoUtilTest {
 
 	private void assertClearBuffer(byte[] buffer) throws IOException {
 		InputStream in = new ByteArrayInputStream(buffer);
-		assertThat(IoUtil.clear(in), is((long) buffer.length));
-		assertThat(in.available(), is(0));
+		assertEquals(IoUtil.clear(in), (long) buffer.length);
+		assertEquals(in.available(), 0);
 	}
 
 	@Test
@@ -213,10 +212,10 @@ public class IoUtilTest {
 		assertNull(IoUtil.name(null, 0));
 		assertNull(IoUtil.name(Path.of("/a/b/c/d"), -1));
 		assertNull(IoUtil.name(Path.of("/a/b/c/d"), 4));
-		assertThat(IoUtil.name(Path.of("/a/b/c/d"), 0), is("a"));
-		assertThat(IoUtil.name(Path.of("/a/b/c/d"), 3), is("d"));
+		assertEquals(IoUtil.name(Path.of("/a/b/c/d"), 0), "a");
+		assertEquals(IoUtil.name(Path.of("/a/b/c/d"), 3), "d");
 		assertNull(IoUtil.name(Path.of("/"), 0));
-		assertThat(IoUtil.name(Path.of(""), 0), is(""));
+		assertEquals(IoUtil.name(Path.of(""), 0), "");
 	}
 
 	@Test
@@ -254,34 +253,34 @@ public class IoUtilTest {
 	@Test
 	public void testFilename() {
 		assertNull(IoUtil.fileName(null));
-		assertThat(IoUtil.fileName(Path.of("/")), is(""));
-		assertThat(IoUtil.fileName(Path.of("")), is(""));
-		assertThat(IoUtil.fileName(Path.of("/a")), is("a"));
-		assertThat(IoUtil.fileName(Path.of("/a/b")), is("b"));
-		assertThat(IoUtil.fileName(Path.of("a")), is("a"));
-		assertThat(IoUtil.fileName(Path.of("a/b")), is("b"));
+		assertEquals(IoUtil.fileName(Path.of("/")), "");
+		assertEquals(IoUtil.fileName(Path.of("")), "");
+		assertEquals(IoUtil.fileName(Path.of("/a")), "a");
+		assertEquals(IoUtil.fileName(Path.of("/a/b")), "b");
+		assertEquals(IoUtil.fileName(Path.of("a")), "a");
+		assertEquals(IoUtil.fileName(Path.of("a/b")), "b");
 	}
 
 	@Test
 	public void testFileNameWithoutExt() {
 		assertNull(IoUtil.fileNameWithoutExt(null));
-		assertThat(IoUtil.fileNameWithoutExt(Path.of("/")), is(""));
-		assertThat(IoUtil.fileNameWithoutExt(Path.of("")), is(""));
-		assertThat(IoUtil.fileNameWithoutExt(Path.of(".file")), is(".file"));
-		assertThat(IoUtil.fileNameWithoutExt(Path.of("/a")), is("a"));
-		assertThat(IoUtil.fileNameWithoutExt(Path.of("/a.txt")), is("a"));
-		assertThat(IoUtil.fileNameWithoutExt(Path.of("a.b.c")), is("a.b"));
+		assertEquals(IoUtil.fileNameWithoutExt(Path.of("/")), "");
+		assertEquals(IoUtil.fileNameWithoutExt(Path.of("")), "");
+		assertEquals(IoUtil.fileNameWithoutExt(Path.of(".file")), ".file");
+		assertEquals(IoUtil.fileNameWithoutExt(Path.of("/a")), "a");
+		assertEquals(IoUtil.fileNameWithoutExt(Path.of("/a.txt")), "a");
+		assertEquals(IoUtil.fileNameWithoutExt(Path.of("a.b.c")), "a.b");
 	}
 
 	@Test
 	public void testExtension() {
 		assertNull(IoUtil.extension(null));
-		assertThat(IoUtil.extension(Path.of("/")), is(""));
-		assertThat(IoUtil.extension(Path.of("")), is(""));
-		assertThat(IoUtil.extension(Path.of(".file")), is(""));
-		assertThat(IoUtil.extension(Path.of("/a")), is(""));
-		assertThat(IoUtil.extension(Path.of("/a.txt")), is("txt"));
-		assertThat(IoUtil.extension(Path.of("a.b.c")), is("c"));
+		assertEquals(IoUtil.extension(Path.of("/")), "");
+		assertEquals(IoUtil.extension(Path.of("")), "");
+		assertEquals(IoUtil.extension(Path.of(".file")), "");
+		assertEquals(IoUtil.extension(Path.of("/a")), "");
+		assertEquals(IoUtil.extension(Path.of("/a.txt")), "txt");
+		assertEquals(IoUtil.extension(Path.of("a.b.c")), "c");
 	}
 
 	@Test
@@ -341,7 +340,7 @@ public class IoUtilTest {
 	public void testExecOrClose() throws IOException {
 		InputStream in = Mockito.mock(InputStream.class);
 		when(in.read()).thenReturn(-1);
-		assertThat(IoUtil.execOrClose(in, InputStream::read), is(in));
+		assertEquals(IoUtil.execOrClose(in, InputStream::read), in);
 		when(in.read()).thenThrow(IOException.class);
 		assertThrown(() -> IoUtil.execOrClose(in, InputStream::read));
 		verify(in).close();
@@ -368,7 +367,7 @@ public class IoUtilTest {
 	public void testPollString() throws IOException {
 		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
 			String s = IoUtil.pollString(in);
-			assertThat(s, is("test"));
+			assertEquals(s, "test");
 		}
 	}
 
@@ -377,16 +376,16 @@ public class IoUtilTest {
 	public void testAvailableChar() throws IOException {
 		try (SystemIo sys = SystemIo.of()) {
 			sys.in(new ByteArrayInputStream("test".getBytes()));
-			assertThat(IoUtil.availableChar(), is('t'));
-			assertThat(IoUtil.availableChar(), is('e'));
-			assertThat(IoUtil.availableChar(), is('s'));
-			assertThat(IoUtil.availableChar(), is('t'));
+			assertEquals(IoUtil.availableChar(), 't');
+			assertEquals(IoUtil.availableChar(), 'e');
+			assertEquals(IoUtil.availableChar(), 's');
+			assertEquals(IoUtil.availableChar(), 't');
 			sys.in().close();
-			assertThat(IoUtil.availableChar(), is('\0'));
+			assertEquals(IoUtil.availableChar(), '\0');
 		}
 		try (InputStream in = Mockito.mock(InputStream.class)) {
 			doThrow(new IOException()).when(in).available();
-			assertThat(IoUtil.availableChar(in), is('\0'));
+			assertEquals(IoUtil.availableChar(in), '\0');
 		}
 	}
 
@@ -394,8 +393,8 @@ public class IoUtilTest {
 	public void testAvailableString() throws IOException {
 		assertNull(IoUtil.availableString(null));
 		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
-			assertThat(IoUtil.availableString(in), is("test"));
-			assertThat(IoUtil.availableString(in), is(""));
+			assertEquals(IoUtil.availableString(in), "test");
+			assertEquals(IoUtil.availableString(in), "");
 		}
 	}
 
@@ -403,21 +402,21 @@ public class IoUtilTest {
 	public void testAvailableBytes() throws IOException {
 		assertNull(IoUtil.availableBytes(null));
 		try (InputStream in = new ByteArrayInputStream(ArrayUtil.bytes(0, 1, 2, 3, 4))) {
-			assertThat(IoUtil.availableBytes(in), is(ByteArray.Immutable.wrap(0, 1, 2, 3, 4)));
-			assertThat(IoUtil.availableBytes(in), is(ByteProvider.empty()));
+			assertEquals(IoUtil.availableBytes(in), ByteArray.Immutable.wrap(0, 1, 2, 3, 4));
+			assertEquals(IoUtil.availableBytes(in), ByteProvider.empty());
 		}
 		try (InputStream in = Mockito.mock(InputStream.class)) {
 			when(in.available()).thenReturn(5);
 			when(in.read(any())).thenReturn(0);
-			assertThat(IoUtil.availableBytes(in), is(ByteProvider.empty()));
+			assertEquals(IoUtil.availableBytes(in), ByteProvider.empty());
 		}
 	}
 
 	@Test
 	public void testReadBytes() throws IOException {
-		assertThat(IoUtil.readBytes(null, null), is(0));
+		assertEquals(IoUtil.readBytes(null, null), 0);
 		try (InputStream in = new ByteArrayInputStream(ArrayUtil.bytes(0, 1, 2, 3, 4))) {
-			assertThat(IoUtil.readBytes(in, null), is(0));
+			assertEquals(IoUtil.readBytes(in, null), 0);
 			byte[] buffer = new byte[4];
 			IoUtil.readBytes(in, buffer);
 			assertArray(buffer, 0, 1, 2, 3);
@@ -430,25 +429,25 @@ public class IoUtilTest {
 		try (var in = IoStreamUtil.in((Read) null, () -> available[0])) {
 			assertThrown(IoTimeoutException.class, () -> IoUtil.pollForData(in, 1, 1, 1));
 			available[0] = 3;
-			assertThat(IoUtil.pollForData(in, 1, 0, 1), is(3));
+			assertEquals(IoUtil.pollForData(in, 1, 0, 1), 3);
 		}
 	}
 
 	@Test
 	public void testPathToUnix() {
-		assertThat(IoUtil.pathToUnix(Path.of("a", "b", "c")), is("a/b/c"));
-		assertThat(IoUtil.pathToUnix(Path.of("")), is(""));
+		assertEquals(IoUtil.pathToUnix(Path.of("a", "b", "c")), "a/b/c");
+		assertEquals(IoUtil.pathToUnix(Path.of("")), "");
 	}
 
 	@Test
 	public void testUnixToPath() {
 		String path = "a" + File.separatorChar + "b" + File.separatorChar + "c";
-		assertThat(IoUtil.unixToPath("a/b/c"), is(path));
+		assertEquals(IoUtil.unixToPath("a/b/c"), path);
 	}
 
 	@Test
 	public void testConvertPath() {
-		assertThat(IoUtil.convertPath("a\\b\\c", '\\', '/'), is("a/b/c"));
+		assertEquals(IoUtil.convertPath("a\\b\\c", '\\', '/'), "a/b/c");
 	}
 
 	@SuppressWarnings("resource")
@@ -539,7 +538,7 @@ public class IoUtilTest {
 	public void testReadString() throws IOException {
 		@SuppressWarnings("resource")
 		InputStream in = inputStream("abc\0");
-		assertThat(IoUtil.readString(in), is("abc\0"));
+		assertEquals(IoUtil.readString(in), "abc\0");
 	}
 
 	@Test
@@ -580,7 +579,7 @@ public class IoUtilTest {
 			Path toFile = helper.path("x/x/x.txt");
 			try (InputStream in = Files.newInputStream(fromFile)) {
 				long n = IoUtil.copy(in, toFile);
-				assertThat(n, is(3L));
+				assertEquals(n, 3L);
 				assertFile(fromFile, toFile);
 			}
 		} finally {
@@ -592,7 +591,7 @@ public class IoUtilTest {
 	public void testCopyWithBadInput() throws IOException {
 		try {
 			@SuppressWarnings("resource")
-			InputStream badIn = IoStreamUtil.in(TestUtil::throwIo);
+			InputStream badIn = IoStreamUtil.in(AssertUtil::throwIo);
 			Path toFile2 = helper.path("x/y/z.txt");
 			assertThrown(() -> IoUtil.copy(badIn, toFile2));
 			assertFalse(Files.exists(helper.path("x/y")));
@@ -660,7 +659,7 @@ public class IoUtilTest {
 	@Test
 	public void testResourceString() throws IOException {
 		String s = IoUtil.resourceString(getClass(), getClass().getSimpleName() + ".properties");
-		assertThat(s, is("a=b"));
+		assertEquals(s, "a=b");
 	}
 
 	private void assertStreamHelperPaths(WrappedStream<IOException, Path> actual, String... paths)

@@ -148,7 +148,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 				initSerialPort();
 				break;
 			} catch (IOException e) {
-				if (exceptions.add(e)) logger.error("Failed to fix connection, retrying:", e);
+				if (exceptions.add(e)) logger.error("Failed to fix connection, retrying: {}", e);
 				ConcurrentUtil.delay(config.fixRetryDelayMs);
 			}
 		}

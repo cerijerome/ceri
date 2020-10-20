@@ -1,8 +1,8 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.x10.command.FunctionType.dim;
 import static ceri.x10.command.FunctionType.off;

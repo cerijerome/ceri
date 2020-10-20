@@ -1,7 +1,6 @@
 package ceri.process.util;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -26,7 +25,7 @@ public class ProcessTestUtil {
 		throws IOException {
 		ArgumentCaptor<Parameters> captor = ArgumentCaptor.forClass(Parameters.class);
 		verify(mockProcessor, times(1)).exec(captor.capture());
-		assertThat(captor.getValue(), is(Parameters.ofAll(params)));
+		assertEquals(captor.getValue(), Parameters.ofAll(params));
 	}
 
 }

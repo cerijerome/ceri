@@ -1,11 +1,9 @@
 package ceri.common.data;
 
 import static ceri.common.data.MaskTranscoder.mask;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class IntAccessorBehavior {
 
@@ -24,14 +22,14 @@ public class IntAccessorBehavior {
 
 	@Test
 	public void shouldFailForNullAccessors() {
-		TestUtil.assertThrown(() -> IntAccessor.of(null, null).get());
-		TestUtil.assertThrown(() -> IntAccessor.of(null, null).set(0));
+		assertThrown(() -> IntAccessor.of(null, null).get());
+		assertThrown(() -> IntAccessor.of(null, null).set(0));
 	}
 
 	@Test
 	public void shouldFailForNullTypedAccessors() {
-		TestUtil.assertThrown(() -> IntAccessor.typed(null, null).get(""));
-		TestUtil.assertThrown(() -> IntAccessor.typed(null, null).set("", 0));
+		assertThrown(() -> IntAccessor.typed(null, null).get(""));
+		assertThrown(() -> IntAccessor.typed(null, null).set("", 0));
 	}
 
 	@Test
@@ -40,7 +38,7 @@ public class IntAccessorBehavior {
 		IntAccessor iAcc = Holder.iAcc.from(h);
 		iAcc.set(0x1234);
 		iAcc.mask(0xff00).set(0xabcd);
-		assertThat(h.iVal, is(0xab34));
+		assertEquals(h.iVal, 0xab34);
 	}
 
 	@Test
@@ -48,7 +46,7 @@ public class IntAccessorBehavior {
 		Holder h = new Holder();
 		IntAccessor iAcc = Holder.iAcc.from(h);
 		iAcc.set(0x123456);
-		assertThat(iAcc.mask(0xff00).get(), is(0x3400));
+		assertEquals(iAcc.mask(0xff00).get(), 0x3400);
 	}
 
 	@Test
@@ -57,7 +55,7 @@ public class IntAccessorBehavior {
 		IntAccessor iAcc = Holder.iAcc.from(h);
 		iAcc.set(0x1234);
 		iAcc.add(0x4321);
-		assertThat(h.iVal, is(0x5335));
+		assertEquals(h.iVal, 0x5335);
 	}
 
 	@Test
@@ -66,14 +64,14 @@ public class IntAccessorBehavior {
 		IntAccessor iAcc = Holder.iAcc.from(h);
 		iAcc.set(0x1234);
 		iAcc.remove(0x4321);
-		assertThat(h.iVal, is(0x1014));
+		assertEquals(h.iVal, 0x1014);
 	}
 
 	@Test
 	public void shouldProvideGetOnlyAccess() {
 		int[] x = { 7 };
 		IntAccessor accessor = IntAccessor.getter(() -> x[0]);
-		assertThat(accessor.get(), is(7));
+		assertEquals(accessor.get(), 7);
 		assertThrown(() -> accessor.set(0));
 	}
 
@@ -82,7 +80,7 @@ public class IntAccessorBehavior {
 		int[] x = { 7 };
 		IntAccessor accessor = IntAccessor.setter(i -> x[0] = i);
 		accessor.set(0);
-		assertThat(x[0], is(0));
+		assertEquals(x[0], 0);
 		assertThrown(() -> accessor.get());
 	}
 
@@ -90,18 +88,18 @@ public class IntAccessorBehavior {
 	public void shouldAddTypedValues() {
 		Holder h = new Holder();
 		Holder.iAcc.set(h, 0x1200);
-		assertThat(h.iVal, is(0x1200));
+		assertEquals(h.iVal, 0x1200);
 		Holder.iAcc.add(h, 0x0034);
-		assertThat(h.iVal, is(0x1234));
+		assertEquals(h.iVal, 0x1234);
 	}
 
 	@Test
 	public void shouldRemoveTypedValues() {
 		Holder h = new Holder();
 		Holder.iAcc.set(h, 0x1234);
-		assertThat(h.iVal, is(0x1234));
+		assertEquals(h.iVal, 0x1234);
 		Holder.iAcc.remove(h, 0x0034);
-		assertThat(h.iVal, is(0x1200));
+		assertEquals(h.iVal, 0x1200);
 	}
 
 	@Test
@@ -109,44 +107,44 @@ public class IntAccessorBehavior {
 		Holder h = new Holder();
 		Holder.iAcc.set(h, 0x1234);
 		Holder.iAcc.mask(mask(0xff00, 0)).set(h, 0xabcd);
-		assertThat(h.iVal, is(0xab34));
+		assertEquals(h.iVal, 0xab34);
 	}
 
 	@Test
 	public void shouldGetMaskedTypeValues() {
 		Holder h = new Holder();
 		Holder.iAcc.set(h, 0x123456);
-		assertThat(Holder.iAcc.mask(mask(0xff00, 0)).get(h), is(0x3400));
+		assertEquals(Holder.iAcc.mask(mask(0xff00, 0)).get(h), 0x3400);
 	}
 
 	@Test
 	public void shouldAccessIntegerFields() {
 		Holder h = new Holder();
 		Holder.iAcc.set(h, 0xff);
-		assertThat(h.iVal, is(0xff));
-		assertThat(Holder.iAcc.get(h), is(0xff));
+		assertEquals(h.iVal, 0xff);
+		assertEquals(Holder.iAcc.get(h), 0xff);
 		IntAccessor.Typed<Holder> iAcc = IntAccessor.typed(t -> t.iVal, null);
-		assertThat(iAcc.get(h), is(0xff));
+		assertEquals(iAcc.get(h), 0xff);
 	}
 
 	@Test
 	public void shouldAccessShortFields() {
 		Holder h = new Holder();
 		Holder.sAcc.set(h, 0xffff);
-		assertThat(h.sVal, is((short) -1));
-		assertThat(Holder.sAcc.get(h), is(0xffff));
+		assertEquals(h.sVal, (short) -1);
+		assertEquals(Holder.sAcc.get(h), 0xffff);
 		IntAccessor.Typed<Holder> sAcc = IntAccessor.typedUshort(t -> t.sVal, null);
-		assertThat(sAcc.get(h), is(0xffff));
+		assertEquals(sAcc.get(h), 0xffff);
 	}
 
 	@Test
 	public void shouldAccessByteFields() {
 		Holder h = new Holder();
 		Holder.bAcc.set(h, 0xff);
-		assertThat(h.bVal, is((byte) -1));
-		assertThat(Holder.bAcc.get(h), is(0xff));
+		assertEquals(h.bVal, (byte) -1);
+		assertEquals(Holder.bAcc.get(h), 0xff);
 		IntAccessor.Typed<Holder> bAcc = IntAccessor.typedUbyte(t -> t.bVal, null);
-		assertThat(bAcc.get(h), is(0xff));
+		assertEquals(bAcc.get(h), 0xff);
 	}
 
 	@Test
@@ -164,12 +162,12 @@ public class IntAccessorBehavior {
 		b.set(0xff);
 		assertThrown(() -> b.set(0x100));
 		assertThrown(() -> b.set(-1));
-		assertThat(h.iVal, is(0xffffff));
-		assertThat(h.sVal, is((short) -1));
-		assertThat(h.bVal, is((byte) -1));
-		assertThat(i.get(), is(0xffffff));
-		assertThat(s.get(), is(0xffff));
-		assertThat(b.get(), is(0xff));
+		assertEquals(h.iVal, 0xffffff);
+		assertEquals(h.sVal, (short) -1);
+		assertEquals(h.bVal, (byte) -1);
+		assertEquals(i.get(), 0xffffff);
+		assertEquals(s.get(), 0xffff);
+		assertEquals(b.get(), 0xff);
 	}
 
 }

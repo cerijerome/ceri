@@ -1,71 +1,71 @@
 package ceri.common.log;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 
 public class LevelBehavior {
 
 	@Test
 	public void shouldNotValidateLevelOfNone() {
-		assertThat(Level.NONE.valid(Level.NONE), is(false));
-		assertThat(Level.NONE.valid(Level.ALL), is(false));
-		assertThat(Level.NONE.valid(Level.TRACE), is(false));
-		assertThat(Level.NONE.valid(Level.DEBUG), is(false));
-		assertThat(Level.NONE.valid(Level.INFO), is(false));
-		assertThat(Level.NONE.valid(Level.WARN), is(false));
-		assertThat(Level.NONE.valid(Level.ERROR), is(false));
-		assertThat(Level.TRACE.valid(Level.NONE), is(false));
-		assertThat(Level.DEBUG.valid(Level.NONE), is(false));
-		assertThat(Level.INFO.valid(Level.NONE), is(false));
-		assertThat(Level.WARN.valid(Level.NONE), is(false));
-		assertThat(Level.ERROR.valid(Level.NONE), is(false));
+		assertFalse(Level.NONE.valid(Level.NONE));
+		assertFalse(Level.NONE.valid(Level.ALL));
+		assertFalse(Level.NONE.valid(Level.TRACE));
+		assertFalse(Level.NONE.valid(Level.DEBUG));
+		assertFalse(Level.NONE.valid(Level.INFO));
+		assertFalse(Level.NONE.valid(Level.WARN));
+		assertFalse(Level.NONE.valid(Level.ERROR));
+		assertFalse(Level.TRACE.valid(Level.NONE));
+		assertFalse(Level.DEBUG.valid(Level.NONE));
+		assertFalse(Level.INFO.valid(Level.NONE));
+		assertFalse(Level.WARN.valid(Level.NONE));
+		assertFalse(Level.ERROR.valid(Level.NONE));
 	}
 
 	@Test
 	public void shouldValidateLevelOfAllExceptNone() {
-		assertThat(Level.ALL.valid(Level.NONE), is(false));
-		assertThat(Level.ALL.valid(Level.ALL), is(true));
-		assertThat(Level.ALL.valid(Level.TRACE), is(true));
-		assertThat(Level.ALL.valid(Level.DEBUG), is(true));
-		assertThat(Level.ALL.valid(Level.INFO), is(true));
-		assertThat(Level.ALL.valid(Level.WARN), is(true));
-		assertThat(Level.ALL.valid(Level.ERROR), is(true));
-		assertThat(Level.TRACE.valid(Level.ALL), is(true));
-		assertThat(Level.DEBUG.valid(Level.ALL), is(true));
-		assertThat(Level.INFO.valid(Level.ALL), is(true));
-		assertThat(Level.WARN.valid(Level.ALL), is(true));
-		assertThat(Level.ERROR.valid(Level.ALL), is(true));
+		assertFalse(Level.ALL.valid(Level.NONE));
+		assertTrue(Level.ALL.valid(Level.ALL));
+		assertTrue(Level.ALL.valid(Level.TRACE));
+		assertTrue(Level.ALL.valid(Level.DEBUG));
+		assertTrue(Level.ALL.valid(Level.INFO));
+		assertTrue(Level.ALL.valid(Level.WARN));
+		assertTrue(Level.ALL.valid(Level.ERROR));
+		assertTrue(Level.TRACE.valid(Level.ALL));
+		assertTrue(Level.DEBUG.valid(Level.ALL));
+		assertTrue(Level.INFO.valid(Level.ALL));
+		assertTrue(Level.WARN.valid(Level.ALL));
+		assertTrue(Level.ERROR.valid(Level.ALL));
 	}
 
 	@Test
 	public void shouldValidateLevelByComparison() {
-		assertThat(Level.TRACE.valid(null), is(false));
-		assertThat(Level.TRACE.valid(Level.TRACE), is(true));
-		assertThat(Level.TRACE.valid(Level.DEBUG), is(true));
-		assertThat(Level.TRACE.valid(Level.INFO), is(true));
-		assertThat(Level.TRACE.valid(Level.WARN), is(true));
-		assertThat(Level.TRACE.valid(Level.ERROR), is(true));
-		assertThat(Level.DEBUG.valid(Level.TRACE), is(false));
-		assertThat(Level.DEBUG.valid(Level.DEBUG), is(true));
-		assertThat(Level.DEBUG.valid(Level.INFO), is(true));
-		assertThat(Level.DEBUG.valid(Level.WARN), is(true));
-		assertThat(Level.DEBUG.valid(Level.ERROR), is(true));
-		assertThat(Level.INFO.valid(Level.TRACE), is(false));
-		assertThat(Level.INFO.valid(Level.DEBUG), is(false));
-		assertThat(Level.INFO.valid(Level.INFO), is(true));
-		assertThat(Level.INFO.valid(Level.WARN), is(true));
-		assertThat(Level.INFO.valid(Level.ERROR), is(true));
-		assertThat(Level.WARN.valid(Level.TRACE), is(false));
-		assertThat(Level.WARN.valid(Level.DEBUG), is(false));
-		assertThat(Level.WARN.valid(Level.INFO), is(false));
-		assertThat(Level.WARN.valid(Level.WARN), is(true));
-		assertThat(Level.WARN.valid(Level.ERROR), is(true));
-		assertThat(Level.ERROR.valid(Level.TRACE), is(false));
-		assertThat(Level.ERROR.valid(Level.DEBUG), is(false));
-		assertThat(Level.ERROR.valid(Level.INFO), is(false));
-		assertThat(Level.ERROR.valid(Level.WARN), is(false));
-		assertThat(Level.ERROR.valid(Level.ERROR), is(true));
+		assertFalse(Level.TRACE.valid(null));
+		assertTrue(Level.TRACE.valid(Level.TRACE));
+		assertTrue(Level.TRACE.valid(Level.DEBUG));
+		assertTrue(Level.TRACE.valid(Level.INFO));
+		assertTrue(Level.TRACE.valid(Level.WARN));
+		assertTrue(Level.TRACE.valid(Level.ERROR));
+		assertFalse(Level.DEBUG.valid(Level.TRACE));
+		assertTrue(Level.DEBUG.valid(Level.DEBUG));
+		assertTrue(Level.DEBUG.valid(Level.INFO));
+		assertTrue(Level.DEBUG.valid(Level.WARN));
+		assertTrue(Level.DEBUG.valid(Level.ERROR));
+		assertFalse(Level.INFO.valid(Level.TRACE));
+		assertFalse(Level.INFO.valid(Level.DEBUG));
+		assertTrue(Level.INFO.valid(Level.INFO));
+		assertTrue(Level.INFO.valid(Level.WARN));
+		assertTrue(Level.INFO.valid(Level.ERROR));
+		assertFalse(Level.WARN.valid(Level.TRACE));
+		assertFalse(Level.WARN.valid(Level.DEBUG));
+		assertFalse(Level.WARN.valid(Level.INFO));
+		assertTrue(Level.WARN.valid(Level.WARN));
+		assertTrue(Level.WARN.valid(Level.ERROR));
+		assertFalse(Level.ERROR.valid(Level.TRACE));
+		assertFalse(Level.ERROR.valid(Level.DEBUG));
+		assertFalse(Level.ERROR.valid(Level.INFO));
+		assertFalse(Level.ERROR.valid(Level.WARN));
+		assertTrue(Level.ERROR.valid(Level.ERROR));
 	}
 
 }

@@ -1,7 +1,7 @@
 package ceri.common.color;
 
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import org.junit.Test;
 
 public class BiasesTest {

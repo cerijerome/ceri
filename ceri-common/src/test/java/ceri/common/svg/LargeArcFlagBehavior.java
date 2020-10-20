@@ -1,8 +1,7 @@
 package ceri.common.svg;
 
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEnum;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,8 +14,8 @@ public class LargeArcFlagBehavior {
 
 	@Test
 	public void shouldReverse() {
-		assertThat(LargeArcFlag.large.reverse(), is(LargeArcFlag.small));
-		assertThat(LargeArcFlag.small.reverse(), is(LargeArcFlag.large));
+		assertEquals(LargeArcFlag.large.reverse(), LargeArcFlag.small);
+		assertEquals(LargeArcFlag.small.reverse(), LargeArcFlag.large);
 	}
 
 }

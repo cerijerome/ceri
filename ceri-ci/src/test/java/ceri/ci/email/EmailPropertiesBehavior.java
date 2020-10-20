@@ -1,7 +1,7 @@
 package ceri.ci.email;
 
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,16 +27,16 @@ public class EmailPropertiesBehavior {
 	@Test
 	public void shouldReadValuesWithPrefix() {
 		EmailProperties email = new EmailProperties(new BaseProperties(props) {}, "x");
-		assertThat(email.enabled(), is(true));
-		assertThat(email.host(), is("host"));
-		assertThat(email.account(), is("account"));
-		assertThat(email.folder(), is("folder"));
-		assertThat(email.maxLookBackMs(), is(1000L));
-		assertThat(email.password(), is("password"));
-		assertThat(email.pollMs(), is(777L));
-		assertThat(email.protocol(), is("protocol"));
-		assertThat(email.sentDateBufferMs(), is(999L));
-		assertThat(email.shutdownTimeoutMs(), is(111L));
+		assertTrue(email.enabled());
+		assertEquals(email.host(), "host");
+		assertEquals(email.account(), "account");
+		assertEquals(email.folder(), "folder");
+		assertEquals(email.maxLookBackMs(), 1000L);
+		assertEquals(email.password(), "password");
+		assertEquals(email.pollMs(), 777L);
+		assertEquals(email.protocol(), "protocol");
+		assertEquals(email.sentDateBufferMs(), 999L);
+		assertEquals(email.shutdownTimeoutMs(), 111L);
 	}
 
 }

@@ -1,11 +1,10 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class IntTypeValueBehavior {
@@ -39,39 +38,39 @@ public class IntTypeValueBehavior {
 
 	@Test
 	public void shouldProvideSubValue() {
-		assertThat(IntTypeValue.of(1, null, "one").subValue(), is(0));
-		assertThat(IntTypeValue.of(1, null, "one", 1).subValue(), is(1));
+		assertEquals(IntTypeValue.of(1, null, "one").subValue(), 0);
+		assertEquals(IntTypeValue.of(1, null, "one", 1).subValue(), 1);
 	}
 
 	@Test
 	public void shouldProvideCastValues() {
-		assertThat(IntTypeValue.of(0xffff, E.one, null).value(), is(0xffff));
-		assertThat(IntTypeValue.of(0xffff, E.one, null).byteValue(), is((byte) -1));
-		assertThat(IntTypeValue.of(0xffff, E.one, null).shortValue(), is((short) -1));
+		assertEquals(IntTypeValue.of(0xffff, E.one, null).value(), 0xffff);
+		assertEquals(IntTypeValue.of(0xffff, E.one, null).byteValue(), (byte) -1);
+		assertEquals(IntTypeValue.of(0xffff, E.one, null).shortValue(), (short) -1);
 	}
 
 	@Test
 	public void shouldReturnName() {
-		assertThat(IntTypeValue.of(1, E.one, null).name(), is("one"));
-		assertThat(IntTypeValue.of(1, E.one, "ONE").name(), is("one"));
-		assertThat(IntTypeValue.of(1, null, "ONE").name(), is("ONE"));
+		assertEquals(IntTypeValue.of(1, E.one, null).name(), "one");
+		assertEquals(IntTypeValue.of(1, E.one, "ONE").name(), "one");
+		assertEquals(IntTypeValue.of(1, null, "ONE").name(), "ONE");
 		assertNull(IntTypeValue.of(1, null, null).name());
 	}
 
 	@Test
 	public void shouldProvideCompactFormat() {
-		assertThat(IntTypeValue.ofUint(255, E.ten, null).compact(), is("ten"));
-		assertThat(IntTypeValue.ofUint(255, E.ten, null, 1).compact(), is("ten(0x1)"));
-		assertThat(IntTypeValue.ofUbyte(255, null, "test").compact(), is("test(0xff)"));
+		assertEquals(IntTypeValue.ofUint(255, E.ten, null).compact(), "ten");
+		assertEquals(IntTypeValue.ofUint(255, E.ten, null, 1).compact(), "ten(0x1)");
+		assertEquals(IntTypeValue.ofUbyte(255, null, "test").compact(), "test(0xff)");
 	}
 
 	@Test
 	public void shouldFormatValue() {
-		assertThat(IntTypeValue.ofUbyte(255, E.ten, null).toString(), is("ten(0xff)"));
-		assertThat(IntTypeValue.ofUbyte(256, E.ten, null, 255).toString(), is("ten(0x00:0xff)"));
-		assertThat(IntTypeValue.ofUshort(256, E.ten, null).toString(), is("ten(0x0100)"));
-		assertThat(IntTypeValue.ofUshort(256, E.ten, null, 1).toString(), is("ten(0x0100:0x0001)"));
-		assertThat(IntTypeValue.ofUint(256, E.ten, null).toString(), is("ten(0x100)"));
+		assertEquals(IntTypeValue.ofUbyte(255, E.ten, null).toString(), "ten(0xff)");
+		assertEquals(IntTypeValue.ofUbyte(256, E.ten, null, 255).toString(), "ten(0x00:0xff)");
+		assertEquals(IntTypeValue.ofUshort(256, E.ten, null).toString(), "ten(0x0100)");
+		assertEquals(IntTypeValue.ofUshort(256, E.ten, null, 1).toString(), "ten(0x0100:0x0001)");
+		assertEquals(IntTypeValue.ofUint(256, E.ten, null).toString(), "ten(0x100)");
 	}
 
 	@Test

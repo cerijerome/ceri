@@ -1,11 +1,12 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertStream;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertStream;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.CoreMatchers.is;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -14,7 +15,7 @@ import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteProvider.Reader;
 import ceri.common.data.ByteReceiverBehavior.Holder;
-import ceri.common.test.Capturer;
+import ceri.common.test.Captor;
 
 public class ByteProviderBehavior {
 	private static final boolean msb = ByteUtil.BIG_ENDIAN;
@@ -27,14 +28,14 @@ public class ByteProviderBehavior {
 
 	@Test
 	public void shouldProvideAnEmptyInstance() {
-		assertThat(ByteProvider.empty().length(), is(0));
-		assertThat(ByteProvider.empty().isEmpty(), is(true));
+		assertEquals(ByteProvider.empty().length(), 0);
+		assertTrue(ByteProvider.empty().isEmpty());
 		assertThrown(() -> ByteProvider.empty().getByte(0));
 	}
 
 	@Test
 	public void shouldIterateValues() {
-		Capturer.Int captor = Capturer.ofInt();
+		Captor.Int captor = Captor.ofInt();
 		for (int i : ByteProvider.empty())
 			captor.accept(i);
 		captor.verifyInt();
@@ -45,70 +46,70 @@ public class ByteProviderBehavior {
 
 	@Test
 	public void shouldDetermineIfEmpty() {
-		assertThat(bp.isEmpty(), is(false));
-		assertThat(ByteProvider.empty().isEmpty(), is(true));
+		assertFalse(bp.isEmpty());
+		assertTrue(ByteProvider.empty().isEmpty());
 	}
 
 	@Test
 	public void shouldProvidePrimitiveValues() {
-		assertThat(bp.getBool(0), is(false));
-		assertThat(bp.getBool(1), is(true));
-		assertThat(bp.getByte(1), is((byte) -1));
-		assertThat(bp.getByte(2), is((byte) 2));
-		assertThat(bp.getShort(1), is((short) (msb ? 0xff02 : 0x2ff)));
-		assertThat(bp.getInt(2), is(msb ? 0x02fd04fb : 0xfb04fd02));
-		assertThat(bp.getLong(1), is(msb ? 0xff02fd04fb06f908L : 0x8f906fb04fd02ffL));
-		assertThat(bp.getFloat(2), is(Float.intBitsToFloat(msb ? 0x02fd04fb : 0xfb04fd02)));
-		assertThat(bp.getDouble(1),
-			is(Double.longBitsToDouble(msb ? 0xff02fd04fb06f908L : 0x8f906fb04fd02ffL)));
+		assertFalse(bp.getBool(0));
+		assertTrue(bp.getBool(1));
+		assertEquals(bp.getByte(1), (byte) -1);
+		assertEquals(bp.getByte(2), (byte) 2);
+		assertEquals(bp.getShort(1), (short) (msb ? 0xff02 : 0x2ff));
+		assertEquals(bp.getInt(2), msb ? 0x02fd04fb : 0xfb04fd02);
+		assertEquals(bp.getLong(1), msb ? 0xff02fd04fb06f908L : 0x8f906fb04fd02ffL);
+		assertEquals(bp.getFloat(2), Float.intBitsToFloat(msb ? 0x02fd04fb : 0xfb04fd02));
+		assertEquals(bp.getDouble(1),
+			Double.longBitsToDouble(msb ? 0xff02fd04fb06f908L : 0x8f906fb04fd02ffL));
 	}
 
 	@Test
 	public void shouldProvideUnsignedValues() {
-		assertThat(bp.getUbyte(1), is((short) 0xff));
-		assertThat(bp.getUbyte(2), is((short) 2));
-		assertThat(bp.getUshort(1), is(msb ? 0xff02 : 0x2ff));
-		assertThat(bp.getUint(1), is(msb ? 0xff02fd04L : 0x4fd02ffL));
+		assertEquals(bp.getUbyte(1), (short) 0xff);
+		assertEquals(bp.getUbyte(2), (short) 2);
+		assertEquals(bp.getUshort(1), msb ? 0xff02 : 0x2ff);
+		assertEquals(bp.getUint(1), msb ? 0xff02fd04L : 0x4fd02ffL);
 	}
 
 	@Test
 	public void shouldProvideByteAlignedValues() {
-		assertThat(bp.getShortMsb(1), is((short) 0xff02));
-		assertThat(bp.getShortLsb(1), is((short) 0x2ff));
-		assertThat(bp.getIntMsb(2), is(0x02fd04fb));
-		assertThat(bp.getIntLsb(2), is(0xfb04fd02));
-		assertThat(bp.getLongMsb(1), is(0xff02fd04fb06f908L));
-		assertThat(bp.getLongLsb(1), is(0x8f906fb04fd02ffL));
-		assertThat(bp.getFloatMsb(2), is(Float.intBitsToFloat(0x02fd04fb)));
-		assertThat(bp.getFloatLsb(2), is(Float.intBitsToFloat(0xfb04fd02)));
-		assertThat(bp.getDoubleMsb(1), is(Double.longBitsToDouble(0xff02fd04fb06f908L)));
-		assertThat(bp.getDoubleLsb(1), is(Double.longBitsToDouble(0x8f906fb04fd02ffL)));
+		assertEquals(bp.getShortMsb(1), (short) 0xff02);
+		assertEquals(bp.getShortLsb(1), (short) 0x2ff);
+		assertEquals(bp.getIntMsb(2), 0x02fd04fb);
+		assertEquals(bp.getIntLsb(2), 0xfb04fd02);
+		assertEquals(bp.getLongMsb(1), 0xff02fd04fb06f908L);
+		assertEquals(bp.getLongLsb(1), 0x8f906fb04fd02ffL);
+		assertEquals(bp.getFloatMsb(2), Float.intBitsToFloat(0x02fd04fb));
+		assertEquals(bp.getFloatLsb(2), Float.intBitsToFloat(0xfb04fd02));
+		assertEquals(bp.getDoubleMsb(1), Double.longBitsToDouble(0xff02fd04fb06f908L));
+		assertEquals(bp.getDoubleLsb(1), Double.longBitsToDouble(0x8f906fb04fd02ffL));
 	}
 
 	@Test
 	public void shouldProvideByteAlignedUnsignedValues() {
-		assertThat(bp.getUshortMsb(1), is(0xff02));
-		assertThat(bp.getUshortLsb(1), is(0x2ff));
-		assertThat(bp.getUintMsb(2), is(0x02fd04fbL));
-		assertThat(bp.getUintLsb(2), is(0xfb04fd02L));
+		assertEquals(bp.getUshortMsb(1), 0xff02);
+		assertEquals(bp.getUshortLsb(1), 0x2ff);
+		assertEquals(bp.getUintMsb(2), 0x02fd04fbL);
+		assertEquals(bp.getUintLsb(2), 0xfb04fd02L);
 	}
 
 	@Test
 	public void shouldProvideDecodedStrings() {
-		assertThat(provider(ascii).getAscii(0), is("abcde"));
-		assertThat(provider(ascii).getAscii(2, 2), is("cd"));
-		assertThat(provider(utf8).getUtf8(0), is("abcde"));
-		assertThat(provider(utf8).getUtf8(2, 2), is("cd"));
-		assertThat(provider(utf8).getString(0, UTF_8), is("abcde"));
-		assertThat(provider(defCset).getString(0), is("abcde"));
+		assertEquals(provider(ascii).getAscii(0), "abcde");
+		assertEquals(provider(ascii).getAscii(2, 2), "cd");
+		assertEquals(provider(utf8).getUtf8(0), "abcde");
+		assertEquals(provider(utf8).getUtf8(2, 2), "cd");
+		assertEquals(provider(utf8).getString(0, UTF_8), "abcde");
+		assertEquals(provider(defCset).getString(0), "abcde");
 	}
 
 	@Test
 	public void shouldSliceProvidedByteRange() {
-		assertThat(bp.slice(10).isEmpty(), is(true));
+		assertTrue(bp.slice(10).isEmpty());
 		assertArray(bp.slice(5, 0).copy(0));
-		assertThat(bp.slice(0), is(bp));
-		assertThat(bp.slice(0, 10), is(bp));
+		assertEquals(bp.slice(0), bp);
+		assertEquals(bp.slice(0, 10), bp);
 		assertThrown(() -> bp.slice(1, 10));
 		assertThrown(() -> bp.slice(0, 9));
 	}
@@ -122,7 +123,7 @@ public class ByteProviderBehavior {
 	@Test
 	public void shouldCopyToByteArray() {
 		byte[] bytes = new byte[5];
-		assertThat(bp.copyTo(1, bytes), is(6));
+		assertEquals(bp.copyTo(1, bytes), 6);
 		assertArray(bytes, -1, 2, -3, 4, -5);
 		assertThrown(() -> bp.copyTo(6, bytes));
 		assertThrown(() -> bp.copyTo(-1, bytes));
@@ -132,7 +133,7 @@ public class ByteProviderBehavior {
 	@Test
 	public void shouldCopyToReceiver() {
 		Holder h = Holder.of(5);
-		assertThat(bp.copyTo(1, h.receiver), is(6));
+		assertEquals(bp.copyTo(1, h.receiver), 6);
 		assertArray(h.bytes, -1, 2, -3, 4, -5);
 		assertThrown(() -> bp.copyTo(6, h.receiver));
 		assertThrown(() -> bp.copyTo(-1, h.receiver));
@@ -142,10 +143,10 @@ public class ByteProviderBehavior {
 	@Test
 	public void shouldWriteToOutputStream() throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		assertThat(bp.writeTo(5, out), is(10));
+		assertEquals(bp.writeTo(5, out), 10);
 		assertArray(out.toByteArray(), -5, 6, -7, 8, -9);
 		out.reset();
-		assertThat(ByteProvider.writeBufferTo(bp, 5, out, 3), is(8));
+		assertEquals(ByteProvider.writeBufferTo(bp, 5, out, 3), 8);
 		assertArray(out.toByteArray(), -5, 6, -7);
 	}
 
@@ -157,57 +158,57 @@ public class ByteProviderBehavior {
 
 	@Test
 	public void shouldDetermineIfBytesAreEqual() {
-		assertThat(bp.isEqualTo(5, -5, 6, -7, 8, -9), is(true));
-		assertThat(bp.isEqualTo(5, -5, 6, -7, 8, 9), is(false));
+		assertTrue(bp.isEqualTo(5, -5, 6, -7, 8, -9));
+		assertFalse(bp.isEqualTo(5, -5, 6, -7, 8, 9));
 		byte[] bytes = ArrayUtil.bytes(0, -1, 2, -3, 4);
-		assertThat(bp.isEqualTo(0, bytes), is(true));
-		assertThat(bp.isEqualTo(0, bytes, 0, 6), is(false));
-		assertThat(bp.isEqualTo(9, -9, 0), is(false));
+		assertTrue(bp.isEqualTo(0, bytes));
+		assertFalse(bp.isEqualTo(0, bytes, 0, 6));
+		assertFalse(bp.isEqualTo(9, -9, 0));
 	}
 
 	@Test
 	public void shouldDetermineIfProvidedBytesAreEqual() {
-		assertThat(bp.isEqualTo(0, bp), is(true));
-		assertThat(bp.isEqualTo(5, bp, 5), is(true));
-		assertThat(bp.isEqualTo(5, bp, 5, 3), is(true));
-		assertThat(bp.isEqualTo(1, provider(-1, 2, -3)), is(true));
-		assertThat(bp.isEqualTo(1, provider(1, 2, -3)), is(false));
-		assertThat(bp.isEqualTo(0, provider(1, 2, 3), 0, 4), is(false));
-		assertThat(bp.isEqualTo(9, provider(1, 2, 3)), is(false));
+		assertTrue(bp.isEqualTo(0, bp));
+		assertTrue(bp.isEqualTo(5, bp, 5));
+		assertTrue(bp.isEqualTo(5, bp, 5, 3));
+		assertTrue(bp.isEqualTo(1, provider(-1, 2, -3)));
+		assertFalse(bp.isEqualTo(1, provider(1, 2, -3)));
+		assertFalse(bp.isEqualTo(0, provider(1, 2, 3), 0, 4));
+		assertFalse(bp.isEqualTo(9, provider(1, 2, 3)));
 	}
 
 	@Test
 	public void shouldDetermineIndexOfBytes() {
-		assertThat(bp.indexOf(0, -1, 2, -3), is(1));
-		assertThat(bp.indexOf(0, -1, 2, 3), is(-1));
-		assertThat(bp.indexOf(8, -1, 2, -3), is(-1));
-		assertThat(bp.indexOf(0, ArrayUtil.bytes(-1, 2, -3), 0, 4), is(-1));
+		assertEquals(bp.indexOf(0, -1, 2, -3), 1);
+		assertEquals(bp.indexOf(0, -1, 2, 3), -1);
+		assertEquals(bp.indexOf(8, -1, 2, -3), -1);
+		assertEquals(bp.indexOf(0, ArrayUtil.bytes(-1, 2, -3), 0, 4), -1);
 	}
 
 	@Test
 	public void shouldDetermineIndexOfProvidedBytes() {
-		assertThat(bp.indexOf(0, provider(-1, 2, -3)), is(1));
-		assertThat(bp.indexOf(0, provider(-1, 2, 3)), is(-1));
-		assertThat(bp.indexOf(8, provider(-1, 2, -3)), is(-1));
-		assertThat(bp.indexOf(0, provider(-1, 2, -3), 0, 4), is(-1));
+		assertEquals(bp.indexOf(0, provider(-1, 2, -3)), 1);
+		assertEquals(bp.indexOf(0, provider(-1, 2, 3)), -1);
+		assertEquals(bp.indexOf(8, provider(-1, 2, -3)), -1);
+		assertEquals(bp.indexOf(0, provider(-1, 2, -3), 0, 4), -1);
 	}
 
 	@Test
 	public void shouldDetermineLastIndexOfBytes() {
 		ByteProvider bp = provider(0, -1, 2, -1, 0, 2, -1, 0);
-		assertThat(bp.lastIndexOf(0, 2, -1), is(5));
-		assertThat(bp.lastIndexOf(0, 2, 1), is(-1));
-		assertThat(bp.lastIndexOf(7, 0, -1), is(-1));
-		assertThat(bp.lastIndexOf(0, ArrayUtil.bytes(2, -1, 0), 0, 4), is(-1));
+		assertEquals(bp.lastIndexOf(0, 2, -1), 5);
+		assertEquals(bp.lastIndexOf(0, 2, 1), -1);
+		assertEquals(bp.lastIndexOf(7, 0, -1), -1);
+		assertEquals(bp.lastIndexOf(0, ArrayUtil.bytes(2, -1, 0), 0, 4), -1);
 	}
 
 	@Test
 	public void shouldDetermineLastIndexOfProviderBytes() {
 		ByteProvider bp = provider(0, -1, 2, -1, 0, 2, -1, 0);
-		assertThat(bp.lastIndexOf(0, provider(2, -1)), is(5));
-		assertThat(bp.lastIndexOf(0, provider(2, 1)), is(-1));
-		assertThat(bp.lastIndexOf(7, provider(0, -1)), is(-1));
-		assertThat(bp.lastIndexOf(0, provider(2, -1, 0), 0, 4), is(-1));
+		assertEquals(bp.lastIndexOf(0, provider(2, -1)), 5);
+		assertEquals(bp.lastIndexOf(0, provider(2, 1)), -1);
+		assertEquals(bp.lastIndexOf(7, provider(0, -1)), -1);
+		assertEquals(bp.lastIndexOf(0, provider(2, -1, 0), 0, 4), -1);
 	}
 
 	@Test
@@ -223,22 +224,22 @@ public class ByteProviderBehavior {
 
 	@Test
 	public void shouldReadByte() {
-		assertThat(bp.reader(1).readByte(), is((byte) -1));
+		assertEquals(bp.reader(1).readByte(), (byte) -1);
 		assertThrown(() -> bp.reader(1, 0).readByte());
 	}
 
 	@Test
 	public void shouldReadEndian() {
-		assertThat(bp.reader(6).readEndian(3, false), is(0x08f906L));
-		assertThat(bp.reader(6).readEndian(3, true), is(0x06f908L));
+		assertEquals(bp.reader(6).readEndian(3, false), 0x08f906L);
+		assertEquals(bp.reader(6).readEndian(3, true), 0x06f908L);
 	}
 
 	@Test
 	public void shouldReadStrings() {
-		assertThat(provider(ascii).reader(2, 2).readAscii(), is("cd"));
-		assertThat(provider(utf8).reader(1).readUtf8(), is("bcde"));
-		assertThat(provider(defCset).reader(0).readString(), is("abcde"));
-		assertThat(provider(utf8).reader(3).readString(UTF_8), is("de"));
+		assertEquals(provider(ascii).reader(2, 2).readAscii(), "cd");
+		assertEquals(provider(utf8).reader(1).readUtf8(), "bcde");
+		assertEquals(provider(defCset).reader(0).readString(), "abcde");
+		assertEquals(provider(utf8).reader(3).readString(UTF_8), "de");
 	}
 
 	@Test
@@ -259,7 +260,7 @@ public class ByteProviderBehavior {
 	@Test
 	public void shouldTransferToOutputStream() throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		assertThat(bp.reader(4).transferTo(out), is(6));
+		assertEquals(bp.reader(4).transferTo(out), 6);
 		assertArray(out.toByteArray(), 4, -5, 6, -7, 8, -9);
 	}
 
@@ -271,8 +272,8 @@ public class ByteProviderBehavior {
 
 	@Test
 	public void shouldReturnReaderByteProvider() {
-		assertThat(bp.reader(0).provider(), is(bp));
-		assertThat(bp.reader(5, 0).provider().isEmpty(), is(true));
+		assertEquals(bp.reader(0).provider(), bp);
+		assertTrue(bp.reader(5, 0).provider().isEmpty());
 		assertThrown(() -> bp.reader(5).provider()); // slice() fails
 	}
 

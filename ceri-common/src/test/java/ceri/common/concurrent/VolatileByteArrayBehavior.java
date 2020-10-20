@@ -1,8 +1,8 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteArray;
@@ -45,9 +45,9 @@ public class VolatileByteArrayBehavior {
 
 	@Test
 	public void shouldDetermineIfEmpty() {
-		assertThat(VolatileByteArray.of(0).isEmpty(), is(true));
-		assertThat(VolatileByteArray.wrap().isEmpty(), is(true));
-		assertThat(VolatileByteArray.wrap(1).isEmpty(), is(false));
+		assertTrue(VolatileByteArray.of(0).isEmpty());
+		assertTrue(VolatileByteArray.wrap().isEmpty());
+		assertFalse(VolatileByteArray.wrap(1).isEmpty());
 	}
 
 	@Test

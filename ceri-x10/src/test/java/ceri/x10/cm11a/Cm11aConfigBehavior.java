@@ -1,8 +1,8 @@
 package ceri.x10.cm11a;
 
-import static ceri.common.test.TestUtil.assertMatch;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertMatch;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 import ceri.common.io.DeviceMode;
 import ceri.serial.javax.util.SelfHealingSerialConfig;
@@ -12,17 +12,16 @@ public class Cm11aConfigBehavior {
 
 	@Test
 	public void shouldDetermineIfTest() {
-		assertThat(Cm11aConfig.of("com").isTest(), is(false));
-		assertThat(Cm11aConfig.builder().mode(DeviceMode.test).build().isTest(), is(true));
+		assertFalse(Cm11aConfig.of("com").isTest());
+		assertTrue(Cm11aConfig.builder().mode(DeviceMode.test).build().isTest());
 	}
 
 	@Test
 	public void shouldDetermineIfDevice() {
-		assertThat(Cm11aConfig.of("com").isDevice(), is(true));
-		assertThat(Cm11aConfig.builder().device(Cm11aDeviceConfig.DEFAULT).build().isDevice(),
-			is(false));
-		assertThat(Cm11aConfig.builder().mode(DeviceMode.test)
-			.deviceSerial(SelfHealingSerialConfig.of("com")).build().isDevice(), is(false));
+		assertTrue(Cm11aConfig.of("com").isDevice());
+		assertFalse(Cm11aConfig.builder().device(Cm11aDeviceConfig.DEFAULT).build().isDevice());
+		assertFalse(Cm11aConfig.builder().mode(DeviceMode.test)
+			.deviceSerial(SelfHealingSerialConfig.of("com")).build().isDevice());
 	}
 
 	@Test

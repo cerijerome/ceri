@@ -1,6 +1,6 @@
 package ceri.common.svg;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 import ceri.common.geom.Point2d;

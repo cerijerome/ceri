@@ -2,12 +2,11 @@ package ceri.common.process;
 
 import static ceri.common.process.ProcessTestUtil.command;
 import static ceri.common.process.ProcessTestUtil.mockProcess;
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
@@ -44,7 +43,7 @@ public class ProcessorBehavior {
 		Processor p = Processor.builder().timeoutMs(1).captureStdOut(true).verifyErr(false)
 			.verifyExitValue(false).build();
 		ProcessCommand cmd = command(mockProcess("stdout", "stderr", -1, true), "test");
-		assertThat(p.exec(cmd), is("stdout"));
+		assertEquals(p.exec(cmd), "stdout");
 	}
 
 	@Test

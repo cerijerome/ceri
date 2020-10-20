@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.test.TestUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertApprox;
 import org.junit.Test;
 
 public class Radial3dBehavior {

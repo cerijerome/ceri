@@ -1,12 +1,11 @@
 package ceri.common.geom;
 
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.NaN;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 
 public class TruncatedRadial3dBehavior {
@@ -26,8 +25,8 @@ public class TruncatedRadial3dBehavior {
 
 	@Test
 	public void shouldExposeWrappedRadial3d() {
-		assertThat(t0.wrapped(), is(c0));
-		assertThat(t1.wrapped(), is(s0));
+		assertEquals(t0.wrapped(), c0);
+		assertEquals(t1.wrapped(), s0);
 	}
 
 	@Test

@@ -1,14 +1,13 @@
 package ceri.common.property;
 
-import static ceri.common.test.TestUtil.assertIterable;
-import static ceri.common.test.TestUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.assertSame;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertSame;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import java.util.Collection;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class PathFactoryBehavior {
 
@@ -27,44 +26,44 @@ public class PathFactoryBehavior {
 
 	@Test
 	public void shouldReturnParentForPath() {
-		assertThat(PathFactory.dash.parentOf(null), is(PathFactory.dash.emptyPath));
-		assertThat(PathFactory.dash.parentOf(""), is(PathFactory.dash.emptyPath));
+		assertEquals(PathFactory.dash.parentOf(null), PathFactory.dash.emptyPath);
+		assertEquals(PathFactory.dash.parentOf(""), PathFactory.dash.emptyPath);
 	}
 
 	@Test
 	public void shouldReturnOrphanForPath() {
-		assertThat(PathFactory.dash.orphanOf(null), is(PathFactory.dash.emptyPath));
-		assertThat(PathFactory.dash.orphanOf(""), is(PathFactory.dash.emptyPath));
-		assertThat(PathFactory.dash.orphanOf("abc"), is(PathFactory.dash.emptyPath));
+		assertEquals(PathFactory.dash.orphanOf(null), PathFactory.dash.emptyPath);
+		assertEquals(PathFactory.dash.orphanOf(""), PathFactory.dash.emptyPath);
+		assertEquals(PathFactory.dash.orphanOf("abc"), PathFactory.dash.emptyPath);
 	}
 
 	@Test
 	public void shouldReturnFirstPartOfPath() {
-		assertThat(PathFactory.dash.firstPart(null), is(""));
-		assertThat(PathFactory.dash.firstPart(""), is(""));
-		assertThat(PathFactory.dash.firstPart("abc"), is("abc"));
-		assertThat(PathFactory.dash.firstPart("abc-def"), is("abc"));
+		assertEquals(PathFactory.dash.firstPart(null), "");
+		assertEquals(PathFactory.dash.firstPart(""), "");
+		assertEquals(PathFactory.dash.firstPart("abc"), "abc");
+		assertEquals(PathFactory.dash.firstPart("abc-def"), "abc");
 	}
 
 	@Test
 	public void shouldReturnLastPartOfPath() {
-		assertThat(PathFactory.dash.lastPart(null), is(""));
-		assertThat(PathFactory.dash.lastPart(""), is(""));
-		assertThat(PathFactory.dash.lastPart("abc"), is("abc"));
-		assertThat(PathFactory.dash.lastPart("abc-def"), is("def"));
+		assertEquals(PathFactory.dash.lastPart(null), "");
+		assertEquals(PathFactory.dash.lastPart(""), "");
+		assertEquals(PathFactory.dash.lastPart("abc"), "abc");
+		assertEquals(PathFactory.dash.lastPart("abc-def"), "def");
 	}
 
 	@Test
 	public void shouldNotCreateBlankFactory() {
-		TestUtil.assertThrown(() -> PathFactory.create(null));
-		TestUtil.assertThrown(() -> PathFactory.create(""));
+		assertThrown(() -> PathFactory.create(null));
+		assertThrown(() -> PathFactory.create(""));
 	}
 
 	@Test
 	public void shouldCountPathParts() {
 		PathFactory factory = PathFactory.create(" ");
-		assertThat(factory.parts(null), is(0));
-		assertThat(factory.parts(" abc d e "), is(3));
+		assertEquals(factory.parts(null), 0);
+		assertEquals(factory.parts(" abc d e "), 3);
 	}
 
 	@Test
@@ -77,9 +76,8 @@ public class PathFactoryBehavior {
 
 	@Test
 	public void shouldIgnoreBlankParts() {
-		assertThat(PathFactory.dash.path((Collection<String>) null).value, is(""));
-		assertThat(PathFactory.dot.path(null, "", "a", null, "b", "c", "", null).value,
-			is("a.b.c"));
+		assertEquals(PathFactory.dash.path((Collection<String>) null).value, "");
+		assertEquals(PathFactory.dot.path(null, "", "a", null, "b", "c", "", null).value, "a.b.c");
 	}
 
 	@Test

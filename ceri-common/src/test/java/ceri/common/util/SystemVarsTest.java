@@ -1,8 +1,7 @@
 package ceri.common.util;
 
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
@@ -19,8 +18,8 @@ public class SystemVarsTest {
 		String name = TestUtil.firstEnvironmentVariableName();
 		SystemVars.set("!@#$%", "test");
 		var map = SystemVars.env();
-		assertThat(map.get(name), is(System.getenv(name)));
-		assertThat(map.get("!@#$%"), is("test"));
+		assertEquals(map.get(name), System.getenv(name));
+		assertEquals(map.get("!@#$%"), "test");
 	}
 
 	@Test
@@ -28,8 +27,8 @@ public class SystemVarsTest {
 		String name = TestUtil.firstSystemPropertyName();
 		SystemVars.set("!@#$%", "test");
 		var map = SystemVars.sys();
-		assertThat(map.get(name), is(System.getProperty(name)));
-		assertThat(map.get("!@#$%"), is("test"));
+		assertEquals(map.get(name), System.getProperty(name));
+		assertEquals(map.get("!@#$%"), "test");
 	}
 
 	@Test
@@ -37,7 +36,7 @@ public class SystemVarsTest {
 		assertNull(SystemVars.remove(null));
 		assertNull(SystemVars.remove("!@#$%"));
 		assertNull(SystemVars.set("!@#$%", "test"));
-		assertThat(SystemVars.remove("!@#$%"), is("test"));
+		assertEquals(SystemVars.remove("!@#$%"), "test");
 		assertNull(SystemVars.remove("!@#$%"));
 		assertNull(SystemVars.env("!@#$%"));
 		assertNull(SystemVars.sys("!@#$%"));
@@ -46,9 +45,9 @@ public class SystemVarsTest {
 	@Test
 	public void testSetNull() {
 		assertNull(SystemVars.set("!@#$%", "test"));
-		assertThat(SystemVars.env("!@#$%"), is("test"));
-		assertThat(SystemVars.sys("!@#$%"), is("test"));
-		assertThat(SystemVars.set("!@#$%", null), is("test"));
+		assertEquals(SystemVars.env("!@#$%"), "test");
+		assertEquals(SystemVars.sys("!@#$%"), "test");
+		assertEquals(SystemVars.set("!@#$%", null), "test");
 		assertNull(SystemVars.env("!@#$%"));
 		assertNull(SystemVars.sys("!@#$%"));
 	}
@@ -58,7 +57,7 @@ public class SystemVarsTest {
 		String name = TestUtil.firstSystemPropertyName();
 		assertNull(SystemVars.set(name, null));
 		assertNull(SystemVars.sys(name));
-		assertThat(SystemVars.sys(name, "test"), is("test"));
+		assertEquals(SystemVars.sys(name, "test"), "test");
 		var map = SystemVars.sys();
 		assertNull(map.get(name));
 	}
@@ -71,33 +70,33 @@ public class SystemVarsTest {
 		assertNull(SystemVars.set(null, "test"));
 		assertNull(SystemVars.set("!@#$%", null));
 		assertNull(SystemVars.set("!@#$%", "test"));
-		assertThat(SystemVars.set("!@#$%", "test2"), is("test"));
-		assertThat(SystemVars.env("!@#$%"), is("test2"));
-		assertThat(SystemVars.sys("!@#$%"), is("test2"));
+		assertEquals(SystemVars.set("!@#$%", "test2"), "test");
+		assertEquals(SystemVars.env("!@#$%"), "test2");
+		assertEquals(SystemVars.sys("!@#$%"), "test2");
 	}
 
 	@Test
 	public void testEnvWithDefault() {
 		assertNull(SystemVars.env("!@#$%"));
-		assertThat(SystemVars.env("!@#$%", "test"), is("test"));
+		assertEquals(SystemVars.env("!@#$%", "test"), "test");
 	}
 
 	@Test
 	public void testSysWithDefault() {
 		assertNull(SystemVars.sys("!@#$%"));
-		assertThat(SystemVars.sys("!@#$%", "test"), is("test"));
+		assertEquals(SystemVars.sys("!@#$%", "test"), "test");
 	}
 
 	@Test
 	public void testEnvWithoutOverride() {
 		String name = TestUtil.firstEnvironmentVariableName();
-		assertThat(SystemVars.env(name), is(System.getenv(name)));
+		assertEquals(SystemVars.env(name), System.getenv(name));
 	}
 
 	@Test
 	public void testSysWithoutOverride() {
 		String name = TestUtil.firstSystemPropertyName();
-		assertThat(SystemVars.sys(name), is(System.getProperty(name)));
+		assertEquals(SystemVars.sys(name), System.getProperty(name));
 	}
 
 }

@@ -1,10 +1,9 @@
 package ceri.process.scutil;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertApprox;
-import static ceri.common.test.TestUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import java.util.Map;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
@@ -26,12 +25,12 @@ public class NcStatisticsBehavior {
 	@Test
 	public void shouldCreateFromOutput() {
 		NcStatistics ns = NcStatistics.from(output);
-		assertThat(ns.bytesIn(), is(20337));
-		assertThat(ns.bytesOut(), is(16517));
-		assertThat(ns.errorsIn(), is(10));
-		assertThat(ns.errorsOut(), is(0));
-		assertThat(ns.packetsIn(), is(77));
-		assertThat(ns.packetsOut(), is(118));
+		assertEquals(ns.bytesIn(), 20337);
+		assertEquals(ns.bytesOut(), 16517);
+		assertEquals(ns.errorsIn(), 10);
+		assertEquals(ns.errorsOut(), 0);
+		assertEquals(ns.packetsIn(), 77);
+		assertEquals(ns.packetsOut(), 118);
 	}
 
 	@Test

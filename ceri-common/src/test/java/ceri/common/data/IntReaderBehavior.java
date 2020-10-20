@@ -1,11 +1,12 @@
 package ceri.common.data;
 
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertStream;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertStream;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static java.lang.Integer.MIN_VALUE;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.IntArray.Mutable;
@@ -24,35 +25,35 @@ public class IntReaderBehavior {
 
 	@Test
 	public void shouldReadPrimitiveValues() {
-		assertThat(reader(0).readBool(), is(false));
-		assertThat(reader(-1).readBool(), is(true));
-		assertThat(reader(MIN_VALUE).readInt(), is(MIN_VALUE));
-		assertThat(reader(0x807f0001, 0xff000000).readLong(),
-			is(msb ? 0x807f0001ff000000L : 0xff000000807f0001L));
-		assertThat(reader(0x807f0001).readFloat(), is(Float.intBitsToFloat(0x807f0001)));
-		assertThat(reader(0x807f0001, 0xff000000).readDouble(),
-			is(Double.longBitsToDouble(msb ? 0x807f0001ff000000L : 0xff000000807f0001L)));
+		assertFalse(reader(0).readBool());
+		assertTrue(reader(-1).readBool());
+		assertEquals(reader(MIN_VALUE).readInt(), MIN_VALUE);
+		assertEquals(reader(0x807f0001, 0xff000000).readLong(),
+			msb ? 0x807f0001ff000000L : 0xff000000807f0001L);
+		assertEquals(reader(0x807f0001).readFloat(), Float.intBitsToFloat(0x807f0001));
+		assertEquals(reader(0x807f0001, 0xff000000).readDouble(),
+			Double.longBitsToDouble(msb ? 0x807f0001ff000000L : 0xff000000807f0001L));
 	}
 
 	@Test
 	public void shouldReadUnsignedValues() {
-		assertThat(reader(-1).readUint(), is(0xffffffffL));
-		assertThat(reader(MIN_VALUE).readUint(), is(0x80000000L));
+		assertEquals(reader(-1).readUint(), 0xffffffffL);
+		assertEquals(reader(MIN_VALUE).readUint(), 0x80000000L);
 	}
 
 	@Test
 	public void shouldReadIntAlignedValues() {
-		assertThat(reader(0x807f0001, 0xff000000).readLong(true), is(0x807f0001ff000000L));
-		assertThat(reader(0x807f0001, 0xff000000).readLong(false), is(0xff000000807f0001L));
-		assertThat(reader(0x807f0001, 0xff000000).readDouble(true),
-			is(Double.longBitsToDouble(0x807f0001ff000000L)));
-		assertThat(reader(0x807f0001, 0xff000000).readDouble(false),
-			is(Double.longBitsToDouble(0xff000000807f0001L)));
+		assertEquals(reader(0x807f0001, 0xff000000).readLong(true), 0x807f0001ff000000L);
+		assertEquals(reader(0x807f0001, 0xff000000).readLong(false), 0xff000000807f0001L);
+		assertEquals(reader(0x807f0001, 0xff000000).readDouble(true),
+			Double.longBitsToDouble(0x807f0001ff000000L));
+		assertEquals(reader(0x807f0001, 0xff000000).readDouble(false),
+			Double.longBitsToDouble(0xff000000807f0001L));
 	}
 
 	@Test
 	public void shouldProvideDecodedStrings() {
-		assertThat(reader(cp).readString(4), is("abc\ud83c\udc39"));
+		assertEquals(reader(cp).readString(4), "abc\ud83c\udc39");
 	}
 
 	@Test
@@ -65,7 +66,7 @@ public class IntReaderBehavior {
 	@Test
 	public void shouldReadIntoIntArray() {
 		int[] ints = new int[3];
-		assertThat(reader(0, -1, 2, -3, 4).readInto(ints), is(3));
+		assertEquals(reader(0, -1, 2, -3, 4).readInto(ints), 3);
 		assertArray(ints, 0, -1, 2);
 		assertThrown(() -> reader(0, -1, 2, -3, 4).readInto(ints, 1, 3));
 		assertThrown(() -> reader(0, -1).readInto(ints));
@@ -74,7 +75,7 @@ public class IntReaderBehavior {
 	@Test
 	public void shouldReadIntoIntReceiver() {
 		int[] ints = new int[3];
-		assertThat(reader(0, -1, 2, -3, 4).readInto(Mutable.wrap(ints)), is(3));
+		assertEquals(reader(0, -1, 2, -3, 4).readInto(Mutable.wrap(ints)), 3);
 		assertArray(ints, 0, -1, 2);
 		assertThrown(() -> reader(0, -1, 2, -3, 4).readInto(Mutable.wrap(ints), 1, 3));
 		assertThrown(() -> reader(0, -1).readInto(Mutable.wrap(ints)));
@@ -94,7 +95,7 @@ public class IntReaderBehavior {
 
 	private static void assertRemaining(IntReader reader, int... ints) {
 		for (int b : ints)
-			assertThat(reader.readInt(), is(b));
+			assertEquals(reader.readInt(), b);
 		assertThrown(() -> reader.readInt());
 	}
 

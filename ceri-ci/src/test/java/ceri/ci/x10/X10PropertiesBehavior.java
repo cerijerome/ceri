@@ -1,8 +1,8 @@
 package ceri.ci.x10;
 
-import static ceri.common.test.TestUtil.assertCollection;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -26,11 +26,11 @@ public class X10PropertiesBehavior {
 	@Test
 	public void shouldReadValuesWithPrefix() {
 		X10Properties x10 = new X10Properties(baseProps, "x");
-		assertThat(x10.enabled(), is(true));
-		assertThat(x10.commPort(), is("COM1"));
-		assertThat(x10.controllerType(), is(X10ControllerType.cm11a));
-		assertThat(x10.address("A"), is("D9"));
-		assertThat(x10.address("B"), is("F1"));
+		assertTrue(x10.enabled());
+		assertEquals(x10.commPort(), "COM1");
+		assertEquals(x10.controllerType(), X10ControllerType.cm11a);
+		assertEquals(x10.address("A"), "D9");
+		assertEquals(x10.address("B"), "F1");
 		assertCollection(x10.names(), "A", "B");
 	}
 

@@ -1,9 +1,8 @@
 package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.booleanSupplier;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertThrown;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil.Std;
 
@@ -11,7 +10,7 @@ public class ExceptionBooleanSupplierBehavior {
 
 	@Test
 	public void shouldConvertToSupplier() {
-		assertThat(booleanSupplier(true).asBooleanSupplier().getAsBoolean(), is(true));
+		assertTrue(booleanSupplier(true).asBooleanSupplier().getAsBoolean());
 		assertThrown(RuntimeException.class,
 			() -> booleanSupplier(null).asBooleanSupplier().getAsBoolean());
 		assertThrown(RuntimeException.class,
@@ -20,7 +19,7 @@ public class ExceptionBooleanSupplierBehavior {
 
 	@Test
 	public void shouldConvertFromSupplier() {
-		assertThat(ExceptionBooleanSupplier.of(Std.booleanSupplier(true)).getAsBoolean(), is(true));
+		assertTrue(ExceptionBooleanSupplier.of(Std.booleanSupplier(true)).getAsBoolean());
 		assertThrown(RuntimeException.class,
 			() -> ExceptionBooleanSupplier.of(Std.booleanSupplier(false)).getAsBoolean());
 	}

@@ -1,14 +1,13 @@
 package ceri.common.math;
 
-import static ceri.common.test.TestUtil.assertAllNotEqual;
-import static ceri.common.test.TestUtil.assertArray;
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertThat;
-import static ceri.common.test.TestUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
 
 public class MatrixBehavior {
 
@@ -43,9 +42,9 @@ public class MatrixBehavior {
 
 	@Test
 	public void shouldCreateIdentityMatrices() {
-		assertThat(Matrix.identity(0), is(Matrix.EMPTY));
-		assertThat(Matrix.identity(1), is(Matrix.of(new double[][] { { 1 } })));
-		assertThat(Matrix.identity(2), is(Matrix.of(new double[][] { { 1, 0 }, { 0, 1 } })));
+		assertEquals(Matrix.identity(0), Matrix.EMPTY);
+		assertEquals(Matrix.identity(1), Matrix.of(new double[][] { { 1 } }));
+		assertEquals(Matrix.identity(2), Matrix.of(new double[][] { { 1, 0 }, { 0, 1 } }));
 	}
 
 	@Test
@@ -77,37 +76,37 @@ public class MatrixBehavior {
 	@Test
 	public void shouldExtractRow() {
 		Matrix m = Matrix.of(new double[][] { { 1, 2 }, { 3, -1 } });
-		assertThat(m.row(1), is(Matrix.of(new double[][] { { 3, -1 } })));
+		assertEquals(m.row(1), Matrix.of(new double[][] { { 3, -1 } }));
 	}
 
 	@Test
 	public void shouldExtractColumn() {
 		Matrix m = Matrix.of(new double[][] { { 1, 2 }, { 3, -1 } });
-		assertThat(m.column(1), is(Matrix.of(new double[][] { { 2 }, { -1 } })));
+		assertEquals(m.column(1), Matrix.of(new double[][] { { 2 }, { -1 } }));
 	}
 
 	@Test
 	public void shouldAddMatrices() {
 		Matrix m = Matrix.identity(2);
-		TestUtil.assertThrown(() -> m.add(Matrix.rowVector(1, 2)));
-		TestUtil.assertThrown(() -> m.add(Matrix.columnVector(1, 2)));
-		assertThat(m.add(m), is(Matrix.of(new double[][] { { 2, 0 }, { 0, 2 } })));
+		assertThrown(() -> m.add(Matrix.rowVector(1, 2)));
+		assertThrown(() -> m.add(Matrix.columnVector(1, 2)));
+		assertEquals(m.add(m), Matrix.of(new double[][] { { 2, 0 }, { 0, 2 } }));
 	}
 
 	@Test
 	public void shouldMultiplyMatrices() {
 		Matrix m = Matrix.of(new double[][] { { 1, 2, 3 }, { -3, -1, -2 } });
-		TestUtil.assertThrown(() -> m.multiply(Matrix.rowVector(1, 2, 3)));
-		TestUtil.assertThrown(() -> m.multiply(Matrix.columnVector(1, 2)));
-		assertThat(m.multiply(Matrix.columnVector(1, -1, 0)),
-			is(Matrix.of(new double[][] { { -1 }, { -2 } })));
+		assertThrown(() -> m.multiply(Matrix.rowVector(1, 2, 3)));
+		assertThrown(() -> m.multiply(Matrix.columnVector(1, 2)));
+		assertEquals(m.multiply(Matrix.columnVector(1, -1, 0)),
+			Matrix.of(new double[][] { { -1 }, { -2 } }));
 	}
 
 	@Test
 	public void shouldExtractSubMatrix() {
 		Matrix m = Matrix.of(new double[][] { { 1 }, { -3 } });
-		assertThat(m.subMatrix(-1, -1, 4, 3), is(Matrix.of( //
-			new double[][] { { 0, 0, 0 }, { 0, 1, 0 }, { 0, -3, 0 }, { 0, 0, 0 } })));
+		assertEquals(m.subMatrix(-1, -1, 4, 3),
+			Matrix.of(new double[][] { { 0, 0, 0 }, { 0, 1, 0 }, { 0, -3, 0 }, { 0, 0, 0 } }));
 	}
 
 }

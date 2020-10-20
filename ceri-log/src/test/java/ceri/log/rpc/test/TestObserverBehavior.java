@@ -1,9 +1,8 @@
 package ceri.log.rpc.test;
 
-import static ceri.common.test.TestUtil.assertFalse;
-import static ceri.common.test.TestUtil.assertNull;
-import static ceri.common.test.TestUtil.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertNull;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.concurrent.SimpleExecutor;
@@ -14,7 +13,7 @@ public class TestObserverBehavior {
 	public void shouldAwaitNext() throws InterruptedException {
 		TestObserver<String> observer = TestObserver.of();
 		try (var exec = SimpleExecutor.run(() -> observer.onNext("test"))) {
-			assertThat(observer.next.await(), is("test"));
+			assertEquals(observer.next.await(), "test");
 		}
 	}
 
@@ -31,7 +30,7 @@ public class TestObserverBehavior {
 		TestObserver<String> observer = TestObserver.of();
 		IOException iox = new IOException("iox");
 		try (var exec = SimpleExecutor.run(() -> observer.onError(iox))) {
-			assertThat(observer.error.await(), is(iox));
+			assertEquals(observer.error.await(), iox);
 		}
 	}
 
