@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.test.TestUtil.lambdaName;
+import static ceri.common.function.FunctionUtil.lambdaName;
 import static org.hamcrest.CoreMatchers.not;
 import java.io.IOException;
 import java.io.InputStream;

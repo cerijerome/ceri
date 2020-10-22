@@ -1,36 +1,122 @@
 package ceri.common.util;
 
+import java.util.Objects;
+
 /**
- * Mutable reference to an object. Not thread-safe.
+ * Holder for a value, and flag to indicate if the value is empty. Provides mutable and immutable
+ * holders. Immutable holder is similar to Optional, but allows null values.
  */
-public class Holder<T> {
-	private T value;
+public abstract class Holder<T> {
+	private static final Holder<Object> EMPTY = new Immutable<>(null, true);
+	private static final String EMPTY_STRING = "empty";
+
+	public static <T> Holder<T> of(T value) {
+		return new Immutable<>(value, false);
+	}
 
 	public static <T> Holder<T> of() {
-		return new Holder<>();
+		return BasicUtil.uncheckedCast(EMPTY);
 	}
 
-	public static <T> Holder<T> init(T initialValue) {
-		Holder<T> holder = new Holder<>();
-		holder.set(initialValue);
-		return holder;
+	public static <T> Mutable<T> mutable(T value) {
+		return Holder.<T>mutable().value(value);
 	}
 
-	private Holder() {}
-
-	public T set(T value) {
-		T oldValue = this.value;
-		this.value = value;
-		return oldValue;
+	public static <T> Mutable<T> mutable() {
+		return new Mutable<>();
 	}
 
-	public T get() {
-		return value;
+	public static boolean equals(Holder<?> lhs, Holder<?> rhs) {
+		if (lhs == rhs) return true;
+		if (lhs == null || rhs == null) return false;
+		if (lhs.isEmpty() != rhs.isEmpty()) return false;
+		if (!Objects.equals(lhs.value(), rhs.value())) return false;
+		return true;
+	}
+
+	private static class Immutable<T> extends Holder<T> {
+		private final T value;
+		private final boolean empty;
+
+		private Immutable(T value, boolean empty) {
+			this.value = value;
+			this.empty = empty;
+		}
+
+		@Override
+		public T value() {
+			return value;
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return empty;
+		}
+	}
+
+	public static class Mutable<T> extends Holder<T> {
+		private T value = null;
+		private boolean empty = true;
+
+		private Mutable() {}
+
+		@Override
+		public T value() {
+			return value;
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return empty;
+		}
+
+		public Mutable<T> value(T value) {
+			this.value = value;
+			empty = false;
+			return this;
+		}
+
+		public Mutable<T> clear() {
+			value = null;
+			empty = true;
+			return this;
+		}
+	}
+
+	public abstract boolean isEmpty();
+
+	public abstract T value();
+
+	public boolean nullValue() {
+		return holds(null);
+	}
+
+	public boolean holds(T other) {
+		if (isEmpty()) return false;
+		return Objects.equals(value(), other);
 	}
 
 	public T verify() {
-		if (value == null) throw new IllegalStateException("Value is null");
-		return value;
+		if (isEmpty()) throw new IllegalStateException("Value is not present");
+		return value();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(isEmpty(), value());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof Holder)) return false;
+		return Holder.equals(this, (Holder<?>) obj);
+	}
+
+	@Override
+	public String toString() {
+		if (isEmpty()) return EMPTY_STRING;
+		return "[" + String.valueOf(value()) + "]";
 	}
 
 }

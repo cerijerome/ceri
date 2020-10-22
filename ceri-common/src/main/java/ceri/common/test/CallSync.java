@@ -1,12 +1,15 @@
 package ceri.common.test;
 
+import static ceri.common.collection.CollectionUtil.getOrDefault;
+import static ceri.common.concurrent.ConcurrentUtil.lockInfo;
+import static ceri.common.function.FunctionUtil.lambdaName;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.function.ExceptionConsumer;
@@ -14,7 +17,9 @@ import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.test.ErrorGen.Mode;
+import ceri.common.text.ToString;
 import ceri.common.util.Counter;
+import ceri.common.util.Holder;
 
 /**
  * Utility for synchronizing calls from a thread, and generating exceptions. If autoResponse is set,
@@ -510,10 +515,10 @@ public class CallSync<T, R> {
 	/**
 	 * Sets the error generator mode, based on call count.
 	 */
-	public void errorForIndex(Mode mode, int... indexes) {
-		List<Integer> list = ArrayUtil.intList(indexes);
+	public void errors(Mode... modes) {
+		List<Mode> list = Arrays.asList(modes);
 		Counter counter = Counter.of();
-		error(() -> list.contains(counter.intInc() - 1) ? mode : Mode.none);
+		error(() -> getOrDefault(list, counter.intInc() - 1, Mode.none));
 	}
 
 	/**
@@ -528,6 +533,19 @@ public class CallSync<T, R> {
 	 */
 	public void assertNoCall() {
 		assertNull(callSync.value());
+	}
+
+	/**
+	 * Prints internal state; useful for debugging tests.
+	 */
+	@Override
+	public String toString() {
+		return ToString.ofClass(this).children(
+			String.format("call=%s;%s", holderStr(callSync.tryValue()), lockInfo(callSync.lock)),
+			String.format("response=%s;%s;%s", holderStr(responseSync.tryValue()),
+				lockInfo(responseSync.lock), lambdaName(autoResponseFn)),
+			String.format("error=%s;%s", error.mode(), lambdaName(errorModeFn)),
+			String.format("value=%s;%s", str(lastValue), str(valueDef))).toString();
 	}
 
 	private void errorFromFn(BiFunction<T, R, Mode> errorModeFn) {
@@ -581,6 +599,14 @@ public class CallSync<T, R> {
 		var autoResponseFn = this.autoResponseFn;
 		if (autoResponseFn != null) return autoResponseFn.apply(t);
 		return ConcurrentUtil.executeGetInterruptible(responseSync::await);
+	}
+
+	private static String holderStr(Holder<?> holder) {
+		return holder.value() == OBJ ? "[OBJ]" : String.valueOf(holder);
+	}
+
+	private static String str(Object obj) {
+		return obj == OBJ ? "OBJ" : String.valueOf(obj);
 	}
 
 }

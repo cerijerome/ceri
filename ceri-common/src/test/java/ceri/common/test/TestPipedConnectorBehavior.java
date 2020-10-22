@@ -3,6 +3,7 @@ package ceri.common.test;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertAssertion;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertRead;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -132,6 +133,13 @@ public class TestPipedConnectorBehavior {
 		con.writeError.mode(Mode.checked);
 		assertThrown(() -> con.out().write(2));
 		assertRead(con.from, 1, 2);
+	}
+
+	@Test
+	public void shouldProvideStringRepresentation() {
+		assertFind(con.toString(), "(?s)listeners=0.*in=none;0;none;\n");
+		con.eof(true);
+		assertFind(con.toString(), "(?s)listeners=0.*in=none;0;none;EOF");
 	}
 
 	private static <T> SimpleExecutor<RuntimeException, T>

@@ -6,6 +6,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.TestUtil.threadCall;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -22,9 +23,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import ceri.common.concurrent.ConcurrentUtil.LockInfo;
+import ceri.common.util.Holder;
 
 public class ConcurrentUtilTest {
 	private static final ExecutorService exec = Executors.newCachedThreadPool();
@@ -38,6 +42,18 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ConcurrentUtil.class);
+	}
+
+	@Test
+	public void testLockInfo() {
+		assertEquals(ConcurrentUtil.lockInfo(new ReentrantReadWriteLock().readLock()),
+			LockInfo.NULL);
+		Lock lock = new ReentrantLock();
+		ConcurrentUtil.execute(lock, () -> {
+			LockInfo info = ConcurrentUtil.lockInfo(lock);
+			assertEquals(info.holdCount, 1);
+			assertEquals(info.queueLength, 0);
+		});
 	}
 
 	@Test
@@ -145,6 +161,35 @@ public class ConcurrentUtilTest {
 			throw new RuntimeInterruptedException("test");
 		}));
 		assertTrue(lock.tryLock(1, TimeUnit.MILLISECONDS));
+	}
+
+	@Test
+	public void testTryExecuteRunnable() {
+		Lock lock = new ReentrantLock();
+		var holder = Holder.mutable();
+		assertTrue(ConcurrentUtil.tryExecute(lock, () -> {
+			holder.value("test0");
+			// Cannot get lock in new thread => return false
+			try (var exec =
+				threadCall(() -> ConcurrentUtil.tryExecute(lock, () -> holder.value("test1")))) {
+				assertFalse(exec.get());
+			}
+		}));
+		assertEquals(holder.value(), "test0");
+	}
+
+	@Test
+	public void testTryExecuteGet() {
+		Lock lock = new ReentrantLock();
+		var holder0 = ConcurrentUtil.tryExecuteGet(lock, () -> {
+			try (var exec =
+				threadCall(() -> ConcurrentUtil.tryExecuteGet(lock, () -> "test1"))) {
+				var holder1 = exec.get();
+				assertTrue(holder1.isEmpty());
+			}
+			return "test0";
+		});
+		assertTrue(holder0.holds("test0"));
 	}
 
 	@Test

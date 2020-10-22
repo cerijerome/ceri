@@ -10,13 +10,14 @@ import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import ceri.common.time.Timer;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.Holder;
 
 /**
  * Simple condition to signal and wait for a value change.
  */
 public class ValueCondition<T> {
 	private static final BinaryOperator<Object> REPLACER = (latest, current) -> latest;
-	private final Lock lock;
+	public final Lock lock;
 	private final Condition condition;
 	private final BinaryOperator<T> merger;
 	private T value = null;
@@ -172,6 +173,14 @@ public class ValueCondition<T> {
 	 */
 	public T value() {
 		return ConcurrentUtil.executeGet(lock, () -> value);
+	}
+
+	/**
+	 * Tries to get the current value as a holder. Returns an empty holder if the lock is
+	 * unavailable.
+	 */
+	public Holder<T> tryValue() {
+		return ConcurrentUtil.tryExecuteGet(lock, () -> value);
 	}
 
 	/**

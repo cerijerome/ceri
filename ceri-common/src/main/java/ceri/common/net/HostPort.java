@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import ceri.common.text.RegexUtil;
 
 public class HostPort {
+	public static HostPort NULL = new HostPort(null, null);
 	public static HostPort LOCALHOST = new HostPort(NetUtil.LOCALHOST, null);
 	private static final Pattern HOST_REGEX = Pattern.compile("([^:]+)(?::(\\d+))?");
 	public final String host;
@@ -18,6 +19,10 @@ public class HostPort {
 		Matcher m = RegexUtil.matched(HOST_REGEX, value);
 		if (m == null) return null;
 		return of(m.group(1), RegexUtil.intGroup(m, 2));
+	}
+
+	public static HostPort localhost(int port) {
+		return of(NetUtil.LOCALHOST, port);
 	}
 
 	public static HostPort of(String host) {
@@ -42,6 +47,14 @@ public class HostPort {
 		return port != null ? port : def;
 	}
 
+	public boolean isNull() {
+		return host == null;
+	}
+	
+	public boolean hasPort() {
+		return port != null;
+	}
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(host, port);

@@ -3,7 +3,6 @@ package ceri.common.test;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertRange;
@@ -21,7 +20,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.function.Function;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.BooleanCondition;
@@ -213,13 +211,6 @@ public class TestUtilTest {
 			char c = r.charAt(i);
 			assertRange(c, ' ', '~');
 		}
-	}
-
-	@Test
-	public void testLambdaName() {
-		Function<?, ?> fn = i -> i;
-		assertEquals(TestUtil.lambdaName(fn), "[lambda]");
-		assertNotEquals(TestUtil.lambdaName(this), "[lambda]");
 	}
 
 	@Test

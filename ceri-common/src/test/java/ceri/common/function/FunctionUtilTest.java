@@ -10,6 +10,7 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -17,6 +18,7 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -288,6 +290,13 @@ public class FunctionUtilTest {
 		Predicate<String> p = FunctionUtil.testingInt(String::length, p0);
 		assertFalse(p.test(""));
 		assertTrue(p.test("x"));
+	}
+
+	@Test
+	public void testLambdaName() {
+		Function<?, ?> fn = i -> i;
+		assertEquals(FunctionUtil.lambdaName(fn), "[lambda]");
+		assertNotEquals(FunctionUtil.lambdaName(this), "[lambda]");
 	}
 
 }

@@ -34,8 +34,8 @@ public class ErrorGenBehavior {
 	}
 
 	@Test
-	public void shouldSetModeForCallIndex() {
-		var eg = ErrorGen.of().modeForIndex(Mode.checked, 0, 2, 3);
+	public void shouldSetModes() {
+		var eg = ErrorGen.of().modes(Mode.checked, Mode.none, Mode.rt, Mode.checked);
 		assertThrown(() -> eg.generate());
 		eg.generate();
 		assertThrown(() -> eg.generate());

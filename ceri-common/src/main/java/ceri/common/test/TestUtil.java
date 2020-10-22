@@ -23,7 +23,6 @@ import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.FunctionUtil;
 import ceri.common.io.IoUtil;
 import ceri.common.io.SystemIo;
 import ceri.common.property.BaseProperties;
@@ -35,7 +34,6 @@ import ceri.common.util.BasicUtil;
 public class TestUtil {
 	private static final int DELAY_MICROS = 1;
 	private static final int SMALL_BUFFER_SIZE = 1024;
-	private static final String LAMBDA_NAME = "[lambda]";
 	private static final Random RND = new Random();
 
 	private TestUtil() {}
@@ -325,14 +323,6 @@ public class TestUtil {
 	 */
 	public static SimpleExecutor<RuntimeException, ?> threadRun(ExceptionRunnable<?> runnable) {
 		return SimpleExecutor.run(runnable);
-	}
-
-	/**
-	 * Returns "[lambda]" if anonymous lambda, otherwise toString.
-	 */
-	public static String lambdaName(Object lambda) {
-		if (FunctionUtil.isAnonymousLambda(lambda)) return LAMBDA_NAME;
-		return String.valueOf(lambda);
 	}
 
 	/**

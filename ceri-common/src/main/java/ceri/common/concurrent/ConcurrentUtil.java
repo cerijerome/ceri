@@ -13,15 +13,47 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
+import ceri.common.util.BasicUtil;
+import ceri.common.util.Holder;
 
 public class ConcurrentUtil {
 	private static final int NANOS_IN_MICROS = (int) TimeUnit.MICROSECONDS.toNanos(1);
 
 	private ConcurrentUtil() {}
+
+	/**
+	 * Estimated lock state information.
+	 */
+	public static class LockInfo {
+		public static final LockInfo NULL = new LockInfo(-1, -1);
+		public final int holdCount;
+		public final int queueLength;
+
+		private LockInfo(int holdCount, int queueLength) {
+			this.holdCount = holdCount;
+			this.queueLength = queueLength;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("hold=%d;queue=%d", holdCount, queueLength);
+		}
+	}
+
+	/**
+	 * Returns estimated lock information for debugging purposes. Returns LockInfo.NULL if not a
+	 * ReentrantLock.
+	 */
+	public static LockInfo lockInfo(Lock lock) {
+		ReentrantLock rlock = BasicUtil.castOrNull(ReentrantLock.class, lock);
+		return rlock == null ? LockInfo.NULL :
+			new LockInfo(rlock.getHoldCount(), rlock.getQueueLength());
+	}
 
 	/**
 	 * Sleeps approximately for given milliseconds, or not if 0. Throws RuntimeInterruptedException
@@ -221,6 +253,34 @@ public class ConcurrentUtil {
 		lock.lock();
 		try {
 			runnable.run();
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	/**
+	 * Tries to execute the operation within the lock and return the result as a value holder. The
+	 * holder is empty if the lock is not available.
+	 */
+	public static <E extends Exception, T> Holder<T> tryExecuteGet(Lock lock,
+		ExceptionSupplier<E, T> supplier) throws E {
+		if (!lock.tryLock()) return Holder.of();
+		try {
+			return Holder.of(supplier.get());
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	/**
+	 * Tries to execute the operation within the lock. Returns false if the lock is not available.
+	 */
+	public static <E extends Exception> boolean tryExecute(Lock lock, ExceptionRunnable<E> runnable)
+		throws E {
+		if (!lock.tryLock()) return false;
+		try {
+			runnable.run();
+			return true;
 		} finally {
 			lock.unlock();
 		}

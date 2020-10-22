@@ -17,6 +17,7 @@ public class FunctionUtil {
 	private static final Predicate<Object> TRUE_PREDICATE = t -> true;
 	private static final Consumer<Object> NULL_CONSUMER = t -> {};
 	private static final String ANON_LAMBDA_LABEL = "$$Lambda$";
+	private static final String LAMBDA_NAME_DEF = "[lambda]";
 
 	private FunctionUtil() {}
 
@@ -243,6 +244,21 @@ public class FunctionUtil {
 		if (obj == null) return false;
 		String s = obj.toString();
 		return s != null && s.contains(ANON_LAMBDA_LABEL);
+	}
+
+	/**
+	 * Returns "[lambda]" if anonymous lambda, otherwise toString.
+	 */
+	public static String lambdaName(Object obj) {
+		return lambdaName(obj, LAMBDA_NAME_DEF);
+	}
+
+	/**
+	 * Returns given name if anonymous lambda, otherwise toString.
+	 */
+	public static String lambdaName(Object obj, String anonNameDef) {
+		String s = String.valueOf(obj);
+		return s.contains(ANON_LAMBDA_LABEL) ? anonNameDef : s;
 	}
 
 	public static <T> Predicate<T> named(Predicate<T> predicate, String name) {

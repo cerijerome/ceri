@@ -1,5 +1,6 @@
 package ceri.common.test;
 
+import static ceri.common.exception.ExceptionAdapter.RUNTIME;
 import static ceri.common.function.FunctionUtil.execSilently;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.Closeable;
@@ -11,9 +12,10 @@ import ceri.common.event.Listenable;
 import ceri.common.io.IoStreamUtil;
 import ceri.common.io.PipedStream;
 import ceri.common.io.StateChange;
+import ceri.common.text.ToString;
 
 /**
- * Blocking input and output streams for testing hardware device controllers by simulating hardware
+ * Blocking input streams for testing hardware device controllers by simulating hardware
  * interaction. Allows for generation of errors when making i/o calls. Writing to the controller
  * will not block (unless PipedInputStream buffer is full); to block, call awaitFeed() to wait for
  * feed data to be read.
@@ -99,6 +101,19 @@ public class TestPipedConnector implements Closeable, Listenable.Indirect<StateC
 	@Override
 	public void close() {
 		con.close();
+	}
+
+	/**
+	 * Prints state; useful for debugging tests.
+	 */
+	@Override
+	public String toString() {
+		return RUNTIME
+			.get(() -> ToString.ofClass(this).field("listeners", listeners.size()).children(
+				String.format("in=%s;%d;%s;%s", readError.mode(), in.available(),
+					availableError.mode(), eof ? "EOF" : ""),
+				String.format("out=%s;%d", writeError.mode(), from.available())))
+			.toString();
 	}
 
 	/**

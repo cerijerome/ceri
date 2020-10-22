@@ -1,10 +1,11 @@
 package ceri.common.test;
 
+import static ceri.common.collection.CollectionUtil.getOrDefault;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.util.Counter;
 
@@ -45,10 +46,10 @@ public class ErrorGen {
 	/**
 	 * Sets the error generator mode, based on call count.
 	 */
-	public ErrorGen modeForIndex(Mode mode, int... indexes) {
-		List<Integer> list = ArrayUtil.intList(indexes);
+	public ErrorGen modes(Mode... modes) {
+		List<Mode> list = Arrays.asList(modes);
 		Counter counter = Counter.of();
-		return mode(() -> list.contains(counter.intInc() - 1) ? mode : Mode.none);
+		return mode(() -> getOrDefault(list, counter.intInc() - 1, Mode.none));
 	}
 
 	public <T> T generate() {
@@ -95,6 +96,13 @@ public class ErrorGen {
 		return null;
 	}
 
+	public Mode mode() {
+		Supplier<Mode> modeSupplier = this.modeSupplier;
+		if (modeSupplier == null) return Mode.none;
+		Mode mode = modeSupplier.get();
+		return mode == null ? Mode.none : mode;
+	}
+	
 	private static <E extends Exception> void generate(Mode mode, Function<String, E> errorFn)
 		throws E {
 		if (mode == Mode.checked) throw errorFn.apply(MESSAGE);
@@ -112,12 +120,5 @@ public class ErrorGen {
 		if (mode == Mode.none) return;
 		if (mode == Mode.rtInterrupted) throw new RuntimeInterruptedException(MESSAGE);
 		throw new RuntimeException(MESSAGE); // catch-all
-	}
-
-	private Mode mode() {
-		Supplier<Mode> modeSupplier = this.modeSupplier;
-		if (modeSupplier == null) return Mode.none;
-		Mode mode = modeSupplier.get();
-		return mode == null ? Mode.none : mode;
 	}
 }

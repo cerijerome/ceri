@@ -1,6 +1,7 @@
 package ceri.common.test;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.threadCall;
 import static ceri.common.test.TestUtil.threadRun;
@@ -52,9 +53,9 @@ public class CallSyncBehavior {
 	}
 
 	@Test
-	public void shouldApplyWithExceptionIndexFunction() throws InterruptedException {
+	public void shouldApplyWithExceptions() throws InterruptedException {
 		Apply<String, Integer> call = CallSync.function(null, 3);
-		call.errorForIndex(Mode.checked, 0, 2);
+		call.errors(Mode.checked, Mode.none, Mode.checked);
 		assertThrown(() -> call.apply("test0"));
 		call.assertAuto("test0");
 		assertEquals(call.apply("test1"), 3);
@@ -210,6 +211,16 @@ public class CallSyncBehavior {
 		call.assertNoCall();
 		call.run();
 		call.awaitAuto();
+	}
+
+	@Test
+	public void shouldProvideStringRepresentation() {
+		var accept = CallSync.consumer("test", true);
+		accept.accept("test0");
+		assertFind(accept.toString(), "(?s)\\[test0\\].*\\[lambda\\].*test0;test");
+		var run = CallSync.runnable(true);
+		run.run();
+		assertFind(run.toString(), "(?s)\\[OBJ\\].*OBJ;OBJ");
 	}
 
 }
