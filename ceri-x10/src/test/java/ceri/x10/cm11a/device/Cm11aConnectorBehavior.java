@@ -27,7 +27,7 @@ public class Cm11aConnectorBehavior {
 		try (var serial = TestSerialConnector.of()) {
 			var con = Cm11aConnector.serial(serial);
 			con.connect();
-			serial.to.writeBytes(1, 2, 3).flush();
+			serial.in.to.writeBytes(1, 2, 3).flush();
 			assertRead(con.in(), 1, 2, 3);
 		}
 	}
@@ -40,7 +40,7 @@ public class Cm11aConnectorBehavior {
 			con.connect();
 			con.out().write(bytes(1, 2, 3));
 			con.out().flush();
-			assertRead(serial.from, 1, 2, 3);
+			assertRead(serial.out.from, 1, 2, 3);
 		}
 	}
 
@@ -50,7 +50,7 @@ public class Cm11aConnectorBehavior {
 			var con = Cm11aConnector.serial(serial);
 			con.connect();
 			con.broken();
-			serial.to.write(1);
+			serial.in.to.write(1);
 			assertThrown(() -> con.in().read());
 		}
 	}

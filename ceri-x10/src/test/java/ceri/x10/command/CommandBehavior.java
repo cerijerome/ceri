@@ -14,6 +14,7 @@ import static ceri.x10.command.House.E;
 import static ceri.x10.command.House.F;
 import static ceri.x10.command.House.G;
 import static ceri.x10.command.House.H;
+import static ceri.x10.command.House.I;
 import static ceri.x10.command.House.O;
 import static ceri.x10.command.House.P;
 import static ceri.x10.command.Unit._1;
@@ -23,6 +24,7 @@ import static ceri.x10.command.Unit._13;
 import static ceri.x10.command.Unit._2;
 import static ceri.x10.command.Unit._3;
 import static ceri.x10.command.Unit._4;
+import static ceri.x10.command.Unit._8;
 import java.util.Collection;
 import org.junit.Test;
 
@@ -47,12 +49,13 @@ public class CommandBehavior {
 	public void shouldCreateFromString() {
 		assertEquals(Command.from("A[1,2]:on"), Command.on(A, _1, _2));
 		assertEquals(Command.from("B[]:on"), Command.on(B));
-		assertEquals(Command.from("C[ ]:on"), Command.on(C));
+		assertEquals(Command.from("C[ ]:off"), Command.off(C));
 		assertEquals(Command.from("D:on"), Command.on(D));
-		assertEquals(Command.from("E:allLightsOn"), Command.allLightsOn(E));
-		assertEquals(Command.from("F:allLightsOff"), Command.allLightsOff(F));
-		assertEquals(Command.from("G:allUnitsOff"), Command.allUnitsOff(G));
-		assertEquals(Command.from("H[3,4]:ext:100:200"), Command.ext(H, 100, 200, _3, _4));
+		assertEquals(Command.from("E[8]:bright:50"), Command.bright(E, 50, _8));
+		assertEquals(Command.from("F:allLightsOn"), Command.allLightsOn(F));
+		assertEquals(Command.from("G:allLightsOff"), Command.allLightsOff(G));
+		assertEquals(Command.from("H:allUnitsOff"), Command.allUnitsOff(H));
+		assertEquals(Command.from("I[3,4]:ext:100:200"), Command.ext(I, 100, 200, _3, _4));
 	}
 
 	@Test

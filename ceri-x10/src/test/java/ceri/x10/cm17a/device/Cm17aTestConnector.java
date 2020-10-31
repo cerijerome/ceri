@@ -1,29 +1,25 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.function.FunctionUtil.execSilently;
+import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertRead;
 import java.io.Closeable;
 import java.io.IOException;
-import ceri.common.data.ByteStream;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.IntArray.Encoder;
 import ceri.common.event.Listenable;
-import ceri.common.io.PipedStream;
 import ceri.common.io.StateChange;
-import ceri.common.test.ErrorGen;
+import ceri.common.test.CallSync;
 import ceri.common.test.TestListeners;
+import ceri.common.test.TestOutputStream;
 
 /**
  * Recreates bytes from connector calls.
  */
 public class Cm17aTestConnector implements Cm17aConnector, Closeable {
 	public final TestListeners<StateChange> listeners = TestListeners.of();
-	private final PipedStream pipedOut;
-	public final ByteStream.Reader from;
-	public final ErrorGen dtrError = ErrorGen.of();
-	public final ErrorGen rtsError = ErrorGen.of();
-	private boolean rts = false;
-	private boolean dtr = false;
+	private final TestOutputStream out;
+	public final CallSync.Accept<Boolean> rts = CallSync.consumer(false, true);
+	public final CallSync.Accept<Boolean> dtr = CallSync.consumer(false, true);
 	private boolean reset = true;
 	private int value = 0;
 	private int bit = 0;
@@ -32,10 +28,8 @@ public class Cm17aTestConnector implements Cm17aConnector, Closeable {
 		return new Cm17aTestConnector();
 	}
 
-	@SuppressWarnings("resource")
 	private Cm17aTestConnector() {
-		pipedOut = PipedStream.of();
-		from = ByteStream.reader(pipedOut.in());
+		out = TestOutputStream.of();
 	}
 
 	/**
@@ -45,9 +39,9 @@ public class Cm17aTestConnector implements Cm17aConnector, Closeable {
 	 */
 	public void reset(boolean full) {
 		listeners.clear();
-		execSilently(pipedOut::clear);
-		dtrError.reset();
-		rtsError.reset();
+		out.resetState();
+		dtr.reset();
+		rts.reset();
 		if (full) reset = true; // Will lose first bit if Processor does not send a reset.
 		value = 0;
 		bit = 0;
@@ -67,7 +61,7 @@ public class Cm17aTestConnector implements Cm17aConnector, Closeable {
 		Encoder enc = Encoder.of();
 		for (int code : codes)
 			enc.writeInts(0xd5, 0xaa, code >>> 8, code & 0xff, 0xad);
-		assertRead(from, enc.ints());
+		assertRead(out.from, enc.ints());
 	}
 
 	@Override
@@ -77,25 +71,27 @@ public class Cm17aTestConnector implements Cm17aConnector, Closeable {
 
 	@Override
 	public void setDtr(boolean on) throws IOException {
-		dtrError.generateIo();
+		boolean rts = this.rts.value();
+		boolean dtr = this.dtr.value();
 		if (!reset && rts && !dtr && on) bit(true);
-		dtr = on;
-		if (!rts && !dtr) reset = true;
-		if (rts && dtr) standby();
+		this.dtr.accept(on, IO_ADAPTER);
+		if (!rts && !on) reset = true;
+		if (rts && on) standby();
 	}
 
 	@Override
 	public void setRts(boolean on) throws IOException {
-		rtsError.generateIo();
+		boolean rts = this.rts.value();
+		boolean dtr = this.dtr.value();
 		if (!reset && dtr && !rts && on) bit(false);
-		rts = on;
-		if (!rts && !dtr) reset = true;
-		if (rts && dtr) standby();
+		this.rts.accept(on, IO_ADAPTER);
+		if (!dtr && !on) reset = true;
+		if (dtr && on) standby();
 	}
 
 	@Override
-	public void close() {
-		pipedOut.close();
+	public void close() throws IOException {
+		out.close();
 	}
 
 	private void standby() {
@@ -105,11 +101,10 @@ public class Cm17aTestConnector implements Cm17aConnector, Closeable {
 		bit = 0;
 	}
 
-	@SuppressWarnings("resource")
 	private void bit(boolean on) throws IOException {
 		value |= ByteUtil.maskOfBitInt(on, Byte.SIZE - 1 - bit++);
 		if (bit < Byte.SIZE) return;
-		pipedOut.out().write(value);
+		out.write(value);
 		value = 0;
 		bit = 0;
 	}
