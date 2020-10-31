@@ -28,6 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
 import ceri.common.util.StartupValues;
@@ -93,12 +94,17 @@ public class LogUtilTest {
 
 	@Test
 	public void testExecuteWithException() {
+		assertThrown(RuntimeInterruptedException.class,
+			() -> LogUtil.execute(null, () -> throwIt(new InterruptedException())));
+		assertThrown(RuntimeInterruptedException.class,
+			() -> LogUtil.execute(logger, () -> throwIt(new InterruptedException())));
+		assertThrown(RuntimeInterruptedException.class,
+			() -> LogUtil.execute(null, () -> throwIt(new RuntimeInterruptedException("test"))));
+		assertThrown(RuntimeInterruptedException.class,
+			() -> LogUtil.execute(logger, () -> throwIt(new RuntimeInterruptedException("test"))));
 		assertFalse(LogUtil.execute(null, () -> throwIt(new RuntimeException("rtx"))));
 		assertFalse(LogUtil.execute(logger, () -> throwIt(new RuntimeException("rtx"))));
 		testLog.assertFind("(?is)ERROR .* catching.*RuntimeException.*rtx");
-		assertFalse(LogUtil.execute(null, () -> throwIt(new InterruptedException())));
-		assertFalse(LogUtil.execute(logger, () -> throwIt(new InterruptedException())));
-		testLog.assertFind("(?is)INFO .*InterruptedException");
 	}
 
 	@Test

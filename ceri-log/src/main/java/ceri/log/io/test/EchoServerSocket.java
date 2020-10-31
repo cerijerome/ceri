@@ -13,6 +13,9 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.log.util.LogUtil;
 
+/**
+ * A server socket that echoes input as output for each connection.
+ */
 public class EchoServerSocket implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int BUFFER_SIZE_DEF = 1024;

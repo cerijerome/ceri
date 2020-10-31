@@ -180,10 +180,6 @@ public class SocketConnectorTester extends LoopingExecutor {
 	}
 
 	protected void showHelpCommands() {
-		System.out.println("  b[01] = set break bit off/on");
-		System.out.println("  d[01] = set DTR off/on");
-		System.out.println("  r[01] = set RTS off/on");
-		System.out.println("  f[nrx][01] = set flow control none, rts-cts in/out, xon-xoff in/out");
 		System.out.println("  o<literal-chars> = write char bytes to output (e.g. \\xff for 0xff)");
 		System.out.println("  z = mark the connector as broken");
 		if (fixConnectorFn != null) System.out.println("  Z = mark the connector as fixed");

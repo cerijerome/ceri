@@ -83,16 +83,19 @@ public class LogUtil {
 	}
 
 	/**
-	 * Execute runnable and log any exception as an error. Returns true if the runnable executed
-	 * successfully.
+	 * Execute runnable and log any exception as an error. Re-throws RuntimeInterruptedException,
+	 * and wraps and throws an InterruptedException as runtime. Returns true if the runnable
+	 * executed successfully.
 	 */
 	public static boolean execute(Logger logger, ExceptionRunnable<Exception> runnable) {
 		try {
 			if (runnable == null) return false;
 			runnable.run();
 			return true;
-		} catch (InterruptedException | RuntimeInterruptedException e) {
-			if (logger != null) logger.info(e);
+		} catch (InterruptedException e) {
+			throw new RuntimeInterruptedException(e);
+		} catch (RuntimeInterruptedException e) {
+			throw e;
 		} catch (Exception e) {
 			if (logger != null) logger.catching(e);
 		}

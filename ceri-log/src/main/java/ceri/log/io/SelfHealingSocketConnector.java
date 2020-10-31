@@ -137,7 +137,7 @@ public class SelfHealingSocketConnector extends LoopingExecutor implements Socke
 	private void initSocket() throws IOException {
 		LogUtil.close(logger, socket);
 		socket = openSocket();
-		logger.debug("Connected to {}:{}", config.host, config.port);
+		logger.debug("Connected to {}", config.hostPort);
 		in.setInputStream(socket.getInputStream());
 		out.setOutputStream(socket.getOutputStream());
 	}
