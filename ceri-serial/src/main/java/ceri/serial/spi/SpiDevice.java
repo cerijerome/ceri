@@ -109,7 +109,7 @@ public class SpiDevice implements Spi {
 	@Override
 	public void close() {
 		logger.trace("close()");
-		LogUtil.execute(logger, () -> CLib.close(fd));
+		LogUtil.close(logger, fd, CLib::close);
 	}
 
 }
