@@ -19,6 +19,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.collection.MapPopulatorBehavior.class, //
 	ceri.common.collection.NodeBehavior.class, //
 	ceri.common.collection.StreamUtilTest.class, //
+	ceri.common.collection.SubArrayBehavior.class, //
 	ceri.common.collection.TypedPipeBehavior.class, //
 	ceri.common.collection.WrappedIntStreamBehavior.class, //
 	ceri.common.collection.WrappedStreamBehavior.class, //
@@ -237,19 +238,18 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.CallSyncBehavior.class, //
 	ceri.common.test.CaptorBehavior.class, //
 	ceri.common.test.DebuggerBehavior.class, //
-	ceri.common.test.ErrorGenBehavior.class, //
+	ceri.common.test.ErrorProducerBehavior.class, //
 	ceri.common.test.FileTestHelperBehavior.class, //
 	ceri.common.test.PulsePrinterBehavior.class, //
 	ceri.common.test.RegexFinderBehavior.class, //
 	ceri.common.test.RegexMatcherBehavior.class, //
-	ceri.common.test.ResponseStreamBehavior.class, //
-	ceri.common.test.TestInputStreamBehavior.class, //
+	ceri.common.test.TestConnectorBehavior.class, //
 	ceri.common.test.TestListenerBehavior.class, //
 	ceri.common.test.TestListenersBehavior.class, //
-	ceri.common.test.TestOutputStreamBehavior.class, //
-	ceri.common.test.TestPipedConnectorBehavior.class, //
 	ceri.common.test.TestPrinterBehavior.class, //
+	ceri.common.test.TestProcessBehavior.class, //
 	ceri.common.test.TestRunAdapterBehavior.class, //
+	ceri.common.test.TestSocketBehavior.class, //
 	ceri.common.test.TestStyleBehavior.class, //
 	ceri.common.test.TestTimerBehavior.class, //
 	ceri.common.test.TestUtilTest.class, //
@@ -274,6 +274,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.time.CalendarFieldBehavior.class, //
 	ceri.common.time.DateUtilTest.class, //
 	ceri.common.time.HolidayBehavior.class, //
+	ceri.common.time.TimeoutBehavior.class, //
 	ceri.common.time.TimerBehavior.class, //
 	// tree
 	ceri.common.tree.NodeTreeBehavior.class, //

@@ -1,5 +1,7 @@
 package ceri.common.collection;
 
+import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.MathUtil.ushort;
 import static ceri.common.util.PrimitiveUtil.convertBooleans;
 import static ceri.common.util.PrimitiveUtil.convertBytes;
 import static ceri.common.util.PrimitiveUtil.convertChars;
@@ -1208,6 +1210,101 @@ public class ArrayUtil {
 	}
 
 	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toString(boolean[] array, int off, int len) {
+		return toString(array, off, len, (b, a, i) -> b.append(a[i]));
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toString(byte[] array, int off, int len) {
+		return toString(array, off, len, (b, a, i) -> b.append(a[i]));
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toString(char[] array, int off, int len) {
+		return toString(array, off, len, (b, a, i) -> b.append(a[i]));
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toString(short[] array, int off, int len) {
+		return toString(array, off, len, (b, a, i) -> b.append(a[i]));
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toString(int[] array, int off, int len) {
+		return toString(array, off, len, (b, a, i) -> b.append(a[i]));
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toString(long[] array, int off, int len) {
+		return toString(array, off, len, (b, a, i) -> b.append(a[i]));
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toString(float[] array, int off, int len) {
+		return toString(array, off, len, (b, a, i) -> b.append(a[i]));
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toString(double[] array, int off, int len) {
+		return toString(array, off, len, (b, a, i) -> b.append(a[i]));
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toString(Object[] array, int off, int len) {
+		return toString(array, off, len, (b, a, i) -> b.append(a[i]));
+	}
+
+	/**
+	 * Hex string for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toHex(byte[] array, int off, int len) {
+		return toString(array, off, len,
+			(b, a, i) -> b.append("0x").append(Integer.toHexString(ubyte(a[i]))));
+	}
+
+	/**
+	 * Hex string for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toHex(short[] array, int off, int len) {
+		return toString(array, off, len,
+			(b, a, i) -> b.append("0x").append(Integer.toHexString(ushort(a[i]))));
+	}
+
+	/**
+	 * Hex string for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toHex(int[] array, int off, int len) {
+		return toString(array, off, len,
+			(b, a, i) -> b.append("0x").append(Integer.toHexString(a[i])));
+	}
+
+	/**
+	 * Hex string for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toHex(long[] array, int off, int len) {
+		return toString(array, off, len,
+			(b, a, i) -> b.append("0x").append(Long.toHexString(a[i])));
+	}
+
+	/**
 	 * Extends Arrays.deepToString to include any object type.
 	 */
 	public static String deepToString(Object obj) {
@@ -1299,6 +1396,20 @@ public class ArrayUtil {
 	public static boolean isArray(Object obj) {
 		if (obj == null) return false;
 		return obj.getClass().isArray();
+	}
+
+	private static interface Appender<T> {
+		void append(StringBuilder b, T a, int i);
+	}
+
+	private static <T> String toString(T a, int off, int len, Appender<T> appendFn) {
+		if (a == null || !isValidSlice(Array.getLength(a), off, len)) return "null";
+		if (len == 0) return "[]";
+		StringBuilder b = new StringBuilder();
+		appendFn.append(b.append('['), a, off);
+		for (int i = 1; i < len; i++)
+			appendFn.append(b.append(", "), a, off + i);
+		return b.append(']').toString();
 	}
 
 	private static <T> T arrayCopy(T src, int srcSize, int offset, int length, T dest) {

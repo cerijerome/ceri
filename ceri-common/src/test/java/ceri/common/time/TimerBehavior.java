@@ -5,16 +5,9 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static ceri.common.util.BasicUtil.uncheckedCast;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
-import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.function.ExceptionLongConsumer;
+import ceri.common.test.CallSync;
 import ceri.common.time.Timer.State;
 
 public class TimerBehavior {
@@ -81,23 +74,22 @@ public class TimerBehavior {
 
 	@Test
 	public void shouldApplyRemainingTime() throws Exception {
-		ExceptionLongConsumer<Exception> consumer =
-			uncheckedCast(mock(ExceptionLongConsumer.class));
-		Timer.INFINITE.applyRemaining(consumer);
-		Timer.millis(0).applyRemaining(consumer);
-		verifyNoMoreInteractions(consumer);
-		Timer.millis(Long.MAX_VALUE).applyRemaining(consumer);
-		verify(consumer).accept(anyLong());
+		CallSync.Accept<Long> consumer = CallSync.consumer(null, true);
+		Timer.INFINITE.applyRemaining(consumer::accept);
+		Timer.millis(0).applyRemaining(consumer::accept);
+		consumer.assertNoCall();
+		Timer.millis(Long.MAX_VALUE).applyRemaining(consumer::accept);
+		assertTrue(consumer.awaitAuto() > 0);
 	}
 
 	@Test
 	public void shouldApplyRemainingIntTime() throws Exception {
-		ExceptionIntConsumer<Exception> consumer = uncheckedCast(mock(ExceptionIntConsumer.class));
-		Timer.INFINITE.applyRemainingInt(consumer);
-		Timer.millis(0).applyRemainingInt(consumer);
-		verifyNoMoreInteractions(consumer);
-		Timer.millis(Long.MAX_VALUE).applyRemainingInt(consumer);
-		verify(consumer).accept(anyInt());
+		CallSync.Accept<Integer> consumer = CallSync.consumer(null, true);
+		Timer.INFINITE.applyRemainingInt(consumer::accept);
+		Timer.millis(0).applyRemainingInt(consumer::accept);
+		consumer.assertNoCall();
+		Timer.millis(Long.MAX_VALUE).applyRemainingInt(consumer::accept);
+		assertTrue(consumer.awaitAuto() > 0);
 	}
 
 	@Test

@@ -84,6 +84,19 @@ public class FunctionUtilTest {
 	}
 
 	@Test
+	public void testSequentialSupplier() {
+		assertNull(FunctionUtil.sequentialSupplier());
+		var supplier0 = FunctionUtil.sequentialSupplier(1);
+		assertEquals(supplier0.get(), 1);
+		assertEquals(supplier0.get(), 1);
+		var supplier1 = FunctionUtil.sequentialSupplier(1, 2, 3);
+		assertEquals(supplier1.get(), 1);
+		assertEquals(supplier1.get(), 2);
+		assertEquals(supplier1.get(), 3);
+		assertEquals(supplier1.get(), 3);
+	}
+
+	@Test
 	public void testFirst() {
 		assertEquals(FunctionUtil.first(null, () -> null, () -> "a", () -> "b"), "a");
 		assertEquals(FunctionUtil.first("test", () -> null, () -> "a", () -> "b"), "test");

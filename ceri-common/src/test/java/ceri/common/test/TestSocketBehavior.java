@@ -1,0 +1,38 @@
+package ceri.common.test;
+
+import static ceri.common.data.ByteUtil.toAscii;
+import static ceri.common.test.AssertUtil.assertRead;
+import static org.junit.Assert.assertEquals;
+import java.io.IOException;
+import org.junit.Test;
+import ceri.common.net.HostPort;
+
+public class TestSocketBehavior {
+
+	@Test
+	public void shouldCreateWithHostPortAndLocalPort() throws IOException {
+		try (var socket = TestSocket.of(HostPort.of("test", 123), 456)) {
+			assertEquals(socket.getPort(), 123);
+			assertEquals(socket.getLocalPort(), 456);
+		}
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldProvideInputStream() throws IOException {
+		try (var socket = TestSocket.of()) {
+			socket.in.to.writeAscii("test");
+			assertRead(socket.getInputStream(), toAscii("test"));
+		}
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldProvideOutputStream() throws IOException {
+		try (var socket = TestSocket.of()) {
+			socket.getOutputStream().write(toAscii("test").copy(0));
+			assertRead(socket.out.from, toAscii("test"));
+		}
+	}
+
+}

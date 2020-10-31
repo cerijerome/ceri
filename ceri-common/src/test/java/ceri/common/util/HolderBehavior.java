@@ -44,7 +44,7 @@ public class HolderBehavior {
 		var holder = Holder.mutable();
 		assertFalse(holder.nullValue());
 		assertTrue(holder.isEmpty());
-		holder.value(null);
+		holder.set(null);
 		assertTrue(holder.nullValue());
 		assertFalse(holder.isEmpty());
 		holder.clear();
@@ -52,6 +52,16 @@ public class HolderBehavior {
 		assertTrue(holder.isEmpty());
 	}
 
+	@Test
+	public void shouldProvideDefaultValue() {
+		assertEquals(Holder.of().value(null), null);
+		assertEquals(Holder.of().value("test"), "test");
+		assertEquals(Holder.of("test").value("test0"), "test");
+		assertEquals(Holder.mutable().value(null), null);
+		assertEquals(Holder.mutable().value("test"), "test");
+		assertEquals(Holder.mutable("test").value("test0"), "test");
+	}
+	
 	@Test
 	public void shouldDetermineIfHoldsValue() {
 		assertTrue(Holder.of("test").holds("test"));

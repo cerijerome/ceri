@@ -1,10 +1,14 @@
 package ceri.common.data;
 
+import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertRead;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.ErrorProducer.IOX;
+import static ceri.common.test.ErrorProducer.RIX;
+import static ceri.common.test.ErrorProducer.RTX;
 import static ceri.common.test.TestUtil.inputStream;
-import static ceri.common.test.TestUtil.outputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,9 +20,9 @@ import ceri.common.data.ByteArray.Mutable;
 import ceri.common.data.ByteStream.Reader;
 import ceri.common.data.ByteStream.Writer;
 import ceri.common.io.IoStreamUtil;
+import ceri.common.io.PipedStream;
 import ceri.common.io.RuntimeIoException;
-import ceri.common.test.ErrorGen;
-import ceri.common.test.ErrorGen.Mode;
+import ceri.common.test.ErrorProducer;
 
 @SuppressWarnings("resource")
 public class ByteStreamBehavior {
@@ -36,14 +40,17 @@ public class ByteStreamBehavior {
 
 	@Test
 	public void shouldReadByteWithErrors() {
-		ErrorGen error = ErrorGen.of();
-		InputStream in = IoStreamUtil.in(error::generateIo);
+		ErrorProducer error = ErrorProducer.of();
+		InputStream in = IoStreamUtil.in(() -> {
+			error.call(IO_ADAPTER);
+			return 0;
+		});
 		Reader r = ByteStream.reader(in);
-		error.mode(Mode.rt);
+		error.setFrom(RTX);
 		assertThrown(RuntimeException.class, () -> r.readByte());
-		error.mode(Mode.rtInterrupted);
+		error.setFrom(RIX);
 		assertThrown(RuntimeInterruptedException.class, () -> r.readByte());
-		error.mode(Mode.checked);
+		error.setFrom(IOX);
 		assertThrown(RuntimeIoException.class, () -> r.readByte());
 	}
 
@@ -83,10 +90,10 @@ public class ByteStreamBehavior {
 	@Test
 	public void shouldTransferToOutputStream() throws IOException {
 		Reader r = ByteStream.reader(inputStream(1, 2, 3, 4, 5));
-		var out = outputStream(new int[6]);
-		assertEquals(r.transferTo(out, 3), 3);
-		assertThrown(() -> r.transferTo(out, 3));
-		assertArray(out.written(), 1, 2, 3);
+		var pipe = PipedStream.of();
+		assertEquals(r.transferTo(pipe.out(), 3), 3);
+		assertThrown(() -> r.transferTo(pipe.out(), 3));
+		assertRead(pipe.in(), 1, 2, 3);
 	}
 
 	/* Writer tests */
@@ -103,55 +110,55 @@ public class ByteStreamBehavior {
 
 	@Test
 	public void shouldWriteByteWithErrors() {
-		ErrorGen error = ErrorGen.of();
-		OutputStream out = IoStreamUtil.out(i -> error.generateIo());
+		ErrorProducer error = ErrorProducer.of();
+		OutputStream out = IoStreamUtil.out(i -> error.call(IO_ADAPTER));
 		Writer w = ByteStream.writer(out);
-		error.mode(Mode.rt);
+		error.setFrom(RTX);
 		assertThrown(RuntimeException.class, () -> w.writeByte(1));
-		error.mode(Mode.rtInterrupted);
+		error.setFrom(RIX);
 		assertThrown(RuntimeInterruptedException.class, () -> w.writeByte(2));
-		error.mode(Mode.checked);
+		error.setFrom(IOX);
 		assertThrown(RuntimeIoException.class, () -> w.writeByte(3));
 	}
 
 	@Test
-	public void shouldFillBytes() {
-		var out = outputStream(0, 0, 0); // EOF after 3 writes
-		Writer w = ByteStream.writer(out);
+	public void shouldFillBytes() throws IOException {
+		var pipe = PipedStream.of();
+		Writer w = ByteStream.writer(pipe.out());
 		w.fill(2, 1);
-		assertThrown(() -> w.fill(2, 2));
-		assertArray(out.written(), 1, 1, 2);
+		w.fill(2, 2);
+		assertRead(pipe.in(), 1, 1, 2, 2);
 	}
 
 	@Test
-	public void shouldWriteFromByteArray() {
-		var out = outputStream(0, 0, 0, 0); // EOF after 4 writes
+	public void shouldWriteFromByteArray() throws IOException {
+		var pipe = PipedStream.of();
 		byte[] bytes = ArrayUtil.bytes(1, 2, 3, 4, 5);
-		Writer w = ByteStream.writer(out);
+		Writer w = ByteStream.writer(pipe.out());
 		w.writeFrom(bytes, 1, 3);
-		assertThrown(() -> w.writeFrom(bytes, 0, 2));
-		assertArray(out.written(), 2, 3, 4, 1);
+		w.writeFrom(bytes, 0, 2);
+		assertRead(pipe.in(), 2, 3, 4, 1);
 	}
 
 	@Test
-	public void shouldWriteFromByteProvider() {
-		var out = outputStream(0, 0, 0, 0); // EOF after 4 writes
+	public void shouldWriteFromByteProvider() throws IOException {
+		var pipe = PipedStream.of();
 		Mutable m = Mutable.wrap(1, 2, 3, 4, 5);
-		Writer w = ByteStream.writer(out);
+		Writer w = ByteStream.writer(pipe.out());
 		w.writeFrom(m, 1, 3);
-		assertThrown(() -> w.writeFrom(m, 0, 2));
-		assertArray(out.written(), 2, 3, 4, 1);
+		w.writeFrom(m, 0, 2);
+		assertRead(pipe.in(), 2, 3, 4, 1);
 	}
 
 	@Test
 	public void shouldTransferFromInputStream() throws IOException {
+		var pipe = PipedStream.of();
 		var in = inputStream(1, 2, 3, 4, 5);
-		var out = outputStream(new int[6]);
-		Writer w = ByteStream.writer(out);
+		Writer w = ByteStream.writer(pipe.out());
 		assertEquals(w.transferFrom(in, 3), 3);
 		assertEquals(w.transferFrom(in, 3), 2);
 		assertEquals(w.transferFrom(in, 3), 0);
-		assertArray(out.written(), 1, 2, 3, 4, 5);
+		assertRead(pipe.in(), 1, 2, 3, 4, 5);
 	}
 
 }

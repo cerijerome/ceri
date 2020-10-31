@@ -23,10 +23,10 @@ public class ReplaceableInputStreamBehavior {
 	private @Mock InputStream in;
 
 	@Before
-	public void init() {
+	public void before() {
 		MockitoAnnotations.initMocks(this);
 	}
-
+	
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldNotifyListenerOfMarkException() throws IOException {

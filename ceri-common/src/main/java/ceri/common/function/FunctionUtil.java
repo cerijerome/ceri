@@ -1,5 +1,6 @@
 package ceri.common.function;
 
+import static java.lang.Math.min;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -11,6 +12,7 @@ import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.Counter;
 
 public class FunctionUtil {
 	private static final int MAX_RECURSIONS_DEF = 20;
@@ -78,13 +80,32 @@ public class FunctionUtil {
 	 * as when closing an object, to squash noisy exceptions.
 	 */
 	public static <T> T callSilently(ExceptionSupplier<?, T> supplier) {
+		return callSilently(supplier, null);
+	}
+
+	/**
+	 * Call and ignore any exceptions. Returns value if no exception occurred. Use judiciously, such
+	 * as when closing an object, to squash noisy exceptions.
+	 */
+	public static <T> T callSilently(ExceptionSupplier<?, T> supplier, T def) {
 		try {
 			return supplier.get();
 		} catch (Exception e) {
-			return null;
+			return def;
 		}
 	}
 
+	/**
+	 * Provide sequential access to an array.
+	 */
+	@SafeVarargs
+	public static <T> Supplier<T> sequentialSupplier(T... ts) {
+		if (ts.length == 0) return null;
+		if (ts.length == 1) return () -> ts[0];
+		Counter counter = Counter.of();
+		return () -> ts[min(counter.intInc(), ts.length) - 1];
+	}
+	
 	/**
 	 * If value is null, return first non-null supplied value.
 	 */

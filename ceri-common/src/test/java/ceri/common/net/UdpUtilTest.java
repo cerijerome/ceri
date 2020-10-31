@@ -5,73 +5,60 @@ import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static java.util.Objects.requireNonNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import java.net.UnknownHostException;
 import org.junit.Test;
-import org.mockito.Mockito;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 
 public class UdpUtilTest {
-	private static DatagramSocket socket;
-	private static InetAddress address;
-
-	@BeforeClass
-	public static void beforeClass() {
-		socket = Mockito.mock(DatagramSocket.class);
-		address = Mockito.mock(InetAddress.class);
-	}
-
-	@Before
-	public void init() {
-		Mockito.reset(socket, address); // to reduce test times
-	}
 
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(UdpUtil.class);
 	}
 
-	@SuppressWarnings("resource")
 	@Test
-	public void testHostPort() {
-		assertNull(UdpUtil.hostPort(null));
-		doReturn(null).when(socket).getInetAddress();
-		assertThrown(() -> UdpUtil.hostPort(socket));
-		doReturn(address).when(socket).getInetAddress();
-		doReturn(777).when(socket).getPort();
-		doReturn("test").when(address).getHostAddress();
-		HostPortBehavior.assertHostPort(UdpUtil.hostPort(socket), "test", 777);
+	public void testHostPort() throws IOException {
+		InetAddress address = InetAddress.getLocalHost();
+		try (TestDatagramSocket socket = TestDatagramSocket.of()) {
+			assertNull(UdpUtil.hostPort(null));
+			socket.getInetAddress.autoResponse(() -> null);
+			assertThrown(() -> UdpUtil.hostPort(socket));
+			socket.getInetAddress.autoResponses(address);
+			socket.getPort.autoResponses(777);
+			HostPortBehavior.assertHostPort(UdpUtil.hostPort(socket), address.getHostAddress(),
+				777);
+		}
 	}
 
 	@Test
-	public void testToPacket() {
+	public void testToPacket() throws UnknownHostException {
+		InetAddress address = InetAddress.getLocalHost();
 		DatagramPacket packet = UdpUtil.toPacket(ByteUtil.toAscii("test"), address, 0);
 		assertArray(packet.getData(), 't', 'e', 's', 't');
 	}
 
-	@SuppressWarnings("resource")
 	@Test
 	public void testReceiveWithTimeout() throws IOException {
 		byte[] buffer = new byte[100];
-		doThrow(SocketTimeoutException.class).when(socket).receive(any());
-		assertNull(UdpUtil.receive(socket, buffer));
+		try (TestDatagramSocket socket = TestDatagramSocket.of()) {
+			socket.receive.error.setFrom(SocketTimeoutException::new);
+			assertNull(UdpUtil.receive(socket, buffer));
+		}
 	}
 
 	@Test
 	public void testReceive() throws IOException {
 		byte[] buffer = new byte[100];
-		ByteProvider data = UdpUtil.receive(socket, buffer);
-		requireNonNull(data);
-		assertArray(data.copy(0), buffer);
+		try (TestDatagramSocket socket = TestDatagramSocket.of()) {
+			ByteProvider data = UdpUtil.receive(socket, buffer);
+			requireNonNull(data);
+			assertArray(data.copy(0), buffer);
+		}
 	}
 
 }

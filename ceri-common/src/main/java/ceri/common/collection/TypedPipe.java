@@ -18,7 +18,7 @@ public class TypedPipe<T> {
 	public static class In<T> {
 		private final BlockingQueue<T> queue;
 
-		private In(BlockingQueue<T> queue) {
+		protected In(BlockingQueue<T> queue) {
 			this.queue = queue;
 		}
 
@@ -36,12 +36,32 @@ public class TypedPipe<T> {
 				list.add(read());
 			return list;
 		}
+
+		/**
+		 * Polls queue until empty.
+		 */
+		public void awaitRead(int pollMs) {
+			while (available() > 0)
+				ConcurrentUtil.delay(pollMs);
+		}
+
+		/**
+		 * Polls queue until empty. Returns false if timeout exceeded.
+		 */
+		public boolean awaitRead(int pollMs, int timeoutMs) {
+			long t = System.currentTimeMillis() + timeoutMs;
+			while (true) {
+				if (available() == 0) return true;
+				if (System.currentTimeMillis() >= t) return false;
+				ConcurrentUtil.delay(pollMs);
+			}
+		}
 	}
 
 	public static class Out<T> {
 		private final BlockingQueue<T> queue;
 
-		private Out(BlockingQueue<T> queue) {
+		protected Out(BlockingQueue<T> queue) {
 			this.queue = queue;
 		}
 
@@ -59,45 +79,6 @@ public class TypedPipe<T> {
 			for (T value : values)
 				write(value);
 		}
-	}
-
-	public static class Bi<T> {
-		public final TypedPipe<T> pipedIn;
-		public final TypedPipe<T> pipedOut;
-
-		private Bi(int inSize, int outSize) {
-			pipedIn = TypedPipe.of(inSize);
-			pipedOut = TypedPipe.of(outSize);
-		}
-
-		public In<T> in() {
-			return pipedIn.in();
-		}
-
-		public Out<T> out() {
-			return pipedOut.out();
-		}
-
-		public Out<T> inFeed() {
-			return pipedIn.out();
-		}
-
-		public In<T> outSink() {
-			return pipedOut.in();
-		}
-
-		public void clear() {
-			pipedIn.clear();
-			pipedOut.clear();
-		}
-	}
-
-	public static <T> Bi<T> bi() {
-		return bi(DEFAULT_SIZE, DEFAULT_SIZE);
-	}
-
-	public static <T> Bi<T> bi(int inSize, int outSize) {
-		return new Bi<>(inSize, outSize);
 	}
 
 	public static <T> TypedPipe<T> of() {
@@ -124,26 +105,6 @@ public class TypedPipe<T> {
 
 	public Out<T> out() {
 		return out;
-	}
-
-	/**
-	 * Wait for PipedInputStream to read available bytes.
-	 */
-	public void awaitRead(int pollMs) {
-		while (in.available() > 0)
-			ConcurrentUtil.delay(pollMs);
-	}
-
-	/**
-	 * Wait for PipedInputStream to read available bytes. Returns false if timeout exceeded.
-	 */
-	public boolean awaitRead(int pollMs, int timeoutMs) {
-		long t = System.currentTimeMillis() + timeoutMs;
-		while (true) {
-			if (in.available() == 0) return true;
-			if (System.currentTimeMillis() >= t) return false;
-			ConcurrentUtil.delay(pollMs);
-		}
 	}
 
 }

@@ -168,6 +168,92 @@ public class ArrayUtilTest {
 	}
 
 	@Test
+	public void testToStringForTypedSubArray() {
+		String[] array = { "", "test", null, "TEST", "x" };
+		assertEquals(ArrayUtil.toString((String[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1, 3), "[test, null, TEST]");
+	}
+
+	@Test
+	public void testToStringForBooleanSubArray() {
+		boolean[] array = { true, true, false, true, false };
+		assertEquals(ArrayUtil.toString((boolean[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1, 3), "[true, false, true]");
+	}
+
+	@Test
+	public void testToStringForByteSubArray() {
+		byte[] array = ArrayUtil.bytes(-1, Byte.MAX_VALUE, 0, Byte.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toString((byte[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1, 3), "[127, 0, -128]");
+		assertEquals(ArrayUtil.toHex(array, 1, 3), "[0x7f, 0x0, 0x80]");
+	}
+
+	@Test
+	public void testToStringForCharSubArray() {
+		char[] array = ArrayUtil.chars(-1, Character.MAX_VALUE, 0, Character.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toString((char[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1, 3), "[\uffff, \0, \0]");
+	}
+
+	@Test
+	public void testToStringForShortSubArray() {
+		short[] array = ArrayUtil.shorts(-1, Short.MAX_VALUE, 0, Short.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toString((short[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1, 3), "[32767, 0, -32768]");
+		assertEquals(ArrayUtil.toHex(array, 1, 3), "[0x7fff, 0x0, 0x8000]");
+	}
+
+	@Test
+	public void testToStringForIntSubArray() {
+		int[] array = ArrayUtil.ints(-1, Integer.MAX_VALUE, 0, Integer.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toString((int[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1, 3), "[2147483647, 0, -2147483648]");
+		assertEquals(ArrayUtil.toHex(array, 1, 3), "[0x7fffffff, 0x0, 0x80000000]");
+	}
+
+	@Test
+	public void testToStringForLongSubArray() {
+		long[] array = ArrayUtil.longs(-1, Long.MAX_VALUE, 0, Long.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toString((long[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1, 3),
+			"[9223372036854775807, 0, -9223372036854775808]");
+		assertEquals(ArrayUtil.toHex(array, 1, 3), "[0x7fffffffffffffff, 0x0, 0x8000000000000000]");
+	}
+
+	@Test
+	public void testToStringForFloatSubArray() {
+		float[] array = ArrayUtil.floats(-1, Float.MAX_VALUE, Float.NaN, Float.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toString((float[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1, 3), "[3.4028235E38, NaN, 1.4E-45]");
+	}
+
+	@Test
+	public void testToStringForDoubleSubArray() {
+		double[] array = ArrayUtil.doubles(-1, Double.MAX_VALUE, Double.NaN, Double.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toString((double[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1, 3), "[1.7976931348623157E308, NaN, 4.9E-324]");
+	}
+
+	@Test
 	public void testDeepToString() {
 		assertEquals(ArrayUtil.deepToString(null), "null");
 		assertEquals(ArrayUtil.deepToString("test"), "test");

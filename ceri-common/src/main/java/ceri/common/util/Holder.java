@@ -19,7 +19,7 @@ public abstract class Holder<T> {
 	}
 
 	public static <T> Mutable<T> mutable(T value) {
-		return Holder.<T>mutable().value(value);
+		return Holder.<T>mutable().set(value);
 	}
 
 	public static <T> Mutable<T> mutable() {
@@ -70,7 +70,7 @@ public abstract class Holder<T> {
 			return empty;
 		}
 
-		public Mutable<T> value(T value) {
+		public Mutable<T> set(T value) {
 			this.value = value;
 			empty = false;
 			return this;
@@ -86,6 +86,10 @@ public abstract class Holder<T> {
 	public abstract boolean isEmpty();
 
 	public abstract T value();
+
+	public T value(T def) {
+		return isEmpty() ? def : value();
+	}
 
 	public boolean nullValue() {
 		return holds(null);

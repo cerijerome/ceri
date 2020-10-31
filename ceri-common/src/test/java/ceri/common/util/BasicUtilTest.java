@@ -17,12 +17,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import org.junit.Test;
-import org.mockito.Mock;
 import ceri.common.text.StringUtil;
 
 public class BasicUtilTest {
-	@Mock
-	Class<?> badClass;
 
 	@Test
 	public void testConstructorIsPrivate() {

@@ -10,7 +10,7 @@ import ceri.common.function.ExceptionSupplier;
 import ceri.common.reflect.ReflectUtil;
 
 /**
- * Adapter that only wraps non-assignable exceptions.
+ * Adapter that wraps non-assignable exceptions.
  */
 public class ExceptionAdapter<E extends Exception> implements Function<Throwable, E> {
 	public static ExceptionAdapter<Exception> NULL = of(Exception.class, Exception::new);

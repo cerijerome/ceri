@@ -1,6 +1,7 @@
 package ceri.common.concurrent;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.TestUtil.threadCall;
 import org.junit.Test;
 
 public class ValueConditionBehavior {
@@ -52,6 +53,18 @@ public class ValueConditionBehavior {
 		ValueCondition<Integer> flag = ValueCondition.of();
 		flag.signal(2);
 		assertEquals(flag.await(Integer.valueOf(2)), 2);
+	}
+
+	@Test
+	public void shouldProvideStringRepresentation() {
+		ValueCondition<Integer> flag = ValueCondition.of();
+		assertEquals(flag.toString(), "[null];hold=0;queue=0");
+		ConcurrentUtil.execute(flag.lock, () -> {
+			assertEquals(flag.toString(), "[null];hold=1;queue=0");
+			try (var exec = threadCall(() -> flag.toString())) {
+				assertEquals(exec.get(), "empty;hold=0;queue=0");
+			}
+		});
 	}
 
 }

@@ -1,20 +1,16 @@
 package ceri.common.process;
 
-import static ceri.common.process.ProcessTestUtil.command;
-import static ceri.common.process.ProcessTestUtil.mockProcess;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.ErrorProducer.INX;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
-import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.test.TestProcess;
 
 public class ProcessorBehavior {
 
@@ -39,72 +35,92 @@ public class ProcessorBehavior {
 	}
 
 	@Test
-	public void shouldCaptureStdOut() throws IOException, InterruptedException {
+	public void shouldCaptureStdOut() throws IOException {
 		Processor p = Processor.builder().timeoutMs(1).captureStdOut(true).verifyErr(false)
 			.verifyExitValue(false).build();
-		ProcessCommand cmd = command(mockProcess("stdout", "stderr", -1, true), "test");
-		assertEquals(p.exec(cmd), "stdout");
+		try (var process = TestProcess.of("stdout", "stderr", -1, true)) {
+			ProcessCommand cmd = command(process, "test");
+			assertEquals(p.exec(cmd), "stdout");
+		}
 	}
 
 	@Test
-	public void shouldVerifyEmptyStdErr() throws InterruptedException, IOException {
+	public void shouldVerifyEmptyStdErr() throws IOException {
 		Processor p = Processor.builder().timeoutMs(1).captureStdOut(false).verifyErr(true)
 			.verifyExitValue(false).build();
-		ProcessCommand cmd1 = command(mockProcess("stdout", "", -1, true), "test");
-		assertNull(p.exec(cmd1));
-		ProcessCommand cmd2 = command(mockProcess("stdout", "stderr", -1, true), "test");
-		assertThrown(IOException.class, () -> p.exec(cmd2));
+		try (var process = TestProcess.of("stdout", "", -1, true)) {
+			ProcessCommand cmd1 = command(process, "test");
+			assertNull(p.exec(cmd1));
+		}
+		try (var process = TestProcess.of("stdout", "stderr", -1, true)) {
+			ProcessCommand cmd2 = command(process, "test");
+			assertThrown(IOException.class, () -> p.exec(cmd2));
+		}
 	}
 
 	@Test
-	public void shouldVerifyEmptyExitCode() throws InterruptedException, IOException {
+	public void shouldVerifyEmptyExitCode() throws IOException {
 		Processor p = Processor.builder().timeoutMs(1).captureStdOut(false).verifyErr(false)
 			.verifyExitValue(true).build();
-		ProcessCommand cmd1 = command(mockProcess("stdout", "stderr", 0, true), "test");
-		assertNull(p.exec(cmd1));
-		ProcessCommand cmd2 = command(mockProcess("stdout", "stderr", -1, true), "test");
-		assertThrown(IOException.class, () -> p.exec(cmd2));
+		try (var process = TestProcess.of("stdout", "stderr", 0, true)) {
+			ProcessCommand cmd1 = command(process, "test");
+			assertNull(p.exec(cmd1));
+		}
+		try (var process = TestProcess.of("stdout", "stderr", -1, true)) {
+			ProcessCommand cmd2 = command(process, "test");
+			assertThrown(IOException.class, () -> p.exec(cmd2));
+		}
 	}
 
 	@Test
-	public void shouldVerifyTimeout() throws InterruptedException, IOException {
+	public void shouldVerifyTimeout() throws IOException {
 		Processor p = Processor.builder().timeoutMs(1).captureStdOut(false).verifyErr(false)
 			.verifyExitValue(false).build();
-		ProcessCommand cmd1 = command(mockProcess("stdout", "stderr", 0, true), "test");
-		assertNull(p.exec(cmd1));
-		ProcessCommand cmd2 = command(mockProcess("stdout", "stderr", 0, false), "test");
-		assertThrown(IOException.class, () -> p.exec(cmd2));
+		try (var process = TestProcess.of("stdout", "stderr", 0, true)) {
+			ProcessCommand cmd1 = command(process, "test");
+			assertNull(p.exec(cmd1));
+		}
+		try (var process = TestProcess.of("stdout", "stderr", 0, false)) {
+			ProcessCommand cmd2 = command(process, "test");
+			assertThrown(IOException.class, () -> p.exec(cmd2));
+		}
 	}
 
 	@Test
-	public void shouldNotVerifyZeroTimeout() throws InterruptedException, IOException {
+	public void shouldNotVerifyZeroTimeout() throws IOException {
 		Processor p = Processor.builder().timeoutMs(0).captureStdOut(false).verifyErr(false)
 			.verifyExitValue(false).build();
-		Process mock = mockProcess("stdout", "stderr", 0, true);
-		assertNull(p.exec(command(mock, "test")));
-		verify(mock, never()).waitFor();
-		verify(mock, never()).waitFor(anyLong(), any());
+		try (var process = TestProcess.of("stdout", "stderr", 0, true)) {
+			assertNull(p.exec(command(process, "test")));
+			process.exitValue.assertNoCall();
+			process.waitFor.assertNoCall();
+		}
 	}
 
 	@Test
-	public void shouldAllowNoTimeout() throws InterruptedException, IOException {
+	public void shouldAllowNoTimeout() throws IOException {
 		Processor p = Processor.builder().noTimeout().captureStdOut(false).verifyErr(false)
 			.verifyExitValue(false).build();
-		Process mock = mockProcess("stdout", "stderr", 0, true);
-		assertNull(p.exec(command(mock, "test")));
-		verify(mock, never()).waitFor(anyLong(), any());
+		try (var process = TestProcess.of("stdout", "stderr", 0, true)) {
+			assertNull(p.exec(command(process, "test")));
+			process.waitFor.assertNoCall();
+		}
 	}
 
-	@SuppressWarnings("resource")
 	@Test
-	public void shouldStopOnInterruption() throws InterruptedException {
+	public void shouldStopOnInterruption() throws IOException {
 		Processor p = Processor.builder().noTimeout().captureStdOut(true).verifyErr(true)
 			.verifyExitValue(true).build();
-		Process mock = mockProcess("stdout", "stderr", -1, true);
-		when(mock.waitFor()).thenThrow(InterruptedException.class);
-		assertThrown(RuntimeInterruptedException.class, () -> p.exec(command(mock, "test")));
-		verify(mock, never()).getOutputStream();
-		verify(mock, never()).exitValue();
+		try (TestProcess process = TestProcess.of("stdout", "stderr", -1, true)) {
+			process.exitValue.error.setFrom(INX);
+			assertThrown(() -> p.exec(command(process, "test")));
+			process.out.assertAvailable(0);
+		}
+	}
+
+	private static ProcessCommand command(Process process, String... commands) {
+		List<String> list = Arrays.asList(commands);
+		return ProcessCommand.of(() -> process, () -> list);
 	}
 
 }

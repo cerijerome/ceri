@@ -11,8 +11,8 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.FunctionUtil;
 
 public class KeyChecker implements Closeable {
-	private static final long POLL_MS = 500;
-	private final Thread threadToInterrupt;
+	private final int shutdownTimeoutMs;
+	private final Runnable action;
 	private final Predicate<String> checkFunction;
 	private final InputStream in;
 	private final ScheduledExecutorService executor;
@@ -22,20 +22,26 @@ public class KeyChecker implements Closeable {
 	}
 
 	public static class Builder {
-		long pollMs = POLL_MS;
-		Thread threadToInterrupt = Thread.currentThread();
+		int shutdownTimeoutMs = 1000;
+		int pollMs = 500;
+		Runnable action = Thread.currentThread()::interrupt;
 		Predicate<String> checkFunction = FunctionUtil.truePredicate();
 		InputStream in = System.in;
 
 		Builder() {}
 
-		public Builder pollMs(long pollMs) {
+		public Builder shutdownTimeoutMs(int shutdownTimeoutMs) {
+			this.shutdownTimeoutMs = shutdownTimeoutMs;
+			return this;
+		}
+
+		public Builder pollMs(int pollMs) {
 			this.pollMs = pollMs;
 			return this;
 		}
 
-		public Builder threadToInterrupt(Thread threadToInterrupt) {
-			this.threadToInterrupt = threadToInterrupt;
+		public Builder action(Runnable action) {
+			this.action = action;
 			return this;
 		}
 
@@ -59,7 +65,8 @@ public class KeyChecker implements Closeable {
 	}
 
 	KeyChecker(Builder builder) {
-		threadToInterrupt = builder.threadToInterrupt;
+		shutdownTimeoutMs = builder.shutdownTimeoutMs;
+		action = builder.action;
 		checkFunction = builder.checkFunction;
 		in = builder.in;
 		executor = Executors.newSingleThreadScheduledExecutor();
@@ -68,24 +75,18 @@ public class KeyChecker implements Closeable {
 
 	private void checkForInput() {
 		try {
-			int available = in.available();
-			if (available <= 0) return;
-			byte[] b = new byte[available];
-			in.read(b);
+			byte[] b = in.readNBytes(in.available());
 			String input = new String(b).trim();
 			if (!checkFunction.test(input)) return;
 		} catch (IOException e) {
 			// ignore error, exit
 		}
-		threadToInterrupt.interrupt();
+		action.run();
 	}
 
 	@Override
 	public void close() {
-		ConcurrentUtil.executeInterruptible(() -> {
-			executor.shutdown();
-			executor.awaitTermination(POLL_MS, TimeUnit.MILLISECONDS);
-		});
+		ConcurrentUtil.close(executor, shutdownTimeoutMs);
 	}
 
 }

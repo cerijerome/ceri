@@ -2,10 +2,12 @@ package ceri.common.test;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -17,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import org.junit.runner.JUnitCore;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.data.ByteArray.Immutable;
@@ -272,43 +275,18 @@ public class TestUtil {
 	}
 
 	/**
-	 * Creates a test input stream based on given action data. Values >= 0 are byte data values,
-	 * values < 0 are actions for generating early EOF, altering available() response, and
-	 * generating exceptions.
+	 * Creates a test input stream with given bytes.
 	 */
-	public static TestInputStream inputStream(int... actions) {
-		TestInputStream in = new TestInputStream();
-		in.actions(actions);
-		return in;
+	public static InputStream inputStream(int... bytes) {
+		return new ByteArrayInputStream(ArrayUtil.bytes(bytes));
 	}
 
 	/**
-	 * Creates a test input stream based on ascii bytes and encoded actions.
+	 * Creates a test input stream based on UTF8 bytes and encoded actions.
 	 */
-	public static TestInputStream inputStream(String format, Object... args) {
-		TestInputStream in = new TestInputStream();
-		in.actions(format, args);
-		return in;
-	}
-
-	/**
-	 * Creates a test input stream based on given data.
-	 */
-	public static TestInputStream inputStream(byte[] bytes) {
-		TestInputStream in = new TestInputStream();
-		in.data(bytes);
-		return in;
-	}
-
-	/**
-	 * Creates a test output stream based on given action data. Values < 0 are actions for
-	 * generating exceptions. Written values are collected, and may be retrieved by calling
-	 * written().
-	 */
-	public static TestOutputStream outputStream(int... actions) {
-		TestOutputStream out = new TestOutputStream();
-		out.actions(actions);
-		return out;
+	public static InputStream inputStream(String format, Object... args) {
+		return new ByteArrayInputStream(
+			StringUtil.format(format, args).getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**

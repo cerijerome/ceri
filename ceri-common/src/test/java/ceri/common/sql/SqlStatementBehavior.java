@@ -20,49 +20,27 @@ import static java.sql.Types.TIMESTAMP;
 import static java.sql.Types.TINYINT;
 import static java.sql.Types.VARBINARY;
 import static java.sql.Types.VARCHAR;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 public class SqlStatementBehavior {
-	private static PreparedStatement ps;
-	private static Connection con;
-	private ArgumentCaptor<Integer> indexes;
-	private ArgumentCaptor<Object> objects;
-	private ArgumentCaptor<Integer> types;
-
-	@SuppressWarnings("resource")
-	@BeforeClass
-	public static void beforeClass() throws SQLException {
-		ps = Mockito.mock(PreparedStatement.class);
-		con = Mockito.mock(Connection.class);
-		when(con.prepareStatement(any())).thenReturn(ps);
-	}
+	private TestConnection con;
+	private TestPreparedStatement ps;
 
 	@Before
 	public void before() {
-		MockitoAnnotations.initMocks(this);
-		Mockito.clearInvocations(ps); // to reduce test times
-		indexes = ArgumentCaptor.forClass(Integer.class);
-		objects = ArgumentCaptor.forClass(Object.class);
-		types = ArgumentCaptor.forClass(Integer.class);
+		ps = TestPreparedStatement.of();
+		con = TestConnection.of();
+		con.prepareStatement.autoResponses(ps);
 	}
 
 	@SuppressWarnings("resource")
@@ -73,7 +51,7 @@ public class SqlStatementBehavior {
 			assertEquals(stmt.toString(), "select * from table1");
 			assertEquals(stmt.jdbc(), ps);
 		}
-		verify(ps).close();
+		ps.close.awaitAuto();
 	}
 
 	@Test
@@ -84,14 +62,14 @@ public class SqlStatementBehavior {
 			assertEquals(stmt.toString(), "select ?, ?, ?, ?, ?, ?, ? from table1");
 			assertEquals(stmt.fields(), 7);
 		}
-		verify(ps).close();
+		ps.close.awaitAuto();
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldSetParameters() throws SQLException {
-		Blob blob = mock(Blob.class);
-		Clob clob = mock(Clob.class);
+		Blob blob = TestBlob.of();
+		Clob clob = TestClob.of();
 		Date date = new Date(77777);
 		BigDecimal bigD = new BigDecimal(100);
 		Timestamp timestamp = new Timestamp(99999999);
@@ -102,11 +80,15 @@ public class SqlStatementBehavior {
 			"select ?, ?, ?, ?, ?, ?, ?, ?, ?, ? from %s", "table1")) {
 			stmt.setDate(date).skip().setBlob(blob).setClob(clob).skip().setTimestamp(timestamp)
 				.setBigDecimal(bigD).setTime(time).setString(s).setText(txt);
-			verify(ps, times(8)).setObject(indexes.capture(), objects.capture(), types.capture());
-			assertIterable(indexes.getAllValues(), 1, 3, 4, 6, 7, 8, 9, 10);
-			assertIterable(objects.getAllValues(), date, blob, clob, timestamp, bigD, time, s, txt);
-			assertIterable(types.getAllValues(), DATE, BLOB, CLOB, TIMESTAMP, NUMERIC, TIME,
-				VARCHAR, CLOB);
+			assertIterable(ps.setObject.values(), //
+				List.of(1, date, DATE), //
+				List.of(3, blob, BLOB), //
+				List.of(4, clob, CLOB), //
+				List.of(6, timestamp, TIMESTAMP), //
+				List.of(7, bigD, NUMERIC), //
+				List.of(8, time, TIME), //
+				List.of(9, s, VARCHAR), //
+				List.of(10, txt, CLOB));
 		}
 	}
 
@@ -125,11 +107,15 @@ public class SqlStatementBehavior {
 			"select ?, ?, ?, ?, ?, ?, ?, ?, ?, ? from %s", "table1")) {
 			stmt.setBytes(bytes).setBoolean(bo).setByte(bt).skip(2).setShort(sh).setInt(it)
 				.setLong(lg).setFloat(fl).setDouble(db);
-			verify(ps, times(8)).setObject(indexes.capture(), objects.capture(), types.capture());
-			assertIterable(indexes.getAllValues(), 1, 2, 3, 6, 7, 8, 9, 10);
-			assertIterable(objects.getAllValues(), bytes, bo, bt, sh, it, lg, fl, db);
-			assertIterable(types.getAllValues(), VARBINARY, BIT, TINYINT, SMALLINT, INTEGER, BIGINT,
-				FLOAT, DOUBLE);
+			assertIterable(ps.setObject.values(), //
+				List.of(1, bytes, VARBINARY), //
+				List.of(2, bo, BIT), //
+				List.of(3, bt, TINYINT), //
+				List.of(6, sh, SMALLINT), //
+				List.of(7, it, INTEGER), //
+				List.of(8, lg, BIGINT), //
+				List.of(9, fl, FLOAT), //
+				List.of(10, db, DOUBLE));
 		}
 	}
 
@@ -138,11 +124,12 @@ public class SqlStatementBehavior {
 	public void shouldSetNullParameters() throws SQLException {
 		try (SqlStatement stmt = SqlStatement.track(con, "select ?, ?, ?, ?, ? from table1")) {
 			stmt.set(1, nullClob, "x", nullDate, nullInt);
-			verify(ps, times(2)).setObject(indexes.capture(), objects.capture());
-			verify(ps, times(3)).setObject(indexes.capture(), objects.capture(), types.capture());
-			assertIterable(indexes.getAllValues(), 1, 3, 2, 4, 5);
-			assertIterable(objects.getAllValues(), 1, "x", null, null, null);
-			assertIterable(types.getAllValues(), CLOB, DATE, INTEGER);
+			assertIterable(ps.setObject.values(), //
+				Arrays.asList(1, 1), //
+				Arrays.asList(2, null, CLOB), //
+				Arrays.asList(3, "x"), //
+				Arrays.asList(4, null, DATE), //
+				Arrays.asList(5, null, INTEGER));
 		}
 	}
 
@@ -175,12 +162,12 @@ public class SqlStatementBehavior {
 			assertEquals(stmt.toString(), "select 2, null, x from table1");
 			stmt.skip(2).set("z").batch();
 			assertEquals(stmt.toString(), "select 2, null, z from table1");
-
-			verify(ps, times(1)).setObject(indexes.capture(), objects.capture(), types.capture());
-			verify(ps, times(4)).setObject(indexes.capture(), objects.capture());
-			assertIterable(indexes.getAllValues(), 2, 1, 3, 1, 3);
-			assertIterable(objects.getAllValues(), null, 1, "x", 2, "z");
-			assertIterable(types.getAllValues(), DATE);
+			assertIterable(ps.setObject.values(), //
+				Arrays.asList(1, 1), //
+				Arrays.asList(2, null, DATE), //
+				Arrays.asList(3, "x"), //
+				Arrays.asList(1, 2), //
+				Arrays.asList(3, "z"));
 		}
 	}
 

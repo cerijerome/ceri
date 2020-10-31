@@ -6,8 +6,6 @@ import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -100,10 +98,9 @@ public class ExceptionUtilTest {
 		assertNull(ExceptionUtil.firstStackElement(null));
 		StackTraceElement el = ExceptionUtil.firstStackElement(new IOException());
 		assertEquals(el.getMethodName(), ReflectUtil.currentMethodName());
-
-		Exception e = mock(Exception.class);
+		TestException e = new TestException();
 		assertNull(ExceptionUtil.firstStackElement(e));
-		when(e.getStackTrace()).thenReturn(new StackTraceElement[0]);
+		e.stackTrace = new StackTraceElement[0];
 		assertNull(ExceptionUtil.firstStackElement(e));
 	}
 
@@ -123,6 +120,16 @@ public class ExceptionUtilTest {
 		ExceptionUtil.throwIfType(IOException.class, new InterruptedException());
 		assertThrown(IOException.class,
 			() -> ExceptionUtil.throwIfType(IOException.class, new EOFException()));
+	}
+
+	private static class TestException extends Exception {
+		private static final long serialVersionUID = 1L;
+		public StackTraceElement[] stackTrace = null;
+
+		@Override
+		public StackTraceElement[] getStackTrace() {
+			return stackTrace;
+		}
 	}
 
 }

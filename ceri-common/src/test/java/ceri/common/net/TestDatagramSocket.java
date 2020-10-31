@@ -1,0 +1,37 @@
+package ceri.common.net;
+
+import static ceri.common.io.IoUtil.IO_ADAPTER;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import ceri.common.test.CallSync;
+
+public class TestDatagramSocket extends DatagramSocket {
+	public final CallSync.Get<InetAddress> getInetAddress = CallSync.supplier();
+	public final CallSync.Get<Integer> getPort = CallSync.supplier(0);
+	public final CallSync.Accept<DatagramPacket> receive = CallSync.consumer(null, true);
+
+	public static TestDatagramSocket of() throws SocketException {
+		return new TestDatagramSocket();
+	}
+
+	private TestDatagramSocket() throws SocketException {}
+
+	@Override
+	public InetAddress getInetAddress() {
+		return getInetAddress.get();
+	}
+
+	@Override
+	public int getPort() {
+		return getPort.get();
+	}
+
+	@Override
+	public void receive(DatagramPacket p) throws IOException {
+		receive.accept(p, IO_ADAPTER);
+	}
+
+}

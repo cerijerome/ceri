@@ -3,33 +3,24 @@ package ceri.common.process;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
-import ceri.common.test.TestUtil;
+import ceri.common.test.TestProcess;
 
 public class ProcessUtilTest {
 
-	@SuppressWarnings("resource")
 	@Test
 	public void testStdOut() throws IOException {
-		try (InputStream in = TestUtil.inputStream("hello")) {
-			Process process = mock(Process.class);
-			when(process.getInputStream()).thenReturn(in);
-			assertEquals(ProcessUtil.stdOut(process), "hello");
+		try (var process = TestProcess.of("test", null, 0, true)) {
+			assertEquals(ProcessUtil.stdOut(process), "test");
 		}
 	}
 
-	@SuppressWarnings("resource")
 	@Test
 	public void testStdErr() throws IOException {
-		try (InputStream in = TestUtil.inputStream("hello")) {
-			Process process = mock(Process.class);
-			when(process.getErrorStream()).thenReturn(in);
-			assertEquals(ProcessUtil.stdErr(process), "hello");
+		try (var process = TestProcess.of(null, "test", 0, true)) {
+			assertEquals(ProcessUtil.stdErr(process), "test");
 		}
 	}
 

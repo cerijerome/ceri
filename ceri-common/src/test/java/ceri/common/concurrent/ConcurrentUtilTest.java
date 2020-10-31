@@ -6,27 +6,21 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.ErrorProducer.INX;
 import static ceri.common.test.TestUtil.threadCall;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.junit.AfterClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 import ceri.common.concurrent.ConcurrentUtil.LockInfo;
 import ceri.common.util.Holder;
 
@@ -90,10 +84,10 @@ public class ConcurrentUtilTest {
 	}
 
 	@Test
-	public void testCloseExecutorWithException() throws InterruptedException {
+	public void testCloseExecutorWithException() {
 		assertFalse(ConcurrentUtil.close(null, 0));
-		ExecutorService exec = Mockito.mock(ExecutorService.class);
-		when(exec.awaitTermination(anyLong(), any())).thenThrow(new InterruptedException());
+		TestExecutorService exec = TestExecutorService.of();
+		exec.awaitTermination.error.setFrom(INX);
 		assertFalse(ConcurrentUtil.close(exec, 0));
 	}
 
@@ -134,13 +128,12 @@ public class ConcurrentUtilTest {
 	}
 
 	@Test
-	public void testGetFutureInterruption()
-		throws InterruptedException, ExecutionException, TimeoutException {
-		Future<?> future = Mockito.mock(Future.class);
-		when(future.get()).thenThrow(new InterruptedException());
-		when(future.get(anyLong(), any())).thenThrow(new InterruptedException());
+	public void testGetFutureInterruption() {
+		TestFuture<?> future = TestFuture.of("test");
+		future.get.error.setFrom(INX);
 		assertThrown(RuntimeInterruptedException.class,
 			() -> ConcurrentUtil.get(future, RuntimeException::new));
+		future.getTimeout.error.setFrom(INX);
 		assertThrown(RuntimeInterruptedException.class,
 			() -> ConcurrentUtil.get(future, RuntimeException::new, 1000));
 	}
@@ -168,10 +161,10 @@ public class ConcurrentUtilTest {
 		Lock lock = new ReentrantLock();
 		var holder = Holder.mutable();
 		assertTrue(ConcurrentUtil.tryExecute(lock, () -> {
-			holder.value("test0");
+			holder.set("test0");
 			// Cannot get lock in new thread => return false
 			try (var exec =
-				threadCall(() -> ConcurrentUtil.tryExecute(lock, () -> holder.value("test1")))) {
+				threadCall(() -> ConcurrentUtil.tryExecute(lock, () -> holder.set("test1")))) {
 				assertFalse(exec.get());
 			}
 		}));
@@ -182,8 +175,7 @@ public class ConcurrentUtilTest {
 	public void testTryExecuteGet() {
 		Lock lock = new ReentrantLock();
 		var holder0 = ConcurrentUtil.tryExecuteGet(lock, () -> {
-			try (var exec =
-				threadCall(() -> ConcurrentUtil.tryExecuteGet(lock, () -> "test1"))) {
+			try (var exec = threadCall(() -> ConcurrentUtil.tryExecuteGet(lock, () -> "test1"))) {
 				var holder1 = exec.get();
 				assertTrue(holder1.isEmpty());
 			}

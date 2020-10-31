@@ -5,33 +5,15 @@ import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
+import static ceri.common.test.ErrorProducer.IOX;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Writer;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Properties;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 import ceri.common.test.FileTestHelper;
 
 public class PropertyUtilTest {
-	private static Properties properties;
-
-	@BeforeClass
-	public static void beforeClass() {
-		properties = Mockito.mock(Properties.class);
-	}
-
-	@Before
-	public void before() {
-		Mockito.clearInvocations(properties); // reduce test times
-	}
 
 	@Test
 	public void testConstructorIsPrivate() {
@@ -56,8 +38,9 @@ public class PropertyUtilTest {
 
 	@Test
 	public void testStoreWithFailingIO() throws IOException {
+		TestProperties properties = TestProperties.of();
+		properties.store.error.setFrom(IOX);
 		try (FileTestHelper helper = FileTestHelper.builder().build()) {
-			doThrow(new IOException()).when(properties).store((Writer) any(), anyString());
 			java.nio.file.Path file = helper.path("test.properties");
 			assertThrown(() -> PropertyUtil.store(properties, file));
 			PropertyUtil.store(new Properties(), file);
@@ -66,8 +49,9 @@ public class PropertyUtilTest {
 
 	@Test
 	public void testLoadWithFailingIO() throws IOException {
+		TestProperties properties = TestProperties.of();
+		properties.load.error.setFrom(IOX);
 		try (FileTestHelper helper = FileTestHelper.builder().build()) {
-			doThrow(new IOException()).when(properties).load((InputStream) any());
 			java.nio.file.Path file = helper.path("test.properties");
 			assertThrown(() -> PropertyUtil.load(file));
 			assertThrown(() -> PropertyUtil.load(getClass(), "test.properties"));

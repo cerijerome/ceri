@@ -5,13 +5,12 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertExists;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Test;
-import org.mockito.Mockito;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.io.TestPath;
 
 public class FileTestHelperBehavior {
 
@@ -23,8 +22,7 @@ public class FileTestHelperBehavior {
 
 	@Test
 	public void shouldTidyUpOnBuildFailure() {
-		Path badPath = Mockito.mock(Path.class);
-		when(badPath.normalize()).thenReturn(badPath);
+		TestPath badPath = TestPath.of();
 		FileTestHelper.Builder b = FileTestHelper.builder().root("a").dir("b").file(badPath, "aaa");
 		assertThrown(() -> b.build());
 		assertExists(Path.of("a"), false);

@@ -7,10 +7,13 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 import ceri.common.collection.WrappedStream;
+import ceri.common.exception.ExceptionAdapter;
 
 public class SqlUtil {
 	private static final int TABLE_NAME_INDEX = 3;
 	private static final String TABLE_TYPE = "TABLE";
+	public static final ExceptionAdapter<SQLException> SQL_ADAPTER =
+		ExceptionAdapter.of(SQLException.class, SQLException::new);
 
 	private SqlUtil() {}
 

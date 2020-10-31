@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.SystemIo;
@@ -230,13 +229,6 @@ public class TestUtilTest {
 	public void testReader() {
 		assertArray(TestUtil.reader(1, 2, 3).readBytes(), 1, 2, 3);
 		assertArray(TestUtil.reader("abc").readBytes(), 'a', 'b', 'c');
-	}
-
-	@Test
-	public void testInputStreamBytes() throws IOException {
-		try (var in = TestUtil.inputStream(ArrayUtil.bytes(1, 2, 3, -1, -2, -3, 4))) {
-			assertArray(in.readAllBytes(), 1, 2, 3, -1, -2, -3, 4);
-		}
 	}
 
 }

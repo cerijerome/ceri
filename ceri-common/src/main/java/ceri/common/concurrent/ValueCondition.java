@@ -8,6 +8,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
+import ceri.common.concurrent.ConcurrentUtil.LockInfo;
 import ceri.common.time.Timer;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Holder;
@@ -181,6 +182,15 @@ public class ValueCondition<T> {
 	 */
 	public Holder<T> tryValue() {
 		return ConcurrentUtil.tryExecuteGet(lock, () -> value);
+	}
+
+	/**
+	 * Prints internal state; useful for debugging tests.
+	 */
+	@Override
+	public String toString() {
+		LockInfo info = ConcurrentUtil.lockInfo(lock);
+		return String.format("%s;hold=%d;queue=%d", tryValue(), info.holdCount, info.queueLength);
 	}
 
 	/**

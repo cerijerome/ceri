@@ -13,13 +13,9 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.ErrorProducer.IOX;
 import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
 import static ceri.common.test.TestUtil.inputStream;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -29,16 +25,13 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.net.URL;
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.WrappedStream;
 import ceri.common.data.ByteArray;
@@ -46,6 +39,8 @@ import ceri.common.data.ByteProvider;
 import ceri.common.io.IoStreamUtil.Read;
 import ceri.common.test.AssertUtil;
 import ceri.common.test.FileTestHelper;
+import ceri.common.test.TestInputStream;
+import ceri.common.test.TestUtil;
 import ceri.common.util.SystemVars;
 
 public class IoUtilTest {
@@ -181,9 +176,8 @@ public class IoUtilTest {
 	public void testRoot() {
 		assertNull(IoUtil.root(null));
 		assertPath(IoUtil.root(FileSystems.getDefault()), "/");
-		FileSystem mockFs = Mockito.mock(FileSystem.class);
-		when(mockFs.getRootDirectories()).thenReturn(List.of());
-		assertNull(IoUtil.root(mockFs));
+		TestFileSystem fs = TestFileSystem.of();
+		assertNull(IoUtil.root(fs));
 	}
 
 	@Test
@@ -338,12 +332,10 @@ public class IoUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testExecOrClose() throws IOException {
-		InputStream in = Mockito.mock(InputStream.class);
-		when(in.read()).thenReturn(-1);
-		assertEquals(IoUtil.execOrClose(in, InputStream::read), in);
-		when(in.read()).thenThrow(IOException.class);
-		assertThrown(() -> IoUtil.execOrClose(in, InputStream::read));
-		verify(in).close();
+		TestInputStream in = TestInputStream.of();
+		assertEquals(IoUtil.execOrClose(in, InputStream::close), in);
+		in.close.error.setFrom(IOX);
+		assertThrown(() -> IoUtil.execOrClose(in, InputStream::close));
 	}
 
 	@Test
@@ -365,7 +357,7 @@ public class IoUtilTest {
 
 	@Test
 	public void testPollString() throws IOException {
-		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
+		try (InputStream in = TestUtil.inputStream("test")) {
 			String s = IoUtil.pollString(in);
 			assertEquals(s, "test");
 		}
@@ -375,7 +367,7 @@ public class IoUtilTest {
 	@Test
 	public void testAvailableChar() throws IOException {
 		try (SystemIo sys = SystemIo.of()) {
-			sys.in(new ByteArrayInputStream("test".getBytes()));
+			sys.in(TestUtil.inputStream("test"));
 			assertEquals(IoUtil.availableChar(), 't');
 			assertEquals(IoUtil.availableChar(), 'e');
 			assertEquals(IoUtil.availableChar(), 's');
@@ -383,8 +375,8 @@ public class IoUtilTest {
 			sys.in().close();
 			assertEquals(IoUtil.availableChar(), '\0');
 		}
-		try (InputStream in = Mockito.mock(InputStream.class)) {
-			doThrow(new IOException()).when(in).available();
+		try (TestInputStream in = TestInputStream.of()) {
+			in.available.error.setFrom(IOX);
 			assertEquals(IoUtil.availableChar(in), '\0');
 		}
 	}
@@ -405,9 +397,7 @@ public class IoUtilTest {
 			assertEquals(IoUtil.availableBytes(in), ByteArray.Immutable.wrap(0, 1, 2, 3, 4));
 			assertEquals(IoUtil.availableBytes(in), ByteProvider.empty());
 		}
-		try (InputStream in = Mockito.mock(InputStream.class)) {
-			when(in.available()).thenReturn(5);
-			when(in.read(any())).thenReturn(0);
+		try (InputStream in = IoStreamUtil.in((buf, off, len) -> 0, () -> 3)) {
 			assertEquals(IoUtil.availableBytes(in), ByteProvider.empty());
 		}
 	}
@@ -563,7 +553,7 @@ public class IoUtilTest {
 	@Test
 	public void testCopyBadFile() throws IOException {
 		try {
-			Path badFile = mock(Path.class);
+			TestPath badFile = TestPath.of();
 			Path toFile2 = helper.path("x/y/z.txt");
 			assertThrown(() -> IoUtil.copyFile(badFile, toFile2));
 			assertFalse(Files.exists(helper.path("x/y")));
