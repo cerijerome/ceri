@@ -238,14 +238,16 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.CallSyncBehavior.class, //
 	ceri.common.test.CaptorBehavior.class, //
 	ceri.common.test.DebuggerBehavior.class, //
-	ceri.common.test.ErrorProducerBehavior.class, //
+	ceri.common.test.ErrorGenBehavior.class, //
 	ceri.common.test.FileTestHelperBehavior.class, //
 	ceri.common.test.PulsePrinterBehavior.class, //
 	ceri.common.test.RegexFinderBehavior.class, //
 	ceri.common.test.RegexMatcherBehavior.class, //
 	ceri.common.test.TestConnectorBehavior.class, //
+	ceri.common.test.TestInputStreamBehavior.class, //
 	ceri.common.test.TestListenerBehavior.class, //
 	ceri.common.test.TestListenersBehavior.class, //
+	ceri.common.test.TestOutputStreamBehavior.class, //
 	ceri.common.test.TestPrinterBehavior.class, //
 	ceri.common.test.TestProcessBehavior.class, //
 	ceri.common.test.TestRunAdapterBehavior.class, //

@@ -5,9 +5,9 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertRead;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.ErrorProducer.IOX;
-import static ceri.common.test.ErrorProducer.RIX;
-import static ceri.common.test.ErrorProducer.RTX;
+import static ceri.common.test.ErrorGen.IOX;
+import static ceri.common.test.ErrorGen.RIX;
+import static ceri.common.test.ErrorGen.RTX;
 import static ceri.common.test.TestUtil.inputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,7 +22,7 @@ import ceri.common.data.ByteStream.Writer;
 import ceri.common.io.IoStreamUtil;
 import ceri.common.io.PipedStream;
 import ceri.common.io.RuntimeIoException;
-import ceri.common.test.ErrorProducer;
+import ceri.common.test.ErrorGen;
 
 @SuppressWarnings("resource")
 public class ByteStreamBehavior {
@@ -40,7 +40,7 @@ public class ByteStreamBehavior {
 
 	@Test
 	public void shouldReadByteWithErrors() {
-		ErrorProducer error = ErrorProducer.of();
+		ErrorGen error = ErrorGen.of();
 		InputStream in = IoStreamUtil.in(() -> {
 			error.call(IO_ADAPTER);
 			return 0;
@@ -110,7 +110,7 @@ public class ByteStreamBehavior {
 
 	@Test
 	public void shouldWriteByteWithErrors() {
-		ErrorProducer error = ErrorProducer.of();
+		ErrorGen error = ErrorGen.of();
 		OutputStream out = IoStreamUtil.out(i -> error.call(IO_ADAPTER));
 		Writer w = ByteStream.writer(out);
 		error.setFrom(RTX);

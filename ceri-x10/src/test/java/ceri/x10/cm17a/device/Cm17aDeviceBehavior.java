@@ -2,8 +2,8 @@ package ceri.x10.cm17a.device;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.ErrorProducer.IOX;
-import static ceri.common.test.ErrorProducer.RTX;
+import static ceri.common.test.ErrorGen.IOX;
+import static ceri.common.test.ErrorGen.RTX;
 import static ceri.x10.cm17a.device.Data.code;
 import static ceri.x10.command.FunctionType.on;
 import static ceri.x10.command.House.A;

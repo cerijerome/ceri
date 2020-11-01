@@ -53,8 +53,8 @@ public class TestFtdiConnector extends TestConnector implements FtdiConnector {
 	protected TestFtdiConnector() {}
 
 	@Override
-	public void reset(boolean clearListeners) {
-		super.reset(clearListeners);
+	public void reset() {
+		super.reset();
 		bitmode.reset();
 		dtr.reset();
 		rts.reset();

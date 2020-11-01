@@ -1,6 +1,6 @@
 package ceri.common.io;
 
-import static ceri.common.test.ErrorProducer.IOX;
+import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Predicate;

@@ -20,14 +20,14 @@ import ceri.common.text.ToString;
  * piped stream. Errors can be also be generated.
  */
 public class TestInputStream extends InputStream implements Fluent<TestInputStream> {
-	public static final Integer DELEGATE = null; // CallSync response to delegate to pipe
 	private static final int DEFAULT_SIZE = 1024;
 	private final PipedStream piped;
-	public final CallSync.Apply<Bytes, Integer> read = CallSync.function(null, DELEGATE);
-	public final CallSync.Get<Integer> available = CallSync.supplier(DELEGATE);
+	public final CallSync.Apply<Bytes, Integer> read = CallSync.function(null, (Integer) null);
+	public final CallSync.Get<Integer> available = CallSync.supplier((Integer) null);
 	public final CallSync.Accept<Integer> mark = CallSync.consumer(null, true);
 	public final CallSync.Run reset = CallSync.runnable(true);
 	public final CallSync.Run close = CallSync.runnable(true);
+	public final CallSync.Get<Boolean> markSupported = CallSync.supplier((Boolean) null);
 	public final ByteStream.Writer to; // write to input
 
 	@SuppressWarnings("resource")
@@ -76,7 +76,7 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 	 */
 	public void eof(boolean enabled) {
 		if (enabled) read.autoResponses(-1);
-		else read.autoResponses(DELEGATE);
+		else read.autoResponses((Integer) null);
 	}
 	
 	@Override
@@ -102,24 +102,21 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 		return defaultValue(available.get(IO_ADAPTER), n);
 	}
 
-	@SuppressWarnings("resource")
 	@Override
 	public void mark(int readLimit) {
-		piped.in().mark(readLimit);
+		// Not supported by PipedInputStream
 		mark.accept(readLimit);
 	}
 
-	@SuppressWarnings("resource")
 	@Override
 	public void reset() throws IOException {
-		piped.in().reset();
+		// Not supported by PipedInputStream
 		reset.run(IO_ADAPTER);
 	}
 
-	@SuppressWarnings("resource")
 	@Override
 	public boolean markSupported() {
-		return piped.in().markSupported();
+		return markSupported.get();
 	}
 
 	@Override

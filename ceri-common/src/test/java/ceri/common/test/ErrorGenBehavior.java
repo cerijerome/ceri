@@ -5,14 +5,14 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.ErrorProducer.MESSAGE;
+import static ceri.common.test.ErrorGen.MESSAGE;
 import static ceri.common.test.TestUtil.thrown;
 import java.io.IOException;
 import java.sql.SQLException;
 import org.junit.Test;
 import ceri.common.concurrent.RuntimeInterruptedException;
 
-public class ErrorProducerBehavior {
+public class ErrorGenBehavior {
 	private final Exception rtx = new RuntimeException("test");
 	private final Exception rix = new RuntimeInterruptedException("test");
 	private final Exception inx = new InterruptedException("test");
@@ -21,7 +21,7 @@ public class ErrorProducerBehavior {
 
 	@Test
 	public void shouldConvertToRuntimeException() {
-		var err = ErrorProducer.of();
+		var err = ErrorGen.of();
 		err.call();
 		err.set(rtx, rix, inx, iox, sqx);
 		assertEquals(thrown(err::call), rtx);
@@ -33,7 +33,7 @@ public class ErrorProducerBehavior {
 
 	@Test
 	public void shouldConvertToTypedException() throws IOException {
-		var err = ErrorProducer.of();
+		var err = ErrorGen.of();
 		err.call(IO_ADAPTER);
 		err.set(rtx, rix, inx, iox, sqx);
 		assertEquals(thrown(() -> err.call(IO_ADAPTER)), rtx);
@@ -45,7 +45,7 @@ public class ErrorProducerBehavior {
 
 	@Test
 	public void shouldConvertToRuntimeWithInterruptedException() throws InterruptedException {
-		var err = ErrorProducer.of();
+		var err = ErrorGen.of();
 		err.callWithInterrupt();
 		err.set(rtx, rix, inx, iox, sqx);
 		assertEquals(thrown(err::callWithInterrupt), rtx);
@@ -58,7 +58,7 @@ public class ErrorProducerBehavior {
 	@Test
 	public void shouldConvertToTypedWithInterruptedException()
 		throws InterruptedException, IOException {
-		var err = ErrorProducer.of();
+		var err = ErrorGen.of();
 		err.callWithInterrupt(IO_ADAPTER);
 		err.set(rtx, rix, inx, iox, sqx);
 		assertEquals(thrown(() -> err.callWithInterrupt(IO_ADAPTER)), rtx);
@@ -70,7 +70,7 @@ public class ErrorProducerBehavior {
 
 	@Test
 	public void shouldSetExceptionFunctionFromMessage() {
-		var err = ErrorProducer.of();
+		var err = ErrorGen.of();
 		err.setFrom(IOException::new, SQLException::new);
 		assertThrown(IOException.class, MESSAGE, () -> err.callWithInterrupt(IO_ADAPTER));
 		Throwable t = thrown(() -> err.callWithInterrupt(IO_ADAPTER));
@@ -79,7 +79,7 @@ public class ErrorProducerBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		var err = ErrorProducer.of();
+		var err = ErrorGen.of();
 		assertFind(err.toString(), "none");
 		err.set(iox);
 		assertFind(err.toString(), "IOException");

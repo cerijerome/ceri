@@ -48,8 +48,8 @@ public class TestConnector implements Closeable, Listenable.Indirect<StateChange
 	/**
 	 * Clear state.
 	 */
-	public void reset(boolean clearListeners) {
-		if (clearListeners) listeners.clear();
+	public void reset() {
+		listeners.clear();
 		broken.reset();
 		connect.reset();
 		in.resetState();

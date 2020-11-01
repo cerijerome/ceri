@@ -11,7 +11,7 @@ import ceri.common.exception.ExceptionAdapter;
 /**
  * Utility for generating errors during tests.
  */
-public class ErrorProducer {
+public class ErrorGen {
 	public static final String MESSAGE = "generated";
 	public static final Function<String, Exception> RTX = RuntimeException::new;
 	public static final Function<String, Exception> RIX = RuntimeInterruptedException::new;
@@ -19,11 +19,11 @@ public class ErrorProducer {
 	public static final Function<String, Exception> IOX = IOException::new;
 	private volatile Supplier<Exception> errorFn = null;
 
-	public static ErrorProducer of() {
-		return new ErrorProducer();
+	public static ErrorGen of() {
+		return new ErrorGen();
 	}
 
-	private ErrorProducer() {}
+	private ErrorGen() {}
 
 	public void set(Exception... errors) {
 		setErrorFn(sequentialSupplier(errors));
@@ -83,7 +83,7 @@ public class ErrorProducer {
 		return errorFn == null ? "[none]" : "[" + errorFn.get() + "]";
 	}
 
-	private ErrorProducer setErrorFn(Supplier<Exception> errorFn) {
+	private ErrorGen setErrorFn(Supplier<Exception> errorFn) {
 		this.errorFn = errorFn;
 		return this;
 	}

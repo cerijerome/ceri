@@ -4,7 +4,7 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.ErrorProducer.INX;
+import static ceri.common.test.ErrorGen.INX;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import java.io.IOException;
 import java.util.Arrays;

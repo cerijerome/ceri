@@ -6,7 +6,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.ErrorProducer.INX;
+import static ceri.common.test.ErrorGen.INX;
 import static ceri.common.test.TestUtil.threadCall;
 import java.io.IOException;
 import java.text.ParseException;

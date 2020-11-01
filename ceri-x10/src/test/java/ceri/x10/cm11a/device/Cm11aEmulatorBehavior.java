@@ -5,8 +5,8 @@ import static ceri.x10.command.House.B;
 import static ceri.x10.command.Unit._6;
 import static ceri.x10.command.Unit._7;
 import java.io.IOException;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.StateChange;
@@ -14,15 +14,15 @@ import ceri.x10.command.Command;
 import ceri.x10.command.TestCommandListener;
 
 public class Cm11aEmulatorBehavior {
-	private static Cm11aEmulator cm11a;
+	private Cm11aEmulator cm11a;
 
-	@BeforeClass
-	public static void beforeClass() {
+	@Before
+	public void beforeClass() {
 		cm11a = Cm11aEmulator.of(1);
 	}
 
-	@AfterClass
-	public static void afterClass() {
+	@After
+	public void afterClass() {
 		cm11a.close();
 	}
 

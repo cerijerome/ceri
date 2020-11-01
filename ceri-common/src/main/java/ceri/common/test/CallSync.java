@@ -36,7 +36,7 @@ import ceri.common.util.Holder;
  */
 public class CallSync<T, R> {
 	private final Lock lock = new ReentrantLock();
-	public final ErrorProducer error = ErrorProducer.of();
+	public final ErrorGen error = ErrorGen.of();
 	private final ValueCondition<Holder<T>> callSync = ValueCondition.of(lock);
 	private final ValueCondition<Holder<R>> responseSync = ValueCondition.of(lock);
 	private final List<T> values = new ArrayList<>();

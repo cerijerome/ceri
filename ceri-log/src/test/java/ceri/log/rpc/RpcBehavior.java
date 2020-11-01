@@ -2,9 +2,8 @@ package ceri.log.rpc;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.test.Captor;
@@ -13,21 +12,16 @@ public class RpcBehavior {
 	private static final int PORT = 12345;
 	private static final int SHUTDOWN_TIMEOUT_MS = 30000;
 	private static final int NOTIFIER_RESET_DELAY_MS = 0;
-	private static TestRpcContainer rpc;
+	private TestRpcContainer rpc;
 
-	@BeforeClass
-	public static void beforeClass() throws IOException {
+	@Before
+	public void before() throws IOException {
 		rpc = new TestRpcContainer(PORT, SHUTDOWN_TIMEOUT_MS, NOTIFIER_RESET_DELAY_MS);
 	}
 
-	@AfterClass
-	public static void afterClass() throws IOException {
+	@After
+	public void afterClass() throws IOException {
 		rpc.close();
-	}
-
-	@Before
-	public void before() {
-		rpc.reset();
 	}
 
 	@Test

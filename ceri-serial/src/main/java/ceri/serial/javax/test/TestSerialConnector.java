@@ -38,8 +38,8 @@ public class TestSerialConnector extends TestConnector implements SerialConnecto
 	protected TestSerialConnector() {}
 
 	@Override
-	public void reset(boolean clearListeners) {
-		super.reset(clearListeners);
+	public void reset() {
+		super.reset();
 		dtr.reset();
 		rts.reset();
 		flowControl.reset();

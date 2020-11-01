@@ -5,7 +5,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.ErrorProducer.RIX;
+import static ceri.common.test.ErrorGen.RIX;
 import static ceri.x10.cm11a.protocol.Protocol.READY;
 import static ceri.x10.cm11a.protocol.Protocol.RING_ENABLE;
 import static ceri.x10.command.House.A;
