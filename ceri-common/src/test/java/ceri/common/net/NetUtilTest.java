@@ -4,30 +4,14 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static org.mockito.Mockito.when;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Objects;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class NetUtilTest {
-	private static InetAddress address;
-
-	@BeforeClass
-	public static void beforeClass() {
-		address = Mockito.mock(InetAddress.class);
-	}
-
-	@Before
-	public void before() {
-		Mockito.reset(address); // to reduce testing time
-	}
 
 	@Test
 	public void testConstructorIsPrivate() {
@@ -45,43 +29,6 @@ public class NetUtilTest {
 	}
 
 	@Test
-	public void testIsRegularAddressForSpecialAddresses() throws IOException {
-		assertFalse(NetUtil.isRegularAddress(InetAddress.getByName("0.0.0.0")));
-		assertFalse(NetUtil.isRegularAddress(InetAddress.getByName("127.0.0.1")));
-		assertFalse(NetUtil.isRegularAddress(InetAddress.getByName("169.254.0.0")));
-		assertFalse(NetUtil.isRegularAddress(InetAddress.getByName("224.0.0.0")));
-		assertTrue(NetUtil.isRegularAddress(InetAddress.getByName("10.0.0.1")));
-	}
-
-	@Test
-	public void testIsRegularAddressForAnyLocal() {
-		when(address.isSiteLocalAddress()).thenReturn(true);
-		when(address.isAnyLocalAddress()).thenReturn(true);
-		assertFalse(NetUtil.isRegularAddress(address));
-	}
-
-	@Test
-	public void testIsRegularAddressForLinkLocal() {
-		when(address.isSiteLocalAddress()).thenReturn(true);
-		when(address.isLinkLocalAddress()).thenReturn(true);
-		assertFalse(NetUtil.isRegularAddress(address));
-	}
-
-	@Test
-	public void testIsRegularAddressForLoopback() {
-		when(address.isSiteLocalAddress()).thenReturn(true);
-		when(address.isLoopbackAddress()).thenReturn(true);
-		assertFalse(NetUtil.isRegularAddress(address));
-	}
-
-	@Test
-	public void testIsRegularAddressForMulticast() {
-		when(address.isSiteLocalAddress()).thenReturn(true);
-		when(address.isMulticastAddress()).thenReturn(true);
-		assertFalse(NetUtil.isRegularAddress(address));
-	}
-
-	@Test
 	public void testLocalAddresses() throws SocketException {
 		NetUtil.localAddresses();
 		NetUtil.findLocalAddress(Objects::nonNull);
@@ -89,12 +36,14 @@ public class NetUtilTest {
 
 	@Test
 	public void testRegularAddress() throws SocketException {
-		InetAddress addr = NetUtil.regularAddress();
+		InetAddress addr = NetUtil.localAddress();
 		if (addr == null) return; // not connected
-		assertTrue(NetUtil.isRegularAddress(addr));
-		NetworkInterface n = NetUtil.regularInterface();
-		addr = NetUtil.regularAddressFor(n);
-		assertTrue(NetUtil.isRegularAddress(addr));
+		assertTrue(addr.isSiteLocalAddress());
+		assertFalse(AddressType.isSpecial(addr));
+		NetworkInterface n = NetUtil.localInterface();
+		addr = NetUtil.localAddressFor(n);
+		assertTrue(addr.isSiteLocalAddress());
+		assertFalse(AddressType.isSpecial(addr));
 	}
 
 }

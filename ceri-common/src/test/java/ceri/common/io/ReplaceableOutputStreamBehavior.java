@@ -1,37 +1,30 @@
 package ceri.common.io;
 
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doThrow;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 import org.junit.Test;
-import org.mockito.Mockito;
+import ceri.common.concurrent.ValueCondition;
+import ceri.common.test.ErrorGen;
+import ceri.common.test.TestOutputStream;
 
 public class ReplaceableOutputStreamBehavior {
 
 	@SuppressWarnings("resource")
 	@Test
-	public void shouldNotifyListenersOfErrors() throws IOException {
-		List<String> list = new ArrayList<>();
-		try (OutputStream out = Mockito.mock(OutputStream.class)) {
-			try (ReplaceableOutputStream rout = new ReplaceableOutputStream()) {
-				rout.setOutputStream(out);
-				Consumer<Exception> consumer = e -> list.add(e.getMessage());
-				rout.listeners().listen(consumer);
-				doThrow(new IOException("1")).when(out).write(anyInt());
-				assertThrown(() -> rout.write(0));
-				doThrow(new IOException("2")).when(out).write(anyInt());
-				assertThrown(() -> rout.write(0xff));
-				rout.listeners().unlisten(consumer);
-				assertIterable(list, "1", "2");
-			}
+	public void shouldNotifyListenersOfErrors() throws IOException, InterruptedException {
+		ValueCondition<Exception> sync = ValueCondition.of();
+		TestOutputStream out = TestOutputStream.of();
+		out.write.error.setFrom(ErrorGen.IOX);
+		try (ReplaceableOutputStream rout = new ReplaceableOutputStream()) {
+			rout.setOutputStream(out);
+			rout.listeners().listen(sync::signal);
+			assertThrown(() -> rout.write(0));
+			assertThrowable(sync.await(), IOException.class);
+			assertThrown(() -> rout.write(0xff));
+			assertThrowable(sync.await(), IOException.class);
 		}
 	}
 

@@ -3,71 +3,66 @@ package ceri.common.io;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static ceri.common.test.ErrorGen.RTX;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.function.Consumer;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import ceri.common.concurrent.ValueCondition;
+import ceri.common.test.ErrorGen;
+import ceri.common.test.TestInputStream;
 
 public class ReplaceableInputStreamBehavior {
-	private @Mock Consumer<Exception> listener;
-	private @Mock InputStream in;
+	private ValueCondition<Exception> sync;
+	private TestInputStream in;
 
 	@Before
 	public void before() {
-		MockitoAnnotations.initMocks(this);
-	}
-	
-	@SuppressWarnings("resource")
-	@Test
-	public void shouldNotifyListenerOfMarkException() throws IOException {
-		RuntimeException ex = new RuntimeException();
-		doThrow(ex).when(in).mark(anyInt());
-		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
-			rin.listeners().listen(listener);
-			rin.setInputStream(in);
-			assertThrown(() -> rin.mark(0));
-		}
-		verify(listener).accept(ex);
+		sync = ValueCondition.of();
+		in = TestInputStream.of();
 	}
 
-	@SuppressWarnings("resource")
 	@Test
-	public void shouldNotifyListenerOfMarkSupportedException() throws IOException {
-		RuntimeException ex = new RuntimeException();
-		doThrow(ex).when(in).markSupported();
+	public void shouldNotifyListenerOfMarkException() throws IOException, InterruptedException {
+		in.mark.error.setFrom(RTX);
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
-			rin.listeners().listen(listener);
+			rin.listeners().listen(sync::signal);
+			rin.setInputStream(in);
+			assertThrown(() -> rin.mark(0));
+			assertThrowable(sync.await(), RuntimeException.class);
+		}
+	}
+
+	@Test
+	public void shouldNotifyListenerOfMarkSupportedException()
+		throws IOException, InterruptedException {
+		in.markSupported.error.setFrom(RTX);
+		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
+			rin.listeners().listen(sync::signal);
 			assertFalse(rin.markSupported());
 			rin.setInputStream(in);
 			assertThrown(rin::markSupported);
+			assertThrowable(sync.await(), RuntimeException.class);
 		}
-		verify(listener).accept(ex);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
-	public void shouldNotifyListenersOfErrors() throws IOException {
-		IOException e0 = new IOException();
-		IOException e1 = new IOException();
-		when(in.read()).thenThrow(e0, e1);
+	public void shouldNotifyListenersOfErrors() throws IOException, InterruptedException {
+		in.read.error.setFrom(ErrorGen.IOX);
+		in.to.writeBytes(0, 0);
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
 			rin.setInputStream(in);
-			rin.listeners().listen(listener);
+			rin.listeners().listen(sync::signal);
 			assertThrown(rin::read);
+			assertThrowable(sync.await(), IOException.class);
 			assertThrown(rin::read);
-			rin.listeners().unlisten(listener);
+			assertThrowable(sync.await(), IOException.class);
 		}
-		verify(listener).accept(e0);
-		verify(listener).accept(e1);
 	}
 
 	@Test

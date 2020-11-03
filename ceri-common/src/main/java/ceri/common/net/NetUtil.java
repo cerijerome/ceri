@@ -39,17 +39,17 @@ public class NetUtil {
 		return LOCALHOST_REGEX.matcher(address).matches();
 	}
 
-	public static InetAddress regularAddress() throws SocketException {
-		return findLocalAddress(NetUtil::isRegularAddress);
+	public static InetAddress localAddress() throws SocketException {
+		return findLocalAddress(InetAddress::isSiteLocalAddress);
 	}
 
-	public static InetAddress regularAddressFor(NetworkInterface n) {
-		return first(stream(n.getInetAddresses()).filter(NetUtil::isRegularAddress));
+	public static InetAddress localAddressFor(NetworkInterface n) {
+		return first(stream(n.getInetAddresses()).filter(InetAddress::isSiteLocalAddress));
 	}
 
-	public static NetworkInterface regularInterface() throws SocketException {
+	public static NetworkInterface localInterface() throws SocketException {
 		return first(stream(NetworkInterface.getNetworkInterfaces()) //
-			.filter(n -> regularAddressFor(n) != null));
+			.filter(n -> localAddressFor(n) != null));
 	}
 
 	public static InetAddress findLocalAddress(Predicate<? super InetAddress> predicate)
@@ -64,15 +64,6 @@ public class NetUtil {
 	private static Stream<InetAddress> localAddressStream() throws SocketException {
 		return stream(NetworkInterface.getNetworkInterfaces())
 			.flatMap(n -> stream(n.getInetAddresses()));
-	}
-
-	public static boolean isRegularAddress(InetAddress i) {
-		if (!i.isSiteLocalAddress()) return false;
-		if (i.isAnyLocalAddress()) return false;
-		if (i.isLinkLocalAddress()) return false;
-		if (i.isLoopbackAddress()) return false;
-		if (i.isMulticastAddress()) return false;
-		return true;
 	}
 
 }

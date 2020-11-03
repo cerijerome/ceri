@@ -189,6 +189,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.math.VectorBehavior.class, //
 	ceri.common.math.VectorUtilTest.class, //
 	// net
+	ceri.common.net.AddressTypeBehavior.class, //
 	ceri.common.net.EmailUtilTest.class, //
 	ceri.common.net.HostPortBehavior.class, //
 	ceri.common.net.NetUtilTest.class, //

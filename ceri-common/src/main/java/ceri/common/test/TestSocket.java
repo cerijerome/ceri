@@ -15,9 +15,6 @@ public class TestSocket extends Socket {
 	public final TestInputStream in;
 	public final TestOutputStream out;
 
-	// TODO:
-	// - inet address mock wrapper?
-	
 	public static TestSocket of() {
 		return of(HostPort.localhost(0), 0);
 	}
