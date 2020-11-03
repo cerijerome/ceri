@@ -20,6 +20,7 @@ public class TestConnector implements Closeable, Listenable.Indirect<StateChange
 	public final TestListeners<StateChange> listeners = TestListeners.of();
 	public final CallSync.Accept<Boolean> connect = CallSync.consumer(false, true);
 	public final CallSync.Accept<Boolean> broken = CallSync.consumer(false, true);
+	public final CallSync.Run close = CallSync.runnable(true);
 	public final TestInputStream in;
 	public final TestOutputStream out;
 	private final InputStream wrappedIn;
@@ -97,6 +98,7 @@ public class TestConnector implements Closeable, Listenable.Indirect<StateChange
 		connect.value(false);
 		in.close();
 		out.close();
+		close.run(IO_ADAPTER);
 	}
 
 	/**

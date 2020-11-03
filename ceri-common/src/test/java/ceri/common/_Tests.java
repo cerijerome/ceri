@@ -196,9 +196,9 @@ import ceri.common.test.TestUtil;
 	ceri.common.net.UdpUtilTest.class, //
 	// process
 	ceri.common.process.ColumnsBehavior.class, //
+	ceri.common.process.NullProcessBehavior.class, //
 	ceri.common.process.OutputBehavior.class, //
 	ceri.common.process.ParametersBehavior.class, //
-	ceri.common.process.ProcessCommandBehavior.class, //
 	ceri.common.process.ProcessUtilTest.class, //
 	ceri.common.process.ProcessorBehavior.class, //
 	// property

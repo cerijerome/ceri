@@ -5,7 +5,9 @@ import static ceri.common.process.ProcessUtil.stdOut;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.function.ExceptionSupplier;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
 
@@ -14,18 +16,28 @@ public class Processor {
 	public static final Processor LONG_RUNNING = builder().noTimeout().captureStdOut(false).build();
 	public static final Processor IGNORE_EXIT_VALUE =
 		Processor.builder().verifyExitValue(false).build();
+	private final Function<Parameters, ExceptionSupplier<IOException, Process>> processStarter;
 	private final Integer timeoutMs;
 	private final boolean captureStdOut;
 	private final boolean verifyExitValue;
 	private final boolean verifyErr;
 
 	public static class Builder {
+		// Allows tests to set process without sacrificing code coverage
+		Function<Parameters, ExceptionSupplier<IOException, Process>> processStarter =
+			p -> new ProcessBuilder(p.list())::start;
 		Integer timeoutMs = 5000;
 		boolean captureStdOut = true;
 		boolean verifyExitValue = true;
 		boolean verifyErr = true;
 
 		Builder() {}
+
+		public Builder processStarter(
+			Function<Parameters, ExceptionSupplier<IOException, Process>> processStarter) {
+			this.processStarter = processStarter;
+			return this;
+		}
 
 		/**
 		 * Specify process timeout.
@@ -82,6 +94,7 @@ public class Processor {
 	}
 
 	Processor(Builder builder) {
+		processStarter = builder.processStarter;
 		timeoutMs = builder.timeoutMs;
 		captureStdOut = builder.captureStdOut;
 		verifyExitValue = builder.verifyExitValue;
@@ -93,38 +106,30 @@ public class Processor {
 	}
 
 	public String exec(Parameters parameters) throws IOException {
-		return exec(new ProcessBuilder(parameters.list()));
-	}
-
-	public String exec(ProcessBuilder builder) throws IOException {
-		return exec(ProcessCommand.of(builder));
-	}
-
-	public String exec(ProcessCommand command) throws IOException {
-		if (command.command().isEmpty()) return null;
+		if (parameters.list().isEmpty()) return null;
 		Process process = null;
 		try {
-			process = command.start();
-			return exec(process, command);
+			process = processStarter.apply(parameters).get();
+			return exec(process, parameters);
 		} finally {
 			if (process != null) process.destroyForcibly();
 		}
 	}
 
-	private String exec(Process process, ProcessCommand command) throws IOException {
-		verifyTimeout(process, command);
+	private String exec(Process process, Parameters parameters) throws IOException {
+		verifyTimeout(process, parameters);
 		String stdOut = captureStdOut ? stdOut(process) : null;
 		verifyErr(process);
 		verifyExitValue(process);
 		return stdOut;
 	}
 
-	private void verifyTimeout(Process process, ProcessCommand command) throws IOException {
+	private void verifyTimeout(Process process, Parameters parameters) throws IOException {
 		if (timeoutMs != null && timeoutMs == 0) return;
 		try {
 			if (timeoutMs == null) process.waitFor();
-			else if (!process.waitFor(timeoutMs, TimeUnit.MILLISECONDS)) throw new IOException(
-				"Failed to complete in " + timeoutMs + "ms: " + command.asString());
+			else if (!process.waitFor(timeoutMs, TimeUnit.MILLISECONDS))
+				throw new IOException("Failed to complete in " + timeoutMs + "ms: " + parameters);
 		} catch (InterruptedException e) {
 			throw new RuntimeInterruptedException(e);
 		}

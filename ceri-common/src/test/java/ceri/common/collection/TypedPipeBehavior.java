@@ -4,9 +4,9 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.TestUtil.threadRun;
 import org.junit.Test;
-import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.concurrent.SimpleExecutor;
+import ceri.common.test.CallSync;
 
 public class TypedPipeBehavior {
 
@@ -27,24 +27,27 @@ public class TypedPipeBehavior {
 	}
 
 	@Test
-	public void shouldAwaitRead() {
-		TypedPipe<String> pipe = TypedPipe.of();
-		pipe.out().writeAll("a", "b", "c");
-		try (var exec = SimpleExecutor.call(() -> {
-			ConcurrentUtil.delay(1);
-			return pipe.in().readN(3);
-		})) {
-			pipe.in().awaitRead(1);
-			assertIterable(exec.get(), "a", "b", "c");
-		}
-	}
-
-	@Test
 	public void shouldAwaitReadWithTimeout() {
 		TypedPipe<String> pipe = TypedPipe.of();
 		assertTrue(pipe.in().awaitRead(0, 1000));
 		pipe.out().writeAll("a", "b", "c");
 		assertFalse(pipe.in().awaitRead(0, 1));
+	}
+
+	@Test
+	public void shouldAwaitRead() {
+		CallSync.Get<Integer> available = CallSync.supplier();
+		var in = new TypedPipe.In<String>(null) {
+			@Override
+			public int available() {
+				return available.get();
+			}
+		};
+		try (var exec = threadRun(() -> in.awaitRead(1))) {
+			available.await(1);
+			available.await(0);
+			exec.get();
+		}
 	}
 
 }
