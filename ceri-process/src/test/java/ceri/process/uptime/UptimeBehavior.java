@@ -3,7 +3,7 @@ package ceri.process.uptime;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.process.util.ProcessTestUtil;
+import ceri.common.test.TestProcess;
 
 public class UptimeBehavior {
 
@@ -28,8 +28,8 @@ public class UptimeBehavior {
 		return ((days * 24 + hours) * 60 + minutes) * 60 * 1000L;
 	}
 
-	private static Uptime uptime(String output) throws IOException {
-		return Uptime.of(ProcessTestUtil.mockProcessor(output));
+	private static Uptime uptime(String output) {
+		return Uptime.of(TestProcess.processor(output));
 	}
 
 }

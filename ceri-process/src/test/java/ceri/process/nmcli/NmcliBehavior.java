@@ -5,11 +5,10 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.process.util.ProcessTestUtil.assertParameters;
-import static ceri.process.util.ProcessTestUtil.mockProcessor;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.process.Processor;
+import ceri.common.test.TestProcess;
+import ceri.common.test.TestProcess.TestProcessor;
 import ceri.common.test.TestUtil;
 
 public class NmcliBehavior {
@@ -21,9 +20,9 @@ public class NmcliBehavior {
 
 	@Test
 	public void shouldExecuteNmcliConShow() throws IOException {
-		Processor p = mockProcessor(TestUtil.resource("nmcli-con-show.txt"));
+		TestProcessor p = TestProcess.processor(TestUtil.resource("nmcli-con-show.txt"));
 		var output = Nmcli.of(p).con.show();
-		assertParameters(p, "nmcli", "con", "show");
+		p.assertParameters("nmcli", "con", "show");
 		var results = output.parse();
 		assertIterable(results,
 			ConShowItem.of("eth1", "01fa0bf4-b6bd-484f-a9a3-2b10ff701dcd", "ethernet", "eth1"),
@@ -35,9 +34,9 @@ public class NmcliBehavior {
 
 	@Test
 	public void shouldExecuteNmcliConShowId() throws IOException {
-		Processor p = mockProcessor(TestUtil.resource("nmcli-con-show-id.txt"));
+		TestProcessor p = TestProcess.processor(TestUtil.resource("nmcli-con-show-id.txt"));
 		var output = Nmcli.of(p).con.show("test");
-		assertParameters(p, "nmcli", "con", "show", "id", "test");
+		p.assertParameters("nmcli", "con", "show", "id", "test");
 		ConShowIdResult result = output.parse();
 		assertEquals(result.connectionId(), "eth2");
 		assertEquals(result.connectionUuid(), "186053d4-9369-4a4e-87b8-d1f9a419f985");
@@ -51,22 +50,22 @@ public class NmcliBehavior {
 
 	@Test
 	public void shouldExecuteNmcliConUp() throws IOException {
-		Processor p = mockProcessor("output");
+		TestProcessor p = TestProcess.processor("output");
 		var output = Nmcli.of(p).con.up("test");
-		assertParameters(p, "nmcli", "con", "up", "id", "test");
+		p.assertParameters("nmcli", "con", "up", "id", "test");
 		assertEquals(output, "output");
 
-		p = mockProcessor("output");
+		p = TestProcess.processor("output");
 		output = Nmcli.of(p).con.up("test", 10);
-		assertParameters(p, "nmcli", "con", "up", "id", "test", "--wait", "10");
+		p.assertParameters("nmcli", "con", "up", "id", "test", "--wait", "10");
 		assertEquals(output, "output");
 	}
 
 	@Test
 	public void shouldExecuteNmcliConDown() throws IOException {
-		Processor p = mockProcessor("output");
+		TestProcessor p = TestProcess.processor("output");
 		var output = Nmcli.of(p).con.down("test");
-		assertParameters(p, "nmcli", "con", "down", "id", "test");
+		p.assertParameters("nmcli", "con", "down", "id", "test");
 		assertEquals(output, "output");
 	}
 }

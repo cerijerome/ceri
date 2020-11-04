@@ -17,7 +17,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>ceri</groupId>
-			<artifactId>ceri-log</artifactId>
+			<artifactId>ceri-common</artifactId>
             <version>${project.version}</version>
 		</dependency>
 	</dependencies>

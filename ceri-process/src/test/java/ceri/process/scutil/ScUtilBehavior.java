@@ -3,12 +3,12 @@ package ceri.process.scutil;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.process.util.ProcessTestUtil.assertParameters;
-import static ceri.process.util.ProcessTestUtil.mockProcessor;
 import java.io.IOException;
 import java.util.Map;
 import org.junit.Test;
-import ceri.common.process.Processor;
+import ceri.common.process.Parameters;
+import ceri.common.test.TestProcess;
+import ceri.common.test.TestProcess.TestProcessor;
 import ceri.common.test.TestUtil;
 
 public class ScUtilBehavior {
@@ -20,9 +20,11 @@ public class ScUtilBehavior {
 
 	@Test
 	public void shouldExecuteNcList() throws IOException {
-		Processor p = mockProcessor(TestUtil.resource("list-output.txt"));
+		//TestProcessor p = TestProcess.processor(TestUtil.resource("list-output.txt"));
+		TestProcessor p = TestProcess.processor(TestUtil.resource("list-output.txt"));
 		var result = ScUtil.of(p).nc.list();
-		assertParameters(p, "scutil", "--nc", "list");
+		//p.assertParameters("scutil", "--nc", "list");
+		p.exec.assertAuto(Parameters.of("scutil", "--nc", "list"));
 		assertIterable(result.parse(),
 			NcListItem.builder().enabled(false).state("Disconnected")
 				.passwordHash("XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX").protocol("PPP")
@@ -34,10 +36,10 @@ public class ScUtilBehavior {
 
 	@Test
 	public void shouldExecuteNcStatus() throws IOException {
-		Processor p = mockProcessor(TestUtil.resource("status-output.txt"));
+		TestProcessor p = TestProcess.processor(TestUtil.resource("status-output.txt"));
 		ScUtil scUtil = ScUtil.of(p);
 		var result = scUtil.nc.status("test");
-		assertParameters(p, "scutil", "--nc", "status", "test");
+		p.assertParameters("scutil", "--nc", "status", "test");
 		NcStatus ns = result.parse();
 		assertEquals(ns.state, NcServiceState.connected);
 		assertEquals(ns.data.find("Extended Status.PPP.DeviceLastCause").asInt(), 99);
@@ -48,9 +50,9 @@ public class ScUtilBehavior {
 
 	@Test
 	public void shouldExecuteNcShow() throws IOException {
-		Processor p = mockProcessor(TestUtil.resource("show-output.txt"));
+		TestProcessor p = TestProcess.processor(TestUtil.resource("show-output.txt"));
 		var result = ScUtil.of(p).nc.show("test");
-		assertParameters(p, "scutil", "--nc", "show", "test");
+		p.assertParameters("scutil", "--nc", "show", "test");
 		NcShow ns = result.parse();
 		assertEquals(ns.item,
 			NcListItem.builder().enabled(true).state("Connecting")
@@ -64,9 +66,9 @@ public class ScUtilBehavior {
 
 	@Test
 	public void shouldExecuteNcStatistics() throws IOException {
-		Processor p = mockProcessor(TestUtil.resource("statistics-output.txt"));
+		TestProcessor p = TestProcess.processor(TestUtil.resource("statistics-output.txt"));
 		var result = ScUtil.of(p).nc.statistics("test");
-		assertParameters(p, "scutil", "--nc", "statistics", "test");
+		p.assertParameters("scutil", "--nc", "statistics", "test");
 		NcStatistics ns = result.parse();
 		assertEquals(ns, NcStatistics.builder().add(Map.of("BytesIn", 20337, "BytesOut", 16517,
 			"ErrorsIn", 10, "PacketsIn", 77, "PacketsOut", 118)).build());
@@ -74,23 +76,23 @@ public class ScUtilBehavior {
 
 	@Test
 	public void shouldExecuteNcStart() throws IOException {
-		Processor p = mockProcessor("output");
+		TestProcessor p = TestProcess.processor("output");
 		var result = ScUtil.of(p).nc.start("test", "user", "pwd", "secret");
-		assertParameters(p, "scutil", "--nc", "start", "test", "--user", "user", "--password",
+		p.assertParameters("scutil", "--nc", "start", "test", "--user", "user", "--password",
 			"pwd", "--secret", "secret");
 		assertEquals(result, "output");
 
-		p = mockProcessor("output");
+		p = TestProcess.processor("output");
 		result = ScUtil.of(p).nc.start("test", null, null, null);
-		assertParameters(p, "scutil", "--nc", "start", "test");
+		p.assertParameters("scutil", "--nc", "start", "test");
 		assertEquals(result, "output");
 	}
 
 	@Test
 	public void shouldExecuteNcStop() throws IOException {
-		Processor p = mockProcessor("output");
+		TestProcessor p = TestProcess.processor("output");
 		var result = ScUtil.of(p).nc.stop("test");
-		assertParameters(p, "scutil", "--nc", "stop", "test");
+		p.assertParameters("scutil", "--nc", "stop", "test");
 		assertEquals(result, "output");
 	}
 
