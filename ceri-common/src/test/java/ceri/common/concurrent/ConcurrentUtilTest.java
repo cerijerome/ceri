@@ -22,6 +22,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.junit.AfterClass;
 import org.junit.Test;
 import ceri.common.concurrent.ConcurrentUtil.LockInfo;
+import ceri.common.test.TestExecutorService;
 import ceri.common.test.TestFuture;
 import ceri.common.util.Holder;
 

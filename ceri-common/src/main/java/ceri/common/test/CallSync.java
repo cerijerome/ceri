@@ -60,7 +60,7 @@ public class CallSync<T, R> {
 	}
 
 	/**
-	 * Creates a synchronizing supplier. Use null to disable auto response.
+	 * Creates a synchronizing supplier.
 	 */
 	@SafeVarargs
 	public static <R> Get<R> supplier(R... autoResponses) {
