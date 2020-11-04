@@ -2,12 +2,14 @@ package ceri.common.time;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import ceri.common.function.ExceptionBiConsumer;
 import ceri.common.function.ExceptionBiFunction;
 
 /**
  * Represent a timeout value with time unit.
  */
 public class Timeout {
+	public static final Timeout NULL = new Timeout(0, null);
 	public static final Timeout ZERO = of(0, TimeUnit.MILLISECONDS);
 	public final long timeout;
 	public final TimeUnit unit;
@@ -22,7 +24,12 @@ public class Timeout {
 		this.unit = unit;
 	}
 
+	public boolean isNull() {
+		return unit == null;
+	}
+	
 	public Timeout convert(TimeUnit unit) {
+		if (isNull()) return this;
 		Objects.requireNonNull(unit);
 		if (this.unit == unit) return this;
 		return of(unit.convert(timeout, this.unit), unit);
@@ -30,7 +37,12 @@ public class Timeout {
 
 	public <E extends Exception, R> R applyTo(ExceptionBiFunction<E, Long, TimeUnit, R> fn)
 		throws E {
-		return fn.apply(timeout, unit);
+		return isNull() ? null : fn.apply(timeout, unit);
+	}
+
+	public <E extends Exception> void acceptBy(ExceptionBiConsumer<E, Long, TimeUnit> fn)
+		throws E {
+		if (!isNull()) fn.accept(timeout, unit);
 	}
 
 	@Override
@@ -50,7 +62,7 @@ public class Timeout {
 
 	@Override
 	public String toString() {
-		return "" + timeout + DateUtil.symbol(unit);
+		return isNull() ? "[null]" : timeout + DateUtil.symbol(unit);
 	}
 
 }

@@ -22,6 +22,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.junit.AfterClass;
 import org.junit.Test;
 import ceri.common.concurrent.ConcurrentUtil.LockInfo;
+import ceri.common.test.TestFuture;
 import ceri.common.util.Holder;
 
 public class ConcurrentUtilTest {
@@ -133,7 +134,7 @@ public class ConcurrentUtilTest {
 		future.get.error.setFrom(INX);
 		assertThrown(RuntimeInterruptedException.class,
 			() -> ConcurrentUtil.get(future, RuntimeException::new));
-		future.getTimeout.error.setFrom(INX);
+		future.get.error.setFrom(INX);
 		assertThrown(RuntimeInterruptedException.class,
 			() -> ConcurrentUtil.get(future, RuntimeException::new, 1000));
 	}

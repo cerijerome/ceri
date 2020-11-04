@@ -245,6 +245,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.RegexFinderBehavior.class, //
 	ceri.common.test.RegexMatcherBehavior.class, //
 	ceri.common.test.TestConnectorBehavior.class, //
+	ceri.common.test.TestFutureBehavior.class, //
 	ceri.common.test.TestInputStreamBehavior.class, //
 	ceri.common.test.TestListenerBehavior.class, //
 	ceri.common.test.TestListenersBehavior.class, //

@@ -1,10 +1,13 @@
 package ceri.common.test;
 
+import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
+import ceri.common.process.Parameters;
+import ceri.common.process.Processor;
 import ceri.common.time.Timeout;
 
 public class TestProcess extends Process implements Closeable {
@@ -13,6 +16,33 @@ public class TestProcess extends Process implements Closeable {
 	public final TestOutputStream out = TestOutputStream.of();
 	public final CallSync.Get<Integer> exitValue = CallSync.supplier(0);
 	public final CallSync.Apply<Timeout, Boolean> waitFor = CallSync.function(null, true);
+
+	public static TestProcessor processor(String... autoResponses) {
+		var p = new TestProcessor();
+		p.exec.autoResponses(autoResponses);
+		return p;
+	}
+
+	public static class TestProcessor extends Processor {
+		public final CallSync.Apply<Parameters, String> exec = CallSync.function(null, "");
+
+		private TestProcessor() {
+			super(Processor.builder());
+		}
+
+		public void reset() {
+			exec.reset();
+		}
+		
+		public void assertParameters(String...parameters) {
+			exec.assertAuto(Parameters.ofAll(parameters));
+		}
+		
+		@Override
+		public String exec(Parameters parameters) throws IOException {
+			return exec.apply(parameters, IO_ADAPTER);
+		}
+	}
 
 	@SuppressWarnings("resource")
 	public static TestProcess of(String in, String err, int exitValue, boolean waitFor) {

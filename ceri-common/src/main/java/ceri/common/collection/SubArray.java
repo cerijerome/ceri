@@ -35,7 +35,7 @@ public abstract class SubArray<T> {
 
 		@Override
 		public boolean equals(Object obj) {
-			return equals(this, obj, Arrays::equals);
+			return isEqual(this, obj, Arrays::equals);
 		}
 
 		@Override
@@ -56,7 +56,7 @@ public abstract class SubArray<T> {
 
 		@Override
 		public boolean equals(Object obj) {
-			return equals(this, obj, Arrays::equals);
+			return isEqual(this, obj, Arrays::equals);
 		}
 
 		@Override
@@ -77,7 +77,7 @@ public abstract class SubArray<T> {
 
 		@Override
 		public boolean equals(Object obj) {
-			return equals(this, obj, Arrays::equals);
+			return isEqual(this, obj, Arrays::equals);
 		}
 
 		@Override
@@ -121,17 +121,17 @@ public abstract class SubArray<T> {
 	}
 	
 	private static interface Equals<T> {
-		boolean equals(T lhs, int lhsOff, int lhsLen, T rhs, int rhsOff, int rhsLen);
+		boolean isEqual(T lhs, int lhsOff, int lhsLen, T rhs, int rhsOff, int rhsLen);
 	}
 
-	private static <T> boolean equals(SubArray<T> t, Object obj, Equals<T> equalsFn) {
+	private static <T> boolean isEqual(SubArray<T> t, Object obj, Equals<T> equalsFn) {
 		if (t == obj) return true;
 		if (obj == null) return false;
 		if (!t.getClass().isInstance(obj)) return false;
 		SubArray<T> other = BasicUtil.uncheckedCast(obj);
 		if (t.length != other.length) return false;
 		if (t.array == other.array && t.offset == other.offset) return true;
-		return equalsFn.equals(t.array, t.offset, t.offset + t.length, other.array, other.offset,
+		return equalsFn.isEqual(t.array, t.offset, t.offset + t.length, other.array, other.offset,
 			other.offset + other.length);
 	}
 	

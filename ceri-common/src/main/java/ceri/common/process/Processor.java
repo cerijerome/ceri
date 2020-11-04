@@ -3,13 +3,11 @@ package ceri.common.process;
 import static ceri.common.process.ProcessUtil.stdErr;
 import static ceri.common.process.ProcessUtil.stdOut;
 import java.io.IOException;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.text.StringUtil;
-import ceri.common.text.ToString;
 
 public class Processor {
 	public static final Processor DEFAULT = builder().build();
@@ -85,7 +83,7 @@ public class Processor {
 	}
 
 	public static Builder builder(Processor processor) {
-		return new Builder().timeoutMs(processor.timeoutMs)
+		return new Builder().processStarter(processor.processStarter).timeoutMs(processor.timeoutMs)
 			.verifyExitValue(processor.verifyExitValue).verifyErr(processor.verifyErr);
 	}
 
@@ -93,7 +91,7 @@ public class Processor {
 		return new Builder();
 	}
 
-	Processor(Builder builder) {
+	protected Processor(Builder builder) {
 		processStarter = builder.processStarter;
 		timeoutMs = builder.timeoutMs;
 		captureStdOut = builder.captureStdOut;
@@ -146,27 +144,4 @@ public class Processor {
 		int exitValue = process.exitValue();
 		if (exitValue != 0) throw new IOException("Exit value: " + exitValue);
 	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(timeoutMs, captureStdOut, verifyExitValue, verifyErr);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof Processor)) return false;
-		Processor other = (Processor) obj;
-		if (!Objects.equals(timeoutMs, other.timeoutMs)) return false;
-		if (captureStdOut != other.captureStdOut) return false;
-		if (verifyExitValue != other.verifyExitValue) return false;
-		if (verifyErr != other.verifyErr) return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return ToString.forClass(this, timeoutMs, captureStdOut, verifyExitValue, verifyErr);
-	}
-
 }

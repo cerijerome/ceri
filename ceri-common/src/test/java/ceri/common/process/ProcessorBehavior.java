@@ -1,11 +1,9 @@
 package ceri.common.process;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.ErrorGen.INX;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.TestProcess;
@@ -13,19 +11,11 @@ import ceri.common.test.TestProcess;
 public class ProcessorBehavior {
 
 	@Test
-	public void shouldNotBreachEqualsContract() {
-		Processor t = Processor.builder().timeoutMs(1000).build();
-		Processor eq0 = Processor.builder().timeoutMs(1000).build();
-		Processor eq1 = Processor.builder(t).build();
-		Processor ne0 = Processor.DEFAULT;
-		Processor ne1 = Processor.builder(t).noTimeout().build();
-		Processor ne2 = Processor.builder(t).captureStdOut(false).build();
-		Processor ne3 = Processor.builder(t).verifyErr(false).build();
-		Processor ne4 = Processor.builder(t).verifyExitValue(false).build();
-		exerciseEquals(t, eq0, eq1);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4);
+	public void shouldBuildFromProcessor() {
+		Processor p0 = Processor.builder().timeoutMs(777).build();
+		assertEquals(Processor.builder(p0).timeoutMs, 777);
 	}
-
+	
 	@Test
 	public void shouldIgnoreEmptyCommand() throws IOException {
 		assertNull(Processor.DEFAULT.exec());
