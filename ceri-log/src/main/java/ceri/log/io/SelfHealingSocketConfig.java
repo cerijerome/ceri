@@ -1,7 +1,6 @@
 package ceri.log.io;
 
 import static ceri.common.function.FunctionUtil.lambdaName;
-import static ceri.common.function.FunctionUtil.named;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.function.Predicate;
@@ -19,7 +18,7 @@ public class SelfHealingSocketConfig {
 	public final Predicate<Exception> brokenPredicate;
 
 	public static SelfHealingSocketConfig of(String host, int port) {
-		return builder(host, port).build();
+		return of(host, port, SocketParams.DEFAULT);
 	}
 
 	public static SelfHealingSocketConfig of(String host, int port, SocketParams params) {
@@ -63,10 +62,6 @@ public class SelfHealingSocketConfig {
 			return this;
 		}
 
-		public Builder brokenPredicate(Predicate<Exception> brokenPredicate, String name) {
-			return brokenPredicate(named(brokenPredicate, name));
-		}
-
 		public SelfHealingSocketConfig build() {
 			return new SelfHealingSocketConfig(this);
 		}
@@ -97,6 +92,10 @@ public class SelfHealingSocketConfig {
 
 	public boolean enabled() {
 		return !hostPort.isNull();
+	}
+
+	public boolean broken(Exception e) {
+		return brokenPredicate.test(e);
 	}
 
 	@Override

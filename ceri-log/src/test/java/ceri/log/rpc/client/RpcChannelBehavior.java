@@ -1,12 +1,8 @@
 package ceri.log.rpc.client;
 
 import static ceri.common.test.AssertUtil.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static ceri.common.test.ErrorGen.INX;
 import org.junit.Test;
-import io.grpc.ManagedChannel;
 
 public class RpcChannelBehavior {
 
@@ -18,10 +14,9 @@ public class RpcChannelBehavior {
 	}
 
 	@Test
-	public void shouldNotInterruptOnClose() throws InterruptedException {
-		ManagedChannel mc = mock(ManagedChannel.class);
-		when(mc.awaitTermination(anyLong(), any())).thenThrow(new InterruptedException("test"));
+	public void shouldNotInterruptOnClose() {
+		TestManagedChannel mc = TestManagedChannel.of();
+		mc.awaitTermination.error.setFrom(INX);
 		try (RpcChannel channel = RpcChannel.of(mc)) {}
 	}
-
 }

@@ -17,7 +17,13 @@ import ceri.common.test.TestUtil;
 	ceri.log.concurrent.SocketListenerBehavior.class, //
 	// io
 	ceri.log.io.LogPrintStreamBehavior.class, //
+	ceri.log.io.SelfHealingSocketConfigBehavior.class, //
 	ceri.log.io.SelfHealingSocketConnectorBehavior.class, //
+	ceri.log.io.SocketConnectorBehavior.class, //
+	ceri.log.io.SocketParamsBehavior.class, //
+	// io.test
+	ceri.log.io.test.EchoServerSocketBehavior.class, //
+	ceri.log.io.test.TestSocketConnectorBehavior.class, //
 	// rpc
 	ceri.log.rpc.RpcBehavior.class, //
 	// rpc.client

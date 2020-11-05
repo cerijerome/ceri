@@ -2,13 +2,14 @@ package ceri.log.concurrent;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.ErrorGen.RIX;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.logging.log4j.Level;
 import org.junit.Test;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.ValueCondition;
+import ceri.common.test.CallSync;
 import ceri.log.test.LogModifier;
 
 public class DispatcherBehavior {
@@ -63,12 +64,15 @@ public class DispatcherBehavior {
 	}
 
 	@Test
-	public void shouldCloseOnListenerInterrupt() {
-		var x = new RuntimeInterruptedException("generated");
+	public void shouldCloseOnListenerInterrupt() throws InterruptedException {
+		CallSync.Accept<String> sync = CallSync.consumer(null, true);
+		sync.error.setFrom(RIX);
 		try (var disp = Dispatcher.<String>direct(0)) {
-			try (var enc = disp.listen(s -> throwIt(x))) {
+			try (var enc = disp.listen(sync::accept)) {
 				disp.dispatch("test");
+				sync.assertAuto("test");
 			}
+			disp.waitUntilStopped();
 		}
 	}
 

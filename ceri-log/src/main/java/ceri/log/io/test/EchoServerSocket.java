@@ -76,7 +76,7 @@ public class EchoServerSocket implements Closeable {
 			while (true) {
 				int n = in.read(buffer);
 				if (n < 0) break;
-				if (n > 0) out.write(buffer, 0, n);
+				out.write(buffer, 0, n);
 			}
 		} finally {
 			LogUtil.close(logger, socket);

@@ -91,7 +91,27 @@ public class SocketParams {
 		if (keepAlive != null) socket.setKeepAlive(keepAlive);
 		if (tcpNoDelay != null) socket.setTcpNoDelay(tcpNoDelay);
 		if (soTimeoutSeconds != null) socket.setSoTimeout(soTimeoutSeconds);
-		if (soLingerSeconds != null) socket.setSoLinger(isSoLingerOff(), soLingerSeconds);
+		if (soLingerSeconds != null) socket.setSoLinger(!isSoLingerOff(), soLingerSeconds);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(receiveBufferSize, sendBufferSize, tcpNoDelay, soTimeoutSeconds,
+			soLingerSeconds, keepAlive);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof SocketParams)) return false;
+		SocketParams other = (SocketParams) obj;
+		if (!Objects.equals(receiveBufferSize, other.receiveBufferSize)) return false;
+		if (!Objects.equals(sendBufferSize, other.sendBufferSize)) return false;
+		if (!Objects.equals(keepAlive, other.keepAlive)) return false;
+		if (!Objects.equals(tcpNoDelay, other.tcpNoDelay)) return false;
+		if (!Objects.equals(soTimeoutSeconds, other.soTimeoutSeconds)) return false;
+		if (!Objects.equals(soLingerSeconds, other.soLingerSeconds)) return false;
+		return true;
 	}
 
 	@Override

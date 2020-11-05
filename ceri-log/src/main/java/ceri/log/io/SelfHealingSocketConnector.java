@@ -55,7 +55,7 @@ public class SelfHealingSocketConnector extends LoopingExecutor implements Socke
 	public void connect() throws IOException {
 		try {
 			initSocket();
-		} catch (IOException e) {
+		} catch (RuntimeException | IOException e) {
 			broken();
 			throw e;
 		}

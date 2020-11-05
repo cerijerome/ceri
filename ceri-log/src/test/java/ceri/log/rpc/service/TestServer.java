@@ -1,0 +1,58 @@
+package ceri.log.rpc.service;
+
+import static ceri.common.io.IoUtil.IO_ADAPTER;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import ceri.common.test.CallSync;
+import ceri.common.time.Timeout;
+import io.grpc.Server;
+
+public class TestServer extends Server {
+	public final CallSync.Run start = CallSync.runnable(true);
+	public final CallSync.Accept<Runnable> execute = CallSync.consumer(null, true);
+	public final CallSync.Accept<Boolean> shutdown = CallSync.consumer(false, true);
+	public final CallSync.Apply<Timeout, Boolean> awaitTermination = CallSync.function(null, true);
+
+	public static TestServer of() {
+		return new TestServer();
+	}
+
+	protected TestServer() {}
+
+	@Override
+	public TestServer start() throws IOException {
+		start.run(IO_ADAPTER);
+		return this;
+	}
+
+	@Override
+	public boolean isShutdown() {
+		return shutdown.value();
+	}
+
+	@Override
+	public TestServer shutdown() {
+		return shutdownNow();
+	}
+
+	@Override
+	public TestServer shutdownNow() {
+		shutdown.accept(true);
+		return this;
+	}
+
+	@Override
+	public boolean isTerminated() {
+		return isShutdown();
+	}
+
+	@Override
+	public void awaitTermination() throws InterruptedException {
+		awaitTermination.applyWithInterrupt(Timeout.NULL);
+	}
+
+	@Override
+	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+		return awaitTermination.applyWithInterrupt(Timeout.of(timeout, unit));
+	}
+}

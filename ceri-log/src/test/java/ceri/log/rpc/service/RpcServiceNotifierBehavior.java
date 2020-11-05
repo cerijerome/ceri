@@ -1,13 +1,12 @@
 package ceri.log.rpc.service;
 
 import static ceri.log.rpc.util.RpcUtil.EMPTY;
-import static org.mockito.Mockito.mock;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.Test;
 import com.google.protobuf.Empty;
 import ceri.common.event.Listeners;
-import ceri.common.util.BasicUtil;
+import ceri.log.rpc.test.TestStreamObserver;
 import ceri.log.test.LogModifier;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -19,7 +18,7 @@ public class RpcServiceNotifierBehavior {
 	public void shouldStopNotifyingOnClientError() throws InterruptedException {
 		Listeners<String> listeners = Listeners.of();
 		try (var notifier = RpcServiceNotifier.of(listeners, Integer::parseInt)) {
-			StreamObserver<Integer> client = BasicUtil.uncheckedCast(mock(StreamObserver.class));
+			TestStreamObserver<Integer> client = TestStreamObserver.of();
 			StreamObserver<Empty> response = notifier.listen(client);
 			response.onNext(EMPTY);
 			notifier.waitForListener(i -> i == 1);

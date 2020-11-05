@@ -50,9 +50,6 @@ public interface SocketConnector extends Closeable, Listenable.Indirect<StateCha
 		public void connect() {}
 
 		@Override
-		public void close() {}
-
-		@Override
 		public InputStream in() {
 			return in;
 		}
@@ -61,5 +58,8 @@ public interface SocketConnector extends Closeable, Listenable.Indirect<StateCha
 		public OutputStream out() {
 			return out;
 		}
+		
+		@Override
+		public void close() {}
 	}
 }

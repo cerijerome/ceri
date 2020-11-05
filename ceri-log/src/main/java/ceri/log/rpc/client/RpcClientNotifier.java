@@ -23,8 +23,9 @@ import io.grpc.stub.StreamObserver;
 
 /**
  * Handles notifications from remote serial service to local listeners. The rpc call is passed to
- * the constructor as well as a function to transform the rpc notify type to a non-rpc object. Local
- * listeners then receive the non-rpc object. The rpc call proto definition should be of the form:
+ * the constructor as well as a function to transform the rpc notify type (V) to a non-rpc object
+ * (T). Local listeners then receive the non-rpc object. The rpc call proto definition should be of
+ * the form:
  *
  * <pre>
  * rpc &lt;notify-call-name&gt; (stream google.protobuf.Empty)
@@ -127,7 +128,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	private void startReceiving() {
-		if (caller != null && !caller.closed()) return; // already receiving
+		//if (caller != null && !caller.closed()) return; // already receiving (not possible?)
 		logger.debug("Waiting for notifications");
 		caller = RpcStreamer.of(call.apply(callback)); // wrap observer as new closable instance
 		caller.next(EMPTY); // start receiving; close() to stop

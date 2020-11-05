@@ -16,7 +16,7 @@ public class TestRpcContainer implements Closeable {
 	public TestRpcContainer(int port, int shutdownTimeoutMs, int notifierResetDelayMs)
 		throws IOException {
 		try {
-			service = new TestRpcService();
+			service = TestRpcService.of();
 			server = server(service, port, shutdownTimeoutMs);
 			client0 = new TestRpcClient(port, notifierResetDelayMs);
 			client1 = new TestRpcClient(port, notifierResetDelayMs);

@@ -1,19 +1,15 @@
 package ceri.log.rpc.service;
 
 import static ceri.common.test.AssertUtil.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+import static ceri.common.test.ErrorGen.INX;
 import java.io.IOException;
 import org.junit.Test;
-import org.mockito.Mockito;
-import io.grpc.Server;
 
 public class RpcServerBehavior {
 
 	@Test
 	public void shouldStartServer() throws IOException {
-		try (var service = new TestRpcService()) {
+		try (var service = TestRpcService.of()) {
 			try (RpcServer server = RpcServer.start(service, RpcServerConfig.of())) {
 				assertTrue(server.port() > 0);
 				assertTrue(server.toString().contains("(" + server.port() + ")"));
@@ -22,9 +18,9 @@ public class RpcServerBehavior {
 	}
 
 	@Test
-	public void shouldNotThrowExceptionOnClose() throws InterruptedException {
-		Server server = Mockito.mock(Server.class);
-		when(server.awaitTermination(anyLong(), any())).thenThrow(InterruptedException.class);
+	public void shouldNotThrowExceptionOnClose() {
+		TestServer server = TestServer.of();
+		server.awaitTermination.error.setFrom(INX);
 		try (RpcServer rpcServer = new RpcServer(server, RpcServerConfig.of())) {}
 	}
 

@@ -2,19 +2,16 @@ package ceri.log.rpc.service;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.throwIt;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.Test;
-import ceri.common.util.BasicUtil;
+import ceri.log.rpc.test.TestStreamObserver;
 import ceri.log.test.LogModifier;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import io.grpc.stub.StreamObserver;
 
 public class RpcServiceUtilTest {
 
@@ -44,37 +41,37 @@ public class RpcServiceUtilTest {
 
 	@Test
 	public void testRespondSupplier() {
-		StreamObserver<String> observer = BasicUtil.uncheckedCast(mock(StreamObserver.class));
+		TestStreamObserver<String> observer = TestStreamObserver.of();
 		RpcServiceUtil.respond(observer, () -> "test");
-		verify(observer).onNext("test");
-		verify(observer).onCompleted();
+		observer.next.assertAuto("test");
+		observer.completed.awaitAuto();
 	}
 
 	@Test
 	public void testRespondSupplierWithException() {
 		LogModifier.run(() -> {
-			StreamObserver<String> observer = BasicUtil.uncheckedCast(mock(StreamObserver.class));
+			TestStreamObserver<String> observer = TestStreamObserver.of();
 			IOException e = new IOException("test");
 			RpcServiceUtil.respond(observer, () -> throwIt(e));
-			verify(observer).onError(any(StatusRuntimeException.class));
+			assertThrowable(observer.error.awaitAuto(), StatusRuntimeException.class);
 		}, Level.OFF, RpcServiceUtil.class);
 	}
 
 	@Test
 	public void testRespondRunnable() {
-		StreamObserver<String> observer = BasicUtil.uncheckedCast(mock(StreamObserver.class));
+		TestStreamObserver<String> observer = TestStreamObserver.of();
 		RpcServiceUtil.respond(observer, "test", () -> {});
-		verify(observer).onNext("test");
-		verify(observer).onCompleted();
+		observer.next.assertAuto("test");
+		observer.completed.awaitAuto();
 	}
 
 	@Test
 	public void testRespondRunnableWithException() {
 		LogModifier.run(() -> {
-			StreamObserver<String> observer = BasicUtil.uncheckedCast(mock(StreamObserver.class));
+			TestStreamObserver<String> observer = TestStreamObserver.of();
 			IOException e = new IOException("test");
 			RpcServiceUtil.respond(observer, "test", () -> throwIt(e));
-			verify(observer).onError(any(StatusRuntimeException.class));
+			assertThrowable(observer.error.awaitAuto(), StatusRuntimeException.class);
 		}, Level.OFF, RpcServiceUtil.class);
 	}
 

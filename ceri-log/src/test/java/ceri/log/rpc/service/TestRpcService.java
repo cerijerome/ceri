@@ -20,7 +20,11 @@ public class TestRpcService extends TestGrpc.TestImplBase implements Closeable {
 	public ExceptionIntConsumer<?> set = null;
 	public ExceptionIntSupplier<?> get = null;
 
-	public TestRpcService() {
+	public static TestRpcService of() {
+		return new TestRpcService();
+	}
+
+	private TestRpcService() {
 		notifier = RpcServiceNotifier.of(listeners, UInt32Value::of);
 		reset();
 	}

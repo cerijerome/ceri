@@ -1,31 +1,33 @@
 package ceri.log.rpc.client;
 
-import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.log.rpc.util.RpcUtil.EMPTY;
+import java.io.IOException;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import com.google.protobuf.Empty;
-import ceri.common.concurrent.BooleanCondition;
-import ceri.common.concurrent.ValueCondition;
-import ceri.common.test.TestListener;
-import ceri.log.rpc.test.TestObserver;
+import ceri.common.test.CallSync;
+import ceri.log.rpc.test.TestStreamObserver;
 import ceri.log.test.LogModifier;
 import io.grpc.stub.StreamObserver;
 
 public class RpcClientNotifierBehavior {
-	private TestCall call;
+	private final RpcClientNotifierConfig config = RpcClientNotifierConfig.of(1);
+	private TestStreamObserver<Empty> serverControl;
+	private CallSync.Apply<StreamObserver<String>, StreamObserver<Empty>> serverCall;
+	private CallSync.Apply<String, Integer> transform;
 	private RpcClientNotifier<Integer, String> notifier;
 
 	@Before
 	public void before() {
-		call = new TestCall();
-		RpcClientNotifierConfig config = RpcClientNotifierConfig.of(1);
-		notifier = RpcClientNotifier.of(call, Integer::parseInt, config);
+		serverControl = TestStreamObserver.of(); // controls server calls
+		serverCall = CallSync.function(null, serverControl); // acts as server call
+		transform = CallSync.function(null, 0); // converts rpc type to notify type
+		notifier = RpcClientNotifier.of(serverCall::apply, transform::apply, config);
 	}
 
 	@After
@@ -33,84 +35,60 @@ public class RpcClientNotifierBehavior {
 		notifier.close();
 	}
 
-	@SuppressWarnings("resource")
 	@Test
-	public void shouldNotifyListener() throws InterruptedException {
-		TestListener<Integer> listener = TestListener.of(notifier);
-		call.await();
-		call.callback.onNext("123");
-		assertEquals(listener.await(), 123);
-	}
-
-	@Test
-	public void shouldNotListenTwice() {
-		ValueCondition<Integer> sync = ValueCondition.of();
-		Consumer<Integer> fn1 = sync::signal;
-		Consumer<Integer> fn2 = sync::signal;
-		assertTrue(notifier.listen(fn1));
-		assertTrue(notifier.listen(fn2));
-		assertFalse(notifier.listen(fn1));
-		assertTrue(notifier.unlisten(fn1));
-		assertTrue(notifier.unlisten(fn2));
-		assertFalse(notifier.unlisten(fn1));
-	}
-
-	@Test
-	public void shouldStopListening() throws InterruptedException {
-		try (TestListener<Integer> listener = TestListener.of(notifier)) {
-			call.await();
+	public void shouldReconnectOnServerCompletion() {
+		StreamObserver<String> clientControl = null;
+		CallSync.Accept<Integer> sync = CallSync.consumer(null, true);
+		try (var enc = notifier.enclose(sync::accept)) {
+			// starts listening
+			clientControl = serverCall.awaitAuto(); // start streaming
+			serverControl.next.assertAuto(EMPTY); // start listening
+			// stop from server
+			clientControl.onCompleted();
+			serverControl.completed.awaitAuto(); // stop listening
+			clientControl = serverCall.awaitAuto(); // start streaming
+			serverControl.next.assertAuto(EMPTY); // start listening
 		}
-		call.response.completed.await();
+		serverControl.completed.awaitAuto(); // stop (makes sure reset delay happens)
 	}
 
 	@Test
-	public void shouldClearListeners() throws InterruptedException {
-		try (TestListener<Integer> listener = TestListener.of(notifier)) {
-			call.await();
-			notifier.clear();
-			call.response.completed.await();
-			notifier.clear();
-		}
-	}
-
-	@SuppressWarnings("resource")
-	@Test
-	public void shouldResetOnServiceError() throws InterruptedException {
+	public void shouldReconnectOnServerError() {
+		CallSync.Accept<Integer> sync = CallSync.consumer(null, true);
 		LogModifier.run(() -> {
-			TestListener.of(notifier);
-			call.await();
-			call.callback.onError(new IllegalStateException("already half-closed"));
-			call.callback.onError(new RuntimeException("test"));
-			call.await();
-		}, Level.ERROR, RpcClientNotifier.class);
+			try (var enc = notifier.enclose(sync::accept)) {
+				// starts listening
+				var clientControl = serverCall.awaitAuto(); // start streaming
+				serverControl.next.assertAuto(EMPTY); // start listening
+				// error from server
+				clientControl.onError(new IllegalStateException("already half-closed"));
+				clientControl.onError(new IOException("test")); // logged
+				clientControl = serverCall.awaitAuto(); // start streaming
+			}
+		}, Level.OFF, RpcClientNotifier.class);
 	}
 
-	@SuppressWarnings("resource")
 	@Test
-	public void shouldResetOnServiceCompletion() throws InterruptedException {
-		TestListener.of(notifier);
-		call.await();
-		call.callback.onCompleted();
-		call.await();
+	public void shouldClearListeners() {
+		notifier.clear(); // does nothing
+		CallSync.Accept<Integer> sync = CallSync.consumer(null, true);
+		try (var enc = notifier.enclose(sync::accept)) {
+			notifier.clear();
+		}
 	}
 
-	private static class TestCall
-		implements Function<StreamObserver<String>, StreamObserver<Empty>> {
-		BooleanCondition apply = BooleanCondition.of(); // signaled when apply is called
-		volatile TestObserver<Empty> response = null;
-		volatile StreamObserver<String> callback = null; // service-side observer
-
-		@Override
-		public StreamObserver<Empty> apply(StreamObserver<String> callback) {
-			this.callback = callback;
-			response = TestObserver.of();
-			apply.signal();
-			return response;
-		}
-
-		public void await() throws InterruptedException {
-			apply.await();
-		}
+	@Test
+	public void shouldListenAndUnlisten() {
+		CallSync.Accept<Integer> sync0 = CallSync.consumer(null, true);
+		CallSync.Accept<Integer> sync1 = CallSync.consumer(null, true);
+		Consumer<Integer> listener0 = sync0::accept;
+		Consumer<Integer> listener1 = sync1::accept;
+		assertTrue(notifier.listen(listener0));
+		assertFalse(notifier.listen(listener0));
+		assertFalse(notifier.unlisten(listener1));
+		assertTrue(notifier.listen(listener1));
+		assertTrue(notifier.unlisten(listener0));
+		assertTrue(notifier.unlisten(listener1));
 	}
 
 }

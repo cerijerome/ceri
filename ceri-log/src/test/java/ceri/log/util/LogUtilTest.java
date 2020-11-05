@@ -9,10 +9,8 @@ import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.ErrorGen.INX;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -26,10 +24,12 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.test.BinaryPrinter;
+import ceri.common.test.TestExecutorService;
+import ceri.common.test.TestFuture;
+import ceri.common.test.TestProcess;
 import ceri.common.text.StringUtil;
 import ceri.common.util.StartupValues;
 import ceri.log.io.LogPrintStream;
@@ -147,20 +147,24 @@ public class LogUtilTest {
 	}
 
 	@Test
-	public void testCloseProcess() throws InterruptedException {
+	public void testCloseProcess() throws IOException {
 		assertFalse(LogUtil.close(logger, (Process) null));
-		Process process = Mockito.mock(Process.class);
-		when(process.waitFor(anyLong(), any())).thenReturn(true);
-		assertTrue(LogUtil.close(logger, process));
+		try (TestProcess process = TestProcess.of()) {
+			process.waitFor.autoResponses(true);
+			assertTrue(LogUtil.close(logger, process));
+			process.waitFor.autoResponses(false);
+			assertFalse(LogUtil.close(logger, process));
+		}
 	}
 
 	@Test
-	public void testCloseProcessWithInterrupt() throws InterruptedException {
-		Process process = Mockito.mock(Process.class);
-		when(process.waitFor(anyLong(), any())).thenThrow(new InterruptedException());
-		assertFalse(LogUtil.close(null, process));
-		assertFalse(LogUtil.close(logger, process));
-		testLog.assertFind("(?is)INFO .*InterruptedException");
+	public void testCloseProcessWithInterrupt() throws IOException {
+		try (TestProcess process = TestProcess.of()) {
+			process.waitFor.error.setFrom(INX);
+			assertFalse(LogUtil.close(null, process));
+			assertFalse(LogUtil.close(logger, process));
+			testLog.assertFind("(?is)INFO .*InterruptedException");
+		}
 	}
 
 	@Test
@@ -174,9 +178,9 @@ public class LogUtilTest {
 	}
 
 	@Test
-	public void testCloseExecutorServiceWithInterrupt() throws InterruptedException {
-		ExecutorService exec = Mockito.mock(ExecutorService.class);
-		when(exec.awaitTermination(anyLong(), any())).thenThrow(new InterruptedException());
+	public void testCloseExecutorServiceWithInterrupt() {
+		TestExecutorService exec = TestExecutorService.of();
+		exec.awaitTermination.error.setFrom(INX);
 		assertFalse(LogUtil.close(null, exec));
 		assertFalse(LogUtil.close(logger, exec));
 		testLog.assertFind("(?is)INFO .*InterruptedException");
@@ -204,20 +208,18 @@ public class LogUtilTest {
 	}
 
 	@Test
-	public void testCloseFutureWithInterrupt()
-		throws InterruptedException, ExecutionException, TimeoutException {
-		Future<?> future = Mockito.mock(Future.class);
-		when(future.get(anyLong(), any())).thenThrow(new InterruptedException());
+	public void testCloseFutureWithInterrupt() {
+		TestFuture<?> future = TestFuture.of("test");
+		future.get.error.setFrom(INX);
 		assertFalse(LogUtil.close(null, future));
 		assertFalse(LogUtil.close(logger, future));
 		testLog.assertFind("(?is)INFO .*InterruptedException");
 	}
 
 	@Test
-	public void testCloseFutureWithException()
-		throws InterruptedException, ExecutionException, TimeoutException {
-		Future<?> future = Mockito.mock(Future.class);
-		when(future.get(anyLong(), any())).thenThrow(new TimeoutException());
+	public void testCloseFutureWithException() {
+		TestFuture<?> future = TestFuture.of("test");
+		future.get.error.setFrom(TimeoutException::new);
 		assertFalse(LogUtil.close(null, future));
 		assertFalse(LogUtil.close(logger, future));
 		testLog.assertFind("(?is)WARN .*TimeoutException");
