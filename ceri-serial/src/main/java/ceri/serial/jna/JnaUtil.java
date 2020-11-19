@@ -22,7 +22,6 @@ import ceri.common.collection.StreamUtil;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.math.MathUtil;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.ValueCache;
 
 public class JnaUtil {
@@ -31,13 +30,6 @@ public class JnaUtil {
 	private static final NativeLong ZERO = new NativeLong(0);
 
 	private JnaUtil() {}
-
-	/**
-	 * Load typed native library
-	 */
-	public static <T> T loadLibrary(String name, Class<T> cls) {
-		return BasicUtil.uncheckedCast(Native.loadLibrary(name, cls));
-	}
 
 	/**
 	 * Debug setting to protect against invalid native memory access. Not supported on all

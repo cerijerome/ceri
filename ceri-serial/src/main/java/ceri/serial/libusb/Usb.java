@@ -76,7 +76,7 @@ public class Usb implements Closeable {
 		void invoke(int fd, T userData) throws IOException;
 	}
 
-	public static libusb_version version() throws LibUsbException {
+	public static libusb_version version() {
 		return libusb_get_version();
 	}
 
@@ -117,8 +117,7 @@ public class Usb implements Closeable {
 	}
 
 	public static Usb initDefault() throws LibUsbException {
-		libusb_init_default();
-		return new Usb(null);
+		return new Usb(libusb_init_default());
 	}
 
 	private Usb(libusb_context context) {

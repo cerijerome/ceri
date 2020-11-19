@@ -155,7 +155,7 @@ public class UsbHotplug implements Closeable {
 		return handle;
 	}
 
-	public void deregisterCallback(libusb_hotplug_callback_handle handle) {
+	public void deregisterCallback(libusb_hotplug_callback_handle handle) throws LibUsbException {
 		libusb_hotplug_deregister_callback(context.context(), handle);
 		untrackCallbackByHandle(handle.value);
 	}

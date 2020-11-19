@@ -641,7 +641,7 @@ public class LibFtdi {
 		}
 	}
 
-	public static void ftdi_free(ftdi_context ftdi) {
+	public static void ftdi_free(ftdi_context ftdi) throws LibUsbException {
 		if (ftdi == null) return;
 		ftdi_usb_close_internal(ftdi);
 		ftdi.readbuffer = null;
@@ -650,7 +650,7 @@ public class LibFtdi {
 		ftdi.usb_ctx = null;
 	}
 
-	private static void ftdi_usb_close_internal(ftdi_context ftdi) {
+	private static void ftdi_usb_close_internal(ftdi_context ftdi) throws LibUsbException {
 		if (ftdi == null) return;
 		libusb_close(ftdi.usb_dev);
 		ftdi.usb_dev = null;
@@ -717,7 +717,7 @@ public class LibFtdi {
 		return libusb_find_devices_ref(ftdi.usb_ctx, criteria, 0);
 	}
 
-	public static void ftdi_list_free(List<libusb_device> devlist) {
+	public static void ftdi_list_free(List<libusb_device> devlist) throws LibUsbException {
 		libusb_unref_devices(devlist);
 	}
 

@@ -20,6 +20,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntAccessor;
+import ceri.log.util.LogUtil;
 import ceri.serial.clib.jna.Time.timeval;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
@@ -144,7 +145,7 @@ public class LibFtdiStream {
 			}
 		} catch (LibUsbException e) {
 			logger.catching(e);
-			libusb_free_transfer(transfer);
+			LogUtil.execute(logger, () -> libusb_free_transfer(transfer));
 			return;
 		}
 

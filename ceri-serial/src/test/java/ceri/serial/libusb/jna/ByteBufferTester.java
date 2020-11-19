@@ -6,7 +6,7 @@ import ceri.common.math.MathUtil;
 import ceri.common.test.BinaryPrinter;
 import ceri.serial.jna.JnaUtil;
 
-public class BbTester {
+public class ByteBufferTester {
 	private static final int PACKET_HEADER_SIZE = 2;
 	private static final int readBufferChunkSize = 40;
 	private static final ByteBuffer readBuffer = ByteBuffer.allocate(readBufferChunkSize);

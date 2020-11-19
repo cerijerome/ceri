@@ -12,6 +12,7 @@ import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.ReplaceableInputStream;
 import ceri.common.io.ReplaceableOutputStream;
 import ceri.common.io.StateChange;
+import ceri.log.util.LogUtil;
 import ceri.serial.javax.FlowControl;
 import ceri.serial.javax.SerialConnector;
 
@@ -41,6 +42,9 @@ public class ReplaceableSerialConnector implements SerialConnector {
 		return listeners;
 	}
 
+	/**
+	 * Sets the serial connector. Does not close the current connector.
+	 */
 	@SuppressWarnings("resource")
 	public void setConnector(SerialConnector con) {
 		unlisten(this.con);
@@ -72,8 +76,8 @@ public class ReplaceableSerialConnector implements SerialConnector {
 	public void close() throws IOException {
 		SerialConnector con = this.con;
 		if (con == null) return;
-		exec(() -> con().close());
 		unlisten(con);
+		exec(con::close);
 	}
 
 	@Override
@@ -112,11 +116,7 @@ public class ReplaceableSerialConnector implements SerialConnector {
 
 	private void unlisten(SerialConnector con) {
 		if (con == null) return;
-		try {
-			con.listeners().unlisten(listener);
-		} catch (Exception e) {
-			logger.catching(e);
-		}
+		LogUtil.execute(logger, () -> con.listeners().unlisten(listener));
 	}
 
 	private void exec(ExceptionRunnable<IOException> runnable) throws IOException {

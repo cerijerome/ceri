@@ -26,7 +26,7 @@ public class SerialPort extends CommPort {
 	private static final Pattern BROKEN_MESSAGE_REGEX =
 		Pattern.compile("(?i)(?:device not configured|\\bioctl\\b)");
 	private final purejavacomm.SerialPort serialPort;
-	private final int nativeFileDescriptor;
+	private final int fd; // native fd
 
 	public static SerialPort open(String commPort) throws IOException {
 		return open(commPort, UNKNOWN_OWNER);
@@ -73,10 +73,10 @@ public class SerialPort extends CommPort {
 	SerialPort(purejavacomm.SerialPort serialPort) {
 		super(serialPort);
 		this.serialPort = serialPort;
-		nativeFileDescriptor = nativeFileDescriptor(serialPort);
+		fd = fd(serialPort);
 	}
 
-	public void setParams(SerialPortParams params) throws UnsupportedCommOperationException {
+	public void setParams(SerialPortParams params) throws IOException {
 		try {
 			serialPort.setSerialPortParams(params.baudRate, params.dataBits.value,
 				params.stopBits.value, params.parity.value);
@@ -84,22 +84,6 @@ public class SerialPort extends CommPort {
 		} catch (purejavacomm.UnsupportedCommOperationException | IOException e) {
 			throw new UnsupportedCommOperationException(e);
 		}
-	}
-
-	private boolean isIncorrectBaudRate(int baud) throws IOException {
-		if (!CUtil.isValidFd(nativeFileDescriptor)) return false;
-		Termios t = TermiosUtil.getTermios(nativeFileDescriptor);
-		return t.c_ospeed != baud;
-	}
-
-	private boolean setBaudAlt(int b) throws IOException {
-		if (Platform.isMac()) return setBaudForMac(b);
-		return false;
-	}
-
-	private boolean setBaudForMac(int b) throws IOException {
-		TermiosUtil.setIossSpeed(nativeFileDescriptor, b);
-		return true;
 	}
 
 	public boolean isDTR() {
@@ -134,7 +118,7 @@ public class SerialPort extends CommPort {
 		serialPort.setRTS(state);
 	}
 
-	public void setFlowControl(FlowControl flowControl) throws UnsupportedCommOperationException {
+	public void setFlowControl(FlowControl flowControl) throws IOException {
 		try {
 			serialPort.setFlowControlMode(flowControl.value);
 		} catch (purejavacomm.UnsupportedCommOperationException e) {
@@ -143,34 +127,42 @@ public class SerialPort extends CommPort {
 	}
 
 	/**
-	 * Implementation-specific, usually a fixed 0.25/0.5s duration. Better to use set/clear break
-	 * bit with a sleep in between.
-	 */
-	public void sendBreak(int duration) {
-		serialPort.sendBreak(duration);
-	}
-
-	/**
 	 * Starts a break (low signal). Make sure writing is complete or output will be overwritten.
 	 */
 	public void setBreakBit() throws IOException {
-		CUtil.validateFd(nativeFileDescriptor);
-		TermiosUtil.setBreakBit(nativeFileDescriptor);
+		CUtil.validateFd(fd);
+		TermiosUtil.setBreakBit(fd);
 	}
 
 	/**
 	 * Stops a break and returns to a high signal (mark/idle).
 	 */
 	public void clearBreakBit() throws IOException {
-		CUtil.validateFd(nativeFileDescriptor);
-		TermiosUtil.clearBreakBit(nativeFileDescriptor);
+		CUtil.validateFd(fd);
+		TermiosUtil.clearBreakBit(fd);
 	}
 
-	public int nativeFileDescriptor() {
-		return nativeFileDescriptor;
+	public int fd() {
+		return fd;
 	}
 
-	private static int nativeFileDescriptor(purejavacomm.SerialPort port) {
+	private boolean isIncorrectBaudRate(int baud) throws IOException {
+		if (!CUtil.isValidFd(fd)) return false;
+		Termios t = TermiosUtil.getTermios(fd);
+		return t.c_ospeed != baud;
+	}
+
+	private boolean setBaudAlt(int b) throws IOException {
+		if (Platform.isMac()) return setBaudForMac(b);
+		return false;
+	}
+
+	private boolean setBaudForMac(int b) throws IOException {
+		TermiosUtil.setIossSpeed(fd, b);
+		return true;
+	}
+
+	private static int fd(purejavacomm.SerialPort port) {
 		PureJavaSerialPort pure = BasicUtil.castOrNull(PureJavaSerialPort.class, port);
 		if (pure == null) return CUtil.INVALID_FD;
 		return pure.getNativeFileDescriptor();

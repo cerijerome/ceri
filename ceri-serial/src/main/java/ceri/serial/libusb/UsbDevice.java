@@ -19,8 +19,14 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_unref_device;
 import java.io.Closeable;
 import java.util.List;
 import java.util.function.Supplier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import com.sun.jna.Pointer;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteUtil;
+import ceri.common.function.FunctionUtil;
+import ceri.common.text.ToString;
+import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
@@ -30,6 +36,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_speed;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class UsbDevice implements Closeable {
+	private static final Logger logger = LogManager.getLogger();
 	private final Supplier<libusb_context> contextSupplier;
 	private libusb_device device;
 	private int refs;
@@ -49,7 +56,7 @@ public class UsbDevice implements Closeable {
 		refs++;
 	}
 
-	public void unref() {
+	public void unref() throws LibUsbException {
 		if (refs <= 0) return;
 		libusb_unref_device(device());
 		refs--;
@@ -129,8 +136,10 @@ public class UsbDevice implements Closeable {
 
 	@Override
 	public void close() {
-		while (refs > 0)
-			unref();
+		LogUtil.execute(logger, () -> {
+			while (refs > 0)
+				unref();
+		});
 		device = null;
 	}
 
@@ -141,6 +150,12 @@ public class UsbDevice implements Closeable {
 
 	public libusb_context context() {
 		return contextSupplier.get();
+	}
+
+	@Override
+	public String toString() {
+		Pointer devicePtr = FunctionUtil.safeApply(device, libusb_device::getPointer);
+		return ToString.forClass(this, devicePtr, refs);
 	}
 
 }

@@ -49,11 +49,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
+import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_string_descriptors;
@@ -90,12 +90,8 @@ public class Ftdi implements Closeable {
 		return FATAL_USB_ERRORS.contains(e.error);
 	}
 
-	public static Ftdi create() throws LibUsbException {
+	public static Ftdi of() throws LibUsbException {
 		return new Ftdi(ftdi_new());
-	}
-
-	static Ftdi from(Supplier<ftdi_context> supplier) {
-		return new Ftdi(supplier.get());
 	}
 
 	Ftdi(ftdi_context ftdi) {
@@ -313,7 +309,7 @@ public class Ftdi implements Closeable {
 	@Override
 	public void close() {
 		streamCallbacks.clear();
-		ftdi_free(ftdi);
+		LogUtil.execute(logger, () -> ftdi_free(ftdi));
 		ftdi = null;
 	}
 
@@ -335,7 +331,7 @@ public class Ftdi implements Closeable {
 			List<UsbDevice> devices = toList(devs.stream().map(dev -> context.wrap(dev, 1)));
 			return new FtdiList(devices);
 		} catch (RuntimeException e) {
-			ftdi_list_free(devs);
+			LogUtil.execute(logger, () -> ftdi_list_free(devs));
 			throw e;
 		}
 	}

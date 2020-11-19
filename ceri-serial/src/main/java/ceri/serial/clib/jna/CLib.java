@@ -5,8 +5,6 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import com.sun.jna.IntegerType;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
@@ -14,6 +12,7 @@ import ceri.common.text.RegexUtil;
 import ceri.common.util.BasicUtil;
 import ceri.serial.clib.OpenFlag;
 import ceri.serial.clib.jna.Termios.termios;
+import ceri.serial.jna.JnaLibrary;
 import ceri.serial.jna.JnaUtil;
 
 /**
@@ -24,8 +23,8 @@ public class CLib {
 	private static final int CUT_ARG_STRING_LEN = 16;
 	private static final Pattern STRING_ARG_REGEX = Pattern.compile("^[\\w$]+");
 	public static final int EOF = -1;
-	private static final Logger logger = LogManager.getLogger();
-	private static final CLibNative CLIB = loadLibrary(Platform.C_LIBRARY_NAME);
+	static final JnaLibrary<CLibNative> library =
+		JnaLibrary.of(Platform.C_LIBRARY_NAME, CLibNative.class);
 
 	private CLib() {}
 
@@ -55,7 +54,7 @@ public class CLib {
 	 * Opens the path with flags, and returns a file descriptor.
 	 */
 	public static int open(String path, int flags) throws CException {
-		return CUtil.verifyErrno(() -> CLIB.open(path, flags),
+		return CUtil.verifyErrno(() -> lib().open(path, flags),
 			() -> String.format("open(\"%s\", %s)", path, OpenFlag.string(flags)));
 	}
 
@@ -63,7 +62,7 @@ public class CLib {
 	 * Opens the path with flags and mode, and returns a file descriptor.
 	 */
 	public static int open(String path, int flags, int mode) throws CException {
-		return CUtil.verifyErrno(() -> CLIB.open(path, flags, (short) mode),
+		return CUtil.verifyErrno(() -> lib().open(path, flags, (short) mode),
 			() -> String.format("open(\"%s\", %s, 0%s)", path, OpenFlag.string(flags),
 				Integer.toOctalString(mode)));
 	}
@@ -72,7 +71,7 @@ public class CLib {
 	 * Closes the file descriptor.
 	 */
 	public static void close(int fd) throws CException {
-		CUtil.verifyErrno(() -> CLIB.close(fd), "close(%d)", fd);
+		CUtil.verifyErrno(() -> lib().close(fd), "close(%d)", fd);
 	}
 
 	/**
@@ -80,7 +79,7 @@ public class CLib {
 	 */
 	public static int read(int fd, Pointer buffer, int length) throws CException {
 		if (length == 0) return 0;
-		int result = CUtil.verifyErrno(() -> CLIB.read(fd, buffer, new size_t(length)).intValue(),
+		int result = CUtil.verifyErrno(() -> lib().read(fd, buffer, new size_t(length)).intValue(),
 			() -> String.format("read(%d, %s, %d)", fd, print(buffer), length));
 		return result == 0 ? EOF : result;
 	}
@@ -90,7 +89,7 @@ public class CLib {
 	 */
 	public static int write(int fd, Pointer buffer, int length) throws CException {
 		if (length == 0) return 0;
-		return CUtil.verifyErrno(() -> CLIB.write(fd, buffer, new size_t(length)).intValue(),
+		return CUtil.verifyErrno(() -> lib().write(fd, buffer, new size_t(length)).intValue(),
 			() -> String.format("write(%d, %s, %d)", fd, print(buffer), length));
 	}
 
@@ -98,7 +97,7 @@ public class CLib {
 	 * Moves the position of file descriptor. Returns the new position.
 	 */
 	public static int lseek(int fd, int offset, int whence) throws CException {
-		return CUtil.verifyErrno(() -> CLIB.lseek(fd, offset, whence),
+		return CUtil.verifyErrno(() -> lib().lseek(fd, offset, whence),
 			() -> String.format("lseek(%d, %d, %d)", fd, offset, whence));
 	}
 
@@ -121,18 +120,18 @@ public class CLib {
 	 */
 	public static int ioctl(Supplier<String> errorMsg, int fd, int request, Object... objs)
 		throws CException {
-		return CUtil.verifyErrno(() -> CLIB.ioctl(fd, request, objs), errorMsg);
+		return CUtil.verifyErrno(() -> lib().ioctl(fd, request, objs), errorMsg);
 	}
 
 	public static termios tcgetattr(int fd) throws CException {
 		termios.ByReference ref = new termios.ByReference();
-		CUtil.verifyErrno(() -> CLIB.tcgetattr(fd, ref),
+		CUtil.verifyErrno(() -> lib().tcgetattr(fd, ref),
 			() -> String.format("tcgetattr(%d, %d)", fd, JnaUtil.print(ref)));
 		return ref;
 	}
 
 	public static void tcsetattr(int fd, int actions, termios termios) throws CException {
-		CUtil.verifyErrno(() -> CLIB.tcsetattr(fd, actions, termios),
+		CUtil.verifyErrno(() -> lib().tcsetattr(fd, actions, termios),
 			() -> String.format("tcgetattr(%d, %d)", fd, termios));
 	}
 
@@ -153,11 +152,8 @@ public class CLib {
 		return s + "...";
 	}
 
-	private static CLibNative loadLibrary(String name) {
-		logger.info("Loading {} started", name);
-		// logger.info("Protected: {}", JnaUtil.setProtected()); // only use for debug
-		CLibNative lib = JnaUtil.loadLibrary(null, CLibNative.class);
-		logger.info("Loading {} complete", name);
-		return lib;
+	private static CLibNative lib() {
+		return library.get();
 	}
+
 }

@@ -1,5 +1,7 @@
 package ceri.serial.libusb.jna;
 
+import com.sun.jna.LastErrorException;
+import ceri.common.exception.ExceptionUtil;
 import ceri.common.text.StringUtil;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
@@ -28,6 +30,14 @@ public class LibUsbException extends CException {
 	public static LibUsbException full(int code, String format, Object... args) {
 		libusb_error error = LibUsb.libusb_error.xcoder.decode(code);
 		return new LibUsbException(code, error, fullMessage(code, error, format, args));
+	}
+
+	/**
+	 * Create exception from errno and message.
+	 */
+	public static LibUsbException from(LastErrorException e, String format, Object... args) {
+		return ExceptionUtil.initCause(of(e.getErrorCode(),
+			e.getMessage() + ": " + StringUtil.format(format, args)), e);
 	}
 
 	protected LibUsbException(int code, libusb_error error, String message) {

@@ -17,7 +17,7 @@ public class FtdiStreamTester {
 		BinaryPrinter.builder().columns(4).showBinary(false).build();
 
 	public static void main(String[] args) throws LibUsbException {
-		try (Ftdi ftdi = Ftdi.create()) {
+		try (Ftdi ftdi = Ftdi.of()) {
 			libusb_device_criteria criteria = libusb_find_criteria().vendor(FTDI_VENDOR_ID);
 			ftdi.open(criteria);
 			ftdi.bitbang(true);

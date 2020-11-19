@@ -3,15 +3,6 @@ package ceri.serial;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import ceri.common.test.TestUtil;
-import ceri.serial.clib.FileDescriptorBehavior;
-import ceri.serial.clib.ModeBehavior;
-import ceri.serial.clib.OpenFlagBehavior;
-import ceri.serial.clib.SeekBehavior;
-import ceri.serial.clib.jna.CLibBehavior;
-import ceri.serial.clib.util.ResponseFdBehavior;
-import ceri.serial.jna.JnaUtilTest;
-import ceri.serial.jna.test.JnaTestUtilTest;
-import ceri.serial.libusb.jna.LibUsbFinderTest;
 
 /**
  * Generated test suite for ceri-serial
@@ -19,20 +10,33 @@ import ceri.serial.libusb.jna.LibUsbFinderTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	// clib
-	FileDescriptorBehavior.class, //
-	ModeBehavior.class, //
-	OpenFlagBehavior.class, //
-	SeekBehavior.class, //
+	ceri.serial.clib.CFileDescriptorBehavior.class, //
+	ceri.serial.clib.FileDescriptorBehavior.class, //
+	ceri.serial.clib.ModeBehavior.class, //
+	ceri.serial.clib.OpenFlagBehavior.class, //
+	ceri.serial.clib.SeekBehavior.class, //
 	// clib.jna
-	CLibBehavior.class, //
+	ceri.serial.clib.jna.CLibBehavior.class, //
 	// clib.util
-	ResponseFdBehavior.class, //
+	ceri.serial.clib.util.ResponseFdBehavior.class, //
+	// ftdi
+	ceri.serial.ftdi.FtdiBehavior.class, //
+	// ftdi.util
+	ceri.serial.ftdi.util.SelfHealingFtdiConnectorBehavior.class, //
+	// javax.util
+	ceri.serial.javax.util.CommPortSupplierBehavior.class, //
+	ceri.serial.javax.util.ConnectorNotSetExceptionBehavior.class, //
+	ceri.serial.javax.util.ReplaceableSerialConnectorBehavior.class, //
+	ceri.serial.javax.util.SelfHealingSerialConfigBehavior.class, //
+	ceri.serial.javax.util.SelfHealingSerialConnectorBehavior.class, //
 	// jna
-	JnaUtilTest.class, //
+	ceri.serial.jna.JnaUtilTest.class, //
 	// jna.test
-	JnaTestUtilTest.class, //
+	ceri.serial.jna.test.JnaTestUtilTest.class, //
+	// libusb
+	ceri.serial.libusb.UsbBehavior.class, //
 	// libusb.jna
-	LibUsbFinderTest.class, //
+	ceri.serial.libusb.jna.LibUsbFinderTest.class, //
 })
 public class _Tests {
 	public static void main(String... args) {

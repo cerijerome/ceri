@@ -1,34 +1,39 @@
 package ceri.serial.javax.util;
 
+import static ceri.common.function.FunctionUtil.lambdaName;
 import static ceri.common.function.FunctionUtil.named;
+import java.io.IOException;
 import java.util.function.Predicate;
 import ceri.common.text.ToString;
 import ceri.serial.javax.SerialPort;
 import ceri.serial.javax.SerialPortParams;
 
 public class SelfHealingSerialConfig {
-	public static final SelfHealingSerialConfig NULL = builder((CommPortSupplier) null).build();
+	public static final SelfHealingSerialConfig NULL = of((CommPortSupplier) null);
 	public static final Predicate<Exception> DEFAULT_PREDICATE =
 		named(SerialPort::isBroken, "SerialPort::isBroken");
 	public final CommPortSupplier commPortSupplier;
+	public final SerialFactory factory;
 	public final SerialPortParams params;
 	public final int connectionTimeoutMs;
 	public final int fixRetryDelayMs;
 	public final int recoveryDelayMs;
 	public final Predicate<Exception> brokenPredicate;
 
+	public static interface SerialFactory {
+		SerialPort open(String comPort, String name, int timeoutMs) throws IOException;
+	}
+
 	/**
 	 * Returns config with serial params replaced.
 	 */
 	public static SelfHealingSerialConfig replace(SelfHealingSerialConfig config,
 		SerialPortParams params) {
-		if (config == null || params == null) return config;
-		if (config.params.equals(params)) return config;
-		return SelfHealingSerialConfig.builder(config).params(params).build();
+		return config == null ? null : config.replace(params);
 	}
 
 	public static SelfHealingSerialConfig of(String commPort) {
-		return of(CommPortSupplier.fixed(commPort));
+		return of(commPort, SerialPortParams.DEFAULT);
 	}
 
 	public static SelfHealingSerialConfig of(String commPort, SerialPortParams params) {
@@ -36,7 +41,7 @@ public class SelfHealingSerialConfig {
 	}
 
 	public static SelfHealingSerialConfig of(CommPortSupplier commPortSupplier) {
-		return new Builder(commPortSupplier).build();
+		return of(commPortSupplier, SerialPortParams.DEFAULT);
 	}
 
 	public static SelfHealingSerialConfig of(CommPortSupplier commPortSupplier,
@@ -46,6 +51,7 @@ public class SelfHealingSerialConfig {
 
 	public static class Builder {
 		final CommPortSupplier commPortSupplier;
+		SerialFactory factory = SerialPort::open;
 		SerialPortParams params = SerialPortParams.DEFAULT;
 		int connectionTimeoutMs = 3000;
 		int fixRetryDelayMs = 2000;
@@ -54,6 +60,11 @@ public class SelfHealingSerialConfig {
 
 		Builder(CommPortSupplier commPortSupplier) {
 			this.commPortSupplier = commPortSupplier;
+		}
+
+		public Builder factory(SerialFactory factory) {
+			this.factory = factory;
+			return this;
 		}
 
 		public Builder params(SerialPortParams params) {
@@ -81,11 +92,6 @@ public class SelfHealingSerialConfig {
 			return this;
 		}
 
-		public Builder brokenPredicate(Predicate<Exception> brokenPredicate, String name) {
-			this.brokenPredicate = named(brokenPredicate, name);
-			return this;
-		}
-
 		public SelfHealingSerialConfig build() {
 			return new SelfHealingSerialConfig(this);
 		}
@@ -107,6 +113,7 @@ public class SelfHealingSerialConfig {
 
 	SelfHealingSerialConfig(Builder builder) {
 		commPortSupplier = builder.commPortSupplier;
+		factory = builder.factory;
 		params = builder.params;
 		connectionTimeoutMs = builder.connectionTimeoutMs;
 		fixRetryDelayMs = builder.fixRetryDelayMs;
@@ -114,14 +121,26 @@ public class SelfHealingSerialConfig {
 		brokenPredicate = builder.brokenPredicate;
 	}
 
+	public SerialPort open(String comPort, String name, int timeoutMs) throws IOException {
+		return factory.open(comPort, name, timeoutMs);
+	}
+	
 	public boolean enabled() {
 		return commPortSupplier != null;
 	}
 
+	/**
+	 * Returns config with serial params replaced.
+	 */
+	public SelfHealingSerialConfig replace(SerialPortParams params) {
+		if (params == null || params.equals(this.params)) return this;
+		return builder(this).params(params).build();
+	}
+
 	@Override
 	public String toString() {
-		return ToString.forClass(this, commPortSupplier, params, connectionTimeoutMs,
-			fixRetryDelayMs, recoveryDelayMs, brokenPredicate);
+		return ToString.forClass(this, lambdaName(commPortSupplier), lambdaName(factory), params,
+			connectionTimeoutMs, fixRetryDelayMs, recoveryDelayMs, lambdaName(brokenPredicate));
 	}
 
 }

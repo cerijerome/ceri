@@ -6,7 +6,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_attach_kernel_driver;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bulk_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_claim_interface;
 import static ceri.serial.libusb.jna.LibUsb.libusb_clear_halt;
-import static ceri.serial.libusb.jna.LibUsb.libusb_close;
 import static ceri.serial.libusb.jna.LibUsb.libusb_control_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_detach_kernel_driver;
 import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_address;
@@ -32,8 +31,12 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
+import ceri.log.util.LogUtil;
+import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
@@ -44,6 +47,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_request_type;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class UsbDeviceHandle implements Closeable {
+	private static final Logger logger = LogManager.getLogger();
 	private final Supplier<libusb_context> contextSupplier;
 	private libusb_device_handle handle;
 
@@ -224,7 +228,7 @@ public class UsbDeviceHandle implements Closeable {
 
 	@Override
 	public void close() {
-		libusb_close(handle);
+		LogUtil.execute(logger, () -> LibUsb.libusb_close(handle));
 		handle = null;
 	}
 

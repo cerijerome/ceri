@@ -3,6 +3,7 @@ package ceri.serial.clib.jna;
 import java.io.IOException;
 import java.util.function.IntConsumer;
 import com.sun.jna.LastErrorException;
+import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.text.StringUtil;
 
@@ -61,12 +62,13 @@ public class CException extends IOException {
 	 * Create exception from errno and message.
 	 */
 	public static CException from(LastErrorException e, String format, Object... args) {
-		return new CException(e.getErrorCode(),
-			e.getMessage() + ": " + StringUtil.format(format, args));
+		return ExceptionUtil.initCause(new CException(e.getErrorCode(),
+			e.getMessage() + ": " + StringUtil.format(format, args)), e);
 	}
 
 	public CException(int code, String message) {
-		this(code, message, null);
+		super(message);
+		this.code = code;
 	}
 
 	public CException(int code, String message, Throwable t) {

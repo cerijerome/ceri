@@ -8,7 +8,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_fill_bulk_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_fill_control_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_fill_interrupt_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_fill_iso_transfer;
-import static ceri.serial.libusb.jna.LibUsb.libusb_free_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_iso_packet_buffer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_iso_packet_buffer_simple;
 import static ceri.serial.libusb.jna.LibUsb.libusb_set_iso_packet_lengths;
@@ -17,7 +16,11 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_get_stream_id;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_set_stream_id;
 import java.io.Closeable;
 import java.util.function.Supplier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
+import ceri.log.util.LogUtil;
+import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_control_setup;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
@@ -25,6 +28,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_transfer_cb_fn;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class UsbTransfer implements Closeable {
+	private static final Logger logger = LogManager.getLogger();
 	private final Supplier<libusb_device_handle> handleSupplier;
 	private libusb_transfer transfer;
 
@@ -69,7 +73,7 @@ public class UsbTransfer implements Closeable {
 	}
 
 	public void fillBulkStream(int endpoint, int streamId, Pointer buffer, int length,
-		libusb_transfer_cb_fn callback, Pointer userData, int timeout) {
+		libusb_transfer_cb_fn callback, Pointer userData, int timeout) throws LibUsbException {
 		libusb_fill_bulk_stream_transfer(transfer(), handle(), endpoint, streamId, buffer, length,
 			callback, userData, timeout);
 	}
@@ -100,7 +104,7 @@ public class UsbTransfer implements Closeable {
 
 	@Override
 	public void close() {
-		libusb_free_transfer(transfer);
+		LogUtil.execute(logger, () -> LibUsb.libusb_free_transfer(transfer));
 		transfer = null;
 	}
 

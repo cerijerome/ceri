@@ -188,7 +188,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 	private SerialPort openSerialPort(String commPort, int connectionTimeoutMs) throws IOException {
 		SerialPort sp = null;
 		try {
-			sp = SerialPort.open(commPort, getClass().getSimpleName(), connectionTimeoutMs);
+			sp = config.open(commPort, getClass().getSimpleName(), connectionTimeoutMs);
 			sp.setParams(config.params);
 			return sp;
 		} catch (RuntimeException | IOException e) {

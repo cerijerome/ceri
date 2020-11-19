@@ -1,12 +1,16 @@
 package ceri.serial.libusb;
 
-import static ceri.serial.libusb.jna.LibUsb.libusb_free_pollfds;
 import java.io.Closeable;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import ceri.log.util.LogUtil;
 import ceri.serial.jna.Struct;
+import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd;
 
 public class UsbPollFds implements Closeable {
+	private static final Logger logger = LogManager.getLogger();
 	private libusb_pollfd.ByReference ref;
 
 	UsbPollFds(libusb_pollfd.ByReference ref) {
@@ -22,7 +26,7 @@ public class UsbPollFds implements Closeable {
 
 	@Override
 	public void close() {
-		libusb_free_pollfds(ref);
+		LogUtil.execute(logger, () -> LibUsb.libusb_free_pollfds(ref));
 		ref = null;
 	}
 }

@@ -33,8 +33,11 @@ public class LibUsbPrinter {
 
 	public static void main(String[] args) {
 		// Skips devices that cause seg fault
-		builder().skip(0x05ac, 0x8007).skip(0x05ac, 0x8006).build().print();
-		// builder().build().print();
+		// builder().skip(0x05ac, 0x8007).skip(0x05ac, 0x8006).build().print();
+		try (var enc = TestLibUsbNative.register()) {
+			LibUsbExampleData.populate(enc.subject.data);
+			builder().build().print();
+		}
 	}
 
 	public static class Builder {
@@ -101,7 +104,7 @@ public class LibUsbPrinter {
 		return skips.stream().anyMatch(skip -> skip.test(desc));
 	}
 
-	private void version(String pre) throws LibUsbException {
+	private void version(String pre) {
 		out.printf("%s: [libusb_version]%n", pre);
 		libusb_version v = LibUsb.libusb_get_version();
 		out.printf("%s: version=%04x-%04x-%04x-%04x%n", pre, v.major, v.minor, v.micro, v.nano);
@@ -121,12 +124,10 @@ public class LibUsbPrinter {
 			libusb_device device = devices[i];
 			libusb_device_descriptor desc = LibUsb.libusb_get_device_descriptor(device);
 			libusb_device_handle handle = LibUsb.libusb_open(device);
-
-			desc(pre, handle, desc);
 			other(pre, device);
+			desc(pre, handle, desc);
 			if (skip(desc)) out.printf("%s: <configuration skipped>", pre);
 			else configs(pre, device, handle, desc.bNumConfigurations);
-
 			LibUsb.libusb_close(handle);
 			out.println();
 		}
@@ -156,7 +157,6 @@ public class LibUsbPrinter {
 	}
 
 	private void other(String pre, libusb_device device) throws Exception {
-
 		out.printf("%s: bus_number()=0x%02x%n", pre, LibUsb.libusb_get_bus_number(device));
 		out.printf("%s: port_number()=0x%02x%n", pre, LibUsb.libusb_get_port_number(device));
 		out.printf("%s: port_numbers()=0x%s%n", pre,
@@ -167,7 +167,7 @@ public class LibUsbPrinter {
 
 	private void configs(String pre, libusb_device device, libusb_device_handle handle, int configs)
 		throws Exception {
-		out.printf("%s: configuration()=0x%04x%n", pre, LibUsb.libusb_get_configuration(handle));
+		out.printf("%s: configuration()=%d%n", pre, LibUsb.libusb_get_configuration(handle));
 		for (byte i = 0; i < configs; i++) {
 			libusb_config_descriptor config = LibUsb.libusb_get_config_descriptor(device, i);
 			config(pre + "." + i, handle, config);
@@ -249,5 +249,4 @@ public class LibUsbPrinter {
 	private String descriptor(libusb_device_handle handle, byte desc_index) throws LibUsbException {
 		return LibUsb.libusb_get_string_descriptor_ascii(handle, desc_index);
 	}
-
 }
