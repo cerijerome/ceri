@@ -2,18 +2,11 @@ package ceri.common.svg;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.TestUtil.exerciseEnum;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.geom.Point2d;
 
 public class PositionBehavior {
-
-	@BeforeClass
-	public static void init() {
-		exerciseEnum(PositionType.class);
-	}
 
 	@Test
 	public void shouldNotBreachEqualsContract() {

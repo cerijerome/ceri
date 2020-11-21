@@ -23,9 +23,6 @@ public class CookieClicker {
 	private final int delayMs;
 	private final Dimension screenSize;
 
-	// 10 20 30 40 50 60 70 80 90 100
-	// | | | | | | | | | |
-
 	public static class Builder {
 		// Rectangle clickArea = new Rectangle(80, 310, 270, 270);
 		Rectangle clickArea = new Rectangle(110, 340, 200, 200);

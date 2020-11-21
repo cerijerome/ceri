@@ -1,5 +1,6 @@
 package ceri.common.test;
 
+import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,24 +11,23 @@ import ceri.common.net.HostPort;
  * A test socket that delegates to a test streams for i/o.
  */
 public class TestSocket extends Socket {
-	public final HostPort hostPort;
-	private final int localPort;
+	public final CallSync.Accept<HostPort> remote = CallSync.consumer(HostPort.NULL, true);
+	public final CallSync.Get<Integer> localPort = CallSync.supplier(0);
 	public final TestInputStream in;
 	public final TestOutputStream out;
 
 	public static TestSocket of() {
-		return of(HostPort.localhost(0), 0);
+		return new TestSocket();
 	}
 
-	public static TestSocket of(HostPort hostPort, int localPort) {
-		return new TestSocket(hostPort, localPort);
-	}
-
-	private TestSocket(HostPort hostPort, int localPort) {
+	private TestSocket() {
 		in = TestInputStream.of();
 		out = TestOutputStream.of();
-		this.hostPort = hostPort;
-		this.localPort = localPort;
+	}
+
+	public TestSocket connect(String host, int port) throws IOException {
+		remote.accept(HostPort.of(host, port), IO_ADAPTER);
+		return this;
 	}
 
 	@Override
@@ -42,12 +42,12 @@ public class TestSocket extends Socket {
 
 	@Override
 	public int getPort() {
-		return hostPort.port(0);
+		return remote.value().port(0);
 	}
 
 	@Override
 	public int getLocalPort() {
-		return localPort;
+		return localPort.get();
 	}
 
 	@Override
@@ -55,4 +55,5 @@ public class TestSocket extends Socket {
 		in.close();
 		out.close();
 	}
+	
 }

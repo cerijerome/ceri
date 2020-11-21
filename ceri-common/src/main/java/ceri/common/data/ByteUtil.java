@@ -4,6 +4,7 @@ import static ceri.common.text.StringUtil.HEX_RADIX;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -45,7 +46,8 @@ public class ByteUtil {
 	}
 
 	/**
-	 * Converts hex string to its minimal byte array. Remove any delimiters before calling this.
+	 * Converts hex string to its minimal byte array. Uses BigInteger.toByteArray, but removes
+	 * leading 0 byte if it exists. Remove any delimiters before calling this.
 	 */
 	public static ByteProvider fromHex(String hex) {
 		if (hex == null) return null;
@@ -54,20 +56,32 @@ public class ByteUtil {
 		return ByteArray.Immutable.wrap(array, array[0] == 0 ? 1 : 0); // remove leading byte
 	}
 
+	/**
+	 * Creates a hex string from bytes, with given delimiter.
+	 */
 	public static String toHex(byte[] array, String delimiter) {
 		return toHex(array, 0, delimiter);
 	}
 
+	/**
+	 * Creates a hex string from bytes, with given delimiter.
+	 */
 	public static String toHex(byte[] array, int offset, String delimiter) {
 		if (array == null) return null;
 		return toHex(array, offset, array.length - offset, delimiter);
 	}
 
+	/**
+	 * Creates a hex string from bytes, with given delimiter.
+	 */
 	public static String toHex(byte[] array, int offset, int len, String delimiter) {
 		if (array == null) return null;
 		return toHex(ustream(array, offset, len), delimiter);
 	}
 
+	/**
+	 * Creates a hex string from bytes, with given delimiter.
+	 */
 	public static String toHex(IntStream stream, String delimiter) {
 		return stream.mapToObj(b -> StringUtil.toHex((byte) b))
 			.collect(Collectors.joining(delimiter));
@@ -127,50 +141,132 @@ public class ByteUtil {
 		return bytes;
 	}
 
+	/**
+	 * Copies bytes from the buffer, and moves the buffer position after the read.
+	 */
+	public static int readFrom(ByteBuffer buffer, int pos, byte[] data) {
+		return readFrom(buffer, pos, data, 0);
+	}
+
+	/**
+	 * Copies bytes from the buffer, and moves the buffer position after the read.
+	 */
+	public static int readFrom(ByteBuffer buffer, int pos, byte[] data, int offset) {
+		return readFrom(buffer, pos, data, offset, data.length - offset);
+	}
+
+	/**
+	 * Copies bytes from the buffer, and moves the buffer position after the read.
+	 */
+	public static int readFrom(ByteBuffer buffer, int pos, byte[] data, int offset, int length) {
+		buffer.position(pos);
+		buffer.get(data, offset, length);
+		return length;
+	}
+
+	/**
+	 * Copies bytes to the buffer, and moves the buffer position after the write.
+	 */
+	public static int writeTo(ByteBuffer buffer, int pos, byte[] data) {
+		return writeTo(buffer, pos, data, 0);
+	}
+
+	/**
+	 * Copies bytes to the buffer, and moves the buffer position after the write.
+	 */
+	public static int writeTo(ByteBuffer buffer, int pos, byte[] data, int offset) {
+		return writeTo(buffer, pos, data, offset, data.length - offset);
+	}
+
+	/**
+	 * Copies bytes to the buffer, and moves the buffer position after the write.
+	 */
+	public static int writeTo(ByteBuffer buffer, int pos, byte[] data, int offset, int length) {
+		buffer.position(pos);
+		buffer.put(data, offset, length);
+		return length;
+	}
+
+	/**
+	 * Writes bytes to output stream.
+	 */
 	public static void writeTo(ByteArrayOutputStream out, int... bytes) {
 		writeTo(out, ArrayUtil.bytes(bytes));
 	}
 
+	/**
+	 * Writes bytes to output stream.
+	 */
 	public static void writeTo(ByteArrayOutputStream out, byte... bytes) {
 		writeTo(out, bytes, 0);
 	}
 
+	/**
+	 * Writes bytes to output stream.
+	 */
 	public static void writeTo(ByteArrayOutputStream out, byte[] bytes, int offset) {
 		out.write(bytes, offset, bytes.length - offset);
 	}
 
+	/**
+	 * Writes bytes to output stream.
+	 */
 	public static void writeTo(ByteArrayOutputStream out, ByteProvider b) {
 		writeTo(out, b, 0);
 	}
 
+	/**
+	 * Writes bytes to output stream.
+	 */
 	public static void writeTo(ByteArrayOutputStream out, ByteProvider b, int offset) {
 		writeTo(out, b, offset, b.length() - offset);
 	}
 
+	/**
+	 * Writes bytes to output stream.
+	 */
 	public static void writeTo(ByteArrayOutputStream out, ByteProvider b, int offset, int length) {
 		ExceptionAdapter.RUNTIME.run(() -> b.writeTo(offset, out, length));
 	}
 
+	/**
+	 * Encodes string to latin-1 bytes.
+	 */
 	public static byte[] toAsciiBytes(String s) {
 		return s.getBytes(StandardCharsets.ISO_8859_1);
 	}
 
+	/**
+	 * Encodes string to latin-1 bytes.
+	 */
 	public static ByteProvider toAscii(String s) {
 		return ByteArray.Immutable.wrap(toAsciiBytes(s));
 	}
 
+	/**
+	 * Decodes string from latin-1 bytes.
+	 */
 	public static String fromAscii(int... data) {
 		return fromAscii(ArrayUtil.bytes(data));
 	}
 
+	/**
+	 * Decodes string from latin-1 bytes.
+	 */
 	public static String fromAscii(byte[] data) {
 		return fromAscii(data, 0);
 	}
 
+	/**
+	 * Decodes string from latin-1 bytes.
+	 */
 	public static String fromAscii(byte[] data, int offset) {
 		return fromAscii(data, offset, data.length - offset);
 	}
 
+	/**
+	 * Decodes string from latin-1 bytes.
+	 */
 	public static String fromAscii(byte[] data, int offset, int length) {
 		return new String(data, offset, length, StandardCharsets.ISO_8859_1);
 	}
@@ -190,7 +286,7 @@ public class ByteUtil {
 	}
 
 	/**
-	 * Creates a mask with given number of bits.
+	 * Creates a 32-bit mask with given number of bits.
 	 */
 	public static int maskInt(int bitCount) {
 		if (bitCount == 0) return 0;
@@ -199,14 +295,14 @@ public class ByteUtil {
 	}
 
 	/**
-	 * Creates a mask with given number of bits from start bit.
+	 * Creates a 32-bit mask with given number of bits from start bit.
 	 */
 	public static int maskInt(int startBit, int bitCount) {
 		return maskInt(bitCount) << startBit;
 	}
 
 	/**
-	 * Creates a mask with given number of bits.
+	 * Creates a 64-bit mask with given number of bits.
 	 */
 	public static long mask(int bitCount) {
 		if (bitCount == 0) return 0;
@@ -221,11 +317,17 @@ public class ByteUtil {
 		return mask(bitCount) << startBit;
 	}
 
+	/**
+	 * Creates a 64-bit mask from given true bits.
+	 */
 	public static long maskOfBits(Collection<Integer> bits) {
 		if (bits == null) return 0;
 		return maskOfBits(ArrayUtil.ints(bits));
 	}
 
+	/**
+	 * Creates a 64-bit mask from given true bits.
+	 */
 	public static long maskOfBits(int... bits) {
 		if (bits == null) return 0;
 		long value = 0;
@@ -234,19 +336,31 @@ public class ByteUtil {
 		return value;
 	}
 
+	/**
+	 * Creates a value with given bit on or off. Used to construct a mask from bits.
+	 */
 	public static long maskOfBit(boolean flag, int bit) {
 		if (!flag) return 0;
 		return 1L << bit;
 	}
 
+	/**
+	 * Creates a 32-bit mask from given true bits.
+	 */
 	public static int maskOfBitsInt(Collection<Integer> bits) {
 		return (int) maskOfBits(bits);
 	}
 
+	/**
+	 * Creates a 32-bit mask from given true bits.
+	 */
 	public static int maskOfBitsInt(int... bits) {
 		return (int) maskOfBits(bits);
 	}
 
+	/**
+	 * Creates a value with given bit on or off. Used to construct a mask from bits.
+	 */
 	public static int maskOfBitInt(boolean flag, int bit) {
 		return (int) maskOfBit(flag, bit);
 	}
@@ -368,18 +482,30 @@ public class ByteUtil {
 		return offset;
 	}
 
+	/**
+	 * Creates a byte-ordered value from byte array.
+	 */
 	public static long fromMsb(int... array) {
 		return fromMsb(ArrayUtil.bytes(array));
 	}
 
+	/**
+	 * Creates a byte-ordered value from byte array.
+	 */
 	public static long fromMsb(byte[] array) {
 		return fromMsb(array, 0);
 	}
 
+	/**
+	 * Creates a byte-ordered value from byte array.
+	 */
 	public static long fromMsb(byte[] array, int offset) {
 		return fromMsb(array, offset, array.length - offset);
 	}
 
+	/**
+	 * Creates a byte-ordered value from byte array.
+	 */
 	public static long fromMsb(byte[] array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
 		validateMax(length, Long.BYTES);
@@ -389,18 +515,30 @@ public class ByteUtil {
 		return value;
 	}
 
+	/**
+	 * Creates a byte-ordered value from byte array.
+	 */
 	public static long fromLsb(int... array) {
 		return fromLsb(ArrayUtil.bytes(array));
 	}
 
+	/**
+	 * Creates a byte-ordered value from byte array.
+	 */
 	public static long fromLsb(byte[] array) {
 		return fromLsb(array, 0);
 	}
 
+	/**
+	 * Creates a byte-ordered value from byte array.
+	 */
 	public static long fromLsb(byte[] array, int offset) {
 		return fromLsb(array, offset, array.length - offset);
 	}
 
+	/**
+	 * Creates a byte-ordered value from byte array.
+	 */
 	public static long fromLsb(byte[] array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
 		validateMax(length, Long.BYTES);
@@ -410,75 +548,123 @@ public class ByteUtil {
 		return value;
 	}
 
+	/**
+	 * Returns an unsigned byte from the given byte offset within a 64-bit value.
+	 */
 	public static short ubyteAt(long value, int byteOffset) {
 		return MathUtil.ubyte(byteAt(value, byteOffset));
 	}
 
+	/**
+	 * Returns an byte from the given byte offset within a 64-bit value.
+	 */
 	public static byte byteAt(long value, int byteOffset) {
 		if (byteOffset == 0) return (byte) value;
 		return (byte) shift(value, byteOffset);
 	}
 
+	/**
+	 * Shifts first 8-bits left by given number of bytes.
+	 */
 	public static long shiftByteLeft(long value, int bytes) {
 		return shift(value & BYTE_MASK, -bytes);
 	}
 
+	/**
+	 * Shifts 16-bit value by given number of bytes.
+	 */
 	public static short shift(short value, int bytes) {
 		return shiftBits(value, Byte.SIZE * bytes);
 	}
 
+	/**
+	 * Shifts 32-bit value by given number of bytes.
+	 */
 	public static int shift(int value, int bytes) {
 		return shiftBits(value, Byte.SIZE * bytes);
 	}
 
+	/**
+	 * Shifts 64-bit value by given number of bytes.
+	 */
 	public static long shift(long value, int bytes) {
 		return shiftBits(value, Byte.SIZE * bytes);
 	}
 
+	/**
+	 * Shifts 8-bit value by given number of bits.
+	 */
 	public static byte shiftBits(byte value, int bits) {
 		if (bits == 0) return value;
 		if (value == 0 || Math.abs(bits) >= Byte.SIZE) return 0;
 		return (byte) (bits > 0 ? (value & BYTE_MASK) >>> bits : value << -bits);
 	}
 
+	/**
+	 * Shifts 16-bit value by given number of bits.
+	 */
 	public static short shiftBits(short value, int bits) {
 		if (bits == 0) return value;
 		if (value == 0 || Math.abs(bits) >= Short.SIZE) return 0;
 		return (short) (bits > 0 ? (value & SHORT_MASK) >>> bits : value << -bits);
 	}
 
+	/**
+	 * Shifts 32-bit value by given number of bits.
+	 */
 	public static int shiftBits(int value, int bits) {
 		if (bits == 0) return value;
 		if (value == 0 || Math.abs(bits) >= Integer.SIZE) return 0;
 		return bits > 0 ? value >>> bits : value << -bits;
 	}
 
+	/**
+	 * Shifts 64-bit value by given number of bits.
+	 */
 	public static long shiftBits(long value, int bits) {
 		if (bits == 0) return value;
 		if (value == 0 || Math.abs(bits) >= Long.SIZE) return 0;
 		return bits > 0 ? value >>> bits : value << -bits;
 	}
 
+	/**
+	 * Inverts bits of 8-bit value.
+	 */
 	public static byte invertByte(int value) {
 		return (byte) ~value;
 	}
 
+	/**
+	 * Inverts bits of 16-bit value.
+	 */
 	public static short invertShort(int value) {
 		return (short) ~value;
 	}
 
+	/**
+	 * Reverses bits of 8-bit value.
+	 */
 	public static byte reverseByte(int value) {
 		return (byte) reverseAsInt(value, Byte.SIZE);
 	}
 
+	/**
+	 * Reverses bits of 16-bit value.
+	 */
 	public static short reverseShort(int value) {
 		return (short) reverseAsInt(value, Short.SIZE);
 	}
 
+	/**
+	 * Reverses value bits, removing bits outside the range.
+	 */
 	public static int reverseAsInt(int value, int bits) {
 		return Integer.reverse(value) >>> (Integer.SIZE - bits);
 	}
 
+	/**
+	 * Reverses value bits, removing bits outside the range.
+	 */
 	public static long reverse(long value, int bits) {
 		return Long.reverse(value) >>> (Long.SIZE - bits);
 	}

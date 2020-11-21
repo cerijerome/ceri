@@ -3,20 +3,16 @@ package ceri.common.text;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class StringTypeBehavior {
 	private static final String STRING = "abcabc";
-	private static StringType s;
-	private static StringType sb;
-	private static StringType cs;
+	private static final StringType s = StringType.of(STRING);
+	private static final StringType sb = StringType.of(new StringBuilder(STRING));
+	private static final StringType cs = custom();
 
-	@BeforeClass
-	public static void init() {
-		s = StringType.of(STRING);
-		sb = StringType.of(new StringBuilder(STRING));
-		cs = new StringType() {
+	private static StringType custom() {
+		return new StringType() {
 			@Override
 			public int length() {
 				return STRING.length();

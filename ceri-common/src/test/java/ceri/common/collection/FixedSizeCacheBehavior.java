@@ -2,29 +2,16 @@ package ceri.common.collection;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static org.hamcrest.CoreMatchers.is;
-import java.util.HashMap;
 import java.util.Map;
-import org.junit.Assume;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class FixedSizeCacheBehavior {
-	private static Map<Integer, String> map;
+	private static Map<Integer, String> map = ImmutableUtil.asMap(1, "one", 2, "two", 3, "three");
 	private Map<Integer, String> cache;
 
-	@BeforeClass
-	public static void initMap() {
-		map = new HashMap<>();
-		map.put(1, "one");
-		map.put(2, "two");
-		map.put(3, "three");
-		Assume.assumeThat(map.size(), is(3));
-	}
-
 	@Before
-	public void initCache() {
+	public void before() {
 		cache = new FixedSizeCache<>(3);
 		cache.putAll(map);
 		assertEquals(cache, map);

@@ -1,5 +1,6 @@
 package ceri.common.data;
 
+import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
@@ -13,6 +14,7 @@ import static ceri.common.util.BasicUtil.forEach;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Test;
@@ -80,6 +82,22 @@ public class ByteUtilTest {
 	public void testFill() {
 		assertArray(ByteUtil.fill(3, 0xff), 0xff, 0xff, 0xff);
 		assertArray(ByteUtil.fill(0, 0xff));
+	}
+
+	@Test
+	public void testReadFromByteBuffer() {
+		ByteBuffer buffer = ByteBuffer.wrap(ArrayUtil.bytes(1, 2, 3, 4, 5));
+		byte[] bytes = new byte[3];
+		assertEquals(ByteUtil.readFrom(buffer, 1, bytes), 3);
+		assertArray(bytes, 2, 3, 4);
+	}
+
+	@Test
+	public void testWriteToByteBuffer() {
+		byte[] bytes = new byte[5];
+		ByteBuffer buffer = ByteBuffer.wrap(bytes);
+		assertEquals(ByteUtil.writeTo(buffer, 1, bytes(1, 2, 3)), 3);
+		assertArray(bytes, 0, 1, 2, 3, 0);
 	}
 
 	@Test
