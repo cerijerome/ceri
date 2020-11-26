@@ -34,8 +34,9 @@ public class LibUsbPrinter {
 	public static void main(String[] args) {
 		// Skips devices that cause seg fault
 		// builder().skip(0x05ac, 0x8007).skip(0x05ac, 0x8006).build().print();
-		try (var enc = TestLibUsbNative.register()) {
-			LibUsbExampleData.populate(enc.subject.data);
+		TestLibUsbNative lib = TestLibUsbNative.of();
+		try (var enc = TestLibUsbNative.register(lib)) {
+			LibUsbExampleData.populate(lib.data);
 			builder().build().print();
 		}
 	}

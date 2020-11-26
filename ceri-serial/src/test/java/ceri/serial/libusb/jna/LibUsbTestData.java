@@ -67,6 +67,18 @@ public class LibUsbTestData {
 	public static class DeviceHandle extends Data {
 		public Device device;
 		public int configuration;
+		public int claimedInterface;
+		public int altSetting;
+		
+		public void reset() {
+			configuration = device.config.configuration;
+			resetInterface();
+		}
+		
+		public void resetInterface() {
+			claimedInterface = -1;
+			altSetting = -1;
+		}
 	}
 
 	public static class DeviceConfig implements Fluent<DeviceConfig> {
@@ -171,6 +183,10 @@ public class LibUsbTestData {
 		return find(devices, p);
 	}
 
+	public Device device(Predicate<? super Device> filter) {
+		return find(devices, filter, null);
+	}
+
 	public Device parentDevice(Device device) {
 		if (device.config.parent == null) return null;
 		return find(devices,
@@ -194,7 +210,7 @@ public class LibUsbTestData {
 		DeviceHandle handle = new DeviceHandle();
 		deviceHandles.add(handle);
 		handle.device = device;
-		handle.configuration = device.config.configuration;
+		handle.reset();
 		refDevice(device, 1);
 		return handle;
 	}

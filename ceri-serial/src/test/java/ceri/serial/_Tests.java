@@ -22,6 +22,7 @@ import ceri.common.test.TestUtil;
 	// ftdi
 	ceri.serial.ftdi.FtdiBehavior.class, //
 	// ftdi.util
+	ceri.serial.ftdi.util.SelfHealingFtdiConfigBehavior.class, //
 	ceri.serial.ftdi.util.SelfHealingFtdiConnectorBehavior.class, //
 	// javax.util
 	ceri.serial.javax.util.CommPortSupplierBehavior.class, //

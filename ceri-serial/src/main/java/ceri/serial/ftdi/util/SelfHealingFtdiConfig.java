@@ -1,5 +1,6 @@
 package ceri.serial.ftdi.util;
 
+import static ceri.common.function.FunctionUtil.lambdaName;
 import static ceri.common.function.FunctionUtil.named;
 import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_criteria_string;
 import java.util.function.Predicate;
@@ -37,7 +38,7 @@ public class SelfHealingFtdiConfig {
 	public static class Builder {
 		libusb_device_criteria find = null;
 		ftdi_interface iface = ftdi_interface.INTERFACE_ANY;
-		Integer baud = 9600; // null?
+		Integer baud = 9600;
 		FtdiLineParams line = FtdiLineParams.DEFAULT;
 		FtdiBitmode bitmode = FtdiBitmode.BITBANG;
 		int fixRetryDelayMs = 2000;
@@ -121,7 +122,7 @@ public class SelfHealingFtdiConfig {
 	@Override
 	public String toString() {
 		return ToString.forClass(this, find, iface, baud, line, bitmode, fixRetryDelayMs,
-			recoveryDelayMs, brokenPredicate);
+			recoveryDelayMs, lambdaName(brokenPredicate));
 	}
 
 }

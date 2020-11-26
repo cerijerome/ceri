@@ -138,6 +138,8 @@ public class LibFtdi {
 	private static final int SIO_SET_RTS_HIGH = 0x202;
 	private static final int SIO_SET_RTS_LOW = 0x200;
 
+	private LibFtdi() {}
+	
 	public static final int FTDI_VENDOR_ID = 0x403;
 
 	enum ftdi_request_type {
@@ -1003,18 +1005,16 @@ public class LibFtdi {
 		if (type != null && type.isHType()) {
 			if (baudrate * 10 > H_CLK / 0x3fff) {
 				best_baud = ftdi_to_clkbits(baudrate, H_CLK, 10, encoded_divisor);
-				encoded_divisor[0] |= 0x20000; /* switch on CLK/10 */
+				encoded_divisor[0] |= 0x20000; // switch on CLK/10
 			} else best_baud = ftdi_to_clkbits(baudrate, C_CLK, 16, encoded_divisor);
 		} else if (type != null && type != TYPE_AM)
 			best_baud = ftdi_to_clkbits(baudrate, C_CLK, 16, encoded_divisor);
 		else best_baud = ftdi_to_clkbits_AM(baudrate, encoded_divisor);
 
-		value[0] = (short) (encoded_divisor[0] & 0xffff);
-		if (type != null && type.isHType()) {
-			index[0] = (short) (encoded_divisor[0] >> 8);
-			index[0] &= 0xff00;
-			index[0] |= ftdi.index;
-		} else index[0] = (short) (encoded_divisor[0] >> 16);
+		value[0] = (short) encoded_divisor[0];
+		if (type != null && type.isHType())
+			index[0] = (short) (((encoded_divisor[0] >> 8) & 0xff00) | ftdi.index);
+		else index[0] = (short) (encoded_divisor[0] >> 16);
 		return best_baud;
 	}
 

@@ -173,11 +173,11 @@ public class SelfHealingFtdiConnector extends LoopingExecutor implements FtdiCon
 		Ftdi ftdi = null;
 		try {
 			ftdi = Ftdi.of();
-			if (config.iface != null) ftdi.setInterface(config.iface);
+			ftdi.setInterface(config.iface);
 			ftdi.open(config.find);
-			if (config.bitmode != null) ftdi.bitmode(config.bitmode);
-			if (config.baud != null) ftdi.baudrate(config.baud);
-			if (config.line != null) ftdi.lineParams(config.line);
+			ftdi.bitmode(config.bitmode);
+			ftdi.baudrate(config.baud);
+			ftdi.lineParams(config.line);
 			return ftdi;
 		} catch (RuntimeException | LibUsbException e) {
 			LogUtil.close(logger, ftdi);
