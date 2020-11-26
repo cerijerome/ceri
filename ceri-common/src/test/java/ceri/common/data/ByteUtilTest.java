@@ -85,6 +85,13 @@ public class ByteUtilTest {
 	}
 
 	@Test
+	public void testReadByteArrayFromByteBuffer() {
+		assertArray(ByteUtil.readFrom(null, 1, 0));
+		ByteBuffer buffer = ByteBuffer.wrap(ArrayUtil.bytes(1, 2, 3, 4, 5));
+		assertArray(ByteUtil.readFrom(buffer, 1, 3), 2, 3, 4);
+	}
+
+	@Test
 	public void testReadFromByteBuffer() {
 		ByteBuffer buffer = ByteBuffer.wrap(ArrayUtil.bytes(1, 2, 3, 4, 5));
 		byte[] bytes = new byte[3];

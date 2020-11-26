@@ -144,6 +144,16 @@ public class ByteUtil {
 	/**
 	 * Copies bytes from the buffer, and moves the buffer position after the read.
 	 */
+	public static byte[] readFrom(ByteBuffer buffer, int pos, int length) {
+		if (length == 0) return ArrayUtil.EMPTY_BYTE;
+		byte[] bytes = new byte[length];
+		readFrom(buffer, pos, bytes);
+		return bytes;
+	}
+
+	/**
+	 * Copies bytes from the buffer, and moves the buffer position after the read.
+	 */
 	public static int readFrom(ByteBuffer buffer, int pos, byte[] data) {
 		return readFrom(buffer, pos, data, 0);
 	}

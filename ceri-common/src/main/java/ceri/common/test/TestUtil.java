@@ -261,6 +261,17 @@ public class TestUtil {
 	}
 
 	/**
+	 * Returns a byte array for a range of values.
+	 */
+	public static byte[] byteRange(int from, int to) {
+		byte[] bytes = new byte[Math.abs(to - from) + 1];
+		int inc = (int) Math.signum(to - from);
+		for (int i = 0, n = from; i < bytes.length; i++, n += inc)
+			bytes[i] = (byte) n;
+		return bytes;
+	}
+
+	/**
 	 * Returns a ByteProvider.Reader wrapper for bytes.
 	 */
 	public static ByteProvider.Reader reader(int... bytes) {
