@@ -9,6 +9,7 @@ import static ceri.common.exception.ExceptionAdapter.RUNTIME;
 import static ceri.common.function.FunctionUtil.lambdaName;
 import static ceri.common.function.FunctionUtil.sequentialSupplier;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
 import java.util.ArrayList;
@@ -203,6 +204,14 @@ public class CallSync<T, R> {
 		}
 
 		/**
+		 * Asserts and clears values. Can be used with or without autoResponse.
+		 */
+		@SafeVarargs
+		public final void assertValues(T... values) {
+			super.assertAndClearValues(values);
+		}
+
+		/**
 		 * Awaits and asserts the call, evaluates the response action, and signals completion. Use
 		 * when autoResponse is disabled.
 		 */
@@ -335,6 +344,14 @@ public class CallSync<T, R> {
 		public <E extends Exception> void assertCall(T value, ExceptionConsumer<E, T> actionFn)
 			throws E {
 			super.assertCallWithResponse(value, t -> exec(t, actionFn));
+		}
+
+		/**
+		 * Asserts and clears values. Can be used with or without autoResponse.
+		 */
+		@SafeVarargs
+		public final void assertValues(T... values) {
+			super.assertAndClearValues(values);
 		}
 
 		private <E extends Exception> Object exec(T t, ExceptionConsumer<E, T> responseFn)
@@ -603,6 +620,19 @@ public class CallSync<T, R> {
 	 */
 	private List<T> getValues() {
 		return executeGet(lock, () -> new ArrayList<>(values));
+	}
+
+	/**
+	 * Thread-safe; assert and clear values.
+	 */
+	@SafeVarargs
+	private void assertAndClearValues(T... expecteds) {
+		List<T> values = executeGet(lock, () -> {
+			List<T> list = new ArrayList<>(this.values);
+			this.values.clear();
+			return list;
+		});
+		assertIterable(values, expecteds);
 	}
 
 	/**

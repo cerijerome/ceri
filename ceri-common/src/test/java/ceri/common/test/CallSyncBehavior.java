@@ -71,6 +71,17 @@ public class CallSyncBehavior {
 	}
 
 	@Test
+	public void shouldApplyAndAssertValues() {
+		Apply<String, Integer> call = CallSync.function(null, 3);
+		assertIterable(call.values());
+		call.apply("test0");
+		call.apply(null);
+		call.apply("test1");
+		call.assertValues("test0", null, "test1");
+		assertIterable(call.values()); // cleared
+	}
+
+	@Test
 	public void shouldApplyWithoutSavingValues() {
 		Apply<String, Integer> call = CallSync.function(null, 3);
 		call.saveValues(false);
@@ -141,6 +152,17 @@ public class CallSyncBehavior {
 		call.accept("test2");
 		call.accept(null);
 		assertIterable(call.values(), "test0", null, "test2", null);
+	}
+
+	@Test
+	public void shouldAcceptAndAssertValues() {
+		Accept<String> call = CallSync.consumer(null, true);
+		assertIterable(call.values());
+		call.accept("test0");
+		call.accept(null);
+		call.accept("test1");
+		call.assertValues("test0", null, "test1");
+		assertIterable(call.values()); // cleared
 	}
 
 	@Test
