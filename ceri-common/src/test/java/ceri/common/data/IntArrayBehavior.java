@@ -22,6 +22,15 @@ import ceri.common.util.BasicUtil;
 
 public class IntArrayBehavior {
 
+	@Test
+	public void shouldProvideStringRepresentation() {
+		assertEquals(IntArray.Immutable.wrap().toString(), "Immutable(0)[]");
+		assertEquals(IntArray.Immutable.wrap(1, 2, 3, 4, 5, 6, 7, 8, 9).toString(),
+			"Immutable(9)[1, 2, 3, 4, 5, 6, 7, ...]");
+		assertEquals(IntArray.Immutable.wrap(1, 2, 3, 4, 5, 6, 7, 8).toString(),
+			"Immutable(8)[1, 2, 3, 4, 5, 6, 7, 8]");
+	}
+
 	/* Immutable tests */
 
 	@Test
