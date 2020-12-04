@@ -20,10 +20,8 @@ public class ScUtilBehavior {
 
 	@Test
 	public void shouldExecuteNcList() throws IOException {
-		//TestProcessor p = TestProcess.processor(TestUtil.resource("list-output.txt"));
 		TestProcessor p = TestProcess.processor(TestUtil.resource("list-output.txt"));
 		var result = ScUtil.of(p).nc.list();
-		//p.assertParameters("scutil", "--nc", "list");
 		p.exec.assertAuto(Parameters.of("scutil", "--nc", "list"));
 		assertIterable(result.parse(),
 			NcListItem.builder().enabled(false).state("Disconnected")
@@ -78,8 +76,8 @@ public class ScUtilBehavior {
 	public void shouldExecuteNcStart() throws IOException {
 		TestProcessor p = TestProcess.processor("output");
 		var result = ScUtil.of(p).nc.start("test", "user", "pwd", "secret");
-		p.assertParameters("scutil", "--nc", "start", "test", "--user", "user", "--password",
-			"pwd", "--secret", "secret");
+		p.assertParameters("scutil", "--nc", "start", "test", "--user", "user", "--password", "pwd",
+			"--secret", "secret");
 		assertEquals(result, "output");
 
 		p = TestProcess.processor("output");
