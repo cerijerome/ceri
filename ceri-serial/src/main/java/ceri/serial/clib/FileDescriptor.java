@@ -14,7 +14,8 @@ import ceri.serial.jna.JnaUtil;
  * Encapsulates a file descriptor as a closable resource.
  */
 public interface FileDescriptor extends Closeable {
-	static int BUFFER_SIZE = 1024;
+	static final FileDescriptor NULL = new Null();
+	static final int BUFFER_SIZE = 1024;
 
 	/**
 	 * Provide access to the underlying descriptor.
@@ -148,4 +149,33 @@ public interface FileDescriptor extends Closeable {
 		return length;
 	}
 
+	static class Null implements FileDescriptor {
+		protected Null() {}
+		
+		@Override
+		public int fd() throws IOException {
+			return -1;
+		}
+
+		@Override
+		public int read(Pointer p, int offset, int length) throws IOException {
+			return length;
+		}
+
+		@Override
+		public void write(Pointer p, int offset, int length) throws IOException {}
+
+		@Override
+		public int seek(int offset, Seek whence) throws IOException {
+			return 0;
+		}
+
+		@Override
+		public int ioctl(String name, int request, Object... objs) throws IOException {
+			return 0;
+		}
+		
+		@Override
+		public void close() throws IOException {}
+	}
 }

@@ -4,7 +4,6 @@ import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import static ceri.common.validation.ValidationUtil.validateRange;
-import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_RD;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BLOCK_DATA;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BLOCK_PROC_CALL;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BYTE;
@@ -16,8 +15,6 @@ import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_WO
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
@@ -37,7 +34,6 @@ import ceri.serial.jna.Struct;
  * I2C device communication, through ioctl commands. Linux-only?
  */
 public class I2cDev {
-	private static final Logger logger = LogManager.getLogger();
 
 	private I2cDev() {}
 
@@ -89,6 +85,12 @@ public class I2cDev {
 			return Struct.<ByReference>array(count, ByReference::new, ByReference[]::new);
 		}
 
+		public i2c_msg() {}
+
+		public i2c_msg(Pointer p) {
+			super(p);
+		}
+
 		public void populate(int address, int flags, int len, Pointer buf) {
 			this.addr = (short) address;
 			this.flags = (short) flags;
@@ -101,7 +103,7 @@ public class I2cDev {
 		}
 
 		public byte addrByte() {
-			return (byte) ((addr << 1) | (flags & I2C_M_RD.value));
+			return (byte) ((addr << 1) | (flags & i2c_msg_flag.I2C_M_RD.value));
 		}
 
 		@Override
@@ -170,7 +172,7 @@ public class I2cDev {
 
 		public byte byte_;
 		public short word;
-		public byte[] block = new byte[I2C_SMBUS_BLOCK_MAX + 2]; // block[0] for length
+		public byte[] block = new byte[I2C_SMBUS_BLOCK_MAX + 2]; // [0] = len, [n+1] = optional PEC
 
 		public void setByte(int value) {
 			byte_ = MathUtil.ubyteExact(value);
@@ -186,6 +188,14 @@ public class I2cDev {
 			validateRange(length, 1, I2C_SMBUS_BLOCK_MAX, "Length");
 			block[0] = (byte) length;
 			setType("block");
+		}
+
+		public void setBlock(byte[] data) {
+			setBlock(data, 0);
+		}
+
+		public void setBlock(byte[] data, int offset) {
+			setBlock(data, offset, data.length - offset);
 		}
 
 		public void setBlock(byte[] data, int offset, int length) {
@@ -210,7 +220,7 @@ public class I2cDev {
 	/**
 	 * SMBus transaction types, or "size".
 	 */
-	static enum i2c_smbus_transaction_type {
+	public static enum i2c_smbus_transaction_type {
 		I2C_SMBUS_QUICK(0),
 		I2C_SMBUS_BYTE(1),
 		I2C_SMBUS_BYTE_DATA(2),
@@ -262,6 +272,10 @@ public class I2cDev {
 		public i2c_msg.ByReference msgs;
 		public int nmsgs;
 
+		public i2c_msg[] msgs() {
+			return array(msgs, nmsgs, i2c_msg::new, i2c_msg[]::new);
+		}
+
 		@Override
 		protected List<String> getFieldOrder() {
 			return FIELDS;
@@ -281,14 +295,20 @@ public class I2cDev {
 	// linux device path
 	private static final String PATH_FORMAT = "/dev/i2c-%d";
 
+	/**
+	 * Path to open to obtain I2C file descriptor. (Not part of i2c lib code)
+	 */
+	public static String i2c_path(int bus) {
+		return String.format(PATH_FORMAT, bus);
+	}
+
 	/* Wrappers for ioctl calls */
 
 	/**
 	 * Open an I2C device and return a file descriptor.
 	 */
 	public static int i2c_open(int bus, int flags) throws CException {
-		String path = String.format(PATH_FORMAT, bus);
-		logger.debug("Opening {}", path);
+		String path = i2c_path(bus);
 		return CLib.open(path, flags);
 	}
 

@@ -80,7 +80,7 @@ public class SpiDev {
 		return size < (1 << _IOC_SIZEBITS) ? size : 0;
 	}
 
-	private static int SPI_IOC_MESSAGE(int n) {
+	public static int SPI_IOC_MESSAGE(int n) {
 		return _IOW(SPI_IOC_MAGIC, 0, SPI_MSGSIZE(n));
 	}
 

@@ -18,7 +18,7 @@ public class UsbBehavior {
 			try (Usb usb = Usb.init()) {
 				try (var usbList = usb.deviceList()) {
 					for (var device : usbList.devices()) {
-						System.out.println(device);
+						//System.out.println(device);
 					}
 				}
 			}

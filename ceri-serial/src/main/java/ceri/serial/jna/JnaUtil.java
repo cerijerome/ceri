@@ -84,6 +84,20 @@ public class JnaUtil {
 	}
 
 	/**
+	 * Returns a pointer from the native peer. Use with caution.
+	 */
+	public static Pointer pointer(long peer) {
+		return peer == 0L ? null : new Pointer(peer);
+	}
+	
+	/**
+	 * Returns a pointer from the native peer. Use with caution.
+	 */
+	public static Pointer pointer(Structure t) {
+		return t == null ? null : t.getPointer();
+	}
+	
+	/**
 	 * Gets the pointer offset by the given number of bytes.
 	 */
 	public static Pointer offset(Pointer p, long offset) {
@@ -111,7 +125,7 @@ public class JnaUtil {
 	 * Gets the memory size. Throws ArithmeticException if outside signed int range.
 	 */
 	public static int size(Memory m) {
-		return Math.toIntExact(m.size());
+		return m == null ? 0 : Math.toIntExact(m.size());
 	}
 
 	/**

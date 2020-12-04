@@ -74,10 +74,9 @@ public class PulseBuffer implements ByteReceiver {
 	}
 
 	private void setStorageBits(int pos, int count, boolean on) {
-		if (count == 0) return;
 		int offset = pos / Byte.SIZE;
 		int startBit = pos % Byte.SIZE;
-		while (count > 0 && offset < buffer.length) {
+		while (count > 0 && offset < buffer.length) { // + - case missing
 			int len = Math.min(count, Byte.SIZE - startBit);
 			setStorageByte(offset++, startBit, len, on);
 			startBit = 0;

@@ -11,6 +11,7 @@ import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
 public class Mode {
+	public static final Mode NONE = new Mode(0);
 	private final int mode;
 
 	public static enum Mask {

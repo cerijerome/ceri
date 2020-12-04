@@ -26,7 +26,7 @@ public abstract class Struct extends Structure {
 
 	/**
 	 * Creates a typed array of structures from reference pointer. If count is 0, returns empty
-	 * array. Make sure count field is unsigned (call JnaUtil.ubyte/ushort if needed).
+	 * array. Make sure count field is unsigned (call ubyte/ushort if needed).
 	 */
 	public static <T extends Struct> T[] arrayByRef(Pointer p, int count,
 		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor) {
@@ -35,6 +35,15 @@ public abstract class Struct extends Structure {
 			throw new IllegalArgumentException("Null pointer but non-zero count: " + count);
 		Pointer[] refs = p.getPointerArray(0, count);
 		return Stream.of(refs).map(constructor).toArray(arrayConstructor);
+	}
+
+	/**
+	 * Creates a typed array of structures from type. If count is 0, returns empty array. Make
+	 * sure count field is unsigned (call JnaUtil.ubyte/ushort if needed).
+	 */
+	public static <T extends Struct> T[] array(T t, int count,
+		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor) {
+		return array(JnaUtil.pointer(t), count, constructor, arrayConstructor);
 	}
 
 	/**

@@ -25,8 +25,8 @@ import ceri.serial.ftdi.util.SelfHealingFtdiConfig;
 import ceri.serial.ftdi.util.SelfHealingFtdiConnector;
 
 /**
- * Class to test serial ports. Takes commands via System.in and calls methods on the serial
- * connector. Logs data received from the port. Commands:
+ * Class to test ftdi devices. Takes commands via System.in and calls methods on the ftdi connector.
+ * Logs data received from the port. Commands:
  *
  * <pre>
  * b[0|1] = set bitbang off/on

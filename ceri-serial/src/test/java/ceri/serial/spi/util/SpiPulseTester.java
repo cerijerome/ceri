@@ -17,7 +17,6 @@ import ceri.serial.spi.pulse.SpiPulseTransmitter;
 
 public class SpiPulseTester {
 
-	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException {
 		StartupValues v = LogUtil.startupValues(args);
 		int size = v.next("size").asInt(4);
@@ -36,8 +35,8 @@ public class SpiPulseTester {
 		SpiPulseConfig config = SpiPulseConfig.builder(size)
 			.cycle(PulseCycles.cycle(pulseType, pulseBits, pulseOffset, pulseT0, pulseT1))
 			.delayMicros(delayMicros).build();
-
-		try (Spi spi = SpiDevice.open(bus, chip, out)) {
+		try (var fd = SpiDevice.file(bus, chip, out)) {
+			Spi spi = SpiDevice.of(fd);
 			spi.mode(mode).maxSpeedHz(speed);
 			try (SpiPulseTransmitter processor = SpiPulseTransmitter.of(1, spi, config)) {
 				ConcurrentUtil.delay(1000);

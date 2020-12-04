@@ -24,6 +24,21 @@ import ceri.common.test.TestUtil;
 	// ftdi.util
 	ceri.serial.ftdi.util.SelfHealingFtdiConfigBehavior.class, //
 	ceri.serial.ftdi.util.SelfHealingFtdiConnectorBehavior.class, //
+	// i2c
+	ceri.serial.i2c.DeviceIdBehavior.class, //
+	ceri.serial.i2c.I2cAddressBehavior.class, //
+	ceri.serial.i2c.I2cBehavior.class, //
+	ceri.serial.i2c.I2cDeviceBehavior.class, //
+	// i2c.jna
+	ceri.serial.i2c.jna.I2cDevTest.class, //
+	// i2c.smbus
+	ceri.serial.i2c.smbus.SmBusBehavior.class, //
+	ceri.serial.i2c.smbus.SmBusDeviceBehavior.class, //
+	ceri.serial.i2c.smbus.SmBusEmulatorBehavior.class, //
+	ceri.serial.i2c.smbus.SmBusI2cBehavior.class, //
+	// i2c.util
+	ceri.serial.i2c.util.I2cEmulatorBehavior.class, //
+	ceri.serial.i2c.util.I2cUtilTest.class, //
 	// javax.util
 	ceri.serial.javax.util.CommPortSupplierBehavior.class, //
 	ceri.serial.javax.util.ConnectorNotSetExceptionBehavior.class, //
@@ -38,6 +53,18 @@ import ceri.common.test.TestUtil;
 	ceri.serial.libusb.UsbBehavior.class, //
 	// libusb.jna
 	ceri.serial.libusb.jna.LibUsbFinderTest.class, //
+	// spi
+	ceri.serial.spi.SpiBehavior.class, //
+	ceri.serial.spi.SpiDeviceBehavior.class, //
+	ceri.serial.spi.SpiModeBehavior.class, //
+	// spi.pulse
+	ceri.serial.spi.pulse.PulseBufferBehavior.class, //
+	ceri.serial.spi.pulse.PulseCycleBehavior.class, //
+	ceri.serial.spi.pulse.PulseStatsBehavior.class, //
+	ceri.serial.spi.pulse.SpiPulseConfigBehavior.class, //
+	ceri.serial.spi.pulse.SpiPulseTransmitterBehavior.class, //
+	// spi.util
+	ceri.serial.spi.util.SpiEmulatorBehavior.class, //
 })
 public class _Tests {
 	public static void main(String... args) {

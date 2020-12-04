@@ -1,16 +1,20 @@
 package ceri.serial.spi.util;
 
+import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateNotNull;
+import static ceri.serial.spi.jna.SpiDevUtil.direction;
+import static ceri.serial.spi.jna.SpiDevUtil.transferTimeMicros;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import java.nio.ByteBuffer;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.data.ByteUtil;
+import ceri.serial.jna.JnaUtil;
 import ceri.serial.spi.Spi;
 import ceri.serial.spi.SpiMode;
 import ceri.serial.spi.SpiTransfer;
+import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
 public class SpiEmulator implements Spi {
-	private final int bus;
-	private final int chip;
-	private final Direction direction;
 	private final Responder responder;
 	private SpiMode mode = SpiMode.MODE_0;
 	private boolean lsbFirst = false;
@@ -34,34 +38,16 @@ public class SpiEmulator implements Spi {
 		}
 	}
 
-	public static SpiEmulator echo(int bus, int chip, Direction direction) {
-		return of(bus, chip, direction, Responder.ECHO);
+	public static SpiEmulator echo() {
+		return of(Responder.ECHO);
 	}
 
-	public static SpiEmulator of(int bus, int chip, Direction direction, Responder responder) {
-		return new SpiEmulator(bus, chip, direction, responder);
+	public static SpiEmulator of(Responder responder) {
+		return new SpiEmulator(responder);
 	}
 
-	private SpiEmulator(int bus, int chip, Direction direction, Responder responder) {
-		this.bus = bus;
-		this.chip = chip;
-		this.direction = direction;
+	private SpiEmulator(Responder responder) {
 		this.responder = responder;
-	}
-
-	@Override
-	public int bus() {
-		return bus;
-	}
-
-	@Override
-	public int chip() {
-		return chip;
-	}
-
-	@Override
-	public Direction direction() {
-		return direction;
 	}
 
 	@Override
@@ -109,41 +95,35 @@ public class SpiEmulator implements Spi {
 	}
 
 	@Override
-	public void close() {}
+	public SpiTransfer transfer(Direction direction, int size) {
+		validateNotNull(direction, "Direction");
+		validateMin(size, 0, "Size");
+		return SpiTransfer.of(this::execute, direction, size);
+	}
 
-	@Override
-	public Spi execute(SpiTransfer xfer) throws IOException {
-		switch (xfer.direction()) {
+	private void execute(spi_ioc_transfer xfer) throws IOException {
+		ByteBuffer out = JnaUtil.buffer(JnaUtil.pointer(xfer.tx_buf), 0, xfer.len);
+		ByteBuffer in = JnaUtil.buffer(JnaUtil.pointer(xfer.rx_buf), 0, xfer.len);
+		switch (direction(xfer)) {
 		case out:
-			responder.out(read(xfer));
+			responder.out(read(out));
 			break;
 		case in:
-			write(xfer, responder.in(xfer.size()));
+			write(in, responder.in(xfer.size()));
 			break;
-		case duplex:
-			write(xfer, responder.duplex(read(xfer)));
+		default:
+			write(in, responder.duplex(read(out)));
 			break;
 		}
 		ConcurrentUtil.delayMicros(transferTimeMicros(xfer));
-		return this;
 	}
 
-	private byte[] read(SpiTransfer xfer) {
-		byte[] buffer = new byte[xfer.size()];
-		xfer.out().position(0).limit(xfer.size()).get(buffer);
-		return buffer;
+	private byte[] read(ByteBuffer in) {
+		return ByteUtil.readFrom(in, 0, in.capacity());
 	}
 
-	private void write(SpiTransfer xfer, byte[] data) {
-		if (xfer.in().capacity() == 0) return;
-		xfer.in().clear().put(data);
-	}
-
-	private long transferTimeMicros(SpiTransfer xfer) throws IOException {
-		int speedHz = speedHz(xfer);
-		if (speedHz == 0) return xfer.delayMicros();
-		return (xfer.size() * Byte.SIZE * TimeUnit.SECONDS.toMicros(1) / speedHz) +
-			xfer.delayMicros();
+	private void write(ByteBuffer out, byte[] data) {
+		ByteUtil.writeTo(out, 0, data, 0, Math.min(data.length, out.capacity()));
 	}
 
 }

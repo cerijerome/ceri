@@ -8,7 +8,6 @@ import static ceri.serial.i2c.util.I2cEmulator.ANY_READ_LEN;
 import java.io.IOException;
 import ceri.common.data.ByteArray.Encoder;
 import ceri.common.data.ByteUtil;
-import ceri.common.text.StringUtil;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.util.I2cEmulator;
 
@@ -61,13 +60,13 @@ public class SmBusEmulator implements SmBus {
 
 	@Override
 	public void writeWordData(int command, int value) throws IOException {
-		write(Encoder.of().writeByte(command).writeShortLsb(command).bytes());
+		write(Encoder.of().writeByte(command).writeShortLsb(value).bytes());
 	}
 
 	@Override
 	public int processCall(int command, int value) throws IOException {
 		return ushort(ByteUtil.fromLsb(
-			read(Encoder.of().writeByte(command).writeShortLsb(command).bytes(), Short.BYTES), 0,
+			read(Encoder.of().writeByte(command).writeShortLsb(value).bytes(), Short.BYTES), 0,
 			Short.BYTES));
 	}
 
@@ -84,7 +83,7 @@ public class SmBusEmulator implements SmBus {
 
 	@Override
 	public byte[] readI2cBlockData(int command, int length) throws IOException {
-		return readBlockData(command);
+		return read(bytes(command), length);
 	}
 
 	@Override
@@ -105,11 +104,7 @@ public class SmBusEmulator implements SmBus {
 	}
 
 	private byte[] read(byte[] command, int readLen) throws IOException {
-		byte[] response = i2c.slaveRead(address, command, readLen);
-		if (readLen != 0 && readLen != response.length)
-			throw new IOException(String.format("Expected %d byte response from %s: %s", readLen,
-				address, StringUtil.toHexArray(response)));
-		return response;
+		return i2c.slaveRead(address, command, readLen);
 	}
 
 }

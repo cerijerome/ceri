@@ -97,7 +97,7 @@ public class SpiMode {
 	}
 
 	public boolean is32Bit() {
-		return (value & 0x3) != value;
+		return (value & 0xff) != value;
 	}
 
 	public boolean clockPhaseHigh() {

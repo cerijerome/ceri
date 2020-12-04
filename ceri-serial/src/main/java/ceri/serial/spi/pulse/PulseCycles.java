@@ -23,7 +23,7 @@ public class PulseCycles {
 		return null;
 	}
 
-	public enum Std {
+	public static enum Std {
 		_3(nbit, 3, 0, 1, 2),
 		_3_9(nbit9, 3, 0, 1, 2),
 		_4(nbit, 4, 0, 1, 2),

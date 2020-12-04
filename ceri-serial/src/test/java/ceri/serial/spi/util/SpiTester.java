@@ -1,6 +1,7 @@
 package ceri.serial.spi.util;
 
 import static ceri.log.util.LogUtil.startupValues;
+import static ceri.serial.spi.Spi.Direction.out;
 import java.io.IOException;
 import java.util.Arrays;
 import ceri.common.concurrent.ConcurrentUtil;
@@ -13,7 +14,6 @@ import ceri.serial.spi.SpiTransfer;
 
 public class SpiTester {
 
-	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException {
 		StartupValues v = startupValues(args);
 		Direction direction = v.next("direction").apply(Direction::valueOf, Direction.out);
@@ -27,13 +27,14 @@ public class SpiTester {
 		int repeat = v.next("repeat").asInt(1);
 		int repeatDelayMs = v.next("repeatDelayMs").asInt(0);
 
-		// try (Spi spi = SpiEmulator.echo(bus, chip, direction)) {
-		try (Spi spi = SpiDevice.open(bus, chip, direction)) {
+		try (var fd = SpiDevice.file(bus, chip, direction)) {
+			//Spi spi = SpiEmulator.echo();
+			Spi spi = SpiDevice.of(fd);
 			spi.mode(SpiMode.of(mode));
 			spi.maxSpeedHz(speedHz);
 			print(spi);
 
-			SpiTransfer xfer = spi.transfer(size).delayMicros(delay);
+			SpiTransfer xfer = spi.transfer(out, size).delayMicros(delay);
 
 			System.out.printf("Fill: 0x%02x x %d%n", fill, xfer.size());
 			xfer.write(fill(xfer.size(), fill));

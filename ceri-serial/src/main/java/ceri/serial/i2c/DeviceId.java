@@ -8,6 +8,7 @@ import java.util.Objects;
 import ceri.common.data.ByteUtil;
 
 public class DeviceId {
+	public static final DeviceId NONE = new DeviceId(0, 0, 0);
 	public static final int BYTES = 3;
 	private static final Map<Integer, Company> companyIds = assignedManufacturerIds();
 	private static final int MANUFACTURER_MASK = ByteUtil.maskInt(12);
@@ -18,10 +19,6 @@ public class DeviceId {
 	public final int manufacturer;
 	public final int part;
 	public final int revision;
-
-	public static void main(String[] args) {
-		System.out.println(decode(0));
-	}
 
 	/**
 	 * Companies with assigned manufacturer ids.
@@ -50,8 +47,8 @@ public class DeviceId {
 
 	public static DeviceId of(int manufacturer, int part, int revision) {
 		validateRange(manufacturer, 0, MANUFACTURER_MASK);
-		validateRange(part, 0, MANUFACTURER_MASK);
-		validateRange(revision, 0, MANUFACTURER_MASK);
+		validateRange(part, 0, PART_MASK);
+		validateRange(revision, 0, REVISION_MASK);
 		return new DeviceId(manufacturer, part, revision);
 	}
 
@@ -70,9 +67,14 @@ public class DeviceId {
 	}
 
 	public Company company() {
+		if (isNone()) return Company.unknown;
 		return companyIds.getOrDefault(manufacturer, Company.unknown);
 	}
 
+	public boolean isNone() {
+		return manufacturer == 0 && part == 0 && revision == 0;
+	}
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(manufacturer, part, revision);
@@ -92,6 +94,7 @@ public class DeviceId {
 	@Override
 	public String toString() {
 		String name = getClass().getSimpleName();
+		if (isNone()) return name + "(none)";
 		Company company = company();
 		return company == Company.unknown ?
 			String.format("%s(0x%x,0x%x,0x%x)", name, manufacturer, part, revision) :

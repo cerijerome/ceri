@@ -1,8 +1,6 @@
 package ceri.serial.clib.util;
 
-import static ceri.serial.clib.OpenFlag.O_RDONLY;
 import java.io.IOException;
-import java.io.InputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
@@ -16,10 +14,8 @@ import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.StateChange;
-import ceri.common.test.BinaryPrinter;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
-import ceri.serial.clib.CFileDescriptor;
 import ceri.serial.clib.FileDescriptor;
 import ceri.serial.clib.Seek;
 import ceri.serial.libusb.jna.LibUsbException;
@@ -34,41 +30,7 @@ public class SelfHealingFd extends LoopingExecutor
 	private final SelfHealingFdConfig config;
 	private final Listeners<StateChange> listeners = Listeners.of();
 	private final BooleanCondition sync = BooleanCondition.of();
-	private volatile CFileDescriptor fd;
-
-	// TODO:
-	// Use new interface for file descriptor higher level than FileDescriptor?
-	// (compare to SerialConnector)
-	// - include broken(), listeners() (or keep only on SelfHealingFd?)
-	// - SelfHealingFd
-	// - NullFd (not needed?)
-	// - ResponseFd (test fd)
-	// - RpcFd (not needed)
-
-	public static void main(String[] args) {
-		BinaryPrinter bp = BinaryPrinter.builder().showBinary(false).build();
-		SelfHealingFdConfig conf = SelfHealingFdConfig.of("scripts/lifecycle/hello", O_RDONLY);
-		try (SelfHealingFd fd = SelfHealingFd.of(conf)) {
-			fd.openQuietly();
-			InputStream in = fd.in();
-			ExceptionTracker exceptions = ExceptionTracker.of();
-			byte[] bytes = new byte[100];
-			while (true) {
-				try {
-					// fd.seek(20 + MathUtil.random(0, 10), Seek.SEEK_SET);
-					int n = in.read(bytes, 0, 4);
-					if (n > 0) bp.print(bytes, 0, n);
-					if (n < 0) fd.seek(0, Seek.SEEK_SET);
-					exceptions.clear();
-					ConcurrentUtil.delay(3000);
-				} catch (RuntimeException | IOException e) {
-					// if (exceptions.add(e)) logger.warn(e.getMessage());
-					logger.warn(e.getMessage());
-					ConcurrentUtil.delay(3000);
-				}
-			}
-		}
-	}
+	private volatile FileDescriptor fd;
 
 	public static SelfHealingFd of(SelfHealingFdConfig config) {
 		return new SelfHealingFd(config);
@@ -148,12 +110,12 @@ public class SelfHealingFd extends LoopingExecutor
 		return execReturn(fd -> fd.ioctl(name, request, objs));
 	}
 
-	private void exec(ExceptionConsumer<IOException, CFileDescriptor> consumer) throws IOException {
+	private void exec(ExceptionConsumer<IOException, FileDescriptor> consumer) throws IOException {
 		execReturn(FunctionUtil.asFunction(consumer));
 	}
 
 	@SuppressWarnings("resource")
-	private <T> T execReturn(ExceptionFunction<IOException, CFileDescriptor, T> fn)
+	private <T> T execReturn(ExceptionFunction<IOException, FileDescriptor, T> fn)
 		throws IOException {
 		try {
 			return fn.apply(fileDescriptor());
@@ -163,8 +125,8 @@ public class SelfHealingFd extends LoopingExecutor
 		}
 	}
 
-	private CFileDescriptor fileDescriptor() throws IOException {
-		CFileDescriptor fd = this.fd;
+	private FileDescriptor fileDescriptor() throws IOException {
+		FileDescriptor fd = this.fd;
 		if (fd != null) return fd;
 		throw new IOException("File descriptor is invalid");
 	}
@@ -222,18 +184,7 @@ public class SelfHealingFd extends LoopingExecutor
 
 	private void initFd() throws IOException {
 		LogUtil.close(logger, fd);
-		fd = openFd();
-	}
-
-	private CFileDescriptor openFd() throws IOException {
-		CFileDescriptor fd = null;
-		try {
-			fd = config.openFn.get();
-			return fd;
-		} catch (RuntimeException | IOException e) {
-			LogUtil.close(logger, fd);
-			throw e;
-		}
+		fd = config.open();
 	}
 
 }

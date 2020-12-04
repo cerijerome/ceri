@@ -10,8 +10,10 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.SafeReadWrite;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
+import ceri.common.exception.ExceptionTracker;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.serial.spi.Spi;
+import ceri.serial.spi.Spi.Direction;
 import ceri.serial.spi.SpiTransfer;
 
 /**
@@ -22,9 +24,10 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	private final SafeReadWrite safe = SafeReadWrite.of();
 	private final BooleanCondition sync = BooleanCondition.of(safe.conditionLock());
 	private final SpiPulseConfig config;
+	private final int id;
 	private final PulseBuffer buffer;
 	private final SpiTransfer xfer;
-	private final int id;
+	private final ExceptionTracker exceptions = ExceptionTracker.of();
 
 	public static SpiPulseTransmitter of(int id, Spi spi, SpiPulseConfig config) {
 		return new SpiPulseTransmitter(id, spi, config);
@@ -35,7 +38,8 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 		this.id = id;
 		this.config = config;
 		buffer = config.buffer();
-		xfer = spi.transfer(buffer.storageSize()).delayMicros(config.delayMicros);
+		xfer = spi.transfer(Direction.out, buffer.storageSize());
+		xfer.delayMicros(config.delayMicros);
 		start();
 	}
 
@@ -68,7 +72,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	}
 
 	@Override
-	public int fill(int value, int length, int pos) {
+	public int fill(int pos, int length, int value) {
 		return safe.writeWithReturn(() -> buffer.fill(pos, length, value));
 	}
 
@@ -85,12 +89,12 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	protected void loop() throws InterruptedException {
 		try {
 			syncData();
-			buffer.writePulseTo(xfer.out());
 			xfer.execute();
+			exceptions.clear();
 		} catch (InterruptedException | RuntimeInterruptedException e) {
 			throw e;
 		} catch (Exception e) {
-			logger.catching(e);
+			if (exceptions.add(e)) logger.catching(e);
 			ConcurrentUtil.delay(config.resetDelayMs);
 		}
 	}

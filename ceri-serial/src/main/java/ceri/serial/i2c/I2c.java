@@ -1,5 +1,6 @@
 package ceri.serial.i2c;
 
+import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.serial.i2c.util.I2cUtil.SCAN_7BIT_MAX;
 import static ceri.serial.i2c.util.I2cUtil.SCAN_7BIT_MIN;
 import static ceri.serial.i2c.util.I2cUtil.SOFTWARE_RESET;
@@ -16,12 +17,12 @@ import ceri.common.data.ByteUtil;
 import ceri.serial.clib.jna.CUtil;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
 import ceri.serial.i2c.smbus.SmBus;
-import ceri.serial.jna.JnaUtil;
 
 /**
  * Encapsulation of I2C bus.
  */
 public interface I2c {
+	static final I2c NULL = new Null();
 
 	/**
 	 * Specify the number of times a device address should be polled when not acknowledging.
@@ -102,30 +103,52 @@ public interface I2c {
 	 * Send byte array command to address, and read byte array response, using ioctl.
 	 */
 	default byte[] readData(I2cAddress address, byte[] command, int readLen) throws IOException {
-		Memory write = CUtil.malloc(command);
-		Memory read = new Memory(readLen);
-		writeRead(address, write, size(write), read, size(read));
-		return JnaUtil.byteArray(read);
+		byte[] receive = new byte[readLen];
+		readData(address, command, receive);
+		return receive;
 	}
 
 	/**
 	 * Send byte array command to address, and read byte array response, using ioctl. Read data is
-	 * written to data array at offset.
+	 * written to receiving byte array.
 	 */
-	default void readData(I2cAddress address, byte[] command, byte[] data, int offset, int length)
+	default void readData(I2cAddress address, byte[] command, byte[] receive) throws IOException {
+		readData(address, command, receive, 0);
+	}
+
+	/**
+	 * Send byte array command to address, and read byte array response, using ioctl. Read data is
+	 * written to receiving byte array.
+	 */
+	default void readData(I2cAddress address, byte[] command, byte[] receive, int offset)
 		throws IOException {
+		readData(address, command, receive, offset, receive.length - offset);
+	}
+
+	/**
+	 * Send byte array command to address, and read byte array response, using ioctl. Read data is
+	 * written to receiving byte array.
+	 */
+	default void readData(I2cAddress address, byte[] command, byte[] receive, int offset,
+		int length) throws IOException {
 		Memory write = CUtil.malloc(command);
 		Memory read = new Memory(length);
 		writeRead(address, write, size(write), read, size(read));
-		read.read(0, data, offset, length);
+		read.read(0, receive, offset, length);
+	}
+
+	/**
+	 * Send byte array data to address, using ioctl.
+	 */
+	default void writeData(I2cAddress address, int... bytes) throws IOException {
+		writeData(address, bytes(bytes));
 	}
 
 	/**
 	 * Send byte array data to address, using ioctl.
 	 */
 	default void writeData(I2cAddress address, byte[] data) throws IOException {
-		Memory write = CUtil.malloc(data);
-		write(address, size(write), write);
+		write(address, CUtil.malloc(data));
 	}
 
 	/**
@@ -153,4 +176,40 @@ public interface I2c {
 	void writeRead(I2cAddress address, Pointer writeBuf, int writeLen, Pointer readBuf, int readLen)
 		throws IOException;
 
+	/**
+	 * A no-op implementation of I2c interface.
+	 */
+	static class Null implements I2c {
+		protected Null() {}
+		
+		@Override
+		public I2c retries(int count) throws IOException {
+			return this;
+		}
+
+		@Override
+		public I2c timeout(int timeoutMs) throws IOException {
+			return this;
+		}
+
+		@Override
+		public Collection<i2c_func> functions() throws IOException {
+			return i2c_func.xcoder.all();
+		}
+
+		@Override
+		public void smBusPec(boolean on) throws IOException {}
+
+		@Override
+		public SmBus smBus(I2cAddress address) {
+			return SmBus.NULL;
+		}
+
+		@Override
+		public void write(I2cAddress address, int writeLen, Pointer writeBuf) throws IOException {}
+
+		@Override
+		public void writeRead(I2cAddress address, Pointer writeBuf, int writeLen, Pointer readBuf,
+			int readLen) throws IOException {}
+	}
 }

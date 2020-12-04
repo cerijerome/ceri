@@ -1,20 +1,15 @@
 package ceri.serial.spi;
 
-import java.io.Closeable;
 import java.io.IOException;
 
-public interface Spi extends Closeable {
+public interface Spi {
+	static final Spi NULL = new Null();
+
 	enum Direction {
 		in,
 		out,
 		duplex;
 	}
-
-	int bus();
-
-	int chip();
-
-	Direction direction();
 
 	SpiMode mode() throws IOException;
 
@@ -32,6 +27,8 @@ public interface Spi extends Closeable {
 
 	Spi maxSpeedHz(int maxSpeedHz) throws IOException;
 
+	SpiTransfer transfer(Direction direction, int size);
+
 	default int speedHz(SpiTransfer xfer) throws IOException {
 		int speedHz = xfer.speedHz();
 		if (speedHz == 0) speedHz = maxSpeedHz();
@@ -45,10 +42,52 @@ public interface Spi extends Closeable {
 		return bitsPerWord;
 	}
 
-	Spi execute(SpiTransfer xfer) throws IOException;
+	static class Null implements Spi {
+		protected Null() {}
 
-	default SpiTransfer transfer(int size) {
-		return SpiTransfer.of(this, size);
+		@Override
+		public SpiMode mode() {
+			return SpiMode.MODE_0;
+		}
+
+		@Override
+		public Spi mode(SpiMode mode) {
+			return this;
+		}
+
+		@Override
+		public boolean lsbFirst() {
+			return false;
+		}
+
+		@Override
+		public Spi lsbFirst(boolean enabled) {
+			return this;
+		}
+
+		@Override
+		public int bitsPerWord() {
+			return 0;
+		}
+
+		@Override
+		public Spi bitsPerWord(int bitsPerWord) {
+			return this;
+		}
+
+		@Override
+		public int maxSpeedHz() {
+			return 0;
+		}
+
+		@Override
+		public Spi maxSpeedHz(int maxSpeedHz) {
+			return this;
+		}
+
+		@Override
+		public SpiTransfer transfer(Direction direction, int size) {
+			return SpiTransfer.of(t -> {}, direction, size);
+		}
 	}
-
 }

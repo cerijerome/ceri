@@ -6,32 +6,33 @@ import java.util.function.Predicate;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.text.ToString;
 import ceri.serial.clib.CFileDescriptor;
+import ceri.serial.clib.FileDescriptor;
 import ceri.serial.clib.Mode;
 import ceri.serial.clib.OpenFlag;
 
 public class SelfHealingFdConfig {
 	static final Predicate<Exception> DEFAULT_PREDICATE =
 		named(CFileDescriptor::isBroken, "CFileDescriptor::isBroken");
-	public final ExceptionSupplier<IOException, CFileDescriptor> openFn;
+	public final ExceptionSupplier<IOException, FileDescriptor> openFn;
 	public final int recoveryDelayMs;
 	public final int fixRetryDelayMs;
 	public final Predicate<Exception> brokenPredicate;
 
 	public static SelfHealingFdConfig of(String path, OpenFlag... flags) {
-		return of(path, null, flags);
+		return of(path, Mode.NONE, flags);
 	}
 
 	public static SelfHealingFdConfig of(String path, Mode mode, OpenFlag... flags) {
-		return builder(() -> CFileDescriptor.open(path, mode, flags)).build();
+		return builder(path, mode, flags).build();
 	}
 
 	public static class Builder {
-		final ExceptionSupplier<IOException, CFileDescriptor> openFn;
+		final ExceptionSupplier<IOException, FileDescriptor> openFn;
 		int fixRetryDelayMs = 2000;
 		int recoveryDelayMs = fixRetryDelayMs / 2;
 		Predicate<Exception> brokenPredicate = DEFAULT_PREDICATE;
 
-		Builder(ExceptionSupplier<IOException, CFileDescriptor> openFn) {
+		Builder(ExceptionSupplier<IOException, FileDescriptor> openFn) {
 			this.openFn = openFn;
 		}
 
@@ -55,7 +56,11 @@ public class SelfHealingFdConfig {
 		}
 	}
 
-	public static Builder builder(ExceptionSupplier<IOException, CFileDescriptor> openFn) {
+	public static Builder builder(String path, Mode mode, OpenFlag... flags) {
+		return builder(() -> CFileDescriptor.open(path, mode, flags));
+	}
+
+	public static Builder builder(ExceptionSupplier<IOException, FileDescriptor> openFn) {
 		return new Builder(openFn);
 	}
 
@@ -64,6 +69,10 @@ public class SelfHealingFdConfig {
 		recoveryDelayMs = builder.recoveryDelayMs;
 		fixRetryDelayMs = builder.fixRetryDelayMs;
 		brokenPredicate = builder.brokenPredicate;
+	}
+
+	public FileDescriptor open() throws IOException {
+		return openFn.get();
 	}
 
 	@Override

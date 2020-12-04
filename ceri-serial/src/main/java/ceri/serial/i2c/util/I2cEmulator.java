@@ -1,7 +1,6 @@
 package ceri.serial.i2c.util;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import com.sun.jna.Pointer;
@@ -9,7 +8,6 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.FunctionUtil;
 import ceri.serial.i2c.I2c;
 import ceri.serial.i2c.I2cAddress;
-import ceri.serial.i2c.jna.I2cDev.i2c_func;
 import ceri.serial.i2c.smbus.SmBus;
 import ceri.serial.i2c.smbus.SmBusEmulator;
 import ceri.serial.jna.JnaUtil;
@@ -17,7 +15,7 @@ import ceri.serial.jna.JnaUtil;
 /**
  * I2C emulator, where slave device emulators can register and respond to messages.
  */
-public class I2cEmulator implements I2c {
+public class I2cEmulator extends I2c.Null {
 	public static final int ANY_READ_LEN = -1;
 	private final int hz;
 	public final Map<I2cAddress, SlaveDevice> slaves = new ConcurrentHashMap<>();
@@ -63,24 +61,6 @@ public class I2cEmulator implements I2c {
 	public SlaveDevice remove(I2cAddress address) {
 		return slaves.remove(address);
 	}
-
-	@Override
-	public I2c retries(int count) {
-		return this;
-	}
-
-	@Override
-	public I2c timeout(int timeoutMs) {
-		return this;
-	}
-
-	@Override
-	public Collection<i2c_func> functions() {
-		return i2c_func.xcoder.all();
-	}
-
-	@Override
-	public void smBusPec(boolean on) {}
 
 	@Override
 	public SmBus smBus(I2cAddress address) {

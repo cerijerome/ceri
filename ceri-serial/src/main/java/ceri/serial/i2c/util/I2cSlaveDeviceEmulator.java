@@ -3,46 +3,11 @@ package ceri.serial.i2c.util;
 import static ceri.serial.i2c.I2cAddress.DEVICE_ID;
 import static ceri.serial.i2c.I2cAddress.GENERAL_CALL;
 import java.io.IOException;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionObjIntFunction;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.ExceptionSupplier;
 import ceri.serial.i2c.DeviceId;
 import ceri.serial.i2c.I2cAddress;
 
 public class I2cSlaveDeviceEmulator implements I2cEmulator.SlaveDevice {
 	public final I2cAddress address;
-
-	/**
-	 * Creates a slave device emulation from functions.
-	 */
-	public static I2cSlaveDeviceEmulator from(I2cAddress address,
-		ExceptionConsumer<IOException, byte[]> writeFn,
-		ExceptionObjIntFunction<IOException, byte[], byte[]> readFn,
-		ExceptionRunnable<IOException> softwareResetFn,
-		ExceptionSupplier<IOException, DeviceId> deviceIdFn) {
-		return new I2cSlaveDeviceEmulator(address) {
-			@Override
-			protected void write(byte[] command) throws IOException {
-				if (writeFn != null) writeFn.accept(command);
-			}
-
-			@Override
-			protected byte[] read(byte[] command, int readLen) throws IOException {
-				return readFn != null ? readFn.apply(command, readLen) : null;
-			}
-
-			@Override
-			protected void softwareReset() throws IOException {
-				if (softwareResetFn != null) softwareResetFn.run();
-			}
-
-			@Override
-			protected DeviceId deviceId() throws IOException {
-				return deviceIdFn != null ? deviceIdFn.get() : null;
-			}
-		};
-	}
 
 	protected I2cSlaveDeviceEmulator(I2cAddress address) {
 		this.address = address;
@@ -79,7 +44,7 @@ public class I2cSlaveDeviceEmulator implements I2cEmulator.SlaveDevice {
 	 */
 	@SuppressWarnings("unused")
 	protected byte[] read(byte[] command, int readLen) throws IOException {
-		return null;
+		return new byte[readLen];
 	}
 
 	/**
@@ -97,8 +62,7 @@ public class I2cSlaveDeviceEmulator implements I2cEmulator.SlaveDevice {
 	}
 
 	private static boolean isSoftwareReset(byte[] command) {
-		if (command == null || command.length != 1) return false;
-		return command[0] == I2cUtil.SOFTWARE_RESET;
+		return command.length == 1 &&  command[0] == I2cUtil.SOFTWARE_RESET;
 	}
 
 	private byte[] readDeviceId(byte[] command) throws IOException {

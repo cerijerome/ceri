@@ -190,6 +190,13 @@ public class CUtil {
 	}
 
 	/**
+	 * Allocates new memory, or null if size is 0.
+	 */
+	public static Memory mallocSize(int size) {
+		return size == 0 ? null : new Memory(size);
+	}
+	
+	/**
 	 * Allocate native memory and copy array.
 	 */
 	public static Memory malloc(int... array) {
@@ -215,6 +222,7 @@ public class CUtil {
 	 */
 	public static Memory malloc(byte[] array, int offset, int length) {
 		ArrayUtil.validateSlice(array.length, offset, length);
+		if (length == 0) return null;
 		Memory m = new Memory(length);
 		m.write(0, array, offset, length);
 		return m;

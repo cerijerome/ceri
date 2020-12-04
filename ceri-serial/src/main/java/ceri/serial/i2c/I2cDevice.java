@@ -1,5 +1,6 @@
 package ceri.serial.i2c;
 
+import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.serial.clib.OpenFlag.O_RDWR;
 import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_RD;
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class I2cDevice implements I2c {
 	private final State state = new State();
 
 	/**
-	 * Keep state to avoid unneeded ioctl calls.
+	 * Keep state to avoid unneeded ioctl calls for SMBus (direct and emulated).
 	 */
 	private static class State {
 		Integer address = null;
@@ -45,7 +46,7 @@ public class I2cDevice implements I2c {
 	 * Open a file descriptor to the I2C bus.
 	 */
 	public static CFileDescriptor file(int bus) throws IOException {
-		if (bus < 0) throw new IllegalArgumentException("Invalid bus number: " + bus);
+		validateMin(bus, 0, "Bus number");
 		return CFileDescriptor.of(I2cDev.i2c_open(bus, O_RDWR.value));
 	}
 
@@ -88,6 +89,10 @@ public class I2cDevice implements I2c {
 		state.pec = on;
 	}
 
+	/**
+	 * Provide SMBus functionality using direct ioctl calls. Direct SMBus only supports 7-bit
+	 * addresses.
+	 */
 	@Override
 	public SmBus smBus(I2cAddress address) throws IOException {
 		I2cUtil.validate7Bit(address);
@@ -95,11 +100,10 @@ public class I2cDevice implements I2c {
 	}
 
 	/**
-	 * Provide SMBus functionality using I2C read-writes calls instead of SMBUS direct calls. SMBus
-	 * only supports 7-bit addresses.
+	 * Provide SMBus functionality using I2C read-writes calls instead of SMBus direct calls.
+	 * Emulated SMBus supports 7-bit and 10-bit addresses.
 	 */
 	public SmBus smBusI2c(I2cAddress address) {
-		I2cUtil.validate7Bit(address);
 		return SmBusI2c.of(this::transfer, this::smBusPec, address);
 	}
 
@@ -119,6 +123,23 @@ public class I2cDevice implements I2c {
 		transfer(msgs);
 	}
 
+	/* Shared with emulated SMBus */
+
+	/**
+	 * Returns whether user-mode PEC is enabled. If unknown state (null), assume false. If
+	 * incorrect, SMBus I2C emulation will fail from invalid PEC. No need to throw an exception here
+	 * to force a failure.
+	 */
+	private boolean smBusPec() {
+		return state.pec != null && state.pec;
+	}
+
+	private void transfer(i2c_msg.ByReference... msgs) throws IOException {
+		I2cDev.i2c_rdwr(fd.fd(), msgs);
+	}
+
+	/* Shared with direct SMBus */
+
 	private void selectDevice(I2cAddress address) throws IOException {
 		setAddressBits(address.tenBit);
 		try {
@@ -128,21 +149,6 @@ public class I2cDevice implements I2c {
 			forceSlaveAddress(address.address);
 		}
 	}
-
-	/**
-	 * Returns whether user-mode PEC is enabled. If unknown state (null), assume false. If
-	 * incorrect, SMBus I2C emulation will fail from invalid PEC. No need to throw an exception here
-	 * to force a failure.
-	 */
-	boolean smBusPec() {
-		return state.pec != null && state.pec;
-	}
-
-	void transfer(i2c_msg.ByReference... msgs) throws IOException {
-		I2cDev.i2c_rdwr(fd.fd(), msgs);
-	}
-
-	/* End: Shared with SMBus */
 
 	private void setSlaveAddress(int address) throws IOException {
 		if (state.address != null && state.address == address) return;

@@ -2,6 +2,7 @@ package ceri.serial.spi.pulse;
 
 import static ceri.common.math.MathUtil.ceilDiv;
 import static ceri.common.util.BasicUtil.unused;
+import java.util.Objects;
 
 /**
  * Mapping logic of bits to pulse shapes.
@@ -80,8 +81,27 @@ public abstract class PulseCycle {
 	}
 
 	@Override
+	public int hashCode() {
+		return Objects.hash(cycleStorageBits, pulseBits, pulseOffsetBits, t0Bits, t1Bits);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof PulseCycle)) return false;
+		PulseCycle other = (PulseCycle) obj;
+		if (cycleStorageBits != other.cycleStorageBits) return false;
+		if (pulseBits != other.pulseBits) return false;
+		if (pulseOffsetBits != other.pulseOffsetBits) return false;
+		if (t0Bits != other.t0Bits) return false;
+		if (t1Bits != other.t1Bits) return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
-		return "" + pulseBits + type();
+		return String.format("%d%s(%d+%d,%d:%d)", pulseBits, type(), cycleStorageBits,
+			pulseOffsetBits, t0Bits, t1Bits);
 	}
 
 	private int offset(int cycles) {
