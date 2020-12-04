@@ -97,7 +97,7 @@ public class PulsePrinter {
 		return print(ArrayUtil.bytes(bytes));
 	}
 
-	public PulsePrinter print(byte... bytes) {
+	public PulsePrinter print(byte[] bytes) {
 		return print(bytes, 0);
 	}
 

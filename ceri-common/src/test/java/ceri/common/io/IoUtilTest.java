@@ -363,7 +363,6 @@ public class IoUtilTest {
 		}
 	}
 
-	@SuppressWarnings("resource")
 	@Test
 	public void testAvailableChar() throws IOException {
 		try (SystemIo sys = SystemIo.of()) {
@@ -526,14 +525,12 @@ public class IoUtilTest {
 
 	@Test
 	public void testReadString() throws IOException {
-		@SuppressWarnings("resource")
 		InputStream in = inputStream("abc\0");
 		assertEquals(IoUtil.readString(in), "abc\0");
 	}
 
 	@Test
 	public void testLines() {
-		@SuppressWarnings("resource")
 		InputStream in = inputStream("line0\n\nline2\nend");
 		assertStream(IoUtil.lines(in), "line0", "", "line2", "end");
 	}

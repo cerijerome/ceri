@@ -288,14 +288,14 @@ public class TestUtil {
 	/**
 	 * Creates a test input stream with given bytes.
 	 */
-	public static InputStream inputStream(int... bytes) {
+	public static ByteArrayInputStream inputStream(int... bytes) {
 		return new ByteArrayInputStream(ArrayUtil.bytes(bytes));
 	}
 
 	/**
 	 * Creates a test input stream based on UTF8 bytes and encoded actions.
 	 */
-	public static InputStream inputStream(String format, Object... args) {
+	public static ByteArrayInputStream inputStream(String format, Object... args) {
 		return new ByteArrayInputStream(
 			StringUtil.format(format, args).getBytes(StandardCharsets.UTF_8));
 	}
