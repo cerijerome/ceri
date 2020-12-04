@@ -85,7 +85,7 @@ public class JettyServer implements Closeable {
 
 	private String host() {
 		try {
-			InetAddress address = NetUtil.regularAddress();
+			InetAddress address = NetUtil.localAddress();
 			if (address != null) return address.getHostAddress();
 		} catch (SocketException e) {
 			// no IP found
