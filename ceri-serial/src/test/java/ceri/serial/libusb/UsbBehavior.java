@@ -15,10 +15,10 @@ public class UsbBehavior {
 	@Test
 	public void should() throws IOException {
 		//try (var lib = TestLibUsbNative.register()) {
-			try (Usb usb = Usb.init()) {
+			try (Usb usb = Usb.of()) {
 				try (var usbList = usb.deviceList()) {
 					for (var device : usbList.devices()) {
-						//System.out.println(device);
+						System.out.println(device);
 					}
 				}
 			}

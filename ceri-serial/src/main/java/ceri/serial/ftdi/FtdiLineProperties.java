@@ -21,8 +21,8 @@ public class FtdiLineProperties extends BaseProperties {
 
 	public FtdiLineParams params() {
 		FtdiLineParams.Builder b = FtdiLineParams.builder();
-		safeAccept(dataBits(), b::bits);
-		safeAccept(stopBits(), b::sbit);
+		safeAccept(dataBits(), b::dataBits);
+		safeAccept(stopBits(), b::stopBits);
 		safeAccept(parity(), b::parity);
 		safeAccept(breakType(), b::breakType);
 		return b.build();

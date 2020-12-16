@@ -6,38 +6,38 @@ import java.util.Objects;
 import ceri.common.text.ToString;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 
-public class FtdiBitmode {
-	public static final FtdiBitmode OFF = builder(BITMODE_RESET).build();
-	public static final FtdiBitmode BITBANG =
+public class FtdiBitMode {
+	public static final FtdiBitMode OFF = builder(BITMODE_RESET).build();
+	public static final FtdiBitMode BITBANG =
 		builder(BITMODE_BITBANG).allLines(LineDirection.out).build();
 	public final ftdi_mpsse_mode mode;
-	public final int bitmask;
+	public final int mask;
 
 	public enum LineDirection {
 		in,
 		out;
 	}
 
-	public static FtdiBitmode of(ftdi_mpsse_mode mode) {
+	public static FtdiBitMode of(ftdi_mpsse_mode mode) {
 		return builder(mode).allLines(LineDirection.out).build();
 	}
 
 	public static class Builder {
 		final ftdi_mpsse_mode mode;
-		int bitmask = 0;
+		int mask = 0;
 
 		Builder(ftdi_mpsse_mode mode) {
 			this.mode = mode;
 		}
 
-		public Builder bitmask(int bitmask) {
-			this.bitmask = bitmask;
+		public Builder mask(int mask) {
+			this.mask = mask;
 			return this;
 		}
 
 		public Builder allLines(LineDirection dir) {
-			if (dir == LineDirection.out) bitmask = 0xff;
-			else bitmask = 0;
+			if (dir == LineDirection.out) mask = 0xff;
+			else mask = 0;
 			return this;
 		}
 
@@ -45,13 +45,13 @@ public class FtdiBitmode {
 			int mask = 0;
 			for (int bit : bits)
 				if (bit < Byte.SIZE) mask |= 1L << bit;
-			if (dir == LineDirection.out) bitmask |= mask;
-			else bitmask &= ~mask;
+			if (dir == LineDirection.out) this.mask |= mask;
+			else this.mask &= ~mask;
 			return this;
 		}
 
-		public FtdiBitmode build() {
-			return new FtdiBitmode(this);
+		public FtdiBitMode build() {
+			return new FtdiBitMode(this);
 		}
 	}
 
@@ -59,29 +59,29 @@ public class FtdiBitmode {
 		return new Builder(mode);
 	}
 
-	FtdiBitmode(Builder builder) {
+	FtdiBitMode(Builder builder) {
 		mode = builder.mode;
-		bitmask = builder.bitmask;
+		mask = builder.mask;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(mode, bitmask);
+		return Objects.hash(mode, mask);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof FtdiBitmode)) return false;
-		FtdiBitmode other = (FtdiBitmode) obj;
+		if (!(obj instanceof FtdiBitMode)) return false;
+		FtdiBitMode other = (FtdiBitMode) obj;
 		if (!Objects.equals(mode, other.mode)) return false;
-		if (bitmask != other.bitmask) return false;
+		if (mask != other.mask) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, mode, bitmask);
+		return ToString.forClass(this, mode, mask);
 	}
 
 }

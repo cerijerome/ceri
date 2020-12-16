@@ -6,12 +6,14 @@ import static ceri.serial.libusb.jna.LibUsbTestUtil.ex;
 import static ceri.serial.libusb.jna.LibUsbTestUtil.version;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.function.Fluent;
+import ceri.common.text.ToString;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
@@ -28,6 +30,8 @@ public class LibUsbTestData {
 	public String locale;
 
 	public static class Data {
+		private static final AtomicInteger ids = new AtomicInteger(0);
+		public final int id;
 		public final Pointer ptr;
 
 		protected Data() {
@@ -35,7 +39,13 @@ public class LibUsbTestData {
 		}
 
 		protected Data(Pointer ptr) {
+			id = ids.addAndGet(1);
 			this.ptr = ptr;
+		}
+
+		@Override
+		public String toString() {
+			return ToString.forClass(this, id, ptr);
 		}
 	}
 
@@ -69,12 +79,12 @@ public class LibUsbTestData {
 		public int configuration;
 		public int claimedInterface;
 		public int altSetting;
-		
+
 		public void reset() {
 			configuration = device.config.configuration;
 			resetInterface();
 		}
-		
+
 		public void resetInterface() {
 			claimedInterface = -1;
 			altSetting = -1;
@@ -154,7 +164,6 @@ public class LibUsbTestData {
 		deviceLists.add(deviceList);
 		for (int i = 0; i < deviceList.size; i++) {
 			Device device = createDevice(deviceList, deviceConfigs.get(i));
-			devices.add(device);
 			deviceList.ptr(i).setPointer(0, device.ptr);
 		}
 		return deviceList;

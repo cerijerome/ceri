@@ -13,6 +13,11 @@ public class LibUsbException extends CException {
 	private static final long serialVersionUID = 3696913945167490798L;
 	public final libusb_error error;
 
+	public static int verify(int result, String format, Object... args) throws LibUsbException {
+		if (result >= 0) return result;
+		throw full(result, format, args);
+	}
+	
 	public static LibUsbException of(libusb_error error, String format, Object... args) {
 		return new LibUsbException(error.value, error, StringUtil.format(format, args));
 	}

@@ -32,9 +32,15 @@ public class CException extends IOException {
 		}
 	}
 
-	public static int verify(int result, String name) throws CException {
+	@Deprecated // '... failed' removed
+	public static int verify(int result, String format, Object... args) throws CException {
 		if (result >= 0) return result;
-		throw full(result, name + " failed");
+		throw of(result, format, args);
+	}
+
+	public static int verifyFull(int result, String format, Object... args) throws CException {
+		if (result >= 0) return result;
+		throw full(result, format, args);
 	}
 
 	/**

@@ -2,6 +2,7 @@ package ceri.serial.jna;
 
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
@@ -64,11 +65,8 @@ public abstract class TypedPointer extends PointerType {
 		public T[] typedArray(int size) {
 			if (arrayConstructor == null)
 				throw new UnsupportedOperationException("Typed arrays are not supported");
-			Pointer[] pointerArray = getPointer().getPointerArray(0, size);
-			T[] array = arrayConstructor.apply(pointerArray.length);
-			for (int i = 0; i < pointerArray.length; i++)
-				array[i] = typedValue(pointerArray[i]);
-			return array;
+			Pointer[] refs = getPointer().getPointerArray(0, size);
+			return Stream.of(refs).map(this::typedValue).toArray(arrayConstructor);
 		}
 
 		private T typedValue(Pointer pointer) {

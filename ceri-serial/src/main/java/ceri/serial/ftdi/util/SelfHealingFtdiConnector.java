@@ -17,9 +17,9 @@ import ceri.common.io.StateChange;
 import ceri.common.util.BasicUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
-import ceri.serial.ftdi.FlowControl;
+import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.Ftdi;
-import ceri.serial.ftdi.FtdiBitmode;
+import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiConnector;
 import ceri.serial.libusb.jna.LibUsbException;
 
@@ -71,12 +71,12 @@ public class SelfHealingFtdiConnector extends LoopingExecutor implements FtdiCon
 	}
 
 	@Override
-	public void bitmode(FtdiBitmode bitmode) throws LibUsbException {
-		exec(ftdi -> ftdi.bitmode(bitmode));
+	public void bitmode(FtdiBitMode bitmode) throws LibUsbException {
+		exec(ftdi -> ftdi.bitMode(bitmode));
 	}
 
 	@Override
-	public void flowControl(FlowControl flowControl) throws LibUsbException {
+	public void flowControl(FtdiFlowControl flowControl) throws LibUsbException {
 		exec(ftdi -> ftdi.flowControl(flowControl));
 	}
 
@@ -172,11 +172,9 @@ public class SelfHealingFtdiConnector extends LoopingExecutor implements FtdiCon
 	private Ftdi openFtdi() throws LibUsbException {
 		Ftdi ftdi = null;
 		try {
-			ftdi = Ftdi.of();
-			ftdi.setInterface(config.iface);
-			ftdi.open(config.find);
-			ftdi.bitmode(config.bitmode);
-			ftdi.baudrate(config.baud);
+			ftdi = Ftdi.open(config.finder, config.iface);
+			ftdi.bitMode(config.bitMode);
+			ftdi.baudRate(config.baud);
 			ftdi.lineParams(config.line);
 			return ftdi;
 		} catch (RuntimeException | LibUsbException e) {

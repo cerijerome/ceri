@@ -72,10 +72,6 @@ public class UsbDevice implements Closeable {
 		return new UsbDeviceHandle(contextSupplier, handle);
 	}
 
-	public libusb_device_descriptor descriptor() throws LibUsbException {
-		return libusb_get_device_descriptor(device());
-	}
-
 	public int busNumber() throws LibUsbException {
 		return ubyte(libusb_get_bus_number(device()));
 	}
@@ -134,13 +130,8 @@ public class UsbDevice implements Closeable {
 		return new UsbConfig(config);
 	}
 
-	@Override
-	public void close() {
-		LogUtil.execute(logger, () -> {
-			while (refs > 0)
-				unref();
-		});
-		device = null;
+	public libusb_device_descriptor descriptor() throws LibUsbException {
+		return libusb_get_device_descriptor(device());
 	}
 
 	public libusb_device device() {
@@ -150,6 +141,15 @@ public class UsbDevice implements Closeable {
 
 	public libusb_context context() {
 		return contextSupplier.get();
+	}
+
+	@Override
+	public void close() {
+		LogUtil.execute(logger, () -> {
+			while (refs > 0)
+				unref();
+		});
+		device = null;
 	}
 
 	@Override

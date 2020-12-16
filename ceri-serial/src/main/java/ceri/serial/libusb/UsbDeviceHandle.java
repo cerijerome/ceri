@@ -39,7 +39,6 @@ import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type;
-import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;
 import ceri.serial.libusb.jna.LibUsb.libusb_request_recipient;
@@ -49,6 +48,7 @@ import ceri.serial.libusb.jna.LibUsbException;
 public class UsbDeviceHandle implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private final Supplier<libusb_context> contextSupplier;
+	private UsbDevice device = null;
 	private libusb_device_handle handle;
 
 	public static int requestTypeValue(libusb_request_recipient recipient, libusb_request_type type,
@@ -66,7 +66,7 @@ public class UsbDeviceHandle implements Closeable {
 	}
 
 	public static boolean canDetachKernelDriver() {
-		return Usb.hasCapability(LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER);
+		return LibUsb.libusb_has_capability(LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER);
 	}
 
 	UsbDeviceHandle(Supplier<libusb_context> contextSupplier, libusb_device_handle handle) {
@@ -112,8 +112,8 @@ public class UsbDeviceHandle implements Closeable {
 	}
 
 	public UsbDevice device() throws LibUsbException {
-		libusb_device device = libusb_get_device(handle());
-		return new UsbDevice(contextSupplier, device);
+		if (device == null) device = new UsbDevice(contextSupplier, libusb_get_device(handle()));
+		return device;
 	}
 
 	public void claimInterface(int interfaceNumber) throws LibUsbException {
@@ -226,12 +226,6 @@ public class UsbDeviceHandle implements Closeable {
 		return new UsbDescriptor.Bos(libusb_get_bos_descriptor(handle()));
 	}
 
-	@Override
-	public void close() {
-		LogUtil.execute(logger, () -> LibUsb.libusb_close(handle));
-		handle = null;
-	}
-
 	public libusb_device_handle handle() {
 		if (handle != null) return handle;
 		throw new IllegalStateException("Handle has been closed");
@@ -239,6 +233,12 @@ public class UsbDeviceHandle implements Closeable {
 
 	public libusb_context context() {
 		return contextSupplier.get();
+	}
+
+	@Override
+	public void close() {
+		LogUtil.execute(logger, () -> LibUsb.libusb_close(handle));
+		handle = null;
 	}
 
 }

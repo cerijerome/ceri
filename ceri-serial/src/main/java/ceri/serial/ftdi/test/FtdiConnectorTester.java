@@ -18,8 +18,8 @@ import ceri.common.util.Enclosed;
 import ceri.common.util.PrimitiveUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
-import ceri.serial.ftdi.FlowControl;
-import ceri.serial.ftdi.FtdiBitmode;
+import ceri.serial.ftdi.FtdiFlowControl;
+import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiConnector;
 import ceri.serial.ftdi.util.SelfHealingFtdiConfig;
 import ceri.serial.ftdi.util.SelfHealingFtdiConnector;
@@ -145,7 +145,7 @@ public class FtdiConnectorTester extends LoopingExecutor {
 	}
 
 	private void bitbang(boolean enabled) throws IOException {
-		connector.bitmode(enabled ? FtdiBitmode.BITBANG : FtdiBitmode.OFF);
+		connector.bitmode(enabled ? FtdiBitMode.BITBANG : FtdiBitMode.OFF);
 	}
 
 	private String getInput() throws IOException {
@@ -182,13 +182,13 @@ public class FtdiConnectorTester extends LoopingExecutor {
 		return null;
 	}
 
-	private FlowControl flowControlType(String s) {
+	private FtdiFlowControl flowControlType(String s) {
 		if (s.isEmpty()) return null;
 		char c = s.charAt(0);
-		if (c == 'n') return FlowControl.disabled;
-		if (c == 'r') return FlowControl.rtsCts;
-		if (c == 'd') return FlowControl.dtrDsr;
-		if (c == 'x') return FlowControl.xonXoff;
+		if (c == 'n') return FtdiFlowControl.disabled;
+		if (c == 'r') return FtdiFlowControl.rtsCts;
+		if (c == 'd') return FtdiFlowControl.dtrDsr;
+		if (c == 'x') return FtdiFlowControl.xonXoff;
 		return null;
 	}
 

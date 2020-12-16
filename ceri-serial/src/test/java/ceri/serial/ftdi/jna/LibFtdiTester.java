@@ -5,9 +5,8 @@ import static ceri.serial.ftdi.jna.LibFtdi.ftdi_enable_bitbang;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_free;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_new;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_read_pins;
-import static ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_open_criteria;
+import static ceri.serial.ftdi.jna.LibFtdi.*;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_write_data;
-import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_criteria;
 import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +15,7 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
+import ceri.serial.libusb.jna.LibUsbFinder;
 
 public class LibFtdiTester {
 	private static final Logger logger = LogManager.getLogger();
@@ -24,8 +23,8 @@ public class LibFtdiTester {
 	public static void main(String[] args) throws LibUsbException {
 		ftdi_context ftdi = ftdi_new();
 		try {
-			libusb_device_criteria criteria = libusb_find_criteria().vendor(FTDI_VENDOR_ID);
-			ftdi_usb_open_criteria(ftdi, criteria);
+			LibUsbFinder finder = LibUsbFinder.builder().vendor(FTDI_VENDOR_ID).build();
+			ftdi_usb_open_find(ftdi, finder);
 			ftdi_enable_bitbang(ftdi);
 			process(ftdi);
 		} finally {

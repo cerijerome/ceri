@@ -1,5 +1,7 @@
 package ceri.serial.jna;
 
+import java.lang.reflect.Field;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
@@ -15,65 +17,70 @@ import ceri.common.util.BasicUtil;
 public abstract class Struct extends Structure {
 
 	/**
-	 * Creates a typed array of structures from reference pointer for a null-terminated array.
+	 * Returns the pointer to the first element of the array, or null if empty. The array is not
+	 * required to be contiguous.
 	 */
-	public static <T extends Struct> T[] arrayByRef(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayConstructor) {
+	public static Pointer pointer(Structure[] array) {
+		if (array == null || array.length == 0) return null;
+		return array[0].getPointer();
+	}
+
+	/**
+	 * Returns a typed array constructed from a contiguous null-terminated pointer array at the
+	 * given pointer. If the pointer is null, or count is 0, an empty array is returned.
+	 */
+	public static <T extends Structure> T[] arrayByRef(Pointer p,
+		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor) {
 		if (p == null) return arrayConstructor.apply(0);
 		Pointer[] refs = p.getPointerArray(0);
 		return Stream.of(refs).map(constructor).toArray(arrayConstructor);
 	}
 
 	/**
-	 * Creates a typed array of structures from reference pointer. If count is 0, returns empty
-	 * array. Make sure count field is unsigned (call ubyte/ushort if needed).
+	 * Returns a typed array constructed from a contiguous pointer array at the given pointer. If
+	 * the pointer is null, or count is 0, an empty array is returned. Make sure count is unsigned
+	 * (call JnaUtil.ubyte/ushort if needed).
 	 */
-	public static <T extends Struct> T[] arrayByRef(Pointer p, int count,
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor) {
+	public static <T extends Structure> T[] arrayByRef(Pointer p,
+		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor, int count) {
 		if (count == 0) return arrayConstructor.apply(0);
-		if (p == null)
-			throw new IllegalArgumentException("Null pointer but non-zero count: " + count);
+		if (p == null) throw new IllegalArgumentException("Null pointer but count > 0: " + count);
 		Pointer[] refs = p.getPointerArray(0, count);
 		return Stream.of(refs).map(constructor).toArray(arrayConstructor);
 	}
 
 	/**
-	 * Creates a typed array of structures from type. If count is 0, returns empty array. Make
-	 * sure count field is unsigned (call JnaUtil.ubyte/ushort if needed).
+	 * Returns a typed contiguous array by value mapped to the given pointer. If count is 0, an
+	 * empty array is returned. Make sure count is unsigned (call JnaUtil.ubyte/ushort if needed).
 	 */
-	public static <T extends Struct> T[] array(T t, int count,
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor) {
-		return array(JnaUtil.pointer(t), count, constructor, arrayConstructor);
-	}
-
-	/**
-	 * Creates a typed array of structures from pointer. If count is 0, returns empty array. Make
-	 * sure count field is unsigned (call JnaUtil.ubyte/ushort if needed).
-	 */
-	public static <T extends Struct> T[] array(Pointer p, int count,
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor) {
+	public static <T extends Structure> T[] arrayByVal(Pointer p,
+		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor, int count) {
 		if (count == 0) return arrayConstructor.apply(0);
-		if (p != null) return array(count, constructor.apply(p), arrayConstructor);
-		throw new IllegalArgumentException("Null pointer but non-zero count: " + count);
+		if (p != null) return arrayByVal(constructor.apply(p), arrayConstructor, count);
+		throw new IllegalArgumentException("Null pointer but count > 0: " + count);
 	}
 
 	/**
-	 * Creates a typed array of given structure. If count is 0, returns empty array. Make sure count
-	 * field is unsigned (call JnaUtil.ubyte/ushort if needed).
+	 * Creates a typed contiguous array by value. If count is 0, an empty array is returned. Make
+	 * sure count is unsigned (call JnaUtil.ubyte/ushort if needed).
 	 */
-	public static <T extends Struct> T[] array(int count, Supplier<T> constructor,
-		IntFunction<T[]> arrayConstructor) {
-		return array(count, constructor.get(), arrayConstructor);
-	}
-
-	/**
-	 * Creates a typed array of given structure. If count is 0, returns empty array. Make sure count
-	 * field is unsigned (call JnaUtil.ubyte/ushort if needed).
-	 */
-	public static <T extends Struct> T[] array(int count, T p, IntFunction<T[]> arrayConstructor) {
+	public static <T extends Structure> T[] arrayByVal(Supplier<T> constructor,
+		IntFunction<T[]> arrayConstructor, int count) {
 		if (count == 0) return arrayConstructor.apply(0);
-		if (p != null) return BasicUtil.uncheckedCast(p.toArray(count));
-		throw new IllegalArgumentException("Null pointer but non-zero count: " + count);
+		return arrayByVal(constructor.get(), arrayConstructor, count);
+	}
+
+	/**
+	 * Returns a typed contiguous array by value with the given type at index 0. If the type was
+	 * constructed, the memory will be resized to fit the array. If allocated by native code, the
+	 * array will map to the pointer. If count is 0, an empty array is returned. Make sure count is
+	 * unsigned (call JnaUtil.ubyte/ushort if needed).
+	 */
+	public static <T extends Structure> T[] arrayByVal(T t, IntFunction<T[]> arrayConstructor,
+		int count) {
+		if (count == 0) return arrayConstructor.apply(0);
+		if (t != null) return BasicUtil.uncheckedCast(t.toArray(count));
+		throw new IllegalArgumentException("Null pointer but count > 0: " + count);
 	}
 
 	/**
@@ -108,43 +115,66 @@ public abstract class Struct extends Structure {
 	}
 
 	/**
-	 * Returns byte array for field, from remaining bytes in structure. Make sure length field is
-	 * unsigned (call JnaUtil.ubyte/ushort if needed).
-	 */
-	protected byte[] fieldByteArrayRem(String name, int structLen) {
-		int offset = fieldOffset(name);
-		if (offset >= structLen) return new byte[0];
-		return getPointer().getByteArray(offset, structLen - offset);
-	}
-
-	/**
 	 * Returns the pointer offset to the field.
 	 */
 	protected Pointer fieldPointer(String name) {
-		int offset = fieldOffset(name);
-		return getPointer().share(offset);
+		return getPointer().share(fieldOffset(name));
 	}
 
 	/**
-	 * Creates a typed array of structures at given field. Used for marker field[0] with length
-	 * given in another field value. Make sure count field is unsigned (call JnaUtil.ubyte/ushort if
-	 * needed).
+	 * Returns a byte array copied from the end of the structure. Useful to get a variable-length
+	 * byte array after read(). Make sure length is unsigned (call JnaUtil.ubyte/ushort if needed).
 	 */
-	protected <T extends Struct> T[] fieldArray(String name, int count,
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor) {
-		if (count == 0) return arrayConstructor.apply(0);
-		return array(fieldPointer(name), count, constructor, arrayConstructor);
+	protected byte[] varByteArray(int len) {
+		return JnaUtil.byteArray(varPointer(), 0, len);
 	}
 
 	/**
-	 * Creates a typed array of structures referenced by given field pointer array. Used for marker
-	 * *field[0] with length given in another field value. Make sure count field is unsigned (call
+	 * Returns a typed array constructed from a contiguous null-terminated pointer array at the end
+	 * of the structure. Useful to get a variable-length typed array after read().
+	 */
+	protected <T extends Struct> T[] varArrayByRef(Function<Pointer, T> constructor,
+		IntFunction<T[]> arrayConstructor) {
+		return arrayByRef(varPointer(), constructor, arrayConstructor);
+	}
+
+	/**
+	 * Returns a typed array constructed from a contiguous pointer array at the end of the
+	 * structure. Useful to get a variable-length typed array after read(). Make sure count is
+	 * unsigned (call JnaUtil.ubyte/ushort if needed).
+	 */
+	protected <T extends Struct> T[] varArrayByRef(Function<Pointer, T> constructor,
+		IntFunction<T[]> arrayConstructor, int count) {
+		return arrayByRef(varPointer(), constructor, arrayConstructor, count);
+	}
+
+	/**
+	 * Returns a typed contiguous array by value mapped to the end of the structure. Useful to get a
+	 * variable-length typed array after read(). Make sure count is unsigned (call
 	 * JnaUtil.ubyte/ushort if needed).
 	 */
-	protected <T extends Struct> T[] fieldArrayByRef(String name, int count,
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor) {
-		if (count == 0) return arrayConstructor.apply(0);
-		return arrayByRef(fieldPointer(name), count, constructor, arrayConstructor);
+	protected <T extends Struct> T[] varArrayByVal(Function<Pointer, T> constructor,
+		IntFunction<T[]> arrayConstructor, int count) {
+		return arrayByVal(varPointer(), constructor, arrayConstructor, count);
+	}
+
+	/**
+	 * Returns a pointer to the end of the structure. Useful to get variable-length data or pointer
+	 * arrays.
+	 */
+	protected Pointer varPointer() {
+		return getPointer().share(size());
+	}
+
+	/**
+	 * Returns fields with option to skip the named field. Useful to call from overridden
+	 * getFields(force) when the last field is a variable-size array.
+	 */
+	protected List<Field> varFields(boolean force, boolean skip, String name) {
+		if (!force) return null;
+		List<Field> fields = BasicUtil.uncheckedCast(super.getFields(force));
+		if (skip) fields.removeIf(f -> name.equals(f.getName()));
+		return fields;
 	}
 
 }

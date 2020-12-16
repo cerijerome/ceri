@@ -52,11 +52,14 @@ import ceri.common.test.TestUtil;
 	// libusb
 	ceri.serial.libusb.UsbBehavior.class, //
 	// libusb.jna
-	ceri.serial.libusb.jna.LibUsbFinderTest.class, //
+	ceri.serial.libusb.jna.LibUsbFinderBehavior.class, //
 	// spi
 	ceri.serial.spi.SpiBehavior.class, //
 	ceri.serial.spi.SpiDeviceBehavior.class, //
 	ceri.serial.spi.SpiModeBehavior.class, //
+	// spi.jna
+	ceri.serial.spi.jna.SpiDevTest.class, //
+	ceri.serial.spi.jna.SpiDevUtilTest.class, //
 	// spi.pulse
 	ceri.serial.spi.pulse.PulseBufferBehavior.class, //
 	ceri.serial.spi.pulse.PulseCycleBehavior.class, //

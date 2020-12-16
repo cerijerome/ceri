@@ -1,11 +1,13 @@
 package ceri.serial.libusb.jna;
 
 import static ceri.common.math.MathUtil.ubyte;
+import static ceri.serial.jna.JnaUtil.byteArray;
 import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_STRING;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK;
 import static ceri.serial.libusb.jna.LibUsbUtil.require;
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -457,7 +459,7 @@ public class LibUsb {
 		}
 
 		public byte[] extra() {
-			return JnaUtil.byteArray(extra, 0, extra_length);
+			return byteArray(extra, 0, extra_length);
 		}
 
 		@Override
@@ -517,11 +519,11 @@ public class LibUsb {
 		}
 
 		public libusb_endpoint_descriptor[] endpoints() {
-			return array(ubyte(bNumEndpoints), endpoint, libusb_endpoint_descriptor[]::new);
+			return arrayByVal(endpoint, libusb_endpoint_descriptor[]::new, ubyte(bNumEndpoints));
 		}
 
 		public byte[] extra() {
-			return JnaUtil.byteArray(extra, 0, extra_length);
+			return byteArray(extra, 0, extra_length);
 		}
 
 		@Override
@@ -553,7 +555,7 @@ public class LibUsb {
 		}
 
 		public libusb_interface_descriptor[] altsettings() {
-			return array(num_altsetting, altsetting, libusb_interface_descriptor[]::new);
+			return arrayByVal(altsetting, libusb_interface_descriptor[]::new, num_altsetting);
 		}
 
 		@Override
@@ -603,11 +605,11 @@ public class LibUsb {
 		}
 
 		public libusb_interface[] interfaces() {
-			return array(ubyte(bNumInterfaces), interfaces, libusb_interface[]::new);
+			return arrayByVal(interfaces, libusb_interface[]::new, ubyte(bNumInterfaces));
 		}
 
 		public byte[] extra() {
-			return JnaUtil.byteArray(extra, 0, extra_length);
+			return byteArray(extra, 0, extra_length);
 		}
 
 		@Override
@@ -685,12 +687,16 @@ public class LibUsb {
 			implements Structure.ByValue {}
 
 		public static class ByReference extends libusb_bos_dev_capability_descriptor //
-			implements Structure.ByReference {}
+			implements Structure.ByReference {
+			ByReference(Pointer p) {
+				super(p);
+			}
+		}
 
-		public byte bLength;
+		public byte bLength; // total length, including dev_capability_data
 		public byte bDescriptorType; // libusb_descriptor_type.LIBUSB_DT_DEVICE_CAPABILITY
 		public byte bDevCapabilityType;
-		public byte[] dev_capability_data;
+		public byte[] dev_capability_data = new byte[0];
 
 		public libusb_bos_dev_capability_descriptor() {}
 
@@ -702,14 +708,24 @@ public class LibUsb {
 			return libusb_descriptor_type.xcoder.field(bDescriptorTypeAccessor.from(this));
 		}
 
-		public byte[] dev_capability_data() {
-			// TODO: init field instead?
-			return fieldByteArrayRem("dev_capability_data", ubyte(bLength));
+		@Override
+		public void read() {
+			super.read();
+			dev_capability_data = varByteArray(dataSize());
+		}
+
+		@Override
+		protected List<Field> getFields(boolean force) {
+			return varFields(force, dataSize() == 0, "dev_capability_data");
 		}
 
 		@Override
 		protected List<String> getFieldOrder() {
 			return FIELDS;
+		}
+
+		private int dataSize() {
+			return Math.max(0, ubyte(bLength) - 3);
 		}
 	}
 
@@ -734,7 +750,8 @@ public class LibUsb {
 		public byte bDescriptorType; // libusb_descriptor_type.LIBUSB_DT_BOS LIBUSB_DT_BOS
 		public short wTotalLength;
 		public byte bNumDeviceCaps;
-		public libusb_bos_dev_capability_descriptor.ByReference[] dev_capability;
+		public libusb_bos_dev_capability_descriptor.ByReference[] dev_capability =
+			new libusb_bos_dev_capability_descriptor.ByReference[0];
 
 		public libusb_bos_descriptor() {}
 
@@ -746,11 +763,16 @@ public class LibUsb {
 			return libusb_descriptor_type.xcoder.field(bDescriptorTypeAccessor.from(this));
 		}
 
-		public libusb_bos_dev_capability_descriptor[] dev_capability() {
-			// TODO: init field instead?
-			return fieldArrayByRef("dev_capability", ubyte(bNumDeviceCaps),
-				libusb_bos_dev_capability_descriptor::new,
-				libusb_bos_dev_capability_descriptor[]::new);
+		@Override
+		public void read() {
+			super.read();
+			dev_capability = varArrayByRef(libusb_bos_dev_capability_descriptor.ByReference::new,
+				libusb_bos_dev_capability_descriptor.ByReference[]::new, deviceCaps());
+		}
+
+		@Override
+		protected List<Field> getFields(boolean force) {
+			return varFields(force, deviceCaps() == 0, "dev_capability");
 		}
 
 		@Override
@@ -758,6 +780,9 @@ public class LibUsb {
 			return FIELDS;
 		}
 
+		private int deviceCaps() {
+			return Math.max(0, ubyte(bNumDeviceCaps));
+		}
 	}
 
 	/**
@@ -1322,12 +1347,7 @@ public class LibUsb {
 		private static final IntAccessor.Typed<libusb_transfer> statusAccessor =
 			IntAccessor.typed(t -> t.status, (t, i) -> t.status = i);
 
-		public static class ByValue extends libusb_transfer //
-			implements Structure.ByValue {}
-
 		public static class ByReference extends libusb_transfer implements Structure.ByReference {
-			public ByReference() {}
-
 			public ByReference(Pointer p) {
 				super(p);
 			}
@@ -1345,7 +1365,7 @@ public class LibUsb {
 		public Pointer user_data;
 		public Pointer buffer;
 		public int num_iso_packets;
-		public libusb_iso_packet_descriptor[] iso_packet_desc;
+		public libusb_iso_packet_descriptor[] iso_packet_desc = new libusb_iso_packet_descriptor[0];
 
 		public libusb_transfer() {}
 
@@ -1365,14 +1385,16 @@ public class LibUsb {
 			return libusb_transfer_status.xcoder.field(statusAccessor.from(this));
 		}
 
-		public libusb_iso_packet_descriptor[] iso_packet_desc(int count) {
-			return fieldArray("iso_packet_desc", count, libusb_iso_packet_descriptor::new,
-				libusb_iso_packet_descriptor[]::new);
+		@Override
+		public void read() {
+			super.read();
+			iso_packet_desc = varArrayByVal(libusb_iso_packet_descriptor::new,
+				libusb_iso_packet_descriptor[]::new, num_iso_packets);
 		}
 
-		public libusb_iso_packet_descriptor[] iso_packet_desc() {
-			// TODO: init field instead?
-			return iso_packet_desc(num_iso_packets);
+		@Override
+		protected List<Field> getFields(boolean force) {
+			return varFields(force, num_iso_packets == 0, "iso_packet_desc");
 		}
 
 		@Override
@@ -1633,12 +1655,8 @@ public class LibUsb {
 	 *        libusb_get_max_packet_size()
 	 */
 	public static void libusb_set_iso_packet_lengths(libusb_transfer transfer, int length) {
-		// TODO: test
-		libusb_iso_packet_descriptor[] iso_packet_descs = transfer.iso_packet_desc();
-		for (libusb_iso_packet_descriptor iso_packet_desc : iso_packet_descs) {
+		for (libusb_iso_packet_descriptor iso_packet_desc : transfer.iso_packet_desc)
 			iso_packet_desc.length = length;
-			iso_packet_desc.write();
-		}
 	}
 
 	/**
@@ -1657,9 +1675,8 @@ public class LibUsb {
 		int offset = 0;
 		if (packet > Short.MAX_VALUE) return null;
 		if (packet >= transfer.num_iso_packets) return null;
-		libusb_iso_packet_descriptor[] iso_packet_descs = transfer.iso_packet_desc(packet);
 		for (int i = 0; i < packet; i++)
-			offset += iso_packet_descs[i].length;
+			offset += transfer.iso_packet_desc[i].length;
 		return transfer.buffer.share(offset);
 	}
 
@@ -1870,6 +1887,9 @@ public class LibUsb {
 		int invoke(libusb_context ctx, Pointer device, int event, Pointer user_data);
 	}
 
+	/**
+	 * Initializes a new context.
+	 */
 	public static libusb_context libusb_init() throws LibUsbException {
 		PointerByReference ref = new PointerByReference();
 		verifyErrNo(lib -> lib.libusb_init(ref), "init");

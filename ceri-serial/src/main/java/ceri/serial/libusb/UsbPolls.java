@@ -9,11 +9,11 @@ import ceri.serial.jna.Struct;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd;
 
-public class UsbPollFds implements Closeable {
+public class UsbPolls implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private libusb_pollfd.ByReference ref;
 
-	UsbPollFds(libusb_pollfd.ByReference ref) {
+	UsbPolls(libusb_pollfd.ByReference ref) {
 		this.ref = ref;
 	}
 

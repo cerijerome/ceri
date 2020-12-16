@@ -116,7 +116,7 @@ public class LibUsbTestUtil {
 	@SafeVarargs
 	private static <T extends Struct> T[] array(Supplier<T> constructor,
 		IntFunction<T[]> arrayConstructor, Consumer<T>... populators) {
-		T[] array = Struct.array(populators.length, constructor, arrayConstructor);
+		T[] array = Struct.arrayByVal(constructor, arrayConstructor, populators.length);
 		for (int i = 0; i < array.length; i++) {
 			populators[i].accept(array[i]);
 			array[i].write();

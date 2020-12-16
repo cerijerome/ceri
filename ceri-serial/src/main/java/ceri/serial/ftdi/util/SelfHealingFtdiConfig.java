@@ -2,57 +2,53 @@ package ceri.serial.ftdi.util;
 
 import static ceri.common.function.FunctionUtil.lambdaName;
 import static ceri.common.function.FunctionUtil.named;
-import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_criteria_string;
 import java.util.function.Predicate;
 import ceri.common.text.ToString;
-import ceri.serial.ftdi.FtdiBitmode;
+import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiLineParams;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 import ceri.serial.ftdi.jna.LibFtdiUtil;
-import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
+import ceri.serial.libusb.jna.LibUsbFinder;
 
 /**
- * A self-healing ftdi device. It will automatically reconnect if the cable is removed and
- * reinserted.
+ * A self-healing FTDI device. It will automatically try to reconnect if a fatal error is detected.
  */
 public class SelfHealingFtdiConfig {
-	public static final SelfHealingFtdiConfig NULL = builder().build();
-	public static final SelfHealingFtdiConfig DEFAULT =
-		builder().find(LibFtdiUtil.finder()).build();
+	public static final SelfHealingFtdiConfig DEFAULT = builder().build();
 	static final Predicate<Exception> DEFAULT_PREDICATE =
 		named(SelfHealingFtdiConnector::isBroken, "SelfHealingFtdi::isBroken");
-	final libusb_device_criteria find;
+	final LibUsbFinder finder;
 	final ftdi_interface iface;
 	final Integer baud;
 	final FtdiLineParams line;
-	final FtdiBitmode bitmode;
+	final FtdiBitMode bitMode;
 	final int fixRetryDelayMs;
 	final int recoveryDelayMs;
 	final Predicate<Exception> brokenPredicate;
 
 	public static SelfHealingFtdiConfig of(String finder) {
-		return builder().find(finder).build();
+		return builder().finder(finder).build();
 	}
 
 	public static class Builder {
-		libusb_device_criteria find = null;
+		LibUsbFinder finder = LibFtdiUtil.FINDER;
 		ftdi_interface iface = ftdi_interface.INTERFACE_ANY;
 		Integer baud = 9600;
 		FtdiLineParams line = FtdiLineParams.DEFAULT;
-		FtdiBitmode bitmode = FtdiBitmode.BITBANG;
+		FtdiBitMode bitmode = FtdiBitMode.BITBANG;
 		int fixRetryDelayMs = 2000;
 		int recoveryDelayMs = fixRetryDelayMs / 2;
 		Predicate<Exception> brokenPredicate = DEFAULT_PREDICATE;
 
 		Builder() {}
 
-		public Builder find(String find) {
-			return find(libusb_find_criteria_string(find));
+		public Builder finder(String descriptor) {
+			return finder(LibUsbFinder.from(descriptor));
 		}
 
-		public Builder find(libusb_device_criteria find) {
-			this.find = find;
+		public Builder finder(LibUsbFinder finder) {
+			this.finder = finder;
 			return this;
 		}
 
@@ -71,13 +67,13 @@ public class SelfHealingFtdiConfig {
 			return this;
 		}
 
-		public Builder bitmode(FtdiBitmode bitmode) {
+		public Builder bitmode(FtdiBitMode bitmode) {
 			this.bitmode = bitmode;
 			return this;
 		}
 
 		public Builder bitmode(ftdi_mpsse_mode mode) {
-			return bitmode(FtdiBitmode.of(mode));
+			return bitmode(FtdiBitMode.of(mode));
 		}
 
 		public Builder fixRetryDelayMs(int fixRetryDelayMs) {
@@ -104,16 +100,12 @@ public class SelfHealingFtdiConfig {
 		return new Builder();
 	}
 
-	public boolean enabled() {
-		return find != null;
-	}
-
 	SelfHealingFtdiConfig(Builder builder) {
-		find = builder.find;
+		finder = builder.finder;
 		iface = builder.iface;
 		baud = builder.baud;
 		line = builder.line;
-		bitmode = builder.bitmode;
+		bitMode = builder.bitmode;
 		fixRetryDelayMs = builder.fixRetryDelayMs;
 		recoveryDelayMs = builder.recoveryDelayMs;
 		brokenPredicate = builder.brokenPredicate;
@@ -121,7 +113,7 @@ public class SelfHealingFtdiConfig {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, find, iface, baud, line, bitmode, fixRetryDelayMs,
+		return ToString.forClass(this, finder, iface, baud, line, bitMode, fixRetryDelayMs,
 			recoveryDelayMs, lambdaName(brokenPredicate));
 	}
 

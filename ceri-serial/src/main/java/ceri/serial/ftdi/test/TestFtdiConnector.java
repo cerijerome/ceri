@@ -4,19 +4,19 @@ import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestConnector;
-import ceri.serial.ftdi.FlowControl;
-import ceri.serial.ftdi.FtdiBitmode;
+import ceri.serial.ftdi.FtdiFlowControl;
+import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiConnector;
 
 /**
  * A connector for testing logic against serial connectors.
  */
 public class TestFtdiConnector extends TestConnector implements FtdiConnector {
-	public final CallSync.Accept<FtdiBitmode> bitmode = CallSync.consumer(FtdiBitmode.OFF, true);
+	public final CallSync.Accept<FtdiBitMode> bitmode = CallSync.consumer(FtdiBitMode.OFF, true);
 	public final CallSync.Accept<Boolean> dtr = CallSync.consumer(false, true);
 	public final CallSync.Accept<Boolean> rts = CallSync.consumer(false, true);
-	public final CallSync.Accept<FlowControl> flowControl =
-		CallSync.consumer(FlowControl.disabled, true);
+	public final CallSync.Accept<FtdiFlowControl> flowControl =
+		CallSync.consumer(FtdiFlowControl.disabled, true);
 	public final CallSync.Get<Integer> pins = CallSync.supplier();
 
 	/**
@@ -63,7 +63,7 @@ public class TestFtdiConnector extends TestConnector implements FtdiConnector {
 	}
 
 	@Override
-	public void bitmode(FtdiBitmode bitmode) throws IOException {
+	public void bitmode(FtdiBitMode bitmode) throws IOException {
 		this.bitmode.accept(bitmode, IO_ADAPTER);
 		verifyConnected();
 	}
@@ -81,7 +81,7 @@ public class TestFtdiConnector extends TestConnector implements FtdiConnector {
 	}
 
 	@Override
-	public void flowControl(FlowControl flowControl) throws IOException {
+	public void flowControl(FtdiFlowControl flowControl) throws IOException {
 		this.flowControl.accept(flowControl, IO_ADAPTER);
 		verifyConnected();
 	}

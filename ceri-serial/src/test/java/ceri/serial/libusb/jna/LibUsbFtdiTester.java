@@ -12,7 +12,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_kernel_driver_active;
 import static ceri.serial.libusb.jna.LibUsb.libusb_open;
 import static ceri.serial.libusb.jna.LibUsb.libusb_release_interface;
 import static ceri.serial.libusb.jna.LibUsb.libusb_unref_device;
-import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_device_ref;
 import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,7 +21,6 @@ import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
-import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
 
 public class LibUsbFtdiTester {
 	private static final Logger logger = LogManager.getLogger();
@@ -33,8 +31,8 @@ public class LibUsbFtdiTester {
 		libusb_device dev = null;
 		libusb_device_handle handle = null;
 		try {
-			libusb_device_criteria criteria = LibUsbFinder.libusb_find_criteria().vendor(0x403);
-			dev = libusb_find_device_ref(ctx, criteria);
+			var finder = LibUsbFinder.from("0x403");
+			dev = finder.findAndRef(ctx);
 			handle = libusb_open(dev);
 			process(handle);
 		} finally {

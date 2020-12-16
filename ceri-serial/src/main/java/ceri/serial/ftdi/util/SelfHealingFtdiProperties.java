@@ -2,13 +2,13 @@ package ceri.serial.ftdi.util;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
 import ceri.common.property.BaseProperties;
-import ceri.serial.ftdi.FtdiBitmode;
+import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiLineProperties;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 
 public class SelfHealingFtdiProperties extends BaseProperties {
-	private static final String USB_KEY = "usb";
+	private static final String FINDER_KEY = "finder";
 	private static final String PORT_KEY = "port";
 	private static final String INTERFACE_KEY = "interface";
 	private static final String BIT_KEY = "bit";
@@ -28,7 +28,7 @@ public class SelfHealingFtdiProperties extends BaseProperties {
 
 	public SelfHealingFtdiConfig config() {
 		SelfHealingFtdiConfig.Builder b = SelfHealingFtdiConfig.builder().line(port.params());
-		safeAccept(usbPort(), b::find);
+		safeAccept(finder(), b::finder);
 		safeAccept(iface(), b::iface);
 		safeAccept(ftdiBitMode(), b::bitmode);
 		safeAccept(portBaudRate(), b::baud);
@@ -37,8 +37,8 @@ public class SelfHealingFtdiProperties extends BaseProperties {
 		return b.build();
 	}
 
-	private String usbPort() {
-		return value(USB_KEY, PORT_KEY);
+	private String finder() {
+		return value(FINDER_KEY);
 	}
 
 	private ftdi_interface iface() {
@@ -47,11 +47,11 @@ public class SelfHealingFtdiProperties extends BaseProperties {
 		return ftdi_interface.valueOf(INTERFACE_PREFIX + name.toUpperCase());
 	}
 
-	private FtdiBitmode ftdiBitMode() {
+	private FtdiBitMode ftdiBitMode() {
 		ftdi_mpsse_mode mode = bitMode();
 		if (mode == null) return null;
-		FtdiBitmode.Builder b = FtdiBitmode.builder(mode);
-		safeAccept(bitMask(), b::bitmask);
+		FtdiBitMode.Builder b = FtdiBitMode.builder(mode);
+		safeAccept(bitMask(), b::mask);
 		return b.build();
 	}
 

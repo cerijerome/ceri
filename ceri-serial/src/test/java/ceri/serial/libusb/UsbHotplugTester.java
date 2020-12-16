@@ -1,8 +1,6 @@
 package ceri.serial.libusb;
 
-import static ceri.serial.libusb.Usb.hasCapability;
 import static ceri.serial.libusb.UsbHotplug.registration;
-import static ceri.serial.libusb.jna.LibUsb.libusb_capability.LIBUSB_CAP_HAS_HOTPLUG;
 import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT;
 import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_flag.LIBUSB_HOTPLUG_ENUMERATE;
@@ -19,8 +17,8 @@ public class UsbHotplugTester {
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws LibUsbException {
-		logger.info("Hotplug capability: {}", hasCapability(LIBUSB_CAP_HAS_HOTPLUG));
-		try (Usb ctx = Usb.init()) {
+		logger.info("Hotplug capability: {}", UsbHotplug.hasCapability());
+		try (Usb ctx = Usb.of()) {
 			logger.info("Registering callback");
 			ctx.hotplug().registerCallback(registration( //
 				(context, device, event, userData) -> arrived(device, userData), "hello!")

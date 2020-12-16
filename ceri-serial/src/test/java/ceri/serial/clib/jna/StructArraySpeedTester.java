@@ -58,7 +58,7 @@ public class StructArraySpeedTester {
 		}
 
 		public static ByReference[] array(int count) {
-			return array(count, ByReference::new, ByReference[]::new);
+			return arrayByVal(ByReference::new, ByReference[]::new, count);
 		}
 
 		@Override
@@ -88,7 +88,7 @@ public class StructArraySpeedTester {
 		}
 
 		public static ByReference[] array(int count) {
-			return array(count, ByReference::new, ByReference[]::new);
+			return arrayByVal(ByReference::new, ByReference[]::new, count);
 		}
 
 		@Override
@@ -118,7 +118,7 @@ public class StructArraySpeedTester {
 		}
 
 		public static ByReference[] array(int count) {
-			return array(count, ByReference::new, ByReference[]::new);
+			return arrayByVal(ByReference::new, ByReference[]::new, count);
 		}
 
 		@Override

@@ -9,26 +9,26 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type;
 
 public class FtdiLineParams {
 	public static final FtdiLineParams DEFAULT = builder().build();
-	public final ftdi_data_bits_type bits;
-	public final ftdi_stop_bits_type sbit;
+	public final ftdi_data_bits_type dataBits;
+	public final ftdi_stop_bits_type stopBits;
 	public final ftdi_parity_type parity;
 	public final ftdi_break_type breakType;
 
 	public static class Builder {
-		ftdi_data_bits_type bits = ftdi_data_bits_type.BITS_8;
-		ftdi_stop_bits_type sbit = ftdi_stop_bits_type.STOP_BIT_1;
+		ftdi_data_bits_type dataBits = ftdi_data_bits_type.BITS_8;
+		ftdi_stop_bits_type stopBits = ftdi_stop_bits_type.STOP_BIT_1;
 		ftdi_parity_type parity = ftdi_parity_type.NONE;
 		ftdi_break_type breakType = ftdi_break_type.BREAK_OFF;
 
 		Builder() {}
 
-		public FtdiLineParams.Builder bits(ftdi_data_bits_type bits) {
-			this.bits = bits;
+		public FtdiLineParams.Builder dataBits(ftdi_data_bits_type dataBits) {
+			this.dataBits = dataBits;
 			return this;
 		}
 
-		public FtdiLineParams.Builder sbit(ftdi_stop_bits_type sbit) {
-			this.sbit = sbit;
+		public FtdiLineParams.Builder stopBits(ftdi_stop_bits_type stopBits) {
+			this.stopBits = stopBits;
 			return this;
 		}
 
@@ -52,15 +52,15 @@ public class FtdiLineParams {
 	}
 
 	FtdiLineParams(FtdiLineParams.Builder builder) {
-		bits = builder.bits;
-		sbit = builder.sbit;
+		dataBits = builder.dataBits;
+		stopBits = builder.stopBits;
 		parity = builder.parity;
 		breakType = builder.breakType;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(bits, sbit, parity, breakType);
+		return Objects.hash(dataBits, stopBits, parity, breakType);
 	}
 
 	@Override
@@ -68,8 +68,8 @@ public class FtdiLineParams {
 		if (this == obj) return true;
 		if (!(obj instanceof FtdiLineParams)) return false;
 		FtdiLineParams other = (FtdiLineParams) obj;
-		if (!Objects.equals(bits, other.bits)) return false;
-		if (!Objects.equals(sbit, other.sbit)) return false;
+		if (!Objects.equals(dataBits, other.dataBits)) return false;
+		if (!Objects.equals(stopBits, other.stopBits)) return false;
 		if (!Objects.equals(parity, other.parity)) return false;
 		if (!Objects.equals(breakType, other.breakType)) return false;
 		return true;
@@ -77,7 +77,7 @@ public class FtdiLineParams {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, bits, sbit, parity, breakType);
+		return ToString.forClass(this, dataBits, stopBits, parity, breakType);
 	}
 
 }

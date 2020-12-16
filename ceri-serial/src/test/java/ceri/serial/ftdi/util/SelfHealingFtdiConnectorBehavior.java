@@ -9,6 +9,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.ErrorGen.RIX;
 import static ceri.common.test.ErrorGen.RTX;
+import static ceri.common.test.TestUtil.provider;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
@@ -21,15 +22,13 @@ import org.junit.Before;
 import org.junit.Test;
 import com.sun.jna.LastErrorException;
 import ceri.common.concurrent.ValueCondition;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.io.StateChange;
 import ceri.common.test.CallSync;
 import ceri.common.util.Enclosed;
 import ceri.log.test.LogModifier;
-import ceri.serial.ftdi.FlowControl;
-import ceri.serial.ftdi.Ftdi;
-import ceri.serial.ftdi.FtdiBitmode;
+import ceri.serial.ftdi.FtdiBitMode;
+import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 import ceri.serial.libusb.jna.LibUsbExampleData;
 import ceri.serial.libusb.jna.LibUsbException;
@@ -37,25 +36,22 @@ import ceri.serial.libusb.jna.TestLibUsbNative;
 
 public class SelfHealingFtdiConnectorBehavior {
 	private static final SelfHealingFtdiConfig config =
-		SelfHealingFtdiConfig.builder().recoveryDelayMs(1).fixRetryDelayMs(1).find("0x403").build();
+		SelfHealingFtdiConfig.builder().recoveryDelayMs(1).fixRetryDelayMs(1).build();
 	private TestLibUsbNative lib;
 	private Enclosed<TestLibUsbNative> enc;
-	private Ftdi ftdi;
 	private SelfHealingFtdiConnector con;
 
 	@Before
-	public void before() throws LibUsbException {
+	public void before() {
 		enc = TestLibUsbNative.register();
 		lib = enc.subject;
 		LibUsbExampleData.populate(lib.data);
-		ftdi = Ftdi.of();
 		con = SelfHealingFtdiConnector.of(config);
 	}
 
 	@After
 	public void after() {
 		con.close();
-		ftdi.close();
 		enc.close();
 	}
 
@@ -63,27 +59,22 @@ public class SelfHealingFtdiConnectorBehavior {
 	public void shouldConnectToFtdi() throws LibUsbException {
 		con.connect();
 		assertIterable(lib.controlTransferOut.values(),
-			// Ftdi.open -> ftdi_usb_open_dev -> ftdi_usb_reset
-			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()),
-			// Ftdi.open -> ftdi_usb_open_dev -> ftdi_set_baudrate (default 9600)
-			List.of(0x40, 0x03, 0x4138, 0, ByteProvider.empty()),
-			// Ftdi.bitmode -> ftdi_set_bitmode (BITBANG)
-			List.of(0x40, 0x0b, 0x01ff, 1, ByteProvider.empty()),
-			// Ftdi.baudrate -> ftdi_set_baudrate (9600 with BITBANG)
-			List.of(0x40, 0x03, 0xc04e, 0, ByteProvider.empty()),
-			// Ftdi.lineParams -> ftdi_set_line_property (DEFAULT 8:1:none:off)
-			List.of(0x40, 0x04, 0x0008, 1, ByteProvider.empty()));
+			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()), // open:ftdi_usb_reset()
+			List.of(0x40, 0x03, 0x4138, 0, ByteProvider.empty()), // open:ftdi_set_baudrate()
+			List.of(0x40, 0x0b, 0x01ff, 1, ByteProvider.empty()), // bitMode()
+			List.of(0x40, 0x03, 0xc04e, 0, ByteProvider.empty()), // baudRate()
+			List.of(0x40, 0x04, 0x0008, 1, ByteProvider.empty())); // lineParams()
 		lib.controlTransferIn.assertNoCall();
 	}
 
 	@Test
 	public void shouldConfigureFtdi() throws LibUsbException {
 		connect();
-		con.bitmode(FtdiBitmode.OFF);
+		con.bitmode(FtdiBitMode.OFF);
 		lib.controlTransferOut.assertAuto(List.of(0x40, 0x0b, 0x0000, 1, ByteProvider.empty()));
-		con.bitmode(FtdiBitmode.of(ftdi_mpsse_mode.BITMODE_CBUS));
+		con.bitmode(FtdiBitMode.of(ftdi_mpsse_mode.BITMODE_CBUS));
 		lib.controlTransferOut.assertAuto(List.of(0x40, 0x0b, 0x20ff, 1, ByteProvider.empty()));
-		con.flowControl(FlowControl.xonXoff);
+		con.flowControl(FtdiFlowControl.xonXoff);
 		lib.controlTransferOut.assertAuto(List.of(0x40, 0x02, 0, 0x0401, ByteProvider.empty()));
 	}
 
@@ -99,7 +90,7 @@ public class SelfHealingFtdiConnectorBehavior {
 	@Test
 	public void shouldReadPins() throws LibUsbException {
 		connect();
-		lib.controlTransferIn.autoResponses(ByteArray.Immutable.wrap(0xa5));
+		lib.controlTransferIn.autoResponses(provider(0xa5));
 		assertEquals(con.readPins(), 0xa5);
 		lib.controlTransferIn.assertAuto(List.of(0xc0, 0x0c, 0x0000, 1, 1));
 	}
@@ -107,10 +98,10 @@ public class SelfHealingFtdiConnectorBehavior {
 	@Test
 	public void shouldReadBytes() throws IOException {
 		connect();
-		lib.bulkTransferIn.autoResponses(ByteArray.Immutable.wrap(1, 2, 3, 4, 5));
+		lib.bulkTransferIn.autoResponses(provider(1, 2, 3, 4, 5));
 		assertArray(con.read(3), 3, 4, 5); // 2B status + 3B data
 		lib.bulkTransferIn.assertAuto(List.of(0x81, 5));
-		lib.bulkTransferIn.autoResponses(ByteArray.Immutable.wrap(6, 7, 8));
+		lib.bulkTransferIn.autoResponses(provider(6, 7, 8));
 		assertEquals(con.read(), 8); // 2B status + 1B data
 		lib.bulkTransferIn.assertAuto(List.of(0x81, 3));
 	}
@@ -119,7 +110,7 @@ public class SelfHealingFtdiConnectorBehavior {
 	public void shouldWriteBytes() throws IOException {
 		connect();
 		con.write(1, 2, 3);
-		lib.bulkTransferOut.assertAuto(List.of(0x02, ByteArray.Immutable.wrap(1, 2, 3)));
+		lib.bulkTransferOut.assertAuto(List.of(0x02, provider(1, 2, 3)));
 	}
 
 	@Test

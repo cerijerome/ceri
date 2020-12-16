@@ -7,7 +7,6 @@ import static ceri.serial.clib.jna.Ioctl._IOW;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
@@ -17,7 +16,6 @@ import ceri.serial.clib.jna.SizeOf;
 
 public class SpiDev {
 	private static final Logger logger = LogManager.getLogger();
-
 	/* mode flags */
 	public static final int SPI_CPHA = 0x01;
 	public static final int SPI_CPOL = 0x02;
@@ -32,22 +30,17 @@ public class SpiDev {
 	public static final int SPI_TX_QUAD = 0x200;
 	public static final int SPI_RX_DUAL = 0x400;
 	public static final int SPI_RX_QUAD = 0x800;
-
 	/* preset modes */
 	public static final int SPI_MODE_0 = 0;
 	public static final int SPI_MODE_1 = SPI_CPHA;
 	public static final int SPI_MODE_2 = SPI_CPOL;
 	public static final int SPI_MODE_3 = SPI_CPOL | SPI_CPHA;
 
+	private SpiDev() {}
+	
 	public static class spi_ioc_transfer extends Structure {
 		private static final List<String> FIELDS = List.of("tx_buf", "rx_buf", "len", "speed_hz",
 			"delay_usecs", "bits_per_word", "cs_change", "tx_nbits", "rx_nbits", "pad");
-
-		public static class ByValue extends spi_ioc_transfer //
-			implements Structure.ByValue {}
-
-		public static class ByReference extends spi_ioc_transfer //
-			implements Structure.ByReference {}
 
 		public long tx_buf;
 		public long rx_buf;
@@ -61,10 +54,6 @@ public class SpiDev {
 		public short pad;
 
 		public spi_ioc_transfer() {}
-
-		public spi_ioc_transfer(Pointer p) {
-			super(p);
-		}
 
 		@Override
 		protected List<String> getFieldOrder() {

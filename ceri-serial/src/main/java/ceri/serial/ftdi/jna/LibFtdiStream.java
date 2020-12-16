@@ -1,9 +1,10 @@
 package ceri.serial.ftdi.jna;
 
-import static ceri.serial.clib.jna.Time.gettimeofday;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_set_bitmode;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_purge_buffers;
 import static ceri.serial.ftdi.jna.LibFtdiUtil.requireDev;
+import static ceri.serial.libusb.jna.LibUsb.libusb_alloc_transfer;
+import static ceri.serial.libusb.jna.LibUsb.libusb_fill_bulk_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_free_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout;
 import static ceri.serial.libusb.jna.LibUsb.libusb_submit_transfer;
@@ -11,6 +12,7 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTE
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPORTED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED;
+import static java.lang.Math.min;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,12 +23,13 @@ import com.sun.jna.Structure;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntAccessor;
 import ceri.log.util.LogUtil;
+import ceri.serial.clib.jna.Time;
 import ceri.serial.clib.jna.Time.timeval;
+import ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 import ceri.serial.ftdi.jna.LibFtdi.size_and_time;
 import ceri.serial.jna.Struct;
-import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_cb_fn;
@@ -34,6 +37,7 @@ import ceri.serial.libusb.jna.LibUsbException;
 
 public class LibFtdiStream {
 	private static final Logger logger = LogManager.getLogger();
+	private static final int READ_STATUS_BYTES = 2;
 	private static final double PROGRESS_INTERVAL_MIN_SEC = 1.0;
 	private static final libusb_transfer_cb_fn ftdi_read_stream_cb =
 		LibFtdiStream::ftdi_read_stream_cb;
@@ -118,116 +122,135 @@ public class LibFtdiStream {
 		protected List<String> getFieldOrder() {
 			return FIELDS;
 		}
-
-	}
-
-	/*
-	 * Handle callbacks With Exit request, free memory and release the transfer state->result is
-	 * only set when some error happens
-	 */
-	private static void ftdi_read_stream_cb(libusb_transfer transfer) {
-		ftdi_stream_state state = new ftdi_stream_state(transfer.user_data);
-		state.activity++;
-
-		if (transfer.status().get() != LIBUSB_TRANSFER_COMPLETED) {
-			logger.warn("Unknown status: {} ({})", transfer.status, transfer.status().get());
-			state.result().set(LIBUSB_ERROR_IO);
-			return;
-		}
-		try {
-			for (int i = 0;; i++) {
-				int position = (i * state.packetsize) + LibFtdiUtil.READ_STATUS_BYTES;
-				int len = Math.min(transfer.actual_length - position,
-					state.packetsize - LibFtdiUtil.READ_STATUS_BYTES);
-				if (len <= 0) break;
-				state.progress.current.totalBytes += len;
-				state.callback.invoke(transfer.buffer.share(position), len, null, state.userdata);
-			}
-		} catch (LibUsbException e) {
-			logger.catching(e);
-			LogUtil.execute(logger, () -> libusb_free_transfer(transfer));
-			return;
-		}
-
-		try {
-			transfer.status = -1;
-			libusb_submit_transfer(transfer);
-		} catch (LibUsbException e) {
-			logger.catching(e);
-			state.result = e.code;
-		}
 	}
 
 	/**
-	 * Streaming reading of data from the device Use asynchronous transfers in libusb-1.0 for
-	 * high-performance streaming of data from a device interface back to the PC. This function
-	 * continuously transfers data until either an error occurs or the callback returns a nonzero
-	 * value. This function returns a libusb error code or the callback's return value. For every
-	 * contiguous block of received data, the callback will be invoked.
+	 * Streaming read of data from the device. Uses asynchronous transfers in libusb-1.0 for
+	 * high-performance streaming of data from a device interface. This function continuously
+	 * transfers data until an error occurs, or the callback returns a nonzero value. This function
+	 * returns a libusb error code or the callback's return value. For every contiguous block of
+	 * received data, the callback will be invoked.
 	 */
 	public static void ftdi_read_stream(ftdi_context ftdi, ftdi_stream_cb callback,
 		Pointer userdata, int packetsPerTransfer, int numTransfers) throws LibUsbException {
 		requireDev(ftdi);
-		if (!ftdi.type().get().isSyncFifoType())
-			throw LibUsbException.of(LIBUSB_ERROR_NOT_SUPPORTED,
-				"Synchronous FIFO mode not supported: " + ftdi.type().get());
-
+		requireFifo(ftdi);
 		ftdi_set_bitmode(ftdi, 0xff, ftdi_mpsse_mode.BITMODE_RESET);
 		ftdi_usb_purge_buffers(ftdi);
 		ftdi_stream_state state = ftdi_stream_state.of(callback, userdata, ftdi.max_packet_size, 1);
-		int bufferSize = packetsPerTransfer * ftdi.max_packet_size;
+		submitTransfers(ftdi, state, numTransfers, packetsPerTransfer);
+		ftdi_set_bitmode(ftdi, 0xff, ftdi_mpsse_mode.BITMODE_SYNCFF);
+		Time.gettimeofday(state.progress.first.time);
+		completeStreamEvents(ftdi, state);
+		LibUsbException.verify(state.result, "ftdi_read_stream failed");
+	}
 
+	/**
+	 * Callback function for stream read. Frees memory and sets state.
+	 */
+	private static void ftdi_read_stream_cb(libusb_transfer transfer) {
+		ftdi_stream_state state = new ftdi_stream_state(transfer.user_data);
+		state.activity++;
+		try {
+			if (!transferComplete(transfer, state)) return;
+			readStream(transfer, state);
+			transfer.status = -1;
+			libusb_submit_transfer(transfer);
+		} catch (LibUsbException e) {
+			logger.catching(e);
+			close(transfer, state, e.code);
+		}
+	}
+
+	private static void requireFifo(ftdi_context ftdi) throws LibUsbException {
+		ftdi_chip_type type = ftdi.type().get();
+		if (ftdi_chip_type.isSyncFifoType(type)) return;
+		throw LibUsbException.of(LIBUSB_ERROR_NOT_SUPPORTED,
+			"Synchronous FIFO mode not supported by type: " + type);
+	}
+
+	private static void submitTransfers(ftdi_context ftdi, ftdi_stream_state state,
+		int numTransfers, int packetsPerTransfer) throws LibUsbException {
+		int bufferSize = packetsPerTransfer * ftdi.max_packet_size;
 		libusb_transfer[] transfers = new libusb_transfer[numTransfers];
 		for (int i = 0; i < numTransfers; i++) {
-			transfers[i] = LibUsb.libusb_alloc_transfer(0);
+			transfers[i] = libusb_alloc_transfer(0);
 			Memory m = new Memory(bufferSize);
-			LibUsb.libusb_fill_bulk_transfer(transfers[i], ftdi.usb_dev, ftdi.out_ep, m, bufferSize,
+			libusb_fill_bulk_transfer(transfers[i], ftdi.usb_dev, ftdi.out_ep, m, bufferSize,
 				ftdi_read_stream_cb, state.getPointer(), 0);
 			transfers[i].status = -1;
-			LibUsb.libusb_submit_transfer(transfers[i]);
+			libusb_submit_transfer(transfers[i]);
 		}
+	}
 
-		ftdi_set_bitmode(ftdi, 0xff, ftdi_mpsse_mode.BITMODE_SYNCFF);
-		gettimeofday(state.progress.first.time);
-		timeval timeout = new timeval(0, ftdi.usb_read_timeout * 1000);
-
+	private static void completeStreamEvents(ftdi_context ftdi, ftdi_stream_state state)
+		throws LibUsbException {
+		timeval timeoutMicros = new timeval(0, ftdi.usb_read_timeout * 1000);
 		do {
-			handleStreamEvents(ftdi, state, timeout);
+			handleStreamEvents(ftdi, state, timeoutMicros);
 		} while (state.result == 0);
-
-		if (state.result < 0) throw LibUsbException.full(state.result, "ftdi_read_stream failed");
 	}
 
 	private static void handleStreamEvents(ftdi_context ftdi, ftdi_stream_state state,
 		timeval timeout) throws LibUsbException {
-		try {
-			libusb_handle_events_timeout(ftdi.usb_ctx, timeout);
-		} catch (LibUsbException e) {
-			if (e.error != LIBUSB_ERROR_INTERRUPTED) throw e;
-			libusb_handle_events_timeout(ftdi.usb_ctx, timeout);
-		}
+		handleUsbEvents(ftdi, timeout);
 		if (state.activity == 0) state.result = 1;
-		else state.activity = 0;
-
+		state.activity = 0;
 		// If enough time has elapsed, update the progress
-		timeval now = timeval.now();
 		ftdi_progress_info progress = state.progress;
-		if (timeval_diff(now, progress.current.time) < PROGRESS_INTERVAL_MIN_SEC) return;
-
-		progress.current.time = now;
-		progress.totalTime = timeval_diff(progress.current.time, progress.first.time);
-		if (progress.prev.totalBytes != 0) {
-			// We have enough information to calculate rates
-			double currentTime = timeval_diff(progress.current.time, progress.prev.time);
-			progress.totalRate = progress.current.totalBytes / progress.totalTime;
-			progress.currentRate =
-				(progress.current.totalBytes - progress.prev.totalBytes) / currentTime;
-		}
+		timeval now = timeval.now();
+		if (timeDiffSec(now, progress.current.time) < PROGRESS_INTERVAL_MIN_SEC) return;
+		updateProgress(progress, now);
 		state.callback.invoke(null, 0, progress, state.userdata);
 		progress.prev = progress.current;
 	}
 
-	private static double timeval_diff(timeval a, timeval b) {
+	private static void handleUsbEvents(ftdi_context ftdi, timeval timeout) throws LibUsbException {
+		try {
+			libusb_handle_events_timeout(ftdi.usb_ctx, timeout);
+		} catch (LibUsbException e) {
+			// Retry if interrupted
+			if (e.error != LIBUSB_ERROR_INTERRUPTED) throw e;
+			libusb_handle_events_timeout(ftdi.usb_ctx, timeout);
+		}
+	}
+
+	private static void updateProgress(ftdi_progress_info progress, timeval now) {
+		progress.current.time = now;
+		progress.totalTime = timeDiffSec(progress.current.time, progress.first.time);
+		if (progress.prev.totalBytes == 0) return;
+		// We have enough information to calculate rates
+		double currentTime = timeDiffSec(progress.current.time, progress.prev.time);
+		progress.totalRate = progress.current.totalBytes / progress.totalTime;
+		progress.currentRate =
+			(progress.current.totalBytes - progress.prev.totalBytes) / currentTime;
+	}
+
+	private static boolean transferComplete(libusb_transfer transfer, ftdi_stream_state state) {
+		if (transfer.status().get() == LIBUSB_TRANSFER_COMPLETED) return true;
+		logger.warn("Unknown status: {} ({})", transfer.status, transfer.status().get());
+		close(transfer, state, LIBUSB_ERROR_IO.value);
+		return false;
+	}
+
+	private static void readStream(libusb_transfer transfer, ftdi_stream_state state)
+		throws LibUsbException {
+		for (int i = 0;; i++) {
+			int position = (i * state.packetsize) + READ_STATUS_BYTES;
+			int len = min(transfer.actual_length - position, state.packetsize - READ_STATUS_BYTES);
+			if (len <= 0) break;
+			state.progress.current.totalBytes += len;
+			LibUsbException.verify(state.callback.invoke(transfer.buffer.share(position), //
+				len, null, state.userdata), "Stream read callback invocation");
+		}
+	}
+
+	private static void close(libusb_transfer transfer, ftdi_stream_state state, int code) {
+		state.result = code;
+		LogUtil.execute(logger, () -> libusb_free_transfer(transfer));
+	}
+
+	private static double timeDiffSec(timeval a, timeval b) {
 		return a.diffInSec(b);
 	}
 

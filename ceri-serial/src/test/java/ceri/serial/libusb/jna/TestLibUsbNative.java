@@ -2,8 +2,8 @@ package ceri.serial.libusb.jna;
 
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_OVERFLOW;
+import static ceri.serial.libusb.jna.LibUsb.*;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.*;
 import static ceri.serial.libusb.jna.LibUsbTestUtil.copyDeviceDescriptor;
 import static ceri.serial.libusb.jna.LibUsbTestUtil.ptr;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
@@ -20,7 +20,7 @@ import ceri.common.util.Enclosed;
 import ceri.serial.clib.jna.Time.timeval;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.TypedPointer;
-import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
+import ceri.serial.libusb.jna.LibUsb.*;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
@@ -400,23 +400,24 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public libusb_transfer libusb_alloc_transfer(int iso_packets) {
-		throw new UnsupportedOperationException();
+		libusb_transfer xfer = new libusb_transfer();
+		xfer.num_iso_packets = iso_packets;
+		xfer.iso_packet_desc = new libusb_iso_packet_descriptor[iso_packets];
+		return xfer;
 	}
 
 	@Override
 	public int libusb_submit_transfer(libusb_transfer transfer) {
-		throw new UnsupportedOperationException();
+		return 0;
 	}
 
 	@Override
 	public int libusb_cancel_transfer(libusb_transfer transfer) {
-		throw new UnsupportedOperationException();
+		return 0;
 	}
 
 	@Override
-	public void libusb_free_transfer(libusb_transfer transfer) {
-		throw new UnsupportedOperationException();
-	}
+	public void libusb_free_transfer(libusb_transfer transfer) {}
 
 	@Override
 	public void libusb_transfer_set_stream_id(libusb_transfer transfer, int stream_id) {

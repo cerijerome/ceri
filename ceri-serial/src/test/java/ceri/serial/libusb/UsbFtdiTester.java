@@ -7,17 +7,16 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.log.util.LogUtil;
+import ceri.serial.ftdi.jna.LibFtdiUtil;
 import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
 
 public class UsbFtdiTester {
 	private static final Logger logger = LogManager.getLogger();
 
 	public static void main(String[] args) throws LibUsbException {
 		logger.info("Started");
-		try (Usb ctx = Usb.init()) {
-			libusb_device_criteria criteria = Usb.criteria().vendor(0x403);
-			try (UsbDeviceHandle handle = ctx.openDevice(criteria)) {
+		try (Usb ctx = Usb.of()) {
+			try (UsbDeviceHandle handle = ctx.open(LibFtdiUtil.FINDER)) {
 				process(handle);
 			}
 		}

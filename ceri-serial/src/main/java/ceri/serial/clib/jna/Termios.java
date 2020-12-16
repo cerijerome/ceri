@@ -39,7 +39,7 @@ public class Termios {
 		public NativeLong c_ospeed; // output speed
 
 		public static ByReference[] array(int count) {
-			return Struct.<ByReference>array(count, ByReference::new, ByReference[]::new);
+			return Struct.arrayByVal(ByReference::new, ByReference[]::new, count);
 		}
 
 		@Override

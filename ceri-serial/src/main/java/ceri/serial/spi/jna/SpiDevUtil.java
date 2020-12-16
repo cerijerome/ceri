@@ -15,8 +15,8 @@ public class SpiDevUtil {
 	public static Direction direction(spi_ioc_transfer xfer) {
 		if (xfer.tx_buf == 0L && xfer.rx_buf == 0L && xfer.len > 0)
 			throw new IllegalArgumentException("Tx and Rx buffers are null");
-		if (xfer.tx_buf == 0L) return Direction.in;
 		if (xfer.rx_buf == 0L) return Direction.out;
+		if (xfer.tx_buf == 0L) return Direction.in;
 		return Direction.duplex;
 	}
 

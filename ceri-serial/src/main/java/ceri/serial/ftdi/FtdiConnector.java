@@ -29,12 +29,12 @@ public interface FtdiConnector extends Closeable, Listenable.Indirect<StateChang
 	/**
 	 * Set FTDI bit mode.
 	 */
-	void bitmode(FtdiBitmode bitmode) throws IOException;
+	void bitmode(FtdiBitMode bitmode) throws IOException;
 
 	/**
 	 * Set flow control handshaking.
 	 */
-	void flowControl(FlowControl flowControl) throws IOException;
+	void flowControl(FtdiFlowControl flowControl) throws IOException;
 
 	/**
 	 * Enable/disable DTR.
@@ -134,10 +134,10 @@ public interface FtdiConnector extends Closeable, Listenable.Indirect<StateChang
 		public void connect() {}
 
 		@Override
-		public void bitmode(FtdiBitmode bitmode) {}
+		public void bitmode(FtdiBitMode bitmode) {}
 
 		@Override
-		public void flowControl(FlowControl flowControl) {}
+		public void flowControl(FtdiFlowControl flowControl) {}
 
 		@Override
 		public void dtr(boolean state) {}

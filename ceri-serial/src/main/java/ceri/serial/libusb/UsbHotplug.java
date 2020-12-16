@@ -16,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.serial.jna.TypedPointer;
+import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_class_code;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
@@ -119,7 +120,7 @@ public class UsbHotplug implements Closeable {
 	}
 
 	public static boolean hasCapability() {
-		return Usb.hasCapability(LIBUSB_CAP_HAS_HOTPLUG);
+		return LibUsb.libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG);
 	}
 
 	UsbHotplug(Usb context) {

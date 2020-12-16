@@ -5,7 +5,6 @@ import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.function.IntFunction;
-import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -21,6 +20,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionSupplier;
 import ceri.common.math.MathUtil;
 import ceri.common.util.ValueCache;
 
@@ -79,7 +79,7 @@ public class JnaUtil {
 	/**
 	 * A lazy buffer, that only allocates memory when needed.
 	 */
-	public static Supplier<Memory> lazyBuffer(long size) {
+	public static ExceptionSupplier<RuntimeException, Memory> lazyBuffer(long size) {
 		return ValueCache.of(() -> new Memory(size));
 	}
 
@@ -89,14 +89,14 @@ public class JnaUtil {
 	public static Pointer pointer(long peer) {
 		return peer == 0L ? null : new Pointer(peer);
 	}
-	
+
 	/**
 	 * Returns a pointer from the native peer. Use with caution.
 	 */
 	public static Pointer pointer(Structure t) {
 		return t == null ? null : t.getPointer();
 	}
-	
+
 	/**
 	 * Gets the pointer offset by the given number of bytes.
 	 */

@@ -14,10 +14,16 @@ public class FtdiTransferControl {
 		this.control = control;
 	}
 
+	/**
+	 * Waits for transfer to complete. Returns the number of bytes transferred.
+	 */
 	public int dataDone() throws LibUsbException {
 		return ftdi_transfer_data_done(control());
 	}
 
+	/**
+	 * Cancels the transfer.
+	 */
 	public void dataCancel(Duration d) throws LibUsbException {
 		ftdi_transfer_data_cancel(control(), Time.Util.timeval(d));
 	}

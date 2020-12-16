@@ -1,15 +1,11 @@
 package ceri.serial.ftdi;
 
-import static ceri.serial.ftdi.jna.LibFtdi.FTDI_VENDOR_ID;
-import static ceri.serial.libusb.jna.LibUsbFinder.libusb_find_criteria;
 import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.test.BinaryPrinter;
-import ceri.serial.ftdi.jna.LibFtdiStream.ftdi_progress_info;
 import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbFinder.libusb_device_criteria;
 
 public class FtdiStreamTester {
 	private static final Logger logger = LogManager.getLogger();
@@ -17,10 +13,8 @@ public class FtdiStreamTester {
 		BinaryPrinter.builder().columns(4).showBinary(false).build();
 
 	public static void main(String[] args) throws LibUsbException {
-		try (Ftdi ftdi = Ftdi.of()) {
-			libusb_device_criteria criteria = libusb_find_criteria().vendor(FTDI_VENDOR_ID);
-			ftdi.open(criteria);
-			ftdi.bitbang(true);
+		try (Ftdi ftdi = Ftdi.open()) {
+			ftdi.bitBang(true);
 			process(ftdi);
 		}
 	}
@@ -33,7 +27,7 @@ public class FtdiStreamTester {
 		logger.info("Done");
 	}
 
-	private static boolean stream(ByteBuffer buffer, int length, ftdi_progress_info progress,
+	private static boolean stream(ByteBuffer buffer, int length, FtdiProgressInfo progress,
 		String userData) {
 		logger.info("Stream: {} {} {}", userData, length, progress);
 		printer.print(buffer, length);
