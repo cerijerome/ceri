@@ -139,7 +139,7 @@ public class NonMatcher implements NonMatchResult {
 	}
 
 	public Stream<NonMatchResult> results() {
-		ValueCache<String> textAsString = ValueCache.of(() -> text.toString());
+		var textAsString = ValueCache.of(() -> text.toString());
 		return StreamUtil.stream(this::find, () -> toResult(textAsString.get()));
 	}
 

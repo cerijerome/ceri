@@ -1,20 +1,20 @@
 package ceri.common.util;
 
-import java.util.function.Supplier;
+import ceri.common.function.ExceptionSupplier;
 
 /**
  * A lazy-loaded value using a supplier. Unlike Optional, this allows null values. Not thread-safe.
  */
-public class ValueCache<T> implements Supplier<T> {
-	private final Supplier<T> supplier;
+public class ValueCache<E extends Exception, T> implements ExceptionSupplier<E, T> {
+	private final ExceptionSupplier<E, T> supplier;
 	private boolean hasValue = false;
 	private T value = null;
 
-	public static <T> ValueCache<T> of(Supplier<T> supplier) {
+	public static <E extends Exception, T> ValueCache<E, T> of(ExceptionSupplier<E, T> supplier) {
 		return new ValueCache<>(supplier);
 	}
 
-	private ValueCache(Supplier<T> supplier) {
+	private ValueCache(ExceptionSupplier<E, T> supplier) {
 		this.supplier = supplier;
 	}
 
@@ -22,12 +22,14 @@ public class ValueCache<T> implements Supplier<T> {
 		return hasValue;
 	}
 
+	public void set(T value) {
+		this.value = value;
+		hasValue = true;
+	}
+	
 	@Override
-	public T get() {
-		if (!hasValue) {
-			value = supplier.get();
-			hasValue = true;
-		}
+	public T get() throws E {
+		if (!hasValue) set(supplier.get());
 		return value;
 	}
 
