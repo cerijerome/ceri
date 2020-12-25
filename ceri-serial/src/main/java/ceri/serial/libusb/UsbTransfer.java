@@ -32,9 +32,19 @@ public class UsbTransfer implements Closeable {
 	private final Supplier<libusb_device_handle> handleSupplier;
 	private libusb_transfer transfer;
 
+	// TODO: move to builder?
+	// Need buffer setup params and fill params
+	// Then async access
+	
+	// TODO:
+	// - List out methods for different transfer types
+	// - base transfer builder/class
+	// - sub-types per transfer type
+
 	UsbTransfer(Supplier<libusb_device_handle> handleSupplier, libusb_transfer transfer) {
 		this.handleSupplier = handleSupplier;
 		this.transfer = transfer;
+		if (true); // see TODO
 	}
 
 	public void submit() throws LibUsbException {
@@ -63,6 +73,7 @@ public class UsbTransfer implements Closeable {
 
 	public void fillControl(Pointer buffer, libusb_transfer_cb_fn callback, Pointer userData,
 		int timeout) {
+		// TODO: move to constructor?
 		libusb_fill_control_transfer(transfer(), handle(), buffer, callback, userData, timeout);
 	}
 

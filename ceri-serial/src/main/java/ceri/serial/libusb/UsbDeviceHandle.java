@@ -1,6 +1,5 @@
 package ceri.serial.libusb;
 
-import static ceri.serial.libusb.jna.LibUsb.libusb_alloc_streams;
 import static ceri.serial.libusb.jna.LibUsb.libusb_alloc_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_attach_kernel_driver;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bulk_transfer;
@@ -10,7 +9,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_control_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_detach_kernel_driver;
 import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_address;
 import static ceri.serial.libusb.jna.LibUsb.libusb_fill_control_setup;
-import static ceri.serial.libusb.jna.LibUsb.libusb_free_streams;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_bos_descriptor;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_configuration;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_descriptor;
@@ -28,9 +26,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_set_interface_alt_setting;
 import static ceri.serial.libusb.jna.LibUsb.libusb_capability.LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER;
 import java.io.Closeable;
 import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
@@ -47,7 +42,7 @@ import ceri.serial.libusb.jna.LibUsbException;
 
 public class UsbDeviceHandle implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
-	private final Supplier<libusb_context> contextSupplier;
+	private final Usb usb;
 	private UsbDevice device = null;
 	private libusb_device_handle handle;
 
@@ -69,9 +64,18 @@ public class UsbDeviceHandle implements Closeable {
 		return LibUsb.libusb_has_capability(LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER);
 	}
 
-	UsbDeviceHandle(Supplier<libusb_context> contextSupplier, libusb_device_handle handle) {
-		this.contextSupplier = contextSupplier;
+	UsbDeviceHandle(Usb usb, libusb_device_handle handle) {
+		this.usb = usb;
 		this.handle = handle;
+	}
+
+	public Usb usb() {
+		return usb;
+	}
+
+	public UsbDevice device() throws LibUsbException {
+		if (device == null) device = new UsbDevice(usb, libusb_get_device(handle()));
+		return device;
 	}
 
 	public boolean kernelDriverActive(int interfaceNumber) throws LibUsbException {
@@ -111,11 +115,6 @@ public class UsbDeviceHandle implements Closeable {
 		return libusb_get_string_descriptor_ascii(handle(), (byte) index);
 	}
 
-	public UsbDevice device() throws LibUsbException {
-		if (device == null) device = new UsbDevice(contextSupplier, libusb_get_device(handle()));
-		return device;
-	}
-
 	public void claimInterface(int interfaceNumber) throws LibUsbException {
 		libusb_claim_interface(handle(), interfaceNumber);
 	}
@@ -141,20 +140,8 @@ public class UsbDeviceHandle implements Closeable {
 		return new UsbTransfer(this::handle, libusb_alloc_transfer(isoPackets));
 	}
 
-	public int allocStreams(int streams, int... endPoints) throws LibUsbException {
-		return libusb_alloc_streams(handle(), (byte) streams, ArrayUtil.bytes(endPoints));
-	}
-
-	public int allocStreams(int streams, List<Integer> endPoints) throws LibUsbException {
-		return libusb_alloc_streams(handle(), (byte) streams, ArrayUtil.bytes(endPoints));
-	}
-
-	public void freeStreams(int... endPoints) throws LibUsbException {
-		libusb_free_streams(handle(), ArrayUtil.bytes(endPoints));
-	}
-
-	public void freeStreams(Collection<Integer> endPoints) throws LibUsbException {
-		libusb_free_streams(handle(), ArrayUtil.bytes(endPoints));
+	public UsbBulkStreams allocateBulkStreams(int count, int... endPoints) throws LibUsbException {
+		return UsbBulkStreams.allocate(this::handle, count, ArrayUtil.bytes(endPoints));
 	}
 
 	public int controlTransfer(int requestType, int request, int value, int index, int timeout)
@@ -222,8 +209,8 @@ public class UsbDeviceHandle implements Closeable {
 		return libusb_interrupt_transfer(handle(), (byte) endpoint, data, length, timeout);
 	}
 
-	public UsbDescriptor.Bos bosDescriptor() throws LibUsbException {
-		return new UsbDescriptor.Bos(libusb_get_bos_descriptor(handle()));
+	public UsbDescriptors.Bos bosDescriptor() throws LibUsbException {
+		return new UsbDescriptors.Bos(this, libusb_get_bos_descriptor(handle()));
 	}
 
 	public libusb_device_handle handle() {
@@ -231,14 +218,14 @@ public class UsbDeviceHandle implements Closeable {
 		throw new IllegalStateException("Handle has been closed");
 	}
 
-	public libusb_context context() {
-		return contextSupplier.get();
-	}
-
 	@Override
 	public void close() {
 		LogUtil.execute(logger, () -> LibUsb.libusb_close(handle));
 		handle = null;
+	}
+
+	libusb_context context() {
+		return usb.context();
 	}
 
 }

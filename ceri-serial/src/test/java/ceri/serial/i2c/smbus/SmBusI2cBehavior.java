@@ -98,7 +98,7 @@ public class SmBusI2cBehavior {
 
 	@Test
 	public void shouldProcessNumberReads() throws IOException {
-		lib.ioctlI2cBytes.autoResponses(provider(0xab, 0xcd));
+		lib.ioctlI2cBytes.autoResponses(provider(0xab), provider(0xab, 0xcd));
 		assertEquals(smBus.readByte(), 0xab);
 		assertEquals(smBus.readByteData(0x12), 0xab);
 		assertEquals(smBus.readWordData(0x12), 0xcdab);

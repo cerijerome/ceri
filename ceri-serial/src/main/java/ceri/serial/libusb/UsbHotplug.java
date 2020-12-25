@@ -14,10 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.sun.jna.Pointer;
-import ceri.serial.jna.TypedPointer;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_class_code;
+import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_handle;
@@ -30,7 +29,7 @@ import ceri.serial.libusb.jna.LibUsbException;
  */
 public class UsbHotplug implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
-	private final Usb context;
+	private final Usb usb;
 	// Temporarily stores callbacks to make sure they are not removed by GC
 	// Assigns a generated id, and tracks id/handle per callback
 	private final Map<Integer, CallbackContext> callbackHandles = new ConcurrentHashMap<>();
@@ -60,10 +59,19 @@ public class UsbHotplug implements Closeable {
 		}
 	}
 
+	public static class CallbackHandle {
+		final libusb_hotplug_callback_handle handle;
+
+		CallbackHandle(libusb_hotplug_callback_handle handle) {
+			this.handle = handle;
+		}
+	}
+
 	/**
 	 * Encapsulation of callback registration options.
 	 */
 	public static class Registration<T> {
+		private final UsbHotplug hotPlug;
 		final Callback<T> callback;
 		T userData = null;
 		final Collection<libusb_hotplug_event> events = new LinkedHashSet<>();
@@ -72,7 +80,8 @@ public class UsbHotplug implements Closeable {
 		int product = LIBUSB_HOTPLUG_MATCH_ANY;
 		libusb_class_code deviceClass = null;
 
-		Registration(Callback<T> callback) {
+		Registration(UsbHotplug hotPlug, Callback<T> callback) {
+			this.hotPlug = hotPlug;
 			this.callback = callback;
 		}
 
@@ -117,48 +126,27 @@ public class UsbHotplug implements Closeable {
 			this.deviceClass = deviceClass;
 			return this;
 		}
+		
+		public CallbackHandle register() throws LibUsbException {
+			return hotPlug.register(this);
+		}
 	}
 
 	public static boolean hasCapability() {
 		return LibUsb.libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG);
 	}
 
-	UsbHotplug(Usb context) {
-		this.context = context;
+	UsbHotplug(Usb usb) {
+		this.usb = usb;
 	}
 
-	public static <T> Registration<T> registration(Callback<T> callback) {
-		return new Registration<>(callback);
+	public <T> Registration<T> registration(Callback<T> callback) {
+		return new Registration<>(this, callback);
 	}
 
-	public static <T> Registration<T> registration(Callback<T> callback, T userData) {
-		return new Registration<>(callback).userData(userData);
-	}
-
-	public <T> libusb_hotplug_callback_handle registerCallback(Registration<T> registration)
-		throws LibUsbException {
-		return registerCallback(registration.events, registration.flags, registration.vendor,
-			registration.product, registration.deviceClass, registration.userData,
-			registration.callback);
-	}
-
-	public <T> libusb_hotplug_callback_handle registerCallback(
-		Collection<libusb_hotplug_event> events, Collection<libusb_hotplug_flag> flags,
-		int vendorId, int productId, libusb_class_code devClass, T userData, Callback<T> callback)
-		throws LibUsbException {
-		int callbackId = this.callbackId.incrementAndGet();
-		libusb_hotplug_callback_fn jnaCallback =
-			(ctx, dev, evt, user_data) -> adaptCallback(dev, evt, callbackId, callback, userData);
-		libusb_hotplug_callback_handle handle = libusb_hotplug_register_callback(context.context(),
-			libusb_hotplug_event.xcoder.encode(events), libusb_hotplug_flag.xcoder.encode(flags),
-			valueOrAny(vendorId), valueOrAny(productId), valueOrAny(devClass), jnaCallback, null);
-		trackCallback(handle.value, callbackId, jnaCallback);
-		return handle;
-	}
-
-	public void deregisterCallback(libusb_hotplug_callback_handle handle) throws LibUsbException {
-		libusb_hotplug_deregister_callback(context.context(), handle);
-		untrackCallbackByHandle(handle.value);
+	public void deregister(CallbackHandle handle) throws LibUsbException {
+		libusb_hotplug_deregister_callback(context(), handle.handle);
+		untrackCallbackByHandle(handle.handle.value);
 	}
 
 	@Override
@@ -167,13 +155,27 @@ public class UsbHotplug implements Closeable {
 		callbackIds.clear();
 	}
 
+	private <T> CallbackHandle register(Registration<T> registration)
+		throws LibUsbException {
+		int callbackId = this.callbackId.incrementAndGet();
+		libusb_hotplug_callback_fn jnaCallback = (ctx, dev, evt, user_data) -> adaptCallback(dev,
+			evt, callbackId, registration.callback, registration.userData);
+		libusb_hotplug_callback_handle handle = libusb_hotplug_register_callback(context(),
+			libusb_hotplug_event.xcoder.encode(registration.events),
+			libusb_hotplug_flag.xcoder.encode(registration.flags), valueOrAny(registration.vendor),
+			valueOrAny(registration.product), valueOrAny(registration.deviceClass), jnaCallback,
+			null);
+		trackCallback(handle.value, callbackId, jnaCallback);
+		return new CallbackHandle(handle);
+	}
+
 	@SuppressWarnings("resource")
-	private <T> int adaptCallback(Pointer dev, int evt, int callbackId, Callback<T> callback,
+	private <T> int adaptCallback(libusb_device dev, int evt, int callbackId, Callback<T> callback,
 		T userData) {
 		try {
-			UsbDevice device = context.wrap(TypedPointer.from(libusb_device::new, dev));
+			UsbDevice device = new UsbDevice(usb, dev);
 			libusb_hotplug_event event = libusb_hotplug_event.xcoder.decode(evt);
-			boolean result = callback.event(context, device, event, userData);
+			boolean result = callback.event(usb, device, event, userData);
 			if (result) untrackCallbackById(callbackId);
 			return result ? 1 : 0;
 		} catch (IOException | RuntimeException e) {
@@ -206,4 +208,7 @@ public class UsbHotplug implements Closeable {
 		return dev == null ? LIBUSB_HOTPLUG_MATCH_ANY : dev.value;
 	}
 
+	private libusb_context context() {
+		return usb.context();
+	}
 }

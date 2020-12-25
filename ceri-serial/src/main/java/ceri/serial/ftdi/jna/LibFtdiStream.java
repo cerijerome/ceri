@@ -127,9 +127,8 @@ public class LibFtdiStream {
 	/**
 	 * Streaming read of data from the device. Uses asynchronous transfers in libusb-1.0 for
 	 * high-performance streaming of data from a device interface. This function continuously
-	 * transfers data until an error occurs, or the callback returns a nonzero value. This function
-	 * returns a libusb error code or the callback's return value. For every contiguous block of
-	 * received data, the callback will be invoked.
+	 * transfers data until an error occurs, or the callback returns a nonzero value. For every
+	 * contiguous block of received data, the callback will be invoked.
 	 */
 	public static void ftdi_read_stream(ftdi_context ftdi, ftdi_stream_cb callback,
 		Pointer userdata, int packetsPerTransfer, int numTransfers) throws LibUsbException {

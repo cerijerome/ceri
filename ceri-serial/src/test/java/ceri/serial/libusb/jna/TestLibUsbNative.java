@@ -2,13 +2,14 @@ package ceri.serial.libusb.jna;
 
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
-import static ceri.serial.libusb.jna.LibUsb.*;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.*;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_OVERFLOW;
 import static ceri.serial.libusb.jna.LibUsbTestUtil.copyDeviceDescriptor;
 import static ceri.serial.libusb.jna.LibUsbTestUtil.ptr;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import java.nio.ByteBuffer;
 import java.util.List;
+import com.sun.jna.LastErrorException;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
@@ -17,19 +18,17 @@ import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.CallSync;
 import ceri.common.util.Enclosed;
-import ceri.serial.clib.jna.Time.timeval;
 import ceri.serial.jna.JnaUtil;
-import ceri.serial.jna.TypedPointer;
-import ceri.serial.libusb.jna.LibUsb.*;
+import ceri.serial.jna.PointerUtil;
+import ceri.serial.jna.Struct;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
-import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
-import ceri.serial.libusb.jna.LibUsb.libusb_pollfd;
+import ceri.serial.libusb.jna.LibUsb.libusb_iso_packet_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_request_recipient;
@@ -146,8 +145,10 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	@Override
-	public int libusb_get_device_descriptor(libusb_device dev, libusb_device_descriptor desc) {
+	public int libusb_get_device_descriptor(libusb_device dev, Pointer p) {
+		libusb_device_descriptor desc = new libusb_device_descriptor(p);
 		copyDeviceDescriptor(data.device(ptr(dev)).config.desc, desc);
+		desc.write();
 		return 0;
 	}
 
@@ -180,8 +181,8 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	@Override
-	public int libusb_get_ss_endpoint_companion_descriptor(libusb_context ctx,
-		libusb_endpoint_descriptor endpoint, PointerByReference ep_comp) {
+	public int libusb_get_ss_endpoint_companion_descriptor(libusb_context ctx, Pointer endpoint,
+		PointerByReference ep_comp) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -201,8 +202,8 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	@Override
-	public int libusb_get_usb_2_0_extension_descriptor(libusb_context ctx,
-		libusb_bos_dev_capability_descriptor dev_cap, PointerByReference usb_2_0_extension) {
+	public int libusb_get_usb_2_0_extension_descriptor(libusb_context ctx, Pointer dev_cap,
+		PointerByReference usb_2_0_extension) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -212,8 +213,8 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	@Override
-	public int libusb_get_ss_usb_device_capability_descriptor(libusb_context ctx,
-		libusb_bos_dev_capability_descriptor dev_cap, PointerByReference ss_usb_device_cap) {
+	public int libusb_get_ss_usb_device_capability_descriptor(libusb_context ctx, Pointer dev_cap,
+		PointerByReference ss_usb_device_cap) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -223,8 +224,8 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	@Override
-	public int libusb_get_container_id_descriptor(libusb_context ctx,
-		libusb_bos_dev_capability_descriptor dev_cap, PointerByReference container_id) {
+	public int libusb_get_container_id_descriptor(libusb_context ctx, Pointer dev_cap,
+		PointerByReference container_id) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -262,7 +263,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	public libusb_device libusb_get_parent(libusb_device dev) {
 		var device = data.device(ptr(dev));
 		var parent = data.parentDevice(device);
-		return parent == null ? null : TypedPointer.from(libusb_device::new, parent.ptr);
+		return parent == null ? null : PointerUtil.set(new libusb_device(), parent.ptr);
 	}
 
 	@Override
@@ -302,7 +303,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	@Override
 	public libusb_device libusb_get_device(libusb_device_handle dev_handle) {
 		var device = data.deviceHandle(ptr(dev_handle)).device;
-		return TypedPointer.from(libusb_device::new, device.ptr);
+		return PointerUtil.set(new libusb_device(), device.ptr);
 	}
 
 	@Override
@@ -337,7 +338,7 @@ public class TestLibUsbNative implements LibUsbNative {
 				&& d.config.desc.idProduct == product_id);
 			if (device == null) return null;
 			var handle = data.createDeviceHandle(device);
-			return TypedPointer.from(libusb_device_handle::new, handle.ptr);
+			return PointerUtil.set(new libusb_device_handle(), handle.ptr);
 		} finally {
 			data.removeDeviceList(deviceList, true);
 		}
@@ -399,33 +400,35 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	@Override
-	public libusb_transfer libusb_alloc_transfer(int iso_packets) {
+	public Pointer libusb_alloc_transfer(int isoPackets) {
 		libusb_transfer xfer = new libusb_transfer();
-		xfer.num_iso_packets = iso_packets;
-		xfer.iso_packet_desc = new libusb_iso_packet_descriptor[iso_packets];
-		return xfer;
+		xfer.num_iso_packets = isoPackets;
+		xfer.iso_packet_desc = new libusb_iso_packet_descriptor[isoPackets];
+		for (int i = 0; i < isoPackets; i++)
+			xfer.iso_packet_desc[i] = new libusb_iso_packet_descriptor();
+		return Struct.write(xfer).getPointer();
 	}
 
 	@Override
-	public int libusb_submit_transfer(libusb_transfer transfer) {
+	public int libusb_submit_transfer(Pointer transfer) {
 		return 0;
 	}
 
 	@Override
-	public int libusb_cancel_transfer(libusb_transfer transfer) {
+	public int libusb_cancel_transfer(Pointer transfer) {
 		return 0;
 	}
 
 	@Override
-	public void libusb_free_transfer(libusb_transfer transfer) {}
+	public void libusb_free_transfer(Pointer transfer) {}
 
 	@Override
-	public void libusb_transfer_set_stream_id(libusb_transfer transfer, int stream_id) {
+	public void libusb_transfer_set_stream_id(Pointer transfer, int stream_id) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public int libusb_transfer_get_stream_id(libusb_transfer transfer) {
+	public int libusb_transfer_get_stream_id(Pointer transfer) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -507,17 +510,22 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	@Override
-	public int libusb_wait_for_event(libusb_context ctx, timeval tv) {
+	public int libusb_wait_for_event(libusb_context ctx, Pointer tv) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public int libusb_handle_events_timeout(libusb_context ctx, timeval tv) {
+	public void libusb_interrupt_event_handler(libusb_context ctx) {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public int libusb_handle_events_timeout(libusb_context ctx, Pointer tv) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public int libusb_handle_events_timeout_completed(libusb_context ctx, timeval tv,
+	public int libusb_handle_events_timeout_completed(libusb_context ctx, Pointer tv,
 		IntByReference completed) {
 		throw new UnsupportedOperationException();
 	}
@@ -533,7 +541,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	@Override
-	public int libusb_handle_events_locked(libusb_context ctx, timeval tv) {
+	public int libusb_handle_events_locked(libusb_context ctx, Pointer tv) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -543,17 +551,17 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	@Override
-	public int libusb_get_next_timeout(libusb_context ctx, timeval tv) {
+	public int libusb_get_next_timeout(libusb_context ctx, Pointer tv) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public libusb_pollfd.ByReference libusb_get_pollfds(libusb_context ctx) {
+	public Pointer libusb_get_pollfds(libusb_context ctx) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void libusb_free_pollfds(libusb_pollfd.ByReference pollfds) {
+	public void libusb_free_pollfds(Pointer pollfds) throws LastErrorException {
 		throw new UnsupportedOperationException();
 	}
 

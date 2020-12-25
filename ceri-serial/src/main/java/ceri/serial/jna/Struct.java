@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.util.BasicUtil;
@@ -22,39 +21,62 @@ public abstract class Struct extends Structure {
 	 */
 	public static Pointer pointer(Structure[] array) {
 		if (array == null || array.length == 0) return null;
-		return array[0].getPointer();
+		return pointer(array[0]);
 	}
 
 	/**
-	 * Returns a typed array constructed from a contiguous null-terminated pointer array at the
-	 * given pointer. If the pointer is null, or count is 0, an empty array is returned.
+	 * Returns the pointer, or null.
 	 */
-	public static <T extends Structure> T[] arrayByRef(Pointer p,
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor) {
-		if (p == null) return arrayConstructor.apply(0);
-		Pointer[] refs = p.getPointerArray(0);
-		return Stream.of(refs).map(constructor).toArray(arrayConstructor);
+	public static Pointer pointer(Structure struct) {
+		return struct == null ? null : struct.getPointer();
 	}
 
 	/**
-	 * Returns a typed array constructed from a contiguous pointer array at the given pointer. If
-	 * the pointer is null, or count is 0, an empty array is returned. Make sure count is unsigned
-	 * (call JnaUtil.ubyte/ushort if needed).
+	 * Reads the fields for given struct array.
 	 */
-	public static <T extends Structure> T[] arrayByRef(Pointer p,
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor, int count) {
-		if (count == 0) return arrayConstructor.apply(0);
-		if (p == null) throw new IllegalArgumentException("Null pointer but count > 0: " + count);
-		Pointer[] refs = p.getPointerArray(0, count);
-		return Stream.of(refs).map(constructor).toArray(arrayConstructor);
+	public static <T extends Structure> T[] read(T[] array, String... fieldNames) {
+		if (array != null) for (T t : array) read(t, fieldNames);
+		return array;
+	}
+
+	/**
+	 * Convenience method to read fields from memory. Useful with constructor from pointer. Specify
+	 * field names to read, or none for all fields.
+	 */
+	public static <T extends Structure> T read(T t, String... fieldNames) {
+		if (t == null) return null;
+		if (fieldNames.length == 0) t.read();
+		else for (var name : fieldNames)
+			t.readField(name);
+		return t;
+	}
+
+	/**
+	 * Writes the fields for given struct array.
+	 */
+	public static <T extends Structure> T[] write(T[] array, String... fieldNames) {
+		if (array != null) for (T t : array) write(t, fieldNames);
+		return array;
+	}
+
+	/**
+	 * Convenience method to write fields to memory. Useful with argument to native call. Specify
+	 * field names to write, or none for all fields.
+	 */
+	public static <T extends Structure> T write(T t, String... fieldNames) {
+		if (t == null) return null;
+		if (fieldNames.length == 0) t.write();
+		else for (var name : fieldNames)
+			t.writeField(name);
+		return t;
 	}
 
 	/**
 	 * Returns a typed contiguous array by value mapped to the given pointer. If count is 0, an
 	 * empty array is returned. Make sure count is unsigned (call JnaUtil.ubyte/ushort if needed).
 	 */
-	public static <T extends Structure> T[] arrayByVal(Pointer p,
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor, int count) {
+	public static <T extends Structure> T[] arrayByVal(Pointer p, Function<Pointer, T> constructor,
+		IntFunction<T[]> arrayConstructor, int count) {
 		if (count == 0) return arrayConstructor.apply(0);
 		if (p != null) return arrayByVal(constructor.apply(p), arrayConstructor, count);
 		throw new IllegalArgumentException("Null pointer but count > 0: " + count);
@@ -89,20 +111,20 @@ public abstract class Struct extends Structure {
 	protected Struct() {}
 
 	/**
-	 * Use this constructor to initialize from a pointer. Read() is called automatically. If arrays
-	 * must be initialized during construction, use constructor Struct(p, false).
+	 * Use this constructor to initialize from a pointer.
 	 */
 	protected Struct(Pointer p) {
-		this(p, true);
+		super(p);
 	}
 
-	/**
-	 * Use this constructor with read = false if arrays must be initialized in the calling
-	 * constructor. Calling constructor should explicitly call read().
-	 */
-	protected Struct(Pointer p, boolean read) {
-		super(p);
-		if (read) read();
+	@Override
+	public void read() {
+		super.read();
+	}
+
+	@Override
+	public void write() {
+		super.write();
 	}
 
 	/**
@@ -135,7 +157,7 @@ public abstract class Struct extends Structure {
 	 */
 	protected <T extends Struct> T[] varArrayByRef(Function<Pointer, T> constructor,
 		IntFunction<T[]> arrayConstructor) {
-		return arrayByRef(varPointer(), constructor, arrayConstructor);
+		return JnaUtil.arrayByRef(varPointer(), constructor, arrayConstructor);
 	}
 
 	/**
@@ -145,7 +167,7 @@ public abstract class Struct extends Structure {
 	 */
 	protected <T extends Struct> T[] varArrayByRef(Function<Pointer, T> constructor,
 		IntFunction<T[]> arrayConstructor, int count) {
-		return arrayByRef(varPointer(), constructor, arrayConstructor, count);
+		return JnaUtil.arrayByRef(varPointer(), constructor, arrayConstructor, count);
 	}
 
 	/**
@@ -168,7 +190,7 @@ public abstract class Struct extends Structure {
 
 	/**
 	 * Returns fields with option to skip the named field. Useful to call from overridden
-	 * getFields(force) when the last field is a variable-size array.
+	 * getFields(force) when the last field is a 0+ variable-size array.
 	 */
 	protected List<Field> varFields(boolean force, boolean skip, String name) {
 		if (!force) return null;

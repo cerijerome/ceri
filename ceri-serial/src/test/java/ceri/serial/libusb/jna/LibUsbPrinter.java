@@ -34,11 +34,21 @@ public class LibUsbPrinter {
 	public static void main(String[] args) {
 		// Skips devices that cause seg fault
 		// builder().skip(0x05ac, 0x8007).skip(0x05ac, 0x8006).build().print();
+		var printer = builder().build();
+		//runTest(printer);
+		run(printer);
+	}
+
+	public static void runTest(LibUsbPrinter printer) {
 		TestLibUsbNative lib = TestLibUsbNative.of();
 		try (var enc = TestLibUsbNative.register(lib)) {
 			LibUsbExampleData.populate(lib.data);
-			builder().build().print();
+			run(printer);
 		}
+	}
+
+	public static void run(LibUsbPrinter printer) {
+		printer.print();
 	}
 
 	public static class Builder {
@@ -115,8 +125,8 @@ public class LibUsbPrinter {
 	}
 
 	private void devices(String pre0, libusb_context ctx) throws Exception {
-		libusb_device.ByReference list = LibUsb.libusb_get_device_list(ctx);
-		libusb_device[] devices = list.typedArray();
+		var list = LibUsb.libusb_get_device_list(ctx);
+		libusb_device[] devices = list.array();
 		out.printf("#devices=%d%n", devices.length);
 		for (int i = 0; i < devices.length; i++) {
 			String pre = pre0 + i;

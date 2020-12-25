@@ -53,7 +53,7 @@ public class StructArraySpeedTester {
 		public Small() {}
 
 		public Small(Pointer p) {
-			super(p, false);
+			super(p);
 			read();
 		}
 
@@ -83,7 +83,7 @@ public class StructArraySpeedTester {
 		public Medium() {}
 
 		public Medium(Pointer p) {
-			super(p, false);
+			super(p);
 			read();
 		}
 
@@ -113,7 +113,7 @@ public class StructArraySpeedTester {
 		public Large() {}
 
 		public Large(Pointer p) {
-			super(p, false);
+			super(p);
 			read();
 		}
 

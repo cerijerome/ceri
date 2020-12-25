@@ -4,8 +4,10 @@ import static ceri.common.collection.ArrayUtil.validateSlice;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.ToIntFunction;
+import java.util.stream.Stream;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
@@ -436,6 +438,30 @@ public class JnaUtil {
 	 */
 	public static Pointer longRefPtr(long value) {
 		return longRef(value).getPointer();
+	}
+
+	/**
+	 * Creates a typed array constructed from a contiguous null-terminated pointer array at the
+	 * given pointer. If the pointer is null, or count is 0, an empty array is returned.
+	 */
+	public static <T> T[] arrayByRef(Pointer p, Function<Pointer, T> constructor,
+		IntFunction<T[]> arrayConstructor) {
+		if (p == null) return arrayConstructor.apply(0);
+		Pointer[] refs = p.getPointerArray(0);
+		return Stream.of(refs).map(constructor).toArray(arrayConstructor);
+	}
+
+	/**
+	 * Creates a typed array constructed from a contiguous pointer array at the given pointer. If
+	 * the pointer is null, or count is 0, an empty array is returned. Make sure count is unsigned
+	 * (call JnaUtil.ubyte/ushort if needed).
+	 */
+	public static <T> T[] arrayByRef(Pointer p, Function<Pointer, T> constructor,
+		IntFunction<T[]> arrayConstructor, int count) {
+		if (count == 0) return arrayConstructor.apply(0);
+		if (p == null) throw new IllegalArgumentException("Null pointer but count > 0: " + count);
+		Pointer[] refs = p.getPointerArray(0, count);
+		return Stream.of(refs).map(constructor).toArray(arrayConstructor);
 	}
 
 	/**

@@ -98,8 +98,8 @@ public class LibFtdi {
 		LIBUSB_RECIPIENT_DEVICE, LIBUSB_REQUEST_TYPE_VENDOR, LIBUSB_ENDPOINT_OUT);
 	private static final int FTDI_DEVICE_IN_REQTYPE = libusb_request_type_value( // 0xc0
 		LIBUSB_RECIPIENT_DEVICE, LIBUSB_REQUEST_TYPE_VENDOR, LIBUSB_ENDPOINT_IN);
-	private static final libusb_transfer_cb_fn ftdi_write_data_cb = LibFtdi::ftdi_write_data_cb;
-	private static final libusb_transfer_cb_fn ftdi_read_data_cb = LibFtdi::ftdi_read_data_cb;
+	// private static final libusb_transfer_cb_fn ftdi_write_data_cb = LibFtdi::ftdi_write_data_cb;
+	// private static final libusb_transfer_cb_fn ftdi_read_data_cb = LibFtdi::ftdi_read_data_cb;
 	private static final int CHUNKSIZE_DEF = 4096;
 	private static final int TIMEOUT_MS_DEF = 5000;
 	private static final int FTDI_MAX_EEPROM_SIZE = 256;
@@ -418,30 +418,16 @@ public class LibFtdi {
 
 	}
 
-	public static class ftdi_transfer_control extends Struct {
-		private static final List<String> FIELDS = List.of( //
-			"completed", "buf", "size", "offset", "ftdi", "transfer");
+	public static class ftdi_transfer_control {
 		private static final IntAccessor.Typed<ftdi_transfer_control> completed_accessor =
 			IntAccessor.typed(t -> t.completed, (t, i) -> t.completed = i);
-
-		public static class ByValue extends ftdi_transfer_control //
-			implements Structure.ByValue {}
-
-		public static class ByReference extends ftdi_transfer_control //
-			implements Structure.ByReference {}
-
 		public int completed;
 		public Pointer buf;
 		public int size;
 		public int offset;
-		public ftdi_context.ByReference ftdi;
-		public libusb_transfer.ByReference transfer;
-
-		public ftdi_transfer_control() {}
-
-		public ftdi_transfer_control(Pointer p) {
-			super(p);
-		}
+		public ftdi_context ftdi; // ftdi_context.ByReference
+		// Use setAutoSynch(false) to only use pointer (no reads/writes)
+		public libusb_transfer transfer; // libusb_transfer.ByReference
 
 		public FieldTranscoder<libusb_transfer_status> completed() {
 			return libusb_transfer_status.xcoder.field(completed_accessor.from(this));
@@ -449,11 +435,6 @@ public class LibFtdi {
 
 		public byte[] buf() {
 			return JnaUtil.byteArray(buf, offset, size);
-		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
 		}
 	}
 
@@ -905,8 +886,9 @@ public class LibFtdi {
 			ftdi_transfer_control tc = transferControl(ftdi, buf, size, transfer);
 			int write_size = Math.min(size, ftdi.writebuffer_chunksize);
 			libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.in_ep, buf, write_size,
-				ftdi_write_data_cb, tc.getPointer(), ftdi.usb_write_timeout);
+				xfer -> ftdi_write_data_cb(xfer, tc), null, ftdi.usb_write_timeout);
 			libusb_submit_transfer(transfer);
+			tc.transfer.setAutoSynch(false); // don't read/write from now on
 			return tc;
 		} catch (LibUsbException | RuntimeException e) {
 			libusb_free_transfer(transfer);
@@ -922,8 +904,9 @@ public class LibFtdi {
 			ftdi_transfer_control tc = transferControl(ftdi, buf, size, transfer);
 			int read_size = readLen(ftdi, size);
 			libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.out_ep, ftdi.readbuffer,
-				read_size, ftdi_read_data_cb, tc.getPointer(), ftdi.usb_read_timeout);
+				read_size, xfer -> ftdi_read_data_cb(xfer, tc), null, ftdi.usb_read_timeout);
 			libusb_submit_transfer(transfer);
+			tc.transfer.setAutoSynch(false); // don't read/write from now on
 			return tc;
 		} catch (LibUsbException | RuntimeException e) {
 			libusb_free_transfer(transfer);
@@ -947,8 +930,7 @@ public class LibFtdi {
 			}
 			return tc.offset;
 		} finally {
-			libusb_free_transfer(tc.transfer);
-			tc.transfer = null;
+			freeTransfer(tc);
 		}
 	}
 
@@ -960,8 +942,7 @@ public class LibFtdi {
 			libusb_cancel_transfer(tc.transfer);
 			waitForCompletion(tc, to);
 		} finally {
-			libusb_free_transfer(tc.transfer);
-			tc.transfer = null;
+			freeTransfer(tc);
 		}
 	}
 
@@ -1100,20 +1081,19 @@ public class LibFtdi {
 	private static ftdi_transfer_control transferControl(ftdi_context ftdi, Pointer buf, int size,
 		libusb_transfer transfer) {
 		ftdi_transfer_control tc = new ftdi_transfer_control();
-		tc.ftdi = new ftdi_context.ByReference(ftdi.getPointer());
+		tc.ftdi = ftdi;
 		tc.completed = 0;
 		tc.buf = buf;
 		tc.size = size;
 		tc.offset = 0;
-		tc.transfer = new libusb_transfer.ByReference(transfer.getPointer());
+		tc.transfer = transfer;
 		return tc;
 	}
 
 	/**
 	 * Callback function for ftdi_write_data_submit. Checks if transfer is complete.
 	 */
-	private static void ftdi_write_data_cb(libusb_transfer transfer) {
-		ftdi_transfer_control tc = new ftdi_transfer_control(transfer.user_data);
+	private static void ftdi_write_data_cb(libusb_transfer transfer, ftdi_transfer_control tc) {
 		tc.offset += transfer.actual_length;
 		if (tc.offset >= tc.size) tc.completed = 1;
 		else if (transfer.status().get() == LIBUSB_TRANSFER_CANCELLED)
@@ -1137,8 +1117,7 @@ public class LibFtdi {
 	 * Callback function for ftdi_read_data_submit. Copies to buffer and checks if transfer is
 	 * complete. If not, a new transfer is submitted.
 	 */
-	private static void ftdi_read_data_cb(libusb_transfer transfer) {
-		ftdi_transfer_control tc = new ftdi_transfer_control(transfer.user_data);
+	private static void ftdi_read_data_cb(libusb_transfer transfer, ftdi_transfer_control tc) {
 		readData(transfer, tc);
 		if (tc.offset >= tc.size) tc.completed = 1;
 		else if (transfer.status().get() == LIBUSB_TRANSFER_CANCELLED)
@@ -1175,6 +1154,15 @@ public class LibFtdi {
 			logger.catching(e);
 			tc.completed = 1;
 		}
+	}
+
+	/**
+	 * Free libusb_transfer reference without writing fields to memory. 
+	 */
+	private static void freeTransfer(ftdi_transfer_control tc) throws LibUsbException {
+		if (tc == null || tc.transfer == null) return;
+		libusb_free_transfer(tc.transfer);
+		tc.transfer = null;
 	}
 
 	/**

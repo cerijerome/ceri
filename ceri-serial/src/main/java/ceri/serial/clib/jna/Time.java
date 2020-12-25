@@ -64,7 +64,11 @@ public class Time {
 		time.tv_usec.setValue(NANOSECONDS.toMillis(instant.getNano()));
 	}
 
+	/**
+	 * General utility methods for handling timeval.
+	 */
 	public static class Util {
+		private Util() {}
 
 		public static timeval timeval(Duration d) {
 			if (d == null) return null;
@@ -76,7 +80,21 @@ public class Time {
 			return Duration.ofSeconds(tv.tv_sec.longValue(), tv.tv_usec.longValue() * 1000L);
 		}
 
-		private Util() {}
+		/**
+		 * Create timeval, reading values from pointer.
+		 */
+		public static timeval read(Pointer p) {
+			if (p == null) return null;
+			return Struct.read(new timeval(p));
+		}
+
+		/**
+		 * Write values and return pointer.
+		 */
+		public static Pointer write(timeval tv) {
+			if (tv == null) return null;
+			return Struct.write(tv).getPointer();
+		}
 	}
 
 }

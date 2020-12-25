@@ -6,18 +6,12 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
-import ceri.serial.clib.jna.Time.timeval;
-import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
-import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
-import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
-import ceri.serial.libusb.jna.LibUsb.libusb_pollfd;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
-import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
 
 interface LibUsbNative extends Library {
@@ -69,8 +63,7 @@ interface LibUsbNative extends Library {
 
 	// int LIBUSB_CALL libusb_get_device_descriptor(libusb_device *dev,
 	// struct libusb_device_descriptor *desc);
-	int libusb_get_device_descriptor(libusb_device dev, libusb_device_descriptor desc)
-		throws LastErrorException;
+	int libusb_get_device_descriptor(libusb_device dev, Pointer desc) throws LastErrorException;
 
 	// int LIBUSB_CALL libusb_get_active_config_descriptor(libusb_device *dev,
 	// struct libusb_config_descriptor **config);
@@ -93,8 +86,8 @@ interface LibUsbNative extends Library {
 	// int LIBUSB_CALL libusb_get_ss_endpoint_companion_descriptor(struct libusb_context *ctx,
 	// const struct libusb_endpoint_descriptor *endpoint,
 	// struct libusb_ss_endpoint_companion_descriptor **ep_comp);
-	int libusb_get_ss_endpoint_companion_descriptor(libusb_context ctx,
-		libusb_endpoint_descriptor endpoint, PointerByReference ep_comp) throws LastErrorException;
+	int libusb_get_ss_endpoint_companion_descriptor(libusb_context ctx, Pointer endpoint,
+		PointerByReference ep_comp) throws LastErrorException;
 
 	// void LIBUSB_CALL libusb_free_ss_endpoint_companion_descriptor(
 	// struct libusb_ss_endpoint_companion_descriptor *ep_comp);
@@ -111,9 +104,8 @@ interface LibUsbNative extends Library {
 	// int LIBUSB_CALL libusb_get_usb_2_0_extension_descriptor(struct libusb_context *ctx,
 	// struct libusb_bos_dev_capability_descriptor *dev_cap,
 	// struct libusb_usb_2_0_extension_descriptor **usb_2_0_extension);
-	int libusb_get_usb_2_0_extension_descriptor(libusb_context ctx,
-		libusb_bos_dev_capability_descriptor dev_cap, PointerByReference usb_2_0_extension)
-		throws LastErrorException;
+	int libusb_get_usb_2_0_extension_descriptor(libusb_context ctx, Pointer dev_cap,
+		PointerByReference usb_2_0_extension) throws LastErrorException;
 
 	// void LIBUSB_CALL libusb_free_usb_2_0_extension_descriptor(
 	// struct libusb_usb_2_0_extension_descriptor *usb_2_0_extension);
@@ -123,9 +115,8 @@ interface LibUsbNative extends Library {
 	// int LIBUSB_CALL libusb_get_ss_usb_device_capability_descriptor(struct libusb_context *ctx,
 	// struct libusb_bos_dev_capability_descriptor *dev_cap,
 	// struct libusb_ss_usb_device_capability_descriptor **ss_usb_device_cap);
-	int libusb_get_ss_usb_device_capability_descriptor(libusb_context ctx,
-		libusb_bos_dev_capability_descriptor dev_cap, PointerByReference ss_usb_device_cap)
-		throws LastErrorException;
+	int libusb_get_ss_usb_device_capability_descriptor(libusb_context ctx, Pointer dev_cap,
+		PointerByReference ss_usb_device_cap) throws LastErrorException;
 
 	// void LIBUSB_CALL libusb_free_ss_usb_device_capability_descriptor(
 	// struct libusb_ss_usb_device_capability_descriptor *ss_usb_device_cap);
@@ -135,9 +126,8 @@ interface LibUsbNative extends Library {
 	// int LIBUSB_CALL libusb_get_container_id_descriptor(struct libusb_context *ctx,
 	// struct libusb_bos_dev_capability_descriptor *dev_cap,
 	// struct libusb_container_id_descriptor **container_id);
-	int libusb_get_container_id_descriptor(libusb_context ctx,
-		libusb_bos_dev_capability_descriptor dev_cap, PointerByReference container_id)
-		throws LastErrorException;
+	int libusb_get_container_id_descriptor(libusb_context ctx, Pointer dev_cap,
+		PointerByReference container_id) throws LastErrorException;
 
 	// void LIBUSB_CALL libusb_free_container_id_descriptor(
 	// struct libusb_container_id_descriptor *container_id);
@@ -252,24 +242,23 @@ interface LibUsbNative extends Library {
 	/* async I/O */
 
 	// struct libusb_transfer * LIBUSB_CALL libusb_alloc_transfer(int iso_packets);
-	libusb_transfer libusb_alloc_transfer(int iso_packets) throws LastErrorException;
+	Pointer libusb_alloc_transfer(int iso_packets) throws LastErrorException;
 
 	// int LIBUSB_CALL libusb_submit_transfer(struct libusb_transfer *transfer);
-	int libusb_submit_transfer(libusb_transfer transfer) throws LastErrorException;
+	int libusb_submit_transfer(Pointer transfer) throws LastErrorException;
 
 	// int LIBUSB_CALL libusb_cancel_transfer(struct libusb_transfer *transfer);
-	int libusb_cancel_transfer(libusb_transfer transfer) throws LastErrorException;
+	int libusb_cancel_transfer(Pointer transfer) throws LastErrorException;
 
 	// void LIBUSB_CALL libusb_free_transfer(struct libusb_transfer *transfer);
-	void libusb_free_transfer(libusb_transfer transfer) throws LastErrorException;
+	void libusb_free_transfer(Pointer transfer) throws LastErrorException;
 
 	// void LIBUSB_CALL libusb_transfer_set_stream_id(struct libusb_transfer *transfer, uint32_t
 	// stream_id);
-	void libusb_transfer_set_stream_id(libusb_transfer transfer, int stream_id)
-		throws LastErrorException;
+	void libusb_transfer_set_stream_id(Pointer transfer, int stream_id) throws LastErrorException;
 
 	// uint32_t LIBUSB_CALL libusb_transfer_get_stream_id(struct libusb_transfer *transfer);
-	int libusb_transfer_get_stream_id(libusb_transfer transfer) throws LastErrorException;
+	int libusb_transfer_get_stream_id(Pointer transfer) throws LastErrorException;
 
 	/* sync I/O */
 
@@ -327,16 +316,19 @@ interface LibUsbNative extends Library {
 	void libusb_unlock_event_waiters(libusb_context ctx) throws LastErrorException;
 
 	// int LIBUSB_CALL libusb_wait_for_event(libusb_context *ctx, struct timeval *tv);
-	int libusb_wait_for_event(libusb_context ctx, timeval tv) throws LastErrorException;
+	int libusb_wait_for_event(libusb_context ctx, Pointer tv) throws LastErrorException;
+
+	// void libusb_interrupt_event_handler(libusb_context *ctx);
+	void libusb_interrupt_event_handler(libusb_context ctx);
 
 	//
 
 	// int LIBUSB_CALL libusb_handle_events_timeout(libusb_context *ctx, struct timeval *tv);
-	int libusb_handle_events_timeout(libusb_context ctx, timeval tv) throws LastErrorException;
+	int libusb_handle_events_timeout(libusb_context ctx, Pointer tv) throws LastErrorException;
 
 	// int LIBUSB_CALL libusb_handle_events_timeout_completed(libusb_context *ctx, struct timeval
 	// *tv, int *completed);
-	int libusb_handle_events_timeout_completed(libusb_context ctx, timeval tv,
+	int libusb_handle_events_timeout_completed(libusb_context ctx, Pointer tv,
 		IntByReference completed) throws LastErrorException;
 
 	// int LIBUSB_CALL libusb_handle_events(libusb_context *ctx);
@@ -347,21 +339,21 @@ interface LibUsbNative extends Library {
 		throws LastErrorException;
 
 	// int LIBUSB_CALL libusb_handle_events_locked(libusb_context *ctx, struct timeval *tv);
-	int libusb_handle_events_locked(libusb_context ctx, timeval tv) throws LastErrorException;
+	int libusb_handle_events_locked(libusb_context ctx, Pointer tv) throws LastErrorException;
 
 	// int LIBUSB_CALL libusb_pollfds_handle_timeouts(libusb_context *ctx);
 	int libusb_pollfds_handle_timeouts(libusb_context ctx) throws LastErrorException;
 
 	// int LIBUSB_CALL libusb_get_next_timeout(libusb_context *ctx, struct timeval *tv);
-	int libusb_get_next_timeout(libusb_context ctx, timeval tv) throws LastErrorException;
+	int libusb_get_next_timeout(libusb_context ctx, Pointer tv) throws LastErrorException;
 
 	//
 
 	// const struct libusb_pollfd ** LIBUSB_CALL libusb_get_pollfds(libusb_context *ctx);
-	libusb_pollfd.ByReference libusb_get_pollfds(libusb_context ctx) throws LastErrorException;
+	Pointer libusb_get_pollfds(libusb_context ctx) throws LastErrorException;
 
 	// void LIBUSB_CALL libusb_free_pollfds(const struct libusb_pollfd **pollfds);
-	void libusb_free_pollfds(libusb_pollfd.ByReference pollfds) throws LastErrorException;
+	void libusb_free_pollfds(Pointer pollfds) throws LastErrorException;
 
 	// void LIBUSB_CALL libusb_set_pollfd_notifiers(libusb_context *ctx,
 	// libusb_pollfd_added_cb added_cb, libusb_pollfd_removed_cb removed_cb, void *user_data);
