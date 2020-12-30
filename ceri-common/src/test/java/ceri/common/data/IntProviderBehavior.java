@@ -21,6 +21,15 @@ public class IntProviderBehavior {
 	/* IntProvider tests */
 
 	@Test
+	public void testToHex() {
+		assertEquals(IntProvider.toHex(provider(Integer.MIN_VALUE, Integer.MAX_VALUE)),
+			"[0x80000000, 0x7fffffff](2)");
+		assertEquals(IntProvider.toHex(ip),
+			"[0x0, 0xffffffff, 0x2, 0xfffffffd, 0x4, 0xfffffffb, 0x6, ...](10)");
+		assertEquals(IntProvider.toHex(ip, 3), "[0x0, 0xffffffff, ...](10)");
+	}
+
+	@Test
 	public void shouldProvideAnEmptyInstance() {
 		assertEquals(IntProvider.empty().length(), 0);
 		assertTrue(IntProvider.empty().isEmpty());

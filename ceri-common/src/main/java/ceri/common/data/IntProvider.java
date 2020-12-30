@@ -26,6 +26,7 @@ import ceri.common.math.MathUtil;
  * @see ceri.common.data.IntArray.Immutable
  */
 public interface IntProvider extends Iterable<Integer> {
+	static final int MAX_LEN_FOR_STRING = 8;
 
 	static IntProvider empty() {
 		return IntArray.Immutable.EMPTY;
@@ -532,4 +533,40 @@ public interface IntProvider extends Iterable<Integer> {
 		return new Reader(this, index, length);
 	}
 
+	/**
+	 * Provides a hex string representation.
+	 */
+	static String toHex(IntProvider provider) {
+		return toHex(provider, MAX_LEN_FOR_STRING);
+	}
+	
+	/**
+	 * Provides a hex string representation.
+	 */
+	static String toHex(IntProvider provider, int max) {
+		int length = provider.length();
+		int[] array = provider.copy(0, length <= max ? length : max - 1);
+		String s = ArrayUtil.toHex(array, 0, array.length);
+		if (length > max) s = s.substring(0, s.length() - 1) + ", ...]";
+		return s + "(" + length + ")";
+	}
+	
+	/**
+	 * Provides a string representation.
+	 */
+	static String toString(IntProvider provider) {
+		return toString(provider, MAX_LEN_FOR_STRING);
+	}
+	
+	/**
+	 * Provides a string representation.
+	 */
+	static String toString(IntProvider provider, int max) {
+		int length = provider.length();
+		int[] array = provider.copy(0, length <= max ? length : max - 1);
+		String s = ArrayUtil.toString(array, 0, array.length);
+		if (length > max) s = s.substring(0, s.length() - 1) + ", ...]";
+		return s + "(" + length + ")";
+	}
+	
 }

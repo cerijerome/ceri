@@ -31,6 +31,7 @@ import ceri.common.math.MathUtil;
  * @see ceri.common.concurrent.VolatileByteArray
  */
 public interface ByteProvider extends Iterable<Integer> {
+	static final int MAX_LEN_FOR_STRING = 8;
 
 	static ByteProvider empty() {
 		return ByteArray.Immutable.EMPTY;
@@ -771,6 +772,24 @@ public interface ByteProvider extends Iterable<Integer> {
 	default Reader reader(int index, int length) {
 		ArrayUtil.validateSlice(length(), index, length);
 		return new Reader(this, index, length);
+	}
+
+	/**
+	 * Provides a hex string representation.
+	 */
+	static String toHex(ByteProvider provider) {
+		return toHex(provider, MAX_LEN_FOR_STRING);
+	}
+	
+	/**
+	 * Provides a hex string representation.
+	 */
+	static String toHex(ByteProvider provider, int max) {
+		int length = provider.length();
+		byte[] array = provider.copy(0, length <= max ? length : max - 1);
+		String s = ArrayUtil.toHex(array, 0, array.length);
+		if (length > max) s = s.substring(0, s.length() - 1) + ", ...]";
+		return s + "(" + length + ")";
 	}
 
 }

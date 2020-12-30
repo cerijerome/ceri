@@ -26,82 +26,93 @@ public class ArrayUtilTest {
 	@Test
 	public void testHashOfBooleanSubArray() {
 		boolean[] array = { true, true, false, true, false };
-		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertEquals(ArrayUtil.hash((boolean[]) null, 1), 0);
 		assertEquals(ArrayUtil.hash((boolean[]) null, 0, 3), 0);
 		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
-		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
+		assertEquals(ArrayUtil.hash(array, 1), Arrays.hashCode(ArrayUtil.copyOf(array, 1)));
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(ArrayUtil.copyOf(array, 1, 3)));
 	}
 
 	@Test
 	public void testHashOfByteSubArray() {
 		byte[] array = ArrayUtil.bytes(-1, Byte.MAX_VALUE, 0, Byte.MIN_VALUE, 1);
-		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertEquals(ArrayUtil.hash((byte[]) null, 1), 0);
 		assertEquals(ArrayUtil.hash((byte[]) null, 0, 3), 0);
 		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
-		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
+		assertEquals(ArrayUtil.hash(array, 1), Arrays.hashCode(ArrayUtil.copyOf(array, 1)));
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(ArrayUtil.copyOf(array, 1, 3)));
 	}
 
 	@Test
 	public void testHashOfCharSubArray() {
 		char[] array = ArrayUtil.chars(-1, Character.MAX_VALUE, 0, Character.MIN_VALUE, 1);
-		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertEquals(ArrayUtil.hash((char[]) null, 1), 0);
 		assertEquals(ArrayUtil.hash((char[]) null, 0, 3), 0);
 		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
-		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
+		assertEquals(ArrayUtil.hash(array, 1), Arrays.hashCode(ArrayUtil.copyOf(array, 1)));
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(ArrayUtil.copyOf(array, 1, 3)));
 	}
 
 	@Test
 	public void testHashOfShortSubArray() {
 		short[] array = ArrayUtil.shorts(-1, Short.MAX_VALUE, 0, Short.MIN_VALUE, 1);
-		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertEquals(ArrayUtil.hash((short[]) null, 1), 0);
 		assertEquals(ArrayUtil.hash((short[]) null, 0, 3), 0);
 		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
-		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
+		assertEquals(ArrayUtil.hash(array, 1), Arrays.hashCode(ArrayUtil.copyOf(array, 1)));
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(ArrayUtil.copyOf(array, 1, 3)));
 	}
 
 	@Test
 	public void testHashOfIntegerSubArray() {
 		int[] array = ArrayUtil.ints(-1, Integer.MAX_VALUE, 0, Integer.MIN_VALUE, 1);
-		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertEquals(ArrayUtil.hash((int[]) null, 1), 0);
 		assertEquals(ArrayUtil.hash((int[]) null, 0, 3), 0);
 		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
-		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
+		assertEquals(ArrayUtil.hash(array, 1), Arrays.hashCode(ArrayUtil.copyOf(array, 1)));
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(ArrayUtil.copyOf(array, 1, 3)));
 	}
 
 	@Test
 	public void testHashOfLongSubArray() {
 		long[] array = ArrayUtil.longs(-1, Long.MAX_VALUE, 0, Long.MIN_VALUE, 1);
-		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertEquals(ArrayUtil.hash((long[]) null, 1), 0);
 		assertEquals(ArrayUtil.hash((long[]) null, 0, 3), 0);
 		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
-		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
+		assertEquals(ArrayUtil.hash(array, 1), Arrays.hashCode(ArrayUtil.copyOf(array, 1)));
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(ArrayUtil.copyOf(array, 1, 3)));
 	}
 
 	@Test
 	public void testHashOfFloatSubArray() {
 		float[] array = ArrayUtil.floats(-1, Float.MAX_VALUE, Float.NaN, Float.MIN_VALUE, 1);
-		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertEquals(ArrayUtil.hash((float[]) null, 1), 0);
 		assertEquals(ArrayUtil.hash((float[]) null, 0, 3), 0);
 		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
-		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
+		assertEquals(ArrayUtil.hash(array, 1), Arrays.hashCode(ArrayUtil.copyOf(array, 1)));
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(ArrayUtil.copyOf(array, 1, 3)));
 	}
 
 	@Test
 	public void testHashOfDoubleSubArray() {
 		double[] array = ArrayUtil.doubles(-1, Double.MAX_VALUE, Double.NaN, Double.MIN_VALUE, 1);
-		var sub = ArrayUtil.copyOf(array, 1, 3);
+		assertEquals(ArrayUtil.hash((double[]) null, 1), 0);
 		assertEquals(ArrayUtil.hash((double[]) null, 0, 3), 0);
 		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
-		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
+		assertEquals(ArrayUtil.hash(array, 1), Arrays.hashCode(ArrayUtil.copyOf(array, 1)));
+		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(ArrayUtil.copyOf(array, 1, 3)));
 	}
 
 	@Test
 	public void testHashOfSubArray() {
 		String[] array = { "", "test", null, "TEST", "x" };
-		var sub = ArrayUtil.copyOf(array, 1, 3, String[]::new);
+		assertEquals(ArrayUtil.hash((String[]) null, 1), 0);
 		assertEquals(ArrayUtil.hash((String[]) null, 0, 3), 0);
 		assertEquals(ArrayUtil.hash(array, 3, 3), 0);
-		assertEquals(ArrayUtil.hash(array, 1, 3), Arrays.hashCode(sub));
+		assertEquals(ArrayUtil.hash(array, 1),
+			Arrays.hashCode(ArrayUtil.copyOf(array, 1, String[]::new)));
+		assertEquals(ArrayUtil.hash(array, 1, 3),
+			Arrays.hashCode(ArrayUtil.copyOf(array, 1, 3, String[]::new)));
 	}
 
 	@Test
@@ -170,8 +181,11 @@ public class ArrayUtilTest {
 	@Test
 	public void testToStringForTypedSubArray() {
 		String[] array = { "", "test", null, "TEST", "x" };
+		assertEquals(ArrayUtil.toString((String[]) null, 1), "null");
 		assertEquals(ArrayUtil.toString((String[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 6), "null");
 		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 5), "[]");
 		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
 		assertEquals(ArrayUtil.toString(array, 1, 3), "[test, null, TEST]");
 	}
@@ -179,78 +193,153 @@ public class ArrayUtilTest {
 	@Test
 	public void testToStringForBooleanSubArray() {
 		boolean[] array = { true, true, false, true, false };
+		assertEquals(ArrayUtil.toString((boolean[]) null, 1), "null");
 		assertEquals(ArrayUtil.toString((boolean[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 6), "null");
 		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 5), "[]");
 		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1), "[true, false, true, false]");
 		assertEquals(ArrayUtil.toString(array, 1, 3), "[true, false, true]");
 	}
 
 	@Test
 	public void testToStringForByteSubArray() {
 		byte[] array = ArrayUtil.bytes(-1, Byte.MAX_VALUE, 0, Byte.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toString((byte[]) null, 1), "null");
 		assertEquals(ArrayUtil.toString((byte[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 6), "null");
 		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 5), "[]");
 		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1), "[127, 0, -128, 1]");
 		assertEquals(ArrayUtil.toString(array, 1, 3), "[127, 0, -128]");
-		assertEquals(ArrayUtil.toHex(array, 1, 3), "[0x7f, 0x0, 0x80]");
 	}
 
 	@Test
 	public void testToStringForCharSubArray() {
 		char[] array = ArrayUtil.chars(-1, Character.MAX_VALUE, 0, Character.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toString((char[]) null, 1), "null");
 		assertEquals(ArrayUtil.toString((char[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 6), "null");
 		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 5), "[]");
 		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1), "[\uffff, \0, \0, \u0001]");
 		assertEquals(ArrayUtil.toString(array, 1, 3), "[\uffff, \0, \0]");
 	}
 
 	@Test
 	public void testToStringForShortSubArray() {
 		short[] array = ArrayUtil.shorts(-1, Short.MAX_VALUE, 0, Short.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toString((short[]) null, 1), "null");
 		assertEquals(ArrayUtil.toString((short[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 6), "null");
 		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 5), "[]");
 		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1), "[32767, 0, -32768, 1]");
 		assertEquals(ArrayUtil.toString(array, 1, 3), "[32767, 0, -32768]");
-		assertEquals(ArrayUtil.toHex(array, 1, 3), "[0x7fff, 0x0, 0x8000]");
 	}
 
 	@Test
 	public void testToStringForIntSubArray() {
 		int[] array = ArrayUtil.ints(-1, Integer.MAX_VALUE, 0, Integer.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toString((int[]) null, 1), "null");
 		assertEquals(ArrayUtil.toString((int[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 6), "null");
 		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 5), "[]");
 		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1), "[2147483647, 0, -2147483648, 1]");
 		assertEquals(ArrayUtil.toString(array, 1, 3), "[2147483647, 0, -2147483648]");
-		assertEquals(ArrayUtil.toHex(array, 1, 3), "[0x7fffffff, 0x0, 0x80000000]");
 	}
 
 	@Test
 	public void testToStringForLongSubArray() {
 		long[] array = ArrayUtil.longs(-1, Long.MAX_VALUE, 0, Long.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toString((long[]) null, 1), "null");
 		assertEquals(ArrayUtil.toString((long[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 6), "null");
 		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 5), "[]");
 		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1),
+			"[9223372036854775807, 0, -9223372036854775808, 1]");
 		assertEquals(ArrayUtil.toString(array, 1, 3),
 			"[9223372036854775807, 0, -9223372036854775808]");
-		assertEquals(ArrayUtil.toHex(array, 1, 3), "[0x7fffffffffffffff, 0x0, 0x8000000000000000]");
 	}
 
 	@Test
 	public void testToStringForFloatSubArray() {
 		float[] array = ArrayUtil.floats(-1, Float.MAX_VALUE, Float.NaN, Float.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toString((float[]) null, 1), "null");
 		assertEquals(ArrayUtil.toString((float[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 6), "null");
 		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 5), "[]");
 		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1), "[3.4028235E38, NaN, 1.4E-45, 1.0]");
 		assertEquals(ArrayUtil.toString(array, 1, 3), "[3.4028235E38, NaN, 1.4E-45]");
 	}
 
 	@Test
 	public void testToStringForDoubleSubArray() {
 		double[] array = ArrayUtil.doubles(-1, Double.MAX_VALUE, Double.NaN, Double.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toString((double[]) null, 1), "null");
 		assertEquals(ArrayUtil.toString((double[]) null, 0, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 6), "null");
 		assertEquals(ArrayUtil.toString(array, -1, 5), "null");
+		assertEquals(ArrayUtil.toString(array, 5), "[]");
 		assertEquals(ArrayUtil.toString(array, 1, 0), "[]");
+		assertEquals(ArrayUtil.toString(array, 1), "[1.7976931348623157E308, NaN, 4.9E-324, 1.0]");
 		assertEquals(ArrayUtil.toString(array, 1, 3), "[1.7976931348623157E308, NaN, 4.9E-324]");
+	}
+
+	@Test
+	public void testToHexForByteSubArray() {
+		byte[] array = ArrayUtil.bytes(-1, Byte.MAX_VALUE, 0, Byte.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toHex((byte[]) null), "null");
+		assertEquals(ArrayUtil.toHex((byte[]) null, 1), "null");
+		assertEquals(ArrayUtil.toHex((byte[]) null, 1, 3), "null");
+		assertEquals(ArrayUtil.toHex(array), "[0xff, 0x7f, 0x0, 0x80, 0x1]");
+		assertEquals(ArrayUtil.toHex(array, 1), "[0x7f, 0x0, 0x80, 0x1]");
+		assertEquals(ArrayUtil.toHex(array, 1, 3), "[0x7f, 0x0, 0x80]");
+	}
+
+	@Test
+	public void testToHexForShortSubArray() {
+		short[] array = ArrayUtil.shorts(-1, Short.MAX_VALUE, 0, Short.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toHex((short[]) null), "null");
+		assertEquals(ArrayUtil.toHex((short[]) null, 1), "null");
+		assertEquals(ArrayUtil.toHex((short[]) null, 1, 3), "null");
+		assertEquals(ArrayUtil.toHex(array), "[0xffff, 0x7fff, 0x0, 0x8000, 0x1]");
+		assertEquals(ArrayUtil.toHex(array, 1), "[0x7fff, 0x0, 0x8000, 0x1]");
+		assertEquals(ArrayUtil.toHex(array, 1, 3), "[0x7fff, 0x0, 0x8000]");
+	}
+
+	@Test
+	public void testToHexForIntSubArray() {
+		int[] array = ArrayUtil.ints(-1, Integer.MAX_VALUE, 0, Integer.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toHex((int[]) null), "null");
+		assertEquals(ArrayUtil.toHex((int[]) null, 1), "null");
+		assertEquals(ArrayUtil.toHex((int[]) null, 1, 3), "null");
+		assertEquals(ArrayUtil.toHex(array), "[0xffffffff, 0x7fffffff, 0x0, 0x80000000, 0x1]");
+		assertEquals(ArrayUtil.toHex(array, 1), "[0x7fffffff, 0x0, 0x80000000, 0x1]");
+		assertEquals(ArrayUtil.toHex(array, 1, 3), "[0x7fffffff, 0x0, 0x80000000]");
+	}
+
+	@Test
+	public void testToHexForLongSubArray() {
+		long[] array = ArrayUtil.longs(-1, Long.MAX_VALUE, 0, Long.MIN_VALUE, 1);
+		assertEquals(ArrayUtil.toHex((long[]) null), "null");
+		assertEquals(ArrayUtil.toHex((long[]) null, 1), "null");
+		assertEquals(ArrayUtil.toHex((long[]) null, 1, 3), "null");
+		assertEquals(ArrayUtil.toHex(array),
+			"[0xffffffffffffffff, 0x7fffffffffffffff, 0x0, 0x8000000000000000, 0x1]");
+		assertEquals(ArrayUtil.toHex(array, 1),
+			"[0x7fffffffffffffff, 0x0, 0x8000000000000000, 0x1]");
+		assertEquals(ArrayUtil.toHex(array, 1, 3), "[0x7fffffffffffffff, 0x0, 0x8000000000000000]");
 	}
 
 	@Test

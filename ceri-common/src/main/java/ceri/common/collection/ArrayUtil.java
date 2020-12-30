@@ -1045,6 +1045,13 @@ public class ArrayUtil {
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
+	public static int hash(boolean[] a, int offset) {
+		return hash(a, offset, a != null ? a.length - offset : 0);
+	}
+	
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
 	public static int hash(boolean[] a, int offset, int length) {
 		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
 		int result = HASH_INIT;
@@ -1053,6 +1060,13 @@ public class ArrayUtil {
 		return result;
 	}
 
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int hash(byte[] a, int offset) {
+		return hash(a, offset, a != null ? a.length - offset : 0);
+	}
+	
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
@@ -1067,6 +1081,13 @@ public class ArrayUtil {
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
+	public static int hash(char[] a, int offset) {
+		return hash(a, offset, a != null ? a.length - offset : 0);
+	}
+	
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
 	public static int hash(char[] a, int offset, int length) {
 		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
 		int result = HASH_INIT;
@@ -1075,6 +1096,13 @@ public class ArrayUtil {
 		return result;
 	}
 
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int hash(short[] a, int offset) {
+		return hash(a, offset, a != null ? a.length - offset : 0);
+	}
+	
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
@@ -1089,6 +1117,13 @@ public class ArrayUtil {
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
+	public static int hash(int[] a, int offset) {
+		return hash(a, offset, a != null ? a.length - offset : 0);
+	}
+	
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
 	public static int hash(int[] a, int offset, int length) {
 		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
 		int result = HASH_INIT;
@@ -1097,6 +1132,13 @@ public class ArrayUtil {
 		return result;
 	}
 
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int hash(long[] a, int offset) {
+		return hash(a, offset, a != null ? a.length - offset : 0);
+	}
+	
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
@@ -1113,6 +1155,13 @@ public class ArrayUtil {
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
+	public static int hash(float[] a, int offset) {
+		return hash(a, offset, a != null ? a.length - offset : 0);
+	}
+	
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
 	public static int hash(float[] a, int offset, int length) {
 		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
 		int result = HASH_INIT;
@@ -1121,6 +1170,13 @@ public class ArrayUtil {
 		return result;
 	}
 
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int hash(double[] a, int offset) {
+		return hash(a, offset, a != null ? a.length - offset : 0);
+	}
+	
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
@@ -1134,6 +1190,13 @@ public class ArrayUtil {
 		return result;
 	}
 
+	/**
+	 * Provides Arrays.hashCode() for a sub-array.
+	 */
+	public static int hash(Object[] a, int offset) {
+		return hash(a, offset, a != null ? a.length - offset : 0);
+	}
+	
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
@@ -1212,8 +1275,22 @@ public class ArrayUtil {
 	/**
 	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
 	 */
+	public static String toString(boolean[] array, int off) {
+		return toString(array, off, array != null ? array.length - off : 0);
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
 	public static String toString(boolean[] array, int off, int len) {
 		return toString(array, off, len, (b, a, i) -> b.append(a[i]));
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toString(byte[] array, int off) {
+		return toString(array, off, array != null ? array.length - off : 0);
 	}
 
 	/**
@@ -1226,8 +1303,22 @@ public class ArrayUtil {
 	/**
 	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
 	 */
+	public static String toString(char[] array, int off) {
+		return toString(array, off, array != null ? array.length - off : 0);
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
 	public static String toString(char[] array, int off, int len) {
 		return toString(array, off, len, (b, a, i) -> b.append(a[i]));
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toString(short[] array, int off) {
+		return toString(array, off, array != null ? array.length - off : 0);
 	}
 
 	/**
@@ -1240,8 +1331,22 @@ public class ArrayUtil {
 	/**
 	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
 	 */
+	public static String toString(int[] array, int off) {
+		return toString(array, off, array != null ? array.length - off : 0);
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
 	public static String toString(int[] array, int off, int len) {
 		return toString(array, off, len, (b, a, i) -> b.append(a[i]));
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toString(long[] array, int off) {
+		return toString(array, off, array != null ? array.length - off : 0);
 	}
 
 	/**
@@ -1254,8 +1359,22 @@ public class ArrayUtil {
 	/**
 	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
 	 */
+	public static String toString(float[] array, int off) {
+		return toString(array, off, array != null ? array.length - off : 0);
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
 	public static String toString(float[] array, int off, int len) {
 		return toString(array, off, len, (b, a, i) -> b.append(a[i]));
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toString(double[] array, int off) {
+		return toString(array, off, array != null ? array.length - off : 0);
 	}
 
 	/**
@@ -1268,10 +1387,31 @@ public class ArrayUtil {
 	/**
 	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
 	 */
+	public static String toString(Object[] array, int off) {
+		return toString(array, off, array != null ? array.length - off : 0);
+	}
+
+	/**
+	 * Arrays.toString for sub-array. Returns "null" for invalid array slice.
+	 */
 	public static String toString(Object[] array, int off, int len) {
 		return toString(array, off, len, (b, a, i) -> b.append(a[i]));
 	}
 
+	/**
+	 * Hex string for array. Returns "null" for invalid array slice.
+	 */
+	public static String toHex(byte[] array) {
+		return toHex(array, 0);
+	}
+	
+	/**
+	 * Hex string for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toHex(byte[] array, int off) {
+		return toHex(array, off, array != null ? array.length - off : 0);
+	}
+	
 	/**
 	 * Hex string for sub-array. Returns "null" for invalid array slice.
 	 */
@@ -1281,6 +1421,20 @@ public class ArrayUtil {
 	}
 
 	/**
+	 * Hex string for array. Returns "null" for invalid array slice.
+	 */
+	public static String toHex(short[] array) {
+		return toHex(array, 0);
+	}
+	
+	/**
+	 * Hex string for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toHex(short[] array, int off) {
+		return toHex(array, off, array != null ? array.length - off : 0);
+	}
+	
+	/**
 	 * Hex string for sub-array. Returns "null" for invalid array slice.
 	 */
 	public static String toHex(short[] array, int off, int len) {
@@ -1289,6 +1443,20 @@ public class ArrayUtil {
 	}
 
 	/**
+	 * Hex string for array. Returns "null" for invalid array slice.
+	 */
+	public static String toHex(int[] array) {
+		return toHex(array, 0);
+	}
+	
+	/**
+	 * Hex string for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toHex(int[] array, int off) {
+		return toHex(array, off, array != null ? array.length - off : 0);
+	}
+	
+	/**
 	 * Hex string for sub-array. Returns "null" for invalid array slice.
 	 */
 	public static String toHex(int[] array, int off, int len) {
@@ -1296,6 +1464,20 @@ public class ArrayUtil {
 			(b, a, i) -> b.append("0x").append(Integer.toHexString(a[i])));
 	}
 
+	/**
+	 * Hex string for array. Returns "null" for invalid array slice.
+	 */
+	public static String toHex(long[] array) {
+		return toHex(array, 0);
+	}
+	
+	/**
+	 * Hex string for sub-array. Returns "null" for invalid array slice.
+	 */
+	public static String toHex(long[] array, int off) {
+		return toHex(array, off, array != null ? array.length - off : 0);
+	}
+	
 	/**
 	 * Hex string for sub-array. Returns "null" for invalid array slice.
 	 */

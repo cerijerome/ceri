@@ -18,7 +18,6 @@ import ceri.common.math.MathUtil;
  * window must not be accessed or copied.
  */
 public abstract class IntArray implements IntProvider {
-	private static final int MAX_LEN_FOR_STRING = 8;
 	final int[] array;
 	private final int offset;
 	private final int length;
@@ -455,10 +454,7 @@ public abstract class IntArray implements IntProvider {
 
 	@Override
 	public String toString() {
-		String s = ArrayUtil.toString(array, offset,
-			length <= MAX_LEN_FOR_STRING ? length : MAX_LEN_FOR_STRING - 1);
-		if (length > MAX_LEN_FOR_STRING) s = s.substring(0, s.length() - 1) + ", ...]";
-		return getClass().getSimpleName() + "(" + length + ")" + s;
+		return getClass().getSimpleName() + IntProvider.toString(this);
 	}
 
 	/* Support methods */

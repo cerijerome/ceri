@@ -84,4 +84,11 @@ public class VolatileByteArray implements ByteProvider, ByteReceiver {
 		return index;
 	}
 
+	/* Object overrides */
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + ByteProvider.toHex(this);
+	}
+
 }

@@ -29,11 +29,11 @@ public class ByteArrayBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertEquals(ByteArray.Immutable.wrap().toString(), "Immutable(0)[]");
+		assertEquals(ByteArray.Immutable.wrap().toString(), "Immutable[](0)");
 		assertEquals(ByteArray.Immutable.wrap(1, 2, 3, 4, 5, 6, 7, 8, 9).toString(),
-			"Immutable(9)[1, 2, 3, 4, 5, 6, 7, ...]");
+			"Immutable[0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, ...](9)");
 		assertEquals(ByteArray.Immutable.wrap(1, 2, 3, 4, 5, 6, 7, 8).toString(),
-			"Immutable(8)[1, 2, 3, 4, 5, 6, 7, 8]");
+			"Immutable[0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8](8)");
 	}
 
 	/* Immutable tests */
