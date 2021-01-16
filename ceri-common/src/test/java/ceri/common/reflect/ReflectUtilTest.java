@@ -1,5 +1,6 @@
 package ceri.common.reflect;
 
+import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertMatch;
@@ -11,6 +12,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Date;
 import org.junit.Test;
+import ceri.common.function.Fluent;
 
 public class ReflectUtilTest {
 
@@ -26,9 +28,48 @@ public class ReflectUtilTest {
 		}
 	}
 
+	@SuppressWarnings("unused")
+	private static class Fields implements Fluent<Fields> {
+		public String s;
+		public int i;
+		public byte[] b;
+		protected long l;
+		private double d;
+	}
+
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ReflectUtil.class);
+	}
+
+	@Test
+	public void testPublicField() {
+		assertNull(ReflectUtil.publicField(Fields.class, "l"));
+		assertNull(ReflectUtil.publicField(Fields.class, "d"));
+		assertNull(ReflectUtil.publicField(Fields.class, "x"));
+		assertNull(ReflectUtil.publicField(Fields.class, null));
+		assertNull(ReflectUtil.publicField(null, "s"));
+	}
+
+	@Test
+	public void testPublicFieldValue() {
+		assertNull(ReflectUtil.publicFieldValue(new Fields().apply(f -> f.l = 100),
+			ReflectUtil.publicField(Fields.class, "l")));
+		assertNull(ReflectUtil.publicFieldValue(new Fields().apply(f -> f.s = "test"), null));
+		assertNull(ReflectUtil.publicFieldValue(null, ReflectUtil.publicField(Fields.class, "i")));
+	}
+
+	@Test
+	public void testPublicValue() {
+		assertEquals(ReflectUtil.publicValue(new Fields().apply(f -> f.s = "test"), "s"), "test");
+		assertEquals(ReflectUtil.publicValue(new Fields().apply(f -> f.i = 333), "i"), 333);
+		byte[] bytes = bytes(1, 2, 3);
+		assertEquals(ReflectUtil.publicValue(new Fields().apply(f -> f.b = bytes), "b"), bytes);
+		assertNull(ReflectUtil.publicValue(new Fields().apply(f -> f.l = 100), "l"));
+		assertNull(ReflectUtil.publicValue(new Fields().apply(f -> f.d = 0.3), "d"));
+		assertNull(ReflectUtil.publicValue(new Fields().apply(f -> f.s = "test"), "x"));
+		assertNull(ReflectUtil.publicValue(new Fields().apply(f -> f.s = "test"), null));
+		assertNull(ReflectUtil.publicValue(null, "s"));
 	}
 
 	@Test
@@ -45,6 +86,17 @@ public class ReflectUtilTest {
 	public void testForName() {
 		assertSame(ReflectUtil.forName("java.lang.String"), String.class);
 		assertThrown(() -> ReflectUtil.forName("___"));
+	}
+
+	@Test
+	public void testName() {
+		assertEquals(ReflectUtil.name(null), "null");
+		assertEquals(ReflectUtil.name(int.class), "int");
+		assertEquals(ReflectUtil.name(byte[].class), "byte[]");
+		assertEquals(ReflectUtil.name(Abstract.class),
+			getClass().getSimpleName() + "$" + Abstract.class.getSimpleName());
+		assertEquals(ReflectUtil.name(Abstract[].class),
+			getClass().getSimpleName() + "$" + Abstract.class.getSimpleName() + "[]");
 	}
 
 	@Test

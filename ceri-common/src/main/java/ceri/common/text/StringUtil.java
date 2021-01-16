@@ -324,15 +324,6 @@ public class StringUtil {
 	}
 
 	/**
-	 * Convert a byte array into a list of hex strings.
-	 */
-	public static String toHexArray(byte[] data) {
-		if (data.length == 0) return "[]";
-		return IntStream.range(0, data.length).mapToObj(i -> toHex(data[i]))
-			.collect(Collectors.joining(", 0x", "[0x", "]"));
-	}
-
-	/**
 	 * Converts a byte array into a single hex string.
 	 */
 	public static String toHex(byte[] data) {

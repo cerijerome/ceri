@@ -279,8 +279,6 @@ public class StringUtilTest {
 	@Test
 	public void testToHex() {
 		byte[] bb = { 0, -1, 1, Byte.MAX_VALUE, Byte.MIN_VALUE };
-		assertEquals(StringUtil.toHexArray(bb), "[0x00, 0xff, 0x01, 0x7f, 0x80]");
-		assertEquals(StringUtil.toHexArray(new byte[] {}), "[]");
 		assertEquals(StringUtil.toHex(Long.MAX_VALUE), "7fffffffffffffff");
 		assertEquals(StringUtil.toHex(Integer.MAX_VALUE), "7fffffff");
 		assertEquals(StringUtil.toHex(Short.MAX_VALUE), "7fff");

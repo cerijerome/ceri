@@ -5,8 +5,10 @@ package ceri.common.reflect;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_CLASS;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import ceri.common.function.FunctionUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
@@ -31,6 +33,15 @@ public class ReflectUtil {
 	public static int packageLevels(String packageName) {
 		if (packageName == null || packageName.isEmpty()) return 0;
 		return (int) packageName.chars().filter(ch -> ch == '.').count() + 1;
+	}
+
+	/**
+	 * Returns the class name without package.
+	 */
+	public static String name(Class<?> cls) {
+		if (cls == null) return "null";
+		String s = cls.getTypeName();
+		return s.substring(s.lastIndexOf(".") + 1);
 	}
 
 	/**
@@ -182,6 +193,30 @@ public class ReflectUtil {
 		b.append(") failed with args (");
 		StringUtil.append(b, ", ", args).append(')');
 		throw new CreateException(b.toString(), t);
+	}
+
+	/**
+	 * Returns the public field from the class, including super-types. Returns null if not found.
+	 */
+	public static Field publicField(Class<?> cls, String name) {
+		if (cls == null || name == null) return null;
+		return FunctionUtil.getQuietly(() -> cls.getField(name));
+	}
+
+	/**
+	 * Returns the public field value from the instance. Returns null if not found.
+	 */
+	public static Object publicFieldValue(Object obj, Field field) {
+		if (obj == null || field == null) return null;
+		return FunctionUtil.getQuietly(() -> field.get(obj));
+	}
+
+	/**
+	 * Returns the public field value from the instance. Returns null if not found.
+	 */
+	public static Object publicValue(Object obj, String name) {
+		if (obj == null) return null;
+		return publicFieldValue(obj, publicField(obj.getClass(), name));
 	}
 
 	private static StackTraceElement previousStackTraceElement(String callingMethodName,
