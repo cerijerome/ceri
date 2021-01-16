@@ -12,6 +12,7 @@ import ceri.common.data.ByteReceiver;
  * Fixed-size byte array with volatile values.
  */
 public class VolatileByteArray implements ByteProvider, ByteReceiver {
+	private static final int MAX_LEN_FOR_STRING = 8;
 	public static final VolatileByteArray EMPTY = VolatileByteArray.wrap(EMPTY_BYTE);
 	private static final VarHandle handle = MethodHandles.arrayElementVarHandle(byte[].class);
 	private final byte[] array;
@@ -85,10 +86,10 @@ public class VolatileByteArray implements ByteProvider, ByteReceiver {
 	}
 
 	/* Object overrides */
-	
+
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ByteProvider.toHex(this);
+		return getClass().getSimpleName() + ByteProvider.toHex(this, MAX_LEN_FOR_STRING);
 	}
 
 }

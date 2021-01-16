@@ -27,6 +27,19 @@ public class ByteProviderBehavior {
 	/* ByteProvider tests */
 
 	@Test
+	public void testToHex() {
+		assertEquals(ByteProvider.toHex(bp),
+			"[0x0, 0xff, 0x2, 0xfd, 0x4, 0xfb, 0x6, 0xf9, 0x8, 0xf7](10)");
+		assertEquals(ByteProvider.toHex(bp, 3), "[0x0, 0xff, ...](10)");
+	}
+
+	@Test
+	public void testToString() {
+		assertEquals(ByteProvider.toString(bp), "[0, -1, 2, -3, 4, -5, 6, -7, 8, -9](10)");
+		assertEquals(ByteProvider.toString(bp, 3), "[0, -1, ...](10)");
+	}
+
+	@Test
 	public void shouldProvideAnEmptyInstance() {
 		assertEquals(ByteProvider.empty().length(), 0);
 		assertTrue(ByteProvider.empty().isEmpty());

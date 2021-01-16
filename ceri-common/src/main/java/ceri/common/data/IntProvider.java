@@ -3,6 +3,7 @@ package ceri.common.data;
 import static ceri.common.data.ByteUtil.BIG_ENDIAN;
 import static ceri.common.data.IntUtil.LONG_INTS;
 import java.util.Iterator;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import ceri.common.collection.ArrayUtil;
@@ -26,7 +27,6 @@ import ceri.common.math.MathUtil;
  * @see ceri.common.data.IntArray.Immutable
  */
 public interface IntProvider extends Iterable<Integer> {
-	static final int MAX_LEN_FOR_STRING = 8;
 
 	static IntProvider empty() {
 		return IntArray.Immutable.EMPTY;
@@ -537,36 +537,39 @@ public interface IntProvider extends Iterable<Integer> {
 	 * Provides a hex string representation.
 	 */
 	static String toHex(IntProvider provider) {
-		return toHex(provider, MAX_LEN_FOR_STRING);
+		return toHex(provider, Integer.MAX_VALUE);
 	}
-	
+
 	/**
-	 * Provides a hex string representation.
+	 * Provides a limited hex string representation.
 	 */
 	static String toHex(IntProvider provider, int max) {
-		int length = provider.length();
-		int[] array = provider.copy(0, length <= max ? length : max - 1);
-		String s = ArrayUtil.toHex(array, 0, array.length);
-		if (length > max) s = s.substring(0, s.length() - 1) + ", ...]";
-		return s + "(" + length + ")";
+		return toString(provider, max, array -> ArrayUtil.toHex(array, 0, array.length));
 	}
-	
+
 	/**
 	 * Provides a string representation.
 	 */
 	static String toString(IntProvider provider) {
-		return toString(provider, MAX_LEN_FOR_STRING);
+		return toString(provider, Integer.MAX_VALUE);
 	}
-	
+
 	/**
-	 * Provides a string representation.
+	 * Provides a limited string representation.
 	 */
 	static String toString(IntProvider provider, int max) {
+		return toString(provider, max, array -> ArrayUtil.toString(array, 0, array.length));
+	}
+
+	/**
+	 * Provides a limited string representation.
+	 */
+	private static String toString(IntProvider provider, int max, Function<int[], String> fn) {
 		int length = provider.length();
-		int[] array = provider.copy(0, length <= max ? length : max - 1);
-		String s = ArrayUtil.toString(array, 0, array.length);
+		var array = provider.copy(0, length <= max ? length : max - 1);
+		String s = fn.apply(array);
 		if (length > max) s = s.substring(0, s.length() - 1) + ", ...]";
 		return s + "(" + length + ")";
 	}
-	
+
 }

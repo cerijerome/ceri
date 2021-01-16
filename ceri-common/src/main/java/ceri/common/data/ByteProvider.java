@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.Iterators;
@@ -31,7 +32,6 @@ import ceri.common.math.MathUtil;
  * @see ceri.common.concurrent.VolatileByteArray
  */
 public interface ByteProvider extends Iterable<Integer> {
-	static final int MAX_LEN_FOR_STRING = 8;
 
 	static ByteProvider empty() {
 		return ByteArray.Immutable.EMPTY;
@@ -778,16 +778,37 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Provides a hex string representation.
 	 */
 	static String toHex(ByteProvider provider) {
-		return toHex(provider, MAX_LEN_FOR_STRING);
+		return toHex(provider, Integer.MAX_VALUE);
 	}
-	
+
 	/**
-	 * Provides a hex string representation.
+	 * Provides a limited hex string representation.
 	 */
 	static String toHex(ByteProvider provider, int max) {
+		return toString(provider, max, array -> ArrayUtil.toHex(array, 0, array.length));
+	}
+
+	/**
+	 * Provides a string representation.
+	 */
+	static String toString(ByteProvider provider) {
+		return toString(provider, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Provides a limited string representation.
+	 */
+	static String toString(ByteProvider provider, int max) {
+		return toString(provider, max, array -> ArrayUtil.toString(array, 0, array.length));
+	}
+
+	/**
+	 * Provides a limited string representation.
+	 */
+	private static String toString(ByteProvider provider, int max, Function<byte[], String> fn) {
 		int length = provider.length();
-		byte[] array = provider.copy(0, length <= max ? length : max - 1);
-		String s = ArrayUtil.toHex(array, 0, array.length);
+		var array = provider.copy(0, length <= max ? length : max - 1);
+		String s = fn.apply(array);
 		if (length > max) s = s.substring(0, s.length() - 1) + ", ...]";
 		return s + "(" + length + ")";
 	}
