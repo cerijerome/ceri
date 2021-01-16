@@ -247,6 +247,14 @@ public class JnaMemory implements ByteProvider, ByteReceiver {
 		return new JnaAccessor(this, index, length);
 	}
 
+	/* Object overrides */
+
+	@Override
+	public String toString() {
+		return String.format("%s@0x%s+%d%s", getClass().getSimpleName(),
+			Long.toHexString(Pointer.nativeValue(p) + offset), length, ByteProvider.toHex(this));
+	}
+
 	/* Support methods */
 
 	private NativeLong getNlong(int index, boolean msb, boolean unsigned) {

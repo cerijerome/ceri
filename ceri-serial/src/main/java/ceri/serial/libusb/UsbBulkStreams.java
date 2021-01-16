@@ -4,9 +4,9 @@ import java.io.Closeable;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
-import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
@@ -46,6 +46,6 @@ public class UsbBulkStreams implements Closeable {
 	@Override
 	public String toString() {
 		return ToString.forClass(this, count <= 1 ? String.valueOf(count) : "1-" + count,
-			StringUtil.toHexArray(endPointBytes));
+			ArrayUtil.toHex(endPointBytes));
 	}
 }

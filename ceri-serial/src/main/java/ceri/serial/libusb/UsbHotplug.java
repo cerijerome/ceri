@@ -140,8 +140,12 @@ public class UsbHotplug implements Closeable {
 		this.usb = usb;
 	}
 
-	public <T> Registration<T> registration(Callback<T> callback) {
+	public Registration<?> registration(Callback<?> callback) {
 		return new Registration<>(this, callback);
+	}
+
+	public <T> Registration<T> registration(Callback<T> callback, T userData) {
+		return new Registration<>(this, callback).userData(userData);
 	}
 
 	public void deregister(CallbackHandle handle) throws LibUsbException {

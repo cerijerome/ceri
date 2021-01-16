@@ -30,7 +30,7 @@ import ceri.log.test.LogModifier;
 import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
-import ceri.serial.libusb.jna.LibUsbExampleData;
+import ceri.serial.libusb.jna.LibUsbSampleData;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.TestLibUsbNative;
 
@@ -45,7 +45,7 @@ public class SelfHealingFtdiConnectorBehavior {
 	public void before() {
 		enc = TestLibUsbNative.register();
 		lib = enc.subject;
-		LibUsbExampleData.populate(lib.data);
+		LibUsbSampleData.populate(lib.data);
 		con = SelfHealingFtdiConnector.of(config);
 	}
 

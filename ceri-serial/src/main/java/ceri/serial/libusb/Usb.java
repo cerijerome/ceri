@@ -6,13 +6,22 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_get_device_list;
 import static ceri.serial.libusb.jna.LibUsb.libusb_init;
 import static ceri.serial.libusb.jna.LibUsb.libusb_init_default;
 import static ceri.serial.libusb.jna.LibUsb.libusb_setlocale;
+import static ceri.serial.libusb.jna.LibUsb.libusb_log_level.LIBUSB_LOG_LEVEL_DEBUG;
+import static ceri.serial.libusb.jna.LibUsb.libusb_log_level.LIBUSB_LOG_LEVEL_ERROR;
+import static ceri.serial.libusb.jna.LibUsb.libusb_log_level.LIBUSB_LOG_LEVEL_INFO;
+import static ceri.serial.libusb.jna.LibUsb.libusb_log_level.LIBUSB_LOG_LEVEL_NONE;
+import static ceri.serial.libusb.jna.LibUsb.libusb_log_level.LIBUSB_LOG_LEVEL_WARNING;
 import java.io.Closeable;
 import java.util.Locale;
+import java.util.Map;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.UsbDevice.Devices;
+import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
+import ceri.serial.libusb.jna.LibUsb.libusb_log_level;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder;
 
@@ -21,6 +30,7 @@ import ceri.serial.libusb.jna.LibUsbFinder;
  */
 public class Usb implements Closeable {
 	private static final Logger logger = LogManager.getLogger();
+	private static final Map<Level, libusb_log_level> levelMap = levelMap();
 	private final UsbEvents events;
 	private final UsbHotplug hotplug;
 	private libusb_context context;
@@ -60,6 +70,10 @@ public class Usb implements Closeable {
 		return new Devices(list, devices);
 	}
 
+	public void debug(Level level) {
+		LibUsb.libusb_set_debug(context(), levelMap.getOrDefault(level, LIBUSB_LOG_LEVEL_WARNING));
+	}
+
 	public UsbEvents events() {
 		return events;
 	}
@@ -79,4 +93,15 @@ public class Usb implements Closeable {
 		throw new IllegalStateException("Context has been closed");
 	}
 
+	private static Map<Level, libusb_log_level> levelMap() {
+		return Map.of( //
+			Level.OFF, LIBUSB_LOG_LEVEL_NONE, //
+			Level.ALL, LIBUSB_LOG_LEVEL_DEBUG, //
+			Level.TRACE, LIBUSB_LOG_LEVEL_DEBUG, //
+			Level.DEBUG, LIBUSB_LOG_LEVEL_DEBUG, //
+			Level.INFO, LIBUSB_LOG_LEVEL_INFO, //
+			Level.WARN, LIBUSB_LOG_LEVEL_WARNING, //
+			Level.ERROR, LIBUSB_LOG_LEVEL_ERROR, //
+			Level.FATAL, LIBUSB_LOG_LEVEL_ERROR);
+	}
 }

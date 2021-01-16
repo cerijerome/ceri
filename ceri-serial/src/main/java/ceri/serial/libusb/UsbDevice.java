@@ -43,7 +43,7 @@ public class UsbDevice implements Closeable {
 	public static class Devices implements Closeable {
 		private static final Logger logger = LogManager.getLogger();
 		private PointerRef<libusb_device> list;
-		public final List<UsbDevice> devices;
+		private final List<UsbDevice> devices;
 
 		Devices(PointerRef<libusb_device> list, List<UsbDevice> devices) {
 			this.list = list;

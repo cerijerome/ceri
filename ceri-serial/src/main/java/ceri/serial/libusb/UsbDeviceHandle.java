@@ -209,8 +209,12 @@ public class UsbDeviceHandle implements Closeable {
 		return libusb_interrupt_transfer(handle(), (byte) endpoint, data, length, timeout);
 	}
 
+	/**
+	 * Gets Binary Object Store descriptor via blocking device call. Returns null if unsupported.
+	 */
 	public UsbDescriptors.Bos bosDescriptor() throws LibUsbException {
-		return new UsbDescriptors.Bos(this, libusb_get_bos_descriptor(handle()));
+		var desc = libusb_get_bos_descriptor(handle());
+		return desc == null ? null : new UsbDescriptors.Bos(this, desc);
 	}
 
 	public libusb_device_handle handle() {

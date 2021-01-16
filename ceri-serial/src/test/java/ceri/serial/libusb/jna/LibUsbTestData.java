@@ -2,20 +2,26 @@ package ceri.serial.libusb.jna;
 
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INVALID_PARAM;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
-import static ceri.serial.libusb.jna.LibUsbTestUtil.ex;
-import static ceri.serial.libusb.jna.LibUsbTestUtil.version;
+import static ceri.serial.libusb.jna.LibUsb.libusb_speed.LIBUSB_SPEED_UNKNOWN;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.function.Fluent;
 import ceri.common.text.ToString;
+import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_speed;
+import ceri.serial.libusb.jna.LibUsb.libusb_ss_endpoint_companion_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
 
 public class LibUsbTestData {
@@ -25,7 +31,7 @@ public class LibUsbTestData {
 	private final List<Device> devices = new ArrayList<>();
 	private final List<DeviceHandle> deviceHandles = new ArrayList<>();
 	public final List<DeviceConfig> deviceConfigs = new ArrayList<>();
-	public libusb_version version = version("http://libusb.info", null, 1, 0, 17, 0x2c85);
+	public libusb_version version = version("http://libusb.info", "", 1, 0, 0x17, 0x2c85);
 	public int capabilities;
 	public String locale;
 
@@ -51,6 +57,7 @@ public class LibUsbTestData {
 
 	public static class Context extends Data {
 		public int debugLevel = 0;
+
 	}
 
 	public static class DeviceList extends Data {
@@ -96,19 +103,21 @@ public class LibUsbTestData {
 		public int busNumber = 0;
 		public byte[] portNumbers = { 0 };
 		public int address = 0;
-		public int speed = 0;
-		public int configuration = 0;
-		public libusb_device_descriptor desc = new libusb_device_descriptor();
-		public List<String> descriptorStrings = List.of();
+		public libusb_speed speed = LIBUSB_SPEED_UNKNOWN;
+		public int configuration = 1;
+		public libusb_device_descriptor desc = new libusb_device_descriptor(null);
+		public Map<Integer, String> descriptorStrings = new TreeMap<>();
 		public libusb_config_descriptor[] configDescriptors = new libusb_config_descriptor[0];
+		public Map<Pointer, libusb_ss_endpoint_companion_descriptor> ssEpCompDescs =
+			new HashMap<>();
+		public libusb_bos_descriptor bos = null;
 
 		public int portNumber() {
 			return portNumbers[portNumbers.length - 1];
 		}
 
 		public String descriptorString(int i) {
-			if (i <= 0 || i > descriptorStrings.size()) return null;
-			return descriptorStrings.get(i - 1);
+			return descriptorStrings.get(i);
 		}
 
 		public libusb_config_descriptor configDescriptor(int i) {
@@ -124,7 +133,6 @@ public class LibUsbTestData {
 	}
 
 	public LibUsbTestData() {
-		version("http://libusb.info", null, 1, 0, 17, 0x2c85);
 		reset();
 	}
 
@@ -137,6 +145,18 @@ public class LibUsbTestData {
 		locale = "en-US";
 	}
 
+	public static libusb_version version(String desc, String rc, int... nums) {
+		libusb_version version = new libusb_version();
+		version.describe = desc;
+		version.rc = rc;
+		int i = 0;
+		version.major = (short) (nums.length >= i ? nums[i] : 0);
+		version.minor = (short) (nums.length >= ++i ? nums[i] : 0);
+		version.micro = (short) (nums.length >= ++i ? nums[i] : 0);
+		version.nano = (short) (nums.length >= ++i ? nums[i] : 0);
+		return version;
+	}
+
 	public Context createContext(boolean def) {
 		Context context = new Context();
 		if (def) contextDef = context;
@@ -147,7 +167,7 @@ public class LibUsbTestData {
 	public Context context(Pointer p) {
 		if (p != null) return find(contexts, p);
 		if (contextDef != null) return contextDef;
-		throw ex(LIBUSB_ERROR_INVALID_PARAM);
+		throw new LastErrorException(LIBUSB_ERROR_INVALID_PARAM.value);
 	}
 
 	public void removeContext(Context context) {
@@ -233,6 +253,14 @@ public class LibUsbTestData {
 		deviceHandles.remove(handle);
 	}
 
+	public libusb_ss_endpoint_companion_descriptor ssEpCompDesc(Pointer p) {
+		for (var dc : deviceConfigs) {
+			var desc = dc.ssEpCompDescs.get(p);
+			if (desc != null) return desc;
+		}
+		return null;
+	}
+
 	private static <T extends Data> void forEach(List<T> list, Predicate<? super T> filter,
 		Consumer<? super T> action) {
 		list.stream().filter(filter).forEach(action);
@@ -240,7 +268,7 @@ public class LibUsbTestData {
 
 	private static <T extends Data> T find(List<T> list, Pointer p) {
 		return find(list, p == null ? null : t -> t.ptr.equals(p),
-			() -> ex(LIBUSB_ERROR_NOT_FOUND));
+			() -> new LastErrorException(LIBUSB_ERROR_NOT_FOUND.value));
 	}
 
 	private static <E extends Exception, T extends Data> T find(List<T> list,

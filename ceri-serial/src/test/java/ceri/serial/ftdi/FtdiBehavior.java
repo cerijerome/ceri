@@ -38,7 +38,7 @@ import ceri.serial.libusb.UsbDevice;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_speed;
 import ceri.serial.libusb.jna.LibUsbTestData.DeviceHandle;
-import ceri.serial.libusb.jna.LibUsbExampleData;
+import ceri.serial.libusb.jna.LibUsbSampleData;
 
 public class FtdiBehavior {
 	private TestLibUsbNative lib;
@@ -49,7 +49,7 @@ public class FtdiBehavior {
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
 		lib = enc.subject;
-		LibUsbExampleData.populate(lib.data);
+		LibUsbSampleData.populate(lib.data);
 		ftdi = Ftdi.open();
 	}
 

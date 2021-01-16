@@ -1,13 +1,10 @@
 package ceri.serial.libusb;
 
-import static ceri.serial.libusb.UsbHotplug.registration;
-import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED;
-import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT;
-import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_flag.LIBUSB_HOTPLUG_ENUMERATE;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event;
+import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_flag;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class UsbHotplugTester {
@@ -20,19 +17,20 @@ public class UsbHotplugTester {
 		logger.info("Hotplug capability: {}", UsbHotplug.hasCapability());
 		try (Usb ctx = Usb.of()) {
 			logger.info("Registering callback");
-			ctx.hotplug().registerCallback(registration( //
+			ctx.hotplug().registration( //
 				(context, device, event, userData) -> arrived(device, userData), "hello!")
-					.events(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED).flags(LIBUSB_HOTPLUG_ENUMERATE));
-			ctx.hotplug().registerCallback(registration( //
+				.events(libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED)
+				.flags(libusb_hotplug_flag.LIBUSB_HOTPLUG_ENUMERATE).register();
+			ctx.hotplug().registration( //
 				(context, device, event, userData) -> left(device, userData), "goodbye!")
-					.events(LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT));
-			ctx.hotplug().registerCallback(registration( //
-				(context, device, event, userData) -> all(device)).allEvents());
+				.events(libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT).register();
+			ctx.hotplug().registration( //
+				(context, device, event, userData) -> all(device)).allEvents().register();
 			System.gc();
 			logger.info("Repeating System.gc() over {} ms...", WAIT_MS);
 			long t = System.currentTimeMillis();
 			while (System.currentTimeMillis() - t < WAIT_MS) {
-				ctx.handleEventsCompleted();
+				ctx.events().handleCompleted();
 				ConcurrentUtil.delay(DELAY_MS);
 				System.gc();
 			}
@@ -42,10 +40,10 @@ public class UsbHotplugTester {
 
 	private static boolean arrived(UsbDevice device, String userData) throws LibUsbException {
 		logger.info("Arrived: {} {}", userData, identifier(device));
-		libusb_device_descriptor desc = device.descriptor();
+		var desc = device.descriptor();
 		try (UsbDeviceHandle handle = device.open()) {
-			String manu = handle.stringDescriptorAscii(desc.iManufacturer);
-			String prod = handle.stringDescriptorAscii(desc.iProduct);
+			String manu = desc.manufacturer(handle);
+			String prod = desc.product(handle);
 			logger.info("Device: {}/{}", manu, prod);
 			return false;
 		}
@@ -63,9 +61,9 @@ public class UsbHotplugTester {
 
 	private static String identifier(UsbDevice device) throws LibUsbException {
 		if (device == null) return "";
-		libusb_device_descriptor desc = device.descriptor();
+		var desc = device.descriptor();
 		return String.format("vendor=0x%04x product=0x%04x bus_number=0x%02x device_address=0x%02x",
-			desc.idVendor, desc.idProduct, device.busNumber(), device.address());
+			desc.vendorId(), desc.productId(), device.busNumber(), device.address());
 	}
 
 }

@@ -12,6 +12,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
+import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
@@ -93,12 +94,19 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Returns a pointer from the native peer. Use with caution.
+	 * Returns a pointer from the structure.
 	 */
 	public static Pointer pointer(Structure t) {
 		return t == null ? null : t.getPointer();
 	}
 
+	/**
+	 * Returns a pointer from the pointer type.
+	 */
+	public static Pointer pointer(PointerType pt) {
+		return pt == null ? null : pt.getPointer();
+	}
+	
 	/**
 	 * Gets the pointer offset by the given number of bytes.
 	 */

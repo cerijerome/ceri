@@ -53,6 +53,7 @@ import ceri.common.test.TestUtil;
 	ceri.serial.libusb.UsbBehavior.class, //
 	// libusb.jna
 	ceri.serial.libusb.jna.LibUsbFinderBehavior.class, //
+	ceri.serial.libusb.jna.LibUsbTest.class, //
 	// spi
 	ceri.serial.spi.SpiBehavior.class, //
 	ceri.serial.spi.SpiDeviceBehavior.class, //
