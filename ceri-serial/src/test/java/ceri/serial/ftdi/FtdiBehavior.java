@@ -1,44 +1,26 @@
 package ceri.serial.ftdi;
 
-import static ceri.common.test.AssertUtil.*;
-import static ceri.common.test.ErrorGen.*;
-import static ceri.common.test.TestUtil.*;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThat;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.TestUtil.provider;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type.BREAK_ON;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type.BITS_7;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type.ODD;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type.STOP_BIT_2;
-import static ceri.serial.libusb.jna.LibUsb.libusb_speed.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.mockito.Mockito.*;
-import java.io.IOException;
+import static org.hamcrest.CoreMatchers.is;
 import java.nio.ByteBuffer;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
-import ceri.common.data.ByteUtil;
-import ceri.common.data.IntArray;
-import ceri.common.data.IntProvider;
-import ceri.common.test.CallSync;
 import ceri.common.util.Enclosed;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type;
-import ceri.serial.ftdi.util.SelfHealingFtdiConfig;
-import ceri.serial.ftdi.util.SelfHealingFtdiConnector;
 import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbFinder;
-import ceri.serial.libusb.jna.LibUsbTestUtil;
-import ceri.serial.libusb.jna.TestLibUsbNative;
-import ceri.serial.libusb.UsbDevice;
-import ceri.serial.libusb.jna.LibUsb;
-import ceri.serial.libusb.jna.LibUsb.libusb_speed;
-import ceri.serial.libusb.jna.LibUsbTestData.DeviceHandle;
 import ceri.serial.libusb.jna.LibUsbSampleData;
+import ceri.serial.libusb.jna.TestLibUsbNative;
 
 public class FtdiBehavior {
 	private TestLibUsbNative lib;
@@ -135,5 +117,5 @@ public class FtdiBehavior {
 		var control = ftdi.writeSubmit(1, 2, 3, 4, 5);
 		assertThat(control.dataDone(), is(5));
 	}
-	
+
 }

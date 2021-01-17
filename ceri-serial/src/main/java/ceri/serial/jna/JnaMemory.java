@@ -17,6 +17,7 @@ import ceri.serial.clib.jna.CUtil;
  * Fixed-size byte array with volatile values.
  */
 public class JnaMemory implements ByteProvider, ByteReceiver {
+	private static final int MAX_LEN_FOR_STRING = 8;
 	public static final JnaMemory EMPTY = JnaMemory.of(null, 0, 0);
 	private final Pointer p;
 	private final int offset;
@@ -252,7 +253,8 @@ public class JnaMemory implements ByteProvider, ByteReceiver {
 	@Override
 	public String toString() {
 		return String.format("%s@0x%s+%d%s", getClass().getSimpleName(),
-			Long.toHexString(Pointer.nativeValue(p) + offset), length, ByteProvider.toHex(this));
+			Long.toHexString(Pointer.nativeValue(p) + offset), length,
+			ByteProvider.toHex(this, MAX_LEN_FOR_STRING));
 	}
 
 	/* Support methods */

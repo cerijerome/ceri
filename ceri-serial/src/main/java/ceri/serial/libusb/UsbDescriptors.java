@@ -3,6 +3,12 @@ package ceri.serial.libusb;
 import static ceri.common.collection.ImmutableUtil.collectAsList;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
+import static ceri.serial.libusb.jna.LibUsb.libusb_free_bos_descriptor;
+import static ceri.serial.libusb.jna.LibUsb.libusb_free_config_descriptor;
+import static ceri.serial.libusb.jna.LibUsb.libusb_free_container_id_descriptor;
+import static ceri.serial.libusb.jna.LibUsb.libusb_free_ss_endpoint_companion_descriptor;
+import static ceri.serial.libusb.jna.LibUsb.libusb_free_ss_usb_device_capability_descriptor;
+import static ceri.serial.libusb.jna.LibUsb.libusb_free_usb_2_0_extension_descriptor;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_container_id_descriptor;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_ss_endpoint_companion_descriptor;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_ss_usb_device_capability_descriptor;
@@ -16,7 +22,6 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.log.util.LogUtil;
-import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_type;
@@ -25,7 +30,6 @@ import ceri.serial.libusb.jna.LibUsb.libusb_config_attributes;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_container_id_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
-import ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;
@@ -67,24 +71,11 @@ import ceri.serial.libusb.jna.LibUsbException;
 public class UsbDescriptors {
 	private static final Logger logger = LogManager.getLogger();
 
-	public static interface Typed {
-		libusb_descriptor_type type();
-	}
-
-	public static interface BosTyped extends Typed {
-		libusb_bos_type bosType();
-	}
-
-	public static class Device implements Typed {
+	public static class Device {
 		private final libusb_device_descriptor descriptor;
 
 		Device(libusb_device_descriptor descriptor) {
 			this.descriptor = descriptor;
-		}
-
-		@Override
-		public libusb_descriptor_type type() {
-			return UsbDescriptors.type(descriptor.bDescriptorType);
 		}
 
 		public int usbVersion() {
@@ -92,7 +83,7 @@ public class UsbDescriptors {
 		}
 
 		public libusb_class_code classCode() {
-			return UsbDescriptors.deviceClass(descriptor.bDeviceClass);
+			return descriptor.bDeviceClass();
 		}
 
 		public int subClass() {
@@ -115,7 +106,7 @@ public class UsbDescriptors {
 			return ushort(descriptor.idProduct);
 		}
 
-		public int deviceRelease() {
+		public int deviceVersion() {
 			return ushort(descriptor.bcdDevice);
 		}
 
@@ -136,7 +127,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class Config implements Closeable, Typed {
+	public static class Config implements Closeable {
 		private final UsbDevice device;
 		private libusb_config_descriptor descriptor;
 		private List<Interface> interfaces = null;
@@ -144,11 +135,6 @@ public class UsbDescriptors {
 		Config(UsbDevice device, libusb_config_descriptor descriptor) {
 			this.device = device;
 			this.descriptor = descriptor;
-		}
-
-		@Override
-		public libusb_descriptor_type type() {
-			return UsbDescriptors.type(descriptor.bDescriptorType);
 		}
 
 		public int value() {
@@ -160,8 +146,7 @@ public class UsbDescriptors {
 		}
 
 		public Set<libusb_config_attributes> attributes() {
-			return libusb_config_attributes.xcoder.decodeAll(ubyte(descriptor().bmAttributes) &
-				~libusb_config_attributes.LIBUSB_CA_RESERVED1.value);
+			return descriptor().bmAttributes();
 		}
 
 		public int maxPower() {
@@ -184,7 +169,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.execute(logger, () -> LibUsb.libusb_free_config_descriptor(descriptor));
+			LogUtil.execute(logger, () -> libusb_free_config_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -215,7 +200,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class AltSetting implements Typed {
+	public static class AltSetting {
 		private final Interface iface;
 		private libusb_interface_descriptor descriptor;
 		private List<EndPoint> descriptors = null;
@@ -223,11 +208,6 @@ public class UsbDescriptors {
 		AltSetting(Interface iface, libusb_interface_descriptor descriptor) {
 			this.iface = iface;
 			this.descriptor = descriptor;
-		}
-
-		@Override
-		public libusb_descriptor_type type() {
-			return UsbDescriptors.type(descriptor.bDescriptorType);
 		}
 
 		public int number() {
@@ -243,7 +223,7 @@ public class UsbDescriptors {
 		}
 
 		public libusb_class_code classCode() {
-			return UsbDescriptors.deviceClass(descriptor.bInterfaceClass);
+			return descriptor.bInterfaceClass();
 		}
 
 		public int subClass() {
@@ -269,7 +249,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class EndPoint implements Typed {
+	public static class EndPoint {
 		private final AltSetting altSetting;
 		private libusb_endpoint_descriptor descriptor;
 
@@ -282,16 +262,11 @@ public class UsbDescriptors {
 		 * Returns the super-speed end-point companion descriptor. Returns null if the configuration
 		 * is not supported.
 		 */
-		public SsEndpointCompanion ssEndPointCompanion() throws LibUsbException {
+		public SsEndPointCompanion ssEndPointCompanion() throws LibUsbException {
 			@SuppressWarnings("resource")
 			var context = altSetting.iface.config.device.usb().context();
 			var ssDesc = libusb_get_ss_endpoint_companion_descriptor(context, descriptor);
-			return ssDesc == null ? null : new SsEndpointCompanion(ssDesc);
-		}
-
-		@Override
-		public libusb_descriptor_type type() {
-			return UsbDescriptors.type(descriptor.bDescriptorType);
+			return ssDesc == null ? null : new SsEndPointCompanion(ssDesc);
 		}
 
 		public int endPointAddress() {
@@ -299,11 +274,11 @@ public class UsbDescriptors {
 		}
 
 		public int endPointNumber() {
-			return descriptor.bEndpointNumber().get();
+			return descriptor.bEndpointNumber();
 		}
 
 		public libusb_endpoint_direction endPointDirection() {
-			return descriptor.bEndpointDirection().get();
+			return descriptor.bEndpointDirection();
 		}
 
 		public int attributes() {
@@ -311,15 +286,15 @@ public class UsbDescriptors {
 		}
 
 		public libusb_transfer_type transferType() {
-			return descriptor.bmAttributesTransferType().get();
+			return descriptor.bmAttributesTransferType();
 		}
 
 		public libusb_iso_sync_type isoSyncType() {
-			return descriptor.bmAttributesIsoSyncType().get();
+			return descriptor.bmAttributesIsoSyncType();
 		}
 
 		public libusb_iso_usage_type isoUsageType() {
-			return descriptor.bmAttributesIsoUsageType().get();
+			return descriptor.bmAttributesIsoUsageType();
 		}
 
 		public int maxPacketSize() {
@@ -343,16 +318,11 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class SsEndpointCompanion implements Closeable, Typed {
+	public static class SsEndPointCompanion implements Closeable {
 		private libusb_ss_endpoint_companion_descriptor descriptor;
 
-		SsEndpointCompanion(libusb_ss_endpoint_companion_descriptor descriptor) {
+		SsEndPointCompanion(libusb_ss_endpoint_companion_descriptor descriptor) {
 			this.descriptor = descriptor;
-		}
-
-		@Override
-		public libusb_descriptor_type type() {
-			return UsbDescriptors.type(descriptor.bDescriptorType);
 		}
 
 		public int maxBurstPackets() {
@@ -364,11 +334,11 @@ public class UsbDescriptors {
 		}
 
 		public int maxBulkStreams() {
-			return descriptor().bmAttributesBulkMaxStreams().get();
+			return descriptor().bmAttributesBulkMaxStreams();
 		}
 
 		public int isoMult() {
-			return descriptor().bmAttributesIsoMult().get();
+			return descriptor().bmAttributesIsoMult();
 		}
 
 		public int bytesPerInterval() {
@@ -377,8 +347,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.execute(logger,
-				() -> LibUsb.libusb_free_ss_endpoint_companion_descriptor(descriptor));
+			LogUtil.execute(logger, () -> libusb_free_ss_endpoint_companion_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -388,7 +357,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class Bos implements Closeable, Typed {
+	public static class Bos implements Closeable {
 		private final UsbDeviceHandle handle;
 		private libusb_bos_descriptor descriptor;
 		private List<BosDevCapability> capabilities = null;
@@ -396,11 +365,6 @@ public class UsbDescriptors {
 		Bos(UsbDeviceHandle handle, libusb_bos_descriptor descriptor) {
 			this.handle = handle;
 			this.descriptor = descriptor;
-		}
-
-		@Override
-		public libusb_descriptor_type type() {
-			return UsbDescriptors.type(descriptor.bDescriptorType);
 		}
 
 		public int capabilityCount() {
@@ -415,7 +379,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.execute(logger, () -> LibUsb.libusb_free_bos_descriptor(descriptor));
+			LogUtil.execute(logger, () -> libusb_free_bos_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -425,7 +389,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class BosDevCapability implements BosTyped {
+	public static class BosDevCapability {
 		private final Bos bos;
 		private libusb_bos_dev_capability_descriptor descriptor;
 
@@ -434,33 +398,28 @@ public class UsbDescriptors {
 			this.descriptor = descriptor;
 		}
 
-		@Override
-		public libusb_descriptor_type type() {
-			return UsbDescriptors.type(descriptor.bDescriptorType);
-		}
-
-		@Override
 		public libusb_bos_type bosType() {
-			return UsbDescriptors.bosType(descriptor.bDevCapabilityType);
+			return descriptor.bDevCapabilityType();
 		}
 
 		public ByteProvider capabilityData() {
 			return wrap(descriptor.dev_capability_data);
 		}
 
-		public SsUsbDeviceCapability ssUsbDeviceCapability(
-			libusb_bos_dev_capability_descriptor devCap) throws LibUsbException {
+		public SsUsbDeviceCapability ssUsbDeviceCapability() throws LibUsbException {
+			if (bosType() != libusb_bos_type.LIBUSB_BT_SS_USB_DEVICE_CAPABILITY) return null;
 			return new SsUsbDeviceCapability(
-				libusb_get_ss_usb_device_capability_descriptor(context(), devCap));
+				libusb_get_ss_usb_device_capability_descriptor(context(), descriptor));
 		}
 
-		public Usb20Extension usb20Extension(libusb_bos_dev_capability_descriptor devCap)
-			throws LibUsbException {
-			return new Usb20Extension(libusb_get_usb_2_0_extension_descriptor(context(), devCap));
+		public Usb20Extension usb20Extension() throws LibUsbException {
+			if (bosType() != libusb_bos_type.LIBUSB_BT_USB_2_0_EXTENSION) return null;
+			return new Usb20Extension(
+				libusb_get_usb_2_0_extension_descriptor(context(), descriptor));
 		}
 
-		public ContainerId containerId(libusb_bos_dev_capability_descriptor descriptor)
-			throws LibUsbException {
+		public ContainerId containerId() throws LibUsbException {
+			if (bosType() != libusb_bos_type.LIBUSB_BT_CONTAINER_ID) return null;
 			return new ContainerId(libusb_get_container_id_descriptor(context(), descriptor));
 		}
 
@@ -469,31 +428,20 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class Usb20Extension implements Closeable, BosTyped {
+	public static class Usb20Extension implements Closeable {
 		private libusb_usb_2_0_extension_descriptor descriptor;
 
 		Usb20Extension(libusb_usb_2_0_extension_descriptor descriptor) {
 			this.descriptor = descriptor;
 		}
 
-		@Override
-		public libusb_descriptor_type type() {
-			return UsbDescriptors.type(descriptor.bDescriptorType);
-		}
-
-		@Override
-		public libusb_bos_type bosType() {
-			return UsbDescriptors.bosType(descriptor.bDevCapabilityType);
-		}
-
 		public Set<libusb_usb_2_0_extension_attributes> attributes() {
-			return descriptor().bmAttributes().getAll();
+			return descriptor().bmAttributes();
 		}
 
 		@Override
 		public void close() {
-			LogUtil.execute(logger,
-				() -> LibUsb.libusb_free_usb_2_0_extension_descriptor(descriptor));
+			LogUtil.execute(logger, () -> libusb_free_usb_2_0_extension_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -503,29 +451,19 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class SsUsbDeviceCapability implements Closeable, BosTyped {
+	public static class SsUsbDeviceCapability implements Closeable {
 		private libusb_ss_usb_device_capability_descriptor descriptor;
 
 		SsUsbDeviceCapability(libusb_ss_usb_device_capability_descriptor descriptor) {
 			this.descriptor = descriptor;
 		}
 
-		@Override
-		public libusb_descriptor_type type() {
-			return UsbDescriptors.type(descriptor.bDescriptorType);
-		}
-
-		@Override
-		public libusb_bos_type bosType() {
-			return UsbDescriptors.bosType(descriptor.bDevCapabilityType);
-		}
-
 		public Set<libusb_ss_usb_device_capability_attributes> attributes() {
-			return descriptor().bmAttributes().getAll();
+			return descriptor().bmAttributes();
 		}
 
-		public libusb_supported_speed supportedSpeed() {
-			return descriptor().wSpeedSupported().get();
+		public Set<libusb_supported_speed> supportedSpeeds() {
+			return descriptor().wSpeedSupported();
 		}
 
 		public int functionalitySupport() {
@@ -543,7 +481,7 @@ public class UsbDescriptors {
 		@Override
 		public void close() {
 			LogUtil.execute(logger,
-				() -> LibUsb.libusb_free_ss_usb_device_capability_descriptor(descriptor));
+				() -> libusb_free_ss_usb_device_capability_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -553,21 +491,11 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class ContainerId implements Closeable, BosTyped {
+	public static class ContainerId implements Closeable {
 		private libusb_container_id_descriptor descriptor;
 
 		ContainerId(libusb_container_id_descriptor descriptor) {
 			this.descriptor = descriptor;
-		}
-
-		@Override
-		public libusb_descriptor_type type() {
-			return UsbDescriptors.type(descriptor.bDescriptorType);
-		}
-
-		@Override
-		public libusb_bos_type bosType() {
-			return UsbDescriptors.bosType(descriptor.bDevCapabilityType);
 		}
 
 		public ByteProvider uuid() {
@@ -576,7 +504,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.execute(logger, () -> LibUsb.libusb_free_container_id_descriptor(descriptor));
+			LogUtil.execute(logger, () -> libusb_free_container_id_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -584,18 +512,6 @@ public class UsbDescriptors {
 			if (descriptor != null) return descriptor;
 			throw new IllegalStateException("Descriptor has been closed");
 		}
-	}
-
-	private static libusb_descriptor_type type(byte bDescriptorType) {
-		return libusb_descriptor_type.xcoder.decode(ubyte(bDescriptorType));
-	}
-
-	private static libusb_class_code deviceClass(byte bDeviceClass) {
-		return libusb_class_code.xcoder.decode(bDeviceClass);
-	}
-
-	private static libusb_bos_type bosType(byte bDevCapabilityType) {
-		return libusb_bos_type.xcoder.decode(ubyte(bDevCapabilityType));
 	}
 
 	private static ByteProvider wrap(byte[] bytes) {

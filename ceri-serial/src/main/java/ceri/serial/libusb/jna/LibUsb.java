@@ -1,9 +1,11 @@
 package ceri.serial.libusb.jna;
 
 import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.MathUtil.ushort;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_CONTAINER_ID;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_SS_USB_DEVICE_CAPABILITY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_USB_2_0_EXTENSION;
+import static ceri.serial.libusb.jna.LibUsb.libusb_config_attributes.LIBUSB_CA_RESERVED1;
 import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_BOS;
 import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_CONFIG;
 import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_DEVICE;
@@ -16,11 +18,16 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_PIPE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK;
+import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK_STREAM;
+import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_CONTROL;
+import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_INTERRUPT;
+import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_ISOCHRONOUS;
 import static ceri.serial.libusb.jna.LibUsbUtil.require;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
@@ -36,9 +43,6 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteUtil;
-import ceri.common.data.FieldTranscoder;
-import ceri.common.data.IntAccessor;
-import ceri.common.data.MaskTranscoder;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.text.StringUtil;
 import ceri.serial.clib.jna.CUtil;
@@ -400,7 +404,7 @@ public class LibUsb {
 		}
 
 		public libusb_class_code bDeviceClass() {
-			return libusb_class_code.xcoder.decode(bDeviceClass);
+			return libusb_class_code.xcoder.decode(ubyte(bDeviceClass));
 		}
 
 		@Override
@@ -418,11 +422,6 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of("bLength", "bDescriptorType",
 			"bEndpointAddress", "bmAttributes", "wMaxPacketSize", "bInterval", "bRefresh",
 			"bSynchAddress", "extra", "extra_length");
-		private static final //
-		IntAccessor.Typed<libusb_endpoint_descriptor> bEndpointAddressAccessor =
-			IntAccessor.typedUbyte(t -> t.bEndpointAddress, (t, b) -> t.bEndpointAddress = b);
-		private static final IntAccessor.Typed<libusb_endpoint_descriptor> bmAttributesAccessor =
-			IntAccessor.typedUbyte(t -> t.bmAttributes, (t, b) -> t.bmAttributes = b);
 		public byte bLength = LIBUSB_DT_ENDPOINT_SIZE; // or LIBUSB_DT_ENDPOINT_AUDIO_SIZE
 		public byte bDescriptorType = (byte) LIBUSB_DT_ENDPOINT.value;
 		// bits 0:3 endpoint number, 4:6 reserved, 7 direction (libusb_endpoint_direction)
@@ -444,28 +443,27 @@ public class LibUsb {
 			return libusb_descriptor_type.xcoder.decode(ubyte(bDescriptorType));
 		}
 
-		public IntAccessor bEndpointNumber() {
-			return bEndpointAddressAccessor.from(this).mask(LIBUSB_ENDPOINT_ADDRESS_MASK);
+		public int bEndpointNumber() {
+			return bEndpointAddress & LIBUSB_ENDPOINT_ADDRESS_MASK;
 		}
 
-		public FieldTranscoder<libusb_endpoint_direction> bEndpointDirection() {
+		public libusb_endpoint_direction bEndpointDirection() {
 			return libusb_endpoint_direction.xcoder
-				.field(bEndpointAddressAccessor.from(this).mask(LIBUSB_ENDPOINT_DIR_MASK));
+				.decode(bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK);
 		}
 
-		public FieldTranscoder<libusb_transfer_type> bmAttributesTransferType() {
-			return libusb_transfer_type.xcoder
-				.field(bmAttributesAccessor.from(this).mask(LIBUSB_TRANSFER_TYPE_MASK));
+		public libusb_transfer_type bmAttributesTransferType() {
+			return libusb_transfer_type.xcoder.decode(bmAttributes & LIBUSB_TRANSFER_TYPE_MASK);
 		}
 
-		public FieldTranscoder<libusb_iso_sync_type> bmAttributesIsoSyncType() {
-			return libusb_iso_sync_type.xcoder.field(bmAttributesAccessor.from(this)
-				.mask(MaskTranscoder.mask(LIBUSB_ISO_SYNC_TYPE_MASK, 2)));
+		public libusb_iso_sync_type bmAttributesIsoSyncType() {
+			return libusb_iso_sync_type.xcoder
+				.decode((bmAttributes & LIBUSB_ISO_SYNC_TYPE_MASK) >>> 2);
 		}
 
-		public FieldTranscoder<libusb_iso_usage_type> bmAttributesIsoUsageType() {
-			return libusb_iso_usage_type.xcoder.field(bmAttributesAccessor.from(this)
-				.mask(MaskTranscoder.mask(LIBUSB_ISO_USAGE_TYPE_MASK, 4)));
+		public libusb_iso_usage_type bmAttributesIsoUsageType() {
+			return libusb_iso_usage_type.xcoder
+				.decode((bmAttributes & LIBUSB_ISO_USAGE_TYPE_MASK) >>> 4);
 		}
 
 		public byte[] extra() {
@@ -509,7 +507,7 @@ public class LibUsb {
 		}
 
 		public libusb_class_code bInterfaceClass() {
-			return libusb_class_code.xcoder.decode(bInterfaceClass);
+			return libusb_class_code.xcoder.decode(ubyte(bInterfaceClass));
 		}
 
 		public libusb_endpoint_descriptor[] endpoints() {
@@ -575,6 +573,11 @@ public class LibUsb {
 			return libusb_descriptor_type.xcoder.decode(ubyte(bDescriptorType));
 		}
 
+		public Set<libusb_config_attributes> bmAttributes() {
+			return libusb_config_attributes.xcoder
+				.decodeAll(ubyte(bmAttributes) & ~LIBUSB_CA_RESERVED1.value);
+		}
+
 		public libusb_interface[] interfaces() {
 			return arrayByVal(interfaces, libusb_interface[]::new, ubyte(bNumInterfaces));
 		}
@@ -597,9 +600,6 @@ public class LibUsb {
 	public static class libusb_ss_endpoint_companion_descriptor extends Struct {
 		private static final List<String> FIELDS =
 			List.of("bLength", "bDescriptorType", "bMaxBurst", "bmAttributes", "wBytesPerInterval");
-		private static final //
-		IntAccessor.Typed<libusb_ss_endpoint_companion_descriptor> bmAttributesAccessor =
-			IntAccessor.typedUbyte(t -> t.bmAttributes, (t, b) -> t.bmAttributes = b);
 		public byte bLength = LIBUSB_DT_SS_ENDPOINT_COMPANION_SIZE;
 		public byte bDescriptorType = (byte) LIBUSB_DT_SS_ENDPOINT_COMPANION.value;
 		public byte bMaxBurst;
@@ -614,12 +614,12 @@ public class LibUsb {
 			return libusb_descriptor_type.xcoder.decode(ubyte(bDescriptorType));
 		}
 
-		public IntAccessor bmAttributesBulkMaxStreams() {
-			return bmAttributesAccessor.from(this).mask(LIBUSB_BULK_MAX_STREAMS_MASK);
+		public int bmAttributesBulkMaxStreams() {
+			return bmAttributes & LIBUSB_BULK_MAX_STREAMS_MASK;
 		}
 
-		public IntAccessor bmAttributesIsoMult() {
-			return bmAttributesAccessor.from(this).mask(LIBUSB_ISO_MULT_MASK);
+		public int bmAttributesIsoMult() {
+			return bmAttributes & LIBUSB_ISO_MULT_MASK;
 		}
 
 		@Override
@@ -684,7 +684,7 @@ public class LibUsb {
 	public static class libusb_bos_descriptor extends VarStruct {
 		private static final List<String> FIELDS = List.of("bLength", "bDescriptorType",
 			"wTotalLength", "bNumDeviceCaps", "dev_capability");
-		public byte bLength = LIBUSB_DT_BOS_SIZE;
+		public byte bLength = (byte) LIBUSB_DT_BOS_SIZE;
 		public byte bDescriptorType = (byte) LIBUSB_DT_BOS.value;
 		public short wTotalLength;
 		public byte bNumDeviceCaps;
@@ -723,9 +723,6 @@ public class LibUsb {
 	public static class libusb_usb_2_0_extension_descriptor extends Struct {
 		private static final List<String> FIELDS =
 			List.of("bLength", "bDescriptorType", "bDevCapabilityType", "bmAttributes");
-		private static final //
-		IntAccessor.Typed<libusb_usb_2_0_extension_descriptor> bmAttributesTypeAccessor =
-			IntAccessor.typed(t -> t.bmAttributes, (t, i) -> t.bmAttributes = i);
 		public byte bLength = LIBUSB_BT_USB_2_0_EXTENSION_SIZE;
 		public byte bDescriptorType = (byte) LIBUSB_DT_DEVICE_CAPABILITY.value;
 		public byte bDevCapabilityType = (byte) LIBUSB_BT_USB_2_0_EXTENSION.value;
@@ -743,9 +740,8 @@ public class LibUsb {
 			return libusb_bos_type.xcoder.decode(ubyte(bDevCapabilityType));
 		}
 
-		public FieldTranscoder<libusb_usb_2_0_extension_attributes> bmAttributes() {
-			return libusb_usb_2_0_extension_attributes.xcoder
-				.field(bmAttributesTypeAccessor.from(this));
+		public Set<libusb_usb_2_0_extension_attributes> bmAttributes() {
+			return libusb_usb_2_0_extension_attributes.xcoder.decodeAll(bmAttributes);
 		}
 
 		@Override
@@ -763,12 +759,6 @@ public class LibUsb {
 		private static final List<String> FIELDS =
 			List.of("bLength", "bDescriptorType", "bDevCapabilityType", "bmAttributes",
 				"wSpeedSupported", "bFunctionalitySupport", "bU1DevExitLat", "wU2DevExitLat");
-		private static final //
-		IntAccessor.Typed<libusb_ss_usb_device_capability_descriptor> bmAttributesTypeAccessor =
-			IntAccessor.typedUbyte(t -> t.bmAttributes, (t, b) -> t.bmAttributes = b);
-		private static final //
-		IntAccessor.Typed<libusb_ss_usb_device_capability_descriptor> wSpeedSupportedAccessor =
-			IntAccessor.typedUshort(t -> t.wSpeedSupported, (t, s) -> t.wSpeedSupported = s);
 		public byte bLength = LIBUSB_BT_SS_USB_DEVICE_CAPABILITY_SIZE;
 		public byte bDescriptorType = (byte) LIBUSB_DT_DEVICE_CAPABILITY.value;
 		public byte bDevCapabilityType = (byte) LIBUSB_BT_SS_USB_DEVICE_CAPABILITY.value;
@@ -790,13 +780,12 @@ public class LibUsb {
 			return libusb_bos_type.xcoder.decode(ubyte(bDevCapabilityType));
 		}
 
-		public FieldTranscoder<libusb_ss_usb_device_capability_attributes> bmAttributes() {
-			return libusb_ss_usb_device_capability_attributes.xcoder
-				.field(bmAttributesTypeAccessor.from(this));
+		public Set<libusb_ss_usb_device_capability_attributes> bmAttributes() {
+			return libusb_ss_usb_device_capability_attributes.xcoder.decodeAll(ubyte(bmAttributes));
 		}
 
-		public FieldTranscoder<libusb_supported_speed> wSpeedSupported() {
-			return libusb_supported_speed.xcoder.field(wSpeedSupportedAccessor.from(this));
+		public Set<libusb_supported_speed> wSpeedSupported() {
+			return libusb_supported_speed.xcoder.decodeAll(ushort(wSpeedSupported));
 		}
 
 		@Override
@@ -843,10 +832,6 @@ public class LibUsb {
 	public static class libusb_control_setup extends Struct {
 		private static final List<String> FIELDS =
 			List.of("bmRequestType", "bRequest", "wValue", "wIndex", "wLength");
-		private static final IntAccessor.Typed<libusb_control_setup> bmRequestTypeAccessor =
-			IntAccessor.typedUbyte(t -> t.bmRequestType, (t, b) -> t.bmRequestType = b);
-		private static final IntAccessor.Typed<libusb_control_setup> bRequestAccessor =
-			IntAccessor.typedUbyte(t -> t.bRequest, (t, b) -> t.bRequest = b);
 		// bits 0:4 libusb_request_recipient
 		// bits 5:6 libusb_request_type
 		// bit 7 libusb_endpoint_direction
@@ -862,23 +847,22 @@ public class LibUsb {
 			super(p, Platform.isWindows() ? Align.none : Align.platform);
 		}
 
-		public FieldTranscoder<libusb_request_recipient> bmRequestRecipient() {
+		public libusb_request_recipient bmRequestRecipient() {
 			return libusb_request_recipient.xcoder
-				.field(bmRequestTypeAccessor.from(this).mask(LIBUSB_REQUEST_RECIPIENT_MASK));
+				.decode(bmRequestType & LIBUSB_REQUEST_RECIPIENT_MASK);
 		}
 
-		public FieldTranscoder<libusb_request_type> bmRequestType() {
-			return libusb_request_type.xcoder
-				.field(bmRequestTypeAccessor.from(this).mask(LIBUSB_REQUEST_TYPE_MASK));
+		public libusb_request_type bmRequestType() {
+			return libusb_request_type.xcoder.decode(bmRequestType & LIBUSB_REQUEST_TYPE_MASK);
 		}
 
-		public FieldTranscoder<libusb_endpoint_direction> bmRequestDirection() {
+		public libusb_endpoint_direction bmRequestDirection() {
 			return libusb_endpoint_direction.xcoder
-				.field(bmRequestTypeAccessor.from(this).mask(LIBUSB_ENDPOINT_DIR_MASK));
+				.decode(bmRequestType & LIBUSB_ENDPOINT_DIR_MASK);
 		}
 
-		public FieldTranscoder<libusb_standard_request> bRequestStandard() {
-			return libusb_standard_request.xcoder.field(bRequestAccessor.from(this));
+		public libusb_standard_request bRequestStandard() {
+			return libusb_standard_request.xcoder.decode(ubyte(bRequest));
 		}
 
 		@Override
@@ -901,8 +885,6 @@ public class LibUsb {
 		public short nano;
 		public String rc;
 		public String describe;
-
-		public libusb_version() {}
 
 		@Override
 		protected List<String> getFieldOrder() {
@@ -1146,8 +1128,6 @@ public class LibUsb {
 	 */
 	public static class libusb_iso_packet_descriptor extends Struct {
 		private static final List<String> FIELDS = List.of("length", "actual_length", "status");
-		private static final IntAccessor.Typed<libusb_iso_packet_descriptor> statusAccessor =
-			IntAccessor.typed(t -> t.status, (t, i) -> t.status = i);
 		public int length;
 		public int actual_length;
 		public int status; // libusb_transfer_status
@@ -1156,8 +1136,8 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder<libusb_transfer_status> status() {
-			return libusb_transfer_status.xcoder.field(statusAccessor.from(this));
+		public libusb_transfer_status status() {
+			return libusb_transfer_status.xcoder.decode(status);
 		}
 
 		@Override
@@ -1186,12 +1166,6 @@ public class LibUsb {
 		private static final List<String> FIELDS = List.of("dev_handle", "flags", "endpoint",
 			"type", "timeout", "status", "length", "actual_length", "callback", "user_data",
 			"buffer", "num_iso_packets", "iso_packet_desc");
-		private static final IntAccessor.Typed<libusb_transfer> flagsAccessor =
-			IntAccessor.typedUbyte(t -> t.flags, (t, b) -> t.flags = b);
-		private static final IntAccessor.Typed<libusb_transfer> typeAccessor =
-			IntAccessor.typedUbyte(t -> t.type, (t, b) -> t.type = b);
-		private static final IntAccessor.Typed<libusb_transfer> statusAccessor =
-			IntAccessor.typed(t -> t.status, (t, i) -> t.status = i);
 		public libusb_device_handle dev_handle;
 		public byte flags; // libusb_transfer_flags
 		public byte endpoint;
@@ -1210,16 +1184,16 @@ public class LibUsb {
 			super(p);
 		}
 
-		public FieldTranscoder<libusb_transfer_flags> flags() {
-			return libusb_transfer_flags.xcoder.field(flagsAccessor.from(this));
+		public Set<libusb_transfer_flags> flags() {
+			return libusb_transfer_flags.xcoder.decodeAll(ubyte(flags));
 		}
 
-		public FieldTranscoder<libusb_transfer_type> type() {
-			return libusb_transfer_type.xcoder.field(typeAccessor.from(this));
+		public libusb_transfer_type type() {
+			return libusb_transfer_type.xcoder.decode(ubyte(type));
 		}
 
-		public FieldTranscoder<libusb_transfer_status> status() {
-			return libusb_transfer_status.xcoder.field(statusAccessor.from(this));
+		public libusb_transfer_status status() {
+			return libusb_transfer_status.xcoder.decode(status);
 		}
 
 		@Override
@@ -1351,7 +1325,7 @@ public class LibUsb {
 		Pointer user_data, int timeoutMs) {
 		transfer.dev_handle = dev_handle;
 		transfer.endpoint = 0;
-		transfer.type().set(libusb_transfer_type.LIBUSB_TRANSFER_TYPE_CONTROL);
+		transfer.type = (byte) LIBUSB_TRANSFER_TYPE_CONTROL.value;
 		transfer.timeout = timeoutMs;
 		transfer.buffer = buffer;
 		transfer.user_data = user_data;
@@ -1379,7 +1353,7 @@ public class LibUsb {
 		libusb_transfer_cb_fn callback, Pointer user_data, int timeout) {
 		transfer.dev_handle = dev_handle;
 		transfer.endpoint = (byte) endpoint;
-		transfer.type().set(LIBUSB_TRANSFER_TYPE_BULK);
+		transfer.type = (byte) LIBUSB_TRANSFER_TYPE_BULK.value;
 		transfer.timeout = timeout;
 		transfer.buffer = buffer;
 		transfer.length = length;
@@ -1406,7 +1380,7 @@ public class LibUsb {
 		libusb_transfer_cb_fn callback, Pointer user_data, int timeout) throws LibUsbException {
 		libusb_fill_bulk_transfer(transfer, dev_handle, endpoint, buffer, length, callback,
 			user_data, timeout);
-		transfer.type().set(libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK_STREAM);
+		transfer.type = (byte) LIBUSB_TRANSFER_TYPE_BULK_STREAM.value;
 		libusb_transfer_set_stream_id(transfer, stream_id);
 	}
 
@@ -1427,7 +1401,7 @@ public class LibUsb {
 		libusb_transfer_cb_fn callback, Pointer user_data, int timeout) {
 		transfer.dev_handle = dev_handle;
 		transfer.endpoint = (byte) endpoint;
-		transfer.type().set(libusb_transfer_type.LIBUSB_TRANSFER_TYPE_INTERRUPT);
+		transfer.type = (byte) LIBUSB_TRANSFER_TYPE_INTERRUPT.value;
 		transfer.timeout = timeout;
 		transfer.buffer = buffer;
 		transfer.length = length;
@@ -1453,7 +1427,7 @@ public class LibUsb {
 		int num_iso_packets, libusb_transfer_cb_fn callback, Pointer user_data, int timeout) {
 		transfer.dev_handle = dev_handle;
 		transfer.endpoint = (byte) endpoint;
-		transfer.type().set(libusb_transfer_type.LIBUSB_TRANSFER_TYPE_ISOCHRONOUS);
+		transfer.type = (byte) LIBUSB_TRANSFER_TYPE_ISOCHRONOUS.value;
 		transfer.timeout = timeout;
 		transfer.buffer = buffer;
 		transfer.length = length;
@@ -1574,15 +1548,13 @@ public class LibUsb {
 	 */
 	public static class libusb_pollfd extends Struct {
 		private static final List<String> FIELDS = List.of("fd", "events");
-		private static final IntAccessor.Typed<libusb_pollfd> eventsAccessor =
-			IntAccessor.typedUshort(t -> t.events, (t, s) -> t.events = s);
 		public int fd;
 		public short events;
 
 		public static class ByRef extends libusb_pollfd implements Structure.ByReference {}
 
-		public FieldTranscoder<libusb_poll_event> events() {
-			return libusb_poll_event.xcoder.field(eventsAccessor.from(this));
+		public Set<libusb_poll_event> events() {
+			return libusb_poll_event.xcoder.decodeAll(ushort(events));
 		}
 
 		@Override

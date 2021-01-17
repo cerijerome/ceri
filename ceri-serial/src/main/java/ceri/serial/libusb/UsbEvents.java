@@ -65,7 +65,7 @@ public class UsbEvents implements Closeable {
 		}
 
 		public Set<libusb_poll_event> events() {
-			return pollFd.events().getAll();
+			return pollFd.events();
 		}
 	}
 

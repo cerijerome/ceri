@@ -80,7 +80,6 @@ import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_interface;
 import ceri.serial.libusb.jna.LibUsb.libusb_interface_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
-import ceri.serial.libusb.jna.LibUsb.libusb_transfer_cb_fn;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder;
@@ -1096,7 +1095,7 @@ public class LibFtdi {
 	private static void ftdi_write_data_cb(libusb_transfer transfer, ftdi_transfer_control tc) {
 		tc.offset += transfer.actual_length;
 		if (tc.offset >= tc.size) tc.completed = 1;
-		else if (transfer.status().get() == LIBUSB_TRANSFER_CANCELLED)
+		else if (transfer.status() == LIBUSB_TRANSFER_CANCELLED)
 			tc.completed().set(LIBUSB_TRANSFER_CANCELLED);
 		else writeMoreData(transfer, tc);
 	}
@@ -1120,7 +1119,7 @@ public class LibFtdi {
 	private static void ftdi_read_data_cb(libusb_transfer transfer, ftdi_transfer_control tc) {
 		readData(transfer, tc);
 		if (tc.offset >= tc.size) tc.completed = 1;
-		else if (transfer.status().get() == LIBUSB_TRANSFER_CANCELLED)
+		else if (transfer.status() == LIBUSB_TRANSFER_CANCELLED)
 			tc.completed().set(LIBUSB_TRANSFER_CANCELLED);
 		else readMoreData(transfer, tc);
 	}
@@ -1157,7 +1156,7 @@ public class LibFtdi {
 	}
 
 	/**
-	 * Free libusb_transfer reference without writing fields to memory. 
+	 * Free libusb_transfer reference without writing fields to memory.
 	 */
 	private static void freeTransfer(ftdi_transfer_control tc) throws LibUsbException {
 		if (tc == null || tc.transfer == null) return;

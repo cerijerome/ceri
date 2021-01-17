@@ -3,6 +3,7 @@ package ceri.serial.libusb;
 import static ceri.common.collection.ImmutableUtil.convertAsList;
 import static ceri.serial.libusb.jna.LibUsb.libusb_exit;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_device_list;
+import static ceri.serial.libusb.jna.LibUsb.libusb_get_version;
 import static ceri.serial.libusb.jna.LibUsb.libusb_init;
 import static ceri.serial.libusb.jna.LibUsb.libusb_init_default;
 import static ceri.serial.libusb.jna.LibUsb.libusb_setlocale;
@@ -34,6 +35,10 @@ public class Usb implements Closeable {
 	private final UsbEvents events;
 	private final UsbHotplug hotplug;
 	private libusb_context context;
+
+	public static UsbLibVersion version() {
+		return new UsbLibVersion(libusb_get_version());
+	}
 
 	public static void setLocale(Locale locale) throws LibUsbException {
 		libusb_setlocale(locale.toString());

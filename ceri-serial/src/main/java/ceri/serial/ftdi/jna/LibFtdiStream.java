@@ -226,8 +226,8 @@ public class LibFtdiStream {
 	}
 
 	private static boolean transferComplete(libusb_transfer transfer, ftdi_stream_state state) {
-		if (transfer.status().get() == LIBUSB_TRANSFER_COMPLETED) return true;
-		logger.warn("Unknown status: {} ({})", transfer.status, transfer.status().get());
+		if (transfer.status() == LIBUSB_TRANSFER_COMPLETED) return true;
+		logger.warn("Unknown status: {} ({})", transfer.status, transfer.status());
 		close(transfer, state, LIBUSB_ERROR_IO.value);
 		return false;
 	}

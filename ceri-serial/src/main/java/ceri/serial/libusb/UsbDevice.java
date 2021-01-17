@@ -21,8 +21,8 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
-import ceri.common.collection.ImmutableUtil;
-import ceri.common.data.ByteUtil;
+import ceri.common.data.IntArray;
+import ceri.common.data.IntProvider;
 import ceri.common.function.FunctionUtil;
 import ceri.common.text.ToString;
 import ceri.log.util.LogUtil;
@@ -104,9 +104,12 @@ public class UsbDevice implements Closeable {
 		return ubyte(libusb_get_port_number(device()));
 	}
 
-	public List<Integer> portNumbers() throws LibUsbException {
+	public IntProvider portNumbers() throws LibUsbException {
 		byte[] portNumbers = libusb_get_port_numbers(device());
-		return ImmutableUtil.collectAsList(ByteUtil.ustream(portNumbers).boxed());
+		int[] ints = new int[portNumbers.length];
+		for (int i = 0; i < ints.length; i++)
+			ints[i] = ubyte(portNumbers[i]);
+		return IntArray.Immutable.wrap(ints);
 	}
 
 	public int address() throws LibUsbException {
