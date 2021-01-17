@@ -94,9 +94,9 @@ public class ReflectUtilTest {
 		assertEquals(ReflectUtil.name(int.class), "int");
 		assertEquals(ReflectUtil.name(byte[].class), "byte[]");
 		assertEquals(ReflectUtil.name(Abstract.class),
-			getClass().getSimpleName() + "$" + Abstract.class.getSimpleName());
+			getClass().getSimpleName() + "." + Abstract.class.getSimpleName());
 		assertEquals(ReflectUtil.name(Abstract[].class),
-			getClass().getSimpleName() + "$" + Abstract.class.getSimpleName() + "[]");
+			getClass().getSimpleName() + "." + Abstract.class.getSimpleName() + "[]");
 	}
 
 	@Test

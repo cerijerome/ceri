@@ -41,7 +41,7 @@ public class ReflectUtil {
 	public static String name(Class<?> cls) {
 		if (cls == null) return "null";
 		String s = cls.getTypeName();
-		return s.substring(s.lastIndexOf(".") + 1);
+		return s.substring(s.lastIndexOf(".") + 1).replace('$', '.');
 	}
 
 	/**
