@@ -12,6 +12,9 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_log_level.LIBUSB_LOG_LEVEL_ER
 import static ceri.serial.libusb.jna.LibUsb.libusb_log_level.LIBUSB_LOG_LEVEL_INFO;
 import static ceri.serial.libusb.jna.LibUsb.libusb_log_level.LIBUSB_LOG_LEVEL_NONE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_log_level.LIBUSB_LOG_LEVEL_WARNING;
+import static ceri.serial.libusb.jna.LibUsb.libusb_option.LIBUSB_OPTION_LOG_LEVEL;
+import static ceri.serial.libusb.jna.LibUsb.libusb_option.LIBUSB_OPTION_USE_USBDK;
+import static ceri.serial.libusb.jna.LibUsb.libusb_option.LIBUSB_OPTION_WEAK_AUTHORITY;
 import java.io.Closeable;
 import java.util.Locale;
 import java.util.Map;
@@ -75,8 +78,17 @@ public class Usb implements Closeable {
 		return new Devices(list, devices);
 	}
 
-	public void debug(Level level) {
-		LibUsb.libusb_set_debug(context(), levelMap.getOrDefault(level, LIBUSB_LOG_LEVEL_WARNING));
+	public void debug(Level level) throws LibUsbException {
+		LibUsb.libusb_set_option(context(), LIBUSB_OPTION_LOG_LEVEL,
+			levelMap.getOrDefault(level, LIBUSB_LOG_LEVEL_WARNING));
+	}
+
+	public void useUsbDk(boolean enabled) throws LibUsbException {
+		LibUsb.libusb_set_option(context(), LIBUSB_OPTION_USE_USBDK, enabled ? 1 : 0);
+	}
+
+	public void weakAuthority(boolean enabled) throws LibUsbException {
+		LibUsb.libusb_set_option(context(), LIBUSB_OPTION_WEAK_AUTHORITY, enabled ? 1 : 0);
 	}
 
 	public UsbEvents events() {

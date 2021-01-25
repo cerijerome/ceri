@@ -10,10 +10,14 @@ import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
+import ceri.serial.libusb.jna.LibUsb.libusb_log_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
 
+/**
+ * Updated to libusb 1.0.24.
+ */
 interface LibUsbNative extends Library {
 
 	// int LIBUSB_CALL libusb_init(libusb_context **ctx);
@@ -22,8 +26,11 @@ interface LibUsbNative extends Library {
 	// void LIBUSB_CALL libusb_exit(libusb_context *ctx);
 	void libusb_exit(libusb_context ctx);
 
-	// void LIBUSB_CALL libusb_set_debug(libusb_context *ctx, int level);
-	void libusb_set_debug(libusb_context ctx, int level);
+	// int LIBUSB_CALL libusb_set_option(libusb_context *ctx, enum libusb_option option, ...);
+	int libusb_set_option(libusb_context ctx, int option, Object... args);
+
+	// void LIBUSB_CALL libusb_set_log_cb(libusb_context *ctx, libusb_log_cb cb, int mode);
+	void libusb_set_log_cb(libusb_context ctx, libusb_log_cb cb, int mode);
 
 	// const struct libusb_version * LIBUSB_CALL libusb_get_version(void);
 	libusb_version libusb_get_version();
@@ -146,8 +153,6 @@ interface LibUsbNative extends Library {
 
 	// int LIBUSB_CALL libusb_get_port_path(libusb_context *ctx, libusb_device *dev,
 	// uint8_t* path, uint8_t path_length);
-	int libusb_get_port_path(libusb_context ctx, libusb_device dev, Pointer path, byte path_length)
-		throws LastErrorException;
 
 	// libusb_device * LIBUSB_CALL libusb_get_parent(libusb_device *dev);
 	libusb_device libusb_get_parent(libusb_device dev) throws LastErrorException;
@@ -165,6 +170,10 @@ interface LibUsbNative extends Library {
 	int libusb_get_max_iso_packet_size(libusb_device dev, byte endpoint) throws LastErrorException;
 
 	//
+
+	// int LIBUSB_CALL libusb_wrap_sys_device(libusb_context *ctx, intptr_t sys_dev,
+	// libusb_device_handle **dev_handle);
+	int libusb_wrap_sys_device(libusb_context ctx, int sys_dev, PointerByReference handle);
 
 	// int LIBUSB_CALL libusb_open(libusb_device *dev, libusb_device_handle **handle);
 	int libusb_open(libusb_device dev, PointerByReference handle) throws LastErrorException;
@@ -220,6 +229,16 @@ interface LibUsbNative extends Library {
 	// unsigned char *endpoints, int num_endpoints);
 	int libusb_free_streams(libusb_device_handle dev, Pointer endpoints, int num_endpoints)
 		throws LastErrorException;
+
+	//
+
+	// unsigned char * LIBUSB_CALL libusb_dev_mem_alloc(libusb_device_handle *dev_handle,
+	// size_t length);
+	Pointer libusb_dev_mem_alloc(libusb_device_handle dev, int length);
+
+	// int LIBUSB_CALL libusb_dev_mem_free(libusb_device_handle *dev_handle, unsigned char *buffer,
+	// size_t length);
+	int libusb_dev_mem_free(libusb_device_handle dev, Pointer buffer, int length);
 
 	//
 
@@ -309,6 +328,9 @@ interface LibUsbNative extends Library {
 	// int LIBUSB_CALL libusb_event_handler_active(libusb_context *ctx);
 	int libusb_event_handler_active(libusb_context ctx) throws LastErrorException;
 
+	// void libusb_interrupt_event_handler(libusb_context *ctx);
+	void libusb_interrupt_event_handler(libusb_context ctx);
+
 	// void LIBUSB_CALL libusb_lock_event_waiters(libusb_context *ctx);
 	void libusb_lock_event_waiters(libusb_context ctx) throws LastErrorException;
 
@@ -317,9 +339,6 @@ interface LibUsbNative extends Library {
 
 	// int LIBUSB_CALL libusb_wait_for_event(libusb_context *ctx, struct timeval *tv);
 	int libusb_wait_for_event(libusb_context ctx, Pointer tv) throws LastErrorException;
-
-	// void libusb_interrupt_event_handler(libusb_context *ctx);
-	void libusb_interrupt_event_handler(libusb_context ctx);
 
 	//
 
@@ -377,4 +396,8 @@ interface LibUsbNative extends Library {
 	void libusb_hotplug_deregister_callback(libusb_context ctx, int handle)
 		throws LastErrorException;
 
+	// void * LIBUSB_CALL libusb_hotplug_get_user_data(libusb_context *ctx,
+	// libusb_hotplug_callback_handle callback_handle);
+	Pointer libusb_hotplug_get_user_data(libusb_context ctx, int callback_handle)
+		throws LastErrorException;
 }

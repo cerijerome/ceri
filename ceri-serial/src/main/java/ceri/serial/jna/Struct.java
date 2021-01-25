@@ -5,6 +5,8 @@ import static ceri.common.text.StringUtil.NEWLINE_REGEX;
 import static ceri.common.text.StringUtil.format;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -54,6 +56,19 @@ public abstract class Struct extends Structure {
 	 */
 	public static Pointer pointer(Structure struct) {
 		return struct == null ? null : struct.getPointer();
+	}
+
+	/**
+	 * Extends a list of fields.
+	 */
+	public static List<String> fields(List<String> parentFields, String... additions) {
+		String[] fields = new String[parentFields.size() + additions.length];
+		int i = 0;
+		for (String s : parentFields)
+			fields[i++] = s;
+		for (String s : additions)
+			fields[i++] = s;
+		return Collections.unmodifiableList(Arrays.asList(fields));
 	}
 
 	/**

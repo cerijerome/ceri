@@ -3,6 +3,7 @@ package ceri.serial.libusb.jna;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_CONTAINER_ID;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_SS_USB_DEVICE_CAPABILITY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_USB_2_0_EXTENSION;
+import static ceri.serial.libusb.jna.LibUsb.libusb_option.LIBUSB_OPTION_LOG_LEVEL;
 import java.io.PrintStream;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
@@ -32,13 +33,9 @@ public class LibUsbPrinter {
 	private final PrintStream out;
 	private final libusb_log_level logLevel;
 
-	// TODO:
-	// - remove struct type accessors (put in UsbXxx classes)
-	// - remove struct initializer values
-
 	public static void main(String[] args) {
 		var printer = new LibUsbPrinter(System.out, null);
-		//run(printer);
+		run(printer);
 		runTest(printer);
 	}
 
@@ -64,7 +61,7 @@ public class LibUsbPrinter {
 		libusb_context ctx = null;
 		try {
 			ctx = LibUsb.libusb_init();
-			if (logLevel != null) LibUsb.libusb_set_debug(ctx, logLevel);
+			if (logLevel != null) LibUsb.libusb_set_option(ctx, LIBUSB_OPTION_LOG_LEVEL, logLevel);
 			version(pre);
 			devices(pre, ctx);
 		} catch (Exception e) {

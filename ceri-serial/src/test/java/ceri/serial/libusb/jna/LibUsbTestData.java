@@ -31,7 +31,7 @@ public class LibUsbTestData {
 	private final List<Device> devices = new ArrayList<>();
 	private final List<DeviceHandle> deviceHandles = new ArrayList<>();
 	public final List<DeviceConfig> deviceConfigs = new ArrayList<>();
-	public libusb_version version = version("http://libusb.info", "", 1, 0, 0x17, 0x2c85);
+	public libusb_version version = version("http://libusb.info", "", 1, 0, 24, 11584);
 	public int capabilities;
 	public String locale;
 
@@ -57,7 +57,8 @@ public class LibUsbTestData {
 
 	public static class Context extends Data {
 		public int debugLevel = 0;
-
+		public boolean usbDk = false;
+		public boolean weakAuth = false;
 	}
 
 	public static class DeviceList extends Data {

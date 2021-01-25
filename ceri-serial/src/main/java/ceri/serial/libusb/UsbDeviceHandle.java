@@ -7,7 +7,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_claim_interface;
 import static ceri.serial.libusb.jna.LibUsb.libusb_clear_halt;
 import static ceri.serial.libusb.jna.LibUsb.libusb_control_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_detach_kernel_driver;
-import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_address;
 import static ceri.serial.libusb.jna.LibUsb.libusb_fill_control_setup;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_bos_descriptor;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_configuration;
@@ -18,7 +17,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_get_string_descriptor_ascii;
 import static ceri.serial.libusb.jna.LibUsb.libusb_interrupt_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_kernel_driver_active;
 import static ceri.serial.libusb.jna.LibUsb.libusb_release_interface;
-import static ceri.serial.libusb.jna.LibUsb.libusb_request_type_value;
 import static ceri.serial.libusb.jna.LibUsb.libusb_reset_device;
 import static ceri.serial.libusb.jna.LibUsb.libusb_set_auto_detach_kernel_driver;
 import static ceri.serial.libusb.jna.LibUsb.libusb_set_configuration;
@@ -35,9 +33,6 @@ import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
-import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;
-import ceri.serial.libusb.jna.LibUsb.libusb_request_recipient;
-import ceri.serial.libusb.jna.LibUsb.libusb_request_type;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class UsbDeviceHandle implements Closeable {
@@ -46,15 +41,7 @@ public class UsbDeviceHandle implements Closeable {
 	private UsbDevice device = null;
 	private libusb_device_handle handle;
 
-	public static int requestTypeValue(libusb_request_recipient recipient, libusb_request_type type,
-		libusb_endpoint_direction endpointDirection) {
-		return libusb_request_type_value(recipient, type, endpointDirection);
-	}
-
-	public static int endpointAddress(int value, libusb_endpoint_direction direction) {
-		return libusb_endpoint_address(value, direction);
-	}
-
+	// TODO: move elsewhere
 	public static void fillControlSetup(Pointer buffer, int bmRequestType, int bRequest, int wValue,
 		int wIndex, int wLength) {
 		libusb_fill_control_setup(buffer, bmRequestType, bRequest, wValue, wIndex, wLength);

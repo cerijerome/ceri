@@ -1,15 +1,28 @@
 package ceri.serial.libusb.jna;
 
+import static ceri.common.math.MathUtil.ubyte;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INVALID_PARAM;
 import java.nio.ByteBuffer;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
+import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;
+import ceri.serial.libusb.jna.LibUsb.libusb_request_recipient;
+import ceri.serial.libusb.jna.LibUsb.libusb_request_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
 
 public class LibUsbUtil {
 
 	private LibUsbUtil() {}
+
+	public static int requestTypeValue(libusb_request_recipient recipient, libusb_request_type type,
+		libusb_endpoint_direction endpoint_direction) {
+		return ubyte(recipient.value | type.value | endpoint_direction.value);
+	}
+
+	public static int endpointAddress(int value, LibUsb.libusb_endpoint_direction direction) {
+		return ubyte(value | direction.value);
+	}
 
 	public static void require(ByteBuffer buffer, int remaining) throws LibUsbException {
 		if (buffer == null || buffer.remaining() >= remaining) return;

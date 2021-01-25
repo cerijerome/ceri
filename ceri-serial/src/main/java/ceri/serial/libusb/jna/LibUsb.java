@@ -56,7 +56,7 @@ import ceri.serial.jna.Struct;
 import ceri.serial.jna.VarStruct;
 
 /**
- * Provides types and static function calls to libusb.
+ * Provides types and static function calls. Updated to libusb 1.0.24.
  */
 public class LibUsb {
 	static final JnaLibrary<LibUsbNative> library = JnaLibrary.of("usb-1.0.0", LibUsbNative.class);
@@ -64,7 +64,9 @@ public class LibUsb {
 	private static final int MAX_DESCRIPTOR_SIZE = 255;
 	private static final int MAX_PORT_NUMBERS = 7;
 	// Public constants
+	public static final int LIBUSB_API_VERSION = 0x01000108;
 	public static final int LIBUSB_ERROR_COUNT = 14;
+	public static final int LIBUSB_HOTPLUG_NO_FLAGS = 0;
 	public static final int LIBUSB_HOTPLUG_MATCH_ANY = -1;
 	// Descriptor sizes per descriptor type
 	public static final int LIBUSB_DT_DEVICE_SIZE = 18;
@@ -100,15 +102,15 @@ public class LibUsb {
 	/**
 	 * Device and/or Interface Class codes
 	 */
-	public enum libusb_class_code {
+	public static enum libusb_class_code {
 		LIBUSB_CLASS_PER_INTERFACE(0x00),
 		LIBUSB_CLASS_AUDIO(0x01),
 		LIBUSB_CLASS_COMM(0x02),
 		LIBUSB_CLASS_HID(0x03),
 		LIBUSB_CLASS_PHYSICAL(0x05),
-		LIBUSB_CLASS_PRINTER(0x07),
 		// LIBUSB_CLASS_PTP(0x06), // legacy name from libusb-0.1
 		LIBUSB_CLASS_IMAGE(0x06),
+		LIBUSB_CLASS_PRINTER(0x07),
 		LIBUSB_CLASS_MASS_STORAGE(0x08),
 		LIBUSB_CLASS_HUB(0x09),
 		LIBUSB_CLASS_DATA(0x0a),
@@ -118,6 +120,7 @@ public class LibUsb {
 		LIBUSB_CLASS_PERSONAL_HEALTHCARE(0x0f),
 		LIBUSB_CLASS_DIAGNOSTIC_DEVICE(0xdc),
 		LIBUSB_CLASS_WIRELESS(0xe0),
+		LIBUSB_CLASS_MISCELLANEOUS(0xef),
 		LIBUSB_CLASS_APPLICATION(0xfe),
 		LIBUSB_CLASS_VENDOR_SPEC(0xff);
 
@@ -138,7 +141,7 @@ public class LibUsb {
 	/**
 	 * Descriptor types as defined by the USB specification.
 	 */
-	public enum libusb_descriptor_type {
+	public static enum libusb_descriptor_type {
 		LIBUSB_DT_DEVICE(0x01),
 		LIBUSB_DT_CONFIG(0x02),
 		LIBUSB_DT_STRING(0x03),
@@ -171,9 +174,11 @@ public class LibUsb {
 	 * Endpoint direction. Values for bit 7 of the libusb_endpoint_descriptor.bEndpointAddress
 	 * "endpoint address" scheme.
 	 */
-	public enum libusb_endpoint_direction {
-		LIBUSB_ENDPOINT_IN(0x80),
-		LIBUSB_ENDPOINT_OUT(0x00);
+	public static enum libusb_endpoint_direction {
+		/** host-to-device */
+		LIBUSB_ENDPOINT_OUT(0x00),
+		/** device-to-host */
+		LIBUSB_ENDPOINT_IN(0x80);
 
 		public static final TypeTranscoder<libusb_endpoint_direction> xcoder =
 			TypeTranscoder.of(t -> t.value, libusb_endpoint_direction.class);
@@ -193,18 +198,17 @@ public class LibUsb {
 	 * Endpoint transfer type. Values for bits 0:1 of the libusb_endpoint_descriptor.bmAttributes
 	 * "endpoint attributes" field.
 	 */
-	public enum libusb_transfer_type {
-		LIBUSB_TRANSFER_TYPE_CONTROL(0),
-		LIBUSB_TRANSFER_TYPE_ISOCHRONOUS(1),
-		LIBUSB_TRANSFER_TYPE_BULK(2),
-		LIBUSB_TRANSFER_TYPE_INTERRUPT(3),
-		LIBUSB_TRANSFER_TYPE_BULK_STREAM(4);
+	public static enum libusb_endpoint_transfer_type {
+		LIBUSB_ENDPOINT_TRANSFER_TYPE_CONTROL(0),
+		LIBUSB_ENDPOINT_TRANSFER_TYPE_ISOCHRONOUS(1),
+		LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK(2),
+		LIBUSB_ENDPOINT_TRANSFER_TYPE_INTERRUPT(3);
 
-		public static final TypeTranscoder<libusb_transfer_type> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_transfer_type.class);
+		public static final TypeTranscoder<libusb_endpoint_transfer_type> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_endpoint_transfer_type.class);
 		public final int value;
 
-		libusb_transfer_type(int value) {
+		libusb_endpoint_transfer_type(int value) {
 			this.value = value;
 		}
 
@@ -217,7 +221,7 @@ public class LibUsb {
 	/**
 	 * Standard requests, as defined in table 9-5 of the USB 3.0 specifications
 	 */
-	public enum libusb_standard_request {
+	public static enum libusb_standard_request {
 		LIBUSB_REQUEST_GET_STATUS(0x00),
 		LIBUSB_REQUEST_CLEAR_FEATURE(0x01),
 		// 0x02 is reserved
@@ -228,11 +232,11 @@ public class LibUsb {
 		LIBUSB_REQUEST_SET_DESCRIPTOR(0x07),
 		LIBUSB_REQUEST_GET_CONFIGURATION(0x08),
 		LIBUSB_REQUEST_SET_CONFIGURATION(0x09),
-		LIBUSB_REQUEST_GET_INTERFACE(0x0A),
-		LIBUSB_REQUEST_SET_INTERFACE(0x0B),
-		LIBUSB_REQUEST_SYNCH_FRAME(0x0C),
+		LIBUSB_REQUEST_GET_INTERFACE(0x0a),
+		LIBUSB_REQUEST_SET_INTERFACE(0x0b),
+		LIBUSB_REQUEST_SYNCH_FRAME(0x0c),
 		LIBUSB_REQUEST_SET_SEL(0x30),
-		LIBUSB_SET_ISOCH_DELAY(0x31);
+		LIBUSB_REQUEST_SET_ISOCH_DELAY(0x31); // LIBUSB_SET_ISOCH_DELAY
 
 		public static final TypeTranscoder<libusb_standard_request> xcoder =
 			TypeTranscoder.of(t -> t.value, libusb_standard_request.class);
@@ -252,8 +256,8 @@ public class LibUsb {
 	 * Request type bits of the libusb_control_setup.bmRequestType "bmRequestType" field in control
 	 * transfers.
 	 */
-	public enum libusb_request_type {
-		LIBUSB_REQUEST_TYPE_STANDARD(0x00),
+	public static enum libusb_request_type {
+		LIBUSB_REQUEST_TYPE_STANDARD(0x00 << 5),
 		LIBUSB_REQUEST_TYPE_CLASS(0x01 << 5),
 		LIBUSB_REQUEST_TYPE_VENDOR(0x02 << 5),
 		LIBUSB_REQUEST_TYPE_RESERVED(0x03 << 5);
@@ -276,7 +280,7 @@ public class LibUsb {
 	 * Recipient bits of the libusb_control_setup.bmRequestType "bmRequestType" field in control
 	 * transfers. Values 4 through 31 are reserved.
 	 */
-	public enum libusb_request_recipient {
+	public static enum libusb_request_recipient {
 		LIBUSB_RECIPIENT_DEVICE(0x00),
 		LIBUSB_RECIPIENT_INTERFACE(0x01),
 		LIBUSB_RECIPIENT_ENDPOINT(0x02),
@@ -296,16 +300,11 @@ public class LibUsb {
 		}
 	}
 
-	public static int libusb_request_type_value(libusb_request_recipient recipient,
-		libusb_request_type type, libusb_endpoint_direction endpoint_direction) {
-		return (recipient.value | type.value | endpoint_direction.value) & 0xff;
-	}
-
 	/**
 	 * Synchronization type for isochronous endpoints. Values for bits 2:3 of the
 	 * libusb_endpoint_descriptor.bmAttributes "bmAttributes" field in libusb_endpoint_descriptor.
 	 */
-	public enum libusb_iso_sync_type {
+	public static enum libusb_iso_sync_type {
 		LIBUSB_ISO_SYNC_TYPE_NONE(0),
 		LIBUSB_ISO_SYNC_TYPE_ASYNC(1),
 		LIBUSB_ISO_SYNC_TYPE_ADAPTIVE(2),
@@ -329,7 +328,7 @@ public class LibUsb {
 	 * Usage type for isochronous endpoints. Values for bits 4:5 of the
 	 * libusb_endpoint_descriptor.bmAttributes "bmAttributes" field in libusb_endpoint_descriptor.
 	 */
-	public enum libusb_iso_usage_type {
+	public static enum libusb_iso_usage_type {
 		LIBUSB_ISO_USAGE_TYPE_DATA(0),
 		LIBUSB_ISO_USAGE_TYPE_FEEDBACK(1),
 		LIBUSB_ISO_USAGE_TYPE_IMPLICIT(2);
@@ -349,9 +348,367 @@ public class LibUsb {
 	}
 
 	/**
-	 * Configuration descriptor attributes (not part of libusb header).
+	 * Supported speeds (wSpeedSupported) bitfield. Indicates what speeds the device supports.
 	 */
-	public enum libusb_config_attributes {
+	public static enum libusb_supported_speed {
+		LIBUSB_LOW_SPEED_OPERATION(1 << 0), // 1.5 Mbit/s
+		LIBUSB_FULL_SPEED_OPERATION(1 << 1), // 12 Mbit/s
+		LIBUSB_HIGH_SPEED_OPERATION(1 << 2), // 480 Mbit/s
+		LIBUSB_SUPER_SPEED_OPERATION(1 << 3); // 5000 Mbit/s
+
+		public static final TypeTranscoder<libusb_supported_speed> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_supported_speed.class);
+		public final int value;
+
+		libusb_supported_speed(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(0x%02x)", name(), value);
+		}
+	}
+
+	/**
+	 * Masks for the bits of the libusb_usb_2_0_extension_descriptor.bmAttributes "bmAttributes"
+	 * field of the USB 2.0 Extension descriptor.
+	 */
+	public static enum libusb_usb_2_0_extension_attributes {
+		LIBUSB_BM_LPM_SUPPORT(1 << 1);
+
+		public static final TypeTranscoder<libusb_usb_2_0_extension_attributes> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_usb_2_0_extension_attributes.class);
+		public final int value;
+
+		libusb_usb_2_0_extension_attributes(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(%d)", name(), value);
+		}
+	}
+
+	/**
+	 * Masks for the bits of the libusb_ss_usb_device_capability_descriptor.bmAttributes
+	 * "bmAttributes" field field of the SuperSpeed USB Device Capability descriptor.
+	 */
+	public static enum libusb_ss_usb_device_capability_attributes {
+		LIBUSB_BM_LTM_SUPPORT(1 << 1);
+
+		public static final TypeTranscoder<libusb_ss_usb_device_capability_attributes> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_ss_usb_device_capability_attributes.class);
+		public final int value;
+
+		libusb_ss_usb_device_capability_attributes(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(%d)", name(), value);
+		}
+	}
+
+	/**
+	 * USB capability types
+	 */
+	public static enum libusb_bos_type {
+		LIBUSB_BT_WIRELESS_USB_DEVICE_CAPABILITY(1),
+		LIBUSB_BT_USB_2_0_EXTENSION(2),
+		LIBUSB_BT_SS_USB_DEVICE_CAPABILITY(3),
+		LIBUSB_BT_CONTAINER_ID(4);
+
+		public static final TypeTranscoder<libusb_bos_type> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_bos_type.class);
+		public final int value;
+
+		libusb_bos_type(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(%d)", name(), value);
+		}
+	}
+
+	/**
+	 * Speed codes. Indicates the speed at which the device is operating.
+	 */
+	public static enum libusb_speed {
+		LIBUSB_SPEED_UNKNOWN(0),
+		LIBUSB_SPEED_LOW(1), // 1.5 Mbit/s
+		LIBUSB_SPEED_FULL(2), // 12 Mbit/s
+		LIBUSB_SPEED_HIGH(3), // 480 Mbit/s
+		LIBUSB_SPEED_SUPER(4), // 5000 Mbit/s
+		LIBUSB_SPEED_SUPER_PLUS(5); // 10000 Mbit/s
+
+		public static final TypeTranscoder<libusb_speed> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_speed.class);
+		public final int value;
+
+		libusb_speed(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(%d)", name(), value);
+		}
+	}
+
+	/**
+	 * Error codes. Most libusb functions return 0 on success or one of these codes on failure. You
+	 * can call libusb_error_name() to retrieve a string representation of an error code or
+	 * libusb_strerror() to get an end-user suitable description of an error code.
+	 */
+	public static enum libusb_error {
+		LIBUSB_SUCCESS(0),
+		LIBUSB_ERROR_IO(-1),
+		LIBUSB_ERROR_INVALID_PARAM(-2),
+		LIBUSB_ERROR_ACCESS(-3),
+		LIBUSB_ERROR_NO_DEVICE(-4),
+		LIBUSB_ERROR_NOT_FOUND(-5),
+		LIBUSB_ERROR_BUSY(-6),
+		LIBUSB_ERROR_TIMEOUT(-7),
+		LIBUSB_ERROR_OVERFLOW(-8),
+		LIBUSB_ERROR_PIPE(-9),
+		LIBUSB_ERROR_INTERRUPTED(-10),
+		LIBUSB_ERROR_NO_MEM(-11),
+		LIBUSB_ERROR_NOT_SUPPORTED(-12),
+		LIBUSB_ERROR_OTHER(-99);
+
+		public static final TypeTranscoder<libusb_error> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_error.class);
+		public final int value;
+
+		libusb_error(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(%d)", name(), value);
+		}
+	}
+
+	/**
+	 * Transfer type
+	 */
+	public static enum libusb_transfer_type {
+		LIBUSB_TRANSFER_TYPE_CONTROL(0),
+		LIBUSB_TRANSFER_TYPE_ISOCHRONOUS(1),
+		LIBUSB_TRANSFER_TYPE_BULK(2),
+		LIBUSB_TRANSFER_TYPE_INTERRUPT(3),
+		LIBUSB_TRANSFER_TYPE_BULK_STREAM(4);
+
+		public static final TypeTranscoder<libusb_transfer_type> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_transfer_type.class);
+		public final int value;
+
+		libusb_transfer_type(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(%d)", name(), value);
+		}
+	}
+
+	/**
+	 * Transfer status codes
+	 */
+	public static enum libusb_transfer_status {
+		LIBUSB_TRANSFER_COMPLETED(0),
+		LIBUSB_TRANSFER_ERROR(1),
+		LIBUSB_TRANSFER_TIMED_OUT(2),
+		LIBUSB_TRANSFER_CANCELLED(3),
+		LIBUSB_TRANSFER_STALL(4),
+		LIBUSB_TRANSFER_NO_DEVICE(5),
+		LIBUSB_TRANSFER_OVERFLOW(6);
+
+		public static final TypeTranscoder<libusb_transfer_status> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_transfer_status.class);
+		public final int value;
+
+		libusb_transfer_status(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(%d)", name(), value);
+		}
+	}
+
+	/**
+	 * Transfer flag values
+	 */
+	public static enum libusb_transfer_flags {
+		LIBUSB_TRANSFER_SHORT_NOT_OK(1),
+		LIBUSB_TRANSFER_FREE_BUFFER(1 << 1),
+		LIBUSB_TRANSFER_FREE_TRANSFER(1 << 2),
+		LIBUSB_TRANSFER_ADD_ZERO_PACKET(1 << 3);
+
+		public static final TypeTranscoder<libusb_transfer_flags> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_transfer_flags.class);
+		public final int value;
+
+		libusb_transfer_flags(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(0x%02x)", name(), value);
+		}
+	}
+
+	/**
+	 * Capabilities supported by an instance of libusb on the current running platform. Test if the
+	 * loaded library supports a given capability by calling libusb_has_capability().
+	 */
+	public static enum libusb_capability {
+		LIBUSB_CAP_HAS_CAPABILITY(0x0000),
+		LIBUSB_CAP_HAS_HOTPLUG(0x0001),
+		LIBUSB_CAP_HAS_HID_ACCESS(0x0100),
+		LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER(0x0101);
+
+		public static final TypeTranscoder<libusb_capability> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_capability.class);
+		public final int value;
+
+		libusb_capability(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(0x%04x)", name(), value);
+		}
+	}
+
+	/**
+	 * Log message levels.
+	 */
+	public static enum libusb_log_level {
+		LIBUSB_LOG_LEVEL_NONE(0),
+		LIBUSB_LOG_LEVEL_ERROR(1),
+		LIBUSB_LOG_LEVEL_WARNING(2),
+		LIBUSB_LOG_LEVEL_INFO(3),
+		LIBUSB_LOG_LEVEL_DEBUG(4);
+
+		public static final TypeTranscoder<libusb_log_level> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_log_level.class);
+		public final int value;
+
+		libusb_log_level(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(%d)", name(), value);
+		}
+	}
+
+	/**
+	 * libusb_lib Log callback mode for libusb_set_log_cb().
+	 */
+	public static enum libusb_log_cb_mode {
+		/** Callback function handling all log mesages. */
+		LIBUSB_LOG_CB_GLOBAL(1 << 0),
+		/** Callback function handling context related log mesages. */
+		LIBUSB_LOG_CB_CONTEXT(1 << 1);
+
+		public static final TypeTranscoder<libusb_log_cb_mode> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_log_cb_mode.class);
+		public final int value;
+
+		libusb_log_cb_mode(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(%d)", name(), value);
+		}
+	}
+
+	/**
+	 * Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102 Hotplug events
+	 */
+	public static enum libusb_hotplug_event {
+		LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED(1 << 0),
+		LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT(1 << 1);
+
+		public static final TypeTranscoder<libusb_hotplug_event> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_hotplug_event.class);
+		public final int value;
+
+		libusb_hotplug_event(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(0x%02x)", name(), value);
+		}
+	}
+
+	/**
+	 * Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102 Flags for hotplug events
+	 */
+	public static enum libusb_hotplug_flag {
+		LIBUSB_HOTPLUG_ENUMERATE(1 << 0);
+
+		public static final TypeTranscoder<libusb_hotplug_flag> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_hotplug_flag.class);
+		public final int value;
+
+		libusb_hotplug_flag(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(0x%02x)", name(), value);
+		}
+	}
+
+	/**
+	 * Available option values for libusb_set_option().
+	 */
+	public static enum libusb_option {
+		/** Set log message verbosity; pass libusb_log_level */
+		LIBUSB_OPTION_LOG_LEVEL(0),
+		/** Use UsbDk backend; Windows only */
+		LIBUSB_OPTION_USE_USBDK(1),
+		/** Skip scan devices in libusb_init; valid for Linux/Android */
+		LIBUSB_OPTION_WEAK_AUTHORITY(2);
+
+		public static final TypeTranscoder<libusb_option> xcoder =
+			TypeTranscoder.of(t -> t.value, libusb_option.class);
+		public final int value;
+
+		libusb_option(int value) {
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(%d)", name(), value);
+		}
+	}
+
+	/**
+	 * Configuration descriptor attributes (not in libusb.h).
+	 */
+	public static enum libusb_config_attributes {
 		LIBUSB_CA_REMOTE_WAKEUP(0x20),
 		LIBUSB_CA_SELF_POWERED(0x40),
 		LIBUSB_CA_RESERVED1(0x80);
@@ -871,8 +1228,6 @@ public class LibUsb {
 		}
 	}
 
-	/* libusb */
-
 	/**
 	 * Structure providing the version of the libusb runtime.
 	 */
@@ -883,7 +1238,9 @@ public class LibUsb {
 		public short minor;
 		public short micro;
 		public short nano;
+		/** Release candidate suffix */
 		public String rc;
+		/** For ABI compatibility */
 		public String describe;
 
 		@Override
@@ -926,202 +1283,6 @@ public class LibUsb {
 	 */
 		// typedef struct libusb_device_handle libusb_device_handle;
 	public static class libusb_device_handle extends PointerType {}
-
-	/**
-	 * Speed codes. Indicates the speed at which the device is operating.
-	 */
-	public enum libusb_speed {
-		LIBUSB_SPEED_UNKNOWN(0),
-		LIBUSB_SPEED_LOW(1),
-		LIBUSB_SPEED_FULL(2),
-		LIBUSB_SPEED_HIGH(3),
-		LIBUSB_SPEED_SUPER(4);
-
-		public static final TypeTranscoder<libusb_speed> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_speed.class);
-		public final int value;
-
-		libusb_speed(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("%s(%d)", name(), value);
-		}
-	}
-
-	/**
-	 * Supported speeds (wSpeedSupported) bitfield. Indicates what speeds the device supports.
-	 */
-	public enum libusb_supported_speed {
-		LIBUSB_LOW_SPEED_OPERATION(1),
-		LIBUSB_FULL_SPEED_OPERATION(2),
-		LIBUSB_HIGH_SPEED_OPERATION(4),
-		LIBUSB_SUPER_SPEED_OPERATION(8);
-
-		public static final TypeTranscoder<libusb_supported_speed> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_supported_speed.class);
-		public final int value;
-
-		libusb_supported_speed(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("%s(0x%02x)", name(), value);
-		}
-	}
-
-	/**
-	 * Masks for the bits of the libusb_usb_2_0_extension_descriptor.bmAttributes "bmAttributes"
-	 * field of the USB 2.0 Extension descriptor.
-	 */
-	public enum libusb_usb_2_0_extension_attributes {
-		LIBUSB_BM_LPM_SUPPORT(2);
-
-		public static final TypeTranscoder<libusb_usb_2_0_extension_attributes> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_usb_2_0_extension_attributes.class);
-		public final int value;
-
-		libusb_usb_2_0_extension_attributes(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("%s(%d)", name(), value);
-		}
-	}
-
-	/**
-	 * Masks for the bits of the libusb_ss_usb_device_capability_descriptor.bmAttributes
-	 * "bmAttributes" field field of the SuperSpeed USB Device Capability descriptor.
-	 */
-	public enum libusb_ss_usb_device_capability_attributes {
-		LIBUSB_BM_LTM_SUPPORT(2);
-
-		public static final TypeTranscoder<libusb_ss_usb_device_capability_attributes> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_ss_usb_device_capability_attributes.class);
-		public final int value;
-
-		libusb_ss_usb_device_capability_attributes(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("%s(%d)", name(), value);
-		}
-	}
-
-	/**
-	 * USB capability types
-	 */
-	public enum libusb_bos_type {
-		LIBUSB_BT_WIRELESS_USB_DEVICE_CAPABILITY(1),
-		LIBUSB_BT_USB_2_0_EXTENSION(2),
-		LIBUSB_BT_SS_USB_DEVICE_CAPABILITY(3),
-		LIBUSB_BT_CONTAINER_ID(4);
-
-		public static final TypeTranscoder<libusb_bos_type> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_bos_type.class);
-		public final int value;
-
-		libusb_bos_type(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("%s(%d)", name(), value);
-		}
-	}
-
-	/**
-	 * Error codes. Most libusb functions return 0 on success or one of these codes on failure. You
-	 * can call libusb_error_name() to retrieve a string representation of an error code or
-	 * libusb_strerror() to get an end-user suitable description of an error code.
-	 */
-	public static enum libusb_error {
-		LIBUSB_SUCCESS(0),
-		LIBUSB_ERROR_IO(-1),
-		LIBUSB_ERROR_INVALID_PARAM(-2),
-		LIBUSB_ERROR_ACCESS(-3),
-		LIBUSB_ERROR_NO_DEVICE(-4),
-		LIBUSB_ERROR_NOT_FOUND(-5),
-		LIBUSB_ERROR_BUSY(-6),
-		LIBUSB_ERROR_TIMEOUT(-7),
-		LIBUSB_ERROR_OVERFLOW(-8),
-		LIBUSB_ERROR_PIPE(-9),
-		LIBUSB_ERROR_INTERRUPTED(-10),
-		LIBUSB_ERROR_NO_MEM(-11),
-		LIBUSB_ERROR_NOT_SUPPORTED(-12),
-		LIBUSB_ERROR_OTHER(-99);
-
-		public static final TypeTranscoder<libusb_error> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_error.class);
-		public final int value;
-
-		libusb_error(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("%s(%d)", name(), value);
-		}
-	}
-
-	/**
-	 * Transfer status codes
-	 */
-	public static enum libusb_transfer_status {
-		LIBUSB_TRANSFER_COMPLETED(0),
-		LIBUSB_TRANSFER_ERROR(1),
-		LIBUSB_TRANSFER_TIMED_OUT(2),
-		LIBUSB_TRANSFER_CANCELLED(3),
-		LIBUSB_TRANSFER_STALL(4),
-		LIBUSB_TRANSFER_NO_DEVICE(5),
-		LIBUSB_TRANSFER_OVERFLOW(6);
-
-		public static final TypeTranscoder<libusb_transfer_status> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_transfer_status.class);
-		public final int value;
-
-		libusb_transfer_status(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("%s(%d)", name(), value);
-		}
-	}
-
-	/**
-	 * Transfer flag values
-	 */
-	public enum libusb_transfer_flags {
-		LIBUSB_TRANSFER_SHORT_NOT_OK(1),
-		LIBUSB_TRANSFER_FREE_BUFFER(1 << 1),
-		LIBUSB_TRANSFER_FREE_TRANSFER(1 << 2),
-		LIBUSB_TRANSFER_ADD_ZERO_PACKET(1 << 3);
-
-		public static final TypeTranscoder<libusb_transfer_flags> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_transfer_flags.class);
-		public final int value;
-
-		libusb_transfer_flags(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("%s(0x%02x)", name(), value);
-		}
-	}
 
 	/**
 	 * Isochronous packet descriptor.
@@ -1213,55 +1374,12 @@ public class LibUsb {
 	}
 
 	/**
-	 * Capabilities supported by an instance of libusb on the current running platform. Test if the
-	 * loaded library supports a given capability by calling libusb_has_capability().
+	 * libusb_lib callback function for handling log messages.
 	 */
-	public enum libusb_capability {
-		LIBUSB_CAP_HAS_CAPABILITY(0x0000),
-		LIBUSB_CAP_HAS_HOTPLUG(0x0001),
-		LIBUSB_CAP_HAS_HID_ACCESS(0x0100),
-		LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER(0x0101);
-
-		public static final TypeTranscoder<libusb_capability> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_capability.class);
-		public final int value;
-
-		libusb_capability(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("%s(0x%04x)", name(), value);
-		}
-	}
-
-	/**
-	 * Log message levels.
-	 */
-	public enum libusb_log_level {
-		LIBUSB_LOG_LEVEL_NONE(0),
-		LIBUSB_LOG_LEVEL_ERROR(1),
-		LIBUSB_LOG_LEVEL_WARNING(2),
-		LIBUSB_LOG_LEVEL_INFO(3),
-		LIBUSB_LOG_LEVEL_DEBUG(4);
-
-		public static final TypeTranscoder<libusb_log_level> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_log_level.class);
-		public final int value;
-
-		libusb_log_level(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("%s(%d)", name(), value);
-		}
-	}
-
-	public static int libusb_endpoint_address(int value, libusb_endpoint_direction direction) {
-		return (value | direction.value) & 0xff;
+	// typedef void (LIBUSB_CALL *libusb_log_cb)(libusb_context *ctx, enum libusb_log_level level,
+	// const char *str);
+	public interface libusb_log_cb extends Callback {
+		int invoke(libusb_context ctx, int level, String str);
 	}
 
 	/* async I/O */
@@ -1514,6 +1632,11 @@ public class LibUsb {
 			(desc_type.value << 8) | desc_index, 0, MAX_DESCRIPTOR_SIZE, DEFAULT_TIMEOUT);
 	}
 
+	/**
+	 * Retrieve a descriptor from a device. This is a convenience function which formulates the
+	 * appropriate control message to retrieve the descriptor. The string returned is Unicode, as
+	 * detailed in the USB specifications.
+	 */
 	public static String libusb_get_string_descriptor(libusb_device_handle dev, int desc_index,
 		int langid) throws LibUsbException {
 		ByteBuffer buffer = ByteBuffer.allocate(MAX_DESCRIPTOR_SIZE);
@@ -1528,9 +1651,11 @@ public class LibUsb {
 	/* polling and timeouts */
 
 	/**
-	 * Subset of poll_event
+	 * Subset of poll_event from <poll.h>. POLLIN indicates that you should monitor this file
+	 * descriptor for becoming ready to read from, and POLLOUT indicates that you should monitor
+	 * this file descriptor for nonblocking write readiness.
 	 */
-	public enum libusb_poll_event {
+	public static enum libusb_poll_event {
 		POLLIN(0x0001),
 		POLLOUT(0x0004);
 
@@ -1602,48 +1727,6 @@ public class LibUsb {
 	}
 
 	/**
-	 * Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102 Flags for hotplug events
-	 */
-	public enum libusb_hotplug_flag {
-		LIBUSB_HOTPLUG_NO_FLAGS(0),
-		LIBUSB_HOTPLUG_ENUMERATE(1);
-
-		public static final TypeTranscoder<libusb_hotplug_flag> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_hotplug_flag.class);
-		public final int value;
-
-		libusb_hotplug_flag(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("%s(0x%02x)", name(), value);
-		}
-	}
-
-	/**
-	 * Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102 Hotplug events
-	 */
-	public enum libusb_hotplug_event {
-		LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED(0x01),
-		LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT(0x02);
-
-		public static final TypeTranscoder<libusb_hotplug_event> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_hotplug_event.class);
-		public final int value;
-
-		libusb_hotplug_event(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("%s(0x%02x)", name(), value);
-		}
-	}
-
-	/**
 	 * Hotplug callback function type. When requesting hotplug event notifications, you pass a
 	 * pointer to a callback function of this type. This callback may be called by an internal event
 	 * thread and as such it is recommended the callback do minimal processing before returning.
@@ -1655,9 +1738,7 @@ public class LibUsb {
 	// typedef int (LIBUSB_CALL *libusb_hotplug_callback_fn)(libusb_context *ctx,
 	// libusb_device *device, libusb_hotplug_event event, void *user_data);
 	public interface libusb_hotplug_callback_fn extends Callback {
-		/**
-		 * Return 1 to indicate finished processing event, and callback will be unregistered.
-		 */
+		/** Return 1 to indicate finished processing event, and callback will be unregistered. */
 		int invoke(libusb_context ctx, libusb_device device, int event, Pointer user_data);
 	}
 
@@ -1684,8 +1765,16 @@ public class LibUsb {
 		if (ctx != null) lib().libusb_exit(ctx);
 	}
 
-	public static void libusb_set_debug(libusb_context ctx, libusb_log_level level) {
-		lib().libusb_set_debug(ctx, level.value);
+	public static void libusb_set_option(libusb_context ctx, libusb_option option, Object... args)
+		throws LibUsbException {
+		require(ctx);
+		verify(lib -> lib.libusb_set_option(ctx, option.value, args), "set_option");
+	}
+
+	public void libusb_set_log_cb(libusb_context ctx, libusb_log_cb cb, libusb_log_cb_mode mode)
+		throws LibUsbException {
+		require(ctx);
+		exec(lib -> lib.libusb_set_log_cb(ctx, cb, mode.value), "set_log_cb");
 	}
 
 	public static libusb_version libusb_get_version() {

@@ -7,7 +7,6 @@ import static ceri.serial.libusb.jna.LibUsb.LIBUSB_BT_SS_USB_DEVICE_CAPABILITY_S
 import static ceri.serial.libusb.jna.LibUsb.LIBUSB_BT_USB_2_0_EXTENSION_SIZE;
 import static ceri.serial.libusb.jna.LibUsb.LIBUSB_DT_BOS_SIZE;
 import static ceri.serial.libusb.jna.LibUsb.LIBUSB_DT_CONFIG_SIZE;
-import static ceri.serial.libusb.jna.LibUsb.LIBUSB_DT_DEVICE_CAPABILITY_SIZE;
 import static ceri.serial.libusb.jna.LibUsb.LIBUSB_DT_DEVICE_SIZE;
 import static ceri.serial.libusb.jna.LibUsb.LIBUSB_DT_ENDPOINT_AUDIO_SIZE;
 import static ceri.serial.libusb.jna.LibUsb.LIBUSB_DT_ENDPOINT_SIZE;
@@ -16,7 +15,6 @@ import static ceri.serial.libusb.jna.LibUsb.LIBUSB_DT_SS_ENDPOINT_COMPANION_SIZE
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_CONTAINER_ID;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_SS_USB_DEVICE_CAPABILITY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_USB_2_0_EXTENSION;
-import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_WIRELESS_USB_DEVICE_CAPABILITY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_class_code.LIBUSB_CLASS_AUDIO;
 import static ceri.serial.libusb.jna.LibUsb.libusb_class_code.LIBUSB_CLASS_HID;
 import static ceri.serial.libusb.jna.LibUsb.libusb_class_code.LIBUSB_CLASS_HUB;
@@ -501,11 +499,11 @@ public class LibUsbSampleData {
 		return (byte) i;
 	}
 
-	private static void extra(libusb_config_descriptor desc, int... bytes) {
-		Memory m = CUtil.malloc(bytes);
-		desc.extra = m;
-		desc.extra_length = bytes.length;
-	}
+//	private static void extra(libusb_config_descriptor desc, int... bytes) {
+//		Memory m = CUtil.malloc(bytes);
+//		desc.extra = m;
+//		desc.extra_length = bytes.length;
+//	}
 
 	private static void extra(libusb_interface_descriptor desc, int... bytes) {
 		Memory m = CUtil.malloc(bytes);
@@ -605,15 +603,15 @@ public class LibUsbSampleData {
 		Struct.write(dc.bos);
 	}
 
-	private static libusb_bos_dev_capability_descriptor.ByRef
-		bosWirelessUsbDevCap(Consumer<libusb_bos_dev_capability_descriptor> populator) {
-		libusb_bos_dev_capability_descriptor desc = new libusb_bos_dev_capability_descriptor(null);
-		desc.bLength = LIBUSB_DT_DEVICE_CAPABILITY_SIZE;
-		desc.bDescriptorType = (byte) LIBUSB_DT_DEVICE_CAPABILITY.value;
-		desc.bDevCapabilityType = (byte) LIBUSB_BT_WIRELESS_USB_DEVICE_CAPABILITY.value;
-		populator.accept(desc);
-		return toBdc(desc);
-	}
+	// private static libusb_bos_dev_capability_descriptor.ByRef
+	// bosWirelessUsbDevCap(Consumer<libusb_bos_dev_capability_descriptor> populator) {
+	// libusb_bos_dev_capability_descriptor desc = new libusb_bos_dev_capability_descriptor(null);
+	// desc.bLength = LIBUSB_DT_DEVICE_CAPABILITY_SIZE;
+	// desc.bDescriptorType = (byte) LIBUSB_DT_DEVICE_CAPABILITY.value;
+	// desc.bDevCapabilityType = (byte) LIBUSB_BT_WIRELESS_USB_DEVICE_CAPABILITY.value;
+	// populator.accept(desc);
+	// return toBdc(desc);
+	// }
 
 	private static libusb_bos_dev_capability_descriptor.ByRef
 		bosUsb20Ext(Consumer<libusb_usb_2_0_extension_descriptor> populator) {

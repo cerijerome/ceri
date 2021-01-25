@@ -8,8 +8,12 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_SS_USB_DEV
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_USB_2_0_EXTENSION;
 import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_DEVICE_CAPABILITY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPORTED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_OVERFLOW;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_PIPE;
+import static ceri.serial.libusb.jna.LibUsb.libusb_option.LIBUSB_OPTION_LOG_LEVEL;
+import static ceri.serial.libusb.jna.LibUsb.libusb_option.LIBUSB_OPTION_USE_USBDK;
+import static ceri.serial.libusb.jna.LibUsb.libusb_option.LIBUSB_OPTION_WEAK_AUTHORITY;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -35,6 +39,8 @@ import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
 import ceri.serial.libusb.jna.LibUsb.libusb_iso_packet_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_log_cb;
+import ceri.serial.libusb.jna.LibUsb.libusb_option;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_request_recipient;
@@ -63,6 +69,17 @@ public class TestLibUsbNative implements LibUsbNative {
 		return LibUsb.library.enclosed(lib);
 	}
 
+	// TODO:
+	// - summarize libusb
+	// - async transfers
+	// - polling
+	// - abstract async io
+	// - transfer type
+	// - fill
+	// - callback logic
+	// - breakdown by completion/timeout/error/cancel?
+	// - check libusb 1.0.24 examples
+
 	public static TestLibUsbNative of() {
 		return new TestLibUsbNative();
 	}
@@ -88,8 +105,20 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	@Override
-	public void libusb_set_debug(libusb_context ctx, int level) {
-		data.context(pointer(ctx)).debugLevel = level;
+	public int libusb_set_option(libusb_context ctx, int option, Object... args) {
+		var context = data.context(pointer(ctx));
+		var opt = libusb_option.xcoder.decode(option);
+		int value = (int) args[0];
+		if (opt == LIBUSB_OPTION_LOG_LEVEL) context.debugLevel = value;
+		else if (opt == LIBUSB_OPTION_USE_USBDK) context.usbDk = value != 0;
+		else if (opt == LIBUSB_OPTION_WEAK_AUTHORITY) context.weakAuth = value != 0;
+		else return LIBUSB_ERROR_NOT_SUPPORTED.value;
+		return 0;
+	}
+
+	@Override
+	public void libusb_set_log_cb(libusb_context ctx, libusb_log_cb cb, int mode) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -265,12 +294,6 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	@Override
-	public int libusb_get_port_path(libusb_context ctx, libusb_device dev, Pointer path,
-		byte path_length) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public libusb_device libusb_get_parent(libusb_device dev) {
 		var device = data.device(pointer(dev));
 		var parent = data.parentDevice(device);
@@ -294,6 +317,11 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public int libusb_get_max_iso_packet_size(libusb_device dev, byte endpoint) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int libusb_wrap_sys_device(libusb_context ctx, int sys_dev, PointerByReference handle) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -384,6 +412,16 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public int libusb_free_streams(libusb_device_handle dev, Pointer endpoints, int num_endpoints) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Pointer libusb_dev_mem_alloc(libusb_device_handle dev, int length) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int libusb_dev_mem_free(libusb_device_handle dev, Pointer buffer, int length) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -591,6 +629,12 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public void libusb_hotplug_deregister_callback(libusb_context ctx, int handle) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Pointer libusb_hotplug_get_user_data(libusb_context ctx, int callback_handle)
+		throws LastErrorException {
 		throw new UnsupportedOperationException();
 	}
 

@@ -34,7 +34,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_claim_interface;
 import static ceri.serial.libusb.jna.LibUsb.libusb_close;
 import static ceri.serial.libusb.jna.LibUsb.libusb_control_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_detach_kernel_driver;
-import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_address;
 import static ceri.serial.libusb.jna.LibUsb.libusb_exit;
 import static ceri.serial.libusb.jna.LibUsb.libusb_fill_bulk_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_free_config_descriptor;
@@ -46,7 +45,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_get_string_descriptor_ascii;
 import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout_completed;
 import static ceri.serial.libusb.jna.LibUsb.libusb_init;
 import static ceri.serial.libusb.jna.LibUsb.libusb_open;
-import static ceri.serial.libusb.jna.LibUsb.libusb_request_type_value;
 import static ceri.serial.libusb.jna.LibUsb.libusb_set_configuration;
 import static ceri.serial.libusb.jna.LibUsb.libusb_submit_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_unref_devices;
@@ -93,9 +91,9 @@ import ceri.serial.libusb.jna.LibUsbUtil;
  */
 public class LibFtdi {
 	private static final Logger logger = LogManager.getLogger();
-	private static final int FTDI_DEVICE_OUT_REQTYPE = libusb_request_type_value( // 0x40
+	private static final int FTDI_DEVICE_OUT_REQTYPE = LibUsbUtil.requestTypeValue( // 0x40
 		LIBUSB_RECIPIENT_DEVICE, LIBUSB_REQUEST_TYPE_VENDOR, LIBUSB_ENDPOINT_OUT);
-	private static final int FTDI_DEVICE_IN_REQTYPE = libusb_request_type_value( // 0xc0
+	private static final int FTDI_DEVICE_IN_REQTYPE = LibUsbUtil.requestTypeValue( // 0xc0
 		LIBUSB_RECIPIENT_DEVICE, LIBUSB_REQUEST_TYPE_VENDOR, LIBUSB_ENDPOINT_IN);
 	// private static final libusb_transfer_cb_fn ftdi_write_data_cb = LibFtdi::ftdi_write_data_cb;
 	// private static final libusb_transfer_cb_fn ftdi_read_data_cb = LibFtdi::ftdi_read_data_cb;
@@ -654,8 +652,8 @@ public class LibFtdi {
 			.of(LIBUSB_ERROR_NOT_SUPPORTED, "Interface cannot be changed on an open device");
 		ftdi.iface = iface.iface;
 		ftdi.index = iface.index;
-		ftdi.out_ep = libusb_endpoint_address(iface.outAddress, LIBUSB_ENDPOINT_IN);
-		ftdi.in_ep = libusb_endpoint_address(iface.inAddress, LIBUSB_ENDPOINT_OUT);
+		ftdi.out_ep = LibUsbUtil.endpointAddress(iface.outAddress, LIBUSB_ENDPOINT_IN);
+		ftdi.in_ep = LibUsbUtil.endpointAddress(iface.inAddress, LIBUSB_ENDPOINT_OUT);
 	}
 
 	/**

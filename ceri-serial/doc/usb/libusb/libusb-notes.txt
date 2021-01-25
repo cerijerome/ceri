@@ -1,0 +1,110 @@
+General
+-------
+- User-space cross-platform library
+- Thread-safe, but...
+  - Use close/free, setters and libusb_transfer fns from single thread
+  - Don't use across fork() calls
+- No notification of libusb_reset_device() from other processes => reset registers
+- Functions typically respond with 0, or LIBUSB_ERROR (<0) on failure
+
+Initialization
+--------------
+- libusb_init / libusb_exit
+- null for default context; created for first ref, exit frees when no more refs (seems to be broken)
+- libusb_set_option for logging, platform-specific options
+- libusb_has_capability to check hotplug, detach kernel driver functionality
+
+Device Handling
+---------------
+- Devices:
+  - list: libusb_get_device_list / libusb_free_device_list
+  - ref counted; get list +1, close list -1, open +1, close -1
+  - provides config, interface, and endpoint descriptors (configuration)
+- Handles:
+  - open from device (ref +1), or open from vendor/product ids
+  - used to interact with device
+  - used to claim interface, detach kernel driver
+- Descriptor types:
+  - libusb_device 
+    - libusb_device_descriptor
+    - libusb_config_descriptor
+      - libusb_interface[]
+        - libusb_interface_descriptor[]
+          - libusb_endpoint_descriptor[]
+            - libusb_ss_endpoint_companion_descriptor
+  - libusb_device_handle
+    - libusb_bos_descriptor
+      - libusb_bos_dev_capability_descriptor[]
+        - libusb_usb_2_0_extension_descriptor
+        - libusb_ss_usb_device_capability_descriptor
+        - libusb_container_id_descriptor
+
+Confguration
+------------
+- Calling libusb_set_configuration() with current config causes lightweight device reset
+- Unable to set config if interface already claimed; may need to detach kernel driver  
+- Recommended sequence:
+  - set config
+  - claim interface
+  - check active config
+- Blocking calls:
+  - libusb_set_configuration()
+  - libusb_set_interface_alt_setting()
+  - libusb_release_interface()
+  - libusb_clear_halt()
+  - libusb_reset_device()
+
+Hotplug Notification
+--------------------  
+- only available on some platforms, libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG) to check
+- libusb_hotplug_register_callback to listen
+- libusb_hotplug_event for arrived/left events
+- on arrival, device calls such as open are available
+- on leaving, device descriptor is available, close and open handles
+
+Device I/O
+---------------
+- Endpoints used for reading/writing
+  - read: send request, wait, receive data
+  - write: send data, wait, receive ack
+- Transfer types: control, bulk, interrupt, isochronous
+- Control transfers:
+  - for config, command, status operations; bursts, non-periodic
+  - low, full, high speed devices; 8, 8/16/32/64, 64 byte max packet sizes
+  - endpoint is bidirectional 
+  - robust error detection, recovery, retransmission with auto-retries
+- Bulk transfers:
+  - for large amounts of non-time sensitive, burst data, any bandwidth; general devices
+  - full, high speed devices; 8/16/32/64, 512 max packet sizes
+  - endpoint is unidirectional; bidirectional transfer requires two pipes
+  - uses any available remaining bandwidth; error detection and auto-retries
+- Interrupt transfers:
+  - for small amounts of data, infrequently or asynchronously
+  - low, full, high speed devices; 8, 64, 1024 max packet sizes
+  - endpoint is unidirectional, periodical; bidirectional transfer requires two pipes
+  - guaranteed max service period, auto-retry next period if error
+- Isochronous transfers:
+  - for multimedia, telephony; time-dependent, periodic, continuous
+  - full, high speed devices
+  - endpoint is unidirectional, periodical; bidirectional transfer requires two pipes
+  - guaranteed transfer rate; no retries, but receiver is able to determine if error
+- Synchronous I/O:
+  - reads and writes complete in single blocking calls; not possible to cancel, but has timeout
+  - libusb_control_transfer
+  - libusb_bulk_transfer
+  - libusb_interrupt_transfer
+  - No isochronous transfer
+
+Asynchronous I/O
+----------------
+- All transfer types supported: control/bulk/interrupt/isochronous
+- Multiple calls can be started, with a non-blocking callback passed in each call
+- Requires calls to libusb_handle_events from main loop 
+
+
+
+
+
+
+
+
