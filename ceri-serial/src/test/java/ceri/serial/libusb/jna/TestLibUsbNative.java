@@ -70,14 +70,16 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	// TODO:
+	// - extract audio descriptors from test data
+	// - endPoint -> endpoint
 	// - summarize libusb
-	// - async transfers
-	// - polling
+	//   - async transfers
+	//   - polling
 	// - abstract async io
-	// - transfer type
-	// - fill
-	// - callback logic
-	// - breakdown by completion/timeout/error/cancel?
+	//   - transfer type
+	//   - fill
+	//   - callback logic
+	//   - breakdown by completion/timeout/error/cancel?
 	// - check libusb 1.0.24 examples
 
 	public static TestLibUsbNative of() {
