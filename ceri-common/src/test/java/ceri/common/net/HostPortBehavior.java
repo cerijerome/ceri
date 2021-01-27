@@ -8,7 +8,6 @@ import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import org.junit.Test;
 
@@ -64,8 +63,14 @@ public class HostPortBehavior {
 
 	@Test
 	public void shouldCreateInetAddress() throws UnknownHostException {
-		InetAddress addr = HostPort.of("0.0.0.0").asAddress();
+		var addr = HostPort.of("0.0.0.0").asAddress();
 		assertEquals(addr.getHostAddress(), "0.0.0.0");
+	}
+
+	@Test
+	public void shouldCreateInetSocketAddress() throws UnknownHostException {
+		var addr = HostPort.of("0.0.0.0").asSocketAddress();
+		assertEquals(addr.getHostString(), "0.0.0.0");
 	}
 
 	private static void assertHostPort(HostPort hostPort, String host) {

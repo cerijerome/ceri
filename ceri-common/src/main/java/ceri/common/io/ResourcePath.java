@@ -27,7 +27,6 @@ import ceri.common.text.RegexUtil;
 public class ResourcePath implements Closeable {
 	private static final String FILE_PROTOCOL = "file";
 	private static final String JRT_PROTOCOL = "jrt";
-	private static final String JRT_MODULES = JRT_PROTOCOL + ":/modules";
 	private static final Pattern ZIP_REGEX = Pattern.compile("([^!]+)!(.*)");
 	private final FileSystem closeableFs;
 	private final Path path;
@@ -60,9 +59,8 @@ public class ResourcePath implements Closeable {
 		if (url == null) return null;
 		switch (url.getProtocol()) {
 		case FILE_PROTOCOL:
-			return ofFile(url, pathAdjuster);
 		case JRT_PROTOCOL:
-			return ofJrt(url, pathAdjuster);
+			return ofFile(url, pathAdjuster);
 		default:
 			return ofZip(url, pathAdjuster); // zip, jar
 		}
@@ -70,11 +68,6 @@ public class ResourcePath implements Closeable {
 
 	private static ResourcePath ofFile(URL url, Function<Path, Path> pathAdjuster) {
 		Path path = Path.of(NetUtil.uri(url));
-		return new ResourcePath(null, pathAdjuster.apply(path));
-	}
-
-	private static ResourcePath ofJrt(URL url, Function<Path, Path> pathAdjuster) {
-		Path path = Path.of(URI.create(JRT_MODULES + url.getPath()));
 		return new ResourcePath(null, pathAdjuster.apply(path));
 	}
 

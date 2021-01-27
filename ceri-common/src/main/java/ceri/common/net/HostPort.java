@@ -2,6 +2,7 @@ package ceri.common.net;
 
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -41,6 +42,10 @@ public class HostPort {
 
 	public InetAddress asAddress() throws UnknownHostException {
 		return InetAddress.getByName(host);
+	}
+
+	public InetSocketAddress asSocketAddress() throws UnknownHostException {
+		return NetUtil.requireResolved(new InetSocketAddress(host, port(0)));
 	}
 
 	public int port(int def) {

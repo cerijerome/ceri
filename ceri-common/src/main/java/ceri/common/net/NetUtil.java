@@ -4,10 +4,12 @@ import static ceri.common.collection.StreamUtil.first;
 import static ceri.common.collection.StreamUtil.stream;
 import static ceri.common.collection.StreamUtil.toList;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -28,6 +30,15 @@ public class NetUtil {
 	 */
 	public static URI uri(URL url) {
 		return ExceptionAdapter.ILLEGAL_ARGUMENT.get(url::toURI);
+	}
+
+	/**
+	 * Checks an internet address is resolved. Throws UnknownHostException if not.
+	 */
+	public static InetSocketAddress requireResolved(InetSocketAddress address)
+		throws UnknownHostException {
+		if (!address.isUnresolved()) return address;
+		throw new UnknownHostException("Unable to resolve host: " + address.getHostString());
 	}
 
 	/**

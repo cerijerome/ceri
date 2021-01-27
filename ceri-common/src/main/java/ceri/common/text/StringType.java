@@ -53,10 +53,6 @@ public interface StringType extends CharSequence {
 		return substring(offset, offset + len).regionMatches(ignoreCase, 0, s, sOffset, len);
 	}
 
-	default boolean isEmpty() {
-		return length() == 0;
-	}
-
 	static StringType of(String t) {
 		return new StringType() {
 			@Override
