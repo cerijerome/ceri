@@ -33,9 +33,9 @@ Can add user-specific .gitignore
 2FA command-line issue
 ----------------------
 Settings / Developer Settings / Personal access tokens
-Generate for repo access
-Needed one time when accessing from command-line
-Use instead of password
+Generate for scope: repo, workflow
+Enter token for password on first pull
+Saved in credential manager
 
 
 Set up a repo
@@ -44,7 +44,7 @@ Set up repo on github.com (origin = repo alias)
 $ git init
 $ git remote add origin <https|ssh-repolink>
 $ git remote add origin https://username@github.com/username/repo.git
-$ git config --system http.sslcainfo "C:\Program Files (x86)\git\bin\curl-ca-bundle.crt" (windows)
+(see 2FA note above before first pull)
 $ git pull origin master => pull from remote
 $ git push origin master => push to remote
 $ git fetch origin => pulls data but doesn't merge it
