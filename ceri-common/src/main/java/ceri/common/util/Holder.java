@@ -10,18 +10,30 @@ public abstract class Holder<T> {
 	private static final Holder<Object> EMPTY = new Immutable<>(null, true);
 	private static final String EMPTY_STRING = "empty";
 
+	/**
+	 * Creates an immutable non-empty value holder (value can be null).
+	 */
 	public static <T> Holder<T> of(T value) {
 		return new Immutable<>(value, false);
 	}
 
+	/**
+	 * Creates an immutable empty holder.
+	 */
 	public static <T> Holder<T> of() {
 		return BasicUtil.uncheckedCast(EMPTY);
 	}
 
+	/**
+	 * Creates a mutable value holder that is non-empty with given value.
+	 */
 	public static <T> Mutable<T> mutable(T value) {
 		return Holder.<T>mutable().set(value);
 	}
 
+	/**
+	 * Creates a mutable value holder that is empty.
+	 */
 	public static <T> Mutable<T> mutable() {
 		return new Mutable<>();
 	}
