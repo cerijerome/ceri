@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -21,6 +22,7 @@
 		<maven.compiler.version>3.8.1</maven.compiler.version>
 		<maven.source.version>3.2.0</maven.source.version>
 		<maven.surefire.version>3.0.0-M3</maven.surefire.version>
+		<exec.maven.version>3.0.0</exec.maven.version>
 		<junit.version>4.13.1</junit.version>
 		<mockito.version>2.28.2</mockito.version>
 		<log4j.version>2.13.3</log4j.version>
@@ -31,7 +33,7 @@
 		<os.maven.version>1.6.2</os.maven.version>
 		<protobuf.version>3.6.1</protobuf.version>
 		<protobuf.maven.version>0.6.1</protobuf.maven.version>
-        <grpc.version>1.24.1</grpc.version>
+		<grpc.version>1.24.1</grpc.version>
 		<!-- Repo-specific properties -->
 		<htmlunit.version>2.40.0</htmlunit.version>
 		<selenium.java.version>3.141.59</selenium.java.version>
@@ -176,7 +178,7 @@
 				<version>${grpc.version}</version>
 			</dependency>
 			<dependency>
-			    <!-- Needed for gRPC -->
+				<!-- Needed for gRPC -->
 				<groupId>javax.annotation</groupId>
 				<artifactId>javax.annotation-api</artifactId>
 				<version>${javax.annotation.version}</version>
@@ -246,6 +248,11 @@
 							</goals>
 						</execution>
 					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>${exec.maven.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
