@@ -354,7 +354,10 @@ public class MathUtilTest {
 	}
 
 	@Test
-	public void testGcd() {
+	public void testGcdForInts() {
+		assertEquals(MathUtil.gcd(60, 90, 45), 15);
+		assertEquals(MathUtil.gcd(45, 60, 90), 15);
+		assertEquals(MathUtil.gcd(90, 45, 60), 15);
 		assertEquals(MathUtil.gcd(0, 0), 0);
 		assertEquals(MathUtil.gcd(1, 0), 1);
 		assertEquals(MathUtil.gcd(0, 1), 1);
@@ -377,6 +380,10 @@ public class MathUtilTest {
 		assertThrown(() -> MathUtil.gcd(Integer.MIN_VALUE, Integer.MIN_VALUE));
 		assertEquals(MathUtil.gcd(Integer.MAX_VALUE, Integer.MAX_VALUE), Integer.MAX_VALUE);
 		assertEquals(MathUtil.gcd(Integer.MIN_VALUE, Integer.MAX_VALUE), 1);
+	}
+
+	@Test
+	public void testGcdForLongs() {
 		assertThrown(() -> MathUtil.gcd(Long.MIN_VALUE, 0));
 		assertEquals(MathUtil.gcd(Long.MIN_VALUE, 1), 1L);
 		assertEquals(MathUtil.gcd(Long.MAX_VALUE, 0), Long.MAX_VALUE);
@@ -387,7 +394,9 @@ public class MathUtilTest {
 	}
 
 	@Test
-	public void testLcm() {
+	public void testLcmForInts() {
+		assertEquals(MathUtil.lcm(8, 12, 16, 24, 32), 96);
+		assertEquals(MathUtil.lcm(16, 24, 32, 8, 12), 96);
 		assertEquals(MathUtil.lcm(0, 0), 0);
 		assertEquals(MathUtil.lcm(1, 0), 0);
 		assertEquals(MathUtil.lcm(0, 1), 0);
@@ -410,6 +419,10 @@ public class MathUtilTest {
 		assertThrown(() -> MathUtil.lcm(Integer.MIN_VALUE, Integer.MIN_VALUE));
 		assertEquals(MathUtil.lcm(Integer.MAX_VALUE, Integer.MAX_VALUE), Integer.MAX_VALUE);
 		assertThrown(() -> MathUtil.lcm(Integer.MIN_VALUE, Integer.MAX_VALUE));
+	}
+
+	@Test
+	public void testLcmForLongs() {
 		assertEquals(MathUtil.lcm(Long.MIN_VALUE, 0), 0L);
 		assertThrown(() -> MathUtil.lcm(Long.MIN_VALUE, 1L));
 		assertEquals(MathUtil.lcm(Long.MAX_VALUE, 0), 0L);

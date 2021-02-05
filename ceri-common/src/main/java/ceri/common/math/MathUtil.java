@@ -16,6 +16,7 @@ import ceri.common.collection.CollectionUtil;
 public class MathUtil {
 	public static final double PIx2 = Math.PI * 2; // common calculation
 	public static final double PI_BY_2 = Math.PI / 2; // common calculation
+	public static final double PI_3_BY_2 = Math.PI * 3 / 2; // common calculation
 	private static final int MAX_ROUND_PLACES = 10;
 	private static final double MAX_ROUND = 1000000000.0;
 	private static final int MAX_UBYTE = 0xff;
@@ -306,41 +307,45 @@ public class MathUtil {
 	/**
 	 * Calculates the greatest common divisor of two numbers.
 	 */
-	public static int gcd(int lhs, int rhs) {
-		return Math.toIntExact(gcd((long) lhs, (long) rhs));
+	public static int gcd(int... nums) {
+		validateMin(nums.length, 1);
+		int gcd = nums[0];
+		for (int i = 1; i < nums.length; i++)
+			gcd = Math.toIntExact(calculateGcd(gcd, nums[i]));
+		return gcd;
 	}
 
 	/**
-	 * Calculates the greatest common divisor of two numbers.
+	 * Calculates the greatest common divisor of given numbers.
 	 */
-	public static long gcd(long lhs, long rhs) {
-		if (lhs == rhs) return absExact(lhs);
-		if (lhs == 0) return absExact(rhs);
-		if (rhs == 0) return absExact(lhs);
-		if (lhs == 1 || lhs == -1 || rhs == 1 || rhs == -1) return 1;
-		if (lhs % rhs == 0) return absExact(rhs);
-		if (rhs % lhs == 0) return absExact(lhs);
-		return gcd(rhs, lhs % rhs);
+	public static long gcd(long... nums) {
+		validateMin(nums.length, 1);
+		long gcd = nums[0];
+		for (int i = 1; i < nums.length; i++)
+			gcd = calculateGcd(gcd, nums[i]);
+		return gcd;
+	}
+	
+	/**
+	 * Calculates the lowest common multiple of given numbers.
+	 */
+	public static int lcm(int... nums) {
+		validateMin(nums.length, 1);
+		int lcm = nums[0];
+		for (int i = 1; i < nums.length; i++)
+			lcm = Math.toIntExact(calculateLcm(lcm, nums[i]));
+		return lcm;
 	}
 
 	/**
-	 * Calculates the lowest common multiple of two numbers.
+	 * Calculates the lowest common multiple of given numbers.
 	 */
-	public static int lcm(int lhs, int rhs) {
-		return Math.toIntExact(lcm((long) lhs, (long) rhs));
-	}
-
-	/**
-	 * Calculates the lowest common multiple of two numbers.
-	 */
-	public static long lcm(long lhs, long rhs) {
-		if (lhs == rhs) return absExact(lhs);
-		if (lhs == 0 || rhs == 0) return 0; // debatable
-		if (lhs == 1 || lhs == -1) return absExact(rhs);
-		if (rhs == 1 || rhs == -1) return absExact(lhs);
-		if (lhs % rhs == 0) return absExact(lhs);
-		if (rhs % lhs == 0) return absExact(rhs);
-		return absExact(Math.multiplyExact(lhs / gcd(lhs, rhs), rhs));
+	public static long lcm(long... nums) {
+		validateMin(nums.length, 1);
+		long lcm = nums[0];
+		for (int i = 1; i < nums.length; i++)
+			lcm = calculateLcm(lcm, nums[i]);
+		return lcm;
 	}
 
 	/**
@@ -996,6 +1001,32 @@ public class MathUtil {
 		for (; length > 0; length--, offset++)
 			max = Double.max(max, array[offset]);
 		return max;
+	}
+
+	/**
+	 * Calculates the greatest common divisor of two numbers.
+	 */
+	private static long calculateGcd(long lhs, long rhs) {
+		if (lhs == rhs) return absExact(lhs);
+		if (lhs == 0) return absExact(rhs);
+		if (rhs == 0) return absExact(lhs);
+		if (lhs == 1 || lhs == -1 || rhs == 1 || rhs == -1) return 1;
+		if (lhs % rhs == 0) return absExact(rhs);
+		if (rhs % lhs == 0) return absExact(lhs);
+		return gcd(rhs, lhs % rhs);
+	}
+
+	/**
+	 * Calculates the lowest common multiple of two numbers.
+	 */
+	private static long calculateLcm(long lhs, long rhs) {
+		if (lhs == rhs) return absExact(lhs);
+		if (lhs == 0 || rhs == 0) return 0; // debatable
+		if (lhs == 1 || lhs == -1) return absExact(rhs);
+		if (rhs == 1 || rhs == -1) return absExact(lhs);
+		if (lhs % rhs == 0) return absExact(lhs);
+		if (rhs % lhs == 0) return absExact(rhs);
+		return absExact(Math.multiplyExact(lhs / gcd(lhs, rhs), rhs));
 	}
 
 }

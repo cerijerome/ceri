@@ -228,6 +228,16 @@ public class ColorUtilTest {
 	}
 
 	@Test
+	public void testGrayColor() {
+		assertColor(ColorUtil.grayColor(-1), 255, 255, 255, 255);
+		assertColor(ColorUtil.grayColor(0), 0, 0, 0, 255);
+		assertColor(ColorUtil.grayColor(100), 100, 100, 100, 255);
+		assertColor(ColorUtil.grayColor(255), 255, 255, 255, 255);
+		assertColor(ColorUtil.grayColor(256), 0, 0, 0, 255);
+		assertColor(ColorUtil.grayColor(257), 1, 1, 1, 255);
+	}
+
+	@Test
 	public void testRandom() {
 		assertNotNull(ColorUtil.random());
 	}

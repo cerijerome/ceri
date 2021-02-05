@@ -218,6 +218,14 @@ public class ColorUtil {
 		return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
 	}
 
+	/**
+	 * Creates a gray color with given component level.
+	 */
+	public static Color grayColor(int value) {
+		value &= CHANNEL_MAX;
+		return new Color(value, value, value);
+	}
+
 	public static Color validColor(String name) {
 		Color color = color(name);
 		if (color != null) return color;
