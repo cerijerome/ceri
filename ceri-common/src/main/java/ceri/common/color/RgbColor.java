@@ -1,74 +1,75 @@
 package ceri.common.color;
 
+import static ceri.common.color.ColorUtil.a;
 import static ceri.common.color.ColorUtil.b;
-import static ceri.common.color.ColorUtil.fromRatio;
 import static ceri.common.color.ColorUtil.g;
 import static ceri.common.color.ColorUtil.r;
-import static ceri.common.color.ColorUtil.toRatio;
+import static ceri.common.color.ColorUtil.ratio;
+import static ceri.common.color.ColorUtil.value;
 import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.awt.Color;
 import java.util.Objects;
 import ceri.common.math.MathUtil;
 
 /**
- * Encapsulates RGBA color with values 0-1.
+ * Encapsulates A+RGB color with values 0-1 inclusive.
  */
 public class RgbColor implements ComponentColor<RgbColor> {
 	public static final double MAX_VALUE = 1.0;
-	public static final RgbColor BLACK = RgbColor.of(0, 0, 0);
-	public static final RgbColor WHITE = RgbColor.of(MAX_VALUE, MAX_VALUE, MAX_VALUE);
-	private static final int MAX_COLOR_VALUE = 255;
+	public static final RgbColor clear = RgbColor.of(0, 0, 0, 0);
+	public static final RgbColor black = RgbColor.of(0, 0, 0);
+	public static final RgbColor white = RgbColor.of(MAX_VALUE, MAX_VALUE, MAX_VALUE);
+	public final double a; // alpha
 	public final double r; // red
 	public final double g; // green
 	public final double b; // blue
-	public final double a; // alpha
 
 	public static RgbColor from(Color color) {
-		return from(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+		return from(color.getRGB());
 	}
 
-	public static RgbColor from(int rgb) {
+	public static RgbColor fromRgb(int rgb) {
 		return from(r(rgb), g(rgb), b(rgb));
 	}
 
-	public static RgbColor from(int red, int green, int blue) {
-		return from(red, green, blue, MAX_COLOR_VALUE);
+	public static RgbColor from(int argb) {
+		return from(a(argb), r(argb), g(argb), b(argb));
 	}
 
-	public static RgbColor from(int red, int green, int blue, int alpha) {
-		return of(toRatio(red), toRatio(green), toRatio(blue), toRatio(alpha));
+	public static RgbColor from(int r, int g, int b) {
+		return of(ratio(r), ratio(g), ratio(b));
 	}
 
-	public static Color toColor(double red, double green, double blue) {
-		return toColor(red, green, blue, MAX_VALUE);
+	public static RgbColor from(int a, int r, int g, int b) {
+		return of(ratio(a), ratio(r), ratio(g), ratio(b));
 	}
 
-	public static Color toColor(double red, double green, double blue, double alpha) {
-		return of(red, green, blue, alpha).asColor();
+	public static RgbColor of(double r, double g, double b) {
+		return of(MAX_VALUE, r, g, b);
 	}
 
-	public static RgbColor of(double red, double green, double blue) {
-		return of(red, green, blue, MAX_VALUE);
+	public static RgbColor of(double alpha, double red, double green, double blue) {
+		return new RgbColor(alpha, red, green, blue);
 	}
 
-	public static RgbColor of(double red, double green, double blue, double alpha) {
-		return new RgbColor(red, green, blue, alpha);
-	}
-
-	private RgbColor(double red, double green, double blue, double alpha) {
+	private RgbColor(double alpha, double red, double green, double blue) {
 		this.r = red;
 		this.g = green;
 		this.b = blue;
 		this.a = alpha;
 	}
 
-	public Color asColor() {
-		return new Color(fromRatio(r), fromRatio(g), fromRatio(b), fromRatio(a));
+	public int argb() {
+		return ColorUtil.argb(value(a), value(r), value(g), value(b));
+	}
+
+	public Color color() {
+		return ColorUtil.color(argb());
 	}
 
 	public RgbColor dim(double ratio) {
 		if (ratio == 1) return this;
-		return of(r * ratio, g * ratio, b * ratio, a);
+		return of(a, r * ratio, g * ratio, b * ratio);
 	}
 
 	@Override
@@ -81,30 +82,30 @@ public class RgbColor implements ComponentColor<RgbColor> {
 		double min = MathUtil.min(r, g, b, 0);
 		double max = MathUtil.max(r, g, b, 0);
 		double divisor = Math.max(max - min, 1);
+		double a = limit(this.a);
 		double r = (this.r - min) / divisor;
 		double g = (this.g - min) / divisor;
 		double b = (this.b - min) / divisor;
-		double a = limit(this.a);
-		if (r == this.r && g == this.g && b == this.b && a == this.a) return this;
-		return of(r, g, b, a);
+		if (a == this.a && r == this.r && g == this.g && b == this.b) return this;
+		return of(a, r, g, b);
 	}
 
 	@Override
 	public RgbColor limit() {
+		double a = limit(this.a);
 		double r = limit(this.r);
 		double g = limit(this.g);
 		double b = limit(this.b);
-		double a = limit(this.a);
-		if (r == this.r && g == this.g && b == this.b && a == this.a) return this;
-		return of(r, g, b, a);
+		if (a == this.a && r == this.r && g == this.g && b == this.b) return this;
+		return of(a, r, g, b);
 	}
 
 	@Override
 	public void verify() {
+		validate(a, "alpha");
 		validate(r, "red");
 		validate(g, "green");
 		validate(b, "blue");
-		validate(a, "alpha");
 	}
 
 	private void validate(double value, String name) {
@@ -117,7 +118,7 @@ public class RgbColor implements ComponentColor<RgbColor> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(r, g, b, a);
+		return Objects.hash(a, r, g, b);
 	}
 
 	@Override
@@ -125,17 +126,16 @@ public class RgbColor implements ComponentColor<RgbColor> {
 		if (this == obj) return true;
 		if (!(obj instanceof RgbColor)) return false;
 		RgbColor other = (RgbColor) obj;
+		if (!Objects.equals(a, other.a)) return false;
 		if (!Objects.equals(r, other.r)) return false;
 		if (!Objects.equals(g, other.g)) return false;
 		if (!Objects.equals(b, other.b)) return false;
-		if (!Objects.equals(a, other.a)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return hasAlpha() ? String.format("(r=%.5f,g=%.5f,b=%.5f,a=%.5f)", r, g, b, a) :
-			String.format("(r=%.5f,g=%.5f,b=%.5f)", r, g, b);
+		return String.format("(a=%.5f,r=%.5f,g=%.5f,b=%.5f)", a, r, g, b);
 	}
 
 }

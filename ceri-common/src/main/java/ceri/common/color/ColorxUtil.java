@@ -2,33 +2,25 @@ package ceri.common.color;
 
 import static ceri.common.collection.StreamUtil.first;
 import static ceri.common.collection.StreamUtil.toList;
-import static ceri.common.color.ColorUtil.CHANNEL_MAX;
+import static ceri.common.color.ColorUtil.MAX_VALUE;
 import static ceri.common.color.ColorUtil.divide;
-import static ceri.common.color.ColorUtil.scaleChannel;
-import static ceri.common.color.ColorUtil.toRatio;
+import static ceri.common.color.ColorUtil.scaleValue;
+import static ceri.common.color.ColorUtil.ratio;
 import static ceri.common.color.ColorUtil.tripleHexToRgb;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.IntBinaryOperator;
-import java.util.function.IntUnaryOperator;
-import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-import ceri.common.color.ColorUtil.Fn.ChannelAdjuster;
-import ceri.common.color.ColorUtil.Fn.ChannelScaler;
+import java.util.stream.LongStream;
 import ceri.common.data.ByteUtil;
-import ceri.common.function.BinaryFunction;
 import ceri.common.math.MathUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
@@ -41,187 +33,22 @@ public class ColorxUtil {
 	private static final int BITS4 = 4;
 	private static final int BITS8 = 8;
 	private static final int BITS12 = 12;
+	
 	private static final Map<Integer, String> colorNames = colorMap();
 
 	private ColorxUtil() {}
-
-	public static class Fn {
-
-		private Fn() {}
-
-		public static UnaryOperator<Colorx> dim(double scale) {
-			return cx -> ColorxUtil.dim(cx, scale);
-		}
-
-		public static BinaryFunction<Colorx, List<Colorx>> fade(int steps) {
-			return fade(steps, Biases.NONE);
-		}
-
-		public static BinaryFunction<Colorx, List<Colorx>> fade(int steps, Bias bias) {
-			return (cx0, cx1) -> ColorxUtil.fade(cx0, cx1, steps, bias);
-		}
-
-		public static BinaryFunction<Colorx, List<Colorx>> fadeHsbx(int steps) {
-			return fadeHsbx(steps, Biases.NONE);
-		}
-
-		public static BinaryFunction<Colorx, List<Colorx>> fadeHsbx(int steps, Bias bias) {
-			return (cx0, cx1) -> ColorxUtil.fadeHsbx(cx0, cx1, steps, bias);
-		}
-
-		public static Function<Colorx, List<Colorx>> rotateHuex(int steps) {
-			return rotateHuex(steps, Biases.NONE);
-		}
-
-		public static Function<Colorx, List<Colorx>> rotateHuex(int steps, Bias bias) {
-			return cx -> ColorxUtil.rotateHuex(cx, steps, bias);
-		}
-
-		public static BinaryOperator<Colorx> scale(double ratio) {
-			return (cx0, cx1) -> ColorxUtil.scale(cx0, cx1, ratio);
-		}
-
-		public static BinaryOperator<Colorx> scaleHsbx(double ratio) {
-			return (cx0, cx1) -> ColorxUtil.scaleHsbx(cx0, cx1, ratio);
-		}
-
-		public static Function<Colorx, List<Colorx>> transform(Function<Color, List<Color>> rgbFn) {
-			return cx -> applyRgb(cx, rgbFn);
-		}
-
-		public static Function<Colorx, List<Colorx>> transform(Function<Color, List<Color>> rgbFn,
-			ChannelAdjuster xFn) {
-			return cx -> applyRgb(cx, rgbFn, xFn);
-		}
-
-		public static BinaryFunction<Colorx, List<Colorx>>
-			transform(BinaryFunction<Color, List<Color>> rgbFn) {
-			return (cx0, cx1) -> applyRgb(cx0, cx1, rgbFn);
-		}
-
-		public static BinaryFunction<Colorx, List<Colorx>>
-			transform(BinaryFunction<Color, List<Color>> rgbFn, Bias bias) {
-			return (cx0, cx1) -> applyRgb(cx0, cx1, rgbFn, bias);
-		}
-
-		public static BinaryFunction<Colorx, List<Colorx>>
-			transform(BinaryFunction<Color, List<Color>> rgbFn, ChannelScaler xFn) {
-			return (cx0, cx1) -> applyRgb(cx0, cx1, rgbFn, xFn);
-		}
-
-		public static BinaryOperator<Colorx> transform(BinaryOperator<Color> rgbFn) {
-			return (cx0, cx1) -> applyRgb(cx0, cx1, rgbFn);
-		}
-
-		public static BinaryOperator<Colorx> transform(BinaryOperator<Color> rgbFn,
-			IntBinaryOperator xFn) {
-			return (cx0, cx1) -> applyRgb(cx0, cx1, rgbFn, xFn);
-		}
-
-		public static UnaryOperator<Colorx> transform(UnaryOperator<Color> rgbFn) {
-			return cx -> applyRgb(cx, rgbFn);
-		}
-
-		public static UnaryOperator<Colorx> transform(UnaryOperator<Color> rgbFn,
-			IntUnaryOperator xFn) {
-			return cx -> applyRgb(cx, rgbFn, xFn);
-		}
-
-		public static List<Colorx> applyRgb(Colorx colorx, Function<Color, List<Color>> rgbFn) {
-			return applyRgb(colorx, rgbFn, ChannelAdjuster.none());
-		}
-
-		public static List<Colorx> applyRgb(Colorx colorx, Function<Color, List<Color>> rgbFn,
-			ChannelAdjuster xFn) {
-			if (colorx == null) return null;
-			if (rgbFn == null) return Collections.emptyList();
-			List<Color> colors = rgbFn.apply(colorx.rgb);
-			List<Colorx> colorxs = new ArrayList<>();
-			for (int i = 0; i < colors.size(); i++) {
-				double d = (double) (i + 1) / colors.size();
-				int x = xFn == null ? 0 : xFn.applyAsInt(colorx.x(), d);
-				colorxs.add(Colorx.of(colors.get(i), x));
-			}
-			return colorxs;
-		}
-
-		public static List<Colorx> applyRgb(Colorx cx0, Colorx cx1,
-			BinaryFunction<Color, List<Color>> rgbFn) {
-			return applyRgb(cx0, cx1, rgbFn, Biases.NONE);
-		}
-
-		public static List<Colorx> applyRgb(Colorx cx0, Colorx cx1,
-			BinaryFunction<Color, List<Color>> rgbFn, Bias bias) {
-			return applyRgb(cx0, cx1, rgbFn, ChannelScaler.of(bias));
-		}
-
-		public static List<Colorx> applyRgb(Colorx cx0, Colorx cx1,
-			BinaryFunction<Color, List<Color>> rgbFn, ChannelScaler xFn) {
-			if (cx0 == null || cx1 == null) return null;
-			if (rgbFn == null) return Collections.emptyList();
-			List<Color> colors = rgbFn.apply(cx0.rgb, cx1.rgb);
-			List<Colorx> colorxs = new ArrayList<>();
-			for (int i = 0; i < colors.size(); i++) {
-				double d = (double) (i + 1) / colors.size();
-				int x = xFn == null ? 0 : xFn.applyAsInt(cx0.x(), cx1.x(), d);
-				colorxs.add(Colorx.of(colors.get(i), x));
-			}
-			return colorxs;
-		}
-
-		public static Colorx applyRgb(Colorx cx0, Colorx cx1, BinaryOperator<Color> rgbFn) {
-			return applyRgb(cx0, cx1, rgbFn, (l, r) -> averageInt(l, r));
-		}
-
-		public static Colorx applyRgb(Colorx cx0, Colorx cx1, BinaryOperator<Color> rgbFn,
-			IntBinaryOperator xFn) {
-			if (cx0 == null) return cx1;
-			if (cx1 == null || rgbFn == null) return cx0;
-			return Colorx.of(rgbFn.apply(cx0.rgb, cx1.rgb), xFn.applyAsInt(cx0.x(), cx1.x()));
-		}
-
-		public static Colorx applyRgb(Colorx colorx, UnaryOperator<Color> rgbFn) {
-			return applyRgb(colorx, rgbFn, x -> x);
-		}
-
-		public static Colorx applyRgb(Colorx colorx, UnaryOperator<Color> rgbFn,
-			IntUnaryOperator xFn) {
-			if (rgbFn == null || colorx == null) return colorx;
-			return Colorx.of(rgbFn.apply(colorx.rgb), xFn.applyAsInt(colorx.x()));
-		}
-
-		public static List<Colorx> apply(Colorx colorx, Function<Colorx, List<Colorx>> rgbxFn) {
-			if (colorx == null) return null;
-			if (rgbxFn == null) return Collections.emptyList();
-			return rgbxFn.apply(colorx);
-		}
-
-		public static List<Colorx> apply(Colorx cx0, Colorx cx1,
-			BinaryFunction<Colorx, List<Colorx>> rgbxFn) {
-			if (cx0 == null || cx1 == null) return null;
-			if (rgbxFn == null) return Collections.emptyList();
-			return rgbxFn.apply(cx0, cx1);
-		}
-
-		public static Colorx apply(Colorx cx0, Colorx cx1, BinaryOperator<Colorx> rgbxFn) {
-			if (cx0 == null) return cx1;
-			if (cx1 == null || rgbxFn == null) return cx0;
-			return rgbxFn.apply(cx0, cx1);
-		}
-
-		public static Colorx apply(Colorx colorx, UnaryOperator<Colorx> rgbxFn) {
-			if (rgbxFn == null || colorx == null) return colorx;
-			return rgbxFn.apply(colorx);
-		}
-	}
 
 	public static Colorx max(Colorx colorx) {
 		return max(colorx.r(), colorx.g(), colorx.b(), colorx.x());
 	}
 
 	public static Colorx max(int r, int g, int b, int x) {
-		double ratio = MathUtil.max(toRatio(r), toRatio(g), toRatio(b), toRatio(x));
+		double ratio = MathUtil.max(ratio(r), ratio(g), ratio(b), ratio(x));
 		return Colorx.of(divide(r, ratio), divide(g, ratio), divide(b, ratio), divide(x, ratio));
+	}
+
+	public static List<Colorx> colors(long... argbxs) {
+		return toList(LongStream.of(argbxs).mapToObj(Colorx::of));
 	}
 
 	public static List<Colorx> colors(int... rgbxs) {
@@ -240,7 +67,7 @@ public class ColorxUtil {
 	 * Returns the given color with modified alpha value.
 	 */
 	public static Colorx alphaColor(Colorx colorx, int alpha) {
-		return Colorx.of(colorx.r(), colorx.g(), colorx.b(), colorx.x(), alpha);
+		return Colorx.of(alpha, colorx.r(), colorx.g(), colorx.b(), colorx.x());
 	}
 
 	public static Colorx validColor(String name) {
@@ -381,8 +208,8 @@ public class ColorxUtil {
 		if (max == null) return min;
 		if (ratio <= 0.0) return min;
 		if (ratio >= 1.0) return max;
-		Color rgb = ColorUtil.scaleHsb(min.rgb, max.rgb, ratio);
-		int x = scaleChannel(min.x(), max.x(), ratio);
+		Color rgb = ColorUtil.scaleHsb(min.color(), max.color(), ratio);
+		int x = scaleValue(min.x(), max.x(), ratio);
 		return Colorx.of(rgb, x);
 	}
 
@@ -393,12 +220,12 @@ public class ColorxUtil {
 	public static Colorx scale(Colorx min, Colorx max, double ratio) {
 		if (ratio <= 0.0) return min;
 		if (ratio >= 1.0) return max;
-		int r = scaleChannel(min.r(), max.r(), ratio);
-		int g = scaleChannel(min.g(), max.g(), ratio);
-		int b = scaleChannel(min.b(), max.b(), ratio);
-		int x = scaleChannel(min.x(), max.x(), ratio);
-		int a = scaleChannel(min.a(), max.a(), ratio);
-		return Colorx.of(r, g, b, x, a);
+		int r = scaleValue(min.r(), max.r(), ratio);
+		int g = scaleValue(min.g(), max.g(), ratio);
+		int b = scaleValue(min.b(), max.b(), ratio);
+		int x = scaleValue(min.x(), max.x(), ratio);
+		int a = scaleValue(min.a(), max.a(), ratio);
+		return Colorx.of(a, r, g, b, x);
 	}
 
 	public static List<Colorx> rotateHuex(int rgbx, int steps) {
@@ -414,7 +241,7 @@ public class ColorxUtil {
 	}
 
 	public static List<Colorx> rotateHuex(Colorx colorx, int steps, Bias bias) {
-		List<Color> rgbs = ColorUtil.rotateHue(colorx.rgb, steps, bias);
+		List<Color> rgbs = ColorUtil.rotateHue(colorx.color(), steps, bias);
 		return toList(rgbs.stream().map(rgb -> Colorx.of(rgb, colorx.x())));
 	}
 
@@ -439,8 +266,7 @@ public class ColorxUtil {
 	}
 
 	public static int rgbx(int r, int g, int b, int x) {
-		return (int) (ByteUtil.shiftByteLeft(r, 3) | ByteUtil.shiftByteLeft(g, 2) |
-			ByteUtil.shiftByteLeft(b, 1) | x & CHANNEL_MAX);
+		return Colorx.of(r, g, b, x).rgbx();
 	}
 
 	public static int quadHexToRgbx(int quadHex) {
@@ -453,7 +279,7 @@ public class ColorxUtil {
 
 	public static Colorx random() {
 		Random rnd = ThreadLocalRandom.current();
-		int max = CHANNEL_MAX + 1;
+		int max = MAX_VALUE + 1;
 		return Colorx.of(rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max));
 	}
 

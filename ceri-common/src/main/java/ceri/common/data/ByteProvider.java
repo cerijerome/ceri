@@ -37,6 +37,10 @@ public interface ByteProvider extends Iterable<Integer> {
 		return ByteArray.Immutable.EMPTY;
 	}
 
+	static ByteProvider of(byte... bytes) {
+		return ByteArray.Immutable.wrap(bytes);
+	}
+
 	/**
 	 * {@link Navigator} and {@link ByteReader} wrapper for a {@link ByteProvider}. This provides
 	 * sequential access to bytes, and relative/absolute positioning for the next read.

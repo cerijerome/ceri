@@ -214,10 +214,10 @@ public class ColorUtilTest {
 
 	@Test
 	public void testScaleChannel() {
-		assertEquals(ColorUtil.scaleChannel(50, 150, 0), 50);
-		assertEquals(ColorUtil.scaleChannel(50, 150, -1), 50);
-		assertEquals(ColorUtil.scaleChannel(50, 150, 1), 150);
-		assertEquals(ColorUtil.scaleChannel(50, 150, 1.1), 150);
+		assertEquals(ColorUtil.scaleValue(50, 150, 0), 50);
+		assertEquals(ColorUtil.scaleValue(50, 150, -1), 50);
+		assertEquals(ColorUtil.scaleValue(50, 150, 1), 150);
+		assertEquals(ColorUtil.scaleValue(50, 150, 1.1), 150);
 	}
 
 	@Test

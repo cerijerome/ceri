@@ -17,18 +17,18 @@ public class HsbColorBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		HsbColor c0 = HsbColor.of(0.1, 0.2, 0.3, 0.4);
-		HsbColor c1 = HsbColor.of(0.1, 0.2, 0.3, 0.4);
-		HsbColor c2 = HsbColor.of(0.01, 0.2, 0.3, 0.4);
-		HsbColor c3 = HsbColor.of(0.1, 0.02, 0.3, 0.4);
-		HsbColor c4 = HsbColor.of(0.1, 0.2, 0.03, 0.4);
-		HsbColor c5 = HsbColor.of(0.1, 0.2, 0.3, 0.04);
-		HsbColor c6 = HsbColor.of(0.1, 0.2, 0.3, 0.0);
-		HsbColor c7 = HsbColor.of(0.1, 0.2, 0.3, 1.0);
+		HsbColor c0 = HsbColor.of(0.4, 0.1, 0.2, 0.3);
+		HsbColor c1 = HsbColor.of(0.4, 0.1, 0.2, 0.3);
+		HsbColor c2 = HsbColor.of(0.4, 0.01, 0.2, 0.3);
+		HsbColor c3 = HsbColor.of(0.4, 0.1, 0.02, 0.3);
+		HsbColor c4 = HsbColor.of(0.4, 0.1, 0.2, 0.03);
+		HsbColor c5 = HsbColor.of(0.04, 0.1, 0.2, 0.3);
+		HsbColor c6 = HsbColor.of(0.0, 0.1, 0.2, 0.3);
+		HsbColor c7 = HsbColor.of(1.0, 0.1, 0.2, 0.3);
 		exerciseEquals(c0, c1);
 		assertAllNotEqual(c0, c2, c3, c4, c5, c6, c7);
-		HsbColor c8 = HsbColor.of(0.9, 0.8, 0.7, 1.0);
-		HsbColor c9 = HsbColor.of(0.9, 0.8, 0.7, 1.0);
+		HsbColor c8 = HsbColor.of(1.0, 0.9, 0.8, 0.7);
+		HsbColor c9 = HsbColor.of(1.0, 0.9, 0.8, 0.7);
 		exerciseEquals(c8, c9);
 	}
 
@@ -97,15 +97,15 @@ public class HsbColorBehavior {
 	@Test
 	public void shouldConvertToColorWithAlphaChannel() {
 		assertColor(HsbColor.of(0.0, 0.0, 0.0, 0.0).asColor(), Color.black, 0);
-		assertColor(HsbColor.of(0.0, 0.0, 0.0, 1.0).asColor(), Color.black, 255);
-		assertColor(HsbColor.of(0.0, 0.0, 1.0, 0.0).asColor(), Color.white, 0);
-		assertColor(HsbColor.of(0.0, 0.0, 1.0, 1.0).asColor(), Color.white, 255);
-		assertColor(HsbColor.of(0.16667, 1.0, 1.0, 0.5).asColor(), Color.yellow, 127);
+		assertColor(HsbColor.of(1.0, 0.0, 0.0, 0.0).asColor(), Color.black, 255);
+		assertColor(HsbColor.of(0.0, 0.0, 0.0, 1.0).asColor(), Color.white, 0);
+		assertColor(HsbColor.of(1.0, 0.0, 0.0, 1.0).asColor(), Color.white, 255);
+		assertColor(HsbColor.of(0.5, 0.16667, 1.0, 1.0).asColor(), Color.yellow, 127);
 	}
 
 	@Test
 	public void shouldConvertToRgb() {
-		assertRgb(HsbColor.of(0.0, 1.0, 1.0, 0.5).asRgb(), 1.0, 0, 0, 0.5);
+		assertRgb(HsbColor.of(0.5, 0.0, 1.0, 1.0).asRgb(), 1.0, 0, 0, 0.5);
 	}
 
 	@Test
@@ -128,7 +128,7 @@ public class HsbColorBehavior {
 
 	@Test
 	public void shouldDim() {
-		HsbColor c = HsbColor.of(0.6, 0.8, 0.4, 0.5);
+		HsbColor c = HsbColor.of(0.5, 0.6, 0.8, 0.4);
 		assertEquals(c.dim(1), c);
 		assertHsb(c.dim(0.5), 0.6, 0.8, 0.2, 0.5);
 		assertHsb(c.dim(0), 0.6, 0.8, 0.0, 0.5);
@@ -136,29 +136,29 @@ public class HsbColorBehavior {
 
 	@Test
 	public void shouldNormalizeValues() {
-		assertHsb(HsbColor.of(0.5, 0.6, 0.3, 0.2).normalize(), 0.5, 0.6, 0.3, 0.2);
-		assertHsb(HsbColor.of(1.1, 0.6, 0.3, 0.2).normalize(), 0.1, 0.6, 0.3, 0.2);
-		assertHsb(HsbColor.of(0.5, 1.1, 0.3, 0.2).normalize(), 0.5, 1.0, 0.3, 0.2);
-		assertHsb(HsbColor.of(0.5, 0.6, -0.1, 0.2).normalize(), 0.5, 0.6, 0.0, 0.2);
-		assertHsb(HsbColor.of(0.5, 0.6, 0.3, 5.0).normalize(), 0.5, 0.6, 0.3, 1.0);
+		assertHsb(HsbColor.of(0.2, 0.5, 0.6, 0.3).normalize(), 0.5, 0.6, 0.3, 0.2);
+		assertHsb(HsbColor.of(0.2, 1.1, 0.6, 0.3).normalize(), 0.1, 0.6, 0.3, 0.2);
+		assertHsb(HsbColor.of(0.2, 0.5, 1.1, 0.3).normalize(), 0.5, 1.0, 0.3, 0.2);
+		assertHsb(HsbColor.of(0.2, 0.5, 0.6, -0.1).normalize(), 0.5, 0.6, 0.0, 0.2);
+		assertHsb(HsbColor.of(5.0, 0.5, 0.6, 0.3).normalize(), 0.5, 0.6, 0.3, 1.0);
 	}
 
 	@Test
 	public void shouldLimitValues() {
-		assertHsb(HsbColor.of(0.5, 0.6, 0.3, 0.2).limit(), 0.5, 0.6, 0.3, 0.2);
-		assertHsb(HsbColor.of(1.1, 0.6, 0.3, 0.2).limit(), 1.0, 0.6, 0.3, 0.2);
-		assertHsb(HsbColor.of(0.5, 1.1, 0.3, 0.2).limit(), 0.5, 1.0, 0.3, 0.2);
-		assertHsb(HsbColor.of(0.5, 0.6, -0.1, 0.2).limit(), 0.5, 0.6, 0.0, 0.2);
-		assertHsb(HsbColor.of(0.5, 0.6, 0.3, 5.0).limit(), 0.5, 0.6, 0.3, 1.0);
+		assertHsb(HsbColor.of(0.2, 0.5, 0.6, 0.3).limit(), 0.5, 0.6, 0.3, 0.2);
+		assertHsb(HsbColor.of(0.2, 1.1, 0.6, 0.3).limit(), 1.0, 0.6, 0.3, 0.2);
+		assertHsb(HsbColor.of(0.2, 0.5, 1.1, 0.3).limit(), 0.5, 1.0, 0.3, 0.2);
+		assertHsb(HsbColor.of(0.2, 0.5, 0.6, -0.1).limit(), 0.5, 0.6, 0.0, 0.2);
+		assertHsb(HsbColor.of(5.0, 0.5, 0.6, 0.3).limit(), 0.5, 0.6, 0.3, 1.0);
 	}
 
 	@Test
 	public void shouldVerifyValues() {
-		HsbColor.of(0.5, 0.6, 0.3, 0.2).verify();
-		assertThrown(() -> HsbColor.of(1.1, 0.6, 0.3, 0.2).verify());
-		assertThrown(() -> HsbColor.of(0.5, 1.1, 0.3, 0.2).verify());
-		assertThrown(() -> HsbColor.of(0.5, 0.6, -0.1, 0.2).verify());
-		assertThrown(() -> HsbColor.of(0.5, 0.6, 0.3, 5.0).verify());
+		HsbColor.of(0.2, 0.5, 0.6, 0.3).verify();
+		assertThrown(() -> HsbColor.of(0.2, 1.1, 0.6, 0.3).verify());
+		assertThrown(() -> HsbColor.of(0.2, 0.5, 1.1, 0.3).verify());
+		assertThrown(() -> HsbColor.of(0.2, 0.5, 0.6, -0.1).verify());
+		assertThrown(() -> HsbColor.of(5.0, 0.5, 0.6, 0.3).verify());
 	}
 
 }

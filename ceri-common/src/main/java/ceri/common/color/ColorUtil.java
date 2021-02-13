@@ -1,450 +1,309 @@
 package ceri.common.color;
 
-import static ceri.common.collection.StreamUtil.first;
 import static ceri.common.collection.StreamUtil.toList;
 import static ceri.common.math.Bound.Type.inclusive;
-import static java.util.Map.entry;
+import static ceri.common.math.MathUtil.ubyte;
+import static java.lang.Math.round;
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-import ceri.common.data.ByteUtil;
-import ceri.common.function.BinaryFunction;
+import java.util.stream.Stream;
+import ceri.common.collection.BiMap;
 import ceri.common.math.MathUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
+/**
+ * Utilities for handling colors, including 4-byte argb ints, 3-byte rgb ints and Color objects.
+ */
 public class ColorUtil {
-	private static final Pattern COLOR_REGEX = Pattern.compile("(?:0x|#)?([0-9a-fA-F]{1,6})");
+	private static final Pattern ARGB_REGEX = Pattern.compile("(0x|#)?([0-9a-fA-F]{1,8})");
+	private static final BiMap<Integer, String> awtColors = awtColors();
 	private static final int HEX = 16;
-	private static final int TRIPLE_HEX_LEN = 3;
-	private static final int BITS4 = 4;
-	private static final int BITS8 = 8;
-	private static final int A_BYTE = 3;
-	private static final int R_BYTE = 2;
-	private static final int G_BYTE = 1;
-	private static final int B_BYTE = 0;
-	// private static final int HSB_DECIMALS = 5;
-	private static final int RGB_MASK = 0xffffff;
+	private static final int HEX3_LEN = 3;
+	private static final int HEX_RGB_MAX_LEN = 6;
+	private static final int HEX_ARGB_MAX_LEN = 8;
+	private static final int A_SHIFT = 24;
+	private static final int R_SHIFT = 16;
+	private static final int G_SHIFT = 8;
+	public static final double MAX_RATIO = 1.0;
 	private static final double HALF = 0.5;
-	public static final int CHANNEL_MAX = 0xff;
-	private static final Map<Integer, String> awtColorNames = colorMap();
+	public static final int A_MASK = 0xff000000;
+	public static final int RGB_MASK = 0xffffff;
+	public static final int MAX_VALUE = 0xff;
+	private static final int HEX3_MASK = 0xf;
+	private static final int HEX3_R_SHIFT = 8;
+	private static final int HEX3_G_SHIFT = 4;
 
 	private ColorUtil() {}
 
-	public static class Fn {
+	/* argb int methods */
 
-		private Fn() {}
-
-		public interface ChannelAdjuster {
-			int applyAsInt(int x, double ratio);
-
-			default ChannelAdjuster bias(Bias bias) {
-				return (x, ratio) -> applyAsInt(x, bias.bias(ratio));
-			}
-
-			static ChannelAdjuster none() {
-				return (x, ratio) -> x;
-			}
-		}
-
-		public interface ChannelScaler {
-			int applyAsInt(int x0, int x1, double ratio);
-
-			static ChannelScaler of() {
-				return of(Biases.NONE);
-			}
-
-			static ChannelScaler of(Bias bias) {
-				return (x0, x1, ratio) -> scaleChannel(x0, x1, bias.bias(ratio));
-			}
-		}
-
-		public static UnaryOperator<Color> dim(double scale) {
-			return c -> ColorUtil.dim(c, scale);
-		}
-
-		public static BinaryFunction<Color, List<Color>> fade(int steps) {
-			return fade(steps, Biases.NONE);
-		}
-
-		public static BinaryFunction<Color, List<Color>> fade(int steps, Bias bias) {
-			return (c0, c1) -> ColorUtil.fade(c0, c1, steps, bias);
-		}
-
-		public static BinaryFunction<Color, List<Color>> fadeHsb(int steps) {
-			return fadeHsb(steps, Biases.NONE);
-		}
-
-		public static BinaryFunction<Color, List<Color>> fadeHsb(int steps, Bias bias) {
-			return (c0, c1) -> ColorUtil.fadeHsb(c0, c1, steps, bias);
-		}
-
-		public static Function<Color, List<Color>> rotateHue(int steps) {
-			return rotateHue(steps, Biases.NONE);
-		}
-
-		public static Function<Color, List<Color>> rotateHue(int steps, Bias bias) {
-			return c -> ColorUtil.rotateHue(c, steps, bias);
-		}
-
-		public static BinaryOperator<Color> scale(double ratio) {
-			return (c0, c1) -> ColorUtil.scale(c0, c1, ratio);
-		}
-
-		public static BinaryOperator<Color> scaleHsb(double ratio) {
-			return (c0, c1) -> ColorUtil.scaleHsb(c0, c1, ratio);
-		}
-
-		public static Function<Color, List<Color>>
-			transform(Function<Colorx, List<Colorx>> rgbxFn) {
-			return c -> applyRgbx(c, rgbxFn);
-		}
-
-		public static BinaryFunction<Color, List<Color>>
-			transform(BinaryFunction<Colorx, List<Colorx>> rgbxFn) {
-			return (c0, c1) -> applyRgbx(c0, c1, rgbxFn);
-		}
-
-		public static BinaryOperator<Color> transform(BinaryOperator<Colorx> rgbxFn) {
-			return (c0, c1) -> applyRgbx(c0, c1, rgbxFn);
-		}
-
-		public static UnaryOperator<Color> transform(UnaryOperator<Colorx> rgbxFn) {
-			return c -> applyRgbx(c, rgbxFn);
-		}
-
-		public static List<Color> applyRgbx(Color color, Function<Colorx, List<Colorx>> rgbxFn) {
-			if (color == null) return null;
-			if (rgbxFn == null) return Collections.emptyList();
-			List<Colorx> colorxs = rgbxFn.apply(Colorx.of(color, 0));
-			return toList(colorxs.stream().map(cx -> cx.rgb));
-		}
-
-		public static List<Color> applyRgbx(Color c0, Color c1,
-			BinaryFunction<Colorx, List<Colorx>> rgbxFn) {
-			if (c0 == null || c1 == null) return null;
-			if (rgbxFn == null) return Collections.emptyList();
-			List<Colorx> colorxs = rgbxFn.apply(Colorx.of(c0, 0), Colorx.of(c1, 0));
-			return toList(colorxs.stream().map(cx -> cx.rgb));
-		}
-
-		public static Color applyRgbx(Color c0, Color c1, BinaryOperator<Colorx> rgbxFn) {
-			if (c0 == null) return c1;
-			if (c1 == null || rgbxFn == null) return c0;
-			return rgbxFn.apply(Colorx.of(c0, 0), Colorx.of(c1, 0)).rgb;
-		}
-
-		public static Color applyRgbx(Color color, UnaryOperator<Colorx> rgbxFn) {
-			if (rgbxFn == null || color == null) return color;
-			return rgbxFn.apply(Colorx.of(color, 0)).rgb;
-		}
-
-		public static List<Color> apply(Color color, Function<Color, List<Color>> rgbFn) {
-			if (color == null) return null;
-			if (rgbFn == null) return Collections.emptyList();
-			return rgbFn.apply(color);
-		}
-
-		public static List<Color> apply(Color c0, Color c1,
-			BinaryFunction<Color, List<Color>> rgbFn) {
-			if (c0 == null || c1 == null) return null;
-			if (rgbFn == null) return Collections.emptyList();
-			return rgbFn.apply(c0, c1);
-		}
-
-		public static Color apply(Color c0, Color c1, BinaryOperator<Color> rgbFn) {
-			if (c0 == null) return c1;
-			if (c1 == null || rgbFn == null) return c0;
-			return rgbFn.apply(c0, c1);
-		}
-
-		public static Color apply(Color color, UnaryOperator<Color> rgbFn) {
-			if (rgbFn == null || color == null) return color;
-			return rgbFn.apply(color);
-		}
+	/**
+	 * Removes alpha component from argb int.
+	 */
+	public static int rgb(int argb) {
+		return argb & RGB_MASK;
 	}
 
-	public static Color max(Color color) {
-		return max(color.getRed(), color.getGreen(), color.getBlue());
+	/**
+	 * Extracts rgb int without alpha component.
+	 */
+	public static int rgb(Color color) {
+		return rgb(color.getRGB());
 	}
 
-	public static Color max(int r, int g, int b) {
-		double ratio = MathUtil.max(toRatio(r), toRatio(g), toRatio(b));
-		return new Color(divide(r, ratio), divide(g, ratio), divide(b, ratio));
+	/**
+	 * Constructs an opaque argb int from rgb int.
+	 */
+	public static int argb(int rgb) {
+		return argb(MAX_VALUE, rgb);
 	}
 
-	public static double toRatio(int channel) {
-		return MathUtil.limit(((double) channel) / CHANNEL_MAX, 0, 1.0);
+	/**
+	 * Constructs an argb int from alpha and rgb.
+	 */
+	public static int argb(int a, int rgb) {
+		return (a << A_SHIFT) | (rgb & RGB_MASK);
 	}
 
-	public static int fromRatio(double ratio) {
-		return (int) MathUtil.limit(Math.round(ratio * CHANNEL_MAX), 0, CHANNEL_MAX);
+	/**
+	 * Constructs an argb int from components.
+	 */
+	public static int argb(int a, int r, int g, int b) {
+		return argb(a, ubyte(r) << R_SHIFT | ubyte(g) << G_SHIFT | ubyte(b));
 	}
 
-	static int divide(int channel, double ratio) {
-		if (ratio == 0.0) return CHANNEL_MAX;
-		return (int) (channel / ratio);
+	/**
+	 * Constructs an opaque argb int from components.
+	 */
+	public static int argb(int r, int g, int b) {
+		return argb(MAX_VALUE, r, g, b);
 	}
 
-	public static List<Color> colors(int... rgbs) {
-		return toList(IntStream.of(rgbs).mapToObj(Color::new));
+	/**
+	 * Constructs an argb int from alpha and color.
+	 */
+	public static int argb(int a, Color color) {
+		return argb(a, color.getRGB());
 	}
 
-	public static List<Color> colors(String... names) {
-		return colors(Arrays.asList(names));
+	/**
+	 * Returns an opaque color from awt name, x11 name, or hex representation. Returns null if no
+	 * match.
+	 */
+	public static Integer argb(String text) {
+		Integer argb = namedArgb(text);
+		return argb != null ? argb : hexArgb(text);
 	}
 
-	public static List<Color> colors(Collection<String> names) {
-		return toList(names.stream().map(ColorUtil::color).filter(Objects::nonNull));
+	/**
+	 * Converts hex string to argb int. The value must be prefixed with '#' or '0x', and contain
+	 * 1..8 hex digits. If <= 6 digits, the value is treated as opaque, otherwise the alpha value is
+	 * captured. Triple hex '#rgb' values will be treated as opaque 'rrggbb' hex values. Returns
+	 * null if no match.
+	 */
+	public static Integer hexArgb(String text) {
+		Matcher m = RegexUtil.matched(ARGB_REGEX, text);
+		if (m == null) return null;
+		String prefix = m.group(1);
+		String hex = m.group(2);
+		int argb = Integer.valueOf(hex, HEX);
+		int len = hex.length();
+		return hexArgb(prefix, len, argb);
+	}
+
+	/**
+	 * Creates a gray argb int with component value.
+	 */
+	public static int grayArgb(int a, int value) {
+		return argb(a, value, value, value);
+	}
+
+	/**
+	 * Creates an opaque gray argb int with component value.
+	 */
+	public static int grayArgb(int value) {
+		return grayArgb(MAX_VALUE, value);
+	}
+
+	/**
+	 * Creates an argb int with maximum color components in the same ratio.
+	 */
+	public static int maxArgb(int argb) {
+		return maxArgb(a(argb), r(argb), g(argb), b(argb));
+	}
+
+	/**
+	 * Creates an argb int with maximum color components in the same ratio.
+	 */
+	public static int maxArgb(int a, int rgb) {
+		return maxArgb(argb(a, rgb));
+	}
+
+	/**
+	 * Creates an opaque argb int with maximum color components in the same ratio.
+	 */
+	public static int maxArgb(int r, int g, int b) {
+		return maxArgb(MAX_VALUE, r, g, b);
+	}
+
+	/**
+	 * Creates an argb int with maximum color components in the same ratio.
+	 */
+	public static int maxArgb(int a, int r, int g, int b) {
+		double ratio = MathUtil.max(ratio(r), ratio(g), ratio(b));
+		return argb(a, divide(r, ratio), divide(g, ratio), divide(b, ratio));
+	}
+
+	/**
+	 * Creates an opaque argb int with random color components.
+	 */
+	public static int randomArgb() {
+		Random rnd = ThreadLocalRandom.current();
+		int max = MAX_VALUE + 1;
+		return argb(MAX_VALUE, rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max));
+	}
+
+	/**
+	 * Provides a component-scaled argb int from given argb int. Alpha value is maintained.
+	 */
+	public static int dimArgb(Color color, double scale) {
+		return dimArgb(color.getRGB(), scale);
+	}
+
+	/**
+	 * Provides a component-scaled argb int from given argb int. Alpha value is maintained.
+	 */
+	public static int dimArgb(int argb, double scale) {
+		return argb(a(argb), scaleArgb(0, argb, scale));
+	}
+
+	/**
+	 * Provides a component-scaled argb int from min and max colors.
+	 */
+	public static int scaleArgb(Color min, Color max, double ratio) {
+		return scaleArgb(min.getRGB(), max.getRGB(), ratio);
+	}
+
+	/**
+	 * Provides a component-scaled argb int from min and max argb int values.
+	 */
+	public static int scaleArgb(int minArgb, int maxArgb, double ratio) {
+		if (ratio <= 0.0) return minArgb;
+		if (ratio >= 1.0) return maxArgb;
+		int a = scaleValue(a(minArgb), a(maxArgb), ratio);
+		int r = scaleValue(r(minArgb), r(maxArgb), ratio);
+		int g = scaleValue(g(minArgb), g(maxArgb), ratio);
+		int b = scaleValue(b(minArgb), b(maxArgb), ratio);
+		return argb(a, r, g, b);
+	}
+
+	/**
+	 * Provides an hsb component-scaled argb int from min and max colors.
+	 */
+	public static int scaleHsbArgb(Color min, Color max, double ratio) {
+		return scaleHsbArgb(min.getRGB(), max.getRGB(), ratio);
+	}
+
+	/**
+	 * Provides an hsb component-scaled argb int from min and max argb int values.
+	 */
+	public static int scaleHsbArgb(int minArgb, int maxArgb, double ratio) {
+		if (ratio <= 0.0) return minArgb;
+		if (ratio >= 1.0) return maxArgb;
+		return scaleHsb(HsbColor.from(minArgb), HsbColor.from(maxArgb), ratio).argb();
+	}
+
+	/* Color methods */
+
+	/**
+	 * Creates a color from argb int.
+	 */
+	public static Color color(int argb) {
+		return new Color(argb, true);
+	}
+
+	/**
+	 * Creates a color from components. Provided for consistency with argb().
+	 */
+	public static Color color(int a, int r, int g, int b) {
+		return color(argb(a, r, g, b));
+	}
+
+	/**
+	 * Returns the given color from alpha component and rgb int.
+	 */
+	public static Color color(int a, int rgb) {
+		return color(argb(a, rgb));
 	}
 
 	/**
 	 * Returns the given color with modified alpha value.
 	 */
-	public static Color alphaColor(Color color, int alpha) {
-		return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+	public static Color color(int a, Color color) {
+		return color(argb(a, color));
 	}
 
 	/**
-	 * Creates a gray color with given component level.
+	 * Returns an opaque color from awt name, x11 name, or hex representation. Returns null if no
+	 * match.
 	 */
-	public static Color grayColor(int value) {
-		value &= CHANNEL_MAX;
-		return new Color(value, value, value);
+	public static Color color(String text) {
+		Integer argb = argb(text);
+		return argb == null ? null : color(argb);
 	}
 
-	public static Color validColor(String name) {
-		Color color = color(name);
-		if (color != null) return color;
-		throw new IllegalArgumentException("Invalid color: " + name);
+	/**
+	 * Converts hex string to color. The value must be prefixed with '#' or '0x', and contain 1..8
+	 * hex digits. If <= 6 digits, the value is treated as opaque, otherwise the alpha value is
+	 * captured. Triple hex '#rgb' values will be treated as opaque 'rrggbb' hex values. Returns
+	 * null if no match.
+	 */
+	public static Color hex(String text) {
+		Integer argb = hexArgb(text);
+		return argb == null ? null : color(argb);
 	}
 
-	public static Color color(String name) {
-		Color color = colorFromName(name);
-		if (color != null) return color;
-		Matcher m = RegexUtil.matched(COLOR_REGEX, name);
-		if (m == null) return null;
-		String hex = m.group(1);
-		int rgb = Integer.valueOf(hex, HEX);
-		if (hex.length() == TRIPLE_HEX_LEN) rgb = tripleHexToRgb(rgb);
-		return new Color(rgb);
+	/**
+	 * Creates an opaque gray color with given component level.
+	 */
+	public static Color gray(int value) {
+		return color(grayArgb(value));
 	}
 
-	public static Color awtColor(String name) {
-		Integer rgb = first(awtColorNames.entrySet().stream().filter(e -> e.getValue().equals(name))
-			.map(Map.Entry::getKey));
-		if (rgb == null) return null;
-		return new Color(rgb);
+	/**
+	 * Creates a color with maximum color components in the same ratio.
+	 */
+	public static Color max(Color color) {
+		return color(maxArgb(color.getRGB()));
 	}
 
-	public static boolean isNamedAwtColor(Color color) {
-		return isNamedAwtColor(color.getRGB());
+	/**
+	 * Creates a color with maximum color components in the same ratio.
+	 */
+	public static Color max(int a, int r, int g, int b) {
+		return color(maxArgb(a, r, g, b));
 	}
 
-	public static boolean isNamedAwtColor(int rgb) {
-		return awtColorNames.containsKey(rgb & RGB_MASK);
+	/**
+	 * Creates an opaque color with maximum color components in the same ratio.
+	 */
+	public static Color max(int r, int g, int b) {
+		return max(MAX_VALUE, r, g, b);
 	}
 
-	public static Color colorFromName(String name) {
-		Color color = awtColor(name);
-		if (color != null) return color;
-		X11Color x11Color = X11Color.from(name);
-		if (x11Color != null) return x11Color.color;
-		return null;
-	}
-
-	public static List<String> toStrings(Color... colors) {
-		return toStrings(Arrays.asList(colors));
-	}
-
-	public static List<String> toStrings(Collection<Color> colors) {
-		return toList(colors.stream().map(ColorUtil::toString));
-	}
-
-	public static String toString(Color color) {
-		if (color == null) return null;
-		return toString(color.getRGB());
-	}
-
-	public static String toString(int r, int g, int b) {
-		return toString(rgba(r, g, b, 0));
-	}
-
-	public static String toString(int rgb) {
-		String name = toName(rgb);
-		if (name != null) return name;
-		return toHex(rgb);
-	}
-
-	public static String toName(Color color) {
-		if (color == null) return null;
-		return toName(color.getRGB());
-	}
-
-	public static String toName(int r, int g, int b) {
-		return toName(rgba(r, g, b, 0));
-	}
-
-	public static String toName(int rgb) {
-		rgb = rgb & RGB_MASK;
-		String name = awtColorNames.get(rgb);
-		if (name != null) return name;
-		X11Color x11 = X11Color.from(rgb);
-		return x11 == null ? null : x11.name();
-	}
-
-	public static String toHex(Color color) {
-		if (color == null) return null;
-		return toHex(color.getRGB());
-	}
-
-	public static String toHex(int r, int g, int b) {
-		return toHex(rgba(r, g, b, 0));
-	}
-
-	public static String toHex(int rgb) {
-		return "#" + StringUtil.toHex(rgb & RGB_MASK, 6);
-	}
-
-	public static List<Color> fade(int rgbaMin, int rgbaMax, int steps) {
-		return fade(rgbaMin, rgbaMax, steps, Biases.NONE);
-	}
-
-	public static List<Color> fade(int rgbaMin, int rgbaMax, int steps, Bias bias) {
-		return fade(new Color(rgbaMin), new Color(rgbaMax), steps, bias);
-	}
-
-	public static List<Color> fade(Color min, Color max, int steps) {
-		return fade(min, max, steps, Biases.NONE);
-	}
-
-	public static List<Color> fade(Color min, Color max, int steps, Bias bias) {
-		List<Color> colors = new ArrayList<>(steps);
-		for (int i = 1; i <= steps; i++)
-			colors.add(scale(min, max, bias.bias((double) i / steps)));
-		return colors;
-	}
-
-	public static List<Color> fadeHsb(int rgbMin, int rgbMax, int steps) {
-		return fadeHsb(rgbMin, rgbMax, steps, Biases.NONE);
-	}
-
-	public static List<Color> fadeHsb(int rgbMin, int rgbMax, int steps, Bias bias) {
-		return fadeHsb(new Color(rgbMin), new Color(rgbMax), steps, bias);
-	}
-
-	public static List<Color> fadeHsb(Color min, Color max, int steps) {
-		return fadeHsb(min, max, steps, Biases.NONE);
-	}
-
-	public static List<Color> fadeHsb(Color min, Color max, int steps, Bias bias) {
-		List<Color> colors = new ArrayList<>(steps);
-		for (int i = 1; i <= steps; i++)
-			colors.add(scaleHsb(min, max, bias.bias((double) i / steps)));
-		return colors;
-	}
-
-	public static int scaleRgba(int rgbaMin, int rgbaMax, double ratio) {
-		int a = scaleChannel(a(rgbaMin), a(rgbaMax), ratio);
-		int r = scaleChannel(r(rgbaMin), r(rgbaMax), ratio);
-		int g = scaleChannel(g(rgbaMin), g(rgbaMax), ratio);
-		int b = scaleChannel(b(rgbaMin), b(rgbaMax), ratio);
-		return rgba(r, g, b, a);
-	}
-
-	public static Color scaleHsb(Color min, Color max, double ratio) {
-		if (min == null) return max;
-		if (max == null) return min;
-		if (ratio <= 0.0) return min;
-		if (ratio >= 1.0) return max;
-		HsbColor hsbMin = HsbColor.from(min).normalize();
-		HsbColor hsbMax = HsbColor.from(max).normalize();
-		double h = scaleHue(hsbMin.h, hsbMax.h, ratio);
-		double s = scaleRatio(hsbMin.s, hsbMax.s, ratio);
-		double b = scaleRatio(hsbMin.b, hsbMax.b, ratio);
-		double a = scaleRatio(hsbMin.a, hsbMax.a, ratio);
-		return HsbColor.of(h, s, b, a).asColor();
-	}
-
-	public static double scaleHue(double min, double max, double ratio) {
-		if (ratio <= 0.0) return min;
-		if (ratio >= 1.0) return max;
-		double diff = max - min;
-		if (Math.abs(diff) > HALF) diff -= Math.signum(diff);
-		double h = min + (ratio * diff);
-		return MathUtil.periodicLimit(h, 1, inclusive);
-	}
-
-	public static Color scale(Color min, Color max, double ratio) {
-		if (min == null) return max;
-		if (max == null) return min;
-		if (ratio <= 0.0) return min;
-		if (ratio >= 1.0) return max;
-		int r = scaleChannel(min.getRed(), max.getRed(), ratio);
-		int g = scaleChannel(min.getGreen(), max.getGreen(), ratio);
-		int b = scaleChannel(min.getBlue(), max.getBlue(), ratio);
-		int a = scaleChannel(min.getAlpha(), max.getAlpha(), ratio);
-		return new Color(r, g, b, a);
-	}
-
-	public static int scaleChannel(int min, int max, double ratio) {
-		if (ratio <= 0.0) return min;
-		if (ratio >= 1.0) return max;
-		return min + (int) Math.round(ratio * (max - min));
-	}
-
-	public static double scaleRatio(double min, double max, double ratio) {
-		if (ratio <= 0.0) return min;
-		if (ratio >= 1.0) return max;
-		return min + (ratio * (max - min));
-	}
-
-	public static List<Color> rotateHue(int rgb, int steps) {
-		return rotateHue(rgb, steps, Biases.NONE);
-	}
-
-	public static List<Color> rotateHue(int rgb, int steps, Bias bias) {
-		return rotateHue(new Color(rgb), steps, bias);
-	}
-
-	public static List<Color> rotateHue(Color color, int steps) {
-		return rotateHue(color, steps, Biases.NONE);
-	}
-
-	public static List<Color> rotateHue(Color color, int steps, Bias bias) {
-		HsbColor hsb = HsbColor.from(color);
-		List<Color> colors = new ArrayList<>(steps);
-		for (int i = 1; i <= steps; i++) {
-			double h = hsb.h + bias.bias((double) i / steps);
-			if (h >= 1.0) h -= 1.0;
-			colors.add(HsbColor.toColor(h, hsb.s, hsb.b));
-		}
-		return colors;
-	}
-
-	public static List<Color> dimAll(double scale, int... rgbs) {
-		return dimAll(scale, colors(rgbs));
-	}
-
-	public static List<Color> dimAll(double scale, Color... colors) {
-		return dimAll(scale, Arrays.asList(colors));
-	}
-
-	public static List<Color> dimAll(double scale, Collection<Color> colors) {
-		return toList(colors.stream().map(c -> dim(c, scale)));
+	/**
+	 * Provides an opaque Color with random components.
+	 */
+	public static Color random() {
+		return color(randomArgb());
 	}
 
 	public static Color dim(int rgb, double scale) {
@@ -455,69 +314,426 @@ public class ColorUtil {
 		return scale(Color.black, color, scale);
 	}
 
-	public static int rgba(int r, int g, int b, int a) {
-		return (int) (ByteUtil.shiftByteLeft(a, A_BYTE) | ByteUtil.shiftByteLeft(r, R_BYTE) |
-			ByteUtil.shiftByteLeft(g, G_BYTE) | ByteUtil.shiftByteLeft(b, B_BYTE));
+	/**
+	 * Provides a component-scaled color from min and max colors.
+	 */
+	public static Color scale(Color min, Color max, double ratio) {
+		if (ratio <= 0.0) return min;
+		if (ratio >= 1.0) return max;
+		return color(scaleArgb(min.getRGB(), max.getRGB(), ratio));
 	}
 
 	/**
-	 * Returns rgb components, removing alpha.
+	 * Provides a component-scaled color from min and max argb int values.
 	 */
-	public static int rgb(Color color) {
-		return rgb(color.getRGB());
-	}
-
-	public static int a(int rgba) {
-		return ByteUtil.ubyteAt(rgba, A_BYTE);
-	}
-
-	public static int r(int rgba) {
-		return ByteUtil.ubyteAt(rgba, R_BYTE);
-	}
-
-	public static int g(int rgba) {
-		return ByteUtil.ubyteAt(rgba, G_BYTE);
-	}
-
-	public static int b(int rgba) {
-		return ByteUtil.ubyteAt(rgba, B_BYTE);
+	public static Color scale(int minArgb, int maxArgb, double ratio) {
+		return color(scaleArgb(minArgb, maxArgb, ratio));
 	}
 
 	/**
-	 * Returns rgb components, removing alpha.
+	 * Provides an hsb component-scaled color from min and max colors.
 	 */
-	public static int rgb(int rgba) {
-		return rgba & RGB_MASK;
+	public static Color scaleHsb(Color min, Color max, double ratio) {
+		if (ratio <= 0.0) return min;
+		if (ratio >= 1.0) return max;
+		return scaleHsb(min.getRGB(), max.getRGB(), ratio);
 	}
 
-	static int tripleHexToRgb(int tripleHex) {
-		int r = (tripleHex & 0xf00) << BITS8;
-		int g = (tripleHex & 0xf0) << BITS4;
-		int b = tripleHex & 0xf;
-		return (r | g | b) * (HEX + 1);
+	/**
+	 * Provides an hsb component-scaled color from min and max argb int values.
+	 */
+	public static Color scaleHsb(int minArgb, int maxArgb, double ratio) {
+		if (ratio <= 0.0) return color(minArgb);
+		if (ratio >= 1.0) return color(maxArgb);
+		return scaleHsb(HsbColor.from(minArgb), HsbColor.from(maxArgb), ratio).color();
 	}
 
-	public static Color random() {
-		Random rnd = ThreadLocalRandom.current();
-		int max = CHANNEL_MAX + 1;
-		return new Color(rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max));
+	/* other color types */
+
+	/**
+	 * Provides a scaled hsb color from min and max.
+	 */
+	public static HsbColor scaleHsb(HsbColor minHsb, HsbColor maxHsb, double ratio) {
+		if (ratio <= 0.0) return minHsb;
+		if (ratio >= 1.0) return maxHsb;
+		minHsb = minHsb.normalize();
+		maxHsb = maxHsb.normalize();
+		return scaleNormHsb(minHsb, maxHsb, ratio);
 	}
 
-	private static Map<Integer, String> colorMap() {
-		return Map.ofEntries( //
-			entry(rgb(Color.black), "black"), //
-			entry(rgb(Color.blue), "blue"), //
-			entry(rgb(Color.cyan), "cyan"), //
-			entry(rgb(Color.darkGray), "darkGray"), //
-			entry(rgb(Color.gray), "gray"), //
-			entry(rgb(Color.green), "green"), //
-			entry(rgb(Color.lightGray), "lightGray"), //
-			entry(rgb(Color.magenta), "magenta"), //
-			entry(rgb(Color.orange), "orange"), //
-			entry(rgb(Color.pink), "pink"), //
-			entry(rgb(Color.red), "red"), //
-			entry(rgb(Color.white), "white"), //
-			entry(rgb(Color.yellow), "yellow"));
+	/* component functions */
+
+	/**
+	 * Extract component from argb int.
+	 */
+	public static int a(int argb) {
+		return ubyte(argb >>> A_SHIFT);
+	}
+
+	/**
+	 * Extract component from argb int.
+	 */
+	public static int r(int argb) {
+		return ubyte(argb >>> R_SHIFT);
+	}
+
+	/**
+	 * Extract component from argb int.
+	 */
+	public static int g(int argb) {
+		return ubyte(argb >>> G_SHIFT);
+	}
+
+	/**
+	 * Extract component from argb int.
+	 */
+	public static int b(int argb) {
+		return ubyte(argb);
+	}
+
+	/**
+	 * Extract component from color.
+	 */
+	public static int a(Color color) {
+		return color.getAlpha();
+	}
+
+	/**
+	 * Extract component from color.
+	 */
+	public static int r(Color color) {
+		return color.getRed();
+	}
+
+	/**
+	 * Extract component from color.
+	 */
+	public static int g(Color color) {
+		return color.getGreen();
+	}
+
+	/**
+	 * Extract component from color.
+	 */
+	public static int b(Color color) {
+		return color.getBlue();
+	}
+
+	/**
+	 * Converts a component value to a 0-1 (inclusive) ratio.
+	 */
+	public static double ratio(int component) {
+		return (double) ubyte(component) / MAX_VALUE;
+	}
+
+	/**
+	 * Converts a 0-1 (inclusive) ratio to a component value.
+	 */
+	public static int value(double ratio) {
+		return MathUtil.limit((int) round(ratio * MAX_VALUE), 0, MAX_VALUE);
+	}
+
+	/**
+	 * Limits a ratio to 0-1 (inclusive).
+	 */
+	public static double limit(double ratio) {
+		return MathUtil.limit(ratio, 0, MAX_VALUE);
+	}
+
+	/**
+	 * Adjust hue to the range 0-1 (inclusive).
+	 */
+	public static double limitHue(double h) {
+		return MathUtil.periodicLimit(h, MAX_RATIO, inclusive);
+	}
+
+	/**
+	 * Scales a 0-1 (inclusive) hue component, finding the shortest cyclic path.
+	 */
+	public static double scaleHue(double min, double max, double ratio) {
+		if (ratio <= 0.0) return min;
+		if (ratio >= 1.0) return max;
+		double diff = max - min;
+		if (Math.abs(diff) > HALF) diff -= Math.signum(diff);
+		return limitHue(min + ratio * diff);
+	}
+
+	/**
+	 * Scales a component value between min and max values.
+	 */
+	public static int scaleValue(int min, int max, double ratio) {
+		if (ratio <= 0.0) return min;
+		if (ratio >= 1.0) return max;
+		return min + (int) Math.round(ratio * (max - min));
+	}
+
+	/**
+	 * Scales a 0-1 component ratio value between min and max values.
+	 */
+	public static double scaleRatio(double min, double max, double ratio) {
+		if (ratio <= 0.0) return min;
+		if (ratio >= 1.0) return max;
+		return min + (ratio * (max - min));
+	}
+
+	/* string methods */
+
+	/**
+	 * Returns the awt or x11 color name, or hex string for the color, ignoring alpha.
+	 */
+	public static String toString(Color color) {
+		return toString(color.getRGB());
+	}
+
+	/**
+	 * Returns the awt or x11 color name, or hex string for the argb int, ignoring alpha.
+	 */
+	public static String toString(int argb) {
+		String name = name(argb);
+		if (name != null) return name;
+		return hex(argb);
+	}
+
+	/**
+	 * Looks up the awt or x11 color name for given color, ignoring alpha. Returns null if no match.
+	 */
+	public static String name(Color color) {
+		return name(color.getRGB());
+	}
+
+	/**
+	 * Looks up the awt or x11 color name for given argb int, ignoring alpha. Returns null if no
+	 * match.
+	 */
+	public static String name(int argb) {
+		argb |= A_MASK;
+		String name = awtColors.keys.get(argb);
+		if (name != null) return name;
+		X11Color x11 = X11Color.from(argb);
+		return x11 == null ? null : x11.name();
+	}
+
+	/**
+	 * Creates a hex string from argb int. Uses 6 digits if opaque, otherwise 8.
+	 */
+	public static String hex(Color color) {
+		return hex(color.getRGB());
+	}
+
+	/**
+	 * Creates a hex string from argb int. Uses 6 digits if opaque, otherwise 8.
+	 */
+	public static String hex(int argb) {
+		int digits = a(argb) == MAX_VALUE ? HEX_ARGB_MAX_LEN : HEX_RGB_MAX_LEN;
+		return "#" + StringUtil.toHex(argb, digits);
+	}
+
+	/* List methods */
+
+	/**
+	 * Returns a list of opaque argb ints from rgb ints.
+	 */
+	public static List<Integer> argbs(int... rgbs) {
+		return toList(IntStream.of(rgbs).map(ColorUtil::argb).boxed());
+	}
+
+	/**
+	 * Returns a list of opaque argb ints from name/hex strings. Throws an exception if unable to
+	 * map all strings.
+	 */
+	public static List<Integer> argbs(String... names) {
+		return argbs(Arrays.asList(names));
+	}
+
+	/**
+	 * Returns a list of opaque argb ints from name/hex strings. Throws an exception if unable to
+	 * map all strings.
+	 */
+	public static List<Integer> argbs(Collection<String> names) {
+		return toList(names.stream().map(ColorUtil::validArgb));
+	}
+
+	/**
+	 * Returns a list of colors from argb ints.
+	 */
+	public static List<Color> colors(int... argbs) {
+		return toList(IntStream.of(argbs).mapToObj(ColorUtil::color));
+	}
+
+	/**
+	 * Returns a list of opaque colors from rgb ints.
+	 */
+	public static List<Color> colorsRgb(int... rgbs) {
+		return toList(IntStream.of(rgbs).mapToObj(Color::new));
+	}
+
+	/**
+	 * Returns a list of opaque colors from name/hex strings. Throws an exception if unable to map
+	 * all strings.
+	 */
+	public static List<Color> colors(String... names) {
+		return colors(Arrays.asList(names));
+	}
+
+	/**
+	 * Returns a list of opaque colors from name/hex strings. Throws an exception if unable to map
+	 * all strings.
+	 */
+	public static List<Color> colors(Collection<String> names) {
+		return toList(names.stream().map(ColorUtil::validColor));
+	}
+
+	/**
+	 * Create a list of scaled argb ints from min to max, in steps using bias.
+	 */
+	public static List<Integer> fadeArgb(int minArgb, int maxArgb, int steps, Bias bias) {
+		return toList(streamFade(minArgb, maxArgb, steps, bias).boxed());
+	}
+
+	/**
+	 * Create a list of scaled argb ints from min to max, in steps using bias.
+	 */
+	public static List<Color> fade(Color min, Color max, int steps, Bias bias) {
+		return fade(min.getRGB(), max.getRGB(), steps, bias);
+	}
+
+	/**
+	 * Create a list of scaled colors from min to max, in steps using bias.
+	 */
+	public static List<Color> fade(int minArgb, int maxArgb, int steps, Bias bias) {
+		return toList(streamFade(minArgb, maxArgb, steps, bias).mapToObj(ColorUtil::color));
+	}
+
+	/**
+	 * Create a list of hsb-scaled argb ints from min to max, in steps using bias.
+	 */
+	public static List<Integer> fadeHsbArgb(int minArgb, int maxArgb, int steps, Bias bias) {
+		return toList(streamFadeHsb(HsbColor.from(minArgb), HsbColor.from(maxArgb), steps, bias)
+			.map(HsbColor::argb));
+	}
+
+	/**
+	 * Create a list of hsb-scaled colors from min to max, in steps using bias.
+	 */
+	public static List<Color> fadeHsb(Color min, Color max, int steps, Bias bias) {
+		return fadeHsb(min.getRGB(), max.getRGB(), steps, bias);
+	}
+
+	/**
+	 * Create a list of hsb-scaled colors from min to max, in steps using bias.
+	 */
+	public static List<Color> fadeHsb(int minArgb, int maxArgb, int steps, Bias bias) {
+		return toList(streamFadeHsb(HsbColor.from(minArgb), HsbColor.from(maxArgb), steps, bias)
+			.map(HsbColor::color));
+	}
+
+	/**
+	 * Create a list of hsb-scaled colors from min to max, in steps using bias.
+	 */
+	public static List<HsbColor> fadeHsb(HsbColor minHsb, HsbColor maxHsb, int steps, Bias bias) {
+		return toList(streamFadeHsb(minHsb.normalize(), maxHsb.normalize(), steps, bias));
+	}
+
+	/**
+	 * Create a list of argb ints for 1 full hsb rotation, in steps using bias.
+	 */
+	public static List<Integer> rotateHueArgb(int argb, int steps, Bias bias) {
+		return toList(streamRotateHue(HsbColor.from(argb), steps, bias).map(HsbColor::argb));
+	}
+
+	/**
+	 * Create a list of colors for 1 full hsb rotation, in steps using bias.
+	 */
+	public static List<Color> rotateHue(Color color, int steps, Bias bias) {
+		return rotateHue(color.getRGB(), steps, bias);
+	}
+
+	/**
+	 * Create a list of colors for 1 full hsb rotation, in steps using bias.
+	 */
+	public static List<Color> rotateHue(int argb, int steps, Bias bias) {
+		return toList(streamRotateHue(HsbColor.from(argb), steps, bias).map(HsbColor::color));
+	}
+
+	/* support methods */
+
+	/**
+	 * Returns an opaque argb int from awt or x11 name. Returns null if no match.
+	 */
+	private static Integer namedArgb(String name) {
+		Integer argb = awtColors.values.get(name);
+		if (argb != null) return argb;
+		X11Color x11Color = X11Color.from(name);
+		return x11Color == null ? null : x11Color.color.getRGB();
+	}
+
+	private static int validArgb(String text) {
+		Integer argb = argb(text);
+		if (argb != null) return argb;
+		throw new IllegalArgumentException("Invalid color: " + text);
+	}
+
+	private static Color validColor(String text) {
+		Color color = color(text);
+		if (color != null) return color;
+		throw new IllegalArgumentException("Invalid color: " + text);
+	}
+
+	private static IntStream streamFade(int minArgb, int maxArgb, int steps, Bias bias) {
+		return IntStream.rangeClosed(1, steps)
+			.map(i -> scaleArgb(minArgb, maxArgb, bias.bias((double) i / steps)));
+	}
+
+	private static Stream<HsbColor> streamFadeHsb(HsbColor minHsb, HsbColor maxHsb, int steps,
+		Bias bias) {
+		return IntStream.rangeClosed(1, steps)
+			.mapToObj(i -> scaleNormHsb(minHsb, maxHsb, bias.bias((double) i / steps)));
+	}
+
+	private static HsbColor scaleNormHsb(HsbColor minHsb, HsbColor maxHsb, double ratio) {
+		if (ratio <= 0.0) return minHsb;
+		if (ratio >= 1.0) return maxHsb;
+		double a = scaleRatio(minHsb.a, maxHsb.a, ratio);
+		double h = scaleHue(minHsb.h, maxHsb.h, ratio);
+		double s = scaleRatio(minHsb.s, maxHsb.s, ratio);
+		double b = scaleRatio(minHsb.b, maxHsb.b, ratio);
+		return HsbColor.of(a, h, s, b);
+	}
+
+	private static Stream<HsbColor> streamRotateHue(HsbColor hsb, int steps, Bias bias) {
+		return IntStream.rangeClosed(1, steps)
+			.mapToObj(i -> hsb.shiftHue(bias.bias((double) i / steps)));
+	}
+
+	private static int divide(int component, double ratio) {
+		if (ratio == 0.0) return MAX_VALUE;
+		return (int) (component / ratio);
+	}
+
+	private static int hexArgb(String prefix, int len, int argb) {
+		if (len > HEX_RGB_MAX_LEN) return argb; // argb
+		if (!"#".equals(prefix) || len != HEX3_LEN) return argb(argb); // rgb
+		int r = ((argb >>> HEX3_R_SHIFT) & HEX3_MASK) << R_SHIFT;
+		int g = ((argb >>> HEX3_G_SHIFT) & HEX3_MASK) << G_SHIFT;
+		int b = (argb) & HEX3_MASK;
+		return (r | g | b) * (HEX + 1); // triple-hex #rgb
+	}
+
+	private static BiMap<Integer, String> awtColors() {
+		return BiMap.<Integer, String>builder() //
+			.put(Color.black.getRGB(), "black") //
+			.put(Color.blue.getRGB(), "blue") //
+			.put(Color.cyan.getRGB(), "cyan") //
+			.put(Color.darkGray.getRGB(), "darkGray") //
+			.put(Color.gray.getRGB(), "gray") //
+			.put(Color.green.getRGB(), "green") //
+			.put(Color.lightGray.getRGB(), "lightGray") //
+			.put(Color.magenta.getRGB(), "magenta") //
+			.put(Color.orange.getRGB(), "orange") //
+			.put(Color.pink.getRGB(), "pink") //
+			.put(Color.red.getRGB(), "red") //
+			.put(Color.white.getRGB(), "white") //
+			.put(Color.yellow.getRGB(), "yellow").build();
 	}
 
 }

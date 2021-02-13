@@ -39,12 +39,12 @@ public class ColorTestUtil {
 	}
 
 	public static void assertColorx(Colorx colorx, Colorx cx, int alpha) {
-		assertColor(colorx.rgb, cx.rgb, alpha);
+		assertColor(colorx.color(), cx.color(), alpha);
 		assertXComponent(colorx, cx.x());
 	}
 
 	public static void assertColorx(Colorx colorx, Color color, int x) {
-		assertColor(colorx.rgb, color);
+		assertColor(colorx.color(), color);
 		assertXComponent(colorx, x);
 	}
 
@@ -63,7 +63,7 @@ public class ColorTestUtil {
 	}
 
 	public static void assertColorx(Colorx colorx, int r, int g, int b, int x, int a) {
-		assertColor(colorx.rgb, r, g, b, a);
+		assertColor(colorx.color(), r, g, b, a);
 		assertXComponent(colorx, x);
 	}
 

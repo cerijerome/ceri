@@ -19,7 +19,7 @@ public class RgbxColorBehavior {
 		RgbxColor c3 = RgbxColor.of(0.4, 0.7, 0.6, 0.5);
 		RgbxColor c4 = RgbxColor.of(0.4, 0.8, 0.5, 0.5);
 		RgbxColor c5 = RgbxColor.of(0.4, 0.8, 0.6, 0.6);
-		RgbxColor c6 = RgbxColor.of(0.4, 0.8, 0.6, 0.5, 0.9);
+		RgbxColor c6 = RgbxColor.of(0.9, 0.4, 0.8, 0.6, 0.5);
 		exerciseEquals(c0, c1);
 		assertAllNotEqual(c0, c2, c3, c4, c5, c6);
 		assertNotEquals(c6.toString(), c0.toString());
@@ -28,13 +28,13 @@ public class RgbxColorBehavior {
 	@Test
 	public void shouldCreateFromRgbxValues() {
 		assertRgbx(RgbxColor.from(Colorx.of(0xffff0080)), 1.0, 1.0, 0.0, 0.502);
-		assertRgbx(RgbxColor.from(0xff, 0, 0, 0xff), 1.0, 0.0, 0.0, 1.0);
+		assertRgbx(RgbxColor.from(Colorx.of(0xff, 0, 0, 0xff)), 1.0, 0.0, 0.0, 1.0);
 	}
 
 	@Test
 	public void shouldCreateColorFromRatios() {
-		assertColorx(RgbxColor.toColorx(1.0, 0.0, 1.0, 0.5), 0xff00ff80);
-		assertColorx(RgbxColor.toColorx(0.0, 1.0, 1.0, 0.0, 0.5), 0x00ffff00, 128);
+		assertColorx(RgbxColor.of(1.0, 0.0, 1.0, 0.5).colorx(), 0xff00ff80);
+		assertColorx(RgbxColor.of(0.0, 1.0, 1.0, 0.0, 0.5).colorx(), 0x00ffff00, 128);
 	}
 
 	@Test

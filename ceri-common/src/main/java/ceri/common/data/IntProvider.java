@@ -32,6 +32,10 @@ public interface IntProvider extends Iterable<Integer> {
 		return IntArray.Immutable.EMPTY;
 	}
 
+	static IntProvider of(int... ints) {
+		return IntArray.Immutable.wrap(ints);
+	}
+
 	/**
 	 * {@link Navigator} and {@link IntReader} wrapper for a {@link IntProvider}. This provides
 	 * sequential access to ints, and relative/absolute positioning for the next read.

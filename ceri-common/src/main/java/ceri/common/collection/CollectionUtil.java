@@ -63,6 +63,15 @@ public class CollectionUtil {
 	}
 
 	/**
+	 * Retrieves and adapts a value for the given key. Returns null if key is not present, or the
+	 * value is null.
+	 */
+	public static <K, V, T> T getAdapted(Map<K, V> map, K key, BiFunction<K, V, T> adapter) {
+		V value = map.get(key);
+		return value == null ? null : adapter.apply(key, value);
+	}
+
+	/**
 	 * Copies an array of objects into a mutable LinkedHashSet.
 	 */
 	@SafeVarargs

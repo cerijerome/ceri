@@ -42,11 +42,6 @@ public class Biases {
 	 */
 	public static final Bias CIRCLE_INFLECTION = sequence(Q2_CIRCLE, Q4_CIRCLE);
 
-	/**
-	 * Pass-through bias.
-	 */
-	public static final Bias NONE = r -> r;
-
 	private Biases() {}
 
 	/**

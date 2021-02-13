@@ -1,6 +1,6 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.CHANNEL_MAX;
+import static ceri.common.color.ColorUtil.MAX_VALUE;
 import java.awt.Color;
 import java.util.Objects;
 import ceri.common.text.StringUtil;
@@ -25,11 +25,11 @@ public class CharGrayscale {
 	}
 
 	public char charOf(Color c, double r, double g, double b) {
-		double max = (r + g + b) * CHANNEL_MAX;
+		double max = (r + g + b) * MAX_VALUE;
 		if (max == 0.0) return charOf(0);
 		return charOf((c.getRed() * r + c.getGreen() * g + c.getBlue() * b) / max);
 	}
-	
+
 	public char charOf(double ratio) {
 		if (ratio < 0.0) ratio = 0;
 		int index = (int) Math.min(ratio * grayscale.length(), grayscale.length() - 1);

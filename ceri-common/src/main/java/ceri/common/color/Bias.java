@@ -5,6 +5,7 @@ package ceri.common.color;
  * given ratio value 0.0 to 1.0.
  */
 public interface Bias {
+	static final Bias NONE = r -> r;
 	double MIN_RATIO = 0.0;
 	double MAX_RATIO = 1.0;
 

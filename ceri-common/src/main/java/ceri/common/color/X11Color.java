@@ -1,10 +1,8 @@
 package ceri.common.color;
 
 import java.awt.Color;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import ceri.common.data.TypeTranscoder;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -153,18 +151,12 @@ public enum X11Color {
 	yellow(0xffff00),
 	yellowGreen(0x9acd32);
 
-	private static final Map<Integer, X11Color> lookup = createLookup();
+	private static final TypeTranscoder<X11Color> xcoder =
+		TypeTranscoder.of(t -> ColorUtil.rgb(t.color), X11Color.class);
 	public final Color color;
 
 	X11Color(int rgb) {
 		color = new Color(rgb);
-	}
-
-	private static Map<Integer, X11Color> createLookup() {
-		Map<Integer, X11Color> map = new HashMap<>();
-		for (X11Color c : X11Color.values())
-			map.put(c.color.getRGB() & 0xffffff, c);
-		return Collections.unmodifiableMap(map);
 	}
 
 	public static X11Color from(String name) {
@@ -176,7 +168,7 @@ public enum X11Color {
 	}
 
 	public static X11Color from(int rgb) {
-		return lookup.get(rgb & 0xffffff);
+		return xcoder.decode(ColorUtil.rgb(rgb));
 	}
 
 	public static X11Color random() {
