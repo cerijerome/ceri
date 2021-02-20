@@ -10,17 +10,17 @@ public class X11ColorTest {
 	@Test
 	public void testFromColor() {
 		Color color = new Color(0xdc143c);
-		assertEquals(X11Color.from(color), X11Color.crimson);
+		assertEquals(Colors.from(color), Colors.crimson);
 	}
 
 	@Test
 	public void testFromValue() {
-		assertEquals(X11Color.valueOf("crimson"), X11Color.crimson);
+		assertEquals(Colors.valueOf("crimson"), Colors.crimson);
 	}
 
 	@Test
 	public void testRandom() {
-		assertNotNull(X11Color.random());
+		assertNotNull(Colors.random());
 	}
 
 }

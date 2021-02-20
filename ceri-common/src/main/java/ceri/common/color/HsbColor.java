@@ -14,8 +14,9 @@ import java.util.Objects;
  * Encapsulates A+HSB color with values 0-1 inclusive.
  */
 public class HsbColor implements ComponentColor<HsbColor> {
-	public static final HsbColor BLACK = HsbColor.of(0, 0, 0);
-	public static final HsbColor WHITE = HsbColor.of(0, 0, MAX_RATIO);
+	public static final HsbColor clear = HsbColor.of(0, 0, 0, 0);
+	public static final HsbColor black = HsbColor.of(0, 0, 0);
+	public static final HsbColor white = HsbColor.of(0, 0, MAX_RATIO);
 	public final double a; // alpha
 	public final double h; // hue
 	public final double s; // saturation
@@ -72,7 +73,7 @@ public class HsbColor implements ComponentColor<HsbColor> {
 
 	public int argb() {
 		int rgb = Color.HSBtoRGB((float) h, (float) s, (float) b);
-		return ColorUtil.argb(ColorUtil.value(a), rgb);
+		return ColorUtil.alphaArgb(ColorUtil.value(a), rgb);
 	}
 
 	public Color color() {

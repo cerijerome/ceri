@@ -1,6 +1,7 @@
 package ceri.common.color;
 
 import static ceri.common.validation.ValidationUtil.validateRangeFp;
+import java.awt.Color;
 import java.util.Objects;
 import ceri.common.geom.Point2d;
 import ceri.common.math.MathUtil;
@@ -9,12 +10,27 @@ import ceri.common.math.MathUtil;
  * Represents xyY color, Y = brightness (b).
  */
 public class XybColor implements ComponentColor<XybColor> {
-	public static final Point2d CENTER = XyzColor.CIE_E.toXyb().xy();
 	public static final double MAX_VALUE = 1.0;
+	// CIE standard illuminants https://en.wikipedia.org/wiki/Standard_illuminant#White_point
+	public static final XybColor CIE_A = of(0.44757, 0.40745, 1.0);
+	public static final XybColor CIE_B = of(0.34842, 0.35161, 1.0);
+	public static final XybColor CIE_C = of(0.31006, 0.31616, 1.0);
+	public static final XybColor CIE_D50 = of(0.34567, 0.35850, 1.0);
+	public static final XybColor CIE_D55 = of(0.33242, 0.34743, 1.0);
+	public static final XybColor CIE_D65 = of(0.31271, 0.32902, 1.0);
+	public static final XybColor CIE_D75 = of(0.29902, 0.31485, 1.0);
+	public static final XybColor CIE_D93 = of(0.28315, 0.29711, 1.0);
+	public static final XybColor CIE_E = XyzColor.CIE_E.xyb();
+	public static final Point2d CENTER = CIE_E.xy();
+	public final double a;
 	public final double x;
 	public final double y;
 	public final double b;
-	public final double a;
+
+	public static XybColor from(int argb) {
+		double[] xyb = ColorSpaceUtil.rgbToXyb(argb);
+		return of(ColorUtil.ratio(ColorUtil.a(argb)), xyb[0], xyb[1], xyb[2]);
+	}
 
 	public static XybColor full(Point2d xy) {
 		return full(xy.x, xy.y);
@@ -29,14 +45,14 @@ public class XybColor implements ComponentColor<XybColor> {
 	}
 
 	public static XybColor of(double x, double y, double b) {
-		return of(x, y, b, MAX_VALUE);
+		return of(MAX_VALUE, x, y, b);
 	}
 
-	public static XybColor of(Point2d xy, double b, double a) {
-		return of(xy.x, xy.y, b, a);
+	public static XybColor of(double a, Point2d xy, double b) {
+		return of(a, xy.x, xy.y, b);
 	}
 
-	public static XybColor of(double x, double y, double b, double a) {
+	public static XybColor of(double a, double x, double y, double b) {
 		return new XybColor(x, y, b, a);
 	}
 
@@ -47,16 +63,25 @@ public class XybColor implements ComponentColor<XybColor> {
 		this.a = a;
 	}
 
-	public XyzColor toXyz() {
-		if (y == 0.0) return XyzColor.of(0, 0, 0, a);
-		double y = b;
-		double x = (y / this.y) * this.x;
-		double z = (y / this.y) * (MAX_VALUE - this.x - this.y);
-		return XyzColor.of(x, y, z, a);
+	public double[] values() {
+		return new double[] { x, y, b };
 	}
 
 	public Point2d xy() {
 		return Point2d.of(x, y);
+	}
+
+	public XyzColor xyz() {
+		double[] xyz = ColorSpaceUtil.xybToXyz(x, y, b);
+		return XyzColor.of(a, xyz[0], xyz[1], xyz[2]);
+	}
+
+	public int argb() {
+		return ColorUtil.alphaArgb(ColorUtil.value(a), ColorSpaceUtil.xybToRgb(x, y, b));
+	}
+
+	public Color color() {
+		return ColorUtil.color(argb());
 	}
 
 	@Override
@@ -66,16 +91,16 @@ public class XybColor implements ComponentColor<XybColor> {
 
 	@Override
 	public XybColor normalize() {
+		double a = limit(this.a);
 		Point2d xy = normalize(x, y);
 		double b = limit(this.b);
-		double a = limit(this.a);
-		if (xy.x == this.x && xy.y == this.y && b == this.b && a == this.a) return this;
-		return of(xy, b, a);
+		if (a == this.a && xy.x == this.x && xy.y == this.y && b == this.b) return this;
+		return of(a, xy, b);
 	}
 
 	public XybColor dim(double ratio) {
 		if (ratio == 1) return this;
-		return of(x, y, b * ratio, a);
+		return of(a, x, y, b * ratio);
 	}
 
 	private Point2d normalize(double x, double y) {
@@ -91,20 +116,20 @@ public class XybColor implements ComponentColor<XybColor> {
 
 	@Override
 	public XybColor limit() {
+		double a = limit(this.a);
 		double x = limit(this.x);
 		double y = limit(this.y);
 		double b = limit(this.b);
-		double a = limit(this.a);
-		if (x == this.x && y == this.y && b == this.b && a == this.a) return this;
-		return of(x, y, b, a);
+		if (a == this.a && x == this.x && y == this.y && b == this.b) return this;
+		return of(a, x, y, b);
 	}
 
 	@Override
 	public void verify() {
+		validate(a, "alpha");
 		validate(x, "x");
 		validate(y, "y");
 		validate(b, "brightness");
-		validate(a, "alpha");
 	}
 
 	private void validate(double value, String name) {
@@ -117,7 +142,7 @@ public class XybColor implements ComponentColor<XybColor> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(x, y, b, a);
+		return Objects.hash(a, x, y, b);
 	}
 
 	@Override
@@ -125,17 +150,15 @@ public class XybColor implements ComponentColor<XybColor> {
 		if (this == obj) return true;
 		if (!(obj instanceof XybColor)) return false;
 		XybColor other = (XybColor) obj;
+		if (!Objects.equals(a, other.a)) return false;
 		if (!Objects.equals(x, other.x)) return false;
 		if (!Objects.equals(y, other.y)) return false;
 		if (!Objects.equals(b, other.b)) return false;
-		if (!Objects.equals(a, other.a)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return hasAlpha() ? String.format("(x=%.5f,y=%.5f,b=%.5f,a=%.5f)", x, y, b, a) :
-			String.format("(x=%.5f,y=%.5f,b=%.5f)", x, y, b);
+		return String.format("(a=%.5f,x=%.5f,y=%.5f,b=%.5f)", a, x, y, b);
 	}
-
 }

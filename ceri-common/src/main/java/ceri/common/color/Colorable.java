@@ -5,41 +5,73 @@ import java.util.Arrays;
 import java.util.Collection;
 
 public interface Colorable {
+	static Colorable NULL = ofNull();
 
-	void color(int r, int g, int b);
+	void argb(int argb);
 
-	Color color();
+	int argb();
 
-	default void color(X11Color color) {
-		color(color.color);
+	default void rgb(int rgb) {
+		argb(ColorUtil.argb(rgb));
 	}
-
+	
+	default int rgb() {
+		return ColorUtil.rgb(argb());
+	}
+	
 	default void color(Color color) {
-		color(color.getRed(), color.getGreen(), color.getBlue());
+		argb(color.getRGB());
 	}
 
-	default void color(int rgb) {
-		color(new Color(rgb));
+	default Color color() {
+		return ColorUtil.color(argb());
 	}
 
+	static Colorable from(Colorxable colorxable, Color x) {
+		return from(colorxable, x.getRGB());
+	}
+	
+	static Colorable from(Colorxable colorxable, int xRgb) {
+		return new Colorable() {
+			@Override
+			public void argb(int argb) {
+				colorxable.argbx(ColorxUtil.denormalizeArgbx(argb, xRgb));
+			}
+			
+			@Override
+			public int argb() {
+				return ColorxUtil.normalizeArgb(colorxable.argbx(), xRgb);
+			}
+		};
+	}
+	
 	static Colorable multi(Colorable... colorables) {
 		return multi(Arrays.asList(colorables));
 	}
 
 	static Colorable multi(Collection<Colorable> colorables) {
 		return new Colorable() {
-
 			@Override
-			public Color color() {
-				return colorables.stream().findFirst().map(Colorable::color).orElse(null);
+			public void argb(int argb) {
+				colorables.forEach(c -> c.argb(argb));
 			}
 
 			@Override
-			public void color(int r, int g, int b) {
-				colorables.forEach(c -> c.color(r, g, b));
+			public int argb() {
+				return colorables.stream().mapToInt(Colorable::argb).findFirst().orElse(0);
 			}
-
 		};
 	}
 
+	private static Colorable ofNull() {
+		return new Colorable() {
+			@Override
+			public void argb(int argb) {}
+
+			@Override
+			public int argb() {
+				return ColorUtil.clear.getRGB();
+			}
+		};
+	}
 }

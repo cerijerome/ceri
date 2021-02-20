@@ -3,23 +3,24 @@ package ceri.common.color;
 import java.awt.Color;
 
 public enum ColorPreset {
+	//white
 	// Warm whites at 100%, 75%, 50%
-	warmWhite100(0xff8d0b),
-	warmWhite075(warmWhite100, 0.75), // 0xbf6a08
-	warmWhite050(warmWhite100, 0.5); // 0x804706
+	warmWhite(0xff8d0b),
+	warmWhite75(warmWhite, 0.75), // 0xbf6a08
+	warmWhite50(warmWhite, 0.5), // 0x804706
+	amber(0xffbf00);
 
-	public final Color color;
+	public final int argb;
 
-	ColorPreset(int color) {
-		this(new Color(color));
+	ColorPreset(int rgb) {
+		argb = ColorUtil.argb(rgb);
 	}
 
 	ColorPreset(ColorPreset preset, double dim) {
-		this(ColorUtil.dim(preset.color, dim));
+		this(ColorUtil.dimArgb(preset.argb, dim));
 	}
 
-	ColorPreset(Color color) {
-		this.color = color;
+	public Color color() {
+		return ColorUtil.color(argb);
 	}
-
 }

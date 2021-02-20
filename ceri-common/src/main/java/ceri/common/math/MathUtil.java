@@ -26,6 +26,34 @@ public class MathUtil {
 	private MathUtil() {}
 
 	/**
+	 * Calculates the polynomial sum for coefficients of powers of x in ascending order from 0.
+	 */
+	public static double polynomial(double x, double... coefficients) {
+		if (coefficients.length == 0) return 0;
+		double sum = coefficients[0];
+		double m = 1;
+		for (int i = 1; i < coefficients.length; i++) {
+			m *= x;
+			sum += coefficients[i] * m;
+		}
+		return sum;
+	}
+
+	/**
+	 * Calculates the polynomial sum for coefficients of powers of x in ascending order from 0.
+	 */
+	public static long polynomial(long x, long... coefficients) {
+		if (coefficients.length == 0) return 0;
+		long sum = coefficients[0];
+		long m = 1;
+		for (int i = 1; i < coefficients.length; i++) {
+			m = Math.multiplyExact(m, x);
+			sum = Math.addExact(sum, Math.multiplyExact(coefficients[i], m));
+		}
+		return sum;
+	}
+
+	/**
 	 * Determines int value from boolean.
 	 */
 	public static int toInt(boolean b) {
@@ -1003,6 +1031,8 @@ public class MathUtil {
 		return max;
 	}
 
+	/* support methods */
+	
 	/**
 	 * Calculates the greatest common divisor of two numbers.
 	 */

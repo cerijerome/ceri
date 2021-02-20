@@ -1,5 +1,6 @@
 package ceri.common.color;
 
+import static ceri.common.color.ColorUtil.MAX_RATIO;
 import static ceri.common.color.ColorUtil.ratio;
 import static ceri.common.color.ColorUtil.value;
 import static ceri.common.validation.ValidationUtil.validateRangeFp;
@@ -11,11 +12,9 @@ import ceri.common.math.MathUtil;
  * Encapsulates ARGB(x) color with values 0-1.
  */
 public class RgbxColor implements ComponentColor<RgbxColor> {
-	public static final double MAX_VALUE = 1.0;
 	public static final RgbxColor clear = RgbxColor.of(0, 0, 0, 0, 0);
 	public static final RgbxColor black = RgbxColor.of(0, 0, 0, 0);
-	public static final RgbxColor full = RgbxColor.of(MAX_VALUE, MAX_VALUE, MAX_VALUE, MAX_VALUE);
-	private static final long A_MASK = 0xff00000000L;
+	public static final RgbxColor full = RgbxColor.of(MAX_RATIO, MAX_RATIO, MAX_RATIO, MAX_RATIO);
 	public final double a; // alpha
 	public final double r; // red
 	public final double g; // green
@@ -31,7 +30,7 @@ public class RgbxColor implements ComponentColor<RgbxColor> {
 	}
 
 	public static RgbxColor from(int rgbx) {
-		return from(A_MASK | rgbx);
+		return from(ColorxUtil.argbx(rgbx));
 	}
 
 	public static RgbxColor from(long argbx) {
@@ -43,7 +42,7 @@ public class RgbxColor implements ComponentColor<RgbxColor> {
 	}
 
 	public static RgbxColor of(double r, double g, double b, double x) {
-		return of(MAX_VALUE, r, g, b, x);
+		return of(MAX_RATIO, r, g, b, x);
 	}
 
 	public static RgbxColor of(double a, double r, double g, double b, double x) {
@@ -63,20 +62,20 @@ public class RgbxColor implements ComponentColor<RgbxColor> {
 	}
 
 	public RgbxColor dim(double ratio) {
-		if (ratio == MAX_VALUE) return this;
+		if (ratio == MAX_RATIO) return this;
 		return of(a, r * ratio, g * ratio, b * ratio, x * ratio);
 	}
 
 	@Override
 	public boolean hasAlpha() {
-		return a < MAX_VALUE;
+		return a < MAX_RATIO;
 	}
 
 	@Override
 	public RgbxColor normalize() {
 		double min = MathUtil.min(r, g, b, x, 0);
 		double max = MathUtil.max(r, g, b, x, 0);
-		double divisor = Math.max(max - min, MAX_VALUE);
+		double divisor = Math.max(max - min, MAX_RATIO);
 		double a = limit(this.a);
 		double r = (this.r - min) / divisor;
 		double g = (this.g - min) / divisor;
@@ -130,11 +129,11 @@ public class RgbxColor implements ComponentColor<RgbxColor> {
 	}
 
 	private void validate(double value, String name) {
-		validateRangeFp(value, 0, MAX_VALUE, name);
+		validateRangeFp(value, 0, MAX_RATIO, name);
 	}
 
 	private double limit(double value) {
-		return MathUtil.limit(value, 0, MAX_VALUE);
+		return MathUtil.limit(value, 0, MAX_RATIO);
 	}
 
 }

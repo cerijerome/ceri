@@ -34,7 +34,6 @@ public class ColorUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ColorUtil.class);
-		assertPrivateConstructor(ColorUtil.Fn.class);
 	}
 
 	@Test
@@ -127,17 +126,17 @@ public class ColorUtilTest {
 	public void testMax() {
 		ColorUtil.max(Color.black);
 		assertColor(ColorUtil.max(Color.black), 0xffffff);
-		assertColor(ColorUtil.max(X11Color.coral.color), 0xff7f50);
+		assertColor(ColorUtil.max(Colors.coral.color), 0xff7f50);
 	}
 
 	@Test
 	public void testRotateBiasedHue() {
-		List<Color> colors = ColorUtil.rotateHue(0x404040, 3, Biases.HALF_SINE);
+		List<Color> colors = ColorUtil.rotateHue(0x404040, 3, Bias.HALF_SINE);
 		assertEquals(colors.size(), 3);
 		assertHsb(colors.get(0), 0, 0, 0.251);
 		assertHsb(colors.get(1), 0, 0, 0.251);
 		assertHsb(colors.get(2), 0, 0, 0.251);
-		colors = ColorUtil.rotateHue(0x408080, 4, Biases.HALF_SINE);
+		colors = ColorUtil.rotateHue(0x408080, 4, Bias.HALF_SINE);
 		assertEquals(colors.size(), 4);
 		assertHsb(colors.get(0), 0.646, 0.5, 0.502);
 		assertHsb(colors.get(1), 0.0, 0.5, 0.502);
@@ -258,7 +257,7 @@ public class ColorUtilTest {
 	@Test
 	public void testColorFromString() {
 		assertColor(ColorUtil.color("black"), Color.black);
-		assertColor(ColorUtil.color("teal"), X11Color.teal.color);
+		assertColor(ColorUtil.color("teal"), Colors.teal.color);
 		assertColor(ColorUtil.color("0"), Color.black);
 		assertColor(ColorUtil.color("#0"), Color.black);
 		assertColor(ColorUtil.color("0x0"), Color.black);
@@ -275,25 +274,25 @@ public class ColorUtilTest {
 	@Test
 	public void testColorFromName() {
 		assertColor(ColorUtil.colorFromName("black"), Color.black);
-		assertColor(ColorUtil.colorFromName("teal"), X11Color.teal.color);
+		assertColor(ColorUtil.colorFromName("teal"), Colors.teal.color);
 		assertNull(ColorUtil.colorFromName(""));
 		assertNull(ColorUtil.colorFromName("xxx"));
 	}
 
 	@Test
 	public void testFade() {
-		List<Color> colors = ColorUtil.fade(Color.gray, X11Color.crimson.color, 5);
+		List<Color> colors = ColorUtil.fade(Color.gray, Colors.crimson.color, 5);
 		assertEquals(colors.size(), 5);
 		assertColor(colors.get(0), 146, 106, 114);
 		assertColor(colors.get(1), 165, 85, 101);
 		assertColor(colors.get(2), 183, 63, 87);
 		assertColor(colors.get(3), 202, 42, 74);
-		assertEquals(colors.get(4), X11Color.crimson.color);
+		assertEquals(colors.get(4), Colors.crimson.color);
 		colors = ColorUtil.fade(0xffafaf, 0xffafaf, 2); // pink
 		assertEquals(colors.size(), 2);
 		assertEquals(colors.get(0), Color.pink);
 		assertEquals(colors.get(1), Color.pink);
-		colors = ColorUtil.fade(X11Color.gold.color, Color.black, 1);
+		colors = ColorUtil.fade(Colors.gold.color, Color.black, 1);
 		assertEquals(colors.size(), 1);
 		assertEquals(colors.get(0), Color.black);
 	}
@@ -335,7 +334,7 @@ public class ColorUtilTest {
 		assertEquals(ColorUtil.toString(Color.cyan), "cyan");
 		assertEquals(ColorUtil.toString(Color.black), "black");
 		assertEquals(ColorUtil.toString(0), "black");
-		assertEquals(ColorUtil.toString(X11Color.beige.color), "beige");
+		assertEquals(ColorUtil.toString(Colors.beige.color), "beige");
 		assertEquals(ColorUtil.toString(0xaabbcc), "#aabbcc");
 		assertEquals(ColorUtil.toString(255, 127, 80), "coral");
 	}
@@ -343,14 +342,14 @@ public class ColorUtilTest {
 	@Test
 	public void testToHex() {
 		assertNull(ColorUtil.toHex(null));
-		assertEquals(ColorUtil.toHex(X11Color.beige.color), "#f5f5dc");
+		assertEquals(ColorUtil.toHex(Colors.beige.color), "#f5f5dc");
 		assertEquals(ColorUtil.toHex(255, 255, 0), "#ffff00");
 	}
 
 	@Test
 	public void testToName() {
 		assertNull(ColorUtil.toName(null));
-		assertEquals(ColorUtil.toName(X11Color.beige.color), "beige");
+		assertEquals(ColorUtil.toName(Colors.beige.color), "beige");
 		assertEquals(ColorUtil.toName(255, 0, 255), "magenta");
 	}
 

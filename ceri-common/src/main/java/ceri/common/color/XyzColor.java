@@ -1,46 +1,51 @@
 package ceri.common.color;
 
+import java.awt.Color;
 import java.util.Objects;
 
 public class XyzColor implements ComponentColor<XyzColor> {
-	public static final XyzColor D50 = of(0.964212, 1.0, 0.825188);
-	public static final XyzColor D55 = of(0.956797, 1.0, 0.921481);
-	public static final XyzColor D65 = of(0.950429, 1.0, 1.088900);
-	public static final XyzColor D75 = of(0.949722, 1.0, 1.226394);
-
-	public static final XyzColor CIE_A = of(1.0985, 1.0, 0.3558);
-	public static final XyzColor CIE_C = of(0.9807, 1.0, 1.1822);
 	public static final XyzColor CIE_E = of(1.0, 1.0, 1.0);
-	public static final XyzColor CIE_D50 = of(0.9642, 1.0, 0.8251);
-	public static final XyzColor CIE_D55 = of(0.9568, 1.0, 0.9214);
-	public static final XyzColor CIE_D65 = of(0.9504, 1.0, 1.0888);
-	public static final XyzColor CIE_ICC = of(0.9642, 1.0, 0.8249);
-
 	public static final double MAX_ALPHA = 1.0;
+	public final double a;
 	public final double x;
 	public final double y;
 	public final double z;
-	public final double a;
 
+	public static XyzColor from(int argb) {
+		double[] xyz = ColorSpaceUtil.rgbToXyz(argb);
+		return of(ColorUtil.ratio(ColorUtil.a(argb)), xyz[0], xyz[1], xyz[2]);
+	}
+	
 	public static XyzColor of(double x, double y, double z) {
-		return new XyzColor(x, y, z, MAX_ALPHA);
+		return new XyzColor(MAX_ALPHA, x, y, z);
 	}
 
-	public static XyzColor of(double x, double y, double z, double a) {
-		return new XyzColor(x, y, z, a);
+	public static XyzColor of(double a, double x, double y, double z) {
+		return new XyzColor(a, x, y, z);
 	}
 
-	private XyzColor(double x, double y, double z, double a) {
+	private XyzColor(double a, double x, double y, double z) {
+		this.a = a;
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		this.a = a;
 	}
 
-	public XybColor toXyb() {
-		double sum = x + y + z;
-		if (sum == 0.0) return XybColor.of(0, 0, 0, a);
-		return XybColor.of(x / sum, y / sum, y, a);
+	public double[] values() {
+		return new double[] { x, y, z };
+	}
+
+	public XybColor xyb() {
+		double[] xyb = ColorSpaceUtil.xyzToXyb(x, y, z);
+		return XybColor.of(a, xyb[0], xyb[1], xyb[2]);
+	}
+
+	public int argb() {
+		return ColorUtil.alphaArgb(ColorUtil.value(a), ColorSpaceUtil.xyzToRgb(x, y, z));
+	}
+
+	public Color color() {
+		return ColorUtil.color(argb());
 	}
 
 	@Override
@@ -50,28 +55,26 @@ public class XyzColor implements ComponentColor<XyzColor> {
 
 	@Override
 	public XyzColor normalize() {
-		XybColor xyb = toXyb();
+		XybColor xyb = xyb();
 		XybColor normalXyb = xyb.normalize();
-		if (xyb == normalXyb) return this;
-		return normalXyb.toXyz();
+		return xyb == normalXyb ? this : normalXyb.xyz();
 	}
 
 	@Override
 	public XyzColor limit() {
-		XybColor xyb = toXyb();
+		XybColor xyb = xyb();
 		XybColor limitXyb = xyb.limit();
-		if (xyb == limitXyb) return this;
-		return limitXyb.toXyz();
+		return xyb == limitXyb ? this : limitXyb.xyz();
 	}
 
 	@Override
 	public void verify() {
-		toXyb().verify();
+		xyb().verify();
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(x, y, z, a);
+		return Objects.hash(a, x, y, z);
 	}
 
 	@Override
@@ -79,17 +82,15 @@ public class XyzColor implements ComponentColor<XyzColor> {
 		if (this == obj) return true;
 		if (!(obj instanceof XyzColor)) return false;
 		XyzColor other = (XyzColor) obj;
+		if (!Objects.equals(a, other.a)) return false;
 		if (!Objects.equals(x, other.x)) return false;
 		if (!Objects.equals(y, other.y)) return false;
 		if (!Objects.equals(z, other.z)) return false;
-		if (!Objects.equals(a, other.a)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return hasAlpha() ? String.format("(x=%.5f,y=%.5f,z=%.5f,a=%.5f)", x, y, z, a) :
-			String.format("(x=%.5f,y=%.5f,z=%.5f)", x, y, z);
+		return String.format("(a=%.5f,x=%.5f,y=%.5f,z=%.5f)", a, x, y, z);
 	}
-
 }

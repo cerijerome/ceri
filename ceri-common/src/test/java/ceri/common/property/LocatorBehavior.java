@@ -8,7 +8,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
-import ceri.common.color.X11Color;
+import ceri.common.color.Colors;
 
 public class LocatorBehavior {
 
@@ -39,7 +39,7 @@ public class LocatorBehavior {
 		assertEquals(Locator.of(Object.class, "abc.txt").child("def").filename(), "abc-def.txt");
 		assertEquals(Locator.of(Object.class, "a.txt").child("b", "c").filename(), "a-b-c.txt");
 		assertEquals(
-			Locator.of(Object.class, "a.txt").child(X11Color.cyan, X11Color.lime).filename(),
+			Locator.of(Object.class, "a.txt").child(Colors.cyan, Colors.lime).filename(),
 			"a-cyan-lime.txt");
 	}
 
@@ -63,7 +63,7 @@ public class LocatorBehavior {
 	public void shouldCreateLocators() {
 		assertEquals(Locator.of(Object.class).filename(), "Object.properties");
 		assertEquals(Locator.of(Object.class, "test").filename(), "test.properties");
-		assertEquals(Locator.builder(String.class).add(X11Color.aqua).build().filename(),
+		assertEquals(Locator.builder(String.class).add(Colors.aqua).build().filename(),
 			"String-aqua.properties");
 		assertThrown(() -> Locator.of(getClass(), ""));
 	}

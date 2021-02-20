@@ -24,7 +24,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.collection.WrappedIntStreamBehavior.class, //
 	ceri.common.collection.WrappedStreamBehavior.class, //
 	// color
-	ceri.common.color.BiasesTest.class, //
+	ceri.common.color.BiasTest.class, //
 	ceri.common.color.CharGrayscaleBehavior.class, //
 	ceri.common.color.ColorComparatorsTest.class, //
 	ceri.common.color.ColorUtilTest.class, //
@@ -181,13 +181,10 @@ import ceri.common.test.TestUtil;
 	ceri.common.math.IntervalUtilTest.class, //
 	ceri.common.math.MathUtilTest.class, //
 	ceri.common.math.MatrixBehavior.class, //
-	ceri.common.math.MatrixUtilTest.class, //
 	ceri.common.math.MixedFractionBehavior.class, //
 	ceri.common.math.NumberPatternsBehavior.class, //
 	ceri.common.math.ReverseFunctionBehavior.class, //
 	ceri.common.math.TrigUtilTest.class, //
-	ceri.common.math.VectorBehavior.class, //
-	ceri.common.math.VectorUtilTest.class, //
 	// net
 	ceri.common.net.AddressTypeBehavior.class, //
 	ceri.common.net.EmailUtilTest.class, //

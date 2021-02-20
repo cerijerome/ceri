@@ -1,6 +1,6 @@
 package ceri.common.text;
 
-import static ceri.common.color.ColorUtil.CHANNEL_MAX;
+import static ceri.common.color.ColorUtil.MAX_VALUE;
 import static ceri.common.text.StringUtil.ESC;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateRange;
@@ -293,9 +293,9 @@ public class AnsiEscape {
 			 * Set 24-bit color, each component 0-255.
 			 */
 			public Sgr fgColor24(int r, int g, int b) {
-				validateRange(r, 0, CHANNEL_MAX);
-				validateRange(g, 0, CHANNEL_MAX);
-				validateRange(b, 0, CHANNEL_MAX);
+				validateRange(r, 0, MAX_VALUE);
+				validateRange(g, 0, MAX_VALUE);
+				validateRange(b, 0, MAX_VALUE);
 				return add(38, 2, r, g, b);
 			}
 
@@ -362,9 +362,9 @@ public class AnsiEscape {
 			 * Set 24-bit color, each component 0-255.
 			 */
 			public Sgr bgColor24(int r, int g, int b) {
-				validateRange(r, 0, CHANNEL_MAX);
-				validateRange(g, 0, CHANNEL_MAX);
-				validateRange(b, 0, CHANNEL_MAX);
+				validateRange(r, 0, MAX_VALUE);
+				validateRange(g, 0, MAX_VALUE);
+				validateRange(b, 0, MAX_VALUE);
 				return add(48, 2, r, g, b);
 			}
 

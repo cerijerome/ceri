@@ -24,7 +24,9 @@ import ceri.common.text.StringUtil;
  */
 public class ColorUtil {
 	private static final Pattern ARGB_REGEX = Pattern.compile("(0x|#)?([0-9a-fA-F]{1,8})");
-	private static final BiMap<Integer, String> awtColors = awtColors();
+	private static final Pattern WHITE_K_REGEX = Pattern.compile("white(\\d+)K");
+	private static final BiMap<Integer, String> colors = colors();
+	public static final Color clear = color(0);
 	private static final int HEX = 16;
 	private static final int HEX3_LEN = 3;
 	private static final int HEX_RGB_MAX_LEN = 6;
@@ -46,6 +48,13 @@ public class ColorUtil {
 	/* argb int methods */
 
 	/**
+	 * Replaces the alpha component for an argb int.
+	 */
+	public static int alphaArgb(int a, int argb) {
+		return (a << A_SHIFT) | (argb & RGB_MASK);
+	}
+
+	/**
 	 * Removes alpha component from argb int.
 	 */
 	public static int rgb(int argb) {
@@ -63,21 +72,14 @@ public class ColorUtil {
 	 * Constructs an opaque argb int from rgb int.
 	 */
 	public static int argb(int rgb) {
-		return argb(MAX_VALUE, rgb);
-	}
-
-	/**
-	 * Constructs an argb int from alpha and rgb.
-	 */
-	public static int argb(int a, int rgb) {
-		return (a << A_SHIFT) | (rgb & RGB_MASK);
+		return alphaArgb(MAX_VALUE, rgb);
 	}
 
 	/**
 	 * Constructs an argb int from components.
 	 */
 	public static int argb(int a, int r, int g, int b) {
-		return argb(a, ubyte(r) << R_SHIFT | ubyte(g) << G_SHIFT | ubyte(b));
+		return alphaArgb(a, ubyte(r) << R_SHIFT | ubyte(g) << G_SHIFT | ubyte(b));
 	}
 
 	/**
@@ -88,15 +90,8 @@ public class ColorUtil {
 	}
 
 	/**
-	 * Constructs an argb int from alpha and color.
-	 */
-	public static int argb(int a, Color color) {
-		return argb(a, color.getRGB());
-	}
-
-	/**
-	 * Returns an opaque color from awt name, x11 name, or hex representation. Returns null if no
-	 * match.
+	 * Returns an argb int from awt name, x11 name, or hex representation. Named colors are opaque,
+	 * hex colors may have alpha components, or be opaque. Returns null if no match.
 	 */
 	public static Integer argb(String text) {
 		Integer argb = namedArgb(text);
@@ -104,33 +99,20 @@ public class ColorUtil {
 	}
 
 	/**
-	 * Converts hex string to argb int. The value must be prefixed with '#' or '0x', and contain
-	 * 1..8 hex digits. If <= 6 digits, the value is treated as opaque, otherwise the alpha value is
-	 * captured. Triple hex '#rgb' values will be treated as opaque 'rrggbb' hex values. Returns
-	 * null if no match.
+	 * Returns an argb int from awt name, x11 name, or hex representation. Throws an exception if no
+	 * match.
 	 */
-	public static Integer hexArgb(String text) {
-		Matcher m = RegexUtil.matched(ARGB_REGEX, text);
-		if (m == null) return null;
-		String prefix = m.group(1);
-		String hex = m.group(2);
-		int argb = Integer.valueOf(hex, HEX);
-		int len = hex.length();
-		return hexArgb(prefix, len, argb);
+	public static int validArgb(String text) {
+		Integer argb = argb(text);
+		if (argb != null) return argb;
+		throw new IllegalArgumentException("Invalid color: " + text);
 	}
 
 	/**
-	 * Creates a gray argb int with component value.
-	 */
-	public static int grayArgb(int a, int value) {
-		return argb(a, value, value, value);
-	}
-
-	/**
-	 * Creates an opaque gray argb int with component value.
+	 * Creates an opaque gray argb int with the same value for all color components.
 	 */
 	public static int grayArgb(int value) {
-		return grayArgb(MAX_VALUE, value);
+		return argb(MAX_VALUE, value, value, value);
 	}
 
 	/**
@@ -138,20 +120,6 @@ public class ColorUtil {
 	 */
 	public static int maxArgb(int argb) {
 		return maxArgb(a(argb), r(argb), g(argb), b(argb));
-	}
-
-	/**
-	 * Creates an argb int with maximum color components in the same ratio.
-	 */
-	public static int maxArgb(int a, int rgb) {
-		return maxArgb(argb(a, rgb));
-	}
-
-	/**
-	 * Creates an opaque argb int with maximum color components in the same ratio.
-	 */
-	public static int maxArgb(int r, int g, int b) {
-		return maxArgb(MAX_VALUE, r, g, b);
 	}
 
 	/**
@@ -174,22 +142,9 @@ public class ColorUtil {
 	/**
 	 * Provides a component-scaled argb int from given argb int. Alpha value is maintained.
 	 */
-	public static int dimArgb(Color color, double scale) {
-		return dimArgb(color.getRGB(), scale);
-	}
-
-	/**
-	 * Provides a component-scaled argb int from given argb int. Alpha value is maintained.
-	 */
 	public static int dimArgb(int argb, double scale) {
-		return argb(a(argb), scaleArgb(0, argb, scale));
-	}
-
-	/**
-	 * Provides a component-scaled argb int from min and max colors.
-	 */
-	public static int scaleArgb(Color min, Color max, double ratio) {
-		return scaleArgb(min.getRGB(), max.getRGB(), ratio);
+		if (scale == MAX_RATIO || rgb(argb) == 0) return argb;
+		return alphaArgb(a(argb), scaleArgb(0, argb, scale));
 	}
 
 	/**
@@ -197,7 +152,7 @@ public class ColorUtil {
 	 */
 	public static int scaleArgb(int minArgb, int maxArgb, double ratio) {
 		if (ratio <= 0.0) return minArgb;
-		if (ratio >= 1.0) return maxArgb;
+		if (ratio >= MAX_RATIO) return maxArgb;
 		int a = scaleValue(a(minArgb), a(maxArgb), ratio);
 		int r = scaleValue(r(minArgb), r(maxArgb), ratio);
 		int g = scaleValue(g(minArgb), g(maxArgb), ratio);
@@ -206,22 +161,22 @@ public class ColorUtil {
 	}
 
 	/**
-	 * Provides an hsb component-scaled argb int from min and max colors.
-	 */
-	public static int scaleHsbArgb(Color min, Color max, double ratio) {
-		return scaleHsbArgb(min.getRGB(), max.getRGB(), ratio);
-	}
-
-	/**
 	 * Provides an hsb component-scaled argb int from min and max argb int values.
 	 */
 	public static int scaleHsbArgb(int minArgb, int maxArgb, double ratio) {
 		if (ratio <= 0.0) return minArgb;
-		if (ratio >= 1.0) return maxArgb;
+		if (ratio >= MAX_RATIO) return maxArgb;
 		return scaleHsb(HsbColor.from(minArgb), HsbColor.from(maxArgb), ratio).argb();
 	}
 
 	/* Color methods */
+
+	/**
+	 * Replaces the alpha component of the color.
+	 */
+	public static Color alpha(int a, Color color) {
+		return color(alphaArgb(a, color.getRGB()));
+	}
 
 	/**
 	 * Creates a color from argb int.
@@ -238,22 +193,7 @@ public class ColorUtil {
 	}
 
 	/**
-	 * Returns the given color from alpha component and rgb int.
-	 */
-	public static Color color(int a, int rgb) {
-		return color(argb(a, rgb));
-	}
-
-	/**
-	 * Returns the given color with modified alpha value.
-	 */
-	public static Color color(int a, Color color) {
-		return color(argb(a, color));
-	}
-
-	/**
-	 * Returns an opaque color from awt name, x11 name, or hex representation. Returns null if no
-	 * match.
+	 * Returns a color from awt name, x11 name, or hex representation. Returns null if no match.
 	 */
 	public static Color color(String text) {
 		Integer argb = argb(text);
@@ -261,18 +201,17 @@ public class ColorUtil {
 	}
 
 	/**
-	 * Converts hex string to color. The value must be prefixed with '#' or '0x', and contain 1..8
-	 * hex digits. If <= 6 digits, the value is treated as opaque, otherwise the alpha value is
-	 * captured. Triple hex '#rgb' values will be treated as opaque 'rrggbb' hex values. Returns
-	 * null if no match.
+	 * Returns a color from awt name, x11 name, or hex representation. Throws an exception if no
+	 * match.
 	 */
-	public static Color hex(String text) {
-		Integer argb = hexArgb(text);
-		return argb == null ? null : color(argb);
+	public static Color validColor(String text) {
+		Color color = color(text);
+		if (color != null) return color;
+		throw new IllegalArgumentException("Invalid color: " + text);
 	}
 
 	/**
-	 * Creates an opaque gray color with given component level.
+	 * Creates an opaque gray color with the same value for all color components.
 	 */
 	public static Color gray(int value) {
 		return color(grayArgb(value));
@@ -286,32 +225,18 @@ public class ColorUtil {
 	}
 
 	/**
-	 * Creates a color with maximum color components in the same ratio.
-	 */
-	public static Color max(int a, int r, int g, int b) {
-		return color(maxArgb(a, r, g, b));
-	}
-
-	/**
-	 * Creates an opaque color with maximum color components in the same ratio.
-	 */
-	public static Color max(int r, int g, int b) {
-		return max(MAX_VALUE, r, g, b);
-	}
-
-	/**
 	 * Provides an opaque Color with random components.
 	 */
 	public static Color random() {
 		return color(randomArgb());
 	}
 
-	public static Color dim(int rgb, double scale) {
-		return dim(new Color(rgb), scale);
-	}
-
+	/**
+	 * Provides a component-scaled color from given color. Alpha value is maintained.
+	 */
 	public static Color dim(Color color, double scale) {
-		return scale(Color.black, color, scale);
+		if (scale == MAX_RATIO || rgb(color) == 0) return color;
+		return color(dimArgb(color.getRGB(), scale));
 	}
 
 	/**
@@ -319,15 +244,8 @@ public class ColorUtil {
 	 */
 	public static Color scale(Color min, Color max, double ratio) {
 		if (ratio <= 0.0) return min;
-		if (ratio >= 1.0) return max;
+		if (ratio >= MAX_RATIO) return max;
 		return color(scaleArgb(min.getRGB(), max.getRGB(), ratio));
-	}
-
-	/**
-	 * Provides a component-scaled color from min and max argb int values.
-	 */
-	public static Color scale(int minArgb, int maxArgb, double ratio) {
-		return color(scaleArgb(minArgb, maxArgb, ratio));
 	}
 
 	/**
@@ -335,17 +253,8 @@ public class ColorUtil {
 	 */
 	public static Color scaleHsb(Color min, Color max, double ratio) {
 		if (ratio <= 0.0) return min;
-		if (ratio >= 1.0) return max;
-		return scaleHsb(min.getRGB(), max.getRGB(), ratio);
-	}
-
-	/**
-	 * Provides an hsb component-scaled color from min and max argb int values.
-	 */
-	public static Color scaleHsb(int minArgb, int maxArgb, double ratio) {
-		if (ratio <= 0.0) return color(minArgb);
-		if (ratio >= 1.0) return color(maxArgb);
-		return scaleHsb(HsbColor.from(minArgb), HsbColor.from(maxArgb), ratio).color();
+		if (ratio >= MAX_RATIO) return max;
+		return scaleHsb(HsbColor.from(min), HsbColor.from(max), ratio).color();
 	}
 
 	/* other color types */
@@ -355,7 +264,7 @@ public class ColorUtil {
 	 */
 	public static HsbColor scaleHsb(HsbColor minHsb, HsbColor maxHsb, double ratio) {
 		if (ratio <= 0.0) return minHsb;
-		if (ratio >= 1.0) return maxHsb;
+		if (ratio >= MAX_RATIO) return maxHsb;
 		minHsb = minHsb.normalize();
 		maxHsb = maxHsb.normalize();
 		return scaleNormHsb(minHsb, maxHsb, ratio);
@@ -452,7 +361,7 @@ public class ColorUtil {
 	 */
 	public static double scaleHue(double min, double max, double ratio) {
 		if (ratio <= 0.0) return min;
-		if (ratio >= 1.0) return max;
+		if (ratio >= MAX_RATIO) return max;
 		double diff = max - min;
 		if (Math.abs(diff) > HALF) diff -= Math.signum(diff);
 		return limitHue(min + ratio * diff);
@@ -463,7 +372,7 @@ public class ColorUtil {
 	 */
 	public static int scaleValue(int min, int max, double ratio) {
 		if (ratio <= 0.0) return min;
-		if (ratio >= 1.0) return max;
+		if (ratio >= MAX_RATIO) return max;
 		return min + (int) Math.round(ratio * (max - min));
 	}
 
@@ -472,26 +381,26 @@ public class ColorUtil {
 	 */
 	public static double scaleRatio(double min, double max, double ratio) {
 		if (ratio <= 0.0) return min;
-		if (ratio >= 1.0) return max;
+		if (ratio >= MAX_RATIO) return max;
 		return min + (ratio * (max - min));
 	}
 
 	/* string methods */
 
 	/**
-	 * Returns the awt or x11 color name, or hex string for the color, ignoring alpha.
+	 * Returns the hex string, with name if rgb matches an awt or x11 color.
 	 */
 	public static String toString(Color color) {
 		return toString(color.getRGB());
 	}
 
 	/**
-	 * Returns the awt or x11 color name, or hex string for the argb int, ignoring alpha.
+	 * Returns the hex string, with name if rgb matches an awt or x11 color.
 	 */
 	public static String toString(int argb) {
 		String name = name(argb);
-		if (name != null) return name;
-		return hex(argb);
+		String hex = hex(argb);
+		return name == null ? hex : hex + "(" + name + ")";
 	}
 
 	/**
@@ -507,9 +416,9 @@ public class ColorUtil {
 	 */
 	public static String name(int argb) {
 		argb |= A_MASK;
-		String name = awtColors.keys.get(argb);
+		String name = colors.keys.get(argb);
 		if (name != null) return name;
-		X11Color x11 = X11Color.from(argb);
+		Colors x11 = Colors.from(argb);
 		return x11 == null ? null : x11.name();
 	}
 
@@ -524,7 +433,7 @@ public class ColorUtil {
 	 * Creates a hex string from argb int. Uses 6 digits if opaque, otherwise 8.
 	 */
 	public static String hex(int argb) {
-		int digits = a(argb) == MAX_VALUE ? HEX_ARGB_MAX_LEN : HEX_RGB_MAX_LEN;
+		int digits = a(argb) == MAX_VALUE ? HEX_RGB_MAX_LEN : HEX_ARGB_MAX_LEN;
 		return "#" + StringUtil.toHex(argb, digits);
 	}
 
@@ -658,25 +567,24 @@ public class ColorUtil {
 	/* support methods */
 
 	/**
-	 * Returns an opaque argb int from awt or x11 name. Returns null if no match.
+	 * Converts hex string to argb int. The value must be prefixed with '#' or '0x', and contain
+	 * 1..8 hex digits. If <= 6 digits, the value is treated as opaque, otherwise the alpha value is
+	 * captured. Triple hex '#rgb' values will be treated as opaque 'rrggbb' hex values. Returns
+	 * null if no match.
 	 */
-	private static Integer namedArgb(String name) {
-		Integer argb = awtColors.values.get(name);
-		if (argb != null) return argb;
-		X11Color x11Color = X11Color.from(name);
-		return x11Color == null ? null : x11Color.color.getRGB();
+	private static Integer hexArgb(String text) {
+		Matcher m = RegexUtil.matched(ARGB_REGEX, text);
+		if (m == null) return null;
+		String prefix = m.group(1);
+		String hex = m.group(2);
+		int argb = Integer.valueOf(hex, HEX);
+		int len = hex.length();
+		return hexArgb(prefix, len, argb);
 	}
 
-	private static int validArgb(String text) {
-		Integer argb = argb(text);
-		if (argb != null) return argb;
-		throw new IllegalArgumentException("Invalid color: " + text);
-	}
-
-	private static Color validColor(String text) {
-		Color color = color(text);
-		if (color != null) return color;
-		throw new IllegalArgumentException("Invalid color: " + text);
+	static int divide(int component, double ratio) {
+		if (ratio == 0.0) return MAX_VALUE;
+		return (int) (component / ratio);
 	}
 
 	private static IntStream streamFade(int minArgb, int maxArgb, int steps, Bias bias) {
@@ -692,7 +600,7 @@ public class ColorUtil {
 
 	private static HsbColor scaleNormHsb(HsbColor minHsb, HsbColor maxHsb, double ratio) {
 		if (ratio <= 0.0) return minHsb;
-		if (ratio >= 1.0) return maxHsb;
+		if (ratio >= MAX_RATIO) return maxHsb;
 		double a = scaleRatio(minHsb.a, maxHsb.a, ratio);
 		double h = scaleHue(minHsb.h, maxHsb.h, ratio);
 		double s = scaleRatio(minHsb.s, maxHsb.s, ratio);
@@ -705,9 +613,11 @@ public class ColorUtil {
 			.mapToObj(i -> hsb.shiftHue(bias.bias((double) i / steps)));
 	}
 
-	private static int divide(int component, double ratio) {
-		if (ratio == 0.0) return MAX_VALUE;
-		return (int) (component / ratio);
+	private static Integer namedArgb(String name) {
+		Integer argb = colors.values.get(name);
+		if (argb != null) return argb;
+		Colors x11Color = Colors.from(name);
+		return x11Color == null ? null : x11Color.argb;
 	}
 
 	private static int hexArgb(String prefix, int len, int argb) {
@@ -716,12 +626,16 @@ public class ColorUtil {
 		int r = ((argb >>> HEX3_R_SHIFT) & HEX3_MASK) << R_SHIFT;
 		int g = ((argb >>> HEX3_G_SHIFT) & HEX3_MASK) << G_SHIFT;
 		int b = (argb) & HEX3_MASK;
-		return (r | g | b) * (HEX + 1); // triple-hex #rgb
+		return argb((r | g | b) * (HEX + 1)); // triple-hex #rgb
 	}
 
-	private static BiMap<Integer, String> awtColors() {
-		return BiMap.<Integer, String>builder() //
-			.put(Color.black.getRGB(), "black") //
+	private static BiMap<Integer, String> colors() {
+		var b = BiMap.<Integer, String>builder();
+		for (var x11 : Colors.values())
+			b.put(x11.argb, x11.name());
+		for (var preset : ColorPreset.values())
+			b.put(preset.argb, preset.name());
+		return b.put(Color.black.getRGB(), "black") //
 			.put(Color.blue.getRGB(), "blue") //
 			.put(Color.cyan.getRGB(), "cyan") //
 			.put(Color.darkGray.getRGB(), "darkGray") //

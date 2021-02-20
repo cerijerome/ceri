@@ -10,7 +10,7 @@ public class ColorableTest {
 	@Test
 	public void testMultiSetColorForEmptyCollection() {
 		Colorable c = Colorable.multi();
-		c.color(X11Color.chartreuse);
+		c.color(Colors.chartreuse);
 		c.color(Color.white);
 	}
 
@@ -20,10 +20,10 @@ public class ColorableTest {
 		TestColorable c1 = new TestColorable();
 		TestColorable c2 = new TestColorable();
 		Colorable c = Colorable.multi(c0, c1, c2);
-		c.color(X11Color.chartreuse);
-		assertEquals(c0.color, X11Color.chartreuse.color);
-		assertEquals(c1.color, X11Color.chartreuse.color);
-		assertEquals(c2.color, X11Color.chartreuse.color);
+		c.color(Colors.chartreuse);
+		assertEquals(c0.color, Colors.chartreuse.color);
+		assertEquals(c1.color, Colors.chartreuse.color);
+		assertEquals(c2.color, Colors.chartreuse.color);
 	}
 
 	@Test

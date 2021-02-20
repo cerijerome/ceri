@@ -1,5 +1,6 @@
 package ceri.common.color;
 
+import static ceri.common.color.ColorUtil.MAX_RATIO;
 import static ceri.common.color.ColorUtil.a;
 import static ceri.common.color.ColorUtil.b;
 import static ceri.common.color.ColorUtil.g;
@@ -15,10 +16,9 @@ import ceri.common.math.MathUtil;
  * Encapsulates A+RGB color with values 0-1 inclusive.
  */
 public class RgbColor implements ComponentColor<RgbColor> {
-	public static final double MAX_VALUE = 1.0;
 	public static final RgbColor clear = RgbColor.of(0, 0, 0, 0);
 	public static final RgbColor black = RgbColor.of(0, 0, 0);
-	public static final RgbColor white = RgbColor.of(MAX_VALUE, MAX_VALUE, MAX_VALUE);
+	public static final RgbColor white = RgbColor.of(MAX_RATIO, MAX_RATIO, MAX_RATIO);
 	public final double a; // alpha
 	public final double r; // red
 	public final double g; // green
@@ -45,7 +45,7 @@ public class RgbColor implements ComponentColor<RgbColor> {
 	}
 
 	public static RgbColor of(double r, double g, double b) {
-		return of(MAX_VALUE, r, g, b);
+		return of(MAX_RATIO, r, g, b);
 	}
 
 	public static RgbColor of(double alpha, double red, double green, double blue) {
@@ -74,7 +74,7 @@ public class RgbColor implements ComponentColor<RgbColor> {
 
 	@Override
 	public boolean hasAlpha() {
-		return a < MAX_VALUE;
+		return a < MAX_RATIO;
 	}
 
 	@Override
@@ -109,11 +109,11 @@ public class RgbColor implements ComponentColor<RgbColor> {
 	}
 
 	private void validate(double value, String name) {
-		validateRangeFp(value, 0, MAX_VALUE, name);
+		validateRangeFp(value, 0, MAX_RATIO, name);
 	}
 
 	private double limit(double value) {
-		return MathUtil.limit(value, 0, MAX_VALUE);
+		return MathUtil.limit(value, 0, MAX_RATIO);
 	}
 
 	@Override

@@ -1,278 +1,382 @@
 package ceri.common.math;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateNotNull;
-import static ceri.common.validation.ValidationUtil.validatef;
-import java.util.Arrays;
-import java.util.stream.IntStream;
+import static ceri.common.exception.ExceptionUtil.exceptionf;
+import static ceri.common.validation.ValidationUtil.*;
+import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.text.ToString;
+import ceri.common.util.Hasher;
 
+/**
+ * An immutable virtual matrix of (rows x columns) double values. Internally, the class uses a value
+ * accessor function, which may or may not map to an actual array. Many operations on the matrix are
+ * applied by adding a new accessor layer rather than generating a new value array. If the accessor
+ * becomes too complex, copy() can be used to generate the value array, with a direct accessor.
+ */
 public class Matrix {
-	public static final Matrix EMPTY = builder().build();
-	private final double[][] values;
+	private static final int STR_MAX_N = 5;
+	public static final Matrix EMPTY = new Matrix(null, 0, 0);
+	public static final Matrix I1 = identity(1);
+	public static final Matrix I2 = identity(2);
+	public static final Matrix I3 = identity(3);
+	private final Accessor accessor;
 	public final int rows;
 	public final int columns;
 
-	public static class Builder {
-		double[][] values = {};
-		int rows = 0;
-		int columns = 0;
-
-		Builder() {}
-
-		public Builder rows(int rows) {
-			return size(rows, columns);
-		}
-
-		public Builder columns(int columns) {
-			return size(rows, columns);
-		}
-
-		public Builder size(int rows, int columns) {
-			if (this.rows == rows && this.columns == columns) return this;
-			validateMin(rows, 0);
-			validateMin(columns, 0);
-			this.rows = rows;
-			this.columns = columns;
-			values = resize(rows, columns, values);
-			return this;
-		}
-
-		public Builder setAll(double[]... values) {
-			validateNotNull(values);
-			this.rows = rows(values);
-			this.columns = columns(values);
-			this.values = resize(rows, columns, values);
-			return this;
-		}
-
-		public Builder set(int row, int column, double value) {
-			validateMin(row, 0);
-			validateMin(column, 0);
-			size(Math.max(row + 1, this.rows), Math.max(column + 1, this.columns));
-			set(row, column, values, value);
-			return this;
-		}
-
-		public Builder setRow(int row, double... line) {
-			validateMin(row, 0);
-			validateNotNull(line);
-			size(Math.max(row + 1, rows), Math.max(line.length, columns));
-			for (int column = 0; column < line.length; column++)
-				set(row, column, values, line[column]);
-			return this;
-		}
-
-		public Builder addRow(double... line) {
-			return setRow(rows, line);
-		}
-
-		public Builder setColumn(int column, double... line) {
-			validateMin(column, 0);
-			validateNotNull(line);
-			size(Math.max(line.length, rows), Math.max(column + 1, columns));
-			for (int row = 0; row < line.length; row++)
-				set(row, column, values, line[row]);
-			return this;
-		}
-
-		public Builder addColumn(double... line) {
-			return setColumn(columns, line);
-		}
-
-		public Matrix build() {
-			return new Matrix(this);
-		}
-
-		private static double[][] copy(double[][] from, double[][] to) {
-			for (int row = 0; row < to.length; row++)
-				for (int column = 0; column < to[row].length; column++)
-					set(row, column, to, get(row, column, from));
-			return to;
-		}
-
-		private static double[][] resize(int rows, int columns, double[][] values) {
-			return copy(values, create(rows, columns));
-		}
-
-		private static int rows(double[][] values) {
-			return values.length;
-		}
-
-		private static int columns(double[][] values) {
-			return Stream.of(values).mapToInt(line -> line.length).max().orElse(0);
-		}
-
-		static double get(int row, int column, double[][] values) {
-			if (row < 0 || row >= values.length) return 0.0;
-			double[] line = values[row];
-			if (column < 0 || column >= line.length) return 0.0;
-			return line[column];
-		}
-
-		private static void set(int row, int column, double[][] values, double value) {
-			// parameters already validated
-			double[] line = values[row];
-			line[column] = value + 0.0;
-		}
-
-		private static double[][] create(int rows, int columns) {
-			return new double[rows][columns];
-		}
+	/**
+	 * Provides indirect access to matrix values.
+	 */
+	private static interface Accessor {
+		double get(int r, int c);
 	}
 
-	public static Builder builder() {
-		return new Builder();
+	/**
+	 * Convenience method for creating a matrix row.
+	 */
+	public static double[] r(double... row) {
+		return row;
 	}
 
-	public static Builder builder(int rows, int columns) {
-		return builder().size(rows, columns);
+	/**
+	 * Creates a matrix from number of columns and wrapping value sequence. The number of rows is
+	 * that which minimally fits the sequence. The values are accessed by column in rows, starting
+	 * at 0 and wrapping to the next.
+	 */
+	public static Matrix from(int columns, double... seq) {
+		if (columns == 0) return EMPTY;
+		int rows = (seq.length + columns - 1) / columns;
+		return of((r, c) -> {
+			int i = r * columns + c;
+			return i < seq.length ? seq[i] : 0;
+		}, rows, columns);
 	}
 
-	public static Matrix of(double[]... values) {
-		return builder().setAll(values).build();
+	/**
+	 * Creates an constant matrix of given size.
+	 */
+	public static Matrix constant(int rows, int columns, double value) {
+		return of((r, c) -> value, rows, columns);
 	}
 
-	public static Matrix rowVector(double... values) {
-		return builder().addRow(values).build();
-	}
-
-	public static Matrix columnVector(double... values) {
-		return builder().addColumn(values).build();
-	}
-
-	public static Matrix singleton(double value) {
-		return builder(1, 1).set(0, 0, value).build();
-	}
-
+	/**
+	 * Creates an identity matrix of given size.
+	 */
 	public static Matrix identity(int size) {
-		Builder b = builder(size, size);
-		for (int i = 0; i < size; i++)
-			b.set(i, i, 1);
-		return b.build();
+		return of((r, c) -> r == c ? 1 : 0, size, size);
 	}
 
-	Matrix(Builder builder) {
-		values = builder.values;
-		rows = builder.rows;
-		columns = builder.columns;
+	/**
+	 * Creates a column vector.
+	 */
+	public static Matrix vector(double... row) {
+		return of((r, c) -> row[r], row.length, 1);
 	}
 
+	/**
+	 * Creates a row vector.
+	 */
+	public static Matrix of(double... row) {
+		return of((r, c) -> row[c], 1, row.length);
+	}
+
+	/**
+	 * Creates a matrix for an array, using the given row and column sizes. 0 is returned for any
+	 * value outside the array.
+	 */
+	public static Matrix of(int rows, int columns, double[]... values) {
+		return of((r, c) -> get(values, r, c), rows, columns);
+	}
+
+	/**
+	 * Creates a matrix for an array, using the maximum column size. 0 is returned for any value
+	 * outside the array.
+	 */
+	public static Matrix of(double[]... values) {
+		return of(values.length, maxColumns(values), values);
+	}
+
+	/**
+	 * Creates a matrix of given size with virtual value accessor.
+	 */
+	public static Matrix of(Accessor accessor, int rows, int columns) {
+		validateMin(rows, 0, "Rows");
+		validateMin(columns, 0, "Columns");
+		if (rows == 0 || columns == 0) return EMPTY;
+		validateNotNull(accessor);
+		return new Matrix(accessor, rows, columns);
+	}
+
+	Matrix(Accessor accessor, int rows, int columns) {
+		this.accessor = accessor;
+		this.rows = rows;
+		this.columns = columns;
+	}
+
+	/**
+	 * Transpose the matrix.
+	 */
+	public Matrix transpose() {
+		return new Matrix((r, c) -> accessor.get(c, r), columns, rows);
+	}
+
+	/**
+	 * Returns true if the matrix is square.
+	 */
 	public boolean isSquare() {
 		return rows == columns;
 	}
 
-	public boolean isVector() {
-		return isEmpty() || rows == 1 || columns == 1;
+	/**
+	 * Returns true if this is a row vector.
+	 */
+	public boolean isRow() {
+		return isEmpty() || rows == 1;
 	}
 
+	/**
+	 * Returns true if this is a column vector.
+	 */
+	public boolean isColumn() {
+		return isEmpty() || columns == 1;
+	}
+
+	/**
+	 * Returns this matrix as a column vector, transposing if this is a row vector. Throws an
+	 * exception if this matrix is not a row or column vector.
+	 */
+	public Matrix vector() {
+		return validateColumnVector(this);
+	}
+
+	/**
+	 * Returns this matrix as a column vector, transposing if this is a row vector. Throws an
+	 * exception if this matrix is not a row or column vector, or the vector is not the required
+	 * size.
+	 */
+	public Matrix vector(int size) {
+		Matrix m = vector();
+		validateEqual(m.rows, size, "Size");
+		return m;
+	}
+
+	/**
+	 * Returns true if this matrix has no elements.
+	 */
 	public boolean isEmpty() {
-		return rows == 0 && columns == 0;
+		return rows == 0;
 	}
 
-	public double valueAt(int row, int column) {
-		return Builder.get(row, column, values);
-	}
-
-	public Matrix transpose() {
-		Builder b = builder(columns, rows);
-		for (int row = 0; row < rows; row++)
-			for (int column = 0; column < columns; column++)
-				b.set(column, row, valueAt(row, column));
-		return b.build();
-	}
-
+	/**
+	 * Returns a row vector view.
+	 */
 	public Matrix row(int row) {
-		return subMatrix(row, 0, 1, columns);
+		validateRow(row);
+		return new Matrix((r, c) -> get(row + r, c), 1, columns);
 	}
 
+	/**
+	 * Returns a column vector view.
+	 */
 	public Matrix column(int column) {
-		return subMatrix(0, column, rows, 1);
+		validateColumn(column);
+		return new Matrix((r, c) -> get(r, column + c), rows, 1);
 	}
 
 	/**
-	 * Sub matrix with 0.0 values outside the rows and columns.
+	 * Copies the row values as a double array.
 	 */
-	public Matrix subMatrix(int offsetRow, int offsetColumn, int rows, int columns) {
-		Builder b = builder(rows, columns);
-		for (int row = 0; row < rows; row++)
-			for (int column = 0; column < columns; column++)
-				b.set(row, column, Builder.get(row + offsetRow, column + offsetColumn, values));
-		return b.build();
+	public double[] rowValues(int row) {
+		validateRow(row);
+		double[] copy = new double[columns];
+		for (int c = 0; c < columns; c++)
+			copy[c] = get(row, c);
+		return copy;
 	}
 
 	/**
-	 * Sub matrix that allows row and columns indexes to wrap.
+	 * Copies the column values as a double array.
 	 */
-	public Matrix wrappedSubMatrix(int offsetRow, int offsetColumn, int rows, int columns) {
-		Builder b = builder(rows, columns);
-		for (int row = 0; row < rows; row++)
-			for (int column = 0; column < columns; column++)
-				b.set(row, column, getWrapped(row + offsetRow, column + offsetColumn, values));
-		return b.build();
+	public double[] columnValues(int column) {
+		validateColumn(column);
+		double[] copy = new double[rows];
+		for (int r = 0; r < rows; r++)
+			copy[r] = get(r, column);
+		return copy;
 	}
 
-	private double getWrapped(int row, int column, double[][] values) {
-		return Builder.get(wrappedIndex(row, rows), wrappedIndex(column, columns), values);
+	/**
+	 * Returns a sub-matrix view. Row and column must be within bounds, but the row and column
+	 * counts can wrap.
+	 */
+	public Matrix sub(int row, int column, int rows, int columns) {
+		if (row == 0 && column == 0 && rows == this.rows && columns == this.columns) return this;
+		validateRow(row);
+		validateColumn(column);
+		validateRange(rows, 0, this.rows, "Rows");
+		validateRange(columns, 0, this.columns, "Columns");
+		if (rows == 0 || columns == 0) return EMPTY;
+		// Use accessor directly if no wrapping
+		if (row + rows <= this.rows && column + columns <= this.columns)
+			return new Matrix((r, c) -> accessor.get(row + r, column + c), rows, columns);
+		return new Matrix((r, c) -> get(row + r, column + c), rows, columns);
 	}
 
-	private static int wrappedIndex(int value, int max) {
-		while (value >= max)
-			value -= max;
-		while (value < 0)
-			value += max;
-		return value;
+	/**
+	 * Returns the value at given row and column. Throws an exception if outside bounds.
+	 */
+	public double value(int row, int column) {
+		validateRow(row);
+		validateColumn(column);
+		return get(row, column);
 	}
 
-	public Matrix negate() {
-		Builder b = builder(rows, columns);
-		for (int row = 0; row < rows; row++)
-			for (int column = 0; column < columns; column++)
-				b.set(row, column, -valueAt(row, column) + 0.0);
-		return b.build();
-	}
-
-	public Matrix add(Matrix m) {
-		validatef(rows == m.rows && columns == m.columns, "Matrix must be %dx%d: %dx%d", rows,
-			columns, m.rows, m.columns);
-		Builder b = builder(rows, m.columns);
-		for (int row = 0; row < rows; row++)
-			for (int column = 0; column < columns; column++)
-				b.set(row, column, valueAt(row, column) + m.valueAt(row, column));
-		return b.build();
-	}
-
-	public Matrix multiply(double scalar) {
-		Builder b = builder(rows, columns);
-		for (int row = 0; row < rows; row++)
-			for (int column = 0; column < columns; column++)
-				b.set(row, column, valueAt(row, column) * scalar);
-		return b.build();
-	}
-
-	public Matrix multiply(Matrix m) {
-		validatef(columns == m.rows, "Matrix must have %d rows: %d", columns, m.rows);
-		Builder b = builder(rows, m.columns);
-		for (int row = 0; row < rows; row++)
-			for (int column = 0; column < m.columns; column++)
-				b.set(row, column, multiplyLine(row, column, m));
-		return b.build();
-	}
-
-	private double multiplyLine(int row, int column, Matrix m) {
-		return IntStream.range(0, columns).mapToDouble( //
-			i -> valueAt(row, i) * m.valueAt(i, column)).sum();
-	}
-
+	/**
+	 * Returns a copy of the values.
+	 */
 	public double[][] values() {
-		return values.clone();
+		double[][] values = new double[rows][columns];
+		for (int r = 0; r < rows; r++)
+			for (int c = 0; c < columns; c++)
+				values[r][c] = get(r, c);
+		return values;
+	}
+
+	/**
+	 * Returns the sum of this and the given matrix.
+	 */
+	public Matrix add(Matrix m) {
+		validateEqual(m.rows, rows, "Rows");
+		validateEqual(m.columns, columns, "Columns");
+		if (isEmpty()) return this;
+		return new Matrix((r, c) -> get(r, c) + m.get(r,  c), rows, columns); 
+	}
+
+	/**
+	 * Returns a matrix with all values negated.
+	 */
+	public Matrix negate() {
+		return multiply(-1);
+	}
+
+	/**
+	 * Returns a matrix with all values multiplied by a scalar value.
+	 */
+	public Matrix multiply(double scalar) {
+		if (scalar == 1.0) return this;
+		return apply(x -> scalar * x);
+	}
+
+	/**
+	 * Returns a matrix with a scalar operator applied to all values. The operator is only applied
+	 * when a value is accessed.
+	 */
+	public Matrix apply(DoubleUnaryOperator scalarFn) {
+		if (isEmpty()) return this;
+		return new Matrix((r, c) -> scalarFn.applyAsDouble(accessor.get(r, c)), rows, columns);
+	}
+
+	/**
+	 * Returns the matrix product of this and the given matrix. Throws an exception if the matrix
+	 * row count does not match this matrix column count.
+	 */
+	public Matrix multiply(Matrix m) {
+		validateEqual(m.rows, columns, "Rows");
+		if (isEmpty()) return this;
+		double[][] values = new double[rows][m.columns];
+		for (int r = 0; r < rows; r++)
+			for (int c = 0; c < m.columns; c++)
+				for (int i = 0; i < columns; i++)
+					values[r][c] += get(r, i) * m.get(i, c);
+		return new Matrix(accessor(values), rows, m.columns);
+	}
+
+	/**
+	 * Returns the dot product of this and the given matrix. Throws an exception if this is not a
+	 * vector, the other matrix is not a vector, or the vector sizes do not match.
+	 */
+	public double dot(Matrix m) {
+		return dot(this, m);
+	}
+
+	/**
+	 * Returns the 2d cross product of this and the given matrix. Throws an exception if both are
+	 * not vectors of 2.
+	 */
+	public double cross2d(Matrix m) {
+		return cross2d(this, m);
+	}
+
+	/**
+	 * Returns the cross product vector of this and the given matrix. Throws an exception if this is
+	 * not a vector, the other matrix is not a vector, or the vector sizes do not match. Currently
+	 * only vectors of size 3 are supported.
+	 */
+	public Matrix cross(Matrix vector) {
+		return cross(this, vector);
+	}
+
+	/**
+	 * Returns the magnitude of this vector. Throws an exception is this matrix is not a vector.
+	 */
+	public double magnitude() {
+		return Math.sqrt(quadrance());
+	}
+
+	/**
+	 * Returns the squared magnitude of this vector. Throws an exception is this matrix is not a
+	 * vector.
+	 */
+	public double quadrance() {
+		validatef(isColumn() || isRow(), "Matrix is not a vector: %dx%d", rows, columns);
+		double sum = 0;
+		for (int r = 0; r < rows; r++)
+			for (int c = 0; c < columns; c++)
+				sum += sqr(get(r, c));
+		return sum;
+	}
+
+	/**
+	 * Returns the determinant of this matrix. Throws an exception if not square.
+	 */
+	public double determinant() {
+		validateSquare();
+		if (rows == 0) return 0.0;
+		if (rows == 1) return get(0, 0);
+		if (rows == 2) return (get(0, 0) * get(1, 1)) - (get(0, 1) * get(1, 0));
+		double sum = 0;
+		for (int c = 0; c < columns; c++)
+			sum += get(0, c) * sub(1, c + 1, rows - 1, columns - 1).determinant();
+		return sum;
+	}
+
+	/**
+	 * Inverts the matrix, or returns null if the determinant is 0. Throws an exception if not
+	 * square.
+	 */
+	public Matrix invert() {
+		validateSquare();
+		if (rows == 0) return this;
+		if (rows > 2) return invertNxN();
+		double d = determinant();
+		if (d == 0.0) return null;
+		return rows == 1 ? of(1 / d) : invert2x2(d);
+	}
+
+	/**
+	 * Makes a copy of this matrix. Allocates a new array, with direct accessor. Useful to simplify
+	 * an accessor that has multiple layers.
+	 */
+	public Matrix copy() {
+		return new Matrix(accessor(values()), rows, columns);
 	}
 
 	@Override
 	public int hashCode() {
-		return ArrayUtil.deepHash(rows, columns, values);
+		Hasher h = Hasher.of().hash(rows).hash(columns);
+		for (int r = 0; r < rows; r++)
+			for (int c = 0; c < columns; c++)
+				h.hash(get(r, c));
+		return h.code();
 	}
 
 	@Override
@@ -282,14 +386,152 @@ public class Matrix {
 		Matrix other = (Matrix) obj;
 		if (rows != other.rows) return false;
 		if (columns != other.columns) return false;
-		if (!Arrays.deepEquals(values, other.values)) return false;
+		for (int r = 0; r < rows; r++)
+			for (int c = 0; c < columns; c++)
+				if (longBits(r, c) != other.longBits(r, c)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return ToString.ofClass(this, String.format("%dx%d", rows, columns))
-			.children((Object[]) values).toString();
+		return toString(STR_MAX_N);
 	}
 
+	/* instance support methods */
+
+	private String toString(int max) {
+		ToString s = ToString.ofClass(this, rows + "x" + columns);
+		int nr = rows > max ? max - 1 : rows;
+		int nc = columns > max ? max - 1 : columns;
+		StringBuilder b = new StringBuilder();
+		for (int r = 0; r < nr; r++) {
+			b.setLength(0);
+			appendRow(b, r, nc);
+			s.children(b.toString());
+		}
+		if (nr < rows) s.children("...");
+		return s.toString();
+	}
+
+	private void appendRow(StringBuilder b, int r, int nc) {
+		for (int c = 0; c < nc; c++) {
+			if (c > 0) b.append(", ");
+			b.append(get(r, c));
+		}
+		if (nc < columns) b.append(", ...");
+	}
+
+	private long longBits(int r, int c) {
+		return Double.doubleToLongBits(get(r, c));
+	}
+
+	private Matrix invert2x2(double d) {
+		double[][] values = { { get(1, 1) / d, -get(0, 1) / d }, { -get(1, 0) / d, get(0, 0) } };
+		return new Matrix(accessor(values), 2, 2);
+	}
+
+	private Matrix invertNxN() {
+		double[][] values = new double[rows][columns];
+		double d = invertRow0(values);
+		if (d == 0.0) return null;
+		invertRows1Plus(values, d);
+		return new Matrix(accessor(values), rows, columns);
+	}
+
+	private double invertRow0(double[][] values) {
+		double d = 0.0;
+		for (int c = 0; c < columns; c++) {
+			values[0][c] = minor(0, c).determinant();
+			d += get(0, c) * values[0][c];
+		}
+		if (d != 0.0) for (int c = 0; c < columns; c++)
+			values[0][c] /= d;
+		return d;
+	}
+
+	private void invertRows1Plus(double[][] values, double d) {
+		for (int r = 1; r < rows; r++)
+			for (int c = 0; c < columns; c++)
+				values[r][c] = minor(r, c).determinant() / d;
+	}
+
+	private Matrix minor(int row, int column) {
+		return sub((row + 1) % rows, (column + 1) % columns, rows - 1, columns - 1);
+	}
+
+	private double get(int r, int c) {
+		return accessor.get(r % rows, c % columns);
+	}
+
+	private void validateRow(int r) {
+		validateRange(r, 0, rows - 1, "Row");
+	}
+
+	private void validateColumn(int c) {
+		validateRange(c, 0, columns - 1, "Column");
+	}
+
+	private void validateSquare() {
+		validatef(isSquare(), "Matrix is not square: %dx%d", rows, columns);
+	}
+
+	private static Matrix validateRowVector(Matrix m) {
+		if (m.isRow()) return m;
+		if (m.isColumn()) return m.transpose();
+		throw exceptionf("Matrix is not a vector: %dx%d", m.rows, m.columns);
+	}
+
+	private static Matrix validateColumnVector(Matrix m) {
+		if (m.isColumn()) return m;
+		if (m.isRow()) return m.transpose();
+		throw exceptionf("Matrix is not a vector: %dx%d", m.rows, m.columns);
+	}
+
+	private static double dot(Matrix rv, Matrix cv) {
+		rv = validateRowVector(rv);
+		cv = validateColumnVector(cv);
+		validateEqual(cv.columns, rv.rows, "Columns");
+		double sum = 0;
+		for (int i = 0; i < rv.rows; i++)
+			sum += rv.get(0, i) * cv.get(i, 0);
+		return sum;
+	}
+
+	private static double cross2d(Matrix u, Matrix v) {
+		u = validateColumnVector(u);
+		v = validateColumnVector(v);
+		validateEqual(u.columns, 2, "Size");
+		validateEqual(v.columns, 2, "Size");
+		return u.get(0, 0) * v.get(1, 0) - u.get(1, 0) * v.get(0, 0);
+	}
+
+	private static Matrix cross(Matrix u, Matrix v) {
+		u = validateColumnVector(u);
+		v = validateColumnVector(v);
+		validateEqual(v.columns, u.columns, "Columns");
+		validate(u.columns != 7, "Cross product exists for size 7, but is unsupported");
+		validatef(u.columns == 3, "Cross product only supported for size 3: %d", u.columns);
+		return Matrix.vector( //
+			u.get(1, 0) * v.get(2, 0) - u.get(2, 0) * v.get(1, 0),
+			u.get(2, 0) * v.get(0, 0) - u.get(0, 0) * v.get(2, 0),
+			u.get(0, 0) * v.get(1, 0) - u.get(1, 0) * v.get(0, 0));
+	}
+
+	private static Accessor accessor(double[][] values) {
+		return (r, c) -> values[r][c];
+	}
+
+	private static double get(double[][] values, int r, int c) {
+		if (r >= values.length) return 0;
+		double[] row = values[r];
+		return c >= row.length ? 0 : row[c];
+	}
+
+	private static int maxColumns(double[][] values) {
+		return Stream.of(values).mapToInt(row -> row.length).max().orElse(0);
+	}
+
+	private static double sqr(double x) {
+		return x * x;
+	}
 }

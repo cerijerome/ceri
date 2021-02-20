@@ -1,6 +1,6 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.CHANNEL_MAX;
+import static ceri.common.color.ColorUtil.MAX_VALUE;
 import static ceri.common.data.ByteUtil.ubyteAt;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -11,7 +11,7 @@ public class ColorTestUtil {
 	private ColorTestUtil() {}
 
 	public static void assertColor(Color color, Color c) {
-		assertColor(color, c, CHANNEL_MAX);
+		assertColor(color, c, MAX_VALUE);
 	}
 
 	public static void assertColor(Color color, Color c, int alpha) {
@@ -27,7 +27,7 @@ public class ColorTestUtil {
 	}
 
 	public static void assertColor(Color color, int r, int g, int b) {
-		assertColor(color, r, g, b, CHANNEL_MAX);
+		assertColor(color, r, g, b, MAX_VALUE);
 	}
 
 	public static void assertColor(Color color, int r, int g, int b, int a) {
@@ -35,7 +35,7 @@ public class ColorTestUtil {
 	}
 
 	public static void assertColorx(Colorx colorx, Colorx cx) {
-		assertColorx(colorx, cx, CHANNEL_MAX);
+		assertColorx(colorx, cx, MAX_VALUE);
 	}
 
 	public static void assertColorx(Colorx colorx, Colorx cx, int alpha) {
@@ -59,7 +59,7 @@ public class ColorTestUtil {
 	}
 
 	public static void assertColorx(Colorx colorx, int r, int g, int b, int x) {
-		assertColorx(colorx, r, g, b, x, CHANNEL_MAX);
+		assertColorx(colorx, r, g, b, x, MAX_VALUE);
 	}
 
 	public static void assertColorx(Colorx colorx, int r, int g, int b, int x, int a) {

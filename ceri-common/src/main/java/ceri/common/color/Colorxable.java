@@ -1,20 +1,48 @@
 package ceri.common.color;
 
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
 
 public interface Colorxable {
+	static Colorxable NULL = ofNull();
 
-	void colorx(int r, int g, int b, int x);
+	void argbx(long argbx);
 
-	Colorx colorx();
+	long argbx();
 
-	default void colorx(Colorx colorx) {
-		colorx(colorx.r(), colorx.g(), colorx.b(), colorx.x());
+	default void rgbx(int rgbx) {
+		argbx(ColorxUtil.argbx(rgbx));
 	}
 
-	default void colorx(int rgbx) {
-		colorx(Colorx.of(rgbx));
+	default int rgbx() {
+		return ColorxUtil.rgbx(argbx());
+	}
+
+	default void colorx(Colorx colorx) {
+		argbx(colorx.argbx());
+	}
+
+	default Colorx colorx() {
+		return Colorx.of(argbx());
+	}
+
+	static Colorxable from(Colorable colorable, Color x) {
+		return from(colorable, x.getRGB());
+	}
+
+	static Colorxable from(Colorable colorable, int xRgb) {
+		return new Colorxable() {
+			@Override
+			public void argbx(long argbx) {
+				colorable.argb(ColorxUtil.normalizeArgb(argbx, xRgb));
+			}
+
+			@Override
+			public long argbx() {
+				return ColorxUtil.denormalizeArgbx(colorable.argb(), xRgb);
+			}
+		};
 	}
 
 	static Colorxable multi(Colorxable... colorxables) {
@@ -22,19 +50,29 @@ public interface Colorxable {
 	}
 
 	static Colorxable multi(Collection<Colorxable> colorxables) {
+		Colorxable first = colorxables.isEmpty() ? NULL : colorxables.iterator().next();
 		return new Colorxable() {
-
 			@Override
-			public Colorx colorx() {
-				return colorxables.stream().findFirst().map(Colorxable::colorx).orElse(null);
+			public void argbx(long argbx) {
+				colorxables.forEach(c -> c.argbx(argbx));
 			}
 
 			@Override
-			public void colorx(int r, int g, int b, int x) {
-				colorxables.forEach(c -> c.colorx(r, g, b, x));
+			public long argbx() {
+				return first.argbx();
 			}
-
 		};
 	}
 
+	private static Colorxable ofNull() {
+		return new Colorxable() {
+			@Override
+			public void argbx(long argbx) {}
+
+			@Override
+			public long argbx() {
+				return Colorx.clear.argbx();
+			}
+		};
+	}
 }

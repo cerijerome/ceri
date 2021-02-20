@@ -55,7 +55,11 @@ public class Point2d {
 	}
 
 	public double distance() {
-		return Math.sqrt((x * x) + (y * y));
+		return Math.sqrt(quadrance());
+	}
+
+	public double quadrance() {
+		return x * x + y * y;
 	}
 
 	public double distanceTo(Point2d end) {

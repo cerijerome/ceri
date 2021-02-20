@@ -16,10 +16,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.Hasher;
 
 /**
  * Utility methods to test and manipulate arrays.
@@ -29,10 +29,6 @@ import ceri.common.util.BasicUtil;
  */
 public class ArrayUtil {
 	private static final String NULL_STRING = "null";
-	private static final int HASH_INIT = 1;
-	private static final int HASH_MULTIPLIER = 31;
-	private static final int TRUE_HASH = 1231;
-	private static final int FALSE_HASH = 1237;
 	public static final boolean[] EMPTY_BOOLEAN = new boolean[0];
 	public static final byte[] EMPTY_BYTE = new byte[0];
 	public static final char[] EMPTY_CHAR = new char[0];
@@ -1048,16 +1044,16 @@ public class ArrayUtil {
 	public static int hash(boolean[] a, int offset) {
 		return hash(a, offset, a != null ? a.length - offset : 0);
 	}
-	
+
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
 	public static int hash(boolean[] a, int offset, int length) {
 		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
-		int result = HASH_INIT;
+		var hasher = Hasher.of();
 		while (length-- > 0)
-			result = HASH_MULTIPLIER * result + (a[offset++] ? TRUE_HASH : FALSE_HASH);
-		return result;
+			hasher.hash(a[offset++]);
+		return hasher.code();
 	}
 
 	/**
@@ -1066,16 +1062,16 @@ public class ArrayUtil {
 	public static int hash(byte[] a, int offset) {
 		return hash(a, offset, a != null ? a.length - offset : 0);
 	}
-	
+
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
 	public static int hash(byte[] a, int offset, int length) {
 		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
-		int result = HASH_INIT;
+		var hasher = Hasher.of();
 		while (length-- > 0)
-			result = HASH_MULTIPLIER * result + a[offset++];
-		return result;
+			hasher.hash(a[offset++]);
+		return hasher.code();
 	}
 
 	/**
@@ -1084,16 +1080,16 @@ public class ArrayUtil {
 	public static int hash(char[] a, int offset) {
 		return hash(a, offset, a != null ? a.length - offset : 0);
 	}
-	
+
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
 	public static int hash(char[] a, int offset, int length) {
 		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
-		int result = HASH_INIT;
+		var hasher = Hasher.of();
 		while (length-- > 0)
-			result = HASH_MULTIPLIER * result + a[offset++];
-		return result;
+			hasher.hash(a[offset++]);
+		return hasher.code();
 	}
 
 	/**
@@ -1102,16 +1098,16 @@ public class ArrayUtil {
 	public static int hash(short[] a, int offset) {
 		return hash(a, offset, a != null ? a.length - offset : 0);
 	}
-	
+
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
 	public static int hash(short[] a, int offset, int length) {
 		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
-		int result = HASH_INIT;
+		var hasher = Hasher.of();
 		while (length-- > 0)
-			result = HASH_MULTIPLIER * result + a[offset++];
-		return result;
+			hasher.hash(a[offset++]);
+		return hasher.code();
 	}
 
 	/**
@@ -1120,16 +1116,16 @@ public class ArrayUtil {
 	public static int hash(int[] a, int offset) {
 		return hash(a, offset, a != null ? a.length - offset : 0);
 	}
-	
+
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
 	public static int hash(int[] a, int offset, int length) {
 		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
-		int result = HASH_INIT;
+		var hasher = Hasher.of();
 		while (length-- > 0)
-			result = HASH_MULTIPLIER * result + a[offset++];
-		return result;
+			hasher.hash(a[offset++]);
+		return hasher.code();
 	}
 
 	/**
@@ -1138,18 +1134,16 @@ public class ArrayUtil {
 	public static int hash(long[] a, int offset) {
 		return hash(a, offset, a != null ? a.length - offset : 0);
 	}
-	
+
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
 	public static int hash(long[] a, int offset, int length) {
 		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
-		int result = HASH_INIT;
-		while (length-- > 0) {
-			long l = a[offset++];
-			result = HASH_MULTIPLIER * result + (int) (l ^ (l >>> Integer.SIZE));
-		}
-		return result;
+		var hasher = Hasher.of();
+		while (length-- > 0)
+			hasher.hash(a[offset++]);
+		return hasher.code();
 	}
 
 	/**
@@ -1158,16 +1152,16 @@ public class ArrayUtil {
 	public static int hash(float[] a, int offset) {
 		return hash(a, offset, a != null ? a.length - offset : 0);
 	}
-	
+
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
 	public static int hash(float[] a, int offset, int length) {
 		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
-		int result = HASH_INIT;
+		var hasher = Hasher.of();
 		while (length-- > 0)
-			result = HASH_MULTIPLIER * result + Float.floatToIntBits(a[offset++]);
-		return result;
+			hasher.hash(a[offset++]);
+		return hasher.code();
 	}
 
 	/**
@@ -1176,18 +1170,16 @@ public class ArrayUtil {
 	public static int hash(double[] a, int offset) {
 		return hash(a, offset, a != null ? a.length - offset : 0);
 	}
-	
+
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
 	public static int hash(double[] a, int offset, int length) {
 		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
-		int result = HASH_INIT;
-		while (length-- > 0) {
-			long l = Double.doubleToLongBits(a[offset++]);
-			result = HASH_MULTIPLIER * result + (int) (l ^ (l >>> Integer.SIZE));
-		}
-		return result;
+		var hasher = Hasher.of();
+		while (length-- > 0)
+			hasher.hash(a[offset++]);
+		return hasher.code();
 	}
 
 	/**
@@ -1196,16 +1188,16 @@ public class ArrayUtil {
 	public static int hash(Object[] a, int offset) {
 		return hash(a, offset, a != null ? a.length - offset : 0);
 	}
-	
+
 	/**
 	 * Provides Arrays.hashCode() for a sub-array.
 	 */
 	public static int hash(Object[] a, int offset, int length) {
 		if (a == null || !ArrayUtil.isValidSlice(a.length, offset, length)) return 0;
-		int result = HASH_INIT;
+		var hasher = Hasher.of();
 		while (length-- > 0)
-			result = HASH_MULTIPLIER * result + Objects.hashCode(a[offset++]);
-		return result;
+			hasher.hash(a[offset++]);
+		return hasher.code();
 	}
 
 	/**
@@ -1404,14 +1396,14 @@ public class ArrayUtil {
 	public static String toHex(byte[] array) {
 		return toHex(array, 0);
 	}
-	
+
 	/**
 	 * Hex string for sub-array. Returns "null" for invalid array slice.
 	 */
 	public static String toHex(byte[] array, int off) {
 		return toHex(array, off, array != null ? array.length - off : 0);
 	}
-	
+
 	/**
 	 * Hex string for sub-array. Returns "null" for invalid array slice.
 	 */
@@ -1426,14 +1418,14 @@ public class ArrayUtil {
 	public static String toHex(short[] array) {
 		return toHex(array, 0);
 	}
-	
+
 	/**
 	 * Hex string for sub-array. Returns "null" for invalid array slice.
 	 */
 	public static String toHex(short[] array, int off) {
 		return toHex(array, off, array != null ? array.length - off : 0);
 	}
-	
+
 	/**
 	 * Hex string for sub-array. Returns "null" for invalid array slice.
 	 */
@@ -1448,14 +1440,14 @@ public class ArrayUtil {
 	public static String toHex(int[] array) {
 		return toHex(array, 0);
 	}
-	
+
 	/**
 	 * Hex string for sub-array. Returns "null" for invalid array slice.
 	 */
 	public static String toHex(int[] array, int off) {
 		return toHex(array, off, array != null ? array.length - off : 0);
 	}
-	
+
 	/**
 	 * Hex string for sub-array. Returns "null" for invalid array slice.
 	 */
@@ -1470,14 +1462,14 @@ public class ArrayUtil {
 	public static String toHex(long[] array) {
 		return toHex(array, 0);
 	}
-	
+
 	/**
 	 * Hex string for sub-array. Returns "null" for invalid array slice.
 	 */
 	public static String toHex(long[] array, int off) {
 		return toHex(array, off, array != null ? array.length - off : 0);
 	}
-	
+
 	/**
 	 * Hex string for sub-array. Returns "null" for invalid array slice.
 	 */

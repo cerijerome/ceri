@@ -1,9 +1,9 @@
 package ceri.common.geom;
 
-import static ceri.common.math.VectorUtil.fromPoint;
+import static ceri.common.geom.GeometryUtil.point;
+import static ceri.common.geom.GeometryUtil.vector;
 import ceri.common.math.MathUtil;
-import ceri.common.math.Vector;
-import ceri.common.math.VectorUtil;
+import ceri.common.math.Matrix;
 
 public class LineUtil {
 
@@ -25,12 +25,12 @@ public class LineUtil {
 		// |
 		// p
 		if (line.vector.equals(Point2d.ZERO)) return line.from.distanceTo(point);
-		Vector ab = fromPoint(line.vector);
-		Vector ap = fromPoint(line.from.to(point));
-		double t = ab.scalarProduct(ap) / ab.scalarProduct(ab);
+		Matrix ab = vector(line.vector);
+		Matrix ap = vector(line.from.to(point));
+		double t = ab.dot(ap) / ab.dot(ab);
 		t = MathUtil.limit(t, 0, 1);
-		Vector c = fromPoint(line.from).add(ab.multiply(t));
-		return VectorUtil.toPoint(c).distanceTo(point);
+		Matrix c = vector(line.from).add(ab.multiply(t));
+		return point(c).distanceTo(point);
 	}
 
 }

@@ -1,14 +1,32 @@
 package ceri.common.color;
 
 import java.awt.Color;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-import ceri.common.data.TypeTranscoder;
 import ceri.common.util.BasicUtil;
 
 /**
  * X11 color names. https://en.wikipedia.org/wiki/Web_colors#X11_color_names
  */
-public enum X11Color {
+public enum Colors {
+	// CIE illuminants
+	cieD50(XybColor.CIE_D50.argb()),
+	cieD55(XybColor.CIE_D55.argb()),
+	cieD65(XybColor.CIE_D65.argb()),
+	cieD75(XybColor.CIE_D75.argb()),
+	cieD93(XybColor.CIE_D93.argb()),
+	// led colors
+	amber(0xffbf00),
+	warmWhite(0xff8d0b),
+	// java awt colors (if different from X11)
+	awtDarkGray(0xc0c0c0),
+	awtLightGray(0xc0c0c0),
+	awtOrange(0xffc800),
+	awtPink(0xffafaf),
+	awtGreen(0x00ff00),
+	// X11 colors
 	aliceBlue(0xf0f8ff),
 	antiqueWhite(0xfaebd7),
 	aqua(0x00ffff),
@@ -151,30 +169,38 @@ public enum X11Color {
 	yellow(0xffff00),
 	yellowGreen(0x9acd32);
 
-	private static final TypeTranscoder<X11Color> xcoder =
-		TypeTranscoder.of(t -> ColorUtil.rgb(t.color), X11Color.class);
-	public final Color color;
+	private static final Map<Integer, Colors> lookup = lookup();
+	public final int argb;
 
-	X11Color(int rgb) {
-		color = new Color(rgb);
+	public static Colors from(String name) {
+		return BasicUtil.valueOf(Colors.class, name, null);
 	}
 
-	public static X11Color from(String name) {
-		return BasicUtil.valueOf(X11Color.class, name, null);
-	}
-
-	public static X11Color from(Color color) {
+	public static Colors from(Color color) {
 		return from(color.getRGB());
 	}
 
-	public static X11Color from(int rgb) {
-		return xcoder.decode(ColorUtil.rgb(rgb));
+	public static Colors from(int rgb) {
+		return lookup.get(ColorUtil.argb(rgb));
 	}
 
-	public static X11Color random() {
-		X11Color[] values = X11Color.values();
-		int rnd = ThreadLocalRandom.current().nextInt(values.length);
-		return values[rnd];
+	public static Colors random() {
+		Colors[] values = Colors.values();
+		return values[ThreadLocalRandom.current().nextInt(values.length)];
 	}
 
+	Colors(int rgb) {
+		argb = ColorUtil.argb(rgb);
+	}
+
+	public Color color() {
+		return ColorUtil.color(argb);
+	}
+	
+	private static Map<Integer, Colors> lookup() {
+		Map<Integer, Colors> map = new HashMap<>();
+		for (Colors c : Colors.values())
+			map.put(c.argb, c);
+		return Collections.unmodifiableMap(map);
+	}
 }
