@@ -2,6 +2,7 @@ package ceri.common.math;
 
 import static ceri.common.exception.ExceptionUtil.exceptionf;
 import static ceri.common.validation.ValidationUtil.*;
+import static java.lang.Math.floorMod;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
 import ceri.common.text.ToString;
@@ -31,10 +32,20 @@ public class Matrix {
 	}
 
 	/**
-	 * Convenience method for creating a matrix row.
+	 * Convenience method for creating a double[n] matrix data row.
 	 */
 	public static double[] r(double... row) {
 		return row;
+	}
+
+	/**
+	 * Convenience method for creating a double[n][1] matrix data column.
+	 */
+	public static double[][] c(double... column) {
+		double[][] values = new double[column.length][1];
+		for (int i = 0; i < column.length; i++)
+			values[i] = r(column[i]);
+		return values;
 	}
 
 	/**
@@ -75,7 +86,7 @@ public class Matrix {
 	/**
 	 * Creates a row vector.
 	 */
-	public static Matrix of(double... row) {
+	public static Matrix ofRow(double... row) {
 		return of((r, c) -> row[c], 1, row.length);
 	}
 
@@ -205,20 +216,20 @@ public class Matrix {
 	}
 
 	/**
-	 * Returns a sub-matrix view. Row and column must be within bounds, but the row and column
-	 * counts can wrap.
+	 * Returns a sub-matrix view. Row and column offsets will wrap, and can be negative. The row and
+	 * column counts cannot exceed current counts.
 	 */
 	public Matrix sub(int row, int column, int rows, int columns) {
-		if (row == 0 && column == 0 && rows == this.rows && columns == this.columns) return this;
-		validateRow(row);
-		validateColumn(column);
 		validateRange(rows, 0, this.rows, "Rows");
 		validateRange(columns, 0, this.columns, "Columns");
-		if (rows == 0 || columns == 0) return EMPTY;
+		if (isEmpty() || rows == 0 || columns == 0) return EMPTY;
+		int r0 = floorMod(row, this.rows);
+		int c0 = floorMod(column, this.columns);
+		if (r0 == 0 && c0 == 0 && rows == this.rows && columns == this.columns) return this;
 		// Use accessor directly if no wrapping
-		if (row + rows <= this.rows && column + columns <= this.columns)
-			return new Matrix((r, c) -> accessor.get(row + r, column + c), rows, columns);
-		return new Matrix((r, c) -> get(row + r, column + c), rows, columns);
+		if (r0 + rows <= this.rows && c0 + columns <= this.columns)
+			return new Matrix((r, c) -> accessor.get(r0 + r, c0 + c), rows, columns);
+		return new Matrix((r, c) -> get(r0 + r, c0 + c), rows, columns);
 	}
 
 	/**
@@ -248,7 +259,7 @@ public class Matrix {
 		validateEqual(m.rows, rows, "Rows");
 		validateEqual(m.columns, columns, "Columns");
 		if (isEmpty()) return this;
-		return new Matrix((r, c) -> get(r, c) + m.get(r,  c), rows, columns); 
+		return new Matrix((r, c) -> get(r, c) + m.get(r, c), rows, columns);
 	}
 
 	/**
@@ -272,7 +283,8 @@ public class Matrix {
 	 */
 	public Matrix apply(DoubleUnaryOperator scalarFn) {
 		if (isEmpty()) return this;
-		return new Matrix((r, c) -> scalarFn.applyAsDouble(accessor.get(r, c)), rows, columns);
+		// Add 0.0 to prevent -0.0
+		return new Matrix((r, c) -> 0 + scalarFn.applyAsDouble(accessor.get(r, c)), rows, columns);
 	}
 
 	/**
@@ -342,10 +354,11 @@ public class Matrix {
 		validateSquare();
 		if (rows == 0) return 0.0;
 		if (rows == 1) return get(0, 0);
-		if (rows == 2) return (get(0, 0) * get(1, 1)) - (get(0, 1) * get(1, 0));
+		if (rows == 2) return get(0, 0) * get(1, 1) - get(0, 1) * get(1, 0);
 		double sum = 0;
-		for (int c = 0; c < columns; c++)
-			sum += get(0, c) * sub(1, c + 1, rows - 1, columns - 1).determinant();
+		for (int c = 0; c < columns; c++) {
+			sum += dsign(0, c) * get(0, c) * sub(1, c + 1, rows - 1, columns - 1).determinant();
+		}
 		return sum;
 	}
 
@@ -359,7 +372,7 @@ public class Matrix {
 		if (rows > 2) return invertNxN();
 		double d = determinant();
 		if (d == 0.0) return null;
-		return rows == 1 ? of(1 / d) : invert2x2(d);
+		return rows == 1 ? ofRow(1 / d) : invert2x2(d);
 	}
 
 	/**
@@ -426,7 +439,8 @@ public class Matrix {
 	}
 
 	private Matrix invert2x2(double d) {
-		double[][] values = { { get(1, 1) / d, -get(0, 1) / d }, { -get(1, 0) / d, get(0, 0) } };
+		double[][] values =
+			{ { get(1, 1) / d, -get(0, 1) / d }, { -get(1, 0) / d, get(0, 0) / d } };
 		return new Matrix(accessor(values), 2, 2);
 	}
 
@@ -441,24 +455,29 @@ public class Matrix {
 	private double invertRow0(double[][] values) {
 		double d = 0.0;
 		for (int c = 0; c < columns; c++) {
-			values[0][c] = minor(0, c).determinant();
-			d += get(0, c) * values[0][c];
+			values[c][0] = dsign(0, c) * minor(0, c).determinant();
+			d += get(0, c) * values[c][0];
 		}
 		if (d != 0.0) for (int c = 0; c < columns; c++)
-			values[0][c] /= d;
+			values[c][0] /= d;
 		return d;
 	}
 
 	private void invertRows1Plus(double[][] values, double d) {
 		for (int r = 1; r < rows; r++)
 			for (int c = 0; c < columns; c++)
-				values[r][c] = minor(r, c).determinant() / d;
+				values[c][r] = dsign(r, c) * minor(r, c).determinant() / d;
 	}
 
 	private Matrix minor(int row, int column) {
-		return sub((row + 1) % rows, (column + 1) % columns, rows - 1, columns - 1);
+		return sub(row + 1, column + 1, rows - 1, columns - 1);
 	}
 
+	private int dsign(int r, int c) {
+		// alternate determinant sign for even size matrix 
+		return (rows & 1) == 0 && ((r + c) & 1) == 1  ? -1 : 1;
+	}
+	
 	private double get(int r, int c) {
 		return accessor.get(r % rows, c % columns);
 	}
@@ -490,9 +509,9 @@ public class Matrix {
 	private static double dot(Matrix rv, Matrix cv) {
 		rv = validateRowVector(rv);
 		cv = validateColumnVector(cv);
-		validateEqual(cv.columns, rv.rows, "Columns");
+		validateEqual(cv.rows, rv.columns, "Rows");
 		double sum = 0;
-		for (int i = 0; i < rv.rows; i++)
+		for (int i = 0; i < rv.columns; i++)
 			sum += rv.get(0, i) * cv.get(i, 0);
 		return sum;
 	}
@@ -500,17 +519,17 @@ public class Matrix {
 	private static double cross2d(Matrix u, Matrix v) {
 		u = validateColumnVector(u);
 		v = validateColumnVector(v);
-		validateEqual(u.columns, 2, "Size");
-		validateEqual(v.columns, 2, "Size");
+		validateEqual(u.rows, 2, "Size");
+		validateEqual(v.rows, 2, "Size");
 		return u.get(0, 0) * v.get(1, 0) - u.get(1, 0) * v.get(0, 0);
 	}
 
 	private static Matrix cross(Matrix u, Matrix v) {
 		u = validateColumnVector(u);
 		v = validateColumnVector(v);
-		validateEqual(v.columns, u.columns, "Columns");
-		validate(u.columns != 7, "Cross product exists for size 7, but is unsupported");
-		validatef(u.columns == 3, "Cross product only supported for size 3: %d", u.columns);
+		validateEqual(v.rows, u.rows, "Size");
+		validate(u.rows != 7, "Cross product exists for size 7, but is unsupported");
+		validatef(u.rows == 3, "Cross product only supported for size 3: %d", u.columns);
 		return Matrix.vector( //
 			u.get(1, 0) * v.get(2, 0) - u.get(2, 0) * v.get(1, 0),
 			u.get(2, 0) * v.get(0, 0) - u.get(0, 0) * v.get(2, 0),
@@ -518,7 +537,7 @@ public class Matrix {
 	}
 
 	private static Accessor accessor(double[][] values) {
-		return (r, c) -> values[r][c];
+		return (r, c) -> 0.0 + values[r][c]; // prevent -0.0
 	}
 
 	private static double get(double[][] values, int r, int c) {
