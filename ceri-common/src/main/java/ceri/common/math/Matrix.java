@@ -12,7 +12,7 @@ import ceri.common.util.Hasher;
  * An immutable virtual matrix of (rows x columns) double values. Internally, the class uses a value
  * accessor function, which may or may not map to an actual array. Many operations on the matrix are
  * applied by adding a new accessor layer rather than generating a new value array. If the accessor
- * becomes too complex, copy() can be used to generate the value array, with a direct accessor.
+ * becomes too complex, copy() can be used to generate the value array, with a new direct accessor.
  */
 public class Matrix {
 	private static final int STR_MAX_N = 5;
@@ -250,6 +250,14 @@ public class Matrix {
 			for (int c = 0; c < columns; c++)
 				values[r][c] = get(r, c);
 		return values;
+	}
+
+	/**
+	 * Returns a matrix with all values incremented by a scalar value.
+	 */
+	public Matrix add(double scalar) {
+		if (scalar == 0.0) return this;
+		return apply(x -> scalar + x);
 	}
 
 	/**

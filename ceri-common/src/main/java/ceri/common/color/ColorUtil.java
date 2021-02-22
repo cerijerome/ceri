@@ -14,7 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import ceri.common.collection.BiMap;
 import ceri.common.math.MathUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
@@ -24,8 +23,6 @@ import ceri.common.text.StringUtil;
  */
 public class ColorUtil {
 	private static final Pattern ARGB_REGEX = Pattern.compile("(0x|#)?([0-9a-fA-F]{1,8})");
-	private static final Pattern WHITE_K_REGEX = Pattern.compile("white(\\d+)K");
-	private static final BiMap<Integer, String> colors = colors();
 	public static final Color clear = color(0);
 	private static final int HEX = 16;
 	private static final int HEX3_LEN = 3;
@@ -411,13 +408,11 @@ public class ColorUtil {
 	}
 
 	/**
-	 * Looks up the awt or x11 color name for given argb int, ignoring alpha. Returns null if no
-	 * match.
+	 * Looks up the Colors preset name for given argb int, ignoring alpha. Returns null if no match.
 	 */
 	public static String name(int argb) {
-		argb |= A_MASK;
-		String name = colors.keys.get(argb);
-		if (name != null) return name;
+		Colors preset = Colors.from(argb);
+		if (preset != null) return preset.name();
 		Colors x11 = Colors.from(argb);
 		return x11 == null ? null : x11.name();
 	}
@@ -614,10 +609,8 @@ public class ColorUtil {
 	}
 
 	private static Integer namedArgb(String name) {
-		Integer argb = colors.values.get(name);
-		if (argb != null) return argb;
-		Colors x11Color = Colors.from(name);
-		return x11Color == null ? null : x11Color.argb;
+		Colors preset = Colors.from(name);
+		return preset == null ? null : preset.argb;
 	}
 
 	private static int hexArgb(String prefix, int len, int argb) {
@@ -628,26 +621,4 @@ public class ColorUtil {
 		int b = (argb) & HEX3_MASK;
 		return argb((r | g | b) * (HEX + 1)); // triple-hex #rgb
 	}
-
-	private static BiMap<Integer, String> colors() {
-		var b = BiMap.<Integer, String>builder();
-		for (var x11 : Colors.values())
-			b.put(x11.argb, x11.name());
-		for (var preset : ColorPreset.values())
-			b.put(preset.argb, preset.name());
-		return b.put(Color.black.getRGB(), "black") //
-			.put(Color.blue.getRGB(), "blue") //
-			.put(Color.cyan.getRGB(), "cyan") //
-			.put(Color.darkGray.getRGB(), "darkGray") //
-			.put(Color.gray.getRGB(), "gray") //
-			.put(Color.green.getRGB(), "green") //
-			.put(Color.lightGray.getRGB(), "lightGray") //
-			.put(Color.magenta.getRGB(), "magenta") //
-			.put(Color.orange.getRGB(), "orange") //
-			.put(Color.pink.getRGB(), "pink") //
-			.put(Color.red.getRGB(), "red") //
-			.put(Color.white.getRGB(), "white") //
-			.put(Color.yellow.getRGB(), "yellow").build();
-	}
-
 }

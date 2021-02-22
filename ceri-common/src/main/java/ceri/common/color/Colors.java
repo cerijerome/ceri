@@ -8,25 +8,44 @@ import java.util.concurrent.ThreadLocalRandom;
 import ceri.common.util.BasicUtil;
 
 /**
- * X11 color names. https://en.wikipedia.org/wiki/Web_colors#X11_color_names
+ * Color presets.
  */
 public enum Colors {
-	// CIE illuminants
+	// java awt colors
+	awtBlack(Color.black.getRGB()),
+	awtBlue(Color.blue.getRGB()),
+	awtCyan(Color.cyan.getRGB()),
+	awtDarkGray(Color.darkGray.getRGB()),
+	awtGray(Color.gray.getRGB()),
+	awtGreen(Color.green.getRGB()),
+	awtLightGray(Color.lightGray.getRGB()),
+	awtMagenta(Color.magenta.getRGB()),
+	awtOrange(Color.orange.getRGB()),
+	awtPink(Color.pink.getRGB()),
+	awtRed(Color.red.getRGB()),
+	awtWhite(Color.white.getRGB()),
+	awtYellow(Color.yellow.getRGB()),
+	// CIE illuminants: https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_series_D
 	cieD50(XybColor.CIE_D50.argb()),
 	cieD55(XybColor.CIE_D55.argb()),
 	cieD65(XybColor.CIE_D65.argb()),
 	cieD75(XybColor.CIE_D75.argb()),
 	cieD93(XybColor.CIE_D93.argb()),
+	// ANSI C78.377 bins
+	white2200K(ColorSpaces.cctToRgb(2200)), // ultra-warm
+	white2500K(ColorSpaces.cctToRgb(2500)),
+	white2700K(ColorSpaces.cctToRgb(2700)), // soft
+	white3000K(ColorSpaces.cctToRgb(3000)),
+	white3500K(ColorSpaces.cctToRgb(3500)), // warm
+	white4000K(ColorSpaces.cctToRgb(4000)),
+	white4500K(ColorSpaces.cctToRgb(4500)), // neutral
+	white5000K(ColorSpaces.cctToRgb(5000)),
+	white5700K(ColorSpaces.cctToRgb(5700)), // cool
+	white6500K(ColorSpaces.cctToRgb(6500)), // daylight
 	// led colors
 	amber(0xffbf00),
 	warmWhite(0xff8d0b),
-	// java awt colors (if different from X11)
-	awtDarkGray(0xc0c0c0),
-	awtLightGray(0xc0c0c0),
-	awtOrange(0xffc800),
-	awtPink(0xffafaf),
-	awtGreen(0x00ff00),
-	// X11 colors
+	// X11 colors: https://en.wikipedia.org/wiki/Web_colors#X11_color_names
 	aliceBlue(0xf0f8ff),
 	antiqueWhite(0xfaebd7),
 	aqua(0x00ffff),

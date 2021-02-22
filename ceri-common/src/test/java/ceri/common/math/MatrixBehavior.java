@@ -203,6 +203,12 @@ public class MatrixBehavior {
 	}
 
 	@Test
+	public void shouldAddScalar() {
+		assertMatrix(Matrix.EMPTY.add(1));
+		assertMatrix(Matrix.I2.add(1), 2, 2, 1, 1, 2);
+	}
+	
+	@Test
 	public void shouldAddMatrices() {
 		Matrix m = Matrix.identity(2);
 		assertMatrix(m.add(m), r(2, 0), r(0, 2));

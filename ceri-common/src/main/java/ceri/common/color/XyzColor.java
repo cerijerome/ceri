@@ -12,7 +12,7 @@ public class XyzColor implements ComponentColor<XyzColor> {
 	public final double z;
 
 	public static XyzColor from(int argb) {
-		double[] xyz = ColorSpaceUtil.rgbToXyz(argb);
+		double[] xyz = ColorSpaces.rgbToXyz(argb);
 		return of(ColorUtil.ratio(ColorUtil.a(argb)), xyz[0], xyz[1], xyz[2]);
 	}
 	
@@ -36,12 +36,12 @@ public class XyzColor implements ComponentColor<XyzColor> {
 	}
 
 	public XybColor xyb() {
-		double[] xyb = ColorSpaceUtil.xyzToXyb(x, y, z);
+		double[] xyb = ColorSpaces.xyzToXyb(x, y, z);
 		return XybColor.of(a, xyb[0], xyb[1], xyb[2]);
 	}
 
 	public int argb() {
-		return ColorUtil.alphaArgb(ColorUtil.value(a), ColorSpaceUtil.xyzToRgb(x, y, z));
+		return ColorUtil.alphaArgb(ColorUtil.value(a), ColorSpaces.xyzToRgb(x, y, z));
 	}
 
 	public Color color() {
