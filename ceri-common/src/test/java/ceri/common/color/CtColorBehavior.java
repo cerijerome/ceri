@@ -5,6 +5,7 @@ import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.hue.color.CtColor;
 
 public class CtColorBehavior {
 

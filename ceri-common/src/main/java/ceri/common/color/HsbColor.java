@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * Encapsulates A+HSB color with values 0-1 inclusive.
  */
-public class HsbColor implements ComponentColor<HsbColor> {
+public class HsbColor {
 	public static final HsbColor clear = HsbColor.of(0, 0, 0, 0);
 	public static final HsbColor black = HsbColor.of(0, 0, 0);
 	public static final HsbColor white = HsbColor.of(0, 0, MAX_RATIO);
@@ -102,12 +102,10 @@ public class HsbColor implements ComponentColor<HsbColor> {
 		return of(a, h, s, b * ratio);
 	}
 
-	@Override
 	public boolean hasAlpha() {
 		return a < MAX_RATIO;
 	}
 
-	@Override
 	public HsbColor normalize() {
 		double a = ColorUtil.limit(this.a);
 		double h = ColorUtil.limitHue(this.h);
@@ -117,7 +115,6 @@ public class HsbColor implements ComponentColor<HsbColor> {
 		return of(a, h, s, b);
 	}
 
-	@Override
 	public HsbColor limit() {
 		double a = ColorUtil.limit(this.a);
 		double h = ColorUtil.limit(this.h);
@@ -127,7 +124,6 @@ public class HsbColor implements ComponentColor<HsbColor> {
 		return of(a, h, s, b);
 	}
 
-	@Override
 	public void verify() {
 		validate(a, "alpha");
 		validate(h, "hue");
@@ -154,7 +150,7 @@ public class HsbColor implements ComponentColor<HsbColor> {
 
 	@Override
 	public String toString() {
-		return String.format("(a=%.5f,h=%.5f,s=%.5f,b=%.5f,a=%.5f)", a, h, s, b);
+		return String.format("(a=%.5f,h=%.5f,s=%.5f,b=%.5f)", a, h, s, b);
 	}
 
 	private static void validate(double value, String name) {

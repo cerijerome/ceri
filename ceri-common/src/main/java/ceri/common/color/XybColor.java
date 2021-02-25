@@ -9,19 +9,9 @@ import ceri.common.math.MathUtil;
 /**
  * Represents xyY color, Y = brightness (b).
  */
-public class XybColor implements ComponentColor<XybColor> {
+public class XybColor {
 	public static final double MAX_VALUE = 1.0;
-	// CIE standard illuminants https://en.wikipedia.org/wiki/Standard_illuminant#White_point
-	public static final XybColor CIE_A = of(0.44757, 0.40745, 1.0);
-	public static final XybColor CIE_B = of(0.34842, 0.35161, 1.0);
-	public static final XybColor CIE_C = of(0.31006, 0.31616, 1.0);
-	public static final XybColor CIE_D50 = of(0.34567, 0.35850, 1.0);
-	public static final XybColor CIE_D55 = of(0.33242, 0.34743, 1.0);
-	public static final XybColor CIE_D65 = of(0.31271, 0.32902, 1.0);
-	public static final XybColor CIE_D75 = of(0.29902, 0.31485, 1.0);
-	public static final XybColor CIE_D93 = of(0.28315, 0.29711, 1.0);
-	public static final XybColor CIE_E = XyzColor.CIE_E.xyb();
-	public static final Point2d CENTER = CIE_E.xy();
+	public static final Point2d CENTER = XyzColor.CIE_E.xyb().xy();
 	public final double a;
 	public final double x;
 	public final double y;
@@ -71,8 +61,12 @@ public class XybColor implements ComponentColor<XybColor> {
 		return Point2d.of(x, y);
 	}
 
+	public double[] xyzValues() {
+		return ColorSpaces.xybToXyz(x, y, b);
+	}
+
 	public XyzColor xyz() {
-		double[] xyz = ColorSpaces.xybToXyz(x, y, b);
+		double[] xyz = xyzValues();
 		return XyzColor.of(a, xyz[0], xyz[1], xyz[2]);
 	}
 
@@ -84,12 +78,10 @@ public class XybColor implements ComponentColor<XybColor> {
 		return ColorUtil.color(argb());
 	}
 
-	@Override
 	public boolean hasAlpha() {
 		return a < MAX_VALUE;
 	}
 
-	@Override
 	public XybColor normalize() {
 		double a = limit(this.a);
 		Point2d xy = normalize(x, y);
@@ -114,7 +106,6 @@ public class XybColor implements ComponentColor<XybColor> {
 		return Point2d.of(x, y);
 	}
 
-	@Override
 	public XybColor limit() {
 		double a = limit(this.a);
 		double x = limit(this.x);
@@ -124,7 +115,6 @@ public class XybColor implements ComponentColor<XybColor> {
 		return of(a, x, y, b);
 	}
 
-	@Override
 	public void verify() {
 		validate(a, "alpha");
 		validate(x, "x");

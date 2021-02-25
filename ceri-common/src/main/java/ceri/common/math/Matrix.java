@@ -482,10 +482,10 @@ public class Matrix {
 	}
 
 	private int dsign(int r, int c) {
-		// alternate determinant sign for even size matrix 
-		return (rows & 1) == 0 && ((r + c) & 1) == 1  ? -1 : 1;
+		// alternate determinant sign for even size matrix
+		return (rows & 1) == 0 && ((r + c) & 1) == 1 ? -1 : 1;
 	}
-	
+
 	private double get(int r, int c) {
 		return accessor.get(r % rows, c % columns);
 	}

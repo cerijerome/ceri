@@ -52,6 +52,16 @@ public class ColorUtil {
 	}
 
 	/**
+	 * Applies alpha component to create a scaled opaque argb int.
+	 */
+	public static int applyAlpha(int argb) {
+		double r = ratio(a(argb));
+		if (r == 0) return A_MASK;
+		if (r == 1) return argb;
+		return argb((int) (.5 + r(argb) * r), (int) (.5 + g(argb) * r), (int) (.5 + b(argb) * r));
+	}
+	
+	/**
 	 * Removes alpha component from argb int.
 	 */
 	public static int rgb(int argb) {

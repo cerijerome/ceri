@@ -15,7 +15,7 @@ import ceri.common.math.MathUtil;
 /**
  * Encapsulates A+RGB color with values 0-1 inclusive.
  */
-public class RgbColor implements ComponentColor<RgbColor> {
+public class RgbColor {
 	public static final RgbColor clear = RgbColor.of(0, 0, 0, 0);
 	public static final RgbColor black = RgbColor.of(0, 0, 0);
 	public static final RgbColor white = RgbColor.of(MAX_RATIO, MAX_RATIO, MAX_RATIO);
@@ -72,12 +72,10 @@ public class RgbColor implements ComponentColor<RgbColor> {
 		return of(a, r * ratio, g * ratio, b * ratio);
 	}
 
-	@Override
 	public boolean hasAlpha() {
 		return a < MAX_RATIO;
 	}
 
-	@Override
 	public RgbColor normalize() {
 		double min = MathUtil.min(r, g, b, 0);
 		double max = MathUtil.max(r, g, b, 0);
@@ -90,7 +88,6 @@ public class RgbColor implements ComponentColor<RgbColor> {
 		return of(a, r, g, b);
 	}
 
-	@Override
 	public RgbColor limit() {
 		double a = limit(this.a);
 		double r = limit(this.r);
@@ -100,7 +97,6 @@ public class RgbColor implements ComponentColor<RgbColor> {
 		return of(a, r, g, b);
 	}
 
-	@Override
 	public void verify() {
 		validate(a, "alpha");
 		validate(r, "red");

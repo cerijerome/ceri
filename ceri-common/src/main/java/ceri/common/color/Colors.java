@@ -26,12 +26,13 @@ public enum Colors {
 	awtWhite(Color.white.getRGB()),
 	awtYellow(Color.yellow.getRGB()),
 	// CIE illuminants: https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_series_D
-	cieD50(XybColor.CIE_D50.argb()),
-	cieD55(XybColor.CIE_D55.argb()),
-	cieD65(XybColor.CIE_D65.argb()),
-	cieD75(XybColor.CIE_D75.argb()),
-	cieD93(XybColor.CIE_D93.argb()),
-	// ANSI C78.377 bins
+	cieD50(XyzColor.CIE_D50.argb()),
+	cieD55(XyzColor.CIE_D55.argb()),
+	cieD65(XyzColor.CIE_D65.argb()),
+	cieD75(XyzColor.CIE_D75.argb()),
+	// Color temperatures: ANSI C78.377 bins (2700K-6500K) + extras
+	white1700K(ColorSpaces.cctToRgb(1700)), // amber
+	white1900K(ColorSpaces.cctToRgb(1900)),
 	white2200K(ColorSpaces.cctToRgb(2200)), // ultra-warm
 	white2500K(ColorSpaces.cctToRgb(2500)),
 	white2700K(ColorSpaces.cctToRgb(2700)), // soft
@@ -42,9 +43,10 @@ public enum Colors {
 	white5000K(ColorSpaces.cctToRgb(5000)),
 	white5700K(ColorSpaces.cctToRgb(5700)), // cool
 	white6500K(ColorSpaces.cctToRgb(6500)), // daylight
-	// led colors
-	amber(0xffbf00),
-	warmWhite(0xff8d0b),
+	white7500K(ColorSpaces.cctToRgb(7500)),
+	// LED custom colors
+	amber(0xffc100), // 1700K
+	warmWhite(0xfff3ab), // 3500K
 	// X11 colors: https://en.wikipedia.org/wiki/Web_colors#X11_color_names
 	aliceBlue(0xf0f8ff),
 	antiqueWhite(0xfaebd7),
@@ -212,10 +214,14 @@ public enum Colors {
 		argb = ColorUtil.argb(rgb);
 	}
 
+	public double lightness() {
+		return ColorSpaces.rgbToL(argb);
+	}
+
 	public Color color() {
 		return ColorUtil.color(argb);
 	}
-	
+
 	private static Map<Integer, Colors> lookup() {
 		Map<Integer, Colors> map = new HashMap<>();
 		for (Colors c : Colors.values())

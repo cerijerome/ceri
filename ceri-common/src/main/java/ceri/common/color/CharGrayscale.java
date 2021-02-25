@@ -1,17 +1,21 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.MAX_VALUE;
 import java.awt.Color;
 import java.util.Objects;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
 
+/**
+ * Provides a monochrome character scale, useful for generating gray images in text-only displays. 
+ */
 public class CharGrayscale {
-	public static final String COURIER_GRAYSCALE =
-		"@WMB#80Q&$%bdpOmqUXZkawho*CYJIunx1zfjtLv{}c[]?i()l<>|/\\r+;!~\"^:_-,'.` ";
-	public static final String COURIER_GRAYSCALE_COMPACT =
-		"@WMB#80Q&$%bOmqUXZkawho*CYJIunx1zfjtLv{c[?i(l</r+;!~\"^:,'.` ";
-	private final String grayscale;
+	public static final CharGrayscale COURIER =
+		of("@WMB#80Q&$%bdpOmqUXZkawho*CYJIunx1zfjtLv{}c[]?i()l<>|/\\r+;!~\"^:_-,'.` ");
+	public static final CharGrayscale COURIER_COMPACT =
+		of("@WMB#80Q&$%bOmqUXZkawho*CYJIunx1zfjtLv{c[?i(l</r+;!~\"^:,'.` ");
+	public static final CharGrayscale UNICODE_SHADE = of("█▓▒░ ");
+	public static final CharGrayscale UNICODE_WEDGE = of("█▇▆▅▄▃▂▁ ");
+	public final String grayscale;
 
 	/**
 	 * String containing gray-scale chars, starting with darkest.
@@ -24,10 +28,12 @@ public class CharGrayscale {
 		this.grayscale = ascii;
 	}
 
-	public char charOf(Color c, double r, double g, double b) {
-		double max = (r + g + b) * MAX_VALUE;
-		if (max == 0.0) return charOf(0);
-		return charOf((c.getRed() * r + c.getGreen() * g + c.getBlue() * b) / max);
+	public char charOf(Color c) {
+		return charOf(c.getRGB());
+	}
+
+	public char charOf(int rgb) {
+		return charOf(ColorSpaces.rgbToL(rgb));
 	}
 
 	public char charOf(double ratio) {

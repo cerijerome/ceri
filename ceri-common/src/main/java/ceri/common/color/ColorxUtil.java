@@ -47,11 +47,6 @@ public class ColorxUtil {
 
 	/* argbx long methods */
 
-	public static void main(String[] args) {
-		System.out.printf("0x%x%n", argbx(0x12345678, 0x9a));
-		System.out.printf("0x%x%n", alphaArgbx(0x12, 0x3456789a));
-	}
-
 	/**
 	 * Replaces the alpha value for an argbx long.
 	 */
