@@ -5,7 +5,7 @@ import static ceri.common.test.AssertUtil.assertNotNull;
 import java.awt.Color;
 import org.junit.Test;
 
-public class X11ColorTest {
+public class ColorsTest {
 
 	@Test
 	public void testFromColor() {

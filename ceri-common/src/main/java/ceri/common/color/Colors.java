@@ -215,7 +215,7 @@ public enum Colors {
 	}
 
 	public double lightness() {
-		return ColorSpaces.rgbToL(argb);
+		return LuvColor.Ref.CIE_D65.l(argb);
 	}
 
 	public Color color() {

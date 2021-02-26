@@ -1,29 +1,19 @@
 package ceri.common.color;
 
+import static ceri.common.color.ColorUtil.b;
+import static ceri.common.color.ColorUtil.g;
+import static ceri.common.color.ColorUtil.r;
+import static ceri.common.color.ColorUtil.ratio;
+import static ceri.common.color.ColorUtil.value;
 import static java.lang.Math.pow;
 import ceri.common.math.MathUtil;
 import ceri.common.math.Matrix;
 
 /**
- * Utility methods to convert between color spaces. https://en.wikipedia.org/wiki/Color_space
+ * Utility methods to convert between color spaces. All calculations based on CIE D65 and 2°
+ * observer unless noted. https://en.wikipedia.org/wiki/Color_space
  */
 public class ColorSpaces {
-	// https://en.wikipedia.org/wiki/CIELUV#The_forward_transformation
-	private static final Matrix XYZ_TO_DUV =
-		Matrix.of(new double[][] { { 1, 15, 3 }, { 4, 0, 0 }, { 0, 9, 0 } });
-	private static final Matrix YUV_TO_DXZ =
-		Matrix.of(new double[][] { { 0, 0, 4 }, { 0, 9, 0 }, { 12, -3, -20 } });
-	private static final Gamma L_GAMMA = new Gamma(2.16 / 24389, 243.89 / 27, 0.16, 3);
-	private static final double UVLM = 13; // u*v* L* multiplier
-	public static final Luv D65_LUV = XyzColor.CIE_D65.luv();
-	// https://en.wikipedia.org/wiki/SRGB#Specification_of_the_transformation
-	// http://www.brucelindbloom.com/index.html?LContinuity.html (more accurate?)
-	private static final Matrix LRGB_TO_XYZ = Matrix.of(new double[][] { //
-		{ 0.4124564, 0.3575761, 0.1804375 }, //
-		{ 0.2126729, 0.7151522, 0.0721750 }, //
-		{ 0.0193339, 0.1191920, 0.9503041 } });
-	private static final Matrix XYZ_TO_LRGB = LRGB_TO_XYZ.invert();
-	private static final Gamma SRGB_GAMMA = new Gamma(0.0031308, 12.92, 0.055, 2.4);
 	// https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_series_D
 	private static final Matrix CCT_TO_XYB_D_X = Matrix.of(new double[][] { //
 		{ 0.244063, 0.09911, 2.9678, -4.6070 }, // <= K_MIN_D_X
@@ -45,22 +35,37 @@ public class ColorSpaces {
 	private static final int K_MIN_Y0 = 2222;
 	private static final int K_MIN_Y1 = 4000;
 	private static final double RKK = 1000.0; // to calculate reciprocal kilo-kelvins
+	// https://en.wikipedia.org/wiki/SRGB#Specification_of_the_transformation
+	// https://drafts.csswg.org/css-color-4/#color-conversion-code
+	private static final Matrix LRGB_TO_XYZ = Matrix.of(new double[][] { //
+		{ 0.412390799265959, 0.357584339383878, 0.180480788401834 },
+		{ 0.212639005871510, 0.715168678767756, 0.072192315360734 },
+		{ 0.019330818715592, 0.119194779794626, 0.950532152249661 } });
+	private static final Matrix XYZ_TO_LRGB = LRGB_TO_XYZ.invert();
+	private static final NonLinear SRGB_GAMMA = new NonLinear(0.0031308, 12.92, 0.055, 2.4);
+	// https://en.wikipedia.org/wiki/CIELUV#The_forward_transformation
+	private static final Matrix XYZ_TO_DUV =
+		Matrix.of(new double[][] { { 1, 15, 3 }, { 4, 0, 0 }, { 0, 9, 0 } });
+	private static final Matrix YUV_TO_DXZ =
+		Matrix.of(new double[][] { { 0, 0, 4 }, { 0, 9, 0 }, { 12, -3, -20 } });
+	private static final NonLinear L_FN = new NonLinear(2.16 / 24389, 243.89 / 27, 0.16, 3);
+	private static final double UVLM = 13; // u*v* L* multiplier
 
 	private ColorSpaces() {}
 
 	/**
-	 * Provides split compress/expand functions, used for sRGB gamma correction, and to calculate
-	 * CIELUV L* from Y/Yn. The low function is a simple multiplication, and the high function is a
-	 * reciprocal power with multiplier and offset.
+	 * Provides split compress/expand non-linear functions. Used for sRGB gamma correction, and to
+	 * calculate CIELUV L* from Y/Yn. The low function is a simple multiplication, and the high
+	 * function is a reciprocal power with multiplier and offset.
 	 */
-	public static class Gamma {
+	private static class NonLinear {
 		private final double low; // the low/high boundary for compress
 		private final double lowExp; // the low/high boundary for expand
 		private final double aLow; // the low multiplier
 		private final double aHigh; // the high multiplier/offset
 		private final double p; // the high reciprocal power
 
-		private Gamma(double low, double aLow, double aHigh, double p) {
+		private NonLinear(double low, double aLow, double aHigh, double p) {
 			this.low = low;
 			this.aLow = aLow;
 			this.aHigh = aHigh;
@@ -84,98 +89,28 @@ public class ColorSpaces {
 	}
 
 	/**
-	 * Provides a mapping betwen CIE XYZ and CIE L*u*v*, using reference Yn, un', and vn'.
+	 * Convert CIE daylight illuminant (Ddd) at max brightness to sRGB int value.
 	 */
-	public static class Luv {
-		private final double yn; // Yn
-		private final double un; // un'
-		private final double vn; // vn'
-
-		public static Luv fromXyz(double... xyz) {
-			double[] yuv = xyzToYuv(xyz);
-			return new Luv(xyz[1], yuv[1], yuv[2]);
-		}
-
-		private Luv(double yn, double un, double vn) {
-			this.yn = yn;
-			this.un = un;
-			this.vn = vn;
-		}
-
-		/**
-		 * Map CIE Y 0-1 double to CIE L* 0-1 double, using this reference.
-		 */
-		public double yToL(double y) {
-			return ColorSpaces.yToL(yn, y); // L* from Y, Yn
-		}
-
-		/**
-		 * Map sRGB int to CIE L* 0-1 double, using this reference.
-		 */
-		public double rgbToL(int rgb) {
-			return yToL(ColorSpaces.rgbToY(rgb)); // L* from sRGB
-		}
-
-		/**
-		 * Map sRGB int to CIE L*u*v* 0-1 doubles, using this reference.
-		 */
-		public double[] rgbToLuv(int rgb) {
-			return xyzToLuv(ColorSpaces.rgbToXyz(rgb));
-		}
-
-		/**
-		 * Map CIE L*u*v* 0-1 doubles to sRGB int using this reference.
-		 */
-		public int luvToRgb(double... luv) {
-			return ColorSpaces.xyzToRgb(luvToXyz(luv));
-		}
-
-		/**
-		 * Map CIE xyY 0-1 doubles to CIE L*u*v* 0-1 doubles using this reference.
-		 */
-		public double[] xybToLuv(double... xyb) {
-			return xyzToLuv(ColorSpaces.xybToXyz(xyb));
-		}
-
-		/**
-		 * Map CIE L*u*v* 0-1 doubles to CIE xyY 0-1 doubles using this reference.
-		 */
-		public double[] luvToXyb(double... luv) {
-			return ColorSpaces.xyzToXyb(luvToXyz(luv));
-		}
-
-		/**
-		 * Map CIE XYZ 0-1 doubles to CIE L*u*v* 0-1 doubles using this reference.
-		 */
-		public double[] xyzToLuv(double... xyz) {
-			double[] yuv = xyzToYuv(xyz); // Y, u', v'
-			// re-using double[] Yu'v' for L*u*v*
-			yuv[0] = yToL(yuv[0]); // L* from Y, Yn
-			yuv[1] = UVLM * yuv[0] * (yuv[1] - un); // u* from L*, u', un'
-			yuv[2] = UVLM * yuv[0] * (yuv[2] - vn); // v* from L*, v', vn'
-			return yuv; // actually L*u*v*
-		}
-
-		/**
-		 * Map CIE L*u*v* 0-1 doubles to CIE XYZ 0-1 doubles using this reference.
-		 */
-		public double[] luvToXyz(double... luv) { // L*u*v*
-			double y = lToY(yn, luv[0]); // Y from L*, Yn
-			double u = luv[1] / (UVLM * luv[0]) + un; // u' from L*, u*, un'
-			double v = luv[2] / (UVLM * luv[0]) + vn; // v' from L*, v*, vn'
-			return yuvToXyz(y, u, v);
-		}
+	public static int dToRgb(int d) {
+		return xybToRgb(dToXyb(d));
 	}
 
 	/**
-	 * Convert color temp K at max brightness to sRGB int. Valid for 4000K-25000K.
+	 * Convert CIE daylight illuminant (Ddd) at max brightness to sRGB 0-1 values.
 	 */
-	public static int cctToRgb(int k) {
-		return xybToRgb(cctToXyb(k));
+	public static double[] dToSrgb(int d) {
+		return xybToSrgb(dToXyb(d));
 	}
 
 	/**
-	 * Convert CIE daylight illuminant (Dxx) at max brightness to CIE xy.
+	 * Convert CIE daylight illuminant (Ddd) at max brightness to CIE XYZ 0-1 values.
+	 */
+	public static double[] dToXyz(int d) {
+		return xybToXyz(dToXyb(d));
+	}
+
+	/**
+	 * Convert CIE daylight illuminant (Dxx) at max brightness to CIE xyY 0-1 values.
 	 */
 	public static double[] dToXyb(int d) {
 		int k = MathUtil.limit(d * 100, K_MIN, K_MAX);
@@ -185,7 +120,28 @@ public class ColorSpaces {
 	}
 
 	/**
-	 * Convert color temp K at max brightness to CIE xy D65/2° doubles 0-1. Valid for 1667K-25000K.
+	 * Convert color temp K at max brightness to sRGB int value. Valid for 1667K-25000K.
+	 */
+	public static int cctToRgb(int k) {
+		return xybToRgb(cctToXyb(k));
+	}
+
+	/**
+	 * Convert color temp K at max brightness to sRGB 0-1 values. Valid for 1667K-25000K.
+	 */
+	public static double[] cctToSrgb(int k) {
+		return xybToSrgb(cctToXyb(k));
+	}
+
+	/**
+	 * Convert color temp K at max brightness to CIE XYZ D65/2° 0-1 values. Valid for 1667K-25000K.
+	 */
+	public static double[] cctToXyz(int k) {
+		return xybToXyz(cctToXyb(k));
+	}
+
+	/**
+	 * Convert color temp K at max brightness to CIE xyY D65/2°. Valid for 1667K-25000K.
 	 * https://en.wikipedia.org/wiki/Planckian_locus#Approximation
 	 */
 	public static double[] cctToXyb(int k) {
@@ -196,36 +152,94 @@ public class ColorSpaces {
 	}
 
 	/**
-	 * Convert sRGB int to CIE xyY D65/2° doubles 0-1.
+	 * Convert sRGB 0-1 values to int value.
 	 */
-	public static double[] rgbToXyb(int rgb) {
-		return xyzToXyb(rgbToXyz(rgb));
+	public static int rgb(double... srgb) {
+		return ColorUtil.argb(value(srgb[0]), value(srgb[1]), value(srgb[2]));
 	}
 
 	/**
-	 * Convert CIE xyY D65/2° doubles 0-1 to sRGB int.
-	 */
-	public static int xybToRgb(double... xyy) {
-		return xyzToRgb(xybToXyz(xyy));
-	}
-
-	/**
-	 * Convert sRGB int to CIE XYZ D65/2° doubles 0-1.
+	 * Convert sRGB 0-1 values to CIE XYZ 0-1 values.
 	 */
 	public static double[] rgbToXyz(int rgb) {
-		return LRGB_TO_XYZ.multiply(srgbToLrgb(rgbRatios(rgb))).columnValues(0);
+		return srgbToXyz(srgb(rgb));
 	}
 
 	/**
-	 * Convert CIE XYZ D65/2° doubles 0-1 to sRGB int.
-	 * https://en.wikipedia.org/wiki/SRGB#Specification_of_the_transformation
+	 * Convert sRGB 0-1 values to CIE xyY 0-1 values.
+	 */
+	public static double[] rgbToXyb(int rgb) {
+		return srgbToXyb(srgb(rgb));
+	}
+
+	/**
+	 * Convert sRGB int value to CIE LUV L* 0-1 value.
+	 */
+	public static double rgbToL(double yn, int rgb) {
+		return srgbToL(yn, srgb(rgb));
+	}
+
+	/**
+	 * Convert sRGB int value to CIE L*u*v* 0-1 values using reference Yn, un', and vn'.
+	 */
+	public static double[] rgbToLuv(double yn, double un, double vn, int rgb) {
+		return srgbToLuv(yn, un, vn, srgb(rgb));
+	}
+
+	/**
+	 * Convert sRGB int value to 0-1 values.
+	 */
+	public static double[] srgb(int argb) {
+		return new double[] { ratio(r(argb)), ratio(g(argb)), ratio(b(argb)) };
+	}
+
+	/**
+	 * Convert sRGB 0-1 values to CIE XYZ 0-1 values.
+	 */
+	public static double[] srgbToXyz(double... rgb) {
+		Matrix srgb = Matrix.vector(rgb);
+		return LRGB_TO_XYZ.multiply(srgbToLrgb(srgb)).columnValues(0);
+	}
+
+	/**
+	 * Convert sRGB 0-1 values to CIE xyY 0-1 values.
+	 */
+	public static double[] srgbToXyb(double... rgb) {
+		return xyzToXyb(srgbToXyz(rgb));
+	}
+
+	/**
+	 * Convert sRGB 0-1 values to CIE LUV L* 0-1 value.
+	 */
+	public static double srgbToL(double yn, double... rgb) {
+		Matrix srgb = Matrix.vector(rgb);
+		double y = LRGB_TO_XYZ.row(1).multiply(srgbToLrgb(srgb)).at(0, 0);
+		return yToL(yn, y);
+	}
+
+	/**
+	 * Convert sRGB 0-1 values to CIE L*u*v* 0-1 values using reference Yn, un', and vn'.
+	 */
+	public static double[] srgbToLuv(double yn, double un, double vn, double... rgb) {
+		return xyzToLuv(yn, un, vn, srgbToXyz(rgb));
+	}
+
+	/**
+	 * Convert CIE XYZ 0-1 values to sRGB int value.
 	 */
 	public static int xyzToRgb(double... xyz) {
-		return rgbValues(lrgbToSrgb(XYZ_TO_LRGB.multiply(Matrix.vector(xyz))));
+		return rgb(lrgbToSrgb(XYZ_TO_LRGB.multiply(Matrix.vector(xyz))));
 	}
 
 	/**
-	 * Convert CIE XYZ to CIE xyY. All values 0-1+.
+	 * Convert CIE XYZ 0-1 values to sRGB 0-1 values.
+	 */
+	public static double[] xyzToSrgb(double... xyz) {
+		return lrgbToSrgb(XYZ_TO_LRGB.multiply(Matrix.vector(xyz))).columnValues(0);
+	}
+
+	/**
+	 * Convert CIE XYZ 0-1 values to CIE xyY 0-1 values.
 	 */
 	public static double[] xyzToXyb(double... xyz) {
 		double sum = xyz[0] + xyz[1] + xyz[2];
@@ -234,7 +248,42 @@ public class ColorSpaces {
 	}
 
 	/**
-	 * Convert CIE xyY to CIE XYZ. All values 0-1+.
+	 * Convert CIE XYZ 0-1 values to CIE LUV reference Yn, un', and vn' 0-1 values.
+	 */
+	public static double[] xyzToYuv(double... xyz) {
+		Matrix duv = XYZ_TO_DUV.multiply(Matrix.vector(xyz));
+		double m = 1 / duv.at(0, 0);
+		return new double[] { xyz[1], duv.at(1, 0) * m, duv.at(2, 0) * m };
+	}
+
+	/**
+	 * Convert CIE XYZ 0-1 values to CIE L*u*v* 0-1 values using reference Yn, un', and vn'.
+	 */
+	public static double[] xyzToLuv(double yn, double un, double vn, double... xyz) {
+		double[] yuv = xyzToYuv(xyz); // Y, u', v'
+		// re-using double[] Yu'v' for L*u*v*
+		yuv[0] = yToL(yn, yuv[0]); // L* from Yn, Y
+		yuv[1] = UVLM * yuv[0] * (yuv[1] - un); // u* from L*, u', un'
+		yuv[2] = UVLM * yuv[0] * (yuv[2] - vn); // v* from L*, v', vn'
+		return yuv; // actually L*u*v*
+	}
+
+	/**
+	 * Convert CIE xyY 0-1 values to sRGB int value.
+	 */
+	public static int xybToRgb(double... xyb) {
+		return xyzToRgb(xybToXyz(xyb));
+	}
+
+	/**
+	 * Convert CIE xyY 0-1 values to sRGB 0-1 values.
+	 */
+	public static double[] xybToSrgb(double... xyb) {
+		return xyzToSrgb(xybToXyz(xyb));
+	}
+
+	/**
+	 * Convert CIE xyY 0-1 values to CIE XYZ 0-1 values.
 	 */
 	public static double[] xybToXyz(double... xyb) {
 		if (xyb[1] <= 0) return new double[] { 0, 0, 0 };
@@ -243,88 +292,84 @@ public class ColorSpaces {
 	}
 
 	/**
-	 * Convert sRGB int to CIE L (no UV) D65/2°.
+	 * Convert CIE xyY 0-1 values to CIE L*u*v* 0-1 values using reference Yn, un', and vn'.
 	 */
-	public static double rgbToL(int rgb) {
-		return D65_LUV.rgbToL(rgb);
+	public static double[] xybToLuv(double yn, double un, double vn, double... xyz) {
+		return xyzToLuv(yn, un, vn, xybToXyz(xyz));
 	}
 
 	/**
-	 * Convert sRGB int to CIE LUV D65/2°.
+	 * Convert CIE Y value to CIE L*, using Yn reference.
 	 */
-	public static double[] rgbToLuv(int rgb) {
-		return D65_LUV.rgbToLuv(rgb);
+	public static double yToL(double yn, double y) {
+		return L_FN.compress(y / yn);
 	}
 
 	/**
-	 * Convert CIE LUV D65/2° to sRGB.
+	 * Convert CIE L* value to CIE Y, using Yn reference.
 	 */
-	public static int luvToRgb(double... luv) {
-		return D65_LUV.luvToRgb(luv);
+	public static double lToY(double yn, double l) {
+		return yn * L_FN.expand(l);
+	}
+
+	/**
+	 * Convert CIE L*u*v* 0-1 values to sRGB int value using reference Yn, un', and vn'.
+	 */
+	public static int luvToRgb(double yn, double un, double vn, double... luv) {
+		return xyzToRgb(luvToXyz(yn, un, vn, luv));
+	}
+
+	/**
+	 * Convert CIE L*u*v* 0-1 values to sRGB 0-1 values using reference Yn, un', and vn'.
+	 */
+	public static double[] luvToSrgb(double yn, double un, double vn, double... luv) {
+		return xyzToSrgb(luvToXyz(yn, un, vn, luv));
+	}
+
+	/**
+	 * Convert CIE L*u*v* 0-1 values to CIE XYZ 0-1 values using reference Yn, un', and vn'.
+	 */
+	public static double[] luvToXyz(double yn, double un, double vn, double... luv) {
+		double y = lToY(yn, luv[0]); // Y from Yn, L*
+		if (luv[0] == 0) return yuvToXyz(y, un, vn);
+		double u = luv[1] / (UVLM * luv[0]) + un; // u' from L*, u*, un'
+		double v = luv[2] / (UVLM * luv[0]) + vn; // v' from L*, v*, vn'
+		return yuvToXyz(y, u, v);
+	}
+
+	/**
+	 * Convert CIE L*u*v* 0-1 values to CIE xyY 0-1 values using reference Yn, un', and vn'.
+	 */
+	public static double[] luvToXyb(double yn, double un, double vn, double... luv) {
+		return xyzToXyb(luvToXyz(yn, un, vn, luv));
 	}
 
 	/* support methods */
 
-	private static Matrix rgbRatios(int rgb) {
-		return Matrix.vector(ColorUtil.ratio(ColorUtil.r(rgb)), ColorUtil.ratio(ColorUtil.g(rgb)),
-			ColorUtil.ratio(ColorUtil.b(rgb)));
+	private static int rgb(Matrix srgb) {
+		return rgb(srgb.at(0, 0), srgb.at(1, 0), srgb.at(2, 0));
 	}
 
-	private static int rgbValues(Matrix vector) {
-		return ColorUtil.argb(ColorUtil.value(vector.value(0, 0)),
-			ColorUtil.value(vector.value(1, 0)), ColorUtil.value(vector.value(2, 0)));
-	}
-
-	/**
-	 * Gamma correction to get sRGB from linear RGB
-	 */
 	private static Matrix lrgbToSrgb(Matrix srgb) {
 		return srgb.apply(SRGB_GAMMA::compress);
 	}
 
-	/**
-	 * Reverse gamma correction to get linear RGB from sRGB
-	 */
 	private static Matrix srgbToLrgb(Matrix srgb) {
 		return srgb.apply(SRGB_GAMMA::expand);
 	}
 
-	private static double rgbToY(int rgb) {
-		return LRGB_TO_XYZ.row(1).multiply(srgbToLrgb(rgbRatios(rgb))).value(0, 0);
-	}
-
-	private static double yToL(double yn, double y) {
-		return L_GAMMA.compress(y / yn);
-	}
-
-	private static double lToY(double yn, double l) {
-		return yn * L_GAMMA.expand(l);
-	}
-
-	/**
-	 * Combines Y with calculated (u', v') chromaticity coordinates from XYZ.
-	 */
-	private static double[] xyzToYuv(double... xyz) {
-		Matrix duv = XYZ_TO_DUV.multiply(Matrix.vector(xyz));
-		double m = 1 / duv.value(0, 0);
-		return new double[] { xyz[1], duv.value(1, 0) * m, duv.value(2, 0) * m };
-	}
-
-	/**
-	 * Calculates XYZ from Y and (u', v') chromaticity coordinates.
-	 */
 	private static double[] yuvToXyz(double... yuv) {
 		Matrix dxz = YUV_TO_DXZ.multiply(Matrix.vector(1, yuv[1], yuv[2]));
-		double m = yuv[0] / dxz.value(0, 0);
-		return new double[] { dxz.value(1, 0) * m, yuv[0], dxz.value(2, 0) * m };
+		double m = yuv[0] / dxz.at(0, 0);
+		return new double[] { dxz.at(1, 0) * m, yuv[0], dxz.at(2, 0) * m };
 	}
 
 	private static double polynomial(Matrix m, int row, double x) {
-		double sum = m.value(row, 0);
+		double sum = m.at(row, 0);
 		double a = 1;
 		for (int c = 1; c < m.columns; c++) {
 			a *= x;
-			sum += m.value(row, c) * a;
+			sum += m.at(row, c) * a;
 		}
 		return sum;
 	}

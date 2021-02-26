@@ -2,8 +2,10 @@ package ceri.common.color;
 
 import java.awt.Color;
 import java.util.Objects;
-import ceri.common.color.ColorSpaces.Luv;
 
+/**
+ * Represents a CIE XYZ color with alpha. All values approximately 0-1.
+ */
 public class XyzColor {
 	public static final XyzColor CIE_A = of(1.09850, 1.0, 0.35585);
 	public static final XyzColor CIE_B = of(0.99072, 1.0, 0.85223);
@@ -46,15 +48,6 @@ public class XyzColor {
 		return new double[] { x, y, z };
 	}
 
-	public double[] xybValues() {
-		return ColorSpaces.xyzToXyb(x, y, z);
-	}
-
-	public XybColor xyb() {
-		double[] xyb = xybValues();
-		return XybColor.of(a, xyb[0], xyb[1], xyb[2]);
-	}
-
 	public int argb() {
 		return ColorUtil.alphaArgb(ColorUtil.value(a), ColorSpaces.xyzToRgb(x, y, z));
 	}
@@ -63,18 +56,20 @@ public class XyzColor {
 		return ColorUtil.color(argb());
 	}
 
-	/**
-	 * Provides a L*u*v* converter using this color as the reference.
-	 */
-	public Luv luv() {
-		return Luv.fromXyz(x, y, z);
+	public XybColor xyb() {
+		double[] xyb = xybValues();
+		return XybColor.of(a, xyb[0], xyb[1], xyb[2]);
+	}
+
+	public double[] xybValues() {
+		return ColorSpaces.xyzToXyb(x, y, z);
 	}
 
 	/**
-	 * Calculates L*u*v* values using the given L*u*v* reference converter.
+	 * Creates a CIE LUV reference of this color.
 	 */
-	public double[] luvValues(Luv luv) {
-		return luv.xyzToLuv(x, y, z);
+	public LuvColor.Ref luvRef() {
+		return LuvColor.Ref.from(this);
 	}
 
 	public boolean hasAlpha() {

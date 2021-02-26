@@ -7,7 +7,7 @@ import ceri.common.geom.Point2d;
 import ceri.common.math.MathUtil;
 
 /**
- * Represents xyY color, Y = brightness (b).
+ * Represents CIE xyY color, Y = brightness (b).  All values approximately 0-1.
  */
 public class XybColor {
 	public static final double MAX_VALUE = 1.0;

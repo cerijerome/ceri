@@ -18,7 +18,7 @@ import ceri.common.io.RuntimeIoException;
  * s = swap characters (left-most and next)
  * </pre>
  */
-public class CharGrayscaler {
+public class GrayCharScaler {
 	public static final String COURIER_GRAYSCALE =
 		"@WMB#80Q&$%bdpOmqUXZkawho*CYJIunx1zfjtLv{}c[]?i()l<>|/\\r+;!~\"^:_-,'.` ";
 	public static final String COURIER_GRAYSCALE_COMPACT =
@@ -39,11 +39,11 @@ public class CharGrayscaler {
 			String input = input();
 			if ("x".equals(input)) break;
 			if ("a".equals(input)) i = 0;
-			else if ("e".equals(input)) i = cs.length - 2;
-			else if ("[".equals(input)) i = Math.max(0, i - 1);
-			else if ("d".equals(input)) delete(cs, i);
-			else if ("s".equals(input)) swap(cs, i);
-			else i = Math.min(cs.length - 1, i + 1);
+			else if ("e".equals(input)) i = cs.length - 2; // end
+			else if ("[".equals(input)) i = Math.max(0, i - 1); // back 1
+			else if ("d".equals(input)) delete(cs, i); // delete
+			else if ("s".equals(input)) swap(cs, i); // swap
+			else i = Math.min(cs.length - 1, i + 1); // forward 1
 		}
 		return String.valueOf(cs);
 	}

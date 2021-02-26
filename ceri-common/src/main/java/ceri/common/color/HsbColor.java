@@ -11,7 +11,7 @@ import java.awt.Color;
 import java.util.Objects;
 
 /**
- * Encapsulates A+HSB color with values 0-1 inclusive.
+ * Encapsulates an HSB color with alpha, all values 0-1 inclusive.
  */
 public class HsbColor {
 	public static final HsbColor clear = HsbColor.of(0, 0, 0, 0);
@@ -45,11 +45,7 @@ public class HsbColor {
 	public static HsbColor from(int a, int r, int g, int b) {
 		double alpha = ColorUtil.ratio(a);
 		float[] hsb = Color.RGBtoHSB(ubyte(r), ubyte(g), ubyte(b), null);
-		int i = 0;
-		double hue = hsb[i++];
-		double saturation = hsb[i++];
-		double brightness = hsb[i];
-		return new HsbColor(alpha, hue, saturation, brightness);
+		return of(alpha, hsb[0], hsb[1], hsb[2]);
 	}
 
 	public static HsbColor of(double h, double s, double b) {

@@ -173,21 +173,21 @@ public class MatrixBehavior {
 	@Test
 	public void shouldAccessValue() {
 		Matrix m = Matrix.of(r(1, -2, -1), r(-1, 3, 0));
-		assertEquals(m.value(0, 0), 1.0);
-		assertEquals(m.value(0, 1), -2.0);
-		assertEquals(m.value(1, 2), 0.0);
-		assertThrown(() -> m.value(-1, 0));
-		assertThrown(() -> m.value(2, 0));
-		assertThrown(() -> m.value(0, -1));
-		assertThrown(() -> m.value(0, 3));
+		assertEquals(m.at(0, 0), 1.0);
+		assertEquals(m.at(0, 1), -2.0);
+		assertEquals(m.at(1, 2), 0.0);
+		assertThrown(() -> m.at(-1, 0));
+		assertThrown(() -> m.at(2, 0));
+		assertThrown(() -> m.at(0, -1));
+		assertThrown(() -> m.at(0, 3));
 	}
 
 	@Test
 	public void shouldAccessMissingValues() {
 		Matrix m = Matrix.of(3, 3, r(1, 2), r(3, 2, 1));
-		assertEquals(m.value(0, 0), 1.0);
-		assertEquals(m.value(0, 2), 0.0);
-		assertEquals(m.value(2, 2), 0.0);
+		assertEquals(m.at(0, 0), 1.0);
+		assertEquals(m.at(0, 2), 0.0);
+		assertEquals(m.at(2, 2), 0.0);
 	}
 
 	@Test

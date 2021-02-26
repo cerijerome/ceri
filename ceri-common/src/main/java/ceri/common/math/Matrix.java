@@ -235,7 +235,7 @@ public class Matrix {
 	/**
 	 * Returns the value at given row and column. Throws an exception if outside bounds.
 	 */
-	public double value(int row, int column) {
+	public double at(int row, int column) {
 		validateRow(row);
 		validateColumn(column);
 		return get(row, column);

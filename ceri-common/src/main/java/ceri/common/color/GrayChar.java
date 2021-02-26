@@ -8,23 +8,23 @@ import ceri.common.text.ToString;
 /**
  * Provides a monochrome character scale, useful for generating gray images in text-only displays. 
  */
-public class CharGrayscale {
-	public static final CharGrayscale COURIER =
+public class GrayChar {
+	public static final GrayChar COURIER =
 		of("@WMB#80Q&$%bdpOmqUXZkawho*CYJIunx1zfjtLv{}c[]?i()l<>|/\\r+;!~\"^:_-,'.` ");
-	public static final CharGrayscale COURIER_COMPACT =
+	public static final GrayChar COURIER_COMPACT =
 		of("@WMB#80Q&$%bOmqUXZkawho*CYJIunx1zfjtLv{c[?i(l</r+;!~\"^:,'.` ");
-	public static final CharGrayscale UNICODE_SHADE = of("█▓▒░ ");
-	public static final CharGrayscale UNICODE_WEDGE = of("█▇▆▅▄▃▂▁ ");
+	public static final GrayChar UNICODE_SHADE = of("█▓▒░ ");
+	public static final GrayChar UNICODE_WEDGE = of("█▇▆▅▄▃▂▁ ");
 	public final String grayscale;
 
 	/**
 	 * String containing gray-scale chars, starting with darkest.
 	 */
-	public static CharGrayscale of(String grayscale) {
-		return new CharGrayscale(grayscale);
+	public static GrayChar of(String grayscale) {
+		return new GrayChar(grayscale);
 	}
 
-	private CharGrayscale(String ascii) {
+	private GrayChar(String ascii) {
 		this.grayscale = ascii;
 	}
 
@@ -33,7 +33,7 @@ public class CharGrayscale {
 	}
 
 	public char charOf(int rgb) {
-		return charOf(ColorSpaces.rgbToL(rgb));
+		return charOf(LuvColor.Ref.CIE_D65.l(rgb));
 	}
 
 	public char charOf(double ratio) {
@@ -42,7 +42,7 @@ public class CharGrayscale {
 		return grayscale.charAt(index);
 	}
 
-	public CharGrayscale reverse() {
+	public GrayChar reverse() {
 		return of(StringUtil.reverse(grayscale));
 	}
 
@@ -54,8 +54,8 @@ public class CharGrayscale {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof CharGrayscale)) return false;
-		CharGrayscale other = (CharGrayscale) obj;
+		if (!(obj instanceof GrayChar)) return false;
+		GrayChar other = (GrayChar) obj;
 		if (!Objects.equals(grayscale, other.grayscale)) return false;
 		return true;
 	}

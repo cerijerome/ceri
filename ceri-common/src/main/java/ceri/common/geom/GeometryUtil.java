@@ -23,7 +23,7 @@ public class GeometryUtil {
 	 */
 	public static Point2d point(Matrix vector) {
 		vector = vector.vector(2);
-		return Point2d.of(vector.value(0, 0), vector.value(1, 0));
+		return Point2d.of(vector.at(0, 0), vector.at(1, 0));
 	}
 	
 	/**
