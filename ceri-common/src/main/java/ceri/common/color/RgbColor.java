@@ -11,11 +11,10 @@ import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.awt.Color;
 import java.util.Objects;
 import ceri.common.math.MathUtil;
-import ceri.common.math.Matrix;
 
 /**
  * Encapsulates an unscaled (0-1 inclusive) RGB color with alpha. Provides higher precision for
- * color calculations than (a)rgb int value. May encapsulate any conceptual rgb values, including
+ * color calculations than an (a)rgb int value. May encapsulate any conceptual rgb values, such as
  * sRGB compressed and sRGB linear values.
  */
 public class RgbColor {
@@ -28,49 +27,49 @@ public class RgbColor {
 	public final double b; // blue
 
 	/**
-	 * Construct from color int components. 
+	 * Construct from color.
 	 */
 	public static RgbColor from(Color color) {
 		return from(color.getRGB());
 	}
 
 	/**
-	 * Construct an opaque instance from rgb int value. 
+	 * Construct an opaque instance from rgb int value.
 	 */
 	public static RgbColor fromRgb(int rgb) {
 		return from(r(rgb), g(rgb), b(rgb));
 	}
 
 	/**
-	 * Construct from argb int value. 
+	 * Construct from argb int value.
 	 */
 	public static RgbColor from(int argb) {
 		return from(a(argb), r(argb), g(argb), b(argb));
 	}
 
 	/**
-	 * Construct an opaque instance from rgb 0-255 component values. 
+	 * Construct an opaque instance from rgb 0-255 component values.
 	 */
 	public static RgbColor from(int r, int g, int b) {
 		return of(ratio(r), ratio(g), ratio(b));
 	}
 
 	/**
-	 * Construct from argb 0-255 component values. 
+	 * Construct from argb 0-255 component values.
 	 */
 	public static RgbColor from(int a, int r, int g, int b) {
 		return of(ratio(a), ratio(r), ratio(g), ratio(b));
 	}
 
 	/**
-	 * Construct an opaque instance from rgb 0-1 component values. 
+	 * Construct an opaque instance from rgb 0-1 component values.
 	 */
 	public static RgbColor of(double r, double g, double b) {
 		return of(MAX_RATIO, r, g, b);
 	}
 
 	/**
-	 * Construct from argb 0-1 component values. 
+	 * Construct from argb 0-1 component values.
 	 */
 	public static RgbColor of(double a, double r, double g, double b) {
 		return new RgbColor(a, r, g, b);
@@ -84,31 +83,84 @@ public class RgbColor {
 	}
 
 	/**
-	 * Provides r, g, b components as an array.
+	 * Provide rgb 0-1 values. Alpha is dropped.
 	 */
 	public double[] rgbValues() {
 		return new double[] { r, g, b };
 	}
 
 	/**
-	 * Provides r, g, b components as a vector.
-	 */
-	public Matrix rgbVector() {
-		return Matrix.vector(rgbValues());
-	}
-
-	/**
-	 * Provides an argb int from all components.
+	 * Convert to argb int. Alpha is maintained.
 	 */
 	public int argb() {
 		return ColorUtil.argb(value(a), value(r), value(g), value(b));
 	}
 
 	/**
-	 * Provides a Color from all components.
+	 * Convert to color. Alpha is maintained.
 	 */
 	public Color color() {
 		return ColorUtil.color(argb());
+	}
+
+	/**
+	 * Convert to HSB. Alpha is maintained.
+	 */
+	public HsbColor hsb() {
+		double[] hsb = hsbValues();
+		return HsbColor.of(a, hsb[0], hsb[1], hsb[2]);
+	}
+	
+	/**
+	 * Convert to HSB 0-1 values. Alpha is dropped.
+	 */
+	public double[] hsbValues() {
+		return ColorSpaces.srgbToHsb(r, g, b);
+	}
+
+	/**
+	 * Convert as sRGB to CIE XYZ. Alpha is maintained.
+	 */
+	public XyzColor xyz() {
+		double[] xyz = xyzValues();
+		return XyzColor.of(a, xyz[0], xyz[1], xyz[2]);
+	}
+
+	/**
+	 * Convert from sRGB to CIE XYZ 0-1 values. Alpha is dropped.
+	 */
+	public double[] xyzValues() {
+		return ColorSpaces.srgbToXyz(r, g, b);
+	}
+
+	/**
+	 * Convert from sRGB to CIE xyY. Alpha is maintained.
+	 */
+	public XybColor xyb() {
+		double[] xyb = xybValues();
+		return XybColor.of(a, xyb[0], xyb[1], xyb[2]);
+	}
+
+	/**
+	 * Convert from sRGB to CIE xyY 0-1 values. Alpha is dropped.
+	 */
+	public double[] xybValues() {
+		return ColorSpaces.srgbToXyb(r, g, b);
+	}
+
+	/**
+	 * Apply alpha to convert to an opaque color.
+	 */
+	public RgbColor applyAlpha() {
+		if (a == MAX_RATIO) return this;
+		return of(r * a, g * a, b * a);
+	}
+	
+	/**
+	 * Returns true if not opaque.
+	 */
+	public boolean hasAlpha() {
+		return a < MAX_RATIO;
 	}
 
 	/**
@@ -117,13 +169,6 @@ public class RgbColor {
 	public RgbColor dim(double ratio) {
 		if (ratio == 1) return this;
 		return of(a, r * ratio, g * ratio, b * ratio);
-	}
-
-	/**
-	 * Returns true if not opaque.
-	 */
-	public boolean hasAlpha() {
-		return a < MAX_RATIO;
 	}
 
 	/**

@@ -7,7 +7,7 @@ import java.awt.Color;
 import java.util.Objects;
 
 /**
- * Represents a CIE LUV color with alpha. Approximate values L* 0-1, u* and v* -1 to +1.
+ * Represents a CIE LUV color with alpha. Approximate values a and L* 0-1, u* and v* -1 to +1.
  */
 public class LuvColor {
 	public static final double MAX_ALPHA = 1.0;
@@ -17,16 +17,19 @@ public class LuvColor {
 	public final double v; // v*
 
 	/**
-	 * A reference used to calculate CIE LUV values.
+	 * A reference used to convert CIE LUV values.
 	 */
 	public static class Ref {
-		public static final Ref CIE_D65 = from(XyzColor.CIE_D65);
+		public static final Ref CIE_D65 = XyzColor.CIE_D65.luvRef();
 		private final double yn; // Yn
 		private final double un; // un'
 		private final double vn; // vn'
 
-		public static Ref from(XyzColor xyz) {
-			double[] yuv = ColorSpaces.xyzToYuv(xyz.x, xyz.y, xyz.z);
+		/**
+		 * Construct from CIE XYZ 0-1 values.
+		 */
+		public static Ref from(double x, double y, double z) {
+			double[] yuv = ColorSpaces.xyzToYuv(x, y, z);
 			return new Ref(yuv[0], yuv[1], yuv[2]);
 		}
 
@@ -66,11 +69,27 @@ public class LuvColor {
 		}
 
 		/**
+		 * Convert sRGB to CIE LUV, using this reference. Alpha is maintained.
+		 */
+		public LuvColor luv(RgbColor rgb) {
+			double[] luv = ColorSpaces.srgbToLuv(yn, un, vn, rgb.r, rgb.g, rgb.b);
+			return LuvColor.of(rgb.a, luv[0], luv[1], luv[2]);
+		}
+
+		/**
 		 * Convert CIE XYZ to CIE LUV, using this reference. Alpha is maintained.
 		 */
 		public LuvColor luv(XyzColor xyz) {
 			double[] luv = ColorSpaces.xyzToLuv(yn, un, vn, xyz.x, xyz.y, xyz.z);
 			return LuvColor.of(xyz.a, luv[0], luv[1], luv[2]);
+		}
+
+		/**
+		 * Convert CIE xyY to CIE LUV, using this reference. Alpha is maintained.
+		 */
+		public LuvColor luv(XybColor xyb) {
+			double[] luv = ColorSpaces.xybToLuv(yn, un, vn, xyb.x, xyb.y, xyb.b);
+			return LuvColor.of(xyb.a, luv[0], luv[1], luv[2]);
 		}
 
 		/**
@@ -89,18 +108,40 @@ public class LuvColor {
 		}
 
 		/**
+		 * Convert CIE LUV to sRGB, using this reference. Alpha is maintained.
+		 */
+		public RgbColor rgb(LuvColor luv) {
+			double[] rgb = ColorSpaces.luvToSrgb(yn, un, vn, luv.l, luv.u, luv.v);
+			return RgbColor.of(luv.a, rgb[0], rgb[1], rgb[2]);
+		}
+
+		/**
 		 * Convert CIE LUV to CIE XYZ, using this reference. Alpha is maintained.
 		 */
 		public XyzColor xyz(LuvColor luv) {
 			double[] xyz = ColorSpaces.luvToXyz(yn, un, vn, luv.l, luv.u, luv.v);
 			return XyzColor.of(luv.a, xyz[0], xyz[1], xyz[2]);
 		}
+
+		/**
+		 * Convert CIE LUV to CIE xyY, using this reference. Alpha is maintained.
+		 */
+		public XybColor xyb(LuvColor luv) {
+			double[] xyb = ColorSpaces.luvToXyb(yn, un, vn, luv.l, luv.u, luv.v);
+			return XybColor.of(luv.a, xyb[0], xyb[1], xyb[2]);
+		}
 	}
 
+	/**
+	 * Construct opaque instance from CIE L*u*v*.
+	 */
 	public static LuvColor of(double l, double u, double v) {
 		return new LuvColor(MAX_ALPHA, l, u, v);
 	}
 
+	/**
+	 * Construct from alpha + CIE L*u*v*.
+	 */
 	public static LuvColor of(double a, double l, double u, double v) {
 		return new LuvColor(a, l, u, v);
 	}
@@ -112,10 +153,16 @@ public class LuvColor {
 		this.v = v;
 	}
 
-	public double[] values() {
+	/**
+	 * Provide L*u*v* values. Alpha is dropped.
+	 */
+	public double[] luvValues() {
 		return new double[] { l, u, v };
 	}
 
+	/**
+	 * Returns true if not opaque.
+	 */
 	public boolean hasAlpha() {
 		return a < MAX_ALPHA;
 	}

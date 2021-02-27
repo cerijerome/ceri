@@ -152,6 +152,53 @@ public class ColorSpaces {
 	}
 
 	/**
+	 * Convert ARGB int value to HSB 0-1 values. Double version of Color.RGBtoHSB().
+	 */
+	public static double[] rgbToHsb(int rgb) {
+		return srgbToHsb(srgb(rgb));
+	}
+	
+	/**
+	 * Convert RGB 0-1 values to HSB 0-1 values. Double version of Color.RGBtoHSB().
+	 */
+	public static double[] srgbToHsb(double... rgb) {
+		double max = MathUtil.max(rgb);
+		double diff = max - MathUtil.min(rgb);
+		double b = max;
+		double s = max == 0 ? 0 : diff / max;
+		double h = s == 0 ? 0 : hue(max, diff, rgb);
+		if (h < 0) h += 1;
+		return new double[] { h, s, b };
+	}
+
+	/**
+	 * Convert HSB 0-1 values to RGB int value. Double version of Color.HSBtoRGB().
+	 */
+	public static int hsbToRgb(double... hsb) {
+		return rgb(hsbToSrgb(hsb));
+	}
+	
+	/**
+	 * Convert HSB 0-1 values to RGB 0-1 values. Double version of Color.HSBtoRGB().
+	 */
+	public static double[] hsbToSrgb(double... hsb) {
+		if (hsb[1] == 0) return new double[] { hsb[2], hsb[2], hsb[2] };
+		double h = (hsb[0] - Math.floor(hsb[0])) * 6.0f;
+		double f = h - Math.floor(h);
+		double p = hsb[2] * (1.0 - hsb[1]);
+		double q = hsb[2] * (1.0 - hsb[1] * f);
+		double t = hsb[2] * (1.0 - hsb[1] * (1.0 - f));
+		return switch ((int) h) {
+		case 0 -> new double[] { hsb[2], t, p };
+		case 1 -> new double[] { q, hsb[2], p };
+		case 2 -> new double[] { p, hsb[2], t };
+		case 3 -> new double[] { p, q, hsb[2] };
+		case 4 -> new double[] { t, p, hsb[2] };
+		default -> new double[] { hsb[2], p, q };
+		};
+	}
+
+	/**
 	 * Convert sRGB 0-1 values to int value.
 	 */
 	public static int rgb(double... srgb) {
@@ -345,6 +392,15 @@ public class ColorSpaces {
 	}
 
 	/* support methods */
+
+	private static double hue(double max, double diff, double... rgb) {
+		double rc = (max - rgb[0]) / diff;
+		double gc = (max - rgb[1]) / diff;
+		double bc = (max - rgb[2]) / diff;
+		if (rgb[0] == max) return (bc - gc) / 6;
+		if (rgb[1] == max) return (2 + rc - bc) / 6;
+		return (4 + gc - rc) / 6;
+	}
 
 	private static int rgb(Matrix srgb) {
 		return rgb(srgb.at(0, 0), srgb.at(1, 0), srgb.at(2, 0));
