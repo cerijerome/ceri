@@ -14,11 +14,11 @@ public interface Colorable {
 	default void rgb(int rgb) {
 		argb(ColorUtil.argb(rgb));
 	}
-	
+
 	default int rgb() {
 		return ColorUtil.rgb(argb());
 	}
-	
+
 	default void color(Color color) {
 		argb(color.getRGB());
 	}
@@ -27,24 +27,24 @@ public interface Colorable {
 		return ColorUtil.color(argb());
 	}
 
-	static Colorable from(Colorxable colorxable, Color x) {
-		return from(colorxable, x.getRGB());
+	static Colorable from(Colorxable colorxable, Color... xs) {
+		return from(colorxable, ColorUtil.argbArray(xs));
 	}
-	
-	static Colorable from(Colorxable colorxable, int xRgb) {
+
+	static Colorable from(Colorxable colorxable, int... xrgbs) {
 		return new Colorable() {
 			@Override
 			public void argb(int argb) {
-				colorxable.argbx(ColorxUtil.denormalizeArgbx(argb, xRgb));
+				colorxable.xargb(ColorxUtil.denormalizeXargb(argb, xrgbs));
 			}
-			
+
 			@Override
 			public int argb() {
-				return ColorxUtil.normalizeArgb(colorxable.argbx(), xRgb);
+				return ColorxUtil.normalizeArgb(colorxable.xargb(), xrgbs);
 			}
 		};
 	}
-	
+
 	static Colorable multi(Colorable... colorables) {
 		return multi(Arrays.asList(colorables));
 	}

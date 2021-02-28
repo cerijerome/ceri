@@ -28,9 +28,9 @@ public class ColorUtil {
 	private static final int HEX3_LEN = 3;
 	private static final int HEX_RGB_MAX_LEN = 6;
 	private static final int HEX_ARGB_MAX_LEN = 8;
-	private static final int A_SHIFT = 24;
-	private static final int R_SHIFT = 16;
-	private static final int G_SHIFT = 8;
+	private static final int A_SHIFT = Byte.SIZE * 3;
+	private static final int R_SHIFT = Byte.SIZE * 2;
+	private static final int G_SHIFT = Byte.SIZE * 1;
 	public static final double MAX_RATIO = 1.0;
 	private static final double HALF = 0.5;
 	public static final int A_MASK = 0xff000000;
@@ -133,7 +133,7 @@ public class ColorUtil {
 	 * Creates an argb int with maximum color components in the same ratio.
 	 */
 	public static int maxArgb(int a, int r, int g, int b) {
-		double ratio = MathUtil.max(ratio(r), ratio(g), ratio(b));
+		double ratio = ratio(MathUtil.max(r, g, b));
 		return argb(a, divide(r, ratio), divide(g, ratio), divide(b, ratio));
 	}
 
@@ -442,8 +442,15 @@ public class ColorUtil {
 		return "#" + StringUtil.toHex(argb, digits);
 	}
 
-	/* List methods */
+	/* Collection methods */
 
+	/**
+	 * Convert colors to argb array.
+	 */
+	public static int[] argbArray(Color... colors) {
+		return Stream.of(colors).mapToInt(Color::getRGB).toArray();
+	}
+	
 	/**
 	 * Returns a list of opaque argb ints from rgb ints.
 	 */
@@ -587,8 +594,8 @@ public class ColorUtil {
 		return hexArgb(prefix, len, argb);
 	}
 
-	static int divide(int component, double ratio) {
-		if (ratio == 0.0) return MAX_VALUE;
+	private static int divide(int component, double ratio) {
+		if (ratio == 0.0) return 0;
 		return (int) (component / ratio);
 	}
 

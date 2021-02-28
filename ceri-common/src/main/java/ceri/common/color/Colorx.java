@@ -1,197 +1,145 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.MAX_RATIO;
-import static ceri.common.color.ColorUtil.MAX_VALUE;
-import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.color.ColorUtil.argbArray;
 import java.awt.Color;
+import java.util.Arrays;
 import java.util.Objects;
-import ceri.common.math.MathUtil;
 
 /**
- * Encapsulates an argb color with additional x component. Commonly used with led strips, such as
- * rgbw (white), rgbww (warm white), rgba (amber).
+ * Encapsulates an argb color with additional x (0-3) components. Commonly used with led strips.
+ * Single-x includes rgbw (white), rgbww (warm white) and rgba (amber). Multi-x includes rgbcct
+ * (white + warm white) and rgbacct (amber + white + warm white).
  */
 public class Colorx {
-	private static final long MASK = 0xffffffffffL;
-	private static final long A_MASK = 0xff00000000L;
-	private static final long A_SHIFT = 32L;
-	private static final long R_SHIFT = 24L;
-	private static final long G_SHIFT = 16L;
-	private static final long B_SHIFT = 8L;
 	public static final Colorx clear = of(0L);
-	public static final Colorx black = of(A_MASK);
-	public static final Colorx full = of(MASK);
-	private final long argbx;
+	public static final Colorx black = of(0xff000000);
+	public static final Colorx full0 = of(0xffffffffffL); // ma rgb, x0
+	public static final Colorx full1 = of(0xffffffffffffL); // max rgb, x0, x1
+	public static final Colorx full2 = of(0xffffffffffffffL); // max rgb, x0, x1, x2
+	public static final Colorx full = of(-1L); // max rgb, all x
+	public final long xargb;
 
 	/**
-	 * Creates Colorx by extracting given x-color component from argb.
+	 * Construct by extracting x-color components from argb.
 	 */
-	public static Colorx from(Color argb, Color x) {
-		return from(argb.getRGB(), x.getRGB());
+	public static Colorx from(Color argb, Color... xcolors) {
+		return from(argb.getRGB(), argbArray(xcolors));
 	}
 
 	/**
-	 * Creates Colorx by extracting given x-color component from rgb.
+	 * Construct by extracting x-color components from argb.
 	 */
-	public static Colorx from(int argb, int xRgb) {
-		return from(ColorUtil.a(argb), ColorUtil.r(argb), ColorUtil.g(argb), ColorUtil.b(argb),
-			xRgb);
+	public static Colorx from(int argb, int... xrgbs) {
+		return of(ColorxUtil.denormalizeXargb(argb, xrgbs));
 	}
 
 	/**
-	 * Creates Colorx by extracting given x-color component from rgb color.
+	 * Construct from color and x components.
 	 */
-	public static Colorx from(int r, int g, int b, Color x) {
-		return from(MAX_VALUE, r, g, b, x);
+	public static Colorx of(Color color, int... xs) {
+		return of(color.getRGB(), xs);
 	}
 
 	/**
-	 * Creates Colorx by extracting given x-color component from rgb color.
+	 * Construct from argb int and x components.
 	 */
-	public static Colorx from(int a, int r, int g, int b, Color x) {
-		return from(a, r, g, b, x.getRGB());
+	public static Colorx of(int argb, int... xs) {
+		return of(ColorxUtil.xargb(argb, xs));
 	}
 
 	/**
-	 * Creates Colorx by extracting given x-rgb components from rgb color.
+	 * Construct from xargb long.
 	 */
-	public static Colorx from(int a, int r, int g, int b, int xRgb) {
-		double xRatio = xRatio(r, g, b, xRgb);
-		int r0 = r - (int) (xRatio * ColorUtil.r(xRgb));
-		int g0 = g - (int) (xRatio * ColorUtil.g(xRgb));
-		int b0 = b - (int) (xRatio * ColorUtil.b(xRgb));
-		int x0 = (int) (xRatio * MAX_VALUE);
-		return of(a, r0, g0, b0, x0);
+	public static Colorx of(long xargb) {
+		return new Colorx(xargb);
 	}
 
-	/**
-	 * Constructs a Colorx from components.
-	 */
-	public static Colorx of(int a, int r, int g, int b, int x) {
-		return of(ubyte(a) << A_SHIFT | ubyte(r) << R_SHIFT | ubyte(g) << G_SHIFT |
-			ubyte(b) << B_SHIFT | ubyte(x));
-	}
-
-	/**
-	 * Constructs an opaque Colorx from components.
-	 */
-	public static Colorx of(int r, int g, int b, int x) {
-		return of(MAX_VALUE, r, g, b, x);
-	}
-
-	/**
-	 * Constructs a Colorx from color and x component.
-	 */
-	public static Colorx of(Color color, int x) {
-		return of(color.getRGB(), x);
-	}
-
-	/**
-	 * Constructs a Colorx from argb int and x component.
-	 */
-	public static Colorx of(int argb, int x) {
-		return of(argb << B_SHIFT | ubyte(x));
-	}
-
-	/**
-	 * Constructs an opaque Colorx from rgbx int.
-	 */
-	public static Colorx of(int rgbx) {
-		return of(A_MASK | rgbx);
-	}
-
-	/**
-	 * Constructs an Colorx from argbx long.
-	 */
-	public static Colorx of(long argbx) {
-		return new Colorx(argbx & MASK);
-	}
-
-	private Colorx(long argbx) {
-		this.argbx = argbx;
+	private Colorx(long xargb) {
+		this.xargb = xargb;
 	}
 
 	/**
 	 * Extract component.
 	 */
 	public int a() {
-		return ubyte(argbx >>> A_SHIFT);
+		return ColorxUtil.a(xargb);
 	}
 
 	/**
 	 * Extract component.
 	 */
 	public int r() {
-		return ubyte(argbx >>> R_SHIFT);
+		return ColorxUtil.r(xargb);
 	}
 
 	/**
 	 * Extract component.
 	 */
 	public int g() {
-		return ubyte(argbx >>> G_SHIFT);
+		return ColorxUtil.g(xargb);
 	}
 
 	/**
 	 * Extract component.
 	 */
 	public int b() {
-		return ubyte(argbx >>> B_SHIFT);
+		return ColorxUtil.b(xargb);
 	}
 
 	/**
-	 * Extract component.
+	 * Extract x[i] component.
 	 */
-	public int x() {
-		return ubyte(argbx);
+	public int x(int i) {
+		return ColorxUtil.x(xargb, i);
 	}
 
 	/**
-	 * Extract rgb int.
+	 * Extract all x components.
+	 */
+	public int[] xs() {
+		return ColorxUtil.xs(xargb);
+	}
+
+	/**
+	 * Extract rgb int. X and alpha values are dropped.
 	 */
 	public int rgb() {
 		return ColorUtil.rgb(argb());
 	}
 
 	/**
-	 * Extract argb int.
+	 * Extract argb int. X values are dropped.
 	 */
 	public int argb() {
-		return (int) argbx >>> B_SHIFT;
+		return (int) xargb;
 	}
 
 	/**
-	 * Extract rgbx int.
-	 */
-	public int rgbx() {
-		return (int) argbx;
-	}
-
-	/**
-	 * Provide full argbx long.
-	 */
-	public long argbx() {
-		return argbx;
-	}
-
-	/**
-	 * Extract argb color.
+	 * Extract argb color. X values are dropped.
 	 */
 	public Color color() {
 		return ColorUtil.color(argb());
 	}
 
 	/**
-	 * Return an argb color normalized again the given x color.
+	 * Normalize x values using given colors.
 	 */
-	public Color normalizeFor(Color x) {
-		if (x == null) return color();
-		return ColorUtil.color(ColorxUtil.normalizeArgb(argbx, x.getRGB()));
+	public Color normalize(Color... xrgbs) {
+		if (xrgbs.length == 0) return color();
+		return ColorUtil.color(normalizeArgb(argbArray(xrgbs)));
+	}
+
+	/**
+	 * Normalize x values using given colors.
+	 */
+	public int normalizeArgb(int... xrgbs) {
+		if (xrgbs.length == 0) return argb();
+		return ColorxUtil.normalizeArgb(xargb, xrgbs);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(argbx);
+		return Objects.hash(xargb);
 	}
 
 	@Override
@@ -199,24 +147,13 @@ public class Colorx {
 		if (this == obj) return true;
 		if (!(obj instanceof Colorx)) return false;
 		Colorx other = (Colorx) obj;
-		if (argbx != other.argbx) return false;
+		if (xargb != other.xargb) return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s(a=%d,r=%d,g=%d,b=%d,x=%d)", getClass().getSimpleName(), a(), r(),
-			g(), b(), x());
+		return String.format("%s(a=%d,r=%d,g=%d,b=%d,x=%s)", getClass().getSimpleName(), a(), r(),
+			g(), b(), Arrays.toString(xs()));
 	}
-
-	private static double xRatio(int r, int g, int b, int xRgb) {
-		return MathUtil.min(MAX_RATIO, xRatio(r, ColorUtil.r(xRgb)), xRatio(g, ColorUtil.g(xRgb)),
-			xRatio(b, ColorUtil.b(xRgb)));
-	}
-
-	private static double xRatio(int value, int xValue) {
-		if (xValue == 0) return MAX_RATIO;
-		return (double) value / xValue;
-	}
-
 }

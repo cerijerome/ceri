@@ -1,5 +1,7 @@
 package ceri.common.color;
 
+import static ceri.common.comparator.Comparators.nonNull;
+import static java.util.Comparator.comparing;
 import java.awt.Color;
 import java.util.Comparator;
 import ceri.common.comparator.Comparators;
@@ -8,24 +10,24 @@ import ceri.common.comparator.Comparators;
  * Comparators for Color.
  */
 public class ColorComparators {
-	public static final Comparator<Color> BY_RGB =
-		Comparators.nonNull((lhs, rhs) -> Comparators.INT.compare(lhs.getRGB(), rhs.getRGB()));
-	public static final Comparator<Color> BY_ALPHA =
-		Comparators.nonNull((lhs, rhs) -> Comparators.INT.compare(lhs.getAlpha(), rhs.getAlpha()));
-	public static final Comparator<Color> BY_RED =
-		Comparators.nonNull((lhs, rhs) -> Comparators.INT.compare(lhs.getRed(), rhs.getRed()));
-	public static final Comparator<Color> BY_GREEN =
-		Comparators.nonNull((lhs, rhs) -> Comparators.INT.compare(lhs.getGreen(), rhs.getGreen()));
-	public static final Comparator<Color> BY_BLUE =
-		Comparators.nonNull((lhs, rhs) -> Comparators.INT.compare(lhs.getBlue(), rhs.getBlue()));
-	public static final Comparator<Color> BY_HUE =
-		Comparators.nonNull((lhs, rhs) -> Comparators.FLOAT.compare(toHsb(lhs)[0], toHsb(rhs)[0]));
-	public static final Comparator<Color> BY_SATURATION =
-		Comparators.nonNull((lhs, rhs) -> Comparators.FLOAT.compare(toHsb(lhs)[1], toHsb(rhs)[1]));
-	public static final Comparator<Color> BY_BRIGHTNESS =
-		Comparators.nonNull((lhs, rhs) -> Comparators.FLOAT.compare(toHsb(lhs)[2], toHsb(rhs)[2]));
-	public static final Comparator<Color> BY_HSB =
-		Comparators.nonNull((lhs, rhs) -> compareHsb(toHsb(lhs), toHsb(rhs)));
+	public static final Comparator<Color> ARGB =
+		nonNull(comparing(Color::getRGB, Comparators.UINT));
+	public static final Comparator<Color> ALPHA =
+		nonNull(comparing(Color::getAlpha, Comparators.INT));
+	public static final Comparator<Color> RED = //
+		nonNull(comparing(Color::getRed, Comparators.INT));
+	public static final Comparator<Color> GREEN =
+		nonNull(comparing(Color::getGreen, Comparators.INT));
+	public static final Comparator<Color> BLUE =
+		nonNull(comparing(Color::getBlue, Comparators.INT));
+	public static final Comparator<Color> HUE =
+		nonNull(comparing(c -> toHsb(c)[0], Comparators.FLOAT));
+	public static final Comparator<Color> SATURATION =
+		nonNull(comparing(c -> toHsb(c)[1], Comparators.FLOAT));
+	public static final Comparator<Color> BRIGHTNESS =
+		nonNull(comparing(c -> toHsb(c)[2], Comparators.FLOAT));
+	public static final Comparator<Color> HSB =
+		nonNull(comparing(ColorComparators::toHsb, ColorComparators::compareHsb));
 
 	private ColorComparators() {}
 

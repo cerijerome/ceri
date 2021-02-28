@@ -7,40 +7,40 @@ import java.util.Collection;
 public interface Colorxable {
 	static Colorxable NULL = ofNull();
 
-	void argbx(long argbx);
+	void xargb(long xargb);
 
-	long argbx();
+	long xargb();
 
-	default void rgbx(int rgbx) {
-		argbx(ColorxUtil.argbx(rgbx));
+	default void xrgb(long xargb) {
+		xargb(ColorxUtil.xrgb(xargb));
 	}
 
-	default int rgbx() {
-		return ColorxUtil.rgbx(argbx());
+	default long xrgb() {
+		return ColorxUtil.xrgb(xargb());
 	}
 
 	default void colorx(Colorx colorx) {
-		argbx(colorx.argbx());
+		xargb(colorx.xargb);
 	}
 
 	default Colorx colorx() {
-		return Colorx.of(argbx());
+		return Colorx.of(xargb());
 	}
 
-	static Colorxable from(Colorable colorable, Color x) {
-		return from(colorable, x.getRGB());
+	static Colorxable from(Colorable colorable, Color... xs) {
+		return from(colorable, ColorUtil.argbArray(xs));
 	}
 
-	static Colorxable from(Colorable colorable, int xRgb) {
+	static Colorxable from(Colorable colorable, int... xrgbs) {
 		return new Colorxable() {
 			@Override
-			public void argbx(long argbx) {
-				colorable.argb(ColorxUtil.normalizeArgb(argbx, xRgb));
+			public void xargb(long xargb) {
+				colorable.argb(ColorxUtil.normalizeArgb(xargb, xrgbs));
 			}
 
 			@Override
-			public long argbx() {
-				return ColorxUtil.denormalizeArgbx(colorable.argb(), xRgb);
+			public long xargb() {
+				return ColorxUtil.denormalizeXargb(colorable.argb(), xrgbs);
 			}
 		};
 	}
@@ -53,13 +53,13 @@ public interface Colorxable {
 		Colorxable first = colorxables.isEmpty() ? NULL : colorxables.iterator().next();
 		return new Colorxable() {
 			@Override
-			public void argbx(long argbx) {
-				colorxables.forEach(c -> c.argbx(argbx));
+			public void xargb(long xargb) {
+				colorxables.forEach(c -> c.xargb(xargb));
 			}
 
 			@Override
-			public long argbx() {
-				return first.argbx();
+			public long xargb() {
+				return first.xargb();
 			}
 		};
 	}
@@ -67,11 +67,11 @@ public interface Colorxable {
 	private static Colorxable ofNull() {
 		return new Colorxable() {
 			@Override
-			public void argbx(long argbx) {}
+			public void xargb(long xargb) {}
 
 			@Override
-			public long argbx() {
-				return Colorx.clear.argbx();
+			public long xargb() {
+				return Colorx.clear.xargb;
 			}
 		};
 	}
