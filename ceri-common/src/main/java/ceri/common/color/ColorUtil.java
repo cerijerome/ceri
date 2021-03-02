@@ -1,12 +1,10 @@
 package ceri.common.color;
 
-import static ceri.common.collection.StreamUtil.toList;
 import static ceri.common.math.Bound.Type.inclusive;
 import static ceri.common.math.MathUtil.ubyte;
 import static java.lang.Math.round;
+import static java.util.stream.Collectors.toList;
 import java.awt.Color;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -26,7 +24,7 @@ public class ColorUtil {
 	public static final Color clear = color(0);
 	private static final int HEX = 16;
 	private static final int HEX3_LEN = 3;
-	private static final int HEX_RGB_MAX_LEN = 6;
+	static final int HEX_RGB_MAX_LEN = 6;
 	private static final int HEX_ARGB_MAX_LEN = 8;
 	private static final int A_SHIFT = Byte.SIZE * 3;
 	private static final int R_SHIFT = Byte.SIZE * 2;
@@ -60,7 +58,7 @@ public class ColorUtil {
 		if (r == 1) return argb;
 		return argb((int) (.5 + r(argb) * r), (int) (.5 + g(argb) * r), (int) (.5 + b(argb) * r));
 	}
-	
+
 	/**
 	 * Removes alpha component from argb int.
 	 */
@@ -106,8 +104,8 @@ public class ColorUtil {
 	}
 
 	/**
-	 * Returns an argb int from awt name, x11 name, or hex representation. Throws an exception if no
-	 * match.
+	 * Returns an argb int from preset name or hex representation. Throws an exception if unable to
+	 * parse the text.
 	 */
 	public static int validArgb(String text) {
 		Integer argb = argb(text);
@@ -442,138 +440,131 @@ public class ColorUtil {
 		return "#" + StringUtil.toHex(argb, digits);
 	}
 
-	/* Collection methods */
+	/* stream methods */
 
 	/**
 	 * Convert colors to argb array.
 	 */
-	public static int[] argbArray(Color... colors) {
-		return Stream.of(colors).mapToInt(Color::getRGB).toArray();
-	}
-	
-	/**
-	 * Returns a list of opaque argb ints from rgb ints.
-	 */
-	public static List<Integer> argbs(int... rgbs) {
-		return toList(IntStream.of(rgbs).map(ColorUtil::argb).boxed());
+	public static int[] argbs(Color... colors) {
+		return stream(colors).toArray();
 	}
 
 	/**
-	 * Returns a list of opaque argb ints from name/hex strings. Throws an exception if unable to
-	 * map all strings.
+	 * Convert color preset name or hex strings to argb array. Throws an exception if unable to
+	 * parse text.
 	 */
-	public static List<Integer> argbs(String... names) {
-		return argbs(Arrays.asList(names));
+	public static int[] argbs(String... strings) {
+		return stream(strings).toArray();
 	}
 
 	/**
-	 * Returns a list of opaque argb ints from name/hex strings. Throws an exception if unable to
-	 * map all strings.
+	 * Convert color name/hex strings to color array. Throws an exception if unable to parse text.
 	 */
-	public static List<Integer> argbs(Collection<String> names) {
-		return toList(names.stream().map(ColorUtil::validArgb));
+	public static Color[] colors(String... strings) {
+		return colors(stream(strings));
 	}
 
 	/**
-	 * Returns a list of colors from argb ints.
+	 * Collect argb int stream as a color array.
 	 */
-	public static List<Color> colors(int... argbs) {
-		return toList(IntStream.of(argbs).mapToObj(ColorUtil::color));
+	public static Color[] colors(IntStream argbStream) {
+		return argbStream.mapToObj(ColorUtil::color).toArray(Color[]::new);
 	}
 
 	/**
-	 * Returns a list of opaque colors from rgb ints.
+	 * Collect argb int stream as a list.
 	 */
-	public static List<Color> colorsRgb(int... rgbs) {
-		return toList(IntStream.of(rgbs).mapToObj(Color::new));
+	public static List<Integer> argbList(IntStream argbStream) {
+		return argbStream.boxed().collect(toList());
 	}
 
 	/**
-	 * Returns a list of opaque colors from name/hex strings. Throws an exception if unable to map
-	 * all strings.
+	 * Collect argb int stream as a color list.
 	 */
-	public static List<Color> colors(String... names) {
-		return colors(Arrays.asList(names));
+	public static List<Color> colorList(IntStream argbStream) {
+		return argbStream.mapToObj(ColorUtil::color).collect(toList());
 	}
 
 	/**
-	 * Returns a list of opaque colors from name/hex strings. Throws an exception if unable to map
-	 * all strings.
+	 * Create a stream of opaque argb ints from rgb ints.
 	 */
-	public static List<Color> colors(Collection<String> names) {
-		return toList(names.stream().map(ColorUtil::validColor));
+	public static IntStream rgbStream(int... rgbs) {
+		return IntStream.of(rgbs).map(ColorUtil::argb);
 	}
 
 	/**
-	 * Create a list of scaled argb ints from min to max, in steps using bias.
+	 * Create a stream of argb ints from colors.
 	 */
-	public static List<Integer> fadeArgb(int minArgb, int maxArgb, int steps, Bias bias) {
-		return toList(streamFade(minArgb, maxArgb, steps, bias).boxed());
+	public static IntStream stream(Color... colors) {
+		return Stream.of(colors).mapToInt(Color::getRGB);
 	}
 
 	/**
-	 * Create a list of scaled argb ints from min to max, in steps using bias.
+	 * Create a stream of argb ints from preset name or hex strings. Throws an exception if unable
+	 * to parse the text.
 	 */
-	public static List<Color> fade(Color min, Color max, int steps, Bias bias) {
-		return fade(min.getRGB(), max.getRGB(), steps, bias);
+	public static IntStream stream(String... strings) {
+		return Stream.of(strings).mapToInt(ColorUtil::validArgb);
 	}
 
 	/**
-	 * Create a list of scaled colors from min to max, in steps using bias.
+	 * Create a stream of argb ints by fading in steps.
 	 */
-	public static List<Color> fade(int minArgb, int maxArgb, int steps, Bias bias) {
-		return toList(streamFade(minArgb, maxArgb, steps, bias).mapToObj(ColorUtil::color));
+	public static IntStream fadeStream(Color min, Color max, int steps, Bias bias) {
+		return fadeStream(min.getRGB(), max.getRGB(), steps, bias);
 	}
 
 	/**
-	 * Create a list of hsb-scaled argb ints from min to max, in steps using bias.
+	 * Create a stream of argb ints by fading in steps.
 	 */
-	public static List<Integer> fadeHsbArgb(int minArgb, int maxArgb, int steps, Bias bias) {
-		return toList(streamFadeHsb(HsbColor.from(minArgb), HsbColor.from(maxArgb), steps, bias)
-			.map(HsbColor::argb));
+	public static IntStream fadeStream(int minArgb, int maxArgb, int steps, Bias bias) {
+		return IntStream.rangeClosed(1, steps)
+			.map(i -> scaleArgb(minArgb, maxArgb, bias.bias((double) i / steps)));
 	}
 
 	/**
-	 * Create a list of hsb-scaled colors from min to max, in steps using bias.
+	 * Create a stream of argb ints by fading hue/saturation/brightness in steps.
 	 */
-	public static List<Color> fadeHsb(Color min, Color max, int steps, Bias bias) {
-		return fadeHsb(min.getRGB(), max.getRGB(), steps, bias);
+	public static IntStream fadeHsbStream(Color min, Color max, int steps, Bias bias) {
+		return fadeHsbStream(min.getRGB(), max.getRGB(), steps, bias);
 	}
 
 	/**
-	 * Create a list of hsb-scaled colors from min to max, in steps using bias.
+	 * Create a stream of argb ints by fading hue/saturation/brightness in steps.
 	 */
-	public static List<Color> fadeHsb(int minArgb, int maxArgb, int steps, Bias bias) {
-		return toList(streamFadeHsb(HsbColor.from(minArgb), HsbColor.from(maxArgb), steps, bias)
-			.map(HsbColor::color));
+	public static IntStream fadeHsbStream(int minArgb, int maxArgb, int steps, Bias bias) {
+		return fadeHsbStream(HsbColor.from(minArgb), HsbColor.from(maxArgb), steps, bias);
 	}
 
 	/**
-	 * Create a list of hsb-scaled colors from min to max, in steps using bias.
+	 * Create a stream of argb ints by fading hue/saturation/brightness in steps.
 	 */
-	public static List<HsbColor> fadeHsb(HsbColor minHsb, HsbColor maxHsb, int steps, Bias bias) {
-		return toList(streamFadeHsb(minHsb.normalize(), maxHsb.normalize(), steps, bias));
+	public static IntStream fadeHsbStream(HsbColor min, HsbColor max, int steps, Bias bias) {
+		return IntStream.rangeClosed(1, steps)
+			.mapToObj(i -> scaleNormHsb(min, max, bias.bias((double) i / steps)))
+			.mapToInt(HsbColor::argb);
 	}
 
 	/**
-	 * Create a list of argb ints for 1 full hsb rotation, in steps using bias.
+	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
 	 */
-	public static List<Integer> rotateHueArgb(int argb, int steps, Bias bias) {
-		return toList(streamRotateHue(HsbColor.from(argb), steps, bias).map(HsbColor::argb));
+	public static IntStream rotateHueStream(Color color, int steps, Bias bias) {
+		return rotateHueStream(color.getRGB(), steps, bias);
 	}
 
 	/**
-	 * Create a list of colors for 1 full hsb rotation, in steps using bias.
+	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
 	 */
-	public static List<Color> rotateHue(Color color, int steps, Bias bias) {
-		return rotateHue(color.getRGB(), steps, bias);
+	public static IntStream rotateHueStream(int argb, int steps, Bias bias) {
+		return rotateHueStream(HsbColor.from(argb), steps, bias);
 	}
 
 	/**
-	 * Create a list of colors for 1 full hsb rotation, in steps using bias.
+	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
 	 */
-	public static List<Color> rotateHue(int argb, int steps, Bias bias) {
-		return toList(streamRotateHue(HsbColor.from(argb), steps, bias).map(HsbColor::color));
+	public static IntStream rotateHueStream(HsbColor hsb, int steps, Bias bias) {
+		return IntStream.rangeClosed(1, steps)
+			.mapToObj(i -> hsb.shiftHue(bias.bias((double) i / steps))).mapToInt(HsbColor::argb);
 	}
 
 	/* support methods */
@@ -599,17 +590,6 @@ public class ColorUtil {
 		return (int) (component / ratio);
 	}
 
-	private static IntStream streamFade(int minArgb, int maxArgb, int steps, Bias bias) {
-		return IntStream.rangeClosed(1, steps)
-			.map(i -> scaleArgb(minArgb, maxArgb, bias.bias((double) i / steps)));
-	}
-
-	private static Stream<HsbColor> streamFadeHsb(HsbColor minHsb, HsbColor maxHsb, int steps,
-		Bias bias) {
-		return IntStream.rangeClosed(1, steps)
-			.mapToObj(i -> scaleNormHsb(minHsb, maxHsb, bias.bias((double) i / steps)));
-	}
-
 	private static HsbColor scaleNormHsb(HsbColor minHsb, HsbColor maxHsb, double ratio) {
 		if (ratio <= 0.0) return minHsb;
 		if (ratio >= MAX_RATIO) return maxHsb;
@@ -620,17 +600,12 @@ public class ColorUtil {
 		return HsbColor.of(a, h, s, b);
 	}
 
-	private static Stream<HsbColor> streamRotateHue(HsbColor hsb, int steps, Bias bias) {
-		return IntStream.rangeClosed(1, steps)
-			.mapToObj(i -> hsb.shiftHue(bias.bias((double) i / steps)));
-	}
-
 	private static Integer namedArgb(String name) {
 		Colors preset = Colors.from(name);
 		return preset == null ? null : preset.argb;
 	}
 
-	private static int hexArgb(String prefix, int len, int argb) {
+	static int hexArgb(String prefix, int len, int argb) {
 		if (len > HEX_RGB_MAX_LEN) return argb; // argb
 		if (!"#".equals(prefix) || len != HEX3_LEN) return argb(argb); // rgb
 		int r = ((argb >>> HEX3_R_SHIFT) & HEX3_MASK) << R_SHIFT;

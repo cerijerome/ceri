@@ -1,6 +1,6 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.argbArray;
+import static ceri.common.color.ColorUtil.argbs;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Objects;
@@ -23,7 +23,7 @@ public class Colorx {
 	 * Construct by extracting x-color components from argb.
 	 */
 	public static Colorx from(Color argb, Color... xcolors) {
-		return from(argb.getRGB(), argbArray(xcolors));
+		return from(argb.getRGB(), argbs(xcolors));
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class Colorx {
 	 */
 	public Color normalize(Color... xrgbs) {
 		if (xrgbs.length == 0) return color();
-		return ColorUtil.color(normalizeArgb(argbArray(xrgbs)));
+		return ColorUtil.color(normalizeArgb(argbs(xrgbs)));
 	}
 
 	/**

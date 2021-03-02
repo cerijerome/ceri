@@ -28,7 +28,7 @@ public interface Colorable {
 	}
 
 	static Colorable from(Colorxable colorxable, Color... xs) {
-		return from(colorxable, ColorUtil.argbArray(xs));
+		return from(colorxable, ColorUtil.argbs(xs));
 	}
 
 	static Colorable from(Colorxable colorxable, int... xrgbs) {

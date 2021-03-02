@@ -1,15 +1,14 @@
 package ceri.common.color;
 
-import static ceri.common.collection.StreamUtil.toList;
 import static ceri.common.color.ColorUtil.MAX_RATIO;
 import static ceri.common.color.ColorUtil.MAX_VALUE;
 import static ceri.common.color.ColorUtil.scaleValue;
 import static ceri.common.math.MathUtil.limit;
 import static ceri.common.math.MathUtil.min;
 import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.MathUtil.uint;
+import static java.util.stream.Collectors.toList;
 import java.awt.Color;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -27,7 +26,7 @@ import ceri.common.text.StringUtil;
 
 public class ColorxUtil {
 	private static final Pattern XARGB_REGEX = Pattern.compile("(0x|#)?([0-9a-fA-F]{1,16})");
-	private static final BiMap<Long, String> colors = colors();
+	private static final BiMap<Long, String> colorxs = colorxs();
 	private static final int HEX = 16;
 	public static final int X_COUNT = 4;
 	private static final long X_MASK = 0xffffffff00000000L;
@@ -41,14 +40,14 @@ public class ColorxUtil {
 	 * Replaces the alpha value for an xargb long.
 	 */
 	public static long alphaXargb(int a, long xargb) {
-		return (xargb & X_MASK) | ColorUtil.alphaArgb(a, (int) xargb);
+		return xargb & X_MASK | ColorUtil.alphaArgb(a, (int) xargb);
 	}
 
 	/**
 	 * Removes the alpha component from xargb long.
 	 */
 	public static long xrgb(long xargb) {
-		return (xargb & ~A_MASK);
+		return xargb & ~A_MASK;
 	}
 
 	/**
@@ -62,7 +61,7 @@ public class ColorxUtil {
 	 * Constructs an xargb long from argb and x components.
 	 */
 	public static long xargb(int argb, int... xs) {
-		long xargb = argb;
+		long xargb = uint(argb);
 		for (int i = 0; i < xs.length; i++)
 			xargb |= xEncode(xs[i], i);
 		return xargb;
@@ -123,8 +122,9 @@ public class ColorxUtil {
 	public static long randomXargb(int nx) {
 		Random rnd = ThreadLocalRandom.current();
 		int max = MAX_VALUE + 1;
+		int argb = ColorUtil.argb(MAX_VALUE, rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max));
 		int[] xs = IntStream.range(0, nx).map(i -> rnd.nextInt(max)).toArray();
-		return xargb(ColorUtil.randomArgb(), xs);
+		return xargb(argb, xs);
 	}
 
 	/**
@@ -282,7 +282,7 @@ public class ColorxUtil {
 	 * Looks up the colorx name, ignoring alpha. Returns null if no match.
 	 */
 	public static String name(long xargb) {
-		return colors.keys.get(xargb | A_MASK);
+		return colorxs.keys.get(xargb | A_MASK);
 	}
 
 	/**
@@ -300,88 +300,139 @@ public class ColorxUtil {
 		return "#" + StringUtil.toHex(xargb, digits);
 	}
 
-	/* Collection methods */
+	/* stream methods */
 
 	/**
 	 * Convert colorxs to xargb array.
 	 */
-	public static long[] xargbArray(Colorx... colorxs) {
-		return Stream.of(colorxs).mapToLong(cx -> cx.xargb).toArray();
+	public static long[] xargbs(Colorx... colorxs) {
+		return stream(colorxs).toArray();
 	}
 
 	/**
-	 * Returns a list of xargb longs from name/hex strings. Throws an exception if unable to map all
-	 * strings.
+	 * Returns an array of xargb longs from preset name or hex strings. Throws an exception if
+	 * unable to parse text.
 	 */
-	public static List<Long> xargbs(String... names) {
-		return xargbs(Arrays.asList(names));
+	public static long[] xargbs(String... strings) {
+		return stream(strings).toArray();
 	}
 
 	/**
-	 * Returns a list of xargb longs from name/hex strings. Throws an exception if unable to map all
-	 * strings.
+	 * Returns an array of colorxs from preset name or hex strings. Throws an exception if unable to
+	 * parse text.
 	 */
-	public static List<Long> xargbs(Collection<String> names) {
-		return toList(names.stream().map(ColorxUtil::validXargb));
+	public static Colorx[] colorxs(String... strings) {
+		return colorxs(stream(strings));
 	}
 
 	/**
-	 * Returns a list of colorxs from xargb longs.
+	 * Collect xargb stream as a colorx array.
 	 */
-	public static List<Colorx> colorxs(long... xargbs) {
-		return toList(LongStream.of(xargbs).mapToObj(Colorx::of));
+	public static Colorx[] colorxs(LongStream xargbStream) {
+		return xargbStream.mapToObj(Colorx::of).toArray(Colorx[]::new);
 	}
 
 	/**
-	 * Returns a list of colorxs from name/hex strings. Throws an exception if unable to map all
-	 * strings.
+	 * Collect xargb stream as a list.
 	 */
-	public static List<Colorx> colorxs(String... names) {
-		return colorxs(Arrays.asList(names));
+	public static List<Long> xargbList(LongStream argbStream) {
+		return argbStream.boxed().collect(toList());
 	}
 
 	/**
-	 * Returns a list of colorxs from name/hex strings. Throws an exception if unable to map all
-	 * strings.
+	 * Collect xargb stream as a colorx list.
 	 */
-	public static List<Colorx> colorxs(Collection<String> names) {
-		return toList(names.stream().map(ColorxUtil::validColorx));
+	public static List<Colorx> colorxList(LongStream xargbStream) {
+		return xargbStream.mapToObj(Colorx::of).collect(toList());
 	}
 
 	/**
-	 * Create a list of scaled xargb longs from min to max, in steps using bias.
+	 * Create a stream of xargbs longs, with 0 x components, from argb ints.
 	 */
-	public static List<Long> fadeArgbx(long minXargb, long maxXargb, int steps, Bias bias) {
-		return toList(streamFade(minXargb, maxXargb, steps, bias).boxed());
+	public static LongStream argbStream(int... argbs) {
+		return IntStream.of(argbs).mapToLong(argb -> argb);
 	}
 
 	/**
-	 * Create a list of scaled colorxs from min to max, in steps using bias.
+	 * Create a stream of xargb longs from colorxs.
 	 */
-	public static List<Colorx> fade(Colorx min, Colorx max, int steps, Bias bias) {
-		return fade(min.xargb, max.xargb, steps, bias);
+	public static LongStream stream(Colorx... colorxs) {
+		return Stream.of(colorxs).mapToLong(cx -> cx.xargb);
 	}
 
 	/**
-	 * Create a list of scaled colorxs from min to max, in steps using bias.
+	 * Create a stream of xargb longs from preset name or hex strings. Throws an exception if unable
+	 * to parse the text.
 	 */
-	public static List<Colorx> fade(long minXargb, long maxXargb, int steps, Bias bias) {
-		return toList(streamFade(minXargb, maxXargb, steps, bias).mapToObj(Colorx::of));
+	public static LongStream stream(String... strings) {
+		return Stream.of(strings).mapToLong(ColorxUtil::validXargb);
+	}
+
+	/**
+	 * Convert argb int stream to xargb long stream, applying x components to all values.
+	 */
+	public static LongStream stream(IntStream argbStream, int... xs) {
+		long x = xargb(0, xs);
+		return argbStream.mapToLong(argb -> x | uint(argb));
+	}
+
+	/**
+	 * Extract sequence of rgb values from each argb to determine x components.
+	 */
+	public static LongStream denormalize(IntStream argbStream, Color... xcolors) {
+		return denormalize(argbStream, ColorUtil.argbs(xcolors));
+	}
+
+	/**
+	 * Extract sequence of rgb values from each argb to determine x components.
+	 */
+	public static LongStream denormalize(IntStream argbStream, int... xrgbs) {
+		return argbStream.mapToLong(argb -> denormalizeXargb(argb, xrgbs));
+	}
+
+	/**
+	 * For each xargb, combine x-scaled rgb values with argb, scaling to fit within argb bounds.
+	 */
+	public static IntStream normalize(LongStream xargbStream, Color... xcolors) {
+		return normalize(xargbStream, ColorUtil.argbs(xcolors));
+	}
+
+	/**
+	 * For each xargb, combine x-scaled rgb values with argb, scaling to fit within argb bounds.
+	 */
+	public static IntStream normalize(LongStream xargbStream, int... xrgbs) {
+		return xargbStream.mapToInt(xargb -> normalizeArgb(xargb, xrgbs));
+	}
+
+	/**
+	 * Apply an argb int operation to an xargb long.
+	 */
+	public static LongStream applyArgb(LongStream xargbStream, IntUnaryOperator argbFn) {
+		return xargbStream.map(xargb -> applyXargb(xargb, argbFn));
+	}
+
+	/**
+	 * Create a stream of xargb longs by fading in steps.
+	 */
+	public static LongStream fadeStream(Colorx min, Colorx max, int steps, Bias bias) {
+		return fadeStream(min.xargb, max.xargb, steps, bias);
+	}
+
+	/**
+	 * Create a stream of xargb longs by fading in steps.
+	 */
+	public static LongStream fadeStream(long minArgbx, long maxArgbx, int steps, Bias bias) {
+		return IntStream.rangeClosed(1, steps)
+			.mapToLong(i -> scaleArgbx(minArgbx, maxArgbx, bias.bias((double) i / steps)));
 	}
 
 	/* adapter methods */
 
 	/**
-	 * Converts hex string to argb int. The value must be prefixed with '#' or '0x', and contain
-	 * 1..8 hex digits. If <= 6 digits, the value is treated as opaque, otherwise the alpha value is
-	 * captured. Triple hex '#rgb' values will be treated as opaque 'rrggbb' hex values. Returns
-	 * null if no match.
+	 * Extract sequence of color values from color to determine x components.
 	 */
-	private static Long hexXargb(String text) {
-		Matcher m = RegexUtil.matched(XARGB_REGEX, text);
-		if (m == null) return null;
-		String hex = m.group(2);
-		return Long.valueOf(hex, HEX);
+	public static Colorx denormalize(Color color, Color... xcolors) {
+		return Colorx.of(denormalizeXargb(color.getRGB(), ColorUtil.argbs(xcolors)));
 	}
 
 	/**
@@ -398,7 +449,14 @@ public class ColorxUtil {
 	}
 
 	/**
-	 * Combines x-scaled rgb values with argb, scaling to fit within argb bounds if needed.
+	 * Combine x-scaled rgb values with argb, scaling to fit within argb bounds.
+	 */
+	public static Color normalize(Colorx colorx, Color... xcolors) {
+		return ColorUtil.color(normalizeArgb(colorx.xargb, ColorUtil.argbs(xcolors)));
+	}
+
+	/**
+	 * Combine x-scaled rgb values with argb, scaling to fit within argb bounds.
 	 */
 	public static int normalizeArgb(long xargb, int... xrgbs) {
 		int r = r(xargb);
@@ -422,8 +480,8 @@ public class ColorxUtil {
 	/**
 	 * Apply an argb int operation to an xargb long.
 	 */
-	public static long applyArgbx(long xargb, IntUnaryOperator argbFn) {
-		return argbFn.applyAsInt((int) xargb) | (xargb & X_MASK);
+	public static long applyXargb(long xargb, IntUnaryOperator argbFn) {
+		return xargb & X_MASK | uint(argbFn.applyAsInt((int) xargb));
 	}
 
 	/**
@@ -431,18 +489,30 @@ public class ColorxUtil {
 	 */
 	public static Colorx apply(Colorx colorx, UnaryOperator<Color> colorFn) {
 		int argb = colorFn.apply(colorx.color()).getRGB();
-		return Colorx.of(argb | (colorx.xargb & X_MASK));
+		return Colorx.of(colorx.xargb & X_MASK | uint(argb));
 	}
 
 	/* support methods */
 
-	private static LongStream streamFade(long minArgbx, long maxArgbx, int steps, Bias bias) {
-		return IntStream.rangeClosed(1, steps)
-			.mapToLong(i -> scaleArgbx(minArgbx, maxArgbx, bias.bias((double) i / steps)));
+	private static Long namedArgbx(String name) {
+		return colorxs.values.get(name);
 	}
 
-	private static Long namedArgbx(String name) {
-		return colors.values.get(name);
+	/**
+	 * Converts hex string to argb int. The value must be prefixed with '#' or '0x', and contain
+	 * 1..16 hex digits. Up to 4 hex pairs may be specified for x components before hex pairs for a,
+	 * r, g, b. If <= 6 digits, the value is treated as opaque. Triple hex '#rgb' values will be
+	 * treated as opaque 'rrggbb' hex values. Returns null if no match.
+	 */
+	private static Long hexXargb(String text) {
+		Matcher m = RegexUtil.matched(XARGB_REGEX, text);
+		if (m == null) return null;
+		String prefix = m.group(1);
+		String hex = m.group(2);
+		long xargb = Long.valueOf(hex, HEX);
+		int len = hex.length();
+		if (len >= ColorUtil.HEX_RGB_MAX_LEN) return xargb;
+		return uint(ColorUtil.hexArgb(prefix, len, (int) xargb));
 	}
 
 	private static int denormalize(int[] rgb, int r, int g, int b) {
@@ -473,7 +543,7 @@ public class ColorxUtil {
 		return (int) (x / ratio);
 	}
 
-	private static BiMap<Long, String> colors() {
+	private static BiMap<Long, String> colorxs() {
 		return BiMap.<Long, String>builder() //
 			.put(Colorx.black.xargb, "black") //
 			.put(Colorx.full0.xargb, "full0") //
