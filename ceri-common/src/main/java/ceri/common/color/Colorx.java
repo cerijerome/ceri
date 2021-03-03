@@ -13,9 +13,9 @@ import java.util.Objects;
 public class Colorx {
 	public static final Colorx clear = of(0L);
 	public static final Colorx black = of(0xff000000);
-	public static final Colorx full0 = of(0xffffffffffL); // ma rgb, x0
-	public static final Colorx full1 = of(0xffffffffffffL); // max rgb, x0, x1
-	public static final Colorx full2 = of(0xffffffffffffffL); // max rgb, x0, x1, x2
+	public static final Colorx fullX0 = of(0xffffffffffL); // ma rgb, x0
+	public static final Colorx fullX01 = of(0xffffffffffffL); // max rgb, x0, x1
+	public static final Colorx fullX012 = of(0xffffffffffffffL); // max rgb, x0, x1, x2
 	public static final Colorx full = of(-1L); // max rgb, all x
 	public final long xargb;
 

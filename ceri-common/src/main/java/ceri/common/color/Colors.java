@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import ceri.common.util.BasicUtil;
 
 /**
- * Color presets.
+ * Opaque color presets.
  */
 public enum Colors {
 	// java awt colors
@@ -193,18 +193,30 @@ public enum Colors {
 	private static final Map<Integer, Colors> lookup = lookup();
 	public final int argb;
 
+	/**
+	 * Lookup by name.
+	 */
 	public static Colors from(String name) {
 		return BasicUtil.valueOf(Colors.class, name, null);
 	}
 
+	/**
+	 * Lookup by color, ignoring alpha.
+	 */
 	public static Colors from(Color color) {
 		return from(color.getRGB());
 	}
 
+	/**
+	 * Lookup by rgb, ignoring alpha.
+	 */
 	public static Colors from(int rgb) {
 		return lookup.get(ColorUtil.argb(rgb));
 	}
 
+	/**
+	 * Provide a random entry.
+	 */
 	public static Colors random() {
 		Colors[] values = Colors.values();
 		return values[ThreadLocalRandom.current().nextInt(values.length)];
@@ -214,10 +226,16 @@ public enum Colors {
 		argb = ColorUtil.argb(rgb);
 	}
 
+	/**
+	 * Calculate lightness of the color, by converting sRGB to CIELUV L* with D65 illuminant.
+	 */
 	public double lightness() {
 		return LuvColor.Ref.CIE_D65.l(argb);
 	}
 
+	/**
+	 * Provide 
+	 */
 	public Color color() {
 		return ColorUtil.color(argb);
 	}

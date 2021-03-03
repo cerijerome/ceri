@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import ceri.common.collection.BiMap;
 import ceri.common.math.MathUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
@@ -22,15 +23,16 @@ import ceri.common.text.StringUtil;
 public class ColorUtil {
 	private static final Pattern ARGB_REGEX = Pattern.compile("(0x|#)?([0-9a-fA-F]{1,8})");
 	public static final Color clear = color(0);
+	private static final BiMap<Integer, String> colors = colors();
 	private static final int HEX = 16;
 	private static final int HEX3_LEN = 3;
-	static final int HEX_RGB_MAX_LEN = 6;
+	private static final int HEX_RGB_MAX_LEN = 6;
 	private static final int HEX_ARGB_MAX_LEN = 8;
 	private static final int A_SHIFT = Byte.SIZE * 3;
 	private static final int R_SHIFT = Byte.SIZE * 2;
 	private static final int G_SHIFT = Byte.SIZE * 1;
-	public static final double MAX_RATIO = 1.0;
 	private static final double HALF = 0.5;
+	public static final double MAX_RATIO = 1.0;
 	public static final int A_MASK = 0xff000000;
 	public static final int RGB_MASK = 0xffffff;
 	public static final int MAX_VALUE = 0xff;
@@ -602,7 +604,8 @@ public class ColorUtil {
 
 	private static Integer namedArgb(String name) {
 		Colors preset = Colors.from(name);
-		return preset == null ? null : preset.argb;
+		if (preset != null) return preset.argb;
+		return colors.values.get(name);
 	}
 
 	static int hexArgb(String prefix, int len, int argb) {
@@ -612,5 +615,9 @@ public class ColorUtil {
 		int g = ((argb >>> HEX3_G_SHIFT) & HEX3_MASK) << G_SHIFT;
 		int b = (argb) & HEX3_MASK;
 		return argb((r | g | b) * (HEX + 1)); // triple-hex #rgb
+	}
+
+	private static BiMap<Integer, String> colors() {
+		return BiMap.<Integer, String>builder().put(clear.getRGB(), "clear").build();
 	}
 }

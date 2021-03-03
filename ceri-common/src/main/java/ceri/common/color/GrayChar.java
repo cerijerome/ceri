@@ -28,20 +28,32 @@ public class GrayChar {
 		this.grayscale = ascii;
 	}
 
+	/**
+	 * Look up grayscale char by lightness of color without alpha.
+	 */
 	public char charOf(Color c) {
 		return charOf(c.getRGB());
 	}
 
+	/**
+	 * Look up grayscale char by lightness of rgb int.
+	 */
 	public char charOf(int rgb) {
 		return charOf(LuvColor.Ref.CIE_D65.l(rgb));
 	}
 
+	/**
+	 * Look up grayscale char by 0-1 ratio.
+	 */
 	public char charOf(double ratio) {
 		if (ratio < 0.0) ratio = 0;
 		int index = (int) Math.min(ratio * grayscale.length(), grayscale.length() - 1);
 		return grayscale.charAt(index);
 	}
 
+	/**
+	 * Create an instance with scale reversed.
+	 */
 	public GrayChar reverse() {
 		return of(StringUtil.reverse(grayscale));
 	}

@@ -70,6 +70,9 @@ public class HsbColor {
 		this.b = b;
 	}
 
+	/**
+	 * Provide hsb 0-1 values. Alpha is dropped.
+	 */
 	public double[] hsbValues() {
 		return new double[] { h, s, b };
 	}

@@ -27,8 +27,9 @@ import ceri.common.text.StringUtil;
 public class ColorxUtil {
 	private static final Pattern XARGB_REGEX = Pattern.compile("(0x|#)?([0-9a-fA-F]{1,16})");
 	private static final BiMap<Long, String> colorxs = colorxs();
+	private static final int HEX_RGB_MAX_LEN = 6;
 	private static final int HEX = 16;
-	public static final int X_COUNT = 4;
+	public static final int X_COUNT = 4; // maximum x values
 	private static final long X_MASK = 0xffffffff00000000L;
 	private static final long A_MASK = 0xff000000L;
 
@@ -511,7 +512,7 @@ public class ColorxUtil {
 		String hex = m.group(2);
 		long xargb = Long.valueOf(hex, HEX);
 		int len = hex.length();
-		if (len >= ColorUtil.HEX_RGB_MAX_LEN) return xargb;
+		if (len >= HEX_RGB_MAX_LEN) return xargb;
 		return uint(ColorUtil.hexArgb(prefix, len, (int) xargb));
 	}
 
@@ -546,9 +547,9 @@ public class ColorxUtil {
 	private static BiMap<Long, String> colorxs() {
 		return BiMap.<Long, String>builder() //
 			.put(Colorx.black.xargb, "black") //
-			.put(Colorx.full0.xargb, "full0") //
-			.put(Colorx.full1.xargb, "full1") //
-			.put(Colorx.full2.xargb, "full2") //
+			.put(Colorx.fullX0.xargb, "fullX0") //
+			.put(Colorx.fullX01.xargb, "fullX01") //
+			.put(Colorx.fullX012.xargb, "fullX012") //
 			.put(Colorx.full.xargb, "full") //
 			.build();
 	}
