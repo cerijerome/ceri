@@ -11,6 +11,7 @@ import ceri.common.test.TestUtil;
 @Suite.SuiteClasses({
 	// collection
 	ceri.common.collection.ArrayUtilTest.class, //
+	ceri.common.collection.BiMapBehavior.class, //
 	ceri.common.collection.CollectionUtilTest.class, //
 	ceri.common.collection.FixedSizeCacheBehavior.class, //
 	ceri.common.collection.ImmutableUtilTest.class, //
@@ -25,20 +26,10 @@ import ceri.common.test.TestUtil;
 	ceri.common.collection.WrappedStreamBehavior.class, //
 	// color
 	ceri.common.color.BiasTest.class, //
-	ceri.common.color.GrayCharBehavior.class, //
 	ceri.common.color.ColorComparatorsTest.class, //
-	ceri.common.color.ColorUtilTest.class, //
 	ceri.common.color.ColorableTest.class, //
 	ceri.common.color.ColorsTest.class, //
-	ceri.common.color.ColorxBehavior.class, //
-	ceri.common.color.ColorxComparatorsTest.class, //
-	ceri.common.color.ColorxUtilTest.class, //
-	ceri.common.color.ColorxableTest.class, //
-	ceri.common.color.HsbColorBehavior.class, //
-	ceri.common.color.RgbColorBehavior.class, //
-	ceri.common.color.RgbxColorBehavior.class, //
-	ceri.common.color.XybColorBehavior.class, //
-	ceri.common.color.XyzColorBehavior.class, //
+	ceri.common.color.GrayCharBehavior.class, //
 	// comparator
 	ceri.common.comparator.ComparatorSequenceBehavior.class, //
 	ceri.common.comparator.ComparatorsTest.class, //
@@ -288,6 +279,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.BasicUtilTest.class, //
 	ceri.common.util.CounterBehavior.class, //
 	ceri.common.util.EnclosedBehavior.class, //
+	ceri.common.util.HasherBehavior.class, //
 	ceri.common.util.HolderBehavior.class, //
 	ceri.common.util.KeyValueBehavior.class, //
 	ceri.common.util.LatLngBehavior.class, //

@@ -88,6 +88,19 @@ public class DsvParserBehavior {
 		assertEquals(parser.longField("field3", Long.MAX_VALUE), Long.MAX_VALUE);
 	}
 
+	@Test
+	public void shouldDecodeFields() {
+		skip(7);
+		assertEquals(parser.longDecode("field1"), 0x123456789aL);
+		assertEquals(parser.longDecode("field2", 3L), 0xffL);
+		assertEquals(parser.longDecode("field3", 3L), 3L);
+		assertNull(parser.longDecode("field3"));
+		next();
+		assertEquals(parser.intDecode("field1"), -100);
+		assertNull(parser.intDecode("field2"));
+		assertEquals(parser.intDecode("field3", 1), 0777);
+	}
+
 	private void next() {
 		parser.parseLine(lines.next());
 	}

@@ -37,6 +37,10 @@ public interface ByteProvider extends Iterable<Integer> {
 		return ByteArray.Immutable.EMPTY;
 	}
 
+	static ByteProvider of(int... bytes) {
+		return ByteArray.Immutable.wrap(bytes);
+	}
+	
 	static ByteProvider of(byte... bytes) {
 		return ByteArray.Immutable.wrap(bytes);
 	}

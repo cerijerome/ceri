@@ -205,6 +205,7 @@ public class MatrixBehavior {
 	@Test
 	public void shouldAddScalar() {
 		assertMatrix(Matrix.EMPTY.add(1));
+		assertMatrix(Matrix.I3.add(0), Matrix.I3);
 		assertMatrix(Matrix.I2.add(1), 2, 2, 1, 1, 2);
 	}
 	

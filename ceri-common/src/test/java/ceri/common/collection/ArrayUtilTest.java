@@ -24,6 +24,13 @@ public class ArrayUtilTest {
 	}
 
 	@Test
+	public void testDeepHash() {
+		boolean[] bb = { true, false };
+		int[][] ii = { { 3 }, { 1, -1 } };
+		assertEquals(ArrayUtil.deepHash(bb, ii), 0x1326b8);
+	}
+
+	@Test
 	public void testHashOfBooleanSubArray() {
 		boolean[] array = { true, true, false, true, false };
 		assertEquals(ArrayUtil.hash((boolean[]) null, 1), 0);

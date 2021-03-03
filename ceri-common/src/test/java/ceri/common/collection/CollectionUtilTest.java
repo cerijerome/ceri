@@ -63,6 +63,14 @@ public class CollectionUtilTest {
 	}
 
 	@Test
+	public void testGetAdapted() {
+		var map = MapPopulator.of(1, "1", 2, "2", 3, null).map;
+		assertEquals(CollectionUtil.getAdapted(map, 1, (k, v) -> v.repeat(k)), "1");
+		assertEquals(CollectionUtil.getAdapted(map, 2, (k, v) -> v.repeat(k)), "22");
+		assertEquals(CollectionUtil.getAdapted(map, 3, (k, v) -> v.repeat(k)), null);
+	}
+
+	@Test
 	public void testInvert() {
 		assertEquals(CollectionUtil.invert(Map.of()), Map.of());
 		assertEquals(CollectionUtil.invert(Map.of(1, "1")), Map.of("1", 1));

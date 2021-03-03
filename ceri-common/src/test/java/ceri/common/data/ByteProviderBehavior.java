@@ -27,6 +27,12 @@ public class ByteProviderBehavior {
 	/* ByteProvider tests */
 
 	@Test
+	public void testOf() {
+		assertArray(ByteProvider.of(0xff, 0, 0x80, 0x7f).copy(0), 0xff, 0, 0x80, 0x7f);
+		assertArray(ByteProvider.of(Byte.MAX_VALUE, Byte.MIN_VALUE).copy(0), 0x7f, 0x80);
+	}
+
+	@Test
 	public void testToHex() {
 		assertEquals(ByteProvider.toHex(bp),
 			"[0x0, 0xff, 0x2, 0xfd, 0x4, 0xfb, 0x6, 0xf9, 0x8, 0xf7](10)");

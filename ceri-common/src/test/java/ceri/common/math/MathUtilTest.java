@@ -22,6 +22,18 @@ public class MathUtilTest {
 	}
 
 	@Test
+	public void testDoublePolynomial() {
+		assertEquals(MathUtil.polynomial(2.0), 0.0);
+		assertEquals(MathUtil.polynomial(0.5, 3.0, 0.5, 0.1, 0.2), 3.3);
+	}
+
+	@Test
+	public void testLongPolynomial() {
+		assertEquals(MathUtil.polynomial(5), 0L);
+		assertEquals(MathUtil.polynomial(2, 3, 0, 5, 1), 31L);
+	}
+
+	@Test
 	public void testToInt() {
 		assertEquals(MathUtil.toInt(true), 1);
 		assertEquals(MathUtil.toInt(false), 0);

@@ -284,6 +284,14 @@ public class ByteUtilTest {
 	}
 
 	@Test
+	public void testByteAt() {
+		assertEquals(ByteUtil.byteAt(0xfedcba9876543210L, 0), (byte) 0x10);
+		assertEquals(ByteUtil.byteAt(0xfedcba9876543210L, 7), (byte) 0xfe);
+		assertEquals(ByteUtil.ubyteAt(0xfedcba9876543210L, 0), (short) 0x10);
+		assertEquals(ByteUtil.ubyteAt(0xfedcba9876543210L, 7), (short) 0xfe);
+	}
+
+	@Test
 	public void testShiftBits() {
 		assertEquals(ByteUtil.shiftBits((byte) 0, 1), (byte) 0);
 		assertEquals(ByteUtil.shiftBits((byte) 0x96, 0), (byte) 0x96);

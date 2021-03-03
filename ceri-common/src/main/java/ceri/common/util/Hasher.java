@@ -59,4 +59,8 @@ public class Hasher {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("0x%08x", hash);
+	}
 }

@@ -21,6 +21,12 @@ public class IntProviderBehavior {
 	/* IntProvider tests */
 
 	@Test
+	public void testOf() {
+		assertArray(IntProvider.of(Integer.MAX_VALUE, Integer.MIN_VALUE), Integer.MAX_VALUE,
+			Integer.MIN_VALUE);
+	}
+
+	@Test
 	public void testToHex() {
 		assertEquals(IntProvider.toHex(ip), "[0x0, 0xffffffff, 0x2, 0xfffffffd, 0x4, " +
 			"0xfffffffb, 0x6, 0xfffffff9, 0x8, 0xfffffff7](10)");

@@ -3,16 +3,13 @@ package ceri.common.color;
 import static ceri.common.color.ColorUtil.MAX_VALUE;
 import static ceri.common.data.ByteUtil.ubyteAt;
 import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.awt.Color;
 
 public class ColorTestUtil {
 
 	private ColorTestUtil() {}
-
-	public static void assertColor(Color color, Color c) {
-		assertColor(color, c, MAX_VALUE);
-	}
 
 	public static void assertColor(Color color, Color c, int alpha) {
 		assertEquals(color, new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha));
@@ -35,40 +32,30 @@ public class ColorTestUtil {
 	}
 
 	public static void assertColorx(Colorx colorx, Colorx cx) {
-		assertColorx(colorx, cx, MAX_VALUE);
+		assertColorx(colorx, MAX_VALUE, cx);
 	}
 
-	public static void assertColorx(Colorx colorx, Colorx cx, int alpha) {
+	public static void assertColorx(Colorx colorx, int alpha, Colorx cx) {
 		assertColor(colorx.color(), cx.color(), alpha);
-		assertXComponent(colorx, cx.x());
+		assertXComponent(colorx, cx.xs());
 	}
 
-	public static void assertColorx(Colorx colorx, Color color, int x) {
-		assertColor(colorx.color(), color);
-		assertXComponent(colorx, x);
+	public static void assertColorx(Colorx colorx, Color color, int... xs) {
+		assertEquals(colorx.color(), color);
+		assertXComponent(colorx, xs);
 	}
 
-	public static void assertColorx(Colorx colorx, int rgbx) {
-		assertColorx(colorx, ubyteAt(rgbx, 3), ubyteAt(rgbx, 2), ubyteAt(rgbx, 1),
-			ubyteAt(rgbx, 0));
+	public static void assertColorx(Colorx colorx, int r, int g, int b, int... xs) {
+		assertColorx(colorx, MAX_VALUE, r, g, b, xs);
 	}
 
-	public static void assertColorx(Colorx colorx, int rgbx, int a) {
-		assertColorx(colorx, ubyteAt(rgbx, 3), ubyteAt(rgbx, 2), ubyteAt(rgbx, 1), ubyteAt(rgbx, 0),
-			a);
+	public static void assertColorx(Colorx colorx, int a, int r, int g, int b, int... xs) {
+		assertColor(colorx.color(), a, r, g, b);
+		assertXComponent(colorx, xs);
 	}
 
-	public static void assertColorx(Colorx colorx, int r, int g, int b, int x) {
-		assertColorx(colorx, r, g, b, x, MAX_VALUE);
-	}
-
-	public static void assertColorx(Colorx colorx, int r, int g, int b, int x, int a) {
-		assertColor(colorx.color(), r, g, b, a);
-		assertXComponent(colorx, x);
-	}
-
-	private static void assertXComponent(Colorx colorx, int x) {
-		assertEquals(colorx.x(), x, "x-component");
+	private static void assertXComponent(Colorx colorx, int... xs) {
+		assertArray(colorx.xs(), xs);
 	}
 
 	public static void assertRgb(RgbColor color, double r, double g, double b) {
@@ -82,57 +69,44 @@ public class ColorTestUtil {
 		assertApprox(color.a, a);
 	}
 
-	public static void assertRgbx(RgbxColor colorx, double r, double g, double b, double x) {
-		assertRgbx(colorx, r, g, b, x, 1.0);
-	}
-
-	public static void assertRgbx(RgbxColor colorx, double r, double g, double b, double x,
-		double a) {
-		assertApprox(colorx.r, r);
-		assertApprox(colorx.g, g);
-		assertApprox(colorx.b, b);
-		assertApprox(colorx.x, x);
-		assertApprox(colorx.a, a);
-	}
-
 	public static void assertHsb(Color color, double h, double s, double b) {
 		assertHsb(color, h, s, b, 1.0);
 	}
 
-	public static void assertHsb(Color color, double h, double s, double b, double a) {
-		assertHsb(HsbColor.from(color), h, s, b, a);
+	public static void assertHsb(Color color, double a, double h, double s, double b) {
+		assertHsb(HsbColor.from(color), a, h, s, b);
 	}
 
 	public static void assertHsb(HsbColor color, double h, double s, double b) {
-		assertHsb(color, h, s, b, 1.0);
+		assertHsb(color, 1.0, h, s, b);
 	}
 
-	public static void assertHsb(HsbColor color, double h, double s, double b, double a) {
+	public static void assertHsb(HsbColor color, double a, double h, double s, double b) {
+		assertApprox(color.a, a);
 		assertApprox(color.h, h);
 		assertApprox(color.s, s);
 		assertApprox(color.b, b);
-		assertApprox(color.a, a);
 	}
 
 	public static void assertXyb(XybColor color, double x, double y, double b) {
-		assertXyb(color, x, y, b, 1.0);
+		assertXyb(color, 1.0, x, y, b);
 	}
 
-	public static void assertXyb(XybColor color, double h, double s, double b, double a) {
+	public static void assertXyb(XybColor color, double a, double h, double s, double b) {
+		assertApprox(color.a, a);
 		assertApprox(color.x, h);
 		assertApprox(color.y, s);
 		assertApprox(color.b, b);
-		assertApprox(color.a, a);
 	}
 
 	public static void assertXyz(XyzColor color, double x, double y, double z) {
-		assertXyz(color, x, y, z, 1.0);
+		assertXyz(color, 1.0, x, y, z);
 	}
 
-	public static void assertXyz(XyzColor color, double x, double y, double z, double a) {
+	public static void assertXyz(XyzColor color, double a, double x, double y, double z) {
+		assertApprox(color.a, a);
 		assertApprox(color.x, x);
 		assertApprox(color.y, y);
 		assertApprox(color.z, z);
-		assertApprox(color.a, a);
 	}
 }

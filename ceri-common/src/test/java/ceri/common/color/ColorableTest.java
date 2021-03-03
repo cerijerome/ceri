@@ -1,7 +1,6 @@
 package ceri.common.color;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
 import java.awt.Color;
 import org.junit.Test;
 
@@ -10,7 +9,7 @@ public class ColorableTest {
 	@Test
 	public void testMultiSetColorForEmptyCollection() {
 		Colorable c = Colorable.multi();
-		c.color(Colors.chartreuse);
+		c.color(Colors.chartreuse.color());
 		c.color(Color.white);
 	}
 
@@ -20,16 +19,16 @@ public class ColorableTest {
 		TestColorable c1 = new TestColorable();
 		TestColorable c2 = new TestColorable();
 		Colorable c = Colorable.multi(c0, c1, c2);
-		c.color(Colors.chartreuse);
-		assertEquals(c0.color, Colors.chartreuse.color);
-		assertEquals(c1.color, Colors.chartreuse.color);
-		assertEquals(c2.color, Colors.chartreuse.color);
+		c.argb(Colors.chartreuse.argb);
+		assertEquals(c0.color(), Colors.chartreuse.color());
+		assertEquals(c1.color(), Colors.chartreuse.color());
+		assertEquals(c2.color(), Colors.chartreuse.color());
 	}
 
 	@Test
 	public void testMultiGetColorForEmptyCollection() {
 		Colorable c = Colorable.multi();
-		assertNull(c.color());
+		assertEquals(c.argb(), 0);
 	}
 
 	@Test
@@ -40,21 +39,21 @@ public class ColorableTest {
 		Colorable c = Colorable.multi(c0, c1, c2);
 		c0.color(Color.red);
 		c1.color(Color.cyan);
-		c2.color(Color.magenta.getRGB());
+		c2.argb(Color.magenta.getRGB());
 		assertEquals(c.color(), Color.red);
 	}
 
 	private static class TestColorable implements Colorable {
-		public Color color;
+		public int argb;
 
 		@Override
-		public Color color() {
-			return color;
+		public int argb() {
+			return argb;
 		}
 
 		@Override
-		public void color(int r, int g, int b) {
-			color = new Color(r, g, b);
+		public void argb(int argb) {
+			this.argb = argb;
 		}
 	}
 }

@@ -4,6 +4,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.EOFException;
@@ -24,6 +25,12 @@ public class ExceptionUtilTest {
 	@Test
 	public void testDoNotCall() {
 		assertThrown(() -> ExceptionUtil.doNotCall(1, "2"));
+	}
+
+	@Test
+	public void testExceptionf() {
+		var e = ExceptionUtil.exceptionf(IOException::new, "test%d", 123);
+		assertThrowable(e, IOException.class, "test123");
 	}
 
 	@Test
