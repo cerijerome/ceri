@@ -3,8 +3,10 @@ package ceri.common.color;
 import static ceri.common.color.ColorUtil.MAX_RATIO;
 import static ceri.common.color.ColorUtil.MAX_VALUE;
 import static ceri.common.color.ColorUtil.scaleValue;
+import static ceri.common.math.MathUtil.intRoundExact;
 import static ceri.common.math.MathUtil.limit;
 import static ceri.common.math.MathUtil.min;
+import static ceri.common.math.MathUtil.roundDiv;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.uint;
 import static java.util.stream.Collectors.toList;
@@ -30,6 +32,7 @@ public class ColorxUtil {
 	private static final int HEX_RGB_MAX_LEN = 6;
 	private static final int HEX = 16;
 	public static final int X_COUNT = 4; // maximum x values
+	private static final long VALUE_MASK = 0xffL;
 	private static final long X_MASK = 0xffffffff00000000L;
 	private static final long A_MASK = 0xff000000L;
 
@@ -41,7 +44,22 @@ public class ColorxUtil {
 	 * Replaces the alpha value for an xargb long.
 	 */
 	public static long alphaXargb(int a, long xargb) {
-		return xargb & X_MASK | ColorUtil.alphaArgb(a, (int) xargb);
+		return xargb & X_MASK | uint(ColorUtil.alphaArgb(a, argb(xargb)));
+	}
+
+	/**
+	 * Applies alpha component to create a scaled opaque xargb int.
+	 */
+	public static long applyAlphaXargb(long xargb) {
+		int a = a(xargb);
+		if (a == 0) return A_MASK;
+		if (a == MAX_VALUE) return xargb;
+		int argb = ColorUtil.argb(roundDiv(r(xargb) * a, MAX_VALUE),
+			roundDiv(g(xargb) * a, MAX_VALUE), roundDiv(b(xargb) * a, MAX_VALUE));
+		int[] xs = xs(xargb);
+		for (int i = 0; i < xs.length; i++)
+			xs[i] = roundDiv(xs[i] * a, MAX_VALUE);
+		return xargb(argb, xs);
 	}
 
 	/**
@@ -109,11 +127,20 @@ public class ColorxUtil {
 		int r = ColorUtil.r(argb);
 		int g = ColorUtil.g(argb);
 		int b = ColorUtil.b(argb);
-		double ratio = ColorUtil.ratio(MathUtil.max(r, g, b, MathUtil.max(xs)));
-		argb = ColorUtil.argb(a, divide(r, ratio), divide(g, ratio), divide(b, ratio));
+		int max = MathUtil.max(r, g, b, MathUtil.max(xs));
+		if (max == 0 || max == MAX_VALUE) return xargb(argb, xs);
+		argb = ColorUtil.argb(a, roundDiv(r * MAX_VALUE, max), roundDiv(g * MAX_VALUE, max),
+			roundDiv(b * MAX_VALUE, max));
 		for (int i = 0; i < xs.length; i++)
-			xs[i] = divide(xs[i], ratio);
+			xs[i] = roundDiv(xs[i] * MAX_VALUE, max);
 		return xargb(argb, xs);
+	}
+
+	/**
+	 * Creates an opaque xargb long with random components.
+	 */
+	public static long randomXargb() {
+		return randomXargb(X_COUNT);
 	}
 
 	/**
@@ -131,15 +158,15 @@ public class ColorxUtil {
 	/**
 	 * Provides a component-scaled xargb long from given xargb long. Alpha value is maintained.
 	 */
-	public static long dimArgbx(long xargb, double scale) {
+	public static long dimXargb(long xargb, double scale) {
 		if (scale == MAX_RATIO || xrgb(xargb) == 0L) return xargb;
-		return alphaXargb(a(xargb), scaleArgbx(0, xargb, scale));
+		return alphaXargb(a(xargb), scaleXargb(0, xargb, scale));
 	}
 
 	/**
 	 * Provides a component-scaled xargb long from min and max xargb long values.
 	 */
-	public static long scaleArgbx(long minXargb, long maxXargb, double ratio) {
+	public static long scaleXargb(long minXargb, long maxXargb, double ratio) {
 		if (ratio <= 0.0) return minXargb;
 		if (ratio >= 1.0) return maxXargb;
 		int a = scaleValue(a(minXargb), a(maxXargb), ratio);
@@ -159,6 +186,16 @@ public class ColorxUtil {
 	 */
 	public static Colorx alpha(int a, Colorx colorx) {
 		return Colorx.of(alphaXargb(a, colorx.xargb));
+	}
+
+	/**
+	 * Applies alpha component to create a scaled opaque colorx.
+	 */
+	public static Colorx applyAlpha(Colorx colorx) {
+		int a = colorx.a();
+		if (a == 0) return Colorx.black;
+		if (a == MAX_VALUE) return colorx;
+		return Colorx.of(applyAlphaXargb(colorx.xargb));
 	}
 
 	/**
@@ -189,6 +226,13 @@ public class ColorxUtil {
 	/**
 	 * Provides an opaque colorx with random components.
 	 */
+	public static Colorx random() {
+		return random(X_COUNT);
+	}
+
+	/**
+	 * Provides an opaque colorx with random components. nx specifies how many x values to generate.
+	 */
 	public static Colorx random(int nx) {
 		return Colorx.of(randomXargb(nx));
 	}
@@ -198,7 +242,7 @@ public class ColorxUtil {
 	 */
 	public static Colorx dim(Colorx colorx, double scale) {
 		if (scale == MAX_RATIO) return colorx;
-		return Colorx.of(dimArgbx(colorx.xargb, scale));
+		return Colorx.of(dimXargb(colorx.xargb, scale));
 	}
 
 	/**
@@ -207,7 +251,7 @@ public class ColorxUtil {
 	public static Colorx scale(Colorx min, Colorx max, double ratio) {
 		if (ratio <= 0.0) return min;
 		if (ratio >= MAX_RATIO) return max;
-		return Colorx.of(scaleArgbx(min.xargb, max.xargb, ratio));
+		return Colorx.of(scaleXargb(min.xargb, max.xargb, ratio));
 	}
 
 	/* component functions */
@@ -257,14 +301,14 @@ public class ColorxUtil {
 	/* string methods */
 
 	/**
-	 * Returns the hex string, with name if rgbx matches a named colorx.
+	 * Returns the hex string, with name if colorx matches a named colorx.
 	 */
 	public static String toString(Colorx color) {
 		return toString(color.xargb);
 	}
 
 	/**
-	 * Returns the hex string, with name if rgbx matches a named colorx.
+	 * Returns the hex string, with name if xargb matches a named colorx.
 	 */
 	public static String toString(long xargb) {
 		String name = name(xargb);
@@ -273,17 +317,17 @@ public class ColorxUtil {
 	}
 
 	/**
-	 * Looks up the colorx name, ignoring alpha. Returns null if no match.
+	 * Looks up the colorx name. Returns null if no match.
 	 */
 	public static String name(Colorx colorx) {
 		return name(colorx.xargb);
 	}
 
 	/**
-	 * Looks up the colorx name, ignoring alpha. Returns null if no match.
+	 * Looks up the colorx name. Returns null if no match.
 	 */
 	public static String name(long xargb) {
-		return colorxs.keys.get(xargb | A_MASK);
+		return colorxs.keys.get(xargb);
 	}
 
 	/**
@@ -297,8 +341,7 @@ public class ColorxUtil {
 	 * Creates a hex string from xargb long. Drops leading zero x values.
 	 */
 	public static String hex(long xargb) {
-		int digits = (xCount(xargb) + Integer.BYTES) << 1;
-		return "#" + StringUtil.toHex(xargb, digits);
+		return "#" + StringUtil.toHex(xargb, components(xargb) << 1);
 	}
 
 	/* stream methods */
@@ -351,7 +394,7 @@ public class ColorxUtil {
 	 * Create a stream of xargbs longs, with 0 x components, from argb ints.
 	 */
 	public static LongStream argbStream(int... argbs) {
-		return IntStream.of(argbs).mapToLong(argb -> argb);
+		return IntStream.of(argbs).mapToLong(MathUtil::uint);
 	}
 
 	/**
@@ -424,7 +467,7 @@ public class ColorxUtil {
 	 */
 	public static LongStream fadeStream(long minArgbx, long maxArgbx, int steps, Bias bias) {
 		return IntStream.rangeClosed(1, steps)
-			.mapToLong(i -> scaleArgbx(minArgbx, maxArgbx, bias.bias((double) i / steps)));
+			.mapToLong(i -> scaleXargb(minArgbx, maxArgbx, bias.bias((double) i / steps)));
 	}
 
 	/* adapter methods */
@@ -460,22 +503,14 @@ public class ColorxUtil {
 	 * Combine x-scaled rgb values with argb, scaling to fit within argb bounds.
 	 */
 	public static int normalizeArgb(long xargb, int... xrgbs) {
-		int r = r(xargb);
-		int g = g(xargb);
-		int b = b(xargb);
-		for (int i = 0; i < Math.min(X_COUNT, xrgbs.length); i++) {
-			double ratio = ColorUtil.ratio(x(xargb, i));
-			r += (ratio * r(xrgbs[i]));
-			g += (ratio * g(xrgbs[i]));
-			b += (ratio * b(xrgbs[i]));
-		}
-		int max = MathUtil.max(r, g, b, MAX_VALUE);
-		if (max > MAX_VALUE) {
-			r = (r * MAX_VALUE) / max;
-			g = (g * MAX_VALUE) / max;
-			b = (b * MAX_VALUE) / max;
-		}
-		return ColorUtil.argb(a(xargb), r, g, b);
+		if (xrgbs.length == 0) return (int) xargb;
+		int[] rgb = { r(xargb), g(xargb), b(xargb) };
+		for (int i = 0; i < Math.min(X_COUNT, xrgbs.length); i++)
+			normalize(rgb, xrgbs[i], x(xargb, i));
+		int max = MathUtil.max(rgb);
+		if (max <= MAX_VALUE) return ColorUtil.argb(a(xargb), rgb[0], rgb[1], rgb[2]);
+		return ColorUtil.argb(a(xargb), roundDiv(rgb[0] * MAX_VALUE, max),
+			roundDiv(rgb[1] * MAX_VALUE, max), roundDiv(rgb[2] * MAX_VALUE, max));
 	}
 
 	/**
@@ -510,19 +545,30 @@ public class ColorxUtil {
 		if (m == null) return null;
 		String prefix = m.group(1);
 		String hex = m.group(2);
-		long xargb = Long.valueOf(hex, HEX);
+		long xargb = Long.parseUnsignedLong(hex, HEX);
 		int len = hex.length();
 		if (len >= HEX_RGB_MAX_LEN) return xargb;
 		return uint(ColorUtil.hexArgb(prefix, len, (int) xargb));
 	}
 
 	private static int denormalize(int[] rgb, int r, int g, int b) {
-		double x = limit(min((double) rgb[0] / r, (double) rgb[1] / g, (double) rgb[2] / b), 0, 1);
+		double x = limit(min(ratio(rgb[0], r), ratio(rgb[1], g), ratio(rgb[2], b)), 0, 1);
 		if (x == 0) return 0;
-		rgb[0] -= (x * r);
-		rgb[1] -= (x * g);
-		rgb[2] -= (x * b);
+		rgb[0] -= intRoundExact(x * r);
+		rgb[1] -= intRoundExact(x * g);
+		rgb[2] -= intRoundExact(x * b);
 		return ColorUtil.value(x);
+	}
+
+	private static void normalize(int[] rgb, int xrgb, int x) {
+		rgb[0] += roundDiv(x * r(xrgb), MAX_VALUE);
+		rgb[1] += roundDiv(x * g(xrgb), MAX_VALUE);
+		rgb[2] += roundDiv(x * b(xrgb), MAX_VALUE);
+	}
+
+	private static double ratio(int c, int c0) {
+		if (c0 == 0) return MAX_RATIO;
+		return (double) c / c0;
 	}
 
 	private static int xCount(long xargb) {
@@ -532,20 +578,23 @@ public class ColorxUtil {
 	}
 
 	private static long xEncode(int x, int i) {
-		return ubyte(x) << xShift(i);
+		return (VALUE_MASK & x) << xShift(i);
 	}
 
 	private static int xShift(int i) {
-		return Integer.SIZE + (Byte.SIZE * i);
+		return Byte.SIZE * i + Integer.SIZE;
 	}
 
-	private static int divide(int x, double ratio) {
-		if (ratio == 0.0) return 0;
-		return (int) (x / ratio);
+	private static int components(long xargb) {
+		int nx = xCount(xargb);
+		if (nx > 0) return (nx + Integer.BYTES);
+		return (xargb & A_MASK) == A_MASK ? Integer.BYTES - 1 : Integer.BYTES;
+
 	}
 
 	private static BiMap<Long, String> colorxs() {
 		return BiMap.<Long, String>builder() //
+			.put(Colorx.clear.xargb, "clear") //
 			.put(Colorx.black.xargb, "black") //
 			.put(Colorx.fullX0.xargb, "fullX0") //
 			.put(Colorx.fullX01.xargb, "fullX01") //

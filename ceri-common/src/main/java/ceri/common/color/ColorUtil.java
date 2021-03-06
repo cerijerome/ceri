@@ -1,6 +1,8 @@
 package ceri.common.color;
 
 import static ceri.common.math.Bound.Type.inclusive;
+import static ceri.common.math.MathUtil.intRoundExact;
+import static ceri.common.math.MathUtil.roundDiv;
 import static ceri.common.math.MathUtil.ubyte;
 import static java.lang.Math.round;
 import static java.util.stream.Collectors.toList;
@@ -25,20 +27,20 @@ public class ColorUtil {
 	public static final Color clear = color(0);
 	private static final BiMap<Integer, String> colors = colors();
 	private static final int HEX = 16;
-	private static final int HEX3_LEN = 3;
 	private static final int HEX_RGB_MAX_LEN = 6;
 	private static final int HEX_ARGB_MAX_LEN = 8;
-	private static final int A_SHIFT = Byte.SIZE * 3;
-	private static final int R_SHIFT = Byte.SIZE * 2;
-	private static final int G_SHIFT = Byte.SIZE * 1;
-	private static final double HALF = 0.5;
-	public static final double MAX_RATIO = 1.0;
-	public static final int A_MASK = 0xff000000;
-	public static final int RGB_MASK = 0xffffff;
-	public static final int MAX_VALUE = 0xff;
+	private static final int HEX3_LEN = 3;
 	private static final int HEX3_MASK = 0xf;
 	private static final int HEX3_R_SHIFT = 8;
 	private static final int HEX3_G_SHIFT = 4;
+	private static final double HALF = 0.5;
+	public static final double MAX_RATIO = 1.0;
+	private static final int A_SHIFT = Byte.SIZE * 3;
+	private static final int R_SHIFT = Byte.SIZE * 2;
+	private static final int G_SHIFT = Byte.SIZE * 1;
+	private static final int A_MASK = 0xff000000;
+	private static final int RGB_MASK = 0xffffff;
+	public static final int MAX_VALUE = 0xff;
 
 	private ColorUtil() {}
 
@@ -54,11 +56,12 @@ public class ColorUtil {
 	/**
 	 * Applies alpha component to create a scaled opaque argb int.
 	 */
-	public static int applyAlpha(int argb) {
-		double r = ratio(a(argb));
-		if (r == 0) return A_MASK;
-		if (r == 1) return argb;
-		return argb((int) (.5 + r(argb) * r), (int) (.5 + g(argb) * r), (int) (.5 + b(argb) * r));
+	public static int applyAlphaArgb(int argb) {
+		int a = a(argb);
+		if (a == 0) return A_MASK;
+		if (a == MAX_VALUE) return argb;
+		return argb(roundDiv(r(argb) * a, MAX_VALUE), roundDiv(g(argb) * a, MAX_VALUE),
+			roundDiv(b(argb) * a, MAX_VALUE));
 	}
 
 	/**
@@ -79,7 +82,7 @@ public class ColorUtil {
 	 * Constructs an opaque argb int from rgb int.
 	 */
 	public static int argb(int rgb) {
-		return alphaArgb(MAX_VALUE, rgb);
+		return rgb | A_MASK;
 	}
 
 	/**
@@ -133,8 +136,10 @@ public class ColorUtil {
 	 * Creates an argb int with maximum color components in the same ratio.
 	 */
 	public static int maxArgb(int a, int r, int g, int b) {
-		double ratio = ratio(MathUtil.max(r, g, b));
-		return argb(a, divide(r, ratio), divide(g, ratio), divide(b, ratio));
+		int max = MathUtil.max(r, g, b);
+		if (max == 0 || max == MAX_VALUE) return argb(a, r, g, b);
+		return argb(a, roundDiv(r * MAX_VALUE, max), roundDiv(g * MAX_VALUE, max),
+			roundDiv(b * MAX_VALUE, max));
 	}
 
 	/**
@@ -183,6 +188,16 @@ public class ColorUtil {
 	 */
 	public static Color alpha(int a, Color color) {
 		return color(alphaArgb(a, color.getRGB()));
+	}
+
+	/**
+	 * Applies alpha component to create a scaled opaque color.
+	 */
+	public static Color applyAlpha(Color color) {
+		int a = color.getAlpha();
+		if (a == 0) return Color.black;
+		if (a == MAX_VALUE) return color;
+		return new Color(applyAlphaArgb(color.getRGB()));
 	}
 
 	/**
@@ -380,7 +395,7 @@ public class ColorUtil {
 	public static int scaleValue(int min, int max, double ratio) {
 		if (ratio <= 0.0) return min;
 		if (ratio >= MAX_RATIO) return max;
-		return min + (int) Math.round(ratio * (max - min));
+		return min + intRoundExact(ratio * (max - min));
 	}
 
 	/**
@@ -421,10 +436,9 @@ public class ColorUtil {
 	 * Looks up the Colors preset name for given argb int, ignoring alpha. Returns null if no match.
 	 */
 	public static String name(int argb) {
-		Colors preset = Colors.from(argb);
-		if (preset != null) return preset.name();
-		Colors x11 = Colors.from(argb);
-		return x11 == null ? null : x11.name();
+		String name = colors.keys.get(argb);
+		if (name == null) name = Colors.name(argb);
+		return name;
 	}
 
 	/**
@@ -582,14 +596,9 @@ public class ColorUtil {
 		if (m == null) return null;
 		String prefix = m.group(1);
 		String hex = m.group(2);
-		int argb = Integer.valueOf(hex, HEX);
+		int argb = Integer.parseUnsignedInt(hex, HEX);
 		int len = hex.length();
 		return hexArgb(prefix, len, argb);
-	}
-
-	private static int divide(int component, double ratio) {
-		if (ratio == 0.0) return 0;
-		return (int) (component / ratio);
 	}
 
 	private static HsbColor scaleNormHsb(HsbColor minHsb, HsbColor maxHsb, double ratio) {
@@ -603,9 +612,9 @@ public class ColorUtil {
 	}
 
 	private static Integer namedArgb(String name) {
-		Colors preset = Colors.from(name);
-		if (preset != null) return preset.argb;
-		return colors.values.get(name);
+		Integer argb = colors.values.get(name);
+		if (argb == null) argb = Colors.argb(name);
+		return argb;
 	}
 
 	static int hexArgb(String prefix, int len, int argb) {

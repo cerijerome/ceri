@@ -1,7 +1,7 @@
 package ceri.common.test;
 
 import static ceri.common.function.FunctionUtil.lambdaName;
-import static org.hamcrest.CoreMatchers.not;
+import static ceri.common.reflect.ReflectUtil.hashId;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
@@ -18,14 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import org.hamcrest.Matcher;
-import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteArray;
@@ -68,7 +66,7 @@ public class AssertUtil {
 	}
 
 	public static void fail() {
-		throw new AssertionError();
+		throw new AssertionError("Failed");
 	}
 
 	public static void fail(String format, Object... args) {
@@ -76,67 +74,94 @@ public class AssertUtil {
 	}
 
 	public static AssertionError failure(String format, Object... args) {
-		return new AssertionError(String.format(format, args));
+		return new AssertionError(StringUtil.format(format, args));
 	}
 
 	public static void assertFalse(boolean condition) {
 		assertFalse(condition, null);
 	}
 
-	public static void assertFalse(boolean condition, String message) {
-		Assert.assertFalse(message, condition);
+	public static void assertFalse(boolean condition, String format, Object... args) {
+		if (!condition) return;
+		String message = StringUtil.format(format, args);
+		throw failure(message.isEmpty() ? "Expected false" : message);
 	}
 
 	public static void assertTrue(boolean condition) {
 		assertTrue(condition, null);
 	}
 
-	public static void assertTrue(boolean condition, String message) {
-		Assert.assertTrue(message, condition);
+	public static void assertTrue(boolean condition, String format, Object... args) {
+		if (condition) return;
+		String message = StringUtil.format(format, args);
+		throw failure(message.isEmpty() ? "Expected true" : message);
 	}
 
 	public static <T> void assertSame(T actual, T expected) {
-		Assert.assertSame(expected, actual);
+		assertSame(actual, expected, null);
+	}
+
+	public static <T> void assertSame(T actual, T expected, String format, Object... args) {
+		if (expected == actual) return;
+		throw failure("%sExpected same: %s (%s)\n       actual: %s (%s)", nl(format, args),
+			expected, hashId(expected), actual, hashId(actual));
 	}
 
 	public static <T> void assertNotSame(T actual, T unexpected) {
-		Assert.assertNotSame(unexpected, actual);
+		assertNotSame(actual, unexpected, null);
+	}
+
+	public static <T> void assertNotSame(T actual, T unexpected, String format, Object... args) {
+		if (unexpected != actual) return;
+		throw failure("%sValues are the same: %s (%s)", nl(format, args), actual, hashId(actual));
 	}
 
 	public static <T> void assertNull(T actual) {
-		Assert.assertNull(actual);
+		assertNull(actual, null);
+	}
+
+	public static <T> void assertNull(T actual, String format, Object... args) {
+		if (actual != null) throw failure("%sExpected null: %s", nl(format, args), actual);
 	}
 
 	public static <T> void assertNotNull(T actual) {
-		Assert.assertNotNull(actual);
+		assertNotNull(actual, null);
 	}
 
-	public static <T> void assertThat(T actual, Matcher<? super T> matcher) {
-		assertThat(actual, matcher, "");
-	}
-
-	public static <T> void assertThat(T actual, Matcher<? super T> matcher, String reason) {
-		MatcherAssert.assertThat(reason, actual, matcher);
+	public static <T> void assertNotNull(T actual, String format, Object... args) {
+		if (actual != null) return;
+		String message = StringUtil.format(format, args);
+		throw failure(message.isEmpty() ? "Value is null" : message);
 	}
 
 	public static <T> void assertEquals(T actual, T expected) {
 		assertEquals(actual, expected, null);
 	}
 
-	public static <T> void assertEquals(T actual, T expected, String message) {
-		Assert.assertEquals(message, expected, actual);
+	public static <T> void assertEquals(T actual, T expected, String format, Object... args) {
+		if (Objects.equals(expected, actual)) return;
+		throw failure("%sExpected: %s\n  actual: %s", nl(format, args), str(expected), str(actual));
 	}
 
 	public static void assertEquals(double actual, double expected, double diff) {
-		Assert.assertEquals(expected, actual, diff);
+		assertEquals(actual, expected, diff, null);
+	}
+
+	public static void assertEquals(double actual, double expected, double diff, String format,
+		Object... args) {
+		if (Double.compare(expected, actual) == 0) return;
+		if ((Math.abs(expected - actual) <= diff)) return;
+		throw failure("%sExpected: %s (±%s)\n  actual: %s", nl(format, args), expected, diff,
+			actual);
 	}
 
 	public static <T> void assertNotEquals(T actual, T expected) {
 		assertNotEquals(actual, expected, null);
 	}
 
-	public static <T> void assertNotEquals(T actual, T unexpected, String message) {
-		Assert.assertNotEquals(message, unexpected, actual);
+	public static <T> void assertNotEquals(T actual, T unexpected, String format, Object... args) {
+		if (!Objects.equals(unexpected, actual)) return;
+		throw failure("%sUnexpected: %s", nl(format, args), str(actual));
 	}
 
 	/**
@@ -145,8 +170,8 @@ public class AssertUtil {
 	public static void assertPrivateConstructor(Class<?> cls) {
 		try {
 			Constructor<?> constructor = cls.getDeclaredConstructor();
-			assertEquals(Modifier.isPrivate(constructor.getModifiers()), true,
-				"Constructor is not private");
+			assertTrue(Modifier.isPrivate(constructor.getModifiers()),
+				"Constructor is not private: %s()", cls.getSimpleName());
 			constructor.setAccessible(true);
 			constructor.newInstance();
 			constructor.setAccessible(false);
@@ -164,6 +189,7 @@ public class AssertUtil {
 			runnable.run();
 		} catch (Exception e) {
 			// Failure
+			throw new AssertionError("Expected to assert", e);
 		} catch (AssertionError e) {
 			// Success
 			return;
@@ -192,7 +218,7 @@ public class AssertUtil {
 	 * Checks a double value is NaN.
 	 */
 	public static void assertNaN(double value) {
-		assertEquals(Double.isNaN(value), true, "Expected NaN: " + value);
+		assertTrue(Double.isNaN(value), "Expected NaN: %s", value);
 	}
 
 	/**
@@ -233,30 +259,20 @@ public class AssertUtil {
 	 * Checks a value is within given range, with detailed failure information if not.
 	 */
 	public static void assertRange(long value, long minInclusive, long maxInclusive) {
-		assertEquals(value >= minInclusive, true,
-			"Expected >= " + minInclusive + " but was " + value);
-		assertEquals(value <= maxInclusive, true,
-			"Expected <= " + maxInclusive + " but was " + value);
+		if (value < minInclusive)
+			throw failure("Expected: >= %s\n  actual:    %s", str(minInclusive), str(value));
+		if (value > maxInclusive)
+			throw failure("Expected: <= %s\n  actual:    %s", str(maxInclusive), str(value));
 	}
 
 	/**
 	 * Checks a value is within given range, with detailed failure information if not.
 	 */
 	public static void assertRange(double value, double minInclusive, double maxExclusive) {
-		assertEquals(value >= minInclusive, true,
-			"Expected >= " + minInclusive + " but was " + value);
-		assertEquals(value < maxExclusive, true,
-			"Expected < " + maxExclusive + " but was " + value);
-	}
-
-	/**
-	 * Checks two arrays are equal, with specific failure information if not.
-	 */
-	private static void assertArrayObject(Object lhs, Object rhs) {
-		assertIsArray(lhs);
-		assertIsArray(rhs);
-		assertSize("Array size", Array.getLength(lhs), Array.getLength(rhs));
-		assertArrayObject(lhs, 0, rhs, 0, Array.getLength(lhs));
+		if (value < minInclusive)
+			throw failure("Expected: >= %s\n  actual:    %s", minInclusive, value);
+		if (value >= maxExclusive)
+			throw failure("Expected: < %s\n  actual:   %s", maxExclusive, value);
 	}
 
 	/**
@@ -400,25 +416,6 @@ public class AssertUtil {
 		}
 	}
 
-	private static <T> void assertIndex(int i, T lhs, boolean hasLhs, T rhs, boolean hasRhs) {
-		if (!hasLhs && !hasRhs) throw failure("Nothing at index %d", i);
-		if (!hasLhs) throw failure("Nothing at index %d, expected %s", i, toString(rhs));
-		if (!hasRhs) throw failure("Unexpected item at index %d: %s", i, toString(lhs));
-		if (!Objects.deepEquals(lhs, rhs)) throw failExpected(lhs, rhs, "Index %d", i);
-	}
-
-	private static <T> AssertionError failExpected(T actual, T expected, String format,
-		Object... args) {
-		String msg = StringUtil.format(format, args) + '\n';
-		return failure("%sExpected: %s\n  actual: %s", msg, toString(expected), toString(actual));
-	}
-
-	private static <T> String toString(T t) {
-		if (ReflectUtil.instanceOfAny(t, Byte.class, Short.class, Integer.class, Long.class))
-			return String.format("%1$d (0x%1$02x)", t);
-		return String.valueOf(t);
-	}
-
 	/**
 	 * Checks collection contains exactly given elements in any order, with specific failure
 	 * information if not.
@@ -539,12 +536,12 @@ public class AssertUtil {
 		Collection<? extends T> rhs) {
 		int i = 0;
 		for (T t : lhs) {
-			assertEquals(rhs.contains(t), true, "Unexpected element at position " + i + ": " + t);
+			if (!rhs.contains(t)) throw failure("Unexpected element at position %d: %s", i, str(t));
 			i++;
 		}
 		for (T t : rhs)
-			assertEquals(lhs.contains(t), true, "Missing element: " + t);
-		assertEquals(lhs.size(), rhs.size(), "Collection size");
+			if (!lhs.contains(t)) throw failure("Missing element: %s", str(t));
+		assertEquals(lhs.size(), rhs.size(), "Invalid collection size");
 	}
 
 	/**
@@ -567,15 +564,6 @@ public class AssertUtil {
 		for (T t : rhs)
 			rhsC.add(t);
 		assertList(lhsC, rhsC);
-	}
-
-	private static void assertSize(String message, long lhsSize, long rhsSize) {
-		assertEquals(lhsSize, rhsSize, message);
-	}
-
-	private static void assertIsArray(Object array) {
-		assertEquals(array.getClass().isArray(), true,
-			"Expected an array but was " + array.getClass());
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject) {
@@ -716,57 +704,98 @@ public class AssertUtil {
 	/**
 	 * Checks regex not found against the string.
 	 */
-	public static void assertNotFound(CharSequence actual, String pattern, Object... objs) {
+	public static void assertNotFound(Object actual, String pattern, Object... objs) {
 		assertNotFound(actual, RegexUtil.compile(pattern, objs));
 	}
 
 	/**
 	 * Checks regex not found against the string.
 	 */
-	public static void assertNotFound(CharSequence actual, Pattern pattern) {
-		assertThat(String.valueOf(actual), not(RegexMatcher.find(pattern)));
+	public static void assertNotFound(Object actual, Pattern pattern) {
+		assertNotFound(actual, pattern, null);
+	}
+
+	/**
+	 * Checks regex not found against the string.
+	 */
+	public static void assertNotFound(Object actual, Pattern pattern, String format,
+		Object... args) {
+		String s = String.valueOf(actual);
+		Matcher m = pattern.matcher(s);
+		if (!m.find()) return;
+		throw failure("%sFound by regex \"%s\"\nString: %s (%s)", nl(format, args),
+			pattern.pattern(), s, m.group());
 	}
 
 	/**
 	 * Checks regex find against the string.
 	 */
-	public static void assertFind(CharSequence actual, String pattern, Object... objs) {
+	public static void assertFind(Object actual, String pattern, Object... objs) {
 		assertFind(actual, RegexUtil.compile(pattern, objs));
 	}
 
 	/**
 	 * Checks regex find against the string.
 	 */
-	public static void assertFind(CharSequence actual, Pattern pattern) {
-		assertThat(String.valueOf(actual), RegexMatcher.find(pattern));
+	public static void assertFind(Object actual, Pattern pattern) {
+		assertFind(actual, pattern, null);
 	}
 
 	/**
-	 * Checks regex match against the string.
+	 * Checks regex find against the string.
 	 */
-	public static void assertMatch(CharSequence actual, String pattern, Object... objs) {
-		assertMatch(actual, RegexUtil.compile(pattern, objs));
-	}
-
-	/**
-	 * Checks regex match against the string.
-	 */
-	public static void assertMatch(CharSequence actual, Pattern pattern) {
-		assertThat(String.valueOf(actual), RegexMatcher.match(pattern));
+	public static void assertFind(Object actual, Pattern pattern, String format, Object... args) {
+		if (pattern.matcher(String.valueOf(actual)).find()) return;
+		throw failure("%sNot found by regex \"%s\"\nString: %s", nl(format, args),
+			pattern.pattern(), actual);
 	}
 
 	/**
 	 * Checks regex does not match against the string.
 	 */
-	public static void assertNoMatch(CharSequence actual, String pattern, Object... objs) {
+	public static void assertNoMatch(Object actual, String pattern, Object... objs) {
 		assertNoMatch(actual, RegexUtil.compile(pattern, objs));
 	}
 
 	/**
 	 * Checks regex does not match against the string.
 	 */
-	public static void assertNoMatch(CharSequence actual, Pattern pattern) {
-		assertThat(String.valueOf(actual), not(RegexMatcher.match(pattern)));
+	public static void assertNoMatch(Object actual, Pattern pattern) {
+		assertNoMatch(actual, pattern, null);
+	}
+
+	/**
+	 * Checks regex does not match against the string.
+	 */
+	public static void assertNoMatch(Object actual, Pattern pattern, String format,
+		Object... args) {
+		String s = String.valueOf(actual);
+		Matcher m = pattern.matcher(s);
+		if (!m.matches()) return;
+		throw failure("%sRegex match \"%s\"\nString: %s", nl(format, args), pattern.pattern(), s);
+	}
+
+	/**
+	 * Checks regex match against the string.
+	 */
+	public static void assertMatch(Object actual, String pattern, Object... objs) {
+		assertMatch(actual, RegexUtil.compile(pattern, objs));
+	}
+
+	/**
+	 * Checks regex match against the string.
+	 */
+	public static void assertMatch(Object actual, Pattern pattern) {
+		assertMatch(actual, pattern, null);
+	}
+
+	/**
+	 * Checks regex match against the string.
+	 */
+	public static void assertMatch(Object actual, Pattern pattern, String format, Object... args) {
+		if (pattern.matcher(String.valueOf(actual)).matches()) return;
+		throw failure("%sDoes not match regex \"%s\"\nString: %s", nl(format, args),
+			pattern.pattern(), actual);
 	}
 
 	/**
@@ -802,14 +831,16 @@ public class AssertUtil {
 	 * Check if file exists.
 	 */
 	public static void assertExists(Path path, boolean exists) {
-		assertEquals(Files.exists(path), exists, "Path exists: " + path);
+		if (Files.exists(path) == exists) return;
+		throw failure(exists ? "Path does not exist: %s" : "Path exists: %s", path);
 	}
 
 	/**
 	 * Check if file exists.
 	 */
 	public static void assertDir(Path path, boolean isDir) {
-		assertEquals(Files.isDirectory(path), isDir, "Path is a directory: " + path);
+		if (Files.isDirectory(path) == isDir) return;
+		throw failure(isDir ? "Path is not a directory: %s" : "Path is a directory: %s", path);
 	}
 
 	/**
@@ -822,9 +853,8 @@ public class AssertUtil {
 		for (Path path : lhsPathsRelative) {
 			Path lhsFile = lhsDir.resolve(path);
 			Path rhsFile = rhsDir.resolve(path);
-			boolean lhsIsDir = Files.isDirectory(lhsFile);
 			boolean rhsIsDir = Files.isDirectory(rhsFile);
-			assertEquals(lhsIsDir, rhsIsDir, lhsFile + " is directory");
+			assertDir(lhsFile, rhsIsDir);
 			if (!rhsIsDir) assertFile(lhsFile, rhsFile);
 		}
 	}
@@ -833,9 +863,9 @@ public class AssertUtil {
 	 * Checks contents of two files are equal, with specific failure information if not.
 	 */
 	public static void assertFile(Path actual, Path expected) throws IOException {
-		assertEquals(Files.size(actual), Files.size(expected), "File size");
+		assertEquals(Files.size(actual), Files.size(expected), "Invalid file size");
 		long pos = Files.mismatch(actual, expected);
-		if (pos >= 0) throw failure("Byte mismatch at index %d", pos);
+		if (pos >= 0) throw failure("File byte mismatch at index %d", pos);
 	}
 
 	/**
@@ -856,11 +886,11 @@ public class AssertUtil {
 	 * Checks contents of the files matches bytes, with specific failure information if not.
 	 */
 	public static void assertFile(Path actual, ByteProvider byteProvider) throws IOException {
-		assertEquals(Files.size(actual), (long) byteProvider.length(), "File size");
+		assertEquals(Files.size(actual), (long) byteProvider.length(), "Invalid file size");
 		byte[] actualBytes = Files.readAllBytes(actual);
 		for (int i = 0; i < actualBytes.length; i++)
 			if (actualBytes[i] != byteProvider.getByte(i))
-				throw failure("Byte mismatch at index %d", i);
+				throw failure("File byte mismatch at index %d", i);
 	}
 
 	/**
@@ -876,7 +906,7 @@ public class AssertUtil {
 	 */
 	public static void assertPaths(Collection<Path> actual, String... paths) {
 		if (actual.isEmpty()) {
-			assertEquals(paths.length, 0, "Path count");
+			assertEquals(paths.length, 0, "Invalid path count");
 			return;
 		}
 		@SuppressWarnings("resource")
@@ -896,6 +926,43 @@ public class AssertUtil {
 
 	private static Predicate<String> equalsPredicate(String s) {
 		return FunctionUtil.named(Predicate.isEqual(s), "\"" + s + "\"");
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	private static void assertArrayObject(Object lhs, Object rhs) {
+		assertIsArray(lhs);
+		assertIsArray(rhs);
+		assertSize("Invalid array size", Array.getLength(lhs), Array.getLength(rhs));
+		assertArrayObject(lhs, 0, rhs, 0, Array.getLength(lhs));
+	}
+
+	private static void assertSize(String message, long lhsSize, long rhsSize) {
+		assertEquals(lhsSize, rhsSize, message);
+	}
+
+	private static void assertIsArray(Object array) {
+		assertTrue(array.getClass().isArray(), "Expected an array: %s", array.getClass());
+	}
+
+	private static <T> void assertIndex(int i, T lhs, boolean hasLhs, T rhs, boolean hasRhs) {
+		if (!hasLhs && !hasRhs) throw failure("No value at index %d", i);
+		if (!hasLhs) throw failure("No value at index %d, expected: %s", i, str(rhs));
+		if (!hasRhs) throw failure("Unexpected value at index %d: %s", i, str(lhs));
+		if (!Objects.deepEquals(lhs, rhs))
+			throw failure("Index %d\nExpected: %s\n  actual: %s", i, str(lhs), str(rhs));
+	}
+
+	private static String nl(String format, Object... args) {
+		String s = StringUtil.format(format, args);
+		return s.isEmpty() ? "" : s + '\n';
+	}
+
+	private static String str(Object obj) {
+		if (ReflectUtil.instanceOfAny(obj, Byte.class, Short.class, Integer.class, Long.class))
+			return String.format("%1$d (0x%1$02x)", obj);
+		return String.valueOf(obj);
 	}
 
 }

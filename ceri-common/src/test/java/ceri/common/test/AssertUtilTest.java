@@ -16,21 +16,30 @@ import static ceri.common.test.AssertUtil.assertAssertion;
 import static ceri.common.test.AssertUtil.assertByte;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertDir;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertExists;
+import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFile;
+import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertList;
 import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNaN;
+import static ceri.common.test.AssertUtil.assertNoMatch;
+import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertNotFound;
+import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNotSame;
+import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertRange;
 import static ceri.common.test.AssertUtil.assertRead;
+import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertShort;
 import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.assertValue;
 import static ceri.common.test.AssertUtil.fail;
 import java.io.ByteArrayInputStream;
@@ -66,6 +75,29 @@ public class AssertUtilTest {
 	}
 
 	@Test
+	public void testAssertFalse() {
+		assertFalse(false);
+		assertAssertion(() -> assertFalse(true));
+		assertAssertion(() -> assertFalse(true, "False"));
+	}
+
+	@Test
+	public void testAssertTrue() {
+		assertTrue(true);
+		assertAssertion(() -> assertTrue(false));
+		assertAssertion(() -> assertTrue(false, "True"));
+	}
+
+	@Test
+	public void testAssertSame() {
+		Integer i0 = Integer.valueOf(12345678);
+		Integer i1 = Integer.valueOf(12345678);
+		assertSame(i0, i0);
+		assertSame(i1, i1);
+		assertAssertion(() -> assertSame(i0, i1));
+	}
+
+	@Test
 	public void testFail() {
 		assertAssertion(() -> fail());
 		assertAssertion(() -> fail("Test"));
@@ -76,6 +108,35 @@ public class AssertUtilTest {
 		Object obj = new Object();
 		assertNotSame(obj, new Object());
 		assertAssertion(() -> assertNotSame(obj, obj));
+	}
+
+	@Test
+	public void testAssertNull() {
+		assertNull(null);
+		assertAssertion(() -> assertNull("test"));
+		assertAssertion(() -> assertNull("test", "message"));
+	}
+
+	@Test
+	public void testAssertNotNull() {
+		assertNotNull("");
+		assertAssertion(() -> assertNotNull(null));
+		assertAssertion(() -> assertNotNull(null, "message"));
+	}
+
+	@Test
+	public void testAssertDoubleEquals() {
+		assertEquals(0.001, 0.001, 0.001);
+		assertEquals(0.001, 0.002, 0.001);
+		assertAssertion(() -> assertEquals(0.001, 0.002, 0.0001));
+		assertAssertion(() -> assertEquals(0.001, 0.002, 0.0001, "message"));
+	}
+
+	@Test
+	public void testAssertNotEquals() {
+		assertNotEquals("test0", "test1");
+		assertAssertion(() -> assertNotEquals("test", "test"));
+		assertAssertion(() -> assertNotEquals("test", "test", "message"));
 	}
 
 	@Test
@@ -125,9 +186,13 @@ public class AssertUtilTest {
 			assertExists(helper.root, true);
 			assertExists(helper.path("b"), true);
 			assertExists(helper.path("c"), false);
+			assertAssertion(() -> assertExists(helper.path("b"), false));
+			assertAssertion(() -> assertExists(helper.path("c"), true));
 			assertDir(helper.root, true);
 			assertDir(helper.path("b"), false);
 			assertDir(helper.path("c"), false);
+			assertAssertion(() -> assertDir(helper.root, false));
+			assertAssertion(() -> assertDir(helper.path("c"), true));
 		}
 	}
 
@@ -283,6 +348,7 @@ public class AssertUtilTest {
 		List<Integer> list = ArrayUtil.intList(5, 1, 4, 2, 3);
 		assertCollection(list, 1, 2, 3, 4, 5);
 		assertAssertion(() -> assertCollection(list, 1, 2, 4, 5));
+		assertAssertion(() -> assertCollection(list, 1, 2, 3, 4, 5, 6));
 		assertCollection(booleans(true, false), false, true);
 		assertAssertion(() -> assertCollection(booleans(true, false), false, false));
 		assertCollection(chars('a', 'b'), 'b', 'a');
@@ -318,6 +384,24 @@ public class AssertUtilTest {
 	public void testThrowIt() {
 		assertThrown(() -> AssertUtil.throwIt());
 		assertThrown(IOException.class, () -> AssertUtil.throwIt(new IOException("test")));
+	}
+
+	@Test
+	public void testAssertFind() {
+		Pattern p = Pattern.compile("[a-z]+");
+		assertFind("123abc456", p);
+		assertFind("123test456", "%1$s..%1$s", "t");
+		assertAssertion(() -> assertFind("test", "%1$s..%1$s", "T"));
+		assertAssertion(() -> assertFind("123456", p, "message"));
+	}
+
+	@Test
+	public void testAssertNoMatch() {
+		Pattern p = Pattern.compile("[a-z]+");
+		assertNoMatch("123", p);
+		assertNoMatch("123", "%1$s..%1$s", "\\d");
+		assertAssertion(() -> assertNoMatch("test", "%1$s..%1$s", "t"));
+		assertAssertion(() -> assertNoMatch("test", p, "message"));
 	}
 
 	@Test

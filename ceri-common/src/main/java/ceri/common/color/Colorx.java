@@ -12,7 +12,7 @@ import java.util.Objects;
  */
 public class Colorx {
 	public static final Colorx clear = of(0L);
-	public static final Colorx black = of(0xff000000);
+	public static final Colorx black = of(0xff000000L);
 	public static final Colorx fullX0 = of(0xffffffffffL); // ma rgb, x0
 	public static final Colorx fullX01 = of(0xffffffffffffL); // max rgb, x0, x1
 	public static final Colorx fullX012 = of(0xffffffffffffffL); // max rgb, x0, x1, x2

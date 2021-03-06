@@ -125,12 +125,7 @@ public class ReflectUtilTest {
 	@Test
 	public void testHashId() {
 		assertNull(ReflectUtil.hashId(null));
-		assertEquals(ReflectUtil.hashId(new Object() {
-			@Override
-			public int hashCode() {
-				return 0xabcdef;
-			}
-		}), "@abcdef");
+		assertMatch(ReflectUtil.hashId(new Object()), "@[0-9a-fA-F]+");
 	}
 
 	@Test(expected = CreateException.class)

@@ -62,7 +62,7 @@ public class ReflectUtil {
 	 */
 	public static String hashId(Object obj) {
 		if (obj == null) return null;
-		return String.format("@%x", obj.hashCode());
+		return String.format("@%x", System.identityHashCode(obj));
 	}
 
 	/**

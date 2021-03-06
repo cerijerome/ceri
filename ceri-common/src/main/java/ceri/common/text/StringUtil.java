@@ -90,6 +90,7 @@ public class StringUtil {
 	 * Optimized String.format.
 	 */
 	public static String format(String format, Object... objs) {
+		if (format == null) return "";
 		if (objs.length == 0) return format;
 		return String.format(format, objs);
 	}

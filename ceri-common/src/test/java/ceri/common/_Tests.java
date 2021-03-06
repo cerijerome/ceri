@@ -27,8 +27,10 @@ import ceri.common.test.TestUtil;
 	// color
 	ceri.common.color.BiasTest.class, //
 	ceri.common.color.ColorComparatorsTest.class, //
+	ceri.common.color.ColorUtilTest.class, //
 	ceri.common.color.ColorableTest.class, //
 	ceri.common.color.ColorsTest.class, //
+	ceri.common.color.ColorxUtilTest.class, //
 	ceri.common.color.GrayCharBehavior.class, //
 	// comparator
 	ceri.common.comparator.ComparatorSequenceBehavior.class, //
@@ -229,8 +231,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.ErrorGenBehavior.class, //
 	ceri.common.test.FileTestHelperBehavior.class, //
 	ceri.common.test.PulsePrinterBehavior.class, //
-	ceri.common.test.RegexFinderBehavior.class, //
-	ceri.common.test.RegexMatcherBehavior.class, //
 	ceri.common.test.TestConnectorBehavior.class, //
 	ceri.common.test.TestExecutorServiceBehavior.class, //
 	ceri.common.test.TestFutureBehavior.class, //
