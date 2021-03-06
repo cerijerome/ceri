@@ -1,5 +1,6 @@
 package ceri.common.color;
 
+import static ceri.common.color.ColorUtil.color;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
@@ -7,6 +8,18 @@ import java.awt.Color;
 import org.junit.Test;
 
 public class ColorsTest {
+
+	@Test
+	public void testColor() {
+		assertEquals(Colors.color("test"), null);
+		assertEquals(Colors.color("aquamarine"), Colors.aquamarine.color());
+	}
+
+	@Test
+	public void testName() {
+		assertEquals(Colors.name(color(0x123456)), null);
+		assertEquals(Colors.name(Colors.aquamarine.color()), "aquamarine");
+	}
 
 	@Test
 	public void testFromName() {

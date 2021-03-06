@@ -25,18 +25,18 @@ public class ColorTestUtil {
 	}
 
 	public static void assertRgb(RgbColor color, double r, double g, double b) {
-		assertRgb(color, r, g, b, 1.0);
+		assertRgb(color, 1.0, r, g, b);
 	}
 
-	public static void assertRgb(RgbColor color, double r, double g, double b, double a) {
-		assertApprox(color.r, r);
-		assertApprox(color.g, g);
-		assertApprox(color.b, b);
-		assertApprox(color.a, a);
+	public static void assertRgb(RgbColor color, double a, double r, double g, double b) {
+		assertApprox(color.a, a, "a");
+		assertApprox(color.r, r, "r");
+		assertApprox(color.g, g, "g");
+		assertApprox(color.b, b, "b");
 	}
 
 	public static void assertHsb(Color color, double h, double s, double b) {
-		assertHsb(color, h, s, b, 1.0);
+		assertHsb(color, 1.0, h, s, b);
 	}
 
 	public static void assertHsb(Color color, double a, double h, double s, double b) {
@@ -48,10 +48,10 @@ public class ColorTestUtil {
 	}
 
 	public static void assertHsb(HsbColor color, double a, double h, double s, double b) {
-		assertApprox(color.a, a);
-		assertApprox(color.h, h);
-		assertApprox(color.s, s);
-		assertApprox(color.b, b);
+		assertApprox(color.a, a, "a");
+		assertApprox(color.h, h, "h");
+		assertApprox(color.s, s, "s");
+		assertApprox(color.b, b, "b");
 	}
 
 	public static void assertXyb(XybColor color, double x, double y, double b) {
@@ -59,10 +59,10 @@ public class ColorTestUtil {
 	}
 
 	public static void assertXyb(XybColor color, double a, double h, double s, double b) {
-		assertApprox(color.a, a);
-		assertApprox(color.x, h);
-		assertApprox(color.y, s);
-		assertApprox(color.b, b);
+		assertApprox(color.a, a, "a");
+		assertApprox(color.x, h, "h");
+		assertApprox(color.y, s, "s");
+		assertApprox(color.b, b, "b");
 	}
 
 	public static void assertXyz(XyzColor color, double x, double y, double z) {
@@ -70,12 +70,13 @@ public class ColorTestUtil {
 	}
 
 	public static void assertXyz(XyzColor color, double a, double x, double y, double z) {
-		assertApprox(color.a, a);
-		assertApprox(color.x, x);
-		assertApprox(color.y, y);
-		assertApprox(color.z, z);
+		assertApprox(color.a, a, "a");
+		assertApprox(color.x, x, "x");
+		assertApprox(color.y, y, "y");
+		assertApprox(color.z, z, "z");
 	}
 
+	
 	private static Integer argb(Color color) {
 		return color == null ? null : color.getRGB();
 	}

@@ -30,8 +30,14 @@ import ceri.common.test.TestUtil;
 	ceri.common.color.ColorUtilTest.class, //
 	ceri.common.color.ColorableTest.class, //
 	ceri.common.color.ColorsTest.class, //
+	ceri.common.color.ColorxBehavior.class, //
 	ceri.common.color.ColorxUtilTest.class, //
 	ceri.common.color.GrayCharBehavior.class, //
+	ceri.common.color.HsbColorBehavior.class, //
+	ceri.common.color.LuvColorBehavior.class, //
+	ceri.common.color.RgbColorBehavior.class, //
+	ceri.common.color.XybColorBehavior.class, //
+	ceri.common.color.XyzColorBehavior.class, //
 	// comparator
 	ceri.common.comparator.ComparatorSequenceBehavior.class, //
 	ceri.common.comparator.ComparatorsTest.class, //

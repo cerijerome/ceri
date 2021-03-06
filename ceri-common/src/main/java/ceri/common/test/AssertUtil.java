@@ -44,6 +44,22 @@ public class AssertUtil {
 
 	private AssertUtil() {}
 
+	private static interface ItemAssert {
+		static ItemAssert DEEP_EQUALS = AssertUtil::assertDeepEquals;
+
+		static ItemAssert doubleEquals(double diff) {
+			return (lhs, rhs, format, args) -> assertEquals((Double) lhs, (Double) rhs, diff,
+				format, args);
+		}
+
+		static ItemAssert doubleApprox(int precision) {
+			return (lhs, rhs, format, args) -> assertApprox((Double) lhs, (Double) rhs, precision,
+				format, args);
+		}
+
+		void assertItem(Object lhs, Object rhs, String format, Object... args);
+	}
+
 	/**
 	 * Throws a runtime exception. Useful for creating a lambda without the need for a code block.
 	 */
@@ -225,19 +241,34 @@ public class AssertUtil {
 	 * Checks a double value is correct to 3 decimal places.
 	 */
 	public static void assertApprox(double actual, double expected) {
-		assertApprox(actual, expected, APPROX_PRECISION_DEF);
+		assertApprox(actual, expected, null);
+	}
+
+	/**
+	 * Checks a double value is correct to 3 decimal places.
+	 */
+	public static void assertApprox(double actual, double expected, String format, Object... args) {
+		assertApprox(actual, expected, APPROX_PRECISION_DEF, format, args);
 	}
 
 	/**
 	 * Checks a double value is correct to given number of digits after the decimal separator.
 	 */
 	public static void assertApprox(double actual, double expected, int precision) {
+		assertApprox(actual, expected, precision, null);
+	}
+
+	/**
+	 * Checks a double value is correct to given number of digits after the decimal separator.
+	 */
+	public static void assertApprox(double actual, double expected, int precision, String format,
+		Object... args) {
 		if (!Double.isFinite(expected) || !Double.isFinite(actual)) {
-			assertEquals(actual, expected);
+			assertEquals(actual, expected, format, args);
 		} else {
 			double approxValue = MathUtil.round(precision, actual);
 			double approxExpected = MathUtil.round(precision, expected);
-			assertEquals(approxValue, approxExpected);
+			assertEquals(approxValue, approxExpected, format, args);
 		}
 	}
 
@@ -280,6 +311,14 @@ public class AssertUtil {
 	 */
 	public static void assertArrayObject(Object lhs, int lhsOffset, Object rhs, int rhsOffset,
 		int len) {
+		assertArrayObject(lhs, lhsOffset, rhs, rhsOffset, len, ItemAssert.DEEP_EQUALS);
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	private static void assertArrayObject(Object lhs, int lhsOffset, Object rhs, int rhsOffset,
+		int len, ItemAssert itemAssert) {
 		assertIsArray(lhs);
 		assertIsArray(rhs);
 		int lhsLen = Array.getLength(lhs);
@@ -289,7 +328,7 @@ public class AssertUtil {
 			Object lhsVal = hasLhs ? Array.get(lhs, lhsOffset + i) : null;
 			boolean hasRhs = rhsOffset + i < rhsLen;
 			Object rhsVal = hasRhs ? Array.get(rhs, rhsOffset + i) : null;
-			assertIndex(lhsOffset + i, lhsVal, hasLhs, rhsVal, hasRhs);
+			assertIndex(lhsOffset + i, lhsVal, hasLhs, rhsVal, hasRhs, itemAssert);
 		}
 	}
 
@@ -372,6 +411,27 @@ public class AssertUtil {
 	}
 
 	/**
+	 * Checks two arrays are equal with diff, with specific failure information if not.
+	 */
+	public static void assertArray(double diff, double[] array, double... expected) {
+		assertArrayObject(array, expected, ItemAssert.doubleEquals(diff));
+	}
+
+	/**
+	 * Checks two arrays are equal within precision, with specific failure information if not.
+	 */
+	public static void assertApproxArray(double[] array, double... expected) {
+		assertApproxArray(APPROX_PRECISION_DEF, array, expected);
+	}
+
+	/**
+	 * Checks two arrays are equal within precision, with specific failure information if not.
+	 */
+	public static void assertApproxArray(int precision, double[] array, double... expected) {
+		assertArrayObject(array, expected, ItemAssert.doubleApprox(precision));
+	}
+
+	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(ByteProvider array, byte[] expected) {
@@ -405,15 +465,7 @@ public class AssertUtil {
 	 */
 	public static <T> void assertList(List<? extends T> lhs, int lhsOffset, List<? extends T> rhs,
 		int rhsOffset, int len) {
-		int lhsLen = lhs.size();
-		int rhsLen = rhs.size();
-		for (int i = 0; i < len; i++) {
-			boolean hasLhs = lhsOffset + i < lhsLen;
-			T lhsVal = hasLhs ? lhs.get(lhsOffset + i) : null;
-			boolean hasRhs = rhsOffset + i < rhsLen;
-			T rhsVal = hasRhs ? rhs.get(rhsOffset + i) : null;
-			assertIndex(lhsOffset + i, lhsVal, hasLhs, rhsVal, hasRhs);
-		}
+		assertList(lhs, lhsOffset, rhs, rhsOffset, len, ItemAssert.DEEP_EQUALS);
 	}
 
 	/**
@@ -932,10 +984,17 @@ public class AssertUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	private static void assertArrayObject(Object lhs, Object rhs) {
+		assertArrayObject(lhs, rhs, ItemAssert.DEEP_EQUALS);
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	private static void assertArrayObject(Object lhs, Object rhs, ItemAssert itemAssert) {
 		assertIsArray(lhs);
 		assertIsArray(rhs);
 		assertSize("Invalid array size", Array.getLength(lhs), Array.getLength(rhs));
-		assertArrayObject(lhs, 0, rhs, 0, Array.getLength(lhs));
+		assertArrayObject(lhs, 0, rhs, 0, Array.getLength(lhs), itemAssert);
 	}
 
 	private static void assertSize(String message, long lhsSize, long rhsSize) {
@@ -946,12 +1005,30 @@ public class AssertUtil {
 		assertTrue(array.getClass().isArray(), "Expected an array: %s", array.getClass());
 	}
 
-	private static <T> void assertIndex(int i, T lhs, boolean hasLhs, T rhs, boolean hasRhs) {
+	private static <T> void assertList(List<? extends T> lhs, int lhsOffset, List<? extends T> rhs,
+		int rhsOffset, int len, ItemAssert indexAssert) {
+		int lhsLen = lhs.size();
+		int rhsLen = rhs.size();
+		for (int i = 0; i < len; i++) {
+			boolean hasLhs = lhsOffset + i < lhsLen;
+			T lhsVal = hasLhs ? lhs.get(lhsOffset + i) : null;
+			boolean hasRhs = rhsOffset + i < rhsLen;
+			T rhsVal = hasRhs ? rhs.get(rhsOffset + i) : null;
+			assertIndex(lhsOffset + i, lhsVal, hasLhs, rhsVal, hasRhs, indexAssert);
+		}
+	}
+
+	private static <T> void assertIndex(int i, T lhs, boolean hasLhs, T rhs, boolean hasRhs,
+		ItemAssert itemAssert) {
 		if (!hasLhs && !hasRhs) throw failure("No value at index %d", i);
 		if (!hasLhs) throw failure("No value at index %d, expected: %s", i, str(rhs));
 		if (!hasRhs) throw failure("Unexpected value at index %d: %s", i, str(lhs));
-		if (!Objects.deepEquals(lhs, rhs))
-			throw failure("Index %d\nExpected: %s\n  actual: %s", i, str(lhs), str(rhs));
+		itemAssert.assertItem(lhs, rhs, "Index %d", i);
+	}
+
+	private static void assertDeepEquals(Object lhs, Object rhs, String format, Object... args) {
+		if (Objects.deepEquals(lhs, rhs)) return;
+		throw failure("%sExpected: %s\n  actual: %s", nl(format, args), str(rhs), str(lhs));
 	}
 
 	private static String nl(String format, Object... args) {

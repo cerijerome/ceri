@@ -35,7 +35,10 @@ public class ColorUtilTest {
 		assertEquals(ColorUtil.argb("aquamarine"), Colors.aquamarine.argb);
 		assertEquals(ColorUtil.argb("#fed"), 0xffffeedd);
 		assertEquals(ColorUtil.argb("0xfed"), 0xff000fed);
+		assertEquals(ColorUtil.argb("#fedcba"), 0xfffedcba);
+		assertEquals(ColorUtil.argb("0xfedcba"), 0xfffedcba);
 		assertEquals(ColorUtil.argb("#fedcba98"), 0xfedcba98);
+		assertEquals(ColorUtil.argb("0xfedcba98"), 0xfedcba98);
 	}
 
 	@Test
@@ -258,6 +261,18 @@ public class ColorUtilTest {
 	public void testFadeStream() {
 		assertStream(ColorUtil.fadeStream(color(0x204060), color(0x406020), 4, Bias.NONE), 0x284850,
 			0x305040, 0x385830, 0x406020);
+	}
+
+	@Test
+	public void testFadeHsbStream() {
+		assertStream(ColorUtil.fadeHsbStream(color(0x204060), color(0x406020), 4, Bias.NONE),
+			0xff206060, 0xff206040, 0xff206020, 0xff406020);
+	}
+
+	@Test
+	public void testRotateHueStream() {
+		assertStream(ColorUtil.rotateHueStream(Colors.aquamarine.color(), 4, Bias.NONE), 0xff947fff,
+			0xffff7faa, 0xffeaff7f, 0xff7fffd4);
 	}
 
 }

@@ -2,7 +2,6 @@ package ceri.common.test;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -179,7 +178,8 @@ public class TestUtil {
 	}
 
 	private static <T> void exerciseEqual(T t0, T t1) {
-		assertTrue(t0.equals(t1));
+		assertEquals(t0, t1);
+		if (t0 == t1) t0.equals(t1);
 		assertEquals(t0.hashCode(), t1.hashCode());
 		assertEquals(t0.toString(), t1.toString());
 	}
