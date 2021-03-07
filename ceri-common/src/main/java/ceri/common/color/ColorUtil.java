@@ -368,7 +368,7 @@ public class ColorUtil {
 	 * Limits a ratio to 0-1 (inclusive).
 	 */
 	public static double limit(double ratio) {
-		return MathUtil.limit(ratio, 0, MAX_VALUE);
+		return MathUtil.limit(ratio, 0, MAX_RATIO);
 	}
 
 	/**

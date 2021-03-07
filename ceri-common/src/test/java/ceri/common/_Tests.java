@@ -27,11 +27,14 @@ import ceri.common.test.TestUtil;
 	// color
 	ceri.common.color.BiasTest.class, //
 	ceri.common.color.ColorComparatorsTest.class, //
+	ceri.common.color.ColorSpacesTest.class, //
 	ceri.common.color.ColorUtilTest.class, //
 	ceri.common.color.ColorableTest.class, //
 	ceri.common.color.ColorsTest.class, //
 	ceri.common.color.ColorxBehavior.class, //
+	ceri.common.color.ColorxComparatorsTest.class, //
 	ceri.common.color.ColorxUtilTest.class, //
+	ceri.common.color.ColorxableTest.class, //
 	ceri.common.color.GrayCharBehavior.class, //
 	ceri.common.color.HsbColorBehavior.class, //
 	ceri.common.color.LuvColorBehavior.class, //

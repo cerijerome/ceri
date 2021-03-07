@@ -157,7 +157,7 @@ public class ColorSpaces {
 	public static double[] rgbToHsb(int rgb) {
 		return srgbToHsb(srgb(rgb));
 	}
-	
+
 	/**
 	 * Convert RGB 0-1 values to HSB 0-1 values. Double version of Color.RGBtoHSB().
 	 */
@@ -177,7 +177,7 @@ public class ColorSpaces {
 	public static int hsbToRgb(double... hsb) {
 		return rgb(hsbToSrgb(hsb));
 	}
-	
+
 	/**
 	 * Convert HSB 0-1 values to RGB 0-1 values. Double version of Color.HSBtoRGB().
 	 */
@@ -196,6 +196,19 @@ public class ColorSpaces {
 		case 4 -> new double[] { t, p, hsb[2] };
 		default -> new double[] { hsb[2], p, q };
 		};
+	}
+
+	/**
+	 * Normalize sRGB values to 0-1 by transposing and scaling if needed. Modifies passed-in array.
+	 * TODO: add to all sRGB conversions? Or srgb to argb?
+	 */
+	public static double[] normalizeSrgb(double... srgb) {
+		double min = Math.min(MathUtil.min(srgb), 0);
+		double d = Math.max(MathUtil.max(srgb), 1) - min;
+		if (min == 0 && d == 1) return srgb;
+		for (int i = 0; i < srgb.length; i++)
+			srgb[i] = (srgb[i] - min) / d;
+		return srgb;
 	}
 
 	/**
@@ -299,7 +312,8 @@ public class ColorSpaces {
 	 */
 	public static double[] xyzToYuv(double... xyz) {
 		Matrix duv = XYZ_TO_DUV.multiply(Matrix.vector(xyz));
-		double m = 1 / duv.at(0, 0);
+		double d = duv.at(0, 0);
+		double m = d == 0 ? 0 : 1 / duv.at(0, 0);
 		return new double[] { xyz[1], duv.at(1, 0) * m, duv.at(2, 0) * m };
 	}
 

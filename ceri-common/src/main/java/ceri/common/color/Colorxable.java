@@ -24,20 +24,6 @@ public interface Colorxable {
 	long xargb();
 
 	/**
-	 * Set the colorx as an opaque xrgb long.
-	 */
-	default void xrgb(long xargb) {
-		xargb(ColorxUtil.xrgb(xargb));
-	}
-
-	/**
-	 * Get the colorx as an xargb long with alpha removed.
-	 */
-	default long xrgb() {
-		return ColorxUtil.xrgb(xargb());
-	}
-
-	/**
 	 * Set the colorx.
 	 */
 	default void colorx(Colorx colorx) {

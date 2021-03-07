@@ -28,7 +28,7 @@ public class XyzColor {
 	public final double z;
 
 	/**
-	 * Construct from sRGB color. Alpha is maintained. 
+	 * Construct from sRGB color. Alpha is maintained.
 	 */
 	public static XyzColor from(Color color) {
 		return from(color.getRGB());
@@ -43,7 +43,7 @@ public class XyzColor {
 	}
 
 	/**
-	 * Construct from sRGB int value. Alpha is maintained. 
+	 * Construct from sRGB int value. Alpha is maintained.
 	 */
 	public static XyzColor from(int argb) {
 		double[] xyz = ColorSpaces.rgbToXyz(argb);
@@ -143,22 +143,6 @@ public class XyzColor {
 		XybColor xyb = xyb();
 		XybColor normalXyb = xyb.normalize();
 		return xyb == normalXyb ? this : normalXyb.xyz();
-	}
-
-	/**
-	 * Limits values by first converting to CIE xyY.
-	 */
-	public XyzColor limit() {
-		XybColor xyb = xyb();
-		XybColor limitXyb = xyb.limit();
-		return xyb == limitXyb ? this : limitXyb.xyz();
-	}
-
-	/**
-	 * Verifies values by first converting to CIE xyY.
-	 */
-	public void verify() {
-		xyb().verify();
 	}
 
 	@Override

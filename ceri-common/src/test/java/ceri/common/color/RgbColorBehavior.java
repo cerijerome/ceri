@@ -72,7 +72,7 @@ public class RgbColorBehavior {
 	}
 
 	@Test
-	public void shouldDeterminePresenceAlphaComponent() {
+	public void shouldDeterminePresenceOfAlpha() {
 		assertEquals(RgbColor.from(0xff123456).hasAlpha(), false);
 		assertEquals(RgbColor.from(0xef123456).hasAlpha(), true);
 	}

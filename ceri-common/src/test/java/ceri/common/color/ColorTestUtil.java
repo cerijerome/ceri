@@ -58,10 +58,10 @@ public class ColorTestUtil {
 		assertXyb(color, 1.0, x, y, b);
 	}
 
-	public static void assertXyb(XybColor color, double a, double h, double s, double b) {
+	public static void assertXyb(XybColor color, double a, double x, double y, double b) {
 		assertApprox(color.a, a, "a");
-		assertApprox(color.x, h, "h");
-		assertApprox(color.y, s, "s");
+		assertApprox(color.x, x, "x");
+		assertApprox(color.y, y, "y");
 		assertApprox(color.b, b, "b");
 	}
 
@@ -76,6 +76,16 @@ public class ColorTestUtil {
 		assertApprox(color.z, z, "z");
 	}
 
+	public static void assertLuv(LuvColor color, double l, double u, double v) {
+		assertLuv(color, 1.0, l, u, v);
+	}
+
+	public static void assertLuv(LuvColor color, double a, double l, double u, double v) {
+		assertApprox(color.a, a, "a");
+		assertApprox(color.l, l, "l");
+		assertApprox(color.u, u, "u");
+		assertApprox(color.v, v, "v");
+	}
 	
 	private static Integer argb(Color color) {
 		return color == null ? null : color.getRGB();
