@@ -7,6 +7,20 @@ import org.junit.Test;
 public class ColorSpacesTest {
 
 	@Test
+	public void testScale() {
+		assertApproxArray(ColorSpaces.scale(0, 0, 0), 0, 0, 0);
+		assertApproxArray(ColorSpaces.scale(1.2, 0.6, 0.3), 1.0, 0.5, 0.25);
+		assertApproxArray(ColorSpaces.scale(1.2, 0.6, -0.8), 1.0, 0.7, 0.0);
+	}
+
+	@Test
+	public void testLimit() {
+		assertApproxArray(ColorSpaces.limit(0, 0, 0), 0, 0, 0);
+		assertApproxArray(ColorSpaces.limit(1.2, 0.6, 0.3), 1.0, 0.6, 0.3);
+		assertApproxArray(ColorSpaces.limit(1.2, 0.6, -0.8), 1.0, 0.6, 0.0);
+	}
+
+	@Test
 	public void testDToRgb() {
 		assertEquals(ColorSpaces.dToRgb(35), 0xfffff4a5);
 		assertEquals(ColorSpaces.dToRgb(50), 0xfffffcdd);
@@ -54,13 +68,6 @@ public class ColorSpacesTest {
 	@Test
 	public void testHsbToSrgb() {
 		assertApproxArray(ColorSpaces.hsbToSrgb(0.5, 0.0, 0.3), 0.3, 0.3, 0.3);
-	}
-
-	@Test
-	public void testNormalizeSrgb() {
-		assertApproxArray(ColorSpaces.normalizeSrgb(0, 0, 0), 0, 0, 0);
-		assertApproxArray(ColorSpaces.normalizeSrgb(1.2, 0.6, 0.3), 1.0, 0.5, 0.25);
-		assertApproxArray(ColorSpaces.normalizeSrgb(1.2, 0.6, -0.8), 1.0, 0.7, 0.0);
 	}
 
 }

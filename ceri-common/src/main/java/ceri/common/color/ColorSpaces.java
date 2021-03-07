@@ -89,6 +89,26 @@ public class ColorSpaces {
 	}
 
 	/**
+	 * Limit values to 0-1, modifying values in place.
+	 */
+	public static double[] limit(double... values) {
+		for (int i = 0; i < values.length; i++)
+			values[i] = MathUtil.limit(values[i], 0, 1);
+		return values;
+	}
+
+	/**
+	 * Scale values to 0-1, modifying values in place.
+	 */
+	public static double[] scale(double... values) {
+		double min = Math.min(MathUtil.min(values), 0);
+		double d = Math.max(MathUtil.max(values), 1) - min;
+		if (min < 0 || d > 1) for (int i = 0; i < values.length; i++)
+			values[i] = (values[i] - min) / d;
+		return values;
+	}
+
+	/**
 	 * Convert CIE daylight illuminant (Ddd) at max brightness to sRGB int value.
 	 */
 	public static int dToRgb(int d) {
@@ -199,20 +219,7 @@ public class ColorSpaces {
 	}
 
 	/**
-	 * Normalize sRGB values to 0-1 by transposing and scaling if needed. Modifies passed-in array.
-	 * TODO: add to all sRGB conversions? Or srgb to argb?
-	 */
-	public static double[] normalizeSrgb(double... srgb) {
-		double min = Math.min(MathUtil.min(srgb), 0);
-		double d = Math.max(MathUtil.max(srgb), 1) - min;
-		if (min == 0 && d == 1) return srgb;
-		for (int i = 0; i < srgb.length; i++)
-			srgb[i] = (srgb[i] - min) / d;
-		return srgb;
-	}
-
-	/**
-	 * Convert sRGB 0-1 values to int value.
+	 * Convert sRGB 0-1 values to int value, limiting component values to 0-255.
 	 */
 	public static int rgb(double... srgb) {
 		return ColorUtil.argb(value(srgb[0]), value(srgb[1]), value(srgb[2]));

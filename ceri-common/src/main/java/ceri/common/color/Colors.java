@@ -84,9 +84,9 @@ public enum Colors {
 	// LED custom colors
 
 	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffc100;"/> */
-	amber(0xffc100), // 1700K
+	amber(white1700K.argb), // 1700K
 	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fff3ab;"/> */
-	warmWhite(0xfff3ab), // 3500K
+	warmWhite(white3500K.argb), // 3500K
 
 	// X11 colors: https://en.wikipedia.org/wiki/Web_colors#X11_color_names
 
