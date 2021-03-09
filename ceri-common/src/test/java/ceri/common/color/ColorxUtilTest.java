@@ -227,6 +227,8 @@ public class ColorxUtilTest {
 	@Test
 	public void testDenormalizeXargb() {
 		assertEquals(ColorxUtil.denormalizeXargb(0xfedcba98), 0xfedcba98L);
+		assertEquals(ColorxUtil.denormalizeXargb(0xfedcba98, 0), 0xfedcba98L);
+		assertEquals(ColorxUtil.denormalizeXargb(0xfedcba98, 0, 0, 0, 0), 0xfedcba98L);
 		assertEquals(ColorxUtil.denormalizeXargb(0x0000ff, 0xff), 0xff00000000L);
 		assertEquals(ColorxUtil.denormalizeXargb(0x0000ff, 0x7f), 0xff00000080L);
 		assertEquals(ColorxUtil.denormalizeXargb(0x0000ff, 0x7f, 0x3f), 0xffff00000041L);
@@ -254,7 +256,9 @@ public class ColorxUtilTest {
 
 	@Test
 	public void testNormalizeArgb() {
-		assertEquals(ColorxUtil.normalizeArgb(0x00000000fedcba98L), 0xfedcba98);
+		assertEquals(ColorxUtil.normalizeArgb(0x12345678fedcba98L), 0xfedcba98);
+		assertEquals(ColorxUtil.normalizeArgb(0x12345678fedcba98L, 0), 0xfedcba98);
+		assertEquals(ColorxUtil.normalizeArgb(0x12345678fedcba98L, 0, 0, 0, 0), 0xfedcba98);
 		assertEquals(ColorxUtil.normalizeArgb(0x000000ff00000000L, 0xff), 0xff);
 		assertEquals(ColorxUtil.normalizeArgb(0x000000ff00000080L, 0x7f), 0xff);
 		assertEquals(ColorxUtil.normalizeArgb(0x0000ffff00000041L, 0x7f, 0x3f), 0xff);

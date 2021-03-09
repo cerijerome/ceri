@@ -483,11 +483,12 @@ public class ColorxUtil {
 	 * Extract sequence of rgb values from argb to determine x components.
 	 */
 	public static long denormalizeXargb(int argb, int... xrgbs) {
+		if (xrgbs.length == 0) return xargb(argb);
 		int[] rgb = { ColorUtil.r(argb), ColorUtil.g(argb), ColorUtil.b(argb) };
 		int[] xs = new int[Math.min(X_COUNT, xrgbs.length)];
 		for (int i = 0; i < xs.length; i++)
-			xs[i] = denormalize(rgb, ColorUtil.r(xrgbs[i]), ColorUtil.g(xrgbs[i]),
-				ColorUtil.b(xrgbs[i]));
+			if (ColorUtil.rgb(xrgbs[i]) != 0) xs[i] = denormalize(rgb, ColorUtil.r(xrgbs[i]),
+				ColorUtil.g(xrgbs[i]), ColorUtil.b(xrgbs[i]));
 		argb = ColorUtil.argb(ColorUtil.a(argb), rgb[0], rgb[1], rgb[2]);
 		return xargb(argb, xs);
 	}

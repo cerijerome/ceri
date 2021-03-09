@@ -111,11 +111,11 @@ public class TypeTranscoder<T> {
 		return lookup.values();
 	}
 
-	public FieldTranscoder<T> field(IntAccessor accessor) {
+	public FieldTranscoder<T> field(IntField accessor) {
 		return FieldTranscoder.of(accessor, this);
 	}
 
-	public <U> FieldTranscoder.Typed<U, T> field(IntAccessor.Typed<U> accessor) {
+	public <U> FieldTranscoder.Typed<U, T> field(IntField.Typed<U> accessor) {
 		return FieldTranscoder.Typed.of(accessor, this);
 	}
 

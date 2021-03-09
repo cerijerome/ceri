@@ -100,7 +100,7 @@ public abstract class IntArray implements IntProvider {
 	 * re-use rather than copying of ints. Note that wrap() does not copy the original int array,
 	 * and modifications of the original array will modify the wrapped array.
 	 */
-	public static class Mutable extends IntArray implements IntReceiver, Fluent<Mutable> {
+	public static class Mutable extends IntArray implements IntAccessor, Fluent<Mutable> {
 		public static final Mutable EMPTY = new Mutable(EMPTY_INT, 0, 0);
 
 		public static Mutable of(int length) {

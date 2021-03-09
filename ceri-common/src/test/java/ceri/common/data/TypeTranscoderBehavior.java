@@ -31,8 +31,8 @@ public class TypeTranscoderBehavior {
 	}
 
 	static class Holder {
-		static final IntAccessor.Typed<Holder> acc =
-			IntAccessor.typed(h -> h.val, (h, i) -> h.val = i);
+		static final IntField.Typed<Holder> acc =
+			IntField.typed(h -> h.val, (h, i) -> h.val = i);
 
 		int val = 0;
 	}
@@ -169,7 +169,7 @@ public class TypeTranscoderBehavior {
 	@Test
 	public void shouldTranscodeFields() {
 		int[] store = { 0 };
-		IntAccessor accessor = IntAccessor.of(() -> store[0], i -> store[0] = i);
+		IntField accessor = IntField.of(() -> store[0], i -> store[0] = i);
 		FieldTranscoder<E> field = xcoder.field(accessor);
 		field.set(E.b);
 		assertEquals(store[0], E.b.value);

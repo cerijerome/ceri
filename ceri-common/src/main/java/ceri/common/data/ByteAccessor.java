@@ -3,44 +3,44 @@ package ceri.common.data;
 import ceri.common.collection.ArrayUtil;
 
 /**
- * Combines IntProvider and IntReceiver interfaces.
+ * Combines ByteProvider and ByteReceiver interfaces.
  */
-public interface IntAccessor extends IntProvider, IntReceiver {
+public interface ByteAccessor extends ByteProvider, ByteReceiver {
 	/**
 	 * Create a no-op instance.
 	 */
-	static IntAccessor ofNull(int length) {
+	static ByteAccessor ofNull(int length) {
 		return length == 0 ? Null.EMPTY : new Null(length);
 	}
 
 	@Override
-	int getInt(int index);
+	byte getByte(int index);
 
 	@Override
-	int setInt(int index, int value);
+	int setByte(int index, int value);
 
 	@Override
 	int length();
 
 	@Override
 	default boolean isEmpty() {
-		return IntProvider.super.isEmpty();
+		return ByteProvider.super.isEmpty();
 	}
 
 	@Override
-	default IntAccessor slice(int index) {
+	default ByteAccessor slice(int index) {
 		return slice(index, length() - index);
 	}
 
 	@Override
-	default IntAccessor slice(int index, int length) {
+	default ByteAccessor slice(int index, int length) {
 		if (length == 0) return Null.EMPTY;
 		if (index == 0 && length == length()) return this;
 		throw new UnsupportedOperationException(
 			String.format("slice(%d, %d) is not supported", index, length));
 	}
 
-	static class Null implements IntAccessor {
+	static class Null implements ByteAccessor {
 		public static final Null EMPTY = new Null(0);
 		private int length;
 
@@ -54,19 +54,19 @@ public interface IntAccessor extends IntProvider, IntReceiver {
 		}
 
 		@Override
-		public int getInt(int index) {
+		public byte getByte(int index) {
 			ArrayUtil.validateIndex(length, index);
 			return 0;
 		}
 
 		@Override
-		public int setInt(int index, int value) {
+		public int setByte(int index, int value) {
 			ArrayUtil.validateIndex(length, index);
 			return index + 1;
 		}
 
 		@Override
-		public IntAccessor slice(int index, int length) {
+		public ByteAccessor slice(int index, int length) {
 			ArrayUtil.validateSlice(length(), index, length);
 			if (length == 0) return EMPTY;
 			if (length == length()) return this;

@@ -5,13 +5,13 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.Arrays;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteAccessor;
 import ceri.common.data.ByteProvider;
-import ceri.common.data.ByteReceiver;
 
 /**
  * Fixed-size byte array with volatile values.
  */
-public class VolatileByteArray implements ByteProvider, ByteReceiver {
+public class VolatileByteArray implements ByteAccessor {
 	private static final int MAX_LEN_FOR_STRING = 8;
 	public static final VolatileByteArray EMPTY = VolatileByteArray.wrap(EMPTY_BYTE);
 	private static final VarHandle handle = MethodHandles.arrayElementVarHandle(byte[].class);
@@ -49,21 +49,20 @@ public class VolatileByteArray implements ByteProvider, ByteReceiver {
 		this.length = length;
 	}
 
-	/* ByteProvider overrides */
-
 	@Override
 	public int length() {
 		return length;
 	}
 
 	@Override
-	public boolean isEmpty() {
-		return ByteProvider.super.isEmpty();
+	public byte getByte(int index) {
+		return (byte) handle.getVolatile(array, offset + index);
 	}
 
 	@Override
-	public byte getByte(int index) {
-		return (byte) handle.getVolatile(array, offset + index);
+	public int setByte(int index, int value) {
+		handle.setVolatile(array, offset + index++, (byte) value);
+		return index;
 	}
 
 	@Override
@@ -76,16 +75,6 @@ public class VolatileByteArray implements ByteProvider, ByteReceiver {
 		ArrayUtil.validateSlice(length(), offset, length);
 		return new VolatileByteArray(array, this.offset + offset, length);
 	}
-
-	/* ByteReceiver overrides */
-
-	@Override
-	public int setByte(int index, int value) {
-		handle.setVolatile(array, offset + index++, (byte) value);
-		return index;
-	}
-
-	/* Object overrides */
 
 	@Override
 	public String toString() {

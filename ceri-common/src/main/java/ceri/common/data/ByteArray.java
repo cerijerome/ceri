@@ -108,7 +108,7 @@ public abstract class ByteArray implements ByteProvider {
 	 * re-use rather than copying of bytes. Note that wrap() does not copy the original byte array,
 	 * and modifications of the original array will modify the wrapped array.
 	 */
-	public static class Mutable extends ByteArray implements ByteReceiver, Fluent<Mutable> {
+	public static class Mutable extends ByteArray implements ByteAccessor, Fluent<Mutable> {
 		public static final Mutable EMPTY = new Mutable(EMPTY_BYTE, 0, 0);
 
 		public static Mutable of(int length) {
@@ -145,11 +145,6 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		/* ByteProvider overrides */
-
-		@Override
-		public boolean isEmpty() {
-			return super.isEmpty();
-		}
 
 		@Override
 		public Mutable slice(int index) {

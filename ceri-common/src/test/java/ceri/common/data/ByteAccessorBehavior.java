@@ -4,26 +4,26 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
 
-public class IntAccessorBehavior {
+public class ByteAccessorBehavior {
 
 	@Test
 	public void shouldCreateEmptyInstance() {
-		var accessor = IntAccessor.ofNull(0);
+		var accessor = ByteAccessor.ofNull(0);
 		assertEquals(accessor.isEmpty(), true);
 		assertEquals(accessor.length(), 0);
-		assertThrown(() -> accessor.setInt(0, 0xff));
-		assertThrown(() -> accessor.getInt(0));
+		assertThrown(() -> accessor.setByte(0, 0xff));
+		assertThrown(() -> accessor.getByte(0));
 		assertEquals(accessor.fill(0, 0xff), 0);
 		assertThrown(() -> accessor.fill(0, 1, 0xff));
 	}
 
 	@Test
 	public void shouldCreateNullInstance() {
-		var accessor = IntAccessor.ofNull(5);
+		var accessor = ByteAccessor.ofNull(5);
 		assertEquals(accessor.isEmpty(), false);
 		assertEquals(accessor.length(), 5);
-		accessor.setInt(0, 0xff);
-		assertEquals(accessor.getInt(0), 0);
+		accessor.setByte(0, 0xff);
+		assertEquals(accessor.getByte(0), (byte) 0);
 		assertEquals(accessor.fill(0, 0xff), 5);
 		assertThrown(() -> accessor.fill(1, 5, 0xff));
 	}
@@ -39,28 +39,28 @@ public class IntAccessorBehavior {
 
 	@Test
 	public void shouldCreateNullSlice() {
-		var accessor = IntAccessor.ofNull(5);
+		var accessor = ByteAccessor.ofNull(5);
 		assertEquals(accessor.slice(0).length(), 5);
 		assertEquals(accessor.slice(5).length(), 0);
 		assertEquals(accessor.slice(2, 2).length(), 2);
 	}
 
-	private static IntAccessor accessor(int length) {
-		int[] array = new int[length];
-		return new IntAccessor() {
+	private static ByteAccessor accessor(int length) {
+		byte[] array = new byte[length];
+		return new ByteAccessor() {
 			@Override
 			public int length() {
 				return length;
 			}
 
 			@Override
-			public int getInt(int index) {
+			public byte getByte(int index) {
 				return array[index];
 			}
 
 			@Override
-			public int setInt(int index, int value) {
-				array[index] = value;
+			public int setByte(int index, int value) {
+				array[index] = (byte) value;
 				return index + 1;
 			}
 		};

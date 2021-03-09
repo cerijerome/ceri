@@ -57,6 +57,7 @@ import ceri.common.test.TestUtil;
 	// data
 	ceri.common.data.BinaryStateBehavior.class, //
 	ceri.common.data.BooleanAccessorBehavior.class, //
+	ceri.common.data.ByteAccessorBehavior.class, //
 	ceri.common.data.ByteArrayBehavior.class, //
 	ceri.common.data.ByteProviderBehavior.class, //
 	ceri.common.data.ByteReaderBehavior.class, //
@@ -71,6 +72,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.data.IntAccessorBehavior.class, //
 	ceri.common.data.IntArrayBehavior.class, //
 	ceri.common.data.IntBitSetBehavior.class, //
+	ceri.common.data.IntFieldBehavior.class, //
 	ceri.common.data.IntProviderBehavior.class, //
 	ceri.common.data.IntReaderBehavior.class, //
 	ceri.common.data.IntReceiverBehavior.class, //

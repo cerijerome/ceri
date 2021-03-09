@@ -40,7 +40,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	static ByteProvider of(int... bytes) {
 		return ByteArray.Immutable.wrap(bytes);
 	}
-	
+
 	static ByteProvider of(byte... bytes) {
 		return ByteArray.Immutable.wrap(bytes);
 	}

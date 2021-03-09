@@ -10,20 +10,20 @@ import ceri.common.data.TypeTranscoder.Remainder;
  * field that is a plain integer. Typically instantiated from TypeTranscoder.field.
  */
 public class FieldTranscoder<T> {
-	private final IntAccessor accessor;
+	private final IntField field;
 	private final TypeTranscoder<T> xcoder;
 
-	public static <T> FieldTranscoder<T> of(IntAccessor accessor, TypeTranscoder<T> xcoder) {
-		return new FieldTranscoder<>(accessor, xcoder);
+	public static <T> FieldTranscoder<T> of(IntField field, TypeTranscoder<T> xcoder) {
+		return new FieldTranscoder<>(field, xcoder);
 	}
 
-	FieldTranscoder(IntAccessor accessor, TypeTranscoder<T> xcoder) {
-		this.accessor = accessor;
+	FieldTranscoder(IntField field, TypeTranscoder<T> xcoder) {
+		this.field = field;
 		this.xcoder = xcoder;
 	}
 
-	public IntAccessor accessor() {
-		return accessor;
+	public IntField field() {
+		return field;
 	}
 
 	@SafeVarargs
@@ -32,7 +32,7 @@ public class FieldTranscoder<T> {
 	}
 
 	public FieldTranscoder<T> remove(Collection<T> ts) {
-		if (!ts.isEmpty()) accessor().remove(xcoder.encode(ts));
+		if (!ts.isEmpty()) field().remove(xcoder.encode(ts));
 		return this;
 	}
 
@@ -42,7 +42,7 @@ public class FieldTranscoder<T> {
 	}
 
 	public FieldTranscoder<T> add(Collection<T> ts) {
-		if (!ts.isEmpty()) accessor().add(xcoder.encode(ts));
+		if (!ts.isEmpty()) field().add(xcoder.encode(ts));
 		return this;
 	}
 
@@ -52,33 +52,33 @@ public class FieldTranscoder<T> {
 	}
 
 	public FieldTranscoder<T> set(Collection<T> ts) {
-		accessor().set(xcoder.encode(ts));
+		field().set(xcoder.encode(ts));
 		return this;
 	}
 
 	public FieldTranscoder<T> set(Remainder<T> rem) {
-		accessor().set(xcoder.encode(rem));
+		field().set(xcoder.encode(rem));
 		return this;
 	}
 
 	public T get() {
-		return xcoder.decode(accessor().get());
+		return xcoder.decode(field().get());
 	}
 
 	public Set<T> getAll() {
-		return xcoder.decodeAll(accessor().get());
+		return xcoder.decodeAll(field().get());
 	}
 
 	public Remainder<T> getWithRemainder() {
-		return xcoder.decodeWithRemainder(accessor().get());
+		return xcoder.decodeWithRemainder(field().get());
 	}
 
 	public boolean isValid() {
-		return xcoder.isValid(accessor().get());
+		return xcoder.isValid(field().get());
 	}
 
 	public final boolean has(T t) {
-		return xcoder.has(accessor.get(), t);
+		return xcoder.has(field.get(), t);
 	}
 
 	@SafeVarargs
@@ -87,7 +87,7 @@ public class FieldTranscoder<T> {
 	}
 
 	public boolean hasAny(Collection<T> ts) {
-		return xcoder.hasAny(accessor.get(), ts);
+		return xcoder.hasAny(field.get(), ts);
 	}
 
 	@SafeVarargs
@@ -96,25 +96,25 @@ public class FieldTranscoder<T> {
 	}
 
 	public boolean hasAll(Collection<T> ts) {
-		return xcoder.hasAll(accessor.get(), ts);
+		return xcoder.hasAll(field.get(), ts);
 	}
 
 	public static class Typed<S, T> {
-		private final IntAccessor.Typed<S> accessor;
+		private final IntField.Typed<S> field;
 		private final TypeTranscoder<T> xcoder;
 
-		public static <S, T> Typed<S, T> of(IntAccessor.Typed<S> accessor,
+		public static <S, T> Typed<S, T> of(IntField.Typed<S> field,
 			TypeTranscoder<T> xcoder) {
-			return new Typed<>(accessor, xcoder);
+			return new Typed<>(field, xcoder);
 		}
 
-		Typed(IntAccessor.Typed<S> accessor, TypeTranscoder<T> xcoder) {
-			this.accessor = accessor;
+		Typed(IntField.Typed<S> field, TypeTranscoder<T> xcoder) {
+			this.field = field;
 			this.xcoder = xcoder;
 		}
 
-		public IntAccessor.Typed<S> accessor() {
-			return accessor;
+		public IntField.Typed<S> field() {
+			return field;
 		}
 
 		@SafeVarargs
@@ -123,7 +123,7 @@ public class FieldTranscoder<T> {
 		}
 
 		public Typed<S, T> remove(S s, Collection<T> ts) {
-			if (!ts.isEmpty()) accessor().remove(s, xcoder.encode(ts));
+			if (!ts.isEmpty()) field().remove(s, xcoder.encode(ts));
 			return this;
 		}
 
@@ -133,7 +133,7 @@ public class FieldTranscoder<T> {
 		}
 
 		public Typed<S, T> add(S s, Collection<T> ts) {
-			if (!ts.isEmpty()) accessor().add(s, xcoder.encode(ts));
+			if (!ts.isEmpty()) field().add(s, xcoder.encode(ts));
 			return this;
 		}
 
@@ -143,33 +143,33 @@ public class FieldTranscoder<T> {
 		}
 
 		public Typed<S, T> set(S s, Collection<T> ts) {
-			accessor().set(s, xcoder.encode(ts));
+			field().set(s, xcoder.encode(ts));
 			return this;
 		}
 
 		public Typed<S, T> set(S s, Remainder<T> rem) {
-			accessor().set(s, xcoder.encode(rem));
+			field().set(s, xcoder.encode(rem));
 			return this;
 		}
 
 		public T get(S s) {
-			return xcoder.decode(accessor().get(s));
+			return xcoder.decode(field().get(s));
 		}
 
 		public Set<T> getAll(S s) {
-			return xcoder.decodeAll(accessor().get(s));
+			return xcoder.decodeAll(field().get(s));
 		}
 
 		public Remainder<T> getWithRemainder(S s) {
-			return xcoder.decodeWithRemainder(accessor().get(s));
+			return xcoder.decodeWithRemainder(field().get(s));
 		}
 
 		public boolean isValid(S s) {
-			return xcoder.isValid(accessor().get(s));
+			return xcoder.isValid(field().get(s));
 		}
 
 		public boolean has(S s, T t) {
-			return xcoder.has(accessor.get(s), t);
+			return xcoder.has(field.get(s), t);
 		}
 
 		@SafeVarargs
@@ -178,7 +178,7 @@ public class FieldTranscoder<T> {
 		}
 
 		public boolean hasAny(S s, Collection<T> ts) {
-			return xcoder.hasAny(accessor.get(s), ts);
+			return xcoder.hasAny(field.get(s), ts);
 		}
 
 		@SafeVarargs
@@ -187,7 +187,7 @@ public class FieldTranscoder<T> {
 		}
 
 		public boolean hasAll(S s, Collection<T> ts) {
-			return xcoder.hasAll(accessor.get(s), ts);
+			return xcoder.hasAll(field.get(s), ts);
 		}
 	}
 
