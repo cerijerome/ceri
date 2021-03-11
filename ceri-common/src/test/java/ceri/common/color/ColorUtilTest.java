@@ -9,7 +9,6 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
-import java.awt.Color;
 import java.util.stream.IntStream;
 import org.junit.Test;
 
@@ -89,11 +88,6 @@ public class ColorUtilTest {
 		assertEquals(ColorUtil.scaleHsbArgb(0xff804020, 0xff208040, 0.5), 0xff608020);
 		assertEquals(ColorUtil.scaleHsbArgb(0xff804020, 0xff208040, 0.75), 0xff308020);
 		assertEquals(ColorUtil.scaleHsbArgb(0xff804020, 0xff208040, 1), 0xff208040);
-	}
-
-	@Test
-	public void testAlpha() {
-		assertColor(ColorUtil.alpha(0x80, Color.yellow), 0x80ffff00);
 	}
 
 	@Test

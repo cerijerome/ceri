@@ -1,0 +1,140 @@
+package ceri.common.color;
+
+import static ceri.common.color.ColorUtil.MAX_VALUE;
+import static ceri.common.math.MathUtil.ubyte;
+import java.util.List;
+
+/**
+ * Color components. Provides logic to get and set components from argb and xargb colors.
+ */
+public enum Component {
+	b(0),
+	g(1),
+	r(2),
+	a(3),
+	// used in xargb longs:
+	x0(4),
+	x1(5),
+	x2(6),
+	x3(7);
+
+	/**
+	 * The list of x components in order.
+	 */
+	public static final List<Component> XS = List.of(x0, x1, x2, x3);
+	public static final long X_MASK = 0xffffffff00000000L;
+	public static final int X_COUNT = 4;
+	public final int shift;
+	public final long mask;
+	public final int intMask;
+
+	/**
+	 * Get x component by index.
+	 */
+	public static Component x(int index) {
+		return switch (index) {
+		case 0 -> x0;
+		case 1 -> x1;
+		case 2 -> x2;
+		case 3 -> x3;
+		default -> null;
+		};
+	}
+
+	/**
+	 * Extract component values from argb int.
+	 */
+	public static int[] getAll(int argb, Component... components) {
+		int[] values = new int[components.length];
+		for (int i = 0; i < values.length; i++)
+			values[i] = components[i].get(argb);
+		return values;
+	}
+
+	/**
+	 * Extract component values from xargb long.
+	 */
+	public static int[] getAll(long xargb, Component... components) {
+		int[] values = new int[components.length];
+		for (int i = 0; i < values.length; i++)
+			values[i] = components[i].get(xargb);
+		return values;
+	}
+
+	private Component(int b) {
+		shift = Byte.SIZE * b;
+		mask = 0xffL << shift;
+		intMask = (int) mask;
+	}
+
+	/**
+	 * Extract component value from argb int.
+	 */
+	public int get(int argb) {
+		return shift >= Integer.SIZE ? 0 : ubyte(argb >>> shift);
+	}
+
+	/**
+	 * Extract component value from xargb long.
+	 */
+	public int get(long xargb) {
+		return ubyte(xargb >>> shift);
+	}
+
+	/**
+	 * Set component value in argb int.
+	 */
+	public int set(int argb, int value) {
+		return (argb & (int) ~mask) | intValue(value);
+	}
+
+	/**
+	 * Set component value in xargb long.
+	 */
+	public long set(long xargb, int value) {
+		return (xargb & ~mask) | longValue(value);
+	}
+
+	/**
+	 * Shift value to its position in argb int.
+	 */
+	public int intValue(int value) {
+		return shift >= Integer.SIZE ? 0 : ubyte(value) << shift;
+	}
+
+	/**
+	 * Shift value to its position in xargb long.
+	 */
+	public long longValue(int value) {
+		return (long) ubyte(value) << shift;
+	}
+
+	/**
+	 * Convert ratio to value, and shift to its position in argb int.
+	 */
+	public int intValue(double ratio) {
+		return intValue(ColorUtil.value(ratio));
+	}
+
+	/**
+	 * Convert ratio to value, and shift to its position in xargb long.
+	 */
+	public long longValue(double ratio) {
+		return longValue(ColorUtil.value(ratio));
+	}
+
+	/**
+	 * Extract component value as a ratio.
+	 */
+	public double ratio(int argb) {
+		return (double) get(argb) / MAX_VALUE;
+	}
+
+	/**
+	 * Extract component value as a ratio.
+	 */
+	public double ratio(long xargb) {
+		return (double) get(xargb) / MAX_VALUE;
+	}
+
+}

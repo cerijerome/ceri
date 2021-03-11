@@ -4,6 +4,7 @@ import static ceri.common.math.Bound.Type.inclusive;
 import static ceri.common.math.MathUtil.intRoundExact;
 import static ceri.common.math.MathUtil.roundDiv;
 import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.text.StringUtil.HEX_RADIX;
 import static java.lang.Math.round;
 import static java.util.stream.Collectors.toList;
 import java.awt.Color;
@@ -26,7 +27,6 @@ public class ColorUtil {
 	private static final Pattern ARGB_REGEX = Pattern.compile("(0x|#)?([0-9a-fA-F]{1,8})");
 	public static final Color clear = color(0);
 	private static final BiMap<Integer, String> colors = colors();
-	private static final int HEX = 16;
 	private static final int HEX_RGB_MAX_LEN = 6;
 	private static final int HEX_ARGB_MAX_LEN = 8;
 	private static final int HEX3_LEN = 3;
@@ -35,11 +35,6 @@ public class ColorUtil {
 	private static final int HEX3_G_SHIFT = 4;
 	private static final double HALF = 0.5;
 	public static final double MAX_RATIO = 1.0;
-	private static final int A_SHIFT = Byte.SIZE * 3;
-	private static final int R_SHIFT = Byte.SIZE * 2;
-	private static final int G_SHIFT = Byte.SIZE * 1;
-	private static final int A_MASK = 0xff000000;
-	private static final int RGB_MASK = 0xffffff;
 	public static final int MAX_VALUE = 0xff;
 
 	private ColorUtil() {}
@@ -47,18 +42,11 @@ public class ColorUtil {
 	/* argb int methods */
 
 	/**
-	 * Replaces the alpha component for an argb int.
-	 */
-	public static int alphaArgb(int a, int argb) {
-		return (a << A_SHIFT) | (argb & RGB_MASK);
-	}
-
-	/**
 	 * Applies alpha component to create a scaled opaque argb int.
 	 */
 	public static int applyAlphaArgb(int argb) {
 		int a = a(argb);
-		if (a == 0) return A_MASK;
+		if (a == 0) return Component.a.intMask;
 		if (a == MAX_VALUE) return argb;
 		return argb(roundDiv(r(argb) * a, MAX_VALUE), roundDiv(g(argb) * a, MAX_VALUE),
 			roundDiv(b(argb) * a, MAX_VALUE));
@@ -68,7 +56,7 @@ public class ColorUtil {
 	 * Removes alpha component from argb int.
 	 */
 	public static int rgb(int argb) {
-		return argb & RGB_MASK;
+		return argb & ~Component.a.intMask;
 	}
 
 	/**
@@ -82,21 +70,23 @@ public class ColorUtil {
 	 * Constructs an opaque argb int from rgb int.
 	 */
 	public static int argb(int rgb) {
-		return rgb | A_MASK;
+		return rgb | Component.a.intMask;
 	}
 
 	/**
 	 * Constructs an argb int from components.
 	 */
 	public static int argb(int a, int r, int g, int b) {
-		return alphaArgb(a, ubyte(r) << R_SHIFT | ubyte(g) << G_SHIFT | ubyte(b));
+		return Component.a.intValue(a) | Component.r.intValue(r) | Component.g.intValue(g) |
+			Component.b.intValue(b);
 	}
 
 	/**
 	 * Constructs an opaque argb int from components.
 	 */
 	public static int argb(int r, int g, int b) {
-		return argb(MAX_VALUE, r, g, b);
+		return Component.a.intMask | Component.r.intValue(r) | Component.g.intValue(g) |
+			Component.b.intValue(b);
 	}
 
 	/**
@@ -156,7 +146,7 @@ public class ColorUtil {
 	 */
 	public static int dimArgb(int argb, double scale) {
 		if (scale == MAX_RATIO || rgb(argb) == 0) return argb;
-		return alphaArgb(a(argb), scaleArgb(0, argb, scale));
+		return Component.a.set(scaleArgb(0, argb, scale), Component.a.get(argb));
 	}
 
 	/**
@@ -182,13 +172,6 @@ public class ColorUtil {
 	}
 
 	/* Color methods */
-
-	/**
-	 * Replaces the alpha component of the color.
-	 */
-	public static Color alpha(int a, Color color) {
-		return color(alphaArgb(a, color.getRGB()));
-	}
 
 	/**
 	 * Applies alpha component to create a scaled opaque color.
@@ -298,28 +281,28 @@ public class ColorUtil {
 	 * Extract component from argb int.
 	 */
 	public static int a(int argb) {
-		return ubyte(argb >>> A_SHIFT);
+		return Component.a.get(argb);
 	}
 
 	/**
 	 * Extract component from argb int.
 	 */
 	public static int r(int argb) {
-		return ubyte(argb >>> R_SHIFT);
+		return Component.r.get(argb);
 	}
 
 	/**
 	 * Extract component from argb int.
 	 */
 	public static int g(int argb) {
-		return ubyte(argb >>> G_SHIFT);
+		return Component.g.get(argb);
 	}
 
 	/**
 	 * Extract component from argb int.
 	 */
 	public static int b(int argb) {
-		return ubyte(argb);
+		return Component.b.get(argb);
 	}
 
 	/**
@@ -596,7 +579,7 @@ public class ColorUtil {
 		if (m == null) return null;
 		String prefix = m.group(1);
 		String hex = m.group(2);
-		int argb = Integer.parseUnsignedInt(hex, HEX);
+		int argb = Integer.parseUnsignedInt(hex, HEX_RADIX);
 		int len = hex.length();
 		return hexArgb(prefix, len, argb);
 	}
@@ -620,10 +603,10 @@ public class ColorUtil {
 	static int hexArgb(String prefix, int len, int argb) {
 		if (len > HEX_RGB_MAX_LEN) return argb; // argb
 		if (!"#".equals(prefix) || len != HEX3_LEN) return argb(argb); // rgb
-		int r = ((argb >>> HEX3_R_SHIFT) & HEX3_MASK) << R_SHIFT;
-		int g = ((argb >>> HEX3_G_SHIFT) & HEX3_MASK) << G_SHIFT;
+		int r = Component.r.intValue((argb >>> HEX3_R_SHIFT) & HEX3_MASK);
+		int g = Component.g.intValue((argb >>> HEX3_G_SHIFT) & HEX3_MASK);
 		int b = (argb) & HEX3_MASK;
-		return argb((r | g | b) * (HEX + 1)); // triple-hex #rgb
+		return argb((r | g | b) * (HEX_RADIX + 1)); // triple-hex #rgb
 	}
 
 	private static BiMap<Integer, String> colors() {

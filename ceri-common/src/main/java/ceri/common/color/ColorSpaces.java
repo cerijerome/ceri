@@ -1,10 +1,6 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.b;
-import static ceri.common.color.ColorUtil.g;
-import static ceri.common.color.ColorUtil.r;
-import static ceri.common.color.ColorUtil.ratio;
-import static ceri.common.color.ColorUtil.value;
+//import static ceri.common.color.ColorUtil.value;
 import static java.lang.Math.pow;
 import ceri.common.math.MathUtil;
 import ceri.common.math.Matrix;
@@ -222,7 +218,8 @@ public class ColorSpaces {
 	 * Convert sRGB 0-1 values to int value, limiting component values to 0-255.
 	 */
 	public static int rgb(double... srgb) {
-		return ColorUtil.argb(value(srgb[0]), value(srgb[1]), value(srgb[2]));
+		return Component.a.intMask | Component.r.intValue(srgb[0]) | Component.g.intValue(srgb[1]) |
+			Component.b.intValue(srgb[2]);
 	}
 
 	/**
@@ -257,7 +254,8 @@ public class ColorSpaces {
 	 * Convert sRGB int value to 0-1 values.
 	 */
 	public static double[] srgb(int argb) {
-		return new double[] { ratio(r(argb)), ratio(g(argb)), ratio(b(argb)) };
+		return new double[] { Component.r.ratio(argb), Component.g.ratio(argb),
+			Component.b.ratio(argb) };
 	}
 
 	/**

@@ -3,12 +3,14 @@ package ceri.common.color;
 import static ceri.common.color.ColorUtil.MAX_RATIO;
 import static ceri.common.color.ColorUtil.MAX_VALUE;
 import static ceri.common.color.ColorUtil.scaleValue;
+import static ceri.common.color.Component.X_COUNT;
+import static ceri.common.color.Component.X_MASK;
 import static ceri.common.math.MathUtil.intRoundExact;
 import static ceri.common.math.MathUtil.limit;
 import static ceri.common.math.MathUtil.min;
 import static ceri.common.math.MathUtil.roundDiv;
-import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.uint;
+import static ceri.common.text.StringUtil.HEX_RADIX;
 import static java.util.stream.Collectors.toList;
 import java.awt.Color;
 import java.util.List;
@@ -30,29 +32,17 @@ public class ColorxUtil {
 	private static final Pattern XARGB_REGEX = Pattern.compile("(0x|#)?([0-9a-fA-F]{1,16})");
 	private static final BiMap<Long, String> colorxs = colorxs();
 	private static final int HEX_RGB_MAX_LEN = 6;
-	private static final int HEX = 16;
-	public static final int X_COUNT = 4; // maximum x values
-	private static final long VALUE_MASK = 0xffL;
-	private static final long X_MASK = 0xffffffff00000000L;
-	private static final long A_MASK = 0xff000000L;
 
 	private ColorxUtil() {}
 
 	/* xargb long methods */
 
 	/**
-	 * Replaces the alpha value for an xargb long.
-	 */
-	public static long alphaXargb(int a, long xargb) {
-		return xargb & X_MASK | uint(ColorUtil.alphaArgb(a, argb(xargb)));
-	}
-
-	/**
 	 * Applies alpha component to create a scaled opaque xargb int.
 	 */
 	public static long applyAlphaXargb(long xargb) {
 		int a = a(xargb);
-		if (a == 0) return A_MASK;
+		if (a == 0) return Component.a.mask;
 		if (a == MAX_VALUE) return xargb;
 		int argb = ColorUtil.argb(roundDiv(r(xargb) * a, MAX_VALUE),
 			roundDiv(g(xargb) * a, MAX_VALUE), roundDiv(b(xargb) * a, MAX_VALUE));
@@ -66,7 +56,7 @@ public class ColorxUtil {
 	 * Removes the alpha component from xargb long.
 	 */
 	public static long xrgb(long xargb) {
-		return xargb & ~A_MASK;
+		return xargb & ~Component.a.mask;
 	}
 
 	/**
@@ -82,7 +72,7 @@ public class ColorxUtil {
 	public static long xargb(int argb, int... xs) {
 		long xargb = uint(argb);
 		for (int i = 0; i < xs.length; i++)
-			xargb |= xEncode(xs[i], i);
+			xargb |= Component.x(i).longValue(xs[i]);
 		return xargb;
 	}
 
@@ -160,7 +150,7 @@ public class ColorxUtil {
 	 */
 	public static long dimXargb(long xargb, double scale) {
 		if (scale == MAX_RATIO || xrgb(xargb) == 0L) return xargb;
-		return alphaXargb(a(xargb), scaleXargb(0, xargb, scale));
+		return Component.a.set(scaleXargb(0, xargb, scale), Component.a.get(xargb));
 	}
 
 	/**
@@ -180,13 +170,6 @@ public class ColorxUtil {
 	}
 
 	/* Colorx methods */
-
-	/**
-	 * Replaces the alpha component of the colorx.
-	 */
-	public static Colorx alpha(int a, Colorx colorx) {
-		return Colorx.of(alphaXargb(a, colorx.xargb));
-	}
 
 	/**
 	 * Applies alpha component to create a scaled opaque colorx.
@@ -288,7 +271,7 @@ public class ColorxUtil {
 	 * Extract x[i] component from xargb long.
 	 */
 	public static int x(long xargb, int i) {
-		return ubyte(xargb >>> xShift(i));
+		return Component.x(i).get(xargb);
 	}
 
 	/**
@@ -546,7 +529,7 @@ public class ColorxUtil {
 		if (m == null) return null;
 		String prefix = m.group(1);
 		String hex = m.group(2);
-		long xargb = Long.parseUnsignedLong(hex, HEX);
+		long xargb = Long.parseUnsignedLong(hex, HEX_RADIX);
 		int len = hex.length();
 		if (len >= HEX_RGB_MAX_LEN) return xargb;
 		return uint(ColorUtil.hexArgb(prefix, len, (int) xargb));
@@ -578,19 +561,10 @@ public class ColorxUtil {
 		return 0;
 	}
 
-	private static long xEncode(int x, int i) {
-		return (VALUE_MASK & x) << xShift(i);
-	}
-
-	private static int xShift(int i) {
-		return Byte.SIZE * i + Integer.SIZE;
-	}
-
 	private static int components(long xargb) {
 		int nx = xCount(xargb);
 		if (nx > 0) return (nx + Integer.BYTES);
-		return (xargb & A_MASK) == A_MASK ? Integer.BYTES - 1 : Integer.BYTES;
-
+		return (xargb & Component.a.mask) == Component.a.mask ? Integer.BYTES - 1 : Integer.BYTES;
 	}
 
 	private static BiMap<Long, String> colorxs() {

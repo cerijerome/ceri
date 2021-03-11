@@ -1,5 +1,6 @@
 package ceri.common.color;
 
+import static ceri.common.color.ColorUtil.MAX_RATIO;
 import static ceri.common.color.ColorUtil.a;
 import static ceri.common.color.ColorUtil.ratio;
 import static ceri.common.color.ColorUtil.value;
@@ -10,7 +11,6 @@ import java.util.Objects;
  * Represents a CIE LUV color with alpha. Approximate values a and L* 0-1, u* and v* -1 to +1.
  */
 public class LuvColor {
-	public static final double MAX_ALPHA = 1.0;
 	public final double a;
 	public final double l; // L*
 	public final double u; // u*
@@ -96,8 +96,8 @@ public class LuvColor {
 		 * Convert CIE LUV to sRGB int, using this reference. Alpha is maintained.
 		 */
 		public int argb(LuvColor luv) {
-			return ColorUtil.alphaArgb(value(luv.a),
-				ColorSpaces.luvToRgb(yn, un, vn, luv.l, luv.u, luv.v));
+			return Component.a.set(ColorSpaces.luvToRgb(yn, un, vn, luv.l, luv.u, luv.v),
+				value(luv.a));
 		}
 
 		/**
@@ -136,7 +136,7 @@ public class LuvColor {
 	 * Construct opaque instance from CIE L*u*v*.
 	 */
 	public static LuvColor of(double l, double u, double v) {
-		return new LuvColor(MAX_ALPHA, l, u, v);
+		return new LuvColor(MAX_RATIO, l, u, v);
 	}
 
 	/**
@@ -164,7 +164,7 @@ public class LuvColor {
 	 * Returns true if not opaque.
 	 */
 	public boolean hasAlpha() {
-		return a < MAX_ALPHA;
+		return a < MAX_RATIO;
 	}
 
 	@Override

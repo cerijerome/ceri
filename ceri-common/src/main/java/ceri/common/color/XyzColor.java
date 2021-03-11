@@ -1,5 +1,6 @@
 package ceri.common.color;
 
+import static ceri.common.color.ColorUtil.MAX_RATIO;
 import static ceri.common.color.ColorUtil.a;
 import static ceri.common.color.ColorUtil.ratio;
 import static ceri.common.color.ColorUtil.value;
@@ -21,7 +22,6 @@ public class XyzColor {
 	public static final XyzColor CIE_F2 = of(0.99186, 1.0, 0.67393);
 	public static final XyzColor CIE_F7 = of(0.95041, 1.0, 1.08747);
 	public static final XyzColor CIE_F11 = of(1.00962, 1.0, 0.64350);
-	public static final double MAX_ALPHA = ColorUtil.MAX_RATIO;
 	public final double a;
 	public final double x;
 	public final double y;
@@ -54,7 +54,7 @@ public class XyzColor {
 	 * Construct opaque instance from CIE XYZ 0-1 values.
 	 */
 	public static XyzColor of(double x, double y, double z) {
-		return new XyzColor(MAX_ALPHA, x, y, z);
+		return new XyzColor(MAX_RATIO, x, y, z);
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class XyzColor {
 	 * Convert to sRGB int. Alpha is maintained.
 	 */
 	public int argb() {
-		return ColorUtil.alphaArgb(value(a), ColorSpaces.xyzToRgb(x, y, z));
+		return Component.a.set(ColorSpaces.xyzToRgb(x, y, z), value(a));
 	}
 
 	/**
@@ -133,7 +133,7 @@ public class XyzColor {
 	 * Returns true if not opaque.
 	 */
 	public boolean hasAlpha() {
-		return a < MAX_ALPHA;
+		return a < MAX_RATIO;
 	}
 
 	/**

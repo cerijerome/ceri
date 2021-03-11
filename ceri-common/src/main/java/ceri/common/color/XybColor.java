@@ -1,5 +1,6 @@
 package ceri.common.color;
 
+import static ceri.common.color.ColorUtil.MAX_RATIO;
 import static ceri.common.color.ColorUtil.a;
 import static ceri.common.color.ColorUtil.ratio;
 import static ceri.common.color.ColorUtil.value;
@@ -13,7 +14,6 @@ import ceri.common.math.MathUtil;
  * Represents CIE xyY color, Y = brightness (b). All values approximately 0-1.
  */
 public class XybColor {
-	public static final double MAX_VALUE = 1.0;
 	public static final Point2d CENTER = XyzColor.CIE_E.xyb().xy();
 	public final double a;
 	public final double x;
@@ -47,14 +47,14 @@ public class XybColor {
 	 * Construct an opaque instance from CIE xy 0-1 values, with full brightness.
 	 */
 	public static XybColor full(double x, double y) {
-		return of(x, y, MAX_VALUE);
+		return of(x, y, MAX_RATIO);
 	}
 
 	/**
 	 * Construct an opaque instance from CIE xyY 0-1 values.
 	 */
 	public static XybColor of(double x, double y, double b) {
-		return of(MAX_VALUE, x, y, b);
+		return of(MAX_RATIO, x, y, b);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class XybColor {
 	 * Convert to sRGB int. Alpha is maintained.
 	 */
 	public int argb() {
-		return ColorUtil.alphaArgb(value(a), ColorSpaces.xybToRgb(x, y, b));
+		return Component.a.set(ColorSpaces.xybToRgb(x, y, b), value(a));
 	}
 
 	/**
@@ -133,7 +133,7 @@ public class XybColor {
 	 * Returns true if not opaque.
 	 */
 	public boolean hasAlpha() {
-		return a < MAX_VALUE;
+		return a < MAX_RATIO;
 	}
 
 	/**
@@ -148,9 +148,9 @@ public class XybColor {
 	 * Normalizes xy around CIE E, limits alpha and brightness to 0-1.
 	 */
 	public XybColor normalize() {
-		double a = limit(this.a);
+		double a = ColorUtil.limit(this.a);
 		Point2d xy = normalize(x, y);
-		double b = limit(this.b);
+		double b = ColorUtil.limit(this.b);
 		if (a == this.a && xy.x == this.x && xy.y == this.y && b == this.b) return this;
 		return of(a, xy.x, xy.y, b);
 	}
@@ -159,10 +159,10 @@ public class XybColor {
 	 * Limits values 0-1.
 	 */
 	public XybColor limit() {
-		double a = limit(this.a);
-		double x = limit(this.x);
-		double y = limit(this.y);
-		double b = limit(this.b);
+		double a = ColorUtil.limit(this.a);
+		double x = ColorUtil.limit(this.x);
+		double y = ColorUtil.limit(this.y);
+		double b = ColorUtil.limit(this.b);
 		if (a == this.a && x == this.x && y == this.y && b == this.b) return this;
 		return of(a, x, y, b);
 	}
@@ -200,19 +200,15 @@ public class XybColor {
 	}
 
 	private void validate(double value, String name) {
-		validateRangeFp(value, 0, MAX_VALUE, name);
-	}
-
-	private double limit(double value) {
-		return MathUtil.limit(value, 0, MAX_VALUE);
+		validateRangeFp(value, 0, MAX_RATIO, name);
 	}
 
 	private Point2d normalize(double x, double y) {
 		// normalize around CIE_E
-		double factor = MathUtil.max(MAX_VALUE, //
-			(x - CENTER.x) / (MAX_VALUE - CENTER.x), (CENTER.x - x) / CENTER.x,
-			(y - CENTER.y) / (MAX_VALUE - CENTER.y), (CENTER.y - y) / CENTER.y);
-		if (factor == MAX_VALUE) return Point2d.of(x, y);
+		double factor = MathUtil.max(MAX_RATIO, //
+			(x - CENTER.x) / (MAX_RATIO - CENTER.x), (CENTER.x - x) / CENTER.x,
+			(y - CENTER.y) / (MAX_RATIO - CENTER.y), (CENTER.y - y) / CENTER.y);
+		if (factor == MAX_RATIO) return Point2d.of(x, y);
 		x = ((x - CENTER.x) / factor) + CENTER.x;
 		y = ((y - CENTER.y) / factor) + CENTER.y;
 		return Point2d.of(x, y);

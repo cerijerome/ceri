@@ -22,17 +22,17 @@ public class ColorxUtilTest {
 	}
 
 	@Test
-	public void testAlphaXargb() {
-		assertEquals(ColorxUtil.alphaXargb(0xff, 0x0L), 0xff000000L);
-		assertEquals(ColorxUtil.alphaXargb(0x0, 0xfedcba9876543210L), 0xfedcba9800543210L);
-		assertEquals(ColorxUtil.alphaXargb(0xef, 0xfedcba9876543210L), 0xfedcba98ef543210L);
-	}
-
-	@Test
 	public void testApplyAlphaXargb() {
 		assertEquals(ColorxUtil.applyAlphaXargb(0x804000804020L), 0x0000ff000000L);
 		assertEquals(ColorxUtil.applyAlphaXargb(0x804080804020L), 0x4020ff402010L);
 		assertEquals(ColorxUtil.applyAlphaXargb(0x8040ff804020L), 0x8040ff804020L);
+	}
+
+	@Test
+	public void testArgb() {
+		assertEquals(ColorxUtil.argb(0x0L), 0);
+		assertEquals(ColorxUtil.argb(-1L), -1);
+		assertEquals(ColorxUtil.argb(0xfedcba9876543210L), 0x76543210);
 	}
 
 	@Test
@@ -100,13 +100,6 @@ public class ColorxUtilTest {
 			0x99bbddffff446622L);
 		assertEquals(ColorxUtil.scaleXargb(0xffddbb99ff224466L, 0x99bbddffff446622L, 0.5),
 			0xccccccccff335544L);
-	}
-
-	@Test
-	public void testAlpha() {
-		assertColorx(ColorxUtil.alpha(0, Colorx.of(0)), 0L);
-		assertColorx(ColorxUtil.alpha(0, Colorx.of(0xfedcba9876543210L)), 0xfedcba9800543210L);
-		assertColorx(ColorxUtil.alpha(0xee, Colorx.of(0xfedcba9876543210L)), 0xfedcba98ee543210L);
 	}
 
 	@Test

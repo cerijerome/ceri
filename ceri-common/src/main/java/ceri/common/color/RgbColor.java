@@ -110,7 +110,7 @@ public class RgbColor {
 		double[] hsb = hsbValues();
 		return HsbColor.of(a, hsb[0], hsb[1], hsb[2]);
 	}
-	
+
 	/**
 	 * Convert to HSB 0-1 values. Alpha is dropped.
 	 */
@@ -155,7 +155,7 @@ public class RgbColor {
 		if (a == MAX_RATIO) return this;
 		return of(r * a, g * a, b * a);
 	}
-	
+
 	/**
 	 * Returns true if not opaque.
 	 */
@@ -175,7 +175,7 @@ public class RgbColor {
 	 * Normalize components, limiting a, and scaling rgb so that max and min are 0-1.
 	 */
 	public RgbColor normalize() {
-		double a = limit(this.a);
+		double a = ColorUtil.limit(this.a);
 		double min = MathUtil.min(r, g, b, 0);
 		double d = MathUtil.max(r, g, b, 1) - min;
 		if (min == 0 && d == 1 && a == this.a) return this;
@@ -186,10 +186,10 @@ public class RgbColor {
 	 * Truncates components to range 0-1.
 	 */
 	public RgbColor limit() {
-		double a = limit(this.a);
-		double r = limit(this.r);
-		double g = limit(this.g);
-		double b = limit(this.b);
+		double a = ColorUtil.limit(this.a);
+		double r = ColorUtil.limit(this.r);
+		double g = ColorUtil.limit(this.g);
+		double b = ColorUtil.limit(this.b);
 		if (a == this.a && r == this.r && g == this.g && b == this.b) return this;
 		return of(a, r, g, b);
 	}
@@ -228,9 +228,5 @@ public class RgbColor {
 
 	private void validate(double value, String name) {
 		validateRangeFp(value, 0, MAX_RATIO, name);
-	}
-
-	private double limit(double value) {
-		return MathUtil.limit(value, 0, MAX_RATIO);
 	}
 }

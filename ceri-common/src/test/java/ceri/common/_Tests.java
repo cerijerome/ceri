@@ -35,6 +35,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.color.ColorxComparatorsTest.class, //
 	ceri.common.color.ColorxUtilTest.class, //
 	ceri.common.color.ColorxableTest.class, //
+	ceri.common.color.ComponentBehavior.class, //
 	ceri.common.color.GrayCharBehavior.class, //
 	ceri.common.color.HsbColorBehavior.class, //
 	ceri.common.color.LuvColorBehavior.class, //
