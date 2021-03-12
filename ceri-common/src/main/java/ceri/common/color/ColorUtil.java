@@ -24,9 +24,9 @@ import ceri.common.text.StringUtil;
  * Utilities for handling colors, including 4-byte argb ints, 3-byte rgb ints and Color objects.
  */
 public class ColorUtil {
-	private static final Pattern ARGB_REGEX = Pattern.compile("(0x|#)?([0-9a-fA-F]{1,8})");
+	private static final Pattern HEX_REGEX = Pattern.compile("(0x|#)([0-9a-fA-F]{1,8})");
 	public static final Color clear = color(0);
-	private static final BiMap<Integer, String> colors = colors();
+	private static final BiMap<Integer, String> colors = colors(); // any alpha
 	private static final int HEX_RGB_MAX_LEN = 6;
 	private static final int HEX_ARGB_MAX_LEN = 8;
 	private static final int HEX3_LEN = 3;
@@ -575,7 +575,7 @@ public class ColorUtil {
 	 * null if no match.
 	 */
 	private static Integer hexArgb(String text) {
-		Matcher m = RegexUtil.matched(ARGB_REGEX, text);
+		Matcher m = RegexUtil.matched(HEX_REGEX, text);
 		if (m == null) return null;
 		String prefix = m.group(1);
 		String hex = m.group(2);
@@ -600,7 +600,7 @@ public class ColorUtil {
 		return argb;
 	}
 
-	static int hexArgb(String prefix, int len, int argb) {
+	private static int hexArgb(String prefix, int len, int argb) {
 		if (len > HEX_RGB_MAX_LEN) return argb; // argb
 		if (!"#".equals(prefix) || len != HEX3_LEN) return argb(argb); // rgb
 		int r = Component.r.intValue((argb >>> HEX3_R_SHIFT) & HEX3_MASK);

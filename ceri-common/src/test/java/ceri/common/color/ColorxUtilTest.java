@@ -159,6 +159,8 @@ public class ColorxUtilTest {
 		assertEquals(ColorxUtil.toString(Colorx.clear), "#00000000(clear)");
 		assertEquals(ColorxUtil.toString(0x12345678L), "#12345678");
 		assertEquals(ColorxUtil.toString(0x123456789aL), "#123456789a");
+		assertEquals(ColorxUtil.toString(0xff77ffffffL), "#ff77ffffff(fullX0)");
+		assertEquals(ColorxUtil.toString(0xffff77ffffffL), "#ffff77ffffff(fullX01)");
 		assertEquals(ColorxUtil.toString(Colorx.fullX012), "#ffffffffffffff(fullX012)");
 	}
 

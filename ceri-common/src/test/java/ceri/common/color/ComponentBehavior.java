@@ -8,6 +8,15 @@ import org.junit.Test;
 public class ComponentBehavior {
 
 	@Test
+	public void testComponentCount() {
+		assertEquals(Component.count(0L), 0);
+		assertEquals(Component.count(0x1), 1);
+		assertEquals(Component.count(0xf00000000L), 5);
+		assertEquals(Component.count(0xff000000000000L), 7);
+		assertEquals(Component.count(-1L), 8);
+	}
+
+	@Test
 	public void testGetXByIndex() {
 		assertEquals(Component.x(0), Component.x0);
 		assertEquals(Component.x(3), Component.x3);

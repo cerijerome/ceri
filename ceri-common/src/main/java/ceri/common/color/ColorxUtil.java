@@ -24,18 +24,25 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import ceri.common.collection.BiMap;
+import ceri.common.data.IntProvider;
 import ceri.common.math.MathUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
 public class ColorxUtil {
-	private static final Pattern XARGB_REGEX = Pattern.compile("(0x|#)?([0-9a-fA-F]{1,16})");
-	private static final BiMap<Long, String> colorxs = colorxs();
-	private static final int HEX_RGB_MAX_LEN = 6;
+	private static final Pattern HEX_REGEX = Pattern.compile("(?:0x|#)([0-9a-fA-F]{1,16})");
+	private static final BiMap<Long, String> colorxs = colorxs(); // full alpha
 
 	private ColorxUtil() {}
 
 	/* xargb long methods */
+
+	/**
+	 * Determine if xargb long has any x component.
+	 */
+	public static boolean hasX(long xargb) {
+		return (xargb & X_MASK) != 0L;
+	}
 
 	/**
 	 * Applies alpha component to create a scaled opaque xargb int.
@@ -84,17 +91,18 @@ public class ColorxUtil {
 	}
 
 	/**
-	 * Returns an xargb long from colorx name, or hex representation. Named colorxs are opaque, hex
-	 * colorxs have alpha components. Returns null if no match.
+	 * Returns an xargb long from colorx name, or hex representation. Returns null if no match.
 	 */
 	public static Long xargb(String text) {
+		Integer argb = ColorUtil.argb(text);
+		if (argb != null) return xargb(argb);
 		Long xargb = namedArgbx(text);
 		return xargb != null ? xargb : hexXargb(text);
 	}
 
 	/**
-	 * Returns an xargb long from colorx name, or hex representation. Named colorxs are opaque, hex
-	 * colorxs have alpha components. Throws an exception if no match.
+	 * Returns an xargb long from colorx name, or hex representation. Throws an exception if no
+	 * match.
 	 */
 	public static long validXargb(String text) {
 		Long xargb = xargb(text);
@@ -294,9 +302,7 @@ public class ColorxUtil {
 	 * Returns the hex string, with name if xargb matches a named colorx.
 	 */
 	public static String toString(long xargb) {
-		String name = name(xargb);
-		String hex = hex(xargb);
-		return name == null ? hex : hex + "(" + name + ")";
+		return hasX(xargb) ? toStringX(xargb) : ColorUtil.toString((int) xargb);
 	}
 
 	/**
@@ -310,21 +316,21 @@ public class ColorxUtil {
 	 * Looks up the colorx name. Returns null if no match.
 	 */
 	public static String name(long xargb) {
-		return colorxs.keys.get(xargb);
+		return hasX(xargb) ? nameX(xargb) : ColorUtil.name((int) xargb);
 	}
 
 	/**
-	 * Creates a hex string from colorx. Uses 8 digits if opaque, otherwise 10.
+	 * Creates a hex string from colorx. Returns color hex if no x component.
 	 */
 	public static String hex(Colorx colorx) {
 		return hex(colorx.xargb);
 	}
 
 	/**
-	 * Creates a hex string from xargb long. Drops leading zero x values.
+	 * Creates a hex string from xargb long. Returns argb hex if no x component.
 	 */
 	public static String hex(long xargb) {
-		return "#" + StringUtil.toHex(xargb, components(xargb) << 1);
+		return hasX(xargb) ? hexX(xargb) : ColorUtil.hex((int) xargb);
 	}
 
 	/* stream methods */
@@ -414,6 +420,13 @@ public class ColorxUtil {
 	 * Extract sequence of rgb values from each argb to determine x components.
 	 */
 	public static LongStream denormalize(IntStream argbStream, int... xrgbs) {
+		return denormalize(argbStream, IntProvider.of(xrgbs));
+	}
+
+	/**
+	 * Extract sequence of rgb values from each argb to determine x components.
+	 */
+	public static LongStream denormalize(IntStream argbStream, IntProvider xrgbs) {
 		return argbStream.mapToLong(argb -> denormalizeXargb(argb, xrgbs));
 	}
 
@@ -428,6 +441,13 @@ public class ColorxUtil {
 	 * For each xargb, combine x-scaled rgb values with argb, scaling to fit within argb bounds.
 	 */
 	public static IntStream normalize(LongStream xargbStream, int... xrgbs) {
+		return normalize(xargbStream, IntProvider.of(xrgbs));
+	}
+
+	/**
+	 * For each xargb, combine x-scaled rgb values with argb, scaling to fit within argb bounds.
+	 */
+	public static IntStream normalize(LongStream xargbStream, IntProvider xrgbs) {
 		return xargbStream.mapToInt(xargb -> normalizeArgb(xargb, xrgbs));
 	}
 
@@ -466,12 +486,21 @@ public class ColorxUtil {
 	 * Extract sequence of rgb values from argb to determine x components.
 	 */
 	public static long denormalizeXargb(int argb, int... xrgbs) {
-		if (xrgbs.length == 0) return xargb(argb);
+		return denormalizeXargb(argb, IntProvider.of(xrgbs));
+	}
+
+	/**
+	 * Extract sequence of rgb values from argb to determine x components.
+	 */
+	public static long denormalizeXargb(int argb, IntProvider xrgbs) {
+		if (xrgbs.length() == 0) return xargb(argb);
 		int[] rgb = { ColorUtil.r(argb), ColorUtil.g(argb), ColorUtil.b(argb) };
-		int[] xs = new int[Math.min(X_COUNT, xrgbs.length)];
-		for (int i = 0; i < xs.length; i++)
-			if (ColorUtil.rgb(xrgbs[i]) != 0) xs[i] = denormalize(rgb, ColorUtil.r(xrgbs[i]),
-				ColorUtil.g(xrgbs[i]), ColorUtil.b(xrgbs[i]));
+		int[] xs = new int[Math.min(X_COUNT, xrgbs.length())];
+		for (int i = 0; i < xs.length; i++) {
+			int xrgb = xrgbs.getInt(i);
+			if (ColorUtil.rgb(xrgb) != 0)
+				xs[i] = denormalize(rgb, ColorUtil.r(xrgb), ColorUtil.g(xrgb), ColorUtil.b(xrgb));
+		}
 		argb = ColorUtil.argb(ColorUtil.a(argb), rgb[0], rgb[1], rgb[2]);
 		return xargb(argb, xs);
 	}
@@ -487,10 +516,17 @@ public class ColorxUtil {
 	 * Combine x-scaled rgb values with argb, scaling to fit within argb bounds.
 	 */
 	public static int normalizeArgb(long xargb, int... xrgbs) {
-		if (xrgbs.length == 0) return (int) xargb;
+		return normalizeArgb(xargb, IntProvider.of(xrgbs));
+	}
+
+	/**
+	 * Combine x-scaled rgb values with argb, scaling to fit within argb bounds.
+	 */
+	public static int normalizeArgb(long xargb, IntProvider xrgbs) {
+		if (xrgbs.length() == 0) return (int) xargb;
 		int[] rgb = { r(xargb), g(xargb), b(xargb) };
-		for (int i = 0; i < Math.min(X_COUNT, xrgbs.length); i++)
-			normalize(rgb, xrgbs[i], x(xargb, i));
+		for (int i = 0; i < Math.min(X_COUNT, xrgbs.length()); i++)
+			normalize(rgb, xrgbs.getInt(i), x(xargb, i));
 		int max = MathUtil.max(rgb);
 		if (max <= MAX_VALUE) return ColorUtil.argb(a(xargb), rgb[0], rgb[1], rgb[2]);
 		return ColorUtil.argb(a(xargb), roundDiv(rgb[0] * MAX_VALUE, max),
@@ -514,25 +550,29 @@ public class ColorxUtil {
 
 	/* support methods */
 
+	private static String toStringX(long xargb) {
+		String name = nameX(xargb);
+		String hex = hexX(xargb);
+		return name == null ? hex : hex + "(" + name + ")";
+	}
+
+	private static String nameX(long xargb) {
+		return colorxs.keys.get(xargb | Component.a.mask);
+	}
+
+	private static String hexX(long xargb) {
+		return "#" + StringUtil.toHex(xargb, Component.count(xargb) << 1);
+	}
+
 	private static Long namedArgbx(String name) {
 		return colorxs.values.get(name);
 	}
 
-	/**
-	 * Converts hex string to argb int. The value must be prefixed with '#' or '0x', and contain
-	 * 1..16 hex digits. Up to 4 hex pairs may be specified for x components before hex pairs for a,
-	 * r, g, b. If <= 6 digits, the value is treated as opaque. Triple hex '#rgb' values will be
-	 * treated as opaque 'rrggbb' hex values. Returns null if no match.
-	 */
 	private static Long hexXargb(String text) {
-		Matcher m = RegexUtil.matched(XARGB_REGEX, text);
+		Matcher m = RegexUtil.matched(HEX_REGEX, text);
 		if (m == null) return null;
-		String prefix = m.group(1);
-		String hex = m.group(2);
-		long xargb = Long.parseUnsignedLong(hex, HEX_RADIX);
-		int len = hex.length();
-		if (len >= HEX_RGB_MAX_LEN) return xargb;
-		return uint(ColorUtil.hexArgb(prefix, len, (int) xargb));
+		String hex = m.group(1);
+		return Long.parseUnsignedLong(hex, HEX_RADIX);
 	}
 
 	private static int denormalize(int[] rgb, int r, int g, int b) {
@@ -555,21 +595,8 @@ public class ColorxUtil {
 		return (double) c / c0;
 	}
 
-	private static int xCount(long xargb) {
-		for (int i = X_COUNT - 1; i >= 0; i--)
-			if (x(xargb, i) != 0) return i + 1;
-		return 0;
-	}
-
-	private static int components(long xargb) {
-		int nx = xCount(xargb);
-		if (nx > 0) return (nx + Integer.BYTES);
-		return (xargb & Component.a.mask) == Component.a.mask ? Integer.BYTES - 1 : Integer.BYTES;
-	}
-
 	private static BiMap<Long, String> colorxs() {
 		return BiMap.<Long, String>builder() //
-			.put(Colorx.clear.xargb, "clear") //
 			.put(Colorx.black.xargb, "black") //
 			.put(Colorx.fullX0.xargb, "fullX0") //
 			.put(Colorx.fullX01.xargb, "fullX01") //

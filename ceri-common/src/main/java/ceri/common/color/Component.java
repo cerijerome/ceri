@@ -29,6 +29,17 @@ public enum Component {
 	public final int intMask;
 
 	/**
+	 * Counts up to the last non-zero component.
+	 */
+	public static int count(long xargb) {
+		for (int i = 0; i < Long.BYTES; i++) {
+			if (xargb == 0L) return i;
+			xargb >>>= Byte.SIZE;
+		}
+		return Long.BYTES;
+	}
+
+	/**
 	 * Get x component by index.
 	 */
 	public static Component x(int index) {
@@ -68,10 +79,17 @@ public enum Component {
 	}
 
 	/**
+	 * Returns true if component fits in argb int.
+	 */
+	public boolean isInt() {
+		return shift < Integer.SIZE;
+	}
+
+	/**
 	 * Extract component value from argb int.
 	 */
 	public int get(int argb) {
-		return shift >= Integer.SIZE ? 0 : ubyte(argb >>> shift);
+		return isInt() ? ubyte(argb >>> shift) : 0;
 	}
 
 	/**
@@ -99,7 +117,7 @@ public enum Component {
 	 * Shift value to its position in argb int.
 	 */
 	public int intValue(int value) {
-		return shift >= Integer.SIZE ? 0 : ubyte(value) << shift;
+		return isInt() ? ubyte(value) << shift : 0;
 	}
 
 	/**

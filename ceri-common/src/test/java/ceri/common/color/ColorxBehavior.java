@@ -32,6 +32,17 @@ public class ColorxBehavior {
 	}
 
 	@Test
+	public void shouldDetermineIfAnyXIsSet() {
+		assertEquals(Colorx.of(0L).hasX(), false);
+		assertEquals(Colorx.of(0xffffffffL).hasX(), false);
+		assertEquals(Colorx.of(-1L).hasX(), true);
+		assertEquals(Colorx.of(0x0100000000L).hasX(), true);
+		assertEquals(Colorx.of(0x010000000000L).hasX(), true);
+		assertEquals(Colorx.of(0x01000000000000L).hasX(), true);
+		assertEquals(Colorx.of(0x0100000000000000L).hasX(), true);
+	}
+
+	@Test
 	public void shouldAccessXComponent() {
 		assertEquals(Colorx.of(0x33221100886644L).x(0), 0x11);
 		assertEquals(Colorx.of(0x33221100886644L).x(1), 0x22);

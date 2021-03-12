@@ -60,6 +60,13 @@ public class Colorx {
 	}
 
 	/**
+	 * Determine if any x component is set.
+	 */
+	public boolean hasX() {
+		return ColorxUtil.hasX(xargb);
+	}
+	
+	/**
 	 * Extract component.
 	 */
 	public int a() {
