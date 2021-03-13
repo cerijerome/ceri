@@ -9,7 +9,7 @@ public class FluentBehavior {
 
 	@Test
 	public void shouldApplyConsumer() {
-		Captor.Int capturer = Captor.ofInt();
+		Captor.OfInt capturer = Captor.ofInt();
 		FluentTest test = new FluentTest(3);
 		test.apply(t -> capturer.accept(t.id)).apply(null).apply(t -> capturer.accept(-t.id));
 		capturer.verifyInt(3, -3);

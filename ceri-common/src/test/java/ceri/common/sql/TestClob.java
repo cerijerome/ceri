@@ -12,7 +12,7 @@ public class TestClob implements Clob {
 	public static TestClob of() {
 		return new TestClob();
 	}
-	
+
 	protected TestClob() {}
 
 	@Override
@@ -75,5 +75,5 @@ public class TestClob implements Clob {
 	public Reader getCharacterStream(long pos, long length) throws SQLException {
 		return null;
 	}
-	
+
 }

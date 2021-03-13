@@ -86,7 +86,7 @@ public class ColorTestUtil {
 		assertApprox(color.u, u, "u");
 		assertApprox(color.v, v, "v");
 	}
-	
+
 	private static Integer argb(Color color) {
 		return color == null ? null : color.getRGB();
 	}

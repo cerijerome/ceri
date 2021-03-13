@@ -10,9 +10,9 @@ public class TestBlob implements Blob {
 	public static TestBlob of() {
 		return new TestBlob();
 	}
-	
+
 	protected TestBlob() {}
-	
+
 	@Override
 	public long length() throws SQLException {
 		return 0;
@@ -63,5 +63,5 @@ public class TestBlob implements Blob {
 	public InputStream getBinaryStream(long pos, long length) throws SQLException {
 		return null;
 	}
-	
+
 }

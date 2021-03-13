@@ -13,8 +13,8 @@ import java.util.Set;
 import ceri.common.test.CallSync;
 
 public class TestFileSystem extends FileSystem {
-	public final CallSync.Get<List<Path>> getRootDirectories = CallSync.supplier(List.of()); 
-	
+	public final CallSync.Get<List<Path>> getRootDirectories = CallSync.supplier(List.of());
+
 	public static TestFileSystem of() {
 		return new TestFileSystem();
 	}

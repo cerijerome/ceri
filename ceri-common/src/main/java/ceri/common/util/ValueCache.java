@@ -26,7 +26,7 @@ public class ValueCache<E extends Exception, T> implements ExceptionSupplier<E, 
 		this.value = value;
 		hasValue = true;
 	}
-	
+
 	@Override
 	public T get() throws E {
 		if (!hasValue) set(supplier.get());

@@ -44,6 +44,11 @@ public class ColorsTest {
 	}
 
 	@Test
+	public void shouldProvideXargb() {
+		assertEquals(Colors.gainsboro.xargb(), 0xffdcdcdcL);
+	}
+
+	@Test
 	public void shouldProvideLightnessValue() {
 		assertEquals(Colors.black.lightness(), 0.0);
 		assertApprox(Colors.blue.lightness(), 0.323);

@@ -353,7 +353,7 @@ public class MathUtil {
 			gcd = calculateGcd(gcd, nums[i]);
 		return gcd;
 	}
-	
+
 	/**
 	 * Calculates the lowest common multiple of given numbers.
 	 */
@@ -1032,7 +1032,7 @@ public class MathUtil {
 	}
 
 	/* support methods */
-	
+
 	/**
 	 * Calculates the greatest common divisor of two numbers.
 	 */

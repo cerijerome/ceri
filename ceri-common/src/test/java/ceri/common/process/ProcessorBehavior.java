@@ -15,7 +15,7 @@ public class ProcessorBehavior {
 		Processor p0 = Processor.builder().timeoutMs(777).build();
 		assertEquals(Processor.builder(p0).timeoutMs, 777);
 	}
-	
+
 	@Test
 	public void shouldIgnoreEmptyCommand() throws IOException {
 		assertNull(Processor.DEFAULT.exec());

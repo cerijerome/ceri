@@ -61,7 +61,7 @@ public class HolderBehavior {
 		assertEquals(Holder.mutable().value("test"), "test");
 		assertEquals(Holder.mutable("test").value("test0"), "test");
 	}
-	
+
 	@Test
 	public void shouldDetermineIfHoldsValue() {
 		assertTrue(Holder.of("test").holds("test"));

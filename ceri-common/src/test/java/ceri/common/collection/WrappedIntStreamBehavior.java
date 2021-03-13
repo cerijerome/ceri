@@ -19,7 +19,7 @@ import ceri.common.function.FunctionTestUtil;
 import ceri.common.test.Captor;
 
 public class WrappedIntStreamBehavior {
-	private final Captor.Int capture = Captor.ofInt();
+	private final Captor.OfInt capture = Captor.ofInt();
 
 	// Function type generators:
 	// 0 => throws RuntimeException

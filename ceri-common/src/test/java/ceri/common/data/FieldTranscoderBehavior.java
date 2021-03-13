@@ -31,8 +31,7 @@ public class FieldTranscoderBehavior {
 	}
 
 	static class Holder {
-		static IntField.Typed<Holder> accessor =
-			IntField.typed(h -> h.val, (h, i) -> h.val = i);
+		static IntField.Typed<Holder> accessor = IntField.typed(h -> h.val, (h, i) -> h.val = i);
 		static FieldTranscoder.Typed<Holder, E> field =
 			FieldTranscoder.Typed.of(Holder.accessor, xcoder);
 

@@ -1,7 +1,10 @@
 package ceri.common.color;
 
 import static ceri.common.color.ColorUtil.argbs;
-import static ceri.common.color.Component.*;
+import static ceri.common.color.Component.x0;
+import static ceri.common.color.Component.x1;
+import static ceri.common.color.Component.x2;
+import static ceri.common.color.Component.x3;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Objects;
@@ -65,7 +68,7 @@ public class Colorx {
 	public boolean hasX() {
 		return ColorxUtil.hasX(xargb);
 	}
-	
+
 	/**
 	 * Extract component.
 	 */

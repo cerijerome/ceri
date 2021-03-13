@@ -8,7 +8,8 @@ import static ceri.common.collection.ArrayUtil.floats;
 import static ceri.common.collection.ArrayUtil.ints;
 import static ceri.common.collection.ArrayUtil.longs;
 import static ceri.common.collection.ArrayUtil.shorts;
-import static ceri.common.test.AssertUtil.*;
+import static ceri.common.test.AssertUtil.assertApprox;
+import static ceri.common.test.AssertUtil.assertApproxArray;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertArrayObject;
 import static ceri.common.test.AssertUtil.assertAscii;
@@ -344,14 +345,14 @@ public class AssertUtilTest {
 		assertApproxArray(4, doubles(0.1234, 0.1235), 0.1234, 0.1235);
 		assertAssertion(() -> assertApproxArray(doubles(0.1234, 0.1235), 0.1235, 0.1235));
 	}
-	
+
 	@Test
 	public void testAssertArrayWithinDiff() {
 		assertArray(0.001, doubles(0.1234, 0.1235), 0.1233, 0.1236);
 		assertArray(0.0001, doubles(0.1234, 0.1235), 0.1234, 0.1235);
 		assertAssertion(() -> assertArray(0.0001, doubles(0.1234, 0.1235), 0.1235, 0.1235));
 	}
-	
+
 	@Test
 	public void testAssertArrayForByteProvider() {
 		assertArray(TestUtil.provider(1, 2, 3), 1, 2, 3);

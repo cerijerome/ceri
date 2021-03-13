@@ -6,7 +6,7 @@ import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
 
 /**
- * Provides a monochrome character scale, useful for generating gray images in text-only displays. 
+ * Provides a monochrome character scale, useful for generating gray images in text-only displays.
  */
 public class GrayChar {
 	public static final GrayChar COURIER =

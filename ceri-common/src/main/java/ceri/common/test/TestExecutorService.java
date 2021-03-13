@@ -7,7 +7,8 @@ import ceri.common.time.Timeout;
 
 public class TestExecutorService extends AbstractExecutorService {
 	public final CallSync.Accept<Runnable> execute = CallSync.consumer(null, true);
-	public final CallSync.Apply<Boolean, List<Runnable>> shutdown = CallSync.function(false, List.of());
+	public final CallSync.Apply<Boolean, List<Runnable>> shutdown =
+		CallSync.function(false, List.of());
 	public final CallSync.Apply<Timeout, Boolean> awaitTermination = CallSync.function(null, true);
 
 	public static TestExecutorService of() {
@@ -36,7 +37,7 @@ public class TestExecutorService extends AbstractExecutorService {
 	public List<Runnable> shutdownNow() {
 		return shutdown.apply(true);
 	}
-	
+
 	@Override
 	public boolean isTerminated() {
 		return isShutdown();

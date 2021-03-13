@@ -103,8 +103,7 @@ public class FieldTranscoder<T> {
 		private final IntField.Typed<S> field;
 		private final TypeTranscoder<T> xcoder;
 
-		public static <S, T> Typed<S, T> of(IntField.Typed<S> field,
-			TypeTranscoder<T> xcoder) {
+		public static <S, T> Typed<S, T> of(IntField.Typed<S> field, TypeTranscoder<T> xcoder) {
 			return new Typed<>(field, xcoder);
 		}
 

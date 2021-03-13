@@ -343,14 +343,14 @@ public interface IntProvider extends Iterable<Integer> {
 	}
 
 	/**
-	 * Provides unsigned ints from index as a stream.
+	 * Provides signed ints from index as a stream.
 	 */
 	default IntStream stream(int index) {
 		return stream(index, length() - index);
 	}
 
 	/**
-	 * Provides unsigned ints from index as a stream.
+	 * Provides signed ints from index as a stream.
 	 */
 	default IntStream stream(int index, int length) {
 		ArrayUtil.validateSlice(length(), index, length);

@@ -54,7 +54,7 @@ public class ByteProviderBehavior {
 
 	@Test
 	public void shouldIterateValues() {
-		Captor.Int captor = Captor.ofInt();
+		Captor.OfInt captor = Captor.ofInt();
 		for (int i : ByteProvider.empty())
 			captor.accept(i);
 		captor.verifyInt();

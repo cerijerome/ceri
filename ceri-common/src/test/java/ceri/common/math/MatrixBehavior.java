@@ -208,7 +208,7 @@ public class MatrixBehavior {
 		assertMatrix(Matrix.I3.add(0), Matrix.I3);
 		assertMatrix(Matrix.I2.add(1), 2, 2, 1, 1, 2);
 	}
-	
+
 	@Test
 	public void shouldAddMatrices() {
 		Matrix m = Matrix.identity(2);

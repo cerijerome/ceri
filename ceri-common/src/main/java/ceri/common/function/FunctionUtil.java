@@ -105,7 +105,7 @@ public class FunctionUtil {
 		Counter counter = Counter.of();
 		return () -> ts[min(counter.intInc(), ts.length) - 1];
 	}
-	
+
 	/**
 	 * If value is null, return first non-null supplied value.
 	 */

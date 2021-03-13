@@ -399,14 +399,14 @@ public enum Colors {
 		Colors c = from(rgb);
 		return c == null ? null : c.name();
 	}
-	
+
 	/**
 	 * Lookup name by color. Returns null if not found.
 	 */
 	public static String name(Color color) {
 		return name(color.getRGB());
 	}
-	
+
 	/**
 	 * Lookup by name.
 	 */
@@ -441,17 +441,24 @@ public enum Colors {
 	}
 
 	/**
+	 * Return as xargb long.
+	 */
+	public long xargb() {
+		return ColorxUtil.xargb(argb);
+	}
+
+	/**
+	 * Return as color object.
+	 */
+	public Color color() {
+		return ColorUtil.color(argb);
+	}
+
+	/**
 	 * Calculate lightness of the color, by converting sRGB to CIELUV L* with D65 illuminant.
 	 */
 	public double lightness() {
 		return LuvColor.Ref.CIE_D65.l(argb);
-	}
-
-	/**
-	 * Provide
-	 */
-	public Color color() {
-		return ColorUtil.color(argb);
 	}
 
 	private static Map<Integer, Colors> lookup() {

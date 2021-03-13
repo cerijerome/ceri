@@ -78,7 +78,7 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 		if (enabled) read.autoResponses(-1);
 		else read.autoResponses((Integer) null);
 	}
-	
+
 	@Override
 	public int read() throws IOException {
 		byte[] bytes = new byte[1];

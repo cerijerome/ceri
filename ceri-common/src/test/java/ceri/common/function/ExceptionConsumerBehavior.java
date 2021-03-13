@@ -12,7 +12,7 @@ public class ExceptionConsumerBehavior {
 
 	@Test
 	public void shouldCombineConsumers() throws IOException {
-		Captor.Int capturer = Captor.ofInt();
+		Captor.OfInt capturer = Captor.ofInt();
 		ExceptionConsumer<IOException, Integer> consumer =
 			FunctionTestUtil.consumer().andThen(capturer::accept);
 		consumer.accept(-1);

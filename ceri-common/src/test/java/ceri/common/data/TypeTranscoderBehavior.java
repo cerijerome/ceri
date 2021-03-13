@@ -31,8 +31,7 @@ public class TypeTranscoderBehavior {
 	}
 
 	static class Holder {
-		static final IntField.Typed<Holder> acc =
-			IntField.typed(h -> h.val, (h, i) -> h.val = i);
+		static final IntField.Typed<Holder> acc = IntField.typed(h -> h.val, (h, i) -> h.val = i);
 
 		int val = 0;
 	}

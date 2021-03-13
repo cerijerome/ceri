@@ -35,7 +35,7 @@ public class ExceptionUtilTest {
 
 	@Test
 	public void testShouldNotThrow() {
-		Captor.Int capturer = Captor.ofInt();
+		Captor.OfInt capturer = Captor.ofInt();
 		ExceptionUtil.shouldNotThrow(() -> capturer.accept(1));
 		ExceptionRunnable<IOException> runnable = () -> {
 			capturer.accept(2);

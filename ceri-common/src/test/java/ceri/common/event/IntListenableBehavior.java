@@ -12,7 +12,7 @@ public class IntListenableBehavior {
 
 	@Test
 	public void shouldProvideWrapperToUnlistenOnClose() {
-		Captor.Int captor = Captor.ofInt();
+		Captor.OfInt captor = Captor.ofInt();
 		IntListeners listeners = IntListeners.of();
 		try (Enclosed<?> enclosed = listeners.enclose(captor)) {
 			listeners.accept(0);
@@ -23,7 +23,7 @@ public class IntListenableBehavior {
 
 	@Test
 	public void shouldUnlistenCloseWrappedListenerOnceOnly() {
-		Captor.Int captor = Captor.ofInt();
+		Captor.OfInt captor = Captor.ofInt();
 		TestListenable listeners = new TestListenable();
 		try (Enclosed<?> enclosed0 = listeners.enclose(captor)) {
 			listeners.accept(0);
@@ -39,7 +39,7 @@ public class IntListenableBehavior {
 
 	@Test
 	public void shouldProvideIndirectAccess() {
-		Captor.Int captor = Captor.ofInt();
+		Captor.OfInt captor = Captor.ofInt();
 		IntListeners listeners = IntListeners.of();
 		listeners.indirect().listeners().listen(captor);
 		listeners.accept(0);
@@ -48,7 +48,7 @@ public class IntListenableBehavior {
 
 	@Test
 	public void shouldProvideNullListener() {
-		Captor.Int captor = Captor.ofInt();
+		Captor.OfInt captor = Captor.ofInt();
 		IntListenable listeners = IntListenable.ofNull();
 		listeners.listen(captor);
 		listeners.unlisten(captor);

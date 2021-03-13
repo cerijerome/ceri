@@ -38,8 +38,7 @@ public class LocatorBehavior {
 	public void shouldCreateChildLocators() {
 		assertEquals(Locator.of(Object.class, "abc.txt").child("def").filename(), "abc-def.txt");
 		assertEquals(Locator.of(Object.class, "a.txt").child("b", "c").filename(), "a-b-c.txt");
-		assertEquals(
-			Locator.of(Object.class, "a.txt").child(Colors.cyan, Colors.lime).filename(),
+		assertEquals(Locator.of(Object.class, "a.txt").child(Colors.cyan, Colors.lime).filename(),
 			"a-cyan-lime.txt");
 	}
 

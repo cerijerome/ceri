@@ -13,9 +13,9 @@ import ceri.common.math.MathUtil;
  * make a sub-array copy:
  *
  * <pre>
- * ByteReader skip(int length); [1-int]
+ * IntReader skip(int length); [1-int]
  * int readInto(int[] dest, int offset, int length); [1-int]
- * int readInto(ByteReceiver receiver, int offset, int length); [1-int]
+ * int readInto(IntReceiver receiver, int offset, int length); [1-int]
  * </pre>
  *
  * @see ceri.common.data.IntProvider.Reader

@@ -27,7 +27,7 @@ public class ExceptionLongConsumerBehavior {
 
 	@Test
 	public void shouldSequenceOperators() throws IOException {
-		Captor.Int capturer = Captor.ofInt();
+		Captor.OfInt capturer = Captor.ofInt();
 		ExceptionLongConsumer<IOException> f = longConsumer().andThen(capturer::accept);
 		f.accept(2);
 		capturer.verify(2);

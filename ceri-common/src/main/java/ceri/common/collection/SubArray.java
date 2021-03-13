@@ -119,7 +119,7 @@ public abstract class SubArray<T> {
 	public int to() {
 		return offset + length;
 	}
-	
+
 	private static interface Equals<T> {
 		boolean isEqual(T lhs, int lhsOff, int lhsLen, T rhs, int rhsOff, int rhsLen);
 	}
@@ -134,5 +134,5 @@ public abstract class SubArray<T> {
 		return equalsFn.isEqual(t.array, t.offset, t.offset + t.length, other.array, other.offset,
 			other.offset + other.length);
 	}
-	
+
 }

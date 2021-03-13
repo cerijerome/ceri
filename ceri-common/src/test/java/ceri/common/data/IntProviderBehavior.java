@@ -48,7 +48,7 @@ public class IntProviderBehavior {
 
 	@Test
 	public void shouldIterateValues() {
-		Captor.Int captor = Captor.ofInt();
+		Captor.OfInt captor = Captor.ofInt();
 		for (int i : IntProvider.empty())
 			captor.accept(i);
 		captor.verifyInt();

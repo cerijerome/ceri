@@ -27,7 +27,7 @@ public class Timeout {
 	public boolean isNull() {
 		return unit == null;
 	}
-	
+
 	public Timeout convert(TimeUnit unit) {
 		if (isNull()) return this;
 		Objects.requireNonNull(unit);
@@ -40,8 +40,7 @@ public class Timeout {
 		return isNull() ? null : fn.apply(timeout, unit);
 	}
 
-	public <E extends Exception> void acceptBy(ExceptionBiConsumer<E, Long, TimeUnit> fn)
-		throws E {
+	public <E extends Exception> void acceptBy(ExceptionBiConsumer<E, Long, TimeUnit> fn) throws E {
 		if (!isNull()) fn.accept(timeout, unit);
 	}
 

@@ -20,8 +20,12 @@ public class Captor<T> implements Consumer<T> {
 		return new Captor<>();
 	}
 
-	public static Captor.Int ofInt() {
-		return new Captor.Int();
+	public static Captor.OfInt ofInt() {
+		return new Captor.OfInt();
+	}
+
+	public static Captor.OfLong ofLong() {
+		return new Captor.OfLong();
 	}
 
 	public static <T, U> Captor.Bi<T, U> ofBi() {
@@ -47,7 +51,7 @@ public class Captor<T> implements Consumer<T> {
 		assertList(this.values, values);
 	}
 
-	public static class Int extends Captor<Integer> implements IntConsumer, LongConsumer {
+	public static class OfInt extends Captor<Integer> implements IntConsumer, LongConsumer {
 		@Override
 		public void accept(int value) {
 			accept(Integer.valueOf(value));
@@ -59,7 +63,7 @@ public class Captor<T> implements Consumer<T> {
 		}
 
 		@Override
-		public Captor.Int reset() {
+		public Captor.OfInt reset() {
 			values.clear();
 			return this;
 		}
@@ -70,6 +74,27 @@ public class Captor<T> implements Consumer<T> {
 
 		public int[] ints() {
 			return ArrayUtil.ints(values);
+		}
+	}
+
+	public static class OfLong extends Captor<Long> implements LongConsumer {
+		@Override
+		public void accept(long value) {
+			accept(Long.valueOf(value));
+		}
+
+		@Override
+		public Captor.OfLong reset() {
+			values.clear();
+			return this;
+		}
+
+		public final void verifyLong(long... values) {
+			verify(ArrayUtil.longList(values));
+		}
+
+		public long[] longs() {
+			return ArrayUtil.longs(values);
 		}
 	}
 

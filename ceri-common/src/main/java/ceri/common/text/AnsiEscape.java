@@ -1,11 +1,13 @@
 package ceri.common.text;
 
 import static ceri.common.color.ColorUtil.MAX_VALUE;
+import static ceri.common.color.ColorUtil.b;
+import static ceri.common.color.ColorUtil.g;
+import static ceri.common.color.ColorUtil.r;
 import static ceri.common.text.StringUtil.ESC;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import java.awt.Color;
-import ceri.common.color.ColorUtil;
 
 /**
  * ANSI-escape codes for terminal operations and formatting.
@@ -261,8 +263,7 @@ public class AnsiEscape {
 			 * Set 8-bit color approximation, each component 0-5.
 			 */
 			public Sgr fgColor8(int rgb) {
-				return fgColor8(to8Bit(ColorUtil.r(rgb)), to8Bit(ColorUtil.g(rgb)),
-					to8Bit(ColorUtil.b(rgb)));
+				return fgColor8(to8Bit(r(rgb)), to8Bit(g(rgb)), to8Bit(b(rgb)));
 			}
 
 			/**
@@ -286,7 +287,7 @@ public class AnsiEscape {
 			 * Set 24-bit color, each component 0-255.
 			 */
 			public Sgr fgColor24(int rgb) {
-				return fgColor24(ColorUtil.r(rgb), ColorUtil.g(rgb), ColorUtil.b(rgb));
+				return fgColor24(r(rgb), g(rgb), b(rgb));
 			}
 
 			/**
@@ -330,8 +331,7 @@ public class AnsiEscape {
 			 * Set 8-bit color approximation, each component 0-5.
 			 */
 			public Sgr bgColor8(int rgb) {
-				return bgColor8(to8Bit(ColorUtil.r(rgb)), to8Bit(ColorUtil.g(rgb)),
-					to8Bit(ColorUtil.b(rgb)));
+				return bgColor8(to8Bit(r(rgb)), to8Bit(g(rgb)), to8Bit(b(rgb)));
 			}
 
 			/**
@@ -355,7 +355,7 @@ public class AnsiEscape {
 			 * Set 24-bit color, each component 0-255.
 			 */
 			public Sgr bgColor24(int rgb) {
-				return bgColor24(ColorUtil.r(rgb), ColorUtil.g(rgb), ColorUtil.b(rgb));
+				return bgColor24(r(rgb), g(rgb), b(rgb));
 			}
 
 			/**

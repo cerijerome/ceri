@@ -55,5 +55,5 @@ public class TestSocket extends Socket {
 		in.close();
 		out.close();
 	}
-	
+
 }

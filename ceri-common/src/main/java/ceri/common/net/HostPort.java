@@ -55,11 +55,11 @@ public class HostPort {
 	public boolean isNull() {
 		return host == null;
 	}
-	
+
 	public boolean hasPort() {
 		return port != null;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(host, port);

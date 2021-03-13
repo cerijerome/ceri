@@ -12,7 +12,7 @@ public class ExceptionObjIntConsumerBehavior {
 
 	@Test
 	public void shouldCombineWithAndThen() throws IOException {
-		Captor.Int capturer = Captor.ofInt();
+		Captor.OfInt capturer = Captor.ofInt();
 		var consumer = FunctionTestUtil.objIntConsumer().andThen((i, j) -> {
 			capturer.accept(i);
 			capturer.accept(j);

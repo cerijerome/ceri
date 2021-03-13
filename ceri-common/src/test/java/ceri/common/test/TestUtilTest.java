@@ -231,7 +231,7 @@ public class TestUtilTest {
 		assertArray(TestUtil.byteRange(0, 3), 0, 1, 2, 3);
 		assertArray(TestUtil.byteRange(-3, -6), -3, -4, -5, -6);
 	}
-	
+
 	@Test
 	public void testReader() {
 		assertArray(TestUtil.reader(1, 2, 3).readBytes(), 1, 2, 3);

@@ -90,8 +90,7 @@ public interface IntField {
 			safeApply(setFn, ObjByteConsumer::toUintExact));
 	}
 
-	static <T> IntField.Typed<T> typedUshort(ToShortFunction<T> getFn,
-		ObjShortConsumer<T> setFn) {
+	static <T> IntField.Typed<T> typedUshort(ToShortFunction<T> getFn, ObjShortConsumer<T> setFn) {
 		return typed(safeApply(getFn, ToShortFunction::toUint),
 			safeApply(setFn, ObjShortConsumer::toUintExact));
 	}

@@ -35,7 +35,7 @@ public class TestInetAddress {
 		type.reset();
 		reachable.reset();
 	}
-	
+
 	public InetAddress mock() {
 		if (mock == null) mock = createMock();
 		return mock;
@@ -53,8 +53,7 @@ public class TestInetAddress {
 			when(address.isLinkLocalAddress()).thenAnswer(x -> isType(linkLocal));
 			when(address.isLoopbackAddress()).thenAnswer(x -> isType(loopback));
 			when(address.isMulticastAddress()).thenAnswer(x -> isType(multicast));
-			when(address.isReachable(anyInt()))
-				.thenAnswer(inv -> isReachable(inv.getArgument(0)));
+			when(address.isReachable(anyInt())).thenAnswer(inv -> isReachable(inv.getArgument(0)));
 			when(address.isReachable(any(), anyInt(), anyInt())).thenAnswer(
 				inv -> isReachable(inv.getArgument(0), inv.getArgument(1), inv.getArgument(2)));
 			return address;
@@ -65,8 +64,7 @@ public class TestInetAddress {
 		return reachable.apply(List.of(timeoutMs), IO_ADAPTER);
 	}
 
-	private boolean isReachable(NetworkInterface netIf, int ttl, int timeoutMs)
-		throws IOException {
+	private boolean isReachable(NetworkInterface netIf, int ttl, int timeoutMs) throws IOException {
 		return reachable.apply(List.of(netIf, ttl, timeoutMs), IO_ADAPTER);
 	}
 

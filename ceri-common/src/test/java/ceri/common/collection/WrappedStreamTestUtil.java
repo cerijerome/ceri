@@ -37,7 +37,7 @@ public class WrappedStreamTestUtil {
 
 	public static <E extends Exception> void
 		assertCapture(ExceptionConsumer<E, ExceptionIntConsumer<E>> fn, int... values) {
-		Captor.Int capture = Captor.ofInt();
+		Captor.OfInt capture = Captor.ofInt();
 		try {
 			fn.accept(capture::accept);
 		} catch (Exception e) {

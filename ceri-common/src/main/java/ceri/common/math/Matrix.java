@@ -1,7 +1,12 @@
 package ceri.common.math;
 
 import static ceri.common.exception.ExceptionUtil.exceptionf;
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.validation.ValidationUtil.validate;
+import static ceri.common.validation.ValidationUtil.validateEqual;
+import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateNotNull;
+import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validatef;
 import static java.lang.Math.floorMod;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;

@@ -1,70 +1,69 @@
 package ceri.common.data;
 
-import static ceri.common.collection.ArrayUtil.EMPTY_INT;
+import static ceri.common.collection.ArrayUtil.EMPTY_LONG;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import java.util.Arrays;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
 
 /**
- * Base wrapper for an int array, implementing the IntProvider interface. The Immutable sub-class
- * provides a concrete type. The Mutable sub-class also implements IntReceiver, which provides
+ * Base wrapper for an long array, implementing the LongProvider interface. The Immutable sub-class
+ * provides a concrete type. The Mutable sub-class also implements LongReceiver, which provides
  * mutable access to the array.
  * <p/>
- * Internally, offset and length mark the permitted access window of the array. Ints outside this
+ * Internally, offset and length mark the permitted access window of the array. Longs outside this
  * window must not be accessed or copied.
  */
-public abstract class IntArray implements IntProvider {
+public abstract class LongArray implements LongProvider {
 	private static final int MAX_LEN_FOR_STRING = 8;
-	final int[] array;
+	final long[] array;
 	private final int offset;
 	private final int length;
 
 	/**
-	 * Wrapper for an int array that does not allow modification. It allows slicing of views to
-	 * promote re-use rather than copying of ints. Note that wrap() does not copy the original int
+	 * Wrapper for an long array that does not allow modification. It allows slicing of views to
+	 * promote re-use rather than copying of longs. Note that wrap() does not copy the original long
 	 * array, and modifications of the original array will modify the wrapped array. If slicing
 	 * large arrays, copying may be better for long-term objects, as the reference to the original
 	 * array is no longer held.
 	 */
-	public static class Immutable extends IntArray implements Fluent<Immutable> {
-		public static final Immutable EMPTY = new Immutable(EMPTY_INT, 0, 0);
+	public static class Immutable extends LongArray implements Fluent<Immutable> {
+		public static final Immutable EMPTY = new Immutable(EMPTY_LONG, 0, 0);
 
-		public static Immutable copyOf(int[] array) {
+		public static Immutable copyOf(long[] array) {
 			return copyOf(array, 0);
 		}
 
-		public static Immutable copyOf(int[] array, int offset) {
+		public static Immutable copyOf(long[] array, int offset) {
 			return copyOf(array, offset, array.length - offset);
 		}
 
-		public static Immutable copyOf(int[] array, int offset, int length) {
-			int[] newArray = Arrays.copyOfRange(array, offset, offset + length);
+		public static Immutable copyOf(long[] array, int offset, int length) {
+			long[] newArray = Arrays.copyOfRange(array, offset, offset + length);
 			return wrap(newArray);
 		}
 
-		public static Immutable wrap(int... array) {
+		public static Immutable wrap(long... array) {
 			return wrap(array, 0);
 		}
 
-		public static Immutable wrap(int[] array, int offset) {
+		public static Immutable wrap(long[] array, int offset) {
 			return wrap(array, offset, array.length - offset);
 		}
 
-		public static Immutable wrap(int[] array, int offset, int length) {
+		public static Immutable wrap(long[] array, int offset, int length) {
 			ArrayUtil.validateSlice(array.length, offset, length);
 			if (length == 0) return EMPTY;
 			return new Immutable(array, offset, length);
 		}
 
-		private Immutable(int[] array, int offset, int length) {
+		private Immutable(long[] array, int offset, int length) {
 			super(array, offset, length);
 		}
 
-		/* IntProvider overrides */
+		/* LongProvider overrides */
 
 		@Override
 		public Immutable slice(int index) {
@@ -96,32 +95,32 @@ public abstract class IntArray implements IntProvider {
 	}
 
 	/**
-	 * Wrapper for an int array that allows modification. It allows slicing of views to promote
-	 * re-use rather than copying of ints. Note that wrap() does not copy the original int array,
+	 * Wrapper for an long array that allows modification. It allows slicing of views to promote
+	 * re-use rather than copying of longs. Note that wrap() does not copy the original long array,
 	 * and modifications of the original array will modify the wrapped array.
 	 */
-	public static class Mutable extends IntArray implements IntAccessor, Fluent<Mutable> {
-		public static final Mutable EMPTY = new Mutable(EMPTY_INT, 0, 0);
+	public static class Mutable extends LongArray implements LongAccessor, Fluent<Mutable> {
+		public static final Mutable EMPTY = new Mutable(EMPTY_LONG, 0, 0);
 
 		public static Mutable of(int length) {
-			return wrap(new int[length]);
+			return wrap(new long[length]);
 		}
 
-		public static Mutable wrap(int... array) {
+		public static Mutable wrap(long... array) {
 			return wrap(array, 0);
 		}
 
-		public static Mutable wrap(int[] array, int offset) {
+		public static Mutable wrap(long[] array, int offset) {
 			return wrap(array, offset, array.length - offset);
 		}
 
-		public static Mutable wrap(int[] array, int offset, int length) {
+		public static Mutable wrap(long[] array, int offset, int length) {
 			ArrayUtil.validateSlice(array.length, offset, length);
 			if (length == 0) return EMPTY;
 			return new Mutable(array, offset, length);
 		}
 
-		private Mutable(int[] array, int offset, int length) {
+		private Mutable(long[] array, int offset, int length) {
 			super(array, offset, length);
 		}
 
@@ -132,7 +131,7 @@ public abstract class IntArray implements IntProvider {
 			return Immutable.wrap(array, offset(0), length());
 		}
 
-		/* IntProvider overrides */
+		/* LongProvider overrides */
 
 		@Override
 		public boolean isEmpty() {
@@ -153,23 +152,23 @@ public abstract class IntArray implements IntProvider {
 			return Mutable.wrap(array, offset(index), length);
 		}
 
-		/* IntReceiver overrides */
+		/* LongReceiver overrides */
 
 		@Override
-		public int setInt(int index, int i) {
-			array[offset(index++)] = i;
+		public int setLong(int index, long l) {
+			array[offset(index++)] = l;
 			return index;
 		}
 
 		@Override
-		public int fill(int index, int length, int value) {
+		public int fill(int index, int length, long value) {
 			validateSlice(index, length);
 			Arrays.fill(array, offset(index), offset(index + length), value);
 			return index + length;
 		}
 
 		@Override
-		public int copyFrom(int index, int[] array, int offset, int length) {
+		public int copyFrom(int index, long[] array, int offset, int length) {
 			validateSlice(index, length);
 			ArrayUtil.validateSlice(array.length, offset, length);
 			System.arraycopy(array, offset, this.array, offset(index), length);
@@ -177,7 +176,7 @@ public abstract class IntArray implements IntProvider {
 		}
 
 		@Override
-		public int copyFrom(int index, IntProvider provider, int offset, int length) {
+		public int copyFrom(int index, LongProvider provider, int offset, int length) {
 			validateSlice(index, length);
 			provider.copyTo(offset, array, offset(index), length);
 			return index + length;
@@ -199,32 +198,32 @@ public abstract class IntArray implements IntProvider {
 	}
 
 	/**
-	 * Wrapper for an expandable int array, implementing IntWriter and IntReader. Reader methods
+	 * Wrapper for an expandable long array, implementing LongWriter and LongReader. Reader methods
 	 * will not increase the size of the array, and can throw IndexOutOfBoundsException if out of
 	 * range. Writer methods will increase the size of the array as needed, up to MAX_SIZE.
 	 * <p/>
 	 * Internally, length is the current size, either the initial minimum size, or advanced by
-	 * writing ints. The length determines the size of the array for ints(), mutable(), immutable()
-	 * calls.
+	 * writing longs. The length determines the size of the array for longs(), mutable(),
+	 * immutable() calls.
 	 */
 	public static class Encoder extends Navigator<Encoder>
-		implements IntWriter<Encoder>, IntReader {
+		implements LongWriter<Encoder>, LongReader {
 		public static final int MAX_DEF = Integer.MAX_VALUE - 8; // from ByteArrayOutputStream
 		private static final int SIZE_DEF = 32;
 		private final int max;
 		private Mutable mutable;
-		private int[] array;
+		private long[] array;
 
 		/**
 		 * Create an encoder with zero length, and default buffer size.
 		 */
 		public static Encoder of() {
-			return new Encoder(new int[SIZE_DEF], 0, MAX_DEF);
+			return new Encoder(new long[SIZE_DEF], 0, MAX_DEF);
 		}
 
 		/**
 		 * Create an encoder with minimum length, and matching buffer size. Useful to optimize
-		 * delivery of the int array if the length is known ahead of time.
+		 * delivery of the long array if the length is known ahead of time.
 		 */
 		public static Encoder of(int min) {
 			return of(min, MAX_DEF);
@@ -232,21 +231,21 @@ public abstract class IntArray implements IntProvider {
 
 		/**
 		 * Create an encoder with minimum length, and matching buffer size. Useful to optimize
-		 * delivery of the int array if the length is known ahead of time. The max determines the
-		 * maximum size the int array can grow to.
+		 * delivery of the long array if the length is known ahead of time. The max determines the
+		 * maximum size the long array can grow to.
 		 */
 		public static Encoder of(int min, int max) {
-			return new Encoder(new int[min], min, max);
+			return new Encoder(new long[min], min, max);
 		}
 
 		/**
 		 * Create an encoder with fixed length.
 		 */
 		public static Encoder fixed(int size) {
-			return new Encoder(new int[size], size, size);
+			return new Encoder(new long[size], size, size);
 		}
 
-		private Encoder(int[] array, int limit, int max) {
+		private Encoder(long[] array, int limit, int max) {
 			super(limit);
 			this.max = max;
 			this.array = array;
@@ -254,9 +253,9 @@ public abstract class IntArray implements IntProvider {
 		}
 
 		/**
-		 * Returns the int array. Makes a sub-copy if the array size is not the current length.
+		 * Returns the long array. Makes a sub-copy if the array size is not the current length.
 		 */
-		public int[] ints() {
+		public long[] longs() {
 			if (length() == array.length) return array;
 			return Arrays.copyOf(array, length());
 		}
@@ -275,39 +274,34 @@ public abstract class IntArray implements IntProvider {
 			return Immutable.wrap(array, 0, length());
 		}
 
-		/* IntReader */
+		/* LongReader */
 
 		@Override
-		public int readInt() {
+		public long readLong() {
 			return array[readInc(1)];
 		}
 
 		@Override
-		public int[] readInts(int length) {
+		public long[] readLongs(int length) {
 			return mutable.copy(readInc(length), length);
 		}
 
 		@Override
-		public int readInto(int[] dest, int offset, int length) {
+		public int readInto(long[] dest, int offset, int length) {
 			return mutable.copyTo(readInc(length), dest, offset, length);
 		}
 
 		@Override
-		public int readInto(IntReceiver receiver, int offset, int length) {
+		public int readInto(LongReceiver receiver, int offset, int length) {
 			return mutable.copyTo(readInc(length), receiver, offset, length);
 		}
 
 		@Override
-		public IntStream stream(int length) {
+		public LongStream stream(int length) {
 			return mutable.stream(readInc(length), length);
 		}
 
-		@Override
-		public LongStream ustream(int length) {
-			return mutable.ustream(readInc(length), length);
-		}
-
-		/* IntWriter */
+		/* LongWriter */
 
 		@Override
 		public Encoder skip(int length) {
@@ -316,28 +310,28 @@ public abstract class IntArray implements IntProvider {
 		}
 
 		@Override
-		public Encoder writeInt(int value) {
+		public Encoder writeLong(long value) {
 			int current = writeInc(1); // may modify mutable reference, don't combine
-			mutable.setInt(current, value);
+			mutable.setLong(current, value);
 			return this;
 		}
 
 		@Override
-		public Encoder fill(int length, int value) {
+		public Encoder fill(int length, long value) {
 			int current = writeInc(length); // may modify mutable reference, don't combine
 			mutable.fill(current, length, value);
 			return this;
 		}
 
 		@Override
-		public Encoder writeFrom(int[] array, int offset, int length) {
+		public Encoder writeFrom(long[] array, int offset, int length) {
 			int current = writeInc(length); // may modify mutable reference, don't combine
 			mutable.copyFrom(current, array, offset, length);
 			return this;
 		}
 
 		@Override
-		public Encoder writeFrom(IntProvider provider, int offset, int length) {
+		public Encoder writeFrom(LongProvider provider, int offset, int length) {
 			int current = writeInc(length); // may modify mutable reference, don't combine
 			mutable.copyFrom(current, provider, offset, length);
 			return this;
@@ -380,7 +374,7 @@ public abstract class IntArray implements IntProvider {
 
 		private void verifyGrowLength(int length) {
 			if (MathUtil.uint(length) > max) throw new IllegalArgumentException(String
-				.format("Max allocation size %1$d (0x%1$x) ints: %2$d (0x%2$x)", max, length));
+				.format("Max allocation size %1$d (0x%1$x) longs: %2$d (0x%2$x)", max, length));
 		}
 	}
 
@@ -392,16 +386,16 @@ public abstract class IntArray implements IntProvider {
 
 		void encode(Encoder encoder);
 
-		default IntProvider encode() {
+		default LongProvider encode() {
 			int size = size();
 			if (size == 0) return Immutable.EMPTY;
 			Encoder encoder = Encoder.fixed(size).apply(this::encode);
-			validateEqual(encoder.remaining(), 0, "Remaining ints");
+			validateEqual(encoder.remaining(), 0, "Remaining longs");
 			return encoder.immutable();
 		}
 	}
 
-	private IntArray(int[] array, int offset, int length) {
+	private LongArray(long[] array, int offset, int length) {
 		this.array = array;
 		this.offset = offset;
 		this.length = length;
@@ -415,25 +409,19 @@ public abstract class IntArray implements IntProvider {
 	}
 
 	@Override
-	public int getInt(int index) {
+	public long getLong(int index) {
 		return array[offset(index)];
 	}
 
 	@Override
-	public String getString(int index, int length) {
-		validateSlice(index, length);
-		return new String(array, offset(index), length);
-	}
-
-	@Override
-	public int[] copy(int index, int length) {
-		if (length == 0) return ArrayUtil.EMPTY_INT;
+	public long[] copy(int index, int length) {
+		if (length == 0) return ArrayUtil.EMPTY_LONG;
 		validateSlice(index, length);
 		return Arrays.copyOfRange(array, offset(index), offset(index + length));
 	}
 
 	@Override
-	public int copyTo(int index, int[] dest, int offset, int length) {
+	public int copyTo(int index, long[] dest, int offset, int length) {
 		validateSlice(index, length);
 		ArrayUtil.validateSlice(dest.length, offset, length);
 		System.arraycopy(array, offset(index), dest, offset, length);
@@ -441,21 +429,21 @@ public abstract class IntArray implements IntProvider {
 	}
 
 	@Override
-	public int copyTo(int index, IntReceiver receiver, int offset, int length) {
+	public int copyTo(int index, LongReceiver receiver, int offset, int length) {
 		validateSlice(index, length);
 		receiver.copyFrom(offset, array, offset(index), length);
 		return index + length;
 	}
 
 	@Override
-	public boolean isEqualTo(int index, int[] array, int offset, int length) {
+	public boolean isEqualTo(int index, long[] array, int offset, int length) {
 		if (!isValidSlice(index, length)) return false;
 		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return false;
 		return ArrayUtil.equals(this.array, offset(index), array, offset, length);
 	}
 
 	@Override
-	public boolean isEqualTo(int index, IntProvider provider, int offset, int length) {
+	public boolean isEqualTo(int index, LongProvider provider, int offset, int length) {
 		if (!isValidSlice(index, length)) return false;
 		return provider.isEqualTo(offset, array, offset(index), length);
 	}
@@ -464,12 +452,12 @@ public abstract class IntArray implements IntProvider {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + IntProvider.toString(this, MAX_LEN_FOR_STRING);
+		return getClass().getSimpleName() + LongProvider.toString(this, MAX_LEN_FOR_STRING);
 	}
 
 	/* Support methods */
 
-	boolean isEqual(IntArray other) {
+	boolean isEqual(LongArray other) {
 		if (length != other.length) return false;
 		return ArrayUtil.equals(array, offset(0), other.array, other.offset(0), length);
 	}

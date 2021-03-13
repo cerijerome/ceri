@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.*;
+import static ceri.common.validation.ValidationUtil.validateMaxFp;
 import ceri.common.math.MathUtil;
 import ceri.common.math.Matrix;
 
@@ -17,7 +17,7 @@ public class GeometryUtil {
 	public static Matrix vector(Point2d p) {
 		return Matrix.vector(p.x, p.y);
 	}
-	
+
 	/**
 	 * Creates a point from column vector. Vector is validated for size.
 	 */
@@ -25,7 +25,7 @@ public class GeometryUtil {
 		vector = vector.vector(2);
 		return Point2d.of(vector.at(0, 0), vector.at(1, 0));
 	}
-	
+
 	/**
 	 * Vector from given radius and angle.
 	 */

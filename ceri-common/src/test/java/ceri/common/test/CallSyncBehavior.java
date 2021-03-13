@@ -96,7 +96,7 @@ public class CallSyncBehavior {
 		call.saveValues(false);
 		assertIterable(call.values(), "3");
 	}
-	
+
 	@Test
 	public void shouldAcceptAndRespond() {
 		Accept<String> call = CallSync.consumer(null, false);

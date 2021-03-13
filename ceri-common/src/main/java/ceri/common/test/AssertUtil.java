@@ -30,12 +30,12 @@ import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
 import ceri.common.data.IntProvider;
+import ceri.common.data.LongProvider;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
-import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
@@ -449,6 +449,13 @@ public class AssertUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(IntProvider array, int... values) {
+		assertArray(array.copy(0), values);
+	}
+
+	/**
+	 * Checks two arrays are equal, with specific failure information if not.
+	 */
+	public static void assertArray(LongProvider array, long... values) {
 		assertArray(array.copy(0), values);
 	}
 
@@ -1037,8 +1044,11 @@ public class AssertUtil {
 	}
 
 	private static String str(Object obj) {
-		if (ReflectUtil.instanceOfAny(obj, Byte.class, Short.class, Integer.class, Long.class))
-			return String.format("%1$d (0x%1$02x)", obj);
+		if (obj instanceof Byte) return String.format("%1$d (0x%1$02x)", obj);
+		if (obj instanceof Short) return String.format("%1$d (0x%1$04x)", obj);
+		if (obj instanceof Integer) return String.format("%1$d (0x%1$08x)", obj);
+		if (obj instanceof Long) return String.format("%1$dL (0x%1$016x)", obj);
+		if (obj instanceof Float) return String.format("%sf", obj);
 		return String.valueOf(obj);
 	}
 

@@ -65,14 +65,14 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 	}
 
 	/**
-	 * Writes native-order ints.
+	 * Writes native-order double.
 	 */
 	default T writeDouble(double value) {
 		return writeLong(Double.doubleToLongBits(value));
 	}
 
 	/**
-	 * Writes endian ints.
+	 * Writes endian double.
 	 */
 	default T writeDouble(double value, boolean msb) {
 		return writeLong(Double.doubleToLongBits(value), msb);

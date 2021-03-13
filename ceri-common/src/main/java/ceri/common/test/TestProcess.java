@@ -33,11 +33,11 @@ public class TestProcess extends Process implements Closeable {
 		public void reset() {
 			exec.reset();
 		}
-		
-		public void assertParameters(String...parameters) {
+
+		public void assertParameters(String... parameters) {
 			exec.assertAuto(Parameters.ofAll(parameters));
 		}
-		
+
 		@Override
 		public String exec(Parameters parameters) throws IOException {
 			return exec.apply(parameters, IO_ADAPTER);

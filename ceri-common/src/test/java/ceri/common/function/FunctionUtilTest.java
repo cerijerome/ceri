@@ -191,7 +191,7 @@ public class FunctionUtilTest {
 
 	@Test
 	public void testForEachIterable() {
-		Captor.Int capturer = Captor.ofInt();
+		Captor.OfInt capturer = Captor.ofInt();
 		assertThrown(IOException.class,
 			() -> FunctionUtil.forEach(Arrays.asList(1, 2, 3), consumer()));
 		assertThrown(RuntimeException.class,
@@ -202,7 +202,7 @@ public class FunctionUtilTest {
 
 	@Test
 	public void testForEachStream() {
-		Captor.Int capturer = Captor.ofInt();
+		Captor.OfInt capturer = Captor.ofInt();
 		FunctionUtil.forEach(Stream.of(1, 2, 3), capturer.reset()::accept);
 		capturer.verify(1, 2, 3);
 		FunctionUtil.forEach(IntStream.of(1, 2, 3), capturer.reset()::accept);
