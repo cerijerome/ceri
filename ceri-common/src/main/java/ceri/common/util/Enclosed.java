@@ -28,6 +28,13 @@ public class Enclosed<T> implements AutoCloseable {
 		return new Enclosed<>(subject, closer);
 	}
 
+	/**
+	 * Create an instance with no subject, just a close method.
+	 */
+	public static Enclosed<?> of(Runnable closer) {
+		return new Enclosed<>(Boolean.TRUE, x -> closer.run());
+	}
+
 	private Enclosed(T subject, Consumer<T> closer) {
 		this.subject = subject;
 		this.closer = closer;

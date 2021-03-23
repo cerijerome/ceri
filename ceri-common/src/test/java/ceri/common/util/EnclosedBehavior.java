@@ -4,9 +4,19 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
+import ceri.common.test.CallSync;
 
 public class EnclosedBehavior {
 
+	@Test
+	public void shouldWrapCloseMethod() {
+		var sync = CallSync.runnable(true);
+		try (var x = Enclosed.of(sync::run)) {
+			sync.assertNoCall();
+		}
+		sync.awaitAuto();
+	}
+	
 	@Test
 	public void shouldExecuteOnClose() {
 		String[] ss = { "a" };

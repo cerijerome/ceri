@@ -4,7 +4,7 @@ import static ceri.common.exception.ExceptionUtil.exceptionf;
 import ceri.common.collection.ArrayUtil;
 
 /**
- * Use to generate a CRC value using a CRC algorithm.
+ * Use to generate a CRC value using a CRC algorithm. TODO: convert to ByteReceiver?
  */
 public class Crc {
 	public final CrcAlgorithm algorithm;
