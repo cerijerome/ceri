@@ -13,7 +13,7 @@ public class TestExecutorServiceBehavior {
 	public void shouldAwaitTermination() throws InterruptedException {
 		var exec = TestExecutorService.of();
 		assertTrue(exec.awaitTermination(1, TimeUnit.MILLISECONDS));
-		exec.awaitTermination.assertAuto(Timeout.of(1, TimeUnit.MILLISECONDS));
+		exec.awaitTermination.assertAuto(Timeout.millis(1));
 	}
 
 	@Test

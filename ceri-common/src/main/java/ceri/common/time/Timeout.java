@@ -10,10 +10,22 @@ import ceri.common.function.ExceptionBiFunction;
  */
 public class Timeout {
 	public static final Timeout NULL = new Timeout(0, null);
-	public static final Timeout ZERO = of(0, TimeUnit.MILLISECONDS);
+	public static final Timeout ZERO = millis(0);
 	public final long timeout;
 	public final TimeUnit unit;
 
+	public static Timeout millis(long timeoutMs) {
+		return of(timeoutMs, TimeUnit.MILLISECONDS);
+	}
+	
+	public static Timeout micros(long timeoutUs) {
+		return of(timeoutUs, TimeUnit.MICROSECONDS);
+	}
+	
+	public static Timeout nanos(long timeoutNs) {
+		return of(timeoutNs, TimeUnit.NANOSECONDS);
+	}
+	
 	public static Timeout of(long timeout, TimeUnit unit) {
 		Objects.requireNonNull(unit);
 		return new Timeout(timeout, unit);

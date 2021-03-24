@@ -37,14 +37,14 @@ public class TimeoutBehavior {
 	public void shouldConvertUnits() {
 		Timeout t = Timeout.of(111, SECONDS);
 		assertSame(t.convert(SECONDS), t);
-		assertEquals(t.convert(MILLISECONDS), Timeout.of(111000, MILLISECONDS));
+		assertEquals(t.convert(MILLISECONDS), Timeout.millis(111000));
 		assertEquals(t.convert(MINUTES), Timeout.of(1, MINUTES));
 		assertEquals(Timeout.NULL.convert(MINUTES), Timeout.NULL);
 	}
 
 	@Test
 	public void shouldApply() throws InterruptedException {
-		Timeout t = Timeout.of(1, MILLISECONDS);
+		Timeout t = Timeout.millis(1);
 		Lock lock = new ReentrantLock();
 		ConcurrentUtil.execute(lock, () -> {
 			Condition c = lock.newCondition();
@@ -55,7 +55,7 @@ public class TimeoutBehavior {
 
 	@Test
 	public void shouldAccept() {
-		Timeout t = Timeout.of(1, MILLISECONDS);
+		Timeout t = Timeout.millis(1);
 		var exec = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
 			new ArrayBlockingQueue<Runnable>(1));
 		t.acceptBy(exec::setKeepAliveTime);
@@ -65,7 +65,8 @@ public class TimeoutBehavior {
 	@Test
 	public void shouldProvideStringRepresentation() {
 		assertFind(Timeout.NULL.toString(), "null");
-		assertEquals(Timeout.of(333, TimeUnit.NANOSECONDS).toString(), "333ns");
+		assertEquals(Timeout.micros(666).toString(), "666µs");
+		assertEquals(Timeout.nanos(333).toString(), "333ns");
 	}
 
 }

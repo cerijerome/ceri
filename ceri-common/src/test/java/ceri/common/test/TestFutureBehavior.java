@@ -33,7 +33,7 @@ public class TestFutureBehavior {
 		throws InterruptedException, ExecutionException, TimeoutException {
 		var future = TestFuture.of("test");
 		assertEquals(future.get(1, TimeUnit.MILLISECONDS), "test");
-		future.get.assertAuto(Timeout.of(1, TimeUnit.MILLISECONDS));
+		future.get.assertAuto(Timeout.millis(1));
 	}
 
 	@Test
