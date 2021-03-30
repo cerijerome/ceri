@@ -79,6 +79,13 @@ public class ByteUtilTest {
 	}
 
 	@Test
+	public void testBytesFromBuffer() {
+		ByteBuffer buffer = ByteBuffer.wrap(bytes(1, 2, 3, 4, 5));
+		buffer.position(2).limit(4);
+		assertArray(ByteUtil.bytes(buffer), 3, 4);
+	}
+
+	@Test
 	public void testFill() {
 		assertArray(ByteUtil.fill(3, 0xff), 0xff, 0xff, 0xff);
 		assertArray(ByteUtil.fill(0, 0xff));

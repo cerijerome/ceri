@@ -59,12 +59,21 @@ public class IntBitSetBehavior {
 	}
 
 	@Test
-	public void shouldValueByWidth() {
+	public void shouldGetValueByWidth() {
 		IntBitSet b = IntBitSet.of(0xfedcba98);
 		assertEquals(b.byteValue(), (byte) 0x98);
 		assertEquals(b.shortValue(), (short) 0xba98);
 		assertEquals(b.value(), 0xfedcba98);
 		assertEquals(b.unsignedValue(), 0xfedcba98L);
+	}
+
+	@Test
+	public void shouldGetEmptyValue() {
+		IntBitSet b = IntBitSet.of();
+		assertEquals(b.byteValue(), (byte) 0);
+		assertEquals(b.shortValue(), (short) 0);
+		assertEquals(b.value(), 0);
+		assertEquals(b.unsignedValue(), 0L);
 	}
 
 }

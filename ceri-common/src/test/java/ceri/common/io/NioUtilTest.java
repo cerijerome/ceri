@@ -1,0 +1,167 @@
+package ceri.common.io;
+
+import static ceri.common.io.IoUtil.IO_ADAPTER;
+import static ceri.common.test.AssertUtil.assertEquals;
+import java.io.IOException;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.spi.SelectorProvider;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import org.junit.Before;
+import org.junit.Test;
+import ceri.common.test.CallSync;
+
+public class NioUtilTest {
+	private TestSelector selector;
+	private TestKey key0;
+	private TestKey key1;
+	private TestKey key2;
+
+	@Before
+	public void before() {
+		selector = new TestSelector(null, Set.of());
+		key0 = new TestKey(selector, null).interestOps(1);
+		key1 = new TestKey(selector, null).interestOps(2);
+		key2 = new TestKey(selector, null).interestOps(4);
+	}
+
+	@Test
+	public void testSelectKeys() throws IOException, InterruptedException {
+		TestKeySet keys = new TestKeySet(key0, key1, key2);
+		selector.selectedKeys.autoResponses(keys);
+		CallSync.Accept<SelectionKey> consumer = CallSync.consumer(null, true);
+		NioUtil.selectKeys(selector, k -> consumer.accept(k, IO_ADAPTER));
+		consumer.assertValues(key0, key1, key2);
+		assertEquals(keys.isEmpty(), true);
+	}
+
+	@Test
+	public void testClearKeys() {
+		TestKeySet keys = new TestKeySet(key0, key1, key2);
+		NioUtil.clearKeys(keys);
+	}
+
+	public static class TestKeySet extends LinkedHashSet<SelectionKey> {
+		private static final long serialVersionUID = 1L;
+
+		@SafeVarargs
+		public TestKeySet(SelectionKey... keys) {
+			for (var key : keys)
+				add(key);
+		}
+
+		@Override
+		public void clear() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	public static class TestKey extends SelectionKey {
+		private final Selector selector;
+		private final SelectableChannel channel;
+		public final CallSync.Get<Integer> readyOps = CallSync.supplier(0);
+		private int interestOps = 0;
+
+		public TestKey(Selector selector, SelectableChannel channel) {
+			this.selector = selector;
+			this.channel = channel;
+		}
+
+		@Override
+		public void cancel() {}
+
+		@Override
+		public SelectableChannel channel() {
+			return channel;
+		}
+
+		@Override
+		public int interestOps() {
+			return interestOps;
+		}
+
+		@Override
+		public TestKey interestOps(int ops) {
+			this.interestOps = ops;
+			return this;
+		}
+
+		@Override
+		public boolean isValid() {
+			return true;
+		}
+
+		@Override
+		public int readyOps() {
+			return readyOps.get();
+		}
+
+		@Override
+		public Selector selector() {
+			return selector;
+		}
+	}
+
+	public static class TestSelector extends Selector {
+		private final SelectorProvider provider;
+		private final Set<SelectionKey> keys;
+		public final CallSync.Run wakeUp = CallSync.runnable(true);
+		public final CallSync.Apply<Long, Integer> select = CallSync.function(0L, 0);
+		public final CallSync.Get<Integer> selectNow = CallSync.supplier(0);
+		public final CallSync.Get<Set<SelectionKey>> selectedKeys = CallSync.supplier(Set.of());
+		public boolean open = true;
+
+		public TestSelector(SelectorProvider provider, Set<SelectionKey> keys) {
+			this.provider = provider;
+			this.keys = keys;
+		}
+
+		@Override
+		public int select() throws IOException {
+			return select.apply(0L, IO_ADAPTER);
+		}
+
+		@Override
+		public int select(long timeout) throws IOException {
+			return select.apply(timeout, IO_ADAPTER);
+		}
+
+		@Override
+		public int selectNow() throws IOException {
+			return selectNow.get(IO_ADAPTER);
+		}
+
+		@Override
+		public Set<SelectionKey> selectedKeys() {
+			return selectedKeys.get();
+		}
+
+		@Override
+		public Set<SelectionKey> keys() {
+			return keys;
+		}
+
+		@Override
+		public SelectorProvider provider() {
+			return provider;
+		}
+
+		@Override
+		public TestSelector wakeup() {
+			wakeUp.run();
+			return this;
+		}
+
+		@Override
+		public boolean isOpen() {
+			return open;
+		}
+
+		@Override
+		public void close() throws IOException {
+			open = false;
+		}
+	}
+}

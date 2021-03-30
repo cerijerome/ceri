@@ -195,6 +195,14 @@ public class LongArrayBehavior {
 	}
 
 	@Test
+	public void shouldEncodeToArray() {
+		long[] array = new long[5];
+		assertThrown(() -> LongArray.Encoder.of(array, 6));
+		LongArray.Encoder.of(array).writeLongs(1, 2, 3);
+		assertArray(array, 1L, 2L, 3L, 0L, 0L);
+	}
+
+	@Test
 	public void shouldEncodeAndReadLong() {
 		assertEquals(Encoder.of().writeLong(-1).skip(-1).readLong(), -1L);
 	}

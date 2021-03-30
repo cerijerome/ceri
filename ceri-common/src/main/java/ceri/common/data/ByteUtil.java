@@ -132,6 +132,15 @@ public class ByteUtil {
 	}
 
 	/**
+	 * Extract byte array from buffer.
+	 */
+	public static byte[] bytes(ByteBuffer buffer) {
+		byte[] bytes = new byte[buffer.remaining()];
+		buffer.get(bytes);
+		return bytes;
+	}
+
+	/**
 	 * Creates a byte array of given value.
 	 */
 	public static byte[] fill(int length, int value) {

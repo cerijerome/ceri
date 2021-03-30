@@ -80,6 +80,13 @@ public class ConcurrentUtil {
 	}
 
 	/**
+	 * Returns time in microseconds from an arbitrary origin time. Use only to compare elapsed time.
+	 */
+	public static long microTime() {
+		return System.nanoTime() / NANOS_IN_MICROS;
+	}
+
+	/**
 	 * Calls await() on a Condition with or without a timeout. Use a null timeout to call without.
 	 * Must be called inside a locked block.
 	 */

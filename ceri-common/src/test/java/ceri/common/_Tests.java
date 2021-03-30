@@ -21,6 +21,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.collection.NodeBehavior.class, //
 	ceri.common.collection.StreamUtilTest.class, //
 	ceri.common.collection.SubArrayBehavior.class, //
+	ceri.common.collection.TimeQueueBehavior.class, //
 	ceri.common.collection.TypedPipeBehavior.class, //
 	ceri.common.collection.WrappedIntStreamBehavior.class, //
 	ceri.common.collection.WrappedStreamBehavior.class, //
@@ -171,6 +172,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.io.IoTimeoutExceptionBehavior.class, //
 	ceri.common.io.IoUtilTest.class, //
 	ceri.common.io.KeyCheckerBehavior.class, //
+	ceri.common.io.NioUtilTest.class, //
 	ceri.common.io.PathFiltersTest.class, //
 	ceri.common.io.PathPatternBehavior.class, //
 	ceri.common.io.PipedStreamBehavior.class, //

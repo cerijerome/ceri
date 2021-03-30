@@ -58,13 +58,6 @@ public class BasicUtilTest {
 	}
 
 	@Test
-	public void testMicroTime() {
-		long t0 = BasicUtil.microTime();
-		long t1 = BasicUtil.microTime();
-		assertTrue(t1 >= t0);
-	}
-
-	@Test
 	public void testFind() {
 		assertEquals(BasicUtil.find(Align.H.class, t -> t != Align.H.left), Align.H.center);
 		assertEquals(BasicUtil.find(Align.H.class, t -> t.name().endsWith("t")), Align.H.left);

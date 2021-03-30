@@ -3,6 +3,7 @@ package ceri.common.collection;
 import static ceri.common.collection.ArrayUtil.array;
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.collection.ArrayUtil.ints;
+import static ceri.common.collection.ArrayUtil.longs;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.TestUtil.exerciseEquals;
@@ -47,6 +48,19 @@ public class SubArrayBehavior {
 		var t = SubArray.of(array, 1, 3);
 		var eq0 = SubArray.of(array, 1, 3);
 		var eq1 = SubArray.of(ints(1, 2, 3), 0, 3);
+		var ne0 = SubArray.of(array, 1, 4);
+		var ne1 = SubArray.of(array, 0, 3);
+		var ne2 = SubArray.of(ints(1, 1, 3), 0, 3);
+		exerciseEquals(t, eq0, eq1);
+		assertAllNotEqual(t, ne0, ne1, ne2);
+	}
+
+	@Test
+	public void shouldNotBreachEqualsContractForLongs() {
+		long[] array = longs(0, 1, 2, 3, 4);
+		var t = SubArray.of(array, 1, 3);
+		var eq0 = SubArray.of(array, 1, 3);
+		var eq1 = SubArray.of(longs(1, 2, 3), 0, 3);
 		var ne0 = SubArray.of(array, 1, 4);
 		var ne1 = SubArray.of(array, 0, 3);
 		var ne2 = SubArray.of(ints(1, 1, 3), 0, 3);

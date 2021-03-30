@@ -4,10 +4,10 @@ import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.LongSupplier;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionLongConsumer;
 import ceri.common.text.ToString;
-import ceri.common.util.BasicUtil;
 
 /**
  * Timer to keep track of elapsed and remaining time. Can be paused/resumed multiple times without
@@ -123,6 +123,13 @@ public class Timer {
 	}
 
 	/**
+	 * Creates an infinite timer with millisecond granularity.
+	 */
+	public static Timer millis() {
+		return millis(INFINITE_PERIOD);
+	}
+
+	/**
 	 * Creates a timer with millisecond granularity.
 	 */
 	public static Timer millis(long periodMs) {
@@ -130,10 +137,24 @@ public class Timer {
 	}
 
 	/**
+	 * Creates an infinite timer with microsecond granularity.
+	 */
+	public static Timer micros() {
+		return micros(INFINITE_PERIOD);
+	}
+
+	/**
 	 * Creates a timer with microsecond granularity.
 	 */
 	public static Timer micros(long periodUs) {
-		return of(periodUs, TimeUnit.MICROSECONDS, BasicUtil::microTime);
+		return of(periodUs, TimeUnit.MICROSECONDS, ConcurrentUtil::microTime);
+	}
+
+	/**
+	 * Creates an infinite timer with nanosecond granularity.
+	 */
+	public static Timer nanos() {
+		return nanos(INFINITE_PERIOD);
 	}
 
 	/**

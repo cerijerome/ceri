@@ -29,9 +29,11 @@ public class TimerBehavior {
 
 	@Test
 	public void shouldSupportTimeUnits() {
-		assertEquals(Timer.micros(1000).unit, TimeUnit.MICROSECONDS);
+		assertEquals(Timer.millis().unit, TimeUnit.MILLISECONDS);
+		assertEquals(Timer.millis(1000).snapshot().unit(), TimeUnit.MILLISECONDS);
+		assertEquals(Timer.micros().unit, TimeUnit.MICROSECONDS);
 		assertEquals(Timer.micros(1000).snapshot().unit(), TimeUnit.MICROSECONDS);
-		assertEquals(Timer.nanos(1000).unit, TimeUnit.NANOSECONDS);
+		assertEquals(Timer.nanos().unit, TimeUnit.NANOSECONDS);
 		assertEquals(Timer.nanos(1000).snapshot().unit(), TimeUnit.NANOSECONDS);
 	}
 

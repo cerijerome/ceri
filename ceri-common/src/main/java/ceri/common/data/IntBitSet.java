@@ -91,7 +91,8 @@ public class IntBitSet extends BitSet {
 	}
 
 	private long longValue() {
-		return toLongArray()[0]; // Should never be zero length
+		long[] array = toLongArray();
+		return array.length == 0 ? 0L : array[0];
 	}
 
 }

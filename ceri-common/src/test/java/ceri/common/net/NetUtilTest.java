@@ -56,4 +56,11 @@ public class NetUtilTest {
 		assertFalse(AddressType.isSpecial(addr));
 	}
 
+	@Test
+	public void testBroadcast() throws SocketException {
+		NetUtil.localBroadcast();
+		assertEquals(NetUtil.broadcast(null), null);
+		NetUtil.broadcast(NetworkInterface.networkInterfaces().findFirst().orElse(null));
+	}
+
 }

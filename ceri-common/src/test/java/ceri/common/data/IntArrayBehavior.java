@@ -214,6 +214,14 @@ public class IntArrayBehavior {
 	}
 
 	@Test
+	public void shouldEncodeToArray() {
+		int[] array = new int[5];
+		assertThrown(() -> IntArray.Encoder.of(array, 6));
+		IntArray.Encoder.of(array).writeInts(1, 2, 3);
+		assertArray(array, 1, 2, 3, 0, 0);
+	}
+
+	@Test
 	public void shouldEncodeAsIntArrayWrappers() {
 		assertArray(Encoder.of().writeString("abc").ints(), 'a', 'b', 'c');
 		assertArray(Encoder.of().writeString("abc").mutable().copy(0), 'a', 'b', 'c');

@@ -23,6 +23,10 @@ public abstract class SubArray<T> {
 		return new Ints(array, offset, length);
 	}
 
+	public static Longs of(long[] array, int offset, int length) {
+		return new Longs(array, offset, length);
+	}
+
 	public static class Types<T> extends SubArray<T[]> {
 		private Types(T[] array, int offset, int length) {
 			super(array, offset, length);
@@ -67,6 +71,27 @@ public abstract class SubArray<T> {
 
 	public static class Ints extends SubArray<int[]> {
 		private Ints(int[] array, int offset, int length) {
+			super(array, offset, length);
+		}
+
+		@Override
+		public int hashCode() {
+			return ArrayUtil.hash(array, offset, length);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return isEqual(this, obj, Arrays::equals);
+		}
+
+		@Override
+		public String toString() {
+			return ArrayUtil.toString(array, offset, length);
+		}
+	}
+
+	public static class Longs extends SubArray<long[]> {
+		private Longs(long[] array, int offset, int length) {
 			super(array, offset, length);
 		}
 

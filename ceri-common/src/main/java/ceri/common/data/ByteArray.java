@@ -1,6 +1,7 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
+import static ceri.common.collection.ArrayUtil.validateRange;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import java.io.IOException;
@@ -258,6 +259,21 @@ public abstract class ByteArray implements ByteProvider {
 		 */
 		public static Encoder of(int min, int max) {
 			return new Encoder(new byte[min], min, max);
+		}
+
+		/**
+		 * Create an encoder that only writes to the array.
+		 */
+		public static Encoder of(byte[] array) {
+			return of(array, array.length);
+		}
+
+		/**
+		 * Create an encoder that only writes to the array.
+		 */
+		public static Encoder of(byte[] array, int max) {
+			validateRange(array.length, 0, max);
+			return new Encoder(array, 0, array.length);
 		}
 
 		/**

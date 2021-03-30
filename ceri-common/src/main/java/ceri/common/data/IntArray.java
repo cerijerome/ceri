@@ -1,6 +1,7 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_INT;
+import static ceri.common.collection.ArrayUtil.validateRange;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -237,6 +238,21 @@ public abstract class IntArray implements IntProvider {
 		 */
 		public static Encoder of(int min, int max) {
 			return new Encoder(new int[min], min, max);
+		}
+
+		/**
+		 * Create an encoder that only writes to the array.
+		 */
+		public static Encoder of(int[] array) {
+			return of(array, array.length);
+		}
+
+		/**
+		 * Create an encoder that only writes to the array.
+		 */
+		public static Encoder of(int[] array, int max) {
+			validateRange(array.length, 0, max);
+			return new Encoder(array, 0, array.length);
 		}
 
 		/**

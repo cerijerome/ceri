@@ -1,0 +1,18 @@
+Network Notes
+=============
+
+General
+- Use 0.0.0.0 for any local address
+- UDP local broadcast: 255.255.255.255 (deprecated?)
+- UDP subnet broadcast: subnet + all 1s, e.g. 10.255.255.255/8, 10.0.0.255/24
+  - can retrieve from IP4 InterfaceAddress for local subnet
+  
+UDP
+- DatagramPacket: encapsulates byte array and InetAddress, used with DatagramSocket
+- DatagramSocket: receive and send DatagramPackets, blocking
+- DatagramChannel: receive/send with address + buffer (no packets); can use with Selector
+- Listening test: nc -ulkw0 0.0.0.0 <port> | hexdump -C
+- Unicast test:   echo "unicast" | nc -uw0 <ip> <port>
+- Broadcast test: echo "broadcast" | nc -ubw0 <broadcast-ip> <port> (not supported by Mac nc)
+  - Alternative:  echo "broadcast" | ncat -uw1ms <broadcast-ip> <port>
+  - Alternative:  echo "broadcast" | socat - udp-datagram:<broadcast-ip>:<port>,broadcast

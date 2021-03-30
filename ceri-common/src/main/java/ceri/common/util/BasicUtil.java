@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import ceri.common.exception.ExceptionAdapter;
@@ -24,7 +23,6 @@ import ceri.common.function.ExceptionSupplier;
 public class BasicUtil {
 	private static final Pattern PACKAGE_REGEX =
 		Pattern.compile("(?<![\\w$])([a-z$])[a-z0-9_$]+\\.");
-	private static final int NANOS_IN_MICROS = (int) TimeUnit.MICROSECONDS.toNanos(1);
 	private final static Map<Class<?>, Object> loadedClasses = new WeakHashMap<>();
 
 	private BasicUtil() {}
@@ -171,13 +169,6 @@ public class BasicUtil {
 	public static <T> T castOrNull(Class<T> cls, Object obj) {
 		if (!cls.isInstance(obj)) return null;
 		return cls.cast(obj);
-	}
-
-	/**
-	 * Returns time in microseconds from an arbitrary origin time. Use only to compare elapsed time.
-	 */
-	public static long microTime() {
-		return System.nanoTime() / NANOS_IN_MICROS;
 	}
 
 	/**

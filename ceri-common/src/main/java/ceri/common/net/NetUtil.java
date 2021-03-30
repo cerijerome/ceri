@@ -5,12 +5,14 @@ import static ceri.common.collection.StreamUtil.stream;
 import static ceri.common.collection.StreamUtil.toList;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -50,31 +52,69 @@ public class NetUtil {
 		return LOCALHOST_REGEX.matcher(address).matches();
 	}
 
+	/**
+	 * Iterates network interfaces to find the first local address.
+	 */
 	public static InetAddress localAddress() throws SocketException {
 		return findLocalAddress(InetAddress::isSiteLocalAddress);
 	}
 
+	/**
+	 * Finds the first local address for the interface.
+	 */
 	public static InetAddress localAddressFor(NetworkInterface n) {
 		return first(stream(n.getInetAddresses()).filter(InetAddress::isSiteLocalAddress));
 	}
 
+	/**
+	 * Iterates network interfaces to find the first with a local address.
+	 */
 	public static NetworkInterface localInterface() throws SocketException {
 		return first(stream(NetworkInterface.getNetworkInterfaces()) //
 			.filter(n -> localAddressFor(n) != null));
 	}
 
+	/**
+	 * Iterates network interfaces to find the first address matching the predicate.
+	 */
 	public static InetAddress findLocalAddress(Predicate<? super InetAddress> predicate)
 		throws SocketException {
 		return first(localAddressStream().filter(predicate));
 	}
 
+	/**
+	 * Lists all network interface addresses.
+	 */
 	public static List<InetAddress> localAddresses() throws SocketException {
 		return toList(localAddressStream());
 	}
 
+	/**
+	 * Iterates network interfaces to find the first IP4 broadcast address. 
+	 */
+	public static InetAddress localBroadcast() throws SocketException {
+		return broadcast(ifAddressStream());
+	}
+
+	/**
+	 * Iterates interface addresses to find the first IP4 broadcast address. 
+	 */
+	public static InetAddress broadcast(NetworkInterface iface) {
+		if (iface == null) return null;
+		return broadcast(iface.getInterfaceAddresses().stream());
+	}
+
+	private static InetAddress broadcast(Stream<InterfaceAddress> stream) {
+		return first(stream.map(InterfaceAddress::getBroadcast).filter(Objects::nonNull));
+	}
+
 	private static Stream<InetAddress> localAddressStream() throws SocketException {
-		return stream(NetworkInterface.getNetworkInterfaces())
-			.flatMap(n -> stream(n.getInetAddresses()));
+		return NetworkInterface.networkInterfaces().flatMap(NetworkInterface::inetAddresses);
+	}
+
+	private static Stream<InterfaceAddress> ifAddressStream() throws SocketException {
+		return NetworkInterface.networkInterfaces()
+			.flatMap(n -> n.getInterfaceAddresses().stream());
 	}
 
 }

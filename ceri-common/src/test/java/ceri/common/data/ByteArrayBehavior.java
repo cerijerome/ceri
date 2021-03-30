@@ -234,6 +234,14 @@ public class ByteArrayBehavior {
 	}
 
 	@Test
+	public void shouldEncodeToArray() {
+		byte[] array = new byte[5];
+		assertThrown(() -> ByteArray.Encoder.of(array, 6));
+		ByteArray.Encoder.of(array).writeBytes(1, 2, 3);
+		assertArray(array, 1, 2, 3, 0, 0);
+	}
+
+	@Test
 	public void shouldEncodeAsByteArrayWrappers() {
 		assertArray(Encoder.of().writeUtf8("abc").bytes(), 'a', 'b', 'c');
 		assertArray(Encoder.of().writeUtf8("abc").mutable().copy(0), 'a', 'b', 'c');
