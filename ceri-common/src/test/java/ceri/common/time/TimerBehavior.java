@@ -5,17 +5,23 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import java.util.concurrent.TimeUnit;
+import static ceri.common.time.TimeSupplier.micros;
+import static ceri.common.time.TimeSupplier.millis;
+import static ceri.common.time.TimeSupplier.nanos;
+import static ceri.common.time.TimeSupplier.seconds;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import org.junit.Test;
 import ceri.common.test.CallSync;
+import ceri.common.test.Captor;
 import ceri.common.time.Timer.State;
 
 public class TimerBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		Timer t0 = Timer.millis(1000);
-		Timer t1 = Timer.millis(1000);
+		Timer t0 = Timer.of(1000, millis);
+		Timer t1 = Timer.of(1000, MILLISECONDS);
 		Timer.Snapshot s0 = new Timer.Snapshot(t0, State.started, 100, 101, 99);
 		Timer.Snapshot s1 = new Timer.Snapshot(t0, State.started, 100, 101, 99);
 		Timer.Snapshot s2 = new Timer.Snapshot(t1, State.started, 100, 101, 99);
@@ -28,24 +34,37 @@ public class TimerBehavior {
 	}
 
 	@Test
-	public void shouldSupportTimeUnits() {
-		assertEquals(Timer.millis().unit, TimeUnit.MILLISECONDS);
-		assertEquals(Timer.millis(1000).snapshot().unit(), TimeUnit.MILLISECONDS);
-		assertEquals(Timer.micros().unit, TimeUnit.MICROSECONDS);
-		assertEquals(Timer.micros(1000).snapshot().unit(), TimeUnit.MICROSECONDS);
-		assertEquals(Timer.nanos().unit, TimeUnit.NANOSECONDS);
-		assertEquals(Timer.nanos(1000).snapshot().unit(), TimeUnit.NANOSECONDS);
+	public void shouldProvideInfiniteTimers() {
+		assertEquals(Timer.INFINITE.isInfinite(), true);
+		assertEquals(Timer.infinite(SECONDS).isInfinite(), true);
+		assertEquals(Timer.infinite(nanos).isInfinite(), true);
+		assertEquals(Timer.of(0, nanos).isInfinite(), false);
+		assertEquals(Timer.ZERO.isInfinite(), false);
+	}
+
+	@Test
+	public void shouldNotApplyInfiniteTimerRemainder() {
+		var captor = Captor.ofInt();
+		Timer.INFINITE.applyRemainingInt(captor::accept);
+		Timer.infinite(nanos).applyRemainingInt(captor::accept);
+		captor.verifyInt();
+	}
+
+	@Test
+	public void shouldProvideInfiniteTimerSnapshot() {
+		assertEquals(Timer.INFINITE.snapshot().expired(), false);
+		assertEquals(Timer.INFINITE.snapshot().remaining, 0L);
 	}
 
 	@Test
 	public void shouldCalculateElapsedTime() {
-		Timer.Snapshot s0 = Timer.nanos(100).start().snapshot();
+		Timer.Snapshot s0 = Timer.of(100, nanos).start().snapshot();
 		assertEquals(s0.elapsed(), s0.period() - s0.remaining);
 	}
 
 	@Test
 	public void shouldDetermineIfExpired() {
-		Timer t = Timer.millis(10000);
+		Timer t = Timer.of(10000, millis);
 		assertFalse(t.snapshot().expired()); // false - not started
 		t.stop();
 		assertTrue(t.snapshot().expired()); // true - stopped
@@ -57,15 +76,15 @@ public class TimerBehavior {
 
 	@Test
 	public void shouldDetermineRemainingTime() {
-		Timer t = Timer.millis(Integer.MAX_VALUE + 10000L);
+		Timer t = Timer.of(Integer.MAX_VALUE + 10000L, millis);
 		assertEquals(t.snapshot().remainingInt(), Integer.MAX_VALUE);
-		assertEquals(Timer.millis(-1).snapshot().remainingInt(), 0);
-		assertEquals(Timer.millis(0).snapshot().remainingInt(), 0);
+		assertEquals(Timer.of(-1, millis).snapshot().remainingInt(), 0);
+		assertEquals(Timer.of(0, millis).snapshot().remainingInt(), 0);
 	}
 
 	@Test
 	public void shouldDetermineRemainingIntTime() {
-		Timer t = Timer.nanos(1000);
+		Timer t = Timer.of(1000, nanos);
 		Timer.Snapshot s0 = new Timer.Snapshot(t, State.started, 0, 0, Long.MIN_VALUE);
 		Timer.Snapshot s1 = new Timer.Snapshot(t, State.started, 0, 0, Long.MAX_VALUE);
 		Timer.Snapshot s2 = new Timer.Snapshot(t, State.started, 0, 0, 1000L);
@@ -78,9 +97,9 @@ public class TimerBehavior {
 	public void shouldApplyRemainingTime() throws Exception {
 		CallSync.Accept<Long> consumer = CallSync.consumer(null, true);
 		Timer.INFINITE.applyRemaining(consumer::accept);
-		Timer.millis(0).applyRemaining(consumer::accept);
+		Timer.of(0, millis).applyRemaining(consumer::accept);
 		consumer.assertNoCall();
-		Timer.millis(Long.MAX_VALUE).applyRemaining(consumer::accept);
+		Timer.of(Long.MAX_VALUE, millis).applyRemaining(consumer::accept);
 		assertTrue(consumer.awaitAuto() > 0);
 	}
 
@@ -88,15 +107,15 @@ public class TimerBehavior {
 	public void shouldApplyRemainingIntTime() throws Exception {
 		CallSync.Accept<Integer> consumer = CallSync.consumer(null, true);
 		Timer.INFINITE.applyRemainingInt(consumer::accept);
-		Timer.millis(0).applyRemainingInt(consumer::accept);
+		Timer.of(0, millis).applyRemainingInt(consumer::accept);
 		consumer.assertNoCall();
-		Timer.millis(Long.MAX_VALUE).applyRemainingInt(consumer::accept);
+		Timer.of(Long.MAX_VALUE, millis).applyRemainingInt(consumer::accept);
 		assertTrue(consumer.awaitAuto() > 0);
 	}
 
 	@Test
 	public void shouldPauseIfRunning() {
-		Timer t = Timer.millis(10000);
+		Timer t = Timer.of(10000, seconds);
 		assertFalse(t.pause()); // false - not started
 		t.start();
 		assertTrue(t.pause()); // true - was running
@@ -106,7 +125,7 @@ public class TimerBehavior {
 
 	@Test
 	public void shouldResumeIfPaused() {
-		Timer t = Timer.millis(10000);
+		Timer t = Timer.of(10000, micros);
 		assertFalse(t.resume()); // false - not started
 		t.start();
 		assertFalse(t.resume()); // false - running

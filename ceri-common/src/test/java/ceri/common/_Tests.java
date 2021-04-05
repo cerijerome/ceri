@@ -50,6 +50,7 @@ import ceri.common.test.TestUtil;
 	// concurrent
 	ceri.common.concurrent.BooleanConditionBehavior.class, //
 	ceri.common.concurrent.ConcurrentUtilTest.class, //
+	ceri.common.concurrent.LockerBehavior.class, //
 	ceri.common.concurrent.RuntimeInterruptedExceptionBehavior.class, //
 	ceri.common.concurrent.SafeReadWriteBehavior.class, //
 	ceri.common.concurrent.SimpleExecutorBehavior.class, //

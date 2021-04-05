@@ -464,7 +464,7 @@ public class AssertUtil {
 	 */
 	public static <T> void assertList(List<? extends T> lhs, List<? extends T> rhs) {
 		assertList(lhs, 0, rhs, 0, lhs.size());
-		assertSize("List size", lhs.size(), rhs.size());
+		assertEquals(lhs.size(), rhs.size(), "List size");
 	}
 
 	/**
@@ -1000,12 +1000,8 @@ public class AssertUtil {
 	private static void assertArrayObject(Object lhs, Object rhs, ItemAssert itemAssert) {
 		assertIsArray(lhs);
 		assertIsArray(rhs);
-		assertSize("Invalid array size", Array.getLength(lhs), Array.getLength(rhs));
+		assertEquals(Array.getLength(lhs), Array.getLength(rhs), "Invalid array size");
 		assertArrayObject(lhs, 0, rhs, 0, Array.getLength(lhs), itemAssert);
-	}
-
-	private static void assertSize(String message, long lhsSize, long rhsSize) {
-		assertEquals(lhsSize, rhsSize, message);
 	}
 
 	private static void assertIsArray(Object array) {

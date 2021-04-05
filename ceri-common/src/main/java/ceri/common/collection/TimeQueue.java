@@ -1,17 +1,18 @@
 package ceri.common.collection;
 
+import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.function.LongSupplier;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.time.TimeSupplier;
 
 /**
- * A queue that stores entries with a time.
+ * A queue that stores unique entries with a time.
  */
 public class TimeQueue<T> {
-	private final LongSupplier timeSupplier;
-	public final TimeUnit unit;
+	public final TimeSupplier timeSupplier;
+	private final Set<T> set = new HashSet<>();
 	private final PriorityQueue<Item<T>> queue = new PriorityQueue<>();
 
 	private static class Item<T> implements Comparable<Item<T>> {
@@ -29,29 +30,27 @@ public class TimeQueue<T> {
 		}
 	}
 
-	public static <T> TimeQueue<T> millis() {
-		return new TimeQueue<>(System::currentTimeMillis, TimeUnit.MILLISECONDS);
+	public static <T> TimeQueue<T> of(TimeUnit unit) {
+		return of(TimeSupplier.from(unit));
 	}
 
-	public static <T> TimeQueue<T> micros() {
-		return new TimeQueue<>(ConcurrentUtil::microTime, TimeUnit.MICROSECONDS);
+	public static <T> TimeQueue<T> of(TimeSupplier supplier) {
+		return new TimeQueue<>(supplier);
 	}
 
-	public static <T> TimeQueue<T> nanos() {
-		return new TimeQueue<>(System::nanoTime, TimeUnit.NANOSECONDS);
-	}
-
-	private TimeQueue(LongSupplier timeSupplier, TimeUnit unit) {
+	private TimeQueue(TimeSupplier timeSupplier) {
 		this.timeSupplier = timeSupplier;
-		this.unit = unit;
 	}
 
-	public void add(T t) {
-		add(t, time());
+	public boolean add(T t) {
+		return add(t, time());
 	}
 
-	public void add(T t, long time) {
+	public boolean add(T t, long time) {
+		if (set.contains(t)) return false;
 		queue.add(new Item<>(t, time));
+		set.add(t);
+		return true;
 	}
 
 	public void addOffset(T t, long offset) {
@@ -60,19 +59,22 @@ public class TimeQueue<T> {
 
 	public T remove() {
 		Item<T> item = queue.poll();
-		return item == null ? null : item.t;
+		if (item == null) return null;
+		set.remove(item.t);
+		return item.t;
 	}
-	
+
 	public void clear() {
 		queue.clear();
+		set.clear();
 	}
-	
+
 	public boolean isEmpty() {
 		return queue.isEmpty();
 	}
-	
+
 	public long time() {
-		return timeSupplier.getAsLong();
+		return timeSupplier.time();
 	}
 
 	public long nextTime() {
@@ -97,6 +99,7 @@ public class TimeQueue<T> {
 		Item<T> head = queue.peek();
 		if (head == null || head.time > time) return null;
 		queue.remove();
+		set.remove(head.t);
 		return head.t;
 	}
 

@@ -1,10 +1,10 @@
 package ceri.common.time;
 
+import static ceri.common.time.TimeSupplier.millis;
 import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.LongSupplier;
-import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionLongConsumer;
 import ceri.common.text.ToString;
@@ -14,12 +14,11 @@ import ceri.common.text.ToString;
  * resetting elapsed time. Not thread-safe.
  */
 public class Timer {
-	private static final int INFINITE_PERIOD = -1;
-	public static final Timer INFINITE = millis(INFINITE_PERIOD);
-	public static final Timer ZERO = millis(0);
-	public final TimeUnit unit;
+	private static final long INFINITE_PERIOD = -1L;
+	public static final Timer INFINITE = infinite(millis);
+	public static final Timer ZERO = of(0, millis);
 	public final long period;
-	private final LongSupplier timeSupplier;
+	public final TimeSupplier timeSupplier;
 	private State state = State.notStarted;
 	private long started = 0;
 	private long lastStart = 0;
@@ -55,7 +54,7 @@ public class Timer {
 		}
 
 		public TimeUnit unit() {
-			return timer.unit;
+			return timer.timeSupplier.unit;
 		}
 
 		public long period() {
@@ -117,66 +116,48 @@ public class Timer {
 
 		@Override
 		public String toString() {
-			return ToString.forClass(this, timer.period, DateUtil.symbol(timer.unit), state,
-				started, current, remaining);
+			return ToString.forClass(this, timer.period, DateUtil.symbol(unit()), state, started,
+				current, remaining);
 		}
 	}
 
 	/**
-	 * Creates an infinite timer with millisecond granularity.
+	 * Creates an infinite timer with granularity of the given time unit.
 	 */
-	public static Timer millis() {
-		return millis(INFINITE_PERIOD);
+	public static Timer infinite(TimeUnit unit) {
+		return infinite(TimeSupplier.from(unit));
 	}
 
 	/**
-	 * Creates a timer with millisecond granularity.
+	 * Creates an infinite timer with granularity of the given time unit.
 	 */
-	public static Timer millis(long periodMs) {
-		return of(periodMs, TimeUnit.MILLISECONDS, System::currentTimeMillis);
+	public static Timer infinite(TimeSupplier timeSupplier) {
+		return of(INFINITE_PERIOD, timeSupplier);
 	}
 
 	/**
-	 * Creates an infinite timer with microsecond granularity.
+	 * Creates a timer with granularity of the given time unit.
 	 */
-	public static Timer micros() {
-		return micros(INFINITE_PERIOD);
+	public static Timer of(long period, TimeUnit unit) {
+		return new Timer(period, TimeSupplier.from(unit));
 	}
 
 	/**
-	 * Creates a timer with microsecond granularity.
+	 * Creates a timer with granularity of the given time unit.
 	 */
-	public static Timer micros(long periodUs) {
-		return of(periodUs, TimeUnit.MICROSECONDS, ConcurrentUtil::microTime);
-	}
-
-	/**
-	 * Creates an infinite timer with nanosecond granularity.
-	 */
-	public static Timer nanos() {
-		return nanos(INFINITE_PERIOD);
-	}
-
-	/**
-	 * Creates a timer with nanosecond granularity.
-	 */
-	public static Timer nanos(long periodNs) {
-		return of(periodNs, TimeUnit.NANOSECONDS, System::nanoTime);
-	}
-
-	private static Timer of(long period, TimeUnit unit, LongSupplier timeSupplier) {
+	public static Timer of(long period, TimeSupplier timeSupplier) {
 		validateMin(period, INFINITE_PERIOD);
-		return new Timer(period, unit, timeSupplier);
+		validateNotNull(timeSupplier);
+		return new Timer(period, timeSupplier);
 	}
 
-	private Timer(long period, TimeUnit unit, LongSupplier timeSupplier) {
+	private Timer(long period, TimeSupplier timeSupplier) {
 		this.period = period;
-		this.unit = unit;
 		this.timeSupplier = timeSupplier;
 	}
 
 	public Timer start() {
-		started = timeSupplier.getAsLong();
+		started = timeSupplier.time();
 		lastStart = started;
 		elapsed = 0;
 		state = State.started;
@@ -193,7 +174,7 @@ public class Timer {
 
 	public boolean resume() {
 		if (state != State.paused) return false;
-		lastStart = timeSupplier.getAsLong();
+		lastStart = timeSupplier.time();
 		state = State.started;
 		return true;
 	}
@@ -222,7 +203,7 @@ public class Timer {
 	}
 
 	public Snapshot snapshot() {
-		long t = timeSupplier.getAsLong();
+		long t = timeSupplier.time();
 		return new Snapshot(this, state, started, t, remaining(t));
 	}
 
@@ -234,7 +215,7 @@ public class Timer {
 	}
 
 	private void updateElapsed() {
-		long t = timeSupplier.getAsLong();
+		long t = timeSupplier.time();
 		elapsed += (t - lastStart);
 	}
 

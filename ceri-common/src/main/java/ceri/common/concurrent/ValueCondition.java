@@ -1,6 +1,8 @@
 package ceri.common.concurrent;
 
 import static ceri.common.function.FunctionUtil.truePredicate;
+import static ceri.common.time.TimeSupplier.millis;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.function.Predicate.isEqual;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -105,7 +107,7 @@ public class ValueCondition<T> {
 	 * Waits for predicate to be true, or timer to expire. Current value is cleared.
 	 */
 	public T awaitTimeout(long timeoutMs, Predicate<T> predicate) throws InterruptedException {
-		return await(Timer.millis(timeoutMs), predicate);
+		return await(Timer.of(timeoutMs, millis), predicate);
 	}
 
 	private T await(Timer timer, Predicate<T> predicate) throws InterruptedException {
@@ -162,7 +164,7 @@ public class ValueCondition<T> {
 	 * Waits for predicate to be true, or timer to expire.
 	 */
 	public T awaitPeek(long timeoutMs, Predicate<T> predicate) throws InterruptedException {
-		return awaitPeek(Timer.millis(timeoutMs), predicate);
+		return awaitPeek(Timer.of(timeoutMs, MILLISECONDS), predicate);
 	}
 
 	private T awaitPeek(Timer timer, Predicate<T> predicate) throws InterruptedException {
