@@ -57,13 +57,10 @@ public class ResourcePath implements Closeable {
 		throws IOException {
 		URL url = IoUtil.classUrl(cls);
 		if (url == null) return null;
-		switch (url.getProtocol()) {
-		case FILE_PROTOCOL:
-		case JRT_PROTOCOL:
-			return ofFile(url, pathAdjuster);
-		default:
-			return ofZip(url, pathAdjuster); // zip, jar
-		}
+		return switch (url.getProtocol()) {
+		case FILE_PROTOCOL, JRT_PROTOCOL -> ofFile(url, pathAdjuster);
+		default -> ofZip(url, pathAdjuster); // zip, jar
+		};
 	}
 
 	private static ResourcePath ofFile(URL url, Function<Path, Path> pathAdjuster) {

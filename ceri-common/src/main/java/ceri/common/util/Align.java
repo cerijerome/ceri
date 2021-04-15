@@ -37,38 +37,29 @@ public interface Align {
 
 		@Override
 		public int offsetFloor(int actual, int length) {
-			switch (this) {
-			case left:
-				return 0;
-			case right:
-				return length - actual;
-			default:
-				return (length - actual) >> 1; // allows for -ve
-			}
+			return switch (this) {
+			case left -> 0;
+			case right -> length - actual;
+			default -> (length - actual) >> 1; // allows for -ve
+			};
 		}
 
 		@Override
 		public H reverse() {
-			switch (this) {
-			case left:
-				return right;
-			case right:
-				return left;
-			default:
-				return this;
-			}
+			return switch (this) {
+			case left -> right;
+			case right -> left;
+			default -> this;
+			};
 		}
 
 		@Override
 		public V invert() {
-			switch (this) {
-			case left:
-				return V.top;
-			case right:
-				return V.bottom;
-			default:
-				return V.middle;
-			}
+			return switch (this) {
+			case left -> V.top;
+			case right -> V.bottom;
+			default -> V.middle;
+			};
 		}
 	}
 
@@ -84,38 +75,29 @@ public interface Align {
 
 		@Override
 		public int offsetFloor(int actual, int length) {
-			switch (this) {
-			case top:
-				return 0;
-			case bottom:
-				return length - actual;
-			default:
-				return (length - actual) >> 1; // allows for -ve
-			}
+			return switch (this) {
+			case top -> 0;
+			case bottom -> length - actual;
+			default -> (length - actual) >> 1; // allows for -ve
+			};
 		}
 
 		@Override
 		public V reverse() {
-			switch (this) {
-			case top:
-				return bottom;
-			case bottom:
-				return top;
-			default:
-				return this;
-			}
+			return switch (this) {
+			case top -> bottom;
+			case bottom -> top;
+			default -> this;
+			};
 		}
 
 		@Override
 		public H invert() {
-			switch (this) {
-			case top:
-				return H.left;
-			case bottom:
-				return H.right;
-			default:
-				return H.center;
-			}
+			return switch (this) {
+			case top -> H.left;
+			case bottom -> H.right;
+			default -> H.center;
+			};
 		}
 	}
 }

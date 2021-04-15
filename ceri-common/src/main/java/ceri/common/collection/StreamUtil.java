@@ -215,6 +215,13 @@ public class StreamUtil {
 	}
 
 	/**
+	 * Returns the first instance of the given class in the stream , or null if no match.
+	 */
+	public static <T, U extends T> U firstOf(Stream<T> stream, Class<U> cls) {
+		return BasicUtil.uncheckedCast(first(stream.filter(t -> cls.isInstance(t))));
+	}
+
+	/**
 	 * Returns the first entry in the stream, or null if empty.
 	 */
 	public static <T> T first(Stream<T> stream) {

@@ -169,26 +169,17 @@ public class StringUtil {
 	 * Escapes a non-printable char.
 	 */
 	static String escapeChar(char c) {
-		switch (c) {
-		case BACKSLASH:
-			return ESCAPED_BACKSLASH;
-		case BACKSPACE:
-			return ESCAPED_BACKSPACE;
-		case ESC:
-			return ESCAPED_ESCAPE;
-		case FF:
-			return ESCAPED_FF;
-		case NL:
-			return ESCAPED_NL;
-		case CR:
-			return ESCAPED_CR;
-		case TAB:
-			return ESCAPED_TAB;
-		case NULL:
-			return ESCAPED_NULL;
-		default:
-			return ESCAPED_UTF16 + toHex(c, SHORT_HEX_DIGITS);
-		}
+		return switch (c) {
+		case BACKSLASH -> ESCAPED_BACKSLASH;
+		case BACKSPACE -> ESCAPED_BACKSPACE;
+		case ESC -> ESCAPED_ESCAPE;
+		case FF -> ESCAPED_FF;
+		case NL -> ESCAPED_NL;
+		case CR -> ESCAPED_CR;
+		case TAB -> ESCAPED_TAB;
+		case NULL -> ESCAPED_NULL;
+		default -> ESCAPED_UTF16 + toHex(c, SHORT_HEX_DIGITS);
+		};
 	}
 
 	/**
@@ -203,29 +194,22 @@ public class StringUtil {
 	 */
 	static char unEscapeChar(String escapedChar) {
 		if (escapedChar == null) return NULL;
-		switch (escapedChar) {
-		case ESCAPED_BACKSLASH:
-			return BACKSLASH;
-		case ESCAPED_BACKSPACE:
-			return BACKSPACE;
-		case ESCAPED_ESCAPE:
-			return ESC;
-		case ESCAPED_FF:
-			return FF;
-		case ESCAPED_NL:
-			return NL;
-		case ESCAPED_CR:
-			return CR;
-		case ESCAPED_TAB:
-			return TAB;
-		case ESCAPED_NULL:
-			return NULL;
+		return switch (escapedChar) {
+		case ESCAPED_BACKSLASH -> BACKSLASH;
+		case ESCAPED_BACKSPACE -> BACKSPACE;
+		case ESCAPED_ESCAPE -> ESC;
+		case ESCAPED_FF -> FF;
+		case ESCAPED_NL -> NL;
+		case ESCAPED_CR -> CR;
+		case ESCAPED_TAB -> TAB;
+		case ESCAPED_NULL -> NULL;
+		default -> {
+			Character c = escaped(escapedChar, ESCAPED_OCTAL, OCTAL_RADIX);
+			if (c == null) c = escaped(escapedChar, ESCAPED_HEX, HEX_RADIX);
+			if (c == null) c = escaped(escapedChar, ESCAPED_UTF16, HEX_RADIX);
+			yield c == null ? NULL : c;
 		}
-		Character c = escaped(escapedChar, ESCAPED_OCTAL, OCTAL_RADIX);
-		if (c == null) c = escaped(escapedChar, ESCAPED_HEX, HEX_RADIX);
-		if (c == null) c = escaped(escapedChar, ESCAPED_UTF16, HEX_RADIX);
-		if (c == null) return NULL;
-		return c;
+		};
 	}
 
 	private static Character escaped(String escapedChar, String prefix, int radix) {

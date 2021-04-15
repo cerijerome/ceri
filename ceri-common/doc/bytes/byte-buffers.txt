@@ -14,6 +14,7 @@ java.nio.ByteBuffer:
 ceri.common.data public interface types:
 - ByteProvider = read-only absolute position access; slice, ustream, indexOf, isEqualTo
 - ByteReceiver = write-only absolute position access; slice, fill
+- ByteAccessor = combination of ByteProvider and ByteReceiver
 - ByteReader = read-only sequential access; skip, ustream, transferTo
 - ByteWriter<T> = write-only sequential access; skip, fill
 - Fluent<T> = fluent method chaining; apply, map, mapToInt

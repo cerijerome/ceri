@@ -1,8 +1,10 @@
 package ceri.common.net;
 
 import static ceri.common.collection.StreamUtil.first;
+import static ceri.common.collection.StreamUtil.firstOf;
 import static ceri.common.collection.StreamUtil.stream;
 import static ceri.common.collection.StreamUtil.toList;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.InterfaceAddress;
@@ -60,10 +62,25 @@ public class NetUtil {
 	}
 
 	/**
+	 * Iterates network interfaces to find the first local address.
+	 */
+	public static Inet4Address localIp4Address() throws SocketException {
+		return firstOf(addressStream().filter(InetAddress::isSiteLocalAddress), Inet4Address.class);
+	}
+
+	/**
 	 * Finds the first local address for the interface.
 	 */
 	public static InetAddress localAddressFor(NetworkInterface n) {
 		return first(stream(n.getInetAddresses()).filter(InetAddress::isSiteLocalAddress));
+	}
+
+	/**
+	 * Finds the first local address for the interface.
+	 */
+	public static Inet4Address localIp4AddressFor(NetworkInterface n) {
+		return firstOf(stream(n.getInetAddresses()).filter(InetAddress::isSiteLocalAddress),
+			Inet4Address.class);
 	}
 
 	/**
@@ -79,36 +96,37 @@ public class NetUtil {
 	 */
 	public static InetAddress findLocalAddress(Predicate<? super InetAddress> predicate)
 		throws SocketException {
-		return first(localAddressStream().filter(predicate));
+		return first(addressStream().filter(predicate));
 	}
 
 	/**
 	 * Lists all network interface addresses.
 	 */
 	public static List<InetAddress> localAddresses() throws SocketException {
-		return toList(localAddressStream());
+		return toList(addressStream());
 	}
 
 	/**
-	 * Iterates network interfaces to find the first IP4 broadcast address. 
+	 * Iterates network interfaces to find the first IP4 broadcast address.
 	 */
-	public static InetAddress localBroadcast() throws SocketException {
+	public static Inet4Address localBroadcast() throws SocketException {
 		return broadcast(ifAddressStream());
 	}
 
 	/**
-	 * Iterates interface addresses to find the first IP4 broadcast address. 
+	 * Iterates interface addresses to find the first IP4 broadcast address.
 	 */
-	public static InetAddress broadcast(NetworkInterface iface) {
+	public static Inet4Address broadcast(NetworkInterface iface) {
 		if (iface == null) return null;
 		return broadcast(iface.getInterfaceAddresses().stream());
 	}
 
-	private static InetAddress broadcast(Stream<InterfaceAddress> stream) {
-		return first(stream.map(InterfaceAddress::getBroadcast).filter(Objects::nonNull));
+	private static Inet4Address broadcast(Stream<InterfaceAddress> stream) {
+		return firstOf(stream.map(InterfaceAddress::getBroadcast).filter(Objects::nonNull),
+			Inet4Address.class);
 	}
 
-	private static Stream<InetAddress> localAddressStream() throws SocketException {
+	private static Stream<InetAddress> addressStream() throws SocketException {
 		return NetworkInterface.networkInterfaces().flatMap(NetworkInterface::inetAddresses);
 	}
 

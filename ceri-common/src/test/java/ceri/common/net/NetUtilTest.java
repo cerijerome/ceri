@@ -5,6 +5,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -40,8 +41,21 @@ public class NetUtilTest {
 
 	@Test
 	public void testLocalAddresses() throws SocketException {
+		NetUtil.localAddress();
 		NetUtil.localAddresses();
 		NetUtil.findLocalAddress(Objects::nonNull);
+	}
+
+	@Test
+	public void testRegularIp4Address() throws SocketException {
+		Inet4Address addr = NetUtil.localIp4Address();
+		if (addr == null) return; // not connected
+		assertTrue(addr.isSiteLocalAddress());
+		assertFalse(AddressType.isSpecial(addr));
+		NetworkInterface n = NetUtil.localInterface();
+		addr = NetUtil.localIp4AddressFor(n);
+		assertTrue(addr.isSiteLocalAddress());
+		assertFalse(AddressType.isSpecial(addr));
 	}
 
 	@Test
