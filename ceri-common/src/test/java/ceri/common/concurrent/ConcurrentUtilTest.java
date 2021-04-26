@@ -79,13 +79,6 @@ public class ConcurrentUtilTest {
 	}
 
 	@Test
-	public void testMicroTime() {
-		long t0 = ConcurrentUtil.microTime();
-		long t1 = ConcurrentUtil.microTime();
-		assertTrue(t1 >= t0);
-	}
-
-	@Test
 	public void testCloseExecutor() {
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 		exec.submit(() -> ConcurrentUtil.delay(60000));
