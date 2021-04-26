@@ -21,7 +21,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.data.FieldTranscoder;
-import ceri.common.data.IntAccessor;
+import ceri.common.data.IntField;
 import ceri.log.util.LogUtil;
 import ceri.serial.clib.jna.Time;
 import ceri.serial.clib.jna.Time.timeval;
@@ -81,8 +81,8 @@ public class LibFtdiStream {
 	public static class ftdi_stream_state extends Struct {
 		private static final List<String> FIELDS = List.of( //
 			"callback", "userdata", "packetsize", "activity", "result", "progress");
-		private static final IntAccessor.Typed<ftdi_stream_state> resultAccessor =
-			IntAccessor.typed(t -> t.result, (t, i) -> t.result = i);
+		private static final IntField.Typed<ftdi_stream_state> resultAccessor =
+			IntField.typed(t -> t.result, (t, i) -> t.result = i);
 
 		public static class ByValue extends ftdi_stream_state //
 			implements Structure.ByValue {}

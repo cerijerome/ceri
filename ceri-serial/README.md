@@ -1,6 +1,6 @@
 # Serial Projects
 
-##Java Serial
+## Java Serial
 
 Provides a bridge for serial libs to Java Comms API.  
 Not fully supported so far, just enough for x10, dmx, audio, and video projects to work.  
@@ -19,11 +19,11 @@ For Ubuntu:
   `sudo chmod a+rw /dev/ttyUSB*`  
   `sudo chmod a+rw /dev/usb`
 
-##LibUsb
+## LibUsb
 This is a JNA implementation of `libusb-1.0.x`, a user-level USB driver available for most platforms.
 Not all features are tested, so beware!
 
-##LibFtdi
+## LibFtdi
 This is an implementation of `libftdi`, used to communicate with USB devices using FTDI chips. It is built on top of `LibUsb`.
 
 ---

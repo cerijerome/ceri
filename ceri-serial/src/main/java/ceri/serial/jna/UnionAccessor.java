@@ -6,7 +6,7 @@ import java.util.function.Function;
 import java.util.function.ObjIntConsumer;
 import java.util.function.ToIntFunction;
 import com.sun.jna.Union;
-import ceri.common.data.IntAccessor;
+import ceri.common.data.IntField;
 import ceri.common.function.Accessor;
 import ceri.common.function.ObjByteConsumer;
 import ceri.common.function.ObjShortConsumer;
@@ -40,43 +40,43 @@ public class UnionAccessor {
 		return adapt(u -> u.setType(cls), accessor);
 	}
 
-	public static <U extends Union> IntAccessor.Typed<U> ofUbyte(String name,
+	public static <U extends Union> IntField.Typed<U> ofUbyte(String name,
 		ToByteFunction<U> getFn, ObjByteConsumer<U> setFn) {
-		return ofInt(name, IntAccessor.typedUbyte(getFn, setFn));
+		return ofInt(name, IntField.typedUbyte(getFn, setFn));
 	}
 
-	public static <U extends Union> IntAccessor.Typed<U> ofUbyte(Class<?> cls,
+	public static <U extends Union> IntField.Typed<U> ofUbyte(Class<?> cls,
 		ToByteFunction<U> getFn, ObjByteConsumer<U> setFn) {
-		return ofInt(cls, IntAccessor.typedUbyte(getFn, setFn));
+		return ofInt(cls, IntField.typedUbyte(getFn, setFn));
 	}
 
-	public static <U extends Union> IntAccessor.Typed<U> ofUshort(String name,
+	public static <U extends Union> IntField.Typed<U> ofUshort(String name,
 		ToShortFunction<U> getFn, ObjShortConsumer<U> setFn) {
-		return ofInt(name, IntAccessor.typedUshort(getFn, setFn));
+		return ofInt(name, IntField.typedUshort(getFn, setFn));
 	}
 
-	public static <U extends Union> IntAccessor.Typed<U> ofUshort(Class<?> cls,
+	public static <U extends Union> IntField.Typed<U> ofUshort(Class<?> cls,
 		ToShortFunction<U> getFn, ObjShortConsumer<U> setFn) {
-		return ofInt(cls, IntAccessor.typedUshort(getFn, setFn));
+		return ofInt(cls, IntField.typedUshort(getFn, setFn));
 	}
 
-	public static <U extends Union> IntAccessor.Typed<U> ofInt(String name, ToIntFunction<U> getFn,
+	public static <U extends Union> IntField.Typed<U> ofInt(String name, ToIntFunction<U> getFn,
 		ObjIntConsumer<U> setFn) {
-		return ofInt(name, IntAccessor.typed(getFn, setFn));
+		return ofInt(name, IntField.typed(getFn, setFn));
 	}
 
-	public static <U extends Union> IntAccessor.Typed<U> ofInt(Class<?> cls, ToIntFunction<U> getFn,
+	public static <U extends Union> IntField.Typed<U> ofInt(Class<?> cls, ToIntFunction<U> getFn,
 		ObjIntConsumer<U> setFn) {
-		return ofInt(cls, IntAccessor.typed(getFn, setFn));
+		return ofInt(cls, IntField.typed(getFn, setFn));
 	}
 
-	public static <U extends Union> IntAccessor.Typed<U> ofInt(String name,
-		IntAccessor.Typed<U> accessor) {
+	public static <U extends Union> IntField.Typed<U> ofInt(String name,
+		IntField.Typed<U> accessor) {
 		return adaptInt(u -> u.setType(name), accessor);
 	}
 
-	public static <U extends Union> IntAccessor.Typed<U> ofInt(Class<?> cls,
-		IntAccessor.Typed<U> accessor) {
+	public static <U extends Union> IntField.Typed<U> ofInt(Class<?> cls,
+		IntField.Typed<U> accessor) {
 		return adaptInt(u -> u.setType(cls), accessor);
 	}
 
@@ -91,9 +91,9 @@ public class UnionAccessor {
 		});
 	}
 
-	private static <U extends Union> IntAccessor.Typed<U> adaptInt(Consumer<U> setTypeFn,
-		IntAccessor.Typed<U> accessor) {
-		return IntAccessor.typed(accessor.getFn, (u, i) -> {
+	private static <U extends Union> IntField.Typed<U> adaptInt(Consumer<U> setTypeFn,
+		IntField.Typed<U> accessor) {
+		return IntField.typed(accessor.getFn, (u, i) -> {
 			setTypeFn.accept(u); // only needed for setter
 			accessor.set(u, i);
 		});

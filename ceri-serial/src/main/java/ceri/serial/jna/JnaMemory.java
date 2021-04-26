@@ -8,6 +8,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteAccessor;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
 import ceri.common.util.BasicUtil;
@@ -16,7 +17,7 @@ import ceri.serial.clib.jna.CUtil;
 /**
  * Fixed-size byte array with volatile values.
  */
-public class JnaMemory implements ByteProvider, ByteReceiver {
+public class JnaMemory implements ByteAccessor {
 	private static final int MAX_LEN_FOR_STRING = 8;
 	public static final JnaMemory EMPTY = JnaMemory.of(null, 0, 0);
 	private final Pointer p;
@@ -46,11 +47,6 @@ public class JnaMemory implements ByteProvider, ByteReceiver {
 	@Override
 	public int length() {
 		return length;
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return length() == 0;
 	}
 
 	@Override
@@ -247,8 +243,6 @@ public class JnaMemory implements ByteProvider, ByteReceiver {
 	public JnaAccessor accessor(int index, int length) {
 		return new JnaAccessor(this, index, length);
 	}
-
-	/* Object overrides */
 
 	@Override
 	public String toString() {

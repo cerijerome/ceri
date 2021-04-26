@@ -2,14 +2,12 @@ package ceri.serial.ftdi;
 
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThat;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type.BREAK_ON;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type.BITS_7;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type.ODD;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type.STOP_BIT_2;
-import static org.hamcrest.CoreMatchers.is;
 import java.nio.ByteBuffer;
 import java.util.List;
 import org.junit.After;
@@ -115,7 +113,7 @@ public class FtdiBehavior {
 	@Test
 	public void shouldWriteAsync() throws LibUsbException {
 		var control = ftdi.writeSubmit(1, 2, 3, 4, 5);
-		assertThat(control.dataDone(), is(5));
+		assertEquals(control.dataDone(), 5);
 	}
 
 }

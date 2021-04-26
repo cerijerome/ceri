@@ -4,7 +4,7 @@ import java.util.List;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.data.FieldTranscoder;
-import ceri.common.data.IntAccessor;
+import ceri.common.data.IntField;
 import ceri.common.data.TypeTranscoder;
 import ceri.serial.jna.Struct;
 
@@ -34,10 +34,10 @@ public class Poll {
 	 */
 	public static class pollfd extends Struct {
 		private static final List<String> FIELDS = List.of("fd", "events");
-		private static final IntAccessor.Typed<pollfd> eventsAccessor =
-			IntAccessor.typedUshort(t -> t.events, (t, s) -> t.events = s);
-		private static final IntAccessor.Typed<pollfd> reventsAccessor =
-			IntAccessor.typedUshort(t -> t.revents, (t, s) -> t.revents = s);
+		private static final IntField.Typed<pollfd> eventsAccessor =
+			IntField.typedUshort(t -> t.events, (t, s) -> t.events = s);
+		private static final IntField.Typed<pollfd> reventsAccessor =
+			IntField.typedUshort(t -> t.revents, (t, s) -> t.revents = s);
 
 		public static class ByValue extends pollfd //
 			implements Structure.ByValue {}

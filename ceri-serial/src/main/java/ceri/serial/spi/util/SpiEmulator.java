@@ -105,15 +105,9 @@ public class SpiEmulator implements Spi {
 		ByteBuffer out = JnaUtil.buffer(JnaUtil.pointer(xfer.tx_buf), 0, xfer.len);
 		ByteBuffer in = JnaUtil.buffer(JnaUtil.pointer(xfer.rx_buf), 0, xfer.len);
 		switch (direction(xfer)) {
-		case out:
-			responder.out(read(out));
-			break;
-		case in:
-			write(in, responder.in(xfer.size()));
-			break;
-		default:
-			write(in, responder.duplex(read(out)));
-			break;
+			case out -> responder.out(read(out));
+			case in -> write(in, responder.in(xfer.size()));
+			default -> write(in, responder.duplex(read(out)));
 		}
 		ConcurrentUtil.delayMicros(transferTimeMicros(xfer));
 	}

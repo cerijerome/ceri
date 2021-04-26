@@ -1,5 +1,6 @@
 package ceri.serial.clib.jna;
 
+import static ceri.common.time.TimeSupplier.micros;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 import com.sun.jna.Memory;
@@ -7,7 +8,6 @@ import com.sun.jna.Pointer;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
-import ceri.common.util.BasicUtil;
 
 /**
  * Compare memory access 1-byte vs byte[] buffer. Copies between Memory and
@@ -72,9 +72,9 @@ public class BufferSpeedTester {
 			Mutable m = Mutable.wrap(random(size));
 			Pointer p = new Memory(size);
 			p.write(0, random(size), 0, size);
-			long t0 = BasicUtil.microTime();
+			long t0 = micros.time();
 			fn.accept(p, m);
-			if (i >= REP_SKIP) t += BasicUtil.microTime() - t0;
+			if (i >= REP_SKIP) t += micros.time() - t0;
 		}
 		return t;
 	}

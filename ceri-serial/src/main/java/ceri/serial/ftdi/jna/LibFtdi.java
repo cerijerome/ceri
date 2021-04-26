@@ -65,7 +65,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.data.BooleanAccessor;
 import ceri.common.data.FieldTranscoder;
-import ceri.common.data.IntAccessor;
+import ceri.common.data.IntField;
 import ceri.common.data.TypeTranscoder;
 import ceri.serial.clib.jna.Time.timeval;
 import ceri.serial.jna.JnaUtil;
@@ -338,16 +338,16 @@ public class LibFtdi {
 			"bitbang_enabled", "readbuffer", "readbuffer_offset", "readbuffer_remaining",
 			"readbuffer_chunksize", "writebuffer_chunksize", "max_packet_size", "iface", "index",
 			"in_ep", "out_ep", "bitbang_mode", "eeprom", "error_str", "module_detach_mode");
-		private static final IntAccessor.Typed<ftdi_context> type_accessor =
-			IntAccessor.typed(t -> t.type, (t, i) -> t.type = i);
+		private static final IntField.Typed<ftdi_context> type_accessor =
+			IntField.typed(t -> t.type, (t, i) -> t.type = i);
 		private static final BooleanAccessor.Typed<ftdi_context> bitbang_enabled_accessor =
 			BooleanAccessor.typedByte(t -> t.bitbang_enabled, (t, b) -> t.bitbang_enabled = b);
-		private static final IntAccessor.Typed<ftdi_context> index_accessor =
-			IntAccessor.typed(t -> t.index, (t, i) -> t.index = i);
-		private static final IntAccessor.Typed<ftdi_context> bitbang_mode_accessor =
-			IntAccessor.typedUbyte(t -> t.bitbang_mode, (t, i) -> t.bitbang_mode = i);
-		private static final IntAccessor.Typed<ftdi_context> module_detach_mode_accessor =
-			IntAccessor.typed(t -> t.module_detach_mode, (t, i) -> t.module_detach_mode = i);
+		private static final IntField.Typed<ftdi_context> index_accessor =
+			IntField.typed(t -> t.index, (t, i) -> t.index = i);
+		private static final IntField.Typed<ftdi_context> bitbang_mode_accessor =
+			IntField.typedUbyte(t -> t.bitbang_mode, (t, i) -> t.bitbang_mode = i);
+		private static final IntField.Typed<ftdi_context> module_detach_mode_accessor =
+			IntField.typed(t -> t.module_detach_mode, (t, i) -> t.module_detach_mode = i);
 
 		public static class ByValue extends ftdi_context //
 			implements Structure.ByValue {}
@@ -416,8 +416,8 @@ public class LibFtdi {
 	}
 
 	public static class ftdi_transfer_control {
-		private static final IntAccessor.Typed<ftdi_transfer_control> completed_accessor =
-			IntAccessor.typed(t -> t.completed, (t, i) -> t.completed = i);
+		private static final IntField.Typed<ftdi_transfer_control> completed_accessor =
+			IntField.typed(t -> t.completed, (t, i) -> t.completed = i);
 		public int completed;
 		public Pointer buf;
 		public int size;

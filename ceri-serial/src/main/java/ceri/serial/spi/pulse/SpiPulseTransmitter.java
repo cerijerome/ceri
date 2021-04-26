@@ -2,12 +2,12 @@ package ceri.serial.spi.pulse;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.locks.Condition;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.concurrent.SafeReadWrite;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
 import ceri.common.exception.ExceptionTracker;
@@ -21,14 +21,15 @@ import ceri.serial.spi.SpiTransfer;
  */
 public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver {
 	private static final Logger logger = LogManager.getLogger();
-	private final SafeReadWrite safe = SafeReadWrite.of();
-	private final BooleanCondition sync = BooleanCondition.of(safe.conditionLock());
+	private final Locker locker = Locker.of();
+	private final Condition sync = locker.lock.newCondition();
 	private final SpiPulseConfig config;
 	private final int id;
 	private final PulseBuffer buffer;
 	private final SpiTransfer xfer;
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
-
+	private boolean changed = false; // need to copy data before sending?
+	
 	public static SpiPulseTransmitter of(int id, Spi spi, SpiPulseConfig config) {
 		return new SpiPulseTransmitter(id, spi, config);
 	}
@@ -58,22 +59,34 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 
 	@Override
 	public int setByte(int pos, int b) {
-		return safe.writeWithReturn(() -> buffer.setByte(pos, b));
+		try (var locked = locker.lock()) {
+			changed = true;
+			return buffer.setByte(pos, b);
+		}
 	}
 
 	@Override
 	public int copyFrom(int pos, byte[] array, int offset, int length) {
-		return safe.writeWithReturn(() -> buffer.copyFrom(pos, array, offset, length));
+		try (var locked = locker.lock()) {
+			if (length > 0) changed = true;
+			return buffer.copyFrom(pos, array, offset, length);
+		}
 	}
 
 	@Override
 	public int copyFrom(int pos, ByteProvider provider, int offset, int length) {
-		return safe.writeWithReturn(() -> buffer.copyFrom(pos, provider, offset, length));
+		try (var locked = locker.lock()) {
+			if (length > 0) changed = true;
+			return buffer.copyFrom(pos, provider, offset, length);
+		}
 	}
 
 	@Override
 	public int fill(int pos, int length, int value) {
-		return safe.writeWithReturn(() -> buffer.fill(pos, length, value));
+		try (var locked = locker.lock()) {
+			if (length > 0) changed = true;
+			return buffer.fill(pos, length, value);
+		}
 	}
 
 	@Override
@@ -82,7 +95,9 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	}
 
 	public void send() {
-		sync.signal();
+		try (var locked = locker.lock()) {
+			sync.signal();
+		}
 	}
 
 	@Override
@@ -100,10 +115,11 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	}
 
 	private void syncData() throws InterruptedException {
-		safe.write(() -> {
+		try (var locked = locker.lock()) {
 			sync.await();
-			buffer.writePulseTo(xfer.out());
-		});
+			if (changed) buffer.writePulseTo(xfer.out());
+			changed = false;
+		}
 	}
 
 	private static String logName(int id, SpiPulseConfig config) {

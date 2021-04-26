@@ -88,26 +88,17 @@ public class LibFtdiUtil {
 	 * Attempt to determine chipt type from device and serial ids.
 	 */
 	public static ftdi_chip_type guessChipType(int device, int serial) {
-		switch (ushort(device)) {
-		case 0x0200:
-			return serial == 0 ? TYPE_BM : TYPE_AM;
-		case 0x0400:
-			return TYPE_BM;
-		case 0x0500:
-			return TYPE_2232C;
-		case 0x0600:
-			return TYPE_R;
-		case 0x0700:
-			return TYPE_2232H;
-		case 0x0800:
-			return TYPE_4232H;
-		case 0x0900:
-			return TYPE_232H;
-		case 0x1000:
-			return TYPE_230X;
-		default:
-			return TYPE_BM;
-		}
+		return switch (ushort(device)) {
+			case 0x0200 -> serial == 0 ? TYPE_BM : TYPE_AM;
+			case 0x0400 -> TYPE_BM;
+			case 0x0500 -> TYPE_2232C;
+			case 0x0600 -> TYPE_R;
+			case 0x0700 -> TYPE_2232H;
+			case 0x0800 -> TYPE_4232H;
+			case 0x0900 -> TYPE_232H;
+			case 0x1000 -> TYPE_230X;
+			default -> TYPE_BM;
+		};
 	}
 
 }
