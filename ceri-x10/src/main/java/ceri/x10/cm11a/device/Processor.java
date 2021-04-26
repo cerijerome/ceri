@@ -93,16 +93,10 @@ public class Processor extends LoopingExecutor {
 		Protocol protocol = Protocol.from(next); // exception if no match
 		logger.debug(protocol);
 		switch (protocol) {
-		case READY:
-			break; // ignore
-		case TIME_POLL:
-			sendClock(Clock.of());
-			break;
-		case DATA_POLL:
-			receiveData();
-			break;
-		default:
-			logger.warn("Ignoring %s", protocol);
+			case READY -> {} // ignore
+			case TIME_POLL -> sendClock(Clock.of());
+			case DATA_POLL -> receiveData();
+			default -> logger.warn("Ignoring %s", protocol);
 		}
 	}
 

@@ -212,16 +212,13 @@ public abstract class Command {
 
 	@Override
 	public String toString() {
-		switch (group()) {
-		case house:
-			return String.format("%s:%s", house, type);
-		case dim:
-			return String.format("%s[%s]:%s:%d%%", house, unitStr(), type, data);
-		case ext:
-			return String.format("%s[%s]:%s:0x%02x:0x%02x", house, unitStr(), type, data, command);
-		default:
-			return String.format("%s[%s]:%s", house, unitStr(), type);
-		}
+		return switch (group()) {
+			case house -> String.format("%s:%s", house, type);
+			case dim -> String.format("%s[%s]:%s:%d%%", house, unitStr(), type, data);
+			case ext -> String.format("%s[%s]:%s:0x%02x:0x%02x", house, unitStr(), type, data,
+				command);
+			default -> String.format("%s[%s]:%s", house, unitStr(), type);
+		};
 	}
 
 	private String unitStr() {
@@ -251,26 +248,17 @@ public abstract class Command {
 
 	private static Command of(House house, Set<Unit> units, FunctionType type, int data,
 		int command) {
-		switch (type) {
-		case allUnitsOff:
-			return allUnitsOff(house);
-		case allLightsOn:
-			return allLightsOn(house);
-		case allLightsOff:
-			return allLightsOff(house);
-		case on:
-			return on(house, units);
-		case off:
-			return off(house, units);
-		case dim:
-			return dim(house, data, units);
-		case bright:
-			return bright(house, data, units);
-		case ext:
-			return ext(house, data, command, units);
-		default:
-			throw new UnsupportedOperationException("Function not supported: " + type);
-		}
+		return switch (type) {
+			case allUnitsOff -> allUnitsOff(house);
+			case allLightsOn -> allLightsOn(house);
+			case allLightsOff -> allLightsOff(house);
+			case on -> on(house, units);
+			case off -> off(house, units);
+			case dim -> dim(house, data, units);
+			case bright -> bright(house, data, units);
+			case ext -> ext(house, data, command, units);
+			default -> throw new UnsupportedOperationException("Function not supported: " + type);
+		};
 	}
 
 }

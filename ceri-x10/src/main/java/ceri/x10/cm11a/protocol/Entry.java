@@ -44,19 +44,18 @@ public class Entry {
 	}
 
 	private static Entry functionFrom(Command command) {
-		switch (command.group()) {
-		case house:
-		case unit:
-			return function(command.house(), command.type());
-		case dim:
-			Command.Dim dim = (Command.Dim) command;
-			return dim(command.house(), command.type(), dim.percent());
-		case ext:
-			Command.Ext ext = (Command.Ext) command;
-			return ext(command.house(), ext.data(), ext.command());
-		default:
-			throw new IllegalArgumentException("Unsupported command: " + command);
-		}
+		return switch (command.group()) {
+			case house, unit -> function(command.house(), command.type());
+			case dim -> {
+				Command.Dim dim = (Command.Dim) command;
+				yield dim(command.house(), command.type(), dim.percent());
+			}
+			case ext -> {
+				Command.Ext ext = (Command.Ext) command;
+				yield ext(command.house(), ext.data(), ext.command());
+			}
+			default -> throw new IllegalArgumentException("Unsupported command: " + command);
+		};
 	}
 
 	public static Entry address(House house, Unit unit) {
