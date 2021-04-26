@@ -44,16 +44,16 @@ public enum TimeSupplier {
 
 	private static LongSupplier supplier(TimeUnit unit) {
 		return switch (unit) {
-		case NANOSECONDS -> System::nanoTime;
-		case MICROSECONDS -> {
-			long ns = NANOSECONDS.convert(1, unit);
-			yield () -> System.nanoTime() / ns;
-		}
-		case MILLISECONDS -> System::currentTimeMillis;
-		default -> {
-			long ms = MILLISECONDS.convert(1, unit);
-			yield () -> System.currentTimeMillis() / ms;
-		}
+			case NANOSECONDS -> System::nanoTime;
+			case MICROSECONDS -> {
+				long ns = NANOSECONDS.convert(1, unit);
+				yield () -> System.nanoTime() / ns;
+			}
+			case MILLISECONDS -> System::currentTimeMillis;
+			default -> {
+				long ms = MILLISECONDS.convert(1, unit);
+				yield () -> System.currentTimeMillis() / ms;
+			}
 		};
 	}
 }
