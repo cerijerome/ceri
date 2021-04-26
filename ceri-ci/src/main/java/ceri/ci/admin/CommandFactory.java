@@ -18,21 +18,18 @@ public class CommandFactory {
 
 	public Command create(Params params) {
 		Action action = params.action();
-		switch (action) {
-		case view:
-			return view(params.buildJob());
-		case clear:
-			return clear(params.buildJob());
-		case delete:
-			return delete(params.buildJob());
-		case process:
-			Collection<BuildEvent> events = params.buildEvents();
-			logger.info("Processing {}", events);
-			return process(events);
-		case purge:
-			return purge();
-		}
-		throw new IllegalStateException("Should not happen");
+		return switch (action) {
+			case view -> view(params.buildJob());
+			case clear -> clear(params.buildJob());
+			case delete -> delete(params.buildJob());
+			case purge -> purge();
+			case process -> {
+				Collection<BuildEvent> events = params.buildEvents();
+				logger.info("Processing {}", events);
+				yield process(events);
+			}
+			default -> throw new IllegalStateException("Should not happen");
+		};
 	}
 
 	private Command view(BuildJob buildJob) {
