@@ -21,18 +21,13 @@ public class RequestUtil {
 	private RequestUtil() {}
 
 	public static Request request(String method, String url) {
-		switch (method) {
-		case HttpGet.METHOD_NAME:
-			return Request.Get(url);
-		case HttpPost.METHOD_NAME:
-			return Request.Post(url);
-		case HttpPut.METHOD_NAME:
-			return Request.Put(url);
-		case HttpDelete.METHOD_NAME:
-			return Request.Delete(url);
-		default:
-			throw new IllegalArgumentException("Unsupported method: " + method);
-		}
+		return switch (method) {
+			case HttpGet.METHOD_NAME -> Request.Get(url);
+			case HttpPost.METHOD_NAME -> Request.Post(url);
+			case HttpPut.METHOD_NAME -> Request.Put(url);
+			case HttpDelete.METHOD_NAME -> Request.Delete(url);
+			default -> throw new IllegalArgumentException("Unsupported method: " + method);
+		};
 	}
 
 	public static byte[] contentBytes(Request request) throws IOException {
