@@ -11,6 +11,8 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -219,6 +221,20 @@ public class CollectionUtilTest {
 		List<Integer> list = ArrayUtil.asList(0, 1, 2, 3, 4);
 		CollectionUtil.removeAll(list, 1, 3, 5, 7, 9);
 		assertEquals(list, Arrays.asList(0, 2, 4));
+	}
+
+	@Test
+	public void testCollectionRemoveIf() {
+		Set<String> set = new HashSet<>(Set.of("a", "ab", "abc"));
+		assertEquals(CollectionUtil.removeIf(set, t -> t.contains("b")), 2);
+		assertCollection(set, "a");
+	}
+
+	@Test
+	public void testMapRemoveIf() {
+		Map<String, Integer> map = new HashMap<>(Map.of("a", 1, "ab", 2, "abc", 3));
+		assertEquals(CollectionUtil.removeIf(map, (k, v) -> k.contains("b")), 2);
+		assertEquals(map, Map.of("a", 1));
 	}
 
 	@Test

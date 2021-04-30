@@ -18,7 +18,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import ceri.common.comparator.Comparators;
@@ -363,6 +365,33 @@ public class CollectionUtil {
 		return collection.removeAll(Arrays.asList(ts));
 	}
 
+	/**
+	 * Removes collection entries that match the predicate. Returns the removed entry count.
+	 */
+	public static <T> int removeIf(Collection<T> collection, Predicate<T> predicate) {
+		int n = 0;
+		for (var i = collection.iterator(); i.hasNext(); ) {
+			if (!predicate.test(i.next())) continue;
+			i.remove();
+			n++;
+		}
+		return n;
+	}
+	
+	/**
+	 * Removes map entries that match the predicate. Returns the removed entry count.
+	 */
+	public static <K, V> int removeIf(Map<K, V> map, BiPredicate<K, V> predicate) {
+		int n = 0;
+		for (var i = map.entrySet().iterator(); i.hasNext(); ) {
+			var next = i.next();
+			if (!predicate.test(next.getKey(), next.getValue())) continue;
+			i.remove();
+			n++;
+		}
+		return n;
+	}
+	
 	/**
 	 * Removes items from the first collection that are not in the second.
 	 */

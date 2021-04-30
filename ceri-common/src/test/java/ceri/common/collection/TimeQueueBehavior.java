@@ -1,9 +1,9 @@
 package ceri.common.collection;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static java.util.concurrent.TimeUnit.MICROSECONDS;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static ceri.common.time.TimeSupplier.micros;
+import static ceri.common.time.TimeSupplier.millis;
+import static ceri.common.time.TimeSupplier.nanos;
 import org.junit.Test;
 import ceri.common.test.Captor;
 
@@ -11,7 +11,7 @@ public class TimeQueueBehavior {
 
 	@Test
 	public void shouldOnlyAddItemsOnce() {
-		TimeQueue<String> tq = TimeQueue.of(MILLISECONDS);
+		TimeQueue<String> tq = TimeQueue.of(millis);
 		assertEquals(tq.add("a"), true);
 		assertEquals(tq.add("a"), false);
 		assertEquals(tq.add("a", 1000), false);
@@ -20,8 +20,18 @@ public class TimeQueueBehavior {
 	}
 
 	@Test
+	public void shouldSetItems() {
+		TimeQueue<String> tq = TimeQueue.of(millis);
+		assertEquals(tq.setOffset("a", 10000), true);
+		assertEquals(tq.next(), null);
+		assertEquals(tq.set("a"), false);
+		assertEquals(tq.next(), "a");
+		assertEquals(tq.isEmpty(), true);
+	}
+
+	@Test
 	public void shouldRemoveHeadElement() {
-		TimeQueue<String> tq = TimeQueue.of(MILLISECONDS);
+		TimeQueue<String> tq = TimeQueue.of(millis);
 		tq.add("a");
 		tq.add("b");
 		tq.add("c");
@@ -33,7 +43,7 @@ public class TimeQueueBehavior {
 
 	@Test
 	public void shouldGetNextExpiredElements() {
-		TimeQueue<String> tq = TimeQueue.of(MILLISECONDS);
+		TimeQueue<String> tq = TimeQueue.of(millis);
 		long ms = tq.time();
 		tq.add("a", ms);
 		tq.add("b");
@@ -48,7 +58,7 @@ public class TimeQueueBehavior {
 
 	@Test
 	public void shouldGetNextTime() {
-		TimeQueue<String> tq = TimeQueue.of(NANOSECONDS);
+		TimeQueue<String> tq = TimeQueue.of(nanos);
 		long ns = tq.time();
 		assertEquals(tq.nextTime(), 0L);
 		tq.add("a", ns - 1000);
@@ -60,7 +70,7 @@ public class TimeQueueBehavior {
 
 	@Test
 	public void shouldGetNextDelay() {
-		TimeQueue<String> tq = TimeQueue.of(MICROSECONDS);
+		TimeQueue<String> tq = TimeQueue.of(micros);
 		long us = tq.time();
 		assertEquals(tq.nextDelay(), 0L);
 		tq.add("a", us - 1000);
@@ -72,7 +82,7 @@ public class TimeQueueBehavior {
 
 	@Test
 	public void shouldProvideExpiredElementsToConsumer() {
-		TimeQueue<String> tq = TimeQueue.of(MILLISECONDS);
+		TimeQueue<String> tq = TimeQueue.of(millis);
 		tq.add("a");
 		tq.add("b");
 		tq.addOffset("c", 10000);
@@ -83,7 +93,7 @@ public class TimeQueueBehavior {
 
 	@Test
 	public void shouldProvideLimitedExpiredElementsToConsumer() {
-		TimeQueue<String> tq = TimeQueue.of(MILLISECONDS);
+		TimeQueue<String> tq = TimeQueue.of(millis);
 		tq.add("a");
 		tq.add("b");
 		tq.addOffset("c", 10000);
@@ -94,12 +104,24 @@ public class TimeQueueBehavior {
 
 	@Test
 	public void shouldRetrieveInTimeOrder() {
-		TimeQueue<String> tq = TimeQueue.of(MILLISECONDS);
+		TimeQueue<String> tq = TimeQueue.of(millis);
 		tq.add("c", 3000);
 		tq.add("b", 2000);
 		tq.add("a", 1000);
 		assertEquals(tq.next(), "a");
 		assertEquals(tq.next(), "b");
+		assertEquals(tq.next(), "c");
+	}
+
+	@Test
+	public void shouldRemoveItem() {
+		TimeQueue<String> tq = TimeQueue.of(millis);
+		tq.add("c", 3000);
+		tq.add("b", 2000);
+		tq.add("a", 1000);
+		assertEquals(tq.remove("b"), true);
+		assertEquals(tq.remove("d"), false);
+		assertEquals(tq.next(), "a");
 		assertEquals(tq.next(), "c");
 	}
 
