@@ -3,6 +3,7 @@ package ceri.common.math;
 import static ceri.common.math.Bound.Type.exclusive;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateMinFp;
+import static java.lang.Math.absExact;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
@@ -58,6 +59,156 @@ public class MathUtil {
 	 */
 	public static int toInt(boolean b) {
 		return b ? 1 : 0;
+	}
+
+	/**
+	 * Returns the absolute value, or max if the value overflows.
+	 */
+	public static int absLimit(int a) {
+		return a == Integer.MIN_VALUE ? Integer.MAX_VALUE : Math.abs(a);
+	}
+
+	/**
+	 * Returns the absolute value, or max if the value overflows.
+	 */
+	public static long absLimit(long a) {
+		return a == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(a);
+	}
+
+	/**
+	 * Add values, or return the max/min if operation overflows.
+	 */
+	public static int addLimit(int x, int y) {
+		int r = x + y;
+		if (((x ^ r) & (y ^ r)) >= 0) return r; // no overflow
+		return x < 0 ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+	}
+
+	/**
+	 * Add values, or return the max/min if operation overflows.
+	 */
+	public static long addLimit(long x, long y) {
+		long r = x + y;
+		if (((x ^ r) & (y ^ r)) >= 0) return r; // no overflow
+		return x < 0 ? Long.MIN_VALUE : Long.MAX_VALUE;
+	}
+
+	/**
+	 * Subtract values, or return the max/min if operation overflows.
+	 */
+	public static int subtractLimit(int x, int y) {
+		int r = x - y;
+		if (((x ^ y) & (x ^ r)) >= 0) return r; // no overflow
+		return x < 0 ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+	}
+
+	/**
+	 * Subtract values, or return the max/min if operation overflows.
+	 */
+	public static long subtractLimit(long x, long y) {
+		long r = x - y;
+		if (((x ^ y) & (x ^ r)) >= 0) return r; // no overflow
+		return x < 0 ? Long.MIN_VALUE : Long.MAX_VALUE;
+	}
+
+	/**
+	 * Multiply values, or return the max/min if operation overflows.
+	 */
+	public static int multiplyLimit(int x, int y) {
+		long r = (long) x * (long) y;
+		if ((int) r == r) return (int) r;
+		return r < 0 ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+	}
+
+	/**
+	 * Multiply values, or return the max/min if operation overflows.
+	 */
+	public static long multiplyLimit(long x, int y) {
+		return multiplyLimit(x, (long) y);
+	}
+
+	/**
+	 * Multiply values, or return the max/min if operation overflows.
+	 */
+	public static long multiplyLimit(long x, long y) {
+		long r = x * y;
+		long ax = Math.abs(x);
+		long ay = Math.abs(y);
+		if (((ax | ay) >>> 31 == 0)
+			||
+			((y == 0
+				|| r / y == x) 
+			&&
+			(x != Long.MIN_VALUE
+				|| y != -1)))
+			return r;
+		return Long.signum(x) != Long.signum(y) ? Long.MIN_VALUE : Long.MAX_VALUE;
+	}
+
+	/**
+	 * Decrement value by 1 unless an overflow would occur.
+	 */
+	public static int decrementLimit(int a) {
+		return a == Integer.MIN_VALUE ? a : a - 1;
+	}
+
+	/**
+	 * Decrement value by 1 unless an overflow would occur.
+	 */
+	public static long decrementLimit(long a) {
+		return a == Long.MIN_VALUE ? a : a - 1L;
+	}
+
+	/**
+	 * Increment value by 1 unless an overflow would occur.
+	 */
+	public static int incrementLimit(int a) {
+		return a == Integer.MAX_VALUE ? a : a + 1;
+	}
+
+	/**
+	 * Increment value by 1 unless an overflow would occur.
+	 */
+	public static long incrementLimit(long a) {
+		return a == Long.MAX_VALUE ? a : a + 1L;
+	}
+
+	/**
+	 * Negate value, or return the max if min value would overflow.
+	 */
+	public static int negateLimit(int a) {
+		return a == Integer.MIN_VALUE ? Integer.MAX_VALUE : -a;
+	}
+
+	/**
+	 * Negate value, or return the max if min value would overflow.
+	 */
+	public static long negateLimit(long a) {
+		return a == Long.MIN_VALUE ? Long.MAX_VALUE : -a;
+	}
+
+	/**
+	 * Cast the value, or return the max/min if outside the range.
+	 */
+	public static int toIntLimit(long value) {
+		if ((int) value == value) return (int) value;
+		return value < 0 ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+	}
+
+	/**
+	 * Cast the value, or return the max/min if outside the range.
+	 */
+	public static int toIntLimit(double value) {
+		if (value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE) return (int) value;
+		return value < 0 ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+	}
+
+	/**
+	 * Cast the value, or return the max/min if outside the range.
+	 */
+	public static long toLongLimit(double value) {
+		if (value >= Long.MIN_VALUE && value <= Long.MAX_VALUE) return (long) value;
+		return value < 0 ? Long.MIN_VALUE : Long.MAX_VALUE;
 	}
 
 	/**
@@ -135,22 +286,6 @@ public class MathUtil {
 	 */
 	public static long uint(long i) {
 		return i & MAX_UINT;
-	}
-
-	/**
-	 * Return absolute value. Throws ArithmeticException if overflow.
-	 */
-	public static int absExact(int value) {
-		if (value != Integer.MIN_VALUE) return Math.abs(value);
-		throw new ArithmeticException("int overflow");
-	}
-
-	/**
-	 * Return absolute value. Throws ArithmeticException if overflow.
-	 */
-	public static long absExact(long value) {
-		if (value != Long.MIN_VALUE) return Math.abs(value);
-		throw new ArithmeticException("long overflow");
 	}
 
 	/**

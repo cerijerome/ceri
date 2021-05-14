@@ -1,5 +1,7 @@
 package ceri.common.concurrent;
 
+import static ceri.common.math.MathUtil.addLimit;
+import static ceri.common.math.MathUtil.multiplyLimit;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,7 +24,7 @@ import ceri.common.util.BasicUtil;
 import ceri.common.util.Holder;
 
 public class ConcurrentUtil {
-	private static final int NANOS_IN_MICROS = (int) TimeUnit.MICROSECONDS.toNanos(1);
+	private static final int MICROS_IN_NANOS = 1000;
 
 	private ConcurrentUtil() {}
 
@@ -70,13 +72,15 @@ public class ConcurrentUtil {
 	 * if interrupted. Checks for interrupted thread even if 0 delay.
 	 */
 	public static void delayMicros(long delayMicros) {
-		long deadline = System.nanoTime() + delayMicros * NANOS_IN_MICROS;
-		while (true) {
-			checkRuntimeInterrupted();
-			long delayNs = deadline - System.nanoTime();
-			if (delayNs < NANOS_IN_MICROS) return;
-			LockSupport.parkNanos(delayNs); // can return spuriously
-		}
+		delayNanos(multiplyLimit(delayMicros, MICROS_IN_NANOS), MICROS_IN_NANOS);
+	}
+
+	/**
+	 * Sleeps approximately for given nanoseconds, or not if 0. Throws RuntimeInterruptedException
+	 * if interrupted. Checks for interrupted thread even if 0 delay.
+	 */
+	public static void delayNanos(long delayNanos) {
+		delayNanos(delayNanos, 1);
 	}
 
 	/**
@@ -200,21 +204,6 @@ public class ConcurrentUtil {
 	}
 
 	/**
-	 * Executes all runnable tasks and waits for completion. A null timeout will wait indefinitely.
-	 * If the timeout expires, tasks are cancelled and a CancellationException is thrown.
-	 */
-	private static <E extends Exception> void invokeAll(ExecutorService executor,
-		Function<Throwable, ? extends E> exceptionConstructor, Integer timeoutMs,
-		Collection<ExceptionRunnable<E>> runnables) throws InterruptedException, E {
-		List<Callable<Boolean>> callables =
-			CollectionUtil.toList(ConcurrentUtil::callable, runnables);
-		List<Future<Boolean>> futures = timeoutMs == null ? executor.invokeAll(callables) :
-			executor.invokeAll(callables, timeoutMs, MILLISECONDS);
-		for (Future<Boolean> future : futures)
-			get(future, exceptionConstructor);
-	}
-
-	/**
 	 * Submits a runnable to the executor service, allowing exceptions to be thrown. Returns a
 	 * boolean Future.
 	 */
@@ -323,6 +312,31 @@ public class ConcurrentUtil {
 		} catch (InterruptedException e) {
 			throw new RuntimeInterruptedException(e);
 		}
+	}
+
+	private static void delayNanos(long delayNanos, long minNanos) {
+		long deadline = addLimit(System.nanoTime(), delayNanos);
+		while (true) {
+			checkRuntimeInterrupted();
+			long delayNs = deadline - System.nanoTime();
+			if (delayNs < minNanos) return;
+			LockSupport.parkNanos(delayNs); // can return spuriously
+		}
+	}
+
+	/**
+	 * Executes all runnable tasks and waits for completion. A null timeout will wait indefinitely.
+	 * If the timeout expires, tasks are cancelled and a CancellationException is thrown.
+	 */
+	private static <E extends Exception> void invokeAll(ExecutorService executor,
+		Function<Throwable, ? extends E> exceptionConstructor, Integer timeoutMs,
+		Collection<ExceptionRunnable<E>> runnables) throws InterruptedException, E {
+		List<Callable<Boolean>> callables =
+			CollectionUtil.toList(ConcurrentUtil::callable, runnables);
+		List<Future<Boolean>> futures = timeoutMs == null ? executor.invokeAll(callables) :
+			executor.invokeAll(callables, timeoutMs, MILLISECONDS);
+		for (Future<Boolean> future : futures)
+			get(future, exceptionConstructor);
 	}
 
 }

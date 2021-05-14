@@ -40,6 +40,129 @@ public class MathUtilTest {
 	}
 
 	@Test
+	public void testAbsLimitInt() {
+		assertEquals(MathUtil.absLimit(-1), 1);
+		assertEquals(MathUtil.absLimit(Integer.MIN_VALUE), Integer.MAX_VALUE);
+		assertEquals(MathUtil.absLimit(Integer.MAX_VALUE), Integer.MAX_VALUE);
+	}
+
+	@Test
+	public void testAbsLimitLong() {
+		assertEquals(MathUtil.absLimit(-1L), 1L);
+		assertEquals(MathUtil.absLimit(Long.MIN_VALUE), Long.MAX_VALUE);
+		assertEquals(MathUtil.absLimit(Long.MAX_VALUE), Long.MAX_VALUE);
+	}
+
+	@Test
+	public void testAddLimitInt() {
+		assertEquals(MathUtil.addLimit(Integer.MAX_VALUE, Integer.MIN_VALUE), -1);
+		assertEquals(MathUtil.addLimit(Integer.MAX_VALUE, Integer.MAX_VALUE), Integer.MAX_VALUE);
+		assertEquals(MathUtil.addLimit(Integer.MIN_VALUE, Integer.MIN_VALUE), Integer.MIN_VALUE);
+	}
+
+	@Test
+	public void testAddLimitLong() {
+		assertEquals(MathUtil.addLimit(Long.MAX_VALUE, Long.MIN_VALUE), -1L);
+		assertEquals(MathUtil.addLimit(Long.MAX_VALUE, Long.MAX_VALUE), Long.MAX_VALUE);
+		assertEquals(MathUtil.addLimit(Long.MIN_VALUE, Long.MIN_VALUE), Long.MIN_VALUE);
+	}
+
+	@Test
+	public void testSubtractLimitInt() {
+		assertEquals(MathUtil.subtractLimit(Integer.MIN_VALUE, Integer.MIN_VALUE), 0);
+		assertEquals(MathUtil.subtractLimit(Integer.MAX_VALUE, Integer.MIN_VALUE),
+			Integer.MAX_VALUE);
+		assertEquals(MathUtil.subtractLimit(Integer.MIN_VALUE, Integer.MAX_VALUE),
+			Integer.MIN_VALUE);
+	}
+
+	@Test
+	public void testSubtractLimitLong() {
+		assertEquals(MathUtil.subtractLimit(Long.MIN_VALUE, Long.MIN_VALUE), 0L);
+		assertEquals(MathUtil.subtractLimit(Long.MAX_VALUE, Long.MIN_VALUE), Long.MAX_VALUE);
+		assertEquals(MathUtil.subtractLimit(Long.MIN_VALUE, Long.MAX_VALUE), Long.MIN_VALUE);
+	}
+
+	@Test
+	public void testMultiplyLimitInt() {
+		assertEquals(MathUtil.multiplyLimit(Integer.MIN_VALUE, Integer.MIN_VALUE),
+			Integer.MAX_VALUE);
+		assertEquals(MathUtil.multiplyLimit(Integer.MIN_VALUE, Integer.MAX_VALUE),
+			Integer.MIN_VALUE);
+		assertEquals(MathUtil.multiplyLimit(Integer.MAX_VALUE, Integer.MAX_VALUE),
+			Integer.MAX_VALUE);
+		assertEquals(MathUtil.multiplyLimit(Integer.MIN_VALUE, 0), 0);
+		assertEquals(MathUtil.multiplyLimit(Integer.MIN_VALUE, -1), Integer.MAX_VALUE);
+	}
+
+	@Test
+	public void testMultiplyLimitLong() {
+		assertEquals(MathUtil.multiplyLimit(Long.MIN_VALUE, Long.MIN_VALUE), Long.MAX_VALUE);
+		assertEquals(MathUtil.multiplyLimit(Long.MIN_VALUE, Long.MAX_VALUE), Long.MIN_VALUE);
+		assertEquals(MathUtil.multiplyLimit(Long.MAX_VALUE, Long.MAX_VALUE), Long.MAX_VALUE);
+		assertEquals(MathUtil.multiplyLimit(Long.MIN_VALUE, 0), 0L);
+		assertEquals(MathUtil.multiplyLimit(Long.MIN_VALUE, -1), Long.MAX_VALUE);
+		assertEquals(MathUtil.multiplyLimit(0x100000000L, 1), 0x100000000L);
+	}
+
+	@Test
+	public void testDecrementLimitInt() {
+		assertEquals(MathUtil.decrementLimit(Integer.MAX_VALUE), Integer.MAX_VALUE - 1);
+		assertEquals(MathUtil.decrementLimit(Integer.MIN_VALUE), Integer.MIN_VALUE);
+	}
+
+	@Test
+	public void testDecrementLimitLong() {
+		assertEquals(MathUtil.decrementLimit(Long.MAX_VALUE), Long.MAX_VALUE - 1);
+		assertEquals(MathUtil.decrementLimit(Long.MIN_VALUE), Long.MIN_VALUE);
+	}
+
+	@Test
+	public void testIncrementLimitInt() {
+		assertEquals(MathUtil.incrementLimit(Integer.MIN_VALUE), Integer.MIN_VALUE + 1);
+		assertEquals(MathUtil.incrementLimit(Integer.MAX_VALUE), Integer.MAX_VALUE);
+	}
+
+	@Test
+	public void testIncrementLimitLong() {
+		assertEquals(MathUtil.incrementLimit(Long.MIN_VALUE), Long.MIN_VALUE + 1);
+		assertEquals(MathUtil.incrementLimit(Long.MAX_VALUE), Long.MAX_VALUE);
+	}
+
+	@Test
+	public void testNegateInt() {
+		assertEquals(MathUtil.negateLimit(Integer.MAX_VALUE), Integer.MIN_VALUE + 1);
+		assertEquals(MathUtil.negateLimit(Integer.MIN_VALUE), Integer.MAX_VALUE);
+	}
+
+	@Test
+	public void testNegateLong() {
+		assertEquals(MathUtil.negateLimit(Long.MAX_VALUE), Long.MIN_VALUE + 1);
+		assertEquals(MathUtil.negateLimit(Long.MIN_VALUE), Long.MAX_VALUE);
+	}
+
+	@Test
+	public void testToIntLimit() {
+		assertEquals(MathUtil.toIntLimit(Integer.MIN_VALUE), Integer.MIN_VALUE);
+		assertEquals(MathUtil.toIntLimit(Long.MAX_VALUE), Integer.MAX_VALUE);
+		assertEquals(MathUtil.toIntLimit(Long.MIN_VALUE), Integer.MIN_VALUE);
+	}
+
+	@Test
+	public void testToIntLimitDouble() {
+		assertEquals(MathUtil.toIntLimit((double) Integer.MAX_VALUE), Integer.MAX_VALUE);
+		assertEquals(MathUtil.toIntLimit(Double.MAX_VALUE), Integer.MAX_VALUE);
+		assertEquals(MathUtil.toIntLimit(-Double.MAX_VALUE), Integer.MIN_VALUE);
+	}
+
+	@Test
+	public void testToLongLimitDouble() {
+		assertEquals(MathUtil.toLongLimit(Long.MAX_VALUE), Long.MAX_VALUE);
+		assertEquals(MathUtil.toLongLimit(Double.MAX_VALUE), Long.MAX_VALUE);
+		assertEquals(MathUtil.toLongLimit(-Double.MAX_VALUE), Long.MIN_VALUE);
+	}
+
+	@Test
 	public void testSafeToInt() {
 		double d0 = Integer.MIN_VALUE;
 		double d1 = Integer.MAX_VALUE;
@@ -117,22 +240,6 @@ public class MathUtilTest {
 	@Test
 	public void testUint() {
 		assertEquals(MathUtil.uint(0xffffffff), 0xffffffffL);
-	}
-
-	@Test
-	public void testAbsExactInt() {
-		assertEquals(MathUtil.absExact(0), 0);
-		assertEquals(MathUtil.absExact(Integer.MAX_VALUE), Integer.MAX_VALUE);
-		assertEquals(MathUtil.absExact(Integer.MIN_VALUE + 1), Integer.MAX_VALUE);
-		assertThrown(() -> MathUtil.absExact(Integer.MIN_VALUE));
-	}
-
-	@Test
-	public void testAbsExactLong() {
-		assertEquals(MathUtil.absExact(0L), 0L);
-		assertEquals(MathUtil.absExact(Long.MAX_VALUE), Long.MAX_VALUE);
-		assertEquals(MathUtil.absExact(Long.MIN_VALUE + 1), Long.MAX_VALUE);
-		assertThrown(() -> MathUtil.absExact(Long.MIN_VALUE));
 	}
 
 	@Test

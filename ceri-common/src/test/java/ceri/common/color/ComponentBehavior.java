@@ -8,6 +8,20 @@ import org.junit.Test;
 public class ComponentBehavior {
 
 	@Test
+	public void testFromByteIndex() {
+		assertEquals(Component.from(-1), null);
+		assertEquals(Component.from(0), Component.b);
+		assertEquals(Component.from(1), Component.g);
+		assertEquals(Component.from(2), Component.r);
+		assertEquals(Component.from(3), Component.a);
+		assertEquals(Component.from(4), Component.x0);
+		assertEquals(Component.from(5), Component.x1);
+		assertEquals(Component.from(6), Component.x2);
+		assertEquals(Component.from(7), Component.x3);
+		assertEquals(Component.from(8), null);
+	}
+
+	@Test
 	public void testComponentCount() {
 		assertEquals(Component.count(0L), 0);
 		assertEquals(Component.count(0x1), 1);

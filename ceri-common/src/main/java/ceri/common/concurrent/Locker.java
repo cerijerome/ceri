@@ -1,5 +1,6 @@
 package ceri.common.concurrent;
 
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import ceri.common.util.Enclosed;
@@ -31,4 +32,12 @@ public class Locker {
 		lock.lock();
 		return unlocker;
 	}
+
+	/**
+	 * Create a new condition from the lock.
+	 */
+	public Condition condition() {
+		return lock.newCondition();
+	}
+	
 }

@@ -79,6 +79,19 @@ public class ConcurrentUtilTest {
 	}
 
 	@Test
+	public void testDelayNanos() throws InterruptedException {
+		BooleanCondition sync = BooleanCondition.of();
+		try (var exec = SimpleExecutor.run(() -> {
+			ConcurrentUtil.delayNanos(0);
+			ConcurrentUtil.delayNanos(10);
+			sync.signal();
+			ConcurrentUtil.delayNanos(100000000);
+		})) {
+			sync.await();
+		}
+	}
+
+	@Test
 	public void testCloseExecutor() {
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 		exec.submit(() -> ConcurrentUtil.delay(60000));

@@ -3,6 +3,7 @@ package ceri.common.color;
 import static ceri.common.color.ColorUtil.MAX_VALUE;
 import static ceri.common.math.MathUtil.ubyte;
 import java.util.List;
+import ceri.common.data.TypeTranscoder;
 
 /**
  * Color components. Provides logic to get and set components from argb and xargb colors.
@@ -24,6 +25,9 @@ public enum Component {
 	public static final List<Component> XS = List.of(x0, x1, x2, x3);
 	public static final long X_MASK = 0xffffffff00000000L;
 	public static final int X_COUNT = 4;
+	private static final TypeTranscoder<Component> xcoder =
+		TypeTranscoder.of(t -> t.index, Component.class);
+	public final int index;
 	public final int shift;
 	public final long mask;
 	public final int intMask;
@@ -40,15 +44,22 @@ public enum Component {
 	}
 
 	/**
+	 * Look up component from byte index.
+	 */
+	public static Component from(int index) {
+		return xcoder.decode(index);
+	}
+
+	/**
 	 * Get x component by index.
 	 */
-	public static Component x(int index) {
-		return switch (index) {
-		case 0 -> x0;
-		case 1 -> x1;
-		case 2 -> x2;
-		case 3 -> x3;
-		default -> null;
+	public static Component x(int xIndex) {
+		return switch (xIndex) {
+			case 0 -> x0;
+			case 1 -> x1;
+			case 2 -> x2;
+			case 3 -> x3;
+			default -> null;
 		};
 	}
 
@@ -72,8 +83,9 @@ public enum Component {
 		return values;
 	}
 
-	private Component(int b) {
-		shift = Byte.SIZE * b;
+	private Component(int i) {
+		index = i;
+		shift = Byte.SIZE * i;
 		mask = 0xffL << shift;
 		intMask = (int) mask;
 	}

@@ -289,6 +289,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.time.CalendarFieldBehavior.class, //
 	ceri.common.time.DateUtilTest.class, //
 	ceri.common.time.HolidayBehavior.class, //
+	ceri.common.time.TimeSupplierBehavior.class, //
 	ceri.common.time.TimeoutBehavior.class, //
 	ceri.common.time.TimerBehavior.class, //
 	// tree
