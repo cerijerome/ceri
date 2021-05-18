@@ -18,6 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import org.junit.Test;
 
 public class CollectionUtilTest {
@@ -177,13 +178,9 @@ public class CollectionUtilTest {
 	}
 
 	@Test
-	public void testFirst() {
-		assertNull(CollectionUtil.first(null));
-		assertNull(CollectionUtil.first(Collections.emptySet()));
-		assertEquals(CollectionUtil.first(Arrays.asList("1", "2", "3")), "1");
-		Set<String> set = new LinkedHashSet<>();
-		Collections.addAll(set, "1", "2", "3");
-		assertEquals(CollectionUtil.first(set), "1");
+	public void testLastKey() {
+		assertNull(CollectionUtil.lastKey(new TreeMap<>()));
+		assertEquals(CollectionUtil.lastKey(new TreeMap<>(Map.of(0, "0", -1, "-1", 1, "1"))), 1);
 	}
 
 	@Test
@@ -195,6 +192,16 @@ public class CollectionUtilTest {
 		assertNull(CollectionUtil.last(ii));
 		Collections.addAll(ii, 1, 0, -1);
 		assertEquals(CollectionUtil.last(ii), -1);
+	}
+
+	@Test
+	public void testFirst() {
+		assertNull(CollectionUtil.first(null));
+		assertNull(CollectionUtil.first(Collections.emptySet()));
+		assertEquals(CollectionUtil.first(Arrays.asList("1", "2", "3")), "1");
+		Set<String> set = new LinkedHashSet<>();
+		Collections.addAll(set, "1", "2", "3");
+		assertEquals(CollectionUtil.first(set), "1");
 	}
 
 	@Test

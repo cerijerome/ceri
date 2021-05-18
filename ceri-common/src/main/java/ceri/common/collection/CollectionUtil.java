@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
@@ -320,6 +321,20 @@ public class CollectionUtil {
 		return collection;
 	}
 
+	/**
+	 * Returns the last key, or null if empty.
+	 */
+	public static <T> T lastKey(SortedMap<T, ?> map) {
+		return lastKey(map, null);
+	}
+	
+	/**
+	 * Returns the last key, or def if empty.
+	 */
+	public static <T> T lastKey(SortedMap<T, ?> map, T def) {
+		return map.isEmpty() ? def : map.lastKey();
+	}
+	
 	/**
 	 * Returns the last element.
 	 */
