@@ -5,14 +5,17 @@ import static ceri.common.validation.ValidationUtil.validateNotNull;
 import static ceri.serial.spi.jna.SpiDevUtil.direction;
 import static ceri.serial.spi.jna.SpiDevUtil.transferTimeMicros;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.data.ByteUtil;
+import ceri.common.test.PulsePrinter;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.spi.Spi;
 import ceri.serial.spi.SpiMode;
 import ceri.serial.spi.SpiTransfer;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
+import ceri.serial.spi.pulse.PulseCycle;
 
 public class SpiEmulator implements Spi {
 	private final Responder responder;
@@ -38,6 +41,34 @@ public class SpiEmulator implements Spi {
 		}
 	}
 
+	/**
+	 * Prints output data as pulses.
+	 */
+	public static SpiEmulator pulsePrinter(PrintStream out) {
+		return pulsePrinter(out, null);
+	}
+	
+	/**
+	 * Prints output data as pulses with byte separator according to cycle.
+	 */
+	public static SpiEmulator pulsePrinter(PrintStream out, PulseCycle cycle) {
+		PulsePrinter pp = PulsePrinter.builder().out(out).build();
+		return of(new Responder() {
+			@Override
+			public void out(byte[] data) throws IOException {
+				for (int i = 0; i < data.length; i++) {
+					if (cycle != null && i > 0 && i % cycle.pulseBits == cycle.pulseOffsetBits)
+						out.print(' ');
+					pp.print(data[i]);
+				}
+				pp.newLine();
+			}
+		});
+	}
+
+	/**
+	 * Echoes duplex data.
+	 */
 	public static SpiEmulator echo() {
 		return of(Responder.ECHO);
 	}

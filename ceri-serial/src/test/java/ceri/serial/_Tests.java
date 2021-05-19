@@ -56,6 +56,7 @@ import ceri.common.test.TestUtil;
 	// spi
 	ceri.serial.spi.SpiBehavior.class, //
 	ceri.serial.spi.SpiDeviceBehavior.class, //
+	ceri.serial.spi.SpiDeviceConfigBehavior.class, //
 	ceri.serial.spi.SpiModeBehavior.class, //
 	// spi.jna
 	ceri.serial.spi.jna.SpiDevTest.class, //

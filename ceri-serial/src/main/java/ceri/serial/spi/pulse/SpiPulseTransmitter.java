@@ -2,9 +2,9 @@ package ceri.serial.spi.pulse;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.locks.Condition;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
@@ -22,14 +22,14 @@ import ceri.serial.spi.SpiTransfer;
 public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver {
 	private static final Logger logger = LogManager.getLogger();
 	private final Locker locker = Locker.of();
-	private final Condition sync = locker.lock.newCondition();
+	private final BooleanCondition sync = BooleanCondition.of(locker.lock);
 	private final SpiPulseConfig config;
 	private final int id;
 	private final PulseBuffer buffer;
 	private final SpiTransfer xfer;
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 	private boolean changed = false; // need to copy data before sending?
-	
+
 	public static SpiPulseTransmitter of(int id, Spi spi, SpiPulseConfig config) {
 		return new SpiPulseTransmitter(id, spi, config);
 	}
@@ -95,9 +95,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	}
 
 	public void send() {
-		try (var locked = locker.lock()) {
-			sync.signal();
-		}
+		sync.signal();
 	}
 
 	@Override
@@ -126,5 +124,4 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 		return String.format("%s(%d:%d:%s)", SpiPulseTransmitter.class.getSimpleName(), id,
 			config.size, config.cycle);
 	}
-
 }

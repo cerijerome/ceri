@@ -9,6 +9,7 @@ import ceri.common.util.StartupValues;
 import ceri.log.util.LogUtil;
 import ceri.serial.spi.Spi;
 import ceri.serial.spi.SpiDevice;
+import ceri.serial.spi.SpiDeviceConfig;
 import ceri.serial.spi.SpiMode;
 import ceri.serial.spi.pulse.PulseCycle;
 import ceri.serial.spi.pulse.PulseCycles;
@@ -35,7 +36,7 @@ public class SpiPulseTester {
 		SpiPulseConfig config = SpiPulseConfig.builder(size)
 			.cycle(PulseCycles.cycle(pulseType, pulseBits, pulseOffset, pulseT0, pulseT1))
 			.delayMicros(delayMicros).build();
-		try (var fd = SpiDevice.file(bus, chip, out)) {
+		try (var fd = SpiDeviceConfig.of(bus, chip, out).open()) {
 			Spi spi = SpiDevice.of(fd);
 			spi.mode(mode).maxSpeedHz(speed);
 			try (SpiPulseTransmitter processor = SpiPulseTransmitter.of(1, spi, config)) {

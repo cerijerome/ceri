@@ -4,7 +4,6 @@ import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.collection.ImmutableUtil.asList;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.serial.spi.SpiMode.MODE_2;
 import static ceri.serial.spi.SpiMode.MODE_3;
@@ -39,7 +38,7 @@ public class SpiDeviceBehavior {
 	public void before() throws IOException {
 		lib = TestSpiCLibNative.of();
 		enc = TestCLibNative.register(lib);
-		fd = SpiDevice.file(0, 0);
+		fd = SpiDeviceConfig.of(0, 0).open();
 		spi = SpiDevice.of(fd);
 	}
 
@@ -47,17 +46,6 @@ public class SpiDeviceBehavior {
 	public void after() throws IOException {
 		fd.close();
 		enc.close();
-	}
-
-	@Test
-	public void shouldOpenDevice() throws IOException {
-		assertThrown(() -> SpiDevice.file(0, 0, null));
-		try (var fd = SpiDevice.file(0, 1, Direction.in)) {}
-		try (var fd = SpiDevice.file(1, 1, Direction.out)) {}
-		lib.open.assertValues( //
-			List.of("/dev/spidev0.0", 2, 0), // from before() - duplex
-			List.of("/dev/spidev0.1", 0, 0), //
-			List.of("/dev/spidev1.1", 1, 0));
 	}
 
 	@Test

@@ -9,6 +9,7 @@ import ceri.common.util.StartupValues;
 import ceri.serial.spi.Spi;
 import ceri.serial.spi.Spi.Direction;
 import ceri.serial.spi.SpiDevice;
+import ceri.serial.spi.SpiDeviceConfig;
 import ceri.serial.spi.SpiMode;
 import ceri.serial.spi.SpiTransfer;
 
@@ -27,7 +28,7 @@ public class SpiTester {
 		int repeat = v.next("repeat").asInt(1);
 		int repeatDelayMs = v.next("repeatDelayMs").asInt(0);
 
-		try (var fd = SpiDevice.file(bus, chip, direction)) {
+		try (var fd = SpiDeviceConfig.of(bus, chip, direction).open()) {
 			//Spi spi = SpiEmulator.echo();
 			Spi spi = SpiDevice.of(fd);
 			spi.mode(SpiMode.of(mode));

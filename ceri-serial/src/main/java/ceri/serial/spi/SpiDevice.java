@@ -2,44 +2,20 @@ package ceri.serial.spi;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
-import static ceri.serial.clib.OpenFlag.O_RDONLY;
-import static ceri.serial.clib.OpenFlag.O_RDWR;
-import static ceri.serial.clib.OpenFlag.O_WRONLY;
-import static ceri.serial.spi.Spi.Direction.in;
-import static ceri.serial.spi.Spi.Direction.out;
 import java.io.IOException;
-import ceri.serial.clib.CFileDescriptor;
 import ceri.serial.clib.FileDescriptor;
-import ceri.serial.clib.OpenFlag;
 import ceri.serial.spi.jna.SpiDev;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
+/**
+ * Spi instance using a file descriptor. SpiDeviceConfig can be used to open a descriptor.  
+ */
 public class SpiDevice implements Spi {
 	private final FileDescriptor fd;
 
 	/**
-	 * Open a file descriptor to the SPI bus.
+	 * Creates an instance using given file descriptor.
 	 */
-	public static CFileDescriptor file(int bus, int chip) throws IOException {
-		return file(bus, chip, Direction.duplex);
-	}
-
-	/**
-	 * Open a file descriptor to the SPI bus.
-	 */
-	public static CFileDescriptor file(int bus, int chip, Direction direction) throws IOException {
-		validateMin(bus, 0, "Bus number");
-		validateMin(bus, 0, "Chip number");
-		validateNotNull(direction, "Direction");
-		return CFileDescriptor.of(SpiDev.open(bus, chip, openFlag(direction).value));
-	}
-
-	private static OpenFlag openFlag(Direction direction) {
-		if (direction == out) return O_WRONLY;
-		if (direction == in) return O_RDONLY;
-		return O_RDWR;
-	}
-
 	public static SpiDevice of(FileDescriptor fd) {
 		return new SpiDevice(fd);
 	}
