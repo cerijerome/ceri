@@ -19,6 +19,7 @@ import ceri.serial.spi.jna.SpiDev;
  * Configuration to open SPI file descriptor.
  */
 public class SpiDeviceConfig {
+	public static final SpiDeviceConfig DEFAULT = of(0, 0);
 	private final int bus;
 	private final int chip;
 	private final Direction direction;
@@ -26,11 +27,11 @@ public class SpiDeviceConfig {
 	public static SpiDeviceConfig of(int bus, int chip) {
 		return builder().bus(bus).chip(chip).build();
 	}
-	
+
 	public static SpiDeviceConfig of(int bus, int chip, Direction direction) {
 		return builder().bus(bus).chip(chip).direction(direction).build();
 	}
-	
+
 	public static class Builder {
 		int bus = 0;
 		int chip = 0;
@@ -57,7 +58,7 @@ public class SpiDeviceConfig {
 		}
 
 		public SpiDeviceConfig build() {
-			return new SpiDeviceConfig(this);
+			return new SpiDeviceConfig(bus, chip, direction);
 		}
 	}
 
@@ -65,10 +66,10 @@ public class SpiDeviceConfig {
 		return new Builder();
 	}
 
-	SpiDeviceConfig(Builder builder) {
-		bus = builder.bus;
-		chip = builder.chip;
-		direction = builder.direction;
+	SpiDeviceConfig(int bus, int chip, Direction direction) {
+		this.bus = bus;
+		this.chip = chip;
+		this.direction = direction;
 	}
 
 	/**

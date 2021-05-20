@@ -1,9 +1,11 @@
 package ceri.serial.spi.pulse;
 
+import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.Objects;
 import ceri.common.text.ToString;
 
 public class SpiPulseConfig {
+	public static final SpiPulseConfig NULL = of(0);
 	public final PulseCycle cycle;
 	public final int size;
 	public final int delayMicros;
@@ -44,6 +46,7 @@ public class SpiPulseConfig {
 	}
 
 	public static Builder builder(int size) {
+		validateMin(size, 0);
 		return new Builder(size);
 	}
 
@@ -58,6 +61,10 @@ public class SpiPulseConfig {
 		return cycle.buffer(size);
 	}
 
+	public boolean isNull() {
+		return size == 0;
+	}
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(cycle, size, delayMicros, resetDelayMs);
