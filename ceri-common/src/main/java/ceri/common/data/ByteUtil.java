@@ -1,11 +1,13 @@
 package ceri.common.data;
 
+import static ceri.common.collection.ArrayUtil.validateSlice;
 import static ceri.common.text.StringUtil.HEX_RADIX;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
@@ -288,6 +290,57 @@ public class ByteUtil {
 	 */
 	public static String fromAscii(byte[] data, int offset, int length) {
 		return new String(data, offset, length, StandardCharsets.ISO_8859_1);
+	}
+
+	/**
+	 * Extract a null-terminated string, up to maximum length. If no null-termination, the
+	 * maximum length string is returned.
+	 */
+	public static String fromNullTerm(byte[] data, Charset charset) {
+		return fromNullTerm(data, 0, charset);
+	}
+
+	/**
+	 * Extract a null-terminated string, up to maximum length. If no null-termination, the
+	 * maximum length string is returned.
+	 */
+	public static String fromNullTerm(byte[] data, int offset, Charset charset) {
+		return fromNullTerm(data, offset, data.length - offset, charset);
+	}
+
+	/**
+	 * Extract a null-terminated string, up to maximum length. If no null-termination, the
+	 * maximum length string is returned.
+	 */
+	public static String fromNullTerm(byte[] data, int offset, int maxLen, Charset charset) {
+		return fromNullTerm(ByteArray.Immutable.wrap(data, offset, maxLen), 0, maxLen, charset);
+	}
+
+	/**
+	 * Extract a null-terminated string, up to maximum length. If no null-termination, the
+	 * maximum length string is returned.
+	 */
+	public static String fromNullTerm(ByteProvider data, Charset charset) {
+		return fromNullTerm(data, 0, charset);
+	}
+
+	/**
+	 * Extract a null-terminated string, up to maximum length. If no null-termination, the
+	 * maximum length string is returned.
+	 */
+	public static String fromNullTerm(ByteProvider data, int offset, Charset charset) {
+		return fromNullTerm(data, offset, data.length() - offset, charset);
+	}
+
+	/**
+	 * Extract a null-terminated string, up to maximum length. If no null-termination, the
+	 * maximum length string is returned.
+	 */
+	public static String fromNullTerm(ByteProvider data, int offset, int maxLen, Charset charset) {
+		validateSlice(data.length(), offset, maxLen);
+		for (int i = 0; i < maxLen; i++)
+			if (data.getByte(offset + i) == 0) return data.getString(offset, i, charset); 
+		return data.getString(offset, maxLen, charset);
 	}
 
 	/**

@@ -11,6 +11,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.common.util.BasicUtil.forEach;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -163,6 +164,15 @@ public class ByteUtilTest {
 	@Test
 	public void testFromAscii() {
 		assertEquals(ByteUtil.fromAscii(0, '\t', '\r', '\n', 't', 'e', 's', 't'), "\0\t\r\ntest");
+	}
+
+	@Test
+	public void testFromNullTerm() {
+		assertEquals(ByteUtil.fromNullTerm(bytes(0, 't', 'e', 's', 't'), UTF_8), "");
+		assertEquals(ByteUtil.fromNullTerm(bytes('t', 'e', 's', 't'), UTF_8), "test");
+		assertEquals(ByteUtil.fromNullTerm(bytes('\t', '\r', '\n', 0, 't', 'e', 's', 't'), UTF_8),
+			"\t\r\n");
+		assertEquals(ByteUtil.fromNullTerm(provider('t', 'e', 's', 't', 0, 0), UTF_8), "test");
 	}
 
 	@Test

@@ -9,6 +9,8 @@ import java.util.Objects;
  * reducing log noise.
  */
 public class ExceptionTracker {
+	private static final int MAX_DEF = 100;
+	public final int max;
 	private final Map<Key, Throwable> map = new HashMap<>();
 
 	static class Key {
@@ -37,16 +39,24 @@ public class ExceptionTracker {
 	}
 
 	public static ExceptionTracker of() {
-		return new ExceptionTracker();
+		return of(MAX_DEF);
 	}
 
-	private ExceptionTracker() {}
+	public static ExceptionTracker of(int max) {
+		return new ExceptionTracker(max);
+	}
+
+	private ExceptionTracker(int max) {
+		this.max = max;
+	}
 
 	/**
-	 * Returns true if exception is new, based on exact type and message.
+	 * Returns true if exception is new, based on exact type and message and the maximum number of
+	 * exceptions received has not been exceeded. Typically a caller will log the exception if this
+	 * method returns true.
 	 */
 	public boolean add(Throwable t) {
-		if (t == null) return false;
+		if (t == null || map.size() >= max) return false;
 		Key key = new Key(t.getClass(), t.getMessage());
 		return map.putIfAbsent(key, t) == null;
 	}
