@@ -139,6 +139,13 @@ public class TimeQueue<T> {
 	}
 
 	/**
+	 * Provides the time offset from current time, using the assigned time supplier.
+	 */
+	public long time(long offset) {
+		return time() + offset;
+	}
+
+	/**
 	 * Provides the time of the head of the queue. Returns 0 if the queue is empty.
 	 */
 	public long nextTime() {

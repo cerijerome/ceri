@@ -52,6 +52,10 @@ public enum TimeSupplier {
 		return supplier.getAsLong();
 	}
 
+	public String symbol() {
+		return DateUtil.symbol(unit);
+	}
+	
 	private static LongSupplier supplier(TimeUnit unit) {
 		return switch (unit) {
 			case NANOSECONDS -> System::nanoTime;

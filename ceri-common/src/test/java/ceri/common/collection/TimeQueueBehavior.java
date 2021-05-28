@@ -59,7 +59,7 @@ public class TimeQueueBehavior {
 	@Test
 	public void shouldGetNextTime() {
 		TimeQueue<String> tq = TimeQueue.of(nanos);
-		long ns = tq.time();
+		long ns = tq.time(0);
 		assertEquals(tq.nextTime(), 0L);
 		tq.add("a", ns - 1000);
 		tq.add("b", ns + 1000);

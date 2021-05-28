@@ -16,6 +16,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.collection.FixedSizeCacheBehavior.class, //
 	ceri.common.collection.ImmutableUtilTest.class, //
 	ceri.common.collection.IndexedBehavior.class, //
+	ceri.common.collection.IndexerBehavior.class, //
 	ceri.common.collection.IteratorsTest.class, //
 	ceri.common.collection.MapPopulatorBehavior.class, //
 	ceri.common.collection.NodeBehavior.class, //

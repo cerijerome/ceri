@@ -16,3 +16,4 @@ UDP
 - Broadcast test: echo "broadcast" | nc -ubw0 <broadcast-ip> <port> (not supported by Mac nc)
   - Alternative:  echo "broadcast" | ncat -uw1ms <broadcast-ip> <port>
   - Alternative:  echo "broadcast" | socat - udp-datagram:<broadcast-ip>:<port>,broadcast
+- Show multicast groups: netstat -g
