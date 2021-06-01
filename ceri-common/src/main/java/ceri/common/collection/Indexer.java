@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.function.IntUnaryOperator;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
+import ceri.common.text.ToString;
 
 /**
  * Combines ranges into a single length. Looks up range index by value.
@@ -80,7 +81,7 @@ public class Indexer {
 
 	@Override
 	public String toString() {
-		return indexes().toString();
+		return ToString.forClass(this, indexes());
 	}
 
 	private int searchIndex(int value) {

@@ -2,6 +2,7 @@ package ceri.common.util;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.property.PathFactory;
@@ -160,7 +161,7 @@ public class StartupValues {
 			if (value != null && fn != null) return fn.apply(value);
 			if (defSupplier == null) return null;
 			T t = defSupplier.get();
-			return notify(t, "%s = %s (default)", name(), t);
+			return notify(t, "%s = %s (default)", name(), ArrayUtil.deepToString(t));
 		}
 
 		public String get() {

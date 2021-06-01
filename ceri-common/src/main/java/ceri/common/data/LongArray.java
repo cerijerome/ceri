@@ -417,7 +417,7 @@ public abstract class LongArray implements LongProvider {
 		this.length = length;
 	}
 
-	/* IntProvider overrides */
+	/* LongProvider overrides */
 
 	@Override
 	public int length() {
