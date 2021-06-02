@@ -7,7 +7,8 @@ import ceri.common.data.IntProvider;
 import ceri.common.text.ToString;
 
 /**
- * Combines ranges into a single length. Looks up range index by value.
+ * Combines ranges into a single length. Looks up range index by value. Uses linear or binary search
+ * depending on the number of indexes.
  */
 public class Indexer {
 	public static final int INVALID_INDEX = -1;

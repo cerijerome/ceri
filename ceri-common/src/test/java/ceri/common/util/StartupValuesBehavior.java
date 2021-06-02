@@ -79,7 +79,7 @@ public class StartupValuesBehavior {
 
 	@Test
 	public void shouldConvertValueToType() {
-		StartupValues v = StartupValues.of(null, "true", "-1", "0xffffffffff", "1.1");
+		StartupValues v = StartupValues.of(null, "true", "-1", "0xffffffffff", "1.1", "left");
 		assertTrue(v.value(1).asBool());
 		assertTrue(v.value(1).asBool(false));
 		assertFalse(v.value(0).asBool(false));
@@ -92,6 +92,8 @@ public class StartupValuesBehavior {
 		assertEquals(v.value(4).asDouble(), 1.1);
 		assertEquals(v.value(4).asDouble(-1.1), 1.1);
 		assertEquals(v.value(0).asDouble(-1.1), -1.1);
+		assertEquals(v.value(0).asEnum(Align.H.right), Align.H.right);
+		assertEquals(v.value(5).asEnum(Align.H.right), Align.H.left);
 		assertPath(v.value(1).asPath(), "true");
 		assertPath(v.value(1).asPath(Path.of("abc")), "true");
 		assertPath(v.value(0).asPath(Path.of("abc")), "abc");

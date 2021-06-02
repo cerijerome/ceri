@@ -1,6 +1,7 @@
 package ceri.common.util;
 
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.function.Consumer;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.ExceptionFunction;
@@ -131,6 +132,12 @@ public class StartupValues {
 		public <E extends Exception> Double asDoubleFrom(ExceptionSupplier<E, Double> defSupplier)
 			throws E {
 			return applyFrom(Double::parseDouble, defSupplier);
+		}
+
+		public <T extends Enum<T>> T asEnum(T def) {
+			Objects.requireNonNull(def);
+			Class<T> cls = BasicUtil.uncheckedCast(def.getClass());
+			return applyFrom(s -> Enum.valueOf(cls, s), () -> def);
 		}
 
 		public Path asPath() {

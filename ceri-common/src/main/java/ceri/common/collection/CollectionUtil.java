@@ -60,7 +60,7 @@ public class CollectionUtil {
 	/**
 	 * Gets element of a list or default value if the index does not exist.
 	 */
-	public static <T> T getOrDefault(List<T> list, int index, T def) {
+	public static <T> T getOrDefault(List<? extends T> list, int index, T def) {
 		if (list.isEmpty() || index < 0 || index >= list.size()) return def;
 		return list.get(index);
 	}
