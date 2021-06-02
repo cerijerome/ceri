@@ -10,8 +10,12 @@ import jtermios.Termios;
 /**
  * Utility functions using purejavacomm JTermios.
  */
+@SuppressWarnings("deprecation")
 public class TermiosUtil {
 
+	// TODO:
+	// fix depecretions
+	
 	private TermiosUtil() {}
 
 	// public static int open(String path, int flags) throws CException {

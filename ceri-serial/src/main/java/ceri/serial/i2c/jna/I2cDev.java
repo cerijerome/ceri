@@ -82,7 +82,7 @@ public class I2cDev {
 		public static class ByReference extends i2c_msg implements Structure.ByReference {}
 
 		public static ByReference[] array(int count) {
-			return Struct.arrayByVal(ByReference::new, ByReference[]::new, count);
+			return Struct.<ByReference>arrayByVal(ByReference::new, ByReference[]::new, count);
 		}
 
 		public i2c_msg() {}
