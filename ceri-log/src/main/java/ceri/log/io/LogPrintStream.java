@@ -7,7 +7,7 @@ import ceri.common.io.StringPrintStream;
 import ceri.common.text.StringUtil;
 
 /**
- * Collects output and writes compacted lines to logger on flush().
+ * Collects output, writes compacted lines to logger on flush().
  */
 public class LogPrintStream extends StringPrintStream {
 	private static final Logger defaultLogger = LogManager.getLogger();
