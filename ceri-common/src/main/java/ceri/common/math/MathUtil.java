@@ -55,6 +55,13 @@ public class MathUtil {
 	}
 
 	/**
+	 * Base-2 log of an unsigned integer. Returns -1 for 0.
+	 */
+	public static int ulog2(int n) {
+		return Integer.SIZE - 1 - Integer.numberOfLeadingZeros(n);
+	}
+
+	/**
 	 * Determines int value from boolean.
 	 */
 	public static int toInt(boolean b) {
@@ -134,13 +141,7 @@ public class MathUtil {
 		long r = x * y;
 		long ax = Math.abs(x);
 		long ay = Math.abs(y);
-		if (((ax | ay) >>> 31 == 0)
-			||
-			((y == 0
-				|| r / y == x) 
-			&&
-			(x != Long.MIN_VALUE
-				|| y != -1)))
+		if (((ax | ay) >>> 31 == 0) || ((y == 0 || r / y == x) && (x != Long.MIN_VALUE || y != -1)))
 			return r;
 		return Long.signum(x) != Long.signum(y) ? Long.MIN_VALUE : Long.MAX_VALUE;
 	}

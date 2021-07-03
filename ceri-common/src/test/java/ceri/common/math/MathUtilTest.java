@@ -34,6 +34,26 @@ public class MathUtilTest {
 	}
 
 	@Test
+	public void testUlog2() {
+		assertEquals(MathUtil.ulog2(0), -1);
+		assertEquals(MathUtil.ulog2(1), 0);
+		assertEquals(MathUtil.ulog2(2), 1);
+		assertEquals(MathUtil.ulog2(3), 1);
+		assertEquals(MathUtil.ulog2(4), 2);
+		assertEquals(MathUtil.ulog2(7), 2);
+		assertEquals(MathUtil.ulog2(8), 3);
+		assertEquals(MathUtil.ulog2(0x00000020), 5);
+		assertEquals(MathUtil.ulog2(0x00000300), 9);
+		assertEquals(MathUtil.ulog2(0x00004000), 14);
+		assertEquals(MathUtil.ulog2(0x00050000), 18);
+		assertEquals(MathUtil.ulog2(0x00600000), 22);
+		assertEquals(MathUtil.ulog2(0x07000000), 26);
+		assertEquals(MathUtil.ulog2(Integer.MAX_VALUE), 30);
+		assertEquals(MathUtil.ulog2(0x80000000), 31);
+		assertEquals(MathUtil.ulog2(0xffffffff), 31);
+	}
+
+	@Test
 	public void testToInt() {
 		assertEquals(MathUtil.toInt(true), 1);
 		assertEquals(MathUtil.toInt(false), 0);
