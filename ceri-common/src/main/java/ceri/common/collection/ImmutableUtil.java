@@ -4,6 +4,7 @@ import static ceri.common.collection.CollectionUtil.addAll;
 import static ceri.common.collection.CollectionUtil.listSupplier;
 import static ceri.common.collection.CollectionUtil.mapSupplier;
 import static ceri.common.collection.CollectionUtil.navigableMapSupplier;
+import static ceri.common.collection.CollectionUtil.putAll;
 import static ceri.common.collection.CollectionUtil.setSupplier;
 import static java.util.function.Function.identity;
 import java.util.ArrayList;
@@ -184,6 +185,32 @@ public class ImmutableUtil {
 	}
 
 	/**
+	 * Copies a map of maps into an immutable map.
+	 */
+	public static <K1, K2, V> Map<K1, Map<K2, V>>
+		copyAsMapOfMaps(Map<? extends K1, ? extends Map<? extends K2, ? extends V>> map) {
+		return copyAsMapOfMaps(map, mapSupplier(), mapSupplier());
+	}
+
+	/**
+	 * Copies a map of maps into an immutable map.
+	 */
+	public static <K1, K2, V> Map<K1, Map<K2, V>> copyAsMapOfMaps(
+		Map<? extends K1, ? extends Map<? extends K2, ? extends V>> map,
+		Supplier<Map<K1, Map<K2, V>>> mapSupplier, Supplier<Map<K2, V>> subMapSupplier) {
+		if (map == null) return null;
+		if (map.isEmpty()) return Collections.emptyMap();
+		return Collections.unmodifiableMap(CollectionUtil.transformValues( //
+			m -> map(m, subMapSupplier), mapSupplier, map));
+	}
+
+	private static <K, V> Map<K, V> map(Map<? extends K, ? extends V> map,
+		Supplier<Map<K, V>> supplier) {
+		if (map == null) return null;
+		return Collections.unmodifiableMap(putAll(supplier.get(), map));
+	}
+
+	/**
 	 * Copies a collection of objects into an immutable ArrayList.
 	 */
 	public static <T> List<T> copyAsList(Collection<? extends T> list) {
@@ -199,6 +226,57 @@ public class ImmutableUtil {
 		List<T> copy = supplier.get();
 		copy.addAll(list);
 		return Collections.unmodifiableList(copy);
+	}
+
+	/**
+	 * Copies a map of collections into an immutable map, wrapping each collection as unmodifiable.
+	 */
+	public static <K, V> Map<K, Set<V>> asMapOfSets(Map<K, ? extends Set<V>> map) {
+		return asMapOfSets(map, mapSupplier());
+	}
+
+	/**
+	 * Copies a map of collections into an immutable map, wrapping each collection as unmodifiable.
+	 */
+	public static <K, V> Map<K, Set<V>> asMapOfSets(Map<K, ? extends Set<V>> map,
+		Supplier<Map<K, Set<V>>> mapSupplier) {
+		if (map.isEmpty()) return Collections.emptyMap();
+		return Collections.unmodifiableMap(CollectionUtil.transformValues( //
+			c -> Collections.unmodifiableSet(c), mapSupplier, map));
+	}
+
+	/**
+	 * Copies a map of collections into an immutable map, wrapping each collection as unmodifiable.
+	 */
+	public static <K, V> Map<K, List<V>> asMapOfLists(Map<K, ? extends List<V>> map) {
+		return asMapOfLists(map, mapSupplier());
+	}
+
+	/**
+	 * Copies a map of collections into an immutable map, wrapping each collection as unmodifiable.
+	 */
+	public static <K, V> Map<K, List<V>> asMapOfLists(Map<K, ? extends List<V>> map,
+		Supplier<Map<K, List<V>>> mapSupplier) {
+		if (map.isEmpty()) return Collections.emptyMap();
+		return Collections.unmodifiableMap(CollectionUtil.transformValues( //
+			c -> Collections.unmodifiableList(c), mapSupplier, map));
+	}
+
+	/**
+	 * Copies a map of sub-maps into an immutable map, wrapping each sub-map as unmodifiable.
+	 */
+	public static <K1, K2, V> Map<K1, Map<K2, V>> asMapOfMaps(Map<K1, ? extends Map<K2, V>> map) {
+		return asMapOfMaps(map, mapSupplier());
+	}
+
+	/**
+	 * Copies a map of sub-maps into an immutable map, wrapping each sub-map as unmodifiable.
+	 */
+	public static <K1, K2, V> Map<K1, Map<K2, V>> asMapOfMaps(Map<K1, ? extends Map<K2, V>> map,
+		Supplier<Map<K1, Map<K2, V>>> mapSupplier) {
+		if (map.isEmpty()) return Collections.emptyMap();
+		return Collections.unmodifiableMap(CollectionUtil.transformValues( //
+			m -> Collections.unmodifiableMap(m), mapSupplier, map));
 	}
 
 	/**
@@ -371,6 +449,31 @@ public class ImmutableUtil {
 		map.put(k2, v2);
 		map.put(k3, v3);
 		map.put(k4, v4);
+		return Collections.unmodifiableMap(map);
+	}
+
+	/**
+	 * Creates an immutable map. Unlike Map.of, keys and values may be null, and keys are not
+	 * checked for duplicates.
+	 */
+	public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1, K k2, V v2, K k3, V v3, K k4,
+		V v4, K k5, V v5) {
+		return asMap(mapSupplier(), k0, v0, k1, v1, k2, v2, k3, v3, k4, v4, k5, v5);
+	}
+
+	/**
+	 * Creates an immutable map. Unlike Map.of, keys and values may be null, and keys are not
+	 * checked for duplicates.
+	 */
+	public static <K, V> Map<K, V> asMap(Supplier<Map<K, V>> supplier, K k0, V v0, K k1, V v1, K k2,
+		V v2, K k3, V v3, K k4, V v4, K k5, V v5) {
+		Map<K, V> map = supplier.get();
+		map.put(k0, v0);
+		map.put(k1, v1);
+		map.put(k2, v2);
+		map.put(k3, v3);
+		map.put(k4, v4);
+		map.put(k5, v5);
 		return Collections.unmodifiableMap(map);
 	}
 

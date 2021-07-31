@@ -280,10 +280,24 @@ public class AssertUtil {
 	}
 
 	/**
+	 * Convenience method to check byte value.
+	 */
+	public static void assertByte(byte value, int expected, String format, Object... args) {
+		assertEquals(value, (byte) expected, format, args);
+	}
+
+	/**
 	 * Convenience method to check short value.
 	 */
 	public static void assertShort(short value, int expected) {
 		assertEquals(value, (short) expected);
+	}
+
+	/**
+	 * Convenience method to check short value.
+	 */
+	public static void assertShort(short value, int expected, String format, Object... args) {
+		assertEquals(value, (short) expected, format, args);
 	}
 
 	/**

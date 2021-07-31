@@ -3,10 +3,12 @@ package ceri.common.util;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.property.PathFactory;
+import ceri.common.text.NumberParser;
 import ceri.common.text.StringUtil;
 
 /**
@@ -105,7 +107,7 @@ public class StartupValues {
 
 		public <E extends Exception> Integer asIntFrom(ExceptionSupplier<E, Integer> defSupplier)
 			throws E {
-			return applyFrom(Integer::decode, defSupplier);
+			return applyFrom(NumberParser::decodeInt, defSupplier);
 		}
 
 		public Long asLong() {
@@ -118,7 +120,7 @@ public class StartupValues {
 
 		public <E extends Exception> Long asLongFrom(ExceptionSupplier<E, Long> defSupplier)
 			throws E {
-			return applyFrom(Long::decode, defSupplier);
+			return applyFrom(NumberParser::decodeLong, defSupplier);
 		}
 
 		public Double asDouble() {
@@ -132,6 +134,34 @@ public class StartupValues {
 		public <E extends Exception> Double asDoubleFrom(ExceptionSupplier<E, Double> defSupplier)
 			throws E {
 			return applyFrom(Double::parseDouble, defSupplier);
+		}
+
+		public int[] asIntArray() {
+			return asIntArray(ArrayUtil.EMPTY_INT);
+		}
+
+		public int[] asIntArray(int... def) {
+			return asIntArrayFrom(() -> def);
+		}
+
+		public <E extends Exception> int[] asIntArrayFrom(ExceptionSupplier<E, int[]> defSupplier)
+			throws E {
+			return applyFromStream(s -> s.mapToInt(NumberParser::decodeInt).toArray(),
+				defSupplier);
+		}
+
+		public long[] asLongArray() {
+			return asLongArray(ArrayUtil.EMPTY_LONG);
+		}
+
+		public long[] asLongArray(long... def) {
+			return asLongArrayFrom(() -> def);
+		}
+
+		public <E extends Exception> long[]
+			asLongArrayFrom(ExceptionSupplier<E, long[]> defSupplier) throws E {
+			return applyFromStream(s -> s.mapToLong(NumberParser::decodeLong).toArray(),
+				defSupplier);
 		}
 
 		public <T extends Enum<T>> T asEnum(T def) {
@@ -160,6 +190,13 @@ public class StartupValues {
 		public <E extends Exception, T> T apply(ExceptionFunction<E, String, T> fn, T def)
 			throws E {
 			return applyFrom(fn, () -> def);
+		}
+
+		public <E extends Exception, T> T applyFromStream(
+			ExceptionFunction<E, Stream<String>, T> streamFn, ExceptionSupplier<E, T> defSupplier)
+			throws E {
+			if (streamFn == null) return applyFrom(null, defSupplier);
+			return applyFrom(s -> streamFn.apply(StringUtil.commaSplit(s).stream()), defSupplier);
 		}
 
 		public <E extends Exception, T> T applyFrom(ExceptionFunction<E, String, T> fn,

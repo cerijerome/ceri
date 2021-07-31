@@ -92,7 +92,7 @@ public class ByteUtil {
 	/**
 	 * Stream array as unsigned bytes.
 	 */
-	public static IntStream ustream(byte[] array) {
+	public static IntStream ustream(byte... array) {
 		return ustream(array, 0);
 	}
 
@@ -165,7 +165,7 @@ public class ByteUtil {
 	/**
 	 * Copies bytes from the buffer, and moves the buffer position after the read.
 	 */
-	public static int readFrom(ByteBuffer buffer, int pos, byte[] data) {
+	public static int readFrom(ByteBuffer buffer, int pos, byte... data) {
 		return readFrom(buffer, pos, data, 0);
 	}
 
@@ -188,7 +188,7 @@ public class ByteUtil {
 	/**
 	 * Copies bytes to the buffer, and moves the buffer position after the write.
 	 */
-	public static int writeTo(ByteBuffer buffer, int pos, byte[] data) {
+	public static int writeTo(ByteBuffer buffer, int pos, byte... data) {
 		return writeTo(buffer, pos, data, 0);
 	}
 

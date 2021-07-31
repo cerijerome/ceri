@@ -322,19 +322,28 @@ public class CollectionUtil {
 	}
 
 	/**
+	 * Variation of Map.putAll that returns the map type.
+	 */
+	public static <K, V, M extends Map<? super K, ? super V>> M putAll(M map,
+		Map<? extends K, ? extends V> items) {
+		map.putAll(items);
+		return map;
+	}
+
+	/**
 	 * Returns the last key, or null if empty.
 	 */
 	public static <T> T lastKey(SortedMap<T, ?> map) {
 		return lastKey(map, null);
 	}
-	
+
 	/**
 	 * Returns the last key, or def if empty.
 	 */
 	public static <T> T lastKey(SortedMap<T, ?> map, T def) {
 		return map.isEmpty() ? def : map.lastKey();
 	}
-	
+
 	/**
 	 * Returns the last element.
 	 */
@@ -385,20 +394,20 @@ public class CollectionUtil {
 	 */
 	public static <T> int removeIf(Collection<T> collection, Predicate<T> predicate) {
 		int n = 0;
-		for (var i = collection.iterator(); i.hasNext(); ) {
+		for (var i = collection.iterator(); i.hasNext();) {
 			if (!predicate.test(i.next())) continue;
 			i.remove();
 			n++;
 		}
 		return n;
 	}
-	
+
 	/**
 	 * Removes map entries that match the predicate. Returns the removed entry count.
 	 */
 	public static <K, V> int removeIf(Map<K, V> map, BiPredicate<K, V> predicate) {
 		int n = 0;
-		for (var i = map.entrySet().iterator(); i.hasNext(); ) {
+		for (var i = map.entrySet().iterator(); i.hasNext();) {
 			var next = i.next();
 			if (!predicate.test(next.getKey(), next.getValue())) continue;
 			i.remove();
@@ -406,7 +415,7 @@ public class CollectionUtil {
 		}
 		return n;
 	}
-	
+
 	/**
 	 * Removes items from the first collection that are not in the second.
 	 */

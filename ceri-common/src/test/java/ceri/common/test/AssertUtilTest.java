@@ -310,13 +310,17 @@ public class AssertUtilTest {
 	@Test
 	public void testAssertByte() {
 		assertByte((byte) -1, 0xff);
+		assertByte((byte) -1, 0xff, "%s", 0);
 		assertAssertion(() -> assertByte((byte) -1, 0xfe));
+		assertAssertion(() -> assertByte((byte) -1, 0xfe, "%s", 0));
 	}
 
 	@Test
 	public void testAssertShort() {
 		assertShort((short) -1, 0xffff);
+		assertShort((short) -1, 0xffff, "%s", 0);
 		assertAssertion(() -> assertShort((short) -1, 0xfffe));
+		assertAssertion(() -> assertShort((short) -1, 0xfffe, "%s", 0));
 	}
 
 	@Test

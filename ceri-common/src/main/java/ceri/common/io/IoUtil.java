@@ -392,6 +392,32 @@ public class IoUtil {
 	}
 
 	/**
+	 * Reads available bytes, blocking until at least one byte is available.
+	 */
+	public static ByteProvider readNext(InputStream in) throws IOException {
+		int b = in.read();
+		if (b == -1) return ByteProvider.empty();
+		byte[] buffer = new byte[1 + in.available()];
+		buffer[0] = (byte) b;
+		int n = Math.max(in.read(buffer, 1, buffer.length - 1), 0) + 1;
+		return ByteArray.Immutable.wrap(buffer, 0, n);
+	}
+
+	/**
+	 * Reads available bytes as a String, blocking until at least one byte is available.
+	 */
+	public static String readNextString(InputStream in) throws IOException {
+		return readNextString(in, UTF_8);
+	}
+
+	/**
+	 * Reads available bytes as a String, blocking until at least one byte is available.
+	 */
+	public static String readNextString(InputStream in, Charset charset) throws IOException {
+		return readNext(in).getString(0, charset);
+	}
+
+	/**
 	 * Wait for given number of bytes to be available on input stream.
 	 */
 	public static int pollForData(InputStream in, int count) throws IOException {

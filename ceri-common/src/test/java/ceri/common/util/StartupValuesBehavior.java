@@ -1,5 +1,6 @@
 package ceri.common.util;
 
+import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNull;
@@ -8,6 +9,7 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
 import static ceri.common.test.TestUtil.firstSystemPropertyName;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 import org.junit.Test;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.io.SystemIo;
@@ -97,6 +99,31 @@ public class StartupValuesBehavior {
 		assertPath(v.value(1).asPath(), "true");
 		assertPath(v.value(1).asPath(Path.of("abc")), "true");
 		assertPath(v.value(0).asPath(Path.of("abc")), "abc");
+	}
+
+	@Test
+	public void shouldConvertIntArray() {
+		var v = StartupValues.of(null, "", "-1", "0xffffffff,0,0x80000000");
+		assertArray(v.value(0).asIntArray());
+		assertArray(v.value(1).asIntArray());
+		assertArray(v.value(2).asIntArray(), -1);
+		assertArray(v.value(3).asIntArray(), 0xffffffff, 0, 0x80000000);
+	}
+
+	@Test
+	public void shouldConvertLongArray() {
+		var v = StartupValues.of(null, "", "-1", "0xffffffffffffffff,0,0x8000000000000000");
+		assertArray(v.value(0).asLongArray());
+		assertArray(v.value(1).asLongArray());
+		assertArray(v.value(2).asLongArray(), -1L);
+		assertArray(v.value(3).asLongArray(), 0xffffffffffffffffL, 0L, 0x8000000000000000L);
+	}
+
+	@Test
+	public void shouldApplyFunctionFromStream() {
+		var v = StartupValues.of(null, "a,ab,abc");
+		assertEquals(v.value(1).applyFromStream(null, () -> 0), 0);
+		assertEquals(v.value(1).applyFromStream(Stream::count, () -> 0), 3L);
 	}
 
 	@Test

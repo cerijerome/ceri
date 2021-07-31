@@ -8,7 +8,15 @@ public class IntUtil {
 
 	private IntUtil() {}
 
-	public static long longFromMsb(int[] array) {
+	public static int low(long value) {
+		return (int) value;
+	}
+	
+	public static int high(long value) {
+		return (int) (value >>> Integer.SIZE);
+	}
+	
+	public static long longFromMsb(int... array) {
 		return longFromMsb(array, 0);
 	}
 
@@ -17,7 +25,7 @@ public class IntUtil {
 		return (MathUtil.uint(array[offset]) << Integer.SIZE) | MathUtil.uint(array[offset + 1]);
 	}
 
-	public static long longFromLsb(int[] array) {
+	public static long longFromLsb(int... array) {
 		return longFromLsb(array, 0);
 	}
 
@@ -38,25 +46,25 @@ public class IntUtil {
 		return array;
 	}
 
-	public static int writeLongMsb(long value, int[] array) {
+	public static int writeLongMsb(long value, int... array) {
 		return writeLongMsb(value, array, 0);
 	}
 
 	public static int writeLongMsb(long value, int[] array, int offset) {
 		ArrayUtil.validateSlice(array.length, offset, LONG_INTS);
-		array[offset++] = (int) (value >>> Integer.SIZE);
-		array[offset++] = (int) value;
+		array[offset++] = high(value);
+		array[offset++] = low(value);
 		return offset;
 	}
 
-	public static int writeLongLsb(long value, int[] array) {
+	public static int writeLongLsb(long value, int... array) {
 		return writeLongLsb(value, array, 0);
 	}
 
 	public static int writeLongLsb(long value, int[] array, int offset) {
 		ArrayUtil.validateSlice(array.length, offset, LONG_INTS);
-		array[offset++] = (int) value;
-		array[offset++] = (int) (value >>> Integer.SIZE);
+		array[offset++] = low(value);
+		array[offset++] = high(value);
 		return offset;
 	}
 

@@ -2,6 +2,7 @@ package ceri.common.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import ceri.common.text.NumberParser;
 import ceri.common.text.StringUtil;
 
 /**
@@ -289,19 +290,19 @@ public class PrimitiveUtil {
 	public static Byte valueOf(String value, Byte def, int radix) {
 		try {
 			if (StringUtil.isBlank(value)) return def;
-			return Byte.valueOf(value.trim(), radix);
+			return NumberParser.parseByte(value.trim(), radix);
 		} catch (NumberFormatException e) {
 			return def;
 		}
 	}
 
 	/**
-	 * Converts a string to a value or returns the default value if the string cannot be parsed.
+	 * Converts a string to a value or returns the default value if the string cannot be decoded.
 	 */
 	public static Byte decode(String value, Byte def) {
 		try {
 			if (StringUtil.isBlank(value)) return def;
-			return Byte.decode(value.trim());
+			return NumberParser.decodeByte(value.trim());
 		} catch (NumberFormatException e) {
 			return def;
 		}
@@ -322,7 +323,7 @@ public class PrimitiveUtil {
 	}
 
 	/**
-	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 * Converts a string to a value or returns null if the string cannot be decoded.
 	 */
 	public static Byte byteDecode(String value) {
 		return decode(value, (Byte) null);
@@ -356,19 +357,19 @@ public class PrimitiveUtil {
 	public static Short valueOf(String value, Short def, int radix) {
 		try {
 			if (StringUtil.isBlank(value)) return def;
-			return Short.valueOf(value, radix);
+			return NumberParser.parseShort(value, radix);
 		} catch (NumberFormatException e) {
 			return def;
 		}
 	}
 
 	/**
-	 * Converts a string to a value or returns the default value if the string cannot be parsed.
+	 * Converts a string to a value or returns the default value if the string cannot be decoded.
 	 */
 	public static Short decode(String value, Short def) {
 		try {
 			if (StringUtil.isBlank(value)) return def;
-			return Short.decode(value);
+			return NumberParser.decodeShort(value);
 		} catch (NumberFormatException e) {
 			return def;
 		}
@@ -389,7 +390,7 @@ public class PrimitiveUtil {
 	}
 
 	/**
-	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 * Converts a string to a value or returns null if the string cannot be decoded.
 	 */
 	public static Short shortDecode(String value) {
 		return decode(value, (Short) null);
@@ -408,19 +409,19 @@ public class PrimitiveUtil {
 	public static Integer valueOf(String value, Integer def, int radix) {
 		try {
 			if (StringUtil.isBlank(value)) return def;
-			return Integer.valueOf(value, radix);
+			return NumberParser.parseInt(value, radix);
 		} catch (NumberFormatException e) {
 			return def;
 		}
 	}
 
 	/**
-	 * Converts a string to a value or returns the default value if the string cannot be parsed.
+	 * Converts a string to a value or returns the default value if the string cannot be decoded.
 	 */
 	public static Integer decode(String value, Integer def) {
 		try {
 			if (StringUtil.isBlank(value)) return def;
-			return Integer.decode(value);
+			return NumberParser.decodeInt(value);
 		} catch (NumberFormatException e) {
 			return def;
 		}
@@ -441,7 +442,7 @@ public class PrimitiveUtil {
 	}
 
 	/**
-	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 * Converts a string to a value or returns null if the string cannot be decoded.
 	 */
 	public static Integer intDecode(String value) {
 		return decode(value, (Integer) null);
@@ -460,19 +461,19 @@ public class PrimitiveUtil {
 	public static Long valueOf(String value, Long def, int radix) {
 		try {
 			if (StringUtil.isBlank(value)) return def;
-			return Long.valueOf(value, radix);
+			return NumberParser.parseLong(value, radix);
 		} catch (NumberFormatException e) {
 			return def;
 		}
 	}
 
 	/**
-	 * Converts a string to a value or returns the default value if the string cannot be parsed.
+	 * Converts a string to a value or returns the default value if the string cannot be decoded.
 	 */
 	public static Long decode(String value, Long def) {
 		try {
 			if (StringUtil.isBlank(value)) return def;
-			return Long.decode(value);
+			return NumberParser.decodeLong(value);
 		} catch (NumberFormatException e) {
 			return def;
 		}
@@ -493,7 +494,7 @@ public class PrimitiveUtil {
 	}
 
 	/**
-	 * Converts a string to a value or returns null if the string cannot be parsed.
+	 * Converts a string to a value or returns null if the string cannot be decoded.
 	 */
 	public static Long longDecode(String value) {
 		return decode(value, (Long) null);

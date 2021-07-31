@@ -20,9 +20,9 @@ public class MathUtil {
 	public static final double PI_3_BY_2 = Math.PI * 3 / 2; // common calculation
 	private static final int MAX_ROUND_PLACES = 10;
 	private static final double MAX_ROUND = 1000000000.0;
-	private static final int MAX_UBYTE = 0xff;
-	private static final int MAX_USHORT = 0xffff;
-	private static final long MAX_UINT = 0xffffffffL;
+	public static final int MAX_UBYTE = 0xff;
+	public static final int MAX_USHORT = 0xffff;
+	public static final long MAX_UINT = 0xffffffffL;
 
 	private MathUtil() {}
 

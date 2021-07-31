@@ -278,6 +278,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.text.MultiPatternBehavior.class, //
 	ceri.common.text.NonMatchResultBehavior.class, //
 	ceri.common.text.NonMatcherBehavior.class, //
+	ceri.common.text.NumberParserTest.class, //
 	ceri.common.text.RegexSequencerBehavior.class, //
 	ceri.common.text.RegexUtilTest.class, //
 	ceri.common.text.SplitterBehavior.class, //

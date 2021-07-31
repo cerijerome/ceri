@@ -208,7 +208,7 @@ public class TestUtil {
 	}
 
 	/**
-	 * Reads a string from given stdin.
+	 * Reads a string from stdin.
 	 */
 	public static String readString() {
 		try {
