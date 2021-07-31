@@ -148,6 +148,7 @@ public class ImmutableUtil {
 	public static <K, V> Map<K, Set<V>> copyAsMapOfSets(
 		Map<? extends K, ? extends Collection<? extends V>> map,
 		Supplier<Map<K, Set<V>>> mapSupplier, Supplier<Set<V>> listSupplier) {
+		if (map == null) return null;
 		if (map.isEmpty()) return Collections.emptyMap();
 		return Collections.unmodifiableMap(CollectionUtil.transformValues( //
 			c -> set(c, listSupplier), mapSupplier, map));

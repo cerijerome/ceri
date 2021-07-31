@@ -1,9 +1,11 @@
 package ceri.common.collection;
 
+import static ceri.common.collection.ArrayUtil.asList;
 import static ceri.common.collection.CollectionUtil.asSet;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
@@ -11,7 +13,6 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.fail;
 import static ceri.common.test.TestUtil.testMap;
-import static java.util.Arrays.asList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -170,7 +171,66 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
+	public void testAsMapOfSets() {
+		var srcMap = new HashMap<>(Map.of("123", asSet(1, 2, 3), "4", asSet(4)));
+		final var map = ImmutableUtil.asMapOfSets(srcMap);
+		assertImmutableMap(map);
+		assertImmutableCollection(map.get("123"));
+		assertImmutableCollection(map.get("4"));
+		srcMap.get("4").add(5);
+		assertCollection(map.get("4"), 4, 5);
+	}
+
+	@Test
+	public void testAsEmptyMapOfSets() {
+		var srcMap = new HashMap<String, Set<Integer>>();
+		final var map = ImmutableUtil.asMapOfSets(srcMap);
+		assertImmutableMap(map);
+		assertTrue(map.isEmpty());
+	}
+
+	@Test
+	public void testAsMapOfLists() {
+		var srcMap = new HashMap<>(Map.of("123", asList(1, 2, 3), "4", asList(4)));
+		final var map = ImmutableUtil.asMapOfLists(srcMap);
+		assertImmutableMap(map);
+		assertImmutableList(map.get("123"));
+		assertImmutableList(map.get("4"));
+		srcMap.get("4").add(5);
+		assertIterable(map.get("4"), 4, 5);
+	}
+
+	@Test
+	public void testAsEmptyMapOfLists() {
+		var srcMap = new HashMap<String, List<Integer>>();
+		final var map = ImmutableUtil.asMapOfLists(srcMap);
+		assertImmutableMap(map);
+		assertTrue(map.isEmpty());
+	}
+
+	@Test
+	public void testAsMapOfMaps() {
+		var srcMap = new HashMap<>(Map.of("123", new HashMap<>(Map.of("1", 1, "2", 2, "3", 3)), "4",
+			new HashMap<>(Map.of("4", 4))));
+		final var map = ImmutableUtil.asMapOfMaps(srcMap);
+		assertImmutableMap(map);
+		assertImmutableMap(map.get("123"));
+		assertImmutableMap(map.get("4"));
+		srcMap.get("4").put("5", 5);
+		assertMap(map.get("4"), "4", 4, "5", 5);
+	}
+
+	@Test
+	public void testAsEmptyMapOfMaps() {
+		var srcMap = new HashMap<String, Map<String, Integer>>();
+		final var map = ImmutableUtil.asMapOfMaps(srcMap);
+		assertImmutableMap(map);
+		assertTrue(map.isEmpty());
+	}
+
+	@Test
 	public void testCopyAsMapOfSets() {
+		assertNull(ImmutableUtil.copyAsMapOfSets(null));
 		assertTrue(ImmutableUtil.copyAsMapOfSets(new HashMap<>()).isEmpty());
 		Map<String, Set<Integer>> srcMap = testMap( //
 			"123", asSet(1, 2, 3), "4", asSet(4), "", asSet(), "null", null);
@@ -181,6 +241,8 @@ public class ImmutableUtilTest {
 		assertNotNull(srcMap.remove("4"));
 		assertEquals(map, copy);
 		assertImmutableMap(map);
+		assertImmutableCollection(map.get("123"));
+		assertImmutableCollection(map.get("4"));
 	}
 
 	@Test
@@ -196,6 +258,27 @@ public class ImmutableUtilTest {
 		assertNotNull(srcMap.remove("4"));
 		assertEquals(map, copy);
 		assertImmutableMap(map);
+		assertImmutableList(map.get("123"));
+		assertImmutableList(map.get("4"));
+	}
+
+	@Test
+	public void testCopyAsMapOfMaps() {
+		assertNull(ImmutableUtil.copyAsMapOfMaps(null));
+		assertTrue(ImmutableUtil.copyAsMapOfMaps(new HashMap<>()).isEmpty());
+		Map<String, Map<String, Integer>> srcMap = testMap( //
+			"123", new HashMap<>(Map.of("1", 1, "2", 2, "3", 3)), "4",
+			new HashMap<>(Map.of(4, "4")), "", new HashMap<>(), "null", null);
+		Map<String, Map<String, Integer>> copy = testMap( //
+			"123", new HashMap<>(Map.of("1", 1, "2", 2, "3", 3)), "4",
+			new HashMap<>(Map.of(4, "4")), "", new HashMap<>(), "null", null);
+		final Map<String, Map<String, Integer>> map = ImmutableUtil.copyAsMapOfMaps(srcMap);
+		assertEquals(srcMap.get("123").remove("1"), 1);
+		assertNotNull(srcMap.remove("4"));
+		assertEquals(map, copy);
+		assertImmutableMap(map);
+		assertImmutableMap(map.get("123"));
+		assertImmutableMap(map.get("4"));
 	}
 
 	@Test

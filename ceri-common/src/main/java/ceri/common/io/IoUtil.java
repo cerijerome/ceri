@@ -395,6 +395,7 @@ public class IoUtil {
 	 * Reads available bytes, blocking until at least one byte is available.
 	 */
 	public static ByteProvider readNext(InputStream in) throws IOException {
+		if (in == null) return null;
 		int b = in.read();
 		if (b == -1) return ByteProvider.empty();
 		byte[] buffer = new byte[1 + in.available()];

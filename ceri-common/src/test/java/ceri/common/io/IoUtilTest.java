@@ -412,6 +412,36 @@ public class IoUtilTest {
 		}
 	}
 
+	@SuppressWarnings("resource")
+	@Test
+	public void testReadNext() throws IOException {
+		assertNull(IoUtil.readNext(null));
+		try (var in = TestInputStream.of()) {
+			in.to.writeBytes(1, 2, 3);
+			assertArray(IoUtil.readNext(in), 1, 2, 3);
+			in.to.writeBytes(4);
+			assertArray(IoUtil.readNext(in), 4);
+			in.to.writeBytes(5);
+			in.read.autoResponses(-1);
+			assertArray(IoUtil.readNext(in));
+		}
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testReadNextString() throws IOException {
+		assertNull(IoUtil.readNext(null));
+		try (var in = TestInputStream.of()) {
+			in.to.writeBytes('a', 'b', 'c');
+			assertEquals(IoUtil.readNextString(in), "abc");
+			in.to.writeBytes('d');
+			assertEquals(IoUtil.readNextString(in), "d");
+			in.to.writeBytes(5);
+			in.read.autoResponses(-1);
+			assertEquals(IoUtil.readNextString(in), "");
+		}
+	}
+
 	@Test
 	public void testPollForData() throws IOException {
 		int[] available = { 0 };

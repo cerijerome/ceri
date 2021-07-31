@@ -178,6 +178,12 @@ public class CollectionUtilTest {
 	}
 
 	@Test
+	public void testPutAll() {
+		Map<String, Integer> map = new LinkedHashMap<>(Map.of("a", 1, "b", 2, "c", 3));
+		assertEquals(map, Map.of("a", 1, "b", 2, "c", 3));
+	}
+
+	@Test
 	public void testLastKey() {
 		assertNull(CollectionUtil.lastKey(new TreeMap<>()));
 		assertEquals(CollectionUtil.lastKey(new TreeMap<>(Map.of(0, "0", -1, "-1", 1, "1"))), 1);
