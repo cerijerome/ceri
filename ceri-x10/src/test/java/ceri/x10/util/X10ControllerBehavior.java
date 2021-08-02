@@ -4,9 +4,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.util.Enclosed;
 import ceri.x10.command.Command;
-import ceri.x10.command.CommandListener;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;
 import ceri.x10.command.Unit;
@@ -38,7 +36,7 @@ public class X10ControllerBehavior {
 
 	@Test
 	public void shouldNotNotifyListenersByDefault() {
-		try (Enclosed<CommandListener> enclosed = X10Controller.NULL.listen(null)) {}
+		try (var enclosed = X10Controller.NULL.listen(null)) {}
 	}
 
 }

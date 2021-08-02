@@ -38,7 +38,7 @@ public class SelfHealingFtdiConnectorBehavior {
 	private static final SelfHealingFtdiConfig config =
 		SelfHealingFtdiConfig.builder().recoveryDelayMs(1).fixRetryDelayMs(1).build();
 	private TestLibUsbNative lib;
-	private Enclosed<TestLibUsbNative> enc;
+	private Enclosed<RuntimeException, TestLibUsbNative> enc;
 	private SelfHealingFtdiConnector con;
 
 	@Before

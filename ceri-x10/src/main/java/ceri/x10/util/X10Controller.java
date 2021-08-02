@@ -30,7 +30,7 @@ public interface X10Controller {
 	/**
 	 * Listen to received/sent commands.
 	 */
-	default Enclosed<CommandListener> listen(CommandListener listener) {
+	default Enclosed<RuntimeException, CommandListener> listen(CommandListener listener) {
 		// Do nothing by default
 		return Enclosed.noOp(listener);
 	}

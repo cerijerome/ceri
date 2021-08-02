@@ -15,7 +15,7 @@ import ceri.serial.spi.jna.TestSpiCLibNative;
 
 public class SpiDeviceConfigBehavior {
 	private TestSpiCLibNative lib;
-	private Enclosed<?> enc;
+	private Enclosed<RuntimeException, ?> enc;
 
 	@Before
 	public void before() {

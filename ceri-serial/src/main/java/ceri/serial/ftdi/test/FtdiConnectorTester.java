@@ -46,7 +46,7 @@ public class FtdiConnectorTester extends LoopingExecutor {
 	private final ExceptionRunnable<IOException> fixConnectorFn;
 	private final int delayMs;
 	protected final FtdiConnector connector;
-	private final Enclosed<?> listener;
+	private final Enclosed<RuntimeException, ?> listener;
 	private boolean showHelp = true;
 
 	public static void test(String finder) throws IOException {

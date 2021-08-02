@@ -13,7 +13,7 @@ import ceri.serial.spi.SpiDeviceConfig;
 
 public class SpiDevTest {
 	private TestSpiCLibNative lib;
-	private Enclosed<?> enc;
+	private Enclosed<RuntimeException, ?> enc;
 	private CFileDescriptor f;
 	private int fd;
 

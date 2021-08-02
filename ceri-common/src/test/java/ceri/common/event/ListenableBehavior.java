@@ -14,7 +14,7 @@ public class ListenableBehavior {
 	public void shouldProvideWrapperToUnlistenOnClose() {
 		Captor<String> captor = Captor.of();
 		Listeners<String> listeners = Listeners.of();
-		try (Enclosed<?> enclosed = listeners.enclose(captor)) {
+		try (Enclosed<RuntimeException, ?> enclosed = listeners.enclose(captor)) {
 			listeners.accept("test0");
 		}
 		listeners.accept("test1");
@@ -25,9 +25,9 @@ public class ListenableBehavior {
 	public void shouldUnlistenCloseWrappedListenerOnceOnly() {
 		Captor<String> captor = Captor.of();
 		TestListenable listeners = new TestListenable();
-		try (Enclosed<?> enclosed0 = listeners.enclose(captor)) {
+		try (Enclosed<RuntimeException, ?> enclosed0 = listeners.enclose(captor)) {
 			listeners.accept("test0");
-			try (Enclosed<?> enclosed1 = listeners.enclose(captor)) {
+			try (Enclosed<RuntimeException, ?> enclosed1 = listeners.enclose(captor)) {
 				listeners.accept("test1");
 				assertTrue(enclosed1.isNoOp());
 			}

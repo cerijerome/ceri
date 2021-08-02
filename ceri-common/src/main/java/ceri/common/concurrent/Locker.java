@@ -9,7 +9,7 @@ import ceri.common.util.Enclosed;
  * Encapsulate a lock, handling locking as a closeable resource.
  */
 public class Locker {
-	private final Enclosed<Lock> unlocker;
+	private final Enclosed<RuntimeException, Lock> unlocker;
 	public final Lock lock;
 
 	public static Locker of(Lock lock) {
@@ -28,7 +28,7 @@ public class Locker {
 	/**
 	 * Lock, and return a resource that executes unlock on close.
 	 */
-	public Enclosed<Lock> lock() {
+	public Enclosed<RuntimeException, Lock> lock() {
 		lock.lock();
 		return unlocker;
 	}

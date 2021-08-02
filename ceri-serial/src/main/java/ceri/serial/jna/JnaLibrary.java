@@ -37,7 +37,7 @@ public class JnaLibrary<T> {
 	/**
 	 * Temporarily override the native library.
 	 */
-	public <U extends T> Enclosed<U> enclosed(U override) {
+	public <U extends T> Enclosed<RuntimeException, U> enclosed(U override) {
 		set(override);
 		return Enclosed.of(override, l -> set(null));
 	}

@@ -11,7 +11,7 @@ import ceri.common.util.Enclosed;
  */
 public class TestListener<T> implements Closeable {
 	public final ValueCondition<T> listen = ValueCondition.of();
-	public final Enclosed<Consumer<T>> listener;
+	public final Enclosed<RuntimeException, Consumer<T>> listener;
 
 	public static <T> TestListener<T> of(Listenable<T> listenable) {
 		return new TestListener<>(listenable);

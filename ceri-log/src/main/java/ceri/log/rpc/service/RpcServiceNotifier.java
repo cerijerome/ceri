@@ -40,7 +40,7 @@ public class RpcServiceNotifier<T, V> implements Closeable {
 	/** Used to notify whenever a listener is added or removed */
 	private final ValueCondition<Integer> listenerSync = ValueCondition.of(safe.conditionLock());
 	private final Set<StreamObserver<V>> observers = new LinkedHashSet<>(); // rpc clients
-	private final Enclosed<?> listener; // listen on create, unlisten on close
+	private final Enclosed<RuntimeException, ?> listener; // listen on create, unlisten on close
 	private final Function<T, V> transform; // transforms T to grpc value type V
 
 	public static <T, V> RpcServiceNotifier<T, V> of(Listenable<T> listenable,

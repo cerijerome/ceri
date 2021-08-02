@@ -33,7 +33,7 @@ public class EnclosedBehavior {
 	}
 
 	@Test
-	public void shouldAllowNullCloser() {
+	public void shouldAllowNullCloser() throws Exception {
 		String[] ss = null;
 		try (var c = Enclosed.of(ss, null)) {}
 	}

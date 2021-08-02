@@ -26,7 +26,7 @@ public class TestRpcClient implements Closeable {
 		notifier = createNotifier(channel, notifierResetDelayMs);
 	}
 
-	public Enclosed<?> listen(Consumer<Integer> consumer) {
+	public Enclosed<RuntimeException, ?> listen(Consumer<Integer> consumer) {
 		return notifier.enclose(consumer);
 	}
 

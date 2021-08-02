@@ -29,7 +29,7 @@ import ceri.serial.jna.test.JnaTestUtil;
 
 public class I2cDeviceBehavior {
 	private TestI2cCLibNative lib;
-	private Enclosed<?> enc;
+	private Enclosed<RuntimeException, ?> enc;
 	private CFileDescriptor fd;
 	private I2cDevice i2c;
 

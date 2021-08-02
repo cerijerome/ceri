@@ -61,11 +61,11 @@ public class TestLibUsbNative implements LibUsbNative {
 	// List<?> = (int endpoint, ByteProvider data)
 	public final CallSync.Apply<List<?>, Integer> bulkTransferOut = CallSync.function(null, 0);
 
-	public static Enclosed<TestLibUsbNative> register() {
+	public static Enclosed<RuntimeException, TestLibUsbNative> register() {
 		return register(of());
 	}
 
-	public static <T extends LibUsbNative> Enclosed<T> register(T lib) {
+	public static <T extends LibUsbNative> Enclosed<RuntimeException, T> register(T lib) {
 		return LibUsb.library.enclosed(lib);
 	}
 

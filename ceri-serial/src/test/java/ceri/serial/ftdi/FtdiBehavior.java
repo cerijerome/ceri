@@ -22,7 +22,7 @@ import ceri.serial.libusb.jna.TestLibUsbNative;
 
 public class FtdiBehavior {
 	private TestLibUsbNative lib;
-	private Enclosed<TestLibUsbNative> enc;
+	private Enclosed<RuntimeException, TestLibUsbNative> enc;
 	private Ftdi ftdi;
 
 	@Before

@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import ceri.common.io.StateChange;
 import ceri.common.test.TestListener;
-import ceri.common.util.Enclosed;
 import ceri.log.test.LogModifier;
 import ceri.x10.command.Command;
 import ceri.x10.command.TestCommandListener;
@@ -80,7 +79,7 @@ public class Cm17aDeviceBehavior {
 	@Test
 	public void shouldListenForCommands() throws IOException, InterruptedException {
 		TestCommandListener listener = TestCommandListener.of();
-		try (Enclosed<?> enc = cm17a.listen(listener)) {
+		try (var enc = cm17a.listen(listener)) {
 			cm17a.command(Command.dim(L, 50, _5, _9));
 			assertEquals(listener.sync.await(), Command.dim(L, 50, _5, _9));
 		}

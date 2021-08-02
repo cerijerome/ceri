@@ -47,7 +47,7 @@ public class Dispatcher<L, T> extends LoopingExecutor {
 		start();
 	}
 
-	public Enclosed<L> listen(L listener) {
+	public Enclosed<RuntimeException, L> listen(L listener) {
 		listeners.add(listener);
 		return Enclosed.of(listener, listeners::remove);
 	}

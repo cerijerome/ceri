@@ -22,7 +22,7 @@ public class SmBusDeviceBehavior {
 	private static final ByteProvider emptyBlock = smBusBlock();
 	private static final I2cAddress address = I2cAddress.of(0x3b);
 	private TestI2cCLibNative lib;
-	private Enclosed<?> enc;
+	private Enclosed<RuntimeException, ?> enc;
 	private CFileDescriptor fd;
 	private I2cDevice i2c;
 	private SmBus smBus;

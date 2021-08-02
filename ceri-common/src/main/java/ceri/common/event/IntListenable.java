@@ -13,7 +13,7 @@ public interface IntListenable {
 	 * Attempts to listen, and returns a closable wrapper that unlistens on close. If the call to
 	 * listen returns false, close() will do nothing.
 	 */
-	default <T extends IntConsumer> Enclosed<T> enclose(T listener) {
+	default <T extends IntConsumer> Enclosed<RuntimeException, T> enclose(T listener) {
 		boolean added = listen(listener);
 		if (!added) return Enclosed.noOp(listener); // no unlisten on close
 		return Enclosed.of(listener, this::unlisten); // unlistens on close

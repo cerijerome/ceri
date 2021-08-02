@@ -77,7 +77,7 @@ public class UsbEvents implements Closeable {
 	 * Attempts to lock event-handling. Returns an Enclosed type, with boolean to indicate if
 	 * locking was successful. Events are unlocked on close only if true.
 	 */
-	public Enclosed<Boolean> tryLock() throws LibUsbException {
+	public Enclosed<RuntimeException, Boolean> tryLock() throws LibUsbException {
 		if (!LibUsb.libusb_try_lock_events(context())) return Enclosed.noOp(false);
 		return Enclosed.of(true, t -> unlockEvents());
 	}
@@ -138,7 +138,7 @@ public class UsbEvents implements Closeable {
 		libusb_wait_for_event(context(), Time.Util.timeval(d));
 	}
 
-	public Enclosed<List<PollFd>> pollFds() throws LibUsbException {
+	public Enclosed<RuntimeException, List<PollFd>> pollFds() throws LibUsbException {
 		var ref = libusb_get_pollfds(context());
 		var list = pollFds(ref);
 		return Enclosed.of(list, t -> freePollFds(ref));

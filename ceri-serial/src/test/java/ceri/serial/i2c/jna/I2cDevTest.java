@@ -18,7 +18,7 @@ import ceri.serial.i2c.jna.I2cDev.i2c_smbus_data;
 
 public class I2cDevTest {
 	private TestI2cCLibNative lib;
-	private Enclosed<?> enc;
+	private Enclosed<RuntimeException, ?> enc;
 
 	@Before
 	public void before() {

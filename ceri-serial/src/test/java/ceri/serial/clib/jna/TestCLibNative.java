@@ -50,11 +50,11 @@ public class TestCLibNative implements CLibNative {
 		}
 	}
 
-	public static Enclosed<TestCLibNative> register() {
+	public static Enclosed<RuntimeException, TestCLibNative> register() {
 		return register(of());
 	}
 
-	public static <T extends TestCLibNative> Enclosed<T> register(T lib) {
+	public static <T extends TestCLibNative> Enclosed<RuntimeException, T> register(T lib) {
 		return CLib.library.enclosed(lib);
 	}
 

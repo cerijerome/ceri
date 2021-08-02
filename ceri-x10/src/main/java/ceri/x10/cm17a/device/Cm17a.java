@@ -16,7 +16,7 @@ public interface Cm17a extends X10Controller, Listenable.Indirect<StateChange>, 
 		}
 
 		@Override
-		public Enclosed<CommandListener> listen(CommandListener listener) {
+		public Enclosed<RuntimeException, CommandListener> listen(CommandListener listener) {
 			return Enclosed.noOp(listener);
 		}
 

@@ -37,7 +37,7 @@ public class SocketConnectorTester extends LoopingExecutor {
 	private final ExceptionRunnable<IOException> fixConnectorFn;
 	private final int delayMs;
 	protected final SocketConnector connector;
-	private final Enclosed<?> listener;
+	private final Enclosed<RuntimeException, ?> listener;
 	private boolean showHelp = true;
 
 	public static void main(String[] args) throws IOException {

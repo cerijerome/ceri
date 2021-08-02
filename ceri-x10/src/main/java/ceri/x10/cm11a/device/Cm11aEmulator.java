@@ -32,7 +32,7 @@ public class Cm11aEmulator implements Cm11a {
 	}
 
 	@Override
-	public Enclosed<CommandListener> listen(CommandListener listener) {
+	public Enclosed<RuntimeException, CommandListener> listen(CommandListener listener) {
 		return dispatcher.listen(listener);
 	}
 

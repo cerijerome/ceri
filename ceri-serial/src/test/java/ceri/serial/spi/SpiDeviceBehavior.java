@@ -30,7 +30,7 @@ import ceri.serial.spi.jna.TestSpiCLibNative;
 
 public class SpiDeviceBehavior {
 	private TestSpiCLibNative lib;
-	private Enclosed<?> enc;
+	private Enclosed<RuntimeException, ?> enc;
 	private CFileDescriptor fd;
 	private SpiDevice spi;
 

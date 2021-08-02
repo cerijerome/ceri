@@ -44,7 +44,7 @@ public class SerialConnectorTester extends LoopingExecutor {
 	private final ExceptionRunnable<IOException> fixConnectorFn;
 	private final int delayMs;
 	protected final SerialConnector connector;
-	private final Enclosed<?> listener;
+	private final Enclosed<RuntimeException, ?> listener;
 	private boolean showHelp = true;
 
 	public static void test(String commPort) throws IOException {
