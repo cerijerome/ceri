@@ -40,6 +40,7 @@ import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertShort;
 import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertToString;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.assertValue;
 import static ceri.common.test.AssertUtil.fail;
@@ -238,6 +239,12 @@ public class AssertUtilTest {
 		}
 	}
 
+	@Test
+	public void testAssertToString() {
+		assertToString(100, "100");
+		assertAssertion(() -> assertToString(0100, "0100"));
+	}
+	
 	@Test
 	public void testAssertPrivateConstructor() {
 		assertPrivateConstructor(TestUtil.class);

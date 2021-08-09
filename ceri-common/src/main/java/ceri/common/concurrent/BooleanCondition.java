@@ -37,7 +37,7 @@ public class BooleanCondition {
 	}
 
 	/**
-	 * Waits indefinitely for a signal, and returns true if signaled. Clears the signal.
+	 * Waits indefinitely for a signal, and clears the signal.
 	 */
 	public void await() throws InterruptedException {
 		condition.await();

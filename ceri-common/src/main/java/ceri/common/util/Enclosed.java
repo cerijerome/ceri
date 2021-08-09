@@ -1,12 +1,13 @@
 package ceri.common.util;
 
+import ceri.common.function.ExceptionCloseable;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
 
 /**
  * Provides an AutoCloseable type for an object and a given close method on that object.
  */
-public class Enclosed<E extends Exception, T> implements AutoCloseable {
+public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	private static final Enclosed<RuntimeException, ?> EMPTY = of(null, null);
 	public final T subject;
 	private final ExceptionConsumer<E, T> closer;
