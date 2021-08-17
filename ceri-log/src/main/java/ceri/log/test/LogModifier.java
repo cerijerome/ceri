@@ -21,7 +21,7 @@ public class LogModifier implements AutoCloseable {
 	 */
 	public static <E extends Exception> void run(ExceptionRunnable<E> runnable, Level level,
 		Class<?>... loggers) throws E {
-		try (var modifier = builder().set(level, loggers).build()) {
+		try (var modifier = of(level, loggers)) {
 			runnable.run();
 		}
 	}
@@ -31,9 +31,23 @@ public class LogModifier implements AutoCloseable {
 	 */
 	public static <E extends Exception> void run(ExceptionRunnable<E> runnable, Level level,
 		String... loggers) throws E {
-		try (var modifier = builder().set(level, loggers).build()) {
+		try (var modifier = of(level, loggers)) {
 			runnable.run();
 		}
+	}
+
+	/**
+	 * Returns a closeable instance that sets level for given loggers.
+	 */
+	public static LogModifier of(Level level, Class<?>... loggers) {
+		return builder().set(level, loggers).build();
+	}
+
+	/**
+	 * Returns a closeable instance that sets level for given loggers.
+	 */
+	public static LogModifier of(Level level, String... loggers) {
+		return builder().set(level, loggers).build();
 	}
 
 	public static class Builder {
