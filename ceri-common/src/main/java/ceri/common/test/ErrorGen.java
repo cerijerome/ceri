@@ -25,28 +25,48 @@ public class ErrorGen {
 
 	private ErrorGen() {}
 
+	/**
+	 * Generate errors in given order.
+	 */
 	public void set(Exception... errors) {
 		setErrorFn(sequentialSupplier(errors));
 	}
 
+	/**
+	 * Generate errors from given functions in order, repeating the last function. Defined constants
+	 * may be used: RTX, RIX, INX, IOX. The generated errors will have a fixed message.
+	 */
 	@SafeVarargs
 	public final void setFrom(Function<String, Exception>... errorFns) {
 		var sequential = sequentialSupplier(errorFns);
 		setErrorFn(() -> safeApply(safeApply(sequential, Supplier::get), s -> s.apply(MESSAGE)));
 	}
 
+	/**
+	 * Clear error generation.
+	 */
 	public void clear() {
 		setErrorFn(null);
 	}
 
+	/**
+	 * Execute the error generator if set. Exceptions are adapted to runtime exceptions.
+	 */
 	public void call() {
 		call(ExceptionAdapter.RUNTIME);
 	}
 
+	/**
+	 * Execute the error generator if set. InterruptedExceptions are allowed; other exceptions are
+	 * adapted to runtime exceptions.
+	 */
 	public void callWithInterrupt() throws InterruptedException {
 		callWithInterrupt(ExceptionAdapter.RUNTIME);
 	}
 
+	/**
+	 * Execute the error generator if set. Exceptions are adapted according to the adapter.
+	 */
 	public <E extends Exception> void call(ExceptionAdapter<E> adapter) throws E {
 		Exception ex = safeApply(errorFn, Supplier::get);
 		if (ex == null) return;
@@ -61,6 +81,10 @@ public class ErrorGen {
 		}
 	}
 
+	/**
+	 * Execute the error generator if set. InterruptedExceptions are allowed; other exceptions are
+	 * adapted according to the adapter.
+	 */
 	public <E extends Exception> void callWithInterrupt(ExceptionAdapter<E> adapter)
 		throws InterruptedException, E {
 		Exception ex = safeApply(errorFn, Supplier::get);
@@ -75,7 +99,7 @@ public class ErrorGen {
 	}
 
 	/**
-	 * String for debugging purposes. This call errorFn.get(), which may have side effects,
+	 * String for debugging purposes. This calls errorFn.get(), which may have side effects,
 	 * depending on the function.
 	 */
 	@Override
