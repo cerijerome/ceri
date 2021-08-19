@@ -312,6 +312,14 @@ public class ImmutableUtil {
 	}
 
 	/**
+	 * Wraps an array as an unmodifiable list.
+	 */
+	@SafeVarargs
+	public static <T> List<T> wrapAsList(T... array) {
+		return Collections.unmodifiableList(Arrays.asList(array));
+	}
+
+	/**
 	 * Copies an array of objects into an immutable ArrayList.
 	 */
 	@SafeVarargs
@@ -457,8 +465,8 @@ public class ImmutableUtil {
 	 * Creates an immutable map. Unlike Map.of, keys and values may be null, and keys are not
 	 * checked for duplicates.
 	 */
-	public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1, K k2, V v2, K k3, V v3, K k4,
-		V v4, K k5, V v5) {
+	public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4,
+		K k5, V v5) {
 		return asMap(mapSupplier(), k0, v0, k1, v1, k2, v2, k3, v3, k4, v4, k5, v5);
 	}
 

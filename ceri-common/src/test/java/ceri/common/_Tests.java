@@ -113,6 +113,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.ExceptionBiPredicateBehavior.class, //
 	ceri.common.function.ExceptionBooleanSupplierBehavior.class, //
 	ceri.common.function.ExceptionConsumerBehavior.class, //
+	ceri.common.function.ExceptionDoubleSupplierBehavior.class, //
 	ceri.common.function.ExceptionFunctionBehavior.class, //
 	ceri.common.function.ExceptionIntBinaryOperatorBehavior.class, //
 	ceri.common.function.ExceptionIntConsumerBehavior.class, //

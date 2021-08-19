@@ -3,6 +3,7 @@ package ceri.common.exception;
 import java.lang.reflect.Constructor;
 import java.util.function.Function;
 import ceri.common.function.ExceptionBooleanSupplier;
+import ceri.common.function.ExceptionDoubleSupplier;
 import ceri.common.function.ExceptionIntSupplier;
 import ceri.common.function.ExceptionLongSupplier;
 import ceri.common.function.ExceptionRunnable;
@@ -85,6 +86,16 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 	public long getLong(ExceptionLongSupplier<?> supplier) throws E {
 		try {
 			return supplier.getAsLong();
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw apply(e);
+		}
+	}
+
+	public double getDouble(ExceptionDoubleSupplier<?> supplier) throws E {
+		try {
+			return supplier.getAsDouble();
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {

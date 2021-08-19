@@ -1,10 +1,20 @@
 package ceri.common.log;
 
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 
 public class LevelBehavior {
+
+	@Test
+	public void shouldCompareByLevelValue() {
+		assertTrue(Level.COMPARATOR.compare(Level.ALL, Level.NONE) > 0);
+		assertTrue(Level.COMPARATOR.compare(Level.ALL, Level.ALL) == 0);
+		assertTrue(Level.COMPARATOR.compare(Level.INFO, Level.NONE) > 0);
+		assertTrue(Level.COMPARATOR.compare(Level.INFO, Level.ERROR) < 0);
+		assertTrue(Level.COMPARATOR.compare(Level.ERROR, Level.INFO) > 0);
+	}
 
 	@Test
 	public void shouldNotValidateLevelOfNone() {
@@ -66,6 +76,22 @@ public class LevelBehavior {
 		assertFalse(Level.ERROR.valid(Level.INFO));
 		assertFalse(Level.ERROR.valid(Level.WARN));
 		assertTrue(Level.ERROR.valid(Level.ERROR));
+	}
+
+	@Test
+	public void shouldDetermineIfBelowLevel() {
+		assertEquals(Level.ALL.isBelow(null), false);
+		assertEquals(Level.ALL.isBelow(Level.NONE), false);
+		assertEquals(Level.ALL.isBelow(Level.INFO), false);
+		assertEquals(Level.ALL.isBelow(Level.ALL), false);
+		assertEquals(Level.INFO.isBelow(null), false);
+		assertEquals(Level.INFO.isBelow(Level.NONE), false);
+		assertEquals(Level.INFO.isBelow(Level.INFO), false);
+		assertEquals(Level.INFO.isBelow(Level.ALL), true);
+		assertEquals(Level.NONE.isBelow(null), false);
+		assertEquals(Level.NONE.isBelow(Level.NONE), false);
+		assertEquals(Level.NONE.isBelow(Level.INFO), true);
+		assertEquals(Level.NONE.isBelow(Level.ALL), true);
 	}
 
 }

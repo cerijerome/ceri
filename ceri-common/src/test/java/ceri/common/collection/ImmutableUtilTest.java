@@ -164,6 +164,16 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
+	public void testWrapAsList() {
+		var array = new Integer[] { 1, 2, 3, 4, 5 };
+		final List<Integer> list = ImmutableUtil.wrapAsList(array);
+		assertEquals(list, Arrays.asList(1, 2, 3, 4, 5));
+		assertImmutableList(list);
+		array[2] = 0;
+		assertEquals(list, Arrays.asList(1, 2, 0, 4, 5));
+	}
+
+	@Test
 	public void testAsList() {
 		final List<Integer> list = ImmutableUtil.asList(new Integer[] { 1, 2, 3, 4, 5 });
 		assertEquals(list, Arrays.asList(1, 2, 3, 4, 5));

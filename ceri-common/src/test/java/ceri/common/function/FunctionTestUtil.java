@@ -7,6 +7,7 @@ import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntConsumer;
@@ -64,11 +65,19 @@ public class FunctionTestUtil {
 		};
 	}
 
-	public static ExceptionLongSupplier<IOException> longSupplier(long i) {
+	public static ExceptionLongSupplier<IOException> longSupplier(long l) {
 		return () -> {
-			if (i == 1) throw new IOException("1");
-			if (i == 0) throw new RuntimeException("0");
-			return i;
+			if (l == 1) throw new IOException("1");
+			if (l == 0) throw new RuntimeException("0");
+			return l;
+		};
+	}
+
+	public static ExceptionDoubleSupplier<IOException> doubleSupplier(double d) {
+		return () -> {
+			if (d == 1.0) throw new IOException("1.0");
+			if (d == 0.0) throw new RuntimeException("0.0");
+			return d;
 		};
 	}
 
@@ -259,10 +268,17 @@ public class FunctionTestUtil {
 			};
 		}
 
-		public static LongSupplier longSupplier(long i) {
+		public static LongSupplier longSupplier(long l) {
 			return () -> {
-				if (i == 0) throw new RuntimeException("0");
-				return i;
+				if (l == 0) throw new RuntimeException("0");
+				return l;
+			};
+		}
+
+		public static DoubleSupplier doubleSupplier(double d) {
+			return () -> {
+				if (d == 0.0) throw new RuntimeException("0.0");
+				return d;
 			};
 		}
 
