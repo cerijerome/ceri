@@ -1,0 +1,9 @@
+I2C Notes
+=========
+
+Raspberry Pi
+- install using raspi-config
+- /dev/i2c-1
+- i2cdetect -y 1
+
+See ../../lib/i2c/linux/ for files

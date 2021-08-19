@@ -18,7 +18,6 @@ import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
 import ceri.serial.clib.FileDescriptor;
 import ceri.serial.clib.Seek;
-import ceri.serial.libusb.jna.LibUsbException;
 
 /**
  * A self-healing file descriptor. It will automatically be reopened if the resource becomes
@@ -30,7 +29,7 @@ public class SelfHealingFd extends LoopingExecutor
 	private final SelfHealingFdConfig config;
 	private final Listeners<StateChange> listeners = Listeners.of();
 	private final BooleanCondition sync = BooleanCondition.of();
-	private volatile FileDescriptor fd;
+	private volatile FileDescriptor fd = null;
 
 	public static SelfHealingFd of(SelfHealingFdConfig config) {
 		return new SelfHealingFd(config);
@@ -55,7 +54,7 @@ public class SelfHealingFd extends LoopingExecutor
 	public void open() throws IOException {
 		try {
 			initFd();
-		} catch (LibUsbException e) {
+		} catch (IOException e) {
 			broken();
 			throw e;
 		}

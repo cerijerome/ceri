@@ -18,6 +18,10 @@ public class SelfHealingFdConfig {
 	public final int fixRetryDelayMs;
 	public final Predicate<Exception> brokenPredicate;
 
+	public static SelfHealingFdConfig of(ExceptionSupplier<IOException, FileDescriptor> openFn) {
+		return builder(openFn).build();
+	}
+
 	public static SelfHealingFdConfig of(String path, OpenFlag... flags) {
 		return of(path, Mode.NONE, flags);
 	}
