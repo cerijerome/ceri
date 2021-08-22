@@ -1,6 +1,8 @@
 JNA Notes
 =========
 
+Exported functions:
+nm -D --defined-only libxxx.so
 
 OSX sizes:
  1 = sizeof(char)
@@ -61,7 +63,6 @@ OSX sizes:
 32 = sizeof(struct { char a; long double b; })
 16 = sizeof(struct { char a; long long b; })
 16 = sizeof(struct { char a; uintmax_t b; })
-
 
 Man page numbers:
   1  User Commands

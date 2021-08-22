@@ -25,7 +25,7 @@ public class FtdiTransferControl {
 	 * Cancels the transfer.
 	 */
 	public void dataCancel(Duration d) throws LibUsbException {
-		ftdi_transfer_data_cancel(control(), Time.Util.timeval(d));
+		ftdi_transfer_data_cancel(control(), Time.timeval(d));
 	}
 
 	private ftdi_transfer_control control() {

@@ -1259,7 +1259,7 @@ public class LibUsb {
 	 * single libusb user (i.e. you), you do not have to worry about contexts: pass NULL in every
 	 * function call where a context is required. The default context will be used.
 	 */
-		// typedef struct libusb_context libusb_context;
+	// typedef struct libusb_context libusb_context;
 	public static class libusb_context extends PointerType {}
 
 	/**
@@ -1272,7 +1272,7 @@ public class LibUsb {
 	 * libusb_free_device_list() can optionally decrease the reference count on all devices in the
 	 * list. libusb_open() adds another reference which is later destroyed by libusb_close().
 	 */
-		// typedef struct libusb_device libusb_device;
+	// typedef struct libusb_device libusb_device;
 	public static class libusb_device extends PointerType {}
 
 	/**
@@ -1281,7 +1281,7 @@ public class LibUsb {
 	 * used to perform I/O and other operations. When finished with a device handle, you should call
 	 * libusb_close().
 	 */
-		// typedef struct libusb_device_handle libusb_device_handle;
+	// typedef struct libusb_device_handle libusb_device_handle;
 	public static class libusb_device_handle extends PointerType {}
 
 	/**
@@ -2333,7 +2333,7 @@ public class LibUsb {
 	public static void libusb_wait_for_event(libusb_context ctx, timeval tv)
 		throws LibUsbException {
 		require(ctx);
-		verify(lib -> lib.libusb_wait_for_event(ctx, Time.Util.write(tv)), "wait_for_event");
+		verify(lib -> lib.libusb_wait_for_event(ctx, Time.write(tv)), "wait_for_event");
 	}
 
 	public static void libusb_interrupt_event_handler(libusb_context ctx) throws LibUsbException {
@@ -2344,7 +2344,7 @@ public class LibUsb {
 	public static void libusb_handle_events_timeout(libusb_context ctx, timeval tv)
 		throws LibUsbException {
 		require(ctx);
-		verify(lib -> lib.libusb_handle_events_timeout(ctx, Time.Util.write(tv)),
+		verify(lib -> lib.libusb_handle_events_timeout(ctx, Time.write(tv)),
 			"handle_events_timeout");
 	}
 
@@ -2352,8 +2352,7 @@ public class LibUsb {
 		throws LibUsbException {
 		require(ctx);
 		IntByReference completed = new IntByReference();
-		verify(
-			lib -> lib.libusb_handle_events_timeout_completed(ctx, Time.Util.write(tv), completed),
+		verify(lib -> lib.libusb_handle_events_timeout_completed(ctx, Time.write(tv), completed),
 			"handle_events_timeout_completed");
 		return completed.getValue();
 	}
@@ -2374,8 +2373,7 @@ public class LibUsb {
 	public static void libusb_handle_events_locked(libusb_context ctx, timeval tv)
 		throws LibUsbException {
 		require(ctx);
-		verify(lib -> lib.libusb_handle_events_locked(ctx, Time.Util.write(tv)),
-			"handle_events_locked");
+		verify(lib -> lib.libusb_handle_events_locked(ctx, Time.write(tv)), "handle_events_locked");
 	}
 
 	public static boolean libusb_pollfds_handle_timeouts(libusb_context ctx)

@@ -37,7 +37,7 @@ public class I2cDeviceBehavior {
 	public void before() throws IOException {
 		lib = TestI2cCLibNative.of();
 		enc = TestCLibNative.register(lib);
-		fd = I2cDevice.file(1);
+		fd = I2cDevice.open(1);
 		i2c = I2cDevice.of(fd);
 	}
 
@@ -49,7 +49,7 @@ public class I2cDeviceBehavior {
 
 	@Test
 	public void shouldOpenDevice() throws IOException {
-		assertThrown(() -> I2cDevice.file(-1));
+		assertThrown(() -> I2cDevice.open(-1));
 		lib.open.assertAuto(List.of("/dev/i2c-1", 2, 0)); // open fd
 		lib.ioctlI2cInt.autoResponses(i2c_func.xcoder.encode(I2C_FUNC_SMBUS_EMUL));
 		assertCollection(i2c.functions(), I2C_FUNC_SMBUS_EMUL);

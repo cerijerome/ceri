@@ -111,7 +111,7 @@ public class UsbEvents implements Closeable {
 	}
 
 	public Duration nextTimeout() throws LibUsbException {
-		return Time.Util.duration(libusb_get_next_timeout(context()));
+		return Time.duration(libusb_get_next_timeout(context()));
 	}
 
 	public void handle() throws LibUsbException {
@@ -123,19 +123,19 @@ public class UsbEvents implements Closeable {
 	}
 
 	public void handleLocked(Duration d) throws LibUsbException {
-		libusb_handle_events_locked(context(), Time.Util.timeval(d));
+		libusb_handle_events_locked(context(), Time.timeval(d));
 	}
 
 	public void handleTimeout(Duration d) throws LibUsbException {
-		libusb_handle_events_timeout(context(), Time.Util.timeval(d));
+		libusb_handle_events_timeout(context(), Time.timeval(d));
 	}
 
 	public int handleTimeoutCompleted(Duration d) throws LibUsbException {
-		return libusb_handle_events_timeout_completed(context(), Time.Util.timeval(d));
+		return libusb_handle_events_timeout_completed(context(), Time.timeval(d));
 	}
 
 	public void await(Duration d) throws LibUsbException {
-		libusb_wait_for_event(context(), Time.Util.timeval(d));
+		libusb_wait_for_event(context(), Time.timeval(d));
 	}
 
 	public Enclosed<RuntimeException, List<PollFd>> pollFds() throws LibUsbException {
@@ -162,7 +162,7 @@ public class UsbEvents implements Closeable {
 	public void close() throws IOException {
 		LogUtil.close(logger, pollfdCallbackRefs::clear);
 	}
-	
+
 	private void updatePollCallbacks(libusb_pollfd_added_cb addedCallback,
 		libusb_pollfd_removed_cb removedCallback) {
 		pollfdCallbackRefs.clear();

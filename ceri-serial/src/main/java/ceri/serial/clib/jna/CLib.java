@@ -1,17 +1,12 @@
 package ceri.serial.clib.jna;
 
-import static ceri.serial.jna.JnaUtil.print;
+import static ceri.serial.clib.jna.CUtil.failMessage;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import com.sun.jna.IntegerType;
+import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
-import ceri.common.text.RegexUtil;
-import ceri.common.util.BasicUtil;
 import ceri.serial.clib.OpenFlag;
-import ceri.serial.clib.jna.Termios.termios;
 import ceri.serial.jna.JnaLibrary;
 import ceri.serial.jna.JnaUtil;
 
@@ -19,12 +14,9 @@ import ceri.serial.jna.JnaUtil;
  * Methods that call the native C-library.
  */
 public class CLib {
-	private static final int MAX_ARG_STRING_LEN = 40;
-	private static final int CUT_ARG_STRING_LEN = 16;
-	private static final Pattern STRING_ARG_REGEX = Pattern.compile("^[\\w$]+");
-	public static final int EOF = -1;
 	static final JnaLibrary<CLibNative> library =
 		JnaLibrary.of(Platform.C_LIBRARY_NAME, CLibNative.class);
+	public static final int EOF = -1;
 
 	private CLib() {}
 
@@ -35,7 +27,7 @@ public class CLib {
 		}
 
 		public size_t(long value) {
-			super(SizeOf.SIZE_T, value, true);
+			super(Native.SIZE_T_SIZE, value, true);
 		}
 	}
 
@@ -46,7 +38,7 @@ public class CLib {
 		}
 
 		public ssize_t(long value) {
-			super(SizeOf.SIZE_T, value);
+			super(Native.SIZE_T_SIZE, value);
 		}
 	}
 
@@ -54,7 +46,7 @@ public class CLib {
 	 * Opens the path with flags, and returns a file descriptor.
 	 */
 	public static int open(String path, int flags) throws CException {
-		return CUtil.verifyErrno(() -> lib().open(path, flags),
+		return CUtil.verify(() -> lib().open(path, flags),
 			() -> String.format("open(\"%s\", %s)", path, OpenFlag.string(flags)));
 	}
 
@@ -62,7 +54,7 @@ public class CLib {
 	 * Opens the path with flags and mode, and returns a file descriptor.
 	 */
 	public static int open(String path, int flags, int mode) throws CException {
-		return CUtil.verifyErrno(() -> lib().open(path, flags, (short) mode),
+		return CUtil.verify(() -> lib().open(path, flags, (short) mode),
 			() -> String.format("open(\"%s\", %s, 0%s)", path, OpenFlag.string(flags),
 				Integer.toOctalString(mode)));
 	}
@@ -71,7 +63,7 @@ public class CLib {
 	 * Closes the file descriptor.
 	 */
 	public static void close(int fd) throws CException {
-		CUtil.verifyErrno(() -> lib().close(fd), "close(%d)", fd);
+		CUtil.verify(() -> lib().close(fd), "close", fd);
 	}
 
 	/**
@@ -79,8 +71,8 @@ public class CLib {
 	 */
 	public static int read(int fd, Pointer buffer, int length) throws CException {
 		if (length == 0) return 0;
-		int result = CUtil.verifyErrno(() -> lib().read(fd, buffer, new size_t(length)).intValue(),
-			() -> String.format("read(%d, %s, %d)", fd, print(buffer), length));
+		int result = CUtil.verify(() -> lib().read(fd, buffer, new size_t(length)).intValue(),
+			() -> failMessage("read", fd, JnaUtil.print(buffer), length));
 		return result == 0 ? EOF : result;
 	}
 
@@ -89,30 +81,31 @@ public class CLib {
 	 */
 	public static int write(int fd, Pointer buffer, int length) throws CException {
 		if (length == 0) return 0;
-		return CUtil.verifyErrno(() -> lib().write(fd, buffer, new size_t(length)).intValue(),
-			() -> String.format("write(%d, %s, %d)", fd, print(buffer), length));
+		return CUtil.verify(() -> lib().write(fd, buffer, new size_t(length)).intValue(),
+			() -> failMessage("write", fd, JnaUtil.print(buffer), length));
 	}
 
 	/**
 	 * Moves the position of file descriptor. Returns the new position.
 	 */
 	public static int lseek(int fd, int offset, int whence) throws CException {
-		return CUtil.verifyErrno(() -> lib().lseek(fd, offset, whence),
-			() -> String.format("lseek(%d, %d, %d)", fd, offset, whence));
+		return CUtil.verify(() -> lib().lseek(fd, offset, whence), "lseek", fd, offset, whence);
 	}
 
 	/**
 	 * Performs an ioctl function. Arguments and return value depend on the function.
 	 */
 	public static int ioctl(int fd, int request, Object... objs) throws CException {
-		return ioctl((String) null, fd, request, objs);
+		return CUtil.verify(() -> lib().ioctl(fd, request, objs),
+			() -> ioctlFailMessage(fd, request, objs));
 	}
 
 	/**
 	 * Performs an ioctl function. Arguments and return value depend on the function.
 	 */
 	public static int ioctl(String name, int fd, int request, Object... objs) throws CException {
-		return ioctl(() -> formatIoctl(name, fd, request, objs), fd, request, objs);
+		return CUtil.verify(() -> lib().ioctl(fd, request, objs),
+			() -> ioctlFailMessage(name, fd, request, objs));
 	}
 
 	/**
@@ -120,36 +113,38 @@ public class CLib {
 	 */
 	public static int ioctl(Supplier<String> errorMsg, int fd, int request, Object... objs)
 		throws CException {
-		return CUtil.verifyErrno(() -> lib().ioctl(fd, request, objs), errorMsg);
+		return CUtil.verify(() -> lib().ioctl(fd, request, objs), errorMsg);
 	}
 
-	public static termios tcgetattr(int fd) throws CException {
-		termios.ByReference ref = new termios.ByReference();
-		CUtil.verifyErrno(() -> lib().tcgetattr(fd, ref),
-			() -> String.format("tcgetattr(%d, %d)", fd, JnaUtil.print(ref)));
-		return ref;
+	/* termios.h */
+
+	public static int TCSANOW = 0;
+
+	/**
+	 * Retrieves termios attributes; the general terminal interface to control asynchronous
+	 * communications ports.
+	 */
+	public static void tcgetattr(int fd, Pointer termios) throws CException {
+		CUtil.verify(() -> lib().tcgetattr(fd, termios),
+			() -> failMessage("tcgetattr", fd, JnaUtil.print(termios)));
 	}
 
-	public static void tcsetattr(int fd, int actions, termios termios) throws CException {
-		CUtil.verifyErrno(() -> lib().tcsetattr(fd, actions, termios),
-			() -> String.format("tcgetattr(%d, %d)", fd, termios));
+	/**
+	 * Set termios attributes.
+	 */
+	public static void tcsetattr(int fd, int actions, Pointer termios) throws CException {
+		CUtil.verify(() -> lib().tcsetattr(fd, actions, termios),
+			() -> failMessage("tcsetattr", fd, JnaUtil.print(termios)));
 	}
 
-	/* Support methods */
+	/* private */
 
-	private static String formatIoctl(String name, int fd, int request, Object... objs) {
-		name = name == null ? "ioctl" : "ioctl:" + name;
-		String args = objs.length == 0 ? "" :
-			Stream.of(objs).map(CLib::formatArg).collect(Collectors.joining(", ", ", ", ""));
-		return String.format("%s(%d, 0x%x%s)", name, fd, request, args);
+	private static String ioctlFailMessage(String name, int fd, int request, Object... objs) {
+		return failMessage(String.format("%d:ioctl:%s:0x%x", fd, name, request), objs);
 	}
 
-	private static String formatArg(Object obj) {
-		String s = String.valueOf(obj);
-		if (s.length() <= MAX_ARG_STRING_LEN) return s;
-		s = BasicUtil.defaultValue(RegexUtil.find(STRING_ARG_REGEX, s), s);
-		if (s.length() > MAX_ARG_STRING_LEN) s = s.substring(0, CUT_ARG_STRING_LEN);
-		return s + "...";
+	private static String ioctlFailMessage(int fd, int request, Object... objs) {
+		return failMessage(String.format("%d:ioctl:0x%x", fd, request), objs);
 	}
 
 	private static CLibNative lib() {

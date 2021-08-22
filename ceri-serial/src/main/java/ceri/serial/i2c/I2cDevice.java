@@ -43,9 +43,9 @@ public class I2cDevice implements I2c {
 	}
 
 	/**
-	 * Open a file descriptor to the I2C bus.
+	 * Open a file descriptor to the I2C bus. Can be used as the open function for a SelfHealingFd.
 	 */
-	public static CFileDescriptor file(int bus) throws IOException {
+	public static CFileDescriptor open(int bus) throws IOException {
 		validateMin(bus, 0, "Bus number");
 		return CFileDescriptor.of(I2cDev.i2c_open(bus, O_RDWR.value));
 	}

@@ -31,7 +31,7 @@ public class SmBusDeviceBehavior {
 	public void before() throws IOException {
 		lib = TestI2cCLibNative.of();
 		enc = TestCLibNative.register(lib);
-		fd = I2cDevice.file(1);
+		fd = I2cDevice.open(1);
 		i2c = I2cDevice.of(fd);
 		smBus = i2c.smBus(address);
 	}

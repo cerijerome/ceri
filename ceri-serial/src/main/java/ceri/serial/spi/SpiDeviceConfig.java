@@ -2,18 +2,11 @@ package ceri.serial.spi;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
-import static ceri.serial.clib.OpenFlag.O_RDONLY;
-import static ceri.serial.clib.OpenFlag.O_RDWR;
-import static ceri.serial.clib.OpenFlag.O_WRONLY;
-import static ceri.serial.spi.Spi.Direction.in;
-import static ceri.serial.spi.Spi.Direction.out;
+import java.io.IOException;
 import java.util.Objects;
 import ceri.common.text.ToString;
 import ceri.serial.clib.CFileDescriptor;
-import ceri.serial.clib.OpenFlag;
-import ceri.serial.clib.jna.CException;
 import ceri.serial.spi.Spi.Direction;
-import ceri.serial.spi.jna.SpiDev;
 
 /**
  * Configuration to open SPI file descriptor.
@@ -75,8 +68,8 @@ public class SpiDeviceConfig {
 	/**
 	 * Opens the SPI file descriptor. Can be used as the open function for a SelfHealingFd.
 	 */
-	public CFileDescriptor open() throws CException {
-		return CFileDescriptor.of(SpiDev.open(bus, chip, openFlag(direction).value));
+	public CFileDescriptor open() throws IOException {
+		return SpiDevice.open(bus, chip, direction);
 	}
 
 	@Override
@@ -98,11 +91,5 @@ public class SpiDeviceConfig {
 	@Override
 	public String toString() {
 		return ToString.forClass(this, bus, chip, direction);
-	}
-
-	private static OpenFlag openFlag(Direction direction) {
-		if (direction == out) return O_WRONLY;
-		if (direction == in) return O_RDONLY;
-		return O_RDWR;
 	}
 }

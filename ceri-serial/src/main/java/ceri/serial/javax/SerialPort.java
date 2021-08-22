@@ -9,9 +9,11 @@ import ceri.common.io.StreamNotSetException;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.OsUtil;
+import ceri.serial.clib.jna.CLibLinux;
+import ceri.serial.clib.jna.CLibMac;
 import ceri.serial.clib.jna.CUtil;
-import ceri.serial.clib.jna.TermiosUtil;
-import jtermios.Termios;
+import ceri.serial.clib.jna.Ioctls;
 import purejavacomm.PureJavaIllegalStateException;
 import purejavacomm.PureJavaSerialPort;
 
@@ -131,7 +133,7 @@ public class SerialPort extends CommPort {
 	 */
 	public void setBreakBit() throws IOException {
 		CUtil.validateFd(fd);
-		TermiosUtil.setBreakBit(fd);
+		Ioctls.tiocsbrk(fd);
 	}
 
 	/**
@@ -139,7 +141,7 @@ public class SerialPort extends CommPort {
 	 */
 	public void clearBreakBit() throws IOException {
 		CUtil.validateFd(fd);
-		TermiosUtil.clearBreakBit(fd);
+		Ioctls.tioccbrk(fd);
 	}
 
 	public int fd() {
@@ -148,18 +150,18 @@ public class SerialPort extends CommPort {
 
 	private boolean isIncorrectBaudRate(int baud) throws IOException {
 		if (!CUtil.isValidFd(fd)) return false;
-		Termios t = TermiosUtil.getTermios(fd);
-		return t.c_ospeed != baud;
+		return baud(fd) != baud;
 	}
 
 	private boolean setBaudAlt(int b) throws IOException {
-		if (Platform.isMac()) return setBaudForMac(b);
+		if (!Platform.isMac()) return false;
+		CLibMac.iossiospeed(fd, b);
 		return false;
 	}
 
-	private boolean setBaudForMac(int b) throws IOException {
-		TermiosUtil.setIossSpeed(fd, b);
-		return true;
+	private static int baud(int fd) throws IOException {
+		if (OsUtil.IS_MAC) return CLibMac.tcgetattr(fd).c_ospeed.intValue();
+		return CLibLinux.tcgetattr(fd).c_ospeed.intValue();
 	}
 
 	private static int fd(purejavacomm.SerialPort port) {

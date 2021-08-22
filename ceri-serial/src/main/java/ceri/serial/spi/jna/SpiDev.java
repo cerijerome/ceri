@@ -1,9 +1,9 @@
 package ceri.serial.spi.jna;
 
 import static ceri.common.math.MathUtil.ubyte;
-import static ceri.serial.clib.jna.Ioctl._IOC_SIZEBITS;
-import static ceri.serial.clib.jna.Ioctl._IOR;
-import static ceri.serial.clib.jna.Ioctl._IOW;
+import static ceri.serial.clib.jna.Ioctls._IOC_SIZEBITS;
+import static ceri.serial.clib.jna.Ioctls._IOR;
+import static ceri.serial.clib.jna.Ioctls._IOW;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,7 +12,6 @@ import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.clib.jna.CLib;
-import ceri.serial.clib.jna.SizeOf;
 
 public class SpiDev {
 	private static final Logger logger = LogManager.getLogger();
@@ -37,7 +36,7 @@ public class SpiDev {
 	public static final int SPI_MODE_3 = SPI_CPOL | SPI_CPHA;
 
 	private SpiDev() {}
-	
+
 	public static class spi_ioc_transfer extends Structure {
 		private static final List<String> FIELDS = List.of("tx_buf", "rx_buf", "len", "speed_hz",
 			"delay_usecs", "bits_per_word", "cs_change", "tx_nbits", "rx_nbits", "pad");
@@ -74,24 +73,24 @@ public class SpiDev {
 	}
 
 	/* Read / Write of SPI mode (8 bits only) */
-	public static final int SPI_IOC_RD_MODE = _IOR(SPI_IOC_MAGIC, 1, SizeOf.CHAR);
-	public static final int SPI_IOC_WR_MODE = _IOW(SPI_IOC_MAGIC, 1, SizeOf.CHAR);
+	public static final int SPI_IOC_RD_MODE = _IOR(SPI_IOC_MAGIC, 1, Byte.BYTES);
+	public static final int SPI_IOC_WR_MODE = _IOW(SPI_IOC_MAGIC, 1, Byte.BYTES);
 
 	/* Read / Write SPI bit justification */
-	public static final int SPI_IOC_RD_LSB_FIRST = _IOR(SPI_IOC_MAGIC, 2, SizeOf.CHAR);
-	public static final int SPI_IOC_WR_LSB_FIRST = _IOW(SPI_IOC_MAGIC, 2, SizeOf.CHAR);
+	public static final int SPI_IOC_RD_LSB_FIRST = _IOR(SPI_IOC_MAGIC, 2, Byte.BYTES);
+	public static final int SPI_IOC_WR_LSB_FIRST = _IOW(SPI_IOC_MAGIC, 2, Byte.BYTES);
 
 	/* Read / Write SPI device word length (1..N) */
-	public static final int SPI_IOC_RD_BITS_PER_WORD = _IOR(SPI_IOC_MAGIC, 3, SizeOf.CHAR);
-	public static final int SPI_IOC_WR_BITS_PER_WORD = _IOW(SPI_IOC_MAGIC, 3, SizeOf.CHAR);
+	public static final int SPI_IOC_RD_BITS_PER_WORD = _IOR(SPI_IOC_MAGIC, 3, Byte.BYTES);
+	public static final int SPI_IOC_WR_BITS_PER_WORD = _IOW(SPI_IOC_MAGIC, 3, Byte.BYTES);
 
 	/* Read / Write SPI device default max speed hz */
-	public static final int SPI_IOC_RD_MAX_SPEED_HZ = _IOR(SPI_IOC_MAGIC, 4, SizeOf.INT);
-	public static final int SPI_IOC_WR_MAX_SPEED_HZ = _IOW(SPI_IOC_MAGIC, 4, SizeOf.INT);
+	public static final int SPI_IOC_RD_MAX_SPEED_HZ = _IOR(SPI_IOC_MAGIC, 4, Integer.BYTES);
+	public static final int SPI_IOC_WR_MAX_SPEED_HZ = _IOW(SPI_IOC_MAGIC, 4, Integer.BYTES);
 
 	/* Read / Write of the SPI mode field */
-	public static final int SPI_IOC_RD_MODE32 = _IOR(SPI_IOC_MAGIC, 5, SizeOf.INT);
-	public static final int SPI_IOC_WR_MODE32 = _IOW(SPI_IOC_MAGIC, 5, SizeOf.INT);
+	public static final int SPI_IOC_RD_MODE32 = _IOR(SPI_IOC_MAGIC, 5, Integer.BYTES);
+	public static final int SPI_IOC_WR_MODE32 = _IOW(SPI_IOC_MAGIC, 5, Integer.BYTES);
 
 	/* Wrappers for ioctl calls */
 

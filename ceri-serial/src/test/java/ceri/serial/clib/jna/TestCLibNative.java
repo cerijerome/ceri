@@ -17,8 +17,6 @@ import ceri.common.util.Enclosed;
 import ceri.serial.clib.jna.CLib.size_t;
 import ceri.serial.clib.jna.CLib.ssize_t;
 import ceri.serial.clib.jna.Errors.Type;
-import ceri.serial.clib.jna.Termios.termios;
-import ceri.serial.clib.jna.Termios.termios.ByReference;
 import ceri.serial.jna.JnaUtil;
 
 public class TestCLibNative implements CLibNative {
@@ -118,12 +116,12 @@ public class TestCLibNative implements CLibNative {
 	}
 
 	@Override
-	public int tcgetattr(int fd, ByReference termios) throws LastErrorException {
+	public int tcgetattr(int fd, Pointer termios) throws LastErrorException {
 		return 0;
 	}
 
 	@Override
-	public int tcsetattr(int fd, int optional_actions, termios termios) throws LastErrorException {
+	public int tcsetattr(int fd, int optional_actions, Pointer termios) throws LastErrorException {
 		return 0;
 	}
 
@@ -148,30 +146,30 @@ public class TestCLibNative implements CLibNative {
 	}
 
 	@Override
-	public void cfmakeraw(termios termios) throws LastErrorException {}
+	public void cfmakeraw(Pointer termios) throws LastErrorException {}
 
 	@Override
-	public NativeLong cfgetispeed(ByReference termios) throws LastErrorException {
+	public NativeLong cfgetispeed(Pointer termios) throws LastErrorException {
 		return new NativeLong(0);
 	}
 
 	@Override
-	public NativeLong cfgetospeed(ByReference termios) throws LastErrorException {
+	public NativeLong cfgetospeed(Pointer termios) throws LastErrorException {
 		return new NativeLong(0);
 	}
 
 	@Override
-	public int cfsetispeed(termios termios, NativeLong speed) throws LastErrorException {
+	public int cfsetispeed(Pointer termios, NativeLong speed) throws LastErrorException {
 		return 0;
 	}
 
 	@Override
-	public int cfsetospeed(termios termios, NativeLong speed) throws LastErrorException {
+	public int cfsetospeed(Pointer termios, NativeLong speed) throws LastErrorException {
 		return 0;
 	}
 
 	@Override
-	public int cfsetspeed(termios termios, NativeLong speed) throws LastErrorException {
+	public int cfsetspeed(Pointer termios, NativeLong speed) throws LastErrorException {
 		return 0;
 	}
 

@@ -21,27 +21,96 @@ public class CUtil {
 	private CUtil() {}
 
 	/**
-	 * Checks function result, throwing a CException if negative, and converts any
-	 * LastErrorException to CException.
+	 * Returns function result, converting any LastErrorException to CException.
 	 */
-	public static int verifyErrno(IntSupplier function, String format, Object... args)
+	public static int exec(IntSupplier function, Supplier<String> messageSupplier)
 		throws CException {
-		return verifyErrno(function, () -> StringUtil.format(format, args));
+		try {
+			return function.getAsInt();
+		} catch (LastErrorException e) {
+			throw CException.from(e, messageSupplier.get());
+		}
+	}
+
+	/**
+	 * Returns function result, converting any LastErrorException to CException.
+	 */
+	public static int exec(IntSupplier function, String name, Object... args) throws CException {
+		try {
+			return function.getAsInt();
+		} catch (LastErrorException e) {
+			throw CException.from(e, failMessage(name, args));
+		}
+	}
+
+	/**
+	 * Checks function result, and throws CException if negative.
+	 */
+	public static int verify(int result, Supplier<String> messageSupplier) throws CException {
+		if (result >= 0) return result;
+		throw CException.full(result, messageSupplier.get());
 	}
 
 	/**
 	 * Checks function result, throwing a CException if negative, and converts any
 	 * LastErrorException to CException.
 	 */
-	public static int verifyErrno(IntSupplier function, Supplier<String> messageSupplier)
+	public static int verify(IntSupplier function, Supplier<String> messageSupplier)
 		throws CException {
 		try {
-			int result = function.getAsInt();
-			if (result >= 0) return result;
-			throw CException.full(result, messageSupplier.get());
+			return verify(function.getAsInt(), messageSupplier);
 		} catch (LastErrorException e) {
 			throw CException.from(e, messageSupplier.get());
 		}
+	}
+
+	/**
+	 * Runs method, and converts any LastErrorException to CException.
+	 */
+	public static void verify(Runnable method, Supplier<String> messageSupplier) throws CException {
+		try {
+			method.run();
+		} catch (LastErrorException e) {
+			throw CException.from(e, messageSupplier.get());
+		}
+	}
+
+	/**
+	 * Checks function result, and throws CException if negative.
+	 */
+	public static int verify(int result, String name, Object... objs) throws CException {
+		if (result >= 0) return result;
+		throw CException.full(result, failMessage(name, objs));
+	}
+
+	/**
+	 * Checks function result, throwing a CException if negative, and converts any
+	 * LastErrorException to CException.
+	 */
+	public static int verify(IntSupplier function, String name, Object... args) throws CException {
+		try {
+			return verify(function.getAsInt(), name, args);
+		} catch (LastErrorException e) {
+			throw CException.from(e, failMessage(name, args));
+		}
+	}
+
+	/**
+	 * Runs method, and converts any LastErrorException to CException.
+	 */
+	public static void verify(Runnable method, String name, Object... args) throws CException {
+		try {
+			method.run();
+		} catch (LastErrorException e) {
+			throw CException.from(e, failMessage(name, args));
+		}
+	}
+
+	/**
+	 * Creates a failed method message including given arguments.
+	 */
+	public static String failMessage(String name, Object... args) {
+		return String.format("%s(%s) failed", name, StringUtil.joinAll(", ", args));
 	}
 
 	/**
@@ -129,40 +198,6 @@ public class CUtil {
 	}
 
 	/**
-	 * Checks function result, and throws exception if negative
-	 */
-	@Deprecated // ?
-	public static int verify(int result) throws CException {
-		return verify(result, "call");
-	}
-
-	/**
-	 * Checks function result, and throws exception if negative
-	 */
-	@Deprecated // ?
-	public static int verify(int result, String name) throws CException {
-		return verify(result, () -> name);
-	}
-
-	/**
-	 * Checks function result, and throws exception if negative
-	 */
-	@Deprecated // ?
-	public static int verify(int result, Supplier<String> nameSupplier) throws CException {
-		if (result >= 0) return result;
-		throw CException.full(result, "JNA %s failed", nameSupplier.get());
-	}
-
-	/**
-	 * Checks function result, and throws exception if negative
-	 */
-	@Deprecated // ?
-	public static int verifyf(int result, String format, Object... params) throws CException {
-		if (result >= 0) return result;
-		throw CException.full(result, format, params);
-	}
-
-	/**
 	 * Validates a file descriptor
 	 */
 	public static int validateFd(int fd) throws CException {
@@ -195,7 +230,7 @@ public class CUtil {
 	public static Memory mallocSize(int size) {
 		return size == 0 ? null : new Memory(size);
 	}
-	
+
 	/**
 	 * Allocate native memory and copy array.
 	 */

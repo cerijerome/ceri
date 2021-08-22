@@ -13,6 +13,11 @@ public class Time {
 
 	private Time() {}
 
+	/* struct_timeval.h */
+
+	/**
+	 * A time value that is accurate to the nearest microsecond but also has a range of years.
+	 */
 	public static class timeval extends Struct {
 		private static final List<String> FIELDS = List.of("tv_sec", "tv_usec");
 
@@ -25,8 +30,8 @@ public class Time {
 			return new timeval(instant.getEpochSecond(), NANOSECONDS.toMillis(instant.getNano()));
 		}
 
-		public NativeLong tv_sec;
-		public NativeLong tv_usec;
+		public NativeLong tv_sec; //
+		public NativeLong tv_usec; //
 
 		public timeval() {
 			this(0, 0);
@@ -53,6 +58,8 @@ public class Time {
 		}
 	}
 
+	/* time.h */
+
 	public static timeval gettimeofday() {
 		return timeval.now();
 	}
@@ -64,37 +71,38 @@ public class Time {
 		time.tv_usec.setValue(NANOSECONDS.toMillis(instant.getNano()));
 	}
 
+	/* utilities */
+
 	/**
-	 * General utility methods for handling timeval.
+	 * Create timeval from duration, which may be null.
 	 */
-	public static class Util {
-		private Util() {}
+	public static timeval timeval(Duration d) {
+		if (d == null) return null;
+		return new timeval(d.getSeconds(), d.getNano() / 1000L);
+	}
 
-		public static timeval timeval(Duration d) {
-			if (d == null) return null;
-			return new timeval(d.getSeconds(), d.getNano() / 1000L);
-		}
+	/**
+	 * Create duration from timeval, which may be null.
+	 */
+	public static Duration duration(timeval tv) {
+		if (tv == null) return null;
+		return Duration.ofSeconds(tv.tv_sec.longValue(), tv.tv_usec.longValue() * 1000L);
+	}
 
-		public static Duration duration(timeval tv) {
-			if (tv == null) return null;
-			return Duration.ofSeconds(tv.tv_sec.longValue(), tv.tv_usec.longValue() * 1000L);
-		}
+	/**
+	 * Create timeval, reading values from pointer.
+	 */
+	public static timeval read(Pointer p) {
+		if (p == null) return null;
+		return Struct.read(new timeval(p));
+	}
 
-		/**
-		 * Create timeval, reading values from pointer.
-		 */
-		public static timeval read(Pointer p) {
-			if (p == null) return null;
-			return Struct.read(new timeval(p));
-		}
-
-		/**
-		 * Write values and return pointer.
-		 */
-		public static Pointer write(timeval tv) {
-			if (tv == null) return null;
-			return Struct.write(tv).getPointer();
-		}
+	/**
+	 * Write values and return pointer.
+	 */
+	public static Pointer write(timeval tv) {
+		if (tv == null) return null;
+		return Struct.write(tv).getPointer();
 	}
 
 }
