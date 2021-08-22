@@ -2,16 +2,15 @@ package ceri.serial.clib.jna;
 
 import static ceri.serial.clib.jna.CUtil.failMessage;
 import java.util.function.Supplier;
-import com.sun.jna.IntegerType;
-import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import ceri.serial.clib.OpenFlag;
+import ceri.serial.clib.jna.Size.size_t;
 import ceri.serial.jna.JnaLibrary;
 import ceri.serial.jna.JnaUtil;
 
 /**
- * Methods that call the native C-library.
+ * Methods that call the native C-library, grouped by linux header file.
  */
 public class CLib {
 	static final JnaLibrary<CLibNative> library =
@@ -20,28 +19,8 @@ public class CLib {
 
 	private CLib() {}
 
-	@SuppressWarnings("serial")
-	public static class size_t extends IntegerType {
-		public size_t() {
-			this(0);
-		}
-
-		public size_t(long value) {
-			super(Native.SIZE_T_SIZE, value, true);
-		}
-	}
-
-	@SuppressWarnings("serial")
-	public static class ssize_t extends IntegerType {
-		public ssize_t() {
-			this(0);
-		}
-
-		public ssize_t(long value) {
-			super(Native.SIZE_T_SIZE, value);
-		}
-	}
-
+	/* fcntl.h */
+	
 	/**
 	 * Opens the path with flags, and returns a file descriptor.
 	 */
@@ -58,6 +37,8 @@ public class CLib {
 			() -> String.format("open(\"%s\", %s, 0%s)", path, OpenFlag.string(flags),
 				Integer.toOctalString(mode)));
 	}
+
+	/* unistd.h */
 
 	/**
 	 * Closes the file descriptor.

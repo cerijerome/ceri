@@ -4,8 +4,8 @@ import com.sun.jna.LastErrorException;
 import com.sun.jna.Library;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
-import ceri.serial.clib.jna.CLib.size_t;
-import ceri.serial.clib.jna.CLib.ssize_t;
+import ceri.serial.clib.jna.Size.size_t;
+import ceri.serial.clib.jna.Size.ssize_t;
 
 /**
  * A collection of common C library functions, grouped by linux header file.
