@@ -1,8 +1,6 @@
 package ceri.serial.clib.jna;
 
-import static ceri.serial.clib.jna.Ioctls._IO;
-import static ceri.serial.clib.jna.Ioctls._IOW;
-import static jtermios.JTermios.TCSANOW;
+import static ceri.serial.clib.jna.CLib._IOW;
 import java.util.List;
 import com.sun.jna.NativeLong;
 import ceri.serial.jna.Struct;
@@ -14,16 +12,6 @@ public class CLibMac {
 
 	private CLibMac() {}
 
-	/* ioccom.h */
-
-	public static final int _IOC_SIZEBITS = 13; // IOCPARM_MASK = 0x1fff;
-	public static final int _IOC_VOID = 0x20000000;
-
-	/* ttycom.h */
-
-	public static final int TIOCSBRK = _IO('t', 123); // 0x2000747b
-	public static final int TIOCCBRK = _IO('t', 122); // 0x2000747a
-
 	/* ioss.h */
 
 	private static final int IOSSIOSPEED = _IOW('T', 2, NativeLong.SIZE);
@@ -32,7 +20,6 @@ public class CLibMac {
 	 * Sets input and output speeds to a non-traditional baud rate.
 	 */
 	public static void iossiospeed(int fd, int baud) throws CException {
-		// CUtil.verify(JTermios.ioctl(fd, IOSSIOSPEED, baud), "ioctl:IOSSIOSPEED");
 		CLib.ioctl("IOSSIOSPEED", fd, IOSSIOSPEED, baud);
 	}
 
@@ -74,13 +61,6 @@ public class CLibMac {
 	 */
 	public static void tcsetattr(int fd, int actions, termios termios) throws CException {
 		CLib.tcsetattr(fd, actions, termios.getPointer());
-	}
-
-	/**
-	 * Set termios attributes now.
-	 */
-	public static void tcsetattr(int fd, termios termios) throws CException {
-		tcsetattr(fd, TCSANOW, termios);
 	}
 
 }

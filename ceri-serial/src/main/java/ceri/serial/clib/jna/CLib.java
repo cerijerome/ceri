@@ -1,9 +1,12 @@
 package ceri.serial.clib.jna;
 
+import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.common.validation.ValidationUtil.validateUbyte;
 import static ceri.serial.clib.jna.CUtil.failMessage;
 import java.util.function.Supplier;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
+import ceri.common.util.OsUtil;
 import ceri.serial.clib.OpenFlag;
 import ceri.serial.clib.jna.Size.size_t;
 import ceri.serial.jna.JnaLibrary;
@@ -20,7 +23,22 @@ public class CLib {
 	private CLib() {}
 
 	/* fcntl.h */
-	
+
+	public static final int O_RDONLY = 0x0;
+	public static final int O_WRONLY = 0x1;
+	public static final int O_RDWR = 0x2;
+	public static final int O_ACCMODE = 0x3;
+	public static final int O_CREAT;
+	public static final int O_EXCL;
+	public static final int O_NOCTTY;
+	public static final int O_TRUNC;
+	public static final int O_APPEND;
+	public static final int O_NONBLOCK;
+	public static final int O_DSYNC;
+	public static final int O_DIRECTORY;
+	public static final int O_NOFOLLOW;
+	public static final int O_CLOEXEC;
+
 	/**
 	 * Opens the path with flags, and returns a file descriptor.
 	 */
@@ -71,6 +89,48 @@ public class CLib {
 	 */
 	public static int lseek(int fd, int offset, int whence) throws CException {
 		return CUtil.verify(() -> lib().lseek(fd, offset, whence), "lseek", fd, offset, whence);
+	}
+
+	/* ioctl.h */
+
+	public static final int _IOC_SIZEBITS;
+	private static final int _IOC_SIZEMASK;
+	private static final int _IOC_VOID;
+	private static final int _IOC_OUT = 0x40000000;
+	private static final int _IOC_IN = 0x80000000;
+	private static final int _IOC_INOUT = _IOC_IN | _IOC_OUT;
+
+	/**
+	 * <pre>
+	 * |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx| value
+	 * |--------|--------|--------|--------|
+	 * |xx000000|00000000|00000000|00000000| in/out (2)
+	 * |  ?xxxxx|xxxxxxxx|        |        | size (14|13)
+	 * |        |        |xxxxxxxx|        | group (8)
+	 * |        |        |        |xxxxxxxx| num (8)
+	 * </pre>
+	 */
+	public static int _IOC(int inOut, int group, int num, int size) {
+		validateUbyte(group, "Group");
+		validateUbyte(num, "Num");
+		validateRange(size, 0, _IOC_SIZEMASK, "Size");
+		return inOut | ((size & _IOC_SIZEMASK) << Short.SIZE) | (group << Byte.SIZE) | num;
+	}
+
+	public static int _IO(int group, int num) {
+		return _IOC(_IOC_VOID, group, num, 0);
+	}
+
+	public static int _IOR(int group, int num, int size) {
+		return _IOC(_IOC_IN, group, num, size); // sizeof(t)
+	}
+
+	public static int _IOW(int group, int num, int size) {
+		return _IOC(_IOC_OUT, group, num, size); // sizeof(t)
+	}
+
+	public static int _IOWR(int group, int num, int size) {
+		return _IOC(_IOC_INOUT, group, num, size); // sizeof(t)
 	}
 
 	/**
@@ -132,4 +192,41 @@ public class CLib {
 		return library.get();
 	}
 
+	/* os-specific initialization */
+
+	static {
+		if (OsUtil.IS_MAC) {
+			/* fcntl.h */
+			O_CREAT = 0x200;
+			O_EXCL = 0x800;
+			O_NOCTTY = 0x20000;
+			O_TRUNC = 0x400;
+			O_APPEND = 0x8;
+			O_NONBLOCK = 0x4;
+			O_DSYNC = 0x400000;
+			O_DIRECTORY = 0x100000;
+			O_NOFOLLOW = 0x100;
+			O_CLOEXEC = 0x1000000;
+			/* ioccom.h */
+			_IOC_SIZEBITS = 13; // IOCPARM_MASK = 0x1fff;
+			_IOC_SIZEMASK = (1 << _IOC_SIZEBITS) - 1;
+			_IOC_VOID = 0x20000000;
+		} else {
+			/* fcntl.h */
+			O_CREAT = 0x40;
+			O_EXCL = 0x80;
+			O_NOCTTY = 0x100;
+			O_TRUNC = 0x200;
+			O_APPEND = 0x400;
+			O_NONBLOCK = 0x800;
+			O_DSYNC = 0x1000;
+			O_DIRECTORY = 0x4000;
+			O_NOFOLLOW = 0x8000;
+			O_CLOEXEC = 0x80000;
+			/* ioctl.h */
+			_IOC_SIZEBITS = 14;
+			_IOC_SIZEMASK = (1 << _IOC_SIZEBITS) - 1;
+			_IOC_VOID = 0;
+		}
+	}
 }

@@ -1,9 +1,9 @@
 package ceri.serial.spi.jna;
 
 import static ceri.common.math.MathUtil.ubyte;
-import static ceri.serial.clib.jna.Ioctls._IOC_SIZEBITS;
-import static ceri.serial.clib.jna.Ioctls._IOR;
-import static ceri.serial.clib.jna.Ioctls._IOW;
+import static ceri.serial.clib.jna.CLib._IOC_SIZEBITS;
+import static ceri.serial.clib.jna.CLib._IOR;
+import static ceri.serial.clib.jna.CLib._IOW;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

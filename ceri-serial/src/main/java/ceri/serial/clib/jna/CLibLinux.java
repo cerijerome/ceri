@@ -1,6 +1,5 @@
 package ceri.serial.clib.jna;
 
-import static ceri.serial.clib.jna.Ioctls._IO;
 import java.util.List;
 import com.sun.jna.NativeLong;
 import ceri.serial.jna.Struct;
@@ -11,16 +10,6 @@ import ceri.serial.jna.Struct;
 public class CLibLinux {
 
 	private CLibLinux() {}
-
-	/* ioctl.h */
-
-	public static final int _IOC_SIZEBITS = 14;
-	public static final int _IOC_VOID = 0;
-	
-	/* ioctls.h */
-
-	public static final int TIOCSBRK = _IO('T', 0x27); // 0x5427
-	public static final int TIOCCBRK = _IO('T', 0x28); // 0x5428
 
 	/* termios.h */
 

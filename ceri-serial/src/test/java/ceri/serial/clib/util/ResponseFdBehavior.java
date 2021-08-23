@@ -94,8 +94,6 @@ public class ResponseFdBehavior {
 			assertEquals(fd.position(), 1);
 			assertEquals(fd.seek(3, Seek.SEEK_END), 2);
 			assertEquals(fd.position(), 2);
-			assertEquals(fd.seek(2, Seek.SEEK_HOLE), 5);
-			assertEquals(fd.position(), 5);
 		}
 	}
 

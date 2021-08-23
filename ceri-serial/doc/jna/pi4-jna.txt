@@ -1,0 +1,71 @@
+Header path:
+gcc -v -E -
+
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/lib/gcc/arm-linux-gnueabihf/8/include
+ /usr/local/include
+ /usr/lib/gcc/arm-linux-gnueabihf/8/include-fixed
+ /usr/include/arm-linux-gnueabihf
+ /usr/include
+
+Notes:
+- asm-generic/xxx.h usually included by <arch>/asm/xxx.h
+- __USE_XOPEN2K8 is defined
+
+Search:
+sudo find /usr/include -type f | grep '\.'h$ | xargs grep xxx
+sudo find /usr/include -type f | grep '\.'h$ | xargs grep include | grep xxx/xxx'\.'h
+
+
+Examples:
+
+O_NOFOLLOW in /usr/include/<arch>/bits/fcntl.h: 0100000/0x8000
+/usr/include/fcntl.h
+  /usr/include/<arch>/bits/fcntl.h: __O_NOFOLLOW = 0100000/0x8000
+    /usr/include/<arch>/bits/fcntl-linux.h: __O_NOFOLLOW = 0400000/0x20000 (not set)
+                           O_NOFOLLOW = __O_NOFOLLOW since __USE_XOPEN2K8 is defined
+
+O_NOFOLLOW in /usr/include/<arch>/asm/fcntl.h: 0100000/0x8000
+/usr/include/linux/fcntl.h
+  /usr/include/<arch>/asm/fcntl.h: O_NOFOLLOW = 0100000/0x8000
+    /usr/include/asm-generic/fcntl.h: O_NOFOLLOW = 0400000/0x20000 (not set)
+
+TIOCSBRK in /usr/include/asm-generic/ioctls.h: 0x5427
+/usr/include/linux/termios.h
+  /usr/include/<arch>/asm/termios.h
+    /usr/include/asm-generic/termios.h
+      /usr/include/<arch>/asm/ioctls.h
+        /usr/include/asm-generic/ioctls.h: TIOCSBRK = 0x5427
+/usr/include/<arch>/sys/ioctl.h
+  /usr/include/<arch>/bits/ioctls.h
+    /usr/include/<arch>/asm/ioctls.h
+      /usr/include/asm-generic/ioctls.h: TIOCSBRK = 0x5427
+  /usr/include/<arch>/bits/ioctl-types.h
+    /usr/include/<arch>/asm/ioctls.h
+      /usr/include/asm-generic/ioctls.h: TIOCSBRK = 0x5427
+
+_IOC_SIZEBITS in /usr/include/asm-generic/ioctl.h: 14
+/usr/include/linux/termios.h
+  /usr/include/<arch>/asm/termios.h
+    /usr/include/asm-generic/termios.h
+      /usr/include/<arch>/asm/ioctls.h
+        /usr/include/asm-generic/ioctls.h    
+          /usr/include/linux/ioctl.h
+            /usr/include/<arch>/asm/ioctl.h
+              /usr/include/asm-generic/ioctl.h: _IOC_SIZEBITS = 14
+/usr/include/<arch>/sys/ioctl.h
+  /usr/include/<arch>/bits/ioctls.h
+    /usr/include/<arch>/asm/ioctls.h
+      /usr/include/asm-generic/ioctls.h    
+        /usr/include/linux/ioctl.h
+          /usr/include/<arch>/asm/ioctl.h
+            /usr/include/asm-generic/ioctl.h: _IOC_SIZEBITS = 14
+  /usr/include/<arch>/bits/ioctl-types.h
+    /usr/include/<arch>/asm/ioctls.h
+      /usr/include/asm-generic/ioctls.h    
+        /usr/include/linux/ioctl.h
+          /usr/include/<arch>/asm/ioctl.h
+            /usr/include/asm-generic/ioctl.h: _IOC_SIZEBITS = 14
+
+

@@ -60,7 +60,6 @@ public class ResponseFd implements FileDescriptor {
 	public int seek(int offset, Seek whence) throws IOException {
 		if (whence == Seek.SEEK_SET) position = offset;
 		else if (whence == Seek.SEEK_END) position = bytes.length - offset;
-		else if (whence == Seek.SEEK_HOLE) position = bytes.length;
 		else position += offset;
 		if (position < 0) position = 0;
 		return position;

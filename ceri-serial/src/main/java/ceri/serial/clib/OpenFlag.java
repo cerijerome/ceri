@@ -1,11 +1,11 @@
 package ceri.serial.clib;
 
-import static ceri.common.util.OsUtil.macInt;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.text.StringUtil;
+import ceri.serial.clib.jna.CLib;
 import ceri.serial.jna.JnaUtil;
 
 /**
@@ -14,28 +14,22 @@ import ceri.serial.jna.JnaUtil;
  * Warning: numbers vary by specific OS, and are verified only for Mac, Raspberry Pi.
  */
 public enum OpenFlag {
-	O_RDONLY(0x0),
-	O_WRONLY(0x1),
-	O_RDWR(0x2),
-	O_ACCMODE(0x3),
-	O_CREAT(macInt(0x200, 0x40)),
-	O_EXCL(macInt(0x800, 0x80)),
-	O_NOCTTY(macInt(0x20000, 0x100)),
-	O_TRUNC(macInt(0x400, 0x200)),
-	O_APPEND(macInt(0x8, 0x400)),
-	O_NONBLOCK(macInt(0x4, 0x800)),
-	O_DSYNC(macInt(0x400000, 0x1000)),
-	O_DIRECT(macInt(-1, 0x10000)), // linux only, generic 0x4000?
-	O_LARGEFILE(macInt(-1, 0x20000)), // linux only, generic 0x8000?
-	O_DIRECTORY(macInt(0x100000, 0x4000)), // linux generic 0x10000?
-	O_NOFOLLOW(macInt(0x100, 0x8000)), // linux generic 0x20000?
-	O_NOATIME(macInt(-1, 0x40000)), // linux only
-	O_CLOEXEC(macInt(0x1000000, 0x80000)),
-	O_SHLOCK(macInt(0x10, -1)), // mac only
-	O_EXLOCK(macInt(0x20, -1)), // mac only
-	O_SYMLINK(macInt(0x200000, -1)); // mac only
+	O_RDONLY(CLib.O_RDONLY),
+	O_WRONLY(CLib.O_WRONLY),
+	O_RDWR(CLib.O_RDWR),
+	O_ACCMODE(CLib.O_ACCMODE),
+	O_CREAT(CLib.O_CREAT),
+	O_EXCL(CLib.O_EXCL),
+	O_NOCTTY(CLib.O_NOCTTY),
+	O_TRUNC(CLib.O_TRUNC),
+	O_APPEND(CLib.O_APPEND),
+	O_NONBLOCK(CLib.O_NONBLOCK),
+	O_DSYNC(CLib.O_DSYNC),
+	O_DIRECTORY(CLib.O_DIRECTORY),
+	O_NOFOLLOW(CLib.O_NOFOLLOW),
+	O_CLOEXEC(CLib.O_CLOEXEC);
 
-	private static final int NO_RDONLY_MASK = 0x3;
+	private static final int NO_RDONLY_MASK = O_WRONLY.value | O_RDWR.value;
 	private static final TypeTranscoder<OpenFlag> xcoder =
 		JnaUtil.xcoder(t -> t.value, OpenFlag.class, OpenFlag[]::new);
 	public final int value;
