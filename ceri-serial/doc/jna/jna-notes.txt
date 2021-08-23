@@ -4,8 +4,19 @@ JNA Notes
 Exported functions:
 nm -D --defined-only libxxx.so
 
+Lib dependencies:
+readelf -d libxxx.so | grep NEEDED
+
 Header path:
 gcc -v -E -
+
+Search
+sudo find <include-path> -type f | grep '\.'h$ | xargs grep xxx
+sudo find <include-path> -type f | grep '\.'h$ | xargs grep include | grep xxx/xxx'\.'h
+
+Notes
+- #define may have space, such as # define
+- To check defined values, see ../../lib/c/symbols.c 
 
 
 Man page numbers:
@@ -19,16 +30,3 @@ Man page numbers:
   8  System Administration tools and Daemons
 
 
-Check defined values:
-
-1) create test.c:
-
-#include <stdio.h>    
-#include <fcntl.h>
-
-int main(){    
-  printf("O_NOFOLLOW=0x%x\n", O_NOFOLLOW);
-  return 0;   
-}
-
-2) gcc test.c -o test; chmod a+x ./test; ./test

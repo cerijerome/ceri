@@ -12,16 +12,14 @@ gcc -v -E -
 Notes:
 - _POSIX_C_SOURCE is not defined
 - _DARWIN_C_SOURCE is not defined
+- <sdk>=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+- <knl>=<sdk>/System/Library/Frameworks/Kernel.framework/Versions/A/Headers
         
 Search:
-sudo find /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -type f 2>&1 | grep -v Python |
-    grep '\.'h$ | xargs grep xxx
-sudo find /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -type f 2>&1 | grep -v Python |
-    grep '\.'h$ | xargs grep include | grep xxx/xxx'\.'h
+sudo find <sdk> -type f 2>&1 | grep -v Python | grep '\.'h$ | xargs grep xxx
+sudo find <sdk> -type f 2>&1 | grep -v Python | grep '\.'h$ | xargs grep include | grep xxx/xxx'\.'h
     
 Examples:
-<sdk>=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
-<knl>=<sdk>/System/Library/Frameworks/Kernel.framework/Versions/A/Headers
 
 O_NOFOLLOW in <sdk>/usr/include/sys/fcntl.h: 0x0100
 <sdk>/usr/include/fcntl.h
