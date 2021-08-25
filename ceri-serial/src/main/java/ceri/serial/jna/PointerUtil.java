@@ -10,7 +10,7 @@ import com.sun.jna.ptr.PointerByReference;
 /**
  * Utilities for pointers.
  */
-public abstract class PointerUtil {
+public class PointerUtil {
 
 	private PointerUtil() {}
 

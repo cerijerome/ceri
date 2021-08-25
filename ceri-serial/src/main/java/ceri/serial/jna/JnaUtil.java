@@ -6,7 +6,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.function.Function;
 import java.util.function.IntFunction;
-import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -20,8 +19,6 @@ import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.ShortByReference;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.StreamUtil;
-import ceri.common.data.TypeTranscoder;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.math.MathUtil;
@@ -42,15 +39,6 @@ public class JnaUtil {
 	public static boolean setProtected() {
 		Native.setProtected(true);
 		return Native.isProtected();
-	}
-
-	/**
-	 * Enum type transcoder filtering values -1, which signifies value is not available for the OS.
-	 */
-	public static <T extends Enum<T>> TypeTranscoder<T> xcoder(ToIntFunction<T> valueFn,
-		Class<T> cls, IntFunction<T[]> arrayFn) {
-		return TypeTranscoder.of(valueFn,
-			StreamUtil.stream(cls).filter(t -> valueFn.applyAsInt(t) != -1).toArray(arrayFn));
 	}
 
 	/**
@@ -106,7 +94,7 @@ public class JnaUtil {
 	public static Pointer pointer(PointerType pt) {
 		return pt == null ? null : pt.getPointer();
 	}
-	
+
 	/**
 	 * Gets the pointer offset by the given number of bytes.
 	 */

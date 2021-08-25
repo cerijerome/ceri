@@ -3,17 +3,24 @@ package ceri.serial.jna;
 import static ceri.common.reflect.ReflectUtil.publicField;
 import static ceri.common.text.StringUtil.NEWLINE_REGEX;
 import static ceri.common.text.StringUtil.format;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import ceri.common.collection.ImmutableUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
@@ -22,9 +29,26 @@ import ceri.common.util.BasicUtil;
  * Extends Structure to provide more array and general field support.
  */
 public abstract class Struct extends Structure {
+	private static final Map<Class<?>, List<String>> fields = new ConcurrentHashMap<>();
 	private static final String INDENT = "\t";
 	private static final int MAX_ARRAY = 8;
 
+	/**
+	 * Annotation for declaring Structure field order. All fields must be named in subclasses, not
+	 * just added fields. This allows fields to be inserted at any point, rather than appended to
+	 * the end of the parent field list.
+	 * <p/>
+	 * Replace with @FieldOrder when moving to JNA5 (and check subclassed Structures)
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.TYPE)
+	public static @interface Fields {
+		String[] value();
+	}
+
+	/**
+	 * Structure alignment constants as an enum.
+	 */
 	public static enum Align {
 		/** Use the platform default alignment. */
 		platform(Structure.ALIGN_DEFAULT), // 0
@@ -323,7 +347,9 @@ public abstract class Struct extends Structure {
 	}
 
 	@Override
-	protected abstract List<String> getFieldOrder();
+	protected List<String> getFieldOrder() {
+		return fields.computeIfAbsent(getClass(), cls -> Struct.annotatedFields(cls));
+	}
 
 	@Override
 	public String toString() {
@@ -373,4 +399,13 @@ public abstract class Struct extends Structure {
 		if (n > maxArray) b.append(", ... (").append(n).append(")");
 		return b.append("]").toString();
 	}
+
+	private static List<String> annotatedFields(Class<?> cls) {
+		Fields fields = cls.getAnnotation(Fields.class);
+		if (fields != null) return ImmutableUtil.wrapAsList(fields.value());
+		throw new IllegalStateException(
+			String.format("@%s({...}) or getFieldOrder() must be declared on %s",
+				Fields.class.getSimpleName(), cls.getSimpleName()));
+	}
+
 }

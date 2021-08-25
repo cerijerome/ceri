@@ -12,6 +12,9 @@ public class CException extends IOException {
 	private static final int GENERAL_ERROR_CODE = -1;
 	public final int code;
 
+	/**
+	 * Capture the error code, or 0 if successful, to a consumer, and rethrow the error.
+	 */
 	public static void intercept(ExceptionRunnable<CException> runnable, IntConsumer consumer)
 		throws CException {
 		try {
@@ -23,6 +26,9 @@ public class CException extends IOException {
 		}
 	}
 
+	/**
+	 * Capture the error code, or 0 if successful.
+	 */
 	public static int capture(ExceptionRunnable<CException> runnable) {
 		try {
 			runnable.run();
@@ -30,17 +36,6 @@ public class CException extends IOException {
 		} catch (CException e) {
 			return e.code;
 		}
-	}
-
-	@Deprecated // '... failed' removed
-	public static int verify(int result, String format, Object... args) throws CException {
-		if (result >= 0) return result;
-		throw of(result, format, args);
-	}
-
-	public static int verifyFull(int result, String format, Object... args) throws CException {
-		if (result >= 0) return result;
-		throw full(result, format, args);
 	}
 
 	/**

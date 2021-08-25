@@ -6,7 +6,6 @@ import java.util.Set;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.text.StringUtil;
 import ceri.serial.clib.jna.CLib;
-import ceri.serial.jna.JnaUtil;
 
 /**
  * Flags for CLib open() call, usually defined in fcntl.h.
@@ -31,7 +30,7 @@ public enum OpenFlag {
 
 	private static final int NO_RDONLY_MASK = O_WRONLY.value | O_RDWR.value;
 	private static final TypeTranscoder<OpenFlag> xcoder =
-		JnaUtil.xcoder(t -> t.value, OpenFlag.class, OpenFlag[]::new);
+		TypeTranscoder.of(t -> t.value, OpenFlag.class);
 	public final int value;
 
 	public static int encode(OpenFlag... flags) {

@@ -14,7 +14,7 @@
 int format = FMT_PRINT;
 
 void print_symbol_i(const char *name, int symbol) {
-	if (format == FMT_PRINT) printf("%-12s = 0x%x %d\n", name, symbol, symbol);
+	if (format == FMT_PRINT) printf("%s = 0x%x %d\n", name, symbol, symbol);
 	if (format == FMT_JAVA_HEX) printf("public static final int %s = 0x%x;\n", name, symbol);
 	if (format == FMT_JAVA_DEC) printf("public static final int %s = %d;\n", name, symbol);
 }
