@@ -1,7 +1,7 @@
 package ceri.serial.javax;
 
 import static ceri.common.math.MathUtil.approxEqual;
-import ceri.common.util.BasicUtil;
+import ceri.common.collection.EnumUtil;
 
 public enum StopBits {
 	_1(1.0, purejavacomm.SerialPort.STOPBITS_1),
@@ -18,11 +18,11 @@ public enum StopBits {
 	}
 
 	public static StopBits from(int value) {
-		return BasicUtil.find(StopBits.class, t -> t.value == value);
+		return EnumUtil.find(StopBits.class, t -> t.value == value);
 	}
 
 	public static StopBits fromActual(double actual) {
-		return BasicUtil.find(StopBits.class, t -> approxEqual(t.actual, actual, PRECISION));
+		return EnumUtil.find(StopBits.class, t -> approxEqual(t.actual, actual, PRECISION));
 	}
 
 }

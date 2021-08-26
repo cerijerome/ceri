@@ -1,6 +1,6 @@
 package ceri.serial.javax;
 
-import ceri.common.util.BasicUtil;
+import ceri.common.collection.EnumUtil;
 
 public enum Parity {
 	none(purejavacomm.SerialPort.PARITY_NONE),
@@ -16,7 +16,7 @@ public enum Parity {
 	}
 
 	public static Parity from(int value) {
-		return BasicUtil.find(Parity.class, t -> t.value == value);
+		return EnumUtil.find(Parity.class, t -> t.value == value);
 	}
 
 }

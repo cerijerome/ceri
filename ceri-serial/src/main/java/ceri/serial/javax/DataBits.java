@@ -1,6 +1,6 @@
 package ceri.serial.javax;
 
-import ceri.common.util.BasicUtil;
+import ceri.common.collection.EnumUtil;
 
 public enum DataBits {
 	_5(purejavacomm.SerialPort.DATABITS_5),
@@ -15,7 +15,7 @@ public enum DataBits {
 	}
 
 	public static DataBits from(int value) {
-		return BasicUtil.find(DataBits.class, t -> t.value == value);
+		return EnumUtil.find(DataBits.class, t -> t.value == value);
 	}
 
 }

@@ -46,6 +46,7 @@ import ceri.common.test.TestUtil;
 	ceri.serial.javax.util.SelfHealingSerialConfigBehavior.class, //
 	ceri.serial.javax.util.SelfHealingSerialConnectorBehavior.class, //
 	// jna
+	ceri.serial.jna.JnaEnumTest.class, //
 	ceri.serial.jna.JnaUtilTest.class, //
 	// jna.test
 	ceri.serial.jna.test.JnaTestUtilTest.class, //

@@ -1,6 +1,6 @@
 package ceri.serial.javax;
 
-import ceri.common.util.BasicUtil;
+import ceri.common.collection.EnumUtil;
 
 public enum FlowControl {
 	none(purejavacomm.SerialPort.FLOWCONTROL_NONE),
@@ -16,7 +16,7 @@ public enum FlowControl {
 	}
 
 	public static FlowControl from(int value) {
-		return BasicUtil.find(FlowControl.class, t -> t.value == value);
+		return EnumUtil.find(FlowControl.class, t -> t.value == value);
 	}
 
 }

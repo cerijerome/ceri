@@ -1,21 +1,21 @@
 package ceri.serial.jna;
 
-import static ceri.common.exception.ExceptionUtil.exceptionf;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.collection.ImmutableUtil;
+import ceri.common.reflect.AnnotationUtil;
 import ceri.common.util.BasicUtil;
 
 /**
  * Utilities for c-style enums.
  */
 public class JnaEnum {
+	private static final Map<Class<?>, Object[]> cachedEnums = new ConcurrentHashMap<>();
 	private static final Map<Class<?>, Map<Integer, Enum<?>>> valueToEnumMap =
 		new ConcurrentHashMap<>();
 	private static final Map<Class<?>, Map<Enum<?>, Integer>> enumToValueMap =
@@ -24,96 +24,92 @@ public class JnaEnum {
 	private JnaEnum() {}
 
 	/**
-	 * Provides int value() for an enum class. Values are initialized on first access.
+	 * Provides an int value() for an enum class. By default the value is determined based on
+	 * ordinal, and overridden by @Value on class and/or enums. Values are initialized on first call
+	 * to value().
 	 */
 	public static interface Valued {
 		default int value() {
 			var cls = getClass();
 			if (!cls.isEnum()) return 0;
-			init(cls);
+			initFromAnnotations(BasicUtil.uncheckedCast(cls));
 			return JnaEnum.enumValue((Enum<?>) this);
 		}
 	}
 
 	/**
-	 * Specifies the enum int value, and whether to allow duplicate values. Subsequent enums
-	 * increment the value by 1. When declared on the enum class, this specifies this is applied to
-	 * the first enum.
+	 * Specifies the enum int value. Subsequent enums increment the value by 1. When declared on the
+	 * enum class, the value is applied to the first enum.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.FIELD, ElementType.TYPE })
 	public static @interface Value {
-		/**
-		 * The value for the enum. Subsequent enums increment by 1.
-		 */
 		public int value() default 0;
-
-		/**
-		 * Determines if duplicate values are allowed from this point.
-		 */
-		public boolean duplicates() default false;
 	}
 
 	/**
-	 * Looks up enum by value.
+	 * Looks up enum by value. Initializes mapping if not
 	 */
 	public static <T extends Enum<T> & Valued> T from(Class<T> cls, int value) {
 		init(cls);
-		var valueMap = valueToEnumMap.get(cls);
-		if (valueMap == null) return null;
-		var en = valueMap.get(value);
-		return en == null ? null : BasicUtil.uncheckedCast(en);
+		var en = valueToEnumMap.get(cls).get(value);
+		if (en != null) return BasicUtil.uncheckedCast(en);
+		var t = fromOrdinal(cls, value);
+		return t != null && t.value() == value ? t : null;
 	}
 
 	/**
-	 * Looks up enum by ordinal value.
+	 * Look up enum from ordinal value. Returns null if out of ordinal range. Caches enum array to
+	 * avoid clone() on each call to Class.getEnumConstants().
 	 */
 	public static <T extends Enum<T>> T fromOrdinal(Class<T> cls, int ordinal) {
-		T[] enums = cls.getEnumConstants();
-		if (ordinal < 0 || ordinal >= enums.length) return null;
-		return enums[ordinal];
+		Object[] objs = cachedEnums.computeIfAbsent(cls, Class::getEnumConstants);
+		if (ordinal < 0 || ordinal >= objs.length) return null;
+		return BasicUtil.uncheckedCast(objs[ordinal]);
 	}
+
+	/* private */
 
 	private static int enumValue(Enum<?> en) {
-		var enumMap = enumToValueMap.get(en.getClass());
-		if (enumMap == null) return en.ordinal();
-		var value = enumMap.get(en);
-		return value == null ? en.ordinal() : value;
+		var value = enumToValueMap.get(en.getClass()).get(en);
+		return value != null ? value : en.ordinal();
 	}
 
-	private static void init(Class<?> cls) {
+	private static <T extends Enum<T> & Valued> void init(Class<T> cls) {
 		if (valueToEnumMap.containsKey(cls)) return;
-		ExceptionAdapter.RUNTIME.run(() -> initEnums(cls));
+		var en = fromOrdinal(cls, 0);
+		if (en != null) en.value(); // may call initFromAnnotations()
+		if (valueToEnumMap.containsKey(cls)) return; // check again
+		initFromValues(cls); // fallback to value lookup - assume override
 	}
 
-	private static record CurrentValue(int value, boolean duplicates) {}
-
-	private static void initEnums(Class<?> cls) throws NoSuchFieldException {
+	private static <T extends Enum<T> & Valued> void initFromValues(Class<T> cls) {
 		Map<Integer, Enum<?>> valueMap = new TreeMap<>();
 		Map<Enum<?>, Integer> enumMap = new TreeMap<>();
-		CurrentValue current = currentValue(cls);
-		for (var en : (Enum<?>[]) cls.getEnumConstants()) {
-			current = currentValue(cls, en, current);
-			var dup = valueMap.put(current.value, en);
-			if (dup != null && !current.duplicates) throw exceptionf( //
-				"Duplicate value for %s and %s: 0x%3$x (%3$d)", en, dup, current.value);
-			enumMap.put(en, current.value);
-			current = new CurrentValue(current.value + 1, current.duplicates);
+		for (var t : cls.getEnumConstants()) {
+			int value = t.value();
+			if (value == t.ordinal()) continue; // no need to map ordinals
+			valueMap.put(value, t);
+			enumMap.put(t, value);
 		}
-		valueToEnumMap.put(cls, Collections.unmodifiableMap(valueMap));
-		enumToValueMap.put(cls, Collections.unmodifiableMap(enumMap));
+		valueToEnumMap.put(cls, ImmutableUtil.wrapMap(valueMap));
+		enumToValueMap.put(cls, ImmutableUtil.wrapMap(enumMap));
 	}
 
-	private static CurrentValue currentValue(Class<?> cls) {
-		Value value = cls.getAnnotation(Value.class);
-		if (value == null) return new CurrentValue(0, false);
-		return new CurrentValue(value.value(), value.duplicates());
+	private static <T extends Enum<T> & Valued> void initFromAnnotations(Class<T> cls) {
+		Map<Integer, Enum<?>> valueMap = new TreeMap<>();
+		Map<Enum<?>, Integer> enumMap = new TreeMap<>();
+		int value = AnnotationUtil.value(cls, Value.class, Value::value, 0);
+		for (var t : cls.getEnumConstants()) {
+			value = AnnotationUtil.value(t, Value.class, Value::value, value);
+			if (value != t.ordinal()) { // no need to map ordinals
+				valueMap.put(value, t);
+				enumMap.put(t, value);
+			}
+			value++;
+		}
+		valueToEnumMap.put(cls, ImmutableUtil.wrapMap(valueMap));
+		enumToValueMap.put(cls, ImmutableUtil.wrapMap(enumMap));
 	}
 
-	private static CurrentValue currentValue(Class<?> cls, Enum<?> en, CurrentValue current)
-		throws NoSuchFieldException {
-		Value value = cls.getField(en.name()).getAnnotation(Value.class);
-		if (value == null) return current;
-		return new CurrentValue(value.value(), value.duplicates());
-	}
 }
