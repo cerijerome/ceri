@@ -3,13 +3,10 @@ package ceri.common.util;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIterable;
-import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEnum;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,14 +21,6 @@ public class BasicUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(BasicUtil.class);
-	}
-
-	@Test
-	public void testAbbreviatePackages() {
-		assertNull(BasicUtil.abbreviatePackages(null));
-		assertEquals(BasicUtil.abbreviatePackages(""), "");
-		assertEquals(BasicUtil.abbreviatePackages("ceri.common.util.BasicUtil"), "c.c.u.BasicUtil");
-		assertEquals(BasicUtil.abbreviatePackages("Name.abc.def.Xyz"), "Name.a.d.Xyz");
 	}
 
 	@Test
@@ -58,27 +47,6 @@ public class BasicUtilTest {
 	}
 
 	@Test
-	public void testFind() {
-		assertEquals(BasicUtil.find(Align.H.class, t -> t != Align.H.left), Align.H.center);
-		assertEquals(BasicUtil.find(Align.H.class, t -> t.name().endsWith("t")), Align.H.left);
-		assertNull(BasicUtil.find(Align.H.class, t -> t.name().endsWith("x")));
-	}
-
-	@Test
-	public void testEnums() {
-		assertIterable(BasicUtil.enums(Align.H.class), Align.H.left, Align.H.center, Align.H.right);
-		assertIterable(BasicUtil.enums(Align.V.class), Align.V.top, Align.V.middle, Align.V.bottom);
-		exerciseEnum(Align.H.class);
-		exerciseEnum(Align.V.class);
-	}
-
-	@Test
-	public void testEnumsReversed() {
-		assertIterable(BasicUtil.enumsReversed(Align.H.class), Align.H.right, Align.H.center,
-			Align.H.left);
-	}
-
-	@Test
 	public void testDefaultValue() {
 		assertNull(BasicUtil.defaultValue(null, null));
 		assertEquals(BasicUtil.defaultValue(null, 1), 1);
@@ -98,24 +66,6 @@ public class BasicUtilTest {
 		assertEquals(BasicUtil.conditionalLong(false, 1, -1), -1L);
 	}
 
-	private enum Enum {
-		a,
-		b,
-		c;
-	}
-
-	@Test
-	public void testValueOf() {
-		assertEquals(BasicUtil.valueOf(null, "a", Enum.a), Enum.a);
-		assertEquals(BasicUtil.valueOf(Enum.class, "a"), Enum.a);
-		assertNull(BasicUtil.valueOf(Enum.class, "ab"));
-		assertNull(BasicUtil.valueOf(Enum.class, null, null));
-		assertEquals(BasicUtil.valueOf(Enum.class, "b", null), Enum.b);
-		assertEquals(BasicUtil.valueOf(Enum.class, null, Enum.a), Enum.a);
-		assertEquals(BasicUtil.valueOf(Enum.class, "ab", Enum.c), Enum.c);
-		assertNull(BasicUtil.valueOf(Enum.class, "ab", null));
-	}
-
 	@Test
 	public void testUncheckedCast() {
 		Object[] array = new String[3];
@@ -129,17 +79,6 @@ public class BasicUtilTest {
 		assertEquals(BasicUtil.castOrNull(Date.class, sqlDate), sqlDate);
 		Date date = new Date(0);
 		assertNull(BasicUtil.castOrNull(java.sql.Date.class, date));
-	}
-
-	@Test
-	public void testForceInit() {
-		assertEquals(ForceInitTestClassHelper.count, 0);
-		Class<ForceInitTestClass> cls = BasicUtil.forceInit(ForceInitTestClass.class);
-		assertEquals(ForceInitTestClassHelper.count, 1);
-		cls = BasicUtil.forceInit(ForceInitTestClass.class);
-		assertNotNull(cls);
-		assertEquals(ForceInitTestClassHelper.count, 1);
-		assertThrown(() -> BasicUtil.load("", this.getClass().getClassLoader()));
 	}
 
 	@Test

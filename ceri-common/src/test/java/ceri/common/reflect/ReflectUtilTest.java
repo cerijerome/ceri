@@ -83,6 +83,15 @@ public class ReflectUtilTest {
 	}
 
 	@Test
+	public void testAbbreviatePackages() {
+		assertNull(ReflectUtil.abbreviatePackages(null));
+		assertEquals(ReflectUtil.abbreviatePackages(""), "");
+		assertEquals(ReflectUtil.abbreviatePackages("ceri.common.reflect.ReflectUtil"),
+			"c.c.r.ReflectUtil");
+		assertEquals(ReflectUtil.abbreviatePackages("Name.abc.def.Xyz"), "Name.a.d.Xyz");
+	}
+
+	@Test
 	public void testForName() {
 		assertSame(ReflectUtil.forName("java.lang.String"), String.class);
 		assertThrown(() -> ReflectUtil.forName("___"));

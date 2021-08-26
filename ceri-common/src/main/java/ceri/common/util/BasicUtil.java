@@ -3,15 +3,9 @@
  */
 package ceri.common.util;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
@@ -21,9 +15,6 @@ import ceri.common.function.ExceptionSupplier;
  * Basic utility methods.
  */
 public class BasicUtil {
-	private static final Pattern PACKAGE_REGEX =
-		Pattern.compile("(?<![\\w$])([a-z$])[a-z0-9_$]+\\.");
-	private final static Map<Class<?>, Object> loadedClasses = new WeakHashMap<>();
 
 	private BasicUtil() {}
 
@@ -41,14 +32,6 @@ public class BasicUtil {
 	@SuppressWarnings("unchecked")
 	public static <T> T uncheckedCast(Object o) {
 		return (T) o;
-	}
-
-	/**
-	 * Abbreviates package names, e.g. abc.def.MyClass -> a.d.MyClass
-	 */
-	public static String abbreviatePackages(String stackTrace) {
-		if (stackTrace == null) return null;
-		return PACKAGE_REGEX.matcher(stackTrace).replaceAll(m -> "$1.");
 	}
 
 	/**
@@ -108,55 +91,6 @@ public class BasicUtil {
 	}
 
 	/**
-	 * Convenience method that calls Enum.valueOf and returns null if no match.
-	 */
-	public static <T extends Enum<T>> T valueOf(Class<T> cls, String value) {
-		return valueOf(cls, value, null);
-	}
-
-	/**
-	 * Convenience method that calls Enum.valueOf and returns default value if no match.
-	 */
-	public static <T extends Enum<T>> T valueOf(Class<T> cls, String value, T def) {
-		if (value == null || cls == null) return def;
-		try {
-			return Enum.valueOf(cls, value);
-		} catch (IllegalArgumentException e) {
-			return def;
-		}
-	}
-
-	/**
-	 * Finds the first enum matching the filter.
-	 */
-	public static <T extends Enum<T>> T find(Class<T> cls, Predicate<T> filter) {
-		return find(cls, filter, null);
-	}
-
-	/**
-	 * Finds the first enum matching the filter.
-	 */
-	public static <T extends Enum<T>> T find(Class<T> cls, Predicate<T> filter, T def) {
-		return BasicUtil.enums(cls).stream().filter(filter).findFirst().orElse(def);
-	}
-
-	/**
-	 * Convenience method that returns all enum constants as a list.
-	 */
-	public static <T extends Enum<T>> List<T> enums(Class<T> cls) {
-		return Arrays.asList(cls.getEnumConstants());
-	}
-
-	/**
-	 * Convenience method that returns all enum constants as a list in reverse order.
-	 */
-	public static <T extends Enum<T>> List<T> enumsReversed(Class<T> cls) {
-		List<T> list = enums(cls);
-		Collections.reverse(list);
-		return list;
-	}
-
-	/**
 	 * Makes an iterator compatible with a for-each loop.
 	 */
 	public static <T> Iterable<T> forEach(final Iterator<T> iterator) {
@@ -197,25 +131,6 @@ public class BasicUtil {
 	 */
 	public static <T> T runtimeCall(ExceptionSupplier<?, T> callable) {
 		return ExceptionAdapter.RUNTIME.get(callable);
-	}
-
-	/**
-	 * Makes sure a Class<?> is loaded. Use when static initialization is required but only the
-	 * Class<?> is referenced.
-	 */
-	public static <T> Class<T> forceInit(Class<T> cls) {
-		if (loadedClasses.containsKey(cls)) return cls;
-		load(cls.getName(), cls.getClassLoader());
-		loadedClasses.put(cls, null);
-		return cls;
-	}
-
-	static void load(String className, ClassLoader classLoader) {
-		try {
-			Class.forName(className, true, classLoader);
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException("Cannot find Class<?> " + className, e);
-		}
 	}
 
 }

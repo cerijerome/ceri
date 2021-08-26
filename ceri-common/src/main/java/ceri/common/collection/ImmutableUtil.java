@@ -312,6 +312,13 @@ public class ImmutableUtil {
 	}
 
 	/**
+	 * Wraps a map as unmodifiable, or Map.of() if empty.
+	 */
+	public static <K, V> Map<K, V> wrapMap(Map<K, V> map) {
+		return map.isEmpty() ? Map.of() : Collections.unmodifiableMap(map);
+	}
+	
+	/**
 	 * Wraps an array as an unmodifiable list.
 	 */
 	@SafeVarargs

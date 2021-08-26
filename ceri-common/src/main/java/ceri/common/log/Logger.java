@@ -248,7 +248,7 @@ public class Logger {
 	private String classLine() {
 		if (flag(noStackTrace)) return "";
 		String classLine = ReflectUtil.previousClassLine(STACK_OFFSET);
-		if (flag(abbreviatePackage)) classLine = BasicUtil.abbreviatePackages(classLine);
+		if (flag(abbreviatePackage)) classLine = ReflectUtil.abbreviatePackages(classLine);
 		return classLine;
 	}
 

@@ -8,6 +8,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.regex.Pattern;
+import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.FunctionUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
@@ -16,9 +18,18 @@ import ceri.common.util.BasicUtil;
  * Utility methods related to reflection
  */
 public class ReflectUtil {
+	public static final Pattern PACKAGE_REGEX =
+		Pattern.compile("(?<![\\w$])([a-z$])[a-z0-9_$]+\\.");
 
 	private ReflectUtil() {}
 
+	/**
+	 * Get the typed class of an object.
+	 */
+	public static <T> Class<? extends T> getClass(T t) {
+		return t == null ? null : BasicUtil.uncheckedCast(t.getClass());
+	}
+	
 	/**
 	 * Return the number of levels in the package of the given class.
 	 */
@@ -233,4 +244,19 @@ public class ReflectUtil {
 		return null;
 	}
 
+	/**
+	 * Abbreviates package names, e.g. abc.def.MyClass -> a.d.MyClass
+	 */
+	public static String abbreviatePackages(String stackTrace) {
+		if (stackTrace == null) return null;
+		return PACKAGE_REGEX.matcher(stackTrace).replaceAll(m -> "$1.");
+	}
+
+	/**
+	 * Get enum value as a field.
+	 */
+	public static Field enumField(Enum<?> en) {
+		if (en == null) return null;
+		return ExceptionUtil.shouldNotThrow(() -> en.getClass().getField(en.name()));
+	}
 }

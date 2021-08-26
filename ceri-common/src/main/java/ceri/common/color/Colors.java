@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-import ceri.common.util.BasicUtil;
+import ceri.common.collection.EnumUtil;
 
 /**
  * Opaque color presets.
@@ -411,7 +411,7 @@ public enum Colors {
 	 * Lookup by name.
 	 */
 	public static Colors from(String name) {
-		return BasicUtil.valueOf(Colors.class, name, null);
+		return EnumUtil.valueOf(Colors.class, name, null);
 	}
 
 	/**
