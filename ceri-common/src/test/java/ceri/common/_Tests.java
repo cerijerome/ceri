@@ -224,6 +224,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.property.PropertyAccessorBehavior.class, //
 	ceri.common.property.PropertyUtilTest.class, //
 	// reflect
+	ceri.common.reflect.AnnotationUtilTest.class, //
 	ceri.common.reflect.CallerBehavior.class, //
 	ceri.common.reflect.CreateExceptionBehavior.class, //
 	ceri.common.reflect.ReflectUtilTest.class, //

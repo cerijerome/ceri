@@ -164,6 +164,28 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
+	public void testWrapEmptyMap() {
+		Map<String, Integer> map = new HashMap<>();
+		Map<String, Integer> immutableMap = ImmutableUtil.wrapMap(map);
+		assertImmutableMap(immutableMap);
+		assertMap(immutableMap);
+		map.put("A", 1);
+		assertMap(immutableMap);
+	}
+
+	@Test
+	public void testWrapMap() {
+		Map<String, Integer> map = new HashMap<>();
+		map.put("A", 1);
+		map.put("B", null);
+		Map<String, Integer> immutableMap = ImmutableUtil.wrapMap(map);
+		assertImmutableMap(immutableMap);
+		assertMap(immutableMap, "A", 1, "B", null);
+		map.put("C", 3);
+		assertMap(immutableMap, "A", 1, "B", null, "C", 3);
+	}
+
+	@Test
 	public void testWrapAsList() {
 		var array = new Integer[] { 1, 2, 3, 4, 5 };
 		final List<Integer> list = ImmutableUtil.wrapAsList(array);

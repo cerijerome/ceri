@@ -10,6 +10,7 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import java.lang.reflect.Field;
 import java.util.Date;
 import org.junit.Test;
 import ceri.common.function.Fluent;
@@ -40,6 +41,27 @@ public class ReflectUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ReflectUtil.class);
+	}
+
+	@Test
+	public void testGetClass() {
+		assertEquals(ReflectUtil.getClass(null), null);
+		assertEquals(ReflectUtil.getClass(String.class), Class.class);
+		assertEquals(ReflectUtil.getClass("abc"), String.class);
+	}
+
+	private static enum E {
+		a,
+		b,
+		c;
+	}
+
+	@Test
+	public void testEnumField() {
+		assertEquals(ReflectUtil.enumField(null), null);
+		Field f = ReflectUtil.enumField(E.a);
+		assertEquals(f.isEnumConstant(), true);
+		assertEquals(f.getName(), "a");
 	}
 
 	@Test
