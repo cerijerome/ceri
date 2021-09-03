@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import ceri.common.collection.CollectionUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
@@ -109,7 +110,7 @@ public class Predicates {
 	// public static <T> Predicate<T> any(final Collection<? extends Predicate<? super T>> filters)
 	// {
 	public static <T> Predicate<T> any(final Collection<? extends Predicate<T>> filters) {
-		if (BasicUtil.isEmpty(filters)) return no();
+		if (CollectionUtil.empty(filters)) return no();
 		return nonNull(t -> {
 			for (Predicate<? super T> filter : filters)
 				if (filter.test(t)) return true;
@@ -123,7 +124,7 @@ public class Predicates {
 	// public static <T> Predicate<T> all(final Collection<? extends Predicate<? super T>> filters)
 	// {
 	public static <T> Predicate<T> all(final Collection<? extends Predicate<T>> filters) {
-		if (BasicUtil.isEmpty(filters)) return yes();
+		if (CollectionUtil.empty(filters)) return yes();
 		return nonNull(t -> {
 			for (Predicate<? super T> filter : filters)
 				if (!filter.test(t)) return false;
@@ -204,7 +205,7 @@ public class Predicates {
 	 * Predicate that returns true for strings that match the given pattern.
 	 */
 	public static Predicate<String> pattern(String pattern) {
-		if (StringUtil.isBlank(pattern)) return yes();
+		if (StringUtil.blank(pattern)) return yes();
 		return pattern(Pattern.compile(pattern));
 	}
 

@@ -3,9 +3,6 @@
  */
 package ceri.common.util;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
@@ -88,35 +85,6 @@ public class BasicUtil {
 	public static void beep() {
 		// Disabled to avoid annoying unit test sound...
 		// Toolkit.getDefaultToolkit().beep();
-	}
-
-	/**
-	 * Makes an iterator compatible with a for-each loop.
-	 */
-	public static <T> Iterable<T> forEach(final Iterator<T> iterator) {
-		return () -> iterator;
-	}
-
-	/**
-	 * Casts object to given type or returns null if not compatible.
-	 */
-	public static <T> T castOrNull(Class<T> cls, Object obj) {
-		if (!cls.isInstance(obj)) return null;
-		return cls.cast(obj);
-	}
-
-	/**
-	 * Checks if the given map is null or empty.
-	 */
-	public static boolean isEmpty(Map<?, ?> map) {
-		return map == null || map.isEmpty();
-	}
-
-	/**
-	 * Checks if the given collection is null or empty.
-	 */
-	public static boolean isEmpty(Collection<?> collection) {
-		return collection == null || collection.isEmpty();
 	}
 
 	/**

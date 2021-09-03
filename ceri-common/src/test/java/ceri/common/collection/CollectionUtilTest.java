@@ -10,6 +10,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +27,38 @@ public class CollectionUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(CollectionUtil.class);
+	}
+
+	@Test
+	public void testEmptyCollection() {
+		assertEquals(CollectionUtil.empty((Collection<?>) null), true);
+		assertEquals(CollectionUtil.empty(List.of()), true);
+		assertEquals(CollectionUtil.empty(ImmutableUtil.asList((String) null)), false);
+		assertEquals(CollectionUtil.empty(List.of("a")), false);
+	}
+
+	@Test
+	public void testNonEmptyCollection() {
+		assertEquals(CollectionUtil.nonEmpty((Collection<?>) null), false);
+		assertEquals(CollectionUtil.nonEmpty(List.of()), false);
+		assertEquals(CollectionUtil.nonEmpty(ImmutableUtil.asList((String) null)), true);
+		assertEquals(CollectionUtil.nonEmpty(List.of("a")), true);
+	}
+
+	@Test
+	public void testEmptyMap() {
+		assertEquals(CollectionUtil.empty((Map<?, ?>) null), true);
+		assertEquals(CollectionUtil.empty(Map.of()), true);
+		assertEquals(CollectionUtil.empty(ImmutableUtil.asMap(null, null)), false);
+		assertEquals(CollectionUtil.empty(Map.of("a", 1)), false);
+	}
+
+	@Test
+	public void testNonEmptyMap() {
+		assertEquals(CollectionUtil.nonEmpty((Map<?, ?>) null), false);
+		assertEquals(CollectionUtil.nonEmpty(Map.of()), false);
+		assertEquals(CollectionUtil.nonEmpty(ImmutableUtil.asMap(null, null)), true);
+		assertEquals(CollectionUtil.nonEmpty(Map.of("a", 1)), true);
 	}
 
 	@Test

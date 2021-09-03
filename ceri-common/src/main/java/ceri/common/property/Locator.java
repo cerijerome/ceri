@@ -68,7 +68,7 @@ public class Locator {
 
 	public static Builder builder(Class<?> cls, String name) {
 		validateNotNull(cls);
-		validate(!StringUtil.isBlank(name), "Name cannot be blank");
+		validate(!StringUtil.blank(name), "Name cannot be blank");
 		Builder b = new Builder(cls);
 		int i = name.lastIndexOf('.');
 		if (i == -1) return b.add(name);
@@ -118,7 +118,7 @@ public class Locator {
 	}
 
 	public String filename() {
-		if (StringUtil.isBlank(extension)) return name.value;
+		if (StringUtil.blank(extension)) return name.value;
 		return name.value + "." + extension;
 	}
 

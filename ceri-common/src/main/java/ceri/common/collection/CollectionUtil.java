@@ -39,6 +39,41 @@ public class CollectionUtil {
 
 	private CollectionUtil() {}
 
+	/**
+	 * Checks if the given map is null or empty.
+	 */
+	public static boolean empty(Map<?, ?> map) {
+		return map == null || map.isEmpty();
+	}
+
+	/**
+	 * Checks if the given map is null or empty.
+	 */
+	public static boolean nonEmpty(Map<?, ?> map) {
+		return !empty(map);
+	}
+
+	/**
+	 * Checks if the given collection is null or empty.
+	 */
+	public static boolean empty(Collection<?> collection) {
+		return collection == null || collection.isEmpty();
+	}
+
+	/**
+	 * Checks if the given collection is null or empty.
+	 */
+	public static boolean nonEmpty(Collection<?> collection) {
+		return !empty(collection);
+	}
+
+	/**
+	 * Makes an iterator compatible with a for-each loop.
+	 */
+	public static <T> Iterable<T> forEach(final Iterator<T> iterator) {
+		return () -> iterator;
+	}
+
 	@SafeVarargs
 	public static <T> boolean containsAll(Collection<T> collection, T... allOf) {
 		if (collection == null) return false;

@@ -136,7 +136,7 @@ public class Processor {
 	private void verifyErr(Process process) throws IOException {
 		if (!verifyErr) return;
 		String err = stdErr(process);
-		if (!StringUtil.isBlank(err)) throw new IOException(err.trim());
+		if (!StringUtil.blank(err)) throw new IOException(err.trim());
 	}
 
 	private void verifyExitValue(Process process) throws IOException {

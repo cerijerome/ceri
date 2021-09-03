@@ -1,5 +1,8 @@
 package ceri.common.collection;
 
+import static ceri.common.collection.ArrayUtil.bytes;
+import static ceri.common.collection.ArrayUtil.chars;
+import static ceri.common.collection.ArrayUtil.shorts;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -183,6 +186,140 @@ public class ArrayUtilTest {
 		String[] array0 = { "", "test", null, "TEST", "x" };
 		String[] array1 = { "test", null, "TEST", "x" };
 		assertTrue(ArrayUtil.equals(array0, 1, array1, 0, 3));
+	}
+
+	@Test
+	public void testIndexOfForArray() {
+		String[] array = { "", "test", null, "test", null, "TEST", "x" };
+		assertThrown(() -> ArrayUtil.indexOf(array, -1, "test", null));
+		assertThrown(() -> ArrayUtil.indexOf(array, 8, "test", null));
+		assertEquals(ArrayUtil.indexOf(array, 0, "test", null), 1);
+		assertEquals(ArrayUtil.indexOf(array, 3, "test", null), 3);
+		assertEquals(ArrayUtil.indexOf(array, 4, "test", null), -1);
+		assertEquals(ArrayUtil.indexOf(array, 7, "test", null), -1);
+	}
+
+	@Test
+	public void testIndexOfForBooleanArray() {
+		boolean[] array = { true, false, true, true, false, true, true };
+		assertEquals(ArrayUtil.indexOf(array, 0, false, true, true), 1);
+		assertEquals(ArrayUtil.indexOf(array, 5, false, true, true), -1);
+	}
+
+	@Test
+	public void testIndexOfForByteArray() {
+		byte[] array = { 1, -1, 1, 1, -1, 1, 1 };
+		assertEquals(ArrayUtil.indexOf(array, 0, bytes(-1, 1, 1)), 1);
+		assertEquals(ArrayUtil.indexOf(array, 5, bytes(-1, 1, 1)), -1);
+	}
+
+	@Test
+	public void testIndexOfForCharArray() {
+		char[] array = { 1, 0xffff, 1, 1, 0xffff, 1, 1 };
+		assertEquals(ArrayUtil.indexOf(array, 0, chars(0xffff, 1, 1)), 1);
+		assertEquals(ArrayUtil.indexOf(array, 5, chars(0xffff, 1, 1)), -1);
+	}
+
+	@Test
+	public void testIndexOfForShortArray() {
+		short[] array = { 1, -1, 1, 1, -1, 1, 1 };
+		assertEquals(ArrayUtil.indexOf(array, 0, shorts(-1, 1, 1)), 1);
+		assertEquals(ArrayUtil.indexOf(array, 5, shorts(-1, 1, 1)), -1);
+	}
+
+	@Test
+	public void testIndexOfForIntArray() {
+		int[] array = { 1, -1, 1, 1, -1, 1, 1 };
+		assertEquals(ArrayUtil.indexOf(array, 0, -1, 1, 1), 1);
+		assertEquals(ArrayUtil.indexOf(array, 5, -1, 1, 1), -1);
+	}
+
+	@Test
+	public void testIndexOfForLongArray() {
+		long[] array = { 1, -1, 1, 1, -1, 1, 1 };
+		assertEquals(ArrayUtil.indexOf(array, 0, -1L, 1L, 1L), 1);
+		assertEquals(ArrayUtil.indexOf(array, 5, -1L, 1L, 1L), -1);
+	}
+
+	@Test
+	public void testIndexOfForFloatArray() {
+		float[] array = { 1.1f, -1.1f, 1.1f, 1.1f, -1.1f, 1.1f, 1.1f };
+		assertEquals(ArrayUtil.indexOf(array, 0, -1.1f, 1.1f, 1.1f), 1);
+		assertEquals(ArrayUtil.indexOf(array, 5, -1.1f, 1.1f, 1.1f), -1);
+	}
+
+	@Test
+	public void testIndexOfForDoubleArray() {
+		double[] array = { 1.1, -1.1, 1.1, 1.1, -1.1, 1.1, 1.1 };
+		assertEquals(ArrayUtil.indexOf(array, 0, -1.1, 1.1, 1.1), 1);
+		assertEquals(ArrayUtil.indexOf(array, 5, -1.1, 1.1, 1.1), -1);
+	}
+
+	@Test
+	public void testLastIndexOfForArray() {
+		String[] array = { "", "test", null, "test", null, "TEST", "x" };
+		assertThrown(() -> ArrayUtil.lastIndexOf(array, -1, "test", null));
+		assertThrown(() -> ArrayUtil.lastIndexOf(array, 8, "test", null));
+		assertEquals(ArrayUtil.lastIndexOf(array, 0, "test", null), 3);
+		assertEquals(ArrayUtil.lastIndexOf(array, 3, "test", null), 3);
+		assertEquals(ArrayUtil.lastIndexOf(array, 4, "test", null), -1);
+		assertEquals(ArrayUtil.lastIndexOf(array, 7, "test", null), -1);
+	}
+
+	@Test
+	public void testLastIndexOfForBooleanArray() {
+		boolean[] array = { true, false, true, true, false, true, true };
+		assertEquals(ArrayUtil.lastIndexOf(array, 0, false, true, true), 4);
+		assertEquals(ArrayUtil.lastIndexOf(array, 5, false, true, true), -1);
+	}
+
+	@Test
+	public void testLastIndexOfForByteArray() {
+		byte[] array = { 1, -1, 1, 1, -1, 1, 1 };
+		assertEquals(ArrayUtil.lastIndexOf(array, 0, bytes(-1, 1, 1)), 4);
+		assertEquals(ArrayUtil.lastIndexOf(array, 5, bytes(-1, 1, 1)), -1);
+	}
+
+	@Test
+	public void testLastIndexOfForCharArray() {
+		char[] array = { 1, 0xffff, 1, 1, 0xffff, 1, 1 };
+		assertEquals(ArrayUtil.lastIndexOf(array, 0, chars(0xffff, 1, 1)), 4);
+		assertEquals(ArrayUtil.lastIndexOf(array, 5, chars(0xffff, 1, 1)), -1);
+	}
+
+	@Test
+	public void testLastIndexOfForShortArray() {
+		short[] array = { 1, -1, 1, 1, -1, 1, 1 };
+		assertEquals(ArrayUtil.lastIndexOf(array, 0, shorts(-1, 1, 1)), 4);
+		assertEquals(ArrayUtil.lastIndexOf(array, 5, shorts(-1, 1, 1)), -1);
+	}
+
+	@Test
+	public void testLastIndexOfForIntArray() {
+		int[] array = { 1, -1, 1, 1, -1, 1, 1 };
+		assertEquals(ArrayUtil.lastIndexOf(array, 0, -1, 1, 1), 4);
+		assertEquals(ArrayUtil.lastIndexOf(array, 5, -1, 1, 1), -1);
+	}
+
+	@Test
+	public void testLastIndexOfForLongArray() {
+		long[] array = { 1, -1, 1, 1, -1, 1, 1 };
+		assertEquals(ArrayUtil.lastIndexOf(array, 0, -1L, 1L, 1L), 4);
+		assertEquals(ArrayUtil.lastIndexOf(array, 5, -1L, 1L, 1L), -1);
+	}
+
+	@Test
+	public void testLastIndexOfForFloatArray() {
+		float[] array = { 1.1f, -1.1f, 1.1f, 1.1f, -1.1f, 1.1f, 1.1f };
+		assertEquals(ArrayUtil.lastIndexOf(array, 0, -1.1f, 1.1f, 1.1f), 4);
+		assertEquals(ArrayUtil.lastIndexOf(array, 5, -1.1f, 1.1f, 1.1f), -1);
+	}
+
+	@Test
+	public void testLastIndexOfForDoubleArray() {
+		double[] array = { 1.1, -1.1, 1.1, 1.1, -1.1, 1.1, 1.1 };
+		assertEquals(ArrayUtil.lastIndexOf(array, 0, -1.1, 1.1, 1.1), 4);
+		assertEquals(ArrayUtil.lastIndexOf(array, 5, -1.1, 1.1, 1.1), -1);
 	}
 
 	@Test
@@ -620,6 +757,50 @@ public class ArrayUtilTest {
 		assertEquals(ArrayUtil.fill(new long[3], 2, 0, 7), 2);
 		assertEquals(ArrayUtil.fill(new float[3], 3, 0, 7), 3);
 		assertEquals(ArrayUtil.fill(new double[3], 0, 0, 7), 0);
+	}
+
+	@Test
+	public void testAt() {
+		assertEquals(ArrayUtil.at((String[]) null, 0), null);
+		assertEquals(ArrayUtil.at(ArrayUtil.array("a", "b"), -1), null);
+		assertEquals(ArrayUtil.at(ArrayUtil.array("a", "b"), 2), null);
+		assertEquals(ArrayUtil.at(ArrayUtil.array("a", "b"), 1), "b");
+		assertEquals(ArrayUtil.at((String[]) null, 0, "c"), "c");
+		assertEquals(ArrayUtil.at(ArrayUtil.array("a", "b"), -1, "c"), "c");
+		assertEquals(ArrayUtil.at(ArrayUtil.array("a", "b"), 2, "c"), "c");
+		assertEquals(ArrayUtil.at(ArrayUtil.array("a", "b"), 1, "c"), "b");
+		assertEquals(ArrayUtil.at((boolean[]) null, 0, true), true);
+		assertEquals(ArrayUtil.at(ArrayUtil.booleans(false, false), -1, true), true);
+		assertEquals(ArrayUtil.at(ArrayUtil.booleans(false, false), 2, true), true);
+		assertEquals(ArrayUtil.at(ArrayUtil.booleans(false, false), 1, true), false);
+		assertEquals(ArrayUtil.at((byte[]) null, 0, (byte) 0), (byte) 0);
+		assertEquals(ArrayUtil.at(ArrayUtil.bytes(-1, 1), -1, (byte) 0), (byte) 0);
+		assertEquals(ArrayUtil.at(ArrayUtil.bytes(-1, 1), 2, (byte) 0), (byte) 0);
+		assertEquals(ArrayUtil.at(ArrayUtil.bytes(-1, 1), 1, (byte) 0), (byte) 1);
+		assertEquals(ArrayUtil.at((char[]) null, 0, 'c'), 'c');
+		assertEquals(ArrayUtil.at(ArrayUtil.chars('a', 'b'), -1, 'c'), 'c');
+		assertEquals(ArrayUtil.at(ArrayUtil.chars('a', 'b'), 2, 'c'), 'c');
+		assertEquals(ArrayUtil.at(ArrayUtil.chars('a', 'b'), 1, 'c'), 'b');
+		assertEquals(ArrayUtil.at((short[]) null, 0, (short) 0), (short) 0);
+		assertEquals(ArrayUtil.at(ArrayUtil.shorts(-1, 1), -1, (short) 0), (short) 0);
+		assertEquals(ArrayUtil.at(ArrayUtil.shorts(-1, 1), 2, (short) 0), (short) 0);
+		assertEquals(ArrayUtil.at(ArrayUtil.shorts(-1, 1), 1, (short) 0), (short) 1);
+		assertEquals(ArrayUtil.at((int[]) null, 0, 0), 0);
+		assertEquals(ArrayUtil.at(ArrayUtil.ints(-1, 1), -1, 0), 0);
+		assertEquals(ArrayUtil.at(ArrayUtil.ints(-1, 1), 2, 0), 0);
+		assertEquals(ArrayUtil.at(ArrayUtil.ints(-1, 1), 1, 0), 1);
+		assertEquals(ArrayUtil.at((long[]) null, 0, 0), 0L);
+		assertEquals(ArrayUtil.at(ArrayUtil.longs(-1, 1), -1, 0), 0L);
+		assertEquals(ArrayUtil.at(ArrayUtil.longs(-1, 1), 2, 0), 0L);
+		assertEquals(ArrayUtil.at(ArrayUtil.longs(-1, 1), 1, 0), 1L);
+		assertEquals(ArrayUtil.at((float[]) null, 0, 0), 0f);
+		assertEquals(ArrayUtil.at(ArrayUtil.floats(-1, 1), -1, 0), 0f);
+		assertEquals(ArrayUtil.at(ArrayUtil.floats(-1, 1), 2, 0), 0f);
+		assertEquals(ArrayUtil.at(ArrayUtil.floats(-1, 1), 1, 0), 1f);
+		assertEquals(ArrayUtil.at((double[]) null, 0, 0), 0.0);
+		assertEquals(ArrayUtil.at(ArrayUtil.doubles(-1, 1), -1, 0), 0.0);
+		assertEquals(ArrayUtil.at(ArrayUtil.doubles(-1, 1), 2, 0), 0.0);
+		assertEquals(ArrayUtil.at(ArrayUtil.doubles(-1, 1), 1, 0), 1.0);
 	}
 
 	@Test

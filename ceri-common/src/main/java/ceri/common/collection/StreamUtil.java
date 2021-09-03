@@ -37,6 +37,7 @@ import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionToIntFunction;
 import ceri.common.function.FunctionUtil;
 import ceri.common.function.ObjIntFunction;
+import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -144,7 +145,7 @@ public class StreamUtil {
 	 * Filters objects of given type and casts the stream.
 	 */
 	public static <T> Stream<T> castAny(Stream<?> stream, Class<T> cls) {
-		return stream.map(obj -> BasicUtil.castOrNull(cls, obj)).filter(Objects::nonNull);
+		return stream.map(obj -> ReflectUtil.castOrNull(cls, obj)).filter(Objects::nonNull);
 	}
 
 	/**
@@ -189,7 +190,7 @@ public class StreamUtil {
 	 * Make a stream compatible with a for-each loop.
 	 */
 	public static <T> Iterable<T> forEach(Stream<T> stream) {
-		return BasicUtil.forEach(stream.iterator());
+		return CollectionUtil.forEach(stream.iterator());
 	}
 
 	/**

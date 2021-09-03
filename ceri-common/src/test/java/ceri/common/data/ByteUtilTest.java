@@ -10,7 +10,6 @@ import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.provider;
-import static ceri.common.util.BasicUtil.forEach;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,6 +19,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.CollectionUtil;
 import ceri.common.test.Captor;
 
 public class ByteUtilTest {
@@ -32,7 +32,7 @@ public class ByteUtilTest {
 	@Test
 	public void testBitIteratorHigh() {
 		Captor<Boolean> captor = Captor.of();
-		for (boolean b : forEach(ByteUtil.bitIterator(true, provider(0xa9, 0, 0xff))))
+		for (boolean b : CollectionUtil.forEach(ByteUtil.bitIterator(true, provider(0xa9, 0, 0xff))))
 			captor.accept(b);
 		captor.verify(true, false, true, false, true, false, false, true, //
 			false, false, false, false, false, false, false, false, //
@@ -42,7 +42,7 @@ public class ByteUtilTest {
 	@Test
 	public void testBitIteratorLow() {
 		Captor<Boolean> captor = Captor.of();
-		for (boolean b : forEach(ByteUtil.bitIterator(false, provider(0xa9, 0, 0xff))))
+		for (boolean b : CollectionUtil.forEach(ByteUtil.bitIterator(false, provider(0xa9, 0, 0xff))))
 			captor.accept(b);
 		captor.verify(true, false, false, true, false, true, false, true, //
 			false, false, false, false, false, false, false, false, //

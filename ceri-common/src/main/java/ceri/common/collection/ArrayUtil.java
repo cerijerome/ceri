@@ -1032,6 +1032,85 @@ public class ArrayUtil {
 	}
 
 	/**
+	 * Returns value at index, or null if out of range.
+	 */
+	public static <T> T at(T[] array, int i) {
+		return at(array, i, null);
+	}
+
+	/**
+	 * Returns value at index, or default if out of range, or array is null.
+	 */
+	public static <T> T at(T[] array, int i, T def) {
+		if (array == null || i < 0 || i >= array.length) return def;
+		return array[i];
+	}
+
+	/**
+	 * Returns value at index, or default if out of range, or array is null.
+	 */
+	public static boolean at(boolean[] array, int i, boolean def) {
+		if (array == null || i < 0 || i >= array.length) return def;
+		return array[i];
+	}
+
+	/**
+	 * Returns value at index, or default if out of range, or array is null.
+	 */
+	public static byte at(byte[] array, int i, byte def) {
+		if (array == null || i < 0 || i >= array.length) return def;
+		return array[i];
+	}
+
+	/**
+	 * Returns value at index, or default if out of range, or array is null.
+	 */
+	public static char at(char[] array, int i, char def) {
+		if (array == null || i < 0 || i >= array.length) return def;
+		return array[i];
+	}
+
+	/**
+	 * Returns value at index, or default if out of range, or array is null.
+	 */
+	public static short at(short[] array, int i, short def) {
+		if (array == null || i < 0 || i >= array.length) return def;
+		return array[i];
+	}
+
+	/**
+	 * Returns value at index, or default if out of range, or array is null.
+	 */
+	public static int at(int[] array, int i, int def) {
+		if (array == null || i < 0 || i >= array.length) return def;
+		return array[i];
+	}
+
+	/**
+	 * Returns value at index, or default if out of range, or array is null.
+	 */
+	public static long at(long[] array, int i, long def) {
+		if (array == null || i < 0 || i >= array.length) return def;
+		return array[i];
+	}
+
+	/**
+	 * Returns value at index, or default if out of range, or array is null.
+	 */
+	public static float at(float[] array, int i, float def) {
+		if (array == null || i < 0 || i >= array.length) return def;
+		return array[i];
+	}
+
+	/**
+	 * Returns value at index, or default if out of range, or array is null.
+	 */
+	public static double at(double[] array, int i, double def) {
+		if (array == null || i < 0 || i >= array.length) return def;
+		return array[i];
+	}
+
+	/**
 	 * Varargs method for Arrays.deepHashCode().
 	 */
 	public static int deepHash(Object... objs) {
@@ -1491,6 +1570,134 @@ public class ArrayUtil {
 	}
 
 	/**
+	 * Finds the first index of values within the array. Returns -1 if not found.
+	 */
+	@SafeVarargs
+	public static <T> int indexOf(T[] array, int start, T... values) {
+		return indexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the first index of values within the array. Returns -1 if not found.
+	 */
+	public static int indexOf(boolean[] array, int start, boolean... values) {
+		return indexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the first index of values within the array. Returns -1 if not found.
+	 */
+	public static int indexOf(byte[] array, int start, byte... values) {
+		return indexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the first index of values within the array. Returns -1 if not found.
+	 */
+	public static int indexOf(char[] array, int start, char... values) {
+		return indexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the first index of values within the array. Returns -1 if not found.
+	 */
+	public static int indexOf(short[] array, int start, short... values) {
+		return indexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the first index of values within the array. Returns -1 if not found.
+	 */
+	public static int indexOf(int[] array, int start, int... values) {
+		return indexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the first index of values within the array. Returns -1 if not found.
+	 */
+	public static int indexOf(long[] array, int start, long... values) {
+		return indexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the first index of values within the array. Returns -1 if not found.
+	 */
+	public static int indexOf(float[] array, int start, float... values) {
+		return indexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the first index of values within the array. Returns -1 if not found.
+	 */
+	public static int indexOf(double[] array, int start, double... values) {
+		return indexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the last index of values within the array. Returns -1 if not found.
+	 */
+	@SafeVarargs
+	public static <T> int lastIndexOf(T[] array, int start, T... values) {
+		return lastIndexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the last index of values within the array. Returns -1 if not found.
+	 */
+	public static int lastIndexOf(boolean[] array, int start, boolean... values) {
+		return lastIndexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the last index of values within the array. Returns -1 if not found.
+	 */
+	public static int lastIndexOf(byte[] array, int start, byte... values) {
+		return lastIndexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the last index of values within the array. Returns -1 if not found.
+	 */
+	public static int lastIndexOf(char[] array, int start, char... values) {
+		return lastIndexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the last index of values within the array. Returns -1 if not found.
+	 */
+	public static int lastIndexOf(short[] array, int start, short... values) {
+		return lastIndexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the last index of values within the array. Returns -1 if not found.
+	 */
+	public static int lastIndexOf(int[] array, int start, int... values) {
+		return lastIndexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the last index of values within the array. Returns -1 if not found.
+	 */
+	public static int lastIndexOf(long[] array, int start, long... values) {
+		return lastIndexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the last index of values within the array. Returns -1 if not found.
+	 */
+	public static int lastIndexOf(float[] array, int start, float... values) {
+		return lastIndexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
+	 * Finds the last index of values within the array. Returns -1 if not found.
+	 */
+	public static int lastIndexOf(double[] array, int start, double... values) {
+		return lastIndexOf(array, start, array.length, values, values.length, ArrayUtil::equals);
+	}
+
+	/**
 	 * Returns the last element in the array.
 	 */
 	public static <T> T last(T[] array) {
@@ -1572,6 +1779,26 @@ public class ArrayUtil {
 		return obj.getClass().isArray();
 	}
 
+	private static interface ArrayEquals<T> {
+		boolean equals(T lhs, int lhsStart, T rhs, int rhsStart, int len);
+	}
+
+	private static <T> int indexOf(T array, int start, int arrayLen, T values, int valuesLen,
+		ArrayEquals<T> equalsFn) {
+		validateSlice(arrayLen, start, 0);
+		for (int i = start; i <= arrayLen - valuesLen; i++)
+			if (equalsFn.equals(array, i, values, 0, valuesLen)) return i;
+		return -1;
+	}
+
+	private static <T> int lastIndexOf(T array, int start, int arrayLen, T values, int valuesLen,
+		ArrayEquals<T> equalsFn) {
+		validateSlice(arrayLen, start, 0);
+		for (int i = arrayLen - valuesLen; i >= start; i--)
+			if (equalsFn.equals(array, i, values, 0, valuesLen)) return i;
+		return -1;
+	}
+
 	private static interface Appender<T> {
 		void append(StringBuilder b, T a, int i);
 	}
@@ -1605,5 +1832,4 @@ public class ArrayUtil {
 			float[].class, obj -> Arrays.toString((float[]) obj), //
 			double[].class, obj -> Arrays.toString((double[]) obj));
 	}
-
 }

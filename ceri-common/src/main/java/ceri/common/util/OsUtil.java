@@ -43,6 +43,6 @@ public class OsUtil {
 	}
 
 	static boolean propertyIsSet(String name) {
-		return !StringUtil.isBlank(SystemVars.sys(name));
+		return !StringUtil.blank(SystemVars.sys(name));
 	}
 }

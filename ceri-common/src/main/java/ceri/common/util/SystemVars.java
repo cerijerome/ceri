@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import ceri.common.reflect.ReflectUtil;
 
 /**
  * A wrapper for environment variables and system properties, that allows overriding of values.
@@ -14,14 +15,14 @@ public class SystemVars {
 	private SystemVars() {}
 
 	/**
-	 * Gets a override value or environment variable if not set.
+	 * Gets an override value or environment variable if not set.
 	 */
 	public static String env(String name) {
 		return env(name, null);
 	}
 
 	/**
-	 * Gets a override value or environment variable if not set.
+	 * Gets an override value or environment variable if not set.
 	 */
 	public static String env(String name, String def) {
 		if (vars.containsKey(name)) return vars.get(name).orElse(def);
@@ -37,14 +38,14 @@ public class SystemVars {
 	}
 
 	/**
-	 * Gets a override value or system property if not set.
+	 * Gets an override value or system property if not set.
 	 */
 	public static String sys(String name) {
 		return sys(name, null);
 	}
 
 	/**
-	 * Gets a override value or system property if not set.
+	 * Gets an override value or system property if not set.
 	 */
 	public static String sys(String name, String def) {
 		if (vars.containsKey(name)) return vars.get(name).orElse(def);
@@ -58,8 +59,8 @@ public class SystemVars {
 	public static Map<String, String> sys() {
 		Map<String, String> sys = new HashMap<>();
 		System.getProperties().forEach((k, v) -> {
-			String key = BasicUtil.castOrNull(String.class, k);
-			String value = BasicUtil.castOrNull(String.class, v);
+			String key = ReflectUtil.castOrNull(String.class, k);
+			String value = ReflectUtil.castOrNull(String.class, v);
 			if (key != null && value != null) sys.put(key, value);
 		});
 		return addVars(sys);

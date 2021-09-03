@@ -170,15 +170,15 @@ public class StringUtil {
 	 */
 	static String escapeChar(char c) {
 		return switch (c) {
-		case BACKSLASH -> ESCAPED_BACKSLASH;
-		case BACKSPACE -> ESCAPED_BACKSPACE;
-		case ESC -> ESCAPED_ESCAPE;
-		case FF -> ESCAPED_FF;
-		case NL -> ESCAPED_NL;
-		case CR -> ESCAPED_CR;
-		case TAB -> ESCAPED_TAB;
-		case NULL -> ESCAPED_NULL;
-		default -> ESCAPED_UTF16 + toHex(c, SHORT_HEX_DIGITS);
+			case BACKSLASH -> ESCAPED_BACKSLASH;
+			case BACKSPACE -> ESCAPED_BACKSPACE;
+			case ESC -> ESCAPED_ESCAPE;
+			case FF -> ESCAPED_FF;
+			case NL -> ESCAPED_NL;
+			case CR -> ESCAPED_CR;
+			case TAB -> ESCAPED_TAB;
+			case NULL -> ESCAPED_NULL;
+			default -> ESCAPED_UTF16 + toHex(c, SHORT_HEX_DIGITS);
 		};
 	}
 
@@ -195,20 +195,20 @@ public class StringUtil {
 	static char unEscapeChar(String escapedChar) {
 		if (escapedChar == null) return NULL;
 		return switch (escapedChar) {
-		case ESCAPED_BACKSLASH -> BACKSLASH;
-		case ESCAPED_BACKSPACE -> BACKSPACE;
-		case ESCAPED_ESCAPE -> ESC;
-		case ESCAPED_FF -> FF;
-		case ESCAPED_NL -> NL;
-		case ESCAPED_CR -> CR;
-		case ESCAPED_TAB -> TAB;
-		case ESCAPED_NULL -> NULL;
-		default -> {
-			Character c = escaped(escapedChar, ESCAPED_OCTAL, OCTAL_RADIX);
-			if (c == null) c = escaped(escapedChar, ESCAPED_HEX, HEX_RADIX);
-			if (c == null) c = escaped(escapedChar, ESCAPED_UTF16, HEX_RADIX);
-			yield c == null ? NULL : c;
-		}
+			case ESCAPED_BACKSLASH -> BACKSLASH;
+			case ESCAPED_BACKSPACE -> BACKSPACE;
+			case ESCAPED_ESCAPE -> ESC;
+			case ESCAPED_FF -> FF;
+			case ESCAPED_NL -> NL;
+			case ESCAPED_CR -> CR;
+			case ESCAPED_TAB -> TAB;
+			case ESCAPED_NULL -> NULL;
+			default -> {
+				Character c = escaped(escapedChar, ESCAPED_OCTAL, OCTAL_RADIX);
+				if (c == null) c = escaped(escapedChar, ESCAPED_HEX, HEX_RADIX);
+				if (c == null) c = escaped(escapedChar, ESCAPED_UTF16, HEX_RADIX);
+				yield c == null ? NULL : c;
+			}
 		};
 	}
 
@@ -890,10 +890,33 @@ public class StringUtil {
 	}
 
 	/**
-	 * Checks if the given string is null or empty or contains only whitespace.
+	 * Checks if the given string is null or empty. Can be used as a predicate.
 	 */
-	public static boolean isBlank(String str) {
+	public static boolean empty(String str) {
+		return str == null || str.isEmpty();
+	}
+
+	/**
+	 * Checks if the given string is non-null and not empty. Can be used as a predicate.
+	 */
+	public static boolean nonEmpty(String str) {
+		return !empty(str);
+	}
+
+	/**
+	 * Checks if the given string is null or empty or contains only whitespace. Can be used as a
+	 * predicate.
+	 */
+	public static boolean blank(String str) {
 		return str == null || str.isBlank();
+	}
+
+	/**
+	 * Checks if the given string is non-null or not empty and does not only contain whitespace. Can
+	 * be used as a predicate.
+	 */
+	public static boolean nonBlank(String str) {
+		return !blank(str);
 	}
 
 	/**

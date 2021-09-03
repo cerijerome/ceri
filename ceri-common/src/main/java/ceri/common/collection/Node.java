@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.property.PathFactory;
+import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.PrimitiveUtil;
@@ -189,7 +190,7 @@ public class Node<T> {
 	}
 
 	public <U> U asType(Class<U> cls) {
-		return BasicUtil.castOrNull(cls, value);
+		return ReflectUtil.castOrNull(cls, value);
 	}
 
 	@Override

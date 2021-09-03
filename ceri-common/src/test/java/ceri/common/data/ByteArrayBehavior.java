@@ -23,7 +23,7 @@ import ceri.common.data.ByteArray.Encodable;
 import ceri.common.data.ByteArray.Encoder;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteArray.Mutable;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.ReflectUtil;
 
 public class ByteArrayBehavior {
 
@@ -99,7 +99,7 @@ public class ByteArrayBehavior {
 		byte[] bytes = ArrayUtil.bytes(1, 2, 3);
 		Mutable m = Mutable.wrap(bytes);
 		assertArray(m.asImmutable().copy(0), 1, 2, 3);
-		assertNull(BasicUtil.castOrNull(ByteReceiver.class, m.asImmutable()));
+		assertNull(ReflectUtil.castOrNull(ByteReceiver.class, m.asImmutable()));
 		m.setByte(0, -1);
 		assertArray(m.asImmutable().copy(0), -1, 2, 3);
 	}

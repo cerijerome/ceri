@@ -16,7 +16,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.function.ObjIntFunction;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.PrimitiveUtil;
 
 /**
@@ -90,7 +89,7 @@ public class RegexUtil {
 	 * Allows for-each loop over match results.
 	 */
 	public static Iterable<MatchResult> forEach(Pattern pattern, String s) {
-		return BasicUtil.forEach(pattern.matcher(s).results().iterator());
+		return CollectionUtil.forEach(pattern.matcher(s).results().iterator());
 	}
 
 	/**

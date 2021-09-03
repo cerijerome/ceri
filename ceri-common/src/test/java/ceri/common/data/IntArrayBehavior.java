@@ -18,7 +18,7 @@ import ceri.common.data.IntArray.Encodable;
 import ceri.common.data.IntArray.Encoder;
 import ceri.common.data.IntArray.Immutable;
 import ceri.common.data.IntArray.Mutable;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.ReflectUtil;
 
 public class IntArrayBehavior {
 
@@ -93,7 +93,7 @@ public class IntArrayBehavior {
 	public void shouldProvideAnImmutableView() {
 		Mutable m = Mutable.wrap(1, 2, 3);
 		assertArray(m.asImmutable().copy(0), 1, 2, 3);
-		assertNull(BasicUtil.castOrNull(IntReceiver.class, m.asImmutable()));
+		assertNull(ReflectUtil.castOrNull(IntReceiver.class, m.asImmutable()));
 		m.setInt(0, -1);
 		assertArray(m.asImmutable().copy(0), -1, 2, 3);
 	}

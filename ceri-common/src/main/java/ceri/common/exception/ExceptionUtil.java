@@ -73,7 +73,7 @@ public class ExceptionUtil {
 		Throwable t0 = t;
 		while (t != null) {
 			String message = t.getMessage();
-			if (!StringUtil.isBlank(message)) return message;
+			if (!StringUtil.blank(message)) return message;
 			t = t.getCause();
 		}
 		return t0 == null ? null : t0.getClass().getSimpleName();

@@ -410,10 +410,35 @@ public class StringUtilTest {
 	}
 
 	@Test
-	public void testIsBlank() {
-		assertTrue(StringUtil.isBlank((String) null));
-		assertTrue(StringUtil.isBlank(" \t\r\n"));
-		assertFalse(StringUtil.isBlank("  _"));
+	public void testEmpty() {
+		assertTrue(StringUtil.empty((String) null));
+		assertTrue(StringUtil.empty(""));
+		assertFalse(StringUtil.empty(" \t\r\n"));
+		assertFalse(StringUtil.empty("  _"));
+	}
+
+	@Test
+	public void testNonEmpty() {
+		assertFalse(StringUtil.nonEmpty((String) null));
+		assertFalse(StringUtil.nonEmpty(""));
+		assertTrue(StringUtil.nonEmpty(" \t\r\n"));
+		assertTrue(StringUtil.nonEmpty("  _"));
+	}
+
+	@Test
+	public void testBlank() {
+		assertTrue(StringUtil.blank((String) null));
+		assertTrue(StringUtil.blank(""));
+		assertTrue(StringUtil.blank(" \t\r\n"));
+		assertFalse(StringUtil.blank("  _"));
+	}
+
+	@Test
+	public void testNonBlank() {
+		assertFalse(StringUtil.nonBlank((String) null));
+		assertFalse(StringUtil.nonBlank(""));
+		assertFalse(StringUtil.nonBlank(" \t\r\n"));
+		assertTrue(StringUtil.nonBlank("  _"));
 	}
 
 	@Test
