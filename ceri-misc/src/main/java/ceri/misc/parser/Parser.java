@@ -29,7 +29,7 @@ public class Parser {
 	 * Filter that returns true for strings that match the given pattern.
 	 */
 	public Predicate<String> filter(String expression) {
-		if (StringUtil.isBlank(expression)) return Predicates.yes();
+		if (StringUtil.blank(expression)) return Predicates.yes();
 		final Expression exp = parse(expression);
 		if (exp == null) return Predicates.yes();
 		return (exp::matches);

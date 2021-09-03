@@ -60,7 +60,7 @@ public class FixerPropertyParser<K> {
 	public FixerPropertyParser<K> process(Properties properties) {
 		Set<String> missedFields = new HashSet<>();
 		for (String name : properties.stringPropertyNames()) {
-			if (name.startsWith("#") || StringUtil.isBlank(name)) continue;
+			if (name.startsWith("#") || StringUtil.blank(name)) continue;
 			String value = properties.getProperty(name);
 			int i = name.indexOf('.');
 			K key = key(name, i);

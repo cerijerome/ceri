@@ -12,7 +12,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.reflect.TypeToken;
 import ceri.common.property.PathFactory;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.PrimitiveUtil;
 
 public class JsonUtil {
@@ -79,10 +79,10 @@ public class JsonUtil {
 		List<String> parts = PathFactory.dot.split(path);
 		Object value = gsonObject;
 		for (String part : parts) {
-			Map<?, ?> map = BasicUtil.castOrNull(Map.class, value);
+			Map<?, ?> map = ReflectUtil.castOrNull(Map.class, value);
 			if (map != null) value = map.get(part);
 			else {
-				List<?> list = BasicUtil.castOrNull(List.class, value);
+				List<?> list = ReflectUtil.castOrNull(List.class, value);
 				if (list == null) return null;
 				Integer index = PrimitiveUtil.valueOf(part, (Integer) null);
 				if (index == null || list.size() <= index) return null;
@@ -93,20 +93,20 @@ public class JsonUtil {
 	}
 
 	public static String extractString(Object gsonObject, String path) {
-		return BasicUtil.castOrNull(String.class, extract(gsonObject, path));
+		return ReflectUtil.castOrNull(String.class, extract(gsonObject, path));
 	}
 
 	public static Character extractChar(Object gsonObject, String path) {
 		Object obj = extract(gsonObject, path);
-		return PrimitiveUtil.charValue(BasicUtil.castOrNull(String.class, obj));
+		return PrimitiveUtil.charValue(ReflectUtil.castOrNull(String.class, obj));
 	}
 
 	public static Boolean extractBoolean(Object gsonObject, String path) {
 		Object obj = extract(gsonObject, path);
 		if (obj == null) return null;
-		Boolean b = BasicUtil.castOrNull(Boolean.class, obj);
+		Boolean b = ReflectUtil.castOrNull(Boolean.class, obj);
 		if (b != null) return b;
-		return PrimitiveUtil.booleanValue(BasicUtil.castOrNull(String.class, obj));
+		return PrimitiveUtil.booleanValue(ReflectUtil.castOrNull(String.class, obj));
 	}
 
 	public static Byte extractByte(Object gsonObject, String path) {
@@ -137,9 +137,9 @@ public class JsonUtil {
 		Function<Number, T> nFn, Function<String, T> sFn) {
 		Object obj = extract(gsonObject, path);
 		if (obj == null) return null;
-		Number n = BasicUtil.castOrNull(Number.class, obj);
+		Number n = ReflectUtil.castOrNull(Number.class, obj);
 		if (n != null) return nFn.apply(n);
-		return sFn.apply(BasicUtil.castOrNull(String.class, obj));
+		return sFn.apply(ReflectUtil.castOrNull(String.class, obj));
 	}
 
 }

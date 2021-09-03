@@ -21,7 +21,7 @@ public class Job implements Iterable<Event> {
 	public final String name;
 
 	public Job(String name) {
-		if (StringUtil.isBlank(name))
+		if (StringUtil.blank(name))
 			throw new IllegalArgumentException("Name cannot be empty: " + name);
 		this.name = name;
 	}

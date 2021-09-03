@@ -31,7 +31,7 @@ public class Serializer {
 	}
 
 	public Collection<BuildEvent> toBuildEvents(String json) {
-		if (StringUtil.isBlank(json)) return Collections.emptyList();
+		if (StringUtil.blank(json)) return Collections.emptyList();
 		Collection<BuildEvent> gsonBuildEvents = gson.fromJson(json, buildEventCollectionType);
 		Collection<BuildEvent> buildEvents = new ArrayList<>();
 		for (BuildEvent gsonBuildEvent : gsonBuildEvents) {

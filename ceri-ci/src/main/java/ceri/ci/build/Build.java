@@ -15,7 +15,7 @@ public class Build implements Iterable<Job> {
 	public final String name;
 
 	public Build(String name) {
-		if (StringUtil.isBlank(name))
+		if (StringUtil.blank(name))
 			throw new IllegalArgumentException("Name cannot be empty: " + name);
 		this.name = name;
 	}

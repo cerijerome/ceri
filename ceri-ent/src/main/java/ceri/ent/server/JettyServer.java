@@ -14,8 +14,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.webapp.WebAppContext;
 import ceri.common.net.NetUtil;
+import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
-import ceri.common.util.BasicUtil;
 
 /**
  * Base wrapper class for managing a jetty server.
@@ -103,11 +103,11 @@ public class JettyServer implements Closeable {
 	private ServerConnector connector() {
 		Connector[] connectors = server.getConnectors();
 		if (connectors == null || connectors.length == 0) return null;
-		return BasicUtil.castOrNull(ServerConnector.class, connectors[0]);
+		return ReflectUtil.castOrNull(ServerConnector.class, connectors[0]);
 	}
 
 	private WebAppContext context() {
-		return BasicUtil.castOrNull(WebAppContext.class, server.getHandler());
+		return ReflectUtil.castOrNull(WebAppContext.class, server.getHandler());
 	}
 
 }
