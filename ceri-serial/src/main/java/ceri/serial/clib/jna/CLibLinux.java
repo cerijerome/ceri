@@ -1,8 +1,8 @@
 package ceri.serial.clib.jna;
 
-import java.util.List;
 import com.sun.jna.NativeLong;
 import ceri.serial.jna.Struct;
+import ceri.serial.jna.Struct.Fields;
 
 /**
  * Linux-specific C-library constants, types and methods.
@@ -16,11 +16,10 @@ public class CLibLinux {
 	/**
 	 * General terminal interface to control asynchronous communications ports.
 	 */
+	@Fields({ "c_iflag", "c_oflag", "c_cflag", "c_lflag", "c_line", "c_cc", "c_ispeed",
+		"c_ospeed" })
 	public static class termios extends Struct {
-		private static final List<String> FIELDS = List.of( //
-			"c_iflag", "c_oflag", "c_cflag", "c_lflag", "c_line", "c_cc", "c_ispeed", "c_ospeed");
 		private static final int NCCS = 32;
-
 		public NativeLong c_iflag; // input mode flags
 		public NativeLong c_oflag; // output mode flags
 		public NativeLong c_cflag; // control mode flags
@@ -29,11 +28,6 @@ public class CLibLinux {
 		public byte[] c_cc = new byte[NCCS]; // control characters
 		public NativeLong c_ispeed; // input speed
 		public NativeLong c_ospeed; // output speed
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
 	}
 
 	/**

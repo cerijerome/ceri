@@ -19,6 +19,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.reflect.AnnotationUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
@@ -163,6 +164,22 @@ public abstract class Struct extends Structure {
 		if (count == 0) return arrayConstructor.apply(0);
 		if (t != null) return BasicUtil.uncheckedCast(t.toArray(count));
 		throw new IllegalArgumentException("Null pointer but count > 0: " + count);
+	}
+
+	/**
+	 * Returns true if the class implements Structure.ByReference.
+	 */
+	public static boolean isByReference(Class<?> cls) {
+		if (cls == null) return false;
+		return Structure.ByReference.class.isAssignableFrom(cls);
+	}
+
+	/**
+	 * Returns true if the class implements Structure.ByValue.
+	 */
+	public static boolean isByValue(Class<?> cls) {
+		if (cls == null) return false;
+		return Structure.ByValue.class.isAssignableFrom(cls);
 	}
 
 	/**
@@ -333,7 +350,7 @@ public abstract class Struct extends Structure {
 
 	@Override
 	protected List<String> getFieldOrder() {
-		return fields.computeIfAbsent(getClass(), cls -> Struct.annotatedFields(cls));
+		return fields.computeIfAbsent(getClass(), Struct::annotatedFields);
 	}
 
 	@Override
@@ -345,7 +362,7 @@ public abstract class Struct extends Structure {
 		StringBuilder b = new StringBuilder();
 		var p = s.getPointer();
 		var size = p instanceof Memory ? "" : "+" + Integer.toHexString(s.size());
-		format(b, "%s(%s%s) {%n", ReflectUtil.name(s.getClass()), JnaUtil.print(p), size);
+		format(b, "%s(%s%s) {%n", ReflectUtil.name(s.getClass()), JnaArgs.string(p), size);
 		for (String name : s.getFieldOrder()) {
 			Field f = ReflectUtil.publicField(s.getClass(), name);
 			if (f == null) continue;
@@ -370,7 +387,7 @@ public abstract class Struct extends Structure {
 		if (cls == Short.class) return "0x" + StringUtil.toHex((Short) obj);
 		if (cls == Integer.class) return "0x" + StringUtil.toHex((Integer) obj);
 		if (cls == Long.class) return "0x" + StringUtil.toHex((Long) obj);
-		if (Pointer.class.isAssignableFrom(cls)) return JnaUtil.print((Pointer) obj);
+		if (Pointer.class.isAssignableFrom(cls)) return JnaArgs.string((Pointer) obj);
 		if (Struct.class.isAssignableFrom(cls)) return toString((Struct) obj, prefix, maxArray);
 		return String.valueOf(obj);
 	}
@@ -386,11 +403,11 @@ public abstract class Struct extends Structure {
 	}
 
 	private static List<String> annotatedFields(Class<?> cls) {
-		Fields fields = cls.getAnnotation(Fields.class);
-		if (fields != null) return ImmutableUtil.wrapAsList(fields.value());
+		if (isByReference(cls) || isByValue(cls)) cls = cls.getSuperclass();
+		String[] fields = AnnotationUtil.value(cls, Fields.class, Fields::value);
+		if (fields != null) return ImmutableUtil.wrapAsList(fields);
 		throw new IllegalStateException(
 			String.format("@%s({...}) or getFieldOrder() must be declared on %s",
-				Fields.class.getSimpleName(), cls.getSimpleName()));
+				Fields.class.getSimpleName(), ReflectUtil.name(cls)));
 	}
-
 }

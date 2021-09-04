@@ -15,6 +15,13 @@ public class PointerUtil {
 	private PointerUtil() {}
 
 	/**
+	 * Get index i of indirected pointer array. 
+	 */
+	public static Pointer ref(Pointer p, int i) {
+		return p == null ? null : p.getPointer(i * Pointer.SIZE);
+	}
+
+	/**
 	 * Returns the pointer, or null.
 	 */
 	public static Pointer pointer(PointerType type) {

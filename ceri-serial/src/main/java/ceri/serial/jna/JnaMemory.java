@@ -11,7 +11,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteAccessor;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.ReflectUtil;
 import ceri.serial.clib.jna.CUtil;
 
 /**
@@ -115,7 +115,7 @@ public class JnaMemory implements ByteAccessor {
 
 	@Override
 	public int copyTo(int index, ByteReceiver receiver, int offset, int length) {
-		JnaMemory other = BasicUtil.castOrNull(JnaMemory.class, receiver);
+		JnaMemory other = ReflectUtil.castOrNull(JnaMemory.class, receiver);
 		if (other != null) return other.copyFrom(offset, p, offset(index), length);
 		byte[] bytes = copy(index, length);
 		return receiver.copyFrom(offset, bytes);
@@ -180,7 +180,7 @@ public class JnaMemory implements ByteAccessor {
 
 	@Override
 	public int fill(int index, int length, int value) {
-		p.setMemory(offset(index), length, (byte) value);
+		JnaUtil.fill(p, offset(index), length, value);
 		return index + length;
 	}
 
@@ -192,7 +192,7 @@ public class JnaMemory implements ByteAccessor {
 
 	@Override
 	public int copyFrom(int index, ByteProvider provider, int offset, int length) {
-		JnaMemory other = BasicUtil.castOrNull(JnaMemory.class, provider);
+		JnaMemory other = ReflectUtil.castOrNull(JnaMemory.class, provider);
 		if (other != null) return other.copyTo(offset, p, offset(index), length);
 		byte[] bytes = provider.copy(offset, length);
 		return copyFrom(index, bytes);

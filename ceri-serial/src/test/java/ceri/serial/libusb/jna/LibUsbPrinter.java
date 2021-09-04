@@ -33,13 +33,21 @@ public class LibUsbPrinter {
 	private final PrintStream out;
 	private final libusb_log_level logLevel;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws LibUsbException {
+		System.setProperty("jna.debug_load", "true");
+		printenv();
 		var printer = new LibUsbPrinter(System.out, null);
 		run(printer);
 		runTest(printer);
 	}
 
-	public static void runTest(LibUsbPrinter printer) {
+	private static void printenv() {
+		System.getProperties().forEach((k, v) -> System.out.println(k + " = " + v));
+		System.out.println();
+		System.getenv().forEach((k, v) -> System.out.println(k + " = " + v));
+	}
+	
+	public static void runTest(LibUsbPrinter printer) throws LibUsbException {
 		TestLibUsbNative lib = TestLibUsbNative.of();
 		try (var enc = TestLibUsbNative.register(lib)) {
 			LibUsbSampleData.populate(lib.data);
@@ -47,7 +55,7 @@ public class LibUsbPrinter {
 		}
 	}
 
-	public static void run(LibUsbPrinter printer) {
+	public static void run(LibUsbPrinter printer) throws LibUsbException {
 		printer.print();
 	}
 
@@ -56,7 +64,7 @@ public class LibUsbPrinter {
 		this.logLevel = logLevel;
 	}
 
-	public void print() {
+	public void print() throws LibUsbException {
 		String pre = "";
 		libusb_context ctx = null;
 		try {
@@ -67,11 +75,12 @@ public class LibUsbPrinter {
 		} catch (Exception e) {
 			logger.catching(e);
 		} finally {
+			printenv();
 			if (ctx != null) LibUsb.libusb_exit(ctx);
 		}
 	}
 
-	private void version(String pre) {
+	private void version(String pre) throws LibUsbException {
 		libusb_version v = LibUsb.libusb_get_version();
 		out.printf("%s: [%s]%n", pre, name(v));
 		out.printf("%s: version=%d.%d.%d.%d%n", pre, v.major, v.minor, v.micro, v.nano);

@@ -45,5 +45,5 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-// gcc symbols.c -o symbols; chmod a+x ./symbols; ./symbols 1
+// gcc -I<header-include-path> symbols.c -o symbols; chmod a+x ./symbols; ./symbols 1
 

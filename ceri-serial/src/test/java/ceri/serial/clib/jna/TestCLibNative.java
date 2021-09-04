@@ -15,8 +15,6 @@ import ceri.common.data.ByteProvider;
 import ceri.common.test.CallSync;
 import ceri.common.util.Enclosed;
 import ceri.serial.clib.jna.Errors.Type;
-import ceri.serial.clib.jna.Size.size_t;
-import ceri.serial.clib.jna.Size.ssize_t;
 import ceri.serial.jna.JnaUtil;
 
 public class TestCLibNative implements CLibNative {
@@ -90,7 +88,7 @@ public class TestCLibNative implements CLibNative {
 	}
 
 	@Override
-	public Size.ssize_t read(int fd, Pointer buffer, size_t len) throws LastErrorException {
+	public ssize_t read(int fd, Pointer buffer, size_t len) throws LastErrorException {
 		ByteProvider data = read.apply(List.of(fd(fd), len.intValue()));
 		if (data == null || data.length() == 0) return new ssize_t(0);
 		JnaUtil.write(buffer, data.copy(0));

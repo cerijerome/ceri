@@ -59,8 +59,7 @@ public class CommPortIdentifier {
 
 	private CommPort commPort(purejavacomm.CommPort commPort) {
 		if (commPort == null) return null;
-		if (commPort instanceof purejavacomm.SerialPort)
-			return new SerialPort((purejavacomm.SerialPort) commPort);
+		if (commPort instanceof purejavacomm.SerialPort p) return new SerialPort(p);
 		throw new UnsupportedOperationException(
 			"Unsupported comm port type: " + commPort.getClass());
 	}

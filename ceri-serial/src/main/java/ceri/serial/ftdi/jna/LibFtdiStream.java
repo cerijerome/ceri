@@ -13,13 +13,11 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPORTED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED;
 import static java.lang.Math.min;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Callback;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import com.sun.jna.Structure;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntField;
 import ceri.log.util.LogUtil;
@@ -30,9 +28,11 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 import ceri.serial.ftdi.jna.LibFtdi.size_and_time;
 import ceri.serial.jna.Struct;
+import ceri.serial.jna.Struct.Fields;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_cb_fn;
+import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class LibFtdiStream {
@@ -42,33 +42,14 @@ public class LibFtdiStream {
 	private static final libusb_transfer_cb_fn ftdi_read_stream_cb =
 		LibFtdiStream::ftdi_read_stream_cb;
 
+	@Fields({ "first", "prev", "current", "totalTime", "totalRate", "currentRate" })
 	public static class ftdi_progress_info extends Struct {
-		private static final List<String> FIELDS = List.of( //
-			"first", "prev", "current", "totalTime", "totalRate", "currentRate");
-
-		public static class ByValue extends ftdi_progress_info //
-			implements Structure.ByValue {}
-
-		public static class ByReference extends ftdi_progress_info //
-			implements Structure.ByReference {}
-
 		public size_and_time first;
 		public size_and_time prev;
 		public size_and_time current;
 		public double totalTime;
 		public double totalRate;
 		public double currentRate;
-
-		public ftdi_progress_info() {}
-
-		public ftdi_progress_info(Pointer p) {
-			super(p);
-		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
 	}
 
 	// typedef int (FTDIStreamCallback)(uint8_t *buffer, int length, FTDIProgressInfo *progress,
@@ -78,21 +59,20 @@ public class LibFtdiStream {
 			throws LibUsbException;
 	}
 
+	@Fields({ "callback", "userdata", "packetsize", "activity", "result", "progress" })
 	public static class ftdi_stream_state extends Struct {
-		private static final List<String> FIELDS = List.of( //
-			"callback", "userdata", "packetsize", "activity", "result", "progress");
 		private static final IntField.Typed<ftdi_stream_state> resultAccessor =
 			IntField.typed(t -> t.result, (t, i) -> t.result = i);
-
-		public static class ByValue extends ftdi_stream_state //
-			implements Structure.ByValue {}
-
-		public static class ByReference extends ftdi_stream_state //
-			implements Structure.ByReference {}
+		public ftdi_stream_cb callback;
+		public Pointer userdata;
+		public int packetsize;
+		public int activity;
+		public int result;
+		public ftdi_progress_info progress;
 
 		public static ftdi_stream_state of(ftdi_stream_cb callback, Pointer userdata,
 			int packetsize, int activity) {
-			ftdi_stream_state state = new ftdi_stream_state();
+			ftdi_stream_state state = new ftdi_stream_state(null);
 			state.callback = callback;
 			state.userdata = userdata;
 			state.packetsize = packetsize;
@@ -101,26 +81,12 @@ public class LibFtdiStream {
 			return state;
 		}
 
-		public ftdi_stream_cb callback;
-		public Pointer userdata;
-		public int packetsize;
-		public int activity;
-		public int result;
-		public ftdi_progress_info progress;
-
-		public ftdi_stream_state() {}
-
 		public ftdi_stream_state(Pointer p) {
 			super(p);
 		}
 
 		public FieldTranscoder<libusb_error> result() {
 			return libusb_error.xcoder.field(resultAccessor.from(this));
-		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
 		}
 	}
 
@@ -141,7 +107,8 @@ public class LibFtdiStream {
 		ftdi_set_bitmode(ftdi, 0xff, ftdi_mpsse_mode.BITMODE_SYNCFF);
 		Time.gettimeofday(state.progress.first.time);
 		completeStreamEvents(ftdi, state);
-		LibUsbException.verify(state.result, "ftdi_read_stream failed");
+		LibUsb.caller.verifyInt(state.result, "ftdi_read_stream",
+			ftdi, callback, userdata, packetsPerTransfer, numTransfers);
 	}
 
 	/**
@@ -197,7 +164,7 @@ public class LibFtdiStream {
 		state.activity = 0;
 		// If enough time has elapsed, update the progress
 		ftdi_progress_info progress = state.progress;
-		timeval now = timeval.now();
+		timeval now = Time.gettimeofday();
 		if (timeDiffSec(now, progress.current.time) < PROGRESS_INTERVAL_MIN_SEC) return;
 		updateProgress(progress, now);
 		state.callback.invoke(null, 0, progress, state.userdata);
@@ -239,9 +206,15 @@ public class LibFtdiStream {
 			int len = min(transfer.actual_length - position, state.packetsize - READ_STATUS_BYTES);
 			if (len <= 0) break;
 			state.progress.current.totalBytes += len;
-			LibUsbException.verify(state.callback.invoke(transfer.buffer.share(position), //
-				len, null, state.userdata), "Stream read callback invocation");
+			streamCallback(state.callback, transfer.buffer.share(position), len, null,
+				state.userdata);
 		}
+	}
+
+	private static void streamCallback(ftdi_stream_cb callback, Pointer buffer, int length,
+		ftdi_progress_info progress, Pointer userdata) throws LibUsbException {
+		LibUsb.caller.verifyInt(() -> callback.invoke(buffer, length, progress, userdata),
+			"ftdi_stream_cb", buffer, length, progress, userdata);
 	}
 
 	private static void close(libusb_transfer transfer, ftdi_stream_state state, int code) {

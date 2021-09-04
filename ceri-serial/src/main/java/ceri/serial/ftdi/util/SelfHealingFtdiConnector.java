@@ -14,7 +14,7 @@ import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.StateChange;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.ReflectUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.FtdiFlowControl;
@@ -116,7 +116,7 @@ public class SelfHealingFtdiConnector extends LoopingExecutor implements FtdiCon
 	 */
 	public static boolean isBroken(Exception e) {
 		if (e == null) return false;
-		return Ftdi.isFatal(BasicUtil.castOrNull(LibUsbException.class, e));
+		return Ftdi.isFatal(ReflectUtil.castOrNull(LibUsbException.class, e));
 	}
 
 	@Override

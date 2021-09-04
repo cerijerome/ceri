@@ -8,12 +8,11 @@ import ceri.common.io.IoUtil;
 import ceri.common.io.StreamNotSetException;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.OsUtil;
+import ceri.serial.clib.jna.CLib;
 import ceri.serial.clib.jna.CLibLinux;
 import ceri.serial.clib.jna.CLibMac;
 import ceri.serial.clib.jna.CUtil;
-import ceri.serial.clib.jna.Ioctls;
 import purejavacomm.PureJavaIllegalStateException;
 import purejavacomm.PureJavaSerialPort;
 
@@ -133,7 +132,7 @@ public class SerialPort extends CommPort {
 	 */
 	public void setBreakBit() throws IOException {
 		CUtil.validateFd(fd);
-		Ioctls.tiocsbrk(fd);
+		CLib.tiocsbrk(fd);
 	}
 
 	/**
@@ -141,7 +140,7 @@ public class SerialPort extends CommPort {
 	 */
 	public void clearBreakBit() throws IOException {
 		CUtil.validateFd(fd);
-		Ioctls.tioccbrk(fd);
+		CLib.tioccbrk(fd);
 	}
 
 	public int fd() {
@@ -149,7 +148,7 @@ public class SerialPort extends CommPort {
 	}
 
 	private boolean isIncorrectBaudRate(int baud) throws IOException {
-		if (!CUtil.isValidFd(fd)) return false;
+		if (!CUtil.validFd(fd)) return false;
 		return baud(fd) != baud;
 	}
 
@@ -165,7 +164,7 @@ public class SerialPort extends CommPort {
 	}
 
 	private static int fd(purejavacomm.SerialPort port) {
-		PureJavaSerialPort pure = BasicUtil.castOrNull(PureJavaSerialPort.class, port);
+		PureJavaSerialPort pure = ReflectUtil.castOrNull(PureJavaSerialPort.class, port);
 		if (pure == null) return CUtil.INVALID_FD;
 		return pure.getNativeFileDescriptor();
 	}

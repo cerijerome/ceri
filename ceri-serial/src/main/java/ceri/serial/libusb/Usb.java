@@ -39,7 +39,7 @@ public class Usb implements Closeable {
 	private final UsbHotplug hotplug;
 	private libusb_context context;
 
-	public static UsbLibVersion version() {
+	public static UsbLibVersion version() throws LibUsbException {
 		return new UsbLibVersion(libusb_get_version());
 	}
 

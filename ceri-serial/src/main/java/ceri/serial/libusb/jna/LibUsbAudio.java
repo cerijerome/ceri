@@ -1,22 +1,10 @@
 package ceri.serial.libusb.jna;
 
 import static ceri.common.math.MathUtil.ubyte;
-import static ceri.serial.libusb.jna.LibUsbAudio.audio_control_interface_desc_subtype.ASSOC_INTERFACE;
-import static ceri.serial.libusb.jna.LibUsbAudio.audio_control_interface_desc_subtype.FEATURE_UNIT;
-import static ceri.serial.libusb.jna.LibUsbAudio.audio_control_interface_desc_subtype.HEADER;
-import static ceri.serial.libusb.jna.LibUsbAudio.audio_control_interface_desc_subtype.INPUT_TERMINAL;
-import static ceri.serial.libusb.jna.LibUsbAudio.audio_control_interface_desc_subtype.MIXER_UNIT;
-import static ceri.serial.libusb.jna.LibUsbAudio.audio_control_interface_desc_subtype.OUTPUT_TERMINAL;
-import static ceri.serial.libusb.jna.LibUsbAudio.audio_control_interface_desc_subtype.PROCESSING_UNIT;
-import static ceri.serial.libusb.jna.LibUsbAudio.audio_control_interface_desc_subtype.SELECTOR_UNIT;
-import static ceri.serial.libusb.jna.LibUsbAudio.audio_descriptor_type.CS_ENDPOINT;
-import static ceri.serial.libusb.jna.LibUsbAudio.audio_descriptor_type.CS_INTERFACE;
-import static ceri.serial.libusb.jna.LibUsbAudio.audio_endpoint_desc_subtype.EP_GENERAL;
-import static ceri.serial.libusb.jna.LibUsbAudio.audio_streaming_interface_desc_subtype.AS_GENERAL;
 import static java.lang.Math.max;
-import java.util.List;
 import ceri.common.data.TypeTranscoder;
 import ceri.serial.jna.Struct;
+import ceri.serial.jna.Struct.Fields;
 import ceri.serial.jna.VarStruct;
 
 /**
@@ -28,7 +16,7 @@ public class LibUsbAudio {
 	public static final int PR_PROTOCOL_UNDEFINED = 0x00;
 
 	private LibUsbAudio() {}
-	
+
 	/***
 	 * Section A.2.
 	 */
@@ -378,8 +366,8 @@ public class LibUsbAudio {
 	/**
 	 * Status interrupt endpoint data. Section 3.7.1.2.
 	 */
+	@Fields({ "bStatusType", "bOriginator" })
 	public static class audio_interrupt_data extends Struct {
-		private static final List<String> FIELDS = List.of("bStatusType", "bOriginator");
 		private static final int INTERRUPT_PENDING_MASK = 0x80;
 		private static final int MEMORY_CONTENTS_CHANGED_MASK = 0x40;
 		private static final int ORIGINATOR_MASK = 0x0f;
@@ -396,11 +384,6 @@ public class LibUsbAudio {
 
 		public audio_originator originatorType() {
 			return audio_originator.xcoder.decode(bStatusType & ORIGINATOR_MASK);
-		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
 		}
 	}
 
@@ -436,13 +419,13 @@ public class LibUsbAudio {
 	/**
 	 * Section 4.3.2.
 	 */
+	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bcdADC", "wTotalLength",
+		"bInCollection", "baInterfaceNr" })
 	public static class audio_control_header_descriptor extends Struct {
-		private static final List<String> FIELDS = List.of("bLength", "bDescriptorType",
-			"bDescriptorSubtype", "bcdADC", "wTotalLength", "bInCollection", "baInterfaceNr");
 		public static final int BASE_LENGTH = 8;
 		public byte bLength; // 8+n
-		public byte bDescriptorType = (byte) CS_INTERFACE.value;
-		public byte bDescriptorSubtype = (byte) HEADER.value;
+		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
+		public byte bDescriptorSubtype = (byte) audio_control_interface_desc_subtype.HEADER.value;
 		public short bcdADC; //
 		public short wTotalLength;
 		public byte bInCollection;
@@ -454,11 +437,6 @@ public class LibUsbAudio {
 			return super.readField(structField);
 		}
 
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
-
 		private int n() {
 			return ubyte(bInCollection);
 		}
@@ -467,14 +445,14 @@ public class LibUsbAudio {
 	/**
 	 * Section 4.3.2.1.
 	 */
+	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bTerminalID", "wTerminalType",
+		"bAssocTerminal", "bNrChannels", "wChannelConfig", "iChannelNames", "iTerminal" })
 	public static class audio_input_term_descriptor extends Struct {
-		private static final List<String> FIELDS = List.of("bLength", "bDescriptorType",
-			"bDescriptorSubtype", "bTerminalID", "wTerminalType", "bAssocTerminal", "bNrChannels",
-			"wChannelConfig", "iChannelNames", "iTerminal");
 		public static final int LENGTH = 12;
 		public byte bLength = LENGTH;
-		public byte bDescriptorType = (byte) CS_INTERFACE.value;
-		public byte bDescriptorSubtype = (byte) INPUT_TERMINAL.value;
+		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
+		public byte bDescriptorSubtype =
+			(byte) audio_control_interface_desc_subtype.INPUT_TERMINAL.value;
 		public byte bTerminalID;
 		public short wTerminalType;
 		public byte bAssocTerminal;
@@ -482,47 +460,37 @@ public class LibUsbAudio {
 		public short wChannelConfig; // audio_spatial_location
 		public byte iChannelNames;
 		public byte iTerminal;
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
 	}
 
 	/**
 	 * Section 4.3.2.2.
 	 */
+	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bTerminalID", "wTerminalType",
+		"bAssocTerminal", "bSourceID", "iTerminal" })
 	public static class audio_output_term_descriptor extends Struct {
-		private static final List<String> FIELDS =
-			List.of("bLength", "bDescriptorType", "bDescriptorSubtype", "bTerminalID",
-				"wTerminalType", "bAssocTerminal", "bSourceID", "iTerminal");
 		public static final int LENGTH = 9;
 		public byte bLength = LENGTH;
-		public byte bDescriptorType = (byte) CS_INTERFACE.value;
-		public byte bDescriptorSubtype = (byte) OUTPUT_TERMINAL.value;
+		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
+		public byte bDescriptorSubtype =
+			(byte) audio_control_interface_desc_subtype.OUTPUT_TERMINAL.value;
 		public byte bTerminalID;
 		public short wTerminalType; // terminal type class code
 		public byte bAssocTerminal;
 		public byte bSourceID;
 		public byte iTerminal;
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
 	}
 
 	/**
 	 * Section 4.3.2.3.
 	 */
+	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bUnitID", "bNrInPins",
+		"baSourceID", "brChannels", "wChannelConfig", "iChannelNames", "bmControls", "iMixer" })
 	public static class audio_mixer_unit_descriptor extends Struct {
-		private static final List<String> FIELDS = List.of("bLength", "bDescriptorType",
-			"bDescriptorSubtype", "bUnitID", "bNrInPins", "baSourceID", "brChannels",
-			"wChannelConfig", "iChannelNames", "bmControls", "iMixer");
 		public static final int BASE_LENGTH = 10;
 		public byte bLength; // 10+p+n
-		public byte bDescriptorType = (byte) CS_INTERFACE.value;
-		public byte bDescriptorSubtype = (byte) MIXER_UNIT.value;
+		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
+		public byte bDescriptorSubtype =
+			(byte) audio_control_interface_desc_subtype.MIXER_UNIT.value;
 		public byte bUnitID; //
 		public byte bNrInPins; // p
 		public byte[] baSourceID; // [p]
@@ -539,11 +507,6 @@ public class LibUsbAudio {
 			return super.readField(structField);
 		}
 
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
-
 		private int p() {
 			return ubyte(bNrInPins);
 		}
@@ -556,13 +519,14 @@ public class LibUsbAudio {
 	/**
 	 * Section 4.3.2.4.
 	 */
+	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bUnitID", "bNrInPins",
+		"baSourceID", "iSelector" })
 	public static class audio_selector_unit_descriptor extends Struct {
-		private static final List<String> FIELDS = List.of("bLength", "bDescriptorType",
-			"bDescriptorSubtype", "bUnitID", "bNrInPins", "baSourceID", "iSelector");
 		public static final int BASE_LENGTH = 6;
 		public byte bLength; // 6+p
-		public byte bDescriptorType = (byte) CS_INTERFACE.value;
-		public byte bDescriptorSubtype = (byte) SELECTOR_UNIT.value;
+		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
+		public byte bDescriptorSubtype =
+			(byte) audio_control_interface_desc_subtype.SELECTOR_UNIT.value;
 		public byte bUnitID;
 		public byte bNrInPins; // p
 		public byte[] baSourceID; // [p]
@@ -574,11 +538,6 @@ public class LibUsbAudio {
 			return super.readField(structField);
 		}
 
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
-
 		private int p() {
 			return ubyte(bNrInPins);
 		}
@@ -587,14 +546,14 @@ public class LibUsbAudio {
 	/**
 	 * Section 4.3.2.5.
 	 */
+	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bUnitID", "bSourceID",
+		"bControlSize", "bmaControls", "iFeature" })
 	public static class audio_feat_unit_descriptor extends Struct {
-		private static final List<String> FIELDS =
-			List.of("bLength", "bDescriptorType", "bDescriptorSubtype", "bUnitID", "bSourceID",
-				"bControlSize", "bmaControls", "iFeature");
 		public static final int BASE_LENGTH = 7;
 		public byte bLength; // 7+(ch+1)*n
-		public byte bDescriptorType = (byte) CS_INTERFACE.value;
-		public byte bDescriptorSubtype = (byte) FEATURE_UNIT.value;
+		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
+		public byte bDescriptorSubtype =
+			(byte) audio_control_interface_desc_subtype.FEATURE_UNIT.value;
 		public byte bUnitID;
 		public byte bSourceID;
 		public byte bControlSize; // n
@@ -612,11 +571,6 @@ public class LibUsbAudio {
 			return super.readField(structField);
 		}
 
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
-
 		private int n() {
 			return ubyte(bControlSize);
 		}
@@ -630,15 +584,15 @@ public class LibUsbAudio {
 	 * General processing unit descriptor. Section 4.3.2.6, 4.3.2.6.3, 4.3.2.6.4, 4.3.2.6.5,
 	 * 4.3.2.6.6.
 	 */
+	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bUnitID", "wProcessType",
+		"bNrInPins", "baSourceID", "bNrChannels", "wChannelConfig", "iChannelNames", "bControlSize",
+		"bmControls", "iProcessing", "extra" })
 	public static class audio_proc_unit_descriptor extends VarStruct {
-		private static final List<String> FIELDS =
-			List.of("bLength", "bDescriptorType", "bDescriptorSubtype", "bUnitID", "wProcessType",
-				"bNrInPins", "baSourceID", "bNrChannels", "wChannelConfig", "iChannelNames",
-				"bControlSize", "bmControls", "iProcessing", "extra");
 		public static final int BASE_LENGTH = 13;
 		public byte bLength; // 13+p+n+x
-		public byte bDescriptorType = (byte) CS_INTERFACE.value;
-		public byte bDescriptorSubtype = (byte) PROCESSING_UNIT.value;
+		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
+		public byte bDescriptorSubtype =
+			(byte) audio_control_interface_desc_subtype.PROCESSING_UNIT.value;
 		public byte bUnitID; //
 		public short wProcessType; // audio_processing_unit_process_type
 		public byte bNrInPins; // p
@@ -675,25 +629,20 @@ public class LibUsbAudio {
 		protected int varCount() {
 			return ubyte(bLength) - BASE_LENGTH - p() - n();
 		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
 	}
 
 	/**
 	 * Covers up/down-mix and Dolby Prologic descriptors. Section 4.3.2.6.1, 4.3.2.6.2.
 	 */
+	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bUnitID", "wProcessType",
+		"bNrInPins", "bSourceID", "bNrChannels", "wChannelConfig", "iChannelNames", "bControlSize",
+		"bmControls", "iProcessing", "bNrModes", "waModes" })
 	public static class audio_mode_proc_unit_descriptor extends Struct {
-		private static final List<String> FIELDS =
-			List.of("bLength", "bDescriptorType", "bDescriptorSubtype", "bUnitID", "wProcessType",
-				"bNrInPins", "bSourceID", "bNrChannels", "wChannelConfig", "iChannelNames",
-				"bControlSize", "bmControls", "iProcessing", "bNrModes", "waModes");
 		public static final int BASE_LENGTH = 15;
 		public byte bLength; // 15+n+2*m
-		public byte bDescriptorType = (byte) CS_INTERFACE.value;
-		public byte bDescriptorSubtype = (byte) PROCESSING_UNIT.value;
+		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
+		public byte bDescriptorSubtype =
+			(byte) audio_control_interface_desc_subtype.PROCESSING_UNIT.value;
 		public byte bUnitID;
 		public short wProcessType; // UPDOWNMIX_PROCESS/DOLBY_PROLOGIC_PROCESS
 		public byte bNrInPins = 1; // p
@@ -714,11 +663,6 @@ public class LibUsbAudio {
 			return super.readField(structField);
 		}
 
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
-
 		private int n() {
 			return ubyte(bControlSize);
 		}
@@ -731,15 +675,15 @@ public class LibUsbAudio {
 	/**
 	 * Section 4.3.2.7.
 	 */
+	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bUnitID", "wExtensionCode",
+		"bNrInPins", "baSourceID", "bNrChannels", "wChannelConfig", "iChannelNames", "bControlSize",
+		"bmControls", "iExtension" })
 	public static class audio_ext_unit_descriptor extends Struct {
-		private static final List<String> FIELDS =
-			List.of("bLength", "bDescriptorType", "bDescriptorSubtype", "bUnitID", "wExtensionCode",
-				"bNrInPins", "baSourceID", "bNrChannels", "wChannelConfig", "iChannelNames",
-				"bControlSize", "bmControls", "iExtension");
 		public static final int BASE_LENGTH = 13;
 		public byte bLength; // 13+p+n+x
-		public byte bDescriptorType = (byte) CS_INTERFACE.value;
-		public byte bDescriptorSubtype = (byte) PROCESSING_UNIT.value;
+		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
+		public byte bDescriptorSubtype =
+			(byte) audio_control_interface_desc_subtype.PROCESSING_UNIT.value;
 		public byte bUnitID; //
 		public short wExtensionCode; // vendor-specific
 		public byte bNrInPins; // p
@@ -758,11 +702,6 @@ public class LibUsbAudio {
 			return super.readField(structField);
 		}
 
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
-
 		private int p() {
 			return ubyte(bNrInPins);
 		}
@@ -775,13 +714,13 @@ public class LibUsbAudio {
 	/**
 	 * Section 4.3.2.8.
 	 */
+	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bInterfaceNr", "extra" })
 	public static class audio_assoc_interface_descriptor extends Struct {
-		private static final List<String> FIELDS =
-			List.of("bLength", "bDescriptorType", "bDescriptorSubtype", "bInterfaceNr", "extra");
 		public static final int BASE_LENGTH = 4;
 		public byte bLength; // 13+p+n+x
-		public byte bDescriptorType = (byte) CS_INTERFACE.value;
-		public byte bDescriptorSubtype = (byte) ASSOC_INTERFACE.value;
+		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
+		public byte bDescriptorSubtype =
+			(byte) audio_control_interface_desc_subtype.ASSOC_INTERFACE.value;
 		public byte bInterfaceNr;
 		public byte[] extra; // association-specific number
 
@@ -789,11 +728,6 @@ public class LibUsbAudio {
 		protected Object readField(StructField structField) {
 			if (structField.name.equals("extra")) extra = new byte[x()];
 			return super.readField(structField);
-		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
 		}
 
 		private int x() {
@@ -804,41 +738,31 @@ public class LibUsbAudio {
 	/**
 	 * Section 4.5.2.
 	 */
+	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bTerminalLink", "bDelay",
+		"wFormatTag" })
 	public static class audio_streaming_interface_descriptor extends Struct {
-		private static final List<String> FIELDS = List.of("bLength", "bDescriptorType",
-			"bDescriptorSubtype", "bTerminalLink", "bDelay", "wFormatTag");
 		public static final int LENGTH = 7;
 		public byte bLength = LENGTH;
-		public byte bDescriptorType = (byte) CS_INTERFACE.value;
-		public byte bDescriptorSubtype = (byte) AS_GENERAL.value;
+		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
+		public byte bDescriptorSubtype =
+			(byte) audio_streaming_interface_desc_subtype.AS_GENERAL.value;
 		public byte bTerminalLink;
 		public byte bDelay;
 		public short wFormatTag;
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
 	}
 
 	/**
 	 * Section 4.6.1.2.
 	 */
+	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bmAttributes", "bLockDelayUnits",
+		"wLockDelay" })
 	public static class audio_streaming_iso_endpoint_descriptor extends Struct {
-		private static final List<String> FIELDS = List.of("bLength", "bDescriptorType",
-			"bDescriptorSubtype", "bmAttributes", "bLockDelayUnits", "wLockDelay");
 		public static final int LENGTH = 7;
 		public byte bLength = LENGTH;
-		public byte bDescriptorType = (byte) CS_ENDPOINT.value;
-		public byte bDescriptorSubtype = (byte) EP_GENERAL.value;
+		public byte bDescriptorType = (byte) audio_descriptor_type.CS_ENDPOINT.value;
+		public byte bDescriptorSubtype = (byte) audio_endpoint_desc_subtype.EP_GENERAL.value;
 		public byte bmAttributes;
 		public byte bLockDelayUnits;
 		public short wLockDelay;
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
 	}
-
 }

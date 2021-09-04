@@ -1,11 +1,11 @@
 package ceri.serial.clib.jna;
 
-import java.util.List;
 import java.util.function.IntFunction;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.serial.jna.Struct;
+import ceri.serial.jna.Struct.Fields;
 
 public class StructArraySpeedTester {
 	private static final int S_BYTES = 1;
@@ -37,93 +37,48 @@ public class StructArraySpeedTester {
 		return System.currentTimeMillis() - t0;
 	}
 
+	@Fields({ "f0", "f1", "f2", "f3", "f4" })
 	public static class Small extends Struct {
-		private static final List<String> FIELDS = List.of("f0", "f1", "f2", "f3", "f4");
-
-		public static class ByValue extends Small implements Structure.ByValue {}
-
-		public static class ByReference extends Small implements Structure.ByReference {}
-
 		public byte[] f0 = new byte[S_BYTES];
 		public short f1;
 		public int f2;
 		public NativeLong f3;
 		public Pointer f4;
 
-		public Small() {}
-
-		public Small(Pointer p) {
-			super(p);
-			read();
-		}
+		public static class ByReference extends Small implements Structure.ByReference {}
 
 		public static ByReference[] array(int count) {
 			return arrayByVal(ByReference::new, ByReference[]::new, count);
 		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
 	}
 
+	@Fields({ "f0", "f1", "f2", "f3", "f4" })
 	public static class Medium extends Struct {
-		private static final List<String> FIELDS = List.of("f0", "f1", "f2", "f3", "f4");
-
-		public static class ByValue extends Medium implements Structure.ByValue {}
-
-		public static class ByReference extends Medium implements Structure.ByReference {}
-
 		public byte[] f0 = new byte[M_BYTES];
 		public short f1;
 		public int f2;
 		public NativeLong f3;
 		public Pointer f4;
 
-		public Medium() {}
-
-		public Medium(Pointer p) {
-			super(p);
-			read();
-		}
+		public static class ByReference extends Medium implements Structure.ByReference {}
 
 		public static ByReference[] array(int count) {
 			return arrayByVal(ByReference::new, ByReference[]::new, count);
 		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
 	}
 
+	@Fields({ "f0", "f1", "f2", "f3", "f4" })
 	public static class Large extends Struct {
-		private static final List<String> FIELDS = List.of("f0", "f1", "f2", "f3", "f4");
-
-		public static class ByValue extends Large implements Structure.ByValue {}
-
-		public static class ByReference extends Large implements Structure.ByReference {}
-
 		public byte[] f0 = new byte[L_BYTES];
 		public short f1;
 		public int f2;
 		public NativeLong f3;
 		public Pointer f4;
 
-		public Large() {}
-
-		public Large(Pointer p) {
-			super(p);
-			read();
-		}
+		public static class ByReference extends Large implements Structure.ByReference {}
 
 		public static ByReference[] array(int count) {
 			return arrayByVal(ByReference::new, ByReference[]::new, count);
-		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
 		}
 	}
 

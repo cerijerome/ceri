@@ -3,7 +3,6 @@ package ceri.serial.ftdi.jna;
 import static ceri.common.collection.ImmutableUtil.enumSet;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.validation.ValidationUtil.validateRange;
-import static ceri.serial.clib.jna.CException.capture;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_BM;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_interface.INTERFACE_A;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_interface.INTERFACE_ANY;
@@ -67,9 +66,11 @@ import ceri.common.data.BooleanAccessor;
 import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntField;
 import ceri.common.data.TypeTranscoder;
+import ceri.serial.clib.jna.CException;
 import ceri.serial.clib.jna.Time.timeval;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.Struct;
+import ceri.serial.jna.Struct.Fields;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
@@ -332,12 +333,11 @@ public class LibFtdi {
 		}
 	}
 
+	@Fields({ "usb_ctx", "usb_dev", "usb_read_timeout", "usb_write_timeout", "type", "baudrate",
+		"bitbang_enabled", "readbuffer", "readbuffer_offset", "readbuffer_remaining",
+		"readbuffer_chunksize", "writebuffer_chunksize", "max_packet_size", "iface", "index",
+		"in_ep", "out_ep", "bitbang_mode", "eeprom", "error_str", "module_detach_mode" })
 	public static class ftdi_context extends Struct {
-		private static final List<String> FIELDS = List.of( //
-			"usb_ctx", "usb_dev", "usb_read_timeout", "usb_write_timeout", "type", "baudrate",
-			"bitbang_enabled", "readbuffer", "readbuffer_offset", "readbuffer_remaining",
-			"readbuffer_chunksize", "writebuffer_chunksize", "max_packet_size", "iface", "index",
-			"in_ep", "out_ep", "bitbang_mode", "eeprom", "error_str", "module_detach_mode");
 		private static final IntField.Typed<ftdi_context> type_accessor =
 			IntField.typed(t -> t.type, (t, i) -> t.type = i);
 		private static final BooleanAccessor.Typed<ftdi_context> bitbang_enabled_accessor =
@@ -348,18 +348,6 @@ public class LibFtdi {
 			IntField.typedUbyte(t -> t.bitbang_mode, (t, i) -> t.bitbang_mode = i);
 		private static final IntField.Typed<ftdi_context> module_detach_mode_accessor =
 			IntField.typed(t -> t.module_detach_mode, (t, i) -> t.module_detach_mode = i);
-
-		public static class ByValue extends ftdi_context //
-			implements Structure.ByValue {}
-
-		public static class ByReference extends ftdi_context implements Structure.ByReference {
-			public ByReference() {}
-
-			public ByReference(Pointer p) {
-				super(p);
-			}
-		}
-
 		public libusb_context usb_ctx;
 		public libusb_device_handle usb_dev;
 		public int usb_read_timeout;
@@ -378,15 +366,9 @@ public class LibFtdi {
 		public int in_ep;
 		public int out_ep;
 		public byte bitbang_mode; // ftdi_bit_mode
-		public ftdi_eeprom.ByReference eeprom;
+		public ftdi_eeprom.ByRef eeprom;
 		public Pointer error_str; // const char*
 		public int module_detach_mode; // ftdi_module_detach_mode
-
-		public ftdi_context() {}
-
-		public ftdi_context(Pointer p) {
-			super(p);
-		}
 
 		public FieldTranscoder<ftdi_chip_type> type() {
 			return ftdi_chip_type.xcoder.field(type_accessor.from(this));
@@ -407,12 +389,6 @@ public class LibFtdi {
 		public FieldTranscoder<ftdi_module_detach_mode> module_detach_mode() {
 			return ftdi_module_detach_mode.xcoder.field(module_detach_mode_accessor.from(this));
 		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
-
 	}
 
 	public static class ftdi_transfer_control {
@@ -435,56 +411,28 @@ public class LibFtdi {
 		}
 	}
 
-	public static class ftdi_version_info extends Structure {
-		private static final List<String> FIELDS = List.of( //
-			"major", "minor", "micro", "version_str", "snapshot_str");
-
-		public static class ByValue extends ftdi_version_info //
-			implements Structure.ByValue {}
-
-		public static class ByReference extends ftdi_version_info //
-			implements Structure.ByReference {}
-
+	@Fields({ "major", "minor", "micro", "version_str", "snapshot_str" })
+	public static class ftdi_version_info extends Struct {
 		public int major;
 		public int minor;
 		public int micro;
 		public String version_str;
 		public String snapshot_str;
-
-		public ftdi_version_info() {}
-
-		public ftdi_version_info(Pointer p) {
-			super(p);
-		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
 	}
 
-	public static class ftdi_eeprom extends Structure {
-		private static final List<String> FIELDS = List.of( //
-			"vendor_id", "product_id", "initialized_for_connected_device", "self_powered",
-			"remote_wakeup", "is_not_pnp", "suspend_dbus7", "in_is_isochronous",
-			"out_is_isochronous", "suspend_pull_downs", "use_serial", "usb_version",
-			"use_usb_version", "max_power", "manufacturer", "product", "serial", "channel_a_type",
-			"channel_b_type", "channel_a_driver", "channel_b_driver", "channel_c_driver",
-			"channel_d_driver", "channel_a_rs485enable", "channel_b_rs485enable",
-			"channel_c_rs485enable", "channel_d_rs485enable", "cbus_function", "high_current",
-			"high_current_a", "high_current_b", "invert", "external_oscillator", "group0_drive",
-			"group0_schmitt", "group0_slew", "group1_drive", "group1_schmitt", "group1_slew",
-			"group2_drive", "group2_schmitt", "group2_slew", "group3_drive", "group3_schmitt",
-			"group3_slew", "powersave", "clock_polarity", "data_order", "flow_control",
-			"user_data_addr", "user_data_size", "user_data", "size", "chip", "buf",
-			"release_number");
-
-		public static class ByValue extends ftdi_eeprom //
-			implements Structure.ByValue {}
-
-		public static class ByReference extends ftdi_eeprom //
-			implements Structure.ByReference {}
-
+	@Fields({ "vendor_id", "product_id", "initialized_for_connected_device", "self_powered",
+		"remote_wakeup", "is_not_pnp", "suspend_dbus7", "in_is_isochronous", "out_is_isochronous",
+		"suspend_pull_downs", "use_serial", "usb_version", "use_usb_version", "max_power",
+		"manufacturer", "product", "serial", "channel_a_type", "channel_b_type", "channel_a_driver",
+		"channel_b_driver", "channel_c_driver", "channel_d_driver", "channel_a_rs485enable",
+		"channel_b_rs485enable", "channel_c_rs485enable", "channel_d_rs485enable", "cbus_function",
+		"high_current", "high_current_a", "high_current_b", "invert", "external_oscillator",
+		"group0_drive", "group0_schmitt", "group0_slew", "group1_drive", "group1_schmitt",
+		"group1_slew", "group2_drive", "group2_schmitt", "group2_slew", "group3_drive",
+		"group3_schmitt", "group3_slew", "powersave", "clock_polarity", "data_order",
+		"flow_control", "user_data_addr", "user_data_size", "user_data", "size", "chip", "buf",
+		"release_number" })
+	public static class ftdi_eeprom extends Struct {
 		public int vendor_id;
 		public int product_id;
 		public int initialized_for_connected_device;
@@ -542,42 +490,13 @@ public class LibFtdi {
 		public byte[] buf = new byte[FTDI_MAX_EEPROM_SIZE];
 		public int release_number;
 
-		public ftdi_eeprom() {}
-
-		public ftdi_eeprom(Pointer p) {
-			super(p);
-		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
+		public static class ByRef extends ftdi_eeprom implements Structure.ByReference {}
 	}
 
+	@Fields({ "totalBytes", "time" })
 	public static class size_and_time extends Struct {
-		private static final List<String> FIELDS = List.of( //
-			"totalBytes", "time");
-
-		public static class ByValue extends size_and_time //
-			implements Structure.ByValue {}
-
-		public static class ByReference extends size_and_time //
-			implements Structure.ByReference {}
-
 		public long totalBytes;
 		public timeval time;
-
-		public size_and_time() {}
-
-		public size_and_time(Pointer p) {
-			super(p);
-		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
-
 	}
 
 	public static class ftdi_string_descriptors {
@@ -621,7 +540,7 @@ public class LibFtdi {
 			ftdi.usb_ctx = libusb_init();
 			ftdi_set_interface(ftdi, INTERFACE_ANY);
 			ftdi.bitbang_mode().set(BITMODE_BITBANG);
-			ftdi.eeprom = new ftdi_eeprom.ByReference();
+			ftdi.eeprom = new ftdi_eeprom.ByRef();
 			ftdi_read_data_set_chunk_size(ftdi, CHUNKSIZE_DEF);
 		} catch (LibUsbException | RuntimeException e) {
 			ftdi_free(ftdi);
@@ -919,8 +838,8 @@ public class LibFtdi {
 				try {
 					tc.completed = libusb_handle_events_timeout_completed(tc.ftdi.usb_ctx, to);
 				} catch (LibUsbException | RuntimeException e) {
-					if (e instanceof LibUsbException &&
-						((LibUsbException) e).error == LIBUSB_ERROR_INTERRUPTED) continue;
+					if (e instanceof LibUsbException le && le.error == LIBUSB_ERROR_INTERRUPTED)
+						continue;
 					ftdi_transfer_data_cancel(tc, to);
 					throw e;
 				}
@@ -1059,7 +978,7 @@ public class LibFtdi {
 
 	private static int autoDetach(ftdi_context ftdi) {
 		if (ftdi.module_detach_mode().get() != AUTO_DETACH_SIO_MODULE) return 0;
-		return capture(() -> libusb_detach_kernel_driver(ftdi.usb_dev, ftdi.iface));
+		return CException.capture(() -> libusb_detach_kernel_driver(ftdi.usb_dev, ftdi.iface));
 	}
 
 	private static void setConfig(libusb_device_descriptor desc, libusb_device_handle dev, int cfg)
@@ -1205,5 +1124,4 @@ public class LibFtdi {
 		return libusb_control_transfer(ftdi.usb_dev, FTDI_DEVICE_IN_REQTYPE, request.value, value,
 			index, length, ftdi.usb_read_timeout);
 	}
-
 }

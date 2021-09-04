@@ -506,13 +506,13 @@ public class LibUsbSampleData {
 //	}
 
 	private static void extra(libusb_interface_descriptor desc, int... bytes) {
-		Memory m = CUtil.malloc(bytes);
+		Memory m = CUtil.mallocBytes(bytes);
 		desc.extra = m;
 		desc.extra_length = bytes.length;
 	}
 
 	private static void extra(libusb_endpoint_descriptor desc, int... bytes) {
-		Memory m = CUtil.malloc(bytes);
+		Memory m = CUtil.mallocBytes(bytes);
 		desc.extra = m;
 		desc.extra_length = bytes.length;
 	}

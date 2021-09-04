@@ -309,7 +309,7 @@ public class LibUsbFinder {
 	}
 
 	private boolean needsOpen() {
-		return !StringUtil.isBlank(description) || !StringUtil.isBlank(serial);
+		return !StringUtil.blank(description) || !StringUtil.blank(serial);
 	}
 
 	private static boolean matches(int expected, int value) {

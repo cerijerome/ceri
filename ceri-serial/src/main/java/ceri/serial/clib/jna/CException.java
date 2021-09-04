@@ -2,34 +2,42 @@ package ceri.serial.clib.jna;
 
 import java.io.IOException;
 import java.util.function.IntConsumer;
-import com.sun.jna.LastErrorException;
-import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.text.StringUtil;
 
 public class CException extends IOException {
-	private static final long serialVersionUID = -7274377830953987618L;
+	private static final long serialVersionUID = -1L;
 	private static final int GENERAL_ERROR_CODE = -1;
 	public final int code;
 
+	public static class Runtime extends RuntimeException {
+		private static final long serialVersionUID = -1L;
+		public final int code;
+
+		private Runtime(CException e) {
+			super(e.getMessage(), e);
+			code = e.code;
+		}
+	}
+
 	/**
-	 * Capture the error code, or 0 if successful, to a consumer, and rethrow the error.
+	 * Capture the error code to a consumer and rethrow the error.
 	 */
-	public static void intercept(ExceptionRunnable<CException> runnable, IntConsumer consumer)
-		throws CException {
+	public static <E extends CException> void intercept(ExceptionRunnable<E> runnable,
+		IntConsumer consumer) throws E {
 		try {
 			runnable.run();
-			if (consumer != null) consumer.accept(0);
+			consumer.accept(0);
 		} catch (CException e) {
-			if (consumer != null) consumer.accept(e.code);
+			consumer.accept(e.code);
 			throw e;
 		}
 	}
 
 	/**
-	 * Capture the error code, or 0 if successful.
+	 * Capture the error code or 0 if successful.
 	 */
-	public static int capture(ExceptionRunnable<CException> runnable) {
+	public static int capture(ExceptionRunnable<? extends CException> runnable) {
 		try {
 			runnable.run();
 			return 0;
@@ -42,43 +50,32 @@ public class CException extends IOException {
 	 * Create exception without adding the error code to the message.
 	 */
 	public static CException of(int code, String format, Object... args) {
-		return new CException(code, StringUtil.format(format, args));
-	}
-
-	/**
-	 * Create exception adding the error code to the message.
-	 */
-	public static CException full(int code, String format, Object... args) {
-		return new CException(code, StringUtil.format(format, args) + ": " + code);
+		return new CException(StringUtil.format(format, args), code);
 	}
 
 	/**
 	 * Create exception with general purpose error code.
 	 */
 	public static CException general(String format, Object... args) {
-		return new CException(GENERAL_ERROR_CODE, StringUtil.format(format, args));
+		return of(GENERAL_ERROR_CODE, format, args);
 	}
 
 	/**
-	 * Create exception from errno and message.
+	 * Create exception adding the error code to the message.
 	 */
-	public static CException from(LastErrorException e, String format, Object... args) {
-		return ExceptionUtil.initCause(new CException(e.getErrorCode(),
-			e.getMessage() + ": " + StringUtil.format(format, args)), e);
+	public static CException full(String message, int code) {
+		return new CException(message + ": " + code, code);
 	}
 
-	public CException(int code, String message) {
+	protected CException(String message, int code) {
 		super(message);
 		this.code = code;
 	}
 
-	public CException(int code, String message, Throwable t) {
-		super(message, t);
-		this.code = code;
+	/**
+	 * Convert to runtime exception.
+	 */
+	public CException.Runtime runtime() {
+		return new CException.Runtime(this);
 	}
-
-	public CRuntimeException runtime() {
-		return new CRuntimeException(this);
-	}
-
 }

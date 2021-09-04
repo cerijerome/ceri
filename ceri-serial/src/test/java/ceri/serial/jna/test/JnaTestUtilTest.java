@@ -18,7 +18,7 @@ public class JnaTestUtilTest {
 
 	@Test
 	public void testAssertMemory() {
-		Memory m = CUtil.malloc(1, 2, 3, 4, 5);
+		Memory m = CUtil.mallocBytes(1, 2, 3, 4, 5);
 		assertMemory(m, 0, 1, 2, 3, 4, 5);
 		assertMemory(m, 1, 2, 3, 4, 5);
 		assertAssertion(() -> assertMemory(m, 1, 2, 3, 4, 6));
@@ -28,7 +28,7 @@ public class JnaTestUtilTest {
 
 	@Test
 	public void testAssertPointer() {
-		Pointer p = CUtil.malloc(1, 2, 3, 4, 5);
+		Pointer p = CUtil.mallocBytes(1, 2, 3, 4, 5);
 		assertPointer(p, 0, 1, 2, 3, 4, 5);
 		assertPointer(p, 1, 2, 3, 4, 5);
 		assertPointer(p, 0, 1, 2, 3, 4);

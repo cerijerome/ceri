@@ -1,6 +1,9 @@
 JNA Notes
 =========
 
+C code analysis
+---------------
+
 Exported functions:
 nm -D --defined-only libxxx.so
 
@@ -16,8 +19,7 @@ sudo find <include-path> -type f | grep '\.'h$ | xargs grep include | grep xxx/x
 
 Notes
 - #define may have space, such as # define
-- To check defined values, see ../../lib/c/symbols.c 
-
+- To check defined values, compile and run ../../lib/c/symbols.c
 
 Man page numbers:
   1  User Commands
@@ -28,5 +30,29 @@ Man page numbers:
   6  Games et. al.
   7  Miscellanea
   8  System Administration tools and Daemons
+
+
+JNA coding
+----------
+General:
+- new Memory() is not always zeroed
+Structures:
+- often better to use pointers to prevent auto read/write
+- no constructor or T(Pointer); use T(null) for T()
+- structs created with null pointer only have placeholder memory
+  - struct fields have their own independent placeholder memory 
+- struct write() allocates memory
+  - struct fields now have correct memory offsets
+- for c struct arg (T** ref) use T.ByRef[] ref = { new T.ByRef(null) };   
+
+
+Projects
+--------
+- (purejavacomm)
+- clib
+- libusb
+- libftdi
+- spidev
+- i2cdev
 
 

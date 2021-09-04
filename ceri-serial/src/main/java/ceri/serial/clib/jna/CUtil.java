@@ -1,13 +1,9 @@
 package ceri.serial.clib.jna;
 
 import java.nio.ByteBuffer;
-import java.util.function.IntSupplier;
-import java.util.function.Supplier;
-import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.text.StringUtil;
 import ceri.serial.clib.Seek;
 import ceri.serial.jna.JnaUtil;
 
@@ -19,99 +15,6 @@ public class CUtil {
 	public static final int INVALID_FD = -1;
 
 	private CUtil() {}
-
-	/**
-	 * Returns function result, converting any LastErrorException to CException.
-	 */
-	public static int exec(IntSupplier function, Supplier<String> messageSupplier)
-		throws CException {
-		try {
-			return function.getAsInt();
-		} catch (LastErrorException e) {
-			throw CException.from(e, messageSupplier.get());
-		}
-	}
-
-	/**
-	 * Returns function result, converting any LastErrorException to CException.
-	 */
-	public static int exec(IntSupplier function, String name, Object... args) throws CException {
-		try {
-			return function.getAsInt();
-		} catch (LastErrorException e) {
-			throw CException.from(e, failMessage(name, args));
-		}
-	}
-
-	/**
-	 * Checks function result, and throws CException if negative.
-	 */
-	public static int verify(int result, Supplier<String> messageSupplier) throws CException {
-		if (result >= 0) return result;
-		throw CException.full(result, messageSupplier.get());
-	}
-
-	/**
-	 * Checks function result, throwing a CException if negative, and converts any
-	 * LastErrorException to CException.
-	 */
-	public static int verify(IntSupplier function, Supplier<String> messageSupplier)
-		throws CException {
-		try {
-			return verify(function.getAsInt(), messageSupplier);
-		} catch (LastErrorException e) {
-			throw CException.from(e, messageSupplier.get());
-		}
-	}
-
-	/**
-	 * Runs method, and converts any LastErrorException to CException.
-	 */
-	public static void verify(Runnable method, Supplier<String> messageSupplier) throws CException {
-		try {
-			method.run();
-		} catch (LastErrorException e) {
-			throw CException.from(e, messageSupplier.get());
-		}
-	}
-
-	/**
-	 * Checks function result, and throws CException if negative.
-	 */
-	public static int verify(int result, String name, Object... objs) throws CException {
-		if (result >= 0) return result;
-		throw CException.full(result, failMessage(name, objs));
-	}
-
-	/**
-	 * Checks function result, throwing a CException if negative, and converts any
-	 * LastErrorException to CException.
-	 */
-	public static int verify(IntSupplier function, String name, Object... args) throws CException {
-		try {
-			return verify(function.getAsInt(), name, args);
-		} catch (LastErrorException e) {
-			throw CException.from(e, failMessage(name, args));
-		}
-	}
-
-	/**
-	 * Runs method, and converts any LastErrorException to CException.
-	 */
-	public static void verify(Runnable method, String name, Object... args) throws CException {
-		try {
-			method.run();
-		} catch (LastErrorException e) {
-			throw CException.from(e, failMessage(name, args));
-		}
-	}
-
-	/**
-	 * Creates a failed method message including given arguments.
-	 */
-	public static String failMessage(String name, Object... args) {
-		return String.format("%s(%s) failed", name, StringUtil.joinAll(", ", args));
-	}
 
 	/**
 	 * Attempt to close a file descriptor. Returns true if successful, false for any error.
@@ -201,15 +104,25 @@ public class CUtil {
 	 * Validates a file descriptor
 	 */
 	public static int validateFd(int fd) throws CException {
-		if (isValidFd(fd)) return fd;
-		throw CException.full(fd, "Invalid file descriptor");
+		if (validFd(fd)) return fd;
+		throw CException.of(fd, "Invalid file descriptor");
 	}
 
 	/**
 	 * Checks a file descriptor validity
 	 */
-	public static boolean isValidFd(int fd) {
+	public static boolean validFd(int fd) {
 		return fd != INVALID_FD;
+	}
+
+	/**
+	 * Allocates and zeroes new memory, or returns null if size is 0.
+	 */
+	public static Memory calloc(int size) {
+		if (size == 0) return null;
+		Memory m = new Memory(size);
+		JnaUtil.fill(m, 0);
+		return m;
 	}
 
 	/**
@@ -225,16 +138,16 @@ public class CUtil {
 	}
 
 	/**
-	 * Allocates new memory, or null if size is 0.
+	 * Allocates new memory, or returns null if size is 0.
 	 */
-	public static Memory mallocSize(int size) {
+	public static Memory malloc(int size) {
 		return size == 0 ? null : new Memory(size);
 	}
 
 	/**
 	 * Allocate native memory and copy array.
 	 */
-	public static Memory malloc(int... array) {
+	public static Memory mallocBytes(int... array) {
 		return malloc(ArrayUtil.bytes(array));
 	}
 
@@ -300,5 +213,4 @@ public class CUtil {
 		to.write(toOffset, buffer, 0, buffer.length);
 		return buffer.length;
 	}
-
 }

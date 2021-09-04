@@ -1,26 +1,40 @@
 package ceri.serial.clib.jna;
 
+import com.sun.jna.IntegerType;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Library;
+import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
-import ceri.serial.clib.jna.Size.size_t;
-import ceri.serial.clib.jna.Size.ssize_t;
 
 /**
  * A collection of common C library functions, grouped by linux header file.
  */
 public interface CLibNative extends Library {
 
-	/* fcntl.h */
-
-	// int open(const char *pathname, int flags)
-	int open(String path, int flags) throws LastErrorException;
-
-	// int open(const char *pathname, int flags, mode_t mode)
-	int open(String path, int flags, int mode) throws LastErrorException;
-
 	/* unistd.h */
+
+	@SuppressWarnings("serial")
+	public static class size_t extends IntegerType {
+		public size_t() {
+			this(0);
+		}
+
+		public size_t(long value) {
+			super(Native.SIZE_T_SIZE, value, true);
+		}
+	}
+
+	@SuppressWarnings("serial")
+	public static class ssize_t extends IntegerType {
+		public ssize_t() {
+			this(0);
+		}
+
+		public ssize_t(long value) {
+			super(Native.SIZE_T_SIZE, value);
+		}
+	}
 
 	// int close(int fd)
 	int close(int fd) throws LastErrorException;
@@ -33,6 +47,14 @@ public interface CLibNative extends Library {
 
 	// off_t lseek(int fd, off_t offset, int whence)
 	int lseek(int fd, int offset, int whence) throws LastErrorException;
+
+	/* fcntl.h */
+
+	// int open(const char *pathname, int flags)
+	int open(String path, int flags) throws LastErrorException;
+
+	// int open(const char *pathname, int flags, mode_t mode)
+	int open(String path, int flags, int mode) throws LastErrorException;
 
 	/* ioctl.h */
 

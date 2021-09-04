@@ -7,8 +7,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import com.sun.jna.Pointer;
+import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
-import ceri.common.util.BasicUtil;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.clib.jna.CLib;
 import ceri.serial.clib.jna.CUtil;
@@ -29,7 +29,7 @@ public class CFileDescriptor implements FileDescriptor {
 	 * default for the self-healing file descriptor.
 	 */
 	public static boolean isBroken(Exception e) {
-		CException ce = BasicUtil.castOrNull(CException.class, e);
+		CException ce = ReflectUtil.castOrNull(CException.class, e);
 		if (ce == null) return false;
 		if (BROKEN_ERROR_CODES.contains(ce.code)) return true;
 		return (RegexUtil.found(BROKEN_MESSAGE_REGEX, e.getMessage()) != null);

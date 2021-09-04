@@ -126,13 +126,13 @@ public class UsbHotplug implements Closeable {
 			this.deviceClass = deviceClass;
 			return this;
 		}
-		
+
 		public CallbackHandle register() throws LibUsbException {
 			return hotPlug.register(this);
 		}
 	}
 
-	public static boolean hasCapability() {
+	public static boolean hasCapability() throws LibUsbException {
 		return LibUsb.libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG);
 	}
 
@@ -159,8 +159,7 @@ public class UsbHotplug implements Closeable {
 		callbackIds.clear();
 	}
 
-	private <T> CallbackHandle register(Registration<T> registration)
-		throws LibUsbException {
+	private <T> CallbackHandle register(Registration<T> registration) throws LibUsbException {
 		int callbackId = this.callbackId.incrementAndGet();
 		libusb_hotplug_callback_fn jnaCallback = (ctx, dev, evt, user_data) -> adaptCallback(dev,
 			evt, callbackId, registration.callback, registration.userData);

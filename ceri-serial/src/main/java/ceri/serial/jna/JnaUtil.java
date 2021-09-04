@@ -42,32 +42,6 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Printable representation of structure reference.
-	 */
-	public static <T extends Structure & Structure.ByReference> String print(T t) {
-		if (t == null) return String.valueOf(t);
-		return String.format("%s@%x+%x", t.getClass().getSimpleName(),
-			Pointer.nativeValue(t.getPointer()), t.size());
-	}
-
-	/**
-	 * Printable representation of pointer.
-	 */
-	public static String print(Pointer p) {
-		if (p == null) return String.valueOf(p);
-		if (p instanceof Memory) return print((Memory) p);
-		return String.format("@%x", Pointer.nativeValue(p));
-	}
-
-	/**
-	 * Printable representation of memory pointer.
-	 */
-	public static String print(Memory m) {
-		if (m == null) return String.valueOf(m);
-		return String.format("@%x+%x", Pointer.nativeValue(m), m.size());
-	}
-
-	/**
 	 * A lazy buffer, that only allocates memory when needed.
 	 */
 	public static ExceptionSupplier<RuntimeException, Memory> lazyBuffer(long size) {
@@ -75,7 +49,7 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Returns a pointer from the native peer. Use with caution.
+	 * Returns a pointer from the native peer, or null if 0. Use with caution.
 	 */
 	public static Pointer pointer(long peer) {
 		return peer == 0L ? null : new Pointer(peer);
@@ -461,6 +435,21 @@ public class JnaUtil {
 	}
 
 	/**
+	 * Creates a type from index i of contiguous pointer array at the given pointer. If the pointer
+	 * is null, null is returned.
+	 */
+	public static <T> T byRef(Pointer p, int i, Function<Pointer, T> constructor) {
+		return p == null ? null : constructor.apply(PointerUtil.ref(p, i));
+	}
+
+	/**
+	 * Creates a type from pointer. If the pointer is null, null is returned.
+	 */
+	public static <T> T byType(Pointer p, Function<Pointer, T> constructor) {
+		return p == null ? null : constructor.apply(p);
+	}
+
+	/**
 	 * Creates an array of bytes from the given memory pointer.
 	 */
 	public static byte[] byteArray(Memory m) {
@@ -529,6 +518,21 @@ public class JnaUtil {
 	public static ByteBuffer buffer(Pointer p, long offset, long length) {
 		if (p == null || length == 0) return ByteBuffer.allocate(0);
 		return p.getByteBuffer(offset, length);
+	}
+
+	/**
+	 * Decodes string from zero-terminated bytes using default charset.
+	 */
+	public static String string(byte[] bytes) {
+		return string(DEFAULT_CHARSET, bytes);
+	}
+
+	/**
+	 * Decodes string from zero-terminated bytes using charset.
+	 */
+	public static String string(Charset charset, byte[] bytes) {
+		int i = ArrayUtil.indexOf(bytes, 0, (byte) 0);
+		return new String(bytes, 0, i >= 0 ? i : bytes.length, charset);
 	}
 
 	/**
@@ -716,6 +720,31 @@ public class JnaUtil {
 		validateSlice(buffer.length, offset, length);
 		p.write(index, buffer, offset, length);
 		return index + length;
+	}
+
+	/**
+	 * Writes byte value to memory. Returns the pointer offset after writing.
+	 */
+	public static int fill(Memory m, int value) {
+		return fill(m, 0, value);
+	}
+
+	/**
+	 * Writes byte value to memory, starting at offset. Returns the pointer offset after writing.
+	 */
+	public static int fill(Memory m, int offset, int value) {
+		int size = size(m);
+		validateSlice(size, offset, 0);
+		return fill(m, offset, size - offset, value);
+	}
+
+	/**
+	 * Writes byte value to the pointer, starting at offset for given length. Returns the pointer
+	 * offset after writing.
+	 */
+	public static int fill(Pointer p, int offset, int length, int value) {
+		p.setMemory(offset, length, (byte) value);
+		return offset + length;
 	}
 
 	/* Support methods */

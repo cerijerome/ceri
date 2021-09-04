@@ -1,7 +1,5 @@
 package ceri.serial.libusb.jna;
 
-import com.sun.jna.LastErrorException;
-import ceri.common.exception.ExceptionUtil;
 import ceri.common.text.StringUtil;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
@@ -13,46 +11,43 @@ public class LibUsbException extends CException {
 	private static final long serialVersionUID = 3696913945167490798L;
 	public final libusb_error error;
 
-	public static int verify(int result, String format, Object... args) throws LibUsbException {
-		if (result >= 0) return result;
-		throw full(result, format, args);
-	}
-	
+	/**
+	 * Create exception without adding the error code to the message.
+	 */
 	public static LibUsbException of(libusb_error error, String format, Object... args) {
-		return new LibUsbException(error.value, error, StringUtil.format(format, args));
-	}
-
-	public static LibUsbException of(int code, String format, Object... args) {
-		libusb_error error = LibUsb.libusb_error.xcoder.decode(code);
-		return new LibUsbException(code, error, StringUtil.format(format, args));
-	}
-
-	public static LibUsbException full(libusb_error error, String format, Object... args) {
-		return new LibUsbException(error.value, error,
-			fullMessage(error.value, error, format, args));
-	}
-
-	public static LibUsbException full(int code, String format, Object... args) {
-		libusb_error error = LibUsb.libusb_error.xcoder.decode(code);
-		return new LibUsbException(code, error, fullMessage(code, error, format, args));
+		return new LibUsbException(StringUtil.format(format, args), code(error), error);
 	}
 
 	/**
-	 * Create exception from errno and message.
+	 * Create exception adding the error code to the message.
 	 */
-	public static LibUsbException from(LastErrorException e, String format, Object... args) {
-		return ExceptionUtil.initCause(of(e.getErrorCode(),
-			e.getMessage() + ": " + StringUtil.format(format, args)), e);
+	public static LibUsbException full(String message, int code) {
+		return full(message, code, error(code));
 	}
 
-	protected LibUsbException(int code, libusb_error error, String message) {
-		super(code, message);
+	/**
+	 * Create exception adding the error code to the message.
+	 */
+	public static LibUsbException full(String message, libusb_error error) {
+		return full(message, code(error), error);
+	}
+
+	private static LibUsbException full(String message, int code, libusb_error error) {
+		String full =
+			String.format("%s: %d (%s)", message, code, error == null ? null : error.name());
+		return new LibUsbException(full, code, error);
+	}
+
+	protected LibUsbException(String message, int code, libusb_error error) {
+		super(message, code);
 		this.error = error;
 	}
 
-	private static String fullMessage(int code, libusb_error error, String format, Object... args) {
-		String message = StringUtil.format(format, args);
-		return String.format("%s: %d (%s)", message, code, error == null ? null : error.name());
+	private static libusb_error error(int code) {
+		return LibUsb.libusb_error.xcoder.decode(code);
 	}
 
+	private static int code(libusb_error error) {
+		return error != null ? error.value : libusb_error.LIBUSB_ERROR_OTHER.value;
+	}
 }

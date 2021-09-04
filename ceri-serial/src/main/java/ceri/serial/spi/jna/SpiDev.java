@@ -4,14 +4,14 @@ import static ceri.common.math.MathUtil.ubyte;
 import static ceri.serial.clib.jna.CLib._IOC_SIZEBITS;
 import static ceri.serial.clib.jna.CLib._IOR;
 import static ceri.serial.clib.jna.CLib._IOW;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.sun.jna.Structure;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.clib.jna.CLib;
+import ceri.serial.jna.Struct;
+import ceri.serial.jna.Struct.Fields;
 
 public class SpiDev {
 	private static final Logger logger = LogManager.getLogger();
@@ -37,10 +37,9 @@ public class SpiDev {
 
 	private SpiDev() {}
 
-	public static class spi_ioc_transfer extends Structure {
-		private static final List<String> FIELDS = List.of("tx_buf", "rx_buf", "len", "speed_hz",
-			"delay_usecs", "bits_per_word", "cs_change", "tx_nbits", "rx_nbits", "pad");
-
+	@Fields({ "tx_buf", "rx_buf", "len", "speed_hz", "delay_usecs", "bits_per_word", "cs_change",
+		"tx_nbits", "rx_nbits", "pad" })
+	public static class spi_ioc_transfer extends Struct {
 		public long tx_buf;
 		public long rx_buf;
 		public int len;
@@ -51,13 +50,6 @@ public class SpiDev {
 		public byte tx_nbits;
 		public byte rx_nbits;
 		public short pad;
-
-		public spi_ioc_transfer() {}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
 	}
 
 	private static final int SPI_IOC_MAGIC = 'k';
@@ -161,5 +153,4 @@ public class SpiDev {
 		IntByReference p = new IntByReference(mode);
 		CLib.ioctl("SPI_IOC_WR_MODE32", fd, SPI_IOC_WR_MODE32, p);
 	}
-
 }

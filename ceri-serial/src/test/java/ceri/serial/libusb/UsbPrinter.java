@@ -24,7 +24,7 @@ public class UsbPrinter {
 
 	public static void main(String[] args) {
 		var printer = new UsbPrinter(System.out, null);
-		//run(printer);
+		// run(printer);
 		runTest(printer);
 	}
 
@@ -56,7 +56,7 @@ public class UsbPrinter {
 		}
 	}
 
-	private void version(String pre) {
+	private void version(String pre) throws LibUsbException {
 		var v = Usb.version();
 		out.printf("%s: [%s]%n", pre, name(v));
 		out.printf("%s: toString()=%s%n", pre, v);

@@ -141,7 +141,7 @@ public class SmBusI2c implements SmBus {
 	 */
 	private ByteProvider read(int recvLen) throws IOException {
 		boolean pec = pec();
-		Memory recvM = new Memory(length(recvLen, pec));
+		Memory recvM = CUtil.calloc(length(recvLen, pec));
 		i2c_msg.ByReference msg = populate(null, address, recvM, I2C_M_RD);
 		transfer(msg);
 		byte[] recv = JnaUtil.byteArray(recvM);
@@ -167,7 +167,7 @@ public class SmBusI2c implements SmBus {
 	 */
 	private ByteProvider writeRead(byte[] send, int recvLen) throws IOException {
 		boolean pec = pec();
-		Memory recvM = new Memory(length(recvLen, pec));
+		Memory recvM = CUtil.calloc(length(recvLen, pec));
 		i2c_msg.ByReference[] msgs = i2c_msg.array(2);
 		populate(msgs[0], address, CUtil.malloc(send));
 		populate(msgs[1], address, recvM, I2C_M_RD);
@@ -183,7 +183,7 @@ public class SmBusI2c implements SmBus {
 	 */
 	private byte[] writeReadBlock(byte[] send) throws IOException {
 		boolean pec = pec();
-		Memory recvM = new Memory(length(1 + I2C_SMBUS_BLOCK_MAX, pec));
+		Memory recvM = CUtil.calloc(length(1 + I2C_SMBUS_BLOCK_MAX, pec));
 		i2c_msg.ByReference[] msgs = i2c_msg.array(2);
 		populate(msgs[0], address, CUtil.malloc(send));
 		populate(msgs[1], address, 1, recvM, I2C_M_RD, I2C_M_RECV_LEN);

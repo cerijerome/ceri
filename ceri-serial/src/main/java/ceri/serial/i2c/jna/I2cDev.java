@@ -12,7 +12,6 @@ import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_I2
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_PROC_CALL;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_QUICK;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_WORD_DATA;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import com.sun.jna.NativeLong;
@@ -29,6 +28,7 @@ import ceri.common.math.MathUtil;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.clib.jna.CLib;
 import ceri.serial.jna.Struct;
+import ceri.serial.jna.Struct.Fields;
 
 /**
  * I2C device communication, through ioctl commands. Linux-only?
@@ -70,8 +70,8 @@ public class I2cDev {
 	 * ACK. If last message in group, followed by STOP. Behavior changed with
 	 * I2C_FUNC_PROTOCOL_MANGLING and flags.
 	 */
+	@Fields({ "addr", "flags", "len", "buf" })
 	public static class i2c_msg extends Struct {
-		private static final List<String> FIELDS = List.of("addr", "flags", "len", "buf");
 		private static final IntField.Typed<i2c_msg> flagsAccessor =
 			IntField.typedUshort(t -> t.flags, (t, b) -> t.flags = b);
 		public short addr;
@@ -104,11 +104,6 @@ public class I2cDev {
 
 		public byte addrByte() {
 			return (byte) ((addr << 1) | (flags & i2c_msg_flag.I2C_M_RD.value));
-		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
 		}
 	}
 
@@ -249,17 +244,12 @@ public class I2cDev {
 	/**
 	 * Structure used in I2C_SMBUS ioctl calls.
 	 */
+	@Fields({ "read_write", "command", "size", "data" })
 	public static class i2c_smbus_ioctl_data extends Struct {
-		private static final List<String> FIELDS = List.of("read_write", "command", "size", "data");
 		public byte read_write;
 		public byte command;
 		public int size;
 		public i2c_smbus_data.ByReference data;
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
 	}
 
 	public static final int I2C_RDWR_IOCTL_MAX_MSGS = 42;
@@ -267,18 +257,13 @@ public class I2cDev {
 	/**
 	 * Structure used in I2C_RDWR ioctl calls.
 	 */
+	@Fields({ "msgs", "nmsgs" })
 	public static class i2c_rdwr_ioctl_data extends Struct {
-		private static final List<String> FIELDS = List.of("msgs", "nmsgs");
 		public i2c_msg.ByReference msgs;
 		public int nmsgs;
 
 		public i2c_msg[] msgs() {
 			return Struct.arrayByVal(msgs, i2c_msg[]::new, nmsgs);
-		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
 		}
 	}
 

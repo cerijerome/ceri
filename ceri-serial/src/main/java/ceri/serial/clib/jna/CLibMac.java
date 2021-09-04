@@ -1,9 +1,9 @@
 package ceri.serial.clib.jna;
 
 import static ceri.serial.clib.jna.CLib._IOW;
-import java.util.List;
 import com.sun.jna.NativeLong;
 import ceri.serial.jna.Struct;
+import ceri.serial.jna.Struct.Fields;
 
 /**
  * Mac-specific C-library constants, types and methods.
@@ -28,11 +28,9 @@ public class CLibMac {
 	/**
 	 * General terminal interface to control asynchronous communications ports.
 	 */
+	@Fields({ "c_iflag", "c_oflag", "c_cflag", "c_lflag", "c_cc", "c_ispeed", "c_ospeed" })
 	public static class termios extends Struct {
-		private static final List<String> FIELDS = List.of( //
-			"c_iflag", "c_oflag", "c_cflag", "c_lflag", "c_line", "c_cc", "c_ispeed", "c_ospeed");
 		private static final int NCCS = 20;
-
 		public NativeLong c_iflag; // input flags
 		public NativeLong c_oflag; // output flags
 		public NativeLong c_cflag; // control flags
@@ -40,11 +38,6 @@ public class CLibMac {
 		public byte[] c_cc = new byte[NCCS]; // control chars
 		public NativeLong c_ispeed; // input speed
 		public NativeLong c_ospeed; // output speed
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return FIELDS;
-		}
 	}
 
 	/**

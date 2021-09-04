@@ -47,7 +47,7 @@ public class UsbDeviceHandle implements Closeable {
 		libusb_fill_control_setup(buffer, bmRequestType, bRequest, wValue, wIndex, wLength);
 	}
 
-	public static boolean canDetachKernelDriver() {
+	public static boolean canDetachKernelDriver() throws LibUsbException {
 		return LibUsb.libusb_has_capability(LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER);
 	}
 

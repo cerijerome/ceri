@@ -132,7 +132,7 @@ public interface I2c {
 	default void readData(I2cAddress address, byte[] command, byte[] receive, int offset,
 		int length) throws IOException {
 		Memory write = CUtil.malloc(command);
-		Memory read = new Memory(length);
+		Memory read = CUtil.calloc(length);
 		writeRead(address, write, size(write), read, size(read));
 		read.read(0, receive, offset, length);
 	}
@@ -181,7 +181,7 @@ public interface I2c {
 	 */
 	static class Null implements I2c {
 		protected Null() {}
-		
+
 		@Override
 		public I2c retries(int count) throws IOException {
 			return this;
