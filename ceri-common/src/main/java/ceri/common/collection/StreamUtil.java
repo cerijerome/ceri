@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -430,6 +432,14 @@ public class StreamUtil {
 		return StreamSupport.stream(spliterator, false);
 	}
 
+	/**
+	 * Returns a stream for an iterator.
+	 */
+	public static <T> Stream<T> stream(Iterator<T> i) {
+		var spliterator = Spliterators.spliteratorUnknownSize(i, Spliterator.ORDERED);
+		return StreamSupport.stream(spliterator, false);
+	}
+	
 	/**
 	 * Returns a stream for an Enumeration.
 	 */

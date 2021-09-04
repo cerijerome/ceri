@@ -250,6 +250,11 @@ public class StreamUtilTest {
 	}
 
 	@Test
+	public void testStreamIterator() {
+		assertStream(StreamUtil.stream(List.of(1, 2, 3).iterator()), 1, 2, 3);
+	}
+	
+	@Test
 	public void testStreamArray() {
 		assertStream(StreamUtil.stream(new Integer[] { 1, 2, 3 }, 1), 2, 3);
 	}
