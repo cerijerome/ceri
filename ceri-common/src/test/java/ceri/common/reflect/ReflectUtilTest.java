@@ -131,6 +131,16 @@ public class ReflectUtilTest {
 	}
 
 	@Test
+	public void testNestedName() {
+		assertEquals(ReflectUtil.nestedName(null), "null");
+		assertEquals(ReflectUtil.nestedName(int.class), "int");
+		assertEquals(ReflectUtil.nestedName(byte[].class), "byte[]");
+		assertEquals(ReflectUtil.nestedName(Abstract.class), Abstract.class.getSimpleName());
+		assertEquals(ReflectUtil.nestedName(Abstract[].class),
+			Abstract.class.getSimpleName() + "[]");
+	}
+
+	@Test
 	public void testToStringOrHashId() {
 		assertNull(ReflectUtil.toStringOrHash(null));
 		assertEquals(ReflectUtil.toStringOrHash(new Object() {

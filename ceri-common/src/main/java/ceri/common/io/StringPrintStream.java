@@ -9,25 +9,27 @@ import java.nio.charset.Charset;
  * toString(). The stream is auto-flushed.
  */
 public class StringPrintStream extends PrintStream {
-	private final Charset charSet;
+	private final Charset charset;
 	private final ByteArrayOutputStream baos;
 
 	/**
 	 * Constructor using default character set.
 	 */
-	public StringPrintStream() {
-		super(new ByteArrayOutputStream(), true);
-		baos = (ByteArrayOutputStream) out;
-		this.charSet = null;
+	public static StringPrintStream of() {
+		return of(Charset.defaultCharset());	
 	}
-
+	
 	/**
 	 * Constructor using given character set.
 	 */
-	public StringPrintStream(Charset charSet) {
-		super(new ByteArrayOutputStream(), true, charSet);
+	public static StringPrintStream of(Charset charset) {
+		return new StringPrintStream(charset);
+	}
+	
+	protected StringPrintStream(Charset charset) {
+		super(new ByteArrayOutputStream(), true, charset);
 		baos = (ByteArrayOutputStream) out;
-		this.charSet = charSet;
+		this.charset = charset;
 	}
 
 	public void clear() {
@@ -39,8 +41,7 @@ public class StringPrintStream extends PrintStream {
 	 */
 	@Override
 	public String toString() {
-		if (charSet == null) return baos.toString();
-		return baos.toString(charSet);
+		return baos.toString(charset);
 	}
 
 }

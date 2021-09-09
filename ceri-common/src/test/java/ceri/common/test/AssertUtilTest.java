@@ -14,6 +14,7 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertArrayObject;
 import static ceri.common.test.AssertUtil.assertAscii;
 import static ceri.common.test.AssertUtil.assertAssertion;
+import static ceri.common.test.AssertUtil.assertBuffer;
 import static ceri.common.test.AssertUtil.assertByte;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertDir;
@@ -47,6 +48,7 @@ import static ceri.common.test.AssertUtil.fail;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -164,7 +166,7 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertAscii() {
-		ByteProvider.Reader r = ByteUtil.toAscii("tests").reader(0);
+		ByteProvider.Reader<?> r = ByteUtil.toAscii("tests").reader(0);
 		assertAscii(r, "test");
 		r.reset();
 		assertAssertion(() -> assertAscii(r, "test0"));
@@ -244,7 +246,7 @@ public class AssertUtilTest {
 		assertToString(100, "100");
 		assertAssertion(() -> assertToString(0100, "0100"));
 	}
-	
+
 	@Test
 	public void testAssertPrivateConstructor() {
 		assertPrivateConstructor(TestUtil.class);
@@ -405,6 +407,12 @@ public class AssertUtilTest {
 		assertMap(Map.of(1, "A", 2, "B", 3, "C", 4, "D"), 1, "A", 2, "B", 3, "C", 4, "D");
 		assertMap(Map.of(1, "A", 2, "B", 3, "C", 4, "D", 5, "E"), 1, "A", 2, "B", 3, "C", 4, "D", 5,
 			"E");
+	}
+
+	@Test
+	public void testAssertBuffer() {
+		assertBuffer(ByteBuffer.wrap(bytes()));
+		assertBuffer(ByteBuffer.wrap(bytes(0x80, 0xff, 0x7f)), 0x80, 0xff, 0x7f);
 	}
 
 	@Test

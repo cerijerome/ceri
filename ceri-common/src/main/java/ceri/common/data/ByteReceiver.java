@@ -39,11 +39,11 @@ public interface ByteReceiver {
 	 * length. Except for {@link #offset(int)}, methods do not include an offset position. Clients
 	 * must first call {@link #offset(int)} if an absolute position is required.
 	 */
-	static class Writer extends Navigator<Writer> implements ByteWriter<Writer> {
+	static class Writer<T extends Writer<T>> extends Navigator<T> implements ByteWriter<T> {
 		private final ByteReceiver receiver;
 		private final int start;
 
-		private Writer(ByteReceiver receiver, int offset, int length) {
+		protected Writer(ByteReceiver receiver, int offset, int length) {
 			super(length);
 			this.receiver = receiver;
 			this.start = offset;
@@ -52,39 +52,39 @@ public interface ByteReceiver {
 		/* ByteWriter overrides and additions */
 
 		@Override
-		public Writer writeByte(int value) {
+		public T writeByte(int value) {
 			return position(receiver.setByte(position(), value));
 		}
 
 		@Override
-		public Writer writeEndian(long value, int size, boolean msb) {
+		public T writeEndian(long value, int size, boolean msb) {
 			return position(receiver.setEndian(position(), size, value, msb));
 		}
 
 		@Override
-		public Writer writeString(String s, Charset charset) {
+		public T writeString(String s, Charset charset) {
 			return position(receiver.setString(position(), s, charset));
 		}
 
 		/**
 		 * Fill remaining bytes with same value.
 		 */
-		public Writer fill(int value) {
+		public T fill(int value) {
 			return fill(remaining(), value);
 		}
 
 		@Override
-		public Writer fill(int length, int value) {
+		public T fill(int length, int value) {
 			return position(receiver.fill(position(), length, value));
 		}
 
 		@Override
-		public Writer writeFrom(byte[] array, int offset, int length) {
+		public T writeFrom(byte[] array, int offset, int length) {
 			return position(receiver.copyFrom(position(), array, offset, length));
 		}
 
 		@Override
-		public Writer writeFrom(ByteProvider provider, int offset, int length) {
+		public T writeFrom(ByteProvider provider, int offset, int length) {
 			return position(receiver.copyFrom(position(), provider, offset, length));
 		}
 
@@ -105,11 +105,6 @@ public interface ByteReceiver {
 
 		/* Other methods */
 
-		@Override
-		public Writer skip(int length) {
-			return super.skip(length);
-		}
-
 		public ByteReceiver receiver() {
 			return receiver(remaining());
 		}
@@ -123,32 +118,29 @@ public interface ByteReceiver {
 		/**
 		 * Creates a new reader for remaining bytes without incrementing the offset.
 		 */
-		public Writer slice() {
+		public Writer<T> slice() {
 			return slice(remaining());
 		}
 
 		/**
-		 * Creates a new reader for subsequent bytes without incrementing the offset. Use a negative
-		 * length to look backwards, which may be useful for checksum calculations.
+		 * Creates a new reader for subsequent bytes without incrementing the offset.
 		 */
-		public Writer slice(int length) {
-			int offset = length < 0 ? offset() + length : offset();
-			length = Math.abs(length);
-			ArrayUtil.validateSlice(length(), offset, length);
-			return new Writer(receiver, start + offset, length);
+		public Writer<T> slice(int length) {
+			ArrayUtil.validateSlice(length(), offset(), length);
+			return new Writer<>(receiver, position(), length);
 		}
 
 		/**
 		 * The actual position within the byte receiver.
 		 */
-		private int position() {
+		protected int position() {
 			return start + offset();
 		}
 
 		/**
 		 * Set the offset from receiver actual position.
 		 */
-		private Writer position(int position) {
+		protected T position(int position) {
 			return offset(position - start);
 		}
 	}
@@ -470,16 +462,16 @@ public interface ByteReceiver {
 	/**
 	 * Provides sequential byte access.
 	 */
-	default Writer writer(int index) {
+	default Writer<?> writer(int index) {
 		return writer(index, length() - index);
 	}
 
 	/**
 	 * Provides sequential byte access.
 	 */
-	default Writer writer(int index, int length) {
+	default Writer<?> writer(int index, int length) {
 		ArrayUtil.validateSlice(length(), index, length);
-		return new Writer(this, index, length);
+		return new Writer<>(this, index, length);
 	}
 
 }

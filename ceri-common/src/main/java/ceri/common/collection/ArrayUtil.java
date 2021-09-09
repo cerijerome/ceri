@@ -2,6 +2,7 @@ package ceri.common.collection;
 
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
+import static ceri.common.text.StringUtil.NULL_STRING;
 import static ceri.common.util.PrimitiveUtil.convertBooleans;
 import static ceri.common.util.PrimitiveUtil.convertBytes;
 import static ceri.common.util.PrimitiveUtil.convertChars;
@@ -28,7 +29,6 @@ import ceri.common.util.Hasher;
  * @see ceri.common.util.PrimitiveUtil
  */
 public class ArrayUtil {
-	private static final String NULL_STRING = "null";
 	public static final boolean[] EMPTY_BOOLEAN = new boolean[0];
 	public static final byte[] EMPTY_BYTE = new byte[0];
 	public static final char[] EMPTY_CHAR = new char[0];

@@ -273,16 +273,16 @@ public class TestUtil {
 	}
 
 	/**
-	 * Returns a ByteProvider.Reader wrapper for bytes.
+	 * Returns a ByteProvider.Reader<?> wrapper for bytes.
 	 */
-	public static ByteProvider.Reader reader(int... bytes) {
+	public static ByteProvider.Reader<?> reader(int... bytes) {
 		return provider(bytes).reader(0);
 	}
 
 	/**
-	 * Returns a ByteProvider.Reader wrapper for chars.
+	 * Returns a ByteProvider.Reader<?> wrapper for chars.
 	 */
-	public static ByteProvider.Reader reader(String s) {
+	public static ByteProvider.Reader<?> reader(String s) {
 		return Immutable.wrap(s.chars().toArray()).reader(0);
 	}
 

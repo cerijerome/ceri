@@ -32,7 +32,8 @@ public class ByteUtilTest {
 	@Test
 	public void testBitIteratorHigh() {
 		Captor<Boolean> captor = Captor.of();
-		for (boolean b : CollectionUtil.forEach(ByteUtil.bitIterator(true, provider(0xa9, 0, 0xff))))
+		for (boolean b : CollectionUtil
+			.forEach(ByteUtil.bitIterator(true, provider(0xa9, 0, 0xff))))
 			captor.accept(b);
 		captor.verify(true, false, true, false, true, false, false, true, //
 			false, false, false, false, false, false, false, false, //
@@ -42,7 +43,8 @@ public class ByteUtilTest {
 	@Test
 	public void testBitIteratorLow() {
 		Captor<Boolean> captor = Captor.of();
-		for (boolean b : CollectionUtil.forEach(ByteUtil.bitIterator(false, provider(0xa9, 0, 0xff))))
+		for (boolean b : CollectionUtil
+			.forEach(ByteUtil.bitIterator(false, provider(0xa9, 0, 0xff))))
 			captor.accept(b);
 		captor.verify(true, false, false, true, false, true, false, true, //
 			false, false, false, false, false, false, false, false, //
@@ -71,6 +73,7 @@ public class ByteUtilTest {
 	public void testStreamOf() {
 		byte[] b = ArrayUtil.bytes(-1, 0, 1, 127, 128);
 		assertStream(ByteUtil.ustream(b), 0xff, 0, 1, 0x7f, 0x80);
+		assertStream(ByteUtil.ustream(-1, 0, 1, 127, 128), 0xff, 0, 1, 0x7f, 0x80);
 	}
 
 	@Test
@@ -111,7 +114,7 @@ public class ByteUtilTest {
 	public void testWriteToByteBuffer() {
 		byte[] bytes = new byte[5];
 		ByteBuffer buffer = ByteBuffer.wrap(bytes);
-		assertEquals(ByteUtil.writeTo(buffer, 1, bytes(1, 2, 3)), 3);
+		assertEquals(ByteUtil.writeTo(buffer, 1, 1, 2, 3), 3);
 		assertArray(bytes, 0, 1, 2, 3, 0);
 	}
 

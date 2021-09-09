@@ -53,11 +53,11 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * length. Except for {@link #offset(int)}, methods do not include an offset position. Clients
 	 * must first call {@link #offset(int)} if an absolute position is required.
 	 */
-	static class Reader extends Navigator<Reader> implements ByteReader, Fluent<Reader> {
+	static class Reader<T extends Reader<T>> extends Navigator<T> implements ByteReader, Fluent<T> {
 		private final ByteProvider provider;
 		private final int start;
 
-		private Reader(ByteProvider provider, int offset, int length) {
+		protected Reader(ByteProvider provider, int offset, int length) {
 			super(length);
 			this.provider = provider;
 			this.start = offset;
@@ -76,28 +76,28 @@ public interface ByteProvider extends Iterable<Integer> {
 		}
 
 		/**
-		 * Returns the string from ISO-Latin-1 bytes.
+		 * Returns the string from remaining ISO-Latin-1 bytes.
 		 */
 		public String readAscii() {
 			return readAscii(remaining());
 		}
 
 		/**
-		 * Returns the string from UTF-8 bytes.
+		 * Returns the string from remaining UTF-8 bytes.
 		 */
 		public String readUtf8() {
 			return readUtf8(remaining());
 		}
 
 		/**
-		 * Returns the string from default character-set bytes.
+		 * Returns the string from remaining default character-set bytes.
 		 */
 		public String readString() {
 			return readString(remaining());
 		}
 
 		/**
-		 * Returns the string from character-set encoded bytes.
+		 * Returns the string from remaining character-set encoded bytes.
 		 */
 		public String readString(Charset charset) {
 			return readString(remaining(), charset);
@@ -131,7 +131,7 @@ public interface ByteProvider extends Iterable<Integer> {
 		}
 
 		/**
-		 * Writes bytes to the output stream, and returns the number of bytes transferred.
+		 * Writes remaining bytes to the output stream, and returns the number of bytes transferred.
 		 */
 		public int transferTo(OutputStream out) throws IOException {
 			return transferTo(out, remaining());
@@ -144,7 +144,7 @@ public interface ByteProvider extends Iterable<Integer> {
 		}
 
 		/**
-		 * Provides unsigned bytes as a stream.
+		 * Provides remaining unsigned bytes as a stream.
 		 */
 		public IntStream ustream() {
 			return ustream(remaining());
@@ -156,11 +156,6 @@ public interface ByteProvider extends Iterable<Integer> {
 		}
 
 		/* Other methods */
-
-		@Override
-		public Reader skip(int length) {
-			return super.skip(length);
-		}
 
 		/**
 		 * Returns a view of the ByteProvider, incrementing the offset. Only supported if slice() is
@@ -181,25 +176,32 @@ public interface ByteProvider extends Iterable<Integer> {
 		/**
 		 * Creates a new reader for remaining bytes without incrementing the offset.
 		 */
-		public Reader slice() {
+		public Reader<T> slice() {
 			return slice(remaining());
 		}
 
 		/**
 		 * Creates a new reader for subsequent bytes without incrementing the offset.
 		 */
-		public Reader slice(int length) {
+		public Reader<T> slice(int length) {
 			ArrayUtil.validateSlice(length(), offset(), length);
-			return new Reader(provider, start + offset(), length);
+			return new Reader<>(provider, position(), length);
 		}
 
 		/**
 		 * Returns the current position and increments the offset by length.
 		 */
-		private int inc(int length) {
-			int position = start + offset();
+		protected int inc(int length) {
+			int position = position();
 			skip(length);
 			return position;
+		}
+		
+		/**
+		 * Returns the index of position 0 in the underlying provider.
+		 */
+		protected int position() {
+			return start + offset();
 		}
 	}
 
@@ -770,16 +772,16 @@ public interface ByteProvider extends Iterable<Integer> {
 	/**
 	 * Provides sequential byte access.
 	 */
-	default Reader reader(int index) {
+	default Reader<?> reader(int index) {
 		return reader(index, length() - index);
 	}
 
 	/**
 	 * Provides sequential byte access.
 	 */
-	default Reader reader(int index, int length) {
+	default Reader<?> reader(int index, int length) {
 		ArrayUtil.validateSlice(length(), index, length);
-		return new Reader(this, index, length);
+		return new Reader<>(this, index, length);
 	}
 
 	/**

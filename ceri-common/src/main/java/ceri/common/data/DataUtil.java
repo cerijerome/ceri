@@ -13,7 +13,7 @@ public class DataUtil {
 	/**
 	 * Validate minimum data size.
 	 */
-	public static void requireMin(ByteProvider.Reader r, int size) {
+	public static void requireMin(ByteProvider.Reader<?> r, int size) {
 		validateMin(r.remaining(), size, "Remaining bytes");
 	}
 

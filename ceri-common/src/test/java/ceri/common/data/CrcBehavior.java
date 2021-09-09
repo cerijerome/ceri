@@ -36,7 +36,7 @@ public class CrcBehavior {
 		assertEquals(ca.start().add(1, 2).crcByte(), (byte) 0x3);
 		assertEquals(ca.start().add(ArrayUtil.bytes(1, 2)).crcByte(), (byte) 0x3);
 		assertEquals(ca.start().add(ArrayUtil.bytes(0, 1, 2), 1).crcByte(), (byte) 0x3);
-		ByteProvider.Reader r = Immutable.wrap(1, 2).reader(0);
+		ByteProvider.Reader<?> r = Immutable.wrap(1, 2).reader(0);
 		assertEquals(ca.start().add(r, 2).crcByte(), (byte) 0x3);
 	}
 

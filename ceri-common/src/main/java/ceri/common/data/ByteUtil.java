@@ -92,7 +92,14 @@ public class ByteUtil {
 	/**
 	 * Stream array as unsigned bytes.
 	 */
-	public static IntStream ustream(byte... array) {
+	public static IntStream ustream(int... array) {
+		return IntStream.range(0, array.length).map(i -> MathUtil.ubyte(array[i]));
+	}
+
+	/**
+	 * Stream array as unsigned bytes.
+	 */
+	public static IntStream ustream(byte[] array) {
 		return ustream(array, 0);
 	}
 
@@ -165,7 +172,7 @@ public class ByteUtil {
 	/**
 	 * Copies bytes from the buffer, and moves the buffer position after the read.
 	 */
-	public static int readFrom(ByteBuffer buffer, int pos, byte... data) {
+	public static int readFrom(ByteBuffer buffer, int pos, byte[] data) {
 		return readFrom(buffer, pos, data, 0);
 	}
 
@@ -188,7 +195,14 @@ public class ByteUtil {
 	/**
 	 * Copies bytes to the buffer, and moves the buffer position after the write.
 	 */
-	public static int writeTo(ByteBuffer buffer, int pos, byte... data) {
+	public static int writeTo(ByteBuffer buffer, int pos, int... data) {
+		return writeTo(buffer, pos, ArrayUtil.bytes(data));
+	}
+
+	/**
+	 * Copies bytes to the buffer, and moves the buffer position after the write.
+	 */
+	public static int writeTo(ByteBuffer buffer, int pos, byte[] data) {
 		return writeTo(buffer, pos, data, 0);
 	}
 
@@ -218,7 +232,7 @@ public class ByteUtil {
 	/**
 	 * Writes bytes to output stream.
 	 */
-	public static void writeTo(ByteArrayOutputStream out, byte... bytes) {
+	public static void writeTo(ByteArrayOutputStream out, byte[] bytes) {
 		writeTo(out, bytes, 0);
 	}
 
@@ -293,53 +307,53 @@ public class ByteUtil {
 	}
 
 	/**
-	 * Extract a null-terminated string, up to maximum length. If no null-termination, the
-	 * maximum length string is returned.
+	 * Extract a null-terminated string, up to maximum length. If no null-termination, the maximum
+	 * length string is returned.
 	 */
 	public static String fromNullTerm(byte[] data, Charset charset) {
 		return fromNullTerm(data, 0, charset);
 	}
 
 	/**
-	 * Extract a null-terminated string, up to maximum length. If no null-termination, the
-	 * maximum length string is returned.
+	 * Extract a null-terminated string, up to maximum length. If no null-termination, the maximum
+	 * length string is returned.
 	 */
 	public static String fromNullTerm(byte[] data, int offset, Charset charset) {
 		return fromNullTerm(data, offset, data.length - offset, charset);
 	}
 
 	/**
-	 * Extract a null-terminated string, up to maximum length. If no null-termination, the
-	 * maximum length string is returned.
+	 * Extract a null-terminated string, up to maximum length. If no null-termination, the maximum
+	 * length string is returned.
 	 */
 	public static String fromNullTerm(byte[] data, int offset, int maxLen, Charset charset) {
 		return fromNullTerm(ByteArray.Immutable.wrap(data, offset, maxLen), 0, maxLen, charset);
 	}
 
 	/**
-	 * Extract a null-terminated string, up to maximum length. If no null-termination, the
-	 * maximum length string is returned.
+	 * Extract a null-terminated string, up to maximum length. If no null-termination, the maximum
+	 * length string is returned.
 	 */
 	public static String fromNullTerm(ByteProvider data, Charset charset) {
 		return fromNullTerm(data, 0, charset);
 	}
 
 	/**
-	 * Extract a null-terminated string, up to maximum length. If no null-termination, the
-	 * maximum length string is returned.
+	 * Extract a null-terminated string, up to maximum length. If no null-termination, the maximum
+	 * length string is returned.
 	 */
 	public static String fromNullTerm(ByteProvider data, int offset, Charset charset) {
 		return fromNullTerm(data, offset, data.length() - offset, charset);
 	}
 
 	/**
-	 * Extract a null-terminated string, up to maximum length. If no null-termination, the
-	 * maximum length string is returned.
+	 * Extract a null-terminated string, up to maximum length. If no null-termination, the maximum
+	 * length string is returned.
 	 */
 	public static String fromNullTerm(ByteProvider data, int offset, int maxLen, Charset charset) {
 		validateSlice(data.length(), offset, maxLen);
 		for (int i = 0; i < maxLen; i++)
-			if (data.getByte(offset + i) == 0) return data.getString(offset, i, charset); 
+			if (data.getByte(offset + i) == 0) return data.getString(offset, i, charset);
 		return data.getString(offset, maxLen, charset);
 	}
 

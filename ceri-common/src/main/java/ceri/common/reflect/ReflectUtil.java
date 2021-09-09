@@ -4,6 +4,7 @@
 package ceri.common.reflect;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_CLASS;
+import static ceri.common.text.StringUtil.NULL_STRING;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -29,7 +30,7 @@ public class ReflectUtil {
 	public static <T> Class<? extends T> getClass(T t) {
 		return t == null ? null : BasicUtil.uncheckedCast(t.getClass());
 	}
-	
+
 	/**
 	 * Return the number of levels in the package of the given class.
 	 */
@@ -47,11 +48,23 @@ public class ReflectUtil {
 	}
 
 	/**
-	 * Returns the class name without package.
+	 * Returns the class name without package. Undefined for class names containing '$'.
 	 */
 	public static String name(Class<?> cls) {
-		if (cls == null) return "null";
+		if (cls == null) return NULL_STRING;
 		String s = cls.getTypeName();
+		return s.substring(s.lastIndexOf(".") + 1).replace('$', '.');
+	}
+
+	/**
+	 * Returns the class name without package and outer class, if nested. Otherwise returns the
+	 * class name without package (same as name()). Undefined for class names containing '$'.
+	 */
+	public static String nestedName(Class<?> cls) {
+		if (cls == null) return NULL_STRING;
+		String s = cls.getTypeName();
+		int i = s.indexOf('$');
+		if (i > 0) return s.substring(i + 1).replace('$', '.');
 		return s.substring(s.lastIndexOf(".") + 1).replace('$', '.');
 	}
 

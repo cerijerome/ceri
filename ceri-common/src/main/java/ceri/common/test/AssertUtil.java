@@ -8,6 +8,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.nio.ByteBuffer;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,6 +30,7 @@ import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
+import ceri.common.data.ByteUtil;
 import ceri.common.data.IntProvider;
 import ceri.common.data.LongProvider;
 import ceri.common.function.ExceptionPredicate;
@@ -680,6 +682,10 @@ public class AssertUtil {
 
 	public static void assertStream(LongStream stream, long... ls) {
 		assertArray(stream.toArray(), ls);
+	}
+
+	public static void assertBuffer(ByteBuffer buffer, int... bytes) {
+		assertArray(ByteUtil.bytes(buffer), bytes);
 	}
 
 	/**

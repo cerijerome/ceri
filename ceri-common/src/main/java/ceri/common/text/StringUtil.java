@@ -43,6 +43,7 @@ public class StringUtil {
 	public static final char CR = '\r';
 	public static final char NL = '\n';
 	public static final char NULL = '\0';
+	public static final String NULL_STRING = "null";
 	private static final String ESCAPED_NULL = "\\0";
 	private static final String ESCAPED_BACKSLASH = "\\\\";
 	private static final String ESCAPED_BACKSPACE = "\\b";

@@ -239,7 +239,7 @@ public class ByteProviderBehavior {
 		assertThrown(() -> bp.reader(11, 0));
 	}
 
-	/* ByteProvider.Reader tests */
+	/* ByteProvider.Reader<?> tests */
 
 	@Test
 	public void shouldReadByte() {
@@ -298,9 +298,9 @@ public class ByteProviderBehavior {
 
 	@Test
 	public void shouldSliceReader() {
-		Reader r0 = bp.reader(6);
-		Reader r1 = r0.slice();
-		Reader r2 = r0.slice(3);
+		Reader<?> r0 = bp.reader(6);
+		Reader<?> r1 = r0.slice();
+		Reader<?> r2 = r0.slice(3);
 		assertThrown(() -> r0.slice(5));
 		assertThrown(() -> r0.slice(-2));
 		assertArray(r0.readBytes(), 6, -7, 8, -9);
