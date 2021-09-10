@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.text.ToString;
 import ceri.log.util.LogUtil;
@@ -34,7 +33,7 @@ public class UsbBulkStreams implements Closeable {
 		this.handleSupplier = handleSupplier;
 		this.count = count;
 		this.endPointBytes = endPoints.clone();
-		this.endPoints = ByteArray.Immutable.wrap(this.endPointBytes);
+		this.endPoints = ByteProvider.of(this.endPointBytes);
 	}
 
 	@Override

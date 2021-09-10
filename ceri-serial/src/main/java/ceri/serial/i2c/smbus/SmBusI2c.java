@@ -144,7 +144,7 @@ public class SmBusI2c implements SmBus {
 		Memory recvM = CUtil.calloc(length(recvLen, pec));
 		i2c_msg.ByReference msg = populate(null, address, recvM, I2C_M_RD);
 		transfer(msg);
-		byte[] recv = JnaUtil.byteArray(recvM);
+		byte[] recv = JnaUtil.bytes(recvM);
 		if (pec) CRC.start().add(crcAddr(true)).add(recv, 0, recv.length - 1)
 			.verify(recv[recv.length - 1]);
 		return pec ? Mutable.wrap(recv, 0, recv.length - 1) : Mutable.wrap(recv);
@@ -172,7 +172,7 @@ public class SmBusI2c implements SmBus {
 		populate(msgs[0], address, CUtil.malloc(send));
 		populate(msgs[1], address, recvM, I2C_M_RD);
 		transfer(msgs);
-		byte[] recv = JnaUtil.byteArray(recvM);
+		byte[] recv = JnaUtil.bytes(recvM);
 		if (pec) CRC.start().add(crcAddr(false)).add(send).add(crcAddr(true))
 			.add(recv, 0, recv.length - 1).verify(recv[recv.length - 1]);
 		return pec ? Mutable.wrap(recv, 0, recv.length - 1) : Mutable.wrap(recv);
@@ -188,7 +188,7 @@ public class SmBusI2c implements SmBus {
 		populate(msgs[0], address, CUtil.malloc(send));
 		populate(msgs[1], address, 1, recvM, I2C_M_RD, I2C_M_RECV_LEN);
 		transfer(msgs);
-		byte[] recv = JnaUtil.byteArray(recvM);
+		byte[] recv = JnaUtil.bytes(recvM);
 		int recvLen = 1 + Math.min(ubyte(recv[0]), I2C_SMBUS_BLOCK_MAX);
 		if (pec) CRC.start().add(crcAddr(false)).add(send).add(crcAddr(true)).add(recv, 0, recvLen)
 			.verify(recv[recvLen]);

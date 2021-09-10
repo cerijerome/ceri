@@ -38,52 +38,53 @@ public class TestI2cCLibNative extends TestCLibNative {
 		byte[] block = new byte[34]; // block size;
 		for (int i = 0; i < bytes.length; i++)
 			block[i] = (byte) bytes[i];
-		return ByteArray.Immutable.wrap(block);
+		return ByteProvider.of(block);
 	}
-	
+
 	private TestI2cCLibNative() {}
 
 	@Override
 	protected int ioctl(Fd f, int request, Object... objs) throws LastErrorException {
 		switch (request) {
-		case 0x0701: // I2C_RETRIES
-		case 0x0702: // I2C_TIMEOUT
-		case 0x0703: // I2C_SLAVE
-		case 0x0704: // I2C_TENBIT 1/0
-		case 0x0706: // I2C_SLAVE_FORCE
-		case 0x0708: // I2C_PEC 1/0
-			return ioctlI2cInt.apply(List.of(request, ((Number) objs[0]).intValue()));
-		case 0x0705: // I2C_FUNCS, pointer to unsigned long
-			return ioctlI2cFuncs(request, (NativeLongByReference) objs[0]);
-		case 0x0707: // I2C_RDWR, pointer to struct i2c_rdwr_ioctl_data
-			return ioctlI2cRdwr((i2c_rdwr_ioctl_data) objs[0]);
-		case 0x0720: // I2C_SMBUS, pointer to struct i2c_smbus_ioctl_data
-			return ioctlSmBus((i2c_smbus_ioctl_data) objs[0]);
-		default:
-			return super.ioctl(f, request, objs);
+			case 0x0701: // I2C_RETRIES
+			case 0x0702: // I2C_TIMEOUT
+			case 0x0703: // I2C_SLAVE
+			case 0x0704: // I2C_TENBIT 1/0
+			case 0x0706: // I2C_SLAVE_FORCE
+			case 0x0708: // I2C_PEC 1/0
+				return ioctlI2cInt.apply(List.of(request, ((Number) objs[0]).intValue()));
+			case 0x0705: // I2C_FUNCS, pointer to unsigned long
+				return ioctlI2cFuncs(request, (NativeLongByReference) objs[0]);
+			case 0x0707: // I2C_RDWR, pointer to struct i2c_rdwr_ioctl_data
+				return ioctlI2cRdwr((i2c_rdwr_ioctl_data) objs[0]);
+			case 0x0720: // I2C_SMBUS, pointer to struct i2c_smbus_ioctl_data
+				return ioctlSmBus((i2c_smbus_ioctl_data) objs[0]);
+			default:
+				return super.ioctl(f, request, objs);
 		}
 	}
 
 	private int ioctlSmBus(i2c_smbus_ioctl_data smBus) {
 		boolean read = smBus.read_write != 0;
 		switch (smBus.size) {
-		case 0: // I2C_SMBUS_QUICK
-			return ioctlSmBusByte(smBus, false);
-		case 1: // I2C_SMBUS_BYTE
-		case 2: // I2C_SMBUS_BYTE_DATA
-			return ioctlSmBusByte(smBus, read);
-		case 3: // I2C_SMBUS_WORD_DATA
-			return ioctlSmBusWord(smBus, read);
-		case 4: // I2C_SMBUS_PROC_CALL
-			return ioctlSmBusWord(smBus, true);
-		case 5: // I2C_SMBUS_BLOCK_DATA
-			return ioctlSmBusBytes(smBus, read);
-		case 7: // I2C_SMBUS_BLOCK_PROC_CALL
-			return ioctlSmBusBytes(smBus, true);
-		case 8: // I2C_SMBUS_I2C_BLOCK_DATA
-			return ioctlSmBusBytes(smBus, read);
-		default:
-			throw new UnsupportedOperationException("Unsupported transaction type: " + smBus.size);
+			case 0: // I2C_SMBUS_QUICK
+				return ioctlSmBusByte(smBus, false);
+			case 1: // I2C_SMBUS_BYTE
+			case 2: // I2C_SMBUS_BYTE_DATA
+				return ioctlSmBusByte(smBus, read);
+			case 3: // I2C_SMBUS_WORD_DATA
+				return ioctlSmBusWord(smBus, read);
+			case 4: // I2C_SMBUS_PROC_CALL
+				return ioctlSmBusWord(smBus, true);
+			case 5: // I2C_SMBUS_BLOCK_DATA
+				return ioctlSmBusBytes(smBus, read);
+			case 7: // I2C_SMBUS_BLOCK_PROC_CALL
+				return ioctlSmBusBytes(smBus, true);
+			case 8: // I2C_SMBUS_I2C_BLOCK_DATA
+				return ioctlSmBusBytes(smBus, read);
+			default:
+				throw new UnsupportedOperationException(
+					"Unsupported transaction type: " + smBus.size);
 		}
 	}
 
@@ -141,7 +142,7 @@ public class TestI2cCLibNative extends TestCLibNative {
 		Collections.addAll(list, ushort(msg.addr), ushort(msg.flags));
 		if (msg.flags().has(I2C_M_RD)) list.add(ushort(msg.len));
 		else if (msg.buf == null) list.add(ByteProvider.empty());
-		else list.add(ByteArray.Immutable.wrap(msg.buf.getByteArray(0, ushort(msg.len))));
+		else list.add(ByteProvider.of(msg.buf.getByteArray(0, ushort(msg.len))));
 	}
 
 }

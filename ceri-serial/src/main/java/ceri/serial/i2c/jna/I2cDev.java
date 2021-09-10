@@ -163,11 +163,11 @@ public class I2cDev {
 	 * Data for SMBus Messages.
 	 */
 	public static class i2c_smbus_data extends Union {
-		public static class ByReference extends i2c_smbus_data implements Structure.ByReference {}
-
 		public byte byte_;
 		public short word;
 		public byte[] block = new byte[I2C_SMBUS_BLOCK_MAX + 2]; // [0] = len, [n+1] = optional PEC
+
+		public static class ByReference extends i2c_smbus_data implements Structure.ByReference {}
 
 		public void setByte(int value) {
 			byte_ = MathUtil.ubyteExact(value);

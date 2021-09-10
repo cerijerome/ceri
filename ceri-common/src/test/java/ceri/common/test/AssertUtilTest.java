@@ -58,7 +58,6 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 
@@ -177,11 +176,11 @@ public class AssertUtilTest {
 		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes(1, 2, 3));
 		assertRead(in, 1, 2, 3);
 		in.reset();
-		assertRead(in, ByteArray.Immutable.wrap(1, 2));
+		assertRead(in, ByteProvider.of(1, 2));
 		in.reset();
 		assertAssertion(() -> assertRead(in, 1, 2, 3, 4));
 		in.reset();
-		assertAssertion(() -> assertRead(in, ByteArray.Immutable.wrap(1, 2, 4)));
+		assertAssertion(() -> assertRead(in, ByteProvider.of(1, 2, 4)));
 	}
 
 	@Test

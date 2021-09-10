@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
@@ -516,6 +515,6 @@ public class UsbDescriptors {
 
 	private static ByteProvider wrap(byte[] bytes) {
 		if (bytes == null) return ByteProvider.empty();
-		return ByteArray.Immutable.wrap(bytes);
+		return ByteProvider.of(bytes);
 	}
 }

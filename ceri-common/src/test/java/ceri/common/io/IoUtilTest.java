@@ -34,7 +34,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.WrappedStream;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.io.IoStreamUtil.Read;
 import ceri.common.test.AssertUtil;
@@ -393,7 +392,7 @@ public class IoUtilTest {
 	public void testAvailableBytes() throws IOException {
 		assertNull(IoUtil.availableBytes(null));
 		try (InputStream in = new ByteArrayInputStream(ArrayUtil.bytes(0, 1, 2, 3, 4))) {
-			assertEquals(IoUtil.availableBytes(in), ByteArray.Immutable.wrap(0, 1, 2, 3, 4));
+			assertEquals(IoUtil.availableBytes(in), ByteProvider.of(0, 1, 2, 3, 4));
 			assertEquals(IoUtil.availableBytes(in), ByteProvider.empty());
 		}
 		try (InputStream in = IoStreamUtil.in((buf, off, len) -> 0, () -> 3)) {
@@ -620,7 +619,7 @@ public class IoUtilTest {
 	@Test
 	public void testWrite() throws IOException {
 		try {
-			ByteArray.Immutable ba = ByteArray.Immutable.wrap('a', 'b', 'c');
+			ByteProvider ba = ByteProvider.of('a', 'b', 'c');
 			Path toFile = helper.path("x/x/x.txt");
 			IoUtil.write(toFile, ba);
 			assertFile(toFile, 'a', 'b', 'c');

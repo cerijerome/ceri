@@ -38,4 +38,10 @@ public class SpiPulseConfigBehavior {
 		assertEquals(conf2, SpiPulseConfig.of(3));
 	}
 
+	@Test
+	public void shouldDetermineIfNull() {
+		assertEquals(SpiPulseConfig.of(0).isNull(), true);
+		assertEquals(SpiPulseConfig.of(1).isNull(), false);
+	}
+
 }

@@ -1,5 +1,6 @@
 package ceri.log.io;
 
+import java.nio.charset.Charset;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +32,7 @@ public class LogPrintStream extends StringPrintStream {
 	}
 
 	private LogPrintStream(Level level, Logger logger) {
+		super(Charset.defaultCharset());
 		this.level = level;
 		this.logger = logger;
 	}

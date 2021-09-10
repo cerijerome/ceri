@@ -121,7 +121,7 @@ public class ByteUtilTest {
 	@Test
 	public void testWriteTo() {
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
-		ByteProvider im = ByteArray.Immutable.wrap(-1, 0, 128);
+		ByteProvider im = ByteProvider.of(-1, 0, 128);
 		ByteUtil.writeTo(b, -1, 2);
 		ByteUtil.writeTo(b, new byte[] { 3, 4, 5 }, 1);
 		ByteUtil.writeTo(b, im);

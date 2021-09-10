@@ -4,7 +4,6 @@ import static ceri.common.collection.ImmutableUtil.asList;
 import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.util.List;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.CallSync;
 import ceri.serial.i2c.DeviceId;
@@ -27,13 +26,13 @@ public class TestI2cSlave extends I2cSlaveDeviceEmulator {
 
 	@Override
 	protected void write(byte[] command) throws IOException {
-		ByteProvider bp = command == null ? null : ByteArray.Immutable.wrap(command);
+		ByteProvider bp = command == null ? null : ByteProvider.of(command);
 		write.accept(bp, IO_ADAPTER);
 	}
 
 	@Override
 	protected byte[] read(byte[] command, int readLen) throws IOException {
-		ByteProvider bp = command == null ? null : ByteArray.Immutable.wrap(command);
+		ByteProvider bp = command == null ? null : ByteProvider.of(command);
 		ByteProvider response = read.apply(asList(bp, readLen), IO_ADAPTER);
 		return response == null ? null : response.copy(0);
 	}

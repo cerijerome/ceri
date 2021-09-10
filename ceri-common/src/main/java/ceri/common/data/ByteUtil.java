@@ -275,7 +275,7 @@ public class ByteUtil {
 	 * Encodes string to latin-1 bytes.
 	 */
 	public static ByteProvider toAscii(String s) {
-		return ByteArray.Immutable.wrap(toAsciiBytes(s));
+		return ByteProvider.of(toAsciiBytes(s));
 	}
 
 	/**

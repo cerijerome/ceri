@@ -29,10 +29,10 @@ public class ByteArrayBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertEquals(ByteArray.Immutable.wrap().toString(), "Immutable[](0)");
-		assertEquals(ByteArray.Immutable.wrap(1, 2, 3, 4, 5, 6, 7, 8, 9).toString(),
+		assertEquals(ByteProvider.of().toString(), "Immutable[](0)");
+		assertEquals(ByteProvider.of(1, 2, 3, 4, 5, 6, 7, 8, 9).toString(),
 			"Immutable[0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, ...](9)");
-		assertEquals(ByteArray.Immutable.wrap(1, 2, 3, 4, 5, 6, 7, 8).toString(),
+		assertEquals(ByteProvider.of(1, 2, 3, 4, 5, 6, 7, 8).toString(),
 			"Immutable[0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8](8)");
 	}
 
@@ -181,8 +181,8 @@ public class ByteArrayBehavior {
 
 	@Test
 	public void shouldCopyBytes() {
-		assertArray(ByteArray.Immutable.wrap().copy(0));
-		assertArray(ByteArray.Immutable.wrap(1, 2, 3).copy(0), 1, 2, 3);
+		assertArray(ByteProvider.of().copy(0));
+		assertArray(ByteProvider.of(1, 2, 3).copy(0), 1, 2, 3);
 	}
 
 	@Test

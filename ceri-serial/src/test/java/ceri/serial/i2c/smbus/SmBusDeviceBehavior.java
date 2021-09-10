@@ -3,7 +3,7 @@ package ceri.serial.i2c.smbus;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.provider;
-import static ceri.serial.clib.jna.TestCLibUtil.autoError;
+import static ceri.serial.clib.jna.CLibTestUtil.autoError;
 import static ceri.serial.i2c.jna.TestI2cCLibNative.smBusBlock;
 import java.io.IOException;
 import java.util.List;

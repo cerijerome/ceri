@@ -2,16 +2,17 @@ package ceri.serial.jna;
 
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.math.MathUtil.ubyte;
-import java.util.List;
 import java.util.function.Function;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import ceri.serial.jna.Struct.Fields;
 
 /**
  * Demonstration of various var array struct types.
  */
 public class VarStructTester {
 
+	@Fields({ "dummy1", "dummy2", "dummy3" })
 	public static class Sub extends Struct {
 		public short dummy1;
 		public int dummy2;
@@ -19,6 +20,7 @@ public class VarStructTester {
 
 		public static class ByRef extends Sub implements Structure.ByReference {
 			public ByRef(int dummy1, int dummy2, int dummy3) {
+				super(null);
 				this.dummy1 = (short) dummy1;
 				this.dummy2 = dummy2;
 				this.dummy3 = (byte) dummy3;
@@ -29,18 +31,12 @@ public class VarStructTester {
 			}
 		}
 
-		public Sub() {}
-
 		public Sub(Pointer p) {
 			super(p);
 		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return List.of("dummy1", "dummy2", "dummy3");
-		}
 	}
 
+	@Fields({ "dummy", "count", "array" })
 	public static class ByteVar extends VarStruct {
 		public int dummy;
 		public byte count;
@@ -75,13 +71,9 @@ public class VarStructTester {
 		protected int varCount() {
 			return ubyte(count);
 		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return List.of("dummy", "count", "array");
-		}
 	}
 
+	@Fields({ "length", "dummy1", "dummy2", "array" })
 	public static class LenVar extends VarStruct {
 		private static final int lastOffset = new LenVar(0, 0).lastOffset();
 		public int length;
@@ -109,13 +101,9 @@ public class VarStructTester {
 		protected int varCount() {
 			return length - lastOffset;
 		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return List.of("length", "dummy1", "dummy2", "array");
-		}
 	}
 
+	@Fields({ "dummy", "count", "array" })
 	public static class TypeVar extends VarStruct {
 		public int dummy;
 		public byte count;
@@ -140,13 +128,9 @@ public class VarStructTester {
 		protected int varCount() {
 			return ubyte(count);
 		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return List.of("dummy", "count", "array");
-		}
 	}
 
+	@Fields({ "dummy", "count", "array" })
 	public static class RefVar extends VarStruct {
 		public int dummy;
 		public byte count;
@@ -171,13 +155,9 @@ public class VarStructTester {
 		protected int varCount() {
 			return ubyte(count);
 		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return List.of("dummy", "count", "array");
-		}
 	}
 
+	@Fields({ "length", "dummy1", "dummy2", "array" })
 	public static class LenRefVar extends VarStruct {
 		private static final int lastOffset = new LenRefVar(0, 0).lastOffset();
 		public int length;
@@ -205,13 +185,9 @@ public class VarStructTester {
 		protected int varCount() {
 			return (length - lastOffset) / Pointer.SIZE;
 		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return List.of("length", "dummy1", "dummy2", "array");
-		}
 	}
 
+	@Fields({ "dummy", "count", "array" })
 	public static class VarRefVar extends VarStruct {
 		public int dummy;
 		public byte count;
@@ -236,11 +212,6 @@ public class VarStructTester {
 		protected int varCount() {
 			return ubyte(count);
 		}
-
-		@Override
-		protected List<String> getFieldOrder() {
-			return List.of("dummy", "count", "array");
-		}
 	}
 
 	public static void main(String[] args) {
@@ -262,7 +233,7 @@ public class VarStructTester {
 		// Struct pointer var array; does not copy var structs; count from total length
 		printCopy(new LenRefVar(0xef, 0xabcd), LenRefVar::new);
 		printCopy(new LenRefVar(0xef, 0xabcd, s0, s1, s2), LenRefVar::new);
-		// Var struct pointer var array; does not copy var structs 
+		// Var struct pointer var array; does not copy var structs
 		printCopy(new VarRefVar(0x89abcdef), VarRefVar::new);
 		printCopy(new VarRefVar(0x89abcdef, new ByteVar.ByRef(0xaaaa, 1, 2, 3, 4, 5),
 			new ByteVar.ByRef(0xbbbb), new ByteVar.ByRef(0xccbb, 1, 2, 3)), VarRefVar::new);

@@ -6,7 +6,6 @@ import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 
 public class VolatileByteArrayBehavior {
@@ -19,7 +18,7 @@ public class VolatileByteArrayBehavior {
 
 	@Test
 	public void shouldCreateFromByteProvider() {
-		ByteProvider b = ByteArray.Immutable.wrap(1, 2, 3);
+		ByteProvider b = ByteProvider.of(1, 2, 3);
 		VolatileByteArray a = VolatileByteArray.wrap(b.copy(0));
 		a.setByte(1, 0);
 		assertArray(a.copy(0), 1, 0, 3);

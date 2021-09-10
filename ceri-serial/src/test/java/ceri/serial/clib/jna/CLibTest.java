@@ -17,7 +17,7 @@ import ceri.serial.clib.OpenFlag;
 import ceri.serial.clib.Seek;
 import ceri.serial.jna.test.JnaTestUtil;
 
-public class CLibBehavior {
+public class CLibTest {
 	private static FileTestHelper helper = null;
 
 	@BeforeClass
@@ -31,13 +31,13 @@ public class CLibBehavior {
 	}
 
 	@Test
-	public void shouldFailToOpenWithParameters() {
+	public void testFailToOpenWithParameters() {
 		assertThrown(() -> CLib.open(helper.path("").toString(), 3));
 		assertThrown(() -> CLib.open(helper.path("").toString(), 3, 0666));
 	}
 
 	@Test
-	public void shouldReadFromFileDescriptor() throws CException {
+	public void testReadFromFileDescriptor() throws CException {
 		int fd = CLib.open(helper.path("file1").toString(), 0);
 		try {
 			assertEquals(CLib.read(fd, null, 0), 0);
@@ -53,13 +53,13 @@ public class CLibBehavior {
 	}
 
 	@Test
-	public void shouldFailToReadWithBadFileDescriptor() {
+	public void testFailToReadWithBadFileDescriptor() {
 		Memory m = new Memory(4);
 		assertThrown(() -> CLib.read(-1, m, 4));
 	}
 
 	@Test
-	public void shouldWriteToFileDescriptor() throws IOException {
+	public void testWriteToFileDescriptor() throws IOException {
 		Path path = helper.path("file2");
 		int fd = CLib.open(path.toString(), OpenFlag.encode(O_CREAT, O_RDWR), 0666);
 		try {
@@ -74,13 +74,13 @@ public class CLibBehavior {
 	}
 
 	@Test
-	public void shouldFailToWriteWithBadFileDescriptor() {
+	public void testFailToWriteWithBadFileDescriptor() {
 		Memory m = CUtil.malloc("test".getBytes());
 		assertThrown(() -> CLib.write(-1, m, 4));
 	}
 
 	@Test
-	public void shouldSeekFile() throws CException {
+	public void testSeekFile() throws CException {
 		int fd = CLib.open(helper.path("file1").toString(), 0);
 		try {
 			assertEquals(CLib.lseek(fd, 0, Seek.SEEK_CUR.value), 0);

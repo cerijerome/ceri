@@ -20,61 +20,93 @@ public class UnionAccessor {
 
 	private UnionAccessor() {}
 
+	/**
+	 * Accessor for a typed field. Calls autoRead() on get, as typed fields are not loaded before
+	 * setType().
+	 */
 	public static <U extends Union, T> Accessor.Typed<U, T> of(String name, Function<U, T> getFn,
 		BiConsumer<U, T> setFn) {
 		return of(name, Accessor.typed(getFn, setFn));
 	}
 
+	/**
+	 * Accessor for a typed field. Calls autoRead() on get, as typed fields are not loaded before
+	 * setType().
+	 */
 	public static <U extends Union, T> Accessor.Typed<U, T> of(Class<?> cls, Function<U, T> getFn,
 		BiConsumer<U, T> setFn) {
 		return of(cls, Accessor.typed(getFn, setFn));
 	}
 
+	/**
+	 * Accessor for a typed field. Calls autoRead() on get, as typed fields are not loaded before
+	 * setType().
+	 */
 	public static <U extends Union, T> Accessor.Typed<U, T> of(String name,
 		Accessor.Typed<U, T> accessor) {
 		return adapt(u -> u.setType(name), accessor);
 	}
 
+	/**
+	 * Accessor for a typed field. Calls autoRead() on get, as typed fields are not loaded before
+	 * setType().
+	 */
 	public static <U extends Union, T> Accessor.Typed<U, T> of(Class<?> cls,
 		Accessor.Typed<U, T> accessor) {
 		return adapt(u -> u.setType(cls), accessor);
 	}
 
-	public static <U extends Union> IntField.Typed<U> ofUbyte(String name,
-		ToByteFunction<U> getFn, ObjByteConsumer<U> setFn) {
-		return ofInt(name, IntField.typedUbyte(getFn, setFn));
+	/**
+	 * Accessor for an unsigned byte field.
+	 */
+	public static <U extends Union> IntField.Typed<U> ofUbyte(ToByteFunction<U> getFn,
+		ObjByteConsumer<U> setFn) {
+		return ofInt(byte.class, IntField.typedUbyte(getFn, setFn));
 	}
 
-	public static <U extends Union> IntField.Typed<U> ofUbyte(Class<?> cls,
-		ToByteFunction<U> getFn, ObjByteConsumer<U> setFn) {
-		return ofInt(cls, IntField.typedUbyte(getFn, setFn));
-	}
-
-	public static <U extends Union> IntField.Typed<U> ofUshort(String name,
+	/**
+	 * Accessor for an unsigned short field.
+	 */
+	public static <U extends Union> IntField.Typed<U> ofUshort(
 		ToShortFunction<U> getFn, ObjShortConsumer<U> setFn) {
-		return ofInt(name, IntField.typedUshort(getFn, setFn));
+		return ofInt(short.class, IntField.typedUshort(getFn, setFn));
 	}
 
-	public static <U extends Union> IntField.Typed<U> ofUshort(Class<?> cls,
-		ToShortFunction<U> getFn, ObjShortConsumer<U> setFn) {
-		return ofInt(cls, IntField.typedUshort(getFn, setFn));
+	/**
+	 * Accessor for an int field.
+	 */
+	public static <U extends Union> IntField.Typed<U> ofInt(ToIntFunction<U> getFn,
+		ObjIntConsumer<U> setFn) {
+		return ofInt(int.class, getFn, setFn);
 	}
 
+	/**
+	 * Accessor for an int field.
+	 */
 	public static <U extends Union> IntField.Typed<U> ofInt(String name, ToIntFunction<U> getFn,
 		ObjIntConsumer<U> setFn) {
 		return ofInt(name, IntField.typed(getFn, setFn));
 	}
 
+	/**
+	 * Accessor for an int field.
+	 */
 	public static <U extends Union> IntField.Typed<U> ofInt(Class<?> cls, ToIntFunction<U> getFn,
 		ObjIntConsumer<U> setFn) {
 		return ofInt(cls, IntField.typed(getFn, setFn));
 	}
 
+	/**
+	 * Accessor for an int field.
+	 */
 	public static <U extends Union> IntField.Typed<U> ofInt(String name,
 		IntField.Typed<U> accessor) {
 		return adaptInt(u -> u.setType(name), accessor);
 	}
 
+	/**
+	 * Accessor for an int field.
+	 */
 	public static <U extends Union> IntField.Typed<U> ofInt(Class<?> cls,
 		IntField.Typed<U> accessor) {
 		return adaptInt(u -> u.setType(cls), accessor);
@@ -84,6 +116,7 @@ public class UnionAccessor {
 		Accessor.Typed<U, T> accessor) {
 		return Accessor.typed(u -> {
 			setTypeFn.accept(u);
+			u.autoRead();
 			return accessor.get(u);
 		}, (u, t) -> {
 			setTypeFn.accept(u);

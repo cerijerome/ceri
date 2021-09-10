@@ -69,14 +69,14 @@ public class I2cEmulator extends I2c.Null {
 
 	@Override
 	public void write(I2cAddress address, int writeLen, Pointer writeBuf) throws IOException {
-		byte[] command = JnaUtil.byteArray(writeBuf, 0, writeLen);
+		byte[] command = JnaUtil.bytes(writeBuf, 0, writeLen);
 		slaveWrite(address, command);
 	}
 
 	@Override
 	public void writeRead(I2cAddress address, Pointer writeBuf, int writeLen, Pointer readBuf,
 		int readLen) throws IOException {
-		byte[] command = JnaUtil.byteArray(writeBuf, 0, writeLen);
+		byte[] command = JnaUtil.bytes(writeBuf, 0, writeLen);
 		byte[] response = slaveRead(address, command, readLen); // length checked in method
 		JnaUtil.write(readBuf, response);
 	}

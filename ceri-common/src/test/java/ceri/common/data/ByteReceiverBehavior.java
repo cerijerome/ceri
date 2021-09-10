@@ -164,7 +164,7 @@ public class ByteReceiverBehavior {
 
 	@Test
 	public void shouldWriteFromByteProvider() {
-		ByteProvider bp = ByteArray.Immutable.wrap(1, 2, 3, 4, 5);
+		ByteProvider bp = ByteProvider.of(1, 2, 3, 4, 5);
 		assertBytes(5, br -> br.writer(1).writeFrom(bp, 1, 3), 0, 2, 3, 4, 0);
 	}
 

@@ -407,7 +407,7 @@ public class LibFtdi {
 		}
 
 		public byte[] buf() {
-			return JnaUtil.byteArray(buf, offset, size);
+			return JnaUtil.bytes(buf, offset, size);
 		}
 	}
 

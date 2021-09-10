@@ -12,14 +12,12 @@ import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
-import com.sun.jna.Structure;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.ShortByReference;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.math.MathUtil;
 import ceri.common.util.ValueCache;
@@ -27,7 +25,6 @@ import ceri.common.util.ValueCache;
 public class JnaUtil {
 	public static final Charset DEFAULT_CHARSET = defaultCharset();
 	public static final boolean NLONG_LONG = NativeLong.SIZE == Long.BYTES;
-	private static final NativeLong ZERO = new NativeLong(0);
 
 	private JnaUtil() {}
 
@@ -56,10 +53,10 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Returns a pointer from the structure.
+	 * Returns the native peer for a pointer, or 0L if null. Use with caution.
 	 */
-	public static Pointer pointer(Structure t) {
-		return t == null ? null : t.getPointer();
+	public static long peer(Pointer p) {
+		return p == null ? 0L : Pointer.nativeValue(p);
 	}
 
 	/**
@@ -98,155 +95,6 @@ public class JnaUtil {
 	 */
 	public static int size(Memory m) {
 		return m == null ? 0 : Math.toIntExact(m.size());
-	}
-
-	/**
-	 * Executes a function that takes a byte pointer. Returns the value after execution.
-	 */
-	public static <E extends Exception> byte execByte(ExceptionConsumer<E, Pointer> consumer)
-		throws E {
-		return execByte(0, consumer);
-	}
-
-	/**
-	 * Executes a function that takes a byte pointer. Returns the value after execution.
-	 */
-	public static <E extends Exception> byte execByte(int value,
-		ExceptionConsumer<E, Pointer> consumer) throws E {
-		ByteByReference ref = new ByteByReference((byte) value);
-		consumer.accept(ref.getPointer());
-		return ref.getValue();
-	}
-
-	/**
-	 * Executes a function that takes a byte pointer. Returns the unsigned value after execution.
-	 */
-	public static <E extends Exception> short execUbyte(ExceptionConsumer<E, Pointer> consumer)
-		throws E {
-		return execUbyte(0, consumer);
-	}
-
-	/**
-	 * Executes a function that takes a byte pointer. Returns the unsigned value after execution.
-	 */
-	public static <E extends Exception> short execUbyte(int value,
-		ExceptionConsumer<E, Pointer> consumer) throws E {
-		return MathUtil.ubyte(execByte(value, consumer));
-	}
-
-	/**
-	 * Executes a function that takes a short pointer. Returns the value after execution.
-	 */
-	public static <E extends Exception> short execShort(ExceptionConsumer<E, Pointer> consumer)
-		throws E {
-		return execShort(0, consumer);
-	}
-
-	/**
-	 * Executes a function that takes a short pointer. Returns the value after execution.
-	 */
-	public static <E extends Exception> short execShort(int value,
-		ExceptionConsumer<E, Pointer> consumer) throws E {
-		ShortByReference ref = new ShortByReference((short) value);
-		consumer.accept(ref.getPointer());
-		return ref.getValue();
-	}
-
-	/**
-	 * Executes a function that takes a short pointer. Returns the unsigned value after execution.
-	 */
-	public static <E extends Exception> int execUshort(ExceptionConsumer<E, Pointer> consumer)
-		throws E {
-		return execUshort(0, consumer);
-	}
-
-	/**
-	 * Executes a function that takes a short pointer. Returns the unsigned value after execution.
-	 */
-	public static <E extends Exception> int execUshort(int value,
-		ExceptionConsumer<E, Pointer> consumer) throws E {
-		return MathUtil.ushort(execShort(value, consumer));
-	}
-
-	/**
-	 * Executes a function that takes an int pointer. Returns the value after execution.
-	 */
-	public static <E extends Exception> int execInt(ExceptionConsumer<E, Pointer> consumer)
-		throws E {
-		return execInt(0, consumer);
-	}
-
-	/**
-	 * Executes a function that takes an int pointer. Returns the value after execution.
-	 */
-	public static <E extends Exception> int execInt(int value,
-		ExceptionConsumer<E, Pointer> consumer) throws E {
-		IntByReference ref = new IntByReference(value);
-		consumer.accept(ref.getPointer());
-		return ref.getValue();
-	}
-
-	/**
-	 * Executes a function that takes an int pointer. Returns the unsigned value after execution.
-	 */
-	public static <E extends Exception> long execUint(ExceptionConsumer<E, Pointer> consumer)
-		throws E {
-		return execUint(0, consumer);
-	}
-
-	/**
-	 * Executes a function that takes an int pointer. Returns the unsigned value after execution.
-	 */
-	public static <E extends Exception> long execUint(int value,
-		ExceptionConsumer<E, Pointer> consumer) throws E {
-		return MathUtil.uint(execInt(value, consumer));
-	}
-
-	/**
-	 * Executes a function that takes a native long pointer. Returns the value after execution.
-	 */
-	public static <E extends Exception> NativeLong execNlong(ExceptionConsumer<E, Pointer> consumer)
-		throws E {
-		return execNlong(ZERO, consumer);
-	}
-
-	/**
-	 * Executes a function that takes a native long pointer. Returns the value after execution.
-	 */
-	public static <E extends Exception> NativeLong execNlong(NativeLong value,
-		ExceptionConsumer<E, Pointer> consumer) throws E {
-		NativeLongByReference ref = new NativeLongByReference(value);
-		consumer.accept(ref.getPointer());
-		return ref.getValue();
-	}
-
-	/**
-	 * Executes a function that takes a native long pointer. Returns the unsigned value after
-	 * execution.
-	 */
-	public static <E extends Exception> long execUnlong(NativeLong value,
-		ExceptionConsumer<E, Pointer> consumer) throws E {
-		NativeLongByReference ref = new NativeLongByReference(value);
-		consumer.accept(ref.getPointer());
-		return unlong(ref.getValue());
-	}
-
-	/**
-	 * Executes a function that takes a long pointer. Returns the value after execution.
-	 */
-	public static <E extends Exception> long execLong(ExceptionConsumer<E, Pointer> consumer)
-		throws E {
-		return execLong(0, consumer);
-	}
-
-	/**
-	 * Executes a function that takes a long pointer. Returns the value after execution.
-	 */
-	public static <E extends Exception> long execLong(long value,
-		ExceptionConsumer<E, Pointer> consumer) throws E {
-		LongByReference ref = new LongByReference(value);
-		consumer.accept(ref.getPointer());
-		return ref.getValue();
 	}
 
 	/**
@@ -393,7 +241,7 @@ public class JnaUtil {
 	 * Creates a reference pointer containing the value.
 	 */
 	public static Pointer nlongRefPtr(long value) {
-		return nlongRef(value).getPointer();
+		return nlongRefPtr(new NativeLong(value));
 	}
 
 	/**
@@ -431,7 +279,7 @@ public class JnaUtil {
 		if (count == 0) return arrayConstructor.apply(0);
 		if (p == null) throw new IllegalArgumentException("Null pointer but count > 0: " + count);
 		Pointer[] refs = p.getPointerArray(0, count);
-		return Stream.of(refs).map(constructor).toArray(arrayConstructor);
+		return Stream.of(refs).map(ref -> byType(ref, constructor)).toArray(arrayConstructor);
 	}
 
 	/**
@@ -439,7 +287,8 @@ public class JnaUtil {
 	 * is null, null is returned.
 	 */
 	public static <T> T byRef(Pointer p, int i, Function<Pointer, T> constructor) {
-		return p == null ? null : constructor.apply(PointerUtil.ref(p, i));
+		Pointer ref = PointerUtil.ref(p, i);
+		return ref == null ? null : constructor.apply(ref);
 	}
 
 	/**
@@ -452,21 +301,21 @@ public class JnaUtil {
 	/**
 	 * Creates an array of bytes from the given memory pointer.
 	 */
-	public static byte[] byteArray(Memory m) {
-		return byteArray(m, 0);
+	public static byte[] bytes(Memory m) {
+		return bytes(m, 0);
 	}
 
 	/**
 	 * Creates an array of bytes from the given memory pointer.
 	 */
-	private static byte[] byteArray(Memory m, long offset) {
-		return byteArray(m, offset, Math.toIntExact(m.size() - offset));
+	private static byte[] bytes(Memory m, long offset) {
+		return bytes(m, offset, Math.toIntExact(m.size() - offset));
 	}
 
 	/**
 	 * Creates an array of bytes from the given memory pointer.
 	 */
-	public static byte[] byteArray(Pointer p, long offset, long length) {
+	public static byte[] bytes(Pointer p, long offset, long length) {
 		if (length == 0) return ArrayUtil.EMPTY_BYTE;
 		if (p == null) throw new IllegalArgumentException("Pointer is null");
 		return p.getByteArray(offset, Math.toIntExact(length));
@@ -475,22 +324,23 @@ public class JnaUtil {
 	/**
 	 * Extracts bytes from buffer.
 	 */
-	public static byte[] byteArray(ByteBuffer buffer) {
-		return byteArray(buffer, 0);
+	public static byte[] bytes(ByteBuffer buffer) {
+		return bytes(buffer, 0);
 	}
 
 	/**
 	 * Extracts bytes from buffer.
 	 */
-	public static byte[] byteArray(ByteBuffer buffer, int position) {
-		return byteArray(buffer, position, buffer.limit() - position);
+	public static byte[] bytes(ByteBuffer buffer, int position) {
+		return bytes(buffer, position, buffer.limit() - position);
 	}
 
 	/**
 	 * Extracts bytes from buffer.
 	 */
-	public static byte[] byteArray(ByteBuffer buffer, int position, int length) {
+	public static byte[] bytes(ByteBuffer buffer, int position, int length) {
 		if (length == 0) return ArrayUtil.EMPTY_BYTE;
+		if (buffer == null) throw new IllegalArgumentException("Buffer is null");
 		if (position == 0 && length == buffer.limit()) return buffer.array();
 		byte[] bytes = new byte[length];
 		buffer.position(position).get(bytes);
@@ -516,7 +366,8 @@ public class JnaUtil {
 	 * Convenience method to get a byte buffer for the pointer.
 	 */
 	public static ByteBuffer buffer(Pointer p, long offset, long length) {
-		if (p == null || length == 0) return ByteBuffer.allocate(0);
+		if (length == 0) return ByteBuffer.allocate(0);
+		if (p == null) throw new IllegalArgumentException("Pointer is null");
 		return p.getByteBuffer(offset, length);
 	}
 
@@ -539,7 +390,7 @@ public class JnaUtil {
 	 * Decodes string from fixed-length bytes at pointer using default charset.
 	 */
 	public static String string(Memory m) {
-		return string(DEFAULT_CHARSET, m);
+		return string(m, 0);
 	}
 
 	/**
@@ -574,7 +425,7 @@ public class JnaUtil {
 	 * Decodes string from fixed-length bytes at pointer.
 	 */
 	public static String string(Charset charset, Pointer p, long offset, long length) {
-		byte[] bytes = byteArray(p, offset, length);
+		byte[] bytes = bytes(p, offset, length);
 		return new String(bytes, charset);
 	}
 
@@ -662,13 +513,6 @@ public class JnaUtil {
 		validateSlice(buffer.length, offset, length);
 		p.read(index, buffer, offset, length);
 		return offset + length;
-	}
-
-	/**
-	 * Copies bytes to the pointer. Returns the pointer offset after writing.
-	 */
-	public static int write(Pointer p, int... buffer) {
-		return write(p, ArrayUtil.bytes(buffer));
 	}
 
 	/**

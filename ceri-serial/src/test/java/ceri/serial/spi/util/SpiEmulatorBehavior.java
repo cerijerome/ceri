@@ -5,8 +5,12 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.io.StringPrintStream;
+import ceri.serial.spi.Spi;
 import ceri.serial.spi.Spi.Direction;
 import ceri.serial.spi.SpiMode;
+import ceri.serial.spi.pulse.PulseBuffer;
+import ceri.serial.spi.pulse.SpiPulseConfig;
 
 public class SpiEmulatorBehavior {
 
@@ -50,4 +54,37 @@ public class SpiEmulatorBehavior {
 		assertArray(xfer.read(), 1, 2, 3, 4, 5);
 	}
 
+	@Test
+	public void shouldPrintPulsesWithSpacing() throws IOException {
+		try (var out = StringPrintStream.of()) {
+			var config = SpiPulseConfig.of(2);
+			var buffer = config.buffer();
+			var spi = SpiEmulator.pulsePrinter(out, config.cycle);
+			sendPulses(spi, buffer, 0x85, 0xf3);
+			assertEquals(compactPulse(out.toString()), "10000101 11110011");
+		}
+	}
+
+	@Test
+	public void shouldPrintPulses() throws IOException {
+		try (var out = StringPrintStream.of()) {
+			var buffer = SpiPulseConfig.of(2).buffer();
+			var spi = SpiEmulator.pulsePrinter(out);
+			sendPulses(spi, buffer, 0x85, 0xf3);
+			assertEquals(compactPulse(out.toString()), "1000010111110011");
+		}
+	}
+
+	private static void sendPulses(Spi spi, PulseBuffer buffer, int... bytes) throws IOException {
+		var xfer = spi.transfer(Direction.out, buffer.storageSize());
+		buffer.setBytes(0, bytes);
+		buffer.writePulseTo(xfer.out());
+		xfer.execute();
+	}
+
+	private static final String compactPulse(String s) {
+		s = s.replace("\u2587\u2587\u2581\u2581", "1");
+		s = s.replace("\u2587\u2581\u2581\u2581", "0");
+		return s.trim();
+	}
 }

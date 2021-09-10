@@ -23,7 +23,7 @@ public class PulseBufferBehavior {
 		ByteBuffer bb = ByteBuffer.allocate(buffer.storageSize());
 		buffer.writePulseTo(null);
 		buffer.writePulseTo(bb);
-		assertArray(JnaUtil.byteArray(bb), //
+		assertArray(JnaUtil.bytes(bb), //
 			0x83, 0x06, 0x0c, 0x83, 0x06, 0x0f, 0x83, 0x06, 0x0c, 0x83, 0x07, 0x8c, 0x83, 0x06,
 			0x0c, 0x83, 0x07, 0x8f);
 		assertArray(buffer.buffer(), //

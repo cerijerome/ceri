@@ -131,7 +131,7 @@ public class ByteBufferTester {
 		print(bb);
 		int n = read0(bb, bb.capacity());
 		print(bb);
-		byte[] b = JnaUtil.byteArray(bb, 0, n);
+		byte[] b = JnaUtil.bytes(bb, 0, n);
 		print(bb);
 		System.out.println(ByteUtil.toHex(b, " "));
 	}

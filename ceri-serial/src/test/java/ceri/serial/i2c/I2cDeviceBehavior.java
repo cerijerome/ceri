@@ -9,7 +9,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.provider;
-import static ceri.serial.clib.jna.TestCLibUtil.autoError;
+import static ceri.serial.clib.jna.CLibTestUtil.autoError;
 import static ceri.serial.i2c.jna.I2cDev.i2c_func.I2C_FUNC_SMBUS_EMUL;
 import java.io.IOException;
 import java.util.List;

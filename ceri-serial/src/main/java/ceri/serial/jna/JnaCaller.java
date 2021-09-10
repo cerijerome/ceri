@@ -54,7 +54,7 @@ public class JnaCaller<E extends Exception> {
 	 * Creates a comma-separated string from given arguments.
 	 */
 	public String argString(Object... args) {
-		return this.args.string(args);
+		return this.args.args(args);
 	}
 
 	/**
@@ -138,7 +138,7 @@ public class JnaCaller<E extends Exception> {
 	 * LastErrorException.
 	 */
 	public void verify(ExceptionIntSupplier<E> fn, String name, Object... args) throws E {
-		verifyInt(fn, messageFn(name, args));
+		verify(fn, messageFn(name, args));
 	}
 
 	/**
@@ -191,7 +191,7 @@ public class JnaCaller<E extends Exception> {
 	 */
 	public <R> R verifyType(ExceptionSupplier<E, R> fn, int errorCode, String name, Object... args)
 		throws E {
-		return verifyType(fn, r -> r != null ? 0 : errorCode, name, args);
+		return verifyType(fn, errorCode, messageFn(name, args));
 	}
 
 	/**

@@ -2,7 +2,7 @@ package ceri.serial.i2c.jna;
 
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertByte;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.serial.i2c.jna.TestI2cCLibNative.smBusBlock;
 import java.io.IOException;
@@ -39,11 +39,11 @@ public class I2cDevTest {
 	@Test
 	public void testI2cMsg() {
 		assertArray(i2c_msg.array(0));
-		var msg = new i2c_msg();
+		var msg = new i2c_msg(null);
 		msg.populate(0x3a, 0, 0, null);
-		assertEquals(msg.addrByte(), (byte) 0x74);
+		assertByte(msg.addrByte(), 0x74);
 		msg.populate(0x3a, 1, 0, null);
-		assertEquals(msg.addrByte(), (byte) 0x75);
+		assertByte(msg.addrByte(), 0x75);
 	}
 
 	@Test

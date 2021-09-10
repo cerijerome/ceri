@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.ExceptionRunnable;
@@ -18,9 +17,9 @@ import ceri.common.util.Enclosed;
 import ceri.common.util.PrimitiveUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
-import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiConnector;
+import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.util.SelfHealingFtdiConfig;
 import ceri.serial.ftdi.util.SelfHealingFtdiConnector;
 
@@ -157,13 +156,13 @@ public class FtdiConnectorTester extends LoopingExecutor {
 
 	private void readPins() throws IOException {
 		int pins = connector.readPins();
-		logInput("PINS", ByteArray.Immutable.wrap(pins));
+		logInput("PINS", ByteProvider.of(pins));
 	}
 
 	private void readIn(int n) throws IOException {
 		if (n == 0) return;
 		byte[] bytes = connector.read(n);
-		logInput("IN", ByteArray.Immutable.wrap(bytes));
+		logInput("IN", ByteProvider.of(bytes));
 	}
 
 	private void writeOut(ByteProvider data) throws IOException {

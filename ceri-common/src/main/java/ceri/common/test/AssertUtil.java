@@ -27,7 +27,6 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteUtil;
@@ -955,14 +954,14 @@ public class AssertUtil {
 	 * Checks contents of the files matches bytes, with specific failure information if not.
 	 */
 	public static void assertFile(Path actual, int... bytes) throws IOException {
-		assertFile(actual, ByteArray.Immutable.wrap(bytes));
+		assertFile(actual, ByteProvider.of(bytes));
 	}
 
 	/**
 	 * Checks contents of the files matches bytes, with specific failure information if not.
 	 */
 	public static void assertFile(Path actual, byte[] bytes) throws IOException {
-		assertFile(actual, ByteArray.Immutable.wrap(bytes));
+		assertFile(actual, ByteProvider.of(bytes));
 	}
 
 	/**

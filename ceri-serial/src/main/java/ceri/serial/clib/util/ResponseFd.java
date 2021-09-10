@@ -51,7 +51,7 @@ public class ResponseFd implements FileDescriptor {
 
 	@Override
 	public void write(Pointer p, int offset, int length) throws IOException {
-		byte[] data = JnaUtil.byteArray(p, offset, length);
+		byte[] data = JnaUtil.bytes(p, offset, length);
 		write(data, position);
 		position += data.length;
 	}

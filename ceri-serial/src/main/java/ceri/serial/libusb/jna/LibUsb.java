@@ -793,7 +793,7 @@ public class LibUsb {
 		}
 
 		public byte[] extra() {
-			return JnaUtil.byteArray(extra, 0, extra_length);
+			return JnaUtil.bytes(extra, 0, extra_length);
 		}
 	}
 
@@ -835,7 +835,7 @@ public class LibUsb {
 		}
 
 		public byte[] extra() {
-			return JnaUtil.byteArray(extra, 0, extra_length);
+			return JnaUtil.bytes(extra, 0, extra_length);
 		}
 	}
 
@@ -892,7 +892,7 @@ public class LibUsb {
 		}
 
 		public byte[] extra() {
-			return JnaUtil.byteArray(extra, 0, extra_length);
+			return JnaUtil.bytes(extra, 0, extra_length);
 		}
 	}
 
@@ -2125,7 +2125,7 @@ public class LibUsb {
 		ByteBuffer buffer = ByteBuffer.allocate(wLength);
 		int count = libusb_control_transfer(dev_handle, request_type, bRequest, wValue, wIndex,
 			buffer, wLength, timeout);
-		return JnaUtil.byteArray(buffer, 0, count);
+		return JnaUtil.bytes(buffer, 0, count);
 	}
 
 	public static int libusb_control_transfer(libusb_device_handle dev_handle, int request_type,
@@ -2157,7 +2157,7 @@ public class LibUsb {
 		int length, int timeout) throws LibUsbException {
 		ByteBuffer buffer = ByteBuffer.allocate(length);
 		int count = libusb_bulk_transfer(dev_handle, endpoint, buffer, length, timeout);
-		return JnaUtil.byteArray(buffer, 0, count);
+		return JnaUtil.bytes(buffer, 0, count);
 	}
 
 	public static int libusb_bulk_transfer(libusb_device_handle dev_handle, int endpoint,
@@ -2187,7 +2187,7 @@ public class LibUsb {
 		int length, int timeout) throws LibUsbException {
 		ByteBuffer buffer = ByteBuffer.allocate(length);
 		int len = libusb_interrupt_transfer(dev_handle, endpoint, buffer, length, timeout);
-		return JnaUtil.byteArray(buffer, 0, len);
+		return JnaUtil.bytes(buffer, 0, len);
 	}
 
 	public static int libusb_interrupt_transfer(libusb_device_handle dev_handle, int endpoint,

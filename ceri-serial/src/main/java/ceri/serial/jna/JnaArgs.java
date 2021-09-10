@@ -1,7 +1,6 @@
 package ceri.serial.jna;
 
-import static ceri.common.collection.ArrayUtil.bytes;
-import static ceri.common.collection.ArrayUtil.shorts;
+import static ceri.common.text.StringUtil.NULL_STRING;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -21,16 +20,10 @@ import ceri.common.text.StringUtil;
  */
 public class JnaArgs {
 	public static JnaArgs DEFAULT = builder().addDefault().build();
-	private static final List<Class<?>> INT_CLASSES = List.of(Byte.TYPE, Short.TYPE, Integer.TYPE,
-		Long.TYPE, Byte.class, Short.class, Integer.class, Long.class);
-	private static final String NULL_STRING = "null";
+	private static final List<Class<?>> INT_CLASSES =
+		List.of(Byte.class, Short.class, Integer.class, Long.class);
 	private static final int HEX_LIMIT = 0xf;
 	private final List<Function<Object, String>> transforms;
-
-	public static void main(String[] args) {
-		System.out.println(DEFAULT.string("x", -1, bytes(2, -3), List.of(-4L, 5L, 0x10L), -1L, 1.1f,
-			2.2, shorts()));
-	}
 
 	/**
 	 * Predicate to match an instance of any given of the classes.
@@ -50,7 +43,7 @@ public class JnaArgs {
 	 * Int Number type to string. Decimal and hex if within limits. Will throw exception if Number
 	 * type is incompatible with %d and %x format conversions.
 	 */
-	public static String intString(Number n, int hexMin, int hexMax) {
+	public static String stringInt(Number n, int hexMin, int hexMax) {
 		int i = n.intValue();
 		return i >= hexMin && i <= hexMax ? String.valueOf(n) : String.format("%1$d/0x%1$x", n);
 	}
@@ -67,7 +60,6 @@ public class JnaArgs {
 	 * Pointer to compact string.
 	 */
 	public static String string(Pointer p) {
-		if (p == null) return NULL_STRING;
 		if (p instanceof Memory m) return string(m);
 		return String.format("@%x", Pointer.nativeValue(p));
 	}
@@ -76,7 +68,6 @@ public class JnaArgs {
 	 * Memory to compact string.
 	 */
 	public static String string(Memory m) {
-		if (m == null) return String.valueOf(m);
 		return String.format("@%x+%x", Pointer.nativeValue(m), m.size());
 	}
 
@@ -93,7 +84,7 @@ public class JnaArgs {
 		 */
 		public Builder addDefault() {
 			return add(String.class, StringUtil::escape) //
-				.add(matchInt(), n -> intString(n, -HEX_LIMIT, HEX_LIMIT)) //
+				.add(matchInt(), n -> stringInt(n, -HEX_LIMIT, HEX_LIMIT)) //
 				.add(Structure.class, JnaArgs::string) //
 				.add(Pointer.class, JnaArgs::string);
 		}
@@ -153,17 +144,14 @@ public class JnaArgs {
 	/**
 	 * Creates a comma-separated string from given arguments.
 	 */
-	public String string(Object... args) {
+	public String args(Object... args) {
 		return StringUtil.joinAll(", ", transformArgs(args));
 	}
 
-	private Object[] transformArgs(Object... args) {
-		for (int i = 0; i < args.length; i++)
-			args[i] = transformArg(args[i]);
-		return args;
-	}
-
-	private String transformArg(Object arg) {
+	/**
+	 * Creates a string from given argument.
+	 */
+	public String arg(Object arg) {
 		if (arg == null) return NULL_STRING;
 		if (arg instanceof Iterable<?> i) return iterableString(i);
 		if (arg.getClass().isArray()) return arrayString(arg);
@@ -174,12 +162,18 @@ public class JnaArgs {
 		return String.valueOf(arg);
 	}
 
+	private Object[] transformArgs(Object... args) {
+		for (int i = 0; i < args.length; i++)
+			args[i] = arg(args[i]);
+		return args;
+	}
+
 	private String iterableString(Iterable<?> iterable) {
 		return arrayString(StreamUtil.stream(iterable.iterator()).toArray());
 	}
 
 	private String arrayString(Object obj) {
-		return "[" + string(array(obj)) + "]";
+		return "[" + args(array(obj)) + "]";
 	}
 
 	private static Object[] array(Object obj) {
@@ -188,5 +182,4 @@ public class JnaArgs {
 			array[i] = Array.get(obj, i);
 		return array;
 	}
-
 }

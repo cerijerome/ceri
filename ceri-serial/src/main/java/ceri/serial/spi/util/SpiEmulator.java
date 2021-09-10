@@ -133,8 +133,8 @@ public class SpiEmulator implements Spi {
 	}
 
 	private void execute(spi_ioc_transfer xfer) throws IOException {
-		ByteBuffer out = JnaUtil.buffer(JnaUtil.pointer(xfer.tx_buf), 0, xfer.len);
-		ByteBuffer in = JnaUtil.buffer(JnaUtil.pointer(xfer.rx_buf), 0, xfer.len);
+		ByteBuffer out = buffer(xfer.tx_buf, xfer.len);
+		ByteBuffer in = buffer(xfer.rx_buf, xfer.len);
 		switch (direction(xfer)) {
 			case out -> responder.out(read(out));
 			case in -> write(in, responder.in(xfer.size()));
@@ -143,6 +143,11 @@ public class SpiEmulator implements Spi {
 		ConcurrentUtil.delayMicros(transferTimeMicros(xfer));
 	}
 
+	private ByteBuffer buffer(long peer, int len) {
+		if (peer == 0L) return ByteBuffer.allocate(0);
+		return JnaUtil.buffer(JnaUtil.pointer(peer), 0, len);
+	}
+	
 	private byte[] read(ByteBuffer in) {
 		return ByteUtil.readFrom(in, 0, in.capacity());
 	}

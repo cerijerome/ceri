@@ -41,7 +41,7 @@ public class JnaTestUtil {
 	 */
 	public static void assertPointer(Pointer p, int offset, byte[] bytes) {
 		try {
-			byte[] actual = JnaUtil.byteArray(p, offset, bytes.length);
+			byte[] actual = JnaUtil.bytes(p, offset, bytes.length);
 			assertArray(actual, bytes);
 		} catch (RuntimeException e) {
 			throw new AssertionError(e.getMessage(), e);

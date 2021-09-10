@@ -11,7 +11,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.data.ByteArray;
+import ceri.common.data.ByteProvider;
 
 public class Utf8UtilTest {
 	private static final int _1B = 'A';
@@ -209,12 +209,10 @@ public class Utf8UtilTest {
 
 	@Test
 	public void testDecodeByteProvider() {
-		assertEquals(Utf8Util.decode(ByteArray.Immutable.wrap('A')), StringUtil.toString(_1B));
-		assertEquals(Utf8Util.decode(ByteArray.Immutable.wrap(0xc2, 0xa9)),
-			StringUtil.toString(_2B));
-		assertEquals(Utf8Util.decode(ByteArray.Immutable.wrap(0xe2, 0x84, 0x83)),
-			StringUtil.toString(_3B));
-		assertEquals(Utf8Util.decode(ByteArray.Immutable.wrap(0xf0, 0x9d, 0x90, 0x80)),
+		assertEquals(Utf8Util.decode(ByteProvider.of('A')), StringUtil.toString(_1B));
+		assertEquals(Utf8Util.decode(ByteProvider.of(0xc2, 0xa9)), StringUtil.toString(_2B));
+		assertEquals(Utf8Util.decode(ByteProvider.of(0xe2, 0x84, 0x83)), StringUtil.toString(_3B));
+		assertEquals(Utf8Util.decode(ByteProvider.of(0xf0, 0x9d, 0x90, 0x80)),
 			StringUtil.toString(_4B));
 	}
 

@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteUtil;
@@ -94,7 +93,7 @@ public class Data {
 	}
 
 	public static int shortChecksum(int sh) {
-		return checksum(ByteArray.Immutable.wrap(ByteUtil.toMsb(sh, Short.BYTES)));
+		return checksum(ByteProvider.of(ByteUtil.toMsb(sh, Short.BYTES)));
 	}
 
 	public static int checksum(ByteProvider bytes) {

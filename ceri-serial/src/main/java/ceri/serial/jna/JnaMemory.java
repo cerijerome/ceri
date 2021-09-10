@@ -11,11 +11,10 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteAccessor;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
-import ceri.common.reflect.ReflectUtil;
 import ceri.serial.clib.jna.CUtil;
 
 /**
- * Fixed-size byte array with volatile values.
+ * Byte accessor wrapper for memory.
  */
 public class JnaMemory implements ByteAccessor {
 	private static final int MAX_LEN_FOR_STRING = 8;
@@ -34,6 +33,166 @@ public class JnaMemory implements ByteAccessor {
 
 	public static JnaMemory of(Pointer p, int offset, int length) {
 		return new JnaMemory(p, offset, length);
+	}
+
+	/**
+	 * Extends ByteProvider.Reader<?> for JNA-specific sequential access to bytes.
+	 */
+	public static class Reader extends ByteProvider.Reader<Reader> {
+		private final JnaMemory m;
+
+		private Reader(JnaMemory m, int offset, int length) {
+			super(m, offset, length);
+			this.m = m;
+		}
+
+		/**
+		 * Returns the value from native-order bytes.
+		 */
+		public NativeLong readNlong() {
+			return new NativeLong(readEndian(NativeLong.SIZE, BIG_ENDIAN), false);
+		}
+
+		/**
+		 * Returns the value from big-endian bytes.
+		 */
+		public NativeLong readNlongMsb() {
+			return new NativeLong(readEndian(NativeLong.SIZE, true), false);
+		}
+
+		/**
+		 * Returns the value from little-endian bytes.
+		 */
+		public NativeLong readNlongLsb() {
+			return new NativeLong(readEndian(NativeLong.SIZE, false), false);
+		}
+
+		/**
+		 * Returns the unsigned value from native-order bytes.
+		 */
+		public NativeLong readUnlong() {
+			return new NativeLong(readEndian(NativeLong.SIZE, BIG_ENDIAN), true);
+		}
+
+		/**
+		 * Returns the unsigned value from big-endian bytes.
+		 */
+		public NativeLong readUnlongMsb() {
+			return new NativeLong(readEndian(NativeLong.SIZE, true), true);
+		}
+
+		/**
+		 * Returns the unsigned value from little-endian bytes.
+		 */
+		public NativeLong readUnlongLsb() {
+			return new NativeLong(readEndian(NativeLong.SIZE, false), true);
+		}
+
+		/**
+		 * Reads bytes into the memory pointer. Returns the destination offset after reading.
+		 */
+		public int readInto(Memory m) {
+			return readInto(m, 0);
+		}
+
+		/**
+		 * Reads bytes into the memory pointer. Returns the destination offset after reading.
+		 */
+		public int readInto(Memory m, int offset) {
+			return readInto(m, offset, JnaUtil.size(m) - offset);
+		}
+
+		/**
+		 * Reads bytes into the memory pointer. Returns the destination offset after reading.
+		 * Default implementation reads one byte at a time; efficiency may be improved by
+		 * overriding.
+		 */
+		public int readInto(Pointer p, int offset, int length) {
+			return m.copyTo(inc(length), p, offset, length);
+		}
+
+		/**
+		 * Creates a new reader for remaining bytes without incrementing the offset.
+		 */
+		@Override
+		public Reader slice() {
+			return slice(remaining());
+		}
+
+		/**
+		 * Creates a new reader for subsequent bytes without incrementing the offset.
+		 */
+		@Override
+		public Reader slice(int length) {
+			ArrayUtil.validateSlice(length(), offset(), length);
+			return new Reader(m, position(), length);
+		}
+	}
+
+	/**
+	 * Extends ByteReceiver.Writer for JNA-specific sequential access to bytes.
+	 */
+	public static class Writer extends ByteReceiver.Writer<Writer> {
+		private final JnaMemory m;
+
+		private Writer(JnaMemory m, int offset, int length) {
+			super(m, offset, length);
+			this.m = m;
+		}
+
+		/**
+		 * Writes native-order bytes.
+		 */
+		public Writer writeNlong(NativeLong value) {
+			return writeEndian(value.longValue(), NativeLong.SIZE, BIG_ENDIAN);
+		}
+
+		/**
+		 * Writes big-endian bytes.
+		 */
+		public Writer writeNlongMsb(NativeLong value) {
+			return writeEndian(value.longValue(), NativeLong.SIZE, true);
+		}
+
+		/**
+		 * Writes little-endian bytes.
+		 */
+		public Writer writeNlongLsb(NativeLong value) {
+			return writeEndian(value.longValue(), NativeLong.SIZE, false);
+		}
+
+		/**
+		 * Writes bytes from the memory pointer.
+		 */
+		public Writer writeFrom(Memory m) {
+			return writeFrom(m, 0);
+		}
+
+		/**
+		 * Writes bytes from the memory pointer.
+		 */
+		public Writer writeFrom(Memory m, int offset) {
+			return writeFrom(m, offset, JnaUtil.size(m) - offset);
+		}
+
+		/**
+		 * Writes bytes from the memory pointer. Default implementation writes one byte at a time;
+		 * efficiency may be improved by overriding.
+		 */
+		public Writer writeFrom(Pointer p, int offset, int length) {
+			return position(m.copyFrom(position(), p, offset, length));
+		}
+
+		@Override
+		public Writer slice() {
+			return slice(remaining());
+		}
+
+		@Override
+		public Writer slice(int length) {
+			ArrayUtil.validateSlice(length(), offset(), length);
+			return new Writer(m, position(), length);
+		}
 	}
 
 	private JnaMemory(Pointer p, int offset, int length) {
@@ -98,27 +257,16 @@ public class JnaMemory implements ByteAccessor {
 	}
 
 	@Override
-	public JnaMemory slice(int index) {
-		return slice(index, length() - index);
-	}
-
-	@Override
-	public JnaMemory slice(int index, int length) {
-		ArrayUtil.validateSlice(length(), index, length);
-		return JnaMemory.of(p, offset(index), length);
-	}
-
-	@Override
 	public int copyTo(int index, byte[] array, int offset, int length) {
 		return JnaUtil.read(p, offset(index), array, offset, length);
 	}
 
 	@Override
 	public int copyTo(int index, ByteReceiver receiver, int offset, int length) {
-		JnaMemory other = ReflectUtil.castOrNull(JnaMemory.class, receiver);
-		if (other != null) return other.copyFrom(offset, p, offset(index), length);
-		byte[] bytes = copy(index, length);
-		return receiver.copyFrom(offset, bytes);
+		ArrayUtil.validateSlice(length(), index, length);
+		if (receiver instanceof JnaMemory m) m.copyFrom(offset, p, offset(index), length);
+		else receiver.copyFrom(offset, copy(index, length));
+		return index + length;
 	}
 
 	/**
@@ -139,8 +287,9 @@ public class JnaMemory implements ByteAccessor {
 	 * Copies bytes from memory at index to the memory pointer. Returns the index after copying.
 	 */
 	public int copyTo(int index, Pointer p, int offset, int length) {
+		ArrayUtil.validateSlice(length(), index, length);
 		CUtil.memcpy(p, offset, this.p, offset(index), length);
-		return offset + length;
+		return index + length;
 	}
 
 	@Override
@@ -148,12 +297,24 @@ public class JnaMemory implements ByteAccessor {
 		return ByteProvider.writeBufferTo(this, index, out, length);
 	}
 
+	@Override
+	public Reader reader(int index) {
+		return reader(index, length() - index);
+	}
+
+	@Override
+	public Reader reader(int index, int length) {
+		ArrayUtil.validateSlice(length(), index, length);
+		return new Reader(this, index, length);
+	}
+
 	/* ByteReceiver overrides and additions */
 
 	@Override
 	public int setByte(int index, int b) {
-		p.setByte(offset(index++), (byte) b);
-		return index;
+		ArrayUtil.validateIndex(length(), index);
+		p.setByte(offset(index), (byte) b);
+		return index + 1;
 	}
 
 	/**
@@ -180,22 +341,24 @@ public class JnaMemory implements ByteAccessor {
 
 	@Override
 	public int fill(int index, int length, int value) {
+		ArrayUtil.validateSlice(length(), index, length);
 		JnaUtil.fill(p, offset(index), length, value);
 		return index + length;
 	}
 
 	@Override
 	public int copyFrom(int index, byte[] array, int offset, int length) {
+		ArrayUtil.validateSlice(length(), index, length);
 		p.write(offset(index), array, offset, length);
 		return index + length;
 	}
 
 	@Override
 	public int copyFrom(int index, ByteProvider provider, int offset, int length) {
-		JnaMemory other = ReflectUtil.castOrNull(JnaMemory.class, provider);
-		if (other != null) return other.copyTo(offset, p, offset(index), length);
-		byte[] bytes = provider.copy(offset, length);
-		return copyFrom(index, bytes);
+		ArrayUtil.validateSlice(length(), index, length);
+		if (provider instanceof JnaMemory m) m.copyTo(offset, p, offset(index), length);
+		else copyFrom(index, provider.copy(offset, length));
+		return index + length;
 	}
 
 	/**
@@ -219,7 +382,8 @@ public class JnaMemory implements ByteAccessor {
 	 * bytes.
 	 */
 	public int copyFrom(int index, Pointer p, int offset, int length) {
-		CUtil.memcpy(p, offset, this.p, offset(index), length);
+		ArrayUtil.validateSlice(length(), index, length);
+		CUtil.memcpy(this.p, offset(index), p, offset, length);
 		return index + length;
 	}
 
@@ -228,26 +392,33 @@ public class JnaMemory implements ByteAccessor {
 		return ByteReceiver.readBufferFrom(this, index, in, length);
 	}
 
-	/* Other methods */
-
-	/**
-	 * Provides sequential access to memory.
-	 */
-	public JnaAccessor accessor(int index) {
-		return accessor(index, length() - index);
+	@Override
+	public Writer writer(int index) {
+		return writer(index, length() - index);
 	}
 
-	/**
-	 * Provides sequential access to memory.
-	 */
-	public JnaAccessor accessor(int index, int length) {
-		return new JnaAccessor(this, index, length);
+	@Override
+	public Writer writer(int index, int length) {
+		ArrayUtil.validateSlice(length(), index, length);
+		return new Writer(this, index, length);
+	}
+
+	/* Other methods */
+
+	@Override
+	public JnaMemory slice(int index) {
+		return slice(index, length() - index);
+	}
+
+	@Override
+	public JnaMemory slice(int index, int length) {
+		ArrayUtil.validateSlice(length(), index, length);
+		return JnaMemory.of(p, offset(index), length);
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s@0x%s+%d%s", getClass().getSimpleName(),
-			Long.toHexString(Pointer.nativeValue(p) + offset), length,
+		return String.format("%s@%x%s", getClass().getSimpleName(), JnaUtil.peer(p) + offset,
 			ByteProvider.toHex(this, MAX_LEN_FOR_STRING));
 	}
 
@@ -264,5 +435,4 @@ public class JnaMemory implements ByteAccessor {
 	private int offset(int index) {
 		return this.offset + index;
 	}
-
 }

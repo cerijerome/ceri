@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.CallSync;
 import ceri.log.test.LogModifier;
@@ -89,7 +88,7 @@ public class SpiPulseTransmitterBehavior {
 		return new Responder() {
 			@Override
 			public void out(byte[] data) throws IOException {
-				sync.accept(ByteArray.Immutable.wrap(data), IO_ADAPTER);
+				sync.accept(ByteProvider.of(data), IO_ADAPTER);
 			}
 		};
 	}

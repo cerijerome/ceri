@@ -7,21 +7,19 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
-import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.reflect.AnnotationUtil;
 import ceri.common.reflect.ReflectUtil;
-import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -29,8 +27,10 @@ import ceri.common.util.BasicUtil;
  */
 public abstract class Struct extends Structure {
 	private static final Map<Class<?>, List<String>> fields = new ConcurrentHashMap<>();
+	private static final JnaArgs ARGS = JnaArgs.builder().add(Byte.class, "0x%02x")
+		.add(Short.class, "0x%04x").add(Integer.class, "0x%08x").add(Long.class, "0x%x")
+		.add(Pointer.class, JnaArgs::string).build();
 	private static final String INDENT = "\t";
-	private static final int MAX_ARRAY = 8;
 
 	/**
 	 * Annotation for declaring Structure field order. All fields must be named in subclasses, not
@@ -124,40 +124,51 @@ public abstract class Struct extends Structure {
 	}
 
 	/**
-	 * Adapts one structure to another at the same pointer. The given structure must be synchronized
-	 * with memory before calling this method.
+	 * Adapts one structure to another at the same pointer, and calls autoRead(). The given
+	 * structure must be synchronized with memory before calling this method.
 	 */
 	public static <T extends Structure> T adapt(Structure from, Function<Pointer, T> constructor) {
 		if (from == null) return null;
-		return Struct.read(constructor.apply(from.getPointer()));
+		T t = constructor.apply(from.getPointer());
+		if (t != null) t.autoRead();
+		return t;
 	}
 
 	/**
-	 * Returns a typed contiguous array by value mapped to the given pointer. If count is 0, an
-	 * empty array is returned. Make sure count is unsigned (call ubyte/ushort if needed).
+	 * Returns a typed contiguous array by value mapped to the given pointer. autoRead() is called
+	 * on each array item. If count is 0, an empty array is returned. Make sure count is unsigned
+	 * (call ubyte/ushort if needed).
 	 */
 	public static <T extends Structure> T[] arrayByVal(Pointer p, Function<Pointer, T> constructor,
 		IntFunction<T[]> arrayConstructor, int count) {
 		if (count == 0) return arrayConstructor.apply(0);
-		if (p != null) return arrayByVal(constructor.apply(p), arrayConstructor, count);
-		throw new IllegalArgumentException("Null pointer but count > 0: " + count);
+		if (p == null) throw new IllegalArgumentException("Null pointer but count > 0: " + count);
+		T t = constructor.apply(p);
+		if (t != null) t.autoRead();
+		return arrayByVal(t, arrayConstructor, count);
 	}
 
 	/**
 	 * Creates a typed contiguous array by value. If count is 0, an empty array is returned. Make
-	 * sure count is unsigned (call ubyte/ushort if needed).
+	 * sure count is unsigned (call ubyte/ushort if needed). autoRead() is called on each array
+	 * item.
 	 */
 	public static <T extends Structure> T[] arrayByVal(Supplier<T> constructor,
 		IntFunction<T[]> arrayConstructor, int count) {
 		if (count == 0) return arrayConstructor.apply(0);
-		return arrayByVal(constructor.get(), arrayConstructor, count);
+		T t = constructor.get();
+		if (t != null) t.autoRead();
+		return arrayByVal(t, arrayConstructor, count);
 	}
 
 	/**
 	 * Returns a typed contiguous array by value with the given type at index 0. If the type was
 	 * constructed, the memory will be resized to fit the array. If allocated by native code, the
-	 * array will map to the pointer. If count is 0, an empty array is returned. Make sure count is
-	 * unsigned (call ubyte/ushort if needed).
+	 * array will map to the pointer. autoRead() will be called by Structure code on each new item
+	 * of the array.
+	 * <p/>
+	 * If count is 0, an empty array is returned. Make sure count is unsigned (call ubyte/ushort if
+	 * needed).
 	 */
 	public static <T extends Structure> T[] arrayByVal(T t, IntFunction<T[]> arrayConstructor,
 		int count) {
@@ -169,7 +180,7 @@ public abstract class Struct extends Structure {
 	/**
 	 * Returns true if the class implements Structure.ByReference.
 	 */
-	public static boolean isByReference(Class<?> cls) {
+	public static boolean isByRef(Class<?> cls) {
 		if (cls == null) return false;
 		return Structure.ByReference.class.isAssignableFrom(cls);
 	}
@@ -177,7 +188,7 @@ public abstract class Struct extends Structure {
 	/**
 	 * Returns true if the class implements Structure.ByValue.
 	 */
-	public static boolean isByValue(Class<?> cls) {
+	public static boolean isByVal(Class<?> cls) {
 		if (cls == null) return false;
 		return Structure.ByValue.class.isAssignableFrom(cls);
 	}
@@ -230,7 +241,7 @@ public abstract class Struct extends Structure {
 	 * Returns an inline byte array at given offset.
 	 */
 	protected byte[] byteArray(int offset, int length) {
-		return JnaUtil.byteArray(getPointer(), offset, length);
+		return JnaUtil.bytes(getPointer(), offset, length);
 	}
 
 	/**
@@ -355,55 +366,32 @@ public abstract class Struct extends Structure {
 
 	@Override
 	public String toString() {
-		return toString(this, INDENT, MAX_ARRAY);
-	}
-
-	protected static String toString(Struct s, String prefix, int maxArray) {
+		Class<?> cls = getClass();
+		Pointer p = getPointer();
+		long peer = JnaUtil.peer(getPointer());
 		StringBuilder b = new StringBuilder();
-		var p = s.getPointer();
-		var size = p instanceof Memory ? "" : "+" + Integer.toHexString(s.size());
-		format(b, "%s(%s%s) {%n", ReflectUtil.name(s.getClass()), JnaArgs.string(p), size);
-		for (String name : s.getFieldOrder()) {
-			Field f = ReflectUtil.publicField(s.getClass(), name);
-			if (f == null) continue;
-			int offset = s.fieldOffset(name);
-			String type = ReflectUtil.name(f.getType());
-			String value = string(ReflectUtil.publicValue(s, name), prefix, maxArray);
-			format(b.append(prefix), "+%x:@%x %s %s = %s%n", offset,
-				Pointer.nativeValue(p.share(offset)), type, f.getName(), prefix(value, prefix));
-		}
+		format(b, "%s(%s) {%n", ReflectUtil.nestedName(cls), JnaArgs.string(p));
+		for (String name : getFieldOrder())
+			appendField(b, cls, name, peer);
 		return b.append("}").toString();
 	}
 
-	private static String prefix(String s, String prefix) {
-		return NEWLINE_REGEX.matcher(s).replaceAll("$1" + prefix);
+	private void appendField(StringBuilder b, Class<?> cls, String name, long peer) {
+		Field f = ReflectUtil.publicField(cls, name);
+		Objects.requireNonNull(f);
+		int offset = fieldOffset(name);
+		String type = ReflectUtil.nestedName(f.getType());
+		String value = ARGS.arg(ReflectUtil.publicValue(this, name));
+		format(b.append(INDENT), "+%x:@%x %s %s = %s%n", offset, peer + offset, type, f.getName(),
+			prefix(value));
 	}
 
-	private static String string(Object obj, String prefix, int maxArray) {
-		if (obj == null) return "null";
-		Class<?> cls = obj.getClass();
-		if (cls.isArray()) return arrayString(obj, prefix, maxArray);
-		if (cls == Byte.class) return "0x" + StringUtil.toHex((Byte) obj);
-		if (cls == Short.class) return "0x" + StringUtil.toHex((Short) obj);
-		if (cls == Integer.class) return "0x" + StringUtil.toHex((Integer) obj);
-		if (cls == Long.class) return "0x" + StringUtil.toHex((Long) obj);
-		if (Pointer.class.isAssignableFrom(cls)) return JnaArgs.string((Pointer) obj);
-		if (Struct.class.isAssignableFrom(cls)) return toString((Struct) obj, prefix, maxArray);
-		return String.valueOf(obj);
-	}
-
-	private static String arrayString(Object array, String prefix, int maxArray) {
-		int n = Array.getLength(array);
-		StringBuilder b = new StringBuilder("[");
-		int max = n <= maxArray ? n : maxArray - 1;
-		for (int i = 0; i < max; i++)
-			b.append(i > 0 ? ", " : "").append(string(Array.get(array, i), prefix, maxArray));
-		if (n > maxArray) b.append(", ... (").append(n).append(")");
-		return b.append("]").toString();
+	private static String prefix(String s) {
+		return NEWLINE_REGEX.matcher(s).replaceAll("$1" + INDENT);
 	}
 
 	private static List<String> annotatedFields(Class<?> cls) {
-		if (isByReference(cls) || isByValue(cls)) cls = cls.getSuperclass();
+		if (isByRef(cls) || isByVal(cls)) cls = cls.getSuperclass();
 		String[] fields = AnnotationUtil.value(cls, Fields.class, Fields::value);
 		if (fields != null) return ImmutableUtil.wrapAsList(fields);
 		throw new IllegalStateException(

@@ -38,12 +38,14 @@ General:
 - new Memory() is not always zeroed
 Structures:
 - often better to use pointers to prevent auto read/write
-- no constructor or T(Pointer); use T(null) for T()
+- constructor T(null) is the same as T()
 - structs created with null pointer only have placeholder memory
   - struct fields have their own independent placeholder memory 
 - struct write() allocates memory
   - struct fields now have correct memory offsets
 - for c struct arg (T** ref) use T.ByRef[] ref = { new T.ByRef(null) };   
+- creating array from struct calls autoRead() on new array items (not original)
+- CUtil.mallocArray to allocate a contiguous array of types/pointers
 
 
 Projects

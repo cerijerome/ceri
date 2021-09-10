@@ -6,9 +6,9 @@ import com.sun.jna.LastErrorException;
 import ceri.common.test.CallSync;
 import ceri.common.text.StringUtil;
 
-public class TestCLibUtil {
+public class CLibTestUtil {
 
-	private TestCLibUtil() {}
+	private CLibTestUtil() {}
 	
 	public static <T, R> void autoError(CallSync.Apply<T, R> sync,
 		R response, Predicate<T> predicate, String errorMessage, Object...args) {

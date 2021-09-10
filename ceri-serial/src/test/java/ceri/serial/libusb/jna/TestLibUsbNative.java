@@ -21,7 +21,6 @@ import com.sun.jna.LastErrorException;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.CallSync;
@@ -73,13 +72,13 @@ public class TestLibUsbNative implements LibUsbNative {
 	// - extract audio descriptors from test data
 	// - endPoint -> endpoint
 	// - summarize libusb
-	//   - async transfers
-	//   - polling
+	// - async transfers
+	// - polling
 	// - abstract async io
-	//   - transfer type
-	//   - fill
-	//   - callback logic
-	//   - breakdown by completion/timeout/error/cancel?
+	// - transfer type
+	// - fill
+	// - callback logic
+	// - breakdown by completion/timeout/error/cancel?
 	// - check libusb 1.0.24 examples
 
 	public static TestLibUsbNative of() {
@@ -662,7 +661,7 @@ public class TestLibUsbNative implements LibUsbNative {
 		byte[] bytes = new byte[length];
 		if (buffer != null) ByteUtil.readFrom(buffer, 0, bytes);
 		return controlTransferOut
-			.apply(List.of(reqType, req, value, index, ByteArray.Immutable.wrap(bytes)));
+			.apply(List.of(reqType, req, value, index, ByteProvider.of(bytes)));
 	}
 
 	private int bulkTransferIn(int endpoint, ByteBuffer buffer, int length,
@@ -679,7 +678,7 @@ public class TestLibUsbNative implements LibUsbNative {
 		IntByReference actualLength) {
 		byte[] bytes = new byte[length];
 		if (buffer != null) ByteUtil.readFrom(buffer, 0, bytes);
-		int result = bulkTransferOut.apply(List.of(endpoint, ByteArray.Immutable.wrap(bytes)));
+		int result = bulkTransferOut.apply(List.of(endpoint, ByteProvider.of(bytes)));
 		if (actualLength != null) actualLength.setValue(length);
 		return result;
 	}

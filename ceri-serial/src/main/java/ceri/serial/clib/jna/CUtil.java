@@ -71,7 +71,7 @@ public class CUtil {
 		Memory m = new Memory(length);
 		int n = CLib.read(fd, m, length);
 		if (n <= 0) return ArrayUtil.EMPTY_BYTE;
-		return JnaUtil.byteArray(m, 0, n);
+		return JnaUtil.bytes(m, 0, n);
 	}
 
 	/**
@@ -125,6 +125,13 @@ public class CUtil {
 		return m;
 	}
 
+	/**
+	 * Allocate a contiguous array of pointers.
+	 */
+	public static Pointer[] mallocArray(int count) {
+		return mallocArray(Pointer.SIZE, count);
+	}
+	
 	/**
 	 * Allocate a contiguous array, returning the pointers.
 	 */

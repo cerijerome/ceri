@@ -19,7 +19,6 @@ import com.sun.jna.LastErrorException;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.CallSync;
 import ceri.serial.clib.jna.TestCLibNative;
@@ -69,7 +68,7 @@ public class TestSpiCLibNative extends TestCLibNative {
 	private ByteProvider transmitBytes(spi_ioc_transfer xfer) {
 		if (xfer.tx_buf == 0L) return null;
 		Pointer p = new Pointer(xfer.tx_buf);
-		return ByteArray.Immutable.wrap(JnaUtil.byteArray(p, 0, xfer.len));
+		return ByteProvider.of(JnaUtil.bytes(p, 0, xfer.len));
 	}
 
 	private void receiveBytes(spi_ioc_transfer xfer, ByteProvider rxBytes) {

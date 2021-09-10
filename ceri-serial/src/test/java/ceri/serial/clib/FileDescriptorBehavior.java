@@ -1,11 +1,8 @@
 package ceri.serial.clib;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFile;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.serial.clib.OpenFlag.O_CREAT;
 import static ceri.serial.clib.OpenFlag.O_RDWR;
 import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
@@ -37,31 +34,7 @@ public class FileDescriptorBehavior {
 		helper.close();
 	}
 
-	@Test
-	public void shouldNotBreachEqualsContract() throws IOException {
-		try (CFileDescriptor t = open("file1")) {
-			@SuppressWarnings("resource")
-			CFileDescriptor eq0 = CFileDescriptor.of(t.fd());
-			@SuppressWarnings("resource")
-			CFileDescriptor ne0 = CFileDescriptor.of(t.fd() + 1);
-			exerciseEquals(t, eq0);
-			assertAllNotEqual(t, ne0);
-		}
-	}
-
-	@Test
-	public void shouldFailToProvideDescriptorIfClosed() throws IOException {
-		try (CFileDescriptor fd = open("file1")) {
-			fd.fd();
-			fd.close();
-			assertThrown(() -> fd.fd());
-		}
-	}
-
-	@Test
-	public void shouldFailToWrapInvalidDescriptor() {
-		assertThrown(() -> CFileDescriptor.of(-1));
-	}
+	public static class TestFd {}
 
 	@Test
 	public void shouldReadIntoMemory() throws IOException {
@@ -130,7 +103,18 @@ public class FileDescriptorBehavior {
 			assertEquals(fd.seek(0, Seek.SEEK_CUR), 7);
 			assertEquals(fd.seek(4, Seek.SEEK_SET), 4);
 			assertArray(fd.in().readAllBytes(), 0x34, 0x56);
+
 		}
+	}
+
+	@Test
+	public void shouldProvideNoOpFd() throws IOException {
+		assertEquals(CUtil.validFd(FileDescriptor.NULL.fd()), false);
+		assertEquals(FileDescriptor.NULL.read(null, 1, 5), 5);
+		FileDescriptor.NULL.write(null, 1, 5);
+		assertEquals(FileDescriptor.NULL.seek(5, null), 0);
+		assertEquals(FileDescriptor.NULL.ioctl(0), 0);
+		FileDescriptor.NULL.close();
 	}
 
 	private CFileDescriptor open(String name, OpenFlag... flags) throws IOException {

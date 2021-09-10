@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
-import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.CallSync;
 import ceri.common.util.Enclosed;
@@ -32,19 +31,7 @@ public class TestCLibNative implements CLibNative {
 	// List<?> = Fd f, int request, Object... objs
 	public final CallSync.Apply<List<?>, Integer> ioctl = CallSync.function(null, 0);
 
-	public static class Fd {
-		public final int fd;
-		public final String path;
-		public final int flags;
-		public final int mode;
-
-		public Fd(int fd, String path, int flags, int mode) {
-			this.fd = fd;
-			this.path = path;
-			this.flags = flags;
-			this.mode = mode;
-		}
-	}
+	public static record Fd(int fd, String path, int flags, int mode) {}
 
 	public static Enclosed<RuntimeException, TestCLibNative> register() {
 		return register(of());
@@ -99,7 +86,7 @@ public class TestCLibNative implements CLibNative {
 	public ssize_t write(int fd, Pointer buffer, size_t len) throws LastErrorException {
 		byte[] bytes = new byte[len.intValue()];
 		if (buffer != null) JnaUtil.read(buffer, bytes);
-		int n = write.apply(List.of(fd(fd), ByteArray.Immutable.wrap(bytes)));
+		int n = write.apply(List.of(fd(fd), ByteProvider.of(bytes)));
 		return new ssize_t(n);
 	}
 
@@ -171,7 +158,7 @@ public class TestCLibNative implements CLibNative {
 		return 0;
 	}
 
-	protected Fd fd(int fd) {
+	public Fd fd(int fd) {
 		return fd(fd, EBADF);
 	}
 
