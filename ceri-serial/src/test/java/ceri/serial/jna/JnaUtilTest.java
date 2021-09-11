@@ -3,10 +3,8 @@ package ceri.serial.jna;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertBuffer;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.serial.jna.JnaTestUtil.assertMemory;
-import static ceri.serial.jna.JnaTestUtil.p;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.ByteBuffer;
 import org.junit.Test;
@@ -14,7 +12,6 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
-import com.sun.jna.PointerType;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.NativeLongByReference;
@@ -39,32 +36,10 @@ public class JnaUtilTest {
 	}
 
 	@Test
-	public void testPointer() {
-		assertNull(JnaUtil.pointer(0));
-	}
-
-	@Test
-	public void testPeer() {
-		assertEquals(JnaUtil.peer(null), 0L);
-		Memory m = new Memory(1);
-		assertEquals(JnaUtil.peer(m), Pointer.nativeValue(m));
-	}
-
-	@Test
-	public void testPointerTypePointer() {
-		assertNull(JnaUtil.pointer((PointerType) null));
-		IntByReference ref = new IntByReference();
-		assertEquals(JnaUtil.pointer(ref), ref.getPointer());
-	}
-
-	@Test
 	public void testPointerOffset() {
 		Memory m = CUtil.mallocBytes(1, 2, 3);
-		Pointer p = p(m);
 		assertMemory(JnaUtil.offset(m, 0), 1, 2, 3);
 		assertMemory(JnaUtil.offset(m, 1), 2, 3);
-		assertMemory(JnaUtil.offset(p, 0), 1, 2, 3);
-		assertMemory(JnaUtil.offset(p, 1), 2, 3);
 	}
 
 	@Test
@@ -125,7 +100,8 @@ public class JnaUtilTest {
 	@Test
 	public void testArrayByRef() {
 		assertArray(JnaUtil.arrayByRef(null, TestStruct::new, TestStruct[]::new));
-		assertThrown(() -> JnaUtil.arrayByRef(null, TestStruct::new, TestStruct[]::new, 1));
+		assertArray(JnaUtil.arrayByRef(null, TestStruct::new, TestStruct[]::new, 1),
+			new TestStruct[] { null });
 	}
 
 	@Test

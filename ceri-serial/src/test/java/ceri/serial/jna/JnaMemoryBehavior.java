@@ -110,7 +110,7 @@ public class JnaMemoryBehavior {
 		var m = CUtil.mallocBytes(0x80, 0xff, 0x7f, 0, 0x80, 0xff, 0x7f, 0, 0x80);
 		assertEquals(JnaMemory.of(m).toString(),
 			String.format("%s@%x[0x80, 0xff, 0x7f, 0x0, 0x80, 0xff, 0x7f, ...](9)",
-				JnaMemory.class.getSimpleName(), JnaUtil.peer(m)));
+				JnaMemory.class.getSimpleName(), PointerUtil.peer(m)));
 	}
 
 	@Test

@@ -1,5 +1,6 @@
 package ceri.serial.jna;
 
+import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import com.sun.jna.Pointer;
@@ -13,7 +14,7 @@ import com.sun.jna.PointerType;
 public class PointerRef<T> extends PointerType {
 	private static final int NULL_TERM_COUNT = -1;
 	private final Function<Pointer, T> constructor;
-	private final IntFunction<T[]> arrayConstructor;
+	private final IntFunction<T[]> arrayFn;
 	private final int count;
 
 	/**
@@ -26,29 +27,30 @@ public class PointerRef<T> extends PointerType {
 	/**
 	 * Encapsulates a pointer to a typed null-terminated array.
 	 */
-	public static <T> PointerRef<T> ofNullTermArray(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayConstructor) {
-		return new PointerRef<>(p, constructor, arrayConstructor, 0);
+	public static <T> PointerRef<T> array(Pointer p, Function<Pointer, T> constructor,
+		IntFunction<T[]> arrayFn) {
+		return new PointerRef<>(p, constructor, arrayFn, NULL_TERM_COUNT);
 	}
 
 	/**
-	 * Encapsulates a pointer to a typed fixed-size array.
+	 * Encapsulates a pointer to a typed fixed-length array.
 	 */
-	public static <T> PointerRef<T> ofArray(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayConstructor, int count) {
-		return new PointerRef<>(p, constructor, arrayConstructor, count);
+	public static <T> PointerRef<T> array(Pointer p, Function<Pointer, T> constructor,
+		IntFunction<T[]> arrayFn, int count) {
+		validateMin(count, 0);
+		return new PointerRef<>(p, constructor, arrayFn, count);
 	}
 
-	private PointerRef(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayConstructor, int count) {
+	private PointerRef(Pointer p, Function<Pointer, T> constructor, IntFunction<T[]> arrayFn,
+		int count) {
 		setPointer(p);
 		this.constructor = constructor;
-		this.arrayConstructor = arrayConstructor;
+		this.arrayFn = arrayFn;
 		this.count = count;
 	}
 
 	/**
-	 * Returns the stored array count value. Returns -1 if null-terminated array.   
+	 * Returns the stored array count value. Returns -1 if null-terminated array.
 	 */
 	public int count() {
 		return count;
@@ -73,10 +75,10 @@ public class PointerRef<T> extends PointerType {
 	 * Struct.read() to populate values from memory.
 	 */
 	public T[] array() {
-		if (arrayConstructor == null)
+		if (arrayFn == null)
 			throw new UnsupportedOperationException("Typed arrays are not supported");
-		if (isNullTerm()) return JnaUtil.arrayByRef(getPointer(), constructor, arrayConstructor);
-		return JnaUtil.arrayByRef(getPointer(), constructor, arrayConstructor, count);
+		if (isNullTerm()) return JnaUtil.arrayByRef(getPointer(), constructor, arrayFn);
+		return JnaUtil.arrayByRef(getPointer(), constructor, arrayFn, count);
 	}
 
 }

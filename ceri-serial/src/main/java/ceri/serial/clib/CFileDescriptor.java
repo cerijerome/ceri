@@ -12,7 +12,7 @@ import ceri.common.text.RegexUtil;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.clib.jna.CLib;
 import ceri.serial.clib.jna.CUtil;
-import ceri.serial.jna.JnaUtil;
+import ceri.serial.jna.PointerUtil;
 
 /**
  * Encapsulates a file descriptor as a closable resource.
@@ -87,14 +87,14 @@ public class CFileDescriptor implements FileDescriptor {
 	@Override
 	public int read(Pointer p, int offset, int length) throws IOException {
 		if (length == 0) return 0;
-		return CLib.read(fd(), JnaUtil.offset(p, offset), length);
+		return CLib.read(fd(), PointerUtil.offset(p, offset), length);
 	}
 
 	@Override
 	public void write(Pointer p, int offset, int length) throws IOException {
 		// Loop until all bytes are written, as recommended in gnu-c docs.
 		for (int count = 0; count < length;) {
-			int n = CLib.write(fd(), JnaUtil.offset(p, offset + count), length - count);
+			int n = CLib.write(fd(), PointerUtil.offset(p, offset + count), length - count);
 			if (n == 0) throw CException.general("Incomplete write: %d/%d bytes", count, length);
 			count += n;
 		}

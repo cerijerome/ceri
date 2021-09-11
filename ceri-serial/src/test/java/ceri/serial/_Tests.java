@@ -53,8 +53,9 @@ import ceri.common.test.TestUtil;
 	ceri.serial.jna.JnaLibraryBehavior.class, //
 	ceri.serial.jna.JnaMemoryBehavior.class, //
 	ceri.serial.jna.JnaUtilTest.class, //
+	ceri.serial.jna.PointerUtilTest.class, //
 	ceri.serial.jna.StructBehavior.class, //
-	ceri.serial.jna.UnionAccessorTest.class, //
+	ceri.serial.jna.UnionFieldTest.class, //
 	ceri.serial.jna.VarStructBehavior.class, //
 	// jna.test
 	ceri.serial.jna.test.JnaTestUtilTest.class, //

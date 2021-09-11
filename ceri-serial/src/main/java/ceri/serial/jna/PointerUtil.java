@@ -3,6 +3,7 @@ package ceri.serial.jna;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.PointerByReference;
@@ -15,55 +16,54 @@ public class PointerUtil {
 	private PointerUtil() {}
 
 	/**
-	 * Get index i of indirected pointer array. 
+	 * Returns the native peer for a pointer, or 0L if null. Use with caution.
 	 */
-	public static Pointer ref(Pointer p, int i) {
-		return p == null ? null : p.getPointer(i * Pointer.SIZE);
+	public static long peer(Pointer p) {
+		return p == null ? 0L : Pointer.nativeValue(p);
 	}
 
 	/**
-	 * Returns the pointer, or null.
+	 * Returns a pointer from the native peer, or null if 0. Use with caution.
+	 */
+	public static Pointer pointer(long peer) {
+		return peer == 0L ? null : new Pointer(peer);
+	}
+
+	/**
+	 * Returns the pointer type's pointer, or null if the pointer type is null.
 	 */
 	public static Pointer pointer(PointerType type) {
 		return type == null ? null : type.getPointer();
 	}
 
 	/**
-	 * Convenience method set a pointer. Can combine with construction.
+	 * Gets the pointer offset by the given number of bytes.
 	 */
-	public static <T extends PointerType> T set(T t, Pointer p) {
-		t.setPointer(p);
-		return t;
+	public static Pointer offset(Pointer p, long offset) {
+		return p == null || offset == 0 ? p : p.share(offset);
 	}
 
 	/**
-	 * Convenience method set a pointer. Can combine with construction.
+	 * Gets the difference between two pointers. Returns null if either pointer is null.
 	 */
-	public static <T extends PointerType> T set(T t, PointerByReference p) {
-		return set(t, p.getValue());
+	public static Long diff(Pointer p0, Pointer p1) {
+		return p0 == null || p1 == null ? null : peer(p1) - peer(p0);
 	}
 
 	/**
-	 * Encapsulates a pointer to a single type.
+	 * Get an indirected null-terminated array of pointers. Returns an empty array if the pointer is
+	 * null. For {@code struct**} array types.
 	 */
-	public static <T extends PointerType> PointerRef<T> ref(Pointer p, Supplier<T> constructor) {
-		return PointerRef.of(p, adapt(constructor));
+	public static Pointer[] arrayByRef(Pointer p) {
+		return p == null ? new Pointer[0] : p.getPointerArray(0);
 	}
 
 	/**
-	 * Encapsulates a pointer to a typed null-terminated array.
+	 * Get an indirected fixed-length array of pointers. Returns an array of null pointers if the
+	 * pointer is null. For {@code struct**} array types.
 	 */
-	public static <T extends PointerType> PointerRef<T> nullTermArrayRef(Pointer p,
-		Supplier<T> constructor, IntFunction<T[]> arrayConstructor) {
-		return PointerRef.ofNullTermArray(p, adapt(constructor), arrayConstructor);
-	}
-
-	/**
-	 * Encapsulates a pointer to a typed fixed-size array.
-	 */
-	public static <T extends PointerType> PointerRef<T> arrayRef(Pointer p, Supplier<T> constructor,
-		IntFunction<T[]> arrayConstructor, int count) {
-		return PointerRef.ofArray(p, adapt(constructor), arrayConstructor, count);
+	public static Pointer[] arrayByRef(Pointer p, int count) {
+		return p == null ? new Pointer[count] : p.getPointerArray(0, count);
 	}
 
 	/**
@@ -71,8 +71,8 @@ public class PointerUtil {
 	 * given pointer. If the pointer is null, or count is 0, an empty array is returned.
 	 */
 	public static <T extends PointerType> T[] arrayByRef(Pointer p, Supplier<T> constructor,
-		IntFunction<T[]> arrayConstructor) {
-		return JnaUtil.arrayByRef(p, adapt(constructor), arrayConstructor);
+		IntFunction<T[]> arrayFn) {
+		return JnaUtil.arrayByRef(p, adapt(constructor), arrayFn);
 	}
 
 	/**
@@ -81,8 +81,91 @@ public class PointerUtil {
 	 * (call JnaUtil.ubyte/ushort if needed).
 	 */
 	public static <T extends PointerType> T[] arrayByRef(Pointer p, Supplier<T> constructor,
-		IntFunction<T[]> arrayConstructor, int count) {
-		return JnaUtil.arrayByRef(p, adapt(constructor), arrayConstructor, count);
+		IntFunction<T[]> arrayFn, int count) {
+		return JnaUtil.arrayByRef(p, adapt(constructor), arrayFn, count);
+	}
+
+	/**
+	 * Get the pointers for a fixed-length contiguous pointer array. Returns an array of null
+	 * pointers if the pointer is null. For {@code void*} array types.
+	 */
+	public static Pointer[] arrayByVal(Pointer p, int count) {
+		return arrayByVal(p, count, Pointer.SIZE);
+	}
+
+	/**
+	 * Get the pointers for a fixed-length contiguous array of given type size. Returns an array of
+	 * null pointers if the pointer is null. For {@code struct*} array types.
+	 */
+	public static Pointer[] arrayByVal(Pointer p, int count, int size) {
+		Pointer[] array = new Pointer[count];
+		for (int i = 0; i < count; i++)
+			array[i] = byVal(p, i, size);
+		return array;
+	}
+
+	/**
+	 * Creates a typed array from a fixed-length contiguous pointer type array. Returns an array of
+	 * null pointers if the pointer is null. For {@code void*} array types.
+	 */
+	public static <T extends PointerType> T[] arrayByVal(Pointer p,
+		Function<Pointer, T> constructor, IntFunction<T[]> arrayFn, int count) {
+		return Stream.of(PointerUtil.arrayByVal(p, count)).map(JnaUtil.typeFn(constructor))
+			.toArray(arrayFn);
+	}
+
+	/**
+	 * Get an indirected pointer. Returns null if the pointer is null. For {@code type**} types.
+	 */
+	public static Pointer byRef(Pointer p) {
+		return byRef(p, 0);
+	}
+
+	/**
+	 * Get index i of an indirected array of pointers. Returns null if the pointer is null. For
+	 * {@code struct**} array types.
+	 */
+	public static Pointer byRef(Pointer p, int i) {
+		return p == null ? null : p.getPointer(i * Pointer.SIZE);
+	}
+
+	/**
+	 * Get the pointer to index i of a contiguous pointer array. For {@code void*} array types.
+	 */
+	public static Pointer byVal(Pointer p, int i) {
+		return byVal(p, i, Pointer.SIZE);
+	}
+
+	/**
+	 * Get the pointer to index i of a contiguous array of given type size. For {@code struct*}
+	 * array types.
+	 */
+	public static Pointer byVal(Pointer p, int i, int size) {
+		return p == null ? null : p.share(i * size, size);
+	}
+
+	/**
+	 * Creates a type from index i of a contiguous pointer type array. Returns null if the pointer
+	 * is null. For {@code void*} array types.
+	 */
+	public static <T extends PointerType> T byVal(Pointer p, int i,
+		Function<Pointer, T> constructor) {
+		return JnaUtil.type(PointerUtil.byVal(p, i), constructor);
+	}
+
+	/**
+	 * Sets the pointer type's pointer value. Useful to combine with construction.
+	 */
+	public static <T extends PointerType> T set(T t, Pointer p) {
+		if (t != null) t.setPointer(p);
+		return t;
+	}
+
+	/**
+	 * Sets the pointer type's pointer value. Useful to combine with construction.
+	 */
+	public static <T extends PointerType> T set(T t, PointerByReference p) {
+		return set(t, p.getValue());
 	}
 
 	/**

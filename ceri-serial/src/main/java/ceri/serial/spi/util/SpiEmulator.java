@@ -11,6 +11,7 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.PulsePrinter;
 import ceri.serial.jna.JnaUtil;
+import ceri.serial.jna.PointerUtil;
 import ceri.serial.spi.Spi;
 import ceri.serial.spi.SpiMode;
 import ceri.serial.spi.SpiTransfer;
@@ -145,7 +146,7 @@ public class SpiEmulator implements Spi {
 
 	private ByteBuffer buffer(long peer, int len) {
 		if (peer == 0L) return ByteBuffer.allocate(0);
-		return JnaUtil.buffer(JnaUtil.pointer(peer), 0, len);
+		return JnaUtil.buffer(PointerUtil.pointer(peer), 0, len);
 	}
 	
 	private byte[] read(ByteBuffer in) {

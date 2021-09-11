@@ -25,8 +25,8 @@ public class JnaArgsBehavior {
 	@Test
 	public void shouldPrintPointer() {
 		Memory m = new Memory(3);
-		long peer = JnaUtil.peer(m);
-		Pointer p = JnaUtil.pointer(peer + 1);
+		long peer = PointerUtil.peer(m);
+		Pointer p = PointerUtil.pointer(peer + 1);
 		assertEquals(JnaArgs.DEFAULT.args(m, p), String.format("@%x+3, @%x", peer, peer + 1));
 	}
 

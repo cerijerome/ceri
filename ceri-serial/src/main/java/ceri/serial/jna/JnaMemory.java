@@ -418,7 +418,7 @@ public class JnaMemory implements ByteAccessor {
 
 	@Override
 	public String toString() {
-		return String.format("%s@%x%s", getClass().getSimpleName(), JnaUtil.peer(p) + offset,
+		return String.format("%s@%x%s", getClass().getSimpleName(), PointerUtil.peer(p) + offset,
 			ByteProvider.toHex(this, MAX_LEN_FOR_STRING));
 	}
 

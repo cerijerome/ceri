@@ -1,7 +1,6 @@
 package ceri.serial.jna;
 
 import static ceri.common.collection.ArrayUtil.validateSlice;
-import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.function.Function;
@@ -11,7 +10,6 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
-import com.sun.jna.PointerType;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
@@ -46,48 +44,18 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Returns a pointer from the native peer, or null if 0. Use with caution.
-	 */
-	public static Pointer pointer(long peer) {
-		return peer == 0L ? null : new Pointer(peer);
-	}
-
-	/**
-	 * Returns the native peer for a pointer, or 0L if null. Use with caution.
-	 */
-	public static long peer(Pointer p) {
-		return p == null ? 0L : Pointer.nativeValue(p);
-	}
-
-	/**
-	 * Returns a pointer from the pointer type.
-	 */
-	public static Pointer pointer(PointerType pt) {
-		return pt == null ? null : pt.getPointer();
-	}
-
-	/**
-	 * Gets the pointer offset by the given number of bytes.
-	 */
-	public static Pointer offset(Pointer p, long offset) {
-		validateNotNull(p);
-		return offset == 0 ? p : p.share(offset);
-	}
-
-	/**
 	 * Gets the memory offset by the given number of bytes.
 	 */
 	public static Memory offset(Memory m, long offset) {
-		validateNotNull(m);
-		return offset(m, offset, m.size() - offset);
+		return m == null ? null : offset(m, offset, m.size() - offset);
 	}
 
 	/**
 	 * Gets the memory offset by the given number of bytes.
 	 */
 	public static Memory offset(Memory m, long offset, long length) {
-		validateNotNull(m);
-		return offset == 0 ? m : (Memory) m.share(offset, length);
+		if (m == null || (offset == 0 && length == m.size())) return m;
+		return (Memory) m.share(offset, length);
 	}
 
 	/**
@@ -259,43 +227,63 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Creates a typed array constructed from a contiguous null-terminated pointer array at the
-	 * given pointer. If the pointer is null, or count is 0, an empty array is returned.
+	 * Creates a typed array from an indirect contiguous null-terminated pointer array. If the
+	 * pointer is null, an empty array is returned. For {@code type**} array types.
 	 */
 	public static <T> T[] arrayByRef(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayConstructor) {
-		if (p == null) return arrayConstructor.apply(0);
-		Pointer[] refs = p.getPointerArray(0);
-		return Stream.of(refs).map(constructor).toArray(arrayConstructor);
+		IntFunction<T[]> arrayFn) {
+		return Stream.of(PointerUtil.arrayByRef(p)).map(constructor).toArray(arrayFn);
 	}
 
 	/**
-	 * Creates a typed array constructed from a contiguous pointer array at the given pointer. If
-	 * the pointer is null, or count is 0, an empty array is returned. Make sure count is unsigned
-	 * (call JnaUtil.ubyte/ushort if needed).
+	 * Creates a typed array from an indirect contiguous fixed-length pointer array. If the pointer
+	 * is null, and for any null indirect pointers, the array will contain null items. Make sure
+	 * count is unsigned (use ubyte/ushort if needed). For {@code type**} array types.
 	 */
 	public static <T> T[] arrayByRef(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayConstructor, int count) {
-		if (count == 0) return arrayConstructor.apply(0);
-		if (p == null) throw new IllegalArgumentException("Null pointer but count > 0: " + count);
-		Pointer[] refs = p.getPointerArray(0, count);
-		return Stream.of(refs).map(ref -> byType(ref, constructor)).toArray(arrayConstructor);
+		IntFunction<T[]> arrayFn, int count) {
+		return Stream.of(PointerUtil.arrayByRef(p, count)).map(typeFn(constructor))
+			.toArray(arrayFn);
 	}
 
 	/**
-	 * Creates a type from index i of contiguous pointer array at the given pointer. If the pointer
-	 * is null, null is returned.
+	 * Creates a type from index i of an indirect contiguous pointer array. If the pointer or
+	 * indirect pointer is null, null is returned. For {@code type**} array types.
 	 */
 	public static <T> T byRef(Pointer p, int i, Function<Pointer, T> constructor) {
-		Pointer ref = PointerUtil.ref(p, i);
-		return ref == null ? null : constructor.apply(ref);
+		return type(PointerUtil.byRef(p, i), constructor);
 	}
 
 	/**
-	 * Creates a type from pointer. If the pointer is null, null is returned.
+	 * Creates a typed array from a fixed-length contiguous array of given type size. Returns an
+	 * array of null pointers if the pointer is null. For {@code type*} array types.
 	 */
-	public static <T> T byType(Pointer p, Function<Pointer, T> constructor) {
+	public static <T> T[] arrayByVal(Pointer p, Function<Pointer, T> constructor,
+		IntFunction<T[]> arrayFn, int count, int size) {
+		return Stream.of(PointerUtil.arrayByVal(p, count, size)).map(typeFn(constructor))
+			.toArray(arrayFn);
+	}
+
+	/**
+	 * Creates a type from index i of a contiguous pointer array. Returns null if the pointer is
+	 * null. For {@code type*} array types.
+	 */
+	public static <T> T byVal(Pointer p, int i, Function<Pointer, T> constructor, int size) {
+		return type(PointerUtil.byVal(p, i, size), constructor);
+	}
+
+	/**
+	 * Creates a type from a pointer. Returns null if the pointer is null.
+	 */
+	public static <T> T type(Pointer p, Function<Pointer, T> constructor) {
 		return p == null ? null : constructor.apply(p);
+	}
+
+	/**
+	 * Converts a constructor into a null-aware constructor. Useful for streams.
+	 */
+	public static <T> Function<Pointer, T> typeFn(Function<Pointer, T> constructor) {
+		return p -> type(p, constructor);
 	}
 
 	/**

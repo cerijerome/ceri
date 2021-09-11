@@ -1178,7 +1178,11 @@ public class LibUsb {
 	 * list. libusb_open() adds another reference which is later destroyed by libusb_close().
 	 */
 	// typedef struct libusb_device libusb_device;
-	public static class libusb_device extends PointerType {}
+	public static class libusb_device extends PointerType {
+		public libusb_device(Pointer p) {
+			super(p);
+		}
+	}
 
 	/**
 	 * Structure representing a handle on a USB device. This is an opaque type for which you are
@@ -1696,7 +1700,7 @@ public class LibUsb {
 		PointerByReference ref = new PointerByReference();
 		int size = caller.verifyInt(() -> lib().libusb_get_device_list(ctx, ref),
 			"libusb_get_device_list", ctx);
-		return PointerUtil.arrayRef(ref.getValue(), libusb_device::new, libusb_device[]::new, size);
+		return PointerRef.array(ref.getValue(), libusb_device::new, libusb_device[]::new, size);
 	}
 
 	public static void libusb_free_device_list(PointerRef<libusb_device> list)
@@ -2332,7 +2336,7 @@ public class LibUsb {
 		require(ctx);
 		Pointer p = caller.verifyType(() -> lib().libusb_get_pollfds(ctx),
 			libusb_error.LIBUSB_ERROR_NO_MEM.value, "libusb_get_pollfds", ctx);
-		return PointerRef.ofNullTermArray(p, null, null);
+		return PointerRef.array(p, null, null);
 	}
 
 	public static void libusb_free_pollfds(PointerRef<libusb_pollfd> pollFds)

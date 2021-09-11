@@ -16,9 +16,9 @@ import ceri.common.function.ToShortFunction;
 /**
  * Methods to provide access to union fields, automatically setting type for get and set.
  */
-public class UnionAccessor {
+public class UnionField {
 
-	private UnionAccessor() {}
+	private UnionField() {}
 
 	/**
 	 * Accessor for a typed field. Calls autoRead() on get, as typed fields are not loaded before

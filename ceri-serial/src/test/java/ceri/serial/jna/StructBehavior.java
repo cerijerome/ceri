@@ -75,19 +75,21 @@ public class StructBehavior {
 	@Test
 	public void testArrayByValForNullPointer() {
 		assertArray(Struct.arrayByVal(Pointer.NULL, TestStruct::new, TestStruct[]::new, 0));
-		assertThrown(() -> Struct.arrayByVal(Pointer.NULL, TestStruct::new, TestStruct[]::new, 1));
+		assertArray(Struct.arrayByVal(Pointer.NULL, TestStruct::new, TestStruct[]::new, 1),
+			new TestStruct[] { null });
 	}
 
 	@Test
 	public void testArrayByValForNullConstruction() {
-		TestStruct t = new TestStruct(100, null, 1, 2, 3);
+		var t = new TestStruct(100, null, 1, 2, 3);
 		assertThrown(() -> Struct.arrayByVal(t.getPointer(), p -> null, null, 3));
-		assertThrown(() -> Struct.arrayByVal(() -> null, TestStruct[]::new, 3));
+		assertArray(Struct.<TestStruct>arrayByVal(() -> null, TestStruct[]::new, 3), null, null,
+			null);
 	}
 
 	@Test
 	public void testArrayByValAutoReadsAllArrayItems() {
-		TestStruct[] array0 = Struct.arrayByVal(() -> new TestStruct(), TestStruct[]::new, 3);
+		var array0 = Struct.arrayByVal(() -> new TestStruct(), TestStruct[]::new, 3);
 		array0[0].i = 100;
 		array0[1].i = 200;
 		array0[2].i = 300;
@@ -117,13 +119,13 @@ public class StructBehavior {
 
 	@Test
 	public void shouldCreateEmptyArray() {
-		TestStruct t = new TestStruct(100, null, 1, 2, 3);
+		var t = new TestStruct(100, null, 1, 2, 3);
 		assertArray(t.toArray(0));
 	}
 
 	@Test
 	public void shouldProvideFieldPointer() {
-		TestStruct t = Struct.write(new TestStruct(100, null, 1, 2, 3));
+		var t = Struct.write(new TestStruct(100, null, 1, 2, 3));
 		assertArray(t.fieldPointer("b").getByteArray(0, 3), 1, 2, 3);
 	}
 

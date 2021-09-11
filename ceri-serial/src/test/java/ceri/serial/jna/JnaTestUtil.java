@@ -3,6 +3,7 @@ package ceri.serial.jna;
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotNull;
 import java.util.function.Function;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
@@ -34,10 +35,8 @@ public class JnaTestUtil {
 			this(i, null);
 		}
 
-		public TestStruct(Integer i, Pointer p, int... b) {
-			if (i != null) this.i = i;
-			if (b != null) ArrayUtil.copy(bytes(b), 0, this.b, 0, b.length);
-			this.p = p;
+		public TestStruct(int i, Pointer p, int... b) {
+			populate(this, i, p, b);
 		}
 
 		public TestStruct(Pointer p) {
@@ -51,9 +50,19 @@ public class JnaTestUtil {
 	}
 
 	/**
+	 * Populate struct fields.
+	 */
+	public static void populate(TestStruct t, int i, Pointer p, int... bytes) {
+		t.i = i;
+		t.p = p;
+		ArrayUtil.copy(bytes(bytes), 0, t.b, 0, bytes.length);
+	}
+	
+	/**
 	 * Assert struct fields.
 	 */
 	public static void assertTestStruct(TestStruct t, int i, Pointer p, int... bytes) {
+		assertNotNull(t);
 		assertEquals(t.i, i);
 		assertEquals(t.p, p);
 		assertArray(t.b, bytes);
@@ -91,7 +100,7 @@ public class JnaTestUtil {
 	 * Creates a new pointer copy.
 	 */
 	public static Pointer p(Pointer p) {
-		return JnaUtil.pointer(JnaUtil.peer(p));
+		return PointerUtil.pointer(PointerUtil.peer(p));
 	}
 
 }

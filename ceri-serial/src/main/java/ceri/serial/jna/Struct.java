@@ -53,12 +53,12 @@ public abstract class Struct extends Structure {
 		platform(Structure.ALIGN_DEFAULT), // 0
 		/** No alignment, place all fields on nearest 1-byte boundary */
 		none(Structure.ALIGN_NONE), // 1
-		/** validated for 32-bit x86 linux/gcc; align field size, max 4 bytes */
+		/** Validated for 32-bit x86 linux/gcc; align field size, max 4 bytes */
 		gnuc(Structure.ALIGN_GNUC), // 2
-		/** validated for w32/msvc; align on field size */
+		/** Validated for w32/msvc; align on field size */
 		msvc(Structure.ALIGN_MSVC); // 3
 
-		final int value;
+		public final int value;
 
 		private Align(int value) {
 			this.value = value;
@@ -124,57 +124,80 @@ public abstract class Struct extends Structure {
 	}
 
 	/**
-	 * Adapts one structure to another at the same pointer, and calls autoRead(). The given
-	 * structure must be synchronized with memory before calling this method.
+	 * Auto-reads the given struct array.
 	 */
-	public static <T extends Structure> T adapt(Structure from, Function<Pointer, T> constructor) {
-		if (from == null) return null;
-		T t = constructor.apply(from.getPointer());
+	public static <T extends Structure> T[] readAuto(T[] array) {
+		if (array != null) for (T t : array)
+			readAuto(t);
+		return array;
+	}
+
+	/**
+	 * Convenience method to auto-read struct fields.
+	 */
+	public static <T extends Structure> T readAuto(T t) {
 		if (t != null) t.autoRead();
 		return t;
 	}
 
 	/**
-	 * Returns a typed contiguous array by value mapped to the given pointer. autoRead() is called
-	 * on each array item. If count is 0, an empty array is returned. Make sure count is unsigned
-	 * (call ubyte/ushort if needed).
+	 * Auto-writes the given struct array.
+	 */
+	public static <T extends Structure> T[] writeAuto(T[] array) {
+		if (array != null) for (T t : array)
+			writeAuto(t);
+		return array;
+	}
+
+	/**
+	 * Convenience method to auto-write struct fields.
+	 */
+	public static <T extends Structure> T writeAuto(T t) {
+		if (t != null) t.autoWrite();
+		return t;
+	}
+
+	/**
+	 * Adapts one structure to another at the same pointer, and calls autoRead(). The given
+	 * structure must be synchronized with memory before calling this method.
+	 */
+	public static <T extends Structure> T adapt(Structure from, Function<Pointer, T> constructor) {
+		return from == null ? null : readAuto(constructor.apply(from.getPointer()));
+	}
+
+	/**
+	 * Creates a typed contiguous array at pointer. If count is 0, an empty array is returned. Make
+	 * sure count is unsigned (call ubyte/ushort if needed). {@code autoRead()} is called on each
+	 * array item.
 	 */
 	public static <T extends Structure> T[] arrayByVal(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayConstructor, int count) {
-		if (count == 0) return arrayConstructor.apply(0);
-		if (p == null) throw new IllegalArgumentException("Null pointer but count > 0: " + count);
-		T t = constructor.apply(p);
-		if (t != null) t.autoRead();
-		return arrayByVal(t, arrayConstructor, count);
+		IntFunction<T[]> arrayFn, int count) {
+		if (count == 0) return arrayFn.apply(0);
+		return arrayByVal(readAuto(JnaUtil.type(p, constructor)), arrayFn, count);
 	}
 
 	/**
-	 * Creates a typed contiguous array by value. If count is 0, an empty array is returned. Make
-	 * sure count is unsigned (call ubyte/ushort if needed). autoRead() is called on each array
-	 * item.
+	 * Creates a typed contiguous array. If count is 0, an empty array is returned. Make sure count
+	 * is unsigned (call ubyte/ushort if needed). {@code autoRead()} is called on each array item.
 	 */
 	public static <T extends Structure> T[] arrayByVal(Supplier<T> constructor,
-		IntFunction<T[]> arrayConstructor, int count) {
-		if (count == 0) return arrayConstructor.apply(0);
-		T t = constructor.get();
-		if (t != null) t.autoRead();
-		return arrayByVal(t, arrayConstructor, count);
+		IntFunction<T[]> arrayFn, int count) {
+		if (count == 0) return arrayFn.apply(0);
+		return arrayByVal(readAuto(constructor.get()), arrayFn, count);
 	}
 
 	/**
-	 * Returns a typed contiguous array by value with the given type at index 0. If the type was
+	 * Creates a typed contiguous array, with the given type at index 0. If the type was
 	 * constructed, the memory will be resized to fit the array. If allocated by native code, the
-	 * array will map to the pointer. autoRead() will be called by Structure code on each new item
-	 * of the array.
+	 * array will map to the pointer. {@code autoRead()} is called by Structure code on each new
+	 * item of the array.
 	 * <p/>
-	 * If count is 0, an empty array is returned. Make sure count is unsigned (call ubyte/ushort if
-	 * needed).
+	 * If count is 0, an empty array is returned. If the type is null, an array of nulls is
+	 * returned. Make sure count is unsigned (call ubyte/ushort if needed).
 	 */
-	public static <T extends Structure> T[] arrayByVal(T t, IntFunction<T[]> arrayConstructor,
-		int count) {
-		if (count == 0) return arrayConstructor.apply(0);
-		if (t != null) return BasicUtil.uncheckedCast(t.toArray(count));
-		throw new IllegalArgumentException("Null pointer but count > 0: " + count);
+	public static <T extends Structure> T[] arrayByVal(T t, IntFunction<T[]> arrayFn, int count) {
+		if (count == 0 || t == null) return arrayFn.apply(count);
+		return BasicUtil.uncheckedCast(t.toArray(count));
 	}
 
 	/**
@@ -276,48 +299,48 @@ public abstract class Struct extends Structure {
 	 * Returns a typed array from a null-terminated inline pointer array at given field.
 	 */
 	protected <T> T[] arrayByRef(String fieldName, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayConstructor) {
-		return arrayByRef(fieldOffset(fieldName), constructor, arrayConstructor);
+		IntFunction<T[]> arrayFn) {
+		return arrayByRef(fieldOffset(fieldName), constructor, arrayFn);
 	}
 
 	/**
 	 * Returns a typed array from a null-terminated inline pointer array at given offset.
 	 */
 	protected <T> T[] arrayByRef(int offset, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayConstructor) {
-		return JnaUtil.arrayByRef(getPointer().share(offset), constructor, arrayConstructor);
+		IntFunction<T[]> arrayFn) {
+		return JnaUtil.arrayByRef(getPointer().share(offset), constructor, arrayFn);
 	}
 
 	/**
 	 * Returns a typed array from inline pointer array at given field.
 	 */
 	protected <T> T[] arrayByRef(String fieldName, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayConstructor, int count) {
-		return arrayByRef(fieldOffset(fieldName), constructor, arrayConstructor, count);
+		IntFunction<T[]> arrayFn, int count) {
+		return arrayByRef(fieldOffset(fieldName), constructor, arrayFn, count);
 	}
 
 	/**
 	 * Returns a typed array from inline pointer array at given offset.
 	 */
 	protected <T> T[] arrayByRef(int offset, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayConstructor, int count) {
-		return JnaUtil.arrayByRef(getPointer().share(offset), constructor, arrayConstructor, count);
+		IntFunction<T[]> arrayFn, int count) {
+		return JnaUtil.arrayByRef(getPointer().share(offset), constructor, arrayFn, count);
 	}
 
 	/**
 	 * Returns an inline structure array at given field.
 	 */
 	protected <T extends Structure> T[] arrayByVal(String fieldName,
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayConstructor, int count) {
-		return arrayByVal(fieldOffset(fieldName), constructor, arrayConstructor, count);
+		Function<Pointer, T> constructor, IntFunction<T[]> arrayFn, int count) {
+		return arrayByVal(fieldOffset(fieldName), constructor, arrayFn, count);
 	}
 
 	/**
 	 * Returns an inline structure array at given offset.
 	 */
 	protected <T extends Structure> T[] arrayByVal(int offset, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayConstructor, int count) {
-		return arrayByVal(getPointer().share(offset), constructor, arrayConstructor, count);
+		IntFunction<T[]> arrayFn, int count) {
+		return arrayByVal(getPointer().share(offset), constructor, arrayFn, count);
 	}
 
 	/**
@@ -368,7 +391,7 @@ public abstract class Struct extends Structure {
 	public String toString() {
 		Class<?> cls = getClass();
 		Pointer p = getPointer();
-		long peer = JnaUtil.peer(getPointer());
+		long peer = PointerUtil.peer(getPointer());
 		StringBuilder b = new StringBuilder();
 		format(b, "%s(%s) {%n", ReflectUtil.nestedName(cls), JnaArgs.string(p));
 		for (String name : getFieldOrder())

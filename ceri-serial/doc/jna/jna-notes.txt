@@ -36,6 +36,15 @@ JNA coding
 ----------
 General:
 - new Memory() is not always zeroed
+
+Arrays:
+- PointerUtil.arrayByVal to create contiguous pointer(-type) arrays (void*)
+- PointerUtil.arrayByRef to create indirected pointer(-type) arrays (void**)
+- JnaUtil.arrayByVal to create contiguous type arrays with given type size (type*)
+- JnaUtil.arrayByRef to create indirected type arrays with given type size (type**)
+- Struct.arrayByVal to create contiguous struct arrays (struct*)
+- Struct.arrayByRef to create indirected struct arrays (struct**)
+
 Structures:
 - often better to use pointers to prevent auto read/write
 - constructor T(null) is the same as T()
