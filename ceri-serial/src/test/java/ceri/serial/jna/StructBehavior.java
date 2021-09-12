@@ -7,6 +7,8 @@ import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.serial.jna.JnaTestUtil.assertTestStruct;
+import static ceri.serial.jna.JnaTestUtil.*;
+import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.serial.jna.JnaTestUtil.TestStruct;
@@ -31,6 +33,12 @@ public class StructBehavior {
 		assertEquals(Struct.pointer(new Outer[3]), null);
 		Outer[] array = { new Outer(), new Outer(), new Outer() };
 		assertEquals(Struct.pointer(array), array[0].getPointer());
+	}
+
+	@Test
+	public void testSize() {
+		assertEquals(Struct.size((TestStruct) null), 0);
+		assertThrown(() -> Struct.size((Function<Pointer, TestStruct>) null));
 	}
 
 	@Test
@@ -67,6 +75,31 @@ public class StructBehavior {
 	}
 
 	@Test
+	public void testWriteAuto() {
+		assertNull(Struct.writeAuto((TestStruct) null));
+		assertNull(Struct.writeAuto((TestStruct[]) null));
+		TestStruct[] array0 = { new TestStruct(100, null, 1), new TestStruct(200, null, 2) };
+		array0[1].setAutoWrite(false);
+		Struct.writeAuto(array0);
+		var array = Struct.readAuto(new TestStruct[] { new TestStruct(array0[0].getPointer()),
+			new TestStruct(array0[1].getPointer()) });
+		assertTestStruct(array[0], 100, null, 1, 0, 0);
+		assertTestStruct(array[1], 0, null, 0, 0, 0);
+	}
+
+	@Test
+	public void testReadAuto() {
+		assertNull(Struct.readAuto((TestStruct) null));
+		assertNull(Struct.readAuto((TestStruct[]) null));
+		TestStruct t0 = Struct.writeAuto(new TestStruct(100, null, 1));
+		TestStruct[] array = { new TestStruct(t0.getPointer()), new TestStruct(t0.getPointer()) };
+		array[1].setAutoRead(false);
+		Struct.readAuto(array);
+		assertTestStruct(array[0], 100, null, 1, 0, 0);
+		assertTestStruct(array[1], 0, null, 0, 0, 0);
+	}
+
+	@Test
 	public void testAdapt() {
 		assertNull(Struct.adapt(null, x -> null));
 		assertNull(Struct.adapt(new TestStruct(), x -> null));
@@ -89,16 +122,19 @@ public class StructBehavior {
 
 	@Test
 	public void testArrayByValAutoReadsAllArrayItems() {
-		var array0 = Struct.arrayByVal(() -> new TestStruct(), TestStruct[]::new, 3);
-		array0[0].i = 100;
-		array0[1].i = 200;
-		array0[2].i = 300;
-		Struct.write(array0);
-		TestStruct[] array =
-			Struct.arrayByVal(Struct.pointer(array0), TestStruct::new, TestStruct[]::new, 3);
-		assertEquals(array[0].i, 100);
-		assertEquals(array[1].i, 200);
-		assertEquals(array[2].i, 300);
+		Pointer p = sampleArrayByVal();
+		TestStruct[] array = Struct.arrayByVal(p, TestStruct::new, TestStruct[]::new, 3);
+		assertTestStruct(array[0], 100, null, 1, 0, 0);
+		assertTestStruct(array[1], 200, null, 2, 0, 0);
+		assertTestStruct(array[2], 300, null, 3, 0, 0);
+	}
+
+	@Test
+	public void testByVal() {
+		Pointer p = sampleArrayByVal();
+		assertTestStruct(Struct.byVal(p, 0, TestStruct::new), 100, null, 1, 0, 0);
+		assertTestStruct(Struct.byVal(p, 1, TestStruct::new), 200, null, 2, 0, 0);
+		assertTestStruct(Struct.byVal(p, 2, TestStruct::new), 300, null, 3, 0, 0);
 	}
 
 	@Test

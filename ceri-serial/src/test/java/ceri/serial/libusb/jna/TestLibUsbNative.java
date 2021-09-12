@@ -194,7 +194,8 @@ public class TestLibUsbNative implements LibUsbNative {
 	@Override
 	public int libusb_get_config_descriptor(libusb_device dev, byte config_index,
 		PointerByReference config) {
-		var desc = data.device(PointerUtil.pointer(dev)).config.configDescriptor(ubyte(config_index));
+		var desc =
+			data.device(PointerUtil.pointer(dev)).config.configDescriptor(ubyte(config_index));
 		if (desc == null) return LIBUSB_ERROR_NOT_FOUND.value;
 		config.setValue(desc.getPointer()); // don't copy descriptor
 		return 0;
@@ -203,7 +204,8 @@ public class TestLibUsbNative implements LibUsbNative {
 	@Override
 	public int libusb_get_config_descriptor_by_value(libusb_device dev, byte bConfigurationValue,
 		PointerByReference config) {
-		var desc = data.device(PointerUtil.pointer(dev)).config.configDescriptorByValue(bConfigurationValue);
+		var desc = data.device(PointerUtil.pointer(dev)).config
+			.configDescriptorByValue(bConfigurationValue);
 		if (desc == null) return LIBUSB_ERROR_NOT_FOUND.value;
 		config.setValue(desc.getPointer()); // don't copy descriptor
 		return 0;
@@ -297,7 +299,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	public libusb_device libusb_get_parent(libusb_device dev) {
 		var device = data.device(PointerUtil.pointer(dev));
 		var parent = data.parentDevice(device);
-		return parent == null ? null : new libusb_device(parent.ptr);
+		return parent == null ? null : PointerUtil.set(new libusb_device(), parent.ptr);
 	}
 
 	@Override
@@ -342,7 +344,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	@Override
 	public libusb_device libusb_get_device(libusb_device_handle dev_handle) {
 		var device = data.deviceHandle(PointerUtil.pointer(dev_handle)).device;
-		return new libusb_device(device.ptr);
+		return PointerUtil.set(new libusb_device(), device.ptr);
 	}
 
 	@Override

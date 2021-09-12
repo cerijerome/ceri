@@ -47,7 +47,19 @@ public class PointerUtil {
 	 * Gets the difference between two pointers. Returns null if either pointer is null.
 	 */
 	public static Long diff(Pointer p0, Pointer p1) {
-		return p0 == null || p1 == null ? null : peer(p1) - peer(p0);
+		return p0 == null || p1 == null ? null : peer(p0) - peer(p1);
+	}
+
+	/**
+	 * Counts the number of pointers in a null-terminated contiguous pointer array.
+	 */
+	public static int count(Pointer p) {
+		if (p == null) return 0;
+		long offset = 0;
+		for (int i = 0;; i++) {
+			if (p.getPointer(offset) == null) return i;
+			offset += Pointer.SIZE;
+		}
 	}
 
 	/**
@@ -108,9 +120,9 @@ public class PointerUtil {
 	 * Creates a typed array from a fixed-length contiguous pointer type array. Returns an array of
 	 * null pointers if the pointer is null. For {@code void*} array types.
 	 */
-	public static <T extends PointerType> T[] arrayByVal(Pointer p,
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayFn, int count) {
-		return Stream.of(PointerUtil.arrayByVal(p, count)).map(JnaUtil.typeFn(constructor))
+	public static <T extends PointerType> T[] arrayByVal(Pointer p, Supplier<T> constructor,
+		IntFunction<T[]> arrayFn, int count) {
+		return Stream.of(PointerUtil.arrayByVal(p, count)).map(JnaUtil.typeFn(adapt(constructor)))
 			.toArray(arrayFn);
 	}
 
@@ -149,8 +161,8 @@ public class PointerUtil {
 	 * is null. For {@code void*} array types.
 	 */
 	public static <T extends PointerType> T byVal(Pointer p, int i,
-		Function<Pointer, T> constructor) {
-		return JnaUtil.type(PointerUtil.byVal(p, i), constructor);
+		Supplier<T> constructor) {
+		return JnaUtil.type(PointerUtil.byVal(p, i), adapt(constructor));
 	}
 
 	/**
@@ -165,13 +177,13 @@ public class PointerUtil {
 	 * Sets the pointer type's pointer value. Useful to combine with construction.
 	 */
 	public static <T extends PointerType> T set(T t, PointerByReference p) {
-		return set(t, p.getValue());
+		return p == null ? t : set(t, p.getValue());
 	}
 
 	/**
-	 * Convenience constructor for a pointer type at given pointer.
+	 * Adapts no-arg pointer type constructor to take a pointer argument.
 	 */
-	private static <T extends PointerType> Function<Pointer, T> adapt(Supplier<T> constructor) {
+	public static <T extends PointerType> Function<Pointer, T> adapt(Supplier<T> constructor) {
 		return p -> set(constructor.get(), p);
 	}
 

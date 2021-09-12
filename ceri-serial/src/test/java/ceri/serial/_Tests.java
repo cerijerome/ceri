@@ -47,6 +47,7 @@ import ceri.common.test.TestUtil;
 	ceri.serial.javax.util.SelfHealingSerialConfigBehavior.class, //
 	ceri.serial.javax.util.SelfHealingSerialConnectorBehavior.class, //
 	// jna
+	ceri.serial.jna.ArrayPointerBehavior.class, //
 	ceri.serial.jna.JnaArgsBehavior.class, //
 	ceri.serial.jna.JnaCallerBehavior.class, //
 	ceri.serial.jna.JnaEnumTest.class, //
@@ -55,6 +56,7 @@ import ceri.common.test.TestUtil;
 	ceri.serial.jna.JnaUtilTest.class, //
 	ceri.serial.jna.PointerUtilTest.class, //
 	ceri.serial.jna.StructBehavior.class, //
+	ceri.serial.jna.StructFieldTest.class, //
 	ceri.serial.jna.UnionFieldTest.class, //
 	ceri.serial.jna.VarStructBehavior.class, //
 	// jna.test

@@ -82,6 +82,22 @@ public abstract class Struct extends Structure {
 	}
 
 	/**
+	 * Determines the size of a struct using its constructor. Creates an instance from a null
+	 * pointer to determine the size.
+	 */
+	public static <T extends Structure> int size(Function<Pointer, T> constructor) {
+		Objects.requireNonNull(constructor);
+		return size(constructor.apply(null));
+	}
+
+	/**
+	 * Safely determines the size of a struct. Returns 0 if null.
+	 */
+	public static int size(Structure t) {
+		return t == null ? 0 : t.size();
+	}
+
+	/**
 	 * Reads the fields for given struct array.
 	 */
 	public static <T extends Structure> T[] read(T[] array, String... fieldNames) {
@@ -168,7 +184,7 @@ public abstract class Struct extends Structure {
 	/**
 	 * Creates a typed contiguous array at pointer. If count is 0, an empty array is returned. Make
 	 * sure count is unsigned (call ubyte/ushort if needed). {@code autoRead()} is called on each
-	 * array item.
+	 * array item. For {@code struct*} array types.
 	 */
 	public static <T extends Structure> T[] arrayByVal(Pointer p, Function<Pointer, T> constructor,
 		IntFunction<T[]> arrayFn, int count) {
@@ -198,6 +214,16 @@ public abstract class Struct extends Structure {
 	public static <T extends Structure> T[] arrayByVal(T t, IntFunction<T[]> arrayFn, int count) {
 		if (count == 0 || t == null) return arrayFn.apply(count);
 		return BasicUtil.uncheckedCast(t.toArray(count));
+	}
+
+	/**
+	 * Creates a type from index i of a contiguous type array. Returns null if the pointer is null.
+	 * {@code autoRead()} is called on the instance. Creates an empty struct to determine struct
+	 * size. For {@code struct*} array types.
+	 */
+	public static <T extends Structure> T byVal(Pointer p, int i,
+		Function<Pointer, T> constructor) {
+		return readAuto(JnaUtil.byVal(p, i, constructor, size(constructor)));
 	}
 
 	/**

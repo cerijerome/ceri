@@ -26,7 +26,7 @@ import ceri.common.data.IntProvider;
 import ceri.common.function.FunctionUtil;
 import ceri.common.text.ToString;
 import ceri.log.util.LogUtil;
-import ceri.serial.jna.PointerRef;
+import ceri.serial.jna.ArrayPointer;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
@@ -42,10 +42,10 @@ public class UsbDevice implements Closeable {
 
 	public static class Devices implements Closeable {
 		private static final Logger logger = LogManager.getLogger();
-		private PointerRef<libusb_device> list;
+		private ArrayPointer<libusb_device> list;
 		private final List<UsbDevice> devices;
 
-		Devices(PointerRef<libusb_device> list, List<UsbDevice> devices) {
+		Devices(ArrayPointer<libusb_device> list, List<UsbDevice> devices) {
 			this.list = list;
 			this.devices = devices;
 		}

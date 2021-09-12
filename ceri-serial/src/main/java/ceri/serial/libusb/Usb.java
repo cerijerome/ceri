@@ -74,7 +74,7 @@ public class Usb implements Closeable {
 
 	public Devices deviceList() throws LibUsbException {
 		var list = libusb_get_device_list(context());
-		var devices = convertAsList(d -> new UsbDevice(this, d), list.array());
+		var devices = convertAsList(d -> new UsbDevice(this, d), list.get());
 		return new Devices(list, devices);
 	}
 

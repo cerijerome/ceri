@@ -27,7 +27,7 @@ import ceri.common.function.ExceptionCloseable;
 import ceri.common.util.Enclosed;
 import ceri.log.util.LogUtil;
 import ceri.serial.clib.jna.Time;
-import ceri.serial.jna.PointerRef;
+import ceri.serial.jna.ArrayPointer;
 import ceri.serial.jna.Struct;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
@@ -187,13 +187,13 @@ public class UsbEvents implements Closeable {
 		LogUtil.execute(logger, () -> LibUsb.libusb_unlock_event_waiters(context()));
 	}
 
-	private static void freePollFds(PointerRef<libusb_pollfd> ref) {
+	private static void freePollFds(ArrayPointer<libusb_pollfd> ref) {
 		LogUtil.execute(logger, () -> LibUsb.libusb_free_pollfds(ref));
 	}
 
-	private static List<PollFd> pollFds(PointerRef<libusb_pollfd> ref) {
+	private static List<PollFd> pollFds(ArrayPointer<libusb_pollfd> ref) {
 		if (ref == null) return List.of();
-		libusb_pollfd[] array = Struct.read(ref.array());
+		libusb_pollfd[] array = Struct.read(ref.get());
 		return ImmutableUtil.collectAsList(Stream.of(array).map(PollFd::new));
 	}
 

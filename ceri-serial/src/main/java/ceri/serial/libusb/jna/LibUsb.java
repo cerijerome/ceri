@@ -21,10 +21,10 @@ import ceri.common.data.TypeTranscoder;
 import ceri.serial.clib.jna.CUtil;
 import ceri.serial.clib.jna.Time;
 import ceri.serial.clib.jna.Time.timeval;
+import ceri.serial.jna.ArrayPointer;
 import ceri.serial.jna.JnaCaller;
 import ceri.serial.jna.JnaLibrary;
 import ceri.serial.jna.JnaUtil;
-import ceri.serial.jna.PointerRef;
 import ceri.serial.jna.PointerUtil;
 import ceri.serial.jna.Struct;
 import ceri.serial.jna.Struct.Fields;
@@ -1178,11 +1178,7 @@ public class LibUsb {
 	 * list. libusb_open() adds another reference which is later destroyed by libusb_close().
 	 */
 	// typedef struct libusb_device libusb_device;
-	public static class libusb_device extends PointerType {
-		public libusb_device(Pointer p) {
-			super(p);
-		}
-	}
+	public static class libusb_device extends PointerType {}
 
 	/**
 	 * Structure representing a handle on a USB device. This is an opaque type for which you are
@@ -1694,21 +1690,22 @@ public class LibUsb {
 			errcode);
 	}
 
-	public static PointerRef<libusb_device> libusb_get_device_list(libusb_context ctx)
+	public static ArrayPointer<libusb_device> libusb_get_device_list(libusb_context ctx)
 		throws LibUsbException {
 		require(ctx);
 		PointerByReference ref = new PointerByReference();
 		int size = caller.verifyInt(() -> lib().libusb_get_device_list(ctx, ref),
 			"libusb_get_device_list", ctx);
-		return PointerRef.array(ref.getValue(), libusb_device::new, libusb_device[]::new, size);
+		return ArrayPointer.byRef(ref.getValue(), PointerUtil.adapt(libusb_device::new),
+			libusb_device[]::new, size);
 	}
 
-	public static void libusb_free_device_list(PointerRef<libusb_device> list)
+	public static void libusb_free_device_list(ArrayPointer<libusb_device> list)
 		throws LibUsbException {
 		libusb_free_device_list(list, 1);
 	}
 
-	public static void libusb_free_device_list(PointerRef<libusb_device> list, int unref)
+	public static void libusb_free_device_list(ArrayPointer<libusb_device> list, int unref)
 		throws LibUsbException {
 		if (list == null) return;
 		Pointer p = list.getPointer();
@@ -2331,15 +2328,15 @@ public class LibUsb {
 		return Struct.read(tv);
 	}
 
-	public static PointerRef<libusb_pollfd> libusb_get_pollfds(libusb_context ctx)
+	public static ArrayPointer<libusb_pollfd> libusb_get_pollfds(libusb_context ctx)
 		throws LibUsbException {
 		require(ctx);
 		Pointer p = caller.verifyType(() -> lib().libusb_get_pollfds(ctx),
 			libusb_error.LIBUSB_ERROR_NO_MEM.value, "libusb_get_pollfds", ctx);
-		return PointerRef.array(p, null, null);
+		return ArrayPointer.byRef(p, null, null);
 	}
 
-	public static void libusb_free_pollfds(PointerRef<libusb_pollfd> pollFds)
+	public static void libusb_free_pollfds(ArrayPointer<libusb_pollfd> pollFds)
 		throws LibUsbException {
 		Pointer p = PointerUtil.pointer(pollFds);
 		if (p != null) caller.call(() -> lib().libusb_free_pollfds(p), "libusb_free_pollfds", p);

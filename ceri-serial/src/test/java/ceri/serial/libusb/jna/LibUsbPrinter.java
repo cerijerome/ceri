@@ -34,19 +34,11 @@ public class LibUsbPrinter {
 	private final libusb_log_level logLevel;
 
 	public static void main(String[] args) throws LibUsbException {
-		System.setProperty("jna.debug_load", "true");
-		printenv();
 		var printer = new LibUsbPrinter(System.out, null);
 		run(printer);
 		runTest(printer);
 	}
 
-	private static void printenv() {
-		System.getProperties().forEach((k, v) -> System.out.println(k + " = " + v));
-		System.out.println();
-		System.getenv().forEach((k, v) -> System.out.println(k + " = " + v));
-	}
-	
 	public static void runTest(LibUsbPrinter printer) throws LibUsbException {
 		TestLibUsbNative lib = TestLibUsbNative.of();
 		try (var enc = TestLibUsbNative.register(lib)) {
@@ -75,7 +67,6 @@ public class LibUsbPrinter {
 		} catch (Exception e) {
 			logger.catching(e);
 		} finally {
-			printenv();
 			if (ctx != null) LibUsb.libusb_exit(ctx);
 		}
 	}
@@ -92,7 +83,7 @@ public class LibUsbPrinter {
 	private void devices(String pre0, libusb_context ctx) throws Exception {
 		var list = LibUsb.libusb_get_device_list(ctx);
 		try {
-			libusb_device[] devices = list.array();
+			libusb_device[] devices = list.get();
 			out.printf("#devices=%d%n", devices.length);
 			for (int i = 0; i < devices.length; i++)
 				device(pre0 + i, ctx, devices[i]);

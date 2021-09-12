@@ -22,7 +22,7 @@ import java.util.Objects;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.text.DsvParser;
 import ceri.common.text.StringUtil;
-import ceri.serial.jna.PointerRef;
+import ceri.serial.jna.ArrayPointer;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
@@ -143,12 +143,12 @@ public class LibUsbFinder {
 	 * true if the device is accepted, to stop further iteration. This method returns true if a
 	 * match is found and the callback is made.
 	 */
-	public boolean findWithCallback(PointerRef<libusb_device> devs,
+	public boolean findWithCallback(ArrayPointer<libusb_device> devs,
 		ExceptionPredicate<LibUsbException, libusb_device> callback) throws LibUsbException {
 		require(devs, "Device list");
 		require(callback, "Callback");
 		int index = this.index;
-		for (libusb_device dev : devs.array()) {
+		for (libusb_device dev : devs.get()) {
 			if (!matchesBusNumber(dev, bus)) continue;
 			if (!matchesDeviceAddress(dev, address)) continue;
 			if (!matchesDescriptor(dev)) continue;

@@ -9,8 +9,8 @@ import com.sun.jna.Structure;
 import ceri.common.function.ObjIntFunction;
 
 /**
- * Provides access to struct field pointers as a typed arrays. Can be set as a
- * {@code public static final} field on the struct:
+ * Provides access to struct field pointers as a typed arrays. Can be set as
+ * {@code public static final} fields on the struct:
  * 
  * <pre>
  * class MyStruct extends Struct {
@@ -35,14 +35,14 @@ import ceri.common.function.ObjIntFunction;
 public class StructField {
 
 	private StructField() {}
-	
+
 	public static interface Type<T, R> {
 		/**
 		 * Get type from given instance.
 		 */
 		R get(T t);
 	}
-	
+
 	public static interface Array<T, R> {
 		/**
 		 * Get type at array index from given instance.
@@ -54,7 +54,7 @@ public class StructField {
 		 */
 		R[] get(T t);
 	}
-	
+
 	/**
 	 * Create for a type pointer. For {@code type*} types.
 	 */
@@ -62,7 +62,7 @@ public class StructField {
 		Function<Pointer, R> createFn) {
 		return t -> JnaUtil.type(ptrFn.apply(t), createFn);
 	}
-	
+
 	/**
 	 * Create for a type pointer. For {@code type**} types.
 	 */
@@ -70,7 +70,7 @@ public class StructField {
 		Function<Pointer, R> createFn) {
 		return t -> JnaUtil.type(PointerUtil.byRef(ptrFn.apply(t)), createFn);
 	}
-	
+
 	/**
 	 * Create for a pointer to a contiguous type array. For {@code struct*} array types.
 	 */

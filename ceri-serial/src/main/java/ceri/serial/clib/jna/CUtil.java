@@ -126,6 +126,21 @@ public class CUtil {
 	}
 
 	/**
+	 * Allocates and zeroes a contiguous array of pointers.
+	 */
+	public static Pointer[] callocArray(int count) {
+		return callocArray(Pointer.SIZE, count);
+	}
+	
+	/**
+	 * Allocates and zeroes a contiguous array, returning the pointers.
+	 */
+	public static Pointer[] callocArray(int size, int count) {
+		if (count == 0) return new Pointer[0];
+		return arrayByVal(calloc(size * count), size, count);
+	}
+	
+	/**
 	 * Allocate a contiguous array of pointers.
 	 */
 	public static Pointer[] mallocArray(int count) {
@@ -137,11 +152,7 @@ public class CUtil {
 	 */
 	public static Pointer[] mallocArray(int size, int count) {
 		if (count == 0) return new Pointer[0];
-		Memory m = new Memory(size * count);
-		Pointer[] ps = new Pointer[count];
-		for (int i = 0; i < count; i++)
-			ps[i] = m.share(size * i);
-		return ps;
+		return arrayByVal(malloc(size * count), size, count);
 	}
 
 	/**
@@ -219,5 +230,16 @@ public class CUtil {
 		byte[] buffer = from.getByteArray(fromOffset, size);
 		to.write(toOffset, buffer, 0, buffer.length);
 		return buffer.length;
+	}
+	
+	/**
+	 * Splits contiguous memory into an array of pointers.
+	 */
+	private static Pointer[] arrayByVal(Memory m, int size, int count) {
+		if (count == 0) return new Pointer[0];
+		Pointer[] ps = new Pointer[count];
+		for (int i = 0; i < count; i++)
+			ps[i] = m.share(size * i);
+		return ps;
 	}
 }

@@ -5,18 +5,24 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
+import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import ceri.common.collection.ArrayUtil;
+import ceri.serial.clib.jna.CUtil;
 import ceri.serial.jna.Struct.Fields;
 
 public class JnaTestUtil {
 
 	private JnaTestUtil() {}
 
+	public static class TestPointer extends PointerType {}
+
 	@Fields({ "i", "b", "p" })
 	public static class TestStruct extends Struct {
+		public static final int SIZE = new TestStruct().size();
 		public int i;
 		public byte[] b = new byte[3];
 		public Pointer p;
@@ -57,7 +63,7 @@ public class JnaTestUtil {
 		t.p = p;
 		ArrayUtil.copy(bytes(bytes), 0, t.b, 0, bytes.length);
 	}
-	
+
 	/**
 	 * Assert struct fields.
 	 */
@@ -76,10 +82,31 @@ public class JnaTestUtil {
 	}
 
 	/**
-	 * Writes struct to memory, then reads from memory into a new instance.
+	 * Asserts pointer type pointer.
+	 */
+	public static void assertPointer(PointerType pt, Pointer p) {
+		assertEquals(PointerUtil.pointer(pt), p);
+	}
+
+	/**
+	 * Asserts struct pointer.
+	 */
+	public static void assertPointer(Structure t, Pointer p) {
+		assertEquals(Struct.pointer(t), p);
+	}
+
+	/**
+	 * Writes struct to memory, then auto-reads from memory into a new instance.
 	 */
 	public static <T extends Structure> T ref(T t, Function<Pointer, T> constructor) {
 		return Struct.adapt(Struct.write(t), constructor);
+	}
+
+	/**
+	 * Writes struct to memory, then auto-reads from memory into a new instance.
+	 */
+	public static TestStruct ref(TestStruct t) {
+		return ref(t, TestStruct::new);
 	}
 
 	/**
@@ -100,7 +127,52 @@ public class JnaTestUtil {
 	 * Creates a new pointer copy.
 	 */
 	public static Pointer p(Pointer p) {
-		return PointerUtil.pointer(PointerUtil.peer(p));
+		return p(p, 0);
+	}
+
+	/**
+	 * Creates a new pointer copy at offset.
+	 */
+	public static Pointer p(Pointer p, long offset) {
+		return PointerUtil.pointer(PointerUtil.peer(p) + offset);
+	}
+
+	/**
+	 * Allocates a contiguous pointer array with given pointer values. Returns indirected pointers.
+	 */
+	public static Pointer[] indirect(Pointer... ps) {
+		Pointer[] array = CUtil.callocArray(ps.length);
+		for (int i = 0; i < array.length; i++)
+			array[i].setPointer(0, ps[i]);
+		return array;
+	}
+
+	/**
+	 * Allocates a contiguous pointer array with given type pointer values. Returns indirected
+	 * pointers.
+	 */
+	public static Pointer[] indirect(Structure... ts) {
+		Struct.writeAuto(ts);
+		return indirect(Stream.of(ts).map(Struct::pointer).toArray(Pointer[]::new));
+	}
+
+	/**
+	 * Create sample data for array by ref.
+	 */
+	public static Pointer sampleArrayByRef() {
+		return indirect(new TestStruct(100, null, 1), new TestStruct(200, null, 2),
+			new TestStruct(300, null, 3), null)[0];
+	}
+
+	/**
+	 * Create sample data for array by value.
+	 */
+	public static Pointer sampleArrayByVal() {
+		TestStruct[] array0 = Struct.arrayByVal(() -> new TestStruct(), TestStruct[]::new, 3);
+		populate(array0[0], 100, null, 1);
+		populate(array0[1], 200, null, 2);
+		populate(array0[2], 300, null, 3);
+		return Struct.write(array0)[0].getPointer();
 	}
 
 }

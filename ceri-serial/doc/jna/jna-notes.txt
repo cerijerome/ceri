@@ -36,6 +36,7 @@ JNA coding
 ----------
 General:
 - new Memory() is not always zeroed
+- In tests, beware of dereferenced memory gc; avoid static sample data
 
 Arrays:
 - PointerUtil.arrayByVal to create contiguous pointer(-type) arrays (void*)
