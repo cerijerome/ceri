@@ -1,6 +1,5 @@
 package ceri.serial.jna;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
@@ -23,8 +22,9 @@ public class JnaTestUtil {
 	@Fields({ "i", "b", "p" })
 	public static class TestStruct extends Struct {
 		public static final int SIZE = new TestStruct().size();
+		public static final int BYTES = 3;
 		public int i;
-		public byte[] b = new byte[3];
+		public byte[] b = new byte[BYTES];
 		public Pointer p;
 
 		public static class ByRef extends TestStruct implements Structure.ByReference {
@@ -58,16 +58,38 @@ public class JnaTestUtil {
 	/**
 	 * Populate struct fields.
 	 */
-	public static void populate(TestStruct t, int i, Pointer p, int... bytes) {
+	public static TestStruct populate(TestStruct t, int i, Pointer p, int... bytes) {
+		return populate(t, i, p, ArrayUtil.bytes(bytes));
+	}
+
+	/**
+	 * Populate struct fields.
+	 */
+	public static TestStruct populate(TestStruct t, int i, Pointer p, byte[] bytes) {
 		t.i = i;
 		t.p = p;
-		ArrayUtil.copy(bytes(bytes), 0, t.b, 0, bytes.length);
+		ArrayUtil.copy(bytes, 0, t.b, 0, bytes.length);
+		return t;
+	}
+
+	/**
+	 * Assert struct fields.
+	 */
+	public static void assertTestStruct(TestStruct t, TestStruct expected) {
+		assertTestStruct(t, expected.i, expected.p, expected.b);
 	}
 
 	/**
 	 * Assert struct fields.
 	 */
 	public static void assertTestStruct(TestStruct t, int i, Pointer p, int... bytes) {
+		assertTestStruct(t, i, p, ArrayUtil.bytes(bytes));
+	}
+
+	/**
+	 * Assert struct fields.
+	 */
+	public static void assertTestStruct(TestStruct t, int i, Pointer p, byte[] bytes) {
 		assertNotNull(t);
 		assertEquals(t.i, i);
 		assertEquals(t.p, p);
@@ -124,14 +146,14 @@ public class JnaTestUtil {
 	}
 
 	/**
-	 * Creates a new pointer copy.
+	 * Creates a new pointer copy. Be careful of gc on original object.
 	 */
 	public static Pointer p(Pointer p) {
 		return p(p, 0);
 	}
 
 	/**
-	 * Creates a new pointer copy at offset.
+	 * Creates a new pointer copy at offset. Be careful of gc on original object.
 	 */
 	public static Pointer p(Pointer p, long offset) {
 		return PointerUtil.pointer(PointerUtil.peer(p) + offset);
@@ -155,24 +177,4 @@ public class JnaTestUtil {
 		Struct.writeAuto(ts);
 		return indirect(Stream.of(ts).map(Struct::pointer).toArray(Pointer[]::new));
 	}
-
-	/**
-	 * Create sample data for array by ref.
-	 */
-	public static Pointer sampleArrayByRef() {
-		return indirect(new TestStruct(100, null, 1), new TestStruct(200, null, 2),
-			new TestStruct(300, null, 3), null)[0];
-	}
-
-	/**
-	 * Create sample data for array by value.
-	 */
-	public static Pointer sampleArrayByVal() {
-		TestStruct[] array0 = Struct.arrayByVal(() -> new TestStruct(), TestStruct[]::new, 3);
-		populate(array0[0], 100, null, 1);
-		populate(array0[1], 200, null, 2);
-		populate(array0[2], 300, null, 3);
-		return Struct.write(array0)[0].getPointer();
-	}
-
 }

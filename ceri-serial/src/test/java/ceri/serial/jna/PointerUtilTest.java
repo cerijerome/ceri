@@ -67,6 +67,15 @@ public class PointerUtilTest {
 	}
 
 	@Test
+	public void testOverlap() {
+		assertEquals(PointerUtil.overlap(null, null, 0), false);
+		assertEquals(PointerUtil.overlap(null, 1, null, 0, 1), false);
+		assertEquals(PointerUtil.overlap(null, 0, null, 1, 1), false);
+		assertEquals(PointerUtil.overlap(null, 1, null, 0, 2), true);
+		assertEquals(PointerUtil.overlap(null, 0, null, 1, 2), true);
+	}
+
+	@Test
 	public void testNullTermArrayByRefForPointerTypes() {
 		assertArray(PointerUtil.arrayByRef(null, TestPointer::new, TestPointer[]::new));
 		Pointer[] pointers = { new Memory(1), new Memory(2), new Memory(3), null };

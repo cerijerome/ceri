@@ -6,12 +6,13 @@ import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
 import ceri.serial.clib.Seek;
 import ceri.serial.jna.JnaUtil;
+import ceri.serial.jna.PointerUtil;
 
 /**
  * Utilities for CLib and CLib-style calls.
  */
 public class CUtil {
-	private static final int MEMMOVE_OPTIMAL_MAX_SIZE = 8 * 1024; // determined from test results
+	private static final int MEMCPY_OPTIMAL_MIN_SIZE = 8 * 1024; // determined from test results
 	public static final int INVALID_FD = -1;
 
 	private CUtil() {}
@@ -131,7 +132,7 @@ public class CUtil {
 	public static Pointer[] callocArray(int count) {
 		return callocArray(Pointer.SIZE, count);
 	}
-	
+
 	/**
 	 * Allocates and zeroes a contiguous array, returning the pointers.
 	 */
@@ -139,14 +140,14 @@ public class CUtil {
 		if (count == 0) return new Pointer[0];
 		return arrayByVal(calloc(size * count), size, count);
 	}
-	
+
 	/**
 	 * Allocate a contiguous array of pointers.
 	 */
 	public static Pointer[] mallocArray(int count) {
 		return mallocArray(Pointer.SIZE, count);
 	}
-	
+
 	/**
 	 * Allocate a contiguous array, returning the pointers.
 	 */
@@ -199,15 +200,18 @@ public class CUtil {
 	 * sizes (>8k depending on system).
 	 */
 	public static int memcpy(Pointer p, long toOffset, long fromOffset, int size) {
+		if (toOffset == fromOffset) return size;
 		return memcpy(p, toOffset, p, fromOffset, size);
 	}
 
 	/**
-	 * Copies byte array from pointer offset to pointer offset. Faster than memmove only for large
-	 * sizes (>8k depending on system). Returns the number of bytes copied.
+	 * Copies bytes from pointer offset to pointer offset. Calls memmove for smaller sizes (<8k), or
+	 * if regions overlap. Returns the number of bytes copied.
 	 */
 	public static int memcpy(Pointer to, long toOffset, Pointer from, long fromOffset, int size) {
-		if (size < MEMMOVE_OPTIMAL_MAX_SIZE) return memmove(to, toOffset, from, fromOffset, size);
+		if (size < MEMCPY_OPTIMAL_MIN_SIZE ||
+			PointerUtil.overlap(to, toOffset, from, fromOffset, size))
+			return memmove(to, toOffset, from, fromOffset, size);
 		ByteBuffer toBuffer = to.getByteBuffer(toOffset, size);
 		ByteBuffer fromBuffer = from.getByteBuffer(fromOffset, size);
 		toBuffer.put(fromBuffer);
@@ -218,8 +222,6 @@ public class CUtil {
 	 * Copies byte array from pointer offset to pointer offset using a buffer (if needed).
 	 */
 	public static int memmove(Pointer p, long toOffset, long fromOffset, int size) {
-		if (toOffset >= fromOffset + size || toOffset + size <= fromOffset)
-			return memcpy(p, toOffset, fromOffset, size);
 		return memmove(p, toOffset, p, fromOffset, size);
 	}
 
@@ -231,12 +233,11 @@ public class CUtil {
 		to.write(toOffset, buffer, 0, buffer.length);
 		return buffer.length;
 	}
-	
+
 	/**
 	 * Splits contiguous memory into an array of pointers.
 	 */
 	private static Pointer[] arrayByVal(Memory m, int size, int count) {
-		if (count == 0) return new Pointer[0];
 		Pointer[] ps = new Pointer[count];
 		for (int i = 0; i < count; i++)
 			ps[i] = m.share(size * i);

@@ -49,6 +49,11 @@ public class JnaUtilTest {
 	}
 
 	@Test
+	public void testShareNullMemory() {
+		assertNull(JnaUtil.share(null, 0, 0));
+	}
+
+	@Test
 	public void testSize() {
 		assertEquals(JnaUtil.size(null), 0);
 		assertEquals(JnaUtil.size(new Memory(5)), 5);

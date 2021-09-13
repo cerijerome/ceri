@@ -59,6 +59,13 @@ public class JnaUtil {
 	}
 
 	/**
+	 * Provide typed share method for memory.
+	 */
+	public static Memory share(Memory m, long offset, long size) {
+		return m == null ? null : (Memory) m.share(offset, size);
+	}
+	
+	/**
 	 * Gets the memory size. Throws ArithmeticException if outside signed int range.
 	 */
 	public static int size(Memory m) {

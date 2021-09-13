@@ -7,7 +7,6 @@ import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.serial.jna.JnaTestUtil.assertTestStruct;
-import static ceri.serial.jna.JnaTestUtil.*;
 import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Pointer;
@@ -15,6 +14,7 @@ import ceri.serial.jna.JnaTestUtil.TestStruct;
 import ceri.serial.jna.Struct.Fields;
 
 public class StructBehavior {
+	private final JnaTestData data = JnaTestData.of();
 
 	public static class NoAnno extends Struct {
 		public int i;
@@ -122,19 +122,19 @@ public class StructBehavior {
 
 	@Test
 	public void testArrayByValAutoReadsAllArrayItems() {
-		Pointer p = sampleArrayByVal();
+		Pointer p = data.structArrayByValPointer(0);
 		TestStruct[] array = Struct.arrayByVal(p, TestStruct::new, TestStruct[]::new, 3);
-		assertTestStruct(array[0], 100, null, 1, 0, 0);
-		assertTestStruct(array[1], 200, null, 2, 0, 0);
-		assertTestStruct(array[2], 300, null, 3, 0, 0);
+		data.assertStruct(array[0], 0);
+		data.assertStruct(array[1], 1);
+		data.assertStruct(array[2], 2);
 	}
 
 	@Test
 	public void testByVal() {
-		Pointer p = sampleArrayByVal();
-		assertTestStruct(Struct.byVal(p, 0, TestStruct::new), 100, null, 1, 0, 0);
-		assertTestStruct(Struct.byVal(p, 1, TestStruct::new), 200, null, 2, 0, 0);
-		assertTestStruct(Struct.byVal(p, 2, TestStruct::new), 300, null, 3, 0, 0);
+		Pointer p = data.structArrayByValPointer(1);
+		data.assertStruct(Struct.byVal(p, 0, TestStruct::new), 1);
+		data.assertStruct(Struct.byVal(p, 1, TestStruct::new), 2);
+		data.assertEmptyStruct(Struct.byVal(p, 2, TestStruct::new)); // from zeroed mem
 	}
 
 	@Test

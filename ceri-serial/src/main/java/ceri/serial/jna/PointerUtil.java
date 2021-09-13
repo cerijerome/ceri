@@ -63,6 +63,23 @@ public class PointerUtil {
 	}
 
 	/**
+	 * Detects if the regions overlap.
+	 */
+	public static boolean overlap(Pointer p0, Pointer p1, int size) {
+		return overlap(p0, 0, p1, 0, size);
+	}
+
+	/**
+	 * Detects if the regions overlap.
+	 */
+	public static boolean overlap(Pointer p0, long p0Offset, Pointer p1, long p1Offset,
+		int size) {
+		long peer0 = PointerUtil.peer(p0) + p0Offset;
+		long peer1 = PointerUtil.peer(p1) + p1Offset;
+		return (peer1 < peer0 + size) && (peer0 < peer1 + size);
+	}
+
+	/**
 	 * Get an indirected null-terminated array of pointers. Returns an empty array if the pointer is
 	 * null. For {@code struct**} array types.
 	 */
