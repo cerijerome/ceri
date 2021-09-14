@@ -18,9 +18,9 @@ public class CUtilTest {
 
 	@Test
 	public void testValidFd() {
-		assertEquals(CUtil.validFd(-1), false);
-		assertEquals(CUtil.validFd(0), true);
-		assertEquals(CUtil.validFd(1), true);
+		assertEquals(CLibUtil.validFd(-1), false);
+		assertEquals(CLibUtil.validFd(0), true);
+		assertEquals(CLibUtil.validFd(1), true);
 	}
 	
 }

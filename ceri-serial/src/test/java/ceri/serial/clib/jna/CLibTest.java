@@ -49,7 +49,7 @@ public class CLibTest {
 			JnaTestUtil.assertPointer(m, 0, 'e', 's', 't');
 			assertEquals(CLib.read(fd, m, 1), -1);
 		} finally {
-			CUtil.close(fd);
+			CLib.close(fd);
 		}
 	}
 
@@ -69,7 +69,7 @@ public class CLibTest {
 			assertEquals(CLib.write(fd, m, 4), 4);
 			assertFile(path, "test".getBytes());
 		} finally {
-			CUtil.close(fd);
+			CLib.close(fd);
 			Files.deleteIfExists(path);
 		}
 	}
@@ -89,7 +89,7 @@ public class CLibTest {
 			assertEquals(CLib.lseek(fd, 0, Seek.SEEK_CUR.value), 4);
 			assertThrown(() -> CLib.lseek(fd, -1, Seek.SEEK_SET.value));
 		} finally {
-			CUtil.close(fd);
+			CLib.close(fd);
 		}
 	}
 

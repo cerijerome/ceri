@@ -12,7 +12,7 @@ import ceri.common.util.OsUtil;
 import ceri.serial.clib.jna.CLib;
 import ceri.serial.clib.jna.CLibLinux;
 import ceri.serial.clib.jna.CLibMac;
-import ceri.serial.clib.jna.CUtil;
+import ceri.serial.clib.jna.CLibUtil;
 import purejavacomm.PureJavaIllegalStateException;
 import purejavacomm.PureJavaSerialPort;
 
@@ -131,7 +131,7 @@ public class SerialPort extends CommPort {
 	 * Starts a break (low signal). Make sure writing is complete or output will be overwritten.
 	 */
 	public void setBreakBit() throws IOException {
-		CUtil.validateFd(fd);
+		CLibUtil.validateFd(fd);
 		CLib.tiocsbrk(fd);
 	}
 
@@ -139,7 +139,7 @@ public class SerialPort extends CommPort {
 	 * Stops a break and returns to a high signal (mark/idle).
 	 */
 	public void clearBreakBit() throws IOException {
-		CUtil.validateFd(fd);
+		CLibUtil.validateFd(fd);
 		CLib.tioccbrk(fd);
 	}
 
@@ -148,7 +148,7 @@ public class SerialPort extends CommPort {
 	}
 
 	private boolean isIncorrectBaudRate(int baud) throws IOException {
-		if (!CUtil.validFd(fd)) return false;
+		if (!CLibUtil.validFd(fd)) return false;
 		return baud(fd) != baud;
 	}
 
@@ -165,7 +165,7 @@ public class SerialPort extends CommPort {
 
 	private static int fd(purejavacomm.SerialPort port) {
 		PureJavaSerialPort pure = ReflectUtil.castOrNull(PureJavaSerialPort.class, port);
-		if (pure == null) return CUtil.INVALID_FD;
+		if (pure == null) return CLibUtil.INVALID_FD;
 		return pure.getNativeFileDescriptor();
 	}
 

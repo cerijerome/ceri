@@ -11,16 +11,15 @@ import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.clib.jna.CLib;
-import ceri.serial.clib.jna.CUtil;
 import ceri.serial.jna.PointerUtil;
 
 /**
  * Encapsulates a file descriptor as a closable resource.
  */
 public class CFileDescriptor implements FileDescriptor {
-	private static final Set<Integer> BROKEN_ERROR_CODES = Set.of(2, // no such file/dir
-		121); // remote I/O
 	private static final Pattern BROKEN_MESSAGE_REGEX = Pattern.compile("(?i)(?:remote i/o)");
+	private static final Set<Integer> BROKEN_ERROR_CODES =
+		Set.of(/* no such file/dir */ 2, /* remote I/O */ 121);
 	private final int fd;
 	private volatile boolean closed = false;
 
@@ -112,8 +111,7 @@ public class CFileDescriptor implements FileDescriptor {
 
 	@Override
 	public void close() throws IOException {
-		if (closed) return;
-		closed = CUtil.close(fd);
+		if (!closed) closed = close(fd);
 	}
 
 	@Override
@@ -135,4 +133,12 @@ public class CFileDescriptor implements FileDescriptor {
 		return String.format("fd=%d/0x%x", fd, fd);
 	}
 
+	private static boolean close(int fd) {
+		try {
+			CLib.close(fd);
+			return true;
+		} catch (CException e) {
+			return false;
+		}
+	}
 }

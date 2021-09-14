@@ -46,14 +46,14 @@ public class CLibMac {
 	public static termios tcgetattr(int fd) throws CException {
 		termios termios = new termios();
 		CLib.tcgetattr(fd, termios.getPointer());
-		return termios;
+		return Struct.read(termios);
 	}
 
 	/**
 	 * Set termios attributes.
 	 */
 	public static void tcsetattr(int fd, int actions, termios termios) throws CException {
-		CLib.tcsetattr(fd, actions, termios.getPointer());
+		CLib.tcsetattr(fd, actions, Struct.write(termios).getPointer());
 	}
 
 }

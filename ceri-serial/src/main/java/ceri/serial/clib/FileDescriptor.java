@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.io.IoStreamUtil;
-import ceri.serial.clib.jna.CUtil;
+import ceri.serial.clib.jna.CLibUtil;
 import ceri.serial.jna.JnaUtil;
 
 /**
@@ -155,7 +155,7 @@ public interface FileDescriptor extends Closeable {
 		
 		@Override
 		public int fd() throws IOException {
-			return CUtil.INVALID_FD;
+			return CLibUtil.INVALID_FD;
 		}
 
 		@Override

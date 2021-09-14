@@ -17,7 +17,7 @@ import com.sun.jna.Memory;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.FileTestHelper;
-import ceri.serial.clib.jna.CUtil;
+import ceri.serial.clib.jna.CLibUtil;
 import ceri.serial.jna.JnaUtil;
 
 public class FileDescriptorBehavior {
@@ -110,7 +110,7 @@ public class FileDescriptorBehavior {
 
 	@Test
 	public void shouldProvideNoOpFd() throws IOException {
-		assertEquals(CUtil.validFd(FileDescriptor.NULL.fd()), false);
+		assertEquals(CLibUtil.validFd(FileDescriptor.NULL.fd()), false);
 		assertEquals(FileDescriptor.NULL.read(null, 1, 5), 5);
 		FileDescriptor.NULL.write(null, 1, 5);
 		assertEquals(FileDescriptor.NULL.seek(5, null), 0);
