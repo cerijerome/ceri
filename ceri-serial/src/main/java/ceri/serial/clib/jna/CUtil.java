@@ -1,18 +1,14 @@
 package ceri.serial.clib.jna;
 
-import java.nio.ByteBuffer;
 import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
 import ceri.serial.clib.Seek;
 import ceri.serial.jna.JnaUtil;
-import ceri.serial.jna.PointerUtil;
 
 /**
  * Utilities for CLib and CLib-style calls.
  */
 public class CUtil {
-	private static final int MEMCPY_OPTIMAL_MIN_SIZE = 8 * 1024; // determined from test results
 	public static final int INVALID_FD = -1;
 
 	private CUtil() {}
@@ -54,7 +50,7 @@ public class CUtil {
 	 * Writes bytes to file.
 	 */
 	public static void write(int fd, byte[] bytes, int offset, int length) throws CException {
-		Memory m = malloc(bytes, offset, length);
+		Memory m = JnaUtil.mallocBytes(bytes, offset, length);
 		CLib.write(fd, m, length);
 	}
 
@@ -116,131 +112,134 @@ public class CUtil {
 		return fd != INVALID_FD;
 	}
 
-	/**
-	 * Allocates and zeroes new memory, or returns null if size is 0.
-	 */
-	public static Memory calloc(int size) {
-		if (size == 0) return null;
-		Memory m = new Memory(size);
-		JnaUtil.fill(m, 0);
-		return m;
-	}
-
-	/**
-	 * Allocates and zeroes a contiguous array of pointers.
-	 */
-	public static Pointer[] callocArray(int count) {
-		return callocArray(Pointer.SIZE, count);
-	}
-
-	/**
-	 * Allocates and zeroes a contiguous array, returning the pointers.
-	 */
-	public static Pointer[] callocArray(int size, int count) {
-		if (count == 0) return new Pointer[0];
-		return arrayByVal(calloc(size * count), size, count);
-	}
-
-	/**
-	 * Allocate a contiguous array of pointers.
-	 */
-	public static Pointer[] mallocArray(int count) {
-		return mallocArray(Pointer.SIZE, count);
-	}
-
-	/**
-	 * Allocate a contiguous array, returning the pointers.
-	 */
-	public static Pointer[] mallocArray(int size, int count) {
-		if (count == 0) return new Pointer[0];
-		return arrayByVal(malloc(size * count), size, count);
-	}
-
-	/**
-	 * Allocates new memory, or returns null if size is 0.
-	 */
-	public static Memory malloc(int size) {
-		return size == 0 ? null : new Memory(size);
-	}
-
-	/**
-	 * Allocate native memory and copy array.
-	 */
-	public static Memory mallocBytes(int... array) {
-		return malloc(ArrayUtil.bytes(array));
-	}
-
-	/**
-	 * Allocate native memory and copy array.
-	 */
-	public static Memory malloc(byte[] array) {
-		return malloc(array, 0);
-	}
-
-	/**
-	 * Allocate native memory and copy array.
-	 */
-	public static Memory malloc(byte[] array, int offset) {
-		return malloc(array, offset, array.length - offset);
-	}
-
-	/**
-	 * Allocate native memory and copy array.
-	 */
-	public static Memory malloc(byte[] array, int offset, int length) {
-		ArrayUtil.validateSlice(array.length, offset, length);
-		if (length == 0) return null;
-		Memory m = new Memory(length);
-		m.write(0, array, offset, length);
-		return m;
-	}
-
-	/**
-	 * Copies byte array from pointer offset to pointer offset. Faster than memmove only for large
-	 * sizes (>8k depending on system).
-	 */
-	public static int memcpy(Pointer p, long toOffset, long fromOffset, int size) {
-		if (toOffset == fromOffset) return size;
-		return memcpy(p, toOffset, p, fromOffset, size);
-	}
-
-	/**
-	 * Copies bytes from pointer offset to pointer offset. Calls memmove for smaller sizes (<8k), or
-	 * if regions overlap. Returns the number of bytes copied.
-	 */
-	public static int memcpy(Pointer to, long toOffset, Pointer from, long fromOffset, int size) {
-		if (size < MEMCPY_OPTIMAL_MIN_SIZE ||
-			PointerUtil.overlap(to, toOffset, from, fromOffset, size))
-			return memmove(to, toOffset, from, fromOffset, size);
-		ByteBuffer toBuffer = to.getByteBuffer(toOffset, size);
-		ByteBuffer fromBuffer = from.getByteBuffer(fromOffset, size);
-		toBuffer.put(fromBuffer);
-		return size;
-	}
-
-	/**
-	 * Copies byte array from pointer offset to pointer offset using a buffer (if needed).
-	 */
-	public static int memmove(Pointer p, long toOffset, long fromOffset, int size) {
-		return memmove(p, toOffset, p, fromOffset, size);
-	}
-
-	/**
-	 * Copies byte array from pointer offset to pointer offset using a buffer.
-	 */
-	public static int memmove(Pointer to, long toOffset, Pointer from, long fromOffset, int size) {
-		byte[] buffer = from.getByteArray(fromOffset, size);
-		to.write(toOffset, buffer, 0, buffer.length);
-		return buffer.length;
-	}
-
-	/**
-	 * Splits contiguous memory into an array of pointers.
-	 */
-	private static Pointer[] arrayByVal(Memory m, int size, int count) {
-		Pointer[] ps = new Pointer[count];
-		for (int i = 0; i < count; i++)
-			ps[i] = m.share(size * i);
-		return ps;
-	}
+	// /**
+	// * Allocates and zeroes new memory, or returns null if size is 0.
+	// */
+	// public static Memory calloc(int size) {
+	// if (size == 0) return null;
+	// Memory m = new Memory(size);
+	// JnaUtil.fill(m, 0);
+	// return m;
+	// }
+	//
+	// /**
+	// * Allocates and zeroes a contiguous array of pointers.
+	// */
+	// public static Pointer[] callocArray(int count) {
+	// return callocArray(Pointer.SIZE, count);
+	// }
+	//
+	// /**
+	// * Allocates and zeroes a contiguous array, returning the pointers.
+	// */
+	// public static Pointer[] callocArray(int size, int count) {
+	// if (count == 0) return new Pointer[0];
+	// return arrayByVal(calloc(size * count), size, count);
+	// }
+	//
+	// /**
+	// * Allocate a contiguous array of pointers.
+	// */
+	// public static Pointer[] mallocArray(int count) {
+	// return mallocArray(Pointer.SIZE, count);
+	// }
+	//
+	// /**
+	// * Allocate a contiguous array, returning the pointers.
+	// */
+	// public static Pointer[] mallocArray(int size, int count) {
+	// if (count == 0) return new Pointer[0];
+	// return arrayByVal(malloc(size * count), size, count);
+	// }
+	//
+	// /**
+	// * Allocates new memory, or returns null if size is 0.
+	// */
+	// public static Memory malloc(int size) {
+	// return size == 0 ? null : new Memory(size);
+	// }
+	//
+	// /**
+	// * Allocate native memory and copy array.
+	// */
+	// public static Memory mallocBytes(int... array) {
+	// return malloc(ArrayUtil.bytes(array));
+	// }
+	//
+	// /**
+	// * Allocate native memory and copy array.
+	// */
+	// public static Memory malloc(byte[] array) {
+	// return malloc(array, 0);
+	// }
+	//
+	// /**
+	// * Allocate native memory and copy array.
+	// */
+	// public static Memory malloc(byte[] array, int offset) {
+	// return malloc(array, offset, array.length - offset);
+	// }
+	//
+	// /**
+	// * Allocate native memory and copy array.
+	// */
+	// public static Memory malloc(byte[] array, int offset, int length) {
+	// ArrayUtil.validateSlice(array.length, offset, length);
+	// if (length == 0) return null;
+	// Memory m = new Memory(length);
+	// m.write(0, array, offset, length);
+	// return m;
+	// }
+	//
+	// /**
+	// * Copies byte array from pointer offset to pointer offset. Faster than memmove only for large
+	// * sizes (>8k depending on system).
+	// */
+	// public static int memcpy(Pointer p, long toOffset, long fromOffset, int size) {
+	// if (toOffset == fromOffset) return size;
+	// return memcpy(p, toOffset, p, fromOffset, size);
+	// }
+	//
+	// /**
+	// * Copies bytes from pointer offset to pointer offset. Calls memmove for smaller sizes (<8k),
+	// or
+	// * if regions overlap. Returns the number of bytes copied.
+	// */
+	// public static int memcpy(Pointer to, long toOffset, Pointer from, long fromOffset, int size)
+	// {
+	// if (size < MEMCPY_OPTIMAL_MIN_SIZE ||
+	// PointerUtil.overlap(to, toOffset, from, fromOffset, size))
+	// return memmove(to, toOffset, from, fromOffset, size);
+	// ByteBuffer toBuffer = to.getByteBuffer(toOffset, size);
+	// ByteBuffer fromBuffer = from.getByteBuffer(fromOffset, size);
+	// toBuffer.put(fromBuffer);
+	// return size;
+	// }
+	//
+	// /**
+	// * Copies byte array from pointer offset to pointer offset using a buffer (if needed).
+	// */
+	// public static int memmove(Pointer p, long toOffset, long fromOffset, int size) {
+	// return memmove(p, toOffset, p, fromOffset, size);
+	// }
+	//
+	// /**
+	// * Copies byte array from pointer offset to pointer offset using a buffer.
+	// */
+	// public static int memmove(Pointer to, long toOffset, Pointer from, long fromOffset, int size)
+	// {
+	// byte[] buffer = from.getByteArray(fromOffset, size);
+	// to.write(toOffset, buffer, 0, buffer.length);
+	// return buffer.length;
+	// }
+	//
+	// /**
+	// * Splits contiguous memory into an array of pointers.
+	// */
+	// private static Pointer[] arrayByVal(Memory m, int size, int count) {
+	// Pointer[] ps = new Pointer[count];
+	// for (int i = 0; i < count; i++)
+	// ps[i] = m.share(size * i);
+	// return ps;
+	// }
 }

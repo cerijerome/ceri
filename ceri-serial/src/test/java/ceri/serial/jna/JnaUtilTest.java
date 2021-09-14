@@ -20,7 +20,7 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.ShortByReference;
 import ceri.common.collection.ArrayUtil;
-import ceri.serial.clib.jna.CUtil;
+import ceri.common.data.ByteUtil;
 import ceri.serial.jna.JnaTestUtil.TestStruct;
 
 public class JnaUtilTest {
@@ -33,6 +33,63 @@ public class JnaUtilTest {
 	}
 
 	@Test
+	public void testMalloc() {
+		assertNull(JnaUtil.malloc(0));
+		assertEquals(JnaUtil.malloc(3).size(), 3L);
+	}
+
+	@Test
+	public void testCalloc() {
+		assertNull(JnaUtil.calloc(0));
+		assertMemory(JnaUtil.calloc(5), 0, 0, 0, 0, 0);
+	}
+
+	@Test
+	public void testMallocBytes() {
+		assertNull(JnaUtil.mallocBytes(new byte[0]));
+		assertNull(JnaUtil.mallocBytes(ArrayUtil.bytes(1, 2, 3), 1, 0));
+		assertMemory(JnaUtil.mallocBytes(ArrayUtil.bytes(-1, -2, -3)), -1, -2, -3);
+	}
+
+	@Test
+	public void testMemcpy() {
+		Memory m = JnaUtil.mallocBytes(1, 2, 3, 4, 5, 6, 7, 8, 9);
+		assertEquals(JnaUtil.memcpy(m, 3, 3, 5), 5);
+		assertMemory(m, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+		assertEquals(JnaUtil.memcpy(m, 3, 0, 5), 5);
+		assertMemory(m, 1, 2, 3, 1, 2, 3, 4, 5, 9);
+	}
+
+	@Test
+	public void testMemcpyForLargeBuffer() {
+		Memory m = JnaUtil.malloc(8 * 1024 + 8);
+		assertEquals(JnaUtil.memcpy(m, 8, 0, 8 * 1024), 8 * 1024);
+	}
+
+	@Test
+	public void testMemcpyBetweenPointers() {
+		Memory m0 = JnaUtil.mallocBytes(ByteUtil.toAscii("abcdefghijklm").copy(0));
+		Memory m1 = JnaUtil.mallocBytes(ByteUtil.toAscii("ABCDEFGHIJKLM").copy(0));
+		JnaUtil.memcpy(m0, 3, m1, 3, 3);
+		assertEquals(JnaUtil.string(m0), "abcDEFghijklm");
+		assertEquals(JnaUtil.string(m1), "ABCDEFGHIJKLM");
+	}
+
+	@Test
+	public void testMemcpySamePointer() {
+		Memory m = JnaUtil.mallocBytes(ByteUtil.toAscii("abcdefghijklm").copy(0));
+		JnaUtil.memcpy(m, 0, m, 4, 3);
+		assertEquals(JnaUtil.string(m), "efgdefghijklm");
+	}
+
+	@Test
+	public void testMemcpySamePointerWithOverlap() {
+		Memory m = JnaUtil.mallocBytes(ByteUtil.toAscii("abcdefghijklm").copy(0));
+		JnaUtil.memcpy(m, 0, m, 3, 4);
+		assertEquals(JnaUtil.string(m), "defgefghijklm");
+	}
+
+	@Test
 	public void testLazyBuffer() {
 		var lazy = JnaUtil.lazyBuffer(5);
 		assertEquals(lazy.get().size(), 5L);
@@ -42,7 +99,7 @@ public class JnaUtilTest {
 	public void testPointerOffset() {
 		assertNull(JnaUtil.offset(null, 1));
 		assertNull(JnaUtil.offset(null, 0, 2));
-		Memory m = CUtil.mallocBytes(1, 2, 3);
+		Memory m = JnaUtil.mallocBytes(1, 2, 3);
 		assertMemory(JnaUtil.offset(m, 0), 1, 2, 3);
 		assertMemory(JnaUtil.offset(m, 0, 2), 1, 2);
 		assertMemory(JnaUtil.offset(m, 1), 2, 3);
@@ -69,7 +126,7 @@ public class JnaUtilTest {
 	@Test
 	public void testByRef() {
 		TestStruct[] inners = { new TestStruct(100), null, new TestStruct(300) };
-		Pointer[] ps = CUtil.mallocArray(3);
+		Pointer[] ps = PointerUtil.mallocArray(3);
 		for (int i = 0; i < ps.length; i++)
 			ps[i].setPointer(0, Struct.pointer(inners[i]));
 		assertEquals(JnaUtil.byRef(ps[0], 0, TestStruct::new), inners[0]);
@@ -184,7 +241,7 @@ public class JnaUtilTest {
 	public void testBuffer() {
 		assertBuffer(JnaUtil.buffer(null, 0, 0));
 		assertThrown(() -> JnaUtil.buffer(null, 0, 1));
-		Memory m = CUtil.mallocBytes(0x80, 0, 0xff);
+		Memory m = JnaUtil.mallocBytes(0x80, 0, 0xff);
 		assertBuffer(JnaUtil.buffer(m), 0x80, 0, 0xff);
 	}
 
@@ -196,7 +253,7 @@ public class JnaUtilTest {
 
 	@Test
 	public void testStringFromMemory() {
-		Memory m = CUtil.malloc("abc\0def".getBytes(UTF_8));
+		Memory m = JnaUtil.mallocBytes("abc\0def".getBytes(UTF_8));
 		assertEquals(JnaUtil.string(UTF_8, m), "abc\0def");
 	}
 
@@ -209,7 +266,7 @@ public class JnaUtilTest {
 
 	@Test
 	public void testReadBytesFromPointer() {
-		Memory m = CUtil.mallocBytes(0x80, 0, 0xff, 0x7f, 1);
+		Memory m = JnaUtil.mallocBytes(0x80, 0, 0xff, 0x7f, 1);
 		byte[] buffer = new byte[3];
 		assertEquals(JnaUtil.read(m, buffer), 3);
 		assertArray(buffer, 0x80, 0, 0xff);
@@ -217,7 +274,7 @@ public class JnaUtilTest {
 
 	@Test
 	public void testReadBytesFromPointerAtIndex() {
-		Memory m = CUtil.mallocBytes(0x80, 0, 0xff, 0x7f, 1);
+		Memory m = JnaUtil.mallocBytes(0x80, 0, 0xff, 0x7f, 1);
 		byte[] buffer = new byte[3];
 		assertEquals(JnaUtil.read(m, 1, buffer), 3);
 		assertArray(buffer, 0, 0xff, 0x7f);
@@ -225,7 +282,7 @@ public class JnaUtilTest {
 
 	@Test
 	public void testWriteBytesToPointer() {
-		Memory m = CUtil.calloc(5);
+		Memory m = JnaUtil.calloc(5);
 		assertEquals(JnaUtil.write(m, 1, 0x80, 0, 0xff), 4);
 		assertMemory(m, 0, 0x80, 0, 0xff, 0);
 	}

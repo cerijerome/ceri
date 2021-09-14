@@ -12,7 +12,6 @@ import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
-import ceri.serial.clib.jna.CUtil;
 import ceri.serial.jna.JnaTestUtil.TestPointer;
 
 public class PointerUtilTest {
@@ -39,7 +38,7 @@ public class PointerUtilTest {
 	@Test
 	public void testPointerOffset() {
 		assertNull(PointerUtil.offset(null, 0));
-		Pointer p = p(CUtil.mallocBytes(1, 2, 3));
+		Pointer p = p(JnaUtil.mallocBytes(1, 2, 3));
 		assertMemory(PointerUtil.offset(p, 0), 1, 2, 3);
 		assertMemory(PointerUtil.offset(p, 1), 2, 3);
 	}
@@ -57,7 +56,7 @@ public class PointerUtilTest {
 
 	@Test
 	public void testCount() {
-		Pointer[] array = CUtil.callocArray(3);
+		Pointer[] array = PointerUtil.callocArray(3);
 		assertEquals(PointerUtil.count(null), 0);
 		assertEquals(PointerUtil.count(array[0]), 0);
 		array[0].setPointer(0, new Memory(1));
@@ -73,6 +72,23 @@ public class PointerUtilTest {
 		assertEquals(PointerUtil.overlap(null, 0, null, 1, 1), false);
 		assertEquals(PointerUtil.overlap(null, 1, null, 0, 2), true);
 		assertEquals(PointerUtil.overlap(null, 0, null, 1, 2), true);
+	}
+
+	@Test
+	public void testCallocArray() {
+		assertArray(PointerUtil.callocArray(0));
+		Pointer[] array = PointerUtil.callocArray(3, 6);
+		assertArray(array, array[0], array[0].share(6), array[0].share(12));
+		assertMemory(array[0], 0, 0, 0, 0, 0, 0);
+		assertMemory(array[1], 0, 0, 0, 0, 0, 0);
+		assertMemory(array[2], 0, 0, 0, 0, 0, 0);
+	}
+
+	@Test
+	public void testMallocArray() {
+		assertArray(PointerUtil.mallocArray(0));
+		Pointer[] array = PointerUtil.callocArray(3, 6);
+		assertArray(array, array[0], array[0].share(6), array[0].share(12));
 	}
 
 	@Test
@@ -102,7 +118,7 @@ public class PointerUtilTest {
 	@Test
 	public void testArrayByValForPointers() {
 		assertArray(PointerUtil.arrayByVal(null, 2), new Pointer[2]);
-		Pointer[] array0 = CUtil.callocArray(3);
+		Pointer[] array0 = PointerUtil.callocArray(3);
 		var array = PointerUtil.arrayByVal(array0[0], 2);
 		assertEquals(array[0], array0[0]);
 		assertEquals(array[1], array0[1]);
@@ -113,7 +129,7 @@ public class PointerUtilTest {
 	public void testArrayByValForPointerTypes() {
 		assertArray(PointerUtil.arrayByVal(null, TestPointer::new, TestPointer[]::new, 1),
 			new TestPointer[1]);
-		Pointer[] array0 = CUtil.callocArray(3);
+		Pointer[] array0 = PointerUtil.callocArray(3);
 		var array = PointerUtil.arrayByVal(array0[0], TestPointer::new, TestPointer[]::new, 2);
 		assertPointer(array[0], array0[0]);
 		assertPointer(array[1], array0[1]);

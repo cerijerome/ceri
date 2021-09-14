@@ -4,6 +4,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.PointerByReference;
@@ -72,11 +73,40 @@ public class PointerUtil {
 	/**
 	 * Detects if the regions overlap.
 	 */
-	public static boolean overlap(Pointer p0, long p0Offset, Pointer p1, long p1Offset,
-		int size) {
+	public static boolean overlap(Pointer p0, long p0Offset, Pointer p1, long p1Offset, int size) {
 		long peer0 = PointerUtil.peer(p0) + p0Offset;
 		long peer1 = PointerUtil.peer(p1) + p1Offset;
 		return (peer1 < peer0 + size) && (peer0 < peer1 + size);
+	}
+
+	/**
+	 * Creates a fixed-length contiguous pointer array. For {@code void*} array types.
+	 */
+	public static Pointer[] mallocArray(int count) {
+		return mallocArray(count, Pointer.SIZE);
+	}
+
+	/**
+	 * Creates and returns pointers to a fixed-length contiguous array of given type size. For
+	 * {@code type*} array types.
+	 */
+	public static Pointer[] mallocArray(int count, int size) {
+		return arrayByVal(JnaUtil.malloc(count * size), count, size);
+	}
+
+	/**
+	 * Creates a zeroed fixed-length contiguous pointer array. For {@code void*} array types.
+	 */
+	public static Pointer[] callocArray(int count) {
+		return callocArray(count, Pointer.SIZE);
+	}
+
+	/**
+	 * Creates and returns pointers to a zeroed fixed-length contiguous array of given type size.
+	 * For {@code type*} array types.
+	 */
+	public static Pointer[] callocArray(int count, int size) {
+		return arrayByVal(JnaUtil.calloc(count * size), count, size);
 	}
 
 	/**
@@ -137,6 +167,15 @@ public class PointerUtil {
 	 * Creates a typed array from a fixed-length contiguous pointer type array. Returns an array of
 	 * null pointers if the pointer is null. For {@code void*} array types.
 	 */
+	public static <T extends PointerType> T[] arrayByVal(Supplier<T> constructor,
+		IntFunction<T[]> arrayFn, int count) {
+		return arrayByVal(new Memory(count * Pointer.SIZE), constructor, arrayFn, count);
+	}
+
+	/**
+	 * Creates a typed array from a fixed-length contiguous pointer type array. Returns an array of
+	 * null pointers if the pointer is null. For {@code void*} array types.
+	 */
 	public static <T extends PointerType> T[] arrayByVal(Pointer p, Supplier<T> constructor,
 		IntFunction<T[]> arrayFn, int count) {
 		return Stream.of(PointerUtil.arrayByVal(p, count)).map(JnaUtil.typeFn(adapt(constructor)))
@@ -177,8 +216,7 @@ public class PointerUtil {
 	 * Creates a type from index i of a contiguous pointer type array. Returns null if the pointer
 	 * is null. For {@code void*} array types.
 	 */
-	public static <T extends PointerType> T byVal(Pointer p, int i,
-		Supplier<T> constructor) {
+	public static <T extends PointerType> T byVal(Pointer p, int i, Supplier<T> constructor) {
 		return JnaUtil.type(PointerUtil.byVal(p, i), adapt(constructor));
 	}
 

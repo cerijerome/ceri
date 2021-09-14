@@ -24,7 +24,6 @@ import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.CallSync;
 import ceri.common.util.Enclosed;
-import ceri.serial.clib.jna.CUtil;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.PointerUtil;
 import ceri.serial.jna.Struct;
@@ -182,7 +181,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	@Override
 	public int libusb_get_device_descriptor(libusb_device dev, Pointer p) {
 		var desc = Struct.write(data.device(PointerUtil.pointer(dev)).config.desc);
-		CUtil.memmove(p, 0, desc.getPointer(), 0, desc.size());
+		JnaUtil.memcpy(p, 0, desc.getPointer(), 0, desc.size());
 		return 0;
 	}
 

@@ -14,9 +14,9 @@ import com.sun.jna.Memory;
 import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
 import ceri.serial.clib.jna.CException;
-import ceri.serial.clib.jna.CUtil;
 import ceri.serial.clib.jna.TestCLibNative;
 import ceri.serial.clib.jna.TestCLibNative.Fd;
+import ceri.serial.jna.JnaUtil;
 
 public class CFileDescriptorBehavior {
 	private TestCLibNative lib;
@@ -69,14 +69,14 @@ public class CFileDescriptorBehavior {
 
 	@Test
 	public void shouldFailOnIncompleteWrite() {
-		Memory m = CUtil.mallocBytes(1, 2, 3, 4, 5);
+		Memory m = JnaUtil.mallocBytes(1, 2, 3, 4, 5);
 		assertThrown(() -> fd.write(m)); // incomplete write (returns 0)
 		lib.write.assertAuto(List.of(fd(), ByteProvider.of(1, 2, 3, 4, 5)));
 	}
 
 	@Test
 	public void shouldWriteUntilComplete() throws IOException {
-		Memory m = CUtil.mallocBytes(1, 2, 3, 4, 5);
+		Memory m = JnaUtil.mallocBytes(1, 2, 3, 4, 5);
 		lib.write.autoResponses(2, 3);
 		fd.write(m);
 		lib.write.assertValues(List.of(fd(), ByteProvider.of(1, 2, 3, 4, 5)),

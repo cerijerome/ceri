@@ -18,7 +18,6 @@ import com.sun.jna.ptr.PointerByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.TypeTranscoder;
-import ceri.serial.clib.jna.CUtil;
 import ceri.serial.clib.jna.Time;
 import ceri.serial.clib.jna.Time.timeval;
 import ceri.serial.jna.ArrayPointer;
@@ -2019,7 +2018,7 @@ public class LibUsb {
 	public static int libusb_alloc_streams(libusb_device_handle dev, int num_streams,
 		byte[] endpoints) throws LibUsbException {
 		require(dev);
-		Memory m = CUtil.malloc(endpoints);
+		Memory m = JnaUtil.mallocBytes(endpoints);
 		return caller.verifyInt(
 			() -> lib().libusb_alloc_streams(dev, num_streams, m, endpoints.length),
 			"libusb_alloc_streams", dev, num_streams, m, endpoints.length);
@@ -2033,7 +2032,7 @@ public class LibUsb {
 	public static void libusb_free_streams(libusb_device_handle dev, byte[] endpoints)
 		throws LibUsbException {
 		if (dev == null || endpoints.length == 0) return;
-		Memory m = CUtil.malloc(endpoints);
+		Memory m = JnaUtil.mallocBytes(endpoints);
 		caller.verify(() -> lib().libusb_free_streams(dev, m, endpoints.length),
 			"libusb_free_streams", dev, m, endpoints.length);
 	}

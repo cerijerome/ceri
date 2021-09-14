@@ -7,7 +7,7 @@ import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.serial.clib.jna.CUtil;
+import ceri.serial.jna.JnaUtil;
 
 public class JnaTestUtilTest {
 
@@ -18,7 +18,7 @@ public class JnaTestUtilTest {
 
 	@Test
 	public void testAssertMemory() {
-		Memory m = CUtil.mallocBytes(1, 2, 3, 4, 5);
+		Memory m = JnaUtil.mallocBytes(1, 2, 3, 4, 5);
 		assertMemory(m, 0, 1, 2, 3, 4, 5);
 		assertMemory(m, 1, 2, 3, 4, 5);
 		assertAssertion(() -> assertMemory(m, 1, 2, 3, 4, 6));
@@ -28,7 +28,7 @@ public class JnaTestUtilTest {
 
 	@Test
 	public void testAssertPointer() {
-		Pointer p = CUtil.mallocBytes(1, 2, 3, 4, 5);
+		Pointer p = JnaUtil.mallocBytes(1, 2, 3, 4, 5);
 		assertPointer(p, 0, 1, 2, 3, 4, 5);
 		assertPointer(p, 1, 2, 3, 4, 5);
 		assertPointer(p, 0, 1, 2, 3, 4);

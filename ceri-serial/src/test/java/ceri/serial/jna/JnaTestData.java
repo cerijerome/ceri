@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Set;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.serial.clib.jna.CUtil;
 import ceri.serial.jna.JnaTestUtil.TestStruct;
 
 /**
@@ -106,7 +105,7 @@ public class JnaTestData {
 	 * Allocate memory and save reference to avoid gc.
 	 */
 	private Memory m(int size) {
-		Memory m = CUtil.calloc(size);
+		Memory m = JnaUtil.calloc(size);
 		memCache.add(m);
 		return m;
 	}

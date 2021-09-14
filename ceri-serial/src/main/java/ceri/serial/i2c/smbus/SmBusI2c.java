@@ -19,7 +19,6 @@ import ceri.common.data.ByteArray.Mutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.CrcAlgorithm;
 import ceri.common.function.ExceptionConsumer;
-import ceri.serial.clib.jna.CUtil;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
 import ceri.serial.jna.JnaUtil;
@@ -141,7 +140,7 @@ public class SmBusI2c implements SmBus {
 	 */
 	private ByteProvider read(int recvLen) throws IOException {
 		boolean pec = pec();
-		Memory recvM = CUtil.calloc(length(recvLen, pec));
+		Memory recvM = JnaUtil.calloc(length(recvLen, pec));
 		i2c_msg.ByReference msg = populate(null, address, recvM, I2C_M_RD);
 		transfer(msg);
 		byte[] recv = JnaUtil.bytes(recvM);
@@ -158,7 +157,7 @@ public class SmBusI2c implements SmBus {
 		if (pec) send[send.length - 1] =
 			CRC.start().add(crcAddr(false)).add(send, 0, send.length - 1).crcByte();
 		i2c_msg.ByReference msg =
-			populate(null, address, CUtil.malloc(send, 0, length(send.length - 1, pec)));
+			populate(null, address, JnaUtil.mallocBytes(send, 0, length(send.length - 1, pec)));
 		transfer(msg);
 	}
 
@@ -167,9 +166,9 @@ public class SmBusI2c implements SmBus {
 	 */
 	private ByteProvider writeRead(byte[] send, int recvLen) throws IOException {
 		boolean pec = pec();
-		Memory recvM = CUtil.calloc(length(recvLen, pec));
+		Memory recvM = JnaUtil.calloc(length(recvLen, pec));
 		i2c_msg.ByReference[] msgs = i2c_msg.array(2);
-		populate(msgs[0], address, CUtil.malloc(send));
+		populate(msgs[0], address, JnaUtil.mallocBytes(send));
 		populate(msgs[1], address, recvM, I2C_M_RD);
 		transfer(msgs);
 		byte[] recv = JnaUtil.bytes(recvM);
@@ -183,9 +182,9 @@ public class SmBusI2c implements SmBus {
 	 */
 	private byte[] writeReadBlock(byte[] send) throws IOException {
 		boolean pec = pec();
-		Memory recvM = CUtil.calloc(length(1 + I2C_SMBUS_BLOCK_MAX, pec));
+		Memory recvM = JnaUtil.calloc(length(1 + I2C_SMBUS_BLOCK_MAX, pec));
 		i2c_msg.ByReference[] msgs = i2c_msg.array(2);
-		populate(msgs[0], address, CUtil.malloc(send));
+		populate(msgs[0], address, JnaUtil.mallocBytes(send));
 		populate(msgs[1], address, 1, recvM, I2C_M_RD, I2C_M_RECV_LEN);
 		transfer(msgs);
 		byte[] recv = JnaUtil.bytes(recvM);

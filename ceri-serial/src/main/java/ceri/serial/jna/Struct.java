@@ -182,6 +182,26 @@ public abstract class Struct extends Structure {
 	}
 
 	/**
+	 * Creates a typed contiguous array. If count is 0, an empty array is returned. Creates a type
+	 * instance from a null pointer first, to determine size. For {@code struct*} array types.
+	 */
+	public static <T extends Structure> T[] mallocArray(Function<Pointer, T> constructor,
+		IntFunction<T[]> arrayFn, int count) {
+		if (count == 0) return arrayFn.apply(0);
+		return JnaUtil.mallocArray(constructor, arrayFn, count, size(constructor));
+	}
+
+	/**
+	 * Creates a zeroed typed contiguous array. If count is 0, an empty array is returned. Creates a
+	 * type instance from a null pointer first, to determine size. For {@code struct*} array types.
+	 */
+	public static <T extends Structure> T[] callocArray(Function<Pointer, T> constructor,
+		IntFunction<T[]> arrayFn, int count) {
+		if (count == 0) return arrayFn.apply(0);
+		return JnaUtil.callocArray(constructor, arrayFn, count, size(constructor));
+	}
+
+	/**
 	 * Creates a typed contiguous array at pointer. If count is 0, an empty array is returned. Make
 	 * sure count is unsigned (call ubyte/ushort if needed). {@code autoRead()} is called on each
 	 * array item. For {@code struct*} array types.

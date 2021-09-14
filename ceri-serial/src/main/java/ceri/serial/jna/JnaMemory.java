@@ -11,7 +11,6 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteAccessor;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
-import ceri.serial.clib.jna.CUtil;
 
 /**
  * Byte accessor wrapper for memory.
@@ -288,7 +287,7 @@ public class JnaMemory implements ByteAccessor {
 	 */
 	public int copyTo(int index, Pointer p, int offset, int length) {
 		ArrayUtil.validateSlice(length(), index, length);
-		CUtil.memcpy(p, offset, this.p, offset(index), length);
+		JnaUtil.memcpy(p, offset, this.p, offset(index), length);
 		return index + length;
 	}
 
@@ -383,7 +382,7 @@ public class JnaMemory implements ByteAccessor {
 	 */
 	public int copyFrom(int index, Pointer p, int offset, int length) {
 		ArrayUtil.validateSlice(length(), index, length);
-		CUtil.memcpy(this.p, offset(index), p, offset, length);
+		JnaUtil.memcpy(this.p, offset(index), p, offset, length);
 		return index + length;
 	}
 

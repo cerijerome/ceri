@@ -5,12 +5,12 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import ceri.common.collection.ArrayUtil;
-import ceri.serial.clib.jna.CUtil;
 import ceri.serial.jna.Struct.Fields;
 
 public class JnaTestUtil {
@@ -163,9 +163,12 @@ public class JnaTestUtil {
 	 * Allocates a contiguous pointer array with given pointer values. Returns indirected pointers.
 	 */
 	public static Pointer[] indirect(Pointer... ps) {
-		Pointer[] array = CUtil.callocArray(ps.length);
-		for (int i = 0; i < array.length; i++)
+		Memory m = JnaUtil.calloc(ps.length * Pointer.SIZE);
+		Pointer[] array = new Pointer[ps.length];
+		for (int i = 0; i < array.length; i++) {
+			array[i] = m.share(i * Pointer.SIZE, Pointer.SIZE);
 			array[i].setPointer(0, ps[i]);
+		}
 		return array;
 	}
 

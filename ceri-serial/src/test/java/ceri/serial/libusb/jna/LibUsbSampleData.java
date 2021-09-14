@@ -37,7 +37,7 @@ import java.util.function.Consumer;
 import com.sun.jna.Memory;
 import com.sun.jna.Structure;
 import ceri.common.data.ByteArray.Immutable;
-import ceri.serial.clib.jna.CUtil;
+import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.Struct;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
@@ -499,20 +499,14 @@ public class LibUsbSampleData {
 		return (byte) i;
 	}
 
-//	private static void extra(libusb_config_descriptor desc, int... bytes) {
-//		Memory m = CUtil.malloc(bytes);
-//		desc.extra = m;
-//		desc.extra_length = bytes.length;
-//	}
-
 	private static void extra(libusb_interface_descriptor desc, int... bytes) {
-		Memory m = CUtil.mallocBytes(bytes);
+		Memory m = JnaUtil.mallocBytes(bytes);
 		desc.extra = m;
 		desc.extra_length = bytes.length;
 	}
 
 	private static void extra(libusb_endpoint_descriptor desc, int... bytes) {
-		Memory m = CUtil.mallocBytes(bytes);
+		Memory m = JnaUtil.mallocBytes(bytes);
 		desc.extra = m;
 		desc.extra_length = bytes.length;
 	}

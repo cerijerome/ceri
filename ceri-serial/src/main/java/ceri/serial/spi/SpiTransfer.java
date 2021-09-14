@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import com.sun.jna.Memory;
 import ceri.common.function.ExceptionConsumer;
-import ceri.serial.clib.jna.CUtil;
+import ceri.serial.jna.JnaUtil;
 import ceri.serial.spi.Spi.Direction;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
@@ -28,7 +28,7 @@ public class SpiTransfer {
 	public static SpiTransfer of(ExceptionConsumer<IOException, spi_ioc_transfer> executor,
 		Direction direction, int size) {
 		Memory outMem = direction == Direction.in ? null : new Memory(size);
-		Memory inMem = direction == Direction.out ? null : CUtil.calloc(size);
+		Memory inMem = direction == Direction.out ? null : JnaUtil.calloc(size);
 		return new SpiTransfer(executor, outMem, inMem, direction, size);
 	}
 

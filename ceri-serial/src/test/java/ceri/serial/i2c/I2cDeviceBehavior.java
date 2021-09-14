@@ -21,10 +21,10 @@ import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import ceri.common.util.Enclosed;
 import ceri.serial.clib.CFileDescriptor;
-import ceri.serial.clib.jna.CUtil;
 import ceri.serial.clib.jna.TestCLibNative;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
 import ceri.serial.i2c.jna.TestI2cCLibNative;
+import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.test.JnaTestUtil;
 
 public class I2cDeviceBehavior {
@@ -108,7 +108,7 @@ public class I2cDeviceBehavior {
 
 	@Test
 	public void shouldWriteAndReadFromMemory() throws IOException {
-		Memory out = CUtil.mallocBytes(1, 2, 3);
+		Memory out = JnaUtil.mallocBytes(1, 2, 3);
 		Memory in = new Memory(3);
 		lib.ioctlI2cBytes.autoResponses(provider(4, 5, 6));
 		i2c.writeRead(I2cAddress.of(0x1ab), out, in);

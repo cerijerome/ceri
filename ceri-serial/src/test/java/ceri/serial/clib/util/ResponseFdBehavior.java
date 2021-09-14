@@ -10,7 +10,7 @@ import com.sun.jna.Memory;
 import ceri.serial.clib.FileDescriptor;
 import ceri.serial.clib.Seek;
 import ceri.serial.clib.jna.CLib;
-import ceri.serial.clib.jna.CUtil;
+import ceri.serial.jna.JnaUtil;
 
 public class ResponseFdBehavior {
 	private static final int FD = 111;
@@ -52,9 +52,9 @@ public class ResponseFdBehavior {
 	@Test
 	public void shouldWriteBytes() throws IOException {
 		try (ResponseFd fd = ResponseFd.of(FD)) {
-			fd.write(CUtil.mallocBytes(1, 2, 3));
+			fd.write(JnaUtil.mallocBytes(1, 2, 3));
 			assertArray(fd.bytes, 1, 2, 3);
-			fd.write(CUtil.mallocBytes(4, 5));
+			fd.write(JnaUtil.mallocBytes(4, 5));
 			assertArray(fd.bytes, 1, 2, 3, 4, 5);
 		}
 	}
@@ -63,9 +63,9 @@ public class ResponseFdBehavior {
 	public void shouldResizeForWrites() throws IOException {
 		try (ResponseFd fd = ResponseFd.of(FD, new byte[4])) {
 			assertEquals(fd.bytes().length, 4);
-			fd.write(CUtil.mallocBytes(1, 2, 3));
+			fd.write(JnaUtil.mallocBytes(1, 2, 3));
 			assertEquals(fd.bytes().length, 4);
-			fd.write(CUtil.mallocBytes(4, 5));
+			fd.write(JnaUtil.mallocBytes(4, 5));
 			assertEquals(fd.bytes().length, 5);
 		}
 	}
@@ -76,7 +76,7 @@ public class ResponseFdBehavior {
 			fd.seek(5, Seek.SEEK_SET);
 			assertEquals(fd.position(), 5);
 			assertEquals(fd.bytes().length, 3);
-			fd.write(CUtil.mallocBytes(1, 2, 3));
+			fd.write(JnaUtil.mallocBytes(1, 2, 3));
 			assertEquals(fd.position(), 8);
 			assertArray(fd.bytes(), 0, 0, 0, 0, 0, 1, 2, 3);
 		}
@@ -85,7 +85,7 @@ public class ResponseFdBehavior {
 	@Test
 	public void shouldSeekWithinFile() throws IOException {
 		try (ResponseFd fd = ResponseFd.of(FD, new byte[5])) {
-			fd.write(CUtil.mallocBytes(1, 2, 3));
+			fd.write(JnaUtil.mallocBytes(1, 2, 3));
 			assertEquals(fd.seek(0, Seek.SEEK_CUR), 3);
 			assertEquals(fd.position(), 3);
 			assertEquals(fd.seek(1, Seek.SEEK_CUR), 4);
@@ -100,7 +100,7 @@ public class ResponseFdBehavior {
 	@Test
 	public void shouldLimitSeekingWithinFile() throws IOException {
 		try (ResponseFd fd = ResponseFd.of(FD, new byte[5])) {
-			fd.write(CUtil.mallocBytes(1, 2, 3));
+			fd.write(JnaUtil.mallocBytes(1, 2, 3));
 			assertEquals(fd.seek(-4, Seek.SEEK_CUR), 0);
 			assertEquals(fd.position(), 0);
 			assertEquals(fd.seek(-1, Seek.SEEK_SET), 0);

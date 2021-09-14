@@ -18,7 +18,6 @@ import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
 import ceri.log.util.LogUtil;
-import ceri.serial.clib.jna.CUtil;
 import ceri.serial.ftdi.jna.LibFtdi;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
@@ -27,6 +26,7 @@ import ceri.serial.ftdi.jna.LibFtdiStream;
 import ceri.serial.ftdi.jna.LibFtdiStream.ftdi_progress_info;
 import ceri.serial.ftdi.jna.LibFtdiStream.ftdi_stream_cb;
 import ceri.serial.ftdi.jna.LibFtdiUtil;
+import ceri.serial.jna.JnaUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
@@ -162,17 +162,18 @@ public class Ftdi implements Closeable {
 	public FtdiTransferControl writeSubmit(byte[] data) throws LibUsbException {
 		return writeSubmit(data, 0);
 	}
-	
+
 	public FtdiTransferControl writeSubmit(byte[] data, int offset) throws LibUsbException {
 		return writeSubmit(data, offset, data.length - offset);
 	}
-	
-	public FtdiTransferControl writeSubmit(byte[] data, int offset, int len) throws LibUsbException {
+
+	public FtdiTransferControl writeSubmit(byte[] data, int offset, int len)
+		throws LibUsbException {
 		ArrayUtil.validateSlice(data.length, offset, len);
-		Pointer p = CUtil.malloc(data, offset, len);
+		Pointer p = JnaUtil.mallocBytes(data, offset, len);
 		return writeSubmit(p, len);
 	}
-	
+
 	public FtdiTransferControl writeSubmit(Pointer buf, int size) throws LibUsbException {
 		return new FtdiTransferControl(LibFtdi.ftdi_write_data_submit(ftdi(), buf, size));
 	}

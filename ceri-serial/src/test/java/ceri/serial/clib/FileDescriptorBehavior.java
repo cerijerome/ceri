@@ -18,6 +18,7 @@ import ceri.common.data.ByteArray;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.FileTestHelper;
 import ceri.serial.clib.jna.CUtil;
+import ceri.serial.jna.JnaUtil;
 
 public class FileDescriptorBehavior {
 	private static final byte[] file1Bytes =
@@ -48,7 +49,7 @@ public class FileDescriptorBehavior {
 
 	@Test
 	public void shouldWriteFromMemory() throws IOException {
-		Memory m = CUtil.malloc(file1Bytes);
+		Memory m = JnaUtil.mallocBytes(file1Bytes);
 		try (CFileDescriptor fd = open("file2", Mode.of(0666), O_CREAT, O_RDWR)) {
 			fd.write(m);
 			assertFile(helper.path("file2"), 't', 'e', 's', 't', 0x34, 0x56);

@@ -15,6 +15,7 @@ import com.sun.jna.Memory;
 import ceri.common.test.FileTestHelper;
 import ceri.serial.clib.OpenFlag;
 import ceri.serial.clib.Seek;
+import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.test.JnaTestUtil;
 
 public class CLibTest {
@@ -63,7 +64,7 @@ public class CLibTest {
 		Path path = helper.path("file2");
 		int fd = CLib.open(path.toString(), OpenFlag.encode(O_CREAT, O_RDWR), 0666);
 		try {
-			Memory m = CUtil.malloc("test".getBytes());
+			Memory m = JnaUtil.mallocBytes("test".getBytes());
 			assertEquals(CLib.write(fd, null, 0), 0);
 			assertEquals(CLib.write(fd, m, 4), 4);
 			assertFile(path, "test".getBytes());
@@ -75,7 +76,7 @@ public class CLibTest {
 
 	@Test
 	public void testFailToWriteWithBadFileDescriptor() {
-		Memory m = CUtil.malloc("test".getBytes());
+		Memory m = JnaUtil.mallocBytes("test".getBytes());
 		assertThrown(() -> CLib.write(-1, m, 4));
 	}
 

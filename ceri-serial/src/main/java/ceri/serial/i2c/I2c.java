@@ -14,9 +14,9 @@ import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.data.ByteUtil;
-import ceri.serial.clib.jna.CUtil;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
 import ceri.serial.i2c.smbus.SmBus;
+import ceri.serial.jna.JnaUtil;
 
 /**
  * Encapsulation of I2C bus.
@@ -131,8 +131,8 @@ public interface I2c {
 	 */
 	default void readData(I2cAddress address, byte[] command, byte[] receive, int offset,
 		int length) throws IOException {
-		Memory write = CUtil.malloc(command);
-		Memory read = CUtil.calloc(length);
+		Memory write = JnaUtil.mallocBytes(command);
+		Memory read = JnaUtil.calloc(length);
 		writeRead(address, write, size(write), read, size(read));
 		read.read(0, receive, offset, length);
 	}
@@ -148,7 +148,7 @@ public interface I2c {
 	 * Send byte array data to address, using ioctl.
 	 */
 	default void writeData(I2cAddress address, byte[] data) throws IOException {
-		write(address, CUtil.malloc(data));
+		write(address, JnaUtil.mallocBytes(data));
 	}
 
 	/**
