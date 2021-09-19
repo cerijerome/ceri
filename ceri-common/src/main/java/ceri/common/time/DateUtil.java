@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
  * Utility methods for dates and times.
  */
 public class DateUtil {
+	private static final double SEC_NANOS = 1000000000.0;
 	public static final LocalDateTime UTC_EPOCH = utcDateTime(0);
 	private static final Map<TimeUnit, String> TIME_SYMBOLS = Map.of(DAYS, "d", HOURS, "h", MINUTES,
 		"m", SECONDS, "s", MILLISECONDS, "ms", MICROSECONDS, "\u00b5s", NANOSECONDS, "ns");
@@ -48,6 +49,20 @@ public class DateUtil {
 		return ManagementFactory.getRuntimeMXBean().getUptime();
 	}
 
+	/**
+	 * Returns the number of seconds, with nanoseconds as a partial second.
+	 */
+	public static double seconds(Instant instant) {
+		return seconds(instant.getEpochSecond(), instant.getNano());
+	}
+	
+	/**
+	 * Returns the number of seconds, with nanoseconds as a partial second.
+	 */
+	public static double seconds(Duration duration) {
+		return seconds(duration.getSeconds(), duration.getNano());
+	}
+	
 	/**
 	 * Returns the epoch milliseconds from LocalDateTime in the given ZoneId.
 	 */
@@ -145,4 +160,8 @@ public class DateUtil {
 		return ZonedDateTime.ofInstant(instant, zoneId).format(formatter);
 	}
 
+	private static double seconds(long seconds, int nanos) {
+		return seconds + nanos / SEC_NANOS;
+	}
+	
 }

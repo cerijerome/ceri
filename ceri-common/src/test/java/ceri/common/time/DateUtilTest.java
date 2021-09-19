@@ -5,6 +5,7 @@ import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
@@ -25,6 +26,18 @@ public class DateUtilTest {
 	public void testJvmUptime() {
 		assertTrue(DateUtil.jvmUptimeMs() > 0);
 		assertTrue(DateUtil.jvmUptimeMs() < TimeUnit.DAYS.toMillis(30 * 365));
+	}
+
+	@Test
+	public void testSecondsFromInstant() {
+		assertEquals(DateUtil.seconds(Instant.ofEpochMilli(1000)), 1.0);
+		assertEquals(DateUtil.seconds(Instant.ofEpochMilli(123456789)), 123456.789);
+	}
+
+	@Test
+	public void testSecondsFromDuration() {
+		assertEquals(DateUtil.seconds(Duration.ofSeconds(1, 0)), 1.0);
+		assertEquals(DateUtil.seconds(Duration.ofSeconds(123456, 123456789)), 123456.123456789);
 	}
 
 	@Test

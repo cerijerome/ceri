@@ -46,7 +46,7 @@ public class UdpUtilTest {
 	public void testReceiveWithTimeout() throws IOException {
 		byte[] buffer = new byte[100];
 		try (TestDatagramSocket socket = TestDatagramSocket.of()) {
-			socket.receive.error.setFrom(SocketTimeoutException::new);
+			socket.receive.error.setFrom(s -> new SocketTimeoutException(s));
 			assertNull(UdpUtil.receive(socket, buffer));
 		}
 	}
