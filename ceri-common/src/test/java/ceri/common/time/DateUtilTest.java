@@ -3,6 +3,7 @@ package ceri.common.time;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.time.Duration;
 import java.time.Instant;
@@ -38,6 +39,24 @@ public class DateUtilTest {
 	public void testSecondsFromDuration() {
 		assertEquals(DateUtil.seconds(Duration.ofSeconds(1, 0)), 1.0);
 		assertEquals(DateUtil.seconds(Duration.ofSeconds(123456, 123456789)), 123456.123456789);
+	}
+
+	@Test
+	public void testMicrosExactFromInstant() {
+		assertEquals(DateUtil.microsExact(Instant.ofEpochMilli(1000)), 1000000L);
+		assertEquals(DateUtil.microsExact(Instant.ofEpochSecond(12345, 123456789)), 12345123456L);
+		assertThrown(() -> DateUtil.microsExact(Instant.ofEpochSecond(Long.MAX_VALUE)));
+		assertThrown(() -> DateUtil
+			.microsExact(Instant.ofEpochSecond(Long.MAX_VALUE / 1000000L, 999999000)));
+	}
+
+	@Test
+	public void testMicrosExactFromDuration() {
+		assertEquals(DateUtil.microsExact(Duration.ofMillis(1000)), 1000000L);
+		assertEquals(DateUtil.microsExact(Duration.ofSeconds(12345, 123456789)), 12345123456L);
+		assertThrown(() -> DateUtil.microsExact(Duration.ofSeconds(Long.MAX_VALUE)));
+		assertThrown(
+			() -> DateUtil.microsExact(Duration.ofSeconds(Long.MAX_VALUE / 1000000L, 999999000)));
 	}
 
 	@Test

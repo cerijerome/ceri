@@ -28,7 +28,9 @@ import java.util.concurrent.TimeUnit;
  * Utility methods for dates and times.
  */
 public class DateUtil {
-	private static final double SEC_NANOS = 1000000000.0;
+	private static final long MICRO_NANOS = 1000;
+	private static final long SEC_MICROS = 1000000;
+	private static final long SEC_NANOS = 1000000000;
 	public static final LocalDateTime UTC_EPOCH = utcDateTime(0);
 	private static final Map<TimeUnit, String> TIME_SYMBOLS = Map.of(DAYS, "d", HOURS, "h", MINUTES,
 		"m", SECONDS, "s", MILLISECONDS, "ms", MICROSECONDS, "\u00b5s", NANOSECONDS, "ns");
@@ -55,14 +57,30 @@ public class DateUtil {
 	public static double seconds(Instant instant) {
 		return seconds(instant.getEpochSecond(), instant.getNano());
 	}
-	
+
 	/**
 	 * Returns the number of seconds, with nanoseconds as a partial second.
 	 */
 	public static double seconds(Duration duration) {
 		return seconds(duration.getSeconds(), duration.getNano());
 	}
-	
+
+	/**
+	 * Returns the number of microseconds, including rounded nanoseconds. Throws exception if long
+	 * value overflows.
+	 */
+	public static long microsExact(Instant instant) {
+		return microsExact(instant.getEpochSecond(), instant.getNano());
+	}
+
+	/**
+	 * Returns the number of microseconds, including rounded nanoseconds. Throws exception if long
+	 * value overflows.
+	 */
+	public static long microsExact(Duration duration) {
+		return microsExact(duration.getSeconds(), duration.getNano());
+	}
+
 	/**
 	 * Returns the epoch milliseconds from LocalDateTime in the given ZoneId.
 	 */
@@ -161,7 +179,11 @@ public class DateUtil {
 	}
 
 	private static double seconds(long seconds, int nanos) {
-		return seconds + nanos / SEC_NANOS;
+		return seconds + (double) nanos / SEC_NANOS;
 	}
-	
+
+	private static long microsExact(long seconds, int nanos) {
+		return Math.addExact(Math.multiplyExact(seconds, SEC_MICROS), nanos / MICRO_NANOS);
+	}
+
 }
