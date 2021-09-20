@@ -33,13 +33,12 @@ public class LibUsbException extends CException {
 	}
 
 	private static LibUsbException full(String message, int code, libusb_error error) {
-		String full =
-			String.format("%s: %d (%s)", message, code, error == null ? null : error.name());
-		return new LibUsbException(full, code, error);
+		return new LibUsbException(error == null ? String.format("%s: %d", message, code) :
+			String.format("%s: %d (%s)", message, code, error), code, error);
 	}
 
 	protected LibUsbException(String message, int code, libusb_error error) {
-		super(message, code);
+		super(message, code, null);
 		this.error = error;
 	}
 

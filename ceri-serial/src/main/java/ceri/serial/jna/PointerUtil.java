@@ -4,7 +4,6 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.PointerByReference;
@@ -95,6 +94,14 @@ public class PointerUtil {
 	}
 
 	/**
+	 * Creates a fixed-length contiguous pointer type array. For {@code void*} array types.
+	 */
+	public static <T extends PointerType> T[] mallocArray(Supplier<T> constructor,
+		IntFunction<T[]> arrayFn, int count) {
+		return arrayByVal(JnaUtil.malloc(count * Pointer.SIZE), constructor, arrayFn, count);
+	}
+
+	/**
 	 * Creates a zeroed fixed-length contiguous pointer array. For {@code void*} array types.
 	 */
 	public static Pointer[] callocArray(int count) {
@@ -107,6 +114,14 @@ public class PointerUtil {
 	 */
 	public static Pointer[] callocArray(int count, int size) {
 		return arrayByVal(JnaUtil.calloc(count * size), count, size);
+	}
+
+	/**
+	 * Creates a zeroed fixed-length contiguous pointer type array. For {@code void*} array types.
+	 */
+	public static <T extends PointerType> T[] callocArray(Supplier<T> constructor,
+		IntFunction<T[]> arrayFn, int count) {
+		return arrayByVal(JnaUtil.calloc(count * Pointer.SIZE), constructor, arrayFn, count);
 	}
 
 	/**
@@ -161,15 +176,6 @@ public class PointerUtil {
 		for (int i = 0; i < count; i++)
 			array[i] = byVal(p, i, size);
 		return array;
-	}
-
-	/**
-	 * Creates a typed array from a fixed-length contiguous pointer type array. Returns an array of
-	 * null pointers if the pointer is null. For {@code void*} array types.
-	 */
-	public static <T extends PointerType> T[] arrayByVal(Supplier<T> constructor,
-		IntFunction<T[]> arrayFn, int count) {
-		return arrayByVal(new Memory(count * Pointer.SIZE), constructor, arrayFn, count);
 	}
 
 	/**

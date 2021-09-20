@@ -3,24 +3,37 @@ package ceri.serial.clib.jna;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.common.validation.ValidationUtil.validateUbyte;
 import java.util.function.Supplier;
+import com.sun.jna.Memory;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.util.OsUtil;
 import ceri.serial.clib.OpenFlag;
 import ceri.serial.clib.jna.CLibNative.size_t;
-import ceri.serial.jna.JnaCaller;
 import ceri.serial.jna.JnaLibrary;
+import ceri.serial.jna.JnaUtil;
+import ceri.serial.jna.Struct;
+import ceri.serial.jna.Struct.Fields;
 
 /**
- * Methods that call the native C-library, grouped by linux header file.
+ * Methods that call the native C-library, grouped by linux header file. Contains OS-specific
+ * constants and calls, initialized statically, and through nested classes.
  */
 public class CLib {
 	static final JnaLibrary<CLibNative> library =
 		JnaLibrary.of(Platform.C_LIBRARY_NAME, CLibNative.class);
-	private static final JnaCaller<CException> caller = JnaCaller.of();
-	public static final int EOF = -1;
+	private static final CCaller<CException> caller = CCaller.of();
+	public static final int INVALID_FD = -1;
 
 	private CLib() {}
+
+	/* stdio.h */
+
+	public static final int EOF = -1;
+	public static final int SEEK_SET = 0;
+	public static final int SEEK_CUR = 1;
+	public static final int SEEK_END = 2;
 
 	/* unistd.h */
 
@@ -42,6 +55,23 @@ public class CLib {
 	}
 
 	/**
+	 * Reads up to length bytes from current position in file.
+	 */
+	public static byte[] read(int fd, int length) throws CException {
+		Memory m = JnaUtil.malloc(length);
+		int n = read(fd, m, length);
+		if (n <= 0) return ArrayUtil.EMPTY_BYTE;
+		return JnaUtil.bytes(m, 0, n);
+	}
+
+	/**
+	 * Reads all bytes from current position in file.
+	 */
+	public static byte[] readAll(int fd) throws CException {
+		return read(fd, size(fd));
+	}
+
+	/**
 	 * Writes up to length bytes from buffer. Returns the number of bytes written.
 	 */
 	public static int write(int fd, Pointer buffer, int length) throws CException {
@@ -51,10 +81,65 @@ public class CLib {
 	}
 
 	/**
+	 * Writes bytes to file.
+	 */
+	public static void write(int fd, int... bytes) throws CException {
+		write(fd, ArrayUtil.bytes(bytes));
+	}
+
+	/**
+	 * Writes bytes to file.
+	 */
+	public static void write(int fd, byte[] bytes) throws CException {
+		write(fd, bytes, 0);
+	}
+
+	/**
+	 * Writes bytes to file.
+	 */
+	public static void write(int fd, byte[] bytes, int offset) throws CException {
+		write(fd, bytes, offset, bytes.length - offset);
+	}
+
+	/**
+	 * Writes bytes to file.
+	 */
+	public static void write(int fd, byte[] bytes, int offset, int length) throws CException {
+		Memory m = JnaUtil.mallocBytes(bytes, offset, length);
+		write(fd, m, length);
+	}
+
+	/**
 	 * Moves the position of file descriptor. Returns the new position.
 	 */
 	public static int lseek(int fd, int offset, int whence) throws CException {
 		return caller.verifyInt(() -> lib().lseek(fd, offset, whence), "lseek", fd, offset, whence);
+	}
+
+	/**
+	 * Returns the current position in the file.
+	 */
+	public static int position(int fd) throws CException {
+		return lseek(fd, 0, SEEK_CUR);
+	}
+
+	/**
+	 * Sets the current position in the file.
+	 */
+	public static void position(int fd, int position) throws CException {
+		int n = lseek(fd, position, SEEK_SET);
+		if (n != position)
+			throw CException.general("Unable to set position on %d: %d", fd, position);
+	}
+
+	/**
+	 * Returns the file size by moving to end of file then back to original position.
+	 */
+	public static int size(int fd) throws CException {
+		int pos = position(fd);
+		int size = lseek(fd, 0, SEEK_END);
+		position(fd, pos);
+		return size;
 	}
 
 	/* fcntl.h */
@@ -90,14 +175,28 @@ public class CLib {
 			.failMessage("open", path, OpenFlag.string(flags), Integer.toOctalString(mode)));
 	}
 
+	/**
+	 * Checks a file descriptor validity
+	 */
+	public static boolean validFd(int fd) {
+		return fd != INVALID_FD;
+	}
+
+	/**
+	 * Validates a file descriptor
+	 */
+	public static int validateFd(int fd) throws CException {
+		if (validFd(fd)) return fd;
+		throw CException.of(fd, "Invalid file descriptor");
+	}
+
 	/* ioctl.h */
 
 	public static final int _IOC_SIZEBITS;
 	private static final int _IOC_SIZEMASK;
-	private static final int _IOC_VOID;
-	private static final int _IOC_OUT = 0x40000000;
-	private static final int _IOC_IN = 0x80000000;
-	private static final int _IOC_INOUT = _IOC_IN | _IOC_OUT;
+	private static final int IOC_VOID;
+	private static final int IOC_OUT;
+	private static final int IOC_IN;
 
 	/**
 	 * <pre>
@@ -117,19 +216,19 @@ public class CLib {
 	}
 
 	public static int _IO(int group, int num) {
-		return _IOC(_IOC_VOID, group, num, 0);
+		return _IOC(IOC_VOID, group, num, 0);
 	}
 
 	public static int _IOR(int group, int num, int size) {
-		return _IOC(_IOC_IN, group, num, size); // sizeof(t)
+		return _IOC(IOC_OUT, group, num, size); // sizeof(t)
 	}
 
 	public static int _IOW(int group, int num, int size) {
-		return _IOC(_IOC_OUT, group, num, size); // sizeof(t)
+		return _IOC(IOC_IN, group, num, size); // sizeof(t)
 	}
 
 	public static int _IOWR(int group, int num, int size) {
-		return _IOC(_IOC_INOUT, group, num, size); // sizeof(t)
+		return _IOC(IOC_IN | IOC_OUT, group, num, size); // sizeof(t)
 	}
 
 	/**
@@ -177,8 +276,8 @@ public class CLib {
 
 	/* sys/ioctl.h */
 
-	private static final int TIOCSBRK;
-	private static final int TIOCCBRK;
+	static final int TIOCSBRK;
+	static final int TIOCCBRK;
 
 	/**
 	 * Set break bit.
@@ -192,6 +291,101 @@ public class CLib {
 	 */
 	public static void tioccbrk(int fd) throws CException {
 		CLib.ioctl("TIOCCBRK", fd, TIOCCBRK);
+	}
+
+	/* os-specific types and calls */
+
+	/**
+	 * Types and calls specific to Mac.
+	 */
+	public static class Mac {
+		private Mac() {}
+
+		/* ioss.h */
+
+		static final int IOSSIOSPEED = _IOW('T', 2, NativeLong.SIZE); // 0x80085402
+
+		/**
+		 * Sets input and output speeds to a non-traditional baud rate.
+		 */
+		public static void iossiospeed(int fd, int baud) throws CException {
+			CLib.ioctl("IOSSIOSPEED", fd, IOSSIOSPEED, baud);
+		}
+
+		/* termios.h */
+
+		/**
+		 * General terminal interface to control asynchronous communications ports.
+		 */
+		@Fields({ "c_iflag", "c_oflag", "c_cflag", "c_lflag", "c_cc", "c_ispeed", "c_ospeed" })
+		public static class termios extends Struct {
+			private static final int NCCS = 20;
+			public NativeLong c_iflag; // input flags
+			public NativeLong c_oflag; // output flags
+			public NativeLong c_cflag; // control flags
+			public NativeLong c_lflag; // local flags
+			public byte[] c_cc = new byte[NCCS]; // control chars
+			public NativeLong c_ispeed; // input speed
+			public NativeLong c_ospeed; // output speed
+		}
+
+		/**
+		 * Get termios attributes.
+		 */
+		public static termios tcgetattr(int fd) throws CException {
+			termios termios = new termios();
+			CLib.tcgetattr(fd, termios.getPointer());
+			return Struct.read(termios);
+		}
+
+		/**
+		 * Set termios attributes.
+		 */
+		public static void tcsetattr(int fd, int actions, termios termios) throws CException {
+			CLib.tcsetattr(fd, actions, Struct.write(termios).getPointer());
+		}
+	}
+
+	/**
+	 * Types and calls specific to Linux.
+	 */
+	public static class Linux {
+		private Linux() {}
+
+		/* termios.h */
+
+		/**
+		 * General terminal interface to control asynchronous communications ports.
+		 */
+		@Fields({ "c_iflag", "c_oflag", "c_cflag", "c_lflag", "c_line", "c_cc", "c_ispeed",
+			"c_ospeed" })
+		public static class termios extends Struct {
+			private static final int NCCS = 32;
+			public NativeLong c_iflag; // input mode flags
+			public NativeLong c_oflag; // output mode flags
+			public NativeLong c_cflag; // control mode flags
+			public NativeLong c_lflag; // local mode flags
+			public NativeLong c_line; // line discipline
+			public byte[] c_cc = new byte[NCCS]; // control characters
+			public NativeLong c_ispeed; // input speed
+			public NativeLong c_ospeed; // output speed
+		}
+
+		/**
+		 * Populate termios attributes.
+		 */
+		public static termios tcgetattr(int fd) throws CException {
+			termios termios = new termios();
+			CLib.tcgetattr(fd, termios.getPointer());
+			return Struct.read(termios);
+		}
+
+		/**
+		 * Set termios attributes.
+		 */
+		public static void tcsetattr(int fd, int actions, termios termios) throws CException {
+			CLib.tcsetattr(fd, actions, Struct.write(termios).getPointer());
+		}
 	}
 
 	/* private */
@@ -218,7 +412,9 @@ public class CLib {
 			/* ioccom.h */
 			_IOC_SIZEBITS = 13; // IOCPARM_MASK = 0x1fff;
 			_IOC_SIZEMASK = (1 << _IOC_SIZEBITS) - 1;
-			_IOC_VOID = 0x20000000;
+			IOC_VOID = 0x20000000;
+			IOC_OUT = 0x40000000;
+			IOC_IN = 0x80000000;
 			/* sys/ttycom.h */
 			TIOCSBRK = _IO('t', 123); // 0x2000747b
 			TIOCCBRK = _IO('t', 122); // 0x2000747a
@@ -237,7 +433,9 @@ public class CLib {
 			/* ioctl.h */
 			_IOC_SIZEBITS = 14;
 			_IOC_SIZEMASK = (1 << _IOC_SIZEBITS) - 1;
-			_IOC_VOID = 0;
+			IOC_VOID = 0;
+			IOC_OUT = 0x80000000;
+			IOC_IN = 0x40000000;
 			/* asm-generic/ioctls.h */
 			TIOCSBRK = _IO('T', 0x27); // 0x5427
 			TIOCCBRK = _IO('T', 0x28); // 0x5428

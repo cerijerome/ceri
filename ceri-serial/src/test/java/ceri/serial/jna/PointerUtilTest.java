@@ -3,18 +3,20 @@ package ceri.serial.jna;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.serial.jna.JnaTestUtil.assertMemory;
-import static ceri.serial.jna.JnaTestUtil.assertPointer;
-import static ceri.serial.jna.JnaTestUtil.p;
+//import static ceri.serial.jna.JnaTestUtil.assertMemory;
+//import static ceri.serial.jna.JnaTestUtil.assertPointer;
+import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
+import static ceri.serial.jna.test.JnaTestUtil.deref;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
-import ceri.serial.jna.JnaTestUtil.TestPointer;
 
 public class PointerUtilTest {
+
+	public static class TestPointer extends PointerType {}
 
 	@Test
 	public void testPointer() {
@@ -38,16 +40,16 @@ public class PointerUtilTest {
 	@Test
 	public void testPointerOffset() {
 		assertNull(PointerUtil.offset(null, 0));
-		Pointer p = p(JnaUtil.mallocBytes(1, 2, 3));
-		assertMemory(PointerUtil.offset(p, 0), 1, 2, 3);
-		assertMemory(PointerUtil.offset(p, 1), 2, 3);
+		Pointer p = deref(JnaUtil.mallocBytes(1, 2, 3));
+		assertPointer(PointerUtil.offset(p, 0), 0, 1, 2, 3);
+		assertPointer(PointerUtil.offset(p, 1), 0, 2, 3);
 	}
 
 	@Test
 	public void testDiff() {
 		Memory m = new Memory(16);
-		Pointer p0 = p(m);
-		Pointer p1 = p(m, 11);
+		Pointer p0 = deref(m);
+		Pointer p1 = ceri.serial.jna.test.JnaTestUtil.deref(m, 11);
 		assertEquals(PointerUtil.diff(null, null), null);
 		assertEquals(PointerUtil.diff(null, p0), null);
 		assertEquals(PointerUtil.diff(p1, null), null);
@@ -75,16 +77,6 @@ public class PointerUtilTest {
 	}
 
 	@Test
-	public void testCallocArray() {
-		assertArray(PointerUtil.callocArray(0));
-		Pointer[] array = PointerUtil.callocArray(3, 6);
-		assertArray(array, array[0], array[0].share(6), array[0].share(12));
-		assertMemory(array[0], 0, 0, 0, 0, 0, 0);
-		assertMemory(array[1], 0, 0, 0, 0, 0, 0);
-		assertMemory(array[2], 0, 0, 0, 0, 0, 0);
-	}
-
-	@Test
 	public void testMallocArray() {
 		assertArray(PointerUtil.mallocArray(0));
 		Pointer[] array = PointerUtil.callocArray(3, 6);
@@ -92,10 +84,39 @@ public class PointerUtilTest {
 	}
 
 	@Test
+	public void testMallocPointerTypeArray() {
+		TestPointer[] array = PointerUtil.mallocArray(TestPointer::new, TestPointer[]::new, 3);
+		assertEquals(array[1].getPointer(), array[0].getPointer().share(Pointer.SIZE));
+		assertEquals(array[2].getPointer(), array[1].getPointer().share(Pointer.SIZE));
+		assertEquals(array.length, 3);
+	}
+
+	@Test
+	public void testCallocArray() {
+		assertArray(PointerUtil.callocArray(0));
+		Pointer[] array = PointerUtil.callocArray(3, 6);
+		assertArray(array, array[0], array[0].share(6), array[0].share(12));
+		assertPointer(array[0], 0, 0, 0, 0, 0, 0, 0);
+		assertPointer(array[1], 0, 0, 0, 0, 0, 0, 0);
+		assertPointer(array[2], 0, 0, 0, 0, 0, 0, 0);
+	}
+
+	@Test
+	public void testCallocPointerTypeArray() {
+		TestPointer[] array = PointerUtil.callocArray(TestPointer::new, TestPointer[]::new, 3);
+		assertEquals(array[1].getPointer(), array[0].getPointer().share(Pointer.SIZE));
+		assertEquals(array[2].getPointer(), array[1].getPointer().share(Pointer.SIZE));
+		assertEquals(array.length, 3);
+		assertNull(array[0].getPointer().getPointer(0));
+		assertNull(array[1].getPointer().getPointer(0));
+		assertNull(array[2].getPointer().getPointer(0));
+	}
+
+	@Test
 	public void testNullTermArrayByRefForPointerTypes() {
 		assertArray(PointerUtil.arrayByRef(null, TestPointer::new, TestPointer[]::new));
 		Pointer[] pointers = { new Memory(1), new Memory(2), new Memory(3), null };
-		Pointer[] array0 = JnaTestUtil.indirect(pointers);
+		Pointer[] array0 = indirect(pointers);
 		var array = PointerUtil.arrayByRef(array0[0], TestPointer::new, TestPointer[]::new);
 		assertPointer(array[0], pointers[0]);
 		assertPointer(array[1], pointers[1]);
@@ -108,7 +129,7 @@ public class PointerUtilTest {
 		assertArray(PointerUtil.arrayByRef(null, TestPointer::new, TestPointer[]::new, 1),
 			new TestPointer[1]);
 		Pointer[] pointers = { new Memory(1), new Memory(2), new Memory(3) };
-		Pointer[] array0 = JnaTestUtil.indirect(pointers);
+		Pointer[] array0 = indirect(pointers);
 		var array = PointerUtil.arrayByRef(array0[0], TestPointer::new, TestPointer[]::new, 2);
 		assertPointer(array[0], pointers[0]);
 		assertPointer(array[1], pointers[1]);
@@ -139,7 +160,7 @@ public class PointerUtilTest {
 	@Test
 	public void testByRef() {
 		Pointer[] pointers = { new Memory(1), new Memory(2), new Memory(3) };
-		Pointer[] array0 = JnaTestUtil.indirect(pointers);
+		Pointer[] array0 = indirect(pointers);
 		Pointer p = array0[0];
 		assertEquals(PointerUtil.byRef(null), null);
 		assertEquals(PointerUtil.byRef(p), pointers[0]);
@@ -151,18 +172,22 @@ public class PointerUtilTest {
 	public void testByVal() {
 		assertEquals(PointerUtil.byVal(null, 1), null);
 		Memory m = new Memory(Pointer.SIZE * 3);
-		assertEquals(PointerUtil.byVal(m, 0), p(m));
-		assertEquals(PointerUtil.byVal(m, 1), p(m, Pointer.SIZE));
-		assertEquals(PointerUtil.byVal(m, 2), p(m, Pointer.SIZE * 2));
+		assertEquals(PointerUtil.byVal(m, 0), deref(m));
+		assertEquals(PointerUtil.byVal(m, 1),
+			ceri.serial.jna.test.JnaTestUtil.deref(m, Pointer.SIZE));
+		assertEquals(PointerUtil.byVal(m, 2),
+			ceri.serial.jna.test.JnaTestUtil.deref(m, Pointer.SIZE * 2));
 	}
 
 	@Test
 	public void testByValForPointerType() {
 		assertEquals(PointerUtil.byVal(null, 1, TestPointer::new), null);
 		Memory m = new Memory(Pointer.SIZE * 3);
-		assertPointer(PointerUtil.byVal(m, 0, TestPointer::new), p(m));
-		assertPointer(PointerUtil.byVal(m, 1, TestPointer::new), p(m, Pointer.SIZE));
-		assertPointer(PointerUtil.byVal(m, 2, TestPointer::new), p(m, Pointer.SIZE * 2));
+		assertPointer(PointerUtil.byVal(m, 0, TestPointer::new), deref(m));
+		assertPointer(PointerUtil.byVal(m, 1, TestPointer::new),
+			ceri.serial.jna.test.JnaTestUtil.deref(m, Pointer.SIZE));
+		assertPointer(PointerUtil.byVal(m, 2, TestPointer::new),
+			ceri.serial.jna.test.JnaTestUtil.deref(m, Pointer.SIZE * 2));
 	}
 
 	@Test
@@ -181,4 +206,16 @@ public class PointerUtilTest {
 		assertPointer(PointerUtil.set(new TestPointer(), (PointerByReference) null), null);
 	}
 
+	/**
+	 * Allocates a contiguous pointer array with given pointer values. Returns indirected pointers.
+	 */
+	private static Pointer[] indirect(Pointer... ps) {
+		Memory m = JnaUtil.calloc(ps.length * Pointer.SIZE);
+		Pointer[] array = new Pointer[ps.length];
+		for (int i = 0; i < array.length; i++) {
+			array[i] = m.share(i * Pointer.SIZE, Pointer.SIZE);
+			array[i].setPointer(0, ps[i]);
+		}
+		return array;
+	}
 }

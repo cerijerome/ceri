@@ -2,6 +2,9 @@ package ceri.serial.clib.util;
 
 import static ceri.common.function.FunctionUtil.named;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
 import java.util.function.Predicate;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.text.ToString;
@@ -61,6 +64,13 @@ public class SelfHealingFdConfig {
 	}
 
 	public static Builder builder(String path, Mode mode, OpenFlag... flags) {
+		return builder(path, mode, Arrays.asList(flags));
+	}
+
+	public static Builder builder(String path, Mode mode, Collection<OpenFlag> flags) {
+		Objects.requireNonNull(path);
+		Objects.requireNonNull(mode);
+		Objects.requireNonNull(flags);
 		return builder(() -> CFileDescriptor.open(path, mode, flags));
 	}
 

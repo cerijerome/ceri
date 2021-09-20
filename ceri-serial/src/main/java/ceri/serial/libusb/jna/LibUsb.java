@@ -18,10 +18,10 @@ import com.sun.jna.ptr.PointerByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.TypeTranscoder;
-import ceri.serial.clib.jna.Time;
-import ceri.serial.clib.jna.Time.timeval;
+import ceri.serial.clib.jna.CCaller;
+import ceri.serial.clib.jna.CTime.timeval;
 import ceri.serial.jna.ArrayPointer;
-import ceri.serial.jna.JnaCaller;
+import ceri.serial.jna.CallbackRegistry;
 import ceri.serial.jna.JnaLibrary;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.PointerUtil;
@@ -34,7 +34,7 @@ import ceri.serial.jna.VarStruct;
  */
 public class LibUsb {
 	static final JnaLibrary<LibUsbNative> library = JnaLibrary.of("usb-1.0.0", LibUsbNative.class);
-	public static final JnaCaller<LibUsbException> caller = JnaCaller.of(LibUsbException::full);
+	public static final CCaller<LibUsbException> caller = CCaller.of(LibUsbException::full);
 	private static final int DEFAULT_TIMEOUT = 1000;
 	private static final int MAX_DESCRIPTOR_SIZE = 255;
 	private static final int MAX_PORT_NUMBERS = 7;
@@ -1214,7 +1214,17 @@ public class LibUsb {
 	 */
 	// typedef void (LIBUSB_CALL *libusb_transfer_cb_fn)(struct libusb_transfer *transfer);
 	public interface libusb_transfer_cb_fn extends Callback {
+		public static final CallbackRegistry<libusb_transfer_cb_fn> registry =
+			CallbackRegistry.of();
+
 		void invoke(libusb_transfer transfer);
+
+		public static libusb_transfer_cb_fn register(libusb_transfer_cb_fn cb) {
+			return registry.register(id -> (transfer) -> {
+				registry.remove(id);
+				cb.invoke(transfer);
+			});
+		}
 	}
 
 	/**
@@ -1272,7 +1282,16 @@ public class LibUsb {
 	// typedef void (LIBUSB_CALL *libusb_log_cb)(libusb_context *ctx, enum libusb_log_level level,
 	// const char *str);
 	public interface libusb_log_cb extends Callback {
+		public static final CallbackRegistry<libusb_log_cb> registry = CallbackRegistry.of();
+
 		int invoke(libusb_context ctx, int level, String str);
+
+		public static libusb_log_cb register(libusb_log_cb cb) {
+			return registry.register(id -> (ctx, level, str) -> {
+				registry.remove(id);
+				return cb.invoke(ctx, level, str);
+			});
+		}
 	}
 
 	/* async I/O */
@@ -1582,7 +1601,17 @@ public class LibUsb {
 	 */
 	// typedef void (LIBUSB_CALL *libusb_pollfd_added_cb)(int fd, short events, void *user_data);
 	public interface libusb_pollfd_added_cb extends Callback {
+		public static final CallbackRegistry<libusb_pollfd_added_cb> registry =
+			CallbackRegistry.of();
+
 		void invoke(int fd, short events, Pointer user_data);
+
+		public static libusb_pollfd_added_cb register(libusb_pollfd_added_cb cb) {
+			return registry.register(id -> (fd, events, user_data) -> {
+				registry.remove(id);
+				cb.invoke(fd, events, user_data);
+			});
+		}
 	}
 
 	/**
@@ -1594,7 +1623,17 @@ public class LibUsb {
 	 */
 	// typedef void (LIBUSB_CALL *libusb_pollfd_removed_cb)(int fd, void *user_data);
 	public interface libusb_pollfd_removed_cb extends Callback {
+		public static final CallbackRegistry<libusb_pollfd_removed_cb> registry =
+			CallbackRegistry.of();
+
 		void invoke(int fd, Pointer user_data);
+
+		public static libusb_pollfd_removed_cb register(libusb_pollfd_removed_cb cb) {
+			return registry.register(id -> (fd, user_data) -> {
+				registry.remove(id);
+				cb.invoke(fd, user_data);
+			});
+		}
 	}
 
 	/**
@@ -1624,8 +1663,18 @@ public class LibUsb {
 	// typedef int (LIBUSB_CALL *libusb_hotplug_callback_fn)(libusb_context *ctx,
 	// libusb_device *device, libusb_hotplug_event event, void *user_data);
 	public interface libusb_hotplug_callback_fn extends Callback {
+		public static final CallbackRegistry<libusb_hotplug_callback_fn> registry =
+			CallbackRegistry.of();
+
 		/** Return 1 to indicate finished processing event, and callback will be unregistered. */
 		int invoke(libusb_context ctx, libusb_device device, int event, Pointer user_data);
+
+		public static libusb_hotplug_callback_fn register(libusb_hotplug_callback_fn cb) {
+			return registry.register(id -> (ctx, device, event, user_data) -> {
+				registry.remove(id);
+				return cb.invoke(ctx, device, event, user_data);
+			});
+		}
 	}
 
 	/**
@@ -2264,7 +2313,7 @@ public class LibUsb {
 	public static void libusb_wait_for_event(libusb_context ctx, timeval tv)
 		throws LibUsbException {
 		require(ctx);
-		caller.verify(() -> lib().libusb_wait_for_event(ctx, Time.write(tv)),
+		caller.verify(() -> lib().libusb_wait_for_event(ctx, tv.getPointer()),
 			"libusb_wait_for_event", ctx, tv);
 	}
 
@@ -2277,7 +2326,7 @@ public class LibUsb {
 	public static void libusb_handle_events_timeout(libusb_context ctx, timeval tv)
 		throws LibUsbException {
 		require(ctx);
-		caller.verify(() -> lib().libusb_handle_events_timeout(ctx, Time.write(tv)),
+		caller.verify(() -> lib().libusb_handle_events_timeout(ctx, tv.getPointer()),
 			"libusb_handle_events_timeout", ctx, tv);
 	}
 
@@ -2286,7 +2335,7 @@ public class LibUsb {
 		require(ctx);
 		IntByReference completed = new IntByReference();
 		caller.verify(
-			() -> lib().libusb_handle_events_timeout_completed(ctx, Time.write(tv), completed),
+			() -> lib().libusb_handle_events_timeout_completed(ctx, tv.getPointer(), completed),
 			"libusb_handle_events_timeout_completed", ctx, tv, completed);
 		return completed.getValue();
 	}
@@ -2307,7 +2356,7 @@ public class LibUsb {
 	public static void libusb_handle_events_locked(libusb_context ctx, timeval tv)
 		throws LibUsbException {
 		require(ctx);
-		caller.verify(() -> lib().libusb_handle_events_locked(ctx, Time.write(tv)),
+		caller.verify(() -> lib().libusb_handle_events_locked(ctx, tv.getPointer()),
 			"libusb_handle_events_locked", ctx, tv);
 	}
 
@@ -2320,10 +2369,9 @@ public class LibUsb {
 
 	public static timeval libusb_get_next_timeout(libusb_context ctx) throws LibUsbException {
 		require(ctx);
-		timeval tv = new timeval(0, 0);
-		Pointer p = tv.getPointer();
-		caller.verify(() -> lib().libusb_get_next_timeout(ctx, p), "libusb_get_next_timeout", ctx,
-			p);
+		timeval tv = new timeval();
+		caller.verify(() -> lib().libusb_get_next_timeout(ctx, tv.getPointer()),
+			"libusb_get_next_timeout", ctx, tv);
 		return Struct.read(tv);
 	}
 

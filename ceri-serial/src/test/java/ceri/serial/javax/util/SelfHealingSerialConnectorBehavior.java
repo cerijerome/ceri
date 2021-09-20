@@ -64,13 +64,15 @@ public class SelfHealingSerialConnectorBehavior {
 	@Test
 	public void shouldBreakIfErrorMatch() throws IOException {
 		con.connect();
-		serial.open.assertAuto("com0");
-		serial.in.read.error.setFrom(RTX);
-		serial.in.to.writeBytes(0, 0, 0);
-		assertThrown(RuntimeException.class, con.in()::read); // doesn't match
-		serial.in.read.error.setFrom(IOX);
-		assertThrown(IOException.class, con.in()::read); // match - broken
-		assertThrown(IOException.class, con.in()::read); // match - already broken
+		LogModifier.run(() -> {
+			serial.open.assertAuto("com0");
+			serial.in.read.error.setFrom(RTX);
+			serial.in.to.writeBytes(0, 0, 0);
+			assertThrown(RuntimeException.class, con.in()::read); // doesn't match
+			serial.in.read.error.setFrom(IOX);
+			assertThrown(IOException.class, con.in()::read); // match - broken
+			assertThrown(IOException.class, con.in()::read); // match - already broken
+		}, Level.OFF, SelfHealingSerialConnector.class);
 	}
 
 	@Test

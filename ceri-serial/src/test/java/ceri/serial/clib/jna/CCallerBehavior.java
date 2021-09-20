@@ -1,4 +1,4 @@
-package ceri.serial.jna;
+package ceri.serial.clib.jna;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -6,10 +6,9 @@ import java.util.function.IntPredicate;
 import java.util.function.ToIntFunction;
 import org.junit.Test;
 import com.sun.jna.LastErrorException;
-import ceri.serial.clib.jna.CException;
 
-public class JnaCallerBehavior {
-	private static final JnaCaller<CException> caller = JnaCaller.of();
+public class CCallerBehavior {
+	private static final CCaller<CException> caller = CCaller.of();
 
 	@Test
 	public void shouldCallAndWrapLastException() {

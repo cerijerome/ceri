@@ -4,6 +4,7 @@ import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
@@ -51,14 +52,14 @@ public class VarStructBehavior {
 	@Test
 	public void shouldWriteAndReadArray() {
 		ByteVar bv0 = new ByteVar(100, 0x80, 0, 0xff, 0x7f);
-		ByteVar bv = JnaTestUtil.ref(bv0, ByteVar::new);
+		ByteVar bv = deref(bv0, ByteVar::new);
 		assertByteVar(bv, 100, 0x80, 0, 0xff, 0x7f);
 	}
 
 	@Test
 	public void shouldWriteAndReadEmptyArray() {
 		ByteVar bv0 = new ByteVar(100);
-		ByteVar bv = JnaTestUtil.ref(bv0, ByteVar::new);
+		ByteVar bv = deref(bv0, ByteVar::new);
 		assertByteVar(bv, 100);
 	}
 
@@ -68,4 +69,7 @@ public class VarStructBehavior {
 		assertArray(bv.array, bytes);
 	}
 
+	private static <T extends Structure> T deref(T t, Function<Pointer, T> constructor) {
+		return Struct.adapt(Struct.write(t), constructor);
+	}
 }

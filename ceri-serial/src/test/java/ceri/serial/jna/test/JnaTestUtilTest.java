@@ -7,6 +7,8 @@ import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
+import ceri.serial.jna.JnaTestData.TestStruct;
 import ceri.serial.jna.JnaUtil;
 
 public class JnaTestUtilTest {
@@ -34,6 +36,15 @@ public class JnaTestUtilTest {
 		assertPointer(p, 0, 1, 2, 3, 4);
 		assertAssertion(() -> assertPointer(p, 1, 2, 3, 4, 6));
 		assertAssertion(() -> assertPointer(p, 0, 1, 2, 3, 4, 5, 6));
+	}
+
+	@Test
+	public void testAssertStructPointer() {
+		TestStruct t = new TestStruct(0x1111, null, 1, 2, 3);
+		assertPointer(t, t.getPointer());
+		assertPointer((Structure) null, null);
+		assertAssertion(() -> assertPointer(t, null));
+		assertAssertion(() -> assertPointer(t, new Memory(1)));
 	}
 
 }

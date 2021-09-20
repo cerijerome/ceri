@@ -3,9 +3,9 @@ package ceri.serial.jna;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertByte;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.serial.jna.JnaTestUtil.assertMemory;
-import static ceri.serial.jna.JnaTestUtil.nlong;
-import static ceri.serial.jna.JnaTestUtil.unlong;
+import static ceri.serial.jna.test.JnaTestUtil.assertMemory;
+import static ceri.serial.jna.JnaUtil.nlong;
+import static ceri.serial.jna.JnaUtil.unlong;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class JnaMemoryBehavior {
 	public void shouldCopyToMemory() {
 		var m = JnaUtil.calloc(3);
 		assertEquals(m(0x80, 0xff, 0, 0x7f, 0xff).copyTo(1, m), 4);
-		assertMemory(m, 0xff, 0, 0x7f);
+		assertMemory(m, 0, 0xff, 0, 0x7f);
 	}
 
 	@Test
@@ -133,14 +133,14 @@ public class JnaMemoryBehavior {
 		var r = m(0x80, 0xff, 0, 0x7f).reader(0);
 		Memory m = new Memory(3);
 		assertEquals(r.readInto(m), 3);
-		assertMemory(m, 0x80, 0xff, 0);
+		assertMemory(m, 0, 0x80, 0xff, 0);
 	}
 
 	@Test
 	public void shouldWriteFromMemory() {
 		Memory m = JnaUtil.calloc(5);
 		JnaMemory.of(m).writer(0).writeFrom(JnaUtil.mallocBytes(0x80, 0xff, 0, 0x7f));
-		assertMemory(m, 0x80, 0xff, 0, 0x7f, 0);
+		assertMemory(m, 0, 0x80, 0xff, 0, 0x7f, 0);
 	}
 
 	@Test
@@ -153,7 +153,7 @@ public class JnaMemoryBehavior {
 	public void shouldSliceWriter() {
 		Memory m = JnaUtil.calloc(5);
 		JnaMemory.of(m).writer(0).skip(1).slice().writeBytes(0x80, 0xff, 0, 0x7f);
-		assertMemory(m, 0, 0x80, 0xff, 0, 0x7f);
+		assertMemory(m, 0, 0, 0x80, 0xff, 0, 0x7f);
 	}
 
 	private static JnaMemory m(int... bytes) {

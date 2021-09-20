@@ -13,6 +13,7 @@ import org.junit.Test;
 import com.sun.jna.Memory;
 import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
+import ceri.serial.clib.jna.CError;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.clib.jna.TestCLibNative;
 import ceri.serial.clib.jna.TestCLibNative.Fd;
@@ -65,6 +66,12 @@ public class CFileDescriptorBehavior {
 		fd.fd();
 		fd.close();
 		assertThrown(() -> fd.fd());
+	}
+
+	@Test
+	public void shouldNotThrowExceptionOnClose() throws IOException {
+		lib.close.error.set(TestCLibNative.lastError(CError.EIO));
+		fd.close();
 	}
 
 	@Test

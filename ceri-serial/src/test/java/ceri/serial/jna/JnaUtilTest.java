@@ -5,9 +5,8 @@ import static ceri.common.test.AssertUtil.assertBuffer;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.serial.jna.JnaTestUtil.assertMemory;
-import static ceri.serial.jna.JnaTestUtil.assertTestStruct;
-import static ceri.serial.jna.JnaTestUtil.populate;
+import static ceri.serial.jna.JnaTestData.assertEmpty;
+import static ceri.serial.jna.test.JnaTestUtil.assertMemory;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.ByteBuffer;
 import org.junit.Test;
@@ -21,9 +20,10 @@ import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.ShortByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteUtil;
-import ceri.serial.jna.JnaTestUtil.TestStruct;
+import ceri.serial.jna.JnaTestData.TestStruct;
 
 public class JnaUtilTest {
+	private final JnaTestData data = JnaTestData.of();
 
 	@Test
 	public void testSetProtected() {
@@ -41,29 +41,30 @@ public class JnaUtilTest {
 	@Test
 	public void testCalloc() {
 		assertNull(JnaUtil.calloc(0));
-		assertMemory(JnaUtil.calloc(5), 0, 0, 0, 0, 0);
+		assertMemory(JnaUtil.calloc(5), 0, 0, 0, 0, 0, 0);
 	}
 
 	@Test
 	public void testMallocBytes() {
 		assertNull(JnaUtil.mallocBytes(new byte[0]));
 		assertNull(JnaUtil.mallocBytes(ArrayUtil.bytes(1, 2, 3), 1, 0));
-		assertMemory(JnaUtil.mallocBytes(ArrayUtil.bytes(-1, -2, -3)), -1, -2, -3);
+		assertMemory(JnaUtil.mallocBytes(ArrayUtil.bytes(-1, -2, -3)), 0, -1, -2, -3);
 	}
 
 	@Test
 	public void testMemcpy() {
 		Memory m = JnaUtil.mallocBytes(1, 2, 3, 4, 5, 6, 7, 8, 9);
 		assertEquals(JnaUtil.memcpy(m, 3, 3, 5), 5);
-		assertMemory(m, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+		assertMemory(m, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 		assertEquals(JnaUtil.memcpy(m, 3, 0, 5), 5);
-		assertMemory(m, 1, 2, 3, 1, 2, 3, 4, 5, 9);
+		assertMemory(m, 0, 1, 2, 3, 1, 2, 3, 4, 5, 9);
 	}
 
 	@Test
 	public void testMemcpyForLargeBuffer() {
-		Memory m = JnaUtil.malloc(8 * 1024 + 8);
-		assertEquals(JnaUtil.memcpy(m, 8, 0, 8 * 1024), 8 * 1024);
+		Memory m = JnaUtil.malloc(16 * 1024);
+		assertEquals(JnaUtil.memcpy(m, 1024, 0, 8 * 1024), 8 * 1024);
+		assertEquals(JnaUtil.memcpy(m, 0, 8 * 1024, 8 * 1024), 8 * 1024);
 	}
 
 	@Test
@@ -90,6 +91,17 @@ public class JnaUtilTest {
 	}
 
 	@Test
+	public void testMemmove() {
+		byte[] text = ByteUtil.toAscii("abcdefghijklm").copy(0);
+		Memory m = JnaUtil.mallocBytes(text);
+		assertEquals(JnaUtil.memmove(m, 3, 0, 5), 5);
+		assertEquals(JnaUtil.string(m), "abcabcdeijklm");
+		JnaUtil.write(m, text);
+		assertEquals(JnaUtil.memmove(m, 0, 3, 5), 5);
+		assertEquals(JnaUtil.string(m), "defghfghijklm");
+	}
+
+	@Test
 	public void testLazyBuffer() {
 		var lazy = JnaUtil.lazyBuffer(5);
 		assertEquals(lazy.get().size(), 5L);
@@ -100,9 +112,9 @@ public class JnaUtilTest {
 		assertNull(JnaUtil.offset(null, 1));
 		assertNull(JnaUtil.offset(null, 0, 2));
 		Memory m = JnaUtil.mallocBytes(1, 2, 3);
-		assertMemory(JnaUtil.offset(m, 0), 1, 2, 3);
-		assertMemory(JnaUtil.offset(m, 0, 2), 1, 2);
-		assertMemory(JnaUtil.offset(m, 1), 2, 3);
+		assertMemory(JnaUtil.offset(m, 0), 0, 1, 2, 3);
+		assertMemory(JnaUtil.offset(m, 0, 2), 0, 1, 2);
+		assertMemory(JnaUtil.offset(m, 1), 0, 2, 3);
 	}
 
 	@Test
@@ -125,13 +137,11 @@ public class JnaUtilTest {
 
 	@Test
 	public void testByRef() {
-		TestStruct[] inners = { new TestStruct(100), null, new TestStruct(300) };
-		Pointer[] ps = PointerUtil.mallocArray(3);
-		for (int i = 0; i < ps.length; i++)
-			ps[i].setPointer(0, Struct.pointer(inners[i]));
-		assertEquals(JnaUtil.byRef(ps[0], 0, TestStruct::new), inners[0]);
-		assertEquals(JnaUtil.byRef(ps[0], 1, TestStruct::new), null);
-		assertEquals(JnaUtil.byRef(ps[0], 2, TestStruct::new), inners[2]);
+		Pointer p = data.structArrayByRefPointer(0);
+		data.assertStructRead(JnaUtil.byRef(p, 0, TestStruct::new), 0);
+		data.assertStructRead(JnaUtil.byRef(p, 1, TestStruct::new), 1);
+		data.assertStructRead(JnaUtil.byRef(p, 2, TestStruct::new), 2);
+		assertNull(JnaUtil.byRef(p, 3, TestStruct::new));
 	}
 
 	@Test
@@ -145,31 +155,22 @@ public class JnaUtilTest {
 
 	@Test
 	public void testArrayByVal() {
-		TestStruct[] array0 = Struct.arrayByVal(() -> new TestStruct(), TestStruct[]::new, 3);
-		populate(array0[0], 100, null, 1);
-		populate(array0[1], 200, null, 2);
-		populate(array0[2], 300, null, 3);
-		Pointer p = Struct.pointer(Struct.write(array0));
-		TestStruct[] array = Struct
-			.read(JnaUtil.arrayByVal(p, TestStruct::new, TestStruct[]::new, 3, TestStruct.SIZE));
-		assertTestStruct(array[0], 100, null, 1, 0, 0);
-		assertTestStruct(array[1], 200, null, 2, 0, 0);
-		assertTestStruct(array[2], 300, null, 3, 0, 0);
+		var p = data.structArrayByValPointer(0);
+		var array = Struct
+			.read(JnaUtil.arrayByVal(p, TestStruct::new, TestStruct[]::new, 4, TestStruct.SIZE));
+		data.assertStruct(array[0], 0);
+		data.assertStruct(array[1], 1);
+		data.assertStruct(array[2], 2);
+		assertEmpty(array[3]);
 	}
 
 	@Test
 	public void testByVal() {
-		TestStruct[] array0 = Struct.arrayByVal(() -> new TestStruct(), TestStruct[]::new, 3);
-		populate(array0[0], 100, null, 1);
-		populate(array0[1], 200, null, 2);
-		populate(array0[2], 300, null, 3);
-		Pointer p = Struct.pointer(Struct.write(array0));
-		assertTestStruct(Struct.<TestStruct>read( //
-			JnaUtil.byVal(p, 0, TestStruct::new, TestStruct.SIZE)), 100, null, 1, 0, 0);
-		assertTestStruct(Struct.<TestStruct>read( //
-			JnaUtil.byVal(p, 1, TestStruct::new, TestStruct.SIZE)), 200, null, 2, 0, 0);
-		assertTestStruct(Struct.<TestStruct>read( //
-			JnaUtil.byVal(p, 2, TestStruct::new, TestStruct.SIZE)), 300, null, 3, 0, 0);
+		Pointer p = data.structArrayByValPointer(0);
+		data.assertStructRead(JnaUtil.byVal(p, 0, TestStruct::new, TestStruct.SIZE), 0);
+		data.assertStructRead(JnaUtil.byVal(p, 1, TestStruct::new, TestStruct.SIZE), 1);
+		data.assertStructRead(JnaUtil.byVal(p, 2, TestStruct::new, TestStruct.SIZE), 2);
+		assertEmpty(JnaUtil.byVal(p, 3, TestStruct::new, TestStruct.SIZE));
 	}
 
 	@Test
@@ -284,7 +285,7 @@ public class JnaUtilTest {
 	public void testWriteBytesToPointer() {
 		Memory m = JnaUtil.calloc(5);
 		assertEquals(JnaUtil.write(m, 1, 0x80, 0, 0xff), 4);
-		assertMemory(m, 0, 0x80, 0, 0xff, 0);
+		assertMemory(m, 0, 0, 0x80, 0, 0xff, 0);
 	}
 
 }

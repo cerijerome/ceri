@@ -14,6 +14,7 @@ Notes:
 - _DARWIN_C_SOURCE is not defined
 - <sdk>=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
 - <knl>=<sdk>/System/Library/Frameworks/Kernel.framework/Versions/A/Headers
+- <iok>=<sdk>/System/Library/Frameworks/IOKit.framework/Versions/A/Headers
         
 Search:
 sudo find <sdk> -type f 2>&1 | grep -v Python | grep '\.'h$ | xargs grep xxx
@@ -36,6 +37,7 @@ IOCPARM_MASK in <sdk>/usr/include/sys/ioccom.h: 0x1fff
 <sdk>/usr/include/sys/ioctl.h
   <sdk>/usr/include/sys/ioccom.h: IOCPARM_MASK = 0x1fff
 
+IOSSIOSPEED in <iok>/serial/ioss.h:
 
 OSX sizes:
  1 = sizeof(char)

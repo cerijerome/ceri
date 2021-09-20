@@ -16,10 +16,10 @@ import ceri.common.test.TestUtil;
 	ceri.serial.clib.OpenFlagBehavior.class, //
 	ceri.serial.clib.SeekBehavior.class, //
 	// clib.jna
+	ceri.serial.clib.jna.CCallerBehavior.class, //
+	ceri.serial.clib.jna.CExceptionBehavior.class, //
 	ceri.serial.clib.jna.CLibTest.class, //
-	ceri.serial.clib.jna.CUtilTest.class, //
-	// clib.util
-	ceri.serial.clib.util.ResponseFdBehavior.class, //
+	ceri.serial.clib.jna.CTimeTest.class, //
 	// ftdi
 	ceri.serial.ftdi.FtdiBehavior.class, //
 	// ftdi.util
@@ -48,8 +48,8 @@ import ceri.common.test.TestUtil;
 	ceri.serial.javax.util.SelfHealingSerialConnectorBehavior.class, //
 	// jna
 	ceri.serial.jna.ArrayPointerBehavior.class, //
+	ceri.serial.jna.CallbackRegistryBehavior.class, //
 	ceri.serial.jna.JnaArgsBehavior.class, //
-	ceri.serial.jna.JnaCallerBehavior.class, //
 	ceri.serial.jna.JnaEnumTest.class, //
 	ceri.serial.jna.JnaLibraryBehavior.class, //
 	ceri.serial.jna.JnaMemoryBehavior.class, //

@@ -29,8 +29,8 @@ public class LibFtdiBaud {
 	private long encodedDivisor;
 
 	public static LibFtdiBaud from(ftdi_context ftdi, int rate) throws LibUsbException {
-		if (ftdi.bitbang_enabled().get()) rate <<= 2; // x4 baud for bitbang
-		return of(ftdi.type().get(), ftdi.index, rate);
+		if (ftdi.bitbang_enabled) rate <<= 2; // x4 baud for bitbang
+		return of(ftdi.type, ftdi.index, rate);
 	}
 
 	public static LibFtdiBaud of(ftdi_chip_type type, int index, int rate) throws LibUsbException {

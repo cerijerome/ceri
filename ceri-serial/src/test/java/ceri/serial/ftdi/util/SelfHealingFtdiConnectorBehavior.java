@@ -118,7 +118,7 @@ public class SelfHealingFtdiConnectorBehavior {
 		LogModifier.run(() -> {
 			ValueCondition<StateChange> sync = ValueCondition.of();
 			try (var enc = con.listeners().enclose(sync::signal)) {
-				lib.controlTransferOut.error.setFrom(LastErrorException::new);
+				lib.controlTransferOut.error.setFrom(s -> new LastErrorException(s));
 				assertThrown(con::connect);
 				sync.await(StateChange.broken);
 				lib.controlTransferOut.awaitAuto();

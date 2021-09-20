@@ -1,4 +1,4 @@
-package ceri.serial.jna;
+package ceri.serial.clib.jna;
 
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
@@ -9,29 +9,29 @@ import ceri.common.function.ExceptionIntSupplier;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.function.ObjIntFunction;
-import ceri.serial.clib.jna.CException;
+import ceri.serial.jna.JnaArgs;
 
 /**
  * Utility to call functions and check status codes.
  */
-public class JnaCaller<E extends Exception> {
+public class CCaller<E extends Exception> {
 	public final JnaArgs args;
 	public final ObjIntFunction<String, E> exceptionFn;
 
-	public static JnaCaller<CException> of() {
+	public static CCaller<CException> of() {
 		return of(CException::full);
 	}
 
-	public static <E extends Exception> JnaCaller<E> of(ObjIntFunction<String, E> exceptionFn) {
+	public static <E extends Exception> CCaller<E> of(ObjIntFunction<String, E> exceptionFn) {
 		return of(JnaArgs.DEFAULT, exceptionFn);
 	}
 
-	public static <E extends Exception> JnaCaller<E> of(JnaArgs args,
+	public static <E extends Exception> CCaller<E> of(JnaArgs args,
 		ObjIntFunction<String, E> exceptionFn) {
-		return new JnaCaller<>(args, exceptionFn);
+		return new CCaller<>(args, exceptionFn);
 	}
 
-	private JnaCaller(JnaArgs args, ObjIntFunction<String, E> exceptionFn) {
+	private CCaller(JnaArgs args, ObjIntFunction<String, E> exceptionFn) {
 		this.args = args;
 		this.exceptionFn = exceptionFn;
 	}

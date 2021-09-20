@@ -3,12 +3,9 @@ package ceri.serial.ftdi.jna;
 import static ceri.common.collection.ImmutableUtil.enumSet;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.validation.ValidationUtil.validateRange;
-import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_BM;
-import static ceri.serial.ftdi.jna.LibFtdi.ftdi_interface.INTERFACE_A;
-import static ceri.serial.ftdi.jna.LibFtdi.ftdi_interface.INTERFACE_ANY;
-import static ceri.serial.ftdi.jna.LibFtdi.ftdi_module_detach_mode.AUTO_DETACH_SIO_MODULE;
-import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_BITBANG;
-import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_RESET;
+//import static ceri.serial.ftdi.jna.LibFtdi.ftdi_module_detach_mode.AUTO_DETACH_SIO_MODULE;
+//import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_BITBANG;
+//import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_RESET;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_request_type.SIO_GET_LATENCY_TIMER_REQUEST;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_request_type.SIO_POLL_MODEM_STATUS_REQUEST;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_request_type.SIO_READ_PINS_REQUEST;
@@ -26,27 +23,6 @@ import static ceri.serial.ftdi.jna.LibFtdiUtil.require;
 import static ceri.serial.ftdi.jna.LibFtdiUtil.requireCtx;
 import static ceri.serial.ftdi.jna.LibFtdiUtil.requireDev;
 import static ceri.serial.ftdi.jna.LibFtdiUtil.vendor;
-import static ceri.serial.libusb.jna.LibUsb.libusb_alloc_transfer;
-import static ceri.serial.libusb.jna.LibUsb.libusb_bulk_transfer;
-import static ceri.serial.libusb.jna.LibUsb.libusb_cancel_transfer;
-import static ceri.serial.libusb.jna.LibUsb.libusb_claim_interface;
-import static ceri.serial.libusb.jna.LibUsb.libusb_close;
-import static ceri.serial.libusb.jna.LibUsb.libusb_control_transfer;
-import static ceri.serial.libusb.jna.LibUsb.libusb_detach_kernel_driver;
-import static ceri.serial.libusb.jna.LibUsb.libusb_exit;
-import static ceri.serial.libusb.jna.LibUsb.libusb_fill_bulk_transfer;
-import static ceri.serial.libusb.jna.LibUsb.libusb_free_config_descriptor;
-import static ceri.serial.libusb.jna.LibUsb.libusb_free_transfer;
-import static ceri.serial.libusb.jna.LibUsb.libusb_get_config_descriptor;
-import static ceri.serial.libusb.jna.LibUsb.libusb_get_configuration;
-import static ceri.serial.libusb.jna.LibUsb.libusb_get_device_descriptor;
-import static ceri.serial.libusb.jna.LibUsb.libusb_get_string_descriptor_ascii;
-import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout_completed;
-import static ceri.serial.libusb.jna.LibUsb.libusb_init;
-import static ceri.serial.libusb.jna.LibUsb.libusb_open;
-import static ceri.serial.libusb.jna.LibUsb.libusb_set_configuration;
-import static ceri.serial.libusb.jna.LibUsb.libusb_submit_transfer;
-import static ceri.serial.libusb.jna.LibUsb.libusb_unref_devices;
 import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction.LIBUSB_ENDPOINT_IN;
 import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction.LIBUSB_ENDPOINT_OUT;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTED;
@@ -55,22 +31,19 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_request_recipient.LIBUSB_RECI
 import static ceri.serial.libusb.jna.LibUsb.libusb_request_type.LIBUSB_REQUEST_TYPE_VENDOR;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_CANCELLED;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import com.sun.jna.Structure;
-import ceri.common.data.BooleanAccessor;
-import ceri.common.data.FieldTranscoder;
-import ceri.common.data.IntField;
 import ceri.common.data.TypeTranscoder;
-import ceri.serial.clib.jna.CException;
-import ceri.serial.clib.jna.Time.timeval;
+import ceri.log.util.LogUtil;
+import ceri.serial.clib.jna.CTime.timeval;
 import ceri.serial.jna.JnaUtil;
-import ceri.serial.jna.Struct;
-import ceri.serial.jna.Struct.Fields;
+//import ceri.serial.jna.Struct;
+import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
@@ -118,33 +91,7 @@ public class LibFtdi {
 
 	private LibFtdi() {}
 
-	static enum ftdi_request_type {
-		SIO_RESET_REQUEST(0x00),
-		SIO_SET_MODEM_CTRL_REQUEST(0x01),
-		SIO_SET_FLOW_CTRL_REQUEST(0x02),
-		SIO_SET_BAUDRATE_REQUEST(0x03),
-		SIO_SET_DATA_REQUEST(0x04),
-		SIO_POLL_MODEM_STATUS_REQUEST(0x05),
-		SIO_SET_EVENT_CHAR_REQUEST(0x06),
-		SIO_SET_ERROR_CHAR_REQUEST(0x07),
-		SIO_SET_LATENCY_TIMER_REQUEST(0x09),
-		SIO_GET_LATENCY_TIMER_REQUEST(0x0A),
-		SIO_SET_BITMODE_REQUEST(0x0B),
-		SIO_READ_PINS_REQUEST(0x0C),
-		SIO_READ_EEPROM_REQUEST(0x90),
-		SIO_WRITE_EEPROM_REQUEST(0x91),
-		SIO_ERASE_EEPROM_REQUEST(0x92);
-
-		public static final TypeTranscoder<ftdi_request_type> xcoder =
-			TypeTranscoder.of(t -> t.value, ftdi_request_type.class);
-		public final int value;
-
-		ftdi_request_type(int value) {
-			this.value = value;
-		}
-	}
-
-	public enum ftdi_chip_type {
+	public static enum ftdi_chip_type {
 		TYPE_AM(0),
 		TYPE_BM(1),
 		TYPE_2232C(2),
@@ -176,22 +123,12 @@ public class LibFtdi {
 		ftdi_chip_type(int value) {
 			this.value = value;
 		}
-
-		@Deprecated
-		public boolean isHType() {
-			return H_TYPES.contains(this);
-		}
-
-		@Deprecated
-		public boolean isSyncFifoType() {
-			return SYNC_FIFO_TYPES.contains(this);
-		}
 	}
 
 	/**
 	 * MPSSE bitbang modes
 	 */
-	public enum ftdi_mpsse_mode {
+	public static enum ftdi_mpsse_mode {
 		/** switch off bitbang mode, back to regular serial/FIFO */
 		BITMODE_RESET(0x00),
 		/** classical asynchronous bitbang mode, introduced with B-type chips */
@@ -222,29 +159,29 @@ public class LibFtdi {
 		}
 	}
 
-	public enum ftdi_interface {
-		INTERFACE_ANY(0, 0, 1, 2), // same as INTERFACE_A
-		INTERFACE_A(1, 0, 1, 2), // 0, 1, 0x81, 0x02
-		INTERFACE_B(2, 1, 3, 4), // 1, 2, 0x83, 0x04
-		INTERFACE_C(3, 2, 5, 6), // 2, 3, 0x85, 0x06
-		INTERFACE_D(4, 3, 7, 8); // 3, 4, 0x87, 0x08
+	public static enum ftdi_interface {
+		INTERFACE_ANY(0, 0, 2, 1), // 0, 0, 0x02, 0x81
+		INTERFACE_A(1, 0, 2, 1), // 1, 0, 0x02, 0x81
+		INTERFACE_B(2, 1, 4, 3), // 2, 1, 0x04, 0x83
+		INTERFACE_C(3, 2, 6, 5), // 3, 2, 0x06, 0x85
+		INTERFACE_D(4, 3, 8, 7); // 4, 3, 0x08, 0x87
 
 		public static final TypeTranscoder<ftdi_interface> xcoder =
 			TypeTranscoder.of(t -> t.index, ftdi_interface.class);
-		public final int index;
 		public final int iface;
-		public final int outAddress;
-		public final int inAddress;
+		public final int index;
+		public final int in_ep;
+		public final int out_ep;
 
-		ftdi_interface(int index, int iface, int outAddress, int inAddress) {
+		ftdi_interface(int index, int iface, int in_ep, int out_ep) {
 			this.index = index;
 			this.iface = iface;
-			this.outAddress = outAddress;
-			this.inAddress = inAddress;
+			this.in_ep = in_ep;
+			this.out_ep = out_ep;
 		}
 	}
 
-	public enum ftdi_module_detach_mode {
+	public static enum ftdi_module_detach_mode {
 		AUTO_DETACH_SIO_MODULE(0),
 		DONT_DETACH_SIO_MODULE(1),
 		AUTO_DETACH_REATACH_SIO_MODULE(2);
@@ -258,8 +195,34 @@ public class LibFtdi {
 		}
 	}
 
+	static enum ftdi_request_type {
+		SIO_RESET_REQUEST(0x00),
+		SIO_SET_MODEM_CTRL_REQUEST(0x01),
+		SIO_SET_FLOW_CTRL_REQUEST(0x02),
+		SIO_SET_BAUDRATE_REQUEST(0x03),
+		SIO_SET_DATA_REQUEST(0x04),
+		SIO_POLL_MODEM_STATUS_REQUEST(0x05),
+		SIO_SET_EVENT_CHAR_REQUEST(0x06),
+		SIO_SET_ERROR_CHAR_REQUEST(0x07),
+		SIO_SET_LATENCY_TIMER_REQUEST(0x09),
+		SIO_GET_LATENCY_TIMER_REQUEST(0x0A),
+		SIO_SET_BITMODE_REQUEST(0x0B),
+		SIO_READ_PINS_REQUEST(0x0C),
+		SIO_READ_EEPROM_REQUEST(0x90),
+		SIO_WRITE_EEPROM_REQUEST(0x91),
+		SIO_ERASE_EEPROM_REQUEST(0x92);
+
+		public static final TypeTranscoder<ftdi_request_type> xcoder =
+			TypeTranscoder.of(t -> t.value, ftdi_request_type.class);
+		public final int value;
+
+		ftdi_request_type(int value) {
+			this.value = value;
+		}
+	}
+
 	/** Number of bits for ftdi_set_line_property() */
-	public enum ftdi_data_bits_type {
+	public static enum ftdi_data_bits_type {
 		BITS_7(7),
 		BITS_8(8);
 
@@ -273,7 +236,7 @@ public class LibFtdi {
 	}
 
 	/** Number of stop bits for ftdi_set_line_property() */
-	public enum ftdi_stop_bits_type {
+	public static enum ftdi_stop_bits_type {
 		STOP_BIT_1(0),
 		STOP_BIT_15(1),
 		STOP_BIT_2(2);
@@ -288,7 +251,7 @@ public class LibFtdi {
 	}
 
 	/** Parity mode for ftdi_set_line_property() */
-	public enum ftdi_parity_type {
+	public static enum ftdi_parity_type {
 		NONE(0),
 		ODD(1),
 		EVEN(2),
@@ -305,7 +268,7 @@ public class LibFtdi {
 	}
 
 	/** Break type for ftdi_set_line_property() */
-	public enum ftdi_break_type {
+	public static enum ftdi_break_type {
 		BREAK_OFF(0),
 		BREAK_ON(1);
 
@@ -318,7 +281,7 @@ public class LibFtdi {
 		}
 	}
 
-	public enum ftdi_flow_control {
+	public static enum ftdi_flow_control {
 		SIO_DISABLE_FLOW_CTRL(0x0000),
 		SIO_RTS_CTS_HS(0x0100),
 		SIO_DTR_DSR_HS(0x0200),
@@ -333,77 +296,16 @@ public class LibFtdi {
 		}
 	}
 
-	@Fields({ "usb_ctx", "usb_dev", "usb_read_timeout", "usb_write_timeout", "type", "baudrate",
-		"bitbang_enabled", "readbuffer", "readbuffer_offset", "readbuffer_remaining",
-		"readbuffer_chunksize", "writebuffer_chunksize", "max_packet_size", "iface", "index",
-		"in_ep", "out_ep", "bitbang_mode", "eeprom", "error_str", "module_detach_mode" })
-	public static class ftdi_context extends Struct {
-		private static final IntField.Typed<ftdi_context> type_accessor =
-			IntField.typed(t -> t.type, (t, i) -> t.type = i);
-		private static final BooleanAccessor.Typed<ftdi_context> bitbang_enabled_accessor =
-			BooleanAccessor.typedByte(t -> t.bitbang_enabled, (t, b) -> t.bitbang_enabled = b);
-		private static final IntField.Typed<ftdi_context> index_accessor =
-			IntField.typed(t -> t.index, (t, i) -> t.index = i);
-		private static final IntField.Typed<ftdi_context> bitbang_mode_accessor =
-			IntField.typedUbyte(t -> t.bitbang_mode, (t, i) -> t.bitbang_mode = i);
-		private static final IntField.Typed<ftdi_context> module_detach_mode_accessor =
-			IntField.typed(t -> t.module_detach_mode, (t, i) -> t.module_detach_mode = i);
-		public libusb_context usb_ctx;
-		public libusb_device_handle usb_dev;
-		public int usb_read_timeout;
-		public int usb_write_timeout;
-		public int type; // ftdi_chip_type
-		public int baudrate;
-		public byte bitbang_enabled; // boolean
-		public Pointer readbuffer;
-		public int readbuffer_offset;
-		public int readbuffer_remaining;
-		public int readbuffer_chunksize;
-		public int writebuffer_chunksize;
-		public int max_packet_size;
-		public int iface;
-		public int index; // ftdi_interface (confusing name!)
-		public int in_ep;
-		public int out_ep;
-		public byte bitbang_mode; // ftdi_bit_mode
-		public ftdi_eeprom.ByRef eeprom;
-		public Pointer error_str; // const char*
-		public int module_detach_mode; // ftdi_module_detach_mode
-
-		public FieldTranscoder<ftdi_chip_type> type() {
-			return ftdi_chip_type.xcoder.field(type_accessor.from(this));
-		}
-
-		public BooleanAccessor bitbang_enabled() {
-			return bitbang_enabled_accessor.from(this);
-		}
-
-		public FieldTranscoder<ftdi_interface> index() {
-			return ftdi_interface.xcoder.field(index_accessor.from(this));
-		}
-
-		public FieldTranscoder<ftdi_mpsse_mode> bitbang_mode() {
-			return ftdi_mpsse_mode.xcoder.field(bitbang_mode_accessor.from(this));
-		}
-
-		public FieldTranscoder<ftdi_module_detach_mode> module_detach_mode() {
-			return ftdi_module_detach_mode.xcoder.field(module_detach_mode_accessor.from(this));
-		}
-	}
-
 	public static class ftdi_transfer_control {
-		private static final IntField.Typed<ftdi_transfer_control> completed_accessor =
-			IntField.typed(t -> t.completed, (t, i) -> t.completed = i);
 		public int completed;
-		public Pointer buf;
+		public Pointer buf; // unsigned char*
 		public int size;
 		public int offset;
-		public ftdi_context ftdi; // ftdi_context.ByReference
-		// Use setAutoSynch(false) to only use pointer (no reads/writes)
-		public libusb_transfer transfer; // libusb_transfer.ByReference
+		public ftdi_context ftdi; // ftdi_context*
+		public libusb_transfer transfer; // libusb_transfer*
 
-		public FieldTranscoder<libusb_transfer_status> completed() {
-			return libusb_transfer_status.xcoder.field(completed_accessor.from(this));
+		public libusb_transfer_status completed() {
+			return libusb_transfer_status.xcoder.decode(completed);
 		}
 
 		public byte[] buf() {
@@ -411,8 +313,36 @@ public class LibFtdi {
 		}
 	}
 
-	@Fields({ "major", "minor", "micro", "version_str", "snapshot_str" })
-	public static class ftdi_version_info extends Struct {
+	public static class ftdi_context {
+		/* USB specific */
+		public libusb_context usb_ctx;
+		public libusb_device_handle usb_dev;
+		public int usb_read_timeout = TIMEOUT_MS_DEF; // millis
+		public int usb_write_timeout = TIMEOUT_MS_DEF; // millis
+		/* FTDI specific */
+		public ftdi_chip_type type; // enum ftdi_chip_type
+		public int baudrate;
+		public boolean bitbang_enabled; // unsigned char
+		public Pointer readbuffer; // unsigned char*
+		public int readbuffer_offset; // unsigned int
+		public int readbuffer_remaining; // unsigned int
+		public int readbuffer_chunksize; // unsigned int
+		public int writebuffer_chunksize; // unsigned int
+		public int max_packet_size; // unsigned int
+		/* FTDI FT2232C requirements */
+		public int iface; // FT2232C interface number 0 or 1
+		public int index; // FT2232C index number 1 or 2
+		/* Endpoints */
+		public int in_ep;
+		public int out_ep;
+		/* Other settings */
+		public ftdi_mpsse_mode bitbang_mode; // unsigned char
+		public ftdi_eeprom eeprom;
+		public String error_str; // const char*
+		public ftdi_module_detach_mode module_detach_mode;
+	}
+
+	public static class ftdi_version_inf {
 		public int major;
 		public int minor;
 		public int micro;
@@ -420,19 +350,7 @@ public class LibFtdi {
 		public String snapshot_str;
 	}
 
-	@Fields({ "vendor_id", "product_id", "initialized_for_connected_device", "self_powered",
-		"remote_wakeup", "is_not_pnp", "suspend_dbus7", "in_is_isochronous", "out_is_isochronous",
-		"suspend_pull_downs", "use_serial", "usb_version", "use_usb_version", "max_power",
-		"manufacturer", "product", "serial", "channel_a_type", "channel_b_type", "channel_a_driver",
-		"channel_b_driver", "channel_c_driver", "channel_d_driver", "channel_a_rs485enable",
-		"channel_b_rs485enable", "channel_c_rs485enable", "channel_d_rs485enable", "cbus_function",
-		"high_current", "high_current_a", "high_current_b", "invert", "external_oscillator",
-		"group0_drive", "group0_schmitt", "group0_slew", "group1_drive", "group1_schmitt",
-		"group1_slew", "group2_drive", "group2_schmitt", "group2_slew", "group3_drive",
-		"group3_schmitt", "group3_slew", "powersave", "clock_polarity", "data_order",
-		"flow_control", "user_data_addr", "user_data_size", "user_data", "size", "chip", "buf",
-		"release_number" })
-	public static class ftdi_eeprom extends Struct {
+	public static class ftdi_eeprom {
 		public int vendor_id;
 		public int product_id;
 		public int initialized_for_connected_device;
@@ -489,14 +407,11 @@ public class LibFtdi {
 		public int chip;
 		public byte[] buf = new byte[FTDI_MAX_EEPROM_SIZE];
 		public int release_number;
-
-		public static class ByRef extends ftdi_eeprom implements Structure.ByReference {}
 	}
 
-	@Fields({ "totalBytes", "time" })
-	public static class size_and_time extends Struct {
+	public static class size_and_time {
 		public long totalBytes;
-		public timeval time;
+		public Instant time = Instant.EPOCH;
 	}
 
 	public static class ftdi_string_descriptors {
@@ -511,6 +426,44 @@ public class LibFtdi {
 		}
 	}
 
+	private static void ftdi_usb_close_internal(ftdi_context ftdi) {
+		if (ftdi == null) return;
+		LogUtil.execute(logger, () -> LibUsb.libusb_close(ftdi.usb_dev));
+		ftdi.usb_dev = null;
+		ftdi.eeprom.initialized_for_connected_device = 0;
+	}
+
+	/**
+	 * Initialize FTDI context. This overwrites any current values, so caller must ensure opened
+	 * resources are closed.
+	 */
+	private static void ftdi_init(ftdi_context ftdi) throws LibUsbException {
+		try {
+			ftdi.usb_ctx = null;
+			ftdi.usb_dev = null;
+			ftdi.usb_read_timeout = TIMEOUT_MS_DEF;
+			ftdi.usb_write_timeout = TIMEOUT_MS_DEF;
+			ftdi.type = ftdi_chip_type.TYPE_BM;
+			ftdi.baudrate = -1;
+			ftdi.bitbang_enabled = false;
+			ftdi.readbuffer = null;
+			ftdi.readbuffer_offset = 0;
+			ftdi.readbuffer_remaining = 0;
+			ftdi.writebuffer_chunksize = CHUNKSIZE_DEF;
+			ftdi.max_packet_size = 0;
+			ftdi.error_str = null;
+			ftdi.module_detach_mode = ftdi_module_detach_mode.AUTO_DETACH_SIO_MODULE;
+			ftdi.usb_ctx = LibUsb.libusb_init();
+			ftdi_set_interface(ftdi, ftdi_interface.INTERFACE_ANY);
+			ftdi.bitbang_mode = ftdi_mpsse_mode.BITMODE_BITBANG;
+			ftdi.eeprom = new ftdi_eeprom();
+			ftdi_read_data_set_chunk_size(ftdi, CHUNKSIZE_DEF);
+		} catch (LibUsbException | RuntimeException e) {
+			ftdi_free(ftdi);
+			throw e;
+		}
+	}
+
 	/**
 	 * Create a new FTDI context, and initialize it.
 	 */
@@ -521,58 +474,34 @@ public class LibFtdi {
 	}
 
 	/**
-	 * Initialize FTDI context. This overwrites any current values, so caller must ensure opened
-	 * resources are closed.
-	 */
-	public static void ftdi_init(ftdi_context ftdi) throws LibUsbException {
-		try {
-			ftdi.usb_ctx = null;
-			ftdi.usb_dev = null;
-			ftdi.usb_read_timeout = TIMEOUT_MS_DEF;
-			ftdi.usb_write_timeout = TIMEOUT_MS_DEF;
-			ftdi.type().set(TYPE_BM);
-			ftdi.baudrate = -1;
-			ftdi.bitbang_enabled().set(false);
-			ftdi.readbuffer = null;
-			ftdi.writebuffer_chunksize = CHUNKSIZE_DEF;
-			ftdi.max_packet_size = 0;
-			ftdi.module_detach_mode().set(AUTO_DETACH_SIO_MODULE);
-			ftdi.usb_ctx = libusb_init();
-			ftdi_set_interface(ftdi, INTERFACE_ANY);
-			ftdi.bitbang_mode().set(BITMODE_BITBANG);
-			ftdi.eeprom = new ftdi_eeprom.ByRef();
-			ftdi_read_data_set_chunk_size(ftdi, CHUNKSIZE_DEF);
-		} catch (LibUsbException | RuntimeException e) {
-			ftdi_free(ftdi);
-			throw e;
-		}
-	}
-
-	/**
-	 * Frees the ftdi context, and closes the usb device handle if set.
-	 */
-	public static void ftdi_free(ftdi_context ftdi) throws LibUsbException {
-		if (ftdi == null) return;
-		closeDevice(ftdi);
-		ftdi.readbuffer = null;
-		ftdi.eeprom = null;
-		libusb_exit(ftdi.usb_ctx);
-		ftdi.usb_ctx = null;
-	}
-
-	/**
 	 * Sets the usb interface type. Must be called before opening a device.
 	 */
 	public static void ftdi_set_interface(ftdi_context ftdi, ftdi_interface iface)
 		throws LibUsbException {
 		require(ftdi);
-		if (iface == INTERFACE_ANY) iface = INTERFACE_A;
+		if (iface == ftdi_interface.INTERFACE_ANY) iface = ftdi_interface.INTERFACE_A;
 		if (ftdi.usb_dev != null && ftdi.index != iface.index) throw LibUsbException
 			.of(LIBUSB_ERROR_NOT_SUPPORTED, "Interface cannot be changed on an open device");
 		ftdi.iface = iface.iface;
 		ftdi.index = iface.index;
-		ftdi.out_ep = LibUsbUtil.endpointAddress(iface.outAddress, LIBUSB_ENDPOINT_IN);
-		ftdi.in_ep = LibUsbUtil.endpointAddress(iface.inAddress, LIBUSB_ENDPOINT_OUT);
+		ftdi.out_ep = LibUsbUtil.endpointAddress(iface.out_ep, LIBUSB_ENDPOINT_IN);
+		ftdi.in_ep = LibUsbUtil.endpointAddress(iface.in_ep, LIBUSB_ENDPOINT_OUT);
+	}
+
+	private static void ftdi_deinit(ftdi_context ftdi) {
+		if (ftdi == null) return;
+		ftdi_usb_close_internal(ftdi);
+		ftdi.readbuffer = null;
+		ftdi.eeprom = null;
+		LogUtil.execute(logger, () -> LibUsb.libusb_exit(ftdi.usb_ctx));
+		ftdi.usb_ctx = null;
+	}
+
+	/**
+	 * Frees the ftdi context, and closes the usb device handle if set.
+	 */
+	public static void ftdi_free(ftdi_context ftdi) {
+		ftdi_deinit(ftdi);
 	}
 
 	/**
@@ -608,7 +537,7 @@ public class LibFtdi {
 	 * Must be called to free device list returned from ftdi_usb_find_all methods.
 	 */
 	public static void ftdi_list_free(List<libusb_device> devlist) throws LibUsbException {
-		libusb_unref_devices(devlist);
+		LibUsb.libusb_unref_devices(devlist);
 	}
 
 	/**
@@ -620,29 +549,43 @@ public class LibFtdi {
 		require(ftdi);
 		LibUsbUtil.require(dev);
 		boolean need_open = ftdi.usb_dev == null;
-		if (need_open) ftdi.usb_dev = libusb_open(dev);
+		if (need_open) ftdi.usb_dev = LibUsb.libusb_open(dev);
 		try {
-			libusb_device_descriptor desc = libusb_get_device_descriptor(dev);
-			String mfr = libusb_get_string_descriptor_ascii(ftdi.usb_dev, desc.iManufacturer);
-			String description = libusb_get_string_descriptor_ascii(ftdi.usb_dev, desc.iProduct);
-			String serial = libusb_get_string_descriptor_ascii(ftdi.usb_dev, desc.iSerialNumber);
+			libusb_device_descriptor desc = LibUsb.libusb_get_device_descriptor(dev);
+			String mfr =
+				LibUsb.libusb_get_string_descriptor_ascii(ftdi.usb_dev, desc.iManufacturer);
+			String description =
+				LibUsb.libusb_get_string_descriptor_ascii(ftdi.usb_dev, desc.iProduct);
+			String serial =
+				LibUsb.libusb_get_string_descriptor_ascii(ftdi.usb_dev, desc.iSerialNumber);
 			return new ftdi_string_descriptors(mfr, description, serial);
 		} finally {
-			if (need_open) closeDevice(ftdi);
+			if (need_open) ftdi_usb_close_internal(ftdi);
 		}
+	}
+
+	private static int _ftdi_determine_max_packet_size(ftdi_context ftdi,
+		libusb_config_descriptor config, libusb_device_descriptor desc) {
+		int packet_size = ftdi_chip_type.isHType(ftdi.type) ? 512 : 64;
+		if (desc.bNumConfigurations == 0 || ftdi.iface >= config.bNumInterfaces) return packet_size;
+		libusb_interface iface = config.interfaces()[ftdi.iface];
+		if (iface.num_altsetting == 0) return packet_size;
+		libusb_interface_descriptor descriptor = iface.altsettings()[0];
+		if (descriptor.bNumEndpoints == 0) return packet_size;
+		return descriptor.endpoints()[0].wMaxPacketSize;
 	}
 
 	public static void ftdi_usb_open_dev(ftdi_context ftdi, libusb_device dev)
 		throws LibUsbException {
 		require(ftdi);
 		try {
-			ftdi.usb_dev = libusb_open(dev);
+			ftdi.usb_dev = LibUsb.libusb_open(dev);
 			configureFtdi(ftdi, dev);
-			libusb_claim_interface(ftdi.usb_dev, ftdi.iface);
+			LibUsb.libusb_claim_interface(ftdi.usb_dev, ftdi.iface);
 			ftdi_usb_reset(ftdi);
 			ftdi_set_baudrate(ftdi, BAUD_RATE);
 		} catch (LibUsbException | RuntimeException e) {
-			closeDevice(ftdi);
+			ftdi_usb_close_internal(ftdi);
 			throw e;
 		}
 	}
@@ -720,11 +663,15 @@ public class LibFtdi {
 	public static void ftdi_usb_reset(ftdi_context ftdi) throws LibUsbException {
 		requireDev(ftdi);
 		controlTransferOut(ftdi, SIO_RESET_REQUEST, SIO_RESET_SIO, ftdi.index);
+		ftdi.readbuffer_offset = 0;
+		ftdi.readbuffer_remaining = 0;
 	}
 
 	public static void ftdi_usb_purge_rx_buffer(ftdi_context ftdi) throws LibUsbException {
 		requireDev(ftdi);
 		controlTransferOut(ftdi, SIO_RESET_REQUEST, SIO_RESET_PURGE_RX, ftdi.index);
+		ftdi.readbuffer_offset = 0;
+		ftdi.readbuffer_remaining = 0;
 	}
 
 	public static void ftdi_usb_purge_tx_buffer(ftdi_context ftdi) throws LibUsbException {
@@ -735,6 +682,12 @@ public class LibFtdi {
 	public static void ftdi_usb_purge_buffers(ftdi_context ftdi) throws LibUsbException {
 		ftdi_usb_purge_rx_buffer(ftdi);
 		ftdi_usb_purge_tx_buffer(ftdi);
+	}
+
+	public static void ftdi_usb_close(ftdi_context ftdi) throws LibUsbException {
+		require(ftdi);
+		if (ftdi.usb_dev != null) LibUsb.libusb_release_interface(ftdi.usb_dev, ftdi.iface);
+		ftdi_usb_close_internal(ftdi);
 	}
 
 	public static void ftdi_set_baudrate(ftdi_context ftdi, int baudrate) throws LibUsbException {
@@ -763,7 +716,7 @@ public class LibFtdi {
 		int remaining = len;
 		while (remaining > 0) {
 			int size = Math.min(remaining, ftdi.writebuffer_chunksize);
-			int n = libusb_bulk_transfer(ftdi.usb_dev, ftdi.in_ep, buffer, size,
+			int n = LibUsb.libusb_bulk_transfer(ftdi.usb_dev, ftdi.in_ep, buffer, size,
 				ftdi.usb_write_timeout);
 			if (n <= 0) break;
 			remaining -= n;
@@ -780,7 +733,7 @@ public class LibFtdi {
 		while (remaining > 0) {
 			int readLen = readLen(ftdi, remaining);
 			readBuffer.clear();
-			readLen = libusb_bulk_transfer(ftdi.usb_dev, ftdi.out_ep, readBuffer, readLen,
+			readLen = LibUsb.libusb_bulk_transfer(ftdi.usb_dev, ftdi.out_ep, readBuffer, readLen,
 				ftdi.usb_read_timeout);
 			if (readLen <= READ_STATUS_BYTES) break;
 			for (int i = 0;; i++) {
@@ -797,17 +750,17 @@ public class LibFtdi {
 	public static ftdi_transfer_control ftdi_write_data_submit(ftdi_context ftdi, Pointer buf,
 		int size) throws LibUsbException {
 		requireDev(ftdi);
-		libusb_transfer transfer = libusb_alloc_transfer(0);
+		libusb_transfer transfer = LibUsb.libusb_alloc_transfer(0);
 		try {
 			ftdi_transfer_control tc = transferControl(ftdi, buf, size, transfer);
 			int write_size = Math.min(size, ftdi.writebuffer_chunksize);
-			libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.in_ep, buf, write_size,
+			LibUsb.libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.in_ep, buf, write_size,
 				xfer -> ftdi_write_data_cb(xfer, tc), null, ftdi.usb_write_timeout);
-			libusb_submit_transfer(transfer);
+			LibUsb.libusb_submit_transfer(transfer);
 			tc.transfer.setAutoSynch(false); // don't read/write from now on
 			return tc;
 		} catch (LibUsbException | RuntimeException e) {
-			libusb_free_transfer(transfer);
+			LibUsb.libusb_free_transfer(transfer);
 			throw e;
 		}
 	}
@@ -815,28 +768,29 @@ public class LibFtdi {
 	public static ftdi_transfer_control ftdi_read_data_submit(ftdi_context ftdi, Pointer buf,
 		int size) throws LibUsbException {
 		requireDev(ftdi);
-		libusb_transfer transfer = libusb_alloc_transfer(0);
+		libusb_transfer transfer = LibUsb.libusb_alloc_transfer(0);
 		try {
 			ftdi_transfer_control tc = transferControl(ftdi, buf, size, transfer);
 			int read_size = readLen(ftdi, size);
-			libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.out_ep, ftdi.readbuffer,
+			LibUsb.libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.out_ep, ftdi.readbuffer,
 				read_size, xfer -> ftdi_read_data_cb(xfer, tc), null, ftdi.usb_read_timeout);
-			libusb_submit_transfer(transfer);
+			LibUsb.libusb_submit_transfer(transfer);
 			tc.transfer.setAutoSynch(false); // don't read/write from now on
 			return tc;
 		} catch (LibUsbException | RuntimeException e) {
-			libusb_free_transfer(transfer);
+			LibUsb.libusb_free_transfer(transfer);
 			throw e;
 		}
 	}
 
 	public static int ftdi_transfer_data_done(ftdi_transfer_control tc) throws LibUsbException {
 		if (tc == null) return 0;
-		timeval to = new timeval(0, 0);
+		timeval to = new timeval();
 		try {
 			while (tc.completed != 0) {
 				try {
-					tc.completed = libusb_handle_events_timeout_completed(tc.ftdi.usb_ctx, to);
+					tc.completed =
+						LibUsb.libusb_handle_events_timeout_completed(tc.ftdi.usb_ctx, to);
 				} catch (LibUsbException | RuntimeException e) {
 					if (e instanceof LibUsbException le && le.error == LIBUSB_ERROR_INTERRUPTED)
 						continue;
@@ -855,7 +809,7 @@ public class LibFtdi {
 		if (tc == null) return;
 		try {
 			if (tc.completed != 0 || tc.transfer == null) return;
-			libusb_cancel_transfer(tc.transfer);
+			LibUsb.libusb_cancel_transfer(tc.transfer);
 			waitForCompletion(tc, to);
 		} finally {
 			freeTransfer(tc);
@@ -875,16 +829,16 @@ public class LibFtdi {
 		requireDev(ftdi);
 		int value = mode.value << 8 | (bitmask & 0xff);
 		controlTransferOut(ftdi, SIO_SET_BITMODE_REQUEST, value, ftdi.index);
-		ftdi.bitbang_mode().set(mode);
-		ftdi.bitbang_enabled().set(mode != BITMODE_RESET);
+		ftdi.bitbang_mode = mode;
+		ftdi.bitbang_enabled = mode != ftdi_mpsse_mode.BITMODE_RESET;
 	}
 
 	public static void ftdi_enable_bitbang(ftdi_context ftdi) throws LibUsbException {
-		ftdi_set_bitmode(ftdi, 0xff, BITMODE_BITBANG);
+		ftdi_set_bitmode(ftdi, 0xff, ftdi_mpsse_mode.BITMODE_BITBANG);
 	}
 
 	public static void ftdi_disable_bitbang(ftdi_context ftdi) throws LibUsbException {
-		ftdi_set_bitmode(ftdi, 0x00, BITMODE_RESET);
+		ftdi_set_bitmode(ftdi, 0x00, ftdi_mpsse_mode.BITMODE_RESET);
 	}
 
 	public static int ftdi_read_pins(ftdi_context ftdi) throws LibUsbException {
@@ -955,43 +909,26 @@ public class LibFtdi {
 	}
 
 	private static void configureFtdi(ftdi_context ftdi, libusb_device dev) throws LibUsbException {
-		libusb_device_descriptor desc = libusb_get_device_descriptor(dev);
-		ftdi.type().set(guessChipType(desc.bcdDevice, desc.iSerialNumber));
-		libusb_config_descriptor config0 = libusb_get_config_descriptor(dev, 0);
+		libusb_device_descriptor desc = LibUsb.libusb_get_device_descriptor(dev);
+		ftdi.type = guessChipType(desc.bcdDevice, desc.iSerialNumber);
+		libusb_config_descriptor config0 = LibUsb.libusb_get_config_descriptor(dev, 0);
 		int cfg0 = config0.bConfigurationValue;
-		ftdi.max_packet_size = maxPacketSize(ftdi, config0, desc);
-		libusb_free_config_descriptor(config0);
+		ftdi.max_packet_size = _ftdi_determine_max_packet_size(ftdi, config0, desc);
+		LibUsb.libusb_free_config_descriptor(config0);
 		autoDetach(ftdi);
 		setConfig(desc, ftdi.usb_dev, cfg0);
 	}
 
-	private static int maxPacketSize(ftdi_context ftdi, libusb_config_descriptor config,
-		libusb_device_descriptor desc) {
-		int packet_size = ftdi_chip_type.isHType(ftdi.type().get()) ? 512 : 64;
-		if (desc.bNumConfigurations == 0 || ftdi.iface >= config.bNumInterfaces) return packet_size;
-		libusb_interface iface = config.interfaces()[ftdi.iface];
-		if (iface.num_altsetting == 0) return packet_size;
-		libusb_interface_descriptor descriptor = iface.altsettings()[0];
-		if (descriptor.bNumEndpoints == 0) return packet_size;
-		return descriptor.endpoints()[0].wMaxPacketSize;
-	}
-
-	private static int autoDetach(ftdi_context ftdi) {
-		if (ftdi.module_detach_mode().get() != AUTO_DETACH_SIO_MODULE) return 0;
-		return CException.capture(() -> libusb_detach_kernel_driver(ftdi.usb_dev, ftdi.iface));
+	private static void autoDetach(ftdi_context ftdi) {
+		if (ftdi.module_detach_mode != ftdi_module_detach_mode.AUTO_DETACH_SIO_MODULE) return;
+		LogUtil.execute(logger, () -> LibUsb.libusb_detach_kernel_driver(ftdi.usb_dev, ftdi.iface));
 	}
 
 	private static void setConfig(libusb_device_descriptor desc, libusb_device_handle dev, int cfg)
 		throws LibUsbException {
-		int current = libusb_get_configuration(dev);
-		if (desc.bNumConfigurations > 0 && current != cfg) libusb_set_configuration(dev, cfg);
-	}
-
-	private static void closeDevice(ftdi_context ftdi) throws LibUsbException {
-		if (ftdi == null) return;
-		libusb_close(ftdi.usb_dev);
-		ftdi.usb_dev = null;
-		if (ftdi.eeprom != null) ftdi.eeprom.initialized_for_connected_device = 0;
+		int current = LibUsb.libusb_get_configuration(dev);
+		if (desc.bNumConfigurations > 0 && current != cfg)
+			LibUsb.libusb_set_configuration(dev, cfg);
 	}
 
 	private static ftdi_transfer_control transferControl(ftdi_context ftdi, Pointer buf, int size,
@@ -1012,8 +949,8 @@ public class LibFtdi {
 	private static void ftdi_write_data_cb(libusb_transfer transfer, ftdi_transfer_control tc) {
 		tc.offset += transfer.actual_length;
 		if (tc.offset >= tc.size) tc.completed = 1;
-		else if (transfer.status() == LIBUSB_TRANSFER_CANCELLED)
-			tc.completed().set(LIBUSB_TRANSFER_CANCELLED);
+		else if (transfer.status == LIBUSB_TRANSFER_CANCELLED.value)
+			tc.completed = LIBUSB_TRANSFER_CANCELLED.value;
 		else writeMoreData(transfer, tc);
 	}
 
@@ -1022,7 +959,7 @@ public class LibFtdi {
 		try {
 			transfer.length = Math.min(ftdi.writebuffer_chunksize, tc.size - tc.offset);
 			transfer.buffer = tc.buf.share(tc.offset);
-			libusb_submit_transfer(transfer);
+			LibUsb.libusb_submit_transfer(transfer);
 		} catch (LibUsbException | RuntimeException e) {
 			logger.catching(e);
 			tc.completed = 1;
@@ -1036,8 +973,8 @@ public class LibFtdi {
 	private static void ftdi_read_data_cb(libusb_transfer transfer, ftdi_transfer_control tc) {
 		readData(transfer, tc);
 		if (tc.offset >= tc.size) tc.completed = 1;
-		else if (transfer.status() == LIBUSB_TRANSFER_CANCELLED)
-			tc.completed().set(LIBUSB_TRANSFER_CANCELLED);
+		else if (transfer.status == LIBUSB_TRANSFER_CANCELLED.value)
+			tc.completed = LIBUSB_TRANSFER_CANCELLED.value;
 		else readMoreData(transfer, tc);
 	}
 
@@ -1065,7 +1002,7 @@ public class LibFtdi {
 		try {
 			transfer.length =
 				Math.min(ftdi.readbuffer_chunksize, readLen(ftdi, tc.size - tc.offset));
-			libusb_submit_transfer(transfer);
+			LibUsb.libusb_submit_transfer(transfer);
 		} catch (LibUsbException | RuntimeException e) {
 			logger.catching(e);
 			tc.completed = 1;
@@ -1077,7 +1014,7 @@ public class LibFtdi {
 	 */
 	private static void freeTransfer(ftdi_transfer_control tc) throws LibUsbException {
 		if (tc == null || tc.transfer == null) return;
-		libusb_free_transfer(tc.transfer);
+		LibUsb.libusb_free_transfer(tc.transfer);
 		tc.transfer = null;
 	}
 
@@ -1107,21 +1044,21 @@ public class LibFtdi {
 		throws LibUsbException {
 		if (tc == null || tc.ftdi == null || tc.ftdi.usb_ctx == null) return;
 		while (tc.completed == 0)
-			tc.completed = libusb_handle_events_timeout_completed(tc.ftdi.usb_ctx, to);
+			tc.completed = LibUsb.libusb_handle_events_timeout_completed(tc.ftdi.usb_ctx, to);
 	}
 
 	private static boolean controlTransferOut(ftdi_context ftdi, ftdi_request_type request,
 		int value, int index) throws LibUsbException {
 		if (ftdi.usb_dev == null) return false;
-		libusb_control_transfer(ftdi.usb_dev, FTDI_DEVICE_OUT_REQTYPE, request.value, value, index,
-			ftdi.usb_write_timeout);
+		LibUsb.libusb_control_transfer(ftdi.usb_dev, FTDI_DEVICE_OUT_REQTYPE, request.value, value,
+			index, ftdi.usb_write_timeout);
 		return true;
 	}
 
 	private static byte[] controlTransferIn(ftdi_context ftdi, ftdi_request_type request, int value,
 		int index, int length) throws LibUsbException {
 		if (ftdi.usb_dev == null) return null;
-		return libusb_control_transfer(ftdi.usb_dev, FTDI_DEVICE_IN_REQTYPE, request.value, value,
-			index, length, ftdi.usb_read_timeout);
+		return LibUsb.libusb_control_transfer(ftdi.usb_dev, FTDI_DEVICE_IN_REQTYPE, request.value,
+			value, index, length, ftdi.usb_read_timeout);
 	}
 }

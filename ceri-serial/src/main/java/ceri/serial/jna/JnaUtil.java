@@ -203,6 +203,20 @@ public class JnaUtil {
 	}
 
 	/**
+	 * Convenience constructor for native long.
+	 */
+	public static NativeLong nlong(long value) {
+		return new NativeLong(value);
+	}
+
+	/**
+	 * Convenience constructor for unsigned native long.
+	 */
+	public static NativeLong unlong(long value) {
+		return new NativeLong(value, true);
+	}
+
+	/**
 	 * Get unsigned value from pointer.
 	 */
 	public static long unlong(Pointer p, int offset) {

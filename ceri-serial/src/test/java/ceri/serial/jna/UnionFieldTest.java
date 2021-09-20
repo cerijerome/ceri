@@ -2,13 +2,13 @@ package ceri.serial.jna;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.serial.jna.JnaTestUtil.assertTestStruct;
+import static ceri.serial.jna.JnaTestData.assertStruct;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import com.sun.jna.Union;
 import ceri.common.data.IntField;
 import ceri.common.function.Accessor;
-import ceri.serial.jna.JnaTestUtil.TestStruct;
+import ceri.serial.jna.JnaTestData.TestStruct;
 
 public class UnionFieldTest {
 
@@ -37,7 +37,7 @@ public class UnionFieldTest {
 		var union = new TestUnion();
 		byName.set(union, new TestStruct(100, null, -1, -2, -3));
 		var ref = ref(union);
-		assertTestStruct(byName.get(ref), 100, null, -1, -2, -3);
+		assertStruct(byName.get(ref), 100, null, -1, -2, -3);
 	}
 
 	@Test
@@ -47,7 +47,7 @@ public class UnionFieldTest {
 		var union = new TestUnion();
 		byClass.set(union, new TestStruct(100, null, -1, -2, -3));
 		var ref = ref(union);
-		assertTestStruct(byClass.get(ref), 100, null, -1, -2, -3);
+		assertStruct(byClass.get(ref), 100, null, -1, -2, -3);
 	}
 
 	@Test

@@ -35,8 +35,9 @@ Man page numbers:
 JNA coding
 ----------
 General:
-- Don't expect new Memory() to be zeroed (esp. in tests)
-- Be careful of gc, dereferenced objects cause pointers to be invalid (esp. in tests)
+- Don't expect new Memory() to be zeroed
+- Dereferencing objects to pointers may cause gc on object (be careful in tests)
+- Callbacks should have hard references to prevent gc
 
 Arrays:
 - PointerUtil.arrayByVal to create contiguous pointer(-type) arrays (void*)
@@ -55,7 +56,6 @@ Structures:
   - struct fields now have correct memory offsets
 - for c struct arg (T** ref) use T.ByRef[] ref = { new T.ByRef(null) };   
 - creating array from struct calls autoRead() on new array items (not original)
-- CUtil.mallocArray to allocate a contiguous array of types/pointers
 
 
 Projects

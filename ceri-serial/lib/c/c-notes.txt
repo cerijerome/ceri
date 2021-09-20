@@ -10,6 +10,10 @@ OSX
 	- ./sys/ioctl.h => ioctl()
 	- ./sys/fcntl.h => open, flags O_RDONLY, ...
 	- ./stdio.h => fopen(), printf(), perror(), ...	
+- C header files under /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+	/System/Library/Frameworks/IOKit.framework/Versions/A/Headers
+	- ./serial/ioss.h
+	
 RPi
 ---
 - C header files under /usr/include/

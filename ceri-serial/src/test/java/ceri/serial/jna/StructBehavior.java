@@ -6,11 +6,12 @@ import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.serial.jna.JnaTestUtil.assertTestStruct;
+import static ceri.serial.jna.JnaTestData.assertEmpty;
+import static ceri.serial.jna.JnaTestData.assertStruct;
 import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Pointer;
-import ceri.serial.jna.JnaTestUtil.TestStruct;
+import ceri.serial.jna.JnaTestData.TestStruct;
 import ceri.serial.jna.Struct.Fields;
 
 public class StructBehavior {
@@ -57,21 +58,21 @@ public class StructBehavior {
 		TestStruct[] array = { new TestStruct(array0[0].getPointer()), null,
 			new TestStruct(array0[2].getPointer()) };
 		Struct.read(array);
-		assertTestStruct(array[0], 0, null, 0, 0, 0);
+		assertStruct(array[0], 0, null, 0, 0, 0);
 		assertEquals(array[1], null);
-		assertTestStruct(array[2], 0, null, 0, 0, 0);
+		assertStruct(array[2], 0, null, 0, 0, 0);
 		//
 		Struct.write(array0, "b");
 		Struct.read(array, "b");
-		assertTestStruct(array[0], 0, null, 1, 0, 0);
+		assertStruct(array[0], 0, null, 1, 0, 0);
 		assertEquals(array[1], null);
-		assertTestStruct(array[2], 0, null, 3, 0, 0);
+		assertStruct(array[2], 0, null, 3, 0, 0);
 		//
 		Struct.write(array0);
 		Struct.read(array);
-		assertTestStruct(array[0], 100, null, 1, 0, 0);
+		assertStruct(array[0], 100, null, 1, 0, 0);
 		assertEquals(array[1], null);
-		assertTestStruct(array[2], 300, null, 3, 0, 0);
+		assertStruct(array[2], 300, null, 3, 0, 0);
 	}
 
 	@Test
@@ -83,8 +84,8 @@ public class StructBehavior {
 		Struct.writeAuto(array0);
 		var array = Struct.readAuto(new TestStruct[] { new TestStruct(array0[0].getPointer()),
 			new TestStruct(array0[1].getPointer()) });
-		assertTestStruct(array[0], 100, null, 1, 0, 0);
-		assertTestStruct(array[1], 0, null, 0, 0, 0);
+		assertStruct(array[0], 100, null, 1, 0, 0);
+		assertStruct(array[1], 0, null, 0, 0, 0);
 	}
 
 	@Test
@@ -95,14 +96,36 @@ public class StructBehavior {
 		TestStruct[] array = { new TestStruct(t0.getPointer()), new TestStruct(t0.getPointer()) };
 		array[1].setAutoRead(false);
 		Struct.readAuto(array);
-		assertTestStruct(array[0], 100, null, 1, 0, 0);
-		assertTestStruct(array[1], 0, null, 0, 0, 0);
+		assertStruct(array[0], 100, null, 1, 0, 0);
+		assertStruct(array[1], 0, null, 0, 0, 0);
 	}
 
 	@Test
 	public void testAdapt() {
 		assertNull(Struct.adapt(null, x -> null));
 		assertNull(Struct.adapt(new TestStruct(), x -> null));
+	}
+
+	@Test
+	public void testMallocArray() {
+		assertArray(Struct.mallocArray(TestStruct::new, TestStruct[]::new, 0));
+		TestStruct[] array = Struct.mallocArray(TestStruct::new, TestStruct[]::new, 3);
+		assertEquals(array[1].getPointer(), array[0].getPointer().share(TestStruct.SIZE));
+		assertEquals(array[2].getPointer(), array[1].getPointer().share(TestStruct.SIZE));
+		assertEquals(array.length, 3);
+	}
+
+	@Test
+	public void testCallocArray() {
+		assertArray(Struct.callocArray(TestStruct::new, TestStruct[]::new, 0));
+		TestStruct[] array = Struct.callocArray(TestStruct::new, TestStruct[]::new, 3);
+		assertEquals(array[1].getPointer(), array[0].getPointer().share(TestStruct.SIZE));
+		assertEquals(array[2].getPointer(), array[1].getPointer().share(TestStruct.SIZE));
+		assertEquals(array.length, 3);
+		Struct.read(array);
+		assertEmpty(array[0]);
+		assertEmpty(array[1]);
+		assertEmpty(array[2]);
 	}
 
 	@Test
@@ -134,7 +157,7 @@ public class StructBehavior {
 		Pointer p = data.structArrayByValPointer(1);
 		data.assertStruct(Struct.byVal(p, 0, TestStruct::new), 1);
 		data.assertStruct(Struct.byVal(p, 1, TestStruct::new), 2);
-		data.assertEmptyStruct(Struct.byVal(p, 2, TestStruct::new)); // from zeroed mem
+		assertEmpty(Struct.byVal(p, 2, TestStruct::new)); // from zeroed mem
 	}
 
 	@Test

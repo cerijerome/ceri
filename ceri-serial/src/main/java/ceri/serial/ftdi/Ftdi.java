@@ -9,10 +9,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
@@ -23,8 +20,8 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_string_descriptors;
 import ceri.serial.ftdi.jna.LibFtdiStream;
-import ceri.serial.ftdi.jna.LibFtdiStream.ftdi_progress_info;
-import ceri.serial.ftdi.jna.LibFtdiStream.ftdi_stream_cb;
+import ceri.serial.ftdi.jna.LibFtdiStream.FTDIProgressInfo;
+import ceri.serial.ftdi.jna.LibFtdiStream.FTDIStreamCallback;
 import ceri.serial.ftdi.jna.LibFtdiUtil;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.libusb.jna.LibUsb;
@@ -43,15 +40,12 @@ public class Ftdi implements Closeable {
 	private final ftdi_context ftdi;
 	private ftdi_string_descriptors descriptors = null;
 	private boolean closed = false;
-	private final Map<Integer, ftdi_stream_cb> streamCallbacks = new ConcurrentHashMap<>();
-	private final AtomicInteger streamCallbackId = new AtomicInteger();
 
 	/**
 	 * Callback to register for streaming events.
 	 */
 	public static interface StreamCallback<T> {
-		/** Return true if finished reading from stream. */
-		boolean event(ByteBuffer buffer, int length, FtdiProgressInfo progress, T userData)
+		void event(ByteBuffer buffer, int length, FtdiProgressInfo progress, T userData)
 			throws IOException;
 	}
 
@@ -233,11 +227,9 @@ public class Ftdi implements Closeable {
 
 	public <T> void readStream(StreamCallback<T> callback, T userData, int packetsPerTransfer,
 		int numTransfers) throws LibUsbException {
-		int callbackId = streamCallbackId.incrementAndGet();
-		ftdi_stream_cb jnaCallback = (buffer, length, progress, user_data) -> streamCallback(buffer,
-			length, progress, callbackId, callback, userData);
-		streamCallbacks.put(callbackId, jnaCallback);
-		LibFtdiStream.ftdi_read_stream(ftdi(), jnaCallback, null, packetsPerTransfer, numTransfers);
+		FTDIStreamCallback<T> ftdiCb = (buffer, length, progress,
+			user_data) -> streamCallback(buffer, length, progress, callback, userData);
+		LibFtdiStream.ftdi_readstream(ftdi(), ftdiCb, null, packetsPerTransfer, numTransfers);
 	}
 
 	public void readChunkSize(int chunkSize) throws LibUsbException {
@@ -297,16 +289,13 @@ public class Ftdi implements Closeable {
 		LogUtil.close(logger, ftdi, LibFtdi::ftdi_free);
 	}
 
-	private <T> int streamCallback(Pointer buffer, int length, ftdi_progress_info progress,
-		int callbackId, StreamCallback<T> callback, T userData) {
+	private <T> void streamCallback(Pointer buffer, int length, FTDIProgressInfo progress,
+		StreamCallback<T> callback, T userData) {
 		try {
 			ByteBuffer b = buffer.getByteBuffer(0, length);
-			boolean result = callback.event(b, length, FtdiProgressInfo.of(progress), userData);
-			if (result) streamCallbacks.remove(callbackId);
-			return result ? 1 : 0;
+			callback.event(b, length, FtdiProgressInfo.of(progress), userData);
 		} catch (IOException | RuntimeException e) {
 			logger.catching(e);
-			return 0;
 		}
 	}
 
