@@ -17,6 +17,7 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import com.sun.jna.Union;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.reflect.AnnotationUtil;
 import ceri.common.reflect.ReflectUtil;
@@ -63,6 +64,30 @@ public abstract class Struct extends Structure {
 		private Align(int value) {
 			this.value = value;
 		}
+	}
+
+	/**
+	 * Set active union field by name.
+	 */
+	public static <U extends Union> U type(U t, String name) {
+		t.setType(name);
+		return t;
+	}
+	
+	/**
+	 * Set active union field by type.
+	 */
+	public static <U extends Union> U type(U t, Class<?> type) {
+		t.setType(type);
+		return t;
+	}
+
+	/**
+	 * Set active union field and value.
+	 */
+	public static <U extends Union> U typedValue(U t, Object value) {
+		t.setTypedValue(value);
+		return t;
 	}
 
 	/**

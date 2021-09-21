@@ -19,6 +19,7 @@ import ceri.common.test.FileTestHelper;
 import ceri.common.util.OsUtil;
 import ceri.serial.clib.OpenFlag;
 import ceri.serial.clib.Seek;
+import ceri.serial.clib.jna.CLibNative.sighandler_t;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.test.JnaTestUtil;
 
@@ -149,6 +150,17 @@ public class CLibTest {
 			int fd = CLib.open("test", 0);
 			lib.lseek.autoResponses(3);
 			assertThrown(() -> CLib.position(fd, 2));
+		});
+	}
+
+	@Test
+	public void testSignal() throws CException {
+		TestCLibNative.exec(lib -> {
+			sighandler_t cb = i -> {};
+			CLib.signal(15, cb);
+			lib.signal.assertAuto(List.of(15, cb));
+			CLib.raise(15);
+			lib.raise.assertAuto(15);
 		});
 	}
 

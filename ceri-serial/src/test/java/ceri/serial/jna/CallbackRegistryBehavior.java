@@ -14,8 +14,8 @@ public class CallbackRegistryBehavior {
 
 		void invoke(String s, int i);
 
-		public static TestCallback register(TestCallback cb) {
-			return registry.register(id -> (s, i) -> {
+		public static TestCallback register(int n, TestCallback cb) {
+			return registry.register(n, id -> (s, i) -> {
 				registry.remove(id);
 				cb.invoke(s, i);
 			});
@@ -31,13 +31,24 @@ public class CallbackRegistryBehavior {
 	public void shouldUnregisterOnCallbackCompletion() {
 		Captor<List<?>> captor = Captor.of();
 		assertEquals(TestCallback.registry.size(), 0);
-		var cb = TestCallback.register((s, i) -> captor.accept(List.of(s, i)));
+		var cb = TestCallback.register(1, (s, i) -> captor.accept(List.of(s, i)));
 		assertEquals(TestCallback.registry.size(), 1);
 		call(cb, "test1", 100);
 		assertEquals(TestCallback.registry.size(), 0);
 		call(cb, "test2", 200);
 		assertEquals(TestCallback.registry.size(), 0);
 		captor.verify(List.of("test1", 100), List.of("test2", 200));
+	}
+
+	@Test
+	public void shouldUnregisterOnZeroRefs() {
+		Captor<List<?>> captor = Captor.of();
+		var cb = TestCallback.register(3, (s, i) -> captor.accept(List.of(s, i)));
+		call(cb, "test1", 100);
+		call(cb, "test2", 200);
+		assertEquals(TestCallback.registry.size(), 1);
+		call(cb, "test2", 200);
+		assertEquals(TestCallback.registry.size(), 0);
 	}
 
 	@Test

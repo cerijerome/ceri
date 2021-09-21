@@ -4,6 +4,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import com.sun.jna.IntegerType;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.PointerByReference;
@@ -14,6 +15,17 @@ import com.sun.jna.ptr.PointerByReference;
 public class PointerUtil {
 
 	private PointerUtil() {}
+
+	@SuppressWarnings("serial")
+	public static class Int extends IntegerType {
+		public Int() {
+			this(0);
+		}
+
+		public Int(long value) {
+			super(Pointer.SIZE, value);
+		}
+	}
 
 	/**
 	 * Returns the native peer for a pointer, or 0L if null. Use with caution.

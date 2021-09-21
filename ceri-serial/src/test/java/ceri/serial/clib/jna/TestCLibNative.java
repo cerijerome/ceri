@@ -34,6 +34,9 @@ public class TestCLibNative implements CLibNative {
 	public final CallSync.Apply<List<?>, Integer> write = CallSync.function(null, 0);
 	// List<?> = Fd f, int offset, int whence
 	public final CallSync.Apply<List<?>, Integer> lseek = CallSync.function(null, 0);
+	// List<?> = int signal, sighandler_t handler
+	public final CallSync.Apply<List<?>, sighandler_t> signal = CallSync.function(null, i -> {});
+	public final CallSync.Apply<Integer, Integer> raise = CallSync.function(null, 0);
 	// List<?> = Fd f, int request, Object... objs
 	public final CallSync.Apply<List<?>, Integer> ioctl = CallSync.function(null, 0);
 	// List<?> = Fd f, Pointer termios
@@ -128,6 +131,16 @@ public class TestCLibNative implements CLibNative {
 	@Override
 	public int lseek(int fd, int offset, int whence) throws LastErrorException {
 		return lseek.apply(List.of(fd(fd), offset, whence));
+	}
+
+	@Override
+	public sighandler_t signal(int signum, sighandler_t handler) {
+		return signal.apply(List.of(signum, handler));
+	}
+
+	@Override
+	public int raise(int sig) {
+		return raise.apply(sig);
 	}
 
 	@Override

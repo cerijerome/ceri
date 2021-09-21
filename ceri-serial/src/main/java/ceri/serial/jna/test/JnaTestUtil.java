@@ -2,11 +2,14 @@ package ceri.serial.jna.test;
 
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import java.util.HashSet;
+import java.util.Set;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.math.MathUtil;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.PointerUtil;
 import ceri.serial.jna.Struct;
@@ -17,6 +20,39 @@ import ceri.serial.jna.Struct;
 public class JnaTestUtil {
 
 	private JnaTestUtil() {}
+
+	/**
+	 * Provides cached memory allocation to prevent gc in tests.
+	 */
+	public static class MemCache {
+		private final Set<Memory> cache = new HashSet<>();
+
+		private MemCache() {}
+
+		public Memory mallocBytes(int... bytes) {
+			return cache(JnaUtil.mallocBytes(bytes));
+		}
+
+		public Memory calloc(int size) {
+			return cache(JnaUtil.calloc(size));
+		}
+
+		public void clear() {
+			cache.clear();
+		}
+
+		private Memory cache(Memory m) {
+			cache.add(m);
+			return m;
+		}
+	}
+
+	/**
+	 * Provides cached memory allocation to prevent gc in tests.
+	 */
+	public static MemCache memCache() {
+		return new MemCache();
+	}
 
 	/**
 	 * Checks remaining memory from offset matches bytes.
@@ -80,4 +116,15 @@ public class JnaTestUtil {
 		return deref(p, 0);
 	}
 
+	/**
+	 * Allocate a randomized memory array and try to force gc.
+	 */
+	public static Memory[] workMemory(int n, int min, int max) {
+		System.gc();
+		Memory[] m = new Memory[n];
+		for (int i = 0; i < n; i++)
+			m[i] = JnaUtil.calloc(MathUtil.random(min, max));
+		System.gc();
+		return m;
+	}
 }

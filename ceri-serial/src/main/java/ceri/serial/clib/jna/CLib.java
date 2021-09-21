@@ -10,6 +10,7 @@ import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.util.OsUtil;
 import ceri.serial.clib.OpenFlag;
+import ceri.serial.clib.jna.CLibNative.sighandler_t;
 import ceri.serial.clib.jna.CLibNative.size_t;
 import ceri.serial.jna.JnaLibrary;
 import ceri.serial.jna.JnaUtil;
@@ -140,6 +141,33 @@ public class CLib {
 		int size = lseek(fd, 0, SEEK_END);
 		position(fd, pos);
 		return size;
+	}
+
+	/* signal.h */
+
+	public static final int SIGHUP = 1;
+	public static final int SIGINT = 2;
+	public static final int SIGQUIT = 3;
+	public static final int SIGILL = 4;
+	public static final int SIGTRAP = 5;
+	public static final int SIGABRT = 6;
+	public static final int SIGIOT = 6;
+	public static final int SIGBUS;
+	public static final int SIGFPE = 8;
+	public static final int SIGKILL = 9;
+	public static final int SIGUSR1;
+	public static final int SIGSEGV = 11;
+	public static final int SIGUSR2;
+	public static final int SIGPIPE = 13;
+	public static final int SIGALRM = 14;
+	public static final int SIGTERM = 15;
+
+	public static sighandler_t signal(int signum, sighandler_t handler) throws CException {
+		return caller.callType(() -> lib().signal(signum, handler), "signal", signum, handler);
+	}
+
+	public static void raise(int sig) throws CException {
+		caller.verify(() -> lib().raise(sig), "raise", sig);
 	}
 
 	/* fcntl.h */
@@ -398,6 +426,10 @@ public class CLib {
 
 	static {
 		if (OsUtil.IS_MAC) {
+			/* signal.h */
+			SIGBUS = 10;
+			SIGUSR1 = 30;
+			SIGUSR2 = 31;
 			/* fcntl.h */
 			O_CREAT = 0x200;
 			O_EXCL = 0x800;
@@ -419,6 +451,10 @@ public class CLib {
 			TIOCSBRK = _IO('t', 123); // 0x2000747b
 			TIOCCBRK = _IO('t', 122); // 0x2000747a
 		} else {
+			/* signal.h */
+			SIGBUS = 7;
+			SIGUSR1 = 10;
+			SIGUSR2 = 12;
 			/* fcntl.h */
 			O_CREAT = 0x40;
 			O_EXCL = 0x80;

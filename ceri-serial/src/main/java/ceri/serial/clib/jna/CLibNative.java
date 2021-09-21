@@ -1,5 +1,6 @@
 package ceri.serial.clib.jna;
 
+import com.sun.jna.Callback;
 import com.sun.jna.IntegerType;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Library;
@@ -47,6 +48,19 @@ public interface CLibNative extends Library {
 
 	// off_t lseek(int fd, off_t offset, int whence)
 	int lseek(int fd, int offset, int whence) throws LastErrorException;
+
+	/* signal.h */
+
+	// void (*sighandler_t)(int)
+	public static interface sighandler_t extends Callback {
+		void invoke(int signum);
+	}
+
+	// sighandler_t signal(int signum, sighandler_t handler)
+	sighandler_t signal(int signum, sighandler_t handler);
+
+	// int raise(int sig)
+	int raise(int sig);
 
 	/* fcntl.h */
 

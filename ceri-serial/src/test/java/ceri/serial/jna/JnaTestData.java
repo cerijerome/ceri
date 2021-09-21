@@ -3,14 +3,13 @@ package ceri.serial.jna;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
-import java.util.HashSet;
-import java.util.Set;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.collection.ArrayUtil;
 import ceri.serial.jna.Struct.Fields;
 import ceri.serial.jna.test.JnaTestUtil;
+import ceri.serial.jna.test.JnaTestUtil.MemCache;
 
 /**
  * Provides JNA test data. Prevents gc that may unexpectedly cause a test to fail.
@@ -27,7 +26,7 @@ import ceri.serial.jna.test.JnaTestUtil;
 public class JnaTestData {
 	private static final int ARRAY_SIZE = 3;
 	private static final int I_MULTIPLIER = 0x1111;
-	private final Set<Memory> memCache = new HashSet<>(); // prevent gc on memory
+	private final MemCache mc = JnaTestUtil.memCache(); // prevent gc on memory
 	public final Memory[] memoryArrayByVal;
 	public final TestStruct[] structArrayByVal;
 	public final Pointer[] pointerArrayByVal;
@@ -137,7 +136,7 @@ public class JnaTestData {
 	 * Create contiguous memory array.
 	 */
 	private Memory[] memoryArrayByVal() {
-		Memory m = m(ARRAY_SIZE * TestStruct.BYTES);
+		Memory m = mc.calloc(ARRAY_SIZE * TestStruct.BYTES);
 		for (int i = 0; i < m.size(); i++)
 			m.setByte(i, (byte) -(i + 1));
 		Memory[] array = new Memory[ARRAY_SIZE];
@@ -151,7 +150,7 @@ public class JnaTestData {
 	 */
 	private TestStruct[] structArrayByVal(Memory[] ps) {
 		TestStruct[] array = new TestStruct[ARRAY_SIZE];
-		Memory m = m((array.length + 1) * TestStruct.SIZE);
+		Memory m = mc.calloc((array.length + 1) * TestStruct.SIZE);
 		for (int i = 0; i < array.length; i++) {
 			Pointer p = m.share(i * TestStruct.SIZE);
 			array[i] = new TestStruct(p);
@@ -167,7 +166,7 @@ public class JnaTestData {
 	 */
 	private Pointer[] pointerArrayByVal(TestStruct[] ts) {
 		Pointer[] array = new Pointer[ts.length];
-		Memory m = m((array.length + 1) * Pointer.SIZE); // null-terminated
+		Memory m = mc.calloc((array.length + 1) * Pointer.SIZE); // null-terminated
 		for (int i = 0; i < array.length; i++) {
 			array[i] = m.share(i * Pointer.SIZE);
 			array[i].setPointer(0, ts[i].getPointer());
@@ -175,12 +174,4 @@ public class JnaTestData {
 		return array;
 	}
 
-	/**
-	 * Allocate memory and save reference to avoid gc.
-	 */
-	private Memory m(int size) {
-		Memory m = JnaUtil.calloc(size);
-		memCache.add(m);
-		return m;
-	}
 }

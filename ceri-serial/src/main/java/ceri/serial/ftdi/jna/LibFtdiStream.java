@@ -52,7 +52,6 @@ public class LibFtdiStream {
 
 	private static class FTDIStreamState<T> {
 		public FTDIStreamCallback<T> callback;
-		public libusb_transfer_cb_fn transferCb;
 		public T userdata;
 		public int packetsize;
 		public int activity;
@@ -102,7 +101,6 @@ public class LibFtdiStream {
 		int packetSize, int activity) {
 		FTDIStreamState<T> state = new FTDIStreamState<>();
 		state.callback = callback;
-		state.transferCb = t -> ftdi_readstream_cb(t, state); // ref to prevent gc
 		state.userdata = userdata;
 		state.packetsize = packetSize;
 		state.activity = activity;
@@ -121,8 +119,9 @@ public class LibFtdiStream {
 		for (int i = 0; i < numTransfers; i++) {
 			libusb_transfer transfer = LibUsb.libusb_alloc_transfer(0);
 			Memory m = new Memory(bufferSize);
+			var callback = libusb_transfer_cb_fn.register(1, t -> ftdi_readstream_cb(t, state));
 			LibUsb.libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.out_ep, m, bufferSize,
-				state.transferCb, null, 0);
+				callback, null, 0);
 			transfer.status = -1;
 			LibUsb.libusb_submit_transfer(transfer);
 		}

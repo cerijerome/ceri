@@ -52,6 +52,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_interface;
 import ceri.serial.libusb.jna.LibUsb.libusb_interface_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
+import ceri.serial.libusb.jna.LibUsb.libusb_transfer_cb_fn;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder;
@@ -69,8 +70,6 @@ public class LibFtdi {
 		LIBUSB_RECIPIENT_DEVICE, LIBUSB_REQUEST_TYPE_VENDOR, LIBUSB_ENDPOINT_OUT);
 	private static final int FTDI_DEVICE_IN_REQTYPE = LibUsbUtil.requestTypeValue( // 0xc0
 		LIBUSB_RECIPIENT_DEVICE, LIBUSB_REQUEST_TYPE_VENDOR, LIBUSB_ENDPOINT_IN);
-	// private static final libusb_transfer_cb_fn ftdi_write_data_cb = LibFtdi::ftdi_write_data_cb;
-	// private static final libusb_transfer_cb_fn ftdi_read_data_cb = LibFtdi::ftdi_read_data_cb;
 	private static final int CHUNKSIZE_DEF = 4096;
 	private static final int TIMEOUT_MS_DEF = 5000;
 	private static final int FTDI_MAX_EEPROM_SIZE = 256;
@@ -753,9 +752,10 @@ public class LibFtdi {
 		libusb_transfer transfer = LibUsb.libusb_alloc_transfer(0);
 		try {
 			ftdi_transfer_control tc = transferControl(ftdi, buf, size, transfer);
+			var callback = libusb_transfer_cb_fn.register(1, t -> ftdi_write_data_cb(t, tc));
 			int write_size = Math.min(size, ftdi.writebuffer_chunksize);
 			LibUsb.libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.in_ep, buf, write_size,
-				xfer -> ftdi_write_data_cb(xfer, tc), null, ftdi.usb_write_timeout);
+				callback, null, ftdi.usb_write_timeout);
 			LibUsb.libusb_submit_transfer(transfer);
 			tc.transfer.setAutoSynch(false); // don't read/write from now on
 			return tc;
@@ -771,9 +771,10 @@ public class LibFtdi {
 		libusb_transfer transfer = LibUsb.libusb_alloc_transfer(0);
 		try {
 			ftdi_transfer_control tc = transferControl(ftdi, buf, size, transfer);
+			var callback = libusb_transfer_cb_fn.register(1, t -> ftdi_read_data_cb(t, tc));
 			int read_size = readLen(ftdi, size);
 			LibUsb.libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.out_ep, ftdi.readbuffer,
-				read_size, xfer -> ftdi_read_data_cb(xfer, tc), null, ftdi.usb_read_timeout);
+				read_size, callback, null, ftdi.usb_read_timeout);
 			LibUsb.libusb_submit_transfer(transfer);
 			tc.transfer.setAutoSynch(false); // don't read/write from now on
 			return tc;

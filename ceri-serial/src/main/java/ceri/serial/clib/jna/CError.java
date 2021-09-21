@@ -1,29 +1,14 @@
 package ceri.serial.clib.jna;
 
+import java.util.stream.Stream;
 import ceri.common.data.TypeTranscoder;
+import ceri.common.util.OsUtil;
 
 /**
- * Standard error types and default codes. These can be overridden per OS:
- * 
- * <pre>
- * OVERRIDE(Os.OVERRIDE),
- * 
- * private static class Os {
- * 	private static final int OVERRIDE;
- * 	private Os() {}
- * 	static {
- * 		if (OsUtil.IS_MAC) {
- * 			OVERRIDE = NNN;
- * 		} else {
- * 			OVERRIDE = NNN;
- * 		}
- * 	}
- * }
- * </pre>
+ * Error types and codes.
  */
-
 public enum CError {
-	
+
 	/* errno-base.h */
 
 	/** Operation not permitted */
@@ -47,7 +32,7 @@ public enum CError {
 	/** No child processes */
 	ECHILD(10),
 	/** Try again */
-	EAGAIN(11),
+	EAGAIN(Os.EAGAIN), // (EWOULDBLOCK)
 	/** Out of memory */
 	ENOMEM(12),
 	/** Permission denied */
@@ -98,203 +83,228 @@ public enum CError {
 	/* errno.h */
 
 	/** Resource deadlock would occur */
-	EDEADLK(35),
+	EDEADLK(Os.EDEADLK), // (EDEADLOCK)
 	/** File name too long */
-	ENAMETOOLONG(36),
+	ENAMETOOLONG(Os.ENAMETOOLONG),
 	/** No record locks available */
-	ENOLCK(37),
+	ENOLCK(Os.ENOLCK),
 	/** Function not implemented */
-	ENOSYS(38),
+	ENOSYS(Os.ENOSYS),
 	/** Directory not empty */
-	ENOTEMPTY(39),
+	ENOTEMPTY(Os.ENOTEMPTY),
 	/** Too many symbolic links encountered */
-	ELOOP(40),
-	/* Operation would block */
-	// EWOULDBLOCK(EAGAIN.code),
+	ELOOP(Os.ELOOP),
 	/** No message of desired type */
-	ENOMSG(42),
+	ENOMSG(Os.ENOMSG),
 	/** Identifier removed */
-	EIDRM(43),
+	EIDRM(Os.EIDRM),
 	/** Channel number out of range */
-	ECHRNG(44),
+	ECHRNG(Os.ECHRNG),
 	/** Level 2 not synchronized */
-	EL2NSYNC(45),
+	EL2NSYNC(Os.EL2NSYNC),
 	/** Level 3 halted */
-	EL3HLT(46),
+	EL3HLT(Os.EL3HLT),
 	/** Level 3 reset */
-	EL3RST(47),
+	EL3RST(Os.EL3RST),
 	/** Link number out of range */
-	ELNRNG(48),
+	ELNRNG(Os.ELNRNG),
 	/** Protocol driver not attached */
-	EUNATCH(49),
+	EUNATCH(Os.EUNATCH),
 	/** No CSI structure available */
-	ENOCSI(50),
+	ENOCSI(Os.ENOCSI),
 	/** Level 2 halted */
-	EL2HLT(51),
+	EL2HLT(Os.EL2HLT),
 	/** Invalid exchange */
-	EBADE(52),
+	EBADE(Os.EBADE),
 	/** Invalid request descriptor */
-	EBADR(53),
+	EBADR(Os.EBADR),
 	/** Exchange full */
-	EXFULL(54),
+	EXFULL(Os.EXFULL),
 	/** No anode */
-	ENOANO(55),
+	ENOANO(Os.ENOANO),
 	/** Invalid request code */
-	EBADRQC(56),
+	EBADRQC(Os.EBADRQC),
 	/** Invalid slot */
-	EBADSLT(57),
-	/* Resource deadlock would occur */
-	// EDEADLOCK(EDEADLK.code),
+	EBADSLT(Os.EBADSLT),
 	/** Bad font file format */
-	EBFONT(59),
+	EBFONT(Os.EBFONT),
 	/** Device not a stream */
-	ENOSTR(60),
+	ENOSTR(Os.ENOSTR),
 	/** No data available */
-	ENODATA(61),
+	ENODATA(Os.ENODATA),
 	/** Timer expired */
-	ETIME(62),
+	ETIME(Os.ETIME),
 	/** Out of streams resources */
-	ENOSR(63),
+	ENOSR(Os.ENOSR),
 	/** Machine is not on the network */
-	ENONET(64),
+	ENONET(Os.ENONET),
 	/** Package not installed */
-	ENOPKG(65),
+	ENOPKG(Os.ENOPKG),
 	/** Object is remote */
-	EREMOTE(66),
+	EREMOTE(Os.EREMOTE),
 	/** Link has been severed */
-	ENOLINK(67),
+	ENOLINK(Os.ENOLINK),
 	/** Advertise error */
-	EADV(68),
+	EADV(Os.EADV),
 	/** Srmount error */
-	ESRMNT(69),
+	ESRMNT(Os.ESRMNT),
 	/** Communication error on send */
-	ECOMM(70),
+	ECOMM(Os.ECOMM),
 	/** Protocol error */
-	EPROTO(71),
+	EPROTO(Os.EPROTO),
 	/** Multi-hop attempted */
-	EMULTIHOP(72),
+	EMULTIHOP(Os.EMULTIHOP),
 	/** RFS specific error */
-	EDOTDOT(73),
+	EDOTDOT(Os.EDOTDOT),
 	/** Not a data message */
-	EBADMSG(74),
+	EBADMSG(Os.EBADMSG),
 	/** Value too large for defined data type */
-	EOVERFLOW(75),
+	EOVERFLOW(Os.EOVERFLOW),
 	/** Name not unique on network */
-	ENOTUNIQ(76),
+	ENOTUNIQ(Os.ENOTUNIQ),
 	/** File descriptor in bad state */
-	EBADFD(77),
+	EBADFD(Os.EBADFD),
 	/** Remote address changed */
-	EREMCHG(78),
+	EREMCHG(Os.EREMCHG),
 	/** Can not access a needed shared library */
-	ELIBACC(79),
+	ELIBACC(Os.ELIBACC),
 	/** Accessing a corrupted shared library */
-	ELIBBAD(80),
+	ELIBBAD(Os.ELIBBAD),
 	/** .lib section in a.out corrupted */
-	ELIBSCN(81),
+	ELIBSCN(Os.ELIBSCN),
 	/** Attempting to link in too many shared libraries */
-	ELIBMAX(82),
+	ELIBMAX(Os.ELIBMAX),
 	/** Cannot exec a shared library directly */
-	ELIBEXEC(83),
+	ELIBEXEC(Os.ELIBEXEC),
 	/** Illegal byte sequence */
-	EILSEQ(84),
+	EILSEQ(Os.EILSEQ),
 	/** Interrupted system call should be restarted */
-	ERESTART(85),
+	ERESTART(Os.ERESTART),
 	/** Streams pipe error */
-	ESTRPIPE(86),
+	ESTRPIPE(Os.ESTRPIPE),
 	/** Too many users */
-	EUSERS(87),
+	EUSERS(Os.EUSERS),
 	/** Socket operation on non-socket */
-	ENOTSOCK(88),
+	ENOTSOCK(Os.ENOTSOCK),
 	/** Destination address required */
-	EDESTADDRREQ(89),
+	EDESTADDRREQ(Os.EDESTADDRREQ),
 	/** Message too long */
-	EMSGSIZE(90),
+	EMSGSIZE(Os.EMSGSIZE),
 	/** Protocol wrong type for socket */
-	EPROTOTYPE(91),
+	EPROTOTYPE(Os.EPROTOTYPE),
 	/** Protocol not available */
-	ENOPROTOOPT(92),
+	ENOPROTOOPT(Os.ENOPROTOOPT),
 	/** Protocol not supported */
-	EPROTONOSUPPORT(93),
+	EPROTONOSUPPORT(Os.EPROTONOSUPPORT),
 	/** Socket type not supported */
-	ESOCKTNOSUPPORT(94),
+	ESOCKTNOSUPPORT(Os.ESOCKTNOSUPPORT),
 	/** Operation not supported on transport endpoint */
-	EOPNOTSUPP(95),
+	EOPNOTSUPP(Os.EOPNOTSUPP),
+	/** Operation not supported */
+	ENOTSUP(Os.ENOTSUP),
 	/** Protocol family not supported */
-	EPFNOSUPPORT(96),
+	EPFNOSUPPORT(Os.EPFNOSUPPORT),
 	/** Address family not supported by protocol */
-	EAFNOSUPPORT(97),
+	EAFNOSUPPORT(Os.EAFNOSUPPORT),
 	/** Address already in use */
-	EADDRINUSE(98),
+	EADDRINUSE(Os.EADDRINUSE),
 	/** Cannot assign requested address */
-	EADDRNOTAVAIL(99),
+	EADDRNOTAVAIL(Os.EADDRNOTAVAIL),
 	/** Network is down */
-	ENETDOWN(100),
+	ENETDOWN(Os.ENETDOWN),
 	/** Network is unreachable */
-	ENETUNREACH(101),
+	ENETUNREACH(Os.ENETUNREACH),
 	/** Network dropped connection because of reset */
-	ENETRESET(102),
+	ENETRESET(Os.ENETRESET),
 	/** Software caused connection abort */
-	ECONNABORTED(103),
+	ECONNABORTED(Os.ECONNABORTED),
 	/** Connection reset by peer */
-	ECONNRESET(104),
+	ECONNRESET(Os.ECONNRESET),
 	/** No buffer space available */
-	ENOBUFS(105),
+	ENOBUFS(Os.ENOBUFS),
 	/** Transport endpoint is already connected */
-	EISCONN(106),
+	EISCONN(Os.EISCONN),
 	/** Transport endpoint is not connected */
-	ENOTCONN(107),
+	ENOTCONN(Os.ENOTCONN),
 	/** Cannot send after transport endpoint shutdown */
-	ESHUTDOWN(108),
+	ESHUTDOWN(Os.ESHUTDOWN),
 	/** Too many references: cannot splice */
-	ETOOMANYREFS(109),
+	ETOOMANYREFS(Os.ETOOMANYREFS),
 	/** Connection timed out */
-	ETIMEDOUT(110),
+	ETIMEDOUT(Os.ETIMEDOUT),
 	/** Connection refused */
-	ECONNREFUSED(111),
+	ECONNREFUSED(Os.ECONNREFUSED),
 	/** Host is down */
-	EHOSTDOWN(112),
+	EHOSTDOWN(Os.EHOSTDOWN),
 	/** No route to host */
-	EHOSTUNREACH(113),
+	EHOSTUNREACH(Os.EHOSTUNREACH),
 	/** Operation already in progress */
-	EALREADY(114),
+	EALREADY(Os.EALREADY),
 	/** Operation now in progress */
-	EINPROGRESS(115),
+	EINPROGRESS(Os.EINPROGRESS),
 	/** Stale NFS file handle */
-	ESTALE(116),
+	ESTALE(Os.ESTALE),
 	/** Structure needs cleaning */
-	EUCLEAN(117),
+	EUCLEAN(Os.EUCLEAN),
 	/** Not a XENIX named type file */
-	ENOTNAM(118),
+	ENOTNAM(Os.ENOTNAM),
 	/** No XENIX semaphores available */
-	ENAVAIL(119),
+	ENAVAIL(Os.ENAVAIL),
 	/** Is a named type file */
-	EISNAM(120),
+	EISNAM(Os.EISNAM),
 	/** Remote I/O error */
-	EREMOTEIO(121),
+	EREMOTEIO(Os.EREMOTEIO),
 	/** Quota exceeded */
-	EDQUOT(122),
+	EDQUOT(Os.EDQUOT),
 	/** No medium found */
-	ENOMEDIUM(123),
+	ENOMEDIUM(Os.ENOMEDIUM),
 	/** Wrong medium type */
-	EMEDIUMTYPE(124),
+	EMEDIUMTYPE(Os.EMEDIUMTYPE),
 	/** Operation Canceled */
-	ECANCELED(125),
+	ECANCELED(Os.ECANCELED),
 	/** Required key not available */
-	ENOKEY(126),
+	ENOKEY(Os.ENOKEY),
 	/** Key has expired */
-	EKEYEXPIRED(127),
+	EKEYEXPIRED(Os.EKEYEXPIRED),
 	/** Key has been revoked */
-	EKEYREVOKED(128),
+	EKEYREVOKED(Os.EKEYREVOKED),
 	/** Key was rejected by service */
-	EKEYREJECTED(129),
+	EKEYREJECTED(Os.EKEYREJECTED),
 	/** For robust mutexes */
 	/** Owner died */
-	EOWNERDEAD(130),
+	EOWNERDEAD(Os.EOWNERDEAD),
 	/** State not recoverable */
-	ENOTRECOVERABLE(131);
+	ENOTRECOVERABLE(Os.ENOTRECOVERABLE),
+	/** Operation not possible due to RF-kill */
+	ERFKILL(Os.ERFKILL),
+	/** Memory page has hardware error */
+	EHWPOISON(Os.EHWPOISON),
 
-	private static final TypeTranscoder<CError> xcoder =
-		TypeTranscoder.of(t -> t.code, CError.class);
+	/* Mac only */
+
+	/** Authentication error */
+	EAUTH(Os.EAUTH),
+	/** RPC struct is bad */
+	EBADRPC(Os.EBADRPC),
+	/** Inappropriate file type or format */
+	EFTYPE(Os.EFTYPE),
+	/** Need authenticator */
+	ENEEDAUTH(Os.ENEEDAUTH),
+	/** Attribute not found */
+	ENOATTR(Os.ENOATTR),
+	/** Too many processes */
+	EPROCLIM(Os.EPROCLIM),
+	/** Bad procedure for program */
+	EPROCUNAVAIL(Os.EPROCUNAVAIL),
+	/** Program version wrong */
+	EPROGMISMATCH(Os.EPROGMISMATCH),
+	/** RPC prog. not avail */
+	EPROGUNAVAIL(Os.EPROGUNAVAIL),
+	/** RPC version wrong */
+	ERPCMISMATCH(Os.ERPCMISMATCH);
+
+	private static final TypeTranscoder<CError> xcoder = TypeTranscoder.of(t -> t.code,
+		Stream.of(CError.values()).filter(t -> t.code != Os.UNDEFINED).toList());
 	public final int code;
 
 	public static CError from(int code) {
@@ -303,5 +313,349 @@ public enum CError {
 
 	private CError(int code) {
 		this.code = code;
+	}
+
+	public boolean undefined() {
+		return code == Os.UNDEFINED;
+	}
+	
+	private static class Os {
+		private static final int UNDEFINED = -1;
+		private static final int EAGAIN;
+		private static final int EDEADLK;
+		private static final int ENAMETOOLONG;
+		private static final int ENOLCK;
+		private static final int ENOSYS;
+		private static final int ENOTEMPTY;
+		private static final int ELOOP;
+		private static final int ENOMSG;
+		private static final int EIDRM;
+		private static final int ECHRNG;
+		private static final int EL2NSYNC;
+		private static final int EL3HLT;
+		private static final int EL3RST;
+		private static final int ELNRNG;
+		private static final int EUNATCH;
+		private static final int ENOCSI;
+		private static final int EL2HLT;
+		private static final int EBADE;
+		private static final int EBADR;
+		private static final int EXFULL;
+		private static final int ENOANO;
+		private static final int EBADRQC;
+		private static final int EBADSLT;
+		private static final int EBFONT;
+		private static final int ENOSTR;
+		private static final int ENODATA;
+		private static final int ETIME;
+		private static final int ENOSR;
+		private static final int ENONET;
+		private static final int ENOPKG;
+		private static final int EREMOTE;
+		private static final int ENOLINK;
+		private static final int EADV;
+		private static final int ESRMNT;
+		private static final int ECOMM;
+		private static final int EPROTO;
+		private static final int EMULTIHOP;
+		private static final int EDOTDOT;
+		private static final int EBADMSG;
+		private static final int EOVERFLOW;
+		private static final int ENOTUNIQ;
+		private static final int EBADFD;
+		private static final int EREMCHG;
+		private static final int ELIBACC;
+		private static final int ELIBBAD;
+		private static final int ELIBSCN;
+		private static final int ELIBMAX;
+		private static final int ELIBEXEC;
+		private static final int EILSEQ;
+		private static final int ERESTART;
+		private static final int ESTRPIPE;
+		private static final int EUSERS;
+		private static final int ENOTSOCK;
+		private static final int EDESTADDRREQ;
+		private static final int EMSGSIZE;
+		private static final int EPROTOTYPE;
+		private static final int ENOPROTOOPT;
+		private static final int EPROTONOSUPPORT;
+		private static final int ESOCKTNOSUPPORT;
+		private static final int EOPNOTSUPP;
+		private static final int ENOTSUP;
+		private static final int EPFNOSUPPORT;
+		private static final int EAFNOSUPPORT;
+		private static final int EADDRINUSE;
+		private static final int EADDRNOTAVAIL;
+		private static final int ENETDOWN;
+		private static final int ENETUNREACH;
+		private static final int ENETRESET;
+		private static final int ECONNABORTED;
+		private static final int ECONNRESET;
+		private static final int ENOBUFS;
+		private static final int EISCONN;
+		private static final int ENOTCONN;
+		private static final int ESHUTDOWN;
+		private static final int ETOOMANYREFS;
+		private static final int ETIMEDOUT;
+		private static final int ECONNREFUSED;
+		private static final int EHOSTDOWN;
+		private static final int EHOSTUNREACH;
+		private static final int EALREADY;
+		private static final int EINPROGRESS;
+		private static final int ESTALE;
+		private static final int EUCLEAN;
+		private static final int ENOTNAM;
+		private static final int ENAVAIL;
+		private static final int EISNAM;
+		private static final int EREMOTEIO;
+		private static final int EDQUOT;
+		private static final int ENOMEDIUM;
+		private static final int EMEDIUMTYPE;
+		private static final int ECANCELED;
+		private static final int ENOKEY;
+		private static final int EKEYEXPIRED;
+		private static final int EKEYREVOKED;
+		private static final int EKEYREJECTED;
+		private static final int EOWNERDEAD;
+		private static final int ENOTRECOVERABLE;
+		private static final int ERFKILL;
+		private static final int EHWPOISON;
+		/* Mac only */
+		private static final int EAUTH;
+		private static final int EBADRPC;
+		private static final int EFTYPE;
+		private static final int ENEEDAUTH;
+		private static final int ENOATTR;
+		private static final int EPROCLIM;
+		private static final int EPROCUNAVAIL;
+		private static final int EPROGMISMATCH;
+		private static final int EPROGUNAVAIL;
+		private static final int ERPCMISMATCH;
+
+		private Os() {}
+
+		static {
+			if (OsUtil.IS_MAC) {
+				EAGAIN = 35;
+				EDEADLK = 11;
+				ENAMETOOLONG = 63;
+				ENOLCK = 77;
+				ENOSYS = 78;
+				ENOTEMPTY = 66;
+				ELOOP = 62;
+				ENOMSG = 91;
+				EIDRM = 90;
+				ECHRNG = UNDEFINED;
+				EL2NSYNC = UNDEFINED;
+				EL3HLT = UNDEFINED;
+				EL3RST = UNDEFINED;
+				ELNRNG = UNDEFINED;
+				EUNATCH = UNDEFINED;
+				ENOCSI = UNDEFINED;
+				EL2HLT = UNDEFINED;
+				EBADE = UNDEFINED;
+				EBADR = UNDEFINED;
+				EXFULL = UNDEFINED;
+				ENOANO = UNDEFINED;
+				EBADRQC = UNDEFINED;
+				EBADSLT = UNDEFINED;
+				EBFONT = UNDEFINED;
+				ENOSTR = 99;
+				ENODATA = 96;
+				ETIME = 101;
+				ENOSR = 98;
+				ENONET = UNDEFINED;
+				ENOPKG = UNDEFINED;
+				EREMOTE = 71;
+				ENOLINK = 97;
+				EADV = UNDEFINED;
+				ESRMNT = UNDEFINED;
+				ECOMM = UNDEFINED;
+				EPROTO = 100;
+				EMULTIHOP = 95;
+				EDOTDOT = UNDEFINED;
+				EBADMSG = 94;
+				EOVERFLOW = 84;
+				ENOTUNIQ = UNDEFINED;
+				EBADFD = UNDEFINED;
+				EREMCHG = UNDEFINED;
+				ELIBACC = UNDEFINED;
+				ELIBBAD = UNDEFINED;
+				ELIBSCN = UNDEFINED;
+				ELIBMAX = UNDEFINED;
+				ELIBEXEC = UNDEFINED;
+				EILSEQ = 92;
+				ERESTART = UNDEFINED;
+				ESTRPIPE = UNDEFINED;
+				EUSERS = 68;
+				ENOTSOCK = 38;
+				EDESTADDRREQ = 39;
+				EMSGSIZE = 40;
+				EPROTOTYPE = 41;
+				ENOPROTOOPT = 42;
+				EPROTONOSUPPORT = 43;
+				ESOCKTNOSUPPORT = 44;
+				EOPNOTSUPP = 102;
+				ENOTSUP = 45;
+				EPFNOSUPPORT = 46;
+				EAFNOSUPPORT = 47;
+				EADDRINUSE = 48;
+				EADDRNOTAVAIL = 49;
+				ENETDOWN = 50;
+				ENETUNREACH = 51;
+				ENETRESET = 52;
+				ECONNABORTED = 53;
+				ECONNRESET = 54;
+				ENOBUFS = 55;
+				EISCONN = 56;
+				ENOTCONN = 57;
+				ESHUTDOWN = 58;
+				ETOOMANYREFS = 59;
+				ETIMEDOUT = 60;
+				ECONNREFUSED = 61;
+				EHOSTDOWN = 64;
+				EHOSTUNREACH = 65;
+				EALREADY = 37;
+				EINPROGRESS = 36;
+				ESTALE = 70;
+				EUCLEAN = UNDEFINED;
+				ENOTNAM = UNDEFINED;
+				ENAVAIL = UNDEFINED;
+				EISNAM = UNDEFINED;
+				EREMOTEIO = UNDEFINED;
+				EDQUOT = 69;
+				ENOMEDIUM = UNDEFINED;
+				EMEDIUMTYPE = UNDEFINED;
+				ECANCELED = 89;
+				ENOKEY = UNDEFINED;
+				EKEYEXPIRED = UNDEFINED;
+				EKEYREVOKED = UNDEFINED;
+				EKEYREJECTED = UNDEFINED;
+				EOWNERDEAD = 105;
+				ENOTRECOVERABLE = 104;
+				ERFKILL = UNDEFINED;
+				EHWPOISON = UNDEFINED;
+				EAUTH = 80;
+				EBADRPC = 72;
+				EFTYPE = 79;
+				ENEEDAUTH = 81;
+				ENOATTR = 93;
+				EPROCLIM = 67;
+				EPROCUNAVAIL = 76;
+				EPROGMISMATCH = 75;
+				EPROGUNAVAIL = 74;
+				ERPCMISMATCH = 73;
+			} else {
+				EAGAIN = 11;
+				EDEADLK = 35;
+				ENAMETOOLONG = 36;
+				ENOLCK = 37;
+				ENOSYS = 38;
+				ENOTEMPTY = 39;
+				ELOOP = 40;
+				ENOMSG = 42;
+				EIDRM = 43;
+				ECHRNG = 44;
+				EL2NSYNC = 45;
+				EL3HLT = 46;
+				EL3RST = 47;
+				ELNRNG = 48;
+				EUNATCH = 49;
+				ENOCSI = 50;
+				EL2HLT = 51;
+				EBADE = 52;
+				EBADR = 53;
+				EXFULL = 54;
+				ENOANO = 55;
+				EBADRQC = 56;
+				EBADSLT = 57;
+				EBFONT = 59;
+				ENOSTR = 60;
+				ENODATA = 61;
+				ETIME = 62;
+				ENOSR = 63;
+				ENONET = 64;
+				ENOPKG = 65;
+				EREMOTE = 66;
+				ENOLINK = 67;
+				EADV = 68;
+				ESRMNT = 69;
+				ECOMM = 70;
+				EPROTO = 71;
+				EMULTIHOP = 72;
+				EDOTDOT = 73;
+				EBADMSG = 74;
+				EOVERFLOW = 75;
+				ENOTUNIQ = 76;
+				EBADFD = 77;
+				EREMCHG = 78;
+				ELIBACC = 79;
+				ELIBBAD = 80;
+				ELIBSCN = 81;
+				ELIBMAX = 82;
+				ELIBEXEC = 83;
+				EILSEQ = 84;
+				ERESTART = 85;
+				ESTRPIPE = 86;
+				EUSERS = 87;
+				ENOTSOCK = 88;
+				EDESTADDRREQ = 89;
+				EMSGSIZE = 90;
+				EPROTOTYPE = 91;
+				ENOPROTOOPT = 92;
+				EPROTONOSUPPORT = 93;
+				ESOCKTNOSUPPORT = 94;
+				EOPNOTSUPP = 95;
+				ENOTSUP = 95;
+				EPFNOSUPPORT = 96;
+				EAFNOSUPPORT = 97;
+				EADDRINUSE = 98;
+				EADDRNOTAVAIL = 99;
+				ENETDOWN = 100;
+				ENETUNREACH = 101;
+				ENETRESET = 102;
+				ECONNABORTED = 103;
+				ECONNRESET = 104;
+				ENOBUFS = 105;
+				EISCONN = 106;
+				ENOTCONN = 107;
+				ESHUTDOWN = 108;
+				ETOOMANYREFS = 109;
+				ETIMEDOUT = 110;
+				ECONNREFUSED = 111;
+				EHOSTDOWN = 112;
+				EHOSTUNREACH = 113;
+				EALREADY = 114;
+				EINPROGRESS = 115;
+				ESTALE = 116;
+				EUCLEAN = 117;
+				ENOTNAM = 118;
+				ENAVAIL = 119;
+				EISNAM = 120;
+				EREMOTEIO = 121;
+				EDQUOT = 122;
+				ENOMEDIUM = 123;
+				EMEDIUMTYPE = 124;
+				ECANCELED = 125;
+				ENOKEY = 126;
+				EKEYEXPIRED = 127;
+				EKEYREVOKED = 128;
+				EKEYREJECTED = 129;
+				EOWNERDEAD = 130;
+				ENOTRECOVERABLE = 131;
+				ERFKILL = 132;
+				EHWPOISON = 133;
+				EAUTH = UNDEFINED;
+				EBADRPC = UNDEFINED;
+				EFTYPE = UNDEFINED;
+				ENEEDAUTH = UNDEFINED;
+				ENOATTR = UNDEFINED;
+				EPROCLIM = UNDEFINED;
+				EPROCUNAVAIL = UNDEFINED;
+				EPROGMISMATCH = UNDEFINED;
+				EPROGUNAVAIL = UNDEFINED;
+				ERPCMISMATCH = UNDEFINED;
+			}
+		}
 	}
 }

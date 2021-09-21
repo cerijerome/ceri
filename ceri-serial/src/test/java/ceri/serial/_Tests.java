@@ -17,6 +17,7 @@ import ceri.common.test.TestUtil;
 	ceri.serial.clib.SeekBehavior.class, //
 	// clib.jna
 	ceri.serial.clib.jna.CCallerBehavior.class, //
+	ceri.serial.clib.jna.CErrorBehavior.class, //
 	ceri.serial.clib.jna.CExceptionBehavior.class, //
 	ceri.serial.clib.jna.CLibTest.class, //
 	ceri.serial.clib.jna.CTimeTest.class, //
