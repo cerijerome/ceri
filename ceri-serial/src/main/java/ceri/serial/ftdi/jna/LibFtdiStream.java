@@ -14,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.time.DateUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.clib.jna.CTime.timeval;
@@ -21,6 +22,7 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 import ceri.serial.ftdi.jna.LibFtdi.size_and_time;
+import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.Struct;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
@@ -51,12 +53,13 @@ public class LibFtdiStream {
 	}
 
 	private static class FTDIStreamState<T> {
-		public FTDIStreamCallback<T> callback;
-		public T userdata;
-		public int packetsize;
-		public int activity;
-		public int result;
-		public FTDIProgressInfo progress;
+		private FTDIStreamCallback<T> callback;
+		private libusb_transfer_cb_fn cb;
+		private T userdata;
+		private int packetsize;
+		private int activity;
+		private int result;
+		private FTDIProgressInfo progress;
 	}
 
 	/**
@@ -81,9 +84,13 @@ public class LibFtdiStream {
 	 * high-performance streaming of data from a device interface. This function continuously
 	 * transfers data until an error occurs, or the callback returns a nonzero value. For every
 	 * contiguous block of received data, the callback will be invoked.
+	 * <p/>
+	 * Returns a closeable resource that should be closed only when streaming is complete. This
+	 * is to prevent callback state gc.
 	 */
-	public static <T> void ftdi_readstream(ftdi_context ftdi, FTDIStreamCallback<T> callback,
-		T userdata, int packetsPerTransfer, int numTransfers) throws LibUsbException {
+	public static <T> RuntimeCloseable ftdi_readstream(ftdi_context ftdi,
+		FTDIStreamCallback<T> callback, T userdata, int packetsPerTransfer, int numTransfers)
+		throws LibUsbException {
 		requireDev(ftdi);
 		requireFifo(ftdi);
 		ftdi_set_bitmode(ftdi, 0xff, ftdi_mpsse_mode.BITMODE_RESET);
@@ -95,6 +102,7 @@ public class LibFtdiStream {
 		completeStreamEvents(ftdi, state);
 		LibUsb.caller.verifyInt(state.result, "ftdi_read_stream", ftdi, callback, userdata,
 			packetsPerTransfer, numTransfers);
+		return JnaUtil.closeable(state);
 	}
 
 	private static <T> FTDIStreamState<T> state(FTDIStreamCallback<T> callback, T userdata,
@@ -116,12 +124,12 @@ public class LibFtdiStream {
 	private static <T> void submitTransfers(ftdi_context ftdi, FTDIStreamState<T> state,
 		int numTransfers, int packetsPerTransfer) throws LibUsbException {
 		int bufferSize = packetsPerTransfer * ftdi.max_packet_size;
+		state.cb = t -> ftdi_readstream_cb(t, state);
 		for (int i = 0; i < numTransfers; i++) {
 			libusb_transfer transfer = LibUsb.libusb_alloc_transfer(0);
 			Memory m = new Memory(bufferSize);
-			var callback = libusb_transfer_cb_fn.register(1, t -> ftdi_readstream_cb(t, state));
 			LibUsb.libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.out_ep, m, bufferSize,
-				callback, null, 0);
+				state.cb, null, 0);
 			transfer.status = -1;
 			LibUsb.libusb_submit_transfer(transfer);
 		}

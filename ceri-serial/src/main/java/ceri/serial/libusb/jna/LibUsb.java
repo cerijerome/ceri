@@ -21,7 +21,6 @@ import ceri.common.data.TypeTranscoder;
 import ceri.serial.clib.jna.CCaller;
 import ceri.serial.clib.jna.CTime.timeval;
 import ceri.serial.jna.ArrayPointer;
-import ceri.serial.jna.CallbackRegistry;
 import ceri.serial.jna.JnaLibrary;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.PointerUtil;
@@ -1214,17 +1213,17 @@ public class LibUsb {
 	 */
 	// typedef void (LIBUSB_CALL *libusb_transfer_cb_fn)(struct libusb_transfer *transfer);
 	public interface libusb_transfer_cb_fn extends Callback {
-		public static final CallbackRegistry<libusb_transfer_cb_fn> registry =
-			CallbackRegistry.of();
+		// public static final CallbackRegistry<libusb_transfer_cb_fn> registry =
+		// CallbackRegistry.of();
 
 		void invoke(libusb_transfer transfer);
 
-		public static libusb_transfer_cb_fn register(int n, libusb_transfer_cb_fn cb) {
-			return registry.register(n, id -> (transfer) -> {
-				registry.remove(id);
-				cb.invoke(transfer);
-			});
-		}
+		// public static libusb_transfer_cb_fn register(int n, libusb_transfer_cb_fn cb) {
+		// return registry.register(n, id -> (transfer) -> {
+		// registry.remove(id);
+		// cb.invoke(transfer);
+		// });
+		// }
 	}
 
 	/**
@@ -1282,16 +1281,7 @@ public class LibUsb {
 	// typedef void (LIBUSB_CALL *libusb_log_cb)(libusb_context *ctx, enum libusb_log_level level,
 	// const char *str);
 	public interface libusb_log_cb extends Callback {
-		public static final CallbackRegistry<libusb_log_cb> registry = CallbackRegistry.of();
-
 		int invoke(libusb_context ctx, int level, String str);
-
-		public static libusb_log_cb register(int n, libusb_log_cb cb) {
-			return registry.register(n, id -> (ctx, level, str) -> {
-				registry.remove(id);
-				return cb.invoke(ctx, level, str);
-			});
-		}
 	}
 
 	/* async I/O */
@@ -1601,17 +1591,7 @@ public class LibUsb {
 	 */
 	// typedef void (LIBUSB_CALL *libusb_pollfd_added_cb)(int fd, short events, void *user_data);
 	public interface libusb_pollfd_added_cb extends Callback {
-		public static final CallbackRegistry<libusb_pollfd_added_cb> registry =
-			CallbackRegistry.of();
-
 		void invoke(int fd, short events, Pointer user_data);
-
-		public static libusb_pollfd_added_cb register(int n, libusb_pollfd_added_cb cb) {
-			return registry.register(n, id -> (fd, events, user_data) -> {
-				registry.remove(id);
-				cb.invoke(fd, events, user_data);
-			});
-		}
 	}
 
 	/**
@@ -1623,17 +1603,7 @@ public class LibUsb {
 	 */
 	// typedef void (LIBUSB_CALL *libusb_pollfd_removed_cb)(int fd, void *user_data);
 	public interface libusb_pollfd_removed_cb extends Callback {
-		public static final CallbackRegistry<libusb_pollfd_removed_cb> registry =
-			CallbackRegistry.of();
-
 		void invoke(int fd, Pointer user_data);
-
-		public static libusb_pollfd_removed_cb register(int n, libusb_pollfd_removed_cb cb) {
-			return registry.register(n, id -> (fd, user_data) -> {
-				registry.remove(id);
-				cb.invoke(fd, user_data);
-			});
-		}
 	}
 
 	/**
@@ -1663,18 +1633,8 @@ public class LibUsb {
 	// typedef int (LIBUSB_CALL *libusb_hotplug_callback_fn)(libusb_context *ctx,
 	// libusb_device *device, libusb_hotplug_event event, void *user_data);
 	public interface libusb_hotplug_callback_fn extends Callback {
-		public static final CallbackRegistry<libusb_hotplug_callback_fn> registry =
-			CallbackRegistry.of();
-
 		/** Return 1 to indicate finished processing event, and callback will be unregistered. */
 		int invoke(libusb_context ctx, libusb_device device, int event, Pointer user_data);
-
-		public static libusb_hotplug_callback_fn register(int n, libusb_hotplug_callback_fn cb) {
-			return registry.register(n, id -> (ctx, device, event, user_data) -> {
-				registry.remove(id);
-				return cb.invoke(ctx, device, event, user_data);
-			});
-		}
 	}
 
 	/**

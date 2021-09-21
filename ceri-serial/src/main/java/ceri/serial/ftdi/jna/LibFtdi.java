@@ -752,8 +752,8 @@ public class LibFtdi {
 		libusb_transfer transfer = LibUsb.libusb_alloc_transfer(0);
 		try {
 			ftdi_transfer_control tc = transferControl(ftdi, buf, size, transfer);
-			var callback = libusb_transfer_cb_fn.register(1, t -> ftdi_write_data_cb(t, tc));
 			int write_size = Math.min(size, ftdi.writebuffer_chunksize);
+			libusb_transfer_cb_fn callback = t -> ftdi_write_data_cb(t, tc);
 			LibUsb.libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.in_ep, buf, write_size,
 				callback, null, ftdi.usb_write_timeout);
 			LibUsb.libusb_submit_transfer(transfer);
@@ -771,8 +771,8 @@ public class LibFtdi {
 		libusb_transfer transfer = LibUsb.libusb_alloc_transfer(0);
 		try {
 			ftdi_transfer_control tc = transferControl(ftdi, buf, size, transfer);
-			var callback = libusb_transfer_cb_fn.register(1, t -> ftdi_read_data_cb(t, tc));
 			int read_size = readLen(ftdi, size);
+			libusb_transfer_cb_fn callback = t -> ftdi_read_data_cb(t, tc);
 			LibUsb.libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.out_ep, ftdi.readbuffer,
 				read_size, callback, null, ftdi.usb_read_timeout);
 			LibUsb.libusb_submit_transfer(transfer);

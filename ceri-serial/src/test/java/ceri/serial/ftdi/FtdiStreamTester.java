@@ -21,10 +21,11 @@ public class FtdiStreamTester {
 
 	private static void process(Ftdi ftdi) throws LibUsbException {
 		int waitMs = 60 * 1000;
-		ftdi.readStream(FtdiStreamTester::stream, "hello!", 1, 3);
-		logger.info("Waiting for callback invocation");
-		ConcurrentUtil.delay(waitMs);
-		logger.info("Done");
+		try (var x = ftdi.readStream(FtdiStreamTester::stream, "hello!", 1, 3)) {
+			logger.info("Waiting for callback invocation");
+			ConcurrentUtil.delay(waitMs);
+			logger.info("Done");
+		}
 	}
 
 	private static boolean stream(ByteBuffer buffer, int length, FtdiProgressInfo progress,

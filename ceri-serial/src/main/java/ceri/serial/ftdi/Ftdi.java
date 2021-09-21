@@ -14,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.function.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.jna.LibFtdi;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
@@ -225,11 +226,12 @@ public class Ftdi implements Closeable {
 		return new FtdiTransferControl(LibFtdi.ftdi_read_data_submit(ftdi(), buf, size));
 	}
 
-	public <T> void readStream(StreamCallback<T> callback, T userData, int packetsPerTransfer,
-		int numTransfers) throws LibUsbException {
+	public <T> RuntimeCloseable readStream(StreamCallback<T> callback, T userData,
+		int packetsPerTransfer, int numTransfers) throws LibUsbException {
 		FTDIStreamCallback<T> ftdiCb = (buffer, length, progress,
 			user_data) -> streamCallback(buffer, length, progress, callback, userData);
-		LibFtdiStream.ftdi_readstream(ftdi(), ftdiCb, null, packetsPerTransfer, numTransfers);
+		return LibFtdiStream.ftdi_readstream(ftdi(), ftdiCb, null, packetsPerTransfer,
+			numTransfers);
 	}
 
 	public void readChunkSize(int chunkSize) throws LibUsbException {

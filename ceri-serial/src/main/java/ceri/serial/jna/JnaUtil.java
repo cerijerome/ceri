@@ -1,6 +1,7 @@
 package ceri.serial.jna;
 
 import static ceri.common.collection.ArrayUtil.validateSlice;
+import java.lang.ref.Reference;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.function.Function;
@@ -17,6 +18,7 @@ import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.ShortByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.math.MathUtil;
 import ceri.common.util.ValueCache;
 
@@ -35,6 +37,13 @@ public class JnaUtil {
 	public static boolean setProtected() {
 		Native.setProtected(true);
 		return Native.isProtected();
+	}
+
+	/**
+	 * Returns a closeable resource to prevent gc. Use for objects referenced in async callbacks.
+	 */
+	public static RuntimeCloseable closeable(Object callback) {
+		return () -> Reference.reachabilityFence(callback);
 	}
 
 	/**

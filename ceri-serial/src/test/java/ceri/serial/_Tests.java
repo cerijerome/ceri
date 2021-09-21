@@ -49,7 +49,6 @@ import ceri.common.test.TestUtil;
 	ceri.serial.javax.util.SelfHealingSerialConnectorBehavior.class, //
 	// jna
 	ceri.serial.jna.ArrayPointerBehavior.class, //
-	ceri.serial.jna.CallbackRegistryBehavior.class, //
 	ceri.serial.jna.JnaArgsBehavior.class, //
 	ceri.serial.jna.JnaEnumTest.class, //
 	ceri.serial.jna.JnaLibraryBehavior.class, //

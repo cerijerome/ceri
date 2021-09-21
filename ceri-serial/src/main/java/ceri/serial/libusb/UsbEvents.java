@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.function.ExceptionCloseable;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.util.Enclosed;
 import ceri.log.util.LogUtil;
 import ceri.serial.clib.jna.CTime.timeval;
@@ -85,7 +85,7 @@ public class UsbEvents implements Closeable {
 	/**
 	 * Locks event-handling. Returns a closable type, that unlocks events on close.
 	 */
-	public ExceptionCloseable<RuntimeException> lock() throws LibUsbException {
+	public RuntimeCloseable lock() throws LibUsbException {
 		LibUsb.libusb_lock_events(context());
 		return () -> unlockEvents();
 	}
@@ -93,7 +93,7 @@ public class UsbEvents implements Closeable {
 	/**
 	 * Acquires the event waiters lock. Returns a closable type that unlocks on close.
 	 */
-	public ExceptionCloseable<RuntimeException> lockWaiters() throws LibUsbException {
+	public RuntimeCloseable lockWaiters() throws LibUsbException {
 		LibUsb.libusb_lock_events(context());
 		return () -> unlockEventWaiters();
 	}
