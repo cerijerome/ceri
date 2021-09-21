@@ -60,6 +60,14 @@ public class TestUtil {
 	}
 
 	/**
+	 * Encourage gc.
+	 */
+	public static void gc() {
+		System.gc();
+		System.gc();
+	}
+	
+	/**
 	 * Repeat action with a 1us delay until executor is closed. Useful to avoid intermittent thread
 	 * timing issues when waiting on an event by repeatedly triggering that event.
 	 */

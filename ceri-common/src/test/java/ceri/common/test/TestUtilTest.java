@@ -45,6 +45,11 @@ public class TestUtilTest {
 	}
 
 	@Test
+	public void testGc() {
+		TestUtil.gc();
+	}
+	
+	@Test
 	public void testExerciseEnums() {
 		TestUtil.exerciseEnum(Align.H.class);
 		assertThrown(() -> TestUtil.exerciseEnum(BadEnum.class));
