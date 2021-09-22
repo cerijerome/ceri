@@ -19,6 +19,14 @@ public class JnaTestUtilTest {
 	}
 
 	@Test
+	public void testMemCache() {
+		var m = JnaTestUtil.memCache();
+		JnaTestUtil.assertMemory(m.calloc(3), 0, 0, 0, 0);
+		JnaTestUtil.assertMemory(m.mallocBytes(1, 2, 3), 0, 1, 2, 3);
+		m.clear();
+	}
+
+	@Test
 	public void testAssertMemory() {
 		Memory m = JnaUtil.mallocBytes(1, 2, 3, 4, 5);
 		assertMemory(m, 0, 1, 2, 3, 4, 5);
@@ -45,6 +53,11 @@ public class JnaTestUtilTest {
 		assertPointer((Structure) null, null);
 		assertAssertion(() -> assertPointer(t, null));
 		assertAssertion(() -> assertPointer(t, new Memory(1)));
+	}
+
+	@Test
+	public void testWorkMemory() {
+		JnaTestUtil.workMemory(3, 8, 16);
 	}
 
 }

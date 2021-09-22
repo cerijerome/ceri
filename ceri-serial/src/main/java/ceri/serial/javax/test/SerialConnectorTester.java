@@ -57,7 +57,7 @@ public class SerialConnectorTester extends LoopingExecutor {
 
 	public static void test(SerialConnector con, ExceptionRunnable<IOException> fixConnectorFn) {
 		// Make sure connector is connected first
-		try (SerialConnectorTester tester = SerialConnectorTester.of(con, fixConnectorFn)) {
+		try (SerialConnectorTester tester = of(con, fixConnectorFn)) {
 			tester.waitUntilStopped();
 		}
 	}
@@ -157,7 +157,7 @@ public class SerialConnectorTester extends LoopingExecutor {
 			int available = connector.in().available();
 			if (available <= 0) return;
 			byte[] bytes = connector.in().readNBytes(available);
-			if (bytes.length > 0) logInput(Immutable.wrap(bytes));
+			logInput(Immutable.wrap(bytes));
 		} catch (IOException e) {
 			logger.catching(e);
 		}

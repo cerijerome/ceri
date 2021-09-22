@@ -3,7 +3,6 @@ package ceri.serial.javax.util;
 import static ceri.common.function.FunctionUtil.safeAccept;
 import ceri.common.property.BaseProperties;
 import ceri.serial.javax.SerialPortProperties;
-import ceri.serial.usb.UsbSerialProperties;
 
 public class SelfHealingSerialProperties extends BaseProperties {
 	private static final String USB_KEY = "usb";
@@ -11,12 +10,12 @@ public class SelfHealingSerialProperties extends BaseProperties {
 	private static final String CONNECTION_TIMEOUT_MS_KEY = "connection.timeout.ms";
 	private static final String FIX_RETRY_DELAY_MS_KEY = "fix.retry.delay.ms";
 	private static final String RECOVERY_DELAY_MS_KEY = "recovery.delay.ms";
-	private final UsbSerialProperties commPort;
+	private final CommPortProperties commPort;
 	private final SerialPortProperties params;
 
 	public SelfHealingSerialProperties(BaseProperties properties, String... groups) {
 		super(properties, groups);
-		commPort = new UsbSerialProperties(this, USB_KEY);
+		commPort = new CommPortProperties(this, USB_KEY);
 		params = new SerialPortProperties(this, PORT_KEY);
 	}
 

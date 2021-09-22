@@ -26,6 +26,7 @@ public class TestSerialConnector extends TestConnector implements SerialConnecto
 			@Override
 			protected void write(OutputStream out, byte[] b, int offset, int length)
 				throws IOException {
+				super.write(out, b, offset, length);
 				TestConnector.echo(this, b, offset, length);
 			}
 		};

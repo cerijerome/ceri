@@ -33,6 +33,13 @@ public class JnaUtilTest {
 	}
 
 	@Test
+	public void testCloseable() {
+		try (var x = JnaUtil.closeable(JnaUtil.mallocBytes(1, 2, 3))) {
+			//
+		}
+	}
+
+	@Test
 	public void testMalloc() {
 		assertNull(JnaUtil.malloc(0));
 		assertEquals(JnaUtil.malloc(3).size(), 3L);

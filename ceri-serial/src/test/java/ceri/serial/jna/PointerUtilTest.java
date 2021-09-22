@@ -3,6 +3,7 @@ package ceri.serial.jna;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.fail;
 //import static ceri.serial.jna.JnaTestUtil.assertMemory;
 //import static ceri.serial.jna.JnaTestUtil.assertPointer;
 import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
@@ -17,6 +18,19 @@ import com.sun.jna.ptr.PointerByReference;
 public class PointerUtilTest {
 
 	public static class TestPointer extends PointerType {}
+
+	@Test
+	public void shouldHavePointerSizeStorageForInt() {
+		var i = new PointerUtil.Int(777);
+		var cls = i.toNative().getClass();
+		switch (Pointer.SIZE) {
+			case 4 -> assertEquals(cls, Integer.class);
+			case 8 -> assertEquals(cls, Long.class);
+			default -> fail("Unsupported pointer size");
+		}
+		assertEquals(i.intValue(), 777);
+		assertEquals(new PointerUtil.Int().intValue(), 0);
+	}
 
 	@Test
 	public void testPointer() {

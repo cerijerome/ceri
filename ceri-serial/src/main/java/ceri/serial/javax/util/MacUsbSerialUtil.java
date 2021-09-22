@@ -1,15 +1,17 @@
-package ceri.serial.usb.mac;
+package ceri.serial.javax.util;
 
 import static ceri.common.xml.XPathUtil.compile;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
+import ceri.common.io.IoUtil;
+import ceri.common.util.OsUtil;
 import ceri.common.xml.XPathUtil;
 import ceri.common.xml.XmlUtil;
 import ceri.process.ioreg.Ioreg;
-import ceri.serial.usb.UsbSerialDevices;
 
 public class MacUsbSerialUtil {
 	private static final XPathExpression USB_XPATH = compile("/plist/array/dict");
@@ -25,9 +27,18 @@ public class MacUsbSerialUtil {
 	private MacUsbSerialUtil() {}
 
 	/**
+	 * Looks up the serial port name based on location id. Used by SelfHealingSerialConnector.
+	 */
+	public static CommPortSupplier deviceByLocationId(int locationId) {
+		if (!OsUtil.IS_MAC) throw new UnsupportedOperationException("Only Mac is supported");
+		return CommPortSupplier.named(() -> device(locationId),
+			String.format("locationId:0x%x", locationId));
+	}
+
+	/**
 	 * Returns a map of USB-to-serial device location IDs and names for Mac OSX.
 	 */
-	public static UsbSerialDevices devices() throws IOException {
+	public static Map<Integer, String> devices() throws IOException {
 		return devices(USB_SERIAL_NAME);
 	}
 
@@ -37,21 +48,25 @@ public class MacUsbSerialUtil {
 	 * implements IOUSBInterface. For a location id, the Mac takes the first 3 digits, the remaining
 	 * five are 0, or assigned to hub ports.
 	 */
-	public static UsbSerialDevices devices(String name) throws IOException {
+	public static Map<Integer, String> devices(String name) throws IOException {
 		String ioregXml = Ioreg.of().exec(IOREG_OPTIONS, IOREG_NAME_OPTION, name);
-		try {
-			UsbSerialDevices.Builder builder = UsbSerialDevices.builder();
+		Map<Integer, String> devices = new LinkedHashMap<>();
+		IoUtil.IO_ADAPTER.run(() -> {
 			for (Node usb : XPathUtil.nodeList(USB_XPATH, XmlUtil.unvalidatedDocument(ioregXml))) {
 				String locationIdStr = LOCATION_ID_XPATH.evaluate(usb);
 				String device = DEVICE_XPATH.evaluate(usb);
 				if (device.isEmpty()) continue;
 				int locationId = Integer.parseInt(locationIdStr);
-				builder.device(locationId, device);
+				devices.put(locationId, device);
 			}
-			return builder.build();
-		} catch (SAXException | XPathExpressionException e) {
-			throw new IOException("Should not happen", e);
-		}
+		});
+		return Collections.unmodifiableMap(devices);
 	}
 
+	private static String device(int locationId) throws IOException {
+		String device = MacUsbSerialUtil.devices().get(locationId);
+		if (device != null) return device;
+		throw new IOException(
+			"Device not available at location 0x" + Integer.toHexString(locationId));
+	}
 }

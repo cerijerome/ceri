@@ -8,9 +8,12 @@ import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.serial.jna.JnaTestData.assertEmpty;
 import static ceri.serial.jna.JnaTestData.assertStruct;
+import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
 import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Pointer;
+import com.sun.jna.Union;
+import ceri.common.collection.ArrayUtil;
 import ceri.serial.jna.JnaTestData.TestStruct;
 import ceri.serial.jna.Struct.Fields;
 
@@ -25,6 +28,47 @@ public class StructBehavior {
 	public static class Outer extends Struct {
 		public TestStruct[] innerVal = { new TestStruct(), new TestStruct() };
 		public TestStruct.ByRef[] innerRef = new TestStruct.ByRef[3];
+	}
+
+	@Fields({ "innerVal", "innerRef" })
+	public static class TestUnion extends Union {
+		public int i;
+		public Pointer p;
+		public byte[] b = new byte[4];
+
+		public TestUnion(int i, Pointer p, int... bytes) {
+			this.i = i;
+			this.p = p;
+			ArrayUtil.copy(ArrayUtil.bytes(bytes), 0, this.b, 0, bytes.length);
+		}
+
+		public TestUnion(Pointer p) {
+			super(p);
+		}
+	}
+
+	@Test
+	public void testSetUnionTypeByName() {
+		var t0 = new TestUnion(123, JnaUtil.mallocBytes(5, 6, 7), -1, -2, -3, -4);
+		var p = Struct.write(Struct.type(t0, "i")).getPointer();
+		var t = Struct.read(new TestUnion(p));
+		assertEquals(t.i, 123);
+	}
+
+	@Test
+	public void testSetUnionTypeByClass() {
+		var t0 = new TestUnion(123, JnaUtil.mallocBytes(5, 6, 7), -1, -2, -3, -4);
+		var p = Struct.write(Struct.type(t0, Pointer.class)).getPointer();
+		var t = Struct.read(new TestUnion(p));
+		assertPointer(t.p, 0, 5, 6, 7);
+	}
+
+	@Test
+	public void testSetUnionTypedValue() {
+		var t0 = new TestUnion(0, null);
+		var p = Struct.write(Struct.typedValue(t0, JnaUtil.mallocBytes(5, 6, 7))).getPointer();
+		var t = Struct.read(new TestUnion(p));
+		assertPointer(t.p, 0, 5, 6, 7);
 	}
 
 	@Test

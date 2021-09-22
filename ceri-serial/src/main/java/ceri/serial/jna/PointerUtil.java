@@ -16,6 +16,9 @@ public class PointerUtil {
 
 	private PointerUtil() {}
 
+	/**
+	 * An integer with pointer storage size.
+	 */
 	@SuppressWarnings("serial")
 	public static class Int extends IntegerType {
 		public Int() {

@@ -1,19 +1,18 @@
-package ceri.serial.usb;
+package ceri.serial.javax.util;
 
 import ceri.common.property.BaseProperties;
-import ceri.serial.javax.util.CommPortSupplier;
 
-public class UsbSerialProperties extends BaseProperties {
+public class CommPortProperties extends BaseProperties {
 	private static final String LOCATION_ID_KEY = "location.id";
 	private static final String PORT_KEY = "port";
 
-	public UsbSerialProperties(BaseProperties properties, String group) {
+	public CommPortProperties(BaseProperties properties, String group) {
 		super(properties, group);
 	}
 
 	public CommPortSupplier supplier() {
 		Integer locationId = locationId();
-		if (locationId != null) return UsbSerialUtil.deviceByLocationId(locationId);
+		if (locationId != null) return MacUsbSerialUtil.deviceByLocationId(locationId);
 		String port = port();
 		if (port != null) return CommPortSupplier.fixed(port);
 		return null;
