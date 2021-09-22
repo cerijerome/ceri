@@ -6,10 +6,14 @@ import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.SubArray;
 import ceri.common.collection.SubArray.Bytes;
 import ceri.common.data.ByteStream;
+import ceri.common.io.IoUtil;
 import ceri.common.io.PipedStream;
 import ceri.common.text.ToString;
 
@@ -79,5 +83,25 @@ public class TestOutputStream extends OutputStream {
 	public String toString() {
 		return ToString.ofClass(this, callSilently(piped.in()::available)).children( //
 			"write=" + write, "flush=" + flush, "close=" + close).toString();
+	}
+
+	/**
+	 * Capture output until it matches the pattern. Use (?s) for dot-all matches.
+	 */
+	public String awaitMatchAscii(String pattern) throws IOException {
+		return awaitMatch(pattern, StandardCharsets.ISO_8859_1);
+	}
+	
+	/**
+	 * Capture output until it matches the pattern. Use (?s) for dot-all matches.
+	 */
+	public String awaitMatch(String pattern, Charset charset) throws IOException {
+		StringBuilder b = new StringBuilder();
+		Pattern p = Pattern.compile(pattern);
+		while (true) {
+			write.awaitAuto();
+			b.append(IoUtil.availableString(from, charset));
+			if (p.matcher(b).matches()) return b.toString();
+		}
 	}
 }

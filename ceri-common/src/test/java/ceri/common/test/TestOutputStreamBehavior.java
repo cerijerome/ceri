@@ -5,11 +5,13 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertRead;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.ErrorGen.IOX;
+import static ceri.common.time.TimeSupplier.millis;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteUtil;
 
 public class TestOutputStreamBehavior {
 	private TestOutputStream out;
@@ -47,6 +49,19 @@ public class TestOutputStreamBehavior {
 		out.write.error.setFrom(IOX);
 		assertThrown(() -> out.write(2));
 		assertRead(out.from, 1, 2);
+	}
+
+	@Test
+	public void shouldMatchOutputAsText() throws IOException {
+		try (var run = TestUtil.threadRun(() -> {
+			out.awaitMatchAscii("(?s).*\nx");
+		})) {
+			out.write(ByteUtil.toAsciiBytes("test\0"));
+			out.write(ByteUtil.toAsciiBytes("\n"));
+			millis.delay(1);
+			out.write(ByteUtil.toAsciiBytes("x"));
+			run.get();
+		}
 	}
 
 }
