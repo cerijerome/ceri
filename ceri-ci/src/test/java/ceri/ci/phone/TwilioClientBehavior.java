@@ -27,8 +27,8 @@ public class TwilioClientBehavior {
 	private Message message;
 
 	@Before
-	public void init() throws TwilioRestException {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		when(factory.createRestClient(any(), any())).thenReturn(client);
 		when(client.getAccount()).thenReturn(account);
 		when(account.getMessageFactory()).thenReturn(messageFactory);

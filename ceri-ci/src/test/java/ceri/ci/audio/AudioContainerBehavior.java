@@ -23,8 +23,8 @@ public class AudioContainerBehavior {
 
 	@SuppressWarnings("resource")
 	@Before
-	public void init() throws IOException {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		when(factory.createMessages(any(), anyFloat())).thenReturn(messages);
 		when(factory.createAlerter(messages, null)).thenReturn(alerter);
 		properties = new Properties();

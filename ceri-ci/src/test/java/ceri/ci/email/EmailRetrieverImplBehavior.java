@@ -28,8 +28,8 @@ public class EmailRetrieverImplBehavior {
 	Folder folder;
 
 	@Before
-	public void init() throws MessagingException {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		when(store.getDefaultFolder()).thenReturn(defaultFolder);
 		when(store.getFolder(anyString())).thenReturn(folder);
 	}

@@ -20,8 +20,8 @@ public class AudioAlerterBehavior {
 	private AudioAlerter audio;
 
 	@Before
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		audio = new AudioAlerter(message);
 	}
 

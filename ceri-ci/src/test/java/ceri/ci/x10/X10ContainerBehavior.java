@@ -32,8 +32,8 @@ public class X10ContainerBehavior {
 
 	@SuppressWarnings("resource")
 	@Before
-	public void init() throws IOException {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		when(factory.createCm11aContainer("com")).thenReturn(cm11aContainer);
 		when(cm11aContainer.cm11a()).thenReturn(cm11a);
 		when(factory.createCm17aContainer("com")).thenReturn(cm17aContainer);

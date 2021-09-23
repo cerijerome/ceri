@@ -21,8 +21,8 @@ public class PhoneContainerBehavior {
 	private Properties properties;
 
 	@Before
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		when(factory.createClient(any(), any(), any())).thenReturn(client);
 		when(factory.builder(any())).thenReturn(builder);
 		when(builder.number(any(), any())).thenReturn(builder);

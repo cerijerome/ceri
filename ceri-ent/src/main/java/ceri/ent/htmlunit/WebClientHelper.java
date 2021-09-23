@@ -13,7 +13,6 @@ import com.gargoylesoftware.htmlunit.TopLevelWindow;
 import com.gargoylesoftware.htmlunit.WebClient;
 //import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.html.parser.HTMLParser;
 import ceri.ent.web.SampleHeader;
 
 public class WebClientHelper implements Closeable {
@@ -98,12 +97,12 @@ public class WebClientHelper implements Closeable {
 		return getPage(file.toUri().toString(), file);
 	}
 
+	@SuppressWarnings("serial")
 	public HtmlPage getPage(String url, Path file) throws IOException {
 		String content = Files.readString(file);
 		StringWebResponse response = new StringWebResponse(content, new URL(url));
-		return htmlParser().parseHtml(response, new TopLevelWindow("", webClient) {
-			private static final long serialVersionUID = 0L;
-		});
+		return (HtmlPage) webClient.getPageCreator().createPage(response,
+			new TopLevelWindow("", webClient) {});
 	}
 
 	public static void setHeaders(WebClient webClient, SampleHeader header) {
@@ -130,9 +129,4 @@ public class WebClientHelper implements Closeable {
 			return downloader.getContent(url);
 		}
 	}
-
-	private HTMLParser htmlParser() {
-		return webClient.getPageCreator().getHtmlParser();
-	}
-
 }

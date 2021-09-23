@@ -13,8 +13,8 @@ public class AudioListenerBehavior {
 	private AudioListener listener2;
 
 	@Before
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 	}
 
 	@Test

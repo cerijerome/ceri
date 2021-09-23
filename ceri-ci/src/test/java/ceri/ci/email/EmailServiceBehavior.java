@@ -41,8 +41,8 @@ public class EmailServiceBehavior {
 	long testStartTime;
 
 	@Before
-	public void init() throws MessagingException {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		when(parser0.matches(any())).thenReturn(false);
 		when(parser1.matches(any())).thenReturn(true);
 		EmailRetriever retriever = testRetriever();

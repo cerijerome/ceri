@@ -33,8 +33,8 @@ public class CommandFactoryBehavior {
 	private CommandFactory factory;
 
 	@Before
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		factory = new CommandFactory(serializer);
 		when(service.builds()).thenReturn(builds);
 		when(service.build(any())).thenReturn(build);

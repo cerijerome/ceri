@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
 import ceri.ci.build.BuildEvent;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class Params {
 	public static final String ACTION = "action";

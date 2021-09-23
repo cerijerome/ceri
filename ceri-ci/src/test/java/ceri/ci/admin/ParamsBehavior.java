@@ -5,13 +5,13 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Collection;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ceri.ci.admin.Params.BuildJob;
 import ceri.ci.build.BuildEvent;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class ParamsBehavior {
 	@Mock
@@ -21,8 +21,8 @@ public class ParamsBehavior {
 	private Params params;
 
 	@Before
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		params = new Params(request, serializer);
 	}
 

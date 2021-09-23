@@ -1,20 +1,15 @@
 package ceri.ent.server;
 
-import static org.eclipse.jetty.annotations.AnnotationConfiguration.CONTAINER_INITIALIZERS;
 import static org.eclipse.jetty.servlet.DefaultServlet.CONTEXT_INIT;
-import static org.eclipse.jetty.webapp.WebInfConfiguration.CONTAINER_JAR_PATTERN;
+import static org.eclipse.jetty.webapp.MetaInfConfiguration.CONTAINER_JAR_PATTERN;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.annotations.ServletContainerInitializersStarter;
 import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
-import org.eclipse.jetty.plus.annotation.ContainerInitializer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.resource.Resource;
@@ -26,7 +21,6 @@ public class JettyUtil {
 	private static final Logger logger = LogManager.getLogger();
 	private static final Pattern PACKAGE_SEPARATOR_REGEX = Pattern.compile("\\.");
 	private static final String TAGLIBS_JAR_PATTERN = ".*/.*taglibs.*\\.jar$";
-	private static final List<ContainerInitializer> JSP_INITIALIZERS = jspInitializers();
 	private static final String TMP_DIR = "tmp";
 	private static final String CONTEXT_PATH_DEF = "/";
 	private static final String DIR_ALLOWED = CONTEXT_INIT + "dirAllowed";
@@ -108,15 +102,7 @@ public class JettyUtil {
 
 	public static void initForJsp(WebAppContext context, Path jspTmpDir) {
 		context.setAttribute(CONTAINER_JAR_PATTERN, TAGLIBS_JAR_PATTERN);
-		context.setAttribute(CONTAINER_INITIALIZERS, JSP_INITIALIZERS);
-		context.addBean(new ServletContainerInitializersStarter(context), true);
+		context.addServletContainerInitializer(new JettyJasperInitializer());
 		if (jspTmpDir != null) context.setTempDirectory(jspTmpDir.toFile());
 	}
-
-	private static List<ContainerInitializer> jspInitializers() {
-		JettyJasperInitializer sci = new JettyJasperInitializer();
-		ContainerInitializer initializer = new ContainerInitializer(sci, null);
-		return Collections.singletonList(initializer);
-	}
-
 }

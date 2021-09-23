@@ -4,7 +4,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class X10AlerterBehavior {
 	public void shouldNotTurnOnDeviceForMissingKeyAlert() {
 		X10Alerter x10 = X10Alerter.builder(controller).address("key", "F13").build();
 		x10.alert("xxx");
-		verifyZeroInteractions(controller);
+		verifyNoInteractions(controller);
 	}
 
 	@Test
@@ -48,7 +48,7 @@ public class X10AlerterBehavior {
 		X10Alerter x10 =
 			X10Alerter.builder(controller).address("key1", "F13").address("key2", "P16").build();
 		x10.alert();
-		verifyZeroInteractions(controller);
+		verifyNoInteractions(controller);
 	}
 
 	@Test

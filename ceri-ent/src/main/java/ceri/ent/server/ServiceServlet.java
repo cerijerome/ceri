@@ -1,10 +1,10 @@
 package ceri.ent.server;
 
 import static ceri.common.util.BasicUtil.uncheckedCast;
-import javax.servlet.GenericServlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import jakarta.servlet.GenericServlet;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
 
 public abstract class ServiceServlet<T> extends HttpServlet {
 	private static final long serialVersionUID = 2677745336504034559L;

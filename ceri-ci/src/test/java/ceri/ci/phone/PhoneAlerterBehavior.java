@@ -19,8 +19,8 @@ public class PhoneAlerterBehavior {
 	PhoneAlerter alerter;
 
 	@Before
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		PhoneAlerter.Builder builder = PhoneAlerter.builder(client);
 		builder.number("A", "aaa");
 		builder.number("BB", "bb");

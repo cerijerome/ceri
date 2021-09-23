@@ -6,16 +6,17 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.List;
 import java.util.regex.Pattern;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.webapp.WebAppContext;
+import ceri.common.io.IoUtil;
 import ceri.common.net.NetUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
+import ceri.log.util.LogUtil;
 
 /**
  * Base wrapper class for managing a jetty server.
@@ -33,23 +34,11 @@ public class JettyServer implements Closeable {
 	}
 
 	public void start() throws IOException {
-		try {
-			server.start();
-		} catch (IOException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new IOException(e);
-		}
+		IoUtil.IO_ADAPTER.run(server::start);
 	}
 
 	public void stop() throws IOException {
-		try {
-			server.stop();
-		} catch (IOException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new IOException(e);
-		}
+		IoUtil.IO_ADAPTER.run(server::stop);
 	}
 
 	public void waitForServer() throws InterruptedException {
@@ -59,11 +48,7 @@ public class JettyServer implements Closeable {
 	@Override
 	public void close() throws IOException {
 		stop();
-		try {
-			waitForServer();
-		} catch (InterruptedException e) {
-			logger.catching(Level.WARN, e);
-		}
+		LogUtil.execute(logger, this::waitForServer);
 	}
 
 	public String url(String path) {

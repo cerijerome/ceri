@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -140,7 +140,7 @@ public class AlertServiceImplBehavior {
 	@Test
 	public void shouldPurge() {
 		service.purge();
-		verifyZeroInteractions(alerters);
+		verifyNoInteractions(alerters);
 	}
 
 	private AlerterGroup createAlerters() {

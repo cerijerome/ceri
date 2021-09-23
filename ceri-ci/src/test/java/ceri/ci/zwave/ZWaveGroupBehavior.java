@@ -13,8 +13,8 @@ public class ZWaveGroupBehavior {
 	private ZWaveController controller;
 
 	@Before
-	public void before() {
-		MockitoAnnotations.initMocks(this);
+	public void before() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 	}
 
 	@Test

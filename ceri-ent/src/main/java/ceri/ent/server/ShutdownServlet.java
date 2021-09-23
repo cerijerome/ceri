@@ -1,11 +1,12 @@
 package ceri.ent.server;
 
 import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.webapp.WebAppContext;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class ShutdownServlet extends ServiceServlet<ShutdownSync> {
 	private static final Logger logger = LogManager.getLogger();
@@ -32,4 +33,7 @@ public class ShutdownServlet extends ServiceServlet<ShutdownSync> {
 		ServletUtil.setSuccessText(response);
 	}
 
+	public static void main(String[] args) {
+		System.out.println(Servlet.class.isAssignableFrom(ShutdownServlet.class));
+	}
 }

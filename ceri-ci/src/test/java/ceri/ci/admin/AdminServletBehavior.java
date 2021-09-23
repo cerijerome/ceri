@@ -7,17 +7,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.PrintWriter;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ceri.ci.alert.AlertService;
 import ceri.ci.build.Builds;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class AdminServletBehavior {
 	@Mock
@@ -36,8 +36,8 @@ public class AdminServletBehavior {
 
 	@SuppressWarnings("resource")
 	@Before
-	public void init() throws IOException {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		servlet = new AdminServlet();
 		when(config.getServletContext()).thenReturn(context);
 		when(context.getAttribute("ceri.ci.alert.AlertService")).thenReturn(service);

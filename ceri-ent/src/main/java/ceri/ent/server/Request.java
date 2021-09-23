@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
-import javax.servlet.http.HttpServletRequest;
 import ceri.common.text.StringUtil;
 import ceri.common.util.PrimitiveUtil;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class Request {
 	private static final String USER_AGENT_HEADER = "User-Agent";

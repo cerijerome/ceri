@@ -36,8 +36,8 @@ public class EmailContainerBehavior {
 
 	@SuppressWarnings("resource")
 	@Before
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		when(factory.retrieverBuilder(any(), any(), any())).thenReturn(retrieverBuilder);
 		when(factory.serviceBuilder(any(), any())).thenReturn(serviceBuilder);
 		when(retrieverBuilder.protocol(any())).thenReturn(retrieverBuilder);

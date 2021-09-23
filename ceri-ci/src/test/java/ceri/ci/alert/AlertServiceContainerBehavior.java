@@ -17,8 +17,8 @@ public class AlertServiceContainerBehavior {
 	private Properties properties;
 
 	@Before
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		properties = new Properties();
 	}
 

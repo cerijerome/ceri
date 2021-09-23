@@ -19,8 +19,8 @@ public class ZWaveAlerterBehavior {
 	private ZWaveAlerter alerter;
 
 	@Before
-	public void before() {
-		MockitoAnnotations.initMocks(this);
+	public void before() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		alerter = ZWaveAlerter.builder(controller).device("1", 1).device("2", 2).device("3", 3)
 			.randomize(0, 0).build();
 	}
