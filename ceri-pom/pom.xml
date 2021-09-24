@@ -20,8 +20,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.release>16</jdk.release>
 		<maven.compiler.version>3.8.1</maven.compiler.version>
-		<maven.source.version>3.2.1</maven.source.version>
 		<maven.surefire.version>3.0.0-M5</maven.surefire.version>
+		<maven.source.version>3.2.1</maven.source.version>
+		<maven.jar.version>3.2.0</maven.jar.version>
+		<maven.dependency.version>3.2.0</maven.dependency.version>
 		<exec.maven.version>3.0.0</exec.maven.version>
 		<junit.version>4.13.2</junit.version>
 		<mockito.version>3.12.4</mockito.version>
@@ -110,16 +112,6 @@
 			</dependency>
 			<dependency>
 				<groupId>io.grpc</groupId>
-				<artifactId>grpc-core</artifactId>
-				<version>${grpc.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.grpc</groupId>
-				<artifactId>grpc-api</artifactId>
-				<version>${grpc.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.grpc</groupId>
 				<artifactId>grpc-protobuf</artifactId>
 				<version>${grpc.version}</version>
 			</dependency>
@@ -188,8 +180,8 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<!-- Plugins included in all children -->
 	<build>
+		<!-- Plugins included in all children -->
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -197,17 +189,77 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
+				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
+				<artifactId>maven-source-plugin</artifactId>
 			</plugin>
 		</plugins>
 
 		<!-- Plugin configuration optionally included by children -->
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${maven.compiler.version}</version>
+					<configuration>
+						<release>${jdk.release}</release>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${maven.surefire.version}</version>
+					<configuration>
+						<includes>
+							<include>**/*Test.java</include>
+							<include>**/*Behavior.java</include>
+						</includes>
+						<skipTests>false</skipTests>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>${maven.source.version}</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>${maven.jar.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>${maven.dependency.version}</version>
+					<executions>
+						<execution>
+							<id>copy-dependencies</id>
+							<phase>package</phase>
+							<goals>
+								<goal>copy-dependencies</goal>
+							</goals>
+							<configuration>
+								<includeScope>runtime</includeScope>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>${exec.maven.version}</version>
+				</plugin>
 				<plugin>
 					<groupId>kr.motd.maven</groupId>
 					<artifactId>os-maven-plugin</artifactId>
@@ -240,44 +292,6 @@
 							</goals>
 						</execution>
 					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>exec-maven-plugin</artifactId>
-					<version>${exec.maven.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>${maven.compiler.version}</version>
-					<configuration>
-						<release>${jdk.release}</release>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>${maven.source.version}</version>
-					<executions>
-						<execution>
-							<id>attach-sources</id>
-							<goals>
-								<goal>jar</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>${maven.surefire.version}</version>
-					<configuration>
-						<includes>
-							<include>**/*Test.java</include>
-							<include>**/*Behavior.java</include>
-						</includes>
-						<!-- skipTests>true</skipTests -->
-					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
