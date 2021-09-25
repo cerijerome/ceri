@@ -24,7 +24,7 @@ public class Ioreg {
 		return exec(Parameters.ofAll(parameters));
 	}
 
-	private String exec(Parameters params) throws IOException {
+	public String exec(Parameters params) throws IOException {
 		return processor.exec(Parameters.of(IOREG).addAll(params));
 	}
 
