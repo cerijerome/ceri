@@ -45,8 +45,10 @@ import ceri.common.test.TestUtil;
 	ceri.serial.javax.test.SerialConnectorTesterBehavior.class, //
 	ceri.serial.javax.test.TestSerialConnectorBehavior.class, //
 	// javax.util
+	ceri.serial.javax.util.CommPortPropertiesBehavior.class, //
 	ceri.serial.javax.util.CommPortSupplierBehavior.class, //
 	ceri.serial.javax.util.ConnectorNotSetExceptionBehavior.class, //
+	ceri.serial.javax.util.MacUsbLocatorBehavior.class, //
 	ceri.serial.javax.util.ReplaceableSerialConnectorBehavior.class, //
 	ceri.serial.javax.util.SelfHealingSerialConfigBehavior.class, //
 	ceri.serial.javax.util.SelfHealingSerialConnectorBehavior.class, //
