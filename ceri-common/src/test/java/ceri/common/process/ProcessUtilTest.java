@@ -12,14 +12,14 @@ public class ProcessUtilTest {
 
 	@Test
 	public void testStdOut() throws IOException {
-		try (var process = TestProcess.of("test", null, 0, true)) {
+		try (var process = TestProcess.of("test", null, 0)) {
 			assertEquals(ProcessUtil.stdOut(process), "test");
 		}
 	}
 
 	@Test
 	public void testStdErr() throws IOException {
-		try (var process = TestProcess.of(null, "test", 0, true)) {
+		try (var process = TestProcess.of(null, "test", 0)) {
 			assertEquals(ProcessUtil.stdErr(process), "test");
 		}
 	}

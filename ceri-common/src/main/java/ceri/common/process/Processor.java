@@ -1,13 +1,16 @@
 package ceri.common.process;
 
 import static ceri.common.process.ProcessUtil.stdErr;
-import static ceri.common.process.ProcessUtil.stdOut;
+import static ceri.common.time.TimeSupplier.millis;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import java.io.InputStream;
 import java.util.function.Function;
-import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.data.ByteArray;
+import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionSupplier;
+import ceri.common.io.IoUtil;
 import ceri.common.text.StringUtil;
+import ceri.common.time.Timer;
 
 public class Processor {
 	public static final Processor DEFAULT = builder().build();
@@ -15,7 +18,8 @@ public class Processor {
 	public static final Processor IGNORE_EXIT_VALUE =
 		Processor.builder().verifyExitValue(false).build();
 	private final Function<Parameters, ExceptionSupplier<IOException, Process>> processStarter;
-	private final Integer timeoutMs;
+	private final int pollMs;
+	private final int timeoutMs;
 	private final boolean captureStdOut;
 	private final boolean verifyExitValue;
 	private final boolean verifyErr;
@@ -24,7 +28,8 @@ public class Processor {
 		// Allows tests to set process without sacrificing code coverage
 		Function<Parameters, ExceptionSupplier<IOException, Process>> processStarter =
 			p -> new ProcessBuilder(p.list())::start;
-		Integer timeoutMs = 5000;
+		int pollMs = 50;
+		int timeoutMs = 5000;
 		boolean captureStdOut = true;
 		boolean verifyExitValue = true;
 		boolean verifyErr = true;
@@ -34,6 +39,14 @@ public class Processor {
 		public Builder processStarter(
 			Function<Parameters, ExceptionSupplier<IOException, Process>> processStarter) {
 			this.processStarter = processStarter;
+			return this;
+		}
+
+		/**
+		 * Specify poll timeout for reading/emptying output buffer.
+		 */
+		public Builder pollMs(int pollMs) {
+			this.pollMs = pollMs;
 			return this;
 		}
 
@@ -49,7 +62,7 @@ public class Processor {
 		 * Specify no process timeout.
 		 */
 		public Builder noTimeout() {
-			this.timeoutMs = null;
+			this.timeoutMs = (int) Timer.INFINITE.period;
 			return this;
 		}
 
@@ -93,6 +106,7 @@ public class Processor {
 
 	protected Processor(Builder builder) {
 		processStarter = builder.processStarter;
+		pollMs = builder.pollMs;
 		timeoutMs = builder.timeoutMs;
 		captureStdOut = builder.captureStdOut;
 		verifyExitValue = builder.verifyExitValue;
@@ -115,21 +129,35 @@ public class Processor {
 	}
 
 	private String exec(Process process, Parameters parameters) throws IOException {
-		verifyTimeout(process, parameters);
-		String stdOut = captureStdOut ? stdOut(process) : null;
+		String stdOut = waitFor(process, parameters);
 		verifyErr(process);
 		verifyExitValue(process);
 		return stdOut;
 	}
 
-	private void verifyTimeout(Process process, Parameters parameters) throws IOException {
-		if (timeoutMs != null && timeoutMs == 0) return;
-		try {
-			if (timeoutMs == null) process.waitFor();
-			else if (!process.waitFor(timeoutMs, TimeUnit.MILLISECONDS))
+	private String waitFor(Process process, Parameters parameters) throws IOException {
+		if (captureStdOut) return waitForCapture(process, parameters);
+		waitForProcess(process, parameters, IoUtil::clear);
+		return "";
+	}
+
+	private String waitForCapture(Process process, Parameters parameters) throws IOException {
+		var buffer = ByteArray.Encoder.of();
+		waitForProcess(process, parameters, buffer::transferAvailableFrom);
+		return buffer.immutable().getString(0);
+	}
+
+	@SuppressWarnings("resource")
+	private void waitForProcess(Process process, Parameters parameters,
+		ExceptionConsumer<IOException, InputStream> consumer) throws IOException {
+		InputStream in = process.getInputStream();
+		Timer timer = Timer.of(timeoutMs, millis).start();
+		while (true) {
+			consumer.accept(in);
+			if (!process.isAlive()) return;
+			if (timer.snapshot().expired())
 				throw new IOException("Failed to complete in " + timeoutMs + "ms: " + parameters);
-		} catch (InterruptedException e) {
-			throw new RuntimeInterruptedException(e);
+			millis.delay(pollMs);
 		}
 	}
 

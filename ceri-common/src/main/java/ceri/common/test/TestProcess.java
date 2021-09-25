@@ -15,6 +15,7 @@ public class TestProcess extends Process implements Closeable {
 	public final TestInputStream err = TestInputStream.of();
 	public final TestOutputStream out = TestOutputStream.of();
 	public final CallSync.Get<Integer> exitValue = CallSync.supplier(0);
+	public final CallSync.Get<Boolean> alive = CallSync.supplier(false);
 	public final CallSync.Apply<Timeout, Boolean> waitFor = CallSync.function(null, true);
 
 	public static TestProcessor processor(String... autoResponses) {
@@ -45,12 +46,11 @@ public class TestProcess extends Process implements Closeable {
 	}
 
 	@SuppressWarnings("resource")
-	public static TestProcess of(String in, String err, int exitValue, boolean waitFor) {
+	public static TestProcess of(String in, String err, int exitValue) {
 		TestProcess process = TestProcess.of();
 		if (in != null) process.in.to.writeAscii(in);
 		if (err != null) process.err.to.writeAscii(err);
 		process.exitValue.autoResponses(exitValue);
-		process.waitFor.autoResponses(waitFor);
 		return process;
 	}
 
@@ -83,6 +83,11 @@ public class TestProcess extends Process implements Closeable {
 		return out;
 	}
 
+	@Override
+	public boolean isAlive() {
+		return alive.get();
+	}
+	
 	@Override
 	public int exitValue() {
 		return exitValue.get();

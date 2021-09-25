@@ -17,11 +17,17 @@ public class ProcessUtil {
 		return NULL_PROCESS;
 	}
 
+	/**
+	 * Reads available bytes from stream as a string.
+	 */
 	@SuppressWarnings("resource")
 	public static String stdOut(Process process) throws IOException {
 		return IoUtil.availableString(process.getInputStream());
 	}
 
+	/**
+	 * Reads available bytes from stream as a string.
+	 */
 	@SuppressWarnings("resource")
 	public static String stdErr(Process process) throws IOException {
 		return IoUtil.availableString(process.getErrorStream());

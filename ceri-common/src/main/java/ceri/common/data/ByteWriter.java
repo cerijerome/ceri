@@ -262,6 +262,13 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	}
 
 	/**
+	 * Writes available bytes from the input stream, and returns the number of bytes transferred.
+	 */
+	default int transferAvailableFrom(InputStream in) throws IOException {
+		return transferFrom(in, in.available());
+	}
+
+	/**
 	 * Writes bytes from the input stream, and returns the number of bytes transferred. The call
 	 * blocks until length bytes are transferred, EOF occurs, or an exception is thrown. Default
 	 * implementation transfers one byte at a time; efficiency may be improved by overriding, or
