@@ -1,4 +1,4 @@
-package ceri.serial.clib.jna;
+package ceri.serial.clib.test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +16,9 @@ import ceri.common.function.ExceptionConsumer;
 import ceri.common.test.CallSync;
 import ceri.common.text.StringUtil;
 import ceri.common.util.Enclosed;
+import ceri.serial.clib.jna.CError;
+import ceri.serial.clib.jna.CLib;
+import ceri.serial.clib.jna.CLibNative;
 import ceri.serial.jna.JnaUtil;
 
 /**

@@ -9,7 +9,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.util.Enclosed;
-import ceri.serial.clib.jna.TestCLibNative;
+import ceri.serial.clib.test.TestCLibNative;
 import ceri.serial.spi.Spi.Direction;
 import ceri.serial.spi.jna.TestSpiCLibNative;
 

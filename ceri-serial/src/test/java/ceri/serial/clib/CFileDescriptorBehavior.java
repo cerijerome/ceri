@@ -15,8 +15,8 @@ import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
 import ceri.serial.clib.jna.CError;
 import ceri.serial.clib.jna.CException;
-import ceri.serial.clib.jna.TestCLibNative;
-import ceri.serial.clib.jna.TestCLibNative.Fd;
+import ceri.serial.clib.test.TestCLibNative;
+import ceri.serial.clib.test.TestCLibNative.Fd;
 import ceri.serial.jna.JnaUtil;
 
 public class CFileDescriptorBehavior {

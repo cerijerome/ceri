@@ -3,7 +3,7 @@ package ceri.serial.javax.util;
 import java.io.IOException;
 import ceri.common.util.SystemVars;
 
-public class MacUsbSerialUtilTester {
+public class MacUsbLocatorTester {
 
 	public static void main(String[] args) throws IOException {
 		System.out.println(SystemVars.sys("os.name"));

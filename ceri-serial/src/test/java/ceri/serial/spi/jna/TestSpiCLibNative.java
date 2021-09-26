@@ -21,7 +21,7 @@ import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.CallSync;
-import ceri.serial.clib.jna.TestCLibNative;
+import ceri.serial.clib.test.TestCLibNative;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 

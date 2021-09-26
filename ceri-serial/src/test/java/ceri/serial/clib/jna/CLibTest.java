@@ -20,6 +20,7 @@ import ceri.common.util.OsUtil;
 import ceri.serial.clib.OpenFlag;
 import ceri.serial.clib.Seek;
 import ceri.serial.clib.jna.CLibNative.sighandler_t;
+import ceri.serial.clib.test.TestCLibNative;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.test.JnaTestUtil;
 
@@ -157,7 +158,8 @@ public class CLibTest {
 	public void testSignal() throws CException {
 		TestCLibNative.exec(lib -> {
 			sighandler_t cb = i -> {};
-			CLib.signal(15, cb);
+			var old = CLib.signal(15, cb);
+			old.invoke(15); // ignored
 			lib.signal.assertAuto(List.of(15, cb));
 			CLib.raise(15);
 			lib.raise.assertAuto(15);

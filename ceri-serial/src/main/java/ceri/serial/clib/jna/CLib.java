@@ -22,7 +22,7 @@ import ceri.serial.jna.Struct.Fields;
  * constants and calls, initialized statically, and through nested classes.
  */
 public class CLib {
-	static final JnaLibrary<CLibNative> library =
+	public static final JnaLibrary<CLibNative> library =
 		JnaLibrary.of(Platform.C_LIBRARY_NAME, CLibNative.class);
 	private static final CCaller<CException> caller = CCaller.of();
 	public static final int INVALID_FD = -1;

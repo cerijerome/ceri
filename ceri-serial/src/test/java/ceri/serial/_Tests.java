@@ -21,6 +21,11 @@ import ceri.common.test.TestUtil;
 	ceri.serial.clib.jna.CExceptionBehavior.class, //
 	ceri.serial.clib.jna.CLibTest.class, //
 	ceri.serial.clib.jna.CTimeTest.class, //
+	// clib.test
+	ceri.serial.clib.test.TestCLibNativeBehavior.class, //
+	ceri.serial.clib.test.TestFileDescriptorBehavior.class, //
+	// clib.util
+	ceri.serial.clib.util.SelfHealingFdBehavior.class, //
 	// ftdi
 	ceri.serial.ftdi.FtdiBehavior.class, //
 	// ftdi.util

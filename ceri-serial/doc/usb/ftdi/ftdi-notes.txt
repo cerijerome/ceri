@@ -2,9 +2,9 @@ FTDI Notes
 ==========
 
 Raspberry Pi/Linux Installation
--------------------------
+-------------------------------
 - Linux kernel includes VCP support (no need to install)
-- Make sure raspi-config / Interfacing Options / Serial / all options disabled
+- Make sure raspi-config / Interface Options / Serial / all options disabled
 - Should show up as /dev/ttyUSB0 etc
 - Check /var/log/messages for troubleshooting
 
@@ -84,7 +84,7 @@ Reset System Management Controller (SMC)
 libftdi and libusb
 ------------------
 - LibUsb is a JNA wrapper of libusb
-- LibFtdi is a conversion of libftdi using LibUsb (and some JNA)
+- LibFtdi is a conversion of libftdi using LibUsb
 - Used to communicate with Relay board FT245R
 
 

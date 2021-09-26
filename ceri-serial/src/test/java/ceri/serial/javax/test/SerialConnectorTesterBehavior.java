@@ -15,6 +15,7 @@ import ceri.common.test.TestUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.test.LogModifier;
 import ceri.serial.javax.FlowControl;
+import ceri.serial.javax.util.SelfHealingSerialConnector;
 
 public class SerialConnectorTesterBehavior {
 	private LogModifier logMod;
@@ -42,6 +43,13 @@ public class SerialConnectorTesterBehavior {
 		in.close();
 		sys.close();
 		logMod.close();
+	}
+
+	@Test
+	public void shouldFailWithBadCommPort() {
+		LogModifier.run(() -> {
+			assertThrown(() -> SerialConnectorTester.test("???"));
+		}, Level.OFF, SelfHealingSerialConnector.class);
 	}
 
 	@Test

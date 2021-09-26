@@ -4,6 +4,7 @@ import static ceri.common.data.ByteUtil.BIG_ENDIAN;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
@@ -415,6 +416,24 @@ public class JnaMemory implements ByteAccessor {
 		return JnaMemory.of(p, offset(index), length);
 	}
 
+	public Pointer pointer() {
+		return p == null ? null : p.share(offset);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(peer(), length);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof JnaMemory other)) return false;
+		if (peer() != other.peer()) return false;
+		if (length != other.length) return false;
+		return true;
+	}
+
 	@Override
 	public String toString() {
 		return String.format("%s@%x%s", getClass().getSimpleName(), PointerUtil.peer(p) + offset,
@@ -431,6 +450,10 @@ public class JnaMemory implements ByteAccessor {
 		return setEndian(index, NativeLong.SIZE, value.longValue(), msb);
 	}
 
+	private long peer() {
+		return PointerUtil.peer(p) + offset;
+	}
+	
 	private int offset(int index) {
 		return this.offset + index;
 	}

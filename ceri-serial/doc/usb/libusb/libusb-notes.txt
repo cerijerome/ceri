@@ -39,7 +39,7 @@ Device Handling
         - libusb_ss_usb_device_capability_descriptor
         - libusb_container_id_descriptor
 
-Confguration
+Configuration
 ------------
 - Calling libusb_set_configuration() with current config causes lightweight device reset
 - Unable to set config if interface already claimed; may need to detach kernel driver  
@@ -94,16 +94,10 @@ Device I/O
   - libusb_bulk_transfer
   - libusb_interrupt_transfer
   - No isochronous transfer
-
-Asynchronous I/O
-----------------
-- All transfer types supported: control/bulk/interrupt/isochronous
-- Multiple calls can be started, with a non-blocking callback passed in each call
-- Requires calls to libusb_handle_events from main loop 
-
-
-
-
+- Asynchronous I/O
+  - All transfer types supported: control/bulk/interrupt/isochronous
+  - Multiple calls can be started, with a non-blocking callback passed in each call
+  - Requires calls to libusb_handle_events from main loop
 
 
 

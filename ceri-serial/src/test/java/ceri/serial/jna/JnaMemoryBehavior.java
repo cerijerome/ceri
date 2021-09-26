@@ -1,11 +1,14 @@
 package ceri.serial.jna;
 
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertByte;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.serial.jna.test.JnaTestUtil.assertMemory;
+import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.serial.jna.JnaUtil.nlong;
 import static ceri.serial.jna.JnaUtil.unlong;
+import static ceri.serial.jna.test.JnaTestUtil.assertMemory;
+import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Test;
@@ -16,6 +19,18 @@ import ceri.common.data.ByteProvider;
 import ceri.common.test.TestUtil;
 
 public class JnaMemoryBehavior {
+
+	@Test
+	public void shouldNotBreachEqualsContract() {
+		var m = JnaUtil.mallocBytes(1, 2, 3, 4, 5);
+		JnaMemory t = JnaMemory.of(m, 1, 3);
+		JnaMemory eq0 = JnaMemory.of(m, 1, 3);
+		JnaMemory eq1 = JnaMemory.of(m.share(1), 0, 3);
+		JnaMemory ne0 = JnaMemory.of(m, 0, 3);
+		JnaMemory ne1 = JnaMemory.of(m, 1, 4);
+		exerciseEquals(t, eq0, eq1);
+		assertAllNotEqual(t, ne0, ne1);
+	}
 
 	@Test
 	public void shouldSetAndGetValues() {
@@ -75,7 +90,7 @@ public class JnaMemoryBehavior {
 	public void shouldCopyFromJnaMemory() {
 		var m = JnaMemory.of(JnaUtil.calloc(5));
 		assertEquals(m.copyFrom(1, m(0x80, 0xff, 0x7f)), 4);
-		assertArray(m.copy(0), 0, 0x80, 0xff, 0x7f, 0);
+		assertPointer(m.pointer(), 0, 0, 0x80, 0xff, 0x7f, 0);
 	}
 
 	@Test
@@ -154,6 +169,14 @@ public class JnaMemoryBehavior {
 		Memory m = JnaUtil.calloc(5);
 		JnaMemory.of(m).writer(0).skip(1).slice().writeBytes(0x80, 0xff, 0, 0x7f);
 		assertMemory(m, 0, 0, 0x80, 0xff, 0, 0x7f);
+	}
+
+	@Test
+	public void shouldProvidePointer() {
+		var m = JnaUtil.mallocBytes(1, 2, 3);
+		assertEquals(JnaMemory.of(m).pointer(), m);
+		assertEquals(JnaMemory.of(m, 1, 1).pointer(), m.share(1));
+		assertEquals(JnaMemory.of(null).pointer(), null);
 	}
 
 	private static JnaMemory m(int... bytes) {

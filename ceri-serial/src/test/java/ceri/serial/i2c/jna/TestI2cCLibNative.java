@@ -12,7 +12,7 @@ import com.sun.jna.ptr.NativeLongByReference;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.CallSync;
-import ceri.serial.clib.jna.TestCLibNative;
+import ceri.serial.clib.test.TestCLibNative;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
 import ceri.serial.i2c.jna.I2cDev.i2c_rdwr_ioctl_data;
 import ceri.serial.i2c.jna.I2cDev.i2c_smbus_ioctl_data;
