@@ -262,7 +262,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.TestExecutorServiceBehavior.class, //
 	ceri.common.test.TestFutureBehavior.class, //
 	ceri.common.test.TestInputStreamBehavior.class, //
-	ceri.common.test.TestListenerBehavior.class, //
 	ceri.common.test.TestListenersBehavior.class, //
 	ceri.common.test.TestOutputStreamBehavior.class, //
 	ceri.common.test.TestPrinterBehavior.class, //
