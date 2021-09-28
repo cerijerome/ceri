@@ -1,10 +1,9 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.StateChange;
-import ceri.common.test.TestListener;
+import ceri.common.test.CallSync;
 import ceri.serial.javax.test.TestSerialConnector;
 
 public class Cm17aConnectorBehavior {
@@ -18,7 +17,7 @@ public class Cm17aConnectorBehavior {
 	}
 
 	@Test
-	public void shouldDelegateToSerialConnector() throws IOException, InterruptedException {
+	public void shouldDelegateToSerialConnector() throws IOException {
 		try (TestSerialConnector serial = TestSerialConnector.of()) {
 			Cm17aConnector.Serial con = Cm17aConnector.serial(serial);
 			con.connect();
@@ -27,9 +26,10 @@ public class Cm17aConnectorBehavior {
 			serial.dtr.assertAuto(false);
 			con.setRts(true);
 			serial.rts.assertAuto(true);
-			try (TestListener<StateChange> listener = TestListener.of(con.listeners())) {
+			CallSync.Accept<StateChange> sync = CallSync.consumer(null, true);
+			try (var listener = con.listeners().enclose(sync::accept)) {
 				con.broken();
-				assertEquals(listener.await(), StateChange.broken);
+				sync.assertCall(StateChange.broken);
 			}
 		}
 	}

@@ -1,10 +1,9 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.StateChange;
-import ceri.common.test.TestListener;
+import ceri.common.test.CallSync;
 import ceri.x10.command.Command;
 import ceri.x10.command.TestCommandListener;
 
@@ -22,11 +21,12 @@ public class Cm17aEmulatorBehavior {
 	}
 
 	@Test
-	public void shouldNotifyOfStateChange() throws InterruptedException {
+	public void shouldNotifyOfStateChange() {
 		try (var emu = Cm17aEmulator.of(0)) {
-			try (TestListener<?> listener = TestListener.of(emu.listeners())) {
+			CallSync.Accept<StateChange> sync = CallSync.consumer(null, true);
+			try (var listener = emu.listeners().enclose(sync::accept)) {
 				emu.listeners.accept(StateChange.broken);
-				assertEquals(listener.await(), StateChange.broken);
+				sync.assertCall(StateChange.broken);
 			}
 		}
 	}

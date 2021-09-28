@@ -23,7 +23,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.io.StateChange;
-import ceri.common.test.TestListener;
+import ceri.common.test.CallSync;
 import ceri.log.test.LogModifier;
 import ceri.x10.command.Command;
 import ceri.x10.command.TestCommandListener;
@@ -86,10 +86,11 @@ public class Cm17aDeviceBehavior {
 	}
 
 	@Test
-	public void shouldListenForConnectorStateChange() throws InterruptedException {
-		try (TestListener<StateChange> listener = TestListener.of(cm17a.listeners())) {
+	public void shouldListenForConnectorStateChange() {
+		CallSync.Accept<StateChange> sync = CallSync.consumer(null, true);
+		try (var listener = cm17a.listeners().enclose(sync::accept)) {
 			con.listeners.accept(StateChange.broken);
-			assertEquals(listener.await(), StateChange.broken);
+			sync.assertCall(StateChange.broken);
 		}
 	}
 
