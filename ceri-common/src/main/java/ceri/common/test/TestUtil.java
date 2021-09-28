@@ -1,5 +1,6 @@
 package ceri.common.test;
 
+import static ceri.common.exception.ExceptionAdapter.RUNTIME;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import java.io.ByteArrayInputStream;
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -66,7 +68,7 @@ public class TestUtil {
 		System.gc();
 		System.gc();
 	}
-	
+
 	/**
 	 * Repeat action with a 1us delay until executor is closed. Useful to avoid intermittent thread
 	 * timing issues when waiting on an event by repeatedly triggering that event.
@@ -190,6 +192,14 @@ public class TestUtil {
 		if (t0 == t1) t0.equals(t1);
 		assertEquals(t0.hashCode(), t1.hashCode());
 		assertEquals(t0.toString(), t1.toString());
+	}
+
+	/**
+	 * Call this for code coverage of record hidden bytecode.
+	 */
+	public static void exerciseRecord(Record t) {
+		if (t != null) for (Field field : t.getClass().getDeclaredFields())
+			RUNTIME.run(() -> t.getClass().getMethod(field.getName()).invoke(t));
 	}
 
 	/**

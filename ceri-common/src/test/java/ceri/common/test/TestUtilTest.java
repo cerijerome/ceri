@@ -36,6 +36,8 @@ public class TestUtilTest {
 		}
 	}
 
+	static record Rec(int i, String s) {}
+	
 	enum BadEnum {
 		bad;
 
@@ -50,7 +52,13 @@ public class TestUtilTest {
 	}
 	
 	@Test
-	public void testExerciseEnums() {
+	public void testExerciseRecord() {
+		TestUtil.exerciseRecord(null);
+		TestUtil.exerciseRecord(new Rec(-1, "test"));
+	}
+	
+	@Test
+	public void testExerciseEnum() {
 		TestUtil.exerciseEnum(Align.H.class);
 		assertThrown(() -> TestUtil.exerciseEnum(BadEnum.class));
 	}
