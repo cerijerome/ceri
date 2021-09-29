@@ -48,6 +48,13 @@ public class ReflectUtil {
 	}
 
 	/**
+	 * Returns the object's class name without package. Undefined for class names containing '$'.
+	 */
+	public static String className(Object obj) {
+		return name(getClass(obj));
+	}
+	
+	/**
 	 * Returns the class name without package. Undefined for class names containing '$'.
 	 */
 	public static String name(Class<?> cls) {

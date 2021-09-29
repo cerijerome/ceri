@@ -7,7 +7,6 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.SubArray;
@@ -86,14 +85,14 @@ public class TestOutputStream extends OutputStream {
 	}
 
 	/**
-	 * Capture output until it matches the pattern. Use (?s) for dot-all matches.
+	 * Capture output until it matches the text pattern. Use (?s) for dot-all matches.
 	 */
-	public String awaitMatchAscii(String pattern) throws IOException {
-		return awaitMatch(pattern, StandardCharsets.ISO_8859_1);
+	public String awaitMatch(String pattern) throws IOException {
+		return awaitMatch(pattern, Charset.defaultCharset());
 	}
-	
+
 	/**
-	 * Capture output until it matches the pattern. Use (?s) for dot-all matches.
+	 * Capture output until it matches the text pattern. Use (?s) for dot-all matches.
 	 */
 	public String awaitMatch(String pattern, Charset charset) throws IOException {
 		StringBuilder b = new StringBuilder();

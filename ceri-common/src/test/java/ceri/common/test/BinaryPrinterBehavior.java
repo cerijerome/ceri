@@ -27,8 +27,8 @@ public class BinaryPrinterBehavior {
 	@Test
 	public void shouldPrintToString() {
 		assertEquals(new BinaryPrinter().toString(), new BinaryPrinter().toString());
-		assertEquals(BinaryPrinter.builder().out(null).build().toString(),
-			BinaryPrinter.builder().out(null).build().toString());
+		assertEquals(BinaryPrinter.builder().out(() -> null).build().toString(),
+			BinaryPrinter.builder().out(() -> null).build().toString());
 	}
 
 	@Test

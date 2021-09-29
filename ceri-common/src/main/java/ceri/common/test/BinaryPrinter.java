@@ -1,11 +1,13 @@
 package ceri.common.test;
 
+import static ceri.common.reflect.ReflectUtil.className;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Supplier;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
@@ -20,7 +22,7 @@ import ceri.common.util.Align;
  * 00101111 00000000 01000011 10100000  2F 00 43 A0  /.C.
  * </pre>
  *
- * for 4 bytes per column, and 1 column. Unprintable ascii chars will show as "." by default
+ * for 4 bytes per column, and 1 column. Unprintable ascii chars will show as "." by default.
  */
 public class BinaryPrinter {
 	public static final BinaryPrinter STD = builder().build();
@@ -28,7 +30,7 @@ public class BinaryPrinter {
 		builder().showBinary(false).bytesPerColumn(16).printableSpace(true).build();
 	private static final int ASCII_MIN = '!';
 	private static final int ASCII_MAX = '~';
-	private final PrintStream out;
+	private final Supplier<PrintStream> outSupplier; // works with SystemIo overrides 
 	private final int bufferSize;
 	private final int bytesPerColumn;
 	private final int columns;
@@ -41,7 +43,7 @@ public class BinaryPrinter {
 	private final char unprintable;
 
 	public static class Builder {
-		PrintStream out = System.out;
+		Supplier<PrintStream> outSupplier = () -> System.out;
 		int bufferSize = 32 * 1024;
 		int bytesPerColumn = 8;
 		int columns = 1;
@@ -55,9 +57,13 @@ public class BinaryPrinter {
 
 		Builder() {}
 
-		public Builder out(PrintStream out) {
-			this.out = out;
+		public Builder out(Supplier<PrintStream> outSupplier) {
+			this.outSupplier = outSupplier;
 			return this;
+		}
+
+		public Builder out(PrintStream out) {
+			return out(() -> out);
 		}
 
 		public Builder bufferSize(int bufferSize) {
@@ -147,14 +153,14 @@ public class BinaryPrinter {
 	}
 
 	public static Builder builder(BinaryPrinter printer) {
-		return new Builder().out(printer.out).bufferSize(printer.bufferSize)
+		return new Builder().out(printer.outSupplier).bufferSize(printer.bufferSize)
 			.bytesPerColumn(printer.bytesPerColumn).columns(printer.columns)
 			.showBinary(printer.showBinary).showHex(printer.showHex).showChar(printer.showChar)
 			.printableSpace(printer.printableSpace).unprintable(printer.unprintable);
 	}
 
 	BinaryPrinter(Builder builder) {
-		out = builder.out;
+		outSupplier = builder.outSupplier;
 		bufferSize = builder.bufferSize;
 		bytesPerColumn = builder.bytesPerColumn;
 		columns = builder.columns;
@@ -167,11 +173,11 @@ public class BinaryPrinter {
 		unprintable = builder.unprintable;
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public String toString() {
-		String outName = out == null ? null : out.getClass().getSimpleName();
-		return ToString.forClass(this, outName, bufferSize, bytesPerColumn, columns, columnSpace,
-			showBinary, showHex, showChar, upper, printableSpace, unprintable);
+		return ToString.forClass(this, className(out()), bufferSize, bytesPerColumn, columns,
+			columnSpace, showBinary, showHex, showChar, upper, printableSpace, unprintable);
 	}
 
 	/**
@@ -280,7 +286,9 @@ public class BinaryPrinter {
 	/**
 	 * Print binary data from given offset with given length.
 	 */
+	@SuppressWarnings("resource")
 	public BinaryPrinter print(byte[] bytes, int offset, int length) {
+		var out = out();
 		StringBuilder binB = new StringBuilder();
 		StringBuilder hexB = new StringBuilder();
 		StringBuilder charB = new StringBuilder();
@@ -304,9 +312,14 @@ public class BinaryPrinter {
 		return this;
 	}
 
+	@SuppressWarnings("resource")
 	public BinaryPrinter flush() {
-		out.flush();
+		out().flush();
 		return this;
+	}
+
+	private PrintStream out() {
+		return outSupplier.get();
 	}
 
 	private void appendItemSpace(StringBuilder binB, StringBuilder hexB) {
