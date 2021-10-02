@@ -9,8 +9,8 @@ import ceri.serial.ftdi.util.SelfHealingFtdiConnector;
 public class FtdiTester {
 
 	public static void main(String[] args) throws IOException {
-		//runEchoTest();
-		run("0x0403");
+		runEchoTest();
+		//run("0x0403");
 	}
 
 	public static void runEchoTest() throws IOException {

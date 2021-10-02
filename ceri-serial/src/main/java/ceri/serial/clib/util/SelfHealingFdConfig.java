@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Predicate;
 import ceri.common.function.ExceptionSupplier;
+import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.ToString;
 import ceri.serial.clib.CFileDescriptor;
 import ceri.serial.clib.FileDescriptor;
@@ -16,7 +17,7 @@ import ceri.serial.clib.OpenFlag;
 public class SelfHealingFdConfig {
 	static final Predicate<Exception> DEFAULT_PREDICATE =
 		named(CFileDescriptor::isBroken, "CFileDescriptor::isBroken");
-	public final ExceptionSupplier<IOException, FileDescriptor> openFn;
+	public final ExceptionSupplier<IOException, ? extends FileDescriptor> openFn;
 	public final int recoveryDelayMs;
 	public final int fixRetryDelayMs;
 	public final Predicate<Exception> brokenPredicate;
@@ -25,21 +26,13 @@ public class SelfHealingFdConfig {
 		return builder(openFn).build();
 	}
 
-	public static SelfHealingFdConfig of(String path, OpenFlag... flags) {
-		return of(path, Mode.NONE, flags);
-	}
-
-	public static SelfHealingFdConfig of(String path, Mode mode, OpenFlag... flags) {
-		return builder(path, mode, flags).build();
-	}
-
 	public static class Builder {
-		final ExceptionSupplier<IOException, FileDescriptor> openFn;
+		final ExceptionSupplier<IOException, ? extends FileDescriptor> openFn;
 		int fixRetryDelayMs = 2000;
 		int recoveryDelayMs = fixRetryDelayMs / 2;
 		Predicate<Exception> brokenPredicate = DEFAULT_PREDICATE;
 
-		Builder(ExceptionSupplier<IOException, FileDescriptor> openFn) {
+		Builder(ExceptionSupplier<IOException, ? extends FileDescriptor> openFn) {
 			this.openFn = openFn;
 		}
 
@@ -71,10 +64,10 @@ public class SelfHealingFdConfig {
 		Objects.requireNonNull(path);
 		Objects.requireNonNull(mode);
 		Objects.requireNonNull(flags);
-		return builder(() -> CFileDescriptor.open(path, mode, flags));
+		return builder(new CFileDescriptor.Opener(path, mode, flags));
 	}
 
-	public static Builder builder(ExceptionSupplier<IOException, FileDescriptor> openFn) {
+	public static Builder builder(ExceptionSupplier<IOException, ? extends FileDescriptor> openFn) {
 		return new Builder(openFn);
 	}
 
@@ -91,7 +84,8 @@ public class SelfHealingFdConfig {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, openFn, recoveryDelayMs, fixRetryDelayMs, brokenPredicate);
+		return ToString.forClass(this, ReflectUtil.toStringOrHash(openFn), recoveryDelayMs,
+			fixRetryDelayMs, ReflectUtil.toStringOrHash(brokenPredicate));
 	}
 
 }

@@ -3,12 +3,14 @@ package ceri.serial.clib;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import com.sun.jna.Pointer;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.function.ExceptionSupplier;
 import ceri.common.text.RegexUtil;
+import ceri.serial.clib.jna.CError;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.clib.jna.CLib;
 import ceri.serial.jna.PointerUtil;
@@ -19,7 +21,7 @@ import ceri.serial.jna.PointerUtil;
 public class CFileDescriptor implements FileDescriptor {
 	private static final Pattern BROKEN_MESSAGE_REGEX = Pattern.compile("(?i)(?:remote i/o)");
 	private static final Set<Integer> BROKEN_ERROR_CODES =
-		Set.of(/* no such file/dir */ 2, /* remote I/O */ 121);
+		Set.of(CError.ENOENT.code, CError.EREMOTEIO.code);
 	private final int fd;
 	private volatile boolean closed = false;
 
@@ -28,10 +30,24 @@ public class CFileDescriptor implements FileDescriptor {
 	 * default for the self-healing file descriptor.
 	 */
 	public static boolean isBroken(Exception e) {
-		CException ce = ReflectUtil.castOrNull(CException.class, e);
-		if (ce == null) return false;
-		if (BROKEN_ERROR_CODES.contains(ce.code)) return true;
+		if (!(e instanceof CException ce)) return false;
+		if (ce.code != CError.UNDEFINED && BROKEN_ERROR_CODES.contains(ce.code)) return true;
 		return (RegexUtil.found(BROKEN_MESSAGE_REGEX, e.getMessage()) != null);
+	}
+
+	/**
+	 * Encapsulates open arguments. Use Mode.NONE if mode is unspecified.
+	 */
+	public static record Opener(String path, Mode mode, Collection<OpenFlag> flags)
+		implements ExceptionSupplier<IOException, CFileDescriptor> {
+		public Opener(String path, Mode mode, OpenFlag... flags) {
+			this(path, mode, List.of(flags));
+		}
+
+		@Override
+		public CFileDescriptor get() throws IOException {
+			return open(path, mode, flags);
+		}
 	}
 
 	/**

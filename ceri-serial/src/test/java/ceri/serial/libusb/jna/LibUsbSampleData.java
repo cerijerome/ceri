@@ -597,16 +597,6 @@ public class LibUsbSampleData {
 		Struct.write(dc.bos);
 	}
 
-	// private static libusb_bos_dev_capability_descriptor.ByRef
-	// bosWirelessUsbDevCap(Consumer<libusb_bos_dev_capability_descriptor> populator) {
-	// libusb_bos_dev_capability_descriptor desc = new libusb_bos_dev_capability_descriptor(null);
-	// desc.bLength = LIBUSB_DT_DEVICE_CAPABILITY_SIZE;
-	// desc.bDescriptorType = (byte) LIBUSB_DT_DEVICE_CAPABILITY.value;
-	// desc.bDevCapabilityType = (byte) LIBUSB_BT_WIRELESS_USB_DEVICE_CAPABILITY.value;
-	// populator.accept(desc);
-	// return toBdc(desc);
-	// }
-
 	private static libusb_bos_dev_capability_descriptor.ByRef
 		bosUsb20Ext(Consumer<libusb_usb_2_0_extension_descriptor> populator) {
 		libusb_usb_2_0_extension_descriptor desc = new libusb_usb_2_0_extension_descriptor(null);

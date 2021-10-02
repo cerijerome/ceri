@@ -3,7 +3,6 @@ package ceri.serial.ftdi;
 import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.test.BinaryPrinter;
 import ceri.serial.libusb.jna.LibUsbException;
 
@@ -20,12 +19,7 @@ public class FtdiStreamTester {
 	}
 
 	private static void process(Ftdi ftdi) throws LibUsbException {
-		int waitMs = 60 * 1000;
-		try (var x = ftdi.readStream(FtdiStreamTester::stream, "hello!", 1, 3)) {
-			logger.info("Waiting for callback invocation");
-			ConcurrentUtil.delay(waitMs);
-			logger.info("Done");
-		}
+		ftdi.readStream(FtdiStreamTester::stream, "hello!", 1, 3);
 	}
 
 	private static boolean stream(ByteBuffer buffer, int length, FtdiProgressInfo progress,

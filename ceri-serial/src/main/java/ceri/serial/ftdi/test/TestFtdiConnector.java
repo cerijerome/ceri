@@ -17,7 +17,7 @@ public class TestFtdiConnector extends TestConnector implements FtdiConnector {
 	public final CallSync.Accept<Boolean> rts = CallSync.consumer(false, true);
 	public final CallSync.Accept<FtdiFlowControl> flowControl =
 		CallSync.consumer(FtdiFlowControl.disabled, true);
-	public final CallSync.Get<Integer> pins = CallSync.supplier();
+	public final CallSync.Get<Integer> pins = CallSync.supplier(0);
 
 	/**
 	 * Provide a test connector that echoes output to input, and writes the last byte to pins.
@@ -88,9 +88,9 @@ public class TestFtdiConnector extends TestConnector implements FtdiConnector {
 
 	@Override
 	public int readPins() throws IOException {
-		Integer n = pins.get(IO_ADAPTER);
+		int n = pins.get(IO_ADAPTER);
 		verifyConnected();
-		return n == null ? 0 : n;
+		return n;
 	}
 
 	@SuppressWarnings("resource")

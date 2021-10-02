@@ -110,11 +110,14 @@ public class FtdiBehavior {
 			List.of(0x81, 5), List.of(0x81, 3));
 	}
 
+	// TODO: check all calls to libusb_submit_transfer:
+	// - caller is responsible for Struct.write/read of fields? (preferred)
+	// - or always write all?
+	
 	@Test
-	public void shouldWriteAsync() {
-		// TODO: fix this test
-		//var control = ftdi.writeSubmit(1, 2, 3, 4, 5);
-		//assertEquals(control.dataDone(), 5);
+	public void shouldWriteAsync() throws LibUsbException {
+		var control = ftdi.writeSubmit(1, 2, 3, 4, 5);
+		assertEquals(control.dataDone(), 5);
 	}
 
 }

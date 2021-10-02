@@ -24,7 +24,7 @@ public class UsbPrinter {
 
 	public static void main(String[] args) {
 		var printer = new UsbPrinter(System.out, null);
-		// run(printer);
+		run(printer);
 		runTest(printer);
 	}
 

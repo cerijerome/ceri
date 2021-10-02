@@ -305,6 +305,7 @@ public enum CError {
 
 	private static final TypeTranscoder<CError> xcoder = TypeTranscoder.of(t -> t.code,
 		Stream.of(CError.values()).filter(t -> t.code != Os.UNDEFINED).toList());
+	public static final int UNDEFINED = Os.UNDEFINED;
 	public final int code;
 
 	public static CError from(int code) {
@@ -316,9 +317,9 @@ public enum CError {
 	}
 
 	public boolean undefined() {
-		return code == Os.UNDEFINED;
+		return code == UNDEFINED;
 	}
-	
+
 	private static class Os {
 		private static final int UNDEFINED = -1;
 		private static final int EAGAIN;

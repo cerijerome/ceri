@@ -42,6 +42,7 @@ import ceri.common.data.TypeTranscoder;
 import ceri.log.util.LogUtil;
 import ceri.serial.clib.jna.CTime.timeval;
 import ceri.serial.jna.JnaUtil;
+import ceri.serial.jna.Struct;
 //import ceri.serial.jna.Struct;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
@@ -411,6 +412,11 @@ public class LibFtdi {
 	public static class size_and_time {
 		public long totalBytes;
 		public Instant time = Instant.EPOCH;
+		
+		public void set(size_and_time from) {
+			totalBytes = from.totalBytes;
+			time = from.time;
+		}
 	}
 
 	public static class ftdi_string_descriptors {
@@ -753,11 +759,10 @@ public class LibFtdi {
 		try {
 			ftdi_transfer_control tc = transferControl(ftdi, buf, size, transfer);
 			int write_size = Math.min(size, ftdi.writebuffer_chunksize);
-			libusb_transfer_cb_fn callback = t -> ftdi_write_data_cb(t, tc);
+			libusb_transfer_cb_fn callback = p -> ftdi_write_data_cb(tc);
 			LibUsb.libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.in_ep, buf, write_size,
 				callback, null, ftdi.usb_write_timeout);
-			LibUsb.libusb_submit_transfer(transfer);
-			tc.transfer.setAutoSynch(false); // don't read/write from now on
+			LibUsb.libusb_submit_transfer(Struct.write(transfer));
 			return tc;
 		} catch (LibUsbException | RuntimeException e) {
 			LibUsb.libusb_free_transfer(transfer);
@@ -772,11 +777,10 @@ public class LibFtdi {
 		try {
 			ftdi_transfer_control tc = transferControl(ftdi, buf, size, transfer);
 			int read_size = readLen(ftdi, size);
-			libusb_transfer_cb_fn callback = t -> ftdi_read_data_cb(t, tc);
+			libusb_transfer_cb_fn callback = p -> ftdi_read_data_cb(tc);
 			LibUsb.libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.out_ep, ftdi.readbuffer,
 				read_size, callback, null, ftdi.usb_read_timeout);
 			LibUsb.libusb_submit_transfer(transfer);
-			tc.transfer.setAutoSynch(false); // don't read/write from now on
 			return tc;
 		} catch (LibUsbException | RuntimeException e) {
 			LibUsb.libusb_free_transfer(transfer);
@@ -947,7 +951,8 @@ public class LibFtdi {
 	/**
 	 * Callback function for ftdi_write_data_submit. Checks if transfer is complete.
 	 */
-	private static void ftdi_write_data_cb(libusb_transfer transfer, ftdi_transfer_control tc) {
+	private static void ftdi_write_data_cb(ftdi_transfer_control tc) {
+		libusb_transfer transfer = libusb_transfer_cb_fn.read(tc.transfer);
 		tc.offset += transfer.actual_length;
 		if (tc.offset >= tc.size) tc.completed = 1;
 		else if (transfer.status == LIBUSB_TRANSFER_CANCELLED.value)
@@ -960,6 +965,7 @@ public class LibFtdi {
 		try {
 			transfer.length = Math.min(ftdi.writebuffer_chunksize, tc.size - tc.offset);
 			transfer.buffer = tc.buf.share(tc.offset);
+			Struct.write(transfer, "length", "buffer");
 			LibUsb.libusb_submit_transfer(transfer);
 		} catch (LibUsbException | RuntimeException e) {
 			logger.catching(e);
@@ -971,7 +977,8 @@ public class LibFtdi {
 	 * Callback function for ftdi_read_data_submit. Copies to buffer and checks if transfer is
 	 * complete. If not, a new transfer is submitted.
 	 */
-	private static void ftdi_read_data_cb(libusb_transfer transfer, ftdi_transfer_control tc) {
+	private static void ftdi_read_data_cb(ftdi_transfer_control tc) {
+		libusb_transfer transfer = libusb_transfer_cb_fn.read(tc.transfer);
 		readData(transfer, tc);
 		if (tc.offset >= tc.size) tc.completed = 1;
 		else if (transfer.status == LIBUSB_TRANSFER_CANCELLED.value)
@@ -1003,6 +1010,7 @@ public class LibFtdi {
 		try {
 			transfer.length =
 				Math.min(ftdi.readbuffer_chunksize, readLen(ftdi, tc.size - tc.offset));
+			Struct.write(transfer, "length");
 			LibUsb.libusb_submit_transfer(transfer);
 		} catch (LibUsbException | RuntimeException e) {
 			logger.catching(e);

@@ -1213,17 +1213,16 @@ public class LibUsb {
 	 */
 	// typedef void (LIBUSB_CALL *libusb_transfer_cb_fn)(struct libusb_transfer *transfer);
 	public interface libusb_transfer_cb_fn extends Callback {
-		// public static final CallbackRegistry<libusb_transfer_cb_fn> registry =
-		// CallbackRegistry.of();
-
-		void invoke(libusb_transfer transfer);
-
-		// public static libusb_transfer_cb_fn register(int n, libusb_transfer_cb_fn cb) {
-		// return registry.register(n, id -> (transfer) -> {
-		// registry.remove(id);
-		// cb.invoke(transfer);
-		// });
-		// }
+		void invoke(Pointer transfer);
+		
+		/**
+		 * Call to read modified fields on callback.
+		 */
+		static libusb_transfer read(libusb_transfer transfer) {
+			for (int i = 0; i < transfer.num_iso_packets; i++)
+				Struct.read(transfer.iso_packet_desc[i], "status", "actual_length");
+			return Struct.read(transfer, "status", "actual_length");
+		}
 	}
 
 	/**
@@ -1239,9 +1238,9 @@ public class LibUsb {
 		public byte endpoint;
 		public byte type; // libusb_transfer_type
 		public int timeout;
-		public int status; // libusb_transfer_status
+		public int status; // libusb_transfer_status; read-only, set before callback
 		public int length;
-		public int actual_length;
+		public int actual_length; // read-only, set before callback
 		public libusb_transfer_cb_fn callback;
 		public Pointer user_data;
 		public Pointer buffer;
@@ -2083,6 +2082,9 @@ public class LibUsb {
 		return xfer;
 	}
 
+	/**
+	 * Submits asynchronous transfer. Caller must sync transfer struct fields before calling.
+	 */
 	public static void libusb_submit_transfer(libusb_transfer transfer) throws LibUsbException {
 		require(transfer);
 		Pointer p = Struct.pointer(transfer);

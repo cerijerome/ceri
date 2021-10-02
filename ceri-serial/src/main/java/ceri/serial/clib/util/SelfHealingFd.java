@@ -177,8 +177,8 @@ public class SelfHealingFd extends LoopingExecutor
 	}
 
 	private void setBroken() {
-		sync.signal();
 		notifyListeners(StateChange.broken);
+		sync.signal();
 	}
 
 	private void initFd() throws IOException {

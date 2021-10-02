@@ -1,5 +1,7 @@
 package ceri.serial.libusb.jna;
 
+import ceri.common.exception.ExceptionAdapter;
+import ceri.common.exception.ExceptionUtil;
 import ceri.common.text.StringUtil;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
@@ -8,7 +10,10 @@ import ceri.serial.libusb.jna.LibUsb.libusb_error;
  * Exception for libusb errors. Holds libusb_error (may be null) and code.
  */
 public class LibUsbException extends CException {
-	private static final long serialVersionUID = 3696913945167490798L;
+	private static final long serialVersionUID = -1L;
+	public static final ExceptionAdapter<LibUsbException> ADAPTER =
+		ExceptionAdapter.of(LibUsbException.class,
+			e -> ExceptionUtil.initCause(of(libusb_error.LIBUSB_ERROR_OTHER, e.getMessage()), e));
 	public final libusb_error error;
 
 	/**

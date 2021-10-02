@@ -155,7 +155,7 @@ public class FtdiConnectorTester extends LoopingExecutor {
 	}
 
 	private void readPins() throws IOException {
-		int pins = connector.readPins();
+		byte[] pins = ByteUtil.toMsb(connector.readPins());
 		logInput("PINS", ByteProvider.of(pins));
 	}
 

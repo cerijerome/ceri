@@ -1,4 +1,4 @@
-package ceri.serial.javax.test;
+package ceri.serial.ftdi.test;
 
 import static ceri.common.test.AssertUtil.assertThrown;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
@@ -14,57 +14,55 @@ import ceri.common.test.TestOutputStream;
 import ceri.common.test.TestUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.test.LogModifier;
-import ceri.serial.javax.FlowControl;
-import ceri.serial.javax.util.SelfHealingSerialConnector;
+import ceri.serial.ftdi.FtdiBitMode;
+import ceri.serial.ftdi.FtdiFlowControl;
+import ceri.serial.libusb.jna.LibUsbSampleData;
+import ceri.serial.libusb.jna.TestLibUsbNative;
 
-public class SerialConnectorTesterBehavior {
+public class FtdiConnectorTesterBehavior {
 	private LogModifier logMod;
 	private SystemIo sys;
 	private TestOutputStream out;
 	private TestInputStream in;
-	private TestSerialConnector con;
+	private TestFtdiConnector con;
 
 	@Before
 	public void before() throws IOException {
-		logMod = LogModifier.of(Level.OFF, SerialConnectorTester.class, LoopingExecutor.class);
+		logMod = LogModifier.of(Level.OFF, FtdiConnectorTester.class, LoopingExecutor.class);
 		sys = SystemIo.of();
 		in = TestInputStream.of();
 		out = TestOutputStream.of();
 		sys.in(in);
 		sys.out(new PrintStream(out));
-		con = TestSerialConnector.of();
+		con = TestFtdiConnector.of();
 		con.connect();
 	}
 
 	@After
-	public void after() throws IOException {
+	public void afterClass() throws IOException {
 		con.close();
-		sys.close();
 		out.close();
 		in.close();
+		sys.close();
 		logMod.close();
-	}
-
-	@Test
-	public void shouldFailWithBadCommPort() {
-		LogModifier.run(() -> {
-			assertThrown(() -> SerialConnectorTester.test("???"));
-		}, Level.OFF, SelfHealingSerialConnector.class);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
-	public void shouldWaitUntilStopped() throws IOException {
-		try (var run = TestUtil.threadRun(() -> SerialConnectorTester.test(con, null))) {
-			awaitHelp();
-			in.to.writeString("x\n");
-			run.get();
+	public void shouldFindDevice() throws IOException {
+		try (var enc = TestLibUsbNative.register()) {
+			enc.subject.data.deviceConfigs.add(LibUsbSampleData.ftdiConfig());
+			try (var run = TestUtil.threadRun(() -> FtdiConnectorTester.test("0x0403:0x6001"))) {
+				awaitHelp();
+				in.to.writeString("x\n");
+				run.get();
+			}
 		}
 	}
 
 	@Test
 	public void shouldInterrupt() throws IOException {
-		try (var run = TestUtil.threadRun(() -> SerialConnectorTester.test(con, null))) {
+		try (var run = TestUtil.threadRun(() -> FtdiConnectorTester.test(con, null))) {
 			awaitHelp();
 			run.cancel();
 			assertThrown(run::get);
@@ -73,8 +71,8 @@ public class SerialConnectorTesterBehavior {
 
 	@SuppressWarnings("resource")
 	@Test
-	public void shouldWriteToSerialPort() throws IOException {
-		try (var tester = SerialConnectorTester.of(con, null, 0)) {
+	public void shouldWriteToFtdi() throws IOException {
+		try (var tester = FtdiConnectorTester.of(con, null, 0)) {
 			awaitHelp();
 			in.to.writeString("o\n");
 			awaitPrompt();
@@ -85,19 +83,32 @@ public class SerialConnectorTesterBehavior {
 
 	@SuppressWarnings("resource")
 	@Test
-	public void shouldReadFromSerialPort() throws IOException {
-		try (var tester = SerialConnectorTester.of(con, null, 0)) {
+	public void shouldReadFromFtdi() throws IOException {
+		try (var tester = FtdiConnectorTester.of(con, null, 0)) {
 			awaitHelp();
 			con.in.to.writeString("test\0");
-			in.to.writeString("\n");
+			in.to.writeString("i0\n");
+			awaitPrompt();
+			in.to.writeString("i5\n");
 			out.awaitMatch("(?s)IN <<<.*74 65 73 74 00.*> ");
 		}
 	}
 
 	@SuppressWarnings("resource")
 	@Test
+	public void shouldReadPins() throws IOException {
+		try (var tester = FtdiConnectorTester.of(con, null, 0)) {
+			awaitHelp();
+			con.pins.autoResponses(0xff96a55a);
+			in.to.writeString("p\n");
+			out.awaitMatch("(?s)PINS <<<.*ff 96 a5 5a.*> ");
+		}
+	}
+
+	@SuppressWarnings("resource")
+	@Test
 	public void shouldBreakAndFix() throws IOException {
-		try (var tester = SerialConnectorTester.of(con, con::fixed, 0)) {
+		try (var tester = FtdiConnectorTester.of(con, con::fixed, 0)) {
 			awaitHelp();
 			in.to.writeString("z\n");
 			awaitPrompt();
@@ -112,24 +123,24 @@ public class SerialConnectorTesterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldAcceptCommands() throws IOException {
-		try (var tester = SerialConnectorTester.of(con, null, 0)) {
+		try (var tester = FtdiConnectorTester.of(con, null, 0)) {
 			awaitHelp();
 			in.to.writeString("r1\n");
 			con.rts.assertAuto(true);
 			in.to.writeString("b0\n");
-			con.breakBit.assertAuto(false);
+			con.bitmode.assertAuto(FtdiBitMode.OFF);
+			in.to.writeString("b1\n");
+			con.bitmode.assertAuto(FtdiBitMode.BITBANG);
 			in.to.writeString("d1\n");
 			con.dtr.assertAuto(true);
 			in.to.writeString("fn\n");
-			con.flowControl.assertAuto(FlowControl.none);
-			in.to.writeString("fr0\n");
-			con.flowControl.assertAuto(FlowControl.rtsCtsIn);
-			in.to.writeString("fr1\n");
-			con.flowControl.assertAuto(FlowControl.rtsCtsOut);
-			in.to.writeString("fx0\n");
-			con.flowControl.assertAuto(FlowControl.xonXoffIn);
-			in.to.writeString("fx1\n");
-			con.flowControl.assertAuto(FlowControl.xonXoffOut);
+			con.flowControl.assertAuto(FtdiFlowControl.disabled);
+			in.to.writeString("fr\n");
+			con.flowControl.assertAuto(FtdiFlowControl.rtsCts);
+			in.to.writeString("fd\n");
+			con.flowControl.assertAuto(FtdiFlowControl.dtrDsr);
+			in.to.writeString("fx\n");
+			con.flowControl.assertAuto(FtdiFlowControl.xonXoff);
 			in.to.writeString("x\n");
 			tester.waitUntilStopped();
 		}
@@ -138,7 +149,7 @@ public class SerialConnectorTesterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldAcceptInvalidCommands() throws IOException {
-		try (var tester = SerialConnectorTester.of(con, null, 0)) {
+		try (var tester = FtdiConnectorTester.of(con, null, 0)) {
 			awaitHelp();
 			in.to.writeString("f\n");
 			awaitPrompt();
@@ -158,7 +169,7 @@ public class SerialConnectorTesterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldshowHelp() throws IOException {
-		try (var tester = SerialConnectorTester.of(con, null, 0)) {
+		try (var tester = FtdiConnectorTester.of(con, null, 0)) {
 			awaitHelp();
 			in.to.writeString("?\n");
 			awaitHelp();

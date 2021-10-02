@@ -5,6 +5,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
+import static ceri.common.test.TestUtil.exerciseRecord;
 import java.io.IOException;
 import java.util.List;
 import org.junit.After;
@@ -13,6 +14,7 @@ import org.junit.Test;
 import com.sun.jna.Memory;
 import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
+import ceri.serial.clib.CFileDescriptor.Opener;
 import ceri.serial.clib.jna.CError;
 import ceri.serial.clib.jna.CException;
 import ceri.serial.clib.test.TestCLibNative;
@@ -40,10 +42,33 @@ public class CFileDescriptorBehavior {
 	@Test
 	public void testIsBroken() {
 		assertFalse(CFileDescriptor.isBroken(null));
+		assertFalse(CFileDescriptor.isBroken(new IOException("remote i/o")));
+		assertFalse(CFileDescriptor.isBroken(CException.of(-1, "test")));
 		assertFalse(CFileDescriptor.isBroken(CException.of(1, "test")));
-		assertTrue(CFileDescriptor.isBroken(CException.of(2, "test")));
-		assertTrue(CFileDescriptor.isBroken(CException.of(121, "test")));
+		assertTrue(CFileDescriptor.isBroken(CException.of(CError.ENOENT.code, "test")));
 		assertTrue(CFileDescriptor.isBroken(CException.of(1, "remote i/o")));
+		assertTrue(CFileDescriptor.isBroken(CException.of(-1, "remote i/o")));
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldOpenWithOpener() throws IOException {
+		new Opener("test", Mode.of(0567), OpenFlag.O_CREAT).get();
+		lib.open.assertCall(List.of("test", OpenFlag.O_CREAT.value, 0567));
+		new Opener("test", Mode.of(0756), List.of(OpenFlag.O_APPEND)).get();
+		lib.open.assertCall(List.of("test", OpenFlag.O_APPEND.value, 0756));
+	}
+
+	@Test
+	public void shouldNotBreachOpenerEqualsContract() {
+		Opener t = new Opener("test", Mode.of(0767), OpenFlag.O_RDWR);
+		Opener eq0 = new Opener("test", Mode.of(0767), List.of(OpenFlag.O_RDWR));
+		Opener ne0 = new Opener("Test", Mode.of(0767), OpenFlag.O_RDWR);
+		Opener ne1 = new Opener("test", Mode.of(0777), OpenFlag.O_RDWR);
+		Opener ne2 = new Opener("test", Mode.of(0767), OpenFlag.O_RDONLY);
+		exerciseEquals(t, eq0);
+		assertAllNotEqual(t, ne0, ne1, ne2);
+		exerciseRecord(t);
 	}
 
 	@Test

@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.ExceptionRunnable;
@@ -154,10 +153,8 @@ public class SerialConnectorTester extends LoopingExecutor {
 	@SuppressWarnings("resource")
 	private void readFromPort() {
 		try {
-			int available = connector.in().available();
-			if (available <= 0) return;
-			byte[] bytes = connector.in().readNBytes(available);
-			logInput(Immutable.wrap(bytes));
+			var bytes = IoUtil.availableBytes(connector.in());
+			if (!bytes.isEmpty()) logInput(bytes);
 		} catch (IOException e) {
 			logger.catching(e);
 		}
