@@ -29,6 +29,8 @@ import ceri.common.test.TestUtil;
 	ceri.serial.clib.util.SelfHealingFdConfigBehavior.class, //
 	// ftdi
 	ceri.serial.ftdi.FtdiBehavior.class, //
+	// ftdi.jna
+	ceri.serial.ftdi.jna.LibFtdiStreamTest.class, //
 	// ftdi.test
 	ceri.serial.ftdi.test.FtdiConnectorTesterBehavior.class, //
 	ceri.serial.ftdi.test.TestFtdiConnectorBehavior.class, //

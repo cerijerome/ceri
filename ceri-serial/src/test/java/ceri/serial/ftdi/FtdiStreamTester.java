@@ -19,13 +19,12 @@ public class FtdiStreamTester {
 	}
 
 	private static void process(Ftdi ftdi) throws LibUsbException {
-		ftdi.readStream(FtdiStreamTester::stream, "hello!", 1, 3);
+		ftdi.readStream(FtdiStreamTester::stream, 1, 3);
 	}
 
-	private static boolean stream(ByteBuffer buffer, int length, FtdiProgressInfo progress,
-		String userData) {
-		logger.info("Stream: {} {} {}", userData, length, progress);
-		printer.print(buffer, length);
+	private static boolean stream(FtdiProgressInfo progress, ByteBuffer buffer) {
+		logger.info("Stream: {} {}", progress, buffer);
+		if (buffer != null) printer.print(buffer);
 		return true;
 	}
 

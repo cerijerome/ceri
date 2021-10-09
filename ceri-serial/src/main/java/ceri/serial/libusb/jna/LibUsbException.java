@@ -12,8 +12,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_error;
 public class LibUsbException extends CException {
 	private static final long serialVersionUID = -1L;
 	public static final ExceptionAdapter<LibUsbException> ADAPTER =
-		ExceptionAdapter.of(LibUsbException.class,
-			e -> ExceptionUtil.initCause(of(libusb_error.LIBUSB_ERROR_OTHER, e.getMessage()), e));
+		ExceptionAdapter.of(LibUsbException.class, LibUsbException::adapt);
 	public final libusb_error error;
 
 	/**
@@ -38,8 +37,8 @@ public class LibUsbException extends CException {
 	}
 
 	private static LibUsbException full(String message, int code, libusb_error error) {
-		return new LibUsbException(error == null ? String.format("%s: %d", message, code) :
-			String.format("%s: %d (%s)", message, code, error), code, error);
+		return new LibUsbException(String.format("%s: %s", message, error == null ? code : error),
+			code, error);
 	}
 
 	protected LibUsbException(String message, int code, libusb_error error) {
@@ -53,5 +52,13 @@ public class LibUsbException extends CException {
 
 	private static int code(libusb_error error) {
 		return error != null ? error.value : libusb_error.LIBUSB_ERROR_OTHER.value;
+	}
+
+	private static LibUsbException adapt(Throwable e) {
+		var error = libusb_error.LIBUSB_ERROR_OTHER;
+		String message = e.getMessage();
+		if (message == null) message = error.toString();
+		else message += ": " + error;
+		return ExceptionUtil.initCause(of(error, message), e);
 	}
 }

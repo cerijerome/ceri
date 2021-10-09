@@ -1,24 +1,30 @@
 package ceri.serial.jna;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertMatch;
 import java.util.List;
 import java.util.Set;
 import org.junit.Test;
+import com.sun.jna.Callback;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 
 public class JnaArgsBehavior {
 
+	static interface TestCallback extends Callback {
+		boolean invoke(String s, int i);
+	}
+
 	@Test
 	public void shouldExpandArrays() {
-		assertEquals(JnaArgs.DEFAULT.args(new int[][] { { 1 }, { 2, 3 } },
-			new double[] { 1.1, 2.2 }, "x"), "[[1], [2, 3]], [1.1, 2.2], x");
+		assertEquals(
+			JnaArgs.DEFAULT.args(new int[][] { { 1 }, { 2, 3 } }, new double[] { 1.1, 2.2 }, "x"),
+			"[[1], [2, 3]], [1.1, 2.2], x");
 	}
 
 	@Test
 	public void shouldExpandIterable() {
-		assertEquals(
-			JnaArgs.DEFAULT.args(Set.of(Set.of(1)), List.of(2, 3, new int[] { 4, 5 })),
+		assertEquals(JnaArgs.DEFAULT.args(Set.of(Set.of(1)), List.of(2, 3, new int[] { 4, 5 })),
 			"[[1]], [2, 3, [4, 5]]");
 	}
 
@@ -28,6 +34,12 @@ public class JnaArgsBehavior {
 		long peer = PointerUtil.peer(m);
 		Pointer p = PointerUtil.pointer(peer + 1);
 		assertEquals(JnaArgs.DEFAULT.args(m, p), String.format("@%x+3, @%x", peer, peer + 1));
+	}
+
+	@Test
+	public void shouldPrintCallback() {
+		TestCallback callback = (s, i) -> s.length() == i;
+		assertMatch(JnaArgs.string(callback), "%s\\$\\$Lambda.*@\\w+", getClass().getSimpleName());
 	}
 
 	@Test

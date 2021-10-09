@@ -18,6 +18,18 @@ public class CCaller<E extends Exception> {
 	public final JnaArgs args;
 	public final ObjIntFunction<String, E> exceptionFn;
 
+	/**
+	 * Capture the error code or 0 if successful.
+	 */
+	public static int capture(ExceptionRunnable<? extends LastErrorException> runnable) {
+		try {
+			runnable.run();
+			return 0;
+		} catch (LastErrorException e) {
+			return e.getErrorCode();
+		}
+	}
+
 	public static CCaller<CException> of() {
 		return of(CException::full);
 	}

@@ -6,7 +6,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
 import java.io.Closeable;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Set;
@@ -44,9 +43,8 @@ public class Ftdi implements Closeable {
 	/**
 	 * Callback to register for streaming events.
 	 */
-	public static interface StreamCallback<T> {
-		void event(ByteBuffer buffer, int length, FtdiProgressInfo progress, T userData)
-			throws IOException;
+	public static interface StreamCallback {
+		boolean invoke(FtdiProgressInfo progress, ByteBuffer buffer);
 	}
 
 	public static boolean isFatal(LibUsbException e) {
@@ -225,10 +223,10 @@ public class Ftdi implements Closeable {
 		return new FtdiTransferControl(LibFtdi.ftdi_read_data_submit(ftdi(), buf, size));
 	}
 
-	public <T> void readStream(StreamCallback<T> callback, T userData, int packetsPerTransfer,
-		int numTransfers) throws LibUsbException {
-		FTDIStreamCallback<T> ftdiCb = (buffer, length, progress,
-			user_data) -> streamCallback(buffer, length, progress, callback, userData);
+	public void readStream(StreamCallback callback, int packetsPerTransfer, int numTransfers)
+		throws LibUsbException {
+		FTDIStreamCallback<?> ftdiCb = (buffer, length, progress,
+			user_data) -> streamCallback(buffer, length, progress, callback);
 		LibFtdiStream.ftdi_readstream(ftdi(), ftdiCb, null, packetsPerTransfer, numTransfers);
 	}
 
@@ -289,14 +287,15 @@ public class Ftdi implements Closeable {
 		LogUtil.close(logger, ftdi, LibFtdi::ftdi_free);
 	}
 
-	private <T> void streamCallback(Pointer buffer, int length, FTDIProgressInfo progress,
-		StreamCallback<T> callback, T userData) {
-		try {
-			ByteBuffer b = buffer.getByteBuffer(0, length);
-			callback.event(b, length, FtdiProgressInfo.of(progress), userData);
-		} catch (IOException | RuntimeException e) {
-			logger.catching(e);
-		}
+	ftdi_context ftdi() throws LibUsbException {
+		if (!closed) return ftdi;
+		throw LibUsbException.of(LIBUSB_ERROR_NO_DEVICE, "Device is closed");
+	}
+
+	private boolean streamCallback(Pointer buffer, int length, FTDIProgressInfo progress,
+		StreamCallback callback) {
+		return callback.invoke(FtdiProgressInfo.of(progress),
+			buffer == null ? null : buffer.getByteBuffer(0, length));
 	}
 
 	private ftdi_string_descriptors ensureDescriptors() throws LibUsbException {
@@ -304,11 +303,6 @@ public class Ftdi implements Closeable {
 		libusb_device dev = LibUsb.libusb_get_device(ftdi().usb_dev);
 		descriptors = LibFtdi.ftdi_usb_get_strings(ftdi(), dev);
 		return descriptors;
-	}
-
-	private ftdi_context ftdi() throws LibUsbException {
-		if (!closed) return ftdi;
-		throw LibUsbException.of(LIBUSB_ERROR_NO_DEVICE, "Device is closed");
 	}
 
 }

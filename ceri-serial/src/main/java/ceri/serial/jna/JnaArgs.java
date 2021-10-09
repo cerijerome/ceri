@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import com.sun.jna.Callback;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
@@ -72,6 +73,14 @@ public class JnaArgs {
 	}
 
 	/**
+	 * Callback to compact string.
+	 */
+	public static String string(Callback cb) {
+		String s = String.valueOf(cb);
+		return s.substring(s.lastIndexOf(".") + 1);
+	}
+
+	/**
 	 * Builder with convenience methods to add transforms.
 	 */
 	public static class Builder {
@@ -86,7 +95,8 @@ public class JnaArgs {
 			return add(String.class, StringUtil::escape) //
 				.add(matchInt(), n -> stringInt(n, -HEX_LIMIT, HEX_LIMIT)) //
 				.add(Structure.class, JnaArgs::string) //
-				.add(Pointer.class, JnaArgs::string);
+				.add(Pointer.class, JnaArgs::string) //
+				.add(Callback.class, JnaArgs::string);
 		}
 
 		/**

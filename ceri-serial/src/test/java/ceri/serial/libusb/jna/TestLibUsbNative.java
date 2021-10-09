@@ -6,13 +6,18 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_CONTAINER_
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_SS_USB_DEVICE_CAPABILITY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_USB_2_0_EXTENSION;
 import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_DEVICE_CAPABILITY;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_BUSY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPORTED;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_OVERFLOW;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_PIPE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_option.LIBUSB_OPTION_LOG_LEVEL;
 import static ceri.serial.libusb.jna.LibUsb.libusb_option.LIBUSB_OPTION_USE_USBDK;
 import static ceri.serial.libusb.jna.LibUsb.libusb_option.LIBUSB_OPTION_WEAK_AUTHORITY;
+import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_CANCELLED;
+import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED;
+import static ceri.serial.libusb.jna.LibUsbTestData.lastError;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -23,7 +28,10 @@ import com.sun.jna.ptr.PointerByReference;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.CallSync;
+import ceri.common.time.DateUtil;
 import ceri.common.util.Enclosed;
+import ceri.serial.clib.jna.CCaller;
+import ceri.serial.clib.jna.CTime.timeval;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.PointerUtil;
 import ceri.serial.jna.Struct;
@@ -35,15 +43,17 @@ import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
-import ceri.serial.libusb.jna.LibUsb.libusb_iso_packet_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_log_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_option;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_request_recipient;
 import ceri.serial.libusb.jna.LibUsb.libusb_request_type;
-import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
+import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
+import ceri.serial.libusb.jna.LibUsb.libusb_transfer_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
+import ceri.serial.libusb.jna.LibUsbTestData.Context;
+import ceri.serial.libusb.jna.LibUsbTestData.Transfer;
 
 public class TestLibUsbNative implements LibUsbNative {
 	public final LibUsbTestData data = new LibUsbTestData();
@@ -57,6 +67,16 @@ public class TestLibUsbNative implements LibUsbNative {
 		CallSync.function(null, ByteProvider.empty());
 	// List<?> = (int endpoint, ByteProvider data)
 	public final CallSync.Apply<List<?>, Integer> bulkTransferOut = CallSync.function(null, 0);
+	// List<?> = (Context ctx, libusb_transfer transfer, long timeoutMs, IntByReference completed)
+	// public final CallSync.Apply<List<?>, Integer> handleEvent = CallSync.function(null, 0);
+	// List<?> = (Context ctx, DeviceHandle devHandle, int endpoint, libusb_transfer_type type,
+	// ByteBuffer buffer, long timeoutMs)
+	public final CallSync.Apply<TransferEvent, libusb_transfer_status> transferEvent =
+		CallSync.function(null);
+	// .autoResponse(event -> transferEvent(event));
+
+	public static record TransferEvent(int endpoint, libusb_transfer_type type, ByteBuffer buffer,
+		long timeoutMs, IntByReference completed) {}
 
 	public static Enclosed<RuntimeException, TestLibUsbNative> register() {
 		return register(of());
@@ -84,6 +104,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	protected TestLibUsbNative() {
+		transferEvent.autoResponse(TestLibUsbNative::transferEvent);
 		reset();
 	}
 
@@ -93,14 +114,15 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public int libusb_init(PointerByReference ctxRef) {
-		var context = data.createContext(ctxRef == null);
-		if (ctxRef != null) ctxRef.setValue(context.ptr);
-		return 0;
+		return CCaller.capture(() -> {
+			var context = ctxRef == null ? data.createContextDef() : data.createContext();
+			if (ctxRef != null) ctxRef.setValue(context.p);
+		});
 	}
 
 	@Override
 	public void libusb_exit(libusb_context ctx) {
-		data.removeContext(data.context(PointerUtil.pointer(ctx)));
+		data.removeContext(PointerUtil.pointer(ctx));
 	}
 
 	@Override
@@ -151,7 +173,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	public int libusb_get_device_list(libusb_context ctx, PointerByReference list) {
 		var context = data.context(PointerUtil.pointer(ctx));
 		var deviceList = data.createDeviceList(context);
-		list.setValue(deviceList.ptr);
+		list.setValue(deviceList.p);
 		return deviceList.size;
 	}
 
@@ -298,7 +320,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	public libusb_device libusb_get_parent(libusb_device dev) {
 		var device = data.device(PointerUtil.pointer(dev));
 		var parent = data.parentDevice(device);
-		return parent == null ? null : PointerUtil.set(new libusb_device(), parent.ptr);
+		return parent == null ? null : PointerUtil.set(new libusb_device(), parent.p);
 	}
 
 	@Override
@@ -330,7 +352,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	public int libusb_open(libusb_device dev, PointerByReference handle_ref) {
 		var device = data.device(PointerUtil.pointer(dev));
 		var handle = data.createDeviceHandle(device);
-		handle_ref.setValue(handle.ptr);
+		handle_ref.setValue(handle.p);
 		return 0;
 	}
 
@@ -343,7 +365,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	@Override
 	public libusb_device libusb_get_device(libusb_device_handle dev_handle) {
 		var device = data.deviceHandle(PointerUtil.pointer(dev_handle)).device;
-		return PointerUtil.set(new libusb_device(), device.ptr);
+		return PointerUtil.set(new libusb_device(), device.p);
 	}
 
 	@Override
@@ -378,7 +400,7 @@ public class TestLibUsbNative implements LibUsbNative {
 				&& d.config.desc.idProduct == product_id);
 			if (device == null) return null;
 			var handle = data.createDeviceHandle(device);
-			return PointerUtil.set(new libusb_device_handle(), handle.ptr);
+			return PointerUtil.set(new libusb_device_handle(), handle.p);
 		} finally {
 			data.removeDeviceList(deviceList, true);
 		}
@@ -451,26 +473,39 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public Pointer libusb_alloc_transfer(int isoPackets) {
-		libusb_transfer xfer = new libusb_transfer(null);
-		xfer.num_iso_packets = isoPackets;
-		xfer.iso_packet_desc = new libusb_iso_packet_descriptor[isoPackets];
-		for (int i = 0; i < isoPackets; i++)
-			xfer.iso_packet_desc[i] = new libusb_iso_packet_descriptor(null);
-		return Struct.write(xfer).getPointer();
+		return data.createTransfer(isoPackets).p;
 	}
 
 	@Override
-	public int libusb_submit_transfer(Pointer transfer) {
+	public int libusb_submit_transfer(Pointer p) {
+		try {
+			var transfer = data.transfer(p);
+			data.deviceHandle(PointerUtil.pointer(transfer.transfer().dev_handle));
+			if (transfer.submitted) return LIBUSB_ERROR_BUSY.value;
+			transfer.submitted = true;
+			return 0;
+		} catch (LastErrorException e) {
+			return LIBUSB_ERROR_NO_DEVICE.value;
+		}
+	}
+
+	@Override
+	public int libusb_cancel_transfer(Pointer p) {
+		var transfer = data.transfer(p);
+		if (!transfer.submitted) return LIBUSB_ERROR_NOT_FOUND.value;
+		var t = transfer.transfer();
+		if (t.status() == LIBUSB_TRANSFER_CANCELLED) return LIBUSB_ERROR_NOT_FOUND.value;
+		t.status = LIBUSB_TRANSFER_CANCELLED.value;
+		Struct.write(t, "status");
 		return 0;
 	}
 
 	@Override
-	public int libusb_cancel_transfer(Pointer transfer) {
-		return 0;
+	public void libusb_free_transfer(Pointer p) {
+		var transfer = data.transfer(p);
+		if (transfer.submitted) throw lastError(LIBUSB_ERROR_BUSY);
+		data.removeTransfer(data.transfer(p));
 	}
-
-	@Override
-	public void libusb_free_transfer(Pointer transfer) {}
 
 	@Override
 	public void libusb_transfer_set_stream_id(Pointer transfer, int stream_id) {
@@ -571,23 +606,51 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public int libusb_handle_events_timeout(libusb_context ctx, Pointer tv) {
-		throw new UnsupportedOperationException();
+		return libusb_handle_events_timeout_completed(ctx, tv, null);
 	}
 
 	@Override
 	public int libusb_handle_events_timeout_completed(libusb_context ctx, Pointer tv,
 		IntByReference completed) {
-		throw new UnsupportedOperationException();
+		try {
+			var context = data.context(PointerUtil.pointer(ctx));
+			var timeoutMs = timeoutMs(tv);
+			if (completed == null) completed = new IntByReference();
+			for (var transfer : data.transfers())
+				handleTransferEvent(context, transfer, timeoutMs, completed);
+			return 0;
+		} catch (LastErrorException e) {
+			return e.getErrorCode();
+		}
+	}
+
+	private void handleTransferEvent(Context context, Transfer transfer, long timeoutMs,
+		IntByReference completed) {
+		if (!transfer.submitted) return;
+		var t = transfer.transfer();
+		var deviceHandle = data.deviceHandle(PointerUtil.pointer(t.dev_handle));
+		if (deviceHandle.device.deviceList.context != context) return;
+		if (t.status == 0) {
+			ByteBuffer buffer = JnaUtil.buffer(t.buffer, 0, t.length);
+			var status = transferEvent
+				.apply(new TransferEvent(t.endpoint, t.type(), buffer, timeoutMs, completed));
+			if (status == null) return; // no event
+			t.status = status.value;
+			t.actual_length = buffer.position();
+			Struct.write(t);
+		}
+		transfer.submitted = false;
+		t.callback.invoke(transfer.p);
 	}
 
 	@Override
 	public int libusb_handle_events(libusb_context ctx) {
-		throw new UnsupportedOperationException();
+		return libusb_handle_events_completed(ctx, null);
 	}
 
 	@Override
 	public int libusb_handle_events_completed(libusb_context ctx, IntByReference completed) {
-		throw new UnsupportedOperationException();
+		return libusb_handle_events_timeout_completed(ctx, null, completed);
 	}
 
 	@Override
@@ -681,6 +744,17 @@ public class TestLibUsbNative implements LibUsbNative {
 		int result = bulkTransferOut.apply(List.of(endpoint, ByteProvider.of(bytes)));
 		if (actualLength != null) actualLength.setValue(length);
 		return result;
+	}
+
+	private static libusb_transfer_status transferEvent(TransferEvent event) {
+		event.buffer.position(event.buffer.capacity());
+		return LIBUSB_TRANSFER_COMPLETED;
+	}
+
+	private static long timeoutMs(Pointer tv) {
+		if (tv == null) return 0;
+		var duration = Struct.read(new timeval(tv)).duration();
+		return DateUtil.millisExact(duration);
 	}
 
 }

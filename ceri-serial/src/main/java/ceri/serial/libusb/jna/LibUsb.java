@@ -1214,7 +1214,7 @@ public class LibUsb {
 	// typedef void (LIBUSB_CALL *libusb_transfer_cb_fn)(struct libusb_transfer *transfer);
 	public interface libusb_transfer_cb_fn extends Callback {
 		void invoke(Pointer transfer);
-		
+
 		/**
 		 * Call to read modified fields on callback.
 		 */
@@ -2091,10 +2091,12 @@ public class LibUsb {
 		caller.verify(() -> lib().libusb_submit_transfer(p), "libusb_submit_transfer", p);
 	}
 
-	public static void libusb_cancel_transfer(libusb_transfer transfer) throws LibUsbException {
+	public static boolean libusb_cancel_transfer(libusb_transfer transfer) throws LibUsbException {
 		Pointer p = Struct.pointer(transfer);
-		if (p != null)
-			caller.verify(() -> lib().libusb_cancel_transfer(p), "libusb_cancel_transfer", p);
+		if (p == null) return false;
+		return caller.verifyInt(() -> lib().libusb_cancel_transfer(p),
+			i -> i == 0 || i == libusb_error.LIBUSB_ERROR_NOT_FOUND.value, "libusb_cancel_transfer",
+			p) == 0;
 	}
 
 	public static void libusb_free_transfer(libusb_transfer transfer) throws LibUsbException {

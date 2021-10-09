@@ -11,6 +11,7 @@ public class FtdiProgressInfo {
 	private final FTDIProgressInfo info;
 
 	static FtdiProgressInfo of(FTDIProgressInfo info) {
+		if (info == null) return null;
 		return new FtdiProgressInfo(info);
 	}
 

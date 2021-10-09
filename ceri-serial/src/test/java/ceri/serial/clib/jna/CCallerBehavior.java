@@ -2,6 +2,7 @@ package ceri.serial.clib.jna;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.throwIt;
 import java.util.function.IntPredicate;
 import java.util.function.ToIntFunction;
 import org.junit.Test;
@@ -9,6 +10,12 @@ import com.sun.jna.LastErrorException;
 
 public class CCallerBehavior {
 	private static final CCaller<CException> caller = CCaller.of();
+
+	@Test
+	public void shouldCaptureErrorCode() {
+		assertEquals(CCaller.capture(() -> {}), 0);
+		assertEquals(CCaller.capture(() -> throwIt(new LastErrorException(33))), 33);
+	}
 
 	@Test
 	public void shouldCallAndWrapLastException() {
