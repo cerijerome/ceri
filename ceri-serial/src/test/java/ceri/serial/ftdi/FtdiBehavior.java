@@ -145,11 +145,17 @@ public class FtdiBehavior {
 
 	/* streaming tests */
 
+	@Test
+	public void shouldFailToReadStreamForInvalidFtdiChip() throws LibUsbException {
+		ftdi = Ftdi.open();
+		assertThrown(() -> ftdi.readStream((prog, buffer) -> true, 1, 1));
+	}
+	
 	//@Test
 	public void shouldReadStreamData() throws LibUsbException {
 		ftdi = openFtdiForStreaming(0x700, 5);
 		AtomicInteger n = new AtomicInteger();
-		lib.transferEvent.autoResponse(event -> fill(event.buffer(), n));
+		lib.handleEvent.autoResponse(event -> fill(event.buffer(), n));
 		ByteArray.Encoder encoder = ByteArray.Encoder.of();
 		Ftdi.StreamCallback callback = (prog, buffer) -> collect(encoder, buffer, 24);
 		ftdi.readStream(callback, 2, 3);
@@ -161,7 +167,7 @@ public class FtdiBehavior {
 	public void shouldUpdateStreamProgress() throws LibUsbException {
 		ftdi = openFtdiForStreaming(0x700, 5);
 		AtomicInteger n = new AtomicInteger();
-		lib.transferEvent.autoResponse(event -> fill(event.buffer(), n));
+		lib.handleEvent.autoResponse(event -> fill(event.buffer(), n));
 		CallSync.Apply<FtdiProgressInfo, Boolean> sync = CallSync.function(null);
 		Ftdi.StreamCallback callback = (prog, buffer) -> progress(sync, prog);
 		try (var exec = threadRun(() -> ftdi.readStream(callback, 2, 3))) {

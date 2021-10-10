@@ -150,7 +150,7 @@ public class LibFtdiStream {
 			try {
 				if (state.cancel == CancelState.requested) cancelTransfers(state);
 				LibUsb.libusb_handle_events_timeout(ftdi.usb_ctx, timeout); // blocks
-				updateProgress(state);
+				if (state.error == null) updateProgress(state);
 			} catch (RuntimeException e) {
 				error(state, e);
 				return;
@@ -164,7 +164,6 @@ public class LibFtdiStream {
 
 	private static <T> void updateProgress(FTDIStreamState<T> state) {
 		try {
-			if (state.error != null || state.cancel != CancelState.none) return;
 			Instant now = Instant.now();
 			if (secDiff(state.progress.current.time, now) < state.progressIntervalSec) return;
 			state.progress.update(now);
@@ -186,7 +185,6 @@ public class LibFtdiStream {
 	 */
 	private static <T> void ftdi_readstream_cb(FTDIStreamState<T> state, int i) {
 		try {
-			if (state.transfers[i] == null) return;
 			var transfer = libusb_transfer_cb_fn.read(state.transfers[i]);
 			if (validStatus(transfer, i) && notifyPackets(state, transfer))
 				LibUsb.libusb_submit_transfer(transfer);
@@ -241,15 +239,9 @@ public class LibFtdiStream {
 	 * Free transfer and decrement the active transfer count.
 	 */
 	private static void freeTransfer(FTDIStreamState<?> state, int i) {
-		if (state.transfers[i] == null) return;
-		free(state.transfers[i]);
+		LogUtil.execute(logger, () -> LibUsb.libusb_free_transfer(state.transfers[i]));
 		state.transfers[i] = null;
 		state.activeTransfers--;
-	}
-
-	private static boolean free(libusb_transfer transfer) {
-		if (transfer == null) return false;
-		return LogUtil.execute(logger, () -> LibUsb.libusb_free_transfer(transfer));
 	}
 
 	private static void requireFifo(ftdi_context ftdi) throws LibUsbException {
